@@ -4,7 +4,7 @@
 #include <glib.h>
 #include <gio/gio.h>
 
-#include "uint8_buffer.h"
+#include "smart-buffer.h"
 #include "utils.h"
 
 class face_mysql_worker {
@@ -14,8 +14,8 @@ class face_mysql_worker {
 	static gpointer _main_thread(gpointer data);
 protected:
 	gpointer main_thread(void);
-	void make_handshake_v10(uint8_buffer &buf);
-	bool send(uint8_buffer &buf);
+	void make_handshake_v10(smart_buffer &buf);
+	bool send(smart_buffer &buf);
 
 public:
 	face_mysql_worker(GSocket *sock);
