@@ -1,0 +1,7 @@
+=======================
+How to build
+=======================
+$ autogen.sh
+$ ./configure
+$ make
+$ sudo make install
