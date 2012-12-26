@@ -1,3 +1,4 @@
+#include <cstdlib>
 #include <cstring>
 #include <glib.h>
 #include <sys/socket.h>
@@ -12,9 +13,16 @@ static const int DEFAULT_PORT = 3306;
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
-face_mysql::face_mysql(void)
-: m_socket(NULL)
+face_mysql::face_mysql(command_line_arg_t &cmd_arg)
+: m_socket(NULL),
+  m_port(DEFAULT_PORT)
 {
+	for (size_t i = 0; i < cmd_arg.size(); i++) {
+		string &cmd = cmd_arg[i];
+		if (cmd == "--face-mysql-port")
+			i = parse_cmd_arg_port(cmd_arg, i);
+	}
+	ASURA_P(INFO, "started face-mysql, port: %d\n", m_port);
 }
 
 face_mysql::~face_mysql()
@@ -40,7 +48,7 @@ gpointer face_mysql::main_thread(face_thread_arg_t *arg)
 	struct sockaddr_in sockaddr;
 	memset(&sockaddr, 0, sizeof(sockaddr));
 	sockaddr.sin_family = AF_INET;
-	sockaddr.sin_port = htons(DEFAULT_PORT);
+	sockaddr.sin_port = htons(m_port);
 	sockaddr.sin_addr.s_addr = INADDR_ANY;
 	GSocketAddress *address =
 	  g_socket_address_new_from_native(&sockaddr, sizeof(sockaddr));
@@ -87,3 +95,21 @@ gpointer face_mysql::main_thread(face_thread_arg_t *arg)
 // ---------------------------------------------------------------------------
 // Private methods
 // ---------------------------------------------------------------------------
+size_t face_mysql::parse_cmd_arg_port(command_line_arg_t &cmd_arg, size_t idx)
+{
+	if (idx == cmd_arg.size() - 1) {
+		ASURA_P(ERR, "needs port number.");
+		return idx;
+	}
+
+	idx++;
+	string &port_str = cmd_arg[idx];
+	int port = atoi(port_str.c_str());
+	if (port < 0 || port > 65536) {
+		ASURA_P(ERR, "invalid port: %s, %d\n", port_str.c_str(), port);
+		return idx;
+	}
+
+	m_port = port;
+	return idx;
+}
