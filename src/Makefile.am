@@ -3,7 +3,7 @@ asura_SOURCES = \
   main.cc face-base.cc face-mysql.cc
 
 AM_CXXFLAGS = \
-  $(GLIB_CFLAGS) -Wall -g
+  $(GLIB_CFLAGS) $(GIO_CFLAGS) -Wall -g
 
 AM_LDFLAGS = \
-  $(GLIB_LIBS)
+  $(GLIB_LIBS) $(GIO_LIBS)

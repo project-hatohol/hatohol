@@ -14,6 +14,7 @@ dnl Checks for GLib
 dnl **************************************************************
 GLIB_REQUIRED=2.22
 PKG_CHECK_MODULES(GLIB, glib-2.0 >= $GLIB_REQUIRED)
+PKG_CHECK_MODULES(GIO, gio-2.0 >= $GLIB_REQUIRED)
 
 dnl **************************************************************
 dnl Checks for Cutter

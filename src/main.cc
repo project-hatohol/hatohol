@@ -5,6 +5,7 @@
 
 int main(int argc, char *argv[])
 {
+	g_type_init();
 	face_mysql face;
 	face.start();
 	GMainLoop *loop = g_main_loop_new(NULL, FALSE);
