@@ -21,7 +21,12 @@ void face_base::start(void)
 {
 	face_thread_arg_t *arg = new face_thread_arg_t();;
 	arg->obj = this;
-	m_thread = g_thread_new("face-base", thread_starter, arg);
+	GError *error = NULL;
+	m_thread = g_thread_try_new("face-base", thread_starter, arg, &error);
+	if (m_thread == NULL) {
+		ASURA_P(ERR, "Failed to call g_thread_try_new: %s\n",
+		        error->message);
+	}
 }
 
 // ---------------------------------------------------------------------------
