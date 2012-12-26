@@ -62,6 +62,12 @@ void smart_buffer::add(const void *src, size_t len)
 	m_index += len;
 }
 
+void smart_buffer::add_zero(size_t len)
+{
+	memset(&m_buf[m_index], 0, len);
+	m_index += len;
+}
+
 // ---------------------------------------------------------------------------
 // Private methods
 // ---------------------------------------------------------------------------

@@ -10,6 +10,7 @@
 class face_mysql_worker {
 	GThread *m_thread;
 	GSocket *m_socket;
+	uint32_t m_conn_id;
 
 	static gpointer _main_thread(gpointer data);
 protected:
@@ -18,7 +19,7 @@ protected:
 	bool send(smart_buffer &buf);
 
 public:
-	face_mysql_worker(GSocket *sock);
+	face_mysql_worker(GSocket *sock, uint32_t conn_id);
 	virtual ~face_mysql_worker();
 	void start(void);
 };

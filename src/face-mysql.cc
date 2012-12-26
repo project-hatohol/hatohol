@@ -74,6 +74,7 @@ gpointer face_mysql::main_thread(face_thread_arg_t *arg)
 		return NULL;
 	}
 
+	uint32_t conn_id = 0;
 	while (true) {
 		// GSocket obtained here have to be freed in
 		// the face_mysql_worker instance.
@@ -85,8 +86,10 @@ gpointer face_mysql::main_thread(face_thread_arg_t *arg)
 			error = NULL;
 			continue;
 		}
-		face_mysql_worker *worker = new face_mysql_worker(sock);
+		face_mysql_worker *worker =
+		  new face_mysql_worker(sock, conn_id);
 		worker->start();
+		conn_id++;
 	}
 
 	return NULL;

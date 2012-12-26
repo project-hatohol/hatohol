@@ -23,6 +23,7 @@ public:
 	void add16(uint16_t val);
 	void add32(uint32_t val);
 	void add(const void *src, size_t len);
+	void add_zero(size_t len);
 };
 
 #endif // smart_buffer_h
