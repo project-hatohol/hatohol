@@ -6,6 +6,8 @@
 #include <string>
 using namespace std;
 
+#include <stdint.h>
+
 typedef vector<string> command_line_arg_t;
 
 #define ASURA_P(MSG_LV, FMT, ...) \
