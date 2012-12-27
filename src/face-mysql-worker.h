@@ -4,7 +4,9 @@
 #include <glib.h>
 #include <gio/gio.h>
 
-#include "smart-buffer.h"
+#include <SmartBuffer.h>
+using namespace mlpl;
+
 #include "utils.h"
 
 class face_mysql_worker {
@@ -15,8 +17,8 @@ class face_mysql_worker {
 	static gpointer _main_thread(gpointer data);
 protected:
 	gpointer main_thread(void);
-	void make_handshake_v10(smart_buffer &buf);
-	bool send(smart_buffer &buf);
+	void make_handshake_v10(SmartBuffer &buf);
+	bool send(SmartBuffer &buf);
 
 public:
 	face_mysql_worker(GSocket *sock, uint32_t conn_id);

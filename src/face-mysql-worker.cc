@@ -42,7 +42,7 @@ gpointer face_mysql_worker::main_thread(void)
 	ASURA_P(DBG, "%s\n", __PRETTY_FUNCTION__);
 
 	// send handshake
-	smart_buffer buf;
+	SmartBuffer buf;
 	make_handshake_v10(buf);
 	if (!send(buf))
 		return NULL;
@@ -50,7 +50,7 @@ gpointer face_mysql_worker::main_thread(void)
 	return NULL;
 }
 
-void face_mysql_worker::make_handshake_v10(smart_buffer &buf)
+void face_mysql_worker::make_handshake_v10(SmartBuffer &buf)
 {
 	// protocol version
 	static const char SERVER_VERSION[] = "5.5.10";
@@ -101,10 +101,10 @@ void face_mysql_worker::make_handshake_v10(smart_buffer &buf)
 	uint8_t len_auth_plugin_data = strlen(auth_plugin_data);
 	buf.add8(len_auth_plugin_data);
 
-	buf.add_zero(LEN_RESERVED);
+	buf.addZero(LEN_RESERVED);
 }
 
-bool face_mysql_worker::send(smart_buffer &buf)
+bool face_mysql_worker::send(SmartBuffer &buf)
 {
 	GError *error = NULL;
 	gssize ret = g_socket_send(m_socket, buf, buf.size(),
