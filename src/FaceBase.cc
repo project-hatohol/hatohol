@@ -1,31 +1,34 @@
 #include <glib.h>
 
-#include "utils.h"
-#include "face-base.h"
+#include <Logger.h>
+using namespace mlpl;
+
+#include "Utils.h"
+#include "FaceBase.h"
 
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
-face_base::face_base(void)
+FaceBase::FaceBase(void)
 : m_thread(NULL)
 {
 }
 
-face_base::~face_base()
+FaceBase::~FaceBase()
 {
 	if (m_thread)
 		g_thread_unref(m_thread);
 }
 
-void face_base::start(void)
+void FaceBase::start(void)
 {
-	face_thread_arg_t *arg = new face_thread_arg_t();;
+	FaceThreadArg *arg = new FaceThreadArg();;
 	arg->obj = this;
 	GError *error = NULL;
-	m_thread = g_thread_try_new("face-base", thread_starter, arg, &error);
+	m_thread = g_thread_try_new("face-base", threadStarter, arg, &error);
 	if (m_thread == NULL) {
-		ASURA_P(ERR, "Failed to call g_thread_try_new: %s\n",
-		        error->message);
+		MLPL_ERR("Failed to call g_thread_try_new: %s\n",
+		         error->message);
 	}
 }
 
@@ -36,10 +39,10 @@ void face_base::start(void)
 // ---------------------------------------------------------------------------
 // Private methods
 // ---------------------------------------------------------------------------
-gpointer face_base::thread_starter(gpointer data)
+gpointer FaceBase::threadStarter(gpointer data)
 {
-	face_thread_arg_t *arg = static_cast<face_thread_arg_t *>(data);
-	gpointer ret = arg->obj->main_thread(arg);
+	FaceThreadArg *arg = static_cast<FaceThreadArg *>(data);
+	gpointer ret = arg->obj->mainThread(arg);
 	delete arg;
 	return ret;
 }

@@ -1,6 +1,6 @@
 sbin_PROGRAMS = asura
 asura_SOURCES = \
-	main.cc face-base.cc face-mysql.cc face-mysql-worker.cc
+	main.cc FaceBase.cc FaceMySQL.cc FaceMySQLWorker.cc
 
 AM_CXXFLAGS = \
 	$(MLPL_CFLAGS) $(GLIB_CFLAGS) $(GIO_CFLAGS) -Wall -g

@@ -6,19 +6,22 @@
 #include <vector>
 using namespace std;
 
-#include "utils.h"
-#include "face-mysql.h"
+#include <Logger.h>
+using namespace mlpl;
+
+#include "Utils.h"
+#include "FaceMySQL.h"
 
 int main(int argc, char *argv[])
 {
 	g_type_init();
-	ASURA_P(INFO, "started asura: ver. %s\n", PACKAGE_VERSION);
+	MLPL_INFO("started asura: ver. %s\n", PACKAGE_VERSION);
 
-	command_line_arg_t cmd_arg;
+	CommandLineArg cmdArg;
 	for (int i = 1; i < argc; i++)
-		cmd_arg.push_back(argv[i]);
+		cmdArg.push_back(argv[i]);
 
-	face_mysql face(cmd_arg);
+	FaceMySQL face(cmdArg);
 	face.start();
 	GMainLoop *loop = g_main_loop_new(NULL, FALSE);
 	g_main_loop_run(loop);

@@ -1,20 +1,24 @@
 #include <cstring>
-#include "utils.h"
-#include "face-mysql-worker.h"
+
+#include <Logger.h>
+using namespace mlpl;
+
+#include "Utils.h"
+#include "FaceMySQLWorker.h"
 
 static const int SERVER_STATUS_AUTOCOMMIT = 0x02;
 
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
-face_mysql_worker::face_mysql_worker(GSocket *sock, uint32_t conn_id)
+FaceMySQLWorker::FaceMySQLWorker(GSocket *sock, uint32_t conn_id)
 : m_thread(NULL),
   m_socket(sock),
   m_conn_id(conn_id)
 {
 }
 
-face_mysql_worker::~face_mysql_worker()
+FaceMySQLWorker::~FaceMySQLWorker()
 {
 	if (m_socket)
 		g_object_unref(m_socket);
@@ -22,39 +26,39 @@ face_mysql_worker::~face_mysql_worker()
 		g_thread_unref(m_thread);
 }
 
-void face_mysql_worker::start(void)
+void FaceMySQLWorker::start(void)
 {
-	ASURA_P(DBG, "%s\n", __PRETTY_FUNCTION__);
+	MLPL_DBG("%s\n", __PRETTY_FUNCTION__);
 	GError *error = NULL;
-	m_thread = g_thread_try_new("face-mysql-worker", _main_thread, this,
+	m_thread = g_thread_try_new("face-mysql-worker", _mainThread, this,
 	                            &error);
 	if (m_thread == NULL) {
-		ASURA_P(ERR, "Failed to call g_thread_try_new: %s\n",
-		        error->message);
+		MLPL_ERR("Failed to call g_thread_try_new: %s\n",
+		         error->message);
 	}
 }
 
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
-gpointer face_mysql_worker::main_thread(void)
+gpointer FaceMySQLWorker::mainThread(void)
 {
-	ASURA_P(DBG, "%s\n", __PRETTY_FUNCTION__);
+	MLPL_DBG("%s\n", __PRETTY_FUNCTION__);
 
 	// send handshake
 	SmartBuffer buf;
-	make_handshake_v10(buf);
+	makeHandshakeV10(buf);
 	if (!send(buf))
 		return NULL;
 
 	return NULL;
 }
 
-void face_mysql_worker::make_handshake_v10(SmartBuffer &buf)
+void FaceMySQLWorker::makeHandshakeV10(SmartBuffer &buf)
 {
 	// protocol version
 	static const char SERVER_VERSION[] = "5.5.10";
-	char auth_plugin_data[] = "AUTH_PLUGIN_DATA";
+	char authPluginData[] = "AUTH_PLUGIN_DATA";
 
 	static const int LEN_PKT_LENGTH = 4;
 	static const int LEN_PROTOCOL_VERSION = 1;
@@ -83,7 +87,7 @@ void face_mysql_worker::make_handshake_v10(SmartBuffer &buf)
 	buf.add8(PROTOCOL_VERSION);
 	buf.add(SERVER_VERSION, LEN_SERVER_VERSION);
 	buf.add32(m_conn_id);
-	buf.add(auth_plugin_data, LEN_AUTH_PLUGIN_DATA_PART_1);
+	buf.add(authPluginData, LEN_AUTH_PLUGIN_DATA_PART_1);
 	buf.add8(0); // Filler
 
 	static const uint16_t capability1 = 0;
@@ -98,26 +102,29 @@ void face_mysql_worker::make_handshake_v10(SmartBuffer &buf)
 	static const uint16_t capability2 = 0;
 	buf.add16(capability2);
 
-	uint8_t len_auth_plugin_data = strlen(auth_plugin_data);
-	buf.add8(len_auth_plugin_data);
+	uint8_t lenAuthPluginData = strlen(authPluginData);
+	buf.add8(lenAuthPluginData);
 
 	buf.addZero(LEN_RESERVED);
+
+	buf.add(&authPluginData[LEN_AUTH_PLUGIN_DATA_PART_1],
+	        lenAuthPluginData - LEN_AUTH_PLUGIN_DATA_PART_1 + 1);
 }
 
-bool face_mysql_worker::send(SmartBuffer &buf)
+bool FaceMySQLWorker::send(SmartBuffer &buf)
 {
 	GError *error = NULL;
 	gssize ret = g_socket_send(m_socket, buf, buf.size(),
 	                           NULL, &error);
 	if (ret == -1) {
-		ASURA_P(ERR, "Failed to call g_socket_send: %s\n",
+		MLPL_ERR("Failed to call g_socket_send: %s\n",
 		        error->message);
 		g_error_free(error);
 		return false;
 	}
 
 	if (ret != (gssize)buf.size()) {
-		ASURA_P(ERR, "ret: %zd != buf.size(); %zd\n", ret, buf.size());
+		MLPL_ERR("ret: %zd != buf.size(); %zd\n", ret, buf.size());
 		return false;
 	}
 	return true;
@@ -126,9 +133,9 @@ bool face_mysql_worker::send(SmartBuffer &buf)
 // ---------------------------------------------------------------------------
 // Private methods
 // ---------------------------------------------------------------------------
-gpointer face_mysql_worker::_main_thread(gpointer data)
+gpointer FaceMySQLWorker::_mainThread(gpointer data)
 {
-	face_mysql_worker *obj = static_cast<face_mysql_worker *>(data);
-	return obj->main_thread();
+	FaceMySQLWorker *obj = static_cast<FaceMySQLWorker *>(data);
+	return obj->mainThread();
 }
 
