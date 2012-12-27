@@ -1,5 +1,4 @@
 #include <cstring>
-#include <map>
 using namespace std;
 
 #include <Logger.h>
@@ -7,6 +6,10 @@ using namespace mlpl;
 
 #include "Utils.h"
 #include "FaceMySQLWorker.h"
+
+static const uint32_t PACKET_ID_MASK   = 0xff000000;
+static const uint32_t PACKET_SIZE_MASK = 0x00ffffff;
+static const int PACKET_ID_SHIFT_BITS = 24;
 
 static const uint32_t SERVER_STATUS_AUTOCOMMIT = 0x00000002;
 
@@ -33,34 +36,14 @@ static const uint32_t CLIENT_PLUGIN_AUTH       = 0x00080000;
 static const uint32_t CLIENT_CONNECT_ATTRS     = 0x00100000;
 static const uint32_t CLIENT_PLUGIN_AUTH_LENENC_CLIENT_DATA = 0x00200000;
 
-struct HandshakeResponse41
-{
-	uint32_t capability;
-	uint32_t maxPacketSize;
-	uint8_t  characterSet;
-	uint8_t  reserved[23];
-	string   username;
-	uint16_t lenAuthLesponse;
-	string   authResponse;
-
-	//  if capabilities & CLIENT_CONNECT_WITH_DB
-	string   database;
-
-	// if capabilities & CLIENT_PLUGIN_AUTH
-	string authPluginName;
-
-	// if capabilities & CLIENT_CONNECT_ATTRS
-	uint16_t lenKeyValue;
-	map<string, string> keyValueMap;
-};
-
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
 FaceMySQLWorker::FaceMySQLWorker(GSocket *sock, uint32_t connId)
 : m_thread(NULL),
   m_socket(sock),
-  m_connId(connId)
+  m_connId(connId),
+  m_packetId(0)
 {
 }
 
@@ -193,10 +176,32 @@ void FaceMySQLWorker::makeHandshakeV10(SmartBuffer &buf)
 
 bool FaceMySQLWorker::receiveHandshakeResponse41(void)
 {
-	uint32_t pktSize;
-	if (!recive(reinterpret_cast<char *>(&pktSize), sizeof(pktSize)))
+	uint32_t pktHeader;
+	if (!recive(reinterpret_cast<char *>(&pktHeader), sizeof(pktHeader)))
 		return false;
-	MLPL_INFO("pktSize: %08x\n", pktSize);
+	m_packetId = (pktHeader & PACKET_ID_MASK) >> PACKET_ID_SHIFT_BITS;
+	uint32_t pktSize = pktHeader & PACKET_SIZE_MASK;
+	MLPL_INFO("pktSize: %08x (%d)\n", pktSize, m_packetId);
+
+	// read response body
+	SmartBuffer buf(pktSize);
+	if (!recive(buf, pktSize))
+		return false;
+
+	uint8_t *ptr = buf;
+	uint16_t *capabilityLsb = reinterpret_cast<uint16_t *>(ptr);
+	if (!((*capabilityLsb) & CLIENT_PROTOCOL_41)) {
+		MLPL_CRIT("Currently client protocol other than 4.1 has "
+		          "not been implented.\n");
+		return false;
+	}
+
+	// fill the structure
+	memset(&m_hsResp41, 0, sizeof(m_hsResp41));
+	m_hsResp41.capability = *reinterpret_cast<uint32_t *>(ptr);
+	ptr += sizeof(uint32_t);
+	MLPL_INFO("CAP: %08x\n", m_hsResp41.capability);
+
 	return true;
 }
 
@@ -204,7 +209,7 @@ bool FaceMySQLWorker::recive(char* buf, size_t size)
 {
 	GError *error = NULL;
 
-	size_t remain_size = size;
+	int remain_size = size;
 	while (remain_size > 0) {
 		gssize ret = g_socket_receive(m_socket, buf, remain_size,
 		                              NULL, &error);
