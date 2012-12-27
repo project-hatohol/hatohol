@@ -11,6 +11,8 @@ static const uint32_t PACKET_ID_MASK   = 0xff000000;
 static const uint32_t PACKET_SIZE_MASK = 0x00ffffff;
 static const int PACKET_ID_SHIFT_BITS = 24;
 
+static const int HANDSHAKE_RESPONSE41_RESERVED_SIZE = 23;
+
 static const uint32_t SERVER_STATUS_AUTOCOMMIT = 0x00000002;
 
 static const uint32_t CLIENT_LONG_PASSWORD     = 0x00000001;
@@ -188,8 +190,8 @@ bool FaceMySQLWorker::receiveHandshakeResponse41(void)
 	if (!recive(buf, pktSize))
 		return false;
 
-	uint8_t *ptr = buf;
-	uint16_t *capabilityLsb = reinterpret_cast<uint16_t *>(ptr);
+	buf.resetIndex();
+	uint16_t *capabilityLsb = buf.getCurrPointer<uint16_t>();
 	if (!((*capabilityLsb) & CLIENT_PROTOCOL_41)) {
 		MLPL_CRIT("Currently client protocol other than 4.1 has "
 		          "not been implented.\n");
@@ -198,9 +200,23 @@ bool FaceMySQLWorker::receiveHandshakeResponse41(void)
 
 	// fill the structure
 	memset(&m_hsResp41, 0, sizeof(m_hsResp41));
-	m_hsResp41.capability = *reinterpret_cast<uint32_t *>(ptr);
-	ptr += sizeof(uint32_t);
-	MLPL_INFO("CAP: %08x\n", m_hsResp41.capability);
+	m_hsResp41.capability    = *buf.getCurrPointerAndIncIndex<uint32_t>();
+	m_hsResp41.maxPacketSize = *buf.getCurrPointerAndIncIndex<uint32_t>();
+	m_hsResp41.characterSet  = *buf.getCurrPointerAndIncIndex<uint8_t>();
+	buf.incIndex(HANDSHAKE_RESPONSE41_RESERVED_SIZE);
+	m_hsResp41.username = buf.getCurrPointer<char>();
+	buf.incIndex(m_hsResp41.username.size() + 1);
+	MLPL_INFO("CAP: %08x, username: %s\n", m_hsResp41.capability,
+	          m_hsResp41.username.c_str());
+	if (m_hsResp41.capability & CLIENT_PLUGIN_AUTH_LENENC_CLIENT_DATA) {
+	} else if (m_hsResp41.capability & CLIENT_SECURE_CONNECTION) {
+		uint8_t size = *buf.getCurrPointerAndIncIndex<uint8_t>();
+		m_hsResp41.lenAuthResponse = size;
+		m_hsResp41.authResponse = string(buf.getCurrPointer<char *>(),
+		                                 0, size);
+	} else {
+		m_hsResp41.authResponse = buf.getCurrPointer<char *>();
+	}
 
 	return true;
 }

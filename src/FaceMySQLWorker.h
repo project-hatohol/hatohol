@@ -17,9 +17,8 @@ struct HandshakeResponse41
 	uint32_t capability;
 	uint32_t maxPacketSize;
 	uint8_t  characterSet;
-	uint8_t  reserved[23];
 	string   username;
-	uint16_t lenAuthLesponse;
+	uint16_t lenAuthResponse;
 	string   authResponse;
 
 	//  if capabilities & CLIENT_CONNECT_WITH_DB
