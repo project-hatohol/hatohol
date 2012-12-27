@@ -12,7 +12,7 @@ using namespace mlpl;
 class FaceMySQLWorker {
 	GThread *m_thread;
 	GSocket *m_socket;
-	uint32_t m_conn_id;
+	uint32_t m_connId;
 
 	static gpointer _mainThread(gpointer data);
 protected:
@@ -21,7 +21,7 @@ protected:
 	bool send(SmartBuffer &buf);
 
 public:
-	FaceMySQLWorker(GSocket *sock, uint32_t conn_id);
+	FaceMySQLWorker(GSocket *sock, uint32_t connId);
 	virtual ~FaceMySQLWorker();
 	void start(void);
 };

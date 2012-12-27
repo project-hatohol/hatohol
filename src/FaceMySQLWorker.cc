@@ -11,10 +11,10 @@ static const int SERVER_STATUS_AUTOCOMMIT = 0x02;
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
-FaceMySQLWorker::FaceMySQLWorker(GSocket *sock, uint32_t conn_id)
+FaceMySQLWorker::FaceMySQLWorker(GSocket *sock, uint32_t connId)
 : m_thread(NULL),
   m_socket(sock),
-  m_conn_id(conn_id)
+  m_connId(connId)
 {
 }
 
@@ -86,7 +86,7 @@ void FaceMySQLWorker::makeHandshakeV10(SmartBuffer &buf)
 	buf.add32(LEN_TOTAL);
 	buf.add8(PROTOCOL_VERSION);
 	buf.add(SERVER_VERSION, LEN_SERVER_VERSION);
-	buf.add32(m_conn_id);
+	buf.add32(m_connId);
 	buf.add(authPluginData, LEN_AUTH_PLUGIN_DATA_PART_1);
 	buf.add8(0); // Filler
 
