@@ -47,6 +47,7 @@ FaceMySQLWorker::FaceMySQLWorker(GSocket *sock, uint32_t connId)
   m_connId(connId),
   m_packetId(0)
 {
+	initHandshakeResponse41(m_hsResp41);
 }
 
 FaceMySQLWorker::~FaceMySQLWorker()
@@ -191,7 +192,7 @@ bool FaceMySQLWorker::receiveHandshakeResponse41(void)
 		return false;
 
 	buf.resetIndex();
-	uint16_t *capabilityLsb = buf.getCurrPointer<uint16_t>();
+	uint16_t *capabilityLsb = buf.getPointer<uint16_t>();
 	if (!((*capabilityLsb) & CLIENT_PROTOCOL_41)) {
 		MLPL_CRIT("Currently client protocol other than 4.1 has "
 		          "not been implented.\n");
@@ -199,23 +200,48 @@ bool FaceMySQLWorker::receiveHandshakeResponse41(void)
 	}
 
 	// fill the structure
-	memset(&m_hsResp41, 0, sizeof(m_hsResp41));
-	m_hsResp41.capability    = *buf.getCurrPointerAndIncIndex<uint32_t>();
-	m_hsResp41.maxPacketSize = *buf.getCurrPointerAndIncIndex<uint32_t>();
-	m_hsResp41.characterSet  = *buf.getCurrPointerAndIncIndex<uint8_t>();
+	m_hsResp41.capability    = buf.getValueAndIncIndex<uint32_t>();
+	m_hsResp41.maxPacketSize = buf.getValueAndIncIndex<uint32_t>();
+	m_hsResp41.characterSet  = buf.getValueAndIncIndex<uint8_t>();
+
 	buf.incIndex(HANDSHAKE_RESPONSE41_RESERVED_SIZE);
-	m_hsResp41.username = buf.getCurrPointer<char>();
-	buf.incIndex(m_hsResp41.username.size() + 1);
+
+	string x = getNullTermStringAndIncIndex(buf);
+	m_hsResp41.username = x;
+	//m_hsResp41.username = getNullTermStringAndIncIndex(buf);
 	MLPL_INFO("CAP: %08x, username: %s\n", m_hsResp41.capability,
 	          m_hsResp41.username.c_str());
+
 	if (m_hsResp41.capability & CLIENT_PLUGIN_AUTH_LENENC_CLIENT_DATA) {
-	} else if (m_hsResp41.capability & CLIENT_SECURE_CONNECTION) {
-		uint8_t size = *buf.getCurrPointerAndIncIndex<uint8_t>();
+		uint64_t size = decodeLenEncInt(buf);
 		m_hsResp41.lenAuthResponse = size;
-		m_hsResp41.authResponse = string(buf.getCurrPointer<char *>(),
-		                                 0, size);
-	} else {
-		m_hsResp41.authResponse = buf.getCurrPointer<char *>();
+		m_hsResp41.authResponse =
+		  getFixedLengthStringAndIncIndex(buf, size);
+	} else if (m_hsResp41.capability & CLIENT_SECURE_CONNECTION) {
+		uint8_t size = buf.getValueAndIncIndex<uint8_t>();
+		m_hsResp41.lenAuthResponse = size;
+		m_hsResp41.authResponse =
+		  getFixedLengthStringAndIncIndex(buf, size);
+	} else
+		m_hsResp41.authResponse = getNullTermStringAndIncIndex(buf);
+	MLPL_INFO("authResponse: %s\n", m_hsResp41.authResponse.c_str());
+
+	if (m_hsResp41.capability & CLIENT_CONNECT_WITH_DB)
+		m_hsResp41.database = getNullTermStringAndIncIndex(buf);
+
+	if (m_hsResp41.capability & CLIENT_PLUGIN_AUTH)
+		m_hsResp41.authPluginName = getNullTermStringAndIncIndex(buf);
+	MLPL_INFO("authPLuginNname: %s\n", m_hsResp41.authPluginName.c_str());
+
+	if (m_hsResp41.capability & CLIENT_CONNECT_ATTRS) {
+		m_hsResp41.lenKeyValue = decodeLenEncInt(buf);
+		for (int i = 0; i < m_hsResp41.lenKeyValue; i++) {
+			string key = decodeLenEncStr(buf);
+			string value = decodeLenEncStr(buf);
+			MLPL_INFO("key/value: %s/%s\n",
+			          key.c_str(), value.c_str());
+			m_hsResp41.keyValueMap[key] = value;
+		}
 	}
 
 	return true;
@@ -265,6 +291,48 @@ bool FaceMySQLWorker::send(SmartBuffer &buf)
 	return true;
 }
 
+uint64_t FaceMySQLWorker::decodeLenEncInt(SmartBuffer &buf)
+{
+	uint8_t firstByte = buf.getValueAndIncIndex<uint8_t>();
+	if (firstByte < 0xfc)
+		return firstByte;
+	if (firstByte == 0xfc) {
+		return buf.getValueAndIncIndex<uint16_t>();
+	}
+	if (firstByte == 0xfd) {
+		uint32_t v = buf.getValueAndIncIndex<uint8_t>();
+		v <<= 16;
+		v += buf.getValueAndIncIndex<uint16_t>();
+		return v;
+	}
+	if (firstByte == 0xfe)
+		return buf.getValueAndIncIndex<uint64_t>();
+
+	MLPL_BUG("Not implemented: firstByte: %02x\n", firstByte); 
+	return 0;
+}
+
+string FaceMySQLWorker::decodeLenEncStr(SmartBuffer &buf)
+{
+	uint64_t len = decodeLenEncInt(buf);
+	return getFixedLengthStringAndIncIndex(buf, len);
+}
+
+string FaceMySQLWorker::getNullTermStringAndIncIndex(SmartBuffer &buf)
+{
+	string str(buf.getPointer<char>());
+	buf.incIndex(str.size() + 1);
+	return str;
+}
+
+string FaceMySQLWorker::getFixedLengthStringAndIncIndex(SmartBuffer &buf,
+                                                        uint64_t length)
+{
+	string str(buf.getPointer<char>(), length);
+	buf.incIndex(length);
+	return str;
+}
+
 // ---------------------------------------------------------------------------
 // Private methods
 // ---------------------------------------------------------------------------
@@ -274,3 +342,11 @@ gpointer FaceMySQLWorker::_mainThread(gpointer data)
 	return obj->mainThread();
 }
 
+void FaceMySQLWorker::initHandshakeResponse41(HandshakeResponse41 &hsResp41)
+{
+	hsResp41.capability = 0;
+	hsResp41.maxPacketSize = 0;
+	hsResp41.characterSet = 0;
+	hsResp41.lenAuthResponse = 0;
+	hsResp41.lenKeyValue = 0;
+}

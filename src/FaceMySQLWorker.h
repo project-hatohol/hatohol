@@ -44,15 +44,21 @@ protected:
 	bool receiveHandshakeResponse41(void);
 	bool send(SmartBuffer &buf);
 	bool recive(char* buf, size_t size);
+	uint64_t decodeLenEncInt(SmartBuffer &buf);
+	string   decodeLenEncStr(SmartBuffer &buf);
+	string getNullTermStringAndIncIndex(SmartBuffer &buf);
+	string getFixedLengthStringAndIncIndex(SmartBuffer &buf,
+	                                       uint64_t length);
 
 private:
 	GThread *m_thread;
 	GSocket *m_socket;
 	uint32_t m_connId;
 	uint32_t m_packetId;
+	HandshakeResponse41 m_hsResp41;
 
 	static gpointer _mainThread(gpointer data);
-	HandshakeResponse41 m_hsResp41;
+	void initHandshakeResponse41(HandshakeResponse41 &hsResp41);
 };
 
 #endif // FaceMySQLWorker_h
