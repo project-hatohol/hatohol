@@ -44,6 +44,7 @@ protected:
 	void addPacketHeaderRegion(SmartBuffer &buf);
 	bool sendHandshakeV10(void);
 	bool receiveHandshakeResponse41(void);
+	bool receivePacket(SmartBuffer &pkt);
 	bool receiveRequest(void);
 	bool sendOK(void);
 	bool sendPacket(SmartBuffer &buf);

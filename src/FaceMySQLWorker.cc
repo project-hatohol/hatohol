@@ -103,9 +103,9 @@ uint32_t FaceMySQLWorker::makePacketHeader(uint32_t length)
 	return header;
 }
 
-void FaceMySQLWorker::addPacketHeaderRegion(SmartBuffer &buf)
+void FaceMySQLWorker::addPacketHeaderRegion(SmartBuffer &pkt)
 {
-	buf.add32(0);
+	pkt.add32(0);
 }
 
 bool FaceMySQLWorker::sendHandshakeV10(void)
@@ -144,16 +144,16 @@ bool FaceMySQLWorker::sendHandshakeV10(void)
 	  lenAuthPluginDataPart2 +
 	  LEN_AUTH_PLUGIN_NAME;
 
-	SmartBuffer buf(LEN_TOTAL);
-	addPacketHeaderRegion(buf);
+	SmartBuffer pkt(LEN_TOTAL);
+	addPacketHeaderRegion(pkt);
 
 	static const uint8_t PROTOCOL_VERSION = 10;
-	buf.add8(PROTOCOL_VERSION);
+	pkt.add8(PROTOCOL_VERSION);
 
-	buf.add(SERVER_VERSION, LEN_SERVER_VERSION);
-	buf.add32(m_connId);
-	buf.add(authPluginData, LEN_AUTH_PLUGIN_DATA_PART_1);
-	buf.add8(0); // Filler
+	pkt.add(SERVER_VERSION, LEN_SERVER_VERSION);
+	pkt.add32(m_connId);
+	pkt.add(authPluginData, LEN_AUTH_PLUGIN_DATA_PART_1);
+	pkt.add8(0); // Filler
 
 	static const uint16_t capability1 =
 	  CLIENT_LONG_PASSWORD |
@@ -172,13 +172,13 @@ bool FaceMySQLWorker::sendHandshakeV10(void)
 	  CLIENT_TRANSACTIONS |
 	  CLIENT_RESERVED |
 	  CLIENT_SECURE_CONNECTION;
-	buf.add16(capability1);
+	pkt.add16(capability1);
 
 	static const uint8_t char_set = 8; // latin1?
-	buf.add8(char_set);
+	pkt.add8(char_set);
 
 	static const uint16_t status = SERVER_STATUS_AUTOCOMMIT;
-	buf.add16(status);
+	pkt.add16(status);
 
 	static const uint16_t capability2 = (
 	  CLIENT_MULTI_STATEMENTS |
@@ -189,32 +189,23 @@ bool FaceMySQLWorker::sendHandshakeV10(void)
 	  // CLIENT_PLUGIN_AUTH_LENENC_CLIENT_DATA
 	) >> 16;
 
-	buf.add16(capability2);
-	buf.add8(lenAuthPluginData + 1); // +1 is for NULL Term.
-	buf.addZero(LEN_RESERVED);
-	buf.add(&authPluginData[LEN_AUTH_PLUGIN_DATA_PART_1],
+	pkt.add16(capability2);
+	pkt.add8(lenAuthPluginData + 1); // +1 is for NULL Term.
+	pkt.addZero(LEN_RESERVED);
+	pkt.add(&authPluginData[LEN_AUTH_PLUGIN_DATA_PART_1],
 	        lenAuthPluginDataPart2);
-	buf.add(AUTH_PLUGIN_NAME, LEN_AUTH_PLUGIN_NAME);
+	pkt.add(AUTH_PLUGIN_NAME, LEN_AUTH_PLUGIN_NAME);
 
-	return sendPacket(buf);
+	return sendPacket(pkt);
 }
 
 bool FaceMySQLWorker::receiveHandshakeResponse41(void)
 {
-	uint32_t pktHeader;
-	if (!recive(reinterpret_cast<char *>(&pktHeader), sizeof(pktHeader)))
-		return false;
-	m_packetId = (pktHeader & PACKET_ID_MASK) >> PACKET_ID_SHIFT_BITS;
-	uint32_t pktSize = pktHeader & PACKET_SIZE_MASK;
-	MLPL_INFO("pktSize: %08x (%d)\n", pktSize, m_packetId);
-
-	// read response body
-	SmartBuffer buf(pktSize);
-	if (!recive(buf, pktSize))
+	SmartBuffer pkt;
+	if (!receivePacket(pkt))
 		return false;
 
-	buf.resetIndex();
-	uint16_t *capabilityLsb = buf.getPointer<uint16_t>();
+	uint16_t *capabilityLsb = pkt.getPointer<uint16_t>();
 	if (!((*capabilityLsb) & CLIENT_PROTOCOL_41)) {
 		MLPL_CRIT("Currently client protocol other than 4.1 has "
 		          "not been implented.\n");
@@ -222,44 +213,44 @@ bool FaceMySQLWorker::receiveHandshakeResponse41(void)
 	}
 
 	// fill the structure
-	m_hsResp41.capability    = buf.getValueAndIncIndex<uint32_t>();
-	m_hsResp41.maxPacketSize = buf.getValueAndIncIndex<uint32_t>();
-	m_hsResp41.characterSet  = buf.getValueAndIncIndex<uint8_t>();
+	m_hsResp41.capability    = pkt.getValueAndIncIndex<uint32_t>();
+	m_hsResp41.maxPacketSize = pkt.getValueAndIncIndex<uint32_t>();
+	m_hsResp41.characterSet  = pkt.getValueAndIncIndex<uint8_t>();
 
-	buf.incIndex(HANDSHAKE_RESPONSE41_RESERVED_SIZE);
+	pkt.incIndex(HANDSHAKE_RESPONSE41_RESERVED_SIZE);
 
-	string x = getNullTermStringAndIncIndex(buf);
+	string x = getNullTermStringAndIncIndex(pkt);
 	m_hsResp41.username = x;
-	//m_hsResp41.username = getNullTermStringAndIncIndex(buf);
+	//m_hsResp41.username = getNullTermStringAndIncIndex(pkt);
 	MLPL_INFO("CAP: %08x, username: %s\n", m_hsResp41.capability,
 	          m_hsResp41.username.c_str());
 
 	if (m_hsResp41.capability & CLIENT_PLUGIN_AUTH_LENENC_CLIENT_DATA) {
-		uint64_t size = decodeLenEncInt(buf);
+		uint64_t size = decodeLenEncInt(pkt);
 		m_hsResp41.lenAuthResponse = size;
 		m_hsResp41.authResponse =
-		  getFixedLengthStringAndIncIndex(buf, size);
+		  getFixedLengthStringAndIncIndex(pkt, size);
 	} else if (m_hsResp41.capability & CLIENT_SECURE_CONNECTION) {
-		uint8_t size = buf.getValueAndIncIndex<uint8_t>();
+		uint8_t size = pkt.getValueAndIncIndex<uint8_t>();
 		m_hsResp41.lenAuthResponse = size;
 		m_hsResp41.authResponse =
-		  getFixedLengthStringAndIncIndex(buf, size);
+		  getFixedLengthStringAndIncIndex(pkt, size);
 	} else
-		m_hsResp41.authResponse = getNullTermStringAndIncIndex(buf);
+		m_hsResp41.authResponse = getNullTermStringAndIncIndex(pkt);
 	MLPL_INFO("authResponse: %s\n", m_hsResp41.authResponse.c_str());
 
 	if (m_hsResp41.capability & CLIENT_CONNECT_WITH_DB)
-		m_hsResp41.database = getNullTermStringAndIncIndex(buf);
+		m_hsResp41.database = getNullTermStringAndIncIndex(pkt);
 
 	if (m_hsResp41.capability & CLIENT_PLUGIN_AUTH)
-		m_hsResp41.authPluginName = getNullTermStringAndIncIndex(buf);
+		m_hsResp41.authPluginName = getNullTermStringAndIncIndex(pkt);
 	MLPL_INFO("authPLuginNname: %s\n", m_hsResp41.authPluginName.c_str());
 
 	if (m_hsResp41.capability & CLIENT_CONNECT_ATTRS) {
-		m_hsResp41.lenKeyValue = decodeLenEncInt(buf);
+		m_hsResp41.lenKeyValue = decodeLenEncInt(pkt);
 		for (int i = 0; i < m_hsResp41.lenKeyValue; i++) {
-			string key = decodeLenEncStr(buf);
-			string value = decodeLenEncStr(buf);
+			string key = decodeLenEncStr(pkt);
+			string value = decodeLenEncStr(pkt);
 			MLPL_INFO("key/value: %s/%s\n",
 			          key.c_str(), value.c_str());
 			m_hsResp41.keyValueMap[key] = value;
@@ -269,34 +260,56 @@ bool FaceMySQLWorker::receiveHandshakeResponse41(void)
 	return true;
 }
 
+bool FaceMySQLWorker::receivePacket(SmartBuffer &pkt)
+{
+	uint32_t pktHeader;
+	if (!recive(reinterpret_cast<char *>(&pktHeader), sizeof(pktHeader)))
+		return false;
+	m_packetId = (pktHeader & PACKET_ID_MASK) >> PACKET_ID_SHIFT_BITS;
+	uint32_t pktSize = pktHeader & PACKET_SIZE_MASK;
+	MLPL_INFO("pktSize: %08x (%d)\n", pktSize, m_packetId);
+
+	// read response body
+	pkt.alloc(pktSize);
+	if (!recive(pkt, pktSize))
+		return false;
+
+	pkt.resetIndex();
+	return true;
+}
+
 bool FaceMySQLWorker::receiveRequest(void)
 {
+	SmartBuffer pkt;
+	if (!receivePacket(pkt))
+		return false;
+
 	return false;
 }
 
 bool FaceMySQLWorker::sendOK(void)
 {
-	SmartBuffer buf(11);
-	addPacketHeaderRegion(buf);
-	buf.add8(OK_HEADER);
+	SmartBuffer pkt(11);
+	addPacketHeaderRegion(pkt);
+	pkt.add8(OK_HEADER);
 
 	//lenenc-int     affected rows
-	buf.add8(0);
+	pkt.add8(0);
 
 	//lenenc-int     last-insert-id
-	buf.add8(0);
+	pkt.add8(0);
 
 	if (m_hsResp41.capability & CLIENT_PROTOCOL_41) {
 		uint16_t statusFlags = SERVER_STATUS_AUTOCOMMIT;
-		buf.add16(statusFlags);
+		pkt.add16(statusFlags);
 		uint16_t warnings = 0;
-		buf.add16(warnings);
+		pkt.add16(warnings);
 	} else if (m_hsResp41.capability & CLIENT_TRANSACTIONS) {
 		MLPL_BUG("Not implemented\n");
 	}
 	// string[EOF]    info
 
-	return sendPacket(buf);
+	return sendPacket(pkt);
 }
 
 bool FaceMySQLWorker::recive(char* buf, size_t size)
@@ -325,11 +338,11 @@ bool FaceMySQLWorker::recive(char* buf, size_t size)
 	return true;
 }
 
-bool FaceMySQLWorker::sendPacket(SmartBuffer &buf)
+bool FaceMySQLWorker::sendPacket(SmartBuffer &pkt)
 {
 	m_packetId++;
-	buf.setAt(0, makePacketHeader(buf.index() - PACKET_HEADER_SIZE));
-	return send(buf);
+	pkt.setAt(0, makePacketHeader(pkt.index() - PACKET_HEADER_SIZE));
+	return send(pkt);
 }
 
 bool FaceMySQLWorker::send(SmartBuffer &buf)
