@@ -81,9 +81,7 @@ gpointer FaceMySQLWorker::mainThread(void)
 	MLPL_DBG("%s\n", __PRETTY_FUNCTION__);
 
 	// send handshake
-	SmartBuffer buf;
-	makeHandshakeV10(buf);
-	if (!send(buf))
+	if (!sendHandshakeV10())
 		return NULL;
 	if (!receiveHandshakeResponse41())
 		return NULL;
@@ -110,7 +108,7 @@ void FaceMySQLWorker::addPacketHeaderRegion(SmartBuffer &buf)
 	buf.add32(0);
 }
 
-void FaceMySQLWorker::makeHandshakeV10(SmartBuffer &buf)
+bool FaceMySQLWorker::sendHandshakeV10(void)
 {
 	// protocol version
 	static const char SERVER_VERSION[] = "5.5.10";
@@ -121,7 +119,6 @@ void FaceMySQLWorker::makeHandshakeV10(SmartBuffer &buf)
 	                         0x67, 0x28, 0x30, 0x55, 0x3e, 0x73, 0x4b,
 	                         0x5c, 0x6c, 0x2b, 0x2e, 0x46, 0x54, 0x00};
 
-	static const int LEN_PKT_LENGTH = 4;
 	static const int LEN_PROTOCOL_VERSION = 1;
 	static const int LEN_SERVER_VERSION = sizeof(SERVER_VERSION);
 	static const int LEN_CONNECTION_ID = 4;
@@ -139,7 +136,7 @@ void FaceMySQLWorker::makeHandshakeV10(SmartBuffer &buf)
 	const uint32_t lenAuthPluginDataPart2 = 
 	        lenAuthPluginData - LEN_AUTH_PLUGIN_DATA_PART_1 + 1;
 	const uint32_t LEN_TOTAL =
-	  LEN_PKT_LENGTH + LEN_PROTOCOL_VERSION +
+	  PACKET_HEADER_SIZE + LEN_PROTOCOL_VERSION +
 	  LEN_SERVER_VERSION + LEN_CONNECTION_ID +
 	  LEN_AUTH_PLUGIN_DATA_PART_1 + LEN_FILLER_1 +
 	  LEN_CAPABILITY_FLAGS_1 + LEN_CARACTER_SET + LEN_STATUS_FLAGS +
@@ -147,8 +144,8 @@ void FaceMySQLWorker::makeHandshakeV10(SmartBuffer &buf)
 	  lenAuthPluginDataPart2 +
 	  LEN_AUTH_PLUGIN_NAME;
 
-	buf.alloc(LEN_TOTAL);
-	buf.add32(LEN_TOTAL - LEN_PKT_LENGTH);
+	SmartBuffer buf(LEN_TOTAL);
+	addPacketHeaderRegion(buf);
 
 	static const uint8_t PROTOCOL_VERSION = 10;
 	buf.add8(PROTOCOL_VERSION);
@@ -198,6 +195,8 @@ void FaceMySQLWorker::makeHandshakeV10(SmartBuffer &buf)
 	buf.add(&authPluginData[LEN_AUTH_PLUGIN_DATA_PART_1],
 	        lenAuthPluginDataPart2);
 	buf.add(AUTH_PLUGIN_NAME, LEN_AUTH_PLUGIN_NAME);
+
+	return sendPacket(buf);
 }
 
 bool FaceMySQLWorker::receiveHandshakeResponse41(void)

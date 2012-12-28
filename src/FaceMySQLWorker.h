@@ -42,7 +42,7 @@ protected:
 	gpointer mainThread(void);
 	uint32_t makePacketHeader(uint32_t length);
 	void addPacketHeaderRegion(SmartBuffer &buf);
-	void makeHandshakeV10(SmartBuffer &buf);
+	bool sendHandshakeV10(void);
 	bool receiveHandshakeResponse41(void);
 	bool receiveRequest(void);
 	bool sendOK(void);
