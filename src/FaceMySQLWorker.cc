@@ -7,6 +7,7 @@ using namespace mlpl;
 #include "Utils.h"
 #include "FaceMySQLWorker.h"
 
+static const int PACKET_HEADER_SIZE = 4;
 static const uint32_t PACKET_ID_MASK   = 0xff000000;
 static const uint32_t PACKET_SIZE_MASK = 0x00ffffff;
 static const int PACKET_ID_SHIFT_BITS = 24;
@@ -109,7 +110,11 @@ void FaceMySQLWorker::makeHandshakeV10(SmartBuffer &buf)
 	// protocol version
 	static const char SERVER_VERSION[] = "5.5.10";
 	static const char AUTH_PLUGIN_NAME[] = "mysql_native_password";
-	char authPluginData[] = "AUTH_PLUGIN_DATA";
+
+	// TODO: implement correctly
+	char authPluginData[] = {0x66, 0x60, 0x2d, 0x5f, 0x78, 0x60, 0x54,
+	                         0x67, 0x28, 0x30, 0x55, 0x3e, 0x73, 0x4b,
+	                         0x5c, 0x6c, 0x2b, 0x2e, 0x46, 0x54, 0x00};
 
 	static const int LEN_PKT_LENGTH = 4;
 	static const int LEN_PROTOCOL_VERSION = 1;
@@ -134,7 +139,7 @@ void FaceMySQLWorker::makeHandshakeV10(SmartBuffer &buf)
 	  LEN_AUTH_PLUGIN_DATA_PART_1 + LEN_FILLER_1 +
 	  LEN_CAPABILITY_FLAGS_1 + LEN_CARACTER_SET + LEN_STATUS_FLAGS +
 	  LEN_CAPABILITY_FLAGS_2 + LEN_LENGTH_AUTH_PLUGIN_DATA + LEN_RESERVED +
-	  lenAuthPluginDataPart2 + 
+	  lenAuthPluginDataPart2 +
 	  LEN_AUTH_PLUGIN_NAME;
 
 	buf.alloc(LEN_TOTAL);
@@ -183,11 +188,8 @@ void FaceMySQLWorker::makeHandshakeV10(SmartBuffer &buf)
 	) >> 16;
 
 	buf.add16(capability2);
-
-	buf.add8(lenAuthPluginData);
-
+	buf.add8(lenAuthPluginData + 1); // +1 is for NULL Term.
 	buf.addZero(LEN_RESERVED);
-
 	buf.add(&authPluginData[LEN_AUTH_PLUGIN_DATA_PART_1],
 	        lenAuthPluginDataPart2);
 	buf.add(AUTH_PLUGIN_NAME, LEN_AUTH_PLUGIN_NAME);
@@ -322,7 +324,7 @@ bool FaceMySQLWorker::recive(char* buf, size_t size)
 bool FaceMySQLWorker::sendPacket(SmartBuffer &buf)
 {
 	m_packetId++;
-	buf.setAt(0, makePacketHeader(buf.index());
+	buf.setAt(0, makePacketHeader(buf.index() - PACKET_HEADER_SIZE));
 	return send(buf);
 }
 
