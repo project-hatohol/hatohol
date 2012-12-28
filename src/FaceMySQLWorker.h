@@ -40,8 +40,12 @@ public:
 
 protected:
 	gpointer mainThread(void);
+	uint32_t makePacketHeader(uint32_t length);
 	void makeHandshakeV10(SmartBuffer &buf);
 	bool receiveHandshakeResponse41(void);
+	bool receiveRequest(void);
+	bool sendOK(void);
+	bool sendPacket(SmartBuffer &buf);
 	bool send(SmartBuffer &buf);
 	bool recive(char* buf, size_t size);
 	uint64_t decodeLenEncInt(SmartBuffer &buf);

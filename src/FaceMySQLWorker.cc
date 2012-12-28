@@ -13,7 +13,7 @@ static const int PACKET_ID_SHIFT_BITS = 24;
 
 static const int HANDSHAKE_RESPONSE41_RESERVED_SIZE = 23;
 
-static const uint32_t SERVER_STATUS_AUTOCOMMIT = 0x00000002;
+static const uint16_t SERVER_STATUS_AUTOCOMMIT = 0x00000002;
 
 static const uint32_t CLIENT_LONG_PASSWORD     = 0x00000001;
 static const uint32_t CLIENT_CLIENT_FOUND_ROWS = 0x00000002;
@@ -37,6 +37,8 @@ static const uint32_t CLIENT_PS_MULTI_RESULTS  = 0x00040000;
 static const uint32_t CLIENT_PLUGIN_AUTH       = 0x00080000;
 static const uint32_t CLIENT_CONNECT_ATTRS     = 0x00100000;
 static const uint32_t CLIENT_PLUGIN_AUTH_LENENC_CLIENT_DATA = 0x00200000;
+
+static const uint8_t  OK_HEADER = 0x00;
 
 // ---------------------------------------------------------------------------
 // Public methods
@@ -84,8 +86,22 @@ gpointer FaceMySQLWorker::mainThread(void)
 		return NULL;
 	if (!receiveHandshakeResponse41())
 		return NULL;
+	if (!sendOK())
+		return NULL;
+
+	while (true) {
+		if (!receiveRequest())
+			break;
+	}
 
 	return NULL;
+}
+
+uint32_t FaceMySQLWorker::makePacketHeader(uint32_t length)
+{
+	uint32_t header = length & PACKET_SIZE_MASK;
+	header |= (m_packetId << PACKET_ID_SHIFT_BITS);
+	return header;
 }
 
 void FaceMySQLWorker::makeHandshakeV10(SmartBuffer &buf)
@@ -154,7 +170,7 @@ void FaceMySQLWorker::makeHandshakeV10(SmartBuffer &buf)
 	static const uint8_t char_set = 8; // latin1?
 	buf.add8(char_set);
 
-	static const uint8_t status = SERVER_STATUS_AUTOCOMMIT;
+	static const uint16_t status = SERVER_STATUS_AUTOCOMMIT;
 	buf.add16(status);
 
 	static const uint16_t capability2 = (
@@ -247,6 +263,36 @@ bool FaceMySQLWorker::receiveHandshakeResponse41(void)
 	return true;
 }
 
+bool FaceMySQLWorker::receiveRequest(void)
+{
+	return false;
+}
+
+bool FaceMySQLWorker::sendOK(void)
+{
+	SmartBuffer buf(11);
+	buf.add32(0); // header region
+	buf.add8(OK_HEADER);
+
+	//lenenc-int     affected rows
+	buf.add8(0);
+
+	//lenenc-int     last-insert-id
+	buf.add8(0);
+
+	if (m_hsResp41.capability & CLIENT_PROTOCOL_41) {
+		uint16_t statusFlags = SERVER_STATUS_AUTOCOMMIT;
+		buf.add16(statusFlags);
+		uint16_t warnings = 0;
+		buf.add16(warnings);
+	} else if (m_hsResp41.capability & CLIENT_TRANSACTIONS) {
+		MLPL_BUG("Not implemented\n");
+	}
+	// string[EOF]    info
+
+	return sendPacket(buf);
+}
+
 bool FaceMySQLWorker::recive(char* buf, size_t size)
 {
 	GError *error = NULL;
@@ -271,6 +317,13 @@ bool FaceMySQLWorker::recive(char* buf, size_t size)
 		remain_size -= ret;
 	}
 	return true;
+}
+
+bool FaceMySQLWorker::sendPacket(SmartBuffer &buf)
+{
+	m_packetId++;
+	buf.setAt(0, makePacketHeader(buf.index());
+	return send(buf);
 }
 
 bool FaceMySQLWorker::send(SmartBuffer &buf)
