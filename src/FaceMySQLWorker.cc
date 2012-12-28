@@ -48,7 +48,7 @@ FaceMySQLWorker::FaceMySQLWorker(GSocket *sock, uint32_t connId)
 : m_thread(NULL),
   m_socket(sock),
   m_connId(connId),
-  m_packetId(0)
+  m_packetId(-1)
 {
 	initHandshakeResponse41(m_hsResp41);
 }
@@ -103,6 +103,11 @@ uint32_t FaceMySQLWorker::makePacketHeader(uint32_t length)
 	uint32_t header = length & PACKET_SIZE_MASK;
 	header |= (m_packetId << PACKET_ID_SHIFT_BITS);
 	return header;
+}
+
+void FaceMySQLWorker::addPacketHeaderRegion(SmartBuffer &buf)
+{
+	buf.add32(0);
 }
 
 void FaceMySQLWorker::makeHandshakeV10(SmartBuffer &buf)
@@ -273,7 +278,7 @@ bool FaceMySQLWorker::receiveRequest(void)
 bool FaceMySQLWorker::sendOK(void)
 {
 	SmartBuffer buf(11);
-	buf.add32(0); // header region
+	addPacketHeaderRegion(buf);
 	buf.add8(OK_HEADER);
 
 	//lenenc-int     affected rows
