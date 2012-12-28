@@ -41,6 +41,8 @@ static const uint32_t CLIENT_PLUGIN_AUTH_LENENC_CLIENT_DATA = 0x00200000;
 
 static const uint8_t  OK_HEADER = 0x00;
 
+static const uint8_t  ID_COM_QUERY = 0x03;
+
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
@@ -283,7 +285,11 @@ bool FaceMySQLWorker::receiveRequest(void)
 	SmartBuffer pkt;
 	if (!receivePacket(pkt))
 		return false;
+	uint8_t command_id = pkt.getValueAndIncIndex<uint8_t>();
+	if (command_id == ID_COM_QUERY)
+		return comQuery(pkt);
 
+	MLPL_BUG("command_id: %02x: Not implemented\n", command_id);
 	return false;
 }
 
@@ -397,12 +403,26 @@ string FaceMySQLWorker::getNullTermStringAndIncIndex(SmartBuffer &buf)
 	return str;
 }
 
+string FaceMySQLWorker::getEOFString(SmartBuffer &buf)
+{
+	size_t size = buf.size() - buf.index();
+	string str(buf.getPointer<char>(), size);
+	return str;
+}
+
 string FaceMySQLWorker::getFixedLengthStringAndIncIndex(SmartBuffer &buf,
                                                         uint64_t length)
 {
 	string str(buf.getPointer<char>(), length);
 	buf.incIndex(length);
 	return str;
+}
+
+bool FaceMySQLWorker::comQuery(SmartBuffer &pkt)
+{
+	string query = getEOFString(pkt);
+	MLPL_DBG("******* %s: %s\n", __PRETTY_FUNCTION__, query.c_str());
+	return false;
 }
 
 // ---------------------------------------------------------------------------

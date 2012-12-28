@@ -41,20 +41,22 @@ public:
 protected:
 	gpointer mainThread(void);
 	uint32_t makePacketHeader(uint32_t length);
-	void addPacketHeaderRegion(SmartBuffer &buf);
+	void addPacketHeaderRegion(SmartBuffer &pkt);
 	bool sendHandshakeV10(void);
 	bool receiveHandshakeResponse41(void);
 	bool receivePacket(SmartBuffer &pkt);
 	bool receiveRequest(void);
 	bool sendOK(void);
-	bool sendPacket(SmartBuffer &buf);
+	bool sendPacket(SmartBuffer &pkt);
 	bool send(SmartBuffer &buf);
 	bool recive(char* buf, size_t size);
 	uint64_t decodeLenEncInt(SmartBuffer &buf);
 	string   decodeLenEncStr(SmartBuffer &buf);
 	string getNullTermStringAndIncIndex(SmartBuffer &buf);
+	string getEOFString(SmartBuffer &buf);
 	string getFixedLengthStringAndIncIndex(SmartBuffer &buf,
 	                                       uint64_t length);
+	bool comQuery(SmartBuffer &pkt);
 
 private:
 	GThread *m_thread;
