@@ -269,6 +269,10 @@ bool FaceMySQLWorker::receivePacket(SmartBuffer &pkt)
 		return false;
 	m_packetId = (pktHeader & PACKET_ID_MASK) >> PACKET_ID_SHIFT_BITS;
 	uint32_t pktSize = pktHeader & PACKET_SIZE_MASK;
+	if (pktSize == 0xffffff) {
+		MLPL_BUG("pktSize: 0xffffff: Not implemented\n");
+		return false;
+	}
 	MLPL_INFO("pktSize: %08x (%d)\n", pktSize, m_packetId);
 
 	// read response body
