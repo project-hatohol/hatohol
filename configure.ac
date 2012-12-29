@@ -23,6 +23,12 @@ PKG_CHECK_MODULES(GLIB, glib-2.0 >= $GLIB_REQUIRED)
 PKG_CHECK_MODULES(GIO, gio-2.0 >= $GLIB_REQUIRED)
 
 dnl **************************************************************
+dnl Checks for libsoup
+dnl **************************************************************
+LIBSOUP_REQUIRED=2.22
+PKG_CHECK_MODULES(LIBSOUP, libsoup-2.4 >= $GLIB_REQUIRED)
+
+dnl **************************************************************
 dnl Checks for Cutter
 dnl **************************************************************
 CUTTER_REQUIRED=1.1.7
