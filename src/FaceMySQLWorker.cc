@@ -442,36 +442,9 @@ bool FaceMySQLWorker::receive(char* buf, size_t size)
 
 bool FaceMySQLWorker::sendLenEncInt(uint64_t num)
 {
-	// calculate size
-	size_t packetSize = 0;
-	if (num < 0xfc)
-		packetSize = 1;
-	else if (num < 0x10000)
-		packetSize = 3;
-	else if (num < 0x1000000)
-		packetSize = 4;
-	else
-		packetSize = 8;
-
-	// fill content
 	SmartBuffer pkt;
-	allocAndAddPacketHeaderRegion(pkt, packetSize);
-	if (num < 0xfc) {
-		pkt.add8(num);
-	} else if (num < 0x10000) {
-		pkt.add8(0xfc);
-		pkt.add16(num);
-	} else if (num < 0x1000000) {
-		pkt.add8(0xfd);
-		uint8_t numMsb8 =  (num & 0xff0000) >> 16;
-		uint16_t numLsb16 =  num & 0xffff;
-		pkt.add16(numLsb16);
-		pkt.add8(numMsb8);
-	} else {
-		pkt.add8(0xfe);
-		pkt.add64(num);
-	}
-
+	allocAndAddPacketHeaderRegion(pkt, MAX_LENENC_INT_LENGTH);
+	addLenEncInt(pkt, num);
 	return sendPacket(pkt);
 }
 
