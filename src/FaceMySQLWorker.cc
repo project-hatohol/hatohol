@@ -9,6 +9,7 @@ using namespace mlpl;
 #include "FaceMySQLWorker.h"
 
 static const int PACKET_HEADER_SIZE = 4;
+static const int MAX_LENENC_INT_LENGTH = 9;
 static const uint32_t PACKET_ID_MASK   = 0xff000000;
 static const uint32_t PACKET_SIZE_MASK = 0x00ffffff;
 static const int PACKET_ID_SHIFT_BITS = 24;
@@ -44,6 +45,7 @@ static const uint32_t CLIENT_PLUGIN_AUTH_LENENC_CLIENT_DATA = 0x00200000;
 
 enum {
 	OK_HEADER = 0x00,
+	EOF_HEADER = 0xfe,
 };
 
 enum {
@@ -401,6 +403,17 @@ bool FaceMySQLWorker::sendOK(void)
 	return sendPacket(pkt);
 }
 
+bool FaceMySQLWorker::sendEOF(uint16_t warningCount, uint16_t status)
+{
+	static const size_t EOF_PACKET_SIZE = 5;
+	SmartBuffer pkt;
+	allocAndAddPacketHeaderRegion(pkt, EOF_PACKET_SIZE);
+	pkt.add8(EOF_HEADER);
+	pkt.add16(warningCount);
+	pkt.add16(status);
+	return sendPacket(pkt);
+}
+
 bool FaceMySQLWorker::receive(char* buf, size_t size)
 {
 	GError *error = NULL;
@@ -459,6 +472,14 @@ bool FaceMySQLWorker::sendLenEncInt(uint64_t num)
 		pkt.add64(num);
 	}
 
+	return sendPacket(pkt);
+}
+
+bool FaceMySQLWorker::sendLenEncStr(string &str)
+{
+	SmartBuffer pkt;
+	allocAndAddPacketHeaderRegion(pkt, str.size() + MAX_LENENC_INT_LENGTH);
+	addLenEncStr(pkt, str);
 	return sendPacket(pkt);
 }
 
@@ -565,10 +586,16 @@ bool FaceMySQLWorker::comQuerySelect(string &query, vector<string> &words)
 
 bool FaceMySQLWorker::comQuerySelectVersionComment(string &query, vector<string> &words)
 {
+	// [REF] http://dev.mysql.com/doc/internals/en/text-protocol.html#packet-COM_QUERY
+
+	static const char VERSION_COMMENT[] = "ASURA";
+
+	// Number of columns
 	int numColum = 1;
 	if (!sendLenEncInt(numColum))
 		return false;
 
+	// Column Definition
 	string dummyStr;
 	bool ret;
 	string &name = words[1];
@@ -581,7 +608,21 @@ bool FaceMySQLWorker::comQuerySelectVersionComment(string &query, vector<string>
 	                             decimals);
 	if (!ret)
 		return false;
-	return false;
+
+	// EOF
+	if (!sendEOF(0, SERVER_STATUS_AUTOCOMMIT))
+		return false;
+
+	// Row
+	string versionComment(VERSION_COMMENT);
+	if (!sendLenEncStr(versionComment))
+		return false;
+
+	// EOF
+	if (!sendEOF(0, SERVER_STATUS_AUTOCOMMIT))
+		return false;
+
+	return true;
 }
 
 // ---------------------------------------------------------------------------

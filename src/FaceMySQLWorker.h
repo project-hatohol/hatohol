@@ -50,11 +50,13 @@ protected:
 	bool receivePacket(SmartBuffer &pkt);
 	bool receiveRequest(void);
 	bool sendOK(void);
+	bool sendEOF(uint16_t warningCount, uint16_t status);
 	bool sendColumnDefinition41(
 	  string &schema, string &table, string &orgTable,
 	  string &name, string &orgName, uint32_t columnLength, uint8_t type,
 	  uint16_t flags, uint8_t decimals);
 	bool sendLenEncInt(uint64_t num);
+	bool sendLenEncStr(string &str);
 	bool sendPacket(SmartBuffer &pkt);
 	bool send(SmartBuffer &buf);
 	bool receive(char* buf, size_t size);
