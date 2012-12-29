@@ -26,7 +26,13 @@ dnl **************************************************************
 dnl Checks for libsoup
 dnl **************************************************************
 LIBSOUP_REQUIRED=2.22
-PKG_CHECK_MODULES(LIBSOUP, libsoup-2.4 >= $GLIB_REQUIRED)
+PKG_CHECK_MODULES(LIBSOUP, libsoup-2.4 >= $LIBSOUP_REQUIRED)
+
+dnl **************************************************************
+dnl Checks for libjson-glib
+dnl **************************************************************
+JSON_GLIB_REQUIRED=0.15.0
+PKG_CHECK_MODULES(JSON_GLIB, json-glib-1.0 >= $JSON_GLIB_REQUIRED)
 
 dnl **************************************************************
 dnl Checks for Cutter

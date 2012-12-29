@@ -2,6 +2,7 @@
 using namespace mlpl;
 
 #include <libsoup/soup.h>
+#include <json-glib/json-glib.h>
 #include "ArmZabbixAPI.h"
 
 static const int DEFAULT_SERVER_PORT = 80;

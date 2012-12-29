@@ -3,8 +3,10 @@ asura_SOURCES = \
 	main.cc FaceBase.cc FaceMySQL.cc FaceMySQLWorker.cc \
 	AsuraThreadBase.cc ArmBase.cc ArmZabbixAPI.cc
 
-AM_CXXFLAGS = \
-	$(MLPL_CFLAGS) $(GLIB_CFLAGS) $(GIO_CFLAGS) $(LIBSOUP_CFLAGS) -Wall -g
+AM_CXXFLAGS = -Wall -g \
+	$(MLPL_CFLAGS) $(GLIB_CFLAGS) $(GIO_CFLAGS) \
+	$(LIBSOUP_CFLAGS) $(JSON_GLIB_CFLAGS)
 
 AM_LDFLAGS = \
-	$(MLPL_LIBS) $(GLIB_LIBS) $(GIO_LIBS) $(LIBSOUP_LIBS)
+	$(MLPL_LIBS) $(GLIB_LIBS) $(GIO_LIBS) \
+	$(LIBSOUP_LIBS) $(JSON_GLIB_LIBS)
