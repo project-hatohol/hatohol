@@ -15,6 +15,7 @@ protected:
 private:
 	string m_server;
 	int    m_server_port;
+	int    m_retry_interval;	// in sec
 };
 
 #endif // ArmZabbixAPI_h
