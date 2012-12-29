@@ -2,6 +2,7 @@
 using namespace std;
 
 #include <Logger.h>
+#include <StringUtils.h>
 using namespace mlpl;
 
 #include "Utils.h"
@@ -14,7 +15,9 @@ static const int PACKET_ID_SHIFT_BITS = 24;
 
 static const int HANDSHAKE_RESPONSE41_RESERVED_SIZE = 23;
 
-static const uint16_t SERVER_STATUS_AUTOCOMMIT = 0x00000002;
+enum {
+	SERVER_STATUS_AUTOCOMMIT = 0x00000002,
+};
 
 static const uint32_t CLIENT_LONG_PASSWORD     = 0x00000001;
 static const uint32_t CLIENT_CLIENT_FOUND_ROWS = 0x00000002;
@@ -39,9 +42,17 @@ static const uint32_t CLIENT_PLUGIN_AUTH       = 0x00080000;
 static const uint32_t CLIENT_CONNECT_ATTRS     = 0x00100000;
 static const uint32_t CLIENT_PLUGIN_AUTH_LENENC_CLIENT_DATA = 0x00200000;
 
-static const uint8_t  OK_HEADER = 0x00;
+enum {
+	OK_HEADER = 0x00,
+};
 
-static const uint8_t  ID_COM_QUERY = 0x03;
+enum {
+	ID_COM_QUERY = 0x03,
+};
+
+enum {
+	TYPE_VAR_STRING = 0xfd,
+};
 
 // ---------------------------------------------------------------------------
 // Public methods
@@ -50,7 +61,8 @@ FaceMySQLWorker::FaceMySQLWorker(GSocket *sock, uint32_t connId)
 : m_thread(NULL),
   m_socket(sock),
   m_connId(connId),
-  m_packetId(-1)
+  m_packetId(-1),
+  m_charSet(8)
 {
 	initHandshakeResponse41(m_hsResp41);
 }
@@ -108,6 +120,51 @@ uint32_t FaceMySQLWorker::makePacketHeader(uint32_t length)
 void FaceMySQLWorker::addPacketHeaderRegion(SmartBuffer &pkt)
 {
 	pkt.add32(0);
+}
+
+void FaceMySQLWorker::addLenEncInt(SmartBuffer &buf, uint64_t num)
+{
+	// calculate size
+	size_t size = 0;
+	if (num < 0xfc)
+		size = 1;
+	else if (num < 0x10000)
+		size = 3;
+	else if (num < 0x1000000)
+		size = 4;
+	else
+		size = 9;
+	buf.ensureRemainingSize(size);
+
+	// fill content
+	if (num < 0xfc) {
+		buf.add8(num);
+	} else if (num < 0x10000) {
+		buf.add8(0xfc);
+		buf.add16(num);
+	} else if (num < 0x1000000) {
+		buf.add8(0xfd);
+		uint8_t numMsb8 =  (num & 0xff0000) >> 16;
+		uint16_t numLsb16 =  num & 0xffff;
+		buf.add16(numLsb16);
+		buf.add8(numMsb8);
+	} else {
+		buf.add8(0xfe);
+		buf.add64(num);
+	}
+}
+
+void FaceMySQLWorker::allocAndAddPacketHeaderRegion(SmartBuffer &pkt,
+                                                    size_t packetSize)
+{
+	pkt.alloc(packetSize);
+	addPacketHeaderRegion(pkt);
+}
+
+void FaceMySQLWorker::addLenEncStr(SmartBuffer &pkt, string &str)
+{
+	addLenEncInt(pkt, str.size());
+	pkt.addEx(str.c_str(), str.size());
 }
 
 bool FaceMySQLWorker::sendHandshakeV10(void)
@@ -176,8 +233,7 @@ bool FaceMySQLWorker::sendHandshakeV10(void)
 	  CLIENT_SECURE_CONNECTION;
 	pkt.add16(capability1);
 
-	static const uint8_t char_set = 8; // latin1?
-	pkt.add8(char_set);
+	pkt.add8(m_charSet);
 
 	static const uint16_t status = SERVER_STATUS_AUTOCOMMIT;
 	pkt.add16(status);
@@ -254,7 +310,7 @@ bool FaceMySQLWorker::receiveHandshakeResponse41(void)
 bool FaceMySQLWorker::receivePacket(SmartBuffer &pkt)
 {
 	uint32_t pktHeader;
-	if (!recive(reinterpret_cast<char *>(&pktHeader), sizeof(pktHeader)))
+	if (!receive(reinterpret_cast<char *>(&pktHeader), sizeof(pktHeader)))
 		return false;
 	m_packetId = (pktHeader & PACKET_ID_MASK) >> PACKET_ID_SHIFT_BITS;
 	uint32_t pktSize = pktHeader & PACKET_SIZE_MASK;
@@ -266,7 +322,7 @@ bool FaceMySQLWorker::receivePacket(SmartBuffer &pkt)
 
 	// read response body
 	pkt.alloc(pktSize);
-	if (!recive(pkt, pktSize))
+	if (!receive(pkt, pktSize))
 		return false;
 
 	pkt.resetIndex();
@@ -284,6 +340,40 @@ bool FaceMySQLWorker::receiveRequest(void)
 
 	MLPL_BUG("command_id: %02x: Not implemented\n", command_id);
 	return false;
+}
+
+bool FaceMySQLWorker::sendColumnDefinition41(
+  string &schema, string &table, string &orgTable,
+  string &name, string &orgName, uint32_t columnLength, uint8_t type,
+  uint16_t flags, uint8_t decimals)
+{
+	const int initialPacketSize = 0x100;
+	SmartBuffer pkt;
+	allocAndAddPacketHeaderRegion(pkt, initialPacketSize);
+
+	string catalog("def");
+	addLenEncStr(pkt, catalog);
+	addLenEncStr(pkt, schema);
+	addLenEncStr(pkt, table);
+	addLenEncStr(pkt, orgTable);
+	addLenEncStr(pkt, name);
+	addLenEncStr(pkt, orgName);
+
+	const size_t lenFields = 0x0c;
+	addLenEncInt(pkt, lenFields);
+	pkt.ensureRemainingSize(lenFields);
+	pkt.add16(m_charSet);
+	pkt.add32(columnLength);
+	pkt.add8(type);
+	pkt.add16(flags);
+	pkt.add8(decimals);
+	pkt.addZero(2); // Filler
+
+	//  if command was COM_FIELD_LIST 
+	//  lenenc_int     length of default-values
+	//  string[$len]   default values
+
+	return sendPacket(pkt);
 }
 
 bool FaceMySQLWorker::sendOK(void)
@@ -311,7 +401,7 @@ bool FaceMySQLWorker::sendOK(void)
 	return sendPacket(pkt);
 }
 
-bool FaceMySQLWorker::recive(char* buf, size_t size)
+bool FaceMySQLWorker::receive(char* buf, size_t size)
 {
 	GError *error = NULL;
 
@@ -335,6 +425,41 @@ bool FaceMySQLWorker::recive(char* buf, size_t size)
 		remain_size -= ret;
 	}
 	return true;
+}
+
+bool FaceMySQLWorker::sendLenEncInt(uint64_t num)
+{
+	// calculate size
+	size_t packetSize = 0;
+	if (num < 0xfc)
+		packetSize = 1;
+	else if (num < 0x10000)
+		packetSize = 3;
+	else if (num < 0x1000000)
+		packetSize = 4;
+	else
+		packetSize = 8;
+
+	// fill content
+	SmartBuffer pkt;
+	allocAndAddPacketHeaderRegion(pkt, packetSize);
+	if (num < 0xfc) {
+		pkt.add8(num);
+	} else if (num < 0x10000) {
+		pkt.add8(0xfc);
+		pkt.add16(num);
+	} else if (num < 0x1000000) {
+		pkt.add8(0xfd);
+		uint8_t numMsb8 =  (num & 0xff0000) >> 16;
+		uint16_t numLsb16 =  num & 0xffff;
+		pkt.add16(numLsb16);
+		pkt.add8(numMsb8);
+	} else {
+		pkt.add8(0xfe);
+		pkt.add64(num);
+	}
+
+	return sendPacket(pkt);
 }
 
 bool FaceMySQLWorker::sendPacket(SmartBuffer &pkt)
@@ -415,6 +540,47 @@ bool FaceMySQLWorker::comQuery(SmartBuffer &pkt)
 {
 	string query = getEOFString(pkt);
 	MLPL_DBG("******* %s: %s\n", __PRETTY_FUNCTION__, query.c_str());
+
+	vector<string> words;
+	StringUtils::split(words, query, ' ');
+	if (words.size() == 0) {
+		MLPL_WARN("Invalid query: '%s'\n", query.c_str());
+		return true;
+	}
+
+	string &command = words[0];
+	if (command == "select")
+		return comQuerySelect(query, words);
+	MLPL_BUG("Not implemented: query command: '%s'\n", query.c_str());
+	return false;
+}
+
+bool FaceMySQLWorker::comQuerySelect(string &query, vector<string> &words)
+{
+	if (words[1] == "@@version_comment")
+		return comQuerySelectVersionComment(query, words);
+	MLPL_BUG("Not implemented: select: '%s'\n", words[1].c_str());
+	return false;
+}
+
+bool FaceMySQLWorker::comQuerySelectVersionComment(string &query, vector<string> &words)
+{
+	int numColum = 1;
+	if (!sendLenEncInt(numColum))
+		return false;
+
+	string dummyStr;
+	bool ret;
+	string &name = words[1];
+	uint32_t columnLength = 8;
+	uint8_t decimals = 0x1f;
+	uint16_t flags = 0;
+	ret = sendColumnDefinition41(dummyStr, dummyStr, dummyStr,
+	                             name, dummyStr, columnLength,
+	                             TYPE_VAR_STRING, flags,
+	                             decimals);
+	if (!ret)
+		return false;
 	return false;
 }
 
