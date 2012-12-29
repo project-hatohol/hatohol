@@ -218,15 +218,8 @@ bool FaceMySQLWorker::receiveHandshakeResponse41(void)
 	m_hsResp41.capability    = pkt.getValueAndIncIndex<uint32_t>();
 	m_hsResp41.maxPacketSize = pkt.getValueAndIncIndex<uint32_t>();
 	m_hsResp41.characterSet  = pkt.getValueAndIncIndex<uint8_t>();
-
 	pkt.incIndex(HANDSHAKE_RESPONSE41_RESERVED_SIZE);
-
-	string x = getNullTermStringAndIncIndex(pkt);
-	m_hsResp41.username = x;
-	//m_hsResp41.username = getNullTermStringAndIncIndex(pkt);
-	MLPL_INFO("CAP: %08x, username: %s\n", m_hsResp41.capability,
-	          m_hsResp41.username.c_str());
-
+	m_hsResp41.username = getNullTermStringAndIncIndex(pkt);
 	if (m_hsResp41.capability & CLIENT_PLUGIN_AUTH_LENENC_CLIENT_DATA) {
 		uint64_t size = decodeLenEncInt(pkt);
 		m_hsResp41.lenAuthResponse = size;
@@ -239,22 +232,18 @@ bool FaceMySQLWorker::receiveHandshakeResponse41(void)
 		  getFixedLengthStringAndIncIndex(pkt, size);
 	} else
 		m_hsResp41.authResponse = getNullTermStringAndIncIndex(pkt);
-	MLPL_INFO("authResponse: %s\n", m_hsResp41.authResponse.c_str());
 
 	if (m_hsResp41.capability & CLIENT_CONNECT_WITH_DB)
 		m_hsResp41.database = getNullTermStringAndIncIndex(pkt);
 
 	if (m_hsResp41.capability & CLIENT_PLUGIN_AUTH)
 		m_hsResp41.authPluginName = getNullTermStringAndIncIndex(pkt);
-	MLPL_INFO("authPLuginNname: %s\n", m_hsResp41.authPluginName.c_str());
 
 	if (m_hsResp41.capability & CLIENT_CONNECT_ATTRS) {
 		m_hsResp41.lenKeyValue = decodeLenEncInt(pkt);
 		for (int i = 0; i < m_hsResp41.lenKeyValue; i++) {
 			string key = decodeLenEncStr(pkt);
 			string value = decodeLenEncStr(pkt);
-			MLPL_INFO("key/value: %s/%s\n",
-			          key.c_str(), value.c_str());
 			m_hsResp41.keyValueMap[key] = value;
 		}
 	}
