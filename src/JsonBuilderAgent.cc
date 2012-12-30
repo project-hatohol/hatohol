@@ -6,7 +6,6 @@
 JsonBuilderAgent::JsonBuilderAgent(void)
 {
 	m_builder = json_builder_new();
-	json_builder_begin_object(m_builder);
 }
 
 JsonBuilderAgent::~JsonBuilderAgent()

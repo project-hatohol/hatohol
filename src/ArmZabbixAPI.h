@@ -20,6 +20,7 @@ protected:
 private:
 	string m_server;
 	string m_auth_token;
+	string m_uri;
 	int    m_server_port;
 	int    m_retry_interval;	// in sec
 	int    m_repeat_interval;	// in sec;
