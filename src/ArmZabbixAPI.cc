@@ -9,13 +9,15 @@ using namespace mlpl;
 
 static const int DEFAULT_SERVER_PORT = 80;
 static const int DEFAULT_RETRY_INTERVAL = 10;
+static const int DEFAULT_REPEAT_INTERVAL = 30;
 
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
 ArmZabbixAPI::ArmZabbixAPI(CommandLineArg &cmdArg)
 : m_server_port(DEFAULT_SERVER_PORT),
-  m_retry_interval(DEFAULT_RETRY_INTERVAL)
+  m_retry_interval(DEFAULT_RETRY_INTERVAL),
+  m_repeat_interval(DEFAULT_REPEAT_INTERVAL)
 {
 	m_server = "localhost";
 }
@@ -96,10 +98,8 @@ bool ArmZabbixAPI::parseInitialResponse(SoupMessage *msg)
 	return true;
 }
 
-gpointer ArmZabbixAPI::mainThread(AsuraThreadArg *arg)
+bool ArmZabbixAPI::mainThreadOneProc(void)
 {
-	MLPL_INFO("started: %s\n", __PRETTY_FUNCTION__);
-	
 	SoupSession *session = soup_session_sync_new();
 	string uri = "http://localhost/zabbix/api_jsonrpc.php";
 	SoupMessage *msg = soup_message_new(SOUP_METHOD_GET, uri.c_str());
@@ -112,20 +112,29 @@ gpointer ArmZabbixAPI::mainThread(AsuraThreadArg *arg)
 	
 
 	guint ret = soup_session_send_message(session, msg);
-	if (ret != 200) {
+	if (ret != SOUP_STATUS_OK) {
 		MLPL_ERR("Failed to get: code: %d: %s\n", ret, uri.c_str());
-		sleep(m_retry_interval);
-		return NULL;
+		return false;
 	}
 	MLPL_DBG("body: %d, %s\n", msg->response_body->length,
 	                           msg->response_body->data);
-	if (!parseInitialResponse(msg)) {
-		sleep(m_retry_interval);
-		return NULL;
-	}
+	if (!parseInitialResponse(msg))
+		return false;
 	MLPL_DBG("auth token: %s\n", m_auth_token.c_str());
 
 	g_object_unref(msg);
+	return true;
+}
+
+gpointer ArmZabbixAPI::mainThread(AsuraThreadArg *arg)
+{
+	MLPL_INFO("started: %s\n", __PRETTY_FUNCTION__);
+	while (true) {
+		int sleepTime = m_repeat_interval;
+		if (!mainThreadOneProc())
+			sleepTime = m_retry_interval;
+		sleep(sleepTime);
+	}
 	return NULL;
 }
 

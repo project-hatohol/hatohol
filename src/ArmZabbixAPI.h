@@ -12,6 +12,7 @@ public:
 protected:
 	string getInitialJsonRequest(void);
 	bool parseInitialResponse(SoupMessage *msg);
+	bool mainThreadOneProc(void);
 
 	// virtual methods
 	gpointer mainThread(AsuraThreadArg *arg);
@@ -21,6 +22,7 @@ private:
 	string m_auth_token;
 	int    m_server_port;
 	int    m_retry_interval;	// in sec
+	int    m_repeat_interval;	// in sec;
 };
 
 #endif // ArmZabbixAPI_h
