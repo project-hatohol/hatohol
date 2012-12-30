@@ -6,6 +6,7 @@ using namespace mlpl;
 
 #include "ArmZabbixAPI.h"
 #include "JsonParserAgent.h"
+#include "JsonBuilderAgent.h"
 
 static const int DEFAULT_SERVER_PORT = 80;
 static const int DEFAULT_RETRY_INTERVAL = 10;
@@ -27,60 +28,21 @@ ArmZabbixAPI::ArmZabbixAPI(CommandLineArg &cmdArg)
 // ---------------------------------------------------------------------------
 string ArmZabbixAPI::getInitialJsonRequest(void)
 {
-	/*
-	{
-	  "auth":null,
-	  "method":"user.login",
-	  "id":1,
-	  "params":{
-	    "user":"admin",
-	    "password":"zabbix"
-	  },
-	  "jsonrpc":"2.0"
-	}
-	*/
-	JsonBuilder *builder = json_builder_new();
-	json_builder_begin_object(builder);
+	JsonBuilderAgent agent;
+	agent.startObject();
+	agent.addNull("auth");
+	agent.add("method", "user.login");
+	agent.add("id", 1);
 
-	json_builder_set_member_name(builder, "auth");
-	json_builder_add_null_value(builder);
+	agent.startObject("params");
+	agent.add("user" , "admin");
+	agent.add("password", "zabbix");
+	agent.endObject();
 
-	json_builder_set_member_name(builder, "method");
-	json_builder_add_string_value(builder, "user.login");
+	agent.add("jsonrpc", "2.0");
+	agent.endObject();
 
-	json_builder_set_member_name(builder, "id");
-	json_builder_add_int_value(builder, 1);
-
-        // "params"
-	json_builder_set_member_name(builder, "params");
-	json_builder_begin_object(builder);
-
-	json_builder_set_member_name(builder, "user");
-	json_builder_add_string_value(builder, "admin");
-
-	json_builder_set_member_name(builder, "password");
-	json_builder_add_string_value(builder, "zabbix");
-
-	json_builder_end_object (builder);
-	// End of "params"
-
-	json_builder_set_member_name(builder, "jsonrpc");
-	json_builder_add_string_value(builder, "2.0");
-
-	json_builder_end_object (builder);
-
-	JsonGenerator *generator = json_generator_new();
-	JsonNode *root = json_builder_get_root(builder);
-	json_generator_set_root(generator, root);
-	gchar *str = json_generator_to_data(generator, NULL);
-	string json_str = str;
-	g_free(str);
-
-	json_node_free(root);
-	g_object_unref(generator);
-	g_object_unref(builder);
-
-	return json_str;
+	return agent.generate();
 }
 
 bool ArmZabbixAPI::parseInitialResponse(SoupMessage *msg)
