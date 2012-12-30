@@ -37,7 +37,7 @@ FaceMySQL::~FaceMySQL()
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
-gpointer FaceMySQL::mainThread(FaceThreadArg *arg)
+gpointer FaceMySQL::mainThread(AsuraThreadArg *arg)
 {
 	GError *error = NULL;
 	m_socket = g_socket_new(G_SOCKET_FAMILY_IPV4, G_SOCKET_TYPE_STREAM,
@@ -89,7 +89,7 @@ gpointer FaceMySQL::mainThread(FaceThreadArg *arg)
 			continue;
 		}
 		FaceMySQLWorker *worker = new FaceMySQLWorker(sock, connId);
-		worker->start();
+		worker->start(true);
 		connId++;
 	}
 

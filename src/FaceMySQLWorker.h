@@ -11,6 +11,7 @@ using namespace std;
 using namespace mlpl;
 
 #include "Utils.h"
+#include "AsuraThreadBase.h"
 
 struct HandshakeResponse41
 {
@@ -32,14 +33,12 @@ struct HandshakeResponse41
 	map<string, string> keyValueMap;
 };
 
-class FaceMySQLWorker {
+class FaceMySQLWorker : public AsuraThreadBase {
 public:
 	FaceMySQLWorker(GSocket *sock, uint32_t connId);
 	virtual ~FaceMySQLWorker();
-	void start(void);
 
 protected:
-	gpointer mainThread(void);
 	uint32_t makePacketHeader(uint32_t length);
 	void addPacketHeaderRegion(SmartBuffer &pkt);
 	void allocAndAddPacketHeaderRegion(SmartBuffer &pkt, size_t packetSize);
@@ -70,6 +69,8 @@ protected:
 	bool comQuerySelect(string &query, vector<string> &words);
 	bool comQuerySelectVersionComment(string &query, vector<string> &words);
 
+	// virtual methods
+	gpointer mainThread(AsuraThreadArg *arg);
 private:
 	GThread *m_thread;
 	GSocket *m_socket;
@@ -78,7 +79,6 @@ private:
 	uint32_t m_charSet;
 	HandshakeResponse41 m_hsResp41;
 
-	static gpointer _mainThread(gpointer data);
 	void initHandshakeResponse41(HandshakeResponse41 &hsResp41);
 };
 

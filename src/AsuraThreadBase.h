@@ -8,13 +8,15 @@ class AsuraThreadBase;
 
 struct AsuraThreadArg {
 	AsuraThreadBase *obj;
+	bool autoDeleteObject;
 };
 
 class AsuraThreadBase {
 public:
 	AsuraThreadBase(void);
 	virtual ~AsuraThreadBase();
-	void start(void);
+	void start(bool autoDeleteObject = false);
+
 protected:
 	// virtual methods
 	virtual gpointer mainThread(AsuraThreadArg *arg) = 0;

@@ -16,7 +16,7 @@ class FaceMySQL : public FaceBase {
 	size_t parseCmdArgPort(CommandLineArg &cmdArg, size_t idx);
 protected:
 	// virtual methods
-	gpointer mainThread(FaceThreadArg *arg);
+	gpointer mainThread(AsuraThreadArg *arg);
 
 public:
 	FaceMySQL(CommandLineArg &cmdArg);

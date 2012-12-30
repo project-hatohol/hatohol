@@ -21,10 +21,11 @@ AsuraThreadBase::~AsuraThreadBase()
 		g_thread_unref(m_thread);
 }
 
-void AsuraThreadBase::start(void)
+void AsuraThreadBase::start(bool autoDeleteObject)
 {
 	AsuraThreadArg *arg = new AsuraThreadArg();;
 	arg->obj = this;
+	arg->autoDeleteObject = autoDeleteObject;
 	GError *error = NULL;
 	m_thread = g_thread_try_new("AsuraThread", threadStarter, arg, &error);
 	if (m_thread == NULL) {
@@ -49,6 +50,8 @@ gpointer AsuraThreadBase::threadStarter(gpointer data)
 	} catch (AsuraException e) {
 		MLPL_ERR("Got Exception: %s\n", e.getMessage());
 	}
+	if (arg->autoDeleteObject)
+		delete arg->obj;
 	delete arg;
 	return ret;
 }

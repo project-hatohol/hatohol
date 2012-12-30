@@ -77,22 +77,10 @@ FaceMySQLWorker::~FaceMySQLWorker()
 		g_thread_unref(m_thread);
 }
 
-void FaceMySQLWorker::start(void)
-{
-	MLPL_DBG("%s\n", __PRETTY_FUNCTION__);
-	GError *error = NULL;
-	m_thread = g_thread_try_new("face-mysql-worker", _mainThread, this,
-	                            &error);
-	if (m_thread == NULL) {
-		MLPL_ERR("Failed to call g_thread_try_new: %s\n",
-		         error->message);
-	}
-}
-
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
-gpointer FaceMySQLWorker::mainThread(void)
+gpointer FaceMySQLWorker::mainThread(AsuraThreadArg *arg)
 {
 	MLPL_DBG("%s\n", __PRETTY_FUNCTION__);
 
@@ -601,12 +589,6 @@ bool FaceMySQLWorker::comQuerySelectVersionComment(string &query, vector<string>
 // ---------------------------------------------------------------------------
 // Private methods
 // ---------------------------------------------------------------------------
-gpointer FaceMySQLWorker::_mainThread(gpointer data)
-{
-	FaceMySQLWorker *obj = static_cast<FaceMySQLWorker *>(data);
-	return obj->mainThread();
-}
-
 void FaceMySQLWorker::initHandshakeResponse41(HandshakeResponse41 &hsResp41)
 {
 	hsResp41.capability = 0;
