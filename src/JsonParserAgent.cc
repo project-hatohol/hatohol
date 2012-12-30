@@ -1,6 +1,7 @@
 #include <Logger.h>
 using namespace mlpl;
 
+#include "AsuraException.h"
 #include "JsonParserAgent.h"
 
 // ---------------------------------------------------------------------------
@@ -53,7 +54,7 @@ bool JsonParserAgent::read(const char *member, string &dest)
 // ---------------------------------------------------------------------------
 void JsonParserAgent::internalCheck(void)
 {
-	if (!m_reader) {
-	}
+	if (!m_reader)
+		throw AsuraException("m_reader: NULL\n");
 
 }

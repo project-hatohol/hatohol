@@ -117,12 +117,13 @@ gpointer ArmZabbixAPI::mainThread(AsuraThreadArg *arg)
 		sleep(m_retry_interval);
 		return NULL;
 	}
-	MLPL_INFO("body: %d, %s\n", msg->response_body->length,
-	                            msg->response_body->data);
+	MLPL_DBG("body: %d, %s\n", msg->response_body->length,
+	                           msg->response_body->data);
 	if (!parseInitialResponse(msg)) {
 		sleep(m_retry_interval);
 		return NULL;
 	}
+	MLPL_DBG("auth token: %s\n", m_auth_token.c_str());
 
 	g_object_unref(msg);
 	return NULL;

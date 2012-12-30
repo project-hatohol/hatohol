@@ -5,6 +5,7 @@ using namespace mlpl;
 
 #include "Utils.h"
 #include "AsuraThreadBase.h"
+#include "AsuraException.h"
 
 // ---------------------------------------------------------------------------
 // Public methods
@@ -41,8 +42,13 @@ void AsuraThreadBase::start(void)
 // ---------------------------------------------------------------------------
 gpointer AsuraThreadBase::threadStarter(gpointer data)
 {
+	gpointer ret = NULL;
 	AsuraThreadArg *arg = static_cast<AsuraThreadArg *>(data);
-	gpointer ret = arg->obj->mainThread(arg);
+	try {
+		ret = arg->obj->mainThread(arg);
+	} catch (AsuraException e) {
+		MLPL_ERR("Got Exception: %s\n", e.getMessage());
+	}
 	delete arg;
 	return ret;
 }
