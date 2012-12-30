@@ -1,6 +1,7 @@
 sbin_PROGRAMS = asura
 asura_SOURCES = \
 	main.cc FaceBase.cc FaceMySQL.cc FaceMySQLWorker.cc \
+	JsonBuilderAgent.cc JsonParserAgent.cc \
 	AsuraThreadBase.cc ArmBase.cc ArmZabbixAPI.cc
 
 AM_CXXFLAGS = -Wall -g \

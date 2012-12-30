@@ -3,7 +3,9 @@ using namespace mlpl;
 
 #include <libsoup/soup.h>
 #include <json-glib/json-glib.h>
+
 #include "ArmZabbixAPI.h"
+#include "JsonParserAgent.h"
 
 static const int DEFAULT_SERVER_PORT = 80;
 static const int DEFAULT_RETRY_INTERVAL = 10;
@@ -81,31 +83,16 @@ string ArmZabbixAPI::getInitialJsonRequest(void)
 
 bool ArmZabbixAPI::parseInitialResponse(SoupMessage *msg)
 {
-	gboolean ret;
-	GError *error = NULL;
-	JsonParser *parser = json_parser_new();
-	ret = json_parser_load_from_data(parser, msg->response_body->data,
-	                                 -1, &error);
-	if (!ret) {
-		MLPL_ERR("Failed to parse:  %s\n", error->message);
-		g_error_free(error);
-		g_object_unref(parser);
+	JsonParserAgent parser(msg->response_body->data);
+	if (parser.hasError()) {
+		MLPL_ERR("Failed to parser: %s\n", parser.getErrorMessage());
 		return false;
 	}
 
-	JsonNode *root = json_parser_get_root(parser);
-	JsonReader *reader = json_reader_new(json_parser_get_root(parser));
-
-	if (!json_reader_read_member(reader, "result")) {
-		MLPL_ERR("Failed to access\n");
-	} else {
-		m_auth_token = json_reader_get_string_value(reader);
-		MLPL_DBG("Auth token: %s\n", m_auth_token.c_str());
+	if (!parser.read("result", m_auth_token)) {
+		MLPL_ERR("Failed to read: result\n");
+		return false;
 	}
-	json_reader_end_member(reader);
-
-	g_object_unref (reader);
-	g_object_unref(parser);
 	return true;
 }
 
@@ -132,7 +119,11 @@ gpointer ArmZabbixAPI::mainThread(AsuraThreadArg *arg)
 	}
 	MLPL_INFO("body: %d, %s\n", msg->response_body->length,
 	                            msg->response_body->data);
-	parseInitialResponse(msg);
+	if (!parseInitialResponse(msg)) {
+		sleep(m_retry_interval);
+		return NULL;
+	}
+
 	g_object_unref(msg);
 	return NULL;
 }
