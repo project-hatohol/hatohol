@@ -49,12 +49,18 @@ enum {
 };
 
 enum {
-	ID_COM_INIT_DB = 0x02,
-	ID_COM_QUERY   = 0x03,
+	ID_COM_INIT_DB    = 0x02,
+	ID_COM_QUERY      = 0x03,
+	ID_COM_SET_OPTION = 0x1b,
 };
 
 enum {
 	TYPE_VAR_STRING = 0xfd,
+};
+
+enum {
+	MYSQL_OPTION_MULTI_STATEMENTS_ON  = 0x00,
+	MYSQL_OPTION_MULTI_STATEMENTS_OFF = 0x01,
 };
 
 // ---------------------------------------------------------------------------
@@ -68,6 +74,9 @@ FaceMySQLWorker::FaceMySQLWorker(GSocket *sock, uint32_t connId)
   m_charSet(8)
 {
 	initHandshakeResponse41(m_hsResp41);
+	m_cmdProcMap[ID_COM_INIT_DB] = &FaceMySQLWorker::comInitDB;
+	m_cmdProcMap[ID_COM_QUERY]   = &FaceMySQLWorker::comQuery;
+	m_cmdProcMap[ID_COM_SET_OPTION]  = &FaceMySQLWorker::comSetOption;
 }
 
 FaceMySQLWorker::~FaceMySQLWorker()
@@ -325,14 +334,15 @@ bool FaceMySQLWorker::receiveRequest(void)
 	SmartBuffer pkt;
 	if (!receivePacket(pkt))
 		return false;
-	uint8_t command_id = pkt.getValueAndIncIndex<uint8_t>();
-	if (command_id == ID_COM_QUERY)
-		return comQuery(pkt);
-	if (command_id == ID_COM_INIT_DB)
-		return comInitDB(pkt);
+	uint8_t commandId = pkt.getValueAndIncIndex<uint8_t>();
+	CommandProcFuncMapIterator it = m_cmdProcMap.find(commandId);
+	if (it == m_cmdProcMap.end()) {
+		MLPL_BUG("commandId: %02x: Not implemented\n", commandId);
+		return false;
+	}
 
-	MLPL_BUG("command_id: %02x: Not implemented\n", command_id);
-	return false;
+	commandProcFunc &proc = it->second;
+	return (this->*proc)(pkt);
 }
 
 bool FaceMySQLWorker::sendColumnDefinition41(
@@ -542,6 +552,18 @@ bool FaceMySQLWorker::comInitDB(SmartBuffer &pkt)
 	MLPL_DBG("******* %s: %s\n", __PRETTY_FUNCTION__, schema.c_str());
 	m_schema = schema;
 	return sendOK();
+}
+
+bool FaceMySQLWorker::comSetOption(SmartBuffer &pkt)
+{
+	const size_t LEN_PKT_ARG = 2;
+	if (pkt.remainingSize() < LEN_PKT_ARG) {
+		MLPL_ERR("Invalid: packet size: %zd\n", pkt.remainingSize());
+		return true;
+	}
+	m_mysql_option = pkt.getValueAndIncIndex<uint16_t>();
+	MLPL_DBG("MYSQL_OPTION_MULTI_STATEMENTS: %d\n", m_mysql_option);
+	return sendEOF(0, SERVER_STATUS_AUTOCOMMIT);
 }
 
 bool FaceMySQLWorker::comQuerySelect(string &query, vector<string> &words)

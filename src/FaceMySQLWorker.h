@@ -33,6 +33,11 @@ struct HandshakeResponse41
 	map<string, string> keyValueMap;
 };
 
+class FaceMySQLWorker;
+typedef bool (FaceMySQLWorker::*commandProcFunc)(SmartBuffer &pkt);
+typedef map<int, commandProcFunc> CommandProcFuncMap;
+typedef CommandProcFuncMap::iterator CommandProcFuncMapIterator;
+
 class FaceMySQLWorker : public AsuraThreadBase {
 public:
 	FaceMySQLWorker(GSocket *sock, uint32_t connId);
@@ -47,6 +52,11 @@ protected:
 	bool sendHandshakeV10(void);
 	bool receiveHandshakeResponse41(void);
 	bool receivePacket(SmartBuffer &pkt);
+
+	/**
+	 * When this function returns false, mainThread() exits from the loop.
+	 * So 'true' will be returned except for fatal cases.
+	 */
 	bool receiveRequest(void);
 	bool sendOK(uint64_t affectedRows = 0, uint64_t lastInsertId = 0);
 	bool sendEOF(uint16_t warningCount, uint16_t status);
@@ -67,6 +77,7 @@ protected:
 	                                       uint64_t length);
 	bool comQuery(SmartBuffer &pkt);
 	bool comInitDB(SmartBuffer &pkt);
+	bool comSetOption(SmartBuffer &pkt);
 	bool comQuerySelect(string &query, vector<string> &words);
 	bool comQuerySelectVersionComment(string &query, vector<string> &words);
 
@@ -79,7 +90,9 @@ private:
 	uint32_t m_packetId;
 	uint32_t m_charSet;
 	string   m_schema;
+	uint16_t m_mysql_option;
 	HandshakeResponse41 m_hsResp41;
+	CommandProcFuncMap m_cmdProcMap;
 
 	void initHandshakeResponse41(HandshakeResponse41 &hsResp41);
 };
