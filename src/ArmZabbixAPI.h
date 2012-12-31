@@ -7,7 +7,7 @@
 class ArmZabbixAPI : public ArmBase
 {
 public:
-	ArmZabbixAPI(CommandLineArg &cmdArg);
+	ArmZabbixAPI(const char *server = "localhost");
 
 protected:
 	string getInitialJsonRequest(void);

@@ -17,8 +17,9 @@ static const char *MIME_JSON_RPC = "application/json-rpc";
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
-ArmZabbixAPI::ArmZabbixAPI(CommandLineArg &cmdArg)
-: m_server_port(DEFAULT_SERVER_PORT),
+ArmZabbixAPI::ArmZabbixAPI(const char *server)
+: m_server(server),
+  m_server_port(DEFAULT_SERVER_PORT),
   m_retry_interval(DEFAULT_RETRY_INTERVAL),
   m_repeat_interval(DEFAULT_REPEAT_INTERVAL)
 {
@@ -94,7 +95,8 @@ bool ArmZabbixAPI::mainThreadOneProc(void)
 
 gpointer ArmZabbixAPI::mainThread(AsuraThreadArg *arg)
 {
-	MLPL_INFO("started: %s\n", __PRETTY_FUNCTION__);
+	MLPL_INFO("started: ArmZabbixAPI (server: %s)\n",
+	          __PRETTY_FUNCTION__, m_server.c_str());
 	while (true) {
 		int sleepTime = m_repeat_interval;
 		if (!mainThreadOneProc())

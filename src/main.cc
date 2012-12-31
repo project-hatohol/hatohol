@@ -11,7 +11,7 @@ using namespace mlpl;
 
 #include "Utils.h"
 #include "FaceMySQL.h"
-#include "ArmZabbixAPI.h"
+#include "ArmController.h"
 
 int main(int argc, char *argv[])
 {
@@ -25,8 +25,8 @@ int main(int argc, char *argv[])
 	FaceMySQL face(cmdArg);
 	face.start();
 
-	ArmZabbixAPI arm(cmdArg);
-	arm.start();
+	ArmController armController(cmdArg);
+	armController.start();
 
 	GMainLoop *loop = g_main_loop_new(NULL, FALSE);
 	g_main_loop_run(loop);

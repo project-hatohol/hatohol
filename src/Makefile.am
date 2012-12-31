@@ -2,7 +2,8 @@ sbin_PROGRAMS = asura
 asura_SOURCES = \
 	main.cc FaceBase.cc FaceMySQL.cc FaceMySQLWorker.cc \
 	JsonBuilderAgent.cc JsonParserAgent.cc \
-	AsuraException.cc AsuraThreadBase.cc ArmBase.cc ArmZabbixAPI.cc
+	AsuraException.cc AsuraThreadBase.cc ArmController.cc \
+	ArmBase.cc ArmZabbixAPI.cc
 
 AM_CXXFLAGS = -Wall -g \
 	$(MLPL_CFLAGS) $(GLIB_CFLAGS) $(GIO_CFLAGS) \
