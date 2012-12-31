@@ -12,6 +12,7 @@ using namespace mlpl;
 
 #include "Utils.h"
 #include "AsuraThreadBase.h"
+#include "DBComposer.h"
 
 struct HandshakeResponse41
 {
@@ -37,6 +38,10 @@ class FaceMySQLWorker;
 typedef bool (FaceMySQLWorker::*commandProcFunc)(SmartBuffer &pkt);
 typedef map<int, commandProcFunc> CommandProcFuncMap;
 typedef CommandProcFuncMap::iterator CommandProcFuncMapIterator;
+
+typedef bool (FaceMySQLWorker::*queryProcFunc)(string &query, vector<string> &words);
+typedef map<string, queryProcFunc> QueryProcFuncMap;
+typedef QueryProcFuncMap::iterator QueryProcFuncMapIterator;
 
 class FaceMySQLWorker : public AsuraThreadBase {
 public:
@@ -78,8 +83,11 @@ protected:
 	bool comQuery(SmartBuffer &pkt);
 	bool comInitDB(SmartBuffer &pkt);
 	bool comSetOption(SmartBuffer &pkt);
-	bool comQuerySelect(string &query, vector<string> &words);
-	bool comQuerySelectVersionComment(string &query, vector<string> &words);
+
+	bool querySelect(string &query, vector<string> &words);
+	bool querySet(string &query, vector<string> &words);
+
+	bool querySelectVersionComment(string &query, vector<string> &words);
 
 	// virtual methods
 	gpointer mainThread(AsuraThreadArg *arg);
@@ -93,6 +101,8 @@ private:
 	uint16_t m_mysql_option;
 	HandshakeResponse41 m_hsResp41;
 	CommandProcFuncMap m_cmdProcMap;
+	QueryProcFuncMap   m_queryProcMap;
+	DBComposer        *m_dbComposer;
 
 	void initHandshakeResponse41(HandshakeResponse41 &hsResp41);
 };

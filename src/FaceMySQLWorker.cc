@@ -1,4 +1,5 @@
 #include <cstring>
+#include <algorithm>
 using namespace std;
 
 #include <Logger.h>
@@ -63,6 +64,8 @@ enum {
 	MYSQL_OPTION_MULTI_STATEMENTS_OFF = 0x01,
 };
 
+static const int DEFAULT_CHAR_SET = 8;
+
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
@@ -71,12 +74,17 @@ FaceMySQLWorker::FaceMySQLWorker(GSocket *sock, uint32_t connId)
   m_socket(sock),
   m_connId(connId),
   m_packetId(-1),
-  m_charSet(8)
+  m_charSet(DEFAULT_CHAR_SET),
+  m_dbComposer(NULL)
 {
 	initHandshakeResponse41(m_hsResp41);
+
 	m_cmdProcMap[ID_COM_INIT_DB] = &FaceMySQLWorker::comInitDB;
 	m_cmdProcMap[ID_COM_QUERY]   = &FaceMySQLWorker::comQuery;
 	m_cmdProcMap[ID_COM_SET_OPTION]  = &FaceMySQLWorker::comSetOption;
+
+	m_queryProcMap["select"]  = &FaceMySQLWorker::querySelect;
+	m_queryProcMap["set"]     = &FaceMySQLWorker::querySet;
 }
 
 FaceMySQLWorker::~FaceMySQLWorker()
@@ -527,6 +535,9 @@ string FaceMySQLWorker::getFixedLengthStringAndIncIndex(SmartBuffer &buf,
 	return str;
 }
 
+// ---------------------------------------------------------------------------
+// command
+// ---------------------------------------------------------------------------
 bool FaceMySQLWorker::comQuery(SmartBuffer &pkt)
 {
 	string query = getEOFString(pkt);
@@ -540,10 +551,16 @@ bool FaceMySQLWorker::comQuery(SmartBuffer &pkt)
 	}
 
 	string &command = words[0];
-	if (command == "select")
-		return comQuerySelect(query, words);
-	MLPL_BUG("Not implemented: query command: '%s'\n", query.c_str());
-	return false;
+	transform(command.begin(), command.end(), command.begin(), ::tolower);
+	QueryProcFuncMapIterator it = m_queryProcMap.find(command);
+	if (it == m_queryProcMap.end()) {
+		MLPL_BUG("Not implemented: query command: '%s'\n",
+		         query.c_str());
+		return false;
+	}
+
+	queryProcFunc &proc = it->second;
+	return (this->*proc)(query, words);
 }
 
 bool FaceMySQLWorker::comInitDB(SmartBuffer &pkt)
@@ -566,15 +583,24 @@ bool FaceMySQLWorker::comSetOption(SmartBuffer &pkt)
 	return sendEOF(0, SERVER_STATUS_AUTOCOMMIT);
 }
 
-bool FaceMySQLWorker::comQuerySelect(string &query, vector<string> &words)
+// ---------------------------------------------------------------------------
+// query
+// ---------------------------------------------------------------------------
+bool FaceMySQLWorker::querySelect(string &query, vector<string> &words)
 {
 	if (words[1] == "@@version_comment")
-		return comQuerySelectVersionComment(query, words);
+		return querySelectVersionComment(query, words);
 	MLPL_BUG("Not implemented: select: '%s'\n", words[1].c_str());
 	return false;
 }
 
-bool FaceMySQLWorker::comQuerySelectVersionComment(string &query, vector<string> &words)
+bool FaceMySQLWorker::querySet(string &query, vector<string> &words)
+{
+	MLPL_WARN("Not implemented: set: %s (ignored)\n", query.c_str());
+	return sendOK();
+}
+
+bool FaceMySQLWorker::querySelectVersionComment(string &query, vector<string> &words)
 {
 	// [REF] http://dev.mysql.com/doc/internals/en/text-protocol.html#packet-COM_QUERY
 
