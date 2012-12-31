@@ -49,7 +49,8 @@ enum {
 };
 
 enum {
-	ID_COM_QUERY = 0x03,
+	ID_COM_INIT_DB = 0x02,
+	ID_COM_QUERY   = 0x03,
 };
 
 enum {
@@ -327,6 +328,8 @@ bool FaceMySQLWorker::receiveRequest(void)
 	uint8_t command_id = pkt.getValueAndIncIndex<uint8_t>();
 	if (command_id == ID_COM_QUERY)
 		return comQuery(pkt);
+	if (command_id == ID_COM_INIT_DB)
+		return comInitDB(pkt);
 
 	MLPL_BUG("command_id: %02x: Not implemented\n", command_id);
 	return false;
@@ -366,17 +369,13 @@ bool FaceMySQLWorker::sendColumnDefinition41(
 	return sendPacket(pkt);
 }
 
-bool FaceMySQLWorker::sendOK(void)
+bool FaceMySQLWorker::sendOK(uint64_t affectedRows, uint64_t lastInsertId)
 {
 	SmartBuffer pkt(11);
 	addPacketHeaderRegion(pkt);
 	pkt.add8(OK_HEADER);
-
-	//lenenc-int     affected rows
-	pkt.add8(0);
-
-	//lenenc-int     last-insert-id
-	pkt.add8(0);
+	addLenEncInt(pkt, affectedRows);
+	addLenEncInt(pkt, lastInsertId);
 
 	if (m_hsResp41.capability & CLIENT_PROTOCOL_41) {
 		uint16_t statusFlags = SERVER_STATUS_AUTOCOMMIT;
@@ -535,6 +534,14 @@ bool FaceMySQLWorker::comQuery(SmartBuffer &pkt)
 		return comQuerySelect(query, words);
 	MLPL_BUG("Not implemented: query command: '%s'\n", query.c_str());
 	return false;
+}
+
+bool FaceMySQLWorker::comInitDB(SmartBuffer &pkt)
+{
+	string schema = getEOFString(pkt);
+	MLPL_DBG("******* %s: %s\n", __PRETTY_FUNCTION__, schema.c_str());
+	m_schema = schema;
+	return sendOK();
 }
 
 bool FaceMySQLWorker::comQuerySelect(string &query, vector<string> &words)

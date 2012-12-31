@@ -48,7 +48,7 @@ protected:
 	bool receiveHandshakeResponse41(void);
 	bool receivePacket(SmartBuffer &pkt);
 	bool receiveRequest(void);
-	bool sendOK(void);
+	bool sendOK(uint64_t affectedRows = 0, uint64_t lastInsertId = 0);
 	bool sendEOF(uint16_t warningCount, uint16_t status);
 	bool sendColumnDefinition41(
 	  string &schema, string &table, string &orgTable,
@@ -66,6 +66,7 @@ protected:
 	string getFixedLengthStringAndIncIndex(SmartBuffer &buf,
 	                                       uint64_t length);
 	bool comQuery(SmartBuffer &pkt);
+	bool comInitDB(SmartBuffer &pkt);
 	bool comQuerySelect(string &query, vector<string> &words);
 	bool comQuerySelectVersionComment(string &query, vector<string> &words);
 
@@ -77,6 +78,7 @@ private:
 	uint32_t m_connId;
 	uint32_t m_packetId;
 	uint32_t m_charSet;
+	string   m_schema;
 	HandshakeResponse41 m_hsResp41;
 
 	void initHandshakeResponse41(HandshakeResponse41 &hsResp41);
