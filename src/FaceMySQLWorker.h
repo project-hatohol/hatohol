@@ -12,7 +12,7 @@ using namespace mlpl;
 
 #include "Utils.h"
 #include "AsuraThreadBase.h"
-#include "DBComposer.h"
+#include "SQLProcessor.h"
 
 struct HandshakeResponse41
 {
@@ -97,12 +97,13 @@ private:
 	uint32_t m_connId;
 	uint32_t m_packetId;
 	uint32_t m_charSet;
-	string   m_schema;
+	string   m_currDBname;
 	uint16_t m_mysql_option;
 	HandshakeResponse41 m_hsResp41;
 	CommandProcFuncMap m_cmdProcMap;
 	QueryProcFuncMap   m_queryProcMap;
-	DBComposer        *m_dbComposer;
+	SQLProcessor        *m_sqlProcessor;
+	map<string, SQLProcessor *> m_sqlProcessorMap;
 
 	void initHandshakeResponse41(HandshakeResponse41 &hsResp41);
 };

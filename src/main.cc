@@ -12,11 +12,14 @@ using namespace mlpl;
 #include "Utils.h"
 #include "FaceMySQL.h"
 #include "ArmController.h"
+#include "SQLProcessorFactory.h"
 
 int main(int argc, char *argv[])
 {
 	g_type_init();
 	MLPL_INFO("started asura: ver. %s\n", PACKAGE_VERSION);
+
+	SQLProcessorFactory::init();
 
 	CommandLineArg cmdArg;
 	for (int i = 1; i < argc; i++)

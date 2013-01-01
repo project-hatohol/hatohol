@@ -8,6 +8,7 @@ using namespace mlpl;
 
 #include "Utils.h"
 #include "FaceMySQLWorker.h"
+#include "SQLProcessorFactory.h"
 
 static const int PACKET_HEADER_SIZE = 4;
 static const int MAX_LENENC_INT_LENGTH = 9;
@@ -75,7 +76,7 @@ FaceMySQLWorker::FaceMySQLWorker(GSocket *sock, uint32_t connId)
   m_connId(connId),
   m_packetId(-1),
   m_charSet(DEFAULT_CHAR_SET),
-  m_dbComposer(NULL)
+  m_sqlProcessor(NULL)
 {
 	initHandshakeResponse41(m_hsResp41);
 
@@ -565,9 +566,22 @@ bool FaceMySQLWorker::comQuery(SmartBuffer &pkt)
 
 bool FaceMySQLWorker::comInitDB(SmartBuffer &pkt)
 {
-	string schema = getEOFString(pkt);
-	MLPL_DBG("******* %s: %s\n", __PRETTY_FUNCTION__, schema.c_str());
-	m_schema = schema;
+	string DBname = getEOFString(pkt);
+	MLPL_DBG("******* %s: %s\n", __PRETTY_FUNCTION__, DBname.c_str());
+	m_currDBname = DBname;
+
+	map<string, SQLProcessor *>::iterator it = m_sqlProcessorMap.find(DBname);
+	if (it != m_sqlProcessorMap.end()) {
+		m_sqlProcessor = it->second;
+	} else {
+		SQLProcessor *processor = SQLProcessorFactory::create(DBname);
+		if (!processor) {
+			MLPL_ERR("Unknown DB: %s\n", DBname.c_str());
+			// TODO: should send Error?
+		}
+		m_sqlProcessor = processor;
+		m_sqlProcessorMap[DBname] = m_sqlProcessor;
+	}
 	return sendOK();
 }
 
