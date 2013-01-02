@@ -604,6 +604,13 @@ bool FaceMySQLWorker::querySelect(string &query, vector<string> &words)
 {
 	if (words[1] == "@@version_comment")
 		return querySelectVersionComment(query, words);
+	if (m_sqlProcessor) {
+		SQLSelectResult result;
+		if (m_sqlProcessor->select(result, query, words)) {
+			// TODO: send result
+			return true;
+		}
+	}
 	MLPL_BUG("Not implemented: select: '%s'\n", words[1].c_str());
 	return false;
 }
