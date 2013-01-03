@@ -105,12 +105,12 @@ SQLProcessorZabbix::addColumnDefs(SQLSelectResult &result,
 {
 	result.columnDefs.push_back(SQLColumnDefinition());
 	SQLColumnDefinition &colDef = result.columnDefs.back();
-	colDef.schema = getDBName();
-	colDef.table = selectStruct.table;
-	colDef.tableVar = selectStruct.tableVar;
-	colDef.column = selectStruct.table;
-	colDef.tableVar = selectStruct.tableVar;
-	colDef.type     = columnBaseDef.type;
+	colDef.schema       = getDBName();
+	colDef.table        = selectStruct.table;
+	colDef.tableVar     = selectStruct.tableVar;
+	colDef.column       = selectStruct.table;
+	colDef.tableVar     = selectStruct.tableVar;
+	colDef.type         = columnBaseDef.type;
 	colDef.columnLength = columnBaseDef.columnLength;
 }
 
