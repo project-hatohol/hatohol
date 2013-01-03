@@ -33,7 +33,6 @@ protected:
 private:
 	map<string, TableProcFunc> m_tableProcFuncMap;
 
-	static ColumnBaseDefList           m_columnBaseDefList;
 	static TableIdColumnBaseDefListMap m_tableColumnBaseDefListMap;
 	static TableIdNameMap              m_tableIdNameMap;
 

@@ -9,9 +9,6 @@ enum TableID {
 
 static const char *TABLE_NAME_NODES = "nodes";
 
-SQLProcessor::ColumnBaseDefList
-  SQLProcessorZabbix::m_columnBaseDefList;
-
 SQLProcessor::TableIdColumnBaseDefListMap
   SQLProcessorZabbix::m_tableColumnBaseDefListMap;
 
@@ -110,6 +107,7 @@ SQLProcessorZabbix::addColumnDefs(SQLSelectResult &result,
 	colDef.column = selectStruct.table;
 	colDef.tableVar = selectStruct.tableVar;
 }
+
 void
 SQLProcessorZabbix::addAllColumnDefs(SQLSelectResult &result, int tableId,
                                      SQLSelectStruct &selectStruct)
