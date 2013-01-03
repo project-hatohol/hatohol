@@ -98,8 +98,7 @@ void FaceMySQLWorker::init(void)
 // Public methods
 // ---------------------------------------------------------------------------
 FaceMySQLWorker::FaceMySQLWorker(GSocket *sock, uint32_t connId)
-: m_thread(NULL),
-  m_socket(sock),
+: m_socket(sock),
   m_connId(connId),
   m_packetId(-1),
   m_charSet(DEFAULT_CHAR_SET),
@@ -120,8 +119,6 @@ FaceMySQLWorker::~FaceMySQLWorker()
 {
 	if (m_socket)
 		g_object_unref(m_socket);
-	if (m_thread)
-		g_thread_unref(m_thread);
 }
 
 // ---------------------------------------------------------------------------

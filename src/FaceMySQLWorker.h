@@ -98,7 +98,6 @@ private:
 	static const size_t TYPE_CONVERT_TABLE_SIZE = 0x100;
 	static int m_typeConverTable[TYPE_CONVERT_TABLE_SIZE];
 
-	GThread *m_thread;
 	GSocket *m_socket;
 	uint32_t m_connId;
 	uint32_t m_packetId;
