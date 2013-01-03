@@ -27,27 +27,28 @@ public:
 	                    string &query, vector<string> &words) = 0;
 
 protected:
-	typedef size_t (SQLProcessor::*SelectSubParser)
-	  (size_t idx, size_t indexInTheStatus,
-	   SQLSelectStruct &selectStruct, vector<string> &words);
+	struct SelectParserContext {
+		size_t idx;
+		vector<string> &words;
+		size_t numWords;
+		const char *currWord;
+		int region;
+		size_t indexInTheStatus;
+		SQLSelectStruct &selectStruct;
+	};
+	typedef bool (SQLProcessor::*SelectSubParser)(SelectParserContext &ctx);
 
 	bool parseSelectStatement(SQLSelectStruct &selectStruct,
 	                          vector<string> &words);
-	size_t parseSelectedColumns(size_t idx, size_t indexInTheStatus,
-	                            SQLSelectStruct &selectStruct,
-	                            vector<string> &words);
-	size_t parseGroupBy(size_t idx, size_t indexInTheStatus,
-	                    SQLSelectStruct &selectStruct,
-	                    vector<string> &words);
-	size_t parseFrom(size_t idx, size_t indexInTheStatus,
-	                 SQLSelectStruct &selectStruct,
-	                 vector<string> &words);
-	size_t parseWhere(size_t idx, size_t indexInTheStatus,
-	                  SQLSelectStruct &selectStruct,
-	                  vector<string> &words);
-	size_t parseOrderBy(size_t idx, size_t indexInTheStatus,
-	                    SQLSelectStruct &selectStruct,
-	                    vector<string> &words);
+
+	//
+	// Select statment parsers
+	//
+	bool parseSelectedColumns(SelectParserContext &ctx);
+	bool parseGroupBy(SelectParserContext &ctx);
+	bool parseFrom(SelectParserContext &ctx);
+	bool parseWhere(SelectParserContext &ctx);
+	bool parseOrderBy(SelectParserContext &ctx);
 
 private:
 	static const SelectSubParser m_selectSubParsers[];

@@ -5,12 +5,12 @@ using namespace mlpl;
 #include "SQLProcessor.h"
 
 enum SelectParserStatus {
-	SELECT_PARSER_STATUS_SELECT,
-	SELECT_PARSER_STATUS_GROUP_BY,
-	SELECT_PARSER_STATUS_FROM,
-	SELECT_PARSER_STATUS_WHERE,
-	SELECT_PARSER_STATUS_ORDER_BY,
-	NUM_SELECT_PARSER_STATUS,
+	SELECT_PARSE_REGION_SELECT,
+	SELECT_PARSE_REGION_GROUP_BY,
+	SELECT_PARSE_REGION_FROM,
+	SELECT_PARSE_REGION_WHERE,
+	SELECT_PARSE_REGION_ORDER_BY,
+	NUM_SELECT_PARSE_REGION,
 };
 
 const SQLProcessor::SelectSubParser SQLProcessor::m_selectSubParsers[] = {
@@ -47,35 +47,37 @@ bool SQLProcessor::parseSelectStatement(SQLSelectStruct &selectStruct,
 		return false;
 	}
 
-	size_t indexInTheStatus = 0;
-	SelectParserStatus status = SELECT_PARSER_STATUS_SELECT;
+	SelectParserContext ctx = {0, words, numWords,
+	                           NULL, // currWord
+	                           SELECT_PARSE_REGION_SELECT,
+	                           0, selectStruct};
 	for (size_t i = 1; i < numWords; i++) {
-		string &word = words[i];
+		ctx.currWord = words[i].c_str();
 
 		// check the keywords.
-		if (StringUtils::casecmp(word, "from")) {
-			status = SELECT_PARSER_STATUS_FROM;
-			indexInTheStatus = 0;
+		if (StringUtils::casecmp(ctx.currWord, "from")) {
+			ctx.region = SELECT_PARSE_REGION_FROM;
+			ctx.indexInTheStatus = 0;
 			continue;
-		} else if (StringUtils::casecmp(word, "where")) {
-			status = SELECT_PARSER_STATUS_WHERE;
-			indexInTheStatus = 0;
+		} else if (StringUtils::casecmp(ctx.currWord, "where")) {
+			ctx.region = SELECT_PARSE_REGION_WHERE;
+			ctx.indexInTheStatus = 0;
 			continue;
-		} else if (StringUtils::casecmp(word, "order")) {
+		} else if (StringUtils::casecmp(ctx.currWord, "order")) {
 			if (i != numWords - 1) {
 				if (StringUtils::casecmp(words[i+1], "by")) {
-					status = SELECT_PARSER_STATUS_ORDER_BY;
-					indexInTheStatus = 0;
+					ctx.region = SELECT_PARSE_REGION_ORDER_BY;
+					ctx.indexInTheStatus = 0;
 					i++;
 					continue;
 				}
 			}
 		}
-		else if (StringUtils::casecmp(word, "group")) {
+		else if (StringUtils::casecmp(ctx.currWord, "group")) {
 			if (i != numWords - 1) {
 				if (StringUtils::casecmp(words[i+1], "by")) {
-					status = SELECT_PARSER_STATUS_GROUP_BY;
-					indexInTheStatus = 0;
+					ctx.region = SELECT_PARSE_REGION_GROUP_BY;
+					ctx.indexInTheStatus = 0;
 					i++;
 					continue;
 				}
@@ -83,15 +85,17 @@ bool SQLProcessor::parseSelectStatement(SQLSelectStruct &selectStruct,
 		}
 
 		// paser each component
-		if (status >= NUM_SELECT_PARSER_STATUS) {
-			MLPL_BUG("status(%d) >= NUM_SELECT_PARSER_STATUS\n",
-			         status);
+		if (ctx.region >= NUM_SELECT_PARSE_REGION) {
+			MLPL_BUG("region(%d) >= NUM_SELECT_PARSE_REGION\n",
+			         ctx.region);
 			return false;
 		}
-		const SelectSubParser subParser = m_selectSubParsers[status];
-		i = (this->*subParser)(i, indexInTheStatus, selectStruct, words);
+		const SelectSubParser subParser =
+		  m_selectSubParsers[ctx.region];
+		if (!(this->*subParser)(ctx))
+			return false;
 
-		indexInTheStatus++;
+		ctx.indexInTheStatus++;
 	}
 
 	// check the results
@@ -103,52 +107,44 @@ bool SQLProcessor::parseSelectStatement(SQLSelectStruct &selectStruct,
 }
 
 //
+// Select status parsers
+//
+
+//
 // Select statment parsers
 //
-size_t
-SQLProcessor::parseSelectedColumns(size_t idx, size_t indexInTheStatus,
-                                   SQLSelectStruct &selectStruct,
-                                   vector<string> &words)
+bool SQLProcessor::parseSelectedColumns(SelectParserContext &ctx)
 {
-	selectStruct.selectedColumns.push_back(words[idx]);
-	return idx;
+	ctx.selectStruct.selectedColumns.push_back(ctx.currWord);
+	return true;
 }
 
-size_t SQLProcessor::parseGroupBy(size_t idx, size_t indexInTheStatus,
-                                  SQLSelectStruct &selectStruct,
-                                  vector<string> &words)
+bool SQLProcessor::parseGroupBy(SelectParserContext &ctx)
 {
 	MLPL_BUG("Not implemented: GROUP_BY\n");
-	return idx;
+	return false;
 }
 
-size_t SQLProcessor::parseFrom(size_t idx, size_t indexInTheStatus,
-                               SQLSelectStruct &selectStruct,
-                               vector<string> &words)
+bool SQLProcessor::parseFrom(SelectParserContext &ctx)
 {
-	string &word = words[idx];
-	if (indexInTheStatus == 0)
-		selectStruct.table = word;
-	else if (indexInTheStatus == 1)
-		selectStruct.tableVar = word;
+	if (ctx.indexInTheStatus == 0)
+		ctx.selectStruct.table = ctx.currWord;
+	else if (ctx.indexInTheStatus == 1)
+		ctx.selectStruct.tableVar = ctx.currWord;
 	else {
 		// TODO: return error?
 	}
-	return idx;
+	return true;
 }
 
-size_t SQLProcessor::parseWhere(size_t idx, size_t indexInTheStatus,
-                                SQLSelectStruct &selectStruct,
-                                vector<string> &words)
+bool SQLProcessor::parseWhere(SelectParserContext &ctx)
 {
 	MLPL_BUG("Not implemented: WHERE\n");
-	return idx;
+	return false;
 }
 
-size_t SQLProcessor::parseOrderBy(size_t idx, size_t indexInTheStatus,
-                                  SQLSelectStruct &selectStruct,
-                                  vector<string> &words)
+bool SQLProcessor::parseOrderBy(SelectParserContext &ctx)
 {
-	selectStruct.orderedColumns.push_back(words[idx]);
-	return idx;
+	ctx.selectStruct.orderedColumns.push_back(ctx.currWord);
+	return true;
 }
