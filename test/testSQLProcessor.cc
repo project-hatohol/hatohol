@@ -32,7 +32,6 @@ void TestSQLProcessor::callParseSelectStatement(SQLSelectStruct &selStruct,
 // ---------------------------------------------------------------------------
 // Test cases
 // ---------------------------------------------------------------------------
-
 void test_selectOneItem(void)
 {
 	SQLSelectStruct selStruct;
@@ -43,10 +42,38 @@ void test_selectOneItem(void)
 	                                        selectedItem, tableName);
 	proc.callParseSelectStatement(selStruct, statement);
 
-	cut_assert_equal_int(1, selStruct.selectRows.size());
-	cut_assert_equal_string(selectedItem, selStruct.selectRows[0].c_str());
+	cut_assert_equal_int(1, selStruct.selectedColumns.size());
+	cut_assert_equal_string(selectedItem,
+	                        selStruct.selectedColumns[0].c_str());
 
 	cut_assert_equal_string(tableName, selStruct.table.c_str());
+}
+
+void test_selectTableVar(void)
+{
+	SQLSelectStruct selStruct;
+	TestSQLProcessor proc;
+	const char *tableVarName = "tvar";
+	string statement =
+	  StringUtils::sprintf("select rowName from tableName %s",
+	                       tableVarName);
+	proc.callParseSelectStatement(selStruct, statement);
+	cut_assert_equal_string(tableVarName, selStruct.tableVar.c_str());
+}
+
+void test_selectOrderBy(void)
+{
+	SQLSelectStruct selStruct;
+	TestSQLProcessor proc;
+	const char *orderName = "orderRow";
+	string statement =
+	  StringUtils::sprintf("select rowName from tableName order by %s",
+	                       orderName);
+	proc.callParseSelectStatement(selStruct, statement);
+
+	cut_assert_equal_int(1, selStruct.orderedColumns.size());
+	cut_assert_equal_string(orderName,
+	                        selStruct.orderedColumns[0].c_str());
 }
 
 } // namespace testSQLProcessor
