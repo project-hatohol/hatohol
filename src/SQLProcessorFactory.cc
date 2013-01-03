@@ -9,7 +9,8 @@ map<string, SQLProcessorCreatorFunc> SQLProcessorFactory::m_factoryMap;
 // ---------------------------------------------------------------------------
 void SQLProcessorFactory::init(void)
 {
-	addFactory("zabbix", SQLProcessorZabbix::createInstance);
+	addFactory(SQLProcessorZabbix::getDBName(),
+	           SQLProcessorZabbix::createInstance);
 }
 
 SQLProcessor *SQLProcessorFactory::create(string &DBName)

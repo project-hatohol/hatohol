@@ -3,7 +3,7 @@ asura_SOURCES = main.cc
 
 lib_LTLIBRARIES = libasura.la
 libasura_la_SOURCES = \
-	FaceBase.cc FaceMySQL.cc FaceMySQLWorker.cc \
+	Asura.cc FaceBase.cc FaceMySQL.cc FaceMySQLWorker.cc \
 	SQLProcessorFactory.cc SQLProcessor.cc SQLProcessorZabbix.cc \
 	JsonBuilderAgent.cc JsonParserAgent.cc \
 	AsuraException.cc AsuraThreadBase.cc ArmController.cc \

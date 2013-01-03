@@ -5,6 +5,7 @@ using namespace mlpl;
 #include <algorithm>
 using namespace std;
 
+#include <cstring>
 #include "SQLProcessor.h"
 
 enum SelectParseRegion {
@@ -52,6 +53,31 @@ SQLProcessor::~SQLProcessor()
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
+bool SQLProcessor::selectedAllColumns(SQLSelectStruct &selectStruct)
+{
+	if (selectStruct.columns.size() != 1)
+		return false;
+
+	string &column = selectStruct.columns[0];
+	if (column == "*")
+		return true;
+
+	if (selectStruct.tableVar.empty())
+		return false;
+
+	size_t len = selectStruct.tableVar.size();
+
+	static const char DOT_ASTERISK[] = ".*";
+	static const size_t LEN_DOT_ASTERISK = sizeof(DOT_ASTERISK) - 1;
+	if (column.size() != len + LEN_DOT_ASTERISK)
+		return false;
+	if (strncmp(column.c_str(), selectStruct.tableVar.c_str(), len) != 0)
+		return false;
+	if (strncmp(&column.c_str()[len], DOT_ASTERISK, LEN_DOT_ASTERISK) == 0)
+		return true;
+	return false;
+}
+
 bool SQLProcessor::parseSelectStatement(SQLSelectStruct &selectStruct,
                                         vector<string> &words)
 {
@@ -104,11 +130,11 @@ bool SQLProcessor::parseSelectStatement(SQLSelectStruct &selectStruct,
 	}
 
 	// check the results
-	if (selectStruct.selectedColumns.empty()) {
+	if (selectStruct.columns.empty()) {
 		return false;
 	}
 
-	return false;
+	return true;
 }
 
 //
@@ -131,7 +157,6 @@ bool SQLProcessor::parseRegionOrder(SelectParserContext &ctx)
 	if (ctx.idx == ctx.numWords - 1)
 		return false;
 
-	MLPL_DBG("**** %s\n", ctx.words[ctx.idx+1].c_str());
 	if (!StringUtils::casecmp(ctx.words[ctx.idx+1], "by"))
 		return false;
 
@@ -158,7 +183,7 @@ bool SQLProcessor::parseRegionGroup(SelectParserContext &ctx)
 //
 bool SQLProcessor::parseSelectedColumns(SelectParserContext &ctx)
 {
-	ctx.selectStruct.selectedColumns.push_back(ctx.currWord);
+	ctx.selectStruct.columns.push_back(ctx.currWord);
 	return true;
 }
 
@@ -183,7 +208,8 @@ bool SQLProcessor::parseFrom(SelectParserContext &ctx)
 bool SQLProcessor::parseWhere(SelectParserContext &ctx)
 {
 	MLPL_BUG("Not implemented: WHERE\n");
-	return false;
+	//return false;
+	return true;
 }
 
 bool SQLProcessor::parseOrderBy(SelectParserContext &ctx)

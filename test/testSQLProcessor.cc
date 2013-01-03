@@ -42,9 +42,9 @@ void test_selectOneItem(void)
 	                                        selectedItem, tableName);
 	proc.callParseSelectStatement(selStruct, statement);
 
-	cut_assert_equal_int(1, selStruct.selectedColumns.size());
+	cut_assert_equal_int(1, selStruct.columns.size());
 	cut_assert_equal_string(selectedItem,
-	                        selStruct.selectedColumns[0].c_str());
+	                        selStruct.columns[0].c_str());
 
 	cut_assert_equal_string(tableName, selStruct.table.c_str());
 }

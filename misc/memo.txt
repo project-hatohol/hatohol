@@ -31,17 +31,32 @@ server > 127.0.0.1.57397: ID 2 len 7 ::DUMP::
 02 00
 00 00 
 
-*** columDefinition
+*** columDefinition (@@version_comment)
 03 64 65 66
-00
-00
-00
-11 40 40 76 65 72 73 69 6f 6e 5f 63 6f 6d 6d 65 6e 74
-00
-0c
-08 00
-08 00 00 00
-fd
-00 00
-1f
-00 00
+00   // schema
+00   // table
+00   // orgTable
+11 40 40 76 65 72 73 69 6f 6e 5f 63 6f 6d 6d 65 6e 74 // name
+00  // orgName
+0c  // remainLength
+08 00       // CharSet
+08 00 00 00 // columnLength
+fd     // type: MYSQL_TYPE_VAR_STRING
+00 00  // flags
+1f     // decimals
+00 00  // Fillter
+
+*** columnDefinition (zabbix: nodes)
+03 64 65 66
+06 7a 61 62 62 69 78  // schema: zabbix
+01 6e                 // table: n
+05 6e 6f 64 65 73     // orgTable: nodes
+06 6e 6f 64 65 69 64  // name: nodeid
+06 6e 6f 64 65 69 64  // orgName: nodeid
+0c           // remainLength
+3f 00       // charSet
+0b 00 00 00 // column length
+03    // type
+03 50 // flags
+00    // decimal
+00 00                 // Filler

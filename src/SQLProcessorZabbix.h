@@ -1,18 +1,17 @@
 #ifndef SQLProcessorZabbix_h
 #define SQLProcessorZabbix_h
 
-#include <map>
-using namespace std;
-
 #include "SQLProcessor.h"
-
-class SQLProcessorZabbix;
-typedef bool (SQLProcessorZabbix::*TableProcFunc)(SQLSelectStruct &arg);
 
 class SQLProcessorZabbix : public SQLProcessor
 {
 public:
+	// static methods
+	static void init(void);
 	static SQLProcessor *createInstance(void);
+	static const char *getDBName(void);
+
+	// constructor and desctructor
 	SQLProcessorZabbix(void);
 	~SQLProcessorZabbix();
 
@@ -21,10 +20,21 @@ public:
 	            string &query, vector<string> &words);
 
 protected:
-	bool tableProcNodes(SQLSelectStruct &selStruct);
+	typedef bool (SQLProcessorZabbix::*TableProcFunc)(SQLSelectResult &result, SQLSelectStruct &selectStruct);
+	bool tableProcNodes(SQLSelectResult &result,
+	                    SQLSelectStruct &selectStruct);
 
 private:
 	map<string, TableProcFunc> m_tableProcFuncMap;
+
+	static ColumnBaseDefList           m_columnBaseDefList;
+	static TableIdColumnBaseDefListMap m_tableColumnBaseDefListMap;
+	static TableIdNameMap              m_tableIdNameMap;
+
+	static void defineTable(int tableId, const char *tableName);
+	static void defineColumn(int tableId, const char *columnName,
+	                         SQLColumnType, size_t columnLength);
+	static const char *getTableName(int tableId);
 };
 
 #endif // SQLProcessorZabbix_h
