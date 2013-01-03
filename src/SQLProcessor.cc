@@ -40,20 +40,19 @@ bool SQLProcessor::parseSelectStatement(SQLSelectStruct &selectStruct,
 
 	int indexInTheStatus = 0;
 	SelectParserStatus status = SELECT_PARSER_STATUS_SELECT;
-	for (size_t i = 1; i < numWords; i++, indexInTheStatus++) {
+	for (size_t i = 1; i < numWords; i++) {
 		string &word = words[i];
-		MLPL_DBG("[%zd] %s\n", i, word.c_str());
 
-		// check if the word is keyword.
-		if (StringUtils::casecmp(words[i], "from")) {
+		// check the keywords.
+		if (StringUtils::casecmp(word, "from")) {
 			status = SELECT_PARSER_STATUS_FROM;
 			indexInTheStatus = 0;
 			continue;
-		} else if (StringUtils::casecmp(words[i], "where")) {
+		} else if (StringUtils::casecmp(word, "where")) {
 			status = SELECT_PARSER_STATUS_WHERE;
 			indexInTheStatus = 0;
 			continue;
-		} else if (StringUtils::casecmp(words[i], "order")) {
+		} else if (StringUtils::casecmp(word, "order")) {
 			if (i != numWords - 1) {
 				if (StringUtils::casecmp(words[i+1], "by")) {
 					status = SELECT_PARSER_STATUS_ORDER_BY;
@@ -63,7 +62,7 @@ bool SQLProcessor::parseSelectStatement(SQLSelectStruct &selectStruct,
 				}
 			}
 		}
-		else if (StringUtils::casecmp(words[i], "group")) {
+		else if (StringUtils::casecmp(word, "group")) {
 			if (i != numWords - 1) {
 				if (StringUtils::casecmp(words[i+1], "by")) {
 					status = SELECT_PARSER_STATUS_GROUP_BY;
@@ -74,9 +73,11 @@ bool SQLProcessor::parseSelectStatement(SQLSelectStruct &selectStruct,
 			}
 		}
 
+		// paser each component
 		if (status == SELECT_PARSER_STATUS_SELECT) {
-			// TODO: support ','comma separation
 			selectStruct.selectRows.push_back(word);
+		} else if (status == SELECT_PARSER_STATUS_GROUP_BY) {
+			MLPL_BUG("Not implemented: GROUP_BY\n");
 		} else if (status == SELECT_PARSER_STATUS_FROM) {
 			if (indexInTheStatus == 0)
 				selectStruct.table = word;
@@ -86,9 +87,11 @@ bool SQLProcessor::parseSelectStatement(SQLSelectStruct &selectStruct,
 				// TODO: return error?
 			}
 		} else if (status == SELECT_PARSER_STATUS_WHERE) {
+			i = parseWhere(i, words);
 		} else if (status == SELECT_PARSER_STATUS_ORDER_BY) {
-		} else if (status == SELECT_PARSER_STATUS_GROUP_BY) {
+			i = parseOrderBy(i, words);
 		}
+		indexInTheStatus++;
 	}
 
 	// check the results
@@ -102,3 +105,12 @@ bool SQLProcessor::parseSelectStatement(SQLSelectStruct &selectStruct,
 // ---------------------------------------------------------------------------
 // Private methods
 // ---------------------------------------------------------------------------
+size_t SQLProcessor::parseOrderBy(size_t idx, vector<string> &words)
+{
+	return idx;
+}
+
+size_t SQLProcessor::parseWhere(size_t idx, vector<string> &words)
+{
+	return idx;
+}

@@ -29,6 +29,8 @@ public:
 protected:
 	bool parseSelectStatement(SQLSelectStruct &selectStruct,
 	                          vector<string> &words);
+	size_t parseOrderBy(size_t idx, vector<string> &words);
+	size_t parseWhere(size_t idx, vector<string> &words);
 
 private:
 };

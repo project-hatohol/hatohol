@@ -14,8 +14,8 @@ endif
 # default
 AM_CFLAGS = -g -Wall $(GLIB_CFLAGS)
 AM_LDFLAGS = -module -rpath $(libdir) -avoid-version -no-undefined
-INCLUDES = $(CUTTER_CFLAGS) -I ../src
-LIBS = $(CUTTER_LIBS) $(MLPL_CFLAGS)
+INCLUDES = $(CUTTER_CFLAGS) $(GLIB_CFLAGS) $(MLPL_CFLAGS) -I ../src
+LIBS = $(CUTTER_LIBS) $(GLIB_LIBS) $(MLPL_CFLAGS) ../src/libasura.la
 
 # Test cases
 testSQLProcessor_la_SOURCES = testSQLProcessor.cc
