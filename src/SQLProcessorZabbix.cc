@@ -108,8 +108,8 @@ SQLProcessorZabbix::addColumnDefs(SQLSelectResult &result,
 	colDef.schema       = getDBName();
 	colDef.table        = selectStruct.table;
 	colDef.tableVar     = selectStruct.tableVar;
-	colDef.column       = selectStruct.table;
-	colDef.tableVar     = selectStruct.tableVar;
+	colDef.column       = columnBaseDef.columnName;
+	colDef.columnVar    = columnBaseDef.columnName;
 	colDef.type         = columnBaseDef.type;
 	colDef.columnLength = columnBaseDef.columnLength;
 }

@@ -36,6 +36,14 @@ struct SQLProcessor::SelectParserContext {
 };
 
 // ---------------------------------------------------------------------------
+// Public methods (SQLColumnResult)
+// ---------------------------------------------------------------------------
+SQLSelectResult::SQLSelectResult(void)
+: useIndex(false)
+{
+}
+
+// ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
 SQLProcessor::SQLProcessor(void)

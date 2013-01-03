@@ -47,6 +47,10 @@ struct SQLRow
 struct SQLSelectResult {
 	vector<SQLColumnDefinition> columnDefs;
 	vector<SQLRow> rows;
+	bool useIndex;
+
+	// constructor
+	SQLSelectResult(void);
 };
 
 class SQLProcessor

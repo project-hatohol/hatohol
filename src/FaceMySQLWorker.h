@@ -45,6 +45,7 @@ typedef QueryProcFuncMap::iterator QueryProcFuncMapIterator;
 
 class FaceMySQLWorker : public AsuraThreadBase {
 public:
+	static void init(void);
 	FaceMySQLWorker(GSocket *sock, uint32_t connId);
 	virtual ~FaceMySQLWorker();
 
@@ -69,6 +70,7 @@ protected:
 	  string &schema, string &table, string &orgTable,
 	  string &name, string &orgName, uint32_t columnLength, uint8_t type,
 	  uint16_t flags, uint8_t decimals);
+	bool sendSelectResult(SQLSelectResult &result);
 	bool sendLenEncInt(uint64_t num);
 	bool sendLenEncStr(string &str);
 	bool sendPacket(SmartBuffer &pkt);
@@ -88,10 +90,14 @@ protected:
 	bool querySet(string &query, vector<string> &words);
 
 	bool querySelectVersionComment(string &query, vector<string> &words);
+	int typeConvert(SQLColumnType type);
 
 	// virtual methods
 	gpointer mainThread(AsuraThreadArg *arg);
 private:
+	static const size_t TYPE_CONVERT_TABLE_SIZE = 0x100;
+	static int m_typeConverTable[TYPE_CONVERT_TABLE_SIZE];
+
 	GThread *m_thread;
 	GSocket *m_socket;
 	uint32_t m_connId;
@@ -99,6 +105,7 @@ private:
 	uint32_t m_charSet;
 	string   m_currDBname;
 	uint16_t m_mysql_option;
+	uint16_t m_statusFlags;
 	HandshakeResponse41 m_hsResp41;
 	CommandProcFuncMap m_cmdProcMap;
 	QueryProcFuncMap   m_queryProcMap;

@@ -19,7 +19,18 @@ static const int PACKET_ID_SHIFT_BITS = 24;
 static const int HANDSHAKE_RESPONSE41_RESERVED_SIZE = 23;
 
 enum {
-	SERVER_STATUS_AUTOCOMMIT = 0x00000002,
+	SERVER_STATUS_IN_TRANS             = 0x0001,
+	SERVER_STATUS_AUTOCOMMIT           = 0x0002,
+	SERVER_MORE_RESULTS_EXISTS         = 0x0008,
+	SERVER_STATUS_NO_GOOD_INDEX_USED   = 0x0010,
+	SERVER_STATUS_NO_INDEX_USED        = 0x0020,
+	SERVER_STATUS_CURSOR_EXISTS        = 0x0040,
+	SERVER_STATUS_LAST_ROW_SENT        = 0x0080,
+	SERVER_STATUS_DB_DROPPED           = 0x0100,
+	SERVER_STATUS_NO_BACKSLASH_ESCAPES = 0x0200,
+	SERVER_STATUS_METADATA_CHANGED     = 0x0400,
+	SERVER_QUERY_WAS_SLOW              = 0x0800,
+	SERVER_PS_OUT_PARAMS               = 0x1000,
 };
 
 static const uint32_t CLIENT_LONG_PASSWORD     = 0x00000001;
@@ -57,7 +68,9 @@ enum {
 };
 
 enum {
+	TYPE_VAR_LONG   = 0x03,
 	TYPE_VAR_STRING = 0xfd,
+	TYPE_VAR_UNKNOWN = 0xffff,
 };
 
 enum {
@@ -65,7 +78,21 @@ enum {
 	MYSQL_OPTION_MULTI_STATEMENTS_OFF = 0x01,
 };
 
+//static const size_t FaceMySQLWorker::TYPE_CONVERT_TABLE_SIZE = 0x100;
+int FaceMySQLWorker::m_typeConverTable[TYPE_CONVERT_TABLE_SIZE];
+
 static const int DEFAULT_CHAR_SET = 8;
+
+// ---------------------------------------------------------------------------
+// Public static methods
+// ---------------------------------------------------------------------------
+void FaceMySQLWorker::init(void)
+{
+	for (size_t i = 0; i < SQL_COLUMN_TYPE_INT; i++)
+		m_typeConverTable[i] = TYPE_VAR_UNKNOWN;
+	m_typeConverTable[SQL_COLUMN_TYPE_INT] = TYPE_VAR_LONG;
+	m_typeConverTable[SQL_COLUMN_TYPE_VARCHAR] = TYPE_VAR_STRING;
+}
 
 // ---------------------------------------------------------------------------
 // Public methods
@@ -76,6 +103,7 @@ FaceMySQLWorker::FaceMySQLWorker(GSocket *sock, uint32_t connId)
   m_connId(connId),
   m_packetId(-1),
   m_charSet(DEFAULT_CHAR_SET),
+  m_statusFlags(SERVER_STATUS_AUTOCOMMIT),
   m_sqlProcessor(NULL)
 {
 	initHandshakeResponse41(m_hsResp41);
@@ -241,11 +269,8 @@ bool FaceMySQLWorker::sendHandshakeV10(void)
 	  CLIENT_RESERVED |
 	  CLIENT_SECURE_CONNECTION;
 	pkt.add16(capability1);
-
 	pkt.add8(m_charSet);
-
-	static const uint16_t status = SERVER_STATUS_AUTOCOMMIT;
-	pkt.add16(status);
+	pkt.add16(m_statusFlags);
 
 	static const uint16_t capability2 = (
 	  CLIENT_MULTI_STATEMENTS |
@@ -388,6 +413,48 @@ bool FaceMySQLWorker::sendColumnDefinition41(
 	return sendPacket(pkt);
 }
 
+bool FaceMySQLWorker::sendSelectResult(SQLSelectResult &result)
+{
+	// Column Definition
+	uint16_t flags = 0;
+	uint8_t decimals = 0;
+	for (size_t i = 0; i < result.columnDefs.size(); i++) {
+		bool ret;
+		SQLColumnDefinition &colDef = result.columnDefs[i];
+
+		int type = typeConvert(colDef.type);
+		if (type == TYPE_VAR_UNKNOWN) {
+			MLPL_BUG("Failed to convert type: %d\n", colDef.type);
+			return false;
+		}
+		ret = sendColumnDefinition41(colDef.schema,
+		                             colDef.tableVar, colDef.table,
+		                             colDef.columnVar, colDef.column,
+		                             colDef.columnLength,
+		                             type,
+		                             flags, decimals);
+		if (!ret)
+			return false;
+	}
+
+	// EOF
+	uint16_t status = m_statusFlags;
+	if (!result.useIndex)
+		status |= SERVER_STATUS_NO_INDEX_USED;
+	if (!sendEOF(0, status))
+		return false;
+
+	for (size_t i = 0; i < result.rows.size(); i++) {
+		// TODO: send content
+	}
+
+	// EOF
+	if (!sendEOF(0, status))
+		return false;
+
+	return true;
+}
+
 bool FaceMySQLWorker::sendOK(uint64_t affectedRows, uint64_t lastInsertId)
 {
 	SmartBuffer pkt(11);
@@ -397,8 +464,7 @@ bool FaceMySQLWorker::sendOK(uint64_t affectedRows, uint64_t lastInsertId)
 	addLenEncInt(pkt, lastInsertId);
 
 	if (m_hsResp41.capability & CLIENT_PROTOCOL_41) {
-		uint16_t statusFlags = SERVER_STATUS_AUTOCOMMIT;
-		pkt.add16(statusFlags);
+		pkt.add16(m_statusFlags);
 		uint16_t warnings = 0;
 		pkt.add16(warnings);
 	} else if (m_hsResp41.capability & CLIENT_TRANSACTIONS) {
@@ -594,7 +660,7 @@ bool FaceMySQLWorker::comSetOption(SmartBuffer &pkt)
 	}
 	m_mysql_option = pkt.getValueAndIncIndex<uint16_t>();
 	MLPL_DBG("MYSQL_OPTION_MULTI_STATEMENTS: %d\n", m_mysql_option);
-	return sendEOF(0, SERVER_STATUS_AUTOCOMMIT);
+	return sendEOF(0, m_statusFlags);
 }
 
 // ---------------------------------------------------------------------------
@@ -606,10 +672,8 @@ bool FaceMySQLWorker::querySelect(string &query, vector<string> &words)
 		return querySelectVersionComment(query, words);
 	if (m_sqlProcessor) {
 		SQLSelectResult result;
-		if (m_sqlProcessor->select(result, query, words)) {
-			// TODO: send result
-			return true;
-		}
+		if (m_sqlProcessor->select(result, query, words))
+			return sendSelectResult(result);
 	}
 	MLPL_BUG("Not implemented: select: '%s'\n", words[1].c_str());
 	return false;
@@ -647,7 +711,7 @@ bool FaceMySQLWorker::querySelectVersionComment(string &query, vector<string> &w
 		return false;
 
 	// EOF
-	if (!sendEOF(0, SERVER_STATUS_AUTOCOMMIT))
+	if (!sendEOF(0, m_statusFlags))
 		return false;
 
 	// Row
@@ -656,10 +720,19 @@ bool FaceMySQLWorker::querySelectVersionComment(string &query, vector<string> &w
 		return false;
 
 	// EOF
-	if (!sendEOF(0, SERVER_STATUS_AUTOCOMMIT))
+	if (!sendEOF(0, m_statusFlags))
 		return false;
 
 	return true;
+}
+
+int FaceMySQLWorker::typeConvert(SQLColumnType type)
+{
+	if (type >= TYPE_CONVERT_TABLE_SIZE) {
+		MLPL_BUG("type: %d > TYPE_CONVERT_TABLE_SIZE\n", type);
+		return TYPE_VAR_UNKNOWN;
+	}
+	return m_typeConverTable[type];
 }
 
 // ---------------------------------------------------------------------------
