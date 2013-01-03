@@ -36,6 +36,21 @@ struct SQLProcessor::SelectParserContext {
 };
 
 // ---------------------------------------------------------------------------
+// Public methods (SQLSelectStruct)
+// ---------------------------------------------------------------------------
+SQLSelectStruct::SQLSelectStruct(void)
+: whereElem(NULL)
+{
+}
+
+
+SQLSelectStruct::~SQLSelectStruct()
+{
+	if (whereElem)
+		delete whereElem;
+}
+
+// ---------------------------------------------------------------------------
 // Public methods (SQLColumnResult)
 // ---------------------------------------------------------------------------
 SQLSelectResult::SQLSelectResult(void)

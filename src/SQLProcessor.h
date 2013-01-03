@@ -8,13 +8,18 @@
 using namespace std;
 
 #include <glib.h>
+#include "SQLWhereElement.h"
 
 struct SQLSelectStruct {
-	vector<string> columns;
-	string         table;
-	string         tableVar;
-	string         where;
-	vector<string> orderedColumns;
+	vector<string>   columns;
+	string           table;
+	string           tableVar;
+	SQLWhereElement *whereElem;
+	vector<string>   orderedColumns;
+
+	// constructor and destructor
+	SQLSelectStruct(void);
+	virtual ~SQLSelectStruct();
 };
 
 enum SQLColumnType {

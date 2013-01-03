@@ -78,7 +78,6 @@ enum {
 	MYSQL_OPTION_MULTI_STATEMENTS_OFF = 0x01,
 };
 
-//static const size_t FaceMySQLWorker::TYPE_CONVERT_TABLE_SIZE = 0x100;
 int FaceMySQLWorker::m_typeConverTable[TYPE_CONVERT_TABLE_SIZE];
 
 static const int DEFAULT_CHAR_SET = 8;
