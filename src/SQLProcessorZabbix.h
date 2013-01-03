@@ -31,7 +31,7 @@ protected:
 	                    SQLSelectStruct &selectStruct);
 
 private:
-	map<string, TableProcFunc> m_tableProcFuncMap;
+	static map<string, TableProcFunc> m_tableProcFuncMap;
 
 	static TableIdColumnBaseDefListMap m_tableColumnBaseDefListMap;
 	static TableIdNameMap              m_tableIdNameMap;

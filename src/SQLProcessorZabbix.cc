@@ -9,6 +9,9 @@ enum TableID {
 
 static const char *TABLE_NAME_NODES = "nodes";
 
+map<string, SQLProcessorZabbix::TableProcFunc>
+  SQLProcessorZabbix::m_tableProcFuncMap;
+
 SQLProcessor::TableIdColumnBaseDefListMap
   SQLProcessorZabbix::m_tableColumnBaseDefListMap;
 
@@ -49,6 +52,9 @@ void SQLProcessorZabbix::init(void)
 	defineColumn(TABLE_ID_NODES, "port",     SQL_COLUMN_TYPE_INT, 11);
 	defineColumn(TABLE_ID_NODES, "nodetype", SQL_COLUMN_TYPE_INT, 11);
 	defineColumn(TABLE_ID_NODES, "masterid", SQL_COLUMN_TYPE_INT, 11);
+
+	m_tableProcFuncMap[TABLE_NAME_NODES]
+	  = &SQLProcessorZabbix::tableProcNodes;
 }
 
 SQLProcessor *SQLProcessorZabbix::createInstance(void)
@@ -67,8 +73,6 @@ const char *SQLProcessorZabbix::getDBName(void)
 SQLProcessorZabbix::SQLProcessorZabbix(void)
 {
 	MLPL_INFO("created: %s\n", __func__);
-
-	m_tableProcFuncMap["nodes"] = &SQLProcessorZabbix::tableProcNodes;
 }
 
 SQLProcessorZabbix::~SQLProcessorZabbix()
@@ -106,6 +110,8 @@ SQLProcessorZabbix::addColumnDefs(SQLSelectResult &result,
 	colDef.tableVar = selectStruct.tableVar;
 	colDef.column = selectStruct.table;
 	colDef.tableVar = selectStruct.tableVar;
+	colDef.type     = columnBaseDef.type;
+	colDef.columnLength = columnBaseDef.columnLength;
 }
 
 void
@@ -136,8 +142,7 @@ bool SQLProcessorZabbix::tableProcNodes(SQLSelectResult &result,
 		addAllColumnDefs(result, TABLE_ID_NODES, selectStruct);
 		return true;
 
-	}
-	else {
+	} else {
 		MLPL_DBG("Not supported: columns: %s\n",
 		         selectStruct.columns[0].c_str());
 	}
