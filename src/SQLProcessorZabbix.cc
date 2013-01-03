@@ -27,7 +27,7 @@ bool SQLProcessorZabbix::select(SQLSelectResult &result,
                                 string &query, vector<string> &words)
 {
 	SQLSelectStruct selStruct;
-	if (!parseSQLStruct(selStruct, words))
+	if (!parseSelectStatement(selStruct, words))
 		return false;
 
 	map<string, TableProcFunc>::iterator it;

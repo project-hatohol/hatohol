@@ -12,7 +12,7 @@ struct SQLSelectStruct {
 	string table;
 	string tableVar;
 	string where;
-	string orderBy;
+	vector<string> orderBy;
 };
 
 struct SQLSelectResult {
@@ -27,8 +27,8 @@ public:
 	                    string &query, vector<string> &words) = 0;
 
 protected:
-	bool parseSQLStruct(SQLSelectStruct &selectStruct,
-	                    vector<string> &words);
+	bool parseSelectStatement(SQLSelectStruct &selectStruct,
+	                          vector<string> &words);
 
 private:
 };
