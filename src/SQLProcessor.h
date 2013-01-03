@@ -3,15 +3,16 @@
 
 #include <string>
 #include <vector>
+#include <map>
 using namespace std;
 
 #include <glib.h>
 
 struct SQLSelectStruct {
 	vector<string> selectedColumns;
-	string table;
-	string tableVar;
-	string where;
+	string         table;
+	string         tableVar;
+	string         where;
 	vector<string> orderedColumns;
 };
 
@@ -27,19 +28,19 @@ public:
 	                    string &query, vector<string> &words) = 0;
 
 protected:
-	struct SelectParserContext {
-		size_t idx;
-		vector<string> &words;
-		size_t numWords;
-		const char *currWord;
-		int region;
-		size_t indexInTheStatus;
-		SQLSelectStruct &selectStruct;
-	};
+	struct SelectParserContext;
 	typedef bool (SQLProcessor::*SelectSubParser)(SelectParserContext &ctx);
 
 	bool parseSelectStatement(SQLSelectStruct &selectStruct,
 	                          vector<string> &words);
+
+	//
+	// Select status parsers
+	//
+	bool parseRegionFrom(SelectParserContext &ctx);
+	bool parseRegionWhere(SelectParserContext &ctx);
+	bool parseRegionOrder(SelectParserContext &ctx);
+	bool parseRegionGroup(SelectParserContext &ctx);
 
 	//
 	// Select statment parsers
@@ -52,6 +53,7 @@ protected:
 
 private:
 	static const SelectSubParser m_selectSubParsers[];
+	map<string, SelectSubParser> m_selectRegionParserMap;
 };
 
 #endif // SQLProcessor_h
