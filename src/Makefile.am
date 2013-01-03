@@ -1,6 +1,9 @@
 sbin_PROGRAMS = asura
-asura_SOURCES = \
-	main.cc FaceBase.cc FaceMySQL.cc FaceMySQLWorker.cc \
+asura_SOURCES = main.cc
+
+lib_LTLIBRARIES = libasura.la
+libasura_la_SOURCES = \
+	FaceBase.cc FaceMySQL.cc FaceMySQLWorker.cc \
 	SQLProcessorFactory.cc SQLProcessor.cc SQLProcessorZabbix.cc \
 	JsonBuilderAgent.cc JsonParserAgent.cc \
 	AsuraException.cc AsuraThreadBase.cc ArmController.cc \
@@ -13,3 +16,5 @@ AM_CXXFLAGS = -Wall -g \
 AM_LDFLAGS = \
 	$(MLPL_LIBS) $(GLIB_LIBS) $(GIO_LIBS) \
 	$(LIBSOUP_LIBS) $(JSON_GLIB_LIBS)
+
+asura_LDADD = -lasura
