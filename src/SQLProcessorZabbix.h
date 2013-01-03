@@ -21,6 +21,12 @@ public:
 
 protected:
 	typedef bool (SQLProcessorZabbix::*TableProcFunc)(SQLSelectResult &result, SQLSelectStruct &selectStruct);
+
+	void addColumnDefs(SQLSelectResult &result,
+	                   const ColumnBaseDefinition &columnBaseDef,
+	                   SQLSelectStruct &selectStruct);
+	void addAllColumnDefs(SQLSelectResult &result, int tableId,
+	                      SQLSelectStruct &selectStruct);
 	bool tableProcNodes(SQLSelectResult &result,
 	                    SQLSelectStruct &selectStruct);
 

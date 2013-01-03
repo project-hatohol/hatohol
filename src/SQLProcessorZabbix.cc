@@ -97,6 +97,36 @@ bool SQLProcessorZabbix::select(SQLSelectResult &result,
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
+void
+SQLProcessorZabbix::addColumnDefs(SQLSelectResult &result,
+                                  const ColumnBaseDefinition &columnBaseDef,
+                                  SQLSelectStruct &selectStruct)
+{
+	result.columnDefs.push_back(SQLColumnDefinition());
+	SQLColumnDefinition &colDef = result.columnDefs.back();
+	colDef.schema = getDBName();
+	colDef.table = selectStruct.table;
+	colDef.tableVar = selectStruct.tableVar;
+	colDef.column = selectStruct.table;
+	colDef.tableVar = selectStruct.tableVar;
+}
+void
+SQLProcessorZabbix::addAllColumnDefs(SQLSelectResult &result, int tableId,
+                                     SQLSelectStruct &selectStruct)
+{
+	TableIdColumnBaseDefListMap::iterator it;
+	it = m_tableColumnBaseDefListMap.find(tableId);
+	if (it == m_tableColumnBaseDefListMap.end()) {
+		MLPL_BUG("Not found table: %d\n", tableId);
+		return;
+	}
+
+	ColumnBaseDefList &baseDefList = it->second;;
+	ColumnBaseDefListIterator baseDef = baseDefList.begin();
+	for (; baseDef != baseDefList.end(); ++baseDef)
+		addColumnDefs(result, *baseDef, selectStruct);
+}
+
 bool SQLProcessorZabbix::tableProcNodes(SQLSelectResult &result,
                                         SQLSelectStruct &selectStruct)
 {
@@ -105,13 +135,9 @@ bool SQLProcessorZabbix::tableProcNodes(SQLSelectResult &result,
 		return false;
 
 	if (selectedAllColumns(selectStruct)) {
-		result.columnDefs.push_back(SQLColumnDefinition());
-		SQLColumnDefinition &colDef = result.columnDefs.back();
-		colDef.schema = getDBName();
-		colDef.table = selectStruct.table;
-		colDef.tableVar = selectStruct.tableVar;
-		colDef.column = selectStruct.table;
-		colDef.tableVar = selectStruct.tableVar;
+		addAllColumnDefs(result, TABLE_ID_NODES, selectStruct);
+		return true;
+
 	}
 	else {
 		MLPL_DBG("Not supported: columns: %s\n",
