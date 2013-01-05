@@ -1,5 +1,6 @@
 #include <string>
 #include <vector>
+#include <map>
 using namespace std;
 
 #include <ParsableString.h>
@@ -13,6 +14,9 @@ using namespace mlpl;
 #include "SQLProcessor.h"
 
 namespace testMySQLWorkerZabbix {
+
+typedef map<size_t, string> NumberStringMap;
+typedef NumberStringMap::iterator NumberStringMapIterator;
 
 gchar *g_standardOutput = NULL;
 gchar *g_standardError = NULL;
@@ -44,13 +48,20 @@ static void printOutput(void)
 	           g_standardOutput, g_standardError);
 }
 
-static void assertRecord(const char *expected)
+static void assertRecord(int numExpectedLines, NumberStringMap &nsmap)
 {
 	vector<string> lines;
 	string stdOutStr(g_standardOutput);
 	StringUtils::split(lines, stdOutStr, '\n');
-	cut_assert_equal_int(2, lines.size());
-	cut_assert_equal_string(expected, lines[1].c_str());
+	cut_assert_equal_int(numExpectedLines, lines.size());
+
+	NumberStringMapIterator it = nsmap.begin();
+	for (; it != nsmap.end(); ++it) {
+		size_t lineNum = it->first;
+		string &expected = it->second;
+		cut_assert_equal_string(expected.c_str(),
+		                        lines[lineNum].c_str());
+	}
 }
 
 static void executeCommand(const char *cmd)
@@ -85,11 +96,22 @@ static void executeCommand(const char *cmd)
 // ---------------------------------------------------------------------------
 // Test cases
 // ---------------------------------------------------------------------------
-void test_connect(void)
+void test_atAtVersionComment(void)
 {
-	const char *cmd = {"select @@version_comment"};
+	const char *cmd = "select @@version_comment";
 	executeCommand(cmd);
-	assertRecord("ASURA");
+	NumberStringMap nsmap;
+	nsmap[1] = "ASURA";
+	assertRecord(2, nsmap);
+}
+
+void test_selectNodes(void)
+{
+	const char *cmd =
+	  "SELECT n.* FROM nodes n WHERE n.nodetype=1 ORDER BY n.nodeid";
+	executeCommand(cmd);
+	NumberStringMap nsmap;
+	assertRecord(1, nsmap);
 }
 
 } // namespace testMySQLWorkerZabbix
