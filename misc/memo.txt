@@ -60,3 +60,25 @@ fd                    // type: MYSQL_TYPE_VAR_STRING
 03 50                 // flags
 00                    // decimal
 00 00                 // Filler
+
+** response to select DATABASE()
+server > 127.0.0.1.37145: ID 1 len 1 ::DUMP:: 01 ::DUMP:: (NUM Column)
+
+ID 2 len 32
+03 64 65 66
+00 // schema:
+00 // table
+00 // orgTable
+0a 44 41 54 41 42 41 53 45 28 29 // name: DATABASE()
+00 // orgName
+0c
+08 00
+22 00 00 00  // column length
+fd // type
+00 00
+1f
+00 00 // filler
+ID 3 len 5 ::DUMP:: fe 00 00 02 00 ::DUMP::
+ID 4 len 1 ::DUMP:: fb ::DUMP::
+ID 5 len 5 ::DUMP:: fe 00 00 02 00 ::DUMP::
+
