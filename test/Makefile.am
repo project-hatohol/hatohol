@@ -7,18 +7,24 @@ TESTS = run-test.sh
 TESTS_ENVIRONMENT = NO_MAKE=yes CUTTER="$(CUTTER)"
 
 noinst_LTLIBRARIES = \
-	testSQLProcessor.la
+	testSQLProcessor.la testMySQLWorkerZabbix.la
 
 endif
 
 # default
 AM_CFLAGS = -g -Wall $(GLIB_CFLAGS)
 AM_LDFLAGS = -module -rpath $(libdir) -avoid-version -no-undefined
-INCLUDES = $(CUTTER_CFLAGS) $(GLIB_CFLAGS) $(MLPL_CFLAGS) -I ../src
-LIBS = $(CUTTER_LIBS) $(GLIB_LIBS) $(MLPL_CFLAGS) ../src/libasura.la
+INCLUDES = \
+	$(CUTTER_CFLAGS) $(CPPCUTTER_CFLAGS) \
+	$(GLIB_CFLAGS) $(MLPL_CFLAGS) -I ../src
+
+LIBS = \
+	$(CUTTER_LIBS) $(CPPCUTTER_LIBS) \
+	$(GLIB_LIBS) $(MLPL_LIBS) ../src/libasura.la
 
 # Test cases
 testSQLProcessor_la_SOURCES = testSQLProcessor.cc
+testMySQLWorkerZabbix_la_SOURCES = testMySQLWorkerZabbix.cc
 
 echo-cutter:
 	@echo $(CUTTER)
