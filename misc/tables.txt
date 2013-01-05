@@ -1,0 +1,59 @@
++----------+-------------+------+-----+---------+-------+
+| Field    | Type        | Null | Key | Default | Extra |
++----------+-------------+------+-----+---------+-------+
+| nodeid   | int(11)     | NO   | PRI | NULL    |       |
+| name     | varchar(64) | NO   |     | 0       |       |
+| ip       | varchar(39) | NO   |     |         |       |
+| port     | int(11)     | NO   |     | 10051   |       |
+| nodetype | int(11)     | NO   |     | 0       |       |
+| masterid | int(11)     | YES  | MUL | NULL    |       |
++----------+-------------+------+-----+---------+-------+
+
++-------------------------+---------------------+------+-----+-----------------+-------+
+| configid                | bigint(20) unsigned | NO   | PRI | NULL            |       |
+| alert_history           | int(11)             | NO   |     | 0               |       |
+| event_history           | int(11)             | NO   |     | 0               |       |
+| refresh_unsupported     | int(11)             | NO   |     | 0               |       |
+| work_period             | varchar(100)        | NO   |     | 1-5,00:00-24:00 |       |
+| alert_usrgrpid          | bigint(20) unsigned | YES  | MUL | NULL            |       |
+| event_ack_enable        | int(11)             | NO   |     | 1               |       |
+| event_expire            | int(11)             | NO   |     | 7               |       |
+| event_show_max          | int(11)             | NO   |     | 100             |       |
+| default_theme           | varchar(128)        | NO   |     | originalblue    |       |
+| authentication_type     | int(11)             | NO   |     | 0               |       |
+| ldap_host               | varchar(255)        | NO   |     |                 |       |
+| ldap_port               | int(11)             | NO   |     | 389             |       |
+| ldap_base_dn            | varchar(255)        | NO   |     |                 |       |
+| ldap_bind_dn            | varchar(255)        | NO   |     |                 |       |
+| ldap_bind_password      | varchar(128)        | NO   |     |                 |       |
+| ldap_search_attribute   | varchar(128)        | NO   |     |                 |       |
+| dropdown_first_entry    | int(11)             | NO   |     | 1               |       |
+| dropdown_first_remember | int(11)             | NO   |     | 1               |       |
+| discovery_groupid       | bigint(20) unsigned | NO   | MUL | NULL            |       |
+| max_in_table            | int(11)             | NO   |     | 50              |       |
+| search_limit            | int(11)             | NO   |     | 1000            |       |
+| severity_color_0        | varchar(6)          | NO   |     | DBDBDB          |       |
+| severity_color_1        | varchar(6)          | NO   |     | D6F6FF          |       |
+| severity_color_2        | varchar(6)          | NO   |     | FFF6A5          |       |
+| severity_color_3        | varchar(6)          | NO   |     | FFB689          |       |
+| severity_color_4        | varchar(6)          | NO   |     | FF9999          |       |
+| severity_color_5        | varchar(6)          | NO   |     | FF3838          |       |
+| severity_name_0         | varchar(32)         | NO   |     | Not classified  |       |
+| severity_name_1         | varchar(32)         | NO   |     | Information     |       |
+| severity_name_2         | varchar(32)         | NO   |     | Warning         |       |
+| severity_name_3         | varchar(32)         | NO   |     | Average         |       |
+| severity_name_4         | varchar(32)         | NO   |     | High            |       |
+| severity_name_5         | varchar(32)         | NO   |     | Disaster        |       |
+| ok_period               | int(11)             | NO   |     | 1800            |       |
+| blink_period            | int(11)             | NO   |     | 1800            |       |
+| problem_unack_color     | varchar(6)          | NO   |     | DC0000          |       |
+| problem_ack_color       | varchar(6)          | NO   |     | DC0000          |       |
+| ok_unack_color          | varchar(6)          | NO   |     | 00AA00          |       |
+| ok_ack_color            | varchar(6)          | NO   |     | 00AA00          |       |
+| problem_unack_style     | int(11)             | NO   |     | 1               |       |
+| problem_ack_style       | int(11)             | NO   |     | 1               |       |
+| ok_unack_style          | int(11)             | NO   |     | 1               |       |
+| ok_ack_style            | int(11)             | NO   |     | 1               |       |
+| snmptrap_logging        | int(11)             | NO   |     | 1               |       |
+| server_check_interval   | int(11)             | NO   |     | 10              |       |
++-------------------------+---------------------+------+-----+-----------------+-------+
