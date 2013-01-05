@@ -16,19 +16,20 @@ public:
 	~SQLProcessorZabbix();
 
 	// virtual methods
-	bool select(SQLSelectResult &result,
-	            string &query, vector<string> &words);
+	bool select(SQLSelectResult &result, SQLSelectInfo &selectInfo);
 
 protected:
-	typedef bool (SQLProcessorZabbix::*TableProcFunc)(SQLSelectResult &result, SQLSelectStruct &selectStruct);
+	typedef bool
+	(SQLProcessorZabbix::*TableProcFunc)(SQLSelectResult &result,
+	                                     SQLSelectInfo &selectInfo);
 
 	void addColumnDefs(SQLSelectResult &result,
 	                   const ColumnBaseDefinition &columnBaseDef,
-	                   SQLSelectStruct &selectStruct);
+	                   SQLSelectInfo &selectInfo);
 	void addAllColumnDefs(SQLSelectResult &result, int tableId,
-	                      SQLSelectStruct &selectStruct);
+	                      SQLSelectInfo &selectInfo);
 	bool tableProcNodes(SQLSelectResult &result,
-	                    SQLSelectStruct &selectStruct);
+	                    SQLSelectInfo &selectInfo);
 
 private:
 	static map<string, TableProcFunc> m_tableProcFuncMap;

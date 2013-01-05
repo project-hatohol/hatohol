@@ -4,6 +4,7 @@ using namespace std;
 
 #include <Logger.h>
 #include <StringUtils.h>
+#include <ParsableString.h>
 using namespace mlpl;
 
 #include "Utils.h"
@@ -102,7 +103,8 @@ FaceMySQLWorker::FaceMySQLWorker(GSocket *sock, uint32_t connId)
   m_packetId(-1),
   m_charSet(DEFAULT_CHAR_SET),
   m_statusFlags(SERVER_STATUS_AUTOCOMMIT),
-  m_sqlProcessor(NULL)
+  m_sqlProcessor(NULL),
+  m_separatorSpaceComma(" ,")
 {
 	initHandshakeResponse41(m_hsResp41);
 
@@ -603,27 +605,26 @@ string FaceMySQLWorker::getFixedLengthStringAndIncIndex(SmartBuffer &buf,
 // ---------------------------------------------------------------------------
 bool FaceMySQLWorker::comQuery(SmartBuffer &pkt)
 {
-	string query = getEOFString(pkt);
-	MLPL_DBG("******* %s: %s\n", __PRETTY_FUNCTION__, query.c_str());
+	ParsableString query(getEOFString(pkt));
+	MLPL_DBG("******* %s: %s\n", __PRETTY_FUNCTION__, query.getString());
 
-	vector<string> words;
-	StringUtils::split(words, query, ' ');
-	if (words.size() == 0) {
-		MLPL_WARN("Invalid query: '%s'\n", query.c_str());
+	string firstWord = query.readWord(ParsableString::SEPARATOR_SPACE);
+	if (firstWord.empty()) {
+		MLPL_WARN("Invalid query: '%s'\n", query.getString());
 		return true;
 	}
 
-	string &command = words[0];
-	transform(command.begin(), command.end(), command.begin(), ::tolower);
-	QueryProcFuncMapIterator it = m_queryProcMap.find(command);
+	transform(firstWord.begin(), firstWord.end(),
+	          firstWord.begin(), ::tolower);
+	QueryProcFuncMapIterator it = m_queryProcMap.find(firstWord);
 	if (it == m_queryProcMap.end()) {
 		MLPL_BUG("Not implemented: query command: '%s'\n",
-		         query.c_str());
+		         query.getString());
 		return false;
 	}
 
 	queryProcFunc &proc = it->second;
-	return (this->*proc)(query, words);
+	return (this->*proc)(query);
 }
 
 bool FaceMySQLWorker::comInitDB(SmartBuffer &pkt)
@@ -662,26 +663,28 @@ bool FaceMySQLWorker::comSetOption(SmartBuffer &pkt)
 // ---------------------------------------------------------------------------
 // query
 // ---------------------------------------------------------------------------
-bool FaceMySQLWorker::querySelect(string &query, vector<string> &words)
+bool FaceMySQLWorker::querySelect(ParsableString &query)
 {
-	if (words[1] == "@@version_comment")
-		return querySelectVersionComment(query, words);
+	string column = query.readWord(m_separatorSpaceComma, true);
+	if (column == "@@version_comment")
+		return querySelectVersionComment(query);
 	if (m_sqlProcessor) {
+		SQLSelectInfo selectInfo(query);
 		SQLSelectResult result;
-		if (m_sqlProcessor->select(result, query, words))
+		if (m_sqlProcessor->select(result, selectInfo))
 			return sendSelectResult(result);
 	}
-	MLPL_BUG("Not implemented: select: '%s'\n", words[1].c_str());
+	MLPL_BUG("Not implemented: select: '%s'\n", query.getString());
 	return false;
 }
 
-bool FaceMySQLWorker::querySet(string &query, vector<string> &words)
+bool FaceMySQLWorker::querySet(ParsableString &query)
 {
-	MLPL_WARN("Not implemented: set: %s (ignored)\n", query.c_str());
+	MLPL_WARN("Not implemented: set: %s (ignored)\n", query.getString());
 	return sendOK();
 }
 
-bool FaceMySQLWorker::querySelectVersionComment(string &query, vector<string> &words)
+bool FaceMySQLWorker::querySelectVersionComment(ParsableString &query)
 {
 	// [REF] http://dev.mysql.com/doc/internals/en/text-protocol.html#packet-COM_QUERY
 
@@ -695,7 +698,7 @@ bool FaceMySQLWorker::querySelectVersionComment(string &query, vector<string> &w
 	// Column Definition
 	string dummyStr;
 	bool ret;
-	string &name = words[1];
+	string name = "@@version_comment";
 	uint32_t columnLength = 8;
 	uint8_t decimals = 0x1f;
 	uint16_t flags = 0;

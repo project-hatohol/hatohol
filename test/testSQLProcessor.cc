@@ -12,21 +12,19 @@ namespace testSQLProcessor {
 
 class TestSQLProcessor : public SQLProcessor {
 public:
-	bool select(SQLSelectResult &result,
-	            string &query, vector<string> &words) {
+	// Implementation of abstruct method
+	bool select(SQLSelectResult &result, SQLSelectInfo   &selectInfo) {
 		return false;
 	}
 
-	void callParseSelectStatement(SQLSelectStruct &selStruct,
-	                              string &statement);
+	void callParseSelectStatement(SQLSelectInfo &selInfo);
 };
 
-void TestSQLProcessor::callParseSelectStatement(SQLSelectStruct &selStruct,
-                                                string &statement)
+void TestSQLProcessor::callParseSelectStatement(SQLSelectInfo &selectInfo)
 {
 	vector<string> words;
 	StringUtils::split(words, statement, ' ');
-	parseSelectStatement(selStruct, words);
+	parseSelectStatement(selectInfo);
 }
 
 // ---------------------------------------------------------------------------
@@ -34,19 +32,19 @@ void TestSQLProcessor::callParseSelectStatement(SQLSelectStruct &selStruct,
 // ---------------------------------------------------------------------------
 void test_selectOneItem(void)
 {
-	SQLSelectStruct selStruct;
 	TestSQLProcessor proc;
 	const char *selectedItem = "row";
 	const char *tableName = "table";
 	string statement = StringUtils::sprintf("select %s from %s",
 	                                        selectedItem, tableName);
-	proc.callParseSelectStatement(selStruct, statement);
+	SQLSelectInfo selectInfo(statement);
+	proc.callParseSelectStatement(selectInfo);
 
-	cut_assert_equal_int(1, selStruct.columns.size());
+	cut_assert_equal_int(1, selectInfo.columns.size());
 	cut_assert_equal_string(selectedItem,
-	                        selStruct.columns[0].c_str());
+	                        selectInfo.columns[0].c_str());
 
-	cut_assert_equal_string(tableName, selStruct.table.c_str());
+	cut_assert_equal_string(tableName, selectInfo.table.c_str());
 }
 
 void test_selectTableVar(void)

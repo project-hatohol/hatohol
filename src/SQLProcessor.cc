@@ -9,12 +9,12 @@ using namespace std;
 #include "SQLProcessor.h"
 
 enum SelectParseRegion {
-	SELECT_PARSE_REGION_SELECT,
-	SELECT_PARSE_REGION_GROUP_BY,
-	SELECT_PARSE_REGION_FROM,
-	SELECT_PARSE_REGION_WHERE,
-	SELECT_PARSE_REGION_ORDER_BY,
-	NUM_SELECT_PARSE_REGION,
+	SELECT_PARSING_REGION_SELECT,
+	SELECT_PARSING_REGION_GROUP_BY,
+	SELECT_PARSING_REGION_FROM,
+	SELECT_PARSING_REGION_WHERE,
+	SELECT_PARSING_REGION_ORDER_BY,
+	NUM_SELECT_PARSING_REGION,
 };
 
 const SQLProcessor::SelectSubParser SQLProcessor::m_selectSubParsers[] = {
@@ -25,26 +25,42 @@ const SQLProcessor::SelectSubParser SQLProcessor::m_selectSubParsers[] = {
 	&SQLProcessor::parseOrderBy,
 };
 
+SeparatorChecker SQLProcessor::m_separatorSpaceComma(" ,");
+SeparatorChecker *SQLProcessor::m_selectSeprators[] = {
+	&SQLProcessor::m_separatorSpaceComma, // select
+	&SQLProcessor::m_separatorSpaceComma, // group by
+	&SQLProcessor::m_separatorSpaceComma, // from
+	&SQLProcessor::m_separatorSpaceComma, // where
+	&SQLProcessor::m_separatorSpaceComma, // order by
+};
+
 struct SQLProcessor::SelectParserContext {
-	size_t             idx;
-	vector<string>    &words;
-	size_t             numWords;
-	const char        *currWord;
+	string             currWord;
 	SelectParseRegion  region;
 	size_t             indexInTheStatus;
-	SQLSelectStruct   &selectStruct;
+	SQLSelectInfo     &selectInfo;
+
+	// methods
+	SelectParserContext(SelectParseRegion _region,
+	                    SQLSelectInfo &_selectInfo)
+	: region(_region),
+	  selectInfo(_selectInfo)
+	{
+	}
+
 };
 
 // ---------------------------------------------------------------------------
-// Public methods (SQLSelectStruct)
+// Public methods (SQLSelectInfo)
 // ---------------------------------------------------------------------------
-SQLSelectStruct::SQLSelectStruct(void)
-: whereElem(NULL)
+SQLSelectInfo::SQLSelectInfo(ParsableString &_query)
+: query(_query),
+  whereElem(NULL)
 {
 }
 
 
-SQLSelectStruct::~SQLSelectStruct()
+SQLSelectInfo::~SQLSelectInfo()
 {
 	if (whereElem)
 		delete whereElem;
@@ -76,55 +92,45 @@ SQLProcessor::~SQLProcessor()
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
-bool SQLProcessor::selectedAllColumns(SQLSelectStruct &selectStruct)
+bool SQLProcessor::selectedAllColumns(SQLSelectInfo &selectInfo)
 {
-	if (selectStruct.columns.size() != 1)
+	if (selectInfo.columns.size() != 1)
 		return false;
 
-	string &column = selectStruct.columns[0];
+	string &column = selectInfo.columns[0];
 	if (column == "*")
 		return true;
 
-	if (selectStruct.tableVar.empty())
+	if (selectInfo.tableVar.empty())
 		return false;
 
-	size_t len = selectStruct.tableVar.size();
+	size_t len = selectInfo.tableVar.size();
 
 	static const char DOT_ASTERISK[] = ".*";
 	static const size_t LEN_DOT_ASTERISK = sizeof(DOT_ASTERISK) - 1;
 	if (column.size() != len + LEN_DOT_ASTERISK)
 		return false;
-	if (strncmp(column.c_str(), selectStruct.tableVar.c_str(), len) != 0)
+	if (strncmp(column.c_str(), selectInfo.tableVar.c_str(), len) != 0)
 		return false;
 	if (strncmp(&column.c_str()[len], DOT_ASTERISK, LEN_DOT_ASTERISK) == 0)
 		return true;
 	return false;
 }
 
-bool SQLProcessor::parseSelectStatement(SQLSelectStruct &selectStruct,
-                                        vector<string> &words)
+bool SQLProcessor::parseSelectStatement(SQLSelectInfo &selectInfo)
 {
 	MLPL_DBG("**** %s\n", __func__);
-	size_t numWords = words.size();
-	if (numWords < 2)
-		return false;
-	if (!StringUtils::casecmp(words[0], "select")) {
-		MLPL_BUG("First word is NOT 'select': %s\n", words[0].c_str());
-		return false;
-	}
-
 	map<string, SelectSubParser>::iterator it;
 	SelectSubParser subParser = NULL;
-	SelectParserContext ctx =
-	  {0, words, numWords, NULL, // currWord
-	   SELECT_PARSE_REGION_SELECT, 0, selectStruct};
+	SelectParserContext ctx(SELECT_PARSING_REGION_SELECT, selectInfo);
 
-	for (ctx.idx = 1; ctx.idx < numWords; ctx.idx++) {
-		string &currWord = words[ctx.idx];
-		ctx.currWord = currWord.c_str();
+	while (!selectInfo.query.finished()) {
+		ctx.currWord = readNextWord(ctx);
+		if (ctx.currWord.empty())
+			continue;
 
 		// check if this is a keyword.
-		string lowerWord = currWord;
+		string lowerWord = ctx.currWord;
 		transform(lowerWord.begin(), lowerWord.end(),
 		          lowerWord.begin(), ::tolower);
 		
@@ -140,8 +146,8 @@ bool SQLProcessor::parseSelectStatement(SQLSelectStruct &selectStruct,
 		}
 
 		// parse each component
-		if (ctx.region >= NUM_SELECT_PARSE_REGION) {
-			MLPL_BUG("region(%d) >= NUM_SELECT_PARSE_REGION\n",
+		if (ctx.region >= NUM_SELECT_PARSING_REGION) {
+			MLPL_BUG("region(%d) >= NUM_SELECT_PARSING_REGION\n",
 			         ctx.region);
 			return false;
 		}
@@ -153,7 +159,7 @@ bool SQLProcessor::parseSelectStatement(SQLSelectStruct &selectStruct,
 	}
 
 	// check the results
-	if (selectStruct.columns.empty()) {
+	if (selectInfo.columns.empty()) {
 		return false;
 	}
 
@@ -165,39 +171,45 @@ bool SQLProcessor::parseSelectStatement(SQLSelectStruct &selectStruct,
 //
 bool SQLProcessor::parseRegionFrom(SelectParserContext &ctx)
 {
-	ctx.region = SELECT_PARSE_REGION_FROM;
+	ctx.region = SELECT_PARSING_REGION_FROM;
 	return true;
 }
 
 bool SQLProcessor::parseRegionWhere(SelectParserContext &ctx)
 {
-	ctx.region = SELECT_PARSE_REGION_WHERE;
+	ctx.region = SELECT_PARSING_REGION_WHERE;
 	return true;
 }
 
 bool SQLProcessor::parseRegionOrder(SelectParserContext &ctx)
 {
-	if (ctx.idx == ctx.numWords - 1)
+	ParsingPosition currPos;
+	string nextWord = readNextWord(ctx, &currPos);
+	if (nextWord.empty())
 		return false;
 
-	if (!StringUtils::casecmp(ctx.words[ctx.idx+1], "by"))
+	if (!StringUtils::casecmp(nextWord, "by")) {
+		ctx.selectInfo.query.setParsingPosition(currPos);
 		return false;
+	}
 
-	ctx.region = SELECT_PARSE_REGION_ORDER_BY;
-	ctx.idx++;
+	ctx.region = SELECT_PARSING_REGION_ORDER_BY;
 	return true;
 }
 
 bool SQLProcessor::parseRegionGroup(SelectParserContext &ctx)
 {
-	if (ctx.idx == ctx.numWords - 1)
+	ParsingPosition currPos;
+	string nextWord = readNextWord(ctx, &currPos);
+	if (nextWord.empty())
 		return false;
 
-	if (!StringUtils::casecmp(ctx.words[ctx.idx+1], "by"))
+	if (!StringUtils::casecmp(nextWord, "by")) {
+		ctx.selectInfo.query.setParsingPosition(currPos);
 		return false;
+	}
 
-	ctx.region = SELECT_PARSE_REGION_GROUP_BY;
-	ctx.idx++;
+	ctx.region = SELECT_PARSING_REGION_GROUP_BY;
 	return true;
 }
 
@@ -206,7 +218,7 @@ bool SQLProcessor::parseRegionGroup(SelectParserContext &ctx)
 //
 bool SQLProcessor::parseSelectedColumns(SelectParserContext &ctx)
 {
-	ctx.selectStruct.columns.push_back(ctx.currWord);
+	ctx.selectInfo.columns.push_back(ctx.currWord);
 	return true;
 }
 
@@ -219,9 +231,9 @@ bool SQLProcessor::parseGroupBy(SelectParserContext &ctx)
 bool SQLProcessor::parseFrom(SelectParserContext &ctx)
 {
 	if (ctx.indexInTheStatus == 0)
-		ctx.selectStruct.table = ctx.currWord;
+		ctx.selectInfo.table = ctx.currWord;
 	else if (ctx.indexInTheStatus == 1)
-		ctx.selectStruct.tableVar = ctx.currWord;
+		ctx.selectInfo.tableVar = ctx.currWord;
 	else {
 		// TODO: return error?
 	}
@@ -237,6 +249,15 @@ bool SQLProcessor::parseWhere(SelectParserContext &ctx)
 
 bool SQLProcessor::parseOrderBy(SelectParserContext &ctx)
 {
-	ctx.selectStruct.orderedColumns.push_back(ctx.currWord);
+	ctx.selectInfo.orderedColumns.push_back(ctx.currWord);
 	return true;
+}
+
+string SQLProcessor::readNextWord(SelectParserContext &ctx,
+                                  ParsingPosition *position)
+{
+	SeparatorChecker &separator = *(m_selectSeprators[ctx.region]);
+	if (position)
+		*position = ctx.selectInfo.query.getParsingPosition();
+	return ctx.selectInfo.query.readWord(separator);
 }

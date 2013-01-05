@@ -7,10 +7,18 @@
 #include <list>
 using namespace std;
 
+#include "StringUtils.h"
+#include "ParsableString.h"
+using namespace mlpl;
+
 #include <glib.h>
 #include "SQLWhereElement.h"
 
-struct SQLSelectStruct {
+struct SQLSelectInfo {
+	// input information
+	ParsableString   query;
+
+	// parsed matter
 	vector<string>   columns;
 	string           table;
 	string           tableVar;
@@ -18,8 +26,8 @@ struct SQLSelectStruct {
 	vector<string>   orderedColumns;
 
 	// constructor and destructor
-	SQLSelectStruct(void);
-	virtual ~SQLSelectStruct();
+	SQLSelectInfo(ParsableString &_query);
+	virtual ~SQLSelectInfo();
 };
 
 enum SQLColumnType {
@@ -64,7 +72,7 @@ public:
 	SQLProcessor(void);
 	virtual ~SQLProcessor();
 	virtual bool select(SQLSelectResult &result,
-	                    string &query, vector<string> &words) = 0;
+	                    SQLSelectInfo   &selectInfo) = 0;
 
 protected:
 	typedef list<ColumnBaseDefinition>  ColumnBaseDefList;
@@ -78,9 +86,8 @@ protected:
 	struct SelectParserContext;
 	typedef bool (SQLProcessor::*SelectSubParser)(SelectParserContext &ctx);
 
-	bool parseSelectStatement(SQLSelectStruct &selectStruct,
-	                          vector<string> &words);
-	bool selectedAllColumns(SQLSelectStruct &selectStruct);
+	bool parseSelectStatement(SQLSelectInfo &selectInfo);
+	bool selectedAllColumns(SQLSelectInfo &selectInfo);
 
 	//
 	// Select status parsers
@@ -99,8 +106,13 @@ protected:
 	bool parseWhere(SelectParserContext &ctx);
 	bool parseOrderBy(SelectParserContext &ctx);
 
+	string readNextWord(SelectParserContext &ctx,
+	                    ParsingPosition *position = NULL);
+
 private:
 	static const SelectSubParser m_selectSubParsers[];
+	static SeparatorChecker *m_selectSeprators[];
+	static SeparatorChecker m_separatorSpaceComma;
 	map<string, SelectSubParser> m_selectRegionParserMap;
 };
 

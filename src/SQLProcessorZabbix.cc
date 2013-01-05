@@ -80,19 +80,18 @@ SQLProcessorZabbix::~SQLProcessorZabbix()
 }
 
 bool SQLProcessorZabbix::select(SQLSelectResult &result,
-                                string &query, vector<string> &words)
+                                SQLSelectInfo   &selectInfo)
 {
-	SQLSelectStruct selectStruct;
-	if (!parseSelectStatement(selectStruct, words))
+	if (!parseSelectStatement(selectInfo))
 		return false;
 
 	map<string, TableProcFunc>::iterator it;
-	it = m_tableProcFuncMap.find(selectStruct.table);
+	it = m_tableProcFuncMap.find(selectInfo.table);
 	if (it == m_tableProcFuncMap.end())
 		return false;
 
 	TableProcFunc func = it->second;
-	return (this->*func)(result, selectStruct);
+	return (this->*func)(result, selectInfo);
 }
 
 // ---------------------------------------------------------------------------
@@ -101,13 +100,13 @@ bool SQLProcessorZabbix::select(SQLSelectResult &result,
 void
 SQLProcessorZabbix::addColumnDefs(SQLSelectResult &result,
                                   const ColumnBaseDefinition &columnBaseDef,
-                                  SQLSelectStruct &selectStruct)
+                                  SQLSelectInfo &selectInfo)
 {
 	result.columnDefs.push_back(SQLColumnDefinition());
 	SQLColumnDefinition &colDef = result.columnDefs.back();
 	colDef.schema       = getDBName();
-	colDef.table        = selectStruct.table;
-	colDef.tableVar     = selectStruct.tableVar;
+	colDef.table        = selectInfo.table;
+	colDef.tableVar     = selectInfo.tableVar;
 	colDef.column       = columnBaseDef.columnName;
 	colDef.columnVar    = columnBaseDef.columnName;
 	colDef.type         = columnBaseDef.type;
@@ -116,7 +115,7 @@ SQLProcessorZabbix::addColumnDefs(SQLSelectResult &result,
 
 void
 SQLProcessorZabbix::addAllColumnDefs(SQLSelectResult &result, int tableId,
-                                     SQLSelectStruct &selectStruct)
+                                     SQLSelectInfo &selectInfo)
 {
 	TableIdColumnBaseDefListMap::iterator it;
 	it = m_tableColumnBaseDefListMap.find(tableId);
@@ -128,23 +127,23 @@ SQLProcessorZabbix::addAllColumnDefs(SQLSelectResult &result, int tableId,
 	ColumnBaseDefList &baseDefList = it->second;;
 	ColumnBaseDefListIterator baseDef = baseDefList.begin();
 	for (; baseDef != baseDefList.end(); ++baseDef)
-		addColumnDefs(result, *baseDef, selectStruct);
+		addColumnDefs(result, *baseDef, selectInfo);
 }
 
 bool SQLProcessorZabbix::tableProcNodes(SQLSelectResult &result,
-                                        SQLSelectStruct &selectStruct)
+                                        SQLSelectInfo &selectInfo)
 {
 	MLPL_DBG("***** %s\n", __func__);
-	if (selectStruct.columns.empty())
+	if (selectInfo.columns.empty())
 		return false;
 
-	if (selectedAllColumns(selectStruct)) {
-		addAllColumnDefs(result, TABLE_ID_NODES, selectStruct);
+	if (selectedAllColumns(selectInfo)) {
+		addAllColumnDefs(result, TABLE_ID_NODES, selectInfo);
 		return true;
 
 	} else {
 		MLPL_DBG("Not supported: columns: %s\n",
-		         selectStruct.columns[0].c_str());
+		         selectInfo.columns[0].c_str());
 	}
 	
 	return false;

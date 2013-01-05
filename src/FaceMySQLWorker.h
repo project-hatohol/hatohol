@@ -8,6 +8,7 @@ using namespace std;
 #include <gio/gio.h>
 
 #include <SmartBuffer.h>
+#include <StringUtils.h>
 using namespace mlpl;
 
 #include "Utils.h"
@@ -39,7 +40,7 @@ typedef bool (FaceMySQLWorker::*commandProcFunc)(SmartBuffer &pkt);
 typedef map<int, commandProcFunc> CommandProcFuncMap;
 typedef CommandProcFuncMap::iterator CommandProcFuncMapIterator;
 
-typedef bool (FaceMySQLWorker::*queryProcFunc)(string &query, vector<string> &words);
+typedef bool (FaceMySQLWorker::*queryProcFunc)(ParsableString &query);
 typedef map<string, queryProcFunc> QueryProcFuncMap;
 typedef QueryProcFuncMap::iterator QueryProcFuncMapIterator;
 
@@ -86,10 +87,10 @@ protected:
 	bool comInitDB(SmartBuffer &pkt);
 	bool comSetOption(SmartBuffer &pkt);
 
-	bool querySelect(string &query, vector<string> &words);
-	bool querySet(string &query, vector<string> &words);
+	bool querySelect(ParsableString &query);
+	bool querySet(ParsableString &query);
 
-	bool querySelectVersionComment(string &query, vector<string> &words);
+	bool querySelectVersionComment(ParsableString &query);
 	int typeConvert(SQLColumnType type);
 
 	// virtual methods
@@ -110,6 +111,7 @@ private:
 	QueryProcFuncMap   m_queryProcMap;
 	SQLProcessor        *m_sqlProcessor;
 	map<string, SQLProcessor *> m_sqlProcessorMap;
+	SeparatorChecker m_separatorSpaceComma;
 
 	void initHandshakeResponse41(HandshakeResponse41 &hsResp41);
 };
