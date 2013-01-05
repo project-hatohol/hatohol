@@ -107,8 +107,18 @@ void test_atAtVersionComment(void)
 
 void test_selectNodes(void)
 {
-	const char *cmd =
+	const char *cmd = "use zabbix;"
 	  "SELECT n.* FROM nodes n WHERE n.nodetype=1 ORDER BY n.nodeid";
+	executeCommand(cmd);
+	NumberStringMap nsmap;
+	assertRecord(0, nsmap);
+}
+
+void test_selectConfig(void)
+{
+	const char *cmd = "use zabbix;"
+	  "SELECT c.* FROM config c "
+	  "WHERE c.configid BETWEEN 000000000000000 AND 099999999999999";
 	executeCommand(cmd);
 	NumberStringMap nsmap;
 	assertRecord(1, nsmap);
