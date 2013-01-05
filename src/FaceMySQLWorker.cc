@@ -74,6 +74,8 @@ enum {
 	TYPE_VAR_UNKNOWN = 0xffff,
 };
 
+static const uint8_t RESULT_SET_ROW_NULL = 0xfb;
+
 enum {
 	MYSQL_OPTION_MULTI_STATEMENTS_ON  = 0x00,
 	MYSQL_OPTION_MULTI_STATEMENTS_OFF = 0x01,
@@ -491,6 +493,14 @@ bool FaceMySQLWorker::sendEOF(uint16_t warningCount, uint16_t status)
 	return sendPacket(pkt);
 }
 
+bool FaceMySQLWorker::sendNull(void)
+{
+	SmartBuffer pkt;
+	allocAndAddPacketHeaderRegion(pkt, 1);
+	pkt.add8(RESULT_SET_ROW_NULL);
+	return sendPacket(pkt);
+}
+
 bool FaceMySQLWorker::receive(char* buf, size_t size)
 {
 	GError *error = NULL;
@@ -753,7 +763,38 @@ bool FaceMySQLWorker::querySelectVersionComment(ParsableString &query)
 
 bool FaceMySQLWorker::querySelectDatabase(ParsableString &query)
 {
-	return false;
+	// Number of columns
+	int numColum = 1;
+	if (!sendLenEncInt(numColum))
+		return false;
+
+	// Column Definition
+	string dummyStr;
+	bool ret;
+	string name = "DATABASE()";
+	uint32_t columnLength = 0x22;
+	uint8_t decimals = 0x1f;
+	uint16_t flags = 0;
+	ret = sendColumnDefinition41(dummyStr, dummyStr, dummyStr,
+	                             name, dummyStr, columnLength,
+	                             TYPE_VAR_STRING, flags,
+	                             decimals);
+	if (!ret)
+		return false;
+
+	// EOF
+	if (!sendEOF(0, m_statusFlags))
+		return false;
+
+	// Row
+	if (!sendNull())
+		return false;
+
+	// EOF
+	if (!sendEOF(0, m_statusFlags))
+		return false;
+
+	return true;
 }
 
 // ---------------------------------------------------------------------------
