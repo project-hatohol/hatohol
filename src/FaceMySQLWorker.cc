@@ -80,6 +80,8 @@ enum {
 };
 
 int FaceMySQLWorker::m_typeConverTable[TYPE_CONVERT_TABLE_SIZE];
+map<string, FaceMySQLWorker::SelectProcFunc>
+  FaceMySQLWorker::m_selectProcFuncMap;
 
 static const int DEFAULT_CHAR_SET = 8;
 
@@ -92,6 +94,11 @@ void FaceMySQLWorker::init(void)
 		m_typeConverTable[i] = TYPE_VAR_UNKNOWN;
 	m_typeConverTable[SQL_COLUMN_TYPE_INT] = TYPE_VAR_LONG;
 	m_typeConverTable[SQL_COLUMN_TYPE_VARCHAR] = TYPE_VAR_STRING;
+
+	m_selectProcFuncMap["@@version_comment"] =
+	  &FaceMySQLWorker::querySelectVersionComment;
+	m_selectProcFuncMap["DATABASE()"] =
+	  &FaceMySQLWorker::querySelectDatabase;
 }
 
 // ---------------------------------------------------------------------------
@@ -600,8 +607,17 @@ string FaceMySQLWorker::getFixedLengthStringAndIncIndex(SmartBuffer &buf,
 	return str;
 }
 
+int FaceMySQLWorker::typeConvert(SQLColumnType type)
+{
+	if (type >= TYPE_CONVERT_TABLE_SIZE) {
+		MLPL_BUG("type: %d > TYPE_CONVERT_TABLE_SIZE\n", type);
+		return TYPE_VAR_UNKNOWN;
+	}
+	return m_typeConverTable[type];
+}
+
 // ---------------------------------------------------------------------------
-// command
+// Command handlers
 // ---------------------------------------------------------------------------
 bool FaceMySQLWorker::comQuery(SmartBuffer &pkt)
 {
@@ -661,13 +677,20 @@ bool FaceMySQLWorker::comSetOption(SmartBuffer &pkt)
 }
 
 // ---------------------------------------------------------------------------
-// query
+// Query handlers
 // ---------------------------------------------------------------------------
 bool FaceMySQLWorker::querySelect(ParsableString &query)
 {
 	string column = query.readWord(m_separatorSpaceComma, true);
-	if (column == "@@version_comment")
-		return querySelectVersionComment(query);
+
+	// check if the specified column is the system variable 
+	map<string, SelectProcFunc>::iterator it;
+	it = m_selectProcFuncMap.find(column);
+	if (it != m_selectProcFuncMap.end()) {
+		SelectProcFunc &func = it->second;
+		return (this->*func)(query);
+	}
+
 	if (m_sqlProcessor) {
 		SQLSelectInfo selectInfo(query);
 		SQLSelectResult result;
@@ -684,6 +707,9 @@ bool FaceMySQLWorker::querySet(ParsableString &query)
 	return sendOK();
 }
 
+// ---------------------------------------------------------------------------
+// System select handlers
+// ---------------------------------------------------------------------------
 bool FaceMySQLWorker::querySelectVersionComment(ParsableString &query)
 {
 	// [REF] http://dev.mysql.com/doc/internals/en/text-protocol.html#packet-COM_QUERY
@@ -725,13 +751,9 @@ bool FaceMySQLWorker::querySelectVersionComment(ParsableString &query)
 	return true;
 }
 
-int FaceMySQLWorker::typeConvert(SQLColumnType type)
+bool FaceMySQLWorker::querySelectDatabase(ParsableString &query)
 {
-	if (type >= TYPE_CONVERT_TABLE_SIZE) {
-		MLPL_BUG("type: %d > TYPE_CONVERT_TABLE_SIZE\n", type);
-		return TYPE_VAR_UNKNOWN;
-	}
-	return m_typeConverTable[type];
+	return false;
 }
 
 // ---------------------------------------------------------------------------

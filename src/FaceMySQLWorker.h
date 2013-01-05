@@ -83,20 +83,28 @@ protected:
 	string getEOFString(SmartBuffer &buf);
 	string getFixedLengthStringAndIncIndex(SmartBuffer &buf,
 	                                       uint64_t length);
+	int typeConvert(SQLColumnType type);
+
+	// Command handlers
 	bool comQuery(SmartBuffer &pkt);
 	bool comInitDB(SmartBuffer &pkt);
 	bool comSetOption(SmartBuffer &pkt);
 
+	// Query handlers
 	bool querySelect(ParsableString &query);
 	bool querySet(ParsableString &query);
 
+	// System select handlers
 	bool querySelectVersionComment(ParsableString &query);
-	int typeConvert(SQLColumnType type);
+	bool querySelectDatabase(ParsableString &query);
+
 
 	// virtual methods
 	gpointer mainThread(AsuraThreadArg *arg);
 private:
+	typedef bool (FaceMySQLWorker::*SelectProcFunc)(ParsableString &);
 	static const size_t TYPE_CONVERT_TABLE_SIZE = 0x100;
+	static map<string, SelectProcFunc> m_selectProcFuncMap;
 	static int m_typeConverTable[TYPE_CONVERT_TABLE_SIZE];
 
 	GSocket *m_socket;
