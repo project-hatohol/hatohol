@@ -28,8 +28,13 @@ protected:
 	                   SQLSelectInfo &selectInfo);
 	void addAllColumnDefs(SQLSelectResult &result, int tableId,
 	                      SQLSelectInfo &selectInfo);
-	bool tableProcNodes(SQLSelectResult &result,
-	                    SQLSelectInfo &selectInfo);
+	//
+	// Table Processors
+	//
+	bool tableProcNodes
+	     (SQLSelectResult &result, SQLSelectInfo &selectInfo);
+	bool tableProcConfig
+	     (SQLSelectResult &result, SQLSelectInfo &selectInfo);
 
 private:
 	static map<string, TableProcFunc> m_tableProcFuncMap;

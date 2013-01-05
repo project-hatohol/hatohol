@@ -5,9 +5,11 @@ using namespace mlpl;
 
 enum TableID {
 	TABLE_ID_NODES,
+	TABLE_ID_CONFIG,
 };
 
-static const char *TABLE_NAME_NODES = "nodes";
+static const char *TABLE_NAME_NODES  = "nodes";
+static const char *TABLE_NAME_CONFIG = "config";
 
 map<string, SQLProcessorZabbix::TableProcFunc>
   SQLProcessorZabbix::m_tableProcFuncMap;
@@ -17,28 +19,6 @@ SQLProcessor::TableIdColumnBaseDefListMap
 
 SQLProcessor::TableIdNameMap
   SQLProcessorZabbix::m_tableIdNameMap;
-
-/*
-static const char *COLUMN_NAME_NODEID = "nodeid";
-static const char *COLUMN_NAME_NAME   = "name";
-static const char *COLUMN_NAME_IP     = "ip";
-static const char *COLUMN_NAME_PORT   = "port";
-static const char *COLUMN_NAME_NODETYPE  = "nodetype";
-static const char *COLUMN_NAME_MASTERID  = "masterid";
-*/
-
-/*
-+----------+-------------+------+-----+---------+-------+
-| Field    | Type        | Null | Key | Default | Extra |
-+----------+-------------+------+-----+---------+-------+
-| nodeid   | int(11)     | NO   | PRI | NULL    |       |
-| name     | varchar(64) | NO   |     | 0       |       |
-| ip       | varchar(39) | NO   |     |         |       |
-| port     | int(11)     | NO   |     | 10051   |       |
-| nodetype | int(11)     | NO   |     | 0       |       |
-| masterid | int(11)     | YES  | MUL | NULL    |       |
-+----------+-------------+------+-----+---------+-------+
-*/
 
 // ---------------------------------------------------------------------------
 // Public static methods
@@ -52,9 +32,104 @@ void SQLProcessorZabbix::init(void)
 	defineColumn(TABLE_ID_NODES, "port",     SQL_COLUMN_TYPE_INT, 11);
 	defineColumn(TABLE_ID_NODES, "nodetype", SQL_COLUMN_TYPE_INT, 11);
 	defineColumn(TABLE_ID_NODES, "masterid", SQL_COLUMN_TYPE_INT, 11);
-
 	m_tableProcFuncMap[TABLE_NAME_NODES]
 	  = &SQLProcessorZabbix::tableProcNodes;
+
+	defineTable(TABLE_ID_CONFIG, TABLE_NAME_CONFIG);
+	defineColumn(TABLE_ID_CONFIG, "configid",
+	             SQL_COLUMN_TYPE_BIGUINT, 20);
+	defineColumn(TABLE_ID_CONFIG, "alert_history",
+	             SQL_COLUMN_TYPE_INT, 11);
+	defineColumn(TABLE_ID_CONFIG, "event_history",
+	             SQL_COLUMN_TYPE_INT, 11);
+	defineColumn(TABLE_ID_CONFIG, "refresh_unsupoorted",
+	             SQL_COLUMN_TYPE_INT, 11);
+	defineColumn(TABLE_ID_CONFIG, "work_period",
+	             SQL_COLUMN_TYPE_VARCHAR, 100);
+	defineColumn(TABLE_ID_CONFIG, "alert_usrgrpid",
+	             SQL_COLUMN_TYPE_BIGUINT, 20);
+	defineColumn(TABLE_ID_CONFIG, "event_ack_enable",
+	             SQL_COLUMN_TYPE_INT, 11);
+	defineColumn(TABLE_ID_CONFIG, "event_expire",
+	             SQL_COLUMN_TYPE_INT, 11);
+	defineColumn(TABLE_ID_CONFIG, "event_show_max",
+	             SQL_COLUMN_TYPE_INT, 11);
+	defineColumn(TABLE_ID_CONFIG, "default_theme",
+	             SQL_COLUMN_TYPE_VARCHAR, 128);
+	defineColumn(TABLE_ID_CONFIG, "authentication_type",
+	             SQL_COLUMN_TYPE_INT, 11);
+	defineColumn(TABLE_ID_CONFIG, "ldap_host",
+	             SQL_COLUMN_TYPE_VARCHAR, 255);
+	defineColumn(TABLE_ID_CONFIG, "ldap_port",
+	             SQL_COLUMN_TYPE_INT, 11);
+	defineColumn(TABLE_ID_CONFIG, "ldap_base_dn",
+	             SQL_COLUMN_TYPE_VARCHAR, 255);
+	defineColumn(TABLE_ID_CONFIG, "ldap_bind_dn",
+	             SQL_COLUMN_TYPE_VARCHAR, 255);
+	defineColumn(TABLE_ID_CONFIG, "ldap_bind_password",
+	             SQL_COLUMN_TYPE_VARCHAR, 128);
+	defineColumn(TABLE_ID_CONFIG, "ldap_search_attribute",
+	             SQL_COLUMN_TYPE_VARCHAR, 128);
+	defineColumn(TABLE_ID_CONFIG, "dropdown_first_entry",
+	             SQL_COLUMN_TYPE_INT, 11);
+	defineColumn(TABLE_ID_CONFIG, "dropdown_first_remember",
+	             SQL_COLUMN_TYPE_INT, 11);
+	defineColumn(TABLE_ID_CONFIG, "discovery_groupid",
+	             SQL_COLUMN_TYPE_BIGUINT, 20);
+	defineColumn(TABLE_ID_CONFIG, "max_in_table",
+	             SQL_COLUMN_TYPE_INT, 11);
+	defineColumn(TABLE_ID_CONFIG, "search_limit",
+	             SQL_COLUMN_TYPE_INT, 11);
+	defineColumn(TABLE_ID_CONFIG, "severity_color_0",
+	             SQL_COLUMN_TYPE_VARCHAR, 6);
+	defineColumn(TABLE_ID_CONFIG, "severity_color_1",
+	             SQL_COLUMN_TYPE_VARCHAR, 6);
+	defineColumn(TABLE_ID_CONFIG, "severity_color_2",
+	             SQL_COLUMN_TYPE_VARCHAR, 6);
+	defineColumn(TABLE_ID_CONFIG, "severity_color_3",
+	             SQL_COLUMN_TYPE_VARCHAR, 6);
+	defineColumn(TABLE_ID_CONFIG, "severity_color_4",
+	             SQL_COLUMN_TYPE_VARCHAR, 6);
+	defineColumn(TABLE_ID_CONFIG, "severity_color_5",
+	             SQL_COLUMN_TYPE_VARCHAR, 6);
+	defineColumn(TABLE_ID_CONFIG, "severity_name_0",
+	             SQL_COLUMN_TYPE_VARCHAR, 32);
+	defineColumn(TABLE_ID_CONFIG, "severity_name_1",
+	             SQL_COLUMN_TYPE_VARCHAR, 32);
+	defineColumn(TABLE_ID_CONFIG, "severity_name_2",
+	             SQL_COLUMN_TYPE_VARCHAR, 32);
+	defineColumn(TABLE_ID_CONFIG, "severity_name_3",
+	             SQL_COLUMN_TYPE_VARCHAR, 32);
+	defineColumn(TABLE_ID_CONFIG, "severity_name_4",
+	             SQL_COLUMN_TYPE_VARCHAR, 32);
+	defineColumn(TABLE_ID_CONFIG, "severity_name_5",
+	             SQL_COLUMN_TYPE_VARCHAR, 32);
+	defineColumn(TABLE_ID_CONFIG, "ok_period",
+	             SQL_COLUMN_TYPE_INT, 11);
+	defineColumn(TABLE_ID_CONFIG, "blink_period",
+	             SQL_COLUMN_TYPE_INT, 11);
+	defineColumn(TABLE_ID_CONFIG, "problem_unack_color",
+	             SQL_COLUMN_TYPE_VARCHAR, 6);
+	defineColumn(TABLE_ID_CONFIG, "problem_ack_color",
+	             SQL_COLUMN_TYPE_VARCHAR, 6);
+	defineColumn(TABLE_ID_CONFIG, "ok_unack_color",
+	             SQL_COLUMN_TYPE_VARCHAR, 6);
+	defineColumn(TABLE_ID_CONFIG, "ok_ack_color",
+	             SQL_COLUMN_TYPE_VARCHAR, 6);
+	defineColumn(TABLE_ID_CONFIG, "problem_unack_style",
+	             SQL_COLUMN_TYPE_INT, 11);
+	defineColumn(TABLE_ID_CONFIG, "problem_ack_style",
+	             SQL_COLUMN_TYPE_INT, 11);
+	defineColumn(TABLE_ID_CONFIG, "ok_unack_style",
+	             SQL_COLUMN_TYPE_INT, 11);
+	defineColumn(TABLE_ID_CONFIG, "ok_ack_style",
+	             SQL_COLUMN_TYPE_INT, 11);
+	defineColumn(TABLE_ID_CONFIG, "snmptrap_logging",
+	             SQL_COLUMN_TYPE_INT, 11);
+	defineColumn(TABLE_ID_CONFIG, "server_check_interval",
+	             SQL_COLUMN_TYPE_INT, 11);
+	m_tableProcFuncMap[TABLE_NAME_CONFIG]
+	  = &SQLProcessorZabbix::tableProcConfig;
 }
 
 SQLProcessor *SQLProcessorZabbix::createInstance(void)
@@ -130,15 +205,32 @@ SQLProcessorZabbix::addAllColumnDefs(SQLSelectResult &result, int tableId,
 		addColumnDefs(result, *baseDef, selectInfo);
 }
 
-bool SQLProcessorZabbix::tableProcNodes(SQLSelectResult &result,
-                                        SQLSelectInfo &selectInfo)
+bool SQLProcessorZabbix::tableProcNodes
+     (SQLSelectResult &result, SQLSelectInfo &selectInfo)
 {
-	MLPL_DBG("***** %s\n", __func__);
 	if (selectInfo.columns.empty())
 		return false;
 
 	if (selectedAllColumns(selectInfo)) {
 		addAllColumnDefs(result, TABLE_ID_NODES, selectInfo);
+		return true;
+
+	} else {
+		MLPL_DBG("Not supported: columns: %s\n",
+		         selectInfo.columns[0].c_str());
+	}
+	
+	return false;
+}
+
+bool SQLProcessorZabbix::tableProcConfig
+     (SQLSelectResult &result, SQLSelectInfo &selectInfo)
+{
+	if (selectInfo.columns.empty())
+		return false;
+
+	if (selectedAllColumns(selectInfo)) {
+		addAllColumnDefs(result, TABLE_ID_CONFIG, selectInfo);
 		return true;
 
 	} else {
