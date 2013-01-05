@@ -87,6 +87,7 @@ protected:
 	int typeConvert(SQLColumnType type);
 
 	// Command handlers
+	bool comQuit(SmartBuffer &pkt);
 	bool comQuery(SmartBuffer &pkt);
 	bool comInitDB(SmartBuffer &pkt);
 	bool comSetOption(SmartBuffer &pkt);

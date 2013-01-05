@@ -63,6 +63,7 @@ enum {
 };
 
 enum {
+	ID_COM_QUIT       = 0x01,
 	ID_COM_INIT_DB    = 0x02,
 	ID_COM_QUERY      = 0x03,
 	ID_COM_SET_OPTION = 0x1b,
@@ -117,6 +118,7 @@ FaceMySQLWorker::FaceMySQLWorker(GSocket *sock, uint32_t connId)
 {
 	initHandshakeResponse41(m_hsResp41);
 
+	m_cmdProcMap[ID_COM_QUIT]    = &FaceMySQLWorker::comQuit;
 	m_cmdProcMap[ID_COM_INIT_DB] = &FaceMySQLWorker::comInitDB;
 	m_cmdProcMap[ID_COM_QUERY]   = &FaceMySQLWorker::comQuery;
 	m_cmdProcMap[ID_COM_SET_OPTION]  = &FaceMySQLWorker::comSetOption;
@@ -629,6 +631,12 @@ int FaceMySQLWorker::typeConvert(SQLColumnType type)
 // ---------------------------------------------------------------------------
 // Command handlers
 // ---------------------------------------------------------------------------
+bool FaceMySQLWorker::comQuit(SmartBuffer &pkt)
+{
+	MLPL_DBG("%s\n", __PRETTY_FUNCTION__);
+	return false;
+}
+
 bool FaceMySQLWorker::comQuery(SmartBuffer &pkt)
 {
 	ParsableString query(getEOFString(pkt));
