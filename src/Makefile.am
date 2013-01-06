@@ -7,6 +7,7 @@ libasura_la_SOURCES = \
 	SQLProcessorFactory.cc SQLProcessor.cc SQLProcessorZabbix.cc \
 	SQLWhereElement.cc \
 	ItemData.cc ItemGroup.h \
+	VirtualDataStore.cc VirtualDataStoreZabbix.cc \
 	JsonBuilderAgent.cc JsonParserAgent.cc \
 	AsuraException.cc AsuraThreadBase.cc ArmController.cc \
 	ArmBase.cc ArmZabbixAPI.cc

@@ -4,7 +4,11 @@
 #include <map>
 using namespace std;
 
+#include "ItemData."
+
 typedef uint64_t ItemGroupId;
+
+ItemGroup
 
 class ItemGroup {
 public:
