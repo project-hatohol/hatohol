@@ -1,3 +1,5 @@
+#include <stdexcept>
+#include "Utils.h"
 #include "ItemGroup.h"
 
 // ---------------------------------------------------------------------------
@@ -10,9 +12,22 @@ ItemGroup::ItemGroup(ItemGroupId id)
 
 ItemGroup::~ItemGroup()
 {
-	map<ItemId, ItemData *>::iterator it = m_itemMap.begin();
+	ItemDataMapIterator it = m_itemMap.begin();
 	for (; it != m_itemMap.end(); ++it) {
-		ItemData *data;
+		ItemData *data = it->second;
 		data->unref();
+	}
+}
+
+void ItemGroup::add(ItemData *data)
+{
+	pair<ItemDataMapIterator, bool> result;
+	ItemId itemId = data->getId();
+	result = m_itemMap.insert(pair<ItemId, ItemData *>(itemId, data));
+	if (!result.second) {
+		string msg =
+		  AMSG("Failed: insert: groupId: %"PRIx_ITEM_GROUP
+		       ", itemId: %"PRIx_ITEM"\n", m_groupId, itemId);
+		throw invalid_argument(msg);
 	}
 }
