@@ -65,27 +65,3 @@ void ItemData::writeUnlock(void)
 // ---------------------------------------------------------------------------
 // Private methods
 // ---------------------------------------------------------------------------
-
-// ---------------------------------------------------------------------------
-// Public methods (ItemUint64)
-// ---------------------------------------------------------------------------
-ItemUint64::ItemUint64(ItemId id, uint64_t data)
-: ItemData(id, ITEM_TYPE_UINT64),
-  m_data(data)
-{
-}
-
-void ItemUint64::set(void *src)
-{
-	writeLock();
-	m_data = *static_cast<uint64_t *>(src);
-	writeUnlock();
-}
-
-void ItemUint64::get(void *dst)
-{
-	readLock();
-	uint64_t data = m_data;
-	readUnlock();
-	*static_cast<uint64_t *>(dst) = data;
-}

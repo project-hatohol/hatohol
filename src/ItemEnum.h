@@ -3,7 +3,8 @@
 
 enum
 {
-	ITEM_ID_ZBX_CONFIGID,
+	ITEM_ID_ZBX_CONFIG_CONFIGID,
+	ITEM_ID_ZBX_CONFIG_ALERT_HISTORY,
 };
 
 #endif // ItemEnum_h

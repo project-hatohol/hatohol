@@ -1,6 +1,9 @@
 #ifndef ItemData_h
 #define ItemData_h
 
+#include <string>
+using namespace std;
+
 #include <stdint.h>
 #include <glib.h>
 
@@ -9,6 +12,7 @@ typedef uint64_t ItemId;
 #define PRIu_ITEM PRIu64
 
 enum ItemDataType {
+	ITEM_TYPE_INT,
 	ITEM_TYPE_UINT64,
 	ITEM_TYPE_STRING,
 };
@@ -38,16 +42,34 @@ private:
 	GRWLock      m_lock;
 };
 
-class ItemUint64 : public ItemData {
+template <typename T, ItemDataType ITEM_TYPE>
+class ItemGeneric : public ItemData {
 public:
-	ItemUint64(ItemId id, uint64_t data);
+	ItemGeneric(ItemId id, T data)
+	: ItemData(id, ITEM_TYPE),
+	  m_data(data) {
+	}
 
-	// virtual method
-	void set(void *src);
-	void get(void *dst);
+	// virtual methods
+	void set(void *src) {
+		writeLock();
+		m_data = *static_cast<T *>(src);
+		writeUnlock();
+	}
+
+	void get(void *dst) {
+		readLock();
+		uint64_t data = m_data;
+		readUnlock();
+		*static_cast<T *>(dst) = data;
+	}
 
 private:
-	uint64_t m_data;
+	T m_data;
 };
+
+typedef ItemGeneric<uint64_t, ITEM_TYPE_UINT64> ItemUint64;
+typedef ItemGeneric<int,      ITEM_TYPE_INT>    ItemInt;
+typedef ItemGeneric<string,   ITEM_TYPE_STRING> ItemString;
 
 #endif // ItemData_h

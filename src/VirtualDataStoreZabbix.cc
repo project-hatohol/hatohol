@@ -12,7 +12,8 @@ VirtualDataStoreZabbix::VirtualDataStoreZabbix(void)
 {
 	ItemGroup *grp;
 	grp = createItemGroup(GROUP_ID_ZBX_CONFIG);
-	grp->add(new ItemUint64(ITEM_ID_ZBX_CONFIGID, 1));
+	grp->add(new ItemUint64(ITEM_ID_ZBX_CONFIG_CONFIGID, 1));
+	grp->add(new ItemInt(ITEM_ID_ZBX_CONFIG_ALERT_HISTORY, 365));
 }
 
 VirtualDataStoreZabbix::~VirtualDataStoreZabbix(void)
