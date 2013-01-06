@@ -6,6 +6,7 @@ libasura_la_SOURCES = \
 	Asura.cc FaceBase.cc FaceMySQL.cc FaceMySQLWorker.cc \
 	SQLProcessorFactory.cc SQLProcessor.cc SQLProcessorZabbix.cc \
 	SQLWhereElement.cc \
+	ItemData.cc ItemGroup.h \
 	JsonBuilderAgent.cc JsonParserAgent.cc \
 	AsuraException.cc AsuraThreadBase.cc ArmController.cc \
 	ArmBase.cc ArmZabbixAPI.cc

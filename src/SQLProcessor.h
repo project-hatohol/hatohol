@@ -56,6 +56,7 @@ struct SQLColumnDefinition
 
 struct SQLRow
 {
+	
 };
 
 struct SQLSelectResult {
