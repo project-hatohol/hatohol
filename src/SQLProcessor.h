@@ -12,6 +12,7 @@ using namespace std;
 using namespace mlpl;
 
 #include <glib.h>
+#include "ItemData.h"
 #include "SQLWhereElement.h"
 
 struct SQLSelectInfo {
@@ -37,6 +38,7 @@ enum SQLColumnType {
 };
 
 struct ColumnBaseDefinition {
+	ItemId         itemId;
 	const char    *tableName;
 	const char    *columnName;
 	SQLColumnType  type;
@@ -45,6 +47,7 @@ struct ColumnBaseDefinition {
 
 struct SQLColumnDefinition
 {
+	ItemId itemId;
 	string schema;
 	string table;
 	string tableVar;
@@ -54,14 +57,9 @@ struct SQLColumnDefinition
 	size_t columnLength;
 };
 
-struct SQLRow
-{
-	
-};
-
 struct SQLSelectResult {
 	vector<SQLColumnDefinition> columnDefs;
-	vector<SQLRow> rows;
+	StringVector rows;
 	bool useIndex;
 
 	// constructor

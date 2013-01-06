@@ -1,6 +1,7 @@
 #ifndef SQLProcessorZabbix_h
 #define SQLProcessorZabbix_h
 
+#include "ItemData.h"
 #include "SQLProcessor.h"
 
 class SQLProcessorZabbix : public SQLProcessor
@@ -43,7 +44,8 @@ private:
 	static TableIdNameMap              m_tableIdNameMap;
 
 	static void defineTable(int tableId, const char *tableName);
-	static void defineColumn(int tableId, const char *columnName,
+	static void defineColumn(ItemId itemId,
+	                         int tableId, const char *columnName,
 	                         SQLColumnType, size_t columnLength);
 	static const char *getTableName(int tableId);
 };

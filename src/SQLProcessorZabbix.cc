@@ -179,6 +179,7 @@ SQLProcessorZabbix::addColumnDefs(SQLSelectResult &result,
 {
 	result.columnDefs.push_back(SQLColumnDefinition());
 	SQLColumnDefinition &colDef = result.columnDefs.back();
+	colDef.itemId       = columnBaseDef.itemId;
 	colDef.schema       = getDBName();
 	colDef.table        = selectInfo.table;
 	colDef.tableVar     = selectInfo.tableVar;
@@ -253,7 +254,8 @@ void SQLProcessorZabbix::defineTable(int tableId, const char *tableName)
 	m_tableIdNameMap[tableId] = tableName;
 }
 
-void SQLProcessorZabbix::defineColumn(int tableId, const char *columnName,
+void SQLProcessorZabbix::defineColumn(ItemId itemId,
+                                      int tableId, const char *columnName,
                                       SQLColumnType type, size_t columnLength)
 {
 	TableIdColumnBaseDefListMapIterator it;
@@ -265,6 +267,7 @@ void SQLProcessorZabbix::defineColumn(int tableId, const char *columnName,
 	ColumnBaseDefList &list = it->second;
 	list.push_back(ColumnBaseDefinition());
 	ColumnBaseDefinition &colDef = list.back();
+	colDef.itemId       = itemId;
 	colDef.tableName    = getTableName(tableId);
 	colDef.columnName   = columnName;
 	colDef.type         = type;
