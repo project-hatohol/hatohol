@@ -59,7 +59,7 @@ public:
 
 	void get(void *dst) {
 		readLock();
-		uint64_t data = m_data;
+		T data = m_data;
 		readUnlock();
 		*static_cast<T *>(dst) = data;
 	}
