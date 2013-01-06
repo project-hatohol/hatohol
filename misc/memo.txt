@@ -82,3 +82,19 @@ ID 3 len 5 ::DUMP:: fe 00 00 02 00 ::DUMP::
 ID 4 len 1 ::DUMP:: fb ::DUMP::
 ID 5 len 5 ::DUMP:: fe 00 00 02 00 ::DUMP::
 
+*** config
+ID 2 len 51 ::DUMP::
+03 64 65 66
+06 7a 61 62 62 69 78 // schema: zabbix
+01 63                // table: c
+06 63 6f 6e 66 69 67 // orgTable: config
+08 63 6f 6e 66 69 67 69 64 // name: config
+08 63 6f 6e 66 69 67 69 64
+0c
+3f 00                // charSet
+14 00 00 00          // column width
+08                   // type
+23 50                // flags
+00                   // decimal
+00 00                // Filler
+
