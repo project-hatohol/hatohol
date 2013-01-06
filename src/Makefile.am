@@ -9,7 +9,7 @@ libasura_la_SOURCES = \
 	ItemData.cc ItemGroup.cc \
 	VirtualDataStore.cc VirtualDataStoreZabbix.cc \
 	JsonBuilderAgent.cc JsonParserAgent.cc \
-	AsuraException.cc AsuraThreadBase.cc ArmController.cc \
+	AsuraThreadBase.cc ArmController.cc \
 	ArmBase.cc ArmZabbixAPI.cc
 
 AM_CXXFLAGS = -Wall -g \

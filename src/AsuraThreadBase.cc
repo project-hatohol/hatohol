@@ -3,9 +3,10 @@
 #include <Logger.h>
 using namespace mlpl;
 
+#include <exception>
+
 #include "Utils.h"
 #include "AsuraThreadBase.h"
-#include "AsuraException.h"
 
 // ---------------------------------------------------------------------------
 // Public methods
@@ -47,8 +48,8 @@ gpointer AsuraThreadBase::threadStarter(gpointer data)
 	AsuraThreadArg *arg = static_cast<AsuraThreadArg *>(data);
 	try {
 		ret = arg->obj->mainThread(arg);
-	} catch (AsuraException e) {
-		MLPL_ERR("Got Exception: %s\n", e.getMessage());
+	} catch (exception e) {
+		MLPL_ERR("Got Exception: %s\n", e.what());
 	}
 	if (arg->autoDeleteObject)
 		delete arg->obj;
