@@ -35,6 +35,8 @@ protected:
 	void writeLock(void);
 	void writeUnlock(void);
 
+	int getUsedCount(void);
+
 private:
 	int          m_usedCount;
 	ItemId       m_itemId;

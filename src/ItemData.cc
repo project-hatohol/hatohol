@@ -62,6 +62,14 @@ void ItemData::writeUnlock(void)
 	g_rw_lock_writer_unlock(&m_lock);
 }
 
+int ItemData::getUsedCount(void)
+{
+	readLock();
+	int usedCount = m_usedCount;
+	readUnlock();
+	return usedCount;
+}
+
 // ---------------------------------------------------------------------------
 // Private methods
 // ---------------------------------------------------------------------------
