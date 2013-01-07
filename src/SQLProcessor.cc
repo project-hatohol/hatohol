@@ -7,6 +7,7 @@ using namespace std;
 
 #include <cstring>
 #include "SQLProcessor.h"
+#include "ItemDataPtr.h"
 
 enum SelectParseRegion {
 	SELECT_PARSING_REGION_SELECT,
@@ -77,7 +78,31 @@ SQLSelectResult::SQLSelectResult(void)
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
-SQLProcessor::SQLProcessor(void)
+bool SQLProcessor::select(SQLSelectResult &result,
+                          SQLSelectInfo   &selectInfo)
+{
+	if (!parseSelectStatement(selectInfo))
+		return false;
+
+	map<string, TableProcFunc>::iterator it;
+	it = m_tableProcFuncMap.find(selectInfo.table);
+	if (it == m_tableProcFuncMap.end())
+		return false;
+
+	TableProcFunc func = it->second;
+	return (this->*func)(result, selectInfo);
+}
+
+// ---------------------------------------------------------------------------
+// Protected methods
+// ---------------------------------------------------------------------------
+SQLProcessor::SQLProcessor(
+  TableProcFuncMap            &tableProcFuncMap,
+  TableIdColumnBaseDefListMap &tableColumnBaseDefListMap,
+  TableIdNameMap              &tableIdNameMap)
+: m_tableProcFuncMap(tableProcFuncMap),
+  m_tableColumnBaseDefListMap(tableColumnBaseDefListMap),
+  m_tableIdNameMap(tableIdNameMap)
 {
 	m_selectRegionParserMap["from"]  = &SQLProcessor::parseRegionFrom;
 	m_selectRegionParserMap["where"] = &SQLProcessor::parseRegionWhere;
@@ -89,9 +114,6 @@ SQLProcessor::~SQLProcessor()
 {
 }
 
-// ---------------------------------------------------------------------------
-// Protected methods
-// ---------------------------------------------------------------------------
 bool SQLProcessor::selectedAllColumns(SQLSelectInfo &selectInfo)
 {
 	if (selectInfo.columns.size() != 1)
@@ -163,6 +185,66 @@ bool SQLProcessor::parseSelectStatement(SQLSelectInfo &selectInfo)
 		return false;
 	}
 
+	return true;
+}
+
+void SQLProcessor::addColumnDefs(SQLSelectResult &result,
+                                 const ColumnBaseDefinition &columnBaseDef,
+                                 SQLSelectInfo &selectInfo)
+{
+	result.columnDefs.push_back(SQLColumnDefinition());
+	SQLColumnDefinition &colDef = result.columnDefs.back();
+	colDef.baseDef      = &columnBaseDef;
+	colDef.schema       = getDBName();
+	colDef.table        = selectInfo.table;
+	colDef.tableVar     = selectInfo.tableVar;
+	colDef.column       = columnBaseDef.columnName;
+	colDef.columnVar    = columnBaseDef.columnName;
+}
+
+void SQLProcessor::addAllColumnDefs(SQLSelectResult &result, int tableId,
+                                    SQLSelectInfo &selectInfo)
+{
+	TableIdColumnBaseDefListMap::iterator it;
+	it = m_tableColumnBaseDefListMap.find(tableId);
+	if (it == m_tableColumnBaseDefListMap.end()) {
+		MLPL_BUG("Not found table: %d\n", tableId);
+		return;
+	}
+
+	ColumnBaseDefList &baseDefList = it->second;;
+	ColumnBaseDefListIterator baseDef = baseDefList.begin();
+	for (; baseDef != baseDefList.end(); ++baseDef)
+		addColumnDefs(result, *baseDef, selectInfo);
+}
+
+bool
+SQLProcessor::generalSelect(SQLSelectResult &result, SQLSelectInfo &selectInfo,
+                            const ItemGroup *itemGroup, int tableId)
+{
+	if (selectInfo.columns.empty())
+		return false;
+
+	// Set column definition
+	if (selectedAllColumns(selectInfo)) {
+		addAllColumnDefs(result, tableId, selectInfo);
+	} else {
+		MLPL_DBG("Not supported: columns: %s\n",
+		         selectInfo.columns[0].c_str());
+	}
+
+	// Set row data
+	for (size_t i = 0; i < result.columnDefs.size(); i++) {
+		const SQLColumnDefinition &colDef = result.columnDefs[i];
+		ItemDataPtr dataPtr(colDef.baseDef->itemId, itemGroup);
+		if (!dataPtr.hasData()) {
+			MLPL_BUG("Failed to get ItemData: %"PRIx_ITEM
+			         "from ItemGroup: %"PRIx_ITEM_GROUP"\n",
+			         colDef.baseDef->itemId, itemGroup);
+			return false;
+		}
+		result.rows.push_back(dataPtr->getString());
+	}
 	return true;
 }
 

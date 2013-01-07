@@ -1,9 +1,9 @@
 #include <Logger.h>
 using namespace mlpl;
 
-#include "ItemDataPtr.h"
 #include "ItemEnum.h"
 #include "ItemGroupEnum.h"
+#include "ItemDataPtr.h"
 #include "SQLProcessorZabbix.h"
 
 enum TableID {
@@ -16,7 +16,7 @@ static const char *TABLE_NAME_NODES  = "nodes";
 static const char *TABLE_NAME_CONFIG = "config";
 static const char *TABLE_NAME_USERS  = "users";
 
-map<string, SQLProcessorZabbix::TableProcFunc>
+SQLProcessor::TableProcFuncMap
   SQLProcessorZabbix::m_tableProcFuncMap;
 
 SQLProcessor::TableIdColumnBaseDefListMap
@@ -44,7 +44,7 @@ void SQLProcessorZabbix::init(void)
 	defineColumn(ITEM_ID_ZBX_NODES_MASTERID,
 	             TABLE_ID_NODES, "masterid", SQL_COLUMN_TYPE_INT, 11);
 	m_tableProcFuncMap[TABLE_NAME_NODES]
-	  = &SQLProcessorZabbix::tableProcNodes;
+	  = static_cast<TableProcFunc>(&SQLProcessorZabbix::tableProcNodes);
 
 	defineTable(TABLE_ID_CONFIG, TABLE_NAME_CONFIG);
 	defineColumn(ITEM_ID_ZBX_CONFIG_CONFIGID,
@@ -186,7 +186,7 @@ void SQLProcessorZabbix::init(void)
 	             TABLE_ID_CONFIG, "server_check_interval",
 	             SQL_COLUMN_TYPE_INT, 11);
 	m_tableProcFuncMap[TABLE_NAME_CONFIG]
-	  = &SQLProcessorZabbix::tableProcConfig;
+	  = static_cast<TableProcFunc>(&SQLProcessorZabbix::tableProcConfig);
 
 	defineTable(TABLE_ID_USERS, TABLE_NAME_USERS);
 	defineColumn(ITEM_ID_ZBX_USERS_USERID,
@@ -238,7 +238,7 @@ void SQLProcessorZabbix::init(void)
 	             TABLE_ID_USERS, "rows_per_page",
 	             SQL_COLUMN_TYPE_INT, 11);
 	m_tableProcFuncMap[TABLE_NAME_USERS]
-	  = &SQLProcessorZabbix::tableProcUsers;
+	  = static_cast<TableProcFunc>(&SQLProcessorZabbix::tableProcUsers);
 }
 
 SQLProcessor *SQLProcessorZabbix::createInstance(void)
@@ -246,15 +246,23 @@ SQLProcessor *SQLProcessorZabbix::createInstance(void)
 	return new SQLProcessorZabbix();
 }
 
-const char *SQLProcessorZabbix::getDBName(void)
+const char *SQLProcessorZabbix::getDBNameStatic(void)
 {
 	return "zabbix";
+}
+
+const char *SQLProcessorZabbix::getDBName(void)
+{
+	return getDBNameStatic();
 }
 
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
 SQLProcessorZabbix::SQLProcessorZabbix(void)
+: SQLProcessor(m_tableProcFuncMap,
+               m_tableColumnBaseDefListMap,
+               m_tableIdNameMap)
 {
 	m_VDSZabbix = VirtualDataStoreZabbix::getInstance();
 	MLPL_INFO("created: %s\n", __func__);
@@ -264,56 +272,9 @@ SQLProcessorZabbix::~SQLProcessorZabbix()
 {
 }
 
-bool SQLProcessorZabbix::select(SQLSelectResult &result,
-                                SQLSelectInfo   &selectInfo)
-{
-	if (!parseSelectStatement(selectInfo))
-		return false;
-
-	map<string, TableProcFunc>::iterator it;
-	it = m_tableProcFuncMap.find(selectInfo.table);
-	if (it == m_tableProcFuncMap.end())
-		return false;
-
-	TableProcFunc func = it->second;
-	return (this->*func)(result, selectInfo);
-}
-
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
-void
-SQLProcessorZabbix::addColumnDefs(SQLSelectResult &result,
-                                  const ColumnBaseDefinition &columnBaseDef,
-                                  SQLSelectInfo &selectInfo)
-{
-	result.columnDefs.push_back(SQLColumnDefinition());
-	SQLColumnDefinition &colDef = result.columnDefs.back();
-	colDef.baseDef      = &columnBaseDef;
-	colDef.schema       = getDBName();
-	colDef.table        = selectInfo.table;
-	colDef.tableVar     = selectInfo.tableVar;
-	colDef.column       = columnBaseDef.columnName;
-	colDef.columnVar    = columnBaseDef.columnName;
-}
-
-void
-SQLProcessorZabbix::addAllColumnDefs(SQLSelectResult &result, int tableId,
-                                     SQLSelectInfo &selectInfo)
-{
-	TableIdColumnBaseDefListMap::iterator it;
-	it = m_tableColumnBaseDefListMap.find(tableId);
-	if (it == m_tableColumnBaseDefListMap.end()) {
-		MLPL_BUG("Not found table: %d\n", tableId);
-		return;
-	}
-
-	ColumnBaseDefList &baseDefList = it->second;;
-	ColumnBaseDefListIterator baseDef = baseDefList.begin();
-	for (; baseDef != baseDefList.end(); ++baseDef)
-		addColumnDefs(result, *baseDef, selectInfo);
-}
-
 bool SQLProcessorZabbix::tableProcNodes
      (SQLSelectResult &result, SQLSelectInfo &selectInfo)
 {
@@ -372,7 +333,14 @@ bool SQLProcessorZabbix::tableProcConfig
 bool SQLProcessorZabbix::tableProcUsers
      (SQLSelectResult &result, SQLSelectInfo &selectInfo)
 {
-	return false;
+	const ItemGroupId itemGroupId = GROUP_ID_ZBX_USERS;
+	const ItemGroup *itemGroup = m_VDSZabbix->getItemGroup(itemGroupId);
+	if (!itemGroup) {
+		MLPL_BUG("Failed to get ItemGroup: %"PRIx_ITEM_GROUP"\n",
+		         itemGroupId);
+		return false;
+	}
+	return generalSelect(result, selectInfo, itemGroup, TABLE_ID_USERS);
 }
 
 // ---------------------------------------------------------------------------

@@ -13,6 +13,7 @@ using namespace mlpl;
 
 #include <glib.h>
 #include "ItemData.h"
+#include "ItemGroup.h"
 #include "SQLWhereElement.h"
 
 struct SQLSelectInfo {
@@ -69,12 +70,17 @@ struct SQLSelectResult {
 class SQLProcessor
 {
 public:
-	SQLProcessor(void);
-	virtual ~SQLProcessor();
 	virtual bool select(SQLSelectResult &result,
-	                    SQLSelectInfo   &selectInfo) = 0;
+	                    SQLSelectInfo   &selectInfo);
+	virtual const char *getDBName(void) = 0;
 
 protected:
+	typedef bool
+	(SQLProcessor::*TableProcFunc)(SQLSelectResult &result,
+	                               SQLSelectInfo &selectInfo);
+	typedef map<string, TableProcFunc>  TableProcFuncMap;
+	typedef TableProcFuncMap::iterator  TableProcFuncIterator;;
+
 	typedef list<ColumnBaseDefinition>  ColumnBaseDefList;
 	typedef ColumnBaseDefList::iterator ColumnBaseDefListIterator;
 	typedef map<int, ColumnBaseDefList> TableIdColumnBaseDefListMap;
@@ -86,8 +92,21 @@ protected:
 	struct SelectParserContext;
 	typedef bool (SQLProcessor::*SelectSubParser)(SelectParserContext &ctx);
 
+	SQLProcessor(
+	  TableProcFuncMap            &tableProcFuncMap,
+	  TableIdColumnBaseDefListMap &tableColumnBaseDefListMap,
+	  TableIdNameMap              &tableIdNameMap);
+	virtual ~SQLProcessor();
+
 	bool parseSelectStatement(SQLSelectInfo &selectInfo);
 	bool selectedAllColumns(SQLSelectInfo &selectInfo);
+	void addColumnDefs(SQLSelectResult &result,
+	                   const ColumnBaseDefinition &columnBaseDef,
+	                   SQLSelectInfo &selectInfo);
+	void addAllColumnDefs(SQLSelectResult &result, int tableId,
+	                      SQLSelectInfo &selectInfo);
+	bool generalSelect(SQLSelectResult &result, SQLSelectInfo &selectInfo,
+	                   const ItemGroup *itemGroup, int tableId);
 
 	//
 	// Select status parsers
@@ -113,6 +132,12 @@ private:
 	static const SelectSubParser m_selectSubParsers[];
 	static SeparatorChecker *m_selectSeprators[];
 	static SeparatorChecker m_separatorSpaceComma;
+
+	// These members are typically allocated in sub classes.
+	TableProcFuncMap            &m_tableProcFuncMap;
+	TableIdColumnBaseDefListMap &m_tableColumnBaseDefListMap;
+	TableIdNameMap              &m_tableIdNameMap;
+
 	map<string, SelectSubParser> m_selectRegionParserMap;
 };
 

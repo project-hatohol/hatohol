@@ -14,14 +14,30 @@ namespace testSQLProcessor {
 
 class TestSQLProcessor : public SQLProcessor {
 public:
+	TestSQLProcessor(void)
+	: SQLProcessor(m_tableProcFuncMap,
+	               m_tableColumnBaseDefListMap,
+	               m_tableIdNameMap)
+	{
+	}
+
 	// Implementation of abstruct method
 	bool select(SQLSelectResult &result, SQLSelectInfo &selectInfo) {
 		return false;
 	}
 
+	const char *getDBName(void) {
+		return "TestTable";
+	}
+
 	void callParseSelectStatement(SQLSelectInfo &selectInfo) {
 		parseSelectStatement(selectInfo);
 	}
+
+private:
+	TableProcFuncMap            m_tableProcFuncMap;
+	TableIdColumnBaseDefListMap m_tableColumnBaseDefListMap;
+	TableIdNameMap              m_tableIdNameMap;
 };
 
 // ---------------------------------------------------------------------------

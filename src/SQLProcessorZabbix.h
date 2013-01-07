@@ -11,25 +11,16 @@ public:
 	// static methods
 	static void init(void);
 	static SQLProcessor *createInstance(void);
-	static const char *getDBName(void);
+	static const char *getDBNameStatic(void);
 
 	// constructor and desctructor
 	SQLProcessorZabbix(void);
 	~SQLProcessorZabbix();
 
 	// virtual methods
-	bool select(SQLSelectResult &result, SQLSelectInfo &selectInfo);
+	const char *getDBName(void);
 
 protected:
-	typedef bool
-	(SQLProcessorZabbix::*TableProcFunc)(SQLSelectResult &result,
-	                                     SQLSelectInfo &selectInfo);
-
-	void addColumnDefs(SQLSelectResult &result,
-	                   const ColumnBaseDefinition &columnBaseDef,
-	                   SQLSelectInfo &selectInfo);
-	void addAllColumnDefs(SQLSelectResult &result, int tableId,
-	                      SQLSelectInfo &selectInfo);
 	//
 	// Table Processors
 	//
@@ -41,8 +32,7 @@ protected:
 	     (SQLSelectResult &result, SQLSelectInfo &selectInfo);
 
 private:
-	static map<string, TableProcFunc> m_tableProcFuncMap;
-
+	static TableProcFuncMap            m_tableProcFuncMap;
 	static TableIdColumnBaseDefListMap m_tableColumnBaseDefListMap;
 	static TableIdNameMap              m_tableIdNameMap;
 
@@ -51,7 +41,6 @@ private:
 	                         int tableId, const char *columnName,
 	                         SQLColumnType, size_t columnLength);
 	static const char *getTableName(int tableId);
-
 	VirtualDataStoreZabbix *m_VDSZabbix;
 };
 
