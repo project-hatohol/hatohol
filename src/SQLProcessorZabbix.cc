@@ -189,6 +189,54 @@ void SQLProcessorZabbix::init(void)
 	  = &SQLProcessorZabbix::tableProcConfig;
 
 	defineTable(TABLE_ID_USERS, TABLE_NAME_USERS);
+	defineColumn(ITEM_ID_ZBX_USERS_USERID,
+	             TABLE_ID_USERS, "userid",
+	             SQL_COLUMN_TYPE_BIGUINT, 20);
+	defineColumn(ITEM_ID_ZBX_USERS_ALIAS,
+	             TABLE_ID_USERS, "alias",
+	             SQL_COLUMN_TYPE_VARCHAR, 100);
+	defineColumn(ITEM_ID_ZBX_USERS_NAME,
+	             TABLE_ID_USERS, "name",
+	             SQL_COLUMN_TYPE_VARCHAR, 100);
+	defineColumn(ITEM_ID_ZBX_USERS_SURNAME,
+	             TABLE_ID_USERS, "surname",
+	             SQL_COLUMN_TYPE_VARCHAR, 100);
+	defineColumn(ITEM_ID_ZBX_USERS_PASSWD,
+	             TABLE_ID_USERS, "passwd",
+	             SQL_COLUMN_TYPE_CHAR, 32);
+	defineColumn(ITEM_ID_ZBX_USERS_URL,
+	             TABLE_ID_USERS, "url",
+	             SQL_COLUMN_TYPE_VARCHAR, 256);
+	defineColumn(ITEM_ID_ZBX_USERS_AUTOLOGIN,
+	             TABLE_ID_USERS, "autologin",
+	             SQL_COLUMN_TYPE_INT, 11);
+	defineColumn(ITEM_ID_ZBX_USERS_AUTOLOGOUT,
+	             TABLE_ID_USERS, "autologout",
+	             SQL_COLUMN_TYPE_INT, 11);
+	defineColumn(ITEM_ID_ZBX_USERS_LANG,
+	             TABLE_ID_USERS, "lang",
+	             SQL_COLUMN_TYPE_VARCHAR, 5);
+	defineColumn(ITEM_ID_ZBX_USERS_REFRESH,
+	             TABLE_ID_USERS, "refresh",
+	             SQL_COLUMN_TYPE_INT, 11);
+	defineColumn(ITEM_ID_ZBX_USERS_TYPE,
+	             TABLE_ID_USERS, "type",
+	             SQL_COLUMN_TYPE_INT, 11);
+	defineColumn(ITEM_ID_ZBX_USERS_THEME,
+	             TABLE_ID_USERS, "theme",
+	             SQL_COLUMN_TYPE_VARCHAR, 128);
+	defineColumn(ITEM_ID_ZBX_USERS_ATTEMPT_FAILED,
+	             TABLE_ID_USERS, "attempt_failed",
+	             SQL_COLUMN_TYPE_INT, 11);
+	defineColumn(ITEM_ID_ZBX_USERS_ATTEMPT_IP,
+	             TABLE_ID_USERS, "attempt_ip",
+	             SQL_COLUMN_TYPE_VARCHAR, 39);
+	defineColumn(ITEM_ID_ZBX_USERS_ATTEMPT_CLOCK,
+	             TABLE_ID_USERS, "attempt_clock",
+	             SQL_COLUMN_TYPE_INT, 11);
+	defineColumn(ITEM_ID_ZBX_USERS_ROWS_PER_PAGE,
+	             TABLE_ID_USERS, "rows_per_page",
+	             SQL_COLUMN_TYPE_INT, 11);
 	m_tableProcFuncMap[TABLE_NAME_USERS]
 	  = &SQLProcessorZabbix::tableProcUsers;
 }

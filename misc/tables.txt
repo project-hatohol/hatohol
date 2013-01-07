@@ -57,3 +57,24 @@
 | snmptrap_logging        | int(11)             | NO   |     | 1               |       |
 | server_check_interval   | int(11)             | NO   |     | 10              |       |
 +-------------------------+---------------------+------+-----+-----------------+-------+
+
++----------------+---------------------+------+-----+---------+-------+
+| Field          | Type                | Null | Key | Default | Extra |
++----------------+---------------------+------+-----+---------+-------+
+| userid         | bigint(20) unsigned | NO   | PRI | NULL    |       |
+| alias          | varchar(100)        | NO   | MUL |         |       |
+| name           | varchar(100)        | NO   |     |         |       |
+| surname        | varchar(100)        | NO   |     |         |       |
+| passwd         | char(32)            | NO   |     |         |       |
+| url            | varchar(255)        | NO   |     |         |       |
+| autologin      | int(11)             | NO   |     | 0       |       |
+| autologout     | int(11)             | NO   |     | 900     |       |
+| lang           | varchar(5)          | NO   |     | en_GB   |       |
+| refresh        | int(11)             | NO   |     | 30      |       |
+| type           | int(11)             | NO   |     | 0       |       |
+| theme          | varchar(128)        | NO   |     | default |       |
+| attempt_failed | int(11)             | NO   |     | 0       |       |
+| attempt_ip     | varchar(39)         | NO   |     |         |       |
+| attempt_clock  | int(11)             | NO   |     | 0       |       |
+| rows_per_page  | int(11)             | NO   |     | 50      |       |
++----------------+---------------------+------+-----+---------+-------+

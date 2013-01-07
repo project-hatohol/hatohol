@@ -35,6 +35,7 @@ enum SQLColumnType {
 	SQL_COLUMN_TYPE_INT,
 	SQL_COLUMN_TYPE_BIGUINT,
 	SQL_COLUMN_TYPE_VARCHAR,
+	SQL_COLUMN_TYPE_CHAR,
 };
 
 struct ColumnBaseDefinition {
