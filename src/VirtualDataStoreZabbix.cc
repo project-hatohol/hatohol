@@ -106,6 +106,10 @@ VirtualDataStoreZabbix::VirtualDataStoreZabbix(void)
 	grp->add(new ItemInt(ITEM_ID_ZBX_CONFIG_OK_ACK_STYLE,        1));
 	grp->add(new ItemInt(ITEM_ID_ZBX_CONFIG_SNMPTRAP_LOGGING,    1));
 	grp->add(new ItemInt(ITEM_ID_ZBX_CONFIG_SERVER_CHECK_INTERVAL, 10));
+
+	grp = createItemGroup(GROUP_ID_ZBX_USERS);
+	grp->add(new ItemUint64(ITEM_ID_ZBX_USERS_USERID, 1));
+	grp->add(new ItemString(ITEM_ID_ZBX_USERS_ALIAS, "Admin"));
 }
 
 VirtualDataStoreZabbix::~VirtualDataStoreZabbix()
