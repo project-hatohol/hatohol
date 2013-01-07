@@ -121,7 +121,7 @@ void test_selectConfig(void)
 	  "WHERE c.configid BETWEEN 000000000000000 AND 099999999999999";
 	executeCommand(cmd);
 	NumberStringMap nsmap;
-	assertRecord(1, nsmap);
+	assertRecord(2, nsmap);
 }
 
 } // namespace testMySQLWorkerZabbix
