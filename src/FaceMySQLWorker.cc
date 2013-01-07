@@ -458,13 +458,15 @@ bool FaceMySQLWorker::sendSelectResult(SQLSelectResult &result)
 		return false;
 
 	// Rows
-	SmartBuffer pkt;
-	int initialPktSize = 0x1000;
-	allocAndAddPacketHeaderRegion(pkt, initialPktSize);
-	for (size_t i = 0; i < result.rows.size(); i++)
-		addLenEncStr(pkt, result.rows[i]);
-	if (!sendPacket(pkt))
-		return false;
+	if (!result.rows.empty()) {
+		SmartBuffer pkt;
+		const int initialPktSize = 0x1000;
+		allocAndAddPacketHeaderRegion(pkt, initialPktSize);
+		for (size_t i = 0; i < result.rows.size(); i++)
+			addLenEncStr(pkt, result.rows[i]);
+		if (!sendPacket(pkt))
+			return false;
+	}
 
 	// EOF
 	if (!sendEOF(0, status))
