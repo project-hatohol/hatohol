@@ -37,6 +37,8 @@ protected:
 	     (SQLSelectResult &result, SQLSelectInfo &selectInfo);
 	bool tableProcConfig
 	     (SQLSelectResult &result, SQLSelectInfo &selectInfo);
+	bool tableProcUsers
+	     (SQLSelectResult &result, SQLSelectInfo &selectInfo);
 
 private:
 	static map<string, TableProcFunc> m_tableProcFuncMap;

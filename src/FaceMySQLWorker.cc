@@ -125,6 +125,7 @@ FaceMySQLWorker::FaceMySQLWorker(GSocket *sock, uint32_t connId)
 
 	m_queryProcMap["select"]  = &FaceMySQLWorker::querySelect;
 	m_queryProcMap["set"]     = &FaceMySQLWorker::querySet;
+	m_queryProcMap["begin"]   = &FaceMySQLWorker::queryBegin;
 }
 
 FaceMySQLWorker::~FaceMySQLWorker()
@@ -732,9 +733,16 @@ bool FaceMySQLWorker::querySelect(ParsableString &query)
 
 bool FaceMySQLWorker::querySet(ParsableString &query)
 {
-	MLPL_WARN("Not implemented: set: %s (ignored)\n", query.getString());
+	MLPL_BUG("Not implemented: set: %s (ignored)\n", query.getString());
 	return sendOK();
 }
+
+bool FaceMySQLWorker::queryBegin(ParsableString &query)
+{
+	MLPL_BUG("Not implemented: begin: %s (ignored)\n", query.getString());
+	return sendOK();
+}
+
 
 // ---------------------------------------------------------------------------
 // System select handlers

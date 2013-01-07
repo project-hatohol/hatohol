@@ -95,6 +95,7 @@ protected:
 	// Query handlers
 	bool querySelect(ParsableString &query);
 	bool querySet(ParsableString &query);
+	bool queryBegin(ParsableString &query);
 
 	// System select handlers
 	bool querySelectVersionComment(ParsableString &query);

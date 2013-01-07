@@ -9,10 +9,12 @@ using namespace mlpl;
 enum TableID {
 	TABLE_ID_NODES,
 	TABLE_ID_CONFIG,
+	TABLE_ID_USERS,
 };
 
 static const char *TABLE_NAME_NODES  = "nodes";
 static const char *TABLE_NAME_CONFIG = "config";
+static const char *TABLE_NAME_USERS  = "users";
 
 map<string, SQLProcessorZabbix::TableProcFunc>
   SQLProcessorZabbix::m_tableProcFuncMap;
@@ -185,6 +187,10 @@ void SQLProcessorZabbix::init(void)
 	             SQL_COLUMN_TYPE_INT, 11);
 	m_tableProcFuncMap[TABLE_NAME_CONFIG]
 	  = &SQLProcessorZabbix::tableProcConfig;
+
+	defineTable(TABLE_ID_USERS, TABLE_NAME_USERS);
+	m_tableProcFuncMap[TABLE_NAME_USERS]
+	  = &SQLProcessorZabbix::tableProcUsers;
 }
 
 SQLProcessor *SQLProcessorZabbix::createInstance(void)
@@ -313,6 +319,12 @@ bool SQLProcessorZabbix::tableProcConfig
 		result.rows.push_back(dataPtr->getString());
 	}
 	return true;
+}
+
+bool SQLProcessorZabbix::tableProcUsers
+     (SQLSelectResult &result, SQLSelectInfo &selectInfo)
+{
+	return false;
 }
 
 // ---------------------------------------------------------------------------
