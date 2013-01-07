@@ -4,6 +4,9 @@
 #include <string>
 using namespace std;
 
+#include <StringUtils.h>
+using namespace mlpl;
+
 #include <stdint.h>
 #include <glib.h>
 
@@ -24,9 +27,9 @@ public:
 	void unref(void);
 	virtual void set(void *src) = 0;
 	virtual void get(void *dst) = 0;
+	virtual string getString(void) = 0;
 
 protected:
-	// Constructor and destructor. This class cannot be created directly.
 	ItemData(ItemId id, ItemDataType type);
 	virtual ~ItemData();
 
@@ -61,14 +64,20 @@ public:
 
 	void get(void *dst) {
 		readLock();
-		T data = m_data;
+		*static_cast<T *>(dst) = m_data;
 		readUnlock();
-		*static_cast<T *>(dst) = data;
+	}
+
+	string getString(void) {
+		return m_data;
 	}
 
 private:
 	T m_data;
 };
+
+template<> string ItemGeneric<int, ITEM_TYPE_INT>::getString(void);
+template<> string ItemGeneric<uint64_t, ITEM_TYPE_UINT64>::getString(void);
 
 typedef ItemGeneric<uint64_t, ITEM_TYPE_UINT64> ItemUint64;
 typedef ItemGeneric<int,      ITEM_TYPE_INT>    ItemInt;

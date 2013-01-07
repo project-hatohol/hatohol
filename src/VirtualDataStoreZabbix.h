@@ -12,6 +12,7 @@ class VirtualDataStoreZabbix : public VirtualDataStore
 {
 public:
 	static VirtualDataStoreZabbix *getInstance(void);
+	const ItemGroup *getItemGroup(ItemGroupId groupId);
 
 protected:
 	ItemGroup *createItemGroup(ItemGroupId groupId);

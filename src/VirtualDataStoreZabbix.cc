@@ -27,6 +27,13 @@ VirtualDataStoreZabbix *VirtualDataStoreZabbix::getInstance(void)
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
+const ItemGroup *VirtualDataStoreZabbix::getItemGroup(ItemGroupId groupId)
+{
+	ItemGroupMapIterator it = m_itemGroupMap.find(groupId);
+	if (it == m_itemGroupMap.end())
+		return NULL;
+	return it->second;
+}
 
 // ---------------------------------------------------------------------------
 // Protected methods

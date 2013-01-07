@@ -25,6 +25,7 @@ public:
 	ItemGroup(ItemGroupId id);
 	virtual ~ItemGroup();
 	void add(ItemData *data);
+	ItemData *getItem(ItemId itemId);
 
 private:
 	ItemGroupId m_groupId;

@@ -31,3 +31,11 @@ void ItemGroup::add(ItemData *data)
 		throw invalid_argument(msg);
 	}
 }
+
+ItemData *ItemGroup::getItem(ItemId itemId)
+{
+	ItemDataMapIterator it = m_itemMap.find(itemId);
+	if (it == m_itemMap.end())
+		return NULL;
+	return it->second;
+}

@@ -1,3 +1,6 @@
+#define __STDC_FORMAT_MACROS
+#include <inttypes.h>
+
 #include "ItemData.h"
 
 // ---------------------------------------------------------------------------
@@ -71,5 +74,17 @@ int ItemData::getUsedCount(void)
 }
 
 // ---------------------------------------------------------------------------
-// Private methods
+// Public methods (ItemGeneric)
 // ---------------------------------------------------------------------------
+template<>
+string ItemGeneric<int, ITEM_TYPE_INT>::getString(void)
+{
+	return StringUtils::sprintf("%d", m_data);
+};
+
+template<>
+string ItemGeneric<uint64_t, ITEM_TYPE_UINT64>::getString(void)
+{
+	return StringUtils::sprintf("%"PRIu64, m_data);
+};
+
