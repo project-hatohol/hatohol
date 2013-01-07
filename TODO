@@ -1,0 +1,6 @@
+* Mechanism for local DB
+Stores data such as configuration.
+
+* Mechanism for run ArmZabbix 
+The parameters of ArmZabbix such as IP address should be
+obtained from the local DB.
