@@ -48,14 +48,12 @@ struct ColumnBaseDefinition {
 
 struct SQLColumnDefinition
 {
-	ItemId itemId;
+	const ColumnBaseDefinition *baseDef;
 	string schema;
 	string table;
 	string tableVar;
 	string column;
 	string columnVar;
-	SQLColumnType type;
-	size_t columnLength;
 };
 
 struct SQLSelectResult {

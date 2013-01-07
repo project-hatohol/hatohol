@@ -5,8 +5,49 @@
 #include "ItemGroupEnum.h"
 #include "ItemEnum.h"
 
+GMutex VirtualDataStoreZabbix::m_mutex;
+VirtualDataStoreZabbix *VirtualDataStoreZabbix::m_instance = NULL;
+
+// ---------------------------------------------------------------------------
+// Public static methods
+// ---------------------------------------------------------------------------
+VirtualDataStoreZabbix *VirtualDataStoreZabbix::getInstance(void)
+{
+	if (m_instance)
+		return m_instance;
+
+	g_mutex_lock(&m_mutex);
+	if (!m_instance)
+		m_instance = new VirtualDataStoreZabbix();
+	g_mutex_unlock(&m_mutex);
+
+	return m_instance;
+}
+
 // ---------------------------------------------------------------------------
 // Public methods
+// ---------------------------------------------------------------------------
+
+// ---------------------------------------------------------------------------
+// Protected methods
+// ---------------------------------------------------------------------------
+ItemGroup *VirtualDataStoreZabbix::createItemGroup(ItemGroupId groupId)
+{
+	ItemGroup *grp = new ItemGroup(groupId);
+	pair<ItemGroupMapIterator, bool> result;
+	result = m_itemGroupMap.insert
+	         (pair<ItemGroupId, ItemGroup *>(groupId, grp));
+	if (!result.second) {
+		string msg =
+		  AMSG("Failed: insert: groupId: %"PRIx_ITEM_GROUP"\n",
+		       groupId);
+		throw invalid_argument(msg);
+	}
+	return grp;
+}
+
+// ---------------------------------------------------------------------------
+// Private methods
 // ---------------------------------------------------------------------------
 VirtualDataStoreZabbix::VirtualDataStoreZabbix(void)
 {
@@ -60,24 +101,7 @@ VirtualDataStoreZabbix::VirtualDataStoreZabbix(void)
 	grp->add(new ItemInt(ITEM_ID_ZBX_CONFIG_SERVER_CHECK_INTERVAL, 10));
 }
 
-VirtualDataStoreZabbix::~VirtualDataStoreZabbix(void)
+VirtualDataStoreZabbix::~VirtualDataStoreZabbix()
 {
 }
 
-// ---------------------------------------------------------------------------
-// Protected methods
-// ---------------------------------------------------------------------------
-ItemGroup *VirtualDataStoreZabbix::createItemGroup(ItemGroupId groupId)
-{
-	ItemGroup *grp = new ItemGroup(groupId);
-	pair<ItemGroupMapIterator, bool> result;
-	result = m_itemGroupMap.insert
-	         (pair<ItemGroupId, ItemGroup *>(groupId, grp));
-	if (!result.second) {
-		string msg =
-		  AMSG("Failed: insert: groupId: %"PRIx_ITEM_GROUP"\n",
-		       groupId);
-		throw invalid_argument(msg);
-	}
-	return grp;
-}

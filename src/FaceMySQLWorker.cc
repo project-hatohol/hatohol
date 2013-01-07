@@ -425,23 +425,23 @@ bool FaceMySQLWorker::sendColumnDefinition41(
 bool FaceMySQLWorker::sendSelectResult(SQLSelectResult &result)
 {
 	// Column Definition
-	uint16_t flags = 0;
 	uint8_t decimals = 0;
 	for (size_t i = 0; i < result.columnDefs.size(); i++) {
 		bool ret;
 		SQLColumnDefinition &colDef = result.columnDefs[i];
+		const ColumnBaseDefinition *baseDef = colDef.baseDef;
 
-		int type = typeConvert(colDef.type);
+		int type = typeConvert(baseDef->type);
 		if (type == TYPE_VAR_UNKNOWN) {
-			MLPL_BUG("Failed to convert type: %d\n", colDef.type);
+			MLPL_BUG("Failed to convert type: %d\n", baseDef->type);
 			return false;
 		}
 		ret = sendColumnDefinition41(colDef.schema,
 		                             colDef.tableVar, colDef.table,
 		                             colDef.columnVar, colDef.column,
-		                             colDef.columnLength,
+		                             baseDef->columnLength,
 		                             type,
-		                             flags, decimals);
+		                             baseDef->flags, decimals);
 		if (!ret)
 			return false;
 	}

@@ -25,7 +25,6 @@ int main(int argc, char *argv[])
 	for (int i = 1; i < argc; i++)
 		cmdArg.push_back(argv[i]);
 
-	new VirtualDataStoreZabbix();
 	FaceMySQL face(cmdArg);
 	face.start();
 

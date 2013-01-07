@@ -3,6 +3,7 @@
 
 #include "ItemData.h"
 #include "SQLProcessor.h"
+#include "VirtualDataStoreZabbix.h"
 
 class SQLProcessorZabbix : public SQLProcessor
 {
@@ -48,6 +49,8 @@ private:
 	                         int tableId, const char *columnName,
 	                         SQLColumnType, size_t columnLength);
 	static const char *getTableName(int tableId);
+
+	VirtualDataStoreZabbix *m_VDSZabbix;
 };
 
 #endif // SQLProcessorZabbix_h

@@ -200,6 +200,7 @@ const char *SQLProcessorZabbix::getDBName(void)
 // ---------------------------------------------------------------------------
 SQLProcessorZabbix::SQLProcessorZabbix(void)
 {
+	m_VDSZabbix = VirtualDataStoreZabbix::getInstance();
 	MLPL_INFO("created: %s\n", __func__);
 }
 
@@ -232,14 +233,12 @@ SQLProcessorZabbix::addColumnDefs(SQLSelectResult &result,
 {
 	result.columnDefs.push_back(SQLColumnDefinition());
 	SQLColumnDefinition &colDef = result.columnDefs.back();
-	colDef.itemId       = columnBaseDef.itemId;
+	colDef.baseDef      = &columnBaseDef;
 	colDef.schema       = getDBName();
 	colDef.table        = selectInfo.table;
 	colDef.tableVar     = selectInfo.tableVar;
 	colDef.column       = columnBaseDef.columnName;
 	colDef.columnVar    = columnBaseDef.columnName;
-	colDef.type         = columnBaseDef.type;
-	colDef.columnLength = columnBaseDef.columnLength;
 }
 
 void

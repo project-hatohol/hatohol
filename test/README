@@ -1,0 +1,2 @@
+* When you test MySQLWorker of asura that is running with port 8006.
+$ TEST_MYSQL_PORT=8006 ./run-test.sh -t /testMySQLWorkerZabbix/
