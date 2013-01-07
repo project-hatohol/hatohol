@@ -32,9 +32,9 @@ void ItemGroup::add(ItemData *data)
 	}
 }
 
-ItemData *ItemGroup::getItem(ItemId itemId)
+ItemData *ItemGroup::getItem(ItemId itemId) const
 {
-	ItemDataMapIterator it = m_itemMap.find(itemId);
+	ItemDataMapConstIterator it = m_itemMap.find(itemId);
 	if (it == m_itemMap.end())
 		return NULL;
 	return it->second;

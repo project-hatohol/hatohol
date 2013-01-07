@@ -15,6 +15,7 @@ typedef uint64_t ItemGroupId;
 
 typedef map<ItemId, ItemData *> ItemDataMap;
 typedef ItemDataMap::iterator   ItemDataMapIterator;
+typedef ItemDataMap::const_iterator   ItemDataMapConstIterator;
 
 class ItemGroup;
 typedef map<ItemGroupId, ItemGroup *> ItemGroupMap;
@@ -25,7 +26,7 @@ public:
 	ItemGroup(ItemGroupId id);
 	virtual ~ItemGroup();
 	void add(ItemData *data);
-	ItemData *getItem(ItemId itemId);
+	ItemData *getItem(ItemId itemId) const;
 
 private:
 	ItemGroupId m_groupId;

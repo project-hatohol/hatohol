@@ -5,8 +5,7 @@
 // ---------------------------------------------------------------------------
 ItemDataPtr::ItemDataPtr(ItemId itemId, const ItemGroup *itemGroup)
 {
-	ItemGroup *itemGroup2 = const_cast<ItemGroup *>(itemGroup);
-	m_data = itemGroup2->getItem(itemId);
+	m_data = itemGroup->getItem(itemId);
 	m_data->ref();
 }
 
