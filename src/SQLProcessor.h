@@ -43,6 +43,7 @@ struct ColumnBaseDefinition {
 	const char    *columnName;
 	SQLColumnType  type;
 	size_t         columnLength;
+	uint16_t       flags;
 };
 
 struct SQLColumnDefinition
@@ -59,7 +60,7 @@ struct SQLColumnDefinition
 
 struct SQLSelectResult {
 	vector<SQLColumnDefinition> columnDefs;
-	StringVector rows;
+	vector<string> rows;
 	bool useIndex;
 
 	// constructor

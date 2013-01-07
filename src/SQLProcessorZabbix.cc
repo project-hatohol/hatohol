@@ -1,6 +1,7 @@
 #include <Logger.h>
 using namespace mlpl;
 
+#include "ItemEnum.h"
 #include "SQLProcessorZabbix.h"
 
 enum TableID {
@@ -26,107 +27,159 @@ SQLProcessor::TableIdNameMap
 void SQLProcessorZabbix::init(void)
 {
 	defineTable(TABLE_ID_NODES, TABLE_NAME_NODES);
-	defineColumn(TABLE_ID_NODES, "nodeid",   SQL_COLUMN_TYPE_INT, 11);
-	defineColumn(TABLE_ID_NODES, "name",     SQL_COLUMN_TYPE_VARCHAR, 64);
-	defineColumn(TABLE_ID_NODES, "ip",       SQL_COLUMN_TYPE_VARCHAR, 39);
-	defineColumn(TABLE_ID_NODES, "port",     SQL_COLUMN_TYPE_INT, 11);
-	defineColumn(TABLE_ID_NODES, "nodetype", SQL_COLUMN_TYPE_INT, 11);
-	defineColumn(TABLE_ID_NODES, "masterid", SQL_COLUMN_TYPE_INT, 11);
+	defineColumn(ITEM_ID_ZBX_NODES_NODEID,
+	             TABLE_ID_NODES, "nodeid",   SQL_COLUMN_TYPE_INT, 11);
+	defineColumn(ITEM_ID_ZBX_NODES_NAME,
+	             TABLE_ID_NODES, "name",     SQL_COLUMN_TYPE_VARCHAR, 64);
+	defineColumn(ITEM_ID_ZBX_NODES_IP,
+	             TABLE_ID_NODES, "ip",       SQL_COLUMN_TYPE_VARCHAR, 39);
+	defineColumn(ITEM_ID_ZBX_NODES_PORT,
+	             TABLE_ID_NODES, "port",     SQL_COLUMN_TYPE_INT, 11);
+	defineColumn(ITEM_ID_ZBX_NODES_NODETYPE,
+	             TABLE_ID_NODES, "nodetype", SQL_COLUMN_TYPE_INT, 11);
+	defineColumn(ITEM_ID_ZBX_NODES_MASTERID,
+	             TABLE_ID_NODES, "masterid", SQL_COLUMN_TYPE_INT, 11);
 	m_tableProcFuncMap[TABLE_NAME_NODES]
 	  = &SQLProcessorZabbix::tableProcNodes;
 
 	defineTable(TABLE_ID_CONFIG, TABLE_NAME_CONFIG);
-	defineColumn(TABLE_ID_CONFIG, "configid",
+	defineColumn(ITEM_ID_ZBX_CONFIG_CONFIGID,
+	             TABLE_ID_CONFIG, "configid",
 	             SQL_COLUMN_TYPE_BIGUINT, 20);
-	defineColumn(TABLE_ID_CONFIG, "alert_history",
+	defineColumn(ITEM_ID_ZBX_CONFIG_ALERT_HISTORY,
+	             TABLE_ID_CONFIG, "alert_history",
 	             SQL_COLUMN_TYPE_INT, 11);
-	defineColumn(TABLE_ID_CONFIG, "event_history",
+	defineColumn(ITEM_ID_ZBX_CONFIG_EVENT_HISTORY,
+	             TABLE_ID_CONFIG, "event_history",
 	             SQL_COLUMN_TYPE_INT, 11);
-	defineColumn(TABLE_ID_CONFIG, "refresh_unsupoorted",
+	defineColumn(ITEM_ID_ZBX_CONFIG_REFRESH_UNSUPORTED,
+	             TABLE_ID_CONFIG, "refresh_unsupoorted",
 	             SQL_COLUMN_TYPE_INT, 11);
-	defineColumn(TABLE_ID_CONFIG, "work_period",
+	defineColumn(ITEM_ID_ZBX_CONFIG_WORK_PERIOD,
+	             TABLE_ID_CONFIG, "work_period",
 	             SQL_COLUMN_TYPE_VARCHAR, 100);
-	defineColumn(TABLE_ID_CONFIG, "alert_usrgrpid",
+	defineColumn(ITEM_ID_ZBX_CONFIG_ALERT_USRGRPID,
+	             TABLE_ID_CONFIG, "alert_usrgrpid",
 	             SQL_COLUMN_TYPE_BIGUINT, 20);
-	defineColumn(TABLE_ID_CONFIG, "event_ack_enable",
+	defineColumn(ITEM_ID_ZBX_CONFIG_EVENT_ACK_ENABLE,
+	             TABLE_ID_CONFIG, "event_ack_enable",
 	             SQL_COLUMN_TYPE_INT, 11);
-	defineColumn(TABLE_ID_CONFIG, "event_expire",
+	defineColumn(ITEM_ID_ZBX_CONFIG_EVENT_EXPIRE,
+	             TABLE_ID_CONFIG, "event_expire",
 	             SQL_COLUMN_TYPE_INT, 11);
-	defineColumn(TABLE_ID_CONFIG, "event_show_max",
+	defineColumn(ITEM_ID_ZBX_CONFIG_EVENT_SHOW_MAX,
+	             TABLE_ID_CONFIG, "event_show_max",
 	             SQL_COLUMN_TYPE_INT, 11);
-	defineColumn(TABLE_ID_CONFIG, "default_theme",
+	defineColumn(ITEM_ID_ZBX_CONFIG_DEFAULT_THEME,
+	             TABLE_ID_CONFIG, "default_theme",
 	             SQL_COLUMN_TYPE_VARCHAR, 128);
-	defineColumn(TABLE_ID_CONFIG, "authentication_type",
+	defineColumn(ITEM_ID_ZBX_CONFIG_AUTHENTICATION_TYPE,
+	             TABLE_ID_CONFIG, "authentication_type",
 	             SQL_COLUMN_TYPE_INT, 11);
-	defineColumn(TABLE_ID_CONFIG, "ldap_host",
+	defineColumn(ITEM_ID_ZBX_CONFIG_LDAP_HOST,
+	             TABLE_ID_CONFIG, "ldap_host",
 	             SQL_COLUMN_TYPE_VARCHAR, 255);
-	defineColumn(TABLE_ID_CONFIG, "ldap_port",
+	defineColumn(ITEM_ID_ZBX_CONFIG_LDAP_PORT,
+	             TABLE_ID_CONFIG, "ldap_port",
 	             SQL_COLUMN_TYPE_INT, 11);
-	defineColumn(TABLE_ID_CONFIG, "ldap_base_dn",
+	defineColumn(ITEM_ID_ZBX_CONFIG_LDAP_BASE_DN,
+	             TABLE_ID_CONFIG, "ldap_base_dn",
 	             SQL_COLUMN_TYPE_VARCHAR, 255);
-	defineColumn(TABLE_ID_CONFIG, "ldap_bind_dn",
+	defineColumn(ITEM_ID_ZBX_CONFIG_LDAP_BIND_DN,
+	             TABLE_ID_CONFIG, "ldap_bind_dn",
 	             SQL_COLUMN_TYPE_VARCHAR, 255);
-	defineColumn(TABLE_ID_CONFIG, "ldap_bind_password",
+	defineColumn(ITEM_ID_ZBX_CONFIG_LDAP_BIND_PASSWORD,
+	             TABLE_ID_CONFIG, "ldap_bind_password",
 	             SQL_COLUMN_TYPE_VARCHAR, 128);
-	defineColumn(TABLE_ID_CONFIG, "ldap_search_attribute",
+	defineColumn(ITEM_ID_ZBX_CONFIG_LDAP_SEARCH_ATTRIBUTE,
+	             TABLE_ID_CONFIG, "ldap_search_attribute",
 	             SQL_COLUMN_TYPE_VARCHAR, 128);
-	defineColumn(TABLE_ID_CONFIG, "dropdown_first_entry",
+	defineColumn(ITEM_ID_ZBX_CONFIG_DROPDOWN_FIRST_ENTRY,
+	             TABLE_ID_CONFIG, "dropdown_first_entry",
 	             SQL_COLUMN_TYPE_INT, 11);
-	defineColumn(TABLE_ID_CONFIG, "dropdown_first_remember",
+	defineColumn(ITEM_ID_ZBX_CONFIG_DROPDOWN_FIRST_REMEMBER,
+	             TABLE_ID_CONFIG, "dropdown_first_remember",
 	             SQL_COLUMN_TYPE_INT, 11);
-	defineColumn(TABLE_ID_CONFIG, "discovery_groupid",
+	defineColumn(ITEM_ID_ZBX_CONFIG_DISCOVERY_GROUPID,
+	             TABLE_ID_CONFIG, "discovery_groupid",
 	             SQL_COLUMN_TYPE_BIGUINT, 20);
-	defineColumn(TABLE_ID_CONFIG, "max_in_table",
+	defineColumn(ITEM_ID_ZBX_CONFIG_MAX_INTABLE,
+	             TABLE_ID_CONFIG, "max_in_table",
 	             SQL_COLUMN_TYPE_INT, 11);
-	defineColumn(TABLE_ID_CONFIG, "search_limit",
+	defineColumn(ITEM_ID_ZBX_CONFIG_SEARCH_LIMITE,
+	             TABLE_ID_CONFIG, "search_limit",
 	             SQL_COLUMN_TYPE_INT, 11);
-	defineColumn(TABLE_ID_CONFIG, "severity_color_0",
+	defineColumn(ITEM_ID_ZBX_CONFIG_SEVERITY_COLOR_0,
+	             TABLE_ID_CONFIG, "severity_color_0",
 	             SQL_COLUMN_TYPE_VARCHAR, 6);
-	defineColumn(TABLE_ID_CONFIG, "severity_color_1",
+	defineColumn(ITEM_ID_ZBX_CONFIG_SEVERITY_COLOR_1,
+	             TABLE_ID_CONFIG, "severity_color_1",
 	             SQL_COLUMN_TYPE_VARCHAR, 6);
-	defineColumn(TABLE_ID_CONFIG, "severity_color_2",
+	defineColumn(ITEM_ID_ZBX_CONFIG_SEVERITY_COLOR_2,
+	             TABLE_ID_CONFIG, "severity_color_2",
 	             SQL_COLUMN_TYPE_VARCHAR, 6);
-	defineColumn(TABLE_ID_CONFIG, "severity_color_3",
+	defineColumn(ITEM_ID_ZBX_CONFIG_SEVERITY_COLOR_3,
+	             TABLE_ID_CONFIG, "severity_color_3",
 	             SQL_COLUMN_TYPE_VARCHAR, 6);
-	defineColumn(TABLE_ID_CONFIG, "severity_color_4",
+	defineColumn(ITEM_ID_ZBX_CONFIG_SEVERITY_COLOR_4,
+	             TABLE_ID_CONFIG, "severity_color_4",
 	             SQL_COLUMN_TYPE_VARCHAR, 6);
-	defineColumn(TABLE_ID_CONFIG, "severity_color_5",
+	defineColumn(ITEM_ID_ZBX_CONFIG_SEVERITY_COLOR_5,
+	             TABLE_ID_CONFIG, "severity_color_5",
 	             SQL_COLUMN_TYPE_VARCHAR, 6);
-	defineColumn(TABLE_ID_CONFIG, "severity_name_0",
+	defineColumn(ITEM_ID_ZBX_CONFIG_SEVERITY_NAME_0,
+	             TABLE_ID_CONFIG, "severity_name_0",
 	             SQL_COLUMN_TYPE_VARCHAR, 32);
-	defineColumn(TABLE_ID_CONFIG, "severity_name_1",
+	defineColumn(ITEM_ID_ZBX_CONFIG_SEVERITY_NAME_1,
+	             TABLE_ID_CONFIG, "severity_name_1",
 	             SQL_COLUMN_TYPE_VARCHAR, 32);
-	defineColumn(TABLE_ID_CONFIG, "severity_name_2",
+	defineColumn(ITEM_ID_ZBX_CONFIG_SEVERITY_NAME_2,
+	             TABLE_ID_CONFIG, "severity_name_2",
 	             SQL_COLUMN_TYPE_VARCHAR, 32);
-	defineColumn(TABLE_ID_CONFIG, "severity_name_3",
+	defineColumn(ITEM_ID_ZBX_CONFIG_SEVERITY_NAME_3,
+	             TABLE_ID_CONFIG, "severity_name_3",
 	             SQL_COLUMN_TYPE_VARCHAR, 32);
-	defineColumn(TABLE_ID_CONFIG, "severity_name_4",
+	defineColumn(ITEM_ID_ZBX_CONFIG_SEVERITY_NAME_4,
+	             TABLE_ID_CONFIG, "severity_name_4",
 	             SQL_COLUMN_TYPE_VARCHAR, 32);
-	defineColumn(TABLE_ID_CONFIG, "severity_name_5",
+	defineColumn(ITEM_ID_ZBX_CONFIG_SEVERITY_NAME_5,
+	             TABLE_ID_CONFIG, "severity_name_5",
 	             SQL_COLUMN_TYPE_VARCHAR, 32);
-	defineColumn(TABLE_ID_CONFIG, "ok_period",
+	defineColumn(ITEM_ID_ZBX_CONFIG_OK_PERIOD,
+	             TABLE_ID_CONFIG, "ok_period",
 	             SQL_COLUMN_TYPE_INT, 11);
-	defineColumn(TABLE_ID_CONFIG, "blink_period",
+	defineColumn(ITEM_ID_ZBX_CONFIG_BLINK_PERIOD,
+	             TABLE_ID_CONFIG, "blink_period",
 	             SQL_COLUMN_TYPE_INT, 11);
-	defineColumn(TABLE_ID_CONFIG, "problem_unack_color",
+	defineColumn(ITEM_ID_ZBX_CONFIG_PROBLEM_UNACK_COLOR,
+	             TABLE_ID_CONFIG, "problem_unack_color",
 	             SQL_COLUMN_TYPE_VARCHAR, 6);
-	defineColumn(TABLE_ID_CONFIG, "problem_ack_color",
+	defineColumn(ITEM_ID_ZBX_CONFIG_PROBLEM_ACK_COLOR,
+	             TABLE_ID_CONFIG, "problem_ack_color",
 	             SQL_COLUMN_TYPE_VARCHAR, 6);
-	defineColumn(TABLE_ID_CONFIG, "ok_unack_color",
+	defineColumn(ITEM_ID_ZBX_CONFIG_OK_UNACK_COLOR,
+	             TABLE_ID_CONFIG, "ok_unack_color",
 	             SQL_COLUMN_TYPE_VARCHAR, 6);
-	defineColumn(TABLE_ID_CONFIG, "ok_ack_color",
+	defineColumn(ITEM_ID_ZBX_CONFIG_OK_ACK_COLOR,
+	             TABLE_ID_CONFIG, "ok_ack_color",
 	             SQL_COLUMN_TYPE_VARCHAR, 6);
-	defineColumn(TABLE_ID_CONFIG, "problem_unack_style",
+	defineColumn(ITEM_ID_ZBX_CONFIG_PROBLEM_UNACK_STYLE,
+	             TABLE_ID_CONFIG, "problem_unack_style",
 	             SQL_COLUMN_TYPE_INT, 11);
-	defineColumn(TABLE_ID_CONFIG, "problem_ack_style",
+	defineColumn(ITEM_ID_ZBX_CONFIG_PROBLEM_ACK_STYLE,
+	             TABLE_ID_CONFIG, "problem_ack_style",
 	             SQL_COLUMN_TYPE_INT, 11);
-	defineColumn(TABLE_ID_CONFIG, "ok_unack_style",
+	defineColumn(ITEM_ID_ZBX_CONFIG_OK_UNACK_STYLE,
+	             TABLE_ID_CONFIG, "ok_unack_style",
 	             SQL_COLUMN_TYPE_INT, 11);
-	defineColumn(TABLE_ID_CONFIG, "ok_ack_style",
+	defineColumn(ITEM_ID_ZBX_CONFIG_OK_ACK_STYLE,
+	             TABLE_ID_CONFIG, "ok_ack_style",
 	             SQL_COLUMN_TYPE_INT, 11);
-	defineColumn(TABLE_ID_CONFIG, "snmptrap_logging",
+	defineColumn(ITEM_ID_ZBX_CONFIG_SNMPTRAP_LOGGING,
+	             TABLE_ID_CONFIG, "snmptrap_logging",
 	             SQL_COLUMN_TYPE_INT, 11);
-	defineColumn(TABLE_ID_CONFIG, "server_check_interval",
+	defineColumn(ITEM_ID_ZBX_CONFIG_SERVER_CHECK_INTERVAL,
+	             TABLE_ID_CONFIG, "server_check_interval",
 	             SQL_COLUMN_TYPE_INT, 11);
 	m_tableProcFuncMap[TABLE_NAME_CONFIG]
 	  = &SQLProcessorZabbix::tableProcConfig;
