@@ -453,8 +453,10 @@ bool FaceMySQLWorker::sendSelectResult(SQLSelectResult &result)
 	if (!sendEOF(0, status))
 		return false;
 
+	// Rows
 	for (size_t i = 0; i < result.rows.size(); i++) {
-		// TODO: send content
+		if (!sendLenEncStr(result.rows[i]))
+			return false;
 	}
 
 	// EOF

@@ -313,6 +313,7 @@ bool SQLProcessorZabbix::tableProcConfig
 			return false;
 		}
 		result.rows.push_back(dataPtr->getString());
+		return true;
 	}
 	
 	return false;
