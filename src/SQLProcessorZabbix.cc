@@ -287,8 +287,6 @@ bool SQLProcessorZabbix::tableProcConfig
 	// Set column definition
 	if (selectedAllColumns(selectInfo)) {
 		addAllColumnDefs(result, TABLE_ID_CONFIG, selectInfo);
-		return true;
-
 	} else {
 		MLPL_DBG("Not supported: columns: %s\n",
 		         selectInfo.columns[0].c_str());
@@ -313,10 +311,8 @@ bool SQLProcessorZabbix::tableProcConfig
 			return false;
 		}
 		result.rows.push_back(dataPtr->getString());
-		return true;
 	}
-	
-	return false;
+	return true;
 }
 
 // ---------------------------------------------------------------------------

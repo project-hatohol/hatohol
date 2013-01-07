@@ -424,6 +424,10 @@ bool FaceMySQLWorker::sendColumnDefinition41(
 
 bool FaceMySQLWorker::sendSelectResult(SQLSelectResult &result)
 {
+	// Number of columns
+	if (!sendLenEncInt(result.columnDefs.size()))
+		return false;
+
 	// Column Definition
 	uint8_t decimals = 0;
 	for (size_t i = 0; i < result.columnDefs.size(); i++) {
@@ -454,10 +458,13 @@ bool FaceMySQLWorker::sendSelectResult(SQLSelectResult &result)
 		return false;
 
 	// Rows
-	for (size_t i = 0; i < result.rows.size(); i++) {
-		if (!sendLenEncStr(result.rows[i]))
-			return false;
-	}
+	SmartBuffer pkt;
+	int initialPktSize = 0x1000;
+	allocAndAddPacketHeaderRegion(pkt, initialPktSize);
+	for (size_t i = 0; i < result.rows.size(); i++)
+		addLenEncStr(pkt, result.rows[i]);
+	if (!sendPacket(pkt))
+		return false;
 
 	// EOF
 	if (!sendEOF(0, status))
