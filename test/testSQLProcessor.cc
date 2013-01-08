@@ -84,4 +84,19 @@ void test_selectOrderBy(void)
 	                        selectInfo.orderedColumns[0].c_str());
 }
 
+void test_selectTwoTable(void)
+{
+	TestSQLProcessor proc;
+	const char *table1 = "Tbl1";
+	const char *table2 = "Tbl2";
+	ParsableString parsable(
+	  StringUtils::sprintf("* from %s %s", table1, table2));
+	SQLSelectInfo selectInfo(parsable);
+	proc.callParseSelectStatement(selectInfo);
+
+	cut_assert_equal_int(1, selectInfo.orderedColumns.size());
+	cut_assert_equal_string(orderName,
+	                        selectInfo.orderedColumns[0].c_str());
+}
+
 } // namespace testSQLProcessor

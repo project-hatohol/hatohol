@@ -124,4 +124,17 @@ void test_selectConfig(void)
 	assertRecord(2, nsmap);
 }
 
+void test_selectUseridAutoLogoutLastAccess(void)
+{
+	const char *cmd = "use zabbix;"
+	  "SELECT u.userid,u.autologout,s.lastaccess FROM sessions s,users u "
+	  "WHERE s.sessionid='9331b5c345021fa3879caa8922586199' AND "
+	  "s.status=0 AND s.userid=u.userid AND "
+	  "((s.lastaccess+u.autologout>1357641517) OR (u.autologout=0)) "
+	  "AND u.userid BETWEEN 000000000000000 AND 099999999999999";
+	executeCommand(cmd);
+	NumberStringMap nsmap;
+	assertRecord(2, nsmap);
+}
+
 } // namespace testMySQLWorkerZabbix

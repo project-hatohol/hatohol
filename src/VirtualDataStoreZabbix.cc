@@ -131,8 +131,42 @@ VirtualDataStoreZabbix::VirtualDataStoreZabbix(void)
 
 	table = createStaticItemTable(GROUP_ID_ZBX_USERS);
 	grp = createStaticItemGroup(table);
-	ADD(new ItemUint64(ITEM_ID_ZBX_USERS_USERID, 1));
-	ADD(new ItemString(ITEM_ID_ZBX_USERS_ALIAS, "Admin"));
+	ADD(new ItemUint64(ITEM_ID_ZBX_USERS_USERID,  1));
+	ADD(new ItemString(ITEM_ID_ZBX_USERS_ALIAS,   "Admin"));
+	ADD(new ItemString(ITEM_ID_ZBX_USERS_NAME,    "Zabbix"));
+	ADD(new ItemString(ITEM_ID_ZBX_USERS_SURNAME, "Administrator"));
+	ADD(new ItemString(ITEM_ID_ZBX_USERS_PASSWD,  "5fce1b3e34b520afeffb37ce08c7cd66"));
+	ADD(new ItemString(ITEM_ID_ZBX_USERS_URL,     ""));
+	ADD(new ItemInt(ITEM_ID_ZBX_USERS_AUTOLOGIN,  1));
+	ADD(new ItemInt(ITEM_ID_ZBX_USERS_AUTOLOGOUT, 0));
+	ADD(new ItemString(ITEM_ID_ZBX_USERS_LANG,    "en_GB"));
+	ADD(new ItemInt(ITEM_ID_ZBX_USERS_REFRESH,    30));
+	ADD(new ItemInt(ITEM_ID_ZBX_USERS_TYPE,       3));
+	ADD(new ItemString(ITEM_ID_ZBX_USERS_THEME,   "default"));
+	ADD(new ItemInt(ITEM_ID_ZBX_USERS_ATTEMPT_FAILED, 0));
+	ADD(new ItemString(ITEM_ID_ZBX_USERS_ATTEMPT_IP,  ""));
+	ADD(new ItemInt(ITEM_ID_ZBX_USERS_ATTEMPT_CLOCK,  0 ));
+	ADD(new ItemInt(ITEM_ID_ZBX_USERS_ROWS_PER_PAGE,  50 ));
+
+	table = createStaticItemTable(GROUP_ID_ZBX_USERS);
+	grp = createStaticItemGroup(table);
+	ADD(new ItemUint64(ITEM_ID_ZBX_USERS_USERID,  2));
+	ADD(new ItemString(ITEM_ID_ZBX_USERS_ALIAS,   "guest"));
+	ADD(new ItemString(ITEM_ID_ZBX_USERS_NAME,    "Default"));
+	ADD(new ItemString(ITEM_ID_ZBX_USERS_SURNAME, "User"));
+	ADD(new ItemString(ITEM_ID_ZBX_USERS_PASSWD,  "d41d8cd98f00b204e9800998ecf8427e"));
+	ADD(new ItemString(ITEM_ID_ZBX_USERS_URL,     ""));
+	ADD(new ItemInt(ITEM_ID_ZBX_USERS_AUTOLOGIN,  0));
+	ADD(new ItemInt(ITEM_ID_ZBX_USERS_AUTOLOGOUT, 900));
+	ADD(new ItemString(ITEM_ID_ZBX_USERS_LANG,    "en_GB"));
+	ADD(new ItemInt(ITEM_ID_ZBX_USERS_REFRESH,    30));
+	ADD(new ItemInt(ITEM_ID_ZBX_USERS_TYPE,       1));
+	ADD(new ItemString(ITEM_ID_ZBX_USERS_THEME,   "default"));
+	ADD(new ItemInt(ITEM_ID_ZBX_USERS_ATTEMPT_FAILED, 0));
+	ADD(new ItemString(ITEM_ID_ZBX_USERS_ATTEMPT_IP,  ""));
+	ADD(new ItemInt(ITEM_ID_ZBX_USERS_ATTEMPT_CLOCK,  0 ));
+	ADD(new ItemInt(ITEM_ID_ZBX_USERS_ROWS_PER_PAGE,  50 ));
+
 #undef ADD
 }
 
