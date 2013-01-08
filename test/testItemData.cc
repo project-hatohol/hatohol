@@ -25,10 +25,6 @@ public:
 	~ItemIntTester() {
 		destructorCalled = true;
 	}
-
-	int callGetUsedCount(void) {
-		return getUsedCount();
-	}
 };
 
 bool ItemIntTester::destructorCalled = false;
@@ -107,12 +103,12 @@ void test_ref_unref(void)
 {
 	ItemIntTester *tester = new ItemIntTester(1, 10);
 	tester->destructorCalled = false;
-	cppcut_assert_equal(1, tester->callGetUsedCount());
+	cppcut_assert_equal(1, tester->getUsedCount());
 	tester->ref();
-	cppcut_assert_equal(2, tester->callGetUsedCount());
+	cppcut_assert_equal(2, tester->getUsedCount());
 	cppcut_assert_equal(false, tester->destructorCalled);
 	tester->unref();
-	cppcut_assert_equal(1, tester->callGetUsedCount());
+	cppcut_assert_equal(1, tester->getUsedCount());
 	cppcut_assert_equal(false, tester->destructorCalled);
 	tester->unref();
 	cppcut_assert_equal(true, tester->destructorCalled);
