@@ -8,7 +8,11 @@ using namespace std;
 using namespace mlpl;
 
 #include <stdint.h>
-#include <glib.h>
+
+#define __STDC_FORMAT_MACROS
+#include <inttypes.h>
+
+#include "UsedCountable.h"
 
 typedef uint64_t ItemId;
 #define PRIx_ITEM PRIx64
@@ -20,11 +24,9 @@ enum ItemDataType {
 	ITEM_TYPE_STRING,
 };
 
-class ItemData {
+class ItemData : public UsedCountable {
 public:
 	ItemId getId(void);
-	ItemData *ref(void);
-	void unref(void);
 	virtual void set(void *src) = 0;
 	virtual void get(void *dst) = 0;
 	virtual string getString(void) = 0;
@@ -33,18 +35,9 @@ protected:
 	ItemData(ItemId id, ItemDataType type);
 	virtual ~ItemData();
 
-	void readLock(void);
-	void readUnlock(void);
-	void writeLock(void);
-	void writeUnlock(void);
-
-	int getUsedCount(void);
-
 private:
-	int          m_usedCount;
 	ItemId       m_itemId;
 	ItemDataType m_itemType;
-	GRWLock      m_lock;
 };
 
 template <typename T, ItemDataType ITEM_TYPE>
