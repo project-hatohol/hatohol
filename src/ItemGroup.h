@@ -21,12 +21,14 @@ class ItemGroup;
 typedef map<ItemGroupId, ItemGroup *> ItemGroupMap;
 typedef ItemGroupMap::iterator        ItemGroupMapIterator;
 
-class ItemGroup {
+class ItemGroup : public UsedCountable {
 public:
 	ItemGroup(ItemGroupId id);
-	virtual ~ItemGroup();
 	void add(ItemData *data);
 	ItemData *getItem(ItemId itemId) const;
+
+protected:
+	virtual ~ItemGroup();
 
 private:
 	ItemGroupId m_groupId;

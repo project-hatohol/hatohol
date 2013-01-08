@@ -1,4 +1,6 @@
+#include <stdexcept>
 #include "UsedCountable.h"
+#include "Utils.h"
 
 // ---------------------------------------------------------------------------
 // Public methods
@@ -39,6 +41,10 @@ UsedCountable::UsedCountable(int initialUsedCount)
 
 UsedCountable::~UsedCountable()
 {
+	if (m_usedCount > 0) {
+		string msg = AMSG("used count: %d\n", m_usedCount);
+		throw logic_error(msg);
+	}
 	g_rw_lock_clear(&m_lock);
 }
 

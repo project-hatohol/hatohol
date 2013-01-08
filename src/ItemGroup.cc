@@ -10,15 +10,6 @@ ItemGroup::ItemGroup(ItemGroupId id)
 {
 }
 
-ItemGroup::~ItemGroup()
-{
-	ItemDataMapIterator it = m_itemMap.begin();
-	for (; it != m_itemMap.end(); ++it) {
-		ItemData *data = it->second;
-		data->unref();
-	}
-}
-
 void ItemGroup::add(ItemData *data)
 {
 	pair<ItemDataMapIterator, bool> result;
@@ -30,6 +21,7 @@ void ItemGroup::add(ItemData *data)
 		       ", itemId: %"PRIx_ITEM"\n", m_groupId, itemId);
 		throw invalid_argument(msg);
 	}
+	data->ref();
 }
 
 ItemData *ItemGroup::getItem(ItemId itemId) const
@@ -39,3 +31,16 @@ ItemData *ItemGroup::getItem(ItemId itemId) const
 		return NULL;
 	return it->second;
 }
+
+// ---------------------------------------------------------------------------
+// Protected methods
+// ---------------------------------------------------------------------------
+ItemGroup::~ItemGroup()
+{
+	ItemDataMapIterator it = m_itemMap.begin();
+	for (; it != m_itemMap.end(); ++it) {
+		ItemData *data = it->second;
+		data->unref();
+	}
+}
+

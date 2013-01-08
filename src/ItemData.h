@@ -49,20 +49,24 @@ public:
 	}
 
 	// virtual methods
-	void set(void *src) {
+	virtual void set(void *src) {
 		writeLock();
 		m_data = *static_cast<T *>(src);
 		writeUnlock();
 	}
 
-	void get(void *dst) {
+	virtual void get(void *dst) {
 		readLock();
 		*static_cast<T *>(dst) = m_data;
 		readUnlock();
 	}
 
-	string getString(void) {
+	virtual string getString(void) {
 		return m_data;
+	}
+
+protected:
+	virtual ~ItemGeneric() {
 	}
 
 private:
