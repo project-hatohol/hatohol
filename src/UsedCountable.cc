@@ -5,7 +5,7 @@
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
-void UsedCountable::ref(void)
+void UsedCountable::ref(void) const
 {
 	writeLock();
 	m_usedCount++;
@@ -14,15 +14,15 @@ void UsedCountable::ref(void)
 
 void UsedCountable::unref(void)
 {
-	readLock();
+	writeLock();
 	m_usedCount--;
 	int usedCount = m_usedCount;
-	readUnlock();
+	writeUnlock();
 	if (usedCount == 0)
 		delete this;
 }
 
-int UsedCountable::getUsedCount(void)
+int UsedCountable::getUsedCount(void) const
 {
 	readLock();
 	int usedCount = m_usedCount;
@@ -34,38 +34,16 @@ int UsedCountable::getUsedCount(void)
 // Protected methods
 // ---------------------------------------------------------------------------
 UsedCountable::UsedCountable(int initialUsedCount)
-: m_usedCount(initialUsedCount)
+: m_usedCount(1)
 {
-	g_rw_lock_init(&m_lock);
 }
 
 UsedCountable::~UsedCountable()
 {
-	if (m_usedCount > 0) {
+	if (getUsedCount() > 0) {
 		string msg = AMSG("used count: %d\n", m_usedCount);
 		throw logic_error(msg);
 	}
-	g_rw_lock_clear(&m_lock);
-}
-
-void UsedCountable::readLock(void)
-{
-	g_rw_lock_reader_lock(&m_lock);
-}
-
-void UsedCountable::readUnlock(void)
-{
-	g_rw_lock_reader_unlock(&m_lock);
-}
-
-void UsedCountable::writeLock(void)
-{
-	g_rw_lock_writer_lock(&m_lock);
-}
-
-void UsedCountable::writeUnlock(void)
-{
-	g_rw_lock_writer_unlock(&m_lock);
 }
 
 // ---------------------------------------------------------------------------

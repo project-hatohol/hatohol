@@ -12,9 +12,16 @@ ItemTable::ItemTable(ItemGroupId id)
 
 void ItemTable::add(ItemGroup *group, bool doRef)
 {
+	writeLock();
 	m_groupList.push_back(group);
+	writeUnlock();
 	if (doRef)
 		group->ref();
+}
+
+ItemGroupId ItemTable::getItemGroupId(void) const
+{
+	return m_groupId;
 }
 
 // ---------------------------------------------------------------------------
@@ -22,6 +29,7 @@ void ItemTable::add(ItemGroup *group, bool doRef)
 // ---------------------------------------------------------------------------
 ItemTable::~ItemTable()
 {
+	// We don't need to take a lock, because this object is no longer used.
 	ItemGroupListIterator it = m_groupList.begin();
 	for (; it != m_groupList.end(); ++it) {
 		ItemGroup *group = *it;

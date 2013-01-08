@@ -218,9 +218,26 @@ void SQLProcessor::addAllColumnDefs(SQLSelectResult &result, int tableId,
 		addColumnDefs(result, *baseDef, selectInfo);
 }
 
+bool SQLProcessor::setSelectResult(const ItemGroup *itemGroup,
+                                   SQLSelectResult &result)
+{
+	for (size_t i = 0; i < result.columnDefs.size(); i++) {
+		const SQLColumnDefinition &colDef = result.columnDefs[i];
+		const ItemDataPtr dataPtr(colDef.baseDef->itemId, itemGroup);
+		if (!dataPtr.hasData()) {
+			MLPL_BUG("Failed to get ItemData: %"PRIx_ITEM
+			         "from ItemGroup: %"PRIx_ITEM_GROUP"\n",
+			         colDef.baseDef->itemId, itemGroup);
+			return false;
+		}
+		result.rows.push_back(dataPtr->getString());
+	}
+	return true;
+}
+
 bool
 SQLProcessor::generalSelect(SQLSelectResult &result, SQLSelectInfo &selectInfo,
-                            const ItemGroup *itemGroup, int tableId)
+                            const ItemTablePtr &tablePtr, int tableId)
 {
 	if (selectInfo.columns.empty())
 		return false;
@@ -233,19 +250,7 @@ SQLProcessor::generalSelect(SQLSelectResult &result, SQLSelectInfo &selectInfo,
 		         selectInfo.columns[0].c_str());
 	}
 
-	// Set row data
-	for (size_t i = 0; i < result.columnDefs.size(); i++) {
-		const SQLColumnDefinition &colDef = result.columnDefs[i];
-		ItemDataPtr dataPtr(colDef.baseDef->itemId, itemGroup);
-		if (!dataPtr.hasData()) {
-			MLPL_BUG("Failed to get ItemData: %"PRIx_ITEM
-			         "from ItemGroup: %"PRIx_ITEM_GROUP"\n",
-			         colDef.baseDef->itemId, itemGroup);
-			return false;
-		}
-		result.rows.push_back(dataPtr->getString());
-	}
-	return true;
+	return tablePtr->foreach<SQLSelectResult&>(setSelectResult, result);
 }
 
 //

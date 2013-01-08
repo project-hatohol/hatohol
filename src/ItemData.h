@@ -14,6 +14,7 @@ using namespace mlpl;
 #include <inttypes.h>
 
 #include "UsedCountable.h"
+#include "ReadWriteLock.h"
 
 typedef uint64_t ItemId;
 #define PRIx_ITEM PRIx64
@@ -32,10 +33,10 @@ enum ItemDataType {
 
 class ItemData : public UsedCountable {
 public:
-	ItemId getId(void);
+	ItemId getId(void) const;
 	virtual void set(void *src) = 0;
-	virtual void get(void *dst) = 0;
-	virtual string getString(void) = 0;
+	virtual void get(void *dst) const = 0;
+	virtual string getString(void) const = 0;
 
 protected:
 	ItemData(ItemId id, ItemDataType type);
@@ -61,14 +62,17 @@ public:
 		writeUnlock();
 	}
 
-	virtual void get(void *dst) {
+	virtual void get(void *dst) const {
 		readLock();
 		*static_cast<T *>(dst) = m_data;
 		readUnlock();
 	}
 
-	virtual string getString(void) {
-		return m_data;
+	virtual string getString(void) const {
+		readLock();
+		string str = m_data;
+		readUnlock();
+		return str;
 	}
 
 protected:
@@ -79,8 +83,10 @@ private:
 	T m_data;
 };
 
-template<> string ItemGeneric<int, ITEM_TYPE_INT>::getString(void);
-template<> string ItemGeneric<uint64_t, ITEM_TYPE_UINT64>::getString(void);
+template<>
+string ItemGeneric<int, ITEM_TYPE_INT>::getString(void) const;
+template<>
+string ItemGeneric<uint64_t, ITEM_TYPE_UINT64>::getString(void) const;
 
 typedef ItemGeneric<uint64_t, ITEM_TYPE_UINT64> ItemUint64;
 typedef ItemGeneric<int,      ITEM_TYPE_INT>    ItemInt;

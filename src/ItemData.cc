@@ -3,7 +3,7 @@
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
-ItemId ItemData::getId(void)
+ItemId ItemData::getId(void) const
 {
 	return m_itemId;
 }
@@ -25,13 +25,13 @@ ItemData::~ItemData()
 // Public methods (ItemGeneric)
 // ---------------------------------------------------------------------------
 template<>
-string ItemGeneric<int, ITEM_TYPE_INT>::getString(void)
+string ItemGeneric<int, ITEM_TYPE_INT>::getString(void) const
 {
 	return StringUtils::sprintf("%d", m_data);
 };
 
 template<>
-string ItemGeneric<uint64_t, ITEM_TYPE_UINT64>::getString(void)
+string ItemGeneric<uint64_t, ITEM_TYPE_UINT64>::getString(void) const
 {
 	return StringUtils::sprintf("%"PRIu64, m_data);
 };

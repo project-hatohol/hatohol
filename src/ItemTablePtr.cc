@@ -1,13 +1,13 @@
-#include "ItemDataPtr.h"
+#include "ItemTablePtr.h"
 
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
-ItemDataPtr::ItemDataPtr(ItemId itemId, const ItemGroup *itemGroup)
-: ItemPtr(itemGroup->getItem(itemId))
+ItemTablePtr::ItemTablePtr(const ItemTable *table)
+: ItemPtr<ItemTable>(table)
 {
 }
 
-ItemDataPtr::~ItemDataPtr()
+ItemTablePtr::~ItemTablePtr()
 {
 }

@@ -1,26 +1,20 @@
 #ifndef UsedCountable_h
 #define UsedCountable_h
 
-#include <glib.h>
+#include "ReadWriteLock.h"
 
-class UsedCountable {
+class UsedCountable : public ReadWriteLock {
 public:
-	void ref(void);
+	void ref(void) const;
 	void unref(void);
-	int getUsedCount(void);
+	int getUsedCount(void) const;
 
 protected:
 	UsedCountable(int initialUsedCount = 1);
 	virtual ~UsedCountable();
 
-	void readLock(void);
-	void readUnlock(void);
-	void writeLock(void);
-	void writeUnlock(void);
-
 private:
-	int          m_usedCount;
-	GRWLock      m_lock;
+	mutable int m_usedCount;
 };
 
 #endif // UsedCountable_h

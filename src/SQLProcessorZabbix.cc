@@ -4,6 +4,7 @@ using namespace mlpl;
 #include "ItemEnum.h"
 #include "ItemGroupEnum.h"
 #include "ItemDataPtr.h"
+#include "ItemTablePtr.h"
 #include "SQLProcessorZabbix.h"
 
 enum TableID {
@@ -296,51 +297,27 @@ bool SQLProcessorZabbix::tableProcNodes
 bool SQLProcessorZabbix::tableProcConfig
      (SQLSelectResult &result, SQLSelectInfo &selectInfo)
 {
-	if (selectInfo.columns.empty())
-		return false;
-
-	// Set column definition
-	if (selectedAllColumns(selectInfo)) {
-		addAllColumnDefs(result, TABLE_ID_CONFIG, selectInfo);
-	} else {
-		MLPL_DBG("Not supported: columns: %s\n",
-		         selectInfo.columns[0].c_str());
-	}
-
-	// Set row data
 	const ItemGroupId itemGroupId = GROUP_ID_ZBX_CONFIG;
-	const ItemGroup *itemGroup = m_VDSZabbix->getItemGroup(itemGroupId);
-	if (!itemGroup) {
-		MLPL_BUG("Failed to get ItemGroup: %"PRIx_ITEM_GROUP"\n",
+	const ItemTablePtr tablePtr(m_VDSZabbix->getItemTable(itemGroupId));
+	if (!tablePtr.hasData()) {
+		MLPL_BUG("Failed to get ItemTable: %"PRIx_ITEM_GROUP"\n",
 		         itemGroupId);
 		return false;
 	}
-
-	for (size_t i = 0; i < result.columnDefs.size(); i++) {
-		const SQLColumnDefinition &colDef = result.columnDefs[i];
-		ItemDataPtr dataPtr(colDef.baseDef->itemId, itemGroup);
-		if (!dataPtr.hasData()) {
-			MLPL_BUG("Failed to get ItemData: %"PRIx_ITEM
-			         "from ItemGroup: %"PRIx_ITEM_GROUP"\n",
-			         colDef.baseDef->itemId, itemGroup);
-			return false;
-		}
-		result.rows.push_back(dataPtr->getString());
-	}
-	return true;
+	return generalSelect(result, selectInfo, tablePtr, TABLE_ID_USERS);
 }
 
 bool SQLProcessorZabbix::tableProcUsers
      (SQLSelectResult &result, SQLSelectInfo &selectInfo)
 {
 	const ItemGroupId itemGroupId = GROUP_ID_ZBX_USERS;
-	const ItemGroup *itemGroup = m_VDSZabbix->getItemGroup(itemGroupId);
-	if (!itemGroup) {
+	const ItemTablePtr tablePtr(m_VDSZabbix->getItemTable(itemGroupId));
+	if (!tablePtr.hasData()) {
 		MLPL_BUG("Failed to get ItemGroup: %"PRIx_ITEM_GROUP"\n",
 		         itemGroupId);
 		return false;
 	}
-	return generalSelect(result, selectInfo, itemGroup, TABLE_ID_USERS);
+	return generalSelect(result, selectInfo, tablePtr, TABLE_ID_USERS);
 }
 
 // ---------------------------------------------------------------------------

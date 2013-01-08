@@ -12,8 +12,7 @@ using namespace std;
 using namespace mlpl;
 
 #include <glib.h>
-#include "ItemData.h"
-#include "ItemGroup.h"
+#include "ItemTablePtr.h"
 #include "SQLWhereElement.h"
 
 struct SQLSelectInfo {
@@ -100,13 +99,17 @@ protected:
 
 	bool parseSelectStatement(SQLSelectInfo &selectInfo);
 	bool selectedAllColumns(SQLSelectInfo &selectInfo);
+
+	static bool
+	setSelectResult(const ItemGroup *itemGroup, SQLSelectResult &result);
+
 	void addColumnDefs(SQLSelectResult &result,
 	                   const ColumnBaseDefinition &columnBaseDef,
 	                   SQLSelectInfo &selectInfo);
 	void addAllColumnDefs(SQLSelectResult &result, int tableId,
 	                      SQLSelectInfo &selectInfo);
 	bool generalSelect(SQLSelectResult &result, SQLSelectInfo &selectInfo,
-	                   const ItemGroup *itemGroup, int tableId);
+	                   const ItemTablePtr &tablePtr, int tableId);
 
 	//
 	// Select status parsers

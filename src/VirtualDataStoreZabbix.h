@@ -5,26 +5,28 @@
 using namespace std;
 
 #include <glib.h>
-#include "ItemGroup.h"
+#include "ItemTable.h"
 #include "VirtualDataStore.h"
+#include "ReadWriteLock.h"
 
 class VirtualDataStoreZabbix : public VirtualDataStore
 {
 public:
 	static VirtualDataStoreZabbix *getInstance(void);
-	const ItemGroup *getItemGroup(ItemGroupId groupId);
+	const ItemTable *getItemTable(ItemGroupId groupId) const;
 
 protected:
-	ItemGroup *createItemGroup(ItemGroupId groupId);
+	ItemTable *createStaticItemTable(ItemGroupId groupId);
+	ItemGroup *createStaticItemGroup(ItemTable *itemTable);
 
 private:
 	static GMutex                  m_mutex;
 	static VirtualDataStoreZabbix *m_instance;
-	ItemGroupMap m_itemGroupMap;
+	ItemGroupIdTableMap m_staticItemTableMap;
+	ReadWriteLock       m_staticItemTableMapLock;
 
 	VirtualDataStoreZabbix(void);
 	virtual ~VirtualDataStoreZabbix();
-
 };
 
 #endif // VirtualDataStoreZabbix_h

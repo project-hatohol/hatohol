@@ -27,23 +27,30 @@ VirtualDataStoreZabbix *VirtualDataStoreZabbix::getInstance(void)
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
-const ItemGroup *VirtualDataStoreZabbix::getItemGroup(ItemGroupId groupId)
+const ItemTable *VirtualDataStoreZabbix::getItemTable(ItemGroupId groupId) const
 {
-	ItemGroupMapIterator it = m_itemGroupMap.find(groupId);
-	if (it == m_itemGroupMap.end())
-		return NULL;
-	return it->second;
+	ItemGroupIdTableMapConstIterator it;
+	ItemTable *table = NULL;
+	m_staticItemTableMapLock.readLock();
+	it = m_staticItemTableMap.find(groupId);
+	if (it != m_staticItemTableMap.end())
+		table = it->second;
+	m_staticItemTableMapLock.readUnlock();
+	return table;
 }
 
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
-ItemGroup *VirtualDataStoreZabbix::createItemGroup(ItemGroupId groupId)
+ItemTable *VirtualDataStoreZabbix::createStaticItemTable(ItemGroupId groupId)
 {
-	ItemGroup *grp = new ItemGroup(groupId);
-	pair<ItemGroupMapIterator, bool> result;
-	result = m_itemGroupMap.insert
-	         (pair<ItemGroupId, ItemGroup *>(groupId, grp));
+	pair<ItemGroupIdTableMapIterator, bool> result;
+	ItemTable *table = new ItemTable(groupId);
+
+	m_staticItemTableMapLock.writeLock();;
+	result = m_staticItemTableMap.insert
+	         (pair<ItemGroupId, ItemTable *>(groupId, table));
+	m_staticItemTableMapLock.writeUnlock();;
 	if (!result.second) {
 		string msg =
 		  AMSG("Failed: insert: groupId: %"PRIx_ITEM_GROUP". "
@@ -51,6 +58,14 @@ ItemGroup *VirtualDataStoreZabbix::createItemGroup(ItemGroupId groupId)
 		       groupId);
 		throw invalid_argument(msg);
 	}
+	return table;
+}
+
+ItemGroup *VirtualDataStoreZabbix::createStaticItemGroup(ItemTable *itemTable)
+{
+	ItemGroupId groupId = itemTable->getItemGroupId();
+	ItemGroup *grp = new ItemGroup(groupId);
+	itemTable->add(grp, false);
 	return grp;
 }
 
@@ -59,9 +74,12 @@ ItemGroup *VirtualDataStoreZabbix::createItemGroup(ItemGroupId groupId)
 // ---------------------------------------------------------------------------
 VirtualDataStoreZabbix::VirtualDataStoreZabbix(void)
 {
-#define ADD(X) grp->add(X, false)
+	ItemTable *table;
 	ItemGroup *grp;
-	grp = createItemGroup(GROUP_ID_ZBX_CONFIG);
+
+#define ADD(X) grp->add(X, false)
+	table = createStaticItemTable(GROUP_ID_ZBX_CONFIG);
+	grp = createStaticItemGroup(table);
 	ADD(new ItemUint64(ITEM_ID_ZBX_CONFIG_CONFIGID, 1));
 	ADD(new ItemInt(ITEM_ID_ZBX_CONFIG_ALERT_HISTORY, 365));
 	ADD(new ItemInt(ITEM_ID_ZBX_CONFIG_EVENT_HISTORY, 365));
@@ -109,7 +127,8 @@ VirtualDataStoreZabbix::VirtualDataStoreZabbix(void)
 	ADD(new ItemInt(ITEM_ID_ZBX_CONFIG_SNMPTRAP_LOGGING,    1));
 	ADD(new ItemInt(ITEM_ID_ZBX_CONFIG_SERVER_CHECK_INTERVAL, 10));
 
-	grp = createItemGroup(GROUP_ID_ZBX_USERS);
+	table = createStaticItemTable(GROUP_ID_ZBX_USERS);
+	grp = createStaticItemGroup(table);
 	ADD(new ItemUint64(ITEM_ID_ZBX_USERS_USERID, 1));
 	ADD(new ItemString(ITEM_ID_ZBX_USERS_ALIAS, "Admin"));
 #undef ADD
