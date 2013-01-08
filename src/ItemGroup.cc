@@ -38,6 +38,11 @@ const ItemData *ItemGroup::getItem(ItemId itemId) const
 	return data;
 }
 
+ItemGroupId ItemGroup::getItemGroupId(void) const
+{
+	return m_groupId;
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------

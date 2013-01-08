@@ -225,9 +225,10 @@ bool SQLProcessor::setSelectResult(const ItemGroup *itemGroup,
 		const SQLColumnDefinition &colDef = result.columnDefs[i];
 		const ItemDataPtr dataPtr(colDef.baseDef->itemId, itemGroup);
 		if (!dataPtr.hasData()) {
-			MLPL_BUG("Failed to get ItemData: %"PRIx_ITEM
-			         "from ItemGroup: %"PRIx_ITEM_GROUP"\n",
-			         colDef.baseDef->itemId, itemGroup);
+			MLPL_BUG("Failed to get ItemData: %"PRIu_ITEM
+			         " from ItemGroup: %"PRIu_ITEM_GROUP"\n",
+			         colDef.baseDef->itemId,
+			         itemGroup->getItemGroupId());
 			return false;
 		}
 		result.rows.push_back(dataPtr->getString());

@@ -2,6 +2,8 @@
 #define ItemPtr_h
 
 #include <cstdio>
+#include "Logger.h"
+using namespace mlpl;
 
 template<class T>
 class ItemPtr {
@@ -10,6 +12,10 @@ public:
 	}
 
 	ItemPtr(const T *data) : m_data(data) {
+		if (!data) {
+			MLPL_WARN("data: NULL\n");
+			return;
+		}
 		data->ref();
 	}
 

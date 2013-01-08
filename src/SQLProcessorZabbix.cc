@@ -304,7 +304,7 @@ bool SQLProcessorZabbix::tableProcConfig
 		         itemGroupId);
 		return false;
 	}
-	return generalSelect(result, selectInfo, tablePtr, TABLE_ID_USERS);
+	return generalSelect(result, selectInfo, tablePtr, TABLE_ID_CONFIG);
 }
 
 bool SQLProcessorZabbix::tableProcUsers

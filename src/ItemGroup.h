@@ -28,6 +28,7 @@ public:
 	ItemGroup(ItemGroupId id);
 	void add(ItemData *data, bool doRef = true);
 	const ItemData *getItem(ItemId itemId) const;
+	ItemGroupId getItemGroupId(void) const;
 
 protected:
 	virtual ~ItemGroup();
