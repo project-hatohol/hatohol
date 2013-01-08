@@ -24,7 +24,7 @@ typedef ItemGroupMap::iterator        ItemGroupMapIterator;
 class ItemGroup : public UsedCountable {
 public:
 	ItemGroup(ItemGroupId id);
-	void add(ItemData *data);
+	void add(ItemData *data, bool doRef = true);
 	ItemData *getItem(ItemId itemId) const;
 
 protected:

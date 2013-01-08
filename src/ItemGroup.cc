@@ -10,7 +10,7 @@ ItemGroup::ItemGroup(ItemGroupId id)
 {
 }
 
-void ItemGroup::add(ItemData *data)
+void ItemGroup::add(ItemData *data, bool doRef)
 {
 	pair<ItemDataMapIterator, bool> result;
 	ItemId itemId = data->getId();
@@ -21,7 +21,8 @@ void ItemGroup::add(ItemData *data)
 		       ", itemId: %"PRIx_ITEM"\n", m_groupId, itemId);
 		throw invalid_argument(msg);
 	}
-	data->ref();
+	if (doRef)
+		data->ref();
 }
 
 ItemData *ItemGroup::getItem(ItemId itemId) const
