@@ -26,10 +26,6 @@ protected:
 	//
 	bool tableProcNodes
 	     (SQLSelectResult &result, SQLSelectInfo &selectInfo);
-	bool tableProcConfig
-	     (SQLSelectResult &result, SQLSelectInfo &selectInfo);
-	bool tableProcUsers
-	     (SQLSelectResult &result, SQLSelectInfo &selectInfo);
 
 private:
 	static TableProcFuncMap            m_tableProcFuncMap;
@@ -42,6 +38,10 @@ private:
 	                         SQLColumnType, size_t columnLength);
 	static const char *getTableName(int tableId);
 	VirtualDataStoreZabbix *m_VDSZabbix;
+
+	template<ItemGroupId GROUP_ID, int TABLE_ID> 
+	bool tableProcTemplate(SQLSelectResult &result,
+	                       SQLSelectInfo &selectInfo);
 };
 
 #endif // SQLProcessorZabbix_h

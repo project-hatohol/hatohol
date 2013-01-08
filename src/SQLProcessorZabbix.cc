@@ -31,6 +31,9 @@ SQLProcessor::TableIdNameMap
 // ---------------------------------------------------------------------------
 void SQLProcessorZabbix::init(void)
 {
+#define ADD_FUNC(N, G, T) m_tableProcFuncMap[N] = \
+static_cast<TableProcFunc>(&SQLProcessorZabbix::tableProcTemplate<G, T>);
+
 	defineTable(TABLE_ID_NODES, TABLE_NAME_NODES);
 	defineColumn(ITEM_ID_ZBX_NODES_NODEID,
 	             TABLE_ID_NODES, "nodeid",   SQL_COLUMN_TYPE_INT, 11);
@@ -44,8 +47,7 @@ void SQLProcessorZabbix::init(void)
 	             TABLE_ID_NODES, "nodetype", SQL_COLUMN_TYPE_INT, 11);
 	defineColumn(ITEM_ID_ZBX_NODES_MASTERID,
 	             TABLE_ID_NODES, "masterid", SQL_COLUMN_TYPE_INT, 11);
-	m_tableProcFuncMap[TABLE_NAME_NODES]
-	  = static_cast<TableProcFunc>(&SQLProcessorZabbix::tableProcNodes);
+	ADD_FUNC(TABLE_NAME_NODES, GROUP_ID_ZBX_NODES, TABLE_ID_NODES);
 
 	defineTable(TABLE_ID_CONFIG, TABLE_NAME_CONFIG);
 	defineColumn(ITEM_ID_ZBX_CONFIG_CONFIGID,
@@ -186,8 +188,7 @@ void SQLProcessorZabbix::init(void)
 	defineColumn(ITEM_ID_ZBX_CONFIG_SERVER_CHECK_INTERVAL,
 	             TABLE_ID_CONFIG, "server_check_interval",
 	             SQL_COLUMN_TYPE_INT, 11);
-	m_tableProcFuncMap[TABLE_NAME_CONFIG]
-	  = static_cast<TableProcFunc>(&SQLProcessorZabbix::tableProcConfig);
+	ADD_FUNC(TABLE_NAME_CONFIG, GROUP_ID_ZBX_CONFIG, TABLE_ID_CONFIG);
 
 	defineTable(TABLE_ID_USERS, TABLE_NAME_USERS);
 	defineColumn(ITEM_ID_ZBX_USERS_USERID,
@@ -238,8 +239,7 @@ void SQLProcessorZabbix::init(void)
 	defineColumn(ITEM_ID_ZBX_USERS_ROWS_PER_PAGE,
 	             TABLE_ID_USERS, "rows_per_page",
 	             SQL_COLUMN_TYPE_INT, 11);
-	m_tableProcFuncMap[TABLE_NAME_USERS]
-	  = static_cast<TableProcFunc>(&SQLProcessorZabbix::tableProcUsers);
+	ADD_FUNC(TABLE_NAME_USERS, GROUP_ID_ZBX_USERS, TABLE_ID_USERS);
 }
 
 SQLProcessor *SQLProcessorZabbix::createInstance(void)
@@ -276,6 +276,20 @@ SQLProcessorZabbix::~SQLProcessorZabbix()
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
+template<ItemGroupId GROUP_ID, int TABLE_ID> 
+bool SQLProcessorZabbix::tableProcTemplate
+     (SQLSelectResult &result, SQLSelectInfo &selectInfo)
+{
+	const ItemGroupId itemGroupId = GROUP_ID;
+	const ItemTablePtr tablePtr(m_VDSZabbix->getItemTable(itemGroupId));
+	if (!tablePtr.hasData()) {
+		MLPL_BUG("Failed to get ItemTable: %"PRIx_ITEM_GROUP"\n",
+		         itemGroupId);
+		return false;
+	}
+	return generalSelect(result, selectInfo, tablePtr, TABLE_ID);
+}
+
 bool SQLProcessorZabbix::tableProcNodes
      (SQLSelectResult &result, SQLSelectInfo &selectInfo)
 {
@@ -292,32 +306,6 @@ bool SQLProcessorZabbix::tableProcNodes
 	}
 	
 	return false;
-}
-
-bool SQLProcessorZabbix::tableProcConfig
-     (SQLSelectResult &result, SQLSelectInfo &selectInfo)
-{
-	const ItemGroupId itemGroupId = GROUP_ID_ZBX_CONFIG;
-	const ItemTablePtr tablePtr(m_VDSZabbix->getItemTable(itemGroupId));
-	if (!tablePtr.hasData()) {
-		MLPL_BUG("Failed to get ItemTable: %"PRIx_ITEM_GROUP"\n",
-		         itemGroupId);
-		return false;
-	}
-	return generalSelect(result, selectInfo, tablePtr, TABLE_ID_CONFIG);
-}
-
-bool SQLProcessorZabbix::tableProcUsers
-     (SQLSelectResult &result, SQLSelectInfo &selectInfo)
-{
-	const ItemGroupId itemGroupId = GROUP_ID_ZBX_USERS;
-	const ItemTablePtr tablePtr(m_VDSZabbix->getItemTable(itemGroupId));
-	if (!tablePtr.hasData()) {
-		MLPL_BUG("Failed to get ItemGroup: %"PRIx_ITEM_GROUP"\n",
-		         itemGroupId);
-		return false;
-	}
-	return generalSelect(result, selectInfo, tablePtr, TABLE_ID_USERS);
 }
 
 // ---------------------------------------------------------------------------
