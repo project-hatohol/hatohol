@@ -278,16 +278,17 @@ SQLProcessorZabbix::~SQLProcessorZabbix()
 // ---------------------------------------------------------------------------
 template<ItemGroupId GROUP_ID, int TABLE_ID> 
 bool SQLProcessorZabbix::tableProcTemplate
-     (SQLSelectResult &result, SQLSelectInfo &selectInfo)
+     (SQLSelectResult &result, SQLSelectInfo &selectInfo,
+      const SQLColumnInfo &columnInfo)
 {
 	const ItemGroupId itemGroupId = GROUP_ID;
-	const ItemTablePtr tablePtr(m_VDSZabbix->getItemTable(itemGroupId));
+	const ItemTablePtr table = m_VDSZabbix->getItemTable(itemGroupId);
 	if (!tablePtr.hasData()) {
 		MLPL_BUG("Failed to get ItemTable: %"PRIx_ITEM_GROUP"\n",
 		         itemGroupId);
 		return false;
 	}
-	return generalSelect(result, selectInfo, tablePtr, TABLE_ID);
+	return generalSelect(result, selectInfo, columnInfo, tablePtr, TABLE_ID);
 }
 
 bool SQLProcessorZabbix::tableProcNodes

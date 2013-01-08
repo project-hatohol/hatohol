@@ -41,7 +41,8 @@ private:
 
 	template<ItemGroupId GROUP_ID, int TABLE_ID> 
 	bool tableProcTemplate(SQLSelectResult &result,
-	                       SQLSelectInfo &selectInfo);
+	                       SQLSelectInfo &selectInfo,
+	                       const SQLColumnInfo &columnInfo);
 };
 
 #endif // SQLProcessorZabbix_h

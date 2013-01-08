@@ -7,7 +7,6 @@ using namespace std;
 
 #include <cstring>
 #include "SQLProcessor.h"
-#include "ItemDataPtr.h"
 
 enum SelectParseRegion {
 	SELECT_PARSING_REGION_SELECT,
@@ -81,16 +80,29 @@ SQLSelectResult::SQLSelectResult(void)
 bool SQLProcessor::select(SQLSelectResult &result,
                           SQLSelectInfo   &selectInfo)
 {
+	// disassemble the query.
 	if (!parseSelectStatement(selectInfo))
 		return false;
 
-	map<string, TableProcFunc>::iterator it;
-	it = m_tableProcFuncMap.find(selectInfo.table);
-	if (it == m_tableProcFuncMap.end())
-		return false;
+	// gather data
+	for (size_t i = 0; i < selectInfo.columnInfo.size(); i++) {
+		const SQLColumnInfo &columnInfo = selectInfo.columnInfo[i];
+		map<string, TableProcFunc>::iterator it;
+		it = m_tableProcFuncMap.find(columnInfo.table);
+		if (it == m_tableProcFuncMap.end())
+			return false;
+		TableProcFunc func = it->second;
+		if (!(this->*func)(result, selectInfo, columnInfo))
+			return false;
+	}
 
-	TableProcFunc func = it->second;
-	return (this->*func)(result, selectInfo);
+	// make big one table
+
+	// pickup matching rows
+
+	// convert data to string
+
+	return true;
 }
 
 // ---------------------------------------------------------------------------
@@ -114,27 +126,28 @@ SQLProcessor::~SQLProcessor()
 {
 }
 
-bool SQLProcessor::selectedAllColumns(SQLSelectInfo &selectInfo)
+bool SQLProcessor::selectedAllColumns(const SQLColumnInfo &columnInfo)
 {
-	if (selectInfo.columns.size() != 1)
+	if (columnInfo.names.size() != 1)
 		return false;
 
-	string &column = selectInfo.columns[0];
-	if (column == "*")
+	const string &columnName = columnInfo.names[0];
+	if (columnName == "*")
 		return true;
 
-	if (selectInfo.tableVar.empty())
+	if (columnInfo.tableVar.empty())
 		return false;
 
-	size_t len = selectInfo.tableVar.size();
+	size_t len = columnInfo.tableVar.size();
 
 	static const char DOT_ASTERISK[] = ".*";
 	static const size_t LEN_DOT_ASTERISK = sizeof(DOT_ASTERISK) - 1;
-	if (column.size() != len + LEN_DOT_ASTERISK)
+	if (columnName.size() != len + LEN_DOT_ASTERISK)
 		return false;
-	if (strncmp(column.c_str(), selectInfo.tableVar.c_str(), len) != 0)
+	const char *columnNameCStr = columnName.c_str();
+	if (strncmp(columnNameCStr, columnInfo.tableVar.c_str(), len) != 0)
 		return false;
-	if (strncmp(&column.c_str()[len], DOT_ASTERISK, LEN_DOT_ASTERISK) == 0)
+	if (strncmp(&columnNameCStr[len], DOT_ASTERISK, LEN_DOT_ASTERISK) == 0)
 		return true;
 	return false;
 }
@@ -181,7 +194,7 @@ bool SQLProcessor::parseSelectStatement(SQLSelectInfo &selectInfo)
 	}
 
 	// check the results
-	if (selectInfo.columns.empty()) {
+	if (selectInfo.columnInfo.empty()) {
 		return false;
 	}
 
@@ -190,20 +203,20 @@ bool SQLProcessor::parseSelectStatement(SQLSelectInfo &selectInfo)
 
 void SQLProcessor::addColumnDefs(SQLSelectResult &result,
                                  const ColumnBaseDefinition &columnBaseDef,
-                                 SQLSelectInfo &selectInfo)
+                                 const SQLColumnInfo &columnInfo)
 {
 	result.columnDefs.push_back(SQLColumnDefinition());
 	SQLColumnDefinition &colDef = result.columnDefs.back();
 	colDef.baseDef      = &columnBaseDef;
 	colDef.schema       = getDBName();
-	colDef.table        = selectInfo.table;
-	colDef.tableVar     = selectInfo.tableVar;
+	colDef.table        = columnInfo.table;
+	colDef.tableVar     = columnInfo.tableVar;
 	colDef.column       = columnBaseDef.columnName;
 	colDef.columnVar    = columnBaseDef.columnName;
 }
 
 void SQLProcessor::addAllColumnDefs(SQLSelectResult &result, int tableId,
-                                    SQLSelectInfo &selectInfo)
+                                    const SQLColumnInfo &columnInfo)
 {
 	TableIdColumnBaseDefListMap::iterator it;
 	it = m_tableColumnBaseDefListMap.find(tableId);
@@ -215,7 +228,7 @@ void SQLProcessor::addAllColumnDefs(SQLSelectResult &result, int tableId,
 	ColumnBaseDefList &baseDefList = it->second;;
 	ColumnBaseDefListIterator baseDef = baseDefList.begin();
 	for (; baseDef != baseDefList.end(); ++baseDef)
-		addColumnDefs(result, *baseDef, selectInfo);
+		addColumnDefs(result, *baseDef, columnInfo);
 }
 
 bool SQLProcessor::setSelectResult(const ItemGroup *itemGroup,
@@ -223,36 +236,46 @@ bool SQLProcessor::setSelectResult(const ItemGroup *itemGroup,
 {
 	for (size_t i = 0; i < result.columnDefs.size(); i++) {
 		const SQLColumnDefinition &colDef = result.columnDefs[i];
-		const ItemDataPtr dataPtr(colDef.baseDef->itemId, itemGroup);
-		if (!dataPtr.hasData()) {
+		const ItemData *item =
+		  itemGroup->getItem(colDef.baseDef->itemId);
+		if (!item) {
 			MLPL_BUG("Failed to get ItemData: %"PRIu_ITEM
 			         " from ItemGroup: %"PRIu_ITEM_GROUP"\n",
 			         colDef.baseDef->itemId,
 			         itemGroup->getItemGroupId());
 			return false;
 		}
-		result.rows.push_back(dataPtr->getString());
+		result.textRows.push_back(item->getString());
 	}
 	return true;
 }
 
 bool
 SQLProcessor::generalSelect(SQLSelectResult &result, SQLSelectInfo &selectInfo,
-                            const ItemTablePtr &tablePtr, int tableId)
+                            const SQLColumnInfo &columnInfo,
+                            const ItemTable *itemTable, int tableId)
 {
-	if (selectInfo.columns.empty())
+	if (columnInfo.names.empty())
 		return false;
 
 	// Set column definition
-	if (selectedAllColumns(selectInfo)) {
-		addAllColumnDefs(result, tableId, selectInfo);
+	if (selectedAllColumns(columnInfo)) {
+		addAllColumnDefs(result, tableId, columnInfo);
 	} else {
-		MLPL_DBG("Not supported: columns: %s\n",
-		         selectInfo.columns[0].c_str());
+		MLPL_BUG("Not implemented: indivisual columns\n");
+		return false;
 	}
 
-	return tablePtr->foreach<SQLSelectResult&>(setSelectResult, result);
+	return itemTable->foreach<SQLSelectResult&>(setSelectResult, result);
 }
+
+//bool SQLProcessor::makeTextRowsForeach(const ItemGroup *SQLSelectResult &result)
+
+/*
+bool SQLProcessor::makeTextRows(SQLSelectResult &result)
+{
+	return result->selectedTable->foreach(bool (*func)(const ItemGroup *, T arg), T arg) const
+}*/
 
 //
 // Select status parsers

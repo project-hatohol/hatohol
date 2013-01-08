@@ -13,7 +13,7 @@ class VirtualDataStoreZabbix : public VirtualDataStore
 {
 public:
 	static VirtualDataStoreZabbix *getInstance(void);
-	const ItemTable *getItemTable(ItemGroupId groupId) const;
+	const ItemTablePtr *getItemTable(ItemGroupId groupId) const;
 
 protected:
 	ItemTable *createStaticItemTable(ItemGroupId groupId);

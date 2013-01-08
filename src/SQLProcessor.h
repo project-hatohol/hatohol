@@ -15,16 +15,20 @@ using namespace mlpl;
 #include "ItemTablePtr.h"
 #include "SQLWhereElement.h"
 
+struct SQLColumnInfo {
+	vector<string>   names;
+	string           table;
+	string           tableVar;
+};
+
 struct SQLSelectInfo {
 	// input information
 	ParsableString   query;
 
 	// parsed matter
-	vector<string>   columns;
-	string           table;
-	string           tableVar;
-	SQLWhereElement *whereElem;
-	vector<string>   orderedColumns;
+	vector<SQLColumnInfo> columnInfo;
+	SQLWhereElement      *whereElem;
+	vector<string>        orderedColumns;
 
 	// constructor and destructor
 	SQLSelectInfo(ParsableString &_query);
@@ -59,7 +63,17 @@ struct SQLColumnDefinition
 
 struct SQLSelectResult {
 	vector<SQLColumnDefinition> columnDefs;
-	vector<string> rows;
+	
+	// list of item tables
+	ItemTablePtrList itemTablePtrList;
+
+	// list of item tables
+	ItemTablePtr unifiedTable;
+	ItemTablePtr selecteTable;
+
+	// text output
+	vector<string> textRows;
+
 	bool useIndex;
 
 	// constructor
@@ -76,7 +90,8 @@ public:
 protected:
 	typedef bool
 	(SQLProcessor::*TableProcFunc)(SQLSelectResult &result,
-	                               SQLSelectInfo &selectInfo);
+	                               SQLSelectInfo &selectInfo,
+	                               const SQLColumnInfo &columnInfo);
 	typedef map<string, TableProcFunc>  TableProcFuncMap;
 	typedef TableProcFuncMap::iterator  TableProcFuncIterator;;
 
@@ -98,18 +113,19 @@ protected:
 	virtual ~SQLProcessor();
 
 	bool parseSelectStatement(SQLSelectInfo &selectInfo);
-	bool selectedAllColumns(SQLSelectInfo &selectInfo);
+	bool selectedAllColumns(const SQLColumnInfo &columns);
 
 	static bool
 	setSelectResult(const ItemGroup *itemGroup, SQLSelectResult &result);
 
 	void addColumnDefs(SQLSelectResult &result,
 	                   const ColumnBaseDefinition &columnBaseDef,
-	                   SQLSelectInfo &selectInfo);
+	                   const SQLColumnInfo &columnInfo);
 	void addAllColumnDefs(SQLSelectResult &result, int tableId,
-	                      SQLSelectInfo &selectInfo);
+	                      const SQLColumnInfo &columnInfo);
 	bool generalSelect(SQLSelectResult &result, SQLSelectInfo &selectInfo,
-	                   const ItemTablePtr &tablePtr, int tableId);
+	                   const SQLColumnInfo &columnInfo,
+	                   const ItemTable *itemTable, int tableId);
 
 	//
 	// Select status parsers
