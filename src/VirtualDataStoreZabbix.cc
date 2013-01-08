@@ -78,6 +78,8 @@ VirtualDataStoreZabbix::VirtualDataStoreZabbix(void)
 	ItemGroup *grp;
 
 #define ADD(X) grp->add(X, false)
+	table = createStaticItemTable(GROUP_ID_ZBX_NODES);
+
 	table = createStaticItemTable(GROUP_ID_ZBX_CONFIG);
 	grp = createStaticItemGroup(table);
 	ADD(new ItemUint64(ITEM_ID_ZBX_CONFIG_CONFIGID, 1));
