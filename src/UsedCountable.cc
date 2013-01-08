@@ -20,6 +20,14 @@ void UsedCountable::unref(void)
 		delete this;
 }
 
+int UsedCountable::getUsedCount(void)
+{
+	readLock();
+	int usedCount = m_usedCount;
+	readUnlock();
+	return usedCount;
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
@@ -52,14 +60,6 @@ void UsedCountable::writeLock(void)
 void UsedCountable::writeUnlock(void)
 {
 	g_rw_lock_writer_unlock(&m_lock);
-}
-
-int UsedCountable::getUsedCount(void)
-{
-	readLock();
-	int usedCount = m_usedCount;
-	readUnlock();
-	return usedCount;
 }
 
 // ---------------------------------------------------------------------------

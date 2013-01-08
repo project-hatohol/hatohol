@@ -7,6 +7,7 @@ class UsedCountable {
 public:
 	void ref(void);
 	void unref(void);
+	int getUsedCount(void);
 
 protected:
 	UsedCountable(int initialUsedCount = 1);
@@ -16,8 +17,6 @@ protected:
 	void readUnlock(void);
 	void writeLock(void);
 	void writeUnlock(void);
-
-	int getUsedCount(void);
 
 private:
 	int          m_usedCount;
