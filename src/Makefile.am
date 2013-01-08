@@ -7,6 +7,7 @@ libasura_la_SOURCES = \
 	SQLProcessorFactory.cc SQLProcessor.cc SQLProcessorZabbix.cc \
 	SQLWhereElement.cc \
 	UsedCountable.cc ItemData.cc ItemGroup.cc ItemDataPtr.cc \
+	ItemTable.cc \
 	VirtualDataStore.cc VirtualDataStoreZabbix.cc \
 	JsonBuilderAgent.cc JsonParserAgent.cc \
 	AsuraThreadBase.cc ArmController.cc \

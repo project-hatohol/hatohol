@@ -2,6 +2,7 @@
 #define ItemGroup_h
 
 #include <map>
+#include <list>
 using namespace std;
 
 #define __STDC_FORMAT_MACROS
@@ -13,13 +14,14 @@ typedef uint64_t ItemGroupId;
 #define PRIx_ITEM_GROUP PRIx64
 #define PRIu_ITEM_GROUP PRIu64
 
-typedef map<ItemId, ItemData *> ItemDataMap;
-typedef ItemDataMap::iterator   ItemDataMapIterator;
-typedef ItemDataMap::const_iterator   ItemDataMapConstIterator;
-
 class ItemGroup;
 typedef map<ItemGroupId, ItemGroup *> ItemGroupMap;
 typedef ItemGroupMap::iterator        ItemGroupMapIterator;
+typedef ItemGroupMap::const_iterator  ItemGroupMapConstIterator;
+
+typedef list<ItemGroup *>             ItemGroupList;
+typedef ItemGroupList::iterator       ItemGroupListIterator;
+typedef ItemGroupList::const_iterator ItemGroupListConstIterator;
 
 class ItemGroup : public UsedCountable {
 public:

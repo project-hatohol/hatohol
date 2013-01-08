@@ -2,6 +2,7 @@
 #define ItemData_h
 
 #include <string>
+#include <map>
 using namespace std;
 
 #include <StringUtils.h>
@@ -17,6 +18,11 @@ using namespace mlpl;
 typedef uint64_t ItemId;
 #define PRIx_ITEM PRIx64
 #define PRIu_ITEM PRIu64
+
+class ItemData;
+typedef map<ItemId, ItemData *>     ItemDataMap;
+typedef ItemDataMap::iterator       ItemDataMapIterator;
+typedef ItemDataMap::const_iterator ItemDataMapConstIterator;
 
 enum ItemDataType {
 	ITEM_TYPE_INT,
