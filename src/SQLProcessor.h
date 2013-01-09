@@ -64,10 +64,10 @@ struct SQLTableStaticInfo {
 
 struct SQLColumnInfo;
 struct SQLTableInfo {
-	const SQLTableStaticInfo *staticInfo;
 	string name;
 	string varName;
 	list<const SQLColumnInfo *> columnList;
+	const SQLTableStaticInfo   *staticInfo;
 
 	// constructor and methods
 	SQLTableInfo(void);
@@ -135,6 +135,7 @@ protected:
 	bool parseSelectStatement(SQLSelectInfo &selectInfo);
 	bool checkParsedResult(const SQLSelectInfo &selectInfo) const;
 	bool associateColumnWithTable(SQLSelectInfo &selectInfo);
+	bool associateTableWithStaticInfo(SQLSelectInfo &selectInfo);
 	bool makeColumnDefs(SQLSelectInfo &selectInfo);
 	bool makeItemTables(SQLSelectInfo &selectInfo);
 	bool checkSelectedAllColumns(const SQLSelectInfo &selectInfo,

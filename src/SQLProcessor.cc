@@ -94,7 +94,8 @@ bool SQLProcessor::select(SQLSelectInfo &selectInfo)
 	if (!associateColumnWithTable(selectInfo))
 		return false;
 
-	if (!makeColumnDefs(selectInfo))
+	// associate each table with static table information
+	if (!associateTableWithStaticInfo(selectInfo))
 		return false;
 
 	// make ItemTable objects for all specified tables
@@ -252,6 +253,23 @@ bool SQLProcessor::associateColumnWithTable(SQLSelectInfo &selectInfo)
 			return false;
 		}
 		columnInfo.associate(const_cast<SQLTableInfo *>(it->second));
+	}
+	return true;
+}
+
+bool SQLProcessor::associateTableWithStaticInfo(SQLSelectInfo &selectInfo)
+{
+	for (size_t i = 0; i < selectInfo.tables.size(); i++) {
+		SQLTableInfo &tableInfo = selectInfo.tables[i];
+		TableNameStaticInfoMapIterator it;
+		it = m_tableNameStaticInfoMap.find(tableInfo.name);
+		if (it == m_tableNameStaticInfoMap.end()) {
+			MLPL_DBG("Not found table: %s\n",
+			         tableInfo.name.c_str());
+			return false;
+		}
+		const SQLTableStaticInfo *staticInfo = it->second;
+		tableInfo.staticInfo = staticInfo;
 	}
 	return true;
 }
@@ -485,19 +503,9 @@ bool SQLProcessor::parseFrom(SelectParserContext &ctx)
 	}
 
 	if (isTableName) {
-		string &tableName = ctx.currWord;
-		TableNameStaticInfoMapIterator it;
-		it = m_tableNameStaticInfoMap.find(tableName);
-		if (it == m_tableNameStaticInfoMap.end()) {
-			MLPL_DBG("Not found table: %s\n", tableName.c_str());
-			return false;
-		}
-		const SQLTableStaticInfo *staticInfo = it->second;
-
 		ctx.selectInfo.tables.push_back(SQLTableInfo());
 		SQLTableInfo &tableInfo = ctx.selectInfo.tables.back();
-		tableInfo.staticInfo = staticInfo;
-		tableInfo.name = tableName;
+		tableInfo.name = ctx.currWord;
 		return true;
 	}
 
