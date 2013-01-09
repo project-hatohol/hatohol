@@ -55,7 +55,7 @@ protected:
 	void addPacketHeaderRegion(SmartBuffer &pkt);
 	void allocAndAddPacketHeaderRegion(SmartBuffer &pkt, size_t packetSize);
 	void addLenEncInt(SmartBuffer &buf, uint64_t num);
-	void addLenEncStr(SmartBuffer &pkt, string &str);
+	void addLenEncStr(SmartBuffer &pkt, const string &str);
 	bool sendHandshakeV10(void);
 	bool receiveHandshakeResponse41(void);
 	bool receivePacket(SmartBuffer &pkt);
@@ -69,10 +69,11 @@ protected:
 	bool sendEOF(uint16_t warningCount, uint16_t status);
 	bool sendNull(void);
 	bool sendColumnDefinition41(
-	  string &schema, string &table, string &orgTable,
-	  string &name, string &orgName, uint32_t columnLength, uint8_t type,
+	  const string &schema, const string &table, const string &orgTable,
+	  const string &name, const string &orgName,
+	  uint32_t columnLength, uint8_t type,
 	  uint16_t flags, uint8_t decimals);
-	bool sendSelectResult(SQLSelectResult &result);
+	bool sendSelectResult(const SQLSelectInfo &selectInfo);
 	bool sendLenEncInt(uint64_t num);
 	bool sendLenEncStr(string &str);
 	bool sendPacket(SmartBuffer &pkt);

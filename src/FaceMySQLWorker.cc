@@ -208,7 +208,7 @@ void FaceMySQLWorker::allocAndAddPacketHeaderRegion(SmartBuffer &pkt,
 	addPacketHeaderRegion(pkt);
 }
 
-void FaceMySQLWorker::addLenEncStr(SmartBuffer &pkt, string &str)
+void FaceMySQLWorker::addLenEncStr(SmartBuffer &pkt, const string &str)
 {
 	addLenEncInt(pkt, str.size());
 	pkt.addEx(str.c_str(), str.size());
@@ -390,9 +390,9 @@ bool FaceMySQLWorker::receiveRequest(void)
 }
 
 bool FaceMySQLWorker::sendColumnDefinition41(
-  string &schema, string &table, string &orgTable,
-  string &name, string &orgName, uint32_t columnLength, uint8_t type,
-  uint16_t flags, uint8_t decimals)
+  const string &schema, const string &table, const string &orgTable,
+  const string &name, const string &orgName,
+  uint32_t columnLength, uint8_t type, uint16_t flags, uint8_t decimals)
 {
 	const int initialPacketSize = 0x100;
 	SmartBuffer pkt;
@@ -423,17 +423,17 @@ bool FaceMySQLWorker::sendColumnDefinition41(
 	return sendPacket(pkt);
 }
 
-bool FaceMySQLWorker::sendSelectResult(SQLSelectResult &result)
+bool FaceMySQLWorker::sendSelectResult(const SQLSelectInfo &selectInfo)
 {
 	// Number of columns
-	if (!sendLenEncInt(result.columnDefs.size()))
+	if (!sendLenEncInt(selectInfo.columnDefs.size()))
 		return false;
 
 	// Column Definition
 	uint8_t decimals = 0;
-	for (size_t i = 0; i < result.columnDefs.size(); i++) {
+	for (size_t i = 0; i < selectInfo.columnDefs.size(); i++) {
 		bool ret;
-		SQLColumnDefinition &colDef = result.columnDefs[i];
+		const SQLColumnDefinition &colDef = selectInfo.columnDefs[i];
 		const ColumnBaseDefinition *baseDef = colDef.baseDef;
 
 		int type = typeConvert(baseDef->type);
@@ -453,18 +453,18 @@ bool FaceMySQLWorker::sendSelectResult(SQLSelectResult &result)
 
 	// EOF
 	uint16_t status = m_statusFlags;
-	if (!result.useIndex)
+	if (!selectInfo.useIndex)
 		status |= SERVER_STATUS_NO_INDEX_USED;
 	if (!sendEOF(0, status))
 		return false;
 
 	// Rows
-	if (!result.textRows.empty()) {
+	if (!selectInfo.textRows.empty()) {
 		SmartBuffer pkt;
 		const int initialPktSize = 0x1000;
 		allocAndAddPacketHeaderRegion(pkt, initialPktSize);
-		for (size_t i = 0; i < result.textRows.size(); i++)
-			addLenEncStr(pkt, result.textRows[i]);
+		for (size_t i = 0; i < selectInfo.textRows.size(); i++)
+			addLenEncStr(pkt, selectInfo.textRows[i]);
 		if (!sendPacket(pkt))
 			return false;
 	}
@@ -723,9 +723,8 @@ bool FaceMySQLWorker::querySelect(ParsableString &query)
 
 	if (m_sqlProcessor) {
 		SQLSelectInfo selectInfo(query);
-		SQLSelectResult result;
-		if (m_sqlProcessor->select(result, selectInfo))
-			return sendSelectResult(result);
+		if (m_sqlProcessor->select(selectInfo))
+			return sendSelectResult(selectInfo);
 	}
 	MLPL_BUG("Not implemented: select: '%s'\n", query.getString());
 	return false;

@@ -7,6 +7,11 @@ ItemTablePtr::ItemTablePtr(void)
 {
 }
 
+ItemTablePtr::ItemTablePtr(const ItemTablePtr &tablePtr)
+: ItemPtr<ItemTable>(tablePtr)
+{
+}
+
 ItemTablePtr::ItemTablePtr(const ItemTable *table)
 : ItemPtr<ItemTable>(table)
 {

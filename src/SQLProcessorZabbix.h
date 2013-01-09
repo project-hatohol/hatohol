@@ -20,29 +20,21 @@ public:
 	// virtual methods
 	const char *getDBName(void);
 
-protected:
-	//
-	// Table Processors
-	//
-	bool tableProcNodes
-	     (SQLSelectResult &result, SQLSelectInfo &selectInfo);
-
 private:
-	static TableProcFuncMap            m_tableProcFuncMap;
-	static TableIdColumnBaseDefListMap m_tableColumnBaseDefListMap;
-	static TableIdNameMap              m_tableIdNameMap;
+	static TableNameStaticInfoMap m_tableNameStaticInfoMap;
 
-	static void defineTable(int tableId, const char *tableName);
-	static void defineColumn(ItemId itemId,
+	static SQLTableStaticInfo *
+	defineTable(int tableId, const char *tableName,
+	            SQLTableMakeFunc tableMakeFunc);
+	static void defineColumn(SQLTableStaticInfo *staticInfo,
+	                         ItemId itemId,
 	                         int tableId, const char *columnName,
 	                         SQLColumnType, size_t columnLength);
-	static const char *getTableName(int tableId);
 	VirtualDataStoreZabbix *m_VDSZabbix;
 
-	template<ItemGroupId GROUP_ID, int TABLE_ID> 
-	bool tableProcTemplate(SQLSelectResult &result,
-	                       SQLSelectInfo &selectInfo,
-	                       const SQLColumnInfo &columnInfo);
+	template<ItemGroupId GROUP_ID>
+	bool tableMakeFuncTemplate(SQLSelectInfo &selectInfo,
+	                           SQLTableInfo &tableInfo);
 };
 
 #endif // SQLProcessorZabbix_h

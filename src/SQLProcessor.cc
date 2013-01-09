@@ -8,14 +8,7 @@ using namespace std;
 #include <cstring>
 #include "SQLProcessor.h"
 
-enum SelectParseRegion {
-	SELECT_PARSING_REGION_SELECT,
-	SELECT_PARSING_REGION_GROUP_BY,
-	SELECT_PARSING_REGION_FROM,
-	SELECT_PARSING_REGION_WHERE,
-	SELECT_PARSING_REGION_ORDER_BY,
-	NUM_SELECT_PARSING_REGION,
-};
+static const int UNKNOWN_TABLE_ID = -1;
 
 const SQLProcessor::SelectSubParser SQLProcessor::m_selectSubParsers[] = {
 	&SQLProcessor::parseSelectedColumns,
@@ -23,15 +16,6 @@ const SQLProcessor::SelectSubParser SQLProcessor::m_selectSubParsers[] = {
 	&SQLProcessor::parseFrom,
 	&SQLProcessor::parseWhere,
 	&SQLProcessor::parseOrderBy,
-};
-
-SeparatorChecker SQLProcessor::m_separatorSpaceComma(" ,");
-SeparatorChecker *SQLProcessor::m_selectSeprators[] = {
-	&SQLProcessor::m_separatorSpaceComma, // select
-	&SQLProcessor::m_separatorSpaceComma, // group by
-	&SQLProcessor::m_separatorSpaceComma, // from
-	&SQLProcessor::m_separatorSpaceComma, // where
-	&SQLProcessor::m_separatorSpaceComma, // order by
 };
 
 struct SQLProcessor::SelectParserContext {
@@ -44,18 +28,47 @@ struct SQLProcessor::SelectParserContext {
 	SelectParserContext(SelectParseRegion _region,
 	                    SQLSelectInfo &_selectInfo)
 	: region(_region),
+	  indexInTheStatus(0),
 	  selectInfo(_selectInfo)
 	{
 	}
-
 };
+
+struct SQLProcessor::AddItemGroupArg {
+	SQLSelectInfo &selectInfo;
+	SQLTableInfo &tableInfo;
+	const ItemTablePtr &itemTablePtr;
+};
+
+// ---------------------------------------------------------------------------
+// Public methods (SQLTableInfo)
+// ---------------------------------------------------------------------------
+SQLTableInfo::SQLTableInfo(void)
+: staticInfo(NULL)
+{
+}
+
+// ---------------------------------------------------------------------------
+// Public methods (SQLColumnInfo)
+// ---------------------------------------------------------------------------
+SQLColumnInfo::SQLColumnInfo(void)
+: tableInfo(NULL)
+{
+}
+
+void SQLColumnInfo::associate(SQLTableInfo *_tableInfo)
+{
+	tableInfo = _tableInfo;
+	_tableInfo->columnList.push_back(this);
+}
 
 // ---------------------------------------------------------------------------
 // Public methods (SQLSelectInfo)
 // ---------------------------------------------------------------------------
 SQLSelectInfo::SQLSelectInfo(ParsableString &_query)
 : query(_query),
-  whereElem(NULL)
+  whereElem(NULL),
+  useIndex(false)
 {
 }
 
@@ -67,40 +80,43 @@ SQLSelectInfo::~SQLSelectInfo()
 }
 
 // ---------------------------------------------------------------------------
-// Public methods (SQLColumnResult)
-// ---------------------------------------------------------------------------
-SQLSelectResult::SQLSelectResult(void)
-: useIndex(false)
-{
-}
-
-// ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
-bool SQLProcessor::select(SQLSelectResult &result,
-                          SQLSelectInfo   &selectInfo)
+bool SQLProcessor::select(SQLSelectInfo &selectInfo)
 {
-	// disassemble the query.
+	// disassemble the query statement
 	if (!parseSelectStatement(selectInfo))
 		return false;
+	if (!checkParsedResult(selectInfo))
+		return false;
 
-	// gather data
-	for (size_t i = 0; i < selectInfo.columnInfo.size(); i++) {
-		const SQLColumnInfo &columnInfo = selectInfo.columnInfo[i];
-		map<string, TableProcFunc>::iterator it;
-		it = m_tableProcFuncMap.find(columnInfo.table);
-		if (it == m_tableProcFuncMap.end())
-			return false;
-		TableProcFunc func = it->second;
-		if (!(this->*func)(result, selectInfo, columnInfo))
-			return false;
+	// associate each column with the table
+	if (!associateColumnWithTable(selectInfo))
+		return false;
+
+	if (!makeColumnDefs(selectInfo))
+		return false;
+
+	// make ItemTable objects for all specified tables
+	if (!makeItemTables(selectInfo))
+		return false;
+
+	// join tables
+	ItemTablePtrListConstIterator it = selectInfo.itemTablePtrList.begin();
+	for (; it != selectInfo.itemTablePtrList.end(); ++it) {
+		const ItemTablePtr &table = *it;
+		selectInfo.joinedTable = selectInfo.joinedTable->join(table);
 	}
 
-	// make big one table
-
 	// pickup matching rows
+	if (!selectInfo.joinedTable->foreach<SQLSelectInfo&>
+	                                    (pickupMatchingRows, selectInfo))
+		return false;
 
 	// convert data to string
+	if (!selectInfo.selectedTable->foreach<SQLSelectInfo&>(makeTextRows,
+	                                                       selectInfo))
+		return false;
 
 	return true;
 }
@@ -108,14 +124,22 @@ bool SQLProcessor::select(SQLSelectResult &result,
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
-SQLProcessor::SQLProcessor(
-  TableProcFuncMap            &tableProcFuncMap,
-  TableIdColumnBaseDefListMap &tableColumnBaseDefListMap,
-  TableIdNameMap              &tableIdNameMap)
-: m_tableProcFuncMap(tableProcFuncMap),
-  m_tableColumnBaseDefListMap(tableColumnBaseDefListMap),
-  m_tableIdNameMap(tableIdNameMap)
+SQLProcessor::SQLProcessor(TableNameStaticInfoMap &tableNameStaticInfoMap)
+: m_separatorSpaceComma(" ,"),
+  m_separatorCountSpaceComma(", "),
+  m_tableNameStaticInfoMap(tableNameStaticInfoMap)
 {
+	m_selectSeprators[SQLProcessor::SELECT_PARSING_REGION_SELECT] =
+	  &m_separatorSpaceComma;
+	m_selectSeprators[SQLProcessor::SELECT_PARSING_REGION_GROUP_BY] = 
+	  &m_separatorSpaceComma;
+	m_selectSeprators[SQLProcessor::SELECT_PARSING_REGION_FROM] =
+	  &m_separatorCountSpaceComma;
+	m_selectSeprators[SQLProcessor::SELECT_PARSING_REGION_WHERE] = 
+	  &m_separatorSpaceComma;
+	m_selectSeprators[SQLProcessor::SELECT_PARSING_REGION_ORDER_BY] = 
+	  &m_separatorSpaceComma;
+
 	m_selectRegionParserMap["from"]  = &SQLProcessor::parseRegionFrom;
 	m_selectRegionParserMap["where"] = &SQLProcessor::parseRegionWhere;
 	m_selectRegionParserMap["order"] = &SQLProcessor::parseRegionOrder;
@@ -126,35 +150,22 @@ SQLProcessor::~SQLProcessor()
 {
 }
 
-bool SQLProcessor::selectedAllColumns(const SQLColumnInfo &columnInfo)
+bool
+SQLProcessor::checkSelectedAllColumns(const SQLSelectInfo &selectInfo,
+                                      const SQLColumnInfo &columnInfo) const
 {
-	if (columnInfo.names.size() != 1)
-		return false;
-
-	const string &columnName = columnInfo.names[0];
-	if (columnName == "*")
+	if (columnInfo.name == "*")
 		return true;
-
-	if (columnInfo.tableVar.empty())
+	if (!columnInfo.tableInfo)
 		return false;
-
-	size_t len = columnInfo.tableVar.size();
-
-	static const char DOT_ASTERISK[] = ".*";
-	static const size_t LEN_DOT_ASTERISK = sizeof(DOT_ASTERISK) - 1;
-	if (columnName.size() != len + LEN_DOT_ASTERISK)
-		return false;
-	const char *columnNameCStr = columnName.c_str();
-	if (strncmp(columnNameCStr, columnInfo.tableVar.c_str(), len) != 0)
-		return false;
-	if (strncmp(&columnNameCStr[len], DOT_ASTERISK, LEN_DOT_ASTERISK) == 0)
+	if (columnInfo.baseName == "*")
 		return true;
 	return false;
 }
 
 bool SQLProcessor::parseSelectStatement(SQLSelectInfo &selectInfo)
 {
-	MLPL_DBG("**** %s\n", __func__);
+	MLPL_DBG("<%s> %s\n", __func__, selectInfo.query.getString());
 	map<string, SelectSubParser>::iterator it;
 	SelectSubParser subParser = NULL;
 	SelectParserContext ctx(SELECT_PARSING_REGION_SELECT, selectInfo);
@@ -193,31 +204,93 @@ bool SQLProcessor::parseSelectStatement(SQLSelectInfo &selectInfo)
 		ctx.indexInTheStatus++;
 	}
 
-	// check the results
-	if (selectInfo.columnInfo.empty()) {
+	return true;
+}
+
+bool SQLProcessor::checkParsedResult(const SQLSelectInfo &selectInfo) const
+{
+	if (selectInfo.columns.empty()) {
+		MLPL_DBG("Not found: columns.\n");
+		return false;
+	}
+
+	if (selectInfo.tables.empty()) {
+		MLPL_DBG("Not found: tables.\n");
 		return false;
 	}
 
 	return true;
 }
 
-void SQLProcessor::addColumnDefs(SQLSelectResult &result,
+bool SQLProcessor::associateColumnWithTable(SQLSelectInfo &selectInfo)
+{
+	for (size_t i = 0; i < selectInfo.columns.size(); i++) {
+		SQLColumnInfo &columnInfo = selectInfo.columns[i];
+
+		if (selectInfo.tables.size() == 1) {
+			SQLTableInfo *tableInfo = &selectInfo.tables[0];
+			if (columnInfo.tableVar.empty())
+				columnInfo.associate(tableInfo);
+			else if (columnInfo.tableVar == tableInfo->varName)
+				columnInfo.associate(tableInfo);
+			else {
+				MLPL_DBG("columnInfo.tableVar (%s) != "
+				         "tableInfo.varName (%s)\n",
+				         columnInfo.tableVar.c_str(),
+				         tableInfo->varName.c_str());
+				return false;
+			}
+			continue;
+		}
+
+		map<string, const SQLTableInfo *>::iterator it;
+		it = selectInfo.tableMap.find(columnInfo.tableVar);
+		if (it == selectInfo.tableMap.end()) {
+			MLPL_DBG("Failed to find: %s (%s)\n",
+			         columnInfo.tableVar.c_str(),
+			         columnInfo.name.c_str());
+			return false;
+		}
+		columnInfo.associate(const_cast<SQLTableInfo *>(it->second));
+	}
+	return true;
+}
+
+bool SQLProcessor::makeColumnDefs(SQLSelectInfo &selectInfo)
+{
+	/*
+	for (size_t i = 0; i < selectInfo.columns.size(); i++) {
+		SQLColumnInfo &columnInfo = selectInfo.columns[i];
+		if (checkSelectedAllColumns(selectInfo, columnInfo))
+			addAllColumnDefs(selectInfo, tableInfo, tableId);
+		else {
+			MLPL_BUG("Not implemented: indivisual columns\n");
+			return false;
+		}
+	}*/
+	return false;
+}
+
+void SQLProcessor::addColumnDefs(SQLSelectInfo &selectInfo,
                                  const ColumnBaseDefinition &columnBaseDef,
                                  const SQLColumnInfo &columnInfo)
 {
-	result.columnDefs.push_back(SQLColumnDefinition());
-	SQLColumnDefinition &colDef = result.columnDefs.back();
+	/*
+	selectInfo.columnDefs.push_back(SQLColumnDefinition());
+	SQLColumnDefinition &colDef = selectInfo.columnDefs.back();
 	colDef.baseDef      = &columnBaseDef;
 	colDef.schema       = getDBName();
 	colDef.table        = columnInfo.table;
 	colDef.tableVar     = columnInfo.tableVar;
 	colDef.column       = columnBaseDef.columnName;
 	colDef.columnVar    = columnBaseDef.columnName;
+	*/
 }
 
-void SQLProcessor::addAllColumnDefs(SQLSelectResult &result, int tableId,
-                                    const SQLColumnInfo &columnInfo)
+void SQLProcessor::addAllColumnDefs(SQLSelectInfo &selectInfo,
+                                    const SQLTableInfo &tableInfo, int tableId)
 {
+	/*
 	TableIdColumnBaseDefListMap::iterator it;
 	it = m_tableColumnBaseDefListMap.find(tableId);
 	if (it == m_tableColumnBaseDefListMap.end()) {
@@ -228,14 +301,33 @@ void SQLProcessor::addAllColumnDefs(SQLSelectResult &result, int tableId,
 	ColumnBaseDefList &baseDefList = it->second;;
 	ColumnBaseDefListIterator baseDef = baseDefList.begin();
 	for (; baseDef != baseDefList.end(); ++baseDef)
-		addColumnDefs(result, *baseDef, columnInfo);
+		addColumnDefs(selectInfo, *baseDef, columnInfo);
+		*/
 }
 
-bool SQLProcessor::setSelectResult(const ItemGroup *itemGroup,
-                                   SQLSelectResult &result)
+bool SQLProcessor::makeItemTables(SQLSelectInfo &selectInfo)
 {
-	for (size_t i = 0; i < result.columnDefs.size(); i++) {
-		const SQLColumnDefinition &colDef = result.columnDefs[i];
+	for (size_t i = 0; i < selectInfo.tables.size(); i++) {
+		SQLTableInfo &tableInfo = selectInfo.tables[i];
+		SQLTableMakeFunc func = tableInfo.staticInfo->tableMakeFunc;
+		if (!(this->*func)(selectInfo, tableInfo))
+			return false;
+	}
+	return true;
+}
+
+bool SQLProcessor::addItemGroup(const ItemGroup *itemGroup,
+                                AddItemGroupArg &arg)
+{
+	list<const SQLColumnInfo *>::iterator it = 
+	  arg.tableInfo.columnList.begin();
+
+	for (; it != arg.tableInfo.columnList.end(); ++it) {
+	}
+
+	for (size_t i = 0; i < arg.tableInfo.columnList.size(); i++) {
+	/*
+		const SQLColumnDefinition &colDef = selectInfo.columnDefs[i];
 		const ItemData *item =
 		  itemGroup->getItem(colDef.baseDef->itemId);
 		if (!item) {
@@ -245,37 +337,56 @@ bool SQLProcessor::setSelectResult(const ItemGroup *itemGroup,
 			         itemGroup->getItemGroupId());
 			return false;
 		}
-		result.textRows.push_back(item->getString());
+		selectInfo.textRows.push_back(item->getString());
+		*/
 	}
 	return true;
 }
 
-bool
-SQLProcessor::generalSelect(SQLSelectResult &result, SQLSelectInfo &selectInfo,
-                            const SQLColumnInfo &columnInfo,
-                            const ItemTable *itemTable, int tableId)
+// This function is typically called via makeItemTables().
+// The dirct caller will be implemented in sub classes.
+bool SQLProcessor::makeTable(SQLSelectInfo &selectInfo,
+                             SQLTableInfo &tableInfo,
+                             const ItemTablePtr itemTablePtr)
 {
-	if (columnInfo.names.empty())
-		return false;
+	/*
+	tableInfo.tableId = tableId;
 
-	// Set column definition
-	if (selectedAllColumns(columnInfo)) {
-		addAllColumnDefs(result, tableId, columnInfo);
-	} else {
-		MLPL_BUG("Not implemented: indivisual columns\n");
-		return false;
-	}
+	selectInfo.itemTablePtrList.push_back(ItemTablePtr());
+	ItemTablePtr &itemTablePtr = selectInfo.itemTablePtrList.back();
 
-	return itemTable->foreach<SQLSelectResult&>(setSelectResult, result);
+	AddItemGroupArg arg(selectInfo, tableInfo, itemTablePtr);
+	return itemTable->foreach<AddItemTableArg&>(addItemGroup, arg);
+	*/
+	return false;
 }
 
-//bool SQLProcessor::makeTextRowsForeach(const ItemGroup *SQLSelectResult &result)
-
-/*
-bool SQLProcessor::makeTextRows(SQLSelectResult &result)
+bool SQLProcessor::pickupMatchingRows(const ItemGroup *itemGroup,
+                                      SQLSelectInfo &selectInfo)
 {
-	return result->selectedTable->foreach(bool (*func)(const ItemGroup *, T arg), T arg) const
-}*/
+	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	selectInfo.selectedTable = selectInfo.joinedTable;
+	return true;
+}
+
+bool SQLProcessor::makeTextRows(const ItemGroup *itemGroup,
+                                SQLSelectInfo &selectInfo)
+{
+	for (size_t i = 0; i < selectInfo.columnDefs.size(); i++) {
+		const SQLColumnDefinition &colDef = selectInfo.columnDefs[i];
+		const ItemData *item =
+		  itemGroup->getItem(colDef.baseDef->itemId);
+		if (!item) {
+			MLPL_BUG("Failed to get ItemData: %"PRIu_ITEM
+			         " from ItemGroup: %"PRIu_ITEM_GROUP"\n",
+			         colDef.baseDef->itemId,
+			         itemGroup->getItemGroupId());
+			return false;
+		}
+		selectInfo.textRows.push_back(item->getString());
+	}
+	return true;
+}
 
 //
 // Select status parsers
@@ -283,6 +394,7 @@ bool SQLProcessor::makeTextRows(SQLSelectResult &result)
 bool SQLProcessor::parseRegionFrom(SelectParserContext &ctx)
 {
 	ctx.region = SELECT_PARSING_REGION_FROM;
+	m_separatorCountSpaceComma.resetCounter();
 	return true;
 }
 
@@ -329,7 +441,25 @@ bool SQLProcessor::parseRegionGroup(SelectParserContext &ctx)
 //
 bool SQLProcessor::parseSelectedColumns(SelectParserContext &ctx)
 {
-	ctx.selectInfo.columns.push_back(ctx.currWord);
+	ctx.selectInfo.columns.push_back(SQLColumnInfo());
+	SQLColumnInfo &columnInfo = ctx.selectInfo.columns.back();
+	columnInfo.name = ctx.currWord;
+	size_t dotPos = columnInfo.name.find('.');
+	if (dotPos == 0) {
+		MLPL_DBG("Column name begins from dot. : %s",
+		         columnInfo.name.c_str());
+		return false;
+	}
+	if (dotPos == (columnInfo.name.size() - 1)) {
+		MLPL_DBG("Column name ends with dot. : %s",
+		         columnInfo.name.c_str());
+		return false;
+	}
+
+	if (dotPos != string::npos) {
+		columnInfo.tableVar = string(columnInfo.name, 0, dotPos);
+		columnInfo.baseName = string(columnInfo.name, dotPos + 1);
+	}
 	return true;
 }
 
@@ -341,13 +471,43 @@ bool SQLProcessor::parseGroupBy(SelectParserContext &ctx)
 
 bool SQLProcessor::parseFrom(SelectParserContext &ctx)
 {
-	if (ctx.indexInTheStatus == 0)
-		ctx.selectInfo.table = ctx.currWord;
-	else if (ctx.indexInTheStatus == 1)
-		ctx.selectInfo.tableVar = ctx.currWord;
-	else {
-		// TODO: return error?
+	bool isTableName = true;
+	if (ctx.indexInTheStatus > 0) {
+		int commaCount = m_separatorCountSpaceComma.getCount(',');
+		if (commaCount == 0)
+			isTableName = false;
+		else if (commaCount == 1)
+			isTableName = true;
+		else {
+			MLPL_DBG("commaCount: %d\n", commaCount);
+			return false;
+		}
 	}
+
+	if (isTableName) {
+		string &tableName = ctx.currWord;
+		TableNameStaticInfoMapIterator it;
+		it = m_tableNameStaticInfoMap.find(tableName);
+		if (it == m_tableNameStaticInfoMap.end()) {
+			MLPL_DBG("Not found table: %s\n", tableName.c_str());
+			return false;
+		}
+		const SQLTableStaticInfo *staticInfo = it->second;
+
+		ctx.selectInfo.tables.push_back(SQLTableInfo());
+		SQLTableInfo &tableInfo = ctx.selectInfo.tables.back();
+		tableInfo.staticInfo = staticInfo;
+		tableInfo.name = tableName;
+		return true;
+	}
+
+	if (ctx.selectInfo.tables.empty()) {
+		MLPL_DBG("selectInfo.tables is empty\n");
+		return false;
+	}
+
+	SQLTableInfo &tableInfo = ctx.selectInfo.tables.back();
+	tableInfo.varName = ctx.currWord;
 	return true;
 }
 
@@ -367,8 +527,8 @@ bool SQLProcessor::parseOrderBy(SelectParserContext &ctx)
 string SQLProcessor::readNextWord(SelectParserContext &ctx,
                                   ParsingPosition *position)
 {
-	SeparatorChecker &separator = *(m_selectSeprators[ctx.region]);
+	SeparatorChecker *separator = m_selectSeprators[ctx.region];
 	if (position)
 		*position = ctx.selectInfo.query.getParsingPosition();
-	return ctx.selectInfo.query.readWord(separator);
+	return ctx.selectInfo.query.readWord(*separator);
 }

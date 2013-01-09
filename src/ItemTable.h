@@ -17,6 +17,7 @@ public:
 	ItemTable(ItemGroupId id);
 	void add(ItemGroup *group, bool doRef = true);
 	ItemGroupId getItemGroupId(void) const;
+	ItemTable *join(const ItemTable *itemTable) const;
 
 	template <typename T>
 	bool foreach(bool (*func)(const ItemGroup *, T arg), T arg) const

@@ -1,3 +1,6 @@
+#include <Logger.h>
+using namespace mlpl;
+
 #include <stdexcept>
 #include "Utils.h"
 #include "ItemTable.h"
@@ -22,6 +25,12 @@ void ItemTable::add(ItemGroup *group, bool doRef)
 ItemGroupId ItemTable::getItemGroupId(void) const
 {
 	return m_groupId;
+}
+
+ItemTable *ItemTable::join(const ItemTable *itemTable) const
+{
+	MLPL_BUG("Not implemneted\n");
+	return NULL;
 }
 
 // ---------------------------------------------------------------------------

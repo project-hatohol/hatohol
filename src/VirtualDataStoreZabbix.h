@@ -5,7 +5,7 @@
 using namespace std;
 
 #include <glib.h>
-#include "ItemTable.h"
+#include "ItemTablePtr.h"
 #include "VirtualDataStore.h"
 #include "ReadWriteLock.h"
 
@@ -13,7 +13,7 @@ class VirtualDataStoreZabbix : public VirtualDataStore
 {
 public:
 	static VirtualDataStoreZabbix *getInstance(void);
-	const ItemTablePtr *getItemTable(ItemGroupId groupId) const;
+	const ItemTablePtr getItemTable(ItemGroupId groupId) const;
 
 protected:
 	ItemTable *createStaticItemTable(ItemGroupId groupId);

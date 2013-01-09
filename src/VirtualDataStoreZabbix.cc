@@ -27,7 +27,8 @@ VirtualDataStoreZabbix *VirtualDataStoreZabbix::getInstance(void)
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
-const ItemTable *VirtualDataStoreZabbix::getItemTable(ItemGroupId groupId) const
+const ItemTablePtr
+VirtualDataStoreZabbix::getItemTable(ItemGroupId groupId) const
 {
 	ItemGroupIdTableMapConstIterator it;
 	ItemTable *table = NULL;
@@ -36,7 +37,7 @@ const ItemTable *VirtualDataStoreZabbix::getItemTable(ItemGroupId groupId) const
 	if (it != m_staticItemTableMap.end())
 		table = it->second;
 	m_staticItemTableMapLock.readUnlock();
-	return table;
+	return ItemTablePtr(table);
 }
 
 // ---------------------------------------------------------------------------

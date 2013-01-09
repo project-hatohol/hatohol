@@ -10,6 +10,7 @@ using namespace std;
 class ItemTablePtr : public ItemPtr<ItemTable> {
 public:
 	ItemTablePtr(void);
+	ItemTablePtr(const ItemTablePtr &tablePtr);
 	ItemTablePtr(const ItemTable *table);
 	virtual ~ItemTablePtr();
 };
