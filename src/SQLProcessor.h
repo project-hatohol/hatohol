@@ -58,8 +58,8 @@ struct SQLTableStaticInfo {
 	int                        tableId;
 	const char                *tableName;
 	SQLTableMakeFunc           tableMakeFunc;
-	const ColumnBaseDefList    columnBaseDefList;
-	ItemIdColumnBaseDefRefMap  columnBaseDefMap;
+	const ColumnBaseDefList         columnBaseDefList;
+	const ItemIdColumnBaseDefRefMap columnBaseDefMap;
 };
 
 struct SQLColumnInfo;

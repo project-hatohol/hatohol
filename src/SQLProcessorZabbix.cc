@@ -316,5 +316,7 @@ void SQLProcessorZabbix::defineColumn(SQLTableStaticInfo *staticInfo,
 	colDef.type         = type;
 	colDef.columnLength = columnLength;
 
-	staticInfo->columnBaseDefMap[itemId] = &colDef;
+	ItemIdColumnBaseDefRefMap &map = 
+	  const_cast<ItemIdColumnBaseDefRefMap &>(staticInfo->columnBaseDefMap);
+	map[itemId] = &colDef;
 }
