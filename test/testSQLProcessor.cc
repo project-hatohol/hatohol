@@ -15,14 +15,12 @@ namespace testSQLProcessor {
 class TestSQLProcessor : public SQLProcessor {
 public:
 	TestSQLProcessor(void)
-	: SQLProcessor(m_tableProcFuncMap,
-	               m_tableColumnBaseDefListMap,
-	               m_tableIdNameMap)
+	: SQLProcessor(m_tableNameStaticInfoMap)
 	{
 	}
 
 	// Implementation of abstruct method
-	bool select(SQLSelectResult &result, SQLSelectInfo &selectInfo) {
+	bool select(SQLSelectInfo &selectInfo) {
 		return false;
 	}
 
@@ -35,9 +33,7 @@ public:
 	}
 
 private:
-	TableProcFuncMap            m_tableProcFuncMap;
-	TableIdColumnBaseDefListMap m_tableColumnBaseDefListMap;
-	TableIdNameMap              m_tableIdNameMap;
+	TableNameStaticInfoMap m_tableNameStaticInfoMap;
 };
 
 // ---------------------------------------------------------------------------
@@ -54,9 +50,10 @@ void test_selectOneItem(void)
 	proc.callParseSelectStatement(selectInfo);
 
 	cut_assert_equal_int(1, selectInfo.columns.size());
-	cut_assert_equal_string(selectedItem, selectInfo.columns[0].c_str());
+	cut_assert_equal_string(selectedItem, selectInfo.columns[0].name.c_str());
 
-	cut_assert_equal_string(tableName, selectInfo.table.c_str());
+	cut_assert_equal_int(1, selectInfo.tables.size());
+	cut_assert_equal_string(tableName, selectInfo.tables[0].name.c_str());
 }
 
 void test_selectTableVar(void)
@@ -67,7 +64,8 @@ void test_selectTableVar(void)
 	  StringUtils::sprintf("columnArg from tableName %s", tableVarName));
 	SQLSelectInfo selectInfo(parsable);
 	proc.callParseSelectStatement(selectInfo);
-	cut_assert_equal_string(tableVarName, selectInfo.tableVar.c_str());
+	cut_assert_equal_int(1, selectInfo.tables.size());
+	cut_assert_equal_string(tableVarName, selectInfo.tables[0].varName.c_str());
 }
 
 void test_selectOrderBy(void)
@@ -94,9 +92,9 @@ void test_selectTwoTable(void)
 	SQLSelectInfo selectInfo(parsable);
 	proc.callParseSelectStatement(selectInfo);
 
-	cut_assert_equal_int(1, selectInfo.orderedColumns.size());
-	cut_assert_equal_string(orderName,
-	                        selectInfo.orderedColumns[0].c_str());
+	cut_assert_equal_int(2, selectInfo.tables.size());
+	cut_assert_equal_string(table1, selectInfo.tables[0].name.c_str());
+	cut_assert_equal_string(table2, selectInfo.tables[1].name.c_str());
 }
 
 } // namespace testSQLProcessor
