@@ -11,17 +11,19 @@ public:
 	ItemPtr(void) : m_data(NULL) {
 	}
 
-	ItemPtr(const ItemPtr<T> &itemPtr) : m_data(itemPtr.m_data) {
+	ItemPtr(const ItemPtr<T> &itemPtr)
+	: m_data(itemPtr.m_data) {
 		if (m_data)
 			m_data->ref();
 	}
 
-	ItemPtr(const T *data) : m_data(data) {
+	ItemPtr(const T *data, bool doRef = true) : m_data(data) {
 		if (!data) {
 			MLPL_WARN("data: NULL\n");
 			return;
 		}
-		data->ref();
+		if (doRef)
+			data->ref();
 	}
 
 	virtual ~ItemPtr() {

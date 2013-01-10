@@ -12,8 +12,8 @@ ItemTablePtr::ItemTablePtr(const ItemTablePtr &tablePtr)
 {
 }
 
-ItemTablePtr::ItemTablePtr(const ItemTable *table)
-: ItemPtr<ItemTable>(table)
+ItemTablePtr::ItemTablePtr(const ItemTable *table, bool doRef)
+: ItemPtr<ItemTable>(table, doRef)
 {
 }
 
