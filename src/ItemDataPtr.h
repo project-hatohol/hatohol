@@ -7,7 +7,7 @@
 
 class ItemDataPtr : public ItemPtr<ItemData> {
 public:
-	ItemDataPtr(ItemId itemId, const ItemGroup *itemGroup);
+	ItemDataPtr(ItemId itemId, ItemGroup *itemGroup);
 	virtual ~ItemDataPtr();
 };
 

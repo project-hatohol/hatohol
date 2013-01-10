@@ -3,7 +3,7 @@
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
-ItemDataPtr::ItemDataPtr(ItemId itemId, const ItemGroup *itemGroup)
+ItemDataPtr::ItemDataPtr(ItemId itemId, ItemGroup *itemGroup)
 : ItemPtr(itemGroup->getItem(itemId))
 {
 }

@@ -11,7 +11,7 @@ class ItemTablePtr : public ItemPtr<ItemTable> {
 public:
 	ItemTablePtr(void);
 	ItemTablePtr(const ItemTablePtr &tablePtr);
-	ItemTablePtr(const ItemTable *table, bool doRef = true);
+	ItemTablePtr(ItemTable *table, bool doRef = true);
 	virtual ~ItemTablePtr();
 };
 

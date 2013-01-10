@@ -27,7 +27,7 @@ void ItemGroup::add(ItemData *data, bool doRef)
 		data->ref();
 }
 
-const ItemData *ItemGroup::getItem(ItemId itemId) const
+ItemData *ItemGroup::getItem(ItemId itemId) const
 {
 	ItemData *data = NULL;
 	readLock();

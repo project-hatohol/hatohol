@@ -272,6 +272,31 @@ SQLProcessorZabbix::~SQLProcessorZabbix()
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
+struct TableMakeFuncArg
+{
+	ItemTablePtr &tablePtr;
+	const ItemIdVector &itemIdVector;
+};
+
+bool tableMakeFuncForeach(const ItemGroup *itemGroup, TableMakeFuncArg &arg)
+{
+	ItemGroup *selectedGroup = new ItemGroup(GROUP_ID_SQL_PROC_ZBX_GEN);
+	arg.tablePtr->add(selectedGroup, false);
+
+	ItemIdVectorConstIterator it = arg.itemIdVector.begin();
+	for (; it != arg.itemIdVector.end(); ++it) {
+		ItemId itemId = *it;
+		ItemData *item = itemGroup->getItem(itemId);
+		if (!item) {
+			MLPL_DBG("Not found item: %"PRIx_ITEM"\n", itemId);
+			return false;
+		}
+		selectedGroup->add(item);
+	}
+
+	return true;
+}
+
 template<ItemGroupId GROUP_ID>
 const ItemTablePtr
 SQLProcessorZabbix::tableMakeFuncTemplate(SQLSelectInfo &selectInfo,
@@ -280,7 +305,13 @@ SQLProcessorZabbix::tableMakeFuncTemplate(SQLSelectInfo &selectInfo,
 {
 	const ItemGroupId itemGroupId = GROUP_ID;
 	const ItemTablePtr tablePtr = m_VDSZabbix->getItemTable(itemGroupId);
-	return tablePtr;
+
+	ItemTablePtr
+	  selectedTablePtr(new ItemTable(GROUP_ID_SQL_PROC_ZBX_GEN), false);
+	TableMakeFuncArg arg = {selectedTablePtr, itemIdVector};
+	if (!tablePtr->foreach<TableMakeFuncArg&>(tableMakeFuncForeach, arg))
+		return ItemTablePtr(); 
+	return selectedTablePtr;
 }
 
 // ---------------------------------------------------------------------------

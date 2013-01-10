@@ -17,7 +17,8 @@ public:
 			m_data->ref();
 	}
 
-	ItemPtr(const T *data, bool doRef = true) : m_data(data) {
+	ItemPtr(T *data, bool doRef = true)
+	: m_data(data) {
 		if (!data) {
 			MLPL_WARN("data: NULL\n");
 			return;
@@ -32,20 +33,20 @@ public:
 		}
 	}
 
-	const T *operator->() const {
+	T *operator->() const {
 		return m_data;
 	}
 
-	operator const T *() const {
+	operator T *() const {
 		return m_data;
 	}
-
+	
 	bool hasData(void) const {
 		return (m_data != NULL);
 	}
 
 private:
-	const T *m_data;
+	T *m_data;
 };
 
 #endif // #define ItemPtr_h

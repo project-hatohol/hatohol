@@ -133,8 +133,8 @@ bool SQLProcessor::select(SQLSelectInfo &selectInfo)
 	// join tables
 	ItemTablePtrListConstIterator it = selectInfo.itemTablePtrList.begin();
 	for (; it != selectInfo.itemTablePtrList.end(); ++it) {
-		const ItemTablePtr &table = *it;
-		selectInfo.joinedTable = selectInfo.joinedTable->join(table);
+		const ItemTablePtr &tablePtr = *it;
+		selectInfo.joinedTable = selectInfo.joinedTable->join(tablePtr);
 	}
 
 	// pickup matching rows

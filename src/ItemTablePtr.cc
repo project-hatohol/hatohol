@@ -12,7 +12,7 @@ ItemTablePtr::ItemTablePtr(const ItemTablePtr &tablePtr)
 {
 }
 
-ItemTablePtr::ItemTablePtr(const ItemTable *table, bool doRef)
+ItemTablePtr::ItemTablePtr(ItemTable *table, bool doRef)
 : ItemPtr<ItemTable>(table, doRef)
 {
 }
