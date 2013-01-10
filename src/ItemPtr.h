@@ -19,6 +19,7 @@ public:
 
 	ItemPtr(T *data, bool doRef = true)
 	: m_data(data) {
+		MLPL_INFO("[1] %s: doRef: %d, ref: %d\n", __PRETTY_FUNCTION__, doRef, data->getUsedCount());
 		if (!data) {
 			MLPL_WARN("data: NULL\n");
 			return;
@@ -31,10 +32,6 @@ public:
 		if (m_data) {
 			const_cast<T *>(m_data)->unref();
 		}
-	}
-
-	ItemPtr<T> & operator=(T *) {
-		//return *this;
 	}
 
 	T *operator->() const {
