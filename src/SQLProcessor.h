@@ -31,18 +31,26 @@ struct ColumnBaseDefinition {
 	uint16_t       flags;
 };
 
+struct SQLTableInfo;
 struct SQLColumnDefinition
 {
-	// 'baseDef' points an instance in
+	// 'columnBaseDef' points an instance in
 	// SQLTableStaticInfo::columnBaseDefList.
 	// So we must not explicitly free it.
-	const ColumnBaseDefinition *baseDef;
+	const ColumnBaseDefinition *columnBaseDef;
+
+	// 'tableInfo' points an instance in SQLSelectInfo::tables.
+	// So we must not explicitly free it.
+	const SQLTableInfo *tableInfo;
 
 	string schema;
 	string table;
 	string tableVar;
 	string column;
 	string columnVar;
+
+	// constructor
+	SQLColumnDefinition(void);
 };
 
 typedef list<ColumnBaseDefinition>        ColumnBaseDefList;
@@ -56,7 +64,6 @@ typedef ItemNameColumnBaseDefRefMap::const_iterator
   ItemNameColumnBaseDefRefMapConstIterator;
 
 struct SQLSelectInfo;
-struct SQLTableInfo;
 class SQLProcessor;
 typedef bool
 (SQLProcessor::*SQLTableMakeFunc)(SQLSelectInfo &selectInfo,
@@ -121,6 +128,12 @@ struct SQLColumnInfo {
 	void setColumnType(void);
 };
 
+typedef map<const SQLTableInfo *, ItemIdVector> SQLTableInfoItemIdVectorMap;
+typedef SQLTableInfoItemIdVectorMap::iterator
+  SQLTableInfoItemIdVectorMapIterator;
+typedef SQLTableInfoItemIdVectorMap::const_iterator
+  SQLTableInfoItemIdVectorMapConstIterator;
+
 struct SQLSelectInfo {
 	// input statement
 	ParsableString   query;
@@ -128,7 +141,6 @@ struct SQLSelectInfo {
 	// parsed matter
 	vector<SQLColumnInfo> columns;
 	vector<SQLTableInfo>  tables;
-
 	// The value (const SQLTableInfo *) in the following map points
 	// an instance in 'tables' in this struct.
 	map<string, const SQLTableInfo *> tableMap;
@@ -137,6 +149,11 @@ struct SQLSelectInfo {
 	// causes the free chain of child 'whereElem' instances.
 	SQLWhereElement            *whereElem;
 	vector<string>              orderedColumns;
+
+	vector<SQLColumnDefinition> columnDefs;
+
+	// item list to be obtained
+	SQLTableInfoItemIdVectorMap neededItemIdVectorMap;
 
 	// list of target tables
 	ItemTablePtrList itemTablePtrList;
@@ -148,7 +165,6 @@ struct SQLSelectInfo {
 	ItemTablePtr selectedTable;
 
 	// output
-	vector<SQLColumnDefinition> columnDefs;
 	vector<string> textRows;
 
 	//

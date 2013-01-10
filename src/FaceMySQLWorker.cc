@@ -434,19 +434,21 @@ bool FaceMySQLWorker::sendSelectResult(const SQLSelectInfo &selectInfo)
 	for (size_t i = 0; i < selectInfo.columnDefs.size(); i++) {
 		bool ret;
 		const SQLColumnDefinition &colDef = selectInfo.columnDefs[i];
-		const ColumnBaseDefinition *baseDef = colDef.baseDef;
+		const ColumnBaseDefinition *columnBaseDef
+		  = colDef.columnBaseDef;
 
-		int type = typeConvert(baseDef->type);
+		int type = typeConvert(columnBaseDef->type);
 		if (type == TYPE_VAR_UNKNOWN) {
-			MLPL_BUG("Failed to convert type: %d\n", baseDef->type);
+			MLPL_BUG("Failed to convert type: %d\n",
+			         columnBaseDef->type);
 			return false;
 		}
 		ret = sendColumnDefinition41(colDef.schema,
 		                             colDef.tableVar, colDef.table,
 		                             colDef.columnVar, colDef.column,
-		                             baseDef->columnLength,
+		                             columnBaseDef->columnLength,
 		                             type,
-		                             baseDef->flags, decimals);
+		                             columnBaseDef->flags, decimals);
 		if (!ret)
 			return false;
 	}

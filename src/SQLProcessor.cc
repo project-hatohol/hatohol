@@ -41,6 +41,15 @@ struct SQLProcessor::AddItemGroupArg {
 };
 
 // ---------------------------------------------------------------------------
+// Public methods (SQLColumnDefinitino)
+// ---------------------------------------------------------------------------
+SQLColumnDefinition::SQLColumnDefinition(void)
+: columnBaseDef(NULL),
+  tableInfo(NULL)
+{
+}
+
+// ---------------------------------------------------------------------------
 // Public methods (SQLTableInfo)
 // ---------------------------------------------------------------------------
 SQLTableInfo::SQLTableInfo(void)
@@ -338,12 +347,13 @@ void SQLProcessor::addColumnDefs(SQLSelectInfo &selectInfo,
 {
 	selectInfo.columnDefs.push_back(SQLColumnDefinition());
 	SQLColumnDefinition &colDef = selectInfo.columnDefs.back();
-	colDef.baseDef      = &columnBaseDef;
-	colDef.schema       = getDBName();
-	colDef.table        = tableInfo.name;
-	colDef.tableVar     = tableInfo.varName;
-	colDef.column       = columnBaseDef.columnName;
-	colDef.columnVar    = columnBaseDef.columnName;
+	colDef.columnBaseDef = &columnBaseDef;
+	colDef.tableInfo     = &tableInfo;
+	colDef.schema        = getDBName();
+	colDef.table         = tableInfo.name;
+	colDef.tableVar      = tableInfo.varName;
+	colDef.column        = columnBaseDef.columnName;
+	colDef.columnVar     = columnBaseDef.columnName;
 }
 
 bool SQLProcessor::addAllColumnDefs(SQLSelectInfo &selectInfo,
@@ -395,8 +405,31 @@ bool SQLProcessor::makeColumnDefs(SQLSelectInfo &selectInfo)
 
 bool SQLProcessor::enumerateNeededItemIds(SQLSelectInfo &selectInfo)
 {
-	for (size_t i = 0; i < selectInfo.columns.size(); i++) {
-		//SQLColumnInfo &columnInfo = selectInfo.columns[i];
+	for (size_t i = 0; i < selectInfo.columnDefs.size(); i++) {
+		SQLColumnDefinition &columnDef = selectInfo.columnDefs[i];
+		if (!columnDef.columnBaseDef) {
+			MLPL_BUG("columDef.columnBaseDef is NULL\n");
+			return false;
+		}
+		ItemId itemId = columnDef.columnBaseDef->itemId;
+
+		const SQLTableInfo *tableInfo = columnDef.tableInfo;
+		if (!tableInfo) {
+			MLPL_BUG("tableInfo is NULL\n");
+			return false;
+		}
+
+		SQLTableInfoItemIdVectorMapIterator it;
+		it = selectInfo.neededItemIdVectorMap.find(tableInfo);
+		if (it == selectInfo.neededItemIdVectorMap.end()) {
+			pair<SQLTableInfoItemIdVectorMapIterator, bool> ret;
+			ret = selectInfo.neededItemIdVectorMap.insert(
+			        pair<const SQLTableInfo *, ItemIdVector>
+			          (tableInfo, ItemIdVector()));
+			it = ret.first;
+		}
+		ItemIdVector &itemIdVector = it->second;
+		itemIdVector.push_back(itemId);
 	}
 	return true;
 }
@@ -471,11 +504,11 @@ bool SQLProcessor::makeTextRows(const ItemGroup *itemGroup,
 	for (size_t i = 0; i < selectInfo.columnDefs.size(); i++) {
 		const SQLColumnDefinition &colDef = selectInfo.columnDefs[i];
 		const ItemData *item =
-		  itemGroup->getItem(colDef.baseDef->itemId);
+		  itemGroup->getItem(colDef.columnBaseDef->itemId);
 		if (!item) {
 			MLPL_BUG("Failed to get ItemData: %"PRIu_ITEM
 			         " from ItemGroup: %"PRIu_ITEM_GROUP"\n",
-			         colDef.baseDef->itemId,
+			         colDef.columnBaseDef->itemId,
 			         itemGroup->getItemGroupId());
 			return false;
 		}

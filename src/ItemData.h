@@ -20,6 +20,9 @@ typedef uint64_t ItemId;
 #define PRIx_ITEM PRIx64
 #define PRIu_ITEM PRIu64
 
+typedef vector<ItemId>         ItemIdVector;
+typedef ItemIdVector::iterator ItemIdVectorIterator;
+
 class ItemData;
 typedef map<ItemId, ItemData *>     ItemDataMap;
 typedef ItemDataMap::iterator       ItemDataMapIterator;
