@@ -34,13 +34,6 @@ struct SQLProcessor::SelectParserContext {
 	}
 };
 
-/*
-struct SQLProcessor::AddItemGroupArg {
-	SQLSelectInfo &selectInfo;
-	SQLTableInfo &tableInfo;
-	const ItemTablePtr &itemTablePtr;
-};*/
-
 // ---------------------------------------------------------------------------
 // Public methods (SQLColumnDefinitino)
 // ---------------------------------------------------------------------------
@@ -134,7 +127,8 @@ bool SQLProcessor::select(SQLSelectInfo &selectInfo)
 	ItemTablePtrListConstIterator it = selectInfo.itemTablePtrList.begin();
 	for (; it != selectInfo.itemTablePtrList.end(); ++it) {
 		const ItemTablePtr &tablePtr = *it;
-		selectInfo.joinedTable = selectInfo.joinedTable->join(tablePtr);
+		selectInfo.joinedTable =
+		  selectInfo.joinedTable->cross_join(tablePtr);
 	}
 
 	// pickup matching rows
@@ -446,63 +440,13 @@ bool SQLProcessor::makeItemTables(SQLSelectInfo &selectInfo)
 		const ItemIdVector &itemIdVector = it->second;
 		SQLTableMakeFunc func = tableInfo->staticInfo->tableMakeFunc;
 		ItemTablePtr tablePtr;
-		//tablePtr = (this->*func)(selectInfo,
-		(this->*func)(selectInfo,
-		                         (SQLTableInfo &)*tableInfo,
-		                         (ItemIdVector &)itemIdVector);
+		tablePtr = (this->*func)(selectInfo, *tableInfo, itemIdVector);
 		if (!tablePtr.hasData())
 			return false;
 		selectInfo.itemTablePtrList.push_back(tablePtr);
 	}
 	return true;
 }
-
-#if 0
-bool SQLProcessor::addItemGroup(const ItemGroup *itemGroup,
-                                AddItemGroupArg &arg)
-{
-	list<const SQLColumnInfo *>::iterator it = 
-	  arg.tableInfo.columnList.begin();
-
-	for (; it != arg.tableInfo.columnList.end(); ++it) {
-	}
-
-	for (size_t i = 0; i < arg.tableInfo.columnList.size(); i++) {
-	/*
-		const SQLColumnDefinition &colDef = selectInfo.columnDefs[i];
-		const ItemData *item =
-		  itemGroup->getItem(colDef.baseDef->itemId);
-		if (!item) {
-			MLPL_BUG("Failed to get ItemData: %"PRIu_ITEM
-			         " from ItemGroup: %"PRIu_ITEM_GROUP"\n",
-			         colDef.baseDef->itemId,
-			         itemGroup->getItemGroupId());
-			return false;
-		}
-		selectInfo.textRows.push_back(item->getString());
-		*/
-	}
-	return true;
-}
-
-// This function is typically called via makeItemTables().
-// The dirct caller will be implemented in sub classes.
-bool SQLProcessor::makeTable(SQLSelectInfo &selectInfo,
-                             SQLTableInfo &tableInfo,
-                             const ItemTablePtr itemTablePtr)
-{
-	/*
-	tableInfo.tableId = tableId;
-
-	selectInfo.itemTablePtrList.push_back(ItemTablePtr());
-	ItemTablePtr &itemTablePtr = selectInfo.itemTablePtrList.back();
-
-	AddItemGroupArg arg(selectInfo, tableInfo, itemTablePtr);
-	return itemTable->foreach<AddItemTableArg&>(addItemGroup, arg);
-	*/
-	return false;
-}
-#endif
 
 bool SQLProcessor::pickupMatchingRows(const ItemGroup *itemGroup,
                                       SQLSelectInfo &selectInfo)
@@ -647,7 +591,6 @@ bool SQLProcessor::parseFrom(SelectParserContext &ctx)
 bool SQLProcessor::parseWhere(SelectParserContext &ctx)
 {
 	MLPL_BUG("Not implemented: WHERE\n");
-	//return false;
 	return true;
 }
 

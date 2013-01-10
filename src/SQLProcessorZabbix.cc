@@ -310,7 +310,7 @@ SQLProcessorZabbix::tableMakeFuncTemplate(SQLSelectInfo &selectInfo,
 	  selectedTablePtr(new ItemTable(GROUP_ID_SQL_PROC_ZBX_GEN), false);
 	TableMakeFuncArg arg = {selectedTablePtr, itemIdVector};
 	if (!tablePtr->foreach<TableMakeFuncArg&>(tableMakeFuncForeach, arg))
-		return ItemTablePtr(); 
+		return ItemTablePtr();
 	return selectedTablePtr;
 }
 

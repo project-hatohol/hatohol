@@ -33,6 +33,10 @@ public:
 		}
 	}
 
+	ItemPtr<T> & operator=(T *) {
+		//return *this;
+	}
+
 	T *operator->() const {
 		return m_data;
 	}
