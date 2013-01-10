@@ -34,11 +34,12 @@ struct SQLProcessor::SelectParserContext {
 	}
 };
 
+/*
 struct SQLProcessor::AddItemGroupArg {
 	SQLSelectInfo &selectInfo;
 	SQLTableInfo &tableInfo;
 	const ItemTablePtr &itemTablePtr;
-};
+};*/
 
 // ---------------------------------------------------------------------------
 // Public methods (SQLColumnDefinitino)
@@ -437,14 +438,26 @@ bool SQLProcessor::enumerateNeededItemIds(SQLSelectInfo &selectInfo)
 bool SQLProcessor::makeItemTables(SQLSelectInfo &selectInfo)
 {
 	for (size_t i = 0; i < selectInfo.tables.size(); i++) {
-		SQLTableInfo &tableInfo = selectInfo.tables[i];
-		SQLTableMakeFunc func = tableInfo.staticInfo->tableMakeFunc;
-		if (!(this->*func)(selectInfo, tableInfo))
+		const SQLTableInfo *tableInfo = &selectInfo.tables[i];
+		SQLTableInfoItemIdVectorMapConstIterator it;
+		it = selectInfo.neededItemIdVectorMap.find(tableInfo);
+		if (it == selectInfo.neededItemIdVectorMap.end())
+			continue;
+		const ItemIdVector &itemIdVector = it->second;
+		SQLTableMakeFunc func = tableInfo->staticInfo->tableMakeFunc;
+		ItemTablePtr tablePtr;
+		//tablePtr = (this->*func)(selectInfo,
+		(this->*func)(selectInfo,
+		                         (SQLTableInfo &)*tableInfo,
+		                         (ItemIdVector &)itemIdVector);
+		if (!tablePtr.hasData())
 			return false;
+		selectInfo.itemTablePtrList.push_back(tablePtr);
 	}
 	return true;
 }
 
+#if 0
 bool SQLProcessor::addItemGroup(const ItemGroup *itemGroup,
                                 AddItemGroupArg &arg)
 {
@@ -489,6 +502,7 @@ bool SQLProcessor::makeTable(SQLSelectInfo &selectInfo,
 	*/
 	return false;
 }
+#endif
 
 bool SQLProcessor::pickupMatchingRows(const ItemGroup *itemGroup,
                                       SQLSelectInfo &selectInfo)

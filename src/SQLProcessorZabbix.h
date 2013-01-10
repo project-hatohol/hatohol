@@ -1,7 +1,7 @@
 #ifndef SQLProcessorZabbix_h
 #define SQLProcessorZabbix_h
 
-#include "ItemData.h"
+#include "ItemDataPtr.h"
 #include "SQLProcessor.h"
 #include "VirtualDataStoreZabbix.h"
 
@@ -33,8 +33,10 @@ private:
 	VirtualDataStoreZabbix *m_VDSZabbix;
 
 	template<ItemGroupId GROUP_ID>
-	bool tableMakeFuncTemplate(SQLSelectInfo &selectInfo,
-	                           SQLTableInfo &tableInfo);
+	const ItemTablePtr
+	tableMakeFuncTemplate(SQLSelectInfo &selectInfo,
+	                      const SQLTableInfo &tableInfo,
+	                      const ItemIdVector &itemIdVector);
 };
 
 #endif // SQLProcessorZabbix_h

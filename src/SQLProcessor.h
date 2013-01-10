@@ -65,9 +65,10 @@ typedef ItemNameColumnBaseDefRefMap::const_iterator
 
 struct SQLSelectInfo;
 class SQLProcessor;
-typedef bool
+typedef const ItemTablePtr
 (SQLProcessor::*SQLTableMakeFunc)(SQLSelectInfo &selectInfo,
-                                  SQLTableInfo &tableInfo);
+                                  const SQLTableInfo &tableInfo,
+                                  const ItemIdVector &itemIdVector);
 
 struct SQLTableStaticInfo {
 	int                        tableId;
@@ -155,10 +156,10 @@ struct SQLSelectInfo {
 	// item list to be obtained
 	SQLTableInfoItemIdVectorMap neededItemIdVectorMap;
 
-	// list of target tables
+	// list of obtained tables
 	ItemTablePtrList itemTablePtrList;
 
-	// unified tables
+	// unified table
 	ItemTablePtr joinedTable;
 
 	bool useIndex;
@@ -206,17 +207,17 @@ protected:
 	                   const ColumnBaseDefinition &columnBaseDef);
 	bool addAllColumnDefs(SQLSelectInfo &selectInfo,
 	                      const SQLTableInfo &tableInfo);
-	bool makeTable(SQLSelectInfo &selectInfo,
+	/*bool makeTable(SQLSelectInfo &selectInfo,
 	               SQLTableInfo &tableInfo,
-	               const ItemTablePtr itemTablePtr);
+	               const ItemTablePtr itemTablePtr);*/
 
 	// methods for foreach
 	static bool
 	setSelectResult(const ItemGroup *itemGroup, SQLSelectInfo &selectInfo);
 
-	struct AddItemGroupArg;
-	static bool
-	addItemGroup(const ItemGroup *imteGroup, AddItemGroupArg &arg);
+	//struct AddItemGroupArg;
+	//static bool
+	//addItemGroup(const ItemGroup *imteGroup, AddItemGroupArg &arg);
 
 
 	static bool

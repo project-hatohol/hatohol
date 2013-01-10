@@ -55,10 +55,13 @@ public:
 		parseSelectStatement(selectInfo);
 	}
 
-	bool tableMakeFunc(SQLSelectInfo &selectInfo, SQLTableInfo &tableInfo)
+	const ItemTablePtr
+	tableMakeFunc(SQLSelectInfo &selectInfo,
+	              const SQLTableInfo &tableInfo,
+	              const ItemIdVector &itemIdVector)
 	{
-		ItemTablePtr tablePtr;
-		return makeTable(selectInfo, tableInfo, tablePtr); 
+		const ItemTablePtr tablePtr;
+		return tablePtr;
 	}
 
 private:
@@ -82,13 +85,13 @@ private:
 		  const_cast<ColumnBaseDefList &>
 		  (staticInfo->columnBaseDefList);
 
-		ItemIdColumnBaseDefRefMap &map =
-		  const_cast<ItemIdColumnBaseDefRefMap &>
+		ItemNameColumnBaseDefRefMap &map =
+		  const_cast<ItemNameColumnBaseDefRefMap &>
 		  (staticInfo->columnBaseDefMap);
 
 		for (int i = 0; i < numColumnDefs; i++) {
 			list.push_back(columnDefs[i]);
-			map[columnDefs[i].itemId] = &columnDefs[i];
+			map[columnDefs[i].columnName] = &columnDefs[i];
 		}
 	}
 
@@ -152,7 +155,7 @@ void test_selectTwoTable(void)
 {
 	TestSQLProcessor proc;
 	ParsableString parsable(
-	  StringUtils::sprintf("* from %s %s", TABLE_NAME, TABLE_NAME_A));
+	  StringUtils::sprintf("* from %s,%s", TABLE_NAME, TABLE_NAME_A));
 	SQLSelectInfo selectInfo(parsable);
 	proc.callParseSelectStatement(selectInfo);
 

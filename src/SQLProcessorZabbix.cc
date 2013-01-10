@@ -273,17 +273,14 @@ SQLProcessorZabbix::~SQLProcessorZabbix()
 // Protected methods
 // ---------------------------------------------------------------------------
 template<ItemGroupId GROUP_ID>
-bool SQLProcessorZabbix::tableMakeFuncTemplate
-     (SQLSelectInfo &selectInfo, SQLTableInfo &tableInfo)
+const ItemTablePtr
+SQLProcessorZabbix::tableMakeFuncTemplate(SQLSelectInfo &selectInfo,
+                                          const SQLTableInfo &tableInfo,
+                                          const ItemIdVector &itemIdVector)
 {
 	const ItemGroupId itemGroupId = GROUP_ID;
 	const ItemTablePtr tablePtr = m_VDSZabbix->getItemTable(itemGroupId);
-	if (!tablePtr.hasData()) {
-		MLPL_BUG("Failed to get ItemTable: %"PRIx_ITEM_GROUP"\n",
-		         itemGroupId);
-		return false;
-	}
-	return makeTable(selectInfo, tableInfo, tablePtr);
+	return tablePtr;
 }
 
 // ---------------------------------------------------------------------------
