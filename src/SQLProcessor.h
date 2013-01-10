@@ -33,7 +33,11 @@ struct ColumnBaseDefinition {
 
 struct SQLColumnDefinition
 {
+	// 'baseDef' points an instance in
+	// SQLTableStaticInfo::columnBaseDefList.
+	// So we must not explicitly free it.
 	const ColumnBaseDefinition *baseDef;
+
 	string schema;
 	string table;
 	string tableVar;
@@ -41,11 +45,15 @@ struct SQLColumnDefinition
 	string columnVar;
 };
 
-typedef list<ColumnBaseDefinition>  ColumnBaseDefList;
-typedef ColumnBaseDefList::iterator ColumnBaseDefListIterator;
+typedef list<ColumnBaseDefinition>        ColumnBaseDefList;
+typedef ColumnBaseDefList::iterator       ColumnBaseDefListIterator;
+typedef ColumnBaseDefList::const_iterator ColumnBaseDefListConstIterator;
 
-typedef map<int, ColumnBaseDefinition *>    ItemIdColumnBaseDefRefMap;
-typedef ItemIdColumnBaseDefRefMap::iterator ItemIdColumnBaseDefRefMapIterator;
+typedef map<string, ColumnBaseDefinition *>    ItemNameColumnBaseDefRefMap;
+typedef ItemNameColumnBaseDefRefMap::iterator
+  ItemNameColumnBaseDefRefMapIterator;
+typedef ItemNameColumnBaseDefRefMap::const_iterator
+  ItemNameColumnBaseDefRefMapConstIterator;
 
 struct SQLSelectInfo;
 struct SQLTableInfo;
@@ -58,16 +66,30 @@ struct SQLTableStaticInfo {
 	int                        tableId;
 	const char                *tableName;
 	SQLTableMakeFunc           tableMakeFunc;
-	const ColumnBaseDefList         columnBaseDefList;
-	const ItemIdColumnBaseDefRefMap columnBaseDefMap;
+	const ColumnBaseDefList    columnBaseDefList;
+
+	// The value (ColumnBaseDefinition *) points an instance in
+	// 'columnBaseDefList' in this struct.
+	// So we must not explicitly free it.
+	const ItemNameColumnBaseDefRefMap columnBaseDefMap;
 };
 
 struct SQLColumnInfo;
 struct SQLTableInfo {
 	string name;
 	string varName;
+
+	// A pointer in 'columnList' points an instance in 
+	// SelectInfo::columns in the SQLSelectInfo instance including this.
+	// It is added in associateColumnWithTable().
+	// So we must not explicitly free it.
 	list<const SQLColumnInfo *> columnList;
-	const SQLTableStaticInfo   *staticInfo;
+
+	// We assume that the body of 'staticInfo' that is given in
+	// the constructor via m_tableNameStaticInfoMap exists
+	// at least until SQLProcessor instance exists.
+	// So we must not explicitly free them.
+	const SQLTableStaticInfo *staticInfo;
 
 	// constructor and methods
 	SQLTableInfo(void);
@@ -77,13 +99,27 @@ struct SQLColumnInfo {
 	string name;         // ex.) tableVarName.column1
 	string baseName;     // ex.) column1
 	string tableVar;     // ex.) tableVarName
+
+	// 'tableInfo' points an instance in SQLSelectInfo::tables.
+	// So we must not it free them.
+	// It is set in associateColumnWithTable().
 	const SQLTableInfo *tableInfo;
+
+	// 'columnBaseDef' points an instance in
+	// 'tableInfo->staticInfo->columnBaseDefList'.
+	// So we must not explicitly free it.
+	// It is set in setBaseDefAndColumnTypeInColumnInfo().
+	// This variable is not set when 'columnType' is COLUMN_TYPE_ALL.
+	const ColumnBaseDefinition *columnBaseDef;
+
+	enum {COLUMN_TYPE_UNKNOWN, COLUMN_TYPE_NORMAL, COLUMN_TYPE_ALL};
+	int columnType;
 
 	// constructor and methods
 	SQLColumnInfo(void);
 	void associate(SQLTableInfo *tableInfo);
+	void setColumnType(void);
 };
-
 
 struct SQLSelectInfo {
 	// input statement
@@ -92,7 +128,13 @@ struct SQLSelectInfo {
 	// parsed matter
 	vector<SQLColumnInfo> columns;
 	vector<SQLTableInfo>  tables;
+
+	// The value (const SQLTableInfo *) in the following map points
+	// an instance in 'tables' in this struct.
 	map<string, const SQLTableInfo *> tableMap;
+
+	// We must free 'whereElem' when no longer needed. Its destructor
+	// causes the free chain of child 'whereElem' instances.
 	SQLWhereElement            *whereElem;
 	vector<string>              orderedColumns;
 
@@ -136,16 +178,18 @@ protected:
 	bool checkParsedResult(const SQLSelectInfo &selectInfo) const;
 	bool associateColumnWithTable(SQLSelectInfo &selectInfo);
 	bool associateTableWithStaticInfo(SQLSelectInfo &selectInfo);
+	bool setColumnTypeAndBaseDefInColumnInfo(SQLSelectInfo &selectInfo);
 	bool makeColumnDefs(SQLSelectInfo &selectInfo);
+	bool enumerateNeededItemIds(SQLSelectInfo &selectInfo);
 	bool makeItemTables(SQLSelectInfo &selectInfo);
 	bool checkSelectedAllColumns(const SQLSelectInfo &selectInfo,
 	                             const SQLColumnInfo &columnInfo) const;
 
 	void addColumnDefs(SQLSelectInfo &selectInfo,
-	                   const ColumnBaseDefinition &columnBaseDef,
-	                   const SQLColumnInfo &columnInfo);
-	void addAllColumnDefs(SQLSelectInfo &selectInfo,
-	                      const SQLTableInfo &tableInfo, int tableId);
+	                   const SQLTableInfo &tableInfo,
+	                   const ColumnBaseDefinition &columnBaseDef);
+	bool addAllColumnDefs(SQLSelectInfo &selectInfo,
+	                      const SQLTableInfo &tableInfo);
 	bool makeTable(SQLSelectInfo &selectInfo,
 	               SQLTableInfo &tableInfo,
 	               const ItemTablePtr itemTablePtr);
@@ -203,7 +247,6 @@ private:
 
 	// These members are typically allocated in sub classes.
 	TableNameStaticInfoMap &m_tableNameStaticInfoMap;
-
 	map<string, SelectSubParser> m_selectRegionParserMap;
 };
 

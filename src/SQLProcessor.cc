@@ -52,7 +52,9 @@ SQLTableInfo::SQLTableInfo(void)
 // Public methods (SQLColumnInfo)
 // ---------------------------------------------------------------------------
 SQLColumnInfo::SQLColumnInfo(void)
-: tableInfo(NULL)
+: tableInfo(NULL),
+  columnBaseDef(NULL),
+  columnType(COLUMN_TYPE_UNKNOWN)
 {
 }
 
@@ -60,6 +62,16 @@ void SQLColumnInfo::associate(SQLTableInfo *_tableInfo)
 {
 	tableInfo = _tableInfo;
 	_tableInfo->columnList.push_back(this);
+}
+
+void SQLColumnInfo::setColumnType(void)
+{
+	if (name == "*")
+		columnType = SQLColumnInfo::COLUMN_TYPE_ALL;
+	else if (baseName == "*")
+		columnType = SQLColumnInfo::COLUMN_TYPE_ALL;
+	else
+		columnType = SQLColumnInfo::COLUMN_TYPE_NORMAL;
 }
 
 // ---------------------------------------------------------------------------
@@ -99,6 +111,12 @@ bool SQLProcessor::select(SQLSelectInfo &selectInfo)
 		return false;
 
 	// make ItemTable objects for all specified tables
+	if (!setColumnTypeAndBaseDefInColumnInfo(selectInfo))
+		return false;
+	if (!makeColumnDefs(selectInfo))
+		return false;
+	if (!enumerateNeededItemIds(selectInfo))
+		return false;
 	if (!makeItemTables(selectInfo))
 		return false;
 
@@ -228,6 +246,7 @@ bool SQLProcessor::associateColumnWithTable(SQLSelectInfo &selectInfo)
 	for (size_t i = 0; i < selectInfo.columns.size(); i++) {
 		SQLColumnInfo &columnInfo = selectInfo.columns[i];
 
+		// set SQLColumnInfo::tableInfo and SQLTableInfo::columnList.
 		if (selectInfo.tables.size() == 1) {
 			SQLTableInfo *tableInfo = &selectInfo.tables[0];
 			if (columnInfo.tableVar.empty())
@@ -253,6 +272,8 @@ bool SQLProcessor::associateColumnWithTable(SQLSelectInfo &selectInfo)
 			return false;
 		}
 		columnInfo.associate(const_cast<SQLTableInfo *>(it->second));
+
+		// set SQLColumnInfo::baseDef.
 	}
 	return true;
 }
@@ -274,53 +295,110 @@ bool SQLProcessor::associateTableWithStaticInfo(SQLSelectInfo &selectInfo)
 	return true;
 }
 
-bool SQLProcessor::makeColumnDefs(SQLSelectInfo &selectInfo)
+bool
+SQLProcessor::setColumnTypeAndBaseDefInColumnInfo(SQLSelectInfo &selectInfo)
 {
-	/*
 	for (size_t i = 0; i < selectInfo.columns.size(); i++) {
 		SQLColumnInfo &columnInfo = selectInfo.columns[i];
-		if (checkSelectedAllColumns(selectInfo, columnInfo))
-			addAllColumnDefs(selectInfo, tableInfo, tableId);
-		else {
-			MLPL_BUG("Not implemented: indivisual columns\n");
+
+		// columnType
+		columnInfo.setColumnType();
+
+		// baseDef
+		if (columnInfo.columnType == SQLColumnInfo::COLUMN_TYPE_ALL)
+			continue;
+
+		if (!columnInfo.tableInfo) {
+			MLPL_BUG("columnInfo.stableInfo is NULL\n");
 			return false;
 		}
-	}*/
-	return false;
+
+		const SQLTableStaticInfo *staticInfo =
+		  columnInfo.tableInfo->staticInfo;
+		if (!staticInfo) {
+			MLPL_BUG("staticInfo is NULL\n");
+			return false;
+		}
+
+		ItemNameColumnBaseDefRefMapConstIterator it;
+		it = staticInfo->columnBaseDefMap.find(columnInfo.name);
+		if (it == staticInfo->columnBaseDefMap.end()) {
+			MLPL_DBG("Not found column: %s\n",
+			         columnInfo.name.c_str());
+			return false;
+		}
+		columnInfo.columnBaseDef = it->second;
+	}
+	return true;
 }
 
 void SQLProcessor::addColumnDefs(SQLSelectInfo &selectInfo,
-                                 const ColumnBaseDefinition &columnBaseDef,
-                                 const SQLColumnInfo &columnInfo)
+                                 const SQLTableInfo &tableInfo,
+                                 const ColumnBaseDefinition &columnBaseDef)
 {
-	/*
 	selectInfo.columnDefs.push_back(SQLColumnDefinition());
 	SQLColumnDefinition &colDef = selectInfo.columnDefs.back();
 	colDef.baseDef      = &columnBaseDef;
 	colDef.schema       = getDBName();
-	colDef.table        = columnInfo.table;
-	colDef.tableVar     = columnInfo.tableVar;
+	colDef.table        = tableInfo.name;
+	colDef.tableVar     = tableInfo.varName;
 	colDef.column       = columnBaseDef.columnName;
 	colDef.columnVar    = columnBaseDef.columnName;
-	*/
 }
 
-void SQLProcessor::addAllColumnDefs(SQLSelectInfo &selectInfo,
-                                    const SQLTableInfo &tableInfo, int tableId)
+bool SQLProcessor::addAllColumnDefs(SQLSelectInfo &selectInfo,
+                                    const SQLTableInfo &tableInfo)
 {
-	/*
-	TableIdColumnBaseDefListMap::iterator it;
-	it = m_tableColumnBaseDefListMap.find(tableId);
-	if (it == m_tableColumnBaseDefListMap.end()) {
-		MLPL_BUG("Not found table: %d\n", tableId);
-		return;
+	if (!tableInfo.staticInfo) {
+		MLPL_BUG("tableInfo.staticInfo is NULL\n");
+		return false;
 	}
 
-	ColumnBaseDefList &baseDefList = it->second;;
-	ColumnBaseDefListIterator baseDef = baseDefList.begin();
-	for (; baseDef != baseDefList.end(); ++baseDef)
-		addColumnDefs(selectInfo, *baseDef, columnInfo);
-		*/
+	ColumnBaseDefListConstIterator it;
+	it = tableInfo.staticInfo->columnBaseDefList.begin();
+	for (; it != tableInfo.staticInfo->columnBaseDefList.end(); ++it) {
+		const ColumnBaseDefinition &columnBaseDef = *it;
+		addColumnDefs(selectInfo, tableInfo, columnBaseDef);
+	}
+	return true;
+}
+
+bool SQLProcessor::makeColumnDefs(SQLSelectInfo &selectInfo)
+{
+	for (size_t i = 0; i < selectInfo.columns.size(); i++) {
+		SQLColumnInfo &columnInfo = selectInfo.columns[i];
+		int columnType = columnInfo.columnType;
+		if (!columnInfo.tableInfo) {
+			MLPL_BUG("columnInfo.tableInfo is NULL\n");
+			return false;
+		}
+		if (columnType == SQLColumnInfo::COLUMN_TYPE_ALL) {
+			if (!addAllColumnDefs(selectInfo,
+			                      *columnInfo.tableInfo)) {
+				return false;
+			}
+		} else if (columnType == SQLColumnInfo::COLUMN_TYPE_NORMAL) {
+			if (!columnInfo.columnBaseDef) {
+				MLPL_BUG("columnInfo.columnBaseDef is NULL\n");
+				return false;
+			}
+			addColumnDefs(selectInfo,
+			              *columnInfo.tableInfo,
+			              *columnInfo.columnBaseDef);
+		} else {
+			MLPL_BUG("Invalid columnType: %d\n", columnType);
+			return false;
+		}
+	}
+	return true;
+}
+
+bool SQLProcessor::enumerateNeededItemIds(SQLSelectInfo &selectInfo)
+{
+	for (size_t i = 0; i < selectInfo.columns.size(); i++) {
+		//SQLColumnInfo &columnInfo = selectInfo.columns[i];
+	}
+	return true;
 }
 
 bool SQLProcessor::makeItemTables(SQLSelectInfo &selectInfo)
