@@ -7,7 +7,8 @@ TESTS = run-test.sh
 TESTS_ENVIRONMENT = NO_MAKE=yes CUTTER="$(CUTTER)"
 
 noinst_LTLIBRARIES = \
-	testSQLProcessor.la testMySQLWorkerZabbix.la testItemData.la \
+	testSQLProcessor.la testMySQLWorkerZabbix.la \
+	testItemData.la testItemGroup.la \
 	testItemPtr.la testItemGroupType.la testItemTable.la
 
 endif
@@ -27,9 +28,9 @@ LIBS = \
 testSQLProcessor_la_SOURCES = testSQLProcessor.cc
 testMySQLWorkerZabbix_la_SOURCES = testMySQLWorkerZabbix.cc
 testItemData_la_SOURCES = testItemData.cc
+testItemGroup_la_SOURCES = testItemGroup.cc
 testItemPtr_la_SOURCES = testItemPtr.cc
 testItemGroupType_la_SOURCES = testItemGroupType.cc
-
 testItemTable_la_SOURCES = testItemTable.cc
 
 echo-cutter:
