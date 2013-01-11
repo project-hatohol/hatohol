@@ -66,14 +66,13 @@ static void addItemTable1(ItemGroup *grp, TableStruct1 *table)
 }
 
 template<typename T>
-static ItemTable *
-addItems(T* srcTable, int numTable, int groupId,
-         void (*addFunc)(ItemGroup *, T *))
+static ItemTable * addItems(T* srcTable, int numTable, int groupId,
+                            void (*addFunc)(ItemGroup *, T *))
 {
 	ItemTable *table = new ItemTable(groupId);
 	for (int i = 0; i < numTable; i++) {
 		ItemGroup *grp = new ItemGroup(table->getItemGroupId());
-		(*addFunc)(grp, srcTable);
+		(*addFunc)(grp, &srcTable[i]);
 		table->add(grp, false);
 	}
 	return table;
@@ -91,6 +90,8 @@ void test_crossJoin(void)
 	                                           GROUP_ID_1, addItemTable1);
 
 	ItemTable *tableA = table0->crossJoin(table1);
+
+	// check the result
 
 	table0->unref();
 	table1->unref();
