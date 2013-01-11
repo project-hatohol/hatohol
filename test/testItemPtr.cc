@@ -32,6 +32,7 @@ void test_numUsed(void)
 	cppcut_assert_equal(1, item->getUsedCount());
 	ItemDataPtr dataPtr(item);
 	cppcut_assert_equal(2, item->getUsedCount());
+	item->unref();
 }
 
 void test_numUsedWithoutRef(void)
@@ -53,6 +54,7 @@ void test_numUsedWithBlock(void)
 		cppcut_assert_equal(2, item->getUsedCount());
 	}
 	cppcut_assert_equal(1, item->getUsedCount());
+	item->unref();
 }
 
 void test_numUsedOneLine(void)
@@ -87,6 +89,16 @@ void test_operatorSubtFromItemData(void)
 	cppcut_assert_equal(1, item->getUsedCount());
 	ItemDataPtr dataPtr;
 	dataPtr = item;
+	cppcut_assert_equal(2, dataPtr->getUsedCount());
+	cppcut_assert_equal(2, item->getUsedCount());
+	item->unref();
+}
+
+void test_constructWithSubtFromItemData(void)
+{
+	ItemData *item = new ItemInt(DEFAULT_ITEM_ID, DEFAULT_INT_VALUE);
+	cppcut_assert_equal(1, item->getUsedCount());
+	ItemDataPtr dataPtr = item;
 	cppcut_assert_equal(2, dataPtr->getUsedCount());
 	cppcut_assert_equal(2, item->getUsedCount());
 	item->unref();
