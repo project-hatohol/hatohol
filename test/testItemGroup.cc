@@ -1,3 +1,4 @@
+#include <stdexcept>
 #include <string>
 #include <vector>
 using namespace std;
@@ -58,6 +59,23 @@ void test_addAndGet(void)
 	cppcut_assert_equal(static_cast<ItemData *>(item1),
 	                    x_grp->getItem(ITEM_ID_1));
 }
+
+void test_addBad(void)
+{
+	ItemInt *item0 = new ItemInt(ITEM_ID_0, 500);
+	ItemInt *item1 = new ItemInt(ITEM_ID_0, -8500);
+
+	x_grp = new ItemGroup(DEFAULT_GROUPT_ID);
+	x_grp->add(item0, false);
+	bool gotException = false;
+	try {
+		x_grp->add(item1, false);
+	} catch (invalid_argument e) {
+		gotException = true;
+	}
+	cppcut_assert_equal(true, gotException);
+}
+
 
 void test_getItemGroupId(void)
 {
