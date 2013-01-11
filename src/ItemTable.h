@@ -17,11 +17,11 @@ public:
 	ItemTable(ItemGroupId id);
 	void add(ItemGroup *group, bool doRef = true);
 	ItemGroupId getItemGroupId(void) const;
-	ItemTable *inner_join(const ItemTable *itemTable) const;
-	ItemTable *left_outer_join(const ItemTable *itemTable) const;
-	ItemTable *right_outer_join(const ItemTable *itemTable) const;
-	ItemTable *full_outer_join(const ItemTable *itemTable) const;
-	ItemTable *cross_join(const ItemTable *itemTable) const;
+	ItemTable *innerJoin(const ItemTable *itemTable) const;
+	ItemTable *leftOuterJoin(const ItemTable *itemTable) const;
+	ItemTable *rightOuterJoin(const ItemTable *itemTable) const;
+	ItemTable *fullOuterJoin(const ItemTable *itemTable) const;
+	ItemTable *crossJoin(const ItemTable *itemTable) const;
 
 	template <typename T>
 	bool foreach(bool (*func)(const ItemGroup *, T arg), T arg) const

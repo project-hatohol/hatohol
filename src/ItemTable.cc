@@ -27,30 +27,35 @@ ItemGroupId ItemTable::getItemGroupId(void) const
 	return m_groupId;
 }
 
-ItemTable *ItemTable::inner_join(const ItemTable *itemTable) const
+ItemTable *ItemTable::innerJoin(const ItemTable *itemTable) const
 {
 	MLPL_BUG("Not implemneted: %s\n", __PRETTY_FUNCTION__);
 	return NULL;
 }
 
-ItemTable *ItemTable::left_outer_join(const ItemTable *itemTable) const
+ItemTable *ItemTable::leftOuterJoin(const ItemTable *itemTable) const
 {
 	MLPL_BUG("Not implemneted: %s\n", __PRETTY_FUNCTION__);
 	return NULL;
 }
 
-ItemTable *ItemTable::right_outer_join(const ItemTable *itemTable) const
+ItemTable *ItemTable::rightOuterJoin(const ItemTable *itemTable) const
 {
 	MLPL_BUG("Not implemneted: %s\n", __PRETTY_FUNCTION__);
 	return NULL;
 }
 
-ItemTable *ItemTable::cross_join(const ItemTable *itemTable) const
+ItemTable *ItemTable::fullOuterJoin(const ItemTable *itemTable) const
 {
 	MLPL_BUG("Not implemneted: %s\n", __PRETTY_FUNCTION__);
 	return NULL;
 }
 
+ItemTable *ItemTable::crossJoin(const ItemTable *itemTable) const
+{
+	MLPL_BUG("Not implemneted: %s\n", __PRETTY_FUNCTION__);
+	return NULL;
+}
 
 // ---------------------------------------------------------------------------
 // Protected methods

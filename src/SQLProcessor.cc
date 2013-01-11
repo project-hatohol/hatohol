@@ -127,8 +127,8 @@ bool SQLProcessor::select(SQLSelectInfo &selectInfo)
 	ItemTablePtrListConstIterator it = selectInfo.itemTablePtrList.begin();
 	for (; it != selectInfo.itemTablePtrList.end(); ++it) {
 		const ItemTablePtr &tablePtr = *it;
-		selectInfo.joinedTable =
-		  selectInfo.joinedTable->cross_join(tablePtr);
+		selectInfo.joinedTable = crossJoin(selectInfo.joinedTable,
+		                                   tablePtr);
 	}
 
 	// pickup matching rows
