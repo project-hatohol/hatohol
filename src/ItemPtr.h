@@ -42,6 +42,21 @@ public:
 	}
 
 	ItemPtr<T> &operator=(T *data) {
+		return substitute(data);
+	}
+
+	ItemPtr<T> &operator=(ItemPtr<T> &ptr) {
+		return substitute(ptr.m_data);
+	}
+
+	bool hasData(void) const {
+		return (m_data != NULL);
+	}
+
+private:
+	T *m_data;
+
+	ItemPtr<T> &substitute(T *data) {
 		if (m_data == data)
 			return *this;
 		if (m_data)
@@ -49,14 +64,8 @@ public:
 		m_data = data;
 		if (m_data)
 			m_data->ref();
+		return *this;
 	}
-	
-	bool hasData(void) const {
-		return (m_data != NULL);
-	}
-
-private:
-	T *m_data;
 };
 
 #endif // #define ItemPtr_h

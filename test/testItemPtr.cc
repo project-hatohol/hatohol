@@ -68,12 +68,39 @@ void test_getFromFunc(void)
 	cppcut_assert_equal(1, dataPtr->getUsedCount());
 }
 
-void test_operateEq(void)
+void test_operatorSubst(void)
+{
+	ItemDataPtr dataPtr(new ItemInt(DEFAULT_ITEM_ID, DEFAULT_INT_VALUE),
+	                    false);
+	cppcut_assert_equal(1, dataPtr->getUsedCount());
+	{
+		ItemDataPtr dataPtr2 = dataPtr;
+		cppcut_assert_equal(2, dataPtr->getUsedCount());
+		cppcut_assert_equal(2, dataPtr2->getUsedCount());
+	}
+	cppcut_assert_equal(1, dataPtr->getUsedCount());
+}
+
+void test_operatorSubtFromItemData(void)
 {
 	ItemData *item = new ItemInt(DEFAULT_ITEM_ID, DEFAULT_INT_VALUE);
+	cppcut_assert_equal(1, item->getUsedCount());
 	ItemDataPtr dataPtr;
 	dataPtr = item;
 	cppcut_assert_equal(2, dataPtr->getUsedCount());
+	cppcut_assert_equal(2, item->getUsedCount());
+	item->unref();
+}
+
+void test_operatorSubstChain(void)
+{
+	ItemData *item = new ItemInt(DEFAULT_ITEM_ID, DEFAULT_INT_VALUE);
+	ItemDataPtr dataPtr1, dataPtr2;
+	dataPtr1 = dataPtr2 = item;
+	cppcut_assert_equal(3, item->getUsedCount());
+	cppcut_assert_equal(3, dataPtr1->getUsedCount());
+	cppcut_assert_equal(3, dataPtr2->getUsedCount());
+	item->unref();
 }
 
 } // namespace testItemPtr
