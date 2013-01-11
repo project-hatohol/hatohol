@@ -24,7 +24,7 @@ public:
 			return;
 		}
 		if (doRef)
-			data->ref();
+			m_data->ref();
 	}
 
 	virtual ~ItemPtr() {
@@ -39,6 +39,16 @@ public:
 
 	operator T *() const {
 		return m_data;
+	}
+
+	ItemPtr<T> &operator=(T *data) {
+		if (m_data == data)
+			return *this;
+		if (m_data)
+			m_data->unref();
+		m_data = data;
+		if (m_data)
+			m_data->ref();
 	}
 	
 	bool hasData(void) const {

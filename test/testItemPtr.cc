@@ -70,8 +70,7 @@ void test_getFromFunc(void)
 
 void test_operateEq(void)
 {
-	ItemData *item = new ItemInt(DEFAULT_ITEM_ID,
-	                            DEFAULT_INT_VALUE);
+	ItemData *item = new ItemInt(DEFAULT_ITEM_ID, DEFAULT_INT_VALUE);
 	ItemDataPtr dataPtr;
 	dataPtr = item;
 	cppcut_assert_equal(2, dataPtr->getUsedCount());
