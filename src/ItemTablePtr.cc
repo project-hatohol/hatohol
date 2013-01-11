@@ -3,6 +3,7 @@
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
+/*
 ItemTablePtr::ItemTablePtr(void)
 {
 }
@@ -19,4 +20,4 @@ ItemTablePtr::ItemTablePtr(ItemTable *table, bool doRef)
 
 ItemTablePtr::~ItemTablePtr()
 {
-}
+}*/

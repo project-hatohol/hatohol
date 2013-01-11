@@ -19,7 +19,6 @@ public:
 
 	ItemPtr(T *data, bool doRef = true)
 	: m_data(data) {
-		MLPL_INFO("[1] %s: doRef: %d, ref: %d\n", __PRETTY_FUNCTION__, doRef, data->getUsedCount());
 		if (!data) {
 			MLPL_WARN("data: NULL\n");
 			return;

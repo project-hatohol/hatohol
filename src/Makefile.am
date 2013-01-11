@@ -8,7 +8,7 @@ libasura_la_SOURCES = \
 	SQLWhereElement.cc \
 	ReadWriteLock.cc UsedCountable.cc \
 	ItemData.cc ItemGroup.cc ItemTable.cc \
-	ItemPtr.cc ItemDataPtr.cc ItemTablePtr.cc \
+	ItemPtr.cc \
 	VirtualDataStore.cc VirtualDataStoreZabbix.cc \
 	JsonBuilderAgent.cc JsonParserAgent.cc \
 	AsuraThreadBase.cc ArmController.cc \

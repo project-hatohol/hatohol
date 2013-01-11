@@ -8,6 +8,7 @@ using namespace mlpl;
 #include "ItemGroup.h"
 #include "ItemPtr.h"
 
+/*
 class ItemDataPtr : public ItemPtr<ItemData> {
 public:
 	ItemDataPtr(void);
@@ -16,5 +17,8 @@ public:
 	virtual ~ItemDataPtr();
 	ItemDataPtr &operator=(ItemData *itemData);
 };
+*/
+
+typedef ItemPtr<ItemData> ItemDataPtr;
 
 #endif // #define ItemDataPtr_h

@@ -3,6 +3,7 @@
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
+/*
 ItemDataPtr::ItemDataPtr(void)
 : ItemPtr()
 {
@@ -28,4 +29,4 @@ ItemDataPtr &ItemDataPtr::operator=(ItemData *itemData)
 {
 	MLPL_INFO("%s\n", __PRETTY_FUNCTION__);
 	return *this;
-}
+}*/
