@@ -19,11 +19,7 @@ public:
 
 	ItemPtr(T *data, bool doRef = true)
 	: m_data(data) {
-		if (!data) {
-			MLPL_WARN("data: NULL\n");
-			return;
-		}
-		if (doRef)
+		if (doRef && m_data)
 			m_data->ref();
 	}
 
