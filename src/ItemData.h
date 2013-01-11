@@ -29,6 +29,10 @@ typedef map<ItemId, ItemData *>     ItemDataMap;
 typedef ItemDataMap::iterator       ItemDataMapIterator;
 typedef ItemDataMap::const_iterator ItemDataMapConstIterator;
 
+typedef vector<ItemData *>             ItemDataVector;
+typedef ItemDataVector::iterator       ItemDataVectorIterator;
+typedef ItemDataVector::const_iterator ItemDataVectorConstIterator;
+
 enum ItemDataType {
 	ITEM_TYPE_INT,
 	ITEM_TYPE_UINT64,

@@ -16,13 +16,16 @@ void ItemGroup::add(ItemData *data, bool doRef)
 	ItemId itemId = data->getId();
 	writeLock();
 	result = m_itemMap.insert(pair<ItemId, ItemData *>(itemId, data));
-	writeUnlock();
 	if (!result.second) {
+		writeUnlock();
 		string msg =
 		  AMSG("Failed: insert: groupId: %"PRIx_ITEM_GROUP
 		       ", itemId: %"PRIx_ITEM"\n", m_groupId, itemId);
 		throw invalid_argument(msg);
 	}
+	m_itemVector.push_back(data);
+	m_groupType.addType(data);
+	writeUnlock();
 	if (doRef)
 		data->ref();
 }
@@ -41,6 +44,21 @@ ItemData *ItemGroup::getItem(ItemId itemId) const
 ItemGroupId ItemGroup::getItemGroupId(void) const
 {
 	return m_groupId;
+}
+
+bool ItemGroup::compareType(const ItemGroup *itemGroup) const
+{
+	if (!itemGroup)
+		return false;
+	if (this == itemGroup)
+		return true;
+	readLock();
+	itemGroup->readLock();
+	bool ret = (m_groupType == itemGroup->m_groupType);
+	itemGroup->readUnlock();
+	readUnlock();
+
+	return ret;
 }
 
 // ---------------------------------------------------------------------------

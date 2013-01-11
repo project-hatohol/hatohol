@@ -30,14 +30,16 @@ public:
 	void add(ItemData *data, bool doRef = true);
 	ItemData *getItem(ItemId itemId) const;
 	ItemGroupId getItemGroupId(void) const;
+	bool compareType(const ItemGroup *itemGroup) const;
 
 protected:
 	virtual ~ItemGroup();
 
 private:
-	ItemGroupId m_groupId;
-	ItemGroupType m_groupType;
-	ItemDataMap m_itemMap;
+	ItemGroupId     m_groupId;
+	ItemGroupType   m_groupType;
+	ItemDataMap     m_itemMap;
+	ItemDataVector  m_itemVector;
 };
 
 #endif  // ItemGroup_h
