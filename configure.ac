@@ -37,7 +37,7 @@ PKG_CHECK_MODULES(JSON_GLIB, json-glib-1.0 >= $JSON_GLIB_REQUIRED)
 dnl **************************************************************
 dnl Checks for Cutter
 dnl **************************************************************
-CUTTER_REQUIRED=1.1.7
+CUTTER_REQUIRED=1.2.2
 have_cutter=no
 
 m4_ifdef([AC_CHECK_GCUTTER], [
