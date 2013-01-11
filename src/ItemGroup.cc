@@ -36,7 +36,7 @@ ItemData *ItemGroup::getItem(ItemId itemId) const
 	readLock();
 	ItemDataMapConstIterator it = m_itemMap.find(itemId);
 	if (it != m_itemMap.end())
-		return it->second;
+		data = it->second;
 	readUnlock();
 	return data;
 }
