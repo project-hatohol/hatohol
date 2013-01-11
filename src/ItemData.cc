@@ -8,6 +8,11 @@ ItemId ItemData::getId(void) const
 	return m_itemId;
 }
 
+const ItemDataType &ItemData::getItemType(void) const
+{
+	return m_itemType;
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------

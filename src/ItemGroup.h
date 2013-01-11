@@ -9,6 +9,7 @@ using namespace std;
 #include <inttypes.h>
 
 #include "ItemData.h"
+#include "ItemGroupType.h"
 
 typedef uint64_t ItemGroupId;
 #define PRIx_ITEM_GROUP PRIx64
@@ -35,6 +36,7 @@ protected:
 
 private:
 	ItemGroupId m_groupId;
+	ItemGroupType m_groupType;
 	ItemDataMap m_itemMap;
 };
 

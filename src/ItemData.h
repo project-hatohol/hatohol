@@ -38,6 +38,7 @@ enum ItemDataType {
 class ItemData : public UsedCountable {
 public:
 	ItemId getId(void) const;
+	const ItemDataType &getItemType(void) const;
 	virtual void set(void *src) = 0;
 	virtual void get(void *dst) const = 0;
 	virtual string getString(void) const = 0;
