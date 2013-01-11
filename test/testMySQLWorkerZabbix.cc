@@ -87,7 +87,8 @@ static void executeCommand(const char *cmd)
 	                            &exitStatus, &g_error);
 	if (ret != TRUE)
 		printOutput();
-	cppcut_assert_equal(TRUE, ret);
+	gboolean expected = TRUE;
+	cppcut_assert_equal(expected, ret);
 	if (0 != exitStatus)
 		printOutput();
 	cppcut_assert_equal(0, exitStatus);
