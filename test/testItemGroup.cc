@@ -120,6 +120,18 @@ void test_compareNotEq(void)
 	grp1->unref();
 }
 
+void test_getNumberOfItems(void)
+{
+	x_grp = new ItemGroup(GROUP_ID_0);
+	cut_assert_equal_int(0, x_grp->getNumberOfItems());
+
+	x_grp->add(new ItemInt(ITEM_ID_0, 5), false);
+	cut_assert_equal_int(1, x_grp->getNumberOfItems());
+
+	x_grp->add(new ItemString(ITEM_ID_1, "foo"), false);
+	cut_assert_equal_int(2, x_grp->getNumberOfItems());
+}
+
 } // testItemGroup
 
 
