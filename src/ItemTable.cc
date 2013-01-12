@@ -13,6 +13,13 @@ ItemTable::ItemTable(ItemGroupId id)
 {
 }
 
+ItemGroup *ItemTable::addNewGroup(void)
+{
+	ItemGroup *grp = new ItemGroup(m_groupId);
+	add(grp, false);
+	return grp;
+}
+
 void ItemTable::add(ItemGroup *group, bool doRef)
 {
 	writeLock();
