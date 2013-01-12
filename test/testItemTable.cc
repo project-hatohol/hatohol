@@ -11,13 +11,7 @@ using namespace mlpl;
 #include <cppcutter.h>
 #include "ItemTable.h"
 
-namespace testItemData {
-
-enum {
-	DEFAULT_GROUP_ID,
-	GROUP_ID_0,
-	GROUP_ID_1,
-};
+namespace testItemTable {
 
 enum {
 	ITEM_ID_AGE,
@@ -100,6 +94,39 @@ void teardown(void)
 void test_constructor(void)
 {
 	x_table = new ItemTable();
+	cppcut_assert_equal(1, x_table->getUsedCount());
+}
+
+void test_addNewGroup(void)
+{
+	x_table = new ItemTable();
+	ItemGroup *grp = x_table->addNewGroup();
+	cut_assert_not_null(grp);
+	cppcut_assert_equal(1, grp->getUsedCount());
+}
+
+void test_addNoRef(void)
+{
+	x_table = new ItemTable();
+	ItemGroup *grp = new ItemGroup();
+	x_table->add(grp, false);
+	cppcut_assert_equal(1, grp->getUsedCount());
+}
+
+void test_addRef(void)
+{
+	x_table = new ItemTable();
+	ItemGroup *grp = new ItemGroup();
+	x_table->add(grp, true);
+	cppcut_assert_equal(2, grp->getUsedCount());
+	grp->unref();
+}
+
+void test_getNumberOfColumns(void)
+{
+	x_table = new ItemTable();
+	cut_assert_equal_int(0, x_table->getNumberOfColumns());
+	cut_assert_equal_int(0, x_table->getNumberOfRows());
 }
 
 void test_crossJoin(void)
@@ -116,4 +143,4 @@ void test_crossJoin(void)
 
 }
 
-} // namespace testItemData
+} // namespace testItemTable

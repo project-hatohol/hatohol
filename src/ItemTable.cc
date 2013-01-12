@@ -28,11 +28,6 @@ void ItemTable::add(ItemGroup *group, bool doRef)
 		group->ref();
 }
 
-ItemGroupId ItemTable::getItemGroupId(void) const
-{
-	return m_groupId;
-}
-
 size_t ItemTable::getNumberOfColumns(void) const
 {
 	readLock();

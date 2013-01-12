@@ -9,7 +9,8 @@ TESTS_ENVIRONMENT = NO_MAKE=yes CUTTER="$(CUTTER)"
 noinst_LTLIBRARIES = \
 	testSQLProcessor.la testMySQLWorkerZabbix.la \
 	testItemData.la testItemGroup.la \
-	testItemPtr.la testItemGroupType.la testItemTable.la
+	testItemPtr.la testItemGroupType.la testItemTable.la \
+	testItemTablePtr.la
 
 endif
 
@@ -32,6 +33,7 @@ testItemGroup_la_SOURCES = testItemGroup.cc
 testItemPtr_la_SOURCES = testItemPtr.cc
 testItemGroupType_la_SOURCES = testItemGroupType.cc
 testItemTable_la_SOURCES = testItemTable.cc
+testItemTablePtr_la_SOURCES = testItemTablePtr.cc
 
 echo-cutter:
 	@echo $(CUTTER)
