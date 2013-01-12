@@ -17,6 +17,8 @@ public:
 	ItemTable(ItemGroupId id);
 	void add(ItemGroup *group, bool doRef = true);
 	ItemGroupId getItemGroupId(void) const;
+	size_t getNumberOfColumns(void) const;
+	size_t getNumberOfRows(void) const;
 	ItemTable *innerJoin(const ItemTable *itemTable) const;
 	ItemTable *leftOuterJoin(const ItemTable *itemTable) const;
 	ItemTable *rightOuterJoin(const ItemTable *itemTable) const;

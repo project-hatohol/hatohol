@@ -27,6 +27,22 @@ ItemGroupId ItemTable::getItemGroupId(void) const
 	return m_groupId;
 }
 
+size_t ItemTable::getNumberOfColumns(void) const
+{
+	readLock();
+	size_t ret = (*m_groupList.begin())->getNumberOfItems();
+	readUnlock();
+	return ret;
+}
+
+size_t ItemTable::getNumberOfRows(void) const
+{
+	readLock();
+	size_t ret = m_groupList.size();
+	readUnlock();
+	return ret;
+}
+
 ItemTable *ItemTable::innerJoin(const ItemTable *itemTable) const
 {
 	MLPL_BUG("Not implemneted: %s\n", __PRETTY_FUNCTION__);

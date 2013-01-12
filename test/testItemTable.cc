@@ -92,6 +92,7 @@ void test_crossJoin(void)
 	ItemTable *tableA = table0->crossJoin(table1);
 
 	// check the result
+	cppcut_assert_equal(
 
 	table0->unref();
 	table1->unref();

@@ -61,6 +61,14 @@ bool ItemGroup::compareType(const ItemGroup *itemGroup) const
 	return ret;
 }
 
+size_t ItemGroup::getNumberOfItems(void) const
+{
+	readLock();
+	size_t ret = m_itemVector.size();
+	readUnlock();
+	return ret;
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------

@@ -31,6 +31,7 @@ public:
 	ItemData *getItem(ItemId itemId) const;
 	ItemGroupId getItemGroupId(void) const;
 	bool compareType(const ItemGroup *itemGroup) const;
+	size_t getNumberOfItems(void) const;
 
 protected:
 	virtual ~ItemGroup();
