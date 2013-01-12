@@ -464,10 +464,8 @@ bool SQLProcessor::makeTextRows(const ItemGroup *itemGroup,
 		const ItemData *item =
 		  itemGroup->getItem(colDef.columnBaseDef->itemId);
 		if (!item) {
-			MLPL_BUG("Failed to get ItemData: %"PRIu_ITEM
-			         " from ItemGroup: %"PRIu_ITEM_GROUP"\n",
-			         colDef.columnBaseDef->itemId,
-			         itemGroup->getItemGroupId());
+			MLPL_BUG("Failed to get ItemData: %"PRIu_ITEM"\n",
+			         colDef.columnBaseDef->itemId);
 			return false;
 		}
 		selectInfo.textRows.push_back(item->getString());

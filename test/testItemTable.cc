@@ -14,6 +14,7 @@ using namespace mlpl;
 namespace testItemData {
 
 enum {
+	DEFAULT_GROUP_ID,
 	GROUP_ID_0,
 	GROUP_ID_1,
 };
@@ -66,36 +67,53 @@ static void addItemTable1(ItemGroup *grp, TableStruct1 *table)
 }
 
 template<typename T>
-static ItemTable * addItems(T* srcTable, int numTable, int groupId,
+static ItemTable * addItems(T* srcTable, int numTable,
                             void (*addFunc)(ItemGroup *, T *))
 {
-	ItemTable *table = new ItemTable(groupId);
+	ItemTable *table = new ItemTable();
 	for (int i = 0; i < numTable; i++) {
-		ItemGroup *grp = new ItemGroup(table->getItemGroupId());
+		ItemGroup *grp = table->addNewGroup();
 		(*addFunc)(grp, &srcTable[i]);
-		table->add(grp, false);
 	}
 	return table;
+}
+
+static const int NUM_TABLE_POOL = 10;
+static ItemTable *g_table[NUM_TABLE_POOL];
+static ItemTable *&x_table = g_table[0];
+static ItemTable *&y_table = g_table[1];
+static ItemTable *&z_table = g_table[2];
+
+void teardown(void)
+{
+	for (int i = 0; i < NUM_TABLE_POOL; i++) {
+		if (g_table[i]) {
+			g_table[i]->unref();
+			g_table[i] = NULL;
+		}
+	}
 }
 
 // ---------------------------------------------------------------------------
 // Test cases
 // ---------------------------------------------------------------------------
+void test_constructor(void)
+{
+	x_table = new ItemTable();
+}
+
 void test_crossJoin(void)
 {
-	ItemTable *table0 = addItems<TableStruct0>(tableContent0, NUM_TABLE0,
-	                                           GROUP_ID_0, addItemTable0);
+	x_table = addItems<TableStruct0>(tableContent0, NUM_TABLE0,
+	                                 addItemTable0);
 
-	ItemTable *table1 = addItems<TableStruct1>(tableContent1, NUM_TABLE1,
-	                                           GROUP_ID_1, addItemTable1);
+	y_table = addItems<TableStruct1>(tableContent1, NUM_TABLE1,
+	                                 addItemTable1);
 
-	ItemTable *tableA = table0->crossJoin(table1);
+	z_table = x_table->crossJoin(y_table);
 
 	// check the result
 
-	table0->unref();
-	table1->unref();
-	tableA->unref();
 }
 
 } // namespace testItemData

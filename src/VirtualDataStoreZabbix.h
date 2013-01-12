@@ -17,7 +17,6 @@ public:
 
 protected:
 	ItemTable *createStaticItemTable(ItemGroupId groupId);
-	ItemGroup *createStaticItemGroup(ItemTable *itemTable);
 
 private:
 	static GMutex                  m_mutex;

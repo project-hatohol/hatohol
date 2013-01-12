@@ -16,12 +16,6 @@ using namespace mlpl;
 namespace testItemGroup {
 
 enum {
-	DEFAULT_GROUPT_ID,
-	GROUP_ID_0,
-	GROUP_ID_1,
-};
-
-enum {
 	DEFAULT_ITEM_ID,
 	ITEM_ID_0,
 	ITEM_ID_1,
@@ -50,7 +44,7 @@ void test_addAndGet(void)
 	ItemInt *item0 = new ItemInt(ITEM_ID_0, 500);
 	ItemString *item1 = new ItemString(ITEM_ID_1, "foo");
 
-	x_grp = new ItemGroup(DEFAULT_GROUPT_ID);
+	x_grp = new ItemGroup();
 	x_grp->add(item0, false);
 	x_grp->add(item1, false);
 
@@ -65,7 +59,7 @@ void test_addBad(void)
 	ItemInt *item0 = new ItemInt(ITEM_ID_0, 500);
 	ItemInt *item1 = new ItemInt(ITEM_ID_0, -8500);
 
-	x_grp = new ItemGroup(DEFAULT_GROUPT_ID);
+	x_grp = new ItemGroup();
 	x_grp->add(item0, false);
 	bool gotException = false;
 	try {
@@ -77,52 +71,39 @@ void test_addBad(void)
 }
 
 
-void test_getItemGroupId(void)
-{
-	ItemGroupId groupId = 100;
-	x_grp = new ItemGroup(groupId);
-	cppcut_assert_equal(groupId, x_grp->getItemGroupId());
-}
-
 void test_compareType(void)
 {
-	ItemGroup *grp0 = new ItemGroup(GROUP_ID_0);
-	grp0->add(new ItemInt(ITEM_ID_0, 5), false);
-	grp0->add(new ItemString(ITEM_ID_1, "foo"), false);
+	x_grp = new ItemGroup();
+	x_grp->add(new ItemInt(ITEM_ID_0, 5), false);
+	x_grp->add(new ItemString(ITEM_ID_1, "foo"), false);
 
-	ItemGroup *grp1 = new ItemGroup(GROUP_ID_1);
-	grp1->add(new ItemInt(ITEM_ID_0, 10), false);
-	grp1->add(new ItemString(ITEM_ID_1, "goo"), false);
+	ItemGroup *y_grp = new ItemGroup();
+	y_grp->add(new ItemInt(ITEM_ID_0, 10), false);
+	y_grp->add(new ItemString(ITEM_ID_1, "goo"), false);
 
-	cppcut_assert_equal(true, grp0->compareType(grp0));
-	cppcut_assert_equal(true, grp1->compareType(grp0));
-	cppcut_assert_equal(true, grp0->compareType(grp1));
-	cppcut_assert_equal(true, grp1->compareType(grp0));
-
-	grp0->unref();
-	grp1->unref();
+	cppcut_assert_equal(true, x_grp->compareType(x_grp));
+	cppcut_assert_equal(true, y_grp->compareType(x_grp));
+	cppcut_assert_equal(true, x_grp->compareType(y_grp));
+	cppcut_assert_equal(true, y_grp->compareType(y_grp));
 }
 
 void test_compareNotEq(void)
 {
-	ItemGroup *grp0 = new ItemGroup(GROUP_ID_0);
-	grp0->add(new ItemInt(ITEM_ID_0, 5), false);
-	grp0->add(new ItemString(ITEM_ID_1, "foo"), false);
+	x_grp = new ItemGroup();
+	x_grp->add(new ItemInt(ITEM_ID_0, 5), false);
+	x_grp->add(new ItemString(ITEM_ID_1, "foo"), false);
 
-	ItemGroup *grp1 = new ItemGroup(GROUP_ID_1);
-	grp1->add(new ItemString(ITEM_ID_1, "goo"), false);
-	grp1->add(new ItemInt(ITEM_ID_0, 10), false);
+	y_grp = new ItemGroup();
+	y_grp->add(new ItemString(ITEM_ID_1, "goo"), false);
+	y_grp->add(new ItemInt(ITEM_ID_0, 10), false);
 
-	cppcut_assert_equal(false, grp0->compareType(grp1));
-	cppcut_assert_equal(false, grp1->compareType(grp0));
-
-	grp0->unref();
-	grp1->unref();
+	cppcut_assert_equal(false, x_grp->compareType(y_grp));
+	cppcut_assert_equal(false, y_grp->compareType(x_grp));
 }
 
 void test_getNumberOfItems(void)
 {
-	x_grp = new ItemGroup(GROUP_ID_0);
+	x_grp = new ItemGroup();
 	cut_assert_equal_int(0, x_grp->getNumberOfItems());
 
 	x_grp->add(new ItemInt(ITEM_ID_0, 5), false);

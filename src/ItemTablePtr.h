@@ -28,5 +28,8 @@ fullOuterJoin (const ItemTablePtr &tablePtr0, const ItemTablePtr &tablePtr1);
 ItemTablePtr
 crossJoin     (const ItemTablePtr &tablePtr0, const ItemTablePtr &tablePtr1);
 
+template<>
+ItemPtr<ItemTable>::ItemPtr(void);
+
 #endif // #define ItemTablePtr_h
 

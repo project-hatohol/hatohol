@@ -8,14 +8,13 @@ using namespace mlpl;
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
-ItemTable::ItemTable(ItemGroupId id)
-: m_groupId(id)
+ItemTable::ItemTable(void)
 {
 }
 
 ItemGroup *ItemTable::addNewGroup(void)
 {
-	ItemGroup *grp = new ItemGroup(m_groupId);
+	ItemGroup *grp = new ItemGroup();
 	add(grp, false);
 	return grp;
 }

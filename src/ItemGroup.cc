@@ -5,8 +5,7 @@
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
-ItemGroup::ItemGroup(ItemGroupId id)
-: m_groupId(id)
+ItemGroup::ItemGroup(void)
 {
 }
 
@@ -18,9 +17,8 @@ void ItemGroup::add(ItemData *data, bool doRef)
 	result = m_itemMap.insert(pair<ItemId, ItemData *>(itemId, data));
 	if (!result.second) {
 		writeUnlock();
-		string msg =
-		  AMSG("Failed: insert: groupId: %"PRIx_ITEM_GROUP
-		       ", itemId: %"PRIx_ITEM"\n", m_groupId, itemId);
+		string msg = AMSG("Failed: insert: itemId: %"PRIx_ITEM"\n",
+		                  itemId);
 		throw invalid_argument(msg);
 	}
 	m_itemVector.push_back(data);
@@ -39,11 +37,6 @@ ItemData *ItemGroup::getItem(ItemId itemId) const
 		data = it->second;
 	readUnlock();
 	return data;
-}
-
-ItemGroupId ItemGroup::getItemGroupId(void) const
-{
-	return m_groupId;
 }
 
 bool ItemGroup::compareType(const ItemGroup *itemGroup) const

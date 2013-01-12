@@ -280,8 +280,7 @@ struct TableMakeFuncArg
 
 bool tableMakeFuncForeach(const ItemGroup *itemGroup, TableMakeFuncArg &arg)
 {
-	ItemGroup *selectedGroup = new ItemGroup(GROUP_ID_SQL_PROC_ZBX_GEN);
-	arg.tablePtr->add(selectedGroup, false);
+	ItemGroup *selectedGroup = arg.tablePtr->addNewGroup();
 
 	ItemIdVectorConstIterator it = arg.itemIdVector.begin();
 	for (; it != arg.itemIdVector.end(); ++it) {
@@ -306,8 +305,7 @@ SQLProcessorZabbix::tableMakeFuncTemplate(SQLSelectInfo &selectInfo,
 	const ItemGroupId itemGroupId = GROUP_ID;
 	const ItemTablePtr tablePtr = m_VDSZabbix->getItemTable(itemGroupId);
 
-	ItemTablePtr
-	  selectedTablePtr(new ItemTable(GROUP_ID_SQL_PROC_ZBX_GEN), false);
+	ItemTablePtr selectedTablePtr;
 	TableMakeFuncArg arg = {selectedTablePtr, itemIdVector};
 	if (!tablePtr->foreach<TableMakeFuncArg&>(tableMakeFuncForeach, arg))
 		return ItemTablePtr();

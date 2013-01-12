@@ -14,7 +14,7 @@ typedef ItemGroupIdTableMap::const_iterator ItemGroupIdTableMapConstIterator;
 
 class ItemTable : public UsedCountable {
 public:
-	ItemTable(ItemGroupId id);
+	ItemTable(void);
 	ItemGroup *addNewGroup(void);
 	void add(ItemGroup *group, bool doRef = true);
 	ItemGroupId getItemGroupId(void) const;

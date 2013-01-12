@@ -46,7 +46,7 @@ VirtualDataStoreZabbix::getItemTable(ItemGroupId groupId) const
 ItemTable *VirtualDataStoreZabbix::createStaticItemTable(ItemGroupId groupId)
 {
 	pair<ItemGroupIdTableMapIterator, bool> result;
-	ItemTable *table = new ItemTable(groupId);
+	ItemTable *table = new ItemTable();
 
 	m_staticItemTableMapLock.writeLock();;
 	result = m_staticItemTableMap.insert
@@ -62,14 +62,6 @@ ItemTable *VirtualDataStoreZabbix::createStaticItemTable(ItemGroupId groupId)
 	return table;
 }
 
-ItemGroup *VirtualDataStoreZabbix::createStaticItemGroup(ItemTable *itemTable)
-{
-	ItemGroupId groupId = itemTable->getItemGroupId();
-	ItemGroup *grp = new ItemGroup(groupId);
-	itemTable->add(grp, false);
-	return grp;
-}
-
 // ---------------------------------------------------------------------------
 // Private methods
 // ---------------------------------------------------------------------------
@@ -82,7 +74,7 @@ VirtualDataStoreZabbix::VirtualDataStoreZabbix(void)
 	table = createStaticItemTable(GROUP_ID_ZBX_NODES);
 
 	table = createStaticItemTable(GROUP_ID_ZBX_CONFIG);
-	grp = createStaticItemGroup(table);
+	grp = table->addNewGroup();
 	ADD(new ItemUint64(ITEM_ID_ZBX_CONFIG_CONFIGID, 1));
 	ADD(new ItemInt(ITEM_ID_ZBX_CONFIG_ALERT_HISTORY, 365));
 	ADD(new ItemInt(ITEM_ID_ZBX_CONFIG_EVENT_HISTORY, 365));
@@ -131,7 +123,7 @@ VirtualDataStoreZabbix::VirtualDataStoreZabbix(void)
 	ADD(new ItemInt(ITEM_ID_ZBX_CONFIG_SERVER_CHECK_INTERVAL, 10));
 
 	table = createStaticItemTable(GROUP_ID_ZBX_USERS);
-	grp = createStaticItemGroup(table);
+	grp = table->addNewGroup();
 	ADD(new ItemUint64(ITEM_ID_ZBX_USERS_USERID,  1));
 	ADD(new ItemString(ITEM_ID_ZBX_USERS_ALIAS,   "Admin"));
 	ADD(new ItemString(ITEM_ID_ZBX_USERS_NAME,    "Zabbix"));
@@ -150,7 +142,7 @@ VirtualDataStoreZabbix::VirtualDataStoreZabbix(void)
 	ADD(new ItemInt(ITEM_ID_ZBX_USERS_ROWS_PER_PAGE,  50 ));
 
 	table = createStaticItemTable(GROUP_ID_ZBX_USERS);
-	grp = createStaticItemGroup(table);
+	grp = table->addNewGroup();
 	ADD(new ItemUint64(ITEM_ID_ZBX_USERS_USERID,  2));
 	ADD(new ItemString(ITEM_ID_ZBX_USERS_ALIAS,   "guest"));
 	ADD(new ItemString(ITEM_ID_ZBX_USERS_NAME,    "Default"));

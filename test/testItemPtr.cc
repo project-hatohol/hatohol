@@ -22,44 +22,56 @@ static ItemDataPtr makeItemData(void)
 	return dataPtr;
 }
 
+const static int NUM_ITEM_POOL = 10;
+static ItemData *g_item[NUM_ITEM_POOL];
+static ItemData *&x_item = g_item[0];
+static ItemData *&y_item = g_item[1];
+
+void teardown(void)
+{
+	for (int i = 0; i < NUM_ITEM_POOL; i++) {
+		if (g_item[i]) {
+			g_item[i]->unref();
+			g_item[i] = NULL;
+		}
+	}
+}
+
 // ---------------------------------------------------------------------------
 // Test cases
 // ---------------------------------------------------------------------------
 void test_numUsed(void)
 {
-	ItemData *item = new ItemInt(DEFAULT_ITEM_ID,
-	                             DEFAULT_INT_VALUE);
-	cppcut_assert_equal(1, item->getUsedCount());
-	ItemDataPtr dataPtr(item);
-	cppcut_assert_equal(2, item->getUsedCount());
-	item->unref();
+	x_item = new ItemInt(DEFAULT_ITEM_ID, DEFAULT_INT_VALUE);
+	cppcut_assert_equal(1, x_item->getUsedCount());
+	ItemDataPtr dataPtr(x_item);
+	cppcut_assert_equal(2, x_item->getUsedCount());
 }
 
 void test_constructWithNull(void)
 {
-	ItemDataPtr dataPtr(NULL);
+	ItemInt *item = NULL;
+	ItemDataPtr dataPtr(item);
 }
 
 void test_numUsedWithoutRef(void)
 {
 	int val = 20;
-	ItemData *item = new ItemInt(DEFAULT_ITEM_ID,
-	                             DEFAULT_INT_VALUE);
-	ItemDataPtr dataPtr(item, false);
-	cppcut_assert_equal(1, item->getUsedCount());
+	x_item = new ItemInt(DEFAULT_ITEM_ID, DEFAULT_INT_VALUE);
+	ItemDataPtr dataPtr(x_item, false);
+	cppcut_assert_equal(1, x_item->getUsedCount());
+	x_item = NULL;
 }
 
 void test_numUsedWithBlock(void)
 {
-	ItemData *item = new ItemInt(DEFAULT_ITEM_ID,
-	                             DEFAULT_INT_VALUE);
-	cppcut_assert_equal(1, item->getUsedCount());
+	x_item = new ItemInt(DEFAULT_ITEM_ID, DEFAULT_INT_VALUE);
+	cppcut_assert_equal(1, x_item->getUsedCount());
 	{
-		ItemDataPtr dataPtr(item);
-		cppcut_assert_equal(2, item->getUsedCount());
+		ItemDataPtr dataPtr(x_item);
+		cppcut_assert_equal(2, x_item->getUsedCount());
 	}
-	cppcut_assert_equal(1, item->getUsedCount());
-	item->unref();
+	cppcut_assert_equal(1, x_item->getUsedCount());
 }
 
 void test_numUsedOneLine(void)
@@ -122,46 +134,42 @@ void test_operatorSubstChain(void)
 
 void test_operatorSubstChangeRefCount(void)
 {
-	ItemData *item = new ItemInt(DEFAULT_ITEM_ID, DEFAULT_INT_VALUE);
-	ItemDataPtr dataPtr(item);
+	x_item = new ItemInt(DEFAULT_ITEM_ID, DEFAULT_INT_VALUE);
+	ItemDataPtr dataPtr(x_item);
 	cppcut_assert_equal(2, dataPtr->getUsedCount());
 
-	ItemData *item2 = new ItemInt(DEFAULT_ITEM_ID, DEFAULT_INT_VALUE);
-	ItemDataPtr dataPtr2(item2);
-	cppcut_assert_equal(2, item2->getUsedCount());
+	y_item = new ItemInt(DEFAULT_ITEM_ID, DEFAULT_INT_VALUE);
+	ItemDataPtr dataPtr2(y_item);
+	cppcut_assert_equal(2, y_item->getUsedCount());
 	cppcut_assert_equal(2, dataPtr2->getUsedCount());
 
 	dataPtr2 = dataPtr;
-	cppcut_assert_equal(1, item2->getUsedCount());
-	cppcut_assert_equal(3, item->getUsedCount());
+	cppcut_assert_equal(1, y_item->getUsedCount());
+	cppcut_assert_equal(3, x_item->getUsedCount());
 	cppcut_assert_equal(3, dataPtr->getUsedCount());
 	cppcut_assert_equal(3, dataPtr2->getUsedCount());
-	item->unref();
-	item2->unref();
 }
 
 void test_operatorSubstWithSameBody(void)
 {
-	ItemData *item = new ItemInt(DEFAULT_ITEM_ID, DEFAULT_INT_VALUE);
-	ItemDataPtr dataPtr(item);
+	x_item = new ItemInt(DEFAULT_ITEM_ID, DEFAULT_INT_VALUE);
+	ItemDataPtr dataPtr(x_item);
 	cppcut_assert_equal(2, dataPtr->getUsedCount());
 
-	ItemDataPtr dataPtr2(item);
-	cppcut_assert_equal(3, item->getUsedCount());
+	ItemDataPtr dataPtr2(x_item);
+	cppcut_assert_equal(3, x_item->getUsedCount());
 	cppcut_assert_equal(3, dataPtr->getUsedCount());
 	cppcut_assert_equal(3, dataPtr2->getUsedCount());
 
 	dataPtr2 = dataPtr;
-	cppcut_assert_equal(3, item->getUsedCount());
+	cppcut_assert_equal(3, x_item->getUsedCount());
 	cppcut_assert_equal(3, dataPtr->getUsedCount());
 	cppcut_assert_equal(3, dataPtr2->getUsedCount());
 
 	dataPtr = dataPtr2;
-	cppcut_assert_equal(3, item->getUsedCount());
+	cppcut_assert_equal(3, x_item->getUsedCount());
 	cppcut_assert_equal(3, dataPtr->getUsedCount());
 	cppcut_assert_equal(3, dataPtr2->getUsedCount());
-
-	item->unref();
 }
 
 } // namespace testItemPtr
