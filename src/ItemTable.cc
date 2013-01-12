@@ -30,6 +30,10 @@ ItemGroupId ItemTable::getItemGroupId(void) const
 size_t ItemTable::getNumberOfColumns(void) const
 {
 	readLock();
+	if (m_groupList.empty()) {
+		readUnlock();
+		return 0;
+	}
 	size_t ret = (*m_groupList.begin())->getNumberOfItems();
 	readUnlock();
 	return ret;
