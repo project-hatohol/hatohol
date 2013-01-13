@@ -29,14 +29,18 @@ public:
 	ItemGroup(void);
 	void add(ItemData *data, bool doRef = true);
 	ItemData *getItem(ItemId itemId) const;
-	bool compareType(const ItemGroup *itemGroup) const;
 	size_t getNumberOfItems(void) const;
+	void freeze();
+	bool isFreezed(void) const;
+	const ItemGroupType *getItemGroupType(void) const;
+	void setItemGroupType(const ItemGroupType *itemGroupType);
 
 protected:
 	virtual ~ItemGroup();
 
 private:
-	ItemGroupType   m_groupType;
+	bool            m_freeze;
+	const ItemGroupType *m_groupType;
 	ItemDataMap     m_itemMap;
 	ItemDataVector  m_itemVector;
 };

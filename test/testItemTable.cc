@@ -122,11 +122,25 @@ void test_addRef(void)
 	grp->unref();
 }
 
+void test_getNumberOfRows(void)
+{
+	x_table = new ItemTable();
+	cut_assert_equal_int(0, x_table->getNumberOfRows());
+
+	ItemGroup *grp = x_table->addNewGroup();
+	cut_assert_equal_int(1, x_table->getNumberOfRows());
+
+	grp = x_table->addNewGroup();
+	cut_assert_equal_int(2, x_table->getNumberOfRows());
+}
+
 void test_getNumberOfColumns(void)
 {
 	x_table = new ItemTable();
 	cut_assert_equal_int(0, x_table->getNumberOfColumns());
-	cut_assert_equal_int(0, x_table->getNumberOfRows());
+
+	ItemGroup *grp = x_table->addNewGroup();
+	cut_assert_equal_int(0, x_table->getNumberOfColumns());
 }
 
 void test_crossJoin(void)

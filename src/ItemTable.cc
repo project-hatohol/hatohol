@@ -22,6 +22,24 @@ ItemGroup *ItemTable::addNewGroup(void)
 void ItemTable::add(ItemGroup *group, bool doRef)
 {
 	writeLock();
+	if (!m_groupList.empty()) {
+		ItemGroup *tail = m_groupList.back();
+		if (!tail->isFreezed()) {
+			string msg = AMSG("The tail element is not freezed.");
+			writeUnlock();
+			throw logic_error(msg);
+		}
+		const ItemGroupType *groupType0 = tail->getItemGroupType();
+		const ItemGroupType *groupType1 = group->getItemGroupType();
+		if (groupType1 == NULL) {
+			group->setItemGroupType(groupType0);
+		} else if (*groupType0 != *groupType1) {
+			string msg = AMSG("ItemGroupTypes unmatched");
+			writeUnlock();
+			throw logic_error(msg);
+		}
+	}
+
 	m_groupList.push_back(group);
 	writeUnlock();
 	if (doRef)

@@ -1,27 +1,79 @@
+#include <stdexcept>
 #include "ItemGroupType.h"
+#include "Utils.h"
+
+// ---------------------------------------------------------------------------
+// Public methods (ItemGroupTypeSetComp)
+// ---------------------------------------------------------------------------
+bool ItemGroupTypeSetComp::operator()(const ItemGroupType *groupType0,
+                                      const ItemGroupType *groupType1) const
+{
+	return *groupType0 < *groupType1;
+}
 
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
-ItemGroupType::ItemGroupType(void)
+ItemGroupType::ItemGroupType(const ItemDataVector &itemDataVector)
 {
+	for (size_t i = 0; i < itemDataVector.size(); i++) {
+		const ItemData *data = itemDataVector[i];
+		m_typeVector.push_back(data->getItemType());
+	}
 }
 
 ItemGroupType::~ItemGroupType()
 {
 }
 
-void ItemGroupType::addType(const ItemData *data)
+const size_t ItemGroupType::getSize() const
 {
-	m_typeVector.push_back(data->getItemType());
+	return m_typeVector.size();
+}
+
+ItemDataType ItemGroupType::getType(size_t index) const
+{
+	ItemDataType ret;
+	if (index >= m_typeVector.size()) {
+		string msg = AMSG("index (%zd) >= Vector size (%zd)\n",
+		                  index, m_typeVector.size());
+		throw out_of_range(msg);
+	}
+	ret = m_typeVector[index];
+	return ret;
+}
+
+bool ItemGroupType::operator<(const ItemGroupType &itemGroupType) const
+{
+	size_t size0 = getSize();
+	size_t size1 = itemGroupType.getSize();
+	if (size0 != size1)
+		return size0 < size1;
+	for (size_t i = 0; i < size0; i++) {
+		if (m_typeVector[i] < itemGroupType.m_typeVector[i])
+			return true;
+	}
+	return false;
 }
 
 bool ItemGroupType::operator==(const ItemGroupType &itemGroupType) const
 {
-	return m_typeVector == itemGroupType.m_typeVector;;
+	if (this == &itemGroupType)
+		return true;
+
+	size_t size0 = getSize();
+	size_t size1 = itemGroupType.getSize();
+	if (size0 != size1)
+		return false;
+	for (size_t i = 0; i < size0; i++) {
+		if (m_typeVector[i] != itemGroupType.m_typeVector[i])
+			return false;
+	}
+	return true;
 }
 
-const vector<ItemDataType> &ItemGroupType::getTypeVector(void) const
+bool ItemGroupType::operator!=(const ItemGroupType &itemGroupType) const
 {
-	return m_typeVector;
+	return (*this == itemGroupType) ? false : true;
 }
+

@@ -71,36 +71,6 @@ void test_addBad(void)
 }
 
 
-void test_compareType(void)
-{
-	x_grp = new ItemGroup();
-	x_grp->add(new ItemInt(ITEM_ID_0, 5), false);
-	x_grp->add(new ItemString(ITEM_ID_1, "foo"), false);
-
-	ItemGroup *y_grp = new ItemGroup();
-	y_grp->add(new ItemInt(ITEM_ID_0, 10), false);
-	y_grp->add(new ItemString(ITEM_ID_1, "goo"), false);
-
-	cppcut_assert_equal(true, x_grp->compareType(x_grp));
-	cppcut_assert_equal(true, y_grp->compareType(x_grp));
-	cppcut_assert_equal(true, x_grp->compareType(y_grp));
-	cppcut_assert_equal(true, y_grp->compareType(y_grp));
-}
-
-void test_compareNotEq(void)
-{
-	x_grp = new ItemGroup();
-	x_grp->add(new ItemInt(ITEM_ID_0, 5), false);
-	x_grp->add(new ItemString(ITEM_ID_1, "foo"), false);
-
-	y_grp = new ItemGroup();
-	y_grp->add(new ItemString(ITEM_ID_1, "goo"), false);
-	y_grp->add(new ItemInt(ITEM_ID_0, 10), false);
-
-	cppcut_assert_equal(false, x_grp->compareType(y_grp));
-	cppcut_assert_equal(false, y_grp->compareType(x_grp));
-}
-
 void test_getNumberOfItems(void)
 {
 	x_grp = new ItemGroup();
