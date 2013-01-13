@@ -216,6 +216,19 @@ void test_operatorEqSizeDiffGreat(void)
 	cppcut_assert_equal(false, grpType0 == grpType1);
 }
 
+void test_operatorNotEqSizeDiffGreat(void)
+{
+	x_itemVec.push_back(new ItemInt(ITEM_ID_0, 5));
+	x_itemVec.push_back(new ItemString(ITEM_ID_1, "foo"));
+	ItemGroupType grpType0(x_itemVec);
+
+	y_itemVec.push_back(new ItemInt(ITEM_ID_0, 5));
+	ItemGroupType grpType1(y_itemVec);
+
+	cppcut_assert_equal(true, grpType0 != grpType1);
+}
+
+
 } // testItemGroupType
 
 
