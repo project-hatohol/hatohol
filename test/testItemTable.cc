@@ -1,3 +1,4 @@
+#include <stdexcept>
 #include <string>
 #include <vector>
 using namespace std;
@@ -14,6 +15,11 @@ using namespace mlpl;
 namespace testItemTable {
 
 enum {
+	DEFAULT_ITEM_ID,
+	ITEM_ID_0,
+	ITEM_ID_1,
+	ITEM_ID_2,
+
 	ITEM_ID_AGE,
 	ITEM_ID_NAME,
 	ITEM_ID_FAVORITE_COLOR,
@@ -141,6 +147,74 @@ void test_getNumberOfColumns(void)
 
 	ItemGroup *grp = x_table->addNewGroup();
 	cut_assert_equal_int(0, x_table->getNumberOfColumns());
+}
+
+void test_addWhenHasMoreThanOneGroup(void)
+{
+	x_table = new ItemTable();
+	ItemGroup *grp = x_table->addNewGroup();
+	grp->add(new ItemInt(ITEM_ID_0, 500), false);
+	grp->add(new ItemString(ITEM_ID_1, "foo"), false);
+
+	// add second group
+	grp = x_table->addNewGroup();
+	const ItemGroupType *itemGroupType = grp->getItemGroupType();
+	cut_assert_not_null(itemGroupType);
+	cppcut_assert_equal(ITEM_TYPE_INT, itemGroupType->getType(0));
+	cppcut_assert_equal(ITEM_TYPE_STRING, itemGroupType->getType(1));
+
+	// add items
+	grp->add(new ItemInt(ITEM_ID_0, 500), false);
+	grp->add(new ItemString(ITEM_ID_1, "foo"), false);
+
+	// add thrid group
+	grp = x_table->addNewGroup();
+	grp->add(new ItemInt(ITEM_ID_0, -20), false);
+	grp->add(new ItemString(ITEM_ID_1, "dog"), false);
+	cppcut_assert_equal((size_t)3, x_table->getNumberOfRows());
+}
+
+void test_addInvalidItemsWhenHasMoreThanOneGroup(void)
+{
+	x_table = new ItemTable();
+	ItemGroup *grp = x_table->addNewGroup();
+	grp->add(new ItemInt(ITEM_ID_0, 500), false);
+	grp->add(new ItemString(ITEM_ID_1, "foo"), false);
+
+	// add second group
+	grp = x_table->addNewGroup();
+	ItemData *item = new ItemString(ITEM_ID_1, "foo");
+	bool gotException = false;
+	try {
+		grp->add(item, false);
+	} catch (invalid_argument e) {
+		item->unref();
+		gotException = true;
+	}
+	cppcut_assert_equal(true, gotException);
+}
+
+void test_addItemsWhenPreviousGroupIncompletion(void)
+{
+	x_table = new ItemTable();
+	ItemGroup *grp = x_table->addNewGroup();
+	grp->add(new ItemInt(ITEM_ID_0, 500), false);
+	grp->add(new ItemString(ITEM_ID_1, "foo"), false);
+
+	// add second group
+	grp = x_table->addNewGroup();
+	grp->add(new ItemInt(ITEM_ID_0, 200), false);
+
+	// add thrid group
+	bool gotException = false;
+	ItemData *item = new ItemInt(ITEM_ID_0, -5);
+	try {
+		grp->add(item, false);
+	} catch (invalid_argument e) {
+		item->unref();
+		gotException = true;
+	}
+	cppcut_assert_equal(true, gotException);
 }
 
 void test_crossJoin(void)

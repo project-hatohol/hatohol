@@ -24,19 +24,19 @@ void ItemTable::add(ItemGroup *group, bool doRef)
 	writeLock();
 	if (!m_groupList.empty()) {
 		ItemGroup *tail = m_groupList.back();
-		if (!tail->isFreezed()) {
-			string msg = AMSG("The tail element is not freezed.");
+		if (!freezeTailGroupIfFirstGroup(tail)) {
 			writeUnlock();
-			throw logic_error(msg);
+			string msg = AMSG("Failed to freeze the tail group.");
+			throw invalid_argument(msg);
 		}
 		const ItemGroupType *groupType0 = tail->getItemGroupType();
 		const ItemGroupType *groupType1 = group->getItemGroupType();
 		if (groupType1 == NULL) {
 			group->setItemGroupType(groupType0);
 		} else if (*groupType0 != *groupType1) {
-			string msg = AMSG("ItemGroupTypes unmatched");
 			writeUnlock();
-			throw logic_error(msg);
+			string msg = AMSG("ItemGroupTypes unmatched");
+			throw invalid_argument(msg);
 		}
 	}
 
@@ -107,4 +107,17 @@ ItemTable::~ItemTable()
 		ItemGroup *group = *it;
 		group->unref();
 	}
+}
+
+bool ItemTable::freezeTailGroupIfFirstGroup(ItemGroup *tail)
+{
+	if (tail->isFreezed())
+		return true;
+
+	size_t numList = m_groupList.size();
+	if (numList == 1) {
+		tail->freeze();
+		return true;
+	}
+	return false;
 }

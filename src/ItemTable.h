@@ -43,6 +43,7 @@ public:
 
 protected:
 	virtual ~ItemTable();
+	bool freezeTailGroupIfFirstGroup(ItemGroup *tail);
 
 private:
 	ItemGroupList m_groupList;
