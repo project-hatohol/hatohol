@@ -43,14 +43,14 @@ static TableStruct0 tableContent0[] = {
   {10, "anri", "red"},
   {20, "mai", "blue"},
 };
-static const int NUM_TABLE0 = sizeof(tableContent0) / sizeof(TableStruct0);
+static const size_t NUM_TABLE0 = sizeof(tableContent0) / sizeof(TableStruct0);
 
 static TableStruct1 tableContent1[] = {
   {"anri", 150, "ann"},
   {"nobita",200, "snake"},
   {"maria", 170, "mai"},
 };
-static const int NUM_TABLE1 = sizeof(tableContent1) / sizeof(TableStruct1);
+static const size_t NUM_TABLE1 = sizeof(tableContent1) / sizeof(TableStruct1);
 
 static void addItemTable0(ItemGroup *grp, TableStruct0 *table)
 {
@@ -76,6 +76,58 @@ static ItemTable * addItems(T* srcTable, int numTable,
 		(*addFunc)(grp, &srcTable[i]);
 	}
 	return table;
+}
+
+struct AssertCrossJoinForeachArg {
+	size_t row;
+	size_t numColumnsX;
+	size_t numColumnsY;
+	size_t table0Index;
+	size_t table1Index;
+	const ItemTable *x_table;
+	const ItemTable *y_table;
+};
+
+static bool assertCrossJoinForeach(const ItemGroup *itemGroup,
+                                   AssertCrossJoinForeachArg &arg)
+{
+	size_t numItems = itemGroup->getNumberOfItems();
+
+	ItemData *itemZ;
+	bool pass = true;
+	int idx = 0;
+
+	itemZ = itemGroup->getItem(idx++);
+	pass = (*itemZ == tableContent0[arg.table0Index].age);
+	cppcut_assert_equal(true, pass);
+
+	itemZ = itemGroup->getItem(idx++);
+	pass = (*itemZ == tableContent0[arg.table0Index].name);
+	cppcut_assert_equal(true, pass);
+
+	itemZ = itemGroup->getItem(idx++);
+	pass = (*itemZ == tableContent0[arg.table0Index].favoriteColor);
+	cppcut_assert_equal(true, pass);
+
+	itemZ = itemGroup->getItem(idx++);
+	pass = (*itemZ == tableContent0[arg.table1Index].name);
+	cppcut_assert_equal(true, pass);
+
+	itemZ = itemGroup->getItem(idx++);
+	pass = (*itemZ == tableContent0[arg.table1Index].height);
+	cppcut_assert_equal(true, pass);
+
+	itemZ = itemGroup->getItem(idx++);
+	pass = (*itemZ == tableContent0[arg.table1Index].nickname);
+	cppcut_assert_equal(true, pass);
+
+	arg.table1Index++;
+	if (table1Index == NUM_TABLE1) {
+		arg.table1Index = 0;
+		arg.table0Index++;
+	}
+
+	return true;
 }
 
 static const int NUM_TABLE_POOL = 10;
@@ -228,7 +280,19 @@ void test_crossJoin(void)
 	z_table = x_table->crossJoin(y_table);
 
 	// check the result
+	size_t numColumns = x_table->getNumberOfColumns() +
+	                    y_table->getNumberOfColumns();
+	size_t numRows = NUM_TABLE0 * NUM_TABLE1;
+	cppcut_assert_equal(numColumns, z_table->getNumberOfColumns());
+	cppcut_assert_equal(numRows, z_table->getNumberOfRows());
 
+	AssertCrossJoinForeachArg arg = {0,
+	                                 x_table->getNumberOfColumns(),
+	                                 y_table->getNumberOfColumns(),
+	                                 0, 0,
+	                                 x_table, y_table};
+	z_table->foreach<AssertCrossJoinForeachArg &>
+	                (assertCrossJoinForeach, arg);
 }
 
 } // namespace testItemTable
