@@ -88,41 +88,36 @@ struct AssertCrossJoinForeachArg {
 	const ItemTable *y_table;
 };
 
+template<typename T>
+static void assertItemData(const ItemGroup *itemGroup, T expected, int &idx)
+{
+	T val;
+	ItemData *itemZ = itemGroup->getItem(idx);
+	idx++;
+	itemZ->get(&val);
+	cut_trace(cppcut_assert_equal(expected, val));
+}
+
 static bool assertCrossJoinForeach(const ItemGroup *itemGroup,
                                    AssertCrossJoinForeachArg &arg)
 {
-	size_t numItems = itemGroup->getNumberOfItems();
-
-	ItemData *itemZ;
-	bool pass = true;
 	int idx = 0;
+	cut_trace(assertItemData<int>
+	  (itemGroup, tableContent0[arg.table0Index].age, idx));
+	cut_trace(assertItemData<string>
+	  (itemGroup, tableContent0[arg.table0Index].name, idx));
+	cut_trace(assertItemData<string>
+	  (itemGroup, tableContent0[arg.table0Index].favoriteColor, idx));
 
-	itemZ = itemGroup->getItem(idx++);
-	pass = (*itemZ == tableContent0[arg.table0Index].age);
-	cppcut_assert_equal(true, pass);
-
-	itemZ = itemGroup->getItem(idx++);
-	pass = (*itemZ == tableContent0[arg.table0Index].name);
-	cppcut_assert_equal(true, pass);
-
-	itemZ = itemGroup->getItem(idx++);
-	pass = (*itemZ == tableContent0[arg.table0Index].favoriteColor);
-	cppcut_assert_equal(true, pass);
-
-	itemZ = itemGroup->getItem(idx++);
-	pass = (*itemZ == tableContent0[arg.table1Index].name);
-	cppcut_assert_equal(true, pass);
-
-	itemZ = itemGroup->getItem(idx++);
-	pass = (*itemZ == tableContent0[arg.table1Index].height);
-	cppcut_assert_equal(true, pass);
-
-	itemZ = itemGroup->getItem(idx++);
-	pass = (*itemZ == tableContent0[arg.table1Index].nickname);
-	cppcut_assert_equal(true, pass);
+	cut_trace(assertItemData<string>
+	  (itemGroup, tableContent1[arg.table1Index].name, idx));
+	cut_trace(assertItemData<int>
+	  (itemGroup, tableContent1[arg.table1Index].height, idx));
+	cut_trace(assertItemData<string>
+	  (itemGroup, tableContent1[arg.table1Index].nickname, idx));
 
 	arg.table1Index++;
-	if (table1Index == NUM_TABLE1) {
+	if (arg.table1Index == NUM_TABLE1) {
 		arg.table1Index = 0;
 		arg.table0Index++;
 	}
@@ -278,6 +273,7 @@ void test_crossJoin(void)
 	                                 addItemTable1);
 
 	z_table = x_table->crossJoin(y_table);
+	cut_assert_not_null(z_table);
 
 	// check the result
 	size_t numColumns = x_table->getNumberOfColumns() +
