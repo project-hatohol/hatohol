@@ -113,10 +113,20 @@ void ItemGroup::setItemGroupType(const ItemGroupType *itemGroupType)
 {
 	writeLock();
 	if (m_groupType) {
-		string msg = AMSG("m_groupType: alread set.");
 		writeUnlock();
+		if (m_groupType == itemGroupType) {
+			MLPL_WARN("The indentical ItemGroupType is set.\n");
+			return;
+		}
+		string msg = AMSG("m_groupType: alread set.");
 		throw logic_error(msg);
 	}
+
+	if (!m_itemVector.empty()) {
+		string msg = AMSG("m_itemVector is not empty.\n");
+		throw invalid_argument(msg);
+	}
+
 	m_groupType = itemGroupType;
 	writeUnlock();
 }
