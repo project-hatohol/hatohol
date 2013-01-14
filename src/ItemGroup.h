@@ -29,6 +29,7 @@ public:
 	ItemGroup(void);
 	void add(ItemData *data, bool doRef = true);
 	ItemData *getItem(ItemId itemId) const;
+	ItemData *getItemAt(size_t index) const;
 	size_t getNumberOfItems(void) const;
 	void freeze();
 	bool isFreezed(void) const;

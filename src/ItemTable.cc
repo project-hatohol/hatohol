@@ -5,11 +5,27 @@ using namespace mlpl;
 #include "Utils.h"
 #include "ItemTable.h"
 
+struct ItemTable::CrossJoinArg
+{
+	ItemTable *newTable;
+	const ItemTable *rightTable;
+	const ItemGroup *itemGroupLTable;
+};
+
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
 ItemTable::ItemTable(void)
 {
+}
+
+ItemTable::ItemTable(const ItemTable &itemTable)
+{
+	itemTable.readLock();
+	ItemGroupListConstIterator it = itemTable.m_groupList.begin();
+	for (; it != itemTable.m_groupList.end(); ++it)
+		m_groupList.push_back(*it);
+	itemTable.readUnlock();
 }
 
 ItemGroup *ItemTable::addNewGroup(void)
@@ -92,8 +108,31 @@ ItemTable *ItemTable::fullOuterJoin(const ItemTable *itemTable) const
 
 ItemTable *ItemTable::crossJoin(const ItemTable *itemTable) const
 {
-	MLPL_BUG("Not implemneted: %s\n", __PRETTY_FUNCTION__);
-	return NULL;
+	readLock();
+	itemTable->readLock();
+	if (m_groupList.empty() && itemTable->m_groupList.empty()) {
+		string msg = AMSG("Both tables are empty.");
+		itemTable->readUnlock();
+		readUnlock();
+		throw invalid_argument(msg);
+	}
+	if (m_groupList.empty()) {
+		itemTable->readUnlock();
+		readUnlock();
+		return new ItemTable(*itemTable);
+	}
+	if (itemTable->m_groupList.empty()) {
+		itemTable->readUnlock();
+		readUnlock();
+		return new ItemTable(*this);
+	}
+
+	ItemTable *table = new ItemTable();
+	CrossJoinArg arg = {table, itemTable};
+	foreach<CrossJoinArg &>(crossJoinForeach, arg);
+	itemTable->readUnlock();
+	readUnlock();
+	return table;
 }
 
 // ---------------------------------------------------------------------------
@@ -120,4 +159,27 @@ bool ItemTable::freezeTailGroupIfFirstGroup(ItemGroup *tail)
 		return true;
 	}
 	return false;
+}
+
+bool ItemTable::crossJoinForeachRTable(const ItemGroup *itemGroupRTable,
+                                       CrossJoinArg &arg)
+{
+	ItemGroup *newGroup = arg.newTable->addNewGroup();
+
+	const ItemGroup *itemGroupArray[] = {
+	  arg.itemGroupLTable, itemGroupRTable, NULL};
+	for (size_t index = 0; itemGroupArray[index] != NULL; index++) {
+		const ItemGroup *itemGroup = itemGroupArray[index];
+		size_t numItems = itemGroup->getNumberOfItems();
+		for (size_t i = 0; i < numItems; i++)
+			newGroup->add(itemGroup->getItemAt(i));
+	}
+	return true;
+}
+
+bool ItemTable::crossJoinForeach(const ItemGroup *itemGroup, CrossJoinArg &arg)
+{
+	arg.itemGroupLTable = itemGroup;
+	arg.rightTable->foreach<CrossJoinArg &>(crossJoinForeachRTable, arg);
+	return true;
 }

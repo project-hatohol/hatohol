@@ -15,6 +15,7 @@ typedef ItemGroupIdTableMap::const_iterator ItemGroupIdTableMapConstIterator;
 class ItemTable : public UsedCountable {
 public:
 	ItemTable(void);
+	ItemTable(const ItemTable &itemTable);
 	ItemGroup *addNewGroup(void);
 	void add(ItemGroup *group, bool doRef = true);
 	size_t getNumberOfColumns(void) const;
@@ -44,6 +45,12 @@ public:
 protected:
 	virtual ~ItemTable();
 	bool freezeTailGroupIfFirstGroup(ItemGroup *tail);
+
+	struct CrossJoinArg;
+	static bool crossJoinForeach(const ItemGroup *itemGroup,
+	                             CrossJoinArg &arg);
+	static bool crossJoinForeachRTable(const ItemGroup *itemGroupRTable,
+                                           CrossJoinArg &arg);
 
 private:
 	ItemGroupList m_groupList;

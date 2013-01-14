@@ -64,6 +64,14 @@ ItemData *ItemGroup::getItem(ItemId itemId) const
 	return data;
 }
 
+ItemData *ItemGroup::getItemAt(size_t index) const
+{
+	readLock();
+	ItemData *data = m_itemVector[index];
+	readUnlock();
+	return data;
+}
+
 size_t ItemGroup::getNumberOfItems(void) const
 {
 	readLock();
