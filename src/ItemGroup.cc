@@ -38,15 +38,8 @@ void ItemGroup::add(ItemData *data, bool doRef)
 			m_freeze = true;
 	}
 
-	pair<ItemDataMapIterator, bool> result;
 	ItemId itemId = data->getId();
-	result = m_itemMap.insert(pair<ItemId, ItemData *>(itemId, data));
-	if (!result.second) {
-		writeUnlock();
-		string msg = AMSG("Failed: insert: itemId: %"PRIx_ITEM,
-		                  itemId);
-		throw invalid_argument(msg);
-	}
+	m_itemMap.insert(pair<ItemId, ItemData *>(itemId, data));
 	m_itemVector.push_back(data);
 	writeUnlock();
 	if (doRef)

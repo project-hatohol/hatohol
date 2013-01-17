@@ -93,6 +93,7 @@ static void assertItemData(const ItemGroup *itemGroup, T expected, int &idx)
 {
 	T val;
 	ItemData *itemZ = itemGroup->getItem(idx);
+	cut_assert_not_null(itemZ);
 	idx++;
 	itemZ->get(&val);
 	cut_trace(cppcut_assert_equal(expected, val));

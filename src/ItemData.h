@@ -29,6 +29,10 @@ typedef map<ItemId, ItemData *>     ItemDataMap;
 typedef ItemDataMap::iterator       ItemDataMapIterator;
 typedef ItemDataMap::const_iterator ItemDataMapConstIterator;
 
+typedef multimap<ItemId, ItemData *>     ItemDataMultimap;
+typedef ItemDataMultimap::iterator       ItemDataMultimapIterator;
+typedef ItemDataMultimap::const_iterator ItemDataMultimapConstIterator;
+
 typedef vector<ItemData *>             ItemDataVector;
 typedef ItemDataVector::iterator       ItemDataVectorIterator;
 typedef ItemDataVector::const_iterator ItemDataVectorConstIterator;

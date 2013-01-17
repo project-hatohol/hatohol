@@ -40,10 +40,10 @@ protected:
 	virtual ~ItemGroup();
 
 private:
-	bool            m_freeze;
+	bool                 m_freeze;
 	const ItemGroupType *m_groupType;
-	ItemDataMap     m_itemMap;
-	ItemDataVector  m_itemVector;
+	ItemDataMultimap     m_itemMap;
+	ItemDataVector       m_itemVector;
 };
 
 #endif  // ItemGroup_h
