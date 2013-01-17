@@ -92,7 +92,7 @@ template<typename T>
 static void assertItemData(const ItemGroup *itemGroup, T expected, int &idx)
 {
 	T val;
-	ItemData *itemZ = itemGroup->getItem(idx);
+	ItemData *itemZ = itemGroup->getItemAt(idx);
 	cut_assert_not_null(itemZ);
 	idx++;
 	itemZ->get(&val);
