@@ -83,6 +83,11 @@ void test_addDuplicativeItemId(void)
 	                    x_grp->getItem(ITEM_ID_0));
 }
 
+void test_addDuplicativeItemIdAndGetThem(void)
+{
+	cut_fail("Not implemented yet.");
+}
+
 void test_addWhenFreezed(void)
 {
 	ItemInt *item0 = new ItemInt(ITEM_ID_0, 500);
