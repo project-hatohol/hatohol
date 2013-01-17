@@ -78,14 +78,9 @@ void test_addDuplicativeItemId(void)
 	ItemInt *item1 = new ItemInt(ITEM_ID_0, -8500);
 	x_grp = new ItemGroup();
 	x_grp->add(item0, false);
-	bool gotException = false;
-	try {
-		x_grp->add(item1, false);
-	} catch (invalid_argument e) {
-		gotException = true;
-		item1->unref();
-	}
-	cppcut_assert_equal(true, gotException);
+	x_grp->add(item1, false);
+	cppcut_assert_equal(static_cast<ItemData *>(item0),
+	                    x_grp->getItem(ITEM_ID_0));
 }
 
 void test_addWhenFreezed(void)
