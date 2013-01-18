@@ -4,6 +4,7 @@
 using namespace mlpl;
 
 #include <exception>
+#include <stdexcept>
 
 #include "Utils.h"
 #include "AsuraThreadBase.h"
@@ -48,6 +49,10 @@ gpointer AsuraThreadBase::threadStarter(gpointer data)
 	AsuraThreadArg *arg = static_cast<AsuraThreadArg *>(data);
 	try {
 		ret = arg->obj->mainThread(arg);
+	} catch (runtime_error e) {
+		MLPL_ERR("Got runtime_error: %s\n", e.what());
+	} catch (logic_error e) {
+		MLPL_ERR("Got logic_error: %s\n", e.what());
 	} catch (exception e) {
 		MLPL_ERR("Got Exception: %s\n", e.what());
 	}

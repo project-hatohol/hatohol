@@ -141,7 +141,6 @@ VirtualDataStoreZabbix::VirtualDataStoreZabbix(void)
 	ADD(new ItemInt(ITEM_ID_ZBX_USERS_ATTEMPT_CLOCK,  0 ));
 	ADD(new ItemInt(ITEM_ID_ZBX_USERS_ROWS_PER_PAGE,  50 ));
 
-	table = createStaticItemTable(GROUP_ID_ZBX_USERS);
 	grp = table->addNewGroup();
 	ADD(new ItemUint64(ITEM_ID_ZBX_USERS_USERID,  2));
 	ADD(new ItemString(ITEM_ID_ZBX_USERS_ALIAS,   "guest"));
