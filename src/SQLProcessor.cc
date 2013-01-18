@@ -464,7 +464,7 @@ bool SQLProcessor::pickupMatchingRows(const ItemGroup *itemGroup,
                                       SQLSelectInfo &selectInfo)
 {
 	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
-	selectInfo.selectedTable = selectInfo.joinedTable;
+	selectInfo.selectedTable->add(const_cast<ItemGroup *>(itemGroup));
 	return true;
 }
 
