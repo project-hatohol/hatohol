@@ -85,7 +85,20 @@ void test_addDuplicativeItemId(void)
 
 void test_addDuplicativeItemIdAndGetThem(void)
 {
-	cut_fail("Not implemented yet.");
+	ItemInt *item0 = new ItemInt(ITEM_ID_0, 500);
+	ItemInt *item1 = new ItemInt(ITEM_ID_0, -8500);
+	ItemInt *item2 = new ItemInt(ITEM_ID_1, 100);
+	ItemInt *item3 = new ItemInt(ITEM_ID_0, 200);
+	x_grp = new ItemGroup();
+	x_grp->add(item0, false);
+	x_grp->add(item1, false);
+	x_grp->add(item2, false);
+	x_grp->add(item3, false);
+	ItemDataVector vec = x_grp->getItems(ITEM_ID_0);
+	cppcut_assert_equal((size_t)3, vec.size());
+	cppcut_assert_equal(static_cast<ItemData *>(item0), vec[0]);
+	cppcut_assert_equal(static_cast<ItemData *>(item1), vec[1]);
+	cppcut_assert_equal(static_cast<ItemData *>(item3), vec[2]);
 }
 
 void test_addWhenFreezed(void)

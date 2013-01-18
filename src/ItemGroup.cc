@@ -57,6 +57,20 @@ ItemData *ItemGroup::getItem(ItemId itemId) const
 	return data;
 }
 
+ItemDataVector ItemGroup::getItems(ItemId itemId) const
+{
+	ItemDataVector v;
+	readLock();
+	pair<ItemDataMultimapConstIterator, ItemDataMultimapConstIterator>
+	  itPair = m_itemMap.equal_range(itemId);
+	for (; itPair.first != itPair.second; ++itPair.first) {
+		ItemData *item = (itPair.first)->second;
+		v.push_back(item);
+	}
+	readUnlock();
+	return v;
+}
+
 ItemData *ItemGroup::getItemAt(size_t index) const
 {
 	readLock();
