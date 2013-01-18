@@ -164,4 +164,23 @@ void test_selectTwoTable(void)
 	cut_assert_equal_string(TABLE_NAME_A, selectInfo.tables[1].name.c_str());
 }
 
+void test_selectTwoTableWithNames(void)
+{
+	const char var1[] = "var1";
+	const char var2[] = "var2";
+	TestSQLProcessor proc;
+	ParsableString parsable(
+	  StringUtils::sprintf("* from %s %s,%s %s",
+	                       TABLE_NAME, var1, TABLE_NAME_A, var2));
+	SQLSelectInfo selectInfo(parsable);
+	proc.callParseSelectStatement(selectInfo);
+
+	cut_assert_equal_int(2, selectInfo.tables.size());
+	cut_assert_equal_string(TABLE_NAME, selectInfo.tables[0].name.c_str());
+	cut_assert_equal_string(var1, selectInfo.tables[0].varName.c_str());
+	cut_assert_equal_string(TABLE_NAME_A, selectInfo.tables[1].name.c_str());
+	cut_assert_equal_string(var2, selectInfo.tables[1].varName.c_str());
+}
+
+
 } // namespace testSQLProcessor
