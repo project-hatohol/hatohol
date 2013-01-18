@@ -124,12 +124,8 @@ bool SQLProcessor::select(SQLSelectInfo &selectInfo)
 		return false;
 
 	// join tables
-	ItemTablePtrListConstIterator it = selectInfo.itemTablePtrList.begin();
-	for (; it != selectInfo.itemTablePtrList.end(); ++it) {
-		const ItemTablePtr &tablePtr = *it;
-		selectInfo.joinedTable = crossJoin(selectInfo.joinedTable,
-		                                   tablePtr);
-	}
+	if (!doJoin(selectInfo))
+		return false;
 
 	// pickup matching rows
 	if (!selectInfo.joinedTable->foreach<SQLSelectInfo&>
@@ -444,6 +440,22 @@ bool SQLProcessor::makeItemTables(SQLSelectInfo &selectInfo)
 		if (!tablePtr.hasData())
 			return false;
 		selectInfo.itemTablePtrList.push_back(tablePtr);
+	}
+	return true;
+}
+
+bool SQLProcessor::doJoin(SQLSelectInfo &selectInfo)
+{
+	if (selectInfo.itemTablePtrList.size() == 1) {
+		selectInfo.joinedTable = *selectInfo.itemTablePtrList.begin();
+		return true;
+	}
+
+	ItemTablePtrListConstIterator it = selectInfo.itemTablePtrList.begin();
+	for (; it != selectInfo.itemTablePtrList.end(); ++it) {
+		const ItemTablePtr &tablePtr = *it;
+		selectInfo.joinedTable = crossJoin(selectInfo.joinedTable,
+		                                   tablePtr);
 	}
 	return true;
 }
