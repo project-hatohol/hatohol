@@ -5,8 +5,10 @@ using namespace mlpl;
 #include <algorithm>
 using namespace std;
 
+#include <stdexcept>
 #include <cstring>
 #include "SQLProcessor.h"
+#include "Utils.h"
 
 static const int UNKNOWN_TABLE_ID = -1;
 
@@ -575,10 +577,9 @@ bool SQLProcessor::parseFrom(SelectParserContext &ctx)
 			isTableName = false;
 		else if (commaCount == 1)
 			isTableName = true;
-		else {
-			MLPL_DBG("commaCount: %d\n", commaCount);
-			return false;
-		}
+		else
+			throw logic_error(AMSG("commaCount: %d\n", commaCount));
+		m_separatorCountSpaceComma.resetCounter();
 	}
 
 	if (isTableName) {
