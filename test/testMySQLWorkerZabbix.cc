@@ -135,7 +135,7 @@ void test_selectUseridAutoLogoutLastAccess(void)
 	  "AND u.userid BETWEEN 000000000000000 AND 099999999999999";
 	executeCommand(cmd);
 	NumberStringMap nsmap;
-	assertRecord(2, nsmap);
+	assertRecord(0, nsmap);
 }
 
 } // namespace testMySQLWorkerZabbix
