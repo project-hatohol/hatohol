@@ -322,6 +322,8 @@ SQLProcessorZabbix::tableMakeFuncTemplate(SQLSelectInfo &selectInfo,
 {
 	const ItemGroupId itemGroupId = GROUP_ID;
 	const ItemTablePtr tablePtr = m_VDSZabbix->getItemTable(itemGroupId);
+	if (!tablePtr.hasData())
+		return ItemTablePtr();
 
 	ItemTablePtr selectedTablePtr;
 	TableMakeFuncArg arg = {selectedTablePtr, itemIdVector};

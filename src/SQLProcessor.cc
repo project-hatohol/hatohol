@@ -326,7 +326,7 @@ SQLProcessor::setColumnTypeAndBaseDefInColumnInfo(SQLSelectInfo &selectInfo)
 		}
 
 		ItemNameColumnBaseDefRefMapConstIterator it;
-		it = staticInfo->columnBaseDefMap.find(columnInfo.name);
+		it = staticInfo->columnBaseDefMap.find(columnInfo.baseName);
 		if (it == staticInfo->columnBaseDefMap.end()) {
 			MLPL_DBG("Not found column: %s\n",
 			         columnInfo.name.c_str());
@@ -563,6 +563,8 @@ bool SQLProcessor::parseSelectedColumns(SelectParserContext &ctx)
 	if (dotPos != string::npos) {
 		columnInfo.tableVar = string(columnInfo.name, 0, dotPos);
 		columnInfo.baseName = string(columnInfo.name, dotPos + 1);
+	} else {
+		columnInfo.baseName = columnInfo.name;
 	}
 	return true;
 }
