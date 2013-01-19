@@ -584,8 +584,11 @@ bool SQLProcessor::parseFrom(SelectParserContext &ctx)
 			isTableName = false;
 		else if (commaCount == 1)
 			isTableName = true;
-		else
-			throw logic_error(AMSG("commaCount: %d\n", commaCount));
+		else {
+			string msg;
+			TRMSG(msg, "commaCount: %d.", commaCount);
+			throw logic_error(msg);
+		}
 		m_separatorCountSpaceComma.resetCounter();
 	}
 
@@ -608,9 +611,10 @@ bool SQLProcessor::parseFrom(SelectParserContext &ctx)
 	  ctx.selectInfo.tableVarInfoMap.insert
 	    (pair<string, SQLTableInfo *>(tableInfo.varName, &tableInfo));
 	if (!ret.second) {
-		string msg = AMSG("Failed to insert: table name: %s, %s\n",
-		                  tableInfo.varName.c_str(),
-		                  ctx.selectInfo.query.getString());
+		string msg;
+		TRMSG(msg, "Failed to insert: table name: %s, %s.",
+		      tableInfo.varName.c_str(),
+		      ctx.selectInfo.query.getString());
 		throw msg;
 	}
 	return true;

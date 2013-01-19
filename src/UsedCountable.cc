@@ -41,7 +41,8 @@ UsedCountable::UsedCountable(int initialUsedCount)
 UsedCountable::~UsedCountable()
 {
 	if (getUsedCount() > 0) {
-		string msg = AMSG("used count: %d\n", m_usedCount);
+		string msg;
+		TRMSG(msg, "used count: %d.", m_usedCount);
 		throw logic_error(msg);
 	}
 }

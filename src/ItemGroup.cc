@@ -29,9 +29,9 @@ void ItemGroup::add(ItemData *data, bool doRef)
 		ItemDataType expectedType = m_groupType->getType(index);
 		if (expectedType != itemDataType) {
 			writeUnlock();
-			string msg = AMSG("ItemDataType (%d) is not "
-			                  "the expected (%d)",
-			                  itemDataType, expectedType);
+			string msg;
+			TRMSG(msg, "ItemDataType (%d) is not the expected (%d)",
+			      itemDataType, expectedType);
 			throw invalid_argument(msg);
 		}
 		if ((index + 1) == m_groupType->getSize())
@@ -97,7 +97,8 @@ void ItemGroup::freeze(void)
 	}
 	if (m_groupType) {
 		writeUnlock();
-		string msg = AMSG("m_groupType: NULL\n");
+		string msg;
+		TRMSG(msg, "m_groupType: NULL");
 		throw logic_error(msg);
 	}
 
@@ -133,12 +134,14 @@ void ItemGroup::setItemGroupType(const ItemGroupType *itemGroupType)
 			MLPL_WARN("The indentical ItemGroupType is set.\n");
 			return;
 		}
-		string msg = AMSG("m_groupType: alread set.");
+		string msg;
+		TRMSG(msg, "m_groupType: alread set.");
 		throw logic_error(msg);
 	}
 
 	if (!m_itemVector.empty()) {
-		string msg = AMSG("m_itemVector is not empty.\n");
+		string msg;
+		TRMSG(msg, "m_itemVector is not empty.");
 		throw invalid_argument(msg);
 	}
 

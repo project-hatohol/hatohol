@@ -35,8 +35,9 @@ ItemDataType ItemGroupType::getType(size_t index) const
 {
 	ItemDataType ret;
 	if (index >= m_typeVector.size()) {
-		string msg = AMSG("index (%zd) >= Vector size (%zd)\n",
-		                  index, m_typeVector.size());
+		string msg;
+		TRMSG(msg, "index (%zd) >= Vector size (%zd).",
+		      index, m_typeVector.size());
 		throw out_of_range(msg);
 	}
 	ret = m_typeVector[index];

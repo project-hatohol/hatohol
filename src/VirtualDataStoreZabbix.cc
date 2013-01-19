@@ -53,10 +53,10 @@ ItemTable *VirtualDataStoreZabbix::createStaticItemTable(ItemGroupId groupId)
 	         (pair<ItemGroupId, ItemTable *>(groupId, table));
 	m_staticItemTableMapLock.writeUnlock();;
 	if (!result.second) {
-		string msg =
-		  AMSG("Failed: insert: groupId: %"PRIx_ITEM_GROUP". "
-		       "The element with the same ID may exisit.\n",
-		       groupId);
+		string msg;
+		TRMSG(msg, "Failed: insert: groupId: %"PRIx_ITEM_GROUP". "
+		           "The element with the same ID may exisit.",
+		      groupId);
 		throw invalid_argument(msg);
 	}
 	return table;

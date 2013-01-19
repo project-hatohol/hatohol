@@ -42,7 +42,8 @@ void ItemTable::add(ItemGroup *group, bool doRef)
 		ItemGroup *tail = m_groupList.back();
 		if (!freezeTailGroupIfFirstGroup(tail)) {
 			writeUnlock();
-			string msg = AMSG("Failed to freeze the tail group.");
+			string msg;
+			TRMSG(msg, "Failed to freeze the tail group.");
 			throw invalid_argument(msg);
 		}
 		const ItemGroupType *groupType0 = tail->getItemGroupType();
@@ -51,7 +52,8 @@ void ItemTable::add(ItemGroup *group, bool doRef)
 			group->setItemGroupType(groupType0);
 		} else if (*groupType0 != *groupType1) {
 			writeUnlock();
-			string msg = AMSG("ItemGroupTypes unmatched");
+			string msg;
+			TRMSG(msg, "ItemGroupTypes unmatched");
 			throw invalid_argument(msg);
 		}
 	}
@@ -111,9 +113,10 @@ ItemTable *ItemTable::crossJoin(const ItemTable *itemTable) const
 	readLock();
 	itemTable->readLock();
 	if (m_groupList.empty() && itemTable->m_groupList.empty()) {
-		string msg = AMSG("Both tables are empty.");
 		itemTable->readUnlock();
 		readUnlock();
+		string msg;
+		TRMSG(msg, "Both tables are empty.");
 		throw invalid_argument(msg);
 	}
 	if (m_groupList.empty()) {
