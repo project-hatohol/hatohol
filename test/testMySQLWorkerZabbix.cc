@@ -125,6 +125,26 @@ void test_selectConfig(void)
 	assertRecord(2, nsmap);
 }
 
+void test_selectUserid(void)
+{
+	const char *cmd = "use zabbix;"
+	  "SELECT u.userid,u.attempt_failed,u.attempt_clock,u.attempt_ip "
+	  "FROM users u WHERE u.alias='guest' AND "
+	  "u.userid BETWEEN 000000000000000 AND 099999999999999";
+	executeCommand(cmd);
+	cut_fail("To be implemented");
+}
+
+void test_selectUsrgrpid(void)
+{
+	const char *cmd = "use zabbix;"
+	  "SELECT g.usrgrpid FROM usrgrp g,users_groups ug "
+	  "WHERE ug.userid=1 AND g.usrgrpid=ug.usrgrpid AND "
+	  "g.users_status=1 LIMIT 1 OFFSET 0";
+	executeCommand(cmd);
+	cut_fail("To be implemented");
+}
+
 void test_selectUseridAutoLogoutLastAccess(void)
 {
 	const char *cmd = "use zabbix;"
