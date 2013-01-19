@@ -112,6 +112,9 @@ struct SQLTableInfo {
 	SQLTableInfo(void);
 };
 
+typedef list<SQLTableInfo>         SQLTableInfoList;
+typedef SQLTableInfoList::iterator SQLTableInfoListIterator;
+
 struct SQLColumnInfo {
 	string name;         // ex.) tableVarName.column1
 	string baseName;     // ex.) column1
@@ -138,22 +141,29 @@ struct SQLColumnInfo {
 	void setColumnType(void);
 };
 
+typedef list<SQLColumnInfo>         SQLColumnInfoList;
+typedef SQLColumnInfoList::iterator SQLColumnInfoListIterator;
+
 typedef map<const SQLTableInfo *, ItemIdVector> SQLTableInfoItemIdVectorMap;
 typedef SQLTableInfoItemIdVectorMap::iterator
   SQLTableInfoItemIdVectorMapIterator;
 typedef SQLTableInfoItemIdVectorMap::const_iterator
   SQLTableInfoItemIdVectorMapConstIterator;
 
+typedef map<string, const SQLTableInfo *> SQLTableVarNameInfoMap;
+typedef SQLTableVarNameInfoMap::iterator  SQLTableVarNameInfoMapIterator;
+
 struct SQLSelectInfo {
 	// input statement
 	ParsableString   query;
 
 	// parsed matter
-	vector<SQLColumnInfo> columns;
-	vector<SQLTableInfo>  tables;
+	SQLColumnInfoList columns;
+	SQLTableInfoList  tables;
 	// The value (const SQLTableInfo *) in the following map points
 	// an instance in 'tables' in this struct.
-	map<string, const SQLTableInfo *> tableMap;
+	// Key is a table var name.
+	SQLTableVarNameInfoMap tableVarInfoMap;
 
 	// We must free 'whereElem' when no longer needed. Its destructor
 	// causes the free chain of child 'whereElem' instances.

@@ -245,12 +245,13 @@ bool SQLProcessor::checkParsedResult(const SQLSelectInfo &selectInfo) const
 
 bool SQLProcessor::associateColumnWithTable(SQLSelectInfo &selectInfo)
 {
-	for (size_t i = 0; i < selectInfo.columns.size(); i++) {
-		SQLColumnInfo &columnInfo = selectInfo.columns[i];
+	SQLColumnInfoListIterator it = selectInfo.columns.begin();
+	for (; it != selectInfo.columns.end(); ++it) {
+		SQLColumnInfo &columnInfo = *it;
 
 		// set SQLColumnInfo::tableInfo and SQLTableInfo::columnList.
 		if (selectInfo.tables.size() == 1) {
-			SQLTableInfo *tableInfo = &selectInfo.tables[0];
+			SQLTableInfo *tableInfo = &(*selectInfo.tables.begin());
 			if (columnInfo.tableVar.empty())
 				columnInfo.associate(tableInfo);
 			else if (columnInfo.tableVar == tableInfo->varName)
@@ -266,8 +267,8 @@ bool SQLProcessor::associateColumnWithTable(SQLSelectInfo &selectInfo)
 		}
 
 		map<string, const SQLTableInfo *>::iterator it;
-		it = selectInfo.tableMap.find(columnInfo.tableVar);
-		if (it == selectInfo.tableMap.end()) {
+		it = selectInfo.tableVarInfoMap.find(columnInfo.tableVar);
+		if (it == selectInfo.tableVarInfoMap.end()) {
 			MLPL_DBG("Failed to find: %s (%s)\n",
 			         columnInfo.tableVar.c_str(),
 			         columnInfo.name.c_str());
@@ -282,8 +283,9 @@ bool SQLProcessor::associateColumnWithTable(SQLSelectInfo &selectInfo)
 
 bool SQLProcessor::associateTableWithStaticInfo(SQLSelectInfo &selectInfo)
 {
-	for (size_t i = 0; i < selectInfo.tables.size(); i++) {
-		SQLTableInfo &tableInfo = selectInfo.tables[i];
+	SQLTableInfoListIterator it = selectInfo.tables.begin();
+	for (; it != selectInfo.tables.end(); ++it) {
+		SQLTableInfo &tableInfo = *it;
 		TableNameStaticInfoMapIterator it;
 		it = m_tableNameStaticInfoMap.find(tableInfo.name);
 		if (it == m_tableNameStaticInfoMap.end()) {
@@ -300,8 +302,9 @@ bool SQLProcessor::associateTableWithStaticInfo(SQLSelectInfo &selectInfo)
 bool
 SQLProcessor::setColumnTypeAndBaseDefInColumnInfo(SQLSelectInfo &selectInfo)
 {
-	for (size_t i = 0; i < selectInfo.columns.size(); i++) {
-		SQLColumnInfo &columnInfo = selectInfo.columns[i];
+	SQLColumnInfoListIterator it = selectInfo.columns.begin();
+	for (; it != selectInfo.columns.end(); ++it) {
+		SQLColumnInfo &columnInfo = *it;
 
 		// columnType
 		columnInfo.setColumnType();
@@ -368,8 +371,9 @@ bool SQLProcessor::addAllColumnDefs(SQLSelectInfo &selectInfo,
 
 bool SQLProcessor::makeColumnDefs(SQLSelectInfo &selectInfo)
 {
-	for (size_t i = 0; i < selectInfo.columns.size(); i++) {
-		SQLColumnInfo &columnInfo = selectInfo.columns[i];
+	SQLColumnInfoListIterator it = selectInfo.columns.begin();
+	for (; it != selectInfo.columns.end(); ++it) {
+		SQLColumnInfo &columnInfo = *it;
 		int columnType = columnInfo.columnType;
 		if (!columnInfo.tableInfo) {
 			MLPL_BUG("columnInfo.tableInfo is NULL\n");
@@ -429,8 +433,9 @@ bool SQLProcessor::enumerateNeededItemIds(SQLSelectInfo &selectInfo)
 
 bool SQLProcessor::makeItemTables(SQLSelectInfo &selectInfo)
 {
-	for (size_t i = 0; i < selectInfo.tables.size(); i++) {
-		const SQLTableInfo *tableInfo = &selectInfo.tables[i];
+	SQLTableInfoListIterator it = selectInfo.tables.begin();
+	for (; it != selectInfo.tables.end(); ++it) {
+		const SQLTableInfo *tableInfo = &(*it);
 		SQLTableInfoItemIdVectorMapConstIterator it;
 		it = selectInfo.neededItemIdVectorMap.find(tableInfo);
 		if (it == selectInfo.neededItemIdVectorMap.end())
@@ -596,6 +601,16 @@ bool SQLProcessor::parseFrom(SelectParserContext &ctx)
 
 	SQLTableInfo &tableInfo = ctx.selectInfo.tables.back();
 	tableInfo.varName = ctx.currWord;
+
+	pair<SQLTableVarNameInfoMapIterator, bool> ret =
+	  ctx.selectInfo.tableVarInfoMap.insert
+	    (pair<string, SQLTableInfo *>(tableInfo.varName, &tableInfo));
+	if (!ret.second) {
+		string msg = AMSG("Failed to insert: table name: %s, %s\n",
+		                  tableInfo.varName.c_str(),
+		                  ctx.selectInfo.query.getString());
+		throw msg;
+	}
 	return true;
 }
 
