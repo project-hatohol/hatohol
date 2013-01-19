@@ -115,19 +115,12 @@ ItemTable *ItemTable::crossJoin(const ItemTable *itemTable) const
 	if (m_groupList.empty() && itemTable->m_groupList.empty()) {
 		itemTable->readUnlock();
 		readUnlock();
-		string msg;
-		TRMSG(msg, "Both tables are empty.");
-		throw invalid_argument(msg);
+		return new ItemTable();
 	}
-	if (m_groupList.empty()) {
+	if (m_groupList.empty() || itemTable->m_groupList.empty()) {
 		itemTable->readUnlock();
 		readUnlock();
-		return new ItemTable(*itemTable);
-	}
-	if (itemTable->m_groupList.empty()) {
-		itemTable->readUnlock();
-		readUnlock();
-		return new ItemTable(*this);
+		return new ItemTable();
 	}
 
 	ItemTable *table = new ItemTable();

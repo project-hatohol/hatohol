@@ -126,6 +126,13 @@ static bool assertCrossJoinForeach(const ItemGroup *itemGroup,
 	return true;
 }
 
+static void assertEmptyTable(ItemTable *table)
+{
+	cut_trace(cut_assert_not_null(table));
+	cut_trace(cppcut_assert_equal((size_t)0, table->getNumberOfRows()));
+	cut_trace(cppcut_assert_equal((size_t)0, table->getNumberOfColumns()));
+}
+
 static const int NUM_TABLE_POOL = 10;
 static ItemTable *g_table[NUM_TABLE_POOL];
 static ItemTable *&x_table = g_table[0];
@@ -290,6 +297,32 @@ void test_crossJoin(void)
 	                                 x_table, y_table};
 	z_table->foreach<AssertCrossJoinForeachArg &>
 	                (assertCrossJoinForeach, arg);
+}
+
+void test_crossJoinBothEmpty(void)
+{
+	x_table = new ItemTable();
+	y_table = new ItemTable();
+	z_table = x_table->crossJoin(y_table);
+	assertEmptyTable(z_table);
+}
+
+void test_crossJoinRightEmpty(void)
+{
+	x_table = addItems<TableStruct0>(tableContent0, NUM_TABLE0,
+	                                 addItemTable0);
+	y_table = new ItemTable();
+	z_table = x_table->crossJoin(y_table);
+	assertEmptyTable(z_table);
+}
+
+void test_crossJoinLeftEmpty(void)
+{
+	x_table = new ItemTable();
+	y_table = addItems<TableStruct1>(tableContent1, NUM_TABLE1,
+	                                 addItemTable1);
+	z_table = x_table->crossJoin(y_table);
+	assertEmptyTable(z_table);
 }
 
 } // namespace testItemTable
