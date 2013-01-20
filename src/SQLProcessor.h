@@ -227,18 +227,10 @@ protected:
 	                   const ColumnBaseDefinition &columnBaseDef);
 	bool addAllColumnDefs(SQLSelectInfo &selectInfo,
 	                      const SQLTableInfo &tableInfo);
-	/*bool makeTable(SQLSelectInfo &selectInfo,
-	               SQLTableInfo &tableInfo,
-	               const ItemTablePtr itemTablePtr);*/
 
 	// methods for foreach
 	static bool
 	setSelectResult(const ItemGroup *itemGroup, SQLSelectInfo &selectInfo);
-
-	//struct AddItemGroupArg;
-	//static bool
-	//addItemGroup(const ItemGroup *imteGroup, AddItemGroupArg &arg);
-
 
 	static bool
 	pickupMatchingRows(const ItemGroup *itemGroup, SQLSelectInfo &selectInfo);
@@ -249,11 +241,11 @@ protected:
 	//
 	// Select status parsers
 	//
-	bool parseRegionFrom(SelectParserContext &ctx);
-	bool parseRegionWhere(SelectParserContext &ctx);
-	bool parseRegionOrder(SelectParserContext &ctx);
-	bool parseRegionGroup(SelectParserContext &ctx);
-	bool parseRegionLimit(SelectParserContext &ctx);
+	bool parseSectionFrom(SelectParserContext &ctx);
+	bool parseSectionWhere(SelectParserContext &ctx);
+	bool parseSectionOrder(SelectParserContext &ctx);
+	bool parseSectionGroup(SelectParserContext &ctx);
+	bool parseSectionLimit(SelectParserContext &ctx);
 
 	//
 	// Select statment parsers
@@ -264,35 +256,35 @@ protected:
 	bool parseWhere(SelectParserContext &ctx);
 	bool parseOrderBy(SelectParserContext &ctx);
 
-	string readNextWord(SelectParserContext &ctx,
-	                    ParsingPosition *position = NULL);
-
 	//
-	// Callback methods for parsing 'where' section
+	// Callbacks for parsing 'where' section
 	//
 	static void whereCbEq(const char separator, void *arg);
+
+	string readNextWord(SelectParserContext &ctx,
+	                    ParsingPosition *position = NULL);
 
 private:
 	static const SelectSubParser m_selectSubParsers[];
 
-	enum SelectParseRegion {
-		SELECT_PARSING_REGION_SELECT,
-		SELECT_PARSING_REGION_GROUP_BY,
-		SELECT_PARSING_REGION_FROM,
-		SELECT_PARSING_REGION_WHERE,
-		SELECT_PARSING_REGION_ORDER_BY,
-		SELECT_PARSING_REGION_LIMIT,
-		NUM_SELECT_PARSING_REGION,
+	enum SelectParseSection {
+		SELECT_PARSING_SECTION_SELECT,
+		SELECT_PARSING_SECTION_GROUP_BY,
+		SELECT_PARSING_SECTION_FROM,
+		SELECT_PARSING_SECTION_WHERE,
+		SELECT_PARSING_SECTION_ORDER_BY,
+		SELECT_PARSING_SECTION_LIMIT,
+		NUM_SELECT_PARSING_SECTION,
 	};
 
-	SeparatorChecker *m_selectSeprators[NUM_SELECT_PARSING_REGION];
+	SeparatorChecker *m_selectSeprators[NUM_SELECT_PARSING_SECTION];
 	SeparatorChecker             m_separatorSpaceComma;
 	SeparatorCheckerWithCounter  m_separatorCountSpaceComma;
 	SeparatorCheckerWithCallback m_separatorCBForWhere;
 
 	// These members are typically allocated in sub classes.
 	TableNameStaticInfoMap &m_tableNameStaticInfoMap;
-	map<string, SelectSubParser> m_selectRegionParserMap;
+	map<string, SelectSubParser> m_selectSectionParserMap;
 };
 
 #endif // SQLProcessor_h

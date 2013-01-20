@@ -21,15 +21,15 @@ const SQLProcessor::SelectSubParser SQLProcessor::m_selectSubParsers[] = {
 };
 
 struct SQLProcessor::SelectParserContext {
-	string             currWord;
-	SelectParseRegion  region;
-	size_t             indexInTheStatus;
-	SQLSelectInfo     &selectInfo;
+	string              currWord;
+	SelectParseSection  section;
+	size_t              indexInTheStatus;
+	SQLSelectInfo      &selectInfo;
 
 	// methods
-	SelectParserContext(SelectParseRegion _region,
+	SelectParserContext(SelectParseSection _section,
 	                    SQLSelectInfo &_selectInfo)
-	: region(_region),
+	: section(_section),
 	  indexInTheStatus(0),
 	  selectInfo(_selectInfo)
 	{
@@ -153,24 +153,24 @@ SQLProcessor::SQLProcessor(TableNameStaticInfoMap &tableNameStaticInfoMap)
 {
 	m_separatorCBForWhere.setCallback('=', whereCbEq, NULL);
 
-	m_selectSeprators[SQLProcessor::SELECT_PARSING_REGION_SELECT] =
+	m_selectSeprators[SQLProcessor::SELECT_PARSING_SECTION_SELECT] =
 	  &m_separatorSpaceComma;
-	m_selectSeprators[SQLProcessor::SELECT_PARSING_REGION_GROUP_BY] = 
+	m_selectSeprators[SQLProcessor::SELECT_PARSING_SECTION_GROUP_BY] = 
 	  &m_separatorSpaceComma;
-	m_selectSeprators[SQLProcessor::SELECT_PARSING_REGION_FROM] =
+	m_selectSeprators[SQLProcessor::SELECT_PARSING_SECTION_FROM] =
 	  &m_separatorCountSpaceComma;
-	m_selectSeprators[SQLProcessor::SELECT_PARSING_REGION_WHERE] = 
+	m_selectSeprators[SQLProcessor::SELECT_PARSING_SECTION_WHERE] = 
 	  &m_separatorCBForWhere;
-	m_selectSeprators[SQLProcessor::SELECT_PARSING_REGION_ORDER_BY] = 
+	m_selectSeprators[SQLProcessor::SELECT_PARSING_SECTION_ORDER_BY] = 
 	  &m_separatorSpaceComma;
-	m_selectSeprators[SQLProcessor::SELECT_PARSING_REGION_LIMIT] = 
+	m_selectSeprators[SQLProcessor::SELECT_PARSING_SECTION_LIMIT] = 
 	  &m_separatorSpaceComma;
 
-	m_selectRegionParserMap["from"]  = &SQLProcessor::parseRegionFrom;
-	m_selectRegionParserMap["where"] = &SQLProcessor::parseRegionWhere;
-	m_selectRegionParserMap["order"] = &SQLProcessor::parseRegionOrder;
-	m_selectRegionParserMap["group"] = &SQLProcessor::parseRegionGroup;
-	m_selectRegionParserMap["limit"] = &SQLProcessor::parseRegionLimit;
+	m_selectSectionParserMap["from"]  = &SQLProcessor::parseSectionFrom;
+	m_selectSectionParserMap["where"] = &SQLProcessor::parseSectionWhere;
+	m_selectSectionParserMap["order"] = &SQLProcessor::parseSectionOrder;
+	m_selectSectionParserMap["group"] = &SQLProcessor::parseSectionGroup;
+	m_selectSectionParserMap["limit"] = &SQLProcessor::parseSectionLimit;
 }
 
 SQLProcessor::~SQLProcessor()
@@ -195,7 +195,7 @@ bool SQLProcessor::parseSelectStatement(SQLSelectInfo &selectInfo)
 	MLPL_DBG("<%s> %s\n", __func__, selectInfo.query.getString());
 	map<string, SelectSubParser>::iterator it;
 	SelectSubParser subParser = NULL;
-	SelectParserContext ctx(SELECT_PARSING_REGION_SELECT, selectInfo);
+	SelectParserContext ctx(SELECT_PARSING_SECTION_SELECT, selectInfo);
 
 	while (!selectInfo.query.finished()) {
 		ctx.currWord = readNextWord(ctx);
@@ -207,10 +207,10 @@ bool SQLProcessor::parseSelectStatement(SQLSelectInfo &selectInfo)
 		transform(lowerWord.begin(), lowerWord.end(),
 		          lowerWord.begin(), ::tolower);
 		
-		it = m_selectRegionParserMap.find(lowerWord);
-		if (it != m_selectRegionParserMap.end()) {
+		it = m_selectSectionParserMap.find(lowerWord);
+		if (it != m_selectSectionParserMap.end()) {
 			// When the function returns 'true', it means
-			// the current word is region keyword and
+			// the current word is section keyword and
 			subParser = it->second;
 			if ((this->*subParser)(ctx)) {
 				ctx.indexInTheStatus = 0;
@@ -219,12 +219,12 @@ bool SQLProcessor::parseSelectStatement(SQLSelectInfo &selectInfo)
 		}
 
 		// parse each component
-		if (ctx.region >= NUM_SELECT_PARSING_REGION) {
-			MLPL_BUG("region(%d) >= NUM_SELECT_PARSING_REGION\n",
-			         ctx.region);
+		if (ctx.section >= NUM_SELECT_PARSING_SECTION) {
+			MLPL_BUG("section(%d) >= NUM_SELECT_PARSING_SECTION\n",
+			         ctx.section);
 			return false;
 		}
-		subParser = m_selectSubParsers[ctx.region];
+		subParser = m_selectSubParsers[ctx.section];
 		if (!(this->*subParser)(ctx))
 			return false;
 
@@ -501,20 +501,20 @@ bool SQLProcessor::makeTextRows(const ItemGroup *itemGroup,
 //
 // Select status parsers
 //
-bool SQLProcessor::parseRegionFrom(SelectParserContext &ctx)
+bool SQLProcessor::parseSectionFrom(SelectParserContext &ctx)
 {
-	ctx.region = SELECT_PARSING_REGION_FROM;
+	ctx.section = SELECT_PARSING_SECTION_FROM;
 	m_separatorCountSpaceComma.resetCounter();
 	return true;
 }
 
-bool SQLProcessor::parseRegionWhere(SelectParserContext &ctx)
+bool SQLProcessor::parseSectionWhere(SelectParserContext &ctx)
 {
-	ctx.region = SELECT_PARSING_REGION_WHERE;
+	ctx.section = SELECT_PARSING_SECTION_WHERE;
 	return true;
 }
 
-bool SQLProcessor::parseRegionOrder(SelectParserContext &ctx)
+bool SQLProcessor::parseSectionOrder(SelectParserContext &ctx)
 {
 	ParsingPosition currPos;
 	string nextWord = readNextWord(ctx, &currPos);
@@ -526,11 +526,11 @@ bool SQLProcessor::parseRegionOrder(SelectParserContext &ctx)
 		return false;
 	}
 
-	ctx.region = SELECT_PARSING_REGION_ORDER_BY;
+	ctx.section = SELECT_PARSING_SECTION_ORDER_BY;
 	return true;
 }
 
-bool SQLProcessor::parseRegionGroup(SelectParserContext &ctx)
+bool SQLProcessor::parseSectionGroup(SelectParserContext &ctx)
 {
 	ParsingPosition currPos;
 	string nextWord = readNextWord(ctx, &currPos);
@@ -542,7 +542,7 @@ bool SQLProcessor::parseRegionGroup(SelectParserContext &ctx)
 		return false;
 	}
 
-	ctx.region = SELECT_PARSING_REGION_GROUP_BY;
+	ctx.section = SELECT_PARSING_SECTION_GROUP_BY;
 	return true;
 }
 
@@ -638,21 +638,26 @@ bool SQLProcessor::parseOrderBy(SelectParserContext &ctx)
 	return true;
 }
 
-bool SQLProcessor::parseRegionLimit(SelectParserContext &ctx)
+bool SQLProcessor::parseSectionLimit(SelectParserContext &ctx)
 {
 	MLPL_BUG("Not implemented: Limit\n");
 	return true;
 }
 
+//
+// Callbacks for parsing 'where' section
+//
+void SQLProcessor::whereCbEq(const char separator, void *arg)
+{
+	// TODO: implemented
+}
+
 string SQLProcessor::readNextWord(SelectParserContext &ctx,
                                   ParsingPosition *position)
 {
-	SeparatorChecker *separator = m_selectSeprators[ctx.region];
+	SeparatorChecker *separator = m_selectSeprators[ctx.section];
 	if (position)
 		*position = ctx.selectInfo.query.getParsingPosition();
 	return ctx.selectInfo.query.readWord(*separator);
 }
 
-void SQLProcessor::whereCbEq(const char separator, void *arg)
-{
-}
