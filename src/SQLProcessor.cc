@@ -160,11 +160,14 @@ SQLProcessor::SQLProcessor(TableNameStaticInfoMap &tableNameStaticInfoMap)
 	  &m_separatorSpaceComma;
 	m_selectSeprators[SQLProcessor::SELECT_PARSING_REGION_ORDER_BY] = 
 	  &m_separatorSpaceComma;
+	m_selectSeprators[SQLProcessor::SELECT_PARSING_REGION_LIMIT] = 
+	  &m_separatorSpaceComma;
 
 	m_selectRegionParserMap["from"]  = &SQLProcessor::parseRegionFrom;
 	m_selectRegionParserMap["where"] = &SQLProcessor::parseRegionWhere;
 	m_selectRegionParserMap["order"] = &SQLProcessor::parseRegionOrder;
 	m_selectRegionParserMap["group"] = &SQLProcessor::parseRegionGroup;
+	m_selectRegionParserMap["limit"] = &SQLProcessor::parseRegionLimit;
 }
 
 SQLProcessor::~SQLProcessor()
@@ -629,6 +632,12 @@ bool SQLProcessor::parseWhere(SelectParserContext &ctx)
 bool SQLProcessor::parseOrderBy(SelectParserContext &ctx)
 {
 	ctx.selectInfo.orderedColumns.push_back(ctx.currWord);
+	return true;
+}
+
+bool SQLProcessor::parseRegionLimit(SelectParserContext &ctx)
+{
+	MLPL_BUG("Not implemented: Limit\n");
 	return true;
 }
 

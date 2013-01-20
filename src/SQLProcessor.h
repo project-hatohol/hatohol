@@ -253,6 +253,7 @@ protected:
 	bool parseRegionWhere(SelectParserContext &ctx);
 	bool parseRegionOrder(SelectParserContext &ctx);
 	bool parseRegionGroup(SelectParserContext &ctx);
+	bool parseRegionLimit(SelectParserContext &ctx);
 
 	//
 	// Select statment parsers
@@ -275,6 +276,7 @@ private:
 		SELECT_PARSING_REGION_FROM,
 		SELECT_PARSING_REGION_WHERE,
 		SELECT_PARSING_REGION_ORDER_BY,
+		SELECT_PARSING_REGION_LIMIT,
 		NUM_SELECT_PARSING_REGION,
 	};
 
