@@ -148,8 +148,11 @@ bool SQLProcessor::select(SQLSelectInfo &selectInfo)
 SQLProcessor::SQLProcessor(TableNameStaticInfoMap &tableNameStaticInfoMap)
 : m_separatorSpaceComma(" ,"),
   m_separatorCountSpaceComma(", "),
+  m_separatorCBForWhere(" ="),
   m_tableNameStaticInfoMap(tableNameStaticInfoMap)
 {
+	m_separatorCBForWhere.setCallback('=', whereCbEq, NULL);
+
 	m_selectSeprators[SQLProcessor::SELECT_PARSING_REGION_SELECT] =
 	  &m_separatorSpaceComma;
 	m_selectSeprators[SQLProcessor::SELECT_PARSING_REGION_GROUP_BY] = 
@@ -157,7 +160,7 @@ SQLProcessor::SQLProcessor(TableNameStaticInfoMap &tableNameStaticInfoMap)
 	m_selectSeprators[SQLProcessor::SELECT_PARSING_REGION_FROM] =
 	  &m_separatorCountSpaceComma;
 	m_selectSeprators[SQLProcessor::SELECT_PARSING_REGION_WHERE] = 
-	  &m_separatorSpaceComma;
+	  &m_separatorCBForWhere;
 	m_selectSeprators[SQLProcessor::SELECT_PARSING_REGION_ORDER_BY] = 
 	  &m_separatorSpaceComma;
 	m_selectSeprators[SQLProcessor::SELECT_PARSING_REGION_LIMIT] = 
@@ -648,4 +651,8 @@ string SQLProcessor::readNextWord(SelectParserContext &ctx,
 	if (position)
 		*position = ctx.selectInfo.query.getParsingPosition();
 	return ctx.selectInfo.query.readWord(*separator);
+}
+
+void SQLProcessor::whereCbEq(const char separator, void *arg)
+{
 }

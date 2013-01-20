@@ -267,6 +267,11 @@ protected:
 	string readNextWord(SelectParserContext &ctx,
 	                    ParsingPosition *position = NULL);
 
+	//
+	// Callback methods for parsing 'where' section
+	//
+	static void whereCbEq(const char separator, void *arg);
+
 private:
 	static const SelectSubParser m_selectSubParsers[];
 
@@ -281,8 +286,9 @@ private:
 	};
 
 	SeparatorChecker *m_selectSeprators[NUM_SELECT_PARSING_REGION];
-	SeparatorChecker            m_separatorSpaceComma;
-	SeparatorCheckerWithCounter m_separatorCountSpaceComma;
+	SeparatorChecker             m_separatorSpaceComma;
+	SeparatorCheckerWithCounter  m_separatorCountSpaceComma;
+	SeparatorCheckerWithCallback m_separatorCBForWhere;
 
 	// These members are typically allocated in sub classes.
 	TableNameStaticInfoMap &m_tableNameStaticInfoMap;
