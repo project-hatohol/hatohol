@@ -193,9 +193,9 @@ void test_selectWhereEq(void)
 {
 	TestSQLProcessor proc;
 	const char *leftHand = "a";
-	const char *tableName = TABLE_NAME;
+	int rightHand = 1;
 	ParsableString parsable(
-	  StringUtils::sprintf("c1 from t1 where a=1", selectedItem, tableName));
+	  StringUtils::sprintf("c1 from t1 where %s=%d", leftHand, rightHand));
 	SQLSelectInfo selectInfo(parsable);
 	proc.callParseSelectStatement(selectInfo);
 }
