@@ -189,4 +189,15 @@ void test_selectTwoTableWithNames(void)
 	cut_assert_equal_string(var2, table->varName.c_str());
 }
 
+void test_selectWhereEq(void)
+{
+	TestSQLProcessor proc;
+	const char *leftHand = "a";
+	const char *tableName = TABLE_NAME;
+	ParsableString parsable(
+	  StringUtils::sprintf("c1 from t1 where a=1", selectedItem, tableName));
+	SQLSelectInfo selectInfo(parsable);
+	proc.callParseSelectStatement(selectInfo);
+}
+
 } // namespace testSQLProcessor

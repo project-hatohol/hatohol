@@ -1,6 +1,21 @@
 #include <cstdio>
 #include "SQLWhereElement.h"
 
+// ---------------------------------------------------------------------------
+// Public methods (SQLWhereOperator)
+// ---------------------------------------------------------------------------
+SQLWhereOperator::SQLWhereOperator(SQLWhereOperatorType type)
+: m_type(type)
+{
+}
+
+SQLWhereOperator::~SQLWhereOperator()
+{
+}
+
+// ---------------------------------------------------------------------------
+// Public methods (SQLWhereElement)
+// ---------------------------------------------------------------------------
 SQLWhereElement::SQLWhereElement(void)
 : m_lefthand(NULL),
   m_operator(NULL),
