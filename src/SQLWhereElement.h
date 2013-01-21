@@ -34,6 +34,15 @@ public:
 };
 
 // ---------------------------------------------------------------------------
+// class: SQLWhereOperatorAnd
+// ---------------------------------------------------------------------------
+class SQLWhereOperatorAnd : public SQLWhereOperator {
+public:
+	SQLWhereOperatorAnd();
+	virtual ~SQLWhereOperatorAnd();
+};
+
+// ---------------------------------------------------------------------------
 // class: SQLWhereELement
 // ---------------------------------------------------------------------------
 enum SQLWhereElementType {

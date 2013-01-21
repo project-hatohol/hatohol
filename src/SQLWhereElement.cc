@@ -38,6 +38,18 @@ SQLWhereOperatorEqual::~SQLWhereOperatorEqual()
 }
 
 // ---------------------------------------------------------------------------
+// class: SQLWhereOperatorAnd
+// ---------------------------------------------------------------------------
+SQLWhereOperatorAnd::SQLWhereOperatorAnd()
+: SQLWhereOperator(SQL_WHERE_OP_EQ)
+{
+}
+
+SQLWhereOperatorAnd::~SQLWhereOperatorAnd()
+{
+}
+
+// ---------------------------------------------------------------------------
 // Public methods (SQLWhereElement)
 // ---------------------------------------------------------------------------
 SQLWhereElement::SQLWhereElement(SQLWhereElementType elemType)
