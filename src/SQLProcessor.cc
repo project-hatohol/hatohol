@@ -21,17 +21,29 @@ const SQLProcessor::SelectSubParser SQLProcessor::m_selectSubParsers[] = {
 };
 
 struct SQLProcessor::SelectParserContext {
+	SQLProcessor       *sqlProcessor;
+
 	string              currWord;
 	SelectParseSection  section;
 	size_t              indexInTheStatus;
 	SQLSelectInfo      &selectInfo;
 
+	// used in where section
+	bool                ignoreParsingOneTime;
+	bool                quotOpen;
+	SeparatorChecker   *forceSeparatorChecker;
+
 	// methods
-	SelectParserContext(SelectParseSection _section,
+	SelectParserContext(SQLProcessor *sqlProc,
+	                    SelectParseSection _section,
 	                    SQLSelectInfo &_selectInfo)
-	: section(_section),
+	: sqlProcessor(sqlProc),
+	  section(_section),
 	  indexInTheStatus(0),
-	  selectInfo(_selectInfo)
+	  selectInfo(_selectInfo),
+	  ignoreParsingOneTime(false),
+	  quotOpen(false),
+	  forceSeparatorChecker(NULL)
 	{
 	}
 };
@@ -151,8 +163,9 @@ bool SQLProcessor::select(SQLSelectInfo &selectInfo)
 // ---------------------------------------------------------------------------
 SQLProcessor::SQLProcessor(TableNameStaticInfoMap &tableNameStaticInfoMap)
 : m_separatorSpaceComma(" ,"),
+  m_separatorQuot("'"),
   m_separatorCountSpaceComma(", "),
-  m_separatorCBForWhere(" ="),
+  m_separatorCBForWhere(" ='"),
   m_tableNameStaticInfoMap(tableNameStaticInfoMap)
 {
 	m_selectSeprators[SQLProcessor::SELECT_PARSING_SECTION_SELECT] =
@@ -197,9 +210,12 @@ bool SQLProcessor::parseSelectStatement(SQLSelectInfo &selectInfo)
 	MLPL_DBG("<%s> %s\n", __func__, selectInfo.query.getString());
 	map<string, SelectSubParser>::iterator it;
 	SelectSubParser subParser = NULL;
-	SelectParserContext ctx(SELECT_PARSING_SECTION_SELECT, selectInfo);
+	SelectParserContext ctx(this, SELECT_PARSING_SECTION_SELECT,
+	                        selectInfo);
 	m_separatorCBForWhere.setCallbackTempl<SelectParserContext>
 	                                      ('=', whereCbEq, &ctx);
+	m_separatorCBForWhere.setCallbackTempl<SelectParserContext>
+	                                      ('\'', whereCbQuot, &ctx);
 
 	while (!selectInfo.query.finished()) {
 		ctx.currWord = readNextWord(ctx);
@@ -633,8 +649,21 @@ bool SQLProcessor::parseFrom(SelectParserContext &ctx)
 bool SQLProcessor::parseWhere(SelectParserContext &ctx)
 {
 	MLPL_DBG("parseWhere: %s\n", ctx.currWord.c_str());
+	if (ctx.ignoreParsingOneTime) {
+		ctx.ignoreParsingOneTime = false;
+		return true;
+	}
+	
+	bool doKeywordCheck = true;
+	if (ctx.quotOpen) {
+		ctx.quotOpen = false;
+		ctx.forceSeparatorChecker = NULL;
+		doKeywordCheck = false;
+	}
 
 	// check if this is the keyword
+	if (doKeywordCheck) {
+	}
 
 	// parse word as the hand
 	SQLWhereElement *whereElem = ctx.selectInfo.currWhereElem;
@@ -681,10 +710,27 @@ void SQLProcessor::whereCbEq(const char separator, SelectParserContext *ctx)
 	ctx->selectInfo.currWhereElem->setOperator(opEq);
 }
 
+void SQLProcessor::whereCbQuot(const char separator, SelectParserContext *ctx)
+{
+	MLPL_DBG("!!! %s\n", __func__);
+	ctx->ignoreParsingOneTime = true;
+	if (ctx->quotOpen) {
+		string msg;
+		TRMSG(msg, "whereCbQuot is called when ctx->quotOpen is true.");
+		throw logic_error(msg);
+	}
+	ctx->quotOpen = true;
+	ctx->forceSeparatorChecker = &ctx->sqlProcessor->m_separatorQuot;
+}
+
 string SQLProcessor::readNextWord(SelectParserContext &ctx,
                                   ParsingPosition *position)
 {
-	SeparatorChecker *separator = m_selectSeprators[ctx.section];
+	SeparatorChecker *separator;
+	if (ctx.forceSeparatorChecker)
+		separator = ctx.forceSeparatorChecker;
+	else
+		separator = m_selectSeprators[ctx.section];
 	if (position)
 		*position = ctx.selectInfo.query.getParsingPosition();
 	return ctx.selectInfo.query.readWord(*separator);

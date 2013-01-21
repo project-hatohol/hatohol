@@ -183,12 +183,13 @@ struct SQLSelectInfo {
 
 	// unified table
 	ItemTablePtr joinedTable;
-
-	bool useIndex;
 	ItemTablePtr selectedTable;
 
 	// output
 	vector<string> textRows;
+
+	// flags
+	bool useIndex;
 
 	//
 	// constructor and destructor
@@ -263,6 +264,7 @@ protected:
 	// Callbacks for parsing 'where' section
 	//
 	static void whereCbEq(const char separator, SelectParserContext *arg);
+	static void whereCbQuot(const char separator, SelectParserContext *arg);
 
 	string readNextWord(SelectParserContext &ctx,
 	                    ParsingPosition *position = NULL);
@@ -282,6 +284,7 @@ private:
 
 	SeparatorChecker *m_selectSeprators[NUM_SELECT_PARSING_SECTION];
 	SeparatorChecker             m_separatorSpaceComma;
+	SeparatorChecker             m_separatorQuot;
 	SeparatorCheckerWithCounter  m_separatorCountSpaceComma;
 	SeparatorCheckerWithCallback m_separatorCBForWhere;
 
