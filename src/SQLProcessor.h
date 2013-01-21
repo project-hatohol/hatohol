@@ -284,7 +284,6 @@ private:
 
 	SeparatorChecker *m_selectSeprators[NUM_SELECT_PARSING_SECTION];
 	SeparatorChecker             m_separatorSpaceComma;
-	SeparatorChecker             m_separatorQuot;
 	SeparatorCheckerWithCounter  m_separatorCountSpaceComma;
 	SeparatorCheckerWithCallback m_separatorCBForWhere;
 

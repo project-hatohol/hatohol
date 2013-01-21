@@ -252,7 +252,7 @@ void test_selectWhereEqString(void)
 {
 	TestSQLProcessor proc;
 	const char *leftHand = "a";
-	const char *rightHand = "foo";
+	const char *rightHand = "foo XYZ";
 	ParsableString parsable(
 	  StringUtils::sprintf("c1 from t1 where %s='%s'",
 	                       leftHand, rightHand));

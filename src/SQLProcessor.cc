@@ -29,9 +29,7 @@ struct SQLProcessor::SelectParserContext {
 	SQLSelectInfo      &selectInfo;
 
 	// used in where section
-	bool                ignoreParsingOneTime;
 	bool                quotOpen;
-	SeparatorChecker   *forceSeparatorChecker;
 
 	// methods
 	SelectParserContext(SQLProcessor *sqlProc,
@@ -41,9 +39,7 @@ struct SQLProcessor::SelectParserContext {
 	  section(_section),
 	  indexInTheStatus(0),
 	  selectInfo(_selectInfo),
-	  ignoreParsingOneTime(false),
-	  quotOpen(false),
-	  forceSeparatorChecker(NULL)
+	  quotOpen(false)
 	{
 	}
 };
@@ -163,7 +159,6 @@ bool SQLProcessor::select(SQLSelectInfo &selectInfo)
 // ---------------------------------------------------------------------------
 SQLProcessor::SQLProcessor(TableNameStaticInfoMap &tableNameStaticInfoMap)
 : m_separatorSpaceComma(" ,"),
-  m_separatorQuot("'"),
   m_separatorCountSpaceComma(", "),
   m_separatorCBForWhere(" ='"),
   m_tableNameStaticInfoMap(tableNameStaticInfoMap)
@@ -649,20 +644,17 @@ bool SQLProcessor::parseFrom(SelectParserContext &ctx)
 bool SQLProcessor::parseWhere(SelectParserContext &ctx)
 {
 	MLPL_DBG("parseWhere: %s\n", ctx.currWord.c_str());
-	if (ctx.ignoreParsingOneTime) {
-		ctx.ignoreParsingOneTime = false;
-		return true;
-	}
-	
 	bool doKeywordCheck = true;
+	bool currWordString = false;
 	if (ctx.quotOpen) {
 		ctx.quotOpen = false;
-		ctx.forceSeparatorChecker = NULL;
 		doKeywordCheck = false;
+		currWordString = true;
 	}
 
 	// check if this is the keyword
 	if (doKeywordCheck) {
+		// TODO: implement
 	}
 
 	// parse word as the hand
@@ -670,12 +662,17 @@ bool SQLProcessor::parseWhere(SelectParserContext &ctx)
 	bool shouldLeftHand = !(whereElem->getLeftHand());
 
 	SQLWhereElement *handElem = NULL;
-	if (shouldLeftHand)
+	if (currWordString)
+		handElem = new SQLWhereString(ctx.currWord);
+	else if (shouldLeftHand)
 		handElem = new SQLWhereColumn(ctx.currWord);
 	else if (StringUtils::isDecimal(ctx.currWord))
 		handElem = new SQLWhereNumber(atof(ctx.currWord.c_str()));
-	else
-		handElem = new SQLWhereString(ctx.currWord);
+	else {
+		string msg;
+		TRMSG(msg, "Not catched: %s.", ctx.currWord.c_str());
+		throw logic_error(msg);
+	}
 
 	if (shouldLeftHand)
 		whereElem->setLeftHand(handElem);
@@ -712,25 +709,20 @@ void SQLProcessor::whereCbEq(const char separator, SelectParserContext *ctx)
 
 void SQLProcessor::whereCbQuot(const char separator, SelectParserContext *ctx)
 {
-	MLPL_DBG("!!! %s\n", __func__);
-	ctx->ignoreParsingOneTime = true;
+	SeparatorCheckerWithCallback &separatorCBForWhere
+	  = ctx->sqlProcessor->m_separatorCBForWhere;
 	if (ctx->quotOpen) {
-		string msg;
-		TRMSG(msg, "whereCbQuot is called when ctx->quotOpen is true.");
-		throw logic_error(msg);
+		separatorCBForWhere.unsetAlternative();
+		return;
 	}
 	ctx->quotOpen = true;
-	ctx->forceSeparatorChecker = &ctx->sqlProcessor->m_separatorQuot;
+	separatorCBForWhere.setAlternative(&ParsableString::SEPARATOR_QUOT);
 }
 
 string SQLProcessor::readNextWord(SelectParserContext &ctx,
                                   ParsingPosition *position)
 {
-	SeparatorChecker *separator;
-	if (ctx.forceSeparatorChecker)
-		separator = ctx.forceSeparatorChecker;
-	else
-		separator = m_selectSeprators[ctx.section];
+	SeparatorChecker *separator = m_selectSeprators[ctx.section];
 	if (position)
 		*position = ctx.selectInfo.query.getParsingPosition();
 	return ctx.selectInfo.query.readWord(*separator);
