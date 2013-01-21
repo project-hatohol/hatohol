@@ -19,7 +19,8 @@ SQLWhereOperator::~SQLWhereOperator()
 SQLWhereElement::SQLWhereElement(void)
 : m_lefthand(NULL),
   m_operator(NULL),
-  m_righthand(NULL)
+  m_righthand(NULL),
+  m_parent(NULL)
 {
 }
 

@@ -84,16 +84,16 @@ void SQLColumnInfo::setColumnType(void)
 // ---------------------------------------------------------------------------
 SQLSelectInfo::SQLSelectInfo(ParsableString &_query)
 : query(_query),
-  whereElem(NULL),
+  rootWhereElem(NULL),
+  currWhereElem(NULL),
   useIndex(false)
 {
 }
 
-
 SQLSelectInfo::~SQLSelectInfo()
 {
-	if (whereElem)
-		delete whereElem;
+	if (rootWhereElem)
+		delete rootWhereElem;
 }
 
 // ---------------------------------------------------------------------------
@@ -628,7 +628,7 @@ bool SQLProcessor::parseFrom(SelectParserContext &ctx)
 
 bool SQLProcessor::parseWhere(SelectParserContext &ctx)
 {
-	MLPL_BUG("Not implemented: WHERE\n");
+	MLPL_DBG("parseWhere: %s\n", ctx.currWord.c_str());
 	return true;
 }
 
@@ -650,6 +650,7 @@ bool SQLProcessor::parseSectionLimit(SelectParserContext &ctx)
 void SQLProcessor::whereCbEq(const char separator, void *arg)
 {
 	// TODO: implemented
+	MLPL_DBG("whereCbEq: %c\n", separator);
 }
 
 string SQLProcessor::readNextWord(SelectParserContext &ctx,

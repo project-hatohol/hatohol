@@ -36,6 +36,8 @@ private:
 	SQLWhereElement  *m_lefthand;
 	SQLWhereOperator *m_operator;
 	SQLWhereElement  *m_righthand;
+
+	SQLWhereElement  *m_parent;
 };
 
 #endif // SQLWhereElement_h

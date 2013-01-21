@@ -167,7 +167,9 @@ struct SQLSelectInfo {
 
 	// We must free 'whereElem' when no longer needed. Its destructor
 	// causes the free chain of child 'whereElem' instances.
-	SQLWhereElement            *whereElem;
+	SQLWhereElement            *rootWhereElem;
+	SQLWhereElement            *currWhereElem;
+
 	vector<string>              orderedColumns;
 
 	vector<SQLColumnDefinition> columnDefs;
