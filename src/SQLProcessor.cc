@@ -94,6 +94,14 @@ SQLSelectInfo::~SQLSelectInfo()
 {
 	if (rootWhereElem)
 		delete rootWhereElem;
+
+	SQLColumnInfoVectorIterator columnIt = columns.begin();
+	for (; columnIt != columns.end(); ++columnIt)
+		delete *columnIt;
+
+	SQLTableInfoVectorIterator tableIt = tables.begin();
+	for (; tableIt != tables.end(); ++tableIt)
+		delete *tableIt;
 }
 
 // ---------------------------------------------------------------------------
