@@ -668,11 +668,8 @@ bool SQLProcessor::parseWhere(SelectParserContext &ctx)
 		handElem = new SQLWhereColumn(ctx.currWord);
 	else if (StringUtils::isDecimal(ctx.currWord))
 		handElem = new SQLWhereNumber(atof(ctx.currWord.c_str()));
-	else {
-		string msg;
-		TRMSG(msg, "Not catched: %s.", ctx.currWord.c_str());
-		throw logic_error(msg);
-	}
+	else
+		handElem = new SQLWhereColumn(ctx.currWord);
 
 	if (shouldLeftHand)
 		whereElem->setLeftHand(handElem);
