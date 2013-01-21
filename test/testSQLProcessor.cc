@@ -117,12 +117,12 @@ void test_selectOneItem(void)
 	proc.callParseSelectStatement(selectInfo);
 
 	cut_assert_equal_int(1, selectInfo.columns.size());
-	SQLColumnInfoListIterator column = selectInfo.columns.begin();
-	cut_assert_equal_string(selectedItem, column->name.c_str());
+	SQLColumnInfoVectorIterator column = selectInfo.columns.begin();
+	cut_assert_equal_string(selectedItem, (*column)->name.c_str());
 
 	cut_assert_equal_int(1, selectInfo.tables.size());
-	SQLTableInfoListIterator table = selectInfo.tables.begin();
-	cut_assert_equal_string(tableName, table->name.c_str());
+	SQLTableInfoVectorIterator table = selectInfo.tables.begin();
+	cut_assert_equal_string(tableName, (*table)->name.c_str());
 }
 
 void test_selectTableVar(void)
@@ -135,8 +135,8 @@ void test_selectTableVar(void)
 	SQLSelectInfo selectInfo(parsable);
 	proc.callParseSelectStatement(selectInfo);
 	cut_assert_equal_int(1, selectInfo.tables.size());
-	SQLTableInfoListIterator table = selectInfo.tables.begin();
-	cut_assert_equal_string(tableVarName, table->varName.c_str());
+	SQLTableInfoVectorIterator table = selectInfo.tables.begin();
+	cut_assert_equal_string(tableVarName, (*table)->varName.c_str());
 }
 
 void test_selectOrderBy(void)
@@ -163,10 +163,10 @@ void test_selectTwoTable(void)
 	proc.callParseSelectStatement(selectInfo);
 
 	cut_assert_equal_int(2, selectInfo.tables.size());
-	SQLTableInfoListIterator table = selectInfo.tables.begin();
-	cut_assert_equal_string(TABLE_NAME, table->name.c_str());
+	SQLTableInfoVectorIterator table = selectInfo.tables.begin();
+	cut_assert_equal_string(TABLE_NAME, (*table)->name.c_str());
 	++table;
-	cut_assert_equal_string(TABLE_NAME_A, table->name.c_str());
+	cut_assert_equal_string(TABLE_NAME_A, (*table)->name.c_str());
 }
 
 void test_selectTwoTableWithNames(void)
@@ -181,12 +181,12 @@ void test_selectTwoTableWithNames(void)
 	proc.callParseSelectStatement(selectInfo);
 
 	cut_assert_equal_int(2, selectInfo.tables.size());
-	SQLTableInfoListIterator table = selectInfo.tables.begin();
-	cut_assert_equal_string(TABLE_NAME, table->name.c_str());
-	cut_assert_equal_string(var1, table->varName.c_str());
+	SQLTableInfoVectorIterator table = selectInfo.tables.begin();
+	cut_assert_equal_string(TABLE_NAME, (*table)->name.c_str());
+	cut_assert_equal_string(var1, (*table)->varName.c_str());
 	++table;
-	cut_assert_equal_string(TABLE_NAME_A, table->name.c_str());
-	cut_assert_equal_string(var2, table->varName.c_str());
+	cut_assert_equal_string(TABLE_NAME_A, (*table)->name.c_str());
+	cut_assert_equal_string(var2, (*table)->varName.c_str());
 }
 
 void test_selectWhereEq(void)

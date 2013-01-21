@@ -112,8 +112,8 @@ struct SQLTableInfo {
 	SQLTableInfo(void);
 };
 
-typedef list<SQLTableInfo>         SQLTableInfoList;
-typedef SQLTableInfoList::iterator SQLTableInfoListIterator;
+typedef list<SQLTableInfo *>         SQLTableInfoVector;
+typedef SQLTableInfoVector::iterator SQLTableInfoVectorIterator;
 
 struct SQLColumnInfo {
 	string name;         // ex.) tableVarName.column1
@@ -141,8 +141,8 @@ struct SQLColumnInfo {
 	void setColumnType(void);
 };
 
-typedef list<SQLColumnInfo>         SQLColumnInfoList;
-typedef SQLColumnInfoList::iterator SQLColumnInfoListIterator;
+typedef vector<SQLColumnInfo *>         SQLColumnInfoVector;
+typedef SQLColumnInfoVector::iterator   SQLColumnInfoVectorIterator;
 
 typedef map<const SQLTableInfo *, ItemIdVector> SQLTableInfoItemIdVectorMap;
 typedef SQLTableInfoItemIdVectorMap::iterator
@@ -157,9 +157,10 @@ struct SQLSelectInfo {
 	// input statement
 	ParsableString   query;
 
-	// parsed matter
-	SQLColumnInfoList columns;
-	SQLTableInfoList  tables;
+	// parsed matter (Elements in these two container have to be freed)
+	SQLColumnInfoVector columns;
+	SQLTableInfoVector  tables;
+
 	// The value (const SQLTableInfo *) in the following map points
 	// an instance in 'tables' in this struct.
 	// Key is a table var name.
