@@ -7,7 +7,7 @@ TESTS = run-test.sh
 TESTS_ENVIRONMENT = NO_MAKE=yes CUTTER="$(CUTTER)"
 
 noinst_LTLIBRARIES = \
-	testSQLProcessor.la testMySQLWorkerZabbix.la \
+	testSQLProcessor.la testSQLWhereElement.la testMySQLWorkerZabbix.la \
 	testItemData.la testItemGroup.la \
 	testItemPtr.la testItemGroupType.la testItemTable.la \
 	testItemTablePtr.la
@@ -27,6 +27,7 @@ LIBS = \
 
 # Test cases
 testSQLProcessor_la_SOURCES = testSQLProcessor.cc
+testSQLWhereElement_la_SOURCES = testSQLWhereElement.cc
 testMySQLWorkerZabbix_la_SOURCES = testMySQLWorkerZabbix.cc
 testItemData_la_SOURCES = testItemData.cc
 testItemGroup_la_SOURCES = testItemGroup.cc

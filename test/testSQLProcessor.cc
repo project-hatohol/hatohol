@@ -7,7 +7,9 @@ using namespace std;
 using namespace mlpl;
 
 #include <cstdio>
+#include <typeinfo>
 #include <cutter.h>
+#include <cppcutter.h>
 #include "SQLProcessor.h"
 
 namespace testSQLProcessor {
@@ -198,6 +200,31 @@ void test_selectWhereEq(void)
 	  StringUtils::sprintf("c1 from t1 where %s=%d", leftHand, rightHand));
 	SQLSelectInfo selectInfo(parsable);
 	proc.callParseSelectStatement(selectInfo);
+
+	SQLWhereElement *leftHandElem
+	  = selectInfo.rootWhereElem.getLeftHand();
+	SQLWhereElement *rightHandElem
+	  = selectInfo.rootWhereElem.getRightHand();
+	SQLWhereOperator *whereOp
+	  = selectInfo.rootWhereElem.getOperator();
+	cut_assert_not_null(leftHandElem);
+	cut_assert_not_null(rightHandElem);
+	cut_assert_not_null(whereOp);
+
+	cppcut_assert_equal(true,
+	                    typeid(SQLWhereColumn) == typeid(*leftHandElem));
+	cppcut_assert_equal(true,
+	                    typeid(SQLWhereNumber) == typeid(*rightHandElem));
+	cppcut_assert_equal(true,
+	                    typeid(SQLWhereOperatorEqual) == typeid(*whereOp));
+
+	SQLWhereColumn *leftHandColumn
+	  = dynamic_cast<SQLWhereColumn *>(leftHandElem);
+	SQLWhereNumber *rightHandNumber
+	  = dynamic_cast<SQLWhereNumber *>(rightHandElem);
+
+	cppcut_assert_equal(string(leftHand), leftHandColumn->getValue());
+	cppcut_assert_equal(rightHand, (int)rightHandNumber->getValue());
 }
 
 } // namespace testSQLProcessor

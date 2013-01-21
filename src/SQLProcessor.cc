@@ -84,17 +84,13 @@ void SQLColumnInfo::setColumnType(void)
 // ---------------------------------------------------------------------------
 SQLSelectInfo::SQLSelectInfo(ParsableString &_query)
 : query(_query),
-  rootWhereElem(NULL),
-  currWhereElem(NULL),
+  currWhereElem(&rootWhereElem),
   useIndex(false)
 {
 }
 
 SQLSelectInfo::~SQLSelectInfo()
 {
-	if (rootWhereElem)
-		delete rootWhereElem;
-
 	SQLColumnInfoVectorIterator columnIt = columns.begin();
 	for (; columnIt != columns.end(); ++columnIt)
 		delete *columnIt;
@@ -159,8 +155,6 @@ SQLProcessor::SQLProcessor(TableNameStaticInfoMap &tableNameStaticInfoMap)
   m_separatorCBForWhere(" ="),
   m_tableNameStaticInfoMap(tableNameStaticInfoMap)
 {
-	m_separatorCBForWhere.setCallback('=', whereCbEq, NULL);
-
 	m_selectSeprators[SQLProcessor::SELECT_PARSING_SECTION_SELECT] =
 	  &m_separatorSpaceComma;
 	m_selectSeprators[SQLProcessor::SELECT_PARSING_SECTION_GROUP_BY] = 
@@ -204,6 +198,8 @@ bool SQLProcessor::parseSelectStatement(SQLSelectInfo &selectInfo)
 	map<string, SelectSubParser>::iterator it;
 	SelectSubParser subParser = NULL;
 	SelectParserContext ctx(SELECT_PARSING_SECTION_SELECT, selectInfo);
+	m_separatorCBForWhere.setCallbackTempl<SelectParserContext>
+	                                      ('=', whereCbEq, &ctx);
 
 	while (!selectInfo.query.finished()) {
 		ctx.currWord = readNextWord(ctx);
@@ -637,6 +633,30 @@ bool SQLProcessor::parseFrom(SelectParserContext &ctx)
 bool SQLProcessor::parseWhere(SelectParserContext &ctx)
 {
 	MLPL_DBG("parseWhere: %s\n", ctx.currWord.c_str());
+
+	// check if this is the keyword
+
+	// parse word as the hand
+	SQLWhereElement *whereElem = ctx.selectInfo.currWhereElem;
+	bool shouldLeftHand = !(whereElem->getLeftHand());
+
+	SQLWhereElement *handElem = NULL;
+	if (shouldLeftHand)
+		handElem = new SQLWhereColumn(ctx.currWord);
+	else if (StringUtils::isDecimal(ctx.currWord))
+		handElem = new SQLWhereNumber(atof(ctx.currWord.c_str()));
+	else
+		handElem = new SQLWhereString(ctx.currWord);
+
+	if (shouldLeftHand)
+		whereElem->setLeftHand(handElem);
+	else if (!whereElem->getRightHand())
+		whereElem->setRightHand(handElem);
+	else {
+		string msg;
+		TRMSG(msg, "Both hand of currWhereElem are not NULL.");
+		throw logic_error(msg);
+	}
 	return true;
 }
 
@@ -655,10 +675,10 @@ bool SQLProcessor::parseSectionLimit(SelectParserContext &ctx)
 //
 // Callbacks for parsing 'where' section
 //
-void SQLProcessor::whereCbEq(const char separator, void *arg)
+void SQLProcessor::whereCbEq(const char separator, SelectParserContext *ctx)
 {
-	// TODO: implemented
-	MLPL_DBG("whereCbEq: %c\n", separator);
+	SQLWhereOperator *opEq = new SQLWhereOperatorEqual();
+	ctx->selectInfo.currWhereElem->setOperator(opEq);
 }
 
 string SQLProcessor::readNextWord(SelectParserContext &ctx,

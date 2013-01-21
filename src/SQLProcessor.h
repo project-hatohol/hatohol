@@ -168,7 +168,7 @@ struct SQLSelectInfo {
 
 	// We must free 'whereElem' when no longer needed. Its destructor
 	// causes the free chain of child 'whereElem' instances.
-	SQLWhereElement            *rootWhereElem;
+	SQLWhereElement            rootWhereElem;
 	SQLWhereElement            *currWhereElem;
 
 	vector<string>              orderedColumns;
@@ -262,7 +262,7 @@ protected:
 	//
 	// Callbacks for parsing 'where' section
 	//
-	static void whereCbEq(const char separator, void *arg);
+	static void whereCbEq(const char separator, SelectParserContext *arg);
 
 	string readNextWord(SelectParserContext &ctx,
 	                    ParsingPosition *position = NULL);
