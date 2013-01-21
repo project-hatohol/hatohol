@@ -49,6 +49,7 @@ public:
 	SQLWhereElement(SQLWhereElementType elemType = SQL_WHERE_ELEM_ELEMENT);
 	virtual ~SQLWhereElement();
 
+	SQLWhereElementType getType(void) const;
 	SQLWhereElement  *getLeftHand(void) const;
 	SQLWhereElement  *getRightHand(void) const;
 	SQLWhereOperator *getOperator(void) const;

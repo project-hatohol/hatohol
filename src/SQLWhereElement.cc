@@ -59,6 +59,11 @@ SQLWhereElement::~SQLWhereElement()
 		delete m_rightHand;
 }
 
+SQLWhereElementType SQLWhereElement::getType(void) const
+{
+	return m_type;
+}
+
 SQLWhereElement *SQLWhereElement::getLeftHand(void) const
 {
 	return m_leftHand;
