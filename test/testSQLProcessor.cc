@@ -266,10 +266,10 @@ void test_selectWhereEqNumber(void)
 	proc.callParseSelectStatement(selectInfo);
 
 	cut_trace(assertWhereElementColumn
-	          (selectInfo.rootWhereElem.getLeftHand(), leftHand));
+	          (selectInfo.rootWhereElem->getLeftHand(), leftHand));
 	cut_trace(assertWhereElementNumber
-	          (selectInfo.rootWhereElem.getRightHand(), rightHand));
-	cut_trace(assertWhereOperatorEqual(&selectInfo.rootWhereElem));
+	          (selectInfo.rootWhereElem->getRightHand(), rightHand));
+	cut_trace(assertWhereOperatorEqual(selectInfo.rootWhereElem));
 }
 
 void test_selectWhereEqString(void)
@@ -284,10 +284,10 @@ void test_selectWhereEqString(void)
 	proc.callParseSelectStatement(selectInfo);
 
 	cut_trace(assertWhereElementColumn
-	          (selectInfo.rootWhereElem.getLeftHand(), leftHand));
+	          (selectInfo.rootWhereElem->getLeftHand(), leftHand));
 	cut_trace(assertWhereElementString
-	          (selectInfo.rootWhereElem.getRightHand(), rightHand));
-	cut_trace(assertWhereOperatorEqual(&selectInfo.rootWhereElem));
+	          (selectInfo.rootWhereElem->getRightHand(), rightHand));
+	cut_trace(assertWhereOperatorEqual(selectInfo.rootWhereElem));
 }
 
 void test_selectWhereEqColumn(void)
@@ -302,10 +302,10 @@ void test_selectWhereEqColumn(void)
 	proc.callParseSelectStatement(selectInfo);
 
 	cut_trace(assertWhereElementColumn
-	          (selectInfo.rootWhereElem.getLeftHand(), leftHand));
+	          (selectInfo.rootWhereElem->getLeftHand(), leftHand));
 	cut_trace(assertWhereElementColumn
-	          (selectInfo.rootWhereElem.getRightHand(), rightHand));
-	cut_trace(assertWhereOperatorEqual(&selectInfo.rootWhereElem));
+	          (selectInfo.rootWhereElem->getRightHand(), rightHand));
+	cut_trace(assertWhereOperatorEqual(selectInfo.rootWhereElem));
 }
 
 void test_selectWhereAnd(void)
@@ -321,11 +321,11 @@ void test_selectWhereAnd(void)
 	SQLSelectInfo selectInfo(parsable);
 	proc.callParseSelectStatement(selectInfo);
 
-	SQLWhereElement *leftElem = selectInfo.rootWhereElem.getLeftHand();
-	SQLWhereElement *rightElem = selectInfo.rootWhereElem.getRightHand();
+	SQLWhereElement *leftElem = selectInfo.rootWhereElem->getLeftHand();
+	SQLWhereElement *rightElem = selectInfo.rootWhereElem->getRightHand();
 	cut_trace(assertWhereElementElement(leftElem));
 	cut_trace(assertWhereElementElement(rightElem));
-	cut_trace(assertWhereOperatorAnd(&selectInfo.rootWhereElem));
+	cut_trace(assertWhereOperatorAnd(selectInfo.rootWhereElem));
 }
 
 } // namespace testSQLProcessor

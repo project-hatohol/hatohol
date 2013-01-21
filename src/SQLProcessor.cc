@@ -92,9 +92,10 @@ void SQLColumnInfo::setColumnType(void)
 // ---------------------------------------------------------------------------
 SQLSelectInfo::SQLSelectInfo(ParsableString &_query)
 : query(_query),
-  currWhereElem(&rootWhereElem),
   useIndex(false)
 {
+	rootWhereElem = new SQLWhereElement();
+	currWhereElem = rootWhereElem;
 }
 
 SQLSelectInfo::~SQLSelectInfo()
@@ -106,6 +107,9 @@ SQLSelectInfo::~SQLSelectInfo()
 	SQLTableInfoVectorIterator tableIt = tables.begin();
 	for (; tableIt != tables.end(); ++tableIt)
 		delete *tableIt;
+
+	if (rootWhereElem)
+		delete rootWhereElem;;
 }
 
 // ---------------------------------------------------------------------------
