@@ -13,16 +13,14 @@ using namespace mlpl;
 
 typedef vector<string> CommandLineArg;
 
-string makeDemangledStackTraceLines(char **stackTraceLines, int num);
+string makeDemangledStackTraceLines(void **trace, int num);
 
 #define TRMSG(msg, fmt, ...) \
 do { \
   void *trace[128]; \
   int n = backtrace(trace, sizeof(trace) / sizeof(trace[0])); \
-  char **symbols = backtrace_symbols(trace, n); \
   msg = StringUtils::sprintf("<%s:%d> " fmt "\n", __FILE__, __LINE__, ##__VA_ARGS__); \
-  msg += makeDemangledStackTraceLines(symbols, n); \
-  free(symbols); \
+  msg += makeDemangledStackTraceLines(trace, n); \
 } while (0)
 
 #endif // Utils_h

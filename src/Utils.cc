@@ -37,21 +37,23 @@ static string makeDemangledStackTraceString(string &stackTraceLine)
 
 	string returnStr = libName;
 	if (!demangledStr.empty())
-		returnStr += " : " + demangledStr + " +" + stringsSymbol[1];
-	returnStr += " : " + symbolName + addr;
+		returnStr += ", " + demangledStr + " +" + stringsSymbol[1];
+	returnStr += ", " + symbolName + addr;
 	return returnStr;
 }
 
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
-string makeDemangledStackTraceLines(char **stackTraceLines, int num)
+string makeDemangledStackTraceLines(void **trace, int num)
 {
+	char **symbols = backtrace_symbols(trace, num);
 	string str;
 	for (int i = 0; i < num; i++) {
-		string line = stackTraceLines[i];
+		string line = symbols[i];
 		str += makeDemangledStackTraceString(line);
 		str += "\n";
 	}
+	free(symbols);
 	return str;
 }
