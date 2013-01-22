@@ -738,9 +738,10 @@ bool SQLProcessor::whereHandlerAnd(SelectParserContext &ctx)
 	SQLWhereElement *newRightElem = new SQLWhereElement();
 	andWhereElem->setRightHand(newRightElem);
 
-	// set the root element
+	// set the root and current element
 	ctx.selectInfo.rootWhereElem->setParent(andWhereElem);
 	ctx.selectInfo.rootWhereElem = andWhereElem;
+	ctx.selectInfo.currWhereElem = newRightElem;
 
 	return true;
 }
