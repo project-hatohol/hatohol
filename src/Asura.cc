@@ -15,10 +15,12 @@ void asuraInit(void)
 		g_static_mutex_unlock(&mutex);
 		return;
 	}
+
 	FaceMySQLWorker::init();
 	SQLProcessor::init();
 	SQLProcessorZabbix::init();
 	SQLProcessorFactory::init();
+
 	initDone = true;
 	g_static_mutex_unlock(&mutex);
 }
