@@ -23,10 +23,14 @@ const SQLProcessor::SelectSubParser SQLProcessor::m_selectSubParsers[] = {
 map<string, SQLProcessor::SelectSubParser>
   SQLProcessor::m_selectSectionParserMap;
 
+map<string, SQLProcessor::SelectSubParser>
+  SQLProcessor::m_whereKeywordHandlerMap;
+
 struct SQLProcessor::SelectParserContext {
 	SQLProcessor       *sqlProcessor;
 
 	string              currWord;
+	string              currWordLower;
 	SelectParseSection  section;
 	size_t              indexInTheStatus;
 	SQLSelectInfo      &selectInfo;
@@ -125,6 +129,9 @@ void SQLProcessor::init(void)
 	m_selectSectionParserMap["order"] = &SQLProcessor::parseSectionOrder;
 	m_selectSectionParserMap["group"] = &SQLProcessor::parseSectionGroup;
 	m_selectSectionParserMap["limit"] = &SQLProcessor::parseSectionLimit;
+
+	m_whereKeywordHandlerMap["and"] = &SQLProcessor::whereHandlerAnd;
+	m_whereKeywordHandlerMap["between"] = &SQLProcessor::whereHandlerBetween;
 }
 
 bool SQLProcessor::select(SQLSelectInfo &selectInfo)
@@ -228,11 +235,11 @@ bool SQLProcessor::parseSelectStatement(SQLSelectInfo &selectInfo)
 			continue;
 
 		// check if this is a keyword.
-		string lowerWord = ctx.currWord;
-		transform(lowerWord.begin(), lowerWord.end(),
-		          lowerWord.begin(), ::tolower);
+		ctx.currWordLower = ctx.currWord;
+		transform(ctx.currWordLower.begin(), ctx.currWordLower.end(),
+		          ctx.currWordLower.begin(), ::tolower);
 		
-		it = m_selectSectionParserMap.find(lowerWord);
+		it = m_selectSectionParserMap.find(ctx.currWordLower);
 		if (it != m_selectSectionParserMap.end()) {
 			// When the function returns 'true', it means
 			// the current word is section keyword and
@@ -664,7 +671,13 @@ bool SQLProcessor::parseWhere(SelectParserContext &ctx)
 
 	// check if this is the keyword
 	if (doKeywordCheck) {
-		// TODO: implement
+		map<string, SelectSubParser>::iterator it;
+		it = m_whereKeywordHandlerMap.find(ctx.currWordLower);
+		if (it != m_whereKeywordHandlerMap.end()) {
+			SelectSubParser subParser = NULL;
+			subParser = it->second;
+			return (this->*subParser)(ctx);
+		}
 	}
 
 	// parse word as the hand
@@ -703,6 +716,22 @@ bool SQLProcessor::parseSectionLimit(SelectParserContext &ctx)
 {
 	MLPL_BUG("Not implemented: Limit\n");
 	return true;
+}
+
+
+//
+// Where section keyword handler
+//
+bool SQLProcessor::whereHandlerAnd(SelectParserContext &ctx)
+{
+	MLPL_BUG("Not implemented: And\n");
+	return false;
+}
+
+bool SQLProcessor::whereHandlerBetween(SelectParserContext &ctx)
+{
+	MLPL_BUG("Not implemented: Between\n");
+	return false;
 }
 
 //

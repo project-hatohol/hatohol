@@ -262,6 +262,12 @@ protected:
 	bool parseOrderBy(SelectParserContext &ctx);
 
 	//
+	// Where section keyword handler
+	//
+	bool whereHandlerAnd(SelectParserContext &ctx);
+	bool whereHandlerBetween(SelectParserContext &ctx);
+
+	//
 	// Callbacks for parsing 'where' section
 	//
 	static void whereCbEq(const char separator, SelectParserContext *arg);
@@ -273,6 +279,7 @@ protected:
 private:
 	static const SelectSubParser m_selectSubParsers[];
 	static map<string, SelectSubParser> m_selectSectionParserMap;
+	static map<string, SelectSubParser> m_whereKeywordHandlerMap;
 
 	enum SelectParseSection {
 		SELECT_PARSING_SECTION_SELECT,
