@@ -724,8 +724,25 @@ bool SQLProcessor::parseSectionLimit(SelectParserContext &ctx)
 //
 bool SQLProcessor::whereHandlerAnd(SelectParserContext &ctx)
 {
-	MLPL_BUG("Not implemented: And\n");
-	return false;
+	SQLWhereElement *currWhereElem = ctx.selectInfo.currWhereElem;
+	if (!currWhereElem->isFull()) {
+		string msg;
+		TRMSG(msg, "currWhereElem is not full.");
+		throw logic_error(msg);
+	}
+
+	// create new element 
+	SQLWhereElement *andWhereElem = new SQLWhereElement();
+	andWhereElem->setOperator(new SQLWhereOperatorAnd());
+	andWhereElem->setLeftHand(currWhereElem);
+	SQLWhereElement *newRightElem = new SQLWhereElement();
+	andWhereElem->setRightHand(newRightElem);
+
+	// set the root element
+	ctx.selectInfo.rootWhereElem->setParent(andWhereElem);
+	ctx.selectInfo.rootWhereElem = andWhereElem;
+
+	return true;
 }
 
 bool SQLProcessor::whereHandlerBetween(SelectParserContext &ctx)

@@ -91,6 +91,11 @@ SQLWhereOperator *SQLWhereElement::getOperator(void) const
 	return m_operator;
 }
 
+SQLWhereElement *SQLWhereElement::getParent(void) const
+{
+	return m_parent;
+}
+
 void SQLWhereElement::setLeftHand(SQLWhereElement *whereElem)
 {
 	m_leftHand = whereElem;
@@ -104,6 +109,22 @@ void SQLWhereElement::setRightHand(SQLWhereElement *whereElem)
 void SQLWhereElement::setOperator(SQLWhereOperator *whereOp)
 {
 	m_operator = whereOp;
+}
+
+void SQLWhereElement::setParent(SQLWhereElement *whereElem)
+{
+	m_parent = whereElem;
+}
+
+bool SQLWhereElement::isFull(void)
+{
+	if (!m_leftHand)
+		return false;
+	if (!m_operator)
+		return false;
+	if (!m_rightHand)
+		return false;
+	return true;
 }
 
 // ---------------------------------------------------------------------------

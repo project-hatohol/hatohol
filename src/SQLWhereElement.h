@@ -17,9 +17,12 @@ enum SQLWhereOperatorType {
 // ---------------------------------------------------------------------------
 class SQLWhereOperator {
 public:
-	SQLWhereOperator(SQLWhereOperatorType type);
-	virtual ~SQLWhereOperator();
 	const SQLWhereOperatorType getType(void) const;
+	virtual ~SQLWhereOperator();
+
+protected:
+	SQLWhereOperator(SQLWhereOperatorType type);
+
 private:
 	const SQLWhereOperatorType m_type;
 };
@@ -62,9 +65,12 @@ public:
 	SQLWhereElement  *getLeftHand(void) const;
 	SQLWhereElement  *getRightHand(void) const;
 	SQLWhereOperator *getOperator(void) const;
+	SQLWhereElement  *getParent(void) const;
 	void setLeftHand(SQLWhereElement *whereElem);
 	void setRightHand(SQLWhereElement *whereElem);
 	void setOperator(SQLWhereOperator *whereOp);
+	void setParent(SQLWhereElement *whereElem);
+	bool isFull(void);
 
 private:
 	SQLWhereElementType m_type;
