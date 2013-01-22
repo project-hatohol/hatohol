@@ -20,6 +20,9 @@ const SQLProcessor::SelectSubParser SQLProcessor::m_selectSubParsers[] = {
 	&SQLProcessor::parseOrderBy,
 };
 
+map<string, SQLProcessor::SelectSubParser>
+  SQLProcessor::m_selectSectionParserMap;
+
 struct SQLProcessor::SelectParserContext {
 	SQLProcessor       *sqlProcessor;
 
@@ -115,6 +118,15 @@ SQLSelectInfo::~SQLSelectInfo()
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
+void SQLProcessor::init(void)
+{
+	m_selectSectionParserMap["from"]  = &SQLProcessor::parseSectionFrom;
+	m_selectSectionParserMap["where"] = &SQLProcessor::parseSectionWhere;
+	m_selectSectionParserMap["order"] = &SQLProcessor::parseSectionOrder;
+	m_selectSectionParserMap["group"] = &SQLProcessor::parseSectionGroup;
+	m_selectSectionParserMap["limit"] = &SQLProcessor::parseSectionLimit;
+}
+
 bool SQLProcessor::select(SQLSelectInfo &selectInfo)
 {
 	// disassemble the query statement
@@ -179,12 +191,6 @@ SQLProcessor::SQLProcessor(TableNameStaticInfoMap &tableNameStaticInfoMap)
 	  &m_separatorSpaceComma;
 	m_selectSeprators[SQLProcessor::SELECT_PARSING_SECTION_LIMIT] = 
 	  &m_separatorSpaceComma;
-
-	m_selectSectionParserMap["from"]  = &SQLProcessor::parseSectionFrom;
-	m_selectSectionParserMap["where"] = &SQLProcessor::parseSectionWhere;
-	m_selectSectionParserMap["order"] = &SQLProcessor::parseSectionOrder;
-	m_selectSectionParserMap["group"] = &SQLProcessor::parseSectionGroup;
-	m_selectSectionParserMap["limit"] = &SQLProcessor::parseSectionLimit;
 }
 
 SQLProcessor::~SQLProcessor()

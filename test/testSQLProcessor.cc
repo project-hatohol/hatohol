@@ -11,6 +11,7 @@ using namespace mlpl;
 #include <cutter.h>
 #include <cppcutter.h>
 #include "SQLProcessor.h"
+#include "Asura.h"
 
 namespace testSQLProcessor {
 
@@ -168,6 +169,10 @@ static void assertWhereOperatorAnd(SQLWhereElement *whereElem)
 	assertWhrereOperatorAnd(whereElem->getOperator());
 }
 
+void setup(void)
+{
+	asuraInit();
+}
 
 // ---------------------------------------------------------------------------
 // Test cases

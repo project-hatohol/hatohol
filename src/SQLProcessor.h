@@ -201,6 +201,7 @@ struct SQLSelectInfo {
 class SQLProcessor
 {
 public:
+	static void init(void);
 	virtual bool select(SQLSelectInfo &selectInfo);
 	virtual const char *getDBName(void) = 0;
 
@@ -271,6 +272,7 @@ protected:
 
 private:
 	static const SelectSubParser m_selectSubParsers[];
+	static map<string, SelectSubParser> m_selectSectionParserMap;
 
 	enum SelectParseSection {
 		SELECT_PARSING_SECTION_SELECT,
@@ -289,7 +291,6 @@ private:
 
 	// These members are typically allocated in sub classes.
 	TableNameStaticInfoMap &m_tableNameStaticInfoMap;
-	map<string, SelectSubParser> m_selectSectionParserMap;
 };
 
 #endif // SQLProcessor_h
