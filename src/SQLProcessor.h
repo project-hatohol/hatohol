@@ -169,6 +169,9 @@ struct SQLSelectInfo {
 	// causes the free chain of child 'whereElem' instances.
 	SQLWhereElement            *rootWhereElem;
 	SQLWhereElement            *currWhereElem;
+	// The elements in the following vector point the matter in the above
+	// tree. So dont free directly.
+	vector<SQLWhereColumn *>    whereColumnVector;
 
 	vector<string>              orderedColumns;
 
@@ -222,6 +225,7 @@ protected:
 	bool enumerateNeededItemIds(SQLSelectInfo &selectInfo);
 	bool makeItemTables(SQLSelectInfo &selectInfo);
 	bool doJoin(SQLSelectInfo &selectInfo);
+	bool fixupWhereColumn(SQLSelectInfo &selectInfo);
 	bool checkSelectedAllColumns(const SQLSelectInfo &selectInfo,
 	                             const SQLColumnInfo &columnInfo) const;
 
@@ -279,6 +283,14 @@ protected:
 
 	string readNextWord(SelectParserContext &ctx,
 	                    ParsingPosition *position = NULL);
+	SQLWhereColumn *createSQLWhereColumn(SelectParserContext &ctx);
+	bool parseColumnName(const string &name,
+	                     string &baseName, string &tableVar);
+	ColumnBaseDefinition *
+	  getColumnBaseDefinitionFromColumnName(const SQLTableInfo *tableInfo,
+                                                string &baseName);
+	const SQLTableInfo *getTableInfoFromVarName(SQLSelectInfo &selectInfo,
+	                                            string &tableVar);
 
 private:
 	static const SelectSubParser m_selectSubParsers[];

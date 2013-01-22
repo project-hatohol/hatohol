@@ -173,7 +173,8 @@ bool SQLWhereElement::evaluate(void)
 // ---------------------------------------------------------------------------
 SQLWhereColumn::SQLWhereColumn(string &columnName)
 : SQLWhereElement(SQL_WHERE_ELEM_COLUMN),
-  m_columnName(columnName)
+  m_columnName(columnName),
+  m_index(-1)
 {
 }
 
@@ -184,6 +185,16 @@ SQLWhereColumn::~SQLWhereColumn()
 const string &SQLWhereColumn::getValue(void) const
 {
 	return m_columnName;
+}
+
+int SQLWhereColumn::getIndex(void) const
+{
+	return m_index;
+}
+
+void SQLWhereColumn::setIndex(int index)
+{
+	m_index = index;
 }
 
 // ---------------------------------------------------------------------------

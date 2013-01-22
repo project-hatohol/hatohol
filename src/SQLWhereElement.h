@@ -106,13 +106,19 @@ private:
 // ---------------------------------------------------------------------------
 // class: SQLWhereColumn
 // ---------------------------------------------------------------------------
+SQLWhereElement (*SQLWhereColumnValueGetter)(void *priv);
+
 class SQLWhereColumn : public SQLWhereElement {
 public:
-	SQLWhereColumn(string &columnName);
+	SQLWhereColumn(string &columnName,
+	               SQLWhereColumnValueGetter valueGetter, void *priv);
 	virtual ~SQLWhereColumn();
 	const string &getValue(void) const;
+	void *getPrivateData(void) const;
 private:
-	string m_columnName;
+	string                    m_columnName;
+	SQLWhereColumnValueGetter m_valueGetter;
+	void                     *m_priv;
 };
 
 // ---------------------------------------------------------------------------
