@@ -107,40 +107,47 @@ private:
 };
 
 static void
-assertWhereElementColumn(SQLWhereElement *whereElem, const char *expected)
+_assertWhereElementColumn(SQLWhereElement *whereElem, const char *expected)
 {
 	cut_assert_not_null(whereElem);
 	cppcut_assert_equal(true, typeid(SQLWhereColumn) == typeid(*whereElem));
 	SQLWhereColumn *elemColumn = dynamic_cast<SQLWhereColumn *>(whereElem);
 	cppcut_assert_equal(string(expected), elemColumn->getValue());
 }
+#define assertWhereElementColumn(ELEM, EXPECT) \
+cut_trace(_assertWhereElementColumn(ELEM, EXPECT))
 
 static void
-assertWhereElementNumber(SQLWhereElement *whereElem, double expected)
+_assertWhereElementNumber(SQLWhereElement *whereElem, double expected)
 {
 	cut_assert_not_null(whereElem);
 	cppcut_assert_equal(true, typeid(SQLWhereNumber) == typeid(*whereElem));
 	SQLWhereNumber *elemNumber = dynamic_cast<SQLWhereNumber *>(whereElem);
 	cppcut_assert_equal(expected, elemNumber->getValue());
 }
+#define assertWhereElementNumber(ELEM, EXPECT) \
+cut_trace(_assertWhereElementNumber(ELEM, EXPECT))
 
 static void
-assertWhereElementString(SQLWhereElement *whereElem, const char *expected)
+_assertWhereElementString(SQLWhereElement *whereElem, const char *expected)
 {
 	cut_assert_not_null(whereElem);
 	cppcut_assert_equal(true, typeid(SQLWhereString) == typeid(*whereElem));
 	SQLWhereString *elemString = dynamic_cast<SQLWhereString *>(whereElem);
 	cppcut_assert_equal(string(expected), elemString->getValue());
 }
+#define assertWhereElementString(ELEM, EXPECT) \
+cut_trace(_assertWhereElementString(ELEM, EXPECT))
 
 static void
-assertWhereElementElement(SQLWhereElement *whereElem)
+_assertWhereElementElement(SQLWhereElement *whereElem)
 {
 	cut_assert_not_null(whereElem);
 	cppcut_assert_equal(true,
 	                    typeid(SQLWhereElement) == typeid(*whereElem));
 }
-
+#define assertWhereElementElement(ELEM) \
+cut_trace(_assertWhereElementElement(ELEM))
 
 static void assertWhrereOperatorEqual(SQLWhereOperator *whereOp)
 {
@@ -149,6 +156,14 @@ static void assertWhrereOperatorEqual(SQLWhereOperator *whereOp)
 	                    typeid(SQLWhereOperatorEqual) == typeid(*whereOp));
 }
 
+static void _assertWhereOperatorEqual(SQLWhereElement *whereElem)
+{
+	cppcut_assert_equal(SQL_WHERE_ELEM_ELEMENT, whereElem->getType());
+	cut_trace(assertWhrereOperatorEqual(whereElem->getOperator()));
+}
+#define assertWhereOperatorEqual(ELEM) \
+cut_trace(_assertWhereOperatorEqual(ELEM))
+
 static void assertWhrereOperatorAnd(SQLWhereOperator *whereOp)
 {
 	cut_assert_not_null(whereOp);
@@ -156,18 +171,13 @@ static void assertWhrereOperatorAnd(SQLWhereOperator *whereOp)
 	                    typeid(SQLWhereOperatorAnd) == typeid(*whereOp));
 }
 
-
-static void assertWhereOperatorEqual(SQLWhereElement *whereElem)
+static void _assertWhereOperatorAnd(SQLWhereElement *whereElem)
 {
 	cppcut_assert_equal(SQL_WHERE_ELEM_ELEMENT, whereElem->getType());
-	assertWhrereOperatorEqual(whereElem->getOperator());
+	cut_trace(assertWhrereOperatorAnd(whereElem->getOperator()));
 }
-
-static void assertWhereOperatorAnd(SQLWhereElement *whereElem)
-{
-	cppcut_assert_equal(SQL_WHERE_ELEM_ELEMENT, whereElem->getType());
-	assertWhrereOperatorAnd(whereElem->getOperator());
-}
+#define assertWhereOperatorAnd(ELEM) \
+cut_trace(_assertWhereOperatorAnd(ELEM))
 
 void setup(void)
 {
@@ -270,11 +280,11 @@ void test_selectWhereEqNumber(void)
 	SQLSelectInfo selectInfo(parsable);
 	proc.callParseSelectStatement(selectInfo);
 
-	cut_trace(assertWhereElementColumn
-	          (selectInfo.rootWhereElem->getLeftHand(), leftHand));
-	cut_trace(assertWhereElementNumber
-	          (selectInfo.rootWhereElem->getRightHand(), rightHand));
-	cut_trace(assertWhereOperatorEqual(selectInfo.rootWhereElem));
+	assertWhereElementColumn(selectInfo.rootWhereElem->getLeftHand(),
+	                         leftHand);
+	assertWhereElementNumber(selectInfo.rootWhereElem->getRightHand(),
+	                         rightHand);
+	assertWhereOperatorEqual(selectInfo.rootWhereElem);
 }
 
 void test_selectWhereEqString(void)
@@ -288,11 +298,11 @@ void test_selectWhereEqString(void)
 	SQLSelectInfo selectInfo(parsable);
 	proc.callParseSelectStatement(selectInfo);
 
-	cut_trace(assertWhereElementColumn
-	          (selectInfo.rootWhereElem->getLeftHand(), leftHand));
-	cut_trace(assertWhereElementString
-	          (selectInfo.rootWhereElem->getRightHand(), rightHand));
-	cut_trace(assertWhereOperatorEqual(selectInfo.rootWhereElem));
+	assertWhereElementColumn(selectInfo.rootWhereElem->getLeftHand(),
+	                         leftHand);
+	assertWhereElementString(selectInfo.rootWhereElem->getRightHand(),
+	                         rightHand);
+	assertWhereOperatorEqual(selectInfo.rootWhereElem);
 }
 
 void test_selectWhereEqColumn(void)
@@ -306,11 +316,11 @@ void test_selectWhereEqColumn(void)
 	SQLSelectInfo selectInfo(parsable);
 	proc.callParseSelectStatement(selectInfo);
 
-	cut_trace(assertWhereElementColumn
-	          (selectInfo.rootWhereElem->getLeftHand(), leftHand));
-	cut_trace(assertWhereElementColumn
-	          (selectInfo.rootWhereElem->getRightHand(), rightHand));
-	cut_trace(assertWhereOperatorEqual(selectInfo.rootWhereElem));
+	assertWhereElementColumn(selectInfo.rootWhereElem->getLeftHand(),
+	                         leftHand);
+	assertWhereElementColumn(selectInfo.rootWhereElem->getRightHand(),
+	                         rightHand);
+	assertWhereOperatorEqual(selectInfo.rootWhereElem);
 }
 
 void test_selectWhereAnd(void)
@@ -328,9 +338,19 @@ void test_selectWhereAnd(void)
 
 	SQLWhereElement *leftElem = selectInfo.rootWhereElem->getLeftHand();
 	SQLWhereElement *rightElem = selectInfo.rootWhereElem->getRightHand();
-	cut_trace(assertWhereElementElement(leftElem));
-	cut_trace(assertWhereElementElement(rightElem));
-	cut_trace(assertWhereOperatorAnd(selectInfo.rootWhereElem));
+	assertWhereElementElement(leftElem);
+	assertWhereElementElement(rightElem);
+	assertWhereOperatorAnd(selectInfo.rootWhereElem);
+
+	// left child
+	assertWhereElementColumn(leftElem->getLeftHand(), leftHand0);
+	assertWhereElementNumber(leftElem->getRightHand(), rightHand0);
+	assertWhereOperatorEqual(leftElem);
+
+	// right child
+	assertWhereElementColumn(rightElem->getLeftHand(), leftHand1);
+	assertWhereElementString(rightElem->getRightHand(), rightHand1);
+	assertWhereOperatorEqual(rightElem);
 }
 
 } // namespace testSQLProcessor
