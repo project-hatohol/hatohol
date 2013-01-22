@@ -60,8 +60,7 @@ public:
 
 	const ItemTablePtr
 	tableMakeFunc(SQLSelectInfo &selectInfo,
-	              const SQLTableInfo &tableInfo,
-	              const ItemIdVector &itemIdVector)
+	              const SQLTableInfo &tableInfo)
 	{
 		const ItemTablePtr tablePtr;
 		return tablePtr;

@@ -35,8 +35,7 @@ private:
 	template<ItemGroupId GROUP_ID>
 	const ItemTablePtr
 	tableMakeFuncTemplate(SQLSelectInfo &selectInfo,
-	                      const SQLTableInfo &tableInfo,
-	                      const ItemIdVector &itemIdVector);
+	                      const SQLTableInfo &tableInfo);
 };
 
 #endif // SQLProcessorZabbix_h

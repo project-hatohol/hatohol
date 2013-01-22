@@ -165,8 +165,6 @@ bool SQLProcessor::select(SQLSelectInfo &selectInfo)
 		return false;
 	if (!makeColumnDefs(selectInfo))
 		return false;
-	if (!enumerateNeededItemIds(selectInfo))
-		return false;
 	if (!makeItemTables(selectInfo))
 		return false;
 
@@ -177,6 +175,11 @@ bool SQLProcessor::select(SQLSelectInfo &selectInfo)
 	// pickup matching rows
 	if (!selectInfo.joinedTable->foreach<SQLSelectInfo&>
 	                                    (pickupMatchingRows, selectInfo))
+		return false;
+
+	// packed the requested columns
+	if (!selectInfo.joinedTable->foreach<SQLSelectInfo&>
+	                                    (packRequiredColumns, selectInfo))
 		return false;
 
 	// convert data to string
@@ -448,50 +451,13 @@ bool SQLProcessor::makeColumnDefs(SQLSelectInfo &selectInfo)
 	return true;
 }
 
-bool SQLProcessor::enumerateNeededItemIds(SQLSelectInfo &selectInfo)
-{
-	for (size_t i = 0; i < selectInfo.columnDefs.size(); i++) {
-		SQLColumnDefinition &columnDef = selectInfo.columnDefs[i];
-		if (!columnDef.columnBaseDef) {
-			MLPL_BUG("columDef.columnBaseDef is NULL\n");
-			return false;
-		}
-		ItemId itemId = columnDef.columnBaseDef->itemId;
-
-		const SQLTableInfo *tableInfo = columnDef.tableInfo;
-		if (!tableInfo) {
-			MLPL_BUG("tableInfo is NULL\n");
-			return false;
-		}
-
-		SQLTableInfoItemIdVectorMapIterator it;
-		it = selectInfo.neededItemIdVectorMap.find(tableInfo);
-		if (it == selectInfo.neededItemIdVectorMap.end()) {
-			pair<SQLTableInfoItemIdVectorMapIterator, bool> ret;
-			ret = selectInfo.neededItemIdVectorMap.insert(
-			        pair<const SQLTableInfo *, ItemIdVector>
-			          (tableInfo, ItemIdVector()));
-			it = ret.first;
-		}
-		ItemIdVector &itemIdVector = it->second;
-		itemIdVector.push_back(itemId);
-	}
-	return true;
-}
-
 bool SQLProcessor::makeItemTables(SQLSelectInfo &selectInfo)
 {
 	SQLTableInfoVectorIterator tblInfoIt = selectInfo.tables.begin();
 	for (; tblInfoIt != selectInfo.tables.end(); ++tblInfoIt) {
 		const SQLTableInfo *tableInfo = *tblInfoIt;
-		SQLTableInfoItemIdVectorMapConstIterator it;
-		it = selectInfo.neededItemIdVectorMap.find(tableInfo);
-		if (it == selectInfo.neededItemIdVectorMap.end())
-			continue;
-		const ItemIdVector &itemIdVector = it->second;
 		SQLTableMakeFunc func = tableInfo->staticInfo->tableMakeFunc;
-		ItemTablePtr tablePtr;
-		tablePtr = (this->*func)(selectInfo, *tableInfo, itemIdVector);
+		ItemTablePtr tablePtr = (this->*func)(selectInfo, *tableInfo);
 		if (!tablePtr.hasData())
 			return false;
 		selectInfo.itemTablePtrList.push_back(tablePtr);
@@ -520,6 +486,26 @@ bool SQLProcessor::pickupMatchingRows(const ItemGroup *itemGroup,
 {
 	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
 	selectInfo.selectedTable->add(const_cast<ItemGroup *>(itemGroup));
+	return true;
+}
+
+bool SQLProcessor::packRequiredColumns(const ItemGroup *itemGroup,
+                                       SQLSelectInfo &selectInfo)
+{
+	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	ItemGroup *grp = selectInfo.packedTable->addNewGroup();
+	for (size_t i = 0; i < selectInfo.columnDefs.size(); i++) {
+		ItemData *item;
+		const SQLColumnDefinition &colDef = selectInfo.columnDefs[i];
+		item = itemGroup->getItem(colDef.columnBaseDef->itemId);
+		if (!item) {
+			string msg;
+			TRMSG(msg, "Failed to get ItemData: %"PRIu_ITEM"\n",
+			      colDef.columnBaseDef->itemId);
+			throw logic_error(msg);
+		}
+		grp->add(item);
+	}
 	return true;
 }
 

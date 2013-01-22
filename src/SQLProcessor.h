@@ -76,8 +76,7 @@ struct SQLSelectInfo;
 class SQLProcessor;
 typedef const ItemTablePtr
 (SQLProcessor::*SQLTableMakeFunc)(SQLSelectInfo &selectInfo,
-                                  const SQLTableInfo &tableInfo,
-                                  const ItemIdVector &itemIdVector);
+                                  const SQLTableInfo &tableInfo);
 
 struct SQLTableStaticInfo {
 	int                        tableId;
@@ -173,10 +172,8 @@ struct SQLSelectInfo {
 
 	vector<string>              orderedColumns;
 
+	// definition of output Columns
 	vector<SQLColumnDefinition> columnDefs;
-
-	// item list to be obtained
-	SQLTableInfoItemIdVectorMap neededItemIdVectorMap;
 
 	// list of obtained tables
 	ItemTablePtrList itemTablePtrList;
@@ -184,6 +181,7 @@ struct SQLSelectInfo {
 	// unified table
 	ItemTablePtr joinedTable;
 	ItemTablePtr selectedTable;
+	ItemTablePtr packedTable;
 
 	// output
 	vector<string> textRows;
@@ -237,11 +235,12 @@ protected:
 	static bool
 	setSelectResult(const ItemGroup *itemGroup, SQLSelectInfo &selectInfo);
 
-	static bool
-	pickupMatchingRows(const ItemGroup *itemGroup, SQLSelectInfo &selectInfo);
-
-	static bool
-	makeTextRows(const ItemGroup *itemGroup, SQLSelectInfo &selectInfo);
+	static bool pickupMatchingRows(const ItemGroup *itemGroup,
+	                               SQLSelectInfo &selectInfo);
+	static bool packRequiredColumns(const ItemGroup *itemGroup,
+	                                SQLSelectInfo &selectInfo);
+	static bool makeTextRows(const ItemGroup *itemGroup,
+	                         SQLSelectInfo &selectInfo);
 
 	//
 	// Select status parsers
