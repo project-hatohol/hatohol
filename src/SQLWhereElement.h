@@ -1,6 +1,9 @@
 #ifndef SQLWhereElement_h
 #define SQLWhereElement_h
 
+#include <PolytypeNumber.h>
+using namespace mlpl;
+
 enum SQLWhereOperatorType {
 	SQL_WHERE_OP_EQ,
 	SQL_WHERE_OP_GT,
@@ -107,11 +110,13 @@ private:
 // ---------------------------------------------------------------------------
 class SQLWhereNumber : public SQLWhereElement {
 public:
+	SQLWhereNumber(const PolytypeNumber &value);
+	SQLWhereNumber(int value);
 	SQLWhereNumber(double value);
 	virtual ~SQLWhereNumber();
-	double getValue(void) const;
+	const PolytypeNumber &getValue(void) const;
 private:
-	double m_value;
+	PolytypeNumber m_value;
 };
 
 // ---------------------------------------------------------------------------
@@ -131,11 +136,14 @@ private:
 // ---------------------------------------------------------------------------
 class SQLWherePairedNumber : public SQLWhereElement {
 public:
-	SQLWherePairedNumber(pair<double,double> &value);
+	SQLWherePairedNumber(const PolytypeNumber &v0,
+	                     const PolytypeNumber &v1);
 	virtual ~SQLWherePairedNumber();
-	const pair<double, double> &getValue(void) const;
+	const PolytypeNumber &getFirstValue(void) const;
+	const PolytypeNumber &getSecondValue(void) const;
 private:
-	pair<double,double> m_value;
+	PolytypeNumber m_value0;
+	PolytypeNumber m_value1;
 };
 
 #endif // SQLWhereElement_h

@@ -123,7 +123,7 @@ _assertWhereElementNumber(SQLWhereElement *whereElem, double expected)
 	cut_assert_not_null(whereElem);
 	cppcut_assert_equal(true, typeid(SQLWhereNumber) == typeid(*whereElem));
 	SQLWhereNumber *elemNumber = dynamic_cast<SQLWhereNumber *>(whereElem);
-	cppcut_assert_equal(expected, elemNumber->getValue());
+	cppcut_assert_equal(expected, elemNumber->getValue().getAsDouble());
 }
 #define assertWhereElementNumber(ELEM, EXPECT) \
 cut_trace(_assertWhereElementNumber(ELEM, EXPECT))
@@ -148,9 +148,10 @@ _assertWhereElementPairedNumber(SQLWhereElement *whereElem,
 	  (true, typeid(SQLWherePairedNumber) == typeid(*whereElem));
 	SQLWherePairedNumber *elemPairedNumber
 	  = dynamic_cast<SQLWherePairedNumber *>(whereElem);
-	pair<double, double> actual = elemPairedNumber->getValue();
-	cppcut_assert_equal(expect0, actual.first);
-	cppcut_assert_equal(expect1, actual.second);
+	const PolytypeNumber &actual0 = elemPairedNumber->getFirstValue();
+	const PolytypeNumber &actual1 = elemPairedNumber->getSecondValue();
+	cppcut_assert_equal(expect0, actual0.getAsDouble());
+	cppcut_assert_equal(expect1, actual1.getAsDouble());
 }
 #define assertWhereElementPairedNumber(ELEM, EXPECT0, EXPECT1) \
 cut_trace(_assertWhereElementPairedNumber(ELEM, EXPECT0, EXPECT1))
@@ -397,11 +398,10 @@ void test_selectWhereBetween(void)
 	SQLSelectInfo selectInfo(parsable);
 	proc.callParseSelectStatement(selectInfo);
 
-	assertWhereElementColumn(selectInfo.rootWhereElem->getLeftHand(),
-	                         leftHand);
-	assertWhereElementPairedNumber(selectInfo.rootWhereElem->getRightHand(),
-	                               v0, v1);
-	assertWhereOperatorBetween(selectInfo.rootWhereElem);
+	SQLWhereElement *rootElem = selectInfo.rootWhereElem;
+	assertWhereElementColumn(rootElem->getLeftHand(), leftHand);
+	assertWhereElementPairedNumber(rootElem->getRightHand(), v0, v1);
+	assertWhereOperatorBetween(rootElem);
 }
 
 } // namespace testSQLProcessor

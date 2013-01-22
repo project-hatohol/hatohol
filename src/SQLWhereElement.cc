@@ -160,6 +160,18 @@ const string &SQLWhereColumn::getValue(void) const
 // ---------------------------------------------------------------------------
 // class: SQLWhereNumber
 // ---------------------------------------------------------------------------
+SQLWhereNumber::SQLWhereNumber(const PolytypeNumber &value)
+: SQLWhereElement(SQL_WHERE_ELEM_NUMBER),
+  m_value(value)
+{
+}
+
+SQLWhereNumber::SQLWhereNumber(int value)
+: SQLWhereElement(SQL_WHERE_ELEM_NUMBER),
+  m_value(value)
+{
+}
+
 SQLWhereNumber::SQLWhereNumber(double value)
 : SQLWhereElement(SQL_WHERE_ELEM_NUMBER),
   m_value(value)
@@ -170,7 +182,7 @@ SQLWhereNumber::~SQLWhereNumber()
 {
 }
 
-double SQLWhereNumber::getValue(void) const
+const PolytypeNumber &SQLWhereNumber::getValue(void) const
 {
 	return m_value;
 }
@@ -196,9 +208,11 @@ const string &SQLWhereString::getValue(void) const
 // ---------------------------------------------------------------------------
 // class: SQLWherePairedNumber
 // ---------------------------------------------------------------------------
-SQLWherePairedNumber::SQLWherePairedNumber(pair<double,double> &value)
+SQLWherePairedNumber::SQLWherePairedNumber(const PolytypeNumber &v0,
+                                           const PolytypeNumber &v1)
 : SQLWhereElement(SQL_WHERE_ELEM_PAIRED_NUMBER),
-  m_value(value)
+  m_value0(v0),
+  m_value1(v1)
 {
 }
 
@@ -206,8 +220,12 @@ SQLWherePairedNumber::~SQLWherePairedNumber()
 {
 }
 
-const pair<double,double> &SQLWherePairedNumber::getValue(void) const
+const PolytypeNumber &SQLWherePairedNumber::getFirstValue(void) const
 {
-	return m_value;
+	return m_value0;
 }
 
+const PolytypeNumber &SQLWherePairedNumber::getSecondValue(void) const
+{
+	return m_value1;
+}

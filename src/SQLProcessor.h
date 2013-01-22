@@ -253,13 +253,18 @@ protected:
 	bool parseSectionLimit(SelectParserContext &ctx);
 
 	//
-	// Select statment parsers
+	// Select statement parsers
 	//
 	bool parseSelectedColumns(SelectParserContext &ctx);
 	bool parseGroupBy(SelectParserContext &ctx);
 	bool parseFrom(SelectParserContext &ctx);
 	bool parseWhere(SelectParserContext &ctx);
 	bool parseOrderBy(SelectParserContext &ctx);
+
+	//
+	// Sub statement parsers
+	//
+	bool parseWhereBetween(SelectParserContext &ctx);
 
 	//
 	// Where section keyword handler

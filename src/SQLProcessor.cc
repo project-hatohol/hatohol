@@ -26,6 +26,13 @@ map<string, SQLProcessor::SelectSubParser>
 map<string, SQLProcessor::SelectSubParser>
   SQLProcessor::m_whereKeywordHandlerMap;
 
+enum BetweenParsingStep {
+	BETWEEN_NONE,
+	BETWEEN_EXPECT_FIRST,
+	BETWEEN_EXPECT_AND,
+	BETWEEN_EXPECT_SECOND,
+};
+
 struct SQLProcessor::SelectParserContext {
 	SQLProcessor       *sqlProcessor;
 
@@ -37,6 +44,8 @@ struct SQLProcessor::SelectParserContext {
 
 	// used in where section
 	bool                quotOpen;
+	BetweenParsingStep  betweenStep;
+	PolytypeNumber      betweenFirstValue;
 
 	// methods
 	SelectParserContext(SQLProcessor *sqlProc,
@@ -46,7 +55,8 @@ struct SQLProcessor::SelectParserContext {
 	  section(_section),
 	  indexInTheStatus(0),
 	  selectInfo(_selectInfo),
-	  quotOpen(false)
+	  quotOpen(false),
+	  betweenStep(BETWEEN_NONE)
 	{
 	}
 };
@@ -660,13 +670,14 @@ bool SQLProcessor::parseFrom(SelectParserContext &ctx)
 
 bool SQLProcessor::parseWhere(SelectParserContext &ctx)
 {
-	MLPL_DBG("parseWhere: %s\n", ctx.currWord.c_str());
 	bool doKeywordCheck = true;
 	bool currWordString = false;
 	if (ctx.quotOpen) {
 		ctx.quotOpen = false;
 		doKeywordCheck = false;
 		currWordString = true;
+	} else if (ctx.betweenStep != BETWEEN_NONE) {
+		return parseWhereBetween(ctx);
 	}
 
 	// check if this is the keyword
@@ -689,10 +700,13 @@ bool SQLProcessor::parseWhere(SelectParserContext &ctx)
 		handElem = new SQLWhereString(ctx.currWord);
 	else if (shouldLeftHand)
 		handElem = new SQLWhereColumn(ctx.currWord);
-	else if (StringUtils::isDecimal(ctx.currWord))
-		handElem = new SQLWhereNumber(atof(ctx.currWord.c_str()));
-	else
-		handElem = new SQLWhereColumn(ctx.currWord);
+	else {
+		PolytypeNumber ptNum(ctx.currWord);
+		if (ptNum.getType() != PolytypeNumber::TYPE_NONE)
+			handElem = new SQLWhereNumber(ptNum);
+		else
+			handElem = new SQLWhereColumn(ctx.currWord);
+	}
 
 	if (shouldLeftHand)
 		whereElem->setLeftHand(handElem);
@@ -718,6 +732,55 @@ bool SQLProcessor::parseSectionLimit(SelectParserContext &ctx)
 	return true;
 }
 
+//
+// Sub statement parsers
+//
+bool SQLProcessor::parseWhereBetween(SelectParserContext &ctx)
+{
+	string msg;
+
+	// check
+	SQLWhereOperator *op = ctx.selectInfo.currWhereElem->getOperator();
+	if (!op) {
+		TRMSG(msg, "ctx.currWhereElem->getOperator: NULL\n");
+		throw logic_error(msg);
+	}
+	if (op->getType() != SQL_WHERE_OP_BETWEEN) {
+		TRMSG(msg, "Operator is not SQL_WHERE_OP_BETWEEN: %d\n",
+		      op->getType());
+		throw logic_error(msg);
+	}
+
+	if (ctx.betweenStep == BETWEEN_EXPECT_FIRST) {
+		ctx.betweenFirstValue = ctx.currWord;
+		if (ctx.betweenFirstValue.getType()
+		      == PolytypeNumber::TYPE_NONE) {
+			MLPL_DBG("Unexpected value: %s", ctx.currWord.c_str());
+			return false;
+		}
+		ctx.betweenStep = BETWEEN_EXPECT_AND;
+	} else if (ctx.betweenStep == BETWEEN_EXPECT_AND) {
+		if (ctx.currWordLower != "and") {
+			MLPL_DBG("Unexpected value: %s", ctx.currWord.c_str());
+			return false;
+		}
+		ctx.betweenStep = BETWEEN_EXPECT_SECOND;
+	} else if (ctx.betweenStep == BETWEEN_EXPECT_SECOND) {
+		PolytypeNumber secondValue = ctx.currWord;
+		if (secondValue.getType() == PolytypeNumber::TYPE_NONE) {
+			MLPL_DBG("Unexpected value: %s", ctx.currWord.c_str());
+			return false;
+		}
+		SQLWhereElement *elem =
+		  new SQLWherePairedNumber(ctx.betweenFirstValue, secondValue);
+		ctx.selectInfo.currWhereElem->setRightHand(elem);
+		ctx.betweenStep = BETWEEN_NONE;
+	} else {
+		TRMSG(msg, "Unexpected state: %d\n", ctx.betweenStep);
+		throw logic_error(msg);
+	}
+	return true;
+}
 
 //
 // Where section keyword handler
@@ -748,8 +811,10 @@ bool SQLProcessor::whereHandlerAnd(SelectParserContext &ctx)
 
 bool SQLProcessor::whereHandlerBetween(SelectParserContext &ctx)
 {
-	MLPL_BUG("Not implemented: Between\n");
-	return false;
+	SQLWhereOperator *opBetween = new SQLWhereOperatorBetween();
+	ctx.selectInfo.currWhereElem->setOperator(opBetween);
+	ctx.betweenStep = BETWEEN_EXPECT_FIRST;
+	return true;
 }
 
 //
