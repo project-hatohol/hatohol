@@ -18,10 +18,13 @@ enum SQLWhereOperatorType {
 // ---------------------------------------------------------------------------
 // class: SQLWhereOperator
 // ---------------------------------------------------------------------------
+class SQLWhereElement;
 class SQLWhereOperator {
 public:
 	const SQLWhereOperatorType getType(void) const;
 	virtual ~SQLWhereOperator();
+	virtual bool evaluate(SQLWhereElement *leftHand,
+	                      SQLWhereElement *rightHand) = 0;
 
 protected:
 	SQLWhereOperator(SQLWhereOperatorType type);
@@ -37,6 +40,8 @@ class SQLWhereOperatorEqual : public SQLWhereOperator {
 public:
 	SQLWhereOperatorEqual();
 	virtual ~SQLWhereOperatorEqual();
+	virtual bool evaluate(SQLWhereElement *leftHand,
+	                      SQLWhereElement *rightHand);
 };
 
 // ---------------------------------------------------------------------------
@@ -46,6 +51,8 @@ class SQLWhereOperatorAnd : public SQLWhereOperator {
 public:
 	SQLWhereOperatorAnd();
 	virtual ~SQLWhereOperatorAnd();
+	virtual bool evaluate(SQLWhereElement *leftHand,
+	                      SQLWhereElement *rightHand);
 };
 
 // ---------------------------------------------------------------------------
@@ -55,6 +62,8 @@ class SQLWhereOperatorBetween : public SQLWhereOperator {
 public:
 	SQLWhereOperatorBetween();
 	virtual ~SQLWhereOperatorBetween();
+	virtual bool evaluate(SQLWhereElement *leftHand,
+	                      SQLWhereElement *rightHand);
 };
 
 // ---------------------------------------------------------------------------
@@ -83,6 +92,7 @@ public:
 	void setOperator(SQLWhereOperator *whereOp);
 	void setParent(SQLWhereElement *whereElem);
 	bool isFull(void);
+	virtual bool evaluate(void);
 
 private:
 	SQLWhereElementType m_type;

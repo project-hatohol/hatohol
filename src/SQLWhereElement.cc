@@ -37,6 +37,12 @@ SQLWhereOperatorEqual::~SQLWhereOperatorEqual()
 {
 }
 
+bool SQLWhereOperatorEqual::evaluate(SQLWhereElement *leftHand,
+                                     SQLWhereElement *rightHand)
+{
+	return false;
+}
+
 // ---------------------------------------------------------------------------
 // class: SQLWhereOperatorAnd
 // ---------------------------------------------------------------------------
@@ -49,6 +55,13 @@ SQLWhereOperatorAnd::~SQLWhereOperatorAnd()
 {
 }
 
+bool SQLWhereOperatorAnd::evaluate(SQLWhereElement *leftHand,
+                                   SQLWhereElement *rightHand)
+{
+	bool ret = leftHand->evaluate() && rightHand->evaluate();
+	return ret;
+}
+
 // ---------------------------------------------------------------------------
 // class: SQLWhereOperatorBetween
 // ---------------------------------------------------------------------------
@@ -59,6 +72,12 @@ SQLWhereOperatorBetween::SQLWhereOperatorBetween()
 
 SQLWhereOperatorBetween::~SQLWhereOperatorBetween()
 {
+}
+
+bool SQLWhereOperatorBetween::evaluate(SQLWhereElement *leftHand,
+                                       SQLWhereElement *rightHand)
+{
+	return false;
 }
 
 // ---------------------------------------------------------------------------
@@ -137,6 +156,16 @@ bool SQLWhereElement::isFull(void)
 	if (!m_rightHand)
 		return false;
 	return true;
+}
+
+bool SQLWhereElement::evaluate(void)
+{
+	if (!m_operator) {
+		string msg;
+		TRMSG(msg, "m_operator is NULL.");
+		throw logic_error(msg);
+	}
+	return m_operator->evaluate(m_leftHand, m_rightHand);
 }
 
 // ---------------------------------------------------------------------------

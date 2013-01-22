@@ -48,7 +48,7 @@ static void printOutput(void)
 	           g_standardOutput, g_standardError);
 }
 
-static void assertRecord(int numExpectedLines, NumberStringMap &nsmap)
+static void _assertRecord(int numExpectedLines, NumberStringMap &nsmap)
 {
 	vector<string> lines;
 	string stdOutStr(g_standardOutput);
@@ -63,6 +63,7 @@ static void assertRecord(int numExpectedLines, NumberStringMap &nsmap)
 		                        lines[lineNum].c_str());
 	}
 }
+#define assertRecord(NUM, NSMAP) cut_trace(_assertRecord(NUM, NSMAP))
 
 static void executeCommand(const char *cmd)
 {
@@ -132,7 +133,8 @@ void test_selectUserid(void)
 	  "FROM users u WHERE u.alias='guest' AND "
 	  "u.userid BETWEEN 000000000000000 AND 099999999999999";
 	executeCommand(cmd);
-	cut_fail("To be implemented");
+	NumberStringMap nsmap;
+	assertRecord(1, nsmap);
 }
 
 void test_selectUsrgrpid(void)
