@@ -50,6 +50,18 @@ SQLWhereOperatorAnd::~SQLWhereOperatorAnd()
 }
 
 // ---------------------------------------------------------------------------
+// class: SQLWhereOperatorBetween
+// ---------------------------------------------------------------------------
+SQLWhereOperatorBetween::SQLWhereOperatorBetween()
+: SQLWhereOperator(SQL_WHERE_OP_BETWEEN)
+{
+}
+
+SQLWhereOperatorBetween::~SQLWhereOperatorBetween()
+{
+}
+
+// ---------------------------------------------------------------------------
 // Public methods (SQLWhereElement)
 // ---------------------------------------------------------------------------
 SQLWhereElement::SQLWhereElement(SQLWhereElementType elemType)
@@ -140,7 +152,7 @@ SQLWhereColumn::~SQLWhereColumn()
 {
 }
 
-const string &SQLWhereColumn::getValue(void)
+const string &SQLWhereColumn::getValue(void) const
 {
 	return m_columnName;
 }
@@ -158,11 +170,10 @@ SQLWhereNumber::~SQLWhereNumber()
 {
 }
 
-double SQLWhereNumber::getValue(void)
+double SQLWhereNumber::getValue(void) const
 {
 	return m_value;
 }
-
 
 // ---------------------------------------------------------------------------
 // class: SQLWhereString
@@ -177,8 +188,26 @@ SQLWhereString::~SQLWhereString()
 {
 }
 
-const string &SQLWhereString::getValue(void)
+const string &SQLWhereString::getValue(void) const
 {
 	return m_str;
+}
+
+// ---------------------------------------------------------------------------
+// class: SQLWherePairedNumber
+// ---------------------------------------------------------------------------
+SQLWherePairedNumber::SQLWherePairedNumber(pair<double,double> &value)
+: SQLWhereElement(SQL_WHERE_ELEM_PAIRED_NUMBER),
+  m_value(value)
+{
+}
+
+SQLWherePairedNumber::~SQLWherePairedNumber()
+{
+}
+
+const pair<double,double> &SQLWherePairedNumber::getValue(void) const
+{
+	return m_value;
 }
 

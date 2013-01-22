@@ -46,6 +46,15 @@ public:
 };
 
 // ---------------------------------------------------------------------------
+// class: SQLWhereOperatorBetween
+// ---------------------------------------------------------------------------
+class SQLWhereOperatorBetween : public SQLWhereOperator {
+public:
+	SQLWhereOperatorBetween();
+	virtual ~SQLWhereOperatorBetween();
+};
+
+// ---------------------------------------------------------------------------
 // class: SQLWhereELement
 // ---------------------------------------------------------------------------
 enum SQLWhereElementType {
@@ -88,7 +97,7 @@ class SQLWhereColumn : public SQLWhereElement {
 public:
 	SQLWhereColumn(string &columnName);
 	virtual ~SQLWhereColumn();
-	const string &getValue(void);
+	const string &getValue(void) const;
 private:
 	string m_columnName;
 };
@@ -100,7 +109,7 @@ class SQLWhereNumber : public SQLWhereElement {
 public:
 	SQLWhereNumber(double value);
 	virtual ~SQLWhereNumber();
-	double getValue(void);
+	double getValue(void) const;
 private:
 	double m_value;
 };
@@ -112,9 +121,21 @@ class SQLWhereString : public SQLWhereElement {
 public:
 	SQLWhereString(string &str);
 	virtual ~SQLWhereString();
-	const string &getValue(void);
+	const string &getValue(void) const;
 private:
 	string m_str;
+};
+
+// ---------------------------------------------------------------------------
+// class: SQLWherePairedNumber
+// ---------------------------------------------------------------------------
+class SQLWherePairedNumber : public SQLWhereElement {
+public:
+	SQLWherePairedNumber(pair<double,double> &value);
+	virtual ~SQLWherePairedNumber();
+	const pair<double, double> &getValue(void) const;
+private:
+	pair<double,double> m_value;
 };
 
 #endif // SQLWhereElement_h

@@ -140,6 +140,22 @@ _assertWhereElementString(SQLWhereElement *whereElem, const char *expected)
 cut_trace(_assertWhereElementString(ELEM, EXPECT))
 
 static void
+_assertWhereElementPairedNumber(SQLWhereElement *whereElem,
+                                double expect0, double expect1)
+{
+	cut_assert_not_null(whereElem);
+	cppcut_assert_equal
+	  (true, typeid(SQLWherePairedNumber) == typeid(*whereElem));
+	SQLWherePairedNumber *elemPairedNumber
+	  = dynamic_cast<SQLWherePairedNumber *>(whereElem);
+	pair<double, double> actual = elemPairedNumber->getValue();
+	cppcut_assert_equal(expect0, actual.first);
+	cppcut_assert_equal(expect1, actual.second);
+}
+#define assertWhereElementPairedNumber(ELEM, EXPECT0, EXPECT1) \
+cut_trace(_assertWhereElementPairedNumber(ELEM, EXPECT0, EXPECT1))
+
+static void
 _assertWhereElementElement(SQLWhereElement *whereElem)
 {
 	cut_assert_not_null(whereElem);
@@ -178,6 +194,22 @@ static void _assertWhereOperatorAnd(SQLWhereElement *whereElem)
 }
 #define assertWhereOperatorAnd(ELEM) \
 cut_trace(_assertWhereOperatorAnd(ELEM))
+
+static void assertWhrereOperatorBetween(SQLWhereOperator *whereOp)
+{
+	cut_assert_not_null(whereOp);
+	cppcut_assert_equal
+	  (true, typeid(SQLWhereOperatorBetween) == typeid(*whereOp));
+}
+
+static void _assertWhereOperatorBetween(SQLWhereElement *whereElem)
+{
+	cppcut_assert_equal(SQL_WHERE_ELEM_ELEMENT, whereElem->getType());
+	cut_trace(assertWhrereOperatorBetween(whereElem->getOperator()));
+}
+#define assertWhereOperatorBetween(ELEM) \
+cut_trace(_assertWhereOperatorBetween(ELEM))
+
 
 void setup(void)
 {
@@ -351,6 +383,25 @@ void test_selectWhereAnd(void)
 	assertWhereElementColumn(rightElem->getLeftHand(), leftHand1);
 	assertWhereElementString(rightElem->getRightHand(), rightHand1);
 	assertWhereOperatorEqual(rightElem);
+}
+
+void test_selectWhereBetween(void)
+{
+	TestSQLProcessor proc;
+	const char *leftHand = "a";
+	int v0 = 0;
+	int v1 = 100;
+	ParsableString parsable(
+	  StringUtils::sprintf("c1 from t1 where %s between %d and %d",
+	                       leftHand, v0, v1));
+	SQLSelectInfo selectInfo(parsable);
+	proc.callParseSelectStatement(selectInfo);
+
+	assertWhereElementColumn(selectInfo.rootWhereElem->getLeftHand(),
+	                         leftHand);
+	assertWhereElementPairedNumber(selectInfo.rootWhereElem->getRightHand(),
+	                               v0, v1);
+	assertWhereOperatorBetween(selectInfo.rootWhereElem);
 }
 
 } // namespace testSQLProcessor
