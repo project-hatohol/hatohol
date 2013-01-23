@@ -169,6 +169,7 @@ public:
 	virtual ~SQLWherePairedNumber();
 	const PolytypeNumber &getFirstValue(void) const;
 	const PolytypeNumber &getSecondValue(void) const;
+	virtual ItemDataPtr getItemData(int index = 0);
 private:
 	PolytypeNumber m_value0;
 	PolytypeNumber m_value1;

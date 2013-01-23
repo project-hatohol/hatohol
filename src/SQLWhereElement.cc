@@ -3,11 +3,13 @@
 #include <stdexcept>
 #include <typeinfo>
 
+#include "StringUtils.h"
+using namespace mlpl;
+
+#include "ItemEnum.h"
 #include "Utils.h"
 #include "SQLWhereElement.h"
 
-#include "StringUtils.h"
-using namespace mlpl;
 
 // ---------------------------------------------------------------------------
 // methods (SQLWhereOperator)
@@ -197,7 +199,7 @@ ItemDataPtr SQLWhereElement::getItemData(int index)
 {
 	string className = typeid(*this).name();
 	MLPL_WARN("This function has less effect. "
-	          "You may not override in the sub-class: %s (%s) [%p]\n",
+	          "You may not override it in the sub class: %s (%s) [%p]\n",
 	          Utils::demangle(className).c_str(), className.c_str(), this);
 	return ItemDataPtr();
 }
@@ -308,4 +310,28 @@ const PolytypeNumber &SQLWherePairedNumber::getFirstValue(void) const
 const PolytypeNumber &SQLWherePairedNumber::getSecondValue(void) const
 {
 	return m_value1;
+}
+
+ItemDataPtr SQLWherePairedNumber::getItemData(int index)
+{
+	string msg;
+	PolytypeNumber *value = NULL;
+	if (index == 0)
+		value = &m_value0;
+	else if (index == 1)
+		value = &m_value1;
+	else {
+		TRMSG(msg, "Invalid index: %d\n", index);
+		throw logic_error(msg);
+	}
+
+	PolytypeNumber::NumberType type = value->getType();
+	ItemData *item = NULL;
+	if (type == PolytypeNumber::TYPE_INT64) {
+		item = new ItemInt(ITEM_ID_NOBODY, value->getAsInt64());
+	} else {
+		TRMSG(msg, "Not supported: type %d\n", type);
+		throw logic_error(msg);
+	}
+	return ItemDataPtr(item, false);
 }

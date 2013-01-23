@@ -1,3 +1,4 @@
+#include <cstdio>
 #include "ItemData.h"
 
 // ---------------------------------------------------------------------------
@@ -11,16 +12,6 @@ ItemId ItemData::getId(void) const
 const ItemDataType &ItemData::getItemType(void) const
 {
 	return m_itemType;
-}
-
-bool ItemData::operator >=(ItemData &itemData) const
-{
-	return false;
-}
-
-bool ItemData::operator <=(ItemData &itemData) const
-{
-	return false;
 }
 
 // ---------------------------------------------------------------------------
@@ -39,15 +30,26 @@ ItemData::~ItemData()
 // ---------------------------------------------------------------------------
 // Public methods (ItemGeneric)
 // ---------------------------------------------------------------------------
-template<>
-string ItemGeneric<int, ITEM_TYPE_INT>::getString(void) const
+template<> string ItemInt::getString(void) const
 {
 	return StringUtils::sprintf("%d", m_data);
 };
 
-template<>
-string ItemGeneric<uint64_t, ITEM_TYPE_UINT64>::getString(void) const
+template<> string ItemUint64::getString(void) const
 {
 	return StringUtils::sprintf("%"PRIu64, m_data);
 };
+
+
+template<> bool ItemInt::operator >=(ItemData &itemData) const
+{
+	printf("*** %s\n", __PRETTY_FUNCTION__);
+	return false;
+}
+
+template<> bool ItemInt::operator <=(ItemData &itemData) const
+{
+	printf("*** %s\n", __PRETTY_FUNCTION__);
+	return false;
+}
 

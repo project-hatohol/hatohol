@@ -5,6 +5,7 @@
 #include <map>
 using namespace std;
 
+#include <Logger.h>
 #include <StringUtils.h>
 using namespace mlpl;
 
@@ -51,8 +52,8 @@ public:
 	virtual void get(void *dst) const = 0;
 	virtual string getString(void) const = 0;
 
-	virtual bool operator >=(ItemData &itemData) const;
-	virtual bool operator <=(ItemData &itemData) const;
+	virtual bool operator >=(ItemData &itemData) const = 0;
+	virtual bool operator <=(ItemData &itemData) const = 0;
 
 protected:
 	ItemData(ItemId id, ItemDataType type);
@@ -91,6 +92,17 @@ public:
 		return str;
 	}
 
+	virtual bool operator >=(ItemData &itemData) const {
+		MLPL_WARN("You should override this function: %s.\n",
+		          __PRETTY_FUNCTION__);
+		return false;
+	}
+	virtual bool operator <=(ItemData &itemData) const {
+		MLPL_WARN("You should override this function: %s.\n",
+		          __PRETTY_FUNCTION__);
+		return false;
+	}
+
 protected:
 	virtual ~ItemGeneric() {
 	}
@@ -99,13 +111,14 @@ private:
 	T m_data;
 };
 
-template<>
-string ItemGeneric<int, ITEM_TYPE_INT>::getString(void) const;
-template<>
-string ItemGeneric<uint64_t, ITEM_TYPE_UINT64>::getString(void) const;
-
 typedef ItemGeneric<uint64_t, ITEM_TYPE_UINT64> ItemUint64;
 typedef ItemGeneric<int,      ITEM_TYPE_INT>    ItemInt;
 typedef ItemGeneric<string,   ITEM_TYPE_STRING> ItemString;
+
+template<> string ItemInt::getString(void) const;
+template<> string ItemUint64::getString(void) const;
+
+template<> bool ItemInt::operator >=(ItemData &itemData) const;
+template<> bool ItemInt::operator <=(ItemData &itemData) const;
 
 #endif // ItemData_h
