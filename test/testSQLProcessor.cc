@@ -111,7 +111,7 @@ _assertWhereElementColumn(SQLWhereElement *whereElem, const char *expected)
 	cut_assert_not_null(whereElem);
 	cppcut_assert_equal(true, typeid(SQLWhereColumn) == typeid(*whereElem));
 	SQLWhereColumn *elemColumn = dynamic_cast<SQLWhereColumn *>(whereElem);
-	cppcut_assert_equal(string(expected), elemColumn->getValue());
+	cppcut_assert_equal(string(expected), elemColumn->getColumnName());
 }
 #define assertWhereElementColumn(ELEM, EXPECT) \
 cut_trace(_assertWhereElementColumn(ELEM, EXPECT))

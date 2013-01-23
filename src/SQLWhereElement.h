@@ -4,6 +4,8 @@
 #include <PolytypeNumber.h>
 using namespace mlpl;
 
+#include "ItemDataPtr.h"
+
 enum SQLWhereOperatorType {
 	SQL_WHERE_OP_EQ,
 	SQL_WHERE_OP_GT,
@@ -106,19 +108,26 @@ private:
 // ---------------------------------------------------------------------------
 // class: SQLWhereColumn
 // ---------------------------------------------------------------------------
-SQLWhereElement (*SQLWhereColumnValueGetter)(void *priv);
+class SQLWhereColumn;
+typedef ItemDataPtr
+  (*SQLWhereColumnDataGetter)(SQLWhereColumn *whereColumn, void *priv);
+typedef void
+  (*SQLWhereColumnPrivDataDestructor)(SQLWhereColumn *whereColumn, void *priv);
 
 class SQLWhereColumn : public SQLWhereElement {
 public:
-	SQLWhereColumn(string &columnName,
-	               SQLWhereColumnValueGetter valueGetter, void *priv);
+	SQLWhereColumn
+	  (string &columnName, SQLWhereColumnDataGetter dataGetter, void *priv,
+	   SQLWhereColumnPrivDataDestructor privDataDestructor = NULL);
 	virtual ~SQLWhereColumn();
-	const string &getValue(void) const;
+	const string &getColumnName(void) const;
 	void *getPrivateData(void) const;
+
 private:
-	string                    m_columnName;
-	SQLWhereColumnValueGetter m_valueGetter;
-	void                     *m_priv;
+	string                   m_columnName;
+	SQLWhereColumnDataGetter m_valueGetter;
+	void                    *m_priv;
+	SQLWhereColumnPrivDataDestructor m_privDataDestructor;
 };
 
 // ---------------------------------------------------------------------------

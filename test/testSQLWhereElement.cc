@@ -102,16 +102,13 @@ void test_setGetParent(void)
 	y_elem = NULL; // to avoid teardown() from calling destructor directly
 }
 
-void test_whereColumnIndex(void)
+void test_whereColumnConstructor(void)
 {
 	int index = 8;
 	string columnName = "foo";
-	SQLWhereColumn elem(columnName);
-	cppcut_assert_equal(-1, elem.getIndex());
-	elem.setIndex(index);
-	cppcut_assert_equal(index, elem.getIndex());
+	SQLWhereColumn elem(columnName, NULL, &index);
+	cppcut_assert_equal(columnName, elem.getColumnName());
+	cppcut_assert_equal(&index, static_cast<int *>(elem.getPrivateData()));
 }
-
-
 
 } // namespace testSQLWhereElement

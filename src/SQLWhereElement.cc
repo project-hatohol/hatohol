@@ -171,30 +171,31 @@ bool SQLWhereElement::evaluate(void)
 // ---------------------------------------------------------------------------
 // class: SQLWhereColumn
 // ---------------------------------------------------------------------------
-SQLWhereColumn::SQLWhereColumn(string &columnName)
+SQLWhereColumn::SQLWhereColumn
+  (string &columnName, SQLWhereColumnDataGetter dataGetter, void *priv,
+   SQLWhereColumnPrivDataDestructor privDataDestructor)
 : SQLWhereElement(SQL_WHERE_ELEM_COLUMN),
   m_columnName(columnName),
-  m_index(-1)
+  m_valueGetter(dataGetter),
+  m_priv(priv),
+  m_privDataDestructor(privDataDestructor)
 {
 }
 
 SQLWhereColumn::~SQLWhereColumn()
 {
+	if (m_privDataDestructor)
+		(*m_privDataDestructor)(this, m_priv);
 }
 
-const string &SQLWhereColumn::getValue(void) const
+const string &SQLWhereColumn::getColumnName(void) const
 {
 	return m_columnName;
 }
 
-int SQLWhereColumn::getIndex(void) const
+void *SQLWhereColumn::getPrivateData(void) const
 {
-	return m_index;
-}
-
-void SQLWhereColumn::setIndex(int index)
-{
-	m_index = index;
+	return m_priv;
 }
 
 // ---------------------------------------------------------------------------

@@ -61,6 +61,18 @@ struct SQLProcessor::SelectParserContext {
 	}
 };
 
+struct WhereColumnArg {
+	SQLSelectInfo &selectInfo;
+	ItemId        itemId;
+
+	// constructor
+	WhereColumnArg(SQLSelectInfo &_selectInfo)
+	: selectInfo(_selectInfo),
+	  itemId(-1)
+	{
+	}
+};
+
 // ---------------------------------------------------------------------------
 // Public methods (SQLColumnDefinitino)
 // ---------------------------------------------------------------------------
@@ -109,7 +121,8 @@ void SQLColumnInfo::setColumnType(void)
 // ---------------------------------------------------------------------------
 SQLSelectInfo::SQLSelectInfo(ParsableString &_query)
 : query(_query),
-  useIndex(false)
+  useIndex(false),
+  evalTargetItemGroup(NULL)
 {
 	rootWhereElem = new SQLWhereElement();
 	currWhereElem = rootWhereElem;
@@ -492,7 +505,7 @@ bool SQLProcessor::fixupWhereColumn(SQLSelectInfo &selectInfo)
 	for (size_t i = 0; i < selectInfo.whereColumnVector.size(); i++) {
 		SQLWhereColumn *whereColumn = selectInfo.whereColumnVector[i];
 
-		const string &columnName = whereColumn->getValue();
+		const string &columnName = whereColumn->getColumnName();
 		string baseName;
 		string tableVar;
 		if (!parseColumnName(columnName, baseName, tableVar))
@@ -516,7 +529,11 @@ bool SQLProcessor::fixupWhereColumn(SQLSelectInfo &selectInfo)
 		  getColumnBaseDefinitionFromColumnName(tableInfo, baseName);
 		if (!columnBaseDef)
 			return false;
-		// TODO: associate
+
+		// set ItemId
+		void *priv = whereColumn->getPrivateData();
+		WhereColumnArg *arg = static_cast<WhereColumnArg *>(priv);
+		arg->itemId = columnBaseDef->itemId;
 	}
 	return true;
 }
@@ -864,6 +881,9 @@ void SQLProcessor::whereCbQuot(const char separator, SelectParserContext *ctx)
 	separatorCBForWhere.setAlternative(&ParsableString::SEPARATOR_QUOT);
 }
 
+//
+// General sub routines
+//
 string SQLProcessor::readNextWord(SelectParserContext &ctx,
                                   ParsingPosition *position)
 {
@@ -875,7 +895,10 @@ string SQLProcessor::readNextWord(SelectParserContext &ctx,
 
 SQLWhereColumn *SQLProcessor::createSQLWhereColumn(SelectParserContext &ctx)
 {
-	SQLWhereColumn *whereColumn = new SQLWhereColumn(ctx.currWord);
+	WhereColumnArg *arg = new WhereColumnArg(ctx.selectInfo);
+	SQLWhereColumn *whereColumn =
+	  new SQLWhereColumn(ctx.currWord, whereColumnDataGetter,
+	                     arg, wereColumnPrivDataDestructor);
 	ctx.selectInfo.whereColumnVector.push_back(whereColumn);
 	return whereColumn;
 }
@@ -933,4 +956,20 @@ SQLProcessor::getTableInfoFromVarName(SQLSelectInfo &selectInfo,
 		return NULL;
 	}
 	return it->second;
+}
+
+ItemDataPtr
+SQLProcessor::whereColumnDataGetter(SQLWhereColumn *whreColumn, void *priv)
+{
+	WhereColumnArg *arg = static_cast<WhereColumnArg *>(priv);
+	SQLSelectInfo &selectInfo = arg->selectInfo;
+	ItemId itemId = arg->itemId;
+	return ItemDataPtr(selectInfo.evalTargetItemGroup->getItem(itemId));
+}
+
+void SQLProcessor::wereColumnPrivDataDestructor
+  (SQLWhereColumn *whereColumn, void *priv)
+{
+	WhereColumnArg *arg = static_cast<WhereColumnArg *>(priv);
+	delete arg;
 }

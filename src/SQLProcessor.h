@@ -12,6 +12,7 @@ using namespace std;
 using namespace mlpl;
 
 #include <glib.h>
+#include "ItemGroupPtr.h"
 #include "ItemTablePtr.h"
 #include "SQLWhereElement.h"
 
@@ -192,6 +193,9 @@ struct SQLSelectInfo {
 	// flags
 	bool useIndex;
 
+	// temporay variable for selecting column
+	const ItemGroupPtr evalTargetItemGroup;
+
 	//
 	// constructor and destructor
 	//
@@ -281,6 +285,9 @@ protected:
 	static void whereCbEq(const char separator, SelectParserContext *arg);
 	static void whereCbQuot(const char separator, SelectParserContext *arg);
 
+	//
+	// General sub routines
+	//
 	string readNextWord(SelectParserContext &ctx,
 	                    ParsingPosition *position = NULL);
 	SQLWhereColumn *createSQLWhereColumn(SelectParserContext &ctx);
@@ -291,6 +298,10 @@ protected:
                                                 string &baseName);
 	const SQLTableInfo *getTableInfoFromVarName(SQLSelectInfo &selectInfo,
 	                                            string &tableVar);
+	static ItemDataPtr whereColumnDataGetter(SQLWhereColumn *whereColumn,
+	                                         void *priv);
+	static void wereColumnPrivDataDestructor(SQLWhereColumn *whereColumn,
+	                                         void *priv);
 
 private:
 	static const SelectSubParser m_selectSubParsers[];
