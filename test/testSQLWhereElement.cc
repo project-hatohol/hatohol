@@ -97,6 +97,67 @@ void test_isFullHasOpLeftRight(void)
 	cppcut_assert_equal(true, elem.isFull());
 }
 
+
+void test_isEmptyEmpty(void)
+{
+	SQLWhereElement elem;
+	cppcut_assert_equal(true, elem.isEmpty());
+}
+
+void test_isEmptyHasLeft(void)
+{
+	SQLWhereElement elem;
+	elem.setLeftHand(new SQLWhereElement());
+	cppcut_assert_equal(false, elem.isEmpty());
+}
+
+void test_isEmptyHasRight(void)
+{
+	SQLWhereElement elem;
+	elem.setRightHand(new SQLWhereElement());
+	cppcut_assert_equal(false, elem.isEmpty());
+}
+
+void test_isEmptyHasLeftRight(void)
+{
+	SQLWhereElement elem;
+	elem.setLeftHand(new SQLWhereElement());
+	elem.setRightHand(new SQLWhereElement());
+	cppcut_assert_equal(false, elem.isEmpty());
+}
+
+void test_isEmptyHasOp(void)
+{
+	SQLWhereElement elem;
+	elem.setOperator(new SQLWhereOperatorEqual());
+	cppcut_assert_equal(false, elem.isEmpty());
+}
+
+void test_isEmptyHasOpLeft(void)
+{
+	SQLWhereElement elem;
+	elem.setOperator(new SQLWhereOperatorEqual());
+	elem.setLeftHand(new SQLWhereElement());
+	cppcut_assert_equal(false, elem.isEmpty());
+}
+
+void test_isEmptyHasOpRight(void)
+{
+	SQLWhereElement elem;
+	elem.setOperator(new SQLWhereOperatorEqual());
+	elem.setRightHand(new SQLWhereElement());
+	cppcut_assert_equal(false, elem.isEmpty());
+}
+
+void test_isEmptyHasOpLeftRight(void)
+{
+	SQLWhereElement elem;
+	elem.setOperator(new SQLWhereOperatorEqual());
+	elem.setLeftHand(new SQLWhereElement());
+	elem.setRightHand(new SQLWhereElement());
+	cppcut_assert_equal(false, elem.isEmpty());
+}
+
 void test_setGetParent(void)
 {
 	x_elem = new SQLWhereElement();

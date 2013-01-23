@@ -162,7 +162,6 @@ void test_selectUsrgrpid(void)
 	  "WHERE ug.userid=1 AND g.usrgrpid=ug.usrgrpid AND "
 	  "g.users_status=1 LIMIT 1 OFFSET 0";
 	executeCommand(cmd);
-	cut_fail("To be implemented");
 }
 
 void test_selectUseridAutoLogoutLastAccess(void)

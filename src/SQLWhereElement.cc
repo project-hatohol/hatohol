@@ -191,6 +191,17 @@ bool SQLWhereElement::isFull(void)
 	return true;
 }
 
+bool SQLWhereElement::isEmpty(void)
+{
+	if (m_leftHand)
+		return false;
+	if (m_operator)
+		return false;
+	if (m_rightHand)
+		return false;
+	return true;
+}
+
 bool SQLWhereElement::evaluate(void)
 {
 	if (!m_operator) {

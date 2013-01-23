@@ -15,6 +15,7 @@ enum SQLWhereOperatorType {
 	SQL_WHERE_OP_BETWEEN,
 	SQL_WHERE_OP_AND,
 	SQL_WHERE_OP_OR,
+	SQL_WHERE_OP_TRUE,
 };
 
 enum SQLWhereElementType {
@@ -95,6 +96,7 @@ public:
 	void setOperator(SQLWhereOperator *whereOp);
 	void setParent(SQLWhereElement *whereElem);
 	bool isFull(void);
+	bool isEmpty(void);
 	virtual bool evaluate(void);
 	virtual ItemDataPtr getItemData(int index = 0);
 
