@@ -403,4 +403,37 @@ void test_selectWhereBetween(void)
 	assertWhereOperatorBetween(rootElem);
 }
 
+void test_selectWhereAndAnd(void)
+{
+	TestSQLProcessor proc;
+	const char *leftHand0  = "a";
+	int         rightHand0 = 1;
+	const char *leftHand1  = "b";
+	const char *rightHand1 = "foo";
+	const char *leftHand2  = "c";
+	int         rightHand2 = -5;
+	ParsableString parsable(
+	  StringUtils::sprintf("c1 from t1 where %s=%d and %s='%s' and %s=%d",
+	                       leftHand0, rightHand0, leftHand1, rightHand1,
+	                       leftHand2, rightHand2));
+	SQLSelectInfo selectInfo(parsable);
+	proc.callParseSelectStatement(selectInfo);
+
+	SQLWhereElement *leftElem = selectInfo.rootWhereElem->getLeftHand();
+	SQLWhereElement *rightElem = selectInfo.rootWhereElem->getRightHand();
+	assertWhereElementElement(leftElem);
+	assertWhereElementElement(rightElem);
+	assertWhereOperatorAnd(selectInfo.rootWhereElem);
+
+	// left child
+	assertWhereElementColumn(leftElem->getLeftHand(), leftHand0);
+	assertWhereElementNumber(leftElem->getRightHand(), rightHand0);
+	assertWhereOperatorEqual(leftElem);
+
+	// right child
+	assertWhereElementColumn(rightElem->getLeftHand(), leftHand1);
+	assertWhereElementString(rightElem->getRightHand(), rightHand1);
+	assertWhereOperatorEqual(rightElem);
+}
+
 } // namespace testSQLProcessor

@@ -26,6 +26,12 @@ enum SQLWhereElementType {
 	SQL_WHERE_ELEM_PAIRED_NUMBER,
 };
 
+enum SQLWhereOperatorPriority {
+	SQL_WHERE_OP_PRIO_EQ,
+	SQL_WHERE_OP_PRIO_AND,
+	SQL_WHERE_OP_PRIO_BETWEEN,
+};
+
 // ---------------------------------------------------------------------------
 // class: SQLWhereOperator
 // ---------------------------------------------------------------------------
@@ -38,11 +44,13 @@ public:
 	                      SQLWhereElement *rightHand) = 0;
 
 protected:
-	SQLWhereOperator(SQLWhereOperatorType type);
+	SQLWhereOperator(SQLWhereOperatorType type,
+	                 SQLWhereOperatorPriority prio);
 	bool checkType(SQLWhereElement *elem, SQLWhereElementType type) const;
 
 private:
 	const SQLWhereOperatorType m_type;
+	SQLWhereOperatorPriority m_priority;
 };
 
 // ---------------------------------------------------------------------------

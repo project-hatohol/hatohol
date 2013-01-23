@@ -14,8 +14,10 @@ using namespace mlpl;
 // ---------------------------------------------------------------------------
 // methods (SQLWhereOperator)
 // ---------------------------------------------------------------------------
-SQLWhereOperator::SQLWhereOperator(SQLWhereOperatorType type)
-: m_type(type)
+SQLWhereOperator::SQLWhereOperator(SQLWhereOperatorType type,
+                                   SQLWhereOperatorPriority prio)
+: m_type(type),
+  m_priority(prio)
 {
 }
 
@@ -47,7 +49,7 @@ bool SQLWhereOperator::checkType(SQLWhereElement *elem,
 // class: SQLWhereOperatorEqual
 // ---------------------------------------------------------------------------
 SQLWhereOperatorEqual::SQLWhereOperatorEqual()
-: SQLWhereOperator(SQL_WHERE_OP_EQ)
+: SQLWhereOperator(SQL_WHERE_OP_EQ, SQL_WHERE_OP_PRIO_EQ)
 {
 }
 
@@ -71,7 +73,7 @@ bool SQLWhereOperatorEqual::evaluate(SQLWhereElement *leftHand,
 // class: SQLWhereOperatorAnd
 // ---------------------------------------------------------------------------
 SQLWhereOperatorAnd::SQLWhereOperatorAnd()
-: SQLWhereOperator(SQL_WHERE_OP_EQ)
+: SQLWhereOperator(SQL_WHERE_OP_EQ, SQL_WHERE_OP_PRIO_AND)
 {
 }
 
@@ -90,7 +92,7 @@ bool SQLWhereOperatorAnd::evaluate(SQLWhereElement *leftHand,
 // class: SQLWhereOperatorBetween
 // ---------------------------------------------------------------------------
 SQLWhereOperatorBetween::SQLWhereOperatorBetween()
-: SQLWhereOperator(SQL_WHERE_OP_BETWEEN)
+: SQLWhereOperator(SQL_WHERE_OP_BETWEEN, SQL_WHERE_OP_PRIO_BETWEEN)
 {
 }
 
