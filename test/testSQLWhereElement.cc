@@ -22,6 +22,12 @@ void teardown()
 	}
 }
 
+static void whereColumnTestDestructor(SQLWhereColumn *wehreColumn, void *priv)
+{
+	bool *called = static_cast<bool *>(priv);
+	*called = true;
+}
+
 // ---------------------------------------------------------------------------
 // Test cases
 // ---------------------------------------------------------------------------
@@ -109,6 +115,18 @@ void test_whereColumnConstructor(void)
 	SQLWhereColumn elem(columnName, NULL, &index);
 	cppcut_assert_equal(columnName, elem.getColumnName());
 	cppcut_assert_equal(&index, static_cast<int *>(elem.getPrivateData()));
+}
+
+void test_whereColumnDestructor(void)
+{
+	bool called = false;
+	{
+		string columnName = "foo";
+		SQLWhereColumn elem(columnName, NULL,
+		                    &called, whereColumnTestDestructor);
+		cppcut_assert_equal(false, called);
+	}
+	cppcut_assert_equal(true, called);
 }
 
 } // namespace testSQLWhereElement
