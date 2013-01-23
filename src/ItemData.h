@@ -121,4 +121,7 @@ template<> string ItemUint64::getString(void) const;
 template<> bool ItemInt::operator >=(ItemData &itemData) const;
 template<> bool ItemInt::operator <=(ItemData &itemData) const;
 
+template<> bool ItemUint64::operator >=(ItemData &itemData) const;
+template<> bool ItemUint64::operator <=(ItemData &itemData) const;
+
 #endif // ItemData_h
