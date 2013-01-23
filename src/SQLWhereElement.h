@@ -155,6 +155,7 @@ public:
 	SQLWhereString(string &str);
 	virtual ~SQLWhereString();
 	const string &getValue(void) const;
+	virtual ItemDataPtr getItemData(int index = 0);
 private:
 	string m_str;
 };

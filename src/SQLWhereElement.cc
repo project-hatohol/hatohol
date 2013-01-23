@@ -58,7 +58,13 @@ SQLWhereOperatorEqual::~SQLWhereOperatorEqual()
 bool SQLWhereOperatorEqual::evaluate(SQLWhereElement *leftHand,
                                      SQLWhereElement *rightHand)
 {
-	return false;
+	if (!checkType(leftHand, SQL_WHERE_ELEM_COLUMN))
+		return false;
+	if (!rightHand)
+		return false;
+	ItemDataPtr data0 = leftHand->getItemData();
+	ItemDataPtr data1 = rightHand->getItemData();
+	return (*data0 == *data1);
 }
 
 // ---------------------------------------------------------------------------
@@ -192,7 +198,8 @@ bool SQLWhereElement::evaluate(void)
 		TRMSG(msg, "m_operator is NULL.");
 		throw logic_error(msg);
 	}
-	return m_operator->evaluate(m_leftHand, m_rightHand);
+	bool ret = m_operator->evaluate(m_leftHand, m_rightHand);
+	return ret;
 }
 
 ItemDataPtr SQLWhereElement::getItemData(int index)
@@ -285,6 +292,11 @@ SQLWhereString::~SQLWhereString()
 const string &SQLWhereString::getValue(void) const
 {
 	return m_str;
+}
+
+ItemDataPtr SQLWhereString::getItemData(int index)
+{
+	return ItemDataPtr(new ItemString(ITEM_ID_NOBODY, m_str), false);
 }
 
 // ---------------------------------------------------------------------------

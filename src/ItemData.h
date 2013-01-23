@@ -54,6 +54,7 @@ public:
 
 	virtual bool operator >=(ItemData &itemData) const = 0;
 	virtual bool operator <=(ItemData &itemData) const = 0;
+	virtual bool operator ==(ItemData &itemData) const = 0;
 
 protected:
 	ItemData(ItemId id, ItemDataType type);
@@ -103,6 +104,12 @@ public:
 		return false;
 	}
 
+	virtual bool operator ==(ItemData &itemData) const {
+		MLPL_WARN("You should override this function: %s.\n",
+		          __PRETTY_FUNCTION__);
+		return false;
+	}
+
 protected:
 	virtual ~ItemGeneric() {
 	}
@@ -123,5 +130,7 @@ template<> bool ItemInt::operator <=(ItemData &itemData) const;
 
 template<> bool ItemUint64::operator >=(ItemData &itemData) const;
 template<> bool ItemUint64::operator <=(ItemData &itemData) const;
+
+template<> bool ItemString::operator ==(ItemData &itemData) const;
 
 #endif // ItemData_h

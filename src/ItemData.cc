@@ -98,3 +98,17 @@ template<> bool ItemUint64::operator <=(ItemData &itemData) const
 	}
 	return false;
 }
+
+template<> bool ItemString::operator ==(ItemData &itemData) const
+{
+	if (itemData.getItemType() == ITEM_TYPE_STRING) {
+		string data;
+		itemData.get(&data);
+		return (m_data == data);
+	}
+	else {
+		MLPL_DBG("type is not String: %d\n", itemData.getItemType());
+		return false;
+	}
+	return false;
+}

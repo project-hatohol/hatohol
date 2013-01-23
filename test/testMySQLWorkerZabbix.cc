@@ -134,7 +134,7 @@ void test_selectUserid(void)
 	  "u.userid BETWEEN 000000000000000 AND 099999999999999";
 	executeCommand(cmd);
 	NumberStringMap nsmap;
-	assertRecord(1, nsmap);
+	assertRecord(2, nsmap);
 }
 
 void test_selectUsrgrpid(void)
