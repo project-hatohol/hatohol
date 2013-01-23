@@ -48,7 +48,8 @@ static void printOutput(void)
 	           g_standardOutput, g_standardError);
 }
 
-static void _assertRecord(int numExpectedLines, NumberStringMap &nsmap)
+static void _assertRecord(int numExpectedLines, NumberStringMap &nsmap,
+                          vector<string> *linesOut = NULL)
 {
 	vector<string> lines;
 	string stdOutStr(g_standardOutput);
@@ -62,8 +63,11 @@ static void _assertRecord(int numExpectedLines, NumberStringMap &nsmap)
 		cut_assert_equal_string(expected.c_str(),
 		                        lines[lineNum].c_str());
 	}
+	if (linesOut)
+		*linesOut = lines;
 }
-#define assertRecord(NUM, NSMAP) cut_trace(_assertRecord(NUM, NSMAP))
+#define assertRecord(NUM, NSMAP, ...) \
+cut_trace(_assertRecord(NUM, NSMAP, ##__VA_ARGS__))
 
 static void executeCommand(const char *cmd)
 {
@@ -133,8 +137,22 @@ void test_selectUserid(void)
 	  "FROM users u WHERE u.alias='guest' AND "
 	  "u.userid BETWEEN 000000000000000 AND 099999999999999";
 	executeCommand(cmd);
+	vector<string> lines;
 	NumberStringMap nsmap;
-	assertRecord(2, nsmap);
+	assertRecord(2, nsmap, &lines);
+
+	StringVector splitResult;
+	StringUtils::split(splitResult, lines[0], '\t');
+	cppcut_assert_equal((size_t)4, splitResult.size());
+	cppcut_assert_equal(string("userid"),         splitResult[0]);
+	cppcut_assert_equal(string("attempt_failed"), splitResult[1]);
+	cppcut_assert_equal(string("attempt_clock"),  splitResult[2]);
+	cppcut_assert_equal(string("attempt_ip"),     splitResult[3]);
+
+	splitResult.clear();
+	StringUtils::split(splitResult, lines[1], '\t');
+	cppcut_assert_equal(true, splitResult.size() >= 3);
+	cppcut_assert_equal(string("2"), splitResult[0]);
 }
 
 void test_selectUsrgrpid(void)
