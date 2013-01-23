@@ -1,6 +1,7 @@
 #include <cstdio>
 #include <string>
 #include <stdexcept>
+#include <typeinfo>
 
 #include "Utils.h"
 #include "SQLWhereElement.h"
@@ -194,6 +195,10 @@ bool SQLWhereElement::evaluate(void)
 
 ItemDataPtr SQLWhereElement::getItemData(int index)
 {
+	string className = typeid(*this).name();
+	MLPL_WARN("This function has less effect. "
+	          "You may not override in the sub-class: %s (%s) [%p]\n",
+	          Utils::demangle(className).c_str(), className.c_str(), this);
 	return ItemDataPtr();
 }
 
@@ -225,6 +230,11 @@ const string &SQLWhereColumn::getColumnName(void) const
 void *SQLWhereColumn::getPrivateData(void) const
 {
 	return m_priv;
+}
+
+ItemDataPtr SQLWhereColumn::getItemData(int index)
+{
+	return (*m_valueGetter)(this, m_priv);
 }
 
 // ---------------------------------------------------------------------------

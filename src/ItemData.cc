@@ -13,6 +13,16 @@ const ItemDataType &ItemData::getItemType(void) const
 	return m_itemType;
 }
 
+bool ItemData::operator >=(ItemData &itemData) const
+{
+	return false;
+}
+
+bool ItemData::operator <=(ItemData &itemData) const
+{
+	return false;
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------

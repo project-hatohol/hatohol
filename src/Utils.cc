@@ -4,46 +4,6 @@
 #include "Utils.h"
 
 // ---------------------------------------------------------------------------
-// Private methods
-// ---------------------------------------------------------------------------
-static string makeDemangledStackTraceString(string &stackTraceLine)
-{
-	StringVector stringsHead;
-	StringUtils::split(stringsHead, stackTraceLine, '(');
-	if (stringsHead.size() != 2)
-		return stackTraceLine;
-
-	StringVector stringsTail;
-	StringUtils::split(stringsTail, stringsHead[1], ')');
-	if (stringsTail.size() != 2)
-		return stackTraceLine;
-
-	string &libName    = stringsHead[0];
-	string &symbolName = stringsTail[0];
-	string &addr       = stringsTail[1];
-
-	StringVector stringsSymbol;
-	StringUtils::split(stringsSymbol, symbolName, '+');
-	if (stringsSymbol.size() != 2)
-		return stackTraceLine;
-
-	int status;
-	char *demangled = abi::__cxa_demangle(stringsSymbol[0].c_str(),
-	                                      0, 0, &status);
-	string demangledStr;
-	if (demangled) {
-		demangledStr = demangled;
-		free(demangled);
-	}
-
-	string returnStr = libName;
-	if (!demangledStr.empty())
-		returnStr += ", " + demangledStr + " +" + stringsSymbol[1];
-	returnStr += ", " + symbolName + addr;
-	return returnStr;
-}
-
-// ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
 string Utils::makeDemangledStackTraceLines(void **trace, int num)
@@ -67,3 +27,48 @@ void Utils::assertNotNull(void *ptr)
 	TRMSG(msg, "pointer: NULL.");
 	throw logic_error(msg);
 }
+
+string Utils::demangle(string &str)
+{
+	int status;
+	char *demangled = abi::__cxa_demangle(str.c_str(), 0, 0, &status);
+	string demangledStr;
+	if (demangled) {
+		demangledStr = demangled;
+		free(demangled);
+	}
+	return demangledStr;
+}
+
+// ---------------------------------------------------------------------------
+// Protected methods
+// ---------------------------------------------------------------------------
+string Utils::makeDemangledStackTraceString(string &stackTraceLine)
+{
+	StringVector stringsHead;
+	StringUtils::split(stringsHead, stackTraceLine, '(');
+	if (stringsHead.size() != 2)
+		return stackTraceLine;
+
+	StringVector stringsTail;
+	StringUtils::split(stringsTail, stringsHead[1], ')');
+	if (stringsTail.size() != 2)
+		return stackTraceLine;
+
+	string &libName    = stringsHead[0];
+	string &symbolName = stringsTail[0];
+	string &addr       = stringsTail[1];
+
+	StringVector stringsSymbol;
+	StringUtils::split(stringsSymbol, symbolName, '+');
+	if (stringsSymbol.size() != 2)
+		return stackTraceLine;
+
+	string demangledStr = demangle(stringsSymbol[0]);
+	string returnStr = libName;
+	if (!demangledStr.empty())
+		returnStr += ", " + demangledStr + " +" + stringsSymbol[1];
+	returnStr += ", " + symbolName + addr;
+	return returnStr;
+}
+

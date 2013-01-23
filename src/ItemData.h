@@ -51,13 +51,8 @@ public:
 	virtual void get(void *dst) const = 0;
 	virtual string getString(void) const = 0;
 
-	virtual bool operator >=(ItemData &itemData) const {
-		return true;
-	}
-
-	virtual bool operator <=(ItemData &itemData) const {
-		return true;
-	}
+	virtual bool operator >=(ItemData &itemData) const;
+	virtual bool operator <=(ItemData &itemData) const;
 
 protected:
 	ItemData(ItemId id, ItemDataType type);

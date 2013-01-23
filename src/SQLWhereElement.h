@@ -124,6 +124,7 @@ public:
 	virtual ~SQLWhereColumn();
 	const string &getColumnName(void) const;
 	void *getPrivateData(void) const;
+	virtual ItemDataPtr getItemData(int index = 0);
 
 private:
 	string                   m_columnName;

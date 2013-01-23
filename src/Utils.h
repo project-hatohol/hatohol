@@ -17,6 +17,10 @@ class Utils {
 public:
 	static string makeDemangledStackTraceLines(void **trace, int num);
 	static void assertNotNull(void *ptr);
+	static string demangle(string &str);
+
+protected:
+	static string makeDemangledStackTraceString(string &stackTraceLine);
 };
 
 #define TRMSG(msg, fmt, ...) \
