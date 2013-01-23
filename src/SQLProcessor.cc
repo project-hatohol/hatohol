@@ -532,8 +532,11 @@ bool SQLProcessor::fixupWhereColumn(SQLSelectInfo &selectInfo)
 bool SQLProcessor::pickupMatchingRows(const ItemGroup *itemGroup,
                                       SQLSelectInfo &selectInfo)
 {
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
-	selectInfo.selectedTable->add(const_cast<ItemGroup *>(itemGroup));
+	ItemGroup *nonConstItemGroup = const_cast<ItemGroup *>(itemGroup);
+	selectInfo.evalTargetItemGroup = nonConstItemGroup;
+	if (!selectInfo.rootWhereElem->evaluate())
+		return true;;
+	selectInfo.selectedTable->add(nonConstItemGroup);
 	return true;
 }
 

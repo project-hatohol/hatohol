@@ -194,7 +194,7 @@ struct SQLSelectInfo {
 	bool useIndex;
 
 	// temporay variable for selecting column
-	const ItemGroupPtr evalTargetItemGroup;
+	ItemGroupPtr evalTargetItemGroup;
 
 	//
 	// constructor and destructor
