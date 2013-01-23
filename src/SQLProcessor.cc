@@ -190,8 +190,7 @@ bool SQLProcessor::select(SQLSelectInfo &selectInfo)
 		return false;
 
 	// pickup matching rows
-	if (!selectInfo.joinedTable->foreach<SQLSelectInfo&>
-	                                    (pickupMatchingRows, selectInfo))
+	if (!selectMatchingRows(selectInfo))
 		return false;
 
 	// packed the requested columns
@@ -529,6 +528,16 @@ bool SQLProcessor::fixupWhereColumn(SQLSelectInfo &selectInfo)
 	return true;
 }
 
+bool SQLProcessor::selectMatchingRows(SQLSelectInfo &selectInfo)
+{
+	if (selectInfo.rootWhereElem->isEmpty()) {
+		selectInfo.selectedTable = selectInfo.joinedTable;
+		return true;
+	}
+	return selectInfo.joinedTable->foreach<SQLSelectInfo&>
+	                                    (pickupMatchingRows, selectInfo);
+}
+
 bool SQLProcessor::pickupMatchingRows(const ItemGroup *itemGroup,
                                       SQLSelectInfo &selectInfo)
 {
@@ -563,6 +572,8 @@ bool SQLProcessor::packRequiredColumns(const ItemGroup *itemGroup,
 bool SQLProcessor::makeTextRows(const ItemGroup *itemGroup,
                                 SQLSelectInfo &selectInfo)
 {
+	selectInfo.textRows.push_back(StringVector());
+	StringVector &textVector = selectInfo.textRows.back();
 	for (size_t i = 0; i < selectInfo.columnDefs.size(); i++) {
 		const SQLColumnDefinition &colDef = selectInfo.columnDefs[i];
 		const ItemData *item =
@@ -572,7 +583,7 @@ bool SQLProcessor::makeTextRows(const ItemGroup *itemGroup,
 			         colDef.columnBaseDef->itemId);
 			return false;
 		}
-		selectInfo.textRows.push_back(item->getString());
+		textVector.push_back(item->getString());
 	}
 	return true;
 }

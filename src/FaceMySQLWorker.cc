@@ -461,12 +461,12 @@ bool FaceMySQLWorker::sendSelectResult(const SQLSelectInfo &selectInfo)
 		return false;
 
 	// Rows
-	if (!selectInfo.textRows.empty()) {
+	for (size_t i = 0; i < selectInfo.textRows.size(); i++) {
 		SmartBuffer pkt;
 		const int initialPktSize = 0x1000;
 		allocAndAddPacketHeaderRegion(pkt, initialPktSize);
-		for (size_t i = 0; i < selectInfo.textRows.size(); i++)
-			addLenEncStr(pkt, selectInfo.textRows[i]);
+		for (size_t j = 0; j < selectInfo.textRows[i].size(); j++)
+			addLenEncStr(pkt, selectInfo.textRows[i][j]);
 		if (!sendPacket(pkt))
 			return false;
 	}

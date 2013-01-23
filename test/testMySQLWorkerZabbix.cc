@@ -130,6 +130,15 @@ void test_selectConfig(void)
 	assertRecord(2, nsmap);
 }
 
+void test_selectUseridNoCondition(void)
+{
+	const char *cmd = "use zabbix; SELECT u.userid FROM users u";
+	executeCommand(cmd);
+	vector<string> lines;
+	NumberStringMap nsmap;
+	assertRecord(3, nsmap, &lines);
+}
+
 void test_selectUserid(void)
 {
 	const char *cmd = "use zabbix;"

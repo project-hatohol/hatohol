@@ -188,7 +188,7 @@ struct SQLSelectInfo {
 	ItemTablePtr packedTable;
 
 	// output
-	vector<string> textRows;
+	vector<StringVector> textRows;
 
 	// flags
 	bool useIndex;
@@ -230,6 +230,7 @@ protected:
 	bool makeItemTables(SQLSelectInfo &selectInfo);
 	bool doJoin(SQLSelectInfo &selectInfo);
 	bool fixupWhereColumn(SQLSelectInfo &selectInfo);
+	bool selectMatchingRows(SQLSelectInfo &selectInfo);
 	bool checkSelectedAllColumns(const SQLSelectInfo &selectInfo,
 	                             const SQLColumnInfo &columnInfo) const;
 
