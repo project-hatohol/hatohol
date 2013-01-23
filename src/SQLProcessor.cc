@@ -334,16 +334,11 @@ bool SQLProcessor::associateColumnWithTable(SQLSelectInfo &selectInfo)
 			continue;
 		}
 
-		// TODO: use getTableInfoFromVarName()
-		map<string, const SQLTableInfo *>::iterator it;
-		it = selectInfo.tableVarInfoMap.find(columnInfo->tableVar);
-		if (it == selectInfo.tableVarInfoMap.end()) {
-			MLPL_DBG("Failed to find: %s (%s)\n",
-			         columnInfo->tableVar.c_str(),
-			         columnInfo->name.c_str());
+		const SQLTableInfo *tableInfo
+		  = getTableInfoFromVarName(selectInfo, columnInfo->tableVar);
+		if (!tableInfo)
 			return false;
-		}
-		columnInfo->associate(const_cast<SQLTableInfo *>(it->second));
+		columnInfo->associate(const_cast<SQLTableInfo *>(tableInfo));
 
 		// set SQLColumnInfo::baseDef.
 	}
@@ -394,15 +389,11 @@ SQLProcessor::setColumnTypeAndBaseDefInColumnInfo(SQLSelectInfo &selectInfo)
 			return false;
 		}
 
-		// TODO: use getColumnBaseDefinitionFromColumnName()
-		ItemNameColumnBaseDefRefMapConstIterator it;
-		it = staticInfo->columnBaseDefMap.find(columnInfo->baseName);
-		if (it == staticInfo->columnBaseDefMap.end()) {
-			MLPL_DBG("Not found column: %s\n",
-			         columnInfo->name.c_str());
+		columnInfo->columnBaseDef =
+		  getColumnBaseDefinitionFromColumnName(columnInfo->tableInfo,
+		                                        columnInfo->baseName);
+		if (!columnInfo->columnBaseDef)
 			return false;
-		}
-		columnInfo->columnBaseDef = it->second;
 	}
 	return true;
 }
@@ -638,26 +629,9 @@ bool SQLProcessor::parseSelectedColumns(SelectParserContext &ctx)
 	SQLColumnInfo *columnInfo = new SQLColumnInfo();
 	ctx.selectInfo.columns.push_back(columnInfo);
 	columnInfo->name = ctx.currWord;
-	// TODO: use parseColumnName()
-	size_t dotPos = columnInfo->name.find('.');
-	if (dotPos == 0) {
-		MLPL_DBG("Column name begins from dot. : %s",
-		         columnInfo->name.c_str());
-		return false;
-	}
-	if (dotPos == (columnInfo->name.size() - 1)) {
-		MLPL_DBG("Column name ends with dot. : %s",
-		         columnInfo->name.c_str());
-		return false;
-	}
 
-	if (dotPos != string::npos) {
-		columnInfo->tableVar = string(columnInfo->name, 0, dotPos);
-		columnInfo->baseName = string(columnInfo->name, dotPos + 1);
-	} else {
-		columnInfo->baseName = columnInfo->name;
-	}
-	return true;
+	return parseColumnName(columnInfo->name,
+	                       columnInfo->baseName, columnInfo->tableVar);
 }
 
 bool SQLProcessor::parseGroupBy(SelectParserContext &ctx)
