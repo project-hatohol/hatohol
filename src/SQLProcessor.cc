@@ -735,7 +735,7 @@ bool SQLProcessor::parseWhere(SelectParserContext &ctx)
 		whereElem->setRightHand(handElem);
 	else {
 		string msg;
-		TRMSG(msg, "Both hand of currWhereElem are not NULL.");
+		TRMSG(msg, "Both hands of currWhereElem are not NULL.");
 		throw logic_error(msg);
 	}
 	return true;

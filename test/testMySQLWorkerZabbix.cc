@@ -150,8 +150,8 @@ void test_selectUserid(void)
 	cppcut_assert_equal(string("attempt_ip"),     splitResult[3]);
 
 	splitResult.clear();
-	StringUtils::split(splitResult, lines[1], '\t');
-	cppcut_assert_equal(true, splitResult.size() >= 3);
+	StringUtils::split(splitResult, lines[1], '\t', false);
+	cppcut_assert_equal((size_t)4, splitResult.size());
 	cppcut_assert_equal(string("2"), splitResult[0]);
 }
 
