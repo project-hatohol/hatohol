@@ -534,7 +534,9 @@ bool SQLProcessor::pickupMatchingRows(const ItemGroup *itemGroup,
 {
 	ItemGroup *nonConstItemGroup = const_cast<ItemGroup *>(itemGroup);
 	selectInfo.evalTargetItemGroup = nonConstItemGroup;
-	if (!selectInfo.rootWhereElem->evaluate())
+	bool result = selectInfo.rootWhereElem->evaluate();
+	printf("**** result: %d\n", result);
+	if (!result)
 		return true;;
 	selectInfo.selectedTable->add(nonConstItemGroup);
 	return true;

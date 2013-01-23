@@ -17,6 +17,14 @@ enum SQLWhereOperatorType {
 	SQL_WHERE_OP_OR,
 };
 
+enum SQLWhereElementType {
+	SQL_WHERE_ELEM_ELEMENT,
+	SQL_WHERE_ELEM_COLUMN,
+	SQL_WHERE_ELEM_NUMBER,
+	SQL_WHERE_ELEM_STRING,
+	SQL_WHERE_ELEM_PAIRED_NUMBER,
+};
+
 // ---------------------------------------------------------------------------
 // class: SQLWhereOperator
 // ---------------------------------------------------------------------------
@@ -30,6 +38,7 @@ public:
 
 protected:
 	SQLWhereOperator(SQLWhereOperatorType type);
+	bool checkType(SQLWhereElement *elem, SQLWhereElementType type) const;
 
 private:
 	const SQLWhereOperatorType m_type;
@@ -71,14 +80,6 @@ public:
 // ---------------------------------------------------------------------------
 // class: SQLWhereELement
 // ---------------------------------------------------------------------------
-enum SQLWhereElementType {
-	SQL_WHERE_ELEM_ELEMENT,
-	SQL_WHERE_ELEM_COLUMN,
-	SQL_WHERE_ELEM_NUMBER,
-	SQL_WHERE_ELEM_STRING,
-	SQL_WHERE_ELEM_PAIRED_NUMBER,
-};
-
 class SQLWhereElement {
 public:
 	SQLWhereElement(SQLWhereElementType elemType = SQL_WHERE_ELEM_ELEMENT);
@@ -95,6 +96,7 @@ public:
 	void setParent(SQLWhereElement *whereElem);
 	bool isFull(void);
 	virtual bool evaluate(void);
+	virtual ItemDataPtr getItemData(int index = 0);
 
 private:
 	SQLWhereElementType m_type;

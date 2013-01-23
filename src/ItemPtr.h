@@ -5,6 +5,8 @@
 #include "Logger.h"
 using namespace mlpl;
 
+#include "Utils.h"
+
 template<class T>
 class ItemPtr {
 public:
@@ -33,6 +35,11 @@ public:
 		return m_data;
 	}
 
+	T &operator*() const {
+		Utils::assertNotNull(m_data);
+		return *m_data;
+	}
+
 	operator T *() const {
 		return m_data;
 	}
@@ -48,6 +55,8 @@ public:
 	bool hasData(void) const {
 		return (m_data != NULL);
 	}
+
+protected:
 
 private:
 	T *m_data;

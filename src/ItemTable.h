@@ -31,12 +31,17 @@ public:
 	{
 		bool ret = true;
 		readLock();
-		ItemGroupListConstIterator it = m_groupList.begin();
-		for (; it != m_groupList.end(); ++it) {
-			if (!(*func)(*it, arg)) {
-				ret = false;
-				break;
+		try {
+			ItemGroupListConstIterator it = m_groupList.begin();
+			for (; it != m_groupList.end(); ++it) {
+				if (!(*func)(*it, arg)) {
+					ret = false;
+					break;
+				}
 			}
+		} catch (...) {
+			readUnlock();
+			throw;
 		}
 		readUnlock();
 		return ret;

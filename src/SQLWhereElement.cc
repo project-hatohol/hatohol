@@ -9,7 +9,7 @@
 using namespace mlpl;
 
 // ---------------------------------------------------------------------------
-// Public methods (SQLWhereOperator)
+// methods (SQLWhereOperator)
 // ---------------------------------------------------------------------------
 SQLWhereOperator::SQLWhereOperator(SQLWhereOperatorType type)
 : m_type(type)
@@ -23,6 +23,21 @@ SQLWhereOperator::~SQLWhereOperator()
 const SQLWhereOperatorType SQLWhereOperator::getType(void) const
 {
 	return m_type;
+}
+
+bool SQLWhereOperator::checkType(SQLWhereElement *elem,
+                                 SQLWhereElementType type) const
+{
+	if (!elem) {
+		MLPL_DBG("elem is NULL\n");
+		return false;
+	}
+	if (elem->getType() != type) {
+		MLPL_DBG("type(%d) is not expected(%d)\n",
+		         elem->getType(), type);
+		return false;
+	}
+	return true;
 }
 
 // ---------------------------------------------------------------------------
@@ -77,7 +92,16 @@ SQLWhereOperatorBetween::~SQLWhereOperatorBetween()
 bool SQLWhereOperatorBetween::evaluate(SQLWhereElement *leftHand,
                                        SQLWhereElement *rightHand)
 {
-	return false;
+	if (!checkType(leftHand, SQL_WHERE_ELEM_COLUMN))
+		return false;
+	if (!checkType(rightHand, SQL_WHERE_ELEM_PAIRED_NUMBER))
+		return false;
+	SQLWherePairedNumber *pairedElem =
+	  dynamic_cast<SQLWherePairedNumber *>(rightHand);
+	ItemDataPtr dataColumn = leftHand->getItemData();
+	ItemDataPtr dataRight0 = pairedElem->getItemData(0);
+	ItemDataPtr dataRight1 = pairedElem->getItemData(1);
+	return (*dataColumn >= *dataRight0 && *dataColumn <= *dataRight1);
 }
 
 // ---------------------------------------------------------------------------
@@ -166,6 +190,11 @@ bool SQLWhereElement::evaluate(void)
 		throw logic_error(msg);
 	}
 	return m_operator->evaluate(m_leftHand, m_rightHand);
+}
+
+ItemDataPtr SQLWhereElement::getItemData(int index)
+{
+	return ItemDataPtr();
 }
 
 // ---------------------------------------------------------------------------

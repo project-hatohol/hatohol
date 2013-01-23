@@ -1,5 +1,6 @@
 #include <cstdio>
 #include <cxxabi.h>
+#include <stdexcept>
 #include "Utils.h"
 
 // ---------------------------------------------------------------------------
@@ -45,7 +46,7 @@ static string makeDemangledStackTraceString(string &stackTraceLine)
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
-string makeDemangledStackTraceLines(void **trace, int num)
+string Utils::makeDemangledStackTraceLines(void **trace, int num)
 {
 	char **symbols = backtrace_symbols(trace, num);
 	string str;
@@ -56,4 +57,13 @@ string makeDemangledStackTraceLines(void **trace, int num)
 	}
 	free(symbols);
 	return str;
+}
+
+void Utils::assertNotNull(void *ptr)
+{
+	if (ptr)
+		return;
+	string msg;
+	TRMSG(msg, "pointer: NULL.");
+	throw logic_error(msg);
 }
