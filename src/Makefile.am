@@ -5,7 +5,7 @@ lib_LTLIBRARIES = libasura.la
 libasura_la_SOURCES = \
 	Asura.cc Utils.cc FaceBase.cc FaceMySQL.cc FaceMySQLWorker.cc \
 	SQLProcessorFactory.cc SQLProcessor.cc SQLProcessorZabbix.cc \
-	SQLColumnElement.cc SQLWhereElement.cc \
+	FormulaElement.cc SQLWhereElement.cc \
 	ReadWriteLock.cc UsedCountable.cc \
 	ItemGroupType.cc ItemGroupTypeManager.cc \
 	ItemData.cc ItemGroup.cc ItemTable.cc \

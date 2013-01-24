@@ -14,7 +14,7 @@ using namespace mlpl;
 #include <glib.h>
 #include "ItemGroupPtr.h"
 #include "ItemTablePtr.h"
-#include "SQLColumnElement.h"
+#include "FormulaElement.h"
 #include "SQLWhereElement.h"
 
 enum SQLColumnType {
@@ -159,7 +159,7 @@ struct SQLSelectInfo {
 	ParsableString   query;
 
 	// parsed matter (Elements in these two container have to be freed)
-	vector<SQLColumnElement *> columnElementVector;
+	vector<FormulaElement *> columnElementVector;
 	SQLColumnInfoVector columns;
 	SQLTableInfoVector  tables;
 
