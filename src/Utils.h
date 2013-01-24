@@ -4,6 +4,7 @@
 #include <cstdlib>
 #include <vector>
 #include <string>
+#include <typeinfo>
 using namespace std;
 
 #include <StringUtils.h>
@@ -31,6 +32,9 @@ do { \
   msg = StringUtils::sprintf("<%s:%d> " fmt "\n", __FILE__, __LINE__, ##__VA_ARGS__); \
   msg += Utils::makeDemangledStackTraceLines(trace, n); \
 } while (0)
+
+#define TYPE_NAME(X)            typeid(X).name()
+#define DEMANGLED_TYPE_NAME(X)  Utils::demangle(TYPE_NAME(X)).c_str()
 
 #endif // Utils_h
 

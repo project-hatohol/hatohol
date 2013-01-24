@@ -16,6 +16,9 @@ using namespace mlpl;
 
 namespace testSQLProcessor {
 
+#define TYPE_NAME(X)          typeid(X).name()
+#define TYPE_DEMANGLE_NAME(X) Utils::demangle(TYPE_NAME(X)).c_str()
+
 static const int TABLE_ID = 1;
 static const int TABLE_ID_A = 2;
 
@@ -163,9 +166,7 @@ _assertWhereElementElement(SQLWhereElement *whereElem)
 	cppcut_assert_equal
 	  (true, typeid(SQLWhereElement) == typeid(*whereElem),
 	   cut_message("type: *whreElem: %s (%s)",
-	               Utils::demangle(typeid(*whereElem).name()).c_str(),
-	               typeid(*whereElem).name())
-	  );
+	               TYPE_DEMANGLE_NAME(*whereElem), TYPE_NAME(*whereElem)));
 }
 #define assertWhereElementElement(ELEM) \
 cut_trace(_assertWhereElementElement(ELEM))
@@ -188,8 +189,10 @@ cut_trace(_assertWhereOperatorEqual(ELEM))
 static void assertWhrereOperatorAnd(SQLWhereOperator *whereOp)
 {
 	cut_assert_not_null(whereOp);
-	cppcut_assert_equal(true,
-	                    typeid(SQLWhereOperatorAnd) == typeid(*whereOp));
+	cppcut_assert_equal
+	  (true, typeid(SQLWhereOperatorAnd) == typeid(*whereOp),
+	   cut_message("type: *whreOp: %s (%s)",
+	               TYPE_DEMANGLE_NAME(*whereOp), TYPE_NAME(*whereOp)));
 }
 
 static void _assertWhereOperatorAnd(SQLWhereElement *whereElem)

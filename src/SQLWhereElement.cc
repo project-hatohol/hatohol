@@ -253,6 +253,29 @@ SQLWhereElement *SQLWhereElement::findInsertPoint(SQLWhereElement *insertElem)
 	return whereElem;
 }
 
+void SQLWhereElement::getTreeInfo(string &str)
+{
+	const char *leftTypeName = "-";
+	const char *rightTypeName = "-";
+	const char *operatorName = "-";
+	if (m_leftHand)
+		leftTypeName = DEMANGLED_TYPE_NAME(*m_leftHand);
+	if (m_rightHand)
+		rightTypeName = DEMANGLED_TYPE_NAME(*m_rightHand);
+	if (m_operator)
+		operatorName = DEMANGLED_TYPE_NAME(*m_operator);
+
+	str += StringUtils::sprintf("[%p] %s, L:%p (%s), R:%p (%s), O:%s\n",
+	                            this, DEMANGLED_TYPE_NAME(*this),
+	                            m_leftHand, leftTypeName,
+	                            m_rightHand, rightTypeName,
+	                            operatorName);
+	if (m_leftHand)
+		m_leftHand->getTreeInfo(str);
+	if (m_rightHand)
+		m_rightHand->getTreeInfo(str);
+}
+
 // ---------------------------------------------------------------------------
 // class: SQLWhereColumn
 // ---------------------------------------------------------------------------
