@@ -18,6 +18,7 @@ const SQLProcessor::SelectSubParser SQLProcessor::m_selectSubParsers[] = {
 	&SQLProcessor::parseFrom,
 	&SQLProcessor::parseWhere,
 	&SQLProcessor::parseOrderBy,
+	&SQLProcessor::parseLimit,
 };
 
 map<string, SQLProcessor::SelectSubParser>
@@ -155,6 +156,17 @@ void SQLProcessor::init(void)
 
 	m_whereKeywordHandlerMap["and"] = &SQLProcessor::whereHandlerAnd;
 	m_whereKeywordHandlerMap["between"] = &SQLProcessor::whereHandlerBetween;
+
+	// check the size of m_selectSubParsers
+	size_t size = sizeof(SQLProcessor::m_selectSubParsers) / 
+	                sizeof(SelectSubParser);
+	if (size != NUM_SELECT_PARSING_SECTION) {
+		string msg;
+		TRMSG(msg, "sizeof(m_selectSubParsers) is invalid: "
+		           "(expcect/actual: %d/%d).",
+		      NUM_SELECT_PARSING_SECTION, size);
+		throw logic_error(msg);
+	}
 }
 
 bool SQLProcessor::select(SQLSelectInfo &selectInfo)
@@ -636,6 +648,12 @@ bool SQLProcessor::parseSectionGroup(SelectParserContext &ctx)
 	return true;
 }
 
+bool SQLProcessor::parseSectionLimit(SelectParserContext &ctx)
+{
+	ctx.section = SELECT_PARSING_SECTION_LIMIT;
+	return true;
+}
+
 //
 // Select statment parsers
 //
@@ -761,9 +779,9 @@ bool SQLProcessor::parseOrderBy(SelectParserContext &ctx)
 	return true;
 }
 
-bool SQLProcessor::parseSectionLimit(SelectParserContext &ctx)
+bool SQLProcessor::parseLimit(SelectParserContext &ctx)
 {
-	MLPL_BUG("Not implemented: Limit\n");
+	MLPL_BUG("Not implemented: %s: %s\n", ctx.currWord.c_str(), __func__);
 	return true;
 }
 

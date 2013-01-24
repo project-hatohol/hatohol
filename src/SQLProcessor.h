@@ -268,6 +268,7 @@ protected:
 	bool parseFrom(SelectParserContext &ctx);
 	bool parseWhere(SelectParserContext &ctx);
 	bool parseOrderBy(SelectParserContext &ctx);
+	bool parseLimit(SelectParserContext &ctx);
 
 	//
 	// Sub statement parsers
