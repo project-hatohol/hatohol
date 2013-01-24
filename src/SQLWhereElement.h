@@ -42,6 +42,7 @@ public:
 	virtual ~SQLWhereOperator();
 	virtual bool evaluate(SQLWhereElement *leftHand,
 	                      SQLWhereElement *rightHand) = 0;
+	bool priorityOver(SQLWhereOperator *whereOp);
 
 protected:
 	SQLWhereOperator(SQLWhereOperatorType type,
@@ -102,11 +103,12 @@ public:
 	void setLeftHand(SQLWhereElement *whereElem);
 	void setRightHand(SQLWhereElement *whereElem);
 	void setOperator(SQLWhereOperator *whereOp);
-	void setParent(SQLWhereElement *whereElem);
+	//void setParent(SQLWhereElement *whereElem);
 	bool isFull(void);
 	bool isEmpty(void);
 	virtual bool evaluate(void);
 	virtual ItemDataPtr getItemData(int index = 0);
+	virtual SQLWhereElement *findInsertPoint(SQLWhereElement *insertElem);
 
 private:
 	SQLWhereElementType m_type;

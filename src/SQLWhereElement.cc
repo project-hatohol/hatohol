@@ -25,6 +25,14 @@ SQLWhereOperator::~SQLWhereOperator()
 {
 }
 
+bool SQLWhereOperator::priorityOver(SQLWhereOperator *whereOp)
+{
+	return m_priority > whereOp->m_priority;
+}
+
+//
+// Protected methods
+//
 const SQLWhereOperatorType SQLWhereOperator::getType(void) const
 {
 	return m_type;
@@ -165,11 +173,13 @@ SQLWhereElement *SQLWhereElement::getParent(void) const
 void SQLWhereElement::setLeftHand(SQLWhereElement *whereElem)
 {
 	m_leftHand = whereElem;
+	whereElem->m_parent = this;
 }
 
 void SQLWhereElement::setRightHand(SQLWhereElement *whereElem)
 {
 	m_rightHand = whereElem;
+	whereElem->m_parent = this;
 }
 
 void SQLWhereElement::setOperator(SQLWhereOperator *whereOp)
@@ -177,10 +187,11 @@ void SQLWhereElement::setOperator(SQLWhereOperator *whereOp)
 	m_operator = whereOp;
 }
 
+/*
 void SQLWhereElement::setParent(SQLWhereElement *whereElem)
 {
 	m_parent = whereElem;
-}
+}*/
 
 bool SQLWhereElement::isFull(void)
 {
@@ -218,10 +229,34 @@ bool SQLWhereElement::evaluate(void)
 ItemDataPtr SQLWhereElement::getItemData(int index)
 {
 	string className = typeid(*this).name();
-	MLPL_WARN("This function has less effect. "
-	          "You may not override it in the sub class: %s (%s) [%p]\n",
+	MLPL_WARN("This function is typically "
+	          "overrided in the sub class: %s (%s) [%p]\n",
 	          Utils::demangle(className).c_str(), className.c_str(), this);
 	return ItemDataPtr();
+}
+
+SQLWhereElement *SQLWhereElement::findInsertPoint(SQLWhereElement *insertElem)
+{
+	string str;
+	SQLWhereOperator *insertElemOp = insertElem->m_operator;
+	if (!insertElemOp) {
+		TRMSG(str, "Operator of insertElem is NULL.");
+		throw logic_error(str);
+	}
+
+	SQLWhereElement *whereElem = this;
+	for (; whereElem; whereElem = whereElem->m_parent) {
+		if (whereElem->getType() != SQL_WHERE_ELEM_ELEMENT)
+			continue;
+		SQLWhereOperator *whereOp = whereElem->m_operator;
+		if (!whereOp) {
+			TRMSG(str, "Operator is NULL.");
+			throw logic_error(str);
+		}
+		if (!whereOp->priorityOver(insertElemOp))
+			break;
+	}
+	return whereElem;
 }
 
 // ---------------------------------------------------------------------------

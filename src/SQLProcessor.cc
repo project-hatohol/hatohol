@@ -829,13 +829,24 @@ bool SQLProcessor::whereHandlerAnd(SelectParserContext &ctx)
 	// create new element 
 	SQLWhereElement *andWhereElem = new SQLWhereElement();
 	andWhereElem->setOperator(new SQLWhereOperatorAnd());
-	andWhereElem->setLeftHand(currWhereElem);
+
+	// insert the created element
+	SQLWhereElement *insertPair =
+	  ctx.selectInfo.currWhereElem->findInsertPoint(andWhereElem);
+
+	if (insertPair == NULL) {
+		andWhereElem->setLeftHand(ctx.selectInfo.rootWhereElem);
+		ctx.selectInfo.rootWhereElem = andWhereElem;
+	} else {
+		andWhereElem->setLeftHand(ctx.selectInfo.currWhereElem);
+		ctx.selectInfo.currWhereElem->setRightHand(andWhereElem);
+	}
+
+	// set the newly created right hand element
 	SQLWhereElement *newRightElem = new SQLWhereElement();
 	andWhereElem->setRightHand(newRightElem);
 
-	// set the root and current element
-	ctx.selectInfo.rootWhereElem->setParent(andWhereElem);
-	ctx.selectInfo.rootWhereElem = andWhereElem;
+	// set the current element
 	ctx.selectInfo.currWhereElem = newRightElem;
 
 	return true;

@@ -11,6 +11,7 @@ const static int NUM_ELEM_POOL = 10;
 static SQLWhereElement *g_elem[NUM_ELEM_POOL];
 static SQLWhereElement *&x_elem = g_elem[0];
 static SQLWhereElement *&y_elem = g_elem[1];
+static SQLWhereElement *&z_elem = g_elem[2];
 
 void teardown()
 {
@@ -161,12 +162,13 @@ void test_isEmptyHasOpLeftRight(void)
 void test_setGetParent(void)
 {
 	x_elem = new SQLWhereElement();
+	SQLWhereElement *elem0 = new SQLWhereElement();
+	SQLWhereElement *elem1 = new SQLWhereElement();
+	x_elem->setLeftHand(elem0);
+	x_elem->setRightHand(elem1);
 	cppcut_assert_equal((SQLWhereElement *)NULL, x_elem->getParent());
-
-	y_elem = new SQLWhereElement();
-	x_elem->setParent(y_elem);
-	cppcut_assert_equal(y_elem, x_elem->getParent());
-	y_elem = NULL; // to avoid teardown() from calling destructor directly
+	cppcut_assert_equal(x_elem, elem0->getParent());
+	cppcut_assert_equal(x_elem, elem1->getParent());
 }
 
 void test_whereColumnConstructor(void)
