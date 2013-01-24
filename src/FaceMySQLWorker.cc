@@ -727,6 +727,8 @@ bool FaceMySQLWorker::querySelect(ParsableString &query)
 		SQLSelectInfo selectInfo(query);
 		if (m_sqlProcessor->select(selectInfo))
 			return sendSelectResult(selectInfo);
+		MLPL_ERR("Failed: select: '%s'\n", query.getString());
+		return false;
 	}
 	MLPL_BUG("Not implemented: select: '%s'\n", query.getString());
 	return false;
