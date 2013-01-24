@@ -362,7 +362,8 @@ bool FaceMySQLWorker::receivePacket(SmartBuffer &pkt)
 		MLPL_BUG("pktSize: 0xffffff: Not implemented\n");
 		return false;
 	}
-	MLPL_INFO("pktSize: %08x (%d)\n", pktSize, m_packetId);
+	MLPL_DBG("Recived: pktSize: %08x (%d) [%s]\n",
+	         pktSize, m_packetId, __PRETTY_FUNCTION__);
 
 	// read response body
 	pkt.alloc(pktSize);
