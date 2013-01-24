@@ -479,8 +479,10 @@ bool SQLProcessor::makeItemTables(SQLSelectInfo &selectInfo)
 		const SQLTableInfo *tableInfo = *tblInfoIt;
 		SQLTableMakeFunc func = tableInfo->staticInfo->tableMakeFunc;
 		ItemTablePtr tablePtr = (this->*func)(selectInfo, *tableInfo);
-		if (!tablePtr.hasData())
+		if (!tablePtr.hasData()) {
+			MLPL_DBG("ItemTable: empty.\n");
 			return false;
+		}
 		selectInfo.itemTablePtrList.push_back(tablePtr);
 	}
 	return true;

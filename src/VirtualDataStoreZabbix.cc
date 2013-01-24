@@ -159,6 +159,53 @@ VirtualDataStoreZabbix::VirtualDataStoreZabbix(void)
 	ADD(new ItemInt(ITEM_ID_ZBX_USERS_ATTEMPT_CLOCK,  0 ));
 	ADD(new ItemInt(ITEM_ID_ZBX_USERS_ROWS_PER_PAGE,  50 ));
 
+	table = createStaticItemTable(GROUP_ID_ZBX_USRGRP);
+	grp = table->addNewGroup();
+	ADD(new ItemUint64(ITEM_ID_ZBX_USRGRP_USRGRPID,  7));
+	ADD(new ItemString(ITEM_ID_ZBX_USRGRP_NAME, "Zabbix administrators"));
+	ADD(new ItemInt(ITEM_ID_ZBX_USRGRP_GUI_ACCESS,   0));
+	ADD(new ItemInt(ITEM_ID_ZBX_USRGRP_USERS_STATUS, 0));
+	ADD(new ItemInt(ITEM_ID_ZBX_USRGRP_DEBUG_MODE,   0));
+
+	grp = table->addNewGroup();
+	ADD(new ItemUint64(ITEM_ID_ZBX_USRGRP_USRGRPID,  8));
+	ADD(new ItemString(ITEM_ID_ZBX_USRGRP_NAME, "Guests"));
+	ADD(new ItemInt(ITEM_ID_ZBX_USRGRP_GUI_ACCESS,   0));
+	ADD(new ItemInt(ITEM_ID_ZBX_USRGRP_USERS_STATUS, 0));
+	ADD(new ItemInt(ITEM_ID_ZBX_USRGRP_DEBUG_MODE,   0));
+
+	grp = table->addNewGroup();
+	ADD(new ItemUint64(ITEM_ID_ZBX_USRGRP_USRGRPID,  9));
+	ADD(new ItemString(ITEM_ID_ZBX_USRGRP_NAME, "Disabled"));
+	ADD(new ItemInt(ITEM_ID_ZBX_USRGRP_GUI_ACCESS,   0));
+	ADD(new ItemInt(ITEM_ID_ZBX_USRGRP_USERS_STATUS, 1));
+	ADD(new ItemInt(ITEM_ID_ZBX_USRGRP_DEBUG_MODE,   0));
+
+	grp = table->addNewGroup();
+	ADD(new ItemUint64(ITEM_ID_ZBX_USRGRP_USRGRPID,  11));
+	ADD(new ItemString(ITEM_ID_ZBX_USRGRP_NAME, "Enabled debug mode"));
+	ADD(new ItemInt(ITEM_ID_ZBX_USRGRP_GUI_ACCESS,   0));
+	ADD(new ItemInt(ITEM_ID_ZBX_USRGRP_USERS_STATUS, 0));
+	ADD(new ItemInt(ITEM_ID_ZBX_USRGRP_DEBUG_MODE,   1));
+
+	grp = table->addNewGroup();
+	ADD(new ItemUint64(ITEM_ID_ZBX_USRGRP_USRGRPID,  11));
+	ADD(new ItemString(ITEM_ID_ZBX_USRGRP_NAME, "No access to the frontend"));
+	ADD(new ItemInt(ITEM_ID_ZBX_USRGRP_GUI_ACCESS,   2));
+	ADD(new ItemInt(ITEM_ID_ZBX_USRGRP_USERS_STATUS, 0));
+	ADD(new ItemInt(ITEM_ID_ZBX_USRGRP_DEBUG_MODE,   0));
+
+	table = createStaticItemTable(GROUP_ID_ZBX_USERS_GROUPS);
+	grp = table->addNewGroup();
+	ADD(new ItemUint64(ITEM_ID_ZBX_USERS_GROUPS_ID,       4));
+	ADD(new ItemUint64(ITEM_ID_ZBX_USERS_GROUPS_USRGRPID, 7));
+	ADD(new ItemUint64(ITEM_ID_ZBX_USERS_GROUPS_USERID,   1));
+
+	grp = table->addNewGroup();
+	ADD(new ItemUint64(ITEM_ID_ZBX_USERS_GROUPS_ID,       2));
+	ADD(new ItemUint64(ITEM_ID_ZBX_USERS_GROUPS_USRGRPID, 8));
+	ADD(new ItemUint64(ITEM_ID_ZBX_USERS_GROUPS_USERID,   2));
+
 #undef ADD
 }
 
