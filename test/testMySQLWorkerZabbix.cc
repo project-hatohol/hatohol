@@ -21,6 +21,8 @@ typedef NumberStringMap::iterator NumberStringMapIterator;
 gchar *g_standardOutput = NULL;
 gchar *g_standardError = NULL;
 GError *g_error = NULL;
+gboolean g_spawnRet;
+gint     g_exitStatus;
 
 void setup()
 {
@@ -42,10 +44,14 @@ void teardown()
 	}
 }
 
-static void printOutput(void)
+static const char *execResult(void)
 {
-	cut_notify("<<stdout>>\n%s\n<<stderr>>\n%s",
-	           g_standardOutput, g_standardError);
+	string str;
+	str = StringUtils::sprintf("ret: %d, exit status: %d\n"
+	                           "<<stdout>>\n%s\n<<stderr>>\n%s",
+	                           g_spawnRet, g_exitStatus,
+	                           g_standardOutput, g_standardError);
+	return str.c_str();
 }
 
 static void _assertRecord(int numExpectedLines, NumberStringMap &nsmap,
@@ -84,19 +90,14 @@ static void executeCommand(const char *cmd)
 	GSpawnFlags flags = G_SPAWN_SEARCH_PATH;
 	GSpawnChildSetupFunc child_setup = NULL;
 	gpointer user_data = NULL;
-	gint exitStatus;
-	gboolean ret = g_spawn_sync(working_directory,
-	                            (gchar **)argv, (gchar **)envp, flags,
-	                            child_setup, user_data,
-	                            &g_standardOutput, &g_standardError,
-	                            &exitStatus, &g_error);
-	if (ret != TRUE)
-		printOutput();
-	gboolean expected = TRUE;
-	cppcut_assert_equal(expected, ret);
-	if (0 != exitStatus)
-		printOutput();
-	cppcut_assert_equal(0, exitStatus);
+	g_spawnRet = g_spawn_sync(working_directory,
+	                          (gchar **)argv, (gchar **)envp, flags,
+	                          child_setup, user_data,
+	                          &g_standardOutput, &g_standardError,
+	                          &g_exitStatus, &g_error);
+	cppcut_assert_equal((gboolean)TRUE, g_spawnRet,
+	                    cut_message("%s", execResult()));
+	cppcut_assert_equal(0, g_exitStatus, cut_message("%s", execResult()));
 }
 
 // ---------------------------------------------------------------------------
@@ -171,6 +172,8 @@ void test_selectUsrgrpid(void)
 	  "WHERE ug.userid=1 AND g.usrgrpid=ug.usrgrpid AND "
 	  "g.users_status=1 LIMIT 1 OFFSET 0";
 	executeCommand(cmd);
+	NumberStringMap nsmap;
+	assertRecord(0, nsmap);
 }
 
 void test_selectUseridAutoLogoutLastAccess(void)
