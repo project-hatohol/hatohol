@@ -228,12 +228,13 @@ bool SQLProcessor::select(SQLSelectInfo &selectInfo)
 // ---------------------------------------------------------------------------
 SQLProcessor::SQLProcessor(TableNameStaticInfoMap &tableNameStaticInfoMap)
 : m_separatorSpaceComma(" ,"),
+  m_separatorCBForSelect(" ,("),
   m_separatorCountSpaceComma(", "),
   m_separatorCBForWhere(" ='"),
   m_tableNameStaticInfoMap(tableNameStaticInfoMap)
 {
 	m_selectSeprators[SQLProcessor::SELECT_PARSING_SECTION_SELECT] =
-	  &m_separatorSpaceComma;
+	  &m_separatorCBForSelect;
 	m_selectSeprators[SQLProcessor::SELECT_PARSING_SECTION_GROUP_BY] = 
 	  &m_separatorSpaceComma;
 	m_selectSeprators[SQLProcessor::SELECT_PARSING_SECTION_FROM] =
