@@ -12,6 +12,7 @@ enum TableID {
 	TABLE_ID_CONFIG,
 	TABLE_ID_USERS,
 	TABLE_ID_USRGRP,
+	TABLE_ID_USERS_GROUPS,
 	TABLE_ID_SESSIONS,
 };
 
@@ -19,6 +20,7 @@ static const char *TABLE_NAME_NODES  = "nodes";
 static const char *TABLE_NAME_CONFIG = "config";
 static const char *TABLE_NAME_USERS  = "users";
 static const char *TABLE_NAME_USRGRP = "usrgrp";
+static const char *TABLE_NAME_USERS_GROUPS = "users_groups";
 static const char *TABLE_NAME_SESSIONS = "sessions";
 
 SQLProcessor::TableNameStaticInfoMap
@@ -261,6 +263,19 @@ static_cast<SQLTableMakeFunc>(&SQLProcessorZabbix::tableMakeFuncTemplate<G>)
 	defineColumn(staticInfo, ITEM_ID_ZBX_USRGRP_DEBUG_MODE,
 	             TABLE_ID_USRGRP, "debug_mdoe",
 	             SQL_COLUMN_TYPE_INT, 11);
+
+	staticInfo =
+	  defineTable(TABLE_ID_USERS_GROUPS, TABLE_NAME_USERS_GROUPS,
+	              MAKE_FUNC(GROUP_ID_ZBX_USERS_GROUPS));
+	defineColumn(staticInfo, ITEM_ID_ZBX_USERS_GROUPS_ID,
+	             TABLE_ID_USERS_GROUPS, "id",
+	             SQL_COLUMN_TYPE_BIGUINT, 20);
+	defineColumn(staticInfo, ITEM_ID_ZBX_USERS_GROUPS_USRGRPID,
+	             TABLE_ID_USERS_GROUPS, "usrgrpid",
+	             SQL_COLUMN_TYPE_BIGUINT, 20);
+	defineColumn(staticInfo, ITEM_ID_ZBX_USERS_GROUPS_USERID,
+	             TABLE_ID_USERS_GROUPS, "userid",
+	             SQL_COLUMN_TYPE_BIGUINT, 20);
 
 	staticInfo =
 	  defineTable(TABLE_ID_SESSIONS, TABLE_NAME_SESSIONS,
