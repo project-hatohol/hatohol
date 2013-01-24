@@ -265,11 +265,14 @@ int SQLWhereElement::getTreeInfo(string &str, int maxNumElem, int currNum)
 	if (m_operator)
 		operatorName = DEMANGLED_TYPE_NAME(*m_operator);
 
-	str += StringUtils::sprintf("[%p] %s, L:%p (%s), R:%p (%s), O:%s @%d\n",
+	string additionalInfo = getTreeInfoAdditional();
+	str += StringUtils::sprintf
+	         ("[%p] %s, L:%p (%s), R:%p (%s), O:%s, %s, @%d\n",
 	                            this, DEMANGLED_TYPE_NAME(*this),
 	                            m_leftHand, leftTypeName.c_str(),
 	                            m_rightHand, rightTypeName.c_str(),
-	                            operatorName.c_str(), currNum);
+	                            operatorName.c_str(),
+	                            additionalInfo.c_str(), currNum);
 	currNum++;
 	if (maxNumElem >= 0 && currNum >= maxNumElem)
 		return currNum;
@@ -282,6 +285,11 @@ int SQLWhereElement::getTreeInfo(string &str, int maxNumElem, int currNum)
 	if (m_rightHand)
 		currNum = m_rightHand->getTreeInfo(str, maxNumElem, currNum);
 	return currNum;
+}
+
+string SQLWhereElement::getTreeInfoAdditional(void)
+{
+	return "-";
 }
 
 // ---------------------------------------------------------------------------
@@ -319,6 +327,11 @@ ItemDataPtr SQLWhereColumn::getItemData(int index)
 	return (*m_valueGetter)(this, m_priv);
 }
 
+string SQLWhereColumn::getTreeInfoAdditional(void)
+{
+	return StringUtils::sprintf("name: %s", m_columnName.c_str());
+}
+
 // ---------------------------------------------------------------------------
 // class: SQLWhereNumber
 // ---------------------------------------------------------------------------
@@ -349,6 +362,20 @@ const PolytypeNumber &SQLWhereNumber::getValue(void) const
 	return m_value;
 }
 
+string SQLWhereNumber::getTreeInfoAdditional(void)
+{
+	string str;
+	if (m_value.getType() == PolytypeNumber::TYPE_NONE)
+		str = StringUtils::sprintf("None");
+	else if (m_value.getType() == PolytypeNumber::TYPE_INT64)
+		str = StringUtils::sprintf("[INT64] %"PRId64, m_value.getAsInt64());
+	else if (m_value.getType() == PolytypeNumber::TYPE_DOUBLE)
+		str = StringUtils::sprintf("[DOUBLE] %f", m_value.getAsDouble());
+	else
+		str = StringUtils::sprintf("Unknown type: ", m_value.getType());
+	return str;
+}
+
 // ---------------------------------------------------------------------------
 // class: SQLWhereString
 // ---------------------------------------------------------------------------
@@ -370,6 +397,11 @@ const string &SQLWhereString::getValue(void) const
 ItemDataPtr SQLWhereString::getItemData(int index)
 {
 	return ItemDataPtr(new ItemString(ITEM_ID_NOBODY, m_str), false);
+}
+
+string SQLWhereString::getTreeInfoAdditional(void)
+{
+	return m_str;
 }
 
 // ---------------------------------------------------------------------------
@@ -420,3 +452,27 @@ ItemDataPtr SQLWherePairedNumber::getItemData(int index)
 	}
 	return ItemDataPtr(item, false);
 }
+
+string SQLWherePairedNumber::getTreeInfoAdditional(void)
+{
+	string str;
+	PolytypeNumber *values[2] = {&m_value0, &m_value1};
+
+	for (size_t i = 0; i < 2; i++) {
+		PolytypeNumber::NumberType type = values[i]->getType();
+		if (type == PolytypeNumber::TYPE_NONE) {
+			str = StringUtils::sprintf("[NONE]");
+		} else if (type == PolytypeNumber::TYPE_INT64) {
+			str = StringUtils::sprintf
+			        ("[INT64] %"PRId64, values[i]->getAsInt64());
+		} else if (type == PolytypeNumber::TYPE_DOUBLE) {
+			str = StringUtils::sprintf
+			        ("[DOUBLE] %f", values[i]->getAsDouble());
+		} else {
+			str = StringUtils::sprintf
+			        ("Unknown type: ", values[i]->getType());
+		}
+	}
+	return str;
+}
+

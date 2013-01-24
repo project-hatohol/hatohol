@@ -745,8 +745,11 @@ bool SQLProcessor::parseWhere(SelectParserContext &ctx)
 	else if (!whereElem->getRightHand())
 		whereElem->setRightHand(handElem);
 	else {
+		string treeInfo;
+		ctx.selectInfo.rootWhereElem->getTreeInfo(treeInfo, 256);
 		string msg;
-		TRMSG(msg, "Both hands of currWhereElem are not NULL.");
+		TRMSG(msg, "Both hands of currWhereElem are not NULL: %s\n%s",
+		      ctx.currWord.c_str(), treeInfo.c_str());
 		throw logic_error(msg);
 	}
 	return true;

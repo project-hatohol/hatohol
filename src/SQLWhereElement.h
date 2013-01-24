@@ -108,7 +108,9 @@ public:
 	virtual bool evaluate(void);
 	virtual ItemDataPtr getItemData(int index = 0);
 	virtual SQLWhereElement *findInsertPoint(SQLWhereElement *insertElem);
+
 	virtual int getTreeInfo(string &str, int maxNumElem = -1, int currNum = 0);
+	virtual string getTreeInfoAdditional(void);
 
 private:
 	SQLWhereElementType m_type;
@@ -137,6 +139,7 @@ public:
 	const string &getColumnName(void) const;
 	void *getPrivateData(void) const;
 	virtual ItemDataPtr getItemData(int index = 0);
+	virtual string getTreeInfoAdditional(void);
 
 private:
 	string                   m_columnName;
@@ -155,6 +158,7 @@ public:
 	SQLWhereNumber(double value);
 	virtual ~SQLWhereNumber();
 	const PolytypeNumber &getValue(void) const;
+	virtual string getTreeInfoAdditional(void);
 private:
 	PolytypeNumber m_value;
 };
@@ -168,6 +172,7 @@ public:
 	virtual ~SQLWhereString();
 	const string &getValue(void) const;
 	virtual ItemDataPtr getItemData(int index = 0);
+	virtual string getTreeInfoAdditional(void);
 private:
 	string m_str;
 };
@@ -183,6 +188,7 @@ public:
 	const PolytypeNumber &getFirstValue(void) const;
 	const PolytypeNumber &getSecondValue(void) const;
 	virtual ItemDataPtr getItemData(int index = 0);
+	virtual string getTreeInfoAdditional(void);
 private:
 	PolytypeNumber m_value0;
 	PolytypeNumber m_value1;

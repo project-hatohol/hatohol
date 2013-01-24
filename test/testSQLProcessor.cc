@@ -342,6 +342,24 @@ void test_selectWhereEqString(void)
 	assertWhereOperatorEqual(selectInfo.rootWhereElem);
 }
 
+void test_selectWhereEqColumnColumn(void)
+{
+	TestSQLProcessor proc;
+	const char *leftHand = "a";
+	const char *rightHand = "b";
+	ParsableString parsable(
+	  StringUtils::sprintf("c1 from t1 where %s=%s",
+	                       leftHand, rightHand));
+	SQLSelectInfo selectInfo(parsable);
+	proc.callParseSelectStatement(selectInfo);
+
+	assertWhereElementColumn(selectInfo.rootWhereElem->getLeftHand(),
+	                         leftHand);
+	assertWhereElementColumn(selectInfo.rootWhereElem->getRightHand(),
+	                         rightHand);
+	assertWhereOperatorEqual(selectInfo.rootWhereElem);
+}
+
 void test_selectWhereEqColumn(void)
 {
 	TestSQLProcessor proc;
@@ -408,7 +426,7 @@ void test_selectWhereBetween(void)
 	assertWhereOperatorBetween(rootElem);
 }
 
-void test_selectWhereAndAnd(void)
+void test_selectWhereIntAndStringAndInt(void)
 {
 	TestSQLProcessor proc;
 	const char *leftHand0  = "a";
@@ -452,5 +470,51 @@ void test_selectWhereAndAnd(void)
 	assertWhereElementNumber(rightElem->getRightHand(), rightHand2);
 	assertWhereOperatorEqual(rightElem);
 }
+
+void test_selectWhereIntAndColumnAndInt(void)
+{
+	TestSQLProcessor proc;
+	const char *leftHand0  = "a";
+	int         rightHand0 = 1;
+	const char *leftHand1  = "b";
+	const char *rightHand1 = "x";
+	const char *leftHand2  = "c";
+	int         rightHand2 = -5;
+	ParsableString parsable(
+	  StringUtils::sprintf("c1 from t1,t2 where %s=%d and %s=%s and %s=%d",
+	                       leftHand0, rightHand0, leftHand1, rightHand1,
+	                       leftHand2, rightHand2));
+	SQLSelectInfo selectInfo(parsable);
+	proc.callParseSelectStatement(selectInfo);
+
+	SQLWhereElement *leftElem = selectInfo.rootWhereElem->getLeftHand();
+	SQLWhereElement *rightElem = selectInfo.rootWhereElem->getRightHand();
+	assertWhereElementElement(leftElem);
+	assertWhereElementElement(rightElem);
+	assertWhereOperatorAnd(selectInfo.rootWhereElem);
+
+	// Top left child
+	assertWhereElementColumn(leftElem->getLeftHand(), leftHand0);
+	assertWhereElementNumber(leftElem->getRightHand(), rightHand0);
+	assertWhereOperatorEqual(leftElem);
+
+	// Top right child
+	assertWhereElementElement(rightElem->getLeftHand());
+	assertWhereElementElement(rightElem->getRightHand());
+	assertWhereOperatorAnd(rightElem);
+
+	// Second level left
+	leftElem = rightElem->getLeftHand();
+	assertWhereElementColumn(leftElem->getLeftHand(), leftHand1);
+	assertWhereElementColumn(leftElem->getRightHand(), rightHand1);
+	assertWhereOperatorEqual(leftElem);
+
+	// Second level child
+	rightElem = rightElem->getRightHand();
+	assertWhereElementColumn(rightElem->getLeftHand(), leftHand2);
+	assertWhereElementNumber(rightElem->getRightHand(), rightHand2);
+	assertWhereOperatorEqual(rightElem);
+}
+
 
 } // namespace testSQLProcessor
