@@ -11,12 +11,14 @@ enum TableID {
 	TABLE_ID_NODES,
 	TABLE_ID_CONFIG,
 	TABLE_ID_USERS,
+	TABLE_ID_USRGRP,
 	TABLE_ID_SESSIONS,
 };
 
 static const char *TABLE_NAME_NODES  = "nodes";
 static const char *TABLE_NAME_CONFIG = "config";
 static const char *TABLE_NAME_USERS  = "users";
+static const char *TABLE_NAME_USRGRP = "usrgrp";
 static const char *TABLE_NAME_SESSIONS = "sessions";
 
 SQLProcessor::TableNameStaticInfoMap
@@ -239,6 +241,25 @@ static_cast<SQLTableMakeFunc>(&SQLProcessorZabbix::tableMakeFuncTemplate<G>)
 	             SQL_COLUMN_TYPE_INT, 11);
 	defineColumn(staticInfo, ITEM_ID_ZBX_USERS_ROWS_PER_PAGE,
 	             TABLE_ID_USERS, "rows_per_page",
+	             SQL_COLUMN_TYPE_INT, 11);
+
+	staticInfo =
+	  defineTable(TABLE_ID_USRGRP, TABLE_NAME_USRGRP,
+	              MAKE_FUNC(GROUP_ID_ZBX_USRGRP));
+	defineColumn(staticInfo, ITEM_ID_ZBX_USRGRP_USRGRPID,
+	             TABLE_ID_USRGRP, "usrgrpid",
+	             SQL_COLUMN_TYPE_BIGUINT, 20);
+	defineColumn(staticInfo, ITEM_ID_ZBX_USRGRP_NAME,
+	             TABLE_ID_USRGRP, "name",
+	             SQL_COLUMN_TYPE_VARCHAR, 64);
+	defineColumn(staticInfo, ITEM_ID_ZBX_USRGRP_GUI_ACCESS,
+	             TABLE_ID_USRGRP, "gui_access",
+	             SQL_COLUMN_TYPE_INT, 11);
+	defineColumn(staticInfo, ITEM_ID_ZBX_USRGRP_USERS_STATUS,
+	             TABLE_ID_USRGRP, "users_status",
+	             SQL_COLUMN_TYPE_INT, 11);
+	defineColumn(staticInfo, ITEM_ID_ZBX_USRGRP_DEBUG_MODE,
+	             TABLE_ID_USRGRP, "debug_mdoe",
 	             SQL_COLUMN_TYPE_INT, 11);
 
 	staticInfo =
