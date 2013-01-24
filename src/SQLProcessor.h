@@ -14,6 +14,7 @@ using namespace mlpl;
 #include <glib.h>
 #include "ItemGroupPtr.h"
 #include "ItemTablePtr.h"
+#include "SQLColumnElement.h"
 #include "SQLWhereElement.h"
 
 enum SQLColumnType {
@@ -158,6 +159,7 @@ struct SQLSelectInfo {
 	ParsableString   query;
 
 	// parsed matter (Elements in these two container have to be freed)
+	vector<SQLColumnElement *> columnElementVector;
 	SQLColumnInfoVector columns;
 	SQLTableInfoVector  tables;
 
@@ -171,7 +173,7 @@ struct SQLSelectInfo {
 	SQLWhereElement            *rootWhereElem;
 	SQLWhereElement            *currWhereElem;
 	// The elements in the following vector point the matter in the above
-	// tree. So dont free directly.
+	// tree. So don't free directly.
 	vector<SQLWhereColumn *>    whereColumnVector;
 
 	vector<string>              orderedColumns;

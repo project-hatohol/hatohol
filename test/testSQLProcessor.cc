@@ -516,5 +516,15 @@ void test_selectWhereIntAndColumnAndInt(void)
 	assertWhereOperatorEqual(rightElem);
 }
 
+void test_selectColumnElemMax(void)
+{
+	TestSQLProcessor proc;
+	const char *columnName = "c1";
+	ParsableString parsable(
+	  StringUtils::sprintf("max(%s) from t1", columnName));
+	SQLSelectInfo selectInfo(parsable);
+	proc.callParseSelectStatement(selectInfo);
+}
+
 
 } // namespace testSQLProcessor
