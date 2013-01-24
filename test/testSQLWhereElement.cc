@@ -192,4 +192,34 @@ void test_whereColumnDestructor(void)
 	cppcut_assert_equal(true, called);
 }
 
+void test_findInsertPointEqAnd(void)
+{
+	x_elem = new SQLWhereElement();
+	SQLWhereElement *elem0 = new SQLWhereElement();
+	SQLWhereElement *elem1 = new SQLWhereNumber(1);
+	x_elem->setLeftHand(elem0);
+	x_elem->setRightHand(elem1);
+	x_elem->setOperator(new SQLWhereOperatorEqual());
+
+	SQLWhereElement *lastElem = new SQLWhereElement();
+	lastElem->setOperator(new SQLWhereOperatorAnd());
+	SQLWhereElement *insertPoint = elem1->findInsertPoint(lastElem);
+	cppcut_assert_equal((SQLWhereElement*)NULL, insertPoint);
+}
+
+void test_findInsertPointEqEq(void)
+{
+	x_elem = new SQLWhereElement();
+	SQLWhereElement *elem0 = new SQLWhereElement();
+	SQLWhereElement *elem1 = new SQLWhereNumber(1);
+	x_elem->setLeftHand(elem0);
+	x_elem->setRightHand(elem1);
+	x_elem->setOperator(new SQLWhereOperatorEqual());
+
+	SQLWhereElement *lastElem = new SQLWhereElement();
+	lastElem->setOperator(new SQLWhereOperatorEqual());
+	SQLWhereElement *insertPoint = elem1->findInsertPoint(lastElem);
+	cppcut_assert_equal(x_elem, insertPoint);
+}
+
 } // namespace testSQLWhereElement

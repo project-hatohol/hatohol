@@ -103,7 +103,6 @@ public:
 	void setLeftHand(SQLWhereElement *whereElem);
 	void setRightHand(SQLWhereElement *whereElem);
 	void setOperator(SQLWhereOperator *whereOp);
-	//void setParent(SQLWhereElement *whereElem);
 	bool isFull(void);
 	bool isEmpty(void);
 	virtual bool evaluate(void);

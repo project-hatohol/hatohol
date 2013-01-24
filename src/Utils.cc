@@ -30,8 +30,13 @@ void Utils::assertNotNull(void *ptr)
 
 string Utils::demangle(string &str)
 {
+	return Utils::demangle(str.c_str());
+}
+
+string Utils::demangle(const char *str)
+{
 	int status;
-	char *demangled = abi::__cxa_demangle(str.c_str(), 0, 0, &status);
+	char *demangled = abi::__cxa_demangle(str, 0, 0, &status);
 	string demangledStr;
 	if (demangled) {
 		demangledStr = demangled;
@@ -39,6 +44,7 @@ string Utils::demangle(string &str)
 	}
 	return demangledStr;
 }
+
 
 // ---------------------------------------------------------------------------
 // Protected methods

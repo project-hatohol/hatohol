@@ -27,7 +27,7 @@ SQLWhereOperator::~SQLWhereOperator()
 
 bool SQLWhereOperator::priorityOver(SQLWhereOperator *whereOp)
 {
-	return m_priority > whereOp->m_priority;
+	return m_priority < whereOp->m_priority;
 }
 
 //
@@ -186,12 +186,6 @@ void SQLWhereElement::setOperator(SQLWhereOperator *whereOp)
 {
 	m_operator = whereOp;
 }
-
-/*
-void SQLWhereElement::setParent(SQLWhereElement *whereElem)
-{
-	m_parent = whereElem;
-}*/
 
 bool SQLWhereElement::isFull(void)
 {

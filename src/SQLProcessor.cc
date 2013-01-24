@@ -819,9 +819,9 @@ bool SQLProcessor::parseWhereBetween(SelectParserContext &ctx)
 //
 bool SQLProcessor::whereHandlerAnd(SelectParserContext &ctx)
 {
+	string msg;
 	SQLWhereElement *currWhereElem = ctx.selectInfo.currWhereElem;
 	if (!currWhereElem->isFull()) {
-		string msg;
 		TRMSG(msg, "currWhereElem is not full.");
 		throw logic_error(msg);
 	}
@@ -832,14 +832,17 @@ bool SQLProcessor::whereHandlerAnd(SelectParserContext &ctx)
 
 	// insert the created element
 	SQLWhereElement *insertPair =
-	  ctx.selectInfo.currWhereElem->findInsertPoint(andWhereElem);
-
+	  currWhereElem->findInsertPoint(andWhereElem);
 	if (insertPair == NULL) {
 		andWhereElem->setLeftHand(ctx.selectInfo.rootWhereElem);
 		ctx.selectInfo.rootWhereElem = andWhereElem;
 	} else {
-		andWhereElem->setLeftHand(ctx.selectInfo.currWhereElem);
-		ctx.selectInfo.currWhereElem->setRightHand(andWhereElem);
+		if (insertPair->getRightHand() != currWhereElem) {
+			TRMSG(msg, "insertPair RHS != currWhereElem.");
+			throw logic_error(msg);
+		}
+		andWhereElem->setLeftHand(currWhereElem);
+		currWhereElem->setRightHand(andWhereElem);
 	}
 
 	// set the newly created right hand element

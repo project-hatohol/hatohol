@@ -12,6 +12,7 @@ using namespace mlpl;
 #include <cppcutter.h>
 #include "SQLProcessor.h"
 #include "Asura.h"
+#include "Utils.h"
 
 namespace testSQLProcessor {
 
@@ -159,8 +160,12 @@ static void
 _assertWhereElementElement(SQLWhereElement *whereElem)
 {
 	cut_assert_not_null(whereElem);
-	cppcut_assert_equal(true,
-	                    typeid(SQLWhereElement) == typeid(*whereElem));
+	cppcut_assert_equal
+	  (true, typeid(SQLWhereElement) == typeid(*whereElem),
+	   cut_message("type: *whreElem: %s (%s)",
+	               Utils::demangle(typeid(*whereElem).name()).c_str(),
+	               typeid(*whereElem).name())
+	  );
 }
 #define assertWhereElementElement(ELEM) \
 cut_trace(_assertWhereElementElement(ELEM))
@@ -425,14 +430,26 @@ void test_selectWhereAndAnd(void)
 	assertWhereElementElement(rightElem);
 	assertWhereOperatorAnd(selectInfo.rootWhereElem);
 
-	// left child
+	// Top left child
 	assertWhereElementColumn(leftElem->getLeftHand(), leftHand0);
 	assertWhereElementNumber(leftElem->getRightHand(), rightHand0);
 	assertWhereOperatorEqual(leftElem);
 
-	// right child
-	assertWhereElementColumn(rightElem->getLeftHand(), leftHand1);
-	assertWhereElementString(rightElem->getRightHand(), rightHand1);
+	// Top right child
+	assertWhereElementElement(rightElem->getLeftHand());
+	assertWhereElementElement(rightElem->getRightHand());
+	assertWhereOperatorAnd(rightElem);
+
+	// Second level left
+	leftElem = rightElem->getLeftHand();
+	assertWhereElementColumn(leftElem->getLeftHand(), leftHand1);
+	assertWhereElementString(leftElem->getRightHand(), rightHand1);
+	assertWhereOperatorEqual(leftElem);
+
+	// Second level child
+	rightElem = rightElem->getRightHand();
+	assertWhereElementColumn(rightElem->getLeftHand(), leftHand2);
+	assertWhereElementNumber(rightElem->getRightHand(), rightHand2);
 	assertWhereOperatorEqual(rightElem);
 }
 

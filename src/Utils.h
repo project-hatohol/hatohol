@@ -18,6 +18,7 @@ public:
 	static string makeDemangledStackTraceLines(void **trace, int num);
 	static void assertNotNull(void *ptr);
 	static string demangle(string &str);
+	static string demangle(const char *);
 
 protected:
 	static string makeDemangledStackTraceString(string &stackTraceLine);
