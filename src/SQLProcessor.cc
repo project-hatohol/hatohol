@@ -842,7 +842,7 @@ bool SQLProcessor::whereHandlerAnd(SelectParserContext &ctx)
 			throw logic_error(msg);
 		}
 		andWhereElem->setLeftHand(currWhereElem);
-		currWhereElem->setRightHand(andWhereElem);
+		insertPair->setRightHand(andWhereElem);
 	}
 
 	// set the newly created right hand element

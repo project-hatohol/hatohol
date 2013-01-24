@@ -253,11 +253,11 @@ SQLWhereElement *SQLWhereElement::findInsertPoint(SQLWhereElement *insertElem)
 	return whereElem;
 }
 
-void SQLWhereElement::getTreeInfo(string &str)
+int SQLWhereElement::getTreeInfo(string &str, int maxNumElem, int currNum)
 {
-	const char *leftTypeName = "-";
-	const char *rightTypeName = "-";
-	const char *operatorName = "-";
+	string leftTypeName = "-";
+	string rightTypeName = "-";
+	string operatorName = "-";
 	if (m_leftHand)
 		leftTypeName = DEMANGLED_TYPE_NAME(*m_leftHand);
 	if (m_rightHand)
@@ -265,15 +265,23 @@ void SQLWhereElement::getTreeInfo(string &str)
 	if (m_operator)
 		operatorName = DEMANGLED_TYPE_NAME(*m_operator);
 
-	str += StringUtils::sprintf("[%p] %s, L:%p (%s), R:%p (%s), O:%s\n",
+	str += StringUtils::sprintf("[%p] %s, L:%p (%s), R:%p (%s), O:%s @%d\n",
 	                            this, DEMANGLED_TYPE_NAME(*this),
-	                            m_leftHand, leftTypeName,
-	                            m_rightHand, rightTypeName,
-	                            operatorName);
+	                            m_leftHand, leftTypeName.c_str(),
+	                            m_rightHand, rightTypeName.c_str(),
+	                            operatorName.c_str(), currNum);
+	currNum++;
+	if (maxNumElem >= 0 && currNum >= maxNumElem)
+		return currNum;
+
 	if (m_leftHand)
-		m_leftHand->getTreeInfo(str);
+		currNum = m_leftHand->getTreeInfo(str, maxNumElem, currNum);
+	if (maxNumElem >= 0 && currNum >= maxNumElem)
+		return currNum;
+
 	if (m_rightHand)
-		m_rightHand->getTreeInfo(str);
+		currNum = m_rightHand->getTreeInfo(str, maxNumElem, currNum);
+	return currNum;
 }
 
 // ---------------------------------------------------------------------------

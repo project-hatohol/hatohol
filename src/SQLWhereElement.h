@@ -108,7 +108,7 @@ public:
 	virtual bool evaluate(void);
 	virtual ItemDataPtr getItemData(int index = 0);
 	virtual SQLWhereElement *findInsertPoint(SQLWhereElement *insertElem);
-	void getTreeInfo(string &str);
+	virtual int getTreeInfo(string &str, int maxNumElem = -1, int currNum = 0);
 
 private:
 	SQLWhereElementType m_type;
