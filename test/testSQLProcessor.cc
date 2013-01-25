@@ -243,6 +243,30 @@ void test_selectOneItem(void)
 	cut_assert_equal_string(tableName, (*table)->name.c_str());
 }
 
+void test_selectMultiItem(void)
+{
+	TestSQLProcessor proc;
+	const char *columns[] = {"c1", "a2", "b3", "z4", "x5", "y6"};
+	const size_t numColumns = sizeof(columns) / sizeof(const char *);
+	const char *tableName = TABLE_NAME;
+	ParsableString parsable(
+	  StringUtils::sprintf("%s,%s,%s, %s, %s, %s from %s",
+	                       columns[0], columns[1], columns[2],
+	                       columns[3], columns[4], columns[5],
+	                       tableName));
+	SQLSelectInfo selectInfo(parsable);
+	proc.callParseSelectStatement(selectInfo);
+
+	cppcut_assert_equal(numColumns, selectInfo.columns.size());
+	SQLColumnInfoVectorIterator column = selectInfo.columns.begin();
+	for (int idx = 0; column != selectInfo.columns.end(); ++column, idx++)
+		cut_assert_equal_string(columns[idx], (*column)->name.c_str());
+
+	cut_assert_equal_int(1, selectInfo.tables.size());
+	SQLTableInfoVectorIterator table = selectInfo.tables.begin();
+	cut_assert_equal_string(tableName, (*table)->name.c_str());
+}
+
 void test_selectTableVar(void)
 {
 	TestSQLProcessor proc;
