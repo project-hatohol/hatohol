@@ -20,3 +20,11 @@ ItemDataPtr FormulaFuncMax::evaluate(const FormulaElement *leftHand,
 	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
 	return ItemDataPtr();
 }
+
+bool FormulaFuncMax::addParameter(FormulaElement *parameter)
+{
+}
+
+bool FormulaFuncMax::close(void)
+{
+}

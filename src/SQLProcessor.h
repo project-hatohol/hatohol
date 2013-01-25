@@ -287,9 +287,9 @@ protected:
 	// Callbacks for parsing 'column' section
 	//
 	static void columnCbParenthesisOpen
-	  (const char separator, SelectParserContext *arg);
+	  (const char separator, SelectParserContext *ctx);
 	static void columnCbParenthesisClose
-	  (const char separator, SelectParserContext *arg);
+	  (const char separator, SelectParserContext *ctx);
 
 	//
 	// Callbacks for parsing 'where' section

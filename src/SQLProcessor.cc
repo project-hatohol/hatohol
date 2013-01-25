@@ -41,6 +41,9 @@ struct SQLProcessor::SelectParserContext {
 	size_t              indexInTheStatus;
 	SQLSelectInfo      &selectInfo;
 
+	// used in column section
+	string              pendingSeparators;
+
 	// used in where section
 	bool                quotOpen;
 	BetweenParsingStep  betweenStep;
@@ -902,13 +905,14 @@ bool SQLProcessor::whereHandlerBetween(SelectParserContext &ctx)
 // Callbacks for parsing 'column' section
 //
 void SQLProcessor::columnCbParenthesisOpen(const char separator,
-                                           SelectParserContext *arg)
+                                           SelectParserContext *ctx)
 {
 	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__); 
+	ctx->pendingSeparators.push_back('(');
 }
 
 void SQLProcessor::columnCbParenthesisClose(const char separator,
-                                            SelectParserContext *arg)
+                                            SelectParserContext *ctx)
 {
 	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__); 
 }
