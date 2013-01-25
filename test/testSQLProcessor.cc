@@ -257,10 +257,11 @@ void test_selectMultiItem(void)
 	SQLSelectInfo selectInfo(parsable);
 	proc.callParseSelectStatement(selectInfo);
 
-	cppcut_assert_equal(numColumns, selectInfo.columns.size());
-	SQLColumnInfoVectorIterator column = selectInfo.columns.begin();
-	for (int idx = 0; column != selectInfo.columns.end(); ++column, idx++)
-		cut_assert_equal_string(columns[idx], (*column)->name.c_str());
+	const StringVector &formulaVect =
+	  selectInfo.columnParser.getFormulaStringVector();
+	cppcut_assert_equal(numColumns, formulaVect.size());
+	for (int idx = 0; idx < numColumns; idx++)
+		cppcut_assert_equal(formulaVect[idx], string(columns[idx]));
 
 	cut_assert_equal_int(1, selectInfo.tables.size());
 	SQLTableInfoVectorIterator table = selectInfo.tables.begin();

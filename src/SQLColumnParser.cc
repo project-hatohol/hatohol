@@ -37,6 +37,7 @@ bool SQLColumnParser::add(string &word, string &wordLower)
 		FunctionParser funcParser = it->second;
 		return (this->*funcParser)();
 	}
+	m_currFormulaString += word;
 	m_pendingWordList.push_back(word);
 	return true;
 }
@@ -49,6 +50,8 @@ bool SQLColumnParser::flush(void)
 		m_formulaVector.push_back(formula);
 		m_nameSet.insert(word);
 		m_pendingWordList.pop_front();;
+
+		addFormulaString();
 	}
 	return false;
 }
@@ -56,6 +59,11 @@ bool SQLColumnParser::flush(void)
 const FormulaElementVector &SQLColumnParser::getFormulaVector(void) const
 {
 	return m_formulaVector;
+}
+
+const StringVector &SQLColumnParser::getFormulaStringVector(void) const
+{
+	return m_formulaStringVector;
 }
 
 SeparatorCheckerWithCallback *SQLColumnParser::getSeparatorChecker(void)
@@ -71,21 +79,32 @@ const set<string> &SQLColumnParser::getNameSet(void) const
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
+void SQLColumnParser::addFormulaString(void)
+{
+	if (m_currFormulaString.empty())
+		return;
+	m_formulaStringVector.push_back(m_currFormulaString);
+	m_currFormulaString.clear();
+}
+
 void SQLColumnParser::separatorCbComma(const char separator,
                                        SQLColumnParser *columnParser)
 {
 	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__); 
+	columnParser->addFormulaString();
 }
 
 void SQLColumnParser::separatorCbParenthesisOpen(const char separator,
                                                  SQLColumnParser *columnParser)
 {
 	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__); 
+	columnParser->m_currFormulaString += separator;
 }
 
 void SQLColumnParser::separatorCbParenthesisClose(const char separator,
                                                   SQLColumnParser *columnParser)
 {
 	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__); 
+	columnParser->m_currFormulaString += separator;
 }
 

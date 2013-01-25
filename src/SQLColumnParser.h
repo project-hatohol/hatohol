@@ -20,10 +20,13 @@ public:
 	bool add(string& word, string &wordLower);
 	bool flush(void);
 	const FormulaElementVector &getFormulaVector(void) const;
+	const StringVector         &getFormulaStringVector(void) const;
+	const set<string>          &getNameSet(void) const;
 	SeparatorCheckerWithCallback *getSeparatorChecker(void);
-	const set<string> &getNameSet(void) const;
 
 protected:
+
+	void addFormulaString(void);
 
 	//
 	// SeparatorChecker callbacks
@@ -46,9 +49,12 @@ private:
 
 	// Non-static variables
 	FormulaElementVector         m_formulaVector;
+	StringVector                 m_formulaStringVector;
 	SeparatorCheckerWithCallback m_separator;
 	set<string>                  m_nameSet;
 	list<string>                 m_pendingWordList;
+
+	string                       m_currFormulaString;
 };
 
 #endif // SQLColumnParser_h
