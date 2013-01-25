@@ -1,4 +1,12 @@
 #include "FormulaOperator.h"
+
 // ---------------------------------------------------------------------------
-// Public static methods
+// Formula Operator
 // ---------------------------------------------------------------------------
+FormulaOperator::FormulaOperator(void)
+{
+}
+
+FormulaOperator::~FormulaOperator()
+{
+}

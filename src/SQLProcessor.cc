@@ -131,10 +131,10 @@ SQLSelectInfo::SQLSelectInfo(ParsableString &_query)
 
 SQLSelectInfo::~SQLSelectInfo()
 {
-	vector<FormulaElement *>::iterator columnElemIt
-	  = columnElementVector.begin();
-	for(; columnElemIt != columnElementVector.end(); ++columnElemIt)
-		delete *columnElemIt;
+	FormulaElementVectorIterator columnFormulaIt
+	  = columnFormulaVector.begin();
+	for(; columnFormulaIt != columnFormulaVector.end(); ++columnFormulaIt)
+		delete *columnFormulaIt;
 
 	SQLColumnInfoVectorIterator columnIt = columns.begin();
 	for (; columnIt != columns.end(); ++columnIt)

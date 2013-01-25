@@ -159,7 +159,7 @@ struct SQLSelectInfo {
 	ParsableString   query;
 
 	// parsed matter (Elements in these two container have to be freed)
-	vector<FormulaElement *> columnElementVector;
+	FormulaElementVector columnFormulaVector;
 	SQLColumnInfoVector columns;
 	SQLTableInfoVector  tables;
 
