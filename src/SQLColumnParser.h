@@ -21,6 +21,7 @@ public:
 	bool flush(void);
 	const FormulaElementVector &getFormulaVector(void) const;
 	SeparatorCheckerWithCallback *getSeparatorChecker(void);
+	const set<string> &getNameSet(void) const;
 
 protected:
 
@@ -46,6 +47,7 @@ private:
 	// Non-static variables
 	FormulaElementVector         m_formulaVector;
 	SeparatorCheckerWithCallback m_separator;
+	set<string>                  m_nameSet;
 	list<string>                 m_pendingWordList;
 };
 

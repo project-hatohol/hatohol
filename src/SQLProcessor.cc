@@ -308,6 +308,9 @@ bool SQLProcessor::parseSelectStatement(SQLSelectInfo &selectInfo)
 		ctx.indexInTheStatus++;
 	}
 
+	if (!columnParserFlush(ctx))
+		return false;
+
 	return true;
 }
 
@@ -611,7 +614,6 @@ bool SQLProcessor::makeTextRows(const ItemGroup *itemGroup,
 //
 bool SQLProcessor::parseSectionFrom(SelectParserContext &ctx)
 {
-	ctx.selectInfo.columnParser.flush();
 	ctx.section = SELECT_PARSING_SECTION_FROM;
 	m_separatorCountSpaceComma.resetCounter();
 	return true;
@@ -667,15 +669,6 @@ bool SQLProcessor::parseSectionLimit(SelectParserContext &ctx)
 bool SQLProcessor::parseSelectedColumns(SelectParserContext &ctx)
 {
 	return ctx.selectInfo.columnParser.add(ctx.currWord, ctx.currWordLower);
-	/*
-	SQLColumnInfo *columnInfo = new SQLColumnInfo();
-	ctx.selectInfo.columns.push_back(columnInfo);
-	columnInfo->name = ctx.currWord;
-	return true;
-
-	return parseColumnName(columnInfo->name,
-	                       columnInfo->baseName, columnInfo->tableVar);
-	*/
 }
 
 bool SQLProcessor::parseGroupBy(SelectParserContext &ctx)
@@ -1007,4 +1000,23 @@ void SQLProcessor::wereColumnPrivDataDestructor
 {
 	WhereColumnArg *arg = static_cast<WhereColumnArg *>(priv);
 	delete arg;
+}
+
+bool SQLProcessor::columnParserFlush(SelectParserContext &ctx)
+{
+	bool ret;
+	SQLColumnParser &columnParser = ctx.selectInfo.columnParser;
+	columnParser.flush();
+	const set<string> &columnNameSet = columnParser.getNameSet();
+	set<string>::const_iterator columnNameIt = columnNameSet.begin();
+	for (; columnNameIt != columnNameSet.end(); ++columnNameIt) {
+		SQLColumnInfo *columnInfo = new SQLColumnInfo();
+		ctx.selectInfo.columns.push_back(columnInfo);
+		columnInfo->name = *columnNameIt;
+		ret = parseColumnName(columnInfo->name, columnInfo->baseName,
+	                              columnInfo->tableVar);
+		if (!ret)
+			return false;
+	}
+	return true;
 }

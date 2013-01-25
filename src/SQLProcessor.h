@@ -307,6 +307,7 @@ protected:
 	                                         void *priv);
 	static void wereColumnPrivDataDestructor(SQLWhereColumn *whereColumn,
 	                                         void *priv);
+	bool columnParserFlush(SelectParserContext &ctx);
 
 private:
 	static const SelectSubParser m_selectSubParsers[];

@@ -38,7 +38,7 @@ bool SQLColumnParser::add(string &word, string &wordLower)
 		return (this->*funcParser)();
 	}
 	m_pendingWordList.push_back(word);
-	return false;
+	return true;
 }
 
 bool SQLColumnParser::flush(void)
@@ -47,6 +47,7 @@ bool SQLColumnParser::flush(void)
 		string &word = *m_pendingWordList.begin();
 		FormulaColumn *formula = new FormulaColumn(word);
 		m_formulaVector.push_back(formula);
+		m_nameSet.insert(word);
 		m_pendingWordList.pop_front();;
 	}
 	return false;
@@ -60,6 +61,11 @@ const FormulaElementVector &SQLColumnParser::getFormulaVector(void) const
 SeparatorCheckerWithCallback *SQLColumnParser::getSeparatorChecker(void)
 {
 	return &m_separator;
+}
+
+const set<string> &SQLColumnParser::getNameSet(void) const
+{
+	return m_nameSet;
 }
 
 // ---------------------------------------------------------------------------
