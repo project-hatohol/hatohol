@@ -524,6 +524,8 @@ void test_selectColumnElemMax(void)
 	  StringUtils::sprintf("max(%s) from t1", columnName));
 	SQLSelectInfo selectInfo(parsable);
 	proc.callParseSelectStatement(selectInfo);
+
+	cppcut_assert_equal((size_t)1, selectInfo.columnFormulaVector.size());
 }
 
 

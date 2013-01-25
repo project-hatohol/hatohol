@@ -10,8 +10,6 @@ using namespace std;
 #include "SQLProcessor.h"
 #include "Utils.h"
 
-static const int UNKNOWN_TABLE_ID = -1;
-
 const SQLProcessor::SelectSubParser SQLProcessor::m_selectSubParsers[] = {
 	&SQLProcessor::parseSelectedColumns,
 	&SQLProcessor::parseGroupBy,
@@ -228,13 +226,13 @@ bool SQLProcessor::select(SQLSelectInfo &selectInfo)
 // ---------------------------------------------------------------------------
 SQLProcessor::SQLProcessor(TableNameStaticInfoMap &tableNameStaticInfoMap)
 : m_separatorSpaceComma(" ,"),
-  m_separatorCBForSelect(" ,("),
+  m_separatorCBForColumn(" ,()"),
   m_separatorCountSpaceComma(", "),
   m_separatorCBForWhere(" ='"),
   m_tableNameStaticInfoMap(tableNameStaticInfoMap)
 {
-	m_selectSeprators[SQLProcessor::SELECT_PARSING_SECTION_SELECT] =
-	  &m_separatorCBForSelect;
+	m_selectSeprators[SQLProcessor::SELECT_PARSING_SECTION_COLUMN] =
+	  &m_separatorCBForColumn;
 	m_selectSeprators[SQLProcessor::SELECT_PARSING_SECTION_GROUP_BY] = 
 	  &m_separatorSpaceComma;
 	m_selectSeprators[SQLProcessor::SELECT_PARSING_SECTION_FROM] =
@@ -269,8 +267,16 @@ bool SQLProcessor::parseSelectStatement(SQLSelectInfo &selectInfo)
 	MLPL_DBG("<%s> %s\n", __func__, selectInfo.query.getString());
 	map<string, SelectSubParser>::iterator it;
 	SelectSubParser subParser = NULL;
-	SelectParserContext ctx(this, SELECT_PARSING_SECTION_SELECT,
+	SelectParserContext ctx(this, SELECT_PARSING_SECTION_COLUMN,
 	                        selectInfo);
+
+	// callback function for column
+	m_separatorCBForColumn.setCallbackTempl<SelectParserContext>
+	  ('(', columnCbParenthesisOpen, &ctx);
+	m_separatorCBForColumn.setCallbackTempl<SelectParserContext>
+	  (')', columnCbParenthesisClose, &ctx);
+
+	// callback function for where section
 	m_separatorCBForWhere.setCallbackTempl<SelectParserContext>
 	                                      ('=', whereCbEq, &ctx);
 	m_separatorCBForWhere.setCallbackTempl<SelectParserContext>
@@ -890,6 +896,21 @@ bool SQLProcessor::whereHandlerBetween(SelectParserContext &ctx)
 	ctx.selectInfo.currWhereElem->setOperator(opBetween);
 	ctx.betweenStep = BETWEEN_EXPECT_FIRST;
 	return true;
+}
+
+//
+// Callbacks for parsing 'column' section
+//
+void SQLProcessor::columnCbParenthesisOpen(const char separator,
+                                           SelectParserContext *arg)
+{
+	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__); 
+}
+
+void SQLProcessor::columnCbParenthesisClose(const char separator,
+                                            SelectParserContext *arg)
+{
+	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__); 
 }
 
 //

@@ -284,6 +284,14 @@ protected:
 	bool whereHandlerBetween(SelectParserContext &ctx);
 
 	//
+	// Callbacks for parsing 'column' section
+	//
+	static void columnCbParenthesisOpen
+	  (const char separator, SelectParserContext *arg);
+	static void columnCbParenthesisClose
+	  (const char separator, SelectParserContext *arg);
+
+	//
 	// Callbacks for parsing 'where' section
 	//
 	static void whereCbEq(const char separator, SelectParserContext *arg);
@@ -313,7 +321,7 @@ private:
 	static map<string, SelectSubParser> m_whereKeywordHandlerMap;
 
 	enum SelectParseSection {
-		SELECT_PARSING_SECTION_SELECT,
+		SELECT_PARSING_SECTION_COLUMN,
 		SELECT_PARSING_SECTION_GROUP_BY,
 		SELECT_PARSING_SECTION_FROM,
 		SELECT_PARSING_SECTION_WHERE,
@@ -324,7 +332,7 @@ private:
 
 	SeparatorChecker *m_selectSeprators[NUM_SELECT_PARSING_SECTION];
 	SeparatorChecker             m_separatorSpaceComma;
-	SeparatorCheckerWithCallback m_separatorCBForSelect;
+	SeparatorCheckerWithCallback m_separatorCBForColumn;
 	SeparatorCheckerWithCounter  m_separatorCountSpaceComma;
 	SeparatorCheckerWithCallback m_separatorCBForWhere;
 
