@@ -7,6 +7,9 @@ using namespace std;
 #include "ItemDataPtr.h"
 #include "FormulaOperator.h"
 
+// ---------------------------------------------------------------------------
+// class: FormulaElement
+// ---------------------------------------------------------------------------
 class FormulaElement {
 public:
 	FormulaElement(void);
@@ -29,5 +32,16 @@ private:
 
 typedef vector<FormulaElement *>       FormulaElementVector;
 typedef FormulaElementVector::iterator FormulaElementVectorIterator;
+
+// ---------------------------------------------------------------------------
+// class: FormulaColumn
+// ---------------------------------------------------------------------------
+class FormulaColumn : public FormulaElement {
+public:
+	FormulaColumn(string &name);
+	virtual ~FormulaColumn();
+private:
+	string m_name;
+};
 
 #endif // FormulaElement_h

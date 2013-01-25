@@ -525,7 +525,9 @@ void test_selectColumnElemMax(void)
 	SQLSelectInfo selectInfo(parsable);
 	proc.callParseSelectStatement(selectInfo);
 
-	cppcut_assert_equal((size_t)1, selectInfo.columnFormulaVector.size());
+	const FormulaElementVector &formulaVector =
+		selectInfo.columnParser.getFormulaVector();
+	cppcut_assert_equal((size_t)1, formulaVector.size());
 }
 
 

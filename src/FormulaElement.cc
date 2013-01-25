@@ -60,3 +60,16 @@ ItemDataPtr FormulaElement::evaluate(void)
 
 	return m_operator->evaluate(m_leftHand, m_rightHand);
 }
+
+// ---------------------------------------------------------------------------
+// class: FormulaColumn
+// ---------------------------------------------------------------------------
+FormulaColumn::FormulaColumn(string &name)
+: m_name(name)
+{
+}
+
+FormulaColumn::~FormulaColumn()
+{
+}
+

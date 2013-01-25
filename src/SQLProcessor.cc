@@ -41,9 +41,6 @@ struct SQLProcessor::SelectParserContext {
 	size_t              indexInTheStatus;
 	SQLSelectInfo      &selectInfo;
 
-	// used in column section
-	string              pendingSeparators;
-
 	// used in where section
 	bool                quotOpen;
 	BetweenParsingStep  betweenStep;
@@ -132,11 +129,6 @@ SQLSelectInfo::SQLSelectInfo(ParsableString &_query)
 
 SQLSelectInfo::~SQLSelectInfo()
 {
-	FormulaElementVectorIterator columnFormulaIt
-	  = columnFormulaVector.begin();
-	for(; columnFormulaIt != columnFormulaVector.end(); ++columnFormulaIt)
-		delete *columnFormulaIt;
-
 	SQLColumnInfoVectorIterator columnIt = columns.begin();
 	for (; columnIt != columns.end(); ++columnIt)
 		delete *columnIt;
@@ -229,13 +221,12 @@ bool SQLProcessor::select(SQLSelectInfo &selectInfo)
 // ---------------------------------------------------------------------------
 SQLProcessor::SQLProcessor(TableNameStaticInfoMap &tableNameStaticInfoMap)
 : m_separatorSpaceComma(" ,"),
-  m_separatorCBForColumn(" ,()"),
   m_separatorCountSpaceComma(", "),
   m_separatorCBForWhere(" ='"),
   m_tableNameStaticInfoMap(tableNameStaticInfoMap)
 {
-	m_selectSeprators[SQLProcessor::SELECT_PARSING_SECTION_COLUMN] =
-	  &m_separatorCBForColumn;
+	// m_selectSeprators[SQLProcessor::SELECT_PARSING_SECTION_COLUMN]
+	// is set later in parseSelectStatement().
 	m_selectSeprators[SQLProcessor::SELECT_PARSING_SECTION_GROUP_BY] = 
 	  &m_separatorSpaceComma;
 	m_selectSeprators[SQLProcessor::SELECT_PARSING_SECTION_FROM] =
@@ -274,10 +265,8 @@ bool SQLProcessor::parseSelectStatement(SQLSelectInfo &selectInfo)
 	                        selectInfo);
 
 	// callback function for column
-	m_separatorCBForColumn.setCallbackTempl<SelectParserContext>
-	  ('(', columnCbParenthesisOpen, &ctx);
-	m_separatorCBForColumn.setCallbackTempl<SelectParserContext>
-	  (')', columnCbParenthesisClose, &ctx);
+	m_selectSeprators[SQLProcessor::SELECT_PARSING_SECTION_COLUMN]
+	  = selectInfo.columnParser.getSeparatorChecker();
 
 	// callback function for where section
 	m_separatorCBForWhere.setCallbackTempl<SelectParserContext>
@@ -622,6 +611,7 @@ bool SQLProcessor::makeTextRows(const ItemGroup *itemGroup,
 //
 bool SQLProcessor::parseSectionFrom(SelectParserContext &ctx)
 {
+	ctx.selectInfo.columnParser.flush();
 	ctx.section = SELECT_PARSING_SECTION_FROM;
 	m_separatorCountSpaceComma.resetCounter();
 	return true;
@@ -676,12 +666,16 @@ bool SQLProcessor::parseSectionLimit(SelectParserContext &ctx)
 //
 bool SQLProcessor::parseSelectedColumns(SelectParserContext &ctx)
 {
+	return ctx.selectInfo.columnParser.add(ctx.currWord, ctx.currWordLower);
+	/*
 	SQLColumnInfo *columnInfo = new SQLColumnInfo();
 	ctx.selectInfo.columns.push_back(columnInfo);
 	columnInfo->name = ctx.currWord;
+	return true;
 
 	return parseColumnName(columnInfo->name,
 	                       columnInfo->baseName, columnInfo->tableVar);
+	*/
 }
 
 bool SQLProcessor::parseGroupBy(SelectParserContext &ctx)
@@ -899,22 +893,6 @@ bool SQLProcessor::whereHandlerBetween(SelectParserContext &ctx)
 	ctx.selectInfo.currWhereElem->setOperator(opBetween);
 	ctx.betweenStep = BETWEEN_EXPECT_FIRST;
 	return true;
-}
-
-//
-// Callbacks for parsing 'column' section
-//
-void SQLProcessor::columnCbParenthesisOpen(const char separator,
-                                           SelectParserContext *ctx)
-{
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__); 
-	ctx->pendingSeparators.push_back('(');
-}
-
-void SQLProcessor::columnCbParenthesisClose(const char separator,
-                                            SelectParserContext *ctx)
-{
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__); 
 }
 
 //

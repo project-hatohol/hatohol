@@ -16,6 +16,7 @@ void asuraInit(void)
 		return;
 	}
 
+	SQLColumnParser::init();
 	FaceMySQLWorker::init();
 	SQLProcessor::init();
 	SQLProcessorZabbix::init();

@@ -15,6 +15,7 @@ using namespace mlpl;
 #include "ItemGroupPtr.h"
 #include "ItemTablePtr.h"
 #include "FormulaElement.h"
+#include "SQLColumnParser.h"
 #include "SQLWhereElement.h"
 
 enum SQLColumnType {
@@ -159,7 +160,7 @@ struct SQLSelectInfo {
 	ParsableString   query;
 
 	// parsed matter (Elements in these two container have to be freed)
-	FormulaElementVector columnFormulaVector;
+	SQLColumnParser     columnParser;
 	SQLColumnInfoVector columns;
 	SQLTableInfoVector  tables;
 
@@ -284,14 +285,6 @@ protected:
 	bool whereHandlerBetween(SelectParserContext &ctx);
 
 	//
-	// Callbacks for parsing 'column' section
-	//
-	static void columnCbParenthesisOpen
-	  (const char separator, SelectParserContext *ctx);
-	static void columnCbParenthesisClose
-	  (const char separator, SelectParserContext *ctx);
-
-	//
 	// Callbacks for parsing 'where' section
 	//
 	static void whereCbEq(const char separator, SelectParserContext *arg);
@@ -332,7 +325,6 @@ private:
 
 	SeparatorChecker *m_selectSeprators[NUM_SELECT_PARSING_SECTION];
 	SeparatorChecker             m_separatorSpaceComma;
-	SeparatorCheckerWithCallback m_separatorCBForColumn;
 	SeparatorCheckerWithCounter  m_separatorCountSpaceComma;
 	SeparatorCheckerWithCallback m_separatorCBForWhere;
 
