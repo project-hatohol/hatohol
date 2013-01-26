@@ -7,6 +7,7 @@ SQLColumnParser::FunctionParserMap SQLColumnParser::m_functionParserMap;
 // ---------------------------------------------------------------------------
 void SQLColumnParser::init(void)
 {
+	m_functionParserMap["max"] = &SQLColumnParser::funcParserMax;
 }
 
 // ---------------------------------------------------------------------------
@@ -32,12 +33,13 @@ SQLColumnParser::~SQLColumnParser()
 
 bool SQLColumnParser::add(string &word, string &wordLower)
 {
+	m_currFormulaString += word;
+
 	FunctionParserMapIterator it = m_functionParserMap.find(wordLower);
 	if (it != m_functionParserMap.end()) {
 		FunctionParser funcParser = it->second;
 		return (this->*funcParser)();
 	}
-	m_currFormulaString += word;
 	m_pendingWordList.push_back(word);
 	return true;
 }
@@ -106,5 +108,14 @@ void SQLColumnParser::separatorCbParenthesisClose(const char separator,
 {
 	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__); 
 	columnParser->m_currFormulaString += separator;
+}
+
+//
+// functino parsers
+//
+bool SQLColumnParser::funcParserMax(void)
+{
+	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__); 
+	return true;
 }
 

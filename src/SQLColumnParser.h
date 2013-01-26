@@ -25,7 +25,12 @@ public:
 	SeparatorCheckerWithCallback *getSeparatorChecker(void);
 
 protected:
+	// Type definition
+	typedef bool (SQLColumnParser::*FunctionParser)(void);
+	typedef map<string, FunctionParser> FunctionParserMap;
+	typedef FunctionParserMap::iterator FunctionParserMapIterator;;
 
+	// general sub routines
 	void addFormulaString(void);
 
 	//
@@ -38,12 +43,12 @@ protected:
 	static void separatorCbParenthesisClose
 	  (const char separator, SQLColumnParser *columnParser);
 
-private:
-	// Type definition
-	typedef bool (SQLColumnParser::*FunctionParser)(void);
-	typedef map<string, FunctionParser> FunctionParserMap;
-	typedef FunctionParserMap::iterator FunctionParserMapIterator;;
+	//
+	// functino parsers
+	//
+	bool funcParserMax(void);
 
+private:
 	// Static variables
 	static FunctionParserMap m_functionParserMap;
 

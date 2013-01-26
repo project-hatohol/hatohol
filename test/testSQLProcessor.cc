@@ -11,6 +11,7 @@ using namespace mlpl;
 #include <cutter.h>
 #include <cppcutter.h>
 #include "SQLProcessor.h"
+#include "FormulaFunction.h"
 #include "Asura.h"
 #include "Utils.h"
 
@@ -550,10 +551,22 @@ void test_selectColumnElemMax(void)
 	SQLSelectInfo selectInfo(parsable);
 	proc.callParseSelectStatement(selectInfo);
 
+	const StringVector &formulaStringVector = 
+		selectInfo.columnParser.getFormulaStringVector();
+	cppcut_assert_equal((size_t)1, formulaStringVector.size());
+	string expected = StringUtils::sprintf("max(%s)", columnName);
+	cppcut_assert_equal(expected, formulaStringVector[0]);
+
 	const FormulaElementVector &formulaVector =
 		selectInfo.columnParser.getFormulaVector();
 	cppcut_assert_equal((size_t)1, formulaVector.size());
-}
 
+	FormulaElement *formulaElem = formulaVector[0];
+	cppcut_assert_equal
+	  (true, typeid(FormulaFuncMax) == typeid(*formulaElem),
+	   cut_message("type: *formulaElem: %s (%s)",
+	               DEMANGLED_TYPE_NAME(*formulaElem),
+	               TYPE_NAME(*formulaElem)));
+}
 
 } // namespace testSQLProcessor
