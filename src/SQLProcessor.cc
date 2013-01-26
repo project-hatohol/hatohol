@@ -727,7 +727,6 @@ bool SQLProcessor::parseWhere(SelectParserContext &ctx)
 	bool doKeywordCheck = true;
 	bool currWordString = false;
 	if (ctx.quotOpen) {
-		ctx.quotOpen = false;
 		doKeywordCheck = false;
 		currWordString = true;
 	} else if (ctx.betweenStep != BETWEEN_NONE) {
@@ -902,6 +901,7 @@ void SQLProcessor::whereCbQuot(const char separator, SelectParserContext *ctx)
 	SeparatorCheckerWithCallback &separatorCBForWhere
 	  = ctx->sqlProcessor->m_separatorCBForWhere;
 	if (ctx->quotOpen) {
+		ctx->quotOpen = false;
 		separatorCBForWhere.unsetAlternative();
 		return;
 	}
