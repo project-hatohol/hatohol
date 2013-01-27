@@ -216,21 +216,25 @@ static void _assertWhereOperatorBetween(SQLWhereElement *whereElem)
 #define assertWhereOperatorBetween(ELEM) \
 cut_trace(_assertWhereOperatorBetween(ELEM))
 
-static void _assertFormulaFuncMax(FormulaElement *elem)
+
+template<typename T>
+static void assertFormulaElementType(FormulaElement *obj)
 {
 	cppcut_assert_equal
-	  (true, typeid(FormulaFuncMax) == typeid(*elem),
-	   cut_message("type: *formulaElem: %s (%s)",
-	               DEMANGLED_TYPE_NAME(elem), TYPE_NAME(elem)));
+	  (true, typeid(T) == typeid(*obj),
+	   cut_message("type: *obj: %s (%s)",
+	               DEMANGLED_TYPE_NAME(*obj), TYPE_NAME(*obj)));
 }
-#define assertFormulaFuncMax(ELEM) cut_trace(_assertFormulaFuncMax(ELEM))
+
+#define assertTypeFormulaColumn(P) \
+cut_trace(assertFormulaElementType<FormulaColumn>(P))
+
+#define assertFormulaFuncMax(P) \
+cut_trace(assertFormulaElementType<FormulaFuncMax>(P))
 
 static void _assertFormulaColumn(FormulaElement *elem, const char *expected)
 {
-	cppcut_assert_equal
-	  (true, typeid(FormulaColumn) == typeid(*elem),
-	   cut_message("type: *formulaElem: %s (%s)",
-	               DEMANGLED_TYPE_NAME(*elem), TYPE_NAME(*elem)));
+	assertTypeFormulaColumn(elem);
 	FormulaColumn *formulaColumn = dynamic_cast<FormulaColumn *>(elem);
 	cut_assert_not_null(formulaColumn);
 	cppcut_assert_equal(string(expected), formulaColumn->getName());
