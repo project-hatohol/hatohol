@@ -90,6 +90,8 @@ bool SQLColumnParser::flush(void)
 	if (!m_ctx->hasPendingWord())
 		return true;
 
+	SQLColumnParser::appendFormulaString(m_ctx->pendingWord);
+
 	FormulaColumn *formulaColumn = makeFormulaColumn(m_ctx->pendingWord);
 	m_ctx->clearPendingWords();
 	closeCurrentFormulaString();
@@ -207,7 +209,6 @@ bool SQLColumnParser::closeFunctionIfOpen(void)
 void SQLColumnParser::separatorCbComma(const char separator,
                                        SQLColumnParser *columnParser)
 {
-	columnParser->closeCurrentFormulaString();
 	columnParser->flush();
 }
 
