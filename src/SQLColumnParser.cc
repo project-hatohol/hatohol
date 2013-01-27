@@ -87,10 +87,12 @@ bool SQLColumnParser::flush(void)
 	if (m_ctx->errorFlag)
 		return false;
 
-	if (!m_ctx->hasPendingWord())
+	if (!m_ctx->hasPendingWord()) {
+		closeCurrentFormulaString();
 		return true;
+	}
 
-	SQLColumnParser::appendFormulaString(m_ctx->pendingWord);
+	appendFormulaString(m_ctx->pendingWord);
 
 	FormulaColumn *formulaColumn = makeFormulaColumn(m_ctx->pendingWord);
 	m_ctx->clearPendingWords();
@@ -170,7 +172,10 @@ bool SQLColumnParser::makeFunctionParserIfPendingWordIsFunction(void)
 	FunctionParser func = it->second;
 	if (!(this->*func)())
 		m_ctx->errorFlag = false;
+
+	appendFormulaString(m_ctx->pendingWord);
 	m_ctx->clearPendingWords();
+
 	return true;
 }
 
@@ -188,7 +193,9 @@ bool SQLColumnParser::passFunctionArgIfOpen(string &word)
 	if (!formulaFunc)
 		return false;
 	FormulaColumn *formulaColumn = makeFormulaColumn(word);
-	formulaFunc->addParameter(formulaColumn);
+	if (!formulaFunc->addParameter(formulaColumn))
+		return false;
+	appendFormulaString(word);
 	return true;
 }
 
@@ -200,6 +207,7 @@ bool SQLColumnParser::closeFunctionIfOpen(void)
 
 	if (!formulaFunc->close())
 		m_ctx->errorFlag = true;
+	m_ctx->formulaElementStack.pop_back();
 	return true;
 }
 
@@ -215,9 +223,10 @@ void SQLColumnParser::separatorCbComma(const char separator,
 void SQLColumnParser::separatorCbParenthesisOpen(const char separator,
                                                  SQLColumnParser *columnParser)
 {
+	bool isFunc;
+	isFunc = columnParser->makeFunctionParserIfPendingWordIsFunction();
 	columnParser->appendFormulaString(separator);
-
-	if (columnParser->makeFunctionParserIfPendingWordIsFunction())
+	if (isFunc)
 		return;
 
 	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__); 
