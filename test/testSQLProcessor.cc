@@ -216,6 +216,26 @@ static void _assertWhereOperatorBetween(SQLWhereElement *whereElem)
 #define assertWhereOperatorBetween(ELEM) \
 cut_trace(_assertWhereOperatorBetween(ELEM))
 
+static void _assertFormulaFuncMax(FormulaElement *elem)
+{
+	cppcut_assert_equal
+	  (true, typeid(FormulaFuncMax) == typeid(*elem),
+	   cut_message("type: *formulaElem: %s (%s)",
+	               DEMANGLED_TYPE_NAME(elem), TYPE_NAME(elem)));
+}
+#define assertFormulaFuncMax(ELEM) cut_trace(_assertFormulaFuncMax(ELEM))
+
+static void _assertFormulaColumn(FormulaElement *elem, const char *expected)
+{
+	cppcut_assert_equal
+	  (true, typeid(FormulaColumn) == typeid(*elem),
+	   cut_message("type: *formulaElem: %s (%s)",
+	               DEMANGLED_TYPE_NAME(*elem), TYPE_NAME(*elem)));
+	FormulaColumn *formulaColumn = dynamic_cast<FormulaColumn *>(elem);
+	cut_assert_not_null(formulaColumn);
+	cppcut_assert_equal(string(expected), formulaColumn->getName());
+}
+#define assertFormulaColumn(EL, EXP) cut_trace(_assertFormulaColumn(EL, EXP))
 
 void setup(void)
 {
@@ -562,11 +582,12 @@ void test_selectColumnElemMax(void)
 	cppcut_assert_equal((size_t)1, formulaVector.size());
 
 	FormulaElement *formulaElem = formulaVector[0];
-	cppcut_assert_equal
-	  (true, typeid(FormulaFuncMax) == typeid(*formulaElem),
-	   cut_message("type: *formulaElem: %s (%s)",
-	               DEMANGLED_TYPE_NAME(*formulaElem),
-	               TYPE_NAME(*formulaElem)));
+	assertFormulaFuncMax(formulaElem);
+	FormulaFuncMax *formulaFuncMax
+	  = dynamic_cast<FormulaFuncMax *>(formulaElem);
+	cppcut_assert_equal((size_t)1, formulaFuncMax->getNumberOfArguments());
+	FormulaElement *arg = formulaFuncMax->getArgument(0);
+	assertFormulaColumn(arg, columnName);
 }
 
 } // namespace testSQLProcessor

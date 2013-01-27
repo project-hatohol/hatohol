@@ -73,3 +73,7 @@ FormulaColumn::~FormulaColumn()
 {
 }
 
+const string &FormulaColumn::getName(void) const
+{
+	return m_name;
+}

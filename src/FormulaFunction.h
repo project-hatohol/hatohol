@@ -9,10 +9,21 @@
 // ---------------------------------------------------------------------------
 class FormulaFunction : public FormulaElement {
 public:
-	FormulaFunction(void);
+	FormulaFunction(int m_numArgument = -1);
 	virtual ~FormulaFunction();
-	virtual bool addParameter(FormulaElement *parameter) = 0;
-	virtual bool close(void) = 0;
+	virtual bool addArgument(FormulaElement *argument);
+	virtual bool close(void);
+
+	size_t getNumberOfArguments(void);
+	FormulaElement *getArgument(size_t index = 0);
+	void pushArgument(FormulaElement *formulaElement);
+
+protected:
+	const vector<FormulaElement *> &getArgVector(void) const;
+
+private:
+	int                      m_numArgument;
+	vector<FormulaElement *> m_argVector;
 };
 
 // ---------------------------------------------------------------------------
@@ -25,10 +36,6 @@ public:
 	virtual ~FormulaFuncMax();
 	virtual ItemDataPtr evaluate(const FormulaElement *leftHand,
 	                             const FormulaElement *rightHand);
-	virtual bool addParameter(FormulaElement *parameter);
-	virtual bool close(void);
-public:
-	FormulaElement *m_arg;
 };
 
 #endif // FormulaFunction_h

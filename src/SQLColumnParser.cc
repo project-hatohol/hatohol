@@ -193,7 +193,7 @@ bool SQLColumnParser::passFunctionArgIfOpen(string &word)
 	if (!formulaFunc)
 		return false;
 	FormulaColumn *formulaColumn = makeFormulaColumn(word);
-	if (!formulaFunc->addParameter(formulaColumn))
+	if (!formulaFunc->addArgument(formulaColumn))
 		return false;
 	appendFormulaString(word);
 	return true;

@@ -40,6 +40,8 @@ class FormulaColumn : public FormulaElement {
 public:
 	FormulaColumn(string &name);
 	virtual ~FormulaColumn();
+	const string &getName(void) const;
+
 private:
 	string m_name;
 };
