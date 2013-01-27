@@ -259,10 +259,18 @@ void test_selectOneItem(void)
 	SQLSelectInfo selectInfo(parsable);
 	proc.callParseSelectStatement(selectInfo);
 
-	cut_assert_equal_int(1, selectInfo.columns.size());
+	// column strings
+	cppcut_assert_equal((size_t)1, selectInfo.columns.size());
 	SQLColumnInfoVectorIterator column = selectInfo.columns.begin();
 	cut_assert_equal_string(selectedItem, (*column)->name.c_str());
 
+	// column formula
+	const FormulaElementVector &formulaElemVect =
+	  selectInfo.columnParser.getFormulaVector();
+	cppcut_assert_equal((size_t)1, formulaElemVect.size());
+	assertFormulaColumn(formulaElemVect[0], selectedItem);
+
+	// table
 	cut_assert_equal_int(1, selectInfo.tables.size());
 	SQLTableInfoVectorIterator table = selectInfo.tables.begin();
 	cut_assert_equal_string(tableName, (*table)->name.c_str());
@@ -282,12 +290,21 @@ void test_selectMultiItem(void)
 	SQLSelectInfo selectInfo(parsable);
 	proc.callParseSelectStatement(selectInfo);
 
+	// column strings
 	const StringVector &formulaVect =
 	  selectInfo.columnParser.getFormulaStringVector();
 	cppcut_assert_equal(numColumns, formulaVect.size());
 	for (int idx = 0; idx < numColumns; idx++)
 		cppcut_assert_equal(formulaVect[idx], string(columns[idx]));
 
+	// column formula
+	const FormulaElementVector &formulaElemVect =
+	  selectInfo.columnParser.getFormulaVector();
+	cppcut_assert_equal(numColumns, formulaElemVect.size());
+	for (int idx = 0; idx < numColumns; idx++)
+		assertFormulaColumn(formulaElemVect[idx], columns[idx]);
+
+	// table
 	cut_assert_equal_int(1, selectInfo.tables.size());
 	SQLTableInfoVectorIterator table = selectInfo.tables.begin();
 	cut_assert_equal_string(tableName, (*table)->name.c_str());
