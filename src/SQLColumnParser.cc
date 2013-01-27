@@ -122,15 +122,22 @@ const StringVector &SQLColumnParser::getFormulaStringVector(void) const
 	return m_formulaStringVector;
 }
 
+const set<string> &SQLColumnParser::getNameSet(void) const
+{
+	return m_nameSet;
+}
+
+const vector<FormulaColumn *> &
+SQLColumnParser::getFormulaColumnVector(void) const
+{
+	return m_formulaColumnVector;
+}
+
 SeparatorCheckerWithCallback *SQLColumnParser::getSeparatorChecker(void)
 {
 	return &m_separator;
 }
 
-const set<string> &SQLColumnParser::getNameSet(void) const
-{
-	return m_nameSet;
-}
 
 // ---------------------------------------------------------------------------
 // Protected methods

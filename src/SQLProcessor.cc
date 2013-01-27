@@ -241,10 +241,12 @@ bool SQLProcessor::select(SQLSelectInfo &selectInfo)
 	if (!selectMatchingRows(selectInfo))
 		return false;
 
+	/*
 	// packed the requested columns
 	if (!selectInfo.joinedTable->foreach<SQLSelectInfo&>
 	                                    (packRequiredColumns, selectInfo))
 		return false;
+	*/
 
 	// convert data to string
 	if (!selectInfo.selectedTable->foreach<SQLSelectInfo&>(makeTextRows,
@@ -555,8 +557,25 @@ bool SQLProcessor::doJoin(SQLSelectInfo &selectInfo)
 
 bool SQLProcessor::fixupFormulaColumn(SQLSelectInfo &selectInfo)
 {
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
-	return false;
+	const vector<FormulaColumn *> &formulaColumnVector =
+	  selectInfo.columnParser.getFormulaColumnVector();
+	for (size_t i = 0; i < formulaColumnVector.size(); i++) {
+		FormulaColumn *formulaColumn = formulaColumnVector[i];
+		SQLFormulaColumnDataGetter *dataGetter =
+		  dynamic_cast<SQLFormulaColumnDataGetter *>
+		    (formulaColumn->getFormulaColumnGetter());
+		if (!dataGetter) {
+			MLPL_BUG("dataGetter: NULL.\n");
+			return false;
+		}
+		
+		ItemId itemId;
+		string name = formulaColumn->getName();
+		if (!getColumnItemId(selectInfo, name, itemId))
+			return false;
+		dataGetter->setItemId(itemId);
+	}
+	return true;
 }
 
 bool SQLProcessor::fixupWhereColumn(SQLSelectInfo &selectInfo)
@@ -565,6 +584,7 @@ bool SQLProcessor::fixupWhereColumn(SQLSelectInfo &selectInfo)
 		SQLWhereColumn *whereColumn = selectInfo.whereColumnVector[i];
 
 		const string &columnName = whereColumn->getColumnName();
+		// TODO: use getColumnItemId()
 		string baseName;
 		string tableVar;
 		if (!parseColumnName(columnName, baseName, tableVar))
@@ -619,6 +639,7 @@ bool SQLProcessor::pickupMatchingRows(const ItemGroup *itemGroup,
 	return true;
 }
 
+/*
 bool SQLProcessor::packRequiredColumns(const ItemGroup *itemGroup,
                                        SQLSelectInfo &selectInfo)
 {
@@ -636,11 +657,14 @@ bool SQLProcessor::packRequiredColumns(const ItemGroup *itemGroup,
 		grp->add(item);
 	}
 	return true;
-}
+}*/
 
 bool SQLProcessor::makeTextRows(const ItemGroup *itemGroup,
                                 SQLSelectInfo &selectInfo)
 {
+	ItemGroup *nonConstItemGroup = const_cast<ItemGroup *>(itemGroup);
+	selectInfo.evalTargetItemGroup = nonConstItemGroup;
+
 	selectInfo.textRows.push_back(StringVector());
 	StringVector &textVector = selectInfo.textRows.back();
 
@@ -1084,4 +1108,33 @@ SQLProcessor::formulaColumnDataGetterFactory(void *priv)
 {
 	SQLSelectInfo *selectInfo = static_cast<SQLSelectInfo *>(priv);
 	return new SQLFormulaColumnDataGetter(selectInfo);
+}
+
+bool SQLProcessor::getColumnItemId(SQLSelectInfo &selectInfo,
+                                   string &columnName, ItemId &itemId)
+{
+	string baseName;
+	string tableVar;
+	if (!parseColumnName(columnName, baseName, tableVar))
+		return false;
+
+	// find TableInfo in which the column should be contained
+	const SQLTableInfo *tableInfo;
+	if (selectInfo.tables.size() == 1)
+			tableInfo = *selectInfo.tables.begin();
+	else
+		tableInfo = getTableInfoFromVarName(selectInfo, tableVar);
+
+	if (!tableInfo) {
+		MLPL_DBG("Failed to find TableInfo: %s\n",
+		         columnName.c_str());
+		return false;
+	}
+
+	ColumnBaseDefinition *columnBaseDef = 
+	  getColumnBaseDefinitionFromColumnName(tableInfo, baseName);
+	if (!columnBaseDef)
+		return false;
+	itemId = columnBaseDef->itemId;
+	return true;
 }

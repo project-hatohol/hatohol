@@ -77,12 +77,17 @@ FormulaColumn::~FormulaColumn()
 		delete m_columnGetter;
 }
 
+ItemDataPtr FormulaColumn::evaluate(void)
+{
+	return m_columnGetter->getData(this);
+}
+
 const string &FormulaColumn::getName(void) const
 {
 	return m_name;
 }
 
-ItemDataPtr FormulaColumn::evaluate(void)
+FormulaColumnDataGetter *FormulaColumn::getFormulaColumnGetter(void) const
 {
-	return m_columnGetter->getData(this);
+	return m_columnGetter;
 }

@@ -250,8 +250,8 @@ protected:
 
 	static bool pickupMatchingRows(const ItemGroup *itemGroup,
 	                               SQLSelectInfo &selectInfo);
-	static bool packRequiredColumns(const ItemGroup *itemGroup,
-	                                SQLSelectInfo &selectInfo);
+	//static bool packRequiredColumns(const ItemGroup *itemGroup,
+	//                                SQLSelectInfo &selectInfo);
 	static bool makeTextRows(const ItemGroup *itemGroup,
 	                         SQLSelectInfo &selectInfo);
 
@@ -297,13 +297,13 @@ protected:
 	string readNextWord(SelectParserContext &ctx,
 	                    ParsingPosition *position = NULL);
 	SQLWhereColumn *createSQLWhereColumn(SelectParserContext &ctx);
-	bool parseColumnName(const string &name,
-	                     string &baseName, string &tableVar);
-	ColumnBaseDefinition *
+	static bool parseColumnName(const string &name,
+	                            string &baseName, string &tableVar);
+	static ColumnBaseDefinition *
 	  getColumnBaseDefinitionFromColumnName(const SQLTableInfo *tableInfo,
                                                 string &baseName);
-	const SQLTableInfo *getTableInfoFromVarName(SQLSelectInfo &selectInfo,
-	                                            string &tableVar);
+	static const SQLTableInfo *
+	  getTableInfoFromVarName(SQLSelectInfo &selectInfo, string &tableVar);
 	static ItemDataPtr whereColumnDataGetter(SQLWhereColumn *whereColumn,
 	                                         void *priv);
 	static void wereColumnPrivDataDestructor(SQLWhereColumn *whereColumn,
@@ -311,6 +311,8 @@ protected:
 	bool columnParserFlush(SelectParserContext &ctx);
 	static FormulaColumnDataGetter *
 	  formulaColumnDataGetterFactory(void *priv);
+	static bool getColumnItemId(SQLSelectInfo &selectInfo,
+	                            string &name, ItemId &itemId);
 
 private:
 	static const SelectSubParser m_selectSubParsers[];

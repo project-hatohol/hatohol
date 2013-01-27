@@ -50,8 +50,10 @@ public:
 	FormulaColumn(string &name,
 	              FormulaColumnDataGetter *columnDataGetter);
 	virtual ~FormulaColumn();
-	const string &getName(void) const;
 	virtual ItemDataPtr evaluate(void);
+
+	const string &getName(void) const;
+	FormulaColumnDataGetter *getFormulaColumnGetter(void) const;
 
 private:
 	string                   m_name;
