@@ -1,3 +1,4 @@
+#include <stdexcept>
 #include "SQLColumnParser.h"
 #include "FormulaFunction.h"
 
@@ -43,7 +44,9 @@ void SQLColumnParser::init(void)
 // Public methods
 // ---------------------------------------------------------------------------
 SQLColumnParser::SQLColumnParser(void)
-: m_separator(" ,()")
+: m_columnDataGetterFactory(NULL),
+  m_columnDataGetterFactoryPriv(NULL),
+  m_separator(" ,()")
 {
 	m_ctx = new ParsingContext;
 
@@ -63,6 +66,14 @@ SQLColumnParser::~SQLColumnParser()
 
 	if (m_ctx)
 		delete m_ctx;
+}
+
+void SQLColumnParser::setColumnDataGetterFactory
+       (FormulaColumnDataGetterFactory columnDataGetterFactory,
+        void *columnDataGetterFactoryPriv)
+{
+       m_columnDataGetterFactory = columnDataGetterFactory;
+       m_columnDataGetterFactoryPriv = columnDataGetterFactoryPriv;
 }
 
 bool SQLColumnParser::add(string &word, string &wordLower)
@@ -139,7 +150,14 @@ void SQLColumnParser::appendFormulaString(string &str)
 
 FormulaColumn *SQLColumnParser::makeFormulaColumn(string &name)
 {
-	FormulaColumn *formulaColumn = new FormulaColumn(name);
+	if (!m_columnDataGetterFactory) {
+		string msg;
+		TRMSG(msg, "m_columnDataGetterFactory: NULL.");
+		throw logic_error(msg);
+	}
+	FormulaColumnDataGetter *dataGetter =
+	  (*m_columnDataGetterFactory)(m_columnDataGetterFactoryPriv);
+	FormulaColumn *formulaColumn = new FormulaColumn(name, dataGetter);
 	m_nameSet.insert(name);
 	return formulaColumn;
 }

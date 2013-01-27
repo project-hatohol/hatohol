@@ -36,14 +36,26 @@ typedef FormulaElementVector::iterator FormulaElementVectorIterator;
 // ---------------------------------------------------------------------------
 // class: FormulaColumn
 // ---------------------------------------------------------------------------
+class FormulaColumn;
+class FormulaColumnDataGetter {
+public:
+	virtual ~FormulaColumnDataGetter() {}
+	virtual ItemDataPtr getData(const FormulaColumn *formulaColumn) = 0;
+};
+
+typedef FormulaColumnDataGetter *(*FormulaColumnDataGetterFactory)(void *priv);
+
 class FormulaColumn : public FormulaElement {
 public:
-	FormulaColumn(string &name);
+	FormulaColumn(string &name,
+	              FormulaColumnDataGetter *columnDataGetter);
 	virtual ~FormulaColumn();
 	const string &getName(void) const;
+	virtual ItemDataPtr evaluate(void);
 
 private:
-	string m_name;
+	string                   m_name;
+	FormulaColumnDataGetter *m_columnGetter;
 };
 
 #endif // FormulaElement_h

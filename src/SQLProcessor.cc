@@ -72,6 +72,27 @@ struct WhereColumnArg {
 	}
 };
 
+class SQLFormulaColumnDataGetter : public FormulaColumnDataGetter {
+public:
+	SQLFormulaColumnDataGetter(SQLSelectInfo *selectInfo)
+	: m_selectInfo(selectInfo)
+	{
+	}
+	
+	virtual ~SQLFormulaColumnDataGetter()
+	{
+	}
+
+	virtual ItemDataPtr getData(const FormulaColumn *formulaColumn)
+	{
+		MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+		return ItemDataPtr();
+	}
+
+private:
+	SQLSelectInfo *m_selectInfo;
+};
+
 // ---------------------------------------------------------------------------
 // Public methods (SQLColumnDefinitino)
 // ---------------------------------------------------------------------------
@@ -263,6 +284,10 @@ bool SQLProcessor::parseSelectStatement(SQLSelectInfo &selectInfo)
 	SelectSubParser subParser = NULL;
 	SelectParserContext ctx(this, SELECT_PARSING_SECTION_COLUMN,
 	                        selectInfo);
+
+	// set ColumnDataGetterFactory
+	selectInfo.columnParser.setColumnDataGetterFactory
+	  (formulaColumnDataGetterFactory, &selectInfo);
 
 	// callback function for column
 	m_selectSeprators[SQLProcessor::SELECT_PARSING_SECTION_COLUMN]
@@ -1019,4 +1044,11 @@ bool SQLProcessor::columnParserFlush(SelectParserContext &ctx)
 			return false;
 	}
 	return true;
+}
+
+FormulaColumnDataGetter *
+SQLProcessor::formulaColumnDataGetterFactory(void *priv)
+{
+	SQLSelectInfo *selectInfo = static_cast<SQLSelectInfo *>(priv);
+	return new SQLFormulaColumnDataGetter(selectInfo);
 }

@@ -19,6 +19,9 @@ public:
 
 	SQLColumnParser(void);
 	virtual ~SQLColumnParser();
+	void setColumnDataGetterFactory
+	       (FormulaColumnDataGetterFactory columnDataGetterFactory,
+	        void *columnDataGetterFactoryPriv);
 	bool add(string& word, string &wordLower);
 	bool flush(void);
 	const FormulaElementVector &getFormulaVector(void) const;
@@ -69,6 +72,8 @@ private:
 	static FunctionParserMap m_functionParserMap;
 
 	// General variables
+	FormulaColumnDataGetterFactory  m_columnDataGetterFactory;
+	void                           *m_columnDataGetterFactoryPriv;
 	FormulaElementVector         m_formulaVector;
 	StringVector                 m_formulaStringVector;
 	SeparatorCheckerWithCallback m_separator;

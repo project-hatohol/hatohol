@@ -64,16 +64,25 @@ ItemDataPtr FormulaElement::evaluate(void)
 // ---------------------------------------------------------------------------
 // class: FormulaColumn
 // ---------------------------------------------------------------------------
-FormulaColumn::FormulaColumn(string &name)
-: m_name(name)
+FormulaColumn::FormulaColumn(string &name,
+                             FormulaColumnDataGetter *columnDataGetter)
+: m_name(name),
+  m_columnGetter(columnDataGetter)
 {
 }
 
 FormulaColumn::~FormulaColumn()
 {
+	if (m_columnGetter)
+		delete m_columnGetter;
 }
 
 const string &FormulaColumn::getName(void) const
 {
 	return m_name;
+}
+
+ItemDataPtr FormulaColumn::evaluate(void)
+{
+	return m_columnGetter->getData(this);
 }
