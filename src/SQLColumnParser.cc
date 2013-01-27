@@ -89,15 +89,16 @@ bool SQLColumnParser::flush(void)
 
 	if (!m_ctx->hasPendingWord()) {
 		closeCurrentFormulaString();
-		return true;
+		return closeCurrentFormula();
 	}
 
 	appendFormulaString(m_ctx->pendingWord);
-
 	FormulaColumn *formulaColumn = makeFormulaColumn(m_ctx->pendingWord);
 	m_ctx->clearPendingWords();
 	closeCurrentFormulaString();
-	return createdNewElement(formulaColumn);
+	if (!createdNewElement(formulaColumn))
+		return false;
+	return closeCurrentFormula();
 }
 
 const FormulaElementVector &SQLColumnParser::getFormulaVector(void) const
@@ -149,6 +150,26 @@ void SQLColumnParser::closeCurrentFormulaString(void)
 		return;
 	m_formulaStringVector.push_back(m_ctx->currFormulaString);
 	m_ctx->currFormulaString.clear();
+}
+
+bool SQLColumnParser::closeCurrentFormula(void)
+{
+	if (m_ctx->formulaElementStack.empty())
+		return true;
+
+	FormulaFunction *formulaFunc = getFormulaFunctionFromStack();
+	if (formulaFunc) {
+		MLPL_DBG("The current function is not closed.");
+		return false;;
+	}
+
+	m_ctx->formulaElementStack.pop_back();
+	if (!m_ctx->formulaElementStack.empty()) {
+		MLPL_DBG("formulaElementStat is not empty (%zd).\n",
+		         m_ctx->formulaElementStack.size());
+		return false;
+	}
+	return true;
 }
 
 bool SQLColumnParser::createdNewElement(FormulaElement *formulaElement)

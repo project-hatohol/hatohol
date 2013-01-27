@@ -249,7 +249,7 @@ void setup(void)
 // ---------------------------------------------------------------------------
 // Test cases
 // ---------------------------------------------------------------------------
-void test_selectOneItem(void)
+void test_selectOneColumn(void)
 {
 	TestSQLProcessor proc;
 	const char *selectedItem = "columnArg";
@@ -276,7 +276,7 @@ void test_selectOneItem(void)
 	cut_assert_equal_string(tableName, (*table)->name.c_str());
 }
 
-void test_selectMultiItem(void)
+void test_selectMultiColumn(void)
 {
 	TestSQLProcessor proc;
 	const char *columns[] = {"c1", "a2", "b3", "z4", "x5", "y6"};

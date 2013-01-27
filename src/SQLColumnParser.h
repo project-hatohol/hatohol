@@ -39,6 +39,7 @@ protected:
 	void appendFormulaString(string &str);
 	FormulaColumn *makeFormulaColumn(string &name);
 	void closeCurrentFormulaString(void);
+	bool closeCurrentFormula(void);
 	bool createdNewElement(FormulaElement *formulaElement);
 	FormulaFunction *getFormulaFunctionFromStack(void);
 	bool makeFunctionParserIfPendingWordIsFunction(void);
