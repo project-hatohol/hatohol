@@ -9,6 +9,8 @@
 // ---------------------------------------------------------------------------
 class FormulaFunction : public FormulaElement {
 public:
+	FormulaFunction(void);
+	virtual ~FormulaFunction();
 	virtual bool addParameter(FormulaElement *parameter) = 0;
 	virtual bool close(void) = 0;
 };

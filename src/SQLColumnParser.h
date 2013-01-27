@@ -3,12 +3,14 @@
 
 #include <string>
 #include <list>
+#include <deque>
 using namespace std;
 
 #include "ParsableString.h"
 using namespace mlpl;
 
 #include "FormulaElement.h"
+#include "FormulaFunction.h"
 
 class SQLColumnParser
 {
@@ -30,8 +32,18 @@ protected:
 	typedef map<string, FunctionParser> FunctionParserMap;
 	typedef FunctionParserMap::iterator FunctionParserMapIterator;;
 
+	//
 	// general sub routines
-	void addFormulaString(void);
+	//
+	void appendFormulaString(const char character);
+	void appendFormulaString(string &str);
+	FormulaColumn *makeFormulaColumn(string &name);
+	void closeCurrentFormulaString(void);
+	bool createdNewElement(FormulaElement *formulaElement);
+	FormulaFunction *getFormulaFunctionFromStack(void);
+	bool makeFunctionParserIfPendingWordIsFunction(void);
+	bool passFunctionArgIfOpen(string &arg);
+	bool closeFunctionIfOpen(void);
 
 	//
 	// SeparatorChecker callbacks
@@ -49,17 +61,18 @@ protected:
 	bool funcParserMax(void);
 
 private:
+	// Type definition
+	struct ParsingContext;
+
 	// Static variables
 	static FunctionParserMap m_functionParserMap;
 
-	// Non-static variables
+	// General variables
 	FormulaElementVector         m_formulaVector;
 	StringVector                 m_formulaStringVector;
 	SeparatorCheckerWithCallback m_separator;
 	set<string>                  m_nameSet;
-	list<string>                 m_pendingWordList;
-
-	string                       m_currFormulaString;
+	ParsingContext               *m_ctx;
 };
 
 #endif // SQLColumnParser_h

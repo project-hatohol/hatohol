@@ -1,8 +1,24 @@
 #include "FormulaFunction.h"
 
 // ---------------------------------------------------------------------------
+// FormulaFunction
+// ---------------------------------------------------------------------------
+FormulaFunction::FormulaFunction(void)
+{
+}
+
+FormulaFunction::~FormulaFunction()
+{
+}
+
+// ---------------------------------------------------------------------------
 // FormulaFuncMax
 // ---------------------------------------------------------------------------
+FormulaFuncMax::FormulaFuncMax(void)
+: m_arg(NULL)
+{
+}
+
 FormulaFuncMax::FormulaFuncMax(FormulaElement *arg)
 : m_arg(arg)
 {

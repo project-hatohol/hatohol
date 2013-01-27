@@ -1,6 +1,35 @@
 #include "SQLColumnParser.h"
+#include "FormulaFunction.h"
 
 SQLColumnParser::FunctionParserMap SQLColumnParser::m_functionParserMap;
+
+struct SQLColumnParser::ParsingContext {
+	bool                         errorFlag;
+	string                       pendingWord;
+	string                       pendingWordLower;
+	string                       currFormulaString;
+	deque<FormulaElement *>      formulaElementStack;
+
+	// constructor and methods
+	ParsingContext(void)
+	: errorFlag(false)
+	{
+	}
+
+	void pushPendingWords(string &raw, string &lower) {
+		pendingWord = raw;
+		pendingWordLower = lower;;
+	}
+
+	bool hasPendingWord(void) {
+		return !pendingWord.empty();
+	}
+
+	void clearPendingWords(void) {
+		pendingWord.clear();
+		pendingWordLower.clear();
+	}
+};
 
 // ---------------------------------------------------------------------------
 // Public static methods
@@ -16,6 +45,8 @@ void SQLColumnParser::init(void)
 SQLColumnParser::SQLColumnParser(void)
 : m_separator(" ,()")
 {
+	m_ctx = new ParsingContext;
+
 	m_separator.setCallbackTempl<SQLColumnParser>
 	  (',', separatorCbComma, this);
 	m_separator.setCallbackTempl<SQLColumnParser>
@@ -29,33 +60,40 @@ SQLColumnParser::~SQLColumnParser()
 	FormulaElementVectorIterator formulaIt = m_formulaVector.begin();
 	for(; formulaIt != m_formulaVector.end(); ++formulaIt)
 		delete *formulaIt;
+
+	if (m_ctx)
+		delete m_ctx;
 }
 
 bool SQLColumnParser::add(string &word, string &wordLower)
 {
-	m_currFormulaString += word;
+	if (m_ctx->errorFlag)
+		return false;
 
-	FunctionParserMapIterator it = m_functionParserMap.find(wordLower);
-	if (it != m_functionParserMap.end()) {
-		FunctionParser funcParser = it->second;
-		return (this->*funcParser)();
+	if (m_ctx->hasPendingWord()) {
+		MLPL_DBG("hasPendingWord(): true.");
+		return false;
 	}
-	m_pendingWordList.push_back(word);
+
+	if (passFunctionArgIfOpen(word))
+		return true;
+
+	m_ctx->pushPendingWords(word, wordLower);
 	return true;
 }
 
 bool SQLColumnParser::flush(void)
 {
-	while (!m_pendingWordList.empty()) {
-		string &word = *m_pendingWordList.begin();
-		FormulaColumn *formula = new FormulaColumn(word);
-		m_formulaVector.push_back(formula);
-		m_nameSet.insert(word);
-		m_pendingWordList.pop_front();;
+	if (m_ctx->errorFlag)
+		return false;
 
-		addFormulaString();
-	}
-	return false;
+	if (!m_ctx->hasPendingWord())
+		return true;
+
+	FormulaColumn *formulaColumn = makeFormulaColumn(m_ctx->pendingWord);
+	m_ctx->clearPendingWords();
+	closeCurrentFormulaString();
+	return createdNewElement(formulaColumn);
 }
 
 const FormulaElementVector &SQLColumnParser::getFormulaVector(void) const
@@ -81,33 +119,118 @@ const set<string> &SQLColumnParser::getNameSet(void) const
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
-void SQLColumnParser::addFormulaString(void)
+//
+// general sub routines
+//
+void SQLColumnParser::appendFormulaString(const char character)
 {
-	if (m_currFormulaString.empty())
-		return;
-	m_formulaStringVector.push_back(m_currFormulaString);
-	m_currFormulaString.clear();
+	m_ctx->currFormulaString += character;
 }
 
+void SQLColumnParser::appendFormulaString(string &str)
+{
+	m_ctx->currFormulaString += str;
+}
+
+FormulaColumn *SQLColumnParser::makeFormulaColumn(string &name)
+{
+	FormulaColumn *formulaColumn = new FormulaColumn(name);
+	m_nameSet.insert(name);
+	return formulaColumn;
+}
+
+void SQLColumnParser::closeCurrentFormulaString(void)
+{
+	if (m_ctx->currFormulaString.empty())
+		return;
+	m_formulaStringVector.push_back(m_ctx->currFormulaString);
+	m_ctx->currFormulaString.clear();
+}
+
+bool SQLColumnParser::createdNewElement(FormulaElement *formulaElement)
+{
+	if (m_ctx->formulaElementStack.empty())
+		m_formulaVector.push_back(formulaElement);
+	m_ctx->formulaElementStack.push_back(formulaElement);
+	return true;
+}
+
+bool SQLColumnParser::makeFunctionParserIfPendingWordIsFunction(void)
+{
+	if (!m_ctx->hasPendingWord())
+		return false;
+
+	FunctionParserMapIterator it;
+	it = m_functionParserMap.find(m_ctx->pendingWordLower);
+	if (it == m_functionParserMap.end())
+		return false;
+
+	FunctionParser func = it->second;
+	if (!(this->*func)())
+		m_ctx->errorFlag = false;
+	m_ctx->clearPendingWords();
+	return true;
+}
+
+FormulaFunction *SQLColumnParser::getFormulaFunctionFromStack(void)
+{
+	if (m_ctx->formulaElementStack.empty())
+		return NULL;
+	FormulaElement *elem = m_ctx->formulaElementStack.back();
+	return dynamic_cast<FormulaFunction *>(elem);
+}
+
+bool SQLColumnParser::passFunctionArgIfOpen(string &word)
+{
+	FormulaFunction *formulaFunc = getFormulaFunctionFromStack();
+	if (!formulaFunc)
+		return false;
+	FormulaColumn *formulaColumn = makeFormulaColumn(word);
+	formulaFunc->addParameter(formulaColumn);
+	return true;
+}
+
+bool SQLColumnParser::closeFunctionIfOpen(void)
+{
+	FormulaFunction *formulaFunc = getFormulaFunctionFromStack();
+	if (!formulaFunc)
+		return false;
+
+	if (!formulaFunc->close())
+		m_ctx->errorFlag = true;
+	return true;
+}
+
+//
+// SeparatorChecker callbacks
+//
 void SQLColumnParser::separatorCbComma(const char separator,
                                        SQLColumnParser *columnParser)
 {
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__); 
-	columnParser->addFormulaString();
+	columnParser->closeCurrentFormulaString();
+	columnParser->flush();
 }
 
 void SQLColumnParser::separatorCbParenthesisOpen(const char separator,
                                                  SQLColumnParser *columnParser)
 {
+	columnParser->appendFormulaString(separator);
+
+	if (columnParser->makeFunctionParserIfPendingWordIsFunction())
+		return;
+
 	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__); 
-	columnParser->m_currFormulaString += separator;
 }
 
 void SQLColumnParser::separatorCbParenthesisClose(const char separator,
                                                   SQLColumnParser *columnParser)
 {
+	columnParser->appendFormulaString(separator);
+
+	if (columnParser->closeFunctionIfOpen())
+		return;
+
 	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__); 
-	columnParser->m_currFormulaString += separator;
 }
 
 //
@@ -115,7 +238,7 @@ void SQLColumnParser::separatorCbParenthesisClose(const char separator,
 //
 bool SQLColumnParser::funcParserMax(void)
 {
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__); 
-	return true;
+	FormulaFuncMax *funcMax = new FormulaFuncMax();
+	return createdNewElement(funcMax);
 }
 
