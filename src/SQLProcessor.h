@@ -232,6 +232,7 @@ protected:
 	bool enumerateNeededItemIds(SQLSelectInfo &selectInfo);
 	bool makeItemTables(SQLSelectInfo &selectInfo);
 	bool doJoin(SQLSelectInfo &selectInfo);
+	bool fixupFormulaColumn(SQLSelectInfo &selectInfo);
 	bool fixupWhereColumn(SQLSelectInfo &selectInfo);
 	bool selectMatchingRows(SQLSelectInfo &selectInfo);
 	bool checkSelectedAllColumns(const SQLSelectInfo &selectInfo,

@@ -8,6 +8,7 @@ using namespace std;
 #include <stdexcept>
 #include <cstring>
 #include "SQLProcessor.h"
+#include "ItemEnum.h"
 #include "Utils.h"
 
 const SQLProcessor::SelectSubParser SQLProcessor::m_selectSubParsers[] = {
@@ -75,7 +76,8 @@ struct WhereColumnArg {
 class SQLFormulaColumnDataGetter : public FormulaColumnDataGetter {
 public:
 	SQLFormulaColumnDataGetter(SQLSelectInfo *selectInfo)
-	: m_selectInfo(selectInfo)
+	: m_selectInfo(selectInfo),
+	  m_itemId(ITEM_ID_NOT_SET)
 	{
 	}
 	
@@ -85,12 +87,23 @@ public:
 
 	virtual ItemDataPtr getData(const FormulaColumn *formulaColumn)
 	{
-		MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
-		return ItemDataPtr();
+		if (m_itemId == ITEM_ID_NOT_SET) {
+			string msg;
+			TRMSG(msg, "m_itemId == ITEM_ID_NOT_SET.");
+			throw logic_error(msg);
+		}
+		return ItemDataPtr
+		         (m_selectInfo->evalTargetItemGroup->getItem(m_itemId));
+	}
+
+	void setItemId(ItemId itemId)
+	{
+		m_itemId = itemId;
 	}
 
 private:
 	SQLSelectInfo *m_selectInfo;
+	ItemId         m_itemId;
 };
 
 // ---------------------------------------------------------------------------
@@ -214,6 +227,10 @@ bool SQLProcessor::select(SQLSelectInfo &selectInfo)
 
 	// join tables
 	if (!doJoin(selectInfo))
+		return false;
+
+	// set members in SQLFormulaColumnDataGetter
+	if (!fixupFormulaColumn(selectInfo))
 		return false;
 
 	// add associated data to whereColumn to call evaluate()
@@ -536,6 +553,12 @@ bool SQLProcessor::doJoin(SQLSelectInfo &selectInfo)
 	return true;
 }
 
+bool SQLProcessor::fixupFormulaColumn(SQLSelectInfo &selectInfo)
+{
+	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	return false;
+}
+
 bool SQLProcessor::fixupWhereColumn(SQLSelectInfo &selectInfo)
 {
 	for (size_t i = 0; i < selectInfo.whereColumnVector.size(); i++) {
@@ -620,6 +643,16 @@ bool SQLProcessor::makeTextRows(const ItemGroup *itemGroup,
 {
 	selectInfo.textRows.push_back(StringVector());
 	StringVector &textVector = selectInfo.textRows.back();
+
+	const FormulaElementVector &formulaVector
+	  = selectInfo.columnParser.getFormulaVector();
+	for (size_t i = 0; i < formulaVector.size(); i++) {
+		const ItemData *item = formulaVector[i]->evaluate();
+		textVector.push_back(item->getString());
+	}
+	/*
+	selectInfo.textRows.push_back(StringVector());
+	StringVector &textVector = selectInfo.textRows.back();
 	for (size_t i = 0; i < selectInfo.columnDefs.size(); i++) {
 		const SQLColumnDefinition &colDef = selectInfo.columnDefs[i];
 		const ItemData *item =
@@ -630,7 +663,7 @@ bool SQLProcessor::makeTextRows(const ItemGroup *itemGroup,
 			return false;
 		}
 		textVector.push_back(item->getString());
-	}
+	}*/
 	return true;
 }
 

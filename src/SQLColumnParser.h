@@ -27,6 +27,7 @@ public:
 	const FormulaElementVector &getFormulaVector(void) const;
 	const StringVector         &getFormulaStringVector(void) const;
 	const set<string>          &getNameSet(void) const;
+	FormulaElementVector       &getFormulaColumnVector(void) const;
 	SeparatorCheckerWithCallback *getSeparatorChecker(void);
 
 protected:
@@ -74,11 +75,15 @@ private:
 	// General variables
 	FormulaColumnDataGetterFactory  m_columnDataGetterFactory;
 	void                           *m_columnDataGetterFactoryPriv;
-	FormulaElementVector         m_formulaVector;
-	StringVector                 m_formulaStringVector;
-	SeparatorCheckerWithCallback m_separator;
-	set<string>                  m_nameSet;
-	ParsingContext               *m_ctx;
+	FormulaElementVector            m_formulaVector;
+	StringVector                    m_formulaStringVector;
+	SeparatorCheckerWithCallback    m_separator;
+	set<string>                     m_nameSet;
+	ParsingContext                 *m_ctx;
+
+	// The elements in this vector must not be freeed explicitly.
+	// The pointers have already been in m_formulaVector.
+	FormulaElementVector            m_formulaColumnVector;
 };
 
 #endif // SQLColumnParser_h

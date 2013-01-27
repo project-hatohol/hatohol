@@ -159,6 +159,7 @@ FormulaColumn *SQLColumnParser::makeFormulaColumn(string &name)
 	  (*m_columnDataGetterFactory)(m_columnDataGetterFactoryPriv);
 	FormulaColumn *formulaColumn = new FormulaColumn(name, dataGetter);
 	m_nameSet.insert(name);
+	m_formulaColumnVector.push_back(formulaColumn);
 	return formulaColumn;
 }
 
