@@ -138,13 +138,13 @@ struct SQLColumnInfo {
 	int columnType;
 
 	// constructor and methods
-	SQLColumnInfo(void);
+	SQLColumnInfo(string &_name);
 	void associate(SQLTableInfo *tableInfo);
 	void setColumnType(void);
 };
 
-typedef vector<SQLColumnInfo *>         SQLColumnInfoVector;
-typedef SQLColumnInfoVector::iterator   SQLColumnInfoVectorIterator;
+typedef map<string, SQLColumnInfo *>    SQLColumnNameMap;
+typedef SQLColumnNameMap::iterator      SQLColumnNameMapIterator;
 
 typedef map<const SQLTableInfo *, ItemIdVector> SQLTableInfoItemIdVectorMap;
 typedef SQLTableInfoItemIdVectorMap::iterator
@@ -161,7 +161,7 @@ struct SQLSelectInfo {
 
 	// parsed matter (Elements in these two container have to be freed)
 	SQLColumnParser     columnParser;
-	SQLColumnInfoVector columns;
+	SQLColumnNameMap    columnNameMap;
 	SQLTableInfoVector  tables;
 
 	// The value (const SQLTableInfo *) in the following map points
@@ -225,6 +225,7 @@ protected:
 
 	bool parseSelectStatement(SQLSelectInfo &selectInfo);
 	bool checkParsedResult(const SQLSelectInfo &selectInfo) const;
+	bool fixupColumnNameMap(SQLSelectInfo &selectInfo);
 	bool associateColumnWithTable(SQLSelectInfo &selectInfo);
 	bool associateTableWithStaticInfo(SQLSelectInfo &selectInfo);
 	bool setColumnTypeAndBaseDefInColumnInfo(SQLSelectInfo &selectInfo);
@@ -308,9 +309,8 @@ protected:
 	                                         void *priv);
 	static void wereColumnPrivDataDestructor(SQLWhereColumn *whereColumn,
 	                                         void *priv);
-	bool columnParserFlush(SelectParserContext &ctx);
 	static FormulaColumnDataGetter *
-	  formulaColumnDataGetterFactory(void *priv);
+	  formulaColumnDataGetterFactory(string &name, void *priv);
 	static bool getColumnItemId(SQLSelectInfo &selectInfo,
 	                            string &name, ItemId &itemId);
 

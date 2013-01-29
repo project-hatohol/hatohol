@@ -43,7 +43,8 @@ public:
 	virtual ItemDataPtr getData(const FormulaColumn *formulaColumn) = 0;
 };
 
-typedef FormulaColumnDataGetter *(*FormulaColumnDataGetterFactory)(void *priv);
+typedef FormulaColumnDataGetter *
+(*FormulaColumnDataGetterFactory)(string &name, void *priv);
 
 class FormulaColumn : public FormulaElement {
 public:

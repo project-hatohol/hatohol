@@ -75,10 +75,23 @@ struct WhereColumnArg {
 
 class SQLFormulaColumnDataGetter : public FormulaColumnDataGetter {
 public:
-	SQLFormulaColumnDataGetter(SQLSelectInfo *selectInfo)
+	SQLFormulaColumnDataGetter(string &name, SQLSelectInfo *selectInfo)
 	: m_selectInfo(selectInfo),
 	  m_itemId(ITEM_ID_NOT_SET)
 	{
+		SQLColumnNameMapIterator it
+		  = m_selectInfo->columnNameMap.find(name);
+		if (it != m_selectInfo->columnNameMap.end()) {
+			m_columnInfo = it->second;
+			return;
+		}
+
+		// The owner of the SQLColumnInfo object created bellow
+		// is *m_selectInfo. So its deletion is done
+		// in the destructor of the SQLSelectInfo object.
+		// No need to delete in this class.
+		m_columnInfo = new SQLColumnInfo(name);
+		m_selectInfo->columnNameMap[name] = m_columnInfo;
 	}
 	
 	virtual ~SQLFormulaColumnDataGetter()
@@ -104,6 +117,7 @@ public:
 private:
 	SQLSelectInfo *m_selectInfo;
 	ItemId         m_itemId;
+	SQLColumnInfo *m_columnInfo;
 };
 
 // ---------------------------------------------------------------------------
@@ -126,8 +140,9 @@ SQLTableInfo::SQLTableInfo(void)
 // ---------------------------------------------------------------------------
 // Public methods (SQLColumnInfo)
 // ---------------------------------------------------------------------------
-SQLColumnInfo::SQLColumnInfo(void)
-: tableInfo(NULL),
+SQLColumnInfo::SQLColumnInfo(string &_name)
+: name(_name),
+  tableInfo(NULL),
   columnBaseDef(NULL),
   columnType(COLUMN_TYPE_UNKNOWN)
 {
@@ -163,9 +178,9 @@ SQLSelectInfo::SQLSelectInfo(ParsableString &_query)
 
 SQLSelectInfo::~SQLSelectInfo()
 {
-	SQLColumnInfoVectorIterator columnIt = columns.begin();
-	for (; columnIt != columns.end(); ++columnIt)
-		delete *columnIt;
+	SQLColumnNameMapIterator columnIt = columnNameMap.begin();
+	for (; columnIt != columnNameMap.end(); ++columnIt)
+		delete columnIt->second;
 
 	SQLTableInfoVectorIterator tableIt = tables.begin();
 	for (; tableIt != tables.end(); ++tableIt)
@@ -207,6 +222,10 @@ bool SQLProcessor::select(SQLSelectInfo &selectInfo)
 	if (!parseSelectStatement(selectInfo))
 		return false;
 	if (!checkParsedResult(selectInfo))
+		return false;
+
+	// set members in SQLFormulaColumnDataGetter
+	if (!fixupColumnNameMap(selectInfo))
 		return false;
 
 	// associate each column with the table
@@ -352,15 +371,12 @@ bool SQLProcessor::parseSelectStatement(SQLSelectInfo &selectInfo)
 		ctx.indexInTheStatus++;
 	}
 
-	if (!columnParserFlush(ctx))
-		return false;
-
 	return true;
 }
 
 bool SQLProcessor::checkParsedResult(const SQLSelectInfo &selectInfo) const
 {
-	if (selectInfo.columns.empty()) {
+	if (selectInfo.columnNameMap.empty()) {
 		MLPL_DBG("Not found: columns.\n");
 		return false;
 	}
@@ -373,11 +389,24 @@ bool SQLProcessor::checkParsedResult(const SQLSelectInfo &selectInfo) const
 	return true;
 }
 
+bool SQLProcessor::fixupColumnNameMap(SQLSelectInfo &selectInfo)
+{
+	SQLColumnNameMapIterator it = selectInfo.columnNameMap.begin();
+	for (; it != selectInfo.columnNameMap.end(); ++it) {
+		SQLColumnInfo *columnInfo = it->second;
+		if (!parseColumnName(columnInfo->name, columnInfo->baseName,
+	                              columnInfo->tableVar)) {
+			return false;
+		}
+	}
+	return true;
+}
+
 bool SQLProcessor::associateColumnWithTable(SQLSelectInfo &selectInfo)
 {
-	SQLColumnInfoVectorIterator it = selectInfo.columns.begin();
-	for (; it != selectInfo.columns.end(); ++it) {
-		SQLColumnInfo *columnInfo = *it;
+	SQLColumnNameMapIterator it = selectInfo.columnNameMap.begin();
+	for (; it != selectInfo.columnNameMap.end(); ++it) {
+		SQLColumnInfo *columnInfo = it->second;
 
 		// set SQLColumnInfo::tableInfo and SQLTableInfo::columnList.
 		if (selectInfo.tables.size() == 1) {
@@ -428,9 +457,9 @@ bool SQLProcessor::associateTableWithStaticInfo(SQLSelectInfo &selectInfo)
 bool
 SQLProcessor::setColumnTypeAndBaseDefInColumnInfo(SQLSelectInfo &selectInfo)
 {
-	SQLColumnInfoVectorIterator it = selectInfo.columns.begin();
-	for (; it != selectInfo.columns.end(); ++it) {
-		SQLColumnInfo *columnInfo = *it;
+	SQLColumnNameMapIterator it = selectInfo.columnNameMap.begin();
+	for (; it != selectInfo.columnNameMap.end(); ++it) {
+		SQLColumnInfo *columnInfo = it->second;
 
 		// columnType
 		columnInfo->setColumnType();
@@ -494,6 +523,36 @@ bool SQLProcessor::addAllColumnDefs(SQLSelectInfo &selectInfo,
 
 bool SQLProcessor::makeColumnDefs(SQLSelectInfo &selectInfo)
 {
+	const SQLColumnFormulaVector &formulaVector
+	  = selectInfo.columnParser.getColumnFormulaVector();
+	for (size_t i = 0; i < formulaVector.size(); i++) {
+		struct SQLColumnFormula *columnFormula = formulaVector[i];
+
+		SQLColumnInfo *columnInfo = *it;
+		int columnType = columnInfo->columnType;
+		if (!columnInfo->tableInfo) {
+			MLPL_BUG("columnInfo->tableInfo is NULL\n");
+			return false;
+		}
+		if (columnType == SQLColumnInfo::COLUMN_TYPE_ALL) {
+			if (!addAllColumnDefs(selectInfo,
+			                      *columnInfo->tableInfo)) {
+				return false;
+			}
+		} else if (columnType == SQLColumnInfo::COLUMN_TYPE_NORMAL) {
+			if (!columnInfo->columnBaseDef) {
+				MLPL_BUG("columnInfo.columnBaseDef is NULL\n");
+				return false;
+			}
+			addColumnDefs(selectInfo,
+			              *columnInfo->tableInfo,
+			              *columnInfo->columnBaseDef);
+		} else {
+			MLPL_BUG("Invalid columnType: %d\n", columnType);
+			return false;
+		}
+	}
+	/*
 	SQLColumnInfoVectorIterator it = selectInfo.columns.begin();
 	for (; it != selectInfo.columns.end(); ++it) {
 		SQLColumnInfo *columnInfo = *it;
@@ -520,6 +579,7 @@ bool SQLProcessor::makeColumnDefs(SQLSelectInfo &selectInfo)
 			return false;
 		}
 	}
+	*/
 	return true;
 }
 
@@ -1084,30 +1144,11 @@ void SQLProcessor::wereColumnPrivDataDestructor
 	delete arg;
 }
 
-bool SQLProcessor::columnParserFlush(SelectParserContext &ctx)
-{
-	bool ret;
-	SQLColumnParser &columnParser = ctx.selectInfo.columnParser;
-	columnParser.flush();
-	const set<string> &columnNameSet = columnParser.getNameSet();
-	set<string>::const_iterator columnNameIt = columnNameSet.begin();
-	for (; columnNameIt != columnNameSet.end(); ++columnNameIt) {
-		SQLColumnInfo *columnInfo = new SQLColumnInfo();
-		ctx.selectInfo.columns.push_back(columnInfo);
-		columnInfo->name = *columnNameIt;
-		ret = parseColumnName(columnInfo->name, columnInfo->baseName,
-	                              columnInfo->tableVar);
-		if (!ret)
-			return false;
-	}
-	return true;
-}
-
 FormulaColumnDataGetter *
-SQLProcessor::formulaColumnDataGetterFactory(void *priv)
+SQLProcessor::formulaColumnDataGetterFactory(string &name, void *priv)
 {
 	SQLSelectInfo *selectInfo = static_cast<SQLSelectInfo *>(priv);
-	return new SQLFormulaColumnDataGetter(selectInfo);
+	return new SQLFormulaColumnDataGetter(name, selectInfo);
 }
 
 bool SQLProcessor::getColumnItemId(SQLSelectInfo &selectInfo,

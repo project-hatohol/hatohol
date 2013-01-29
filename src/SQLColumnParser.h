@@ -12,6 +12,14 @@ using namespace mlpl;
 #include "FormulaElement.h"
 #include "FormulaFunction.h"
 
+struct SQLColumnFormula {
+	FormulaElement *formula;
+	string          expression;
+};
+
+typedef vector<SQLColumnFormula *>       SQLColumnFormulaVector;
+typedef SQLColumnFormulaVector::iterator SQLColumnFormulaVectorIterator;
+
 class SQLColumnParser
 {
 public:
@@ -24,10 +32,7 @@ public:
 	        void *columnDataGetterFactoryPriv);
 	bool add(string& word, string &wordLower);
 	bool flush(void);
-	const FormulaElementVector &getFormulaVector(void) const;
-	const StringVector         &getFormulaStringVector(void) const;
-	const set<string>          &getNameSet(void) const;
-	const vector<FormulaColumn *> &getFormulaColumnVector(void) const;
+	const SQLColumnFormulaVector &getColumnFormulaVector(void) const;
 	SeparatorCheckerWithCallback *getSeparatorChecker(void);
 
 protected:
@@ -75,15 +80,9 @@ private:
 	// General variables
 	FormulaColumnDataGetterFactory  m_columnDataGetterFactory;
 	void                           *m_columnDataGetterFactoryPriv;
-	FormulaElementVector            m_formulaVector;
-	StringVector                    m_formulaStringVector;
+	SQLColumnFormulaVector          m_columnFormulaVector;
 	SeparatorCheckerWithCallback    m_separator;
-	set<string>                     m_nameSet;
 	ParsingContext                 *m_ctx;
-
-	// The elements in this vector must not be freeed explicitly.
-	// The pointers have already been in m_formulaVector.
-	vector<FormulaColumn *>         m_formulaColumnVector;
 };
 
 #endif // SQLColumnParser_h

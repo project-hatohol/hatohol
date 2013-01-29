@@ -60,10 +60,6 @@ SQLColumnParser::SQLColumnParser(void)
 
 SQLColumnParser::~SQLColumnParser()
 {
-	FormulaElementVectorIterator formulaIt = m_formulaVector.begin();
-	for(; formulaIt != m_formulaVector.end(); ++formulaIt)
-		delete *formulaIt;
-
 	if (m_ctx)
 		delete m_ctx;
 }
@@ -112,25 +108,9 @@ bool SQLColumnParser::flush(void)
 	return closeCurrentFormula();
 }
 
-const FormulaElementVector &SQLColumnParser::getFormulaVector(void) const
-{
-	return m_formulaVector;
-}
-
 const StringVector &SQLColumnParser::getFormulaStringVector(void) const
 {
 	return m_formulaStringVector;
-}
-
-const set<string> &SQLColumnParser::getNameSet(void) const
-{
-	return m_nameSet;
-}
-
-const vector<FormulaColumn *> &
-SQLColumnParser::getFormulaColumnVector(void) const
-{
-	return m_formulaColumnVector;
 }
 
 SeparatorCheckerWithCallback *SQLColumnParser::getSeparatorChecker(void)
@@ -163,9 +143,9 @@ FormulaColumn *SQLColumnParser::makeFormulaColumn(string &name)
 		throw logic_error(msg);
 	}
 	FormulaColumnDataGetter *dataGetter =
-	  (*m_columnDataGetterFactory)(m_columnDataGetterFactoryPriv);
+	  (*m_columnDataGetterFactory)(name, m_columnDataGetterFactoryPriv);
 	FormulaColumn *formulaColumn = new FormulaColumn(name, dataGetter);
-	m_nameSet.insert(name);
+	//m_nameSet.insert(name);
 	m_formulaColumnVector.push_back(formulaColumn);
 	return formulaColumn;
 }
