@@ -40,7 +40,9 @@ class FormulaColumn;
 class FormulaColumnDataGetter {
 public:
 	virtual ~FormulaColumnDataGetter() {}
-	virtual ItemDataPtr getData(const FormulaColumn *formulaColumn) = 0;
+	virtual ItemDataPtr getData(void) = 0;
+	//virtual void
+	//  setFormulaColumnInstance(FormulaColumn *formulaColumn) = 0;
 };
 
 typedef FormulaColumnDataGetter *

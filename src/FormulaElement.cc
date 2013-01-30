@@ -79,7 +79,7 @@ FormulaColumn::~FormulaColumn()
 
 ItemDataPtr FormulaColumn::evaluate(void)
 {
-	return m_columnGetter->getData(this);
+	return m_columnGetter->getData();
 }
 
 const string &FormulaColumn::getName(void) const

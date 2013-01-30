@@ -60,6 +60,8 @@ SQLColumnParser::SQLColumnParser(void)
 
 SQLColumnParser::~SQLColumnParser()
 {
+	for (size_t i = 0; i < m_formulaInfoVector.size(); i++)
+		delete m_formulaInfoVector[i];
 	if (m_ctx)
 		delete m_ctx;
 }
@@ -94,23 +96,20 @@ bool SQLColumnParser::flush(void)
 	if (m_ctx->errorFlag)
 		return false;
 
-	if (!m_ctx->hasPendingWord()) {
-		closeCurrentFormulaString();
-		return closeCurrentFormula();
-	}
+	if (!m_ctx->hasPendingWord())
+		return closeCurrFormulaInfo();
 
 	appendFormulaString(m_ctx->pendingWord);
 	FormulaColumn *formulaColumn = makeFormulaColumn(m_ctx->pendingWord);
 	m_ctx->clearPendingWords();
-	closeCurrentFormulaString();
 	if (!createdNewElement(formulaColumn))
 		return false;
-	return closeCurrentFormula();
+	return closeCurrFormulaInfo();
 }
 
-const StringVector &SQLColumnParser::getFormulaStringVector(void) const
+const SQLFormulaInfoVector &SQLColumnParser::getFormulaInfoVector(void) const
 {
-	return m_formulaStringVector;
+	return m_formulaInfoVector;
 }
 
 SeparatorCheckerWithCallback *SQLColumnParser::getSeparatorChecker(void)
@@ -145,16 +144,29 @@ FormulaColumn *SQLColumnParser::makeFormulaColumn(string &name)
 	FormulaColumnDataGetter *dataGetter =
 	  (*m_columnDataGetterFactory)(name, m_columnDataGetterFactoryPriv);
 	FormulaColumn *formulaColumn = new FormulaColumn(name, dataGetter);
-	//m_nameSet.insert(name);
-	m_formulaColumnVector.push_back(formulaColumn);
 	return formulaColumn;
+}
+
+bool SQLColumnParser::closeCurrFormulaInfo(void)
+{
+	if (!closeCurrentFormula())
+		return false;
+	closeCurrentFormulaString();
+	return true;
 }
 
 void SQLColumnParser::closeCurrentFormulaString(void)
 {
 	if (m_ctx->currFormulaString.empty())
 		return;
-	m_formulaStringVector.push_back(m_ctx->currFormulaString);
+	if (m_formulaInfoVector.empty()) {
+		string msg;
+		TRMSG(msg, "m_formulaInfoVector.empty().");
+		throw logic_error(msg);
+	}
+
+	SQLFormulaInfo *formulaInfo = m_formulaInfoVector.back();
+	formulaInfo->expression = m_ctx->currFormulaString;
 	m_ctx->currFormulaString.clear();
 }
 
@@ -180,8 +192,11 @@ bool SQLColumnParser::closeCurrentFormula(void)
 
 bool SQLColumnParser::createdNewElement(FormulaElement *formulaElement)
 {
-	if (m_ctx->formulaElementStack.empty())
-		m_formulaVector.push_back(formulaElement);
+	if (m_ctx->formulaElementStack.empty()) {
+		SQLFormulaInfo *formulaInfo = new SQLFormulaInfo();
+		m_formulaInfoVector.push_back(formulaInfo);
+		formulaInfo->formula = formulaElement;
+	}
 	m_ctx->formulaElementStack.push_back(formulaElement);
 	return true;
 }

@@ -77,7 +77,7 @@ class SQLFormulaColumnDataGetter : public FormulaColumnDataGetter {
 public:
 	SQLFormulaColumnDataGetter(string &name, SQLSelectInfo *selectInfo)
 	: m_selectInfo(selectInfo),
-	  m_itemId(ITEM_ID_NOT_SET)
+	  m_columnInfo(NULL)
 	{
 		SQLColumnNameMapIterator it
 		  = m_selectInfo->columnNameMap.find(name);
@@ -98,35 +98,58 @@ public:
 	{
 	}
 
-	virtual ItemDataPtr getData(const FormulaColumn *formulaColumn)
+	virtual ItemDataPtr getData(void)
 	{
-		if (m_itemId == ITEM_ID_NOT_SET) {
+		if (m_columnInfo->columnType !=
+		    SQLColumnInfo::COLUMN_TYPE_NORMAL) {
 			string msg;
-			TRMSG(msg, "m_itemId == ITEM_ID_NOT_SET.");
+			TRMSG(msg,
+			      "m_columnInfo->columnType(%d) != TYPE_NORMAL.",
+			      m_columnInfo->columnType);
 			throw logic_error(msg);
 		}
+		ItemId itemId = m_columnInfo->columnBaseDef->itemId;
 		return ItemDataPtr
-		         (m_selectInfo->evalTargetItemGroup->getItem(m_itemId));
+		         (m_selectInfo->evalTargetItemGroup->getItem(itemId));
 	}
 
-	void setItemId(ItemId itemId)
+	SQLColumnInfo *getColumnInfo(void) const
 	{
-		m_itemId = itemId;
+		return m_columnInfo;
 	}
 
 private:
 	SQLSelectInfo *m_selectInfo;
-	ItemId         m_itemId;
 	SQLColumnInfo *m_columnInfo;
 };
 
 // ---------------------------------------------------------------------------
 // Public methods (SQLColumnDefinitino)
 // ---------------------------------------------------------------------------
-SQLColumnDefinition::SQLColumnDefinition(void)
-: columnBaseDef(NULL),
+SQLOutputColumn::SQLOutputColumn(SQLFormulaInfo *_formulaInfo)
+: formulaInfo(_formulaInfo),
+  columnInfo(NULL),
+  columnBaseDef(NULL),
   tableInfo(NULL)
 {
+}
+
+SQLOutputColumn::SQLOutputColumn(const SQLColumnInfo *_columnInfo)
+: formulaInfo(NULL),
+  columnInfo(_columnInfo),
+  columnBaseDef(NULL),
+  tableInfo(NULL)
+{
+}
+
+ItemDataPtr SQLOutputColumn::getItem(const ItemGroup *itemGroup) const
+{
+	if (formulaInfo)
+		return formulaInfo->formula->evaluate();
+	if (columnInfo)
+		return itemGroup->getItem(columnBaseDef->itemId);
+	MLPL_BUG("formulaInfo and columnInfo are both NULL.");
+	return ItemDataPtr();
 }
 
 // ---------------------------------------------------------------------------
@@ -248,10 +271,6 @@ bool SQLProcessor::select(SQLSelectInfo &selectInfo)
 	if (!doJoin(selectInfo))
 		return false;
 
-	// set members in SQLFormulaColumnDataGetter
-	if (!fixupFormulaColumn(selectInfo))
-		return false;
-
 	// add associated data to whereColumn to call evaluate()
 	if (!fixupWhereColumn(selectInfo))
 		return false;
@@ -259,13 +278,6 @@ bool SQLProcessor::select(SQLSelectInfo &selectInfo)
 	// pickup matching rows
 	if (!selectMatchingRows(selectInfo))
 		return false;
-
-	/*
-	// packed the requested columns
-	if (!selectInfo.joinedTable->foreach<SQLSelectInfo&>
-	                                    (packRequiredColumns, selectInfo))
-		return false;
-	*/
 
 	// convert data to string
 	if (!selectInfo.selectedTable->foreach<SQLSelectInfo&>(makeTextRows,
@@ -489,97 +501,87 @@ SQLProcessor::setColumnTypeAndBaseDefInColumnInfo(SQLSelectInfo &selectInfo)
 	return true;
 }
 
-void SQLProcessor::addColumnDefs(SQLSelectInfo &selectInfo,
-                                 const SQLTableInfo &tableInfo,
-                                 const ColumnBaseDefinition &columnBaseDef)
+void SQLProcessor::addOutputColumn(SQLSelectInfo &selectInfo,
+                                   const SQLColumnInfo *columnInfo,
+                                   const ColumnBaseDefinition *columnBaseDef)
 {
-	selectInfo.columnDefs.push_back(SQLColumnDefinition());
-	SQLColumnDefinition &colDef = selectInfo.columnDefs.back();
-	colDef.columnBaseDef = &columnBaseDef;
-	colDef.tableInfo     = &tableInfo;
-	colDef.schema        = getDBName();
-	colDef.table         = tableInfo.name;
-	colDef.tableVar      = tableInfo.varName;
-	colDef.column        = columnBaseDef.columnName;
-	colDef.columnVar     = columnBaseDef.columnName;
+	const SQLTableInfo *tableInfo = columnInfo->tableInfo;
+	selectInfo.outputColumnVector.push_back(SQLOutputColumn(columnInfo));
+	SQLOutputColumn &outCol = selectInfo.outputColumnVector.back();
+	outCol.columnBaseDef = columnBaseDef;
+	outCol.tableInfo     = tableInfo;
+	outCol.schema        = getDBName();
+	outCol.table         = tableInfo->name;
+	outCol.tableVar      = tableInfo->varName;
+	outCol.column        = columnBaseDef->columnName;
+	outCol.columnVar     = columnBaseDef->columnName;
 }
 
-bool SQLProcessor::addAllColumnDefs(SQLSelectInfo &selectInfo,
-                                    const SQLTableInfo &tableInfo)
+void SQLProcessor::addOutputColumn(SQLSelectInfo &selectInfo,
+                                   SQLFormulaInfo *formulaInfo)
 {
-	if (!tableInfo.staticInfo) {
-		MLPL_BUG("tableInfo.staticInfo is NULL\n");
+	selectInfo.outputColumnVector.push_back(SQLOutputColumn(formulaInfo));
+}
+
+bool SQLProcessor::addOutputColumnWildcard(SQLSelectInfo &selectInfo,
+                                           const SQLColumnInfo *columnInfo)
+{
+	const SQLTableInfo *tableInfo = columnInfo->tableInfo;
+	if (!tableInfo->staticInfo) {
+		MLPL_BUG("tableInfo->staticInfo is NULL\n");
 		return false;
 	}
 
 	ColumnBaseDefListConstIterator it;
-	it = tableInfo.staticInfo->columnBaseDefList.begin();
-	for (; it != tableInfo.staticInfo->columnBaseDefList.end(); ++it) {
-		const ColumnBaseDefinition &columnBaseDef = *it;
-		addColumnDefs(selectInfo, tableInfo, columnBaseDef);
+	it = tableInfo->staticInfo->columnBaseDefList.begin();
+	for (; it != tableInfo->staticInfo->columnBaseDefList.end(); ++it) {
+		const ColumnBaseDefinition *columnBaseDef = &(*it);
+		addOutputColumn(selectInfo, columnInfo, columnBaseDef);
 	}
 	return true;
 }
 
 bool SQLProcessor::makeColumnDefs(SQLSelectInfo &selectInfo)
 {
-	const SQLColumnFormulaVector &formulaVector
-	  = selectInfo.columnParser.getColumnFormulaVector();
-	for (size_t i = 0; i < formulaVector.size(); i++) {
-		struct SQLColumnFormula *columnFormula = formulaVector[i];
+	const SQLFormulaInfoVector &formulaInfoVector
+	  = selectInfo.columnParser.getFormulaInfoVector();
+	for (size_t i = 0; i < formulaInfoVector.size(); i++) {
+		SQLFormulaInfo *formulaInfo = formulaInfoVector[i];
+		FormulaColumn *formulaColumn =
+		  dynamic_cast<FormulaColumn *>(formulaInfo->formula);
+		if (!formulaColumn) {
+			// When the column formula is not single column.
+			addOutputColumn(selectInfo, formulaInfo);
+			continue;
+		}
 
-		SQLColumnInfo *columnInfo = *it;
+		// search the ColumnInfo instance
+		FormulaColumnDataGetter *dataGetter =
+			formulaColumn->getFormulaColumnGetter();
+		SQLFormulaColumnDataGetter *sqlDataGetter =
+		  dynamic_cast<SQLFormulaColumnDataGetter *>(dataGetter);
+		SQLColumnInfo *columnInfo = sqlDataGetter->getColumnInfo();
+
 		int columnType = columnInfo->columnType;
 		if (!columnInfo->tableInfo) {
 			MLPL_BUG("columnInfo->tableInfo is NULL\n");
 			return false;
 		}
 		if (columnType == SQLColumnInfo::COLUMN_TYPE_ALL) {
-			if (!addAllColumnDefs(selectInfo,
-			                      *columnInfo->tableInfo)) {
+			if (!addOutputColumnWildcard(selectInfo, columnInfo))
 				return false;
-			}
 		} else if (columnType == SQLColumnInfo::COLUMN_TYPE_NORMAL) {
 			if (!columnInfo->columnBaseDef) {
 				MLPL_BUG("columnInfo.columnBaseDef is NULL\n");
 				return false;
 			}
-			addColumnDefs(selectInfo,
-			              *columnInfo->tableInfo,
-			              *columnInfo->columnBaseDef);
+			addOutputColumn(selectInfo, columnInfo,
+			                columnInfo->columnBaseDef);
 		} else {
 			MLPL_BUG("Invalid columnType: %d\n", columnType);
 			return false;
 		}
 	}
-	/*
-	SQLColumnInfoVectorIterator it = selectInfo.columns.begin();
-	for (; it != selectInfo.columns.end(); ++it) {
-		SQLColumnInfo *columnInfo = *it;
-		int columnType = columnInfo->columnType;
-		if (!columnInfo->tableInfo) {
-			MLPL_BUG("columnInfo->tableInfo is NULL\n");
-			return false;
-		}
-		if (columnType == SQLColumnInfo::COLUMN_TYPE_ALL) {
-			if (!addAllColumnDefs(selectInfo,
-			                      *columnInfo->tableInfo)) {
-				return false;
-			}
-		} else if (columnType == SQLColumnInfo::COLUMN_TYPE_NORMAL) {
-			if (!columnInfo->columnBaseDef) {
-				MLPL_BUG("columnInfo.columnBaseDef is NULL\n");
-				return false;
-			}
-			addColumnDefs(selectInfo,
-			              *columnInfo->tableInfo,
-			              *columnInfo->columnBaseDef);
-		} else {
-			MLPL_BUG("Invalid columnType: %d\n", columnType);
-			return false;
-		}
-	}
-	*/
 	return true;
 }
 
@@ -611,29 +613,6 @@ bool SQLProcessor::doJoin(SQLSelectInfo &selectInfo)
 		const ItemTablePtr &tablePtr = *it;
 		selectInfo.joinedTable = crossJoin(selectInfo.joinedTable,
 		                                   tablePtr);
-	}
-	return true;
-}
-
-bool SQLProcessor::fixupFormulaColumn(SQLSelectInfo &selectInfo)
-{
-	const vector<FormulaColumn *> &formulaColumnVector =
-	  selectInfo.columnParser.getFormulaColumnVector();
-	for (size_t i = 0; i < formulaColumnVector.size(); i++) {
-		FormulaColumn *formulaColumn = formulaColumnVector[i];
-		SQLFormulaColumnDataGetter *dataGetter =
-		  dynamic_cast<SQLFormulaColumnDataGetter *>
-		    (formulaColumn->getFormulaColumnGetter());
-		if (!dataGetter) {
-			MLPL_BUG("dataGetter: NULL.\n");
-			return false;
-		}
-		
-		ItemId itemId;
-		string name = formulaColumn->getName();
-		if (!getColumnItemId(selectInfo, name, itemId))
-			return false;
-		dataGetter->setItemId(itemId);
 	}
 	return true;
 }
@@ -699,26 +678,6 @@ bool SQLProcessor::pickupMatchingRows(const ItemGroup *itemGroup,
 	return true;
 }
 
-/*
-bool SQLProcessor::packRequiredColumns(const ItemGroup *itemGroup,
-                                       SQLSelectInfo &selectInfo)
-{
-	ItemGroup *grp = selectInfo.packedTable->addNewGroup();
-	for (size_t i = 0; i < selectInfo.columnDefs.size(); i++) {
-		ItemData *item;
-		const SQLColumnDefinition &colDef = selectInfo.columnDefs[i];
-		item = itemGroup->getItem(colDef.columnBaseDef->itemId);
-		if (!item) {
-			string msg;
-			TRMSG(msg, "Failed to get ItemData: %"PRIu_ITEM"\n",
-			      colDef.columnBaseDef->itemId);
-			throw logic_error(msg);
-		}
-		grp->add(item);
-	}
-	return true;
-}*/
-
 bool SQLProcessor::makeTextRows(const ItemGroup *itemGroup,
                                 SQLSelectInfo &selectInfo)
 {
@@ -727,27 +686,16 @@ bool SQLProcessor::makeTextRows(const ItemGroup *itemGroup,
 
 	selectInfo.textRows.push_back(StringVector());
 	StringVector &textVector = selectInfo.textRows.back();
-
-	const FormulaElementVector &formulaVector
-	  = selectInfo.columnParser.getFormulaVector();
-	for (size_t i = 0; i < formulaVector.size(); i++) {
-		const ItemData *item = formulaVector[i]->evaluate();
-		textVector.push_back(item->getString());
-	}
-	/*
-	selectInfo.textRows.push_back(StringVector());
-	StringVector &textVector = selectInfo.textRows.back();
-	for (size_t i = 0; i < selectInfo.columnDefs.size(); i++) {
-		const SQLColumnDefinition &colDef = selectInfo.columnDefs[i];
-		const ItemData *item =
-		  itemGroup->getItem(colDef.columnBaseDef->itemId);
-		if (!item) {
-			MLPL_BUG("Failed to get ItemData: %"PRIu_ITEM"\n",
-			         colDef.columnBaseDef->itemId);
+	for (size_t i = 0; i < selectInfo.outputColumnVector.size(); i++) {
+		const SQLOutputColumn &outputColumn =
+		  selectInfo.outputColumnVector[i];
+		const ItemDataPtr itemPtr = outputColumn.getItem(itemGroup);
+		if (!itemPtr.hasData()) {
+			MLPL_BUG("Failed to get item data.\n");
 			return false;
 		}
-		textVector.push_back(item->getString());
-	}*/
+		textVector.push_back(itemPtr->getString());
+	}
 	return true;
 }
 

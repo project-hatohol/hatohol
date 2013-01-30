@@ -252,23 +252,21 @@ void setup(void)
 void test_selectOneColumn(void)
 {
 	TestSQLProcessor proc;
-	const char *selectedItem = "columnArg";
+	const char *columnName = "column";
 	const char *tableName = TABLE_NAME;
 	ParsableString parsable(
-	  StringUtils::sprintf("%s from %s", selectedItem, tableName));
+	  StringUtils::sprintf("%s from %s", columnName, tableName));
 	SQLSelectInfo selectInfo(parsable);
 	proc.callParseSelectStatement(selectInfo);
 
-	// column strings
-	cppcut_assert_equal((size_t)1, selectInfo.columns.size());
-	SQLColumnInfoVectorIterator column = selectInfo.columns.begin();
-	cut_assert_equal_string(selectedItem, (*column)->name.c_str());
+	// column
+	const SQLFormulaInfoVector formulaInfoVector
+	  = selectInfo.columnParser.getFormulaInfoVector();
+	cppcut_assert_equal((size_t)1, formulaInfoVector.size());
 
-	// column formula
-	const FormulaElementVector &formulaElemVect =
-	  selectInfo.columnParser.getFormulaVector();
-	cppcut_assert_equal((size_t)1, formulaElemVect.size());
-	assertFormulaColumn(formulaElemVect[0], selectedItem);
+	SQLFormulaInfo *formulaInfo = formulaInfoVector[0];
+	cppcut_assert_equal(string(columnName), formulaInfo->expression);
+	assertFormulaColumn(formulaInfo->formula, columnName);
 
 	// table
 	cut_assert_equal_int(1, selectInfo.tables.size());
@@ -290,19 +288,17 @@ void test_selectMultiColumn(void)
 	SQLSelectInfo selectInfo(parsable);
 	proc.callParseSelectStatement(selectInfo);
 
-	// column strings
-	const StringVector &formulaVect =
-	  selectInfo.columnParser.getFormulaStringVector();
-	cppcut_assert_equal(numColumns, formulaVect.size());
-	for (int idx = 0; idx < numColumns; idx++)
-		cppcut_assert_equal(formulaVect[idx], string(columns[idx]));
+	// columns
+	const SQLFormulaInfoVector formulaInfoVector
+	  = selectInfo.columnParser.getFormulaInfoVector();
+	cppcut_assert_equal(numColumns, formulaInfoVector.size());
 
-	// column formula
-	const FormulaElementVector &formulaElemVect =
-	  selectInfo.columnParser.getFormulaVector();
-	cppcut_assert_equal(numColumns, formulaElemVect.size());
-	for (int idx = 0; idx < numColumns; idx++)
-		assertFormulaColumn(formulaElemVect[idx], columns[idx]);
+	for (int idx = 0; idx < numColumns; idx++) {
+		SQLFormulaInfo *formulaInfo = formulaInfoVector[idx];
+		cppcut_assert_equal(string(columns[idx]),
+		                    formulaInfo->expression);
+		assertFormulaColumn(formulaInfo->formula, columns[idx]);
+	}
 
 	// table
 	cut_assert_equal_int(1, selectInfo.tables.size());
@@ -592,17 +588,14 @@ void test_selectColumnElemMax(void)
 	SQLSelectInfo selectInfo(parsable);
 	proc.callParseSelectStatement(selectInfo);
 
-	const StringVector &formulaStringVector = 
-		selectInfo.columnParser.getFormulaStringVector();
-	cppcut_assert_equal((size_t)1, formulaStringVector.size());
+	const SQLFormulaInfoVector formulaInfoVector
+	  = selectInfo.columnParser.getFormulaInfoVector();
+	cppcut_assert_equal((size_t)1, formulaInfoVector.size());
 	string expected = StringUtils::sprintf("max(%s)", columnName);
-	cppcut_assert_equal(expected, formulaStringVector[0]);
+	SQLFormulaInfo *formulaInfo = formulaInfoVector[0];
+	cppcut_assert_equal(expected, formulaInfo->expression);
 
-	const FormulaElementVector &formulaVector =
-		selectInfo.columnParser.getFormulaVector();
-	cppcut_assert_equal((size_t)1, formulaVector.size());
-
-	FormulaElement *formulaElem = formulaVector[0];
+	FormulaElement *formulaElem = formulaInfo->formula;
 	assertFormulaFuncMax(formulaElem);
 	FormulaFuncMax *formulaFuncMax
 	  = dynamic_cast<FormulaFuncMax *>(formulaElem);

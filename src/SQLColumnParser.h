@@ -12,13 +12,13 @@ using namespace mlpl;
 #include "FormulaElement.h"
 #include "FormulaFunction.h"
 
-struct SQLColumnFormula {
+struct SQLFormulaInfo {
 	FormulaElement *formula;
 	string          expression;
 };
 
-typedef vector<SQLColumnFormula *>       SQLColumnFormulaVector;
-typedef SQLColumnFormulaVector::iterator SQLColumnFormulaVectorIterator;
+typedef vector<SQLFormulaInfo *>       SQLFormulaInfoVector;
+typedef SQLFormulaInfoVector::iterator SQLFormulaInfoVectorIterator;
 
 class SQLColumnParser
 {
@@ -32,7 +32,7 @@ public:
 	        void *columnDataGetterFactoryPriv);
 	bool add(string& word, string &wordLower);
 	bool flush(void);
-	const SQLColumnFormulaVector &getColumnFormulaVector(void) const;
+	const SQLFormulaInfoVector &getFormulaInfoVector(void) const;
 	SeparatorCheckerWithCallback *getSeparatorChecker(void);
 
 protected:
@@ -47,6 +47,7 @@ protected:
 	void appendFormulaString(const char character);
 	void appendFormulaString(string &str);
 	FormulaColumn *makeFormulaColumn(string &name);
+	bool closeCurrFormulaInfo(void);
 	void closeCurrentFormulaString(void);
 	bool closeCurrentFormula(void);
 	bool createdNewElement(FormulaElement *formulaElement);
@@ -80,7 +81,7 @@ private:
 	// General variables
 	FormulaColumnDataGetterFactory  m_columnDataGetterFactory;
 	void                           *m_columnDataGetterFactoryPriv;
-	SQLColumnFormulaVector          m_columnFormulaVector;
+	SQLFormulaInfoVector            m_formulaInfoVector;
 	SeparatorCheckerWithCallback    m_separator;
 	ParsingContext                 *m_ctx;
 };

@@ -427,14 +427,15 @@ bool FaceMySQLWorker::sendColumnDefinition41(
 bool FaceMySQLWorker::sendSelectResult(const SQLSelectInfo &selectInfo)
 {
 	// Number of columns
-	if (!sendLenEncInt(selectInfo.columnDefs.size()))
+	if (!sendLenEncInt(selectInfo.outputColumnVector.size()))
 		return false;
 
 	// Column Definition
 	uint8_t decimals = 0;
-	for (size_t i = 0; i < selectInfo.columnDefs.size(); i++) {
+	for (size_t i = 0; i < selectInfo.outputColumnVector.size(); i++) {
 		bool ret;
-		const SQLColumnDefinition &colDef = selectInfo.columnDefs[i];
+		const SQLOutputColumn &colDef
+		  = selectInfo.outputColumnVector[i];
 		const ColumnBaseDefinition *columnBaseDef
 		  = colDef.columnBaseDef;
 

@@ -44,11 +44,16 @@ struct ColumnBaseDefinition {
 };
 
 struct SQLTableInfo;
-struct SQLColumnDefinition
+struct SQLColumnInfo;
+struct SQLOutputColumn
 {
+	const SQLFormulaInfo *formulaInfo;
+	const SQLColumnInfo  *columnInfo; // when '*' is specified
+
 	// 'columnBaseDef' points an instance in
 	// SQLTableStaticInfo::columnBaseDefList.
 	// So we must not explicitly free it.
+	// This member is not set when the name is '*' or 'tableVar.*'.
 	const ColumnBaseDefinition *columnBaseDef;
 
 	// 'tableInfo' points an instance in SQLSelectInfo::tables.
@@ -61,8 +66,10 @@ struct SQLColumnDefinition
 	string column;
 	string columnVar;
 
-	// constructor
-	SQLColumnDefinition(void);
+	// constructor and methods
+	SQLOutputColumn(SQLFormulaInfo *_formulaInfo);
+	SQLOutputColumn(const SQLColumnInfo *_columnInfo);
+	ItemDataPtr getItem(const ItemGroup *itemGroup) const;
 };
 
 typedef list<ColumnBaseDefinition>        ColumnBaseDefList;
@@ -160,9 +167,9 @@ struct SQLSelectInfo {
 	ParsableString   query;
 
 	// parsed matter (Elements in these two container have to be freed)
-	SQLColumnParser     columnParser;
-	SQLColumnNameMap    columnNameMap;
-	SQLTableInfoVector  tables;
+	SQLColumnParser         columnParser;
+	SQLColumnNameMap        columnNameMap;
+	SQLTableInfoVector      tables;
 
 	// The value (const SQLTableInfo *) in the following map points
 	// an instance in 'tables' in this struct.
@@ -180,7 +187,7 @@ struct SQLSelectInfo {
 	vector<string>              orderedColumns;
 
 	// definition of output Columns
-	vector<SQLColumnDefinition> columnDefs;
+	vector<SQLOutputColumn>     outputColumnVector;
 
 	// list of obtained tables
 	ItemTablePtrList itemTablePtrList;
@@ -233,17 +240,18 @@ protected:
 	bool enumerateNeededItemIds(SQLSelectInfo &selectInfo);
 	bool makeItemTables(SQLSelectInfo &selectInfo);
 	bool doJoin(SQLSelectInfo &selectInfo);
-	bool fixupFormulaColumn(SQLSelectInfo &selectInfo);
 	bool fixupWhereColumn(SQLSelectInfo &selectInfo);
 	bool selectMatchingRows(SQLSelectInfo &selectInfo);
 	bool checkSelectedAllColumns(const SQLSelectInfo &selectInfo,
 	                             const SQLColumnInfo &columnInfo) const;
 
-	void addColumnDefs(SQLSelectInfo &selectInfo,
-	                   const SQLTableInfo &tableInfo,
-	                   const ColumnBaseDefinition &columnBaseDef);
-	bool addAllColumnDefs(SQLSelectInfo &selectInfo,
-	                      const SQLTableInfo &tableInfo);
+	void addOutputColumn(SQLSelectInfo &selectInfo,
+	                     const SQLColumnInfo *columnInfo,
+	                     const ColumnBaseDefinition *columnBaseDef);
+	void addOutputColumn(SQLSelectInfo &selectInfo,
+	                     SQLFormulaInfo *formulaInfo);
+	bool addOutputColumnWildcard(SQLSelectInfo &selectInfo,
+	                             const SQLColumnInfo *columnInfo);
 
 	// methods for foreach
 	static bool
@@ -251,8 +259,6 @@ protected:
 
 	static bool pickupMatchingRows(const ItemGroup *itemGroup,
 	                               SQLSelectInfo &selectInfo);
-	//static bool packRequiredColumns(const ItemGroup *itemGroup,
-	//                                SQLSelectInfo &selectInfo);
 	static bool makeTextRows(const ItemGroup *itemGroup,
 	                         SQLSelectInfo &selectInfo);
 
