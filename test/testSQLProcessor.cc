@@ -43,6 +43,23 @@ static ColumnBaseDefinition COLUMN_DEFS_A[NUM_COLUMN_DEFS_A] = {
   {0, TABLE_NAME_A, COLUMN_NAME_A3, SQL_COLUMN_TYPE_VARCHAR, 20, 0},
 };
 
+enum {
+	ITEM_ID_COLUMN1,
+	ITEM_ID_COLUMN2,
+};
+
+struct TestData {
+	int         column1;
+	const char *column2;
+};
+
+static TestData testData[] = {
+  {1, "ant"},
+  {10, "Dog"},
+  {-5, "Clothes make the man."},
+};
+static int numTestData = sizeof(testData) / sizeof(TestData);
+
 class TestSQLProcessor : public SQLProcessor {
 public:
 	TestSQLProcessor(void)
@@ -65,6 +82,13 @@ public:
 	              const SQLTableInfo &tableInfo)
 	{
 		const ItemTablePtr tablePtr;
+		for (int i = 0; i < numTestData; i++) {
+			ItemGroup *grp = tablePtr->addNewGroup();
+			grp->add(new ItemInt(ITEM_ID_COLUMN1,
+			                     testData[i].column1), false);
+			grp->add(new ItemString(ITEM_ID_COLUMN2,
+			                        testData[i].column2), false);
+		}
 		return tablePtr;
 	}
 
@@ -602,6 +626,16 @@ void test_selectColumnElemMax(void)
 	cppcut_assert_equal((size_t)1, formulaFuncMax->getNumberOfArguments());
 	FormulaElement *arg = formulaFuncMax->getArgument(0);
 	assertFormulaColumn(arg, columnName);
+}
+
+void test_selectTestData(void)
+{
+	TestSQLProcessor proc;
+	ParsableString parsable(
+	  StringUtils::sprintf("%s,%s from %s", COLUMN_NAME1, COLUMN_NAME2,
+	                       TABLE_NAME));
+	SQLSelectInfo selectInfo(parsable);
+	proc.select(selectInfo);
 }
 
 } // namespace testSQLProcessor
