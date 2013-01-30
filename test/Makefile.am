@@ -8,7 +8,7 @@ TESTS_ENVIRONMENT = NO_MAKE=yes CUTTER="$(CUTTER)"
 
 noinst_LTLIBRARIES = \
 	testSQLProcessor.la testFormulaElement.la testSQLWhereElement.la \
-	testMySQLWorkerZabbix.la \
+	testSQLColumnParser.la testMySQLWorkerZabbix.la \
 	testItemData.la testItemGroup.la \
 	testItemPtr.la testItemGroupType.la testItemTable.la \
 	testItemTablePtr.la

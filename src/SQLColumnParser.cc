@@ -33,6 +33,20 @@ struct SQLColumnParser::ParsingContext {
 };
 
 // ---------------------------------------------------------------------------
+// Public static methods (SQLFormulaInfo)
+// ---------------------------------------------------------------------------
+SQLFormulaInfo::SQLFormulaInfo(void)
+: formula(NULL)
+{
+}
+
+SQLFormulaInfo::~SQLFormulaInfo()
+{
+	if (formula)
+		delete formula;
+}
+
+// ---------------------------------------------------------------------------
 // Public static methods
 // ---------------------------------------------------------------------------
 void SQLColumnParser::init(void)

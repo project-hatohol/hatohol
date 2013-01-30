@@ -15,6 +15,10 @@ using namespace mlpl;
 struct SQLFormulaInfo {
 	FormulaElement *formula;
 	string          expression;
+
+	// construct and destructor
+	SQLFormulaInfo(void);
+	~SQLFormulaInfo();
 };
 
 typedef vector<SQLFormulaInfo *>       SQLFormulaInfoVector;
