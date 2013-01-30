@@ -382,6 +382,7 @@ bool SQLProcessor::parseSelectStatement(SQLSelectInfo &selectInfo)
 
 		ctx.indexInTheStatus++;
 	}
+	selectInfo.columnParser.flush();
 
 	return true;
 }
