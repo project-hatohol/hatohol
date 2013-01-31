@@ -20,11 +20,11 @@ namespace testSQLProcessor {
 static const int TABLE_ID = 1;
 static const int TABLE_ID_A = 2;
 
-static const char *TABLE_NAME = "TestTable";
-static const char *TABLE_NAME_A = "TestTableA";
+static const char *TABLE0_NAME = "TestTable0";
+static const char *TABLE1_NAME = "TestTable1";
 
-static const char *COLUMN_NAME1 = "column1";
-static const char *COLUMN_NAME2 = "column2";
+static const char *COLUMN_NAME_NUMBER = "number";
+static const char *COLUMN_NAME_LINE = "name";
 
 static const char *COLUMN_NAME_A1 = "columnA1";
 static const char *COLUMN_NAME_A2 = "columnA2";
@@ -32,33 +32,33 @@ static const char *COLUMN_NAME_A3 = "columnA3";
 
 static const int NUM_COLUMN_DEFS = 2;
 static ColumnBaseDefinition COLUMN_DEFS[NUM_COLUMN_DEFS] = {
-  {0, TABLE_NAME, COLUMN_NAME1, SQL_COLUMN_TYPE_INT, 11, 0},
-  {0, TABLE_NAME, COLUMN_NAME2, SQL_COLUMN_TYPE_VARCHAR, 20, 0},
+  {0, TABLE0_NAME, COLUMN_NAME_NUMBER, SQL_COLUMN_TYPE_INT, 11, 0},
+  {0, TABLE0_NAME, COLUMN_NAME_LINE, SQL_COLUMN_TYPE_VARCHAR, 20, 0},
 };
 
 static const int NUM_COLUMN_DEFS_A = 3;
 static ColumnBaseDefinition COLUMN_DEFS_A[NUM_COLUMN_DEFS_A] = {
-  {0, TABLE_NAME_A, COLUMN_NAME_A1, SQL_COLUMN_TYPE_INT, 11, 0},
-  {0, TABLE_NAME_A, COLUMN_NAME_A2, SQL_COLUMN_TYPE_VARCHAR, 20, 0},
-  {0, TABLE_NAME_A, COLUMN_NAME_A3, SQL_COLUMN_TYPE_VARCHAR, 20, 0},
+  {0, TABLE1_NAME, COLUMN_NAME_A1, SQL_COLUMN_TYPE_INT, 11, 0},
+  {0, TABLE1_NAME, COLUMN_NAME_A2, SQL_COLUMN_TYPE_VARCHAR, 20, 0},
+  {0, TABLE1_NAME, COLUMN_NAME_A3, SQL_COLUMN_TYPE_VARCHAR, 20, 0},
 };
 
 enum {
-	ITEM_ID_COLUMN1,
-	ITEM_ID_COLUMN2,
+	ITEM_ID_NUMBER,
+	ITEM_ID_LINE,
 };
 
 struct TestData {
-	int         column1;
-	const char *column2;
+	int         age;
+	const char *line;
 };
 
 static TestData testData[] = {
-  {1, "ant"},
-  {10, "Dog"},
+  {15, "ant"},
+  {100, "Dog"},
   {-5, "Clothes make the man."},
 };
-static int numTestData = sizeof(testData) / sizeof(TestData);
+static size_t numTestData = sizeof(testData) / sizeof(TestData);
 
 class TestSQLProcessor : public SQLProcessor {
 public:
@@ -82,12 +82,12 @@ public:
 	              const SQLTableInfo &tableInfo)
 	{
 		const ItemTablePtr tablePtr;
-		for (int i = 0; i < numTestData; i++) {
+		for (size_t i = 0; i < numTestData; i++) {
 			ItemGroup *grp = tablePtr->addNewGroup();
-			grp->add(new ItemInt(ITEM_ID_COLUMN1,
-			                     testData[i].column1), false);
-			grp->add(new ItemString(ITEM_ID_COLUMN2,
-			                        testData[i].column2), false);
+			grp->add(new ItemInt(ITEM_ID_NUMBER, testData[i].age),
+			         false);
+			grp->add(new ItemString(ITEM_ID_LINE, testData[i].line),
+			         false);
 		}
 		return tablePtr;
 	}
@@ -102,7 +102,7 @@ private:
 	                        int numColumnDefs,
 	                        ColumnBaseDefinition *columnDefs)
 	{
-		m_tableNameStaticInfoMap[TABLE_NAME] = staticInfo;
+		m_tableNameStaticInfoMap[TABLE0_NAME] = staticInfo;
 		staticInfo->tableId = tableId;
 		staticInfo->tableName = tableName;
 		staticInfo->tableMakeFunc =
@@ -124,9 +124,9 @@ private:
 	}
 
 	void initStaticInfo(void) {
-		initStaticInfoEach(&m_staticInfo[0], TABLE_ID, TABLE_NAME,
+		initStaticInfoEach(&m_staticInfo[0], TABLE_ID, TABLE0_NAME,
 		                   NUM_COLUMN_DEFS, COLUMN_DEFS);
-		initStaticInfoEach(&m_staticInfo[1], TABLE_ID_A, TABLE_NAME_A,
+		initStaticInfoEach(&m_staticInfo[1], TABLE_ID_A, TABLE1_NAME,
 		                   NUM_COLUMN_DEFS_A, COLUMN_DEFS_A);
 	}
 };
@@ -277,7 +277,7 @@ void test_selectOneColumn(void)
 {
 	TestSQLProcessor proc;
 	const char *columnName = "column";
-	const char *tableName = TABLE_NAME;
+	const char *tableName = TABLE0_NAME;
 	ParsableString parsable(
 	  StringUtils::sprintf("%s from %s", columnName, tableName));
 	SQLSelectInfo selectInfo(parsable);
@@ -303,7 +303,7 @@ void test_selectMultiColumn(void)
 	TestSQLProcessor proc;
 	const char *columns[] = {"c1", "a2", "b3", "z4", "x5", "y6"};
 	const size_t numColumns = sizeof(columns) / sizeof(const char *);
-	const char *tableName = TABLE_NAME;
+	const char *tableName = TABLE0_NAME;
 	ParsableString parsable(
 	  StringUtils::sprintf("%s,%s,%s, %s, %s, %s from %s",
 	                       columns[0], columns[1], columns[2],
@@ -336,7 +336,7 @@ void test_selectTableVar(void)
 	const char *tableVarName = "tvar";
 	ParsableString parsable(
 	  StringUtils::sprintf("columnArg from %s %s",
-	                       TABLE_NAME, tableVarName));
+	                       TABLE0_NAME, tableVarName));
 	SQLSelectInfo selectInfo(parsable);
 	proc.callParseSelectStatement(selectInfo);
 	cut_assert_equal_int(1, selectInfo.tables.size());
@@ -349,7 +349,7 @@ void test_selectOrderBy(void)
 	TestSQLProcessor proc;
 	const char *orderName = "orderArg";
 	ParsableString parsable(
-	  StringUtils::sprintf("column from %s  order by %s", TABLE_NAME,
+	  StringUtils::sprintf("column from %s  order by %s", TABLE0_NAME,
 	                       orderName));
 	SQLSelectInfo selectInfo(parsable);
 	proc.callParseSelectStatement(selectInfo);
@@ -363,15 +363,15 @@ void test_selectTwoTable(void)
 {
 	TestSQLProcessor proc;
 	ParsableString parsable(
-	  StringUtils::sprintf("* from %s,%s", TABLE_NAME, TABLE_NAME_A));
+	  StringUtils::sprintf("* from %s,%s", TABLE0_NAME, TABLE1_NAME));
 	SQLSelectInfo selectInfo(parsable);
 	proc.callParseSelectStatement(selectInfo);
 
 	cut_assert_equal_int(2, selectInfo.tables.size());
 	SQLTableInfoVectorIterator table = selectInfo.tables.begin();
-	cut_assert_equal_string(TABLE_NAME, (*table)->name.c_str());
+	cut_assert_equal_string(TABLE0_NAME, (*table)->name.c_str());
 	++table;
-	cut_assert_equal_string(TABLE_NAME_A, (*table)->name.c_str());
+	cut_assert_equal_string(TABLE1_NAME, (*table)->name.c_str());
 }
 
 void test_selectTwoTableWithNames(void)
@@ -381,16 +381,16 @@ void test_selectTwoTableWithNames(void)
 	TestSQLProcessor proc;
 	ParsableString parsable(
 	  StringUtils::sprintf("* from %s %s,%s %s",
-	                       TABLE_NAME, var1, TABLE_NAME_A, var2));
+	                       TABLE0_NAME, var1, TABLE1_NAME, var2));
 	SQLSelectInfo selectInfo(parsable);
 	proc.callParseSelectStatement(selectInfo);
 
 	cut_assert_equal_int(2, selectInfo.tables.size());
 	SQLTableInfoVectorIterator table = selectInfo.tables.begin();
-	cut_assert_equal_string(TABLE_NAME, (*table)->name.c_str());
+	cut_assert_equal_string(TABLE0_NAME, (*table)->name.c_str());
 	cut_assert_equal_string(var1, (*table)->varName.c_str());
 	++table;
-	cut_assert_equal_string(TABLE_NAME_A, (*table)->name.c_str());
+	cut_assert_equal_string(TABLE1_NAME, (*table)->name.c_str());
 	cut_assert_equal_string(var2, (*table)->varName.c_str());
 }
 
@@ -632,10 +632,14 @@ void test_selectTestData(void)
 {
 	TestSQLProcessor proc;
 	ParsableString parsable(
-	  StringUtils::sprintf("%s,%s from %s", COLUMN_NAME1, COLUMN_NAME2,
-	                       TABLE_NAME));
+	  StringUtils::sprintf("%s,%s from %s",
+	                       COLUMN_NAME_NUMBER, COLUMN_NAME_LINE,
+	                       TABLE0_NAME));
 	SQLSelectInfo selectInfo(parsable);
 	proc.select(selectInfo);
+
+	// assertion
+	cppcut_assert_equal(numTestData, selectInfo.textRows.size());
 }
 
 } // namespace testSQLProcessor
