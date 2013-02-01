@@ -609,31 +609,6 @@ void test_selectWhereIntAndColumnAndInt(void)
 	assertWhereOperatorEqual(rightElem);
 }
 
-void test_selectColumnElemMax(void)
-{
-	TestSQLProcessor proc;
-	const char *columnName = "c1";
-	ParsableString parsable(
-	  StringUtils::sprintf("max(%s) from t1", columnName));
-	SQLSelectInfo selectInfo(parsable);
-	proc.callParseSelectStatement(selectInfo);
-
-	const SQLFormulaInfoVector formulaInfoVector
-	  = selectInfo.columnParser.getFormulaInfoVector();
-	cppcut_assert_equal((size_t)1, formulaInfoVector.size());
-	string expected = StringUtils::sprintf("max(%s)", columnName);
-	SQLFormulaInfo *formulaInfo = formulaInfoVector[0];
-	cppcut_assert_equal(expected, formulaInfo->expression);
-
-	FormulaElement *formulaElem = formulaInfo->formula;
-	assertFormulaFuncMax(formulaElem);
-	FormulaFuncMax *formulaFuncMax
-	  = dynamic_cast<FormulaFuncMax *>(formulaElem);
-	cppcut_assert_equal((size_t)1, formulaFuncMax->getNumberOfArguments());
-	FormulaElement *arg = formulaFuncMax->getArgument(0);
-	assertFormulaVariable(arg, columnName);
-}
-
 void test_selectTestData(void)
 {
 	TestSQLProcessor proc;
