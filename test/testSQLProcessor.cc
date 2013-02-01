@@ -30,13 +30,13 @@ static const char *COLUMN_NAME_A1 = "columnA1";
 static const char *COLUMN_NAME_A2 = "columnA2";
 static const char *COLUMN_NAME_A3 = "columnA3";
 
-static const int NUM_COLUMN_DEFS = 2;
+static const size_t NUM_COLUMN_DEFS = 2;
 static ColumnBaseDefinition COLUMN_DEFS[NUM_COLUMN_DEFS] = {
   {0, TABLE0_NAME, COLUMN_NAME_NUMBER, SQL_COLUMN_TYPE_INT, 11, 0},
   {0, TABLE0_NAME, COLUMN_NAME_LINE, SQL_COLUMN_TYPE_VARCHAR, 20, 0},
 };
 
-static const int NUM_COLUMN_DEFS_A = 3;
+static const size_t NUM_COLUMN_DEFS_A = 3;
 static ColumnBaseDefinition COLUMN_DEFS_A[NUM_COLUMN_DEFS_A] = {
   {0, TABLE1_NAME, COLUMN_NAME_A1, SQL_COLUMN_TYPE_INT, 11, 0},
   {0, TABLE1_NAME, COLUMN_NAME_A2, SQL_COLUMN_TYPE_VARCHAR, 20, 0},
@@ -49,8 +49,8 @@ enum {
 };
 
 struct TestData {
-	int         age;
-	const char *line;
+	int         number;
+	const char *name;
 };
 
 static TestData testData[] = {
@@ -84,9 +84,9 @@ public:
 		const ItemTablePtr tablePtr;
 		for (size_t i = 0; i < numTestData; i++) {
 			ItemGroup *grp = tablePtr->addNewGroup();
-			grp->add(new ItemInt(ITEM_ID_NUMBER, testData[i].age),
-			         false);
-			grp->add(new ItemString(ITEM_ID_LINE, testData[i].line),
+			grp->add(new ItemInt(ITEM_ID_NUMBER,
+			                     testData[i].number), false);
+			grp->add(new ItemString(ITEM_ID_LINE, testData[i].name),
 			         false);
 		}
 		return tablePtr;
@@ -644,6 +644,17 @@ void test_selectTestData(void)
 	cppcut_assert_equal(numTestData,
 	                    selectInfo.selectedTable->getNumberOfRows());
 	cppcut_assert_equal(numTestData, selectInfo.textRows.size());
+	for (size_t i = 0; i < numTestData; i++) {
+		cppcut_assert_equal(NUM_COLUMN_DEFS,
+		                    selectInfo.textRows[i].size());
+		string &number = selectInfo.textRows[i][0];
+		string &name   = selectInfo.textRows[i][1];
+		string expected_number
+		  = StringUtils::sprintf("%d", testData[i].number);
+		string expected_name = testData[i].name;
+		cppcut_assert_equal(expected_number, number);
+		cppcut_assert_equal(expected_name, name);
+	}
 }
 
 } // namespace testSQLProcessor
