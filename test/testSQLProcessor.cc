@@ -638,9 +638,11 @@ void test_selectTestData(void)
 	                       COLUMN_NAME_NUMBER, COLUMN_NAME_LINE,
 	                       TABLE0_NAME));
 	SQLSelectInfo selectInfo(parsable);
-	proc.select(selectInfo);
+	cppcut_assert_equal(true, proc.select(selectInfo));
 
 	// assertion
+	cppcut_assert_equal(numTestData,
+	                    selectInfo.selectedTable->getNumberOfRows());
 	cppcut_assert_equal(numTestData, selectInfo.textRows.size());
 }
 
