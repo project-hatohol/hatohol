@@ -102,7 +102,7 @@ private:
 	                        int numColumnDefs,
 	                        ColumnBaseDefinition *columnDefs)
 	{
-		m_tableNameStaticInfoMap[TABLE0_NAME] = staticInfo;
+		m_tableNameStaticInfoMap[tableName] = staticInfo;
 		staticInfo->tableId = tableId;
 		staticInfo->tableName = tableName;
 		staticInfo->tableMakeFunc =
