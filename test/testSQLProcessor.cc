@@ -45,7 +45,7 @@ static ColumnBaseDefinition COLUMN_DEFS_A[NUM_COLUMN_DEFS_A] = {
 
 enum {
 	ITEM_ID_NUMBER,
-	ITEM_ID_LINE,
+	ITEM_ID_NAME,
 };
 
 struct TestData {
@@ -86,7 +86,7 @@ public:
 			ItemGroup *grp = tablePtr->addNewGroup();
 			grp->add(new ItemInt(ITEM_ID_NUMBER,
 			                     testData[i].number), false);
-			grp->add(new ItemString(ITEM_ID_LINE, testData[i].name),
+			grp->add(new ItemString(ITEM_ID_NAME, testData[i].name),
 			         false);
 		}
 		return tablePtr;
