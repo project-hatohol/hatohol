@@ -34,8 +34,7 @@ public:
 	FormulaFuncMax(void);
 	FormulaFuncMax(FormulaElement *arg);
 	virtual ~FormulaFuncMax();
-	virtual ItemDataPtr evaluate(const FormulaElement *leftHand,
-	                             const FormulaElement *rightHand);
+	virtual ItemDataPtr evaluate(void);
 };
 
 #endif // FormulaFunction_h

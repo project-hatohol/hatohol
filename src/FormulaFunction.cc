@@ -90,8 +90,7 @@ FormulaFuncMax::~FormulaFuncMax()
 {
 }
 
-ItemDataPtr FormulaFuncMax::evaluate(const FormulaElement *leftHand,
-                                     const FormulaElement *rightHand)
+ItemDataPtr FormulaFuncMax::evaluate(void)
 {
 	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
 	return ItemDataPtr();
