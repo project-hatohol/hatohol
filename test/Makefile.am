@@ -29,6 +29,7 @@ LIBS = \
 
 # Test cases
 testSQLProcessor_la_SOURCES = testSQLProcessor.cc
+testSQLProcessor_la_LIBADD = ./libFormulaTestUtils.la
 
 testSQLColumnParser_la_SOURCES = testSQLColumnParser.cc
 testSQLColumnParser_la_LIBADD = ./libFormulaTestUtils.la
