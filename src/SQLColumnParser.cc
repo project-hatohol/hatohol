@@ -98,6 +98,7 @@ bool SQLColumnParser::add(string &word, string &wordLower)
 		return false;
 	}
 
+	appendFormulaString(word);
 	if (passFunctionArgIfOpen(word))
 		return true;
 
@@ -113,7 +114,6 @@ bool SQLColumnParser::flush(void)
 	if (!m_ctx->hasPendingWord())
 		return closeCurrFormulaInfo();
 
-	appendFormulaString(m_ctx->pendingWord);
 	FormulaVariable *formulaVariable
 	  = makeFormulaVariable(m_ctx->pendingWord);
 	m_ctx->clearPendingWords();
@@ -231,7 +231,6 @@ bool SQLColumnParser::makeFunctionParserIfPendingWordIsFunction(void)
 	if (!(this->*func)())
 		m_ctx->errorFlag = false;
 
-	appendFormulaString(m_ctx->pendingWord);
 	m_ctx->clearPendingWords();
 
 	return true;
@@ -253,7 +252,6 @@ bool SQLColumnParser::passFunctionArgIfOpen(string &word)
 	FormulaVariable *formulaVariable = makeFormulaVariable(word);
 	if (!formulaFunc->addArgument(formulaVariable))
 		return false;
-	appendFormulaString(word);
 	return true;
 }
 
@@ -281,9 +279,8 @@ void SQLColumnParser::separatorCbComma(const char separator,
 void SQLColumnParser::separatorCbParenthesisOpen(const char separator,
                                                  SQLColumnParser *columnParser)
 {
-	bool isFunc;
-	isFunc = columnParser->makeFunctionParserIfPendingWordIsFunction();
 	columnParser->appendFormulaString(separator);
+	bool isFunc = columnParser->makeFunctionParserIfPendingWordIsFunction();
 	if (isFunc)
 		return;
 
