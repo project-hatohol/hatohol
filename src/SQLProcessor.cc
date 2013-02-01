@@ -73,7 +73,7 @@ struct WhereColumnArg {
 	}
 };
 
-class SQLFormulaColumnDataGetter : public FormulaColumnDataGetter {
+class SQLFormulaColumnDataGetter : public FormulaVariableDataGetter {
 public:
 	SQLFormulaColumnDataGetter(string &name, SQLSelectInfo *selectInfo)
 	: m_selectInfo(selectInfo),
@@ -548,17 +548,17 @@ bool SQLProcessor::makeColumnDefs(SQLSelectInfo &selectInfo)
 	  = selectInfo.columnParser.getFormulaInfoVector();
 	for (size_t i = 0; i < formulaInfoVector.size(); i++) {
 		SQLFormulaInfo *formulaInfo = formulaInfoVector[i];
-		FormulaColumn *formulaColumn =
-		  dynamic_cast<FormulaColumn *>(formulaInfo->formula);
-		if (!formulaColumn) {
+		FormulaVariable *formulaVariable =
+		  dynamic_cast<FormulaVariable *>(formulaInfo->formula);
+		if (!formulaVariable) {
 			// When the column formula is not single column.
 			addOutputColumn(selectInfo, formulaInfo);
 			continue;
 		}
 
 		// search the ColumnInfo instance
-		FormulaColumnDataGetter *dataGetter =
-			formulaColumn->getFormulaColumnGetter();
+		FormulaVariableDataGetter *dataGetter =
+			formulaVariable->getFormulaVariableGetter();
 		SQLFormulaColumnDataGetter *sqlDataGetter =
 		  dynamic_cast<SQLFormulaColumnDataGetter *>(dataGetter);
 		SQLColumnInfo *columnInfo = sqlDataGetter->getColumnInfo();
@@ -1093,7 +1093,7 @@ void SQLProcessor::wereColumnPrivDataDestructor
 	delete arg;
 }
 
-FormulaColumnDataGetter *
+FormulaVariableDataGetter *
 SQLProcessor::formulaColumnDataGetterFactory(string &name, void *priv)
 {
 	SQLSelectInfo *selectInfo = static_cast<SQLSelectInfo *>(priv);

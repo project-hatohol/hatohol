@@ -15,7 +15,7 @@ using namespace mlpl;
 
 namespace testSQLColumnParser {
 
-static FormulaColumnDataGetter *columnColumnDataGetter(string &name, void *priv)
+static FormulaVariableDataGetter *columnDataGetter(string &name, void *priv)
 {
 	return NULL;
 }
@@ -30,8 +30,7 @@ void test_add(void)
 	SQLColumnParser columnParser;
 	SeparatorCheckerWithCallback *separator =
 	  columnParser.getSeparatorChecker();
-	columnParser.setColumnDataGetterFactory
-	  (columnColumnDataGetter, NULL);
+	columnParser.setColumnDataGetterFactory(columnDataGetter, NULL);
 
 	while (!testString.finished()) {
 		string word = testString.readWord(*separator);
@@ -48,10 +47,10 @@ void test_add(void)
 
 	SQLFormulaInfo *formulaInfo = formulaInfoVector[0];
 	cppcut_assert_equal(string(columnName), formulaInfo->expression);
-	FormulaColumn *formulaColumn =
-	  dynamic_cast<FormulaColumn *>(formulaInfo->formula);
-	cut_assert_not_null(formulaColumn);
-	cppcut_assert_equal(string(columnName), formulaColumn->getName());
+	FormulaVariable *formulaVariable =
+	  dynamic_cast<FormulaVariable *>(formulaInfo->formula);
+	cut_assert_not_null(formulaVariable);
+	cppcut_assert_equal(string(columnName), formulaVariable->getName());
 }
 
 } // namespace testSQLColumnParser

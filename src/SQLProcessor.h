@@ -315,7 +315,7 @@ protected:
 	                                         void *priv);
 	static void wereColumnPrivDataDestructor(SQLWhereColumn *whereColumn,
 	                                         void *priv);
-	static FormulaColumnDataGetter *
+	static FormulaVariableDataGetter *
 	  formulaColumnDataGetterFactory(string &name, void *priv);
 	static bool getColumnItemId(SQLSelectInfo &selectInfo,
 	                            string &name, ItemId &itemId);

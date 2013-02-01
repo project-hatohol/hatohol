@@ -32,7 +32,7 @@ public:
 	SQLColumnParser(void);
 	virtual ~SQLColumnParser();
 	void setColumnDataGetterFactory
-	       (FormulaColumnDataGetterFactory columnDataGetterFactory,
+	       (FormulaVariableDataGetterFactory columnDataGetterFactory,
 	        void *columnDataGetterFactoryPriv);
 	bool add(string& word, string &wordLower);
 	bool flush(void);
@@ -50,7 +50,7 @@ protected:
 	//
 	void appendFormulaString(const char character);
 	void appendFormulaString(string &str);
-	FormulaColumn *makeFormulaColumn(string &name);
+	FormulaVariable *makeFormulaVariable(string &name);
 	bool closeCurrFormulaInfo(void);
 	void closeCurrentFormulaString(void);
 	bool closeCurrentFormula(void);
@@ -83,11 +83,11 @@ private:
 	static FunctionParserMap m_functionParserMap;
 
 	// General variables
-	FormulaColumnDataGetterFactory  m_columnDataGetterFactory;
-	void                           *m_columnDataGetterFactoryPriv;
-	SQLFormulaInfoVector            m_formulaInfoVector;
-	SeparatorCheckerWithCallback    m_separator;
-	ParsingContext                 *m_ctx;
+	FormulaVariableDataGetterFactory  m_columnDataGetterFactory;
+	void                             *m_columnDataGetterFactoryPriv;
+	SQLFormulaInfoVector              m_formulaInfoVector;
+	SeparatorCheckerWithCallback      m_separator;
+	ParsingContext                   *m_ctx;
 };
 
 #endif // SQLColumnParser_h

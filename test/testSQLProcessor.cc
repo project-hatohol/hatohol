@@ -250,20 +250,22 @@ static void assertFormulaElementType(FormulaElement *obj)
 	               DEMANGLED_TYPE_NAME(*obj), TYPE_NAME(*obj)));
 }
 
-#define assertTypeFormulaColumn(P) \
-cut_trace(assertFormulaElementType<FormulaColumn>(P))
+#define assertTypeFormulaVariable(P) \
+cut_trace(assertFormulaElementType<FormulaVariable>(P))
 
 #define assertFormulaFuncMax(P) \
 cut_trace(assertFormulaElementType<FormulaFuncMax>(P))
 
-static void _assertFormulaColumn(FormulaElement *elem, const char *expected)
+static void _assertFormulaVariable(FormulaElement *elem, const char *expected)
 {
-	assertTypeFormulaColumn(elem);
-	FormulaColumn *formulaColumn = dynamic_cast<FormulaColumn *>(elem);
-	cut_assert_not_null(formulaColumn);
-	cppcut_assert_equal(string(expected), formulaColumn->getName());
+	assertTypeFormulaVariable(elem);
+	FormulaVariable *formulaVariable =
+	  dynamic_cast<FormulaVariable *>(elem);
+	cut_assert_not_null(formulaVariable);
+	cppcut_assert_equal(string(expected), formulaVariable->getName());
 }
-#define assertFormulaColumn(EL, EXP) cut_trace(_assertFormulaColumn(EL, EXP))
+#define assertFormulaVariable(EL, EXP) \
+cut_trace(_assertFormulaVariable(EL, EXP))
 
 void setup(void)
 {
@@ -290,7 +292,7 @@ void test_selectOneColumn(void)
 
 	SQLFormulaInfo *formulaInfo = formulaInfoVector[0];
 	cppcut_assert_equal(string(columnName), formulaInfo->expression);
-	assertFormulaColumn(formulaInfo->formula, columnName);
+	assertFormulaVariable(formulaInfo->formula, columnName);
 
 	// table
 	cut_assert_equal_int(1, selectInfo.tables.size());
@@ -321,7 +323,7 @@ void test_selectMultiColumn(void)
 		SQLFormulaInfo *formulaInfo = formulaInfoVector[idx];
 		cppcut_assert_equal(string(columns[idx]),
 		                    formulaInfo->expression);
-		assertFormulaColumn(formulaInfo->formula, columns[idx]);
+		assertFormulaVariable(formulaInfo->formula, columns[idx]);
 	}
 
 	// table
@@ -625,7 +627,7 @@ void test_selectColumnElemMax(void)
 	  = dynamic_cast<FormulaFuncMax *>(formulaElem);
 	cppcut_assert_equal((size_t)1, formulaFuncMax->getNumberOfArguments());
 	FormulaElement *arg = formulaFuncMax->getArgument(0);
-	assertFormulaColumn(arg, columnName);
+	assertFormulaVariable(arg, columnName);
 }
 
 void test_selectTestData(void)

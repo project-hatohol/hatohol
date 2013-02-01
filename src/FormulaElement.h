@@ -34,33 +34,33 @@ typedef vector<FormulaElement *>       FormulaElementVector;
 typedef FormulaElementVector::iterator FormulaElementVectorIterator;
 
 // ---------------------------------------------------------------------------
-// class: FormulaColumn
+// class: FormulaVariable
 // ---------------------------------------------------------------------------
-class FormulaColumn;
-class FormulaColumnDataGetter {
+class FormulaVariable;
+class FormulaVariableDataGetter {
 public:
-	virtual ~FormulaColumnDataGetter() {}
+	virtual ~FormulaVariableDataGetter() {}
 	virtual ItemDataPtr getData(void) = 0;
 	//virtual void
-	//  setFormulaColumnInstance(FormulaColumn *formulaColumn) = 0;
+	//  setFormulaVariableInstance(FormulaVariable *formulaColumn) = 0;
 };
 
-typedef FormulaColumnDataGetter *
-(*FormulaColumnDataGetterFactory)(string &name, void *priv);
+typedef FormulaVariableDataGetter *
+(*FormulaVariableDataGetterFactory)(string &name, void *priv);
 
-class FormulaColumn : public FormulaElement {
+class FormulaVariable : public FormulaElement {
 public:
-	FormulaColumn(string &name,
-	              FormulaColumnDataGetter *columnDataGetter);
-	virtual ~FormulaColumn();
+	FormulaVariable(string &name,
+	              FormulaVariableDataGetter *variableDataGetter);
+	virtual ~FormulaVariable();
 	virtual ItemDataPtr evaluate(void);
 
 	const string &getName(void) const;
-	FormulaColumnDataGetter *getFormulaColumnGetter(void) const;
+	FormulaVariableDataGetter *getFormulaVariableGetter(void) const;
 
 private:
-	string                   m_name;
-	FormulaColumnDataGetter *m_columnGetter;
+	string                     m_name;
+	FormulaVariableDataGetter *m_variableGetter;
 };
 
 #endif // FormulaElement_h

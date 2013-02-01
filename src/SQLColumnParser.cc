@@ -81,7 +81,7 @@ SQLColumnParser::~SQLColumnParser()
 }
 
 void SQLColumnParser::setColumnDataGetterFactory
-       (FormulaColumnDataGetterFactory columnDataGetterFactory,
+       (FormulaVariableDataGetterFactory columnDataGetterFactory,
         void *columnDataGetterFactoryPriv)
 {
        m_columnDataGetterFactory = columnDataGetterFactory;
@@ -114,9 +114,10 @@ bool SQLColumnParser::flush(void)
 		return closeCurrFormulaInfo();
 
 	appendFormulaString(m_ctx->pendingWord);
-	FormulaColumn *formulaColumn = makeFormulaColumn(m_ctx->pendingWord);
+	FormulaVariable *formulaVariable
+	  = makeFormulaVariable(m_ctx->pendingWord);
 	m_ctx->clearPendingWords();
-	if (!createdNewElement(formulaColumn))
+	if (!createdNewElement(formulaVariable))
 		return false;
 	return closeCurrFormulaInfo();
 }
@@ -148,17 +149,18 @@ void SQLColumnParser::appendFormulaString(string &str)
 	m_ctx->currFormulaString += str;
 }
 
-FormulaColumn *SQLColumnParser::makeFormulaColumn(string &name)
+FormulaVariable *SQLColumnParser::makeFormulaVariable(string &name)
 {
 	if (!m_columnDataGetterFactory) {
 		string msg;
 		TRMSG(msg, "m_columnDataGetterFactory: NULL.");
 		throw logic_error(msg);
 	}
-	FormulaColumnDataGetter *dataGetter =
+	FormulaVariableDataGetter *dataGetter =
 	  (*m_columnDataGetterFactory)(name, m_columnDataGetterFactoryPriv);
-	FormulaColumn *formulaColumn = new FormulaColumn(name, dataGetter);
-	return formulaColumn;
+	FormulaVariable *formulaVariable =
+	  new FormulaVariable(name, dataGetter);
+	return formulaVariable;
 }
 
 bool SQLColumnParser::closeCurrFormulaInfo(void)
@@ -248,8 +250,8 @@ bool SQLColumnParser::passFunctionArgIfOpen(string &word)
 	FormulaFunction *formulaFunc = getFormulaFunctionFromStack();
 	if (!formulaFunc)
 		return false;
-	FormulaColumn *formulaColumn = makeFormulaColumn(word);
-	if (!formulaFunc->addArgument(formulaColumn))
+	FormulaVariable *formulaVariable = makeFormulaVariable(word);
+	if (!formulaFunc->addArgument(formulaVariable))
 		return false;
 	appendFormulaString(word);
 	return true;

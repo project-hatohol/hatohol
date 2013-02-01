@@ -62,32 +62,32 @@ ItemDataPtr FormulaElement::evaluate(void)
 }
 
 // ---------------------------------------------------------------------------
-// class: FormulaColumn
+// class: FormulaVariable
 // ---------------------------------------------------------------------------
-FormulaColumn::FormulaColumn(string &name,
-                             FormulaColumnDataGetter *columnDataGetter)
+FormulaVariable::FormulaVariable(string &name,
+                                 FormulaVariableDataGetter *variableDataGetter)
 : m_name(name),
-  m_columnGetter(columnDataGetter)
+  m_variableGetter(variableDataGetter)
 {
 }
 
-FormulaColumn::~FormulaColumn()
+FormulaVariable::~FormulaVariable()
 {
-	if (m_columnGetter)
-		delete m_columnGetter;
+	if (m_variableGetter)
+		delete m_variableGetter;
 }
 
-ItemDataPtr FormulaColumn::evaluate(void)
+ItemDataPtr FormulaVariable::evaluate(void)
 {
-	return m_columnGetter->getData();
+	return m_variableGetter->getData();
 }
 
-const string &FormulaColumn::getName(void) const
+const string &FormulaVariable::getName(void) const
 {
 	return m_name;
 }
 
-FormulaColumnDataGetter *FormulaColumn::getFormulaColumnGetter(void) const
+FormulaVariableDataGetter *FormulaVariable::getFormulaVariableGetter(void) const
 {
-	return m_columnGetter;
+	return m_variableGetter;
 }
