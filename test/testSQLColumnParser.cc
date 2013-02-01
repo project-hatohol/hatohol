@@ -51,20 +51,12 @@ void setup(void)
 void test_add(void)
 {
 	const char *columnName = "column";
-	ParsableString testString(StringUtils::sprintf("%s", columnName));
+	ParsableString statement(StringUtils::sprintf("%s", columnName));
 	SQLColumnParser columnParser;
 	SeparatorCheckerWithCallback *separator =
 	  columnParser.getSeparatorChecker();
 	columnParser.setColumnDataGetterFactory(columnDataGetter, NULL);
-
-	while (!testString.finished()) {
-		string word = testString.readWord(*separator);
-		string lower;
-		transform(word.begin(), word.end (),
-		          lower.begin (), ::tolower); 
-		columnParser.add(word, lower);
-	}
-	columnParser.flush();
+	assertInputStatement(columnParser, statement);
 
 	const SQLFormulaInfoVector &formulaInfoVector =
 	  columnParser.getFormulaInfoVector();
