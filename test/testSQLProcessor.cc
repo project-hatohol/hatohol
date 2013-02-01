@@ -645,6 +645,14 @@ void test_selectTestData(void)
 	cppcut_assert_equal(true, proc.select(selectInfo));
 
 	// assertion
+	cppcut_assert_equal(NUM_COLUMN_DEFS,
+	                    selectInfo.outputColumnVector.size());
+	for (size_t i = 0; i < NUM_COLUMN_DEFS; i++) {
+		SQLOutputColumn &outCol = selectInfo.outputColumnVector[i];
+		cppcut_assert_equal(string(COLUMN_DEFS[i].columnName),
+		                    outCol.column);
+	}
+
 	cppcut_assert_equal(numTestData,
 	                    selectInfo.selectedTable->getNumberOfRows());
 	cppcut_assert_equal(numTestData, selectInfo.textRows.size());
