@@ -41,8 +41,6 @@ class FormulaVariableDataGetter {
 public:
 	virtual ~FormulaVariableDataGetter() {}
 	virtual ItemDataPtr getData(void) = 0;
-	//virtual void
-	//  setFormulaVariableInstance(FormulaVariable *formulaColumn) = 0;
 };
 
 typedef FormulaVariableDataGetter *
