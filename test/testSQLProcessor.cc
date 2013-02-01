@@ -14,6 +14,7 @@ using namespace mlpl;
 #include "FormulaFunction.h"
 #include "Asura.h"
 #include "Utils.h"
+#include "FormulaTestUtils.h"
 
 namespace testSQLProcessor {
 
@@ -243,33 +244,6 @@ static void _assertWhereOperatorBetween(SQLWhereElement *whereElem)
 }
 #define assertWhereOperatorBetween(ELEM) \
 cut_trace(_assertWhereOperatorBetween(ELEM))
-
-
-template<typename T>
-static void assertFormulaElementType(FormulaElement *obj)
-{
-	cppcut_assert_equal
-	  (true, typeid(T) == typeid(*obj),
-	   cut_message("type: *obj: %s (%s)",
-	               DEMANGLED_TYPE_NAME(*obj), TYPE_NAME(*obj)));
-}
-
-#define assertTypeFormulaVariable(P) \
-cut_trace(assertFormulaElementType<FormulaVariable>(P))
-
-#define assertFormulaFuncMax(P) \
-cut_trace(assertFormulaElementType<FormulaFuncMax>(P))
-
-static void _assertFormulaVariable(FormulaElement *elem, const char *expected)
-{
-	assertTypeFormulaVariable(elem);
-	FormulaVariable *formulaVariable =
-	  dynamic_cast<FormulaVariable *>(elem);
-	cut_assert_not_null(formulaVariable);
-	cppcut_assert_equal(string(expected), formulaVariable->getName());
-}
-#define assertFormulaVariable(EL, EXP) \
-cut_trace(_assertFormulaVariable(EL, EXP))
 
 void setup(void)
 {
