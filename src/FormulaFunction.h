@@ -50,6 +50,9 @@ public:
 
 protected:
 	static const int NUM_ARGUMENTS_FUNC_MAX = 1;
+
+protected:
+	ItemDataPtr m_maxData;
 };
 
 #endif // FormulaFunction_h

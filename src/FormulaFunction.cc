@@ -100,11 +100,11 @@ FormulaFuncMax::~FormulaFuncMax()
 
 ItemDataPtr FormulaFuncMax::evaluate(void)
 {
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
-	return ItemDataPtr();
+	// TODO: get value of the child element and compare the current max.
+	return m_maxData;
 }
 
 void FormulaFuncMax::resetStatistics(void)
 {
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	m_maxData = ItemDataPtr();
 }
