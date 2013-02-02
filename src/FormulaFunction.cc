@@ -74,10 +74,18 @@ const vector<FormulaElement *> &FormulaFunction::getArgVector(void) const
 }
 
 // ---------------------------------------------------------------------------
+// FormulaStatisticalFunc
+// ---------------------------------------------------------------------------
+FormulaStatisticalFunc::FormulaStatisticalFunc(int numArguments)
+: FormulaFunction(numArguments)
+{
+}
+
+// ---------------------------------------------------------------------------
 // FormulaFuncMax
 // ---------------------------------------------------------------------------
 FormulaFuncMax::FormulaFuncMax(void)
-: FormulaFunction(1)
+: FormulaStatisticalFunc(1)
 {
 }
 
@@ -94,4 +102,9 @@ ItemDataPtr FormulaFuncMax::evaluate(void)
 {
 	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
 	return ItemDataPtr();
+}
+
+void FormulaFuncMax::resetStatistics(void)
+{
+	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
 }

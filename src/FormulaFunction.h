@@ -27,14 +27,24 @@ private:
 };
 
 // ---------------------------------------------------------------------------
+// FormulaStatisticalFunc
+// ---------------------------------------------------------------------------
+class FormulaStatisticalFunc : public FormulaFunction {
+public:
+	FormulaStatisticalFunc(int numArguments = -1);
+	virtual void resetStatistics(void) = 0;
+};
+
+// ---------------------------------------------------------------------------
 // FormulaFuncMax
 // ---------------------------------------------------------------------------
-class FormulaFuncMax : public FormulaFunction {
+class FormulaFuncMax : public FormulaStatisticalFunc {
 public:
 	FormulaFuncMax(void);
 	FormulaFuncMax(FormulaElement *arg);
 	virtual ~FormulaFuncMax();
 	virtual ItemDataPtr evaluate(void);
+	virtual void resetStatistics(void);
 };
 
 #endif // FormulaFunction_h
