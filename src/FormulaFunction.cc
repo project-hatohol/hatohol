@@ -100,7 +100,14 @@ FormulaFuncMax::~FormulaFuncMax()
 
 ItemDataPtr FormulaFuncMax::evaluate(void)
 {
-	// TODO: get value of the child element and compare the current max.
+	const FormulaElementVector &elemVector = getArgVector();
+	if (elemVector.empty()) {
+		MLPL_DBG("argument: empty");
+		return ItemDataPtr();
+	}
+	ItemDataPtr dataPtr = elemVector[0]->evaluate();
+	if (dataPtr > m_maxData)
+		m_maxData = dataPtr;
 	return m_maxData;
 }
 
