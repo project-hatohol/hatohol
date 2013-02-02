@@ -68,7 +68,7 @@ bool FormulaFunction::close(void)
 //
 // Prtected methods
 //
-const vector<FormulaElement *> &FormulaFunction::getArgVector(void) const
+const FormulaElementVector &FormulaFunction::getArgVector(void) const
 {
 	return m_argVector;
 }

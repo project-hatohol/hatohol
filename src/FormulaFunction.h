@@ -21,7 +21,7 @@ public:
 	void pushArgument(FormulaElement *formulaElement);
 
 protected:
-	const vector<FormulaElement *> &getArgVector(void) const;
+	const FormulaElementVector &getArgVector(void) const;
 
 private:
 	int                      m_numArgument;
