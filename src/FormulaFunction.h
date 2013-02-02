@@ -47,6 +47,9 @@ public:
 	virtual ~FormulaFuncMax();
 	virtual ItemDataPtr evaluate(void);
 	virtual void resetStatistics(void);
+
+protected:
+	static const int NUM_ARGUMENTS_FUNC_MAX = 1;
 };
 
 #endif // FormulaFunction_h

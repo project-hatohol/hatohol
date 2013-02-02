@@ -85,7 +85,7 @@ FormulaStatisticalFunc::FormulaStatisticalFunc(int numArguments)
 // FormulaFuncMax
 // ---------------------------------------------------------------------------
 FormulaFuncMax::FormulaFuncMax(void)
-: FormulaStatisticalFunc(1)
+: FormulaStatisticalFunc(NUM_ARGUMENTS_FUNC_MAX)
 {
 }
 
