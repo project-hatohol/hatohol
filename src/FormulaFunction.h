@@ -9,7 +9,9 @@
 // ---------------------------------------------------------------------------
 class FormulaFunction : public FormulaElement {
 public:
-	FormulaFunction(int m_numArgument = -1);
+	static const int NUM_ARGUMENTS_VARIABLE = -1;
+
+	FormulaFunction(int m_numArgument = NUM_ARGUMENTS_VARIABLE);
 	virtual ~FormulaFunction();
 	virtual bool addArgument(FormulaElement *argument);
 	virtual bool close(void);
@@ -31,7 +33,7 @@ private:
 // ---------------------------------------------------------------------------
 class FormulaStatisticalFunc : public FormulaFunction {
 public:
-	FormulaStatisticalFunc(int numArguments = -1);
+	FormulaStatisticalFunc(int numArguments = NUM_ARGUMENTS_VARIABLE);
 	virtual void resetStatistics(void) = 0;
 };
 
