@@ -522,6 +522,14 @@ void SQLProcessor::addOutputColumn(SQLSelectInfo &selectInfo,
                                    SQLFormulaInfo *formulaInfo)
 {
 	selectInfo.outputColumnVector.push_back(SQLOutputColumn(formulaInfo));
+	SQLOutputColumn &outCol = selectInfo.outputColumnVector.back();
+	//outCol.columnBaseDef =
+	//outCol.tableInfo     =
+	outCol.schema        = getDBName();
+	//outCol.table         =
+	//outCol.tableVar      =
+	outCol.column        = formulaInfo->expression;
+	//outCol.columnVar     =
 }
 
 bool SQLProcessor::addOutputColumnWildcard(SQLSelectInfo &selectInfo,
