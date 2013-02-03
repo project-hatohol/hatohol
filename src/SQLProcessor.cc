@@ -193,6 +193,7 @@ void SQLColumnInfo::setColumnType(void)
 SQLSelectInfo::SQLSelectInfo(ParsableString &_query)
 : query(_query),
   useIndex(false),
+  makeTextRowsWriteMaskCount(0),
   evalTargetItemGroup(NULL)
 {
 	rootWhereElem = new SQLWhereElement();
@@ -280,8 +281,7 @@ bool SQLProcessor::select(SQLSelectInfo &selectInfo)
 		return false;
 
 	// convert data to string
-	if (!selectInfo.selectedTable->foreach<SQLSelectInfo&>(makeTextRows,
-	                                                       selectInfo))
+	if (!makeTextOutput(selectInfo))
 		return false;
 
 	return true;
@@ -675,6 +675,29 @@ bool SQLProcessor::selectMatchingRows(SQLSelectInfo &selectInfo)
 	                                    (pickupMatchingRows, selectInfo);
 }
 
+bool SQLProcessor::makeTextOutput(SQLSelectInfo &selectInfo)
+{
+	// check if statistical function is included
+	bool hasStatisticalFunc = false;
+	const SQLFormulaInfoVector &formulaInfoVector
+	  = selectInfo.columnParser.getFormulaInfoVector();
+	for (size_t i = 0; i < formulaInfoVector.size(); i++) {
+		if (formulaInfoVector[i]->hasStatisticalFunc) {
+			hasStatisticalFunc = true;
+			break;
+		}
+	}
+
+	if (hasStatisticalFunc) {
+		selectInfo.makeTextRowsWriteMaskCount =
+		  selectInfo.selectedTable->getNumberOfRows() - 1;
+	}
+	bool ret;
+	ret = selectInfo.selectedTable->foreach<SQLSelectInfo&>
+	                                       (makeTextRows, selectInfo);
+	return ret;
+}
+
 bool SQLProcessor::pickupMatchingRows(const ItemGroup *itemGroup,
                                       SQLSelectInfo &selectInfo)
 {
@@ -690,11 +713,16 @@ bool SQLProcessor::pickupMatchingRows(const ItemGroup *itemGroup,
 bool SQLProcessor::makeTextRows(const ItemGroup *itemGroup,
                                 SQLSelectInfo &selectInfo)
 {
+	bool doOutput = false;
+	if (selectInfo.makeTextRowsWriteMaskCount == 0)
+		doOutput = true;
+	else
+		selectInfo.makeTextRowsWriteMaskCount--;
+
 	ItemGroup *nonConstItemGroup = const_cast<ItemGroup *>(itemGroup);
 	selectInfo.evalTargetItemGroup = nonConstItemGroup;
 
-	selectInfo.textRows.push_back(StringVector());
-	StringVector &textVector = selectInfo.textRows.back();
+	StringVector textVector;
 	for (size_t i = 0; i < selectInfo.outputColumnVector.size(); i++) {
 		const SQLOutputColumn &outputColumn =
 		  selectInfo.outputColumnVector[i];
@@ -703,8 +731,12 @@ bool SQLProcessor::makeTextRows(const ItemGroup *itemGroup,
 			MLPL_BUG("Failed to get item data.\n");
 			return false;
 		}
+		if (!doOutput)
+			continue;
 		textVector.push_back(itemPtr->getString());
 	}
+	if (!textVector.empty())
+		selectInfo.textRows.push_back(textVector);
 	return true;
 }
 

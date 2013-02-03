@@ -202,6 +202,7 @@ struct SQLSelectInfo {
 
 	// flags
 	bool useIndex;
+	size_t makeTextRowsWriteMaskCount;
 
 	// temporay variable for selecting column
 	ItemGroupPtr evalTargetItemGroup;
@@ -242,6 +243,7 @@ protected:
 	bool doJoin(SQLSelectInfo &selectInfo);
 	bool fixupWhereColumn(SQLSelectInfo &selectInfo);
 	bool selectMatchingRows(SQLSelectInfo &selectInfo);
+	bool makeTextOutput(SQLSelectInfo &selectInfo);
 	bool checkSelectedAllColumns(const SQLSelectInfo &selectInfo,
 	                             const SQLColumnInfo &columnInfo) const;
 
