@@ -84,6 +84,7 @@ void test_max(void)
 	string expected = StringUtils::sprintf("max(%s)", columnName);
 	SQLFormulaInfo *formulaInfo = formulaInfoVector[0];
 	cppcut_assert_equal(expected, formulaInfo->expression);
+	cppcut_assert_equal(true, formulaInfo->hasStatisticalFunc);
 
 	FormulaElement *formulaElem = formulaInfo->formula;
 	assertFormulaFuncMax(formulaElem);

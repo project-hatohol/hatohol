@@ -215,6 +215,15 @@ bool SQLColumnParser::createdNewElement(FormulaElement *formulaElement)
 		formulaInfo->formula = formulaElement;
 	}
 	m_ctx->formulaElementStack.push_back(formulaElement);
+
+	// check if this is statistical function.
+	SQLFormulaInfo *formulaInfo = m_formulaInfoVector.back();
+	if (!formulaInfo->hasStatisticalFunc) {
+		FormulaStatisticalFunc *statFunc =
+		  dynamic_cast<FormulaStatisticalFunc *>(formulaElement);
+		if (statFunc)
+			formulaInfo->hasStatisticalFunc = true;
+	}
 	return true;
 }
 
