@@ -36,7 +36,8 @@ struct SQLColumnParser::ParsingContext {
 // Public static methods (SQLFormulaInfo)
 // ---------------------------------------------------------------------------
 SQLFormulaInfo::SQLFormulaInfo(void)
-: formula(NULL)
+: formula(NULL),
+  hasStatisticalFunc(false)
 {
 }
 

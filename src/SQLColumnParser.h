@@ -15,6 +15,7 @@ using namespace mlpl;
 struct SQLFormulaInfo {
 	FormulaElement *formula;
 	string          expression;
+	bool            hasStatisticalFunc;
 
 	// construct and destructor
 	SQLFormulaInfo(void);
