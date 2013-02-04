@@ -56,6 +56,11 @@ void test_whereEqNumber(void)
 	  StringUtils::sprintf("c1 from t1 where %s=%d", leftHand, rightHand));
 	SQLWhereParser whereParser;
 	assertInputStatement(whereParser, statement);
+	FormulaElement *formula = whereParser.getFormula();
+	cut_assert_not_null(formula);
+	assertFormulaCompareEqual(formula);
+	assertFormulaVariable(formula->getLeftHand(), leftHand);
+	assertFormulaNumber(formula->getRightHand(), rightHand);
 }
 
 } // namespace testSQLWhereParser
