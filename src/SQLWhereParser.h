@@ -26,6 +26,13 @@ public:
 	SQLWhereParser(void);
 	virtual ~SQLWhereParser();
 
+protected:
+	//
+	// SeparatorChecker callbacks
+	//
+	static void separatorCbEqual
+	  (const char separator, SQLWhereParser *whereParser);
+
 private:
 };
 

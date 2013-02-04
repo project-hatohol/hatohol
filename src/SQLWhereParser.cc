@@ -22,8 +22,25 @@
 // ---------------------------------------------------------------------------
 SQLWhereParser::SQLWhereParser(void)
 {
+	SeparatorCheckerWithCallback *separator = getSeparatorChecker();
+	separator->addSeparator("=");
+	separator->setCallbackTempl<SQLWhereParser>
+	  ('=', separatorCbEqual, this);
 }
 
 SQLWhereParser::~SQLWhereParser()
 {
+}
+
+// ---------------------------------------------------------------------------
+// Protected methods
+// ---------------------------------------------------------------------------
+
+//
+// SeparatorChecker callbacks
+//
+void SQLWhereParser::separatorCbEqual(const char separator,
+                                      SQLWhereParser *whereParser)
+{
+	MLPL_BUG("Not implemented: %s\n", __func__);
 }
