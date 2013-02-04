@@ -25,6 +25,7 @@ using namespace std;
 using namespace mlpl;
 
 #include "FormulaElement.h"
+#include "FormulaFunction.h"
 
 class SQLFormulaParser
 {
@@ -41,6 +42,13 @@ public:
 
 protected:
 	//
+	// general sub routines
+	//
+	FormulaVariable *makeFormulaVariable(string &name);
+	FormulaFunction *getFormulaFunctionFromStack(void);
+	bool passFunctionArgIfOpen(string &word);
+
+	//
 	// SeparatorChecker callbacks
 	//
 	static void separatorCbParenthesisOpen
@@ -50,6 +58,8 @@ protected:
 
 
 private:
+	struct PrivateContext;
+	PrivateContext                   *m_ctx;
 	FormulaVariableDataGetterFactory  m_columnDataGetterFactory;
 	void                             *m_columnDataGetterFactoryPriv;
 	SeparatorCheckerWithCallback      m_separator;

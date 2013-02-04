@@ -15,10 +15,39 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <stdexcept>
+
 #include "Logger.h"
 using namespace mlpl;
 
 #include "SQLFormulaParser.h"
+
+struct SQLFormulaParser::PrivateContext {
+	bool                    errorFlag;
+	string                  pendingWord;
+	string                  pendingWordLower;
+	deque<FormulaElement *> formulaElementStack;
+
+	// methods
+	PrivateContext(void)
+	: errorFlag(false)
+	{
+	}
+
+	void pushPendingWords(string &raw, string &lower) {
+		pendingWord = raw;
+		pendingWordLower = lower;;
+	}
+
+	bool hasPendingWord(void) {
+		return !pendingWord.empty();
+	}
+
+	void clearPendingWords(void) {
+		pendingWord.clear();
+		pendingWordLower.clear();
+	}
+};
 
 // ---------------------------------------------------------------------------
 // Public methods
@@ -27,6 +56,7 @@ SQLFormulaParser::SQLFormulaParser(void)
 : m_separator(" ()"),
   m_formula(NULL)
 {
+	m_ctx = new PrivateContext();
 	m_separator.setCallbackTempl<SQLFormulaParser>
 	  ('(', separatorCbParenthesisOpen, this);
 	m_separator.setCallbackTempl<SQLFormulaParser>
@@ -35,6 +65,8 @@ SQLFormulaParser::SQLFormulaParser(void)
 
 SQLFormulaParser::~SQLFormulaParser()
 {
+	if (m_ctx)
+		delete m_ctx;
 }
 
 void SQLFormulaParser::setColumnDataGetterFactory
@@ -47,8 +79,19 @@ void SQLFormulaParser::setColumnDataGetterFactory
 
 bool SQLFormulaParser::add(string& word, string &wordLower)
 {
-	MLPL_BUG("Not implemented: %s: %s\n", word.c_str(), __func__);
-	return false;
+	if (m_ctx->errorFlag)
+		return false;
+
+	if (m_ctx->hasPendingWord()) {
+		MLPL_DBG("hasPendingWord(): true.\n");
+		return false;
+	}
+
+	if (passFunctionArgIfOpen(word))
+		return true;
+
+	m_ctx->pushPendingWords(word, wordLower);
+	return true;
 }
 
 bool SQLFormulaParser::flush(void)
@@ -70,6 +113,43 @@ FormulaElement *SQLFormulaParser::getFormula(void) const
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
+
+//
+// general sub routines
+//
+FormulaVariable *SQLFormulaParser::makeFormulaVariable(string &name)
+{
+	if (!m_columnDataGetterFactory) {
+		string msg;
+		TRMSG(msg, "m_columnDataGetterFactory: NULL.");
+		throw logic_error(msg);
+	}
+	FormulaVariableDataGetter *dataGetter =
+	  (*m_columnDataGetterFactory)(name, m_columnDataGetterFactoryPriv);
+	FormulaVariable *formulaVariable =
+	  new FormulaVariable(name, dataGetter);
+	return formulaVariable;
+}
+
+FormulaFunction *
+SQLFormulaParser::SQLFormulaParser::getFormulaFunctionFromStack(void)
+{
+	if (m_ctx->formulaElementStack.empty())
+		return NULL;
+	FormulaElement *elem = m_ctx->formulaElementStack.back();
+	return dynamic_cast<FormulaFunction *>(elem);
+}
+
+bool SQLFormulaParser::passFunctionArgIfOpen(string &word)
+{
+	FormulaFunction *formulaFunc = getFormulaFunctionFromStack();
+	if (!formulaFunc)
+		return false;
+	FormulaVariable *formulaVariable = makeFormulaVariable(word);
+	if (!formulaFunc->addArgument(formulaVariable))
+		return false;
+	return true;
+}
 
 //
 // SeparatorChecker callbacks
