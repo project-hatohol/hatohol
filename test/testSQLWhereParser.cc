@@ -57,7 +57,6 @@ void test_whereEqNumber(void)
 	SQLWhereParser whereParser;
 	assertInputStatement(whereParser, statement);
 	FormulaElement *formula = whereParser.getFormula();
-	cut_assert_not_null(formula);
 	assertFormulaComparatorEqual(formula);
 	assertFormulaVariable(formula->getLeftHand(), leftHand);
 	assertFormulaValue(formula->getRightHand(), rightHand);
