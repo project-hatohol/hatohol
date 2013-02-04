@@ -38,7 +38,7 @@ static ItemData *&y_item = g_item[1];
 static ItemData *&z_item = g_item[2];
 static ItemData *&w_item = g_item[3];
 
-void deardown(void)
+void teardown(void)
 {
 	for (int i = 0; i < NUM_ITEM_POOL; i++) {
 		if (g_item[i]) {
