@@ -51,9 +51,9 @@ typedef vector<FormulaElement *>       FormulaElementVector;
 typedef FormulaElementVector::iterator FormulaElementVectorIterator;
 
 // ---------------------------------------------------------------------------
-// class: FormulaCompareEqual
+// class: FormulaComparatorEqual
 // ---------------------------------------------------------------------------
-class FormulaCompareEqual : public FormulaElement {
+class FormulaComparatorEqual : public FormulaElement {
 public:
 	virtual ItemDataPtr evaluate(void);
 };
