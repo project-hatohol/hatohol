@@ -52,6 +52,8 @@ public:
 	virtual void get(void *dst) const = 0;
 	virtual string getString(void) const = 0;
 
+	virtual bool operator >(ItemData &itemData) const = 0;
+	virtual bool operator <(ItemData &itemData) const = 0;
 	virtual bool operator >=(ItemData &itemData) const = 0;
 	virtual bool operator <=(ItemData &itemData) const = 0;
 	virtual bool operator ==(ItemData &itemData) const = 0;
@@ -93,6 +95,18 @@ public:
 		return str;
 	}
 
+	virtual bool operator >(ItemData &itemData) const {
+		MLPL_WARN("You should override this function: %s.\n",
+		          __PRETTY_FUNCTION__);
+		return false;
+	}
+
+	virtual bool operator <(ItemData &itemData) const {
+		MLPL_WARN("You should override this function: %s.\n",
+		          __PRETTY_FUNCTION__);
+		return false;
+	}
+
 	virtual bool operator >=(ItemData &itemData) const {
 		MLPL_WARN("You should override this function: %s.\n",
 		          __PRETTY_FUNCTION__);
@@ -125,11 +139,17 @@ typedef ItemGeneric<string,   ITEM_TYPE_STRING> ItemString;
 template<> string ItemInt::getString(void) const;
 template<> string ItemUint64::getString(void) const;
 
+template<> bool ItemInt::operator >(ItemData &itemData) const;
+template<> bool ItemInt::operator <(ItemData &itemData) const;
 template<> bool ItemInt::operator >=(ItemData &itemData) const;
 template<> bool ItemInt::operator <=(ItemData &itemData) const;
+template<> bool ItemInt::operator ==(ItemData &itemData) const;
 
+template<> bool ItemUint64::operator >(ItemData &itemData) const;
+template<> bool ItemUint64::operator <(ItemData &itemData) const;
 template<> bool ItemUint64::operator >=(ItemData &itemData) const;
 template<> bool ItemUint64::operator <=(ItemData &itemData) const;
+template<> bool ItemUint64::operator ==(ItemData &itemData) const;
 
 template<> bool ItemString::operator ==(ItemData &itemData) const;
 

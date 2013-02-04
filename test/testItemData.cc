@@ -27,7 +27,26 @@ public:
 	}
 };
 
+static const int TEST_ITEM_ID = 1;
+
 bool ItemIntTester::destructorCalled = false;
+
+const static int NUM_ITEM_POOL = 10;
+static ItemData *g_item[NUM_ITEM_POOL];
+static ItemData *&x_item = g_item[0];
+static ItemData *&y_item = g_item[1];
+static ItemData *&z_item = g_item[2];
+static ItemData *&w_item = g_item[3];
+
+void deardown(void)
+{
+	for (int i = 0; i < NUM_ITEM_POOL; i++) {
+		if (g_item[i]) {
+			g_item[i]->unref();
+			g_item[i] = NULL;
+		}
+	}
+}
 
 // ---------------------------------------------------------------------------
 // Test cases
@@ -112,6 +131,215 @@ void test_ref_unref(void)
 	cppcut_assert_equal(false, tester->destructorCalled);
 	tester->unref();
 	cppcut_assert_equal(true, tester->destructorCalled);
+}
+
+void test_operator_gt_int_positive(void)
+{
+	x_item = new ItemInt(TEST_ITEM_ID, 15);
+	y_item = new ItemInt(TEST_ITEM_ID, 10);
+	z_item = new ItemInt(TEST_ITEM_ID, 15);
+	w_item = new ItemInt(TEST_ITEM_ID, 20);
+	cppcut_assert_equal(true,  *x_item > *y_item);
+	cppcut_assert_equal(false, *x_item > *z_item);
+	cppcut_assert_equal(false, *x_item > *w_item);
+}
+
+void test_operator_gt_int_negative(void)
+{
+	x_item = new ItemInt(TEST_ITEM_ID, -15);
+	y_item = new ItemInt(TEST_ITEM_ID, -20);
+	z_item = new ItemInt(TEST_ITEM_ID, -15);
+	w_item = new ItemInt(TEST_ITEM_ID, -10);
+	cppcut_assert_equal(true,  *x_item > *y_item);
+	cppcut_assert_equal(false, *x_item > *z_item);
+	cppcut_assert_equal(false, *x_item > *w_item);
+}
+
+void test_operator_lt_int_positive(void)
+{
+	x_item = new ItemInt(TEST_ITEM_ID, 15);
+	y_item = new ItemInt(TEST_ITEM_ID, 10);
+	z_item = new ItemInt(TEST_ITEM_ID, 15);
+	w_item = new ItemInt(TEST_ITEM_ID, 20);
+	cppcut_assert_equal(false, *x_item < *y_item);
+	cppcut_assert_equal(false, *x_item < *z_item);
+	cppcut_assert_equal(true,  *x_item < *w_item);
+}
+
+void test_operator_lt_int_negative(void)
+{
+	x_item = new ItemInt(TEST_ITEM_ID, -15);
+	y_item = new ItemInt(TEST_ITEM_ID, -20);
+	z_item = new ItemInt(TEST_ITEM_ID, -15);
+	w_item = new ItemInt(TEST_ITEM_ID, -10);
+	cppcut_assert_equal(false, *x_item < *y_item);
+	cppcut_assert_equal(false, *x_item < *z_item);
+	cppcut_assert_equal(true,  *x_item < *w_item);
+}
+
+void test_operator_ge_int_positive(void)
+{
+	x_item = new ItemInt(TEST_ITEM_ID, 15);
+	y_item = new ItemInt(TEST_ITEM_ID, 10);
+	z_item = new ItemInt(TEST_ITEM_ID, 15);
+	w_item = new ItemInt(TEST_ITEM_ID, 20);
+	cppcut_assert_equal(true,  *x_item >= *y_item);
+	cppcut_assert_equal(true,  *x_item >= *z_item);
+	cppcut_assert_equal(false, *x_item >= *w_item);
+}
+
+void test_operator_ge_int_negative(void)
+{
+	x_item = new ItemInt(TEST_ITEM_ID, -15);
+	y_item = new ItemInt(TEST_ITEM_ID, -20);
+	z_item = new ItemInt(TEST_ITEM_ID, -15);
+	w_item = new ItemInt(TEST_ITEM_ID, -10);
+	cppcut_assert_equal(true,  *x_item >= *y_item);
+	cppcut_assert_equal(true,  *x_item >= *z_item);
+	cppcut_assert_equal(false, *x_item >= *w_item);
+}
+
+void test_operator_le_int_positive(void)
+{
+	x_item = new ItemInt(TEST_ITEM_ID, 15);
+	y_item = new ItemInt(TEST_ITEM_ID, 10);
+	z_item = new ItemInt(TEST_ITEM_ID, 15);
+	w_item = new ItemInt(TEST_ITEM_ID, 20);
+	cppcut_assert_equal(false, *x_item <= *y_item);
+	cppcut_assert_equal(true,  *x_item <= *z_item);
+	cppcut_assert_equal(true,  *x_item <= *w_item);
+}
+
+void test_operator_le_int_negative(void)
+{
+	x_item = new ItemInt(TEST_ITEM_ID, -15);
+	y_item = new ItemInt(TEST_ITEM_ID, -20);
+	z_item = new ItemInt(TEST_ITEM_ID, -15);
+	w_item = new ItemInt(TEST_ITEM_ID, -10);
+	cppcut_assert_equal(false, *x_item <= *y_item);
+	cppcut_assert_equal(true,  *x_item <= *z_item);
+	cppcut_assert_equal(true,  *x_item <= *w_item);
+}
+
+void test_operator_eq_int(void)
+{
+	x_item = new ItemInt(TEST_ITEM_ID, 15);
+	y_item = new ItemInt(TEST_ITEM_ID, 20);
+	z_item = new ItemInt(TEST_ITEM_ID, 15);
+	w_item = new ItemInt(TEST_ITEM_ID, 10);
+	cppcut_assert_equal(false, *x_item == *y_item);
+	cppcut_assert_equal(true,  *x_item == *z_item);
+	cppcut_assert_equal(false, *x_item == *w_item);
+}
+
+void test_operator_gt_uint64(void)
+{
+	x_item = new ItemUint64(TEST_ITEM_ID, 15);
+	y_item = new ItemUint64(TEST_ITEM_ID, 10);
+	z_item = new ItemUint64(TEST_ITEM_ID, 15);
+	w_item = new ItemUint64(TEST_ITEM_ID, 20);
+	cppcut_assert_equal(true,  *x_item > *y_item);
+	cppcut_assert_equal(false, *x_item > *z_item);
+	cppcut_assert_equal(false, *x_item > *w_item);
+}
+
+void test_operator_lt_uint64(void)
+{
+	x_item = new ItemUint64(TEST_ITEM_ID, 15);
+	y_item = new ItemUint64(TEST_ITEM_ID, 10);
+	z_item = new ItemUint64(TEST_ITEM_ID, 15);
+	w_item = new ItemUint64(TEST_ITEM_ID, 20);
+	cppcut_assert_equal(false, *x_item < *y_item);
+	cppcut_assert_equal(false, *x_item < *z_item);
+	cppcut_assert_equal(true,  *x_item < *w_item);
+}
+
+void test_operator_ge_uint64(void)
+{
+	x_item = new ItemUint64(TEST_ITEM_ID, 15);
+	y_item = new ItemUint64(TEST_ITEM_ID, 10);
+	z_item = new ItemUint64(TEST_ITEM_ID, 15);
+	w_item = new ItemUint64(TEST_ITEM_ID, 20);
+	cppcut_assert_equal(true,  *x_item >= *y_item);
+	cppcut_assert_equal(true,  *x_item >= *z_item);
+	cppcut_assert_equal(false, *x_item >= *w_item);
+}
+
+void test_operator_le_uint64(void)
+{
+	x_item = new ItemUint64(TEST_ITEM_ID, 15);
+	y_item = new ItemUint64(TEST_ITEM_ID, 10);
+	z_item = new ItemUint64(TEST_ITEM_ID, 15);
+	w_item = new ItemUint64(TEST_ITEM_ID, 20);
+	cppcut_assert_equal(false, *x_item <= *y_item);
+	cppcut_assert_equal(true,  *x_item <= *z_item);
+	cppcut_assert_equal(true,  *x_item <= *w_item);
+}
+
+void test_operator_eq_uint64(void)
+{
+	x_item = new ItemUint64(TEST_ITEM_ID, 15);
+	y_item = new ItemUint64(TEST_ITEM_ID, 20);
+	z_item = new ItemUint64(TEST_ITEM_ID, 15);
+	w_item = new ItemUint64(TEST_ITEM_ID, 10);
+	cppcut_assert_equal(false, *x_item == *y_item);
+	cppcut_assert_equal(true,  *x_item == *z_item);
+	cppcut_assert_equal(false, *x_item == *w_item);
+}
+
+void test_operator_gt_uint64_int(void)
+{
+	x_item = new ItemUint64(TEST_ITEM_ID, 15);
+	y_item = new ItemInt(TEST_ITEM_ID, 10);
+	z_item = new ItemInt(TEST_ITEM_ID, 15);
+	w_item = new ItemInt(TEST_ITEM_ID, 20);
+	cppcut_assert_equal(true,  *x_item > *y_item);
+	cppcut_assert_equal(false, *x_item > *z_item);
+	cppcut_assert_equal(false, *x_item > *w_item);
+}
+
+void test_operator_lt_uint64_int(void)
+{
+	x_item = new ItemUint64(TEST_ITEM_ID, 15);
+	y_item = new ItemInt(TEST_ITEM_ID, 10);
+	z_item = new ItemInt(TEST_ITEM_ID, 15);
+	w_item = new ItemInt(TEST_ITEM_ID, 20);
+	cppcut_assert_equal(false, *x_item < *y_item);
+	cppcut_assert_equal(false, *x_item < *z_item);
+	cppcut_assert_equal(true,  *x_item < *w_item);
+}
+
+void test_operator_ge_uint64_int(void)
+{
+	x_item = new ItemUint64(TEST_ITEM_ID, 15);
+	y_item = new ItemInt(TEST_ITEM_ID, 10);
+	z_item = new ItemInt(TEST_ITEM_ID, 15);
+	w_item = new ItemInt(TEST_ITEM_ID, 20);
+	cppcut_assert_equal(true,  *x_item >= *y_item);
+	cppcut_assert_equal(true,  *x_item >= *z_item);
+	cppcut_assert_equal(false, *x_item >= *w_item);
+}
+
+void test_operator_le_uint64_int(void)
+{
+	x_item = new ItemUint64(TEST_ITEM_ID, 15);
+	y_item = new ItemInt(TEST_ITEM_ID, 10);
+	z_item = new ItemInt(TEST_ITEM_ID, 15);
+	w_item = new ItemInt(TEST_ITEM_ID, 20);
+	cppcut_assert_equal(false, *x_item <= *y_item);
+	cppcut_assert_equal(true,  *x_item <= *z_item);
+	cppcut_assert_equal(true,  *x_item <= *w_item);
+}
+
+void test_operator_eq_uint64_int(void)
+{
+	x_item = new ItemUint64(TEST_ITEM_ID, 15);
+	y_item = new ItemInt(TEST_ITEM_ID, 20);
+	z_item = new ItemInt(TEST_ITEM_ID, 15);
+	w_item = new ItemInt(TEST_ITEM_ID, 10);
+	cppcut_assert_equal(false, *x_item == *y_item);
+	cppcut_assert_equal(true,  *x_item == *z_item);
+	cppcut_assert_equal(false, *x_item == *w_item);
 }
 
 } // namespace testItemData
