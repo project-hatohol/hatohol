@@ -14,6 +14,9 @@ static void assertFormulaElementType(FormulaElement *obj)
 	               DEMANGLED_TYPE_NAME(*obj), TYPE_NAME(*obj)));
 }
 
+#define assertFormulaCompareEqual(X) \
+cut_trace(assertFormulaElementType<FormulaCompareEqual>(X))
+
 #define assertTypeFormulaVariable(X) \
 cut_trace(assertFormulaElementType<FormulaVariable>(X))
 
