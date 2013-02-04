@@ -62,7 +62,7 @@ SeparatorCheckerWithCallback *SQLFormulaParser::getSeparatorChecker(void)
 	return &m_separator;
 }
 
-const FormulaElement *SQLFormulaParser::getFormula(void) const
+FormulaElement *SQLFormulaParser::getFormula(void) const
 {
 	return m_formula;
 }

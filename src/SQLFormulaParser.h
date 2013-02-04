@@ -37,7 +37,7 @@ public:
 	virtual bool add(string& word, string &wordLower);
 	virtual bool flush(void);
 	SeparatorCheckerWithCallback *getSeparatorChecker(void);
-	const FormulaElement *getFormula(void) const;
+	FormulaElement *getFormula(void) const;
 
 protected:
 	//
