@@ -59,9 +59,9 @@ public:
 };
 
 // ---------------------------------------------------------------------------
-// class: FormulaNumber
+// class: FormulaValue
 // ---------------------------------------------------------------------------
-class FormulaNumber : public FormulaElement {
+class FormulaValue : public FormulaElement {
 public:
 	virtual ItemDataPtr evaluate(void);
 };

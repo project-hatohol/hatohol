@@ -88,9 +88,9 @@ ItemDataPtr FormulaCompareEqual::evaluate(void)
 }
 
 // ---------------------------------------------------------------------------
-// class: FormulaNumber
+// class: FormulaValue
 // ---------------------------------------------------------------------------
-ItemDataPtr FormulaNumber::evaluate(void)
+ItemDataPtr FormulaValue::evaluate(void)
 {
 	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
 	return ItemDataPtr();
