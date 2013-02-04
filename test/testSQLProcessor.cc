@@ -644,7 +644,7 @@ void test_selectMax(void)
 	cppcut_assert_equal(testFormula, outCol.column);
 
 	cppcut_assert_equal((size_t)1, selectInfo.textRows.size());
-	cppcut_assert_equal(NUM_COLUMN_DEFS, selectInfo.textRows[0].size());
+	cppcut_assert_equal((size_t)1, selectInfo.textRows[0].size());
 	cppcut_assert_equal(StringUtils::toString(getMaxDataInTestData()),
 	                    selectInfo.textRows[0][0]);
 }
