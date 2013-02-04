@@ -88,6 +88,15 @@ ItemDataPtr FormulaCompareEqual::evaluate(void)
 }
 
 // ---------------------------------------------------------------------------
+// class: FormulaNumber
+// ---------------------------------------------------------------------------
+ItemDataPtr FormulaNumber::evaluate(void)
+{
+	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	return ItemDataPtr();
+}
+
+// ---------------------------------------------------------------------------
 // class: FormulaVariable
 // ---------------------------------------------------------------------------
 FormulaVariable::FormulaVariable(string &name,
