@@ -245,6 +245,16 @@ static void _assertWhereOperatorBetween(SQLWhereElement *whereElem)
 #define assertWhereOperatorBetween(ELEM) \
 cut_trace(_assertWhereOperatorBetween(ELEM))
 
+static const int getMaxDataInTestData(void)
+{
+	int max = testData[0].number;
+	for (size_t i = 1; i < numTestData; i++) {
+		if (testData[i].number > max)
+			max = testData[i].number;
+	}
+	return max;
+}
+
 void setup(void)
 {
 	asuraInit();
@@ -634,6 +644,9 @@ void test_selectMax(void)
 	cppcut_assert_equal(testFormula, outCol.column);
 
 	cppcut_assert_equal((size_t)1, selectInfo.textRows.size());
+	cppcut_assert_equal(NUM_COLUMN_DEFS, selectInfo.textRows[0].size());
+	cppcut_assert_equal(StringUtils::toString(getMaxDataInTestData()),
+	                    selectInfo.textRows[0][0]);
 }
 
 } // namespace testSQLProcessor
