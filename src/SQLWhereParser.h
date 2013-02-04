@@ -27,7 +27,6 @@ public:
 	virtual ~SQLWhereParser();
 
 private:
-	SeparatorCheckerWithCallback m_separator;
 };
 
 #endif // SQLFormualaParser_h

@@ -23,9 +23,13 @@ using namespace mlpl;
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
-SQLFormulaParser::SQLFormulaParser(SeparatorCheckerWithCallback &separator)
-: m_separator(separator)
+SQLFormulaParser::SQLFormulaParser(void)
+: m_separator(" ()")
 {
+	m_separator.setCallbackTempl<SQLFormulaParser>
+	  ('(', separatorCbParenthesisOpen, this);
+	m_separator.setCallbackTempl<SQLFormulaParser>
+	  (')', separatorCbParenthesisClose, this);
 }
 
 SQLFormulaParser::~SQLFormulaParser()
@@ -52,8 +56,27 @@ bool SQLFormulaParser::flush(void)
 	return false;
 }
 
-SeparatorCheckerWithCallback *SQLFormulaParser::getSeparatorChecker(void) const
+SeparatorCheckerWithCallback *SQLFormulaParser::getSeparatorChecker(void)
 {
 	return &m_separator;
+}
+
+// ---------------------------------------------------------------------------
+// Protected methods
+// ---------------------------------------------------------------------------
+
+//
+// SeparatorChecker callbacks
+//
+void SQLFormulaParser::separatorCbParenthesisOpen
+  (const char separator, SQLFormulaParser *formulaParser)
+{
+	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__); 
+}
+
+void SQLFormulaParser::separatorCbParenthesisClose
+  (const char separator, SQLFormulaParser *formulaParser)
+{
+	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__); 
 }
 

@@ -29,19 +29,29 @@ using namespace mlpl;
 class SQLFormulaParser
 {
 public:
-	SQLFormulaParser(SeparatorCheckerWithCallback &separator);
+	SQLFormulaParser(void);
 	virtual ~SQLFormulaParser();
 	void setColumnDataGetterFactory
 	       (FormulaVariableDataGetterFactory columnDataGetterFactory,
 	        void *columnDataGetterFactoryPriv);
 	virtual bool add(string& word, string &wordLower);
 	virtual bool flush(void);
-	SeparatorCheckerWithCallback *getSeparatorChecker(void) const;
+	SeparatorCheckerWithCallback *getSeparatorChecker(void);
+
+protected:
+	//
+	// SeparatorChecker callbacks
+	//
+	static void separatorCbParenthesisOpen
+	  (const char separator, SQLFormulaParser *formulaParser);
+	static void separatorCbParenthesisClose
+	  (const char separator, SQLFormulaParser *formulaParser);
+
 
 private:
 	FormulaVariableDataGetterFactory  m_columnDataGetterFactory;
 	void                             *m_columnDataGetterFactoryPriv;
-	SeparatorCheckerWithCallback     &m_separator;
+	SeparatorCheckerWithCallback      m_separator;
 };
 
 #endif // SQLFormualaParser_h
