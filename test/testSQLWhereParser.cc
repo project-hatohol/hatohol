@@ -53,7 +53,7 @@ void test_whereEqNumber(void)
 	const char *leftHand = "a";
 	int rightHand = 1;
 	ParsableString statement(
-	  StringUtils::sprintf("c1 from t1 where %s=%d", leftHand, rightHand));
+	  StringUtils::sprintf("%s=%d", leftHand, rightHand));
 	SQLWhereParser whereParser;
 	assertInputStatement(whereParser, statement);
 	FormulaElement *formula = whereParser.getFormula();
