@@ -161,6 +161,11 @@ bool SQLFormulaParser::createdNewElement(FormulaElement *formulaElement)
 	return true;
 }
 
+void SQLFormulaParser::setErrorFlag(void)
+{
+	m_ctx->errorFlag = true;
+}
+
 //
 // SeparatorChecker callbacks
 //

@@ -48,6 +48,7 @@ protected:
 	FormulaFunction *getFormulaFunctionFromStack(void);
 	bool passFunctionArgIfOpen(string &word);
 	bool createdNewElement(FormulaElement *formulaElement);
+	void setErrorFlag(void);
 
 	//
 	// SeparatorChecker callbacks
