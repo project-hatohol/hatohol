@@ -153,6 +153,14 @@ bool SQLFormulaParser::passFunctionArgIfOpen(string &word)
 	return true;
 }
 
+bool SQLFormulaParser::createdNewElement(FormulaElement *formulaElement)
+{
+	if (m_ctx->formulaElementStack.empty())
+		m_formula = formulaElement;
+	m_ctx->formulaElementStack.push_back(formulaElement);
+	return true;
+}
+
 //
 // SeparatorChecker callbacks
 //
