@@ -21,10 +21,27 @@
 #include <string>
 using namespace std;
 
+#include <ParsableString.h>
+using namespace mlpl;
+
+#include "FormulaElement.h"
+
 class SQLFormulaParser
 {
 public:
-	bool add(string& word, string &wordLower);
+	SQLFormulaParser(SeparatorCheckerWithCallback &separator);
+	virtual ~SQLFormulaParser();
+	void setColumnDataGetterFactory
+	       (FormulaVariableDataGetterFactory columnDataGetterFactory,
+	        void *columnDataGetterFactoryPriv);
+	virtual bool add(string& word, string &wordLower);
+	virtual bool flush(void);
+	SeparatorCheckerWithCallback *getSeparatorChecker(void) const;
+
+private:
+	FormulaVariableDataGetterFactory  m_columnDataGetterFactory;
+	void                             *m_columnDataGetterFactoryPriv;
+	SeparatorCheckerWithCallback     &m_separator;
 };
 
 #endif // SQLFormualaParser_h

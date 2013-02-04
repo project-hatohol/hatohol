@@ -16,3 +16,16 @@
 */
 
 #include "SQLWhereParser.h"
+
+// ---------------------------------------------------------------------------
+// Public methods
+// ---------------------------------------------------------------------------
+SQLWhereParser::SQLWhereParser(void)
+: SQLFormulaParser(m_separator),
+  m_separator(" ()")
+{
+}
+
+SQLWhereParser::~SQLWhereParser()
+{
+}

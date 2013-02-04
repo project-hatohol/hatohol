@@ -23,6 +23,11 @@
 class SQLWhereParser : public SQLFormulaParser
 {
 public:
+	SQLWhereParser(void);
+	virtual ~SQLWhereParser();
+
+private:
+	SeparatorCheckerWithCallback m_separator;
 };
 
 #endif // SQLFormualaParser_h

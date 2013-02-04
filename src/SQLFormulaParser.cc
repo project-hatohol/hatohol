@@ -20,8 +20,40 @@ using namespace mlpl;
 
 #include "SQLFormulaParser.h"
 
+// ---------------------------------------------------------------------------
+// Public methods
+// ---------------------------------------------------------------------------
+SQLFormulaParser::SQLFormulaParser(SeparatorCheckerWithCallback &separator)
+: m_separator(separator)
+{
+}
+
+SQLFormulaParser::~SQLFormulaParser()
+{
+}
+
+void SQLFormulaParser::setColumnDataGetterFactory
+       (FormulaVariableDataGetterFactory columnDataGetterFactory,
+        void *columnDataGetterFactoryPriv)
+{
+       m_columnDataGetterFactory = columnDataGetterFactory;
+       m_columnDataGetterFactoryPriv = columnDataGetterFactoryPriv;
+}
+
 bool SQLFormulaParser::add(string& word, string &wordLower)
 {
 	MLPL_BUG("Not implemented: %s: %s\n", word.c_str(), __func__);
 	return false;
 }
+
+bool SQLFormulaParser::flush(void)
+{
+	MLPL_BUG("Not implemented: %s\n", __func__);
+	return false;
+}
+
+SeparatorCheckerWithCallback *SQLFormulaParser::getSeparatorChecker(void) const
+{
+	return &m_separator;
+}
+
