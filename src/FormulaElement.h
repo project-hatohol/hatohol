@@ -51,6 +51,14 @@ typedef vector<FormulaElement *>       FormulaElementVector;
 typedef FormulaElementVector::iterator FormulaElementVectorIterator;
 
 // ---------------------------------------------------------------------------
+// class: FormulaCompareEqual
+// ---------------------------------------------------------------------------
+class FormulaCompareEqual : public FormulaElement {
+public:
+	virtual ItemDataPtr evaluate(void);
+};
+
+// ---------------------------------------------------------------------------
 // class: FormulaVariable
 // ---------------------------------------------------------------------------
 class FormulaVariable;
