@@ -8,6 +8,7 @@
 template<typename T>
 static void assertFormulaElementType(FormulaElement *obj)
 {
+	cut_assert_not_null(obj);
 	cppcut_assert_equal
 	  (true, typeid(T) == typeid(*obj),
 	   cut_message("type: *obj: %s (%s)",
