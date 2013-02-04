@@ -20,11 +20,18 @@ cut_trace(assertFormulaElementType<FormulaCompareEqual>(X))
 #define assertTypeFormulaVariable(X) \
 cut_trace(assertFormulaElementType<FormulaVariable>(X))
 
+#define assertTypeFormulaNumber(X) \
+cut_trace(assertFormulaElementType<FormulaNumber>(X))
+
 #define assertFormulaFuncMax(X) \
 cut_trace(assertFormulaElementType<FormulaFuncMax>(X))
 
 void _assertFormulaVariable(FormulaElement *elem, const char *expected);
 #define assertFormulaVariable(EL, EXP) \
 cut_trace(_assertFormulaVariable(EL, EXP))
+
+void _assertFormulaNumber(FormulaElement *elem, int expected);
+#define assertFormulaNumber(EL, EXP) \
+cut_trace(_assertFormulaNumber(EL, EXP))
 
 #endif // testFormulaCommon_h
