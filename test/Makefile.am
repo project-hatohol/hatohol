@@ -35,6 +35,9 @@ testSQLProcessor_la_LIBADD = ./libFormulaTestUtils.la
 testSQLColumnParser_la_SOURCES = testSQLColumnParser.cc
 testSQLColumnParser_la_LIBADD = ./libFormulaTestUtils.la
 
+testSQLWhereParser_la_SOURCES = testSQLWhereParser.cc
+testSQLWhereParser_la_LIBADD = ./libFormulaTestUtils.la
+
 testSQLWhereElement_la_SOURCES = testSQLWhereElement.cc
 testMySQLWorkerZabbix_la_SOURCES = testMySQLWorkerZabbix.cc
 testItemData_la_SOURCES = testItemData.cc
