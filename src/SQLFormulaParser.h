@@ -37,6 +37,7 @@ public:
 	virtual bool add(string& word, string &wordLower);
 	virtual bool flush(void);
 	SeparatorCheckerWithCallback *getSeparatorChecker(void);
+	const FormulaElement *getFormula(void) const;
 
 protected:
 	//
@@ -52,6 +53,7 @@ private:
 	FormulaVariableDataGetterFactory  m_columnDataGetterFactory;
 	void                             *m_columnDataGetterFactoryPriv;
 	SeparatorCheckerWithCallback      m_separator;
+	FormulaElement                   *m_formula;
 };
 
 #endif // SQLFormualaParser_h

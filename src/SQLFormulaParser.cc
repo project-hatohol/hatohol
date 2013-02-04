@@ -24,7 +24,8 @@ using namespace mlpl;
 // Public methods
 // ---------------------------------------------------------------------------
 SQLFormulaParser::SQLFormulaParser(void)
-: m_separator(" ()")
+: m_separator(" ()"),
+  m_formula(NULL)
 {
 	m_separator.setCallbackTempl<SQLFormulaParser>
 	  ('(', separatorCbParenthesisOpen, this);
@@ -59,6 +60,11 @@ bool SQLFormulaParser::flush(void)
 SeparatorCheckerWithCallback *SQLFormulaParser::getSeparatorChecker(void)
 {
 	return &m_separator;
+}
+
+const FormulaElement *SQLFormulaParser::getFormula(void) const
+{
+	return m_formula;
 }
 
 // ---------------------------------------------------------------------------
