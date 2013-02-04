@@ -15,4 +15,13 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "Logger.h"
+using namespace mlpl;
+
 #include "SQLFormulaParser.h"
+
+bool SQLFormulaParser::add(string& word, string &wordLower)
+{
+	MLPL_BUG("Not implemented: %s: %s\n", word.c_str(), __func__);
+	return false;
+}

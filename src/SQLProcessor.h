@@ -34,6 +34,7 @@ using namespace mlpl;
 #include "FormulaElement.h"
 #include "SQLColumnParser.h"
 #include "SQLWhereElement.h"
+#include "SQLWhereParser.h"
 
 enum SQLColumnType {
 	SQL_COLUMN_TYPE_INT,
@@ -197,6 +198,7 @@ struct SQLSelectInfo {
 	// causes the free chain of child 'whereElem' instances.
 	SQLWhereElement            *rootWhereElem;
 	SQLWhereElement            *currWhereElem;
+	SQLWhereParser              whereParser;
 	// The elements in the following vector point the matter in the above
 	// tree. So don't free directly.
 	vector<SQLWhereColumn *>    whereColumnVector;

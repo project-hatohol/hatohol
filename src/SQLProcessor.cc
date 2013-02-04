@@ -872,6 +872,9 @@ bool SQLProcessor::parseFrom(SelectParserContext &ctx)
 
 bool SQLProcessor::parseWhere(SelectParserContext &ctx)
 {
+	// Now both the legacy and developping whereParser code are executed.
+	ctx.selectInfo.whereParser.add(ctx.currWord, ctx.currWordLower);
+
 	bool doKeywordCheck = true;
 	bool currWordString = false;
 	if (ctx.quotOpen) {

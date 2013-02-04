@@ -18,9 +18,13 @@
 #ifndef SQLFormulaParser_h
 #define SQLFormualaParser_h
 
+#include <string>
+using namespace std;
+
 class SQLFormulaParser
 {
 public:
+	bool add(string& word, string &wordLower);
 };
 
 #endif // SQLFormualaParser_h
