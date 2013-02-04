@@ -14,14 +14,14 @@ static void assertFormulaElementType(FormulaElement *obj)
 	               DEMANGLED_TYPE_NAME(*obj), TYPE_NAME(*obj)));
 }
 
-#define assertFormulaCompareEqual(X) \
-cut_trace(assertFormulaElementType<FormulaCompareEqual>(X))
+#define assertFormulaComparatorEqual(X) \
+cut_trace(assertFormulaElementType<FormulaComparatorEqual>(X))
 
 #define assertTypeFormulaVariable(X) \
 cut_trace(assertFormulaElementType<FormulaVariable>(X))
 
-#define assertTypeFormulaNumber(X) \
-cut_trace(assertFormulaElementType<FormulaNumber>(X))
+#define assertTypeFormulaValue(X) \
+cut_trace(assertFormulaElementType<FormulaValue>(X))
 
 #define assertFormulaFuncMax(X) \
 cut_trace(assertFormulaElementType<FormulaFuncMax>(X))
@@ -30,8 +30,8 @@ void _assertFormulaVariable(FormulaElement *elem, const char *expected);
 #define assertFormulaVariable(EL, EXP) \
 cut_trace(_assertFormulaVariable(EL, EXP))
 
-void _assertFormulaNumber(FormulaElement *elem, int expected);
-#define assertFormulaNumber(EL, EXP) \
-cut_trace(_assertFormulaNumber(EL, EXP))
+void _assertFormulaValue(FormulaElement *elem, int expected);
+#define assertFormulaValue(EL, EXP) \
+cut_trace(_assertFormulaValue(EL, EXP))
 
 #endif // testFormulaCommon_h

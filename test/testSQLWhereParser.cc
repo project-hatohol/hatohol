@@ -58,9 +58,9 @@ void test_whereEqNumber(void)
 	assertInputStatement(whereParser, statement);
 	FormulaElement *formula = whereParser.getFormula();
 	cut_assert_not_null(formula);
-	assertFormulaCompareEqual(formula);
+	assertFormulaComparatorEqual(formula);
 	assertFormulaVariable(formula->getLeftHand(), leftHand);
-	assertFormulaNumber(formula->getRightHand(), rightHand);
+	assertFormulaValue(formula->getRightHand(), rightHand);
 }
 
 } // namespace testSQLWhereParser
