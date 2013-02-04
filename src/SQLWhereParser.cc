@@ -42,5 +42,8 @@ SQLWhereParser::~SQLWhereParser()
 void SQLWhereParser::separatorCbEqual(const char separator,
                                       SQLWhereParser *whereParser)
 {
-	MLPL_BUG("Not implemented: %s\n", __func__);
+	FormulaComparatorEqual *formulaComparatorEqual
+	  = new FormulaComparatorEqual();
+	if (!whereParser->createdNewElement(formulaComparatorEqual))
+		whereParser->setErrorFlag();
 }
