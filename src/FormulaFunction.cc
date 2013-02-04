@@ -106,7 +106,9 @@ ItemDataPtr FormulaFuncMax::evaluate(void)
 		return ItemDataPtr();
 	}
 	ItemDataPtr dataPtr = elemVector[0]->evaluate();
-	if (dataPtr > m_maxData)
+	if (!m_maxData.hasData())
+		m_maxData = dataPtr;
+	else if (*dataPtr > *m_maxData)
 		m_maxData = dataPtr;
 	return m_maxData;
 }
