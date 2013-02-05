@@ -12,6 +12,7 @@ using namespace mlpl;
 #include <cutter.h>
 #include <cppcutter.h>
 #include "SQLWhereParser.h"
+#include "FormulaOperator.h"
 #include "FormulaTestUtils.h"
 #include "Asura.h"
 
