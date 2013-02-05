@@ -90,5 +90,33 @@ void test_whereEqColumnColumn(void)
 	assertFormulaVariable(formula->getRightHand(), rightHand);
 }
 
+void test_whereAnd(void)
+{
+	const char *leftHand0  = "a";
+	int         rightHand0 = 1;
+	const char *leftHand1  = "b";
+	const char *rightHand1 = "foo";
+	ParsableString statement(
+	  StringUtils::sprintf("%s=%d and %s='%s'",
+	                       leftHand0, rightHand0, leftHand1, rightHand1));
+	SQLWhereParser whereParser;
+	assertInputStatement(whereParser, statement);
+
+	FormulaElement *formula = whereParser.getFormula();
+	assertFormulaOperatorAnd(formula);
+
+	// left child
+	FormulaElement *leftElem = formula->getLeftHand();
+	assertFormulaComparatorEqual(leftElem);
+	assertFormulaVariable(leftElem->getLeftHand(), leftHand0);
+	assertFormulaValue(leftElem->getRightHand(), rightHand0);
+
+	// right child
+	FormulaElement *rightElem = formula->getRightHand();
+	assertFormulaComparatorEqual(rightElem);
+	assertFormulaVariable(rightElem->getLeftHand(), leftHand1);
+	assertFormulaValue(rightElem->getRightHand(), rightHand1);
+}
+
 } // namespace testSQLWhereParser
 
