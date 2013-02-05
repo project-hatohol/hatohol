@@ -38,6 +38,13 @@ public:
 
 	virtual ItemDataPtr evaluate(void) = 0;
 
+	// mainly for debug
+	int getTreeInfo(string &str, int maxNumElem = -1, int currNum = 0,
+	                int depth = 0);
+
+protected:
+	virtual string getTreeInfoAdditional(void);
+
 private:
 	FormulaElement  *m_leftHand;
 	FormulaElement  *m_rightHand;

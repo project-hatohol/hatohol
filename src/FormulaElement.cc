@@ -61,6 +61,51 @@ FormulaElement *FormulaElement::getRightHand(void) const
 	return m_rightHand;
 }
 
+int FormulaElement::getTreeInfo(string &str, int maxNumElem, int currNum,
+                                int depth)
+{
+	string leftTypeName = "-";
+	string rightTypeName = "-";
+
+	if (m_leftHand)
+		leftTypeName = DEMANGLED_TYPE_NAME(*m_leftHand);
+	if (m_rightHand)
+		rightTypeName = DEMANGLED_TYPE_NAME(*m_rightHand);
+
+	string spaces;
+	for (size_t i = 0; i < depth; i++)
+		spaces += " ";
+
+	string additionalInfo = getTreeInfoAdditional();
+	str += StringUtils::sprintf
+	         ("%02d %s[%p] %s, L:%p (%s), R:%p (%s), %s\n",
+	          currNum, spaces.c_str(), this, DEMANGLED_TYPE_NAME(*this),
+	          m_leftHand, leftTypeName.c_str(),
+	          m_rightHand, rightTypeName.c_str(),
+	          additionalInfo.c_str());
+	currNum++;
+	if (maxNumElem >= 0 && currNum >= maxNumElem)
+		return currNum;
+
+	if (m_leftHand) {
+		currNum = m_leftHand->getTreeInfo(str, maxNumElem, currNum,
+		                                  depth + 1);
+	}
+	if (maxNumElem >= 0 && currNum >= maxNumElem)
+		return currNum;
+
+	if (m_rightHand) {
+		currNum = m_rightHand->getTreeInfo(str, maxNumElem, currNum,
+		                                   depth + 1);
+	}
+	return currNum;
+}
+
+string FormulaElement::getTreeInfoAdditional(void)
+{
+	return "-";
+}
+
 // ---------------------------------------------------------------------------
 // class: FormulaValue
 // ---------------------------------------------------------------------------
