@@ -101,7 +101,8 @@ bool SQLFormulaParser::add(string& word, string &wordLower)
 		return false;
 
 	if (m_ctx->hasPendingWord()) {
-		MLPL_DBG("hasPendingWord(): true.\n");
+		MLPL_DBG("already has pending word: %s, curr: %s.\n",
+		         m_ctx->pendingWord.c_str(), word.c_str());
 		return false;
 	}
 
