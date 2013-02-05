@@ -61,6 +61,7 @@ protected:
 	FormulaElement *getCurrentElement(void) const;
 	bool makeFormulaElementFromPendingWord(void);
 	bool addStringValue(string &word);
+	bool checkKeyword(string &wordLower);
 
 	//
 	// SeparatorChecker callbacks

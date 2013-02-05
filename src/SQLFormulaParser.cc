@@ -109,6 +109,13 @@ bool SQLFormulaParser::add(string& word, string &wordLower)
 	if (passFunctionArgIfOpen(word))
 		return true;
 
+	KeywordHandlerMapIterator it;
+	it = m_keywordHandler->find(wordLower);
+	if (it != m_keywordHandler->end()) {
+		KeywordHandler func = it->second;
+		return (this->*func)();
+	}
+
 	m_ctx->pushPendingWords(word, wordLower);
 	return true;
 }
