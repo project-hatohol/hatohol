@@ -74,6 +74,11 @@ protected:
 	  (const char separator, SQLFormulaParser *formulaParser);
 	void separatorCbQuot(const char separator);
 
+	//
+	// Keyword handlers
+	//
+	bool kwHandlerAnd(void);
+
 private:
 	static KeywordHandlerMap          m_defaultKeywordHandlerMap;
 

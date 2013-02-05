@@ -59,6 +59,7 @@ SQLFormulaParser::m_defaultKeywordHandlerMap;
 
 void SQLFormulaParser::init(void)
 {
+	m_defaultKeywordHandlerMap["and"] = &SQLFormulaParser::kwHandlerAnd;
 }
 
 // ---------------------------------------------------------------------------
@@ -313,3 +314,11 @@ void SQLFormulaParser::separatorCbQuot(const char separator)
 	m_separator.setAlternative(&ParsableString::SEPARATOR_QUOT);
 }
 
+//
+// Keyword handlers
+//
+bool SQLFormulaParser::kwHandlerAnd(void)
+{
+	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__); 
+	return false;
+}
