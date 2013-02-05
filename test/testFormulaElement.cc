@@ -49,4 +49,19 @@ void test_setGetRightHand(void)
 	x_elem = NULL; // to avoid destructor from being called directly
 }
 
+//
+// FormulaValue
+//
+void test_formulaValueInt(void)
+{
+	int num = 3;
+	FormulaValue formulaValue(num);
+	ItemDataPtr itemData = formulaValue.evaluate();
+	int actual;
+	itemData->get(&actual);
+	cppcut_assert_equal(num, actual);
+	cppcut_assert_equal(2, itemData->getUsedCount());
+}
+
+
 } // testFormulaElement

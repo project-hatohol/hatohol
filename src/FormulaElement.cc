@@ -103,8 +103,7 @@ FormulaValue::FormulaValue(double number)
 
 ItemDataPtr FormulaValue::evaluate(void)
 {
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
-	return ItemDataPtr();
+	return m_itemDataPtr;
 }
 
 // ---------------------------------------------------------------------------
