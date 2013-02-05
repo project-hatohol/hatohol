@@ -98,8 +98,12 @@ bool SQLFormulaParser::add(string& word, string &wordLower)
 
 bool SQLFormulaParser::flush(void)
 {
-	MLPL_BUG("Not implemented: %s\n", __func__);
-	return false;
+	if (m_ctx->errorFlag)
+		return false;
+
+	if (!makeFormulaElementFromPendingWord())
+		return false;
+	return true;
 }
 
 SeparatorCheckerWithCallback *SQLFormulaParser::getSeparatorChecker(void)
@@ -153,10 +157,18 @@ bool SQLFormulaParser::passFunctionArgIfOpen(string &word)
 	return true;
 }
 
-bool SQLFormulaParser::createdNewElement(FormulaElement *formulaElement)
+bool SQLFormulaParser::createdLHSElement(FormulaElement *formulaElement)
 {
 	if (m_ctx->formulaElementStack.empty())
 		m_formula = formulaElement;
+	else {
+		FormulaElement *lhsElem;
+		lhsElem = m_ctx->formulaElementStack.back();
+		formulaElement->setLeftHand(lhsElem);
+		m_ctx->formulaElementStack.pop_back();
+		if (m_ctx->formulaElementStack.empty())
+			m_formula = formulaElement;
+	}
 	m_ctx->formulaElementStack.push_back(formulaElement);
 	return true;
 }
@@ -164,6 +176,60 @@ bool SQLFormulaParser::createdNewElement(FormulaElement *formulaElement)
 void SQLFormulaParser::setErrorFlag(void)
 {
 	m_ctx->errorFlag = true;
+}
+
+FormulaElement *SQLFormulaParser::getCurrentElement(void) const
+{
+	if (m_ctx->formulaElementStack.empty())
+		return NULL;
+	return m_ctx->formulaElementStack.back();
+}
+
+bool SQLFormulaParser::makeFormulaElementFromPendingWord(void)
+{
+	if (!m_ctx->hasPendingWord())
+		return true;
+
+	bool shouldLHS = false;
+	FormulaElement *currElement = getCurrentElement();
+	if (!currElement)
+		shouldLHS = true;
+	else {
+		if (!currElement->getLeftHand())
+			shouldLHS = true;
+		else if (!currElement->getRightHand())
+			shouldLHS = false;
+		else {
+			string msg;
+			TRMSG(msg, "Both hands are not null.");
+			throw logic_error(msg);
+		}
+	}
+
+	FormulaElement *formulaElement;
+	bool isFloat;
+	if (StringUtils::isNumber(m_ctx->pendingWord, &isFloat)) {
+		if (shouldLHS) {
+			MLPL_DBG("shouldLHS is true. But number is given.");
+			return false;
+		}
+		if (!isFloat) {
+			int number = atoi(m_ctx->pendingWord.c_str());
+			formulaElement = new FormulaValue(number);
+		} else {
+			double number = atof(m_ctx->pendingWord.c_str());
+			formulaElement = new FormulaValue(number);
+		}
+	} else
+		formulaElement = makeFormulaVariable(m_ctx->pendingWord);
+	m_ctx->clearPendingWords();
+
+	bool ret = true;
+	if (shouldLHS)
+		ret = createdLHSElement(formulaElement);
+	else
+		currElement->setRightHand(formulaElement);
+	return ret;
 }
 
 //

@@ -19,6 +19,7 @@
 using namespace mlpl;
 
 #include "FormulaElement.h"
+#include "ItemEnum.h"
 
 // ---------------------------------------------------------------------------
 // Public methods
@@ -90,6 +91,16 @@ ItemDataPtr FormulaComparatorEqual::evaluate(void)
 // ---------------------------------------------------------------------------
 // class: FormulaValue
 // ---------------------------------------------------------------------------
+FormulaValue::FormulaValue(int number)
+{
+	m_itemDataPtr = ItemDataPtr(new ItemInt(ITEM_ID_NOBODY, number), false);
+}
+
+FormulaValue::FormulaValue(double number)
+{
+	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+}
+
 ItemDataPtr FormulaValue::evaluate(void)
 {
 	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);

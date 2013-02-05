@@ -30,8 +30,9 @@ protected:
 	//
 	// SeparatorChecker callbacks
 	//
-	static void separatorCbEqual
-	  (const char separator, SQLWhereParser *whereParser);
+	static void _separatorCbEqual(const char separator,
+	                              SQLWhereParser *whereParser);
+	void separatorCbEqual(const char separator);
 
 private:
 };

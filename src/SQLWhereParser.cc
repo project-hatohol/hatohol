@@ -25,7 +25,7 @@ SQLWhereParser::SQLWhereParser(void)
 	SeparatorCheckerWithCallback *separator = getSeparatorChecker();
 	separator->addSeparator("=");
 	separator->setCallbackTempl<SQLWhereParser>
-	  ('=', separatorCbEqual, this);
+	  ('=', _separatorCbEqual, this);
 }
 
 SQLWhereParser::~SQLWhereParser()
@@ -39,11 +39,30 @@ SQLWhereParser::~SQLWhereParser()
 //
 // SeparatorChecker callbacks
 //
-void SQLWhereParser::separatorCbEqual(const char separator,
-                                      SQLWhereParser *whereParser)
+void SQLWhereParser::_separatorCbEqual(const char separator,
+                                       SQLWhereParser *whereParser)
 {
+	whereParser->separatorCbEqual(separator);
+}
+
+void SQLWhereParser::separatorCbEqual(const char separator)
+{
+	if (!flush())
+		return;
+
+	// Get Left-Hand
+	FormulaElement *lhsElement = getCurrentElement();
+	if (!lhsElement) {
+		setErrorFlag();
+		MLPL_DBG("lhsElement: NULL.");
+		return;
+	}
+
+	// create ComparatorEqual
 	FormulaComparatorEqual *formulaComparatorEqual
 	  = new FormulaComparatorEqual();
-	if (!whereParser->createdNewElement(formulaComparatorEqual))
-		whereParser->setErrorFlag();
+	if (!createdLHSElement(formulaComparatorEqual)) {
+		setErrorFlag();
+		return;
+	}
 }

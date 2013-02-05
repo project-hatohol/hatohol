@@ -63,7 +63,12 @@ public:
 // ---------------------------------------------------------------------------
 class FormulaValue : public FormulaElement {
 public:
+	FormulaValue(int number);
+	FormulaValue(double number);
 	virtual ItemDataPtr evaluate(void);
+
+private:
+	ItemDataPtr m_itemDataPtr;
 };
 
 // ---------------------------------------------------------------------------
