@@ -62,5 +62,20 @@ void test_whereEqNumber(void)
 	assertFormulaValue(formula->getRightHand(), rightHand);
 }
 
+void test_whereEqString(void)
+{
+	const char *leftHand = "a";
+	const char *rightHand = "foo XYZ";
+	ParsableString statement(
+	  StringUtils::sprintf("%s='%s'", leftHand, rightHand));
+	SQLWhereParser whereParser;
+	assertInputStatement(whereParser, statement);
+	FormulaElement *formula = whereParser.getFormula();
+	assertFormulaComparatorEqual(formula);
+	assertFormulaVariable(formula->getLeftHand(), leftHand);
+	assertFormulaValue(formula->getRightHand(), rightHand);
+}
+
+
 } // namespace testSQLWhereParser
 
