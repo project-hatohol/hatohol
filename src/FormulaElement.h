@@ -48,14 +48,6 @@ typedef vector<FormulaElement *>       FormulaElementVector;
 typedef FormulaElementVector::iterator FormulaElementVectorIterator;
 
 // ---------------------------------------------------------------------------
-// class: FormulaComparatorEqual
-// ---------------------------------------------------------------------------
-class FormulaComparatorEqual : public FormulaElement {
-public:
-	virtual ItemDataPtr evaluate(void);
-};
-
-// ---------------------------------------------------------------------------
 // class: FormulaValue
 // ---------------------------------------------------------------------------
 class FormulaValue : public FormulaElement {

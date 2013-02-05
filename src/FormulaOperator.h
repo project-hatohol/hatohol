@@ -28,8 +28,14 @@ class FormulaOperator : public FormulaElement {
 public:
 	FormulaOperator(void);
 	virtual ~FormulaOperator();
-	virtual ItemDataPtr evaluate(const FormulaElement *leftHand,
-	                             const FormulaElement *rightHand) = 0;
+};
+
+// ---------------------------------------------------------------------------
+// class: FormulaComparatorEqual
+// ---------------------------------------------------------------------------
+class FormulaComparatorEqual : public FormulaOperator {
+public:
+	virtual ItemDataPtr evaluate(void);
 };
 
 // ---------------------------------------------------------------------------

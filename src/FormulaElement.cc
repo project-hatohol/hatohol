@@ -62,15 +62,6 @@ FormulaElement *FormulaElement::getRightHand(void) const
 }
 
 // ---------------------------------------------------------------------------
-// class: FormulaComparatorEqual
-// ---------------------------------------------------------------------------
-ItemDataPtr FormulaComparatorEqual::evaluate(void)
-{
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
-	return ItemDataPtr();
-}
-
-// ---------------------------------------------------------------------------
 // class: FormulaValue
 // ---------------------------------------------------------------------------
 FormulaValue::FormulaValue(int number)

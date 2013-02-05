@@ -16,6 +16,7 @@
 */
 
 #include "SQLWhereParser.h"
+#include "FormulaOperator.h"
 
 // ---------------------------------------------------------------------------
 // Public methods

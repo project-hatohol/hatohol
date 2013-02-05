@@ -29,6 +29,15 @@ FormulaOperator::~FormulaOperator()
 }
 
 // ---------------------------------------------------------------------------
+// class: FormulaComparatorEqual
+// ---------------------------------------------------------------------------
+ItemDataPtr FormulaComparatorEqual::evaluate(void)
+{
+	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	return ItemDataPtr();
+}
+
+// ---------------------------------------------------------------------------
 // FormulaOperatorAnd
 // ---------------------------------------------------------------------------
 FormulaOperatorAnd::FormulaOperatorAnd(void)
