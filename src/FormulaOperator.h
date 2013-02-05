@@ -18,14 +18,13 @@
 #ifndef FormulaOperator_h 
 #define FormulaOperator_h
 
+#include "FormulaElement.h"
 #include "ItemDataPtr.h"
-
-class FormulaElement;
 
 // ---------------------------------------------------------------------------
 // FormulaOperator
 // ---------------------------------------------------------------------------
-class FormulaOperator {
+class FormulaOperator : public FormulaElement {
 public:
 	FormulaOperator(void);
 	virtual ~FormulaOperator();

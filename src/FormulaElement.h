@@ -22,7 +22,6 @@
 using namespace std;
 
 #include "ItemDataPtr.h"
-#include "FormulaOperator.h"
 
 // ---------------------------------------------------------------------------
 // class: FormulaElement
@@ -33,17 +32,15 @@ public:
 	virtual ~FormulaElement();
 	void setLeftHand(FormulaElement *elem);
 	void setRightHand(FormulaElement *elem);
-	void setOperator(FormulaOperator *op);
 
 	FormulaElement *getLeftHand(void) const;
 	FormulaElement *getRightHand(void) const;
 
-	virtual ItemDataPtr evaluate(void);
+	virtual ItemDataPtr evaluate(void) = 0;
 
 private:
 	FormulaElement  *m_leftHand;
 	FormulaElement  *m_rightHand;
-	FormulaOperator *m_operator;
 	FormulaElement  *m_parent;
 };
 

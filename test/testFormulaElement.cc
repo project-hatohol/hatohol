@@ -11,6 +11,15 @@ static FormulaElement *&x_elem = g_elem[0];
 static FormulaElement *&y_elem = g_elem[1];
 static FormulaElement *&z_elem = g_elem[2];
 
+class TestFormulaElement : public FormulaElement
+{
+public:
+	virtual ItemDataPtr evaluate(void)
+	{
+		return ItemDataPtr();
+	}
+};
+
 void teardown()
 {
 	for (int i = 0; i < NUM_ELEM_POOL; i++) {
@@ -26,15 +35,15 @@ void teardown()
 // ---------------------------------------------------------------------------
 void test_constructor(void)
 {
-	FormulaElement elem;
+	TestFormulaElement elem;
 	cppcut_assert_equal((FormulaElement *)NULL, elem.getLeftHand());
 	cppcut_assert_equal((FormulaElement *)NULL, elem.getRightHand());
 }
 
 void test_setGetLeftHand(void)
 {
-	FormulaElement elem;
-	x_elem = new FormulaElement();
+	TestFormulaElement elem;
+	x_elem = new TestFormulaElement();
 	elem.setLeftHand(x_elem);
 	cppcut_assert_equal(x_elem, elem.getLeftHand());
 	x_elem = NULL; // to avoid destructor from being called directly
@@ -42,8 +51,8 @@ void test_setGetLeftHand(void)
 
 void test_setGetRightHand(void)
 {
-	FormulaElement elem;
-	x_elem = new FormulaElement();
+	TestFormulaElement elem;
+	x_elem = new TestFormulaElement();
 	elem.setRightHand(x_elem);
 	cppcut_assert_equal(x_elem, elem.getRightHand());
 	x_elem = NULL; // to avoid destructor from being called directly
