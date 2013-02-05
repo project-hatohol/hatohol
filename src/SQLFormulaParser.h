@@ -75,7 +75,7 @@ protected:
 	void separatorCbQuot(const char separator);
 
 private:
-	static KeywordHandlerMap          m_defaultKeywordHandler;
+	static KeywordHandlerMap          m_defaultKeywordHandlerMap;
 
 	struct PrivateContext;
 	PrivateContext                   *m_ctx;
@@ -83,7 +83,7 @@ private:
 	void                             *m_columnDataGetterFactoryPriv;
 	SeparatorCheckerWithCallback      m_separator;
 	FormulaElement                   *m_formula;
-	KeywordHandlerMap                *m_keywordHandler;
+	KeywordHandlerMap                *m_keywordHandlerMap;
 };
 
 #endif // SQLFormualaParser_h

@@ -54,7 +54,8 @@ struct SQLFormulaParser::PrivateContext {
 // ---------------------------------------------------------------------------
 // Static member and static public methods
 // ---------------------------------------------------------------------------
-SQLFormulaParser::KeywordHandlerMap SQLFormulaParser::m_defaultKeywordHandler;
+SQLFormulaParser::KeywordHandlerMap
+SQLFormulaParser::m_defaultKeywordHandlerMap;
 
 void SQLFormulaParser::init(void)
 {
@@ -66,7 +67,7 @@ void SQLFormulaParser::init(void)
 SQLFormulaParser::SQLFormulaParser(void)
 : m_separator(" ()'"),
   m_formula(NULL),
-  m_keywordHandler(&m_defaultKeywordHandler)
+  m_keywordHandlerMap(&m_defaultKeywordHandlerMap)
 {
 	m_ctx = new PrivateContext();
 	m_separator.setCallbackTempl<SQLFormulaParser>
@@ -110,8 +111,8 @@ bool SQLFormulaParser::add(string& word, string &wordLower)
 		return true;
 
 	KeywordHandlerMapIterator it;
-	it = m_keywordHandler->find(wordLower);
-	if (it != m_keywordHandler->end()) {
+	it = m_keywordHandlerMap->find(wordLower);
+	if (it != m_keywordHandlerMap->end()) {
 		KeywordHandler func = it->second;
 		return (this->*func)();
 	}
