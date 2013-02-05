@@ -48,8 +48,7 @@ FormulaOperatorAnd::~FormulaOperatorAnd()
 {
 }
 
-ItemDataPtr FormulaOperatorAnd::evaluate(const FormulaElement *leftHand,
-                                         const FormulaElement *rightHand)
+ItemDataPtr FormulaOperatorAnd::evaluate(void)
 {
 	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__); 
 	return ItemDataPtr();

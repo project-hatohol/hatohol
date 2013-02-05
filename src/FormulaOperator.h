@@ -45,8 +45,7 @@ class FormulaOperatorAnd : public FormulaOperator {
 public:
 	FormulaOperatorAnd(void);
 	virtual ~FormulaOperatorAnd();
-	virtual ItemDataPtr evaluate(const FormulaElement *leftHand,
-	                             const FormulaElement *rightHand);
+	virtual ItemDataPtr evaluate(void);
 };
 
 #endif // FormulaOperator_h
