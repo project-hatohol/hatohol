@@ -53,7 +53,7 @@ struct SQLFormulaParser::PrivateContext {
 // Public methods
 // ---------------------------------------------------------------------------
 SQLFormulaParser::SQLFormulaParser(void)
-: m_separator(" ()"),
+: m_separator(" ()'"),
   m_formula(NULL)
 {
 	m_ctx = new PrivateContext();
@@ -61,6 +61,8 @@ SQLFormulaParser::SQLFormulaParser(void)
 	  ('(', separatorCbParenthesisOpen, this);
 	m_separator.setCallbackTempl<SQLFormulaParser>
 	  (')', separatorCbParenthesisClose, this);
+	m_separator.setCallbackTempl<SQLFormulaParser>
+	  ('\'', separatorCbQuot, this);
 }
 
 SQLFormulaParser::~SQLFormulaParser()
@@ -242,6 +244,12 @@ void SQLFormulaParser::separatorCbParenthesisOpen
 }
 
 void SQLFormulaParser::separatorCbParenthesisClose
+  (const char separator, SQLFormulaParser *formulaParser)
+{
+	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__); 
+}
+
+void SQLFormulaParser::separatorCbQuot
   (const char separator, SQLFormulaParser *formulaParser)
 {
 	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__); 

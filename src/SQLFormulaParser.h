@@ -59,6 +59,8 @@ protected:
 	  (const char separator, SQLFormulaParser *formulaParser);
 	static void separatorCbParenthesisClose
 	  (const char separator, SQLFormulaParser *formulaParser);
+	static void separatorCbQuot
+	  (const char separator, SQLFormulaParser *formulaParser);
 
 private:
 	struct PrivateContext;
