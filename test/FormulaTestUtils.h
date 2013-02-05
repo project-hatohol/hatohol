@@ -18,6 +18,9 @@ static void assertFormulaElementType(FormulaElement *obj)
 #define assertFormulaComparatorEqual(X) \
 cut_trace(assertFormulaElementType<FormulaComparatorEqual>(X))
 
+#define assertFormulaOperatorAnd(X) \
+cut_trace(assertFormulaElementType<FormulaOperatorAnd>(X))
+
 #define assertTypeFormulaVariable(X) \
 cut_trace(assertFormulaElementType<FormulaVariable>(X))
 
