@@ -21,3 +21,15 @@ void _assertFormulaValue(FormulaElement *elem, int expected)
 	dataPtr->get(&actual);
 	cppcut_assert_equal(expected, actual);
 }
+
+void _assertFormulaValue(FormulaElement *elem, const char *expected)
+{
+	assertTypeFormulaValue(elem);
+	FormulaValue *formulaValue = dynamic_cast<FormulaValue *>(elem);
+	cut_assert_not_null(formulaValue);
+	ItemDataPtr dataPtr = formulaValue->evaluate();
+	cppcut_assert_equal(ITEM_TYPE_STRING, dataPtr->getItemType());
+	string actual;
+	dataPtr->get(&actual);
+	cppcut_assert_equal(string(expected), actual);
+}
