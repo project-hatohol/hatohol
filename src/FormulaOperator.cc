@@ -27,3 +27,21 @@ FormulaOperator::FormulaOperator(void)
 FormulaOperator::~FormulaOperator()
 {
 }
+
+// ---------------------------------------------------------------------------
+// FormulaOperatorAnd
+// ---------------------------------------------------------------------------
+FormulaOperatorAnd::FormulaOperatorAnd(void)
+{
+}
+
+FormulaOperatorAnd::~FormulaOperatorAnd()
+{
+}
+
+ItemDataPtr FormulaOperatorAnd::evaluate(const FormulaElement *leftHand,
+                                         const FormulaElement *rightHand)
+{
+	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__); 
+	return ItemDataPtr();
+}

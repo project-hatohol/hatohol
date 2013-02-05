@@ -33,4 +33,15 @@ public:
 	                             const FormulaElement *rightHand) = 0;
 };
 
+// ---------------------------------------------------------------------------
+// FormulaAnd
+// ---------------------------------------------------------------------------
+class FormulaOperatorAnd : public FormulaOperator {
+public:
+	FormulaOperatorAnd(void);
+	virtual ~FormulaOperatorAnd();
+	virtual ItemDataPtr evaluate(const FormulaElement *leftHand,
+	                             const FormulaElement *rightHand);
+};
+
 #endif // FormulaOperator_h
