@@ -19,6 +19,7 @@
 #define SQLFormualaParser_h
 
 #include <string>
+#include <map>
 using namespace std;
 
 #include <ParsableString.h>
@@ -30,6 +31,7 @@ using namespace mlpl;
 class SQLFormulaParser
 {
 public:
+	static void init(void);
 	SQLFormulaParser(void);
 	virtual ~SQLFormulaParser();
 	void setColumnDataGetterFactory
@@ -41,6 +43,13 @@ public:
 	FormulaElement *getFormula(void) const;
 
 protected:
+	//
+	// type definition
+	//
+	typedef bool (SQLFormulaParser::*KeywordHandler)(void);
+	typedef map<string, KeywordHandler> KeywordHandlerMap;
+	typedef KeywordHandlerMap::iterator KeywordHandlerMapIterator;
+
 	//
 	// general sub routines
 	//
@@ -65,12 +74,15 @@ protected:
 	void separatorCbQuot(const char separator);
 
 private:
+	static KeywordHandlerMap          m_defaultKeywordHandler;
+
 	struct PrivateContext;
 	PrivateContext                   *m_ctx;
 	FormulaVariableDataGetterFactory  m_columnDataGetterFactory;
 	void                             *m_columnDataGetterFactoryPriv;
 	SeparatorCheckerWithCallback      m_separator;
 	FormulaElement                   *m_formula;
+	KeywordHandlerMap                *m_keywordHandler;
 };
 
 #endif // SQLFormualaParser_h

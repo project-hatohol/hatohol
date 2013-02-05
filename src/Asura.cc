@@ -33,6 +33,7 @@ void asuraInit(void)
 		return;
 	}
 
+	SQLFormulaParser::init();
 	SQLColumnParser::init();
 	FaceMySQLWorker::init();
 	SQLProcessor::init();

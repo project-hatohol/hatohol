@@ -52,11 +52,21 @@ struct SQLFormulaParser::PrivateContext {
 };
 
 // ---------------------------------------------------------------------------
+// Static member and static public methods
+// ---------------------------------------------------------------------------
+SQLFormulaParser::KeywordHandlerMap SQLFormulaParser::m_defaultKeywordHandler;
+
+void SQLFormulaParser::init(void)
+{
+}
+
+// ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
 SQLFormulaParser::SQLFormulaParser(void)
 : m_separator(" ()'"),
-  m_formula(NULL)
+  m_formula(NULL),
+  m_keywordHandler(&m_defaultKeywordHandler)
 {
 	m_ctx = new PrivateContext();
 	m_separator.setCallbackTempl<SQLFormulaParser>
