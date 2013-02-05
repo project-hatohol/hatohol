@@ -93,6 +93,9 @@ bool SQLFormulaParser::add(string& word, string &wordLower)
 		return false;
 	}
 
+	if (m_ctx->quotOpen)
+		return addStringValue(word);
+
 	if (passFunctionArgIfOpen(word))
 		return true;
 
@@ -234,6 +237,30 @@ bool SQLFormulaParser::makeFormulaElementFromPendingWord(void)
 	else
 		currElement->setRightHand(formulaElement);
 	return ret;
+}
+
+bool SQLFormulaParser::addStringValue(string &word)
+{
+	string msg;
+	FormulaElement *currElement = getCurrentElement();
+	if (!currElement) {
+		MLPL_DBG("Current element: NULL.\n");
+		return false;
+	}
+	
+	if (!currElement->getLeftHand()) {
+		TRMSG(msg, "Left hand element: NULL.\n");
+		throw logic_error(msg);
+	}
+
+	if (currElement->getRightHand()) {
+		TRMSG(msg, "Righthand element: NOT NULL.\n");
+		throw logic_error(msg);
+	}
+	
+	FormulaElement *formulaValue = new FormulaValue(word);
+	currElement->setRightHand(formulaValue);
+	return true;
 }
 
 //

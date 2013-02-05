@@ -51,6 +51,7 @@ protected:
 	void setErrorFlag(void);
 	FormulaElement *getCurrentElement(void) const;
 	bool makeFormulaElementFromPendingWord(void);
+	bool addStringValue(string &word);
 
 	//
 	// SeparatorChecker callbacks
