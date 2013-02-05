@@ -101,6 +101,11 @@ FormulaValue::FormulaValue(double number)
 	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
 }
 
+FormulaValue::FormulaValue(string &str)
+{
+	m_itemDataPtr = ItemDataPtr(new ItemString(ITEM_ID_NOBODY, str), false);
+}
+
 ItemDataPtr FormulaValue::evaluate(void)
 {
 	return m_itemDataPtr;

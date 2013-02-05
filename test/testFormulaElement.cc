@@ -63,5 +63,15 @@ void test_formulaValueInt(void)
 	cppcut_assert_equal(2, itemData->getUsedCount());
 }
 
+void test_formulaValueString(void)
+{
+	string str = "ABcDE XYZ";
+	FormulaValue formulaValue(str);
+	ItemDataPtr itemData = formulaValue.evaluate();
+	string actual;
+	itemData->get(&actual);
+	cppcut_assert_equal(str, actual);
+	cppcut_assert_equal(2, itemData->getUsedCount());
+}
 
 } // testFormulaElement

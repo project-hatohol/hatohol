@@ -65,6 +65,7 @@ class FormulaValue : public FormulaElement {
 public:
 	FormulaValue(int number);
 	FormulaValue(double number);
+	FormulaValue(string &str);
 	virtual ItemDataPtr evaluate(void);
 
 private:
