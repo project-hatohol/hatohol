@@ -24,13 +24,15 @@ using namespace mlpl;
 
 struct SQLFormulaParser::PrivateContext {
 	bool                    errorFlag;
+	bool                    quotOpen;
 	string                  pendingWord;
 	string                  pendingWordLower;
 	deque<FormulaElement *> formulaElementStack;
 
 	// methods
 	PrivateContext(void)
-	: errorFlag(false)
+	: errorFlag(false),
+	  quotOpen(false)
 	{
 	}
 
@@ -62,7 +64,7 @@ SQLFormulaParser::SQLFormulaParser(void)
 	m_separator.setCallbackTempl<SQLFormulaParser>
 	  (')', separatorCbParenthesisClose, this);
 	m_separator.setCallbackTempl<SQLFormulaParser>
-	  ('\'', separatorCbQuot, this);
+	  ('\'', _separatorCbQuot, this);
 }
 
 SQLFormulaParser::~SQLFormulaParser()
@@ -249,9 +251,20 @@ void SQLFormulaParser::separatorCbParenthesisClose
 	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__); 
 }
 
-void SQLFormulaParser::separatorCbQuot
+void SQLFormulaParser::_separatorCbQuot
   (const char separator, SQLFormulaParser *formulaParser)
 {
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__); 
+	formulaParser->separatorCbQuot(separator);
+}
+
+void SQLFormulaParser::separatorCbQuot(const char separator)
+{
+	if (m_ctx->quotOpen) {
+		m_ctx->quotOpen = false;
+		m_separator.unsetAlternative();
+		return;
+	}
+	m_ctx->quotOpen = true;
+	m_separator.setAlternative(&ParsableString::SEPARATOR_QUOT);
 }
 
