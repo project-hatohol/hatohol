@@ -20,7 +20,8 @@
 // ---------------------------------------------------------------------------
 // Formula Operator
 // ---------------------------------------------------------------------------
-FormulaOperator::FormulaOperator(void)
+FormulaOperator::FormulaOperator(FormulaOperatorPriority prio)
+: m_priority(prio)
 {
 }
 
@@ -31,6 +32,15 @@ FormulaOperator::~FormulaOperator()
 // ---------------------------------------------------------------------------
 // class: FormulaComparatorEqual
 // ---------------------------------------------------------------------------
+FormulaComparatorEqual::FormulaComparatorEqual(void)
+: FormulaOperator(FORMULA_OP_PRIO_CMP_EQ)
+{
+}
+
+FormulaComparatorEqual::~FormulaComparatorEqual()
+{
+}
+
 ItemDataPtr FormulaComparatorEqual::evaluate(void)
 {
 	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
@@ -41,6 +51,7 @@ ItemDataPtr FormulaComparatorEqual::evaluate(void)
 // FormulaOperatorAnd
 // ---------------------------------------------------------------------------
 FormulaOperatorAnd::FormulaOperatorAnd(void)
+: FormulaOperator(FORMULA_OP_PRIO_AND)
 {
 }
 
