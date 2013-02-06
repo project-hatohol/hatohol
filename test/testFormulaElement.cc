@@ -169,12 +169,23 @@ void test_findInsertPoint(void)
 }
 
 //
+// FormulaVariable
+//
+void test_formulaVariableTerminal(void)
+{
+	string varName = "a";
+	FormulaVariable formulaVariable(varName, NULL);
+	cppcut_assert_equal(true, formulaVariable.isTerminalElement());
+}
+
+//
 // FormulaValue
 //
 void test_formulaValueInt(void)
 {
 	int num = 3;
 	FormulaValue formulaValue(num);
+	cppcut_assert_equal(true, formulaValue.isTerminalElement());
 	ItemDataPtr itemData = formulaValue.evaluate();
 	int actual;
 	itemData->get(&actual);
@@ -186,6 +197,7 @@ void test_formulaValueString(void)
 {
 	string str = "ABcDE XYZ";
 	FormulaValue formulaValue(str);
+	cppcut_assert_equal(true, formulaValue.isTerminalElement());
 	ItemDataPtr itemData = formulaValue.evaluate();
 	string actual;
 	itemData->get(&actual);

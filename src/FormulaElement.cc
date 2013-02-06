@@ -161,6 +161,7 @@ string FormulaElement::getTreeInfoAdditional(void)
 FormulaValue::FormulaValue(int number)
 : FormulaElement(FORMULA_ELEM_PRIO_VALUE)
 {
+	setTerminalElement();
 	m_itemDataPtr = ItemDataPtr(new ItemInt(ITEM_ID_NOBODY, number), false);
 }
 
@@ -168,11 +169,13 @@ FormulaValue::FormulaValue(double number)
 : FormulaElement(FORMULA_ELEM_PRIO_VALUE)
 {
 	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	setTerminalElement();
 }
 
 FormulaValue::FormulaValue(string &str)
 : FormulaElement(FORMULA_ELEM_PRIO_VALUE)
 {
+	setTerminalElement();
 	m_itemDataPtr = ItemDataPtr(new ItemString(ITEM_ID_NOBODY, str), false);
 }
 
@@ -190,6 +193,7 @@ FormulaVariable::FormulaVariable(string &name,
   m_name(name),
   m_variableGetter(variableDataGetter)
 {
+	setTerminalElement();
 }
 
 FormulaVariable::~FormulaVariable()
