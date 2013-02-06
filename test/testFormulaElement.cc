@@ -25,6 +25,34 @@ public:
 	}
 };
 
+class TestFormulaElementPrio0 : public FormulaElement
+{
+public:
+	TestFormulaElementPrio0(void)
+	: FormulaElement(static_cast<FormulaElementPriority>(0))
+	{
+	}
+
+	virtual ItemDataPtr evaluate(void)
+	{
+		return ItemDataPtr();
+	}
+};
+
+class TestFormulaElementPrio1 : public FormulaElement
+{
+public:
+	TestFormulaElementPrio1(void)
+	: FormulaElement(static_cast<FormulaElementPriority>(1))
+	{
+	}
+
+	virtual ItemDataPtr evaluate(void)
+	{
+		return ItemDataPtr();
+	}
+};
+
 void teardown()
 {
 	for (int i = 0; i < NUM_ELEM_POOL; i++) {
@@ -84,6 +112,38 @@ void test_getRootElement(void)
 	                    x_elem->getRootElement());
 	cppcut_assert_equal(static_cast<FormulaElement *>(&elem),
 	                    y_elem->getRootElement());
+	x_elem = NULL; // to avoid destructor from being called directly
+	y_elem = NULL; // to avoid destructor from being called directly
+}
+
+void test_findInsertPoint(void)
+{
+	TestFormulaElementPrio1 elem;
+	x_elem = new TestFormulaElementPrio0();
+	y_elem = new TestFormulaElement;
+	elem.setLeftHand(x_elem);
+	x_elem->setRightHand(y_elem);
+
+	cppcut_assert_equal(static_cast<FormulaElement *>(y_elem),
+	                    y_elem->findInsertPoint(y_elem));
+	cppcut_assert_equal(static_cast<FormulaElement *>(x_elem),
+	                    y_elem->findInsertPoint(x_elem));
+	cppcut_assert_equal(static_cast<FormulaElement *>(&elem),
+	                    y_elem->findInsertPoint(&elem));
+
+	cppcut_assert_equal(static_cast<FormulaElement *>(x_elem),
+	                    x_elem->findInsertPoint(y_elem));
+	cppcut_assert_equal(static_cast<FormulaElement *>(x_elem),
+	                    x_elem->findInsertPoint(x_elem));
+	cppcut_assert_equal(static_cast<FormulaElement *>(&elem),
+	                    x_elem->findInsertPoint(&elem));
+
+	cppcut_assert_equal(static_cast<FormulaElement *>(&elem),
+	                    elem.findInsertPoint(y_elem));
+	cppcut_assert_equal(static_cast<FormulaElement *>(&elem),
+	                    elem.findInsertPoint(x_elem));
+	cppcut_assert_equal(static_cast<FormulaElement *>(&elem),
+	                    elem.findInsertPoint(&elem));
 	x_elem = NULL; // to avoid destructor from being called directly
 	y_elem = NULL; // to avoid destructor from being called directly
 }

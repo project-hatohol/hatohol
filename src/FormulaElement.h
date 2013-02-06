@@ -48,6 +48,7 @@ public:
 	FormulaElement *getParent(void) const;
 	FormulaElement *getRootElement(void);
 	bool priorityOver(FormulaElement *formulaElement);
+	FormulaElement *findInsertPoint(FormulaElement *insertElem);
 
 	virtual ItemDataPtr evaluate(void) = 0;
 

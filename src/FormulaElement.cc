@@ -84,6 +84,21 @@ bool FormulaElement::priorityOver(FormulaElement *formulaElement)
 	return m_priority < formulaElement->m_priority;
 }
 
+FormulaElement *FormulaElement::findInsertPoint(FormulaElement *insertElem)
+{
+	string str;
+	FormulaElement *elem = this;
+	while (true) {
+		if (!elem->priorityOver(insertElem))
+			break;
+		FormulaElement *parent = elem->m_parent;
+		if (!parent)
+			break;
+		elem = parent;
+	}
+	return elem;
+}
+
 int FormulaElement::getTreeInfo(string &str, int maxNumElem, int currNum,
                                 int depth)
 {
