@@ -29,6 +29,11 @@ FormulaOperator::~FormulaOperator()
 {
 }
 
+bool FormulaOperator::priorityOver(FormulaOperator *formulaOperator)
+{
+	return m_priority < formulaOperator->m_priority;
+}
+
 // ---------------------------------------------------------------------------
 // class: FormulaComparatorEqual
 // ---------------------------------------------------------------------------

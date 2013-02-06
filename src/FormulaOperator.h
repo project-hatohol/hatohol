@@ -34,6 +34,7 @@ class FormulaOperator : public FormulaElement {
 public:
 	FormulaOperator(FormulaOperatorPriority prio);
 	virtual ~FormulaOperator();
+	bool priorityOver(FormulaOperator *formulaOperator);
 
 private:
 	FormulaOperatorPriority m_priority;
