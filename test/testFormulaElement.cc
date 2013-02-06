@@ -65,6 +65,7 @@ void test_getParent(void)
 	elem.setRightHand(x_elem);
 	cppcut_assert_equal(static_cast<FormulaElement *>(&elem),
 	                    x_elem->getParent());
+	x_elem = NULL; // to avoid destructor from being called directly
 }
 
 //
