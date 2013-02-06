@@ -78,7 +78,7 @@ int FormulaElement::getTreeInfo(string &str, int maxNumElem, int currNum,
 		rightTypeName = DEMANGLED_TYPE_NAME(*m_rightHand);
 
 	string spaces;
-	for (size_t i = 0; i < depth; i++)
+	for (int i = 0; i < depth; i++)
 		spaces += " ";
 
 	string additionalInfo = getTreeInfoAdditional();
