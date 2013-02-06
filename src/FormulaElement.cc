@@ -66,6 +66,14 @@ FormulaElement *FormulaElement::getParent(void) const
 	return m_parent;
 }
 
+FormulaElement *FormulaElement::getRootElement(void)
+{
+	FormulaElement *elem = this;
+	while (elem)
+		elem = elem->getParent();
+	return elem;
+}
+
 int FormulaElement::getTreeInfo(string &str, int maxNumElem, int currNum,
                                 int depth)
 {

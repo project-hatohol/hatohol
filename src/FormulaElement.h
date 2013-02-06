@@ -36,6 +36,7 @@ public:
 	FormulaElement *getLeftHand(void) const;
 	FormulaElement *getRightHand(void) const;
 	FormulaElement *getParent(void) const;
+	FormulaElement *getRootElement(void);
 
 	virtual ItemDataPtr evaluate(void) = 0;
 
