@@ -68,6 +68,21 @@ void test_getParent(void)
 	x_elem = NULL; // to avoid destructor from being called directly
 }
 
+void test_getRootElement(void)
+{
+	TestFormulaElement elem;
+	x_elem = new TestFormulaElement();
+	y_elem = new TestFormulaElement();
+	elem.setLeftHand(x_elem);
+	x_elem->setRightHand(y_elem);
+	cppcut_assert_equal(static_cast<FormulaElement *>(&elem),
+	                    x_elem->getRootElement());
+	cppcut_assert_equal(static_cast<FormulaElement *>(&elem),
+	                    y_elem->getRootElement());
+	x_elem = NULL; // to avoid destructor from being called directly
+	y_elem = NULL; // to avoid destructor from being called directly
+}
+
 //
 // FormulaValue
 //
