@@ -23,12 +23,22 @@ using namespace std;
 
 #include "ItemDataPtr.h"
 
+// The lower value has high priority
+enum FormulaElementPriority {
+	FORMULA_ELEM_PRIO_VALUE,
+	FORMULA_ELEM_PRIO_VARIABLE,
+	FORMULA_ELEM_PRIO_FUNCTION,
+	FORMULA_ELEM_PRIO_CMP_EQ,
+	FORMULA_ELEM_PRIO_AND,
+	FORMULA_ELEM_PRIO_BETWEEN,
+};
+
 // ---------------------------------------------------------------------------
 // class: FormulaElement
 // ---------------------------------------------------------------------------
 class FormulaElement {
 public:
-	FormulaElement(void);
+	FormulaElement(FormulaElementPriority priority);
 	virtual ~FormulaElement();
 	void setLeftHand(FormulaElement *elem);
 	void setRightHand(FormulaElement *elem);
@@ -37,6 +47,7 @@ public:
 	FormulaElement *getRightHand(void) const;
 	FormulaElement *getParent(void) const;
 	FormulaElement *getRootElement(void);
+	bool priorityOver(FormulaElement *formulaElement);
 
 	virtual ItemDataPtr evaluate(void) = 0;
 
@@ -51,6 +62,7 @@ private:
 	FormulaElement  *m_leftHand;
 	FormulaElement  *m_rightHand;
 	FormulaElement  *m_parent;
+	FormulaElementPriority m_priority;
 };
 
 typedef vector<FormulaElement *>       FormulaElementVector;

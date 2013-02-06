@@ -14,6 +14,11 @@ static FormulaElement *&z_elem = g_elem[2];
 class TestFormulaElement : public FormulaElement
 {
 public:
+	TestFormulaElement(void)
+	: FormulaElement(static_cast<FormulaElementPriority>(-1))
+	{
+	}
+
 	virtual ItemDataPtr evaluate(void)
 	{
 		return ItemDataPtr();

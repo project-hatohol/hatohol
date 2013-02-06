@@ -21,23 +21,13 @@
 #include "FormulaElement.h"
 #include "ItemDataPtr.h"
 
-enum FormulaOperatorPriority {
-	FORMULA_OP_PRIO_CMP_EQ,
-	FORMULA_OP_PRIO_AND,
-	FORMULA_OP_PRIO_BETWEEN,
-};
-
 // ---------------------------------------------------------------------------
 // FormulaOperator
 // ---------------------------------------------------------------------------
 class FormulaOperator : public FormulaElement {
 public:
-	FormulaOperator(FormulaOperatorPriority prio);
+	FormulaOperator(FormulaElementPriority prio);
 	virtual ~FormulaOperator();
-	bool priorityOver(FormulaOperator *formulaOperator);
-
-private:
-	FormulaOperatorPriority m_priority;
 };
 
 // ---------------------------------------------------------------------------

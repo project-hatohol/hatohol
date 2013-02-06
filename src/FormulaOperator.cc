@@ -20,8 +20,8 @@
 // ---------------------------------------------------------------------------
 // Formula Operator
 // ---------------------------------------------------------------------------
-FormulaOperator::FormulaOperator(FormulaOperatorPriority prio)
-: m_priority(prio)
+FormulaOperator::FormulaOperator(FormulaElementPriority prio)
+: FormulaElement(prio)
 {
 }
 
@@ -29,16 +29,11 @@ FormulaOperator::~FormulaOperator()
 {
 }
 
-bool FormulaOperator::priorityOver(FormulaOperator *formulaOperator)
-{
-	return m_priority < formulaOperator->m_priority;
-}
-
 // ---------------------------------------------------------------------------
 // class: FormulaComparatorEqual
 // ---------------------------------------------------------------------------
 FormulaComparatorEqual::FormulaComparatorEqual(void)
-: FormulaOperator(FORMULA_OP_PRIO_CMP_EQ)
+: FormulaOperator(FORMULA_ELEM_PRIO_CMP_EQ)
 {
 }
 
@@ -56,7 +51,7 @@ ItemDataPtr FormulaComparatorEqual::evaluate(void)
 // FormulaOperatorAnd
 // ---------------------------------------------------------------------------
 FormulaOperatorAnd::FormulaOperatorAnd(void)
-: FormulaOperator(FORMULA_OP_PRIO_AND)
+: FormulaOperator(FORMULA_ELEM_PRIO_AND)
 {
 }
 

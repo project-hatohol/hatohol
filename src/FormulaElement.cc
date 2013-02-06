@@ -24,10 +24,11 @@ using namespace mlpl;
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
-FormulaElement::FormulaElement(void)
+FormulaElement::FormulaElement(FormulaElementPriority priority)
 : m_leftHand(NULL),
   m_rightHand(NULL),
-  m_parent(NULL)
+  m_parent(NULL),
+  m_priority(priority)
 {
 }
 
@@ -76,6 +77,11 @@ FormulaElement *FormulaElement::getRootElement(void)
 		elem = nextElement;
 	}
 	return elem;
+}
+
+bool FormulaElement::priorityOver(FormulaElement *formulaElement)
+{
+	return m_priority < formulaElement->m_priority;
 }
 
 int FormulaElement::getTreeInfo(string &str, int maxNumElem, int currNum,
@@ -127,16 +133,19 @@ string FormulaElement::getTreeInfoAdditional(void)
 // class: FormulaValue
 // ---------------------------------------------------------------------------
 FormulaValue::FormulaValue(int number)
+: FormulaElement(FORMULA_ELEM_PRIO_VALUE)
 {
 	m_itemDataPtr = ItemDataPtr(new ItemInt(ITEM_ID_NOBODY, number), false);
 }
 
 FormulaValue::FormulaValue(double number)
+: FormulaElement(FORMULA_ELEM_PRIO_VALUE)
 {
 	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
 }
 
 FormulaValue::FormulaValue(string &str)
+: FormulaElement(FORMULA_ELEM_PRIO_VALUE)
 {
 	m_itemDataPtr = ItemDataPtr(new ItemString(ITEM_ID_NOBODY, str), false);
 }
@@ -151,7 +160,8 @@ ItemDataPtr FormulaValue::evaluate(void)
 // ---------------------------------------------------------------------------
 FormulaVariable::FormulaVariable(string &name,
                                  FormulaVariableDataGetter *variableDataGetter)
-: m_name(name),
+: FormulaElement(FORMULA_ELEM_PRIO_VARIABLE),
+  m_name(name),
   m_variableGetter(variableDataGetter)
 {
 }

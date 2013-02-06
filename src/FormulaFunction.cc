@@ -24,7 +24,8 @@
 // FormulaFunction
 // ---------------------------------------------------------------------------
 FormulaFunction::FormulaFunction(int numArgument)
-: m_numArgument(numArgument)
+: FormulaElement(FORMULA_ELEM_PRIO_FUNCTION),
+  m_numArgument(numArgument)
 {
 }
 
