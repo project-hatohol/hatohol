@@ -69,8 +69,12 @@ FormulaElement *FormulaElement::getParent(void) const
 FormulaElement *FormulaElement::getRootElement(void)
 {
 	FormulaElement *elem = this;
-	while (elem)
-		elem = elem->getParent();
+	while (elem) {
+		FormulaElement *nextElement = elem->getParent();
+		if (!nextElement)
+			break;
+		elem = nextElement;
+	}
 	return elem;
 }
 
