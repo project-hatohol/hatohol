@@ -17,6 +17,7 @@ public:
 	TestFormulaElement(void)
 	: FormulaElement(static_cast<FormulaElementPriority>(-1))
 	{
+		setTerminalElement();
 	}
 
 	virtual ItemDataPtr evaluate(void)
@@ -36,6 +37,11 @@ public:
 	virtual ItemDataPtr evaluate(void)
 	{
 		return ItemDataPtr();
+	}
+
+	void callSetTerminalElement(void)
+	{
+		setTerminalElement();
 	}
 };
 
@@ -114,6 +120,20 @@ void test_getRootElement(void)
 	                    y_elem->getRootElement());
 	x_elem = NULL; // to avoid destructor from being called directly
 	y_elem = NULL; // to avoid destructor from being called directly
+}
+
+void test_terminalElementInConstructor(void)
+{
+	TestFormulaElement elem;
+	cppcut_assert_equal(true, elem.isTerminalElement());
+}
+
+void test_terminalElementAfterCreated(void)
+{
+	TestFormulaElementPrio0 elem;
+	cppcut_assert_equal(false, elem.isTerminalElement());
+	elem.callSetTerminalElement();
+	cppcut_assert_equal(true, elem.isTerminalElement());
 }
 
 void test_findInsertPoint(void)

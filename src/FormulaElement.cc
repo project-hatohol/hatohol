@@ -28,7 +28,8 @@ FormulaElement::FormulaElement(FormulaElementPriority priority)
 : m_leftHand(NULL),
   m_rightHand(NULL),
   m_parent(NULL),
-  m_priority(priority)
+  m_priority(priority),
+  m_terminalElement(false)
 {
 }
 
@@ -79,6 +80,11 @@ FormulaElement *FormulaElement::getRootElement(void)
 	return elem;
 }
 
+bool FormulaElement::isTerminalElement(void) const
+{
+	return m_terminalElement;
+}
+
 bool FormulaElement::priorityOver(FormulaElement *formulaElement)
 {
 	return m_priority < formulaElement->m_priority;
@@ -97,6 +103,11 @@ FormulaElement *FormulaElement::findInsertPoint(FormulaElement *insertElem)
 		elem = parent;
 	}
 	return elem;
+}
+
+void FormulaElement::setTerminalElement(void)
+{
+	m_terminalElement = true;
 }
 
 int FormulaElement::getTreeInfo(string &str, int maxNumElem, int currNum,

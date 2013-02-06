@@ -47,6 +47,7 @@ public:
 	FormulaElement *getRightHand(void) const;
 	FormulaElement *getParent(void) const;
 	FormulaElement *getRootElement(void);
+	bool isTerminalElement(void) const;
 	bool priorityOver(FormulaElement *formulaElement);
 	FormulaElement *findInsertPoint(FormulaElement *insertElem);
 
@@ -57,6 +58,7 @@ public:
 	                int depth = 0);
 
 protected:
+	void setTerminalElement(void);
 	virtual string getTreeInfoAdditional(void);
 
 private:
@@ -64,6 +66,7 @@ private:
 	FormulaElement  *m_rightHand;
 	FormulaElement  *m_parent;
 	FormulaElementPriority m_priority;
+	bool             m_terminalElement;
 };
 
 typedef vector<FormulaElement *>       FormulaElementVector;
