@@ -100,6 +100,15 @@ bool SQLFormulaParser::add(string& word, string &wordLower)
 	if (m_ctx->errorFlag)
 		return false;
 
+	KeywordHandlerMapIterator it;
+	it = m_keywordHandlerMap->find(wordLower);
+	if (it != m_keywordHandlerMap->end()) {
+		if (!flush())
+			return false;
+		KeywordHandler func = it->second;
+		return (this->*func)();
+	}
+
 	if (m_ctx->hasPendingWord()) {
 		MLPL_DBG("already has pending word: %s, curr: %s.\n",
 		         m_ctx->pendingWord.c_str(), word.c_str());
@@ -111,13 +120,6 @@ bool SQLFormulaParser::add(string& word, string &wordLower)
 
 	if (passFunctionArgIfOpen(word))
 		return true;
-
-	KeywordHandlerMapIterator it;
-	it = m_keywordHandlerMap->find(wordLower);
-	if (it != m_keywordHandlerMap->end()) {
-		KeywordHandler func = it->second;
-		return (this->*func)();
-	}
 
 	m_ctx->pushPendingWords(word, wordLower);
 	return true;
