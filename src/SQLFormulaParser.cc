@@ -21,6 +21,7 @@
 using namespace mlpl;
 
 #include "SQLFormulaParser.h"
+#include "FormulaOperator.h"
 
 struct SQLFormulaParser::PrivateContext {
 	bool                    errorFlag;
@@ -322,6 +323,6 @@ void SQLFormulaParser::separatorCbQuot(const char separator)
 //
 bool SQLFormulaParser::kwHandlerAnd(void)
 {
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__); 
-	return false;
+	FormulaOperatorAnd *opAnd = new FormulaOperatorAnd();
+	return createdLHSElement(opAnd);
 }
