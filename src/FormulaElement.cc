@@ -61,6 +61,11 @@ FormulaElement *FormulaElement::getRightHand(void) const
 	return m_rightHand;
 }
 
+FormulaElement *FormulaElement::getParent(void) const
+{
+	return m_parent;
+}
+
 int FormulaElement::getTreeInfo(string &str, int maxNumElem, int currNum,
                                 int depth)
 {
