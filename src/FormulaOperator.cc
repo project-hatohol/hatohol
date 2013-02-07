@@ -64,3 +64,22 @@ ItemDataPtr FormulaOperatorAnd::evaluate(void)
 	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__); 
 	return ItemDataPtr();
 }
+
+// ---------------------------------------------------------------------------
+// FormulaBetween
+// ---------------------------------------------------------------------------
+FormulaBetween::FormulaBetween(void)
+: FormulaOperator(FORMULA_ELEM_PRIO_BETWEEN)
+{
+}
+
+FormulaBetween::~FormulaBetween()
+{
+}
+
+ItemDataPtr FormulaBetween::evaluate(void)
+{
+	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__); 
+	return ItemDataPtr();
+}
+

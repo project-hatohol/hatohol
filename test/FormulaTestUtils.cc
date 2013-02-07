@@ -34,6 +34,11 @@ void _assertFormulaValue(FormulaElement *elem, const char *expected)
 	cppcut_assert_equal(string(expected), actual);
 }
 
+void _assertFormulaBetween(FormulaElement *elem, int v0, int v1)
+{
+	assertTypeFormulaBetween(elem);
+}
+
 void showTreeInfo(FormulaElement *formulaElement)
 {
 	string str;

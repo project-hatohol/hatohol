@@ -119,5 +119,19 @@ void test_whereAnd(void)
 	assertFormulaValue(rightElem->getRightHand(), rightHand1);
 }
 
+void test_whereBetween(void)
+{
+	const char *leftHand = "a";
+	int v0 = 0;
+	int v1 = 100;
+	ParsableString statement(
+	  StringUtils::sprintf("%s between %d and %d", leftHand, v0, v1));
+	SQLWhereParser whereParser;
+	assertInputStatement(whereParser, statement);
+
+	FormulaElement *formula = whereParser.getFormula();
+	assertFormulaBetween(formula, v0, v1);
+}
+
 } // namespace testSQLWhereParser
 

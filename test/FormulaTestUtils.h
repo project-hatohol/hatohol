@@ -3,6 +3,7 @@
 
 #include <cutter.h>
 #include "FormulaElement.h"
+#include "FormulaOperator.h"
 #include "Utils.h"
 
 template<typename T>
@@ -27,6 +28,9 @@ cut_trace(assertFormulaElementType<FormulaVariable>(X))
 #define assertTypeFormulaValue(X) \
 cut_trace(assertFormulaElementType<FormulaValue>(X))
 
+#define assertTypeFormulaBetween(X) \
+cut_trace(assertFormulaElementType<FormulaBetween>(X))
+
 #define assertFormulaFuncMax(X) \
 cut_trace(assertFormulaElementType<FormulaFuncMax>(X))
 
@@ -38,6 +42,11 @@ void _assertFormulaValue(FormulaElement *elem, int expected);
 void _assertFormulaValue(FormulaElement *elem, const char *expected);
 #define assertFormulaValue(EL, EXP) \
 cut_trace(_assertFormulaValue(EL, EXP))
+
+void _assertFormulaBetween(FormulaElement *elem, int v0, int v1);
+#define assertFormulaBetween(X, V0, V1) \
+cut_trace(_assertFormulaBetween(X, V0, V1))
+
 
 void showTreeInfo(FormulaElement *formulaElement);
 

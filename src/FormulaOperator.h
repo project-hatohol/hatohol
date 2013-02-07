@@ -50,4 +50,14 @@ public:
 	virtual ItemDataPtr evaluate(void);
 };
 
+// ---------------------------------------------------------------------------
+// FormulaBetween
+// ---------------------------------------------------------------------------
+class FormulaBetween : public FormulaOperator {
+public:
+	FormulaBetween(void);
+	virtual ~FormulaBetween();
+	virtual ItemDataPtr evaluate(void);
+};
+
 #endif // FormulaOperator_h
