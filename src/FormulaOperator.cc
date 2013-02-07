@@ -79,6 +79,16 @@ FormulaBetween::~FormulaBetween()
 {
 }
 
+ItemDataPtr FormulaBetween::getV0(void) const
+{
+	return m_v0;
+}
+
+ItemDataPtr FormulaBetween::getV1(void) const
+{
+	return m_v1;
+}
+
 ItemDataPtr FormulaBetween::evaluate(void)
 {
 	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__); 
