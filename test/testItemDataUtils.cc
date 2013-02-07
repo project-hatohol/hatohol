@@ -13,10 +13,9 @@ void test_createAsNumberInt(void)
 	string numberStr = StringUtils::sprintf("%d", number);
 	ItemDataPtr dataPtr = ItemDataUtils::createAsNumber(numberStr);
 	cppcut_assert_equal(true, dataPtr.hasData());
-	cppcut_assert_not_null(dynamic_cast<ItemInt *>((ItemData *)dataPtr));
-	int actual;
-	dataPtr->get(&actual);
-	cppcut_assert_equal(number, actual);
+	ItemInt *itemInt = dynamic_cast<ItemInt *>((ItemData *)dataPtr);
+	cppcut_assert_not_null(itemInt);
+	cppcut_assert_equal(number, itemInt->get());
 }
 
 void test_createAsNumberInvalid(void)
