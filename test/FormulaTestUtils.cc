@@ -33,3 +33,10 @@ void _assertFormulaValue(FormulaElement *elem, const char *expected)
 	dataPtr->get(&actual);
 	cppcut_assert_equal(string(expected), actual);
 }
+
+void showTreeInfo(FormulaElement *formulaElement)
+{
+	string str;
+	formulaElement->getTreeInfo(str);
+	printf("\n%s\n", str.c_str());
+}

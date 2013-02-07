@@ -39,4 +39,6 @@ void _assertFormulaValue(FormulaElement *elem, const char *expected);
 #define assertFormulaValue(EL, EXP) \
 cut_trace(_assertFormulaValue(EL, EXP))
 
+void showTreeInfo(FormulaElement *formulaElement);
+
 #endif // testFormulaCommon_h
