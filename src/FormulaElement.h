@@ -49,6 +49,7 @@ public:
 	FormulaElement *getRootElement(void);
 	bool isTerminalElement(void) const;
 	bool priorityOver(FormulaElement *formulaElement);
+	bool priorityEqual(FormulaElement *formulaElement);
 
 	/**
 	 * Finds the insert point on the branch line in the formula

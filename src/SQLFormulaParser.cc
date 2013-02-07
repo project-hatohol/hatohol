@@ -205,8 +205,16 @@ bool SQLFormulaParser::insertElement(FormulaElement *formulaElement)
 
 	FormulaElement *targetElem =
 	  m_ctx->currElement->findInsertPoint(formulaElement);
+
+	// If priority of 'formulaElement' is higher than the current element,
+	// 'formulaElement' just becomes a right hand of the current element.
 	if (!targetElem)
 		return insertAsRightHand(formulaElement);
+
+	// If priority of 'formulaElement' is equal to 'targetElem',
+	// the target element is changed to the right hand of 'targetElem'.
+	if (formulaElement->priorityEqual(targetElem))
+		targetElem = targetElem->getRightHand();
 
 	FormulaElement *targetParent = targetElem->getParent();
 	formulaElement->setLeftHand(targetElem);

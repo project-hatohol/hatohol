@@ -90,6 +90,11 @@ bool FormulaElement::priorityOver(FormulaElement *formulaElement)
 	return m_priority < formulaElement->m_priority;
 }
 
+bool FormulaElement::priorityEqual(FormulaElement *formulaElement)
+{
+	return m_priority == formulaElement->m_priority;
+}
+
 FormulaElement *FormulaElement::findInsertPoint(FormulaElement *insertElem)
 {
 	FormulaElement *prev = NULL;
