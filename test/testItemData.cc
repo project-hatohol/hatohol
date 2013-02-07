@@ -111,6 +111,24 @@ void test_setString(void)
 	cut_assert_equal_string(val.c_str(), readValue.c_str());
 }
 
+void test_getValueInt(void)
+{
+	int val = 2345;
+	ItemData *item = new ItemInt(TEST_ITEM_ID, val);
+	ItemInt *itemInt = dynamic_cast<ItemInt *>(item);
+	cppcut_assert_not_null(itemInt);
+	cppcut_assert_equal(val, itemInt->get());
+}
+
+void test_getValueString(void)
+{
+	string val = "dog cat bird";
+	ItemData *item = new ItemString(TEST_ITEM_ID, val);
+	ItemString *itemString = dynamic_cast<ItemString *>(item);
+	cppcut_assert_not_null(itemString);
+	cppcut_assert_equal(val, itemString->get());
+}
+
 void test_getId(void)
 {
 	int id = 5;

@@ -105,6 +105,12 @@ public:
 		readUnlock();
 	}
 
+	virtual T get(void) const {
+		T val;
+		get(&val);
+		return val;
+	}
+
 	virtual string getString(void) const {
 		readLock();
 		string str = m_data;
