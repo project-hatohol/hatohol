@@ -82,6 +82,9 @@ public:
 	FormulaValue(string &str);
 	virtual ItemDataPtr evaluate(void);
 
+protected:
+	virtual string getTreeInfoAdditional(void);
+
 private:
 	ItemDataPtr m_itemDataPtr;
 };

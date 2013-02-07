@@ -184,6 +184,14 @@ ItemDataPtr FormulaValue::evaluate(void)
 	return m_itemDataPtr;
 }
 
+string FormulaValue::getTreeInfoAdditional(void)
+{
+	const char *value = "N/A";
+	if (m_itemDataPtr.hasData())
+		value = m_itemDataPtr->getString().c_str();
+	return StringUtils::sprintf("value: %s", value);
+}
+
 // ---------------------------------------------------------------------------
 // class: FormulaVariable
 // ---------------------------------------------------------------------------
