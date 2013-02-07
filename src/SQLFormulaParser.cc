@@ -193,10 +193,10 @@ bool SQLFormulaParser::createdNewElement(FormulaElement *formulaElement)
 
 	FormulaElement *targetElem =
 	  m_ctx->currElement->findInsertPoint(formulaElement);
-	FormulaElement *targetParent = targetElem->getParent();
 	if (!targetElem)
 		return insertAsRightHand(formulaElement);
 
+	FormulaElement *targetParent = targetElem->getParent();
 	formulaElement->setLeftHand(targetElem);
 	if (targetParent) {
 		if (targetParent->getRightHand() != targetElem) {
