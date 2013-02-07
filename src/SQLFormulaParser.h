@@ -54,11 +54,11 @@ protected:
 	// general sub routines
 	//
 	FormulaVariable *makeFormulaVariable(string &name);
-	FormulaFunction *getFormulaFunctionFromStack(void);
 	bool passFunctionArgIfOpen(string &word);
-	bool createdLHSElement(FormulaElement *formulaElement);
+	bool createdNewElement(FormulaElement *formulaElement);
 	void setErrorFlag(void);
 	FormulaElement *getCurrentElement(void) const;
+	bool insertAsRightHand(FormulaElement *formulaElement);
 	bool makeFormulaElementFromPendingWord(void);
 	bool addStringValue(string &word);
 	bool checkKeyword(string &wordLower);

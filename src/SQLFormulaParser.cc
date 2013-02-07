@@ -28,12 +28,13 @@ struct SQLFormulaParser::PrivateContext {
 	bool                    quotOpen;
 	string                  pendingWord;
 	string                  pendingWordLower;
-	deque<FormulaElement *> formulaElementStack;
+	FormulaElement         *currElement;
 
 	// methods
 	PrivateContext(void)
 	: errorFlag(false),
-	  quotOpen(false)
+	  quotOpen(false),
+	  currElement(NULL)
 	{
 	}
 
@@ -167,39 +168,50 @@ FormulaVariable *SQLFormulaParser::makeFormulaVariable(string &name)
 	return formulaVariable;
 }
 
-FormulaFunction *
-SQLFormulaParser::SQLFormulaParser::getFormulaFunctionFromStack(void)
-{
-	if (m_ctx->formulaElementStack.empty())
-		return NULL;
-	FormulaElement *elem = m_ctx->formulaElementStack.back();
-	return dynamic_cast<FormulaFunction *>(elem);
-}
-
 bool SQLFormulaParser::passFunctionArgIfOpen(string &word)
 {
-	FormulaFunction *formulaFunc = getFormulaFunctionFromStack();
+	if (!m_ctx->currElement)
+		return false;
+	FormulaFunction *formulaFunc = 
+	  dynamic_cast<FormulaFunction *>(m_ctx->currElement);
 	if (!formulaFunc)
 		return false;
 	FormulaVariable *formulaVariable = makeFormulaVariable(word);
-	if (!formulaFunc->addArgument(formulaVariable))
-		return false;
-	return true;
+	return formulaFunc->addArgument(formulaVariable);
 }
 
-bool SQLFormulaParser::createdLHSElement(FormulaElement *formulaElement)
+bool SQLFormulaParser::createdNewElement(FormulaElement *formulaElement)
 {
-	if (m_ctx->formulaElementStack.empty())
+	if (!m_ctx->currElement) {
 		m_formula = formulaElement;
-	else {
-		FormulaElement *lhsElem;
-		lhsElem = m_ctx->formulaElementStack.back();
-		formulaElement->setLeftHand(lhsElem);
-		m_ctx->formulaElementStack.pop_back();
-		if (m_ctx->formulaElementStack.empty())
-			m_formula = formulaElement;
+		m_ctx->currElement = formulaElement;
+		return true;
 	}
-	m_ctx->formulaElementStack.push_back(formulaElement);
+
+	if (formulaElement->isTerminalElement())
+		return insertAsRightHand(formulaElement);
+
+	FormulaElement *targetElem =
+	  m_ctx->currElement->findInsertPoint(formulaElement);
+	FormulaElement *targetParent = targetElem->getParent();
+
+	formulaElement->setLeftHand(targetElem);
+	if (targetParent) {
+		if (targetParent->getRightHand() != targetElem) {
+			string msg;
+			string tree;
+			m_formula->getTreeInfo(tree);
+			TRMSG(msg, "targetParent->getRightHand(): [%p] != "
+			           "targetElement [%p]\n%s",
+			      targetParent->getRightHand(), targetElem,
+			      tree.c_str());
+			throw logic_error(msg);
+		}
+		targetParent->setRightHand(formulaElement);
+	} else {
+		m_formula = formulaElement;
+	}
+	m_ctx->currElement = formulaElement;
 	return true;
 }
 
@@ -210,62 +222,13 @@ void SQLFormulaParser::setErrorFlag(void)
 
 FormulaElement *SQLFormulaParser::getCurrentElement(void) const
 {
-	if (m_ctx->formulaElementStack.empty())
-		return NULL;
-	return m_ctx->formulaElementStack.back();
+	return m_ctx->currElement;
 }
 
-bool SQLFormulaParser::makeFormulaElementFromPendingWord(void)
-{
-	if (!m_ctx->hasPendingWord())
-		return true;
-
-	bool shouldLHS = false;
-	FormulaElement *currElement = getCurrentElement();
-	if (!currElement)
-		shouldLHS = true;
-	else {
-		if (!currElement->getLeftHand())
-			shouldLHS = true;
-		else if (!currElement->getRightHand())
-			shouldLHS = false;
-		else {
-			string msg;
-			TRMSG(msg, "Both hands are not null.");
-			throw logic_error(msg);
-		}
-	}
-
-	FormulaElement *formulaElement;
-	bool isFloat;
-	if (StringUtils::isNumber(m_ctx->pendingWord, &isFloat)) {
-		if (shouldLHS) {
-			MLPL_DBG("shouldLHS is true. But number is given.");
-			return false;
-		}
-		if (!isFloat) {
-			int number = atoi(m_ctx->pendingWord.c_str());
-			formulaElement = new FormulaValue(number);
-		} else {
-			double number = atof(m_ctx->pendingWord.c_str());
-			formulaElement = new FormulaValue(number);
-		}
-	} else
-		formulaElement = makeFormulaVariable(m_ctx->pendingWord);
-	m_ctx->clearPendingWords();
-
-	bool ret = true;
-	if (shouldLHS)
-		ret = createdLHSElement(formulaElement);
-	else
-		currElement->setRightHand(formulaElement);
-	return ret;
-}
-
-bool SQLFormulaParser::addStringValue(string &word)
+bool SQLFormulaParser::insertAsRightHand(FormulaElement *formulaElement)
 {
 	string msg;
-	FormulaElement *currElement = getCurrentElement();
+	FormulaElement *currElement = m_ctx->currElement;
 	if (!currElement) {
 		MLPL_DBG("Current element: NULL.\n");
 		return false;
@@ -280,10 +243,38 @@ bool SQLFormulaParser::addStringValue(string &word)
 		TRMSG(msg, "Righthand element: NOT NULL.\n");
 		throw logic_error(msg);
 	}
-	
-	FormulaElement *formulaValue = new FormulaValue(word);
-	currElement->setRightHand(formulaValue);
+
+	currElement->setRightHand(formulaElement);
 	return true;
+}
+
+bool SQLFormulaParser::makeFormulaElementFromPendingWord(void)
+{
+	if (!m_ctx->hasPendingWord())
+		return true;
+
+	FormulaElement *formulaElement;
+	bool isFloat;
+	if (StringUtils::isNumber(m_ctx->pendingWord, &isFloat)) {
+		if (!isFloat) {
+			int number = atoi(m_ctx->pendingWord.c_str());
+			formulaElement = new FormulaValue(number);
+		} else {
+			double number = atof(m_ctx->pendingWord.c_str());
+			formulaElement = new FormulaValue(number);
+		}
+		m_ctx->clearPendingWords();
+		return insertAsRightHand(formulaElement);
+	}
+
+	formulaElement = makeFormulaVariable(m_ctx->pendingWord);
+	m_ctx->clearPendingWords();
+	return createdNewElement(formulaElement);
+}
+
+bool SQLFormulaParser::addStringValue(string &word)
+{
+	return insertAsRightHand(new FormulaValue(word));
 }
 
 //
@@ -324,5 +315,5 @@ void SQLFormulaParser::separatorCbQuot(const char separator)
 bool SQLFormulaParser::kwHandlerAnd(void)
 {
 	FormulaOperatorAnd *opAnd = new FormulaOperatorAnd();
-	return createdLHSElement(opAnd);
+	return createdNewElement(opAnd);
 }
