@@ -53,6 +53,8 @@ protected:
 	//
 	// general sub routines
 	//
+	static void copyKeywordHandlerMap(KeywordHandlerMap &kwHandlerMap);
+	void setKeywordHandlerMap(KeywordHandlerMap *kwHandlerMap);
 	FormulaVariable *makeFormulaVariable(string &name);
 	bool passFunctionArgIfOpen(string &word);
 	bool insertElement(FormulaElement *formulaElement);

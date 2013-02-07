@@ -154,6 +154,18 @@ FormulaElement *SQLFormulaParser::getFormula(void) const
 //
 // general sub routines
 //
+void SQLFormulaParser::copyKeywordHandlerMap(KeywordHandlerMap &kwHandlerMap)
+{
+	KeywordHandlerMapIterator it = m_defaultKeywordHandlerMap.begin();
+	for (; it != m_defaultKeywordHandlerMap.end(); ++it)
+		kwHandlerMap[it->first] = it->second;
+}
+
+void SQLFormulaParser::setKeywordHandlerMap(KeywordHandlerMap *kwHandlerMap)
+{
+	m_keywordHandlerMap = kwHandlerMap;
+}
+
 FormulaVariable *SQLFormulaParser::makeFormulaVariable(string &name)
 {
 	if (!m_columnDataGetterFactory) {
