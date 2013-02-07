@@ -18,12 +18,19 @@
 #include "SQLWhereParser.h"
 #include "FormulaOperator.h"
 
+enum BetweenStep {
+	BETWEEN_STEP_NULL,
+	BETWEEN_STEP_EXPECT_V0,
+	BETWEEN_STEP_EXPECT_AND,
+	BETWEEN_STEP_EXPECT_V1,
+};
+
 struct SQLWhereParser::PrivateContext {
-	bool inBetween;
+	BetweenStep betweenStep;
 
 	// constructor
 	PrivateContext(void)
-	: inBetween(false)
+	: betweenStep(BETWEEN_STEP_NULL)
 	{
 	}
 };
@@ -63,7 +70,7 @@ SQLWhereParser::~SQLWhereParser()
 
 bool SQLWhereParser::add(string& word, string &wordLower)
 {
-	if (!m_ctx->inBetween)
+	if (m_ctx->betweenStep == BETWEEN_STEP_NULL)
 		return SQLFormulaParser::add(word, wordLower);
 	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__); 
 	return false;
@@ -109,7 +116,7 @@ void SQLWhereParser::separatorCbEqual(const char separator)
 //
 bool SQLWhereParser::kwHandlerBetween(void)
 {
-	m_ctx->inBetween = true;
+	m_ctx->betweenStep = BETWEEN_STEP_EXPECT_V0;
 	SeparatorCheckerWithCallback *separator = getSeparatorChecker();
 	separator->setAlternative(&ParsableString::SEPARATOR_SPACE);
 	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__); 
