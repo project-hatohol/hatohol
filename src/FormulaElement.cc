@@ -92,7 +92,6 @@ bool FormulaElement::priorityOver(FormulaElement *formulaElement)
 
 FormulaElement *FormulaElement::findInsertPoint(FormulaElement *insertElem)
 {
-	string str;
 	FormulaElement *elem = this;
 	while (true) {
 		if (!elem->priorityOver(insertElem))
