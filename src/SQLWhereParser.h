@@ -31,6 +31,12 @@ public:
 
 protected:
 	//
+	// general sub routines
+	//
+	void clearContext(void);
+	bool createBetweenElement(void);
+
+	//
 	// SeparatorChecker callbacks
 	//
 	static void _separatorCbEqual(const char separator,

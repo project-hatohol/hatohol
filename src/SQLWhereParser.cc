@@ -17,6 +17,7 @@
 
 #include "SQLWhereParser.h"
 #include "FormulaOperator.h"
+#include "ItemDataUtils.h"
 
 enum BetweenStep {
 	BETWEEN_STEP_NULL,
@@ -27,6 +28,8 @@ enum BetweenStep {
 
 struct SQLWhereParser::PrivateContext {
 	BetweenStep betweenStep;
+	ItemDataPtr betweenV0;
+	ItemDataPtr betweenV1;
 
 	// constructor
 	PrivateContext(void)
@@ -72,13 +75,73 @@ bool SQLWhereParser::add(string& word, string &wordLower)
 {
 	if (m_ctx->betweenStep == BETWEEN_STEP_NULL)
 		return SQLFormulaParser::add(word, wordLower);
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__); 
-	return false;
+
+	bool error = false;
+	if (m_ctx->betweenStep == BETWEEN_STEP_EXPECT_V0) {
+		m_ctx->betweenV0 = ItemDataUtils::createAsNumber(word);
+		if (!m_ctx->betweenV0.hasData()) {
+			error = true;
+			MLPL_DBG("Failed to get number: %s\n", word.c_str());
+		} else {
+			m_ctx->betweenStep = BETWEEN_STEP_EXPECT_AND;
+		}
+	} else if (m_ctx->betweenStep == BETWEEN_STEP_EXPECT_AND) {
+		if (wordLower != "and") {
+			error = true;
+			MLPL_DBG("Not 'and': %s\n", word.c_str());
+		} else {
+			m_ctx->betweenStep = BETWEEN_STEP_EXPECT_V1;
+		}
+	} else if (m_ctx->betweenStep == BETWEEN_STEP_EXPECT_V1) {
+		m_ctx->betweenV1 = ItemDataUtils::createAsNumber(word);
+		if (!m_ctx->betweenV1.hasData()) {
+			error = true;
+			MLPL_DBG("Failed to get number: %s\n", word.c_str());
+		} else  {
+			if (!createBetweenElement())
+				error = true;
+		}
+	} else {
+		MLPL_BUG("Illegal state: %d\n", m_ctx->betweenStep); 
+		return false;
+	}
+
+	if (error) {
+		clearContext();
+		return false;
+	}
+
+	return true;
 }
 
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
+
+//
+// general sub routines
+//
+void SQLWhereParser::clearContext(void)
+{
+	m_ctx->betweenStep = BETWEEN_STEP_NULL;
+	SeparatorCheckerWithCallback *separator = getSeparatorChecker();
+	separator->unsetAlternative();
+}
+
+bool SQLWhereParser::createBetweenElement(void)
+{
+	if (*m_ctx->betweenV0 >= *m_ctx->betweenV1) {
+		MLPL_DBG("v0 (%s) >= v1 (%s)\n",
+		         m_ctx->betweenV0->getString().c_str(),
+		         m_ctx->betweenV1->getString().c_str());
+		return false;
+	}
+	FormulaElement *elem = new FormulaBetween(m_ctx->betweenV0,
+	                                          m_ctx->betweenV1);
+	insertElement(elem);
+	clearContext();
+	return true;
+}
 
 //
 // SeparatorChecker callbacks
@@ -119,6 +182,5 @@ bool SQLWhereParser::kwHandlerBetween(void)
 	m_ctx->betweenStep = BETWEEN_STEP_EXPECT_V0;
 	SeparatorCheckerWithCallback *separator = getSeparatorChecker();
 	separator->setAlternative(&ParsableString::SEPARATOR_SPACE);
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__); 
-	return false;
+	return true;
 }
