@@ -68,8 +68,10 @@ ItemDataPtr FormulaOperatorAnd::evaluate(void)
 // ---------------------------------------------------------------------------
 // FormulaBetween
 // ---------------------------------------------------------------------------
-FormulaBetween::FormulaBetween(void)
-: FormulaOperator(FORMULA_ELEM_PRIO_BETWEEN)
+FormulaBetween::FormulaBetween(ItemDataPtr v0, ItemDataPtr v1)
+: FormulaOperator(FORMULA_ELEM_PRIO_BETWEEN),
+  m_v0(v0),
+  m_v1(v1)
 {
 }
 

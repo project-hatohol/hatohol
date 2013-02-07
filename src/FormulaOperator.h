@@ -55,9 +55,12 @@ public:
 // ---------------------------------------------------------------------------
 class FormulaBetween : public FormulaOperator {
 public:
-	FormulaBetween(void);
+	FormulaBetween(ItemDataPtr v0, ItemDataPtr v1);
 	virtual ~FormulaBetween();
 	virtual ItemDataPtr evaluate(void);
+private:
+	ItemDataPtr m_v0;
+	ItemDataPtr m_v1;
 };
 
 #endif // FormulaOperator_h
