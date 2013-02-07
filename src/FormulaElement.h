@@ -51,13 +51,16 @@ public:
 	bool priorityOver(FormulaElement *formulaElement);
 
 	/**
-	 * Finds the insertion point in a formula element tree.
-	 * @param insertElem A formula element to be inserted.
-	 * @return A formula element whose priority is the same as or
-	 *         lower than \insertElem on the branch line started from
-	 *         \this instace.
-	 *         If priority of \insertElem is higher than \this instance,
-	 *         NULL is returned.
+	 * Finds the insert point on the branch line in the formula
+	 * element tree.
+	 *
+	 * @param insertionElem A formula element to be inserted.
+	 * @return A formula element whose priority is the lowest in the
+	 *         set whose priority is the equal as or higher than
+	 *         \insertElem on the branch line
+	 *         from  \this instace to the root element.
+	 *         If priority of \formulaElemnet is higher than
+	 *         that of \this instance, NULL is returned.
 	 */
 	FormulaElement *findInsertPoint(FormulaElement *insertElem);
 

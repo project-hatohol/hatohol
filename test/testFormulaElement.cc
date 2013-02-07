@@ -168,6 +168,22 @@ void test_findInsertPoint(void)
 	                    elemPrioL->findInsertPoint(elemPrioH));
 }
 
+void test_findInsertPointInsertMid(void)
+{
+	TestFormulaElement      *elemPrioH2 = new TestFormulaElement();
+	TestFormulaElement      *elemPrioH  = new TestFormulaElement();
+	TestFormulaElementPrio0 *elemPrioM  = new TestFormulaElementPrio0();
+	TestFormulaElementPrio1 *elemPrioL  = new TestFormulaElementPrio1();
+	x_elem = elemPrioL; // to free the tree in teardown()
+	y_elem = elemPrioM; // to free the tree in teardown()
+
+	elemPrioL->setLeftHand(elemPrioH);
+	elemPrioH->setLeftHand(elemPrioH2);
+
+	cppcut_assert_equal(static_cast<FormulaElement *>(elemPrioH),
+	                    elemPrioH2->findInsertPoint(elemPrioM));
+}
+
 //
 // FormulaVariable
 //

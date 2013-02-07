@@ -92,19 +92,15 @@ bool FormulaElement::priorityOver(FormulaElement *formulaElement)
 
 FormulaElement *FormulaElement::findInsertPoint(FormulaElement *insertElem)
 {
+	FormulaElement *prev = NULL;
 	FormulaElement *elem = this;
-	if (insertElem->priorityOver(this))
-		return NULL;
-
-	while (true) {
-		if (!elem->priorityOver(insertElem))
+	while (elem) {
+		if (insertElem->priorityOver(elem))
 			break;
-		FormulaElement *parent = elem->m_parent;
-		if (!parent)
-			break;
-		elem = parent;
+		prev = elem;
+		elem = elem->m_parent;
 	}
-	return elem;
+	return prev;
 }
 
 void FormulaElement::setTerminalElement(void)
