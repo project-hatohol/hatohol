@@ -109,6 +109,9 @@ public:
 	const string &getName(void) const;
 	FormulaVariableDataGetter *getFormulaVariableGetter(void) const;
 
+protected:
+	virtual string getTreeInfoAdditional(void);
+
 private:
 	string                     m_name;
 	FormulaVariableDataGetter *m_variableGetter;

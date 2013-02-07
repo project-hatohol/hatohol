@@ -216,3 +216,8 @@ FormulaVariableDataGetter *FormulaVariable::getFormulaVariableGetter(void) const
 {
 	return m_variableGetter;
 }
+
+string FormulaVariable::getTreeInfoAdditional(void)
+{
+	return StringUtils::sprintf("name: %s", getName().c_str());
+}
