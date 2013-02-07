@@ -13,6 +13,7 @@ noinst_LTLIBRARIES = \
 	testItemData.la testItemGroup.la \
 	testItemPtr.la testItemGroupType.la testItemTable.la \
 	testItemTablePtr.la \
+	testItemDataUtils.la \
 	libFormulaTestUtils.la
 
 endif
