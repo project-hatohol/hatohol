@@ -245,6 +245,7 @@ bool SQLFormulaParser::insertAsRightHand(FormulaElement *formulaElement)
 	}
 
 	currElement->setRightHand(formulaElement);
+	m_ctx->currElement = formulaElement;
 	return true;
 }
 
