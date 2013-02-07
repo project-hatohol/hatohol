@@ -19,10 +19,24 @@
 #include "FormulaOperator.h"
 
 // ---------------------------------------------------------------------------
+// Static public methods
+// ---------------------------------------------------------------------------
+SQLFormulaParser::KeywordHandlerMap SQLWhereParser::m_keywordHandlerMap;
+
+
+void SQLWhereParser::init(void)
+{
+	SQLFormulaParser::copyKeywordHandlerMap(m_keywordHandlerMap);
+	m_keywordHandlerMap["between"] =
+	  static_cast<KeywordHandler>(&SQLWhereParser::kwHandlerBetween);
+}
+
+// ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
 SQLWhereParser::SQLWhereParser(void)
 {
+	setKeywordHandlerMap(&m_keywordHandlerMap);
 	SeparatorCheckerWithCallback *separator = getSeparatorChecker();
 	separator->addSeparator("=");
 	separator->setCallbackTempl<SQLWhereParser>
@@ -66,4 +80,13 @@ void SQLWhereParser::separatorCbEqual(const char separator)
 		setErrorFlag();
 		return;
 	}
+}
+
+//
+// Keyword handlers
+//
+bool SQLWhereParser::kwHandlerBetween(void)
+{
+	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__); 
+	return false;
 }

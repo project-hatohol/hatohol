@@ -23,6 +23,8 @@
 class SQLWhereParser : public SQLFormulaParser
 {
 public:
+	static void init(void);
+
 	SQLWhereParser(void);
 	virtual ~SQLWhereParser();
 
@@ -34,7 +36,13 @@ protected:
 	                              SQLWhereParser *whereParser);
 	void separatorCbEqual(const char separator);
 
+	//
+	// Keyword handlers
+	//
+	bool kwHandlerBetween(void);
+
 private:
+	static KeywordHandlerMap m_keywordHandlerMap;
 };
 
 #endif // SQLFormualaParser_h

@@ -34,6 +34,7 @@ void asuraInit(void)
 	}
 
 	SQLFormulaParser::init();
+	SQLWhereParser::init(); // must be put after SQLFormulaParser::init()
 	SQLColumnParser::init();
 	FaceMySQLWorker::init();
 	SQLProcessor::init();
