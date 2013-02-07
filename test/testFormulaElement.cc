@@ -151,16 +151,16 @@ void test_findInsertPoint(void)
 	cppcut_assert_equal(static_cast<FormulaElement *>(&elem),
 	                    y_elem->findInsertPoint(&elem));
 
-	cppcut_assert_equal(static_cast<FormulaElement *>(x_elem),
+	cppcut_assert_equal(static_cast<FormulaElement *>(NULL),
 	                    x_elem->findInsertPoint(y_elem));
 	cppcut_assert_equal(static_cast<FormulaElement *>(x_elem),
 	                    x_elem->findInsertPoint(x_elem));
 	cppcut_assert_equal(static_cast<FormulaElement *>(&elem),
 	                    x_elem->findInsertPoint(&elem));
 
-	cppcut_assert_equal(static_cast<FormulaElement *>(&elem),
+	cppcut_assert_equal(static_cast<FormulaElement *>(NULL),
 	                    elem.findInsertPoint(y_elem));
-	cppcut_assert_equal(static_cast<FormulaElement *>(&elem),
+	cppcut_assert_equal(static_cast<FormulaElement *>(NULL),
 	                    elem.findInsertPoint(x_elem));
 	cppcut_assert_equal(static_cast<FormulaElement *>(&elem),
 	                    elem.findInsertPoint(&elem));

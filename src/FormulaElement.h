@@ -49,6 +49,16 @@ public:
 	FormulaElement *getRootElement(void);
 	bool isTerminalElement(void) const;
 	bool priorityOver(FormulaElement *formulaElement);
+
+	/**
+	 * Finds the insertion point in a formula element tree.
+	 * @param insertElem A formula element to be inserted.
+	 * @return A formula element whose priority is the same as or
+	 *         lower than \insertElem on the branch line started from
+	 *         \this instace.
+	 *         If priority of \insertElem is higher than \this instance,
+	 *         NULL is returned.
+	 */
 	FormulaElement *findInsertPoint(FormulaElement *insertElem);
 
 	virtual ItemDataPtr evaluate(void) = 0;
