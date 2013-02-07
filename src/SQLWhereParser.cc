@@ -18,6 +18,16 @@
 #include "SQLWhereParser.h"
 #include "FormulaOperator.h"
 
+struct SQLWhereParser::PrivateContext {
+	bool inBetween;
+
+	// constructor
+	PrivateContext(void)
+	: inBetween(false)
+	{
+	}
+};
+
 // ---------------------------------------------------------------------------
 // Static public methods
 // ---------------------------------------------------------------------------
@@ -35,8 +45,10 @@ void SQLWhereParser::init(void)
 // Public methods
 // ---------------------------------------------------------------------------
 SQLWhereParser::SQLWhereParser(void)
+: m_ctx(NULL)
 {
 	setKeywordHandlerMap(&m_keywordHandlerMap);
+	m_ctx = new PrivateContext();
 	SeparatorCheckerWithCallback *separator = getSeparatorChecker();
 	separator->addSeparator("=");
 	separator->setCallbackTempl<SQLWhereParser>
@@ -45,6 +57,16 @@ SQLWhereParser::SQLWhereParser(void)
 
 SQLWhereParser::~SQLWhereParser()
 {
+	if (m_ctx)
+		delete m_ctx;
+}
+
+bool SQLWhereParser::add(string& word, string &wordLower)
+{
+	if (!m_ctx->inBetween)
+		return SQLFormulaParser::add(word, wordLower);
+	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__); 
+	return false;
 }
 
 // ---------------------------------------------------------------------------
@@ -87,6 +109,9 @@ void SQLWhereParser::separatorCbEqual(const char separator)
 //
 bool SQLWhereParser::kwHandlerBetween(void)
 {
+	m_ctx->inBetween = true;
+	SeparatorCheckerWithCallback *separator = getSeparatorChecker();
+	separator->setAlternative(&ParsableString::SEPARATOR_SPACE);
 	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__); 
 	return false;
 }

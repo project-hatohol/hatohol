@@ -27,6 +27,7 @@ public:
 
 	SQLWhereParser(void);
 	virtual ~SQLWhereParser();
+	virtual bool add(string& word, string &wordLower);
 
 protected:
 	//
@@ -43,6 +44,9 @@ protected:
 
 private:
 	static KeywordHandlerMap m_keywordHandlerMap;
+
+	struct PrivateContext;
+	PrivateContext          *m_ctx;
 };
 
 #endif // SQLFormualaParser_h
