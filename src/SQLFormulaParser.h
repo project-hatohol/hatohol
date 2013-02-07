@@ -55,7 +55,7 @@ protected:
 	//
 	FormulaVariable *makeFormulaVariable(string &name);
 	bool passFunctionArgIfOpen(string &word);
-	bool createdNewElement(FormulaElement *formulaElement);
+	bool insertElement(FormulaElement *formulaElement);
 	void setErrorFlag(void);
 	FormulaElement *getCurrentElement(void) const;
 	bool insertAsRightHand(FormulaElement *formulaElement);

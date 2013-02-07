@@ -180,7 +180,7 @@ bool SQLFormulaParser::passFunctionArgIfOpen(string &word)
 	return formulaFunc->addArgument(formulaVariable);
 }
 
-bool SQLFormulaParser::createdNewElement(FormulaElement *formulaElement)
+bool SQLFormulaParser::insertElement(FormulaElement *formulaElement)
 {
 	if (!m_ctx->currElement) {
 		m_formula = formulaElement;
@@ -272,7 +272,7 @@ bool SQLFormulaParser::makeFormulaElementFromPendingWord(void)
 
 	formulaElement = makeFormulaVariable(m_ctx->pendingWord);
 	m_ctx->clearPendingWords();
-	return createdNewElement(formulaElement);
+	return insertElement(formulaElement);
 }
 
 bool SQLFormulaParser::addStringValue(string &word)
@@ -318,5 +318,5 @@ void SQLFormulaParser::separatorCbQuot(const char separator)
 bool SQLFormulaParser::kwHandlerAnd(void)
 {
 	FormulaOperatorAnd *opAnd = new FormulaOperatorAnd();
-	return createdNewElement(opAnd);
+	return insertElement(opAnd);
 }

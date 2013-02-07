@@ -62,7 +62,7 @@ void SQLWhereParser::separatorCbEqual(const char separator)
 	// create ComparatorEqual
 	FormulaComparatorEqual *formulaComparatorEqual
 	  = new FormulaComparatorEqual();
-	if (!createdNewElement(formulaComparatorEqual)) {
+	if (!insertElement(formulaComparatorEqual)) {
 		setErrorFlag();
 		return;
 	}
