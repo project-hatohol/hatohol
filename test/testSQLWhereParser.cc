@@ -142,5 +142,47 @@ void test_whereBetween(void)
 	cppcut_assert_equal(v1, itemInt1->get());
 }
 
+void test_whereIntAndStringAndInt(void)
+{
+	const char *leftHand0  = "a";
+	int         rightHand0 = 1;
+	const char *leftHand1  = "b";
+	const char *rightHand1 = "foo";
+	const char *leftHand2  = "c";
+	int         rightHand2 = -5;
+	ParsableString statement(
+	  StringUtils::sprintf("%s=%d and %s='%s' and %s=%d",
+	                       leftHand0, rightHand0, leftHand1, rightHand1,
+	                       leftHand2, rightHand2));
+	SQLWhereParser whereParser;
+	assertInputStatement(whereParser, statement);
+
+	FormulaElement *formula = whereParser.getFormula();
+	assertFormulaOperatorAnd(formula);
+
+	FormulaElement *leftElem = formula->getLeftHand();
+	FormulaElement *rightElem = formula->getRightHand();
+	assertFormulaComparatorEqual(leftElem);
+	assertFormulaOperatorAnd(rightElem);
+
+	// Top left child
+	assertFormulaVariable(leftElem->getLeftHand(), leftHand0);
+	assertFormulaValue(leftElem->getRightHand(), rightHand0);
+
+	// Top right child
+	assertFormulaComparatorEqual(rightElem->getLeftHand());
+	assertFormulaComparatorEqual(rightElem->getRightHand());
+
+	// Second level left
+	leftElem = rightElem->getLeftHand();
+	assertFormulaVariable(leftElem->getLeftHand(), leftHand1);
+	assertFormulaValue(leftElem->getRightHand(), rightHand1);
+
+	// Second level child
+	rightElem = rightElem->getRightHand();
+	assertFormulaVariable(rightElem->getLeftHand(), leftHand2);
+	assertFormulaValue(rightElem->getRightHand(), rightHand2);
+}
+
 } // namespace testSQLWhereParser
 
