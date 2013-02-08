@@ -56,6 +56,7 @@ typedef ItemDataVector::iterator       ItemDataVectorIterator;
 typedef ItemDataVector::const_iterator ItemDataVectorConstIterator;
 
 enum ItemDataType {
+	ITEM_TYPE_BOOL,
 	ITEM_TYPE_INT,
 	ITEM_TYPE_UINT64,
 	ITEM_TYPE_STRING,
@@ -155,10 +156,12 @@ private:
 	T m_data;
 };
 
+typedef ItemGeneric<bool,     ITEM_TYPE_BOOL>   ItemBool;
 typedef ItemGeneric<uint64_t, ITEM_TYPE_UINT64> ItemUint64;
 typedef ItemGeneric<int,      ITEM_TYPE_INT>    ItemInt;
 typedef ItemGeneric<string,   ITEM_TYPE_STRING> ItemString;
 
+template<> string ItemBool::getString(void) const;
 template<> string ItemInt::getString(void) const;
 template<> string ItemUint64::getString(void) const;
 

@@ -47,6 +47,11 @@ ItemData::~ItemData()
 // ---------------------------------------------------------------------------
 // Public methods (ItemGeneric)
 // ---------------------------------------------------------------------------
+template<> string ItemBool::getString(void) const
+{
+	return StringUtils::sprintf("%d", m_data);
+};
+
 template<> string ItemInt::getString(void) const
 {
 	return StringUtils::sprintf("%d", m_data);
