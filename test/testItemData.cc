@@ -286,9 +286,9 @@ void test_operatorEqInt(void)
 	y_item = new ItemInt(TEST_ITEM_ID, 20);
 	z_item = new ItemInt(TEST_ITEM_ID, 15);
 	w_item = new ItemInt(TEST_ITEM_ID, 10);
-	cppcut_assert_equal(false, *x_item == *y_item);
-	cppcut_assert_equal(true,  *x_item == *z_item);
-	cppcut_assert_equal(false, *x_item == *w_item);
+	cppcut_assert_not_equal(*x_item, *y_item);
+	cppcut_assert_equal    (*x_item, *z_item);
+	cppcut_assert_not_equal(*x_item, *w_item);
 }
 
 void test_operatorGtUint64(void)
@@ -341,9 +341,9 @@ void test_operatorEqUint64(void)
 	y_item = new ItemUint64(TEST_ITEM_ID, 20);
 	z_item = new ItemUint64(TEST_ITEM_ID, 15);
 	w_item = new ItemUint64(TEST_ITEM_ID, 10);
-	cppcut_assert_equal(false, *x_item == *y_item);
-	cppcut_assert_equal(true,  *x_item == *z_item);
-	cppcut_assert_equal(false, *x_item == *w_item);
+	cppcut_assert_not_equal(*x_item, *y_item);
+	cppcut_assert_equal    (*x_item, *z_item);
+	cppcut_assert_not_equal(*x_item, *w_item);
 }
 
 void test_operatorGtUint64Int(void)
@@ -396,9 +396,9 @@ void test_operatorEqUint64Int(void)
 	y_item = new ItemInt(TEST_ITEM_ID, 20);
 	z_item = new ItemInt(TEST_ITEM_ID, 15);
 	w_item = new ItemInt(TEST_ITEM_ID, 10);
-	cppcut_assert_equal(false, *x_item == *y_item);
-	cppcut_assert_equal(true,  *x_item == *z_item);
-	cppcut_assert_equal(false, *x_item == *w_item);
+	cppcut_assert_not_equal(*x_item, *y_item);
+	cppcut_assert_equal    (*x_item, *z_item);
+	cppcut_assert_not_equal(*x_item, *w_item);
 }
 
 
