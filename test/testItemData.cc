@@ -177,7 +177,7 @@ void test_getId(void)
 	cut_assert_equal_int(id, item->getId());
 }
 
-void test_ref_unref(void)
+void testRefUnref(void)
 {
 	ItemIntTester *tester = new ItemIntTester(1, 10);
 	tester->destructorCalled = false;
@@ -192,7 +192,7 @@ void test_ref_unref(void)
 	cppcut_assert_equal(true, tester->destructorCalled);
 }
 
-void test_operator_gt_int_positive(void)
+void test_operatorGtIntPositive(void)
 {
 	x_item = new ItemInt(TEST_ITEM_ID, 15);
 	y_item = new ItemInt(TEST_ITEM_ID, 10);
@@ -203,7 +203,7 @@ void test_operator_gt_int_positive(void)
 	cppcut_assert_equal(false, *x_item > *w_item);
 }
 
-void test_operator_gt_int_negative(void)
+void test_operatorGtIntNegative(void)
 {
 	x_item = new ItemInt(TEST_ITEM_ID, -15);
 	y_item = new ItemInt(TEST_ITEM_ID, -20);
@@ -214,7 +214,7 @@ void test_operator_gt_int_negative(void)
 	cppcut_assert_equal(false, *x_item > *w_item);
 }
 
-void test_operator_lt_int_positive(void)
+void test_operatorLtIntPositive(void)
 {
 	x_item = new ItemInt(TEST_ITEM_ID, 15);
 	y_item = new ItemInt(TEST_ITEM_ID, 10);
@@ -225,7 +225,7 @@ void test_operator_lt_int_positive(void)
 	cppcut_assert_equal(true,  *x_item < *w_item);
 }
 
-void test_operator_lt_int_negative(void)
+void test_operatorLtIntNegative(void)
 {
 	x_item = new ItemInt(TEST_ITEM_ID, -15);
 	y_item = new ItemInt(TEST_ITEM_ID, -20);
@@ -236,7 +236,7 @@ void test_operator_lt_int_negative(void)
 	cppcut_assert_equal(true,  *x_item < *w_item);
 }
 
-void test_operator_ge_int_positive(void)
+void test_operatorGeIntPositive(void)
 {
 	x_item = new ItemInt(TEST_ITEM_ID, 15);
 	y_item = new ItemInt(TEST_ITEM_ID, 10);
@@ -247,7 +247,7 @@ void test_operator_ge_int_positive(void)
 	cppcut_assert_equal(false, *x_item >= *w_item);
 }
 
-void test_operator_ge_int_negative(void)
+void test_operatorGeIntNegative(void)
 {
 	x_item = new ItemInt(TEST_ITEM_ID, -15);
 	y_item = new ItemInt(TEST_ITEM_ID, -20);
@@ -258,7 +258,7 @@ void test_operator_ge_int_negative(void)
 	cppcut_assert_equal(false, *x_item >= *w_item);
 }
 
-void test_operator_le_int_positive(void)
+void test_operatorLeIntPositive(void)
 {
 	x_item = new ItemInt(TEST_ITEM_ID, 15);
 	y_item = new ItemInt(TEST_ITEM_ID, 10);
@@ -269,7 +269,7 @@ void test_operator_le_int_positive(void)
 	cppcut_assert_equal(true,  *x_item <= *w_item);
 }
 
-void test_operator_le_int_negative(void)
+void test_operatorLeIntNegative(void)
 {
 	x_item = new ItemInt(TEST_ITEM_ID, -15);
 	y_item = new ItemInt(TEST_ITEM_ID, -20);
@@ -280,7 +280,7 @@ void test_operator_le_int_negative(void)
 	cppcut_assert_equal(true,  *x_item <= *w_item);
 }
 
-void test_operator_eq_int(void)
+void test_operatorEqInt(void)
 {
 	x_item = new ItemInt(TEST_ITEM_ID, 15);
 	y_item = new ItemInt(TEST_ITEM_ID, 20);
@@ -291,7 +291,7 @@ void test_operator_eq_int(void)
 	cppcut_assert_equal(false, *x_item == *w_item);
 }
 
-void test_operator_gt_uint64(void)
+void test_operatorGtUint64(void)
 {
 	x_item = new ItemUint64(TEST_ITEM_ID, 15);
 	y_item = new ItemUint64(TEST_ITEM_ID, 10);
@@ -302,7 +302,7 @@ void test_operator_gt_uint64(void)
 	cppcut_assert_equal(false, *x_item > *w_item);
 }
 
-void test_operator_lt_uint64(void)
+void test_operatorLtUint64(void)
 {
 	x_item = new ItemUint64(TEST_ITEM_ID, 15);
 	y_item = new ItemUint64(TEST_ITEM_ID, 10);
@@ -313,7 +313,7 @@ void test_operator_lt_uint64(void)
 	cppcut_assert_equal(true,  *x_item < *w_item);
 }
 
-void test_operator_ge_uint64(void)
+void test_operatorGeUint64(void)
 {
 	x_item = new ItemUint64(TEST_ITEM_ID, 15);
 	y_item = new ItemUint64(TEST_ITEM_ID, 10);
@@ -324,7 +324,7 @@ void test_operator_ge_uint64(void)
 	cppcut_assert_equal(false, *x_item >= *w_item);
 }
 
-void test_operator_le_uint64(void)
+void test_operatorLeUint64(void)
 {
 	x_item = new ItemUint64(TEST_ITEM_ID, 15);
 	y_item = new ItemUint64(TEST_ITEM_ID, 10);
@@ -335,7 +335,7 @@ void test_operator_le_uint64(void)
 	cppcut_assert_equal(true,  *x_item <= *w_item);
 }
 
-void test_operator_eq_uint64(void)
+void test_operatorEqUint64(void)
 {
 	x_item = new ItemUint64(TEST_ITEM_ID, 15);
 	y_item = new ItemUint64(TEST_ITEM_ID, 20);
@@ -346,7 +346,7 @@ void test_operator_eq_uint64(void)
 	cppcut_assert_equal(false, *x_item == *w_item);
 }
 
-void test_operator_gt_uint64_int(void)
+void test_operatorGtUint64Int(void)
 {
 	x_item = new ItemUint64(TEST_ITEM_ID, 15);
 	y_item = new ItemInt(TEST_ITEM_ID, 10);
@@ -357,7 +357,7 @@ void test_operator_gt_uint64_int(void)
 	cppcut_assert_equal(false, *x_item > *w_item);
 }
 
-void test_operator_lt_uint64_int(void)
+void test_operatorLtUint64Int(void)
 {
 	x_item = new ItemUint64(TEST_ITEM_ID, 15);
 	y_item = new ItemInt(TEST_ITEM_ID, 10);
@@ -368,7 +368,7 @@ void test_operator_lt_uint64_int(void)
 	cppcut_assert_equal(true,  *x_item < *w_item);
 }
 
-void test_operator_ge_uint64_int(void)
+void test_operatorGeUint64Int(void)
 {
 	x_item = new ItemUint64(TEST_ITEM_ID, 15);
 	y_item = new ItemInt(TEST_ITEM_ID, 10);
@@ -379,7 +379,7 @@ void test_operator_ge_uint64_int(void)
 	cppcut_assert_equal(false, *x_item >= *w_item);
 }
 
-void test_operator_le_uint64_int(void)
+void test_operatorLeUint64Int(void)
 {
 	x_item = new ItemUint64(TEST_ITEM_ID, 15);
 	y_item = new ItemInt(TEST_ITEM_ID, 10);
@@ -390,7 +390,7 @@ void test_operator_le_uint64_int(void)
 	cppcut_assert_equal(true,  *x_item <= *w_item);
 }
 
-void test_operator_eq_uint64_int(void)
+void test_operatorEqUint64Int(void)
 {
 	x_item = new ItemUint64(TEST_ITEM_ID, 15);
 	y_item = new ItemInt(TEST_ITEM_ID, 20);
