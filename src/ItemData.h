@@ -101,6 +101,9 @@ public:
 	  m_data(data) {
 	}
 
+	virtual ~ItemGeneric() {
+	}
+
 	// virtual methods
 	virtual void set(void *src) {
 		writeLock();
@@ -155,10 +158,6 @@ public:
 		MLPL_WARN("You should override this function: %s.\n",
 		          __PRETTY_FUNCTION__);
 		return false;
-	}
-
-protected:
-	virtual ~ItemGeneric() {
 	}
 
 private:
