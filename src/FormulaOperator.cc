@@ -16,6 +16,7 @@
 */
 
 #include "FormulaOperator.h"
+#include "ItemEnum.h"
 
 // ---------------------------------------------------------------------------
 // Formula Operator
@@ -98,7 +99,9 @@ FormulaVariable *FormulaBetween::getVariable(void) const
 
 ItemDataPtr FormulaBetween::evaluate(void)
 {
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__); 
-	return ItemDataPtr();
+	ItemDataPtr varDataPtr = m_var->evaluate();
+	bool ret = true;
+	if (*varDataPtr < *m_v0 ||*varDataPtr > *m_v1)
+		ret = false;
+	return ItemDataPtr(new ItemBool(ret), false);
 }
-
