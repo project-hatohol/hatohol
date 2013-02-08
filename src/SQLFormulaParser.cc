@@ -68,7 +68,8 @@ void SQLFormulaParser::init(void)
 // Public methods
 // ---------------------------------------------------------------------------
 SQLFormulaParser::SQLFormulaParser(void)
-: m_separator(" ()'"),
+: m_columnDataGetterFactory(NULL),
+  m_separator(" ()'"),
   m_formula(NULL),
   m_keywordHandlerMap(&m_defaultKeywordHandlerMap)
 {
@@ -173,6 +174,10 @@ FormulaVariable *SQLFormulaParser::makeFormulaVariable(string &name)
 		TRMSG(msg, "m_columnDataGetterFactory: NULL.");
 		throw logic_error(msg);
 	}
+	if (!m_columnDataGetterFactory) {
+		MLPL_BUG("m_columnDataGetterFactory: NULL\n");
+		return NULL;
+	}
 	FormulaVariableDataGetter *dataGetter =
 	  (*m_columnDataGetterFactory)(name, m_columnDataGetterFactoryPriv);
 	FormulaVariable *formulaVariable =
@@ -189,6 +194,8 @@ bool SQLFormulaParser::passFunctionArgIfOpen(string &word)
 	if (!formulaFunc)
 		return false;
 	FormulaVariable *formulaVariable = makeFormulaVariable(word);
+	if (!formulaVariable)
+		return false;
 	return formulaFunc->addArgument(formulaVariable);
 }
 
@@ -291,6 +298,8 @@ bool SQLFormulaParser::makeFormulaElementFromPendingWord(void)
 	}
 
 	formulaElement = makeFormulaVariable(m_ctx->pendingWord);
+	if (!formulaElement)
+		return false;
 	m_ctx->clearPendingWords();
 	return insertElement(formulaElement);
 }
