@@ -130,16 +130,7 @@ void test_whereBetween(void)
 	assertInputStatement(whereParser, statement);
 
 	FormulaElement *formula = whereParser.getFormula();
-	assertFormulaBetween(formula, v0, v1);
-	FormulaBetween *between = dynamic_cast<FormulaBetween *>(formula);
-	ItemDataPtr dataPtr0 = between->getV0();
-	ItemDataPtr dataPtr1 = between->getV1();
-	ItemInt *itemInt0 = dynamic_cast<ItemInt *>((ItemData *)dataPtr0);
-	ItemInt *itemInt1 = dynamic_cast<ItemInt *>((ItemData *)dataPtr1);
-	cppcut_assert_not_null(itemInt0);
-	cppcut_assert_not_null(itemInt1);
-	cppcut_assert_equal(v0, itemInt0->get());
-	cppcut_assert_equal(v1, itemInt1->get());
+	assertFormulaBetween(formula, leftHand, v0, v1);
 }
 
 void test_whereIntAndStringAndInt(void)

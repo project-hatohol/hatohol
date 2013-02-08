@@ -34,9 +34,20 @@ void _assertFormulaValue(FormulaElement *elem, const char *expected)
 	cppcut_assert_equal(string(expected), actual);
 }
 
-void _assertFormulaBetween(FormulaElement *elem, int v0, int v1)
+void _assertFormulaBetween(FormulaElement *elem, string name, int v0, int v1)
 {
 	assertTypeFormulaBetween(elem);
+	FormulaBetween *between = dynamic_cast<FormulaBetween *>(elem);
+	cppcut_assert_equal(name, between->getVariable()->getName());
+
+	ItemDataPtr dataPtr0 = between->getV0();
+	ItemDataPtr dataPtr1 = between->getV1();
+	ItemInt *itemInt0 = dynamic_cast<ItemInt *>((ItemData *)dataPtr0);
+	ItemInt *itemInt1 = dynamic_cast<ItemInt *>((ItemData *)dataPtr1);
+	cppcut_assert_not_null(itemInt0);
+	cppcut_assert_not_null(itemInt1);
+	cppcut_assert_equal(v0, itemInt0->get());
+	cppcut_assert_equal(v1, itemInt1->get());
 }
 
 void showTreeInfo(FormulaElement *formulaElement)
