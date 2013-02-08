@@ -1,4 +1,3 @@
-* introduce sytem ANONYMOUS ID of ItemData instead of ITEM_ID_NOBODY.
 * [M] Make SQLParser
   - [M] SQLWhereElement Parser and Processor
 

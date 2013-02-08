@@ -39,6 +39,8 @@ typedef uint64_t ItemId;
 #define PRIx_ITEM PRIx64
 #define PRIu_ITEM PRIu64
 
+static const ItemId SYSTEM_ITEM_ID_ANONYMOUS = 0xffffffffffffffff;
+
 typedef vector<ItemId>               ItemIdVector;
 typedef ItemIdVector::iterator       ItemIdVectorIterator;
 typedef ItemIdVector::const_iterator ItemIdVectorConstIterator;
@@ -91,6 +93,11 @@ class ItemGeneric : public ItemData {
 public:
 	ItemGeneric(ItemId id, T data)
 	: ItemData(id, ITEM_TYPE),
+	  m_data(data) {
+	}
+
+	ItemGeneric(T data)
+	: ItemData(SYSTEM_ITEM_ID_ANONYMOUS, ITEM_TYPE),
 	  m_data(data) {
 	}
 
