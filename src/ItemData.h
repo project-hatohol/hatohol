@@ -19,6 +19,7 @@
 #define ItemData_h
 
 #include <string>
+#include <sstream>
 #include <map>
 using namespace std;
 
@@ -113,10 +114,11 @@ public:
 	}
 
 	virtual string getString(void) const {
+		stringstream ss;
 		readLock();
-		string str = m_data;
+		ss << m_data;
 		readUnlock();
-		return str;
+		return ss.str();
 	}
 
 	virtual bool operator >(ItemData &itemData) const {
@@ -160,10 +162,6 @@ typedef ItemGeneric<bool,     ITEM_TYPE_BOOL>   ItemBool;
 typedef ItemGeneric<uint64_t, ITEM_TYPE_UINT64> ItemUint64;
 typedef ItemGeneric<int,      ITEM_TYPE_INT>    ItemInt;
 typedef ItemGeneric<string,   ITEM_TYPE_STRING> ItemString;
-
-template<> string ItemBool::getString(void) const;
-template<> string ItemInt::getString(void) const;
-template<> string ItemUint64::getString(void) const;
 
 template<> bool ItemInt::operator >(ItemData &itemData) const;
 template<> bool ItemInt::operator <(ItemData &itemData) const;
