@@ -55,7 +55,7 @@ void test_constructWithoutSpecificId(void)
 {
 	int val = 2080;
 	ItemData *item = new ItemUint64(val);
-	cut_assert_equal_int_least64(SYSTEM_ITEM_ID_ANONYMOUS, item->getId());
+	cppcut_assert_equal(SYSTEM_ITEM_ID_ANONYMOUS, item->getId());
 }
 
 void test_getUint64(void)
