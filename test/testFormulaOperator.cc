@@ -83,6 +83,20 @@ void test_formulaComparatorEqualFalse(void)
 	assertFormulaComparatorEqualVal(1, 0);
 }
 
+void test_formulaComparatorEqualInvalidRight(void)
+{
+	FormulaComparatorEqual formulaEq;
+	formulaEq.setLeftHand(new FormulaValue(1));
+	cppcut_assert_equal(false, formulaEq.evaluate().hasData());
+}
+
+void test_formulaComparatorEqualInvalidLeft(void)
+{
+	FormulaComparatorEqual formulaEq;
+	formulaEq.setRightHand(new FormulaValue(1));
+	cppcut_assert_equal(false, formulaEq.evaluate().hasData());
+}
+
 void test_formulaBetween(void)
 {
 	string varName = "name";
