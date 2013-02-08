@@ -401,4 +401,19 @@ void test_operatorEqUint64Int(void)
 	cppcut_assert_equal(false, *x_item == *w_item);
 }
 
+
+void test_operatorEqBool(void)
+{
+	x_item = new ItemBool(true);
+	y_item = new ItemBool(true);
+	cppcut_assert_equal(*x_item, *y_item);
+}
+
+void test_operatorNotEqBool(void)
+{
+	x_item = new ItemBool(true);
+	y_item = new ItemBool(false);
+	cppcut_assert_not_equal(*x_item, *y_item);
+}
+
 } // namespace testItemData
