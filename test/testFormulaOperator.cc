@@ -26,11 +26,16 @@ void teardown()
 // ---------------------------------------------------------------------------
 void test_formulaBetween(void)
 {
+	string varName = "name";
 	int v0 = 15;
 	int v1 = 2005;
+	FormulaVariable *var = new FormulaVariable(varName, NULL);
 	ItemDataPtr item0 = ItemDataPtr(new ItemInt(TEST_ITEM_ID, v0), false);
 	ItemDataPtr item1 = ItemDataPtr(new ItemInt(TEST_ITEM_ID, v1), false);
-	FormulaBetween between(item0, item1);
+	FormulaBetween between(var, item0, item1);
+
+	FormulaVariable *obtainedVar = between.getVariable();
+	cppcut_assert_equal(var, obtainedVar);
 
 	ItemDataPtr dataPtr0 = between.getV0();
 	ItemDataPtr dataPtr1 = between.getV1();

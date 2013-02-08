@@ -55,14 +55,17 @@ public:
 // ---------------------------------------------------------------------------
 class FormulaBetween : public FormulaOperator {
 public:
-	FormulaBetween(ItemDataPtr v0, ItemDataPtr v1);
+	FormulaBetween(FormulaVariable *var, ItemDataPtr v0, ItemDataPtr v1);
 	virtual ~FormulaBetween();
 	virtual ItemDataPtr evaluate(void);
 	ItemDataPtr getV0(void) const;
 	ItemDataPtr getV1(void) const;
+	FormulaVariable *getVariable(void) const;
+
 private:
-	ItemDataPtr m_v0;
-	ItemDataPtr m_v1;
+	FormulaVariable *m_var;
+	ItemDataPtr      m_v0;
+	ItemDataPtr      m_v1;
 };
 
 #endif // FormulaOperator_h

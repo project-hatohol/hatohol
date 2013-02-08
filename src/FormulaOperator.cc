@@ -68,8 +68,10 @@ ItemDataPtr FormulaOperatorAnd::evaluate(void)
 // ---------------------------------------------------------------------------
 // FormulaBetween
 // ---------------------------------------------------------------------------
-FormulaBetween::FormulaBetween(ItemDataPtr v0, ItemDataPtr v1)
+FormulaBetween::FormulaBetween(FormulaVariable *var,
+                               ItemDataPtr v0, ItemDataPtr v1)
 : FormulaOperator(FORMULA_ELEM_PRIO_BETWEEN),
+  m_var(var),
   m_v0(v0),
   m_v1(v1)
 {
@@ -87,6 +89,11 @@ ItemDataPtr FormulaBetween::getV0(void) const
 ItemDataPtr FormulaBetween::getV1(void) const
 {
 	return m_v1;
+}
+
+FormulaVariable *FormulaBetween::getVariable(void) const
+{
+	return m_var;
 }
 
 ItemDataPtr FormulaBetween::evaluate(void)
