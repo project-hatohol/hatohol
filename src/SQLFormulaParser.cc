@@ -104,6 +104,9 @@ void SQLFormulaParser::setColumnDataGetterFactory
 
 bool SQLFormulaParser::add(string& word, string &wordLower)
 {
+	if (word.empty())
+		return true;
+
 	if (m_ctx->errorFlag)
 		return false;
 
