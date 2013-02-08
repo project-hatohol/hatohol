@@ -101,9 +101,6 @@ public:
 	  m_data(data) {
 	}
 
-	virtual ~ItemGeneric() {
-	}
-
 	// virtual methods
 	virtual void set(void *src) {
 		writeLock();
@@ -167,6 +164,11 @@ public:
 		          __PRETTY_FUNCTION__, type0, type1);
 		return false;
 	}
+
+protected:
+	virtual ~ItemGeneric() {
+	}
+
 
 private:
 	T m_data;
