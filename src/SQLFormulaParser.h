@@ -16,7 +16,7 @@
 */
 
 #ifndef SQLFormulaParser_h
-#define SQLFormualaParser_h
+#define SQLFormulaParser_h
 
 #include <string>
 #include <map>
