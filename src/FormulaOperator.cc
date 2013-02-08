@@ -64,8 +64,16 @@ FormulaOperatorAnd::~FormulaOperatorAnd()
 
 ItemDataPtr FormulaOperatorAnd::evaluate(void)
 {
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__); 
-	return ItemDataPtr();
+	ItemDataPtr v0, v1;
+	if (!getLeftHandDataWithCheck(v0) || !getRightHandDataWithCheck(v1))
+		return ItemDataPtr();
+	ItemDataPtr dataPtrTrue(new ItemBool(true), false);
+	ItemDataPtr dataPtrFalse(new ItemBool(false), false);
+	if (*v0 != *dataPtrTrue)
+		return dataPtrFalse;
+	if (*v1 != *dataPtrTrue)
+		return dataPtrFalse;
+	return dataPtrTrue;
 }
 
 // ---------------------------------------------------------------------------

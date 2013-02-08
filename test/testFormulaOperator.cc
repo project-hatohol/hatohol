@@ -26,6 +26,20 @@ void _assertFormulaBetweenVal(int v, bool expectedValue)
 }
 #define assertFormulaBetweenVal(V, E) cut_trace(_assertFormulaBetweenVal(V, E))
 
+void _assertFormulaOperatorAndVal(bool v0, bool v1)
+{
+	FormulaOperatorAnd formulaEq;
+	FormulaValue *val0 = new FormulaValue(v0);
+	FormulaValue *val1 = new FormulaValue(v1);
+	formulaEq.setLeftHand(val0);
+	formulaEq.setRightHand(val1);
+	bool expectedVal = (v0 && v1);
+	ItemDataPtr expected(new ItemBool(expectedVal), false);
+	cppcut_assert_equal(*expected, *formulaEq.evaluate());
+}
+#define assertFormulaOperatorAndVal(V0, V1) \
+cut_trace(_assertFormulaOperatorAndVal(V0, V1))
+
 void _assertFormulaComparatorEqualVal(int v0, int v1)
 {
 	FormulaComparatorEqual formulaEq;
@@ -75,6 +89,26 @@ void test_formulaComparatorEqualInvalidLeft(void)
 	FormulaComparatorEqual formulaEq;
 	formulaEq.setRightHand(new FormulaValue(1));
 	cppcut_assert_equal(false, formulaEq.evaluate().hasData());
+}
+
+void test_formulaOperatorAndFF(void)
+{
+	assertFormulaOperatorAndVal(false, false);
+}
+
+void test_formulaOperatorAndFT(void)
+{
+	assertFormulaOperatorAndVal(false, true);
+}
+
+void test_formulaOperatorAndTF(void)
+{
+	assertFormulaOperatorAndVal(true, false);
+}
+
+void test_formulaOperatorAndTT(void)
+{
+	assertFormulaOperatorAndVal(true, true);
 }
 
 void test_formulaBetween(void)
