@@ -18,6 +18,12 @@
 #include <cstdio>
 #include "ItemData.h"
 
+ostream& operator<<(ostream& os, const ItemData &itemData)
+{
+	os << itemData.getString();
+	return os;
+}
+
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
