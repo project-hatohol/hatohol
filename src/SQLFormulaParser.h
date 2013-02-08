@@ -68,13 +68,17 @@ protected:
 	//
 	// SeparatorChecker callbacks
 	//
-	static void separatorCbParenthesisOpen
+	static void _separatorCbParenthesisOpen
 	  (const char separator, SQLFormulaParser *formulaParser);
-	static void separatorCbParenthesisClose
+	virtual void separatorCbParenthesisOpen(const char separator);
+
+	static void _separatorCbParenthesisClose
 	  (const char separator, SQLFormulaParser *formulaParser);
+	virtual void separatorCbParenthesisClose(const char separator);
+
 	static void _separatorCbQuot
 	  (const char separator, SQLFormulaParser *formulaParser);
-	void separatorCbQuot(const char separator);
+	virtual void separatorCbQuot(const char separator);
 
 	//
 	// Keyword handlers

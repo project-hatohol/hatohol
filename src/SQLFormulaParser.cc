@@ -75,9 +75,9 @@ SQLFormulaParser::SQLFormulaParser(void)
 {
 	m_ctx = new PrivateContext();
 	m_separator.setCallbackTempl<SQLFormulaParser>
-	  ('(', separatorCbParenthesisOpen, this);
+	  ('(', _separatorCbParenthesisOpen, this);
 	m_separator.setCallbackTempl<SQLFormulaParser>
-	  (')', separatorCbParenthesisClose, this);
+	  (')', _separatorCbParenthesisClose, this);
 	m_separator.setCallbackTempl<SQLFormulaParser>
 	  ('\'', _separatorCbQuot, this);
 }
@@ -319,16 +319,24 @@ FormulaElement *SQLFormulaParser::takeFormula(void)
 //
 // SeparatorChecker callbacks
 //
-void SQLFormulaParser::separatorCbParenthesisOpen
+void SQLFormulaParser::_separatorCbParenthesisOpen
   (const char separator, SQLFormulaParser *formulaParser)
 {
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__); 
+	formulaParser->separatorCbParenthesisOpen(separator);
 }
 
-void SQLFormulaParser::separatorCbParenthesisClose
+void SQLFormulaParser::separatorCbParenthesisOpen(const char separator)
+{
+}
+
+void SQLFormulaParser::_separatorCbParenthesisClose
   (const char separator, SQLFormulaParser *formulaParser)
 {
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__); 
+	formulaParser->separatorCbParenthesisClose(separator);
+}
+
+void SQLFormulaParser::separatorCbParenthesisClose(const char separator)
+{
 }
 
 void SQLFormulaParser::_separatorCbQuot
