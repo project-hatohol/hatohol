@@ -50,10 +50,8 @@ ItemDataPtr FormulaComparatorEqual::evaluate(void)
 		return ItemDataPtr();
 	}
 	ItemDataPtr v0 = leftHand->evaluate(); 
-	if (!v0.hasData()) {
-		MLPL_DBG("No data in Left Hand Element.\n");
+	if (!v0.hasData())
 		return ItemDataPtr();
-	}
 
 	FormulaElement *rightHand = getRightHand();
 	if (!rightHand) {
@@ -61,10 +59,8 @@ ItemDataPtr FormulaComparatorEqual::evaluate(void)
 		return ItemDataPtr();
 	}
 	ItemDataPtr v1 = rightHand->evaluate(); 
-	if (!v1.hasData()) {
-		MLPL_DBG("No data in Right Hand Element.\n");
+	if (!v1.hasData())
 		return ItemDataPtr();
-	}
 
 	return ItemDataPtr(new ItemBool(*v0 == *v1), false);
 }
