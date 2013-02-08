@@ -44,24 +44,9 @@ FormulaComparatorEqual::~FormulaComparatorEqual()
 
 ItemDataPtr FormulaComparatorEqual::evaluate(void)
 {
-	FormulaElement *leftHand = getLeftHand();
-	if (!leftHand) {
-		MLPL_DBG("Left Hand: NULL.\n");
+	ItemDataPtr v0, v1;
+	if (!getLeftHandDataWithCheck(v0) || !getRightHandDataWithCheck(v1))
 		return ItemDataPtr();
-	}
-	ItemDataPtr v0 = leftHand->evaluate(); 
-	if (!v0.hasData())
-		return ItemDataPtr();
-
-	FormulaElement *rightHand = getRightHand();
-	if (!rightHand) {
-		MLPL_DBG("Right Hand: NULL.\n");
-		return ItemDataPtr();
-	}
-	ItemDataPtr v1 = rightHand->evaluate(); 
-	if (!v1.hasData())
-		return ItemDataPtr();
-
 	return ItemDataPtr(new ItemBool(*v0 == *v1), false);
 }
 
