@@ -78,6 +78,7 @@ public:
 	virtual bool operator >=(ItemData &itemData) const = 0;
 	virtual bool operator <=(ItemData &itemData) const = 0;
 	virtual bool operator ==(const ItemData &itemData) const = 0;
+	virtual bool operator !=(const ItemData &itemData) const = 0;
 
 protected:
 	ItemData(ItemId id, ItemDataType type);
@@ -165,6 +166,11 @@ public:
 		MLPL_WARN("You should override this function: %s (%d, %d).\n",
 		          __PRETTY_FUNCTION__, type0, type1);
 		return false;
+	}
+
+	virtual bool operator !=(const ItemData &itemData) const
+	{
+		return !(*this == itemData);
 	}
 
 protected:
