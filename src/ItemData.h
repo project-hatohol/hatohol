@@ -77,7 +77,7 @@ public:
 	virtual bool operator <(ItemData &itemData) const = 0;
 	virtual bool operator >=(ItemData &itemData) const = 0;
 	virtual bool operator <=(ItemData &itemData) const = 0;
-	virtual bool operator ==(ItemData &itemData) const = 0;
+	virtual bool operator ==(const ItemData &itemData) const = 0;
 
 protected:
 	ItemData(ItemId id, ItemDataType type);
@@ -151,7 +151,7 @@ public:
 		return false;
 	}
 
-	virtual bool operator ==(ItemData &itemData) const {
+	virtual bool operator ==(const ItemData &itemData) const {
 		const ItemDataType &type0 = getItemType();
 		const ItemDataType &type1 = itemData.getItemType();
 		if (type0 == type1) {
@@ -188,6 +188,6 @@ template<> bool ItemUint64::operator >(ItemData &itemData) const;
 template<> bool ItemUint64::operator <(ItemData &itemData) const;
 template<> bool ItemUint64::operator >=(ItemData &itemData) const;
 template<> bool ItemUint64::operator <=(ItemData &itemData) const;
-template<> bool ItemUint64::operator ==(ItemData &itemData) const;
+template<> bool ItemUint64::operator ==(const ItemData &itemData) const;
 
 #endif // ItemData_h

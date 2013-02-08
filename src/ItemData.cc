@@ -191,7 +191,7 @@ template<> bool ItemUint64::operator <=(ItemData &itemData) const
 	return false;
 }
 
-template<> bool ItemUint64::operator ==(ItemData &itemData) const
+template<> bool ItemUint64::operator ==(const ItemData &itemData) const
 {
 	if (itemData.getItemType() == ITEM_TYPE_UINT64) {
 		uint64_t data;
