@@ -1,6 +1,7 @@
 #include <cppcutter.h>
 
 #include "FormulaOperator.h"
+#include "FormulaTestUtils.h"
 
 namespace testFormulaOperator {
 
@@ -31,7 +32,7 @@ private:
 
 };
 
-void _assertFormulaBetween(int v, bool expectedValue)
+void _assertFormulaBetweenVal(int v, bool expectedValue)
 {
 	string varName = "name";
 	int v0 = TestVariableDataGetter::v0;
@@ -43,7 +44,7 @@ void _assertFormulaBetween(int v, bool expectedValue)
 	ItemDataPtr expected(new ItemBool(expectedValue), false);
 	cppcut_assert_equal(true, *expected == *between.evaluate());
 }
-#define assertFormulaBetween(V, E) cut_trace(_assertFormulaBetween(V, E))
+#define assertFormulaBetweenVal(V, E) cut_trace(_assertFormulaBetweenVal(V, E))
 
 void teardown()
 {
@@ -67,48 +68,37 @@ void test_formulaBetween(void)
 	ItemDataPtr item0 = ItemDataPtr(new ItemInt(TEST_ITEM_ID, v0), false);
 	ItemDataPtr item1 = ItemDataPtr(new ItemInt(TEST_ITEM_ID, v1), false);
 	FormulaBetween between(var, item0, item1);
-
-	FormulaVariable *obtainedVar = between.getVariable();
-	cppcut_assert_equal(var, obtainedVar);
-
-	ItemDataPtr dataPtr0 = between.getV0();
-	ItemDataPtr dataPtr1 = between.getV1();
-	ItemInt *itemInt0 = dynamic_cast<ItemInt *>((ItemData *)dataPtr0);
-	ItemInt *itemInt1 = dynamic_cast<ItemInt *>((ItemData *)dataPtr1);
-	cppcut_assert_not_null(itemInt0);
-	cppcut_assert_not_null(itemInt1);
-	cppcut_assert_equal(v0, itemInt0->get());
-	cppcut_assert_equal(v1, itemInt1->get());
+	assertFormulaBetween(&between, varName, v0, v1);
 }
 
 void test_formulaBetweenLower(void)
 {
 	int v = TestVariableDataGetter::v0;
-	assertFormulaBetween(v, true);
+	assertFormulaBetweenVal(v, true);
 }
 
 void test_formulaBetweenMid(void)
 {
 	int v = (TestVariableDataGetter::v0 + TestVariableDataGetter::v1)/2;
-	assertFormulaBetween(v, true);
+	assertFormulaBetweenVal(v, true);
 }
 
 void test_formulaBetweenUpper(void)
 {
 	int v = TestVariableDataGetter::v1;
-	assertFormulaBetween(v, true);
+	assertFormulaBetweenVal(v, true);
 }
 
 void test_formulaBetweenLowerMinus1(void)
 {
 	int v = TestVariableDataGetter::v0 - 1;
-	assertFormulaBetween(v, false);
+	assertFormulaBetweenVal(v, false);
 }
 
 void test_formulaBetweenUpperPlus1(void)
 {
 	int v = TestVariableDataGetter::v1 + 1;
-	assertFormulaBetween(v, false);
+	assertFormulaBetweenVal(v, false);
 }
 
 } // namespace testFormulaOperator

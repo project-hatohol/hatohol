@@ -49,6 +49,9 @@ testItemGroupType_la_SOURCES = testItemGroupType.cc
 testItemTable_la_SOURCES = testItemTable.cc
 testItemTablePtr_la_SOURCES = testItemTablePtr.cc
 
+testFormulaOperator_la_SOURCES = testFormulaOperator.cc
+testFormulaOperator_la_LIBADD = ./libFormulaTestUtils.la
+
 libFormulaTestUtils_la_SOURCES = FormulaTestUtils.cc
 libFormulaTestUtils_la_LDFLAGS =
 
