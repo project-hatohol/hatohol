@@ -155,8 +155,16 @@ public:
 	}
 
 	virtual bool operator ==(ItemData &itemData) const {
-		MLPL_WARN("You should override this function: %s.\n",
-		          __PRETTY_FUNCTION__);
+		const ItemDataType &type0 = getItemType();
+		const ItemDataType &type1 = itemData.getItemType();
+		if (type0 == type1) {
+			T v0, v1;
+			get(&v0);
+			itemData.get(&v1);
+			return (v0 == v1);
+		}
+		MLPL_WARN("You should override this function: %s (%d, %d).\n",
+		          __PRETTY_FUNCTION__, type0, type1);
 		return false;
 	}
 
@@ -173,14 +181,11 @@ template<> bool ItemInt::operator >(ItemData &itemData) const;
 template<> bool ItemInt::operator <(ItemData &itemData) const;
 template<> bool ItemInt::operator >=(ItemData &itemData) const;
 template<> bool ItemInt::operator <=(ItemData &itemData) const;
-template<> bool ItemInt::operator ==(ItemData &itemData) const;
 
 template<> bool ItemUint64::operator >(ItemData &itemData) const;
 template<> bool ItemUint64::operator <(ItemData &itemData) const;
 template<> bool ItemUint64::operator >=(ItemData &itemData) const;
 template<> bool ItemUint64::operator <=(ItemData &itemData) const;
 template<> bool ItemUint64::operator ==(ItemData &itemData) const;
-
-template<> bool ItemString::operator ==(ItemData &itemData) const;
 
 #endif // ItemData_h

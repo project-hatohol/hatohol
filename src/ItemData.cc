@@ -99,19 +99,6 @@ template<> bool ItemInt::operator <=(ItemData &itemData) const
 	return false;
 }
 
-template<> bool ItemInt::operator ==(ItemData &itemData) const
-{
-	if (itemData.getItemType() == ITEM_TYPE_INT) {
-		int data;
-		itemData.get(&data);
-		return (m_data == data);
-	} else {
-		MLPL_BUG("Not implemented: %s type: %d\n",
-		         __PRETTY_FUNCTION__, itemData.getItemType());
-	}
-	return false;
-}
-
 //
 // ItemUint64
 //
@@ -226,19 +213,3 @@ template<> bool ItemUint64::operator ==(ItemData &itemData) const
 	return false;
 }
 
-//
-// ItemString
-//
-template<> bool ItemString::operator ==(ItemData &itemData) const
-{
-	if (itemData.getItemType() == ITEM_TYPE_STRING) {
-		string data;
-		itemData.get(&data);
-		return (m_data == data);
-	}
-	else {
-		MLPL_DBG("type is not String: %d\n", itemData.getItemType());
-		return false;
-	}
-	return false;
-}
