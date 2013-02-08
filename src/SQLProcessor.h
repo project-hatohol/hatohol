@@ -33,7 +33,6 @@ using namespace mlpl;
 #include "ItemTablePtr.h"
 #include "FormulaElement.h"
 #include "SQLColumnParser.h"
-#include "SQLWhereElement.h"
 #include "SQLWhereParser.h"
 
 enum SQLColumnType {
@@ -193,17 +192,8 @@ struct SQLSelectInfo {
 	// an instance in 'tables' in this struct.
 	// Key is a table var name.
 	SQLTableVarNameInfoMap tableVarInfoMap;
-
-	// We must free 'whereElem' when no longer needed. Its destructor
-	// causes the free chain of child 'whereElem' instances.
-	SQLWhereElement            *rootWhereElem;
-	SQLWhereElement            *currWhereElem;
-	SQLWhereParser              whereParser;
-	// The elements in the following vector point the matter in the above
-	// tree. So don't free directly.
-	vector<SQLWhereColumn *>    whereColumnVector;
-
-	vector<string>              orderedColumns;
+	SQLWhereParser         whereParser;
+	vector<string>         orderedColumns;
 
 	// definition of output Columns
 	vector<SQLOutputColumn>     outputColumnVector;
@@ -225,6 +215,9 @@ struct SQLSelectInfo {
 
 	// temporay variable for selecting column
 	ItemGroupPtr evalTargetItemGroup;
+
+	// constants
+	const ItemDataPtr itemFalsePtr;
 
 	//
 	// constructor and destructor
@@ -260,7 +253,6 @@ protected:
 	bool enumerateNeededItemIds(SQLSelectInfo &selectInfo);
 	bool makeItemTables(SQLSelectInfo &selectInfo);
 	bool doJoin(SQLSelectInfo &selectInfo);
-	bool fixupWhereColumn(SQLSelectInfo &selectInfo);
 	bool selectMatchingRows(SQLSelectInfo &selectInfo);
 	bool makeTextOutput(SQLSelectInfo &selectInfo);
 	bool checkSelectedAllColumns(const SQLSelectInfo &selectInfo,
@@ -303,28 +295,10 @@ protected:
 	bool parseLimit(SelectParserContext &ctx);
 
 	//
-	// Sub statement parsers
-	//
-	bool parseWhereBetween(SelectParserContext &ctx);
-
-	//
-	// Where section keyword handler
-	//
-	bool whereHandlerAnd(SelectParserContext &ctx);
-	bool whereHandlerBetween(SelectParserContext &ctx);
-
-	//
-	// Callbacks for parsing 'where' section
-	//
-	static void whereCbEq(const char separator, SelectParserContext *arg);
-	static void whereCbQuot(const char separator, SelectParserContext *arg);
-
-	//
 	// General sub routines
 	//
 	string readNextWord(SelectParserContext &ctx,
 	                    ParsingPosition *position = NULL);
-	SQLWhereColumn *createSQLWhereColumn(SelectParserContext &ctx);
 	static bool parseColumnName(const string &name,
 	                            string &baseName, string &tableVar);
 	static ColumnBaseDefinition *
@@ -332,10 +306,6 @@ protected:
                                                 string &baseName);
 	static const SQLTableInfo *
 	  getTableInfoFromVarName(SQLSelectInfo &selectInfo, string &tableVar);
-	static ItemDataPtr whereColumnDataGetter(SQLWhereColumn *whereColumn,
-	                                         void *priv);
-	static void wereColumnPrivDataDestructor(SQLWhereColumn *whereColumn,
-	                                         void *priv);
 	static FormulaVariableDataGetter *
 	  formulaColumnDataGetterFactory(string &name, void *priv);
 	static bool getColumnItemId(SQLSelectInfo &selectInfo,
@@ -344,7 +314,6 @@ protected:
 private:
 	static const SelectSubParser m_selectSubParsers[];
 	static map<string, SelectSubParser> m_selectSectionParserMap;
-	static map<string, SelectSubParser> m_whereKeywordHandlerMap;
 
 	enum SelectParseSection {
 		SELECT_PARSING_SECTION_COLUMN,

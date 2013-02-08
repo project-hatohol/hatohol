@@ -40,9 +40,6 @@ const SQLProcessor::SelectSubParser SQLProcessor::m_selectSubParsers[] = {
 map<string, SQLProcessor::SelectSubParser>
   SQLProcessor::m_selectSectionParserMap;
 
-map<string, SQLProcessor::SelectSubParser>
-  SQLProcessor::m_whereKeywordHandlerMap;
-
 enum BetweenParsingStep {
 	BETWEEN_NONE,
 	BETWEEN_EXPECT_FIRST,
@@ -59,11 +56,6 @@ struct SQLProcessor::SelectParserContext {
 	size_t              indexInTheStatus;
 	SQLSelectInfo      &selectInfo;
 
-	// used in where section
-	bool                quotOpen;
-	BetweenParsingStep  betweenStep;
-	PolytypeNumber      betweenFirstValue;
-
 	// methods
 	SelectParserContext(SQLProcessor *sqlProc,
 	                    SelectParseSection _section,
@@ -71,9 +63,7 @@ struct SQLProcessor::SelectParserContext {
 	: sqlProcessor(sqlProc),
 	  section(_section),
 	  indexInTheStatus(0),
-	  selectInfo(_selectInfo),
-	  quotOpen(false),
-	  betweenStep(BETWEEN_NONE)
+	  selectInfo(_selectInfo)
 	{
 	}
 };
@@ -211,10 +201,9 @@ SQLSelectInfo::SQLSelectInfo(ParsableString &_query)
 : query(_query),
   useIndex(false),
   makeTextRowsWriteMaskCount(0),
-  evalTargetItemGroup(NULL)
+  evalTargetItemGroup(NULL),
+  itemFalsePtr(new ItemBool(false), false)
 {
-	rootWhereElem = new SQLWhereElement();
-	currWhereElem = rootWhereElem;
 }
 
 SQLSelectInfo::~SQLSelectInfo()
@@ -226,9 +215,6 @@ SQLSelectInfo::~SQLSelectInfo()
 	SQLTableInfoVectorIterator tableIt = tables.begin();
 	for (; tableIt != tables.end(); ++tableIt)
 		delete *tableIt;
-
-	if (rootWhereElem)
-		delete rootWhereElem;;
 }
 
 // ---------------------------------------------------------------------------
@@ -241,9 +227,6 @@ void SQLProcessor::init(void)
 	m_selectSectionParserMap["order"] = &SQLProcessor::parseSectionOrder;
 	m_selectSectionParserMap["group"] = &SQLProcessor::parseSectionGroup;
 	m_selectSectionParserMap["limit"] = &SQLProcessor::parseSectionLimit;
-
-	m_whereKeywordHandlerMap["and"] = &SQLProcessor::whereHandlerAnd;
-	m_whereKeywordHandlerMap["between"] = &SQLProcessor::whereHandlerBetween;
 
 	// check the size of m_selectSubParsers
 	size_t size = sizeof(SQLProcessor::m_selectSubParsers) / 
@@ -289,10 +272,6 @@ bool SQLProcessor::select(SQLSelectInfo &selectInfo)
 	if (!doJoin(selectInfo))
 		return false;
 
-	// add associated data to whereColumn to call evaluate()
-	if (!fixupWhereColumn(selectInfo))
-		return false;
-
 	// pickup matching rows
 	if (!selectMatchingRows(selectInfo))
 		return false;
@@ -319,8 +298,8 @@ SQLProcessor::SQLProcessor(TableNameStaticInfoMap &tableNameStaticInfoMap)
 	  &m_separatorSpaceComma;
 	m_selectSeprators[SQLProcessor::SELECT_PARSING_SECTION_FROM] =
 	  &m_separatorCountSpaceComma;
-	m_selectSeprators[SQLProcessor::SELECT_PARSING_SECTION_WHERE] = 
-	  &m_separatorCBForWhere;
+	// m_selectSeprators[SQLProcessor::SELECT_PARSING_SECTION_WHERE]
+	// is set later in parseSelectStatement().
 	m_selectSeprators[SQLProcessor::SELECT_PARSING_SECTION_ORDER_BY] = 
 	  &m_separatorSpaceComma;
 	m_selectSeprators[SQLProcessor::SELECT_PARSING_SECTION_LIMIT] = 
@@ -355,16 +334,15 @@ bool SQLProcessor::parseSelectStatement(SQLSelectInfo &selectInfo)
 	// set ColumnDataGetterFactory
 	selectInfo.columnParser.setColumnDataGetterFactory
 	  (formulaColumnDataGetterFactory, &selectInfo);
+	selectInfo.whereParser.setColumnDataGetterFactory
+	  (formulaColumnDataGetterFactory, &selectInfo);
 
-	// callback function for column
+	// callback function for column and where section
 	m_selectSeprators[SQLProcessor::SELECT_PARSING_SECTION_COLUMN]
 	  = selectInfo.columnParser.getSeparatorChecker();
 
-	// callback function for where section
-	m_separatorCBForWhere.setCallbackTempl<SelectParserContext>
-	                                      ('=', whereCbEq, &ctx);
-	m_separatorCBForWhere.setCallbackTempl<SelectParserContext>
-	                                      ('\'', whereCbQuot, &ctx);
+	m_selectSeprators[SQLProcessor::SELECT_PARSING_SECTION_WHERE]
+	  = selectInfo.whereParser.getSeparatorChecker();
 
 	while (!selectInfo.query.finished()) {
 		ctx.currWord = readNextWord(ctx);
@@ -643,48 +621,10 @@ bool SQLProcessor::doJoin(SQLSelectInfo &selectInfo)
 	return true;
 }
 
-bool SQLProcessor::fixupWhereColumn(SQLSelectInfo &selectInfo)
-{
-	for (size_t i = 0; i < selectInfo.whereColumnVector.size(); i++) {
-		SQLWhereColumn *whereColumn = selectInfo.whereColumnVector[i];
-
-		const string &columnName = whereColumn->getColumnName();
-		// TODO: use getColumnItemId()
-		string baseName;
-		string tableVar;
-		if (!parseColumnName(columnName, baseName, tableVar))
-			return false;
-
-		// find TableInfo in which the column should be contained
-		const SQLTableInfo *tableInfo;
-		if (selectInfo.tables.size() == 1) {
-			tableInfo = *selectInfo.tables.begin();
-		} else {
-			tableInfo = getTableInfoFromVarName(selectInfo,
-                                                            tableVar);
-		}
-		if (!tableInfo) {
-			MLPL_DBG("Failed to find TableInfo: %s\n",
-			         columnName.c_str());
-			return false;
-		}
-
-		ColumnBaseDefinition *columnBaseDef = 
-		  getColumnBaseDefinitionFromColumnName(tableInfo, baseName);
-		if (!columnBaseDef)
-			return false;
-
-		// set ItemId
-		void *priv = whereColumn->getPrivateData();
-		WhereColumnArg *arg = static_cast<WhereColumnArg *>(priv);
-		arg->itemId = columnBaseDef->itemId;
-	}
-	return true;
-}
-
 bool SQLProcessor::selectMatchingRows(SQLSelectInfo &selectInfo)
 {
-	if (selectInfo.rootWhereElem->isEmpty()) {
+	FormulaElement *formula = selectInfo.whereParser.getFormula();
+	if (!formula) {
 		selectInfo.selectedTable = selectInfo.joinedTable;
 		return true;
 	}
@@ -720,8 +660,13 @@ bool SQLProcessor::pickupMatchingRows(const ItemGroup *itemGroup,
 {
 	ItemGroup *nonConstItemGroup = const_cast<ItemGroup *>(itemGroup);
 	selectInfo.evalTargetItemGroup = nonConstItemGroup;
-	bool result = selectInfo.rootWhereElem->evaluate();
-	if (!result)
+	FormulaElement *formula = selectInfo.whereParser.getFormula();
+	ItemDataPtr result = formula->evaluate();
+	if (!result.hasData()) {
+		MLPL_DBG("result has no data.\n");
+		return false;
+	}
+	if (*result == *selectInfo.itemFalsePtr)
 		return true;;
 	selectInfo.selectedTable->add(nonConstItemGroup);
 	return true;
@@ -872,59 +817,7 @@ bool SQLProcessor::parseFrom(SelectParserContext &ctx)
 
 bool SQLProcessor::parseWhere(SelectParserContext &ctx)
 {
-	// Now both the legacy and developping whereParser code are executed.
-	ctx.selectInfo.whereParser.add(ctx.currWord, ctx.currWordLower);
-
-	bool doKeywordCheck = true;
-	bool currWordString = false;
-	if (ctx.quotOpen) {
-		doKeywordCheck = false;
-		currWordString = true;
-	} else if (ctx.betweenStep != BETWEEN_NONE) {
-		return parseWhereBetween(ctx);
-	}
-
-	// check if this is the keyword
-	if (doKeywordCheck) {
-		map<string, SelectSubParser>::iterator it;
-		it = m_whereKeywordHandlerMap.find(ctx.currWordLower);
-		if (it != m_whereKeywordHandlerMap.end()) {
-			SelectSubParser subParser = NULL;
-			subParser = it->second;
-			return (this->*subParser)(ctx);
-		}
-	}
-
-	// parse word as the hand
-	SQLWhereElement *whereElem = ctx.selectInfo.currWhereElem;
-	bool shouldLeftHand = !(whereElem->getLeftHand());
-
-	SQLWhereElement *handElem = NULL;
-	if (currWordString)
-		handElem = new SQLWhereString(ctx.currWord);
-	else if (shouldLeftHand)
-		handElem = createSQLWhereColumn(ctx);
-	else {
-		PolytypeNumber ptNum(ctx.currWord);
-		if (ptNum.getType() != PolytypeNumber::TYPE_NONE)
-			handElem = new SQLWhereNumber(ptNum);
-		else
-			handElem = createSQLWhereColumn(ctx);
-	}
-
-	if (shouldLeftHand)
-		whereElem->setLeftHand(handElem);
-	else if (!whereElem->getRightHand())
-		whereElem->setRightHand(handElem);
-	else {
-		string treeInfo;
-		ctx.selectInfo.rootWhereElem->getTreeInfo(treeInfo, 256);
-		string msg;
-		TRMSG(msg, "Both hands of currWhereElem are not NULL: %s\n%s",
-		      ctx.currWord.c_str(), treeInfo.c_str());
-		throw logic_error(msg);
-	}
-	return true;
+	return ctx.selectInfo.whereParser.add(ctx.currWord, ctx.currWordLower);
 }
 
 bool SQLProcessor::parseOrderBy(SelectParserContext &ctx)
@@ -940,127 +833,6 @@ bool SQLProcessor::parseLimit(SelectParserContext &ctx)
 }
 
 //
-// Sub statement parsers
-//
-bool SQLProcessor::parseWhereBetween(SelectParserContext &ctx)
-{
-	string msg;
-
-	// check
-	SQLWhereOperator *op = ctx.selectInfo.currWhereElem->getOperator();
-	if (!op) {
-		TRMSG(msg, "ctx.currWhereElem->getOperator: NULL\n");
-		throw logic_error(msg);
-	}
-	if (op->getType() != SQL_WHERE_OP_BETWEEN) {
-		TRMSG(msg, "Operator is not SQL_WHERE_OP_BETWEEN: %d\n",
-		      op->getType());
-		throw logic_error(msg);
-	}
-
-	if (ctx.betweenStep == BETWEEN_EXPECT_FIRST) {
-		ctx.betweenFirstValue = ctx.currWord;
-		if (ctx.betweenFirstValue.getType()
-		      == PolytypeNumber::TYPE_NONE) {
-			MLPL_DBG("Unexpected value: %s", ctx.currWord.c_str());
-			return false;
-		}
-		ctx.betweenStep = BETWEEN_EXPECT_AND;
-	} else if (ctx.betweenStep == BETWEEN_EXPECT_AND) {
-		if (ctx.currWordLower != "and") {
-			MLPL_DBG("Unexpected value: %s", ctx.currWord.c_str());
-			return false;
-		}
-		ctx.betweenStep = BETWEEN_EXPECT_SECOND;
-	} else if (ctx.betweenStep == BETWEEN_EXPECT_SECOND) {
-		PolytypeNumber secondValue = ctx.currWord;
-		if (secondValue.getType() == PolytypeNumber::TYPE_NONE) {
-			MLPL_DBG("Unexpected value: %s", ctx.currWord.c_str());
-			return false;
-		}
-		SQLWhereElement *elem =
-		  new SQLWherePairedNumber(ctx.betweenFirstValue, secondValue);
-		ctx.selectInfo.currWhereElem->setRightHand(elem);
-		ctx.betweenStep = BETWEEN_NONE;
-	} else {
-		TRMSG(msg, "Unexpected state: %d\n", ctx.betweenStep);
-		throw logic_error(msg);
-	}
-	return true;
-}
-
-//
-// Where section keyword handler
-//
-bool SQLProcessor::whereHandlerAnd(SelectParserContext &ctx)
-{
-	string msg;
-	SQLWhereElement *currWhereElem = ctx.selectInfo.currWhereElem;
-	if (!currWhereElem->isFull()) {
-		TRMSG(msg, "currWhereElem is not full.");
-		throw logic_error(msg);
-	}
-
-	// create new element 
-	SQLWhereElement *andWhereElem = new SQLWhereElement();
-	andWhereElem->setOperator(new SQLWhereOperatorAnd());
-
-	// insert the created element
-	SQLWhereElement *insertPair =
-	  currWhereElem->findInsertPoint(andWhereElem);
-	if (insertPair == NULL) {
-		andWhereElem->setLeftHand(ctx.selectInfo.rootWhereElem);
-		ctx.selectInfo.rootWhereElem = andWhereElem;
-	} else {
-		if (insertPair->getRightHand() != currWhereElem) {
-			TRMSG(msg, "insertPair RHS != currWhereElem.");
-			throw logic_error(msg);
-		}
-		andWhereElem->setLeftHand(currWhereElem);
-		insertPair->setRightHand(andWhereElem);
-	}
-
-	// set the newly created right hand element
-	SQLWhereElement *newRightElem = new SQLWhereElement();
-	andWhereElem->setRightHand(newRightElem);
-
-	// set the current element
-	ctx.selectInfo.currWhereElem = newRightElem;
-
-	return true;
-}
-
-bool SQLProcessor::whereHandlerBetween(SelectParserContext &ctx)
-{
-	SQLWhereOperator *opBetween = new SQLWhereOperatorBetween();
-	ctx.selectInfo.currWhereElem->setOperator(opBetween);
-	ctx.betweenStep = BETWEEN_EXPECT_FIRST;
-	return true;
-}
-
-//
-// Callbacks for parsing 'where' section
-//
-void SQLProcessor::whereCbEq(const char separator, SelectParserContext *ctx)
-{
-	SQLWhereOperator *opEq = new SQLWhereOperatorEqual();
-	ctx->selectInfo.currWhereElem->setOperator(opEq);
-}
-
-void SQLProcessor::whereCbQuot(const char separator, SelectParserContext *ctx)
-{
-	SeparatorCheckerWithCallback &separatorCBForWhere
-	  = ctx->sqlProcessor->m_separatorCBForWhere;
-	if (ctx->quotOpen) {
-		ctx->quotOpen = false;
-		separatorCBForWhere.unsetAlternative();
-		return;
-	}
-	ctx->quotOpen = true;
-	separatorCBForWhere.setAlternative(&ParsableString::SEPARATOR_QUOT);
-}
-
-//
 // General sub routines
 //
 string SQLProcessor::readNextWord(SelectParserContext &ctx,
@@ -1070,16 +842,6 @@ string SQLProcessor::readNextWord(SelectParserContext &ctx,
 	if (position)
 		*position = ctx.selectInfo.query.getParsingPosition();
 	return ctx.selectInfo.query.readWord(*separator);
-}
-
-SQLWhereColumn *SQLProcessor::createSQLWhereColumn(SelectParserContext &ctx)
-{
-	WhereColumnArg *arg = new WhereColumnArg(ctx.selectInfo);
-	SQLWhereColumn *whereColumn =
-	  new SQLWhereColumn(ctx.currWord, whereColumnDataGetter,
-	                     arg, wereColumnPrivDataDestructor);
-	ctx.selectInfo.whereColumnVector.push_back(whereColumn);
-	return whereColumn;
 }
 
 bool SQLProcessor::parseColumnName(const string &name,
@@ -1135,22 +897,6 @@ SQLProcessor::getTableInfoFromVarName(SQLSelectInfo &selectInfo,
 		return NULL;
 	}
 	return it->second;
-}
-
-ItemDataPtr
-SQLProcessor::whereColumnDataGetter(SQLWhereColumn *whreColumn, void *priv)
-{
-	WhereColumnArg *arg = static_cast<WhereColumnArg *>(priv);
-	SQLSelectInfo &selectInfo = arg->selectInfo;
-	ItemId itemId = arg->itemId;
-	return ItemDataPtr(selectInfo.evalTargetItemGroup->getItem(itemId));
-}
-
-void SQLProcessor::wereColumnPrivDataDestructor
-  (SQLWhereColumn *whereColumn, void *priv)
-{
-	WhereColumnArg *arg = static_cast<WhereColumnArg *>(priv);
-	delete arg;
 }
 
 FormulaVariableDataGetter *

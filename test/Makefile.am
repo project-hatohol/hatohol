@@ -7,7 +7,7 @@ TESTS = run-test.sh
 TESTS_ENVIRONMENT = NO_MAKE=yes CUTTER="$(CUTTER)"
 
 noinst_LTLIBRARIES = \
-	testSQLProcessor.la testFormulaElement.la testSQLWhereElement.la \
+	testSQLProcessor.la testFormulaElement.la \
 	testSQLWhereParser.la \
 	testSQLColumnParser.la testMySQLWorkerZabbix.la \
 	testItemData.la testItemGroup.la \
@@ -40,7 +40,6 @@ testSQLColumnParser_la_LIBADD = ./libFormulaTestUtils.la
 testSQLWhereParser_la_SOURCES = testSQLWhereParser.cc
 testSQLWhereParser_la_LIBADD = ./libFormulaTestUtils.la
 
-testSQLWhereElement_la_SOURCES = testSQLWhereElement.cc
 testMySQLWorkerZabbix_la_SOURCES = testMySQLWorkerZabbix.cc
 testItemData_la_SOURCES = testItemData.cc
 testItemGroup_la_SOURCES = testItemGroup.cc
