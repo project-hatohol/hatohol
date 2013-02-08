@@ -63,6 +63,7 @@ protected:
 	bool insertAsRightHand(FormulaElement *formulaElement);
 	bool makeFormulaElementFromPendingWord(void);
 	bool addStringValue(string &word);
+	FormulaElement *takeFormula(void);
 
 	//
 	// SeparatorChecker callbacks

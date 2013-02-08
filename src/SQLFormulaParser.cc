@@ -309,6 +309,13 @@ bool SQLFormulaParser::addStringValue(string &word)
 	return insertAsRightHand(new FormulaValue(word));
 }
 
+FormulaElement *SQLFormulaParser::takeFormula(void)
+{
+	FormulaElement *ret = m_formula;
+	m_formula = NULL;
+	return ret;
+}
+
 //
 // SeparatorChecker callbacks
 //
