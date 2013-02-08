@@ -129,6 +129,40 @@ void test_getValueString(void)
 	cppcut_assert_equal(val, itemString->get());
 }
 
+void test_getStringBool(void)
+{
+	bool val = false;
+	ItemData *item = new ItemBool(TEST_ITEM_ID, val);
+	stringstream ss;
+	ss << val;
+	cppcut_assert_equal(ss.str(), item->getString());
+}
+
+void test_getStringInt(void)
+{
+	int val = -50;
+	ItemData *item = new ItemInt(TEST_ITEM_ID, val);
+	stringstream ss;
+	ss << val;
+	cppcut_assert_equal(ss.str(), item->getString());
+}
+
+void test_getStringUint64(void)
+{
+	uint64_t val = 0x1234567890abcdef;
+	ItemData *item = new ItemUint64(TEST_ITEM_ID, val);
+	stringstream ss;
+	ss << val;
+	cppcut_assert_equal(ss.str(), item->getString());
+}
+
+void test_getStringString(void)
+{
+	string val = "music";
+	ItemData *item = new ItemString(TEST_ITEM_ID, val);
+	cppcut_assert_equal(val, item->getString());
+}
+
 void test_getId(void)
 {
 	int id = 5;
