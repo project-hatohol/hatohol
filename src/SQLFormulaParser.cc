@@ -59,6 +59,9 @@ struct SQLFormulaParser::PrivateContext {
 SQLFormulaParser::KeywordHandlerMap
 SQLFormulaParser::m_defaultKeywordHandlerMap;
 
+SQLFormulaParser::FunctionParserMap
+SQLFormulaParser::m_defaultFunctionParserMap;
+
 void SQLFormulaParser::init(void)
 {
 	m_defaultKeywordHandlerMap["and"] = &SQLFormulaParser::kwHandlerAnd;
@@ -71,7 +74,8 @@ SQLFormulaParser::SQLFormulaParser(void)
 : m_columnDataGetterFactory(NULL),
   m_separator(" ()'"),
   m_formula(NULL),
-  m_keywordHandlerMap(&m_defaultKeywordHandlerMap)
+  m_keywordHandlerMap(&m_defaultKeywordHandlerMap),
+  m_functionParserMap(&m_defaultFunctionParserMap)
 {
 	m_ctx = new PrivateContext();
 	m_separator.setCallbackTempl<SQLFormulaParser>
@@ -162,9 +166,21 @@ void SQLFormulaParser::copyKeywordHandlerMap(KeywordHandlerMap &kwHandlerMap)
 		kwHandlerMap[it->first] = it->second;
 }
 
+void SQLFormulaParser::copyFunctionParserMap(FunctionParserMap &fncParserMap)
+{
+	FunctionParserMapIterator it = m_defaultFunctionParserMap.begin();
+	for (; it != m_defaultFunctionParserMap.end(); ++it)
+		fncParserMap[it->first] = it->second;
+}
+
 void SQLFormulaParser::setKeywordHandlerMap(KeywordHandlerMap *kwHandlerMap)
 {
 	m_keywordHandlerMap = kwHandlerMap;
+}
+
+void SQLFormulaParser::setFunctionParserMap(FunctionParserMap *fncParserMap)
+{
+	m_functionParserMap = fncParserMap;
 }
 
 FormulaVariable *SQLFormulaParser::makeFormulaVariable(string &name)
@@ -316,6 +332,29 @@ FormulaElement *SQLFormulaParser::takeFormula(void)
 	return ret;
 }
 
+bool SQLFormulaParser::makeFunctionParserIfPendingWordIsFunction(void)
+{
+	if (!m_ctx->hasPendingWord())
+		return false;
+
+	FunctionParserMapIterator it;
+	it = m_functionParserMap->find(m_ctx->pendingWordLower);
+	if (it == m_functionParserMap->end())
+		return false;
+
+	FunctionParser func = it->second;
+	if (!(this->*func)())
+		setErrorFlag();
+
+	m_ctx->clearPendingWords();
+	return true;
+}
+
+bool SQLFormulaParser::closeFunctionIfOpen(void)
+{
+	return true;
+}
+
 //
 // SeparatorChecker callbacks
 //
@@ -327,6 +366,12 @@ void SQLFormulaParser::_separatorCbParenthesisOpen
 
 void SQLFormulaParser::separatorCbParenthesisOpen(const char separator)
 {
+
+	bool isFunc = makeFunctionParserIfPendingWordIsFunction();
+	if (isFunc)
+		return;
+
+	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__); 
 }
 
 void SQLFormulaParser::_separatorCbParenthesisClose
@@ -337,6 +382,10 @@ void SQLFormulaParser::_separatorCbParenthesisClose
 
 void SQLFormulaParser::separatorCbParenthesisClose(const char separator)
 {
+	if (closeFunctionIfOpen())
+		return;
+
+	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__); 
 }
 
 void SQLFormulaParser::_separatorCbQuot

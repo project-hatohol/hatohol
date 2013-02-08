@@ -50,11 +50,19 @@ protected:
 	typedef map<string, KeywordHandler> KeywordHandlerMap;
 	typedef KeywordHandlerMap::iterator KeywordHandlerMapIterator;
 
+	typedef bool (SQLFormulaParser::*FunctionParser)(void);
+	typedef map<string, FunctionParser> FunctionParserMap;
+	typedef FunctionParserMap::iterator FunctionParserMapIterator;;
+
+
 	//
 	// general sub routines
 	//
 	static void copyKeywordHandlerMap(KeywordHandlerMap &kwHandlerMap);
+	static void copyFunctionParserMap(FunctionParserMap &fncParserMap);
+
 	void setKeywordHandlerMap(KeywordHandlerMap *kwHandlerMap);
+	void setFunctionParserMap(FunctionParserMap *fncParserMap);
 	FormulaVariable *makeFormulaVariable(string &name);
 	bool passFunctionArgIfOpen(string &word);
 	bool insertElement(FormulaElement *formulaElement);
@@ -64,6 +72,8 @@ protected:
 	bool makeFormulaElementFromPendingWord(void);
 	bool addStringValue(string &word);
 	FormulaElement *takeFormula(void);
+	bool makeFunctionParserIfPendingWordIsFunction(void);
+	bool closeFunctionIfOpen(void);
 
 	//
 	// SeparatorChecker callbacks
@@ -87,6 +97,7 @@ protected:
 
 private:
 	static KeywordHandlerMap          m_defaultKeywordHandlerMap;
+	static FunctionParserMap          m_defaultFunctionParserMap;
 
 	struct PrivateContext;
 	PrivateContext                   *m_ctx;
@@ -95,6 +106,7 @@ private:
 	SeparatorCheckerWithCallback      m_separator;
 	FormulaElement                   *m_formula;
 	KeywordHandlerMap                *m_keywordHandlerMap;
+	FunctionParserMap                *m_functionParserMap;
 };
 
 #endif // SQLFormualaParser_h
