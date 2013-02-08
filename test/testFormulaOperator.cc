@@ -42,7 +42,7 @@ void _assertFormulaBetweenVal(int v, bool expectedValue)
 	                       ItemDataPtr(new ItemInt(v0), false),
 	                       ItemDataPtr(new ItemInt(v1), false));
 	ItemDataPtr expected(new ItemBool(expectedValue), false);
-	cppcut_assert_equal(true, *expected == *between.evaluate());
+	cppcut_assert_equal(*expected, *between.evaluate());
 }
 #define assertFormulaBetweenVal(V, E) cut_trace(_assertFormulaBetweenVal(V, E))
 
@@ -55,7 +55,7 @@ void _assertFormulaComparatorEqualVal(int v0, int v1)
 	formulaEq.setRightHand(val1);
 	bool expectedVal = (v0 == v1);
 	ItemDataPtr expected(new ItemBool(expectedVal), false);
-	cppcut_assert_equal(true, *expected == *formulaEq.evaluate());
+	cppcut_assert_equal(*expected, *formulaEq.evaluate());
 }
 #define assertFormulaComparatorEqualVal(V0, V1) \
 cut_trace(_assertFormulaComparatorEqualVal(V0, V1))
