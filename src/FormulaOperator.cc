@@ -44,8 +44,9 @@ FormulaComparatorEqual::~FormulaComparatorEqual()
 
 ItemDataPtr FormulaComparatorEqual::evaluate(void)
 {
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
-	return ItemDataPtr();
+	ItemDataPtr v0 = getLeftHand()->evaluate(); 
+	ItemDataPtr v1 = getRightHand()->evaluate(); 
+	return ItemDataPtr(new ItemBool(*v0 == *v1), false);
 }
 
 // ---------------------------------------------------------------------------

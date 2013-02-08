@@ -46,6 +46,20 @@ void _assertFormulaBetweenVal(int v, bool expectedValue)
 }
 #define assertFormulaBetweenVal(V, E) cut_trace(_assertFormulaBetweenVal(V, E))
 
+void _assertFormulaComparatorEqualVal(int v0, int v1)
+{
+	FormulaComparatorEqual formulaEq;
+	FormulaValue *val0 = new FormulaValue(v0);
+	FormulaValue *val1 = new FormulaValue(v1);
+	formulaEq.setLeftHand(val0);
+	formulaEq.setRightHand(val1);
+	bool expectedVal = (v0 == v1);
+	ItemDataPtr expected(new ItemBool(expectedVal), false);
+	cppcut_assert_equal(true, *expected == *formulaEq.evaluate());
+}
+#define assertFormulaComparatorEqualVal(V0, V1) \
+cut_trace(_assertFormulaComparatorEqualVal(V0, V1))
+
 void teardown()
 {
 	for (int i = 0; i < NUM_ELEM_POOL; i++) {
@@ -59,6 +73,16 @@ void teardown()
 // ---------------------------------------------------------------------------
 // Test cases
 // ---------------------------------------------------------------------------
+void test_formulaComparatorEqualTrue(void)
+{
+	assertFormulaComparatorEqualVal(1, 1);
+}
+
+void test_formulaComparatorEqualFalse(void)
+{
+	assertFormulaComparatorEqualVal(1, 0);
+}
+
 void test_formulaBetween(void)
 {
 	string varName = "name";
