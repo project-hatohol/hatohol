@@ -130,7 +130,7 @@ void test_whereBetween(void)
 	assertInputStatement(whereParser, statement);
 
 	FormulaElement *formula = whereParser.getFormula();
-	assertFormulaBetween(formula, leftHand, v0, v1);
+	assertFormulaBetweenWithVarName(formula, v0, v1, leftHand);
 }
 
 void test_whereIntAndStringAndInt(void)
@@ -240,7 +240,7 @@ void test_whereIntAndBetween(void)
 	assertFormulaComparatorEqual(leftElem);
 	assertFormulaVariable(leftElem->getLeftHand(), leftHand0);
 	assertFormulaValue(leftElem->getRightHand(), rightHand0);
-	assertFormulaBetween(rightElem, btwVar, btwVal0, btwVal1);
+	assertFormulaBetweenWithVarName(rightElem, btwVal0, btwVal1, btwVar);
 }
 
 } // namespace testSQLWhereParser

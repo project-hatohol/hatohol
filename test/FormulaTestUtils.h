@@ -43,9 +43,13 @@ void _assertFormulaValue(FormulaElement *elem, const char *expected);
 #define assertFormulaValue(EL, EXP) \
 cut_trace(_assertFormulaValue(EL, EXP))
 
-void _assertFormulaBetween(FormulaElement *elem, string name, int v0, int v1);
-#define assertFormulaBetween(X, N, V0, V1) \
-cut_trace(_assertFormulaBetween(X, N, V0, V1))
+void _assertFormulaBetween(FormulaElement *elem, int v0, int v1);
+#define assertFormulaBetween(X, V0, V1) \
+cut_trace(_assertFormulaBetween(X, V0, V1))
+
+void _assertFormulaBetweenWithVarName(FormulaElement *elem, int v0, int v1, const char *name);
+#define assertFormulaBetweenWithVarName(X, V0, V1, N) \
+cut_trace(_assertFormulaBetweenWithVarName(X, V0, V1, N))
 
 
 void showTreeInfo(FormulaElement *formulaElement);

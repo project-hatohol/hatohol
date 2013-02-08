@@ -28,14 +28,12 @@ enum BetweenStep {
 
 struct SQLWhereParser::PrivateContext {
 	BetweenStep betweenStep;
-	FormulaVariable *betweenVar;
 	ItemDataPtr betweenV0;
 	ItemDataPtr betweenV1;
 
 	// constructor
 	PrivateContext(void)
-	: betweenStep(BETWEEN_STEP_NULL),
-	  betweenVar(NULL)
+	: betweenStep(BETWEEN_STEP_NULL)
 	{
 	}
 };
@@ -138,8 +136,7 @@ bool SQLWhereParser::createBetweenElement(void)
 		         m_ctx->betweenV1->getString().c_str());
 		return false;
 	}
-	FormulaElement *elem = new FormulaBetween(m_ctx->betweenVar,
-	                                          m_ctx->betweenV0,
+	FormulaElement *elem = new FormulaBetween(m_ctx->betweenV0,
 	                                          m_ctx->betweenV1);
 	insertElement(elem);
 	clearContext();
@@ -193,7 +190,9 @@ bool SQLWhereParser::kwHandlerBetween(void)
 		MLPL_DBG("formulaVariable: NULL\n");
 		return false;
 	}
-	m_ctx->betweenVar = formulaVariable;
+	// Note: 'formulaVariable' checked above will be the left child
+	// by insertElement() in createBetweenElement().
+
 	m_ctx->betweenStep = BETWEEN_STEP_EXPECT_V0;
 	SeparatorCheckerWithCallback *separator = getSeparatorChecker();
 	separator->setAlternative(&ParsableString::SEPARATOR_SPACE);
