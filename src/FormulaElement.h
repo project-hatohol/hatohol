@@ -28,9 +28,9 @@ enum FormulaElementPriority {
 	FORMULA_ELEM_PRIO_VALUE,
 	FORMULA_ELEM_PRIO_VARIABLE,
 	FORMULA_ELEM_PRIO_FUNCTION,
+	FORMULA_ELEM_PRIO_BETWEEN,
 	FORMULA_ELEM_PRIO_CMP_EQ,
 	FORMULA_ELEM_PRIO_AND,
-	FORMULA_ELEM_PRIO_BETWEEN,
 };
 
 // ---------------------------------------------------------------------------
