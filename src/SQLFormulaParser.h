@@ -41,6 +41,7 @@ public:
 	virtual bool flush(void);
 	SeparatorCheckerWithCallback *getSeparatorChecker(void);
 	FormulaElement *getFormula(void) const;
+	bool hasStatisticalFunc(void) const;
 
 protected:
 	//
@@ -105,6 +106,7 @@ private:
 	void                             *m_columnDataGetterFactoryPriv;
 	SeparatorCheckerWithCallback      m_separator;
 	FormulaElement                   *m_formula;
+	bool                              m_hasStatisticalFunc;
 	KeywordHandlerMap                *m_keywordHandlerMap;
 	FunctionParserMap                *m_functionParserMap;
 };

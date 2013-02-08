@@ -74,6 +74,7 @@ SQLFormulaParser::SQLFormulaParser(void)
 : m_columnDataGetterFactory(NULL),
   m_separator(" ()'"),
   m_formula(NULL),
+  m_hasStatisticalFunc(false),
   m_keywordHandlerMap(&m_defaultKeywordHandlerMap),
   m_functionParserMap(&m_defaultFunctionParserMap)
 {
@@ -155,6 +156,11 @@ FormulaElement *SQLFormulaParser::getFormula(void) const
 	return m_formula;
 }
 
+bool SQLFormulaParser::hasStatisticalFunc(void) const
+{
+	return m_hasStatisticalFunc;
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
@@ -220,6 +226,14 @@ bool SQLFormulaParser::passFunctionArgIfOpen(string &word)
 
 bool SQLFormulaParser::insertElement(FormulaElement *formulaElement)
 {
+	// check statistical function
+	if (!m_hasStatisticalFunc) {
+		FormulaStatisticalFunc *statFunc =
+		  dynamic_cast<FormulaStatisticalFunc *>(formulaElement);
+		if (statFunc)
+			m_hasStatisticalFunc = true;
+	}
+
 	if (!m_ctx->currElement) {
 		m_formula = formulaElement;
 		m_ctx->currElement = formulaElement;
@@ -332,6 +346,7 @@ FormulaElement *SQLFormulaParser::takeFormula(void)
 {
 	FormulaElement *ret = m_formula;
 	m_formula = NULL;
+	m_hasStatisticalFunc = false;
 	return ret;
 }
 
