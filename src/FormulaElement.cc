@@ -187,6 +187,13 @@ string FormulaElement::getTreeInfoAdditional(void)
 // ---------------------------------------------------------------------------
 // class: FormulaValue
 // ---------------------------------------------------------------------------
+FormulaValue::FormulaValue(bool val)
+: FormulaElement(FORMULA_ELEM_PRIO_VALUE)
+{
+	setTerminalElement();
+	m_itemDataPtr = ItemDataPtr(new ItemBool(val), false);
+}
+
 FormulaValue::FormulaValue(int number)
 : FormulaElement(FORMULA_ELEM_PRIO_VALUE)
 {

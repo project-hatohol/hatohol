@@ -93,6 +93,7 @@ typedef FormulaElementVector::iterator FormulaElementVectorIterator;
 // ---------------------------------------------------------------------------
 class FormulaValue : public FormulaElement {
 public:
+	FormulaValue(bool val);
 	FormulaValue(int number);
 	FormulaValue(double number);
 	FormulaValue(string &str);
