@@ -72,6 +72,8 @@ public:
 	                int depth = 0);
 
 protected:
+	bool getLeftHandDataWithCheck(ItemDataPtr &dataPtr);
+	bool getRightHandDataWithCheck(ItemDataPtr &dataPtr);
 	void setTerminalElement(void);
 	virtual string getTreeInfoAdditional(void);
 
