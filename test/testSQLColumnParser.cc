@@ -121,5 +121,25 @@ void test_max(void)
 	assertFormulaVariable(arg, columnName);
 }
 
+void test_as(void)
+{
+	const char *columnName = "c1";
+	const char *aliasName = "dog";
+	ParsableString statement(
+	  StringUtils::sprintf("%s as %s", columnName, aliasName));
+	SQLColumnParser columnParser;
+	assertInputStatement(columnParser, statement);
+
+	const SQLFormulaInfoVector formulaInfoVector
+	  = columnParser.getFormulaInfoVector();
+	cppcut_assert_equal((size_t)1, formulaInfoVector.size());
+	SQLFormulaInfo *formulaInfo = formulaInfoVector[0];
+	cppcut_assert_equal(string(columnName), formulaInfo->expression);
+	cppcut_assert_equal(string(aliasName), formulaInfo->alias);
+
+	FormulaElement *formulaElem = formulaInfo->formula;
+	assertFormulaVariable(formulaElem, columnName);
+}
+
 } // namespace testSQLColumnParser
 

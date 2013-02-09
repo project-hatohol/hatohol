@@ -33,6 +33,7 @@ using namespace mlpl;
 struct SQLFormulaInfo {
 	FormulaElement *formula;
 	string          expression;
+	string          alias;
 	bool            hasStatisticalFunc;
 
 	// construct and destructor
