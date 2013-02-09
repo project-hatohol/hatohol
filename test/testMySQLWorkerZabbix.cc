@@ -176,6 +176,28 @@ void test_selectUsrgrpid(void)
 	assertRecord(0, nsmap);
 }
 
+void test_selectMaxGuiAccess(void)
+{
+	const char *cmd = "use zabbix;"
+	  "SELECT MAX(g.gui_access) AS gui_access "
+	  "FROM usrgrp g,users_groups ug "
+	  "WHERE ug.userid=2 AND g.usrgrpid=ug.usrgrpid";
+	executeCommand(cmd);
+	vector<string> lines;
+	NumberStringMap nsmap;
+	assertRecord(1, nsmap, &lines);
+
+	StringVector splitResult;
+	StringUtils::split(splitResult, lines[0], '\t');
+	cppcut_assert_equal((size_t)1, splitResult.size());
+	cppcut_assert_equal(string("gui_access"), splitResult[0]);
+
+	splitResult.clear();
+	StringUtils::split(splitResult, lines[1], '\t', false);
+	cppcut_assert_equal((size_t)1, splitResult.size());
+	cppcut_assert_equal(string("0"), splitResult[0]);
+}
+
 void test_selectUseridAutoLogoutLastAccess(void)
 {
 /*
