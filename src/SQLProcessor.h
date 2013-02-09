@@ -278,6 +278,7 @@ protected:
 	//
 	// Select status parsers
 	//
+	bool parseSectionColumn(SelectParserContext &ctx);
 	bool parseSectionFrom(SelectParserContext &ctx);
 	bool parseSectionWhere(SelectParserContext &ctx);
 	bool parseSectionOrder(SelectParserContext &ctx);

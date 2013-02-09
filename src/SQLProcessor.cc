@@ -222,11 +222,12 @@ SQLSelectInfo::~SQLSelectInfo()
 // ---------------------------------------------------------------------------
 void SQLProcessor::init(void)
 {
-	m_selectSectionParserMap["from"]  = &SQLProcessor::parseSectionFrom;
-	m_selectSectionParserMap["where"] = &SQLProcessor::parseSectionWhere;
-	m_selectSectionParserMap["order"] = &SQLProcessor::parseSectionOrder;
-	m_selectSectionParserMap["group"] = &SQLProcessor::parseSectionGroup;
-	m_selectSectionParserMap["limit"] = &SQLProcessor::parseSectionLimit;
+	m_selectSectionParserMap["select"] = &SQLProcessor::parseSectionColumn;
+	m_selectSectionParserMap["from"]   = &SQLProcessor::parseSectionFrom;
+	m_selectSectionParserMap["where"]  = &SQLProcessor::parseSectionWhere;
+	m_selectSectionParserMap["order"]  = &SQLProcessor::parseSectionOrder;
+	m_selectSectionParserMap["group"]  = &SQLProcessor::parseSectionGroup;
+	m_selectSectionParserMap["limit"]  = &SQLProcessor::parseSectionLimit;
 
 	// check the size of m_selectSubParsers
 	size_t size = sizeof(SQLProcessor::m_selectSubParsers) / 
@@ -705,6 +706,12 @@ bool SQLProcessor::makeTextRows(const ItemGroup *itemGroup,
 //
 // Select status parsers
 //
+bool SQLProcessor::parseSectionColumn(SelectParserContext &ctx)
+{
+	ctx.section = SELECT_PARSING_SECTION_COLUMN;
+	return true;
+}
+
 bool SQLProcessor::parseSectionFrom(SelectParserContext &ctx)
 {
 	ctx.section = SELECT_PARSING_SECTION_FROM;
