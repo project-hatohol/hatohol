@@ -74,6 +74,11 @@ protected:
 	virtual void separatorCbParenthesisClose(const char separator);
 
 	//
+	// Keyword handlers
+	//
+	bool kwHandlerAs(void);
+
+	//
 	// functino parsers
 	//
 	bool funcParserMax(void);
@@ -83,6 +88,7 @@ private:
 	struct PrivateContext;
 
 	// static function
+	static KeywordHandlerMap          m_keywordHandlerMap;
 	static FunctionParserMap          m_functionParserMap;
 
 	// General variables

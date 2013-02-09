@@ -44,6 +44,7 @@ struct SQLColumnParser::PrivateContext {
 	}
 };
 
+SQLFormulaParser::KeywordHandlerMap SQLColumnParser::m_keywordHandlerMap;
 SQLFormulaParser::FunctionParserMap SQLColumnParser::m_functionParserMap;
 
 // ---------------------------------------------------------------------------
@@ -66,6 +67,10 @@ SQLFormulaInfo::~SQLFormulaInfo()
 // ---------------------------------------------------------------------------
 void SQLColumnParser::init(void)
 {
+	SQLFormulaParser::copyKeywordHandlerMap(m_keywordHandlerMap);
+	m_keywordHandlerMap["as"] =
+	  static_cast<KeywordHandler>(&SQLColumnParser::kwHandlerAs);
+
 	SQLFormulaParser::copyFunctionParserMap(m_functionParserMap);
 	m_functionParserMap["max"] =
 	  static_cast<FunctionParser>(&SQLColumnParser::funcParserMax);
@@ -76,6 +81,7 @@ void SQLColumnParser::init(void)
 // ---------------------------------------------------------------------------
 SQLColumnParser::SQLColumnParser(void)
 {
+	setKeywordHandlerMap(&m_keywordHandlerMap);
 	setFunctionParserMap(&m_functionParserMap);
 	m_ctx = new PrivateContext();
 	SeparatorCheckerWithCallback *separator = getSeparatorChecker();
@@ -181,6 +187,15 @@ void SQLColumnParser::separatorCbParenthesisClose(const char separator)
 {
 	appendFormulaString(separator);
 	SQLFormulaParser::separatorCbParenthesisClose(separator);
+}
+
+//
+// Keyword handlers
+//
+bool SQLColumnParser::kwHandlerAs(void)
+{
+	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__); 
+	return false;
 }
 
 //
