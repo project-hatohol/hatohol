@@ -331,4 +331,28 @@ void test_selectMax(void)
 	                    selectInfo.textRows[0][0]);
 }
 
+void test_selectAlias(void)
+{
+	TestSQLProcessor proc;
+	const char *alias = "foo";
+	string testFormula =
+	  StringUtils::sprintf("%s as %s", COLUMN_NAME_NUMBER, alias);
+	ParsableString parsable(
+	  StringUtils::sprintf("%s from %s", testFormula.c_str(), TABLE0_NAME));
+	SQLSelectInfo selectInfo(parsable);
+	cppcut_assert_equal(true, proc.select(selectInfo));
+
+	// assertion
+	cppcut_assert_equal((size_t)1, selectInfo.outputColumnVector.size());
+	SQLOutputColumn &outCol = selectInfo.outputColumnVector[0];
+	cppcut_assert_equal(string(COLUMN_NAME_NUMBER), outCol.column);
+
+	cppcut_assert_equal((size_t)3, selectInfo.textRows.size());
+	cppcut_assert_equal((size_t)1, selectInfo.textRows[0].size());
+	for (size_t i = 0; i < selectInfo.textRows.size(); i++) {
+		cppcut_assert_equal(StringUtils::toString(testData[i].number),
+		                    selectInfo.textRows[i][0]);
+	}
+}
+
 } // namespace testSQLProcessor
