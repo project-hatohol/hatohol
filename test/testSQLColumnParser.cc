@@ -36,9 +36,20 @@ static void _assertInputStatement(SQLColumnParser &columnParser,
 		          lower.begin(), ::tolower);
 		columnParser.add(word, lower);
 	}
-	columnParser.flush();
+	columnParser.close();
 }
 #define assertInputStatement(P, S) cut_trace(_assertInputStatement(P, S))
+
+void _assertColumn(SQLFormulaInfo *formulaInfo, const char *expectedName)
+{
+	cppcut_assert_equal(string(expectedName), formulaInfo->expression);
+	assertFormulaVariable(formulaInfo->formula, expectedName);
+	FormulaVariable *formulaVariable =
+	  dynamic_cast<FormulaVariable *>(formulaInfo->formula);
+	cut_assert_not_null(formulaVariable);
+	cppcut_assert_equal(string(expectedName), formulaVariable->getName());
+}
+#define assertColumn(X,N) cut_trace(_assertColumn(X,N))
 
 void setup(void)
 {
@@ -48,26 +59,41 @@ void setup(void)
 // ---------------------------------------------------------------------------
 // Test cases
 // ---------------------------------------------------------------------------
-void test_add(void)
+void test_one(void)
 {
 	const char *columnName = "column";
 	ParsableString statement(StringUtils::sprintf("%s", columnName));
 	SQLColumnParser columnParser;
-	SeparatorCheckerWithCallback *separator =
-	  columnParser.getSeparatorChecker();
 	columnParser.setColumnDataGetterFactory(columnDataGetter, NULL);
 	assertInputStatement(columnParser, statement);
 
 	const SQLFormulaInfoVector &formulaInfoVector =
 	  columnParser.getFormulaInfoVector();
 	cppcut_assert_equal((size_t)1, formulaInfoVector.size());
+	assertColumn(formulaInfoVector[0], columnName);
+}
 
-	SQLFormulaInfo *formulaInfo = formulaInfoVector[0];
-	cppcut_assert_equal(string(columnName), formulaInfo->expression);
-	FormulaVariable *formulaVariable =
-	  dynamic_cast<FormulaVariable *>(formulaInfo->formula);
-	cut_assert_not_null(formulaVariable);
-	cppcut_assert_equal(string(columnName), formulaVariable->getName());
+void test_multiColumn(void)
+{
+	const char *names[] = {"c1", "c2", "c3", "c4", "c5"};
+	const size_t numNames = sizeof(names) / sizeof(const char *);
+	string str;
+	for (size_t i = 0; i < numNames; i++) {
+		str += names[i];
+		if (i != numNames - 1)
+			str += ",";
+	}
+	ParsableString statement(str.c_str());
+	SQLColumnParser columnParser;
+	columnParser.setColumnDataGetterFactory(columnDataGetter, NULL);
+	assertInputStatement(columnParser, statement);
+
+	const SQLFormulaInfoVector &formulaInfoVector =
+	  columnParser.getFormulaInfoVector();
+	cppcut_assert_equal(numNames, formulaInfoVector.size());
+
+	for (int i = 0; i < numNames; i++) 
+		assertColumn(formulaInfoVector[i], names[i]);
 }
 
 void test_max(void)
