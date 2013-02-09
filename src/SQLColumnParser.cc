@@ -23,9 +23,12 @@ struct SQLColumnParser::PrivateContext {
 	string                       pendingWord;
 	string                       pendingWordLower;
 	string                       currFormulaString;
+	bool                         expectAlias;
+	string                       alias;
 
 	// constructor and methods
 	PrivateContext(void)
+	: expectAlias(false)
 	{
 	}
 
@@ -38,9 +41,12 @@ struct SQLColumnParser::PrivateContext {
 		return !pendingWord.empty();
 	}
 
-	void clearPendingWords(void) {
+	void clear(void) {
 		pendingWord.clear();
 		pendingWordLower.clear();
+		currFormulaString.clear();
+		expectAlias = false;
+		alias.clear();
 	}
 };
 
@@ -100,6 +106,11 @@ SQLColumnParser::~SQLColumnParser()
 
 bool SQLColumnParser::add(string &word, string &wordLower)
 {
+	if (m_ctx->expectAlias) {
+		m_ctx->alias = word;
+		m_ctx->expectAlias = false;
+		return true;
+	}
 	appendFormulaString(word);
 	return SQLFormulaParser::add(word, wordLower);
 }
@@ -136,6 +147,7 @@ bool SQLColumnParser::closeCurrFormulaInfo(void)
 	if (!closeCurrentFormula())
 		return false;
 	closeCurrentFormulaString();
+	m_ctx->clear();
 	return true;
 }
 
@@ -151,7 +163,7 @@ void SQLColumnParser::closeCurrentFormulaString(void)
 
 	SQLFormulaInfo *formulaInfo = m_formulaInfoVector.back();
 	formulaInfo->expression = m_ctx->currFormulaString;
-	m_ctx->currFormulaString.clear();
+	formulaInfo->alias = m_ctx->alias;
 }
 
 bool SQLColumnParser::closeCurrentFormula(void)
@@ -194,8 +206,12 @@ void SQLColumnParser::separatorCbParenthesisClose(const char separator)
 //
 bool SQLColumnParser::kwHandlerAs(void)
 {
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__); 
-	return false;
+	// 'as' has been appended at the tail. here we removes it.
+	size_t len = m_ctx->currFormulaString.size();
+	m_ctx->currFormulaString.erase(len-2);
+
+	m_ctx->expectAlias = true;
+	return true;
 }
 
 //
