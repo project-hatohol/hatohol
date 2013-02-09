@@ -154,6 +154,11 @@ bool SQLColumnParser::closeCurrentFormula(void)
 	m_formulaInfoVector.push_back(formulaInfo);
 	formulaInfo->hasStatisticalFunc = hasStatisticalFunc();
 	formulaInfo->formula = takeFormula();
+	if (!formulaInfo->formula) {
+		string msg;
+		TRMSG(msg, "formulaInfo->formula is NULL.\n");
+		throw logic_error(msg);
+	}
 	return true;
 }
 
