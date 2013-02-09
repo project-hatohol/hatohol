@@ -347,6 +347,7 @@ FormulaElement *SQLFormulaParser::takeFormula(void)
 	FormulaElement *ret = m_formula;
 	m_formula = NULL;
 	m_hasStatisticalFunc = false;
+	m_ctx->currElement = NULL;
 	return ret;
 }
 
