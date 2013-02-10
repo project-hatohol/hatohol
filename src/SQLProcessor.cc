@@ -527,7 +527,7 @@ void SQLProcessor::addOutputColumn(SQLSelectInfo &selectInfo,
 {
 	selectInfo.outputColumnVector.push_back(SQLOutputColumn(formulaInfo));
 	SQLOutputColumn &outCol = selectInfo.outputColumnVector.back();
-	//outCol.columnBaseDef =
+	outCol.columnBaseDef = makeColumnBaseDefForFormula(formulaInfo);
 	//outCol.tableInfo     =
 	outCol.schema        = getDBName();
 	//outCol.table         =
@@ -552,6 +552,21 @@ bool SQLProcessor::addOutputColumnWildcard(SQLSelectInfo &selectInfo,
 		addOutputColumn(selectInfo, columnInfo, columnBaseDef);
 	}
 	return true;
+}
+
+const ColumnBaseDefinition *
+SQLProcessor::makeColumnBaseDefForFormula(SQLFormulaInfo *formulaInfo)
+{
+	ColumnBaseDefinition *columnBaseDef = new ColumnBaseDefinition();
+	columnBaseDef->itemId = SYSTEM_ITEM_ID_ANONYMOUS;
+	columnBaseDef->tableName = "";
+	columnBaseDef->columnName = "";
+	columnBaseDef->type = SQL_COLUMN_TYPE_BIGUINT;
+	columnBaseDef->columnLength = 20;
+	MLPL_BUG("Tentative implementation: type and columnLength must be "
+	         "calculated by analyzing used columns.\n");
+	columnBaseDef->flags = 0; // TODO: substitute the appropriate value.
+	return columnBaseDef;
 }
 
 bool SQLProcessor::makeColumnDefs(SQLSelectInfo &selectInfo)

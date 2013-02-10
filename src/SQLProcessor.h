@@ -269,6 +269,8 @@ protected:
 	                     SQLFormulaInfo *formulaInfo);
 	bool addOutputColumnWildcard(SQLSelectInfo &selectInfo,
 	                             const SQLColumnInfo *columnInfo);
+	const ColumnBaseDefinition *
+	  makeColumnBaseDefForFormula(SQLFormulaInfo *formulaInfo);
 
 	// methods for foreach
 	static bool
