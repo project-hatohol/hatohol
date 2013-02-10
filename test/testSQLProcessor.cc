@@ -146,6 +146,34 @@ static const int getMaxDataInTestData(void)
 	return max;
 }
 
+static const size_t EXPECTED_NUM_ROWS_EQUAL_SELECTED = (size_t)-1;
+
+static void _assertSQLSelectInfoBasic
+  (SQLSelectInfo &selectInfo,
+   size_t expectedNumColumns, size_t expectedNumSelectedRows,
+   size_t expectedNumRows = EXPECTED_NUM_ROWS_EQUAL_SELECTED)
+{
+	if (expectedNumRows == EXPECTED_NUM_ROWS_EQUAL_SELECTED)
+		expectedNumRows = expectedNumSelectedRows;
+
+	// SQLOutputColumn
+	cppcut_assert_equal(expectedNumColumns,
+	                    selectInfo.outputColumnVector.size());
+
+	// Selected Rows
+	cppcut_assert_equal(expectedNumSelectedRows,
+	                    selectInfo.selectedTable->getNumberOfRows());
+
+	// Text Rows
+	cppcut_assert_equal(expectedNumRows, selectInfo.textRows.size());
+	for (size_t i = 0; i < expectedNumRows; i++) {
+		StringVector &textRows = selectInfo.textRows[i];
+		cppcut_assert_equal(expectedNumColumns, textRows.size());
+	}
+}
+#define assertSQLSelectInfoBasic(SI, ENC, ENS, ...) \
+cut_trace(_assertSQLSelectInfoBasic(SI, ENC, ENS, ##__VA_ARGS__))
+
 void setup(void)
 {
 	asuraInit();
@@ -286,17 +314,13 @@ void test_selectTestData(void)
 	cppcut_assert_equal(true, proc.select(selectInfo));
 
 	// assertion
-	cppcut_assert_equal(NUM_COLUMN_DEFS,
-	                    selectInfo.outputColumnVector.size());
+	assertSQLSelectInfoBasic(selectInfo, NUM_COLUMN_DEFS, numTestData);
 	for (size_t i = 0; i < NUM_COLUMN_DEFS; i++) {
 		SQLOutputColumn &outCol = selectInfo.outputColumnVector[i];
 		cppcut_assert_equal(string(COLUMN_DEFS[i].columnName),
 		                    outCol.column);
 	}
 
-	cppcut_assert_equal(numTestData,
-	                    selectInfo.selectedTable->getNumberOfRows());
-	cppcut_assert_equal(numTestData, selectInfo.textRows.size());
 	for (size_t i = 0; i < numTestData; i++) {
 		cppcut_assert_equal(NUM_COLUMN_DEFS,
 		                    selectInfo.textRows[i].size());
@@ -319,14 +343,14 @@ void test_selectMax(void)
 	  StringUtils::sprintf("%s from %s", testFormula.c_str(), TABLE0_NAME));
 	SQLSelectInfo selectInfo(parsable);
 	cppcut_assert_equal(true, proc.select(selectInfo));
+	const size_t numColumns = 1;
+	const size_t numExpectedRows = 1;
 
 	// assertion
-	cppcut_assert_equal((size_t)1, selectInfo.outputColumnVector.size());
+	assertSQLSelectInfoBasic(selectInfo, numColumns, numTestData,
+	                         numExpectedRows);
 	SQLOutputColumn &outCol = selectInfo.outputColumnVector[0];
 	cppcut_assert_equal(testFormula, outCol.column);
-
-	cppcut_assert_equal((size_t)1, selectInfo.textRows.size());
-	cppcut_assert_equal((size_t)1, selectInfo.textRows[0].size());
 	cppcut_assert_equal(StringUtils::toString(getMaxDataInTestData()),
 	                    selectInfo.textRows[0][0]);
 }
@@ -335,20 +359,20 @@ void test_selectAlias(void)
 {
 	TestSQLProcessor proc;
 	const char *alias = "foo";
-	string testFormula =
-	  StringUtils::sprintf("%s as %s", COLUMN_NAME_NUMBER, alias);
 	ParsableString parsable(
-	  StringUtils::sprintf("%s from %s", testFormula.c_str(), TABLE0_NAME));
+	  StringUtils::sprintf("%s as %s from %s", COLUMN_NAME_NUMBER, alias,
+	                       TABLE0_NAME));
 	SQLSelectInfo selectInfo(parsable);
 	cppcut_assert_equal(true, proc.select(selectInfo));
+	const size_t numColumns = 1;
 
 	// assertion
-	cppcut_assert_equal((size_t)1, selectInfo.outputColumnVector.size());
+	assertSQLSelectInfoBasic(selectInfo, numColumns, numTestData);
+
 	SQLOutputColumn &outCol = selectInfo.outputColumnVector[0];
 	cppcut_assert_equal(string(COLUMN_NAME_NUMBER), outCol.column);
 
-	cppcut_assert_equal((size_t)3, selectInfo.textRows.size());
-	cppcut_assert_equal((size_t)1, selectInfo.textRows[0].size());
+	// text output
 	for (size_t i = 0; i < selectInfo.textRows.size(); i++) {
 		cppcut_assert_equal(StringUtils::toString(testData[i].number),
 		                    selectInfo.textRows[i][0]);
