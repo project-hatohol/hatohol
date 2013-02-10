@@ -159,6 +159,10 @@ static void _assertSQLSelectInfoBasic
 	// SQLOutputColumn
 	cppcut_assert_equal(expectedNumColumns,
 	                    selectInfo.outputColumnVector.size());
+	for (size_t i = 0; i < expectedNumColumns; i++) {
+		SQLOutputColumn &outCol = selectInfo.outputColumnVector[i];
+		cppcut_assert_not_null(outCol.columnBaseDef);
+	}
 
 	// Selected Rows
 	cppcut_assert_equal(expectedNumSelectedRows,
