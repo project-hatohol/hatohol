@@ -117,3 +117,38 @@ ID 49 len 229 ::DUMP::
 00 00 00 00 01 31 01 31 01 35 02 35 30 04 31 30 30 30 06 44 42 44 42 44 42 06 44 36 46 36 46 46 06 46 46 46 36 41 35 06 46 46 42 36 38 39 06 46 46 39 39 39 39 06 46 46 33 38 33 38 0e 4e 6f 74 20 63 6c 61 73 73 69 66 69 65 64 0b 49 6e 66 6f 72 6d 61 74 69 6f 6e 07 57 61 72 6e 69 6e 67 07 41 76 65 72 61 67 65 04 48 69 67 68 08 44 69 73 61 73 74 65 72 04 31 38 30 30 04 31 38 30 30 06 44 43 30 30 30 30 06 44 43 30 30 30 30 06 30 30 41 41 30 30 06 30 30 41 41 30 30 01 31 01 31 01 31 01 31 01 31 02 31 30 ::DUMP::
 
 ID 49 len 229 || 1 | 365 | 365 | 600 | 1-5,09:00-18:00; | 7 | 1 | 7 | 100 | originalblue | 0 |  | 389 |  |  |  |  | 1 | 1 | 5 | 50 | 1000 | DBDBDB | D6F6FF | FFF6A5 | FFB689 | FF9999 | FF3838 | Not classified | Information | Warning | Average | High | Disaster | 1800 | 1800 | DC0000 | DC0000 | 00AA00 | 00AA00 | 1 | 1 | 1 | 1 | 1 | 10 ||
+
+
+*** response of MAX(X)
+127.0.0.1.34275 > server: ID 0 len 33 COM_QUERY: SELECT max(usrgrpid) FROM usrgrp
+server > 127.0.0.1.34275: ID 1 len 1 1 Fields
+        ID 2 len 35 Field: ..max(usrgrpid) <type longlong (40968) size 20>
+        ID 3 len 5 End <warnings 0>
+        ID 4 len 3 || 12 ||
+        ID 5 len 5 End <warnings
+
+[Binary]
+mysqlsniffer listening for MySQL on interface lo port 3306
+127.0.0.1.34275 > server: ID 0 len 33 ::DUMP::
+03 53 45 4c 45 43 54 20 6d 61 78 28 75 73 72 67 72 70 69 64 29 20 46 52 4f 4d 20 75 73 72 67 72 70 ::DUMP::
+server > 127.0.0.1.34275: ID 1 len 1 ::DUMP:: 01 ::DUMP::
+
+ID 2 len 35 ::DUMP::
+03 64 65 66
+00 // schema
+00 // table
+00 // orgTable
+0d 6d 61 78 28 75 73 72 67 72 70 69 64 29 // name: max(usrgrpid)
+00 // orgName
+0c // remainLength
+3f 00 // charSet
+14 00 00 00 // columnLength
+08     // type
+a0 00  // flags
+00     // decimal
+00 00  // Filler
+
+ID 3 len 5 ::DUMP:: fe 00 00 02 00 ::DUMP::
+ID 4 len 3 ::DUMP:: 02 31 32 ::DUMP::
+ID 5 len 5 ::DUMP:: fe 00 00 02 00 ::DUMP:
+
