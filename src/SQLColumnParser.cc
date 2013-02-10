@@ -20,8 +20,6 @@
 #include "FormulaFunction.h"
 
 struct SQLColumnParser::PrivateContext {
-	string                       pendingWord;
-	string                       pendingWordLower;
 	string                       currFormulaString;
 	bool                         dontAppendFormulaString;
 	bool                         expectAlias;
@@ -34,18 +32,7 @@ struct SQLColumnParser::PrivateContext {
 	{
 	}
 
-	void pushPendingWords(string &raw, string &lower) {
-		pendingWord = raw;
-		pendingWordLower = lower;;
-	}
-
-	bool hasPendingWord(void) {
-		return !pendingWord.empty();
-	}
-
 	void clear(void) {
-		pendingWord.clear();
-		pendingWordLower.clear();
 		currFormulaString.clear();
 		expectAlias = false;
 		alias.clear();
