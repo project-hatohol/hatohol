@@ -67,11 +67,14 @@ struct SQLOutputColumn
 	const SQLFormulaInfo *formulaInfo;
 	const SQLColumnInfo  *columnInfo; // when '*' is specified
 
+	// When columnBaseDefDeleteFlag is false,
 	// 'columnBaseDef' points an instance in
 	// SQLTableStaticInfo::columnBaseDefList.
-	// So we must not explicitly free it.
-	// This member is not set when the name is '*' or 'tableVar.*'.
+	// So we must not explicitly free it in that case.
+	// When columnBaseDefDeleteFlag is true, it is created dynamically
+	// We have to delete it in destructor.
 	const ColumnBaseDefinition *columnBaseDef;
+	bool  columnBaseDefDeleteFlag;
 
 	// 'tableInfo' points an instance in SQLSelectInfo::tables.
 	// So we must not explicitly free it.
@@ -86,6 +89,7 @@ struct SQLOutputColumn
 	// constructor and methods
 	SQLOutputColumn(SQLFormulaInfo *_formulaInfo);
 	SQLOutputColumn(const SQLColumnInfo *_columnInfo);
+	~SQLOutputColumn();
 	ItemDataPtr getItem(const ItemGroup *itemGroup) const;
 };
 

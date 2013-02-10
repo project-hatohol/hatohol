@@ -137,6 +137,7 @@ SQLOutputColumn::SQLOutputColumn(SQLFormulaInfo *_formulaInfo)
 : formulaInfo(_formulaInfo),
   columnInfo(NULL),
   columnBaseDef(NULL),
+  columnBaseDefDeleteFlag(false),
   tableInfo(NULL)
 {
 }
@@ -145,8 +146,15 @@ SQLOutputColumn::SQLOutputColumn(const SQLColumnInfo *_columnInfo)
 : formulaInfo(NULL),
   columnInfo(_columnInfo),
   columnBaseDef(NULL),
+  columnBaseDefDeleteFlag(false),
   tableInfo(NULL)
 {
+}
+
+SQLOutputColumn::~SQLOutputColumn()
+{
+	if (columnBaseDefDeleteFlag)
+		delete columnBaseDef;
 }
 
 ItemDataPtr SQLOutputColumn::getItem(const ItemGroup *itemGroup) const
