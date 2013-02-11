@@ -482,7 +482,7 @@ SQLProcessor::setColumnTypeAndBaseDefInColumnInfo(SQLSelectInfo &selectInfo)
 		SQLColumnInfo *columnInfo = it->second;
 
 		// baseDef
-		if (columnInfo->columnType == SQLColumnInfo::COLUMN_TYPE_ALL)
+		if (columnInfo->columnType != SQLColumnInfo::COLUMN_TYPE_NORMAL)
 			continue;
 
 		if (!columnInfo->tableInfo) {
