@@ -159,10 +159,12 @@ struct SQLColumnInfo {
 	// 'tableInfo->staticInfo->columnBaseDefList'.
 	// So we must not explicitly free it.
 	// It is set in setBaseDefAndColumnTypeInColumnInfo().
-	// This variable is not set when 'columnType' is COLUMN_TYPE_ALL.
+	// This variable is not set when 'columnType' is COLUMN_TYPE_ALL,
+	// COLUMN_TYPE_ALL_OF_TABLE.
 	const ColumnBaseDefinition *columnBaseDef;
 
-	enum {COLUMN_TYPE_UNKNOWN, COLUMN_TYPE_NORMAL, COLUMN_TYPE_ALL};
+	enum {COLUMN_TYPE_UNKNOWN, COLUMN_TYPE_NORMAL, COLUMN_TYPE_ALL,
+	      COLUMN_TYPE_ALL_OF_TABLE};
 	int columnType;
 
 	// constructor and methods
@@ -267,6 +269,7 @@ protected:
 	                     const ColumnBaseDefinition *columnBaseDef);
 	void addOutputColumn(SQLSelectInfo &selectInfo,
 	                     SQLFormulaInfo *formulaInfo);
+	bool addOutputColumnWildcardAllTables(SQLSelectInfo &selectInfo);
 	bool addOutputColumnWildcard(SQLSelectInfo &selectInfo,
 	                             const SQLColumnInfo *columnInfo);
 	const ColumnBaseDefinition *

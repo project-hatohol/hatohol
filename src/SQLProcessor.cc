@@ -197,7 +197,7 @@ void SQLColumnInfo::setColumnType(void)
 	if (name == "*")
 		columnType = SQLColumnInfo::COLUMN_TYPE_ALL;
 	else if (baseName == "*")
-		columnType = SQLColumnInfo::COLUMN_TYPE_ALL;
+		columnType = SQLColumnInfo::COLUMN_TYPE_ALL_OF_TABLE;
 	else
 		columnType = SQLColumnInfo::COLUMN_TYPE_NORMAL;
 }
@@ -425,6 +425,8 @@ bool SQLProcessor::associateColumnWithTable(SQLSelectInfo &selectInfo)
 	SQLColumnNameMapIterator it = selectInfo.columnNameMap.begin();
 	for (; it != selectInfo.columnNameMap.end(); ++it) {
 		SQLColumnInfo *columnInfo = it->second;
+		if (columnInfo->columnType == SQLColumnInfo::COLUMN_TYPE_ALL)
+			continue;
 
 		// set SQLColumnInfo::tableInfo and SQLTableInfo::columnList.
 		if (selectInfo.tables.size() == 1) {
@@ -534,6 +536,12 @@ void SQLProcessor::addOutputColumn(SQLSelectInfo &selectInfo,
 	//outCol.columnVar     =
 }
 
+bool SQLProcessor::addOutputColumnWildcardAllTables(SQLSelectInfo &selectInfo)
+{
+	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	return false;
+}
+
 bool SQLProcessor::addOutputColumnWildcard(SQLSelectInfo &selectInfo,
                                            const SQLColumnInfo *columnInfo)
 {
@@ -589,11 +597,16 @@ bool SQLProcessor::makeColumnDefs(SQLSelectInfo &selectInfo)
 		SQLColumnInfo *columnInfo = sqlDataGetter->getColumnInfo();
 
 		int columnType = columnInfo->columnType;
-		if (!columnInfo->tableInfo) {
+		if (columnType == SQLColumnInfo::COLUMN_TYPE_ALL) {
+			if (!addOutputColumnWildcardAllTables(selectInfo))
+				return false;
+			continue;
+		} else if (!columnInfo->tableInfo) {
 			MLPL_BUG("columnInfo->tableInfo is NULL\n");
 			return false;
 		}
-		if (columnType == SQLColumnInfo::COLUMN_TYPE_ALL) {
+
+		if (columnType == SQLColumnInfo::COLUMN_TYPE_ALL_OF_TABLE) {
 			if (!addOutputColumnWildcard(selectInfo, columnInfo))
 				return false;
 		} else if (columnType == SQLColumnInfo::COLUMN_TYPE_NORMAL) {
