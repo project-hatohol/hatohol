@@ -498,5 +498,18 @@ void test_selectAllTable1VarName(void)
 	                NUM_COLUMN1_DEFS, numTestData1, "foo");
 }
 
+void test_join(void)
+{
+	TestSQLProcessor proc;
+	ParsableString parsable(
+	  StringUtils::sprintf("* from %s,%s", TABLE0_NAME, TABLE1_NAME));
+	SQLSelectInfo selectInfo(parsable);
+	cppcut_assert_equal(true, proc.select(selectInfo));
+
+	// assertion
+	assertSQLSelectInfoBasic(selectInfo,
+	                         NUM_COLUMN0_DEFS + NUM_COLUMN1_DEFS,
+	                         numTestData0 * numTestData1);
+}
 
 } // namespace testSQLProcessor
