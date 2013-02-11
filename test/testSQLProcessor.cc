@@ -383,4 +383,24 @@ void test_selectAlias(void)
 	}
 }
 
+void test_asteriask(void)
+{
+	TestSQLProcessor proc;
+	ParsableString parsable(
+	  StringUtils::sprintf("* from %s", TABLE0_NAME));
+	SQLSelectInfo selectInfo(parsable);
+	cppcut_assert_equal(true, proc.select(selectInfo));
+
+	// assertion
+	assertSQLSelectInfoBasic(selectInfo, NUM_COLUMN_DEFS, numTestData);
+
+	// text output
+	for (size_t i = 0; i < selectInfo.textRows.size(); i++) {
+		cppcut_assert_equal(StringUtils::toString(testData[i].number),
+		                    selectInfo.textRows[i][0]);
+		cppcut_assert_equal(string(testData[i].name),
+		                    selectInfo.textRows[i][1]);
+	}
+}
+
 } // namespace testSQLProcessor
