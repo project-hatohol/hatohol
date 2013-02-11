@@ -142,8 +142,8 @@ struct SQLTableInfo {
 	SQLTableInfo(void);
 };
 
-typedef list<SQLTableInfo *>         SQLTableInfoVector;
-typedef SQLTableInfoVector::iterator SQLTableInfoVectorIterator;
+typedef list<SQLTableInfo *>         SQLTableInfoList;
+typedef SQLTableInfoList::iterator   SQLTableInfoListIterator;
 
 struct SQLColumnInfo {
 	string name;         // ex.) tableVarName.column1
@@ -192,7 +192,7 @@ struct SQLSelectInfo {
 	// parsed matter (Elements in these two container have to be freed)
 	SQLColumnParser         columnParser;
 	SQLColumnNameMap        columnNameMap;
-	SQLTableInfoVector      tables;
+	SQLTableInfoList        tables;
 
 	// The value (const SQLTableInfo *) in the following map points
 	// an instance in 'tables' in this struct.
@@ -269,9 +269,10 @@ protected:
 	                     const ColumnBaseDefinition *columnBaseDef);
 	void addOutputColumn(SQLSelectInfo &selectInfo,
 	                     SQLFormulaInfo *formulaInfo);
-	bool addOutputColumnWildcardAllTables(SQLSelectInfo &selectInfo);
-	bool addOutputColumnWildcard(SQLSelectInfo &selectInfo,
-	                             const SQLColumnInfo *columnInfo);
+	bool addOutputColumnsOfAllTables(SQLSelectInfo &selectInfo,
+	                                 const SQLColumnInfo *columnInfo);
+	bool addOutputColumnsOfOneTable(SQLSelectInfo &selectInfo,
+	                                const SQLColumnInfo *columnInfo);
 	const ColumnBaseDefinition *
 	  makeColumnBaseDefForFormula(SQLFormulaInfo *formulaInfo);
 

@@ -220,7 +220,7 @@ SQLSelectInfo::~SQLSelectInfo()
 	for (; columnIt != columnNameMap.end(); ++columnIt)
 		delete columnIt->second;
 
-	SQLTableInfoVectorIterator tableIt = tables.begin();
+	SQLTableInfoListIterator tableIt = tables.begin();
 	for (; tableIt != tables.end(); ++tableIt)
 		delete *tableIt;
 }
@@ -458,7 +458,7 @@ bool SQLProcessor::associateColumnWithTable(SQLSelectInfo &selectInfo)
 
 bool SQLProcessor::associateTableWithStaticInfo(SQLSelectInfo &selectInfo)
 {
-	SQLTableInfoVectorIterator tblInfoIt = selectInfo.tables.begin();
+	SQLTableInfoListIterator tblInfoIt = selectInfo.tables.begin();
 	for (; tblInfoIt != selectInfo.tables.end(); ++tblInfoIt) {
 		SQLTableInfo *tableInfo = *tblInfoIt;
 		TableNameStaticInfoMapIterator it;
@@ -536,14 +536,24 @@ void SQLProcessor::addOutputColumn(SQLSelectInfo &selectInfo,
 	//outCol.columnVar     =
 }
 
-bool SQLProcessor::addOutputColumnWildcardAllTables(SQLSelectInfo &selectInfo)
+bool SQLProcessor::addOutputColumnsOfAllTables(SQLSelectInfo &selectInfo,
+                                               const SQLColumnInfo *_columnInfo)
 {
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
-	return false;
+	// Note: We can just use the argument type w/o 'const'.
+	// Or change the algrithm more elegant.
+	SQLColumnInfo *columnInfo = const_cast<SQLColumnInfo *>(_columnInfo);
+
+	SQLTableInfoListIterator it = selectInfo.tables.begin();
+	for (; it != selectInfo.tables.end(); ++it) {
+		columnInfo->tableInfo = *it;
+		if (!addOutputColumnsOfOneTable(selectInfo, columnInfo))
+			return false;
+	}
+	return true;
 }
 
-bool SQLProcessor::addOutputColumnWildcard(SQLSelectInfo &selectInfo,
-                                           const SQLColumnInfo *columnInfo)
+bool SQLProcessor::addOutputColumnsOfOneTable(SQLSelectInfo &selectInfo,
+                                              const SQLColumnInfo *columnInfo)
 {
 	const SQLTableInfo *tableInfo = columnInfo->tableInfo;
 	if (!tableInfo->staticInfo) {
@@ -598,7 +608,8 @@ bool SQLProcessor::makeColumnDefs(SQLSelectInfo &selectInfo)
 
 		int columnType = columnInfo->columnType;
 		if (columnType == SQLColumnInfo::COLUMN_TYPE_ALL) {
-			if (!addOutputColumnWildcardAllTables(selectInfo))
+			if (!addOutputColumnsOfAllTables(selectInfo,
+			                                 columnInfo))
 				return false;
 			continue;
 		} else if (!columnInfo->tableInfo) {
@@ -607,7 +618,7 @@ bool SQLProcessor::makeColumnDefs(SQLSelectInfo &selectInfo)
 		}
 
 		if (columnType == SQLColumnInfo::COLUMN_TYPE_ALL_OF_TABLE) {
-			if (!addOutputColumnWildcard(selectInfo, columnInfo))
+			if (!addOutputColumnsOfOneTable(selectInfo, columnInfo))
 				return false;
 		} else if (columnType == SQLColumnInfo::COLUMN_TYPE_NORMAL) {
 			if (!columnInfo->columnBaseDef) {
@@ -626,7 +637,7 @@ bool SQLProcessor::makeColumnDefs(SQLSelectInfo &selectInfo)
 
 bool SQLProcessor::makeItemTables(SQLSelectInfo &selectInfo)
 {
-	SQLTableInfoVectorIterator tblInfoIt = selectInfo.tables.begin();
+	SQLTableInfoListIterator tblInfoIt = selectInfo.tables.begin();
 	for (; tblInfoIt != selectInfo.tables.end(); ++tblInfoIt) {
 		const SQLTableInfo *tableInfo = *tblInfoIt;
 		SQLTableMakeFunc func = tableInfo->staticInfo->tableMakeFunc;
