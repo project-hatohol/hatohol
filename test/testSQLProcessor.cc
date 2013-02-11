@@ -245,6 +245,10 @@ void _assertSelectAll(string tableName, TestDataGetter testDataGetter,
 	if (!varName) {
 		statement = StringUtils::sprintf("* from %s",
 		                                 tableName.c_str());
+	} else {
+		statement = StringUtils::sprintf("%s.* from %s %s",
+		                                 varName, tableName.c_str(),
+		                                 varName);
 	}
 	ParsableString parsable(statement.c_str());
 	SQLSelectInfo selectInfo(parsable);
