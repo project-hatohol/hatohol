@@ -237,11 +237,16 @@ static string testData1Getter(int row, int column)
 }
 
 void _assertSelectAll(string tableName, TestDataGetter testDataGetter,
-                      size_t expectedNumColumns, size_t expectedNumRows)
+                      size_t expectedNumColumns, size_t expectedNumRows,
+                      const char *varName = NULL)
 {
 	TestSQLProcessor proc;
-	ParsableString parsable(
-	  StringUtils::sprintf("* from %s", tableName.c_str()));
+	string statement;
+	if (!varName) {
+		statement = StringUtils::sprintf("* from %s",
+		                                 tableName.c_str());
+	}
+	ParsableString parsable(statement.c_str());
 	SQLSelectInfo selectInfo(parsable);
 	cppcut_assert_equal(true, proc.select(selectInfo));
 
@@ -257,7 +262,8 @@ void _assertSelectAll(string tableName, TestDataGetter testDataGetter,
 		}
 	}
 }
-#define assertSelectAll(S, G, C, R) cut_trace(_assertSelectAll(S, G, C, R))
+#define assertSelectAll(S, G, C, R, ...) \
+cut_trace(_assertSelectAll(S, G, C, R, ##__VA_ARGS__))
 
 void setup(void)
 {
