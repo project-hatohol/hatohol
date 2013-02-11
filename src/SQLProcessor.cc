@@ -415,6 +415,7 @@ bool SQLProcessor::fixupColumnNameMap(SQLSelectInfo &selectInfo)
 	                              columnInfo->tableVar)) {
 			return false;
 		}
+		columnInfo->setColumnType();
 	}
 	return true;
 }
@@ -477,9 +478,6 @@ SQLProcessor::setColumnTypeAndBaseDefInColumnInfo(SQLSelectInfo &selectInfo)
 	SQLColumnNameMapIterator it = selectInfo.columnNameMap.begin();
 	for (; it != selectInfo.columnNameMap.end(); ++it) {
 		SQLColumnInfo *columnInfo = it->second;
-
-		// columnType
-		columnInfo->setColumnType();
 
 		// baseDef
 		if (columnInfo->columnType == SQLColumnInfo::COLUMN_TYPE_ALL)
