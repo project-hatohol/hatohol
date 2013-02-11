@@ -486,5 +486,17 @@ void test_selectAllTable1(void)
 	                NUM_COLUMN1_DEFS, numTestData1);
 }
 
+void test_selectAllTable0VarName(void)
+{
+	assertSelectAll(TABLE0_NAME, testData0Getter,
+	                NUM_COLUMN0_DEFS, numTestData0, "foo");
+}
+
+void test_selectAllTable1VarName(void)
+{
+	assertSelectAll(TABLE1_NAME, testData1Getter,
+	                NUM_COLUMN1_DEFS, numTestData1, "foo");
+}
+
 
 } // namespace testSQLProcessor
