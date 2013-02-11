@@ -18,8 +18,8 @@ using namespace mlpl;
 
 namespace testSQLProcessor {
 
-static const int TABLE_ID = 1;
-static const int TABLE_ID_A = 2;
+static const int TABLE0_ID = 1;
+static const int TABLE1_ID = 2;
 
 static const char *TABLE0_NAME = "TestTable0";
 static const char *TABLE1_NAME = "TestTable1";
@@ -40,10 +40,10 @@ enum {
 	ITEM_ID_FOOD,
 };
 
-static const size_t NUM_COLUMN_DEFS = 2;
-static ColumnBaseDefinition COLUMN_DEFS[NUM_COLUMN_DEFS] = {
+static const size_t NUM_COLUMN0_DEFS = 2;
+static ColumnBaseDefinition COLUMN0_DEFS[NUM_COLUMN0_DEFS] = {
   {ITEM_ID_NUMBER, TABLE0_NAME, COLUMN_NAME_NUMBER, SQL_COLUMN_TYPE_INT, 11, 0},
-  {ITEM_ID_NAME, TABLE0_NAME, COLUMN_NAME_LINE, SQL_COLUMN_TYPE_VARCHAR, 20, 0},
+  {ITEM_ID_NAME,   TABLE0_NAME, COLUMN_NAME_LINE,   SQL_COLUMN_TYPE_VARCHAR, 20, 0},
 };
 
 static const size_t NUM_COLUMN1_DEFS = 3;
@@ -53,17 +53,17 @@ static ColumnBaseDefinition COLUMN1_DEFS[NUM_COLUMN1_DEFS] = {
   {ITEM_ID_FOOD,   TABLE1_NAME, COLUMN_NAME_FOOD,   SQL_COLUMN_TYPE_VARCHAR, 20, 0},
 };
 
-struct TestData {
+struct TestData0 {
 	int         number;
 	const char *name;
 };
 
-static TestData testData[] = {
+static TestData0 testData0[] = {
   {15, "ant"},
   {100, "Dog"},
   {-5, "Clothes make the man."},
 };
-static size_t numTestData = sizeof(testData) / sizeof(TestData);
+static size_t numTestData0 = sizeof(testData0) / sizeof(TestData0);
 
 struct TestData1 {
 	int         age;
@@ -99,12 +99,12 @@ public:
 	              const SQLTableInfo &tableInfo)
 	{
 		const ItemTablePtr tablePtr;
-		for (size_t i = 0; i < numTestData; i++) {
+		for (size_t i = 0; i < numTestData0; i++) {
 			ItemGroup *grp = tablePtr->addNewGroup();
 			grp->add(new ItemInt(ITEM_ID_NUMBER,
-			                     testData[i].number), false);
-			grp->add(new ItemString(ITEM_ID_NAME, testData[i].name),
-			         false);
+			                     testData0[i].number), false);
+			grp->add(new ItemString(ITEM_ID_NAME,
+			                        testData0[i].name), false);
 		}
 		return tablePtr;
 	}
@@ -157,11 +157,11 @@ private:
 	}
 
 	void initStaticInfo(void) {
-		initStaticInfoEach(&m_staticInfo[0], TABLE_ID, TABLE0_NAME,
+		initStaticInfoEach(&m_staticInfo[0], TABLE0_ID, TABLE0_NAME,
 		                   static_cast<SQLTableMakeFunc>
 		                     (&TestSQLProcessor::tableMakeFunc),
-		                   NUM_COLUMN_DEFS, COLUMN_DEFS);
-		initStaticInfoEach(&m_staticInfo[1], TABLE_ID_A, TABLE1_NAME,
+		                   NUM_COLUMN0_DEFS, COLUMN0_DEFS);
+		initStaticInfoEach(&m_staticInfo[1], TABLE0_ID, TABLE1_NAME,
 		                   static_cast<SQLTableMakeFunc>
 		                     (&TestSQLProcessor::table1MakeFunc),
 		                   NUM_COLUMN1_DEFS, COLUMN1_DEFS);
@@ -170,10 +170,10 @@ private:
 
 static const int getMaxDataInTestData(void)
 {
-	int max = testData[0].number;
-	for (size_t i = 1; i < numTestData; i++) {
-		if (testData[i].number > max)
-			max = testData[i].number;
+	int max = testData0[0].number;
+	for (size_t i = 1; i < numTestData0; i++) {
+		if (testData0[i].number > max)
+			max = testData0[i].number;
 	}
 	return max;
 }
@@ -212,14 +212,14 @@ cut_trace(_assertSQLSelectInfoBasic(SI, ENC, ENS, ##__VA_ARGS__))
 
 typedef string (*TestDataGetter)(int row, int column);
 
-static string testDataGetter(int row, int column)
+static string testData0Getter(int row, int column)
 {
-	cppcut_assert_equal(true, row < numTestData);
-	cppcut_assert_equal(true, column < NUM_COLUMN_DEFS);
+	cppcut_assert_equal(true, row < numTestData0);
+	cppcut_assert_equal(true, column < NUM_COLUMN0_DEFS);
 	if (column == 0)
-		return StringUtils::toString(testData[row].number);
+		return StringUtils::toString(testData0[row].number);
 	if (column == 1)
-		return testData[row].name;
+		return testData0[row].name;
 	return "";
 }
 
@@ -399,21 +399,21 @@ void test_selectTestData(void)
 	cppcut_assert_equal(true, proc.select(selectInfo));
 
 	// assertion
-	assertSQLSelectInfoBasic(selectInfo, NUM_COLUMN_DEFS, numTestData);
-	for (size_t i = 0; i < NUM_COLUMN_DEFS; i++) {
+	assertSQLSelectInfoBasic(selectInfo, NUM_COLUMN0_DEFS, numTestData0);
+	for (size_t i = 0; i < NUM_COLUMN0_DEFS; i++) {
 		SQLOutputColumn &outCol = selectInfo.outputColumnVector[i];
-		cppcut_assert_equal(string(COLUMN_DEFS[i].columnName),
+		cppcut_assert_equal(string(COLUMN0_DEFS[i].columnName),
 		                    outCol.column);
 	}
 
-	for (size_t i = 0; i < numTestData; i++) {
-		cppcut_assert_equal(NUM_COLUMN_DEFS,
+	for (size_t i = 0; i < numTestData0; i++) {
+		cppcut_assert_equal(NUM_COLUMN0_DEFS,
 		                    selectInfo.textRows[i].size());
 		string &number = selectInfo.textRows[i][0];
 		string &name   = selectInfo.textRows[i][1];
 		string expected_number
-		  = StringUtils::sprintf("%d", testData[i].number);
-		string expected_name = testData[i].name;
+		  = StringUtils::sprintf("%d", testData0[i].number);
+		string expected_name = testData0[i].name;
 		cppcut_assert_equal(expected_number, number);
 		cppcut_assert_equal(expected_name, name);
 	}
@@ -432,7 +432,7 @@ void test_selectMax(void)
 	const size_t numExpectedRows = 1;
 
 	// assertion
-	assertSQLSelectInfoBasic(selectInfo, numColumns, numTestData,
+	assertSQLSelectInfoBasic(selectInfo, numColumns, numTestData0,
 	                         numExpectedRows);
 	SQLOutputColumn &outCol = selectInfo.outputColumnVector[0];
 	cppcut_assert_equal(testFormula, outCol.column);
@@ -452,22 +452,22 @@ void test_selectAlias(void)
 	const size_t numColumns = 1;
 
 	// assertion
-	assertSQLSelectInfoBasic(selectInfo, numColumns, numTestData);
+	assertSQLSelectInfoBasic(selectInfo, numColumns, numTestData0);
 
 	SQLOutputColumn &outCol = selectInfo.outputColumnVector[0];
 	cppcut_assert_equal(string(COLUMN_NAME_NUMBER), outCol.column);
 
 	// text output
 	for (size_t i = 0; i < selectInfo.textRows.size(); i++) {
-		cppcut_assert_equal(StringUtils::toString(testData[i].number),
+		cppcut_assert_equal(StringUtils::toString(testData0[i].number),
 		                    selectInfo.textRows[i][0]);
 	}
 }
 
 void test_selectAllTable0(void)
 {
-	assertSelectAll(TABLE0_NAME, testDataGetter,
-	                NUM_COLUMN_DEFS, numTestData);
+	assertSelectAll(TABLE0_NAME, testData0Getter,
+	                NUM_COLUMN0_DEFS, numTestData0);
 }
 
 void test_selectAllTable1(void)
