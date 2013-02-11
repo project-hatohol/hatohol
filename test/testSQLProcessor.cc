@@ -178,6 +178,40 @@ static void _assertSQLSelectInfoBasic
 #define assertSQLSelectInfoBasic(SI, ENC, ENS, ...) \
 cut_trace(_assertSQLSelectInfoBasic(SI, ENC, ENS, ##__VA_ARGS__))
 
+typedef string (*TestDataGetter)(int row, int column);
+
+static string testDataGetter(int row, int column)
+{
+	cppcut_assert_equal(true, row < numTestData);
+	cppcut_assert_equal(true, column < NUM_COLUMN_DEFS);
+	if (column == 0)
+		return StringUtils::toString(testData[row].number);
+	if (column == 1)
+		return testData[row].name;
+	return "";
+}
+
+void _assertSelectAll(string tableName, TestDataGetter testDataGetter)
+{
+	TestSQLProcessor proc;
+	ParsableString parsable(
+	  StringUtils::sprintf("* from %s", tableName.c_str()));
+	SQLSelectInfo selectInfo(parsable);
+	cppcut_assert_equal(true, proc.select(selectInfo));
+
+	// assertion
+	assertSQLSelectInfoBasic(selectInfo, NUM_COLUMN_DEFS, numTestData);
+
+	// text output
+	for (size_t i = 0; i < selectInfo.textRows.size(); i++) {
+		for (size_t j = 0; j < selectInfo.textRows[i].size(); j++) {
+			string expect = (*testDataGetter)(i,j);
+			cppcut_assert_equal(expect, selectInfo.textRows[i][j]);
+		}
+	}
+}
+#define assertSelectAll(S, G) cut_trace(_assertSelectAll(S, G))
+
 void setup(void)
 {
 	asuraInit();
@@ -383,24 +417,9 @@ void test_selectAlias(void)
 	}
 }
 
-void test_asteriask(void)
+void test_selectAllTable0(void)
 {
-	TestSQLProcessor proc;
-	ParsableString parsable(
-	  StringUtils::sprintf("* from %s", TABLE0_NAME));
-	SQLSelectInfo selectInfo(parsable);
-	cppcut_assert_equal(true, proc.select(selectInfo));
-
-	// assertion
-	assertSQLSelectInfoBasic(selectInfo, NUM_COLUMN_DEFS, numTestData);
-
-	// text output
-	for (size_t i = 0; i < selectInfo.textRows.size(); i++) {
-		cppcut_assert_equal(StringUtils::toString(testData[i].number),
-		                    selectInfo.textRows[i][0]);
-		cppcut_assert_equal(string(testData[i].name),
-		                    selectInfo.textRows[i][1]);
-	}
+	assertSelectAll(TABLE0_NAME, testDataGetter);
 }
 
 } // namespace testSQLProcessor
