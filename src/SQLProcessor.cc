@@ -387,6 +387,7 @@ bool SQLProcessor::parseSelectStatement(SQLSelectInfo &selectInfo)
 		ctx.indexInTheStatus++;
 	}
 	selectInfo.columnParser.close();
+	selectInfo.whereParser.close();
 
 	return true;
 }
