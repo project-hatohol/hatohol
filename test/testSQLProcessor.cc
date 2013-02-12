@@ -365,7 +365,7 @@ void test_selectOrderBy(void)
 	TestSQLProcessor proc;
 	const char *orderName = "orderArg";
 	ParsableString parsable(
-	  StringUtils::sprintf("column from %s  order by %s", TABLE0_NAME,
+	  StringUtils::sprintf("column from %s order by %s", TABLE0_NAME,
 	                       orderName));
 	SQLSelectInfo selectInfo(parsable);
 	proc.callParseSelectStatement(selectInfo);
