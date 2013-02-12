@@ -25,7 +25,7 @@ static const char *TABLE0_NAME = "TestTable0";
 static const char *TABLE1_NAME = "TestTable1";
 
 static const char *COLUMN_NAME_NUMBER = "number";
-static const char *COLUMN_NAME_LINE = "name";
+static const char *COLUMN_NAME_NAME = "name";
 
 static const char *COLUMN_NAME_AGE    = "age";
 static const char *COLUMN_NAME_ANIMAL = "animal";
@@ -43,7 +43,7 @@ enum {
 static const size_t NUM_COLUMN0_DEFS = 2;
 static ColumnBaseDefinition COLUMN0_DEFS[NUM_COLUMN0_DEFS] = {
   {ITEM_ID_NUMBER, TABLE0_NAME, COLUMN_NAME_NUMBER, SQL_COLUMN_TYPE_INT, 11, 0},
-  {ITEM_ID_NAME,   TABLE0_NAME, COLUMN_NAME_LINE,   SQL_COLUMN_TYPE_VARCHAR, 20, 0},
+  {ITEM_ID_NAME,   TABLE0_NAME, COLUMN_NAME_NAME,   SQL_COLUMN_TYPE_VARCHAR, 20, 0},
 };
 
 static const size_t NUM_COLUMN1_DEFS = 3;
@@ -414,7 +414,7 @@ void test_selectTestData(void)
 {
 	string statement = 
 	  StringUtils::sprintf("%s,%s from %s", COLUMN_NAME_NUMBER,
-	                       COLUMN_NAME_LINE, TABLE0_NAME);
+	                       COLUMN_NAME_NAME, TABLE0_NAME);
 	DEFINE_SELECTINFO_AND_ASSERT_SELECT(
 	  selectInfo, statement, NUM_COLUMN0_DEFS, numTestData0);
 
@@ -442,7 +442,7 @@ void test_whereAndLimit(void)
 {
 	string statement = 
 	  StringUtils::sprintf("%s from %s % where %s=%d limit 1",
-	                       COLUMN_NAME_LINE, TABLE0_NAME,
+	                       COLUMN_NAME_NAME, TABLE0_NAME,
 	                       COLUMN_NAME_NUMBER, testData0[0].number);
 	cut_notify("test of 'limit 1' is not performed. "
 	           "We should added assertions to test it "
