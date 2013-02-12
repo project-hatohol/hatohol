@@ -485,6 +485,7 @@ void test_selectAlias(void)
 
 	SQLOutputColumn &outCol = selectInfo.outputColumnVector[0];
 	cppcut_assert_equal(string(COLUMN_NAME_NUMBER), outCol.column);
+	cppcut_assert_equal(string(alias), outCol.columnVar);
 
 	// text output
 	for (size_t i = 0; i < selectInfo.textRows.size(); i++) {

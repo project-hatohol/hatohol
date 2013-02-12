@@ -520,7 +520,10 @@ void SQLProcessor::addOutputColumn(SQLSelectInfo &selectInfo,
 	outCol.table         = tableInfo->name;
 	outCol.tableVar      = tableInfo->varName;
 	outCol.column        = columnBaseDef->columnName;
-	outCol.columnVar     = columnBaseDef->columnName;
+	if (formulaInfo->alias.empty())
+		outCol.columnVar = columnBaseDef->columnName;
+	else
+		outCol.columnVar = formulaInfo->alias;
 }
 
 void SQLProcessor::addOutputColumn(SQLSelectInfo &selectInfo,
@@ -534,7 +537,10 @@ void SQLProcessor::addOutputColumn(SQLSelectInfo &selectInfo,
 	//outCol.table         =
 	//outCol.tableVar      =
 	outCol.column        = formulaInfo->expression;
-	//outCol.columnVar     =
+	if (formulaInfo->alias.empty())
+		outCol.columnVar = formulaInfo->expression;
+	else
+		outCol.columnVar = formulaInfo->alias;
 }
 
 bool SQLProcessor::addOutputColumnsOfAllTables(SQLSelectInfo &selectInfo,
