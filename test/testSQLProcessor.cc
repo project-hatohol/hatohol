@@ -450,8 +450,7 @@ void test_whereAndLimit(void)
 	const int numExpectedColumns = 1;
 	const int numExpectedRows = 1;
 	DEFINE_SELECTINFO_AND_ASSERT_SELECT(
-	  selectInfo, statement, numExpectedColumns, numTestData0,
-	  numExpectedRows);
+	  selectInfo, statement, numExpectedColumns, numExpectedRows);
 	cppcut_assert_equal(string(testData0[0].name),
 	                    selectInfo.textRows[0][0]);
 }
