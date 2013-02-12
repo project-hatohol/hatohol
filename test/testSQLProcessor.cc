@@ -438,6 +438,24 @@ void test_selectTestData(void)
 	}
 }
 
+void test_whereAndLimit(void)
+{
+	string statement = 
+	  StringUtils::sprintf("%s from %s % where %s=%d limit 1",
+	                       COLUMN_NAME_LINE, TABLE0_NAME,
+	                       COLUMN_NAME_NUMBER, testData0[0].number);
+	cut_notify("test of 'limit 1' is not performed. "
+	           "We should added assertions to test it "
+	           "when 'limit' is supported.");
+	const int numExpectedColumns = 1;
+	const int numExpectedRows = 1;
+	DEFINE_SELECTINFO_AND_ASSERT_SELECT(
+	  selectInfo, statement, numExpectedColumns, numTestData0,
+	  numExpectedRows);
+	cppcut_assert_equal(string(testData0[0].name),
+	                    selectInfo.textRows[0][0]);
+}
+
 void test_selectMax(void)
 {
 	string testFormula =
