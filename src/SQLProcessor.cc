@@ -540,7 +540,7 @@ bool SQLProcessor::addOutputColumnsOfAllTables(SQLSelectInfo &selectInfo,
                                                const SQLColumnInfo *_columnInfo)
 {
 	// Note: We can just use the argument type w/o 'const'.
-	// Or change the algrithm more elegant.
+	// Or change the algorithm more elegant.
 	SQLColumnInfo *columnInfo = const_cast<SQLColumnInfo *>(_columnInfo);
 
 	SQLTableInfoListIterator it = selectInfo.tables.begin();
