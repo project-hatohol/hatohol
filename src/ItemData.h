@@ -89,7 +89,7 @@ private:
 	ItemDataType m_itemType;
 };
 
-ostream& operator<<(ostream& os, const ItemData &itemData);
+ostream &operator<<(ostream& os, const ItemData &itemData);
 
 template <typename T, ItemDataType ITEM_TYPE>
 class ItemGeneric : public ItemData {
