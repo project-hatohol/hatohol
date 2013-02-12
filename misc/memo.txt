@@ -152,3 +152,45 @@ ID 3 len 5 ::DUMP:: fe 00 00 02 00 ::DUMP::
 ID 4 len 3 ::DUMP:: 02 31 32 ::DUMP::
 ID 5 len 5 ::DUMP:: fe 00 00 02 00 ::DUMP:
 
+**** log of MAX(g.gui_access) AS gui_access ... [failed pattern]
+127.0.0.1.48455 > server: ID 0 len 114 ::DUMP:: 03 53 45 4c 45 43 54 20 4d 41 58 28 67 2e 67 75 69 5f 61 63 63 65 73 73 29 20 41 53 20 67 75 69 5f 61 63 63 65 73 73 20 46 52 4f 4d 20 75 73 72 67 72 70 20 67 2c 75 73 65 72 73 5f 67 72 6f 75 70 73 20 75 67 20 57 48 45 52 45 20 75 67 2e 75 73 65 72 69 64 3d 32 20 41 4e 44 20 67 2e 75 73 72 67 72 70 69 64 3d 75 67 2e 75 73 72 67 72 70 69 64 ::DUMP::
+server > 127.0.0.1.48455: ID 1 len 1 ::DUMP:: 01 ::DUMP::
+
+server > 127.0.0.1.48455: ID 2 len 45 ::DUMP::
+03 64 65 66
+06 7a 61 62 62 69 78 // schema zabbix
+00 // table
+00 // orgTable
+00 // name
+11 4d 41 58 28 67 2e 67 75 69 5f 61 63 63 65 73 73 29 // orgName: MAX(g.gui_access)
+0c // remain length
+08 00 // charSet
+14 00 00 00 // column length
+00 // type
+00 00 00 00 00
+
+ID 3 len 5 ::DUMP:: fe 00 00 22 00 ::DUMP::
+ID 4 len 2 ::DUMP:: 01 30 ::DUMP::
+ID 5 len 5 ::DUMP:: fe 00 00 22 00 ::DUMP::
+
+*** log of MAX(g.gui access) AS gui_access ... [success parttern]
+127.0.0.1.42012 > server: ID 0 len 114 ::DUMP:: 03 53 45 4c 45 43 54 20 4d 41 58 28 67 2e 67 75 69 5f 61 63 63 65 73 73 29 20 41 53 20 67 75 69 5f 61 63 63 65 73 73 20 46 52 4f 4d 20 75 73 72 67 72 70 20 67 2c 75 73 65 72 73 5f 67 72 6f 75 70 73 20 75 67 20 57 48 45 52 45 20 75 67 2e 75 73 65 72 69 64 3d 32 20 41 4e 44 20 67 2e 75 73 72 67 72 70 69 64 3d 75 67 2e 75 73 72 67 72 70 69 64 ::DUMP::
+server > 127.0.0.1.42012: ID 1 len 1 ::DUMP:: 01 ::DUMP::
+ID 2 len 32 ::DUMP::
+03 64 65 66
+00 // schema
+00 // table
+00 // orgTable
+0a 67 75 69 5f 61 63 63 65 73 73 // name: gui_access
+00 // orgName
+0c // remain length
+3f 00 // charSet
+0b 00 00 00 // column length
+03 // type
+80 00 00 00 00
+
+ID 3 len 5 ::DUMP:: fe 00 00 02 00 ::DUMP::
+ID 4 len 2 ::DUMP:: 01 30 ::DUMP::
+ID 5 len 5 ::DUMP:: fe 00 00 02 00 ::DUMP::
+
+
