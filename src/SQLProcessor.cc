@@ -386,8 +386,10 @@ bool SQLProcessor::parseSelectStatement(SQLSelectInfo &selectInfo)
 
 		ctx.indexInTheStatus++;
 	}
-	selectInfo.columnParser.close();
-	selectInfo.whereParser.close();
+	if (!selectInfo.columnParser.close())
+		return false;
+	if (!selectInfo.whereParser.close())
+		return false;
 
 	return true;
 }
