@@ -292,13 +292,11 @@ void setup(void)
 // ---------------------------------------------------------------------------
 void test_selectOneColumn(void)
 {
-	TestSQLProcessor proc;
-	const char *columnName = "column";
-	const char *tableName = TABLE0_NAME;
-	ParsableString parsable(
-	  StringUtils::sprintf("%s from %s", columnName, tableName));
-	SQLSelectInfo selectInfo(parsable);
-	proc.callParseSelectStatement(selectInfo);
+	string statement =
+	  StringUtils::sprintf("%s from %s", COLUMN_NAME_NUMBER, TABLE0_NAME);
+	const size_t numColumns = 1;
+	DEFINE_SELECTINFO_AND_ASSERT_SELECT(
+	  selectInfo, statement, numColumns, numTestData0);
 
 	// column
 	const SQLFormulaInfoVector formulaInfoVector
@@ -306,13 +304,14 @@ void test_selectOneColumn(void)
 	cppcut_assert_equal((size_t)1, formulaInfoVector.size());
 
 	SQLFormulaInfo *formulaInfo = formulaInfoVector[0];
-	cppcut_assert_equal(string(columnName), formulaInfo->expression);
-	assertFormulaVariable(formulaInfo->formula, columnName);
+	cppcut_assert_equal(string(COLUMN_NAME_NUMBER),
+	                    formulaInfo->expression);
+	assertFormulaVariable(formulaInfo->formula, COLUMN_NAME_NUMBER);
 
 	// table
-	cut_assert_equal_int(1, selectInfo.tables.size());
+	cppcut_assert_equal((size_t)1, selectInfo.tables.size());
 	SQLTableInfoListIterator table = selectInfo.tables.begin();
-	cut_assert_equal_string(tableName, (*table)->name.c_str());
+	cppcut_assert_equal(string(TABLE0_NAME), (*table)->name);
 }
 
 void test_selectMultiColumn(void)
