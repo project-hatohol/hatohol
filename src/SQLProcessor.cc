@@ -653,13 +653,14 @@ bool SQLProcessor::makeItemTables(SQLSelectInfo &selectInfo)
 
 bool SQLProcessor::doJoin(SQLSelectInfo &selectInfo)
 {
-	if (selectInfo.itemTablePtrList.size() == 1) {
-		selectInfo.joinedTable = *selectInfo.itemTablePtrList.begin();
-		return true;
-	}
-
+	int count = 0;
 	ItemTablePtrListConstIterator it = selectInfo.itemTablePtrList.begin();
-	for (; it != selectInfo.itemTablePtrList.end(); ++it) {
+	for (; it != selectInfo.itemTablePtrList.end(); ++it, count++) {
+		if (count == 0) {
+			selectInfo.joinedTable =
+			  *selectInfo.itemTablePtrList.begin();
+			continue;
+		}
 		const ItemTablePtr &tablePtr = *it;
 		selectInfo.joinedTable = crossJoin(selectInfo.joinedTable,
 		                                   tablePtr);
