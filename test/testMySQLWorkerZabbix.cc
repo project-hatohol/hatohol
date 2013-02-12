@@ -185,7 +185,7 @@ void test_selectMaxGuiAccess(void)
 	executeCommand(cmd);
 	vector<string> lines;
 	NumberStringMap nsmap;
-	assertRecord(1, nsmap, &lines);
+	assertRecord(2, nsmap, &lines);
 
 	StringVector splitResult;
 	StringUtils::split(splitResult, lines[0], '\t');
