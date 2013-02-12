@@ -29,6 +29,8 @@ using namespace mlpl;
 
 #include <execinfo.h>
 
+class FormulaElement;
+
 typedef vector<string> CommandLineArg;
 
 class Utils {
@@ -37,6 +39,9 @@ public:
 	static void assertNotNull(void *ptr);
 	static string demangle(string &str);
 	static string demangle(const char *);
+	static void showTreeInfo(FormulaElement *formulaElement, int fd = 1,
+	                         bool fromRoot = true, int maxNumElem = -1,
+	                         int currNum = 0, int depth = 0);
 
 protected:
 	static string makeDemangledStackTraceString(string &stackTraceLine);

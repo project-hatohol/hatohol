@@ -15,10 +15,17 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <StringUtils.h>
+#include <Logger.h>
+using namespace mlpl;
+
 #include <cstdio>
 #include <cxxabi.h>
 #include <stdexcept>
+#include <unistd.h>
+#include <errno.h>
 #include "Utils.h"
+#include "FormulaElement.h"
 
 // ---------------------------------------------------------------------------
 // Public methods
@@ -62,6 +69,47 @@ string Utils::demangle(const char *str)
 	return demangledStr;
 }
 
+void Utils::showTreeInfo(FormulaElement *formulaElement, int fd,
+                         bool fromRoot, int maxNumElem, int currNum, int depth)
+{
+	string treeInfo;
+	FormulaElement *startElement = formulaElement;
+	if (!formulaElement) {
+		MLPL_BUG("formulaElement: NULL\n");
+		return;
+	}
+	if (fromRoot) {
+		startElement = formulaElement->getRootElement();
+		if (!startElement) {
+			MLPL_BUG("formulaElement->getRootElement(): NULL\n");
+			return;
+		}
+	}
+
+	startElement->getTreeInfo(treeInfo, maxNumElem, currNum, depth);
+	string msg;
+	msg = StringUtils::sprintf(
+	        "***** FormulaInfo: Tree Information "
+	        "(request: %p, fromRoot: %d) ***\n",
+	        formulaElement, fromRoot);
+	msg += treeInfo;
+
+	size_t remainBytes = msg.size() + 1; /* '+ 1' means NULL term. */
+	const char *buf = msg.c_str();
+	while (remainBytes > 0) {
+		ssize_t writtenBytes = write(fd, buf, remainBytes);
+		if (writtenBytes == 0) {
+			MLPL_ERR("writtenBytes: 0\n");
+			return;
+		}
+		if (writtenBytes < 0) {
+			MLPL_ERR("Failed: errno: %d\n", errno);
+			return;
+		}
+		buf += writtenBytes;
+		remainBytes -= writtenBytes;
+	}
+}
 
 // ---------------------------------------------------------------------------
 // Protected methods
