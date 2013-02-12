@@ -146,6 +146,11 @@ bool SQLFormulaParser::flush(void)
 	return true;
 }
 
+bool SQLFormulaParser::close(void)
+{
+	flush();
+}
+
 SeparatorCheckerWithCallback *SQLFormulaParser::getSeparatorChecker(void)
 {
 	return &m_separator;
