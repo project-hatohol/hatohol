@@ -210,6 +210,25 @@ static void _assertSQLSelectInfoBasic
 #define assertSQLSelectInfoBasic(SI, ENC, ENS, ...) \
 cut_trace(_assertSQLSelectInfoBasic(SI, ENC, ENS, ##__VA_ARGS__))
 
+static void _asssertExecSelect
+  (SQLSelectInfo &selectInfo,
+   size_t expectedNumColumns, size_t expectedNumSelectedRows,
+   size_t expectedNumRows = EXPECTED_NUM_ROWS_EQUAL_SELECTED)
+{
+	TestSQLProcessor proc;
+	cppcut_assert_equal(true, proc.select(selectInfo));
+	assertSQLSelectInfoBasic(selectInfo,
+	                         expectedNumColumns, expectedNumSelectedRows,
+	                         expectedNumRows);
+}
+#define asssertExecSelect(S, ENC, ENS, ...) \
+cut_trace(_asssertExecSelect(S, ENC, ENS, ##__VA_ARGS__))
+
+#define DEFINE_SELECTINFO_AND_ASSERT_SELECT(SEL_VAR, STATEMENT, ENC, ENS, ...) \
+ParsableString _parsable(STATEMENT); \
+SQLSelectInfo SEL_VAR(_parsable); \
+asssertExecSelect(SEL_VAR, ENC, ENS, ##__VA_ARGS__);
+
 typedef string (*TestDataGetter)(int row, int column);
 
 static string testData0Getter(int row, int column)
@@ -240,7 +259,6 @@ void _assertSelectAll(string tableName, TestDataGetter testDataGetter,
                       size_t expectedNumColumns, size_t expectedNumRows,
                       const char *varName = NULL)
 {
-	TestSQLProcessor proc;
 	string statement;
 	if (!varName) {
 		statement = StringUtils::sprintf("* from %s",
@@ -250,13 +268,8 @@ void _assertSelectAll(string tableName, TestDataGetter testDataGetter,
 		                                 varName, tableName.c_str(),
 		                                 varName);
 	}
-	ParsableString parsable(statement.c_str());
-	SQLSelectInfo selectInfo(parsable);
-	cppcut_assert_equal(true, proc.select(selectInfo));
-
-	// assertion
-	assertSQLSelectInfoBasic(selectInfo,
-	                         expectedNumColumns, expectedNumRows);
+	DEFINE_SELECTINFO_AND_ASSERT_SELECT(
+	  selectInfo, (string)statement, expectedNumColumns, expectedNumRows);
 
 	// text output
 	for (size_t i = 0; i < selectInfo.textRows.size(); i++) {
@@ -400,16 +413,13 @@ void test_selectTwoTableWithNames(void)
 
 void test_selectTestData(void)
 {
-	TestSQLProcessor proc;
-	ParsableString parsable(
-	  StringUtils::sprintf("%s,%s from %s",
-	                       COLUMN_NAME_NUMBER, COLUMN_NAME_LINE,
-	                       TABLE0_NAME));
-	SQLSelectInfo selectInfo(parsable);
-	cppcut_assert_equal(true, proc.select(selectInfo));
+	string statement = 
+	  StringUtils::sprintf("%s,%s from %s", COLUMN_NAME_NUMBER,
+	                       COLUMN_NAME_LINE, TABLE0_NAME);
+	DEFINE_SELECTINFO_AND_ASSERT_SELECT(
+	  selectInfo, statement, NUM_COLUMN0_DEFS, numTestData0);
 
 	// assertion
-	assertSQLSelectInfoBasic(selectInfo, NUM_COLUMN0_DEFS, numTestData0);
 	for (size_t i = 0; i < NUM_COLUMN0_DEFS; i++) {
 		SQLOutputColumn &outCol = selectInfo.outputColumnVector[i];
 		cppcut_assert_equal(string(COLUMN0_DEFS[i].columnName),
@@ -431,19 +441,16 @@ void test_selectTestData(void)
 
 void test_selectMax(void)
 {
-	TestSQLProcessor proc;
 	string testFormula =
 	  StringUtils::sprintf("max(%s)", COLUMN_NAME_NUMBER);
-	ParsableString parsable(
-	  StringUtils::sprintf("%s from %s", testFormula.c_str(), TABLE0_NAME));
-	SQLSelectInfo selectInfo(parsable);
-	cppcut_assert_equal(true, proc.select(selectInfo));
+	string statement =
+	  StringUtils::sprintf("%s from %s", testFormula.c_str(), TABLE0_NAME);
 	const size_t numColumns = 1;
 	const size_t numExpectedRows = 1;
+	DEFINE_SELECTINFO_AND_ASSERT_SELECT(
+	  selectInfo, statement, numColumns, numTestData0, numExpectedRows);
 
 	// assertion
-	assertSQLSelectInfoBasic(selectInfo, numColumns, numTestData0,
-	                         numExpectedRows);
 	SQLOutputColumn &outCol = selectInfo.outputColumnVector[0];
 	cppcut_assert_equal(testFormula, outCol.column);
 	cppcut_assert_equal(StringUtils::toString(getMaxDataInTestData()),
@@ -452,17 +459,13 @@ void test_selectMax(void)
 
 void test_selectAlias(void)
 {
-	TestSQLProcessor proc;
 	const char *alias = "foo";
-	ParsableString parsable(
+	string statement =
 	  StringUtils::sprintf("%s as %s from %s", COLUMN_NAME_NUMBER, alias,
-	                       TABLE0_NAME));
-	SQLSelectInfo selectInfo(parsable);
-	cppcut_assert_equal(true, proc.select(selectInfo));
+	                       TABLE0_NAME);
 	const size_t numColumns = 1;
-
-	// assertion
-	assertSQLSelectInfoBasic(selectInfo, numColumns, numTestData0);
+	DEFINE_SELECTINFO_AND_ASSERT_SELECT(
+	  selectInfo, statement, numColumns, numTestData0);
 
 	SQLOutputColumn &outCol = selectInfo.outputColumnVector[0];
 	cppcut_assert_equal(string(COLUMN_NAME_NUMBER), outCol.column);
@@ -500,16 +503,10 @@ void test_selectAllTable1VarName(void)
 
 void test_join(void)
 {
-	TestSQLProcessor proc;
-	ParsableString parsable(
-	  StringUtils::sprintf("* from %s,%s", TABLE0_NAME, TABLE1_NAME));
-	SQLSelectInfo selectInfo(parsable);
-	cppcut_assert_equal(true, proc.select(selectInfo));
-
-	// assertion
-	assertSQLSelectInfoBasic(selectInfo,
-	                         NUM_COLUMN0_DEFS + NUM_COLUMN1_DEFS,
-	                         numTestData0 * numTestData1);
+	DEFINE_SELECTINFO_AND_ASSERT_SELECT(
+	   selectInfo,
+	   StringUtils::sprintf("* from %s,%s", TABLE0_NAME, TABLE1_NAME),
+	   NUM_COLUMN0_DEFS + NUM_COLUMN1_DEFS, numTestData0 * numTestData1);
 }
 
 } // namespace testSQLProcessor
