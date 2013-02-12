@@ -506,6 +506,34 @@ void test_join(void)
 	   selectInfo,
 	   StringUtils::sprintf("* from %s,%s", TABLE0_NAME, TABLE1_NAME),
 	   NUM_COLUMN0_DEFS + NUM_COLUMN1_DEFS, numTestData0 * numTestData1);
+
+	// text output
+	int row = 0;
+	for (size_t tbl0idx = 0; tbl0idx < numTestData0; tbl0idx++) {
+		for (size_t tbl1idx = 0; tbl1idx < numTestData1;
+		     tbl1idx++, row++) {
+			// number
+			cppcut_assert_equal(
+			  StringUtils::toString(testData0[tbl0idx].number),
+		          selectInfo.textRows[row][0]);
+			// name
+			cppcut_assert_equal(
+			  string(testData0[tbl0idx].name),
+		          selectInfo.textRows[row][1]);
+			// age
+			cppcut_assert_equal(
+			  StringUtils::toString(testData1[tbl1idx].age),
+		          selectInfo.textRows[row][2]);
+			// animal
+			cppcut_assert_equal(
+			  string(testData1[tbl1idx].animal),
+		          selectInfo.textRows[row][3]);
+			// food
+			cppcut_assert_equal(
+			  string(testData1[tbl1idx].food),
+		          selectInfo.textRows[row][4]);
+		}
+	}
 }
 
 } // namespace testSQLProcessor
