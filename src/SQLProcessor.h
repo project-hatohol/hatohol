@@ -266,7 +266,8 @@ protected:
 
 	void addOutputColumn(SQLSelectInfo &selectInfo,
 	                     const SQLColumnInfo *columnInfo,
-	                     const ColumnBaseDefinition *columnBaseDef);
+	                     const ColumnBaseDefinition *columnBaseDef,
+	                     const SQLFormulaInfo *formulaInfo = NULL);
 	void addOutputColumn(SQLSelectInfo &selectInfo,
 	                     SQLFormulaInfo *formulaInfo);
 	bool addOutputColumnsOfAllTables(SQLSelectInfo &selectInfo,

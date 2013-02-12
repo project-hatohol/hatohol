@@ -509,7 +509,8 @@ SQLProcessor::setColumnTypeAndBaseDefInColumnInfo(SQLSelectInfo &selectInfo)
 
 void SQLProcessor::addOutputColumn(SQLSelectInfo &selectInfo,
                                    const SQLColumnInfo *columnInfo,
-                                   const ColumnBaseDefinition *columnBaseDef)
+                                   const ColumnBaseDefinition *columnBaseDef,
+                                   const SQLFormulaInfo *formulaInfo)
 {
 	const SQLTableInfo *tableInfo = columnInfo->tableInfo;
 	selectInfo.outputColumnVector.push_back(SQLOutputColumn(columnInfo));
@@ -520,7 +521,9 @@ void SQLProcessor::addOutputColumn(SQLSelectInfo &selectInfo,
 	outCol.table         = tableInfo->name;
 	outCol.tableVar      = tableInfo->varName;
 	outCol.column        = columnBaseDef->columnName;
-	if (formulaInfo->alias.empty())
+	if (!formulaInfo) // when 'select * or n.*'
+		outCol.columnVar = columnBaseDef->columnName;
+	else if (formulaInfo->alias.empty())
 		outCol.columnVar = columnBaseDef->columnName;
 	else
 		outCol.columnVar = formulaInfo->alias;
@@ -633,7 +636,8 @@ bool SQLProcessor::makeColumnDefs(SQLSelectInfo &selectInfo)
 				return false;
 			}
 			addOutputColumn(selectInfo, columnInfo,
-			                columnInfo->columnBaseDef);
+			                columnInfo->columnBaseDef,
+			                formulaInfo);
 		} else {
 			MLPL_BUG("Invalid columnType: %d\n", columnType);
 			return false;
