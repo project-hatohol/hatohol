@@ -31,6 +31,28 @@ FormulaOperator::~FormulaOperator()
 }
 
 // ---------------------------------------------------------------------------
+// class: FormulaParenthesis
+// ---------------------------------------------------------------------------
+FormulaParenthesis::FormulaParenthesis(void)
+: FormulaOperator(FORMULA_ELEM_PRIO_PARENTHESIS)
+{
+}
+
+FormulaParenthesis::~FormulaParenthesis()
+{
+}
+
+ItemDataPtr FormulaParenthesis::evaluate(void)
+{
+	FormulaElement *child = getLeftHand();
+	if (!child) {
+		MLPL_DBG("child: NULL.\n");
+		return ItemDataPtr();
+	}
+	return child->evaluate();
+}
+
+// ---------------------------------------------------------------------------
 // class: FormulaComparatorEqual
 // ---------------------------------------------------------------------------
 FormulaComparatorEqual::FormulaComparatorEqual(void)

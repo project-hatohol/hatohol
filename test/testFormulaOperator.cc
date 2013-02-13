@@ -67,6 +67,23 @@ void teardown()
 // ---------------------------------------------------------------------------
 // Test cases
 // ---------------------------------------------------------------------------
+
+//
+// FormulaParenthesis
+//
+void test_formulaParenthesis(void)
+{
+	int num = 5;
+	FormulaParenthesis formulaParenthesis;
+	FormulaElement *formulaValue = new FormulaValue(num);
+	formulaParenthesis.setLeftHand(formulaValue);
+	cppcut_assert_equal(*formulaValue->evaluate(),
+	                    *formulaParenthesis.evaluate());
+}
+
+//
+// FormulaComparatorEqual
+//
 void test_formulaComparatorEqualTrue(void)
 {
 	assertFormulaComparatorEqualVal(1, 1);

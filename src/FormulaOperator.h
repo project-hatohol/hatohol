@@ -31,6 +31,16 @@ public:
 };
 
 // ---------------------------------------------------------------------------
+// class: FormulaParenthesis
+// ---------------------------------------------------------------------------
+class FormulaParenthesis : public FormulaOperator {
+public:
+	FormulaParenthesis(void);
+	virtual ~FormulaParenthesis();
+	virtual ItemDataPtr evaluate(void);
+};
+
+// ---------------------------------------------------------------------------
 // class: FormulaComparatorEqual
 // ---------------------------------------------------------------------------
 class FormulaComparatorEqual : public FormulaOperator {
