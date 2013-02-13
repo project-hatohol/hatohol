@@ -26,14 +26,12 @@ using namespace mlpl;
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
-FormulaElement::FormulaElement(FormulaElementPriority priority, bool unary,
-                               bool priorityBarrier)
+FormulaElement::FormulaElement(FormulaElementPriority priority, bool unary)
 : m_unary(unary),
   m_leftHand(NULL),
   m_rightHand(NULL),
   m_parent(NULL),
   m_priority(priority),
-  m_priorityBarrier(priorityBarrier),
   m_terminalElement(false)
 {
 }
@@ -93,11 +91,6 @@ FormulaElement *FormulaElement::getRootElement(void)
 bool FormulaElement::isUnary(void) const
 {
 	return m_unary;
-}
-
-bool FormulaElement::hasPriorityBarrier(void) const
-{
-	return m_priorityBarrier;
 }
 
 bool FormulaElement::isTerminalElement(void) const

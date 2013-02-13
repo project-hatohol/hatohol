@@ -86,7 +86,6 @@ void test_formulaParenthesis(void)
 {
 	int num = 5;
 	FormulaParenthesis formulaParenthesis;
-	cppcut_assert_equal(true, formulaParenthesis.hasPriorityBarrier());
 	FormulaElement *formulaValue = new FormulaValue(num);
 	formulaParenthesis.setLeftHand(formulaValue);
 	cppcut_assert_equal(*formulaValue->evaluate(),

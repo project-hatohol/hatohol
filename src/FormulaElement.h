@@ -40,8 +40,7 @@ enum FormulaElementPriority {
 // ---------------------------------------------------------------------------
 class FormulaElement {
 public:
-	FormulaElement(FormulaElementPriority priority, bool unary = false,
-	               bool priorityBarrier = false);
+	FormulaElement(FormulaElementPriority priority, bool unary = false);
 	virtual ~FormulaElement();
 	void setLeftHand(FormulaElement *elem);
 	void setRightHand(FormulaElement *elem);
@@ -51,7 +50,6 @@ public:
 	FormulaElement *getParent(void) const;
 	FormulaElement *getRootElement(void);
 	bool isUnary(void) const;
-	bool hasPriorityBarrier(void) const;
 	bool isTerminalElement(void) const;
 	bool priorityOver(FormulaElement *formulaElement);
 	bool priorityEqual(FormulaElement *formulaElement);
@@ -92,7 +90,6 @@ private:
 	FormulaElement  *m_rightHand;
 	FormulaElement  *m_parent;
 	FormulaElementPriority m_priority;
-	bool             m_priorityBarrier;
 	bool             m_terminalElement;
 };
 
