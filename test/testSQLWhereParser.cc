@@ -224,7 +224,7 @@ void test_whereIntAndColumnAndInt(void)
 	assertFormulaValue(rightElem->getRightHand(), rightHand2);
 }
 
-void test_whereIntAndBetween(void)
+void test_intAndBetween(void)
 {
 	const char *leftHand0  = "a";
 	int         rightHand0 = 1;
@@ -232,14 +232,11 @@ void test_whereIntAndBetween(void)
 	const char *btwVar = "b";
 	int btwVal0 = 0;
 	int btwVal1 = 100;
-	ParsableString statement(
+	string statement =
 	  StringUtils::sprintf("%s=%d and %s between %d and %d",
 	                       leftHand0, rightHand0,
-	                       btwVar, btwVal0, btwVal1));
-	SQLWhereParser whereParser;
-	assertInputStatement(whereParser, statement);
-
-	FormulaElement *formula = whereParser.getFormula();
+	                       btwVar, btwVal0, btwVal1);
+	DEFINE_PARSER_AND_RUN(whereParser, formula, statement);
 	assertFormulaOperatorAnd(formula);
 
 	FormulaElement *leftElem = formula->getLeftHand();
