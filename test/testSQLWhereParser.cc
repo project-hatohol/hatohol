@@ -41,6 +41,13 @@ static void _assertInputStatement(SQLWhereParser &whereParser,
 }
 #define assertInputStatement(P, S) cut_trace(_assertInputStatement(P, S))
 
+#define DEFINE_PARSER_AND_RUN(WPTHR, FELEM, STATMNT) \
+ParsableString _statement(STATMNT); \
+SQLWhereParser WPTHR; \
+assertInputStatement(WPTHR, _statement); \
+FormulaElement *FELEM = WPTHR.getFormula(); \
+assertFormulaOperatorAnd(FELEM);
+
 void setup(void)
 {
 	asuraInit();
@@ -241,6 +248,19 @@ void test_whereIntAndBetween(void)
 	assertFormulaVariable(leftElem->getLeftHand(), leftHand0);
 	assertFormulaValue(leftElem->getRightHand(), rightHand0);
 	assertFormulaBetweenWithVarName(rightElem, btwVal0, btwVal1, btwVar);
+}
+
+void test_parenthesis(void)
+{
+	const char *elemName0  = "a";
+	const char *elemName1  = "b";
+	const char *elemName2  = "c";
+	string statement =
+	  StringUtils::sprintf("(%s or %s) and %s",
+	                       elemName0, elemName1, elemName2);
+	DEFINE_PARSER_AND_RUN(whereParser, formula, statement);
+
+	// should add assertions
 }
 
 } // namespace testSQLWhereParser
