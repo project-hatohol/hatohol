@@ -259,7 +259,7 @@ bool SQLFormulaParser::insertElement(FormulaElement *formulaElement)
 	// If priority of 'formulaElement' is higher than the current element,
 	// 'formulaElement' just becomes a right hand of the current element.
 	if (!targetElem)
-		return insertAsRightHand(formulaElement);
+		return insertAsHand(formulaElement);
 
 	// If priority of 'formulaElement' is equal to 'targetElem',
 	// the target element is changed to the right hand of 'targetElem'.
