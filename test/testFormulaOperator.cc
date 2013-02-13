@@ -41,6 +41,20 @@ void _assertFormulaOperatorAndVal(bool v0, bool v1)
 #define assertFormulaOperatorAndVal(V0, V1) \
 cut_trace(_assertFormulaOperatorAndVal(V0, V1))
 
+void _assertFormulaOperatorOrVal(bool v0, bool v1)
+{
+	FormulaOperatorOr formulaEq;
+	FormulaValue *val0 = new FormulaValue(v0);
+	FormulaValue *val1 = new FormulaValue(v1);
+	formulaEq.setLeftHand(val0);
+	formulaEq.setRightHand(val1);
+	bool expectedVal = (v0 || v1);
+	ItemDataPtr expected(new ItemBool(expectedVal), false);
+	cppcut_assert_equal(*expected, *formulaEq.evaluate());
+}
+#define assertFormulaOperatorOrVal(V0, V1) \
+cut_trace(_assertFormulaOperatorOrVal(V0, V1))
+
 void _assertFormulaComparatorEqualVal(int v0, int v1)
 {
 	FormulaComparatorEqual formulaEq;
@@ -144,6 +158,29 @@ void test_formulaOperatorAndTF(void)
 void test_formulaOperatorAndTT(void)
 {
 	assertFormulaOperatorAndVal(true, true);
+}
+
+//
+// FormulaOperatorOr
+//
+void test_formulaOperatorOrFF(void)
+{
+	assertFormulaOperatorOrVal(false, false);
+}
+
+void test_formulaOperatorOrFT(void)
+{
+	assertFormulaOperatorOrVal(false, true);
+}
+
+void test_formulaOperatorOrTF(void)
+{
+	assertFormulaOperatorOrVal(true, false);
+}
+
+void test_formulaOperatorOrTT(void)
+{
+	assertFormulaOperatorOrVal(true, true);
 }
 
 //

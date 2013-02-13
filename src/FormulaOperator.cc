@@ -99,6 +99,32 @@ ItemDataPtr FormulaOperatorAnd::evaluate(void)
 }
 
 // ---------------------------------------------------------------------------
+// FormulaOperatorOr
+// ---------------------------------------------------------------------------
+FormulaOperatorOr::FormulaOperatorOr(void)
+: FormulaOperator(FORMULA_ELEM_PRIO_OR)
+{
+}
+
+FormulaOperatorOr::~FormulaOperatorOr()
+{
+}
+
+ItemDataPtr FormulaOperatorOr::evaluate(void)
+{
+	ItemDataPtr v0, v1;
+	if (!getLeftHandDataWithCheck(v0) || !getRightHandDataWithCheck(v1))
+		return ItemDataPtr();
+	ItemDataPtr dataPtrTrue(new ItemBool(true), false);
+	ItemDataPtr dataPtrFalse(new ItemBool(false), false);
+	if (*v0 == *dataPtrTrue)
+		return dataPtrTrue;
+	if (*v1 == *dataPtrTrue)
+		return dataPtrTrue;
+	return dataPtrFalse;
+}
+
+// ---------------------------------------------------------------------------
 // FormulaBetween
 // ---------------------------------------------------------------------------
 FormulaBetween::FormulaBetween(ItemDataPtr v0, ItemDataPtr v1)

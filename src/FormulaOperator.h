@@ -61,6 +61,16 @@ public:
 };
 
 // ---------------------------------------------------------------------------
+// FormulaOperatorOr
+// ---------------------------------------------------------------------------
+class FormulaOperatorOr : public FormulaOperator {
+public:
+	FormulaOperatorOr(void);
+	virtual ~FormulaOperatorOr();
+	virtual ItemDataPtr evaluate(void);
+};
+
+// ---------------------------------------------------------------------------
 // FormulaBetween
 // ---------------------------------------------------------------------------
 class FormulaBetween : public FormulaOperator {
