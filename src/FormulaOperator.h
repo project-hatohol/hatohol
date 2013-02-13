@@ -42,6 +42,16 @@ public:
 };
 
 // ---------------------------------------------------------------------------
+// class: FormulaOperatorPlus
+// ---------------------------------------------------------------------------
+class FormulaOperatorPlus : public FormulaElement {
+public:
+	FormulaOperatorPlus(void);
+	virtual ~FormulaOperatorPlus();
+	virtual ItemDataPtr evaluate(void);
+};
+
+// ---------------------------------------------------------------------------
 // FormulaOperatorAnd
 // ---------------------------------------------------------------------------
 class FormulaOperatorAnd : public FormulaElement {

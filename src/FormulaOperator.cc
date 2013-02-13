@@ -61,6 +61,26 @@ ItemDataPtr FormulaComparatorEqual::evaluate(void)
 }
 
 // ---------------------------------------------------------------------------
+// FormulaOperatorPlus
+// ---------------------------------------------------------------------------
+FormulaOperatorPlus::FormulaOperatorPlus(void)
+: FormulaElement(FORMULA_ELEM_PRIO_AND)
+{
+}
+
+FormulaOperatorPlus::~FormulaOperatorPlus()
+{
+}
+
+ItemDataPtr FormulaOperatorPlus::evaluate(void)
+{
+	ItemDataPtr v0, v1;
+	if (!getLeftHandDataWithCheck(v0) || !getRightHandDataWithCheck(v1))
+		return ItemDataPtr();
+	return ItemDataPtr(*v0 + *v1, false);
+}
+
+// ---------------------------------------------------------------------------
 // FormulaOperatorAnd
 // ---------------------------------------------------------------------------
 FormulaOperatorAnd::FormulaOperatorAnd(void)
