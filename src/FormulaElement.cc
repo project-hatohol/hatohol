@@ -115,6 +115,8 @@ FormulaElement *FormulaElement::findInsertPoint(FormulaElement *insertElem)
 	FormulaElement *prev = NULL;
 	FormulaElement *elem = this;
 	while (elem) {
+		if (elem->m_priorityBarrier)
+			break;
 		if (insertElem->priorityOver(elem))
 			break;
 		prev = elem;
