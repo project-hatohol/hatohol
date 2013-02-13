@@ -38,6 +38,18 @@ static ItemData *&y_item = g_item[1];
 static ItemData *&z_item = g_item[2];
 static ItemData *&w_item = g_item[3];
 
+template <typename T, typename ItemDataType>
+void assertOperatorPlus(T &v0, T &v1)
+{
+	x_item = new ItemDataType(v0);
+	y_item = new ItemDataType(v1);
+	z_item = *x_item + *y_item;
+	cppcut_assert_not_null(z_item);
+	ItemDataType *item = dynamic_cast<ItemDataType *>(z_item);
+	cppcut_assert_not_null(item);
+	cppcut_assert_equal(v0 + v1, item->get());
+}
+
 void teardown(void)
 {
 	for (int i = 0; i < NUM_ITEM_POOL; i++) {
@@ -414,6 +426,20 @@ void test_operatorNotEqBool(void)
 	x_item = new ItemBool(true);
 	y_item = new ItemBool(false);
 	cppcut_assert_not_equal(*x_item, *y_item);
+}
+
+void test_operatorPlusInt(void)
+{
+	int v0 = 20;
+	int v1 = -50;
+	assertOperatorPlus<int, ItemInt>(v0, v1);
+}
+
+void test_operatorPlusUint64(void)
+{
+	uint64_t v0 = 58320;
+	uint64_t v1 = 250;
+	assertOperatorPlus<uint64_t, ItemUint64>(v0, v1);
 }
 
 } // namespace testItemData
