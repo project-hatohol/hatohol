@@ -46,7 +46,7 @@ ParsableString _statement(STATMNT); \
 SQLWhereParser WPTHR; \
 assertInputStatement(WPTHR, _statement); \
 FormulaElement *FELEM = WPTHR.getFormula(); \
-assertFormulaOperatorAnd(FELEM);
+cppcut_assert_not_null(FELEM);
 
 void setup(void)
 {
