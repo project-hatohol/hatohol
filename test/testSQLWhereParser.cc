@@ -295,8 +295,8 @@ void test_parenthesisDouble(void)
 	FormulaElement *innerParenElem = andElem->getLeftHand();
 	assertFormulaParenthesis(innerParenElem);
 
-	FormulaElement *orElem = outerParenElem->getLeftHand();
-	assertFormulaOperatorOr(andElem);
+	FormulaElement *orElem = innerParenElem->getLeftHand();
+	assertFormulaOperatorOr(orElem);
 	assertFormulaVariable(orElem->getLeftHand(), elemName0);
 	assertFormulaVariable(orElem->getRightHand(), elemName1);
 
