@@ -34,9 +34,9 @@ static void _assertInputStatement(SQLColumnParser &columnParser,
 		string lower = word;
 		transform(lower.begin(), lower.end(),
 		          lower.begin(), ::tolower);
-		columnParser.add(word, lower);
+		cppcut_assert_equal(true, columnParser.add(word, lower));
 	}
-	columnParser.close();
+	cppcut_assert_equal(true, columnParser.close());
 }
 #define assertInputStatement(P, S) cut_trace(_assertInputStatement(P, S))
 
