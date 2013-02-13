@@ -1,12 +1,8 @@
-* [M] Make SQLParser
-  - [M] SQLWhereElement Parser and Processor
+* [S] Remove FormulaOperator. All its sub classses are derived from FormulaElement directly.
 
-* [S] Reconstruction of SQLSelectInfo, SQLSelectResult, and SelectParserContext. 
 * [M] Mechanism for local DB
 Stores data such as configuration.
 
 * [M] Mechanism for run ArmZabbix 
 The parameters of ArmZabbix such as IP address should be
 obtained from the local DB.
-
-* [S] MLPL: add pre-check of MLPL_*()
