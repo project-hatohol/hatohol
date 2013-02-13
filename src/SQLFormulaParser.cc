@@ -304,14 +304,14 @@ bool SQLFormulaParser::insertAsRightHand(FormulaElement *formulaElement)
 	}
 	
 	if (!currElement->getLeftHand()) {
-		formulaElement->getRootElement()->getTreeInfo(treeInfo);
+		currElement->getRootElement()->getTreeInfo(treeInfo);
 		TRMSG(msg, "Left hand element: NULL, %p.\n%s",
 		      formulaElement, treeInfo.c_str());
 		throw logic_error(msg);
 	}
 
 	if (currElement->getRightHand()) {
-		formulaElement->getRootElement()->getTreeInfo(treeInfo);
+		currElement->getRootElement()->getTreeInfo(treeInfo);
 		TRMSG(msg, "Righthand element: NOT NULL, %p.\n%s",
 		      formulaElement, treeInfo.c_str());
 		throw logic_error(msg);
