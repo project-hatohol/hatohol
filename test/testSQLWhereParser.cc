@@ -272,5 +272,40 @@ void test_parenthesis(void)
 	assertFormulaVariable(rightElem, elemName2);
 }
 
+void test_parenthesisDouble(void)
+{
+	const char *elemName0  = "a";
+	const char *elemName1  = "b";
+	const char *elemName2  = "c";
+	const char *elemName3  = "d";
+	string statement =
+	  StringUtils::sprintf("((%s or %s) and %s) or %s",
+	                       elemName0, elemName1, elemName2, elemName3);
+	DEFINE_PARSER_AND_RUN(whereParser, formula, statement);
+	assertFormulaOperatorOr(formula);
+
+	// In the outer parenthesis
+	FormulaElement *outerParenElem = formula->getLeftHand();
+	assertFormulaParenthesis(outerParenElem);
+
+	FormulaElement *andElem = outerParenElem->getLeftHand();
+	assertFormulaOperatorAnd(andElem);
+
+	// Hands of 'and'
+	FormulaElement *innerParenElem = andElem->getLeftHand();
+	assertFormulaParenthesis(innerParenElem);
+
+	FormulaElement *orElem = outerParenElem->getLeftHand();
+	assertFormulaOperatorOr(andElem);
+	assertFormulaVariable(orElem->getLeftHand(), elemName0);
+	assertFormulaVariable(orElem->getRightHand(), elemName1);
+
+	// The element before closing parenthesis
+	assertFormulaVariable(andElem->getRightHand(), elemName2);
+
+	// The most right hand
+	assertFormulaVariable(formula->getRightHand(), elemName3);
+}
+
 } // namespace testSQLWhereParser
 
