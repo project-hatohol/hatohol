@@ -296,6 +296,7 @@ FormulaElement *SQLFormulaParser::getCurrentElement(void) const
 bool SQLFormulaParser::insertAsRightHand(FormulaElement *formulaElement)
 {
 	string msg;
+	string treeInfo;
 	FormulaElement *currElement = m_ctx->currElement;
 	if (!currElement) {
 		MLPL_DBG("Current element: NULL.\n");
@@ -303,12 +304,16 @@ bool SQLFormulaParser::insertAsRightHand(FormulaElement *formulaElement)
 	}
 	
 	if (!currElement->getLeftHand()) {
-		TRMSG(msg, "Left hand element: NULL.\n");
+		formulaElement->getRootElement()->getTreeInfo(treeInfo);
+		TRMSG(msg, "Left hand element: NULL, %p.\n%s",
+		      formulaElement, treeInfo.c_str());
 		throw logic_error(msg);
 	}
 
 	if (currElement->getRightHand()) {
-		TRMSG(msg, "Righthand element: NOT NULL.\n");
+		formulaElement->getRootElement()->getTreeInfo(treeInfo);
+		TRMSG(msg, "Righthand element: NOT NULL, %p.\n%s",
+		      formulaElement, treeInfo.c_str());
 		throw logic_error(msg);
 	}
 
