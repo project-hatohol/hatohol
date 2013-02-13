@@ -307,5 +307,23 @@ void test_parenthesisDouble(void)
 	assertFormulaVariable(formula->getRightHand(), elemName3);
 }
 
+void test_plus(void)
+{
+	const char *elemName0  = "a";
+	const char *elemName1  = "b";
+	const char *elemName2  = "c";
+	string statement =
+	  StringUtils::sprintf("%s + %s = %s",
+	                       elemName0, elemName1, elemName2);
+	DEFINE_PARSER_AND_RUN(whereParser, formula, statement);
+	assertFormulaComparatorEqual(formula);
+
+	FormulaElement *plusElem = formula->getLeftHand();
+	assertFormulaOperatorPlus(plusElem);
+	assertFormulaVariable(plusElem->getLeftHand(), elemName0);
+	assertFormulaVariable(plusElem->getRightHand(), elemName1);
+	assertFormulaVariable(formula->getRightHand(), elemName2);
+}
+
 } // namespace testSQLWhereParser
 
