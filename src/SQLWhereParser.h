@@ -43,6 +43,10 @@ protected:
 	                              SQLWhereParser *whereParser);
 	void separatorCbEqual(const char separator);
 
+	static void _separatorCbGreaterThan(const char separator,
+	                                    SQLWhereParser *whereParser);
+	void separatorCbGreaterThan(const char separator);
+
 	//
 	// Keyword handlers
 	//

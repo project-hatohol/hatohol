@@ -63,6 +63,9 @@ SQLWhereParser::SQLWhereParser(void)
 	separator->addSeparator("=");
 	separator->setCallbackTempl<SQLWhereParser>
 	  ('=', _separatorCbEqual, this);
+	separator->addSeparator(">");
+	separator->setCallbackTempl<SQLWhereParser>
+	  ('>', _separatorCbGreaterThan, this);
 }
 
 SQLWhereParser::~SQLWhereParser()
@@ -169,6 +172,32 @@ void SQLWhereParser::separatorCbEqual(const char separator)
 	FormulaComparatorEqual *formulaComparatorEqual
 	  = new FormulaComparatorEqual();
 	if (!insertElement(formulaComparatorEqual)) {
+		setErrorFlag();
+		return;
+	}
+}
+
+void SQLWhereParser::_separatorCbGreaterThan(const char separator,
+                                       SQLWhereParser *whereParser)
+{
+	whereParser->separatorCbGreaterThan(separator);
+}
+
+void SQLWhereParser::separatorCbGreaterThan(const char separator)
+{
+	if (!flush())
+		return;
+
+	// Get Left-Hand
+	FormulaElement *lhsElement = getCurrentElement();
+	if (!lhsElement) {
+		setErrorFlag();
+		MLPL_DBG("lhsElement: NULL.");
+		return;
+	}
+
+	FormulaGreaterThan *formulaGreaterThan = new FormulaGreaterThan();
+	if (!insertElement(formulaGreaterThan)) {
 		setErrorFlag();
 		return;
 	}
