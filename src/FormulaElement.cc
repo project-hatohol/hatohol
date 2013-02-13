@@ -15,6 +15,8 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <stdexcept>
+
 #include "Logger.h"
 using namespace mlpl;
 
@@ -24,8 +26,9 @@ using namespace mlpl;
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
-FormulaElement::FormulaElement(FormulaElementPriority priority)
-: m_leftHand(NULL),
+FormulaElement::FormulaElement(FormulaElementPriority priority, bool unary)
+: m_unary(unary),
+  m_leftHand(NULL),
   m_rightHand(NULL),
   m_parent(NULL),
   m_priority(priority),
@@ -49,6 +52,11 @@ void FormulaElement::setLeftHand(FormulaElement *elem)
 
 void FormulaElement::setRightHand(FormulaElement *elem)
 {
+	if (m_unary) {
+		string msg;
+		TRMSG(msg, "m_unary: true.\n");
+		throw logic_error(msg);
+	}
 	m_rightHand = elem;
 	m_rightHand->m_parent = this;
 }

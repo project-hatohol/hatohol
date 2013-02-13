@@ -39,7 +39,7 @@ enum FormulaElementPriority {
 // ---------------------------------------------------------------------------
 class FormulaElement {
 public:
-	FormulaElement(FormulaElementPriority priority);
+	FormulaElement(FormulaElementPriority priority, bool unary = false);
 	virtual ~FormulaElement();
 	void setLeftHand(FormulaElement *elem);
 	void setRightHand(FormulaElement *elem);
@@ -79,6 +79,7 @@ protected:
 	virtual string getTreeInfoAdditional(void);
 
 private:
+	bool             m_unary;
 	FormulaElement  *m_leftHand;
 	FormulaElement  *m_rightHand;
 	FormulaElement  *m_parent;
