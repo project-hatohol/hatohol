@@ -123,6 +123,9 @@ void test_formulaComparatorEqualInvalidLeft(void)
 	cppcut_assert_equal(false, formulaEq.evaluate().hasData());
 }
 
+//
+// FormulaOperatorAnd
+//
 void test_formulaOperatorAndFF(void)
 {
 	assertFormulaOperatorAndVal(false, false);
@@ -143,6 +146,9 @@ void test_formulaOperatorAndTT(void)
 	assertFormulaOperatorAndVal(true, true);
 }
 
+//
+// FormulaBetween
+//
 void test_formulaBetween(void)
 {
 	int v0 = 15;
