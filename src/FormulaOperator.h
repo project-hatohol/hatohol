@@ -22,18 +22,9 @@
 #include "ItemDataPtr.h"
 
 // ---------------------------------------------------------------------------
-// FormulaOperator
-// ---------------------------------------------------------------------------
-class FormulaOperator : public FormulaElement {
-public:
-	FormulaOperator(FormulaElementPriority prio, bool unary = false);
-	virtual ~FormulaOperator();
-};
-
-// ---------------------------------------------------------------------------
 // class: FormulaParenthesis
 // ---------------------------------------------------------------------------
-class FormulaParenthesis : public FormulaOperator {
+class FormulaParenthesis : public FormulaElement {
 public:
 	FormulaParenthesis(void);
 	virtual ~FormulaParenthesis();
@@ -43,7 +34,7 @@ public:
 // ---------------------------------------------------------------------------
 // class: FormulaComparatorEqual
 // ---------------------------------------------------------------------------
-class FormulaComparatorEqual : public FormulaOperator {
+class FormulaComparatorEqual : public FormulaElement {
 public:
 	FormulaComparatorEqual(void);
 	virtual ~FormulaComparatorEqual();
@@ -53,7 +44,7 @@ public:
 // ---------------------------------------------------------------------------
 // FormulaOperatorAnd
 // ---------------------------------------------------------------------------
-class FormulaOperatorAnd : public FormulaOperator {
+class FormulaOperatorAnd : public FormulaElement {
 public:
 	FormulaOperatorAnd(void);
 	virtual ~FormulaOperatorAnd();
@@ -63,7 +54,7 @@ public:
 // ---------------------------------------------------------------------------
 // FormulaOperatorOr
 // ---------------------------------------------------------------------------
-class FormulaOperatorOr : public FormulaOperator {
+class FormulaOperatorOr : public FormulaElement {
 public:
 	FormulaOperatorOr(void);
 	virtual ~FormulaOperatorOr();
@@ -73,7 +64,7 @@ public:
 // ---------------------------------------------------------------------------
 // FormulaBetween
 // ---------------------------------------------------------------------------
-class FormulaBetween : public FormulaOperator {
+class FormulaBetween : public FormulaElement {
 public:
 	FormulaBetween(ItemDataPtr v0, ItemDataPtr v1);
 	virtual ~FormulaBetween();

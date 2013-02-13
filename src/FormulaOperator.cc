@@ -19,22 +19,10 @@
 #include "ItemEnum.h"
 
 // ---------------------------------------------------------------------------
-// Formula Operator
-// ---------------------------------------------------------------------------
-FormulaOperator::FormulaOperator(FormulaElementPriority prio, bool unary)
-: FormulaElement(prio, unary)
-{
-}
-
-FormulaOperator::~FormulaOperator()
-{
-}
-
-// ---------------------------------------------------------------------------
 // class: FormulaParenthesis
 // ---------------------------------------------------------------------------
 FormulaParenthesis::FormulaParenthesis(void)
-: FormulaOperator(FORMULA_ELEM_PRIO_PARENTHESIS, true)
+: FormulaElement(FORMULA_ELEM_PRIO_PARENTHESIS, true)
 {
 }
 
@@ -56,7 +44,7 @@ ItemDataPtr FormulaParenthesis::evaluate(void)
 // class: FormulaComparatorEqual
 // ---------------------------------------------------------------------------
 FormulaComparatorEqual::FormulaComparatorEqual(void)
-: FormulaOperator(FORMULA_ELEM_PRIO_CMP_EQ)
+: FormulaElement(FORMULA_ELEM_PRIO_CMP_EQ)
 {
 }
 
@@ -76,7 +64,7 @@ ItemDataPtr FormulaComparatorEqual::evaluate(void)
 // FormulaOperatorAnd
 // ---------------------------------------------------------------------------
 FormulaOperatorAnd::FormulaOperatorAnd(void)
-: FormulaOperator(FORMULA_ELEM_PRIO_AND)
+: FormulaElement(FORMULA_ELEM_PRIO_AND)
 {
 }
 
@@ -102,7 +90,7 @@ ItemDataPtr FormulaOperatorAnd::evaluate(void)
 // FormulaOperatorOr
 // ---------------------------------------------------------------------------
 FormulaOperatorOr::FormulaOperatorOr(void)
-: FormulaOperator(FORMULA_ELEM_PRIO_OR)
+: FormulaElement(FORMULA_ELEM_PRIO_OR)
 {
 }
 
@@ -128,7 +116,7 @@ ItemDataPtr FormulaOperatorOr::evaluate(void)
 // FormulaBetween
 // ---------------------------------------------------------------------------
 FormulaBetween::FormulaBetween(ItemDataPtr v0, ItemDataPtr v1)
-: FormulaOperator(FORMULA_ELEM_PRIO_BETWEEN),
+: FormulaElement(FORMULA_ELEM_PRIO_BETWEEN),
   m_v0(v0),
   m_v1(v1)
 {
