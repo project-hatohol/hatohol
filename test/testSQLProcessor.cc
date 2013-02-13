@@ -23,6 +23,7 @@ static const int TABLE1_ID = 2;
 
 static const char *TABLE0_NAME = "TestTable0";
 static const char *TABLE1_NAME = "TestTable1";
+static const char *TABLE_Z_NAME = "TestTableZ"; // Empty (Zero) Table
 
 static const char *COLUMN_NAME_NUMBER = "number";
 static const char *COLUMN_NAME_NAME = "name";
@@ -31,6 +32,9 @@ static const char *COLUMN_NAME_AGE    = "age";
 static const char *COLUMN_NAME_ANIMAL = "animal";
 static const char *COLUMN_NAME_FOOD   = "food";
 
+static const char *COLUMN_NAME_Z_NUM  = "z_num";
+static const char *COLUMN_NAME_Z_STR  = "z_str";
+
 enum {
 	ITEM_ID_NUMBER,
 	ITEM_ID_NAME,
@@ -38,6 +42,9 @@ enum {
 	ITEM_ID_AGE,
 	ITEM_ID_ANIMAL,
 	ITEM_ID_FOOD,
+
+	ITEM_ID_Z_NUM,
+	ITEM_ID_Z_STR,
 };
 
 static const size_t NUM_COLUMN0_DEFS = 2;
@@ -51,6 +58,12 @@ static ColumnBaseDefinition COLUMN1_DEFS[NUM_COLUMN1_DEFS] = {
   {ITEM_ID_AGE,    TABLE1_NAME, COLUMN_NAME_AGE,    SQL_COLUMN_TYPE_INT, 11, 0},
   {ITEM_ID_ANIMAL, TABLE1_NAME, COLUMN_NAME_ANIMAL, SQL_COLUMN_TYPE_VARCHAR, 20, 0},
   {ITEM_ID_FOOD,   TABLE1_NAME, COLUMN_NAME_FOOD,   SQL_COLUMN_TYPE_VARCHAR, 20, 0},
+};
+
+static const size_t NUM_COLUMN_Z_DEFS = 2;
+static ColumnBaseDefinition COLUMN_Z_DEFS[NUM_COLUMN_Z_DEFS] = {
+  {ITEM_ID_Z_NUM, TABLE_Z_NAME, COLUMN_NAME_Z_NUM, SQL_COLUMN_TYPE_INT, 11, 0},
+  {ITEM_ID_Z_STR, TABLE_Z_NAME, COLUMN_NAME_Z_STR, SQL_COLUMN_TYPE_VARCHAR, 20, 0},
 };
 
 struct TestData0 {
@@ -76,6 +89,13 @@ static TestData1 testData1[] = {
   {-5, "cat", "parfait"},
 };
 static size_t numTestData1 = sizeof(testData1) / sizeof(TestData1);
+
+struct TestDataZ {
+};
+
+static TestDataZ testDataZ[] = {
+};
+static size_t numTestDataZ = sizeof(testDataZ) / sizeof(TestDataZ);
 
 class TestSQLProcessor : public SQLProcessor {
 public:
@@ -126,9 +146,17 @@ public:
 		return tablePtr;
 	}
 
+	const ItemTablePtr
+	tableZMakeFunc(SQLSelectInfo &selectInfo,
+	               const SQLTableInfo &tableInfo)
+	{
+		const ItemTablePtr tablePtr;
+		return tablePtr;
+	}
+
 private:
 	TableNameStaticInfoMap m_tableNameStaticInfoMap;
-	SQLTableStaticInfo     m_staticInfo[2];
+	SQLTableStaticInfo     m_staticInfo[3];
 
 
 	void initStaticInfoEach(SQLTableStaticInfo *staticInfo,
@@ -165,6 +193,10 @@ private:
 		                   static_cast<SQLTableMakeFunc>
 		                     (&TestSQLProcessor::table1MakeFunc),
 		                   NUM_COLUMN1_DEFS, COLUMN1_DEFS);
+		initStaticInfoEach(&m_staticInfo[2], TABLE0_ID, TABLE_Z_NAME,
+		                   static_cast<SQLTableMakeFunc>
+		                     (&TestSQLProcessor::tableZMakeFunc),
+		                   NUM_COLUMN_Z_DEFS, COLUMN_Z_DEFS);
 	}
 };
 
@@ -552,6 +584,14 @@ void test_join(void)
 		          selectInfo.textRows[row][4]);
 		}
 	}
+}
+
+void test_emptyTable(void)
+{
+	DEFINE_SELECTINFO_AND_ASSERT_SELECT(
+	   selectInfo,
+	   StringUtils::sprintf("* from %s", TABLE_Z_NAME),
+	   NUM_COLUMN_Z_DEFS, numTestDataZ);
 }
 
 } // namespace testSQLProcessor
