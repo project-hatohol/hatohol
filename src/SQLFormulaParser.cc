@@ -74,7 +74,7 @@ void SQLFormulaParser::init(void)
 // ---------------------------------------------------------------------------
 SQLFormulaParser::SQLFormulaParser(void)
 : m_columnDataGetterFactory(NULL),
-  m_separator(" ()'"),
+  m_separator(" ()'+"),
   m_formula(NULL),
   m_hasStatisticalFunc(false),
   m_keywordHandlerMap(&m_defaultKeywordHandlerMap),
@@ -87,6 +87,8 @@ SQLFormulaParser::SQLFormulaParser(void)
 	  (')', _separatorCbParenthesisClose, this);
 	m_separator.setCallbackTempl<SQLFormulaParser>
 	  ('\'', _separatorCbQuot, this);
+	m_separator.setCallbackTempl<SQLFormulaParser>
+	  ('+', _separatorCbPlus, this);
 }
 
 SQLFormulaParser::~SQLFormulaParser()
@@ -487,6 +489,32 @@ void SQLFormulaParser::separatorCbQuot(const char separator)
 	}
 	m_ctx->quotOpen = true;
 	m_separator.setAlternative(&ParsableString::SEPARATOR_QUOT);
+}
+
+void SQLFormulaParser::_separatorCbPlus
+  (const char separator, SQLFormulaParser *formulaParser)
+{
+	formulaParser->separatorCbPlus(separator);
+}
+
+void SQLFormulaParser::separatorCbPlus(const char separator)
+{
+	if (!flush())
+		return;
+
+	// Get Left-Hand
+	FormulaElement *lhsElement = getCurrentElement();
+	if (!lhsElement) {
+		setErrorFlag();
+		MLPL_DBG("lhsElement: NULL.");
+		return;
+	}
+
+	FormulaOperatorPlus *formulaOperatorPlus = new FormulaOperatorPlus();
+	if (!insertElement(formulaOperatorPlus)) {
+		setErrorFlag();
+		return;
+	}
 }
 
 //
