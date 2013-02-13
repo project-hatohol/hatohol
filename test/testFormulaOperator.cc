@@ -27,33 +27,29 @@ void _assertFormulaBetweenVal(int v, bool expectedValue)
 }
 #define assertFormulaBetweenVal(V, E) cut_trace(_assertFormulaBetweenVal(V, E))
 
-void _assertFormulaOperatorAndVal(bool v0, bool v1)
+void _assertFormulaOperatorAndOrVal(bool v0, bool v1, bool opAnd)
 {
-	FormulaOperatorAnd formulaEq;
+	bool expectedVal;
+	if (opAnd) {
+		x_elem = new FormulaOperatorAnd();
+		expectedVal = (v0 && v1);
+	} else {
+		x_elem = new FormulaOperatorOr();
+		expectedVal = (v0 || v1);
+	}
 	FormulaValue *val0 = new FormulaValue(v0);
 	FormulaValue *val1 = new FormulaValue(v1);
-	formulaEq.setLeftHand(val0);
-	formulaEq.setRightHand(val1);
-	bool expectedVal = (v0 && v1);
+	x_elem->setLeftHand(val0);
+	x_elem->setRightHand(val1);
 	ItemDataPtr expected(new ItemBool(expectedVal), false);
-	cppcut_assert_equal(*expected, *formulaEq.evaluate());
+	cppcut_assert_equal(*expected, *x_elem->evaluate());
 }
-#define assertFormulaOperatorAndVal(V0, V1) \
-cut_trace(_assertFormulaOperatorAndVal(V0, V1))
 
-void _assertFormulaOperatorOrVal(bool v0, bool v1)
-{
-	FormulaOperatorOr formulaEq;
-	FormulaValue *val0 = new FormulaValue(v0);
-	FormulaValue *val1 = new FormulaValue(v1);
-	formulaEq.setLeftHand(val0);
-	formulaEq.setRightHand(val1);
-	bool expectedVal = (v0 || v1);
-	ItemDataPtr expected(new ItemBool(expectedVal), false);
-	cppcut_assert_equal(*expected, *formulaEq.evaluate());
-}
+#define assertFormulaOperatorAndVal(V0, V1) \
+cut_trace(_assertFormulaOperatorAndOrVal(V0, V1, true))
+
 #define assertFormulaOperatorOrVal(V0, V1) \
-cut_trace(_assertFormulaOperatorOrVal(V0, V1))
+cut_trace(_assertFormulaOperatorAndOrVal(V0, V1, false))
 
 void _assertFormulaComparatorEqualVal(int v0, int v1)
 {
