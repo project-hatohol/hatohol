@@ -51,7 +51,7 @@ public:
 };
 
 // ---------------------------------------------------------------------------
-// FormulaAnd
+// FormulaOperatorAnd
 // ---------------------------------------------------------------------------
 class FormulaOperatorAnd : public FormulaOperator {
 public:
