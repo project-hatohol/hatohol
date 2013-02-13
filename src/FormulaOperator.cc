@@ -64,7 +64,7 @@ ItemDataPtr FormulaComparatorEqual::evaluate(void)
 // FormulaOperatorPlus
 // ---------------------------------------------------------------------------
 FormulaOperatorPlus::FormulaOperatorPlus(void)
-: FormulaElement(FORMULA_ELEM_PRIO_AND)
+: FormulaElement(FORMULA_ELEM_PRIO_PLUS)
 {
 }
 
