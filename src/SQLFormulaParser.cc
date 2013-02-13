@@ -29,6 +29,7 @@ struct SQLFormulaParser::PrivateContext {
 	string                  pendingWord;
 	string                  pendingWordLower;
 	FormulaElement         *currElement;
+	deque<FormulaElement *> parenthesisStack; 
 
 	// methods
 	PrivateContext(void)
@@ -247,10 +248,13 @@ bool SQLFormulaParser::insertElement(FormulaElement *formulaElement)
 	}
 
 	if (formulaElement->isTerminalElement())
-		return insertAsRightHand(formulaElement);
+		return insertAsHand(formulaElement);
 
+	FormulaElement *upperLimit = NULL;
+	if (!m_ctx->parenthesisStack.empty())
+		upperLimit = m_ctx->parenthesisStack.back();
 	FormulaElement *targetElem =
-	  m_ctx->currElement->findInsertPoint(formulaElement);
+	  m_ctx->currElement->findInsertPoint(formulaElement, upperLimit);
 
 	// If priority of 'formulaElement' is higher than the current element,
 	// 'formulaElement' just becomes a right hand of the current element.
@@ -265,7 +269,9 @@ bool SQLFormulaParser::insertElement(FormulaElement *formulaElement)
 	FormulaElement *targetParent = targetElem->getParent();
 	formulaElement->setLeftHand(targetElem);
 	if (targetParent) {
-		if (targetParent->getRightHand() != targetElem) {
+		if (targetParent->isUnary()) {
+			targetParent->setLeftHand(formulaElement);
+		} else if (targetParent->getRightHand() != targetElem) {
 			string msg;
 			string tree;
 			m_formula->getTreeInfo(tree);
@@ -274,8 +280,9 @@ bool SQLFormulaParser::insertElement(FormulaElement *formulaElement)
 			      targetParent->getRightHand(), targetElem,
 			      tree.c_str());
 			throw logic_error(msg);
+		} else {
+			targetParent->setRightHand(formulaElement);
 		}
-		targetParent->setRightHand(formulaElement);
 	} else {
 		m_formula = formulaElement;
 	}
@@ -320,6 +327,35 @@ bool SQLFormulaParser::insertAsRightHand(FormulaElement *formulaElement)
 	currElement->setRightHand(formulaElement);
 	m_ctx->currElement = formulaElement;
 	return true;
+}
+
+bool SQLFormulaParser::insertAsHand(FormulaElement *formulaElement)
+{
+	FormulaElement *currElement = m_ctx->currElement;
+	if (!currElement) {
+		MLPL_DBG("Current element: NULL.\n");
+		return false;
+	}
+	
+	if (!currElement->getLeftHand()) {
+		currElement->setLeftHand(formulaElement);
+		m_ctx->currElement = formulaElement;
+		return true;
+	}
+
+	if (!currElement->getRightHand()) {
+		currElement->setRightHand(formulaElement);
+		m_ctx->currElement = formulaElement;
+		return true;
+	}
+
+	string msg;
+	string treeInfo;
+	formulaElement->getRootElement()->getTreeInfo(treeInfo);
+	TRMSG(msg, "Both hands are not NULL: %p.\n%s",
+	      formulaElement, treeInfo.c_str());
+	throw logic_error(msg);
+	return false;
 }
 
 bool SQLFormulaParser::makeFormulaElementFromPendingWord(void)
@@ -375,13 +411,9 @@ bool SQLFormulaParser::makeFunctionParserIfPendingWordIsFunction(void)
 	FunctionParser func = it->second;
 	if (!(this->*func)())
 		setErrorFlag();
+	m_ctx->parenthesisStack.push_back(m_ctx->currElement);
 
 	m_ctx->clearPendingWords();
-	return true;
-}
-
-bool SQLFormulaParser::closeFunctionIfOpen(void)
-{
 	return true;
 }
 
@@ -404,6 +436,7 @@ void SQLFormulaParser::separatorCbParenthesisOpen(const char separator)
 	FormulaElement *formulaParenthesis = new FormulaParenthesis();
 	if (!insertElement(formulaParenthesis))
 		setErrorFlag();
+	m_ctx->parenthesisStack.push_back(formulaParenthesis);
 }
 
 void SQLFormulaParser::_separatorCbParenthesisClose
@@ -414,10 +447,29 @@ void SQLFormulaParser::_separatorCbParenthesisClose
 
 void SQLFormulaParser::separatorCbParenthesisClose(const char separator)
 {
-	if (closeFunctionIfOpen())
+	if (!flush()) {
+		setErrorFlag();
 		return;
+	}
 
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__); 
+	if (m_ctx->parenthesisStack.empty()) {
+		MLPL_DBG("m_ctx->parenthesisStack is empty.\n");
+		setErrorFlag();
+		return;
+	}
+
+	FormulaElement *parenthesisElem = m_ctx->parenthesisStack.back();
+	m_ctx->parenthesisStack.pop_back();
+
+	FormulaFunction *formulaFunction =
+	  dynamic_cast<FormulaFunction *>(parenthesisElem);
+	if (formulaFunction) {
+		if (!formulaFunction->close()) {
+			setErrorFlag();
+			return;
+		}
+	}
+	m_ctx->currElement = parenthesisElem;
 }
 
 void SQLFormulaParser::_separatorCbQuot
