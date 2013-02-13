@@ -65,6 +65,7 @@ SQLFormulaParser::m_defaultFunctionParserMap;
 void SQLFormulaParser::init(void)
 {
 	m_defaultKeywordHandlerMap["and"] = &SQLFormulaParser::kwHandlerAnd;
+	m_defaultKeywordHandlerMap["or"]  = &SQLFormulaParser::kwHandlerOr;
 }
 
 // ---------------------------------------------------------------------------
@@ -438,4 +439,10 @@ bool SQLFormulaParser::kwHandlerAnd(void)
 {
 	FormulaOperatorAnd *opAnd = new FormulaOperatorAnd();
 	return insertElement(opAnd);
+}
+
+bool SQLFormulaParser::kwHandlerOr(void)
+{
+	FormulaOperatorOr *opOr = new FormulaOperatorOr();
+	return insertElement(opOr);
 }

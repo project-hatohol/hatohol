@@ -96,6 +96,7 @@ protected:
 	// Keyword handlers
 	//
 	bool kwHandlerAnd(void);
+	bool kwHandlerOr(void);
 
 private:
 	static KeywordHandlerMap          m_defaultKeywordHandlerMap;
