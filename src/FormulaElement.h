@@ -51,6 +51,7 @@ public:
 	FormulaElement *getParent(void) const;
 	FormulaElement *getRootElement(void);
 	bool isUnary(void) const;
+	bool hasPriorityBarrier(void) const;
 	bool isTerminalElement(void) const;
 	bool priorityOver(FormulaElement *formulaElement);
 	bool priorityEqual(FormulaElement *formulaElement);

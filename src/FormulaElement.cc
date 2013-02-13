@@ -95,6 +95,11 @@ bool FormulaElement::isUnary(void) const
 	return m_unary;
 }
 
+bool FormulaElement::hasPriorityBarrier(void) const
+{
+	return m_priorityBarrier;
+}
+
 bool FormulaElement::isTerminalElement(void) const
 {
 	return m_terminalElement;
