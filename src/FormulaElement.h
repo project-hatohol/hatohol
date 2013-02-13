@@ -61,6 +61,9 @@ public:
 	 * element tree.
 	 *
 	 * @param insertionElem A formula element to be inserted.
+	 * @param upperLimitElem If \upperLimitElem is not NULL,
+	 *                       the search ends at the element whose parent
+	 *                       is \upperLimitElem.
 	 * @return A formula element whose priority is the lowest in the
 	 *         set whose priority is the equal as or higher than
 	 *         \insertElem on the branch line
@@ -68,7 +71,8 @@ public:
 	 *         If priority of \formulaElemnet is higher than
 	 *         that of \this instance, NULL is returned.
 	 */
-	FormulaElement *findInsertPoint(FormulaElement *insertElem);
+	FormulaElement *findInsertPoint(FormulaElement *insertElem,
+	                                FormulaElement *upperLimitElem = NULL);
 
 	virtual ItemDataPtr evaluate(void) = 0;
 

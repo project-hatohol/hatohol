@@ -115,12 +115,13 @@ bool FormulaElement::priorityEqual(FormulaElement *formulaElement)
 	return m_priority == formulaElement->m_priority;
 }
 
-FormulaElement *FormulaElement::findInsertPoint(FormulaElement *insertElem)
+FormulaElement *FormulaElement::findInsertPoint(FormulaElement *insertElem,
+                                                FormulaElement *upperLimitElem)
 {
 	FormulaElement *prev = NULL;
 	FormulaElement *elem = this;
 	while (elem) {
-		if (elem->m_priorityBarrier)
+		if (elem == upperLimitElem)
 			break;
 		if (insertElem->priorityOver(elem))
 			break;
