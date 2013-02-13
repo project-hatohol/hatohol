@@ -35,9 +35,9 @@ static void _assertInputStatement(SQLWhereParser &whereParser,
 		string lower = word;
 		transform(lower.begin(), lower.end(),
 		          lower.begin(), ::tolower);
-		whereParser.add(word, lower);
+		cppcut_assert_equal(true, whereParser.add(word, lower));
 	}
-	whereParser.flush();
+	cppcut_assert_equal(true, whereParser.close());
 }
 #define assertInputStatement(P, S) cut_trace(_assertInputStatement(P, S))
 
