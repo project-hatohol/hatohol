@@ -74,10 +74,10 @@ public:
 	virtual string getString(void) const = 0;
 
 	virtual ItemData * operator +(const ItemData &itemData) const = 0;
-	virtual bool operator >(ItemData &itemData) const = 0;
-	virtual bool operator <(ItemData &itemData) const = 0;
-	virtual bool operator >=(ItemData &itemData) const = 0;
-	virtual bool operator <=(ItemData &itemData) const = 0;
+	virtual bool operator >(const ItemData &itemData) const = 0;
+	virtual bool operator <(const ItemData &itemData) const = 0;
+	virtual bool operator >=(const ItemData &itemData) const = 0;
+	virtual bool operator <=(const ItemData &itemData) const = 0;
 	virtual bool operator ==(const ItemData &itemData) const = 0;
 	virtual bool operator !=(const ItemData &itemData) const = 0;
 
@@ -146,24 +146,24 @@ public:
 		return NULL;
 	}
 
-	virtual bool operator >(ItemData &itemData) const {
+	virtual bool operator >(const ItemData &itemData) const {
 		MLPL_WARN("You should override this function: %s.\n",
 		          __PRETTY_FUNCTION__);
 		return false;
 	}
 
-	virtual bool operator <(ItemData &itemData) const {
+	virtual bool operator <(const ItemData &itemData) const {
 		MLPL_WARN("You should override this function: %s.\n",
 		          __PRETTY_FUNCTION__);
 		return false;
 	}
 
-	virtual bool operator >=(ItemData &itemData) const {
+	virtual bool operator >=(const ItemData &itemData) const {
 		MLPL_WARN("You should override this function: %s.\n",
 		          __PRETTY_FUNCTION__);
 		return false;
 	}
-	virtual bool operator <=(ItemData &itemData) const {
+	virtual bool operator <=(const ItemData &itemData) const {
 		MLPL_WARN("You should override this function: %s.\n",
 		          __PRETTY_FUNCTION__);
 		return false;
@@ -202,15 +202,15 @@ typedef ItemGeneric<uint64_t, ITEM_TYPE_UINT64> ItemUint64;
 typedef ItemGeneric<int,      ITEM_TYPE_INT>    ItemInt;
 typedef ItemGeneric<string,   ITEM_TYPE_STRING> ItemString;
 
-template<> bool ItemInt::operator >(ItemData &itemData) const;
-template<> bool ItemInt::operator <(ItemData &itemData) const;
-template<> bool ItemInt::operator >=(ItemData &itemData) const;
-template<> bool ItemInt::operator <=(ItemData &itemData) const;
+template<> bool ItemInt::operator >(const ItemData &itemData) const;
+template<> bool ItemInt::operator <(const ItemData &itemData) const;
+template<> bool ItemInt::operator >=(const ItemData &itemData) const;
+template<> bool ItemInt::operator <=(const ItemData &itemData) const;
 
-template<> bool ItemUint64::operator >(ItemData &itemData) const;
-template<> bool ItemUint64::operator <(ItemData &itemData) const;
-template<> bool ItemUint64::operator >=(ItemData &itemData) const;
-template<> bool ItemUint64::operator <=(ItemData &itemData) const;
+template<> bool ItemUint64::operator >(const ItemData &itemData) const;
+template<> bool ItemUint64::operator <(const ItemData &itemData) const;
+template<> bool ItemUint64::operator >=(const ItemData &itemData) const;
+template<> bool ItemUint64::operator <=(const ItemData &itemData) const;
 template<> bool ItemUint64::operator ==(const ItemData &itemData) const;
 
 #endif // ItemData_h

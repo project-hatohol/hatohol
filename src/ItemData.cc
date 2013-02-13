@@ -53,7 +53,7 @@ ItemData::~ItemData()
 //
 // ItemInt
 //
-template<> bool ItemInt::operator >(ItemData &itemData) const
+template<> bool ItemInt::operator >(const ItemData &itemData) const
 {
 	if (itemData.getItemType() == ITEM_TYPE_INT) {
 		int data;
@@ -66,7 +66,7 @@ template<> bool ItemInt::operator >(ItemData &itemData) const
 	return false;
 }
 
-template<> bool ItemInt::operator <(ItemData &itemData) const
+template<> bool ItemInt::operator <(const ItemData &itemData) const
 {
 	if (itemData.getItemType() == ITEM_TYPE_INT) {
 		int data;
@@ -79,7 +79,7 @@ template<> bool ItemInt::operator <(ItemData &itemData) const
 	return false;
 }
 
-template<> bool ItemInt::operator >=(ItemData &itemData) const
+template<> bool ItemInt::operator >=(const ItemData &itemData) const
 {
 	if (itemData.getItemType() == ITEM_TYPE_INT) {
 		int data;
@@ -92,7 +92,7 @@ template<> bool ItemInt::operator >=(ItemData &itemData) const
 	return false;
 }
 
-template<> bool ItemInt::operator <=(ItemData &itemData) const
+template<> bool ItemInt::operator <=(const ItemData &itemData) const
 {
 	if (itemData.getItemType() == ITEM_TYPE_INT) {
 		int data;
@@ -108,7 +108,7 @@ template<> bool ItemInt::operator <=(ItemData &itemData) const
 //
 // ItemUint64
 //
-template<> bool ItemUint64::operator >(ItemData &itemData) const
+template<> bool ItemUint64::operator >(const ItemData &itemData) const
 {
 	if (itemData.getItemType() == ITEM_TYPE_UINT64) {
 		uint64_t data;
@@ -130,7 +130,7 @@ template<> bool ItemUint64::operator >(ItemData &itemData) const
 	return false;
 }
 
-template<> bool ItemUint64::operator <(ItemData &itemData) const
+template<> bool ItemUint64::operator <(const ItemData &itemData) const
 {
 	if (itemData.getItemType() == ITEM_TYPE_UINT64) {
 		uint64_t data;
@@ -152,7 +152,7 @@ template<> bool ItemUint64::operator <(ItemData &itemData) const
 	return false;
 }
 
-template<> bool ItemUint64::operator >=(ItemData &itemData) const
+template<> bool ItemUint64::operator >=(const ItemData &itemData) const
 {
 	if (itemData.getItemType() == ITEM_TYPE_UINT64) {
 		uint64_t data;
@@ -175,7 +175,7 @@ template<> bool ItemUint64::operator >=(ItemData &itemData) const
 	return false;
 }
 
-template<> bool ItemUint64::operator <=(ItemData &itemData) const
+template<> bool ItemUint64::operator <=(const ItemData &itemData) const
 {
 	if (itemData.getItemType() == ITEM_TYPE_UINT64) {
 		uint64_t data;
