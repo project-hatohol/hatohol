@@ -395,7 +395,9 @@ void SQLFormulaParser::separatorCbParenthesisOpen(const char separator)
 	if (isFunc)
 		return;
 
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__); 
+	FormulaElement *formulaParenthesis = new FormulaParenthesis();
+	if (!insertElement(formulaParenthesis))
+		setErrorFlag();
 }
 
 void SQLFormulaParser::_separatorCbParenthesisClose
