@@ -256,8 +256,20 @@ void test_parenthesis(void)
 	  StringUtils::sprintf("(%s or %s) and %s",
 	                       elemName0, elemName1, elemName2);
 	DEFINE_PARSER_AND_RUN(whereParser, formula, statement);
+	assertFormulaOperatorAnd(formula);
 
-	// should add assertions
+	// In parenthesis
+	FormulaElement *leftElem = formula->getLeftHand();
+	assertFormulaParenthesis(leftElem);
+
+	leftElem = leftElem->getLeftHand();
+	assertFormulaOperatorOr(leftElem);
+	assertFormulaVariable(leftElem->getLeftHand(), elemName0);
+	assertFormulaVariable(leftElem->getRightHand(), elemName1);
+
+	// right hand
+	FormulaElement *rightElem = formula->getRightHand();
+	assertFormulaVariable(rightElem, elemName2);
 }
 
 } // namespace testSQLWhereParser

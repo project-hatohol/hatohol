@@ -16,11 +16,17 @@ static void assertFormulaElementType(FormulaElement *obj)
 	               DEMANGLED_TYPE_NAME(*obj), TYPE_NAME(*obj)));
 }
 
+#define assertFormulaParenthesis(X) \
+cut_trace(assertFormulaElementType<FormulaParenthesis>(X))
+
 #define assertFormulaComparatorEqual(X) \
 cut_trace(assertFormulaElementType<FormulaComparatorEqual>(X))
 
 #define assertFormulaOperatorAnd(X) \
 cut_trace(assertFormulaElementType<FormulaOperatorAnd>(X))
+
+#define assertFormulaOperatorOr(X) \
+cut_trace(assertFormulaElementType<FormulaOperatorOr>(X))
 
 #define assertTypeFormulaVariable(X) \
 cut_trace(assertFormulaElementType<FormulaVariable>(X))
