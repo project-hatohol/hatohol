@@ -1,3 +1,4 @@
+#include <stdexcept>
 #include <cppcutter.h>
 
 #include "FormulaOperator.h"
@@ -79,6 +80,20 @@ void test_formulaParenthesis(void)
 	formulaParenthesis.setLeftHand(formulaValue);
 	cppcut_assert_equal(*formulaValue->evaluate(),
 	                    *formulaParenthesis.evaluate());
+}
+
+void test_formulaParenthesisSetRightHand(void)
+{
+	int num = 5;
+	FormulaParenthesis formulaParenthesis;
+	FormulaElement *formulaValue = new FormulaValue(num);
+	bool receivedLogicError = false;
+	try {
+		formulaParenthesis.setRightHand(formulaValue);
+	} catch (logic_error e) {
+		receivedLogicError = true;
+	}
+	cppcut_assert_equal(true, receivedLogicError);
 }
 
 //

@@ -26,7 +26,7 @@
 // ---------------------------------------------------------------------------
 class FormulaOperator : public FormulaElement {
 public:
-	FormulaOperator(FormulaElementPriority prio);
+	FormulaOperator(FormulaElementPriority prio, bool unary = false);
 	virtual ~FormulaOperator();
 };
 

@@ -21,8 +21,8 @@
 // ---------------------------------------------------------------------------
 // Formula Operator
 // ---------------------------------------------------------------------------
-FormulaOperator::FormulaOperator(FormulaElementPriority prio)
-: FormulaElement(prio)
+FormulaOperator::FormulaOperator(FormulaElementPriority prio, bool unary)
+: FormulaElement(prio, unary)
 {
 }
 
@@ -34,7 +34,7 @@ FormulaOperator::~FormulaOperator()
 // class: FormulaParenthesis
 // ---------------------------------------------------------------------------
 FormulaParenthesis::FormulaParenthesis(void)
-: FormulaOperator(FORMULA_ELEM_PRIO_PARENTHESIS)
+: FormulaOperator(FORMULA_ELEM_PRIO_PARENTHESIS, true)
 {
 }
 
