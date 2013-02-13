@@ -22,6 +22,9 @@ cut_trace(assertFormulaElementType<FormulaParenthesis>(X))
 #define assertFormulaComparatorEqual(X) \
 cut_trace(assertFormulaElementType<FormulaComparatorEqual>(X))
 
+#define assertFormulaGreaterThan(X) \
+cut_trace(assertFormulaElementType<FormulaGreaterThan>(X))
+
 #define assertFormulaOperatorPlus(X) \
 cut_trace(assertFormulaElementType<FormulaOperatorPlus>(X))
 
