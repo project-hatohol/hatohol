@@ -8,6 +8,7 @@ AC_PROG_LIBTOOL
 AC_PROG_CXX
 
 AC_CONFIG_MACRO_DIR([m4])
+AM_SILENT_RULES([yes])
 
 dnl **************************************************************
 dnl Checks for MLPL
