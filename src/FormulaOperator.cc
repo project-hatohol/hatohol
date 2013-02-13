@@ -61,6 +61,26 @@ ItemDataPtr FormulaComparatorEqual::evaluate(void)
 }
 
 // ---------------------------------------------------------------------------
+// class: FormulaGreaterThan
+// ---------------------------------------------------------------------------
+FormulaGreaterThan::FormulaGreaterThan(void)
+: FormulaElement(FORMULA_ELEM_PRIO_CMP_EQ)
+{
+}
+
+FormulaGreaterThan::~FormulaGreaterThan()
+{
+}
+
+ItemDataPtr FormulaGreaterThan::evaluate(void)
+{
+	ItemDataPtr v0, v1;
+	if (!getLeftHandDataWithCheck(v0) || !getRightHandDataWithCheck(v1))
+		return ItemDataPtr();
+	return ItemDataPtr(new ItemBool(*v0 == *v1), false);
+}
+
+// ---------------------------------------------------------------------------
 // FormulaOperatorPlus
 // ---------------------------------------------------------------------------
 FormulaOperatorPlus::FormulaOperatorPlus(void)

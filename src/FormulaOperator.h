@@ -42,6 +42,16 @@ public:
 };
 
 // ---------------------------------------------------------------------------
+// class: FormulaGreaterThan
+// ---------------------------------------------------------------------------
+class FormulaGreaterThan : public FormulaElement {
+public:
+	FormulaGreaterThan(void);
+	virtual ~FormulaGreaterThan();
+	virtual ItemDataPtr evaluate(void);
+};
+
+// ---------------------------------------------------------------------------
 // class: FormulaOperatorPlus
 // ---------------------------------------------------------------------------
 class FormulaOperatorPlus : public FormulaElement {
