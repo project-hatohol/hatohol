@@ -90,6 +90,11 @@ FormulaElement *FormulaElement::getRootElement(void)
 	return elem;
 }
 
+bool FormulaElement::isUnary(void) const
+{
+	return m_unary;
+}
+
 bool FormulaElement::isTerminalElement(void) const
 {
 	return m_terminalElement;
