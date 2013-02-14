@@ -1,4 +1,4 @@
-* [S] Remove FormulaOperator. All its sub classses are derived from FormulaElement directly.
+* [M] make SQLProcessorSelect.
 
 * [M] Mechanism for local DB
 Stores data such as configuration.
