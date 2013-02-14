@@ -9,13 +9,15 @@ using namespace std;
 #include "Utils.h"
 
 struct SQLProcessorInsert::PrivateContext {
+	SQLInsertInfo     *insertInfo;
 	string             currWord;
 	string             currWordLower;
 	InsertParseSection section;
 
 	// constructor
 	PrivateContext(void)
-	: section(INSERT_PARSING_SECTION_INSERT)
+	: insertInfo(NULL),
+	  section(INSERT_PARSING_SECTION_INSERT)
 	{
 	}
 };
@@ -91,6 +93,7 @@ bool SQLProcessorInsert::insert(SQLInsertInfo &insertInfo)
 // ---------------------------------------------------------------------------
 bool SQLProcessorInsert::parseInsertStatement(SQLInsertInfo &insertInfo)
 {
+	m_ctx->insertInfo = &insertInfo;
 	while (!insertInfo.statement.finished()) {
 		m_ctx->currWord = insertInfo.statement.readWord(m_separator);
 		if (m_ctx->currWord.empty())
@@ -126,8 +129,9 @@ bool SQLProcessorInsert::parseInsert(void)
 
 bool SQLProcessorInsert::parseTable(void)
 {
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
-	return false;
+	m_ctx->insertInfo->table = m_ctx->currWord;
+	m_ctx->section = INSERT_PARSING_SECTION_COLUMN;
+	return true;
 }
 
 bool SQLProcessorInsert::parseColumn(void)
