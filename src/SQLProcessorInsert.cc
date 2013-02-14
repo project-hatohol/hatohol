@@ -61,6 +61,15 @@ SQLProcessorInsert::SQLProcessorInsert(void)
   m_separator(" (),\'")
 {
 	m_ctx = new PrivateContext();
+
+	m_separator.setCallbackTempl<SQLProcessorInsert>
+	  ('(', _separatorCbParenthesisOpen, this);
+	m_separator.setCallbackTempl<SQLProcessorInsert>
+	  (')', _separatorCbParenthesisClose, this);
+	m_separator.setCallbackTempl<SQLProcessorInsert>
+	  (',', _separatorCbComma, this);
+	m_separator.setCallbackTempl<SQLProcessorInsert>
+	  ('\'', _separatorCbQuot, this);
 }
 
 SQLProcessorInsert::~SQLProcessorInsert()
@@ -120,3 +129,52 @@ bool SQLProcessorInsert::parseValue(void)
 	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
 	return false;
 }
+
+//
+// SeparatorChecker callbacks
+//
+void SQLProcessorInsert::_separatorCbParenthesisOpen(const char separator,
+                                                     SQLProcessorInsert *obj)
+{
+	obj->separatorCbParenthesisOpen(separator);
+}
+
+void SQLProcessorInsert::separatorCbParenthesisOpen(const char separator)
+{
+	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+}
+
+
+void SQLProcessorInsert::_separatorCbParenthesisClose(const char separator,
+                                         SQLProcessorInsert *obj)
+{
+	obj->separatorCbParenthesisClose(separator);
+}
+
+void SQLProcessorInsert::separatorCbParenthesisClose(const char separator)
+{
+	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+}
+
+void SQLProcessorInsert::_separatorCbComma(const char separator,
+                                           SQLProcessorInsert *obj)
+{
+	obj->separatorCbComma(separator);
+}
+
+void SQLProcessorInsert::separatorCbComma(const char separator)
+{
+	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+}
+
+void SQLProcessorInsert::_separatorCbQuot(const char separator,
+                                          SQLProcessorInsert *obj)
+{
+	obj->separatorCbQuot(separator);
+}
+
+void SQLProcessorInsert::separatorCbQuot(const char separator)
+{
+	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+}
+

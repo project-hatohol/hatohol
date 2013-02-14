@@ -43,6 +43,25 @@ protected:
 	bool parseColumn(void);
 	bool parseValue(void);
 
+	//
+	// SeparatorChecker callbacks
+	//
+	static void _separatorCbParenthesisOpen(const char separator,
+	                                        SQLProcessorInsert *obj);
+	void separatorCbParenthesisOpen(const char separator);
+
+	static void _separatorCbParenthesisClose(const char separator,
+	                                         SQLProcessorInsert *obj);
+	void separatorCbParenthesisClose(const char separator);
+
+	static void _separatorCbComma(const char separator,
+	                              SQLProcessorInsert *obj);
+	void separatorCbComma(const char separator);
+
+	static void _separatorCbQuot(const char separator,
+	                             SQLProcessorInsert *obj);
+	void separatorCbQuot(const char separator);
+
 private:
 	static const InsertSubParser m_insertSubParsers[];
 	enum InsertParseSection {
