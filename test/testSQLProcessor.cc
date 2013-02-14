@@ -18,14 +18,22 @@ using namespace mlpl;
 
 namespace testSQLProcessor {
 
-static const int TABLE0_ID = 1;
-static const int TABLE1_ID = 2;
+//
+// Test Table Definition
+//
+static const int TABLE0_ID  = 1;
+static const int TABLE1_ID  = 2;
+static const int TABLE_Z_ID = 1000000;
+static const int TABLE_N_ID = 1000001;
 
 static const char *TABLE0_NAME = "TestTable0";
 static const char *TABLE1_NAME = "TestTable1";
 static const char *TABLE_Z_NAME = "TestTableZ"; // Empty (Zero) Table
 static const char *TABLE_N_NAME = "TestTableN"; // Null Table
 
+//
+// Test Column Definition
+//
 static const char *COLUMN_NAME_NUMBER = "number";
 static const char *COLUMN_NAME_NAME = "name";
 
@@ -67,6 +75,9 @@ static ColumnBaseDefinition COLUMN_Z_DEFS[NUM_COLUMN_Z_DEFS] = {
   {ITEM_ID_Z_STR, TABLE_Z_NAME, COLUMN_NAME_Z_STR, SQL_COLUMN_TYPE_VARCHAR, 20, 0},
 };
 
+//
+// Test Row Definition
+//
 struct TestData0 {
 	int         number;
 	const char *name;
@@ -98,6 +109,29 @@ static TestDataZ testDataZ[] = {
 };
 static size_t numTestDataZ = sizeof(testDataZ) / sizeof(TestDataZ);
 
+//
+// Test Data structure
+//
+struct TableData {
+	int tableId;
+	const char *tableName;
+	int numColumnDefs;
+	ColumnBaseDefinition *columnDefs;
+};
+
+static const TableData tableData[] = {
+  {TABLE0_ID, TABLE0_NAME, NUM_COLUMN0_DEFS, COLUMN0_DEFS},
+  {TABLE1_ID, TABLE1_NAME, NUM_COLUMN1_DEFS, COLUMN1_DEFS},
+  {TABLE_Z_ID, TABLE_Z_NAME, NUM_COLUMN_Z_DEFS, COLUMN_Z_DEFS},
+  {TABLE_N_ID, TABLE_N_NAME, NUM_COLUMN_Z_DEFS, COLUMN_Z_DEFS},
+};
+static const size_t NUM_TABLE_DATA = sizeof(tableData) / sizeof(TableData);
+
+//
+// Test helper class: TestSQLProcessor
+//
+#define TBL_FNC(X) static_cast<SQLTableMakeFunc>(X)
+
 class TestSQLProcessor : public SQLProcessor {
 public:
 	TestSQLProcessor(void)
@@ -116,7 +150,7 @@ public:
 	}
 
 	const ItemTablePtr
-	tableMakeFunc(SQLSelectInfo &selectInfo,
+	table0MakeFunc(SQLSelectInfo &selectInfo,
 	              const SQLTableInfo &tableInfo)
 	{
 		const ItemTablePtr tablePtr;
@@ -164,18 +198,16 @@ public:
 
 private:
 	TableNameStaticInfoMap m_tableNameStaticInfoMap;
-	SQLTableStaticInfo     m_staticInfo[4];
+	SQLTableStaticInfo     m_staticInfo[NUM_TABLE_DATA];
 
 
 	void initStaticInfoEach(SQLTableStaticInfo *staticInfo,
-	                        int tableId, const char *tableName,
-	                        SQLTableMakeFunc tableMakeFunc,
-	                        int numColumnDefs,
-	                        ColumnBaseDefinition *columnDefs)
+	                        const TableData &tableData,
+	                        SQLTableMakeFunc tableMakeFunc)
 	{
-		m_tableNameStaticInfoMap[tableName] = staticInfo;
-		staticInfo->tableId = tableId;
-		staticInfo->tableName = tableName;
+		m_tableNameStaticInfoMap[tableData.tableName] = staticInfo;
+		staticInfo->tableId = tableData.tableId;
+		staticInfo->tableName = tableData.tableName;
 		staticInfo->tableMakeFunc = tableMakeFunc;
 
 		ColumnBaseDefList &list =
@@ -186,29 +218,26 @@ private:
 		  const_cast<ItemNameColumnBaseDefRefMap &>
 		  (staticInfo->columnBaseDefMap);
 
-		for (int i = 0; i < numColumnDefs; i++) {
+		for (int i = 0; i < tableData.numColumnDefs; i++) {
+			ColumnBaseDefinition *columnDefs = 
+			  tableData.columnDefs;
 			list.push_back(columnDefs[i]);
 			map[columnDefs[i].columnName] = &columnDefs[i];
 		}
 	}
 
 	void initStaticInfo(void) {
-		initStaticInfoEach(&m_staticInfo[0], TABLE0_ID, TABLE0_NAME,
-		                   static_cast<SQLTableMakeFunc>
-		                     (&TestSQLProcessor::tableMakeFunc),
-		                   NUM_COLUMN0_DEFS, COLUMN0_DEFS);
-		initStaticInfoEach(&m_staticInfo[1], TABLE0_ID, TABLE1_NAME,
-		                   static_cast<SQLTableMakeFunc>
-		                     (&TestSQLProcessor::table1MakeFunc),
-		                   NUM_COLUMN1_DEFS, COLUMN1_DEFS);
-		initStaticInfoEach(&m_staticInfo[2], TABLE0_ID, TABLE_Z_NAME,
-		                   static_cast<SQLTableMakeFunc>
-		                     (&TestSQLProcessor::tableZMakeFunc),
-		                   NUM_COLUMN_Z_DEFS, COLUMN_Z_DEFS);
-		initStaticInfoEach(&m_staticInfo[3], TABLE0_ID, TABLE_N_NAME,
-		                   static_cast<SQLTableMakeFunc>
-		                     (&TestSQLProcessor::tableNMakeFunc),
-		                   NUM_COLUMN_Z_DEFS, COLUMN_Z_DEFS);
+		SQLTableMakeFunc tableMakeFuncArray[NUM_TABLE_DATA] = {
+		  TBL_FNC(&TestSQLProcessor::table0MakeFunc),
+		  TBL_FNC(&TestSQLProcessor::table1MakeFunc),
+		  TBL_FNC(&TestSQLProcessor::tableZMakeFunc),
+		  TBL_FNC(&TestSQLProcessor::tableNMakeFunc),
+		};
+
+		for (size_t i = 0; i < NUM_TABLE_DATA; i++) {
+			initStaticInfoEach(&m_staticInfo[i], tableData[i],
+			                   tableMakeFuncArray[i]);
+		}
 	}
 };
 
