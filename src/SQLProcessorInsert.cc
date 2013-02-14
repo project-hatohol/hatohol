@@ -22,6 +22,9 @@ struct SQLProcessorInsert::PrivateContext {
 
 const SQLProcessorInsert::InsertSubParser
 SQLProcessorInsert::m_insertSubParsers[] = {
+	&SQLProcessorInsert::parseTable,
+	&SQLProcessorInsert::parseColumn,
+	&SQLProcessorInsert::parseValue,
 };
 
 // ---------------------------------------------------------------------------
@@ -95,4 +98,25 @@ bool SQLProcessorInsert::parseInsertStatement(SQLInsertInfo &insertInfo)
 			return false;
 	}
 	return true;
+}
+
+//
+// Sub parsers
+//
+bool SQLProcessorInsert::parseTable(void)
+{
+	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	return false;
+}
+
+bool SQLProcessorInsert::parseColumn(void)
+{
+	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	return false;
+}
+
+bool SQLProcessorInsert::parseValue(void)
+{
+	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	return false;
 }

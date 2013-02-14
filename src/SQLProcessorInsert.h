@@ -36,6 +36,13 @@ protected:
 
 	bool parseInsertStatement(SQLInsertInfo &insertInfo);
 
+	//
+	// Sub parsers
+	//
+	bool parseTable(void);
+	bool parseColumn(void);
+	bool parseValue(void);
+
 private:
 	static const InsertSubParser m_insertSubParsers[];
 	enum InsertParseSection {
