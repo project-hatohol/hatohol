@@ -251,7 +251,21 @@ void SQLProcessorInsert::_separatorCbComma(const char separator,
 
 void SQLProcessorInsert::separatorCbComma(const char separator)
 {
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	if (m_ctx->section == INSERT_PARSING_SECTION_COLUMN) {
+		if (!pushColumn()) {
+			m_ctx->errorFlag = true;
+			return;
+		}
+	} else if (m_ctx->section == INSERT_PARSING_SECTION_VALUE) {
+		if (!pushValue()) {
+			m_ctx->errorFlag = true;
+			return;
+		}
+	} else {
+		MLPL_DBG("Illegal section: m_ctx->section: %d\n",
+		         m_ctx->section);
+		m_ctx->errorFlag = true;
+	}
 }
 
 void SQLProcessorInsert::_separatorCbQuot(const char separator,
