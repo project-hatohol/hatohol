@@ -24,6 +24,7 @@ static const int TABLE1_ID = 2;
 static const char *TABLE0_NAME = "TestTable0";
 static const char *TABLE1_NAME = "TestTable1";
 static const char *TABLE_Z_NAME = "TestTableZ"; // Empty (Zero) Table
+static const char *TABLE_N_NAME = "TestTableN"; // Null Table
 
 static const char *COLUMN_NAME_NUMBER = "number";
 static const char *COLUMN_NAME_NAME = "name";
@@ -154,9 +155,16 @@ public:
 		return tablePtr;
 	}
 
+	const ItemTablePtr tableNMakeFunc(SQLSelectInfo &selectInfo,
+	                                  const SQLTableInfo &tableInfo)
+	{
+		const ItemTablePtr tablePtr(NULL);
+		return tablePtr;
+	}
+
 private:
 	TableNameStaticInfoMap m_tableNameStaticInfoMap;
-	SQLTableStaticInfo     m_staticInfo[3];
+	SQLTableStaticInfo     m_staticInfo[4];
 
 
 	void initStaticInfoEach(SQLTableStaticInfo *staticInfo,
@@ -196,6 +204,10 @@ private:
 		initStaticInfoEach(&m_staticInfo[2], TABLE0_ID, TABLE_Z_NAME,
 		                   static_cast<SQLTableMakeFunc>
 		                     (&TestSQLProcessor::tableZMakeFunc),
+		                   NUM_COLUMN_Z_DEFS, COLUMN_Z_DEFS);
+		initStaticInfoEach(&m_staticInfo[3], TABLE0_ID, TABLE_N_NAME,
+		                   static_cast<SQLTableMakeFunc>
+		                     (&TestSQLProcessor::tableNMakeFunc),
 		                   NUM_COLUMN_Z_DEFS, COLUMN_Z_DEFS);
 	}
 };
@@ -591,6 +603,14 @@ void test_emptyTable(void)
 	DEFINE_SELECTINFO_AND_ASSERT_SELECT(
 	   selectInfo,
 	   StringUtils::sprintf("* from %s", TABLE_Z_NAME),
+	   NUM_COLUMN_Z_DEFS, numTestDataZ);
+}
+
+void test_nullTable(void)
+{
+	DEFINE_SELECTINFO_AND_ASSERT_SELECT(
+	   selectInfo,
+	   StringUtils::sprintf("* from %s", TABLE_N_NAME),
 	   NUM_COLUMN_Z_DEFS, numTestDataZ);
 }
 
