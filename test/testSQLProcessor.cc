@@ -286,10 +286,11 @@ cut_trace(_assertSQLSelectInfoBasic(SI, ENC, ENS, ##__VA_ARGS__))
 static void _asssertExecSelect
   (SQLSelectInfo &selectInfo,
    size_t expectedNumColumns, size_t expectedNumSelectedRows,
-   size_t expectedNumRows = EXPECTED_NUM_ROWS_EQUAL_SELECTED)
+   size_t expectedNumRows = EXPECTED_NUM_ROWS_EQUAL_SELECTED,
+   bool expectedResult = true)
 {
 	TestSQLProcessor proc;
-	cppcut_assert_equal(true, proc.select(selectInfo));
+	cppcut_assert_equal(expectedResult, proc.select(selectInfo));
 	assertSQLSelectInfoBasic(selectInfo,
 	                         expectedNumColumns, expectedNumSelectedRows,
 	                         expectedNumRows);
@@ -640,7 +641,7 @@ void test_nullTable(void)
 	DEFINE_SELECTINFO_AND_ASSERT_SELECT(
 	   selectInfo,
 	   StringUtils::sprintf("* from %s", TABLE_N_NAME),
-	   NUM_COLUMN_Z_DEFS, numTestDataZ);
+	   NUM_COLUMN_Z_DEFS, numTestDataZ, numTestDataZ, false);
 }
 
 } // namespace testSQLProcessor
