@@ -31,6 +31,7 @@ private:
 		INSERT_PARSING_SECTION_COLUMN,
 		INSERT_PARSING_SECTION_VALUES_KEYWORD,
 		INSERT_PARSING_SECTION_VALUE,
+		INSERT_PARSING_SECTION_END,
 		NUM_INSERT_PARSING_SECTION,
 	};
 
@@ -56,6 +57,7 @@ protected:
 	bool parseColumn(void);
 	bool parseValuesKeyword(void);
 	bool parseValue(void);
+	bool parseEnd(void);
 
 	//
 	// SeparatorChecker callbacks
@@ -81,6 +83,7 @@ protected:
 	//
 	bool checkCurrWord(string expected, InsertParseSection nextSection);
 	bool flushColumnList(void);
+	bool pushValue(void);
 
 private:
 	static const InsertSubParser m_insertSubParsers[];

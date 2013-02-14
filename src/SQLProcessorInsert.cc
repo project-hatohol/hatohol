@@ -43,6 +43,7 @@ SQLProcessorInsert::m_insertSubParsers[] = {
 	&SQLProcessorInsert::parseColumn,
 	&SQLProcessorInsert::parseValuesKeyword,
 	&SQLProcessorInsert::parseValue,
+	&SQLProcessorInsert::parseEnd,
 };
 
 // ---------------------------------------------------------------------------
@@ -165,12 +166,27 @@ bool SQLProcessorInsert::parseColumn(void)
 
 bool SQLProcessorInsert::parseValuesKeyword(void)
 {
-	return checkCurrWord("values", INSERT_PARSING_SECTION_VALUE);
+	if (!checkCurrWord("values", INSERT_PARSING_SECTION_VALUE))
+		return false;
+	m_ctx->expectedParenthesis = EXPECTED_PARENTHESIS_OPEN_VALUE;
+	return true;
 }
 
 bool SQLProcessorInsert::parseValue(void)
 {
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	if (!m_ctx->pendingWord.empty()) {
+		MLPL_DBG("m_ctx->pendingWord is not empty: %s.\n",
+		          m_ctx->pendingWord.c_str());
+		return false;
+	}
+	m_ctx->pendingWord = m_ctx->currWord;
+	return true;
+}
+
+bool SQLProcessorInsert::parseEnd(void)
+{
+	MLPL_DBG("Parsing had already been done: %s\n",
+	         m_ctx->currWord.c_str());
 	return false;
 }
 
@@ -185,12 +201,14 @@ void SQLProcessorInsert::_separatorCbParenthesisOpen(const char separator,
 
 void SQLProcessorInsert::separatorCbParenthesisOpen(const char separator)
 {
-	if (m_ctx->expectedParenthesis == EXPECTED_PARENTHESIS_OPEN_COLUMN) {
+	ExpectedParenthesisType expectedType = m_ctx->expectedParenthesis;
+	if (expectedType == EXPECTED_PARENTHESIS_OPEN_COLUMN) {
 		m_ctx->expectedParenthesis = EXPECTED_PARENTHESIS_CLOSE_COLUMN;
-	}
-	else {
+	} else  if (expectedType == EXPECTED_PARENTHESIS_OPEN_VALUE) {
+		m_ctx->expectedParenthesis = EXPECTED_PARENTHESIS_CLOSE_VALUE;
+	} else {
 		MLPL_DBG("Illegal state: m_ctx->expectedParenthesis: %d\n",
-		         m_ctx->expectedParenthesis);
+		         expectedType);
 		m_ctx->errorFlag = true;
 	}
 }
@@ -203,19 +221,25 @@ void SQLProcessorInsert::_separatorCbParenthesisClose(const char separator,
 
 void SQLProcessorInsert::separatorCbParenthesisClose(const char separator)
 {
-	if (m_ctx->expectedParenthesis == EXPECTED_PARENTHESIS_CLOSE_COLUMN) {
+	ExpectedParenthesisType expectedType = m_ctx->expectedParenthesis;
+	if (expectedType == EXPECTED_PARENTHESIS_CLOSE_COLUMN) {
 		if (!flushColumnList()) {
 			m_ctx->errorFlag = true;
 			return;
 		}
 		m_ctx->section = INSERT_PARSING_SECTION_VALUES_KEYWORD;
-		m_ctx->expectedParenthesis = EXPECTED_PARENTHESIS_NONE;
-	}
-	else {
+	} else if (expectedType == EXPECTED_PARENTHESIS_CLOSE_VALUE) {
+		if (!pushValue()) {
+			m_ctx->errorFlag = true;
+			return;
+		}
+		m_ctx->section = INSERT_PARSING_SECTION_END;
+	} else {
 		MLPL_DBG("Illegal state: m_ctx->expectedParenthesis: %d\n",
 		         m_ctx->expectedParenthesis);
 		m_ctx->errorFlag = true;
 	}
+	m_ctx->expectedParenthesis = EXPECTED_PARENTHESIS_NONE;
 }
 
 void SQLProcessorInsert::_separatorCbComma(const char separator,
@@ -262,6 +286,17 @@ bool SQLProcessorInsert::flushColumnList(void)
 		return false;
 	}
 	m_ctx->insertInfo->columnVector.push_back(m_ctx->pendingWord);
+	m_ctx->pendingWord.clear();
+	return true;
+}
+
+bool SQLProcessorInsert::pushValue(void)
+{
+	if (m_ctx->pendingWord.empty()) {
+		MLPL_DBG("m_ctx->pendingWord is empty.\n");
+		return false;
+	}
+	m_ctx->insertInfo->valueVector.push_back(m_ctx->pendingWord);
 	m_ctx->pendingWord.clear();
 	return true;
 }
