@@ -34,6 +34,7 @@ using namespace mlpl;
 #include "FormulaElement.h"
 #include "SQLColumnParser.h"
 #include "SQLWhereParser.h"
+#include "SQLProcessorInsert.h"
 
 enum SQLColumnType {
 	SQL_COLUMN_TYPE_INT,
@@ -237,6 +238,7 @@ class SQLProcessor
 public:
 	static void init(void);
 	virtual bool select(SQLSelectInfo &selectInfo);
+	virtual bool insert(SQLInsertInfo &insertInfo);
 	virtual const char *getDBName(void) = 0;
 
 protected:
@@ -344,6 +346,7 @@ private:
 
 	// These members are typically allocated in sub classes.
 	TableNameStaticInfoMap &m_tableNameStaticInfoMap;
+	SQLProcessorInsert           m_processorInsert;
 };
 
 #endif // SQLProcessor_h

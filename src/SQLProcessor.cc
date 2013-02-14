@@ -280,6 +280,11 @@ bool SQLProcessor::select(SQLSelectInfo &selectInfo)
 	return true;
 }
 
+bool SQLProcessor::insert(SQLInsertInfo &insertInfo)
+{
+	return m_processorInsert.insert(insertInfo);
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
