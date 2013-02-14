@@ -32,8 +32,10 @@ static void _assertStringVector(StringVector &expected, StringVector &actual)
 }
 #define assertStringVector(E,A) cut_trace(_assertStringVector(E,A))
 
-static void _assertParseOneColumn(const char *tableName, const char *columnName,
-                                  const char *valueString)
+static void _assertParseOneColumn(const char *tableName,
+                                  const char *columnName,
+                                  const char *valueString,
+                                  const char *expectedValue = NULL)
 {
 	string statement =
 	  StringUtils::sprintf("insert into %s (%s) values (%s)",
@@ -44,14 +46,17 @@ static void _assertParseOneColumn(const char *tableName, const char *columnName,
 	expectedColumns.push_back(columnName);
 
 	StringVector expectedValues;
-	expectedValues.push_back(valueString);
+	if (!expectedValue)
+		expectedValues.push_back(valueString);
+	else
+		expectedValues.push_back(expectedValue);
 
 	cppcut_assert_equal(string(tableName), insertInfo.table);
 	assertStringVector(expectedColumns, insertInfo.columnVector);
 	assertStringVector(expectedValues, insertInfo.valueVector);
 }
-#define assertParseOneColumn(T, C, V) \
-cut_trace(_assertParseOneColumn(T, C, V))
+#define assertParseOneColumn(T, C, V, ...) \
+cut_trace(_assertParseOneColumn(T, C, V, ##__VA_ARGS__))
 
 void setup(void)
 {
@@ -86,8 +91,11 @@ void test_parseOneColumnWithStringValue(void)
 {
 	const char *tableName  = "tableName";
 	const char *columnName = "columnName";
-	const char *valueString = "'10'";
-	assertParseOneColumn(tableName, columnName, valueString);
+	const char *valueExpected = "bite into a doughnut";
+	string valueQuot = StringUtils::sprintf("'%s'", valueExpected);
+
+	assertParseOneColumn(tableName, columnName, valueQuot.c_str(),
+	                     valueExpected);
 }
 
 void test_parseMultiColumn(void)
