@@ -4,6 +4,7 @@
 #include "ParsableString.h"
 using namespace mlpl;
 
+#include "SQLProcessorTypes.h"
 
 struct SQLInsertInfo {
 	// input statement

@@ -40,8 +40,7 @@ static const char *TABLE_NAME_USRGRP = "usrgrp";
 static const char *TABLE_NAME_USERS_GROUPS = "users_groups";
 static const char *TABLE_NAME_SESSIONS = "sessions";
 
-SQLProcessor::TableNameStaticInfoMap
-  SQLProcessorZabbix::m_tableNameStaticInfoMap;
+TableNameStaticInfoMap SQLProcessorZabbix::m_tableNameStaticInfoMap;
 
 // ---------------------------------------------------------------------------
 // Public static methods

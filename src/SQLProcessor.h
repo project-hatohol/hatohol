@@ -34,14 +34,8 @@ using namespace mlpl;
 #include "FormulaElement.h"
 #include "SQLColumnParser.h"
 #include "SQLWhereParser.h"
+#include "SQLProcessorTypes.h"
 #include "SQLProcessorInsert.h"
-
-enum SQLColumnType {
-	SQL_COLUMN_TYPE_INT,
-	SQL_COLUMN_TYPE_BIGUINT,
-	SQL_COLUMN_TYPE_VARCHAR,
-	SQL_COLUMN_TYPE_CHAR,
-};
 
 enum SQLJoinType {
 	SQL_JOIN_TYPE_UNKNOWN,
@@ -52,16 +46,6 @@ enum SQLJoinType {
 	SQL_JOIN_TYPE_CROSS,
 };
 
-struct ColumnBaseDefinition {
-	ItemId         itemId;
-	const char    *tableName;
-	const char    *columnName;
-	SQLColumnType  type;
-	size_t         columnLength;
-	uint16_t       flags;
-};
-
-struct SQLTableInfo;
 struct SQLColumnInfo;
 struct SQLOutputColumn
 {
@@ -92,34 +76,6 @@ struct SQLOutputColumn
 	SQLOutputColumn(const SQLColumnInfo *_columnInfo);
 	~SQLOutputColumn();
 	ItemDataPtr getItem(const ItemGroup *itemGroup) const;
-};
-
-typedef list<ColumnBaseDefinition>        ColumnBaseDefList;
-typedef ColumnBaseDefList::iterator       ColumnBaseDefListIterator;
-typedef ColumnBaseDefList::const_iterator ColumnBaseDefListConstIterator;
-
-typedef map<string, ColumnBaseDefinition *>    ItemNameColumnBaseDefRefMap;
-typedef ItemNameColumnBaseDefRefMap::iterator
-  ItemNameColumnBaseDefRefMapIterator;
-typedef ItemNameColumnBaseDefRefMap::const_iterator
-  ItemNameColumnBaseDefRefMapConstIterator;
-
-struct SQLSelectInfo;
-class SQLProcessor;
-typedef const ItemTablePtr
-(SQLProcessor::*SQLTableMakeFunc)(SQLSelectInfo &selectInfo,
-                                  const SQLTableInfo &tableInfo);
-
-struct SQLTableStaticInfo {
-	int                        tableId;
-	const char                *tableName;
-	SQLTableMakeFunc           tableMakeFunc;
-	const ColumnBaseDefList    columnBaseDefList;
-
-	// The value (ColumnBaseDefinition *) points an instance in
-	// 'columnBaseDefList' in this struct.
-	// So we must not explicitly free it.
-	const ItemNameColumnBaseDefRefMap columnBaseDefMap;
 };
 
 struct SQLColumnInfo;
@@ -242,9 +198,6 @@ public:
 	virtual const char *getDBName(void) = 0;
 
 protected:
-	typedef map<string, const SQLTableStaticInfo *> TableNameStaticInfoMap;
-	typedef TableNameStaticInfoMap::iterator TableNameStaticInfoMapIterator;
-
 	struct SelectParserContext;
 	typedef bool (SQLProcessor::*SelectSubParser)(SelectParserContext &ctx);
 
