@@ -3,6 +3,7 @@
 using namespace mlpl;
 
 #include <cppcutter.h>
+#include "Asura.h"
 #include "SQLProcessorInsert.h"
 
 namespace testSQLProcessorInsert {
@@ -21,6 +22,11 @@ static void _asssertExecInsert(SQLInsertInfo &insertInfo)
 ParsableString _parsable(STATEMENT); \
 SQLInsertInfo INS_VAR(_parsable); \
 asssertExecInsert(INS_VAR)
+
+void setup(void)
+{
+	asuraInit();
+}
 
 // ---------------------------------------------------------------------------
 // Test cases

@@ -20,6 +20,7 @@
 
 #include "SQLProcessorZabbix.h"
 #include "SQLProcessorFactory.h"
+#include "SQLProcessorInsert.h"
 #include "FaceMySQLWorker.h"
 
 static GStaticMutex mutex = G_STATIC_MUTEX_INIT;
@@ -37,6 +38,7 @@ void asuraInit(void)
 	SQLColumnParser::init(); // must be put after SQLFormulaParser::init()
 	SQLWhereParser::init();  // must be put after SQLFormulaParser::init()
 	FaceMySQLWorker::init();
+	SQLProcessorInsert::init();
 	SQLProcessor::init();
 	SQLProcessorZabbix::init();
 	SQLProcessorFactory::init();
