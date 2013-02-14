@@ -68,18 +68,6 @@ struct SQLProcessor::SelectParserContext {
 	}
 };
 
-struct WhereColumnArg {
-	SQLSelectInfo &selectInfo;
-	ItemId        itemId;
-
-	// constructor
-	WhereColumnArg(SQLSelectInfo &_selectInfo)
-	: selectInfo(_selectInfo),
-	  itemId(-1)
-	{
-	}
-};
-
 class SQLFormulaColumnDataGetter : public FormulaVariableDataGetter {
 public:
 	SQLFormulaColumnDataGetter(string &name, SQLSelectInfo *selectInfo)
