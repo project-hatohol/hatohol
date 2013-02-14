@@ -58,6 +58,14 @@ static void _assertParseOneColumn(const char *tableName,
 #define assertParseOneColumn(T, C, V, ...) \
 cut_trace(_assertParseOneColumn(T, C, V, ##__VA_ARGS__))
 
+static string removeQuotation(string str)
+{
+	size_t length = str.size();
+	if (!(str[0] == '\'' && str[length-1] == '\''))
+		return str;
+	return string(str, 1, length-2);
+}
+
 void setup(void)
 {
 	asuraInit();
@@ -123,7 +131,7 @@ void test_parseMultiColumn(void)
 	StringVector expectedValues;
 	for (size_t i = 0; i < numData; i++) {
 		expectedColumns.push_back(data[i].columnName);
-		expectedValues.push_back(data[i].valueString);
+		expectedValues.push_back(removeQuotation(data[i].valueString));
 	}
 
 	cppcut_assert_equal(string(tableName), insertInfo.table);
