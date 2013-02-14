@@ -299,6 +299,7 @@ private:
 
 	// These members are typically allocated in sub classes.
 	TableNameStaticInfoMap &m_tableNameStaticInfoMap;
+
 	SQLProcessorInsert           m_processorInsert;
 };
 

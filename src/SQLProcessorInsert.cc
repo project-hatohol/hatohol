@@ -77,8 +77,10 @@ void SQLProcessorInsert::init(void)
 	}
 }
 
-SQLProcessorInsert::SQLProcessorInsert(void)
-: m_ctx(NULL),
+SQLProcessorInsert::SQLProcessorInsert
+  (TableNameStaticInfoMap &tableNameStaticInfoMap)
+: m_tableNameStaticInfoMap(tableNameStaticInfoMap),
+  m_ctx(NULL),
   m_separator(" (),\'")
 {
 	m_ctx = new PrivateContext();

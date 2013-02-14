@@ -292,7 +292,8 @@ SQLProcessor::SQLProcessor(TableNameStaticInfoMap &tableNameStaticInfoMap)
 : m_separatorSpaceComma(" ,"),
   m_separatorCountSpaceComma(", "),
   m_separatorCBForWhere(" ='"),
-  m_tableNameStaticInfoMap(tableNameStaticInfoMap)
+  m_tableNameStaticInfoMap(tableNameStaticInfoMap),
+  m_processorInsert(tableNameStaticInfoMap)
 {
 	// m_selectSeprators[SQLProcessor::SELECT_PARSING_SECTION_COLUMN]
 	// is set later in parseSelectStatement().

@@ -8,7 +8,15 @@ using namespace mlpl;
 
 namespace testSQLProcessorInsert {
 
+static TableNameStaticInfoMap dummyMap;
+
 class TestSQLProcessorInsert : public SQLProcessorInsert {
+public:
+	TestSQLProcessorInsert(void)
+	: SQLProcessorInsert(dummyMap)
+	{
+	}
+
 };
 
 static void _asssertExecInsert(SQLInsertInfo &insertInfo)

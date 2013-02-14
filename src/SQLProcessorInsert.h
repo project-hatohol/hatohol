@@ -38,7 +38,7 @@ private:
 
 public:
 	static void init(void);
-	SQLProcessorInsert(void);
+	SQLProcessorInsert(TableNameStaticInfoMap &tableNameStaticInfoMap);
 	virtual ~SQLProcessorInsert();
 	virtual bool insert(SQLInsertInfo &insertInfo);
 
@@ -89,6 +89,7 @@ protected:
 private:
 	static const InsertSubParser m_insertSubParsers[];
 
+	TableNameStaticInfoMap      &m_tableNameStaticInfoMap;
 	PrivateContext              *m_ctx;
 	SeparatorCheckerWithCallback m_separator;
 };
