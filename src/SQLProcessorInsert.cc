@@ -8,16 +8,28 @@ using namespace std;
 #include "SQLProcessorInsert.h"
 #include "Utils.h"
 
+enum ExpectedParenthesisType {
+	EXPECTED_PARENTHESIS_NONE,
+	EXPECTED_PARENTHESIS_OPEN_COLUMN,
+	EXPECTED_PARENTHESIS_CLOSE_COLUMN,
+	EXPECTED_PARENTHESIS_OPEN_VALUE,
+	EXPECTED_PARENTHESIS_CLOSE_VALUE,
+};
+
 struct SQLProcessorInsert::PrivateContext {
 	SQLInsertInfo     *insertInfo;
 	string             currWord;
 	string             currWordLower;
 	InsertParseSection section;
+	bool               errorFlag;
+	ExpectedParenthesisType expectedParenthesis;
 
 	// constructor
 	PrivateContext(void)
 	: insertInfo(NULL),
-	  section(INSERT_PARSING_SECTION_INSERT)
+	  section(INSERT_PARSING_SECTION_INSERT),
+	  errorFlag(false),
+	  expectedParenthesis(EXPECTED_PARENTHESIS_NONE)
 	{
 	}
 };
@@ -95,6 +107,9 @@ bool SQLProcessorInsert::parseInsertStatement(SQLInsertInfo &insertInfo)
 {
 	m_ctx->insertInfo = &insertInfo;
 	while (!insertInfo.statement.finished()) {
+		if (m_ctx->errorFlag)
+			return false;
+
 		m_ctx->currWord = insertInfo.statement.readWord(m_separator);
 		if (m_ctx->currWord.empty())
 			continue;
@@ -131,6 +146,7 @@ bool SQLProcessorInsert::parseTable(void)
 {
 	m_ctx->insertInfo->table = m_ctx->currWord;
 	m_ctx->section = INSERT_PARSING_SECTION_COLUMN;
+	m_ctx->expectedParenthesis = EXPECTED_PARENTHESIS_OPEN_COLUMN;
 	return true;
 }
 
@@ -157,7 +173,14 @@ void SQLProcessorInsert::_separatorCbParenthesisOpen(const char separator,
 
 void SQLProcessorInsert::separatorCbParenthesisOpen(const char separator)
 {
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	if (m_ctx->expectedParenthesis == EXPECTED_PARENTHESIS_OPEN_COLUMN) {
+		m_ctx->expectedParenthesis = EXPECTED_PARENTHESIS_CLOSE_COLUMN;
+	}
+	else {
+		MLPL_DBG("Illegal state: m_ctx->expectedParenthesis: %d\n",
+		         m_ctx->expectedParenthesis);
+		m_ctx->errorFlag = true;
+	}
 }
 
 
