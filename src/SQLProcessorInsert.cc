@@ -112,11 +112,10 @@ bool SQLProcessorInsert::insert(SQLInsertInfo &insertInfo)
 bool SQLProcessorInsert::parseInsertStatement(SQLInsertInfo &insertInfo)
 {
 	m_ctx->insertInfo = &insertInfo;
-	while (!insertInfo.statement.finished()) {
+	while (!insertInfo.statement.finished() || m_ctx->errorFlag) {
+		m_ctx->currWord = insertInfo.statement.readWord(m_separator);
 		if (m_ctx->errorFlag)
 			return false;
-
-		m_ctx->currWord = insertInfo.statement.readWord(m_separator);
 		if (m_ctx->currWord.empty())
 			continue;
 		m_ctx->currWordLower = StringUtils::toLower(m_ctx->currWord);
