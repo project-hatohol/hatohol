@@ -61,4 +61,38 @@ void test_parseOneColumn(void)
 	assertStringVector(expectedValues, insertInfo.valueVector);
 }
 
+void test_parseMultiColumn(void)
+{
+	const char *tableName  = "tableName";
+	struct Data {
+		const char *columnName;
+		const char *valueString;
+	} data[] = {
+	  {"c1", "10"}, {"c2", "'foo'"}, {"c3", "-5"},
+	};
+	const size_t numData = sizeof(data) / sizeof(Data);
+
+	string statement =
+	  StringUtils::sprintf("insert into %s (%s,%s,%s) values (%s,%s,%s)",
+	                       tableName,
+	                       data[0].columnName, data[1].columnName,
+	                       data[2].columnName,
+	                       data[0].valueString, data[1].valueString,
+	                       data[2].valueString);
+
+	DEFINE_INSERTINFO_AND_ASSERT_SELECT(insertInfo, statement);
+
+	StringVector expectedColumns;
+	StringVector expectedValues;
+	for (size_t i = 0; i < numData; i++) {
+		expectedColumns.push_back(data[i].columnName);
+		expectedValues.push_back(data[i].valueString);
+	}
+
+	cppcut_assert_equal(string(tableName), insertInfo.table);
+	assertStringVector(expectedColumns, insertInfo.columnVector);
+	assertStringVector(expectedValues, insertInfo.valueVector);
+}
+
+
 } // namespace testSQLProcessorInsert
