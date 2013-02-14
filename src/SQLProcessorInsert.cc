@@ -5,6 +5,18 @@ using namespace mlpl;
 #include "SQLProcessorInsert.h"
 
 // ---------------------------------------------------------------------------
+// Public methods (SQLInsertInfo)
+// ---------------------------------------------------------------------------
+SQLInsertInfo::SQLInsertInfo(ParsableString &_statement)
+: statement(_statement)
+{
+}
+
+SQLInsertInfo::~SQLInsertInfo()
+{
+}
+
+// ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
 void SQLProcessorInsert::init(void)
