@@ -347,10 +347,7 @@ bool SQLProcessor::parseSelectStatement(SQLSelectInfo &selectInfo)
 			continue;
 
 		// check if this is a keyword.
-		ctx.currWordLower = ctx.currWord;
-		transform(ctx.currWordLower.begin(), ctx.currWordLower.end(),
-		          ctx.currWordLower.begin(), ::tolower);
-		
+		ctx.currWordLower = StringUtils::toLower(ctx.currWord);
 		it = m_selectSectionParserMap.find(ctx.currWordLower);
 		if (it != m_selectSectionParserMap.end()) {
 			// When the function returns 'true', it means

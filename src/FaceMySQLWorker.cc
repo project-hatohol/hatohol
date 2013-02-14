@@ -682,8 +682,7 @@ bool FaceMySQLWorker::comQuery(SmartBuffer &pkt)
 		return true;
 	}
 
-	transform(firstWord.begin(), firstWord.end(),
-	          firstWord.begin(), ::tolower);
+	firstWord = StringUtils::toLower(firstWord);
 	QueryProcFuncMapIterator it = m_queryProcMap.find(firstWord);
 	if (it == m_queryProcMap.end()) {
 		MLPL_BUG("Not implemented: query command: '%s'\n",
