@@ -23,6 +23,17 @@ struct SQLInsertInfo {
 
 class SQLProcessorInsert
 {
+private:
+	enum InsertParseSection {
+		INSERT_PARSING_SECTION_INSERT,
+		INSERT_PARSING_SECTION_INTO,
+		INSERT_PARSING_SECTION_TABLE,
+		INSERT_PARSING_SECTION_COLUMN,
+		INSERT_PARSING_SECTION_VALUES_KEYWORD,
+		INSERT_PARSING_SECTION_VALUE,
+		NUM_INSERT_PARSING_SECTION,
+	};
+
 public:
 	static void init(void);
 	SQLProcessorInsert(void);
@@ -40,6 +51,7 @@ protected:
 	// Sub parsers
 	//
 	bool parseInsert(void);
+	bool parseInto(void);
 	bool parseTable(void);
 	bool parseColumn(void);
 	bool parseValuesKeyword(void);
@@ -67,18 +79,11 @@ protected:
 	//
 	// General sub routines
 	//
+	bool checkCurrWord(string expected, InsertParseSection nextSection);
 	bool flushColumnList(void);
 
 private:
 	static const InsertSubParser m_insertSubParsers[];
-	enum InsertParseSection {
-		INSERT_PARSING_SECTION_INSERT,
-		INSERT_PARSING_SECTION_TABLE,
-		INSERT_PARSING_SECTION_COLUMN,
-		INSERT_PARSING_SECTION_VALUES_KEYWORD,
-		INSERT_PARSING_SECTION_VALUE,
-		NUM_INSERT_PARSING_SECTION,
-	};
 
 	PrivateContext              *m_ctx;
 	SeparatorCheckerWithCallback m_separator;

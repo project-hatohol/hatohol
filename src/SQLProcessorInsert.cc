@@ -38,6 +38,7 @@ struct SQLProcessorInsert::PrivateContext {
 const SQLProcessorInsert::InsertSubParser
 SQLProcessorInsert::m_insertSubParsers[] = {
 	&SQLProcessorInsert::parseInsert,
+	&SQLProcessorInsert::parseInto,
 	&SQLProcessorInsert::parseTable,
 	&SQLProcessorInsert::parseColumn,
 	&SQLProcessorInsert::parseValuesKeyword,
@@ -140,8 +141,13 @@ bool SQLProcessorInsert::parseInsert(void)
 		         m_ctx->currWordLower.c_str());
 		return false;
 	}
-	m_ctx->section = INSERT_PARSING_SECTION_TABLE;
+	m_ctx->section = INSERT_PARSING_SECTION_INTO;
 	return true;
+}
+
+bool SQLProcessorInsert::parseInto(void)
+{
+	return checkCurrWord("into", INSERT_PARSING_SECTION_TABLE);
 }
 
 bool SQLProcessorInsert::parseTable(void)
@@ -249,6 +255,18 @@ void SQLProcessorInsert::separatorCbQuot(const char separator)
 //
 // General sub routines
 //
+bool SQLProcessorInsert::checkCurrWord(string expected,
+                                       InsertParseSection nextSection)
+{
+	if (m_ctx->currWordLower != expected) {
+		MLPL_DBG("currWordLower is not '%s': %s\n",
+		         expected.c_str(), m_ctx->currWordLower.c_str());
+		return false;
+	}
+	m_ctx->section = nextSection;
+	return true;
+}
+
 bool SQLProcessorInsert::flushColumnList(void)
 {
 	if (m_ctx->pendingWord.empty()) {

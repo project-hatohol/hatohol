@@ -37,7 +37,7 @@ void test_parseOneColumn(void)
 	const char *columnName = "columnName";
 	const char *valueStr   = "10";
 	string statement =
-	  StringUtils::sprintf("insert %s (%s) values (%s)",
+	  StringUtils::sprintf("insert into %s (%s) values (%s)",
 	                       tableName, columnName, valueStr);
 	DEFINE_INSERTINFO_AND_ASSERT_SELECT(insertInfo, statement);
 }
