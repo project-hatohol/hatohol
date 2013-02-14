@@ -88,8 +88,15 @@ VirtualDataStoreZabbix::VirtualDataStoreZabbix(void)
 	ItemGroup *grp;
 
 #define ADD(X) grp->add(X, false)
+
+	//
+	// nodes
+	//
 	table = createStaticItemTable(GROUP_ID_ZBX_NODES);
 
+	//
+	// config
+	//
 	table = createStaticItemTable(GROUP_ID_ZBX_CONFIG);
 	grp = table->addNewGroup();
 	ADD(new ItemUint64(ITEM_ID_ZBX_CONFIG_CONFIGID, 1));
@@ -139,6 +146,9 @@ VirtualDataStoreZabbix::VirtualDataStoreZabbix(void)
 	ADD(new ItemInt(ITEM_ID_ZBX_CONFIG_SNMPTRAP_LOGGING,    1));
 	ADD(new ItemInt(ITEM_ID_ZBX_CONFIG_SERVER_CHECK_INTERVAL, 10));
 
+	//
+	// users
+	//
 	table = createStaticItemTable(GROUP_ID_ZBX_USERS);
 	grp = table->addNewGroup();
 	ADD(new ItemUint64(ITEM_ID_ZBX_USERS_USERID,  1));
@@ -176,6 +186,9 @@ VirtualDataStoreZabbix::VirtualDataStoreZabbix(void)
 	ADD(new ItemInt(ITEM_ID_ZBX_USERS_ATTEMPT_CLOCK,  0 ));
 	ADD(new ItemInt(ITEM_ID_ZBX_USERS_ROWS_PER_PAGE,  50 ));
 
+	//
+	// usrgrp
+	//
 	table = createStaticItemTable(GROUP_ID_ZBX_USRGRP);
 	grp = table->addNewGroup();
 	ADD(new ItemUint64(ITEM_ID_ZBX_USRGRP_USRGRPID,  7));
@@ -212,6 +225,9 @@ VirtualDataStoreZabbix::VirtualDataStoreZabbix(void)
 	ADD(new ItemInt(ITEM_ID_ZBX_USRGRP_USERS_STATUS, 0));
 	ADD(new ItemInt(ITEM_ID_ZBX_USRGRP_DEBUG_MODE,   0));
 
+	//
+	// users_groups
+	//
 	table = createStaticItemTable(GROUP_ID_ZBX_USERS_GROUPS);
 	grp = table->addNewGroup();
 	ADD(new ItemUint64(ITEM_ID_ZBX_USERS_GROUPS_ID,       4));
