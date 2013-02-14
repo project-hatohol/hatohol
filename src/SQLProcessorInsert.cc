@@ -105,6 +105,8 @@ bool SQLProcessorInsert::insert(SQLInsertInfo &insertInfo)
 {
 	if (!parseInsertStatement(insertInfo))
 		return false;
+	if (!checkTableAndColumns(insertInfo))
+		return false;
 	return true;
 }
 
@@ -133,6 +135,12 @@ bool SQLProcessorInsert::parseInsertStatement(SQLInsertInfo &insertInfo)
 			return false;
 	}
 	return true;
+}
+
+bool SQLProcessorInsert::checkTableAndColumns(SQLInsertInfo &insertInfo)
+{
+	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	return false;
 }
 
 //

@@ -48,6 +48,7 @@ protected:
 	  (SQLProcessorInsert::*InsertSubParser)(void);
 
 	bool parseInsertStatement(SQLInsertInfo &insertInfo);
+	bool checkTableAndColumns(SQLInsertInfo &insertInfo);
 
 	//
 	// Sub parsers
