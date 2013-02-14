@@ -641,7 +641,7 @@ bool SQLProcessor::makeItemTables(SQLSelectInfo &selectInfo)
 		SQLTableMakeFunc func = tableInfo->staticInfo->tableMakeFunc;
 		ItemTablePtr tablePtr = (this->*func)(selectInfo, *tableInfo);
 		if (!tablePtr.hasData()) {
-			MLPL_DBG("ItemTable: table has not data. "
+			MLPL_DBG("ItemTable: table has no data. "
 			         "name: %s, var: %s\n",
 			         (*tblInfoIt)->name.c_str(),
 			         (*tblInfoIt)->varName.c_str());
