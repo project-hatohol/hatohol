@@ -23,6 +23,7 @@ struct SQLProcessorInsert::PrivateContext {
 	InsertParseSection section;
 	bool               errorFlag;
 	ExpectedParenthesisType expectedParenthesis;
+	string             pendingWord;
 
 	// constructor
 	PrivateContext(void)
@@ -152,8 +153,13 @@ bool SQLProcessorInsert::parseTable(void)
 
 bool SQLProcessorInsert::parseColumn(void)
 {
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
-	return false;
+	if (!m_ctx->pendingWord.empty()) {
+		MLPL_DBG("m_ctx->pendingWord is not empty: %s.\n",
+		          m_ctx->pendingWord.c_str());
+		return false;
+	}
+	m_ctx->pendingWord = m_ctx->currWord;
+	return true;
 }
 
 bool SQLProcessorInsert::parseValue(void)
@@ -183,7 +189,6 @@ void SQLProcessorInsert::separatorCbParenthesisOpen(const char separator)
 	}
 }
 
-
 void SQLProcessorInsert::_separatorCbParenthesisClose(const char separator,
                                          SQLProcessorInsert *obj)
 {
@@ -192,7 +197,19 @@ void SQLProcessorInsert::_separatorCbParenthesisClose(const char separator,
 
 void SQLProcessorInsert::separatorCbParenthesisClose(const char separator)
 {
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	if (m_ctx->expectedParenthesis == EXPECTED_PARENTHESIS_CLOSE_COLUMN) {
+		if (!flushColumnList()) {
+			m_ctx->errorFlag = true;
+			return;
+		}
+		m_ctx->section = INSERT_PARSING_SECTION_VALUE;
+		m_ctx->expectedParenthesis = EXPECTED_PARENTHESIS_NONE;
+	}
+	else {
+		MLPL_DBG("Illegal state: m_ctx->expectedParenthesis: %d\n",
+		         m_ctx->expectedParenthesis);
+		m_ctx->errorFlag = true;
+	}
 }
 
 void SQLProcessorInsert::_separatorCbComma(const char separator,
@@ -217,3 +234,16 @@ void SQLProcessorInsert::separatorCbQuot(const char separator)
 	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
 }
 
+//
+// General sub routines
+//
+bool SQLProcessorInsert::flushColumnList(void)
+{
+	if (m_ctx->pendingWord.empty()) {
+		MLPL_DBG("m_ctx->pendingWord is empty.\n");
+		return false;
+	}
+	m_ctx->insertInfo->columnVector.push_back(m_ctx->pendingWord);
+	m_ctx->pendingWord.clear();
+	return true;
+}

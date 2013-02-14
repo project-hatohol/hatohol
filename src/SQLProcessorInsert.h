@@ -63,6 +63,11 @@ protected:
 	                             SQLProcessorInsert *obj);
 	void separatorCbQuot(const char separator);
 
+	//
+	// General sub routines
+	//
+	bool flushColumnList(void);
+
 private:
 	static const InsertSubParser m_insertSubParsers[];
 	enum InsertParseSection {
