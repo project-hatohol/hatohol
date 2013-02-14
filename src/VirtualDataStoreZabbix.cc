@@ -239,6 +239,11 @@ VirtualDataStoreZabbix::VirtualDataStoreZabbix(void)
 	ADD(new ItemUint64(ITEM_ID_ZBX_USERS_GROUPS_USRGRPID, 8));
 	ADD(new ItemUint64(ITEM_ID_ZBX_USERS_GROUPS_USERID,   2));
 
+	//
+	// sessions
+	//
+	table = createStaticItemTable(GROUP_ID_ZBX_SESSIONS);
+
 #undef ADD
 }
 
