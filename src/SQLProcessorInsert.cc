@@ -136,13 +136,7 @@ bool SQLProcessorInsert::parseInsertStatement(SQLInsertInfo &insertInfo)
 //
 bool SQLProcessorInsert::parseInsert(void)
 {
-	if (m_ctx->currWordLower != "insert") {
-		MLPL_DBG("currWordLower is not insert: %s\n",
-		         m_ctx->currWordLower.c_str());
-		return false;
-	}
-	m_ctx->section = INSERT_PARSING_SECTION_INTO;
-	return true;
+	return checkCurrWord("insert", INSERT_PARSING_SECTION_INTO);
 }
 
 bool SQLProcessorInsert::parseInto(void)
@@ -171,13 +165,7 @@ bool SQLProcessorInsert::parseColumn(void)
 
 bool SQLProcessorInsert::parseValuesKeyword(void)
 {
-	if (m_ctx->currWordLower != "values") {
-		MLPL_DBG("currWordLower is not 'values': %s\n",
-		         m_ctx->currWordLower.c_str());
-		return false;
-	}
-	m_ctx->section = INSERT_PARSING_SECTION_VALUE;
-	return true;
+	return checkCurrWord("values", INSERT_PARSING_SECTION_VALUE);
 }
 
 bool SQLProcessorInsert::parseValue(void)
