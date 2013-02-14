@@ -40,6 +40,7 @@ SQLProcessorInsert::m_insertSubParsers[] = {
 	&SQLProcessorInsert::parseInsert,
 	&SQLProcessorInsert::parseTable,
 	&SQLProcessorInsert::parseColumn,
+	&SQLProcessorInsert::parseValuesKeyword,
 	&SQLProcessorInsert::parseValue,
 };
 
@@ -162,6 +163,17 @@ bool SQLProcessorInsert::parseColumn(void)
 	return true;
 }
 
+bool SQLProcessorInsert::parseValuesKeyword(void)
+{
+	if (m_ctx->currWordLower != "values") {
+		MLPL_DBG("currWordLower is not 'values': %s\n",
+		         m_ctx->currWordLower.c_str());
+		return false;
+	}
+	m_ctx->section = INSERT_PARSING_SECTION_VALUE;
+	return true;
+}
+
 bool SQLProcessorInsert::parseValue(void)
 {
 	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
@@ -202,7 +214,7 @@ void SQLProcessorInsert::separatorCbParenthesisClose(const char separator)
 			m_ctx->errorFlag = true;
 			return;
 		}
-		m_ctx->section = INSERT_PARSING_SECTION_VALUE;
+		m_ctx->section = INSERT_PARSING_SECTION_VALUES_KEYWORD;
 		m_ctx->expectedParenthesis = EXPECTED_PARENTHESIS_NONE;
 	}
 	else {

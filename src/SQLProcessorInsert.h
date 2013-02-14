@@ -42,6 +42,7 @@ protected:
 	bool parseInsert(void);
 	bool parseTable(void);
 	bool parseColumn(void);
+	bool parseValuesKeyword(void);
 	bool parseValue(void);
 
 	//
@@ -74,6 +75,7 @@ private:
 		INSERT_PARSING_SECTION_INSERT,
 		INSERT_PARSING_SECTION_TABLE,
 		INSERT_PARSING_SECTION_COLUMN,
+		INSERT_PARSING_SECTION_VALUES_KEYWORD,
 		INSERT_PARSING_SECTION_VALUE,
 		NUM_INSERT_PARSING_SECTION,
 	};
