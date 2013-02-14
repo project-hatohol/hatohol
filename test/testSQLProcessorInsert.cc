@@ -23,6 +23,15 @@ ParsableString _parsable(STATEMENT); \
 SQLInsertInfo INS_VAR(_parsable); \
 asssertExecInsert(INS_VAR)
 
+
+static void _assertStringVector(StringVector &expected, StringVector &actual)
+{
+	cppcut_assert_equal(expected.size(), actual.size());
+	for (size_t i = 0; i < expected.size(); i++)
+		cppcut_assert_equal(expected[i], actual[i]);
+}
+#define assertStringVector(E,A) cut_trace(_assertStringVector(E,A))
+
 void setup(void)
 {
 	asuraInit();
@@ -40,6 +49,16 @@ void test_parseOneColumn(void)
 	  StringUtils::sprintf("insert into %s (%s) values (%s)",
 	                       tableName, columnName, valueStr);
 	DEFINE_INSERTINFO_AND_ASSERT_SELECT(insertInfo, statement);
+
+	StringVector expectedColumns;
+	expectedColumns.push_back(columnName);
+
+	StringVector expectedValues;
+	expectedValues.push_back(valueStr);
+
+	cppcut_assert_equal(string(tableName), insertInfo.table);
+	assertStringVector(expectedColumns, insertInfo.columnVector);
+	assertStringVector(expectedValues, insertInfo.valueVector);
 }
 
 } // namespace testSQLProcessorInsert
