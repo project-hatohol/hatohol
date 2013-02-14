@@ -24,13 +24,15 @@ struct SQLProcessorInsert::PrivateContext {
 	bool               errorFlag;
 	ExpectedParenthesisType expectedParenthesis;
 	string             pendingWord;
+	bool               openQuot;
 
 	// constructor
 	PrivateContext(void)
 	: insertInfo(NULL),
 	  section(INSERT_PARSING_SECTION_INSERT),
 	  errorFlag(false),
-	  expectedParenthesis(EXPECTED_PARENTHESIS_NONE)
+	  expectedParenthesis(EXPECTED_PARENTHESIS_NONE),
+	  openQuot(false)
 	{
 	}
 };
@@ -261,7 +263,19 @@ void SQLProcessorInsert::_separatorCbQuot(const char separator,
 
 void SQLProcessorInsert::separatorCbQuot(const char separator)
 {
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	if (!m_ctx->openQuot) {
+		m_separator.setAlternative(&ParsableString::SEPARATOR_QUOT);
+		m_ctx->openQuot = true;
+	} else {
+		if (m_ctx->section != INSERT_PARSING_SECTION_VALUE) {
+			MLPL_DBG("Quotation is used in section: %d\n",
+			         m_ctx->section);
+			m_ctx->errorFlag = true;
+			return;
+		}
+		m_separator.unsetAlternative();
+		m_ctx->openQuot = false;
+	}
 }
 
 //
