@@ -223,7 +223,7 @@ void SQLProcessorInsert::separatorCbParenthesisClose(const char separator)
 {
 	ExpectedParenthesisType expectedType = m_ctx->expectedParenthesis;
 	if (expectedType == EXPECTED_PARENTHESIS_CLOSE_COLUMN) {
-		if (!flushColumnList()) {
+		if (!pushColumn()) {
 			m_ctx->errorFlag = true;
 			return;
 		}
@@ -279,7 +279,7 @@ bool SQLProcessorInsert::checkCurrWord(string expected,
 	return true;
 }
 
-bool SQLProcessorInsert::flushColumnList(void)
+bool SQLProcessorInsert::pushColumn(void)
 {
 	if (m_ctx->pendingWord.empty()) {
 		MLPL_DBG("m_ctx->pendingWord is empty.\n");

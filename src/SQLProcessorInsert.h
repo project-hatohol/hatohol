@@ -82,7 +82,7 @@ protected:
 	// General sub routines
 	//
 	bool checkCurrWord(string expected, InsertParseSection nextSection);
-	bool flushColumnList(void);
+	bool pushColumn(void);
 	bool pushValue(void);
 
 private:
