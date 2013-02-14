@@ -39,6 +39,7 @@ protected:
 	//
 	// Sub parsers
 	//
+	bool parseInsert(void);
 	bool parseTable(void);
 	bool parseColumn(void);
 	bool parseValue(void);
@@ -65,6 +66,7 @@ protected:
 private:
 	static const InsertSubParser m_insertSubParsers[];
 	enum InsertParseSection {
+		INSERT_PARSING_SECTION_INSERT,
 		INSERT_PARSING_SECTION_TABLE,
 		INSERT_PARSING_SECTION_COLUMN,
 		INSERT_PARSING_SECTION_VALUE,

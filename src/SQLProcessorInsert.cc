@@ -15,13 +15,14 @@ struct SQLProcessorInsert::PrivateContext {
 
 	// constructor
 	PrivateContext(void)
-	: section(INSERT_PARSING_SECTION_TABLE)
+	: section(INSERT_PARSING_SECTION_INSERT)
 	{
 	}
 };
 
 const SQLProcessorInsert::InsertSubParser
 SQLProcessorInsert::m_insertSubParsers[] = {
+	&SQLProcessorInsert::parseInsert,
 	&SQLProcessorInsert::parseTable,
 	&SQLProcessorInsert::parseColumn,
 	&SQLProcessorInsert::parseValue,
@@ -112,6 +113,17 @@ bool SQLProcessorInsert::parseInsertStatement(SQLInsertInfo &insertInfo)
 //
 // Sub parsers
 //
+bool SQLProcessorInsert::parseInsert(void)
+{
+	if (m_ctx->currWordLower != "insert") {
+		MLPL_DBG("currWordLower is not insert: %s\n",
+		         m_ctx->currWordLower.c_str());
+		return false;
+	}
+	m_ctx->section = INSERT_PARSING_SECTION_TABLE;
+	return true;
+}
+
 bool SQLProcessorInsert::parseTable(void)
 {
 	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
