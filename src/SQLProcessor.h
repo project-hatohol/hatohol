@@ -297,8 +297,9 @@ private:
 	SeparatorCheckerWithCounter  m_separatorCountSpaceComma;
 	SeparatorCheckerWithCallback m_separatorCBForWhere;
 
-	// These members are typically allocated in sub classes.
-	TableNameStaticInfoMap &m_tableNameStaticInfoMap;
+	// The content of m_tableNameStaticInfoMap is typically
+	// set in sub classes.
+	TableNameStaticInfoMap      &m_tableNameStaticInfoMap;
 
 	SQLProcessorInsert           m_processorInsert;
 };
