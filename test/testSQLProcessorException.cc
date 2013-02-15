@@ -12,6 +12,11 @@ void test_throw(void)
 	assertThrow(SQLProcessorException, SQLProcessorException);
 }
 
+void test_throwAsAsuraException(void)
+{
+	assertThrow(SQLProcessorException, AsuraException);
+}
+
 void test_throwAsException(void)
 {
 	assertThrow(SQLProcessorException, exception);
