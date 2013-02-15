@@ -9,12 +9,12 @@ namespace testSQLProcessorException {
 // ---------------------------------------------------------------------------
 void test_throw(void)
 {
-	assertThrow(SQLProcessorException);
+	assertThrow(SQLProcessorException, SQLProcessorException);
 }
 
 void test_throwAsException(void)
 {
-	assertThrow(exception);
+	assertThrow(SQLProcessorException, exception);
 }
 
 } // namespace testSQLProcessorException

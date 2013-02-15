@@ -9,12 +9,12 @@ namespace testAsuraException {
 // ---------------------------------------------------------------------------
 void test_throw(void)
 {
-	assertThrow(AsuraException);
+	assertThrow(AsuraException, AsuraException);
 }
 
 void test_throwAsException(void)
 {
-	assertThrow(exception);
+	assertThrow(AsuraException, exception);
 }
 
 } // namespace testAsuraException
