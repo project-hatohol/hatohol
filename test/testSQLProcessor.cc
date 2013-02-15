@@ -644,4 +644,18 @@ void test_nullTable(void)
 	   NUM_COLUMN_Z_DEFS, numTestDataZ, numTestDataZ, false);
 }
 
+void test_insert(void)
+{
+	int number = 10;
+	const char *name = "foo";
+	ParsableString _parsable(
+	  StringUtils::sprintf("insert into %s (%s,%s) values (%d,%s)",
+	                       TABLE0_NAME,
+	                       COLUMN_NAME_NUMBER, COLUMN_NAME_NAME,
+	                       number, name));
+	SQLInsertInfo insertInfo(_parsable);
+	TestSQLProcessor proc;
+	cppcut_assert_equal(true, proc.insert(insertInfo));
+}
+
 } // namespace testSQLProcessor

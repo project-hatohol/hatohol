@@ -89,9 +89,6 @@ protected:
 	bool checkCurrWord(string expected, InsertParseSection nextSection);
 	bool pushColumn(void);
 	bool pushValue(void);
-	ItemDataPtr createDefaultItemData(const ColumnBaseDefinition *baseDef);
-	ItemDataPtr createItemData(const ColumnBaseDefinition *baseDef,
-	                           string &value);
 
 private:
 	static const InsertSubParser m_insertSubParsers[];

@@ -10,6 +10,7 @@ using namespace std;
 #include "SQLProcessorException.h"
 #include "ItemGroupPtr.h"
 #include "ItemTablePtr.h"
+#include "SQLUtils.h"
 
 enum ExpectedParenthesisType {
 	EXPECTED_PARENTHESIS_NONE,
@@ -192,7 +193,8 @@ void SQLProcessorInsert::makeColumnDefValueMap(SQLInsertInfo &insertInfo)
 
 void SQLProcessorInsert::doInsetToTable(SQLInsertInfo &insertInfo)
 {
-	ItemGroupPtr grpPtr;
+	ItemDataPtr dataPtr;
+	ItemGroupPtr grpPtr(new ItemGroup(), false);
 	ColumnDefValueMapIterator colValIt;
 	ColumnBaseDefListConstIterator it;
 	const SQLTableStaticInfo *tableStaticInfo = m_ctx->tableStaticInfo;
@@ -203,12 +205,13 @@ void SQLProcessorInsert::doInsetToTable(SQLInsertInfo &insertInfo)
 		const ColumnBaseDefinition *colBaseDef = &(*it);
 		colValIt = m_ctx->columnDefValueMap.find(colBaseDef);
 		if (colValIt == m_ctx->columnDefValueMap.end()) {
-			grpPtr->add(createDefaultItemData(colBaseDef), false);
+			dataPtr = SQLUtils::createDefaultItemData(colBaseDef);
 		} else {
-			string *strPtr = colValIt->second;
-			grpPtr->add(createItemData(colBaseDef, *strPtr), false);
+			dataPtr = SQLUtils::createItemData(colBaseDef,
+			                                   *colValIt->second);
 			m_ctx->columnDefValueMap.erase(colValIt);
 		}
+		grpPtr->add(dataPtr, false);
 	}
 
 	// Insert row
@@ -409,19 +412,4 @@ bool SQLProcessorInsert::pushValue(void)
 	m_ctx->insertInfo->valueVector.push_back(m_ctx->pendingWord);
 	m_ctx->pendingWord.clear();
 	return true;
-}
-
-ItemDataPtr
-SQLProcessorInsert::createDefaultItemData(const ColumnBaseDefinition *baseDef)
-{
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
-	return ItemDataPtr();
-}
-
-ItemDataPtr
-SQLProcessorInsert::createItemData(const ColumnBaseDefinition *baseDef,
-                                   string &value)
-{
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
-	return ItemDataPtr();
 }
