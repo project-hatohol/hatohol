@@ -42,7 +42,8 @@ private:
 
 	static SQLTableStaticInfo *
 	defineTable(int tableId, const char *tableName,
-	            SQLTableMakeFunc tableMakeFunc);
+	            SQLTableMakeFunc tableMakeFunc,
+	            SQLTableGetFunc tableGetFunc);
 	static void defineColumn(SQLTableStaticInfo *staticInfo,
 	                         ItemId itemId,
 	                         int tableId, const char *columnName,
@@ -53,6 +54,8 @@ private:
 	const ItemTablePtr
 	tableMakeFuncTemplate(SQLSelectInfo &selectInfo,
 	                      const SQLTableInfo &tableInfo);
+	template<ItemGroupId GROUP_ID>
+	static ItemTablePtr tableGetFuncTemplate(void);
 };
 
 #endif // SQLProcessorZabbix_h

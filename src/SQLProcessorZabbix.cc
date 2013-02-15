@@ -48,7 +48,9 @@ TableNameStaticInfoMap SQLProcessorZabbix::m_tableNameStaticInfoMap;
 void SQLProcessorZabbix::init(void)
 {
 #define MAKE_FUNC(G) \
-static_cast<SQLTableMakeFunc>(&SQLProcessorZabbix::tableMakeFuncTemplate<G>)
+  static_cast<SQLTableMakeFunc> \
+    (&SQLProcessorZabbix::tableMakeFuncTemplate<G>), \
+  tableGetFuncTemplate<G>
 
 	static SQLTableStaticInfo *staticInfo;
 	staticInfo =
@@ -351,17 +353,28 @@ SQLProcessorZabbix::tableMakeFuncTemplate(SQLSelectInfo &selectInfo,
 	return m_VDSZabbix->getItemTable(itemGroupId);
 }
 
+template<ItemGroupId GROUP_ID>
+ItemTablePtr SQLProcessorZabbix::tableGetFuncTemplate(void)
+{
+	const ItemGroupId itemGroupId = GROUP_ID;
+	VirtualDataStoreZabbix *dataStore =
+	  VirtualDataStoreZabbix::getInstance();
+	return dataStore->getItemTable(itemGroupId);
+}
+
 // ---------------------------------------------------------------------------
 // Private static methods
 // ---------------------------------------------------------------------------
 SQLTableStaticInfo *
 SQLProcessorZabbix::defineTable(int tableId, const char *tableName,
-                                SQLTableMakeFunc tableMakeFunc)
+                                SQLTableMakeFunc tableMakeFunc,
+                                SQLTableGetFunc tableGetFunc)
 {
 	SQLTableStaticInfo *staticInfo = new SQLTableStaticInfo();
 	staticInfo->tableId = tableId;
 	staticInfo->tableName = tableName;
 	staticInfo->tableMakeFunc = tableMakeFunc;
+	staticInfo->tableGetFunc = tableGetFunc;
 	m_tableNameStaticInfoMap[tableName] = staticInfo;
 	return staticInfo;
 }
