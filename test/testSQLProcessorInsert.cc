@@ -20,13 +20,18 @@ public:
 	{
 	}
 
+	bool callParseInsertStatement(SQLInsertInfo &insertInfo)
+	{
+		return parseInsertStatement(insertInfo);
+	}
 };
 
 static void _asssertExecInsert(SQLInsertInfo &insertInfo)
 {
 	try {
 		TestSQLProcessorInsert proc;
-		cppcut_assert_equal(true, proc.insert(insertInfo));
+		cppcut_assert_equal(true,
+		                    proc.callParseInsertStatement(insertInfo));
 	} catch (SQLProcessorException *e) {
 		cut_fail("Got exception: %s", e->what());
 	}
