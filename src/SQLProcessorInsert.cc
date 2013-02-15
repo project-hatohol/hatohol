@@ -106,8 +106,7 @@ bool SQLProcessorInsert::insert(SQLInsertInfo &insertInfo)
 {
 	if (!parseInsertStatement(insertInfo))
 		return false;
-	if (!checkTableAndColumns(insertInfo))
-		return false;
+	checkTableAndColumns(insertInfo);
 	return true;
 }
 
@@ -138,7 +137,7 @@ bool SQLProcessorInsert::parseInsertStatement(SQLInsertInfo &insertInfo)
 	return true;
 }
 
-bool SQLProcessorInsert::checkTableAndColumns(SQLInsertInfo &insertInfo)
+void SQLProcessorInsert::checkTableAndColumns(SQLInsertInfo &insertInfo)
 {
 	TableNameStaticInfoMapIterator it =
 	  m_tableNameStaticInfoMap.find(insertInfo.table);
@@ -154,8 +153,6 @@ bool SQLProcessorInsert::checkTableAndColumns(SQLInsertInfo &insertInfo)
 		  insertInfo.columnVector.size(),
 		  insertInfo.valueVector.size());
 	}
-
-	return true;
 }
 
 //
