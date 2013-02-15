@@ -3,7 +3,8 @@ asura_SOURCES = main.cc
 
 lib_LTLIBRARIES = libasura.la
 libasura_la_SOURCES = \
-	Asura.cc Utils.cc FaceBase.cc FaceMySQL.cc FaceMySQLWorker.cc \
+	Asura.cc AsuraThreadBase.cc AsuraException.cc \
+	Utils.cc FaceBase.cc FaceMySQL.cc FaceMySQLWorker.cc \
 	SQLProcessorException.cc \
 	SQLProcessorFactory.cc SQLProcessor.cc SQLProcessorZabbix.cc \
 	SQLProcessorInsert.cc \
@@ -15,7 +16,7 @@ libasura_la_SOURCES = \
 	ItemPtr.cc ItemTablePtr.cc ItemDataUtils.cc \
 	VirtualDataStore.cc VirtualDataStoreZabbix.cc \
 	JsonBuilderAgent.cc JsonParserAgent.cc \
-	AsuraThreadBase.cc ArmController.cc \
+	ArmController.cc \
 	ArmBase.cc ArmZabbixAPI.cc
 
 AM_CXXFLAGS = -Wall -g \

@@ -6,6 +6,7 @@ using namespace mlpl;
 using namespace std;
 
 #include "SQLProcessorInsert.h"
+#include "SQLProcessorException.h"
 #include "Utils.h"
 
 enum ExpectedParenthesisType {
