@@ -7,6 +7,7 @@ TESTS = run-test.sh
 TESTS_ENVIRONMENT = NO_MAKE=yes CUTTER="$(CUTTER)"
 
 noinst_LTLIBRARIES = \
+	testSQLProcessorException.la \
 	testSQLProcessor.la testSQLProcessorInsert.la testFormulaElement.la \
 	testSQLWhereParser.la \
 	testSQLColumnParser.la testMySQLWorkerZabbix.la \
