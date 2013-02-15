@@ -30,5 +30,5 @@ ItemDataPtr SQLUtils::createItemData(const ColumnBaseDefinition *baseDef,
                                      string &value)
 {
 	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
-	return SQLUtils::createItemData(baseDef, value);
+	return ItemDataPtr();
 }

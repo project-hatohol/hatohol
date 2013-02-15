@@ -37,8 +37,8 @@ enum ExpectedParenthesisType {
 	EXPECTED_PARENTHESIS_CLOSE_VALUE,
 };
 
-typedef map<const ColumnBaseDefinition *, string *> ColumnDefValueMap;
-typedef ColumnDefValueMap::iterator                 ColumnDefValueMapIterator;
+typedef map<ItemId, string *>    ItemIdValueMap;
+typedef ItemIdValueMap::iterator ItemIdValueMapIterator;
 
 struct SQLProcessorInsert::PrivateContext {
 	SQLInsertInfo     *insertInfo;
@@ -50,7 +50,7 @@ struct SQLProcessorInsert::PrivateContext {
 	string             pendingWord;
 	bool               openQuot;
 	const SQLTableStaticInfo *tableStaticInfo;
-	ColumnDefValueMap  columnDefValueMap;
+	ItemIdValueMap     itemIdValueMap;
 
 	// constructor
 	PrivateContext(void)
@@ -196,10 +196,11 @@ void SQLProcessorInsert::makeColumnDefValueMap(SQLInsertInfo &insertInfo)
 			  "The column '%s' was not found in table: '%s'\n",
 			  name.c_str(), tableStaticInfo->tableName);
 		}
-		pair<ColumnDefValueMapIterator, bool> ret = 
-		  m_ctx->columnDefValueMap.insert(
-		    pair<ColumnBaseDefinition *, string *>
-		      (it->second, &insertInfo.valueVector[i]));
+		ColumnBaseDefinition *colBaseDef = it->second;
+		pair<ItemIdValueMapIterator, bool> ret = 
+		  m_ctx->itemIdValueMap.insert(
+		    pair<ItemId, string *>
+		      (colBaseDef->itemId, &insertInfo.valueVector[i]));
 		if (!ret.second) {
 			THROW_SQL_PROCESSOR_EXCEPTION(
 			  "Failed to insert '%s' in table: '%s'\n",
@@ -212,21 +213,21 @@ void SQLProcessorInsert::doInsetToTable(SQLInsertInfo &insertInfo)
 {
 	ItemDataPtr dataPtr;
 	ItemGroupPtr grpPtr(new ItemGroup(), false);
-	ColumnDefValueMapIterator colValIt;
+	ItemIdValueMapIterator colValIt;
 	ColumnBaseDefListConstIterator it;
 	const SQLTableStaticInfo *tableStaticInfo = m_ctx->tableStaticInfo;
 
 	// Make one row
 	it = tableStaticInfo->columnBaseDefList.begin();
 	for (; it != tableStaticInfo->columnBaseDefList.end(); ++it) {
-		const ColumnBaseDefinition *colBaseDef = &(*it);
-		colValIt = m_ctx->columnDefValueMap.find(colBaseDef);
-		if (colValIt == m_ctx->columnDefValueMap.end()) {
-			dataPtr = SQLUtils::createDefaultItemData(colBaseDef);
+		const ColumnBaseDefinition &colBaseDef = *it;
+		colValIt = m_ctx->itemIdValueMap.find(colBaseDef.itemId);
+		if (colValIt == m_ctx->itemIdValueMap.end()) {
+			dataPtr = SQLUtils::createDefaultItemData(&colBaseDef);
 		} else {
-			dataPtr = SQLUtils::createItemData(colBaseDef,
+			dataPtr = SQLUtils::createItemData(&colBaseDef,
 			                                   *colValIt->second);
-			m_ctx->columnDefValueMap.erase(colValIt);
+			m_ctx->itemIdValueMap.erase(colValIt);
 		}
 		grpPtr->add(dataPtr, false);
 	}
