@@ -5,10 +5,13 @@ using namespace mlpl;
 #include <cppcutter.h>
 #include "Asura.h"
 #include "SQLProcessorInsert.h"
+#include "SQLProcessorException.h"
 
 namespace testSQLProcessorInsert {
 
 static TableNameStaticInfoMap dummyMap;
+
+static const char *dummyTableName = "tableName";
 
 class TestSQLProcessorInsert : public SQLProcessorInsert {
 public:
@@ -21,8 +24,12 @@ public:
 
 static void _asssertExecInsert(SQLInsertInfo &insertInfo)
 {
-	TestSQLProcessorInsert proc;
-	cppcut_assert_equal(true, proc.insert(insertInfo));
+	try {
+		TestSQLProcessorInsert proc;
+		cppcut_assert_equal(true, proc.insert(insertInfo));
+	} catch (SQLProcessorException *e) {
+		cut_fail("Got exception: %s", e->what());
+	}
 }
 #define asssertExecInsert(I) cut_trace(_asssertExecInsert(I))
 
@@ -74,9 +81,17 @@ static string removeQuotation(string str)
 	return string(str, 1, length-2);
 }
 
+void setupDummyMap(void)
+{
+	if (!dummyMap.empty())
+		return;
+	dummyMap[dummyTableName] = NULL;
+}
+
 void setup(void)
 {
 	asuraInit();
+	setupDummyMap();
 }
 
 // ---------------------------------------------------------------------------

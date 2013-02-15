@@ -6,8 +6,8 @@ using namespace mlpl;
 using namespace std;
 
 #include "SQLProcessorInsert.h"
-#include "SQLProcessorException.h"
 #include "Utils.h"
+#include "SQLProcessorException.h"
 
 enum ExpectedParenthesisType {
 	EXPECTED_PARENTHESIS_NONE,
@@ -140,8 +140,22 @@ bool SQLProcessorInsert::parseInsertStatement(SQLInsertInfo &insertInfo)
 
 bool SQLProcessorInsert::checkTableAndColumns(SQLInsertInfo &insertInfo)
 {
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
-	return false;
+	TableNameStaticInfoMapIterator it =
+	  m_tableNameStaticInfoMap.find(insertInfo.table);
+	if (it == m_tableNameStaticInfoMap.end()) {
+		THROW_SQL_PROCESSOR_EXCEPTION(
+		  "Not found: table in m_tableNameStaticInfoMap: %s\n",
+		  insertInfo.table.c_str());
+	}
+
+	if (insertInfo.columnVector.size() != insertInfo.valueVector.size()) {
+		THROW_SQL_PROCESSOR_EXCEPTION(
+		  "The number of column and value is diffrent: %zd, %zd\n",
+		  insertInfo.columnVector.size(),
+		  insertInfo.valueVector.size());
+	}
+
+	return true;
 }
 
 //
