@@ -8,6 +8,8 @@ using namespace std;
 #include "SQLProcessorInsert.h"
 #include "Utils.h"
 #include "SQLProcessorException.h"
+#include "ItemGroupPtr.h"
+#include "ItemTablePtr.h"
 
 enum ExpectedParenthesisType {
 	EXPECTED_PARENTHESIS_NONE,
@@ -16,6 +18,9 @@ enum ExpectedParenthesisType {
 	EXPECTED_PARENTHESIS_OPEN_VALUE,
 	EXPECTED_PARENTHESIS_CLOSE_VALUE,
 };
+
+typedef map<const ColumnBaseDefinition *, string *> ColumnDefValueMap;
+typedef ColumnDefValueMap::iterator                 ColumnDefValueMapIterator;
 
 struct SQLProcessorInsert::PrivateContext {
 	SQLInsertInfo     *insertInfo;
@@ -26,6 +31,8 @@ struct SQLProcessorInsert::PrivateContext {
 	ExpectedParenthesisType expectedParenthesis;
 	string             pendingWord;
 	bool               openQuot;
+	const SQLTableStaticInfo *tableStaticInfo;
+	ColumnDefValueMap  columnDefValueMap;
 
 	// constructor
 	PrivateContext(void)
@@ -33,7 +40,8 @@ struct SQLProcessorInsert::PrivateContext {
 	  section(INSERT_PARSING_SECTION_INSERT),
 	  errorFlag(false),
 	  expectedParenthesis(EXPECTED_PARENTHESIS_NONE),
-	  openQuot(false)
+	  openQuot(false),
+	  tableStaticInfo(NULL)
 	{
 	}
 };
@@ -107,6 +115,8 @@ bool SQLProcessorInsert::insert(SQLInsertInfo &insertInfo)
 	if (!parseInsertStatement(insertInfo))
 		return false;
 	checkTableAndColumns(insertInfo);
+	makeColumnDefValueMap(insertInfo);
+	doInsetToTable(insertInfo);
 	return true;
 }
 
@@ -146,6 +156,7 @@ void SQLProcessorInsert::checkTableAndColumns(SQLInsertInfo &insertInfo)
 		  "Not found: table in m_tableNameStaticInfoMap: %s\n",
 		  insertInfo.table.c_str());
 	}
+	m_ctx->tableStaticInfo = it->second;
 
 	if (insertInfo.columnVector.size() != insertInfo.valueVector.size()) {
 		THROW_SQL_PROCESSOR_EXCEPTION(
@@ -153,6 +164,56 @@ void SQLProcessorInsert::checkTableAndColumns(SQLInsertInfo &insertInfo)
 		  insertInfo.columnVector.size(),
 		  insertInfo.valueVector.size());
 	}
+}
+
+void SQLProcessorInsert::makeColumnDefValueMap(SQLInsertInfo &insertInfo)
+{
+	ItemNameColumnBaseDefRefMapConstIterator it;
+	const SQLTableStaticInfo *tableStaticInfo = m_ctx->tableStaticInfo;
+	for (size_t i = 0; i < insertInfo.columnVector.size(); i++) {
+		string &name = insertInfo.columnVector[i];
+		it = tableStaticInfo->columnBaseDefMap.find(name);
+		if (it == tableStaticInfo->columnBaseDefMap.end()) {
+			THROW_SQL_PROCESSOR_EXCEPTION(
+			  "The column '%s' was not found in table: '%s'\n",
+			  name.c_str(), tableStaticInfo->tableName);
+		}
+		pair<ColumnDefValueMapIterator, bool> ret = 
+		  m_ctx->columnDefValueMap.insert(
+		    pair<ColumnBaseDefinition *, string *>
+		      (it->second, &insertInfo.valueVector[i]));
+		if (!ret.second) {
+			THROW_SQL_PROCESSOR_EXCEPTION(
+			  "Failed to insert '%s' in table: '%s'\n",
+			  name.c_str(), tableStaticInfo->tableName);
+		}
+	}
+}
+
+void SQLProcessorInsert::doInsetToTable(SQLInsertInfo &insertInfo)
+{
+	ItemGroupPtr grpPtr;
+	ColumnDefValueMapIterator colValIt;
+	ColumnBaseDefListConstIterator it;
+	const SQLTableStaticInfo *tableStaticInfo = m_ctx->tableStaticInfo;
+
+	// Make one row
+	it = tableStaticInfo->columnBaseDefList.begin();
+	for (; it != tableStaticInfo->columnBaseDefList.end(); ++it) {
+		const ColumnBaseDefinition *colBaseDef = &(*it);
+		colValIt = m_ctx->columnDefValueMap.find(colBaseDef);
+		if (colValIt == m_ctx->columnDefValueMap.end()) {
+			grpPtr->add(createDefaultItemData(colBaseDef), false);
+		} else {
+			string *strPtr = colValIt->second;
+			grpPtr->add(createItemData(colBaseDef, *strPtr), false);
+			m_ctx->columnDefValueMap.erase(colValIt);
+		}
+	}
+
+	// Insert row
+	ItemTablePtr tablePtr = (*tableStaticInfo->tableGetFunc)();
+	tablePtr->add(grpPtr);
 }
 
 //
@@ -348,4 +409,19 @@ bool SQLProcessorInsert::pushValue(void)
 	m_ctx->insertInfo->valueVector.push_back(m_ctx->pendingWord);
 	m_ctx->pendingWord.clear();
 	return true;
+}
+
+ItemDataPtr
+SQLProcessorInsert::createDefaultItemData(const ColumnBaseDefinition *baseDef)
+{
+	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	return ItemDataPtr();
+}
+
+ItemDataPtr
+SQLProcessorInsert::createItemData(const ColumnBaseDefinition *baseDef,
+                                   string &value)
+{
+	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	return ItemDataPtr();
 }

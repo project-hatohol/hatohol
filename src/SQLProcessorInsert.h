@@ -5,6 +5,7 @@
 using namespace mlpl;
 
 #include "SQLProcessorTypes.h"
+#include "ItemDataPtr.h"
 
 struct SQLInsertInfo {
 	// input statement
@@ -49,6 +50,8 @@ protected:
 
 	bool parseInsertStatement(SQLInsertInfo &insertInfo);
 	void checkTableAndColumns(SQLInsertInfo &insertInfo);
+	void makeColumnDefValueMap(SQLInsertInfo &insertInfo);
+	void doInsetToTable(SQLInsertInfo &insertInfo);
 
 	//
 	// Sub parsers
@@ -86,6 +89,9 @@ protected:
 	bool checkCurrWord(string expected, InsertParseSection nextSection);
 	bool pushColumn(void);
 	bool pushValue(void);
+	ItemDataPtr createDefaultItemData(const ColumnBaseDefinition *baseDef);
+	ItemDataPtr createItemData(const ColumnBaseDefinition *baseDef,
+	                           string &value);
 
 private:
 	static const InsertSubParser m_insertSubParsers[];
