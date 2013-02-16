@@ -54,10 +54,10 @@ void test_itemInt(void)
 	assertCreateItemData(int, ItemInt, &testDefInt, data);
 }
 
-void test_itemBituint(void)
+void test_itemBiguint(void)
 {
 	uint64_t data = 0xfedcba9876543210;
-	assertCreateItemData(uint64_t, ItemInt, &testDefBiguint, data);
+	assertCreateItemData(uint64_t, ItemUint64, &testDefBiguint, data);
 }
 
 void test_itemVarchar(void)
