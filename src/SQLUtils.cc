@@ -99,13 +99,11 @@ ItemDataPtr SQLUtils::creatorItemBiguint
 ItemDataPtr SQLUtils::creatorVarchar
   (const ColumnBaseDefinition *columnBaseDef, const char *value)
 {
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
-	return ItemDataPtr();
+	return ItemDataPtr(new ItemString(value), false);
 }
 
 ItemDataPtr SQLUtils::creatorChar
   (const ColumnBaseDefinition *columnBaseDef, const char *value)
 {
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
-	return ItemDataPtr();
+	return ItemDataPtr(new ItemString(value), false);
 }
