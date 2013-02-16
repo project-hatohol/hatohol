@@ -54,9 +54,39 @@ void test_itemInt(void)
 	assertCreateItemData(int, ItemInt, &testDefInt, data);
 }
 
-void test_itemBiguint(void)
+void test_itemIntNegative(void)
 {
-	uint64_t data = 0xfedcba9876543210;
+	int data = -510;
+	assertCreateItemData(int, ItemInt, &testDefInt, data);
+}
+
+void test_itemBiguint32bitMax(void)
+{
+	uint64_t data = 0x00000000ffffffff;
+	assertCreateItemData(uint64_t, ItemUint64, &testDefBiguint, data);
+}
+
+void test_itemBiguint64bitMin(void)
+{
+	uint64_t data = 0x0000000100000000;
+	assertCreateItemData(uint64_t, ItemUint64, &testDefBiguint, data);
+}
+
+void test_itemBiguint64bitHalf7f(void)
+{
+	uint64_t data = 0x7fffffffffffffff;
+	assertCreateItemData(uint64_t, ItemUint64, &testDefBiguint, data);
+}
+
+void test_itemBiguint64bitHalf80(void)
+{
+	uint64_t data = 0x8000000000000000;
+	assertCreateItemData(uint64_t, ItemUint64, &testDefBiguint, data);
+}
+
+void test_itemBiguint64bitMax(void)
+{
+	uint64_t data = 0xffffffffffffffff;
 	assertCreateItemData(uint64_t, ItemUint64, &testDefBiguint, data);
 }
 
