@@ -15,4 +15,10 @@ private:
 	string m_what;
 };
 
+#define THROW_ASURA_EXCEPTION(FMT, ...) \
+do { \
+	string msg = StringUtils::sprintf(FMT, ##__VA_ARGS__); \
+	throw new AsuraException(msg); \
+} while (0)
+
 #endif // AsuraException_h
