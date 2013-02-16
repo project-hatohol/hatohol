@@ -18,6 +18,7 @@
 #include "Asura.h"
 #include "glib.h"
 
+#include "SQLUtils.h"
 #include "SQLProcessorZabbix.h"
 #include "SQLProcessorFactory.h"
 #include "SQLProcessorInsert.h"
@@ -34,6 +35,7 @@ void asuraInit(void)
 		return;
 	}
 
+	SQLUtils::init();
 	SQLFormulaParser::init();
 	SQLColumnParser::init(); // must be put after SQLFormulaParser::init()
 	SQLWhereParser::init();  // must be put after SQLFormulaParser::init()

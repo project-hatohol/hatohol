@@ -23,11 +23,28 @@
 
 class SQLUtils {
 public:
+	static void init(void);
 	static ItemDataPtr
 	  createDefaultItemData(const ColumnBaseDefinition *columnBaseDef);
 	static ItemDataPtr
 	  createItemData(const ColumnBaseDefinition *columnBaseDef,
 	                 string &value);
+protected:
+	typedef ItemDataPtr (*ItemDataCreator)
+	    (const ColumnBaseDefinition *columnBaseDef, const char *value);
+	
+	static ItemDataPtr creatorItemInt
+	  (const ColumnBaseDefinition *columnBaseDef, const char *value);
+	static ItemDataPtr creatorItemBiguint
+	  (const ColumnBaseDefinition *columnBaseDef, const char *value);
+	static ItemDataPtr creatorVarchar
+	  (const ColumnBaseDefinition *columnBaseDef, const char *value);
+	static ItemDataPtr creatorChar
+	  (const ColumnBaseDefinition *columnBaseDef, const char *value);
+
+private:
+	static ItemDataCreator m_itemDataCreators[];
+	static size_t          m_numItemDataCreators;
 };
 
 #endif // SQLUtils_h

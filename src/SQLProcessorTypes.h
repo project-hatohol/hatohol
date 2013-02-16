@@ -28,6 +28,7 @@ enum SQLColumnType {
 	SQL_COLUMN_TYPE_BIGUINT,
 	SQL_COLUMN_TYPE_VARCHAR,
 	SQL_COLUMN_TYPE_CHAR,
+	NUM_SQL_COLUMN_TYPES,
 };
 
 struct ColumnBaseDefinition {

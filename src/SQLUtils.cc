@@ -16,7 +16,33 @@
 */
 
 #include "SQLUtils.h"
+#include "SQLProcessorTypes.h"
 #include "AsuraException.h"
+
+SQLUtils::ItemDataCreator SQLUtils::m_itemDataCreators[] =
+{
+	&SQLUtils::creatorItemInt,
+	&SQLUtils::creatorItemBiguint,
+	&SQLUtils::creatorVarchar,
+	&SQLUtils::creatorChar,
+};
+
+size_t SQLUtils::m_numItemDataCreators
+  = sizeof(m_itemDataCreators)/sizeof(SQLUtils::ItemDataCreator);
+
+// ---------------------------------------------------------------------------
+// Public methods
+// ---------------------------------------------------------------------------
+void SQLUtils::init(void)
+{
+	// check
+	if (m_numItemDataCreators != NUM_SQL_COLUMN_TYPES) {
+		THROW_ASURA_EXCEPTION_WITH_LOG(BUG,
+		  "The number of m_itemDataCreator is wrong: "
+		  "expected/acutual: %zd/%zd\n",
+		  NUM_SQL_COLUMN_TYPES, m_numItemDataCreators);
+	}
+}
 
 ItemDataPtr SQLUtils::createDefaultItemData(const ColumnBaseDefinition *baseDef)
 {
@@ -28,6 +54,37 @@ ItemDataPtr SQLUtils::createDefaultItemData(const ColumnBaseDefinition *baseDef)
 
 ItemDataPtr SQLUtils::createItemData(const ColumnBaseDefinition *baseDef,
                                      string &value)
+{
+	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	return ItemDataPtr();
+}
+
+// ---------------------------------------------------------------------------
+// Protected methods
+// ---------------------------------------------------------------------------
+ItemDataPtr SQLUtils::creatorItemInt
+  (const ColumnBaseDefinition *columnBaseDef, const char *value)
+{
+	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	return ItemDataPtr();
+}
+
+ItemDataPtr SQLUtils::creatorItemBiguint
+  (const ColumnBaseDefinition *columnBaseDef, const char *value)
+{
+	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	return ItemDataPtr();
+}
+
+ItemDataPtr SQLUtils::creatorVarchar
+  (const ColumnBaseDefinition *columnBaseDef, const char *value)
+{
+	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	return ItemDataPtr();
+}
+
+ItemDataPtr SQLUtils::creatorChar
+  (const ColumnBaseDefinition *columnBaseDef, const char *value)
 {
 	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
 	return ItemDataPtr();
