@@ -55,8 +55,12 @@ ItemDataPtr SQLUtils::createDefaultItemData(const ColumnBaseDefinition *baseDef)
 ItemDataPtr SQLUtils::createItemData(const ColumnBaseDefinition *baseDef,
                                      string &value)
 {
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
-	return ItemDataPtr();
+	if (baseDef->type >= NUM_SQL_COLUMN_TYPES) {
+		THROW_ASURA_EXCEPTION_WITH_LOG(BUG,
+		  "baseDef->type: illegal value: %d, table: %s, column: %s\n",
+		  baseDef->type, baseDef->tableName, baseDef->columnName);
+	}
+	return (*m_itemDataCreators[baseDef->type])(baseDef, value.c_str());
 }
 
 // ---------------------------------------------------------------------------
