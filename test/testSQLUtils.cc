@@ -25,7 +25,7 @@ static ColumnBaseDefinition testDefVarchar = {
 
 static ColumnBaseDefinition testDefChar = {
 	testItemId, testTableName, testColumnName,
-	SQL_COLUMN_TYPE_BIGUINT, 8, 0
+	SQL_COLUMN_TYPE_CHAR, 8, 0
 };
 
 template<class ValueType, class ItemDataType>
