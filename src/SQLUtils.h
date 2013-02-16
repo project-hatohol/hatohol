@@ -26,6 +26,16 @@ public:
 	static void init(void);
 	static ItemDataPtr
 	  createDefaultItemData(const ColumnBaseDefinition *columnBaseDef);
+
+	/**
+	 * create ItemDataPtr from a string.
+	 *
+	 * @columnBaseDef A pointer of ceolumnBaseDefinition object.
+	 * @value A string of the value.
+	 * @return An ItemDataPtr that refers an ItemData object on success.
+	 *         When an error, the returned ItemDataPtr doesn't
+	 *         have a reference (i.e. hasData() returns falase).
+	 */
 	static ItemDataPtr
 	  createItemData(const ColumnBaseDefinition *columnBaseDef,
 	                 string &value);
