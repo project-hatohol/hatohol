@@ -229,6 +229,16 @@ void SQLProcessorInsert::doInsetToTable(SQLInsertInfo &insertInfo)
 			                                   *colValIt->second);
 			m_ctx->itemIdValueMap.erase(colValIt);
 		}
+		if (!dataPtr.hasData()) {
+			const char *valueString = NULL;
+			if (colValIt != m_ctx->itemIdValueMap.end())
+				valueString = colValIt->second->c_str();
+			THROW_SQL_PROCESSOR_EXCEPTION(
+			  "Failed to create ItemData for value '%s': "
+			  "table: %s, column: %s\n",
+			  valueString, colBaseDef.tableName,
+			  colBaseDef.columnName);
+		}
 		grpPtr->add(dataPtr, false);
 	}
 
