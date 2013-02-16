@@ -84,8 +84,16 @@ ItemDataPtr SQLUtils::creatorItemInt
 ItemDataPtr SQLUtils::creatorItemBiguint
   (const ColumnBaseDefinition *columnBaseDef, const char *value)
 {
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
-	return ItemDataPtr();
+	bool isFloat;
+	if (!StringUtils::isNumber(value, &isFloat)) {
+		MLPL_DBG("Not number: %s\n", value);
+		return ItemDataPtr();
+	}
+	if (isFloat) {
+		MLPL_WARN("Floating point is specified. "
+		          "Precision may be lost: %s\n", value);
+	}
+	return ItemDataPtr(new ItemUint64(atol(value)), false);
 }
 
 ItemDataPtr SQLUtils::creatorVarchar
