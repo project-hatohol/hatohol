@@ -368,6 +368,8 @@ bool SQLFormulaParser::makeFormulaElementFromPendingWord(void)
 	FormulaElement *formulaElement;
 	bool isFloat;
 	if (StringUtils::isNumber(m_ctx->pendingWord, &isFloat)) {
+		MLPL_WARN("Strict number generation algorithm "
+		          "has to be implemented.\n");
 		if (!isFloat) {
 			int number = atoi(m_ctx->pendingWord.c_str());
 			formulaElement = new FormulaValue(number);
