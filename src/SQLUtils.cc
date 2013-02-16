@@ -93,7 +93,12 @@ ItemDataPtr SQLUtils::creatorItemBiguint
 		MLPL_WARN("Floating point is specified. "
 		          "Precision may be lost: %s\n", value);
 	}
-	return ItemDataPtr(new ItemUint64(atol(value)), false);
+	uint64_t valUint64;
+	if (sscanf(value, "%"PRIu64, &valUint64) != 1) {
+		MLPL_DBG("Not number: %s\n", value);
+		return ItemDataPtr();
+	}
+	return ItemDataPtr(new ItemUint64(valUint64), false);
 }
 
 ItemDataPtr SQLUtils::creatorVarchar
