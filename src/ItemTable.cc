@@ -66,7 +66,11 @@ void ItemTable::add(ItemGroup *group, bool doRef)
 		const ItemGroupType *groupType0 = tail->getItemGroupType();
 		const ItemGroupType *groupType1 = group->getItemGroupType();
 		if (groupType1 == NULL) {
-			group->setItemGroupType(groupType0);
+			if (!group->setItemGroupType(groupType0)) {
+				writeUnlock();
+				throw invalid_argument("Failed to call "
+				                       "setItemGroupType.");
+			}
 		} else if (*groupType0 != *groupType1) {
 			writeUnlock();
 			string msg;
