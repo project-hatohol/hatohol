@@ -239,7 +239,7 @@ void SQLProcessorInsert::doInsetToTable(SQLInsertInfo &insertInfo)
 			  valueString, colBaseDef.tableName,
 			  colBaseDef.columnName);
 		}
-		grpPtr->add(dataPtr, false);
+		grpPtr->add(dataPtr);
 	}
 
 	// Insert row
