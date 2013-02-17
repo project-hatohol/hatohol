@@ -211,4 +211,14 @@ void test_selectUseridAutoLogoutLastAccess(void)
 	assertRecord(0, nsmap);
 }
 
+void test_insertSessions(void)
+{
+	const char *cmd = "use zabbix;"
+	  "INSERT INTO sessions (sessionid,userid,lastaccess,status) "
+	  "VALUES ('9ba4d7eb67f2025db7d3e881ee64702c',2,1361063975,0)";
+	executeCommand(cmd);
+	NumberStringMap nsmap;
+	assertRecord(0, nsmap);
+}
+
 } // namespace testMySQLWorkerZabbix
