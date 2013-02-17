@@ -501,7 +501,8 @@ bool FaceMySQLWorker::sendSelectResult(const SQLSelectInfo &selectInfo)
 
 bool FaceMySQLWorker::sendInsertResult(const SQLInsertInfo &insertInfo)
 {
-	return sendOK(1);
+	int numInsertedRows = 1;
+	return sendOK(numInsertedRows);
 }
 
 bool FaceMySQLWorker::sendOK(uint64_t affectedRows, uint64_t lastInsertId)
