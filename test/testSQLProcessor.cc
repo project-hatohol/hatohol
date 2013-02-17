@@ -203,12 +203,14 @@ private:
 
 	void initStaticInfoEach(SQLTableStaticInfo *staticInfo,
 	                        const TableData &tableData,
-	                        SQLTableMakeFunc tableMakeFunc)
+	                        SQLTableMakeFunc tableMakeFunc,
+	                        SQLTableGetFunc tableGetFunc)
 	{
 		m_tableNameStaticInfoMap[tableData.tableName] = staticInfo;
 		staticInfo->tableId = tableData.tableId;
 		staticInfo->tableName = tableData.tableName;
 		staticInfo->tableMakeFunc = tableMakeFunc;
+		staticInfo->tableGetFunc  = tableGetFunc;
 
 		ColumnBaseDefList &list =
 		  const_cast<ColumnBaseDefList &>
@@ -226,6 +228,10 @@ private:
 		}
 	}
 
+	static ItemTablePtr tableZGetFunc(void) {
+		return ItemTablePtr();
+	}
+
 	void initStaticInfo(void) {
 		SQLTableMakeFunc tableMakeFuncArray[NUM_TABLE_DATA] = {
 		  TBL_FNC(&TestSQLProcessor::table0MakeFunc),
@@ -234,9 +240,17 @@ private:
 		  TBL_FNC(&TestSQLProcessor::tableNMakeFunc),
 		};
 
+		SQLTableGetFunc tableGetFuncArray[NUM_TABLE_DATA] = {
+			tableZGetFunc,
+			tableZGetFunc,
+			tableZGetFunc,
+			tableZGetFunc,
+		};
+
 		for (size_t i = 0; i < NUM_TABLE_DATA; i++) {
 			initStaticInfoEach(&m_staticInfo[i], tableData[i],
-			                   tableMakeFuncArray[i]);
+			                   tableMakeFuncArray[i],
+			                   tableGetFuncArray[i]);
 		}
 	}
 };
