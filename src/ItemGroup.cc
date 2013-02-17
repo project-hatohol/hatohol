@@ -142,28 +142,30 @@ const ItemGroupType *ItemGroup::getItemGroupType(void) const
 	return ret;
 }
 
-void ItemGroup::setItemGroupType(const ItemGroupType *itemGroupType)
+bool ItemGroup::setItemGroupType(const ItemGroupType *itemGroupType)
 {
+	string msg;
 	writeLock();
 	if (m_groupType) {
 		writeUnlock();
 		if (m_groupType == itemGroupType) {
 			MLPL_WARN("The indentical ItemGroupType is set.\n");
-			return;
+			return true;
 		}
-		string msg;
 		TRMSG(msg, "m_groupType: alread set.");
-		throw logic_error(msg);
+		MLPL_BUG(msg.c_str());
+		return false;
 	}
 
 	if (!m_itemVector.empty()) {
-		string msg;
 		TRMSG(msg, "m_itemVector is not empty.");
-		throw invalid_argument(msg);
+		MLPL_BUG(msg.c_str());
+		return false;
 	}
 
 	m_groupType = itemGroupType;
 	writeUnlock();
+	return true;
 }
 
 // ---------------------------------------------------------------------------
