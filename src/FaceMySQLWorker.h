@@ -91,6 +91,7 @@ protected:
 	  uint32_t columnLength, uint8_t type,
 	  uint16_t flags, uint8_t decimals);
 	bool sendSelectResult(const SQLSelectInfo &selectInfo);
+	bool sendInsertResult(const SQLInsertInfo &insertInfo);
 	bool sendLenEncInt(uint64_t num);
 	bool sendLenEncStr(string &str);
 	bool sendPacket(SmartBuffer &pkt);
@@ -112,6 +113,7 @@ protected:
 
 	// Query handlers
 	bool querySelect(ParsableString &query);
+	bool queryInsert(ParsableString &query);
 	bool querySet(ParsableString &query);
 	bool queryBegin(ParsableString &query);
 	bool queryRollback(ParsableString &query);

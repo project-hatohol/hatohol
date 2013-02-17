@@ -141,6 +141,7 @@ FaceMySQLWorker::FaceMySQLWorker(GSocket *sock, uint32_t connId)
 	m_cmdProcMap[ID_COM_SET_OPTION]  = &FaceMySQLWorker::comSetOption;
 
 	m_queryProcMap["select"]  = &FaceMySQLWorker::querySelect;
+	m_queryProcMap["insert"]  = &FaceMySQLWorker::queryInsert;
 	m_queryProcMap["set"]     = &FaceMySQLWorker::querySet;
 	m_queryProcMap["begin"]   = &FaceMySQLWorker::queryBegin;
 	m_queryProcMap["rollback"] = &FaceMySQLWorker::queryRollback;
@@ -498,6 +499,12 @@ bool FaceMySQLWorker::sendSelectResult(const SQLSelectInfo &selectInfo)
 	return true;
 }
 
+bool FaceMySQLWorker::sendInsertResult(const SQLInsertInfo &insertInfo)
+{
+	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	return false;
+}
+
 bool FaceMySQLWorker::sendOK(uint64_t affectedRows, uint64_t lastInsertId)
 {
 	SmartBuffer pkt(11);
@@ -747,6 +754,20 @@ bool FaceMySQLWorker::querySelect(ParsableString &query)
 		if (m_sqlProcessor->select(selectInfo))
 			return sendSelectResult(selectInfo);
 		MLPL_ERR("Failed: select: '%s'\n", query.getString());
+		return false;
+	}
+	MLPL_BUG("Not implemented: select: '%s'\n", query.getString());
+	return false;
+}
+
+bool FaceMySQLWorker::queryInsert(ParsableString &query)
+{
+	string column = query.readWord(m_separatorSpaceComma, true);
+	if (m_sqlProcessor) {
+		SQLInsertInfo insertInfo(query);
+		if (m_sqlProcessor->insert(insertInfo))
+			return sendInsertResult(insertInfo);
+		MLPL_ERR("Failed: insert: '%s'\n", query.getString());
 		return false;
 	}
 	MLPL_BUG("Not implemented: select: '%s'\n", query.getString());
