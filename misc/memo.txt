@@ -194,3 +194,17 @@ ID 4 len 2 ::DUMP:: 01 30 ::DUMP::
 ID 5 len 5 ::DUMP:: fe 00 00 02 00 ::DUMP::
 
 
+*** LOG: INSERT INTO sessions (sessionid,userid,lastaccess,status) VALUES ('aba4d7eb67f2025db7d3e881ee64702d',2,1361063975,0);
+Query OK, 1 row affected (0.08 sec)
+
+127.0.0.1.52357 > server: ID 0 len 117 ::DUMP::
+03 // COM_QUERY
+49 4e 53 45 52 54 20 49 4e 54 4f 20 73 65 73 73 69 6f 6e 73 20 28 73 65 73 73 69 6f 6e 69 64 2c 75 73 65 72 69 64 2c 6c 61 73 74 61 63 63 65 73 73 2c 73 74 61 74 75 73 29 20 56 41 4c 55 45 53 20 28 27 61 62 61 34 64 37 65 62 36 37 66 32 30 32 35 64 62 37 64 33 65 38 38 31 65 65 36 34 37 30 32 64 27 2c 32 2c 31 33 36 31 30 36 33 39 37 35 2c 30 29 ::DUMP::
+server > 127.0.0.1.52357: ID 1 len 7 ::DUMP::
+00 // OK
+01 // affectedRows (lenenc-int)
+00 // lastInsertId (lenenc-int)
+02 00 // flags
+00 00 // warnings
+::DUMP::
+
