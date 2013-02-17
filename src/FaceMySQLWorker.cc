@@ -501,8 +501,7 @@ bool FaceMySQLWorker::sendSelectResult(const SQLSelectInfo &selectInfo)
 
 bool FaceMySQLWorker::sendInsertResult(const SQLInsertInfo &insertInfo)
 {
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
-	return false;
+	return sendOK(1);
 }
 
 bool FaceMySQLWorker::sendOK(uint64_t affectedRows, uint64_t lastInsertId)
