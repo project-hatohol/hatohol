@@ -721,7 +721,7 @@ bool SQLProcessor::pickupMatchingRows(const ItemGroup *itemGroup,
 		return false;
 	}
 	if (*result == *selectInfo.itemFalsePtr)
-		return true;;
+		return true;
 	selectInfo.selectedTable->add(nonConstItemGroup);
 	return true;
 }
