@@ -142,7 +142,8 @@ void SQLProcessorUpdate::parseUpdate(void)
 
 void SQLProcessorUpdate::parseTable(void)
 {
-	MLPL_BUG("Not implemented\n", __PRETTY_FUNCTION__);
+	m_ctx->updateInfo->table = m_ctx->currWord;
+	m_ctx->section = UPDATE_PARSING_SECTION_SET_KEYWORD;
 }
 
 void SQLProcessorUpdate::parseSetKeyword(void)
