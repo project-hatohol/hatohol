@@ -114,6 +114,7 @@ protected:
 	// Query handlers
 	bool querySelect(ParsableString &query);
 	bool queryInsert(ParsableString &query);
+	bool queryUpdate(ParsableString &query);
 	bool querySet(ParsableString &query);
 	bool queryBegin(ParsableString &query);
 	bool queryRollback(ParsableString &query);

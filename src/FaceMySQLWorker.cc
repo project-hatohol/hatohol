@@ -142,6 +142,7 @@ FaceMySQLWorker::FaceMySQLWorker(GSocket *sock, uint32_t connId)
 
 	m_queryProcMap["select"]  = &FaceMySQLWorker::querySelect;
 	m_queryProcMap["insert"]  = &FaceMySQLWorker::queryInsert;
+	m_queryProcMap["update"]  = &FaceMySQLWorker::queryUpdate;
 	m_queryProcMap["set"]     = &FaceMySQLWorker::querySet;
 	m_queryProcMap["begin"]   = &FaceMySQLWorker::queryBegin;
 	m_queryProcMap["rollback"] = &FaceMySQLWorker::queryRollback;
@@ -769,6 +770,16 @@ bool FaceMySQLWorker::queryInsert(ParsableString &query)
 		if (m_sqlProcessor->insert(insertInfo))
 			return sendInsertResult(insertInfo);
 		MLPL_ERR("Failed: insert: '%s'\n", query.getString());
+		return false;
+	}
+	MLPL_BUG("Not implemented: select: '%s'\n", query.getString());
+	return false;
+}
+
+bool FaceMySQLWorker::queryUpdate(ParsableString &query)
+{
+	string column = query.readWord(m_separatorSpaceComma, true);
+	if (m_sqlProcessor) {
 		return false;
 	}
 	MLPL_BUG("Not implemented: select: '%s'\n", query.getString());
