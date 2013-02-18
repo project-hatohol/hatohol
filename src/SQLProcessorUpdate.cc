@@ -172,7 +172,7 @@ void SQLProcessorUpdate::parseValue(void)
 
 void SQLProcessorUpdate::parseWhereKeyword(void)
 {
-	MLPL_BUG("Not implemented\n", __PRETTY_FUNCTION__);
+	checkCurrWord("where", UPDATE_PARSING_SECTION_WHERE);
 }
 
 void SQLProcessorUpdate::parseWhere(void)
