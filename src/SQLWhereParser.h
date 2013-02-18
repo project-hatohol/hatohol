@@ -16,7 +16,7 @@
 */
 
 #ifndef SQLWhereParser_h
-#define SQLFormualaParser_h
+#define SQLWhereParser_h
 
 #include "SQLFormulaParser.h"
 
@@ -59,6 +59,6 @@ private:
 	PrivateContext          *m_ctx;
 };
 
-#endif // SQLFormualaParser_h
+#endif // SQLWhereParser_h
 
 
