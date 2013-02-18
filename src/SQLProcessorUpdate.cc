@@ -153,7 +153,8 @@ void SQLProcessorUpdate::parseSetKeyword(void)
 
 void SQLProcessorUpdate::parseColumn(void)
 {
-	MLPL_BUG("Not implemented\n", __PRETTY_FUNCTION__);
+	m_ctx->updateInfo->columnVector.push_back(m_ctx->currWord);
+	m_ctx->section = UPDATE_PARSING_SECTION_EQUAL;
 }
 
 void SQLProcessorUpdate::parseEqual(void)
