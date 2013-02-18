@@ -30,7 +30,7 @@ public:
 	/**
 	 * create ItemDataPtr from a string.
 	 *
-	 * @columnBaseDef A pointer of ceolumnBaseDefinition object.
+	 * @columnBaseDef A pointer of ColumnBaseDefinition object.
 	 * @value A string of the value.
 	 * @return An ItemDataPtr that refers an ItemData object on success.
 	 *         When an error, the returned ItemDataPtr doesn't
