@@ -124,30 +124,31 @@ FormulaElement *FormulaElement::findInsertPoint(FormulaElement *insertElem,
 	return prev;
 }
 
-bool FormulaElement::getLeftHandDataWithCheck(ItemDataPtr &dataPtr)
+bool FormulaElement::getHandDataWithCheck(ItemDataPtr &dataPtr,
+                                          FormulaElement *hand,
+                                          const char *handName)
 {
-	FormulaElement *leftHand = getLeftHand();
-	if (!leftHand) {
-		MLPL_DBG("Left Hand: NULL.\n");
+	if (!hand) {
+		MLPL_DBG("%s hand: NULL.\n", handName);
 		return false;
 	}
-	dataPtr = leftHand->evaluate(); 
-	if (!dataPtr.hasData())
+	dataPtr = hand->evaluate(); 
+	if (!dataPtr.hasData()) {
+		MLPL_DBG("evaluate() of %s hand (%p: %s):  no data. \n",
+		         handName, hand, Utils::DEMANGLED_TYPE_NAME(*hand));
 		return false;
+	}
 	return true;
+}
+
+bool FormulaElement::getLeftHandDataWithCheck(ItemDataPtr &dataPtr)
+{
+	return getHandDataWithCheck(dataPtr, getLeftHand(), "Left");
 }
 
 bool FormulaElement::getRightHandDataWithCheck(ItemDataPtr &dataPtr)
 {
-	FormulaElement *rightHand = getRightHand();
-	if (!rightHand) {
-		MLPL_DBG("Right Hand: NULL.\n");
-		return false;
-	}
-	dataPtr = rightHand->evaluate(); 
-	if (!dataPtr.hasData())
-		return false;
-	return true;
+	return getHandDataWithCheck(dataPtr, getRightHand(), "Right");
 }
 
 void FormulaElement::setTerminalElement(void)

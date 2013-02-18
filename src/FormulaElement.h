@@ -81,6 +81,8 @@ public:
 	                int depth = 0);
 
 protected:
+	bool getHandDataWithCheck(ItemDataPtr &dataPtr, FormulaElement *hand,
+	                          const char *handName);
 	bool getLeftHandDataWithCheck(ItemDataPtr &dataPtr);
 	bool getRightHandDataWithCheck(ItemDataPtr &dataPtr);
 	void setTerminalElement(void);
