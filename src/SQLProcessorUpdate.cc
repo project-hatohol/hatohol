@@ -22,6 +22,7 @@ using namespace mlpl;
 #include "SQLProcessorUpdate.h"
 #include "Utils.h"
 #include "AsuraException.h"
+#include "SQLProcessorException.h"
 
 struct SQLProcessorUpdate::PrivateContext {
 	SQLUpdateInfo     *updateInfo;
@@ -159,7 +160,8 @@ void SQLProcessorUpdate::parseColumn(void)
 
 void SQLProcessorUpdate::parseEqual(void)
 {
-	MLPL_BUG("Not implemented\n", __PRETTY_FUNCTION__);
+	THROW_SQL_PROCESSOR_EXCEPTION(
+	  "The parser expected '='. But got: %s\n", m_ctx->currWord.c_str());
 }
 
 void SQLProcessorUpdate::parseValue(void)
@@ -215,7 +217,10 @@ void SQLProcessorUpdate::_separatorCbEqual(const char separator,
 
 void SQLProcessorUpdate::separatorCbEqual(const char separator)
 {
-	MLPL_BUG("Not implemented\n", __PRETTY_FUNCTION__);
+	if (m_ctx->section != UPDATE_PARSING_SECTION_EQUAL) {
+		THROW_SQL_PROCESSOR_EXCEPTION("Detected unexpected '='.\n");
+	}
+	m_ctx->section = UPDATE_PARSING_SECTION_VALUE;
 }
 
 //
