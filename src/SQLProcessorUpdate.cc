@@ -166,7 +166,8 @@ void SQLProcessorUpdate::parseEqual(void)
 
 void SQLProcessorUpdate::parseValue(void)
 {
-	MLPL_BUG("Not implemented\n", __PRETTY_FUNCTION__);
+	m_ctx->updateInfo->valueVector.push_back(m_ctx->currWord);
+	m_ctx->section = UPDATE_PARSING_SECTION_WHERE_KEYWORD;
 }
 
 void SQLProcessorUpdate::parseWhereKeyword(void)
