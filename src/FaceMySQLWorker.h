@@ -117,6 +117,7 @@ protected:
 	bool querySet(ParsableString &query);
 	bool queryBegin(ParsableString &query);
 	bool queryRollback(ParsableString &query);
+	bool queryCommit(ParsableString &query);
 
 	// System select handlers
 	bool querySelectVersionComment(ParsableString &query);

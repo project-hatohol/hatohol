@@ -145,6 +145,7 @@ FaceMySQLWorker::FaceMySQLWorker(GSocket *sock, uint32_t connId)
 	m_queryProcMap["set"]     = &FaceMySQLWorker::querySet;
 	m_queryProcMap["begin"]   = &FaceMySQLWorker::queryBegin;
 	m_queryProcMap["rollback"] = &FaceMySQLWorker::queryRollback;
+	m_queryProcMap["commit"]  = &FaceMySQLWorker::queryCommit;
 }
 
 FaceMySQLWorker::~FaceMySQLWorker()
@@ -789,6 +790,13 @@ bool FaceMySQLWorker::queryBegin(ParsableString &query)
 bool FaceMySQLWorker::queryRollback(ParsableString &query)
 {
 	MLPL_BUG("Not implemented: rollback: %s (ignored)\n",
+	         query.getString());
+	return sendOK();
+}
+
+bool FaceMySQLWorker::queryCommit(ParsableString &query)
+{
+	MLPL_BUG("Not implemented: commit: %s (ignored)\n",
 	         query.getString());
 	return sendOK();
 }
