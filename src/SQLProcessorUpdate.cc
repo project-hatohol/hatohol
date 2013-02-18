@@ -31,12 +31,14 @@ struct SQLProcessorUpdate::PrivateContext {
 	UpdateParseSection section;
 	string             pendingWord;
 	bool               openQuot;
+	SeparatorCheckerWithCallback *whereParserSeparatorChecker;
 
 	// constructor
 	PrivateContext(void)
 	: updateInfo(NULL),
 	  section(UPDATE_PARSING_SECTION_UPDATE),
-	  openQuot(false)
+	  openQuot(false),
+	  whereParserSeparatorChecker(NULL)
 	{
 	}
 };
@@ -117,7 +119,7 @@ void SQLProcessorUpdate::parseUpdateStatement(SQLUpdateInfo &updateInfo)
 {
 	m_ctx->updateInfo = &updateInfo;
 	while (!updateInfo.statement.finished()) {
-		m_ctx->currWord = updateInfo.statement.readWord(m_separator);
+		m_ctx->currWord = readCurrWord();
 		if (m_ctx->currWord.empty())
 			continue;
 		m_ctx->currWordLower = StringUtils::toLower(m_ctx->currWord);
@@ -173,11 +175,14 @@ void SQLProcessorUpdate::parseValue(void)
 void SQLProcessorUpdate::parseWhereKeyword(void)
 {
 	checkCurrWord("where", UPDATE_PARSING_SECTION_WHERE);
+	m_ctx->whereParserSeparatorChecker =
+	  m_ctx->updateInfo->whereParser.getSeparatorChecker();
 }
 
 void SQLProcessorUpdate::parseWhere(void)
 {
-	MLPL_BUG("Not implemented\n", __PRETTY_FUNCTION__);
+	m_ctx->updateInfo->whereParser.add(m_ctx->currWord,
+	                                   m_ctx->currWordLower);
 }
 
 void SQLProcessorUpdate::parseEnd(void)
@@ -227,6 +232,16 @@ void SQLProcessorUpdate::separatorCbEqual(const char separator)
 //
 // General sub routines
 //
+string SQLProcessorUpdate::readCurrWord(void) 
+{
+	SeparatorCheckerWithCallback *separator;
+	if (m_ctx->section != UPDATE_PARSING_SECTION_WHERE)
+		separator = &m_separator;
+	else
+		separator = m_ctx->whereParserSeparatorChecker;
+	return m_ctx->updateInfo->statement.readWord(*separator);
+}
+
 bool SQLProcessorUpdate::checkCurrWord(string expected,
                                        UpdateParseSection nextSection)
 {

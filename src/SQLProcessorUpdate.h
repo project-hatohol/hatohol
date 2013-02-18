@@ -102,6 +102,7 @@ protected:
 	//
 	// General sub routines
 	//
+	string readCurrWord(void); 
 	bool checkCurrWord(string expected, UpdateParseSection nextSection);
 
 private:
