@@ -6,6 +6,7 @@ using namespace mlpl;
 #include "Asura.h"
 #include "SQLProcessorUpdate.h"
 #include "SQLProcessorException.h"
+#include "Helpers.h"
 
 namespace testSQLProcessorUpdate {
 
@@ -41,14 +42,6 @@ static void _asssertExecUpdate(SQLUpdateInfo &updateInfo)
 ParsableString _parsable(STATEMENT); \
 SQLUpdateInfo INS_VAR(_parsable); \
 asssertExecUpdate(INS_VAR)
-
-static void _assertStringVector(StringVector &expected, StringVector &actual)
-{
-	cppcut_assert_equal(expected.size(), actual.size());
-	for (size_t i = 0; i < expected.size(); i++)
-		cppcut_assert_equal(expected[i], actual[i]);
-}
-#define assertStringVector(E,A) cut_trace(_assertStringVector(E,A))
 
 void setupDummyMap(void)
 {

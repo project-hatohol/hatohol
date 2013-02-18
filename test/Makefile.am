@@ -18,7 +18,7 @@ noinst_LTLIBRARIES = \
 	testItemTablePtr.la \
 	testItemDataUtils.la \
 	testFormulaOperator.la \
-	libFormulaTestUtils.la
+	libFormulaTestUtils.la libHelpers.la
 
 endif
 
@@ -43,6 +43,12 @@ testSQLColumnParser_la_LIBADD = ./libFormulaTestUtils.la
 testSQLWhereParser_la_SOURCES = testSQLWhereParser.cc
 testSQLWhereParser_la_LIBADD = ./libFormulaTestUtils.la
 
+testSQLProcessorInsert_la_SOURCES = testSQLProcessorInsert.cc
+testSQLProcessorInsert_la_LIBADD = ./libHelpers.la
+
+testSQLProcessorUpdate_la_SOURCES = testSQLProcessorUpdate.cc
+testSQLProcessorUpdate_la_LIBADD = ./libHelpers.la
+
 testMySQLWorkerZabbix_la_SOURCES = testMySQLWorkerZabbix.cc
 testItemData_la_SOURCES = testItemData.cc
 testItemGroup_la_SOURCES = testItemGroup.cc
@@ -56,6 +62,9 @@ testFormulaOperator_la_LIBADD = ./libFormulaTestUtils.la
 
 libFormulaTestUtils_la_SOURCES = FormulaTestUtils.cc
 libFormulaTestUtils_la_LDFLAGS =
+
+libHelpers_la_SOURCES = Helpers.cc
+libHelpers_la_LDFLAGS =
 
 echo-cutter:
 	@echo $(CUTTER)
