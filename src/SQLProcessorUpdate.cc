@@ -148,7 +148,7 @@ void SQLProcessorUpdate::parseTable(void)
 
 void SQLProcessorUpdate::parseSetKeyword(void)
 {
-	MLPL_BUG("Not implemented\n", __PRETTY_FUNCTION__);
+	checkCurrWord("set", UPDATE_PARSING_SECTION_COLUMN);
 }
 
 void SQLProcessorUpdate::parseColumn(void)
