@@ -2,6 +2,7 @@
   - Then fix the code to make FormulaValue.
 * [M] Support Key type on columns (PRIMARY, UNIQUE, etc.): check the douplication on insert
 * [M] Catch the SQLParser exception and return it properly.
+* [M] Support the form: insert into table values (xx, xxx, xxx, xx)
 
 * [M] make SQLProcessorSelect.
 
