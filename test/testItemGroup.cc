@@ -176,13 +176,7 @@ void test_setItemGroupTypeWhenAlreadySet(void)
 	x_grp->freeze();
 	cut_assert_not_null(x_grp->getItemGroupType());
 
-	bool gotException = false;
-	try {
-		x_grp->setItemGroupType(itemGroupType);
-	} catch (logic_error e) {
-		gotException = true;
-	}
-	cppcut_assert_equal(true, gotException);
+	cppcut_assert_equal(false, x_grp->setItemGroupType(itemGroupType));
 }
 
 void test_setItemGroupTypeWhenHasData(void)
@@ -197,13 +191,7 @@ void test_setItemGroupTypeWhenHasData(void)
 	x_grp = new ItemGroup();
 	x_grp->setItemGroupType(itemGroupType);
 	x_grp->add(new ItemInt(ITEM_ID_0, 500), false);
-	bool gotException = false;
-	try {
-		x_grp->setItemGroupType(itemGroupType);
-	} catch (logic_error e) {
-		gotException = true;
-	}
-	cppcut_assert_equal(true, gotException);
+	cppcut_assert_equal(false, x_grp->setItemGroupType(itemGroupType));
 }
 
 void test_addWhenHasItemGroupType(void)
