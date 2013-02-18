@@ -78,7 +78,8 @@ ItemDataPtr SQLUtils::creatorItemInt
 		MLPL_WARN("Floating point is specified. "
 		          "Precision may be lost: %s\n", value);
 	}
-	return ItemDataPtr(new ItemInt(atoi(value)), false);
+	ItemId itemId = columnBaseDef->itemId;
+	return ItemDataPtr(new ItemInt(itemId, atoi(value)), false);
 }
 
 ItemDataPtr SQLUtils::creatorItemBiguint
@@ -98,17 +99,20 @@ ItemDataPtr SQLUtils::creatorItemBiguint
 		MLPL_DBG("Not number: %s\n", value);
 		return ItemDataPtr();
 	}
-	return ItemDataPtr(new ItemUint64(valUint64), false);
+	ItemId itemId = columnBaseDef->itemId;
+	return ItemDataPtr(new ItemUint64(itemId, valUint64), false);
 }
 
 ItemDataPtr SQLUtils::creatorVarchar
   (const ColumnBaseDefinition *columnBaseDef, const char *value)
 {
-	return ItemDataPtr(new ItemString(value), false);
+	ItemId itemId = columnBaseDef->itemId;
+	return ItemDataPtr(new ItemString(itemId, value), false);
 }
 
 ItemDataPtr SQLUtils::creatorChar
   (const ColumnBaseDefinition *columnBaseDef, const char *value)
 {
-	return ItemDataPtr(new ItemString(value), false);
+	ItemId itemId = columnBaseDef->itemId;
+	return ItemDataPtr(new ItemString(itemId, value), false);
 }
