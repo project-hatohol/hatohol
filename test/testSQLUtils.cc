@@ -39,6 +39,7 @@ void _assertCreateItemData(const ColumnBaseDefinition *columnDefinition,
 	ItemDataType *createdItemData =
 	  dynamic_cast<ItemDataType *>((ItemData *)dataPtr);
 	cppcut_assert_not_null(createdItemData);
+	cppcut_assert_equal(testItemId, createdItemData->getId());
 	ValueType actual = createdItemData->get();
 	cppcut_assert_equal(data, actual);
 }
