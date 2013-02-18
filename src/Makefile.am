@@ -7,7 +7,7 @@ libasura_la_SOURCES = \
 	Utils.cc FaceBase.cc FaceMySQL.cc FaceMySQLWorker.cc \
 	SQLProcessorException.cc SQLUtils.cc \
 	SQLProcessorFactory.cc SQLProcessor.cc SQLProcessorZabbix.cc \
-	SQLProcessorInsert.cc \
+	SQLProcessorInsert.cc SQLProcessorUpdate.cc \
 	SQLFormulaParser.cc SQLColumnParser.cc SQLWhereParser.cc \
 	FormulaElement.cc FormulaOperator.cc FormulaFunction.cc \
 	ReadWriteLock.cc UsedCountable.cc \
