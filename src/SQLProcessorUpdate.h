@@ -104,6 +104,8 @@ protected:
 	//
 	string readCurrWord(void); 
 	void checkCurrWord(string expected, UpdateParseSection nextSection);
+	static FormulaVariableDataGetter *
+	  formulaColumnDataGetterFactory(string &name, void *priv);
 
 private:
 	static const UpdateSubParser m_updateSubParsers[];

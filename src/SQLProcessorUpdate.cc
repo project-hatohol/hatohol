@@ -56,6 +56,14 @@ SQLProcessorUpdate::m_updateSubParsers[] = {
 	&SQLProcessorUpdate::parseEnd,
 };
 
+class SQLFormulaColumnDataGetter : public FormulaVariableDataGetter {
+public:
+	virtual ItemDataPtr getData(void)
+	{
+		return ItemDataPtr();
+	}
+};
+
 // ---------------------------------------------------------------------------
 // Public methods (SQLUpdateInfo)
 // ---------------------------------------------------------------------------
@@ -177,6 +185,8 @@ void SQLProcessorUpdate::parseWhereKeyword(void)
 	checkCurrWord("where", UPDATE_PARSING_SECTION_WHERE);
 	SQLWhereParser &whereParser = m_ctx->updateInfo->whereParser;
 	m_ctx->whereParserSeparatorChecker = whereParser.getSeparatorChecker();
+	whereParser.setColumnDataGetterFactory(formulaColumnDataGetterFactory,
+	                                       NULL);
 }
 
 void SQLProcessorUpdate::parseWhere(void)
@@ -251,5 +261,11 @@ void SQLProcessorUpdate::checkCurrWord(string expected,
 		  expected.c_str(), m_ctx->currWordLower.c_str());
 	}
 	m_ctx->section = nextSection;
+}
+
+FormulaVariableDataGetter *
+SQLProcessorUpdate::formulaColumnDataGetterFactory(string &name, void *priv)
+{
+	return new SQLFormulaColumnDataGetter();
 }
 
