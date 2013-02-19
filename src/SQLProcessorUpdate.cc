@@ -175,8 +175,8 @@ void SQLProcessorUpdate::parseValue(void)
 void SQLProcessorUpdate::parseWhereKeyword(void)
 {
 	checkCurrWord("where", UPDATE_PARSING_SECTION_WHERE);
-	m_ctx->whereParserSeparatorChecker =
-	  m_ctx->updateInfo->whereParser.getSeparatorChecker();
+	SQLWhereParser &whereParser = m_ctx->updateInfo->whereParser;
+	m_ctx->whereParserSeparatorChecker = whereParser.getSeparatorChecker();
 }
 
 void SQLProcessorUpdate::parseWhere(void)
