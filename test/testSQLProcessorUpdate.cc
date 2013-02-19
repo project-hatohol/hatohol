@@ -6,6 +6,7 @@ using namespace mlpl;
 #include "Asura.h"
 #include "SQLProcessorUpdate.h"
 #include "SQLProcessorException.h"
+#include "FormulaTestUtils.h"
 #include "Helpers.h"
 
 namespace testSQLProcessorUpdate {
@@ -81,7 +82,11 @@ void test_parseOneColumn(void)
 	cppcut_assert_equal(string(tableName), updateInfo.table);
 	assertStringVector(expectedColumns, updateInfo.columnVector);
 	assertStringVector(expectedValues, updateInfo.valueVector);
-	// TODO: add assertions for where section
+
+	FormulaElement *formula = updateInfo.whereParser.getFormula();
+	assertFormulaComparatorEqual(formula);
+	assertFormulaVariable(formula->getLeftHand(), whereColumn);
+	assertFormulaValue(formula->getRightHand(), whereValue);
 }
 
 } // namespace testSQLProcessorUpdate
