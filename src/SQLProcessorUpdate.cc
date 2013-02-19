@@ -141,6 +141,8 @@ void SQLProcessorUpdate::parseUpdateStatement(SQLUpdateInfo &updateInfo)
 		UpdateSubParser subParser = m_updateSubParsers[m_ctx->section];
 		(this->*subParser)();
 	}
+	if (m_ctx->section == UPDATE_PARSING_SECTION_WHERE)
+		updateInfo.whereParser.close();
 }
 
 //
