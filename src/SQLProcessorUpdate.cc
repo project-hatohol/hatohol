@@ -67,7 +67,9 @@ public:
 // Public methods (SQLUpdateInfo)
 // ---------------------------------------------------------------------------
 SQLUpdateInfo::SQLUpdateInfo(ParsableString &_statement)
-: statement(_statement)
+: statement(_statement),
+  evalTargetItemGroup(NULL),
+  itemFalsePtr(new ItemBool(false), false)
 {
 }
 
@@ -326,6 +328,18 @@ SQLProcessorUpdate::formulaColumnDataGetterFactory(string &name, void *priv)
 bool SQLProcessorUpdate::updateMatchingRows(const ItemGroup *itemGroup,
                                             SQLUpdateInfo &updateInfo)
 {
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
-	return false;
+	ItemGroup *nonConstItemGroup = const_cast<ItemGroup *>(itemGroup);
+	updateInfo.evalTargetItemGroup = nonConstItemGroup;
+	FormulaElement *formula = updateInfo.whereParser.getFormula();
+	ItemDataPtr result = formula->evaluate();
+	if (!result.hasData()) {
+		MLPL_DBG("result has no data.\n");
+		return false;
+	}
+	if (*result == *updateInfo.itemFalsePtr)
+		return true;
+
+	// TODO: update rows
+
+	return true;
 }

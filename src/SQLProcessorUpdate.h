@@ -39,8 +39,14 @@ struct SQLUpdateInfo {
 	const SQLTableStaticInfo *tableStaticInfo;
 	ItemTablePtr             tablePtr;
 
+	// group to be being processed
+	ItemGroup       *evalTargetItemGroup;
+
 	// error information
 	string           errorMessage;
+
+	// convinient variable
+	ItemDataPtr      itemFalsePtr;
 
 	//
 	// constructor and destructor
