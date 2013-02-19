@@ -116,4 +116,47 @@ void test_parseOneColumnString(void)
 	                      FormulaValue, int, whereValue);
 }
 
+void test_parseMultiColumns(void)
+{
+	const char *tableName  = "tableName";
+	struct ColumnValuePair {
+		const char *column;
+		const char *value;
+	};
+	ColumnValuePair columnValuePair[] = {
+	  {"columnName1", "value"},
+	  {"columnName2", "Foo Goo"},
+	  {"columnName3", "-5"},
+	};
+	const size_t numColumnValuePair =
+	  sizeof(columnValuePair) / sizeof(ColumnValuePair);
+	const char *whereColumn = "a";
+	int         whereValue  = 5;
+	string statement =
+	  StringUtils::sprintf(
+	    "update %s SET %s='%s', %s='%s', %s=%s where %s=%d",
+	   tableName,
+	   columnValuePair[0].column, columnValuePair[0].value,
+	   columnValuePair[1].column, columnValuePair[1].value,
+	   columnValuePair[2].column, columnValuePair[2].value,
+	   whereColumn, whereValue);
+	DEFINE_UPDATEINFO_AND_ASSERT_SELECT(updateInfo, statement);
+
+	StringVector expectedColumns;
+	StringVector expectedValues;
+	for (size_t i = 0; i < numColumnValuePair; i++) {
+		ColumnValuePair *cvPair = &columnValuePair[i];
+		expectedColumns.push_back(cvPair->column);
+		expectedValues.push_back(cvPair->value);
+	}
+
+	cppcut_assert_equal(string(tableName), updateInfo.table);
+	assertStringVector(expectedColumns, updateInfo.columnVector);
+	assertStringVector(expectedValues, updateInfo.valueVector);
+	assertBinomialFormula(FormulaComparatorEqual,
+	                      updateInfo.whereParser.getFormula(),
+	                      FormulaVariable, const char *, whereColumn,
+	                      FormulaValue, int, whereValue);
+}
+
 } // namespace testSQLProcessorUpdate
