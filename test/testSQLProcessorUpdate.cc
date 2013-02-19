@@ -82,11 +82,10 @@ void test_parseOneColumnInt(void)
 	cppcut_assert_equal(string(tableName), updateInfo.table);
 	assertStringVector(expectedColumns, updateInfo.columnVector);
 	assertStringVector(expectedValues, updateInfo.valueVector);
-
-	FormulaElement *formula = updateInfo.whereParser.getFormula();
-	assertFormulaComparatorEqual(formula);
-	assertFormulaVariable(formula->getLeftHand(), whereColumn);
-	assertFormulaValue(formula->getRightHand(), whereValue);
+	assertBinomialFormula(FormulaComparatorEqual,
+	                      updateInfo.whereParser.getFormula(),
+	                      FormulaVariable, const char *, whereColumn,
+	                      FormulaValue, int, whereValue);
 }
 
 void test_parseOneColumnString(void)
@@ -110,11 +109,10 @@ void test_parseOneColumnString(void)
 	cppcut_assert_equal(string(tableName), updateInfo.table);
 	assertStringVector(expectedColumns, updateInfo.columnVector);
 	assertStringVector(expectedValues, updateInfo.valueVector);
-
-	FormulaElement *formula = updateInfo.whereParser.getFormula();
-	assertFormulaComparatorEqual(formula);
-	assertFormulaVariable(formula->getLeftHand(), whereColumn);
-	assertFormulaValue(formula->getRightHand(), whereValue);
+	assertBinomialFormula(FormulaComparatorEqual,
+	                      updateInfo.whereParser.getFormula(),
+	                      FormulaVariable, const char *, whereColumn,
+	                      FormulaValue, int, whereValue);
 }
 
 } // namespace testSQLProcessorUpdate
