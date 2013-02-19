@@ -55,12 +55,44 @@ SQLProcessorUpdate::m_updateSubParsers[] = {
 	&SQLProcessorUpdate::parseWhere,
 };
 
-class SQLFormulaColumnDataGetter : public FormulaVariableDataGetter {
+class SQLFormulaUpdateColumnDataGetter : public FormulaVariableDataGetter {
 public:
+	SQLFormulaUpdateColumnDataGetter(string &name,
+	                                 SQLUpdateInfo *updateInfo)
+	: m_name(name),
+	  m_updateInfo(updateInfo)
+	{
+	}
+
 	virtual ItemDataPtr getData(void)
 	{
-		return ItemDataPtr();
+		const ItemNameColumnBaseDefRefMap &columnBaseDefMap =
+		  m_updateInfo->tableStaticInfo->columnBaseDefMap;
+		ItemNameColumnBaseDefRefMapConstIterator it =
+		  columnBaseDefMap.find(m_name);
+		if (it == columnBaseDefMap.end()) {
+			MLPL_DBG("Not found: item: %s from table: %s\n",
+			         m_name.c_str(), m_updateInfo->table.c_str());
+			return ItemDataPtr();
+		}
+		ColumnBaseDefinition *colBaseDef = it->second;
+
+		ItemId itemId = colBaseDef->itemId;
+		ItemDataPtr dataPtr = 
+		  m_updateInfo->evalTargetItemGroup->getItem(itemId);
+		if (!dataPtr) {
+			MLPL_DBG("Not found: item: %s (%"PRIu_ITEM"), "
+			         "table: %s\n",
+			         m_name.c_str(), itemId,
+			         m_updateInfo->table.c_str());
+			return ItemDataPtr();
+		}
+		return dataPtr;
 	}
+
+private:
+	string         m_name;
+	SQLUpdateInfo *m_updateInfo;
 };
 
 // ---------------------------------------------------------------------------
@@ -231,7 +263,7 @@ void SQLProcessorUpdate::parsePostOneSet(void)
 	SQLWhereParser &whereParser = m_ctx->updateInfo->whereParser;
 	m_ctx->whereParserSeparatorChecker = whereParser.getSeparatorChecker();
 	whereParser.setColumnDataGetterFactory(formulaColumnDataGetterFactory,
-	                                       NULL);
+	                                       m_ctx->updateInfo);
 }
 
 void SQLProcessorUpdate::parseWhere(void)
@@ -322,7 +354,8 @@ void SQLProcessorUpdate::checkCurrWord(string expected,
 FormulaVariableDataGetter *
 SQLProcessorUpdate::formulaColumnDataGetterFactory(string &name, void *priv)
 {
-	return new SQLFormulaColumnDataGetter();
+	SQLUpdateInfo *updateInfo = static_cast<SQLUpdateInfo *>(priv);
+	return new SQLFormulaUpdateColumnDataGetter(name, updateInfo);
 }
 
 bool SQLProcessorUpdate::updateMatchingRows(const ItemGroup *itemGroup,
