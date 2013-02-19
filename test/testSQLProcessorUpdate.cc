@@ -67,9 +67,9 @@ void test_parseOneColumn(void)
 	const char *columnName = "columnName";
 	const char *valueStr   = "10";
 	const char *whereColumn = "a";
-	const char *whereValue  = "5";
+	int         whereValue  = 5;
 	string statement =
-	  StringUtils::sprintf("update %s SET %s=%s where %s=%s",
+	  StringUtils::sprintf("update %s SET %s=%s where %s=%d",
 	                       tableName, columnName, valueStr,
 	                       whereColumn, whereValue);
 	DEFINE_UPDATEINFO_AND_ASSERT_SELECT(updateInfo, statement);
