@@ -63,6 +63,32 @@ void _assertFormulaBetweenWithVarName(FormulaElement *elem, int v0, int v1, cons
 #define assertFormulaBetweenWithVarName(X, V0, V1, N) \
 cut_trace(_assertFormulaBetweenWithVarName(X, V0, V1, N))
 
+template<class ElementType, class LeftElementType, typename LeftValueType,
+         class RightElementType, typename RightValueType>
+void _assertBinomialFormula(FormulaElement *formula,
+                            LeftValueType expectedLeft,
+                            RightValueType expectedRight)
+{
+	assertFormulaElementType<ElementType>(formula);
+
+	assertFormulaVariable(formula->getLeftHand(), expectedLeft);
+
+	const type_info &typeR = typeid(RightElementType);
+	if (typeR == typeid(FormulaVariable)) {
+		// 'reinterpret_cast' is somewhat ad-hoc.
+		// We want to call the proper method gracefully.
+		assertFormulaVariable(formula->getRightHand(),
+		                      reinterpret_cast<const char *>
+		                        (expectedRight));
+	} else if (typeR == typeid(FormulaValue)) {
+		assertFormulaValue(formula->getRightHand(), expectedRight);
+	} else {
+		cut_fail("unexpected right hand type: %s.", typeR.name());
+	}
+}
+
+#define assertBinomialFormula(ET, EV, LET, LVT, LV, RET, RVT, RV) \
+cut_trace((_assertBinomialFormula<ET, LET, LVT, RET, RVT>(EV, LV, RV)))
 
 void showTreeInfo(FormulaElement *formulaElement);
 
