@@ -48,7 +48,7 @@ ItemDataPtr SQLUtils::createDefaultItemData(const ColumnBaseDefinition *baseDef)
 {
 	string msg;
 	TRMSG(msg, "Not implemented: %s\n", __PRETTY_FUNCTION__);
-	throw new AsuraException(msg);
+	throw AsuraException(msg);
 	return ItemDataPtr();
 }
 

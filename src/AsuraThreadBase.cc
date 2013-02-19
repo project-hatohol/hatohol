@@ -67,14 +67,9 @@ gpointer AsuraThreadBase::threadStarter(gpointer data)
 	AsuraThreadArg *arg = static_cast<AsuraThreadArg *>(data);
 	try {
 		ret = arg->obj->mainThread(arg);
-	} catch (AsuraException *e) {
-		MLPL_ERR("Got Asura Exception: %s\n", e->what());
-		delete e;
-	} catch (runtime_error e) {
-		MLPL_ERR("Got runtime_error: %s\n", e.what());
-	} catch (logic_error e) {
-		MLPL_ERR("Got logic_error: %s\n", e.what());
-	} catch (exception e) {
+	} catch (const AsuraException &e) {
+		MLPL_ERR("Got Asura Exception: %s\n", e.what());
+	} catch (const exception &e) {
 		MLPL_ERR("Got Exception: %s\n", e.what());
 	}
 	if (arg->autoDeleteObject)

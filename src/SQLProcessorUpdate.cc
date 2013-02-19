@@ -122,11 +122,10 @@ bool SQLProcessorUpdate::update(SQLUpdateInfo &updateInfo)
 		getStaticTableInfo(updateInfo);
 		getTable(updateInfo);
 		doUpdate(updateInfo);
-	} catch (SQLProcessorException *e) {
-		const char *message = e->what();
+	} catch (const SQLProcessorException &e) {
+		const char *message = e.what();
 		updateInfo.errorMessage = message;
 		MLPL_DBG("Got SQLProcessorException: %s\n", message);
-		delete e;
 		return false;
 	}
 	return true;

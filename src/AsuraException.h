@@ -38,7 +38,7 @@ private:
 #define THROW_ASURA_EXCEPTION(FMT, ...) \
 do { \
 	string msg = StringUtils::sprintf(FMT, ##__VA_ARGS__); \
-	throw new AsuraException(msg); \
+	throw AsuraException(msg); \
 } while (0)
 
 #define THROW_ASURA_EXCEPTION_WITH_LOG(LOG_LV, FMT, ...) \
