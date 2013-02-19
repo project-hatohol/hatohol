@@ -159,7 +159,7 @@ void SQLProcessorUpdate::getStaticTableInfo(SQLUpdateInfo &updateInfo)
 {
 	TableNameStaticInfoMapIterator it =
 	  m_tableNameStaticInfoMap.find(updateInfo.table);
-	if (it != m_tableNameStaticInfoMap.end()) {
+	if (it == m_tableNameStaticInfoMap.end()) {
 		THROW_SQL_PROCESSOR_EXCEPTION(
 		  "Not found: table: %s\n", updateInfo.table.c_str());
 	}
