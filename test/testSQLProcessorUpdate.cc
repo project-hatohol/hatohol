@@ -61,7 +61,7 @@ void setup(void)
 // ---------------------------------------------------------------------------
 // Test cases
 // ---------------------------------------------------------------------------
-void test_parseOneColumn(void)
+void test_parseOneColumnInt(void)
 {
 	const char *tableName  = "tableName";
 	const char *columnName = "columnName";
