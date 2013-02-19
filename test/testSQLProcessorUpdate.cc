@@ -89,4 +89,32 @@ void test_parseOneColumn(void)
 	assertFormulaValue(formula->getRightHand(), whereValue);
 }
 
+void test_parseOneColumnString(void)
+{
+	const char *tableName  = "tableName";
+	const char *columnName = "columnName";
+	const char *valueStr   = "Foo Goo";
+	const char *whereColumn = "a";
+	int         whereValue  = 5;
+	string statement =
+	  StringUtils::sprintf("update %s SET %s='%s' where %s=%d",
+	                       tableName, columnName, valueStr,
+	                       whereColumn, whereValue);
+	DEFINE_UPDATEINFO_AND_ASSERT_SELECT(updateInfo, statement);
+
+	StringVector expectedColumns;
+	expectedColumns.push_back(columnName);
+	StringVector expectedValues;
+	expectedValues.push_back(valueStr);
+
+	cppcut_assert_equal(string(tableName), updateInfo.table);
+	assertStringVector(expectedColumns, updateInfo.columnVector);
+	assertStringVector(expectedValues, updateInfo.valueVector);
+
+	FormulaElement *formula = updateInfo.whereParser.getFormula();
+	assertFormulaComparatorEqual(formula);
+	assertFormulaVariable(formula->getLeftHand(), whereColumn);
+	assertFormulaValue(formula->getRightHand(), whereValue);
+}
+
 } // namespace testSQLProcessorUpdate
