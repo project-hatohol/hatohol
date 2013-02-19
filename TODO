@@ -1,5 +1,6 @@
 * [M] add a capability to detect sign and number width (32bit, 64bit or mode) in StringUtils::isNumber().
   - Then fix the code to make FormulaValue.
+* [S] Extract common code from SQLProcessor::pickupMatchingRows() and SQLProcessorUpdate::updateMatchingRows() and merged them cleanly.
 * [M] Support Key type on columns (PRIMARY, UNIQUE, etc.): check the douplication on insert
 * [M] Catch the SQLParser exception and return it properly.
 * [M] Support the form: insert into table values (xx, xxx, xxx, xx)
