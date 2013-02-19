@@ -115,7 +115,15 @@ SQLProcessorUpdate::~SQLProcessorUpdate()
 
 bool SQLProcessorUpdate::update(SQLUpdateInfo &updateInfo)
 {
-	parseUpdateStatement(updateInfo);
+	try {
+		parseUpdateStatement(updateInfo);
+	} catch (SQLProcessorException *e) {
+		const char *message = e->what();
+		updateInfo.errorMessage = message;
+		MLPL_DBG("Got SQLProcessorException: %s\n", message);
+		delete e;
+		return false;
+	}
 	return true;
 }
 

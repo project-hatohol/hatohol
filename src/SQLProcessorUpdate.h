@@ -35,6 +35,9 @@ struct SQLUpdateInfo {
 	StringVector     valueVector;
 	SQLWhereParser   whereParser;
 
+	// error information
+	string           errorMessage;
+
 	//
 	// constructor and destructor
 	//
