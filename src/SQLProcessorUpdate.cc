@@ -117,6 +117,9 @@ bool SQLProcessorUpdate::update(SQLUpdateInfo &updateInfo)
 {
 	try {
 		parseUpdateStatement(updateInfo);
+		getStaticTableInfo(updateInfo);
+		getTable(updateInfo);
+		doUpdate(updateInfo);
 	} catch (SQLProcessorException *e) {
 		const char *message = e->what();
 		updateInfo.errorMessage = message;
@@ -150,6 +153,37 @@ void SQLProcessorUpdate::parseUpdateStatement(SQLUpdateInfo &updateInfo)
 	}
 	if (m_ctx->section == UPDATE_PARSING_SECTION_WHERE)
 		updateInfo.whereParser.close();
+}
+
+void SQLProcessorUpdate::getStaticTableInfo(SQLUpdateInfo &updateInfo)
+{
+	TableNameStaticInfoMapIterator it =
+	  m_tableNameStaticInfoMap.find(updateInfo.table);
+	if (it != m_tableNameStaticInfoMap.end()) {
+		THROW_SQL_PROCESSOR_EXCEPTION(
+		  "Not found: table: %s\n", updateInfo.table.c_str());
+	}
+	updateInfo.tableStaticInfo = it->second;
+}
+
+void SQLProcessorUpdate::getTable(SQLUpdateInfo &updateInfo)
+{
+	ItemTablePtr tablePtr = updateInfo.tableStaticInfo->tableGetFunc();
+	if (!tablePtr.hasData()) {
+		THROW_SQL_PROCESSOR_EXCEPTION(
+		  "tablePtr has no data (%s).\n", updateInfo.table.c_str());
+	}
+}
+
+void SQLProcessorUpdate::doUpdate(SQLUpdateInfo &updateInfo)
+{
+	bool successed =
+	  updateInfo.tablePtr->foreach<SQLUpdateInfo&>
+	                                (updateMatchingRows, updateInfo);
+	if (!successed) {
+		THROW_SQL_PROCESSOR_EXCEPTION(
+		  "Failed to search matched rows\n");
+	}
 }
 
 //
@@ -289,3 +323,9 @@ SQLProcessorUpdate::formulaColumnDataGetterFactory(string &name, void *priv)
 	return new SQLFormulaColumnDataGetter();
 }
 
+bool SQLProcessorUpdate::updateMatchingRows(const ItemGroup *itemGroup,
+                                            SQLUpdateInfo &updateInfo)
+{
+	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	return false;
+}

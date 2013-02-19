@@ -35,6 +35,10 @@ struct SQLUpdateInfo {
 	StringVector     valueVector;
 	SQLWhereParser   whereParser;
 
+	// table to be updated
+	const SQLTableStaticInfo *tableStaticInfo;
+	ItemTablePtr             tablePtr;
+
 	// error information
 	string           errorMessage;
 
@@ -72,6 +76,9 @@ protected:
 	  (SQLProcessorUpdate::*UpdateSubParser)(void);
 
 	void parseUpdateStatement(SQLUpdateInfo &updateInfo);
+	void getStaticTableInfo(SQLUpdateInfo &updateInfo);
+	void getTable(SQLUpdateInfo &updateInfo);
+	void doUpdate(SQLUpdateInfo &updateInfo);
 
 	//
 	// Sub parsers
@@ -107,6 +114,8 @@ protected:
 	void checkCurrWord(string expected, UpdateParseSection nextSection);
 	static FormulaVariableDataGetter *
 	  formulaColumnDataGetterFactory(string &name, void *priv);
+	static bool updateMatchingRows(const ItemGroup *itemGroup,
+	                               SQLUpdateInfo &updateInfo);
 
 private:
 	static const UpdateSubParser m_updateSubParsers[];
