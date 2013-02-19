@@ -213,7 +213,11 @@ void SQLProcessorUpdate::_separatorCbComma(const char separator,
 
 void SQLProcessorUpdate::separatorCbComma(const char separator)
 {
-	MLPL_BUG("Not implemented\n", __PRETTY_FUNCTION__);
+	if (m_ctx->section != UPDATE_PARSING_SECTION_WHERE_KEYWORD) {
+		THROW_SQL_PROCESSOR_EXCEPTION(
+		  "Quotation is used in the section: %d\n", m_ctx->section);
+	}
+	m_ctx->section = UPDATE_PARSING_SECTION_COLUMN;
 }
 
 void SQLProcessorUpdate::_separatorCbQuot(const char separator,
