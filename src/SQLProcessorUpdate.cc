@@ -51,7 +51,7 @@ SQLProcessorUpdate::m_updateSubParsers[] = {
 	&SQLProcessorUpdate::parseColumn,
 	&SQLProcessorUpdate::parseEqual,
 	&SQLProcessorUpdate::parseValue,
-	&SQLProcessorUpdate::parseWhereKeyword,
+	&SQLProcessorUpdate::parsePostOneSet,
 	&SQLProcessorUpdate::parseWhere,
 };
 
@@ -178,10 +178,10 @@ void SQLProcessorUpdate::parseEqual(void)
 void SQLProcessorUpdate::parseValue(void)
 {
 	m_ctx->updateInfo->valueVector.push_back(m_ctx->currWord);
-	m_ctx->section = UPDATE_PARSING_SECTION_WHERE_KEYWORD;
+	m_ctx->section = UPDATE_PARSING_SECTION_POST_ONE_SET;
 }
 
-void SQLProcessorUpdate::parseWhereKeyword(void)
+void SQLProcessorUpdate::parsePostOneSet(void)
 {
 	checkCurrWord("where", UPDATE_PARSING_SECTION_WHERE);
 	SQLWhereParser &whereParser = m_ctx->updateInfo->whereParser;
@@ -207,7 +207,7 @@ void SQLProcessorUpdate::_separatorCbComma(const char separator,
 
 void SQLProcessorUpdate::separatorCbComma(const char separator)
 {
-	if (m_ctx->section != UPDATE_PARSING_SECTION_WHERE_KEYWORD) {
+	if (m_ctx->section != UPDATE_PARSING_SECTION_POST_ONE_SET) {
 		THROW_SQL_PROCESSOR_EXCEPTION(
 		  "Quotation is used in the section: %d\n", m_ctx->section);
 	}
@@ -223,7 +223,7 @@ void SQLProcessorUpdate::_separatorCbQuot(const char separator,
 void SQLProcessorUpdate::separatorCbQuot(const char separator)
 {
 	if (m_ctx->section != UPDATE_PARSING_SECTION_VALUE
-	    && m_ctx->section != UPDATE_PARSING_SECTION_WHERE_KEYWORD) {
+	    && m_ctx->section != UPDATE_PARSING_SECTION_POST_ONE_SET) {
 		THROW_SQL_PROCESSOR_EXCEPTION(
 		  "Quotation is used in the section: %d\n", m_ctx->section);
 	}

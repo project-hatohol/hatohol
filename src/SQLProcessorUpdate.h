@@ -52,7 +52,7 @@ private:
 		UPDATE_PARSING_SECTION_COLUMN,
 		UPDATE_PARSING_SECTION_EQUAL,
 		UPDATE_PARSING_SECTION_VALUE,
-		UPDATE_PARSING_SECTION_WHERE_KEYWORD,
+		UPDATE_PARSING_SECTION_POST_ONE_SET,
 		UPDATE_PARSING_SECTION_WHERE,
 		NUM_UPDATE_PARSING_SECTION,
 	};
@@ -79,7 +79,7 @@ protected:
 	void parseColumn(void);
 	void parseEqual(void);
 	void parseValue(void);
-	void parseWhereKeyword(void);
+	void parsePostOneSet(void);
 	void parseWhere(void);
 
 	//
