@@ -507,6 +507,12 @@ bool FaceMySQLWorker::sendInsertResult(const SQLInsertInfo &insertInfo)
 	return sendOK(numInsertedRows);
 }
 
+bool FaceMySQLWorker::sendUpdateResult(const SQLUpdateInfo &updateInfo)
+{
+	int numInsertedRows = 1;
+	return sendOK(numInsertedRows);
+}
+
 bool FaceMySQLWorker::sendOK(uint64_t affectedRows, uint64_t lastInsertId)
 {
 	SmartBuffer pkt(11);
@@ -780,6 +786,10 @@ bool FaceMySQLWorker::queryUpdate(ParsableString &query)
 {
 	string column = query.readWord(m_separatorSpaceComma, true);
 	if (m_sqlProcessor) {
+		SQLUpdateInfo updateInfo(query);
+		if (m_sqlProcessor->update(updateInfo))
+			return sendUpdateResult(updateInfo);
+		MLPL_ERR("Failed: insert: '%s'\n", query.getString());
 		return false;
 	}
 	MLPL_BUG("Not implemented: select: '%s'\n", query.getString());

@@ -221,4 +221,15 @@ void test_insertSessions(void)
 	assertRecord(0, nsmap);
 }
 
+void test_updateSessions(void)
+{
+	cut_trace(test_insertSessions());
+	const char *cmd = "use zabbix;"
+	  "UPDATE sessions SET lastaccess=1361275141 "
+	  "WHERE userid=2 AND sessionid='9ba4d7eb67f2025db7d3e881ee64702c'";
+	executeCommand(cmd);
+	NumberStringMap nsmap;
+	assertRecord(0, nsmap);
+}
+
 } // namespace testMySQLWorkerZabbix

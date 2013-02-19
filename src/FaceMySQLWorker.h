@@ -92,6 +92,7 @@ protected:
 	  uint16_t flags, uint8_t decimals);
 	bool sendSelectResult(const SQLSelectInfo &selectInfo);
 	bool sendInsertResult(const SQLInsertInfo &insertInfo);
+	bool sendUpdateResult(const SQLUpdateInfo &updateInfo);
 	bool sendLenEncInt(uint64_t num);
 	bool sendLenEncStr(string &str);
 	bool sendPacket(SmartBuffer &pkt);
