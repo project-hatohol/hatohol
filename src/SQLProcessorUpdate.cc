@@ -53,7 +53,6 @@ SQLProcessorUpdate::m_updateSubParsers[] = {
 	&SQLProcessorUpdate::parseValue,
 	&SQLProcessorUpdate::parseWhereKeyword,
 	&SQLProcessorUpdate::parseWhere,
-	&SQLProcessorUpdate::parseEnd,
 };
 
 class SQLFormulaColumnDataGetter : public FormulaVariableDataGetter {
@@ -195,11 +194,6 @@ void SQLProcessorUpdate::parseWhere(void)
 {
 	m_ctx->updateInfo->whereParser.add(m_ctx->currWord,
 	                                   m_ctx->currWordLower);
-}
-
-void SQLProcessorUpdate::parseEnd(void)
-{
-	MLPL_BUG("Not implemented\n", __PRETTY_FUNCTION__);
 }
 
 //

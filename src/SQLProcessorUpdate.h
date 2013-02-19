@@ -54,7 +54,6 @@ private:
 		UPDATE_PARSING_SECTION_VALUE,
 		UPDATE_PARSING_SECTION_WHERE_KEYWORD,
 		UPDATE_PARSING_SECTION_WHERE,
-		UPDATE_PARSING_SECTION_END,
 		NUM_UPDATE_PARSING_SECTION,
 	};
 
@@ -82,7 +81,6 @@ protected:
 	void parseValue(void);
 	void parseWhereKeyword(void);
 	void parseWhere(void);
-	void parseEnd(void);
 
 	//
 	// SeparatorChecker callbacks
