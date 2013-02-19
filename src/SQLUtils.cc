@@ -63,6 +63,32 @@ ItemDataPtr SQLUtils::createItemData(const ColumnBaseDefinition *baseDef,
 	return (*m_itemDataCreators[baseDef->type])(baseDef, value.c_str());
 }
 
+ItemDataPtr SQLUtils::getItemDataFromItemGroupWithColumnName
+  (string &columnName, const SQLTableStaticInfo *tableStaticInfo,
+   ItemGroup *itemGroup)
+{
+	const ItemNameColumnBaseDefRefMap &columnBaseDefMap =
+	  tableStaticInfo->columnBaseDefMap;
+	ItemNameColumnBaseDefRefMapConstIterator it =
+	  columnBaseDefMap.find(columnName);
+	if (it == columnBaseDefMap.end()) {
+		MLPL_DBG("Not found: item: %s from table: %s\n",
+		         columnName.c_str(), tableStaticInfo->tableName);
+		return ItemDataPtr();
+	}
+	ColumnBaseDefinition *colBaseDef = it->second;
+	ItemId itemId = colBaseDef->itemId;
+	ItemDataPtr dataPtr = itemGroup->getItem(itemId);
+	if (!dataPtr) {
+		MLPL_DBG("Not found: item: %s (%"PRIu_ITEM"), "
+		         "table: %s\n",
+		         columnName.c_str(), itemId,
+		         tableStaticInfo->tableName);
+		return ItemDataPtr();
+	}
+	return dataPtr;
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------

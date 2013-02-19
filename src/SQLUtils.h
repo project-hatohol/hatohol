@@ -39,6 +39,21 @@ public:
 	static ItemDataPtr
 	  createItemData(const ColumnBaseDefinition *columnBaseDef,
 	                 string &value);
+
+	/**
+	 * get ItemDataPtr form an ItemGroup with a column name.
+	 *
+	 * @columnName A columnName of the target.
+	 * @tableStaticInfo A pointer of SQLTableStaticInfo object for
+	 *                  the table to which the column belongs.
+	 * @return An ItemDataPtr that refers an ItemData object on success.
+	 *         When an error, the returned ItemDataPtr doesn't
+	 *         have a reference (i.e. hasData() returns falase).
+	 */
+	static ItemDataPtr
+	  getItemDataFromItemGroupWithColumnName
+	    (string &columnName, const SQLTableStaticInfo *tableStaticInfo,
+	     ItemGroup *itemGroup);
 protected:
 	typedef ItemDataPtr (*ItemDataCreator)
 	    (const ColumnBaseDefinition *columnBaseDef, const char *value);
