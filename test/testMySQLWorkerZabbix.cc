@@ -232,4 +232,16 @@ void test_updateSessions(void)
 	assertRecord(0, nsmap);
 }
 
+void test_selectProfiles(void)
+{
+	const char *cmd = "use zabbix;"
+	  "SELECT p.* FROM profiles p WHERE p.userid=1 AND "
+	  "p.profileid BETWEEN 000000000000000 AND 099999999999999 "
+	  "ORDER BY p.userid,p.profileid";
+	executeCommand(cmd);
+	vector<string> lines;
+	NumberStringMap nsmap;
+	assertRecord(2, nsmap);
+}
+
 } // namespace testMySQLWorkerZabbix
