@@ -285,6 +285,11 @@ bool SQLProcessor::insert(SQLInsertInfo &insertInfo)
 	return m_processorInsert.insert(insertInfo);
 }
 
+bool SQLProcessor::update(SQLUpdateInfo &updateInfo)
+{
+	return m_processorUpdate.update(updateInfo);
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
@@ -293,7 +298,8 @@ SQLProcessor::SQLProcessor(TableNameStaticInfoMap &tableNameStaticInfoMap)
   m_separatorCountSpaceComma(", "),
   m_separatorCBForWhere(" ='"),
   m_tableNameStaticInfoMap(tableNameStaticInfoMap),
-  m_processorInsert(tableNameStaticInfoMap)
+  m_processorInsert(tableNameStaticInfoMap),
+  m_processorUpdate(tableNameStaticInfoMap)
 {
 	// m_selectSeprators[SQLProcessor::SELECT_PARSING_SECTION_COLUMN]
 	// is set later in parseSelectStatement().

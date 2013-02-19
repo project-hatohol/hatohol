@@ -15,6 +15,7 @@ using namespace mlpl;
 #include "Asura.h"
 #include "Utils.h"
 #include "FormulaTestUtils.h"
+#include "Helpers.h"
 
 namespace testSQLProcessor {
 
@@ -670,6 +671,31 @@ void test_insert(void)
 	SQLInsertInfo insertInfo(_parsable);
 	TestSQLProcessor proc;
 	cppcut_assert_equal(true, proc.insert(insertInfo));
+}
+
+void test_update(void)
+{
+	const int idxData = 0;
+	int newNumber = testData0[idxData].number + 1;
+	ParsableString _parsable(
+	  StringUtils::sprintf("update %s set %s=%d where %s=%d",
+	                       TABLE0_NAME,
+	                       COLUMN_NAME_NUMBER, newNumber,
+	                       COLUMN_NAME_NUMBER, testData0[idxData].number));
+	SQLUpdateInfo updateInfo(_parsable);
+	TestSQLProcessor proc;
+	cppcut_assert_equal(true, proc.update(updateInfo));
+
+	ParsableString selectStatement(
+	  StringUtils::sprintf("select %s from %s where %s='%s'",
+	                       COLUMN_NAME_NUMBER, TABLE0_NAME,
+	                       COLUMN_NAME_NAME, testData0[idxData].name));
+	SQLSelectInfo selectInfo(selectStatement);
+	proc.select(selectInfo);
+	assertSQLSelectInfoBasic(selectInfo, 1, 1);
+	StringVector expectedRows;
+	expectedRows.push_back(StringUtils::sprintf("%d", newNumber));
+	assertStringVector(expectedRows, selectInfo.textRows[0]);
 }
 
 } // namespace testSQLProcessor

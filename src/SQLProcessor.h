@@ -36,6 +36,7 @@ using namespace mlpl;
 #include "SQLWhereParser.h"
 #include "SQLProcessorTypes.h"
 #include "SQLProcessorInsert.h"
+#include "SQLProcessorUpdate.h"
 
 enum SQLJoinType {
 	SQL_JOIN_TYPE_UNKNOWN,
@@ -195,6 +196,7 @@ public:
 	static void init(void);
 	virtual bool select(SQLSelectInfo &selectInfo);
 	virtual bool insert(SQLInsertInfo &insertInfo);
+	virtual bool update(SQLUpdateInfo &updateInfo);
 	virtual const char *getDBName(void) = 0;
 
 protected:
@@ -302,6 +304,7 @@ private:
 	TableNameStaticInfoMap      &m_tableNameStaticInfoMap;
 
 	SQLProcessorInsert           m_processorInsert;
+	SQLProcessorUpdate           m_processorUpdate;
 };
 
 #endif // SQLProcessor_h
