@@ -41,6 +41,19 @@ public:
 	                 string &value);
 
 	/**
+	 * get a pointer of ColumnBaseDefinition form the column name.
+	 *
+	 * @columnName A columnName of the target.
+	 * @tableStaticInfo A pointer of SQLTableStaticInfo object for
+	 *                  the table to which the column belongs.
+	 * @return A pointer of ColumnBaseDefinition is returned on success.
+	 *         When an error, NULL is returned.
+	 */
+	static ColumnBaseDefinition *
+	  getColumnBaseDefinition(string &columnName,
+	                          const SQLTableStaticInfo *tableStaticInfo);
+
+	/**
 	 * get ItemDataPtr form an ItemGroup with a column name.
 	 *
 	 * @columnName A columnName of the target.
