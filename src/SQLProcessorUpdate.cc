@@ -175,6 +175,7 @@ void SQLProcessorUpdate::getTable(SQLUpdateInfo &updateInfo)
 		THROW_SQL_PROCESSOR_EXCEPTION(
 		  "tablePtr has no data (%s).\n", updateInfo.table.c_str());
 	}
+	updateInfo.tablePtr = tablePtr;
 }
 
 void SQLProcessorUpdate::doUpdate(SQLUpdateInfo &updateInfo)
