@@ -138,6 +138,9 @@ public:
 	TestSQLProcessor(void)
 	: SQLProcessor(m_tableNameStaticInfoMap)
 	{
+		// To use the same table for tests
+		m_table0Ptr = makeTable0();
+
 		initStaticInfo();
 	}
 
@@ -154,15 +157,7 @@ public:
 	table0MakeFunc(SQLSelectInfo &selectInfo,
 	              const SQLTableInfo &tableInfo)
 	{
-		const ItemTablePtr tablePtr;
-		for (size_t i = 0; i < numTestData0; i++) {
-			ItemGroup *grp = tablePtr->addNewGroup();
-			grp->add(new ItemInt(ITEM_ID_NUMBER,
-			                     testData0[i].number), false);
-			grp->add(new ItemString(ITEM_ID_NAME,
-			                        testData0[i].name), false);
-		}
-		return tablePtr;
+		return m_table0Ptr;
 	}
 
 	const ItemTablePtr
@@ -198,9 +193,9 @@ public:
 	}
 
 private:
+	static ItemTablePtr    m_table0Ptr;
 	TableNameStaticInfoMap m_tableNameStaticInfoMap;
 	SQLTableStaticInfo     m_staticInfo[NUM_TABLE_DATA];
-
 
 	void initStaticInfoEach(SQLTableStaticInfo *staticInfo,
 	                        const TableData &tableData,
@@ -229,6 +224,10 @@ private:
 		}
 	}
 
+	static ItemTablePtr table0GetFunc(void) {
+		return m_table0Ptr;
+	}
+
 	static ItemTablePtr tableZGetFunc(void) {
 		return ItemTablePtr();
 	}
@@ -242,7 +241,7 @@ private:
 		};
 
 		SQLTableGetFunc tableGetFuncArray[NUM_TABLE_DATA] = {
-			tableZGetFunc,
+			table0GetFunc,
 			tableZGetFunc,
 			tableZGetFunc,
 			tableZGetFunc,
@@ -254,7 +253,22 @@ private:
 			                   tableGetFuncArray[i]);
 		}
 	}
+
+	ItemTablePtr makeTable0(void) {
+		ItemTablePtr tablePtr;
+		for (size_t i = 0; i < numTestData0; i++) {
+			ItemGroup *grp = tablePtr->addNewGroup();
+			grp->add(new ItemInt(ITEM_ID_NUMBER,
+			                     testData0[i].number), false);
+			grp->add(new ItemString(ITEM_ID_NAME,
+			                        testData0[i].name), false);
+		}
+		return tablePtr;
+	}
+
 };
+
+ItemTablePtr TestSQLProcessor::m_table0Ptr;
 
 static const int getMaxDataInTestData(void)
 {
