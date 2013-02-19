@@ -35,6 +35,7 @@ static void _asssertExecInsert(SQLInsertInfo &insertInfo)
 		                    proc.callParseInsertStatement(insertInfo));
 	} catch (SQLProcessorException *e) {
 		cut_fail("Got exception: %s", e->what());
+		delete e;
 	}
 }
 #define asssertExecInsert(I) cut_trace(_asssertExecInsert(I))
