@@ -73,6 +73,7 @@ public:
 	virtual void get(void *dst) const = 0;
 	virtual string getString(void) const = 0;
 
+	virtual ItemData & operator =(const ItemData &itemData) = 0;
 	virtual ItemData * operator +(const ItemData &itemData) const = 0;
 	virtual bool operator >(const ItemData &itemData) const = 0;
 	virtual bool operator <(const ItemData &itemData) const = 0;
@@ -130,6 +131,20 @@ public:
 		ss << m_data;
 		readUnlock();
 		return ss.str();
+	}
+
+	virtual ItemData & operator =(const ItemData &itemData) {
+		const ItemDataType &type0 = getItemType();
+		const ItemDataType &type1 = itemData.getItemType();
+		if (type0 == type1) {
+			T val;
+			itemData.get(&val);
+			set(&val);
+			return *this;
+		}
+		MLPL_WARN("You should override this function: %s (%d, %d).\n",
+		          __PRETTY_FUNCTION__, type0, type1);
+		return *this;
 	}
 
 	virtual ItemData * operator +(const ItemData &itemData) const {
