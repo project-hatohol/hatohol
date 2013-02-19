@@ -33,10 +33,8 @@ static void _asssertExecUpdate(SQLUpdateInfo &updateInfo)
 	try {
 		TestSQLProcessorUpdate proc;
 		proc.callParseUpdateStatement(updateInfo);
-	} catch (exception *e) {
-		string what = e->what();
-		delete e;
-		cut_fail("Got exception: %s", what.c_str());
+	} catch (const exception &e) {
+		cut_fail("Got exception: %s", e.what());
 	}
 }
 #define asssertExecUpdate(I) cut_trace(_asssertExecUpdate(I))

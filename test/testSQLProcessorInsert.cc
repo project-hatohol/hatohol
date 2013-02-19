@@ -33,10 +33,8 @@ static void _asssertExecInsert(SQLInsertInfo &insertInfo)
 		TestSQLProcessorInsert proc;
 		cppcut_assert_equal(true,
 		                    proc.callParseInsertStatement(insertInfo));
-	} catch (SQLProcessorException *e) {
-		string what = e->what();
-		delete e;
-		cut_fail("Got exception: %s", what.c_str());
+	} catch (const SQLProcessorException &e) {
+		cut_fail("Got exception: %s", e.what());
 	}
 }
 #define asssertExecInsert(I) cut_trace(_asssertExecInsert(I))
