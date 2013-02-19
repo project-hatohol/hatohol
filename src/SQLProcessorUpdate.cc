@@ -224,7 +224,19 @@ void SQLProcessorUpdate::_separatorCbQuot(const char separator,
 
 void SQLProcessorUpdate::separatorCbQuot(const char separator)
 {
-	MLPL_BUG("Not implemented\n", __PRETTY_FUNCTION__);
+	if (m_ctx->section != UPDATE_PARSING_SECTION_VALUE
+	    && m_ctx->section != UPDATE_PARSING_SECTION_WHERE_KEYWORD) {
+		THROW_SQL_PROCESSOR_EXCEPTION(
+		  "Quotation is used in the section: %d\n", m_ctx->section);
+	}
+
+	if (!m_ctx->openQuot) {
+		m_separator.setAlternative(&ParsableString::SEPARATOR_QUOT);
+		m_ctx->openQuot = true;
+	} else {
+		m_separator.unsetAlternative();
+		m_ctx->openQuot = false;
+	}
 }
 
 void SQLProcessorUpdate::_separatorCbEqual(const char separator,
