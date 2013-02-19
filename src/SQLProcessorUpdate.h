@@ -103,7 +103,7 @@ protected:
 	// General sub routines
 	//
 	string readCurrWord(void); 
-	bool checkCurrWord(string expected, UpdateParseSection nextSection);
+	void checkCurrWord(string expected, UpdateParseSection nextSection);
 
 private:
 	static const UpdateSubParser m_updateSubParsers[];

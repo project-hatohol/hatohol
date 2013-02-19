@@ -242,15 +242,14 @@ string SQLProcessorUpdate::readCurrWord(void)
 	return m_ctx->updateInfo->statement.readWord(*separator);
 }
 
-bool SQLProcessorUpdate::checkCurrWord(string expected,
+void SQLProcessorUpdate::checkCurrWord(string expected,
                                        UpdateParseSection nextSection)
 {
 	if (m_ctx->currWordLower != expected) {
-		MLPL_DBG("currWordLower is not '%s': %s\n",
-		         expected.c_str(), m_ctx->currWordLower.c_str());
-		return false;
+		THROW_SQL_PROCESSOR_EXCEPTION(
+		  "currWordLower is not '%s': %s\n",
+		  expected.c_str(), m_ctx->currWordLower.c_str());
 	}
 	m_ctx->section = nextSection;
-	return true;
 }
 
