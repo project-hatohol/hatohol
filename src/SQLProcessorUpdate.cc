@@ -23,6 +23,7 @@ using namespace mlpl;
 #include "Utils.h"
 #include "AsuraException.h"
 #include "SQLProcessorException.h"
+#include "SQLUtils.h"
 
 struct SQLProcessorUpdate::PrivateContext {
 	SQLUpdateInfo     *updateInfo;
@@ -66,27 +67,10 @@ public:
 
 	virtual ItemDataPtr getData(void)
 	{
-		const ItemNameColumnBaseDefRefMap &columnBaseDefMap =
-		  m_updateInfo->tableStaticInfo->columnBaseDefMap;
-		ItemNameColumnBaseDefRefMapConstIterator it =
-		  columnBaseDefMap.find(m_name);
-		if (it == columnBaseDefMap.end()) {
-			MLPL_DBG("Not found: item: %s from table: %s\n",
-			         m_name.c_str(), m_updateInfo->table.c_str());
-			return ItemDataPtr();
-		}
-		ColumnBaseDefinition *colBaseDef = it->second;
-
-		ItemId itemId = colBaseDef->itemId;
 		ItemDataPtr dataPtr = 
-		  m_updateInfo->evalTargetItemGroup->getItem(itemId);
-		if (!dataPtr) {
-			MLPL_DBG("Not found: item: %s (%"PRIu_ITEM"), "
-			         "table: %s\n",
-			         m_name.c_str(), itemId,
-			         m_updateInfo->table.c_str());
-			return ItemDataPtr();
-		}
+		  SQLUtils::getItemDataFromItemGroupWithColumnName
+		    (m_name, m_updateInfo->tableStaticInfo,
+		     m_updateInfo->evalTargetItemGroup);
 		return dataPtr;
 	}
 
@@ -358,6 +342,36 @@ SQLProcessorUpdate::formulaColumnDataGetterFactory(string &name, void *priv)
 	return new SQLFormulaUpdateColumnDataGetter(name, updateInfo);
 }
 
+bool SQLProcessorUpdate::updateMatchingCell
+  (const ItemGroup *itemGroup, SQLUpdateInfo &updateInfo,
+   string &columnName, string &value)
+{
+	ItemDataPtr dataPtr = 
+	  SQLUtils::getItemDataFromItemGroupWithColumnName
+	    (columnName, updateInfo.tableStaticInfo,
+	     updateInfo.evalTargetItemGroup);
+	if (!dataPtr.hasData()) {
+		MLPL_DBG("result has no data.\n");
+		return false;
+	}
+
+	ColumnBaseDefinition *colBaseDef = 
+	  SQLUtils::getColumnBaseDefinition(columnName,
+	                                    updateInfo.tableStaticInfo);
+	if (!colBaseDef) {
+		MLPL_DBG("result has no data.\n");
+		return false;
+	}
+	ItemDataPtr srcDataPtr = SQLUtils::createItemData(colBaseDef, value);
+	if (!srcDataPtr.hasData()) {
+		MLPL_DBG("result has no data.\n");
+		return false;
+	}
+
+	*dataPtr = *srcDataPtr;
+	return true;
+}
+
 bool SQLProcessorUpdate::updateMatchingRows(const ItemGroup *itemGroup,
                                             SQLUpdateInfo &updateInfo)
 {
@@ -372,7 +386,13 @@ bool SQLProcessorUpdate::updateMatchingRows(const ItemGroup *itemGroup,
 	if (*result == *updateInfo.itemFalsePtr)
 		return true;
 
-	// TODO: update rows
-
+	bool ret;
+	for (size_t i = 0; i < updateInfo.columnVector.size(); i++) {
+		ret = updateMatchingCell(nonConstItemGroup, updateInfo,
+		                         updateInfo.columnVector[i],
+		                         updateInfo.valueVector[i]);
+		if (!ret)
+			return false;
+	}
 	return true;
 }

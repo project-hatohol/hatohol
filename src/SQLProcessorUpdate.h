@@ -122,6 +122,9 @@ protected:
 	  formulaColumnDataGetterFactory(string &name, void *priv);
 	static bool updateMatchingRows(const ItemGroup *itemGroup,
 	                               SQLUpdateInfo &updateInfo);
+	static bool updateMatchingCell(const ItemGroup *itemGroup,
+	                               SQLUpdateInfo &updateInfo,
+	                               string &columnName, string &value);
 
 private:
 	static const UpdateSubParser m_updateSubParsers[];
