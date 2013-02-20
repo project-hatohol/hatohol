@@ -32,6 +32,7 @@ enum TableID {
 	TABLE_ID_USERS_GROUPS,
 	TABLE_ID_SESSIONS,
 	TABLE_ID_PROFILES,
+	TABLE_ID_USER_HISTORY,
 };
 
 static const char *TABLE_NAME_NODES  = "nodes";
@@ -41,6 +42,7 @@ static const char *TABLE_NAME_USRGRP = "usrgrp";
 static const char *TABLE_NAME_USERS_GROUPS = "users_groups";
 static const char *TABLE_NAME_SESSIONS = "sessions";
 static const char *TABLE_NAME_PROFILES = "profiles";
+static const char *TABLE_NAME_USER_HISTORY = "user_history";
 
 TableNameStaticInfoMap SQLProcessorZabbix::m_tableNameStaticInfoMap;
 
@@ -343,6 +345,46 @@ void SQLProcessorZabbix::init(void)
 	defineColumn(staticInfo, ITEM_ID_ZBX_PROFILES_TYPE,
 	             TABLE_ID_PROFILES, "type",
 	             SQL_COLUMN_TYPE_INT, 11);
+
+	staticInfo =
+	  defineTable(TABLE_ID_USER_HISTORY, TABLE_NAME_USER_HISTORY,
+	              MAKE_FUNC(GROUP_ID_ZBX_USER_HISTORY));
+	defineColumn(staticInfo, ITEM_ID_ZBX_USER_HISTORY_USERHISTORYID,
+	             TABLE_ID_USER_HISTORY, "userhistoryid",
+	             SQL_COLUMN_TYPE_BIGUINT, 20);
+	defineColumn(staticInfo, ITEM_ID_ZBX_USER_HISTORY_USERID,
+	             TABLE_ID_USER_HISTORY, "userid",
+	             SQL_COLUMN_TYPE_BIGUINT, 20);
+	defineColumn(staticInfo, ITEM_ID_ZBX_USER_HISTORY_TITLE1,
+	             TABLE_ID_USER_HISTORY, "title1",
+	             SQL_COLUMN_TYPE_VARCHAR, 255);
+	defineColumn(staticInfo, ITEM_ID_ZBX_USER_HISTORY_URL1,
+	             TABLE_ID_USER_HISTORY, "url1",
+	             SQL_COLUMN_TYPE_VARCHAR, 255);
+	defineColumn(staticInfo, ITEM_ID_ZBX_USER_HISTORY_TITLE2,
+	             TABLE_ID_USER_HISTORY, "title2",
+	             SQL_COLUMN_TYPE_VARCHAR, 255);
+	defineColumn(staticInfo, ITEM_ID_ZBX_USER_HISTORY_URL2,
+	             TABLE_ID_USER_HISTORY, "url2",
+	             SQL_COLUMN_TYPE_VARCHAR, 255);
+	defineColumn(staticInfo, ITEM_ID_ZBX_USER_HISTORY_TITLE3,
+	             TABLE_ID_USER_HISTORY, "title3",
+	             SQL_COLUMN_TYPE_VARCHAR, 255);
+	defineColumn(staticInfo, ITEM_ID_ZBX_USER_HISTORY_URL3,
+	             TABLE_ID_USER_HISTORY, "url3",
+	             SQL_COLUMN_TYPE_VARCHAR, 255);
+	defineColumn(staticInfo, ITEM_ID_ZBX_USER_HISTORY_TITLE4,
+	             TABLE_ID_USER_HISTORY, "title4",
+	             SQL_COLUMN_TYPE_VARCHAR, 255);
+	defineColumn(staticInfo, ITEM_ID_ZBX_USER_HISTORY_URL4,
+	             TABLE_ID_USER_HISTORY, "url4",
+	             SQL_COLUMN_TYPE_VARCHAR, 255);
+	defineColumn(staticInfo, ITEM_ID_ZBX_USER_HISTORY_TITLE5,
+	             TABLE_ID_USER_HISTORY, "title5",
+	             SQL_COLUMN_TYPE_VARCHAR, 255);
+	defineColumn(staticInfo, ITEM_ID_ZBX_USER_HISTORY_URL5,
+	             TABLE_ID_USER_HISTORY, "url5",
+	             SQL_COLUMN_TYPE_VARCHAR, 255);
 }
 
 SQLProcessor *SQLProcessorZabbix::createInstance(void)
