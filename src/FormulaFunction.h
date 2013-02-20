@@ -68,7 +68,7 @@ public:
 protected:
 	static const int NUM_ARGUMENTS_FUNC_MAX = 1;
 
-protected:
+private:
 	ItemDataPtr m_maxData;
 };
 
@@ -88,7 +88,7 @@ public:
 protected:
 	static const int NUM_ARGUMENTS_FUNC_COUNT = 1;
 
-protected:
+private:
 	size_t m_count;
 	bool   m_isDistinct;
 };
