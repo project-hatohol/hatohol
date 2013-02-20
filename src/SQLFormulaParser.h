@@ -78,9 +78,12 @@ protected:
 	bool makeFunctionParserIfPendingWordIsFunction(void);
 
 	/**
-	 * Get a FormulaElement object at the top of the ParenthesisStack.
-	 * @retrun A FormulaElement object at the top of the ParenthesisStack
-	 *         when there is at least one object in the statck.
+	 * Get a FormulaElement object at the top of ParenthesisStack, 
+	 * which stacks instances of FormulaParenthesis, FormulaFunction, and
+	 * its sub classes.
+	 *
+	 * @retrun A FormulaElement object at the top of ParenthesisStack
+	 *         when there is at least one object in the stack.
 	 *         If the stack is empty, NULL is returned.
 	 */
 	FormulaElement *getTopOnParenthesisStack(void) const;
