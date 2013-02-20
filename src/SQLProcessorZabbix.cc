@@ -31,6 +31,7 @@ enum TableID {
 	TABLE_ID_USRGRP,
 	TABLE_ID_USERS_GROUPS,
 	TABLE_ID_SESSIONS,
+	TABLE_ID_PROFILES,
 };
 
 static const char *TABLE_NAME_NODES  = "nodes";
@@ -39,6 +40,7 @@ static const char *TABLE_NAME_USERS  = "users";
 static const char *TABLE_NAME_USRGRP = "usrgrp";
 static const char *TABLE_NAME_USERS_GROUPS = "users_groups";
 static const char *TABLE_NAME_SESSIONS = "sessions";
+static const char *TABLE_NAME_PROFILES = "profiles";
 
 TableNameStaticInfoMap SQLProcessorZabbix::m_tableNameStaticInfoMap;
 
@@ -309,6 +311,37 @@ void SQLProcessorZabbix::init(void)
 	             SQL_COLUMN_TYPE_INT, 11);
 	defineColumn(staticInfo, ITEM_ID_ZBX_SESSIONS_STATUS,
 	             TABLE_ID_SESSIONS, "status",
+	             SQL_COLUMN_TYPE_INT, 11);
+
+	staticInfo =
+	  defineTable(TABLE_ID_PROFILES, TABLE_NAME_PROFILES,
+	              MAKE_FUNC(GROUP_ID_ZBX_PROFILES));
+	defineColumn(staticInfo, ITEM_ID_ZBX_PROFILES_PROFILEID,
+	             TABLE_ID_PROFILES, "profileid",
+	             SQL_COLUMN_TYPE_BIGUINT, 20);
+	defineColumn(staticInfo, ITEM_ID_ZBX_PROFILES_USERID,
+	             TABLE_ID_PROFILES, "userid",
+	             SQL_COLUMN_TYPE_BIGUINT, 20);
+	defineColumn(staticInfo, ITEM_ID_ZBX_PROFILES_IDX,
+	             TABLE_ID_PROFILES, "idx",
+	             SQL_COLUMN_TYPE_VARCHAR, 96);
+	defineColumn(staticInfo, ITEM_ID_ZBX_PROFILES_IDX2,
+	             TABLE_ID_PROFILES, "idx2",
+	             SQL_COLUMN_TYPE_BIGUINT, 20);
+	defineColumn(staticInfo, ITEM_ID_ZBX_PROFILES_VALUE_ID,
+	             TABLE_ID_PROFILES, "value_id",
+	             SQL_COLUMN_TYPE_BIGUINT, 20);
+	defineColumn(staticInfo, ITEM_ID_ZBX_PROFILES_VALUE_INT,
+	             TABLE_ID_PROFILES, "value_int",
+	             SQL_COLUMN_TYPE_INT, 11);
+	defineColumn(staticInfo, ITEM_ID_ZBX_PROFILES_VALUE_STR,
+	             TABLE_ID_PROFILES, "value_str",
+	             SQL_COLUMN_TYPE_VARCHAR, 255);
+	defineColumn(staticInfo, ITEM_ID_ZBX_PROFILES_SOURCE,
+	             TABLE_ID_PROFILES, "source",
+	             SQL_COLUMN_TYPE_VARCHAR, 96);
+	defineColumn(staticInfo, ITEM_ID_ZBX_PROFILES_TYPE,
+	             TABLE_ID_PROFILES, "type",
 	             SQL_COLUMN_TYPE_INT, 11);
 }
 
