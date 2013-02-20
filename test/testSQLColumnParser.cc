@@ -141,5 +141,28 @@ void test_as(void)
 	assertFormulaVariable(formulaElem, columnName);
 }
 
+void test_count(void)
+{
+	const char *columnName = "c1";
+	ParsableString statement(
+	  StringUtils::sprintf("count(%s)", columnName));
+	SQLColumnParser columnParser;
+	assertInputStatement(columnParser, statement);
+
+	const SQLFormulaInfoVector formulaInfoVector
+	  = columnParser.getFormulaInfoVector();
+	cppcut_assert_equal((size_t)1, formulaInfoVector.size());
+	SQLFormulaInfo *formulaInfo = formulaInfoVector[0];
+	cppcut_assert_equal(string(columnName), formulaInfo->expression);
+	FormulaElement *formulaElem = formulaInfo->formula;
+	assertFormulaFuncCount(formulaElem);
+	FormulaFuncCount *formulaFuncCount
+	  = dynamic_cast<FormulaFuncCount *>(formulaElem);
+	cppcut_assert_equal((size_t)1,
+	                    formulaFuncCount->getNumberOfArguments());
+	FormulaElement *arg = formulaFuncCount->getArgument(0);
+	assertFormulaVariable(arg, columnName);
+}
+
 } // namespace testSQLColumnParser
 

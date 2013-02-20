@@ -72,4 +72,21 @@ protected:
 	ItemDataPtr m_maxData;
 };
 
+// ---------------------------------------------------------------------------
+// FormulaFuncCount
+// ---------------------------------------------------------------------------
+class FormulaFuncCount : public FormulaStatisticalFunc {
+public:
+	FormulaFuncCount(void);
+	virtual ~FormulaFuncCount();
+	virtual ItemDataPtr evaluate(void);
+	virtual void resetStatistics(void);
+
+protected:
+	static const int NUM_ARGUMENTS_FUNC_COUNT = 1;
+
+protected:
+	size_t m_count;
+};
+
 #endif // FormulaFunction_h

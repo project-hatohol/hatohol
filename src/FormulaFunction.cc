@@ -135,3 +135,26 @@ void FormulaFuncMax::resetStatistics(void)
 {
 	m_maxData = ItemDataPtr();
 }
+
+// ---------------------------------------------------------------------------
+// FormulaFuncCount
+// ---------------------------------------------------------------------------
+FormulaFuncCount::FormulaFuncCount(void)
+: FormulaStatisticalFunc(NUM_ARGUMENTS_FUNC_COUNT)
+{
+}
+
+FormulaFuncCount::~FormulaFuncCount()
+{
+}
+
+ItemDataPtr FormulaFuncCount::evaluate(void)
+{
+	m_count++;
+	return ItemDataPtr(new ItemInt(m_count), false);
+}
+
+void FormulaFuncCount::resetStatistics(void)
+{
+	m_count = 0;
+}
