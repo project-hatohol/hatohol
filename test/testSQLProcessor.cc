@@ -576,6 +576,24 @@ void test_selectMax(void)
 	                    selectInfo.textRows[0][0]);
 }
 
+void test_selectCount(void)
+{
+	string testFormula =
+	  StringUtils::sprintf("count(%s)", COLUMN_NAME_NUMBER);
+	string statement =
+	  StringUtils::sprintf("%s from %s", testFormula.c_str(), TABLE0_NAME);
+	const size_t numColumns = 1;
+	const size_t numExpectedRows = 1;
+	DEFINE_SELECTINFO_AND_ASSERT_SELECT(
+	  selectInfo, statement, numColumns, numTestData0, numExpectedRows);
+
+	// assertion
+	SQLOutputColumn &outCol = selectInfo.outputColumnVector[0];
+	cppcut_assert_equal(testFormula, outCol.column);
+	cppcut_assert_equal(StringUtils::toString(numTestData0),
+	                    selectInfo.textRows[0][0]);
+}
+
 void test_selectAlias(void)
 {
 	const char *alias = "foo";

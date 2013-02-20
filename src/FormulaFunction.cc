@@ -140,7 +140,8 @@ void FormulaFuncMax::resetStatistics(void)
 // FormulaFuncCount
 // ---------------------------------------------------------------------------
 FormulaFuncCount::FormulaFuncCount(void)
-: FormulaStatisticalFunc(NUM_ARGUMENTS_FUNC_COUNT)
+: FormulaStatisticalFunc(NUM_ARGUMENTS_FUNC_COUNT),
+  m_count(0)
 {
 }
 
