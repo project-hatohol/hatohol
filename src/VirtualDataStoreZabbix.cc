@@ -22,6 +22,8 @@
 #include "ItemGroupEnum.h"
 #include "ItemEnum.h"
 
+#define ADD(X) grp->add(X, false)
+
 GMutex VirtualDataStoreZabbix::m_mutex;
 VirtualDataStoreZabbix *VirtualDataStoreZabbix::m_instance = NULL;
 
@@ -86,8 +88,6 @@ VirtualDataStoreZabbix::VirtualDataStoreZabbix(void)
 {
 	ItemTable *table;
 	ItemGroup *grp;
-
-#define ADD(X) grp->add(X, false)
 
 	//
 	// nodes
@@ -248,6 +248,16 @@ VirtualDataStoreZabbix::VirtualDataStoreZabbix(void)
 	// profiles
 	//
 	table = createStaticItemTable(GROUP_ID_ZBX_PROFILES);
+	registerProfiles(table);
+}
+
+VirtualDataStoreZabbix::~VirtualDataStoreZabbix()
+{
+}
+
+void VirtualDataStoreZabbix::registerProfiles(ItemTable *table)
+{
+	ItemGroup *grp;
 	grp = table->addNewGroup();
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_PROFILEID, 1));
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_USERID,    1));
@@ -1369,11 +1379,4 @@ VirtualDataStoreZabbix::VirtualDataStoreZabbix(void)
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_VALUE_STR, ""));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_SOURCE,    ""));
 	ADD(new ItemInt(ITEM_ID_ZBX_PROFILES_TYPE,         1));
-
-#undef ADD
 }
-
-VirtualDataStoreZabbix::~VirtualDataStoreZabbix()
-{
-}
-

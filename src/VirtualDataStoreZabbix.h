@@ -43,6 +43,7 @@ private:
 
 	VirtualDataStoreZabbix(void);
 	virtual ~VirtualDataStoreZabbix();
+	void registerProfiles(ItemTable *table);
 };
 
 #endif // VirtualDataStoreZabbix_h
