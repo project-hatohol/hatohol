@@ -153,7 +153,8 @@ void test_count(void)
 	  = columnParser.getFormulaInfoVector();
 	cppcut_assert_equal((size_t)1, formulaInfoVector.size());
 	SQLFormulaInfo *formulaInfo = formulaInfoVector[0];
-	cppcut_assert_equal(string(columnName), formulaInfo->expression);
+	cppcut_assert_equal(string(statement.getString()),
+	                    formulaInfo->expression);
 	FormulaElement *formulaElem = formulaInfo->formula;
 	assertFormulaFuncCount(formulaElem);
 	FormulaFuncCount *formulaFuncCount
