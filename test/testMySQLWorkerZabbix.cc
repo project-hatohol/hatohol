@@ -256,6 +256,20 @@ void test_selectUserHistory(void)
 	assertRecord(2, nsmap);
 }
 
+void test_selectCountTrigger(void)
+{
+	const char *cmd = "use zabbix;"
+	  "SELECT COUNT(DISTINCT t.triggerid) AS cnt,t.status,t.value "
+	  "FROM triggers t INNER JOIN functions f ON t.triggerid=f.triggerid "
+	  "INNER JOIN items i ON f.itemid=i.itemid INNER JOIN hosts h "
+	  "ON i.hostid=h.hostid WHERE i.status=0 AND h.status=0 "
+	  "GROUP BY t.status,t.value";
+	executeCommand(cmd);
+	vector<string> lines;
+	NumberStringMap nsmap;
+	assertRecord(2, nsmap);
+}
+
 #if 0
 void test_selectGroupHostGroupHosts(void)
 {
