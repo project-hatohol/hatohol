@@ -33,6 +33,7 @@ using namespace mlpl;
 #include "ItemTablePtr.h"
 #include "FormulaElement.h"
 #include "SQLColumnParser.h"
+#include "SQLFromParser.h"
 #include "SQLWhereParser.h"
 #include "SQLProcessorTypes.h"
 #include "SQLProcessorInsert.h"
@@ -156,6 +157,7 @@ struct SQLSelectInfo {
 	// an instance in 'tables' in this struct.
 	// Key is a table var name.
 	SQLTableVarNameInfoMap tableVarInfoMap;
+	SQLFromParser          fromParser;
 	SQLWhereParser         whereParser;
 	vector<string>         orderedColumns;
 

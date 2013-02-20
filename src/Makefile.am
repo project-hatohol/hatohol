@@ -9,6 +9,7 @@ libasura_la_SOURCES = \
 	SQLProcessorFactory.cc SQLProcessor.cc SQLProcessorZabbix.cc \
 	SQLProcessorInsert.cc SQLProcessorUpdate.cc \
 	SQLFormulaParser.cc SQLColumnParser.cc SQLWhereParser.cc \
+	SQLFromParser.cc \
 	FormulaElement.cc FormulaOperator.cc FormulaFunction.cc \
 	ReadWriteLock.cc UsedCountable.cc \
 	ItemGroupType.cc ItemGroupTypeManager.cc \

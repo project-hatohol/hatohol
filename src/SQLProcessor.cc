@@ -775,6 +775,11 @@ bool SQLProcessor::parseSectionFrom(SelectParserContext &ctx)
 {
 	ctx.section = SELECT_PARSING_SECTION_FROM;
 	m_separatorCountSpaceComma.resetCounter();
+
+	// This is in under construction. When FromParser is completed,
+	// code to parse from section in this class will be removed.
+	ctx.selectInfo.fromParser.add(ctx.currWord, ctx.currWordLower);
+
 	return true;
 }
 
