@@ -141,7 +141,8 @@ void FormulaFuncMax::resetStatistics(void)
 // ---------------------------------------------------------------------------
 FormulaFuncCount::FormulaFuncCount(void)
 : FormulaStatisticalFunc(NUM_ARGUMENTS_FUNC_COUNT),
-  m_count(0)
+  m_count(0),
+  m_isDistinct(false)
 {
 }
 
@@ -158,4 +159,14 @@ ItemDataPtr FormulaFuncCount::evaluate(void)
 void FormulaFuncCount::resetStatistics(void)
 {
 	m_count = 0;
+}
+
+bool FormulaFuncCount::isDistinct(void) const
+{
+	return m_isDistinct;
+}
+
+void FormulaFuncCount::setDistinct(void)
+{
+	m_isDistinct = true;
 }

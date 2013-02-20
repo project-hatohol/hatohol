@@ -82,11 +82,15 @@ public:
 	virtual ItemDataPtr evaluate(void);
 	virtual void resetStatistics(void);
 
+	bool isDistinct(void) const;
+	void setDistinct(void);
+
 protected:
 	static const int NUM_ARGUMENTS_FUNC_COUNT = 1;
 
 protected:
 	size_t m_count;
+	bool   m_isDistinct;
 };
 
 #endif // FormulaFunction_h
