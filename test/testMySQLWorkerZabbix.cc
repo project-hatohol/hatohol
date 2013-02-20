@@ -241,7 +241,7 @@ void test_selectProfiles(void)
 	executeCommand(cmd);
 	vector<string> lines;
 	NumberStringMap nsmap;
-	assertRecord(2, nsmap);
+	assertRecord(103, nsmap);
 }
 
 } // namespace testMySQLWorkerZabbix
