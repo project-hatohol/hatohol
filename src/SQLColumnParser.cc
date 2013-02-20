@@ -65,6 +65,8 @@ void SQLColumnParser::init(void)
 	SQLFormulaParser::copyKeywordHandlerMap(m_keywordHandlerMap);
 	m_keywordHandlerMap["as"] =
 	  static_cast<KeywordHandler>(&SQLColumnParser::kwHandlerAs);
+	m_keywordHandlerMap["distinct"] =
+	  static_cast<KeywordHandler>(&SQLColumnParser::kwHandlerDistinct);
 
 	SQLFormulaParser::copyFunctionParserMap(m_functionParserMap);
 	m_functionParserMap["max"] =
@@ -215,6 +217,20 @@ bool SQLColumnParser::kwHandlerAs(void)
 	m_ctx->expectAlias = true;
 	m_ctx->dontAppendFormulaString = true;
 	return true;
+}
+
+bool SQLColumnParser::kwHandlerDistinct(void)
+{
+	FormulaElement *formulaElement = getTopOnParenthesisStack();
+	FormulaFuncCount *formulaFuncCount =
+	  dynamic_cast<FormulaFuncCount *>(formulaElement);
+	if (formulaFuncCount) {
+		formulaFuncCount->setDistinct();
+		return true;
+	}
+	
+	MLPL_BUG("Not implemented: DISTINCT.\n");
+	return false;
 }
 
 //
