@@ -29,6 +29,16 @@ public:
 	static ItemDataPtr createAsNumber(string &word);
 };
 
+struct ItemDataPtrComparator {
+	bool operator()(const ItemDataPtr &dataPtr0,
+	                const ItemDataPtr &dataPtr1) const {
+		// TODO: implemented
+		return false;
+	}
+};
+
+typedef set<ItemDataPtr, ItemDataPtrComparator> ItemDataSet;
+
 #endif // ItemDataUtils_h
 
 

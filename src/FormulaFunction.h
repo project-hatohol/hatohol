@@ -20,6 +20,7 @@
 
 #include "ItemDataPtr.h"
 #include "FormulaElement.h"
+#include "ItemDataUtils.h"
 
 // ---------------------------------------------------------------------------
 // FormulaFunction
@@ -91,6 +92,7 @@ protected:
 private:
 	size_t m_count;
 	bool   m_isDistinct;
+	ItemDataSet m_itemDataSet;
 };
 
 #endif // FormulaFunction_h

@@ -152,6 +152,18 @@ FormulaFuncCount::~FormulaFuncCount()
 
 ItemDataPtr FormulaFuncCount::evaluate(void)
 {
+	if (isDistinct()) {
+		const FormulaElementVector &elemVector = getArgVector();
+		if (elemVector.empty()) {
+			MLPL_DBG("argument: empty");
+			return ItemDataPtr();
+		}
+		ItemDataPtr dataPtr = elemVector[0]->evaluate();
+		m_itemDataSet.insert(dataPtr);
+		size_t count = m_itemDataSet.size();
+		return ItemDataPtr(new ItemInt(count), false);
+	}
+
 	m_count++;
 	return ItemDataPtr(new ItemInt(m_count), false);
 }
@@ -159,6 +171,7 @@ ItemDataPtr FormulaFuncCount::evaluate(void)
 void FormulaFuncCount::resetStatistics(void)
 {
 	m_count = 0;
+	m_itemDataSet.clear();
 }
 
 bool FormulaFuncCount::isDistinct(void) const
