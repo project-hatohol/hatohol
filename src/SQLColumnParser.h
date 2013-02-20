@@ -68,6 +68,8 @@ protected:
 	//
 	// SeparatorChecker callbacks
 	//
+	static void separatorCbSpace
+	  (const char separator, SQLColumnParser *columnParser);
 	static void separatorCbComma
 	  (const char separator, SQLColumnParser *columnParser);
 	virtual void separatorCbParenthesisOpen(const char separator);

@@ -13,7 +13,7 @@ AM_SILENT_RULES([yes])
 dnl **************************************************************
 dnl Checks for MLPL
 dnl **************************************************************
-MLPL_REQUIRED=0.0.6
+MLPL_REQUIRED=0.0.8
 PKG_CHECK_MODULES(MLPL, mlpl >= $MLPL_REQUIRED)
 
 dnl **************************************************************

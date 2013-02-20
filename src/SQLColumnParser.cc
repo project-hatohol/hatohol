@@ -82,6 +82,8 @@ SQLColumnParser::SQLColumnParser(void)
 	setFunctionParserMap(&m_functionParserMap);
 	m_ctx = new PrivateContext();
 	SeparatorCheckerWithCallback *separator = getSeparatorChecker();
+	separator->setCallbackTempl<SQLColumnParser>
+	  (' ', separatorCbSpace, this);
 	separator->addSeparator(",");
 	separator->setCallbackTempl<SQLColumnParser>
 	  (',', separatorCbComma, this);
@@ -159,7 +161,8 @@ void SQLColumnParser::closeCurrentFormulaString(void)
 	}
 
 	SQLFormulaInfo *formulaInfo = m_formulaInfoVector.back();
-	formulaInfo->expression = m_ctx->currFormulaString;
+	formulaInfo->expression =
+	  StringUtils::stripBothEndsSpaces(m_ctx->currFormulaString);
 	formulaInfo->alias = m_ctx->alias;
 }
 
@@ -180,6 +183,12 @@ bool SQLColumnParser::closeCurrentFormula(void)
 //
 // SeparatorChecker callbacks
 //
+void SQLColumnParser::separatorCbSpace(const char separator,
+                                       SQLColumnParser *columnParser)
+{
+	columnParser->appendFormulaString(separator);
+}
+
 void SQLColumnParser::separatorCbComma(const char separator,
                                        SQLColumnParser *columnParser)
 {
