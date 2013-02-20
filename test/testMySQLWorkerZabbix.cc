@@ -256,4 +256,22 @@ void test_selectUserHistory(void)
 	assertRecord(2, nsmap);
 }
 
+#if 0
+void test_selectGroupHostGroupHosts(void)
+{
+	const char *cmd = "use zabbix;"
+	  "SELECT  DISTINCT  g.* FROM groups g,hosts_groups hg,hosts h "
+	  "WHERE hg.groupid=g.groupid AND h.hostid=hg.hostid AND h.status=0 "
+	  "AND EXISTS "
+	    "(SELECT t.triggerid FROM items i,functions f,triggers t "
+	    "WHERE i.hostid=hg.hostid AND i.status=0 AND i.itemid=f.itemid "
+	    "AND f.triggerid=t.triggerid AND t.status=0)"
+	  "AND g.groupid BETWEEN 000000000000000 AND 099999999999999";
+	executeCommand(cmd);
+	vector<string> lines;
+	NumberStringMap nsmap;
+	assertRecord(2, nsmap);
+}
+#endif
+
 } // namespace testMySQLWorkerZabbix
