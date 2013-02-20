@@ -249,6 +249,29 @@ VirtualDataStoreZabbix::VirtualDataStoreZabbix(void)
 	//
 	table = createStaticItemTable(GROUP_ID_ZBX_PROFILES);
 	registerProfiles(table);
+
+	//
+	// user_history
+	//
+	table = createStaticItemTable(GROUP_ID_ZBX_USER_HISTORY);
+	grp = table->addNewGroup();
+	ADD(new ItemUint64(ITEM_ID_ZBX_USER_HISTORY_USERHISTORYID, 1));
+	ADD(new ItemUint64(ITEM_ID_ZBX_USER_HISTORY_USERID,        1));
+	ADD(new ItemString(ITEM_ID_ZBX_USER_HISTORY_TITLE1, "History"));
+	ADD(new ItemString(ITEM_ID_ZBX_USER_HISTORY_URL1,
+	                   "history.php?itemid[0]=23316&action=showgraph"));
+	ADD(new ItemString(ITEM_ID_ZBX_USER_HISTORY_TITLE2, "Dashboard"));
+	ADD(new ItemString(ITEM_ID_ZBX_USER_HISTORY_URL2, "dashboard.php"));
+	ADD(new ItemString(ITEM_ID_ZBX_USER_HISTORY_TITLE3,
+	                   "Configuration of templates"));
+	ADD(new ItemString(ITEM_ID_ZBX_USER_HISTORY_URL3,
+	                   "templates.php?groupid=0"));
+	ADD(new ItemString(ITEM_ID_ZBX_USER_HISTORY_TITLE4, "Dashboard"));
+	ADD(new ItemString(ITEM_ID_ZBX_USER_HISTORY_URL4, "dashboard.php"));
+	ADD(new ItemString(ITEM_ID_ZBX_USER_HISTORY_TITLE5,
+	                   "Status of triggers"));
+	ADD(new ItemString(ITEM_ID_ZBX_USER_HISTORY_URL5,
+	                   "tr_status.php?groupid=0&hostid=0"));
 }
 
 VirtualDataStoreZabbix::~VirtualDataStoreZabbix()
