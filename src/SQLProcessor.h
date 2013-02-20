@@ -152,12 +152,12 @@ struct SQLSelectInfo {
 	SQLColumnParser         columnParser;
 	SQLColumnNameMap        columnNameMap;
 	SQLTableInfoList        tables;
+	SQLFromParser           fromParser;
 
 	// The value (const SQLTableInfo *) in the following map points
 	// an instance in 'tables' in this struct.
 	// Key is a table var name.
 	SQLTableVarNameInfoMap tableVarInfoMap;
-	SQLFromParser          fromParser;
 	SQLWhereParser         whereParser;
 	vector<string>         orderedColumns;
 
