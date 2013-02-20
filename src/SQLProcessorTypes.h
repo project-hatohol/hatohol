@@ -31,6 +31,15 @@ enum SQLColumnType {
 	NUM_SQL_COLUMN_TYPES,
 };
 
+enum SQLJoinType {
+	SQL_JOIN_TYPE_UNKNOWN,
+	SQL_JOIN_TYPE_INNER,
+	SQL_JOIN_TYPE_LEFT_OUTER,
+	SQL_JOIN_TYPE_RIGHT_OUTER,
+	SQL_JOIN_TYPE_FULL_OUTER,
+	SQL_JOIN_TYPE_CROSS,
+};
+
 struct ColumnBaseDefinition {
 	ItemId         itemId;
 	const char    *tableName;
