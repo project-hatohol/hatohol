@@ -1,0 +1,102 @@
+|         1 |      1 | web.menu.view.last                        |     0 |        0 |         0 | tr_status.php               |        |    3 |
+|         2 |      1 | web.paging.lastpage                       |     0 |        0 |         0 | tr_status.php               |        |    3 |
+|         3 |      1 | web.menu.cm.last                          |     0 |        0 |         0 | hostinventoriesoverview.php |        |    3 |
+|         4 |      1 | web.hostinventoriesoverview.php.sort      |     0 |        0 |         0 | host_count                  |        |    3 |
+|         5 |      1 | web.hostinventoriesoverview.php.sortorder |     0 |        0 |         0 | DESC                        |        |    3 |
+|         6 |      1 | web.cm.groupid                            |     0 |        0 |         0 |                             |        |    1 |
+|         7 |      1 | web.latest.groupid                        |     0 |        0 |         0 |                             |        |    1 |
+|         8 |      1 | web.discovery.php.sort                    |     0 |        0 |         0 | ip                          |        |    3 |
+|         9 |      1 | web.discovery.php.sortorder               |     0 |        0 |         0 | DESC                        |        |    3 |
+|        10 |      1 | web.view.druleid                          |     0 |        0 |         0 |                             |        |    1 |
+|        11 |      1 | web.latest.druleid                        |     0 |        0 |         0 |                             |        |    1 |
+|        12 |      1 | web.view.groupid                          |     0 |        0 |         0 |                             |        |    1 |
+|        13 |      1 | web.menu.reports.last                     |     0 |        0 |         0 | report1.php                 |        |    3 |
+|        14 |      1 | web.menu.admin.last                       |     0 |        0 |         0 | adm.gui.php                 |        |    3 |
+|        15 |      1 | web.proxies.php.sort                      |     0 |        0 |         0 | host                        |        |    3 |
+|        16 |      1 | web.proxies.php.sortorder                 |     0 |        0 |         0 | ASC                         |        |    3 |
+|        17 |      1 | web.paging.page                           |     0 |        0 |         1 |                             |        |    2 |
+|        18 |      1 | web.menu.config.last                      |     0 |        0 |         0 | templates.php               |        |    3 |
+|        19 |      1 | web.hostgroups.php.sort                   |     0 |        0 |         0 | name                        |        |    3 |
+|        20 |      1 | web.hostgroups.php.sortorder              |     0 |        0 |         0 | ASC                         |        |    3 |
+|        21 |      1 | web.hosts.php.sort                        |     0 |        0 |         0 | name                        |        |    3 |
+|        22 |      1 | web.hosts.php.sortorder                   |     0 |        0 |         0 | ASC                         |        |    3 |
+|        23 |      1 | web.config.groupid                        |     0 |        4 |         0 |                             |        |    1 |
+|        24 |      1 | web.overview.view.style                   |     0 |        0 |         1 |                             |        |    2 |
+|        25 |      1 | web.overview.type                         |     0 |        0 |         0 |                             |        |    2 |
+|        26 |      1 | web.httpmon.php.sort                      |     0 |        0 |         0 | wt.name                     |        |    3 |
+|        27 |      1 | web.httpmon.php.sortorder                 |     0 |        0 |         0 | DESC                        |        |    3 |
+|        28 |      1 | web.latest.php.sort                       |     0 |        0 |         0 | i.name                      |        |    3 |
+|        29 |      1 | web.latest.php.sortorder                  |     0 |        0 |         0 | ASC                         |        |    3 |
+|        30 |      1 | web.slideconf.php.sort                    |     0 |        0 |         0 | name                        |        |    3 |
+|        31 |      1 | web.slideconf.php.sortorder               |     0 |        0 |         0 | ASC                         |        |    3 |
+|        32 |      1 | web.screenconf.php.sort                   |     0 |        0 |         0 | name                        |        |    3 |
+|        33 |      1 | web.screenconf.php.sortorder              |     0 |        0 |         0 | ASC                         |        |    3 |
+|        34 |      1 | web.screenconf.config                     |     0 |        0 |         0 |                             |        |    2 |
+|        35 |      1 | web.discoveryconf.php.sort                |     0 |        0 |         0 | name                        |        |    3 |
+|        36 |      1 | web.discoveryconf.php.sortorder           |     0 |        0 |         0 | ASC                         |        |    3 |
+|        37 |      1 | web.usergrps.php.sort                     |     0 |        0 |         0 | name                        |        |    3 |
+|        38 |      1 | web.usergrps.php.sortorder                |     0 |        0 |         0 | ASC                         |        |    3 |
+|        39 |      1 | web.users.php.sort                        |     0 |        0 |         0 | alias                       |        |    3 |
+|        40 |      1 | web.users.php.sortorder                   |     0 |        0 |         0 | ASC                         |        |    3 |
+|        41 |      1 | web.users.filter.usrgrpid                 |     0 |        0 |         0 |                             |        |    1 |
+|        42 |      1 | web.tr_status.php.sort                    |     0 |        0 |         0 | lastchange                  |        |    3 |
+|        43 |      1 | web.tr_status.php.sortorder               |     0 |        0 |         0 | DESC                        |        |    3 |
+|        44 |      1 | web.events.source                         |     0 |        0 |         0 |                             |        |    2 |
+|        45 |      1 | web.view.hostid                           |     0 |        0 |         0 |                             |        |    1 |
+|        46 |      1 | web.latest.hostid                         |     0 |        0 |         0 |                             |        |    1 |
+|        47 |      1 | web.item.graph.period                     | 23298 |        0 |     21600 |                             |        |    2 |
+|        48 |      1 | web.item.graph.stime                      | 23298 |        0 |         0 | 20121229103154              |        |    3 |
+|        49 |      1 | web.item.graph.isnow                      | 23298 |        0 |         0 |                             |        |    3 |
+|        50 |      1 | web.item.graph.period                     | 23316 |        0 |      7200 |                             |        |    2 |
+|        51 |      1 | web.item.graph.stime                      | 23316 |        0 |         0 | 20121229162033              |        |    3 |
+|        52 |      1 | web.item.graph.isnow                      | 23316 |        0 |         0 | 1                           |        |    3 |
+|        53 |      1 | web.history.filter.state                  |     0 |        0 |         1 |                             |        |    2 |
+|        54 |      1 | web.item.graph.period                     | 23299 |        0 |     86400 |                             |        |    2 |
+|        55 |      1 | web.item.graph.stime                      | 23299 |        0 |         0 | 20121228162426              |        |    3 |
+|        56 |      1 | web.item.graph.isnow                      | 23299 |        0 |         0 |                             |        |    3 |
+|        57 |      1 | web.avail_report.config                   |     0 |        0 |         0 |                             |        |    2 |
+|        58 |      1 | web.reports.groupid                       |     0 |        0 |         0 |                             |        |    1 |
+|        59 |      1 | web.reports.hostid                        |     0 |        0 |         0 |                             |        |    1 |
+|        60 |      1 | web.item.graph.period                     | 23310 |        0 |      3600 |                             |        |    2 |
+|        61 |      1 | web.item.graph.stime                      | 23310 |        0 |         0 | 20121004045746              |        |    3 |
+|        62 |      1 | web.item.graph.isnow                      | 23310 |        0 |         0 |                             |        |    3 |
+|        63 |      1 | web.view.graphid                          |     0 |      524 |         0 |                             |        |    1 |
+|        64 |      1 | web.latest.graphid                        |     0 |      524 |         0 |                             |        |    1 |
+|        65 |      1 | web.screens.period                        |   523 |        0 |      3600 |                             |        |    2 |
+|        66 |      1 | web.screens.stime                         |   523 |        0 |         0 | 20121004113120              |        |    3 |
+|        67 |      1 | web.screens.isnow                         |   523 |        0 |         0 | 1                           |        |    3 |
+|        68 |      1 | web.screens.graphid                       |     0 |      525 |         0 |                             |        |    1 |
+|        69 |      1 | web.screens.period                        |   524 |        0 |      3600 |                             |        |    2 |
+|        70 |      1 | web.screens.stime                         |   524 |        0 |         0 | 20121229152939              |        |    3 |
+|        71 |      1 | web.screens.isnow                         |   524 |        0 |         0 | 1                           |        |    3 |
+|        72 |      1 | web.graphs.php.sort                       |     0 |        0 |         0 | name                        |        |    3 |
+|        73 |      1 | web.graphs.php.sortorder                  |     0 |        0 |         0 | ASC                         |        |    3 |
+|        74 |      1 | web.config.hostid                         |     0 |    10084 |         0 |                             |        |    1 |
+|        75 |      1 | web.item.graph.period                     | 23307 |        0 |      3600 |                             |        |    2 |
+|        76 |      1 | web.item.graph.stime                      | 23307 |        0 |         0 | 20121004121245              |        |    3 |
+|        77 |      1 | web.item.graph.isnow                      | 23307 |        0 |         0 | 1                           |        |    3 |
+|        78 |      1 | web.item.graph.period                     | 23308 |        0 |      3600 |                             |        |    2 |
+|        79 |      1 | web.item.graph.stime                      | 23308 |        0 |         0 | 20121004121257              |        |    3 |
+|        80 |      1 | web.item.graph.isnow                      | 23308 |        0 |         0 |                             |        |    3 |
+|        81 |      1 | web.item.graph.period                     | 23335 |        0 |      3600 |                             |        |    2 |
+|        82 |      1 | web.item.graph.stime                      | 23335 |        0 |         0 | 20121004121323              |        |    3 |
+|        83 |      1 | web.item.graph.isnow                      | 23335 |        0 |         0 |                             |        |    3 |
+|        84 |      1 | web.item.graph.period                     | 23342 |        0 |      3600 |                             |        |    2 |
+|        85 |      1 | web.item.graph.stime                      | 23342 |        0 |         0 | 20121004121344              |        |    3 |
+|        86 |      1 | web.item.graph.isnow                      | 23342 |        0 |         0 |                             |        |    3 |
+|        87 |      1 | web.item.graph.period                     | 23338 |        0 |      3600 |                             |        |    2 |
+|        88 |      1 | web.item.graph.stime                      | 23338 |        0 |         0 | 20121004125509              |        |    3 |
+|        89 |      1 | web.item.graph.isnow                      | 23338 |        0 |         0 |                             |        |    3 |
+|        90 |      1 | web.item.graph.period                     | 23337 |        0 |      3600 |                             |        |    2 |
+|        91 |      1 | web.item.graph.stime                      | 23337 |        0 |         0 | 20121004150157              |        |    3 |
+|        92 |      1 | web.item.graph.isnow                      | 23337 |        0 |         0 |                             |        |    3 |
+|        93 |      1 | web.item.graph.period                     | 23274 |        0 |      3600 |                             |        |    2 |
+|        94 |      1 | web.item.graph.stime                      | 23274 |        0 |         0 | 20121229152759              |        |    3 |
+|        95 |      1 | web.item.graph.isnow                      | 23274 |        0 |         0 |                             |        |    3 |
+|        96 |      1 | web.screens.elementid                     |     0 |       16 |         0 |                             |        |    1 |
+|        97 |      1 | web.screens.period                        |    16 |        0 |      3600 |                             |        |    2 |
+|        98 |      1 | web.screens.stime                         |    16 |        0 |         0 | 20121229152943              |        |    3 |
+|        99 |      1 | web.screens.isnow                         |    16 |        0 |         0 | 1                           |        |    3 |
+|       100 |      1 | web.templates.php.sort                    |     0 |        0 |         0 | name                        |        |    3 |
+|       101 |      1 | web.templates.php.sortorder               |     0 |        0 |         0 | ASC                         |        |    3 |
+|       102 |      1 | web.templates.php.groupid                 |     0 |        0 |         0 |                             |        |    1 |
