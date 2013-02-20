@@ -244,4 +244,16 @@ void test_selectProfiles(void)
 	assertRecord(103, nsmap);
 }
 
+void test_selectUserHistory(void)
+{
+	const char *cmd = "use zabbix;"
+	  "SELECT uh.title1,uh.url1,uh.title2,uh.url2,uh.title3,uh.url3,"
+	  "uh.title4,uh.url4,uh.title5,uh.url5 FROM user_history uh "
+	  "WHERE uh.userid=1";
+	executeCommand(cmd);
+	vector<string> lines;
+	NumberStringMap nsmap;
+	assertRecord(2, nsmap);
+}
+
 } // namespace testMySQLWorkerZabbix
