@@ -31,9 +31,7 @@ static void _assertInputStatement(SQLColumnParser &columnParser,
 
 	while (!statement.finished()) {
 		string word = statement.readWord(*separator);
-		string lower = word;
-		transform(lower.begin(), lower.end(),
-		          lower.begin(), ::tolower);
+		string lower = StringUtils::toLower(word);
 		cppcut_assert_equal(true, columnParser.add(word, lower));
 	}
 	cppcut_assert_equal(true, columnParser.close());
