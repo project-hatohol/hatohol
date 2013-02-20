@@ -77,6 +77,14 @@ protected:
 	FormulaElement *takeFormula(void);
 	bool makeFunctionParserIfPendingWordIsFunction(void);
 
+	/**
+	 * Get a FormulaElement object at the top of the ParenthesisStack.
+	 * @retrun A FormulaElement object at the top of the ParenthesisStack
+	 *         when there is at least one object in the statck.
+	 *         If the stack is empty, NULL is returned.
+	 */
+	FormulaElement *getTopOnParenthesisStack(void) const;
+
 	//
 	// SeparatorChecker callbacks
 	//

@@ -421,6 +421,13 @@ bool SQLFormulaParser::makeFunctionParserIfPendingWordIsFunction(void)
 	return true;
 }
 
+FormulaElement *SQLFormulaParser::getTopOnParenthesisStack(void) const
+{
+	if (m_ctx->parenthesisStack.empty())
+		return NULL;
+	return m_ctx->parenthesisStack.back();
+}
+
 //
 // SeparatorChecker callbacks
 //
