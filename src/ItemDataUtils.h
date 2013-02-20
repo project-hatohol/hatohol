@@ -32,8 +32,7 @@ public:
 struct ItemDataPtrComparator {
 	bool operator()(const ItemDataPtr &dataPtr0,
 	                const ItemDataPtr &dataPtr1) const {
-		// TODO: implemented
-		return false;
+		return *dataPtr0 < *dataPtr1;
 	}
 };
 
