@@ -214,4 +214,42 @@ void test_twoTablesInnerJoinWithVars(void)
 	assertTableElement(innerJoin->getRightFormula(), tableName1, varName1);
 }
 
+void test_threeTablesInnerJoin(void)
+{
+	const char *tableName0 = "tab0";
+	const char *tableName1 = "tab1";
+	const char *tableName2 = "tab2";
+	const char *columnName0 = "column0";
+	const char *columnName1 = "column1";
+	const char *columnName2 = "column2";
+	string statement =
+	  StringUtils::sprintf("from %s inner join %s on %s.%s=%s.%s "
+	                       "inner join %s on %s.%s=%s.%s",
+	                       tableName0, tableName1, 
+	                       tableName0, columnName0, tableName1, columnName1,
+	                       tableName2, tableName1, columnName1,
+	                       tableName2, columnName2);
+	DEFINE_PARSER_AND_RUN(fromParser, tableFormula, statement);
+	assertInnerJoin(tableFormula,
+	                tableName1, columnName1, tableName2, columnName2);
+	SQLTableInnerJoin *innerJoin =
+	  dynamic_cast<SQLTableInnerJoin *>(tableFormula);
+	cppcut_assert_not_null(innerJoin);
+
+	// left inner join
+	SQLTableFormula *leftHand = innerJoin->getLeftFormula();
+	assertInnerJoin(leftHand,
+	                tableName0, columnName0, tableName1, columnName1);
+	SQLTableInnerJoin *leftInnerJoin =
+	  dynamic_cast<SQLTableInnerJoin *>(leftHand);
+	cppcut_assert_not_null(innerJoin);
+
+	// table 0 and 1
+	assertTableElement(leftInnerJoin->getLeftFormula(), tableName0);
+	assertTableElement(leftInnerJoin->getRightFormula(), tableName1);
+
+	// table2
+	assertTableElement(innerJoin->getRightFormula(), tableName2);
+}
+
 } // namespace testSQLFromParser
