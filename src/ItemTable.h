@@ -75,6 +75,11 @@ protected:
 	                             CrossJoinArg &arg);
 	static bool crossJoinForeachRTable(const ItemGroup *itemGroupRTable,
                                            CrossJoinArg &arg);
+	struct InnerJoinArg;
+	static bool innerJoinForeach(const ItemGroup *itemGroup,
+	                             InnerJoinArg &arg);
+	static bool innerJoinForeachRTable(const ItemGroup *itemGroupRTable,
+                                           InnerJoinArg &arg);
 
 private:
 	ItemGroupList m_groupList;

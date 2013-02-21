@@ -29,6 +29,15 @@ struct ItemTable::CrossJoinArg
 	const ItemGroup *itemGroupLTable;
 };
 
+struct ItemTable::InnerJoinArg
+{
+	ItemTable *newTable;
+	const ItemTable *rightTable;
+	const ItemGroup *itemGroupLTable;
+	const size_t indexLeftColumn;
+	const size_t indexRightColumn;
+};
+
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
@@ -109,8 +118,39 @@ ItemTable *ItemTable::innerJoin
   (const ItemTable *itemTable,
    size_t indexLeftColumn, size_t indexRightColumn) const
 {
-	MLPL_BUG("Not implemneted: %s\n", __PRETTY_FUNCTION__);
-	return NULL;
+	readLock();
+	itemTable->readLock();
+	if (m_groupList.empty() && itemTable->m_groupList.empty()) {
+		itemTable->readUnlock();
+		readUnlock();
+		return new ItemTable();
+	}
+	if (m_groupList.empty() || itemTable->m_groupList.empty()) {
+		itemTable->readUnlock();
+		readUnlock();
+		return new ItemTable();
+	}
+
+	size_t numColumnLTable = getNumberOfColumns();
+	size_t numColumnRTable = itemTable->getNumberOfColumns();
+	if (indexLeftColumn >= numColumnLTable ||
+	    indexRightColumn >= numColumnRTable) {
+		itemTable->readUnlock();
+		readUnlock();
+		MLPL_BUG("Invalid parameter: numColumnL: %zd, indexL: %zd, "
+		         "numColumnR: %zd, indexR: %zd\n",
+		         numColumnLTable, indexLeftColumn,
+		         numColumnRTable, indexRightColumn);
+		return new ItemTable();
+	}
+
+	ItemTable *table = new ItemTable();
+	InnerJoinArg arg = {
+	  table, itemTable, NULL, indexLeftColumn, indexRightColumn};
+	foreach<InnerJoinArg &>(innerJoinForeach, arg);
+	itemTable->readUnlock();
+	readUnlock();
+	return table;
 }
 
 ItemTable *ItemTable::leftOuterJoin(const ItemTable *itemTable) const
@@ -200,5 +240,33 @@ bool ItemTable::crossJoinForeach(const ItemGroup *itemGroup, CrossJoinArg &arg)
 {
 	arg.itemGroupLTable = itemGroup;
 	arg.rightTable->foreach<CrossJoinArg &>(crossJoinForeachRTable, arg);
+	return true;
+}
+
+bool ItemTable::innerJoinForeachRTable(const ItemGroup *itemGroupRTable,
+                                       InnerJoinArg &arg)
+{
+	ItemData *leftData =
+	  arg.itemGroupLTable->getItemAt(arg.indexLeftColumn);
+	ItemData *rightData = itemGroupRTable->getItemAt(arg.indexRightColumn);
+	if (*leftData != *rightData)
+		return true;
+
+	ItemGroup *newGroup = arg.newTable->addNewGroup();
+	const ItemGroup *itemGroupArray[] = {
+	  arg.itemGroupLTable, itemGroupRTable, NULL};
+	for (size_t index = 0; itemGroupArray[index] != NULL; index++) {
+		const ItemGroup *itemGroup = itemGroupArray[index];
+		size_t numItems = itemGroup->getNumberOfItems();
+		for (size_t i = 0; i < numItems; i++)
+			newGroup->add(itemGroup->getItemAt(i));
+	}
+	return true;
+}
+
+bool ItemTable::innerJoinForeach(const ItemGroup *itemGroup, InnerJoinArg &arg)
+{
+	arg.itemGroupLTable = itemGroup;
+	arg.rightTable->foreach<InnerJoinArg &>(innerJoinForeachRTable, arg);
 	return true;
 }
