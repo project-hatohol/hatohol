@@ -110,6 +110,11 @@ void SQLFromParser::flush(void)
 void SQLFromParser::close(void)
 {
 	flush();
+
+	if (m_ctx->state != PARSING_STAT_CREATED_TABLE) {
+		THROW_SQL_PROCESSOR_EXCEPTION(
+		  "Invaid status on close: %d", m_ctx->state);
+	}
 }
 
 // ---------------------------------------------------------------------------
@@ -137,9 +142,22 @@ void SQLFromParser::insertTableFormula(SQLTableFormula *tableFormula)
 		m_ctx->tableFormula = tableFormula;
 		return;
 	}
+	
+	SQLTableJoin *tableJoin =
+	  dynamic_cast<SQLTableJoin *>(m_ctx->tableFormula);
+	if (tableJoin) {
+		SQLTableFormula *rightFormula = tableJoin->getRightFormula();
+		if (rightFormula) {
+			delete tableFormula;
+			THROW_SQL_PROCESSOR_EXCEPTION(
+			  "Rigth side of the cross join has already set.");
+		}
+		tableJoin->setRightFormula(tableFormula);
+		return;
+	}
 
 	THROW_SQL_PROCESSOR_EXCEPTION(
-	  "Not implemented: %s\n", __PRETTY_FUNCTION__);
+	  "Stopped due to the unknown condition: %s\n", __PRETTY_FUNCTION__);
 }
 
 void SQLFromParser::makeTableElement(const string &tableName,
@@ -149,6 +167,19 @@ void SQLFromParser::makeTableElement(const string &tableName,
 	insertTableFormula(tableElem);
 	m_ctx->clearPendingWords();
 	m_ctx->state = PARSING_STAT_CREATED_TABLE;
+}
+
+void SQLFromParser::makeCrossJoin(void)
+{
+	if (!m_ctx->tableFormula) {
+		THROW_SQL_PROCESSOR_EXCEPTION(
+		  "No table at left side in spite of attempting to "
+		  "make a cross join element.");
+	}
+	SQLTableCrossJoin *crossJoin = new SQLTableCrossJoin();
+	crossJoin->setLeftFormula(m_ctx->tableFormula);
+	m_ctx->tableFormula = crossJoin;
+	m_ctx->state = PARSING_STAT_EXPECT_TABLE_NAME;
 }
 
 //
@@ -173,5 +204,12 @@ void SQLFromParser::_separatorCbComma(const char separator,
 
 void SQLFromParser::separatorCbComma(const char separator)
 {
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	if (m_ctx->state == PARSING_STAT_POST_TABLE_NAME)
+		flush();
+	if (m_ctx->state == PARSING_STAT_CREATED_TABLE) {
+		makeCrossJoin();
+		return;
+	}
+
+	THROW_SQL_PROCESSOR_EXCEPTION("Encountered an unexpectd comma.");
 }

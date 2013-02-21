@@ -56,6 +56,7 @@ protected:
 	void makeTableElement(
 	       const string &tableName,
 	       const string &varName = StringUtils::EMPTY_STRING);
+	void makeCrossJoin(void);
 
 	//
 	// SeparatorChecker callbacks
