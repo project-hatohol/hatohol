@@ -21,6 +21,15 @@
 #include "SQLProcessorException.h"
 
 SQLFromParser::SubParser SQLFromParser::m_subParsers[] = {
+	&SQLFromParser::subParserExpectFrom,
+	&SQLFromParser::subParserExpectTableName,
+	&SQLFromParser::subParserPostTableName,
+	&SQLFromParser::subParserCreatedTable,
+	&SQLFromParser::subParserGotInner,
+	&SQLFromParser::subParserExpectOn,
+	&SQLFromParser::subParserExpectLeftField,
+	&SQLFromParser::subParserExpectJoinEqual,
+	&SQLFromParser::subParserExpectRightField,
 };
 size_t SQLFromParser::m_numSubParsers =
   sizeof(m_subParsers) /  sizeof(SQLFromParser::SubParser);
@@ -111,49 +120,10 @@ SeparatorCheckerWithCallback *SQLFromParser::getSeparatorChecker(void)
 
 void SQLFromParser::add(const string &word, const string &wordLower)
 {
-	if (m_ctx->state == PARSING_STAT_EXPECT_FROM) {
-		goNextStateIfWordIsExpected("from", wordLower,
-		                            PARSING_STAT_EXPECT_TABLE_NAME);
-		return;
-	} else if (m_ctx->state == PARSING_STAT_EXPECT_TABLE_NAME) {
-		m_ctx->tableName = word;
-		m_ctx->state = PARSING_STAT_POST_TABLE_NAME;
-		return;
-	} else if (m_ctx->state == PARSING_STAT_POST_TABLE_NAME) {
-		if (wordLower == "inner") {
-			flush();
-			m_ctx->state = PARSING_STAT_GOT_INNER;
-		} else if (wordLower == "on") {
-			flush();
-			m_ctx->state = PARSING_STAT_EXPECT_INNER_JOIN_LEFT_FIELD;
-		} else {
-			string &tableName = m_ctx->tableName;
-			makeTableElement(tableName, word);
-			m_ctx->tableName.clear();
-		}
-		return;
-	} else if (m_ctx->state == PARSING_STAT_CREATED_TABLE) {
-		if (wordLower == "inner") {
-			m_ctx->state = PARSING_STAT_GOT_INNER;
-			return;
-		}
-	} else if (m_ctx->state == PARSING_STAT_GOT_INNER) {
-		if (wordLower == "join") {
-			m_ctx->onParsingInnerJoin = true;
-			m_ctx->state = PARSING_STAT_EXPECT_TABLE_NAME;
-			return;
-		}
-	} else if (m_ctx->state == PARSING_STAT_EXPECT_ON) {
-		goNextStateIfWordIsExpected(
-		  "on", wordLower, PARSING_STAT_EXPECT_INNER_JOIN_LEFT_FIELD);
-		return;
-	} else if (m_ctx->state == PARSING_STAT_EXPECT_INNER_JOIN_LEFT_FIELD) {
-		parseInnerJoinLeftField(word);
-		return;
-	} else if (m_ctx->state == PARSING_STAT_EXPECT_INNER_JOIN_RIGHT_FIELD) {
-		parseInnerJoinRightField(word);
-		return;
-	}
+	if (m_ctx->state >= NUM_PARSING_STAT)
+		THROW_ASURA_EXCEPTION( "Invalid state: %d", m_ctx->state);
+	SubParser subParser = m_subParsers[m_ctx->state];
+	(this->*subParser)(word, wordLower);
 }
 
 void SQLFromParser::flush(void)
@@ -181,6 +151,84 @@ void SQLFromParser::close(void)
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
+
+//
+// Sub parsers
+//
+void SQLFromParser::subParserExpectFrom
+  (const string &word, const string &wordLower)
+{
+	goNextStateIfWordIsExpected("from", wordLower,
+	                            PARSING_STAT_EXPECT_TABLE_NAME);
+}
+
+void SQLFromParser::subParserExpectTableName
+  (const string &word, const string &wordLower)
+{
+	m_ctx->tableName = word;
+	m_ctx->state = PARSING_STAT_POST_TABLE_NAME;
+}
+
+void SQLFromParser::subParserPostTableName
+  (const string &word, const string &wordLower)
+{
+	if (wordLower == "inner") {
+		flush();
+		m_ctx->state = PARSING_STAT_GOT_INNER;
+	} else if (wordLower == "on") {
+		flush();
+		m_ctx->state = PARSING_STAT_EXPECT_INNER_JOIN_LEFT_FIELD;
+	} else {
+		string &tableName = m_ctx->tableName;
+		makeTableElement(tableName, word);
+		m_ctx->tableName.clear();
+	}
+}
+
+void SQLFromParser::subParserCreatedTable
+  (const string &word, const string &wordLower)
+{
+	if (wordLower == "inner") {
+		m_ctx->state = PARSING_STAT_GOT_INNER;
+		return;
+	}
+}
+
+void SQLFromParser::subParserGotInner
+  (const string &word, const string &wordLower)
+{
+	if (wordLower == "join") {
+		m_ctx->onParsingInnerJoin = true;
+		m_ctx->state = PARSING_STAT_EXPECT_TABLE_NAME;
+		return;
+	}
+}
+
+void SQLFromParser::subParserExpectOn
+  (const string &word, const string &wordLower)
+{
+	goNextStateIfWordIsExpected(
+	  "on", wordLower, PARSING_STAT_EXPECT_INNER_JOIN_LEFT_FIELD);
+}
+
+void SQLFromParser::subParserExpectLeftField
+  (const string &word, const string &wordLower)
+{
+	parseInnerJoinLeftField(word);
+}
+
+void SQLFromParser::subParserExpectJoinEqual
+  (const string &word, const string &wordLower)
+{
+	THROW_SQL_PROCESSOR_EXCEPTION(
+	  "Expected '=', but got: %s", word.c_str());
+}
+
+void SQLFromParser::subParserExpectRightField
+  (const string &word, const string &wordLower)
+{
+	parseInnerJoinRightField(word);
+}
 
 //
 // general sub routines

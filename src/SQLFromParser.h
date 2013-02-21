@@ -58,6 +58,20 @@ protected:
 	//
 	// Sub parsers
 	//
+	void subParserExpectFrom(const string &word, const string &wordLower);
+	void subParserExpectTableName
+	       (const string &word, const string &wordLower);
+	void subParserPostTableName
+	       (const string &word, const string &wordLower);
+	void subParserCreatedTable(const string &word, const string &wordLower);
+	void subParserGotInner(const string &word, const string &wordLower);
+	void subParserExpectOn(const string &word, const string &wordLower);
+	void subParserExpectLeftField
+	       (const string &word, const string &wordLower);
+	void subParserExpectJoinEqual
+	       (const string &word, const string &wordLower);
+	void subParserExpectRightField
+	       (const string &word, const string &wordLower);
 
 	//
 	// general sub routines
