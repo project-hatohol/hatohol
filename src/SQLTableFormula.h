@@ -44,6 +44,8 @@ class SQLTableElement : public SQLTableFormula
 public:
 	SQLTableElement(const string &name,
 	                const string &varName = StringUtils::EMPTY_STRING);
+	const string &getName(void) const;
+	const string &getVarName(void) const;
 
 private:
 	string m_name;

@@ -19,8 +19,21 @@ static void assertTableFormulaType(SQLTableFormula *obj)
 	               DEMANGLED_TYPE_NAME(*obj), TYPE_NAME(*obj)));
 }
 
-#define assertTableElement(X) \
-cut_trace(assertTableFormulaType<SQLTableElement>(X))
+static void _assertTableElement
+  (SQLTableFormula *tableFormula,
+   const string &expectedTableName,
+   const string &expectedTableVarName = StringUtils::EMPTY_STRING)
+{
+	cut_trace(assertTableFormulaType<SQLTableElement>(tableFormula));
+	SQLTableElement *tableElem =
+	  dynamic_cast<SQLTableElement *>(tableFormula);
+	cppcut_assert_not_null(tableElem);
+	cppcut_assert_equal(expectedTableName, tableElem->getName());
+	cppcut_assert_equal(expectedTableVarName, tableElem->getVarName());
+}
+
+#define assertTableElement(X, N, ...) \
+cut_trace(_assertTableElement(X, N, ##__VA_ARGS__))
 
 static void _assertInputStatement(SQLFromParser &fromParser,
                                   ParsableString &statement)
@@ -63,7 +76,7 @@ void test_oneTable(void)
 	const char *tableName = "tab";
 	string statement = StringUtils::sprintf("from %s", tableName);
 	DEFINE_PARSER_AND_RUN(fromParser, tableFormula, statement);
-	assertTableElement(tableFormula);
+	assertTableElement(tableFormula, tableName);
 }
 
 } // namespace testSQLFromParser

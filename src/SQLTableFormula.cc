@@ -33,6 +33,16 @@ SQLTableElement::SQLTableElement(const string &name, const string &varName)
 {
 }
 
+const string &SQLTableElement::getName(void) const
+{
+	return m_name;
+}
+
+const string &SQLTableElement::getVarName(void) const
+{
+	return m_varName;
+}
+
 // ---------------------------------------------------------------------------
 // SQLTableJoin
 // ---------------------------------------------------------------------------
