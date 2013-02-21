@@ -23,7 +23,9 @@
 class SQLProcessorException : public AsuraException
 {
 public:
-	explicit SQLProcessorException(const string &brief);
+	explicit SQLProcessorException(const string &brief,
+	                               const char *sourceFileName = "",
+	                               int lineNumber = UNKNOWN_LINE_NUMBER);
 	virtual ~SQLProcessorException() _GLIBCXX_USE_NOEXCEPT;
 private:
 };
@@ -31,7 +33,7 @@ private:
 #define THROW_SQL_PROCESSOR_EXCEPTION(FMT, ...) \
 do { \
 	string msg = StringUtils::sprintf(FMT, ##__VA_ARGS__); \
-	throw SQLProcessorException(msg); \
+	throw SQLProcessorException(msg, __FILE__, __LINE__); \
 } while (0)
 
 #endif // SQLProcessorException_h

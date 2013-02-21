@@ -17,8 +17,10 @@
 
 #include "SQLProcessorException.h"
 
-SQLProcessorException::SQLProcessorException(const string &brief)
-: AsuraException(brief)
+SQLProcessorException::SQLProcessorException(const string &brief,
+                                             const char *sourceFileName,
+                                             int lineNumber)
+: AsuraException(brief, sourceFileName, lineNumber)
 {
 }
 
