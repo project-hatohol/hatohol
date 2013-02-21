@@ -128,7 +128,7 @@ static bool assertCrossJoinForeach(const ItemGroup *itemGroup,
 }
 
 struct AssertInnerJoinForeachArg {
-	vector<pair<int,int> > joinRowCombination;
+	vector<pair<int,int> > joinedRowsIndexVector;
 	size_t idx;
 };
 
@@ -351,23 +351,23 @@ void test_innerJoin(void)
 	cut_assert_not_null(z_table);
 
 	// check the result
-	vector<pair<int,int> > joinRowCombination;
+	vector<pair<int,int> > joinedRowsIndexVector;
 	for (size_t i = 0; i < NUM_TABLE0; i++) {
 		TableStruct0 *tbl0 = &tableContent0[i];
 		for (size_t j = 0; j < NUM_TABLE1; j++) {
 			TableStruct1 *tbl1 = &tableContent1[j];
 			if (strcmp(tbl0->name, tbl1->name) != 0)
 				break;
-			joinRowCombination.push_back(pair<int,int>(i,j));
+			joinedRowsIndexVector.push_back(pair<int,int>(i,j));
 		}
 	}
 
 	size_t numColumns = x_table->getNumberOfColumns() +
 	                    y_table->getNumberOfColumns();
-	size_t numRows = joinRowCombination.size();
+	size_t numRows = joinedRowsIndexVector.size();
 	cppcut_assert_equal(numColumns, z_table->getNumberOfColumns());
 	cppcut_assert_equal(numRows, z_table->getNumberOfRows());
-	AssertInnerJoinForeachArg arg = {joinRowCombination, 0};
+	AssertInnerJoinForeachArg arg = {joinedRowsIndexVector, 0};
 	z_table->foreach<AssertInnerJoinForeachArg &>
 	                (assertInnerJoinForeach, arg);
 }
