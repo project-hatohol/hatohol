@@ -21,8 +21,11 @@
 
 struct SQLFromParser::PrivateContext {
 
+	SQLTableFormula *tableFormula;
+
 	// constructor
 	PrivateContext(void)
+	: tableFormula(NULL)
 	{
 	}
 };
@@ -47,7 +50,23 @@ SQLFromParser::~SQLFromParser()
 		delete m_ctx;
 }
 
+SQLTableFormula *SQLFromParser::getTableFormula(void) const
+{
+	return m_ctx->tableFormula;
+}
+
+SeparatorCheckerWithCallback *SQLFromParser::getSeparatorChecker(void)
+{
+	return &m_separator;
+}
+
 bool SQLFromParser::add(string& word, string &wordLower)
+{
+	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	return false;
+}
+
+bool SQLFromParser::close(void)
 {
 	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
 	return false;

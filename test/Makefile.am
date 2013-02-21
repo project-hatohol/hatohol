@@ -11,7 +11,7 @@ noinst_LTLIBRARIES = \
 	testSQLUtils.la testSQLProcessor.la \
 	testSQLProcessorInsert.la testSQLProcessorUpdate.la \
 	testFormulaElement.la \
-	testSQLWhereParser.la \
+	testSQLFromParser.la testSQLWhereParser.la \
 	testSQLColumnParser.la testMySQLWorkerZabbix.la \
 	testItemData.la testItemGroup.la \
 	testItemPtr.la testItemGroupType.la testItemTable.la \

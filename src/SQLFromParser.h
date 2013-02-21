@@ -24,12 +24,18 @@ using namespace std;
 #include <ParsableString.h>
 using namespace mlpl;
 
+#include "SQLTableFormula.h"
+
 class SQLFromParser
 {
 public:
 	SQLFromParser(void);
 	virtual ~SQLFromParser();
+	SQLTableFormula *getTableFormula(void) const;
+	SeparatorCheckerWithCallback *getSeparatorChecker(void);
+
 	virtual bool add(string& word, string &wordLower);
+	virtual bool close(void);
 
 protected:
 	//
