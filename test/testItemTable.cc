@@ -369,7 +369,7 @@ void test_innerJoin(void)
 		for (size_t j = 0; j < NUM_TABLE1; j++) {
 			TableStruct1 *tbl1 = &tableContent1[j];
 			if (strcmp(tbl0->name, tbl1->name) != 0)
-				break;
+				continue;
 			joinedRowsIndexVector.push_back(pair<int,int>(i,j));
 		}
 	}
