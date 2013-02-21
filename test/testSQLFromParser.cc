@@ -5,6 +5,7 @@ using namespace mlpl;
 #include <cppcutter.h>
 #include "SQLFromParser.h"
 #include "Asura.h"
+#include "AsuraException.h"
 
 namespace testSQLFromParser {
 
@@ -14,12 +15,18 @@ static void _assertInputStatement(SQLFromParser &fromParser,
 	SeparatorCheckerWithCallback *separator =
 	  fromParser.getSeparatorChecker();
 
-	while (!statement.finished()) {
-		string word = statement.readWord(*separator);
-		string lower = StringUtils::toLower(word);
-		cppcut_assert_equal(true, fromParser.add(word, lower));
+	try {
+		while (!statement.finished()) {
+			string word = statement.readWord(*separator);
+			string lower = StringUtils::toLower(word);
+			fromParser.add(word, lower);
+		}
+		fromParser.close();
+	} catch (const AsuraException &e) {
+		cut_fail("Exception: <%s:%d> %s\n",
+		         e.getSourceFileName().c_str(), e.getLineNumber(),
+		         e.what());
 	}
-	cppcut_assert_equal(true, fromParser.close());
 }
 #define assertInputStatement(P,S) cut_trace(_assertInputStatement(P,S))
 

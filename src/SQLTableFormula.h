@@ -22,6 +22,7 @@
 using namespace std;
 
 #include <ParsableString.h>
+#include <StringUtils.h>
 using namespace mlpl;
 
 #include "SQLProcessorTypes.h"
@@ -41,7 +42,8 @@ public:
 class SQLTableElement : public SQLTableFormula
 {
 public:
-	SQLTableElement(string &name, string &varName);
+	SQLTableElement(const string &name,
+	                const string &varName = StringUtils::EMPTY_STRING);
 
 private:
 	string m_name;

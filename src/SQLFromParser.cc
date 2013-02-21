@@ -18,14 +18,19 @@
 #include "SQLFromParser.h"
 #include "FormulaOperator.h"
 #include "ItemDataUtils.h"
+#include "SQLProcessorException.h"
 
 struct SQLFromParser::PrivateContext {
 
+	ParsingState     state;
 	SQLTableFormula *tableFormula;
+	string           pendingWord;
+	string           pendingWordLower;
 
 	// constructor
 	PrivateContext(void)
-	: tableFormula(NULL)
+	: state(PARSING_STAT_EXPECT_FROM),
+	  tableFormula(NULL)
 	{
 	}
 };
@@ -60,16 +65,39 @@ SeparatorCheckerWithCallback *SQLFromParser::getSeparatorChecker(void)
 	return &m_separator;
 }
 
-bool SQLFromParser::add(string& word, string &wordLower)
+void SQLFromParser::add(const string &word, const string &wordLower)
 {
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
-	return false;
+	if (m_ctx->state == PARSING_STAT_EXPECT_FROM) {
+		goNextStateIfWordIsExpected("from", wordLower,
+		                            PARSING_STAT_EXPECT_TABLE_NAME);
+		return;
+	}
+
+	if (!m_ctx->pendingWord.empty()) {
+		THROW_SQL_PROCESSOR_EXCEPTION(
+		  "Invalid consecutive words: %s, %s\n",
+		  m_ctx->pendingWord.c_str(), word.c_str());
+	}
+
+	m_ctx->pendingWord = word;
+	m_ctx->pendingWordLower = wordLower;
 }
 
-bool SQLFromParser::close(void)
+void SQLFromParser::flush(void)
 {
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
-	return false;
+	if (m_ctx->pendingWord.empty())
+		return;
+
+	if (m_ctx->state == PARSING_STAT_EXPECT_TABLE_NAME) {
+		string &tableName = m_ctx->pendingWord;
+		SQLTableFormula *tableElem = new SQLTableElement(tableName);
+		insertTableFormula(tableElem);
+	}
+}
+
+void SQLFromParser::close(void)
+{
+	flush();
 }
 
 // ---------------------------------------------------------------------------
@@ -79,6 +107,23 @@ bool SQLFromParser::close(void)
 //
 // general sub routines
 //
+void SQLFromParser::goNextStateIfWordIsExpected(const string &expectedWord,
+                                                const string &actualWord,
+                                                ParsingState nextState)
+{
+	if (actualWord != expectedWord) {
+		THROW_SQL_PROCESSOR_EXCEPTION(
+		  "Expected: %s, but got: %s\n",
+		  expectedWord.c_str(), actualWord.c_str());
+	}
+	m_ctx->state = nextState;
+}
+
+void SQLFromParser::insertTableFormula(SQLTableFormula *tableFormula)
+{
+	THROW_SQL_PROCESSOR_EXCEPTION(
+	  "Not implemented: %s\n", __PRETTY_FUNCTION__);
+}
 
 //
 // SeparatorChecker callbacks

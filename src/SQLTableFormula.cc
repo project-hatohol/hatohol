@@ -27,7 +27,7 @@ SQLTableFormula::~SQLTableFormula()
 // ---------------------------------------------------------------------------
 // SQLTableElement
 // ---------------------------------------------------------------------------
-SQLTableElement::SQLTableElement(string &name, string &varName)
+SQLTableElement::SQLTableElement(const string &name, const string &varName)
 : m_name(name),
   m_varName(varName)
 {

@@ -34,13 +34,24 @@ public:
 	SQLTableFormula *getTableFormula(void) const;
 	SeparatorCheckerWithCallback *getSeparatorChecker(void);
 
-	virtual bool add(string& word, string &wordLower);
-	virtual bool close(void);
+	virtual void add(const string& word, const string &wordLower);
+	virtual void flush(void);
+	virtual void close(void);
 
 protected:
+	enum ParsingState {
+		PARSING_STAT_EXPECT_FROM,
+		PARSING_STAT_EXPECT_TABLE_NAME,
+		PARSING_STAT_POST_TABLE_NAME,
+	};
+
 	//
 	// general sub routines
 	//
+	void goNextStateIfWordIsExpected(const string &expectedWord,
+	                                 const string &actualWord,
+	                                 ParsingState nextState);
+	void insertTableFormula(SQLTableFormula *tableFormula);
 
 	//
 	// SeparatorChecker callbacks
