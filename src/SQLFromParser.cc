@@ -26,11 +26,19 @@ struct SQLFromParser::PrivateContext {
 	SQLTableFormula *tableFormula;
 	string           pendingWord;
 	string           pendingWordLower;
+	bool             onParsingInnerJoin;
+	SQLTableElement *rightTableOfInnerJoin;
+	string           innerJoinLeftTableName;
+	string           innerJoinLeftColumnName;
+	string           innerJoinRightTableName;
+	string           innerJoinRightColumnName;
 
 	// constructor
 	PrivateContext(void)
 	: state(PARSING_STAT_EXPECT_FROM),
-	  tableFormula(NULL)
+	  tableFormula(NULL),
+	  onParsingInnerJoin(false),
+	  rightTableOfInnerJoin(NULL)
 	{
 	}
 
@@ -38,6 +46,8 @@ struct SQLFromParser::PrivateContext {
 	{
 		if (tableFormula)
 			delete tableFormula;
+		if (rightTableOfInnerJoin)
+			delete rightTableOfInnerJoin;
 	}
 
 	void clearPendingWords(void)
@@ -45,6 +55,16 @@ struct SQLFromParser::PrivateContext {
 		pendingWord.clear();
 		pendingWordLower.clear();
 	}
+
+	void clearInnerJoinParts(void)
+	{
+		rightTableOfInnerJoin = NULL;
+		innerJoinLeftTableName.clear();
+		innerJoinLeftColumnName.clear();
+		innerJoinRightTableName.clear();
+		innerJoinRightColumnName.clear();
+	}
+
 };
 
 // ---------------------------------------------------------------------------
@@ -79,16 +99,47 @@ SeparatorCheckerWithCallback *SQLFromParser::getSeparatorChecker(void)
 
 void SQLFromParser::add(const string &word, const string &wordLower)
 {
+	//
+	// Pre actions
+	//
 	if (m_ctx->state == PARSING_STAT_EXPECT_FROM) {
 		goNextStateIfWordIsExpected("from", wordLower,
 		                            PARSING_STAT_EXPECT_TABLE_NAME);
 		return;
 	} else if (m_ctx->state == PARSING_STAT_POST_TABLE_NAME) {
-		string &tableName = m_ctx->pendingWord;
-		makeTableElement(tableName, word);
+		if (wordLower == "inner") {
+			flush();
+			m_ctx->state = PARSING_STAT_GOT_INNER;
+		} else if (wordLower == "on") {
+			flush();
+			m_ctx->state = PARSING_STAT_EXPECT_INNER_JOIN_LEFT_FIELD;
+		} else {
+			string &tableName = m_ctx->pendingWord;
+			makeTableElement(tableName, word);
+		}
+		return;
+	} else if (m_ctx->state == PARSING_STAT_GOT_INNER) {
+		if (wordLower == "join") {
+			m_ctx->onParsingInnerJoin = true;
+			m_ctx->clearPendingWords();
+			m_ctx->state = PARSING_STAT_EXPECT_TABLE_NAME;
+			return;
+		}
+	} else if (m_ctx->state == PARSING_STAT_EXPECT_ON) {
+		goNextStateIfWordIsExpected(
+		  "on", wordLower, PARSING_STAT_EXPECT_INNER_JOIN_LEFT_FIELD);
+		return;
+	} else if (m_ctx->state == PARSING_STAT_EXPECT_INNER_JOIN_LEFT_FIELD) {
+		parseInnerJoinLeftField(word);
+		return;
+	} else if (m_ctx->state == PARSING_STAT_EXPECT_INNER_JOIN_RIGHT_FIELD) {
+		parseInnerJoinRightField(word);
 		return;
 	}
 
+	//
+	// Set pending words
+	//
 	if (!m_ctx->pendingWord.empty()) {
 		THROW_SQL_PROCESSOR_EXCEPTION(
 		  "Invalid consecutive words: %s, %s",
@@ -98,7 +149,10 @@ void SQLFromParser::add(const string &word, const string &wordLower)
 	m_ctx->pendingWord = word;
 	m_ctx->pendingWordLower = wordLower;
 
-	if (m_ctx->state == PARSING_STAT_EXPECT_TABLE_NAME)
+	//
+	// Post actions
+	//
+	if (m_ctx->state == PARSING_STAT_EXPECT_TABLE_NAME) 
 		m_ctx->state = PARSING_STAT_POST_TABLE_NAME;
 }
 
@@ -148,7 +202,7 @@ void SQLFromParser::insertTableFormula(SQLTableFormula *tableFormula)
 		m_ctx->tableFormula = tableFormula;
 		return;
 	}
-	
+
 	SQLTableJoin *tableJoin =
 	  dynamic_cast<SQLTableJoin *>(m_ctx->tableFormula);
 	if (tableJoin) {
@@ -169,9 +223,14 @@ void SQLFromParser::insertTableFormula(SQLTableFormula *tableFormula)
 void SQLFromParser::makeTableElement(const string &tableName,
                                      const string &varName)
 {
-	SQLTableFormula *tableElem = new SQLTableElement(tableName, varName);
-	insertTableFormula(tableElem);
+	SQLTableElement *tableElem = new SQLTableElement(tableName, varName);
 	m_ctx->clearPendingWords();
+	if (m_ctx->onParsingInnerJoin) {
+		m_ctx->rightTableOfInnerJoin = tableElem;
+		m_ctx->state = PARSING_STAT_EXPECT_ON;
+		return;
+	}
+	insertTableFormula(tableElem);
 	m_ctx->state = PARSING_STAT_CREATED_TABLE;
 }
 
@@ -188,6 +247,60 @@ void SQLFromParser::makeCrossJoin(void)
 	m_ctx->state = PARSING_STAT_EXPECT_TABLE_NAME;
 }
 
+void SQLFromParser::makeInnerJoin(void)
+{
+	if (!m_ctx->tableFormula) {
+		THROW_SQL_PROCESSOR_EXCEPTION(
+		  "No table at left side in spite of attempting to "
+		  "make an inner join element.");
+	}
+	SQLTableInnerJoin *innerJoin =
+	  new SQLTableInnerJoin(m_ctx->innerJoinLeftTableName,
+	                        m_ctx->innerJoinLeftColumnName,
+	                        m_ctx->innerJoinRightTableName,
+	                        m_ctx->innerJoinRightColumnName);
+	innerJoin->setLeftFormula(m_ctx->tableFormula);
+	m_ctx->tableFormula = innerJoin;
+	innerJoin->setRightFormula(m_ctx->rightTableOfInnerJoin);
+	m_ctx->clearInnerJoinParts();
+	m_ctx->state = PARSING_STAT_EXPECT_TABLE_NAME;
+}
+
+void SQLFromParser::decomposeTableAndColumn(const string &fieldName,
+                                            string &tableName,
+                                            string &columnName)
+{
+	size_t dotPosition = fieldName.find(".");
+	if (dotPosition == string::npos) {
+		THROW_SQL_PROCESSOR_EXCEPTION(
+		  "'dot' is not found in join field: %s", fieldName.c_str());
+	}
+	if (dotPosition == 0 || dotPosition == fieldName.size() - 1) {
+		THROW_SQL_PROCESSOR_EXCEPTION(
+		  "The position of 'dot' is invalid: %s (%d)",
+		  fieldName.c_str(), dotPosition);
+	}
+	tableName = string(fieldName, 0, dotPosition);
+	columnName = string(fieldName, dotPosition + 1);
+}
+
+void SQLFromParser::parseInnerJoinLeftField(const string &fieldName)
+{
+	decomposeTableAndColumn(fieldName,
+	                        m_ctx->innerJoinLeftTableName,
+	                        m_ctx->innerJoinLeftColumnName);
+	m_ctx->state = PARSING_STAT_EXPECT_INNER_JOIN_EQUAL;
+}
+
+void SQLFromParser::parseInnerJoinRightField(const string &fieldName)
+{
+	decomposeTableAndColumn(fieldName,
+	                        m_ctx->innerJoinRightTableName,
+	                        m_ctx->innerJoinRightColumnName);
+	makeInnerJoin();
+	m_ctx->state = PARSING_STAT_CREATED_TABLE;
+}
+
 //
 // SeparatorChecker callbacks
 //
@@ -199,7 +312,11 @@ void SQLFromParser::_separatorCbEqual(const char separator,
 
 void SQLFromParser::separatorCbEqual(const char separator)
 {
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	if (m_ctx->state != PARSING_STAT_EXPECT_INNER_JOIN_EQUAL) {
+		THROW_SQL_PROCESSOR_EXCEPTION(
+		  "Encountered an unexpectd equal. state: %d", m_ctx->state);
+	}
+	m_ctx->state = PARSING_STAT_EXPECT_INNER_JOIN_RIGHT_FIELD;
 }
 
 void SQLFromParser::_separatorCbComma(const char separator,

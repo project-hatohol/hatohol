@@ -44,6 +44,11 @@ protected:
 		PARSING_STAT_EXPECT_TABLE_NAME,
 		PARSING_STAT_POST_TABLE_NAME,
 		PARSING_STAT_CREATED_TABLE,
+		PARSING_STAT_GOT_INNER,
+		PARSING_STAT_EXPECT_ON,
+		PARSING_STAT_EXPECT_INNER_JOIN_LEFT_FIELD,
+		PARSING_STAT_EXPECT_INNER_JOIN_EQUAL,
+		PARSING_STAT_EXPECT_INNER_JOIN_RIGHT_FIELD,
 	};
 
 	//
@@ -57,6 +62,11 @@ protected:
 	       const string &tableName,
 	       const string &varName = StringUtils::EMPTY_STRING);
 	void makeCrossJoin(void);
+	void makeInnerJoin(void);
+	void decomposeTableAndColumn(const string &fieldName,
+	                             string &tableName, string &columnName);
+	void parseInnerJoinLeftField(const string &fieldName);
+	void parseInnerJoinRightField(const string &fieldName);
 
 	//
 	// SeparatorChecker callbacks
