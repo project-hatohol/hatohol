@@ -34,6 +34,12 @@ struct SQLFromParser::PrivateContext {
 	{
 	}
 
+	~PrivateContext()
+	{
+		if (tableFormula)
+			delete tableFormula;
+	}
+
 	void clearPendingWords(void)
 	{
 		pendingWord.clear();
