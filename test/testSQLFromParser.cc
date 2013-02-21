@@ -107,4 +107,22 @@ void test_twoTable(void)
 	assertTableElement(crossJoin->getRightFormula(), tableName1);
 }
 
+void test_twoTablesWithVars(void)
+{
+	const char *tableName0 = "tab0";
+	const char *varName0 = "t0";
+	const char *tableName1 = "tab1";
+	const char *varName1 = "t1";
+	string statement = StringUtils::sprintf("from %s %s, %s %s",
+	                                        tableName0, varName0,
+	                                        tableName1, varName1);
+	DEFINE_PARSER_AND_RUN(fromParser, tableFormula, statement);
+	assertCrossJoin(tableFormula);
+	SQLTableCrossJoin *crossJoin =
+	  dynamic_cast<SQLTableCrossJoin *>(tableFormula);
+	cppcut_assert_not_null(crossJoin);
+	assertTableElement(crossJoin->getLeftFormula(), tableName0, varName0);
+	assertTableElement(crossJoin->getRightFormula(), tableName1, varName1);
+}
+
 } // namespace testSQLFromParser
