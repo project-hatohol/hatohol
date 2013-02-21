@@ -220,19 +220,25 @@ bool ItemTable::freezeTailGroupIfFirstGroup(ItemGroup *tail)
 	return false;
 }
 
-bool ItemTable::crossJoinForeachRTable(const ItemGroup *itemGroupRTable,
-                                       CrossJoinArg &arg)
+void ItemTable::joinForeachCore(ItemTable *newTable,
+                                const ItemGroup *itemGroupLTable,
+                                const ItemGroup *itemGroupRTable)
 {
-	ItemGroup *newGroup = arg.newTable->addNewGroup();
-
+	ItemGroup *newGroup = newTable->addNewGroup();
 	const ItemGroup *itemGroupArray[] = {
-	  arg.itemGroupLTable, itemGroupRTable, NULL};
+	  itemGroupLTable, itemGroupRTable, NULL};
 	for (size_t index = 0; itemGroupArray[index] != NULL; index++) {
 		const ItemGroup *itemGroup = itemGroupArray[index];
 		size_t numItems = itemGroup->getNumberOfItems();
 		for (size_t i = 0; i < numItems; i++)
 			newGroup->add(itemGroup->getItemAt(i));
 	}
+}
+
+bool ItemTable::crossJoinForeachRTable(const ItemGroup *itemGroupRTable,
+                                       CrossJoinArg &arg)
+{
+	joinForeachCore(arg.newTable, arg.itemGroupLTable, itemGroupRTable);
 	return true;
 }
 
@@ -252,15 +258,7 @@ bool ItemTable::innerJoinForeachRTable(const ItemGroup *itemGroupRTable,
 	if (*leftData != *rightData)
 		return true;
 
-	ItemGroup *newGroup = arg.newTable->addNewGroup();
-	const ItemGroup *itemGroupArray[] = {
-	  arg.itemGroupLTable, itemGroupRTable, NULL};
-	for (size_t index = 0; itemGroupArray[index] != NULL; index++) {
-		const ItemGroup *itemGroup = itemGroupArray[index];
-		size_t numItems = itemGroup->getNumberOfItems();
-		for (size_t i = 0; i < numItems; i++)
-			newGroup->add(itemGroup->getItemAt(i));
-	}
+	joinForeachCore(arg.newTable, arg.itemGroupLTable, itemGroupRTable);
 	return true;
 }
 

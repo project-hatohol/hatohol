@@ -69,6 +69,9 @@ public:
 protected:
 	virtual ~ItemTable();
 	bool freezeTailGroupIfFirstGroup(ItemGroup *tail);
+	static void joinForeachCore(ItemTable *newTable,
+	                            const ItemGroup *itemGroupLTable,
+	                            const ItemGroup *itemGroupRTable);
 
 	struct CrossJoinArg;
 	static bool crossJoinForeach(const ItemGroup *itemGroup,
