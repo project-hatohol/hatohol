@@ -37,7 +37,7 @@ void SQLUtils::init(void)
 {
 	// check
 	if (m_numItemDataCreators != NUM_SQL_COLUMN_TYPES) {
-		THROW_ASURA_EXCEPTION_WITH_LOG(BUG,
+		THROW_ASURA_EXCEPTION(
 		  "The number of m_itemDataCreator is wrong: "
 		  "expected/acutual: %zd/%zd",
 		  NUM_SQL_COLUMN_TYPES, m_numItemDataCreators);
@@ -56,7 +56,7 @@ ItemDataPtr SQLUtils::createItemData(const ColumnBaseDefinition *baseDef,
                                      string &value)
 {
 	if (baseDef->type >= NUM_SQL_COLUMN_TYPES) {
-		THROW_ASURA_EXCEPTION_WITH_LOG(BUG,
+		THROW_ASURA_EXCEPTION(
 		  "baseDef->type: illegal value: %d, table: %s, column: %s",
 		  baseDef->type, baseDef->tableName, baseDef->columnName);
 	}

@@ -51,10 +51,4 @@ do { \
 	throw AsuraException(msg, __FILE__, __LINE__); \
 } while (0)
 
-#define THROW_ASURA_EXCEPTION_WITH_LOG(LOG_LV, FMT, ...) \
-do { \
-	MLPL_##LOG_LV(FMT, ##__VA_ARGS__); \
-	THROW_ASURA_EXCEPTION(FMT, ##__VA_ARGS__); \
-} while (0)
-
 #endif // AsuraException_h
