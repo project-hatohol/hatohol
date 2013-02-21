@@ -135,6 +135,18 @@ struct AssertInnerJoinForeachArg {
 static bool assertInnerJoinForeach(const ItemGroup *itemGroup,
                                    AssertInnerJoinForeachArg &arg)
 {
+	pair<int,int> &idxVector = arg.joinedRowsIndexVector[arg.idx++];
+	int tbl0Idx = idxVector.first;
+	int tbl1Idx = idxVector.second;
+
+	int idx = 0;
+	assertItemData(int, itemGroup, tableContent0[tbl0Idx].age, idx);
+	assertItemData(string, itemGroup, tableContent0[tbl0Idx].name, idx);
+	assertItemData(string, itemGroup,
+	               tableContent0[tbl0Idx].favoriteColor, idx);
+	assertItemData(string, itemGroup, tableContent1[tbl1Idx].name, idx);
+	assertItemData(int, itemGroup, tableContent1[tbl1Idx].height, idx);
+	assertItemData(string, itemGroup, tableContent1[tbl1Idx].nickname, idx);
 }
 
 static void assertEmptyTable(ItemTable *table)
