@@ -61,6 +61,8 @@ public:
 	SQLTableJoin(SQLJoinType type);
 	SQLTableFormula *getLeftFormula(void) const;
 	SQLTableFormula *getRightFormula(void) const;
+	void setLeftFormula(SQLTableFormula *tableFormula);
+	void setRightFormula(SQLTableFormula *tableFormula);
 
 private:
 	SQLJoinType      m_type;

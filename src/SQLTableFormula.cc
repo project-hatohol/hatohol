@@ -47,7 +47,9 @@ const string &SQLTableElement::getVarName(void) const
 // SQLTableJoin
 // ---------------------------------------------------------------------------
 SQLTableJoin::SQLTableJoin(SQLJoinType type)
-: m_type(type)
+: m_type(type),
+  m_leftFormula(NULL),
+  m_rightFormula(NULL)
 {
 }
 
@@ -58,7 +60,17 @@ SQLTableFormula *SQLTableJoin::getLeftFormula(void) const
 
 SQLTableFormula *SQLTableJoin::getRightFormula(void) const
 {
-	return m_leftFormula;
+	return m_rightFormula;
+}
+
+void SQLTableJoin::setLeftFormula(SQLTableFormula *tableFormula)
+{
+	m_leftFormula = tableFormula;;
+}
+
+void SQLTableJoin::setRightFormula(SQLTableFormula *tableFormula)
+{
+	m_rightFormula = tableFormula;;
 }
 
 // ---------------------------------------------------------------------------
