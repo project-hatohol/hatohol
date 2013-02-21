@@ -92,7 +92,7 @@ void test_oneTableWithVar(void)
 	assertTableElement(tableFormula, tableName, varName);
 }
 
-void test_twoTable(void)
+void test_twoTables(void)
 {
 	const char *tableName0 = "tab0";
 	const char *tableName1 = "tab1";
