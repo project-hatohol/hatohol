@@ -37,7 +37,9 @@ public:
 	void add(ItemGroup *group, bool doRef = true);
 	size_t getNumberOfColumns(void) const;
 	size_t getNumberOfRows(void) const;
-	ItemTable *innerJoin(const ItemTable *itemTable) const;
+	ItemTable *innerJoin(const ItemTable *itemTable,
+	                     size_t indexLeftJoinColumn,
+	                     size_t indexRightJoinColumn) const;
 	ItemTable *leftOuterJoin(const ItemTable *itemTable) const;
 	ItemTable *rightOuterJoin(const ItemTable *itemTable) const;
 	ItemTable *fullOuterJoin(const ItemTable *itemTable) const;

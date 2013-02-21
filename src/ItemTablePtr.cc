@@ -25,9 +25,12 @@ ItemPtr<ItemTable>::ItemPtr(void)
 }
 
 ItemTablePtr
-innerJoin(const ItemTablePtr &tablePtr0, const ItemTablePtr &tablePtr1)
+innerJoin(const ItemTablePtr &tablePtr0, const ItemTablePtr &tablePtr1,
+          size_t indexLeftJoinColumn, size_t indexRightJoinColumn)
 {
-	return ItemTablePtr(tablePtr0->innerJoin(tablePtr1), false);
+	return ItemTablePtr(tablePtr0->innerJoin(tablePtr1,
+	                                         indexLeftJoinColumn,
+	                                         indexRightJoinColumn), false);
 }
 
 ItemTablePtr

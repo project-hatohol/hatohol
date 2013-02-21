@@ -105,7 +105,9 @@ size_t ItemTable::getNumberOfRows(void) const
 	return ret;
 }
 
-ItemTable *ItemTable::innerJoin(const ItemTable *itemTable) const
+ItemTable *ItemTable::innerJoin
+  (const ItemTable *itemTable,
+   size_t indexLeftColumn, size_t indexRightColumn) const
 {
 	MLPL_BUG("Not implemneted: %s\n", __PRETTY_FUNCTION__);
 	return NULL;
