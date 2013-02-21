@@ -80,3 +80,37 @@ SQLTableCrossJoin::SQLTableCrossJoin(void)
 : SQLTableJoin(SQL_JOIN_TYPE_CROSS)
 {
 }
+
+// ---------------------------------------------------------------------------
+// SQLTableInnerJoin
+// ---------------------------------------------------------------------------
+SQLTableInnerJoin::SQLTableInnerJoin
+  (const string &leftTableName, const string &leftFieldName,
+   const string &rightTableName, const string &rightFieldName)
+: SQLTableJoin(SQL_JOIN_TYPE_INNER),
+  m_leftTableName(leftTableName),
+  m_leftFieldName(leftFieldName),
+  m_rightTableName(rightTableName),
+  m_rightFieldName(rightFieldName)
+{
+}
+
+const string &SQLTableInnerJoin::getLeftTableName(void) const
+{
+	return m_leftTableName;
+}
+
+const string &SQLTableInnerJoin::getLeftFieldName(void) const
+{
+	return m_leftFieldName;
+}
+
+const string &SQLTableInnerJoin::getRightTableName(void) const
+{
+	return m_rightTableName;
+}
+
+const string &SQLTableInnerJoin::getRightFieldName(void) const
+{
+	return m_rightFieldName;
+}

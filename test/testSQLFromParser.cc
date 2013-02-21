@@ -38,6 +38,23 @@ static void _assertTableElement
 #define assertTableElement(X, N, ...) \
 cut_trace(_assertTableElement(X, N, ##__VA_ARGS__))
 
+static void _assertInnerJoin
+  (SQLTableFormula *tableFormula,
+   const string &expectedTableName0, const string &expectedFieldName0,
+   const string &expectedTableName1, const string &expectedFieldName1)
+{
+	cut_trace(assertTableFormulaType<SQLTableInnerJoin>(tableFormula));
+	SQLTableInnerJoin *innerJoin =
+	  dynamic_cast<SQLTableInnerJoin *>(tableFormula);
+	cppcut_assert_not_null(innerJoin);
+	cppcut_assert_equal(expectedTableName0, innerJoin->getLeftTableName());
+	cppcut_assert_equal(expectedFieldName0, innerJoin->getLeftFieldName());
+	cppcut_assert_equal(expectedTableName1, innerJoin->getRightTableName());
+	cppcut_assert_equal(expectedFieldName1, innerJoin->getRightFieldName());
+}
+#define assertInnerJoin(X, N0, F0, N1, F1) \
+cut_trace(_assertInnerJoin(X, N0, F0, N1, F1))
+
 static void _assertInputStatement(SQLFromParser &fromParser,
                                   ParsableString &statement)
 {
@@ -123,6 +140,25 @@ void test_twoTablesWithVars(void)
 	cppcut_assert_not_null(crossJoin);
 	assertTableElement(crossJoin->getLeftFormula(), tableName0, varName0);
 	assertTableElement(crossJoin->getRightFormula(), tableName1, varName1);
+}
+
+void test_twoTablesInnerJoin(void)
+{
+	const char *tableName0 = "tab0";
+	const char *tableName1 = "tab1";
+	const char *field0 = "field0";
+	const char *field1 = "field1";
+	string statement =
+	  StringUtils::sprintf("from %s inner join %s on %s.%s=%s.%s",
+	                       tableName0, tableName1,
+	                       tableName0, field0, tableName1, field1);
+	DEFINE_PARSER_AND_RUN(fromParser, tableFormula, statement);
+	assertInnerJoin(tableFormula, tableName0, field0, tableName1, field1);
+	SQLTableInnerJoin *innerJoin =
+	  dynamic_cast<SQLTableInnerJoin *>(tableFormula);
+	cppcut_assert_not_null(innerJoin);
+	assertTableElement(innerJoin->getLeftFormula(), tableName0);
+	assertTableElement(innerJoin->getRightFormula(), tableName1);
 }
 
 } // namespace testSQLFromParser
