@@ -161,4 +161,27 @@ void test_twoTablesInnerJoin(void)
 	assertTableElement(innerJoin->getRightFormula(), tableName1);
 }
 
+void test_twoTablesInnerJoinWithVars(void)
+{
+	const char *tableName0 = "tab0";
+	const char *tableName1 = "tab1";
+	const char *varName0 = "t0";
+	const char *varName1 = "t1";
+	const char *columnName0 = "column0";
+	const char *columnName1 = "column1";
+	string statement =
+	  StringUtils::sprintf("from %s %s inner join %s %s on %s.%s=%s.%s",
+	                       tableName0, varName0,
+	                       tableName1, varName1,
+	                       varName0, columnName0, varName1, columnName1);
+	DEFINE_PARSER_AND_RUN(fromParser, tableFormula, statement);
+	assertInnerJoin(tableFormula,
+	                varName0, columnName0, varName1, columnName1);
+	SQLTableInnerJoin *innerJoin =
+	  dynamic_cast<SQLTableInnerJoin *>(tableFormula);
+	cppcut_assert_not_null(innerJoin);
+	assertTableElement(innerJoin->getLeftFormula(), tableName0, varName0);
+	assertTableElement(innerJoin->getRightFormula(), tableName1, varName1);
+}
+
 } // namespace testSQLFromParser
