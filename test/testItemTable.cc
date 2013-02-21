@@ -46,9 +46,11 @@ static TableStruct0 tableContent0[] = {
 static const size_t NUM_TABLE0 = sizeof(tableContent0) / sizeof(TableStruct0);
 
 static TableStruct1 tableContent1[] = {
-  {"anri", 150, "ann"},
+  {"anri",  150, "ann"},
   {"nobita",200, "snake"},
   {"maria", 170, "mai"},
+  {"mai",   180, "maimai"},
+  {"anri",  250, "tooower"},
 };
 static const size_t NUM_TABLE1 = sizeof(tableContent1) / sizeof(TableStruct1);
 
