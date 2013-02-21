@@ -25,7 +25,6 @@ struct SQLFromParser::PrivateContext {
 	ParsingState     state;
 	SQLTableFormula *tableFormula;
 	string           pendingWord;
-	string           pendingWordLower;
 	bool             onParsingInnerJoin;
 	SQLTableElement *rightTableOfInnerJoin;
 	string           innerJoinLeftTableName;
@@ -53,7 +52,6 @@ struct SQLFromParser::PrivateContext {
 	void clearPendingWords(void)
 	{
 		pendingWord.clear();
-		pendingWordLower.clear();
 	}
 
 	void clearInnerJoinParts(void)
@@ -99,12 +97,13 @@ SeparatorCheckerWithCallback *SQLFromParser::getSeparatorChecker(void)
 
 void SQLFromParser::add(const string &word, const string &wordLower)
 {
-	//
-	// Pre actions
-	//
 	if (m_ctx->state == PARSING_STAT_EXPECT_FROM) {
 		goNextStateIfWordIsExpected("from", wordLower,
 		                            PARSING_STAT_EXPECT_TABLE_NAME);
+		return;
+	} else if (m_ctx->state == PARSING_STAT_EXPECT_TABLE_NAME) {
+		m_ctx->pendingWord = word;
+		m_ctx->state = PARSING_STAT_POST_TABLE_NAME;
 		return;
 	} else if (m_ctx->state == PARSING_STAT_POST_TABLE_NAME) {
 		if (wordLower == "inner") {
@@ -141,24 +140,6 @@ void SQLFromParser::add(const string &word, const string &wordLower)
 		parseInnerJoinRightField(word);
 		return;
 	}
-
-	//
-	// Set pending words
-	//
-	if (!m_ctx->pendingWord.empty()) {
-		THROW_SQL_PROCESSOR_EXCEPTION(
-		  "Invalid consecutive words: %s, %s",
-		  m_ctx->pendingWord.c_str(), word.c_str());
-	}
-
-	m_ctx->pendingWord = word;
-	m_ctx->pendingWordLower = wordLower;
-
-	//
-	// Post actions
-	//
-	if (m_ctx->state == PARSING_STAT_EXPECT_TABLE_NAME) 
-		m_ctx->state = PARSING_STAT_POST_TABLE_NAME;
 }
 
 void SQLFromParser::flush(void)
