@@ -58,13 +58,27 @@ private:
 class SQLTableJoin : public SQLTableFormula
 {
 public:
-	SQLTableJoin(void);
+	SQLTableJoin(SQLJoinType type);
+	SQLTableFormula *getLeftFormula(void) const;
+	SQLTableFormula *getRightFormula(void) const;
 
 private:
 	SQLJoinType      m_type;
-	SQLTableFormula *m_leftTable;
-	SQLTableFormula *m_rightTable;
+	SQLTableFormula *m_leftFormula;
+	SQLTableFormula *m_rightFormula;
 };
+
+// ---------------------------------------------------------------------------
+// SQLTableCorssJoin
+// ---------------------------------------------------------------------------
+class SQLTableCrossJoin : public SQLTableJoin
+{
+public:
+	SQLTableCrossJoin(void);
+
+private:
+};
+
 
 #endif // SQLTableFormula_h
 

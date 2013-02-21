@@ -15,9 +15,12 @@ static void assertTableFormulaType(SQLTableFormula *obj)
 	cut_assert_not_null(obj);
 	cppcut_assert_equal
 	  (true, typeid(T) == typeid(*obj),
-	   cut_message("type: *obj: %s (%s)",
+	   cut_message("actual type: %s (%s)",
 	               DEMANGLED_TYPE_NAME(*obj), TYPE_NAME(*obj)));
 }
+
+#define assertCrossJoin(X) \
+cut_trace(assertTableFormulaType<SQLTableCrossJoin>(X))
 
 static void _assertTableElement
   (SQLTableFormula *tableFormula,
@@ -89,5 +92,19 @@ void test_oneTableWithVar(void)
 	assertTableElement(tableFormula, tableName, varName);
 }
 
+void test_twoTable(void)
+{
+	const char *tableName0 = "tab0";
+	const char *tableName1 = "tab1";
+	string statement = StringUtils::sprintf("from %s,%s",
+	                                        tableName0, tableName1);
+	DEFINE_PARSER_AND_RUN(fromParser, tableFormula, statement);
+	assertCrossJoin(tableFormula);
+	SQLTableCrossJoin *crossJoin =
+	  dynamic_cast<SQLTableCrossJoin *>(tableFormula);
+	cppcut_assert_not_null(crossJoin);
+	assertTableElement(crossJoin->getLeftFormula(), tableName0);
+	assertTableElement(crossJoin->getRightFormula(), tableName1);
+}
 
 } // namespace testSQLFromParser

@@ -46,7 +46,25 @@ const string &SQLTableElement::getVarName(void) const
 // ---------------------------------------------------------------------------
 // SQLTableJoin
 // ---------------------------------------------------------------------------
-SQLTableJoin::SQLTableJoin(void)
-: m_type(SQL_JOIN_TYPE_UNKNOWN)
+SQLTableJoin::SQLTableJoin(SQLJoinType type)
+: m_type(type)
+{
+}
+
+SQLTableFormula *SQLTableJoin::getLeftFormula(void) const
+{
+	return m_leftFormula;
+}
+
+SQLTableFormula *SQLTableJoin::getRightFormula(void) const
+{
+	return m_leftFormula;
+}
+
+// ---------------------------------------------------------------------------
+// SQLTableCrossJoin
+// ---------------------------------------------------------------------------
+SQLTableCrossJoin::SQLTableCrossJoin(void)
+: SQLTableJoin(SQL_JOIN_TYPE_CROSS)
 {
 }
