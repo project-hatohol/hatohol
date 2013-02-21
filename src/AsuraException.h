@@ -28,17 +28,27 @@ using namespace std;
 class AsuraException : public exception
 {
 public:
-	explicit AsuraException(const string &brief);
+	static const int UNKNOWN_LINE_NUMBER = -1;
+
+	explicit AsuraException(const string &brief,
+	                        const char *sourceFileName = "",
+	                        int lineNumber = UNKNOWN_LINE_NUMBER);
 	virtual ~AsuraException() _GLIBCXX_USE_NOEXCEPT;
 	virtual const char* what() const _GLIBCXX_USE_NOEXCEPT;
+
+	const string &getSourceFileName(void) const;
+	int getLineNumber(void) const;
+
 private:
 	string m_what;
+	string m_sourceFileName;
+	int    m_lineNumber;
 };
 
 #define THROW_ASURA_EXCEPTION(FMT, ...) \
 do { \
 	string msg = StringUtils::sprintf(FMT, ##__VA_ARGS__); \
-	throw AsuraException(msg); \
+	throw AsuraException(msg, __FILE__, __LINE__); \
 } while (0)
 
 #define THROW_ASURA_EXCEPTION_WITH_LOG(LOG_LV, FMT, ...) \

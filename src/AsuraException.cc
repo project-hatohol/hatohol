@@ -17,8 +17,11 @@
 
 #include "AsuraException.h"
 
-AsuraException::AsuraException(const string &brief)
-: m_what(brief)
+AsuraException::AsuraException(const string &brief,
+                               const char *sourceFileName, int lineNumber)
+: m_what(brief),
+  m_sourceFileName(sourceFileName),
+  m_lineNumber(lineNumber)
 {
 }
 
@@ -29,4 +32,14 @@ AsuraException::~AsuraException() _GLIBCXX_USE_NOEXCEPT
 const char* AsuraException::what() const _GLIBCXX_USE_NOEXCEPT
 {
 	return m_what.c_str();
+}
+
+const string &AsuraException::getSourceFileName(void) const
+{
+	return m_sourceFileName;
+}
+
+int AsuraException::getLineNumber(void) const
+{
+	return m_lineNumber;
 }
