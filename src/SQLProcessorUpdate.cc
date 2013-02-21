@@ -162,7 +162,7 @@ void SQLProcessorUpdate::parseUpdateStatement(SQLUpdateInfo &updateInfo)
 		// parse each component
 		if (m_ctx->section >= NUM_UPDATE_PARSING_SECTION) {
 			THROW_ASURA_EXCEPTION_WITH_LOG(BUG,
-			  "section(%d) >= NUM_UPDATE_PARSING_SECTION\n",
+			  "section(%d) >= NUM_UPDATE_PARSING_SECTION",
 			  m_ctx->section);
 		}
 		UpdateSubParser subParser = m_updateSubParsers[m_ctx->section];

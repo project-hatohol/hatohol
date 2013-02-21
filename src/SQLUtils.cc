@@ -39,7 +39,7 @@ void SQLUtils::init(void)
 	if (m_numItemDataCreators != NUM_SQL_COLUMN_TYPES) {
 		THROW_ASURA_EXCEPTION_WITH_LOG(BUG,
 		  "The number of m_itemDataCreator is wrong: "
-		  "expected/acutual: %zd/%zd\n",
+		  "expected/acutual: %zd/%zd",
 		  NUM_SQL_COLUMN_TYPES, m_numItemDataCreators);
 	}
 }
@@ -57,7 +57,7 @@ ItemDataPtr SQLUtils::createItemData(const ColumnBaseDefinition *baseDef,
 {
 	if (baseDef->type >= NUM_SQL_COLUMN_TYPES) {
 		THROW_ASURA_EXCEPTION_WITH_LOG(BUG,
-		  "baseDef->type: illegal value: %d, table: %s, column: %s\n",
+		  "baseDef->type: illegal value: %d, table: %s, column: %s",
 		  baseDef->type, baseDef->tableName, baseDef->columnName);
 	}
 	return (*m_itemDataCreators[baseDef->type])(baseDef, value.c_str());
