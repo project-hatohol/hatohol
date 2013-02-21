@@ -146,14 +146,16 @@ void test_twoTablesInnerJoin(void)
 {
 	const char *tableName0 = "tab0";
 	const char *tableName1 = "tab1";
-	const char *field0 = "field0";
-	const char *field1 = "field1";
+	const char *columnName0 = "column0";
+	const char *columnName1 = "column1";
 	string statement =
 	  StringUtils::sprintf("from %s inner join %s on %s.%s=%s.%s",
 	                       tableName0, tableName1,
-	                       tableName0, field0, tableName1, field1);
+	                       tableName0, columnName0,
+	                       tableName1, columnName1);
 	DEFINE_PARSER_AND_RUN(fromParser, tableFormula, statement);
-	assertInnerJoin(tableFormula, tableName0, field0, tableName1, field1);
+	assertInnerJoin(tableFormula,
+	                tableName0, columnName0, tableName1, columnName1);
 	SQLTableInnerJoin *innerJoin =
 	  dynamic_cast<SQLTableInnerJoin *>(tableFormula);
 	cppcut_assert_not_null(innerJoin);
