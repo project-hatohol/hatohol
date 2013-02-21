@@ -124,6 +124,34 @@ void test_twoTables(void)
 	assertTableElement(crossJoin->getRightFormula(), tableName1);
 }
 
+void test_threeTables(void)
+{
+	const char *tableName0 = "tab0";
+	const char *tableName1 = "tab1";
+	const char *tableName2 = "tab2";
+	string statement =
+	  StringUtils::sprintf("from %s,%s,%s",
+	                       tableName0, tableName1, tableName2);
+	DEFINE_PARSER_AND_RUN(fromParser, tableFormula, statement);
+	assertCrossJoin(tableFormula);
+	SQLTableCrossJoin *crossJoin =
+	  dynamic_cast<SQLTableCrossJoin *>(tableFormula);
+	cppcut_assert_not_null(crossJoin);
+
+	SQLTableFormula *leftHand = crossJoin->getLeftFormula();
+	assertCrossJoin(leftHand);
+	SQLTableCrossJoin *leftCrossJoin =
+	  dynamic_cast<SQLTableCrossJoin *>(leftHand);
+	cppcut_assert_not_null(crossJoin);
+
+	// table 0 and 1
+	assertTableElement(leftCrossJoin->getLeftFormula(), tableName0);
+	assertTableElement(leftCrossJoin->getRightFormula(), tableName1);
+
+	// table2
+	assertTableElement(crossJoin->getRightFormula(), tableName2);
+}
+
 void test_twoTablesWithVars(void)
 {
 	const char *tableName0 = "tab0";
