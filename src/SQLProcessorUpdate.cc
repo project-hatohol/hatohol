@@ -178,7 +178,7 @@ void SQLProcessorUpdate::getStaticTableInfo(SQLUpdateInfo &updateInfo)
 	  m_tableNameStaticInfoMap.find(updateInfo.table);
 	if (it == m_tableNameStaticInfoMap.end()) {
 		THROW_SQL_PROCESSOR_EXCEPTION(
-		  "Not found: table: %s\n", updateInfo.table.c_str());
+		  "Not found: table: %s", updateInfo.table.c_str());
 	}
 	updateInfo.tableStaticInfo = it->second;
 }
@@ -188,7 +188,7 @@ void SQLProcessorUpdate::getTable(SQLUpdateInfo &updateInfo)
 	ItemTablePtr tablePtr = updateInfo.tableStaticInfo->tableGetFunc();
 	if (!tablePtr.hasData()) {
 		THROW_SQL_PROCESSOR_EXCEPTION(
-		  "tablePtr has no data (%s).\n", updateInfo.table.c_str());
+		  "tablePtr has no data (%s).", updateInfo.table.c_str());
 	}
 	updateInfo.tablePtr = tablePtr;
 }
@@ -200,7 +200,7 @@ void SQLProcessorUpdate::doUpdate(SQLUpdateInfo &updateInfo)
 	                                (updateMatchingRows, updateInfo);
 	if (!successed) {
 		THROW_SQL_PROCESSOR_EXCEPTION(
-		  "Failed to search matched rows\n");
+		  "Failed to search matched rows.");
 	}
 }
 
@@ -232,7 +232,7 @@ void SQLProcessorUpdate::parseColumn(void)
 void SQLProcessorUpdate::parseEqual(void)
 {
 	THROW_SQL_PROCESSOR_EXCEPTION(
-	  "The parser expected '='. But got: %s\n", m_ctx->currWord.c_str());
+	  "The parser expected '='. But got: %s", m_ctx->currWord.c_str());
 }
 
 void SQLProcessorUpdate::parseValue(void)
@@ -269,7 +269,7 @@ void SQLProcessorUpdate::separatorCbComma(const char separator)
 {
 	if (m_ctx->section != UPDATE_PARSING_SECTION_POST_ONE_SET) {
 		THROW_SQL_PROCESSOR_EXCEPTION(
-		  "Quotation is used in the section: %d\n", m_ctx->section);
+		  "Quotation is used in the section: %d", m_ctx->section);
 	}
 	m_ctx->section = UPDATE_PARSING_SECTION_COLUMN;
 }
@@ -285,7 +285,7 @@ void SQLProcessorUpdate::separatorCbQuot(const char separator)
 	if (m_ctx->section != UPDATE_PARSING_SECTION_VALUE
 	    && m_ctx->section != UPDATE_PARSING_SECTION_POST_ONE_SET) {
 		THROW_SQL_PROCESSOR_EXCEPTION(
-		  "Quotation is used in the section: %d\n", m_ctx->section);
+		  "Quotation is used in the section: %d", m_ctx->section);
 	}
 
 	if (!m_ctx->openQuot) {
@@ -306,7 +306,7 @@ void SQLProcessorUpdate::_separatorCbEqual(const char separator,
 void SQLProcessorUpdate::separatorCbEqual(const char separator)
 {
 	if (m_ctx->section != UPDATE_PARSING_SECTION_EQUAL) {
-		THROW_SQL_PROCESSOR_EXCEPTION("Detected unexpected '='.\n");
+		THROW_SQL_PROCESSOR_EXCEPTION("Detected unexpected '='.");
 	}
 	m_ctx->section = UPDATE_PARSING_SECTION_VALUE;
 }
@@ -329,7 +329,7 @@ void SQLProcessorUpdate::checkCurrWord(string expected,
 {
 	if (m_ctx->currWordLower != expected) {
 		THROW_SQL_PROCESSOR_EXCEPTION(
-		  "currWordLower is not '%s': %s\n",
+		  "currWordLower is not '%s': %s",
 		  expected.c_str(), m_ctx->currWordLower.c_str());
 	}
 	m_ctx->section = nextSection;

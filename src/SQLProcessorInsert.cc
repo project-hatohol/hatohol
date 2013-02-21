@@ -171,14 +171,14 @@ void SQLProcessorInsert::checkTableAndColumns(SQLInsertInfo &insertInfo)
 	  m_tableNameStaticInfoMap.find(insertInfo.table);
 	if (it == m_tableNameStaticInfoMap.end()) {
 		THROW_SQL_PROCESSOR_EXCEPTION(
-		  "Not found: table in m_tableNameStaticInfoMap: %s\n",
+		  "Not found: table in m_tableNameStaticInfoMap: %s",
 		  insertInfo.table.c_str());
 	}
 	m_ctx->tableStaticInfo = it->second;
 
 	if (insertInfo.columnVector.size() != insertInfo.valueVector.size()) {
 		THROW_SQL_PROCESSOR_EXCEPTION(
-		  "The number of column and value is diffrent: %zd, %zd\n",
+		  "The number of column and value is diffrent: %zd, %zd",
 		  insertInfo.columnVector.size(),
 		  insertInfo.valueVector.size());
 	}
@@ -193,7 +193,7 @@ void SQLProcessorInsert::makeColumnDefValueMap(SQLInsertInfo &insertInfo)
 		it = tableStaticInfo->columnBaseDefMap.find(name);
 		if (it == tableStaticInfo->columnBaseDefMap.end()) {
 			THROW_SQL_PROCESSOR_EXCEPTION(
-			  "The column '%s' was not found in table: '%s'\n",
+			  "The column '%s' was not found in table: '%s'",
 			  name.c_str(), tableStaticInfo->tableName);
 		}
 		ColumnBaseDefinition *colBaseDef = it->second;
@@ -203,7 +203,7 @@ void SQLProcessorInsert::makeColumnDefValueMap(SQLInsertInfo &insertInfo)
 		      (colBaseDef->itemId, &insertInfo.valueVector[i]));
 		if (!ret.second) {
 			THROW_SQL_PROCESSOR_EXCEPTION(
-			  "Failed to insert '%s' in table: '%s'\n",
+			  "Failed to insert '%s' in table: '%s'",
 			  name.c_str(), tableStaticInfo->tableName);
 		}
 	}
@@ -235,7 +235,7 @@ void SQLProcessorInsert::doInsetToTable(SQLInsertInfo &insertInfo)
 				valueString = colValIt->second->c_str();
 			THROW_SQL_PROCESSOR_EXCEPTION(
 			  "Failed to create ItemData for value '%s': "
-			  "table: %s, column: %s\n",
+			  "table: %s, column: %s",
 			  valueString, colBaseDef.tableName,
 			  colBaseDef.columnName);
 		}

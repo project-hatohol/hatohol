@@ -85,7 +85,7 @@ void SQLFromParser::add(const string &word, const string &wordLower)
 
 	if (!m_ctx->pendingWord.empty()) {
 		THROW_SQL_PROCESSOR_EXCEPTION(
-		  "Invalid consecutive words: %s, %s\n",
+		  "Invalid consecutive words: %s, %s",
 		  m_ctx->pendingWord.c_str(), word.c_str());
 	}
 
@@ -130,7 +130,7 @@ void SQLFromParser::goNextStateIfWordIsExpected(const string &expectedWord,
 {
 	if (actualWord != expectedWord) {
 		THROW_SQL_PROCESSOR_EXCEPTION(
-		  "Expected: %s, but got: %s\n",
+		  "Expected: %s, but got: %s",
 		  expectedWord.c_str(), actualWord.c_str());
 	}
 	m_ctx->state = nextState;
@@ -157,7 +157,7 @@ void SQLFromParser::insertTableFormula(SQLTableFormula *tableFormula)
 	}
 
 	THROW_SQL_PROCESSOR_EXCEPTION(
-	  "Stopped due to the unknown condition: %s\n", __PRETTY_FUNCTION__);
+	  "Stopped due to the unknown condition: %s", __PRETTY_FUNCTION__);
 }
 
 void SQLFromParser::makeTableElement(const string &tableName,
