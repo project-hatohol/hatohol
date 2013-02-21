@@ -79,4 +79,15 @@ void test_oneTable(void)
 	assertTableElement(tableFormula, tableName);
 }
 
+void test_oneTableWithVar(void)
+{
+	const char *tableName = "tab";
+	const char *varName = "t";
+	string statement = StringUtils::sprintf("from %s %s", 
+	                                        tableName, varName);
+	DEFINE_PARSER_AND_RUN(fromParser, tableFormula, statement);
+	assertTableElement(tableFormula, varName);
+}
+
+
 } // namespace testSQLFromParser
