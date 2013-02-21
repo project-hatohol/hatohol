@@ -327,4 +327,19 @@ void test_crossJoinLeftEmpty(void)
 	assertEmptyTable(z_table);
 }
 
+void test_innerJoin(void)
+{
+	x_table = addItems<TableStruct0>(tableContent0, NUM_TABLE0,
+	                                 addItemTable0);
+
+	y_table = addItems<TableStruct1>(tableContent1, NUM_TABLE1,
+	                                 addItemTable1);
+
+	const size_t indexLeftColumn = 1; // name
+	const size_t indexRightColumn = 0; // name
+	z_table = x_table->innerJoin(y_table,
+	                             indexLeftColumn, indexRightColumn);
+	cut_assert_not_null(z_table);
+}
+
 } // namespace testItemTable
