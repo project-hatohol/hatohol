@@ -24,7 +24,7 @@ struct SQLFromParser::PrivateContext {
 
 	ParsingState     state;
 	SQLTableFormula *tableFormula;
-	string           pendingWord;
+	string           tableName;
 	bool             onParsingInnerJoin;
 	SQLTableElement *rightTableOfInnerJoin;
 	string           innerJoinLeftTableName;
@@ -47,11 +47,6 @@ struct SQLFromParser::PrivateContext {
 			delete tableFormula;
 		if (rightTableOfInnerJoin)
 			delete rightTableOfInnerJoin;
-	}
-
-	void clearPendingWords(void)
-	{
-		pendingWord.clear();
 	}
 
 	void clearInnerJoinParts(void)
@@ -102,7 +97,7 @@ void SQLFromParser::add(const string &word, const string &wordLower)
 		                            PARSING_STAT_EXPECT_TABLE_NAME);
 		return;
 	} else if (m_ctx->state == PARSING_STAT_EXPECT_TABLE_NAME) {
-		m_ctx->pendingWord = word;
+		m_ctx->tableName = word;
 		m_ctx->state = PARSING_STAT_POST_TABLE_NAME;
 		return;
 	} else if (m_ctx->state == PARSING_STAT_POST_TABLE_NAME) {
@@ -113,8 +108,9 @@ void SQLFromParser::add(const string &word, const string &wordLower)
 			flush();
 			m_ctx->state = PARSING_STAT_EXPECT_INNER_JOIN_LEFT_FIELD;
 		} else {
-			string &tableName = m_ctx->pendingWord;
+			string &tableName = m_ctx->tableName;
 			makeTableElement(tableName, word);
+			m_ctx->tableName.clear();
 		}
 		return;
 	} else if (m_ctx->state == PARSING_STAT_CREATED_TABLE) {
@@ -125,7 +121,6 @@ void SQLFromParser::add(const string &word, const string &wordLower)
 	} else if (m_ctx->state == PARSING_STAT_GOT_INNER) {
 		if (wordLower == "join") {
 			m_ctx->onParsingInnerJoin = true;
-			m_ctx->clearPendingWords();
 			m_ctx->state = PARSING_STAT_EXPECT_TABLE_NAME;
 			return;
 		}
@@ -144,12 +139,13 @@ void SQLFromParser::add(const string &word, const string &wordLower)
 
 void SQLFromParser::flush(void)
 {
-	if (m_ctx->pendingWord.empty())
+	if (m_ctx->tableName.empty())
 		return;
 
 	if (m_ctx->state == PARSING_STAT_POST_TABLE_NAME) {
-		string &tableName = m_ctx->pendingWord;
+		string &tableName = m_ctx->tableName;
 		makeTableElement(tableName);
+		m_ctx->tableName.clear();
 	}
 }
 
@@ -210,7 +206,6 @@ void SQLFromParser::makeTableElement(const string &tableName,
                                      const string &varName)
 {
 	SQLTableElement *tableElem = new SQLTableElement(tableName, varName);
-	m_ctx->clearPendingWords();
 	if (m_ctx->onParsingInnerJoin) {
 		m_ctx->rightTableOfInnerJoin = tableElem;
 		m_ctx->state = PARSING_STAT_EXPECT_ON;
