@@ -40,17 +40,17 @@ cut_trace(_assertTableElement(X, N, ##__VA_ARGS__))
 
 static void _assertInnerJoin
   (SQLTableFormula *tableFormula,
-   const string &expectedTableName0, const string &expectedFieldName0,
-   const string &expectedTableName1, const string &expectedFieldName1)
+   const string &expectedTableName0, const string &expectedColumnName0,
+   const string &expectedTableName1, const string &expectedColumnName1)
 {
 	cut_trace(assertTableFormulaType<SQLTableInnerJoin>(tableFormula));
 	SQLTableInnerJoin *innerJoin =
 	  dynamic_cast<SQLTableInnerJoin *>(tableFormula);
 	cppcut_assert_not_null(innerJoin);
 	cppcut_assert_equal(expectedTableName0, innerJoin->getLeftTableName());
-	cppcut_assert_equal(expectedFieldName0, innerJoin->getLeftFieldName());
+	cppcut_assert_equal(expectedColumnName0, innerJoin->getLeftColumnName());
 	cppcut_assert_equal(expectedTableName1, innerJoin->getRightTableName());
-	cppcut_assert_equal(expectedFieldName1, innerJoin->getRightFieldName());
+	cppcut_assert_equal(expectedColumnName1, innerJoin->getRightColumnName());
 }
 #define assertInnerJoin(X, N0, F0, N1, F1) \
 cut_trace(_assertInnerJoin(X, N0, F0, N1, F1))
