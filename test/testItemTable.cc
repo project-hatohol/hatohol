@@ -91,7 +91,7 @@ struct AssertCrossJoinForeachArg {
 };
 
 template<typename T>
-static void assertItemData(const ItemGroup *itemGroup, T expected, int &idx)
+static void _assertItemData(const ItemGroup *itemGroup, T expected, int &idx)
 {
 	T val;
 	ItemData *itemZ = itemGroup->getItemAt(idx);
@@ -100,25 +100,24 @@ static void assertItemData(const ItemGroup *itemGroup, T expected, int &idx)
 	itemZ->get(&val);
 	cut_trace(cppcut_assert_equal(expected, val));
 }
+#define assertItemData(T, IGRP, E, IDX) \
+cut_trace(_assertItemData<T>(IGRP, E, IDX))
 
 static bool assertCrossJoinForeach(const ItemGroup *itemGroup,
                                    AssertCrossJoinForeachArg &arg)
 {
 	int idx = 0;
-	cut_trace(assertItemData<int>
-	  (itemGroup, tableContent0[arg.table0Index].age, idx));
-	cut_trace(assertItemData<string>
-	  (itemGroup, tableContent0[arg.table0Index].name, idx));
-	cut_trace(assertItemData<string>
-	  (itemGroup, tableContent0[arg.table0Index].favoriteColor, idx));
-
-	cut_trace(assertItemData<string>
-	  (itemGroup, tableContent1[arg.table1Index].name, idx));
-	cut_trace(assertItemData<int>
-	  (itemGroup, tableContent1[arg.table1Index].height, idx));
-	cut_trace(assertItemData<string>
-	  (itemGroup, tableContent1[arg.table1Index].nickname, idx));
-
+	assertItemData(int, itemGroup, tableContent0[arg.table0Index].age, idx);
+	assertItemData(string, itemGroup,
+	               tableContent0[arg.table0Index].name, idx);
+	assertItemData(string, itemGroup,
+	               tableContent0[arg.table0Index].favoriteColor, idx);
+	assertItemData(string, itemGroup,
+	               tableContent1[arg.table1Index].name, idx);
+	assertItemData(int, itemGroup,
+	               tableContent1[arg.table1Index].height, idx);
+	assertItemData(string, itemGroup,
+	               tableContent1[arg.table1Index].nickname, idx);
 	arg.table1Index++;
 	if (arg.table1Index == NUM_TABLE1) {
 		arg.table1Index = 0;
