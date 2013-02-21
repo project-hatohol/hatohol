@@ -33,6 +33,12 @@ struct SQLFromParser::PrivateContext {
 	  tableFormula(NULL)
 	{
 	}
+
+	void clearPendingWords(void)
+	{
+		pendingWord.clear();
+		pendingWordLower.clear();
+	}
 };
 
 // ---------------------------------------------------------------------------
@@ -71,6 +77,10 @@ void SQLFromParser::add(const string &word, const string &wordLower)
 		goNextStateIfWordIsExpected("from", wordLower,
 		                            PARSING_STAT_EXPECT_TABLE_NAME);
 		return;
+	} else if (m_ctx->state == PARSING_STAT_POST_TABLE_NAME) {
+		string &tableName = m_ctx->pendingWord;
+		makeTableElement(tableName, word);
+		return;
 	}
 
 	if (!m_ctx->pendingWord.empty()) {
@@ -81,6 +91,9 @@ void SQLFromParser::add(const string &word, const string &wordLower)
 
 	m_ctx->pendingWord = word;
 	m_ctx->pendingWordLower = wordLower;
+
+	if (m_ctx->state == PARSING_STAT_EXPECT_TABLE_NAME)
+		m_ctx->state = PARSING_STAT_POST_TABLE_NAME;
 }
 
 void SQLFromParser::flush(void)
@@ -88,10 +101,9 @@ void SQLFromParser::flush(void)
 	if (m_ctx->pendingWord.empty())
 		return;
 
-	if (m_ctx->state == PARSING_STAT_EXPECT_TABLE_NAME) {
+	if (m_ctx->state == PARSING_STAT_POST_TABLE_NAME) {
 		string &tableName = m_ctx->pendingWord;
-		SQLTableFormula *tableElem = new SQLTableElement(tableName);
-		insertTableFormula(tableElem);
+		makeTableElement(tableName);
 	}
 }
 
@@ -128,6 +140,15 @@ void SQLFromParser::insertTableFormula(SQLTableFormula *tableFormula)
 
 	THROW_SQL_PROCESSOR_EXCEPTION(
 	  "Not implemented: %s\n", __PRETTY_FUNCTION__);
+}
+
+void SQLFromParser::makeTableElement(const string &tableName,
+                                     const string &varName)
+{
+	SQLTableFormula *tableElem = new SQLTableElement(tableName, varName);
+	insertTableFormula(tableElem);
+	m_ctx->clearPendingWords();
+	m_ctx->state = PARSING_STAT_CREATED_TABLE;
 }
 
 //

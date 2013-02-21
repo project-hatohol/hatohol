@@ -43,6 +43,7 @@ protected:
 		PARSING_STAT_EXPECT_FROM,
 		PARSING_STAT_EXPECT_TABLE_NAME,
 		PARSING_STAT_POST_TABLE_NAME,
+		PARSING_STAT_CREATED_TABLE,
 	};
 
 	//
@@ -52,6 +53,9 @@ protected:
 	                                 const string &actualWord,
 	                                 ParsingState nextState);
 	void insertTableFormula(SQLTableFormula *tableFormula);
+	void makeTableElement(
+	       const string &tableName,
+	       const string &varName = StringUtils::EMPTY_STRING);
 
 	//
 	// SeparatorChecker callbacks

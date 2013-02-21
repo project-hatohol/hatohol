@@ -86,7 +86,7 @@ void test_oneTableWithVar(void)
 	string statement = StringUtils::sprintf("from %s %s", 
 	                                        tableName, varName);
 	DEFINE_PARSER_AND_RUN(fromParser, tableFormula, statement);
-	assertTableElement(tableFormula, varName);
+	assertTableElement(tableFormula, tableName, varName);
 }
 
 
