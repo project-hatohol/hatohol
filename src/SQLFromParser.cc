@@ -121,6 +121,11 @@ void SQLFromParser::goNextStateIfWordIsExpected(const string &expectedWord,
 
 void SQLFromParser::insertTableFormula(SQLTableFormula *tableFormula)
 {
+	if (!m_ctx->tableFormula) {
+		m_ctx->tableFormula = tableFormula;
+		return;
+	}
+
 	THROW_SQL_PROCESSOR_EXCEPTION(
 	  "Not implemented: %s\n", __PRETTY_FUNCTION__);
 }

@@ -9,6 +9,19 @@ using namespace mlpl;
 
 namespace testSQLFromParser {
 
+template<typename T>
+static void assertTableFormulaType(SQLTableFormula *obj)
+{
+	cut_assert_not_null(obj);
+	cppcut_assert_equal
+	  (true, typeid(T) == typeid(*obj),
+	   cut_message("type: *obj: %s (%s)",
+	               DEMANGLED_TYPE_NAME(*obj), TYPE_NAME(*obj)));
+}
+
+#define assertTableElement(X) \
+cut_trace(assertTableFormulaType<SQLTableElement>(X))
+
 static void _assertInputStatement(SQLFromParser &fromParser,
                                   ParsableString &statement)
 {
@@ -50,6 +63,7 @@ void test_oneTable(void)
 	const char *tableName = "tab";
 	string statement = StringUtils::sprintf("from %s", tableName);
 	DEFINE_PARSER_AND_RUN(fromParser, tableFormula, statement);
+	assertTableElement(tableFormula);
 }
 
 } // namespace testSQLFromParser
