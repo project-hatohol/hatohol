@@ -118,6 +118,11 @@ void SQLFromParser::add(const string &word, const string &wordLower)
 			makeTableElement(tableName, word);
 		}
 		return;
+	} else if (m_ctx->state == PARSING_STAT_CREATED_TABLE) {
+		if (wordLower == "inner") {
+			m_ctx->state = PARSING_STAT_GOT_INNER;
+			return;
+		}
 	} else if (m_ctx->state == PARSING_STAT_GOT_INNER) {
 		if (wordLower == "join") {
 			m_ctx->onParsingInnerJoin = true;
