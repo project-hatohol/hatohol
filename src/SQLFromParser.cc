@@ -20,6 +20,11 @@
 #include "ItemDataUtils.h"
 #include "SQLProcessorException.h"
 
+SQLFromParser::SubParser SQLFromParser::m_subParsers[] = {
+};
+size_t SQLFromParser::m_numSubParsers =
+  sizeof(m_subParsers) /  sizeof(SQLFromParser::SubParser);
+
 struct SQLFromParser::PrivateContext {
 
 	ParsingState     state;
@@ -59,6 +64,20 @@ struct SQLFromParser::PrivateContext {
 	}
 
 };
+
+// ---------------------------------------------------------------------------
+// Public methods (static)
+// ---------------------------------------------------------------------------
+void SQLFromParser::init(void)
+{
+	int m_numSubParsers = sizeof(m_subParsers) /  sizeof(SubParser);
+	if (m_numSubParsers != NUM_PARSING_STAT) {
+		THROW_ASURA_EXCEPTION(
+		  "The number of m_numSubParsers is wrong: "
+		  "expected/acutual: %zd/%zd",
+		  NUM_PARSING_STAT, m_numSubParsers);
+	}
+}
 
 // ---------------------------------------------------------------------------
 // Public methods

@@ -29,6 +29,7 @@ using namespace mlpl;
 class SQLFromParser
 {
 public:
+	static void init(void);
 	SQLFromParser(void);
 	virtual ~SQLFromParser();
 	SQLTableFormula *getTableFormula(void) const;
@@ -39,6 +40,8 @@ public:
 	virtual void close(void);
 
 protected:
+	typedef void (SQLFromParser::*SubParser)
+	               (const string &word, const string &wordLower);
 	enum ParsingState {
 		PARSING_STAT_EXPECT_FROM,
 		PARSING_STAT_EXPECT_TABLE_NAME,
@@ -49,7 +52,12 @@ protected:
 		PARSING_STAT_EXPECT_INNER_JOIN_LEFT_FIELD,
 		PARSING_STAT_EXPECT_INNER_JOIN_EQUAL,
 		PARSING_STAT_EXPECT_INNER_JOIN_RIGHT_FIELD,
+		NUM_PARSING_STAT,
 	};
+
+	//
+	// Sub parsers
+	//
 
 	//
 	// general sub routines
@@ -81,6 +89,8 @@ protected:
 
 private:
 	struct PrivateContext;
+	static SubParser             m_subParsers[];
+	static size_t                m_numSubParsers;
 	PrivateContext              *m_ctx;
 	SeparatorCheckerWithCallback m_separator;
 };
