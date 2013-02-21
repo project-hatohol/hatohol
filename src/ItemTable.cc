@@ -120,11 +120,6 @@ ItemTable *ItemTable::innerJoin
 {
 	readLock();
 	itemTable->readLock();
-	if (m_groupList.empty() && itemTable->m_groupList.empty()) {
-		itemTable->readUnlock();
-		readUnlock();
-		return new ItemTable();
-	}
 	if (m_groupList.empty() || itemTable->m_groupList.empty()) {
 		itemTable->readUnlock();
 		readUnlock();
@@ -175,11 +170,6 @@ ItemTable *ItemTable::crossJoin(const ItemTable *itemTable) const
 {
 	readLock();
 	itemTable->readLock();
-	if (m_groupList.empty() && itemTable->m_groupList.empty()) {
-		itemTable->readUnlock();
-		readUnlock();
-		return new ItemTable();
-	}
 	if (m_groupList.empty() || itemTable->m_groupList.empty()) {
 		itemTable->readUnlock();
 		readUnlock();
