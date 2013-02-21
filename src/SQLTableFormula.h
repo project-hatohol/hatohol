@@ -89,20 +89,20 @@ class SQLTableInnerJoin : public SQLTableJoin
 {
 public:
 	SQLTableInnerJoin(const string &leftTableName,
-	                  const string &leftFieldName,
+	                  const string &leftColumnName,
 	                  const string &rightTableName,
-	                  const string &rightFieldName);
+	                  const string &rightColumnName);
 
 	const string &getLeftTableName(void) const;
-	const string &getLeftFieldName(void) const;
+	const string &getLeftColumnName(void) const;
 	const string &getRightTableName(void) const;
-	const string &getRightFieldName(void) const;
+	const string &getRightColumnName(void) const;
 
 private:
 	string m_leftTableName;
-	string m_leftFieldName;
+	string m_leftColumnName;
 	string m_rightTableName;
-	string m_rightFieldName;
+	string m_rightColumnName;
 };
 
 #endif // SQLTableFormula_h
