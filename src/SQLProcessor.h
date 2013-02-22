@@ -136,9 +136,6 @@ typedef map<string, const SQLTableInfo *> SQLTableVarNameInfoMap;
 typedef SQLTableVarNameInfoMap::iterator  SQLTableVarNameInfoMapIterator;
 
 struct SQLSelectInfo : public SQLProcessorInfo {
-	// input statement
-	ParsableString   query;
-
 	// parsed matter (Elements in these two container have to be freed)
 	SQLColumnParser         columnParser;
 	SQLColumnNameMap        columnNameMap;
@@ -179,7 +176,7 @@ struct SQLSelectInfo : public SQLProcessorInfo {
 	//
 	// constructor and destructor
 	//
-	SQLSelectInfo(ParsableString &_query);
+	SQLSelectInfo(ParsableString &_statement);
 	virtual ~SQLSelectInfo();
 };
 

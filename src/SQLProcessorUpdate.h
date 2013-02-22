@@ -18,17 +18,11 @@
 #ifndef SQLProcessorUpdate_h
 #define SQLProcessorUpdate_h
 
-#include "ParsableString.h"
-using namespace mlpl;
-
 #include "SQLProcessorTypes.h"
 #include "SQLWhereParser.h"
 #include "ItemDataPtr.h"
 
 struct SQLUpdateInfo : public SQLProcessorInfo {
-	// input statement
-	ParsableString   statement;
-
 	// parsed matter
 	string           table;
 	StringVector     columnVector;

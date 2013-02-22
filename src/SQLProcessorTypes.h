@@ -21,6 +21,9 @@
 #include <list>
 using namespace std;
 
+#include "ParsableString.h"
+using namespace mlpl;
+
 #include "ItemTablePtr.h"
 
 enum SQLColumnType {
@@ -41,11 +44,16 @@ enum SQLJoinType {
 };
 
 struct SQLProcessorInfo {
-	// error information
-	string errorMessage;
+	// input statement
+	ParsableString   statement;
 
+	// error information
+	string           errorMessage;
+
+	//
 	// constructor and destructor
-	SQLProcessorInfo(void);
+	//
+	SQLProcessorInfo(const ParsableString &_statement);
 	virtual ~SQLProcessorInfo();
 };
 

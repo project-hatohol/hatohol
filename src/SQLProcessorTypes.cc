@@ -20,7 +20,8 @@
 // ---------------------------------------------------------------------------
 // SQLProcessorInfo
 // ---------------------------------------------------------------------------
-SQLProcessorInfo::SQLProcessorInfo(void)
+SQLProcessorInfo::SQLProcessorInfo(const ParsableString &_statement)
+: statement(_statement)
 {
 }
 

@@ -192,8 +192,8 @@ void SQLColumnInfo::setColumnType(void)
 // ---------------------------------------------------------------------------
 // Public methods (SQLSelectInfo)
 // ---------------------------------------------------------------------------
-SQLSelectInfo::SQLSelectInfo(ParsableString &_query)
-: query(_query),
+SQLSelectInfo::SQLSelectInfo(ParsableString &_statement)
+: SQLProcessorInfo(_statement),
   useIndex(false),
   makeTextRowsWriteMaskCount(0),
   evalTargetItemGroup(NULL),
@@ -334,7 +334,7 @@ SQLProcessor::checkSelectedAllColumns(const SQLSelectInfo &selectInfo,
 
 bool SQLProcessor::parseSelectStatement(SQLSelectInfo &selectInfo)
 {
-	MLPL_DBG("<%s> %s\n", __func__, selectInfo.query.getString());
+	MLPL_DBG("<%s> %s\n", __func__, selectInfo.statement.getString());
 	map<string, SelectSubParser>::iterator it;
 	SelectSubParser subParser = NULL;
 	SelectParserContext ctx(this, SELECT_PARSING_SECTION_COLUMN,
@@ -356,7 +356,7 @@ bool SQLProcessor::parseSelectStatement(SQLSelectInfo &selectInfo)
 	m_selectSeprators[SQLProcessor::SELECT_PARSING_SECTION_WHERE]
 	  = selectInfo.whereParser.getSeparatorChecker();
 
-	while (!selectInfo.query.finished()) {
+	while (!selectInfo.statement.finished()) {
 		ctx.currWord = readNextWord(ctx);
 		if (ctx.currWord.empty())
 			continue;
@@ -413,7 +413,7 @@ void SQLProcessor::makeTableInfo(SQLSelectInfo &selectInfo)
 		if (!ret.second) {
 			THROW_SQL_PROCESSOR_EXCEPTION(
 			  "Failed to insert: table name: %s, %s.",
-			  varName.c_str(), selectInfo.query.getString());
+			  varName.c_str(), selectInfo.statement.getString());
 		}
 	}
 }
@@ -818,7 +818,7 @@ bool SQLProcessor::parseSectionOrder(SelectParserContext &ctx)
 		return false;
 
 	if (!StringUtils::casecmp(nextWord, "by")) {
-		ctx.selectInfo.query.setParsingPosition(currPos);
+		ctx.selectInfo.statement.setParsingPosition(currPos);
 		return false;
 	}
 
@@ -834,7 +834,7 @@ bool SQLProcessor::parseSectionGroup(SelectParserContext &ctx)
 		return false;
 
 	if (!StringUtils::casecmp(nextWord, "by")) {
-		ctx.selectInfo.query.setParsingPosition(currPos);
+		ctx.selectInfo.statement.setParsingPosition(currPos);
 		return false;
 	}
 
@@ -893,8 +893,8 @@ string SQLProcessor::readNextWord(SelectParserContext &ctx,
 {
 	SeparatorChecker *separator = m_selectSeprators[ctx.section];
 	if (position)
-		*position = ctx.selectInfo.query.getParsingPosition();
-	return ctx.selectInfo.query.readWord(*separator);
+		*position = ctx.selectInfo.statement.getParsingPosition();
+	return ctx.selectInfo.statement.readWord(*separator);
 }
 
 bool SQLProcessor::parseColumnName(const string &name,

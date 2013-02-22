@@ -83,7 +83,7 @@ private:
 // Public methods (SQLUpdateInfo)
 // ---------------------------------------------------------------------------
 SQLUpdateInfo::SQLUpdateInfo(ParsableString &_statement)
-: statement(_statement),
+: SQLProcessorInfo(_statement),
   evalTargetItemGroup(NULL),
   itemFalsePtr(new ItemBool(false), false)
 {
