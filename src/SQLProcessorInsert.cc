@@ -130,11 +130,18 @@ SQLProcessorInsert::~SQLProcessorInsert()
 
 bool SQLProcessorInsert::insert(SQLInsertInfo &insertInfo)
 {
-	if (!parseInsertStatement(insertInfo))
+	try {
+		if (!parseInsertStatement(insertInfo))
+			return false;
+		checkTableAndColumns(insertInfo);
+		makeColumnDefValueMap(insertInfo);
+		doInsetToTable(insertInfo);
+	} catch (const SQLProcessorException &e) {
+		const char *message = e.what();
+		insertInfo.errorMessage = message;
+		MLPL_DBG("Got SQLProcessorException: %s\n", message);
 		return false;
-	checkTableAndColumns(insertInfo);
-	makeColumnDefValueMap(insertInfo);
-	doInsetToTable(insertInfo);
+	}
 	return true;
 }
 
