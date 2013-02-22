@@ -81,13 +81,14 @@ static ItemTable * addItems(T* srcTable, int numTable,
 }
 
 struct AssertCrossJoinForeachArg {
-	size_t row;
-	size_t numColumnsX;
-	size_t numColumnsY;
 	size_t table0Index;
 	size_t table1Index;
-	const ItemTable *x_table;
-	const ItemTable *y_table;
+
+	AssertCrossJoinForeachArg(void)
+	: table0Index(0),
+	  table1Index(0)
+	{
+	}
 };
 
 template<typename T>
@@ -313,11 +314,7 @@ void test_crossJoin(void)
 	cppcut_assert_equal(numColumns, z_table->getNumberOfColumns());
 	cppcut_assert_equal(numRows, z_table->getNumberOfRows());
 
-	AssertCrossJoinForeachArg arg = {0,
-	                                 x_table->getNumberOfColumns(),
-	                                 y_table->getNumberOfColumns(),
-	                                 0, 0,
-	                                 x_table, y_table};
+	AssertCrossJoinForeachArg arg;
 	z_table->foreach<AssertCrossJoinForeachArg &>
 	                (assertCrossJoinForeach, arg);
 }
