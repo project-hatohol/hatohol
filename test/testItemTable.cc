@@ -96,20 +96,16 @@ cut_trace(_assertItemData<T>(IGRP, E, IDX))
 class AssertJoin {
 public:
 	ItemTable *m_itemTable;
-	size_t m_table0Index;
-	size_t m_table1Index;
 
 	AssertJoin(ItemTable *itemTable);
 	virtual ~AssertJoin();
 	virtual void run(void);
 	static bool _assertForeach(const ItemGroup *itemGroup, AssertJoin *obj);
-	virtual bool assertForeach(const ItemGroup *itemGroup);
+	virtual bool assertForeach(const ItemGroup *itemGroup) = 0;
 };
 
 AssertJoin::AssertJoin(ItemTable *itemTable)
-: m_itemTable(itemTable),
-  m_table0Index(0),
-  m_table1Index(0)
+: m_itemTable(itemTable)
 {
 }
 
@@ -127,7 +123,24 @@ bool AssertJoin::_assertForeach(const ItemGroup *itemGroup, AssertJoin *obj)
 	return obj->assertForeach(itemGroup);
 }
 
-bool AssertJoin::assertForeach(const ItemGroup *itemGroup)
+class AssertCrossJoin : public AssertJoin
+{
+public:
+	size_t m_table0Index;
+	size_t m_table1Index;
+
+	AssertCrossJoin(ItemTable *itemTable);
+	virtual bool assertForeach(const ItemGroup *itemGroup);
+};
+
+AssertCrossJoin::AssertCrossJoin(ItemTable *itemTable)
+: AssertJoin(itemTable),
+  m_table0Index(0),
+  m_table1Index(0)
+{
+}
+
+bool AssertCrossJoin::assertForeach(const ItemGroup *itemGroup)
 {
 	int idx = 0;
 	assertItemData(int, itemGroup, tableContent0[m_table0Index].age, idx);
@@ -336,7 +349,7 @@ void test_crossJoin(void)
 	cppcut_assert_equal(numColumns, z_table->getNumberOfColumns());
 	cppcut_assert_equal(numRows, z_table->getNumberOfRows());
 
-	AssertJoin assertJoin(z_table);
+	AssertCrossJoin assertJoin(z_table);
 	assertJoin.run();
 }
 
