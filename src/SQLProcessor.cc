@@ -25,6 +25,7 @@ using namespace std;
 #include <stdexcept>
 #include <cstring>
 #include "SQLProcessor.h"
+#include "SQLProcessorException.h"
 #include "ItemEnum.h"
 #include "Utils.h"
 
@@ -388,11 +389,25 @@ void SQLProcessor::makeTableInfo(SQLSelectInfo &selectInfo)
 	SQLTableElementListConstIterator it =
 	  selectInfo.fromParser.getTableElementList().begin();
 	for (; it != selectInfo.fromParser.getTableElementList().end(); ++it) {
+		// make selectInfo.tables
 		const SQLTableElement *tableElem = *it;
 		SQLTableInfo *tableInfo = new SQLTableInfo();
 		tableInfo->name    = tableElem->getName();
 		tableInfo->varName = tableElem->getVarName();
 		selectInfo.tables.push_back(tableInfo);
+
+		// make selectInfo.tableVarInfoMap
+		string &varName = tableInfo->varName;
+		if (varName.empty())
+			continue;
+		pair<SQLTableVarNameInfoMapIterator, bool> ret =
+		  selectInfo.tableVarInfoMap.insert
+		    (pair<string, SQLTableInfo *>(varName, tableInfo));
+		if (!ret.second) {
+			THROW_SQL_PROCESSOR_EXCEPTION(
+			  "Failed to insert: table name: %s, %s.",
+			  varName.c_str(), selectInfo.query.getString());
+		}
 	}
 }
 
