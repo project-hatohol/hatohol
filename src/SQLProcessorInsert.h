@@ -24,10 +24,7 @@ using namespace mlpl;
 #include "SQLProcessorTypes.h"
 #include "ItemDataPtr.h"
 
-struct SQLInsertInfo {
-	// input statement
-	ParsableString   statement;
-
+struct SQLInsertInfo : public SQLProcessorInfo {
 	// parsed matter
 	string           table;
 	StringVector     columnVector;
