@@ -89,6 +89,8 @@ static TestData0 testData0[] = {
   {100, "Dog"},
   {-5,  "Clothes make the man."},
   {-5,  "Angel"},
+  {-5,  "cat"},
+  {5,   "catfish"},
   {100, "feel like a bike ride"},
 };
 static size_t numTestData0 = sizeof(testData0) / sizeof(TestData0);
@@ -102,6 +104,8 @@ struct TestData1 {
 static TestData1 testData1[] = {
   {20, "bird", "meet"},
   {-5, "cat", "parfait"},
+  {100,"Dragon", "orange"},
+  {52, "fellow", "pizza"},
 };
 static size_t numTestData1 = sizeof(testData1) / sizeof(TestData1);
 
