@@ -40,6 +40,15 @@ enum SQLJoinType {
 	SQL_JOIN_TYPE_CROSS,
 };
 
+struct SQLProcessorInfo {
+	// error information
+	string errorMessage;
+
+	// constructor and destructor
+	SQLProcessorInfo(void);
+	virtual ~SQLProcessorInfo();
+};
+
 struct ColumnBaseDefinition {
 	ItemId         itemId;
 	const char    *tableName;
