@@ -95,9 +95,8 @@ static void _assertItemData(const ItemGroup *itemGroup, T expected, int &idx)
 cut_trace(_assertItemData<T>(IGRP, E, IDX))
 
 static void assertJoinRunner(const ItemGroup *itemGroup,
-                                  TableStruct0 *refData0,
-                                  TableStruct1 *refData1,
-                                  size_t data0Index, size_t data1Index)
+                             TableStruct0 *refData0, TableStruct1 *refData1,
+                             size_t data0Index, size_t data1Index)
 {
 	int idx = 0;
 	assertItemData(int,    itemGroup, refData0->age, idx);
