@@ -33,6 +33,7 @@ public:
 	SQLFromParser(void);
 	virtual ~SQLFromParser();
 	SQLTableFormula *getTableFormula(void) const;
+	const SQLTableElementList &getTableElementList(void) const;
 	SeparatorCheckerWithCallback *getSeparatorChecker(void);
 
 	virtual void add(const string& word, const string &wordLower);

@@ -18,6 +18,7 @@
 #ifndef SQLTableFormula_h
 #define SQLTableFormula_h
 
+#include <list>
 #include <string>
 using namespace std;
 
@@ -51,6 +52,9 @@ private:
 	string m_name;
 	string m_varName;
 };
+
+typedef list<SQLTableElement *>             SQLTableElementList;
+typedef SQLTableElementList::const_iterator SQLTableElementListConstIterator;
 
 // ---------------------------------------------------------------------------
 // SQLTableJoin

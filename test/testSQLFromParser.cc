@@ -2,6 +2,7 @@
 #include <StringUtils.h>
 using namespace mlpl;
 
+#include <stdarg.h>
 #include <cppcutter.h>
 #include "SQLFromParser.h"
 #include "Asura.h"
@@ -83,6 +84,23 @@ assertInputStatement(PARSER, _statement); \
 SQLTableFormula *TABLE_FORMULA = PARSER.getTableFormula(); \
 cppcut_assert_not_null(TABLE_FORMULA);
 
+typedef list<string>               StringList;
+typedef StringList::iterator       StringListIterator;
+typedef StringList::const_iterator StringListConstIterator;
+
+void _assertTableList(const StringList &expectedNameList,
+                      const SQLTableElementList &tableElementList)
+{
+	cppcut_assert_equal(expectedNameList.size(), tableElementList.size());
+	StringListConstIterator name = expectedNameList.begin();
+	SQLTableElementListConstIterator tableIt = tableElementList.begin();
+	for (; name != expectedNameList.end(); ++name, ++tableIt) {
+		const SQLTableElement *tableElem = *tableIt;
+		cppcut_assert_equal(*name, tableElem->getName());
+	}
+}
+#define assertTableList(E,T) cut_trace(_assertTableList(E,T))
+
 void setup(void)
 {
 	asuraInit();
@@ -97,6 +115,10 @@ void test_oneTable(void)
 	string statement = StringUtils::sprintf("from %s", tableName);
 	DEFINE_PARSER_AND_RUN(fromParser, tableFormula, statement);
 	assertTableElement(tableFormula, tableName);
+
+	StringList nameList;
+	nameList.push_back(tableName);
+	assertTableList(nameList, fromParser.getTableElementList());
 }
 
 void test_oneTableWithVar(void)
@@ -107,6 +129,10 @@ void test_oneTableWithVar(void)
 	                                        tableName, varName);
 	DEFINE_PARSER_AND_RUN(fromParser, tableFormula, statement);
 	assertTableElement(tableFormula, tableName, varName);
+
+	StringList nameList;
+	nameList.push_back(tableName);
+	assertTableList(nameList, fromParser.getTableElementList());
 }
 
 void test_twoTables(void)
@@ -122,6 +148,11 @@ void test_twoTables(void)
 	cppcut_assert_not_null(crossJoin);
 	assertTableElement(crossJoin->getLeftFormula(), tableName0);
 	assertTableElement(crossJoin->getRightFormula(), tableName1);
+
+	StringList nameList;
+	nameList.push_back(tableName0);
+	nameList.push_back(tableName1);
+	assertTableList(nameList, fromParser.getTableElementList());
 }
 
 void test_threeTables(void)
@@ -150,6 +181,12 @@ void test_threeTables(void)
 
 	// table2
 	assertTableElement(crossJoin->getRightFormula(), tableName2);
+
+	StringList nameList;
+	nameList.push_back(tableName0);
+	nameList.push_back(tableName1);
+	nameList.push_back(tableName2);
+	assertTableList(nameList, fromParser.getTableElementList());
 }
 
 void test_twoTablesWithVars(void)
@@ -168,6 +205,11 @@ void test_twoTablesWithVars(void)
 	cppcut_assert_not_null(crossJoin);
 	assertTableElement(crossJoin->getLeftFormula(), tableName0, varName0);
 	assertTableElement(crossJoin->getRightFormula(), tableName1, varName1);
+
+	StringList nameList;
+	nameList.push_back(tableName0);
+	nameList.push_back(tableName1);
+	assertTableList(nameList, fromParser.getTableElementList());
 }
 
 void test_twoTablesInnerJoin(void)
@@ -189,6 +231,11 @@ void test_twoTablesInnerJoin(void)
 	cppcut_assert_not_null(innerJoin);
 	assertTableElement(innerJoin->getLeftFormula(), tableName0);
 	assertTableElement(innerJoin->getRightFormula(), tableName1);
+
+	StringList nameList;
+	nameList.push_back(tableName0);
+	nameList.push_back(tableName1);
+	assertTableList(nameList, fromParser.getTableElementList());
 }
 
 void test_twoTablesInnerJoinWithVars(void)
@@ -212,6 +259,11 @@ void test_twoTablesInnerJoinWithVars(void)
 	cppcut_assert_not_null(innerJoin);
 	assertTableElement(innerJoin->getLeftFormula(), tableName0, varName0);
 	assertTableElement(innerJoin->getRightFormula(), tableName1, varName1);
+
+	StringList nameList;
+	nameList.push_back(tableName0);
+	nameList.push_back(tableName1);
+	assertTableList(nameList, fromParser.getTableElementList());
 }
 
 void test_threeTablesInnerJoin(void)
@@ -250,6 +302,12 @@ void test_threeTablesInnerJoin(void)
 
 	// table2
 	assertTableElement(innerJoin->getRightFormula(), tableName2);
+
+	StringList nameList;
+	nameList.push_back(tableName0);
+	nameList.push_back(tableName1);
+	nameList.push_back(tableName2);
+	assertTableList(nameList, fromParser.getTableElementList());
 }
 
 void test_threeTablesInnerJoinWithVars(void)
@@ -292,6 +350,12 @@ void test_threeTablesInnerJoinWithVars(void)
 	                   tableName1, varName1);
 	// table2
 	assertTableElement(innerJoin->getRightFormula(), tableName2, varName2);
+
+	StringList nameList;
+	nameList.push_back(tableName0);
+	nameList.push_back(tableName1);
+	nameList.push_back(tableName2);
+	assertTableList(nameList, fromParser.getTableElementList());
 }
 
 } // namespace testSQLFromParser

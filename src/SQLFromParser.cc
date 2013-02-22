@@ -38,6 +38,7 @@ struct SQLFromParser::PrivateContext {
 
 	ParsingState     state;
 	SQLTableFormula *tableFormula;
+	SQLTableElementList tableElementList;
 	string           tableName;
 	bool             onParsingInnerJoin;
 	SQLTableElement *rightTableOfInnerJoin;
@@ -111,6 +112,11 @@ SQLFromParser::~SQLFromParser()
 SQLTableFormula *SQLFromParser::getTableFormula(void) const
 {
 	return m_ctx->tableFormula;
+}
+
+const SQLTableElementList &SQLFromParser::getTableElementList(void) const
+{
+	return m_ctx->tableElementList;
 }
 
 SeparatorCheckerWithCallback *SQLFromParser::getSeparatorChecker(void)
@@ -273,6 +279,7 @@ void SQLFromParser::makeTableElement(const string &tableName,
                                      const string &varName)
 {
 	SQLTableElement *tableElem = new SQLTableElement(tableName, varName);
+	m_ctx->tableElementList.push_back(tableElem);;
 	if (m_ctx->onParsingInnerJoin) {
 		m_ctx->rightTableOfInnerJoin = tableElem;
 		m_ctx->state = PARSING_STAT_EXPECT_ON;
