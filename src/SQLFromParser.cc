@@ -21,7 +21,6 @@
 #include "SQLProcessorException.h"
 
 SQLFromParser::SubParser SQLFromParser::m_subParsers[] = {
-	&SQLFromParser::subParserExpectFrom,
 	&SQLFromParser::subParserExpectTableName,
 	&SQLFromParser::subParserPostTableName,
 	&SQLFromParser::subParserCreatedTable,
@@ -49,7 +48,7 @@ struct SQLFromParser::PrivateContext {
 
 	// constructor
 	PrivateContext(void)
-	: state(PARSING_STAT_EXPECT_FROM),
+	: state(PARSING_STAT_EXPECT_TABLE_NAME),
 	  tableFormula(NULL),
 	  onParsingInnerJoin(false),
 	  rightTableOfInnerJoin(NULL)
@@ -161,13 +160,6 @@ void SQLFromParser::close(void)
 //
 // Sub parsers
 //
-void SQLFromParser::subParserExpectFrom
-  (const string &word, const string &wordLower)
-{
-	goNextStateIfWordIsExpected("from", wordLower,
-	                            PARSING_STAT_EXPECT_TABLE_NAME);
-}
-
 void SQLFromParser::subParserExpectTableName
   (const string &word, const string &wordLower)
 {

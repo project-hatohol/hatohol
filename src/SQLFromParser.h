@@ -44,7 +44,6 @@ protected:
 	typedef void (SQLFromParser::*SubParser)
 	               (const string &word, const string &wordLower);
 	enum ParsingState {
-		PARSING_STAT_EXPECT_FROM,
 		PARSING_STAT_EXPECT_TABLE_NAME,
 		PARSING_STAT_POST_TABLE_NAME,
 		PARSING_STAT_CREATED_TABLE,
@@ -59,7 +58,6 @@ protected:
 	//
 	// Sub parsers
 	//
-	void subParserExpectFrom(const string &word, const string &wordLower);
 	void subParserExpectTableName
 	       (const string &word, const string &wordLower);
 	void subParserPostTableName

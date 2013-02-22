@@ -112,7 +112,7 @@ void setup(void)
 void test_oneTable(void)
 {
 	const char *tableName = "tab";
-	string statement = StringUtils::sprintf("from %s", tableName);
+	string statement = StringUtils::sprintf("%s", tableName);
 	DEFINE_PARSER_AND_RUN(fromParser, tableFormula, statement);
 	assertTableElement(tableFormula, tableName);
 
@@ -125,8 +125,7 @@ void test_oneTableWithVar(void)
 {
 	const char *tableName = "tab";
 	const char *varName = "t";
-	string statement = StringUtils::sprintf("from %s %s", 
-	                                        tableName, varName);
+	string statement = StringUtils::sprintf("%s %s", tableName, varName);
 	DEFINE_PARSER_AND_RUN(fromParser, tableFormula, statement);
 	assertTableElement(tableFormula, tableName, varName);
 
@@ -139,7 +138,7 @@ void test_twoTables(void)
 {
 	const char *tableName0 = "tab0";
 	const char *tableName1 = "tab1";
-	string statement = StringUtils::sprintf("from %s,%s",
+	string statement = StringUtils::sprintf("%s,%s",
 	                                        tableName0, tableName1);
 	DEFINE_PARSER_AND_RUN(fromParser, tableFormula, statement);
 	assertCrossJoin(tableFormula);
@@ -161,7 +160,7 @@ void test_threeTables(void)
 	const char *tableName1 = "tab1";
 	const char *tableName2 = "tab2";
 	string statement =
-	  StringUtils::sprintf("from %s,%s,%s",
+	  StringUtils::sprintf("%s,%s,%s",
 	                       tableName0, tableName1, tableName2);
 	DEFINE_PARSER_AND_RUN(fromParser, tableFormula, statement);
 	assertCrossJoin(tableFormula);
@@ -195,7 +194,7 @@ void test_twoTablesWithVars(void)
 	const char *varName0 = "t0";
 	const char *tableName1 = "tab1";
 	const char *varName1 = "t1";
-	string statement = StringUtils::sprintf("from %s %s, %s %s",
+	string statement = StringUtils::sprintf("%s %s, %s %s",
 	                                        tableName0, varName0,
 	                                        tableName1, varName1);
 	DEFINE_PARSER_AND_RUN(fromParser, tableFormula, statement);
@@ -219,7 +218,7 @@ void test_twoTablesInnerJoin(void)
 	const char *columnName0 = "column0";
 	const char *columnName1 = "column1";
 	string statement =
-	  StringUtils::sprintf("from %s inner join %s on %s.%s=%s.%s",
+	  StringUtils::sprintf("%s inner join %s on %s.%s=%s.%s",
 	                       tableName0, tableName1,
 	                       tableName0, columnName0,
 	                       tableName1, columnName1);
@@ -247,7 +246,7 @@ void test_twoTablesInnerJoinWithVars(void)
 	const char *columnName0 = "column0";
 	const char *columnName1 = "column1";
 	string statement =
-	  StringUtils::sprintf("from %s %s inner join %s %s on %s.%s=%s.%s",
+	  StringUtils::sprintf("%s %s inner join %s %s on %s.%s=%s.%s",
 	                       tableName0, varName0,
 	                       tableName1, varName1,
 	                       varName0, columnName0, varName1, columnName1);
@@ -275,7 +274,7 @@ void test_threeTablesInnerJoin(void)
 	const char *columnName1 = "column1";
 	const char *columnName2 = "column2";
 	string statement =
-	  StringUtils::sprintf("from %s inner join %s on %s.%s=%s.%s "
+	  StringUtils::sprintf("%s inner join %s on %s.%s=%s.%s "
 	                       "inner join %s on %s.%s=%s.%s",
 	                       tableName0, tableName1, 
 	                       tableName0, columnName0, tableName1, columnName1,
@@ -322,7 +321,7 @@ void test_threeTablesInnerJoinWithVars(void)
 	const char *columnName1 = "column1";
 	const char *columnName2 = "column2";
 	string statement =
-	  StringUtils::sprintf("from %s %s inner join %s %s on %s.%s=%s.%s "
+	  StringUtils::sprintf("%s %s inner join %s %s on %s.%s=%s.%s "
 	                       "inner join %s %s on %s.%s=%s.%s",
 	                       tableName0, varName0, tableName1, varName1,
 	                       varName0, columnName0, varName1, columnName1,
