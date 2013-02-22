@@ -96,6 +96,7 @@ cut_trace(_assertItemData<T>(IGRP, E, IDX))
 template <typename RefDataType0, typename RefDataType1>
 class AssertJoin
 {
+protected:
 	typedef void (*AssertJoinRunner)
 	               (const ItemGroup *itemGroup,
 	                RefDataType0 *refData0, RefDataType1 *refData1,
@@ -111,7 +112,6 @@ class AssertJoin
 	void (*m_assertRunner)(const ItemGroup *itemGroup,
 	                       RefDataType0 *refData0, RefDataType1 *refData1,
 	                       size_t data0Index, size_t data1Index);
-
 public:
 	AssertJoin(ItemTable *itemTable,
 	           RefDataType0 *refTable0, RefDataType1 *refTable1,
@@ -139,25 +139,71 @@ public:
 
 	static bool _assertForeach(const ItemGroup *itemGroup, AssertJoin *obj)
 	{
-		return obj->assertForeachBase(itemGroup);
+		return obj->assertForeach(itemGroup);
 	}
 
-	virtual bool assertForeachBase(const ItemGroup *itemGroup)
+	virtual void assertPreForeach(void)
 	{
-		(*m_assertRunner)(itemGroup,
-		                  &m_refTable0[m_refTable0Index],
-		                  &m_refTable1[m_refTable1Index],
-		                  m_refTable0Index, m_refTable1Index);
+	}
+
+	virtual void assertPostForeach(void)
+	{
 		m_refTable1Index++;
 		if (m_refTable1Index == m_numRowsRefTable1) {
 			m_refTable1Index = 0;
 			m_refTable0Index++;
 		}
+	}
+
+	virtual bool assertForeach(const ItemGroup *itemGroup)
+	{
+		assertPreForeach();
+		(*m_assertRunner)(itemGroup,
+		                  &m_refTable0[m_refTable0Index],
+		                  &m_refTable1[m_refTable1Index],
+		                  m_refTable0Index, m_refTable1Index);
+		assertPostForeach();
 		return true;
 	}
 };
 
-static void assertCrossJoinRunner(const ItemGroup *itemGroup,
+typedef pair<int,int>      IntIntPair;
+typedef vector<IntIntPair> IntIntPairVector;
+
+template <typename RefDataType0, typename RefDataType1>
+class AssertInnerJoin : public AssertJoin<RefDataType0, RefDataType1>
+{
+	IntIntPairVector &m_joinedRowsIndexVector;
+	size_t            m_vectorIndex;
+public:
+	AssertInnerJoin(ItemTable *itemTable,
+	                RefDataType0 *refTable0, RefDataType1 *refTable1,
+	                size_t numRowsRefTable0, size_t numRowsRefTable1,
+	                IntIntPairVector &joinedRowsIndexVector)
+	: AssertJoin<RefDataType0, RefDataType1>
+	    (itemTable, refTable0, refTable1,
+	     numRowsRefTable0, numRowsRefTable1),
+	  m_joinedRowsIndexVector(joinedRowsIndexVector),
+	  m_vectorIndex(0)
+	{
+	}
+
+	virtual void assertPreForeach(void)
+	{
+		IntIntPair &idxVector =
+		  m_joinedRowsIndexVector[m_vectorIndex++];
+		AssertJoin<RefDataType0, RefDataType1>::m_refTable0Index =
+		  idxVector.first;
+		AssertJoin<RefDataType0, RefDataType1>::m_refTable1Index =
+		  idxVector.second;
+	}
+
+	virtual void assertPostForeach(void)
+	{
+	}
+};
+
+static void assertJoinRunner(const ItemGroup *itemGroup,
                                   TableStruct0 *refData0,
                                   TableStruct1 *refData1,
                                   size_t data0Index, size_t data1Index)
@@ -169,28 +215,6 @@ static void assertCrossJoinRunner(const ItemGroup *itemGroup,
 	assertItemData(string, itemGroup, refData1->name, idx);
 	assertItemData(int,    itemGroup, refData1->height, idx);
 	assertItemData(string, itemGroup, refData1->nickname, idx);
-}
-
-struct AssertInnerJoinForeachArg {
-	vector<pair<int,int> > joinedRowsIndexVector;
-	size_t idx;
-};
-
-static bool assertInnerJoinForeach(const ItemGroup *itemGroup,
-                                   AssertInnerJoinForeachArg &arg)
-{
-	pair<int,int> &idxVector = arg.joinedRowsIndexVector[arg.idx++];
-	int tbl0Idx = idxVector.first;
-	int tbl1Idx = idxVector.second;
-
-	int idx = 0;
-	assertItemData(int, itemGroup, tableContent0[tbl0Idx].age, idx);
-	assertItemData(string, itemGroup, tableContent0[tbl0Idx].name, idx);
-	assertItemData(string, itemGroup,
-	               tableContent0[tbl0Idx].favoriteColor, idx);
-	assertItemData(string, itemGroup, tableContent1[tbl1Idx].name, idx);
-	assertItemData(int, itemGroup, tableContent1[tbl1Idx].height, idx);
-	assertItemData(string, itemGroup, tableContent1[tbl1Idx].nickname, idx);
 }
 
 static void assertEmptyTable(ItemTable *table)
@@ -360,7 +384,7 @@ void test_crossJoin(void)
 	AssertJoin<TableStruct0, TableStruct1>
 	  assertJoin(z_table, tableContent0, tableContent1,
 	             NUM_TABLE0, NUM_TABLE1);
-	assertJoin.run(assertCrossJoinRunner);
+	assertJoin.run(assertJoinRunner);
 }
 
 void test_crossJoinBothEmpty(void)
@@ -404,14 +428,14 @@ void test_innerJoin(void)
 	cut_assert_not_null(z_table);
 
 	// check the result
-	vector<pair<int,int> > joinedRowsIndexVector;
+	IntIntPairVector joinedRowsIndexVector;
 	for (size_t i = 0; i < NUM_TABLE0; i++) {
 		TableStruct0 *tbl0 = &tableContent0[i];
 		for (size_t j = 0; j < NUM_TABLE1; j++) {
 			TableStruct1 *tbl1 = &tableContent1[j];
 			if (strcmp(tbl0->name, tbl1->name) != 0)
 				continue;
-			joinedRowsIndexVector.push_back(pair<int,int>(i,j));
+			joinedRowsIndexVector.push_back(IntIntPair(i,j));
 		}
 	}
 
@@ -420,9 +444,11 @@ void test_innerJoin(void)
 	size_t numRows = joinedRowsIndexVector.size();
 	cppcut_assert_equal(numColumns, z_table->getNumberOfColumns());
 	cppcut_assert_equal(numRows, z_table->getNumberOfRows());
-	AssertInnerJoinForeachArg arg = {joinedRowsIndexVector, 0};
-	z_table->foreach<AssertInnerJoinForeachArg &>
-	                (assertInnerJoinForeach, arg);
+
+	AssertInnerJoin<TableStruct0, TableStruct1>
+	  assertJoin(z_table, tableContent0, tableContent1,
+	             NUM_TABLE0, NUM_TABLE1, joinedRowsIndexVector);
+	assertJoin.run(assertJoinRunner);
 }
 
 } // namespace testItemTable
