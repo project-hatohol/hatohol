@@ -153,6 +153,7 @@ public:
 
 	void callParseSelectStatement(SQLSelectInfo &selectInfo) {
 		parseSelectStatement(selectInfo);
+		makeTableInfo(selectInfo);
 	}
 
 	const ItemTablePtr

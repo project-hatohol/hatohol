@@ -200,6 +200,7 @@ protected:
 	virtual ~SQLProcessor();
 
 	bool parseSelectStatement(SQLSelectInfo &selectInfo);
+	void makeTableInfo(SQLSelectInfo &selectInfo);
 	bool checkParsedResult(const SQLSelectInfo &selectInfo) const;
 	bool fixupColumnNameMap(SQLSelectInfo &selectInfo);
 	bool associateColumnWithTable(SQLSelectInfo &selectInfo);
@@ -289,8 +290,6 @@ private:
 
 	SeparatorChecker *m_selectSeprators[NUM_SELECT_PARSING_SECTION];
 	SeparatorChecker             m_separatorSpaceComma;
-	SeparatorCheckerWithCounter  m_separatorCountSpaceComma;
-	SeparatorCheckerWithCallback m_separatorCBForWhere;
 
 	// The content of m_tableNameStaticInfoMap is typically
 	// set in sub classes.

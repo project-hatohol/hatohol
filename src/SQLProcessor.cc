@@ -53,7 +53,6 @@ struct SQLProcessor::SelectParserContext {
 	string              currWord;
 	string              currWordLower;
 	SelectParseSection  section;
-	size_t              indexInTheStatus;
 	SQLSelectInfo      &selectInfo;
 
 	// methods
@@ -62,7 +61,6 @@ struct SQLProcessor::SelectParserContext {
 	                    SQLSelectInfo &_selectInfo)
 	: sqlProcessor(sqlProc),
 	  section(_section),
-	  indexInTheStatus(0),
 	  selectInfo(_selectInfo)
 	{
 	}
@@ -242,6 +240,7 @@ bool SQLProcessor::select(SQLSelectInfo &selectInfo)
 	// disassemble the query statement
 	if (!parseSelectStatement(selectInfo))
 		return false;
+	makeTableInfo(selectInfo);
 	if (!checkParsedResult(selectInfo))
 		return false;
 
@@ -295,20 +294,13 @@ bool SQLProcessor::update(SQLUpdateInfo &updateInfo)
 // ---------------------------------------------------------------------------
 SQLProcessor::SQLProcessor(TableNameStaticInfoMap &tableNameStaticInfoMap)
 : m_separatorSpaceComma(" ,"),
-  m_separatorCountSpaceComma(", "),
-  m_separatorCBForWhere(" ='"),
   m_tableNameStaticInfoMap(tableNameStaticInfoMap),
   m_processorInsert(tableNameStaticInfoMap),
   m_processorUpdate(tableNameStaticInfoMap)
 {
-	// m_selectSeprators[SQLProcessor::SELECT_PARSING_SECTION_COLUMN]
-	// is set later in parseSelectStatement().
+	// Other elements are set in parseSelectStatement().
 	m_selectSeprators[SQLProcessor::SELECT_PARSING_SECTION_GROUP_BY] = 
 	  &m_separatorSpaceComma;
-	m_selectSeprators[SQLProcessor::SELECT_PARSING_SECTION_FROM] =
-	  &m_separatorCountSpaceComma;
-	// m_selectSeprators[SQLProcessor::SELECT_PARSING_SECTION_WHERE]
-	// is set later in parseSelectStatement().
 	m_selectSeprators[SQLProcessor::SELECT_PARSING_SECTION_ORDER_BY] = 
 	  &m_separatorSpaceComma;
 	m_selectSeprators[SQLProcessor::SELECT_PARSING_SECTION_LIMIT] = 
@@ -350,6 +342,9 @@ bool SQLProcessor::parseSelectStatement(SQLSelectInfo &selectInfo)
 	m_selectSeprators[SQLProcessor::SELECT_PARSING_SECTION_COLUMN]
 	  = selectInfo.columnParser.getSeparatorChecker();
 
+	m_selectSeprators[SQLProcessor::SELECT_PARSING_SECTION_FROM]
+	  = selectInfo.fromParser.getSeparatorChecker();
+
 	m_selectSeprators[SQLProcessor::SELECT_PARSING_SECTION_WHERE]
 	  = selectInfo.whereParser.getSeparatorChecker();
 
@@ -365,10 +360,8 @@ bool SQLProcessor::parseSelectStatement(SQLSelectInfo &selectInfo)
 			// When the function returns 'true', it means
 			// the current word is section keyword and
 			subParser = it->second;
-			if ((this->*subParser)(ctx)) {
-				ctx.indexInTheStatus = 0;
+			if ((this->*subParser)(ctx))
 				continue;
-			}
 		}
 
 		// parse each component
@@ -380,15 +373,27 @@ bool SQLProcessor::parseSelectStatement(SQLSelectInfo &selectInfo)
 		subParser = m_selectSubParsers[ctx.section];
 		if (!(this->*subParser)(ctx))
 			return false;
-
-		ctx.indexInTheStatus++;
 	}
 	if (!selectInfo.columnParser.close())
 		return false;
 	if (!selectInfo.whereParser.close())
 		return false;
+	selectInfo.fromParser.close();
 
 	return true;
+}
+
+void SQLProcessor::makeTableInfo(SQLSelectInfo &selectInfo)
+{
+	SQLTableElementListConstIterator it =
+	  selectInfo.fromParser.getTableElementList().begin();
+	for (; it != selectInfo.fromParser.getTableElementList().end(); ++it) {
+		const SQLTableElement *tableElem = *it;
+		SQLTableInfo *tableInfo = new SQLTableInfo();
+		tableInfo->name    = tableElem->getName();
+		tableInfo->varName = tableElem->getVarName();
+		selectInfo.tables.push_back(tableInfo);
+	}
 }
 
 bool SQLProcessor::checkParsedResult(const SQLSelectInfo &selectInfo) const
@@ -774,12 +779,6 @@ bool SQLProcessor::parseSectionColumn(SelectParserContext &ctx)
 bool SQLProcessor::parseSectionFrom(SelectParserContext &ctx)
 {
 	ctx.section = SELECT_PARSING_SECTION_FROM;
-	m_separatorCountSpaceComma.resetCounter();
-
-	// This is in under construction. When FromParser is completed,
-	// code to parse from section in this class will be removed.
-	ctx.selectInfo.fromParser.add(ctx.currWord, ctx.currWordLower);
-
 	return true;
 }
 
@@ -843,46 +842,7 @@ bool SQLProcessor::parseGroupBy(SelectParserContext &ctx)
 
 bool SQLProcessor::parseFrom(SelectParserContext &ctx)
 {
-	bool isTableName = true;
-	if (ctx.indexInTheStatus > 0) {
-		int commaCount = m_separatorCountSpaceComma.getCount(',');
-		if (commaCount == 0)
-			isTableName = false;
-		else if (commaCount == 1)
-			isTableName = true;
-		else {
-			string msg;
-			TRMSG(msg, "commaCount: %d.", commaCount);
-			throw logic_error(msg);
-		}
-		m_separatorCountSpaceComma.resetCounter();
-	}
-
-	if (isTableName) {
-		SQLTableInfo *tableInfo = new SQLTableInfo();
-		ctx.selectInfo.tables.push_back(tableInfo);
-		tableInfo->name = ctx.currWord;
-		return true;
-	}
-
-	if (ctx.selectInfo.tables.empty()) {
-		MLPL_DBG("selectInfo.tables is empty\n");
-		return false;
-	}
-
-	SQLTableInfo *tableInfo = ctx.selectInfo.tables.back();
-	tableInfo->varName = ctx.currWord;
-
-	pair<SQLTableVarNameInfoMapIterator, bool> ret =
-	  ctx.selectInfo.tableVarInfoMap.insert
-	    (pair<string, SQLTableInfo *>(tableInfo->varName, tableInfo));
-	if (!ret.second) {
-		string msg;
-		TRMSG(msg, "Failed to insert: table name: %s, %s.",
-		      tableInfo->varName.c_str(),
-		      ctx.selectInfo.query.getString());
-		throw msg;
-	}
+	ctx.selectInfo.fromParser.add(ctx.currWord, ctx.currWordLower);
 	return true;
 }
 
