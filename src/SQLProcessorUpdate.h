@@ -25,7 +25,7 @@ using namespace mlpl;
 #include "SQLWhereParser.h"
 #include "ItemDataPtr.h"
 
-struct SQLUpdateInfo {
+struct SQLUpdateInfo : public SQLProcessorInfo {
 	// input statement
 	ParsableString   statement;
 
@@ -41,9 +41,6 @@ struct SQLUpdateInfo {
 
 	// group to be being processed
 	ItemGroup       *evalTargetItemGroup;
-
-	// error information
-	string           errorMessage;
 
 	// convinient variable
 	ItemDataPtr      itemFalsePtr;
