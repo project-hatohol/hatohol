@@ -238,44 +238,51 @@ void SQLProcessor::init(void)
 
 bool SQLProcessor::select(SQLSelectInfo &selectInfo)
 {
-	// disassemble the query statement
-	if (!parseSelectStatement(selectInfo))
-		return false;
-	makeTableInfo(selectInfo);
-	if (!checkParsedResult(selectInfo))
-		return false;
+	try {
+		// disassemble the query statement
+		if (!parseSelectStatement(selectInfo))
+			return false;
+		makeTableInfo(selectInfo);
+		if (!checkParsedResult(selectInfo))
+			return false;
 
-	// set members in SQLFormulaColumnDataGetter
-	if (!fixupColumnNameMap(selectInfo))
-		return false;
+		// set members in SQLFormulaColumnDataGetter
+		if (!fixupColumnNameMap(selectInfo))
+			return false;
 
-	// associate each column with the table
-	if (!associateColumnWithTable(selectInfo))
-		return false;
+		// associate each column with the table
+		if (!associateColumnWithTable(selectInfo))
+			return false;
 
-	// associate each table with static table information
-	if (!associateTableWithStaticInfo(selectInfo))
-		return false;
+		// associate each table with static table information
+		if (!associateTableWithStaticInfo(selectInfo))
+			return false;
 
-	// make ItemTable objects for all specified tables
-	if (!setColumnTypeAndBaseDefInColumnInfo(selectInfo))
-		return false;
-	if (!makeColumnDefs(selectInfo))
-		return false;
-	if (!makeItemTables(selectInfo))
-		return false;
+		// make ItemTable objects for all specified tables
+		if (!setColumnTypeAndBaseDefInColumnInfo(selectInfo))
+			return false;
+		if (!makeColumnDefs(selectInfo))
+			return false;
+		if (!makeItemTables(selectInfo))
+			return false;
 
-	// join tables
-	if (!doJoin(selectInfo))
-		return false;
+		// join tables
+		if (!doJoin(selectInfo))
+			return false;
 
-	// pickup matching rows
-	if (!selectMatchingRows(selectInfo))
-		return false;
+		// pickup matching rows
+		if (!selectMatchingRows(selectInfo))
+			return false;
 
-	// convert data to string
-	if (!makeTextOutput(selectInfo))
+		// convert data to string
+		if (!makeTextOutput(selectInfo))
+			return false;
+	} catch (const SQLProcessorException &e) {
+		const char *message = e.what();
+		selectInfo.errorMessage = message;
+		MLPL_DBG("Got SQLProcessorException: %s\n", message);
 		return false;
+	}
 
 	return true;
 }

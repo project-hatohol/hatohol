@@ -135,7 +135,7 @@ typedef SQLTableInfoItemIdVectorMap::const_iterator
 typedef map<string, const SQLTableInfo *> SQLTableVarNameInfoMap;
 typedef SQLTableVarNameInfoMap::iterator  SQLTableVarNameInfoMapIterator;
 
-struct SQLSelectInfo {
+struct SQLSelectInfo : public SQLProcessorInfo {
 	// input statement
 	ParsableString   query;
 
