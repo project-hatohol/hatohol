@@ -15,6 +15,7 @@ using namespace mlpl;
 #include "Asura.h"
 #include "Utils.h"
 #include "FormulaTestUtils.h"
+#include "AssertJoin.h"
 #include "Helpers.h"
 
 namespace testSQLProcessor {
@@ -401,6 +402,18 @@ void _assertSelectAll(string tableName, TestDataGetter testDataGetter,
 #define assertSelectAll(S, G, C, R, ...) \
 cut_trace(_assertSelectAll(S, G, C, R, ##__VA_ARGS__))
 
+static void assertJoinRunner(const ItemGroup *itemGroup,
+                             TestData0 *refData0, TestData1 *refData1,
+                             size_t data0Index, size_t data1Index)
+{
+	int idx = 0;
+	assertItemData(int,    itemGroup, refData0->number, idx);
+	assertItemData(string, itemGroup, refData0->name,   idx);
+	assertItemData(int,    itemGroup, refData1->age,    idx);
+	assertItemData(string, itemGroup, refData1->animal, idx);
+	assertItemData(string, itemGroup, refData1->food,   idx);
+}
+
 void setup(void)
 {
 	asuraInit();
@@ -763,6 +776,20 @@ void test_update(void)
 	StringVector expectedRows;
 	expectedRows.push_back(StringUtils::sprintf("%d", newNumber));
 	assertStringVector(expectedRows, selectInfo.textRows[0]);
+}
+
+void test_crossJoin(void) {
+	string statement =
+	  StringUtils::sprintf("select * from %s,%s", TABLE0_NAME, TABLE1_NAME);
+	const size_t expectedNumColumns = NUM_COLUMN0_DEFS + NUM_COLUMN1_DEFS;
+	const size_t expectedNumRows = numTestData0 * numTestData1;
+	DEFINE_SELECTINFO_AND_ASSERT_SELECT(
+	  selectInfo, statement, expectedNumColumns, expectedNumRows);
+
+	AssertJoin<TestData0, TestData1>
+	  assertJoin((ItemTable *)selectInfo.packedTable,
+	             testData0, testData1, numTestData0, numTestData1);
+	assertJoin.run(assertJoinRunner);
 }
 
 } // namespace testSQLProcessor
