@@ -1,3 +1,6 @@
+#ifndef AssertJoin_h
+#define AssertJoin_h
+
 #include "Helpers.h"
 
 template <typename RefDataType0, typename RefDataType1>
@@ -124,3 +127,4 @@ public:
 
 #undef BASE
 
+#endif // AssertJoin_h
