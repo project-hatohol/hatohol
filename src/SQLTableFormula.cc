@@ -115,14 +115,30 @@ SQLTableInnerJoin::SQLTableInnerJoin
   m_leftTableName(leftTableName),
   m_leftColumnName(leftColumnName),
   m_rightTableName(rightTableName),
-  m_rightColumnName(rightColumnName)
+  m_rightColumnName(rightColumnName),
+  m_indexLeftJoinColumn(INDEX_NOT_SET),
+  m_indexRightJoinColumn(INDEX_NOT_SET)
 {
 }
 
 ItemTablePtr SQLTableInnerJoin::getTable(void)
 {
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
-	return ItemTablePtr();
+	SQLTableFormula *leftFormula = getLeftFormula();
+	SQLTableFormula *rightFormula = getRightFormula();
+	if (!leftFormula || !rightFormula) {
+		THROW_SQL_PROCESSOR_EXCEPTION(
+		  "leftFormula (%p) or rightFormula (%p) is NULL.\n",
+		  leftFormula, rightFormula);
+	}
+	if (m_indexLeftJoinColumn == INDEX_NOT_SET ||
+	    m_indexRightJoinColumn == INDEX_NOT_SET) {
+		THROW_SQL_PROCESSOR_EXCEPTION(
+		  "m_indexLeftJoinColumn or/and m_indexRightJoinColumn is "
+		  "not set (%zd, %zd)",
+		  m_indexLeftJoinColumn, m_indexRightJoinColumn);
+	}
+	return innerJoin(leftFormula->getTable(), rightFormula->getTable(),
+	                 m_indexLeftJoinColumn, m_indexRightJoinColumn);
 }
 
 const string &SQLTableInnerJoin::getLeftTableName(void) const

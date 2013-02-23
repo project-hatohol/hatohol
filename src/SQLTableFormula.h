@@ -111,10 +111,13 @@ public:
 	const string &getRightColumnName(void) const;
 
 private:
+	static const size_t INDEX_NOT_SET = -1;
 	string m_leftTableName;
 	string m_leftColumnName;
 	string m_rightTableName;
 	string m_rightColumnName;
+	size_t m_indexLeftJoinColumn;
+	size_t m_indexRightJoinColumn;
 };
 
 #endif // SQLTableFormula_h
