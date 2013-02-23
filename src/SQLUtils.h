@@ -27,10 +27,48 @@ public:
 
 	static void init(void);
 
+	/**
+	 * get an aceess informatin of the column in the table.
+	 *
+	 * @columnName A target column name.
+	 * @columnBaseDef A pointer of ColumnBaseDefinition object.
+	 * @tableStaticInfo A pointer of SQLTableStaticInfo object for
+	 *                  the table to which the column belongs.
+	 * @return A referece of ColumnAcessInfo of the column in
+	 *         the table on success.
+	 *         When an error, SQLProcessorException is thrown.
+	 */
+	static const ColumnAccessInfo &getColumnAccessInfo
+	  (const string &columnName, const SQLTableStaticInfo *tableStaticInfo);
+
+	/**
+	 * get an index of the column in the table.
+	 *
+	 * @columnName A target column name.
+	 * @columnBaseDef A pointer of ColumnBaseDefinition object.
+	 * @tableStaticInfo A pointer of SQLTableStaticInfo object for
+	 *                  the table to which the column belongs.
+	 * @return An index of the column in the table on success.
+	 *         When an error, SQLProcessorException is thrown.
+	 */
 	static int getColumnIndex(const string &columnName,
 	                          const SQLTableStaticInfo *staticInfo);
 	static ItemDataPtr
 	  createDefaultItemData(const ColumnBaseDefinition *columnBaseDef);
+
+	/**
+	 * get a pointer of ColumnBaseDefinition form the column name.
+	 *
+	 * @columnName A target column name.
+	 * @columnBaseDef A pointer of ColumnBaseDefinition object.
+	 * @tableStaticInfo A pointer of SQLTableStaticInfo object for
+	 *                  the table to which the column belongs.
+	 * @return A pointer of ColumnBaseDefinition is returned on success.
+	 *         When an error, SQLProcessorException is thrown.
+	 */
+	static const ColumnBaseDefinition *
+	  getColumnBaseDefinition(const string &columnName,
+	                          const SQLTableStaticInfo *tableStaticInfo);
 
 	/**
 	 * create ItemDataPtr from a string.
@@ -44,19 +82,6 @@ public:
 	static ItemDataPtr
 	  createItemData(const ColumnBaseDefinition *columnBaseDef,
 	                 string &value);
-
-	/**
-	 * get a pointer of ColumnBaseDefinition form the column name.
-	 *
-	 * @columnName A columnName of the target.
-	 * @tableStaticInfo A pointer of SQLTableStaticInfo object for
-	 *                  the table to which the column belongs.
-	 * @return A pointer of ColumnBaseDefinition is returned on success.
-	 *         When an error, NULL is returned.
-	 */
-	static const ColumnBaseDefinition *
-	  getColumnBaseDefinition(const string &columnName,
-	                          const SQLTableStaticInfo *tableStaticInfo);
 
 	/**
 	 * get ItemDataPtr form an ItemGroup with a column name.

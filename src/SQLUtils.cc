@@ -17,6 +17,7 @@
 
 #include "SQLUtils.h"
 #include "SQLProcessorTypes.h"
+#include "SQLProcessorException.h"
 #include "AsuraException.h"
 
 SQLUtils::ItemDataCreator SQLUtils::m_itemDataCreators[] =
@@ -44,18 +45,36 @@ void SQLUtils::init(void)
 	}
 }
 
-int SQLUtils::getColumnIndex(const string &columnName,
-                             const SQLTableStaticInfo *tableStaticInfo)
+const ColumnAccessInfo &
+SQLUtils::getColumnAccessInfo(const string &columnName,
+                              const SQLTableStaticInfo *tableStaticInfo)
 {
 	ColumnNameAccessInfoMapConstIterator it =
 	  tableStaticInfo->columnAccessInfoMap.find(columnName);
 	if (it == tableStaticInfo->columnAccessInfoMap.end()) {
-		MLPL_DBG("Not found: column: %s from table: %s\n",
-		         columnName.c_str(), tableStaticInfo->tableName);
-		return COLUMN_NOT_FOUND;
+		THROW_SQL_PROCESSOR_EXCEPTION(
+		  "Not found: column: %s from table: %s\n",
+		  columnName.c_str(), tableStaticInfo->tableName);
 	}
 	const ColumnAccessInfo &accessInfo = it->second;
+	return accessInfo;
+}
+
+int SQLUtils::getColumnIndex(const string &columnName,
+                             const SQLTableStaticInfo *tableStaticInfo)
+{
+	const ColumnAccessInfo &accessInfo =
+	  getColumnAccessInfo(columnName, tableStaticInfo);
 	return accessInfo.index;
+}
+
+const ColumnBaseDefinition *
+SQLUtils::getColumnBaseDefinition(const string &columnName,
+                                  const SQLTableStaticInfo *tableStaticInfo)
+{
+	const ColumnAccessInfo &accessInfo =
+	  getColumnAccessInfo(columnName, tableStaticInfo);
+	return accessInfo.columnBaseDefinition;
 }
 
 ItemDataPtr SQLUtils::createDefaultItemData(const ColumnBaseDefinition *baseDef)
@@ -75,21 +94,6 @@ ItemDataPtr SQLUtils::createItemData(const ColumnBaseDefinition *baseDef,
 		  baseDef->type, baseDef->tableName, baseDef->columnName);
 	}
 	return (*m_itemDataCreators[baseDef->type])(baseDef, value.c_str());
-}
-
-const ColumnBaseDefinition *
-SQLUtils::getColumnBaseDefinition(const string &columnName,
-                                  const SQLTableStaticInfo *tableStaticInfo)
-{
-	ColumnNameAccessInfoMapConstIterator it =
-	  tableStaticInfo->columnAccessInfoMap.find(columnName);
-	if (it == tableStaticInfo->columnAccessInfoMap.end()) {
-		MLPL_DBG("Not found: column: %s from table: %s\n",
-		         columnName.c_str(), tableStaticInfo->tableName);
-		return NULL;
-	}
-	const ColumnAccessInfo &accessInfo = it->second;
-	return accessInfo.columnBaseDefinition;
 }
 
 ItemDataPtr SQLUtils::getItemDataFromItemGroupWithColumnName

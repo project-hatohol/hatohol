@@ -520,8 +520,6 @@ SQLProcessor::setColumnTypeAndBaseDefInColumnInfo(SQLSelectInfo &selectInfo)
 		columnInfo->columnBaseDef =
 		  SQLUtils::getColumnBaseDefinition(columnInfo->baseName,
 		                                    staticInfo);
-		if (!columnInfo->columnBaseDef)
-			return false;
 	}
 	return true;
 }

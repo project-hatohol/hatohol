@@ -358,10 +358,6 @@ bool SQLProcessorUpdate::updateMatchingCell
 	const ColumnBaseDefinition *colBaseDef = 
 	  SQLUtils::getColumnBaseDefinition(columnName,
 	                                    updateInfo.tableStaticInfo);
-	if (!colBaseDef) {
-		MLPL_DBG("result has no data.\n");
-		return false;
-	}
 	ItemDataPtr srcDataPtr = SQLUtils::createItemData(colBaseDef, value);
 	if (!srcDataPtr.hasData()) {
 		MLPL_DBG("result has no data.\n");
