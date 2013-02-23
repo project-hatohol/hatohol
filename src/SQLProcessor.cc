@@ -243,8 +243,7 @@ bool SQLProcessor::select(SQLSelectInfo &selectInfo)
 		if (!parseSelectStatement(selectInfo))
 			return false;
 		makeTableInfo(selectInfo);
-		if (!checkParsedResult(selectInfo))
-			return false;
+		checkParsedResult(selectInfo);
 
 		// set members in SQLFormulaColumnDataGetter
 		if (!fixupColumnNameMap(selectInfo))
@@ -267,8 +266,7 @@ bool SQLProcessor::select(SQLSelectInfo &selectInfo)
 			return false;
 
 		// join tables
-		if (!doJoin(selectInfo))
-			return false;
+		doJoin(selectInfo);
 
 		// pickup matching rows
 		if (!selectMatchingRows(selectInfo))
@@ -418,19 +416,13 @@ void SQLProcessor::makeTableInfo(SQLSelectInfo &selectInfo)
 	}
 }
 
-bool SQLProcessor::checkParsedResult(const SQLSelectInfo &selectInfo) const
+void SQLProcessor::checkParsedResult(const SQLSelectInfo &selectInfo) const
 {
-	if (selectInfo.columnNameMap.empty()) {
-		MLPL_DBG("Not found: columns.\n");
-		return false;
-	}
+	if (selectInfo.columnNameMap.empty())
+		THROW_SQL_PROCESSOR_EXCEPTION("Not found: columns.");
 
-	if (selectInfo.tables.empty()) {
-		MLPL_DBG("Not found: tables.\n");
-		return false;
-	}
-
-	return true;
+	if (selectInfo.tables.empty())
+		THROW_SQL_PROCESSOR_EXCEPTION("Not found: tables.");
 }
 
 bool SQLProcessor::fixupColumnNameMap(SQLSelectInfo &selectInfo)
@@ -691,7 +683,7 @@ bool SQLProcessor::makeItemTables(SQLSelectInfo &selectInfo)
 	return true;
 }
 
-bool SQLProcessor::doJoin(SQLSelectInfo &selectInfo)
+void SQLProcessor::doJoin(SQLSelectInfo &selectInfo)
 {
 	int count = 0;
 	ItemTablePtrListConstIterator it = selectInfo.itemTablePtrList.begin();
@@ -705,7 +697,6 @@ bool SQLProcessor::doJoin(SQLSelectInfo &selectInfo)
 		selectInfo.joinedTable = crossJoin(selectInfo.joinedTable,
 		                                   tablePtr);
 	}
-	return true;
 }
 
 bool SQLProcessor::selectMatchingRows(SQLSelectInfo &selectInfo)

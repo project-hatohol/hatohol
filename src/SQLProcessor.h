@@ -198,7 +198,7 @@ protected:
 
 	bool parseSelectStatement(SQLSelectInfo &selectInfo);
 	void makeTableInfo(SQLSelectInfo &selectInfo);
-	bool checkParsedResult(const SQLSelectInfo &selectInfo) const;
+	void checkParsedResult(const SQLSelectInfo &selectInfo) const;
 	bool fixupColumnNameMap(SQLSelectInfo &selectInfo);
 	bool associateColumnWithTable(SQLSelectInfo &selectInfo);
 	bool associateTableWithStaticInfo(SQLSelectInfo &selectInfo);
@@ -206,7 +206,7 @@ protected:
 	bool makeColumnDefs(SQLSelectInfo &selectInfo);
 	bool enumerateNeededItemIds(SQLSelectInfo &selectInfo);
 	bool makeItemTables(SQLSelectInfo &selectInfo);
-	bool doJoin(SQLSelectInfo &selectInfo);
+	void doJoin(SQLSelectInfo &selectInfo);
 	bool selectMatchingRows(SQLSelectInfo &selectInfo);
 	bool makeTextOutput(SQLSelectInfo &selectInfo);
 	bool checkSelectedAllColumns(const SQLSelectInfo &selectInfo,
