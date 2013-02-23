@@ -792,4 +792,34 @@ void test_crossJoin(void) {
 	assertJoin.run(assertJoinRunner);
 }
 
+void test_innerJoin(void) {
+	string statement =
+	  StringUtils::sprintf("select * from %s inner join %s on %s.%s=%s.%s",
+	                       TABLE0_NAME, TABLE1_NAME,
+	                       TABLE0_NAME, TABLE1_NAME,
+	                       COLUMN_NAME_NUMBER, COLUMN_NAME_AGE);
+	// check the result
+	IntIntPairVector joinedRowsIndexVector;
+	for (size_t i = 0; i <numTestData0; i++) {
+		TestData0 *tbl0 = &testData0[i];
+		for (size_t j = 0; j < numTestData1; j++) {
+			TestData1 *tbl1 = &testData1[j];
+			if (tbl0->number != tbl1->age)
+				continue;
+			joinedRowsIndexVector.push_back(IntIntPair(i,j));
+		}
+	}
+
+	const size_t expectedNumColumns = NUM_COLUMN0_DEFS + NUM_COLUMN1_DEFS;
+	const size_t expectedNumRows = joinedRowsIndexVector.size();
+	DEFINE_SELECTINFO_AND_ASSERT_SELECT(
+	  selectInfo, statement, expectedNumColumns, expectedNumRows);
+
+	AssertInnerJoin<TestData0, TestData1>
+	  assertJoin((ItemTable *)selectInfo.packedTable,
+	             testData0, testData1, numTestData0, numTestData1,
+	             joinedRowsIndexVector);
+	assertJoin.run(assertJoinRunner);
+}
+
 } // namespace testSQLProcessor
