@@ -102,5 +102,10 @@ struct SQLTableStaticInfo {
 typedef map<string, const SQLTableStaticInfo *> TableNameStaticInfoMap;
 typedef TableNameStaticInfoMap::iterator TableNameStaticInfoMapIterator;
 
+class SQLColumnIndexResoveler {
+public:
+	virtual int getIndex(const string &tableName,
+	                     const string &columnName) const = 0;
+};
 
 #endif // SQLProcessorTypes_h
