@@ -51,9 +51,7 @@ void SQLTableElement::setItemTable(ItemTablePtr itemTablePtr)
 
 ItemTablePtr SQLTableElement::join(void)
 {
-	THROW_ASURA_EXCEPTION(
-	  "SQLTableElement::join() must not be called. There should be a BUG.");
-	return ItemTablePtr(); // just to pass build
+	return m_itemTablePtr;
 }
 
 // ---------------------------------------------------------------------------
