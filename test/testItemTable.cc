@@ -82,6 +82,13 @@ static void assertJoinRunner(const ItemGroup *itemGroup,
 	assertItemData(string, itemGroup, refData1->nickname, idx);
 }
 
+struct InnerJoinedRowsCheckerNameName {
+	bool operator()(const TableStruct0 &row0,
+	                const TableStruct1 &row1) const {
+		return strcmp(row0.name, row1.name) == 0;
+	}
+};
+
 static void assertEmptyTable(ItemTable *table)
 {
 	cut_trace(cut_assert_not_null(table));
@@ -293,26 +300,14 @@ void test_innerJoin(void)
 	cut_assert_not_null(z_table);
 
 	// check the result
-	IntIntPairVector joinedRowsIndexVector;
-	for (size_t i = 0; i < NUM_TABLE0; i++) {
-		TableStruct0 *tbl0 = &tableContent0[i];
-		for (size_t j = 0; j < NUM_TABLE1; j++) {
-			TableStruct1 *tbl1 = &tableContent1[j];
-			if (strcmp(tbl0->name, tbl1->name) != 0)
-				continue;
-			joinedRowsIndexVector.push_back(IntIntPair(i,j));
-		}
-	}
-
 	size_t numColumns = x_table->getNumberOfColumns() +
 	                    y_table->getNumberOfColumns();
-	size_t numRows = joinedRowsIndexVector.size();
 	cppcut_assert_equal(numColumns, z_table->getNumberOfColumns());
-	cppcut_assert_equal(numRows, z_table->getNumberOfRows());
 
-	AssertInnerJoin<TableStruct0, TableStruct1>
+	AssertInnerJoin<TableStruct0, TableStruct1,
+	                InnerJoinedRowsCheckerNameName>
 	  assertJoin(z_table, tableContent0, tableContent1,
-	             NUM_TABLE0, NUM_TABLE1, joinedRowsIndexVector);
+	             NUM_TABLE0, NUM_TABLE1);
 	assertJoin.run(assertJoinRunner);
 }
 

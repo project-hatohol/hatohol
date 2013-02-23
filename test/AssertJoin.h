@@ -98,22 +98,39 @@ public:
 
 };
 
-template <typename RefDataType0, typename RefDataType1>
+template <typename RefDataType0, typename RefDataType1, class JoinedRowsChecker>
 class AssertInnerJoin : public AssertJoin<RefDataType0, RefDataType1>
 {
-	IntIntPairVector &m_joinedRowsIndexVector;
+	IntIntPairVector  m_joinedRowsIndexVector;
 	size_t            m_vectorIndex;
+
+	void fillInnerJoinedRowsIndexVector(void)
+	{
+		JoinedRowsChecker checker;
+		for (size_t i = 0; i <BASE::m_numRowsRefTable0; i++) {
+			RefDataType0 &row0 = BASE::m_refTable0[i];
+			for (size_t j = 0; j < BASE::m_numRowsRefTable1; j++) {
+				RefDataType1 &row1 = BASE::m_refTable1[j];
+				if (!checker(row0, row1))
+					continue;
+				IntIntPair pair = IntIntPair(i,j);
+				m_joinedRowsIndexVector.push_back(pair);
+			}
+		}
+	}
+
 public:
 	AssertInnerJoin(ItemTable *itemTable,
 	                RefDataType0 *refTable0, RefDataType1 *refTable1,
-	                size_t numRowsRefTable0, size_t numRowsRefTable1,
-	                IntIntPairVector &joinedRowsIndexVector)
+	                size_t numRowsRefTable0, size_t numRowsRefTable1)
 	: AssertJoin<RefDataType0, RefDataType1>
 	    (itemTable, refTable0, refTable1,
 	     numRowsRefTable0, numRowsRefTable1),
-	  m_joinedRowsIndexVector(joinedRowsIndexVector),
 	  m_vectorIndex(0)
 	{
+		fillInnerJoinedRowsIndexVector();
+		cppcut_assert_equal(m_joinedRowsIndexVector.size(),
+		                    itemTable->getNumberOfRows());
 	}
 
 	virtual void assertPreForeach(void)

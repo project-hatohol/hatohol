@@ -297,6 +297,7 @@ static const int countDistinctDataInTestData0(void)
 	return countSet.size();
 }
 
+static const size_t NO_CHECK = (size_t)-1;
 static const size_t EXPECTED_NUM_ROWS_EQUAL_SELECTED = (size_t)-1;
 
 static void _assertSQLSelectInfoBasic
@@ -316,6 +317,8 @@ static void _assertSQLSelectInfoBasic
 	}
 
 	// Selected Rows
+	if (expectedNumSelectedRows == NO_CHECK)
+		return;
 	cppcut_assert_equal(expectedNumSelectedRows,
 	                    selectInfo.selectedTable->getNumberOfRows());
 
@@ -331,7 +334,7 @@ cut_trace(_assertSQLSelectInfoBasic(SI, ENC, ENS, ##__VA_ARGS__))
 
 static void _asssertExecSelect
   (SQLSelectInfo &selectInfo,
-   size_t expectedNumColumns, size_t expectedNumSelectedRows,
+   size_t expectedNumColumns, size_t expectedNumSelectedRows = NO_CHECK,
    size_t expectedNumRows = EXPECTED_NUM_ROWS_EQUAL_SELECTED,
    bool expectedResult = true)
 {
@@ -341,13 +344,13 @@ static void _asssertExecSelect
 	                         expectedNumColumns, expectedNumSelectedRows,
 	                         expectedNumRows);
 }
-#define asssertExecSelect(S, ENC, ENS, ...) \
-cut_trace(_asssertExecSelect(S, ENC, ENS, ##__VA_ARGS__))
+#define asssertExecSelect(S, ENC, ...) \
+cut_trace(_asssertExecSelect(S, ENC, ##__VA_ARGS__))
 
-#define DEFINE_SELECTINFO_AND_ASSERT_SELECT(SEL_VAR, STATEMENT, ENC, ENS, ...) \
+#define DEFINE_SELECTINFO_AND_ASSERT_SELECT(SEL_VAR, STATEMENT, ENC, ...) \
 ParsableString _parsable(STATEMENT); \
 SQLSelectInfo SEL_VAR(_parsable); \
-asssertExecSelect(SEL_VAR, ENC, ENS, ##__VA_ARGS__);
+asssertExecSelect(SEL_VAR, ENC, ##__VA_ARGS__);
 
 typedef string (*TestDataGetter)(int row, int column);
 
@@ -401,6 +404,12 @@ void _assertSelectAll(string tableName, TestDataGetter testDataGetter,
 }
 #define assertSelectAll(S, G, C, R, ...) \
 cut_trace(_assertSelectAll(S, G, C, R, ##__VA_ARGS__))
+
+struct InnerJoinedRowsCheckerNumberAge {
+	bool operator()(const TestData0 &row0, const TestData1 &row1) const {
+		return row0.number == row1.age;
+	}
+};
 
 static void assertJoinRunner(const ItemGroup *itemGroup,
                              TestData0 *refData0, TestData1 *refData1,
@@ -799,26 +808,13 @@ void test_innerJoin(void) {
 	                       TABLE0_NAME, TABLE1_NAME,
 	                       COLUMN_NAME_NUMBER, COLUMN_NAME_AGE);
 	// check the result
-	IntIntPairVector joinedRowsIndexVector;
-	for (size_t i = 0; i <numTestData0; i++) {
-		TestData0 *tbl0 = &testData0[i];
-		for (size_t j = 0; j < numTestData1; j++) {
-			TestData1 *tbl1 = &testData1[j];
-			if (tbl0->number != tbl1->age)
-				continue;
-			joinedRowsIndexVector.push_back(IntIntPair(i,j));
-		}
-	}
-
 	const size_t expectedNumColumns = NUM_COLUMN0_DEFS + NUM_COLUMN1_DEFS;
-	const size_t expectedNumRows = joinedRowsIndexVector.size();
 	DEFINE_SELECTINFO_AND_ASSERT_SELECT(
-	  selectInfo, statement, expectedNumColumns, expectedNumRows);
+	  selectInfo, statement, expectedNumColumns);
 
-	AssertInnerJoin<TestData0, TestData1>
+	AssertInnerJoin<TestData0, TestData1, InnerJoinedRowsCheckerNumberAge>
 	  assertJoin((ItemTable *)selectInfo.packedTable,
-	             testData0, testData1, numTestData0, numTestData1,
-	             joinedRowsIndexVector);
+	             testData0, testData1, numTestData0, numTestData1);
 	assertJoin.run(assertJoinRunner);
 }
 
