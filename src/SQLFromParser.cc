@@ -271,7 +271,7 @@ void SQLFromParser::makeTableElement(const string &tableName,
                                      const string &varName)
 {
 	SQLTableElement *tableElem = new SQLTableElement(tableName, varName);
-	m_ctx->tableElementList.push_back(tableElem);;
+	m_ctx->tableElementList.push_back(tableElem);
 	if (m_ctx->onParsingInnerJoin) {
 		m_ctx->rightTableOfInnerJoin = tableElem;
 		m_ctx->state = PARSING_STAT_EXPECT_ON;
