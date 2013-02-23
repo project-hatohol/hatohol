@@ -795,6 +795,13 @@ void test_crossJoin(void) {
 	DEFINE_SELECTINFO_AND_ASSERT_SELECT(
 	  selectInfo, statement, expectedNumColumns, expectedNumRows);
 
+	// joinedTable and selectedTable dereferences the same ItemTable
+	// because no where section (This depends on current implementation).
+	// So the number of the referece count should be 2.
+	const int expectedRefCount = 2;
+	cppcut_assert_equal(expectedRefCount,
+	                    selectInfo.joinedTable->getUsedCount());
+
 	AssertCrossJoin<TestData0, TestData1>
 	  assertJoin((ItemTable *)selectInfo.selectedTable,
 	             testData0, testData1, numTestData0, numTestData1);
@@ -811,6 +818,13 @@ void test_innerJoin(void) {
 	const size_t expectedNumColumns = NUM_COLUMN0_DEFS + NUM_COLUMN1_DEFS;
 	DEFINE_SELECTINFO_AND_ASSERT_SELECT(
 	  selectInfo, statement, expectedNumColumns);
+
+	// joinedTable and selectedTable dereferences the same ItemTable
+	// because no where section (This depends on current implementation).
+	// So the number of the referece count should be 2.
+	const int expectedRefCount = 2;
+	cppcut_assert_equal(expectedRefCount,
+	                    selectInfo.joinedTable->getUsedCount());
 
 	AssertInnerJoin<TestData0, TestData1, InnerJoinedRowsCheckerNumberAge>
 	  assertJoin((ItemTable *)selectInfo.selectedTable,
