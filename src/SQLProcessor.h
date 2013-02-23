@@ -155,7 +155,6 @@ struct SQLSelectInfo : public SQLProcessorInfo {
 	// unified table
 	ItemTablePtr joinedTable;
 	ItemTablePtr selectedTable;
-	ItemTablePtr packedTable;
 
 	// output
 	vector<StringVector> textRows;
