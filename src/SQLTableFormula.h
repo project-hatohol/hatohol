@@ -36,7 +36,7 @@ class SQLTableFormula
 {
 public:
 	virtual ~SQLTableFormula();
-	virtual ItemTablePtr join(void) = 0;
+	virtual ItemTablePtr getTable(void) = 0;
 };
 
 // ---------------------------------------------------------------------------
@@ -50,7 +50,7 @@ public:
 	const string &getName(void) const;
 	const string &getVarName(void) const;
 	void setItemTable(ItemTablePtr itemTablePtr);
-	virtual ItemTablePtr join(void);
+	virtual ItemTablePtr getTable(void);
 
 private:
 	string m_name;
@@ -87,7 +87,7 @@ class SQLTableCrossJoin : public SQLTableJoin
 {
 public:
 	SQLTableCrossJoin(void);
-	virtual ItemTablePtr join(void);
+	virtual ItemTablePtr getTable(void);
 
 private:
 };
@@ -103,7 +103,7 @@ public:
 	                  const string &leftColumnName,
 	                  const string &rightTableName,
 	                  const string &rightColumnName);
-	virtual ItemTablePtr join(void);
+	virtual ItemTablePtr getTable(void);
 
 	const string &getLeftTableName(void) const;
 	const string &getLeftColumnName(void) const;

@@ -695,7 +695,7 @@ bool SQLProcessor::makeItemTables(SQLSelectInfo &selectInfo)
 void SQLProcessor::doJoin(SQLSelectInfo &selectInfo)
 {
 	selectInfo.joinedTable =
-	  selectInfo.fromParser.getTableFormula()->join();
+	  selectInfo.fromParser.getTableFormula()->getTable();
 }
 
 bool SQLProcessor::selectMatchingRows(SQLSelectInfo &selectInfo)

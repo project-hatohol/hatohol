@@ -50,7 +50,7 @@ void SQLTableElement::setItemTable(ItemTablePtr itemTablePtr)
 	m_itemTablePtr = itemTablePtr;
 }
 
-ItemTablePtr SQLTableElement::join(void)
+ItemTablePtr SQLTableElement::getTable(void)
 {
 	return m_itemTablePtr;
 }
@@ -93,7 +93,7 @@ SQLTableCrossJoin::SQLTableCrossJoin(void)
 {
 }
 
-ItemTablePtr SQLTableCrossJoin::join(void)
+ItemTablePtr SQLTableCrossJoin::getTable(void)
 {
 	SQLTableFormula *leftFormula = getLeftFormula();
 	SQLTableFormula *rightFormula = getRightFormula();
@@ -102,7 +102,7 @@ ItemTablePtr SQLTableCrossJoin::join(void)
 		  "leftFormula (%p) or rightFormula (%p) is NULL.\n",
 		  leftFormula, rightFormula);
 	}
-	return leftFormula->join()->crossJoin(rightFormula->join());
+	return leftFormula->getTable()->crossJoin(rightFormula->getTable());
 }
 
 // ---------------------------------------------------------------------------
@@ -119,7 +119,7 @@ SQLTableInnerJoin::SQLTableInnerJoin
 {
 }
 
-ItemTablePtr SQLTableInnerJoin::join(void)
+ItemTablePtr SQLTableInnerJoin::getTable(void)
 {
 	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
 	return ItemTablePtr();
