@@ -16,6 +16,7 @@
 */
 
 #include "SQLTableFormula.h"
+#include "SQLProcessorException.h"
 #include "AsuraException.h"
 
 // ---------------------------------------------------------------------------
@@ -94,8 +95,14 @@ SQLTableCrossJoin::SQLTableCrossJoin(void)
 
 ItemTablePtr SQLTableCrossJoin::join(void)
 {
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
-	return ItemTablePtr();
+	SQLTableFormula *leftFormula = getLeftFormula();
+	SQLTableFormula *rightFormula = getRightFormula();
+	if (!leftFormula || !rightFormula) {
+		THROW_SQL_PROCESSOR_EXCEPTION(
+		  "leftFormula (%p) or rightFormula (%p) is NULL.\n",
+		  leftFormula, rightFormula);
+	}
+	return leftFormula->join()->crossJoin(rightFormula->join());
 }
 
 // ---------------------------------------------------------------------------
