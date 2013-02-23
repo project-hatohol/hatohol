@@ -796,7 +796,7 @@ void test_crossJoin(void) {
 	  selectInfo, statement, expectedNumColumns, expectedNumRows);
 
 	AssertCrossJoin<TestData0, TestData1>
-	  assertJoin((ItemTable *)selectInfo.packedTable,
+	  assertJoin((ItemTable *)selectInfo.selectedTable,
 	             testData0, testData1, numTestData0, numTestData1);
 	assertJoin.run(assertJoinRunner);
 }
@@ -813,7 +813,7 @@ void test_innerJoin(void) {
 	  selectInfo, statement, expectedNumColumns);
 
 	AssertInnerJoin<TestData0, TestData1, InnerJoinedRowsCheckerNumberAge>
-	  assertJoin((ItemTable *)selectInfo.packedTable,
+	  assertJoin((ItemTable *)selectInfo.selectedTable,
 	             testData0, testData1, numTestData0, numTestData1);
 	assertJoin.run(assertJoinRunner);
 }
