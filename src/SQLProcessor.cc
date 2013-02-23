@@ -666,8 +666,17 @@ bool SQLProcessor::makeColumnDefs(SQLSelectInfo &selectInfo)
 
 bool SQLProcessor::makeItemTables(SQLSelectInfo &selectInfo)
 {
+	SQLTableElementList &tableElemList =
+	  selectInfo.fromParser.getTableElementList();
+	if (tableElemList.size() != selectInfo.tables.size()) {
+		THROW_ASURA_EXCEPTION(
+		  "tableElemList.size() != selectInfo.tables.size() (%zd, %zd)",
+		  tableElemList.size(), selectInfo.tables.size());
+	}
+	SQLTableElementListIterator tblElemIt = tableElemList.begin();
+
 	SQLTableInfoListIterator tblInfoIt = selectInfo.tables.begin();
-	for (; tblInfoIt != selectInfo.tables.end(); ++tblInfoIt) {
+	for (; tblInfoIt != selectInfo.tables.end(); ++tblInfoIt, ++tblElemIt) {
 		const SQLTableInfo *tableInfo = *tblInfoIt;
 		SQLTableMakeFunc func = tableInfo->staticInfo->tableMakeFunc;
 		ItemTablePtr tablePtr = (this->*func)(selectInfo, *tableInfo);
@@ -678,25 +687,15 @@ bool SQLProcessor::makeItemTables(SQLSelectInfo &selectInfo)
 			         (*tblInfoIt)->varName.c_str());
 			return false;
 		}
-		selectInfo.itemTablePtrList.push_back(tablePtr);
+		(*tblElemIt)->setItemTable(tablePtr);
 	}
 	return true;
 }
 
 void SQLProcessor::doJoin(SQLSelectInfo &selectInfo)
 {
-	int count = 0;
-	ItemTablePtrListConstIterator it = selectInfo.itemTablePtrList.begin();
-	for (; it != selectInfo.itemTablePtrList.end(); ++it, count++) {
-		if (count == 0) {
-			selectInfo.joinedTable =
-			  *selectInfo.itemTablePtrList.begin();
-			continue;
-		}
-		const ItemTablePtr &tablePtr = *it;
-		selectInfo.joinedTable = crossJoin(selectInfo.joinedTable,
-		                                   tablePtr);
-	}
+	selectInfo.joinedTable =
+	  selectInfo.fromParser.getTableFormula()->join();
 }
 
 bool SQLProcessor::selectMatchingRows(SQLSelectInfo &selectInfo)

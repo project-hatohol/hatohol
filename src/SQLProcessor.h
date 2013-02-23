@@ -152,9 +152,6 @@ struct SQLSelectInfo : public SQLProcessorInfo {
 	// definition of output Columns
 	vector<SQLOutputColumn>     outputColumnVector;
 
-	// list of obtained tables
-	ItemTablePtrList itemTablePtrList;
-
 	// unified table
 	ItemTablePtr joinedTable;
 	ItemTablePtr selectedTable;
