@@ -113,7 +113,7 @@ SQLTableFormula *SQLFromParser::getTableFormula(void) const
 	return m_ctx->tableFormula;
 }
 
-const SQLTableElementList &SQLFromParser::getTableElementList(void) const
+SQLTableElementList &SQLFromParser::getTableElementList(void) const
 {
 	return m_ctx->tableElementList;
 }
