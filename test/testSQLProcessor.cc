@@ -786,7 +786,7 @@ void test_crossJoin(void) {
 	DEFINE_SELECTINFO_AND_ASSERT_SELECT(
 	  selectInfo, statement, expectedNumColumns, expectedNumRows);
 
-	AssertJoin<TestData0, TestData1>
+	AssertCrossJoin<TestData0, TestData1>
 	  assertJoin((ItemTable *)selectInfo.packedTable,
 	             testData0, testData1, numTestData0, numTestData1);
 	assertJoin.run(assertJoinRunner);

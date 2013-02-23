@@ -55,11 +55,6 @@ public:
 
 	virtual void assertPostForeach(void)
 	{
-		m_refTable1Index++;
-		if (m_refTable1Index == m_numRowsRefTable1) {
-			m_refTable1Index = 0;
-			m_refTable0Index++;
-		}
 	}
 
 	virtual bool assertForeach(const ItemGroup *itemGroup)
@@ -72,6 +67,32 @@ public:
 		assertPostForeach();
 		return true;
 	}
+};
+
+#define BASE AssertJoin<RefDataType0, RefDataType1>
+
+template <typename RefDataType0, typename RefDataType1>
+class AssertCrossJoin : public AssertJoin<RefDataType0, RefDataType1>
+{
+public:
+	AssertCrossJoin(ItemTable *itemTable,
+	                RefDataType0 *refTable0, RefDataType1 *refTable1,
+	                size_t numRowsRefTable0, size_t numRowsRefTable1)
+	: AssertJoin<RefDataType0, RefDataType1>
+	    (itemTable, refTable0, refTable1,
+	     numRowsRefTable0, numRowsRefTable1)
+	{
+	}
+
+	virtual void assertPostForeach(void)
+	{
+		AssertJoin<RefDataType0, RefDataType1>::m_refTable1Index++;
+		if (BASE::m_refTable1Index == BASE::m_numRowsRefTable1) {
+			BASE::m_refTable1Index = 0;
+			BASE::m_refTable0Index++;
+		}
+	}
+
 };
 
 template <typename RefDataType0, typename RefDataType1>
@@ -96,14 +117,10 @@ public:
 	{
 		IntIntPair &idxVector =
 		  m_joinedRowsIndexVector[m_vectorIndex++];
-		AssertJoin<RefDataType0, RefDataType1>::m_refTable0Index =
-		  idxVector.first;
-		AssertJoin<RefDataType0, RefDataType1>::m_refTable1Index =
-		  idxVector.second;
-	}
-
-	virtual void assertPostForeach(void)
-	{
+		BASE::m_refTable0Index = idxVector.first;
+		BASE::m_refTable1Index = idxVector.second;
 	}
 };
+
+#undef BASE
 

@@ -246,7 +246,7 @@ void test_crossJoin(void)
 	cppcut_assert_equal(numColumns, z_table->getNumberOfColumns());
 	cppcut_assert_equal(numRows, z_table->getNumberOfRows());
 
-	AssertJoin<TableStruct0, TableStruct1>
+	AssertCrossJoin<TableStruct0, TableStruct1>
 	  assertJoin(z_table, tableContent0, tableContent1,
 	             NUM_TABLE0, NUM_TABLE1);
 	assertJoin.run(assertJoinRunner);
