@@ -805,7 +805,7 @@ void test_crossJoin(void) {
 	assertJoin.run(assertJoinRunner);
 }
 
-void tAest_innerJoin(void) {
+void test_innerJoin(void) {
 	string statement =
 	  StringUtils::sprintf("select * from %s inner join %s on %s.%s=%s.%s",
 	                       TABLE0_NAME, TABLE1_NAME,
