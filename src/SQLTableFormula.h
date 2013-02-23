@@ -27,6 +27,7 @@ using namespace std;
 using namespace mlpl;
 
 #include "SQLProcessorTypes.h"
+#include "ItemTablePtr.h"
 
 // ---------------------------------------------------------------------------
 // SQLTableFormula
@@ -35,6 +36,7 @@ class SQLTableFormula
 {
 public:
 	virtual ~SQLTableFormula();
+	virtual ItemTablePtr join(void) = 0;
 };
 
 // ---------------------------------------------------------------------------
@@ -47,13 +49,17 @@ public:
 	                const string &varName = StringUtils::EMPTY_STRING);
 	const string &getName(void) const;
 	const string &getVarName(void) const;
+	void setItemTable(ItemTablePtr itemTablePtr);
+	virtual ItemTablePtr join(void);
 
 private:
 	string m_name;
 	string m_varName;
+	ItemTablePtr m_itemTablePtr;
 };
 
 typedef list<SQLTableElement *>             SQLTableElementList;
+typedef SQLTableElementList::iterator       SQLTableElementListIterator;
 typedef SQLTableElementList::const_iterator SQLTableElementListConstIterator;
 
 // ---------------------------------------------------------------------------
@@ -81,6 +87,7 @@ class SQLTableCrossJoin : public SQLTableJoin
 {
 public:
 	SQLTableCrossJoin(void);
+	virtual ItemTablePtr join(void);
 
 private:
 };
@@ -96,6 +103,7 @@ public:
 	                  const string &leftColumnName,
 	                  const string &rightTableName,
 	                  const string &rightColumnName);
+	virtual ItemTablePtr join(void);
 
 	const string &getLeftTableName(void) const;
 	const string &getLeftColumnName(void) const;

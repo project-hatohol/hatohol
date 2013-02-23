@@ -16,6 +16,7 @@
 */
 
 #include "SQLTableFormula.h"
+#include "AsuraException.h"
 
 // ---------------------------------------------------------------------------
 // SQLTableFormula
@@ -41,6 +42,18 @@ const string &SQLTableElement::getName(void) const
 const string &SQLTableElement::getVarName(void) const
 {
 	return m_varName;
+}
+
+void SQLTableElement::setItemTable(ItemTablePtr itemTablePtr)
+{
+	m_itemTablePtr = itemTablePtr;
+}
+
+ItemTablePtr SQLTableElement::join(void)
+{
+	THROW_ASURA_EXCEPTION(
+	  "SQLTableElement::join() must not be called. There should be a BUG.");
+	return ItemTablePtr(); // just to pass build
 }
 
 // ---------------------------------------------------------------------------
@@ -81,6 +94,12 @@ SQLTableCrossJoin::SQLTableCrossJoin(void)
 {
 }
 
+ItemTablePtr SQLTableCrossJoin::join(void)
+{
+	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	return ItemTablePtr();
+}
+
 // ---------------------------------------------------------------------------
 // SQLTableInnerJoin
 // ---------------------------------------------------------------------------
@@ -93,6 +112,12 @@ SQLTableInnerJoin::SQLTableInnerJoin
   m_rightTableName(rightTableName),
   m_rightColumnName(rightColumnName)
 {
+}
+
+ItemTablePtr SQLTableInnerJoin::join(void)
+{
+	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	return ItemTablePtr();
 }
 
 const string &SQLTableInnerJoin::getLeftTableName(void) const
