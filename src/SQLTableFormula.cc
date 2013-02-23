@@ -102,7 +102,7 @@ ItemTablePtr SQLTableCrossJoin::getTable(void)
 		  "leftFormula (%p) or rightFormula (%p) is NULL.\n",
 		  leftFormula, rightFormula);
 	}
-	return leftFormula->getTable()->crossJoin(rightFormula->getTable());
+	return crossJoin(leftFormula->getTable(), rightFormula->getTable());
 }
 
 // ---------------------------------------------------------------------------
