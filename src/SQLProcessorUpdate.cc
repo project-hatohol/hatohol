@@ -355,7 +355,7 @@ bool SQLProcessorUpdate::updateMatchingCell
 		return false;
 	}
 
-	ColumnBaseDefinition *colBaseDef = 
+	const ColumnBaseDefinition *colBaseDef = 
 	  SQLUtils::getColumnBaseDefinition(columnName,
 	                                    updateInfo.tableStaticInfo);
 	if (!colBaseDef) {

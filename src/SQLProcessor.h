@@ -257,15 +257,10 @@ protected:
 	                    ParsingPosition *position = NULL);
 	static bool parseColumnName(const string &name,
 	                            string &baseName, string &tableVar);
-	static ColumnBaseDefinition *
-	  getColumnBaseDefinitionFromColumnName(const SQLTableInfo *tableInfo,
-                                                string &baseName);
 	static const SQLTableInfo *
 	  getTableInfoFromVarName(SQLSelectInfo &selectInfo, string &tableVar);
 	static FormulaVariableDataGetter *
 	  formulaColumnDataGetterFactory(string &name, void *priv);
-	static bool getColumnItemId(SQLSelectInfo &selectInfo,
-	                            string &name, ItemId &itemId);
 
 private:
 	static const SelectSubParser m_selectSubParsers[];

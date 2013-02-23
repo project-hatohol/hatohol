@@ -220,15 +220,12 @@ private:
 		  const_cast<ColumnBaseDefList &>
 		  (staticInfo->columnBaseDefList);
 
-		ItemNameColumnBaseDefRefMap &map =
-		  const_cast<ItemNameColumnBaseDefRefMap &>
-		  (staticInfo->columnBaseDefMap);
-
+		ColumnNameAccessInfoMap &map = staticInfo->columnAccessInfoMap;
 		for (int i = 0; i < tableData.numColumnDefs; i++) {
-			ColumnBaseDefinition *columnDefs = 
-			  tableData.columnDefs;
+			ColumnBaseDefinition *columnDefs = tableData.columnDefs;
 			list.push_back(columnDefs[i]);
-			map[columnDefs[i].columnName] = &columnDefs[i];
+			ColumnAccessInfo accessInfo = {i, &columnDefs[i]};
+			map[columnDefs[i].columnName] = accessInfo;
 		}
 	}
 
@@ -808,7 +805,7 @@ void test_crossJoin(void) {
 	assertJoin.run(assertJoinRunner);
 }
 
-void test_innerJoin(void) {
+void tAest_innerJoin(void) {
 	string statement =
 	  StringUtils::sprintf("select * from %s inner join %s on %s.%s=%s.%s",
 	                       TABLE0_NAME, TABLE1_NAME,

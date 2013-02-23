@@ -44,6 +44,20 @@ void SQLUtils::init(void)
 	}
 }
 
+int SQLUtils::getColumnIndex(const string &columnName,
+                             const SQLTableStaticInfo *tableStaticInfo)
+{
+	ColumnNameAccessInfoMapConstIterator it =
+	  tableStaticInfo->columnAccessInfoMap.find(columnName);
+	if (it == tableStaticInfo->columnAccessInfoMap.end()) {
+		MLPL_DBG("Not found: column: %s from table: %s\n",
+		         columnName.c_str(), tableStaticInfo->tableName);
+		return COLUMN_NOT_FOUND;
+	}
+	const ColumnAccessInfo &accessInfo = it->second;
+	return accessInfo.index;
+}
+
 ItemDataPtr SQLUtils::createDefaultItemData(const ColumnBaseDefinition *baseDef)
 {
 	string msg;
@@ -63,25 +77,26 @@ ItemDataPtr SQLUtils::createItemData(const ColumnBaseDefinition *baseDef,
 	return (*m_itemDataCreators[baseDef->type])(baseDef, value.c_str());
 }
 
-ColumnBaseDefinition *
-SQLUtils::getColumnBaseDefinition(string &columnName,
+const ColumnBaseDefinition *
+SQLUtils::getColumnBaseDefinition(const string &columnName,
                                   const SQLTableStaticInfo *tableStaticInfo)
 {
-	ItemNameColumnBaseDefRefMapConstIterator it =
-	  tableStaticInfo->columnBaseDefMap.find(columnName);
-	if (it == tableStaticInfo->columnBaseDefMap.end()) {
+	ColumnNameAccessInfoMapConstIterator it =
+	  tableStaticInfo->columnAccessInfoMap.find(columnName);
+	if (it == tableStaticInfo->columnAccessInfoMap.end()) {
 		MLPL_DBG("Not found: column: %s from table: %s\n",
 		         columnName.c_str(), tableStaticInfo->tableName);
 		return NULL;
 	}
-	return it->second;
+	const ColumnAccessInfo &accessInfo = it->second;
+	return accessInfo.columnBaseDefinition;
 }
 
 ItemDataPtr SQLUtils::getItemDataFromItemGroupWithColumnName
   (string &columnName, const SQLTableStaticInfo *tableStaticInfo,
    ItemGroup *itemGroup)
 {
-	ColumnBaseDefinition *colBaseDef =
+	const ColumnBaseDefinition *colBaseDef =
 	  getColumnBaseDefinition(columnName, tableStaticInfo);
 	if (!colBaseDef)
 		return ItemDataPtr();

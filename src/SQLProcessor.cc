@@ -27,6 +27,7 @@ using namespace std;
 #include "SQLProcessor.h"
 #include "SQLProcessorException.h"
 #include "ItemEnum.h"
+#include "SQLUtils.h"
 #include "Utils.h"
 
 const SQLProcessor::SelectSubParser SQLProcessor::m_selectSubParsers[] = {
@@ -517,8 +518,8 @@ SQLProcessor::setColumnTypeAndBaseDefInColumnInfo(SQLSelectInfo &selectInfo)
 		}
 
 		columnInfo->columnBaseDef =
-		  getColumnBaseDefinitionFromColumnName(columnInfo->tableInfo,
-		                                        columnInfo->baseName);
+		  SQLUtils::getColumnBaseDefinition(columnInfo->baseName,
+		                                    staticInfo);
 		if (!columnInfo->columnBaseDef)
 			return false;
 	}
@@ -909,26 +910,6 @@ bool SQLProcessor::parseColumnName(const string &name,
 	return true;
 }
 
-ColumnBaseDefinition *
-SQLProcessor::getColumnBaseDefinitionFromColumnName
-  (const SQLTableInfo *tableInfo, string &baseName)
-{
-	const SQLTableStaticInfo *staticInfo = tableInfo->staticInfo;
-	if (!staticInfo) {
-		string msg;
-		TRMSG(msg, "staticInfo is NULL\n");
-		throw logic_error(msg);
-	}
-
-	ItemNameColumnBaseDefRefMapConstIterator it;
-	it = staticInfo->columnBaseDefMap.find(baseName);
-	if (it == staticInfo->columnBaseDefMap.end()) {
-		MLPL_DBG("Not found column: %s\n", baseName.c_str());
-		return NULL;
-	}
-	return it->second;
-}
-
 const SQLTableInfo *
 SQLProcessor::getTableInfoFromVarName(SQLSelectInfo &selectInfo,
                                       string &tableVar)
@@ -947,33 +928,4 @@ SQLProcessor::formulaColumnDataGetterFactory(string &name, void *priv)
 {
 	SQLSelectInfo *selectInfo = static_cast<SQLSelectInfo *>(priv);
 	return new SQLFormulaColumnDataGetter(name, selectInfo);
-}
-
-bool SQLProcessor::getColumnItemId(SQLSelectInfo &selectInfo,
-                                   string &columnName, ItemId &itemId)
-{
-	string baseName;
-	string tableVar;
-	if (!parseColumnName(columnName, baseName, tableVar))
-		return false;
-
-	// find TableInfo in which the column should be contained
-	const SQLTableInfo *tableInfo;
-	if (selectInfo.tables.size() == 1)
-			tableInfo = *selectInfo.tables.begin();
-	else
-		tableInfo = getTableInfoFromVarName(selectInfo, tableVar);
-
-	if (!tableInfo) {
-		MLPL_DBG("Failed to find TableInfo: %s\n",
-		         columnName.c_str());
-		return false;
-	}
-
-	ColumnBaseDefinition *columnBaseDef = 
-	  getColumnBaseDefinitionFromColumnName(tableInfo, baseName);
-	if (!columnBaseDef)
-		return false;
-	itemId = columnBaseDef->itemId;
-	return true;
 }

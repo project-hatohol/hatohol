@@ -193,17 +193,11 @@ void SQLProcessorInsert::checkTableAndColumns(SQLInsertInfo &insertInfo)
 
 void SQLProcessorInsert::makeColumnDefValueMap(SQLInsertInfo &insertInfo)
 {
-	ItemNameColumnBaseDefRefMapConstIterator it;
 	const SQLTableStaticInfo *tableStaticInfo = m_ctx->tableStaticInfo;
 	for (size_t i = 0; i < insertInfo.columnVector.size(); i++) {
 		string &name = insertInfo.columnVector[i];
-		it = tableStaticInfo->columnBaseDefMap.find(name);
-		if (it == tableStaticInfo->columnBaseDefMap.end()) {
-			THROW_SQL_PROCESSOR_EXCEPTION(
-			  "The column '%s' was not found in table: '%s'",
-			  name.c_str(), tableStaticInfo->tableName);
-		}
-		ColumnBaseDefinition *colBaseDef = it->second;
+		const ColumnBaseDefinition *colBaseDef =
+		  SQLUtils::getColumnBaseDefinition(name, tableStaticInfo);
 		pair<ItemIdValueMapIterator, bool> ret = 
 		  m_ctx->itemIdValueMap.insert(
 		    pair<ItemId, string *>

@@ -70,11 +70,15 @@ typedef list<ColumnBaseDefinition>        ColumnBaseDefList;
 typedef ColumnBaseDefList::iterator       ColumnBaseDefListIterator;
 typedef ColumnBaseDefList::const_iterator ColumnBaseDefListConstIterator;
 
-typedef map<string, ColumnBaseDefinition *>    ItemNameColumnBaseDefRefMap;
-typedef ItemNameColumnBaseDefRefMap::iterator
-  ItemNameColumnBaseDefRefMapIterator;
-typedef ItemNameColumnBaseDefRefMap::const_iterator
-  ItemNameColumnBaseDefRefMapConstIterator;
+struct ColumnAccessInfo {
+	int                   index;
+	ColumnBaseDefinition *columnBaseDefinition;
+};
+typedef map<string, ColumnAccessInfo>    ColumnNameAccessInfoMap;
+typedef ColumnNameAccessInfoMap::iterator
+  ColumnNameAccessInfoMapIterator;
+typedef ColumnNameAccessInfoMap::const_iterator
+  ColumnNameAccessInfoMapConstIterator;
 
 struct SQLSelectInfo;
 struct SQLTableInfo;
@@ -96,7 +100,7 @@ struct SQLTableStaticInfo {
 	// The value (ColumnBaseDefinition *) points an instance in
 	// 'columnBaseDefList' in this struct.
 	// So we must not explicitly free it.
-	const ItemNameColumnBaseDefRefMap columnBaseDefMap;
+	ColumnNameAccessInfoMap    columnAccessInfoMap;
 };
 
 typedef map<string, const SQLTableStaticInfo *> TableNameStaticInfoMap;

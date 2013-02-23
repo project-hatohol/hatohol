@@ -23,7 +23,12 @@
 
 class SQLUtils {
 public:
+	static const int COLUMN_NOT_FOUND = -1;
+
 	static void init(void);
+
+	static int getColumnIndex(const string &columnName,
+	                          const SQLTableStaticInfo *staticInfo);
 	static ItemDataPtr
 	  createDefaultItemData(const ColumnBaseDefinition *columnBaseDef);
 
@@ -49,8 +54,8 @@ public:
 	 * @return A pointer of ColumnBaseDefinition is returned on success.
 	 *         When an error, NULL is returned.
 	 */
-	static ColumnBaseDefinition *
-	  getColumnBaseDefinition(string &columnName,
+	static const ColumnBaseDefinition *
+	  getColumnBaseDefinition(const string &columnName,
 	                          const SQLTableStaticInfo *tableStaticInfo);
 
 	/**

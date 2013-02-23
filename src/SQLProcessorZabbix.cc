@@ -461,6 +461,7 @@ void SQLProcessorZabbix::defineColumn(SQLTableStaticInfo *staticInfo,
 {
 	ColumnBaseDefList &list =
 	  const_cast<ColumnBaseDefList &>(staticInfo->columnBaseDefList);
+	int index = list.size();
 	list.push_back(ColumnBaseDefinition());
 	ColumnBaseDefinition &colBaseDef = list.back();
 	colBaseDef.itemId       = itemId;
@@ -469,8 +470,7 @@ void SQLProcessorZabbix::defineColumn(SQLTableStaticInfo *staticInfo,
 	colBaseDef.type         = type;
 	colBaseDef.columnLength = columnLength;
 
-	ItemNameColumnBaseDefRefMap &map = 
-	  const_cast<ItemNameColumnBaseDefRefMap &>
-	            (staticInfo->columnBaseDefMap);
-	map[columnName] = &colBaseDef;
+	ColumnNameAccessInfoMap &map = staticInfo->columnAccessInfoMap;
+	ColumnAccessInfo accessInfo = {index, &colBaseDef};
+	map[columnName] = accessInfo;
 }
