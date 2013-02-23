@@ -110,19 +110,35 @@ ItemTablePtr SQLTableCrossJoin::getTable(void)
 // ---------------------------------------------------------------------------
 SQLTableInnerJoin::SQLTableInnerJoin
   (const string &leftTableName, const string &leftColumnName,
-   const string &rightTableName, const string &rightColumnName)
+   const string &rightTableName, const string &rightColumnName,
+   SQLColumnIndexResoveler *resolver)
 : SQLTableJoin(SQL_JOIN_TYPE_INNER),
   m_leftTableName(leftTableName),
   m_leftColumnName(leftColumnName),
   m_rightTableName(rightTableName),
   m_rightColumnName(rightColumnName),
   m_indexLeftJoinColumn(INDEX_NOT_SET),
-  m_indexRightJoinColumn(INDEX_NOT_SET)
+  m_indexRightJoinColumn(INDEX_NOT_SET),
+  m_columnIndexResolver(resolver)
 {
 }
 
 ItemTablePtr SQLTableInnerJoin::getTable(void)
 {
+	if (!m_columnIndexResolver)
+		THROW_ASURA_EXCEPTION("m_columnIndexResolver: NULL");
+
+	if (m_indexLeftJoinColumn == INDEX_NOT_SET) {
+		m_indexLeftJoinColumn =
+		  m_columnIndexResolver->getIndex(m_leftTableName,
+		                                  m_leftColumnName);
+	}
+	if (m_indexRightJoinColumn == INDEX_NOT_SET) {
+		m_indexRightJoinColumn =
+		  m_columnIndexResolver->getIndex(m_rightTableName,
+		                                  m_rightColumnName);
+	}
+
 	SQLTableFormula *leftFormula = getLeftFormula();
 	SQLTableFormula *rightFormula = getRightFormula();
 	if (!leftFormula || !rightFormula) {
@@ -130,13 +146,7 @@ ItemTablePtr SQLTableInnerJoin::getTable(void)
 		  "leftFormula (%p) or rightFormula (%p) is NULL.\n",
 		  leftFormula, rightFormula);
 	}
-	if (m_indexLeftJoinColumn == INDEX_NOT_SET ||
-	    m_indexRightJoinColumn == INDEX_NOT_SET) {
-		THROW_SQL_PROCESSOR_EXCEPTION(
-		  "m_indexLeftJoinColumn or/and m_indexRightJoinColumn is "
-		  "not set (%zd, %zd)",
-		  m_indexLeftJoinColumn, m_indexRightJoinColumn);
-	}
+
 	return innerJoin(leftFormula->getTable(), rightFormula->getTable(),
 	                 m_indexLeftJoinColumn, m_indexRightJoinColumn);
 }

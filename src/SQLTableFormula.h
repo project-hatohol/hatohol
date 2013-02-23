@@ -102,7 +102,8 @@ public:
 	SQLTableInnerJoin(const string &leftTableName,
 	                  const string &leftColumnName,
 	                  const string &rightTableName,
-	                  const string &rightColumnName);
+	                  const string &rightColumnName,
+	                  SQLColumnIndexResoveler *resolver);
 	virtual ItemTablePtr getTable(void);
 
 	const string &getLeftTableName(void) const;
@@ -118,6 +119,7 @@ private:
 	string m_rightColumnName;
 	size_t m_indexLeftJoinColumn;
 	size_t m_indexRightJoinColumn;
+	SQLColumnIndexResoveler *m_columnIndexResolver;
 };
 
 #endif // SQLTableFormula_h

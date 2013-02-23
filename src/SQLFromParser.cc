@@ -45,13 +45,15 @@ struct SQLFromParser::PrivateContext {
 	string           innerJoinLeftColumnName;
 	string           innerJoinRightTableName;
 	string           innerJoinRightColumnName;
+	SQLColumnIndexResoveler *columnIndexResolver;
 
 	// constructor
 	PrivateContext(void)
 	: state(PARSING_STAT_EXPECT_TABLE_NAME),
 	  tableFormula(NULL),
 	  onParsingInnerJoin(false),
-	  rightTableOfInnerJoin(NULL)
+	  rightTableOfInnerJoin(NULL),
+	  columnIndexResolver(NULL)
 	{
 	}
 
@@ -121,6 +123,11 @@ SQLTableElementList &SQLFromParser::getTableElementList(void) const
 SeparatorCheckerWithCallback *SQLFromParser::getSeparatorChecker(void)
 {
 	return &m_separator;
+}
+
+void SQLFromParser::setColumnIndexResolver(SQLColumnIndexResoveler *resolver)
+{
+	m_ctx->columnIndexResolver = resolver;
 }
 
 void SQLFromParser::add(const string &word, const string &wordLower)
@@ -305,7 +312,8 @@ void SQLFromParser::makeInnerJoin(void)
 	  new SQLTableInnerJoin(m_ctx->innerJoinLeftTableName,
 	                        m_ctx->innerJoinLeftColumnName,
 	                        m_ctx->innerJoinRightTableName,
-	                        m_ctx->innerJoinRightColumnName);
+	                        m_ctx->innerJoinRightColumnName,
+	                        m_ctx->columnIndexResolver);
 	innerJoin->setLeftFormula(m_ctx->tableFormula);
 	m_ctx->tableFormula = innerJoin;
 	innerJoin->setRightFormula(m_ctx->rightTableOfInnerJoin);
