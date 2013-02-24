@@ -96,6 +96,9 @@ struct SQLProcessor::SelectParserContext {
 	}
 };
 
+struct SQLProcessor::PrivateContext {
+};
+
 class SQLFormulaColumnDataGetter : public FormulaVariableDataGetter {
 public:
 	SQLFormulaColumnDataGetter(string &name, SQLSelectInfo *selectInfo)
@@ -328,11 +331,14 @@ bool SQLProcessor::update(SQLUpdateInfo &updateInfo)
 // Protected methods
 // ---------------------------------------------------------------------------
 SQLProcessor::SQLProcessor(TableNameStaticInfoMap &tableNameStaticInfoMap)
-: m_separatorSpaceComma(" ,"),
+: m_ctx(NULL),
+  m_separatorSpaceComma(" ,"),
   m_tableNameStaticInfoMap(tableNameStaticInfoMap),
   m_processorInsert(tableNameStaticInfoMap),
   m_processorUpdate(tableNameStaticInfoMap)
 {
+	m_ctx = new PrivateContext();
+
 	// Other elements are set in parseSelectStatement().
 	m_selectSeprators[SQLProcessor::SELECT_PARSING_SECTION_GROUP_BY] = 
 	  &m_separatorSpaceComma;
@@ -344,6 +350,8 @@ SQLProcessor::SQLProcessor(TableNameStaticInfoMap &tableNameStaticInfoMap)
 
 SQLProcessor::~SQLProcessor()
 {
+	if (m_ctx)
+		delete m_ctx;
 }
 
 bool

@@ -266,6 +266,9 @@ private:
 	static const SelectSubParser m_selectSubParsers[];
 	static map<string, SelectSubParser> m_selectSectionParserMap;
 
+	struct PrivateContext;
+	PrivateContext              *m_ctx;;
+
 	enum SelectParseSection {
 		SELECT_PARSING_SECTION_COLUMN,
 		SELECT_PARSING_SECTION_GROUP_BY,
