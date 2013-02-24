@@ -49,6 +49,30 @@ enum BetweenParsingStep {
 	BETWEEN_EXPECT_SECOND,
 };
 
+class SQLProcessorColumnIndexResolver : public SQLColumnIndexResoveler {
+public:
+	SQLProcessorColumnIndexResolver(TableNameStaticInfoMap &nameInfoMap)
+	: m_tableNameStaticInfoMap(nameInfoMap)
+	{
+	}
+
+	virtual int getIndex(const string &tableName,
+	                     const string &columnName) const
+	{
+		TableNameStaticInfoMapIterator it;
+		it = m_tableNameStaticInfoMap.find(tableName);
+		if (it == m_tableNameStaticInfoMap.end()) {
+			THROW_SQL_PROCESSOR_EXCEPTION(
+			  "Not found table: %s\n", tableName.c_str());
+		}
+		const SQLTableStaticInfo *staticInfo = it->second;
+		return SQLUtils::getColumnIndex(columnName, staticInfo);
+	}
+
+private:
+	TableNameStaticInfoMap &m_tableNameStaticInfoMap;
+};
+
 struct SQLProcessor::SelectParserContext {
 	SQLProcessor       *sqlProcessor;
 
@@ -57,13 +81,17 @@ struct SQLProcessor::SelectParserContext {
 	SelectParseSection  section;
 	SQLSelectInfo      &selectInfo;
 
+	SQLProcessorColumnIndexResolver columnIndexResolver;
+
 	// methods
 	SelectParserContext(SQLProcessor *sqlProc,
 	                    SelectParseSection _section,
-	                    SQLSelectInfo &_selectInfo)
+	                    SQLSelectInfo &_selectInfo,
+	                    TableNameStaticInfoMap &nameInfoMap)
 	: sqlProcessor(sqlProc),
 	  section(_section),
-	  selectInfo(_selectInfo)
+	  selectInfo(_selectInfo),
+	  columnIndexResolver(nameInfoMap)
 	{
 	}
 };
@@ -337,7 +365,7 @@ bool SQLProcessor::parseSelectStatement(SQLSelectInfo &selectInfo)
 	map<string, SelectSubParser>::iterator it;
 	SelectSubParser subParser = NULL;
 	SelectParserContext ctx(this, SELECT_PARSING_SECTION_COLUMN,
-	                        selectInfo);
+	                        selectInfo, m_tableNameStaticInfoMap);
 
 	// set ColumnDataGetterFactory
 	selectInfo.columnParser.setColumnDataGetterFactory
@@ -790,6 +818,8 @@ bool SQLProcessor::parseSectionColumn(SelectParserContext &ctx)
 bool SQLProcessor::parseSectionFrom(SelectParserContext &ctx)
 {
 	ctx.section = SELECT_PARSING_SECTION_FROM;
+	ctx.selectInfo.fromParser.setColumnIndexResolver
+	  (&ctx.columnIndexResolver);
 	return true;
 }
 
