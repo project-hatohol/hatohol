@@ -287,8 +287,7 @@ bool SQLProcessor::select(SQLSelectInfo &selectInfo)
 		associateColumnWithTable(selectInfo);
 
 		// associate each table with static table information
-		if (!associateTableWithStaticInfo(selectInfo))
-			return false;
+		associateTableWithStaticInfo();
 
 		// make ItemTable objects for all specified tables
 		if (!setColumnTypeAndBaseDefInColumnInfo(selectInfo))
@@ -506,22 +505,20 @@ void SQLProcessor::associateColumnWithTable(SQLSelectInfo &selectInfo)
 	}
 }
 
-bool SQLProcessor::associateTableWithStaticInfo(SQLSelectInfo &selectInfo)
+void SQLProcessor::associateTableWithStaticInfo(void)
 {
-	SQLTableInfoListIterator tblInfoIt = selectInfo.tables.begin();
-	for (; tblInfoIt != selectInfo.tables.end(); ++tblInfoIt) {
+	SQLTableInfoListIterator tblInfoIt = m_ctx->selectInfo->tables.begin();
+	for (; tblInfoIt != m_ctx->selectInfo->tables.end(); ++tblInfoIt) {
 		SQLTableInfo *tableInfo = *tblInfoIt;
 		TableNameStaticInfoMapIterator it;
 		it = m_tableNameStaticInfoMap.find(tableInfo->name);
 		if (it == m_tableNameStaticInfoMap.end()) {
-			MLPL_DBG("Not found table: %s\n",
-			         tableInfo->name.c_str());
-			return false;
+			THROW_SQL_PROCESSOR_EXCEPTION(
+			  "Not found table: %s\n", tableInfo->name.c_str());
 		}
 		const SQLTableStaticInfo *staticInfo = it->second;
 		tableInfo->staticInfo = staticInfo;
 	}
-	return true;
 }
 
 bool
