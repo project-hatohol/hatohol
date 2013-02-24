@@ -370,9 +370,8 @@ SQLProcessorSelect::~SQLProcessorSelect()
 		delete m_ctx;
 }
 
-bool
-SQLProcessorSelect::checkSelectedAllColumns(const SQLSelectInfo &selectInfo,
-                                      const SQLColumnInfo &columnInfo) const
+bool SQLProcessorSelect::checkSelectedAllColumns
+  (const SQLSelectInfo &selectInfo, const SQLColumnInfo &columnInfo) const
 {
 	if (columnInfo.name == "*")
 		return true;
@@ -569,10 +568,9 @@ void SQLProcessorSelect::setColumnTypeAndBaseDefInColumnInfo(void)
 	}
 }
 
-void SQLProcessorSelect::addOutputColumn(SQLSelectInfo *selectInfo,
-                                   const SQLColumnInfo *columnInfo,
-                                   const ColumnBaseDefinition *columnBaseDef,
-                                   const SQLFormulaInfo *formulaInfo)
+void SQLProcessorSelect::addOutputColumn
+  (SQLSelectInfo *selectInfo, const SQLColumnInfo *columnInfo,
+   const ColumnBaseDefinition *columnBaseDef, const SQLFormulaInfo *formulaInfo)
 {
 	const SQLTableInfo *tableInfo = columnInfo->tableInfo;
 	selectInfo->outputColumnVector.push_back(SQLOutputColumn(columnInfo));
@@ -592,7 +590,7 @@ void SQLProcessorSelect::addOutputColumn(SQLSelectInfo *selectInfo,
 }
 
 void SQLProcessorSelect::addOutputColumn(SQLSelectInfo *selectInfo,
-                                   SQLFormulaInfo *formulaInfo)
+                                         SQLFormulaInfo *formulaInfo)
 {
 	selectInfo->outputColumnVector.push_back(SQLOutputColumn(formulaInfo));
 	SQLOutputColumn &outCol = selectInfo->outputColumnVector.back();
@@ -608,8 +606,8 @@ void SQLProcessorSelect::addOutputColumn(SQLSelectInfo *selectInfo,
 		outCol.columnVar = formulaInfo->alias;
 }
 
-void SQLProcessorSelect::addOutputColumnsOfAllTables(SQLSelectInfo *selectInfo,
-                                               const SQLColumnInfo *_columnInfo)
+void SQLProcessorSelect::addOutputColumnsOfAllTables
+  (SQLSelectInfo *selectInfo, const SQLColumnInfo *_columnInfo)
 {
 	// Note: We can just use the argument type w/o 'const'.
 	// Or change the algorithm more elegant.
@@ -770,7 +768,7 @@ void SQLProcessorSelect::makeTextOutput(void)
 }
 
 bool SQLProcessorSelect::pickupMatchingRows(const ItemGroup *itemGroup,
-                                      PrivateContext *ctx)
+                                            PrivateContext *ctx)
 {
 	ItemGroup *nonConstItemGroup = const_cast<ItemGroup *>(itemGroup);
 	ctx->evalTargetItemGroup = nonConstItemGroup;
@@ -929,7 +927,7 @@ string SQLProcessorSelect::readNextWord(ParsingPosition *position)
 }
 
 void SQLProcessorSelect::parseColumnName(const string &name,
-                                   string &baseName, string &tableVar)
+                                         string &baseName, string &tableVar)
 {
 	size_t dotPos = name.find('.');
 	if (dotPos == 0) {
@@ -951,7 +949,7 @@ void SQLProcessorSelect::parseColumnName(const string &name,
 
 const SQLTableInfo *
 SQLProcessorSelect::getTableInfoFromVarName(const SQLSelectInfo &selectInfo,
-                                      const string &tableVar)
+                                            const string &tableVar)
 {
 	SQLTableVarNameInfoMapConstIterator it
 	  = selectInfo.tableVarInfoMap.find(tableVar);
