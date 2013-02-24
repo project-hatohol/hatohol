@@ -311,7 +311,9 @@ bool SQLProcessor::select(SQLSelectInfo &selectInfo)
 	} catch (const SQLProcessorException &e) {
 		const char *message = e.what();
 		selectInfo.errorMessage = message;
-		MLPL_DBG("Got SQLProcessorException: %s\n", message);
+		MLPL_DBG("Got SQLProcessorException: <%s:%d> %s\n",
+		         e.getSourceFileName().c_str(),
+		         e.getLineNumber(), message);
 		return false;
 	}
 
