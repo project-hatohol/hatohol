@@ -134,6 +134,8 @@ typedef SQLTableInfoItemIdVectorMap::const_iterator
 
 typedef map<string, const SQLTableInfo *> SQLTableVarNameInfoMap;
 typedef SQLTableVarNameInfoMap::iterator  SQLTableVarNameInfoMapIterator;
+typedef SQLTableVarNameInfoMap::const_iterator
+  SQLTableVarNameInfoMapConstIterator;
 
 struct SQLSelectInfo : public SQLProcessorInfo {
 	// parsed matter (Elements in these two container have to be freed)
@@ -254,7 +256,8 @@ protected:
 	static void parseColumnName(const string &name,
 	                            string &baseName, string &tableVar);
 	static const SQLTableInfo *
-	  getTableInfoFromVarName(SQLSelectInfo &selectInfo, string &tableVar);
+	  getTableInfoFromVarName(const SQLSelectInfo &selectInfo,
+	                          const string &tableVar);
 	static FormulaVariableDataGetter *
 	  formulaColumnDataGetterFactory(string &name, void *priv);
 

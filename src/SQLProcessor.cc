@@ -494,8 +494,6 @@ bool SQLProcessor::associateColumnWithTable(SQLSelectInfo &selectInfo)
 
 		const SQLTableInfo *tableInfo
 		  = getTableInfoFromVarName(selectInfo, columnInfo->tableVar);
-		if (!tableInfo)
-			return false;
 		columnInfo->associate(const_cast<SQLTableInfo *>(tableInfo));
 
 		// set SQLColumnInfo::baseDef.
@@ -940,14 +938,14 @@ void SQLProcessor::parseColumnName(const string &name,
 }
 
 const SQLTableInfo *
-SQLProcessor::getTableInfoFromVarName(SQLSelectInfo &selectInfo,
-                                      string &tableVar)
+SQLProcessor::getTableInfoFromVarName(const SQLSelectInfo &selectInfo,
+                                      const string &tableVar)
 {
-	map<string, const SQLTableInfo *>::iterator it;
-	it = selectInfo.tableVarInfoMap.find(tableVar);
+	SQLTableVarNameInfoMapConstIterator it
+	  = selectInfo.tableVarInfoMap.find(tableVar);
 	if (it == selectInfo.tableVarInfoMap.end()) {
-		MLPL_DBG("Failed to find: %s\n", tableVar.c_str());
-		return NULL;
+		THROW_SQL_PROCESSOR_EXCEPTION(
+		  "Failed to find: %s\n", tableVar.c_str());
 	}
 	return it->second;
 }
