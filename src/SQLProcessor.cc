@@ -292,8 +292,7 @@ bool SQLProcessor::select(SQLSelectInfo &selectInfo)
 		// make ItemTable objects for all specified tables
 		setColumnTypeAndBaseDefInColumnInfo();
 		makeColumnDefs();
-		if (!makeItemTables(selectInfo))
-			return false;
+		makeItemTables();
 
 		// join tables
 		doJoin(selectInfo);
@@ -682,32 +681,32 @@ void SQLProcessor::makeColumnDefs(void)
 	}
 }
 
-bool SQLProcessor::makeItemTables(SQLSelectInfo &selectInfo)
+void SQLProcessor::makeItemTables(void)
 {
+	SQLSelectInfo *selectInfo = m_ctx->selectInfo;
+	SQLTableInfoList &tables = selectInfo->tables;
 	SQLTableElementList &tableElemList =
-	  selectInfo.fromParser.getTableElementList();
-	if (tableElemList.size() != selectInfo.tables.size()) {
+	  selectInfo->fromParser.getTableElementList();
+	if (tableElemList.size() != tables.size()) {
 		THROW_ASURA_EXCEPTION(
-		  "tableElemList.size() != selectInfo.tables.size() (%zd, %zd)",
-		  tableElemList.size(), selectInfo.tables.size());
+		  "tableElemList.size() != tables.size() (%zd, %zd)",
+		  tableElemList.size(), tables.size());
 	}
 	SQLTableElementListIterator tblElemIt = tableElemList.begin();
 
-	SQLTableInfoListIterator tblInfoIt = selectInfo.tables.begin();
-	for (; tblInfoIt != selectInfo.tables.end(); ++tblInfoIt, ++tblElemIt) {
+	SQLTableInfoListIterator tblInfoIt = tables.begin();
+	for (; tblInfoIt != tables.end(); ++tblInfoIt, ++tblElemIt) {
 		const SQLTableInfo *tableInfo = *tblInfoIt;
 		SQLTableMakeFunc func = tableInfo->staticInfo->tableMakeFunc;
-		ItemTablePtr tablePtr = (this->*func)(selectInfo, *tableInfo);
+		ItemTablePtr tablePtr = (this->*func)(*selectInfo, *tableInfo);
 		if (!tablePtr.hasData()) {
-			MLPL_DBG("ItemTable: table has no data. "
-			         "name: %s, var: %s\n",
-			         (*tblInfoIt)->name.c_str(),
-			         (*tblInfoIt)->varName.c_str());
-			return false;
+			THROW_SQL_PROCESSOR_EXCEPTION(
+			  "ItemTable: table has no data. name: %s, var: %s\n",
+			  (*tblInfoIt)->name.c_str(),
+			  (*tblInfoIt)->varName.c_str());
 		}
 		(*tblElemIt)->setItemTable(tablePtr);
 	}
-	return true;
 }
 
 void SQLProcessor::doJoin(SQLSelectInfo &selectInfo)

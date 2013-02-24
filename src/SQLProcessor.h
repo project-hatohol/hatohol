@@ -198,7 +198,7 @@ protected:
 	void associateTableWithStaticInfo(void);
 	void setColumnTypeAndBaseDefInColumnInfo(void);
 	void makeColumnDefs(void);
-	bool makeItemTables(SQLSelectInfo &selectInfo);
+	void makeItemTables(void);
 	void doJoin(SQLSelectInfo &selectInfo);
 	bool selectMatchingRows(SQLSelectInfo &selectInfo);
 	bool makeTextOutput(SQLSelectInfo &selectInfo);
