@@ -291,8 +291,7 @@ bool SQLProcessor::select(SQLSelectInfo &selectInfo)
 
 		// make ItemTable objects for all specified tables
 		setColumnTypeAndBaseDefInColumnInfo();
-		if (!makeColumnDefs(selectInfo))
-			return false;
+		makeColumnDefs();
 		if (!makeItemTables(selectInfo))
 			return false;
 
@@ -550,14 +549,14 @@ void SQLProcessor::setColumnTypeAndBaseDefInColumnInfo(void)
 	}
 }
 
-void SQLProcessor::addOutputColumn(SQLSelectInfo &selectInfo,
+void SQLProcessor::addOutputColumn(SQLSelectInfo *selectInfo,
                                    const SQLColumnInfo *columnInfo,
                                    const ColumnBaseDefinition *columnBaseDef,
                                    const SQLFormulaInfo *formulaInfo)
 {
 	const SQLTableInfo *tableInfo = columnInfo->tableInfo;
-	selectInfo.outputColumnVector.push_back(SQLOutputColumn(columnInfo));
-	SQLOutputColumn &outCol = selectInfo.outputColumnVector.back();
+	selectInfo->outputColumnVector.push_back(SQLOutputColumn(columnInfo));
+	SQLOutputColumn &outCol = selectInfo->outputColumnVector.back();
 	outCol.columnBaseDef = columnBaseDef;
 	outCol.tableInfo     = tableInfo;
 	outCol.schema        = getDBName();
@@ -572,11 +571,11 @@ void SQLProcessor::addOutputColumn(SQLSelectInfo &selectInfo,
 		outCol.columnVar = formulaInfo->alias;
 }
 
-void SQLProcessor::addOutputColumn(SQLSelectInfo &selectInfo,
+void SQLProcessor::addOutputColumn(SQLSelectInfo *selectInfo,
                                    SQLFormulaInfo *formulaInfo)
 {
-	selectInfo.outputColumnVector.push_back(SQLOutputColumn(formulaInfo));
-	SQLOutputColumn &outCol = selectInfo.outputColumnVector.back();
+	selectInfo->outputColumnVector.push_back(SQLOutputColumn(formulaInfo));
+	SQLOutputColumn &outCol = selectInfo->outputColumnVector.back();
 	outCol.columnBaseDef = makeColumnBaseDefForFormula(formulaInfo);
 	//outCol.tableInfo     =
 	outCol.schema        = getDBName();
@@ -589,29 +588,27 @@ void SQLProcessor::addOutputColumn(SQLSelectInfo &selectInfo,
 		outCol.columnVar = formulaInfo->alias;
 }
 
-bool SQLProcessor::addOutputColumnsOfAllTables(SQLSelectInfo &selectInfo,
+void SQLProcessor::addOutputColumnsOfAllTables(SQLSelectInfo *selectInfo,
                                                const SQLColumnInfo *_columnInfo)
 {
 	// Note: We can just use the argument type w/o 'const'.
 	// Or change the algorithm more elegant.
 	SQLColumnInfo *columnInfo = const_cast<SQLColumnInfo *>(_columnInfo);
 
-	SQLTableInfoListIterator it = selectInfo.tables.begin();
-	for (; it != selectInfo.tables.end(); ++it) {
+	SQLTableInfoListIterator it = selectInfo->tables.begin();
+	for (; it != selectInfo->tables.end(); ++it) {
 		columnInfo->tableInfo = *it;
-		if (!addOutputColumnsOfOneTable(selectInfo, columnInfo))
-			return false;
+		addOutputColumnsOfOneTable(selectInfo, columnInfo);
 	}
-	return true;
 }
 
-bool SQLProcessor::addOutputColumnsOfOneTable(SQLSelectInfo &selectInfo,
+void SQLProcessor::addOutputColumnsOfOneTable(SQLSelectInfo *selectInfo,
                                               const SQLColumnInfo *columnInfo)
 {
 	const SQLTableInfo *tableInfo = columnInfo->tableInfo;
 	if (!tableInfo->staticInfo) {
-		MLPL_BUG("tableInfo->staticInfo is NULL\n");
-		return false;
+		THROW_SQL_PROCESSOR_EXCEPTION(
+		  "tableInfo->staticInfo is NULL\n");
 	}
 
 	ColumnBaseDefListConstIterator it;
@@ -620,7 +617,6 @@ bool SQLProcessor::addOutputColumnsOfOneTable(SQLSelectInfo &selectInfo,
 		const ColumnBaseDefinition *columnBaseDef = &(*it);
 		addOutputColumn(selectInfo, columnInfo, columnBaseDef);
 	}
-	return true;
 }
 
 const ColumnBaseDefinition *
@@ -638,10 +634,11 @@ SQLProcessor::makeColumnBaseDefForFormula(SQLFormulaInfo *formulaInfo)
 	return columnBaseDef;
 }
 
-bool SQLProcessor::makeColumnDefs(SQLSelectInfo &selectInfo)
+void SQLProcessor::makeColumnDefs(void)
 {
+	SQLSelectInfo *selectInfo = m_ctx->selectInfo;
 	const SQLFormulaInfoVector &formulaInfoVector
-	  = selectInfo.columnParser.getFormulaInfoVector();
+	  = selectInfo->columnParser.getFormulaInfoVector();
 	for (size_t i = 0; i < formulaInfoVector.size(); i++) {
 		SQLFormulaInfo *formulaInfo = formulaInfoVector[i];
 		FormulaVariable *formulaVariable =
@@ -661,32 +658,28 @@ bool SQLProcessor::makeColumnDefs(SQLSelectInfo &selectInfo)
 
 		int columnType = columnInfo->columnType;
 		if (columnType == SQLColumnInfo::COLUMN_TYPE_ALL) {
-			if (!addOutputColumnsOfAllTables(selectInfo,
-			                                 columnInfo))
-				return false;
+			addOutputColumnsOfAllTables(selectInfo, columnInfo);
 			continue;
 		} else if (!columnInfo->tableInfo) {
-			MLPL_BUG("columnInfo->tableInfo is NULL\n");
-			return false;
+			THROW_SQL_PROCESSOR_EXCEPTION(
+			  "columnInfo->tableInfo is NULL\n");
 		}
 
 		if (columnType == SQLColumnInfo::COLUMN_TYPE_ALL_OF_TABLE) {
-			if (!addOutputColumnsOfOneTable(selectInfo, columnInfo))
-				return false;
+			addOutputColumnsOfOneTable(selectInfo, columnInfo);
 		} else if (columnType == SQLColumnInfo::COLUMN_TYPE_NORMAL) {
 			if (!columnInfo->columnBaseDef) {
-				MLPL_BUG("columnInfo.columnBaseDef is NULL\n");
-				return false;
+				THROW_SQL_PROCESSOR_EXCEPTION(
+				  "columnInfo.columnBaseDef is NULL\n");
 			}
 			addOutputColumn(selectInfo, columnInfo,
 			                columnInfo->columnBaseDef,
 			                formulaInfo);
 		} else {
-			MLPL_BUG("Invalid columnType: %d\n", columnType);
-			return false;
+			THROW_SQL_PROCESSOR_EXCEPTION(
+			  "Invalid columnType: %d\n", columnType);
 		}
 	}
-	return true;
 }
 
 bool SQLProcessor::makeItemTables(SQLSelectInfo &selectInfo)

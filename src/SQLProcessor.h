@@ -197,7 +197,7 @@ protected:
 	void associateColumnWithTable(void);
 	void associateTableWithStaticInfo(void);
 	void setColumnTypeAndBaseDefInColumnInfo(void);
-	bool makeColumnDefs(SQLSelectInfo &selectInfo);
+	void makeColumnDefs(void);
 	bool enumerateNeededItemIds(SQLSelectInfo &selectInfo);
 	bool makeItemTables(SQLSelectInfo &selectInfo);
 	void doJoin(SQLSelectInfo &selectInfo);
@@ -206,15 +206,15 @@ protected:
 	bool checkSelectedAllColumns(const SQLSelectInfo &selectInfo,
 	                             const SQLColumnInfo &columnInfo) const;
 
-	void addOutputColumn(SQLSelectInfo &selectInfo,
+	void addOutputColumn(SQLSelectInfo *selectInfo,
 	                     const SQLColumnInfo *columnInfo,
 	                     const ColumnBaseDefinition *columnBaseDef,
 	                     const SQLFormulaInfo *formulaInfo = NULL);
-	void addOutputColumn(SQLSelectInfo &selectInfo,
+	void addOutputColumn(SQLSelectInfo *selectInfo,
 	                     SQLFormulaInfo *formulaInfo);
-	bool addOutputColumnsOfAllTables(SQLSelectInfo &selectInfo,
+	void addOutputColumnsOfAllTables(SQLSelectInfo *selectInfo,
 	                                 const SQLColumnInfo *columnInfo);
-	bool addOutputColumnsOfOneTable(SQLSelectInfo &selectInfo,
+	void addOutputColumnsOfOneTable(SQLSelectInfo *selectInfo,
 	                                const SQLColumnInfo *columnInfo);
 	const ColumnBaseDefinition *
 	  makeColumnBaseDefForFormula(SQLFormulaInfo *formulaInfo);
