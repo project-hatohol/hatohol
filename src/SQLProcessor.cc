@@ -298,8 +298,7 @@ bool SQLProcessor::select(SQLSelectInfo &selectInfo)
 		doJoin();
 
 		// pickup matching rows
-		if (!selectMatchingRows(selectInfo))
-			return false;
+		selectMatchingRows();
 
 		// convert data to string
 		if (!makeTextOutput(selectInfo))
@@ -715,15 +714,16 @@ void SQLProcessor::doJoin(void)
 	  m_ctx->selectInfo->fromParser.getTableFormula()->getTable();
 }
 
-bool SQLProcessor::selectMatchingRows(SQLSelectInfo &selectInfo)
+void SQLProcessor::selectMatchingRows(void)
 {
-	FormulaElement *formula = selectInfo.whereParser.getFormula();
+	SQLSelectInfo *selectInfo = m_ctx->selectInfo;
+	FormulaElement *formula = selectInfo->whereParser.getFormula();
 	if (!formula) {
-		selectInfo.selectedTable = selectInfo.joinedTable;
-		return true;
+		selectInfo->selectedTable = selectInfo->joinedTable;
+		return;
 	}
-	return selectInfo.joinedTable->foreach<PrivateContext *>
-	                                    (pickupMatchingRows, m_ctx);
+	selectInfo->joinedTable->foreach<PrivateContext *>(pickupMatchingRows,
+	                                                   m_ctx);
 }
 
 bool SQLProcessor::makeTextOutput(SQLSelectInfo &selectInfo)
@@ -756,14 +756,12 @@ bool SQLProcessor::pickupMatchingRows(const ItemGroup *itemGroup,
 	ctx->evalTargetItemGroup = nonConstItemGroup;
 	FormulaElement *formula = ctx->selectInfo->whereParser.getFormula();
 	ItemDataPtr result = formula->evaluate();
-	if (!result.hasData()) {
-		MLPL_DBG("result has no data.\n");
-		return false;
-	}
+	if (!result.hasData())
+		THROW_SQL_PROCESSOR_EXCEPTION("result has no data.\n");
 	if (*result == *ctx->selectInfo->itemFalsePtr)
-		return true;
+		return true;;
 	ctx->selectInfo->selectedTable->add(nonConstItemGroup);
-	return true;
+	return true;;
 }
 
 bool SQLProcessor::makeTextRows(const ItemGroup *itemGroup,
