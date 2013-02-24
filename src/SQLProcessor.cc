@@ -758,9 +758,9 @@ bool SQLProcessor::pickupMatchingRows(const ItemGroup *itemGroup,
 	if (!result.hasData())
 		THROW_SQL_PROCESSOR_EXCEPTION("result has no data.\n");
 	if (*result == *ctx->selectInfo->itemFalsePtr)
-		return true;;
+		return true;
 	ctx->selectInfo->selectedTable->add(nonConstItemGroup);
-	return true;;
+	return true;
 }
 
 bool SQLProcessor::makeTextRows(const ItemGroup *itemGroup,
