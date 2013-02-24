@@ -277,8 +277,7 @@ bool SQLProcessor::select(SQLSelectInfo &selectInfo)
 		fixupColumnNameMap(selectInfo);
 
 		// associate each column with the table
-		if (!associateColumnWithTable(selectInfo))
-			return false;
+		associateColumnWithTable(selectInfo);
 
 		// associate each table with static table information
 		if (!associateTableWithStaticInfo(selectInfo))
@@ -467,7 +466,7 @@ void SQLProcessor::fixupColumnNameMap(SQLSelectInfo &selectInfo)
 	}
 }
 
-bool SQLProcessor::associateColumnWithTable(SQLSelectInfo &selectInfo)
+void SQLProcessor::associateColumnWithTable(SQLSelectInfo &selectInfo)
 {
 	SQLColumnNameMapIterator it = selectInfo.columnNameMap.begin();
 	for (; it != selectInfo.columnNameMap.end(); ++it) {
@@ -483,11 +482,11 @@ bool SQLProcessor::associateColumnWithTable(SQLSelectInfo &selectInfo)
 			else if (columnInfo->tableVar == tableInfo->varName)
 				columnInfo->associate(tableInfo);
 			else {
-				MLPL_DBG("columnInfo.tableVar (%s) != "
-				         "tableInfo.varName (%s)\n",
-				         columnInfo->tableVar.c_str(),
-				         tableInfo->varName.c_str());
-				return false;
+				THROW_SQL_PROCESSOR_EXCEPTION(
+				  "columnInfo.tableVar (%s) != "
+				  "tableInfo.varName (%s)\n",
+				  columnInfo->tableVar.c_str(),
+				  tableInfo->varName.c_str());
 			}
 			continue;
 		}
@@ -495,10 +494,7 @@ bool SQLProcessor::associateColumnWithTable(SQLSelectInfo &selectInfo)
 		const SQLTableInfo *tableInfo
 		  = getTableInfoFromVarName(selectInfo, columnInfo->tableVar);
 		columnInfo->associate(const_cast<SQLTableInfo *>(tableInfo));
-
-		// set SQLColumnInfo::baseDef.
 	}
-	return true;
 }
 
 bool SQLProcessor::associateTableWithStaticInfo(SQLSelectInfo &selectInfo)
