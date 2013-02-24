@@ -31,18 +31,8 @@ using namespace std;
 #include "SQLUtils.h"
 #include "Utils.h"
 
-const SQLProcessorSelect::SelectSubParser
-  SQLProcessorSelect::m_selectSubParsers[] = {
-	&SQLProcessorSelect::parseSelectedColumns,
-	&SQLProcessorSelect::parseGroupBy,
-	&SQLProcessorSelect::parseFrom,
-	&SQLProcessorSelect::parseWhere,
-	&SQLProcessorSelect::parseOrderBy,
-	&SQLProcessorSelect::parseLimit,
-};
-
-map<string, SQLProcessorSelect::SelectSectionParser>
-  SQLProcessorSelect::m_selectSectionParserMap;
+typedef bool (SQLProcessorSelect::*SelectSectionParser)(void);
+typedef void (SQLProcessorSelect::*SelectSubParser)(void);
 
 enum BetweenParsingStep {
 	BETWEEN_NONE,
@@ -86,6 +76,9 @@ private:
 };
 
 struct SQLProcessorSelect::PrivateContext {
+	static const SelectSubParser            selectSubParsers[];
+	static map<string, SelectSectionParser> selectSectionParserMap;
+
 	SQLProcessorSelect *processorSelect;
 	SQLSelectInfo      *selectInfo;
 	string              dbName;
@@ -124,6 +117,18 @@ struct SQLProcessorSelect::PrivateContext {
 	{
 	}
 };
+
+const SelectSubParser SQLProcessorSelect::PrivateContext::selectSubParsers[] = {
+	&SQLProcessorSelect::parseSelectedColumns,
+	&SQLProcessorSelect::parseGroupBy,
+	&SQLProcessorSelect::parseFrom,
+	&SQLProcessorSelect::parseWhere,
+	&SQLProcessorSelect::parseOrderBy,
+	&SQLProcessorSelect::parseLimit,
+};
+
+map<string, SelectSectionParser>
+  SQLProcessorSelect::PrivateContext::selectSectionParserMap;
 
 class SQLFormulaColumnDataGetter : public FormulaVariableDataGetter {
 public:
@@ -274,16 +279,22 @@ SQLSelectInfo::~SQLSelectInfo()
 // ---------------------------------------------------------------------------
 void SQLProcessorSelect::init(void)
 {
-	m_selectSectionParserMap["select"] = &SQLProcessorSelect::parseSectionColumn;
-	m_selectSectionParserMap["from"]   = &SQLProcessorSelect::parseSectionFrom;
-	m_selectSectionParserMap["where"]  = &SQLProcessorSelect::parseSectionWhere;
-	m_selectSectionParserMap["order"]  = &SQLProcessorSelect::parseSectionOrder;
-	m_selectSectionParserMap["group"]  = &SQLProcessorSelect::parseSectionGroup;
-	m_selectSectionParserMap["limit"]  = &SQLProcessorSelect::parseSectionLimit;
+	PrivateContext::selectSectionParserMap["select"] =
+	  &SQLProcessorSelect::parseSectionColumn;
+	PrivateContext::selectSectionParserMap["from"] =
+	  &SQLProcessorSelect::parseSectionFrom;
+	PrivateContext::selectSectionParserMap["where"] =
+	  &SQLProcessorSelect::parseSectionWhere;
+	PrivateContext::selectSectionParserMap["order"] =
+	  &SQLProcessorSelect::parseSectionOrder;
+	PrivateContext::selectSectionParserMap["group"] =
+	  &SQLProcessorSelect::parseSectionGroup;
+	PrivateContext::selectSectionParserMap["limit"] =
+	  &SQLProcessorSelect::parseSectionLimit;
 
 	// check the size of m_selectSubParsers
-	size_t size = sizeof(SQLProcessorSelect::m_selectSubParsers) / 
-	                sizeof(SelectSubParser);
+	size_t size =
+	  sizeof(PrivateContext::selectSubParsers) / sizeof(SelectSubParser);
 	if (size != NUM_SELECT_PARSING_SECTION) {
 		string msg;
 		TRMSG(msg, "sizeof(m_selectSubParsers) is invalid: "
@@ -382,6 +393,7 @@ void SQLProcessorSelect::parseSelectStatement(void)
 	SQLSelectInfo *selectInfo = m_ctx->selectInfo;
 	MLPL_DBG("<%s> %s\n", __func__, selectInfo->statement.getString());
 	map<string, SelectSectionParser>::iterator it;
+	SelectSubParser subParser = NULL;
 
 	// set ColumnDataGetterFactory
 	selectInfo->columnParser.setColumnDataGetterFactory
@@ -406,8 +418,8 @@ void SQLProcessorSelect::parseSelectStatement(void)
 
 		// check if this is a keyword.
 		m_ctx->currWordLower = StringUtils::toLower(m_ctx->currWord);
-		it = m_selectSectionParserMap.find(m_ctx->currWordLower);
-		if (it != m_selectSectionParserMap.end()) {
+		it = m_ctx->selectSectionParserMap.find(m_ctx->currWordLower);
+		if (it != m_ctx->selectSectionParserMap.end()) {
 			// When the function returns 'true', it means
 			// the current word is section keyword and
 			SelectSectionParser sectionParser = it->second;
@@ -421,7 +433,7 @@ void SQLProcessorSelect::parseSelectStatement(void)
 			  "section(%d) >= NUM_SELECT_PARSING_SECTION\n",
 			  m_ctx->section);
 		}
-		SelectSubParser subParser = m_selectSubParsers[m_ctx->section];
+		subParser = m_ctx->selectSubParsers[m_ctx->section];
 		(this->*subParser)();
 	}
 	if (!selectInfo->columnParser.close())

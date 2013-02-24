@@ -260,13 +260,7 @@ protected:
 	  formulaColumnDataGetterFactory(string &name, void *priv);
 
 private:
-	typedef bool (SQLProcessorSelect::*SelectSectionParser)(void);
-	typedef void (SQLProcessorSelect::*SelectSubParser)(void);
-	static const SelectSubParser m_selectSubParsers[];
-	static map<string, SelectSectionParser> m_selectSectionParserMap;
-
-	PrivateContext              *m_ctx;;
-
+	PrivateContext              *m_ctx;
 };
 
 #endif // SQLProcessorSelect_h
