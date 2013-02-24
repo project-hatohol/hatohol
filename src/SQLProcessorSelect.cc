@@ -741,8 +741,8 @@ void SQLProcessorSelect::selectMatchingRows(void)
 		selectInfo->selectedTable = selectInfo->joinedTable;
 		return;
 	}
-	selectInfo->joinedTable->foreach<PrivateContext *>(pickupMatchingRows,
-	                                                   m_ctx);
+	selectInfo->joinedTable->foreach<SQLProcessorSelect *>
+	  (pickupMatchingRows, this);
 }
 
 void SQLProcessorSelect::makeTextOutput(void)
@@ -763,13 +763,14 @@ void SQLProcessorSelect::makeTextOutput(void)
 		m_ctx->makeTextRowsWriteMaskCount =
 		  selectInfo->selectedTable->getNumberOfRows() - 1;
 	}
-	selectInfo->selectedTable->foreach<PrivateContext *>(makeTextRows,
-	                                                     m_ctx);
+	selectInfo->selectedTable->foreach<SQLProcessorSelect *>
+	  (makeTextRows, this);
 }
 
 bool SQLProcessorSelect::pickupMatchingRows(const ItemGroup *itemGroup,
-                                            PrivateContext *ctx)
+                                            SQLProcessorSelect *sqlProcSelect)
 {
+	PrivateContext *ctx = sqlProcSelect->m_ctx;
 	ItemGroup *nonConstItemGroup = const_cast<ItemGroup *>(itemGroup);
 	ctx->evalTargetItemGroup = nonConstItemGroup;
 	FormulaElement *formula = ctx->selectInfo->whereParser.getFormula();
@@ -783,8 +784,9 @@ bool SQLProcessorSelect::pickupMatchingRows(const ItemGroup *itemGroup,
 }
 
 bool SQLProcessorSelect::makeTextRows(const ItemGroup *itemGroup,
-                                PrivateContext *ctx)
+                                      SQLProcessorSelect *sqlProcSelect)
 {
+	PrivateContext *ctx = sqlProcSelect->m_ctx;
 	SQLSelectInfo *selectInfo = ctx->selectInfo;
 	bool doOutput = false;
 	if (ctx->makeTextRowsWriteMaskCount == 0)

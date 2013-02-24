@@ -177,9 +177,6 @@ struct SQLSelectInfo : public SQLProcessorInfo {
 
 class SQLProcessorSelect
 {
-private:
-	struct PrivateContext;
-
 public:
 	static void init(void);
 	SQLProcessorSelect(const string &dbName,
@@ -222,9 +219,9 @@ protected:
 	setSelectResult(const ItemGroup *itemGroup, SQLSelectInfo &selectInfo);
 
 	static bool pickupMatchingRows(const ItemGroup *itemGroup,
-	                               PrivateContext *ctx);
+	                               SQLProcessorSelect *sqlProcSelect);
 	static bool makeTextRows(const ItemGroup *itemGroup,
-	                         PrivateContext *ctx);
+	                         SQLProcessorSelect *sqlProcSelect);
 
 	//
 	// Select status parsers
@@ -259,7 +256,8 @@ protected:
 	  formulaColumnDataGetterFactory(string &name, void *priv);
 
 private:
-	PrivateContext              *m_ctx;
+	struct PrivateContext;
+	PrivateContext *m_ctx;
 };
 
 #endif // SQLProcessorSelect_h
