@@ -196,7 +196,7 @@ protected:
 	void fixupColumnNameMap(void);
 	void associateColumnWithTable(void);
 	void associateTableWithStaticInfo(void);
-	bool setColumnTypeAndBaseDefInColumnInfo(SQLSelectInfo &selectInfo);
+	void setColumnTypeAndBaseDefInColumnInfo(void);
 	bool makeColumnDefs(SQLSelectInfo &selectInfo);
 	bool enumerateNeededItemIds(SQLSelectInfo &selectInfo);
 	bool makeItemTables(SQLSelectInfo &selectInfo);

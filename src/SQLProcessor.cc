@@ -290,8 +290,7 @@ bool SQLProcessor::select(SQLSelectInfo &selectInfo)
 		associateTableWithStaticInfo();
 
 		// make ItemTable objects for all specified tables
-		if (!setColumnTypeAndBaseDefInColumnInfo(selectInfo))
-			return false;
+		setColumnTypeAndBaseDefInColumnInfo();
 		if (!makeColumnDefs(selectInfo))
 			return false;
 		if (!makeItemTables(selectInfo))
@@ -524,11 +523,11 @@ void SQLProcessor::associateTableWithStaticInfo(void)
 	}
 }
 
-bool
-SQLProcessor::setColumnTypeAndBaseDefInColumnInfo(SQLSelectInfo &selectInfo)
+void SQLProcessor::setColumnTypeAndBaseDefInColumnInfo(void)
 {
-	SQLColumnNameMapIterator it = selectInfo.columnNameMap.begin();
-	for (; it != selectInfo.columnNameMap.end(); ++it) {
+	SQLSelectInfo *selectInfo = m_ctx->selectInfo;
+	SQLColumnNameMapIterator it = selectInfo->columnNameMap.begin();
+	for (; it != selectInfo->columnNameMap.end(); ++it) {
 		SQLColumnInfo *columnInfo = it->second;
 
 		// baseDef
@@ -536,22 +535,19 @@ SQLProcessor::setColumnTypeAndBaseDefInColumnInfo(SQLSelectInfo &selectInfo)
 			continue;
 
 		if (!columnInfo->tableInfo) {
-			MLPL_BUG("columnInfo->stableInfo is NULL\n");
-			return false;
+			THROW_SQL_PROCESSOR_EXCEPTION(
+			  "columnInfo->stableInfo is NULL\n");
 		}
 
 		const SQLTableStaticInfo *staticInfo =
 		  columnInfo->tableInfo->staticInfo;
-		if (!staticInfo) {
-			MLPL_BUG("staticInfo is NULL\n");
-			return false;
-		}
+		if (!staticInfo)
+			THROW_SQL_PROCESSOR_EXCEPTION("staticInfo is NULL\n");
 
 		columnInfo->columnBaseDef =
 		  SQLUtils::getColumnBaseDefinition(columnInfo->baseName,
 		                                    staticInfo);
 	}
-	return true;
 }
 
 void SQLProcessor::addOutputColumn(SQLSelectInfo &selectInfo,
