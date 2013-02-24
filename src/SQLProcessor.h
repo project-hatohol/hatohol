@@ -261,6 +261,7 @@ protected:
 	  formulaColumnDataGetterFactory(string &name, void *priv);
 
 private:
+	typedef bool (SQLProcessor::*SelectSectionParser)(void);
 	typedef bool (SQLProcessor::*SelectSubParser)(void);
 	static const SelectSubParser m_selectSubParsers[];
 	static map<string, SelectSubParser> m_selectSectionParserMap;

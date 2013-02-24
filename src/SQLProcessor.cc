@@ -40,7 +40,7 @@ const SQLProcessor::SelectSubParser SQLProcessor::m_selectSubParsers[] = {
 	&SQLProcessor::parseLimit,
 };
 
-map<string, SQLProcessor::SelectSubParser>
+map<string, SQLProcessor::SelectSectionParser>
   SQLProcessor::m_selectSectionParserMap;
 
 enum BetweenParsingStep {
