@@ -278,10 +278,10 @@ bool SQLProcessor::select(SQLSelectInfo &selectInfo)
 		if (!parseSelectStatement(selectInfo))
 			return false;
 		makeTableInfo(selectInfo);
-		checkParsedResult(selectInfo);
+		checkParsedResult();
 
 		// set members in SQLFormulaColumnDataGetter
-		fixupColumnNameMap(selectInfo);
+		fixupColumnNameMap();
 
 		// associate each column with the table
 		associateColumnWithTable();
@@ -454,19 +454,21 @@ void SQLProcessor::makeTableInfo(SQLSelectInfo &selectInfo)
 	}
 }
 
-void SQLProcessor::checkParsedResult(const SQLSelectInfo &selectInfo) const
+void SQLProcessor::checkParsedResult(void) const
 {
-	if (selectInfo.columnNameMap.empty())
+	SQLSelectInfo *selectInfo = m_ctx->selectInfo;
+	if (selectInfo->columnNameMap.empty())
 		THROW_SQL_PROCESSOR_EXCEPTION("Not found: columns.");
 
-	if (selectInfo.tables.empty())
+	if (selectInfo->tables.empty())
 		THROW_SQL_PROCESSOR_EXCEPTION("Not found: tables.");
 }
 
-void SQLProcessor::fixupColumnNameMap(SQLSelectInfo &selectInfo)
+void SQLProcessor::fixupColumnNameMap(void)
 {
-	SQLColumnNameMapIterator it = selectInfo.columnNameMap.begin();
-	for (; it != selectInfo.columnNameMap.end(); ++it) {
+	SQLSelectInfo *selectInfo = m_ctx->selectInfo;
+	SQLColumnNameMapIterator it = selectInfo->columnNameMap.begin();
+	for (; it != selectInfo->columnNameMap.end(); ++it) {
 		SQLColumnInfo *columnInfo = it->second;
 		parseColumnName(columnInfo->name, columnInfo->baseName,
 		                columnInfo->tableVar);

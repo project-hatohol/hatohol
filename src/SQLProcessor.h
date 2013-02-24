@@ -192,8 +192,8 @@ protected:
 
 	bool parseSelectStatement(SQLSelectInfo &selectInfo);
 	void makeTableInfo(SQLSelectInfo &selectInfo);
-	void checkParsedResult(const SQLSelectInfo &selectInfo) const;
-	void fixupColumnNameMap(SQLSelectInfo &selectInfo);
+	void checkParsedResult(void) const;
+	void fixupColumnNameMap(void);
 	void associateColumnWithTable(void);
 	void associateTableWithStaticInfo(void);
 	bool setColumnTypeAndBaseDefInColumnInfo(SQLSelectInfo &selectInfo);
