@@ -26,6 +26,7 @@ using namespace std;
 #include <cstring>
 #include "SQLProcessor.h"
 #include "SQLProcessorException.h"
+#include "AsuraException.h"
 #include "ItemEnum.h"
 #include "SQLUtils.h"
 #include "Utils.h"
@@ -73,30 +74,25 @@ private:
 	TableNameStaticInfoMap &m_tableNameStaticInfoMap;
 };
 
-struct SQLProcessor::SelectParserContext {
+struct SQLProcessor::PrivateContext {
 	SQLProcessor       *sqlProcessor;
+	SQLSelectInfo      *selectInfo;
 
+	SelectParseSection  section;
 	string              currWord;
 	string              currWordLower;
-	SelectParseSection  section;
-	SQLSelectInfo      &selectInfo;
 
 	SQLProcessorColumnIndexResolver columnIndexResolver;
 
 	// methods
-	SelectParserContext(SQLProcessor *sqlProc,
-	                    SelectParseSection _section,
-	                    SQLSelectInfo &_selectInfo,
-	                    TableNameStaticInfoMap &nameInfoMap)
+	PrivateContext(SQLProcessor *sqlProc,
+	               TableNameStaticInfoMap &nameInfoMap)
 	: sqlProcessor(sqlProc),
-	  section(_section),
-	  selectInfo(_selectInfo),
+	  selectInfo(NULL),
+	  section(SELECT_PARSING_SECTION_COLUMN),
 	  columnIndexResolver(nameInfoMap)
 	{
 	}
-};
-
-struct SQLProcessor::PrivateContext {
 };
 
 class SQLFormulaColumnDataGetter : public FormulaVariableDataGetter {
@@ -337,7 +333,7 @@ SQLProcessor::SQLProcessor(TableNameStaticInfoMap &tableNameStaticInfoMap)
   m_processorInsert(tableNameStaticInfoMap),
   m_processorUpdate(tableNameStaticInfoMap)
 {
-	m_ctx = new PrivateContext();
+	m_ctx = new PrivateContext(this, tableNameStaticInfoMap);
 
 	// Other elements are set in parseSelectStatement().
 	m_selectSeprators[SQLProcessor::SELECT_PARSING_SECTION_GROUP_BY] = 
@@ -372,8 +368,7 @@ bool SQLProcessor::parseSelectStatement(SQLSelectInfo &selectInfo)
 	MLPL_DBG("<%s> %s\n", __func__, selectInfo.statement.getString());
 	map<string, SelectSubParser>::iterator it;
 	SelectSubParser subParser = NULL;
-	SelectParserContext ctx(this, SELECT_PARSING_SECTION_COLUMN,
-	                        selectInfo, m_tableNameStaticInfoMap);
+	m_ctx->selectInfo = &selectInfo;
 
 	// set ColumnDataGetterFactory
 	selectInfo.columnParser.setColumnDataGetterFactory
@@ -392,29 +387,29 @@ bool SQLProcessor::parseSelectStatement(SQLSelectInfo &selectInfo)
 	  = selectInfo.whereParser.getSeparatorChecker();
 
 	while (!selectInfo.statement.finished()) {
-		ctx.currWord = readNextWord(ctx);
-		if (ctx.currWord.empty())
+		m_ctx->currWord = readNextWord();
+		if (m_ctx->currWord.empty())
 			continue;
 
 		// check if this is a keyword.
-		ctx.currWordLower = StringUtils::toLower(ctx.currWord);
-		it = m_selectSectionParserMap.find(ctx.currWordLower);
+		m_ctx->currWordLower = StringUtils::toLower(m_ctx->currWord);
+		it = m_selectSectionParserMap.find(m_ctx->currWordLower);
 		if (it != m_selectSectionParserMap.end()) {
 			// When the function returns 'true', it means
 			// the current word is section keyword and
 			subParser = it->second;
-			if ((this->*subParser)(ctx))
+			if ((this->*subParser)())
 				continue;
 		}
 
 		// parse each component
-		if (ctx.section >= NUM_SELECT_PARSING_SECTION) {
-			MLPL_BUG("section(%d) >= NUM_SELECT_PARSING_SECTION\n",
-			         ctx.section);
-			return false;
+		if (m_ctx->section >= NUM_SELECT_PARSING_SECTION) {
+			THROW_ASURA_EXCEPTION(
+			  "section(%d) >= NUM_SELECT_PARSING_SECTION\n",
+			  m_ctx->section);
 		}
-		subParser = m_selectSubParsers[ctx.section];
-		if (!(this->*subParser)(ctx))
+		subParser = m_selectSubParsers[m_ctx->section];
+		if (!(this->*subParser)())
 			return false;
 	}
 	if (!selectInfo.columnParser.close())
@@ -817,111 +812,114 @@ bool SQLProcessor::makeTextRows(const ItemGroup *itemGroup,
 //
 // Select status parsers
 //
-bool SQLProcessor::parseSectionColumn(SelectParserContext &ctx)
+bool SQLProcessor::parseSectionColumn(void)
 {
-	ctx.section = SELECT_PARSING_SECTION_COLUMN;
+	m_ctx->section = SELECT_PARSING_SECTION_COLUMN;
 	return true;
 }
 
-bool SQLProcessor::parseSectionFrom(SelectParserContext &ctx)
+bool SQLProcessor::parseSectionFrom(void)
 {
-	ctx.section = SELECT_PARSING_SECTION_FROM;
-	ctx.selectInfo.fromParser.setColumnIndexResolver
-	  (&ctx.columnIndexResolver);
+	m_ctx->section = SELECT_PARSING_SECTION_FROM;
+	m_ctx->selectInfo->fromParser.setColumnIndexResolver
+	  (&m_ctx->columnIndexResolver);
 	return true;
 }
 
-bool SQLProcessor::parseSectionWhere(SelectParserContext &ctx)
+bool SQLProcessor::parseSectionWhere(void)
 {
-	ctx.section = SELECT_PARSING_SECTION_WHERE;
+	m_ctx->section = SELECT_PARSING_SECTION_WHERE;
 	return true;
 }
 
-bool SQLProcessor::parseSectionOrder(SelectParserContext &ctx)
+bool SQLProcessor::parseSectionOrder(void)
 {
 	ParsingPosition currPos;
-	string nextWord = readNextWord(ctx, &currPos);
+	string nextWord = readNextWord(&currPos);
 	if (nextWord.empty())
 		return false;
 
 	if (!StringUtils::casecmp(nextWord, "by")) {
-		ctx.selectInfo.statement.setParsingPosition(currPos);
+		m_ctx->selectInfo->statement.setParsingPosition(currPos);
 		return false;
 	}
 
-	ctx.section = SELECT_PARSING_SECTION_ORDER_BY;
+	m_ctx->section = SELECT_PARSING_SECTION_ORDER_BY;
 	return true;
 }
 
-bool SQLProcessor::parseSectionGroup(SelectParserContext &ctx)
+bool SQLProcessor::parseSectionGroup(void)
 {
 	ParsingPosition currPos;
-	string nextWord = readNextWord(ctx, &currPos);
+	string nextWord = readNextWord(&currPos);
 	if (nextWord.empty())
 		return false;
 
 	if (!StringUtils::casecmp(nextWord, "by")) {
-		ctx.selectInfo.statement.setParsingPosition(currPos);
+		m_ctx->selectInfo->statement.setParsingPosition(currPos);
 		return false;
 	}
 
-	ctx.section = SELECT_PARSING_SECTION_GROUP_BY;
+	m_ctx->section = SELECT_PARSING_SECTION_GROUP_BY;
 	return true;
 }
 
-bool SQLProcessor::parseSectionLimit(SelectParserContext &ctx)
+bool SQLProcessor::parseSectionLimit(void)
 {
-	ctx.section = SELECT_PARSING_SECTION_LIMIT;
+	m_ctx->section = SELECT_PARSING_SECTION_LIMIT;
 	return true;
 }
 
 //
 // Select statment parsers
 //
-bool SQLProcessor::parseSelectedColumns(SelectParserContext &ctx)
+bool SQLProcessor::parseSelectedColumns(void)
 {
-	return ctx.selectInfo.columnParser.add(ctx.currWord, ctx.currWordLower);
+	return m_ctx->selectInfo->columnParser.add(m_ctx->currWord,
+	                                           m_ctx->currWordLower);
 }
 
-bool SQLProcessor::parseGroupBy(SelectParserContext &ctx)
+bool SQLProcessor::parseGroupBy(void)
 {
 	MLPL_BUG("Not implemented: GROUP_BY\n");
 	return false;
 }
 
-bool SQLProcessor::parseFrom(SelectParserContext &ctx)
+bool SQLProcessor::parseFrom(void)
 {
-	ctx.selectInfo.fromParser.add(ctx.currWord, ctx.currWordLower);
+	m_ctx->selectInfo->fromParser.add(m_ctx->currWord,
+	                                  m_ctx->currWordLower);
 	return true;
 }
 
-bool SQLProcessor::parseWhere(SelectParserContext &ctx)
+bool SQLProcessor::parseWhere(void)
 {
-	return ctx.selectInfo.whereParser.add(ctx.currWord, ctx.currWordLower);
+	return m_ctx->selectInfo->whereParser.add(m_ctx->currWord,
+	                                          m_ctx->currWordLower);
 }
 
-bool SQLProcessor::parseOrderBy(SelectParserContext &ctx)
+bool SQLProcessor::parseOrderBy(void)
 {
-	ctx.selectInfo.orderedColumns.push_back(ctx.currWord);
+	m_ctx->selectInfo->orderedColumns.push_back(m_ctx->currWord);
 	return true;
 }
 
-bool SQLProcessor::parseLimit(SelectParserContext &ctx)
+bool SQLProcessor::parseLimit(void)
 {
-	MLPL_BUG("Not implemented: %s: %s\n", ctx.currWord.c_str(), __func__);
+	MLPL_BUG("Not implemented: %s: %s\n",
+	         m_ctx->currWord.c_str(), __func__);
 	return true;
 }
 
 //
 // General sub routines
 //
-string SQLProcessor::readNextWord(SelectParserContext &ctx,
-                                  ParsingPosition *position)
+string SQLProcessor::readNextWord(ParsingPosition *position)
 {
-	SeparatorChecker *separator = m_selectSeprators[ctx.section];
+	SeparatorChecker *separator = m_selectSeprators[m_ctx->section];
 	if (position)
-		*position = ctx.selectInfo.statement.getParsingPosition();
-	return ctx.selectInfo.statement.readWord(*separator);
+		*position = m_ctx->selectInfo->statement.getParsingPosition();
+	return m_ctx->selectInfo->statement.readWord(*separator);
 }
 
 bool SQLProcessor::parseColumnName(const string &name,

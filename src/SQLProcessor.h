@@ -186,9 +186,6 @@ public:
 	virtual const char *getDBName(void) = 0;
 
 protected:
-	struct SelectParserContext;
-	typedef bool (SQLProcessor::*SelectSubParser)(SelectParserContext &ctx);
-
 	SQLProcessor(TableNameStaticInfoMap &tableNameStaticInfoMap);
 	virtual ~SQLProcessor();
 
@@ -233,28 +230,27 @@ protected:
 	//
 	// Select status parsers
 	//
-	bool parseSectionColumn(SelectParserContext &ctx);
-	bool parseSectionFrom(SelectParserContext &ctx);
-	bool parseSectionWhere(SelectParserContext &ctx);
-	bool parseSectionOrder(SelectParserContext &ctx);
-	bool parseSectionGroup(SelectParserContext &ctx);
-	bool parseSectionLimit(SelectParserContext &ctx);
+	bool parseSectionColumn(void);
+	bool parseSectionFrom(void);
+	bool parseSectionWhere(void);
+	bool parseSectionOrder(void);
+	bool parseSectionGroup(void);
+	bool parseSectionLimit(void);
 
 	//
 	// Select statement parsers
 	//
-	bool parseSelectedColumns(SelectParserContext &ctx);
-	bool parseGroupBy(SelectParserContext &ctx);
-	bool parseFrom(SelectParserContext &ctx);
-	bool parseWhere(SelectParserContext &ctx);
-	bool parseOrderBy(SelectParserContext &ctx);
-	bool parseLimit(SelectParserContext &ctx);
+	bool parseSelectedColumns(void);
+	bool parseGroupBy(void);
+	bool parseFrom(void);
+	bool parseWhere(void);
+	bool parseOrderBy(void);
+	bool parseLimit(void);
 
 	//
 	// General sub routines
 	//
-	string readNextWord(SelectParserContext &ctx,
-	                    ParsingPosition *position = NULL);
+	string readNextWord(ParsingPosition *position = NULL);
 	static bool parseColumnName(const string &name,
 	                            string &baseName, string &tableVar);
 	static const SQLTableInfo *
@@ -263,6 +259,7 @@ protected:
 	  formulaColumnDataGetterFactory(string &name, void *priv);
 
 private:
+	typedef bool (SQLProcessor::*SelectSubParser)(void);
 	static const SelectSubParser m_selectSubParsers[];
 	static map<string, SelectSubParser> m_selectSectionParserMap;
 
