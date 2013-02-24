@@ -301,8 +301,8 @@ bool SQLProcessor::select(SQLSelectInfo &selectInfo)
 		selectMatchingRows();
 
 		// convert data to string
-		if (!makeTextOutput(selectInfo))
-			return false;
+		makeTextOutput();
+
 	} catch (const SQLProcessorException &e) {
 		const char *message = e.what();
 		selectInfo.errorMessage = message;
@@ -726,12 +726,13 @@ void SQLProcessor::selectMatchingRows(void)
 	                                                   m_ctx);
 }
 
-bool SQLProcessor::makeTextOutput(SQLSelectInfo &selectInfo)
+void SQLProcessor::makeTextOutput(void)
 {
+	SQLSelectInfo *selectInfo = m_ctx->selectInfo;
 	// check if statistical function is included
 	bool hasStatisticalFunc = false;
 	const SQLFormulaInfoVector &formulaInfoVector
-	  = selectInfo.columnParser.getFormulaInfoVector();
+	  = selectInfo->columnParser.getFormulaInfoVector();
 	for (size_t i = 0; i < formulaInfoVector.size(); i++) {
 		if (formulaInfoVector[i]->hasStatisticalFunc) {
 			hasStatisticalFunc = true;
@@ -741,12 +742,10 @@ bool SQLProcessor::makeTextOutput(SQLSelectInfo &selectInfo)
 
 	if (hasStatisticalFunc) {
 		m_ctx->makeTextRowsWriteMaskCount =
-		  selectInfo.selectedTable->getNumberOfRows() - 1;
+		  selectInfo->selectedTable->getNumberOfRows() - 1;
 	}
-	bool ret;
-	ret = selectInfo.selectedTable->foreach<PrivateContext *>
-	                                       (makeTextRows, m_ctx);
-	return ret;
+	selectInfo->selectedTable->foreach<PrivateContext *>(makeTextRows,
+	                                                     m_ctx);
 }
 
 bool SQLProcessor::pickupMatchingRows(const ItemGroup *itemGroup,
@@ -783,8 +782,8 @@ bool SQLProcessor::makeTextRows(const ItemGroup *itemGroup,
 		  selectInfo->outputColumnVector[i];
 		const ItemDataPtr itemPtr = outputColumn.getItem(itemGroup);
 		if (!itemPtr.hasData()) {
-			MLPL_BUG("Failed to get item data.\n");
-			return false;
+			THROW_ASURA_EXCEPTION(
+			  "Failed to get item data: index: %d\n", i);
 		}
 		if (!doOutput)
 			continue;
