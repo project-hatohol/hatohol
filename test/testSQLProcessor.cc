@@ -809,8 +809,8 @@ void test_innerJoin(void) {
 	string statement =
 	  StringUtils::sprintf("select * from %s inner join %s on %s.%s=%s.%s",
 	                       TABLE0_NAME, TABLE1_NAME,
-	                       TABLE0_NAME, TABLE1_NAME,
-	                       COLUMN_NAME_NUMBER, COLUMN_NAME_AGE);
+	                       TABLE0_NAME, COLUMN_NAME_NUMBER,
+	                       TABLE1_NAME, COLUMN_NAME_AGE);
 	// check the result
 	const size_t expectedNumColumns = NUM_COLUMN0_DEFS + NUM_COLUMN1_DEFS;
 	DEFINE_SELECTINFO_AND_ASSERT_SELECT(
