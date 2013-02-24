@@ -114,7 +114,7 @@ public:
 			return;
 		}
 
-		// The owner of the SQLColumnInfo object created bellow
+		// The owner of the SQLColumnInfo object created below
 		// is *selectInfo. So its deletion is done
 		// in the destructor of the SQLSelectInfo object.
 		// No need to delete in this class.
