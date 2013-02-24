@@ -190,8 +190,9 @@ protected:
 	SQLProcessor(TableNameStaticInfoMap &tableNameStaticInfoMap);
 	virtual ~SQLProcessor();
 
+	void setSelectInfoToPrivateContext(SQLSelectInfo &selectInfo);
 	bool parseSelectStatement(SQLSelectInfo &selectInfo);
-	void makeTableInfo(SQLSelectInfo &selectInfo);
+	void makeTableInfo(void);
 	void checkParsedResult(void) const;
 	void fixupColumnNameMap(void);
 	void associateColumnWithTable(void);

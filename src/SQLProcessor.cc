@@ -273,11 +273,12 @@ void SQLProcessor::init(void)
 
 bool SQLProcessor::select(SQLSelectInfo &selectInfo)
 {
+	setSelectInfoToPrivateContext(selectInfo);
 	try {
 		// disassemble the query statement
 		if (!parseSelectStatement(selectInfo))
 			return false;
-		makeTableInfo(selectInfo);
+		makeTableInfo();
 		checkParsedResult();
 
 		// set members in SQLFormulaColumnDataGetter
@@ -365,12 +366,16 @@ SQLProcessor::checkSelectedAllColumns(const SQLSelectInfo &selectInfo,
 	return false;
 }
 
+void SQLProcessor::setSelectInfoToPrivateContext(SQLSelectInfo &selectInfo)
+{
+	m_ctx->selectInfo = &selectInfo;
+}
+
 bool SQLProcessor::parseSelectStatement(SQLSelectInfo &selectInfo)
 {
 	MLPL_DBG("<%s> %s\n", __func__, selectInfo.statement.getString());
 	map<string, SelectSubParser>::iterator it;
 	SelectSubParser subParser = NULL;
-	m_ctx->selectInfo = &selectInfo;
 
 	// set ColumnDataGetterFactory
 	selectInfo.columnParser.setColumnDataGetterFactory
@@ -423,29 +428,31 @@ bool SQLProcessor::parseSelectStatement(SQLSelectInfo &selectInfo)
 	return true;
 }
 
-void SQLProcessor::makeTableInfo(SQLSelectInfo &selectInfo)
+void SQLProcessor::makeTableInfo(void)
 {
+	SQLSelectInfo *selectInfo = m_ctx->selectInfo;
+	SQLFromParser &fromParser = selectInfo->fromParser;
 	SQLTableElementListConstIterator it =
-	  selectInfo.fromParser.getTableElementList().begin();
-	for (; it != selectInfo.fromParser.getTableElementList().end(); ++it) {
-		// make selectInfo.tables
+	  fromParser.getTableElementList().begin();
+	for (; it != fromParser.getTableElementList().end(); ++it) {
+		// make selectInfo->tables
 		const SQLTableElement *tableElem = *it;
 		SQLTableInfo *tableInfo = new SQLTableInfo();
 		tableInfo->name    = tableElem->getName();
 		tableInfo->varName = tableElem->getVarName();
-		selectInfo.tables.push_back(tableInfo);
+		selectInfo->tables.push_back(tableInfo);
 
-		// make selectInfo.tableVarInfoMap
+		// make selectInfo->tableVarInfoMap
 		string &varName = tableInfo->varName;
 		if (varName.empty())
 			continue;
 		pair<SQLTableVarNameInfoMapIterator, bool> ret =
-		  selectInfo.tableVarInfoMap.insert
+		  selectInfo->tableVarInfoMap.insert
 		    (pair<string, SQLTableInfo *>(varName, tableInfo));
 		if (!ret.second) {
 			THROW_SQL_PROCESSOR_EXCEPTION(
 			  "Failed to insert: table name: %s, %s.",
-			  varName.c_str(), selectInfo.statement.getString());
+			  varName.c_str(), selectInfo->statement.getString());
 		}
 	}
 }
