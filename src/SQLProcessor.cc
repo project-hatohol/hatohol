@@ -295,7 +295,7 @@ bool SQLProcessor::select(SQLSelectInfo &selectInfo)
 		makeItemTables();
 
 		// join tables
-		doJoin(selectInfo);
+		doJoin();
 
 		// pickup matching rows
 		if (!selectMatchingRows(selectInfo))
@@ -709,10 +709,10 @@ void SQLProcessor::makeItemTables(void)
 	}
 }
 
-void SQLProcessor::doJoin(SQLSelectInfo &selectInfo)
+void SQLProcessor::doJoin(void)
 {
-	selectInfo.joinedTable =
-	  selectInfo.fromParser.getTableFormula()->getTable();
+	m_ctx->selectInfo->joinedTable =
+	  m_ctx->selectInfo->fromParser.getTableFormula()->getTable();
 }
 
 bool SQLProcessor::selectMatchingRows(SQLSelectInfo &selectInfo)

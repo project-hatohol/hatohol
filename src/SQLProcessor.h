@@ -199,7 +199,7 @@ protected:
 	void setColumnTypeAndBaseDefInColumnInfo(void);
 	void makeColumnDefs(void);
 	void makeItemTables(void);
-	void doJoin(SQLSelectInfo &selectInfo);
+	void doJoin(void);
 	bool selectMatchingRows(SQLSelectInfo &selectInfo);
 	bool makeTextOutput(SQLSelectInfo &selectInfo);
 	bool checkSelectedAllColumns(const SQLSelectInfo &selectInfo,
