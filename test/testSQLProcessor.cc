@@ -158,7 +158,7 @@ public:
 
 	void callParseSelectStatement(SQLSelectInfo &selectInfo) {
 		setSelectInfoToPrivateContext(selectInfo);
-		parseSelectStatement(selectInfo);
+		parseSelectStatement();
 		makeTableInfo();
 	}
 

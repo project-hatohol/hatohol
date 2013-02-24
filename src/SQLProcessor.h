@@ -191,7 +191,7 @@ protected:
 	virtual ~SQLProcessor();
 
 	void setSelectInfoToPrivateContext(SQLSelectInfo &selectInfo);
-	bool parseSelectStatement(SQLSelectInfo &selectInfo);
+	void parseSelectStatement(void);
 	void makeTableInfo(void);
 	void checkParsedResult(void) const;
 	void fixupColumnNameMap(void);

@@ -276,8 +276,7 @@ bool SQLProcessor::select(SQLSelectInfo &selectInfo)
 	setSelectInfoToPrivateContext(selectInfo);
 	try {
 		// disassemble the query statement
-		if (!parseSelectStatement(selectInfo))
-			return false;
+		parseSelectStatement();
 		makeTableInfo();
 		checkParsedResult();
 
@@ -371,29 +370,30 @@ void SQLProcessor::setSelectInfoToPrivateContext(SQLSelectInfo &selectInfo)
 	m_ctx->selectInfo = &selectInfo;
 }
 
-bool SQLProcessor::parseSelectStatement(SQLSelectInfo &selectInfo)
+void SQLProcessor::parseSelectStatement(void)
 {
-	MLPL_DBG("<%s> %s\n", __func__, selectInfo.statement.getString());
+	SQLSelectInfo *selectInfo = m_ctx->selectInfo;
+	MLPL_DBG("<%s> %s\n", __func__, selectInfo->statement.getString());
 	map<string, SelectSubParser>::iterator it;
 	SelectSubParser subParser = NULL;
 
 	// set ColumnDataGetterFactory
-	selectInfo.columnParser.setColumnDataGetterFactory
+	selectInfo->columnParser.setColumnDataGetterFactory
 	  (formulaColumnDataGetterFactory, m_ctx);
-	selectInfo.whereParser.setColumnDataGetterFactory
+	selectInfo->whereParser.setColumnDataGetterFactory
 	  (formulaColumnDataGetterFactory, m_ctx);
 
 	// callback function for column and where section
 	m_selectSeprators[SQLProcessor::SELECT_PARSING_SECTION_COLUMN]
-	  = selectInfo.columnParser.getSeparatorChecker();
+	  = selectInfo->columnParser.getSeparatorChecker();
 
 	m_selectSeprators[SQLProcessor::SELECT_PARSING_SECTION_FROM]
-	  = selectInfo.fromParser.getSeparatorChecker();
+	  = selectInfo->fromParser.getSeparatorChecker();
 
 	m_selectSeprators[SQLProcessor::SELECT_PARSING_SECTION_WHERE]
-	  = selectInfo.whereParser.getSeparatorChecker();
+	  = selectInfo->whereParser.getSeparatorChecker();
 
-	while (!selectInfo.statement.finished()) {
+	while (!selectInfo->statement.finished()) {
 		m_ctx->currWord = readNextWord();
 		if (m_ctx->currWord.empty())
 			continue;
@@ -417,15 +417,13 @@ bool SQLProcessor::parseSelectStatement(SQLSelectInfo &selectInfo)
 		}
 		subParser = m_selectSubParsers[m_ctx->section];
 		if (!(this->*subParser)())
-			return false;
+			THROW_SQL_PROCESSOR_EXCEPTION("Failed: subParser()");
 	}
-	if (!selectInfo.columnParser.close())
-		return false;
-	if (!selectInfo.whereParser.close())
-		return false;
-	selectInfo.fromParser.close();
-
-	return true;
+	if (!selectInfo->columnParser.close())
+		THROW_SQL_PROCESSOR_EXCEPTION("Failed: columnParser.close");
+	if (!selectInfo->whereParser.close())
+		THROW_SQL_PROCESSOR_EXCEPTION("Failed: whereParser.close");
+	selectInfo->fromParser.close();
 }
 
 void SQLProcessor::makeTableInfo(void)
