@@ -84,36 +84,42 @@ struct SQLProcessor::PrivateContext {
 
 	SQLProcessorColumnIndexResolver columnIndexResolver;
 
+	// currently processed Item Group used in selectMatchingRows()
+	ItemGroupPtr        evalTargetItemGroup;
+
 	// methods
 	PrivateContext(SQLProcessor *sqlProc,
 	               TableNameStaticInfoMap &nameInfoMap)
 	: sqlProcessor(sqlProc),
 	  selectInfo(NULL),
 	  section(SELECT_PARSING_SECTION_COLUMN),
-	  columnIndexResolver(nameInfoMap)
+	  columnIndexResolver(nameInfoMap),
+	  evalTargetItemGroup(NULL)
 	{
 	}
 };
 
 class SQLFormulaColumnDataGetter : public FormulaVariableDataGetter {
 public:
-	SQLFormulaColumnDataGetter(string &name, SQLSelectInfo *selectInfo)
-	: m_selectInfo(selectInfo),
+	SQLFormulaColumnDataGetter(string &name,
+	                           SQLSelectInfo *selectInfo,
+	                           ItemGroupPtr &evalTargetItemGroup)
+	: m_evalTargetItemGroup(evalTargetItemGroup),
 	  m_columnInfo(NULL)
 	{
 		SQLColumnNameMapIterator it
-		  = m_selectInfo->columnNameMap.find(name);
-		if (it != m_selectInfo->columnNameMap.end()) {
+		  = selectInfo->columnNameMap.find(name);
+		if (it != selectInfo->columnNameMap.end()) {
 			m_columnInfo = it->second;
 			return;
 		}
 
 		// The owner of the SQLColumnInfo object created bellow
-		// is *m_selectInfo. So its deletion is done
+		// is *selectInfo. So its deletion is done
 		// in the destructor of the SQLSelectInfo object.
 		// No need to delete in this class.
 		m_columnInfo = new SQLColumnInfo(name);
-		m_selectInfo->columnNameMap[name] = m_columnInfo;
+		selectInfo->columnNameMap[name] = m_columnInfo;
 	}
 	
 	virtual ~SQLFormulaColumnDataGetter()
@@ -131,8 +137,7 @@ public:
 			throw logic_error(msg);
 		}
 		ItemId itemId = m_columnInfo->columnBaseDef->itemId;
-		return ItemDataPtr
-		         (m_selectInfo->evalTargetItemGroup->getItem(itemId));
+		return ItemDataPtr(m_evalTargetItemGroup->getItem(itemId));
 	}
 
 	SQLColumnInfo *getColumnInfo(void) const
@@ -141,7 +146,7 @@ public:
 	}
 
 private:
-	SQLSelectInfo *m_selectInfo;
+	ItemGroupPtr  &m_evalTargetItemGroup;
 	SQLColumnInfo *m_columnInfo;
 };
 
@@ -224,7 +229,6 @@ SQLSelectInfo::SQLSelectInfo(ParsableString &_statement)
 : SQLProcessorInfo(_statement),
   useIndex(false),
   makeTextRowsWriteMaskCount(0),
-  evalTargetItemGroup(NULL),
   itemFalsePtr(new ItemBool(false), false)
 {
 }
@@ -370,9 +374,9 @@ bool SQLProcessor::parseSelectStatement(SQLSelectInfo &selectInfo)
 
 	// set ColumnDataGetterFactory
 	selectInfo.columnParser.setColumnDataGetterFactory
-	  (formulaColumnDataGetterFactory, &selectInfo);
+	  (formulaColumnDataGetterFactory, m_ctx);
 	selectInfo.whereParser.setColumnDataGetterFactory
-	  (formulaColumnDataGetterFactory, &selectInfo);
+	  (formulaColumnDataGetterFactory, m_ctx);
 
 	// callback function for column and where section
 	m_selectSeprators[SQLProcessor::SELECT_PARSING_SECTION_COLUMN]
@@ -725,8 +729,8 @@ bool SQLProcessor::selectMatchingRows(SQLSelectInfo &selectInfo)
 		selectInfo.selectedTable = selectInfo.joinedTable;
 		return true;
 	}
-	return selectInfo.joinedTable->foreach<SQLSelectInfo&>
-	                                    (pickupMatchingRows, selectInfo);
+	return selectInfo.joinedTable->foreach<PrivateContext *>
+	                                    (pickupMatchingRows, m_ctx);
 }
 
 bool SQLProcessor::makeTextOutput(SQLSelectInfo &selectInfo)
@@ -747,44 +751,45 @@ bool SQLProcessor::makeTextOutput(SQLSelectInfo &selectInfo)
 		  selectInfo.selectedTable->getNumberOfRows() - 1;
 	}
 	bool ret;
-	ret = selectInfo.selectedTable->foreach<SQLSelectInfo&>
-	                                       (makeTextRows, selectInfo);
+	ret = selectInfo.selectedTable->foreach<PrivateContext *>
+	                                       (makeTextRows, m_ctx);
 	return ret;
 }
 
 bool SQLProcessor::pickupMatchingRows(const ItemGroup *itemGroup,
-                                      SQLSelectInfo &selectInfo)
+                                      PrivateContext *ctx)
 {
 	ItemGroup *nonConstItemGroup = const_cast<ItemGroup *>(itemGroup);
-	selectInfo.evalTargetItemGroup = nonConstItemGroup;
-	FormulaElement *formula = selectInfo.whereParser.getFormula();
+	ctx->evalTargetItemGroup = nonConstItemGroup;
+	FormulaElement *formula = ctx->selectInfo->whereParser.getFormula();
 	ItemDataPtr result = formula->evaluate();
 	if (!result.hasData()) {
 		MLPL_DBG("result has no data.\n");
 		return false;
 	}
-	if (*result == *selectInfo.itemFalsePtr)
+	if (*result == *ctx->selectInfo->itemFalsePtr)
 		return true;
-	selectInfo.selectedTable->add(nonConstItemGroup);
+	ctx->selectInfo->selectedTable->add(nonConstItemGroup);
 	return true;
 }
 
 bool SQLProcessor::makeTextRows(const ItemGroup *itemGroup,
-                                SQLSelectInfo &selectInfo)
+                                PrivateContext *ctx)
 {
+	SQLSelectInfo *selectInfo = ctx->selectInfo;
 	bool doOutput = false;
-	if (selectInfo.makeTextRowsWriteMaskCount == 0)
+	if (selectInfo->makeTextRowsWriteMaskCount == 0)
 		doOutput = true;
 	else
-		selectInfo.makeTextRowsWriteMaskCount--;
+		selectInfo->makeTextRowsWriteMaskCount--;
 
 	ItemGroup *nonConstItemGroup = const_cast<ItemGroup *>(itemGroup);
-	selectInfo.evalTargetItemGroup = nonConstItemGroup;
+	ctx->evalTargetItemGroup = nonConstItemGroup;
 
 	StringVector textVector;
-	for (size_t i = 0; i < selectInfo.outputColumnVector.size(); i++) {
+	for (size_t i = 0; i < selectInfo->outputColumnVector.size(); i++) {
 		const SQLOutputColumn &outputColumn =
-		  selectInfo.outputColumnVector[i];
+		  selectInfo->outputColumnVector[i];
 		const ItemDataPtr itemPtr = outputColumn.getItem(itemGroup);
 		if (!itemPtr.hasData()) {
 			MLPL_BUG("Failed to get item data.\n");
@@ -795,7 +800,7 @@ bool SQLProcessor::makeTextRows(const ItemGroup *itemGroup,
 		textVector.push_back(itemPtr->getString());
 	}
 	if (!textVector.empty())
-		selectInfo.textRows.push_back(textVector);
+		selectInfo->textRows.push_back(textVector);
 	return true;
 }
 
@@ -949,6 +954,8 @@ SQLProcessor::getTableInfoFromVarName(const SQLSelectInfo &selectInfo,
 FormulaVariableDataGetter *
 SQLProcessor::formulaColumnDataGetterFactory(string &name, void *priv)
 {
-	SQLSelectInfo *selectInfo = static_cast<SQLSelectInfo *>(priv);
-	return new SQLFormulaColumnDataGetter(name, selectInfo);
+	PrivateContext *ctx = static_cast<PrivateContext *>(priv);
+	SQLSelectInfo *selectInfo = ctx->selectInfo;
+	return new SQLFormulaColumnDataGetter(name, selectInfo,
+	                                      ctx->evalTargetItemGroup);
 }

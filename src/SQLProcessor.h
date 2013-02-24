@@ -165,9 +165,6 @@ struct SQLSelectInfo : public SQLProcessorInfo {
 	bool useIndex;
 	size_t makeTextRowsWriteMaskCount;
 
-	// temporay variable for selecting column
-	ItemGroupPtr evalTargetItemGroup;
-
 	// constants
 	const ItemDataPtr itemFalsePtr;
 
@@ -180,6 +177,9 @@ struct SQLSelectInfo : public SQLProcessorInfo {
 
 class SQLProcessor
 {
+private:
+	struct PrivateContext;
+
 public:
 	static void init(void);
 	virtual bool select(SQLSelectInfo &selectInfo);
@@ -225,9 +225,9 @@ protected:
 	setSelectResult(const ItemGroup *itemGroup, SQLSelectInfo &selectInfo);
 
 	static bool pickupMatchingRows(const ItemGroup *itemGroup,
-	                               SQLSelectInfo &selectInfo);
+	                               PrivateContext *ctx);
 	static bool makeTextRows(const ItemGroup *itemGroup,
-	                         SQLSelectInfo &selectInfo);
+	                         PrivateContext *ctx);
 
 	//
 	// Select status parsers
@@ -266,7 +266,6 @@ private:
 	static const SelectSubParser m_selectSubParsers[];
 	static map<string, SelectSubParser> m_selectSectionParserMap;
 
-	struct PrivateContext;
 	PrivateContext              *m_ctx;;
 
 	enum SelectParseSection {
