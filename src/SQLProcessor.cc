@@ -87,6 +87,9 @@ struct SQLProcessor::PrivateContext {
 	// currently processed Item Group used in selectMatchingRows()
 	ItemGroupPtr        evalTargetItemGroup;
 
+	// The number of times to be masked for generating output lines.
+	size_t              makeTextRowsWriteMaskCount;
+
 	// methods
 	PrivateContext(SQLProcessor *sqlProc,
 	               TableNameStaticInfoMap &nameInfoMap)
@@ -94,7 +97,8 @@ struct SQLProcessor::PrivateContext {
 	  selectInfo(NULL),
 	  section(SELECT_PARSING_SECTION_COLUMN),
 	  columnIndexResolver(nameInfoMap),
-	  evalTargetItemGroup(NULL)
+	  evalTargetItemGroup(NULL),
+	  makeTextRowsWriteMaskCount(0)
 	{
 	}
 };
@@ -228,7 +232,6 @@ void SQLColumnInfo::setColumnType(void)
 SQLSelectInfo::SQLSelectInfo(ParsableString &_statement)
 : SQLProcessorInfo(_statement),
   useIndex(false),
-  makeTextRowsWriteMaskCount(0),
   itemFalsePtr(new ItemBool(false), false)
 {
 }
@@ -747,7 +750,7 @@ bool SQLProcessor::makeTextOutput(SQLSelectInfo &selectInfo)
 	}
 
 	if (hasStatisticalFunc) {
-		selectInfo.makeTextRowsWriteMaskCount =
+		m_ctx->makeTextRowsWriteMaskCount =
 		  selectInfo.selectedTable->getNumberOfRows() - 1;
 	}
 	bool ret;
@@ -778,10 +781,10 @@ bool SQLProcessor::makeTextRows(const ItemGroup *itemGroup,
 {
 	SQLSelectInfo *selectInfo = ctx->selectInfo;
 	bool doOutput = false;
-	if (selectInfo->makeTextRowsWriteMaskCount == 0)
+	if (ctx->makeTextRowsWriteMaskCount == 0)
 		doOutput = true;
 	else
-		selectInfo->makeTextRowsWriteMaskCount--;
+		ctx->makeTextRowsWriteMaskCount--;
 
 	ItemGroup *nonConstItemGroup = const_cast<ItemGroup *>(itemGroup);
 	ctx->evalTargetItemGroup = nonConstItemGroup;

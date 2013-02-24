@@ -163,7 +163,6 @@ struct SQLSelectInfo : public SQLProcessorInfo {
 
 	// flags
 	bool useIndex;
-	size_t makeTextRowsWriteMaskCount;
 
 	// constants
 	const ItemDataPtr itemFalsePtr;
