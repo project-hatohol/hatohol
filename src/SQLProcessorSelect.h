@@ -186,7 +186,6 @@ public:
 	                   TableNameStaticInfoMap &tableNameStaticInfoMap);
 	virtual ~SQLProcessorSelect();
 	virtual bool select(SQLSelectInfo &selectInfo);
-	//virtual const char *getDBName(void);
 
 protected:
 	void setSelectInfoToPrivateContext(SQLSelectInfo &selectInfo);
