@@ -274,8 +274,7 @@ bool SQLProcessor::select(SQLSelectInfo &selectInfo)
 		checkParsedResult(selectInfo);
 
 		// set members in SQLFormulaColumnDataGetter
-		if (!fixupColumnNameMap(selectInfo))
-			return false;
+		fixupColumnNameMap(selectInfo);
 
 		// associate each column with the table
 		if (!associateColumnWithTable(selectInfo))
@@ -457,18 +456,15 @@ void SQLProcessor::checkParsedResult(const SQLSelectInfo &selectInfo) const
 		THROW_SQL_PROCESSOR_EXCEPTION("Not found: tables.");
 }
 
-bool SQLProcessor::fixupColumnNameMap(SQLSelectInfo &selectInfo)
+void SQLProcessor::fixupColumnNameMap(SQLSelectInfo &selectInfo)
 {
 	SQLColumnNameMapIterator it = selectInfo.columnNameMap.begin();
 	for (; it != selectInfo.columnNameMap.end(); ++it) {
 		SQLColumnInfo *columnInfo = it->second;
-		if (!parseColumnName(columnInfo->name, columnInfo->baseName,
-	                              columnInfo->tableVar)) {
-			return false;
-		}
+		parseColumnName(columnInfo->name, columnInfo->baseName,
+		                columnInfo->tableVar);
 		columnInfo->setColumnType();
 	}
-	return true;
 }
 
 bool SQLProcessor::associateColumnWithTable(SQLSelectInfo &selectInfo)
@@ -922,17 +918,17 @@ string SQLProcessor::readNextWord(ParsingPosition *position)
 	return m_ctx->selectInfo->statement.readWord(*separator);
 }
 
-bool SQLProcessor::parseColumnName(const string &name,
+void SQLProcessor::parseColumnName(const string &name,
                                    string &baseName, string &tableVar)
 {
 	size_t dotPos = name.find('.');
 	if (dotPos == 0) {
-		MLPL_DBG("Column name begins from dot. : %s", name.c_str());
-		return false;
+		THROW_SQL_PROCESSOR_EXCEPTION(
+		  "Column name begins from dot. : %s", name.c_str());
 	}
 	if (dotPos == (name.size() - 1)) {
-		MLPL_DBG("Column name ends with dot. : %s", name.c_str());
-		return false;
+		THROW_SQL_PROCESSOR_EXCEPTION(
+		  "Column name ends with dot. : %s", name.c_str());
 	}
 
 	if (dotPos != string::npos) {
@@ -941,7 +937,6 @@ bool SQLProcessor::parseColumnName(const string &name,
 	} else {
 		baseName = name;
 	}
-	return true;
 }
 
 const SQLTableInfo *

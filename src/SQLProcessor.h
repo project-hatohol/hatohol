@@ -192,7 +192,7 @@ protected:
 	bool parseSelectStatement(SQLSelectInfo &selectInfo);
 	void makeTableInfo(SQLSelectInfo &selectInfo);
 	void checkParsedResult(const SQLSelectInfo &selectInfo) const;
-	bool fixupColumnNameMap(SQLSelectInfo &selectInfo);
+	void fixupColumnNameMap(SQLSelectInfo &selectInfo);
 	bool associateColumnWithTable(SQLSelectInfo &selectInfo);
 	bool associateTableWithStaticInfo(SQLSelectInfo &selectInfo);
 	bool setColumnTypeAndBaseDefInColumnInfo(SQLSelectInfo &selectInfo);
@@ -251,7 +251,7 @@ protected:
 	// General sub routines
 	//
 	string readNextWord(ParsingPosition *position = NULL);
-	static bool parseColumnName(const string &name,
+	static void parseColumnName(const string &name,
 	                            string &baseName, string &tableVar);
 	static const SQLTableInfo *
 	  getTableInfoFromVarName(SQLSelectInfo &selectInfo, string &tableVar);
