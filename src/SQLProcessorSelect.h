@@ -267,18 +267,6 @@ private:
 
 	PrivateContext              *m_ctx;;
 
-	enum SelectParseSection {
-		SELECT_PARSING_SECTION_COLUMN,
-		SELECT_PARSING_SECTION_GROUP_BY,
-		SELECT_PARSING_SECTION_FROM,
-		SELECT_PARSING_SECTION_WHERE,
-		SELECT_PARSING_SECTION_ORDER_BY,
-		SELECT_PARSING_SECTION_LIMIT,
-		NUM_SELECT_PARSING_SECTION,
-	};
-
-	SeparatorChecker *m_selectSeprators[NUM_SELECT_PARSING_SECTION];
-	SeparatorChecker             m_separatorSpaceComma;
 };
 
 #endif // SQLProcessorSelect_h

@@ -51,6 +51,16 @@ enum BetweenParsingStep {
 	BETWEEN_EXPECT_SECOND,
 };
 
+enum SelectParseSection {
+	SELECT_PARSING_SECTION_COLUMN,
+	SELECT_PARSING_SECTION_GROUP_BY,
+	SELECT_PARSING_SECTION_FROM,
+	SELECT_PARSING_SECTION_WHERE,
+	SELECT_PARSING_SECTION_ORDER_BY,
+	SELECT_PARSING_SECTION_LIMIT,
+	NUM_SELECT_PARSING_SECTION,
+};
+
 class SQLProcessorColumnIndexResolver : public SQLColumnIndexResoveler {
 public:
 	SQLProcessorColumnIndexResolver(TableNameStaticInfoMap &nameInfoMap)
@@ -84,6 +94,9 @@ struct SQLProcessorSelect::PrivateContext {
 	// set in an SQLProcessor's sub class.
 	TableNameStaticInfoMap      &tableNameStaticInfoMap;
 
+	SeparatorChecker   *selectSeprators[NUM_SELECT_PARSING_SECTION];
+	SeparatorChecker    separatorSpaceComma;
+
 	SelectParseSection  section;
 	string              currWord;
 	string              currWordLower;
@@ -103,6 +116,7 @@ struct SQLProcessorSelect::PrivateContext {
 	  selectInfo(NULL),
 	  dbName(_dbName),
 	  tableNameStaticInfoMap(nameInfoMap),
+	  separatorSpaceComma(" ,"),
 	  section(SELECT_PARSING_SECTION_COLUMN),
 	  columnIndexResolver(nameInfoMap),
 	  evalTargetItemGroup(NULL),
@@ -328,18 +342,15 @@ bool SQLProcessorSelect::select(SQLSelectInfo &selectInfo)
 // ---------------------------------------------------------------------------
 SQLProcessorSelect::SQLProcessorSelect
   (const string &dbName, TableNameStaticInfoMap &tableNameStaticInfoMap)
-: m_ctx(NULL),
-  m_separatorSpaceComma(" ,")
+: m_ctx(NULL)
 {
 	m_ctx = new PrivateContext(this, dbName, tableNameStaticInfoMap);
 
 	// Other elements are set in parseSelectStatement().
-	m_selectSeprators[SQLProcessorSelect::SELECT_PARSING_SECTION_GROUP_BY] = 
-	  &m_separatorSpaceComma;
-	m_selectSeprators[SQLProcessorSelect::SELECT_PARSING_SECTION_ORDER_BY] = 
-	  &m_separatorSpaceComma;
-	m_selectSeprators[SQLProcessorSelect::SELECT_PARSING_SECTION_LIMIT] = 
-	  &m_separatorSpaceComma;
+	SeparatorChecker *sep = &m_ctx->separatorSpaceComma;
+	m_ctx->selectSeprators[SELECT_PARSING_SECTION_GROUP_BY] = sep;
+	m_ctx->selectSeprators[SELECT_PARSING_SECTION_ORDER_BY] = sep;
+	m_ctx->selectSeprators[SELECT_PARSING_SECTION_LIMIT] = sep;
 }
 
 SQLProcessorSelect::~SQLProcessorSelect()
@@ -379,13 +390,13 @@ void SQLProcessorSelect::parseSelectStatement(void)
 	  (formulaColumnDataGetterFactory, m_ctx);
 
 	// callback function for column and where section
-	m_selectSeprators[SQLProcessorSelect::SELECT_PARSING_SECTION_COLUMN]
+	m_ctx->selectSeprators[SELECT_PARSING_SECTION_COLUMN]
 	  = selectInfo->columnParser.getSeparatorChecker();
 
-	m_selectSeprators[SQLProcessorSelect::SELECT_PARSING_SECTION_FROM]
+	m_ctx->selectSeprators[SELECT_PARSING_SECTION_FROM]
 	  = selectInfo->fromParser.getSeparatorChecker();
 
-	m_selectSeprators[SQLProcessorSelect::SELECT_PARSING_SECTION_WHERE]
+	m_ctx->selectSeprators[SELECT_PARSING_SECTION_WHERE]
 	  = selectInfo->whereParser.getSeparatorChecker();
 
 	while (!selectInfo->statement.finished()) {
@@ -899,7 +910,7 @@ void SQLProcessorSelect::parseLimit(void)
 //
 string SQLProcessorSelect::readNextWord(ParsingPosition *position)
 {
-	SeparatorChecker *separator = m_selectSeprators[m_ctx->section];
+	SeparatorChecker *separator = m_ctx->selectSeprators[m_ctx->section];
 	if (position)
 		*position = m_ctx->selectInfo->statement.getParsingPosition();
 	return m_ctx->selectInfo->statement.readWord(*separator);
