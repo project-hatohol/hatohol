@@ -279,10 +279,6 @@ private:
 
 	SeparatorChecker *m_selectSeprators[NUM_SELECT_PARSING_SECTION];
 	SeparatorChecker             m_separatorSpaceComma;
-
-	// The content of m_tableNameStaticInfoMap is typically
-	// set in sub classes.
-	TableNameStaticInfoMap      &m_tableNameStaticInfoMap;
 };
 
 #endif // SQLProcessorSelect_h

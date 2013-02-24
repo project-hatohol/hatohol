@@ -80,6 +80,10 @@ struct SQLProcessorSelect::PrivateContext {
 	SQLSelectInfo      *selectInfo;
 	string              dbName;
 
+	// The content of m_tableNameStaticInfoMap is typically
+	// set in an SQLProcessor's sub class.
+	TableNameStaticInfoMap      &tableNameStaticInfoMap;
+
 	SelectParseSection  section;
 	string              currWord;
 	string              currWordLower;
@@ -98,6 +102,7 @@ struct SQLProcessorSelect::PrivateContext {
 	: processorSelect(procSelect),
 	  selectInfo(NULL),
 	  dbName(_dbName),
+	  tableNameStaticInfoMap(nameInfoMap),
 	  section(SELECT_PARSING_SECTION_COLUMN),
 	  columnIndexResolver(nameInfoMap),
 	  evalTargetItemGroup(NULL),
@@ -324,8 +329,7 @@ bool SQLProcessorSelect::select(SQLSelectInfo &selectInfo)
 SQLProcessorSelect::SQLProcessorSelect
   (const string &dbName, TableNameStaticInfoMap &tableNameStaticInfoMap)
 : m_ctx(NULL),
-  m_separatorSpaceComma(" ,"),
-  m_tableNameStaticInfoMap(tableNameStaticInfoMap)
+  m_separatorSpaceComma(" ,")
 {
 	m_ctx = new PrivateContext(this, dbName, tableNameStaticInfoMap);
 
@@ -505,8 +509,8 @@ void SQLProcessorSelect::associateTableWithStaticInfo(void)
 	for (; tblInfoIt != m_ctx->selectInfo->tables.end(); ++tblInfoIt) {
 		SQLTableInfo *tableInfo = *tblInfoIt;
 		TableNameStaticInfoMapIterator it;
-		it = m_tableNameStaticInfoMap.find(tableInfo->name);
-		if (it == m_tableNameStaticInfoMap.end()) {
+		it = m_ctx->tableNameStaticInfoMap.find(tableInfo->name);
+		if (it == m_ctx->tableNameStaticInfoMap.end()) {
 			THROW_SQL_PROCESSOR_EXCEPTION(
 			  "Not found table: %s\n", tableInfo->name.c_str());
 		}
