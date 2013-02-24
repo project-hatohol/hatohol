@@ -374,8 +374,7 @@ void SQLProcessor::parseSelectStatement(void)
 {
 	SQLSelectInfo *selectInfo = m_ctx->selectInfo;
 	MLPL_DBG("<%s> %s\n", __func__, selectInfo->statement.getString());
-	map<string, SelectSubParser>::iterator it;
-	SelectSubParser subParser = NULL;
+	map<string, SelectSectionParser>::iterator it;
 
 	// set ColumnDataGetterFactory
 	selectInfo->columnParser.setColumnDataGetterFactory
@@ -404,8 +403,8 @@ void SQLProcessor::parseSelectStatement(void)
 		if (it != m_selectSectionParserMap.end()) {
 			// When the function returns 'true', it means
 			// the current word is section keyword and
-			subParser = it->second;
-			if ((this->*subParser)())
+			SelectSectionParser sectionParser = it->second;
+			if ((this->*sectionParser)())
 				continue;
 		}
 
@@ -415,9 +414,8 @@ void SQLProcessor::parseSelectStatement(void)
 			  "section(%d) >= NUM_SELECT_PARSING_SECTION\n",
 			  m_ctx->section);
 		}
-		subParser = m_selectSubParsers[m_ctx->section];
-		if (!(this->*subParser)())
-			THROW_SQL_PROCESSOR_EXCEPTION("Failed: subParser()");
+		SelectSubParser subParser = m_selectSubParsers[m_ctx->section];
+		(this->*subParser)();
 	}
 	if (!selectInfo->columnParser.close())
 		THROW_SQL_PROCESSOR_EXCEPTION("Failed: columnParser.close");
@@ -863,42 +861,42 @@ bool SQLProcessor::parseSectionLimit(void)
 //
 // Select statment parsers
 //
-bool SQLProcessor::parseSelectedColumns(void)
+void SQLProcessor::parseSelectedColumns(void)
 {
-	return m_ctx->selectInfo->columnParser.add(m_ctx->currWord,
-	                                           m_ctx->currWordLower);
+	if (!m_ctx->selectInfo->columnParser.add(m_ctx->currWord,
+	                                         m_ctx->currWordLower)) {
+		THROW_SQL_PROCESSOR_EXCEPTION("Failed: columnParser.add()");
+	}
 }
 
-bool SQLProcessor::parseGroupBy(void)
+void SQLProcessor::parseGroupBy(void)
 {
-	MLPL_BUG("Not implemented: GROUP_BY\n");
-	return false;
+	THROW_ASURA_EXCEPTION("Not implemented: GROUP_BY\n");
 }
 
-bool SQLProcessor::parseFrom(void)
+void SQLProcessor::parseFrom(void)
 {
 	m_ctx->selectInfo->fromParser.add(m_ctx->currWord,
 	                                  m_ctx->currWordLower);
-	return true;
 }
 
-bool SQLProcessor::parseWhere(void)
+void SQLProcessor::parseWhere(void)
 {
-	return m_ctx->selectInfo->whereParser.add(m_ctx->currWord,
-	                                          m_ctx->currWordLower);
+	if (!m_ctx->selectInfo->whereParser.add(m_ctx->currWord,
+	                                        m_ctx->currWordLower)) {
+		THROW_SQL_PROCESSOR_EXCEPTION("Failed: whereParser.add()");
+	}
 }
 
-bool SQLProcessor::parseOrderBy(void)
+void SQLProcessor::parseOrderBy(void)
 {
 	m_ctx->selectInfo->orderedColumns.push_back(m_ctx->currWord);
-	return true;
 }
 
-bool SQLProcessor::parseLimit(void)
+void SQLProcessor::parseLimit(void)
 {
 	MLPL_BUG("Not implemented: %s: %s\n",
 	         m_ctx->currWord.c_str(), __func__);
-	return true;
 }
 
 //

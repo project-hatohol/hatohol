@@ -239,14 +239,14 @@ protected:
 	bool parseSectionLimit(void);
 
 	//
-	// Select statement parsers
+	// Select statement sub parsers
 	//
-	bool parseSelectedColumns(void);
-	bool parseGroupBy(void);
-	bool parseFrom(void);
-	bool parseWhere(void);
-	bool parseOrderBy(void);
-	bool parseLimit(void);
+	void parseSelectedColumns(void);
+	void parseGroupBy(void);
+	void parseFrom(void);
+	void parseWhere(void);
+	void parseOrderBy(void);
+	void parseLimit(void);
 
 	//
 	// General sub routines
@@ -262,9 +262,9 @@ protected:
 
 private:
 	typedef bool (SQLProcessor::*SelectSectionParser)(void);
-	typedef bool (SQLProcessor::*SelectSubParser)(void);
+	typedef void (SQLProcessor::*SelectSubParser)(void);
 	static const SelectSubParser m_selectSubParsers[];
-	static map<string, SelectSubParser> m_selectSectionParserMap;
+	static map<string, SelectSectionParser> m_selectSectionParserMap;
 
 	PrivateContext              *m_ctx;;
 
