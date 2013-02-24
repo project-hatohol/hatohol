@@ -6,7 +6,6 @@
 * [S] Support NULL value of column.
 * [S] Support initial value of column.
 * [M] Support the form: insert into table values (xx, xxx, xxx, xx)
-* [M] make SQLProcessorSelect.
 
 * [M] Mechanism for local DB
 Stores data such as configuration.

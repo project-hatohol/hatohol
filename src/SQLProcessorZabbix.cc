@@ -51,10 +51,7 @@ TableNameStaticInfoMap SQLProcessorZabbix::m_tableNameStaticInfoMap;
 // ---------------------------------------------------------------------------
 void SQLProcessorZabbix::init(void)
 {
-#define MAKE_FUNC(G) \
-  static_cast<SQLTableMakeFunc> \
-    (&SQLProcessorZabbix::tableMakeFuncTemplate<G>), \
-  tableGetFuncTemplate<G>
+#define MAKE_FUNC(G) tableGetFuncTemplate<G>
 
 	static SQLTableStaticInfo *staticInfo;
 	staticInfo =
@@ -406,7 +403,7 @@ const char *SQLProcessorZabbix::getDBName(void)
 // Public methods
 // ---------------------------------------------------------------------------
 SQLProcessorZabbix::SQLProcessorZabbix(void)
-: SQLProcessor(m_tableNameStaticInfoMap)
+: SQLProcessor(getDBName(), m_tableNameStaticInfoMap)
 {
 	m_VDSZabbix = VirtualDataStoreZabbix::getInstance();
 	MLPL_INFO("created: %s\n", __func__);
@@ -419,15 +416,6 @@ SQLProcessorZabbix::~SQLProcessorZabbix()
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
-template<ItemGroupId GROUP_ID>
-const ItemTablePtr
-SQLProcessorZabbix::tableMakeFuncTemplate(SQLSelectInfo &selectInfo,
-                                          const SQLTableInfo &tableInfo)
-{
-	const ItemGroupId itemGroupId = GROUP_ID;
-	return m_VDSZabbix->getItemTable(itemGroupId);
-}
-
 template<ItemGroupId GROUP_ID>
 ItemTablePtr SQLProcessorZabbix::tableGetFuncTemplate(void)
 {
@@ -442,13 +430,11 @@ ItemTablePtr SQLProcessorZabbix::tableGetFuncTemplate(void)
 // ---------------------------------------------------------------------------
 SQLTableStaticInfo *
 SQLProcessorZabbix::defineTable(int tableId, const char *tableName,
-                                SQLTableMakeFunc tableMakeFunc,
                                 SQLTableGetFunc tableGetFunc)
 {
 	SQLTableStaticInfo *staticInfo = new SQLTableStaticInfo();
 	staticInfo->tableId = tableId;
 	staticInfo->tableName = tableName;
-	staticInfo->tableMakeFunc = tableMakeFunc;
 	staticInfo->tableGetFunc = tableGetFunc;
 	m_tableNameStaticInfoMap[tableName] = staticInfo;
 	return staticInfo;

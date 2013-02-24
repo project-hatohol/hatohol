@@ -143,10 +143,11 @@ static const size_t NUM_TABLE_DATA = sizeof(tableData) / sizeof(TableData);
 class TestSQLProcessor : public SQLProcessor {
 public:
 	TestSQLProcessor(void)
-	: SQLProcessor(m_tableNameStaticInfoMap)
+	: SQLProcessor(getDBName(), m_tableNameStaticInfoMap)
 	{
 		// To use the same table for tests
 		m_table0Ptr = makeTable0();
+		m_table1Ptr = makeTable1();
 
 		initStaticInfo();
 	}
@@ -156,65 +157,19 @@ public:
 		return "TestTable";
 	}
 
-	void callParseSelectStatement(SQLSelectInfo &selectInfo) {
-		setSelectInfoToPrivateContext(selectInfo);
-		parseSelectStatement();
-		makeTableInfo();
-	}
-
-	const ItemTablePtr
-	table0MakeFunc(SQLSelectInfo &selectInfo,
-	              const SQLTableInfo &tableInfo)
-	{
-		return m_table0Ptr;
-	}
-
-	const ItemTablePtr
-	table1MakeFunc(SQLSelectInfo &selectInfo,
-	               const SQLTableInfo &tableInfo)
-	{
-		const ItemTablePtr tablePtr;
-		for (size_t i = 0; i < numTestData1; i++) {
-			ItemGroup *grp = tablePtr->addNewGroup();
-			grp->add(new ItemInt(ITEM_ID_AGE,
-			                     testData1[i].age), false);
-			grp->add(new ItemString(ITEM_ID_ANIMAL,
-			                        testData1[i].animal), false);
-			grp->add(new ItemString(ITEM_ID_FOOD,
-			                        testData1[i].food), false);
-		}
-		return tablePtr;
-	}
-
-	const ItemTablePtr
-	tableZMakeFunc(SQLSelectInfo &selectInfo,
-	               const SQLTableInfo &tableInfo)
-	{
-		const ItemTablePtr tablePtr;
-		return tablePtr;
-	}
-
-	const ItemTablePtr tableNMakeFunc(SQLSelectInfo &selectInfo,
-	                                  const SQLTableInfo &tableInfo)
-	{
-		const ItemTablePtr tablePtr(NULL);
-		return tablePtr;
-	}
-
 private:
 	static ItemTablePtr    m_table0Ptr;
+	static ItemTablePtr    m_table1Ptr;
 	TableNameStaticInfoMap m_tableNameStaticInfoMap;
 	SQLTableStaticInfo     m_staticInfo[NUM_TABLE_DATA];
 
 	void initStaticInfoEach(SQLTableStaticInfo *staticInfo,
 	                        const TableData &tableData,
-	                        SQLTableMakeFunc tableMakeFunc,
 	                        SQLTableGetFunc tableGetFunc)
 	{
 		m_tableNameStaticInfoMap[tableData.tableName] = staticInfo;
 		staticInfo->tableId = tableData.tableId;
 		staticInfo->tableName = tableData.tableName;
-		staticInfo->tableMakeFunc = tableMakeFunc;
 		staticInfo->tableGetFunc  = tableGetFunc;
 
 		ColumnBaseDefList &list =
@@ -234,28 +189,28 @@ private:
 		return m_table0Ptr;
 	}
 
+	static ItemTablePtr table1GetFunc(void) {
+		return m_table1Ptr;
+	}
+
 	static ItemTablePtr tableZGetFunc(void) {
 		return ItemTablePtr();
 	}
 
-	void initStaticInfo(void) {
-		SQLTableMakeFunc tableMakeFuncArray[NUM_TABLE_DATA] = {
-		  TBL_FNC(&TestSQLProcessor::table0MakeFunc),
-		  TBL_FNC(&TestSQLProcessor::table1MakeFunc),
-		  TBL_FNC(&TestSQLProcessor::tableZMakeFunc),
-		  TBL_FNC(&TestSQLProcessor::tableNMakeFunc),
-		};
+	static ItemTablePtr tableNGetFunc(void) {
+		return ItemTablePtr(NULL);
+	}
 
+	void initStaticInfo(void) {
 		SQLTableGetFunc tableGetFuncArray[NUM_TABLE_DATA] = {
 			table0GetFunc,
+			table1GetFunc,
 			tableZGetFunc,
-			tableZGetFunc,
-			tableZGetFunc,
+			tableNGetFunc,
 		};
 
 		for (size_t i = 0; i < NUM_TABLE_DATA; i++) {
 			initStaticInfoEach(&m_staticInfo[i], tableData[i],
-			                   tableMakeFuncArray[i],
 			                   tableGetFuncArray[i]);
 		}
 	}
@@ -272,9 +227,23 @@ private:
 		return tablePtr;
 	}
 
+	ItemTablePtr makeTable1(void) {
+		ItemTablePtr tablePtr;
+		for (size_t i = 0; i < numTestData1; i++) {
+			ItemGroup *grp = tablePtr->addNewGroup();
+			grp->add(new ItemInt(ITEM_ID_AGE,
+			                     testData1[i].age), false);
+			grp->add(new ItemString(ITEM_ID_ANIMAL,
+			                        testData1[i].animal), false);
+			grp->add(new ItemString(ITEM_ID_FOOD,
+			                        testData1[i].food), false);
+		}
+		return tablePtr;
+	}
 };
 
 ItemTablePtr TestSQLProcessor::m_table0Ptr;
+ItemTablePtr TestSQLProcessor::m_table1Ptr;
 
 static const int getMaxDataInTestData(void)
 {
@@ -465,7 +434,7 @@ void test_selectMultiColumn(void)
 	                       columns[3], columns[4], columns[5],
 	                       tableName));
 	SQLSelectInfo selectInfo(parsable);
-	proc.callParseSelectStatement(selectInfo);
+	proc.select(selectInfo);
 
 	// columns
 	const SQLFormulaInfoVector formulaInfoVector
@@ -493,7 +462,7 @@ void test_selectTableVar(void)
 	  StringUtils::sprintf("columnArg from %s %s",
 	                       TABLE0_NAME, tableVarName));
 	SQLSelectInfo selectInfo(parsable);
-	proc.callParseSelectStatement(selectInfo);
+	proc.select(selectInfo);
 	cut_assert_equal_int(1, selectInfo.tables.size());
 	SQLTableInfoListIterator table = selectInfo.tables.begin();
 	cut_assert_equal_string(tableVarName, (*table)->varName.c_str());
@@ -507,7 +476,7 @@ void test_selectOrderBy(void)
 	  StringUtils::sprintf("column from %s order by %s", TABLE0_NAME,
 	                       orderName));
 	SQLSelectInfo selectInfo(parsable);
-	proc.callParseSelectStatement(selectInfo);
+	proc.select(selectInfo);
 
 	cut_assert_equal_int(1, selectInfo.orderedColumns.size());
 	cut_assert_equal_string(orderName,
@@ -520,7 +489,7 @@ void test_selectTwoTable(void)
 	ParsableString parsable(
 	  StringUtils::sprintf("* from %s,%s", TABLE0_NAME, TABLE1_NAME));
 	SQLSelectInfo selectInfo(parsable);
-	proc.callParseSelectStatement(selectInfo);
+	proc.select(selectInfo);
 
 	cut_assert_equal_int(2, selectInfo.tables.size());
 	SQLTableInfoListIterator table = selectInfo.tables.begin();
@@ -538,7 +507,7 @@ void test_selectTwoTableWithNames(void)
 	  StringUtils::sprintf("* from %s %s,%s %s",
 	                       TABLE0_NAME, var1, TABLE1_NAME, var2));
 	SQLSelectInfo selectInfo(parsable);
-	proc.callParseSelectStatement(selectInfo);
+	proc.select(selectInfo);
 
 	cut_assert_equal_int(2, selectInfo.tables.size());
 	SQLTableInfoListIterator table = selectInfo.tables.begin();

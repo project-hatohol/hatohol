@@ -21,6 +21,7 @@
 #include "SQLUtils.h"
 #include "SQLProcessorZabbix.h"
 #include "SQLProcessorFactory.h"
+#include "SQLProcessorSelect.h"
 #include "SQLProcessorInsert.h"
 #include "SQLProcessorUpdate.h"
 #include "FaceMySQLWorker.h"
@@ -42,9 +43,9 @@ void asuraInit(void)
 	SQLWhereParser::init();  // must be put after SQLFormulaParser::init()
 	SQLFromParser::init();
 	FaceMySQLWorker::init();
+	SQLProcessorSelect::init();
 	SQLProcessorInsert::init();
 	SQLProcessorUpdate::init();
-	SQLProcessor::init();
 	SQLProcessorZabbix::init();
 	SQLProcessorFactory::init();
 

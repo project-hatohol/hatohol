@@ -80,20 +80,11 @@ typedef ColumnNameAccessInfoMap::iterator
 typedef ColumnNameAccessInfoMap::const_iterator
   ColumnNameAccessInfoMapConstIterator;
 
-struct SQLSelectInfo;
-struct SQLTableInfo;
-class SQLProcessor;
-typedef const ItemTablePtr
-(SQLProcessor::*SQLTableMakeFunc)(SQLSelectInfo &selectInfo,
-                                  const SQLTableInfo &tableInfo);
 typedef ItemTablePtr (*SQLTableGetFunc)(void);
 
 struct SQLTableStaticInfo {
 	int                        tableId;
 	const char                *tableName;
-	// TODO: Consider that 'tableMakeFunc' can be removed
-	//       and use tableGetFunc instead.
-	SQLTableMakeFunc           tableMakeFunc;
 	SQLTableGetFunc            tableGetFunc;
 	const ColumnBaseDefList    columnBaseDefList;
 

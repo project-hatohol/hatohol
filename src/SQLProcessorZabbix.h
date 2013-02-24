@@ -42,7 +42,6 @@ private:
 
 	static SQLTableStaticInfo *
 	defineTable(int tableId, const char *tableName,
-	            SQLTableMakeFunc tableMakeFunc,
 	            SQLTableGetFunc tableGetFunc);
 	static void defineColumn(SQLTableStaticInfo *staticInfo,
 	                         ItemId itemId,
@@ -50,10 +49,6 @@ private:
 	                         SQLColumnType, size_t columnLength);
 	VirtualDataStoreZabbix *m_VDSZabbix;
 
-	template<ItemGroupId GROUP_ID>
-	const ItemTablePtr
-	tableMakeFuncTemplate(SQLSelectInfo &selectInfo,
-	                      const SQLTableInfo &tableInfo);
 	template<ItemGroupId GROUP_ID>
 	static ItemTablePtr tableGetFuncTemplate(void);
 };
