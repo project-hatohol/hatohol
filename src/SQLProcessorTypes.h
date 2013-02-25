@@ -74,7 +74,8 @@ struct ColumnDef {
 	SQLKeyType     keyType;
 	uint16_t       flags;
 
-	// If there's no default value, defaultValue shoud be NULL
+	// If there's no default value, 'defalutValue' is "".
+	// If the default is NULL, 'defalutValue' shoud be NULL.
 	const char    *defaultValue;
 };
 
