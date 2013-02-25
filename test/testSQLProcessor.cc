@@ -813,7 +813,8 @@ void test_groupBy(void) {
 	const size_t expectedNumColumns = 1;
 	const size_t expectedNumRows = countDistinctDataInTestData0();
 	DEFINE_SELECTINFO_AND_ASSERT_SELECT(
-	  selectInfo, statement, expectedNumColumns, expectedNumRows);
+	  selectInfo, statement, expectedNumColumns, numTestData0,
+	  expectedNumRows);
 }
 
 } // namespace testSQLProcessor
