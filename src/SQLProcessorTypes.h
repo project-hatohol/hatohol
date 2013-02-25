@@ -43,6 +43,12 @@ enum SQLJoinType {
 	SQL_JOIN_TYPE_CROSS,
 };
 
+enum SQLKeyType {
+	SQL_KEY_PRI,
+	SQL_KEY_MUL,
+	SQL_KEY_UNI,
+};
+
 struct SQLProcessorInfo {
 	// input statement
 	ParsableString   statement;
@@ -63,7 +69,10 @@ struct ColumnDef {
 	const char    *columnName;
 	SQLColumnType  type;
 	size_t         columnLength;
+	bool           canBeNull;
+	SQLKeyType     keyType;
 	uint16_t       flags;
+	const char    *defaultValue;
 };
 
 typedef list<ColumnDef>               ColumnDefList;
