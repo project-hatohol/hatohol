@@ -16,9 +16,16 @@ using namespace mlpl;
 #include "Utils.h"
 #include "FormulaTestUtils.h"
 #include "AssertJoin.h"
+#include "AsuraException.h"
 #include "Helpers.h"
 
 namespace testSQLProcessor {
+
+// joinedTable, selectedTable, and the first element of groupedTables
+// dereference the same ItemTable when there's no where section and no grouping.
+// (Note: This strongly depends on the current implementation)
+// So the number of the referece count should be 3.
+static const int expectedRefCountOfResultTableInTheSimplestCase = 3;
 
 //
 // Test Table Definition
@@ -305,11 +312,17 @@ static void _asssertExecSelect
    size_t expectedNumRows = EXPECTED_NUM_ROWS_EQUAL_SELECTED,
    bool expectedResult = true)
 {
-	TestSQLProcessor proc;
-	cppcut_assert_equal(expectedResult, proc.select(selectInfo));
-	assertSQLSelectInfoBasic(selectInfo,
-	                         expectedNumColumns, expectedNumSelectedRows,
-	                         expectedNumRows);
+	try {
+		TestSQLProcessor proc;
+		cppcut_assert_equal(expectedResult, proc.select(selectInfo));
+		assertSQLSelectInfoBasic(selectInfo, expectedNumColumns,
+		                         expectedNumSelectedRows,
+		                         expectedNumRows);
+	} catch (const AsuraException &e) {
+		cut_fail("Got exception: <%s:%d> %s",
+		         e.getSourceFileName().c_str(), e.getLineNumber(),
+		         e.what());
+	}
 }
 #define asssertExecSelect(S, ENC, ...) \
 cut_trace(_asssertExecSelect(S, ENC, ##__VA_ARGS__))
@@ -762,11 +775,7 @@ void test_crossJoin(void) {
 	DEFINE_SELECTINFO_AND_ASSERT_SELECT(
 	  selectInfo, statement, expectedNumColumns, expectedNumRows);
 
-	// joinedTable and selectedTable dereferences the same ItemTable
-	// because no where section (This depends on current implementation).
-	// So the number of the referece count should be 2.
-	const int expectedRefCount = 2;
-	cppcut_assert_equal(expectedRefCount,
+	cppcut_assert_equal(expectedRefCountOfResultTableInTheSimplestCase,
 	                    selectInfo.joinedTable->getUsedCount());
 
 	AssertCrossJoin<TestData0, TestData1>
@@ -786,11 +795,7 @@ void test_innerJoin(void) {
 	DEFINE_SELECTINFO_AND_ASSERT_SELECT(
 	  selectInfo, statement, expectedNumColumns);
 
-	// joinedTable and selectedTable dereferences the same ItemTable
-	// because no where section (This depends on current implementation).
-	// So the number of the referece count should be 2.
-	const int expectedRefCount = 2;
-	cppcut_assert_equal(expectedRefCount,
+	cppcut_assert_equal(expectedRefCountOfResultTableInTheSimplestCase,
 	                    selectInfo.joinedTable->getUsedCount());
 
 	AssertInnerJoin<TestData0, TestData1, InnerJoinedRowsCheckerNumberAge>

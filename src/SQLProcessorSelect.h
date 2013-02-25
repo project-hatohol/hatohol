@@ -159,6 +159,9 @@ struct SQLSelectInfo : public SQLProcessorInfo {
 	ItemTablePtr joinedTable;
 	ItemTablePtr selectedTable;
 
+	// grouped tables
+	ItemTablePtrList groupedTables;
+
 	// output
 	vector<StringVector> textRows;
 
@@ -197,6 +200,7 @@ protected:
 	void makeItemTables(void);
 	void doJoin(void);
 	void selectMatchingRows(void);
+	void makeGroups(void);
 	void makeTextOutput(void);
 	bool checkSelectedAllColumns(const SQLSelectInfo &selectInfo,
 	                             const SQLColumnInfo &columnInfo) const;

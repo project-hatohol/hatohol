@@ -346,6 +346,9 @@ bool SQLProcessorSelect::select(SQLSelectInfo &selectInfo)
 		// pickup matching rows
 		selectMatchingRows();
 
+		// grouping if needed
+		makeGroups();
+
 		// convert data to string
 		makeTextOutput();
 
@@ -754,6 +757,17 @@ void SQLProcessorSelect::selectMatchingRows(void)
 	}
 	selectInfo->joinedTable->foreach<SQLProcessorSelect *>
 	  (pickupMatchingRows, this);
+}
+
+void SQLProcessorSelect::makeGroups(void)
+{
+	ItemTablePtr &selectedTable = m_ctx->selectInfo->selectedTable;
+	if (m_ctx->groupByColumns.empty()) {
+		m_ctx->selectInfo->groupedTables.push_back(selectedTable);
+		return;
+	}
+
+	THROW_ASURA_EXCEPTION("Not impemented: %s\n", __PRETTY_FUNCTION__);
 }
 
 void SQLProcessorSelect::makeTextOutput(void)
