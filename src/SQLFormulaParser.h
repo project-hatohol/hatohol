@@ -67,7 +67,7 @@ protected:
 	void setFunctionParserMap(FunctionParserMap *fncParserMap);
 	FormulaVariable *makeFormulaVariable(string &name);
 	bool passFunctionArgIfOpen(string &word);
-	bool insertElement(FormulaElement *formulaElement);
+	void insertElement(FormulaElement *formulaElement);
 	void setErrorFlag(void);
 	FormulaElement *getCurrentElement(void) const;
 	void insertAsRightHand(FormulaElement *formulaElement);

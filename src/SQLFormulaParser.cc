@@ -229,7 +229,7 @@ bool SQLFormulaParser::passFunctionArgIfOpen(string &word)
 	return formulaFunc->addArgument(formulaVariable);
 }
 
-bool SQLFormulaParser::insertElement(FormulaElement *formulaElement)
+void SQLFormulaParser::insertElement(FormulaElement *formulaElement)
 {
 	// check statistical function
 	if (!m_hasStatisticalFunc) {
@@ -242,12 +242,12 @@ bool SQLFormulaParser::insertElement(FormulaElement *formulaElement)
 	if (!m_ctx->currElement) {
 		m_formula = formulaElement;
 		m_ctx->currElement = formulaElement;
-		return true;
+		return;
 	}
 
 	if (formulaElement->isTerminalElement()) {
 		insertAsHand(formulaElement);
-		return true;
+		return;
 	}
 
 	FormulaElement *upperLimit = NULL;
@@ -260,7 +260,7 @@ bool SQLFormulaParser::insertElement(FormulaElement *formulaElement)
 	// 'formulaElement' just becomes a right hand of the current element.
 	if (!targetElem) {
 		insertAsHand(formulaElement);
-		return true;
+		return;
 	}
 
 	// If priority of 'formulaElement' is equal to 'targetElem',
@@ -288,7 +288,6 @@ bool SQLFormulaParser::insertElement(FormulaElement *formulaElement)
 		m_formula = formulaElement;
 	}
 	m_ctx->currElement = formulaElement;
-	return true;
 }
 
 void SQLFormulaParser::setErrorFlag(void)
@@ -377,7 +376,8 @@ bool SQLFormulaParser::makeFormulaElementFromPendingWord(void)
 	if (!formulaElement)
 		return false;
 	m_ctx->clearPendingWords();
-	return insertElement(formulaElement);
+	insertElement(formulaElement);
+	return true;
 }
 
 bool SQLFormulaParser::addStringValue(string &word)
@@ -438,8 +438,7 @@ void SQLFormulaParser::separatorCbParenthesisOpen(const char separator)
 		return;
 
 	FormulaElement *formulaParenthesis = new FormulaParenthesis();
-	if (!insertElement(formulaParenthesis))
-		setErrorFlag();
+	insertElement(formulaParenthesis);
 	m_ctx->parenthesisStack.push_back(formulaParenthesis);
 }
 
@@ -508,10 +507,7 @@ void SQLFormulaParser::separatorCbPlus(const char separator)
 		  "No left hand side of '+' operator.");
 
 	FormulaOperatorPlus *formulaOperatorPlus = new FormulaOperatorPlus();
-	if (!insertElement(formulaOperatorPlus)) {
-		setErrorFlag();
-		return;
-	}
+	insertElement(formulaOperatorPlus);
 }
 
 //
@@ -520,11 +516,13 @@ void SQLFormulaParser::separatorCbPlus(const char separator)
 bool SQLFormulaParser::kwHandlerAnd(void)
 {
 	FormulaOperatorAnd *opAnd = new FormulaOperatorAnd();
-	return insertElement(opAnd);
+	insertElement(opAnd);
+	return true;
 }
 
 bool SQLFormulaParser::kwHandlerOr(void)
 {
 	FormulaOperatorOr *opOr = new FormulaOperatorOr();
-	return insertElement(opOr);
+	insertElement(opOr);
+	return true;
 }

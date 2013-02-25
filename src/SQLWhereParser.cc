@@ -171,10 +171,7 @@ void SQLWhereParser::separatorCbEqual(const char separator)
 	// create ComparatorEqual
 	FormulaComparatorEqual *formulaComparatorEqual
 	  = new FormulaComparatorEqual();
-	if (!insertElement(formulaComparatorEqual)) {
-		setErrorFlag();
-		return;
-	}
+	insertElement(formulaComparatorEqual);
 }
 
 void SQLWhereParser::_separatorCbGreaterThan(const char separator,
@@ -197,10 +194,7 @@ void SQLWhereParser::separatorCbGreaterThan(const char separator)
 	}
 
 	FormulaGreaterThan *formulaGreaterThan = new FormulaGreaterThan();
-	if (!insertElement(formulaGreaterThan)) {
-		setErrorFlag();
-		return;
-	}
+	insertElement(formulaGreaterThan);
 }
 
 //

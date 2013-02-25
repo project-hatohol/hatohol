@@ -239,11 +239,13 @@ bool SQLColumnParser::kwHandlerDistinct(void)
 bool SQLColumnParser::funcParserMax(void)
 {
 	FormulaFuncMax *funcMax = new FormulaFuncMax();
-	return insertElement(funcMax);
+	insertElement(funcMax);
+	return true;
 }
 
 bool SQLColumnParser::funcParserCount(void)
 {
 	FormulaFuncCount *funcCount = new FormulaFuncCount();
-	return insertElement(funcCount);
+	insertElement(funcCount);
+	return true;
 }
