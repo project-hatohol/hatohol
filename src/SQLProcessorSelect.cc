@@ -448,10 +448,8 @@ void SQLProcessorSelect::parseSelectStatement(void)
 		subParser = m_ctx->selectSubParsers[m_ctx->section];
 		(this->*subParser)();
 	}
-	if (!selectInfo->columnParser.close())
-		THROW_SQL_PROCESSOR_EXCEPTION("Failed: columnParser.close");
-	if (!selectInfo->whereParser.close())
-		THROW_SQL_PROCESSOR_EXCEPTION("Failed: whereParser.close");
+	selectInfo->columnParser.close();
+	selectInfo->whereParser.close();
 	selectInfo->fromParser.close();
 }
 

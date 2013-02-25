@@ -149,10 +149,9 @@ void SQLFormulaParser::flush(void)
 	makeFormulaElementFromPendingWord();
 }
 
-bool SQLFormulaParser::close(void)
+void SQLFormulaParser::close(void)
 {
 	flush();
-	return true;
 }
 
 SeparatorCheckerWithCallback *SQLFormulaParser::getSeparatorChecker(void)

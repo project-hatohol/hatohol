@@ -117,11 +117,10 @@ bool SQLColumnParser::add(string &word, string &wordLower)
 	return true;
 }
 
-bool SQLColumnParser::close(void)
+void SQLColumnParser::close(void)
 {
 	flush();
 	closeCurrFormulaInfo();
-	return true;
 }
 
 const SQLFormulaInfoVector &SQLColumnParser::getFormulaInfoVector(void) const

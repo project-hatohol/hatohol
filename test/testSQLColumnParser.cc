@@ -14,6 +14,7 @@ using namespace mlpl;
 #include "SQLColumnParser.h"
 #include "FormulaTestUtils.h"
 #include "Asura.h"
+#include "AsuraException.h"
 
 namespace testSQLColumnParser {
 
@@ -29,12 +30,18 @@ static void _assertInputStatement(SQLColumnParser &columnParser,
 	  columnParser.getSeparatorChecker();
 	columnParser.setColumnDataGetterFactory(columnDataGetter, NULL);
 
-	while (!statement.finished()) {
-		string word = statement.readWord(*separator);
-		string lower = StringUtils::toLower(word);
-		cppcut_assert_equal(true, columnParser.add(word, lower));
+	try {
+		while (!statement.finished()) {
+			string word = statement.readWord(*separator);
+			string lower = StringUtils::toLower(word);
+			cppcut_assert_equal(true, columnParser.add(word, lower));
+		}
+		columnParser.close();
+	} catch (const AsuraException &e) {
+		cut_fail("Got exception: <%s:%d> %s",
+		         e.getSourceFileName().c_str(), e.getLineNumber(),
+		         e.what());
 	}
-	cppcut_assert_equal(true, columnParser.close());
 }
 #define assertInputStatement(P, S) cut_trace(_assertInputStatement(P, S))
 
