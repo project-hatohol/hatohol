@@ -79,7 +79,6 @@ struct SQLProcessorSelect::PrivateContext {
 	static const SelectSubParser            selectSubParsers[];
 	static map<string, SelectSectionParser> selectSectionParserMap;
 
-	SQLProcessorSelect *processorSelect;
 	SQLSelectInfo      *selectInfo;
 	string              dbName;
 
@@ -110,8 +109,7 @@ struct SQLProcessorSelect::PrivateContext {
 	// methods
 	PrivateContext(SQLProcessorSelect *procSelect, const string &_dbName,
 	               TableNameStaticInfoMap &nameInfoMap)
-	: processorSelect(procSelect),
-	  selectInfo(NULL),
+	: selectInfo(NULL),
 	  dbName(_dbName),
 	  tableNameStaticInfoMap(nameInfoMap),
 	  separatorSpaceComma(" ,"),
