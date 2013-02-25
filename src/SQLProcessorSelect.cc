@@ -105,6 +105,7 @@ struct SQLProcessorSelect::PrivateContext {
 	// Members for processing GROUP BY
 	StringVector        groupByColumns;
 	ItemDataTableMap    groupedTableMap;
+	size_t              groupTargetColumnIndex;
 
 	// methods
 	PrivateContext(SQLProcessorSelect *procSelect, const string &_dbName,
@@ -821,7 +822,20 @@ bool SQLProcessorSelect::pickupMatchingRows(const ItemGroup *itemGroup,
 bool SQLProcessorSelect::makeGroupedTable(const ItemGroup *itemGroup,
                                           SQLProcessorSelect *sqlProcSelect)
 {
-	THROW_ASURA_EXCEPTION("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	ItemGroup *nonConstItemGroup = const_cast<ItemGroup *>(itemGroup);
+	PrivateContext *ctx = sqlProcSelect->m_ctx;
+	ItemDataTableMap &groupedTableMap = ctx->groupedTableMap;
+	ItemDataPtr dataPtr = itemGroup->getItemAt(ctx->groupTargetColumnIndex);
+	ItemDataTableMapIterator it = groupedTableMap.find(dataPtr);
+	if (it == groupedTableMap.end()) {
+		ItemTablePtr tablePtr;
+		tablePtr->add(nonConstItemGroup);
+		groupedTableMap[dataPtr] = tablePtr;
+	} else {
+		ItemTablePtr &tablePtr = it->second;
+		tablePtr->add(nonConstItemGroup);
+	}
+	return true;
 }
 
 bool SQLProcessorSelect::makeTextRows(const ItemGroup *itemGroup,
@@ -1011,9 +1025,41 @@ void SQLProcessorSelect::makeGroupedTableForColumn(const string &columnName)
 {
 	ItemTablePtr &selectedTable = m_ctx->selectInfo->selectedTable;
 
+	// search the column index
+
+	// TODO: use more efficient algorithm
+	// (However, typical number of tables is two or three. So this
+	//  may not take a lot of time.)
+	size_t baseIndex = 0;
+	const SQLTableStaticInfo *tableStaticInfo = NULL;
+	string baseName, tableVar;
+	parseColumnName(columnName, baseName, tableVar);
+	SQLTableInfoList &tables = m_ctx->selectInfo->tables;
+	if (tables.size() > 1) {
+		SQLTableInfoListIterator it = tables.begin();
+		for (; it != tables.end(); ++it) {
+			SQLTableInfo *tableInfo = *it;
+			tableStaticInfo = tableInfo->staticInfo;
+			if (tableVar == tableInfo->varName)
+				break;
+			baseIndex += tableStaticInfo->columnBaseDefList.size();
+		}
+		if (it == tables.end()) {
+			THROW_SQL_PROCESSOR_EXCEPTION(
+			  "Not found table: %s (%s)",
+			  tableVar.c_str(), columnName.c_str());
+		}
+	} else {
+		tableStaticInfo = (*tables.begin())->staticInfo;
+	}
+	m_ctx->groupTargetColumnIndex =
+	  baseIndex + SQLUtils::getColumnIndex(baseName, tableStaticInfo);
+
+	// make map: key:column, value table
 	m_ctx->groupedTableMap.clear();
 	selectedTable->foreach<SQLProcessorSelect *>(makeGroupedTable, this);
 
+	// copy the table pointers to groupedTables.
 	ItemDataTableMapIterator it = m_ctx->groupedTableMap.begin();
 	for (; it != m_ctx->groupedTableMap.end(); ++it)
 		m_ctx->selectInfo->groupedTables.push_back(it->second);
