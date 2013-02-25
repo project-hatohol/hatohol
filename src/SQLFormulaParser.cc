@@ -119,8 +119,7 @@ bool SQLFormulaParser::add(string& word, string &wordLower)
 	KeywordHandlerMapIterator it;
 	it = m_keywordHandlerMap->find(wordLower);
 	if (it != m_keywordHandlerMap->end()) {
-		if (!flush())
-			return false;
+		flush();
 		KeywordHandler func = it->second;
 		return (this->*func)();
 	}
@@ -143,18 +142,17 @@ bool SQLFormulaParser::add(string& word, string &wordLower)
 	return true;
 }
 
-bool SQLFormulaParser::flush(void)
+void SQLFormulaParser::flush(void)
 {
 	if (m_ctx->errorFlag)
-		return false;
-
+		THROW_SQL_PROCESSOR_EXCEPTION("errorFlag is true.");
 	makeFormulaElementFromPendingWord();
-	return true;
 }
 
 bool SQLFormulaParser::close(void)
 {
-	return flush();
+	flush();
+	return true;
 }
 
 SeparatorCheckerWithCallback *SQLFormulaParser::getSeparatorChecker(void)
@@ -447,10 +445,7 @@ void SQLFormulaParser::_separatorCbParenthesisClose
 
 void SQLFormulaParser::separatorCbParenthesisClose(const char separator)
 {
-	if (!flush()) {
-		setErrorFlag();
-		return;
-	}
+	flush();
 
 	if (m_ctx->parenthesisStack.empty())
 		THROW_SQL_PROCESSOR_EXCEPTION("Parenthesis is not open.");
@@ -494,8 +489,7 @@ void SQLFormulaParser::_separatorCbPlus
 
 void SQLFormulaParser::separatorCbPlus(const char separator)
 {
-	if (!flush())
-		return;
+	flush();
 
 	// Get Left-Hand
 	FormulaElement *lhsElement = getCurrentElement();

@@ -157,8 +157,7 @@ void SQLWhereParser::_separatorCbEqual(const char separator,
 
 void SQLWhereParser::separatorCbEqual(const char separator)
 {
-	if (!flush())
-		return;
+	flush();
 
 	// Get Left-Hand
 	FormulaElement *lhsElement = getCurrentElement();
@@ -182,8 +181,7 @@ void SQLWhereParser::_separatorCbGreaterThan(const char separator,
 
 void SQLWhereParser::separatorCbGreaterThan(const char separator)
 {
-	if (!flush())
-		return;
+	flush();
 
 	// Get Left-Hand
 	FormulaElement *lhsElement = getCurrentElement();
