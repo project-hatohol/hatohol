@@ -44,6 +44,7 @@ enum SQLJoinType {
 };
 
 enum SQLKeyType {
+	SQL_KEY_NONE,
 	SQL_KEY_PRI,
 	SQL_KEY_MUL,
 	SQL_KEY_UNI,
