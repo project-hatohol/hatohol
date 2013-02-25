@@ -22,6 +22,7 @@ using namespace mlpl;
 
 #include "SQLFormulaParser.h"
 #include "FormulaOperator.h"
+#include "SQLProcessorException.h"
 
 struct SQLFormulaParser::PrivateContext {
 	bool                    errorFlag;
@@ -125,9 +126,9 @@ bool SQLFormulaParser::add(string& word, string &wordLower)
 	}
 
 	if (m_ctx->hasPendingWord()) {
-		MLPL_DBG("already has pending word: %s, curr: %s.\n",
+		THROW_SQL_PROCESSOR_EXCEPTION(
+		  "Invalid consecutive words: %s, %s.",
 		         m_ctx->pendingWord.c_str(), word.c_str());
-		return false;
 	}
 
 	if (m_ctx->quotOpen)
@@ -203,15 +204,10 @@ void SQLFormulaParser::setFunctionParserMap(FunctionParserMap *fncParserMap)
 
 FormulaVariable *SQLFormulaParser::makeFormulaVariable(string &name)
 {
-	if (!m_columnDataGetterFactory) {
-		string msg;
-		TRMSG(msg, "m_columnDataGetterFactory: NULL.");
-		throw logic_error(msg);
-	}
-	if (!m_columnDataGetterFactory) {
-		MLPL_BUG("m_columnDataGetterFactory: NULL\n");
-		return NULL;
-	}
+	if (!m_columnDataGetterFactory)
+		THROW_ASURA_EXCEPTION("m_columnDataGetterFactory: NULL.");
+	if (!m_columnDataGetterFactory)
+		THROW_ASURA_EXCEPTION("m_columnDataGetterFactory: NULL.");
 	FormulaVariableDataGetter *dataGetter =
 	  (*m_columnDataGetterFactory)(name, m_columnDataGetterFactoryPriv);
 	FormulaVariable *formulaVariable =
@@ -274,14 +270,13 @@ bool SQLFormulaParser::insertElement(FormulaElement *formulaElement)
 		if (targetParent->isUnary()) {
 			targetParent->setLeftHand(formulaElement);
 		} else if (targetParent->getRightHand() != targetElem) {
-			string msg;
 			string tree;
 			m_formula->getTreeInfo(tree);
-			TRMSG(msg, "targetParent->getRightHand(): [%p] != "
-			           "targetElement [%p]\n%s",
-			      targetParent->getRightHand(), targetElem,
-			      tree.c_str());
-			throw logic_error(msg);
+			THROW_ASURA_EXCEPTION(
+			  "targetParent->getRightHand(): [%p] != "
+			  "targetElement [%p]\n%s",
+			  targetParent->getRightHand(), targetElem,
+			  tree.c_str());
 		} else {
 			targetParent->setRightHand(formulaElement);
 		}
@@ -304,26 +299,23 @@ FormulaElement *SQLFormulaParser::getCurrentElement(void) const
 
 bool SQLFormulaParser::insertAsRightHand(FormulaElement *formulaElement)
 {
-	string msg;
 	string treeInfo;
 	FormulaElement *currElement = m_ctx->currElement;
 	if (!currElement) {
-		MLPL_DBG("Current element: NULL.\n");
-		return false;
+		THROW_SQL_PROCESSOR_EXCEPTION(
+		  "Tried to insert element, but no root element.");
 	}
-	
+
 	if (!currElement->getLeftHand()) {
 		currElement->getRootElement()->getTreeInfo(treeInfo);
-		TRMSG(msg, "Left hand element: NULL, %p.\n%s",
-		      formulaElement, treeInfo.c_str());
-		throw logic_error(msg);
+		THROW_ASURA_EXCEPTION("Left hand element: NULL, %p.\n%s",
+		                      formulaElement, treeInfo.c_str());
 	}
 
 	if (currElement->getRightHand()) {
 		currElement->getRootElement()->getTreeInfo(treeInfo);
-		TRMSG(msg, "Righthand element: NOT NULL, %p.\n%s",
-		      formulaElement, treeInfo.c_str());
-		throw logic_error(msg);
+		THROW_ASURA_EXCEPTION("Righthand element: NOT NULL, %p.\n%s",
+		                      formulaElement, treeInfo.c_str());
 	}
 
 	currElement->setRightHand(formulaElement);
@@ -334,10 +326,9 @@ bool SQLFormulaParser::insertAsRightHand(FormulaElement *formulaElement)
 bool SQLFormulaParser::insertAsHand(FormulaElement *formulaElement)
 {
 	FormulaElement *currElement = m_ctx->currElement;
-	if (!currElement) {
-		MLPL_DBG("Current element: NULL.\n");
-		return false;
-	}
+	if (!currElement)
+		THROW_SQL_PROCESSOR_EXCEPTION(
+		  "Tried to insert element, but no root element.");
 	
 	if (!currElement->getLeftHand()) {
 		currElement->setLeftHand(formulaElement);
@@ -351,12 +342,10 @@ bool SQLFormulaParser::insertAsHand(FormulaElement *formulaElement)
 		return true;
 	}
 
-	string msg;
 	string treeInfo;
 	formulaElement->getRootElement()->getTreeInfo(treeInfo);
-	TRMSG(msg, "Both hands are not NULL: %p.\n%s",
-	      formulaElement, treeInfo.c_str());
-	throw logic_error(msg);
+	THROW_ASURA_EXCEPTION("Both hands are not NULL: %p.\n%s",
+	                      formulaElement, treeInfo.c_str());
 	return false;
 }
 
@@ -463,11 +452,8 @@ void SQLFormulaParser::separatorCbParenthesisClose(const char separator)
 		return;
 	}
 
-	if (m_ctx->parenthesisStack.empty()) {
-		MLPL_DBG("m_ctx->parenthesisStack is empty.\n");
-		setErrorFlag();
-		return;
-	}
+	if (m_ctx->parenthesisStack.empty())
+		THROW_SQL_PROCESSOR_EXCEPTION("Parenthesis is not open.");
 
 	FormulaElement *parenthesisElem = m_ctx->parenthesisStack.back();
 	m_ctx->parenthesisStack.pop_back();
@@ -513,11 +499,9 @@ void SQLFormulaParser::separatorCbPlus(const char separator)
 
 	// Get Left-Hand
 	FormulaElement *lhsElement = getCurrentElement();
-	if (!lhsElement) {
-		setErrorFlag();
-		MLPL_DBG("lhsElement: NULL.");
-		return;
-	}
+	if (!lhsElement)
+		THROW_SQL_PROCESSOR_EXCEPTION(
+		  "No left hand side of '+' operator.");
 
 	FormulaOperatorPlus *formulaOperatorPlus = new FormulaOperatorPlus();
 	if (!insertElement(formulaOperatorPlus)) {
