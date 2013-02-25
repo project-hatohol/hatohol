@@ -1014,7 +1014,8 @@ void SQLProcessorSelect::parseColumnName(const string &name,
                                          string &baseName, string &tableVar)
 {
 	size_t dotPos = name.find('.');
-	if (dotPos == 0) { THROW_SQL_PROCESSOR_EXCEPTION(
+	if (dotPos == 0) {
+		THROW_SQL_PROCESSOR_EXCEPTION(
 		  "Column name begins from dot. : %s", name.c_str());
 	}
 	if (dotPos == (name.size() - 1)) {
