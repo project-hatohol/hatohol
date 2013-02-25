@@ -403,6 +403,23 @@ static void assertJoinRunner(const ItemGroup *itemGroup,
 	assertItemData(string, itemGroup, refData1->food,   idx);
 }
 
+void _assertInerJoinHelper(const string &statement)
+{
+	// check the result
+	const size_t expectedNumColumns = NUM_COLUMN0_DEFS + NUM_COLUMN1_DEFS;
+	DEFINE_SELECTINFO_AND_ASSERT_SELECT(
+	  selectInfo, statement, expectedNumColumns);
+
+	cppcut_assert_equal(expectedRefCountOfResultTableInTheSimplestCase,
+	                    selectInfo.joinedTable->getUsedCount());
+
+	AssertInnerJoin<TestData0, TestData1, InnerJoinedRowsCheckerNumberAge>
+	  assertJoin((ItemTable *)selectInfo.selectedTable,
+	             testData0, testData1, numTestData0, numTestData1);
+	assertJoin.run(assertJoinRunner);
+}
+#define assertInerJoinHelper(X) cut_trace(_assertInerJoinHelper(X))
+
 void setup(void)
 {
 	asuraInit();
@@ -802,6 +819,18 @@ void test_innerJoin(void) {
 	  assertJoin((ItemTable *)selectInfo.selectedTable,
 	             testData0, testData1, numTestData0, numTestData1);
 	assertJoin.run(assertJoinRunner);
+}
+
+void test_innerJoinWithTableNames(void) {
+	const char *tableVarName0 = "tvar0";
+	const char *tableVarName1 = "tvar1";
+	string statement =
+	  StringUtils::sprintf(
+	    "select * from %s %s inner join %s %s on %s.%s=%s.%s",
+	    TABLE0_NAME, tableVarName0, TABLE1_NAME, tableVarName1,
+	    tableVarName0, COLUMN_NAME_NUMBER,
+	    tableVarName1, TABLE1_NAME, COLUMN_NAME_AGE);
+	assertInerJoinHelper(statement);
 }
 
 void test_groupBy(void) {
