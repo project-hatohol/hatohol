@@ -146,8 +146,7 @@ bool SQLFormulaParser::flush(void)
 	if (m_ctx->errorFlag)
 		return false;
 
-	if (!makeFormulaElementFromPendingWord())
-		return false;
+	makeFormulaElementFromPendingWord();
 	return true;
 }
 
@@ -350,10 +349,10 @@ void SQLFormulaParser::insertAsHand(FormulaElement *formulaElement)
 	                      formulaElement, treeInfo.c_str());
 }
 
-bool SQLFormulaParser::makeFormulaElementFromPendingWord(void)
+void SQLFormulaParser::makeFormulaElementFromPendingWord(void)
 {
 	if (!m_ctx->hasPendingWord())
-		return true;
+		return;
 
 	FormulaElement *formulaElement;
 	bool isFloat;
@@ -369,15 +368,12 @@ bool SQLFormulaParser::makeFormulaElementFromPendingWord(void)
 		}
 		m_ctx->clearPendingWords();
 		insertAsRightHand(formulaElement);
-		return true;
+		return;
 	}
 
 	formulaElement = makeFormulaVariable(m_ctx->pendingWord);
-	if (!formulaElement)
-		return false;
 	m_ctx->clearPendingWords();
 	insertElement(formulaElement);
-	return true;
 }
 
 bool SQLFormulaParser::addStringValue(string &word)
