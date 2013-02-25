@@ -156,11 +156,8 @@ void SQLColumnParser::closeCurrentFormulaString(void)
 {
 	if (m_ctx->currFormulaString.empty())
 		return;
-	if (m_formulaInfoVector.empty()) {
-		string msg;
-		TRMSG(msg, "m_formulaInfoVector.empty().");
-		throw logic_error(msg);
-	}
+	if (m_formulaInfoVector.empty())
+		THROW_ASURA_EXCEPTION("m_formulaInfoVector is empty.");
 
 	SQLFormulaInfo *formulaInfo = m_formulaInfoVector.back();
 	formulaInfo->expression =
@@ -225,7 +222,7 @@ bool SQLColumnParser::kwHandlerDistinct(void)
 		return true;
 	}
 	
-	MLPL_BUG("Not implemented: DISTINCT.\n");
+	THROW_ASURA_EXCEPTION("Not implemented: DISTINCT.");
 	return false;
 }
 
