@@ -258,6 +258,7 @@ protected:
 	                          const string &tableVar);
 	static FormulaVariableDataGetter *
 	  formulaColumnDataGetterFactory(string &name, void *priv);
+	ItemTablePtr makeGroupedTableForColumn(const string &columnName);
 
 private:
 	struct PrivateContext;

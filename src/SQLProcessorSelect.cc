@@ -766,8 +766,11 @@ void SQLProcessorSelect::makeGroups(void)
 		m_ctx->selectInfo->groupedTables.push_back(selectedTable);
 		return;
 	}
-
-	THROW_ASURA_EXCEPTION("Not impemented: %s\n", __PRETTY_FUNCTION__);
+	for (size_t i = 0; i < m_ctx->groupByColumns.size(); i++) {
+		string columnName = m_ctx->groupByColumns[i];
+		ItemTablePtr table = makeGroupedTableForColumn(columnName);
+		m_ctx->selectInfo->groupedTables.push_back(table);
+	}
 }
 
 void SQLProcessorSelect::makeTextOutput(void)
@@ -990,4 +993,10 @@ SQLProcessorSelect::formulaColumnDataGetterFactory(string &name, void *priv)
 	SQLSelectInfo *selectInfo = ctx->selectInfo;
 	return new SQLFormulaColumnDataGetter(name, selectInfo,
 	                                      ctx->evalTargetItemGroup);
+}
+
+ItemTablePtr
+SQLProcessorSelect::makeGroupedTableForColumn(const string &columnName)
+{
+	THROW_ASURA_EXCEPTION("Not implemented: %s\n", __PRETTY_FUNCTION__);
 }
