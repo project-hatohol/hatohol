@@ -818,7 +818,7 @@ void test_innerJoinWithTableNames(void) {
 	    "select * from %s %s inner join %s %s on %s.%s=%s.%s",
 	    TABLE0_NAME, tableVarName0, TABLE1_NAME, tableVarName1,
 	    tableVarName0, COLUMN_NAME_NUMBER,
-	    tableVarName1, TABLE1_NAME, COLUMN_NAME_AGE);
+	    tableVarName1, COLUMN_NAME_AGE);
 	assertInerJoinHelper(statement);
 }
 
