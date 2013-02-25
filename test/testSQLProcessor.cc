@@ -799,4 +799,16 @@ void test_innerJoin(void) {
 	assertJoin.run(assertJoinRunner);
 }
 
+void test_groupBy(void) {
+	string statement =
+	  StringUtils::sprintf("select %s from %s group by %s",
+	                       COLUMN_NAME_NUMBER, TABLE0_NAME,
+	                       COLUMN_NAME_NUMBER);
+	// check the result
+	const size_t expectedNumColumns = 1;
+	const size_t expectedNumRows = countDistinctDataInTestData0();
+	DEFINE_SELECTINFO_AND_ASSERT_SELECT(
+	  selectInfo, statement, expectedNumColumns, expectedNumRows);
+}
+
 } // namespace testSQLProcessor

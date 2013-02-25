@@ -102,6 +102,8 @@ struct SQLProcessorSelect::PrivateContext {
 	// The number of times to be masked for generating output lines.
 	size_t              makeTextRowsWriteMaskCount;
 
+	StringVector        groupByColumns;
+
 	// methods
 	PrivateContext(SQLProcessorSelect *procSelect, const string &_dbName,
 	               TableNameStaticInfoMap &nameInfoMap)
@@ -124,6 +126,7 @@ struct SQLProcessorSelect::PrivateContext {
 		currWordLower.clear();
 		evalTargetItemGroup = NULL;
 		makeTextRowsWriteMaskCount = 0;
+		groupByColumns.clear();
 	}
 };
 
@@ -899,7 +902,7 @@ void SQLProcessorSelect::parseSelectedColumns(void)
 
 void SQLProcessorSelect::parseGroupBy(void)
 {
-	THROW_ASURA_EXCEPTION("Not implemented: GROUP_BY\n");
+	m_ctx->groupByColumns.push_back(m_ctx->currWord);
 }
 
 void SQLProcessorSelect::parseFrom(void)
