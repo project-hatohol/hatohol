@@ -25,7 +25,6 @@ using namespace mlpl;
 #include "SQLProcessorException.h"
 
 struct SQLFormulaParser::PrivateContext {
-	bool                    errorFlag;
 	bool                    quotOpen;
 	string                  pendingWord;
 	string                  pendingWordLower;
@@ -34,8 +33,7 @@ struct SQLFormulaParser::PrivateContext {
 
 	// methods
 	PrivateContext(void)
-	: errorFlag(false),
-	  quotOpen(false),
+	: quotOpen(false),
 	  currElement(NULL)
 	{
 	}
@@ -113,9 +111,6 @@ bool SQLFormulaParser::add(string& word, string &wordLower)
 	if (word.empty())
 		return true;
 
-	if (m_ctx->errorFlag)
-		return false;
-
 	KeywordHandlerMapIterator it;
 	it = m_keywordHandlerMap->find(wordLower);
 	if (it != m_keywordHandlerMap->end()) {
@@ -144,8 +139,6 @@ bool SQLFormulaParser::add(string& word, string &wordLower)
 
 void SQLFormulaParser::flush(void)
 {
-	if (m_ctx->errorFlag)
-		THROW_SQL_PROCESSOR_EXCEPTION("errorFlag is true.");
 	makeFormulaElementFromPendingWord();
 }
 
@@ -288,11 +281,6 @@ void SQLFormulaParser::insertElement(FormulaElement *formulaElement)
 	m_ctx->currElement = formulaElement;
 }
 
-void SQLFormulaParser::setErrorFlag(void)
-{
-	m_ctx->errorFlag = true;
-}
-
 FormulaElement *SQLFormulaParser::getCurrentElement(void) const
 {
 	return m_ctx->currElement;
@@ -400,8 +388,10 @@ bool SQLFormulaParser::makeFunctionParserIfPendingWordIsFunction(void)
 		return false;
 
 	FunctionParser func = it->second;
-	if (!(this->*func)())
-		setErrorFlag();
+	if (!(this->*func)()) {
+		THROW_SQL_PROCESSOR_EXCEPTION(
+		  "Failed to parse a function: %s", m_ctx->pendingWord.c_str());
+	}
 	m_ctx->parenthesisStack.push_back(m_ctx->currElement);
 
 	m_ctx->clearPendingWords();
@@ -456,8 +446,8 @@ void SQLFormulaParser::separatorCbParenthesisClose(const char separator)
 	  dynamic_cast<FormulaFunction *>(parenthesisElem);
 	if (formulaFunction) {
 		if (!formulaFunction->close()) {
-			setErrorFlag();
-			return;
+			THROW_SQL_PROCESSOR_EXCEPTION(
+			  "Failed to close function on ')'.");
 		}
 	}
 	m_ctx->currElement = parenthesisElem;

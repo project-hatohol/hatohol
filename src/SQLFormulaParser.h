@@ -68,7 +68,6 @@ protected:
 	FormulaVariable *makeFormulaVariable(string &name);
 	bool passFunctionArgIfOpen(string &word);
 	void insertElement(FormulaElement *formulaElement);
-	void setErrorFlag(void);
 	FormulaElement *getCurrentElement(void) const;
 	void insertAsRightHand(FormulaElement *formulaElement);
 	void insertAsHand(FormulaElement *formulaElement);
