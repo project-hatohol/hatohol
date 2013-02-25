@@ -297,7 +297,7 @@ FormulaElement *SQLFormulaParser::getCurrentElement(void) const
 	return m_ctx->currElement;
 }
 
-bool SQLFormulaParser::insertAsRightHand(FormulaElement *formulaElement)
+void SQLFormulaParser::insertAsRightHand(FormulaElement *formulaElement)
 {
 	string treeInfo;
 	FormulaElement *currElement = m_ctx->currElement;
@@ -320,7 +320,6 @@ bool SQLFormulaParser::insertAsRightHand(FormulaElement *formulaElement)
 
 	currElement->setRightHand(formulaElement);
 	m_ctx->currElement = formulaElement;
-	return true;
 }
 
 bool SQLFormulaParser::insertAsHand(FormulaElement *formulaElement)
@@ -367,7 +366,8 @@ bool SQLFormulaParser::makeFormulaElementFromPendingWord(void)
 			formulaElement = new FormulaValue(number);
 		}
 		m_ctx->clearPendingWords();
-		return insertAsRightHand(formulaElement);
+		insertAsRightHand(formulaElement);
+		return true;
 	}
 
 	formulaElement = makeFormulaVariable(m_ctx->pendingWord);
@@ -379,7 +379,8 @@ bool SQLFormulaParser::makeFormulaElementFromPendingWord(void)
 
 bool SQLFormulaParser::addStringValue(string &word)
 {
-	return insertAsRightHand(new FormulaValue(word));
+	insertAsRightHand(new FormulaValue(word));
+	return true;
 }
 
 FormulaElement *SQLFormulaParser::takeFormula(void)

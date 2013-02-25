@@ -70,7 +70,7 @@ protected:
 	bool insertElement(FormulaElement *formulaElement);
 	void setErrorFlag(void);
 	FormulaElement *getCurrentElement(void) const;
-	bool insertAsRightHand(FormulaElement *formulaElement);
+	void insertAsRightHand(FormulaElement *formulaElement);
 	bool insertAsHand(FormulaElement *formulaElement);
 	bool makeFormulaElementFromPendingWord(void);
 	bool addStringValue(string &word);
