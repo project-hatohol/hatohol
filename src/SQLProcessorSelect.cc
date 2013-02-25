@@ -116,6 +116,15 @@ struct SQLProcessorSelect::PrivateContext {
 	  makeTextRowsWriteMaskCount(0)
 	{
 	}
+
+	void clear(void)
+	{
+		section = SELECT_PARSING_SECTION_COLUMN;
+		currWord.clear();
+		currWordLower.clear();
+		evalTargetItemGroup = NULL;
+		makeTextRowsWriteMaskCount = 0;
+	}
 };
 
 const SelectSubParser SQLProcessorSelect::PrivateContext::selectSubParsers[] = {
@@ -306,6 +315,7 @@ void SQLProcessorSelect::init(void)
 
 bool SQLProcessorSelect::select(SQLSelectInfo &selectInfo)
 {
+	m_ctx->clear();
 	setSelectInfoToPrivateContext(selectInfo);
 	try {
 		// disassemble the query statement
