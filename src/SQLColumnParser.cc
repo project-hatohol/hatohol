@@ -204,25 +204,23 @@ void SQLColumnParser::separatorCbParenthesisClose(const char separator)
 //
 // Keyword handlers
 //
-bool SQLColumnParser::kwHandlerAs(void)
+void SQLColumnParser::kwHandlerAs(void)
 {
 	m_ctx->expectAlias = true;
 	m_ctx->dontAppendFormulaString = true;
-	return true;
 }
 
-bool SQLColumnParser::kwHandlerDistinct(void)
+void SQLColumnParser::kwHandlerDistinct(void)
 {
 	FormulaElement *formulaElement = getTopOnParenthesisStack();
 	FormulaFuncCount *formulaFuncCount =
 	  dynamic_cast<FormulaFuncCount *>(formulaElement);
 	if (formulaFuncCount) {
 		formulaFuncCount->setDistinct();
-		return true;
+		return;
 	}
 	
 	THROW_ASURA_EXCEPTION("Not implemented: DISTINCT.");
-	return false;
 }
 
 //

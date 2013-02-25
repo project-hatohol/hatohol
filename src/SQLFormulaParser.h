@@ -48,7 +48,7 @@ protected:
 	//
 	// type definition
 	//
-	typedef bool (SQLFormulaParser::*KeywordHandler)(void);
+	typedef void (SQLFormulaParser::*KeywordHandler)(void);
 	typedef map<string, KeywordHandler> KeywordHandlerMap;
 	typedef KeywordHandlerMap::iterator KeywordHandlerMapIterator;
 
@@ -109,8 +109,8 @@ protected:
 	//
 	// Keyword handlers
 	//
-	bool kwHandlerAnd(void);
-	bool kwHandlerOr(void);
+	void kwHandlerAnd(void);
+	void kwHandlerOr(void);
 
 private:
 	static KeywordHandlerMap          m_defaultKeywordHandlerMap;

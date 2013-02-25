@@ -116,7 +116,8 @@ bool SQLFormulaParser::add(string& word, string &wordLower)
 	if (it != m_keywordHandlerMap->end()) {
 		flush();
 		KeywordHandler func = it->second;
-		return (this->*func)();
+		(this->*func)();
+		return true;
 	}
 
 	if (m_ctx->hasPendingWord()) {
@@ -493,16 +494,14 @@ void SQLFormulaParser::separatorCbPlus(const char separator)
 //
 // Keyword handlers
 //
-bool SQLFormulaParser::kwHandlerAnd(void)
+void SQLFormulaParser::kwHandlerAnd(void)
 {
 	FormulaOperatorAnd *opAnd = new FormulaOperatorAnd();
 	insertElement(opAnd);
-	return true;
 }
 
-bool SQLFormulaParser::kwHandlerOr(void)
+void SQLFormulaParser::kwHandlerOr(void)
 {
 	FormulaOperatorOr *opOr = new FormulaOperatorOr();
 	insertElement(opOr);
-	return true;
 }

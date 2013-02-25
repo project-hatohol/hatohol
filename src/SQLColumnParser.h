@@ -78,8 +78,8 @@ protected:
 	//
 	// Keyword handlers
 	//
-	bool kwHandlerAs(void);
-	bool kwHandlerDistinct(void);
+	void kwHandlerAs(void);
+	void kwHandlerDistinct(void);
 
 	//
 	// functino parsers

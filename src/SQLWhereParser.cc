@@ -198,7 +198,7 @@ void SQLWhereParser::separatorCbGreaterThan(const char separator)
 //
 // Keyword handlers
 //
-bool SQLWhereParser::kwHandlerBetween(void)
+void SQLWhereParser::kwHandlerBetween(void)
 {
 	FormulaElement *currElem = getCurrentElement();
 	if (!currElem) {
@@ -217,5 +217,4 @@ bool SQLWhereParser::kwHandlerBetween(void)
 	m_ctx->betweenStep = BETWEEN_STEP_EXPECT_V0;
 	SeparatorCheckerWithCallback *separator = getSeparatorChecker();
 	separator->setAlternative(&ParsableString::SEPARATOR_SPACE);
-	return true;
 }

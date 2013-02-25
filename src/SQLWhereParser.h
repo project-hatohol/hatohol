@@ -50,7 +50,7 @@ protected:
 	//
 	// Keyword handlers
 	//
-	bool kwHandlerBetween(void);
+	void kwHandlerBetween(void);
 
 private:
 	static KeywordHandlerMap m_keywordHandlerMap;
