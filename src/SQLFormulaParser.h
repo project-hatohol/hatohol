@@ -71,7 +71,7 @@ protected:
 	void setErrorFlag(void);
 	FormulaElement *getCurrentElement(void) const;
 	void insertAsRightHand(FormulaElement *formulaElement);
-	bool insertAsHand(FormulaElement *formulaElement);
+	void insertAsHand(FormulaElement *formulaElement);
 	bool makeFormulaElementFromPendingWord(void);
 	bool addStringValue(string &word);
 	FormulaElement *takeFormula(void);

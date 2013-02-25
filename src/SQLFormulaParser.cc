@@ -245,8 +245,10 @@ bool SQLFormulaParser::insertElement(FormulaElement *formulaElement)
 		return true;
 	}
 
-	if (formulaElement->isTerminalElement())
-		return insertAsHand(formulaElement);
+	if (formulaElement->isTerminalElement()) {
+		insertAsHand(formulaElement);
+		return true;
+	}
 
 	FormulaElement *upperLimit = NULL;
 	if (!m_ctx->parenthesisStack.empty())
@@ -256,8 +258,10 @@ bool SQLFormulaParser::insertElement(FormulaElement *formulaElement)
 
 	// If priority of 'formulaElement' is higher than the current element,
 	// 'formulaElement' just becomes a right hand of the current element.
-	if (!targetElem)
-		return insertAsHand(formulaElement);
+	if (!targetElem) {
+		insertAsHand(formulaElement);
+		return true;
+	}
 
 	// If priority of 'formulaElement' is equal to 'targetElem',
 	// the target element is changed to the right hand of 'targetElem'.
@@ -322,7 +326,7 @@ void SQLFormulaParser::insertAsRightHand(FormulaElement *formulaElement)
 	m_ctx->currElement = formulaElement;
 }
 
-bool SQLFormulaParser::insertAsHand(FormulaElement *formulaElement)
+void SQLFormulaParser::insertAsHand(FormulaElement *formulaElement)
 {
 	FormulaElement *currElement = m_ctx->currElement;
 	if (!currElement)
@@ -332,20 +336,19 @@ bool SQLFormulaParser::insertAsHand(FormulaElement *formulaElement)
 	if (!currElement->getLeftHand()) {
 		currElement->setLeftHand(formulaElement);
 		m_ctx->currElement = formulaElement;
-		return true;
+		return;
 	}
 
 	if (!currElement->getRightHand()) {
 		currElement->setRightHand(formulaElement);
 		m_ctx->currElement = formulaElement;
-		return true;
+		return;
 	}
 
 	string treeInfo;
 	formulaElement->getRootElement()->getTreeInfo(treeInfo);
 	THROW_ASURA_EXCEPTION("Both hands are not NULL: %p.\n%s",
 	                      formulaElement, treeInfo.c_str());
-	return false;
 }
 
 bool SQLFormulaParser::makeFormulaElementFromPendingWord(void)
