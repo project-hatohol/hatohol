@@ -807,18 +807,7 @@ void test_innerJoin(void) {
 	                       TABLE0_NAME, TABLE1_NAME,
 	                       TABLE0_NAME, COLUMN_NAME_NUMBER,
 	                       TABLE1_NAME, COLUMN_NAME_AGE);
-	// check the result
-	const size_t expectedNumColumns = NUM_COLUMN0_DEFS + NUM_COLUMN1_DEFS;
-	DEFINE_SELECTINFO_AND_ASSERT_SELECT(
-	  selectInfo, statement, expectedNumColumns);
-
-	cppcut_assert_equal(expectedRefCountOfResultTableInTheSimplestCase,
-	                    selectInfo.joinedTable->getUsedCount());
-
-	AssertInnerJoin<TestData0, TestData1, InnerJoinedRowsCheckerNumberAge>
-	  assertJoin((ItemTable *)selectInfo.selectedTable,
-	             testData0, testData1, numTestData0, numTestData1);
-	assertJoin.run(assertJoinRunner);
+	assertInerJoinHelper(statement);
 }
 
 void test_innerJoinWithTableNames(void) {
