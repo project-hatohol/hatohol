@@ -130,6 +130,7 @@ struct SQLProcessorSelect::PrivateContext {
 		evalTargetItemGroup = NULL;
 		makeTextRowsWriteMaskCount = 0;
 		groupByColumns.clear();
+		groupedTableMap.clear();
 	}
 };
 
@@ -1056,7 +1057,6 @@ void SQLProcessorSelect::makeGroupedTableForColumn(const string &columnName)
 	  baseIndex + SQLUtils::getColumnIndex(baseName, tableStaticInfo);
 
 	// make map: key:column, value table
-	m_ctx->groupedTableMap.clear();
 	selectedTable->foreach<SQLProcessorSelect *>(makeGroupedTable, this);
 
 	// copy the table pointers to groupedTables.
