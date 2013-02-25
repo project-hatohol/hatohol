@@ -66,20 +66,20 @@ enum {
 };
 
 static const size_t NUM_COLUMN0_DEFS = 2;
-static ColumnBaseDefinition COLUMN0_DEFS[NUM_COLUMN0_DEFS] = {
+static ColumnDef COLUMN0_DEFS[NUM_COLUMN0_DEFS] = {
   {ITEM_ID_NUMBER, TABLE0_NAME, COLUMN_NAME_NUMBER, SQL_COLUMN_TYPE_INT, 11, 0},
   {ITEM_ID_NAME,   TABLE0_NAME, COLUMN_NAME_NAME,   SQL_COLUMN_TYPE_VARCHAR, 20, 0},
 };
 
 static const size_t NUM_COLUMN1_DEFS = 3;
-static ColumnBaseDefinition COLUMN1_DEFS[NUM_COLUMN1_DEFS] = {
+static ColumnDef COLUMN1_DEFS[NUM_COLUMN1_DEFS] = {
   {ITEM_ID_AGE,    TABLE1_NAME, COLUMN_NAME_AGE,    SQL_COLUMN_TYPE_INT, 11, 0},
   {ITEM_ID_ANIMAL, TABLE1_NAME, COLUMN_NAME_ANIMAL, SQL_COLUMN_TYPE_VARCHAR, 20, 0},
   {ITEM_ID_FOOD,   TABLE1_NAME, COLUMN_NAME_FOOD,   SQL_COLUMN_TYPE_VARCHAR, 20, 0},
 };
 
 static const size_t NUM_COLUMN_Z_DEFS = 2;
-static ColumnBaseDefinition COLUMN_Z_DEFS[NUM_COLUMN_Z_DEFS] = {
+static ColumnDef COLUMN_Z_DEFS[NUM_COLUMN_Z_DEFS] = {
   {ITEM_ID_Z_NUM, TABLE_Z_NAME, COLUMN_NAME_Z_NUM, SQL_COLUMN_TYPE_INT, 11, 0},
   {ITEM_ID_Z_STR, TABLE_Z_NAME, COLUMN_NAME_Z_STR, SQL_COLUMN_TYPE_VARCHAR, 20, 0},
 };
@@ -131,7 +131,7 @@ struct TableData {
 	int tableId;
 	const char *tableName;
 	int numColumnDefs;
-	ColumnBaseDefinition *columnDefs;
+	ColumnDef *columnDefs;
 };
 
 static const TableData tableData[] = {
@@ -179,13 +179,13 @@ private:
 		staticInfo->tableName = tableData.tableName;
 		staticInfo->tableGetFunc  = tableGetFunc;
 
-		ColumnBaseDefList &list =
-		  const_cast<ColumnBaseDefList &>
-		  (staticInfo->columnBaseDefList);
+		ColumnDefList &list =
+		  const_cast<ColumnDefList &>
+		  (staticInfo->columnDefList);
 
 		ColumnNameAccessInfoMap &map = staticInfo->columnAccessInfoMap;
 		for (int i = 0; i < tableData.numColumnDefs; i++) {
-			ColumnBaseDefinition *columnDefs = tableData.columnDefs;
+			ColumnDef *columnDefs = tableData.columnDefs;
 			list.push_back(columnDefs[i]);
 			ColumnAccessInfo accessInfo = {i, &columnDefs[i]};
 			map[columnDefs[i].columnName] = accessInfo;
@@ -287,7 +287,7 @@ static void _assertSQLSelectInfoBasic
 	                    selectInfo.outputColumnVector.size());
 	for (size_t i = 0; i < expectedNumColumns; i++) {
 		SQLOutputColumn &outCol = selectInfo.outputColumnVector[i];
-		cppcut_assert_not_null(outCol.columnBaseDef);
+		cppcut_assert_not_null(outCol.columnDef);
 	}
 
 	// Selected Rows

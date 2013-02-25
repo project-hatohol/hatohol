@@ -57,7 +57,7 @@ struct SQLProcessorInfo {
 	virtual ~SQLProcessorInfo();
 };
 
-struct ColumnBaseDefinition {
+struct ColumnDef {
 	ItemId         itemId;
 	const char    *tableName;
 	const char    *columnName;
@@ -66,13 +66,13 @@ struct ColumnBaseDefinition {
 	uint16_t       flags;
 };
 
-typedef list<ColumnBaseDefinition>        ColumnBaseDefList;
-typedef ColumnBaseDefList::iterator       ColumnBaseDefListIterator;
-typedef ColumnBaseDefList::const_iterator ColumnBaseDefListConstIterator;
+typedef list<ColumnDef>               ColumnDefList;
+typedef ColumnDefList::iterator       ColumnDefListIterator;
+typedef ColumnDefList::const_iterator ColumnDefListConstIterator;
 
 struct ColumnAccessInfo {
-	int                   index;
-	ColumnBaseDefinition *columnBaseDefinition;
+	int         index;
+	ColumnDef *columnDef;
 };
 typedef map<string, ColumnAccessInfo>    ColumnNameAccessInfoMap;
 typedef ColumnNameAccessInfoMap::iterator
@@ -83,15 +83,15 @@ typedef ColumnNameAccessInfoMap::const_iterator
 typedef ItemTablePtr (*SQLTableGetFunc)(void);
 
 struct SQLTableStaticInfo {
-	int                        tableId;
-	const char                *tableName;
-	SQLTableGetFunc            tableGetFunc;
-	const ColumnBaseDefList    columnBaseDefList;
+	int                     tableId;
+	const char             *tableName;
+	SQLTableGetFunc         tableGetFunc;
+	const ColumnDefList     columnDefList;
 
-	// The value (ColumnBaseDefinition *) points an instance in
-	// 'columnBaseDefList' in this struct.
+	// The value (ColumnDefinition *) points an instance in
+	// 'columnDefList' in this struct.
 	// So we must not explicitly free it.
-	ColumnNameAccessInfoMap    columnAccessInfoMap;
+	ColumnNameAccessInfoMap columnAccessInfoMap;
 };
 
 typedef map<string, const SQLTableStaticInfo *> TableNameStaticInfoMap;

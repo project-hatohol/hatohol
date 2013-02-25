@@ -8,28 +8,28 @@ static ItemId testItemId = 1;
 static const char *testTableName = "TestTable";
 static const char *testColumnName = "TestTable";
 
-static ColumnBaseDefinition testDefInt = {
+static ColumnDef testDefInt = {
 	testItemId, testTableName, testColumnName,
 	SQL_COLUMN_TYPE_INT, 11, 0
 };
 
-static ColumnBaseDefinition testDefBiguint = {
+static ColumnDef testDefBiguint = {
 	testItemId, testTableName, testColumnName,
 	SQL_COLUMN_TYPE_BIGUINT, 20, 0
 };
 
-static ColumnBaseDefinition testDefVarchar = {
+static ColumnDef testDefVarchar = {
 	testItemId, testTableName, testColumnName,
 	SQL_COLUMN_TYPE_VARCHAR, 30, 0
 };
 
-static ColumnBaseDefinition testDefChar = {
+static ColumnDef testDefChar = {
 	testItemId, testTableName, testColumnName,
 	SQL_COLUMN_TYPE_CHAR, 8, 0
 };
 
 template<class ValueType, class ItemDataType>
-void _assertCreateItemData(const ColumnBaseDefinition *columnDefinition,
+void _assertCreateItemData(const ColumnDef *columnDefinition,
                            ValueType data)
 {
 	stringstream ss;

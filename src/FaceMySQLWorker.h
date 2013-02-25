@@ -85,7 +85,7 @@ protected:
 	bool sendOK(uint64_t affectedRows = 0, uint64_t lastInsertId = 0);
 	bool sendEOF(uint16_t warningCount, uint16_t status);
 	bool sendNull(void);
-	bool sendColumnDefinition41(
+	bool sendColumnDef41(
 	  const string &schema, const string &table, const string &orgTable,
 	  const string &name, const string &orgName,
 	  uint32_t columnLength, uint8_t type,

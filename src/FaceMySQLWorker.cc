@@ -411,7 +411,7 @@ bool FaceMySQLWorker::receiveRequest(void)
 	return (this->*proc)(pkt);
 }
 
-bool FaceMySQLWorker::sendColumnDefinition41(
+bool FaceMySQLWorker::sendColumnDef41(
   const string &schema, const string &table, const string &orgTable,
   const string &name, const string &orgName,
   uint32_t columnLength, uint8_t type, uint16_t flags, uint8_t decimals)
@@ -455,23 +455,23 @@ bool FaceMySQLWorker::sendSelectResult(const SQLSelectInfo &selectInfo)
 	uint8_t decimals = 0;
 	for (size_t i = 0; i < selectInfo.outputColumnVector.size(); i++) {
 		bool ret;
-		const SQLOutputColumn &colDef
-		  = selectInfo.outputColumnVector[i];
-		const ColumnBaseDefinition *columnBaseDef
-		  = colDef.columnBaseDef;
+		const SQLOutputColumn &outputColumn =
+		  selectInfo.outputColumnVector[i];
+		const ColumnDef *columnDef = outputColumn.columnDef;
 
-		int type = typeConvert(columnBaseDef->type);
+		int type = typeConvert(columnDef->type);
 		if (type == TYPE_VAR_UNKNOWN) {
 			MLPL_BUG("Failed to convert type: %d\n",
-			         columnBaseDef->type);
+			         columnDef->type);
 			return false;
 		}
-		ret = sendColumnDefinition41(colDef.schema,
-		                             colDef.tableVar, colDef.table,
-		                             colDef.columnVar, colDef.column,
-		                             columnBaseDef->columnLength,
-		                             type,
-		                             columnBaseDef->flags, decimals);
+		ret = sendColumnDef41(outputColumn.schema,
+		                      outputColumn.tableVar,
+		                      outputColumn.table,
+		                      outputColumn.columnVar,
+		                      outputColumn.column,
+		                      columnDef->columnLength,
+		                      type, columnDef->flags, decimals);
 		if (!ret)
 			return false;
 	}
@@ -838,15 +838,13 @@ bool FaceMySQLWorker::querySelectVersionComment(ParsableString &query)
 
 	// Column Definition
 	string dummyStr;
-	bool ret;
 	string name = "@@version_comment";
 	uint32_t columnLength = 8;
 	uint8_t decimals = 0x1f;
 	uint16_t flags = 0;
-	ret = sendColumnDefinition41(dummyStr, dummyStr, dummyStr,
-	                             name, dummyStr, columnLength,
-	                             TYPE_VAR_STRING, flags,
-	                             decimals);
+	bool ret = sendColumnDef41(dummyStr, dummyStr, dummyStr, name,
+	                           dummyStr, columnLength, TYPE_VAR_STRING,
+	                           flags, decimals);
 	if (!ret)
 		return false;
 
@@ -875,15 +873,13 @@ bool FaceMySQLWorker::querySelectDatabase(ParsableString &query)
 
 	// Column Definition
 	string dummyStr;
-	bool ret;
 	string name = "DATABASE()";
 	uint32_t columnLength = 0x22;
 	uint8_t decimals = 0x1f;
 	uint16_t flags = 0;
-	ret = sendColumnDefinition41(dummyStr, dummyStr, dummyStr,
-	                             name, dummyStr, columnLength,
-	                             TYPE_VAR_STRING, flags,
-	                             decimals);
+	bool ret = sendColumnDef41(dummyStr, dummyStr, dummyStr,
+	                           name, dummyStr, columnLength,
+	                           TYPE_VAR_STRING, flags, decimals);
 	if (!ret)
 		return false;
 

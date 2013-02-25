@@ -196,12 +196,12 @@ void SQLProcessorInsert::makeColumnDefValueMap(SQLInsertInfo &insertInfo)
 	const SQLTableStaticInfo *tableStaticInfo = m_ctx->tableStaticInfo;
 	for (size_t i = 0; i < insertInfo.columnVector.size(); i++) {
 		string &name = insertInfo.columnVector[i];
-		const ColumnBaseDefinition *colBaseDef =
-		  SQLUtils::getColumnBaseDefinition(name, tableStaticInfo);
+		const ColumnDef *columnDef =
+		  SQLUtils::getColumnDef(name, tableStaticInfo);
 		pair<ItemIdValueMapIterator, bool> ret = 
 		  m_ctx->itemIdValueMap.insert(
 		    pair<ItemId, string *>
-		      (colBaseDef->itemId, &insertInfo.valueVector[i]));
+		      (columnDef->itemId, &insertInfo.valueVector[i]));
 		if (!ret.second) {
 			THROW_SQL_PROCESSOR_EXCEPTION(
 			  "Failed to insert '%s' in table: '%s'",
@@ -215,18 +215,18 @@ void SQLProcessorInsert::doInsetToTable(SQLInsertInfo &insertInfo)
 	ItemDataPtr dataPtr;
 	ItemGroupPtr grpPtr(new ItemGroup(), false);
 	ItemIdValueMapIterator colValIt;
-	ColumnBaseDefListConstIterator it;
+	ColumnDefListConstIterator it;
 	const SQLTableStaticInfo *tableStaticInfo = m_ctx->tableStaticInfo;
 
 	// Make one row
-	it = tableStaticInfo->columnBaseDefList.begin();
-	for (; it != tableStaticInfo->columnBaseDefList.end(); ++it) {
-		const ColumnBaseDefinition &colBaseDef = *it;
-		colValIt = m_ctx->itemIdValueMap.find(colBaseDef.itemId);
+	it = tableStaticInfo->columnDefList.begin();
+	for (; it != tableStaticInfo->columnDefList.end(); ++it) {
+		const ColumnDef &columnDef = *it;
+		colValIt = m_ctx->itemIdValueMap.find(columnDef.itemId);
 		if (colValIt == m_ctx->itemIdValueMap.end()) {
-			dataPtr = SQLUtils::createDefaultItemData(&colBaseDef);
+			dataPtr = SQLUtils::createDefaultItemData(&columnDef);
 		} else {
-			dataPtr = SQLUtils::createItemData(&colBaseDef,
+			dataPtr = SQLUtils::createItemData(&columnDef,
 			                                   *colValIt->second);
 			m_ctx->itemIdValueMap.erase(colValIt);
 		}
@@ -237,8 +237,8 @@ void SQLProcessorInsert::doInsetToTable(SQLInsertInfo &insertInfo)
 			THROW_SQL_PROCESSOR_EXCEPTION(
 			  "Failed to create ItemData for value '%s': "
 			  "table: %s, column: %s",
-			  valueString, colBaseDef.tableName,
-			  colBaseDef.columnName);
+			  valueString, columnDef.tableName,
+			  columnDef.columnName);
 		}
 		grpPtr->add(dataPtr);
 	}

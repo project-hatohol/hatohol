@@ -445,18 +445,18 @@ void SQLProcessorZabbix::defineColumn(SQLTableStaticInfo *staticInfo,
                                       int tableId, const char *columnName,
                                       SQLColumnType type, size_t columnLength)
 {
-	ColumnBaseDefList &list =
-	  const_cast<ColumnBaseDefList &>(staticInfo->columnBaseDefList);
+	ColumnDefList &list =
+	  const_cast<ColumnDefList &>(staticInfo->columnDefList);
 	int index = list.size();
-	list.push_back(ColumnBaseDefinition());
-	ColumnBaseDefinition &colBaseDef = list.back();
-	colBaseDef.itemId       = itemId;
-	colBaseDef.tableName    = staticInfo->tableName;
-	colBaseDef.columnName   = columnName;
-	colBaseDef.type         = type;
-	colBaseDef.columnLength = columnLength;
+	list.push_back(ColumnDef());
+	ColumnDef &columnDef = list.back();
+	columnDef.itemId       = itemId;
+	columnDef.tableName    = staticInfo->tableName;
+	columnDef.columnName   = columnName;
+	columnDef.type         = type;
+	columnDef.columnLength = columnLength;
 
 	ColumnNameAccessInfoMap &map = staticInfo->columnAccessInfoMap;
-	ColumnAccessInfo accessInfo = {index, &colBaseDef};
+	ColumnAccessInfo accessInfo = {index, &columnDef};
 	map[columnName] = accessInfo;
 }

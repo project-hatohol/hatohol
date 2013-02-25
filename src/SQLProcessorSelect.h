@@ -46,14 +46,14 @@ struct SQLOutputColumn
 	const SQLFormulaInfo *formulaInfo;
 	const SQLColumnInfo  *columnInfo; // when '*' is specified
 
-	// When columnBaseDefDeleteFlag is false,
-	// 'columnBaseDef' points an instance in
-	// SQLTableStaticInfo::columnBaseDefList.
+	// When columnDefDeleteFlag is false,
+	// 'columnDef' points an instance in
+	// SQLTableStaticInfo::columnDefList.
 	// So we must not explicitly free it in that case.
-	// When columnBaseDefDeleteFlag is true, it is created dynamically
+	// When columnDefDeleteFlag is true, it is created dynamically
 	// We have to delete it in destructor.
-	const ColumnBaseDefinition *columnBaseDef;
-	bool  columnBaseDefDeleteFlag;
+	const ColumnDef *columnDef;
+	bool  columnDefDeleteFlag;
 
 	// 'tableInfo' points an instance in SQLSelectInfo::tables.
 	// So we must not explicitly free it.
@@ -106,13 +106,13 @@ struct SQLColumnInfo {
 	// It is set in associateColumnWithTable().
 	const SQLTableInfo *tableInfo;
 
-	// 'columnBaseDef' points an instance in
-	// 'tableInfo->staticInfo->columnBaseDefList'.
+	// 'columnDef' points an instance in
+	// 'tableInfo->staticInfo->columnDefList'.
 	// So we must not explicitly free it.
-	// It is set in setBaseDefAndColumnTypeInColumnInfo().
+	// It is set in setDefAndColumnTypeInColumnInfo().
 	// This variable is not set when 'columnType' is COLUMN_TYPE_ALL,
 	// COLUMN_TYPE_ALL_OF_TABLE.
-	const ColumnBaseDefinition *columnBaseDef;
+	const ColumnDef *columnDef;
 
 	enum {COLUMN_TYPE_UNKNOWN, COLUMN_TYPE_NORMAL, COLUMN_TYPE_ALL,
 	      COLUMN_TYPE_ALL_OF_TABLE};
@@ -195,7 +195,7 @@ protected:
 	void fixupColumnNameMap(void);
 	void associateColumnWithTable(void);
 	void associateTableWithStaticInfo(void);
-	void setColumnTypeAndBaseDefInColumnInfo(void);
+	void setColumnTypeAndDefInColumnInfo(void);
 	void makeColumnDefs(void);
 	void makeItemTables(void);
 	void doJoin(void);
@@ -208,7 +208,7 @@ protected:
 
 	void addOutputColumn(SQLSelectInfo *selectInfo,
 	                     const SQLColumnInfo *columnInfo,
-	                     const ColumnBaseDefinition *columnBaseDef,
+	                     const ColumnDef *columnDef,
 	                     const SQLFormulaInfo *formulaInfo = NULL);
 	void addOutputColumn(SQLSelectInfo *selectInfo,
 	                     SQLFormulaInfo *formulaInfo);
@@ -216,8 +216,8 @@ protected:
 	                                 const SQLColumnInfo *columnInfo);
 	void addOutputColumnsOfOneTable(SQLSelectInfo *selectInfo,
 	                                const SQLColumnInfo *columnInfo);
-	const ColumnBaseDefinition *
-	  makeColumnBaseDefForFormula(SQLFormulaInfo *formulaInfo);
+	const ColumnDef *
+	  makeColumnDefForFormula(SQLFormulaInfo *formulaInfo);
 
 	// methods for foreach
 	static bool

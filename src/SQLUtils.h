@@ -31,7 +31,7 @@ public:
 	 * get an aceess informatin of the column in the table.
 	 *
 	 * @columnName A target column name.
-	 * @columnBaseDef A pointer of ColumnBaseDefinition object.
+	 * @columnDef A pointer of ColumnDef object.
 	 * @tableStaticInfo A pointer of SQLTableStaticInfo object for
 	 *                  the table to which the column belongs.
 	 * @return A referece of ColumnAcessInfo of the column in
@@ -45,7 +45,7 @@ public:
 	 * get an index of the column in the table.
 	 *
 	 * @columnName A target column name.
-	 * @columnBaseDef A pointer of ColumnBaseDefinition object.
+	 * @columnDef A pointer of ColumnDef object.
 	 * @tableStaticInfo A pointer of SQLTableStaticInfo object for
 	 *                  the table to which the column belongs.
 	 * @return An index of the column in the table on success.
@@ -53,35 +53,33 @@ public:
 	 */
 	static int getColumnIndex(const string &columnName,
 	                          const SQLTableStaticInfo *staticInfo);
-	static ItemDataPtr
-	  createDefaultItemData(const ColumnBaseDefinition *columnBaseDef);
+
+	static ItemDataPtr createDefaultItemData(const ColumnDef *columnDef);
 
 	/**
-	 * get a pointer of ColumnBaseDefinition form the column name.
+	 * get a pointer of ColumnDef form the column name.
 	 *
 	 * @columnName A target column name.
-	 * @columnBaseDef A pointer of ColumnBaseDefinition object.
 	 * @tableStaticInfo A pointer of SQLTableStaticInfo object for
 	 *                  the table to which the column belongs.
-	 * @return A pointer of ColumnBaseDefinition is returned on success.
+	 * @return A pointer of ColumnDef is returned on success.
 	 *         When an error, SQLProcessorException is thrown.
 	 */
-	static const ColumnBaseDefinition *
-	  getColumnBaseDefinition(const string &columnName,
-	                          const SQLTableStaticInfo *tableStaticInfo);
+	static const ColumnDef *
+	  getColumnDef(const string &columnName,
+	               const SQLTableStaticInfo *tableStaticInfo);
 
 	/**
 	 * create ItemDataPtr from a string.
 	 *
-	 * @columnBaseDef A pointer of ColumnBaseDefinition object.
+	 * @columnDef A pointer of ColumnDef object.
 	 * @value A string of the value.
 	 * @return An ItemDataPtr that refers an ItemData object on success.
 	 *         When an error, the returned ItemDataPtr doesn't
 	 *         have a reference (i.e. hasData() returns falase).
 	 */
-	static ItemDataPtr
-	  createItemData(const ColumnBaseDefinition *columnBaseDef,
-	                 string &value);
+	static ItemDataPtr createItemData(const ColumnDef *columnDef,
+	                                  string &value);
 
 	/**
 	 * get ItemDataPtr form an ItemGroup with a column name.
@@ -99,16 +97,16 @@ public:
 	     ItemGroup *itemGroup);
 protected:
 	typedef ItemDataPtr (*ItemDataCreator)
-	    (const ColumnBaseDefinition *columnBaseDef, const char *value);
+	  (const ColumnDef *columnDef, const char *value);
 	
 	static ItemDataPtr creatorItemInt
-	  (const ColumnBaseDefinition *columnBaseDef, const char *value);
+	  (const ColumnDef *columnDef, const char *value);
 	static ItemDataPtr creatorItemBiguint
-	  (const ColumnBaseDefinition *columnBaseDef, const char *value);
+	  (const ColumnDef *columnDef, const char *value);
 	static ItemDataPtr creatorVarchar
-	  (const ColumnBaseDefinition *columnBaseDef, const char *value);
+	  (const ColumnDef *columnDef, const char *value);
 	static ItemDataPtr creatorChar
-	  (const ColumnBaseDefinition *columnBaseDef, const char *value);
+	  (const ColumnDef *columnDef, const char *value);
 
 private:
 	static ItemDataCreator m_itemDataCreators[];

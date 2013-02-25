@@ -355,10 +355,9 @@ bool SQLProcessorUpdate::updateMatchingCell
 		return false;
 	}
 
-	const ColumnBaseDefinition *colBaseDef = 
-	  SQLUtils::getColumnBaseDefinition(columnName,
-	                                    updateInfo.tableStaticInfo);
-	ItemDataPtr srcDataPtr = SQLUtils::createItemData(colBaseDef, value);
+	const ColumnDef *columnDef =
+	  SQLUtils::getColumnDef(columnName, updateInfo.tableStaticInfo);
+	ItemDataPtr srcDataPtr = SQLUtils::createItemData(columnDef, value);
 	if (!srcDataPtr.hasData()) {
 		MLPL_DBG("result has no data.\n");
 		return false;

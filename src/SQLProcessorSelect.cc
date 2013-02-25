@@ -213,7 +213,7 @@ public:
 			      m_columnInfo->columnType);
 			throw logic_error(msg);
 		}
-		ItemId itemId = m_columnInfo->columnBaseDef->itemId;
+		ItemId itemId = m_columnInfo->columnDef->itemId;
 		return ItemDataPtr(m_evalTargetItemGroup->getItem(itemId));
 	}
 
@@ -233,8 +233,8 @@ private:
 SQLOutputColumn::SQLOutputColumn(SQLFormulaInfo *_formulaInfo)
 : formulaInfo(_formulaInfo),
   columnInfo(NULL),
-  columnBaseDef(NULL),
-  columnBaseDefDeleteFlag(false),
+  columnDef(NULL),
+  columnDefDeleteFlag(false),
   tableInfo(NULL)
 {
 }
@@ -242,16 +242,16 @@ SQLOutputColumn::SQLOutputColumn(SQLFormulaInfo *_formulaInfo)
 SQLOutputColumn::SQLOutputColumn(const SQLColumnInfo *_columnInfo)
 : formulaInfo(NULL),
   columnInfo(_columnInfo),
-  columnBaseDef(NULL),
-  columnBaseDefDeleteFlag(false),
+  columnDef(NULL),
+  columnDefDeleteFlag(false),
   tableInfo(NULL)
 {
 }
 
 SQLOutputColumn::~SQLOutputColumn()
 {
-	if (columnBaseDefDeleteFlag)
-		delete columnBaseDef;
+	if (columnDefDeleteFlag)
+		delete columnDef;
 }
 
 ItemDataPtr SQLOutputColumn::getItem(const ItemGroup *itemGroup) const
@@ -259,7 +259,7 @@ ItemDataPtr SQLOutputColumn::getItem(const ItemGroup *itemGroup) const
 	if (formulaInfo)
 		return formulaInfo->formula->evaluate();
 	if (columnInfo)
-		return itemGroup->getItem(columnBaseDef->itemId);
+		return itemGroup->getItem(columnDef->itemId);
 	MLPL_BUG("formulaInfo and columnInfo are both NULL.");
 	return ItemDataPtr();
 }
@@ -278,7 +278,7 @@ SQLTableInfo::SQLTableInfo(void)
 SQLColumnInfo::SQLColumnInfo(string &_name)
 : name(_name),
   tableInfo(NULL),
-  columnBaseDef(NULL),
+  columnDef(NULL),
   columnType(COLUMN_TYPE_UNKNOWN)
 {
 }
@@ -370,7 +370,7 @@ bool SQLProcessorSelect::select(SQLSelectInfo &selectInfo)
 		associateTableWithStaticInfo();
 
 		// make ItemTable objects for all specified tables
-		setColumnTypeAndBaseDefInColumnInfo();
+		setColumnTypeAndDefInColumnInfo();
 		makeColumnDefs();
 		makeItemTables();
 
@@ -589,7 +589,7 @@ void SQLProcessorSelect::associateTableWithStaticInfo(void)
 	}
 }
 
-void SQLProcessorSelect::setColumnTypeAndBaseDefInColumnInfo(void)
+void SQLProcessorSelect::setColumnTypeAndDefInColumnInfo(void)
 {
 	SQLSelectInfo *selectInfo = m_ctx->selectInfo;
 	SQLColumnNameMapIterator it = selectInfo->columnNameMap.begin();
@@ -610,29 +610,28 @@ void SQLProcessorSelect::setColumnTypeAndBaseDefInColumnInfo(void)
 		if (!staticInfo)
 			THROW_SQL_PROCESSOR_EXCEPTION("staticInfo is NULL\n");
 
-		columnInfo->columnBaseDef =
-		  SQLUtils::getColumnBaseDefinition(columnInfo->baseName,
-		                                    staticInfo);
+		columnInfo->columnDef =
+		  SQLUtils::getColumnDef(columnInfo->baseName, staticInfo);
 	}
 }
 
 void SQLProcessorSelect::addOutputColumn
   (SQLSelectInfo *selectInfo, const SQLColumnInfo *columnInfo,
-   const ColumnBaseDefinition *columnBaseDef, const SQLFormulaInfo *formulaInfo)
+   const ColumnDef *columnDef, const SQLFormulaInfo *formulaInfo)
 {
 	const SQLTableInfo *tableInfo = columnInfo->tableInfo;
 	selectInfo->outputColumnVector.push_back(SQLOutputColumn(columnInfo));
 	SQLOutputColumn &outCol = selectInfo->outputColumnVector.back();
-	outCol.columnBaseDef = columnBaseDef;
-	outCol.tableInfo     = tableInfo;
-	outCol.schema        = m_ctx->dbName;
-	outCol.table         = tableInfo->name;
-	outCol.tableVar      = tableInfo->varName;
-	outCol.column        = columnBaseDef->columnName;
+	outCol.columnDef = columnDef;
+	outCol.tableInfo = tableInfo;
+	outCol.schema    = m_ctx->dbName;
+	outCol.table     = tableInfo->name;
+	outCol.tableVar  = tableInfo->varName;
+	outCol.column    = columnDef->columnName;
 	if (!formulaInfo) // when 'select * or n.*'
-		outCol.columnVar = columnBaseDef->columnName;
+		outCol.columnVar = columnDef->columnName;
 	else if (formulaInfo->alias.empty())
-		outCol.columnVar = columnBaseDef->columnName;
+		outCol.columnVar = columnDef->columnName;
 	else
 		outCol.columnVar = formulaInfo->alias;
 }
@@ -642,7 +641,7 @@ void SQLProcessorSelect::addOutputColumn(SQLSelectInfo *selectInfo,
 {
 	selectInfo->outputColumnVector.push_back(SQLOutputColumn(formulaInfo));
 	SQLOutputColumn &outCol = selectInfo->outputColumnVector.back();
-	outCol.columnBaseDef = makeColumnBaseDefForFormula(formulaInfo);
+	outCol.columnDef = makeColumnDefForFormula(formulaInfo);
 	//outCol.tableInfo     =
 	outCol.schema        = m_ctx->dbName;
 	//outCol.table         =
@@ -677,27 +676,27 @@ void SQLProcessorSelect::addOutputColumnsOfOneTable(SQLSelectInfo *selectInfo,
 		  "tableInfo->staticInfo is NULL\n");
 	}
 
-	ColumnBaseDefListConstIterator it;
-	it = tableInfo->staticInfo->columnBaseDefList.begin();
-	for (; it != tableInfo->staticInfo->columnBaseDefList.end(); ++it) {
-		const ColumnBaseDefinition *columnBaseDef = &(*it);
-		addOutputColumn(selectInfo, columnInfo, columnBaseDef);
+	ColumnDefListConstIterator it;
+	it = tableInfo->staticInfo->columnDefList.begin();
+	for (; it != tableInfo->staticInfo->columnDefList.end(); ++it) {
+		const ColumnDef *columnDef = &(*it);
+		addOutputColumn(selectInfo, columnInfo, columnDef);
 	}
 }
 
-const ColumnBaseDefinition *
-SQLProcessorSelect::makeColumnBaseDefForFormula(SQLFormulaInfo *formulaInfo)
+const ColumnDef *
+SQLProcessorSelect::makeColumnDefForFormula(SQLFormulaInfo *formulaInfo)
 {
-	ColumnBaseDefinition *columnBaseDef = new ColumnBaseDefinition();
-	columnBaseDef->itemId = SYSTEM_ITEM_ID_ANONYMOUS;
-	columnBaseDef->tableName = "";
-	columnBaseDef->columnName = "";
-	columnBaseDef->type = SQL_COLUMN_TYPE_BIGUINT;
-	columnBaseDef->columnLength = 20;
+	ColumnDef *columnDef = new ColumnDef();
+	columnDef->itemId = SYSTEM_ITEM_ID_ANONYMOUS;
+	columnDef->tableName = "";
+	columnDef->columnName = "";
+	columnDef->type = SQL_COLUMN_TYPE_BIGUINT;
+	columnDef->columnLength = 20;
 	MLPL_BUG("Tentative implementation: type and columnLength must be "
 	         "calculated by analyzing used columns.\n");
-	columnBaseDef->flags = 0; // TODO: substitute the appropriate value.
-	return columnBaseDef;
+	columnDef->flags = 0; // TODO: substitute the appropriate value.
+	return columnDef;
 }
 
 void SQLProcessorSelect::makeColumnDefs(void)
@@ -734,12 +733,12 @@ void SQLProcessorSelect::makeColumnDefs(void)
 		if (columnType == SQLColumnInfo::COLUMN_TYPE_ALL_OF_TABLE) {
 			addOutputColumnsOfOneTable(selectInfo, columnInfo);
 		} else if (columnType == SQLColumnInfo::COLUMN_TYPE_NORMAL) {
-			if (!columnInfo->columnBaseDef) {
+			if (!columnInfo->columnDef) {
 				THROW_SQL_PROCESSOR_EXCEPTION(
-				  "columnInfo.columnBaseDef is NULL\n");
+				  "columnInfo.columnDef is NULL\n");
 			}
 			addOutputColumn(selectInfo, columnInfo,
-			                columnInfo->columnBaseDef,
+			                columnInfo->columnDef,
 			                formulaInfo);
 		} else {
 			THROW_SQL_PROCESSOR_EXCEPTION(
@@ -1074,7 +1073,7 @@ void SQLProcessorSelect::makeGroupedTableForColumn(const string &columnName)
 			tableStaticInfo = tableInfo->staticInfo;
 			if (tableVar == tableInfo->varName)
 				break;
-			baseIndex += tableStaticInfo->columnBaseDefList.size();
+			baseIndex += tableStaticInfo->columnDefList.size();
 		}
 		if (it == tables.end()) {
 			THROW_SQL_PROCESSOR_EXCEPTION(
