@@ -120,7 +120,8 @@ bool SQLColumnParser::add(string &word, string &wordLower)
 bool SQLColumnParser::close(void)
 {
 	flush();
-	return closeCurrFormulaInfo();
+	closeCurrFormulaInfo();
+	return true;
 }
 
 const SQLFormulaInfoVector &SQLColumnParser::getFormulaInfoVector(void) const
@@ -144,12 +145,11 @@ void SQLColumnParser::appendFormulaString(string &str)
 	m_ctx->currFormulaString += str;
 }
 
-bool SQLColumnParser::closeCurrFormulaInfo(void)
+void SQLColumnParser::closeCurrFormulaInfo(void)
 {
 	closeCurrentFormula();
 	closeCurrentFormulaString();
 	m_ctx->clear();
-	return true;
 }
 
 void SQLColumnParser::closeCurrentFormulaString(void)

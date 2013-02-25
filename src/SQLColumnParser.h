@@ -61,7 +61,7 @@ protected:
 	//
 	void appendFormulaString(const char character);
 	void appendFormulaString(string &str);
-	bool closeCurrFormulaInfo(void);
+	void closeCurrFormulaInfo(void);
 	void closeCurrentFormulaString(void);
 	void closeCurrentFormula(void);
 
