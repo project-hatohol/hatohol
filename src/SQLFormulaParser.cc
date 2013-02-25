@@ -389,10 +389,7 @@ bool SQLFormulaParser::makeFunctionParserIfPendingWordIsFunction(void)
 		return false;
 
 	FunctionParser func = it->second;
-	if (!(this->*func)()) {
-		THROW_SQL_PROCESSOR_EXCEPTION(
-		  "Failed to parse a function: %s", m_ctx->pendingWord.c_str());
-	}
+	(this->*func)();
 	m_ctx->parenthesisStack.push_back(m_ctx->currElement);
 
 	m_ctx->clearPendingWords();

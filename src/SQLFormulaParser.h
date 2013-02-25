@@ -52,7 +52,7 @@ protected:
 	typedef map<string, KeywordHandler> KeywordHandlerMap;
 	typedef KeywordHandlerMap::iterator KeywordHandlerMapIterator;
 
-	typedef bool (SQLFormulaParser::*FunctionParser)(void);
+	typedef void (SQLFormulaParser::*FunctionParser)(void);
 	typedef map<string, FunctionParser> FunctionParserMap;
 	typedef FunctionParserMap::iterator FunctionParserMapIterator;;
 

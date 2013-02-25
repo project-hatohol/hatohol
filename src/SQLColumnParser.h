@@ -84,8 +84,8 @@ protected:
 	//
 	// functino parsers
 	//
-	bool funcParserMax(void);
-	bool funcParserCount(void);
+	void funcParserMax(void);
+	void funcParserCount(void);
 
 private:
 	// Type definition
