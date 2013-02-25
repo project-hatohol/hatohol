@@ -131,8 +131,10 @@ bool SQLFormulaParser::add(string& word, string &wordLower)
 		         m_ctx->pendingWord.c_str(), word.c_str());
 	}
 
-	if (m_ctx->quotOpen)
-		return addStringValue(word);
+	if (m_ctx->quotOpen) {
+		addStringValue(word);
+		return true;
+	}
 
 	if (passFunctionArgIfOpen(word))
 		return true;
@@ -376,10 +378,9 @@ void SQLFormulaParser::makeFormulaElementFromPendingWord(void)
 	insertElement(formulaElement);
 }
 
-bool SQLFormulaParser::addStringValue(string &word)
+void SQLFormulaParser::addStringValue(string &word)
 {
 	insertAsRightHand(new FormulaValue(word));
-	return true;
 }
 
 FormulaElement *SQLFormulaParser::takeFormula(void)

@@ -73,7 +73,7 @@ protected:
 	void insertAsRightHand(FormulaElement *formulaElement);
 	void insertAsHand(FormulaElement *formulaElement);
 	void makeFormulaElementFromPendingWord(void);
-	bool addStringValue(string &word);
+	void addStringValue(string &word);
 	FormulaElement *takeFormula(void);
 	bool makeFunctionParserIfPendingWordIsFunction(void);
 
