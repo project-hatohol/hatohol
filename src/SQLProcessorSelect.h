@@ -201,7 +201,8 @@ protected:
 	void doJoin(void);
 	void selectMatchingRows(void);
 	void makeGroups(void);
-	void makeTextOutput(void);
+	void makeTextOutputForAllGroups(void);
+	void makeTextOutput(ItemTablePtr &tablePtr);
 	bool checkSelectedAllColumns(const SQLSelectInfo &selectInfo,
 	                             const SQLColumnInfo &columnInfo) const;
 

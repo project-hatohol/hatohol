@@ -350,7 +350,7 @@ bool SQLProcessorSelect::select(SQLSelectInfo &selectInfo)
 		makeGroups();
 
 		// convert data to string
-		makeTextOutput();
+		makeTextOutputForAllGroups();
 
 	} catch (const SQLProcessorException &e) {
 		const char *message = e.what();
@@ -773,7 +773,14 @@ void SQLProcessorSelect::makeGroups(void)
 	}
 }
 
-void SQLProcessorSelect::makeTextOutput(void)
+void SQLProcessorSelect::makeTextOutputForAllGroups(void)
+{
+	ItemTablePtrListIterator it = m_ctx->selectInfo->groupedTables.begin();
+	for (; it != m_ctx->selectInfo->groupedTables.end(); ++it)
+		makeTextOutput(*it);
+}
+
+void SQLProcessorSelect::makeTextOutput(ItemTablePtr &tablePtr)
 {
 	SQLSelectInfo *selectInfo = m_ctx->selectInfo;
 	// check if statistical function is included
@@ -789,10 +796,9 @@ void SQLProcessorSelect::makeTextOutput(void)
 
 	if (hasStatisticalFunc) {
 		m_ctx->makeTextRowsWriteMaskCount =
-		  selectInfo->selectedTable->getNumberOfRows() - 1;
+		  tablePtr->getNumberOfRows() - 1;
 	}
-	selectInfo->selectedTable->foreach<SQLProcessorSelect *>
-	  (makeTextRows, this);
+	tablePtr->foreach<SQLProcessorSelect *>(makeTextRows, this);
 }
 
 bool SQLProcessorSelect::pickupMatchingRows(const ItemGroup *itemGroup,
