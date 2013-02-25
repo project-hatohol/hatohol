@@ -892,10 +892,8 @@ bool SQLProcessorSelect::parseSectionLimit(void)
 //
 void SQLProcessorSelect::parseSelectedColumns(void)
 {
-	if (!m_ctx->selectInfo->columnParser.add(m_ctx->currWord,
-	                                         m_ctx->currWordLower)) {
-		THROW_SQL_PROCESSOR_EXCEPTION("Failed: columnParser.add()");
-	}
+	m_ctx->selectInfo->columnParser.add(m_ctx->currWord,
+	                                    m_ctx->currWordLower);
 }
 
 void SQLProcessorSelect::parseGroupBy(void)
@@ -911,10 +909,8 @@ void SQLProcessorSelect::parseFrom(void)
 
 void SQLProcessorSelect::parseWhere(void)
 {
-	if (!m_ctx->selectInfo->whereParser.add(m_ctx->currWord,
-	                                        m_ctx->currWordLower)) {
-		THROW_SQL_PROCESSOR_EXCEPTION("Failed: whereParser.add()");
-	}
+	m_ctx->selectInfo->whereParser.add(m_ctx->currWord,
+	                                   m_ctx->currWordLower);
 }
 
 void SQLProcessorSelect::parseOrderBy(void)

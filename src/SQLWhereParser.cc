@@ -75,16 +75,16 @@ SQLWhereParser::~SQLWhereParser()
 		delete m_ctx;
 }
 
-bool SQLWhereParser::add(string& word, string &wordLower)
+void SQLWhereParser::add(string& word, string &wordLower)
 {
-	if (m_ctx->betweenStep == BETWEEN_STEP_NULL)
-		return SQLFormulaParser::add(word, wordLower);
+	if (m_ctx->betweenStep == BETWEEN_STEP_NULL) {
+		SQLFormulaParser::add(word, wordLower);
+		return;
+	}
 
-	bool error = false;
 	if (m_ctx->betweenStep == BETWEEN_STEP_EXPECT_V0) {
 		m_ctx->betweenV0 = ItemDataUtils::createAsNumber(word);
 		if (!m_ctx->betweenV0.hasData()) {
-			error = true;
 			THROW_SQL_PROCESSOR_EXCEPTION(
 			  "Failed to parse as a number: %s\n", word.c_str());
 		} else {
@@ -92,7 +92,6 @@ bool SQLWhereParser::add(string& word, string &wordLower)
 		}
 	} else if (m_ctx->betweenStep == BETWEEN_STEP_EXPECT_AND) {
 		if (wordLower != "and") {
-			error = true;
 			THROW_SQL_PROCESSOR_EXCEPTION(
 			  "Expected 'and', bug got: %s\n", word.c_str());
 		} else {
@@ -101,24 +100,15 @@ bool SQLWhereParser::add(string& word, string &wordLower)
 	} else if (m_ctx->betweenStep == BETWEEN_STEP_EXPECT_V1) {
 		m_ctx->betweenV1 = ItemDataUtils::createAsNumber(word);
 		if (!m_ctx->betweenV1.hasData()) {
-			error = true;
 			THROW_SQL_PROCESSOR_EXCEPTION(
 			  "Failed to parse as a number: %s\n", word.c_str());
 		} else  {
-			if (!createBetweenElement())
-				error = true;
+			createBetweenElement();
 		}
 	} else {
 		THROW_ASURA_EXCEPTION(
 		  "Illegal state: %d\n", m_ctx->betweenStep); 
 	}
-
-	if (error) {
-		clearContext();
-		return false;
-	}
-
-	return true;
 }
 
 // ---------------------------------------------------------------------------
@@ -135,7 +125,7 @@ void SQLWhereParser::clearContext(void)
 	separator->unsetAlternative();
 }
 
-bool SQLWhereParser::createBetweenElement(void)
+void SQLWhereParser::createBetweenElement(void)
 {
 	if (*m_ctx->betweenV0 >= *m_ctx->betweenV1) {
 		THROW_SQL_PROCESSOR_EXCEPTION(
@@ -147,7 +137,6 @@ bool SQLWhereParser::createBetweenElement(void)
 	                                          m_ctx->betweenV1);
 	insertElement(elem);
 	clearContext();
-	return true;
 }
 
 //

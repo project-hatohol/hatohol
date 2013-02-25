@@ -37,7 +37,7 @@ public:
 	void setColumnDataGetterFactory
 	       (FormulaVariableDataGetterFactory columnDataGetterFactory,
 	        void *columnDataGetterFactoryPriv);
-	virtual bool add(string& word, string &wordLower);
+	virtual void add(string& word, string &wordLower);
 	virtual void flush(void);
 	virtual void close(void);
 	SeparatorCheckerWithCallback *getSeparatorChecker(void);

@@ -51,7 +51,7 @@ public:
 
 	SQLColumnParser(void);
 	virtual ~SQLColumnParser();
-	virtual bool add(string& word, string &wordLower);
+	virtual void add(string& word, string &wordLower);
 	virtual void close(void);
 	const SQLFormulaInfoVector &getFormulaInfoVector(void) const;
 

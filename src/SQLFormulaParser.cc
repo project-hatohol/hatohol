@@ -106,10 +106,10 @@ void SQLFormulaParser::setColumnDataGetterFactory
        m_columnDataGetterFactoryPriv = columnDataGetterFactoryPriv;
 }
 
-bool SQLFormulaParser::add(string& word, string &wordLower)
+void SQLFormulaParser::add(string& word, string &wordLower)
 {
 	if (word.empty())
-		return true;
+		return;
 
 	KeywordHandlerMapIterator it;
 	it = m_keywordHandlerMap->find(wordLower);
@@ -117,7 +117,7 @@ bool SQLFormulaParser::add(string& word, string &wordLower)
 		flush();
 		KeywordHandler func = it->second;
 		(this->*func)();
-		return true;
+		return;
 	}
 
 	if (m_ctx->hasPendingWord()) {
@@ -128,14 +128,13 @@ bool SQLFormulaParser::add(string& word, string &wordLower)
 
 	if (m_ctx->quotOpen) {
 		addStringValue(word);
-		return true;
+		return;
 	}
 
 	if (passFunctionArgIfOpen(word))
-		return true;
+		return;
 
 	m_ctx->pushPendingWords(word, wordLower);
-	return true;
 }
 
 void SQLFormulaParser::flush(void)

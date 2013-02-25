@@ -27,14 +27,14 @@ public:
 
 	SQLWhereParser(void);
 	virtual ~SQLWhereParser();
-	virtual bool add(string& word, string &wordLower);
+	virtual void add(string& word, string &wordLower);
 
 protected:
 	//
 	// general sub routines
 	//
 	void clearContext(void);
-	bool createBetweenElement(void);
+	void createBetweenElement(void);
 
 	//
 	// SeparatorChecker callbacks

@@ -35,7 +35,7 @@ static void _assertInputStatement(SQLWhereParser &whereParser,
 		while (!statement.finished()) {
 			string word = statement.readWord(*separator);
 			string lower = StringUtils::toLower(word);
-			cppcut_assert_equal(true, whereParser.add(word, lower));
+			whereParser.add(word, lower);
 		}
 		whereParser.close();
 	} catch (const AsuraException &e) {

@@ -100,21 +100,19 @@ SQLColumnParser::~SQLColumnParser()
 		delete m_ctx;
 }
 
-bool SQLColumnParser::add(string &word, string &wordLower)
+void SQLColumnParser::add(string &word, string &wordLower)
 {
 	if (m_ctx->expectAlias) {
 		m_ctx->alias = word;
 		m_ctx->expectAlias = false;
-		return true;
+		return;
 	}
 
-	if (!SQLFormulaParser::add(word, wordLower))
-		return false;
+	SQLFormulaParser::add(word, wordLower);
 	if (!m_ctx->dontAppendFormulaString)
 		appendFormulaString(word);
 	else
 		m_ctx->dontAppendFormulaString = false;
-	return true;
 }
 
 void SQLColumnParser::close(void)
