@@ -72,6 +72,8 @@ struct ColumnDef {
 	bool           canBeNull;
 	SQLKeyType     keyType;
 	uint16_t       flags;
+
+	// If there's no default value, defaultValue shoud be NULL
 	const char    *defaultValue;
 };
 
