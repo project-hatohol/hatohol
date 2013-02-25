@@ -54,25 +54,50 @@ enum SelectParseSection {
 class SQLProcessorColumnIndexResolver : public SQLColumnIndexResoveler {
 public:
 	SQLProcessorColumnIndexResolver(TableNameStaticInfoMap &nameInfoMap)
-	: m_tableNameStaticInfoMap(nameInfoMap)
+	: m_tableNameStaticInfoMap(nameInfoMap),
+	  m_tableVarInfoMap(NULL)
 	{
 	}
 
 	virtual int getIndex(const string &tableName,
 	                     const string &columnName) const
 	{
+		const SQLTableStaticInfo *staticInfo =
+		  getTableStaticInfo(tableName, columnName);
+		return SQLUtils::getColumnIndex(columnName, staticInfo);
+	}
+
+	void setTableVarInfoMap(SQLTableVarNameInfoMap *tableVarInfoMap)
+	{
+		m_tableVarInfoMap = tableVarInfoMap;
+	}
+
+protected:
+	const SQLTableStaticInfo *
+	getTableStaticInfo(const string &tableName,
+	                   const string &columnName) const
+	{
+		if (m_tableVarInfoMap) {
+			SQLTableVarNameInfoMapIterator it =
+			  m_tableVarInfoMap->find(tableName);
+			if (it != m_tableVarInfoMap->end()) {
+				const SQLTableInfo *tableInfo = it->second;
+				return tableInfo->staticInfo;
+			}
+		}
+
 		TableNameStaticInfoMapIterator it;
 		it = m_tableNameStaticInfoMap.find(tableName);
 		if (it == m_tableNameStaticInfoMap.end()) {
 			THROW_SQL_PROCESSOR_EXCEPTION(
 			  "Not found table: %s\n", tableName.c_str());
 		}
-		const SQLTableStaticInfo *staticInfo = it->second;
-		return SQLUtils::getColumnIndex(columnName, staticInfo);
+		return it->second;
 	}
 
 private:
 	TableNameStaticInfoMap &m_tableNameStaticInfoMap;
+	SQLTableVarNameInfoMap *m_tableVarInfoMap;
 };
 
 struct SQLProcessorSelect::PrivateContext {
@@ -122,6 +147,7 @@ struct SQLProcessorSelect::PrivateContext {
 
 	void clear(void)
 	{
+		columnIndexResolver.setTableVarInfoMap(NULL);
 		section = SELECT_PARSING_SECTION_COLUMN;
 		currWord.clear();
 		currWordLower.clear();
@@ -130,6 +156,12 @@ struct SQLProcessorSelect::PrivateContext {
 		groupByColumns.clear();
 		groupedTableMap.clear();
 	}
+
+	void setSelectInfo(SQLSelectInfo *_selectInfo) {
+		selectInfo = _selectInfo;
+		columnIndexResolver.setTableVarInfoMap
+		  (&selectInfo->tableVarInfoMap);
+	};
 };
 
 const SelectSubParser SQLProcessorSelect::PrivateContext::selectSubParsers[] = {
@@ -402,7 +434,7 @@ bool SQLProcessorSelect::checkSelectedAllColumns
 
 void SQLProcessorSelect::setSelectInfoToPrivateContext(SQLSelectInfo &selectInfo)
 {
-	m_ctx->selectInfo = &selectInfo;
+	m_ctx->setSelectInfo(&selectInfo);
 }
 
 void SQLProcessorSelect::parseSelectStatement(void)
