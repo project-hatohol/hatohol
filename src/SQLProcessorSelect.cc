@@ -796,7 +796,7 @@ void SQLProcessorSelect::makeTextOutput(ItemTablePtr &tablePtr)
 		}
 	}
 
-	if (hasStatisticalFunc) {
+	if (hasStatisticalFunc || !m_ctx->groupByColumns.empty()) {
 		m_ctx->makeTextRowsWriteMaskCount =
 		  tablePtr->getNumberOfRows() - 1;
 	}
