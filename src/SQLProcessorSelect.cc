@@ -102,7 +102,9 @@ struct SQLProcessorSelect::PrivateContext {
 	// The number of times to be masked for generating output lines.
 	size_t              makeTextRowsWriteMaskCount;
 
+	// Members for processing GROUP BY
 	StringVector        groupByColumns;
+	ItemDataTableMap    groupedTableMap;
 
 	// methods
 	PrivateContext(SQLProcessorSelect *procSelect, const string &_dbName,
@@ -768,8 +770,7 @@ void SQLProcessorSelect::makeGroups(void)
 	}
 	for (size_t i = 0; i < m_ctx->groupByColumns.size(); i++) {
 		string columnName = m_ctx->groupByColumns[i];
-		ItemTablePtr table = makeGroupedTableForColumn(columnName);
-		m_ctx->selectInfo->groupedTables.push_back(table);
+		makeGroupedTableForColumn(columnName);
 	}
 }
 
@@ -815,6 +816,12 @@ bool SQLProcessorSelect::pickupMatchingRows(const ItemGroup *itemGroup,
 		return true;
 	ctx->selectInfo->selectedTable->add(nonConstItemGroup);
 	return true;
+}
+
+bool SQLProcessorSelect::makeGroupedTable(const ItemGroup *itemGroup,
+                                          SQLProcessorSelect *sqlProcSelect)
+{
+	THROW_ASURA_EXCEPTION("Not implemented: %s\n", __PRETTY_FUNCTION__);
 }
 
 bool SQLProcessorSelect::makeTextRows(const ItemGroup *itemGroup,
@@ -962,8 +969,7 @@ void SQLProcessorSelect::parseColumnName(const string &name,
                                          string &baseName, string &tableVar)
 {
 	size_t dotPos = name.find('.');
-	if (dotPos == 0) {
-		THROW_SQL_PROCESSOR_EXCEPTION(
+	if (dotPos == 0) { THROW_SQL_PROCESSOR_EXCEPTION(
 		  "Column name begins from dot. : %s", name.c_str());
 	}
 	if (dotPos == (name.size() - 1)) {
@@ -1001,8 +1007,14 @@ SQLProcessorSelect::formulaColumnDataGetterFactory(string &name, void *priv)
 	                                      ctx->evalTargetItemGroup);
 }
 
-ItemTablePtr
-SQLProcessorSelect::makeGroupedTableForColumn(const string &columnName)
+void SQLProcessorSelect::makeGroupedTableForColumn(const string &columnName)
 {
-	THROW_ASURA_EXCEPTION("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	ItemTablePtr &selectedTable = m_ctx->selectInfo->selectedTable;
+
+	m_ctx->groupedTableMap.clear();
+	selectedTable->foreach<SQLProcessorSelect *>(makeGroupedTable, this);
+
+	ItemDataTableMapIterator it = m_ctx->groupedTableMap.begin();
+	for (; it != m_ctx->groupedTableMap.end(); ++it)
+		m_ctx->selectInfo->groupedTables.push_back(it->second);
 }

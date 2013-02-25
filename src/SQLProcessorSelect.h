@@ -225,6 +225,8 @@ protected:
 
 	static bool pickupMatchingRows(const ItemGroup *itemGroup,
 	                               SQLProcessorSelect *sqlProcSelect);
+	static bool makeGroupedTable(const ItemGroup *itemGroup,
+	                             SQLProcessorSelect *sqlProcSelect);
 	static bool makeTextRows(const ItemGroup *itemGroup,
 	                         SQLProcessorSelect *sqlProcSelect);
 
@@ -259,7 +261,7 @@ protected:
 	                          const string &tableVar);
 	static FormulaVariableDataGetter *
 	  formulaColumnDataGetterFactory(string &name, void *priv);
-	ItemTablePtr makeGroupedTableForColumn(const string &columnName);
+	void makeGroupedTableForColumn(const string &columnName);
 
 private:
 	struct PrivateContext;
