@@ -63,7 +63,7 @@ protected:
 	void appendFormulaString(string &str);
 	bool closeCurrFormulaInfo(void);
 	void closeCurrentFormulaString(void);
-	bool closeCurrentFormula(void);
+	void closeCurrentFormula(void);
 
 	//
 	// SeparatorChecker callbacks

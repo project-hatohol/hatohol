@@ -18,6 +18,7 @@
 #include <stdexcept>
 #include "SQLColumnParser.h"
 #include "FormulaFunction.h"
+#include "SQLProcessorException.h"
 
 struct SQLColumnParser::PrivateContext {
 	string                       currFormulaString;
@@ -145,8 +146,7 @@ void SQLColumnParser::appendFormulaString(string &str)
 
 bool SQLColumnParser::closeCurrFormulaInfo(void)
 {
-	if (!closeCurrentFormula())
-		return false;
+	closeCurrentFormula();
 	closeCurrentFormulaString();
 	m_ctx->clear();
 	return true;
@@ -168,18 +168,14 @@ void SQLColumnParser::closeCurrentFormulaString(void)
 	formulaInfo->alias = m_ctx->alias;
 }
 
-bool SQLColumnParser::closeCurrentFormula(void)
+void SQLColumnParser::closeCurrentFormula(void)
 {
 	SQLFormulaInfo *formulaInfo = new SQLFormulaInfo();
 	m_formulaInfoVector.push_back(formulaInfo);
 	formulaInfo->hasStatisticalFunc = hasStatisticalFunc();
 	formulaInfo->formula = takeFormula();
-	if (!formulaInfo->formula) {
-		string msg;
-		TRMSG(msg, "formulaInfo->formula is NULL.\n");
-		throw logic_error(msg);
-	}
-	return true;
+	if (!formulaInfo->formula)
+		THROW_ASURA_EXCEPTION("formulaInfo->formula is NULL.");
 }
 
 //
