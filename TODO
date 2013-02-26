@@ -1,10 +1,11 @@
-* [S] Add code to be thrown SQLProcessorException from SQLolumnParser and SQLWhereParser, and be caught in SQLProcessor.
 * [M] add a capability to detect sign and number width (32bit, 64bit or mode) in StringUtils::isNumber().
   - Then fix the code to make FormulaValue.
 * [S] Extract common code from SQLProcessor::pickupMatchingRows() and SQLProcessorUpdate::updateMatchingRows() and merged them cleanly.
-* [M] Support Key type on columns (PRIMARY, UNIQUE, etc.): check the douplication on insert
+* [M] Support Key type on columns (PRIMARY, UNIQUE, etc.)
+  - check the duplication on insert
 * [M] Support the form: insert into table values (xx, xxx, xxx, xx)
 * [S] Organize ItemDataUtils and SQLUtils.
+* [S] Added mechanism to destroy elements that has not been attached to the tree in SQLFormulaParser, especially on an exception.
 
 * [M] Mechanism for local DB
 Stores data such as configuration.
