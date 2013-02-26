@@ -38,6 +38,7 @@ public:
 	                        int lineNumber = UNKNOWN_LINE_NUMBER);
 	virtual ~AsuraException() _GLIBCXX_USE_NOEXCEPT;
 	virtual const char* what() const _GLIBCXX_USE_NOEXCEPT;
+	virtual const string getFancyMessage(void) const;
 
 	const string &getSourceFileName(void) const;
 	int getLineNumber(void) const;

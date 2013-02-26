@@ -52,6 +52,17 @@ const char* AsuraException::what() const _GLIBCXX_USE_NOEXCEPT
 	return m_what.c_str();
 }
 
+const string AsuraException::getFancyMessage(void) const
+{
+	string msg =
+	   StringUtils::sprintf("<%s:%d> %s\n",
+	                        getSourceFileName().c_str(),
+	                        getLineNumber(), m_what.c_str());
+	if (m_saveStackTrace)
+		msg += m_stackTrace;
+	return msg;
+}
+
 const string &AsuraException::getSourceFileName(void) const
 {
 	return m_sourceFileName;
