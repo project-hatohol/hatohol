@@ -137,9 +137,8 @@ bool SQLProcessorInsert::insert(SQLInsertInfo &insertInfo)
 		makeColumnDefValueMap(insertInfo);
 		doInsetToTable(insertInfo);
 	} catch (const SQLProcessorException &e) {
-		const char *message = e.what();
-		insertInfo.errorMessage = message;
-		MLPL_DBG("Got SQLProcessorException: %s\n", message);
+		MLPL_DBG("Got SQLProcessorException: %s",
+		         e.getFancyMessage().c_str());
 		return false;
 	}
 	return true;

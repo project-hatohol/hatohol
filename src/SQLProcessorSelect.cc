@@ -387,11 +387,8 @@ bool SQLProcessorSelect::select(SQLSelectInfo &selectInfo)
 		makeTextOutputForAllGroups();
 
 	} catch (const SQLProcessorException &e) {
-		const char *message = e.what();
-		selectInfo.errorMessage = message;
-		MLPL_DBG("Got SQLProcessorException: <%s:%d> %s\n",
-		         e.getSourceFileName().c_str(),
-		         e.getLineNumber(), message);
+		MLPL_DBG("Got SQLProcessorException: %s",
+		         e.getFancyMessage().c_str());
 		return false;
 	}
 

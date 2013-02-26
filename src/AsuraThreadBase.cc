@@ -68,7 +68,8 @@ gpointer AsuraThreadBase::threadStarter(gpointer data)
 	try {
 		ret = arg->obj->mainThread(arg);
 	} catch (const AsuraException &e) {
-		MLPL_ERR("Got Asura Exception: %s\n", e.what());
+		MLPL_ERR("Got Asura Exception: %s\n",
+		         e.getFancyMessage().c_str());
 	} catch (const exception &e) {
 		MLPL_ERR("Got Exception: %s\n", e.what());
 	}

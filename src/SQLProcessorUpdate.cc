@@ -139,9 +139,8 @@ bool SQLProcessorUpdate::update(SQLUpdateInfo &updateInfo)
 		getTable(updateInfo);
 		doUpdate(updateInfo);
 	} catch (const SQLProcessorException &e) {
-		const char *message = e.what();
-		updateInfo.errorMessage = message;
-		MLPL_DBG("Got SQLProcessorException: %s\n", message);
+		MLPL_DBG("Got SQLProcessorException: %s",
+		         e.getFancyMessage().c_str());
 		return false;
 	}
 	return true;
