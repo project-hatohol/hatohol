@@ -36,6 +36,7 @@ enum TableID {
 	TABLE_ID_TRIGGERS,
 	TABLE_ID_FUNCTIONS,
 	TABLE_ID_ITEMS,
+	TABLE_ID_HOSTS,
 };
 
 static const char *TABLE_NAME_NODES  = "nodes";
@@ -49,6 +50,7 @@ static const char *TABLE_NAME_USER_HISTORY = "user_history";
 static const char *TABLE_NAME_TRIGGERS = "triggers";
 static const char *TABLE_NAME_FUNCTIONS = "functions";
 static const char *TABLE_NAME_ITEMS = "items";
+static const char *TABLE_NAME_HOSTS = "hosts";
 
 TableNameStaticInfoMap SQLProcessorZabbix::m_tableNameStaticInfoMap;
 
@@ -769,6 +771,130 @@ void SQLProcessorZabbix::init(void)
 	             TABLE_ID_ITEMS, "lifetime",
 	             SQL_COLUMN_TYPE_VARCHAR, 64,
 	             false, SQL_KEY_NONE, "30");
+
+	staticInfo =
+	  defineTable(TABLE_ID_HOSTS, TABLE_NAME_HOSTS,
+	              MAKE_FUNC(GROUP_ID_ZBX_HOSTS));
+	defineColumn(staticInfo, ITEM_ID_ZBX_HOSTS_HOSTID,
+	             TABLE_ID_HOSTS, "hostid",
+	             SQL_COLUMN_TYPE_BIGUINT, 20,
+	             false, SQL_KEY_PRI, NULL);
+	defineColumn(staticInfo, ITEM_ID_ZBX_HOSTS_PROXY_HOSTID,
+	             TABLE_ID_HOSTS, "proxy_hostid",
+	             SQL_COLUMN_TYPE_BIGUINT, 20,
+	             true, SQL_KEY_MUL, NULL);
+	defineColumn(staticInfo, ITEM_ID_ZBX_HOSTS_HOST,
+	             TABLE_ID_HOSTS, "host",
+	             SQL_COLUMN_TYPE_VARCHAR, 64,
+	             false, SQL_KEY_MUL, "");
+	defineColumn(staticInfo, ITEM_ID_ZBX_HOSTS_STATUS,
+	             TABLE_ID_HOSTS, "status",
+	             SQL_COLUMN_TYPE_INT, 11,
+	             false, SQL_KEY_MUL, "0");
+	defineColumn(staticInfo, ITEM_ID_ZBX_HOSTS_DISABLE_UNTIL,
+	             TABLE_ID_HOSTS, "disable_until",
+	             SQL_COLUMN_TYPE_INT, 11,
+	             false, SQL_KEY_NONE, "0");
+	defineColumn(staticInfo, ITEM_ID_ZBX_HOSTS_ERROR,
+	             TABLE_ID_HOSTS, "error",
+	             SQL_COLUMN_TYPE_VARCHAR, 128,
+	             false, SQL_KEY_NONE, "");
+	defineColumn(staticInfo, ITEM_ID_ZBX_HOSTS_AVAILABLE,
+	             TABLE_ID_HOSTS, "available",
+	             SQL_COLUMN_TYPE_INT, 11,
+	             false, SQL_KEY_NONE, "0");
+	defineColumn(staticInfo, ITEM_ID_ZBX_HOSTS_ERRORS_FROM,
+	             TABLE_ID_HOSTS, "errors_from",
+	             SQL_COLUMN_TYPE_INT, 11,
+	             false, SQL_KEY_NONE, "0");
+	defineColumn(staticInfo, ITEM_ID_ZBX_HOSTS_LASTACCESS,
+	             TABLE_ID_HOSTS, "lastaccess",
+	             SQL_COLUMN_TYPE_INT, 11,
+	             false, SQL_KEY_NONE, "0");
+	defineColumn(staticInfo, ITEM_ID_ZBX_HOSTS_IPMI_AUTHTYPE,
+	             TABLE_ID_HOSTS, "ipmi_authtype",
+	             SQL_COLUMN_TYPE_INT, 11,
+	             false, SQL_KEY_NONE, "0");
+	defineColumn(staticInfo, ITEM_ID_ZBX_HOSTS_IPMI_PRIVILEGE,
+	             TABLE_ID_HOSTS, "ipmi_privilege",
+	             SQL_COLUMN_TYPE_INT, 11,
+	             false, SQL_KEY_NONE, "2");
+	defineColumn(staticInfo, ITEM_ID_ZBX_HOSTS_IPMI_USERNAME,
+	             TABLE_ID_HOSTS, "ipmi_username",
+	             SQL_COLUMN_TYPE_VARCHAR, 16,
+	             false, SQL_KEY_NONE, "");
+	defineColumn(staticInfo, ITEM_ID_ZBX_HOSTS_IPMI_PASSWORD,
+	             TABLE_ID_HOSTS, "ipmi_password",
+	             SQL_COLUMN_TYPE_VARCHAR, 20,
+	             false, SQL_KEY_NONE, "");
+	defineColumn(staticInfo, ITEM_ID_ZBX_HOSTS_IPMI_DISABLE_UNTIL,
+	             TABLE_ID_HOSTS, "ipmi_disable_until",
+	             SQL_COLUMN_TYPE_INT, 11,
+	             false, SQL_KEY_NONE, "0");
+	defineColumn(staticInfo, ITEM_ID_ZBX_HOSTS_IPMI_AVAILABLE,
+	             TABLE_ID_HOSTS, "ipmi_available",
+	             SQL_COLUMN_TYPE_INT, 11,
+	             false, SQL_KEY_NONE, "0");
+	defineColumn(staticInfo, ITEM_ID_ZBX_HOSTS_SNMP_DISABLE_UNTIL,
+	             TABLE_ID_HOSTS, "snmp_disable_until",
+	             SQL_COLUMN_TYPE_INT, 11,
+	             false, SQL_KEY_NONE, "0");
+	defineColumn(staticInfo, ITEM_ID_ZBX_HOSTS_SNMP_AVAILABLE,
+	             TABLE_ID_HOSTS, "snmp_available",
+	             SQL_COLUMN_TYPE_INT, 11,
+	             false, SQL_KEY_NONE, "0");
+	defineColumn(staticInfo, ITEM_ID_ZBX_HOSTS_MAINTENANCEID,
+	             TABLE_ID_HOSTS, "maintenanceid",
+	             SQL_COLUMN_TYPE_BIGUINT, 20,
+	             true, SQL_KEY_MUL, NULL);
+	defineColumn(staticInfo, ITEM_ID_ZBX_HOSTS_MAINTENANCE_STATUS,
+	             TABLE_ID_HOSTS, "maintenance_status",
+	             SQL_COLUMN_TYPE_INT, 11,
+	             false, SQL_KEY_NONE, "0");
+	defineColumn(staticInfo, ITEM_ID_ZBX_HOSTS_MAINTENANCE_TYPE,
+	             TABLE_ID_HOSTS, "maintenance_type",
+	             SQL_COLUMN_TYPE_INT, 11,
+	             false, SQL_KEY_NONE, "0");
+	defineColumn(staticInfo, ITEM_ID_ZBX_HOSTS_MAINTENANCE_FROM,
+	             TABLE_ID_HOSTS, "maintenance_from",
+	             SQL_COLUMN_TYPE_INT, 11,
+	             false, SQL_KEY_NONE, "0");
+	defineColumn(staticInfo, ITEM_ID_ZBX_HOSTS_IPMI_ERRORS_FROM,
+	             TABLE_ID_HOSTS, "ipmi_errors_from",
+	             SQL_COLUMN_TYPE_INT, 11,
+	             false, SQL_KEY_NONE, "0");
+	defineColumn(staticInfo, ITEM_ID_ZBX_HOSTS_SNMP_ERRORS_FROM,
+	             TABLE_ID_HOSTS, "snmp_errors_from",
+	             SQL_COLUMN_TYPE_INT, 11,
+	             false, SQL_KEY_NONE, "0");
+	defineColumn(staticInfo, ITEM_ID_ZBX_HOSTS_IPMI_ERROR,
+	             TABLE_ID_HOSTS, "ipmi_error",
+	             SQL_COLUMN_TYPE_VARCHAR, 128,
+	             false, SQL_KEY_NONE, "");
+	defineColumn(staticInfo, ITEM_ID_ZBX_HOSTS_SNMP_ERROR,
+	             TABLE_ID_HOSTS, "snmp_error",
+	             SQL_COLUMN_TYPE_VARCHAR, 128,
+	             false, SQL_KEY_NONE, "");
+	defineColumn(staticInfo, ITEM_ID_ZBX_HOSTS_JMX_DISABLE_UNTIL,
+	             TABLE_ID_HOSTS, "jmx_disable_until",
+	             SQL_COLUMN_TYPE_INT, 11,
+	             false, SQL_KEY_NONE, "0");
+	defineColumn(staticInfo, ITEM_ID_ZBX_HOSTS_JMX_AVAILABLE,
+	             TABLE_ID_HOSTS, "jmx_available",
+	             SQL_COLUMN_TYPE_INT, 11,
+	             false, SQL_KEY_NONE, "0");
+	defineColumn(staticInfo, ITEM_ID_ZBX_HOSTS_JMX_ERRORS_FROM,
+	             TABLE_ID_HOSTS, "jmx_errors_from",
+	             SQL_COLUMN_TYPE_INT, 11,
+	             false, SQL_KEY_NONE, "0");
+	defineColumn(staticInfo, ITEM_ID_ZBX_HOSTS_JMX_ERROR,
+	             TABLE_ID_HOSTS, "jmx_error",
+	             SQL_COLUMN_TYPE_VARCHAR, 128,
+	             false, SQL_KEY_NONE, "");
+	defineColumn(staticInfo, ITEM_ID_ZBX_HOSTS_NAME,
+	             TABLE_ID_HOSTS, "name",
+	             SQL_COLUMN_TYPE_VARCHAR, 64,
+	             false, SQL_KEY_MUL, "");
 }
 
 SQLProcessor *SQLProcessorZabbix::createInstance(void)
