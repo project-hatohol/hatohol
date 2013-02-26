@@ -1,12 +1,18 @@
 #!/usr/bin/env ruby
 
-$sql_type_map = {"bigint unsigned"=>"SQL_COLUMN_TYPE_BIGUINT", "int"=>"SQL_COLUMN_TYPE_INT", "char"=>"SQL_COLUMN_TYPE_CHAR", "varchar"=>"SQL_COLUMN_TYPE_VARCHAR", "text"=>"SQL_COLUMN_TYPE_TEXT"}
+SQL_TYPE_MAP = {
+  "bigint unsigned" => "SQL_COLUMN_TYPE_BIGUINT",
+  "int"             => "SQL_COLUMN_TYPE_INT",
+  "char"            => "SQL_COLUMN_TYPE_CHAR",
+  "varchar"         => "SQL_COLUMN_TYPE_VARCHAR",
+  "text"            => "SQL_COLUMN_TYPE_TEXT"
+}
 
 def print_one_group(line)
   expected_num_columns = 8
   columns = line.split("|")
-  if columns.size != expected_num_columns then
-    abort("Unexpected the number of columns: " + columns.to_s)
+  if columns.size != expected_num_columns
+    abort("Unexpected the number of columns: #{columns.join("|")}")
   end
 
   # Item Name
@@ -14,32 +20,34 @@ def print_one_group(line)
 
   # SQLColumnType
   sql_type_key = columns[2].sub(/\([0-9]+\)/, "").strip
-  sql_type = $sql_type_map[sql_type_key]
+  sql_type = SQL_TYPE_MAP[sql_type_key]
   digit = columns[2].sub(/[^0-9]+/, "")
   digit = digit.sub(/[^0-9]+/, "")
 
   # Can be null
   can_null_str = columns[3].strip
-  if can_null_str == "YES"
+  case can_null_str
+  when "YES"
     can_be_null = "true"
-  elsif can_null_str == "NO"
+  when "NO"
     can_be_null = "false"
   else
-    abort("Unexpected value for canBeNull: " + can_null_str)
+    abort("Unexpected value for canBeNull: #{can_null_str}")
   end
 
   # key type
   key_type_str = columns[4].strip
-  if key_type_str == "PRI"
+  case key_type_str
+  when "PRI"
     key_type = "SQL_KEY_PRI"
-  elsif key_type_str == "MUL"
+  when "MUL"
     key_type = "SQL_KEY_MUL"
-  elsif key_type_str == "UNI"
+  when "UNI"
     key_type = "SQL_KEY_UNI"
-  elsif key_type_str == ""
+  when ""
     key_type = "SQL_KEY_NONE"
   else
-    abort("Unexpected value for the key type: " + key_type_str)
+    abort("Unexpected value for the key type: #{key_type_str}")
   end
 
   # default value
@@ -47,7 +55,7 @@ def print_one_group(line)
   if defalut_value_str == "NULL"
     default_value = "NULL"
   else
-    default_value = '"' + defalut_value_str + '"'
+    default_value = %Q!"#{defalut_value_str}"!
   end
 
   puts sprintf("\tdefineColumn(staticInfo, ITEM_ID_%s,", item_name.upcase)
@@ -56,12 +64,12 @@ def print_one_group(line)
   puts sprintf("\t             %s, %s, %s);", can_be_null, key_type, default_value)
 
 #  defineColumn(staticInfo, ITEM_ID_ZBX_ITEMS_ITEMID,
-#               TABLE_ID_ITEMS, "itemid", 
+#               TABLE_ID_ITEMS, "itemid",
 #               SQL_COLUMN_TYPE_BIGUINT, 20,
 #               false, SQL_KEY_PRI, NULL);
 end
 
-while line = STDIN.gets
+ARGF.each_line do |line|
   print_one_group(line)
 end
 
