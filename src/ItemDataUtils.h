@@ -27,8 +27,8 @@ using namespace std;
 
 class ItemDataUtils {
 public:
-	static ItemDataPtr createAsNumber(string &word);
-	static ItemDataPtr createAsNumberOrString(string &word);
+	static ItemDataPtr createAsNumber(const string &word);
+	static ItemDataPtr createAsNumberOrString(const string &word);
 };
 
 struct ItemDataPtrComparator {

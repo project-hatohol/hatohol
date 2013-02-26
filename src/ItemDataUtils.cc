@@ -17,7 +17,7 @@
 
 #include "ItemDataUtils.h"
 
-ItemDataPtr ItemDataUtils::createAsNumber(string &word)
+ItemDataPtr ItemDataUtils::createAsNumber(const string &word)
 {
 	bool isFloat;
 	if (!StringUtils::isNumber(word, &isFloat))
@@ -33,7 +33,7 @@ ItemDataPtr ItemDataUtils::createAsNumber(string &word)
 	return ItemDataPtr();
 }
 
-ItemDataPtr ItemDataUtils::createAsNumberOrString(string &word)
+ItemDataPtr ItemDataUtils::createAsNumberOrString(const string &word)
 {
 	bool isFloat;
 	if (!StringUtils::isNumber(word, &isFloat))
