@@ -632,7 +632,7 @@ void SQLProcessorZabbix::init(void)
 	             SQL_COLUMN_TYPE_VARCHAR, 255,
 	             true, SQL_KEY_NONE, NULL);
 	defineColumn(staticInfo, ITEM_ID_ZBX_ITEMS_STATUS,
-	             TABLE_ID_ITEMS, "prevvalue",
+	             TABLE_ID_ITEMS, "status",
 	             SQL_COLUMN_TYPE_INT, 11,
 	             false, SQL_KEY_MUL, NULL);
 	defineColumn(staticInfo, ITEM_ID_ZBX_ITEMS_VALUE_TYPE,
