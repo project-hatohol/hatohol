@@ -12,7 +12,7 @@ def print_one_group(line)
   expected_num_columns = 8
   columns = line.split("|")
   if columns.size != expected_num_columns
-    abort("Unexpected the number of columns: " + columns.to_s)
+    abort("Unexpected the number of columns: #{columns.join("|")}")
   end
 
   # Item Name
