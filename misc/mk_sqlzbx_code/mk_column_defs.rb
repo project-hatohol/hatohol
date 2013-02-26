@@ -64,7 +64,7 @@ def print_one_group(line)
   puts sprintf("\t             %s, %s, %s);", can_be_null, key_type, default_value)
 
 #  defineColumn(staticInfo, ITEM_ID_ZBX_ITEMS_ITEMID,
-#               TABLE_ID_ITEMS, "itemid", 
+#               TABLE_ID_ITEMS, "itemid",
 #               SQL_COLUMN_TYPE_BIGUINT, 20,
 #               false, SQL_KEY_PRI, NULL);
 end
