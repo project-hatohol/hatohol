@@ -35,8 +35,8 @@ protected:
 	// general sub routines
 	//
 	void createBetweenElement(void);
-	void addForBetween(string &word, string &wordLower);
-	void addForIn(string &word, string &wordLower);
+	void addForBetween(const string &word, const string &wordLower);
+	void addForIn(const string &word, const string &wordLower);
 	void closeInParenthesis(void);
 
 	//

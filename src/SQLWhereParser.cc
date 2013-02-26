@@ -141,7 +141,7 @@ void SQLWhereParser::createBetweenElement(void)
 	clear();
 }
 
-void SQLWhereParser::addForBetween(string& word, string &wordLower)
+void SQLWhereParser::addForBetween(const string& word, const string &wordLower)
 {
 	if (m_ctx->betweenStep == BETWEEN_STEP_EXPECT_V0) {
 		m_ctx->betweenV0 = ItemDataUtils::createAsNumber(word);
@@ -180,7 +180,7 @@ void SQLWhereParser::closeInParenthesis(void)
 	insertElement(formulaIn);
 }
 
-void SQLWhereParser::addForIn(string& word, string &wordLower)
+void SQLWhereParser::addForIn(const string& word, const string &wordLower)
 {
 	if (m_ctx->inStep != IN_STEP_EXPECT_VALUE) {
 		THROW_SQL_PROCESSOR_EXCEPTION(
