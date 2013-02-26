@@ -25,10 +25,13 @@ using namespace mlpl;
 #include <string>
 using namespace std;
 
+#define ASURA_STACK_TRACE_SET_ENV "ASURA_EXCEPTION_STACK_TRACE"
+
 class AsuraException : public exception
 {
 public:
 	static const int UNKNOWN_LINE_NUMBER = -1;
+	static void init(void);
 
 	explicit AsuraException(const string &brief,
 	                        const char *sourceFileName = "",
@@ -38,11 +41,18 @@ public:
 
 	const string &getSourceFileName(void) const;
 	int getLineNumber(void) const;
+	const string &getStackTrace(void) const;
+
+protected:
+	void saveStackTrace(void);
 
 private:
+	static bool m_saveStackTrace;
+
 	string m_what;
 	string m_sourceFileName;
 	int    m_lineNumber;
+	string m_stackTrace;
 };
 
 #define THROW_ASURA_EXCEPTION(FMT, ...) \

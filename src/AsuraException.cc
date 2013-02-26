@@ -15,7 +15,23 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <cstdlib>
 #include "AsuraException.h"
+#include "Utils.h"
+
+bool AsuraException::m_saveStackTrace = false;
+
+// ---------------------------------------------------------------------------
+// Public methods
+// ---------------------------------------------------------------------------
+void AsuraException::init(void)
+{
+	char *env = getenv(ASURA_STACK_TRACE_SET_ENV);
+	if (!env)
+		return;
+	if (string("1") == env)
+		m_saveStackTrace = true;
+}
 
 AsuraException::AsuraException(const string &brief,
                                const char *sourceFileName, int lineNumber)
@@ -23,6 +39,8 @@ AsuraException::AsuraException(const string &brief,
   m_sourceFileName(sourceFileName),
   m_lineNumber(lineNumber)
 {
+	if (m_saveStackTrace)
+		saveStackTrace();
 }
 
 AsuraException::~AsuraException() _GLIBCXX_USE_NOEXCEPT
@@ -42,4 +60,19 @@ const string &AsuraException::getSourceFileName(void) const
 int AsuraException::getLineNumber(void) const
 {
 	return m_lineNumber;
+}
+
+const string &AsuraException::getStackTrace(void) const
+{
+	return m_stackTrace;
+}
+
+// ---------------------------------------------------------------------------
+// Protected methods
+// ---------------------------------------------------------------------------
+void AsuraException::saveStackTrace(void)
+{
+	void *trace[128];
+	int n = backtrace(trace, sizeof(trace) / sizeof(trace[0]));
+	m_stackTrace = Utils::makeDemangledStackTraceLines(trace, n);
 }

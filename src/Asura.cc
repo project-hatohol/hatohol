@@ -25,6 +25,7 @@
 #include "SQLProcessorInsert.h"
 #include "SQLProcessorUpdate.h"
 #include "FaceMySQLWorker.h"
+#include "AsuraException.h"
 
 static GStaticMutex mutex = G_STATIC_MUTEX_INIT;
 static bool initDone = false; 
@@ -37,6 +38,7 @@ void asuraInit(void)
 		return;
 	}
 
+	AsuraException::init();
 	SQLUtils::init();
 	SQLFormulaParser::init();
 	SQLColumnParser::init(); // must be put after SQLFormulaParser::init()
