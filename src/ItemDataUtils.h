@@ -28,6 +28,7 @@ using namespace std;
 class ItemDataUtils {
 public:
 	static ItemDataPtr createAsNumber(string &word);
+	static ItemDataPtr createAsNumberOrString(string &word);
 };
 
 struct ItemDataPtrComparator {

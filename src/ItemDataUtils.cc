@@ -33,3 +33,13 @@ ItemDataPtr ItemDataUtils::createAsNumber(string &word)
 	return ItemDataPtr();
 }
 
+ItemDataPtr ItemDataUtils::createAsNumberOrString(string &word)
+{
+	bool isFloat;
+	if (!StringUtils::isNumber(word, &isFloat))
+		return ItemDataPtr(new ItemString(word), false);
+
+	// TODO: avoid call isNumber() twice (here and in createAsNumber()).
+	return createAsNumber(word);
+}
+
