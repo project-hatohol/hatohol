@@ -270,6 +270,19 @@ void test_selectCountTrigger(void)
 	assertRecord(0, nsmap);
 }
 
+void test_selectCountItemsHosts(void)
+{
+	const char *cmd = "use zabbix;"
+	  "SELECT COUNT(*) AS cnt,i.status FROM items i "
+	  "INNER JOIN hosts h ON i.hostid=h.hostid "
+	  "WHERE h.status=0 AND  (i.status IN ('0','1','3'))  "
+	  "GROUP BY i.status";
+	executeCommand(cmd);
+	vector<string> lines;
+	NumberStringMap nsmap;
+	assertRecord(0, nsmap);
+}
+
 #if 0
 void test_selectGroupHostGroupHosts(void)
 {
