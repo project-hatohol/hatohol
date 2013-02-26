@@ -109,13 +109,6 @@ void SQLWhereParser::add(string& word, string &wordLower)
 		SQLFormulaParser::add(word, wordLower);
 }
 
-// ---------------------------------------------------------------------------
-// Protected methods
-// ---------------------------------------------------------------------------
-
-//
-// general sub routines
-//
 void SQLWhereParser::clear(void)
 {
 	m_ctx->clear();
@@ -123,6 +116,13 @@ void SQLWhereParser::clear(void)
 	separator->unsetAlternative();
 }
 
+// ---------------------------------------------------------------------------
+// Protected methods
+// ---------------------------------------------------------------------------
+
+//
+// general sub routines
+//
 void SQLWhereParser::createBetweenElement(void)
 {
 	if (*m_ctx->betweenV0 >= *m_ctx->betweenV1) {

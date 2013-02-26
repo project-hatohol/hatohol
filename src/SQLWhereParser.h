@@ -28,12 +28,12 @@ public:
 	SQLWhereParser(void);
 	virtual ~SQLWhereParser();
 	virtual void add(string& word, string &wordLower);
+	void clear(void);
 
 protected:
 	//
 	// general sub routines
 	//
-	void clear(void);
 	void createBetweenElement(void);
 	void addForBetween(string &word, string &wordLower);
 	void addForIn(string &word, string &wordLower);
