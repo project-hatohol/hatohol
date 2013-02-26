@@ -3,9 +3,8 @@
   - Then fix the code to make FormulaValue.
 * [S] Extract common code from SQLProcessor::pickupMatchingRows() and SQLProcessorUpdate::updateMatchingRows() and merged them cleanly.
 * [M] Support Key type on columns (PRIMARY, UNIQUE, etc.): check the douplication on insert
-* [S] Support NULL value of column.
-* [S] Support initial value of column.
 * [M] Support the form: insert into table values (xx, xxx, xxx, xx)
+* [S] Organize ItemDataUtils and SQLUtils.
 
 * [M] Mechanism for local DB
 Stores data such as configuration.
