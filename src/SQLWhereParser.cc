@@ -40,7 +40,8 @@ struct SQLWhereParser::PrivateContext {
 	ItemDataPtr betweenV0;
 	ItemDataPtr betweenV1;
 
-	InStep      inStep;
+	InStep       inStep;
+	ItemGroupPtr inValues;
 
 	// constructor
 	PrivateContext(void)
@@ -90,40 +91,12 @@ SQLWhereParser::~SQLWhereParser()
 
 void SQLWhereParser::add(string& word, string &wordLower)
 {
-	if (m_ctx->betweenStep == BETWEEN_STEP_NULL &&
-	    m_ctx->inStep == IN_STEP_NULL) {
+	if (m_ctx->betweenStep != BETWEEN_STEP_NULL)
+		addForBetween(word, wordLower);
+	else if (m_ctx->inStep != IN_STEP_NULL)
+		addForIn(word, wordLower);
+	else
 		SQLFormulaParser::add(word, wordLower);
-		return;
-	}
-
-	if (m_ctx->betweenStep == BETWEEN_STEP_EXPECT_V0) {
-		m_ctx->betweenV0 = ItemDataUtils::createAsNumber(word);
-		if (!m_ctx->betweenV0.hasData()) {
-			THROW_SQL_PROCESSOR_EXCEPTION(
-			  "Failed to parse as a number: %s\n", word.c_str());
-		} else {
-			m_ctx->betweenStep = BETWEEN_STEP_EXPECT_AND;
-		}
-	} else if (m_ctx->betweenStep == BETWEEN_STEP_EXPECT_AND) {
-		if (wordLower != "and") {
-			THROW_SQL_PROCESSOR_EXCEPTION(
-			  "Expected 'and', bug got: %s\n", word.c_str());
-		} else {
-			m_ctx->betweenStep = BETWEEN_STEP_EXPECT_V1;
-		}
-	} else if (m_ctx->betweenStep == BETWEEN_STEP_EXPECT_V1) {
-		m_ctx->betweenV1 = ItemDataUtils::createAsNumber(word);
-		if (!m_ctx->betweenV1.hasData()) {
-			THROW_SQL_PROCESSOR_EXCEPTION(
-			  "Failed to parse as a number: %s\n", word.c_str());
-		} else  {
-			createBetweenElement();
-		}
-	} else {
-		THROW_ASURA_EXCEPTION(
-		  "Illegal state: %d, %d\n",
-		  m_ctx->betweenStep, m_ctx->inStep); 
-	}
 }
 
 // ---------------------------------------------------------------------------
@@ -152,6 +125,47 @@ void SQLWhereParser::createBetweenElement(void)
 	                                          m_ctx->betweenV1);
 	insertElement(elem);
 	clearContext();
+}
+
+void SQLWhereParser::addForBetween(string& word, string &wordLower)
+{
+	if (m_ctx->betweenStep == BETWEEN_STEP_EXPECT_V0) {
+		m_ctx->betweenV0 = ItemDataUtils::createAsNumber(word);
+		if (!m_ctx->betweenV0.hasData()) {
+			THROW_SQL_PROCESSOR_EXCEPTION(
+			  "Failed to parse as a number: %s\n", word.c_str());
+		} else {
+			m_ctx->betweenStep = BETWEEN_STEP_EXPECT_AND;
+		}
+	} else if (m_ctx->betweenStep == BETWEEN_STEP_EXPECT_AND) {
+		if (wordLower != "and") {
+			THROW_SQL_PROCESSOR_EXCEPTION(
+			  "Expected 'and', bug got: %s\n", word.c_str());
+		} else {
+			m_ctx->betweenStep = BETWEEN_STEP_EXPECT_V1;
+		}
+	} else if (m_ctx->betweenStep == BETWEEN_STEP_EXPECT_V1) {
+		m_ctx->betweenV1 = ItemDataUtils::createAsNumber(word);
+		if (!m_ctx->betweenV1.hasData()) {
+			THROW_SQL_PROCESSOR_EXCEPTION(
+			  "Failed to parse as a number: %s\n", word.c_str());
+		} else  {
+			createBetweenElement();
+		}
+	} else {
+		THROW_SQL_PROCESSOR_EXCEPTION(
+		  "Illegal state: %d\n", m_ctx->betweenStep);
+	}
+}
+
+void SQLWhereParser::addForIn(string& word, string &wordLower)
+{
+	if (m_ctx->inStep != IN_STEP_EXPECT_VALUE) {
+		THROW_SQL_PROCESSOR_EXCEPTION(
+		  "Illegal state: %d\n", m_ctx->betweenStep);
+	}
+
+	THROW_ASURA_EXCEPTION("Not implemented %s\n", __PRETTY_FUNCTION__);
 }
 
 //
@@ -211,13 +225,22 @@ void SQLWhereParser::separatorCbParenthesisOpen(const char separator)
 		return;
 	}
 
-	THROW_SQL_PROCESSOR_EXCEPTION(
-	  "'(' is unexpectedly opened, whil processing 'in'.");
+	THROW_SQL_PROCESSOR_EXCEPTION("Unexpected: '('");
 }
 
 void SQLWhereParser::separatorCbParenthesisClose(const char separator)
 {
-	THROW_ASURA_EXCEPTION("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	if (m_ctx->inStep == IN_STEP_NULL) {
+		SQLFormulaParser::separatorCbParenthesisClose(separator);
+		return;
+	}
+
+	if (m_ctx->inStep == IN_STEP_GOT_VALUE) {
+		THROW_ASURA_EXCEPTION("Not implemented: %s\n",
+		                      __PRETTY_FUNCTION__);
+	}
+
+	THROW_SQL_PROCESSOR_EXCEPTION("Unexpected: ')'");
 }
 
 //

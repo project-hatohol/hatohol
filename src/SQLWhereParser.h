@@ -35,6 +35,8 @@ protected:
 	//
 	void clearContext(void);
 	void createBetweenElement(void);
+	void addForBetween(string &word, string &wordLower);
+	void addForIn(string &word, string &wordLower);
 
 	//
 	// SeparatorChecker callbacks
