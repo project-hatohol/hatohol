@@ -49,6 +49,16 @@ struct SQLWhereParser::PrivateContext {
 	  inStep(IN_STEP_NULL)
 	{
 	}
+
+	void clear(void)
+	{
+		betweenStep = BETWEEN_STEP_NULL;
+		betweenV0 = NULL;
+		betweenV1 = NULL;
+
+		inStep = IN_STEP_NULL;
+		inValues = NULL;
+	}
 };
 
 // ---------------------------------------------------------------------------
@@ -108,7 +118,7 @@ void SQLWhereParser::add(string& word, string &wordLower)
 //
 void SQLWhereParser::clearContext(void)
 {
-	m_ctx->betweenStep = BETWEEN_STEP_NULL;
+	m_ctx->clear();
 	SeparatorCheckerWithCallback *separator = getSeparatorChecker();
 	separator->unsetAlternative();
 }
