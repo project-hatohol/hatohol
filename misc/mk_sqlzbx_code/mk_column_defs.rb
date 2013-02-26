@@ -37,13 +37,14 @@ def print_one_group(line)
 
   # key type
   key_type_str = columns[4].strip
-  if key_type_str == "PRI"
+  case key_type_str
+  when "PRI"
     key_type = "SQL_KEY_PRI"
-  elsif key_type_str == "MUL"
+  when "MUL"
     key_type = "SQL_KEY_MUL"
-  elsif key_type_str == "UNI"
+  when "UNI"
     key_type = "SQL_KEY_UNI"
-  elsif key_type_str == ""
+  when ""
     key_type = "SQL_KEY_NONE"
   else
     abort("Unexpected value for the key type: " + key_type_str)
