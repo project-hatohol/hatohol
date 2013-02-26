@@ -26,6 +26,7 @@ SQLUtils::ItemDataCreator SQLUtils::m_itemDataCreators[] =
 	&SQLUtils::creatorItemBiguint,
 	&SQLUtils::creatorVarchar,
 	&SQLUtils::creatorChar,
+	&SQLUtils::creatorVarchar, // SQL_COLUMN_TYPE_TEXT
 };
 
 size_t SQLUtils::m_numItemDataCreators
