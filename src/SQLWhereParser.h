@@ -51,6 +51,7 @@ protected:
 
 	virtual void separatorCbParenthesisOpen(const char separator);
 	virtual void separatorCbParenthesisClose(const char separator);
+	virtual void separatorCbQuot(const char separator);
 
 	//
 	// Keyword handlers

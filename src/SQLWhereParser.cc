@@ -42,11 +42,13 @@ struct SQLWhereParser::PrivateContext {
 
 	InStep       inStep;
 	ItemGroupPtr inValues;
+	bool         openQuot;
 
 	// constructor
 	PrivateContext(void)
 	: betweenStep(BETWEEN_STEP_NULL),
-	  inStep(IN_STEP_NULL)
+	  inStep(IN_STEP_NULL),
+	  openQuot(false)
 	{
 	}
 
@@ -58,6 +60,7 @@ struct SQLWhereParser::PrivateContext {
 
 		inStep = IN_STEP_NULL;
 		inValues = NULL;
+		openQuot = false;
 	}
 };
 
@@ -175,8 +178,7 @@ void SQLWhereParser::addForIn(string& word, string &wordLower)
 		  "Illegal state: %d", m_ctx->betweenStep);
 	}
 
-	// TODO: we have to accept a string.
-	ItemDataPtr dataPtr = ItemDataUtils::createAsNumber(word);
+	ItemDataPtr dataPtr = ItemDataUtils::createAsNumberOrString(word);
 	if (!dataPtr.hasData()) {
 		THROW_SQL_PROCESSOR_EXCEPTION(
 		  "Failed to parse: %s", word.c_str());
@@ -248,6 +250,18 @@ void SQLWhereParser::separatorCbParenthesisClose(const char separator)
 		m_ctx->inStep = IN_STEP_NULL;
 	else
 		THROW_SQL_PROCESSOR_EXCEPTION("Unexpected: ')'");
+}
+
+void SQLWhereParser::separatorCbQuot(const char separator)
+{
+	if (m_ctx->inStep == IN_STEP_NULL)
+		SQLFormulaParser::separatorCbQuot(separator);
+	else if (m_ctx->inStep == IN_STEP_EXPECT_VALUE && !m_ctx->openQuot)
+		m_ctx->openQuot = true;
+	else if (m_ctx->inStep == IN_STEP_GOT_VALUE && m_ctx->openQuot)
+		m_ctx->openQuot = false;
+	else
+		THROW_SQL_PROCESSOR_EXCEPTION("Unexpected: Quotation.");
 }
 
 //
