@@ -33,7 +33,7 @@ protected:
 	//
 	// general sub routines
 	//
-	void clearContext(void);
+	void clear(void);
 	void createBetweenElement(void);
 	void addForBetween(string &word, string &wordLower);
 	void addForIn(string &word, string &wordLower);

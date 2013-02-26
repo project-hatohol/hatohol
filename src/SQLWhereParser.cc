@@ -116,7 +116,7 @@ void SQLWhereParser::add(string& word, string &wordLower)
 //
 // general sub routines
 //
-void SQLWhereParser::clearContext(void)
+void SQLWhereParser::clear(void)
 {
 	m_ctx->clear();
 	SeparatorCheckerWithCallback *separator = getSeparatorChecker();
@@ -134,7 +134,7 @@ void SQLWhereParser::createBetweenElement(void)
 	FormulaElement *elem = new FormulaBetween(m_ctx->betweenV0,
 	                                          m_ctx->betweenV1);
 	insertElement(elem);
-	clearContext();
+	clear();
 }
 
 void SQLWhereParser::addForBetween(string& word, string &wordLower)
