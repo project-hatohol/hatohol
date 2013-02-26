@@ -34,6 +34,7 @@ enum TableID {
 	TABLE_ID_PROFILES,
 	TABLE_ID_USER_HISTORY,
 	TABLE_ID_TRIGGERS,
+	TABLE_ID_FUNCTIONS,
 };
 
 static const char *TABLE_NAME_NODES  = "nodes";
@@ -45,6 +46,7 @@ static const char *TABLE_NAME_SESSIONS = "sessions";
 static const char *TABLE_NAME_PROFILES = "profiles";
 static const char *TABLE_NAME_USER_HISTORY = "user_history";
 static const char *TABLE_NAME_TRIGGERS = "triggers";
+static const char *TABLE_NAME_FUNCTIONS = "functions";
 
 TableNameStaticInfoMap SQLProcessorZabbix::m_tableNameStaticInfoMap;
 
@@ -544,6 +546,30 @@ void SQLProcessorZabbix::init(void)
 	defineColumn(staticInfo, ITEM_ID_ZBX_TRIGGERS_FLAGS,
 	             TABLE_ID_TRIGGERS, "flags",
 	             SQL_COLUMN_TYPE_INT, 11,
+	             false, SQL_KEY_NONE, "0");
+
+	staticInfo =
+	  defineTable(TABLE_ID_FUNCTIONS, TABLE_NAME_FUNCTIONS,
+	              MAKE_FUNC(GROUP_ID_ZBX_FUNCTIONS));
+	defineColumn(staticInfo, ITEM_ID_ZBX_FUNCTIONS_FUNCTIONID,
+	             TABLE_ID_FUNCTIONS, "functionid",
+	             SQL_COLUMN_TYPE_BIGUINT, 20,
+	             false, SQL_KEY_PRI, NULL); 
+	defineColumn(staticInfo, ITEM_ID_ZBX_FUNCTIONS_ITEMID,
+	             TABLE_ID_FUNCTIONS, "itemid",
+	             SQL_COLUMN_TYPE_BIGUINT, 20,
+	             false, SQL_KEY_MUL, NULL); 
+	defineColumn(staticInfo, ITEM_ID_ZBX_FUNCTIONS_TRIGGERID,
+	             TABLE_ID_FUNCTIONS, "triggerid",
+	             SQL_COLUMN_TYPE_BIGUINT, 20,
+	             false, SQL_KEY_MUL, NULL); 
+	defineColumn(staticInfo, ITEM_ID_ZBX_FUNCTIONS_FUNCTION,
+	             TABLE_ID_FUNCTIONS, "function",
+	             SQL_COLUMN_TYPE_VARCHAR, 12,
+	             false, SQL_KEY_NONE, "");
+	defineColumn(staticInfo, ITEM_ID_ZBX_FUNCTIONS_PARAMETER,
+	             TABLE_ID_FUNCTIONS, "parameters",
+	             SQL_COLUMN_TYPE_VARCHAR, 255,
 	             false, SQL_KEY_NONE, "0");
 }
 
