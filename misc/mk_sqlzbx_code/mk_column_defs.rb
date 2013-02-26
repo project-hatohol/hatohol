@@ -26,9 +26,10 @@ def print_one_group(line)
 
   # Can be null
   can_null_str = columns[3].strip
-  if can_null_str == "YES"
+  case can_null_str
+  when "YES"
     can_be_null = "true"
-  elsif can_null_str == "NO"
+  when "NO"
     can_be_null = "false"
   else
     abort("Unexpected value for canBeNull: " + can_null_str)
