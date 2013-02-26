@@ -51,11 +51,11 @@ def print_one_group(line)
   end
 
   # default value
-  defalut_value_str = columns[5].strip
-  if defalut_value_str == "NULL"
+  default_value_str = columns[5].strip
+  if default_value_str == "NULL"
     default_value = "NULL"
   else
-    default_value = %Q!"#{defalut_value_str}"!
+    default_value = %Q!"#{default_value_str}"!
   end
 
   puts sprintf("\tdefineColumn(staticInfo, ITEM_ID_%s,", item_name.upcase)
