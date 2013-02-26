@@ -47,7 +47,7 @@ def print_one_group(line)
   when ""
     key_type = "SQL_KEY_NONE"
   else
-    abort("Unexpected value for the key type: " + key_type_str)
+    abort("Unexpected value for the key type: #{key_type_str}")
   end
 
   # default value
