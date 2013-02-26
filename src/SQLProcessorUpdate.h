@@ -110,7 +110,7 @@ protected:
 	string readCurrWord(void); 
 	void checkCurrWord(string expected, UpdateParseSection nextSection);
 	static FormulaVariableDataGetter *
-	  formulaColumnDataGetterFactory(string &name, void *priv);
+	  formulaColumnDataGetterFactory(const string &name, void *priv);
 	static bool updateMatchingRows(const ItemGroup *itemGroup,
 	                               SQLUpdateInfo &updateInfo);
 	static bool updateMatchingCell(const ItemGroup *itemGroup,

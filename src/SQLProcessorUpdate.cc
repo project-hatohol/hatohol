@@ -58,7 +58,7 @@ SQLProcessorUpdate::m_updateSubParsers[] = {
 
 class SQLFormulaUpdateColumnDataGetter : public FormulaVariableDataGetter {
 public:
-	SQLFormulaUpdateColumnDataGetter(string &name,
+	SQLFormulaUpdateColumnDataGetter(const string &name,
 	                                 SQLUpdateInfo *updateInfo)
 	: m_name(name),
 	  m_updateInfo(updateInfo)
@@ -335,7 +335,8 @@ void SQLProcessorUpdate::checkCurrWord(string expected,
 }
 
 FormulaVariableDataGetter *
-SQLProcessorUpdate::formulaColumnDataGetterFactory(string &name, void *priv)
+SQLProcessorUpdate::formulaColumnDataGetterFactory(const string &name,
+                                                   void *priv)
 {
 	SQLUpdateInfo *updateInfo = static_cast<SQLUpdateInfo *>(priv);
 	return new SQLFormulaUpdateColumnDataGetter(name, updateInfo);

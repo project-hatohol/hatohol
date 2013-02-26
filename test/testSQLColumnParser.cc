@@ -18,7 +18,8 @@ using namespace mlpl;
 
 namespace testSQLColumnParser {
 
-static FormulaVariableDataGetter *columnDataGetter(string &name, void *priv)
+static
+FormulaVariableDataGetter *columnDataGetter(const string &name, void *priv)
 {
 	return NULL;
 }

@@ -19,7 +19,8 @@ using namespace mlpl;
 
 namespace testSQLWhereParser {
 
-static FormulaVariableDataGetter *columnDataGetter(string &name, void *priv)
+static
+FormulaVariableDataGetter *columnDataGetter(const string &name, void *priv)
 {
 	return NULL;
 }

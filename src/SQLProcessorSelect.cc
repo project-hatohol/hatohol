@@ -178,7 +178,7 @@ map<string, SelectSectionParser>
 
 class SQLFormulaColumnDataGetter : public FormulaVariableDataGetter {
 public:
-	SQLFormulaColumnDataGetter(string &name,
+	SQLFormulaColumnDataGetter(const string &name,
 	                           SQLSelectInfo *selectInfo,
 	                           ItemGroupPtr &evalTargetItemGroup)
 	: m_evalTargetItemGroup(evalTargetItemGroup),
@@ -275,7 +275,7 @@ SQLTableInfo::SQLTableInfo(void)
 // ---------------------------------------------------------------------------
 // Public methods (SQLColumnInfo)
 // ---------------------------------------------------------------------------
-SQLColumnInfo::SQLColumnInfo(string &_name)
+SQLColumnInfo::SQLColumnInfo(const string &_name)
 : name(_name),
   tableInfo(NULL),
   columnDef(NULL),
@@ -1041,7 +1041,8 @@ SQLProcessorSelect::getTableInfoFromVarName(const SQLSelectInfo &selectInfo,
 }
 
 FormulaVariableDataGetter *
-SQLProcessorSelect::formulaColumnDataGetterFactory(string &name, void *priv)
+SQLProcessorSelect::formulaColumnDataGetterFactory(const string &name,
+                                                   void *priv)
 {
 	PrivateContext *ctx = static_cast<PrivateContext *>(priv);
 	SQLSelectInfo *selectInfo = ctx->selectInfo;

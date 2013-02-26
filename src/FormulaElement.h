@@ -130,7 +130,7 @@ public:
 };
 
 typedef FormulaVariableDataGetter *
-(*FormulaVariableDataGetterFactory)(string &name, void *priv);
+(*FormulaVariableDataGetterFactory)(const string &name, void *priv);
 
 class FormulaVariable : public FormulaElement {
 public:

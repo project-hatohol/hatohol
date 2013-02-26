@@ -119,7 +119,7 @@ struct SQLColumnInfo {
 	int columnType;
 
 	// constructor and methods
-	SQLColumnInfo(string &_name);
+	SQLColumnInfo(const string &_name);
 	void associate(SQLTableInfo *tableInfo);
 	void setColumnType(void);
 };
@@ -260,7 +260,7 @@ protected:
 	  getTableInfoFromVarName(const SQLSelectInfo &selectInfo,
 	                          const string &tableVar);
 	static FormulaVariableDataGetter *
-	  formulaColumnDataGetterFactory(string &name, void *priv);
+	  formulaColumnDataGetterFactory(const string &name, void *priv);
 	void makeGroupedTableForColumn(const string &columnName);
 
 private:
