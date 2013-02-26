@@ -35,6 +35,7 @@ enum TableID {
 	TABLE_ID_USER_HISTORY,
 	TABLE_ID_TRIGGERS,
 	TABLE_ID_FUNCTIONS,
+	TABLE_ID_ITEMS,
 };
 
 static const char *TABLE_NAME_NODES  = "nodes";
@@ -47,6 +48,7 @@ static const char *TABLE_NAME_PROFILES = "profiles";
 static const char *TABLE_NAME_USER_HISTORY = "user_history";
 static const char *TABLE_NAME_TRIGGERS = "triggers";
 static const char *TABLE_NAME_FUNCTIONS = "functions";
+static const char *TABLE_NAME_ITEMS = "items";
 
 TableNameStaticInfoMap SQLProcessorZabbix::m_tableNameStaticInfoMap;
 
@@ -571,6 +573,202 @@ void SQLProcessorZabbix::init(void)
 	             TABLE_ID_FUNCTIONS, "parameters",
 	             SQL_COLUMN_TYPE_VARCHAR, 255,
 	             false, SQL_KEY_NONE, "0");
+
+	staticInfo =
+	  defineTable(TABLE_ID_ITEMS, TABLE_NAME_ITEMS,
+	              MAKE_FUNC(GROUP_ID_ZBX_ITEMS));
+	defineColumn(staticInfo, ITEM_ID_ZBX_ITEMS_ITEMID,
+	             TABLE_ID_ITEMS, "itemid",
+	             SQL_COLUMN_TYPE_BIGUINT, 20,
+	             false, SQL_KEY_PRI, NULL);
+	defineColumn(staticInfo, ITEM_ID_ZBX_ITEMS_TYPE,
+	             TABLE_ID_ITEMS, "type",
+	             SQL_COLUMN_TYPE_INT, 11,
+	             false, SQL_KEY_NONE, "0");
+	defineColumn(staticInfo, ITEM_ID_ZBX_ITEMS_SNMP_COMMUNITY,
+	             TABLE_ID_ITEMS, "snmp_community",
+	             SQL_COLUMN_TYPE_VARCHAR, 64,
+	             false, SQL_KEY_NONE, "");
+	defineColumn(staticInfo, ITEM_ID_ZBX_ITEMS_SNMP_OID,
+	             TABLE_ID_ITEMS, "snmp_oid",
+	             SQL_COLUMN_TYPE_VARCHAR, 255,
+	             false, SQL_KEY_NONE, "");
+	defineColumn(staticInfo, ITEM_ID_ZBX_ITEMS_HOSTID,
+	             TABLE_ID_ITEMS, "hostid",
+	             SQL_COLUMN_TYPE_BIGUINT, 20,
+	             false, SQL_KEY_MUL, NULL);
+	defineColumn(staticInfo, ITEM_ID_ZBX_ITEMS_NAME,
+	             TABLE_ID_ITEMS, "name",
+	             SQL_COLUMN_TYPE_VARCHAR, 255,
+	             false, SQL_KEY_NONE, "");
+	defineColumn(staticInfo, ITEM_ID_ZBX_ITEMS_KEY_,
+	             TABLE_ID_ITEMS, "key_",
+	             SQL_COLUMN_TYPE_VARCHAR, 255,
+	             false, SQL_KEY_NONE, "");
+	defineColumn(staticInfo, ITEM_ID_ZBX_ITEMS_DELAY,
+	             TABLE_ID_ITEMS, "delay",
+	             SQL_COLUMN_TYPE_INT, 11,
+	             false, SQL_KEY_NONE, "0");
+	defineColumn(staticInfo, ITEM_ID_ZBX_ITEMS_HISTORY,
+	             TABLE_ID_ITEMS, "history",
+	             SQL_COLUMN_TYPE_INT, 11,
+	             false, SQL_KEY_NONE, "90");
+	defineColumn(staticInfo, ITEM_ID_ZBX_ITEMS_TRENDS,
+	             TABLE_ID_ITEMS, "trends",
+	             SQL_COLUMN_TYPE_INT, 11,
+	             false, SQL_KEY_NONE, "365");
+	defineColumn(staticInfo, ITEM_ID_ZBX_ITEMS_LASTVALUE,
+	             TABLE_ID_ITEMS, "lastvalue",
+	             SQL_COLUMN_TYPE_VARCHAR, 255,
+	             true, SQL_KEY_NONE, NULL);
+	defineColumn(staticInfo, ITEM_ID_ZBX_ITEMS_LASTCLOCK,
+	             TABLE_ID_ITEMS, "lastclock",
+	             SQL_COLUMN_TYPE_INT, 11,
+	             true, SQL_KEY_NONE, NULL);
+	defineColumn(staticInfo, ITEM_ID_ZBX_ITEMS_PREVVALUE,
+	             TABLE_ID_ITEMS, "prevvalue",
+	             SQL_COLUMN_TYPE_VARCHAR, 255,
+	             true, SQL_KEY_NONE, NULL);
+	defineColumn(staticInfo, ITEM_ID_ZBX_ITEMS_STATUS,
+	             TABLE_ID_ITEMS, "prevvalue",
+	             SQL_COLUMN_TYPE_INT, 11,
+	             false, SQL_KEY_MUL, NULL);
+	defineColumn(staticInfo, ITEM_ID_ZBX_ITEMS_VALUE_TYPE,
+	             TABLE_ID_ITEMS, "value_type",
+	             SQL_COLUMN_TYPE_INT, 11,
+	             false, SQL_KEY_NONE, "0");
+	defineColumn(staticInfo, ITEM_ID_ZBX_ITEMS_TRAPPER_HOSTS,
+	             TABLE_ID_ITEMS, "trapper_hosts",
+	             SQL_COLUMN_TYPE_VARCHAR, 255,
+	             false, SQL_KEY_NONE, "");
+	defineColumn(staticInfo, ITEM_ID_ZBX_ITEMS_UNITS,
+	             TABLE_ID_ITEMS, "units",
+	             SQL_COLUMN_TYPE_VARCHAR, 255,
+	             false, SQL_KEY_NONE, "");
+	defineColumn(staticInfo, ITEM_ID_ZBX_ITEMS_MULTIPLIER,
+	             TABLE_ID_ITEMS, "multiplier",
+	             SQL_COLUMN_TYPE_INT, 11,
+	             false, SQL_KEY_NONE, "0");
+	defineColumn(staticInfo, ITEM_ID_ZBX_ITEMS_DELTA,
+	             TABLE_ID_ITEMS, "delta",
+	             SQL_COLUMN_TYPE_INT, 11,
+	             false, SQL_KEY_NONE, "0");
+	defineColumn(staticInfo, ITEM_ID_ZBX_ITEMS_PREVORGVALUE,
+	             TABLE_ID_ITEMS, "prevorgvalue",
+	             SQL_COLUMN_TYPE_VARCHAR, 255,
+	             true, SQL_KEY_NONE, NULL);
+	defineColumn(staticInfo, ITEM_ID_ZBX_ITEMS_SNMPV3_SECURITYNAME,
+	             TABLE_ID_ITEMS, "snmpv3_securityname",
+	             SQL_COLUMN_TYPE_VARCHAR, 64,
+	             false, SQL_KEY_NONE, "");
+	defineColumn(staticInfo, ITEM_ID_ZBX_ITEMS_SNMPV3_SECURITYLEVEL,
+	             TABLE_ID_ITEMS, "snmpv3_securitylevel",
+	             SQL_COLUMN_TYPE_INT, 11,
+	             false, SQL_KEY_NONE, "0");
+	defineColumn(staticInfo, ITEM_ID_ZBX_ITEMS_SNMPV3_AUTHPASSPHRASE,
+	             TABLE_ID_ITEMS, "snmpv3_authpassphrase",
+	             SQL_COLUMN_TYPE_VARCHAR, 64,
+	             false, SQL_KEY_NONE, "");
+	defineColumn(staticInfo, ITEM_ID_ZBX_ITEMS_SNMPV3_PRIVPASSPRASE,
+	             TABLE_ID_ITEMS, "snmpv3_privpassphrase",
+	             SQL_COLUMN_TYPE_VARCHAR, 64,
+	             false, SQL_KEY_NONE, "");
+	defineColumn(staticInfo, ITEM_ID_ZBX_ITEMS_FORMULA,
+	             TABLE_ID_ITEMS, "formula",
+	             SQL_COLUMN_TYPE_VARCHAR, 255,
+	             false, SQL_KEY_NONE, "1");
+	defineColumn(staticInfo, ITEM_ID_ZBX_ITEMS_ERROR,
+	             TABLE_ID_ITEMS, "error",
+	             SQL_COLUMN_TYPE_VARCHAR, 128,
+	             false, SQL_KEY_NONE, "");
+	defineColumn(staticInfo, ITEM_ID_ZBX_ITEMS_LASTLOGSIZE,
+	             TABLE_ID_ITEMS, "lastlogsize",
+	             SQL_COLUMN_TYPE_BIGUINT, 20,
+	             false, SQL_KEY_NONE, "0");
+	defineColumn(staticInfo, ITEM_ID_ZBX_ITEMS_LOGTIMEFMT,
+	             TABLE_ID_ITEMS, "logtimefmt",
+	             SQL_COLUMN_TYPE_VARCHAR, 64,
+	             false, SQL_KEY_NONE, "");
+	defineColumn(staticInfo, ITEM_ID_ZBX_ITEMS_TEMPLATEID,
+	             TABLE_ID_ITEMS, "templateid",
+	             SQL_COLUMN_TYPE_BIGUINT, 20,
+	             true, SQL_KEY_MUL, NULL);
+	defineColumn(staticInfo, ITEM_ID_ZBX_ITEMS_VALUEMAPID,
+	             TABLE_ID_ITEMS, "valuemapid",
+	             SQL_COLUMN_TYPE_BIGUINT, 20,
+	             true, SQL_KEY_MUL, NULL);
+	defineColumn(staticInfo, ITEM_ID_ZBX_ITEMS_DELAY_FLEX,
+	             TABLE_ID_ITEMS, "delay_flex",
+	             SQL_COLUMN_TYPE_VARCHAR, 64,
+	             false, SQL_KEY_NONE, "");
+	defineColumn(staticInfo, ITEM_ID_ZBX_ITEMS_PARAMS,
+	             TABLE_ID_ITEMS, "params",
+	             SQL_COLUMN_TYPE_TEXT, 0,
+	             false, SQL_KEY_NONE, NULL);
+	defineColumn(staticInfo, ITEM_ID_ZBX_ITEMS_IPMI_SENSOR,
+	             TABLE_ID_ITEMS, "ipmi_sensor",
+	             SQL_COLUMN_TYPE_VARCHAR, 128,
+	             false, SQL_KEY_NONE, "");
+	defineColumn(staticInfo, ITEM_ID_ZBX_ITEMS_DATA_TYPE,
+	             TABLE_ID_ITEMS, "data_type",
+	             SQL_COLUMN_TYPE_INT, 11,
+	             false, SQL_KEY_NONE, "0");
+	defineColumn(staticInfo, ITEM_ID_ZBX_ITEMS_AUTHTYPE,
+	             TABLE_ID_ITEMS, "authtype",
+	             SQL_COLUMN_TYPE_INT, 11,
+	             false, SQL_KEY_NONE, "0");
+	defineColumn(staticInfo, ITEM_ID_ZBX_ITEMS_USERNAME,
+	             TABLE_ID_ITEMS, "username",
+	             SQL_COLUMN_TYPE_VARCHAR, 64,
+	             false, SQL_KEY_NONE, "");
+	defineColumn(staticInfo, ITEM_ID_ZBX_ITEMS_PASSWORD,
+	             TABLE_ID_ITEMS, "passowrd",
+	             SQL_COLUMN_TYPE_VARCHAR, 64,
+	             false, SQL_KEY_NONE, "");
+	defineColumn(staticInfo, ITEM_ID_ZBX_ITEMS_PUBLICKEY,
+	             TABLE_ID_ITEMS, "publickey",
+	             SQL_COLUMN_TYPE_VARCHAR, 64,
+	             false, SQL_KEY_NONE, "");
+	defineColumn(staticInfo, ITEM_ID_ZBX_ITEMS_PRIVATEKEY,
+	             TABLE_ID_ITEMS, "privatekey",
+	             SQL_COLUMN_TYPE_VARCHAR, 64,
+	             false, SQL_KEY_NONE, "");
+	defineColumn(staticInfo, ITEM_ID_ZBX_ITEMS_MTIME,
+	             TABLE_ID_ITEMS, "mtime",
+	             SQL_COLUMN_TYPE_INT, 11,
+	             false, SQL_KEY_NONE, "0");
+	defineColumn(staticInfo, ITEM_ID_ZBX_ITEMS_LASTNS,
+	             TABLE_ID_ITEMS, "lastns",
+	             SQL_COLUMN_TYPE_INT, 11,
+	             true, SQL_KEY_NONE, NULL);
+	defineColumn(staticInfo, ITEM_ID_ZBX_ITEMS_FLAGS,
+	             TABLE_ID_ITEMS, "flags",
+	             SQL_COLUMN_TYPE_INT, 11,
+	             false, SQL_KEY_NONE, "0");
+	defineColumn(staticInfo, ITEM_ID_ZBX_ITEMS_FILTER,
+	             TABLE_ID_ITEMS, "filter",
+	             SQL_COLUMN_TYPE_VARCHAR, 255,
+	             false, SQL_KEY_NONE, "");
+	defineColumn(staticInfo, ITEM_ID_ZBX_ITEMS_INTERFACEID,
+	             TABLE_ID_ITEMS, "interfaceid",
+	             SQL_COLUMN_TYPE_BIGUINT, 20,
+	             true, SQL_KEY_MUL, NULL);
+	defineColumn(staticInfo, ITEM_ID_ZBX_ITEMS_PORT,
+	             TABLE_ID_ITEMS, "port",
+	             SQL_COLUMN_TYPE_VARCHAR, 64,
+	             false, SQL_KEY_NONE, "");
+	defineColumn(staticInfo, ITEM_ID_ZBX_ITEMS_DESCRIPTION,
+	             TABLE_ID_ITEMS, "description",
+	             SQL_COLUMN_TYPE_TEXT, 0,
+	             false, SQL_KEY_NONE, NULL);
+	defineColumn(staticInfo, ITEM_ID_ZBX_ITEMS_INVENTORY_LINK,
+	             TABLE_ID_ITEMS, "inventory_link",
+	             SQL_COLUMN_TYPE_INT, 11,
+	             false, SQL_KEY_NONE, "0");
+	defineColumn(staticInfo, ITEM_ID_ZBX_ITEMS_LIFETIME,
+	             TABLE_ID_ITEMS, "lifetime",
+	             SQL_COLUMN_TYPE_VARCHAR, 64,
+	             false, SQL_KEY_NONE, "30");
 }
 
 SQLProcessor *SQLProcessorZabbix::createInstance(void)
