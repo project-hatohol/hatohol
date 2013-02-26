@@ -55,7 +55,7 @@ def print_one_group(line)
   if defalut_value_str == "NULL"
     default_value = "NULL"
   else
-    default_value = '"' + defalut_value_str + '"'
+    default_value = %Q!"#{defalut_value_str}"!
   end
 
   puts sprintf("\tdefineColumn(staticInfo, ITEM_ID_%s,", item_name.upcase)
