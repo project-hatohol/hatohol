@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 
-$sql_type_map = {
+SQL_TYPE_MAP = {
   "bigint unsigned" => "SQL_COLUMN_TYPE_BIGUINT",
   "int"             => "SQL_COLUMN_TYPE_INT",
   "char"            => "SQL_COLUMN_TYPE_CHAR",
@@ -20,7 +20,7 @@ def print_one_group(line)
 
   # SQLColumnType
   sql_type_key = columns[2].sub(/\([0-9]+\)/, "").strip
-  sql_type = $sql_type_map[sql_type_key]
+  sql_type = SQL_TYPE_MAP[sql_type_key]
   digit = columns[2].sub(/[^0-9]+/, "")
   digit = digit.sub(/[^0-9]+/, "")
 
