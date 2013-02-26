@@ -267,7 +267,7 @@ void test_selectCountTrigger(void)
 	executeCommand(cmd);
 	vector<string> lines;
 	NumberStringMap nsmap;
-	assertRecord(2, nsmap);
+	assertRecord(0, nsmap);
 }
 
 #if 0
