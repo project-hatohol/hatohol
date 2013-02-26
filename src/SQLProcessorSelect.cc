@@ -596,7 +596,7 @@ void SQLProcessorSelect::setColumnTypeAndDefInColumnInfo(void)
 	for (; it != selectInfo->columnNameMap.end(); ++it) {
 		SQLColumnInfo *columnInfo = it->second;
 
-		// baseDef
+		// columnDef
 		if (columnInfo->columnType != SQLColumnInfo::COLUMN_TYPE_NORMAL)
 			continue;
 

@@ -77,7 +77,7 @@ const ColumnDef * SQLUtils::getColumnDef
 	return accessInfo.columnDef;
 }
 
-ItemDataPtr SQLUtils::createDefaultItemData(const ColumnDef *baseDef)
+ItemDataPtr SQLUtils::createDefaultItemData(const ColumnDef *columnDef)
 {
 	string msg;
 	TRMSG(msg, "Not implemented: %s\n", __PRETTY_FUNCTION__);
@@ -85,25 +85,25 @@ ItemDataPtr SQLUtils::createDefaultItemData(const ColumnDef *baseDef)
 	return ItemDataPtr();
 }
 
-ItemDataPtr SQLUtils::createItemData(const ColumnDef *baseDef,
+ItemDataPtr SQLUtils::createItemData(const ColumnDef *columnDef,
                                      string &value)
 {
-	if (baseDef->type >= NUM_SQL_COLUMN_TYPES) {
+	if (columnDef->type >= NUM_SQL_COLUMN_TYPES) {
 		THROW_ASURA_EXCEPTION(
-		  "baseDef->type: illegal value: %d, table: %s, column: %s",
-		  baseDef->type, baseDef->tableName, baseDef->columnName);
+		  "columnDef->type: illegal value: %d, table: %s, column: %s",
+		  columnDef->type, columnDef->tableName, columnDef->columnName);
 	}
-	return (*m_itemDataCreators[baseDef->type])(baseDef, value.c_str());
+	return (*m_itemDataCreators[columnDef->type])(columnDef, value.c_str());
 }
 
 ItemDataPtr SQLUtils::getItemDataFromItemGroupWithColumnName
   (string &columnName, const SQLTableStaticInfo *tableStaticInfo,
    ItemGroup *itemGroup)
 {
-	const ColumnDef *colDef = getColumnDef(columnName, tableStaticInfo);
-	if (!colDef)
+	const ColumnDef *columnDef = getColumnDef(columnName, tableStaticInfo);
+	if (!columnDef)
 		return ItemDataPtr();
-	ItemId itemId = colDef->itemId;
+	ItemId itemId = columnDef->itemId;
 	ItemDataPtr dataPtr = itemGroup->getItem(itemId);
 	if (!dataPtr) {
 		MLPL_DBG("Not found: item: %s (%"PRIu_ITEM"), "
