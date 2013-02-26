@@ -19,6 +19,7 @@
 #include "FormulaOperator.h"
 #include "ItemDataUtils.h"
 #include "SQLProcessorException.h"
+#include "FormulaOperator.h"
 
 enum BetweenStep {
 	BETWEEN_STEP_NULL,
@@ -171,6 +172,14 @@ void SQLWhereParser::addForBetween(string& word, string &wordLower)
 	}
 }
 
+void SQLWhereParser::closeInParenthesis(void)
+{
+	if (m_ctx->inValues->getNumberOfItems() == 0)
+		THROW_SQL_PROCESSOR_EXCEPTION("No parameters in IN operator.");
+	FormulaIn *formulaIn = new FormulaIn(m_ctx->inValues);
+	insertElement(formulaIn);
+}
+
 void SQLWhereParser::addForIn(string& word, string &wordLower)
 {
 	if (m_ctx->inStep != IN_STEP_EXPECT_VALUE) {
@@ -244,11 +253,12 @@ void SQLWhereParser::separatorCbParenthesisOpen(const char separator)
 
 void SQLWhereParser::separatorCbParenthesisClose(const char separator)
 {
-	if (m_ctx->inStep == IN_STEP_NULL)
+	if (m_ctx->inStep == IN_STEP_NULL) {
 		SQLFormulaParser::separatorCbParenthesisClose(separator);
-	else if (m_ctx->inStep == IN_STEP_GOT_VALUE)
+	} else if (m_ctx->inStep == IN_STEP_GOT_VALUE) {
+		closeInParenthesis();
 		m_ctx->inStep = IN_STEP_NULL;
-	else
+	} else
 		THROW_SQL_PROCESSOR_EXCEPTION("Unexpected: ')'");
 }
 
