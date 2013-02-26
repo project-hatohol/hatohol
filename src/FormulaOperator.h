@@ -20,6 +20,7 @@
 
 #include "FormulaElement.h"
 #include "ItemDataPtr.h"
+#include "ItemGroupPtr.h"
 
 // ---------------------------------------------------------------------------
 // class: FormulaParenthesis
@@ -95,6 +96,20 @@ public:
 private:
 	ItemDataPtr      m_v0;
 	ItemDataPtr      m_v1;
+};
+
+// ---------------------------------------------------------------------------
+// FormulaIn
+// ---------------------------------------------------------------------------
+class FormulaIn : public FormulaElement {
+public:
+	FormulaIn(ItemGroupPtr values);
+	virtual ~FormulaIn();
+	virtual ItemDataPtr evaluate(void);
+	const ItemGroupPtr getValues(void) const;
+
+private:
+	ItemGroupPtr m_values;
 };
 
 #endif // FormulaOperator_h

@@ -59,6 +59,28 @@ void _assertFormulaBetweenWithVarName(FormulaElement *elem, int v0, int v1,
 	cppcut_assert_equal(string(name), formulaVar->getName());
 }
 
+void _assertFormulaIn(FormulaElement *elem, vector<int> &expectedValues,
+                      const char *name)
+{
+	assertTypeFormulaIn(elem);
+
+	FormulaElement *leftHand = elem->getLeftHand();
+	FormulaVariable *formulaVar = dynamic_cast<FormulaVariable *>(leftHand);
+	cppcut_assert_not_null(formulaVar);
+	cppcut_assert_equal(string(name), formulaVar->getName());
+
+	FormulaIn *elemIn = dynamic_cast<FormulaIn *>(elem);
+	const ItemGroupPtr grpPtr = elemIn->getValues();
+	size_t numExpected = expectedValues.size();
+	cppcut_assert_equal(numExpected, grpPtr->getNumberOfItems());
+	for (size_t i = 0; i < numExpected; i++) {
+		ItemData *data = grpPtr->getItemAt(i);
+		ItemInt *itemInt = dynamic_cast<ItemInt *>(data);
+		cppcut_assert_not_null(itemInt);
+		cppcut_assert_equal(expectedValues[i], itemInt->get());
+	}
+}
+
 void showTreeInfo(FormulaElement *formulaElement)
 {
 	string str;

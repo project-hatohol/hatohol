@@ -145,6 +145,21 @@ void test_whereBetween(void)
 	assertFormulaBetweenWithVarName(formula, v0, v1, leftHand);
 }
 
+void test_whereIn(void)
+{
+	const char *leftHand = "a";
+	int v0 = 5;
+	ParsableString statement(
+	  StringUtils::sprintf("%s in ('%d')", leftHand, v0));
+	SQLWhereParser whereParser;
+	assertInputStatement(whereParser, statement);
+
+	vector<int> expectedValues;
+	expectedValues.push_back(v0);
+	FormulaElement *formula = whereParser.getFormula();
+	assertFormulaInWithVarName(formula, expectedValues, leftHand);
+}
+
 void test_whereIntAndStringAndInt(void)
 {
 	const char *leftHand0  = "a";

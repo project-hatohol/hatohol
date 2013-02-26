@@ -17,6 +17,7 @@
 
 #include "FormulaOperator.h"
 #include "ItemEnum.h"
+#include "AsuraException.h"
 
 // ---------------------------------------------------------------------------
 // class: FormulaParenthesis
@@ -185,4 +186,28 @@ ItemDataPtr FormulaBetween::evaluate(void)
 	if (*varDataPtr < *m_v0 ||*varDataPtr > *m_v1)
 		ret = false;
 	return ItemDataPtr(new ItemBool(ret), false);
+}
+
+// ---------------------------------------------------------------------------
+// FormulaIn
+// ---------------------------------------------------------------------------
+FormulaIn::FormulaIn(ItemGroupPtr values)
+: FormulaElement(FORMULA_ELEM_PRIO_IN),
+  m_values(values)
+{
+}
+
+FormulaIn::~FormulaIn()
+{
+}
+
+const ItemGroupPtr FormulaIn::getValues(void) const
+{
+	return m_values;
+}
+
+ItemDataPtr FormulaIn::evaluate(void)
+{
+	THROW_ASURA_EXCEPTION("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	return ItemDataPtr();
 }

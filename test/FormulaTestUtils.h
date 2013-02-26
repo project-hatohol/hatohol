@@ -43,6 +43,9 @@ cut_trace(assertFormulaElementType<FormulaValue>(X))
 #define assertTypeFormulaBetween(X) \
 cut_trace(assertFormulaElementType<FormulaBetween>(X))
 
+#define assertTypeFormulaIn(X) \
+cut_trace(assertFormulaElementType<FormulaIn>(X))
+
 #define assertFormulaFuncMax(X) \
 cut_trace(assertFormulaElementType<FormulaFuncMax>(X))
 
@@ -65,6 +68,11 @@ cut_trace(_assertFormulaBetween(X, V0, V1))
 void _assertFormulaBetweenWithVarName(FormulaElement *elem, int v0, int v1, const char *name);
 #define assertFormulaBetweenWithVarName(X, V0, V1, N) \
 cut_trace(_assertFormulaBetweenWithVarName(X, V0, V1, N))
+
+void _assertFormulaInWithVarName(FormulaElement *elem,
+                                 vector<int> &expectedValues, const char *name);
+#define assertFormulaInWithVarName(X, E, N) \
+cut_trace(_assertFormulaInWithVarName(X, E, N))
 
 template<class ElementType, class LeftElementType, typename LeftValueType,
          class RightElementType, typename RightValueType>
