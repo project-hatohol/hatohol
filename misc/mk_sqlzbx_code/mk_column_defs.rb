@@ -32,7 +32,7 @@ def print_one_group(line)
   when "NO"
     can_be_null = "false"
   else
-    abort("Unexpected value for canBeNull: " + can_null_str)
+    abort("Unexpected value for canBeNull: #{can_null_str}")
   end
 
   # key type
