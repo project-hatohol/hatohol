@@ -272,6 +272,26 @@ VirtualDataStoreZabbix::VirtualDataStoreZabbix(void)
 	                   "Status of triggers"));
 	ADD(new ItemString(ITEM_ID_ZBX_USER_HISTORY_URL5,
 	                   "tr_status.php?groupid=0&hostid=0"));
+
+	//
+	// triggers
+	//
+	table = createStaticItemTable(GROUP_ID_ZBX_TRIGGERS);
+
+	//
+	// functions
+	//
+	table = createStaticItemTable(GROUP_ID_ZBX_FUNCTIONS);
+
+	//
+	// items
+	//
+	table = createStaticItemTable(GROUP_ID_ZBX_ITEMS);
+
+	//
+	// hosts
+	//
+	table = createStaticItemTable(GROUP_ID_ZBX_HOSTS);
 }
 
 VirtualDataStoreZabbix::~VirtualDataStoreZabbix()
