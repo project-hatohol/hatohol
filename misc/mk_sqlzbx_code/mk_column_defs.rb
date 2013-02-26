@@ -69,7 +69,7 @@ def print_one_group(line)
 #               false, SQL_KEY_PRI, NULL);
 end
 
-while line = STDIN.gets
+ARGF.each_line do |line|
   print_one_group(line)
 end
 
