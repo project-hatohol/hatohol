@@ -54,7 +54,7 @@ SQLUtils::getColumnAccessInfo(const string &columnName,
 	  tableStaticInfo->columnAccessInfoMap.find(columnName);
 	if (it == tableStaticInfo->columnAccessInfoMap.end()) {
 		THROW_SQL_PROCESSOR_EXCEPTION(
-		  "Not found: column: %s from table: %s\n",
+		  "Not found: column: %s from table: %s",
 		  columnName.c_str(), tableStaticInfo->tableName);
 	}
 	const ColumnAccessInfo &accessInfo = it->second;
