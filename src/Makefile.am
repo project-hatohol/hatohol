@@ -14,7 +14,7 @@ libasura_la_SOURCES = \
 	ReadWriteLock.cc UsedCountable.cc \
 	ItemGroupType.cc ItemGroupTypeManager.cc \
 	ItemData.cc ItemGroup.cc ItemTable.cc \
-	ItemPtr.cc ItemTablePtr.cc ItemDataUtils.cc \
+	ItemPtr.cc ItemTablePtr.cc ItemGroupPtr.cc ItemDataUtils.cc \
 	VirtualDataStore.cc VirtualDataStoreZabbix.cc \
 	JsonBuilderAgent.cc JsonParserAgent.cc \
 	ArmController.cc \

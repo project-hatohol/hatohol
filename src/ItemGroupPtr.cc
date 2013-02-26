@@ -15,19 +15,12 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef ItemGroupPtr_h
-#define ItemGroupPtr_h
-
-#include <Logger.h>
-using namespace mlpl;
-
-#include "ItemGroup.h"
-#include "ItemPtr.h"
-
-typedef ItemPtr<ItemGroup> ItemGroupPtr;
+#include "ItemGroupPtr.h"
 
 template<>
-ItemPtr<ItemGroup>::ItemPtr(void);
-
-#endif // #define ItemGroupPtr_h
+ItemPtr<ItemGroup>::ItemPtr(void)
+: m_data(NULL)
+{
+	m_data = new ItemGroup();
+}
 
