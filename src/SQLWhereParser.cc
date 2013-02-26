@@ -175,7 +175,14 @@ void SQLWhereParser::addForIn(string& word, string &wordLower)
 		  "Illegal state: %d\n", m_ctx->betweenStep);
 	}
 
-	THROW_ASURA_EXCEPTION("Not implemented %s\n", __PRETTY_FUNCTION__);
+	// TODO: we have to accept a string.
+	ItemDataPtr dataPtr = ItemDataUtils::createAsNumber(word);
+	if (!dataPtr.hasData()) {
+		THROW_SQL_PROCESSOR_EXCEPTION(
+		  "Failed to parse: %s\n", word.c_str());
+	}
+	m_ctx->inValues->add(dataPtr);
+	m_ctx->inStep = IN_STEP_GOT_VALUE;
 }
 
 //
@@ -225,32 +232,22 @@ void SQLWhereParser::separatorCbGreaterThan(const char separator)
 
 void SQLWhereParser::separatorCbParenthesisOpen(const char separator)
 {
-	if (m_ctx->inStep == IN_STEP_NULL) {
+	if (m_ctx->inStep == IN_STEP_NULL)
 		SQLFormulaParser::separatorCbParenthesisOpen(separator);
-		return;
-	}
-
-	if (m_ctx->inStep == IN_STEP_EXPECT_PARENTHESIS_OPEN) {
+	else if (m_ctx->inStep == IN_STEP_EXPECT_PARENTHESIS_OPEN)
 		m_ctx->inStep = IN_STEP_EXPECT_VALUE;
-		return;
-	}
-
-	THROW_SQL_PROCESSOR_EXCEPTION("Unexpected: '('");
+	else 
+		THROW_SQL_PROCESSOR_EXCEPTION("Unexpected: '('");
 }
 
 void SQLWhereParser::separatorCbParenthesisClose(const char separator)
 {
-	if (m_ctx->inStep == IN_STEP_NULL) {
+	if (m_ctx->inStep == IN_STEP_NULL)
 		SQLFormulaParser::separatorCbParenthesisClose(separator);
-		return;
-	}
-
-	if (m_ctx->inStep == IN_STEP_GOT_VALUE) {
-		THROW_ASURA_EXCEPTION("Not implemented: %s\n",
-		                      __PRETTY_FUNCTION__);
-	}
-
-	THROW_SQL_PROCESSOR_EXCEPTION("Unexpected: ')'");
+	else if (m_ctx->inStep == IN_STEP_GOT_VALUE)
+		m_ctx->inStep = IN_STEP_NULL;
+	else
+		THROW_SQL_PROCESSOR_EXCEPTION("Unexpected: ')'");
 }
 
 //
