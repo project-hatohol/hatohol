@@ -59,8 +59,8 @@ void _assertFormulaBetweenWithVarName(FormulaElement *elem, int v0, int v1,
 	cppcut_assert_equal(string(name), formulaVar->getName());
 }
 
-void _assertFormulaIn(FormulaElement *elem, vector<int> &expectedValues,
-                      const char *name)
+void _assertFormulaInWithVarName(FormulaElement *elem,
+                                 vector<int> &expectedValues, const char *name)
 {
 	assertTypeFormulaIn(elem);
 
