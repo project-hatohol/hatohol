@@ -33,6 +33,7 @@ enum TableID {
 	TABLE_ID_SESSIONS,
 	TABLE_ID_PROFILES,
 	TABLE_ID_USER_HISTORY,
+	TABLE_ID_TRIGGERS,
 };
 
 static const char *TABLE_NAME_NODES  = "nodes";
@@ -43,6 +44,7 @@ static const char *TABLE_NAME_USERS_GROUPS = "users_groups";
 static const char *TABLE_NAME_SESSIONS = "sessions";
 static const char *TABLE_NAME_PROFILES = "profiles";
 static const char *TABLE_NAME_USER_HISTORY = "user_history";
+static const char *TABLE_NAME_TRIGGERS = "triggers";
 
 TableNameStaticInfoMap SQLProcessorZabbix::m_tableNameStaticInfoMap;
 
@@ -483,6 +485,66 @@ void SQLProcessorZabbix::init(void)
 	             TABLE_ID_USER_HISTORY, "url5",
 	             SQL_COLUMN_TYPE_VARCHAR, 255,
 	             false, SQL_KEY_NONE, "");
+
+	staticInfo =
+	  defineTable(TABLE_ID_TRIGGERS, TABLE_NAME_TRIGGERS,
+	              MAKE_FUNC(GROUP_ID_ZBX_TRIGGERS));
+	defineColumn(staticInfo, ITEM_ID_ZBX_TRIGGERS_TRIGGERID,
+	             TABLE_ID_TRIGGERS, "triggerid",
+	             SQL_COLUMN_TYPE_BIGUINT, 20,
+	             false, SQL_KEY_PRI, NULL); 
+	defineColumn(staticInfo, ITEM_ID_ZBX_TRIGGERS_EXPRESSION,
+	             TABLE_ID_TRIGGERS, "expression",
+	             SQL_COLUMN_TYPE_VARCHAR, 255,
+	             false, SQL_KEY_NONE, "");
+	defineColumn(staticInfo, ITEM_ID_ZBX_TRIGGERS_DESCRIPTION,
+	             TABLE_ID_TRIGGERS, "description",
+	             SQL_COLUMN_TYPE_VARCHAR, 255,
+	             false, SQL_KEY_NONE, "");
+	defineColumn(staticInfo, ITEM_ID_ZBX_TRIGGERS_URL,
+	             TABLE_ID_TRIGGERS, "url",
+	             SQL_COLUMN_TYPE_VARCHAR, 255,
+	             false, SQL_KEY_NONE, "");
+	defineColumn(staticInfo, ITEM_ID_ZBX_TRIGGERS_STATUS,
+	             TABLE_ID_TRIGGERS, "status",
+	             SQL_COLUMN_TYPE_INT, 11,
+	             false, SQL_KEY_MUL, "0");
+	defineColumn(staticInfo, ITEM_ID_ZBX_TRIGGERS_VALUE,
+	             TABLE_ID_TRIGGERS, "value",
+	             SQL_COLUMN_TYPE_INT, 11,
+	             false, SQL_KEY_MUL, "0");
+	defineColumn(staticInfo, ITEM_ID_ZBX_TRIGGERS_PRIORITY,
+	             TABLE_ID_TRIGGERS, "priority",
+	             SQL_COLUMN_TYPE_INT, 11,
+	             false, SQL_KEY_NONE, "0");
+	defineColumn(staticInfo, ITEM_ID_ZBX_TRIGGERS_LASTCHANGE,
+	             TABLE_ID_TRIGGERS, "lastchange",
+	             SQL_COLUMN_TYPE_INT, 11,
+	             false, SQL_KEY_NONE, "0");
+	defineColumn(staticInfo, ITEM_ID_ZBX_TRIGGERS_COMMENTS,
+	             TABLE_ID_TRIGGERS, "comments",
+	             SQL_COLUMN_TYPE_TEXT, 0,
+	             false, SQL_KEY_NONE, NULL);
+	defineColumn(staticInfo, ITEM_ID_ZBX_TRIGGERS_ERROR,
+	             TABLE_ID_TRIGGERS, "error",
+	             SQL_COLUMN_TYPE_VARCHAR, 128,
+	             false, SQL_KEY_NONE, "");
+	defineColumn(staticInfo, ITEM_ID_ZBX_TRIGGERS_TEMPLATEID,
+	             TABLE_ID_TRIGGERS, "templateid",
+	             SQL_COLUMN_TYPE_BIGUINT, 20,
+	             true, SQL_KEY_MUL, NULL);
+	defineColumn(staticInfo, ITEM_ID_ZBX_TRIGGERS_TYPE,
+	             TABLE_ID_TRIGGERS, "type",
+	             SQL_COLUMN_TYPE_INT, 11,
+	             false, SQL_KEY_NONE, "0");
+	defineColumn(staticInfo, ITEM_ID_ZBX_TRIGGERS_VALUE_FLAGS,
+	             TABLE_ID_TRIGGERS, "value_flags",
+	             SQL_COLUMN_TYPE_INT, 11,
+	             false, SQL_KEY_NONE, "0");
+	defineColumn(staticInfo, ITEM_ID_ZBX_TRIGGERS_FLAGS,
+	             TABLE_ID_TRIGGERS, "flags",
+	             SQL_COLUMN_TYPE_INT, 11,
+	             false, SQL_KEY_NONE, "0");
 }
 
 SQLProcessor *SQLProcessorZabbix::createInstance(void)
