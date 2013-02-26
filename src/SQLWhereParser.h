@@ -47,10 +47,14 @@ protected:
 	                                    SQLWhereParser *whereParser);
 	void separatorCbGreaterThan(const char separator);
 
+	virtual void separatorCbParenthesisOpen(const char separator);
+	virtual void separatorCbParenthesisClose(const char separator);
+
 	//
 	// Keyword handlers
 	//
 	void kwHandlerBetween(void);
+	void kwHandlerIn(void);
 
 private:
 	static KeywordHandlerMap m_keywordHandlerMap;

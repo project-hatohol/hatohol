@@ -27,14 +27,25 @@ enum BetweenStep {
 	BETWEEN_STEP_EXPECT_V1,
 };
 
+enum InStep {
+	IN_STEP_NULL,
+	IN_STEP_EXPECT_PARENTHESIS_OPEN,
+	IN_STEP_EXPECT_VALUE,
+	IN_STEP_GOT_VALUE,
+};
+
+
 struct SQLWhereParser::PrivateContext {
 	BetweenStep betweenStep;
 	ItemDataPtr betweenV0;
 	ItemDataPtr betweenV1;
 
+	InStep      inStep;
+
 	// constructor
 	PrivateContext(void)
-	: betweenStep(BETWEEN_STEP_NULL)
+	: betweenStep(BETWEEN_STEP_NULL),
+	  inStep(IN_STEP_NULL)
 	{
 	}
 };
@@ -50,6 +61,8 @@ void SQLWhereParser::init(void)
 	SQLFormulaParser::copyKeywordHandlerMap(m_keywordHandlerMap);
 	m_keywordHandlerMap["between"] =
 	  static_cast<KeywordHandler>(&SQLWhereParser::kwHandlerBetween);
+	m_keywordHandlerMap["in"] =
+	  static_cast<KeywordHandler>(&SQLWhereParser::kwHandlerIn);
 }
 
 // ---------------------------------------------------------------------------
@@ -77,7 +90,8 @@ SQLWhereParser::~SQLWhereParser()
 
 void SQLWhereParser::add(string& word, string &wordLower)
 {
-	if (m_ctx->betweenStep == BETWEEN_STEP_NULL) {
+	if (m_ctx->betweenStep == BETWEEN_STEP_NULL &&
+	    m_ctx->inStep == IN_STEP_NULL) {
 		SQLFormulaParser::add(word, wordLower);
 		return;
 	}
@@ -107,7 +121,8 @@ void SQLWhereParser::add(string& word, string &wordLower)
 		}
 	} else {
 		THROW_ASURA_EXCEPTION(
-		  "Illegal state: %d\n", m_ctx->betweenStep); 
+		  "Illegal state: %d, %d\n",
+		  m_ctx->betweenStep, m_ctx->inStep); 
 	}
 }
 
@@ -184,6 +199,27 @@ void SQLWhereParser::separatorCbGreaterThan(const char separator)
 	insertElement(formulaGreaterThan);
 }
 
+void SQLWhereParser::separatorCbParenthesisOpen(const char separator)
+{
+	if (m_ctx->inStep == IN_STEP_NULL) {
+		SQLFormulaParser::separatorCbParenthesisOpen(separator);
+		return;
+	}
+
+	if (m_ctx->inStep == IN_STEP_EXPECT_PARENTHESIS_OPEN) {
+		m_ctx->inStep = IN_STEP_EXPECT_VALUE;
+		return;
+	}
+
+	THROW_SQL_PROCESSOR_EXCEPTION(
+	  "'(' is unexpectedly opened, whil processing 'in'.");
+}
+
+void SQLWhereParser::separatorCbParenthesisClose(const char separator)
+{
+	THROW_ASURA_EXCEPTION("Not implemented: %s\n", __PRETTY_FUNCTION__);
+}
+
 //
 // Keyword handlers
 //
@@ -206,4 +242,23 @@ void SQLWhereParser::kwHandlerBetween(void)
 	m_ctx->betweenStep = BETWEEN_STEP_EXPECT_V0;
 	SeparatorCheckerWithCallback *separator = getSeparatorChecker();
 	separator->setAlternative(&ParsableString::SEPARATOR_SPACE);
+}
+
+void SQLWhereParser::kwHandlerIn(void)
+{
+	FormulaElement *currElem = getCurrentElement();
+	if (!currElem) {
+		THROW_SQL_PROCESSOR_EXCEPTION(
+		  "Got 'in', but no column name just before it.");
+	}
+	FormulaVariable *formulaVariable
+	   = dynamic_cast<FormulaVariable *>(currElem);
+	if (!formulaVariable) {
+		THROW_SQL_PROCESSOR_EXCEPTION(
+		  "Not a valid column name before 'in'.\n");
+	}
+	// Note: 'formulaVariable' checked above will be the left child
+	// by insertElement() in createBetweenElement().
+
+	m_ctx->inStep = IN_STEP_EXPECT_PARENTHESIS_OPEN;
 }
