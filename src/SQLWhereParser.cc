@@ -127,7 +127,7 @@ void SQLWhereParser::createBetweenElement(void)
 {
 	if (*m_ctx->betweenV0 >= *m_ctx->betweenV1) {
 		THROW_SQL_PROCESSOR_EXCEPTION(
-		  "Invalid between argument order: (%s) >= v1 (%s)\n",
+		  "Invalid between argument order: (%s) >= v1 (%s)",
 		  m_ctx->betweenV0->getString().c_str(),
 		  m_ctx->betweenV1->getString().c_str());
 	}
@@ -143,14 +143,14 @@ void SQLWhereParser::addForBetween(string& word, string &wordLower)
 		m_ctx->betweenV0 = ItemDataUtils::createAsNumber(word);
 		if (!m_ctx->betweenV0.hasData()) {
 			THROW_SQL_PROCESSOR_EXCEPTION(
-			  "Failed to parse as a number: %s\n", word.c_str());
+			  "Failed to parse as a number: %s", word.c_str());
 		} else {
 			m_ctx->betweenStep = BETWEEN_STEP_EXPECT_AND;
 		}
 	} else if (m_ctx->betweenStep == BETWEEN_STEP_EXPECT_AND) {
 		if (wordLower != "and") {
 			THROW_SQL_PROCESSOR_EXCEPTION(
-			  "Expected 'and', bug got: %s\n", word.c_str());
+			  "Expected 'and', bug got: %s", word.c_str());
 		} else {
 			m_ctx->betweenStep = BETWEEN_STEP_EXPECT_V1;
 		}
@@ -158,13 +158,13 @@ void SQLWhereParser::addForBetween(string& word, string &wordLower)
 		m_ctx->betweenV1 = ItemDataUtils::createAsNumber(word);
 		if (!m_ctx->betweenV1.hasData()) {
 			THROW_SQL_PROCESSOR_EXCEPTION(
-			  "Failed to parse as a number: %s\n", word.c_str());
+			  "Failed to parse as a number: %s", word.c_str());
 		} else  {
 			createBetweenElement();
 		}
 	} else {
 		THROW_SQL_PROCESSOR_EXCEPTION(
-		  "Illegal state: %d\n", m_ctx->betweenStep);
+		  "Illegal state: %d", m_ctx->betweenStep);
 	}
 }
 
@@ -172,14 +172,14 @@ void SQLWhereParser::addForIn(string& word, string &wordLower)
 {
 	if (m_ctx->inStep != IN_STEP_EXPECT_VALUE) {
 		THROW_SQL_PROCESSOR_EXCEPTION(
-		  "Illegal state: %d\n", m_ctx->betweenStep);
+		  "Illegal state: %d", m_ctx->betweenStep);
 	}
 
 	// TODO: we have to accept a string.
 	ItemDataPtr dataPtr = ItemDataUtils::createAsNumber(word);
 	if (!dataPtr.hasData()) {
 		THROW_SQL_PROCESSOR_EXCEPTION(
-		  "Failed to parse: %s\n", word.c_str());
+		  "Failed to parse: %s", word.c_str());
 	}
 	m_ctx->inValues->add(dataPtr);
 	m_ctx->inStep = IN_STEP_GOT_VALUE;
@@ -264,7 +264,7 @@ void SQLWhereParser::kwHandlerBetween(void)
 	   = dynamic_cast<FormulaVariable *>(currElem);
 	if (!formulaVariable) {
 		THROW_SQL_PROCESSOR_EXCEPTION(
-		  "Not a valid column name before 'between'.\n");
+		  "Not a valid column name before 'between'.");
 	}
 	// Note: 'formulaVariable' checked above will be the left child
 	// by insertElement() in createBetweenElement().
@@ -285,7 +285,7 @@ void SQLWhereParser::kwHandlerIn(void)
 	   = dynamic_cast<FormulaVariable *>(currElem);
 	if (!formulaVariable) {
 		THROW_SQL_PROCESSOR_EXCEPTION(
-		  "Not a valid column name before 'in'.\n");
+		  "Not a valid column name before 'in'.");
 	}
 	// Note: 'formulaVariable' checked above will be the left child
 	// by insertElement() in createBetweenElement().
