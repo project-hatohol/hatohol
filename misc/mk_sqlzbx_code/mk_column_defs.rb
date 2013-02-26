@@ -1,11 +1,11 @@
 #!/usr/bin/env ruby
 
 $sql_type_map = {
-  "bigint unsigned"=>"SQL_COLUMN_TYPE_BIGUINT",
-  "int"=>"SQL_COLUMN_TYPE_INT",
-  "char"=>"SQL_COLUMN_TYPE_CHAR",
-  "varchar"=>"SQL_COLUMN_TYPE_VARCHAR",
-  "text"=>"SQL_COLUMN_TYPE_TEXT"
+  "bigint unsigned" => "SQL_COLUMN_TYPE_BIGUINT",
+  "int"             => "SQL_COLUMN_TYPE_INT",
+  "char"            => "SQL_COLUMN_TYPE_CHAR",
+  "varchar"         => "SQL_COLUMN_TYPE_VARCHAR",
+  "text"            => "SQL_COLUMN_TYPE_TEXT"
 }
 
 def print_one_group(line)
