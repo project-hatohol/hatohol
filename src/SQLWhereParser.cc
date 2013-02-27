@@ -95,6 +95,9 @@ SQLWhereParser::SQLWhereParser(void)
 	separator->addSeparator(">");
 	separator->setCallbackTempl<SQLWhereParser>
 	  ('>', _separatorCbGreaterThan, this);
+	separator->addSeparator(",");
+	separator->setCallbackTempl<SQLWhereParser>
+	  (',', _separatorCbComma, this);
 }
 
 SQLWhereParser::~SQLWhereParser()
@@ -239,6 +242,20 @@ void SQLWhereParser::separatorCbGreaterThan(const char separator)
 
 	FormulaGreaterThan *formulaGreaterThan = new FormulaGreaterThan();
 	insertElement(formulaGreaterThan);
+}
+
+void SQLWhereParser::_separatorCbComma(const char separator,
+                                       SQLWhereParser *whereParser)
+{
+	whereParser->separatorCbComma(separator);
+}
+
+void SQLWhereParser::separatorCbComma(const char separator)
+{
+	if (m_ctx->inStep == IN_STEP_GOT_VALUE)
+		m_ctx->inStep = IN_STEP_EXPECT_VALUE;
+	else 
+		THROW_SQL_PROCESSOR_EXCEPTION("Unexpected: ','");
 }
 
 void SQLWhereParser::separatorCbParenthesisOpen(const char separator)
