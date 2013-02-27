@@ -262,13 +262,11 @@ static const int getMaxDataInTestData(void)
 	return max;
 }
 
-static const int countDistinctDataInTestData0(void)
+static void getDistinctValueInTestData0(set<int> &valueSet)
 {
-	set<int> countSet;
 	int count = 0;
 	for (size_t i = 0; i < numTestData0; i++)
-		countSet.insert(testData0[i].number);
-	return countSet.size();
+		valueSet.insert(testData0[i].number);
 }
 
 static void
@@ -650,11 +648,12 @@ void test_selectCountDistinct(void)
 	  selectInfo, statement, numColumns, numTestData0, numExpectedRows);
 
 	// assertion
+	set<int> distinctValues;
+	getDistinctValueInTestData0(distinctValues);
 	SQLOutputColumn &outCol = selectInfo.outputColumnVector[0];
 	cppcut_assert_equal(testFormula, outCol.column);
-	cppcut_assert_equal(
-	  StringUtils::toString(countDistinctDataInTestData0()),
-	  selectInfo.textRows[0][0]);
+	cppcut_assert_equal(StringUtils::toString(distinctValues.size()),
+	                    selectInfo.textRows[0][0]);
 }
 
 void test_selectAlias(void)
@@ -837,8 +836,10 @@ void test_groupBy(void) {
 	                       COLUMN_NAME_NUMBER, TABLE0_NAME,
 	                       COLUMN_NAME_NUMBER);
 	// check the result
+	set<int> distinctValues;
+	getDistinctValueInTestData0(distinctValues);
 	const size_t expectedNumColumns = 1;
-	const size_t expectedNumRows = countDistinctDataInTestData0();
+	const size_t expectedNumRows = distinctValues.size();
 	DEFINE_SELECTINFO_AND_ASSERT_SELECT(
 	  selectInfo, statement, expectedNumColumns, numTestData0,
 	  expectedNumRows);
