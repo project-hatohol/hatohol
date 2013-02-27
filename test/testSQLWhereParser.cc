@@ -144,7 +144,7 @@ void test_whereBetween(void)
 	assertFormulaBetweenWithVarName(formula, v0, v1, leftHand);
 }
 
-void test_whereIn(void)
+void test_whereInInt(void)
 {
 	const char *leftHand = "a";
 	int v0 = 5;
