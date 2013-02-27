@@ -63,6 +63,16 @@ public:
 };
 
 // ---------------------------------------------------------------------------
+// class: FormulaOperatorDiv
+// ---------------------------------------------------------------------------
+class FormulaOperatorDiv : public FormulaElement {
+public:
+	FormulaOperatorDiv(void);
+	virtual ~FormulaOperatorDiv();
+	virtual ItemDataPtr evaluate(void);
+};
+
+// ---------------------------------------------------------------------------
 // FormulaOperatorAnd
 // ---------------------------------------------------------------------------
 class FormulaOperatorAnd : public FormulaElement {

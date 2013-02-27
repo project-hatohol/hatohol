@@ -102,6 +102,26 @@ ItemDataPtr FormulaOperatorPlus::evaluate(void)
 }
 
 // ---------------------------------------------------------------------------
+// FormulaOperatorDiv
+// ---------------------------------------------------------------------------
+FormulaOperatorDiv::FormulaOperatorDiv(void)
+: FormulaElement(FORMULA_ELEM_PRIO_DIV)
+{
+}
+
+FormulaOperatorDiv::~FormulaOperatorDiv()
+{
+}
+
+ItemDataPtr FormulaOperatorDiv::evaluate(void)
+{
+	ItemDataPtr v0, v1;
+	if (!getLeftHandDataWithCheck(v0) || !getRightHandDataWithCheck(v1))
+		return ItemDataPtr();
+	return ItemDataPtr(*v0 / *v1, false);
+}
+
+// ---------------------------------------------------------------------------
 // FormulaOperatorAnd
 // ---------------------------------------------------------------------------
 FormulaOperatorAnd::FormulaOperatorAnd(void)

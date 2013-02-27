@@ -217,5 +217,22 @@ void test_formulaBetweenUpperPlus1(void)
 	assertFormulaBetweenVal(g_v1 + 1, false);
 }
 
+//
+// FormulaOperatorDiv
+//
+void test_formulaOperatorDiv(void)
+{
+	double v0 = 1;
+	double v1 = 1;
+	FormulaOperatorDiv formulaDiv;
+	FormulaValue *val0 = new FormulaValue(v0);
+	FormulaValue *val1 = new FormulaValue(v1);
+	formulaDiv.setLeftHand(val0);
+	formulaDiv.setRightHand(val1);
+	double expectedVal = v0 / v1;
+	ItemDataPtr expected(new ItemDouble(expectedVal), false);
+	cppcut_assert_equal(*expected, *formulaDiv.evaluate());
+}
+
 } // namespace testFormulaOperator
 
