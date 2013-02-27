@@ -86,6 +86,7 @@ protected:
 	//
 	void funcParserMax(void);
 	void funcParserCount(void);
+	void funcParserSum(void);
 
 private:
 	// Type definition

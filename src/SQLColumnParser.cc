@@ -74,6 +74,8 @@ void SQLColumnParser::init(void)
 	  static_cast<FunctionParser>(&SQLColumnParser::funcParserMax);
 	m_functionParserMap["count"] =
 	  static_cast<FunctionParser>(&SQLColumnParser::funcParserCount);
+	m_functionParserMap["sum"] =
+	  static_cast<FunctionParser>(&SQLColumnParser::funcParserSum);
 }
 
 // ---------------------------------------------------------------------------
@@ -234,4 +236,10 @@ void SQLColumnParser::funcParserCount(void)
 {
 	FormulaFuncCount *funcCount = new FormulaFuncCount();
 	insertElement(funcCount);
+}
+
+void SQLColumnParser::funcParserSum(void)
+{
+	FormulaFuncSum *funcSum = new FormulaFuncSum();
+	insertElement(funcSum);
 }
