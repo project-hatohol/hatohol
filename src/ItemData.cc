@@ -121,10 +121,17 @@ template<> bool ItemInt::operator >(const ItemData &itemData) const
 
 template<> bool ItemInt::operator <(const ItemData &itemData) const
 {
-	if (itemData.getItemType() == ITEM_TYPE_INT) {
+	ItemDataType itemType = itemData.getItemType();
+	if (itemType == ITEM_TYPE_INT) {
 		int data;
 		itemData.get(&data);
 		return (m_data < data);
+	} else if (itemType == ITEM_TYPE_UINT64) {
+		if (m_data < 0)
+			return true;
+		uint64_t data;
+		itemData.get(&data);
+		return (static_cast<uint64_t>(m_data) < data);
 	} else {
 		THROW_ITEM_DATA_EXCEPTION_UNDEFINED_OPERATION("<", itemData);
 	}
