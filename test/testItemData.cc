@@ -409,6 +409,12 @@ void test_operatorLtIntUint64(void)
 	cppcut_assert_equal(true,  *x_item < *w_item);
 }
 
+void test_operatorLtIntUint64Negative(void)
+{
+	x_item = new ItemInt(TEST_ITEM_ID, -15);
+	y_item = new ItemUint64(TEST_ITEM_ID, 10);
+	cppcut_assert_equal(true, *x_item < *y_item);
+}
 
 // -------------------------------------------------------------------------
 // operatorLe
