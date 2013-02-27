@@ -271,14 +271,13 @@ static const int countDistinctDataInTestData0(void)
 	return countSet.size();
 }
 
-static const int countDataWithValueInTestData0(int value)
+static void
+getIndexesOfDataWithValueInTestData0(vector<size_t> &indexes, int value)
 {
-	int count = 0;
 	for (size_t i = 0; i < numTestData0; i++){
 		if (testData0[i].number == value)
-			count++;
+			indexes.push_back(i);
 	}
-	return count;
 }
 
 static const size_t NO_CHECK = (size_t)-1;
@@ -854,9 +853,10 @@ void test_whereIn(void) {
 	                       COLUMN_NAME_NUMBER, selectValue0, selectValue1);
 	// check the result
 	const size_t expectedNumColumns = 1;
-	const size_t expectedNumRows =
-	  countDataWithValueInTestData0(selectValue0) +
-	  countDataWithValueInTestData0(selectValue1);
+	vector<size_t> targetRowsIndexes;
+	getIndexesOfDataWithValueInTestData0(targetRowsIndexes, selectValue0);
+	getIndexesOfDataWithValueInTestData0(targetRowsIndexes, selectValue1);
+	const size_t expectedNumRows = targetRowsIndexes.size();
 	DEFINE_SELECTINFO_AND_ASSERT_SELECT(
 	  selectInfo, statement, expectedNumColumns, expectedNumRows);
 }
