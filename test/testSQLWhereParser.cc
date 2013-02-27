@@ -192,6 +192,24 @@ void test_whereInString(void)
 	assertFormulaInWithVarName(formula, expectedValues, leftHand);
 }
 
+void test_whereInMultipleString(void)
+{
+	const char *leftHand = "a";
+	const char *v[] = {"A A A", "<x,y> = (8,5)", "Isaac Newton"};
+	const size_t numValue = sizeof(v) / sizeof(const char *);
+	ParsableString statement(
+	  StringUtils::sprintf("%s in ('%s', '%s', '%s')",
+	                       leftHand, v[0], v[1], v[2]));
+	SQLWhereParser whereParser;
+	assertInputStatement(whereParser, statement);
+
+	StringVector expectedValues;
+	for (size_t i = 0; i < numValue; i++)
+		expectedValues.push_back(v[i]);
+	FormulaElement *formula = whereParser.getFormula();
+	assertFormulaInWithVarName(formula, expectedValues, leftHand);
+}
+
 void test_whereIntAndStringAndInt(void)
 {
 	const char *leftHand0  = "a";
