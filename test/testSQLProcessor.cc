@@ -278,6 +278,14 @@ getIndexesOfDataWithValueInTestData0(vector<size_t> &indexes, int value)
 	}
 }
 
+static int sumNumberOfTestData0(void)
+{
+	int sum = 0;
+	for (size_t i = 0; i < numTestData0; i++)
+		sum += testData0[i].number;
+	return sum;
+}
+
 static const size_t NO_CHECK = (size_t)-1;
 static const size_t EXPECTED_NUM_ROWS_EQUAL_SELECTED = (size_t)-1;
 
@@ -671,6 +679,25 @@ void test_selectCountDistinct(void)
 	SQLOutputColumn &outCol = selectInfo.outputColumnVector[0];
 	cppcut_assert_equal(testFormula, outCol.column);
 	cppcut_assert_equal(StringUtils::toString(distinctValues.size()),
+	                    selectInfo.textRows[0][0]);
+}
+
+void test_selectSum(void)
+{
+	string testFormula =
+	  StringUtils::sprintf("sum(%s)", COLUMN_NAME_NUMBER);
+	string statement =
+	  StringUtils::sprintf("%s from %s", testFormula.c_str(), TABLE0_NAME);
+	const size_t numColumns = 1;
+	const size_t numExpectedRows = 1;
+	DEFINE_SELECTINFO_AND_ASSERT_SELECT(
+	  selectInfo, statement, numColumns, numTestData0, numExpectedRows);
+
+	// assertion
+	SQLOutputColumn &outCol = selectInfo.outputColumnVector[0];
+	cppcut_assert_equal(testFormula, outCol.column);
+	int expected = sumNumberOfTestData0();
+	cppcut_assert_equal(StringUtils::toString(expected),
 	                    selectInfo.textRows[0][0]);
 }
 
