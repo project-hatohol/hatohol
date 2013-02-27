@@ -43,6 +43,16 @@ public:
 };
 
 // ---------------------------------------------------------------------------
+// class: FormulaComparatorNotEqual
+// ---------------------------------------------------------------------------
+class FormulaComparatorNotEqual : public FormulaElement {
+public:
+	FormulaComparatorNotEqual(void);
+	virtual ~FormulaComparatorNotEqual();
+	virtual ItemDataPtr evaluate(void);
+};
+
+// ---------------------------------------------------------------------------
 // class: FormulaGreaterThan
 // ---------------------------------------------------------------------------
 class FormulaGreaterThan : public FormulaElement {
