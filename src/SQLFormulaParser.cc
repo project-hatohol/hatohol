@@ -197,8 +197,6 @@ FormulaVariable *SQLFormulaParser::makeFormulaVariable(string &name)
 {
 	if (!m_columnDataGetterFactory)
 		THROW_ASURA_EXCEPTION("m_columnDataGetterFactory: NULL.");
-	if (!m_columnDataGetterFactory)
-		THROW_ASURA_EXCEPTION("m_columnDataGetterFactory: NULL.");
 	FormulaVariableDataGetter *dataGetter =
 	  (*m_columnDataGetterFactory)(name, m_columnDataGetterFactoryPriv);
 	FormulaVariable *formulaVariable =
