@@ -110,6 +110,26 @@ void test_setInt(void)
 	cut_assert_equal_int(val, readValue);
 }
 
+void test_getDouble(void)
+{
+	double val = 0.98;
+	ItemData *item = new ItemDouble(val);
+	double readValue;
+	item->get(&readValue);
+	cppcut_assert_equal(val, readValue);
+}
+
+void test_setDouble(void)
+{
+	double val = -5.2;
+	ItemData *item = new ItemDouble(val);
+	val = -4.8;
+	double readValue;
+	item->set(&val);
+	item->get(&readValue);
+	cppcut_assert_equal(val, readValue);
+}
+
 void test_getString(void)
 {
 	string val = "test String";
