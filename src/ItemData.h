@@ -177,6 +177,14 @@ public:
 	}
 
 	virtual bool operator >(const ItemData &itemData) const {
+		const ItemDataType &type0 = getItemType();
+		const ItemDataType &type1 = itemData.getItemType();
+		if (type0 == type1) {
+			T v0, v1;
+			get(&v0);
+			itemData.get(&v1);
+			return v0 > v1;
+		}
 		THROW_ITEM_DATA_EXCEPTION_UNDEFINED_OPERATION(">", itemData);
 		return false;
 	}
