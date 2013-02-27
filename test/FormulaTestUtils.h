@@ -60,6 +60,7 @@ void _assertFormulaVariable(FormulaElement *elem, const char *expected);
 cut_trace(_assertFormulaVariable(EL, EXP))
 
 void _assertFormulaValue(FormulaElement *elem, int expected);
+void _assertFormulaValue(FormulaElement *elem, double expected);
 void _assertFormulaValue(FormulaElement *elem, const char *expected);
 #define assertFormulaValue(EL, EXP) \
 cut_trace(_assertFormulaValue(EL, EXP))
