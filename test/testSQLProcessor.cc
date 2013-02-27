@@ -271,6 +271,16 @@ static const int countDistinctDataInTestData0(void)
 	return countSet.size();
 }
 
+static const int countDataWithValueInTestData0(int value)
+{
+	int count = 0;
+	for (size_t i = 0; i < numTestData0; i++){
+		if (testData0[i].number == value);
+			count++;
+	}
+	return count;
+}
+
 static const size_t NO_CHECK = (size_t)-1;
 static const size_t EXPECTED_NUM_ROWS_EQUAL_SELECTED = (size_t)-1;
 
@@ -830,6 +840,23 @@ void test_groupBy(void) {
 	// check the result
 	const size_t expectedNumColumns = 1;
 	const size_t expectedNumRows = countDistinctDataInTestData0();
+	DEFINE_SELECTINFO_AND_ASSERT_SELECT(
+	  selectInfo, statement, expectedNumColumns, numTestData0,
+	  expectedNumRows);
+}
+
+void test_whereIn(void) {
+	int selectValue0 = -5;
+	int selectValue1 = 15;
+	string statement =
+	  StringUtils::sprintf("select %s from %s where %s in ('%d', '%d')",
+	                       COLUMN_NAME_NUMBER, TABLE0_NAME,
+	                       COLUMN_NAME_NUMBER, selectValue0, selectValue1);
+	// check the result
+	const size_t expectedNumColumns = 1;
+	const size_t expectedNumRows =
+	  countDataWithValueInTestData0(selectValue0) +
+	  countDataWithValueInTestData0(selectValue1);
 	DEFINE_SELECTINFO_AND_ASSERT_SELECT(
 	  selectInfo, statement, expectedNumColumns, numTestData0,
 	  expectedNumRows);
