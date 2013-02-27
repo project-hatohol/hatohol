@@ -208,6 +208,18 @@ const ItemGroupPtr FormulaIn::getValues(void) const
 
 ItemDataPtr FormulaIn::evaluate(void)
 {
-	THROW_ASURA_EXCEPTION("Not implemented: %s\n", __PRETTY_FUNCTION__);
-	return ItemDataPtr();
+	ItemDataPtr varDataPtr;
+	if (!getLeftHandDataWithCheck(varDataPtr))
+		return ItemDataPtr();
+
+	// TODO: use more efficient algorithm such as using an index.
+	bool found = false;
+	size_t num = m_values->getNumberOfItems();
+	for (size_t i = 0; i < num; i++) {
+		if (*m_values->getItemAt(i) == *varDataPtr) {
+			found = true;
+			break;
+		}
+	}
+	return ItemDataPtr(new ItemBool(found), false);
 }
