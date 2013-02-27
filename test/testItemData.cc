@@ -293,6 +293,17 @@ void test_operatorGtUint64Int(void)
 	cppcut_assert_equal(false, *x_item > *w_item);
 }
 
+void test_operatorGtDouble(void)
+{
+	x_item = new ItemDouble(12.8);
+	y_item = new ItemDouble(11);
+	z_item = new ItemDouble(12.8);
+	w_item = new ItemDouble(20.5);
+	cppcut_assert_equal(true,  *x_item > *y_item);
+	cppcut_assert_equal(false, *x_item > *z_item);
+	cppcut_assert_equal(false, *x_item > *w_item);
+}
+
 // -------------------------------------------------------------------------
 // operatorGe
 // -------------------------------------------------------------------------
