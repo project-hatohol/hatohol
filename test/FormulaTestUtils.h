@@ -71,6 +71,9 @@ cut_trace(_assertFormulaBetweenWithVarName(X, V0, V1, N))
 
 void _assertFormulaInWithVarName(FormulaElement *elem,
                                  vector<int> &expectedValues, const char *name);
+void _assertFormulaInWithVarName(FormulaElement *elem,
+                                 StringVector &expectedValues,
+                                 const char *name);
 #define assertFormulaInWithVarName(X, E, N) \
 cut_trace(_assertFormulaInWithVarName(X, E, N))
 
