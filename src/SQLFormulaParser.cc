@@ -363,24 +363,8 @@ void SQLFormulaParser::makeFormulaElementFromPendingWord(void)
 	if (!m_ctx->hasPendingWord())
 		return;
 
-	FormulaElement *formulaElement;
-	bool isFloat;
-	if (StringUtils::isNumber(m_ctx->pendingWord, &isFloat)) {
-		MLPL_WARN("Strict number generation algorithm "
-		          "has to be implemented.\n");
-		if (!isFloat) {
-			int number = atoi(m_ctx->pendingWord.c_str());
-			formulaElement = new FormulaValue(number);
-		} else {
-			double number = atof(m_ctx->pendingWord.c_str());
-			formulaElement = new FormulaValue(number);
-		}
-		m_ctx->clearPendingWords();
-		insertElement(formulaElement);
-		return;
-	}
-
-	formulaElement = makeFormulaVariable(m_ctx->pendingWord);
+	FormulaElement *formulaElement =
+	  makeFormulaVariableOrValue(m_ctx->pendingWord);
 	m_ctx->clearPendingWords();
 	insertElement(formulaElement);
 }
