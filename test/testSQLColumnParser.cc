@@ -258,7 +258,7 @@ void test_doubleDivVar(void)
 	double number = 3.3625;
 	const char *columnName = "fooColumn";
 	const size_t expectedNumFormula = 1;
-	string statement = StringUtils::sprintf("%.3lf/%s", number, columnName);
+	string statement = StringUtils::sprintf("%.4lf/%s", number, columnName);
 	DEFINE_PARSER_AND_RUN(columnParser, formulaInfoVector, statement,
 	                      expectedNumFormula);
 	FormulaElement *rootElem = formulaInfoVector[0]->formula;
