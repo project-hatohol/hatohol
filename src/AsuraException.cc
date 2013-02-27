@@ -87,3 +87,8 @@ void AsuraException::saveStackTrace(void)
 	int n = backtrace(trace, sizeof(trace) / sizeof(trace[0]));
 	m_stackTrace = Utils::makeDemangledStackTraceLines(trace, n);
 }
+
+void AsuraException::setBrief(const string &brief)
+{
+	m_what = brief;
+}

@@ -24,9 +24,44 @@ ostream &operator<<(ostream &os, const ItemData &itemData)
 	return os;
 }
 
+const char *ItemData::m_nativeTypeNames[] =
+{
+	"Boolean",
+	"Integer",
+	"Unsigned",
+	"Double",
+	"String",
+};
+
+// ---------------------------------------------------------------------------
+// ItemDataException
+// ---------------------------------------------------------------------------
+ItemDataException::ItemDataException(const char *sourceFileName, int lineNumber,
+                                     const char *operatorName,
+                                     const ItemData &lhs, const ItemData &rhs)
+: AsuraException("", sourceFileName, lineNumber)
+{
+	string msg = StringUtils::sprintf(
+	  "Undefiend operation: '%s' between %s and %s",
+	  operatorName, lhs.getNativeTypeName(), rhs.getNativeTypeName());
+	  setBrief(msg);
+}
+
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
+void ItemData::init(void)
+{
+	size_t numTypeNames =
+	  sizeof(ItemData::m_nativeTypeNames) / sizeof(const char *);
+	if (numTypeNames != NUM_ITEM_TYPE) {
+		THROW_ASURA_EXCEPTION(
+		  "sizeof(m_nativeTypeNames) is invalid: "
+		  "(expcect/actual: %d/%d).",
+		  NUM_ITEM_TYPE, numTypeNames);
+	}
+}
+
 ItemId ItemData::getId(void) const
 {
 	return m_itemId;
@@ -48,6 +83,15 @@ ItemData::ItemData(ItemId id, ItemDataType type)
 
 ItemData::~ItemData()
 {
+}
+
+const char *ItemData::getNativeTypeName(void) const
+{
+	if (m_itemType >= NUM_ITEM_TYPE) {
+		THROW_ASURA_EXCEPTION("m_itemType (%d) >= NUM_ITEM_TYPE (%d)",
+		                      m_itemType, NUM_ITEM_TYPE);
+	}
+	return m_nativeTypeNames[m_itemType];
 }
 
 //

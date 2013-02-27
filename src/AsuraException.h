@@ -46,6 +46,7 @@ public:
 
 protected:
 	void saveStackTrace(void);
+	void setBrief(const string &brief);
 
 private:
 	static bool m_saveStackTrace;

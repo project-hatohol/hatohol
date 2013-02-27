@@ -515,4 +515,21 @@ void test_operatorPlusUint64(void)
 	assertOperatorPlus<uint64_t, ItemUint64>(v0, v1);
 }
 
+// -------------------------------------------------------------------------
+// operator Substitute
+// -------------------------------------------------------------------------
+void test_operatorSubstBoolString(void)
+{
+	bool gotException = false;
+	x_item = new ItemBool(true);
+	y_item = new ItemString("Foo");
+	try {
+		*x_item = *y_item;
+	} catch (const ItemDataException &e) {
+		gotException = true;
+	}
+	cppcut_assert_equal(true, gotException);
+}
+
+
 } // namespace testItemData

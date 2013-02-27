@@ -39,6 +39,7 @@ void asuraInit(void)
 	}
 
 	AsuraException::init();
+	ItemData::init();
 	SQLUtils::init();
 	SQLFormulaParser::init();
 	SQLColumnParser::init(); // must be put after SQLFormulaParser::init()

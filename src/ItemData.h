@@ -34,12 +34,24 @@ using namespace mlpl;
 
 #include "UsedCountable.h"
 #include "ReadWriteLock.h"
+#include "AsuraException.h"
 
 typedef uint64_t ItemId;
 #define PRIx_ITEM PRIx64
 #define PRIu_ITEM PRIu64
 
 static const ItemId SYSTEM_ITEM_ID_ANONYMOUS = 0xffffffffffffffff;
+
+class ItemData;
+class ItemDataException : public AsuraException
+{
+public:
+	ItemDataException(const char *sourceFileName, int lineNumber,
+	                  const char *operatorName,
+	                  const ItemData &lhs, const ItemData &rhs);
+};
+#define THROW_ITEM_DATA_EXCEPTION_UNDEFINED_OPERATION(OP, RHS) \
+throw ItemDataException(__FILE__, __LINE__, OP, *this, RHS)
 
 typedef vector<ItemId>               ItemIdVector;
 typedef ItemIdVector::iterator       ItemIdVectorIterator;
@@ -64,12 +76,15 @@ enum ItemDataType {
 	ITEM_TYPE_UINT64,
 	ITEM_TYPE_DOUBLE,
 	ITEM_TYPE_STRING,
+	NUM_ITEM_TYPE,
 };
 
 class ItemData : public UsedCountable {
 public:
+	static void init(void);
 	ItemId getId(void) const;
 	const ItemDataType &getItemType(void) const;
+	const char *getNativeTypeName(void) const;
 	virtual void set(void *src) = 0;
 	virtual void get(void *dst) const = 0;
 	virtual string getString(void) const = 0;
@@ -88,6 +103,7 @@ protected:
 	virtual ~ItemData();
 
 private:
+	static const char *m_nativeTypeNames[];
 	ItemId       m_itemId;
 	ItemDataType m_itemType;
 };
@@ -143,8 +159,7 @@ public:
 			set(&val);
 			return *this;
 		}
-		MLPL_WARN("You should override this function: %s (%d, %d).\n",
-		          __PRETTY_FUNCTION__, type0, type1);
+		THROW_ITEM_DATA_EXCEPTION_UNDEFINED_OPERATION("=", itemData);
 		return *this;
 	}
 
