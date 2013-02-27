@@ -206,6 +206,27 @@ FormulaVariable *SQLFormulaParser::makeFormulaVariable(string &name)
 	return formulaVariable;
 }
 
+FormulaElement *SQLFormulaParser::makeFormulaVariableOrValue(string &word)
+{
+	bool isFloat;
+	FormulaElement *formulaElement;
+	if (StringUtils::isNumber(word, &isFloat)) {
+		MLPL_WARN("Strict number generation algorithm "
+		          "has to be implemented.\n");
+		if (!isFloat) {
+			int number = atoi(word.c_str());
+			formulaElement = new FormulaValue(number);
+		} else {
+			double number = atof(word.c_str());
+			formulaElement = new FormulaValue(number);
+		}
+	} else {
+		formulaElement = makeFormulaVariable(word);
+	}
+	return formulaElement;
+
+}
+
 bool SQLFormulaParser::passFunctionArgIfOpen(string &word)
 {
 	if (!m_ctx->currElement)
@@ -214,10 +235,11 @@ bool SQLFormulaParser::passFunctionArgIfOpen(string &word)
 	  dynamic_cast<FormulaFunction *>(m_ctx->currElement);
 	if (!formulaFunc)
 		return false;
-	FormulaVariable *formulaVariable = makeFormulaVariable(word);
-	if (!formulaVariable)
+	FormulaElement *formulaElement = makeFormulaVariableOrValue(word);
+	if (!formulaElement)
 		return false;
-	return formulaFunc->addArgument(formulaVariable);
+	m_ctx->currElement = formulaElement;
+	return formulaFunc->addArgument(formulaElement);
 }
 
 void SQLFormulaParser::insertElement(FormulaElement *formulaElement)

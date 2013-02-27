@@ -47,7 +47,8 @@ FormulaElement::~FormulaElement()
 void FormulaElement::setLeftHand(FormulaElement *elem)
 {
 	m_leftHand = elem;
-	m_leftHand->m_parent = this;
+	if (elem)
+		m_leftHand->m_parent = this;
 }
 
 void FormulaElement::setRightHand(FormulaElement *elem)

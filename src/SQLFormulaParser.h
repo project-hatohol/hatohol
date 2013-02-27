@@ -66,6 +66,7 @@ protected:
 	void setKeywordHandlerMap(KeywordHandlerMap *kwHandlerMap);
 	void setFunctionParserMap(FunctionParserMap *fncParserMap);
 	FormulaVariable *makeFormulaVariable(string &name);
+	FormulaElement *makeFormulaVariableOrValue(string &word);
 	bool passFunctionArgIfOpen(string &word);
 	void insertElement(FormulaElement *formulaElement);
 	FormulaElement *getCurrentElement(void) const;

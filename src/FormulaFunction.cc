@@ -24,13 +24,16 @@
 // FormulaFunction
 // ---------------------------------------------------------------------------
 FormulaFunction::FormulaFunction(int numArgument)
-: FormulaElement(FORMULA_ELEM_PRIO_FUNCTION),
+: FormulaElement(FORMULA_ELEM_PRIO_FUNCTION, true),
   m_numArgument(numArgument)
 {
 }
 
 FormulaFunction::~FormulaFunction()
 {
+	// To avoid double free
+	setLeftHand(NULL);
+
 	for (size_t i = 0; i < getNumberOfArguments(); i++)
 		delete m_argVector[i];
 }
@@ -66,6 +69,7 @@ bool FormulaFunction::addArgument(FormulaElement *argument)
 			MLPL_DBG("Too many arguemnts.");
 			return false;
 		}
+		setLeftHand(argument);
 		pushArgument(argument);
 	}
 	return true;
