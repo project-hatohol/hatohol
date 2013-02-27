@@ -125,6 +125,20 @@ void test_one(void)
 	assertColumn(formulaInfoVector[0], columnName);
 }
 
+void test_oneInteger(void)
+{
+	int number = 3;
+	ParsableString statement(StringUtils::sprintf("%d", number));
+	SQLColumnParser columnParser;
+	columnParser.setColumnDataGetterFactory(columnDataGetter, NULL);
+	assertInputStatement(columnParser, statement);
+
+	const SQLFormulaInfoVector &formulaInfoVector =
+	  columnParser.getFormulaInfoVector();
+	cppcut_assert_equal((size_t)1, formulaInfoVector.size());
+	assertFormulaValue(formulaInfoVector[0]->formula, number);
+}
+
 void test_multiColumn(void)
 {
 	const char *names[] = {"c1", "c2", "c3", "c4", "c5"};
