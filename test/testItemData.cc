@@ -38,6 +38,16 @@ static ItemData *&y_item = g_item[1];
 static ItemData *&z_item = g_item[2];
 static ItemData *&w_item = g_item[3];
 
+template<typename NativeType, class ItemDataType>
+static void _assertGet(NativeType val)
+{
+	ItemData *item = new ItemDataType(val);
+	NativeType readValue;
+	item->get(&readValue);
+	cppcut_assert_equal(val, readValue);
+}
+#define assertGet(NT,IDT,V) cut_trace((_assertGet<NT,IDT>(V)))
+
 template <typename T, typename ItemDataType>
 void assertOperatorPlus(T &v0, T &v1)
 {
@@ -71,17 +81,36 @@ void test_constructWithoutSpecificId(void)
 }
 
 // -------------------------------------------------------------------------
-// get/set
+// get
 // -------------------------------------------------------------------------
-void test_getUint64(void)
+void test_getBool(void)
 {
-	uint64_t val = 0xfedcba9876543210;
-	ItemData *item = new ItemUint64(1, val);
-	uint64_t readValue;
-	item->get(&readValue);
-	cut_assert_equal_int_least64(val, readValue);
+	assertGet(bool, ItemBool, true);
 }
 
+void test_getInt(void)
+{
+	assertGet(int, ItemInt, 12345);
+}
+
+void test_getUint64(void)
+{
+	assertGet(uint64_t, ItemUint64, 0xfedcba9876543210);
+}
+
+void test_getDouble(void)
+{
+	assertGet(double, ItemDouble, 0.98);
+}
+
+void test_getString(void)
+{
+	assertGet(string, ItemString, "test String");
+}
+
+// -------------------------------------------------------------------------
+// set
+// -------------------------------------------------------------------------
 void test_setUint64(void)
 {
 	uint64_t val = 0xfedcba9876543210;
@@ -91,15 +120,6 @@ void test_setUint64(void)
 	item->set(&val);
 	item->get(&readValue);
 	cut_assert_equal_int_least64(val, readValue);
-}
-
-void test_getInt(void)
-{
-	int val = 12345;
-	ItemData *item = new ItemInt(1, val);
-	int readValue;
-	item->get(&readValue);
-	cut_assert_equal_int(val, readValue);
 }
 
 void test_setInt(void)
@@ -113,15 +133,6 @@ void test_setInt(void)
 	cut_assert_equal_int(val, readValue);
 }
 
-void test_getDouble(void)
-{
-	double val = 0.98;
-	ItemData *item = new ItemDouble(val);
-	double readValue;
-	item->get(&readValue);
-	cppcut_assert_equal(val, readValue);
-}
-
 void test_setDouble(void)
 {
 	double val = -5.2;
@@ -131,15 +142,6 @@ void test_setDouble(void)
 	item->set(&val);
 	item->get(&readValue);
 	cppcut_assert_equal(val, readValue);
-}
-
-void test_getString(void)
-{
-	string val = "test String";
-	ItemData *item = new ItemString(1, val);
-	string readValue;
-	item->get(&readValue);
-	cut_assert_equal_string(val.c_str(), readValue.c_str());
 }
 
 void test_setString(void)
