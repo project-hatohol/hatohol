@@ -264,14 +264,19 @@ void SQLWhereParser::separatorCbParenthesisClose(const char separator)
 
 void SQLWhereParser::separatorCbQuot(const char separator)
 {
-	if (m_ctx->inStep == IN_STEP_NULL)
+	if (m_ctx->inStep == IN_STEP_NULL) {
 		SQLFormulaParser::separatorCbQuot(separator);
-	else if (m_ctx->inStep == IN_STEP_EXPECT_VALUE && !m_ctx->openQuot)
+	} else if (m_ctx->inStep == IN_STEP_EXPECT_VALUE && !m_ctx->openQuot) {
 		m_ctx->openQuot = true;
-	else if (m_ctx->inStep == IN_STEP_GOT_VALUE && m_ctx->openQuot)
+		SeparatorCheckerWithCallback *separator = getSeparatorChecker();
+		separator->setAlternative(&ParsableString::SEPARATOR_QUOT);
+	} else if (m_ctx->inStep == IN_STEP_GOT_VALUE && m_ctx->openQuot) {
 		m_ctx->openQuot = false;
-	else
+		SeparatorCheckerWithCallback *separator = getSeparatorChecker();
+		separator->unsetAlternative();
+	} else {
 		THROW_SQL_PROCESSOR_EXCEPTION("Unexpected: Quotation.");
+	}
 }
 
 //
