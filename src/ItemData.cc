@@ -264,3 +264,8 @@ template<> bool ItemUint64::operator ==(const ItemData &itemData) const
 	return false;
 }
 
+template<> ItemData * ItemString::operator /(const ItemData &itemData) const
+{
+	THROW_ITEM_DATA_EXCEPTION_INVALID_OPERATION("/", itemData);
+	return NULL;
+}
