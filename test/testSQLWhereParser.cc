@@ -159,6 +159,24 @@ void test_whereInInt(void)
 	assertFormulaInWithVarName(formula, expectedValues, leftHand);
 }
 
+void test_whereInMultipleInt(void)
+{
+	const char *leftHand = "a";
+	int v[] = {5, -8, 200};
+	const size_t numValue = sizeof(v) / sizeof(int);
+	ParsableString statement(
+	  StringUtils::sprintf("%s in ('%d', '%d', '%d')",
+	                       leftHand, v[0], v[1], v[2]));
+	SQLWhereParser whereParser;
+	assertInputStatement(whereParser, statement);
+
+	vector<int> expectedValues;
+	for (size_t i = 0; i < numValue; i++)
+		expectedValues.push_back(v[i]);
+	FormulaElement *formula = whereParser.getFormula();
+	assertFormulaInWithVarName(formula, expectedValues, leftHand);
+}
+
 void test_whereInString(void)
 {
 	const char *leftHand = "a";
