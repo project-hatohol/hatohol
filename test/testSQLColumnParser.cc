@@ -44,6 +44,14 @@ static void _assertInputStatement(SQLColumnParser &columnParser,
 }
 #define assertInputStatement(P, S) cut_trace(_assertInputStatement(P, S))
 
+#define DEFINE_PARSER_AND_RUN(PTHR, FELEM, STATMNT, NUM_EXP_FORMULA) \
+ParsableString _statement(STATMNT); \
+SQLColumnParser PTHR; \
+PTHR.setColumnDataGetterFactory(columnDataGetter, NULL); \
+assertInputStatement(PTHR, _statement); \
+const SQLFormulaInfoVector &FELEM = PTHR.getFormulaInfoVector(); \
+cppcut_assert_equal(NUM_EXP_FORMULA, formulaInfoVector.size());
+
 void _assertColumn(SQLFormulaInfo *formulaInfo, const char *expectedName)
 {
 	cppcut_assert_equal(string(expectedName), formulaInfo->expression);
