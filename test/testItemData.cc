@@ -159,6 +159,15 @@ void test_getValueInt(void)
 	cppcut_assert_equal(val, itemInt->get());
 }
 
+void test_getValueDouble(void)
+{
+	double val = 5.8213e3;
+	ItemData *item = new ItemDouble(val);
+	ItemDouble *itemDouble = dynamic_cast<ItemDouble *>(item);
+	cppcut_assert_not_null(itemDouble);
+	cppcut_assert_equal(val, itemDouble->get());
+}
+
 void test_getValueString(void)
 {
 	string val = "dog cat bird";
