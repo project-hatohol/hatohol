@@ -107,6 +107,7 @@ public:
 	virtual bool operator <=(const ItemData &itemData) const = 0;
 	virtual bool operator ==(const ItemData &itemData) const = 0;
 	virtual bool operator !=(const ItemData &itemData) const = 0;
+	virtual void operator +=(const ItemData &itemData) = 0;
 
 protected:
 	ItemData(ItemId id, ItemDataType type);
@@ -244,6 +245,20 @@ public:
 		return !(*this == itemData);
 	}
 
+	virtual void operator +=(const ItemData &itemData)
+	{
+		const ItemDataType &type0 = getItemType();
+		const ItemDataType &type1 = itemData.getItemType();
+		if (type0 == type1) {
+			T v0, v1;
+			get(&v0);
+			itemData.get(&v1);
+			v0 += v1;
+			set(&v0);
+		}
+		THROW_ITEM_DATA_EXCEPTION_UNDEFINED_OPERATION(">", itemData);
+	}
+
 protected:
 	virtual ~ItemGeneric() {
 	}
@@ -270,6 +285,7 @@ template<> bool ItemUint64::operator >=(const ItemData &itemData) const;
 template<> bool ItemUint64::operator <=(const ItemData &itemData) const;
 template<> bool ItemUint64::operator ==(const ItemData &itemData) const;
 
+template<> ItemData * ItemString::operator /(const ItemData &itemData) const;
 template<> ItemData * ItemString::operator /(const ItemData &itemData) const;
 
 #endif // ItemData_h
