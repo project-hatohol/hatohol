@@ -427,6 +427,24 @@ void _assertInerJoinHelper(const string &statement)
 }
 #define assertInerJoinHelper(X) cut_trace(_assertInerJoinHelper(X))
 
+// The first argument is not a reference and is copied. This is to avoid
+// the original data from damaging.
+void _assertEqualUnawareOfOrder(multiset<string> expectedSet,
+                                vector<StringVector> &textRows,
+                                size_t targetIndex)
+{
+	cppcut_assert_equal(expectedSet.size(), textRows.size());
+	multiset<string>::iterator it;
+	for (size_t i = 0; i < textRows.size(); i++) {
+		it = expectedSet.find(textRows[i][targetIndex]);
+		cppcut_assert_equal(true, it != expectedSet.end());
+		expectedSet.erase(it);
+	}
+	cppcut_assert_equal(true, expectedSet.empty());
+}
+#define assertEqualUnawareOfOrder(E,T,I) \
+cut_trace(_assertEqualUnawareOfOrder(E,T,I))
+
 void setup(void)
 {
 	asuraInit();
@@ -843,6 +861,17 @@ void test_groupBy(void) {
 	DEFINE_SELECTINFO_AND_ASSERT_SELECT(
 	  selectInfo, statement, expectedNumColumns, numTestData0,
 	  expectedNumRows);
+
+	// make the expected output string set and check it
+	multiset<string> expectedOutputSet;
+	for (set<int>::iterator it = distinctValues.begin();
+	     it != distinctValues.end(); ++it) {
+		string text = StringUtils::sprintf("%d", *it);
+		expectedOutputSet.insert(text);
+	}
+	size_t targetIndex = 0;
+	assertEqualUnawareOfOrder(expectedOutputSet,
+	                          selectInfo.textRows, targetIndex);
 }
 
 void test_whereIn(void) {
@@ -870,16 +899,9 @@ void test_whereIn(void) {
 	}
 	
 	// check the textRows
-	cppcut_assert_equal(expectedOutputSet.size(), 
-	                    selectInfo.textRows.size());
-	multiset<string>::iterator it;
-	for (size_t i = 0; i < selectInfo.textRows.size(); i++) {
-		StringVector &oneRow = selectInfo.textRows[i];
-		it = expectedOutputSet.find(oneRow[0]);
-		cppcut_assert_equal(true, it != expectedOutputSet.end());
-		expectedOutputSet.erase(it);
-	}
-	cppcut_assert_equal(true, expectedOutputSet.empty());
+	size_t targetIndex = 0;
+	assertEqualUnawareOfOrder(expectedOutputSet,
+	                          selectInfo.textRows, targetIndex);
 }
 
 } // namespace testSQLProcessor
