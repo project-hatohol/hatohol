@@ -62,6 +62,7 @@ enum ItemDataType {
 	ITEM_TYPE_BOOL,
 	ITEM_TYPE_INT,
 	ITEM_TYPE_UINT64,
+	ITEM_TYPE_DOUBLE,
 	ITEM_TYPE_STRING,
 };
 
@@ -215,6 +216,7 @@ private:
 typedef ItemGeneric<bool,     ITEM_TYPE_BOOL>   ItemBool;
 typedef ItemGeneric<uint64_t, ITEM_TYPE_UINT64> ItemUint64;
 typedef ItemGeneric<int,      ITEM_TYPE_INT>    ItemInt;
+typedef ItemGeneric<double,   ITEM_TYPE_DOUBLE> ItemDouble;
 typedef ItemGeneric<string,   ITEM_TYPE_STRING> ItemString;
 
 template<> bool ItemInt::operator >(const ItemData &itemData) const;
