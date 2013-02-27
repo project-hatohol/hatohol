@@ -95,4 +95,21 @@ private:
 	ItemDataSet m_itemDataSet;
 };
 
+// ---------------------------------------------------------------------------
+// FormulaFuncSum
+// ---------------------------------------------------------------------------
+class FormulaFuncSum : public FormulaStatisticalFunc {
+public:
+	FormulaFuncSum(void);
+	virtual ~FormulaFuncSum();
+	virtual ItemDataPtr evaluate(void);
+	virtual void resetStatistics(void);
+
+protected:
+	static const int NUM_ARGUMENTS_FUNC_SUM = 1;
+
+private:
+	ItemDataPtr m_dataPtr;
+};
+
 #endif // FormulaFunction_h

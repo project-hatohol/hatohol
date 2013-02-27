@@ -81,6 +81,28 @@ void _assertCount(ParsableString &statement, const char *columnName,
 }
 #define assertCount(S,C,D) cut_trace(_assertCount(S,C,D))
 
+void _assertSum(ParsableString &statement, const char *columnName)
+{
+	SQLColumnParser columnParser;
+	assertInputStatement(columnParser, statement);
+
+	const SQLFormulaInfoVector formulaInfoVector
+	  = columnParser.getFormulaInfoVector();
+	cppcut_assert_equal((size_t)1, formulaInfoVector.size());
+	SQLFormulaInfo *formulaInfo = formulaInfoVector[0];
+	cppcut_assert_equal(string(statement.getString()),
+	                    formulaInfo->expression);
+	FormulaElement *formulaElem = formulaInfo->formula;
+	assertFormulaFuncSum(formulaElem);
+	FormulaFuncSum *formulaFuncSum
+	  = dynamic_cast<FormulaFuncSum *>(formulaElem);
+	cppcut_assert_equal((size_t)1,
+	                    formulaFuncSum->getNumberOfArguments());
+	FormulaElement *arg = formulaFuncSum->getArgument(0);
+	assertFormulaVariable(arg, columnName);
+}
+#define assertSum(S,C) cut_trace(_assertSum(S,C))
+
 void setup(void)
 {
 	asuraInit();
@@ -178,6 +200,14 @@ void test_count(void)
 	  StringUtils::sprintf("count(%s)", columnName));
 	bool distinct = false;
 	assertCount(statement, columnName, distinct);
+}
+
+void test_sum(void)
+{
+	const char *columnName = "c1";
+	ParsableString statement(
+	  StringUtils::sprintf("sum(%s)", columnName));
+	assertSum(statement, columnName);
 }
 
 void test_countDistinct(void)

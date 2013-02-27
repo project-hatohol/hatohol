@@ -183,3 +183,39 @@ void FormulaFuncCount::setDistinct(void)
 {
 	m_isDistinct = true;
 }
+
+// ---------------------------------------------------------------------------
+// FormulaFuncSum
+// ---------------------------------------------------------------------------
+FormulaFuncSum::FormulaFuncSum(void)
+: FormulaStatisticalFunc(NUM_ARGUMENTS_FUNC_SUM)
+{
+}
+
+FormulaFuncSum::~FormulaFuncSum()
+{
+}
+
+ItemDataPtr FormulaFuncSum::evaluate(void)
+{
+	const FormulaElementVector &elemVector = getArgVector();
+	if (elemVector.empty()) {
+		MLPL_DBG("argument: empty");
+		return ItemDataPtr();
+	}
+	ItemDataPtr dataPtr = elemVector[0]->evaluate();
+	if (dataPtr.hasData())
+		return dataPtr;
+
+	if (!m_dataPtr.hasData())
+		m_dataPtr = dataPtr;
+	else 
+		*m_dataPtr += *dataPtr;
+
+	return m_dataPtr;
+}
+
+void FormulaFuncSum::resetStatistics(void)
+{
+	m_dataPtr = NULL;
+}

@@ -52,6 +52,9 @@ cut_trace(assertFormulaElementType<FormulaFuncMax>(X))
 #define assertFormulaFuncCount(X) \
 cut_trace(assertFormulaElementType<FormulaFuncCount>(X))
 
+#define assertFormulaFuncSum(X) \
+cut_trace(assertFormulaElementType<FormulaFuncSum>(X))
+
 void _assertFormulaVariable(FormulaElement *elem, const char *expected);
 #define assertFormulaVariable(EL, EXP) \
 cut_trace(_assertFormulaVariable(EL, EXP))
