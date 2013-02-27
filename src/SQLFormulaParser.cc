@@ -352,7 +352,7 @@ void SQLFormulaParser::makeFormulaElementFromPendingWord(void)
 			formulaElement = new FormulaValue(number);
 		}
 		m_ctx->clearPendingWords();
-		insertAsRightHand(formulaElement);
+		insertElement(formulaElement);
 		return;
 	}
 
