@@ -267,5 +267,23 @@ void test_doubleDivVar(void)
 	assertFormulaVariable(rootElem->getRightHand(), columnName);
 }
 
+void test_sumDoubleDivVar(void)
+{
+	double number = 3.3625;
+	const char *columnName = "fooColumn";
+	const size_t expectedNumFormula = 1;
+	string statement = StringUtils::sprintf("sum(%.4lf/%s)", 
+	                                        number, columnName);
+	DEFINE_PARSER_AND_RUN(columnParser, formulaInfoVector, statement,
+	                      expectedNumFormula);
+	FormulaElement *rootElem = formulaInfoVector[0]->formula;
+	assertFormulaFuncSum(rootElem);
+
+	FormulaElement *innerElem = rootElem->getLeftHand();
+	assertFormulaOperatorDiv(innerElem);
+	assertFormulaValue(innerElem->getLeftHand(), number);
+	assertFormulaVariable(innerElem->getRightHand(), columnName);
+}
+
 } // namespace testSQLColumnParser
 
