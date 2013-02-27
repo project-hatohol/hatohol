@@ -400,6 +400,17 @@ void test_greaterThan(void)
 	assertFormulaVariable(formula->getRightHand(), elemName1);
 }
 
+void test_notEqGtLt(void)
+{
+	const char *elemName0  = "a";
+	const char *elemName1  = "b";
+	string statement =
+	  StringUtils::sprintf("%s <> %s", elemName0, elemName1);
+	DEFINE_PARSER_AND_RUN(whereParser, formula, statement);
+	assertFormulaComparatorNotEqual(formula);
+	assertFormulaVariable(formula->getLeftHand(), elemName0);
+	assertFormulaVariable(formula->getRightHand(), elemName1);
+}
 
 } // namespace testSQLWhereParser
 
