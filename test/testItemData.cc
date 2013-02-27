@@ -111,6 +111,28 @@ void test_constructWithoutSpecificId(void)
 	cppcut_assert_equal(SYSTEM_ITEM_ID_ANONYMOUS, item->getId());
 }
 
+void test_getId(void)
+{
+	int id = 5;
+	ItemData *item = new ItemInt(id, -5);
+	cut_assert_equal_int(id, item->getId());
+}
+
+void testRefUnref(void)
+{
+	ItemIntTester *tester = new ItemIntTester(1, 10);
+	tester->destructorCalled = false;
+	cppcut_assert_equal(1, tester->getUsedCount());
+	tester->ref();
+	cppcut_assert_equal(2, tester->getUsedCount());
+	cppcut_assert_equal(false, tester->destructorCalled);
+	tester->unref();
+	cppcut_assert_equal(1, tester->getUsedCount());
+	cppcut_assert_equal(false, tester->destructorCalled);
+	tester->unref();
+	cppcut_assert_equal(true, tester->destructorCalled);
+}
+
 // -------------------------------------------------------------------------
 // get
 // -------------------------------------------------------------------------
@@ -222,28 +244,6 @@ void test_getStringDouble(void)
 void test_getStringString(void)
 {
 	assertGetString(string, ItemString, "music");
-}
-
-void test_getId(void)
-{
-	int id = 5;
-	ItemData *item = new ItemInt(id, -5);
-	cut_assert_equal_int(id, item->getId());
-}
-
-void testRefUnref(void)
-{
-	ItemIntTester *tester = new ItemIntTester(1, 10);
-	tester->destructorCalled = false;
-	cppcut_assert_equal(1, tester->getUsedCount());
-	tester->ref();
-	cppcut_assert_equal(2, tester->getUsedCount());
-	cppcut_assert_equal(false, tester->destructorCalled);
-	tester->unref();
-	cppcut_assert_equal(1, tester->getUsedCount());
-	cppcut_assert_equal(false, tester->destructorCalled);
-	tester->unref();
-	cppcut_assert_equal(true, tester->destructorCalled);
 }
 
 void test_operatorGtIntPositive(void)
