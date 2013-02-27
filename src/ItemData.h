@@ -255,8 +255,9 @@ public:
 			itemData.get(&v1);
 			v0 += v1;
 			set(&v0);
+			return;
 		}
-		THROW_ITEM_DATA_EXCEPTION_UNDEFINED_OPERATION(">", itemData);
+		THROW_ITEM_DATA_EXCEPTION_UNDEFINED_OPERATION("+=", itemData);
 	}
 
 protected:

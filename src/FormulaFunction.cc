@@ -204,7 +204,7 @@ ItemDataPtr FormulaFuncSum::evaluate(void)
 		return ItemDataPtr();
 	}
 	ItemDataPtr dataPtr = elemVector[0]->evaluate();
-	if (dataPtr.hasData())
+	if (!dataPtr.hasData())
 		return dataPtr;
 
 	if (!m_dataPtr.hasData())
