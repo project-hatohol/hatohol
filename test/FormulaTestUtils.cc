@@ -59,11 +59,12 @@ void _assertFormulaBetweenWithVarName(FormulaElement *elem, int v0, int v1,
 	cppcut_assert_equal(string(name), formulaVar->getName());
 }
 
-void _assertFormulaInWithVarName(FormulaElement *elem,
-                                 vector<int> &expectedValues, const char *name)
+
+template<typename T, typename ItemDataType>
+static void _assertFormulaInWithVarNameT
+(FormulaElement *elem, vector<T> &expectedValues, const char *name)
 {
 	assertTypeFormulaIn(elem);
-
 	FormulaElement *leftHand = elem->getLeftHand();
 	FormulaVariable *formulaVar = dynamic_cast<FormulaVariable *>(leftHand);
 	cppcut_assert_not_null(formulaVar);
@@ -75,32 +76,25 @@ void _assertFormulaInWithVarName(FormulaElement *elem,
 	cppcut_assert_equal(numExpected, grpPtr->getNumberOfItems());
 	for (size_t i = 0; i < numExpected; i++) {
 		ItemData *data = grpPtr->getItemAt(i);
-		ItemInt *itemInt = dynamic_cast<ItemInt *>(data);
-		cppcut_assert_not_null(itemInt);
-		cppcut_assert_equal(expectedValues[i], itemInt->get());
+		ItemDataType *item = dynamic_cast<ItemDataType *>(data);
+		cppcut_assert_not_null(item);
+		cppcut_assert_equal(expectedValues[i], item->get());
 	}
+}
+#define assertFormulaInWithVarNameT(T, IDT, EL, EXP, N) \
+cut_trace((_assertFormulaInWithVarNameT<T, IDT>(EL, EXP, N)))
+
+void _assertFormulaInWithVarName(FormulaElement *elem,
+                                 vector<int> &expectedValues, const char *name)
+{
+	assertFormulaInWithVarNameT(int, ItemInt, elem, expectedValues, name);
 }
 
 void _assertFormulaInWithVarName(FormulaElement *elem,
                                  StringVector &expectedValues, const char *name)
 {
-	assertTypeFormulaIn(elem);
-
-	FormulaElement *leftHand = elem->getLeftHand();
-	FormulaVariable *formulaVar = dynamic_cast<FormulaVariable *>(leftHand);
-	cppcut_assert_not_null(formulaVar);
-	cppcut_assert_equal(string(name), formulaVar->getName());
-
-	FormulaIn *elemIn = dynamic_cast<FormulaIn *>(elem);
-	const ItemGroupPtr grpPtr = elemIn->getValues();
-	size_t numExpected = expectedValues.size();
-	cppcut_assert_equal(numExpected, grpPtr->getNumberOfItems());
-	for (size_t i = 0; i < numExpected; i++) {
-		ItemData *data = grpPtr->getItemAt(i);
-		ItemString *item = dynamic_cast<ItemString *>(data);
-		cppcut_assert_not_null(item);
-		cppcut_assert_equal(expectedValues[i], item->get());
-	}
+	assertFormulaInWithVarNameT(string, ItemString, elem,
+	                            expectedValues, name);
 }
 
 void showTreeInfo(FormulaElement *formulaElement)
