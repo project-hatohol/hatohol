@@ -48,6 +48,17 @@ static void _assertGet(NativeType val)
 }
 #define assertGet(NT,IDT,V) cut_trace((_assertGet<NT,IDT>(V)))
 
+template<typename NativeType, class ItemDataType>
+static void _assertSet(NativeType val, NativeType newVal)
+{
+	ItemData *item = new ItemDataType(val);
+	NativeType readValue;
+	item->set(&newVal);
+	item->get(&readValue);
+	cppcut_assert_equal(newVal, readValue);
+}
+#define assertSet(NT,IDT,V,NV) cut_trace((_assertSet<NT,IDT>(V,NV)))
+
 template <typename T, typename ItemDataType>
 void assertOperatorPlus(T &v0, T &v1)
 {
@@ -111,48 +122,29 @@ void test_getString(void)
 // -------------------------------------------------------------------------
 // set
 // -------------------------------------------------------------------------
-void test_setUint64(void)
+void test_setBool(void)
 {
-	uint64_t val = 0xfedcba9876543210;
-	ItemData *item = new ItemUint64(1, val);
-	val = 0x89abcdef01234567;
-	uint64_t readValue;
-	item->set(&val);
-	item->get(&readValue);
-	cut_assert_equal_int_least64(val, readValue);
+	assertSet(bool, ItemBool, false, true);
 }
 
 void test_setInt(void)
 {
-	int val = 12345;
-	ItemData *item = new ItemInt(1, val);
-	val = 88;
-	int readValue;
-	item->set(&val);
-	item->get(&readValue);
-	cut_assert_equal_int(val, readValue);
+	assertSet(int, ItemInt, 12345, 88);
+}
+
+void test_setUint64(void)
+{
+	assertSet(uint64_t, ItemUint64, 0xfedcba9876543210, 0x89abcdef01234567);
 }
 
 void test_setDouble(void)
 {
-	double val = -5.2;
-	ItemData *item = new ItemDouble(val);
-	val = -4.8;
-	double readValue;
-	item->set(&val);
-	item->get(&readValue);
-	cppcut_assert_equal(val, readValue);
+	assertSet(double, ItemDouble, -5.2, -4.8);
 }
 
 void test_setString(void)
 {
-	string val = "test String";
-	ItemData *item = new ItemString(1, val);
-	val = "FOO";
-	string readValue;
-	item->set(&val);
-	item->get(&readValue);
-	cut_assert_equal_string(val.c_str(), readValue.c_str());
+	assertSet(string, ItemString, "test String", "FOO");
 }
 
 // -------------------------------------------------------------------------
