@@ -145,6 +145,20 @@ void test_oneInteger(void)
 	assertFormulaValue(formulaInfoVector[0]->formula, number);
 }
 
+void test_oneDouble(void)
+{
+	double number = 2.35;
+	ParsableString statement(StringUtils::sprintf("%.3lf", number));
+	SQLColumnParser columnParser;
+	columnParser.setColumnDataGetterFactory(columnDataGetter, NULL);
+	assertInputStatement(columnParser, statement);
+
+	const SQLFormulaInfoVector &formulaInfoVector =
+	  columnParser.getFormulaInfoVector();
+	cppcut_assert_equal((size_t)1, formulaInfoVector.size());
+	assertFormulaValue(formulaInfoVector[0]->formula, number);
+}
+
 void test_multiColumn(void)
 {
 	const char *names[] = {"c1", "c2", "c3", "c4", "c5"};
