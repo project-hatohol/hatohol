@@ -275,7 +275,7 @@ static const int countDataWithValueInTestData0(int value)
 {
 	int count = 0;
 	for (size_t i = 0; i < numTestData0; i++){
-		if (testData0[i].number == value);
+		if (testData0[i].number == value)
 			count++;
 	}
 	return count;
@@ -858,8 +858,7 @@ void test_whereIn(void) {
 	  countDataWithValueInTestData0(selectValue0) +
 	  countDataWithValueInTestData0(selectValue1);
 	DEFINE_SELECTINFO_AND_ASSERT_SELECT(
-	  selectInfo, statement, expectedNumColumns, numTestData0,
-	  expectedNumRows);
+	  selectInfo, statement, expectedNumColumns, expectedNumRows);
 }
 
 } // namespace testSQLProcessor
