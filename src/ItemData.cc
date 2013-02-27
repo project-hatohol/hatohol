@@ -104,8 +104,7 @@ template<> bool ItemInt::operator >(const ItemData &itemData) const
 		itemData.get(&data);
 		return (m_data > data);
 	} else {
-		MLPL_BUG("Not implemented: %s type: %d\n",
-		         __PRETTY_FUNCTION__, itemData.getItemType());
+		THROW_ITEM_DATA_EXCEPTION_UNDEFINED_OPERATION(">", itemData);
 	}
 	return false;
 }
@@ -117,8 +116,7 @@ template<> bool ItemInt::operator <(const ItemData &itemData) const
 		itemData.get(&data);
 		return (m_data < data);
 	} else {
-		MLPL_BUG("Not implemented: %s type: %d\n",
-		         __PRETTY_FUNCTION__, itemData.getItemType());
+		THROW_ITEM_DATA_EXCEPTION_UNDEFINED_OPERATION("<", itemData);
 	}
 	return false;
 }
@@ -130,8 +128,7 @@ template<> bool ItemInt::operator >=(const ItemData &itemData) const
 		itemData.get(&data);
 		return (m_data >= data);
 	} else {
-		MLPL_BUG("Not implemented: %s type: %d\n",
-		         __PRETTY_FUNCTION__, itemData.getItemType());
+		THROW_ITEM_DATA_EXCEPTION_UNDEFINED_OPERATION(">=", itemData);
 	}
 	return false;
 }
@@ -143,8 +140,7 @@ template<> bool ItemInt::operator <=(const ItemData &itemData) const
 		itemData.get(&data);
 		return (m_data <= data);
 	} else {
-		MLPL_BUG("Not implemented: %s type: %d\n",
-		         __PRETTY_FUNCTION__, itemData.getItemType());
+		THROW_ITEM_DATA_EXCEPTION_UNDEFINED_OPERATION("<=", itemData);
 	}
 	return false;
 }
@@ -168,8 +164,7 @@ template<> bool ItemUint64::operator >(const ItemData &itemData) const
 		}
 		return (m_data > (uint64_t)data);
 	} else {
-		MLPL_BUG("Not implemented: %s type: %d\n",
-		         __PRETTY_FUNCTION__, itemData.getItemType());
+		THROW_ITEM_DATA_EXCEPTION_UNDEFINED_OPERATION(">", itemData);
 	}
 	return false;
 }
@@ -190,8 +185,7 @@ template<> bool ItemUint64::operator <(const ItemData &itemData) const
 		}
 		return (m_data < (uint64_t)data);
 	} else {
-		MLPL_BUG("Not implemented: %s type: %d\n",
-		         __PRETTY_FUNCTION__, itemData.getItemType());
+		THROW_ITEM_DATA_EXCEPTION_UNDEFINED_OPERATION("<", itemData);
 	}
 	return false;
 }
@@ -212,8 +206,7 @@ template<> bool ItemUint64::operator >=(const ItemData &itemData) const
 		}
 		return (m_data >= (uint64_t)data);
 	} else {
-		MLPL_BUG("Not implemented: %s type: %d\n",
-		         __PRETTY_FUNCTION__, itemData.getItemType());
+		THROW_ITEM_DATA_EXCEPTION_UNDEFINED_OPERATION(">=", itemData);
 	}
 
 	return false;
@@ -235,8 +228,7 @@ template<> bool ItemUint64::operator <=(const ItemData &itemData) const
 		}
 		return (m_data <= (uint64_t)data);
 	} else {
-		MLPL_BUG("Not implemented: %s type: %d\n",
-		         __PRETTY_FUNCTION__, itemData.getItemType());
+		THROW_ITEM_DATA_EXCEPTION_UNDEFINED_OPERATION("<=", itemData);
 	}
 	return false;
 }
@@ -257,8 +249,7 @@ template<> bool ItemUint64::operator ==(const ItemData &itemData) const
 		}
 		return (m_data == (uint64_t)data);
 	} else {
-		MLPL_BUG("Not implemented: %s type: %d\n",
-		         __PRETTY_FUNCTION__, itemData.getItemType());
+		THROW_ITEM_DATA_EXCEPTION_UNDEFINED_OPERATION("==", itemData);
 	}
 	return false;
 }

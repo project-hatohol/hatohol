@@ -172,31 +172,26 @@ public:
 			itemData.get(&v1);
 			return new ItemGeneric(v0 + v1);
 		}
-		MLPL_WARN("You should override this function: %s (%d, %d).\n",
-		          __PRETTY_FUNCTION__, type0, type1);
+		THROW_ITEM_DATA_EXCEPTION_UNDEFINED_OPERATION("+", itemData);
 		return NULL;
 	}
 
 	virtual bool operator >(const ItemData &itemData) const {
-		MLPL_WARN("You should override this function: %s.\n",
-		          __PRETTY_FUNCTION__);
+		THROW_ITEM_DATA_EXCEPTION_UNDEFINED_OPERATION(">", itemData);
 		return false;
 	}
 
 	virtual bool operator <(const ItemData &itemData) const {
-		MLPL_WARN("You should override this function: %s.\n",
-		          __PRETTY_FUNCTION__);
+		THROW_ITEM_DATA_EXCEPTION_UNDEFINED_OPERATION("<", itemData);
 		return false;
 	}
 
 	virtual bool operator >=(const ItemData &itemData) const {
-		MLPL_WARN("You should override this function: %s.\n",
-		          __PRETTY_FUNCTION__);
+		THROW_ITEM_DATA_EXCEPTION_UNDEFINED_OPERATION(">=", itemData);
 		return false;
 	}
 	virtual bool operator <=(const ItemData &itemData) const {
-		MLPL_WARN("You should override this function: %s.\n",
-		          __PRETTY_FUNCTION__);
+		THROW_ITEM_DATA_EXCEPTION_UNDEFINED_OPERATION("<=", itemData);
 		return false;
 	}
 
@@ -209,8 +204,7 @@ public:
 			itemData.get(&v1);
 			return (v0 == v1);
 		}
-		MLPL_WARN("You should override this function: %s (%d, %d).\n",
-		          __PRETTY_FUNCTION__, type0, type1);
+		THROW_ITEM_DATA_EXCEPTION_UNDEFINED_OPERATION("==", itemData);
 		return false;
 	}
 
