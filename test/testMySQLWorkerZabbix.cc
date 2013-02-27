@@ -283,6 +283,18 @@ void test_selectCountItemsHosts(void)
 	assertRecord(0, nsmap);
 }
 
+void test_selectSumOneDivDelay(void)
+{
+	const char *cmd = "use zabbix;"
+	  "SELECT SUM(1.0/i.delay) AS qps FROM items i,hosts h "
+	  "WHERE i.status=0 AND i.hostid=h.hostid AND h.status=0 AND "
+	  "i.delay<>0";
+	executeCommand(cmd);
+	vector<string> lines;
+	NumberStringMap nsmap;
+	assertRecord(0, nsmap);
+}
+
 #if 0
 void test_selectGroupHostGroupHosts(void)
 {
