@@ -859,6 +859,26 @@ void test_whereIn(void) {
 	const size_t expectedNumRows = targetRowsIndexes.size();
 	DEFINE_SELECTINFO_AND_ASSERT_SELECT(
 	  selectInfo, statement, expectedNumColumns, expectedNumRows);
+
+	// make the expected output string set
+	multiset<string> expectedOutputSet;
+	for (size_t i = 0; i < targetRowsIndexes.size(); i++) {
+		size_t index = targetRowsIndexes[i];
+		string text = StringUtils::sprintf("%d", testData0[index]);
+		expectedOutputSet.insert(text);
+	}
+	
+	// check the textRows
+	cppcut_assert_equal(expectedOutputSet.size(), 
+	                    selectInfo.textRows.size());
+	multiset<string>::iterator it;
+	for (size_t i = 0; i < selectInfo.textRows.size(); i++) {
+		StringVector &oneRow = selectInfo.textRows[i];
+		it = expectedOutputSet.find(oneRow[0]);
+		cppcut_assert_equal(true, it != expectedOutputSet.end());
+		expectedOutputSet.erase(it);
+	}
+	cppcut_assert_equal(true, expectedOutputSet.empty());
 }
 
 } // namespace testSQLProcessor
