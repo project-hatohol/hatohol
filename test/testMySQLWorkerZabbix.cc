@@ -259,8 +259,9 @@ void test_selectUserHistory(void)
 void test_maxLastaccess(void)
 {
 	const char *cmd = "use zabbix;"
-	  "SELECT s.userid,s.status,MAX(s.lastaccess) AS lastaccess FROM sessions s "
-	  "WHERE s.userid BETWEEN 000000000000000 AND 099999999999999 AND s.status=0 "
+	  "SELECT s.userid,s.status,MAX(s.lastaccess) AS lastaccess "
+	  "FROM sessions s WHERE s.userid BETWEEN "
+	  "000000000000000 AND 099999999999999 AND s.status=0 "
 	  "GROUP BY s.userid,s.status";
 	executeCommand(cmd);
 
