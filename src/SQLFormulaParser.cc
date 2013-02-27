@@ -73,7 +73,7 @@ void SQLFormulaParser::init(void)
 // ---------------------------------------------------------------------------
 SQLFormulaParser::SQLFormulaParser(void)
 : m_columnDataGetterFactory(NULL),
-  m_separator(" ()'+"),
+  m_separator(" ()'+/"),
   m_formula(NULL),
   m_hasStatisticalFunc(false),
   m_keywordHandlerMap(&m_defaultKeywordHandlerMap),
@@ -88,6 +88,8 @@ SQLFormulaParser::SQLFormulaParser(void)
 	  ('\'', _separatorCbQuot, this);
 	m_separator.setCallbackTempl<SQLFormulaParser>
 	  ('+', _separatorCbPlus, this);
+	m_separator.setCallbackTempl<SQLFormulaParser>
+	  ('/', _separatorCbDiv, this);
 }
 
 SQLFormulaParser::~SQLFormulaParser()
@@ -483,6 +485,26 @@ void SQLFormulaParser::separatorCbPlus(const char separator)
 
 	FormulaOperatorPlus *formulaOperatorPlus = new FormulaOperatorPlus();
 	insertElement(formulaOperatorPlus);
+}
+
+void SQLFormulaParser::_separatorCbDiv
+  (const char separator, SQLFormulaParser *formulaParser)
+{
+	formulaParser->separatorCbDiv(separator);
+}
+
+void SQLFormulaParser::separatorCbDiv(const char separator)
+{
+	flush();
+
+	// Get Left-Hand
+	FormulaElement *lhsElement = getCurrentElement();
+	if (!lhsElement)
+		THROW_SQL_PROCESSOR_EXCEPTION(
+		  "No left hand side of '/' operator.");
+
+	FormulaOperatorDiv *formulaOperatorDiv = new FormulaOperatorDiv();
+	insertElement(formulaOperatorDiv);
 }
 
 //
