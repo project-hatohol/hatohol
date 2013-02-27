@@ -39,9 +39,7 @@ static void _assertInputStatement(SQLColumnParser &columnParser,
 		}
 		columnParser.close();
 	} catch (const AsuraException &e) {
-		cut_fail("Got exception: <%s:%d> %s",
-		         e.getSourceFileName().c_str(), e.getLineNumber(),
-		         e.what());
+		cut_fail("Got exception: %s", e.getFancyMessage().c_str());
 	}
 }
 #define assertInputStatement(P, S) cut_trace(_assertInputStatement(P, S))
