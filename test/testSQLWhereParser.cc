@@ -52,6 +52,37 @@ assertInputStatement(WPTHR, _statement); \
 FormulaElement *FELEM = WPTHR.getFormula(); \
 cppcut_assert_not_null(FELEM);
 
+template<typename T, typename VT>
+static void _assertWhereIn(T *expectedValueArray, size_t numValue)
+{
+	const char *columnName = "testColumnForWhere";
+	vector<VT> expectedValues;
+	stringstream statementStream;
+	statementStream << columnName;
+	statementStream << " in (";
+	for (size_t i = 0; i < numValue; i++) {
+		T &v = expectedValueArray[i];
+		statementStream << "'";
+		statementStream << v;
+		statementStream << "'";
+		if (i < numValue - 1)
+			statementStream << ",";
+		else
+			statementStream << ")";
+
+		expectedValues.push_back(v);
+	}
+
+	ParsableString statement(statementStream.str());
+	SQLWhereParser whereParser;
+	assertInputStatement(whereParser, statement);
+
+	FormulaElement *formula = whereParser.getFormula();
+	assertFormulaInWithVarName(formula, expectedValues, columnName);
+}
+#define assertWhereIn(T, VT, EXP, NUM) \
+cut_trace((_assertWhereIn<T, VT>(EXP, NUM)))
+
 void setup(void)
 {
 	asuraInit();
@@ -146,68 +177,30 @@ void test_whereBetween(void)
 
 void test_whereInInt(void)
 {
-	const char *leftHand = "a";
-	int v0 = 5;
-	ParsableString statement(
-	  StringUtils::sprintf("%s in ('%d')", leftHand, v0));
-	SQLWhereParser whereParser;
-	assertInputStatement(whereParser, statement);
-
-	vector<int> expectedValues;
-	expectedValues.push_back(v0);
-	FormulaElement *formula = whereParser.getFormula();
-	assertFormulaInWithVarName(formula, expectedValues, leftHand);
+	int v[] = {5};
+	const size_t numValue = sizeof(v) / sizeof(int);
+	assertWhereIn(int, int, v, numValue);
 }
 
 void test_whereInMultipleInt(void)
 {
-	const char *leftHand = "a";
 	int v[] = {5, -8, 200};
 	const size_t numValue = sizeof(v) / sizeof(int);
-	ParsableString statement(
-	  StringUtils::sprintf("%s in ('%d', '%d', '%d')",
-	                       leftHand, v[0], v[1], v[2]));
-	SQLWhereParser whereParser;
-	assertInputStatement(whereParser, statement);
-
-	vector<int> expectedValues;
-	for (size_t i = 0; i < numValue; i++)
-		expectedValues.push_back(v[i]);
-	FormulaElement *formula = whereParser.getFormula();
-	assertFormulaInWithVarName(formula, expectedValues, leftHand);
+	assertWhereIn(int, int, v, numValue);
 }
 
 void test_whereInString(void)
 {
-	const char *leftHand = "a";
-	const char *v0 = "foo goo XYZ, y = f(x)";
-	ParsableString statement(
-	  StringUtils::sprintf("%s in ('%s')", leftHand, v0));
-	SQLWhereParser whereParser;
-	assertInputStatement(whereParser, statement);
-
-	vector<string> expectedValues;
-	expectedValues.push_back(v0);
-	FormulaElement *formula = whereParser.getFormula();
-	assertFormulaInWithVarName(formula, expectedValues, leftHand);
+	const char *v[] = {"foo goo XYZ, y = f(x)"};
+	const size_t numValue = sizeof(v) / sizeof(const char *);
+	assertWhereIn(const char *, string, v, numValue);
 }
 
 void test_whereInMultipleString(void)
 {
-	const char *leftHand = "a";
 	const char *v[] = {"A A A", "<x,y> = (8,5)", "Isaac Newton"};
 	const size_t numValue = sizeof(v) / sizeof(const char *);
-	ParsableString statement(
-	  StringUtils::sprintf("%s in ('%s', '%s', '%s')",
-	                       leftHand, v[0], v[1], v[2]));
-	SQLWhereParser whereParser;
-	assertInputStatement(whereParser, statement);
-
-	StringVector expectedValues;
-	for (size_t i = 0; i < numValue; i++)
-		expectedValues.push_back(v[i]);
-	FormulaElement *formula = whereParser.getFormula();
-	assertFormulaInWithVarName(formula, expectedValues, leftHand);
+	assertWhereIn(const char *, string, v, numValue);
 }
 
 void test_whereIntAndStringAndInt(void)
