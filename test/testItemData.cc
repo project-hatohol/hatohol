@@ -69,6 +69,15 @@ static void _assertGetValue(NativeType val)
 }
 #define assertGetValue(NT,IDT,V) cut_trace((_assertGetValue<NT,IDT>(V)))
 
+template<typename NativeType, class ItemDataType>
+static void _assertGetString(NativeType val)
+{
+	ItemData *item = new ItemDataType(val);
+	stringstream ss;
+	ss << val;
+	cppcut_assert_equal(ss.str(), item->getString());
+}
+#define assertGetString(NT,IDT,V) cut_trace((_assertGetString<NT,IDT>(V)))
 
 template <typename T, typename ItemDataType>
 void assertOperatorPlus(T &v0, T &v1)
@@ -186,29 +195,33 @@ void test_getValueString(void)
 	assertGetValue(string, ItemString, "dog cat bird");
 }
 
+// -------------------------------------------------------------------------
+// getString
+// -------------------------------------------------------------------------
+void test_getStringBool(void)
+{
+	assertGetString(bool, ItemBool, true);
+	assertGetString(bool, ItemBool, false);
+}
+
 void test_getStringInt(void)
 {
-	int val = -50;
-	ItemData *item = new ItemInt(TEST_ITEM_ID, val);
-	stringstream ss;
-	ss << val;
-	cppcut_assert_equal(ss.str(), item->getString());
+	assertGetString(int, ItemInt, -50);
 }
 
 void test_getStringUint64(void)
 {
-	uint64_t val = 0x1234567890abcdef;
-	ItemData *item = new ItemUint64(TEST_ITEM_ID, val);
-	stringstream ss;
-	ss << val;
-	cppcut_assert_equal(ss.str(), item->getString());
+	assertGetString(uint64_t, ItemUint64, 0x1234567890abcdef);
+}
+
+void test_getStringDouble(void)
+{
+	assertGetString(double, ItemDouble, 2.34568e16);
 }
 
 void test_getStringString(void)
 {
-	string val = "music";
-	ItemData *item = new ItemString(TEST_ITEM_ID, val);
-	cppcut_assert_equal(val, item->getString());
+	assertGetString(string, ItemString, "music");
 }
 
 void test_getId(void)
