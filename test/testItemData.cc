@@ -70,6 +70,9 @@ void test_constructWithoutSpecificId(void)
 	cppcut_assert_equal(SYSTEM_ITEM_ID_ANONYMOUS, item->getId());
 }
 
+// -------------------------------------------------------------------------
+// get/set
+// -------------------------------------------------------------------------
 void test_getUint64(void)
 {
 	uint64_t val = 0xfedcba9876543210;
@@ -150,6 +153,9 @@ void test_setString(void)
 	cut_assert_equal_string(val.c_str(), readValue.c_str());
 }
 
+// -------------------------------------------------------------------------
+// getValue
+// -------------------------------------------------------------------------
 void test_getValueInt(void)
 {
 	int val = 2345;
