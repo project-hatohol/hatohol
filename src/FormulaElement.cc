@@ -221,8 +221,8 @@ FormulaValue::FormulaValue(int number)
 FormulaValue::FormulaValue(double number)
 : FormulaElement(FORMULA_ELEM_PRIO_VALUE)
 {
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
 	setTerminalElement();
+	m_itemDataPtr = ItemDataPtr(new ItemDouble(number), false);
 }
 
 FormulaValue::FormulaValue(string &str)
