@@ -42,16 +42,25 @@ typedef uint64_t ItemId;
 
 static const ItemId SYSTEM_ITEM_ID_ANONYMOUS = 0xffffffffffffffff;
 
+enum ItemDataExceptionType {
+	ITEM_DATA_EXCEPTION_UNDEFINED_OPERATION,
+	ITEM_DATA_EXCEPTION_INVALID_OPERATION,
+};
+
 class ItemData;
 class ItemDataException : public AsuraException
 {
 public:
-	ItemDataException(const char *sourceFileName, int lineNumber,
+	ItemDataException(ItemDataExceptionType type,
+	                  const char *sourceFileName, int lineNumber,
 	                  const char *operatorName,
 	                  const ItemData &lhs, const ItemData &rhs);
 };
 #define THROW_ITEM_DATA_EXCEPTION_UNDEFINED_OPERATION(OP, RHS) \
-throw ItemDataException(__FILE__, __LINE__, OP, *this, RHS)
+throw ItemDataException(ITEM_DATA_EXCEPTION_UNDEFINED_OPERATION, __FILE__, __LINE__, OP, *this, RHS)
+
+#define THROW_ITEM_DATA_EXCEPTION_INVALID_OPERATION(OP, RHS) \
+throw ItemDataException(ITEM_DATA_EXCEPTION_INVALID_OPERATION, __FILE__, __LINE__, OP, *this, RHS)
 
 typedef vector<ItemId>               ItemIdVector;
 typedef ItemIdVector::iterator       ItemIdVectorIterator;

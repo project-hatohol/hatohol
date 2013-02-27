@@ -36,15 +36,25 @@ const char *ItemData::m_nativeTypeNames[] =
 // ---------------------------------------------------------------------------
 // ItemDataException
 // ---------------------------------------------------------------------------
-ItemDataException::ItemDataException(const char *sourceFileName, int lineNumber,
+ItemDataException::ItemDataException(ItemDataExceptionType type,
+                                     const char *sourceFileName, int lineNumber,
                                      const char *operatorName,
                                      const ItemData &lhs, const ItemData &rhs)
 : AsuraException("", sourceFileName, lineNumber)
 {
+	string header;
+	if (type == ITEM_DATA_EXCEPTION_UNDEFINED_OPERATION)
+		header = "Undefined operation";
+	else if (type == ITEM_DATA_EXCEPTION_INVALID_OPERATION)
+		header = "Invalid operation";
+	else
+		header = StringUtils::sprintf("Unknown exception (%d)", type);
 	string msg = StringUtils::sprintf(
-	  "Undefiend operation: '%s' between %s and %s",
-	  operatorName, lhs.getNativeTypeName(), rhs.getNativeTypeName());
-	  setBrief(msg);
+	  "%s: '%s' between %s and %s",
+	  header.c_str(), operatorName,
+	  lhs.getNativeTypeName(), rhs.getNativeTypeName());
+
+	setBrief(msg);
 }
 
 // ---------------------------------------------------------------------------
