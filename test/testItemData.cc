@@ -59,6 +59,17 @@ static void _assertSet(NativeType val, NativeType newVal)
 }
 #define assertSet(NT,IDT,V,NV) cut_trace((_assertSet<NT,IDT>(V,NV)))
 
+template<typename NativeType, class ItemDataType>
+static void _assertGetValue(NativeType val)
+{
+	ItemData *item = new ItemDataType(val);
+	ItemDataType *itemSub = dynamic_cast<ItemDataType *>(item);
+	cppcut_assert_not_null(itemSub);
+	cppcut_assert_equal(val, itemSub->get());
+}
+#define assertGetValue(NT,IDT,V) cut_trace((_assertGetValue<NT,IDT>(V)))
+
+
 template <typename T, typename ItemDataType>
 void assertOperatorPlus(T &v0, T &v1)
 {
@@ -150,40 +161,29 @@ void test_setString(void)
 // -------------------------------------------------------------------------
 // getValue
 // -------------------------------------------------------------------------
+void test_getValueBool(void)
+{
+	assertGetValue(bool, ItemBool, false);
+}
+
 void test_getValueInt(void)
 {
-	int val = 2345;
-	ItemData *item = new ItemInt(TEST_ITEM_ID, val);
-	ItemInt *itemInt = dynamic_cast<ItemInt *>(item);
-	cppcut_assert_not_null(itemInt);
-	cppcut_assert_equal(val, itemInt->get());
+	assertGetValue(int, ItemInt, 2345);
+}
+
+void test_getValueUint64(void)
+{
+	assertGetValue(uint64_t, ItemUint64, 0x123456789abcedef);
 }
 
 void test_getValueDouble(void)
 {
-	double val = 5.8213e3;
-	ItemData *item = new ItemDouble(val);
-	ItemDouble *itemDouble = dynamic_cast<ItemDouble *>(item);
-	cppcut_assert_not_null(itemDouble);
-	cppcut_assert_equal(val, itemDouble->get());
+	assertGetValue(double, ItemDouble, 5.8213e3);
 }
 
 void test_getValueString(void)
 {
-	string val = "dog cat bird";
-	ItemData *item = new ItemString(TEST_ITEM_ID, val);
-	ItemString *itemString = dynamic_cast<ItemString *>(item);
-	cppcut_assert_not_null(itemString);
-	cppcut_assert_equal(val, itemString->get());
-}
-
-void test_getStringBool(void)
-{
-	bool val = false;
-	ItemData *item = new ItemBool(TEST_ITEM_ID, val);
-	stringstream ss;
-	ss << val;
-	cppcut_assert_equal(ss.str(), item->getString());
+	assertGetValue(string, ItemString, "dog cat bird");
 }
 
 void test_getStringInt(void)
