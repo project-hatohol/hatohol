@@ -125,6 +125,7 @@ struct SQLProcessorSelect::PrivateContext {
 
 	// The number of times to be masked for generating output lines.
 	size_t              makeTextRowsWriteMaskCount;
+	set<string>         concatOutputTextSet; // for DISTINCT
 
 	// Members for processing GROUP BY
 	StringVector        groupByColumns;
@@ -153,6 +154,7 @@ struct SQLProcessorSelect::PrivateContext {
 		currWordLower.clear();
 		evalTargetItemGroup = NULL;
 		makeTextRowsWriteMaskCount = 0;
+		concatOutputTextSet.clear();
 		groupByColumns.clear();
 		groupedTableMap.clear();
 	}
@@ -892,6 +894,23 @@ bool SQLProcessorSelect::makeTextRows(const ItemGroup *itemGroup,
 			continue;
 		textVector.push_back(itemPtr->getString());
 	}
+
+	// check duplication when DISTINCT is given
+	if (!textVector.empty() &&
+	    selectInfo->columnParser.getDistinctFlag()) {
+		string concat;
+		for (size_t i = 0; i < textVector.size(); i++)
+			concat += textVector[i];
+
+		pair<set<string>::iterator, bool> result;
+		result = ctx->concatOutputTextSet.insert(concat);
+		if (!result.second) {
+			// There has been the same string.
+			return true;
+		}
+	}
+
+	// add text ouput
 	if (!textVector.empty())
 		selectInfo->textRows.push_back(textVector);
 	return true;
