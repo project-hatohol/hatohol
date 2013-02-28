@@ -132,4 +132,18 @@ private:
 	ItemGroupPtr m_values;
 };
 
+// ---------------------------------------------------------------------------
+// FormulaExists
+// ---------------------------------------------------------------------------
+class FormulaExists : public FormulaElement {
+public:
+	FormulaExists(const string statement);
+	virtual ~FormulaExists();
+	virtual ItemDataPtr evaluate(void);
+	const string &getStatement(void) const;
+
+private:
+	string m_statement;
+};
+
 #endif // FormulaOperator_h

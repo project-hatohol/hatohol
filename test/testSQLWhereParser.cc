@@ -412,5 +412,15 @@ void test_notEqGtLt(void)
 	assertFormulaVariable(formula->getRightHand(), elemName1);
 }
 
+void test_exists(void)
+{
+	const char *innerSelect = "select ((a/3)*2+8) from b where (x+5*c)=d";
+	string statement =
+	  StringUtils::sprintf("exists (%s)", innerSelect);
+	DEFINE_PARSER_AND_RUN(whereParser, formula, statement);
+	FormulaExists *formulaExists = dynamic_cast<FormulaExists *>(formula);
+	cppcut_assert_equal(string(innerSelect), formulaExists->getStatement());
+}
+
 } // namespace testSQLWhereParser
 

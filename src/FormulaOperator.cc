@@ -263,3 +263,27 @@ ItemDataPtr FormulaIn::evaluate(void)
 	}
 	return ItemDataPtr(new ItemBool(found), false);
 }
+
+// ---------------------------------------------------------------------------
+// FormulaExists
+// ---------------------------------------------------------------------------
+FormulaExists::FormulaExists(const string statement)
+: FormulaElement(FORMULA_ELEM_PRIO_EXISTS),
+  m_statement(statement)
+{
+}
+
+FormulaExists::~FormulaExists()
+{
+}
+
+const string &FormulaExists::getStatement(void) const
+{
+	return m_statement;
+}
+
+ItemDataPtr FormulaExists::evaluate(void)
+{
+	THROW_ASURA_EXCEPTION("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	return ItemDataPtr();
+}
