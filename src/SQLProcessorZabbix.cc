@@ -37,6 +37,7 @@ enum TableID {
 	TABLE_ID_FUNCTIONS,
 	TABLE_ID_ITEMS,
 	TABLE_ID_HOSTS,
+	TABLE_ID_GROUPS,
 };
 
 static const char *TABLE_NAME_NODES  = "nodes";
@@ -51,6 +52,7 @@ static const char *TABLE_NAME_TRIGGERS = "triggers";
 static const char *TABLE_NAME_FUNCTIONS = "functions";
 static const char *TABLE_NAME_ITEMS = "items";
 static const char *TABLE_NAME_HOSTS = "hosts";
+static const char *TABLE_NAME_GROUPS = "groups";
 
 TableNameStaticInfoMap SQLProcessorZabbix::m_tableNameStaticInfoMap;
 
@@ -895,6 +897,22 @@ void SQLProcessorZabbix::init(void)
 	             TABLE_ID_HOSTS, "name",
 	             SQL_COLUMN_TYPE_VARCHAR, 64,
 	             false, SQL_KEY_MUL, "");
+
+	staticInfo =
+	  defineTable(TABLE_ID_GROUPS, TABLE_NAME_GROUPS,
+	              MAKE_FUNC(GROUP_ID_ZBX_GROUPS));
+	defineColumn(staticInfo, ITEM_ID_ZBX_GROUPS_GROUPID,
+	             TABLE_ID_GROUPS, "groups",
+	             SQL_COLUMN_TYPE_BIGUINT, 20,
+	             false, SQL_KEY_PRI, NULL);
+	defineColumn(staticInfo, ITEM_ID_ZBX_GROUPS_NAME,
+	             TABLE_ID_GROUPS, "name",
+	             SQL_COLUMN_TYPE_VARCHAR, 64,
+	             false, SQL_KEY_MUL, NULL);
+	defineColumn(staticInfo, ITEM_ID_ZBX_GROUPS_INTERNAL,
+	             TABLE_ID_GROUPS, "internal",
+	             SQL_COLUMN_TYPE_INT, 11,
+	             false, SQL_KEY_NONE, "0");
 }
 
 SQLProcessor *SQLProcessorZabbix::createInstance(void)

@@ -292,6 +292,30 @@ VirtualDataStoreZabbix::VirtualDataStoreZabbix(void)
 	// hosts
 	//
 	table = createStaticItemTable(GROUP_ID_ZBX_HOSTS);
+
+	//
+	// groups
+	//
+	table = createStaticItemTable(GROUP_ID_ZBX_GROUPS);
+	grp = table->addNewGroup();
+	ADD(new ItemUint64(ITEM_ID_ZBX_GROUPS_GROUPID,  1));
+	ADD(new ItemString(ITEM_ID_ZBX_GROUPS_NAME,     "Templates"));
+	ADD(new ItemInt   (ITEM_ID_ZBX_GROUPS_INTERNAL, 0));
+
+	grp = table->addNewGroup();
+	ADD(new ItemUint64(ITEM_ID_ZBX_GROUPS_GROUPID,  1));
+	ADD(new ItemString(ITEM_ID_ZBX_GROUPS_NAME,     "Linux servers"));
+	ADD(new ItemInt   (ITEM_ID_ZBX_GROUPS_INTERNAL, 0));
+
+	grp = table->addNewGroup();
+	ADD(new ItemUint64(ITEM_ID_ZBX_GROUPS_GROUPID,  4));
+	ADD(new ItemString(ITEM_ID_ZBX_GROUPS_NAME,     "Zabbix servers"));
+	ADD(new ItemInt   (ITEM_ID_ZBX_GROUPS_INTERNAL, 0));
+
+	grp = table->addNewGroup();
+	ADD(new ItemUint64(ITEM_ID_ZBX_GROUPS_GROUPID,  5));
+	ADD(new ItemString(ITEM_ID_ZBX_GROUPS_NAME,     "Discovered hosts"));
+	ADD(new ItemInt   (ITEM_ID_ZBX_GROUPS_INTERNAL, 0));
 }
 
 VirtualDataStoreZabbix::~VirtualDataStoreZabbix()
