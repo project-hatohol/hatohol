@@ -442,7 +442,6 @@ void SQLProcessorSelect::parseSelectStatement(void)
 {
 	SQLSelectInfo *selectInfo = m_ctx->selectInfo;
 	MLPL_DBG("<%s> %s\n", __func__, selectInfo->statement.getString());
-	map<string, SelectSectionParser>::iterator it;
 	SelectSubParser subParser = NULL;
 
 	// set ColumnDataGetterFactory
@@ -469,15 +468,11 @@ void SQLProcessorSelect::parseSelectStatement(void)
 		m_ctx->currWord = readNextWord();
 		if (m_ctx->currWord.empty())
 			continue;
-
-		// check if this is a keyword.
 		m_ctx->currWordLower = StringUtils::toLower(m_ctx->currWord);
-		it = m_ctx->selectSectionParserMap.find(m_ctx->currWordLower);
-		if (it != m_ctx->selectSectionParserMap.end()) {
-			// When the function returns 'true', it means
-			// the current word is section keyword and
-			SelectSectionParser sectionParser = it->second;
-			if ((this->*sectionParser)())
+
+		// check if this is a section keyword.
+		if (m_ctx->shareInfo.allowSectionParserChange) {
+			if (checkSectionParserChange())
 				continue;
 		}
 
@@ -1116,4 +1111,16 @@ void SQLProcessorSelect::makeGroupedTableForColumn(const string &columnName)
 	ItemDataTableMapIterator it = m_ctx->groupedTableMap.begin();
 	for (; it != m_ctx->groupedTableMap.end(); ++it)
 		m_ctx->selectInfo->groupedTables.push_back(it->second);
+}
+
+bool SQLProcessorSelect::checkSectionParserChange(void)
+{
+	map<string, SelectSectionParser>::iterator it;
+	it = m_ctx->selectSectionParserMap.find(m_ctx->currWordLower);
+	if (it == m_ctx->selectSectionParserMap.end())
+		return false;
+	// When the function returns 'true', it means
+	// the current word is section keyword and
+	SelectSectionParser sectionParser = it->second;
+	return (this->*sectionParser)();
 }

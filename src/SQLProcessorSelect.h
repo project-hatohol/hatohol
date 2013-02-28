@@ -262,6 +262,7 @@ protected:
 	static FormulaVariableDataGetter *
 	  formulaColumnDataGetterFactory(const string &name, void *priv);
 	void makeGroupedTableForColumn(const string &columnName);
+	bool checkSectionParserChange(void);
 
 private:
 	struct PrivateContext;
