@@ -61,6 +61,7 @@ protected:
 	void kwHandlerBetween(void);
 	void kwHandlerIn(void);
 	void kwHandlerGreaterThan(void);
+	void kwHandlerNotEqual(void);
 
 private:
 	static KeywordHandlerMap m_keywordHandlerMap;

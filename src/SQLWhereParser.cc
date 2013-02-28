@@ -80,6 +80,8 @@ void SQLWhereParser::init(void)
 	  static_cast<KeywordHandler>(&SQLWhereParser::kwHandlerIn);
 	m_keywordHandlerMap[">"] =
 	  static_cast<KeywordHandler>(&SQLWhereParser::kwHandlerGreaterThan);
+	m_keywordHandlerMap["<>"] =
+	  static_cast<KeywordHandler>(&SQLWhereParser::kwHandlerNotEqual);
 }
 
 // ---------------------------------------------------------------------------
@@ -330,4 +332,18 @@ void SQLWhereParser::kwHandlerGreaterThan(void)
 
 	FormulaGreaterThan *formulaGreaterThan = new FormulaGreaterThan();
 	insertElement(formulaGreaterThan);
+}
+
+void SQLWhereParser::kwHandlerNotEqual(void)
+{
+	flush();
+
+	// Get Left-Hand
+	FormulaElement *lhsElement = getCurrentElement();
+	if (!lhsElement)
+		THROW_SQL_PROCESSOR_EXCEPTION("No left hand side of '<>'.");
+
+	FormulaComparatorNotEqual *formulaComparatorNotEqual =
+	  new FormulaComparatorNotEqual();
+	insertElement(formulaComparatorNotEqual);
 }
