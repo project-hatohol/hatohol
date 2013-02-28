@@ -28,3 +28,18 @@ SQLProcessorInfo::SQLProcessorInfo(const ParsableString &_statement)
 SQLProcessorInfo::~SQLProcessorInfo()
 {
 }
+
+// ---------------------------------------------------------------------------
+// SQLProcessorSelectShareInfo
+// ---------------------------------------------------------------------------
+SQLProcessorSelectShareInfo::SQLProcessorSelectShareInfo(void)
+: statement(NULL),
+  allowSectionParserChange(true)
+{
+}
+
+void SQLProcessorSelectShareInfo::clear(void)
+{
+	statement = NULL;
+	allowSectionParserChange = true;
+}

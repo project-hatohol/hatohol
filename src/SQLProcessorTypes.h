@@ -121,11 +121,8 @@ struct SQLProcessorSelectShareInfo {
 	const ParsableString  *statement;
 	bool                   allowSectionParserChange;
 
-	SQLProcessorSelectShareInfo(void)
-	: statement(NULL),
-	  allowSectionParserChange(true)
-	{
-	}
+	SQLProcessorSelectShareInfo(void);
+	void clear(void);
 };
 
 #endif // SQLProcessorTypes_h

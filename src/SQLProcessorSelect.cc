@@ -150,6 +150,7 @@ struct SQLProcessorSelect::PrivateContext {
 
 	void clear(void)
 	{
+		shareInfo.clear();
 		columnIndexResolver.setTableVarInfoMap(NULL);
 		section = SELECT_PARSING_SECTION_COLUMN;
 		currWord.clear();
