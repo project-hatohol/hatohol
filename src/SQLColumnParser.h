@@ -54,6 +54,7 @@ public:
 	virtual void add(string& word, string &wordLower);
 	virtual void close(void);
 	const SQLFormulaInfoVector &getFormulaInfoVector(void) const;
+	bool getDistinctFlag(void) const;
 
 protected:
 	//

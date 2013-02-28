@@ -25,11 +25,13 @@ struct SQLColumnParser::PrivateContext {
 	bool                         dontAppendFormulaString;
 	bool                         expectAlias;
 	string                       alias;
+	bool                         distinctFlag;
 
 	// constructor and methods
 	PrivateContext(void)
 	: dontAppendFormulaString(false),
-	  expectAlias(false)
+	  expectAlias(false),
+	  distinctFlag(false)
 	{
 	}
 
@@ -128,6 +130,11 @@ const SQLFormulaInfoVector &SQLColumnParser::getFormulaInfoVector(void) const
 	return m_formulaInfoVector;
 }
 
+bool SQLColumnParser::getDistinctFlag(void) const
+{
+	return m_ctx->distinctFlag;
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
@@ -220,7 +227,7 @@ void SQLColumnParser::kwHandlerDistinct(void)
 		return;
 	}
 	
-	THROW_ASURA_EXCEPTION("Not implemented: DISTINCT.");
+	m_ctx->distinctFlag = true;
 }
 
 //
