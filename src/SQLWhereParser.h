@@ -46,10 +46,6 @@ protected:
 	                              SQLWhereParser *whereParser);
 	void separatorCbEqual(const char separator);
 
-	static void _separatorCbGreaterThan(const char separator,
-	                                    SQLWhereParser *whereParser);
-	void separatorCbGreaterThan(const char separator);
-
 	static void _separatorCbComma(const char separator,
 	                              SQLWhereParser *whereParser);
 	void separatorCbComma(const char separator);
@@ -58,6 +54,7 @@ protected:
 	virtual void separatorCbParenthesisOpen(const char separator);
 	virtual void separatorCbParenthesisClose(const char separator);
 	virtual void separatorCbQuot(const char separator);
+	virtual void separatorCbGreaterThan(const char separator);
 
 	//
 	// Keyword handlers

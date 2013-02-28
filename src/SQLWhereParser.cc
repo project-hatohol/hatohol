@@ -92,9 +92,6 @@ SQLWhereParser::SQLWhereParser(void)
 	separator->addSeparator("=");
 	separator->setCallbackTempl<SQLWhereParser>
 	  ('=', _separatorCbEqual, this);
-	separator->addSeparator(">");
-	separator->setCallbackTempl<SQLWhereParser>
-	  ('>', _separatorCbGreaterThan, this);
 	separator->addSeparator(",");
 	separator->setCallbackTempl<SQLWhereParser>
 	  (',', _separatorCbComma, this);
@@ -223,12 +220,6 @@ void SQLWhereParser::separatorCbEqual(const char separator)
 	FormulaComparatorEqual *formulaComparatorEqual
 	  = new FormulaComparatorEqual();
 	insertElement(formulaComparatorEqual);
-}
-
-void SQLWhereParser::_separatorCbGreaterThan(const char separator,
-                                       SQLWhereParser *whereParser)
-{
-	whereParser->separatorCbGreaterThan(separator);
 }
 
 void SQLWhereParser::separatorCbGreaterThan(const char separator)

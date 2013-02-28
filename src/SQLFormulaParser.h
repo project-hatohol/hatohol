@@ -111,6 +111,15 @@ protected:
 	  (const char separator, SQLFormulaParser *formulaParser);
 	virtual void separatorCbDiv(const char separator);
 
+	static void _separatorCbLessThan
+	  (const char separator, SQLFormulaParser *formulaParser);
+	virtual void separatorCbLessThan(const char separator);
+
+	static void _separatorCbGreaterThan
+	  (const char separator, SQLFormulaParser *formulaParser);
+	virtual void separatorCbGreaterThan(const char separator);
+
+
 	//
 	// Keyword handlers
 	//
