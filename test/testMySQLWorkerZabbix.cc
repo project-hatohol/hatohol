@@ -323,7 +323,6 @@ void test_selectDistinctGroupIdName(void)
 	assertRecord(0, nsmap);
 }
 
-#if 0
 void test_selectGroupHostGroupHosts(void)
 {
 	const char *cmd = "use zabbix;"
@@ -339,6 +338,5 @@ void test_selectGroupHostGroupHosts(void)
 	NumberStringMap nsmap;
 	assertRecord(2, nsmap);
 }
-#endif
 
 } // namespace testMySQLWorkerZabbix
