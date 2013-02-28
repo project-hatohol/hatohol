@@ -31,11 +31,13 @@ struct SQLFormulaParser::PrivateContext {
 	string                  pendingOperator;
 	FormulaElement         *currElement;
 	deque<FormulaElement *> parenthesisStack; 
+	const ParsableString   *parsingStatement;
 
 	// methods
 	PrivateContext(void)
 	: quotOpen(false),
-	  currElement(NULL)
+	  currElement(NULL),
+	  parsingStatement(NULL)
 	{
 	}
 
@@ -182,6 +184,16 @@ FormulaElement *SQLFormulaParser::getFormula(void) const
 bool SQLFormulaParser::hasStatisticalFunc(void) const
 {
 	return m_hasStatisticalFunc;
+}
+
+void SQLFormulaParser::setParsingString(const ParsableString *statement)
+{
+	m_ctx->parsingStatement = statement;
+}
+
+const ParsableString *SQLFormulaParser::getParsingString(void) const
+{
+	return m_ctx->parsingStatement;
 }
 
 // ---------------------------------------------------------------------------

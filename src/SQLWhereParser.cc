@@ -31,6 +31,10 @@ enum KeywordParsingStep {
 	IN_STEP_EXPECT_PARENTHESIS_OPEN,
 	IN_STEP_EXPECT_VALUE,
 	IN_STEP_GOT_VALUE,
+
+	EXISTS_STEP_EXPECT_PARENTHESIS_OPEN,
+	EXISTS_STEP_EXPECT_SELECT,
+	EXISTS_STEP_FIND_CLOSE,
 };
 
 struct SQLWhereParser::PrivateContext {
@@ -41,11 +45,15 @@ struct SQLWhereParser::PrivateContext {
 
 	ItemGroupPtr inValues;
 	bool         openQuot;
+	int          nestCountForExists;
+	const char  *existsStatementBegin;
 
 	// constructor
 	PrivateContext(void)
 	: kwParsingStep(KEYWORD_STEP_NULL),
-	  openQuot(false)
+	  openQuot(false),
+	  nestCountForExists(0),
+	  existsStatementBegin(NULL)
 	{
 	}
 
@@ -58,6 +66,9 @@ struct SQLWhereParser::PrivateContext {
 
 		inValues = NULL;
 		openQuot = false;
+
+		nestCountForExists = 0;
+		existsStatementBegin = NULL;
 	}
 };
 
@@ -111,8 +122,10 @@ void SQLWhereParser::add(string& word, string &wordLower)
 		SQLFormulaParser::add(word, wordLower);
 	else if (m_ctx->kwParsingStep <  IN_STEP_EXPECT_PARENTHESIS_OPEN)
 		addForBetween(word, wordLower);
-	else
+	else if (m_ctx->kwParsingStep < EXISTS_STEP_EXPECT_PARENTHESIS_OPEN)
 		addForIn(word, wordLower);
+	else
+		addForExists(word, wordLower);
 }
 
 void SQLWhereParser::clear(void)
@@ -198,6 +211,47 @@ void SQLWhereParser::addForIn(const string& word, const string &wordLower)
 	m_ctx->kwParsingStep = IN_STEP_GOT_VALUE;
 }
 
+void SQLWhereParser::addForExists(const string &word, const string &wordLower)
+{
+	// This condition occurs when the inner select statment has
+	// parenthesis.
+	if (m_ctx->kwParsingStep == EXISTS_STEP_FIND_CLOSE)
+		return;
+
+	if (m_ctx->kwParsingStep != EXISTS_STEP_EXPECT_SELECT) {
+		THROW_SQL_PROCESSOR_EXCEPTION(
+		  "Illegal state: %d", m_ctx->kwParsingStep);
+	}
+	if (wordLower != "select") {
+		THROW_SQL_PROCESSOR_EXCEPTION(
+		  "Expected 'select' but got: %s", wordLower.c_str());
+	}
+
+	SeparatorCheckerWithCallback *separator = getSeparatorChecker();
+	separator->setAlternative(&ParsableString::SEPARATOR_PARENTHESIS);
+	m_ctx->kwParsingStep = EXISTS_STEP_FIND_CLOSE;
+}
+
+void SQLWhereParser::setupParsingExists(void)
+{
+	const ParsableString *statement = getParsingString();
+	if (statement == NULL)
+		THROW_ASURA_EXCEPTION("getParsingString(): NULL\n");
+	m_ctx->existsStatementBegin = statement->getParsingPosition() + 1;
+	m_ctx->kwParsingStep = EXISTS_STEP_EXPECT_SELECT;
+}
+
+void SQLWhereParser::makeFormulaExistsAndCleanup(void)
+{
+	const ParsableString *statement = getParsingString();
+	const char *end = statement->getParsingPosition() - 1;
+	long length = reinterpret_cast<long>(end - m_ctx->existsStatementBegin);
+	string innerSelect = string(m_ctx->existsStatementBegin, length);
+	FormulaExists *formulaExists = new FormulaExists(innerSelect);
+	insertElement(formulaExists);
+	clear();
+}
+
 //
 // SeparatorChecker callbacks
 //
@@ -244,6 +298,10 @@ void SQLWhereParser::separatorCbParenthesisOpen(const char separator)
 		SQLFormulaParser::separatorCbParenthesisOpen(separator);
 	else if (m_ctx->kwParsingStep == IN_STEP_EXPECT_PARENTHESIS_OPEN)
 		m_ctx->kwParsingStep = IN_STEP_EXPECT_VALUE;
+	else if (m_ctx->kwParsingStep == EXISTS_STEP_EXPECT_PARENTHESIS_OPEN)
+		setupParsingExists();
+	else if (m_ctx->kwParsingStep == EXISTS_STEP_FIND_CLOSE)
+		m_ctx->nestCountForExists++;
 	else 
 		THROW_SQL_PROCESSOR_EXCEPTION("Unexpected: '('");
 }
@@ -255,6 +313,11 @@ void SQLWhereParser::separatorCbParenthesisClose(const char separator)
 	} else if (m_ctx->kwParsingStep == IN_STEP_GOT_VALUE) {
 		closeInParenthesis();
 		m_ctx->kwParsingStep = KEYWORD_STEP_NULL;
+	} else if (m_ctx->kwParsingStep == EXISTS_STEP_FIND_CLOSE) {
+		if (m_ctx->nestCountForExists == 0) {
+			makeFormulaExistsAndCleanup();
+		} else
+			m_ctx->nestCountForExists--;
 	} else
 		THROW_SQL_PROCESSOR_EXCEPTION("Unexpected: ')'");
 }
@@ -323,8 +386,7 @@ void SQLWhereParser::kwHandlerIn(void)
 
 void SQLWhereParser::kwHandlerExists(void)
 {
-	THROW_SQL_PROCESSOR_EXCEPTION("Not implemented: %s",
-	                              __PRETTY_FUNCTION__);
+	m_ctx->kwParsingStep = EXISTS_STEP_EXPECT_PARENTHESIS_OPEN;
 }
 
 void SQLWhereParser::kwHandlerGreaterThan(void)

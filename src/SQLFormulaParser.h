@@ -43,6 +43,8 @@ public:
 	SeparatorCheckerWithCallback *getSeparatorChecker(void);
 	FormulaElement *getFormula(void) const;
 	bool hasStatisticalFunc(void) const;
+	void setParsingString(const ParsableString *statement);
+	const ParsableString *getParsingString(void) const;
 
 protected:
 	//

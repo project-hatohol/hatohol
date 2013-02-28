@@ -37,7 +37,10 @@ protected:
 	void createBetweenElement(void);
 	void addForBetween(const string &word, const string &wordLower);
 	void addForIn(const string &word, const string &wordLower);
+	void addForExists(const string &word, const string &wordLower);
 	void closeInParenthesis(void);
+	void setupParsingExists(void);
+	void makeFormulaExistsAndCleanup(void);
 
 	//
 	// SeparatorChecker callbacks

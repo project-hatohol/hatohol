@@ -31,6 +31,7 @@ static void _assertInputStatement(SQLWhereParser &whereParser,
 	SeparatorCheckerWithCallback *separator =
 	  whereParser.getSeparatorChecker();
 	whereParser.setColumnDataGetterFactory(columnDataGetter, NULL);
+	whereParser.setParsingString(&statement);
 
 	try {
 		while (!statement.finished()) {

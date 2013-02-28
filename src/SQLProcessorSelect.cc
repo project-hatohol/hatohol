@@ -449,6 +449,9 @@ void SQLProcessorSelect::parseSelectStatement(void)
 	selectInfo->whereParser.setColumnDataGetterFactory
 	  (formulaColumnDataGetterFactory, m_ctx);
 
+	// set parsable string
+	selectInfo->whereParser.setParsingString(&selectInfo->statement);
+
 	// callback function for column and where section
 	m_ctx->selectSeprators[SELECT_PARSING_SECTION_COLUMN]
 	  = selectInfo->columnParser.getSeparatorChecker();
