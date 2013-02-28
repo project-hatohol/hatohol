@@ -121,6 +121,7 @@ void SQLFormulaParser::add(string& word, string &wordLower)
 	// check for pending operators
 	KeywordHandlerMapIterator it;
 	if (!m_ctx->pendingOperator.empty()) {
+		flush();
 		it = m_keywordHandlerMap->find(m_ctx->pendingOperator);
 		if (it == m_keywordHandlerMap->end()) {
 			THROW_SQL_PROCESSOR_EXCEPTION(

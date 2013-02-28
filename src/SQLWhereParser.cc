@@ -323,8 +323,6 @@ void SQLWhereParser::kwHandlerIn(void)
 
 void SQLWhereParser::kwHandlerGreaterThan(void)
 {
-	flush();
-
 	// Get Left-Hand
 	FormulaElement *lhsElement = getCurrentElement();
 	if (!lhsElement)
@@ -336,8 +334,6 @@ void SQLWhereParser::kwHandlerGreaterThan(void)
 
 void SQLWhereParser::kwHandlerNotEqual(void)
 {
-	flush();
-
 	// Get Left-Hand
 	FormulaElement *lhsElement = getCurrentElement();
 	if (!lhsElement)
