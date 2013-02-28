@@ -904,7 +904,7 @@ void SQLProcessorZabbix::init(void)
 	  defineTable(TABLE_ID_GROUPS, TABLE_NAME_GROUPS,
 	              MAKE_FUNC(GROUP_ID_ZBX_GROUPS));
 	defineColumn(staticInfo, ITEM_ID_ZBX_GROUPS_GROUPID,
-	             TABLE_ID_GROUPS, "groups",
+	             TABLE_ID_GROUPS, "groupid",
 	             SQL_COLUMN_TYPE_BIGUINT, 20,
 	             false, SQL_KEY_PRI, NULL);
 	defineColumn(staticInfo, ITEM_ID_ZBX_GROUPS_NAME,
