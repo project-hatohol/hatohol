@@ -25,7 +25,15 @@ FormulaVariableDataGetter *columnDataGetter(const string &name, void *priv)
 	return NULL;
 }
 
-static SQLProcessorSelectShareInfo shareInfo;
+class SQLProcessorSelectFactoryImpl : public SQLProcessorSelectFactory
+{
+	virtual SQLProcessorSelect * operator()(void) {
+		return NULL;
+	}
+};
+
+static SQLProcessorSelectFactoryImpl procSelectFactory;
+static SQLProcessorSelectShareInfo shareInfo(procSelectFactory);
 
 static void _assertInputStatement(SQLWhereParser &whereParser,
                                   ParsableString &statement)

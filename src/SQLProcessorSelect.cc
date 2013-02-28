@@ -100,11 +100,33 @@ private:
 	SQLTableVarNameInfoMap *m_tableVarInfoMap;
 };
 
+class SQLProcessorSelectFactoryImpl : public SQLProcessorSelectFactory {
+public:
+	SQLProcessorSelectFactoryImpl
+	  (const string &dbName,
+	   TableNameStaticInfoMap &tableNameStaticInfoMap)
+	: m_dbName(dbName),
+	  m_tableNameStaticInfoMap(tableNameStaticInfoMap)
+	{
+	}
+
+	virtual SQLProcessorSelect * operator()(void)
+	{
+		return new SQLProcessorSelect(m_dbName, 
+	                                      m_tableNameStaticInfoMap);
+	}
+
+private:
+	const string           &m_dbName;
+	TableNameStaticInfoMap &m_tableNameStaticInfoMap;
+};
+
 struct SQLProcessorSelect::PrivateContext {
 	static const SelectSubParser            selectSubParsers[];
 	static map<string, SelectSectionParser> selectSectionParserMap;
 
-	SQLProcessorSelectShareInfo shareInfo;
+	SQLProcessorSelectFactoryImpl procSelectFactory;
+	SQLProcessorSelectShareInfo   shareInfo;
 
 	SQLSelectInfo      *selectInfo;
 	string              dbName;
@@ -137,7 +159,9 @@ struct SQLProcessorSelect::PrivateContext {
 	// methods
 	PrivateContext(SQLProcessorSelect *procSelect, const string &_dbName,
 	               TableNameStaticInfoMap &nameInfoMap)
-	: selectInfo(NULL),
+	: procSelectFactory(dbName, tableNameStaticInfoMap),
+	  shareInfo(procSelectFactory),
+	  selectInfo(NULL),
 	  dbName(_dbName),
 	  tableNameStaticInfoMap(nameInfoMap),
 	  separatorSpaceComma(" ,"),

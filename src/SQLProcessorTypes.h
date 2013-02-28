@@ -117,11 +117,19 @@ public:
 	                     const string &columnName) const = 0;
 };
 
-struct SQLProcessorSelectShareInfo {
-	const ParsableString  *statement;
-	bool                   allowSectionParserChange;
+class SQLProcessorSelect;
+class SQLProcessorSelectFactory {
+public:
+	virtual SQLProcessorSelect * operator()(void) = 0;
+};
 
-	SQLProcessorSelectShareInfo(void);
+struct SQLProcessorSelectShareInfo {
+	SQLProcessorSelectFactory &processorSelectFactory;
+	const ParsableString      *statement;
+	bool                       allowSectionParserChange;
+
+	// methods
+	SQLProcessorSelectShareInfo(SQLProcessorSelectFactory &selectFactory);
 	void clear(void);
 };
 

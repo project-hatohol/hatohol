@@ -32,8 +32,10 @@ SQLProcessorInfo::~SQLProcessorInfo()
 // ---------------------------------------------------------------------------
 // SQLProcessorSelectShareInfo
 // ---------------------------------------------------------------------------
-SQLProcessorSelectShareInfo::SQLProcessorSelectShareInfo(void)
-: statement(NULL),
+SQLProcessorSelectShareInfo::SQLProcessorSelectShareInfo
+  (SQLProcessorSelectFactory &selectFactory)
+: processorSelectFactory(selectFactory),
+  statement(NULL),
   allowSectionParserChange(true)
 {
 }
