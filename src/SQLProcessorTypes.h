@@ -117,4 +117,15 @@ public:
 	                     const string &columnName) const = 0;
 };
 
+struct SQLProcessorSelectShareInfo {
+	const ParsableString  *statement;
+	bool                   allowSectionParserChange;
+
+	SQLProcessorSelectShareInfo(void)
+	: statement(NULL),
+	  allowSectionParserChange(true)
+	{
+	}
+};
+
 #endif // SQLProcessorTypes_h

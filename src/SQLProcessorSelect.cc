@@ -104,6 +104,8 @@ struct SQLProcessorSelect::PrivateContext {
 	static const SelectSubParser            selectSubParsers[];
 	static map<string, SelectSectionParser> selectSectionParserMap;
 
+	SQLProcessorSelectShareInfo shareInfo;
+
 	SQLSelectInfo      *selectInfo;
 	string              dbName;
 
@@ -450,7 +452,8 @@ void SQLProcessorSelect::parseSelectStatement(void)
 	  (formulaColumnDataGetterFactory, m_ctx);
 
 	// set parsable string
-	selectInfo->whereParser.setParsingString(&selectInfo->statement);
+	m_ctx->shareInfo.statement = &selectInfo->statement;
+	selectInfo->whereParser.setShareInfo(&m_ctx->shareInfo);
 
 	// callback function for column and where section
 	m_ctx->selectSeprators[SELECT_PARSING_SECTION_COLUMN]

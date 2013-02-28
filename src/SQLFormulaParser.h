@@ -27,6 +27,7 @@ using namespace mlpl;
 
 #include "FormulaElement.h"
 #include "FormulaFunction.h"
+#include "SQLProcessorTypes.h"
 
 class SQLFormulaParser
 {
@@ -43,8 +44,8 @@ public:
 	SeparatorCheckerWithCallback *getSeparatorChecker(void);
 	FormulaElement *getFormula(void) const;
 	bool hasStatisticalFunc(void) const;
-	void setParsingString(const ParsableString *statement);
-	const ParsableString *getParsingString(void) const;
+	void setShareInfo(SQLProcessorSelectShareInfo *shareInfo);
+	SQLProcessorSelectShareInfo *getShareInfo(void) const;
 
 protected:
 	//

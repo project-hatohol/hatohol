@@ -234,16 +234,18 @@ void SQLWhereParser::addForExists(const string &word, const string &wordLower)
 
 void SQLWhereParser::setupParsingExists(void)
 {
-	const ParsableString *statement = getParsingString();
-	if (statement == NULL)
-		THROW_ASURA_EXCEPTION("getParsingString(): NULL\n");
-	m_ctx->existsStatementBegin = statement->getParsingPosition() + 1;
+	SQLProcessorSelectShareInfo *shareInfo = getShareInfo();
+	if (shareInfo == NULL)
+		THROW_ASURA_EXCEPTION("getShareInfo(): NULL\n");
+	m_ctx->existsStatementBegin =
+	  shareInfo->statement->getParsingPosition() + 1;
 	m_ctx->kwParsingStep = EXISTS_STEP_EXPECT_SELECT;
 }
 
 void SQLWhereParser::makeFormulaExistsAndCleanup(void)
 {
-	const ParsableString *statement = getParsingString();
+	SQLProcessorSelectShareInfo *shareInfo = getShareInfo();
+	const ParsableString *statement = shareInfo->statement;
 	const char *end = statement->getParsingPosition() - 1;
 	long length = reinterpret_cast<long>(end - m_ctx->existsStatementBegin);
 	string innerSelect = string(m_ctx->existsStatementBegin, length);

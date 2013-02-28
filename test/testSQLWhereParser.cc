@@ -25,13 +25,16 @@ FormulaVariableDataGetter *columnDataGetter(const string &name, void *priv)
 	return NULL;
 }
 
+static SQLProcessorSelectShareInfo shareInfo;
+
 static void _assertInputStatement(SQLWhereParser &whereParser,
                                   ParsableString &statement)
 {
 	SeparatorCheckerWithCallback *separator =
 	  whereParser.getSeparatorChecker();
 	whereParser.setColumnDataGetterFactory(columnDataGetter, NULL);
-	whereParser.setParsingString(&statement);
+	shareInfo.statement = &statement;
+	whereParser.setShareInfo(&shareInfo);
 
 	try {
 		while (!statement.finished()) {

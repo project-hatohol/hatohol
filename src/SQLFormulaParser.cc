@@ -31,13 +31,13 @@ struct SQLFormulaParser::PrivateContext {
 	string                  pendingOperator;
 	FormulaElement         *currElement;
 	deque<FormulaElement *> parenthesisStack; 
-	const ParsableString   *parsingStatement;
+	SQLProcessorSelectShareInfo *shareInfo;
 
 	// methods
 	PrivateContext(void)
 	: quotOpen(false),
 	  currElement(NULL),
-	  parsingStatement(NULL)
+	  shareInfo(NULL)
 	{
 	}
 
@@ -186,14 +186,14 @@ bool SQLFormulaParser::hasStatisticalFunc(void) const
 	return m_hasStatisticalFunc;
 }
 
-void SQLFormulaParser::setParsingString(const ParsableString *statement)
+void SQLFormulaParser::setShareInfo(SQLProcessorSelectShareInfo *shareInfo)
 {
-	m_ctx->parsingStatement = statement;
+	m_ctx->shareInfo = shareInfo;
 }
 
-const ParsableString *SQLFormulaParser::getParsingString(void) const
+SQLProcessorSelectShareInfo *SQLFormulaParser::getShareInfo(void) const
 {
-	return m_ctx->parsingStatement;
+	return m_ctx->shareInfo;
 }
 
 // ---------------------------------------------------------------------------
