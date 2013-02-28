@@ -54,13 +54,13 @@ protected:
 	virtual void separatorCbParenthesisOpen(const char separator);
 	virtual void separatorCbParenthesisClose(const char separator);
 	virtual void separatorCbQuot(const char separator);
-	virtual void separatorCbGreaterThan(const char separator);
 
 	//
 	// Keyword handlers
 	//
 	void kwHandlerBetween(void);
 	void kwHandlerIn(void);
+	void kwHandlerGreaterThan(void);
 
 private:
 	static KeywordHandlerMap m_keywordHandlerMap;

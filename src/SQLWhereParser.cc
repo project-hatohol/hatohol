@@ -78,6 +78,8 @@ void SQLWhereParser::init(void)
 	  static_cast<KeywordHandler>(&SQLWhereParser::kwHandlerBetween);
 	m_keywordHandlerMap["in"] =
 	  static_cast<KeywordHandler>(&SQLWhereParser::kwHandlerIn);
+	m_keywordHandlerMap[">"] =
+	  static_cast<KeywordHandler>(&SQLWhereParser::kwHandlerGreaterThan);
 }
 
 // ---------------------------------------------------------------------------
@@ -222,19 +224,6 @@ void SQLWhereParser::separatorCbEqual(const char separator)
 	insertElement(formulaComparatorEqual);
 }
 
-void SQLWhereParser::separatorCbGreaterThan(const char separator)
-{
-	flush();
-
-	// Get Left-Hand
-	FormulaElement *lhsElement = getCurrentElement();
-	if (!lhsElement)
-		THROW_SQL_PROCESSOR_EXCEPTION("No left hand side of '>'.");
-
-	FormulaGreaterThan *formulaGreaterThan = new FormulaGreaterThan();
-	insertElement(formulaGreaterThan);
-}
-
 void SQLWhereParser::_separatorCbComma(const char separator,
                                        SQLWhereParser *whereParser)
 {
@@ -328,4 +317,17 @@ void SQLWhereParser::kwHandlerIn(void)
 	// by insertElement() in createBetweenElement().
 
 	m_ctx->inStep = IN_STEP_EXPECT_PARENTHESIS_OPEN;
+}
+
+void SQLWhereParser::kwHandlerGreaterThan(void)
+{
+	flush();
+
+	// Get Left-Hand
+	FormulaElement *lhsElement = getCurrentElement();
+	if (!lhsElement)
+		THROW_SQL_PROCESSOR_EXCEPTION("No left hand side of '>'.");
+
+	FormulaGreaterThan *formulaGreaterThan = new FormulaGreaterThan();
+	insertElement(formulaGreaterThan);
 }

@@ -118,7 +118,21 @@ void SQLFormulaParser::add(string& word, string &wordLower)
 	if (word.empty())
 		return;
 
+	// check for pending operators
 	KeywordHandlerMapIterator it;
+	if (!m_ctx->pendingOperator.empty()) {
+		it = m_keywordHandlerMap->find(m_ctx->pendingOperator);
+		if (it == m_keywordHandlerMap->end()) {
+			THROW_SQL_PROCESSOR_EXCEPTION(
+			  "Unknown operator: %s",
+			  m_ctx->pendingOperator.c_str());
+		}
+		KeywordHandler func = it->second;
+		(this->*func)();
+		m_ctx->pendingOperator.clear();
+	}
+
+	// check for pending keywords
 	it = m_keywordHandlerMap->find(wordLower);
 	if (it != m_keywordHandlerMap->end()) {
 		flush();
@@ -526,6 +540,7 @@ void SQLFormulaParser::_separatorCbLessThan(const char separator,
 
 void SQLFormulaParser::separatorCbLessThan(const char separator)
 {
+	m_ctx->pendingOperator += separator;
 }
 
 void SQLFormulaParser::_separatorCbGreaterThan(const char separator,
@@ -536,6 +551,7 @@ void SQLFormulaParser::_separatorCbGreaterThan(const char separator,
 
 void SQLFormulaParser::separatorCbGreaterThan(const char separator)
 {
+	m_ctx->pendingOperator += separator;
 }
 
 //
