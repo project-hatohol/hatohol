@@ -310,6 +310,19 @@ void test_selectSumOneDivDelay(void)
 	assertRecord(0, nsmap);
 }
 
+void test_selectDistinctGroupIdName(void)
+{
+	const char *cmd = "use zabbix;"
+	  "SELECT  DISTINCT  g.groupid,g.name FROM "
+	  "groups g,hosts_groups hg,hosts h WHERE hg.groupid=g.groupid "
+	  "AND h.hostid=hg.hostid AND h.status=0 AND g.groupid "
+	  "BETWEEN 000000000000000 AND 099999999999999";
+	executeCommand(cmd);
+	vector<string> lines;
+	NumberStringMap nsmap;
+	assertRecord(0, nsmap);
+}
+
 #if 0
 void test_selectGroupHostGroupHosts(void)
 {
