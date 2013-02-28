@@ -33,6 +33,7 @@ enum
 	GROUP_ID_ZBX_ITEMS,
 	GROUP_ID_ZBX_HOSTS,
 	GROUP_ID_ZBX_GROUPS,
+	GROUP_ID_ZBX_HOSTS_GROUPS,
 };
 
 #endif // ItemGroupEnum_h

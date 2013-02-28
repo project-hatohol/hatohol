@@ -316,6 +316,11 @@ VirtualDataStoreZabbix::VirtualDataStoreZabbix(void)
 	ADD(new ItemUint64(ITEM_ID_ZBX_GROUPS_GROUPID,  5));
 	ADD(new ItemString(ITEM_ID_ZBX_GROUPS_NAME,     "Discovered hosts"));
 	ADD(new ItemInt   (ITEM_ID_ZBX_GROUPS_INTERNAL, 0));
+
+	//
+	// hosts_groups
+	//
+	table = createStaticItemTable(GROUP_ID_ZBX_HOSTS_GROUPS);
 }
 
 VirtualDataStoreZabbix::~VirtualDataStoreZabbix()
