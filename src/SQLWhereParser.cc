@@ -21,45 +21,41 @@
 #include "SQLProcessorException.h"
 #include "FormulaOperator.h"
 
-enum BetweenStep {
-	BETWEEN_STEP_NULL,
+enum KeywordParsingStep {
+	KEYWORD_STEP_NULL,
+
 	BETWEEN_STEP_EXPECT_V0,
 	BETWEEN_STEP_EXPECT_AND,
 	BETWEEN_STEP_EXPECT_V1,
-};
 
-enum InStep {
-	IN_STEP_NULL,
 	IN_STEP_EXPECT_PARENTHESIS_OPEN,
 	IN_STEP_EXPECT_VALUE,
 	IN_STEP_GOT_VALUE,
 };
 
-
 struct SQLWhereParser::PrivateContext {
-	BetweenStep betweenStep;
+	KeywordParsingStep kwParsingStep;
+
 	ItemDataPtr betweenV0;
 	ItemDataPtr betweenV1;
 
-	InStep       inStep;
 	ItemGroupPtr inValues;
 	bool         openQuot;
 
 	// constructor
 	PrivateContext(void)
-	: betweenStep(BETWEEN_STEP_NULL),
-	  inStep(IN_STEP_NULL),
+	: kwParsingStep(KEYWORD_STEP_NULL),
 	  openQuot(false)
 	{
 	}
 
 	void clear(void)
 	{
-		betweenStep = BETWEEN_STEP_NULL;
+		kwParsingStep = KEYWORD_STEP_NULL;
+
 		betweenV0 = NULL;
 		betweenV1 = NULL;
 
-		inStep = IN_STEP_NULL;
 		inValues = NULL;
 		openQuot = false;
 	}
@@ -111,12 +107,12 @@ SQLWhereParser::~SQLWhereParser()
 
 void SQLWhereParser::add(string& word, string &wordLower)
 {
-	if (m_ctx->betweenStep != BETWEEN_STEP_NULL)
-		addForBetween(word, wordLower);
-	else if (m_ctx->inStep != IN_STEP_NULL)
-		addForIn(word, wordLower);
-	else
+	if (m_ctx->kwParsingStep == KEYWORD_STEP_NULL)
 		SQLFormulaParser::add(word, wordLower);
+	else if (m_ctx->kwParsingStep <  IN_STEP_EXPECT_PARENTHESIS_OPEN)
+		addForBetween(word, wordLower);
+	else
+		addForIn(word, wordLower);
 }
 
 void SQLWhereParser::clear(void)
@@ -149,22 +145,22 @@ void SQLWhereParser::createBetweenElement(void)
 
 void SQLWhereParser::addForBetween(const string& word, const string &wordLower)
 {
-	if (m_ctx->betweenStep == BETWEEN_STEP_EXPECT_V0) {
+	if (m_ctx->kwParsingStep == BETWEEN_STEP_EXPECT_V0) {
 		m_ctx->betweenV0 = ItemDataUtils::createAsNumber(word);
 		if (!m_ctx->betweenV0.hasData()) {
 			THROW_SQL_PROCESSOR_EXCEPTION(
 			  "Failed to parse as a number: %s", word.c_str());
 		} else {
-			m_ctx->betweenStep = BETWEEN_STEP_EXPECT_AND;
+			m_ctx->kwParsingStep = BETWEEN_STEP_EXPECT_AND;
 		}
-	} else if (m_ctx->betweenStep == BETWEEN_STEP_EXPECT_AND) {
+	} else if (m_ctx->kwParsingStep == BETWEEN_STEP_EXPECT_AND) {
 		if (wordLower != "and") {
 			THROW_SQL_PROCESSOR_EXCEPTION(
 			  "Expected 'and', bug got: %s", word.c_str());
 		} else {
-			m_ctx->betweenStep = BETWEEN_STEP_EXPECT_V1;
+			m_ctx->kwParsingStep = BETWEEN_STEP_EXPECT_V1;
 		}
-	} else if (m_ctx->betweenStep == BETWEEN_STEP_EXPECT_V1) {
+	} else if (m_ctx->kwParsingStep == BETWEEN_STEP_EXPECT_V1) {
 		m_ctx->betweenV1 = ItemDataUtils::createAsNumber(word);
 		if (!m_ctx->betweenV1.hasData()) {
 			THROW_SQL_PROCESSOR_EXCEPTION(
@@ -174,7 +170,7 @@ void SQLWhereParser::addForBetween(const string& word, const string &wordLower)
 		}
 	} else {
 		THROW_SQL_PROCESSOR_EXCEPTION(
-		  "Illegal state: %d", m_ctx->betweenStep);
+		  "Illegal state: %d", m_ctx->kwParsingStep);
 	}
 }
 
@@ -188,9 +184,9 @@ void SQLWhereParser::closeInParenthesis(void)
 
 void SQLWhereParser::addForIn(const string& word, const string &wordLower)
 {
-	if (m_ctx->inStep != IN_STEP_EXPECT_VALUE) {
+	if (m_ctx->kwParsingStep != IN_STEP_EXPECT_VALUE) {
 		THROW_SQL_PROCESSOR_EXCEPTION(
-		  "Illegal state: %d", m_ctx->betweenStep);
+		  "Illegal state: %d", m_ctx->kwParsingStep);
 	}
 
 	ItemDataPtr dataPtr = ItemDataUtils::createAsNumberOrString(word);
@@ -199,7 +195,7 @@ void SQLWhereParser::addForIn(const string& word, const string &wordLower)
 		  "Failed to parse: %s", word.c_str());
 	}
 	m_ctx->inValues->add(dataPtr);
-	m_ctx->inStep = IN_STEP_GOT_VALUE;
+	m_ctx->kwParsingStep = IN_STEP_GOT_VALUE;
 }
 
 //
@@ -236,42 +232,44 @@ void SQLWhereParser::_separatorCbComma(const char separator,
 
 void SQLWhereParser::separatorCbComma(const char separator)
 {
-	if (m_ctx->inStep == IN_STEP_GOT_VALUE)
-		m_ctx->inStep = IN_STEP_EXPECT_VALUE;
+	if (m_ctx->kwParsingStep == IN_STEP_GOT_VALUE)
+		m_ctx->kwParsingStep = IN_STEP_EXPECT_VALUE;
 	else 
 		THROW_SQL_PROCESSOR_EXCEPTION("Unexpected: ','");
 }
 
 void SQLWhereParser::separatorCbParenthesisOpen(const char separator)
 {
-	if (m_ctx->inStep == IN_STEP_NULL)
+	if (m_ctx->kwParsingStep == KEYWORD_STEP_NULL)
 		SQLFormulaParser::separatorCbParenthesisOpen(separator);
-	else if (m_ctx->inStep == IN_STEP_EXPECT_PARENTHESIS_OPEN)
-		m_ctx->inStep = IN_STEP_EXPECT_VALUE;
+	else if (m_ctx->kwParsingStep == IN_STEP_EXPECT_PARENTHESIS_OPEN)
+		m_ctx->kwParsingStep = IN_STEP_EXPECT_VALUE;
 	else 
 		THROW_SQL_PROCESSOR_EXCEPTION("Unexpected: '('");
 }
 
 void SQLWhereParser::separatorCbParenthesisClose(const char separator)
 {
-	if (m_ctx->inStep == IN_STEP_NULL) {
+	if (m_ctx->kwParsingStep == KEYWORD_STEP_NULL) {
 		SQLFormulaParser::separatorCbParenthesisClose(separator);
-	} else if (m_ctx->inStep == IN_STEP_GOT_VALUE) {
+	} else if (m_ctx->kwParsingStep == IN_STEP_GOT_VALUE) {
 		closeInParenthesis();
-		m_ctx->inStep = IN_STEP_NULL;
+		m_ctx->kwParsingStep = KEYWORD_STEP_NULL;
 	} else
 		THROW_SQL_PROCESSOR_EXCEPTION("Unexpected: ')'");
 }
 
 void SQLWhereParser::separatorCbQuot(const char separator)
 {
-	if (m_ctx->inStep == IN_STEP_NULL) {
+	if (m_ctx->kwParsingStep == KEYWORD_STEP_NULL) {
 		SQLFormulaParser::separatorCbQuot(separator);
-	} else if (m_ctx->inStep == IN_STEP_EXPECT_VALUE && !m_ctx->openQuot) {
+	} else if (m_ctx->kwParsingStep == IN_STEP_EXPECT_VALUE
+	           && !m_ctx->openQuot) {
 		m_ctx->openQuot = true;
 		SeparatorCheckerWithCallback *separator = getSeparatorChecker();
 		separator->setAlternative(&ParsableString::SEPARATOR_QUOT);
-	} else if (m_ctx->inStep == IN_STEP_GOT_VALUE && m_ctx->openQuot) {
+	} else if (m_ctx->kwParsingStep == IN_STEP_GOT_VALUE
+	           && m_ctx->openQuot) {
 		m_ctx->openQuot = false;
 		SeparatorCheckerWithCallback *separator = getSeparatorChecker();
 		separator->unsetAlternative();
@@ -299,7 +297,7 @@ void SQLWhereParser::kwHandlerBetween(void)
 	// Note: 'formulaVariable' checked above will be the left child
 	// by insertElement() in createBetweenElement().
 
-	m_ctx->betweenStep = BETWEEN_STEP_EXPECT_V0;
+	m_ctx->kwParsingStep = BETWEEN_STEP_EXPECT_V0;
 	SeparatorCheckerWithCallback *separator = getSeparatorChecker();
 	separator->setAlternative(&ParsableString::SEPARATOR_SPACE);
 }
@@ -320,7 +318,7 @@ void SQLWhereParser::kwHandlerIn(void)
 	// Note: 'formulaVariable' checked above will be the left child
 	// by insertElement() in createBetweenElement().
 
-	m_ctx->inStep = IN_STEP_EXPECT_PARENTHESIS_OPEN;
+	m_ctx->kwParsingStep = IN_STEP_EXPECT_PARENTHESIS_OPEN;
 }
 
 void SQLWhereParser::kwHandlerExists(void)
