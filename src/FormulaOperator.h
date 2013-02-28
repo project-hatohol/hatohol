@@ -137,7 +137,7 @@ private:
 // ---------------------------------------------------------------------------
 class FormulaExists : public FormulaElement {
 public:
-	FormulaExists(const string statement);
+	FormulaExists(const string &statement);
 	virtual ~FormulaExists();
 	virtual ItemDataPtr evaluate(void);
 	const string &getStatement(void) const;

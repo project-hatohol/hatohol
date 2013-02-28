@@ -267,7 +267,7 @@ ItemDataPtr FormulaIn::evaluate(void)
 // ---------------------------------------------------------------------------
 // FormulaExists
 // ---------------------------------------------------------------------------
-FormulaExists::FormulaExists(const string statement)
+FormulaExists::FormulaExists(const string &statement)
 : FormulaElement(FORMULA_ELEM_PRIO_EXISTS),
   m_statement(statement)
 {
