@@ -931,4 +931,28 @@ void test_whereIn(void) {
 	                          selectInfo.textRows, targetIndex);
 }
 
+void test_distinct(void) {
+	string statement =
+	  StringUtils::sprintf("select distinct %s from %s",
+	                       COLUMN_NAME_NUMBER, TABLE0_NAME);
+	// check the result
+	set<int> distinctValues;
+	getDistinctValueInTestData0(distinctValues);
+	const size_t numColumns = 1;
+	const size_t numExpectedRows = distinctValues.size();
+	DEFINE_SELECTINFO_AND_ASSERT_SELECT(
+	  selectInfo, statement, numColumns, numTestData0, numExpectedRows);
+
+	// make the expected output string set
+	multiset<string> expectedOutputSet;
+	for (set<int>::iterator it = distinctValues.begin();
+	     it != distinctValues.end(); ++it) {
+		string text = StringUtils::sprintf("%d", *it);
+		expectedOutputSet.insert(text);
+	}
+	size_t targetIndex = 0;
+	assertEqualUnawareOfOrder(expectedOutputSet,
+	                          selectInfo.textRows, targetIndex);
+}
+
 } // namespace testSQLProcessor
