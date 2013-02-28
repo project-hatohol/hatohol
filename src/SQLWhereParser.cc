@@ -237,6 +237,7 @@ void SQLWhereParser::setupParsingExists(void)
 	SQLProcessorSelectShareInfo *shareInfo = getShareInfo();
 	if (shareInfo == NULL)
 		THROW_ASURA_EXCEPTION("getShareInfo(): NULL\n");
+	shareInfo->allowSectionParserChange = false;
 	m_ctx->existsStatementBegin =
 	  shareInfo->statement->getParsingPosition() + 1;
 	m_ctx->kwParsingStep = EXISTS_STEP_EXPECT_SELECT;
@@ -251,6 +252,7 @@ void SQLWhereParser::makeFormulaExistsAndCleanup(void)
 	string innerSelect = string(m_ctx->existsStatementBegin, length);
 	FormulaExists *formulaExists = new FormulaExists(innerSelect);
 	insertElement(formulaExists);
+	shareInfo->allowSectionParserChange = true;
 	clear();
 }
 
