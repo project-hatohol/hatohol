@@ -78,6 +78,8 @@ void SQLWhereParser::init(void)
 	  static_cast<KeywordHandler>(&SQLWhereParser::kwHandlerBetween);
 	m_keywordHandlerMap["in"] =
 	  static_cast<KeywordHandler>(&SQLWhereParser::kwHandlerIn);
+	m_keywordHandlerMap["exists"] =
+	  static_cast<KeywordHandler>(&SQLWhereParser::kwHandlerExists);
 	m_keywordHandlerMap[">"] =
 	  static_cast<KeywordHandler>(&SQLWhereParser::kwHandlerGreaterThan);
 	m_keywordHandlerMap["<>"] =
@@ -319,6 +321,12 @@ void SQLWhereParser::kwHandlerIn(void)
 	// by insertElement() in createBetweenElement().
 
 	m_ctx->inStep = IN_STEP_EXPECT_PARENTHESIS_OPEN;
+}
+
+void SQLWhereParser::kwHandlerExists(void)
+{
+	THROW_SQL_PROCESSOR_EXCEPTION("Not implemented: %s",
+	                              __PRETTY_FUNCTION__);
 }
 
 void SQLWhereParser::kwHandlerGreaterThan(void)

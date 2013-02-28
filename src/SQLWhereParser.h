@@ -60,6 +60,7 @@ protected:
 	//
 	void kwHandlerBetween(void);
 	void kwHandlerIn(void);
+	void kwHandlerExists(void);
 	void kwHandlerGreaterThan(void);
 	void kwHandlerNotEqual(void);
 
