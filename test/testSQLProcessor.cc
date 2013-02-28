@@ -269,6 +269,18 @@ static void getDistinctValueInTestData0(set<int> &valueSet)
 		valueSet.insert(testData0[i].number);
 }
 
+static void getValueData0NumberEqData1Age(set<int> &valueSet)
+{
+	for (size_t i = 0; i < numTestData0; i++) {
+		for (size_t j = 0; j < numTestData1; j++) {
+			if (testData0[i].number != testData1[j].age)
+				continue;
+			valueSet.insert(testData0[i].number);
+		}
+	}
+}
+
+
 static void
 getIndexesOfDataWithValueInTestData0(vector<size_t> &indexes, int value)
 {
@@ -947,6 +959,35 @@ void test_distinct(void) {
 	multiset<string> expectedOutputSet;
 	for (set<int>::iterator it = distinctValues.begin();
 	     it != distinctValues.end(); ++it) {
+		string text = StringUtils::sprintf("%d", *it);
+		expectedOutputSet.insert(text);
+	}
+	size_t targetIndex = 0;
+	assertEqualUnawareOfOrder(expectedOutputSet,
+	                          selectInfo.textRows, targetIndex);
+}
+
+void test_exists(void) {
+	string statement =
+	  StringUtils::sprintf("select %s from %s where "
+	                       "exists (select %s from %s where %s.%s=%s.%s)",
+	                       COLUMN_NAME_NUMBER, TABLE0_NAME,
+	                       COLUMN_NAME_AGE, TABLE1_NAME, 
+	                       TABLE0_NAME, COLUMN_NAME_NUMBER,
+	                       TABLE1_NAME, COLUMN_NAME_AGE);
+
+	// check the result
+	set<int> numberSet;
+	getValueData0NumberEqData1Age(numberSet);
+	const size_t numColumns = 1;
+	const size_t numExpectedRows = numberSet.size();
+	DEFINE_SELECTINFO_AND_ASSERT_SELECT(
+	  selectInfo, statement, numColumns, numTestData0, numExpectedRows);
+
+	// make the expected output string set
+	multiset<string> expectedOutputSet;
+	for (set<int>::iterator it = numberSet.begin();
+	     it != numberSet.end(); ++it) {
 		string text = StringUtils::sprintf("%d", *it);
 		expectedOutputSet.insert(text);
 	}
