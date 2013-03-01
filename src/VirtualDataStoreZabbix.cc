@@ -369,7 +369,7 @@ VirtualDataStoreZabbix::VirtualDataStoreZabbix(void)
 	ADD(new ItemString(ITEM_ID_ZBX_SCRIPTS_COMMAND,
 	                   "sudo /usr/bin/nmap -O {HOST.CONN} 2>&1"));
 	ADD(new ItemInt   (ITEM_ID_ZBX_SCRIPTS_HOST_ACCESS,  2));
-	ADD(new ItemUint64(ITEM_ID_ZBX_SCRIPTS_USRGRPID,     7)); // TODO: NULL
+	ADD(new ItemUint64(ITEM_ID_ZBX_SCRIPTS_USRGRPID,     7));
 	ADD(new ItemUint64(ITEM_ID_ZBX_SCRIPTS_GROUPID,      0)); // TODO: NULL
 	ADD(new ItemString(ITEM_ID_ZBX_SCRIPTS_DESCRIPTION,  ""));
 	ADD(new ItemString(ITEM_ID_ZBX_SCRIPTS_CONFIRMATION, ""));
