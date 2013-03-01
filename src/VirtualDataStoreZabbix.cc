@@ -321,6 +321,11 @@ VirtualDataStoreZabbix::VirtualDataStoreZabbix(void)
 	// hosts_groups
 	//
 	table = createStaticItemTable(GROUP_ID_ZBX_HOSTS_GROUPS);
+
+	//
+	// trigger_depends
+	//
+	table = createStaticItemTable(GROUP_ID_ZBX_TRIGGER_DEPENDS);
 }
 
 VirtualDataStoreZabbix::~VirtualDataStoreZabbix()

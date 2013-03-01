@@ -39,6 +39,7 @@ enum TableID {
 	TABLE_ID_HOSTS,
 	TABLE_ID_GROUPS,
 	TABLE_ID_HOSTS_GROUPS,
+	TABLE_ID_TRIGGER_DEPENDS,
 };
 
 static const char *TABLE_NAME_NODES  = "nodes";
@@ -55,6 +56,7 @@ static const char *TABLE_NAME_ITEMS = "items";
 static const char *TABLE_NAME_HOSTS = "hosts";
 static const char *TABLE_NAME_GROUPS = "groups";
 static const char *TABLE_NAME_HOSTS_GROUPS = "hosts_groups";
+static const char *TABLE_NAME_TRIGGER_DEPENDS = "trigger_depends";
 
 TableNameStaticInfoMap SQLProcessorZabbix::m_tableNameStaticInfoMap;
 
@@ -929,6 +931,22 @@ void SQLProcessorZabbix::init(void)
 	             false, SQL_KEY_MUL, NULL);
 	defineColumn(staticInfo, ITEM_ID_ZBX_HOSTS_GROUPS_GROUPID,
 	             TABLE_ID_HOSTS_GROUPS, "groupid",
+	             SQL_COLUMN_TYPE_BIGUINT, 20,
+	             false, SQL_KEY_MUL, NULL);
+
+	staticInfo =
+	  defineTable(TABLE_ID_TRIGGER_DEPENDS, TABLE_NAME_TRIGGER_DEPENDS,
+	              MAKE_FUNC(GROUP_ID_ZBX_TRIGGER_DEPENDS));
+	defineColumn(staticInfo, ITEM_ID_ZBX_TRIGGER_DEPENDS_TRIGGERDEPID,
+	             TABLE_ID_TRIGGER_DEPENDS, "triggerdepid",
+	             SQL_COLUMN_TYPE_BIGUINT, 20,
+	             false, SQL_KEY_PRI, NULL);
+	defineColumn(staticInfo, ITEM_ID_ZBX_TRIGGER_DEPENDS_TRIGGERID_DOWN,
+	             TABLE_ID_TRIGGER_DEPENDS, "triggerid_down",
+	             SQL_COLUMN_TYPE_BIGUINT, 20,
+	             false, SQL_KEY_MUL, NULL);
+	defineColumn(staticInfo, ITEM_ID_ZBX_TRIGGER_DEPENDS_TRIGGERID_UP,
+	             TABLE_ID_GROUPS, "triggerid_up",
 	             SQL_COLUMN_TYPE_BIGUINT, 20,
 	             false, SQL_KEY_MUL, NULL);
 }
