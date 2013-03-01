@@ -448,13 +448,11 @@ void test_exists(void)
 
 void test_not(void)
 {
-	const char *columnName = "col";
-	string statement = StringUtils::sprintf("not %s", columnName);
+	const char *elemName0 = "a";
+	string statement = StringUtils::sprintf("not %s", elemName0);
 	DEFINE_PARSER_AND_RUN(whereParser, formula, statement);
-	FormulaOperatorNot *formulaNot =
-	  dynamic_cast<FormulaOperatorNot *>(formula);
-	assertFormulaOperatorNot(formulaNot);
-	assertFormulaVariable(formula->getLeftHand(), columnName);
+	assertFormulaOperatorNot(formula);
+	assertFormulaVariable(formula->getLeftHand(), elemName0);
 }
 
 } // namespace testSQLWhereParser
