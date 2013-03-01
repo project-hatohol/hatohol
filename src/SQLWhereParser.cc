@@ -64,7 +64,7 @@ struct SQLWhereParser::PrivateContext {
 		betweenV0 = NULL;
 		betweenV1 = NULL;
 
-		inValues = NULL;
+		inValues = ItemGroupPtr();
 		openQuot = false;
 
 		nestCountForExists = 0;
