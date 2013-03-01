@@ -19,6 +19,7 @@
 #include "ItemEnum.h"
 #include "AsuraException.h"
 #include "SQLProcessorSelect.h"
+#include "SQLProcessorException.h"
 
 // ---------------------------------------------------------------------------
 // class: FormulaParenthesis
@@ -294,7 +295,10 @@ ItemDataPtr FormulaExists::evaluate(void)
 		m_processorSelect = m_processorSelectFactory();
 	ParsableString parsableStatement(m_statement);
 	SQLSelectInfo selectInfo(parsableStatement);
-	bool succeeded = m_processorSelect->select(selectInfo);
-	bool hasRows = succeeded && !selectInfo.textRows.empty();
+	if (!m_processorSelect->select(selectInfo)) {
+		THROW_SQL_PROCESSOR_EXCEPTION(
+		  "Failed to call select: %s", m_statement.c_str());
+	}
+	bool hasRows = !selectInfo.textRows.empty();
 	return ItemDataPtr(new ItemBool(hasRows), false);
 }
