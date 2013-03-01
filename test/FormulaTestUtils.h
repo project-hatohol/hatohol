@@ -34,6 +34,9 @@ cut_trace(assertFormulaElementType<FormulaOperatorPlus>(X))
 #define assertFormulaOperatorDiv(X) \
 cut_trace(assertFormulaElementType<FormulaOperatorDiv>(X))
 
+#define assertFormulaOperatorNot(X) \
+cut_trace(assertFormulaElementType<FormulaOperatorNot>(X))
+
 #define assertFormulaOperatorAnd(X) \
 cut_trace(assertFormulaElementType<FormulaOperatorAnd>(X))
 

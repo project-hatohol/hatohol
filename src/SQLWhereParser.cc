@@ -406,8 +406,8 @@ void SQLWhereParser::kwHandlerExists(void)
 
 void SQLWhereParser::kwHandlerNot(void)
 {
-	THROW_SQL_PROCESSOR_EXCEPTION("Not implemented: %s",
-	                              __PRETTY_FUNCTION__);
+	FormulaOperatorNot *formulaOperatorNot = new FormulaOperatorNot();
+	insertElement(formulaOperatorNot);
 }
 
 void SQLWhereParser::kwHandlerLessThan(void)

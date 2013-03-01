@@ -434,5 +434,16 @@ void test_exists(void)
 	cppcut_assert_equal(string(innerSelect), formulaExists->getStatement());
 }
 
+void test_not(void)
+{
+	const char *columnName = "col";
+	string statement = StringUtils::sprintf("not %s", columnName);
+	DEFINE_PARSER_AND_RUN(whereParser, formula, statement);
+	FormulaOperatorNot *formulaNot =
+	  dynamic_cast<FormulaOperatorNot *>(formula);
+	assertFormulaOperatorNot(formulaNot);
+	assertFormulaVariable(formula->getLeftHand(), columnName);
+}
+
 } // namespace testSQLWhereParser
 
