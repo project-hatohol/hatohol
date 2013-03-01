@@ -250,7 +250,10 @@ void SQLWhereParser::makeFormulaExistsAndCleanup(void)
 	const char *end = statement->getParsingPosition() - 1;
 	long length = reinterpret_cast<long>(end - m_ctx->existsStatementBegin);
 	string innerSelect = string(m_ctx->existsStatementBegin, length);
-	FormulaExists *formulaExists = new FormulaExists(innerSelect);
+	SQLProcessorSelectFactory &selectFactory =
+	  shareInfo->processorSelectFactory;
+	FormulaExists *formulaExists =
+	  new FormulaExists(innerSelect, selectFactory);
 	insertElement(formulaExists);
 	shareInfo->allowSectionParserChange = true;
 	clear();

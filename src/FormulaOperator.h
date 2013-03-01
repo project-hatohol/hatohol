@@ -21,6 +21,7 @@
 #include "FormulaElement.h"
 #include "ItemDataPtr.h"
 #include "ItemGroupPtr.h"
+#include "SQLProcessorTypes.h"
 
 // ---------------------------------------------------------------------------
 // class: FormulaParenthesis
@@ -137,13 +138,16 @@ private:
 // ---------------------------------------------------------------------------
 class FormulaExists : public FormulaElement {
 public:
-	FormulaExists(const string &statement);
+	FormulaExists(const string &statement,
+	              SQLProcessorSelectFactory &selectFactory);
 	virtual ~FormulaExists();
 	virtual ItemDataPtr evaluate(void);
 	const string &getStatement(void) const;
 
 private:
-	string m_statement;
+	SQLProcessorSelectFactory &m_processorSelectFactory;
+	string                     m_statement;
+	SQLProcessorSelect        *m_processorSelect;
 };
 
 #endif // FormulaOperator_h

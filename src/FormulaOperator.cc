@@ -18,6 +18,7 @@
 #include "FormulaOperator.h"
 #include "ItemEnum.h"
 #include "AsuraException.h"
+#include "SQLProcessorSelect.h"
 
 // ---------------------------------------------------------------------------
 // class: FormulaParenthesis
@@ -267,14 +268,19 @@ ItemDataPtr FormulaIn::evaluate(void)
 // ---------------------------------------------------------------------------
 // FormulaExists
 // ---------------------------------------------------------------------------
-FormulaExists::FormulaExists(const string &statement)
+FormulaExists::FormulaExists(const string &statement,
+                             SQLProcessorSelectFactory &procSelectFactory)
 : FormulaElement(FORMULA_ELEM_PRIO_EXISTS),
-  m_statement(statement)
+  m_processorSelectFactory(procSelectFactory),
+  m_statement(statement),
+  m_processorSelect(NULL)
 {
 }
 
 FormulaExists::~FormulaExists()
 {
+	if (m_processorSelect)
+		delete m_processorSelect;
 }
 
 const string &FormulaExists::getStatement(void) const
