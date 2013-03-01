@@ -23,6 +23,9 @@ def print_one_group(line)
   sql_type = SQL_TYPE_MAP[sql_type_key]
   digit = columns[2].sub(/[^0-9]+/, "")
   digit = digit.sub(/[^0-9]+/, "")
+  if digit == ""
+    digit = 0
+  end
 
   # Can be null
   can_null_str = columns[3].strip
