@@ -94,6 +94,16 @@ public:
 };
 
 // ---------------------------------------------------------------------------
+// FormulaOperatorNot
+// ---------------------------------------------------------------------------
+class FormulaOperatorNot : public FormulaElement {
+public:
+	FormulaOperatorNot(void);
+	virtual ~FormulaOperatorNot();
+	virtual ItemDataPtr evaluate(void);
+};
+
+// ---------------------------------------------------------------------------
 // FormulaOperatorAnd
 // ---------------------------------------------------------------------------
 class FormulaOperatorAnd : public FormulaElement {

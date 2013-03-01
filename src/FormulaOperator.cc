@@ -164,6 +164,30 @@ ItemDataPtr FormulaOperatorDiv::evaluate(void)
 }
 
 // ---------------------------------------------------------------------------
+// FormulaOperatorNot
+// ---------------------------------------------------------------------------
+FormulaOperatorNot::FormulaOperatorNot(void)
+: FormulaElement(FORMULA_ELEM_PRIO_NOT)
+{
+}
+
+FormulaOperatorNot::~FormulaOperatorNot()
+{
+}
+
+ItemDataPtr FormulaOperatorNot::evaluate(void)
+{
+	ItemDataPtr v0;
+	if (!getLeftHandDataWithCheck(v0))
+		return ItemDataPtr();
+	ItemDataPtr dataPtrTrue(new ItemBool(true), false);
+	ItemDataPtr dataPtrFalse(new ItemBool(false), false);
+	if (*v0 == *dataPtrFalse)
+		return dataPtrFalse;
+	return dataPtrTrue;
+}
+
+// ---------------------------------------------------------------------------
 // FormulaOperatorAnd
 // ---------------------------------------------------------------------------
 FormulaOperatorAnd::FormulaOperatorAnd(void)
