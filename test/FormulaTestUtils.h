@@ -28,6 +28,9 @@ cut_trace(assertFormulaElementType<FormulaComparatorNotEqual>(X))
 #define assertFormulaGreaterThan(X) \
 cut_trace(assertFormulaElementType<FormulaGreaterThan>(X))
 
+#define assertFormulaGreaterOrEqual(X) \
+cut_trace(assertFormulaElementType<FormulaGreaterOrEqual>(X))
+
 #define assertFormulaOperatorPlus(X) \
 cut_trace(assertFormulaElementType<FormulaOperatorPlus>(X))
 
