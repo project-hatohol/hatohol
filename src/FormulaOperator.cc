@@ -87,7 +87,7 @@ ItemDataPtr FormulaComparatorNotEqual::evaluate(void)
 // class: FormulaGreaterThan
 // ---------------------------------------------------------------------------
 FormulaGreaterThan::FormulaGreaterThan(void)
-: FormulaElement(FORMULA_ELEM_PRIO_CMP_EQ)
+: FormulaElement(FORMULA_ELEM_PRIO_GT)
 {
 }
 
@@ -100,7 +100,7 @@ ItemDataPtr FormulaGreaterThan::evaluate(void)
 	ItemDataPtr v0, v1;
 	if (!getLeftHandDataWithCheck(v0) || !getRightHandDataWithCheck(v1))
 		return ItemDataPtr();
-	return ItemDataPtr(new ItemBool(*v0 == *v1), false);
+	return ItemDataPtr(new ItemBool(*v0 > *v1), false);
 }
 
 // ---------------------------------------------------------------------------
