@@ -184,6 +184,7 @@ public:
 	static void init(void);
 	SQLProcessorSelect(const string &dbName,
 	                   TableNameStaticInfoMap &tableNameStaticInfoMap);
+	SQLProcessorSelect(const SQLProcessorSelect *parent);
 	virtual ~SQLProcessorSelect();
 	virtual bool select(SQLSelectInfo &selectInfo);
 
@@ -253,6 +254,7 @@ protected:
 	//
 	// General sub routines
 	//
+	void setup(void);
 	string readNextWord(ParsingPosition *position = NULL);
 	static void parseColumnName(const string &name,
 	                            string &baseName, string &tableVar);

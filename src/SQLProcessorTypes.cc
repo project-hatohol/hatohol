@@ -16,6 +16,7 @@
 */
 
 #include "SQLProcessorTypes.h"
+#include "SQLProcessorException.h"
 
 // ---------------------------------------------------------------------------
 // SQLProcessorInfo

@@ -102,23 +102,18 @@ private:
 
 class SQLProcessorSelectFactoryImpl : public SQLProcessorSelectFactory {
 public:
-	SQLProcessorSelectFactoryImpl
-	  (const string &dbName,
-	   TableNameStaticInfoMap &tableNameStaticInfoMap)
-	: m_dbName(dbName),
-	  m_tableNameStaticInfoMap(tableNameStaticInfoMap)
+	SQLProcessorSelectFactoryImpl(SQLProcessorSelect *parent)
+	: m_parent(parent)
 	{
 	}
 
 	virtual SQLProcessorSelect * operator()(void)
 	{
-		return new SQLProcessorSelect(m_dbName, 
-	                                      m_tableNameStaticInfoMap);
+		return new SQLProcessorSelect(m_parent);
 	}
 
 private:
-	const string           &m_dbName;
-	TableNameStaticInfoMap &m_tableNameStaticInfoMap;
+	SQLProcessorSelect *m_parent;
 };
 
 struct SQLProcessorSelect::PrivateContext {
@@ -127,6 +122,9 @@ struct SQLProcessorSelect::PrivateContext {
 
 	SQLProcessorSelectFactoryImpl procSelectFactory;
 	SQLProcessorSelectShareInfo   shareInfo;
+
+	// for internal select
+	const SQLProcessorSelect *parentProcessor;
 
 	SQLSelectInfo      *selectInfo;
 	string              dbName;
@@ -158,9 +156,11 @@ struct SQLProcessorSelect::PrivateContext {
 
 	// methods
 	PrivateContext(SQLProcessorSelect *procSelect, const string &_dbName,
-	               TableNameStaticInfoMap &nameInfoMap)
-	: procSelectFactory(dbName, tableNameStaticInfoMap),
+	               TableNameStaticInfoMap &nameInfoMap,
+	               const SQLProcessorSelect *parentProc = NULL)
+	: procSelectFactory(procSelect),
 	  shareInfo(procSelectFactory),
+	  parentProcessor(parentProc),
 	  selectInfo(NULL),
 	  dbName(_dbName),
 	  tableNameStaticInfoMap(nameInfoMap),
@@ -432,12 +432,16 @@ SQLProcessorSelect::SQLProcessorSelect
 : m_ctx(NULL)
 {
 	m_ctx = new PrivateContext(this, dbName, tableNameStaticInfoMap);
+	setup();
+}
 
-	// Other elements are set in parseSelectStatement().
-	SeparatorChecker *sep = &m_ctx->separatorSpaceComma;
-	m_ctx->selectSeprators[SELECT_PARSING_SECTION_GROUP_BY] = sep;
-	m_ctx->selectSeprators[SELECT_PARSING_SECTION_ORDER_BY] = sep;
-	m_ctx->selectSeprators[SELECT_PARSING_SECTION_LIMIT] = sep;
+SQLProcessorSelect::SQLProcessorSelect(const SQLProcessorSelect *parent)
+: m_ctx(NULL)
+{
+	m_ctx = new PrivateContext(this, parent->m_ctx->dbName,
+	                           parent->m_ctx->tableNameStaticInfoMap,
+	                           parent);
+	setup();
 }
 
 SQLProcessorSelect::~SQLProcessorSelect()
@@ -582,6 +586,10 @@ void SQLProcessorSelect::associateColumnWithTable(void)
 				columnInfo->associate(tableInfo);
 			else if (columnInfo->tableVar == tableInfo->varName)
 				columnInfo->associate(tableInfo);
+			else if (m_ctx->parentProcessor) {
+				THROW_SQL_PROCESSOR_EXCEPTION(
+				  "Not implemented.");
+			}
 			else {
 				THROW_SQL_PROCESSOR_EXCEPTION(
 				  "columnInfo.tableVar (%s) != "
@@ -1043,6 +1051,15 @@ void SQLProcessorSelect::parseLimit(void)
 //
 // General sub routines
 //
+void SQLProcessorSelect::setup(void)
+{
+	// Other elements are set in parseSelectStatement().
+	SeparatorChecker *sep = &m_ctx->separatorSpaceComma;
+	m_ctx->selectSeprators[SELECT_PARSING_SECTION_GROUP_BY] = sep;
+	m_ctx->selectSeprators[SELECT_PARSING_SECTION_ORDER_BY] = sep;
+	m_ctx->selectSeprators[SELECT_PARSING_SECTION_LIMIT] = sep;
+}
+
 string SQLProcessorSelect::readNextWord(ParsingPosition *position)
 {
 	SeparatorChecker *separator = m_ctx->selectSeprators[m_ctx->section];
