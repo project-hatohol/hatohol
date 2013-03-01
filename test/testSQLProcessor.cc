@@ -269,13 +269,14 @@ static void getDistinctValueInTestData0(set<int> &valueSet)
 		valueSet.insert(testData0[i].number);
 }
 
-static void getValueData0NumberEqData1Age(set<int> &valueSet)
+static void getValueData0NumberEqData1Age(multiset<int> &valueSet)
 {
 	for (size_t i = 0; i < numTestData0; i++) {
 		for (size_t j = 0; j < numTestData1; j++) {
 			if (testData0[i].number != testData1[j].age)
 				continue;
 			valueSet.insert(testData0[i].number);
+			break;
 		}
 	}
 }
@@ -977,12 +978,12 @@ void test_exists(void) {
 	                       TABLE1_NAME, COLUMN_NAME_AGE);
 
 	// check the result
-	set<int> numberSet;
+	multiset<int> numberSet;
 	getValueData0NumberEqData1Age(numberSet);
 	const size_t numColumns = 1;
 	const size_t numExpectedRows = numberSet.size();
 	DEFINE_SELECTINFO_AND_ASSERT_SELECT(
-	  selectInfo, statement, numColumns, numTestData0, numExpectedRows);
+	  selectInfo, statement, numColumns, numExpectedRows);
 
 	// make the expected output string set
 	multiset<string> expectedOutputSet;
