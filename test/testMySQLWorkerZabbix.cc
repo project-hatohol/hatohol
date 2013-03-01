@@ -357,4 +357,26 @@ void test_selectTriggerChanged(void)
 	assertRecord(0, nsmap);
 }
 
+void test_selectGroupsWithConditions(void)
+{
+	const char *cmd = "use zabbix;"
+	  "SELECT  DISTINCT  g.* "
+	  "FROM groups g,rights r,users_groups ug,hosts_groups hg,hosts h "
+	  "WHERE r.id=g.groupid AND r.groupid=ug.usrgrpid AND ug.userid=2 "
+	  "AND r.permission>=2 AND NOT EXISTS ( "
+	    "SELECT gg.groupid FROM groups gg,rights rr,users_groups ugg "
+	    "WHERE rr.id=g.groupid AND rr.groupid=ugg.usrgrpid AND "
+	    "ugg.userid=2 AND rr.permission<2) "
+	  "AND hg.groupid=g.groupid AND h.hostid=hg.hostid AND h.status=0 "
+	  "AND EXISTS ("
+	    "SELECT t.triggerid FROM items i,functions f,triggers t "
+	    "WHERE i.hostid=hg.hostid AND i.status=0 AND i.itemid=f.itemid "
+	    "AND f.triggerid=t.triggerid AND t.status=0) "
+	  "AND g.groupid BETWEEN 000000000000000 AND 099999999999999";
+	executeCommand(cmd);
+	vector<string> lines;
+	NumberStringMap nsmap;
+	assertRecord(0, nsmap);
+}
+
 } // namespace testMySQLWorkerZabbix
