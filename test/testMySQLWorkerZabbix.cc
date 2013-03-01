@@ -336,7 +336,7 @@ void test_selectGroupHostGroupHosts(void)
 	executeCommand(cmd);
 	vector<string> lines;
 	NumberStringMap nsmap;
-	assertRecord(2, nsmap);
+	assertRecord(0, nsmap);
 }
 
 } // namespace testMySQLWorkerZabbix
