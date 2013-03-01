@@ -373,11 +373,10 @@ void SQLProcessorSelect::init(void)
 	size_t size =
 	  sizeof(PrivateContext::selectSubParsers) / sizeof(SelectSubParser);
 	if (size != NUM_SELECT_PARSING_SECTION) {
-		string msg;
-		TRMSG(msg, "sizeof(m_selectSubParsers) is invalid: "
-		           "(expcect/actual: %d/%d).",
-		      NUM_SELECT_PARSING_SECTION, size);
-		throw logic_error(msg);
+		THROW_ASURA_EXCEPTION(
+		  "sizeof(m_selectSubParsers) is invalid: "
+		  "(expcect/actual: %d/%d).",
+		  NUM_SELECT_PARSING_SECTION, size);
 	}
 }
 
