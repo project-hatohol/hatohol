@@ -1,0 +1,10 @@
+| scriptid     | bigint(20) unsigned | NO   | PRI | NULL    |       |
+| name         | varchar(255)        | NO   |     |         |       |
+| command      | varchar(255)        | NO   |     |         |       |
+| host_access  | int(11)             | NO   |     | 2       |       |
+| usrgrpid     | bigint(20) unsigned | YES  | MUL | NULL    |       |
+| groupid      | bigint(20) unsigned | YES  | MUL | NULL    |       |
+| description  | text                | NO   |     | NULL    |       |
+| confirmation | varchar(255)        | NO   |     |         |       |
+| type         | int(11)             | NO   |     | 0       |       |
+| execute_on   | int(11)             | NO   |     | 1       |       |
