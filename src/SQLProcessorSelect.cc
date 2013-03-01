@@ -1078,9 +1078,13 @@ SQLProcessorSelect::getTableInfoFromColumnInfo(SQLColumnInfo *columnInfo) const
 			// OK. just return tableInfo.
 		} else if (columnInfo->tableVar == tableInfo->varName) {
 			// OK. just return tableInfo.
+		} else if (columnInfo->tableVar == tableInfo->name) {
+			// OK. just return tableInfo.
 		} else if (m_ctx->parentProcessor) {
-			THROW_SQL_PROCESSOR_EXCEPTION(
-			  "Not implemented.");
+			const SQLProcessorSelect *parent =
+			  m_ctx->parentProcessor;
+			tableInfo = parent->getTableInfoFromColumnInfo
+			              (columnInfo);
 		} else {
 			THROW_SQL_PROCESSOR_EXCEPTION(
 			  "columnInfo.tableVar (%s) != tableInfo.varName (%s)",
