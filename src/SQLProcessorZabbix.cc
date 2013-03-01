@@ -41,6 +41,7 @@ enum TableID {
 	TABLE_ID_HOSTS_GROUPS,
 	TABLE_ID_TRIGGER_DEPENDS,
 	TABLE_ID_EVENTS,
+	TABLE_ID_SCRIPTS,
 };
 
 static const char *TABLE_NAME_NODES  = "nodes";
@@ -59,6 +60,7 @@ static const char *TABLE_NAME_GROUPS = "groups";
 static const char *TABLE_NAME_HOSTS_GROUPS = "hosts_groups";
 static const char *TABLE_NAME_TRIGGER_DEPENDS = "trigger_depends";
 static const char *TABLE_NAME_EVENTS = "events";
+static const char *TABLE_NAME_SCRIPTS = "scripts";
 
 TableNameStaticInfoMap SQLProcessorZabbix::m_tableNameStaticInfoMap;
 
@@ -991,6 +993,50 @@ void SQLProcessorZabbix::init(void)
 	             TABLE_ID_EVENTS, "value_changed",
 	             SQL_COLUMN_TYPE_INT, 11,
 	             false, SQL_KEY_NONE, "0");
+
+	staticInfo =
+	  defineTable(TABLE_ID_SCRIPTS, TABLE_NAME_SCRIPTS,
+	              MAKE_FUNC(GROUP_ID_ZBX_SCRIPTS));
+	defineColumn(staticInfo, ITEM_ID_ZBX_SCRIPTS_SCRIPTID,
+	             TABLE_ID_SCRIPTS, "scriptid",
+	             SQL_COLUMN_TYPE_BIGUINT, 20,
+	             false, SQL_KEY_PRI, NULL);
+	defineColumn(staticInfo, ITEM_ID_ZBX_SCRIPTS_NAME,
+	             TABLE_ID_SCRIPTS, "name",
+	             SQL_COLUMN_TYPE_VARCHAR, 255,
+	             false, SQL_KEY_NONE, "");
+	defineColumn(staticInfo, ITEM_ID_ZBX_SCRIPTS_COMMAND,
+	             TABLE_ID_SCRIPTS, "command",
+	             SQL_COLUMN_TYPE_VARCHAR, 255,
+	             false, SQL_KEY_NONE, "");
+	defineColumn(staticInfo, ITEM_ID_ZBX_SCRIPTS_HOST_ACCESS,
+	             TABLE_ID_SCRIPTS, "host_access",
+	             SQL_COLUMN_TYPE_INT, 11,
+	             false, SQL_KEY_NONE, "2");
+	defineColumn(staticInfo, ITEM_ID_ZBX_SCRIPTS_USRGRPID,
+	             TABLE_ID_SCRIPTS, "usrgrpid",
+	             SQL_COLUMN_TYPE_BIGUINT, 20,
+	             true, SQL_KEY_MUL, NULL);
+	defineColumn(staticInfo, ITEM_ID_ZBX_SCRIPTS_GROUPID,
+	             TABLE_ID_SCRIPTS, "groupid",
+	             SQL_COLUMN_TYPE_BIGUINT, 20,
+	             true, SQL_KEY_MUL, NULL);
+	defineColumn(staticInfo, ITEM_ID_ZBX_SCRIPTS_DESCRIPTION,
+	             TABLE_ID_SCRIPTS, "description",
+	             SQL_COLUMN_TYPE_TEXT, 0,
+	             false, SQL_KEY_NONE, NULL);
+	defineColumn(staticInfo, ITEM_ID_ZBX_SCRIPTS_CONFIRMATION,
+	             TABLE_ID_SCRIPTS, "confirmation",
+	             SQL_COLUMN_TYPE_VARCHAR, 255,
+	             false, SQL_KEY_NONE, "");
+	defineColumn(staticInfo, ITEM_ID_ZBX_SCRIPTS_TYPE,
+	             TABLE_ID_SCRIPTS, "type",
+	             SQL_COLUMN_TYPE_INT, 11,
+	             false, SQL_KEY_NONE, "0");
+	defineColumn(staticInfo, ITEM_ID_ZBX_SCRIPTS_EXECUTE_ON,
+	             TABLE_ID_SCRIPTS, "execute_on",
+	             SQL_COLUMN_TYPE_INT, 11,
+	             false, SQL_KEY_NONE, "1");
 }
 
 SQLProcessor *SQLProcessorZabbix::createInstance(void)

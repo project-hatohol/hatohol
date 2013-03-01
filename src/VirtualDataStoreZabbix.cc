@@ -331,6 +331,50 @@ VirtualDataStoreZabbix::VirtualDataStoreZabbix(void)
 	// events
 	//
 	table = createStaticItemTable(GROUP_ID_ZBX_EVENTS);
+
+	//
+	// scripts
+	//
+	table = createStaticItemTable(GROUP_ID_ZBX_SCRIPTS);
+	grp = table->addNewGroup();
+	ADD(new ItemUint64(ITEM_ID_ZBX_SCRIPTS_SCRIPTID,     1));
+	ADD(new ItemString(ITEM_ID_ZBX_SCRIPTS_NAME,         "Ping"));
+	ADD(new ItemString(ITEM_ID_ZBX_SCRIPTS_COMMAND,
+	                   "/bin/ping -c 3 {HOST.CONN} 2>&1"));
+	ADD(new ItemInt   (ITEM_ID_ZBX_SCRIPTS_HOST_ACCESS,  2));
+	ADD(new ItemUint64(ITEM_ID_ZBX_SCRIPTS_USRGRPID,     0)); // TODO: NULL
+	ADD(new ItemUint64(ITEM_ID_ZBX_SCRIPTS_GROUPID,      0)); // TODO: NULL
+	ADD(new ItemString(ITEM_ID_ZBX_SCRIPTS_DESCRIPTION,  ""));
+	ADD(new ItemString(ITEM_ID_ZBX_SCRIPTS_CONFIRMATION, ""));
+	ADD(new ItemInt   (ITEM_ID_ZBX_SCRIPTS_TYPE,         0));
+	ADD(new ItemInt   (ITEM_ID_ZBX_SCRIPTS_EXECUTE_ON,   1));
+
+	grp = table->addNewGroup();
+	ADD(new ItemUint64(ITEM_ID_ZBX_SCRIPTS_SCRIPTID,     2));
+	ADD(new ItemString(ITEM_ID_ZBX_SCRIPTS_NAME,         "Traceroute"));
+	ADD(new ItemString(ITEM_ID_ZBX_SCRIPTS_COMMAND,
+	                   "/usr/bin/traceroute {HOST.CONN} 2>&1"));
+	ADD(new ItemInt   (ITEM_ID_ZBX_SCRIPTS_HOST_ACCESS,  2));
+	ADD(new ItemUint64(ITEM_ID_ZBX_SCRIPTS_USRGRPID,     0)); // TODO: NULL
+	ADD(new ItemUint64(ITEM_ID_ZBX_SCRIPTS_GROUPID,      0)); // TODO: NULL
+	ADD(new ItemString(ITEM_ID_ZBX_SCRIPTS_DESCRIPTION,  ""));
+	ADD(new ItemString(ITEM_ID_ZBX_SCRIPTS_CONFIRMATION, ""));
+	ADD(new ItemInt   (ITEM_ID_ZBX_SCRIPTS_TYPE,         0));
+	ADD(new ItemInt   (ITEM_ID_ZBX_SCRIPTS_EXECUTE_ON,   1));
+
+	grp = table->addNewGroup();
+	ADD(new ItemUint64(ITEM_ID_ZBX_SCRIPTS_SCRIPTID,     3));
+	ADD(new ItemString(ITEM_ID_ZBX_SCRIPTS_NAME,
+	                   "Detect operating system"));
+	ADD(new ItemString(ITEM_ID_ZBX_SCRIPTS_COMMAND,
+	                   "sudo /usr/bin/nmap -O {HOST.CONN} 2>&1"));
+	ADD(new ItemInt   (ITEM_ID_ZBX_SCRIPTS_HOST_ACCESS,  2));
+	ADD(new ItemUint64(ITEM_ID_ZBX_SCRIPTS_USRGRPID,     7)); // TODO: NULL
+	ADD(new ItemUint64(ITEM_ID_ZBX_SCRIPTS_GROUPID,      0)); // TODO: NULL
+	ADD(new ItemString(ITEM_ID_ZBX_SCRIPTS_DESCRIPTION,  ""));
+	ADD(new ItemString(ITEM_ID_ZBX_SCRIPTS_CONFIRMATION, ""));
+	ADD(new ItemInt   (ITEM_ID_ZBX_SCRIPTS_TYPE,         0));
+	ADD(new ItemInt   (ITEM_ID_ZBX_SCRIPTS_EXECUTE_ON,   1));
 }
 
 VirtualDataStoreZabbix::~VirtualDataStoreZabbix()
