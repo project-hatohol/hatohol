@@ -104,6 +104,26 @@ ItemDataPtr FormulaGreaterThan::evaluate(void)
 }
 
 // ---------------------------------------------------------------------------
+// class: FormulaGreaterOrEqual
+// ---------------------------------------------------------------------------
+FormulaGreaterOrEqual::FormulaGreaterOrEqual(void)
+: FormulaElement(FORMULA_ELEM_PRIO_GE)
+{
+}
+
+FormulaGreaterOrEqual::~FormulaGreaterOrEqual()
+{
+}
+
+ItemDataPtr FormulaGreaterOrEqual::evaluate(void)
+{
+	ItemDataPtr v0, v1;
+	if (!getLeftHandDataWithCheck(v0) || !getRightHandDataWithCheck(v1))
+		return ItemDataPtr();
+	return ItemDataPtr(new ItemBool(*v0 >= *v1), false);
+}
+
+// ---------------------------------------------------------------------------
 // FormulaOperatorPlus
 // ---------------------------------------------------------------------------
 FormulaOperatorPlus::FormulaOperatorPlus(void)

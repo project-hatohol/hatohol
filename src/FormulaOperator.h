@@ -64,6 +64,16 @@ public:
 };
 
 // ---------------------------------------------------------------------------
+// class: FormulaGreaterOrEqual
+// ---------------------------------------------------------------------------
+class FormulaGreaterOrEqual : public FormulaElement {
+public:
+	FormulaGreaterOrEqual(void);
+	virtual ~FormulaGreaterOrEqual();
+	virtual ItemDataPtr evaluate(void);
+};
+
+// ---------------------------------------------------------------------------
 // class: FormulaOperatorPlus
 // ---------------------------------------------------------------------------
 class FormulaOperatorPlus : public FormulaElement {
