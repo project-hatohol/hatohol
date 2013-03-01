@@ -234,11 +234,9 @@ public:
 	{
 		if (m_columnInfo->columnType !=
 		    SQLColumnInfo::COLUMN_TYPE_NORMAL) {
-			string msg;
-			TRMSG(msg,
-			      "m_columnInfo->columnType(%d) != TYPE_NORMAL.",
-			      m_columnInfo->columnType);
-			throw logic_error(msg);
+			THROW_ASURA_EXCEPTION(
+			  "m_columnInfo->columnType(%d) != TYPE_NORMAL.",
+			  m_columnInfo->columnType);
 		}
 		ItemId itemId = m_columnInfo->columnDef->itemId;
 		if (!m_columnInfo->currTargetItemGroupAddr) {
