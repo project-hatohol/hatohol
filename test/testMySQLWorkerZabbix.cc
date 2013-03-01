@@ -379,4 +379,18 @@ void test_selectGroupsWithConditions(void)
 	assertRecord(0, nsmap);
 }
 
+void test_selectHostIdWithIsNull(void)
+{
+	const char *cmd = "use zabbix;"
+	  "SELECT  DISTINCT  s.*,hg.hostid FROM scripts s,hosts_groups hg "
+	  "WHERE (( 1=0  AND hg.groupid=s.groupid) OR "
+	  "(s.groupid IS NULL AND "
+	  "scriptid BETWEEN 000000000000000 AND 099999999999999)) "
+	  "ORDER BY s.name";
+	executeCommand(cmd);
+	vector<string> lines;
+	NumberStringMap nsmap;
+	assertRecord(0, nsmap);
+}
+
 } // namespace testMySQLWorkerZabbix
