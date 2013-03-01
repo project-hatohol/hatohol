@@ -310,8 +310,18 @@ void SQLFormulaParser::insertElement(FormulaElement *formulaElement)
 
 	// If priority of 'formulaElement' is equal to 'targetElem',
 	// the target element is changed to the right hand of 'targetElem'.
-	if (formulaElement->priorityEqual(targetElem))
-		targetElem = targetElem->getRightHand();
+	if (formulaElement->priorityEqual(targetElem)) {
+		FormulaElement *right = targetElem->getRightHand();
+		if (!right) {
+			string tree;
+			m_formula->getTreeInfo(tree);
+			THROW_ASURA_EXCEPTION(
+			  "targetElem->getRightHand(): NULL, targetElem: %p\n"
+			  "%s",
+			  targetElem, tree.c_str());
+		}
+		targetElem = right;
+	}
 
 	FormulaElement *targetParent = targetElem->getParent();
 	formulaElement->setLeftHand(targetElem);
