@@ -578,31 +578,9 @@ void SQLProcessorSelect::associateColumnWithTable(void)
 		SQLColumnInfo *columnInfo = it->second;
 		if (columnInfo->columnType == SQLColumnInfo::COLUMN_TYPE_ALL)
 			continue;
-
-		// set SQLColumnInfo::tableInfo and SQLTableInfo::columnList.
-		if (selectInfo->tables.size() == 1) {
-			SQLTableInfo *tableInfo = *selectInfo->tables.begin();
-			if (columnInfo->tableVar.empty())
-				columnInfo->associate(tableInfo);
-			else if (columnInfo->tableVar == tableInfo->varName)
-				columnInfo->associate(tableInfo);
-			else if (m_ctx->parentProcessor) {
-				THROW_SQL_PROCESSOR_EXCEPTION(
-				  "Not implemented.");
-			}
-			else {
-				THROW_SQL_PROCESSOR_EXCEPTION(
-				  "columnInfo.tableVar (%s) != "
-				  "tableInfo.varName (%s)",
-				  columnInfo->tableVar.c_str(),
-				  tableInfo->varName.c_str());
-			}
-			continue;
-		}
-
-		const SQLTableInfo *tableInfo
-		  = getTableInfoFromVarName(*selectInfo, columnInfo->tableVar);
-		columnInfo->associate(const_cast<SQLTableInfo *>(tableInfo));
+		SQLTableInfo *tableInfo =
+		  getTableInfoFromColumnInfo(columnInfo);
+		columnInfo->associate(tableInfo);
 	}
 }
 
@@ -1089,11 +1067,38 @@ void SQLProcessorSelect::parseColumnName(const string &name,
 	}
 }
 
-const SQLTableInfo *
-SQLProcessorSelect::getTableInfoFromVarName(const SQLSelectInfo &selectInfo,
+SQLTableInfo *
+SQLProcessorSelect::getTableInfoFromColumnInfo(SQLColumnInfo *columnInfo) const
+{
+	SQLSelectInfo *selectInfo = m_ctx->selectInfo;
+	SQLTableInfo *tableInfo = NULL;
+	if (selectInfo->tables.size() == 1) {
+		tableInfo = *selectInfo->tables.begin();
+		if (columnInfo->tableVar.empty()) {
+			// OK. just return tableInfo.
+		} else if (columnInfo->tableVar == tableInfo->varName) {
+			// OK. just return tableInfo.
+		} else if (m_ctx->parentProcessor) {
+			THROW_SQL_PROCESSOR_EXCEPTION(
+			  "Not implemented.");
+		} else {
+			THROW_SQL_PROCESSOR_EXCEPTION(
+			  "columnInfo.tableVar (%s) != tableInfo.varName (%s)",
+			  columnInfo->tableVar.c_str(),
+			  tableInfo->varName.c_str());
+		}
+	} else {
+		tableInfo = getTableInfoFromVarName(*selectInfo,
+		                                    columnInfo->tableVar);
+	}
+	return tableInfo;
+}
+
+SQLTableInfo *
+SQLProcessorSelect::getTableInfoFromVarName(SQLSelectInfo &selectInfo,
                                             const string &tableVar)
 {
-	SQLTableVarNameInfoMapConstIterator it
+	SQLTableVarNameInfoMapIterator it
 	  = selectInfo.tableVarInfoMap.find(tableVar);
 	if (it == selectInfo.tableVarInfoMap.end()) {
 		THROW_SQL_PROCESSOR_EXCEPTION(
