@@ -90,7 +90,7 @@ protected:
 		it = m_tableNameStaticInfoMap.find(tableName);
 		if (it == m_tableNameStaticInfoMap.end()) {
 			THROW_SQL_PROCESSOR_EXCEPTION(
-			  "Not found table: %s\n", tableName.c_str());
+			  "Not found table: %s", tableName.c_str());
 		}
 		return it->second;
 	}
@@ -585,7 +585,7 @@ void SQLProcessorSelect::associateColumnWithTable(void)
 			else {
 				THROW_SQL_PROCESSOR_EXCEPTION(
 				  "columnInfo.tableVar (%s) != "
-				  "tableInfo.varName (%s)\n",
+				  "tableInfo.varName (%s)",
 				  columnInfo->tableVar.c_str(),
 				  tableInfo->varName.c_str());
 			}
@@ -607,7 +607,7 @@ void SQLProcessorSelect::associateTableWithStaticInfo(void)
 		it = m_ctx->tableNameStaticInfoMap.find(tableInfo->name);
 		if (it == m_ctx->tableNameStaticInfoMap.end()) {
 			THROW_SQL_PROCESSOR_EXCEPTION(
-			  "Not found table: %s\n", tableInfo->name.c_str());
+			  "Not found table: %s", tableInfo->name.c_str());
 		}
 		const SQLTableStaticInfo *staticInfo = it->second;
 		tableInfo->staticInfo = staticInfo;
@@ -627,13 +627,13 @@ void SQLProcessorSelect::setColumnTypeAndDefInColumnInfo(void)
 
 		if (!columnInfo->tableInfo) {
 			THROW_SQL_PROCESSOR_EXCEPTION(
-			  "columnInfo->stableInfo is NULL\n");
+			  "columnInfo->stableInfo is NULL.");
 		}
 
 		const SQLTableStaticInfo *staticInfo =
 		  columnInfo->tableInfo->staticInfo;
 		if (!staticInfo)
-			THROW_SQL_PROCESSOR_EXCEPTION("staticInfo is NULL\n");
+			THROW_SQL_PROCESSOR_EXCEPTION("staticInfo is NULL.");
 
 		columnInfo->columnDef =
 		  SQLUtils::getColumnDef(columnInfo->baseName, staticInfo);
@@ -698,7 +698,7 @@ void SQLProcessorSelect::addOutputColumnsOfOneTable(SQLSelectInfo *selectInfo,
 	const SQLTableInfo *tableInfo = columnInfo->tableInfo;
 	if (!tableInfo->staticInfo) {
 		THROW_SQL_PROCESSOR_EXCEPTION(
-		  "tableInfo->staticInfo is NULL\n");
+		  "tableInfo->staticInfo is NULL.");
 	}
 
 	ColumnDefListConstIterator it;
@@ -752,7 +752,7 @@ void SQLProcessorSelect::makeColumnDefs(void)
 			continue;
 		} else if (!columnInfo->tableInfo) {
 			THROW_SQL_PROCESSOR_EXCEPTION(
-			  "columnInfo->tableInfo is NULL\n");
+			  "columnInfo->tableInfo is NULL.");
 		}
 
 		if (columnType == SQLColumnInfo::COLUMN_TYPE_ALL_OF_TABLE) {
@@ -760,14 +760,14 @@ void SQLProcessorSelect::makeColumnDefs(void)
 		} else if (columnType == SQLColumnInfo::COLUMN_TYPE_NORMAL) {
 			if (!columnInfo->columnDef) {
 				THROW_SQL_PROCESSOR_EXCEPTION(
-				  "columnInfo.columnDef is NULL\n");
+				  "columnInfo.columnDef is NULL.");
 			}
 			addOutputColumn(selectInfo, columnInfo,
 			                columnInfo->columnDef,
 			                formulaInfo);
 		} else {
 			THROW_SQL_PROCESSOR_EXCEPTION(
-			  "Invalid columnType: %d\n", columnType);
+			  "Invalid columnType: %d", columnType);
 		}
 	}
 }
@@ -791,7 +791,7 @@ void SQLProcessorSelect::makeItemTables(void)
 		ItemTablePtr tablePtr = (*func)();
 		if (!tablePtr.hasData()) {
 			THROW_SQL_PROCESSOR_EXCEPTION(
-			  "ItemTable: table has no data. name: %s, var: %s\n",
+			  "ItemTable: table has no data. name: %s, var: %s",
 			  (*tblInfoIt)->name.c_str(),
 			  (*tblInfoIt)->varName.c_str());
 		}
@@ -867,7 +867,7 @@ bool SQLProcessorSelect::pickupMatchingRows(const ItemGroup *itemGroup,
 	FormulaElement *formula = ctx->selectInfo->whereParser.getFormula();
 	ItemDataPtr result = formula->evaluate();
 	if (!result.hasData())
-		THROW_SQL_PROCESSOR_EXCEPTION("result has no data.\n");
+		THROW_SQL_PROCESSOR_EXCEPTION("result has no data.");
 	if (*result == *ctx->selectInfo->itemFalsePtr)
 		return true;
 	ctx->selectInfo->selectedTable->add(nonConstItemGroup);
@@ -1080,7 +1080,7 @@ SQLProcessorSelect::getTableInfoFromVarName(const SQLSelectInfo &selectInfo,
 	  = selectInfo.tableVarInfoMap.find(tableVar);
 	if (it == selectInfo.tableVarInfoMap.end()) {
 		THROW_SQL_PROCESSOR_EXCEPTION(
-		  "Failed to find: %s\n", tableVar.c_str());
+		  "Failed to find: %s", tableVar.c_str());
 	}
 	return it->second;
 }
