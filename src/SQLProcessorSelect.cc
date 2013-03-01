@@ -208,8 +208,7 @@ map<string, SelectSectionParser>
 class SQLFormulaColumnDataGetter : public FormulaVariableDataGetter {
 public:
 	SQLFormulaColumnDataGetter(const string &name,
-	                           SQLSelectInfo *selectInfo,
-	                           ItemGroupPtr &evalTargetItemGroup)
+	                           SQLSelectInfo *selectInfo)
 	: m_columnInfo(NULL)
 	{
 		SQLColumnNameMapIterator it
@@ -224,7 +223,6 @@ public:
 		// in the destructor of the SQLSelectInfo object.
 		// No need to delete in this class.
 		m_columnInfo = new SQLColumnInfo(name);
-		m_columnInfo->currTargetItemGroupAddr = &evalTargetItemGroup;
 		selectInfo->columnNameMap[name] = m_columnInfo;
 	}
 	
@@ -243,6 +241,10 @@ public:
 			throw logic_error(msg);
 		}
 		ItemId itemId = m_columnInfo->columnDef->itemId;
+		if (!m_columnInfo->currTargetItemGroupAddr) {
+			THROW_ASURA_EXCEPTION(
+			  "m_columnInfo->currTargetItemGroupAddr: NULL");
+		}
 		ItemGroupPtr &itemGroupPtr =
 		  *m_columnInfo->currTargetItemGroupAddr;
 		return ItemDataPtr(itemGroupPtr->getItem(itemId));
@@ -1097,6 +1099,13 @@ SQLProcessorSelect::getTableInfoFromColumnInfo(SQLColumnInfo *columnInfo) const
 		tableInfo = getTableInfoFromVarName(*selectInfo,
 		                                    columnInfo->tableVar);
 	}
+
+	// set the pointer where the current row has
+	if (!columnInfo->currTargetItemGroupAddr) {
+		columnInfo->currTargetItemGroupAddr =
+		  &m_ctx->evalTargetItemGroup;
+	}
+
 	return tableInfo;
 }
 
@@ -1119,8 +1128,7 @@ SQLProcessorSelect::formulaColumnDataGetterFactory(const string &name,
 {
 	PrivateContext *ctx = static_cast<PrivateContext *>(priv);
 	SQLSelectInfo *selectInfo = ctx->selectInfo;
-	return new SQLFormulaColumnDataGetter(name, selectInfo,
-	                                      ctx->evalTargetItemGroup);
+	return new SQLFormulaColumnDataGetter(name, selectInfo);
 }
 
 void SQLProcessorSelect::makeGroupedTableForColumn(const string &columnName)
