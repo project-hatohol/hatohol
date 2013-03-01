@@ -290,6 +290,11 @@ const string &FormulaExists::getStatement(void) const
 
 ItemDataPtr FormulaExists::evaluate(void)
 {
-	THROW_ASURA_EXCEPTION("Not implemented: %s\n", __PRETTY_FUNCTION__);
-	return ItemDataPtr();
+	if (!m_processorSelect)
+		m_processorSelect = m_processorSelectFactory();
+	ParsableString parsableStatement(m_statement);
+	SQLSelectInfo selectInfo(parsableStatement);
+	bool succeeded = m_processorSelect->select(selectInfo);
+	bool hasRows = succeeded && !selectInfo.textRows.empty();
+	return ItemDataPtr(new ItemBool(hasRows), false);
 }
