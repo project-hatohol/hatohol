@@ -45,10 +45,6 @@ protected:
 	//
 	// SeparatorChecker callbacks
 	//
-	static void _separatorCbEqual(const char separator,
-	                              SQLWhereParser *whereParser);
-	void separatorCbEqual(const char separator);
-
 	static void _separatorCbComma(const char separator,
 	                              SQLWhereParser *whereParser);
 	void separatorCbComma(const char separator);
@@ -65,6 +61,7 @@ protected:
 	void kwHandlerIn(void);
 	void kwHandlerExists(void);
 	void kwHandlerNot(void);
+	void kwHandlerEqual(void);
 	void kwHandlerLessThan(void);
 	void kwHandlerLessEqual(void);
 	void kwHandlerGreaterThan(void);

@@ -89,6 +89,8 @@ void SQLWhereParser::init(void)
 	  static_cast<KeywordHandler>(&SQLWhereParser::kwHandlerExists);
 	m_keywordHandlerMap["not"] =
 	  static_cast<KeywordHandler>(&SQLWhereParser::kwHandlerNot);
+	m_keywordHandlerMap["="] =
+	  static_cast<KeywordHandler>(&SQLWhereParser::kwHandlerEqual);
 	m_keywordHandlerMap["<"] =
 	  static_cast<KeywordHandler>(&SQLWhereParser::kwHandlerLessThan);
 	m_keywordHandlerMap["<="] =
@@ -110,9 +112,7 @@ SQLWhereParser::SQLWhereParser(void)
 	setKeywordHandlerMap(&m_keywordHandlerMap);
 	m_ctx = new PrivateContext();
 	SeparatorCheckerWithCallback *separator = getSeparatorChecker();
-	separator->addSeparator("=");
-	separator->setCallbackTempl<SQLWhereParser>
-	  ('=', _separatorCbEqual, this);
+
 	separator->addSeparator(",");
 	separator->setCallbackTempl<SQLWhereParser>
 	  (',', _separatorCbComma, this);
@@ -270,29 +270,6 @@ void SQLWhereParser::makeFormulaExistsAndCleanup(void)
 //
 // SeparatorChecker callbacks
 //
-void SQLWhereParser::_separatorCbEqual(const char separator,
-                                       SQLWhereParser *whereParser)
-{
-	whereParser->separatorCbEqual(separator);
-}
-
-void SQLWhereParser::separatorCbEqual(const char separator)
-{
-	flush();
-
-	// Get Left-Hand
-	FormulaElement *lhsElement = getCurrentElement();
-	if (!lhsElement) {
-		THROW_SQL_PROCESSOR_EXCEPTION("No left hand side of '='.");
-		return;
-	}
-
-	// create ComparatorEqual
-	FormulaComparatorEqual *formulaComparatorEqual
-	  = new FormulaComparatorEqual();
-	insertElement(formulaComparatorEqual);
-}
-
 void SQLWhereParser::_separatorCbComma(const char separator,
                                        SQLWhereParser *whereParser)
 {
@@ -410,6 +387,23 @@ void SQLWhereParser::kwHandlerNot(void)
 	insertElement(formulaOperatorNot);
 }
 
+void SQLWhereParser::kwHandlerEqual(void)
+{
+	flush();
+
+	// Get Left-Hand
+	FormulaElement *lhsElement = getCurrentElement();
+	if (!lhsElement) {
+		THROW_SQL_PROCESSOR_EXCEPTION("No left hand side of '='.");
+		return;
+	}
+
+	// create ComparatorEqual
+	FormulaComparatorEqual *formulaComparatorEqual
+	  = new FormulaComparatorEqual();
+	insertElement(formulaComparatorEqual);
+}
+
 void SQLWhereParser::kwHandlerLessThan(void)
 {
 	THROW_SQL_PROCESSOR_EXCEPTION("Not implemented: %s",
@@ -435,8 +429,14 @@ void SQLWhereParser::kwHandlerGreaterThan(void)
 
 void SQLWhereParser::kwHandlerGreaterEqual(void)
 {
-	THROW_SQL_PROCESSOR_EXCEPTION("Not implemented: %s",
-	                              __PRETTY_FUNCTION__);
+	// Get Left-Hand
+	FormulaElement *lhsElement = getCurrentElement();
+	if (!lhsElement)
+		THROW_SQL_PROCESSOR_EXCEPTION("No left hand side of '>='.");
+
+	FormulaGreaterOrEqual *formulaGreaterOrEqual =
+	  new FormulaGreaterOrEqual();
+	insertElement(formulaGreaterOrEqual);
 }
 
 void SQLWhereParser::kwHandlerNotEqual(void)

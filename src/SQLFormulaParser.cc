@@ -76,7 +76,7 @@ void SQLFormulaParser::init(void)
 // ---------------------------------------------------------------------------
 SQLFormulaParser::SQLFormulaParser(void)
 : m_columnDataGetterFactory(NULL),
-  m_separator(" ()'+/<>"),
+  m_separator(" ()'+/=<>"),
   m_formula(NULL),
   m_hasStatisticalFunc(false),
   m_keywordHandlerMap(&m_defaultKeywordHandlerMap),
@@ -93,6 +93,8 @@ SQLFormulaParser::SQLFormulaParser(void)
 	  ('+', _separatorCbPlus, this);
 	m_separator.setCallbackTempl<SQLFormulaParser>
 	  ('/', _separatorCbDiv, this);
+	m_separator.setCallbackTempl<SQLFormulaParser>
+	  ('=', _separatorCbEqual, this);
 	m_separator.setCallbackTempl<SQLFormulaParser>
 	  ('<', _separatorCbLessThan, this);
 	m_separator.setCallbackTempl<SQLFormulaParser>
@@ -553,6 +555,17 @@ void SQLFormulaParser::separatorCbDiv(const char separator)
 
 	FormulaOperatorDiv *formulaOperatorDiv = new FormulaOperatorDiv();
 	insertElement(formulaOperatorDiv);
+}
+
+void SQLFormulaParser::_separatorCbEqual
+  (const char separator, SQLFormulaParser *formulaParser)
+{
+	formulaParser->separatorCbEqual(separator);
+}
+
+void SQLFormulaParser::separatorCbEqual(const char separator)
+{
+	m_ctx->pendingOperator += separator;
 }
 
 void SQLFormulaParser::_separatorCbLessThan(const char separator,

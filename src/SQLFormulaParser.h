@@ -114,6 +114,10 @@ protected:
 	  (const char separator, SQLFormulaParser *formulaParser);
 	virtual void separatorCbDiv(const char separator);
 
+	static void _separatorCbEqual
+	  (const char separator, SQLFormulaParser *formulaParser);
+	virtual void separatorCbEqual(const char separator);
+
 	static void _separatorCbLessThan
 	  (const char separator, SQLFormulaParser *formulaParser);
 	virtual void separatorCbLessThan(const char separator);
