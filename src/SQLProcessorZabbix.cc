@@ -40,6 +40,7 @@ enum TableID {
 	TABLE_ID_GROUPS,
 	TABLE_ID_HOSTS_GROUPS,
 	TABLE_ID_TRIGGER_DEPENDS,
+	TABLE_ID_EVENTS,
 };
 
 static const char *TABLE_NAME_NODES  = "nodes";
@@ -57,6 +58,7 @@ static const char *TABLE_NAME_HOSTS = "hosts";
 static const char *TABLE_NAME_GROUPS = "groups";
 static const char *TABLE_NAME_HOSTS_GROUPS = "hosts_groups";
 static const char *TABLE_NAME_TRIGGER_DEPENDS = "trigger_depends";
+static const char *TABLE_NAME_EVENTS = "events";
 
 TableNameStaticInfoMap SQLProcessorZabbix::m_tableNameStaticInfoMap;
 
@@ -949,6 +951,46 @@ void SQLProcessorZabbix::init(void)
 	             TABLE_ID_GROUPS, "triggerid_up",
 	             SQL_COLUMN_TYPE_BIGUINT, 20,
 	             false, SQL_KEY_MUL, NULL);
+
+	staticInfo =
+	  defineTable(TABLE_ID_EVENTS, TABLE_NAME_EVENTS,
+	              MAKE_FUNC(GROUP_ID_ZBX_EVENTS));
+	defineColumn(staticInfo, ITEM_ID_EVENTS_EVENTID,
+	             TABLE_ID_EVENTS, "eventid",
+	             SQL_COLUMN_TYPE_BIGUINT, 20,
+	             false, SQL_KEY_PRI, NULL);
+	defineColumn(staticInfo, ITEM_ID_EVENTS_SOURCE,
+	             TABLE_ID_EVENTS, "source",
+	             SQL_COLUMN_TYPE_INT, 11,
+	             false, SQL_KEY_NONE, "0");
+	defineColumn(staticInfo, ITEM_ID_EVENTS_OBJECT,
+	             TABLE_ID_EVENTS, "object",
+	             SQL_COLUMN_TYPE_INT, 11,
+	             false, SQL_KEY_MUL, "0");
+	defineColumn(staticInfo, ITEM_ID_EVENTS_OBJECTID,
+	             TABLE_ID_EVENTS, "objectid",
+	             SQL_COLUMN_TYPE_BIGUINT, 20,
+	             false, SQL_KEY_NONE, "0");
+	defineColumn(staticInfo, ITEM_ID_EVENTS_CLOCK,
+	             TABLE_ID_EVENTS, "clock",
+	             SQL_COLUMN_TYPE_INT, 11,
+	             false, SQL_KEY_MUL, "0");
+	defineColumn(staticInfo, ITEM_ID_EVENTS_VALUE,
+	             TABLE_ID_EVENTS, "value",
+	             SQL_COLUMN_TYPE_INT, 11,
+	             false, SQL_KEY_NONE, "0");
+	defineColumn(staticInfo, ITEM_ID_EVENTS_ACKNOWLEDGED,
+	             TABLE_ID_EVENTS, "acknowledged",
+	             SQL_COLUMN_TYPE_INT, 11,
+	             false, SQL_KEY_NONE, "0");
+	defineColumn(staticInfo, ITEM_ID_EVENTS_NS,
+	             TABLE_ID_EVENTS, "ns",
+	             SQL_COLUMN_TYPE_INT, 11,
+	             false, SQL_KEY_NONE, "0");
+	defineColumn(staticInfo, ITEM_ID_EVENTS_VALUE_CHANGED,
+	             TABLE_ID_EVENTS, "value_changed",
+	             SQL_COLUMN_TYPE_INT, 11,
+	             false, SQL_KEY_NONE, "0");
 }
 
 SQLProcessor *SQLProcessorZabbix::createInstance(void)

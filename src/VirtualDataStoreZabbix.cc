@@ -326,6 +326,11 @@ VirtualDataStoreZabbix::VirtualDataStoreZabbix(void)
 	// trigger_depends
 	//
 	table = createStaticItemTable(GROUP_ID_ZBX_TRIGGER_DEPENDS);
+
+	//
+	// events
+	//
+	table = createStaticItemTable(GROUP_ID_ZBX_EVENTS);
 }
 
 VirtualDataStoreZabbix::~VirtualDataStoreZabbix()
