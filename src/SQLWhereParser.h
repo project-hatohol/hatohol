@@ -64,7 +64,11 @@ protected:
 	void kwHandlerBetween(void);
 	void kwHandlerIn(void);
 	void kwHandlerExists(void);
+	void kwHandlerNot(void);
+	void kwHandlerLessThan(void);
+	void kwHandlerLessEqual(void);
 	void kwHandlerGreaterThan(void);
+	void kwHandlerGreaterEqual(void);
 	void kwHandlerNotEqual(void);
 
 private:

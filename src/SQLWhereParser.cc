@@ -87,8 +87,16 @@ void SQLWhereParser::init(void)
 	  static_cast<KeywordHandler>(&SQLWhereParser::kwHandlerIn);
 	m_keywordHandlerMap["exists"] =
 	  static_cast<KeywordHandler>(&SQLWhereParser::kwHandlerExists);
+	m_keywordHandlerMap["not"] =
+	  static_cast<KeywordHandler>(&SQLWhereParser::kwHandlerNot);
+	m_keywordHandlerMap["<"] =
+	  static_cast<KeywordHandler>(&SQLWhereParser::kwHandlerLessThan);
+	m_keywordHandlerMap["<="] =
+	  static_cast<KeywordHandler>(&SQLWhereParser::kwHandlerLessEqual);
 	m_keywordHandlerMap[">"] =
 	  static_cast<KeywordHandler>(&SQLWhereParser::kwHandlerGreaterThan);
+	m_keywordHandlerMap[">="] =
+	  static_cast<KeywordHandler>(&SQLWhereParser::kwHandlerGreaterEqual);
 	m_keywordHandlerMap["<>"] =
 	  static_cast<KeywordHandler>(&SQLWhereParser::kwHandlerNotEqual);
 }
@@ -396,6 +404,24 @@ void SQLWhereParser::kwHandlerExists(void)
 	m_ctx->kwParsingStep = EXISTS_STEP_EXPECT_PARENTHESIS_OPEN;
 }
 
+void SQLWhereParser::kwHandlerNot(void)
+{
+	THROW_SQL_PROCESSOR_EXCEPTION("Not implemented: %s",
+	                              __PRETTY_FUNCTION__);
+}
+
+void SQLWhereParser::kwHandlerLessThan(void)
+{
+	THROW_SQL_PROCESSOR_EXCEPTION("Not implemented: %s",
+	                              __PRETTY_FUNCTION__);
+}
+
+void SQLWhereParser::kwHandlerLessEqual(void)
+{
+	THROW_SQL_PROCESSOR_EXCEPTION("Not implemented: %s",
+	                              __PRETTY_FUNCTION__);
+}
+
 void SQLWhereParser::kwHandlerGreaterThan(void)
 {
 	// Get Left-Hand
@@ -405,6 +431,12 @@ void SQLWhereParser::kwHandlerGreaterThan(void)
 
 	FormulaGreaterThan *formulaGreaterThan = new FormulaGreaterThan();
 	insertElement(formulaGreaterThan);
+}
+
+void SQLWhereParser::kwHandlerGreaterEqual(void)
+{
+	THROW_SQL_PROCESSOR_EXCEPTION("Not implemented: %s",
+	                              __PRETTY_FUNCTION__);
 }
 
 void SQLWhereParser::kwHandlerNotEqual(void)
