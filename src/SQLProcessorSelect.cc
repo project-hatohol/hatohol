@@ -210,8 +210,7 @@ public:
 	SQLFormulaColumnDataGetter(const string &name,
 	                           SQLSelectInfo *selectInfo,
 	                           ItemGroupPtr &evalTargetItemGroup)
-	: m_evalTargetItemGroup(evalTargetItemGroup),
-	  m_columnInfo(NULL)
+	: m_columnInfo(NULL)
 	{
 		SQLColumnNameMapIterator it
 		  = selectInfo->columnNameMap.find(name);
@@ -225,6 +224,7 @@ public:
 		// in the destructor of the SQLSelectInfo object.
 		// No need to delete in this class.
 		m_columnInfo = new SQLColumnInfo(name);
+		m_columnInfo->currTargetItemGroupAddr = &evalTargetItemGroup;
 		selectInfo->columnNameMap[name] = m_columnInfo;
 	}
 	
@@ -243,7 +243,9 @@ public:
 			throw logic_error(msg);
 		}
 		ItemId itemId = m_columnInfo->columnDef->itemId;
-		return ItemDataPtr(m_evalTargetItemGroup->getItem(itemId));
+		ItemGroupPtr &itemGroupPtr =
+		  *m_columnInfo->currTargetItemGroupAddr;
+		return ItemDataPtr(itemGroupPtr->getItem(itemId));
 	}
 
 	SQLColumnInfo *getColumnInfo(void) const
@@ -252,7 +254,6 @@ public:
 	}
 
 private:
-	ItemGroupPtr  &m_evalTargetItemGroup;
 	SQLColumnInfo *m_columnInfo;
 };
 
@@ -308,7 +309,8 @@ SQLColumnInfo::SQLColumnInfo(const string &_name)
 : name(_name),
   tableInfo(NULL),
   columnDef(NULL),
-  columnType(COLUMN_TYPE_UNKNOWN)
+  columnType(COLUMN_TYPE_UNKNOWN),
+  currTargetItemGroupAddr(NULL)
 {
 }
 

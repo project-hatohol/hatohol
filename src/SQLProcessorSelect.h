@@ -118,6 +118,9 @@ struct SQLColumnInfo {
 	      COLUMN_TYPE_ALL_OF_TABLE};
 	int columnType;
 
+	// ItemGroup
+	ItemGroupPtr *currTargetItemGroupAddr;
+
 	// constructor and methods
 	SQLColumnInfo(const string &_name);
 	void associate(SQLTableInfo *tableInfo);
