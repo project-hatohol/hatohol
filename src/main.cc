@@ -32,7 +32,7 @@ using namespace mlpl;
 #include "ArmController.h"
 #include "VirtualDataStoreZabbix.h"
 
-int main(int argc, char *argv[])
+int mainRoutine(int argc, char *argv[])
 {
 	g_type_init();
 	asuraInit();
@@ -50,5 +50,19 @@ int main(int argc, char *argv[])
 
 	GMainLoop *loop = g_main_loop_new(NULL, FALSE);
 	g_main_loop_run(loop);
+
 	return EXIT_SUCCESS;
+}
+
+int main(int argc, char *argv[])
+{
+	int ret = EXIT_FAILURE;;
+	try {
+		ret = mainRoutine(argc, argv);
+	} catch (const AsuraException &e){
+		MLPL_ERR("Got exception: %s", e.getFancyMessage().c_str());
+	} catch (const exception &e) {
+		MLPL_ERR("Got exception: %s", e.what());
+	}
+	return ret;
 }
