@@ -97,6 +97,8 @@ public:
 	virtual void set(void *src) = 0;
 	virtual void get(void *dst) const = 0;
 	virtual string getString(void) const = 0;
+	virtual bool isNull(void) const;
+	virtual void setNull(void);
 
 	virtual ItemData & operator =(const ItemData &itemData) = 0;
 	virtual ItemData * operator +(const ItemData &itemData) const = 0;
@@ -117,6 +119,7 @@ private:
 	static const char *m_nativeTypeNames[];
 	ItemId       m_itemId;
 	ItemDataType m_itemType;
+	bool         m_null;
 };
 
 ostream &operator<<(ostream &os, const ItemData &itemData);

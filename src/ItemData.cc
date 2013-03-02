@@ -87,7 +87,8 @@ const ItemDataType &ItemData::getItemType(void) const
 // ---------------------------------------------------------------------------
 ItemData::ItemData(ItemId id, ItemDataType type)
 : m_itemId(id),
-  m_itemType(type)
+  m_itemType(type),
+  m_null(false)
 {
 }
 
@@ -102,6 +103,16 @@ const char *ItemData::getNativeTypeName(void) const
 		                      m_itemType, NUM_ITEM_TYPE);
 	}
 	return m_nativeTypeNames[m_itemType];
+}
+
+bool ItemData::isNull(void) const
+{
+	return m_null;
+}
+
+void ItemData::setNull(void)
+{
+	m_null = true;
 }
 
 //
