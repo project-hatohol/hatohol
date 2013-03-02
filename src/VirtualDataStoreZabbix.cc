@@ -24,6 +24,13 @@
 
 #define ADD(X) grp->add(X, false)
 
+#define ADD_AS_NULL(X) \
+do { \
+  grp->add(X, false); \
+  size_t num = grp->getNumberOfItems(); \
+  grp->getItemAt(num-1)->setNull(); \
+} while (0)
+
 GMutex VirtualDataStoreZabbix::m_mutex;
 VirtualDataStoreZabbix *VirtualDataStoreZabbix::m_instance = NULL;
 
@@ -342,8 +349,8 @@ VirtualDataStoreZabbix::VirtualDataStoreZabbix(void)
 	ADD(new ItemString(ITEM_ID_ZBX_SCRIPTS_COMMAND,
 	                   "/bin/ping -c 3 {HOST.CONN} 2>&1"));
 	ADD(new ItemInt   (ITEM_ID_ZBX_SCRIPTS_HOST_ACCESS,  2));
-	ADD(new ItemUint64(ITEM_ID_ZBX_SCRIPTS_USRGRPID,     0)); // TODO: NULL
-	ADD(new ItemUint64(ITEM_ID_ZBX_SCRIPTS_GROUPID,      0)); // TODO: NULL
+	ADD_AS_NULL(new ItemUint64(ITEM_ID_ZBX_SCRIPTS_USRGRPID, 0));
+	ADD_AS_NULL(new ItemUint64(ITEM_ID_ZBX_SCRIPTS_GROUPID,  0));
 	ADD(new ItemString(ITEM_ID_ZBX_SCRIPTS_DESCRIPTION,  ""));
 	ADD(new ItemString(ITEM_ID_ZBX_SCRIPTS_CONFIRMATION, ""));
 	ADD(new ItemInt   (ITEM_ID_ZBX_SCRIPTS_TYPE,         0));
@@ -355,8 +362,8 @@ VirtualDataStoreZabbix::VirtualDataStoreZabbix(void)
 	ADD(new ItemString(ITEM_ID_ZBX_SCRIPTS_COMMAND,
 	                   "/usr/bin/traceroute {HOST.CONN} 2>&1"));
 	ADD(new ItemInt   (ITEM_ID_ZBX_SCRIPTS_HOST_ACCESS,  2));
-	ADD(new ItemUint64(ITEM_ID_ZBX_SCRIPTS_USRGRPID,     0)); // TODO: NULL
-	ADD(new ItemUint64(ITEM_ID_ZBX_SCRIPTS_GROUPID,      0)); // TODO: NULL
+	ADD_AS_NULL(new ItemUint64(ITEM_ID_ZBX_SCRIPTS_USRGRPID, 0));
+	ADD_AS_NULL(new ItemUint64(ITEM_ID_ZBX_SCRIPTS_GROUPID,  0));
 	ADD(new ItemString(ITEM_ID_ZBX_SCRIPTS_DESCRIPTION,  ""));
 	ADD(new ItemString(ITEM_ID_ZBX_SCRIPTS_CONFIRMATION, ""));
 	ADD(new ItemInt   (ITEM_ID_ZBX_SCRIPTS_TYPE,         0));
@@ -370,7 +377,7 @@ VirtualDataStoreZabbix::VirtualDataStoreZabbix(void)
 	                   "sudo /usr/bin/nmap -O {HOST.CONN} 2>&1"));
 	ADD(new ItemInt   (ITEM_ID_ZBX_SCRIPTS_HOST_ACCESS,  2));
 	ADD(new ItemUint64(ITEM_ID_ZBX_SCRIPTS_USRGRPID,     7));
-	ADD(new ItemUint64(ITEM_ID_ZBX_SCRIPTS_GROUPID,      0)); // TODO: NULL
+	ADD_AS_NULL(new ItemUint64(ITEM_ID_ZBX_SCRIPTS_GROUPID, 0));
 	ADD(new ItemString(ITEM_ID_ZBX_SCRIPTS_DESCRIPTION,  ""));
 	ADD(new ItemString(ITEM_ID_ZBX_SCRIPTS_CONFIRMATION, ""));
 	ADD(new ItemInt   (ITEM_ID_ZBX_SCRIPTS_TYPE,         0));
