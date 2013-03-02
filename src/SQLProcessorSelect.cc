@@ -1097,7 +1097,7 @@ SQLProcessorSelect::getTableInfoFromColumnInfo(SQLColumnInfo *columnInfo) const
 			tableInfo = getTableInfoWithScanTables(columnInfo);
 		} else {
 			tableInfo = getTableInfoFromVarName
-			              (*selectInfo, columnInfo->tableVar);
+			              (columnInfo->tableVar);
 		}
 	}
 
@@ -1128,15 +1128,13 @@ SQLProcessorSelect::getTableInfoWithScanTables(SQLColumnInfo *columnInfo) const
 }
 
 SQLTableInfo *
-SQLProcessorSelect::getTableInfoFromVarName(SQLSelectInfo &selectInfo,
-                                            const string &tableVar)
+SQLProcessorSelect::getTableInfoFromVarName(const string &tableVar) const
 {
+	SQLSelectInfo *selectInfo = m_ctx->selectInfo;
 	SQLTableVarNameInfoMapIterator it
-	  = selectInfo.tableVarInfoMap.find(tableVar);
-	if (it == selectInfo.tableVarInfoMap.end()) {
-		THROW_SQL_PROCESSOR_EXCEPTION(
-		  "Failed to find: %s", tableVar.c_str());
-	}
+	  = selectInfo->tableVarInfoMap.find(tableVar);
+	if (it == selectInfo->tableVarInfoMap.end())
+		return NULL;
 	return it->second;
 }
 

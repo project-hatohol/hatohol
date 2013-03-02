@@ -263,9 +263,8 @@ protected:
 	  getTableInfoFromColumnInfo(SQLColumnInfo *columnInfo) const;
 	SQLTableInfo *
 	  getTableInfoWithScanTables(SQLColumnInfo *columnInfo) const;
-	static SQLTableInfo *
-	  getTableInfoFromVarName(SQLSelectInfo &selectInfo,
-	                          const string &tableVar);
+	SQLTableInfo *
+	  getTableInfoFromVarName(const string &tableVar) const;
 	static FormulaVariableDataGetter *
 	  formulaColumnDataGetterFactory(const string &name, void *priv);
 	void makeGroupedTableForColumn(const string &columnName);
