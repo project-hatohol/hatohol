@@ -322,6 +322,20 @@ void test_intAndBetween(void)
 	assertFormulaBetweenWithVarName(rightElem, btwVal0, btwVal1, btwVar);
 }
 
+void test_intAndBetweenThenParenthesisClose(void)
+{
+	const char *btwVar = "b";
+	int btwVal0 = 0;
+	int btwVal1 = 100;
+	string statement =
+	  StringUtils::sprintf("(%s between %d and %d)",
+	                       btwVar, btwVal0, btwVal1);
+	DEFINE_PARSER_AND_RUN(whereParser, formula, statement);
+	assertFormulaParenthesis(formula);
+	FormulaElement *leftElem = formula->getLeftHand();
+	assertFormulaBetweenWithVarName(leftElem, btwVal0, btwVal1, btwVar);
+}
+
 void test_parenthesis(void)
 {
 	const char *elemName0  = "a";
