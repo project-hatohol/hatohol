@@ -1074,31 +1074,27 @@ SQLProcessorSelect::getTableInfoFromColumnInfo(SQLColumnInfo *columnInfo) const
 	SQLSelectInfo *selectInfo = m_ctx->selectInfo;
 	SQLTableInfo *tableInfo = NULL;
 	if (selectInfo->tables.size() == 1) {
-		tableInfo = *selectInfo->tables.begin();
-		if (columnInfo->tableVar.empty()) {
-			// OK. just return tableInfo.
-		} else if (columnInfo->tableVar == tableInfo->varName) {
-			// OK. just return tableInfo.
-		} else if (columnInfo->tableVar == tableInfo->name) {
-			// OK. just return tableInfo.
-		} else if (m_ctx->parentProcessor) {
-			const SQLProcessorSelect *parent =
-			  m_ctx->parentProcessor;
-			tableInfo = parent->getTableInfoFromColumnInfo
-			              (columnInfo);
-		} else {
-			THROW_SQL_PROCESSOR_EXCEPTION(
-			  "columnInfo.tableVar (%s) != tableInfo.varName (%s)",
-			  columnInfo->tableVar.c_str(),
-			  tableInfo->varName.c_str());
+		SQLTableInfo *_tableInfo = *selectInfo->tables.begin();
+		if (columnInfo->tableVar.empty() ||
+		    columnInfo->tableVar == _tableInfo->varName ||
+		    columnInfo->tableVar == _tableInfo->name) {
+			tableInfo = _tableInfo;
 		}
+	} else if (!columnInfo->tableVar.empty()) {
+		tableInfo = getTableInfoFromVarName(columnInfo->tableVar);
 	} else {
-		if (columnInfo->tableVar.empty()) {
-			tableInfo = getTableInfoWithScanTables(columnInfo);
-		} else {
-			tableInfo = getTableInfoFromVarName
-			              (columnInfo->tableVar);
-		}
+		tableInfo = getTableInfoWithScanTables(columnInfo);
+	}
+
+	// try to search from the parent if it exists
+	const SQLProcessorSelect *parent = m_ctx->parentProcessor;
+	if (!tableInfo && parent)
+		tableInfo = parent->getTableInfoFromColumnInfo(columnInfo);
+
+	if (!tableInfo) {
+		THROW_SQL_PROCESSOR_EXCEPTION(
+		  "Not found SQLTableInfo for the column: %s",
+		  columnInfo->tableVar.c_str());
 	}
 
 	// set the pointer where the current row has
