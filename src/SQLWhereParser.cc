@@ -35,6 +35,8 @@ enum KeywordParsingStep {
 	EXISTS_STEP_EXPECT_PARENTHESIS_OPEN,
 	EXISTS_STEP_EXPECT_SELECT,
 	EXISTS_STEP_FIND_CLOSE,
+
+	IS_STEP_EXPECT_NULL,
 };
 
 struct SQLWhereParser::PrivateContext {
@@ -89,6 +91,8 @@ void SQLWhereParser::init(void)
 	  static_cast<KeywordHandler>(&SQLWhereParser::kwHandlerExists);
 	m_keywordHandlerMap["not"] =
 	  static_cast<KeywordHandler>(&SQLWhereParser::kwHandlerNot);
+	m_keywordHandlerMap["is"] =
+	  static_cast<KeywordHandler>(&SQLWhereParser::kwHandlerIs);
 	m_keywordHandlerMap["="] =
 	  static_cast<KeywordHandler>(&SQLWhereParser::kwHandlerEqual);
 	m_keywordHandlerMap["<"] =
@@ -132,8 +136,10 @@ void SQLWhereParser::add(string& word, string &wordLower)
 		addForBetween(word, wordLower);
 	else if (m_ctx->kwParsingStep < EXISTS_STEP_EXPECT_PARENTHESIS_OPEN)
 		addForIn(word, wordLower);
-	else
+	else if (m_ctx->kwParsingStep < IS_STEP_EXPECT_NULL)
 		addForExists(word, wordLower);
+	else
+		addForIs(word, wordLower);
 }
 
 void SQLWhereParser::clear(void)
@@ -238,6 +244,23 @@ void SQLWhereParser::addForExists(const string &word, const string &wordLower)
 	SeparatorCheckerWithCallback *separator = getSeparatorChecker();
 	separator->setAlternative(&ParsableString::SEPARATOR_PARENTHESIS);
 	m_ctx->kwParsingStep = EXISTS_STEP_FIND_CLOSE;
+}
+
+void SQLWhereParser::addForIs(const string &word, const string &wordLower)
+{
+	if (wordLower != "null") {
+		THROW_SQL_PROCESSOR_EXCEPTION(
+		  "Expected 'null' but got: %s", wordLower.c_str());
+	}
+
+	// Get Left-Hand
+	FormulaElement *lhsElement = getCurrentElement();
+	if (!lhsElement)
+		THROW_SQL_PROCESSOR_EXCEPTION("No left hand side of '<>'.");
+
+	FormulaIsNull *formulaIsNull = new FormulaIsNull();
+	insertElement(formulaIsNull);
+	clear();
 }
 
 void SQLWhereParser::setupParsingExists(void)
@@ -383,6 +406,11 @@ void SQLWhereParser::kwHandlerNot(void)
 {
 	FormulaOperatorNot *formulaOperatorNot = new FormulaOperatorNot();
 	insertElement(formulaOperatorNot);
+}
+
+void SQLWhereParser::kwHandlerIs(void)
+{
+	m_ctx->kwParsingStep = IS_STEP_EXPECT_NULL;
 }
 
 void SQLWhereParser::kwHandlerEqual(void)

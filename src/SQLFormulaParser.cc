@@ -463,7 +463,6 @@ void SQLFormulaParser::_separatorCbParenthesisOpen
 
 void SQLFormulaParser::separatorCbParenthesisOpen(const char separator)
 {
-
 	bool isFunc = makeFunctionParserIfPendingWordIsFunction();
 	if (isFunc)
 		return;

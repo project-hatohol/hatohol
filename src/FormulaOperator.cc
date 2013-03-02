@@ -346,3 +346,23 @@ ItemDataPtr FormulaExists::evaluate(void)
 	bool hasRows = !selectInfo.textRows.empty();
 	return ItemDataPtr(new ItemBool(hasRows), false);
 }
+
+// ---------------------------------------------------------------------------
+// FormulaIsNull
+// ---------------------------------------------------------------------------
+FormulaIsNull::FormulaIsNull(void)
+: FormulaElement(FORMULA_ELEM_PRIO_IS_NULL, true)
+{
+}
+
+FormulaIsNull::~FormulaIsNull()
+{
+}
+
+ItemDataPtr FormulaIsNull::evaluate(void)
+{
+	ItemDataPtr dataPtr;
+	if (!getLeftHandDataWithCheck(dataPtr))
+		return ItemDataPtr();
+	return ItemDataPtr(new ItemBool(dataPtr->isNull()), false);
+}

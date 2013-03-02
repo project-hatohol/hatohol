@@ -38,6 +38,7 @@ protected:
 	void addForBetween(const string &word, const string &wordLower);
 	void addForIn(const string &word, const string &wordLower);
 	void addForExists(const string &word, const string &wordLower);
+	void addForIs(const string &word, const string &wordLower);
 	void closeInParenthesis(void);
 	void setupParsingExists(void);
 	void makeFormulaExistsAndCleanup(void);
@@ -61,6 +62,7 @@ protected:
 	void kwHandlerIn(void);
 	void kwHandlerExists(void);
 	void kwHandlerNot(void);
+	void kwHandlerIs(void);
 	void kwHandlerEqual(void);
 	void kwHandlerLessThan(void);
 	void kwHandlerLessEqual(void);

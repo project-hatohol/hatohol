@@ -170,4 +170,14 @@ private:
 	SQLProcessorSelect        *m_processorSelect;
 };
 
+// ---------------------------------------------------------------------------
+// FormulaIsNull
+// ---------------------------------------------------------------------------
+class FormulaIsNull : public FormulaElement {
+public:
+	FormulaIsNull(void);
+	virtual ~FormulaIsNull();
+	virtual ItemDataPtr evaluate(void);
+};
+
 #endif // FormulaOperator_h
