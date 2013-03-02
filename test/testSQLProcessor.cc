@@ -594,6 +594,17 @@ void test_selectTwoTableWithNames(void)
 	cut_assert_equal_string(var2, (*table)->varName.c_str());
 }
 
+void test_selectTwoTableWithoutVar(void)
+{
+	string statement =
+	  StringUtils::sprintf("select %s from %s, %s",
+	                       COLUMN_NAME_ANIMAL, TABLE0_NAME, TABLE1_NAME);
+	const size_t numColumns = 1;
+	const size_t numExpectedRows = numTestData0 * numTestData1;
+	DEFINE_SELECTINFO_AND_ASSERT_SELECT(
+	  selectInfo, statement, numColumns, numExpectedRows);
+}
+
 void test_selectTestData(void)
 {
 	string statement = 

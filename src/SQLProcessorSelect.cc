@@ -393,11 +393,11 @@ bool SQLProcessorSelect::select(SQLSelectInfo &selectInfo)
 		// set members in SQLFormulaColumnDataGetter
 		fixupColumnNameMap();
 
-		// associate each column with the table
-		associateColumnWithTable();
-
 		// associate each table with static table information
 		associateTableWithStaticInfo();
+
+		// associate each column with the table
+		associateColumnWithTable();
 
 		// make ItemTable objects for all specified tables
 		setColumnTypeAndDefInColumnInfo();
@@ -1093,8 +1093,12 @@ SQLProcessorSelect::getTableInfoFromColumnInfo(SQLColumnInfo *columnInfo) const
 			  tableInfo->varName.c_str());
 		}
 	} else {
-		tableInfo = getTableInfoFromVarName(*selectInfo,
-		                                    columnInfo->tableVar);
+		if (columnInfo->tableVar.empty()) {
+			tableInfo = getTableInfoWithScanTables(columnInfo);
+		} else {
+			tableInfo = getTableInfoFromVarName
+			              (*selectInfo, columnInfo->tableVar);
+		}
 	}
 
 	// set the pointer where the current row has
@@ -1104,6 +1108,23 @@ SQLProcessorSelect::getTableInfoFromColumnInfo(SQLColumnInfo *columnInfo) const
 	}
 
 	return tableInfo;
+}
+
+SQLTableInfo *
+SQLProcessorSelect::getTableInfoWithScanTables(SQLColumnInfo *columnInfo) const
+{
+	SQLSelectInfo *selectInfo = m_ctx->selectInfo;
+	const string &columnName = columnInfo->name;
+	SQLTableInfoListIterator it = selectInfo->tables.begin();
+	for (; it != selectInfo->tables.end(); ++it) {
+		SQLTableInfo *tableInfo = *it;
+		const SQLTableStaticInfo *staticInfo = tableInfo->staticInfo;
+		ColumnNameAccessInfoMapConstIterator jt =
+		  staticInfo->columnAccessInfoMap.find(columnName);
+		if (jt != staticInfo->columnAccessInfoMap.end())
+			return tableInfo; // found
+	}
+	return NULL;
 }
 
 SQLTableInfo *

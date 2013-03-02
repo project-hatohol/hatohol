@@ -261,6 +261,8 @@ protected:
 	                            string &baseName, string &tableVar);
 	SQLTableInfo *
 	  getTableInfoFromColumnInfo(SQLColumnInfo *columnInfo) const;
+	SQLTableInfo *
+	  getTableInfoWithScanTables(SQLColumnInfo *columnInfo) const;
 	static SQLTableInfo *
 	  getTableInfoFromVarName(SQLSelectInfo &selectInfo,
 	                          const string &tableVar);
