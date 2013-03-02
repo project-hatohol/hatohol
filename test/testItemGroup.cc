@@ -211,7 +211,7 @@ void test_addInvalidItemTypeWhenHasItemGroupType(void)
 	try {
 		item = new ItemInt(ITEM_ID_1, 10);
 		x_grp->add(item, false);
-	} catch (invalid_argument e) {
+	} catch (const AsuraException &e) {
 		gotException = true;
 		item->unref();
 	}

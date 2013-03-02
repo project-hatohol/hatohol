@@ -205,7 +205,7 @@ void test_addInvalidItemsWhenHasMoreThanOneGroup(void)
 	bool gotException = false;
 	try {
 		grp->add(item, false);
-	} catch (invalid_argument e) {
+	} catch (const AsuraException &e) {
 		item->unref();
 		gotException = true;
 	}
@@ -228,7 +228,7 @@ void test_addItemsWhenPreviousGroupIncompletion(void)
 	ItemData *item = new ItemInt(ITEM_ID_0, -5);
 	try {
 		grp->add(item, false);
-	} catch (invalid_argument e) {
+	} catch (const AsuraException &e) {
 		item->unref();
 		gotException = true;
 	}
