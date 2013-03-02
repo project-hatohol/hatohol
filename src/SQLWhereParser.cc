@@ -353,8 +353,6 @@ void SQLWhereParser::kwHandlerBetween(void)
 	// by insertElement() in createBetweenElement().
 
 	m_ctx->kwParsingStep = BETWEEN_STEP_EXPECT_V0;
-	SeparatorCheckerWithCallback *separator = getSeparatorChecker();
-	separator->setAlternative(&ParsableString::SEPARATOR_SPACE);
 }
 
 void SQLWhereParser::kwHandlerIn(void)
