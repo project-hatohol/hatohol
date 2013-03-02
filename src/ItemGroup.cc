@@ -46,10 +46,9 @@ void ItemGroup::add(ItemData *data, bool doRef)
 		ItemDataType expectedType = m_groupType->getType(index);
 		if (expectedType != itemDataType) {
 			writeUnlock();
-			string msg;
-			TRMSG(msg, "ItemDataType (%d) is not the expected (%d)",
-			      itemDataType, expectedType);
-			throw invalid_argument(msg);
+			THROW_ASURA_EXCEPTION(
+			  "ItemDataType (%d) is not the expected (%d)",
+			  itemDataType, expectedType);
 		}
 		if ((index + 1) == m_groupType->getSize())
 			m_freeze = true;
