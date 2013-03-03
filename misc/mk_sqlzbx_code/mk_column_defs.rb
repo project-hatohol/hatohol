@@ -71,7 +71,7 @@ def print_one_group(line)
   puts sprintf("\tdefineColumn(staticInfo, ITEM_ID_%s,", item_name.upcase)
   puts sprintf("\t             TABLE_ID, \"%s\",", item_name)
   if digit_frac
-    puts sprintf("\t             %s, %d, %d",
+    puts sprintf("\t             %s, %d, %d,",
                  sql_type, digit_frac[0], digit_frac[1])
   else
     puts sprintf("\t             %s, %d,", sql_type, digit)
