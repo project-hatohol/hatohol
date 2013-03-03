@@ -388,6 +388,10 @@ VirtualDataStoreZabbix::VirtualDataStoreZabbix(void)
 	//
 	table = createStaticItemTable(GROUP_ID_ZBX_HOST_INVENTORY);
 
+	//
+	// rights
+	//
+	table = createStaticItemTable(GROUP_ID_ZBX_RIGHTS);
 }
 
 VirtualDataStoreZabbix::~VirtualDataStoreZabbix()

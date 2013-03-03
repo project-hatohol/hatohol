@@ -43,6 +43,7 @@ enum TableID {
 	TABLE_ID_EVENTS,
 	TABLE_ID_SCRIPTS,
 	TABLE_ID_HOST_INVENTORY,
+	TABLE_ID_RIGHTS,
 };
 
 static const char *TABLE_NAME_NODES  = "nodes";
@@ -63,6 +64,7 @@ static const char *TABLE_NAME_TRIGGER_DEPENDS = "trigger_depends";
 static const char *TABLE_NAME_EVENTS = "events";
 static const char *TABLE_NAME_SCRIPTS = "scripts";
 static const char *TABLE_NAME_HOST_INVENTORY = "host_inventory";
+static const char *TABLE_NAME_RIGHTS = "rights";
 
 TableNameStaticInfoMap SQLProcessorZabbix::m_tableNameStaticInfoMap;
 
@@ -1331,6 +1333,26 @@ void SQLProcessorZabbix::init(void)
 	             TABLE_ID_HOST_INVENTORY, "poc_2_notes",
 	             SQL_COLUMN_TYPE_TEXT, 0,
 	             false, SQL_KEY_NONE, NULL);
+
+	staticInfo =
+	  defineTable(TABLE_ID_RIGHTS, TABLE_NAME_RIGHTS,
+	              MAKE_FUNC(GROUP_ID_ZBX_RIGHTS));
+	defineColumn(staticInfo, ITEM_ID_ZBX_RIGHTS_RIGHTID,
+	             TABLE_ID_RIGHTS, "rightid",
+	             SQL_COLUMN_TYPE_BIGUINT, 20,
+	             false, SQL_KEY_PRI, NULL);
+	defineColumn(staticInfo, ITEM_ID_ZBX_RIGHTS_GROUPID,
+	             TABLE_ID_RIGHTS, "groupid",
+	             SQL_COLUMN_TYPE_BIGUINT, 20,
+	             false, SQL_KEY_MUL, NULL);
+	defineColumn(staticInfo, ITEM_ID_ZBX_RIGHTS_PERMISSION,
+	             TABLE_ID_RIGHTS, "permission",
+	             SQL_COLUMN_TYPE_INT, 11,
+	             false, SQL_KEY_NONE, "0");
+	defineColumn(staticInfo, ITEM_ID_ZBX_RIGHTS_ID,
+	             TABLE_ID_RIGHTS, "id",
+	             SQL_COLUMN_TYPE_BIGUINT, 20,
+	             false, SQL_KEY_MUL, NULL);
 }
 
 SQLProcessor *SQLProcessorZabbix::createInstance(void)
