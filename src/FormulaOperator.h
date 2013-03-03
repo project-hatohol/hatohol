@@ -180,4 +180,14 @@ public:
 	virtual ItemDataPtr evaluate(void);
 };
 
+// ---------------------------------------------------------------------------
+// FormulaIsNotNull
+// ---------------------------------------------------------------------------
+class FormulaIsNotNull : public FormulaElement {
+public:
+	FormulaIsNotNull(void);
+	virtual ~FormulaIsNotNull();
+	virtual ItemDataPtr evaluate(void);
+};
+
 #endif // FormulaOperator_h

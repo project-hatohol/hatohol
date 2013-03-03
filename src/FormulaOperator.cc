@@ -366,3 +366,23 @@ ItemDataPtr FormulaIsNull::evaluate(void)
 		return ItemDataPtr();
 	return ItemDataPtr(new ItemBool(dataPtr->isNull()), false);
 }
+
+// ---------------------------------------------------------------------------
+// FormulaIsNotNull
+// ---------------------------------------------------------------------------
+FormulaIsNotNull::FormulaIsNotNull(void)
+: FormulaElement(FORMULA_ELEM_PRIO_IS_NOT_NULL, true)
+{
+}
+
+FormulaIsNotNull::~FormulaIsNotNull()
+{
+}
+
+ItemDataPtr FormulaIsNotNull::evaluate(void)
+{
+	ItemDataPtr dataPtr;
+	if (!getLeftHandDataWithCheck(dataPtr))
+		return ItemDataPtr();
+	return ItemDataPtr(new ItemBool(!dataPtr->isNull()), false);
+}
