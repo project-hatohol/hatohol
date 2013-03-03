@@ -249,7 +249,7 @@ void SQLWhereParser::addForExists(const string &word, const string &wordLower)
 
 void SQLWhereParser::addForIs(const string &word, const string &wordLower)
 {
-	if (wordLower != "not") {
+	if (wordLower == "not") {
 		m_ctx->kwParsingStep = IS_STEP_GOT_NOT;
 		return;
 	}
