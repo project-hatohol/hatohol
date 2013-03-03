@@ -392,6 +392,73 @@ VirtualDataStoreZabbix::VirtualDataStoreZabbix(void)
 	// rights
 	//
 	table = createStaticItemTable(GROUP_ID_ZBX_RIGHTS);
+
+	//
+	// screens
+	//
+	table = createStaticItemTable(GROUP_ID_ZBX_SCREENS);
+	grp = table->addNewGroup();
+	ADD(new ItemUint64(ITEM_ID_ZBX_SCREENS_SCREENID,     3));
+	ADD(new ItemString(ITEM_ID_ZBX_SCREENS_NAME, "System performance"));
+	ADD(new ItemInt   (ITEM_ID_ZBX_SCREENS_HSIZE,        2));
+	ADD(new ItemInt   (ITEM_ID_ZBX_SCREENS_VSIZE,        2));
+	ADD(new ItemUint64(ITEM_ID_ZBX_SCREENS_TEMPLATEID,   10001));
+
+	grp = table->addNewGroup();
+	ADD(new ItemUint64(ITEM_ID_ZBX_SCREENS_SCREENID,     4));
+	ADD(new ItemString(ITEM_ID_ZBX_SCREENS_NAME, "Zabbix server health"));
+	ADD(new ItemInt   (ITEM_ID_ZBX_SCREENS_HSIZE,        2));
+	ADD(new ItemInt   (ITEM_ID_ZBX_SCREENS_VSIZE,        2));
+	ADD(new ItemUint64(ITEM_ID_ZBX_SCREENS_TEMPLATEID,   10047));
+
+	grp = table->addNewGroup();
+	ADD(new ItemUint64(ITEM_ID_ZBX_SCREENS_SCREENID,     5));
+	ADD(new ItemString(ITEM_ID_ZBX_SCREENS_NAME, "System performance"));
+	ADD(new ItemInt   (ITEM_ID_ZBX_SCREENS_HSIZE,        2));
+	ADD(new ItemInt   (ITEM_ID_ZBX_SCREENS_VSIZE,        1));
+	ADD(new ItemUint64(ITEM_ID_ZBX_SCREENS_TEMPLATEID,   10076));
+
+	grp = table->addNewGroup();
+	ADD(new ItemUint64(ITEM_ID_ZBX_SCREENS_SCREENID,     6));
+	ADD(new ItemString(ITEM_ID_ZBX_SCREENS_NAME, "System performance"));
+	ADD(new ItemInt   (ITEM_ID_ZBX_SCREENS_HSIZE,        2));
+	ADD(new ItemInt   (ITEM_ID_ZBX_SCREENS_VSIZE,        1));
+	ADD(new ItemUint64(ITEM_ID_ZBX_SCREENS_TEMPLATEID,   10077));
+
+	grp = table->addNewGroup();
+	ADD(new ItemUint64(ITEM_ID_ZBX_SCREENS_SCREENID,     7));
+	ADD(new ItemString(ITEM_ID_ZBX_SCREENS_NAME, "System performance"));
+	ADD(new ItemInt   (ITEM_ID_ZBX_SCREENS_HSIZE,        2));
+	ADD(new ItemInt   (ITEM_ID_ZBX_SCREENS_VSIZE,        1));
+	ADD(new ItemUint64(ITEM_ID_ZBX_SCREENS_TEMPLATEID,   10075));
+
+	grp = table->addNewGroup();
+	ADD(new ItemUint64(ITEM_ID_ZBX_SCREENS_SCREENID,     9));
+	ADD(new ItemString(ITEM_ID_ZBX_SCREENS_NAME, "System performance"));
+	ADD(new ItemInt   (ITEM_ID_ZBX_SCREENS_HSIZE,        2));
+	ADD(new ItemInt   (ITEM_ID_ZBX_SCREENS_VSIZE,        2));
+	ADD(new ItemUint64(ITEM_ID_ZBX_SCREENS_TEMPLATEID,   10074));
+
+	grp = table->addNewGroup();
+	ADD(new ItemUint64(ITEM_ID_ZBX_SCREENS_SCREENID,     10));
+	ADD(new ItemString(ITEM_ID_ZBX_SCREENS_NAME, "System performance"));
+	ADD(new ItemInt   (ITEM_ID_ZBX_SCREENS_HSIZE,        2));
+	ADD(new ItemInt   (ITEM_ID_ZBX_SCREENS_VSIZE,        1));
+	ADD(new ItemUint64(ITEM_ID_ZBX_SCREENS_TEMPLATEID,   10078));
+
+	grp = table->addNewGroup();
+	ADD(new ItemUint64(ITEM_ID_ZBX_SCREENS_SCREENID,     15));
+	ADD(new ItemString(ITEM_ID_ZBX_SCREENS_NAME, "MySQL performance"));
+	ADD(new ItemInt   (ITEM_ID_ZBX_SCREENS_HSIZE,        2));
+	ADD(new ItemInt   (ITEM_ID_ZBX_SCREENS_VSIZE,        1));
+	ADD(new ItemUint64(ITEM_ID_ZBX_SCREENS_TEMPLATEID,   10073));
+
+	grp = table->addNewGroup();
+	ADD(new ItemUint64(ITEM_ID_ZBX_SCREENS_SCREENID,     16));
+	ADD(new ItemString(ITEM_ID_ZBX_SCREENS_NAME, "Zabbix server"));
+	ADD(new ItemInt   (ITEM_ID_ZBX_SCREENS_HSIZE,        2));
+	ADD(new ItemInt   (ITEM_ID_ZBX_SCREENS_VSIZE,        2));
+	ADD_AS_NULL(new ItemUint64(ITEM_ID_ZBX_SCREENS_TEMPLATEID, 0));
 }
 
 VirtualDataStoreZabbix::~VirtualDataStoreZabbix()

@@ -44,6 +44,7 @@ enum TableID {
 	TABLE_ID_SCRIPTS,
 	TABLE_ID_HOST_INVENTORY,
 	TABLE_ID_RIGHTS,
+	TABLE_ID_SCREENS,
 };
 
 static const char *TABLE_NAME_NODES  = "nodes";
@@ -65,6 +66,7 @@ static const char *TABLE_NAME_EVENTS = "events";
 static const char *TABLE_NAME_SCRIPTS = "scripts";
 static const char *TABLE_NAME_HOST_INVENTORY = "host_inventory";
 static const char *TABLE_NAME_RIGHTS = "rights";
+static const char *TABLE_NAME_SCREENS = "screens";
 
 TableNameStaticInfoMap SQLProcessorZabbix::m_tableNameStaticInfoMap;
 
@@ -1353,6 +1355,30 @@ void SQLProcessorZabbix::init(void)
 	             TABLE_ID_RIGHTS, "id",
 	             SQL_COLUMN_TYPE_BIGUINT, 20,
 	             false, SQL_KEY_MUL, NULL);
+
+	staticInfo =
+	  defineTable(TABLE_ID_SCREENS, TABLE_NAME_SCREENS,
+	              MAKE_FUNC(GROUP_ID_ZBX_SCREENS));
+	defineColumn(staticInfo, ITEM_ID_ZBX_SCREENS_SCREENID,
+	             TABLE_ID_SCREENS, "screenid",
+	             SQL_COLUMN_TYPE_BIGUINT, 20,
+	             false, SQL_KEY_PRI, NULL);
+	defineColumn(staticInfo, ITEM_ID_ZBX_SCREENS_NAME,
+	             TABLE_ID_SCREENS, "name",
+	             SQL_COLUMN_TYPE_VARCHAR, 255,
+	             false, SQL_KEY_NONE, NULL);
+	defineColumn(staticInfo, ITEM_ID_ZBX_SCREENS_HSIZE,
+	             TABLE_ID_SCREENS, "hsize",
+	             SQL_COLUMN_TYPE_INT, 11,
+	             false, SQL_KEY_NONE, "1");
+	defineColumn(staticInfo, ITEM_ID_ZBX_SCREENS_VSIZE,
+	             TABLE_ID_SCREENS, "vsize",
+	             SQL_COLUMN_TYPE_INT, 11,
+	             false, SQL_KEY_NONE, "1");
+	defineColumn(staticInfo, ITEM_ID_ZBX_SCREENS_TEMPLATEID,
+	             TABLE_ID_SCREENS, "templateid",
+	             SQL_COLUMN_TYPE_BIGUINT, 20,
+	             true, SQL_KEY_MUL, NULL);
 }
 
 SQLProcessor *SQLProcessorZabbix::createInstance(void)

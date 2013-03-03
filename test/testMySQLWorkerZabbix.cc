@@ -403,4 +403,17 @@ void test_selectHostInventory(void)
 	assertRecord(0, nsmap);
 }
 
+void test_selectScreenId(void)
+{
+	const char *cmd = "use zabbix;"
+	  "SELECT   count(DISTINCT s.screenid) as rowscount,s.templateid "
+	  "FROM screens s WHERE s.screenid BETWEEN 000000000000000 AND "
+	  "099999999999999 AND s.templateid IS NOT NULL AND  1=0  "
+	  "GROUP BY s.templateid";
+	executeCommand(cmd);
+	vector<string> lines;
+	NumberStringMap nsmap;
+	assertRecord(0, nsmap);
+}
+
 } // namespace testMySQLWorkerZabbix
