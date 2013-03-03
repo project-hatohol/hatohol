@@ -459,6 +459,11 @@ VirtualDataStoreZabbix::VirtualDataStoreZabbix(void)
 	ADD(new ItemInt   (ITEM_ID_ZBX_SCREENS_HSIZE,        2));
 	ADD(new ItemInt   (ITEM_ID_ZBX_SCREENS_VSIZE,        2));
 	ADD_AS_NULL(new ItemUint64(ITEM_ID_ZBX_SCREENS_TEMPLATEID, 0));
+
+	//
+	// graphs
+	//
+	table = createStaticItemTable(GROUP_ID_ZBX_GRAPHS);
 }
 
 VirtualDataStoreZabbix::~VirtualDataStoreZabbix()

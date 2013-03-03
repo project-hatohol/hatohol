@@ -45,6 +45,7 @@ enum TableID {
 	TABLE_ID_HOST_INVENTORY,
 	TABLE_ID_RIGHTS,
 	TABLE_ID_SCREENS,
+	TABLE_ID_GRAPHS,
 };
 
 static const char *TABLE_NAME_NODES  = "nodes";
@@ -67,6 +68,7 @@ static const char *TABLE_NAME_SCRIPTS = "scripts";
 static const char *TABLE_NAME_HOST_INVENTORY = "host_inventory";
 static const char *TABLE_NAME_RIGHTS = "rights";
 static const char *TABLE_NAME_SCREENS = "screens";
+static const char *TABLE_NAME_GRAPHS = "graphs";
 
 TableNameStaticInfoMap SQLProcessorZabbix::m_tableNameStaticInfoMap;
 
@@ -1379,6 +1381,86 @@ void SQLProcessorZabbix::init(void)
 	             TABLE_ID_SCREENS, "templateid",
 	             SQL_COLUMN_TYPE_BIGUINT, 20,
 	             true, SQL_KEY_MUL, NULL);
+
+	staticInfo =
+	  defineTable(TABLE_ID_GRAPHS, TABLE_NAME_GRAPHS,
+	              MAKE_FUNC(GROUP_ID_ZBX_GRAPHS));
+	defineColumn(staticInfo, ITEM_ID_ZBX_GRAPHS_GRAPHID,
+	             TABLE_ID_GRAPHS, "graphid",
+	             SQL_COLUMN_TYPE_BIGUINT, 20,
+	             false, SQL_KEY_PRI, NULL);
+	defineColumn(staticInfo, ITEM_ID_ZBX_GRAPHS_NAME,
+	             TABLE_ID_GRAPHS, "name",
+	             SQL_COLUMN_TYPE_VARCHAR, 128,
+	             false, SQL_KEY_MUL, "");
+	defineColumn(staticInfo, ITEM_ID_ZBX_GRAPHS_WIDTH,
+	             TABLE_ID_GRAPHS, "width",
+	             SQL_COLUMN_TYPE_INT, 11,
+	             false, SQL_KEY_NONE, "0");
+	defineColumn(staticInfo, ITEM_ID_ZBX_GRAPHS_HEIGHT,
+	             TABLE_ID_GRAPHS, "height",
+	             SQL_COLUMN_TYPE_INT, 11,
+	             false, SQL_KEY_NONE, "0");
+	defineColumn(staticInfo, ITEM_ID_ZBX_GRAPHS_YAXISMIN,
+	             TABLE_ID_GRAPHS, "yaxismin",
+	             SQL_COLUMN_TYPE_DOUBLE, 16, 4,
+	             false, SQL_KEY_NONE, "0.0000");
+	defineColumn(staticInfo, ITEM_ID_ZBX_GRAPHS_YAXISMAX,
+	             TABLE_ID_GRAPHS, "yaxismax",
+	             SQL_COLUMN_TYPE_DOUBLE, 16, 4,
+	             false, SQL_KEY_NONE, "0.0000");
+	defineColumn(staticInfo, ITEM_ID_ZBX_GRAPHS_TEMPLATEID,
+	             TABLE_ID_GRAPHS, "templateid",
+	             SQL_COLUMN_TYPE_BIGUINT, 20,
+	             true, SQL_KEY_MUL, NULL);
+	defineColumn(staticInfo, ITEM_ID_ZBX_GRAPHS_SHOW_WORK_PERIOD,
+	             TABLE_ID_GRAPHS, "show_work_period",
+	             SQL_COLUMN_TYPE_INT, 11,
+	             false, SQL_KEY_NONE, "1");
+	defineColumn(staticInfo, ITEM_ID_ZBX_GRAPHS_SHOW_TRIGGERS,
+	             TABLE_ID_GRAPHS, "show_triggers",
+	             SQL_COLUMN_TYPE_INT, 11,
+	             false, SQL_KEY_NONE, "1");
+	defineColumn(staticInfo, ITEM_ID_ZBX_GRAPHS_GRAPHTYPE,
+	             TABLE_ID_GRAPHS, "graphtype",
+	             SQL_COLUMN_TYPE_INT, 11,
+	             false, SQL_KEY_NONE, "0");
+	defineColumn(staticInfo, ITEM_ID_ZBX_GRAPHS_SHOW_LEGEND,
+	             TABLE_ID_GRAPHS, "show_legend",
+	             SQL_COLUMN_TYPE_INT, 11,
+	             false, SQL_KEY_NONE, "1");
+	defineColumn(staticInfo, ITEM_ID_ZBX_GRAPHS_SHOW_3D,
+	             TABLE_ID_GRAPHS, "show_3d",
+	             SQL_COLUMN_TYPE_INT, 11,
+	             false, SQL_KEY_NONE, "0");
+	defineColumn(staticInfo, ITEM_ID_ZBX_GRAPHS_PERCENT_LEFT,
+	             TABLE_ID_GRAPHS, "percent_left",
+	             SQL_COLUMN_TYPE_DOUBLE, 16, 4,
+	             false, SQL_KEY_NONE, "0.0000");
+	defineColumn(staticInfo, ITEM_ID_ZBX_GRAPHS_PERCENT_RIGHT,
+	             TABLE_ID_GRAPHS, "percent_right",
+	             SQL_COLUMN_TYPE_DOUBLE, 16, 4,
+	             false, SQL_KEY_NONE, "0.0000");
+	defineColumn(staticInfo, ITEM_ID_ZBX_GRAPHS_YMIN_TYPE,
+	             TABLE_ID_GRAPHS, "ymin_type",
+	             SQL_COLUMN_TYPE_INT, 11,
+	             false, SQL_KEY_NONE, "0");
+	defineColumn(staticInfo, ITEM_ID_ZBX_GRAPHS_YMAX_TYPE,
+	             TABLE_ID_GRAPHS, "ymax_type",
+	             SQL_COLUMN_TYPE_INT, 11,
+	             false, SQL_KEY_NONE, "0");
+	defineColumn(staticInfo, ITEM_ID_ZBX_GRAPHS_YMIN_ITEMID,
+	             TABLE_ID_GRAPHS, "ymin_itemid",
+	             SQL_COLUMN_TYPE_BIGUINT, 20,
+	             true, SQL_KEY_MUL, NULL);
+	defineColumn(staticInfo, ITEM_ID_ZBX_GRAPHS_YMAX_ITEMID,
+	             TABLE_ID_GRAPHS, "ymax_itemid",
+	             SQL_COLUMN_TYPE_BIGUINT, 20,
+	             true, SQL_KEY_MUL, NULL);
+	defineColumn(staticInfo, ITEM_ID_ZBX_GRAPHS_FLAGS,
+	             TABLE_ID_GRAPHS, "flags",
+	             SQL_COLUMN_TYPE_INT, 11,
+	             false, SQL_KEY_NONE, "0");
 }
 
 SQLProcessor *SQLProcessorZabbix::createInstance(void)

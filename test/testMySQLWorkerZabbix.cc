@@ -416,4 +416,15 @@ void test_selectScreenId(void)
 	assertRecord(0, nsmap);
 }
 
+void test_graphs(void)
+{
+	const char *cmd = "use zabbix;"
+	  "SELECT   g.* FROM graphs g WHERE  1=0  "
+	  "AND (  (g.flags IN ('0','4'))  )";
+	executeCommand(cmd);
+	vector<string> lines;
+	NumberStringMap nsmap;
+	assertRecord(0, nsmap);
+}
+
 } // namespace testMySQLWorkerZabbix
