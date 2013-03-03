@@ -5,7 +5,8 @@ SQL_TYPE_MAP = {
   "int"             => "SQL_COLUMN_TYPE_INT",
   "char"            => "SQL_COLUMN_TYPE_CHAR",
   "varchar"         => "SQL_COLUMN_TYPE_VARCHAR",
-  "text"            => "SQL_COLUMN_TYPE_TEXT"
+  "text"            => "SQL_COLUMN_TYPE_TEXT",
+  "double"          => "SQL_COLUMN_TYPE_DOUBLE"
 }
 
 def print_one_group(line)
@@ -19,12 +20,18 @@ def print_one_group(line)
   item_name = columns[1].strip;
 
   # SQLColumnType
-  sql_type_key = columns[2].sub(/\([0-9]+\)/, "").strip
+  sql_type_key = columns[2].sub(/\([0-9,]+\)/, "").strip
   sql_type = SQL_TYPE_MAP[sql_type_key]
-  digit = columns[2].sub(/[^0-9]+/, "")
-  digit = digit.sub(/[^0-9]+/, "")
+  digit = columns[2].sub(/[^0-9,]+/, "")
+  digit = digit.sub(/[^0-9,]+/, "")
+  digit_frac = nil
   if digit == ""
     digit = 0
+  elsif digit =~ /[0-9],[0-9]/
+    digit_frac = digit.split(",")
+    if digit_frac.size != 2
+      abort("Invalid digit: #{digit}")
+    end
   end
 
   # Can be null
@@ -63,7 +70,12 @@ def print_one_group(line)
 
   puts sprintf("\tdefineColumn(staticInfo, ITEM_ID_%s,", item_name.upcase)
   puts sprintf("\t             TABLE_ID, \"%s\",", item_name)
-  puts sprintf("\t             %s, %d,", sql_type, digit)
+  if digit_frac
+    puts sprintf("\t             %s, %d, %d",
+                 sql_type, digit_frac[0], digit_frac[1])
+  else
+    puts sprintf("\t             %s, %d,", sql_type, digit)
+  end
   puts sprintf("\t             %s, %s, %s);", can_be_null, key_type, default_value)
 
 #  defineColumn(staticInfo, ITEM_ID_ZBX_ITEMS_ITEMID,
