@@ -107,6 +107,8 @@ protected:
 	  (const ColumnDef *columnDef, const char *value);
 	static ItemDataPtr creatorChar
 	  (const ColumnDef *columnDef, const char *value);
+	static ItemDataPtr creatorDouble
+	  (const ColumnDef *columnDef, const char *value);
 
 private:
 	static ItemDataCreator m_itemDataCreators[];

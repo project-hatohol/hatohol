@@ -27,6 +27,7 @@ SQLUtils::ItemDataCreator SQLUtils::m_itemDataCreators[] =
 	&SQLUtils::creatorVarchar,
 	&SQLUtils::creatorChar,
 	&SQLUtils::creatorVarchar, // SQL_COLUMN_TYPE_TEXT
+	&SQLUtils::creatorDouble,
 };
 
 size_t SQLUtils::m_numItemDataCreators
@@ -167,4 +168,16 @@ ItemDataPtr SQLUtils::creatorChar(const ColumnDef *columnDef,
 {
 	ItemId itemId = columnDef->itemId;
 	return ItemDataPtr(new ItemString(itemId, value), false);
+}
+
+ItemDataPtr SQLUtils::creatorDouble(const ColumnDef *columnDef,
+                                    const char *value)
+{
+	bool isFloat;
+	if (!StringUtils::isNumber(value, &isFloat)) {
+		MLPL_DBG("Not number: %s\n", value);
+		return ItemDataPtr();
+	}
+	ItemId itemId = columnDef->itemId;
+	return ItemDataPtr(new ItemDouble(itemId, atof(value)), false);
 }
