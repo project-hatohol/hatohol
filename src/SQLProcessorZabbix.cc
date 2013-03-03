@@ -1444,6 +1444,20 @@ void SQLProcessorZabbix::defineColumn(SQLTableStaticInfo *staticInfo,
                                       bool canBeNull, SQLKeyType keyType,
                                       const char *defaultValue)
 {
+	size_t decFracLength = 0;
+	defineColumn(staticInfo, itemId, tableId, columnName, type,
+	             columnLength, decFracLength, canBeNull,
+	             keyType, defaultValue);
+}
+
+void SQLProcessorZabbix::defineColumn(SQLTableStaticInfo *staticInfo,
+                                      ItemId itemId,
+                                      int tableId, const char *columnName,
+                                      SQLColumnType type,
+                                      size_t columnLength, size_t decFracLength,
+                                      bool canBeNull, SQLKeyType keyType,
+                                      const char *defaultValue)
+{
 	ColumnDefList &list =
 	  const_cast<ColumnDefList &>(staticInfo->columnDefList);
 	int index = list.size();
@@ -1454,6 +1468,7 @@ void SQLProcessorZabbix::defineColumn(SQLTableStaticInfo *staticInfo,
 	columnDef.columnName   = columnName;
 	columnDef.type         = type;
 	columnDef.columnLength = columnLength;
+	columnDef.decFracLength = decFracLength;
 	columnDef.canBeNull    = canBeNull;
 	columnDef.keyType      = keyType;
 	columnDef.defaultValue = defaultValue;

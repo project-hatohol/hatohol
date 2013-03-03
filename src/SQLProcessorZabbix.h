@@ -49,6 +49,13 @@ private:
 	                         SQLColumnType, size_t columnLength,
 	                         bool canBeNull, SQLKeyType keyType,
 	                         const char *defaultValue);
+	static void defineColumn(SQLTableStaticInfo *staticInfo,
+	                         ItemId itemId,
+	                         int tableId, const char *columnName,
+	                         SQLColumnType type,
+	                         size_t columnLength, size_t decFracLength,
+	                         bool canBeNull, SQLKeyType keyType,
+	                         const char *defaultValue);
 	VirtualDataStoreZabbix *m_VDSZabbix;
 
 	template<ItemGroupId GROUP_ID>

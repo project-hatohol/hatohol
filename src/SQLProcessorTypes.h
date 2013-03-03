@@ -72,6 +72,7 @@ struct ColumnDef {
 	const char    *columnName;
 	SQLColumnType  type;
 	size_t         columnLength;
+	size_t         decFracLength;
 	bool           canBeNull;
 	SQLKeyType     keyType;
 	uint16_t       flags;
