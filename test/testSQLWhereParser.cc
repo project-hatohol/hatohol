@@ -469,5 +469,14 @@ void test_not(void)
 	assertFormulaVariable(formula->getLeftHand(), elemName0);
 }
 
+void test_isNull(void)
+{
+	const char *elemName0 = "a";
+	string statement = StringUtils::sprintf("%s is null", elemName0);
+	DEFINE_PARSER_AND_RUN(whereParser, formula, statement);
+	assertTypeFormulaIsNull(formula);
+	assertFormulaVariable(formula->getLeftHand(), elemName0);
+}
+
 } // namespace testSQLWhereParser
 

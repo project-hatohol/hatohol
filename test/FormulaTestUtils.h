@@ -61,6 +61,9 @@ cut_trace(assertFormulaElementType<FormulaIn>(X))
 #define assertTypeFormulaExists(X) \
 cut_trace(assertFormulaElementType<FormulaExists>(X))
 
+#define assertTypeFormulaIsNull(X) \
+cut_trace(assertFormulaElementType<FormulaIsNull>(X))
+
 #define assertFormulaFuncMax(X) \
 cut_trace(assertFormulaElementType<FormulaFuncMax>(X))
 
