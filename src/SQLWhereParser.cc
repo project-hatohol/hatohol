@@ -36,7 +36,8 @@ enum KeywordParsingStep {
 	EXISTS_STEP_EXPECT_SELECT,
 	EXISTS_STEP_FIND_CLOSE,
 
-	IS_STEP_EXPECT_NULL,
+	IS_STEP_EXPECT_NULL_OR_NOT,
+	IS_STEP_GOT_NOT,
 };
 
 struct SQLWhereParser::PrivateContext {
@@ -136,7 +137,7 @@ void SQLWhereParser::add(string& word, string &wordLower)
 		addForBetween(word, wordLower);
 	else if (m_ctx->kwParsingStep < EXISTS_STEP_EXPECT_PARENTHESIS_OPEN)
 		addForIn(word, wordLower);
-	else if (m_ctx->kwParsingStep < IS_STEP_EXPECT_NULL)
+	else if (m_ctx->kwParsingStep < IS_STEP_EXPECT_NULL_OR_NOT)
 		addForExists(word, wordLower);
 	else
 		addForIs(word, wordLower);
@@ -248,6 +249,11 @@ void SQLWhereParser::addForExists(const string &word, const string &wordLower)
 
 void SQLWhereParser::addForIs(const string &word, const string &wordLower)
 {
+	if (wordLower != "not") {
+		m_ctx->kwParsingStep = IS_STEP_GOT_NOT;
+		return;
+	}
+
 	if (wordLower != "null") {
 		THROW_SQL_PROCESSOR_EXCEPTION(
 		  "Expected 'null' but got: %s", wordLower.c_str());
@@ -255,11 +261,17 @@ void SQLWhereParser::addForIs(const string &word, const string &wordLower)
 
 	// Get Left-Hand
 	FormulaElement *lhsElement = getCurrentElement();
-	if (!lhsElement)
-		THROW_SQL_PROCESSOR_EXCEPTION("No left hand side of '<>'.");
+	if (!lhsElement) {
+		THROW_SQL_PROCESSOR_EXCEPTION(
+		  "No left hand side of 'IS (NOT) NULL'.");
+	}
 
-	FormulaIsNull *formulaIsNull = new FormulaIsNull();
-	insertElement(formulaIsNull);
+	FormulaElement *formulaElement = NULL;
+	if (m_ctx->kwParsingStep == IS_STEP_GOT_NOT)
+		formulaElement = new FormulaIsNotNull();
+	else 
+		formulaElement = new FormulaIsNull();
+	insertElement(formulaElement);
 	clear();
 }
 
@@ -410,7 +422,7 @@ void SQLWhereParser::kwHandlerNot(void)
 
 void SQLWhereParser::kwHandlerIs(void)
 {
-	m_ctx->kwParsingStep = IS_STEP_EXPECT_NULL;
+	m_ctx->kwParsingStep = IS_STEP_EXPECT_NULL_OR_NOT;
 }
 
 void SQLWhereParser::kwHandlerEqual(void)
