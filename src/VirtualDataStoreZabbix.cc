@@ -26,9 +26,9 @@
 
 #define ADD_AS_NULL(X) \
 do { \
-  grp->add(X, false); \
-  size_t num = grp->getNumberOfItems(); \
-  grp->getItemAt(num-1)->setNull(); \
+  ItemData *itemData = X; \
+  itemData->setNull(); \
+  grp->add(itemData, false); \
 } while (0)
 
 GMutex VirtualDataStoreZabbix::m_mutex;
