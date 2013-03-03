@@ -382,6 +382,12 @@ VirtualDataStoreZabbix::VirtualDataStoreZabbix(void)
 	ADD(new ItemString(ITEM_ID_ZBX_SCRIPTS_CONFIRMATION, ""));
 	ADD(new ItemInt   (ITEM_ID_ZBX_SCRIPTS_TYPE,         0));
 	ADD(new ItemInt   (ITEM_ID_ZBX_SCRIPTS_EXECUTE_ON,   1));
+
+	//
+	// host_inventory
+	//
+	table = createStaticItemTable(GROUP_ID_ZBX_HOST_INVENTORY);
+
 }
 
 VirtualDataStoreZabbix::~VirtualDataStoreZabbix()

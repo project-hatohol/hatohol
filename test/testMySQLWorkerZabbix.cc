@@ -393,4 +393,14 @@ void test_selectHostIdWithIsNull(void)
 	assertRecord(0, nsmap);
 }
 
+void test_selectHostInventory(void)
+{
+	const char *cmd = "use zabbix;"
+	  "SELECT hin.* FROM host_inventory hin WHERE  1=0";
+	executeCommand(cmd);
+	vector<string> lines;
+	NumberStringMap nsmap;
+	assertRecord(0, nsmap);
+}
+
 } // namespace testMySQLWorkerZabbix

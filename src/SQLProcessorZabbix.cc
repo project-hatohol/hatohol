@@ -42,6 +42,7 @@ enum TableID {
 	TABLE_ID_TRIGGER_DEPENDS,
 	TABLE_ID_EVENTS,
 	TABLE_ID_SCRIPTS,
+	TABLE_ID_HOST_INVENTORY,
 };
 
 static const char *TABLE_NAME_NODES  = "nodes";
@@ -61,6 +62,7 @@ static const char *TABLE_NAME_HOSTS_GROUPS = "hosts_groups";
 static const char *TABLE_NAME_TRIGGER_DEPENDS = "trigger_depends";
 static const char *TABLE_NAME_EVENTS = "events";
 static const char *TABLE_NAME_SCRIPTS = "scripts";
+static const char *TABLE_NAME_HOST_INVENTORY = "host_inventory";
 
 TableNameStaticInfoMap SQLProcessorZabbix::m_tableNameStaticInfoMap;
 
@@ -1037,6 +1039,298 @@ void SQLProcessorZabbix::init(void)
 	             TABLE_ID_SCRIPTS, "execute_on",
 	             SQL_COLUMN_TYPE_INT, 11,
 	             false, SQL_KEY_NONE, "1");
+
+	staticInfo =
+	  defineTable(TABLE_ID_HOST_INVENTORY, TABLE_NAME_HOST_INVENTORY,
+	              MAKE_FUNC(GROUP_ID_ZBX_HOST_INVENTORY));
+	defineColumn(staticInfo, ITEM_ID_ZBX_HOST_INVENTORY_HOSTID,
+	             TABLE_ID_HOST_INVENTORY, "hostid",
+	             SQL_COLUMN_TYPE_BIGUINT, 20,
+	             false, SQL_KEY_PRI, NULL);
+	defineColumn(staticInfo, ITEM_ID_ZBX_HOST_INVENTORY_INVENTORY_MODE,
+	             TABLE_ID_HOST_INVENTORY, "inventory_mode",
+	             SQL_COLUMN_TYPE_INT, 11,
+	             false, SQL_KEY_NONE, "0");
+	defineColumn(staticInfo, ITEM_ID_ZBX_HOST_INVENTORY_TYPE,
+	             TABLE_ID_HOST_INVENTORY, "type",
+	             SQL_COLUMN_TYPE_VARCHAR, 64,
+	             false, SQL_KEY_NONE, "");
+	defineColumn(staticInfo, ITEM_ID_ZBX_HOST_INVENTORY_TYPE_FULL,
+	             TABLE_ID_HOST_INVENTORY, "type_full",
+	             SQL_COLUMN_TYPE_VARCHAR, 64,
+	             false, SQL_KEY_NONE, "");
+	defineColumn(staticInfo, ITEM_ID_ZBX_HOST_INVENTORY_NAME,
+	             TABLE_ID_HOST_INVENTORY, "name",
+	             SQL_COLUMN_TYPE_VARCHAR, 64,
+	             false, SQL_KEY_NONE, "");
+	defineColumn(staticInfo, ITEM_ID_ZBX_HOST_INVENTORY_ALIAS,
+	             TABLE_ID_HOST_INVENTORY, "alias",
+	             SQL_COLUMN_TYPE_VARCHAR, 64,
+	             false, SQL_KEY_NONE, "");
+	defineColumn(staticInfo, ITEM_ID_ZBX_HOST_INVENTORY_OS,
+	             TABLE_ID_HOST_INVENTORY, "os",
+	             SQL_COLUMN_TYPE_VARCHAR, 64,
+	             false, SQL_KEY_NONE, "");
+	defineColumn(staticInfo, ITEM_ID_ZBX_HOST_INVENTORY_OS_FULL,
+	             TABLE_ID_HOST_INVENTORY, "os_full",
+	             SQL_COLUMN_TYPE_VARCHAR, 255,
+	             false, SQL_KEY_NONE, "");
+	defineColumn(staticInfo, ITEM_ID_ZBX_HOST_INVENTORY_OS_SHORT,
+	             TABLE_ID_HOST_INVENTORY, "os_short",
+	             SQL_COLUMN_TYPE_VARCHAR, 64,
+	             false, SQL_KEY_NONE, "");
+	defineColumn(staticInfo, ITEM_ID_ZBX_HOST_INVENTORY_SERIALNO_A,
+	             TABLE_ID_HOST_INVENTORY, "serialno_a",
+	             SQL_COLUMN_TYPE_VARCHAR, 64,
+	             false, SQL_KEY_NONE, "");
+	defineColumn(staticInfo, ITEM_ID_ZBX_HOST_INVENTORY_SERIALNO_B,
+	             TABLE_ID_HOST_INVENTORY, "serialno_b",
+	             SQL_COLUMN_TYPE_VARCHAR, 64,
+	             false, SQL_KEY_NONE, "");
+	defineColumn(staticInfo, ITEM_ID_ZBX_HOST_INVENTORY_TAG,
+	             TABLE_ID_HOST_INVENTORY, "tag",
+	             SQL_COLUMN_TYPE_VARCHAR, 64,
+	             false, SQL_KEY_NONE, "");
+	defineColumn(staticInfo, ITEM_ID_ZBX_HOST_INVENTORY_ASSET_TAG,
+	             TABLE_ID_HOST_INVENTORY, "asset_tag",
+	             SQL_COLUMN_TYPE_VARCHAR, 64,
+	             false, SQL_KEY_NONE, "");
+	defineColumn(staticInfo, ITEM_ID_ZBX_HOST_INVENTORY_MACADDRESS_A,
+	             TABLE_ID_HOST_INVENTORY, "macaddress_a",
+	             SQL_COLUMN_TYPE_VARCHAR, 64,
+	             false, SQL_KEY_NONE, "");
+	defineColumn(staticInfo, ITEM_ID_ZBX_HOST_INVENTORY_MACADDRESS_B,
+	             TABLE_ID_HOST_INVENTORY, "macaddress_b",
+	             SQL_COLUMN_TYPE_VARCHAR, 64,
+	             false, SQL_KEY_NONE, "");
+	defineColumn(staticInfo, ITEM_ID_ZBX_HOST_INVENTORY_HARDWARE,
+	             TABLE_ID_HOST_INVENTORY, "hardware",
+	             SQL_COLUMN_TYPE_VARCHAR, 255,
+	             false, SQL_KEY_NONE, "");
+	defineColumn(staticInfo, ITEM_ID_ZBX_HOST_INVENTORY_HARDWARE_FULL,
+	             TABLE_ID_HOST_INVENTORY, "hardware_full",
+	             SQL_COLUMN_TYPE_TEXT, 0,
+	             false, SQL_KEY_NONE, NULL);
+	defineColumn(staticInfo, ITEM_ID_ZBX_HOST_INVENTORY_SOFTWARE,
+	             TABLE_ID_HOST_INVENTORY, "software",
+	             SQL_COLUMN_TYPE_VARCHAR, 255,
+	             false, SQL_KEY_NONE, "");
+	defineColumn(staticInfo, ITEM_ID_ZBX_HOST_INVENTORY_SOFTWARE_FULL,
+	             TABLE_ID_HOST_INVENTORY, "software_full",
+	             SQL_COLUMN_TYPE_TEXT, 0,
+	             false, SQL_KEY_NONE, NULL);
+	defineColumn(staticInfo, ITEM_ID_ZBX_HOST_INVENTORY_SOFTWARE_APP_A,
+	             TABLE_ID_HOST_INVENTORY, "software_app_a",
+	             SQL_COLUMN_TYPE_VARCHAR, 64,
+	             false, SQL_KEY_NONE, "");
+	defineColumn(staticInfo, ITEM_ID_ZBX_HOST_INVENTORY_SOFTWARE_APP_B,
+	             TABLE_ID_HOST_INVENTORY, "software_app_b",
+	             SQL_COLUMN_TYPE_VARCHAR, 64,
+	             false, SQL_KEY_NONE, "");
+	defineColumn(staticInfo, ITEM_ID_ZBX_HOST_INVENTORY_SOFTWARE_APP_C,
+	             TABLE_ID_HOST_INVENTORY, "software_app_c",
+	             SQL_COLUMN_TYPE_VARCHAR, 64,
+	             false, SQL_KEY_NONE, "");
+	defineColumn(staticInfo, ITEM_ID_ZBX_HOST_INVENTORY_SOFTWARE_APP_D,
+	             TABLE_ID_HOST_INVENTORY, "software_app_d",
+	             SQL_COLUMN_TYPE_VARCHAR, 64,
+	             false, SQL_KEY_NONE, "");
+	defineColumn(staticInfo, ITEM_ID_ZBX_HOST_INVENTORY_SOFTWARE_APP_E,
+	             TABLE_ID_HOST_INVENTORY, "software_app_e",
+	             SQL_COLUMN_TYPE_VARCHAR, 64,
+	             false, SQL_KEY_NONE, "");
+	defineColumn(staticInfo, ITEM_ID_ZBX_HOST_INVENTORY_CONTACT,
+	             TABLE_ID_HOST_INVENTORY, "contact",
+	             SQL_COLUMN_TYPE_TEXT, 0,
+	             false, SQL_KEY_NONE, NULL);
+	defineColumn(staticInfo, ITEM_ID_ZBX_HOST_INVENTORY_LOCATION,
+	             TABLE_ID_HOST_INVENTORY, "location",
+	             SQL_COLUMN_TYPE_TEXT, 0,
+	             false, SQL_KEY_NONE, NULL);
+	defineColumn(staticInfo, ITEM_ID_ZBX_HOST_INVENTORY_LOCATION_LAT,
+	             TABLE_ID_HOST_INVENTORY, "location_lat",
+	             SQL_COLUMN_TYPE_VARCHAR, 16,
+	             false, SQL_KEY_NONE, "");
+	defineColumn(staticInfo, ITEM_ID_ZBX_HOST_INVENTORY_LOCATION_LON,
+	             TABLE_ID_HOST_INVENTORY, "location_lon",
+	             SQL_COLUMN_TYPE_VARCHAR, 16,
+	             false, SQL_KEY_NONE, "");
+	defineColumn(staticInfo, ITEM_ID_ZBX_HOST_INVENTORY_NOTES,
+	             TABLE_ID_HOST_INVENTORY, "notes",
+	             SQL_COLUMN_TYPE_TEXT, 0,
+	             false, SQL_KEY_NONE, NULL);
+	defineColumn(staticInfo, ITEM_ID_ZBX_HOST_INVENTORY_CHASSIS,
+	             TABLE_ID_HOST_INVENTORY, "chassis",
+	             SQL_COLUMN_TYPE_VARCHAR, 64,
+	             false, SQL_KEY_NONE, "");
+	defineColumn(staticInfo, ITEM_ID_ZBX_HOST_INVENTORY_MODEL,
+	             TABLE_ID_HOST_INVENTORY, "model",
+	             SQL_COLUMN_TYPE_VARCHAR, 64,
+	             false, SQL_KEY_NONE, "");
+	defineColumn(staticInfo, ITEM_ID_ZBX_HOST_INVENTORY_HW_ARCH,
+	             TABLE_ID_HOST_INVENTORY, "hw_arch",
+	             SQL_COLUMN_TYPE_VARCHAR, 32,
+	             false, SQL_KEY_NONE, "");
+	defineColumn(staticInfo, ITEM_ID_ZBX_HOST_INVENTORY_VENDOR,
+	             TABLE_ID_HOST_INVENTORY, "vendor",
+	             SQL_COLUMN_TYPE_VARCHAR, 64,
+	             false, SQL_KEY_NONE, "");
+	defineColumn(staticInfo, ITEM_ID_ZBX_HOST_INVENTORY_CONTRACT_NUMBER,
+	             TABLE_ID_HOST_INVENTORY, "contract_number",
+	             SQL_COLUMN_TYPE_VARCHAR, 64,
+	             false, SQL_KEY_NONE, "");
+	defineColumn(staticInfo, ITEM_ID_ZBX_HOST_INVENTORY_INSTALLER_NAME,
+	             TABLE_ID_HOST_INVENTORY, "installer_name",
+	             SQL_COLUMN_TYPE_VARCHAR, 64,
+	             false, SQL_KEY_NONE, "");
+	defineColumn(staticInfo, ITEM_ID_ZBX_HOST_INVENTORY_DEPLOYMENT_STATUS,
+	             TABLE_ID_HOST_INVENTORY, "deployment_status",
+	             SQL_COLUMN_TYPE_VARCHAR, 64,
+	             false, SQL_KEY_NONE, "");
+	defineColumn(staticInfo, ITEM_ID_ZBX_HOST_INVENTORY_URL_A,
+	             TABLE_ID_HOST_INVENTORY, "url_a",
+	             SQL_COLUMN_TYPE_VARCHAR, 255,
+	             false, SQL_KEY_NONE, "");
+	defineColumn(staticInfo, ITEM_ID_ZBX_HOST_INVENTORY_URL_B,
+	             TABLE_ID_HOST_INVENTORY, "url_b",
+	             SQL_COLUMN_TYPE_VARCHAR, 255,
+	             false, SQL_KEY_NONE, "");
+	defineColumn(staticInfo, ITEM_ID_ZBX_HOST_INVENTORY_URL_C,
+	             TABLE_ID_HOST_INVENTORY, "url_c",
+	             SQL_COLUMN_TYPE_VARCHAR, 255,
+	             false, SQL_KEY_NONE, "");
+	defineColumn(staticInfo, ITEM_ID_ZBX_HOST_INVENTORY_HOST_NETWORKS,
+	             TABLE_ID_HOST_INVENTORY, "host_networks",
+	             SQL_COLUMN_TYPE_TEXT, 0,
+	             false, SQL_KEY_NONE, NULL);
+	defineColumn(staticInfo, ITEM_ID_ZBX_HOST_INVENTORY_HOST_NETMASK,
+	             TABLE_ID_HOST_INVENTORY, "host_netmask",
+	             SQL_COLUMN_TYPE_VARCHAR, 39,
+	             false, SQL_KEY_NONE, "");
+	defineColumn(staticInfo, ITEM_ID_ZBX_HOST_INVENTORY_HOST_ROUTER,
+	             TABLE_ID_HOST_INVENTORY, "host_router",
+	             SQL_COLUMN_TYPE_VARCHAR, 39,
+	             false, SQL_KEY_NONE, "");
+	defineColumn(staticInfo, ITEM_ID_ZBX_HOST_INVENTORY_OOB_IP,
+	             TABLE_ID_HOST_INVENTORY, "oob_ip",
+	             SQL_COLUMN_TYPE_VARCHAR, 39,
+	             false, SQL_KEY_NONE, "");
+	defineColumn(staticInfo, ITEM_ID_ZBX_HOST_INVENTORY_OOB_NETMASK,
+	             TABLE_ID_HOST_INVENTORY, "oob_netmask",
+	             SQL_COLUMN_TYPE_VARCHAR, 39,
+	             false, SQL_KEY_NONE, "");
+	defineColumn(staticInfo, ITEM_ID_ZBX_HOST_INVENTORY_OOB_ROUTER,
+	             TABLE_ID_HOST_INVENTORY, "oob_router",
+	             SQL_COLUMN_TYPE_VARCHAR, 39,
+	             false, SQL_KEY_NONE, "");
+	defineColumn(staticInfo, ITEM_ID_ZBX_HOST_INVENTORY_DATE_HW_PURCHASE,
+	             TABLE_ID_HOST_INVENTORY, "date_hw_purchase",
+	             SQL_COLUMN_TYPE_VARCHAR, 64,
+	             false, SQL_KEY_NONE, "");
+	defineColumn(staticInfo, ITEM_ID_ZBX_HOST_INVENTORY_DATE_HW_INSTALL,
+	             TABLE_ID_HOST_INVENTORY, "date_hw_install",
+	             SQL_COLUMN_TYPE_VARCHAR, 64,
+	             false, SQL_KEY_NONE, "");
+	defineColumn(staticInfo, ITEM_ID_ZBX_HOST_INVENTORY_DATE_HW_EXPIRY,
+	             TABLE_ID_HOST_INVENTORY, "date_hw_expiry",
+	             SQL_COLUMN_TYPE_VARCHAR, 64,
+	             false, SQL_KEY_NONE, "");
+	defineColumn(staticInfo, ITEM_ID_ZBX_HOST_INVENTORY_DATE_HW_DECOMM,
+	             TABLE_ID_HOST_INVENTORY, "date_hw_decomm",
+	             SQL_COLUMN_TYPE_VARCHAR, 64,
+	             false, SQL_KEY_NONE, "");
+	defineColumn(staticInfo, ITEM_ID_ZBX_HOST_INVENTORY_SITE_ADDRESS_A,
+	             TABLE_ID_HOST_INVENTORY, "site_address_a",
+	             SQL_COLUMN_TYPE_VARCHAR, 128,
+	             false, SQL_KEY_NONE, "");
+	defineColumn(staticInfo, ITEM_ID_ZBX_HOST_INVENTORY_SITE_ADDRESS_B,
+	             TABLE_ID_HOST_INVENTORY, "site_address_b",
+	             SQL_COLUMN_TYPE_VARCHAR, 128,
+	             false, SQL_KEY_NONE, "");
+	defineColumn(staticInfo, ITEM_ID_ZBX_HOST_INVENTORY_SITE_ADDRESS_C,
+	             TABLE_ID_HOST_INVENTORY, "site_address_c",
+	             SQL_COLUMN_TYPE_VARCHAR, 128,
+	             false, SQL_KEY_NONE, "");
+	defineColumn(staticInfo, ITEM_ID_ZBX_HOST_INVENTORY_SITE_CITY,
+	             TABLE_ID_HOST_INVENTORY, "site_city",
+	             SQL_COLUMN_TYPE_VARCHAR, 128,
+	             false, SQL_KEY_NONE, "");
+	defineColumn(staticInfo, ITEM_ID_ZBX_HOST_INVENTORY_SITE_STATE,
+	             TABLE_ID_HOST_INVENTORY, "site_state",
+	             SQL_COLUMN_TYPE_VARCHAR, 64,
+	             false, SQL_KEY_NONE, "");
+	defineColumn(staticInfo, ITEM_ID_ZBX_HOST_INVENTORY_SITE_COUNTRY,
+	             TABLE_ID_HOST_INVENTORY, "site_country",
+	             SQL_COLUMN_TYPE_VARCHAR, 64,
+	             false, SQL_KEY_NONE, "");
+	defineColumn(staticInfo, ITEM_ID_ZBX_HOST_INVENTORY_SITE_ZIP,
+	             TABLE_ID_HOST_INVENTORY, "site_zip",
+	             SQL_COLUMN_TYPE_VARCHAR, 64,
+	             false, SQL_KEY_NONE, "");
+	defineColumn(staticInfo, ITEM_ID_ZBX_HOST_INVENTORY_SITE_RACK,
+	             TABLE_ID_HOST_INVENTORY, "site_rack",
+	             SQL_COLUMN_TYPE_VARCHAR, 128,
+	             false, SQL_KEY_NONE, "");
+	defineColumn(staticInfo, ITEM_ID_ZBX_HOST_INVENTORY_SITE_NOTES,
+	             TABLE_ID_HOST_INVENTORY, "site_notes",
+	             SQL_COLUMN_TYPE_TEXT, 0,
+	             false, SQL_KEY_NONE, NULL);
+	defineColumn(staticInfo, ITEM_ID_ZBX_HOST_INVENTORY_POC_1_NAME,
+	             TABLE_ID_HOST_INVENTORY, "poc_1_name",
+	             SQL_COLUMN_TYPE_VARCHAR, 128,
+	             false, SQL_KEY_NONE, "");
+	defineColumn(staticInfo, ITEM_ID_ZBX_HOST_INVENTORY_POC_1_EMAIL,
+	             TABLE_ID_HOST_INVENTORY, "poc_1_email",
+	             SQL_COLUMN_TYPE_VARCHAR, 128,
+	             false, SQL_KEY_NONE, "");
+	defineColumn(staticInfo, ITEM_ID_ZBX_HOST_INVENTORY_POC_1_PHONE_A,
+	             TABLE_ID_HOST_INVENTORY, "poc_1_phone_a",
+	             SQL_COLUMN_TYPE_VARCHAR, 64,
+	             false, SQL_KEY_NONE, "");
+	defineColumn(staticInfo, ITEM_ID_ZBX_HOST_INVENTORY_POC_1_PHONE_B,
+	             TABLE_ID_HOST_INVENTORY, "poc_1_phone_b",
+	             SQL_COLUMN_TYPE_VARCHAR, 64,
+	             false, SQL_KEY_NONE, "");
+	defineColumn(staticInfo, ITEM_ID_ZBX_HOST_INVENTORY_POC_1_CELL,
+	             TABLE_ID_HOST_INVENTORY, "poc_1_cell",
+	             SQL_COLUMN_TYPE_VARCHAR, 64,
+	             false, SQL_KEY_NONE, "");
+	defineColumn(staticInfo, ITEM_ID_ZBX_HOST_INVENTORY_POC_1_SCREEN,
+	             TABLE_ID_HOST_INVENTORY, "poc_1_screen",
+	             SQL_COLUMN_TYPE_VARCHAR, 64,
+	             false, SQL_KEY_NONE, "");
+	defineColumn(staticInfo, ITEM_ID_ZBX_HOST_INVENTORY_POC_1_NOTES,
+	             TABLE_ID_HOST_INVENTORY, "poc_1_notes",
+	             SQL_COLUMN_TYPE_TEXT, 0,
+	             false, SQL_KEY_NONE, NULL);
+	defineColumn(staticInfo, ITEM_ID_ZBX_HOST_INVENTORY_POC_2_NAME,
+	             TABLE_ID_HOST_INVENTORY, "poc_2_name",
+	             SQL_COLUMN_TYPE_VARCHAR, 128,
+	             false, SQL_KEY_NONE, "");
+	defineColumn(staticInfo, ITEM_ID_ZBX_HOST_INVENTORY_POC_2_EMAIL,
+	             TABLE_ID_HOST_INVENTORY, "poc_2_email",
+	             SQL_COLUMN_TYPE_VARCHAR, 128,
+	             false, SQL_KEY_NONE, "");
+	defineColumn(staticInfo, ITEM_ID_ZBX_HOST_INVENTORY_POC_2_PHONE_A,
+	             TABLE_ID_HOST_INVENTORY, "poc_2_phone_a",
+	             SQL_COLUMN_TYPE_VARCHAR, 64,
+	             false, SQL_KEY_NONE, "");
+	defineColumn(staticInfo, ITEM_ID_ZBX_HOST_INVENTORY_POC_2_PHONE_B,
+	             TABLE_ID_HOST_INVENTORY, "poc_2_phone_b",
+	             SQL_COLUMN_TYPE_VARCHAR, 64,
+	             false, SQL_KEY_NONE, "");
+	defineColumn(staticInfo, ITEM_ID_ZBX_HOST_INVENTORY_POC_2_CELL,
+	             TABLE_ID_HOST_INVENTORY, "poc_2_cell",
+	             SQL_COLUMN_TYPE_VARCHAR, 64,
+	             false, SQL_KEY_NONE, "");
+	defineColumn(staticInfo, ITEM_ID_ZBX_HOST_INVENTORY_POC_2_SCREEN,
+	             TABLE_ID_HOST_INVENTORY, "poc_2_screen",
+	             SQL_COLUMN_TYPE_VARCHAR, 64,
+	             false, SQL_KEY_NONE, "");
+	defineColumn(staticInfo, ITEM_ID_ZBX_HOST_INVENTORY_POC_2_NOTES,
+	             TABLE_ID_HOST_INVENTORY, "poc_2_notes",
+	             SQL_COLUMN_TYPE_TEXT, 0,
+	             false, SQL_KEY_NONE, NULL);
 }
 
 SQLProcessor *SQLProcessorZabbix::createInstance(void)
