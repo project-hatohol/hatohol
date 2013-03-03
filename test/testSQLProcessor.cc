@@ -1008,4 +1008,15 @@ void test_exists(void) {
 	                          selectInfo.textRows, targetIndex);
 }
 
+void test_wrapInStatement(void) {
+	string statement =
+	  StringUtils::sprintf("select %s\n from %s \nwhere %s>1\n",
+	                       COLUMN_NAME_NUMBER, TABLE0_NAME,
+	                       COLUMN_NAME_NUMBER);
+
+	// check the result
+	const size_t numColumns = 1;
+	DEFINE_SELECTINFO_AND_ASSERT_SELECT(selectInfo, statement, numColumns);
+}
+
 } // namespace testSQLProcessor
