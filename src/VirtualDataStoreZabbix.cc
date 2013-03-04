@@ -499,6 +499,19 @@ VirtualDataStoreZabbix::VirtualDataStoreZabbix(void)
 	// sysmap_url
 	//
 	table = createStaticItemTable(GROUP_ID_ZBX_SYSMAP_URL);
+
+	//
+	// drules
+	//
+	table = createStaticItemTable(GROUP_ID_ZBX_DRULES);
+	grp = table->addNewGroup();
+	ADD(new ItemUint64(ITEM_ID_ZBX_DRULES_DRULEID,   2));
+	ADD_AS_NULL(new ItemUint64(ITEM_ID_ZBX_DRULES_PROXY_HOSTID, 0));
+	ADD(new ItemString(ITEM_ID_ZBX_DRULES_NAME,      "Local network"));
+	ADD(new ItemString(ITEM_ID_ZBX_DRULES_IPRANGE,   "192.168.1.1-255"));
+	ADD(new ItemInt   (ITEM_ID_ZBX_DRULES_DELAY,     3600));
+	ADD(new ItemInt   (ITEM_ID_ZBX_DRULES_NEXTCHECK, 0));
+	ADD(new ItemInt   (ITEM_ID_ZBX_DRULES_STATUS,    1));
 }
 
 VirtualDataStoreZabbix::~VirtualDataStoreZabbix()

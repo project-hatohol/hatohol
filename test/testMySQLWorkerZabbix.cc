@@ -459,4 +459,17 @@ void test_sysmapUrl(void)
 	assertRecord(0, nsmap);
 }
 
+void test_drules(void)
+{
+	const char *cmd = "use zabbix;"
+	  "SELECT COUNT(d.druleid) AS cnt FROM drules d WHERE "
+	  "d.druleid BETWEEN 000000000000000 AND 099999999999999 "
+	  "AND d.status=0";
+	executeCommand(cmd);
+	vector<string> lines;
+	NumberStringMap nsmap;
+	assertRecord(0, nsmap);
+}
+
+
 } // namespace testMySQLWorkerZabbix

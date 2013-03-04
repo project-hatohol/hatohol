@@ -49,6 +49,7 @@ enum TableID {
 	TABLE_ID_GRAPHS_ITEMS,
 	TABLE_ID_SYSMAPS,
 	TABLE_ID_SYSMAP_URL,
+	TABLE_ID_DRULES,
 };
 
 static const char *TABLE_NAME_NODES  = "nodes";
@@ -75,6 +76,7 @@ static const char *TABLE_NAME_GRAPHS = "graphs";
 static const char *TABLE_NAME_GRAPHS_ITEMS = "graphs_items";
 static const char *TABLE_NAME_SYSMAPS = "sysmaps";
 static const char *TABLE_NAME_SYSMAP_URL = "sysmap_url";
+static const char *TABLE_NAME_DRULES = "drules";
 
 TableNameStaticInfoMap SQLProcessorZabbix::m_tableNameStaticInfoMap;
 
@@ -1641,6 +1643,38 @@ void SQLProcessorZabbix::init(void)
 	             false, SQL_KEY_NONE, "");
 	defineColumn(staticInfo, ITEM_ID_ZBX_SYSMAP_URL_ELEMENTTYPE,
 	             TABLE_ID_SYSMAP_URL, "elementtype",
+	             SQL_COLUMN_TYPE_INT, 11,
+	             false, SQL_KEY_NONE, "0");
+
+	staticInfo =
+	  defineTable(TABLE_ID_DRULES, TABLE_NAME_DRULES,
+	              MAKE_FUNC(GROUP_ID_ZBX_DRULES));
+	defineColumn(staticInfo, ITEM_ID_ZBX_DRULES_DRULEID,
+	             TABLE_ID_DRULES, "druleid",
+	             SQL_COLUMN_TYPE_BIGUINT, 20,
+	             false, SQL_KEY_PRI, NULL);
+	defineColumn(staticInfo, ITEM_ID_ZBX_DRULES_PROXY_HOSTID,
+	             TABLE_ID_DRULES, "proxy_hostid",
+	             SQL_COLUMN_TYPE_BIGUINT, 20,
+	             true, SQL_KEY_MUL, NULL);
+	defineColumn(staticInfo, ITEM_ID_ZBX_DRULES_NAME,
+	             TABLE_ID_DRULES, "name",
+	             SQL_COLUMN_TYPE_VARCHAR, 255,
+	             false, SQL_KEY_NONE, "");
+	defineColumn(staticInfo, ITEM_ID_ZBX_DRULES_IPRANGE,
+	             TABLE_ID_DRULES, "iprange",
+	             SQL_COLUMN_TYPE_VARCHAR, 255,
+	             false, SQL_KEY_NONE, "");
+	defineColumn(staticInfo, ITEM_ID_ZBX_DRULES_DELAY,
+	             TABLE_ID_DRULES, "delay",
+	             SQL_COLUMN_TYPE_INT, 11,
+	             false, SQL_KEY_NONE, "3600");
+	defineColumn(staticInfo, ITEM_ID_ZBX_DRULES_NEXTCHECK,
+	             TABLE_ID_DRULES, "nextcheck",
+	             SQL_COLUMN_TYPE_INT, 11,
+	             false, SQL_KEY_NONE, "0");
+	defineColumn(staticInfo, ITEM_ID_ZBX_DRULES_STATUS,
+	             TABLE_ID_DRULES, "status",
 	             SQL_COLUMN_TYPE_INT, 11,
 	             false, SQL_KEY_NONE, "0");
 }
