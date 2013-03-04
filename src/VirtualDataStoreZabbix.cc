@@ -494,6 +494,11 @@ VirtualDataStoreZabbix::VirtualDataStoreZabbix(void)
 	ADD(new ItemString(ITEM_ID_ZBX_SYSMAPS_LABEL_STRING_IMAGE,     ""));
 	ADD_AS_NULL(new ItemUint64(ITEM_ID_ZBX_SYSMAPS_ICONMAPID, 0));
 	ADD(new ItemInt   (ITEM_ID_ZBX_SYSMAPS_EXPAND_MACROS,          1));
+
+	//
+	// sysmap_url
+	//
+	table = createStaticItemTable(GROUP_ID_ZBX_SYSMAP_URL);
 }
 
 VirtualDataStoreZabbix::~VirtualDataStoreZabbix()

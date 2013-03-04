@@ -449,4 +449,14 @@ void test_sysmaps(void)
 	assertRecord(0, nsmap);
 }
 
+void test_sysmapUrl(void)
+{
+	const char *cmd = "use zabbix;"
+	  "SELECT su.* FROM sysmap_url su WHERE  1=0";
+	executeCommand(cmd);
+	vector<string> lines;
+	NumberStringMap nsmap;
+	assertRecord(0, nsmap);
+}
+
 } // namespace testMySQLWorkerZabbix

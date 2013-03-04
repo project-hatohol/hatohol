@@ -48,6 +48,7 @@ enum TableID {
 	TABLE_ID_GRAPHS,
 	TABLE_ID_GRAPHS_ITEMS,
 	TABLE_ID_SYSMAPS,
+	TABLE_ID_SYSMAP_URL,
 };
 
 static const char *TABLE_NAME_NODES  = "nodes";
@@ -73,6 +74,7 @@ static const char *TABLE_NAME_SCREENS = "screens";
 static const char *TABLE_NAME_GRAPHS = "graphs";
 static const char *TABLE_NAME_GRAPHS_ITEMS = "graphs_items";
 static const char *TABLE_NAME_SYSMAPS = "sysmaps";
+static const char *TABLE_NAME_SYSMAP_URL = "sysmap_url";
 
 TableNameStaticInfoMap SQLProcessorZabbix::m_tableNameStaticInfoMap;
 
@@ -1615,6 +1617,30 @@ void SQLProcessorZabbix::init(void)
 	             true, SQL_KEY_MUL, NULL);
 	defineColumn(staticInfo, ITEM_ID_ZBX_SYSMAPS_EXPAND_MACROS,
 	             TABLE_ID_SYSMAPS, "expand_macros",
+	             SQL_COLUMN_TYPE_INT, 11,
+	             false, SQL_KEY_NONE, "0");
+
+	staticInfo =
+	  defineTable(TABLE_ID_SYSMAP_URL, TABLE_NAME_SYSMAP_URL,
+	              MAKE_FUNC(GROUP_ID_ZBX_SYSMAP_URL));
+	defineColumn(staticInfo, ITEM_ID_ZBX_SYSMAP_URL_SYSMAPURLID,
+	             TABLE_ID_SYSMAP_URL, "sysmapurlid",
+	             SQL_COLUMN_TYPE_BIGUINT, 20,
+	             false, SQL_KEY_PRI, NULL);
+	defineColumn(staticInfo, ITEM_ID_ZBX_SYSMAP_URL_SYSMAPID,
+	             TABLE_ID_SYSMAP_URL, "sysmapid",
+	             SQL_COLUMN_TYPE_BIGUINT, 20,
+	             false, SQL_KEY_MUL, NULL);
+	defineColumn(staticInfo, ITEM_ID_ZBX_SYSMAP_URL_NAME,
+	             TABLE_ID_SYSMAP_URL, "name",
+	             SQL_COLUMN_TYPE_VARCHAR, 255,
+	             false, SQL_KEY_NONE, NULL);
+	defineColumn(staticInfo, ITEM_ID_ZBX_SYSMAP_URL_URL,
+	             TABLE_ID_SYSMAP_URL, "url",
+	             SQL_COLUMN_TYPE_VARCHAR, 255,
+	             false, SQL_KEY_NONE, "");
+	defineColumn(staticInfo, ITEM_ID_ZBX_SYSMAP_URL_ELEMENTTYPE,
+	             TABLE_ID_SYSMAP_URL, "elementtype",
 	             SQL_COLUMN_TYPE_INT, 11,
 	             false, SQL_KEY_NONE, "0");
 }
