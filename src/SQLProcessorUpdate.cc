@@ -26,6 +26,9 @@ using namespace mlpl;
 #include "SQLUtils.h"
 
 struct SQLProcessorUpdate::PrivateContext {
+	TableNameStaticInfoMap      &tableNameStaticInfoMap;
+	SeparatorCheckerWithCallback separator;
+
 	SQLUpdateInfo     *updateInfo;
 	string             currWord;
 	string             currWordLower;
@@ -35,8 +38,10 @@ struct SQLProcessorUpdate::PrivateContext {
 	SeparatorCheckerWithCallback *whereParserSeparatorChecker;
 
 	// constructor
-	PrivateContext(void)
-	: updateInfo(NULL),
+	PrivateContext(TableNameStaticInfoMap &tableNameStaticInfoMap)
+	: tableNameStaticInfoMap(tableNameStaticInfoMap),
+	  separator(" ,\'="),
+	  updateInfo(NULL),
 	  section(UPDATE_PARSING_SECTION_UPDATE),
 	  openQuot(false),
 	  whereParserSeparatorChecker(NULL)
@@ -45,6 +50,7 @@ struct SQLProcessorUpdate::PrivateContext {
 
 	void clear(void)
 	{
+		separator.unsetAlternative();
 		section = UPDATE_PARSING_SECTION_UPDATE;
 		openQuot = false;
 		whereParserSeparatorChecker = NULL;
@@ -118,17 +124,15 @@ void SQLProcessorUpdate::init(void)
 
 SQLProcessorUpdate::SQLProcessorUpdate
   (TableNameStaticInfoMap &tableNameStaticInfoMap)
-: m_tableNameStaticInfoMap(tableNameStaticInfoMap),
-  m_ctx(NULL),
-  m_separator(" ,\'=")
+: m_ctx(NULL)
 {
-	m_ctx = new PrivateContext();
+	m_ctx = new PrivateContext(tableNameStaticInfoMap);
 
-	m_separator.setCallbackTempl<SQLProcessorUpdate>
+	m_ctx->separator.setCallbackTempl<SQLProcessorUpdate>
 	  (',', _separatorCbComma, this);
-	m_separator.setCallbackTempl<SQLProcessorUpdate>
+	m_ctx->separator.setCallbackTempl<SQLProcessorUpdate>
 	  ('\'', _separatorCbQuot, this);
-	m_separator.setCallbackTempl<SQLProcessorUpdate>
+	m_ctx->separator.setCallbackTempl<SQLProcessorUpdate>
 	  ('=', _separatorCbEqual, this);
 }
 
@@ -182,8 +186,8 @@ void SQLProcessorUpdate::parseUpdateStatement(SQLUpdateInfo &updateInfo)
 void SQLProcessorUpdate::getStaticTableInfo(SQLUpdateInfo &updateInfo)
 {
 	TableNameStaticInfoMapIterator it =
-	  m_tableNameStaticInfoMap.find(updateInfo.table);
-	if (it == m_tableNameStaticInfoMap.end()) {
+	  m_ctx->tableNameStaticInfoMap.find(updateInfo.table);
+	if (it == m_ctx->tableNameStaticInfoMap.end()) {
 		THROW_SQL_PROCESSOR_EXCEPTION(
 		  "Not found: table: %s", updateInfo.table.c_str());
 	}
@@ -296,10 +300,11 @@ void SQLProcessorUpdate::separatorCbQuot(const char separator)
 	}
 
 	if (!m_ctx->openQuot) {
-		m_separator.setAlternative(&ParsableString::SEPARATOR_QUOT);
+		m_ctx->separator.setAlternative
+		  (&ParsableString::SEPARATOR_QUOT);
 		m_ctx->openQuot = true;
 	} else {
-		m_separator.unsetAlternative();
+		m_ctx->separator.unsetAlternative();
 		m_ctx->openQuot = false;
 	}
 }
@@ -325,7 +330,7 @@ string SQLProcessorUpdate::readCurrWord(void)
 {
 	SeparatorCheckerWithCallback *separator;
 	if (m_ctx->section != UPDATE_PARSING_SECTION_WHERE)
-		separator = &m_separator;
+		separator = &m_ctx->separator;
 	else
 		separator = m_ctx->whereParserSeparatorChecker;
 	return m_ctx->updateInfo->statement.readWord(*separator);

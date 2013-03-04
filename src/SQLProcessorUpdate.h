@@ -119,10 +119,7 @@ protected:
 
 private:
 	static const UpdateSubParser m_updateSubParsers[];
-
-	TableNameStaticInfoMap      &m_tableNameStaticInfoMap;
 	PrivateContext              *m_ctx;
-	SeparatorCheckerWithCallback m_separator;
 };
 
 #endif // SQLProcessorUpdate_h
