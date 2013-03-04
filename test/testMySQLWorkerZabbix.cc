@@ -427,4 +427,16 @@ void test_graphs(void)
 	assertRecord(0, nsmap);
 }
 
+void test_graphsItems(void)
+{
+	const char *cmd = "use zabbix;"
+	  "SELECT  DISTINCT  h.hostid,h.host,gi.graphid FROM "
+	  "hosts h,graphs_items gi,items i WHERE  1=0  AND i.itemid=gi.itemid "
+	  "AND h.hostid=i.hostid AND h.status IN (0,1,3)";
+	executeCommand(cmd);
+	vector<string> lines;
+	NumberStringMap nsmap;
+	assertRecord(0, nsmap);
+}
+
 } // namespace testMySQLWorkerZabbix

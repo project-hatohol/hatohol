@@ -46,6 +46,7 @@ enum TableID {
 	TABLE_ID_RIGHTS,
 	TABLE_ID_SCREENS,
 	TABLE_ID_GRAPHS,
+	TABLE_ID_GRAPHS_ITEMS,
 };
 
 static const char *TABLE_NAME_NODES  = "nodes";
@@ -69,6 +70,7 @@ static const char *TABLE_NAME_HOST_INVENTORY = "host_inventory";
 static const char *TABLE_NAME_RIGHTS = "rights";
 static const char *TABLE_NAME_SCREENS = "screens";
 static const char *TABLE_NAME_GRAPHS = "graphs";
+static const char *TABLE_NAME_GRAPHS_ITEMS = "graphs_items";
 
 TableNameStaticInfoMap SQLProcessorZabbix::m_tableNameStaticInfoMap;
 
@@ -1461,7 +1463,48 @@ void SQLProcessorZabbix::init(void)
 	             TABLE_ID_GRAPHS, "flags",
 	             SQL_COLUMN_TYPE_INT, 11,
 	             false, SQL_KEY_NONE, "0");
+
+	staticInfo =
+	  defineTable(TABLE_ID_GRAPHS_ITEMS, TABLE_NAME_GRAPHS_ITEMS,
+	              MAKE_FUNC(GROUP_ID_ZBX_GRAPHS_ITEMS));
+	defineColumn(staticInfo, ITEM_ID_ZBX_GRAPHS_ITEMS_GITEMID,
+	             TABLE_ID_GRAPHS_ITEMS, "gitemid",
+	             SQL_COLUMN_TYPE_BIGUINT, 20,
+	             false, SQL_KEY_PRI, NULL);
+	defineColumn(staticInfo, ITEM_ID_ZBX_GRAPHS_ITEMS_GRAPHID,
+	             TABLE_ID_GRAPHS_ITEMS, "graphid",
+	             SQL_COLUMN_TYPE_BIGUINT, 20,
+	             false, SQL_KEY_MUL, NULL);
+	defineColumn(staticInfo, ITEM_ID_ZBX_GRAPHS_ITEMS_ITEMID,
+	             TABLE_ID_GRAPHS_ITEMS, "itemid",
+	             SQL_COLUMN_TYPE_BIGUINT, 20,
+	             false, SQL_KEY_MUL, NULL);
+	defineColumn(staticInfo, ITEM_ID_ZBX_GRAPHS_ITEMS_DRAWTYPE,
+	             TABLE_ID_GRAPHS_ITEMS, "drawtype",
+	             SQL_COLUMN_TYPE_INT, 11,
+	             false, SQL_KEY_NONE, "0");
+	defineColumn(staticInfo, ITEM_ID_ZBX_GRAPHS_ITEMS_SORTORDER,
+	             TABLE_ID_GRAPHS_ITEMS, "sortorder",
+	             SQL_COLUMN_TYPE_INT, 11,
+	             false, SQL_KEY_NONE, "0");
+	defineColumn(staticInfo, ITEM_ID_ZBX_GRAPHS_ITEMS_COLOR,
+	             TABLE_ID_GRAPHS_ITEMS, "color",
+	             SQL_COLUMN_TYPE_VARCHAR, 6,
+	             false, SQL_KEY_NONE, "009600");
+	defineColumn(staticInfo, ITEM_ID_ZBX_GRAPHS_ITEMS_YAXISSIDE,
+	             TABLE_ID_GRAPHS_ITEMS, "yaxisside",
+	             SQL_COLUMN_TYPE_INT, 11,
+	             false, SQL_KEY_NONE, "1");
+	defineColumn(staticInfo, ITEM_ID_ZBX_GRAPHS_ITEMS_CALC_FNC,
+	             TABLE_ID_GRAPHS_ITEMS, "calc_fnc",
+	             SQL_COLUMN_TYPE_INT, 11,
+	             false, SQL_KEY_NONE, "2");
+	defineColumn(staticInfo, ITEM_ID_ZBX_GRAPHS_ITEMS_TYPE,
+	             TABLE_ID_GRAPHS_ITEMS, "type",
+	             SQL_COLUMN_TYPE_INT, 11,
+	             false, SQL_KEY_NONE, "0");
 }
+
 
 SQLProcessor *SQLProcessorZabbix::createInstance(void)
 {
