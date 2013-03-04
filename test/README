@@ -1,2 +1,5 @@
 * When you test MySQLWorker of asura that is running with port 8006.
 $ TEST_MYSQL_PORT=8006 ./run-test.sh -t /testMySQLWorkerZabbix/
+
+* When you want to show the stack trace, set the environment variable like
+$ ASURA_EXCEPTION_STACK_TRACE=1 ./run-test.sh
