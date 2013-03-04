@@ -466,6 +466,34 @@ VirtualDataStoreZabbix::VirtualDataStoreZabbix(void)
 	// sysmaps
 	//
 	table = createStaticItemTable(GROUP_ID_ZBX_SYSMAPS);
+	grp = table->addNewGroup();
+	ADD(new ItemUint64(ITEM_ID_ZBX_SYSMAPS_SYSMAPID,     1));
+	ADD(new ItemString(ITEM_ID_ZBX_SYSMAPS_NAME, "Local network"));
+	ADD(new ItemInt   (ITEM_ID_ZBX_SYSMAPS_WIDTH,        680));
+	ADD(new ItemInt   (ITEM_ID_ZBX_SYSMAPS_HEIGHT,       200));
+	ADD_AS_NULL(new ItemUint64(ITEM_ID_ZBX_SYSMAPS_BACKGROUNDID, 0));
+	ADD(new ItemInt   (ITEM_ID_ZBX_SYSMAPS_LABEL_TYPE,     0));
+	ADD(new ItemInt   (ITEM_ID_ZBX_SYSMAPS_LABEL_LOCATION, 0));
+	ADD(new ItemInt   (ITEM_ID_ZBX_SYSMAPS_HIGHLIGHT,      1));
+	ADD(new ItemInt   (ITEM_ID_ZBX_SYSMAPS_EXPANDPROBLEM,  1));
+	ADD(new ItemInt   (ITEM_ID_ZBX_SYSMAPS_MARKELEMENTS,   1));
+	ADD(new ItemInt   (ITEM_ID_ZBX_SYSMAPS_SHOW_UNACK,     0));
+	ADD(new ItemInt   (ITEM_ID_ZBX_SYSMAPS_GRID_SIZE,      50));
+	ADD(new ItemInt   (ITEM_ID_ZBX_SYSMAPS_GRID_SHOW,      1));
+	ADD(new ItemInt   (ITEM_ID_ZBX_SYSMAPS_GRID_ALIGN,     1));
+	ADD(new ItemInt   (ITEM_ID_ZBX_SYSMAPS_LABEL_FORMAT,   0));
+	ADD(new ItemInt   (ITEM_ID_ZBX_SYSMAPS_LABEL_TYPE_HOST,        2));
+	ADD(new ItemInt   (ITEM_ID_ZBX_SYSMAPS_LABEL_TYPE_HOSTGROUP,   2));
+	ADD(new ItemInt   (ITEM_ID_ZBX_SYSMAPS_LABEL_TYPE_TRIGGER,     2));
+	ADD(new ItemInt   (ITEM_ID_ZBX_SYSMAPS_LABEL_TYPE_MAP,         2));
+	ADD(new ItemInt   (ITEM_ID_ZBX_SYSMAPS_LABEL_TYPE_IMAGE,       2));
+	ADD(new ItemString(ITEM_ID_ZBX_SYSMAPS_LABEL_STRING_HOST,      ""));
+	ADD(new ItemString(ITEM_ID_ZBX_SYSMAPS_LABEL_STRING_HOSTGROUP, ""));
+	ADD(new ItemString(ITEM_ID_ZBX_SYSMAPS_LABEL_STRING_TRIGGER,   ""));
+	ADD(new ItemString(ITEM_ID_ZBX_SYSMAPS_LABEL_STRING_MAP,       ""));
+	ADD(new ItemString(ITEM_ID_ZBX_SYSMAPS_LABEL_STRING_IMAGE,     ""));
+	ADD_AS_NULL(new ItemUint64(ITEM_ID_ZBX_SYSMAPS_ICONMAPID, 0));
+	ADD(new ItemInt   (ITEM_ID_ZBX_SYSMAPS_EXPAND_MACROS,          1));
 }
 
 VirtualDataStoreZabbix::~VirtualDataStoreZabbix()
