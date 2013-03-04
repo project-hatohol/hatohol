@@ -42,6 +42,13 @@ struct SQLProcessorUpdate::PrivateContext {
 	  whereParserSeparatorChecker(NULL)
 	{
 	}
+
+	void clear(void)
+	{
+		section = UPDATE_PARSING_SECTION_UPDATE;
+		openQuot = false;
+		whereParserSeparatorChecker = NULL;
+	}
 };
 
 const SQLProcessorUpdate::UpdateSubParser
@@ -133,6 +140,7 @@ SQLProcessorUpdate::~SQLProcessorUpdate()
 
 bool SQLProcessorUpdate::update(SQLUpdateInfo &updateInfo)
 {
+	m_ctx->clear();
 	try {
 		parseUpdateStatement(updateInfo);
 		getStaticTableInfo(updateInfo);
