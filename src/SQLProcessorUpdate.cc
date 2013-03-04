@@ -38,8 +38,8 @@ struct SQLProcessorUpdate::PrivateContext {
 	SeparatorCheckerWithCallback *whereParserSeparatorChecker;
 
 	// constructor
-	PrivateContext(TableNameStaticInfoMap &tableNameStaticInfoMap)
-	: tableNameStaticInfoMap(tableNameStaticInfoMap),
+	PrivateContext(TableNameStaticInfoMap &_tableNameStaticInfoMap)
+	: tableNameStaticInfoMap(_tableNameStaticInfoMap),
 	  separator(" ,\'="),
 	  updateInfo(NULL),
 	  section(UPDATE_PARSING_SECTION_UPDATE),
