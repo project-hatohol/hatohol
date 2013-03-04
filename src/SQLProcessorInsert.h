@@ -106,10 +106,7 @@ protected:
 
 private:
 	static const InsertSubParser m_insertSubParsers[];
-
-	TableNameStaticInfoMap      &m_tableNameStaticInfoMap;
 	PrivateContext              *m_ctx;
-	SeparatorCheckerWithCallback m_separator;
 };
 
 #endif // SQLProcessorInsert_h

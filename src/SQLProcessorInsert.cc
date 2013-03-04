@@ -41,6 +41,9 @@ typedef map<ItemId, string *>    ItemIdValueMap;
 typedef ItemIdValueMap::iterator ItemIdValueMapIterator;
 
 struct SQLProcessorInsert::PrivateContext {
+	TableNameStaticInfoMap      &tableNameStaticInfoMap;
+	SeparatorCheckerWithCallback separator;
+
 	SQLInsertInfo     *insertInfo;
 	string             currWord;
 	string             currWordLower;
@@ -53,8 +56,10 @@ struct SQLProcessorInsert::PrivateContext {
 	ItemIdValueMap     itemIdValueMap;
 
 	// constructor
-	PrivateContext(void)
-	: insertInfo(NULL),
+	PrivateContext(TableNameStaticInfoMap &_tableNameStaticInfoMap)
+	: tableNameStaticInfoMap(_tableNameStaticInfoMap),
+	  separator(" (),\'"),
+	  insertInfo(NULL),
 	  section(INSERT_PARSING_SECTION_INSERT),
 	  errorFlag(false),
 	  expectedParenthesis(EXPECTED_PARENTHESIS_NONE),
@@ -106,19 +111,17 @@ void SQLProcessorInsert::init(void)
 
 SQLProcessorInsert::SQLProcessorInsert
   (TableNameStaticInfoMap &tableNameStaticInfoMap)
-: m_tableNameStaticInfoMap(tableNameStaticInfoMap),
-  m_ctx(NULL),
-  m_separator(" (),\'")
+: m_ctx(NULL)
 {
-	m_ctx = new PrivateContext();
+	m_ctx = new PrivateContext(tableNameStaticInfoMap);
 
-	m_separator.setCallbackTempl<SQLProcessorInsert>
+	m_ctx->separator.setCallbackTempl<SQLProcessorInsert>
 	  ('(', _separatorCbParenthesisOpen, this);
-	m_separator.setCallbackTempl<SQLProcessorInsert>
+	m_ctx->separator.setCallbackTempl<SQLProcessorInsert>
 	  (')', _separatorCbParenthesisClose, this);
-	m_separator.setCallbackTempl<SQLProcessorInsert>
+	m_ctx->separator.setCallbackTempl<SQLProcessorInsert>
 	  (',', _separatorCbComma, this);
-	m_separator.setCallbackTempl<SQLProcessorInsert>
+	m_ctx->separator.setCallbackTempl<SQLProcessorInsert>
 	  ('\'', _separatorCbQuot, this);
 }
 
@@ -151,7 +154,8 @@ bool SQLProcessorInsert::parseInsertStatement(SQLInsertInfo &insertInfo)
 {
 	m_ctx->insertInfo = &insertInfo;
 	while (!insertInfo.statement.finished() || m_ctx->errorFlag) {
-		m_ctx->currWord = insertInfo.statement.readWord(m_separator);
+		m_ctx->currWord =
+		   insertInfo.statement.readWord(m_ctx->separator);
 		if (m_ctx->errorFlag)
 			return false;
 		if (m_ctx->currWord.empty())
@@ -174,8 +178,8 @@ bool SQLProcessorInsert::parseInsertStatement(SQLInsertInfo &insertInfo)
 void SQLProcessorInsert::checkTableAndColumns(SQLInsertInfo &insertInfo)
 {
 	TableNameStaticInfoMapIterator it =
-	  m_tableNameStaticInfoMap.find(insertInfo.table);
-	if (it == m_tableNameStaticInfoMap.end()) {
+	  m_ctx->tableNameStaticInfoMap.find(insertInfo.table);
+	if (it == m_ctx->tableNameStaticInfoMap.end()) {
 		THROW_SQL_PROCESSOR_EXCEPTION(
 		  "Not found: table in m_tableNameStaticInfoMap: %s",
 		  insertInfo.table.c_str());
@@ -392,7 +396,8 @@ void SQLProcessorInsert::_separatorCbQuot(const char separator,
 void SQLProcessorInsert::separatorCbQuot(const char separator)
 {
 	if (!m_ctx->openQuot) {
-		m_separator.setAlternative(&ParsableString::SEPARATOR_QUOT);
+		m_ctx->separator.setAlternative
+		  (&ParsableString::SEPARATOR_QUOT);
 		m_ctx->openQuot = true;
 	} else {
 		if (m_ctx->section != INSERT_PARSING_SECTION_VALUE) {
@@ -401,7 +406,7 @@ void SQLProcessorInsert::separatorCbQuot(const char separator)
 			m_ctx->errorFlag = true;
 			return;
 		}
-		m_separator.unsetAlternative();
+		m_ctx->separator.unsetAlternative();
 		m_ctx->openQuot = false;
 	}
 }
