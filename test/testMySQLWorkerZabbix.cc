@@ -471,5 +471,15 @@ void test_drules(void)
 	assertRecord(0, nsmap);
 }
 
+void test_updateUserHitory(void)
+{
+	const char *cmd = "use zabbix;"
+	  "UPDATE user_history SET title1=title2, url1=url2, title2=title3, "
+	  "url2=url3, title3=title4, url3=url4, title4=title5, url4=url5, "
+	  "title5='Dashboard', url5='dashboard.php' WHERE userid=1";
+	executeCommand(cmd);
+	NumberStringMap nsmap;
+	assertRecord(0, nsmap);
+}
 
 } // namespace testMySQLWorkerZabbix
