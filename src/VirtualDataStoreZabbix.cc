@@ -461,6 +461,11 @@ VirtualDataStoreZabbix::VirtualDataStoreZabbix(void)
 	// graphs_items
 	//
 	table = createStaticItemTable(GROUP_ID_ZBX_GRAPHS_ITEMS);
+
+	//
+	// sysmaps
+	//
+	table = createStaticItemTable(GROUP_ID_ZBX_SYSMAPS);
 }
 
 VirtualDataStoreZabbix::~VirtualDataStoreZabbix()

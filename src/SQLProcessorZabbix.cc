@@ -47,6 +47,7 @@ enum TableID {
 	TABLE_ID_SCREENS,
 	TABLE_ID_GRAPHS,
 	TABLE_ID_GRAPHS_ITEMS,
+	TABLE_ID_SYSMAPS,
 };
 
 static const char *TABLE_NAME_NODES  = "nodes";
@@ -71,6 +72,7 @@ static const char *TABLE_NAME_RIGHTS = "rights";
 static const char *TABLE_NAME_SCREENS = "screens";
 static const char *TABLE_NAME_GRAPHS = "graphs";
 static const char *TABLE_NAME_GRAPHS_ITEMS = "graphs_items";
+static const char *TABLE_NAME_SYSMAPS = "sysmaps";
 
 TableNameStaticInfoMap SQLProcessorZabbix::m_tableNameStaticInfoMap;
 
@@ -1501,6 +1503,118 @@ void SQLProcessorZabbix::init(void)
 	             false, SQL_KEY_NONE, "2");
 	defineColumn(staticInfo, ITEM_ID_ZBX_GRAPHS_ITEMS_TYPE,
 	             TABLE_ID_GRAPHS_ITEMS, "type",
+	             SQL_COLUMN_TYPE_INT, 11,
+	             false, SQL_KEY_NONE, "0");
+
+	staticInfo =
+	  defineTable(TABLE_ID_SYSMAPS, TABLE_NAME_SYSMAPS,
+	              MAKE_FUNC(GROUP_ID_ZBX_SYSMAPS));
+	defineColumn(staticInfo, ITEM_ID_ZBX_SYSMAPS_SYSMAPID,
+	             TABLE_ID_SYSMAPS, "sysmapid",
+	             SQL_COLUMN_TYPE_BIGUINT, 20,
+	             false, SQL_KEY_PRI, NULL);
+	defineColumn(staticInfo, ITEM_ID_ZBX_SYSMAPS_NAME,
+	             TABLE_ID_SYSMAPS, "name",
+	             SQL_COLUMN_TYPE_VARCHAR, 128,
+	             false, SQL_KEY_MUL, "");
+	defineColumn(staticInfo, ITEM_ID_ZBX_SYSMAPS_WIDTH,
+	             TABLE_ID_SYSMAPS, "width",
+	             SQL_COLUMN_TYPE_INT, 11,
+	             false, SQL_KEY_NONE, "600");
+	defineColumn(staticInfo, ITEM_ID_ZBX_SYSMAPS_HEIGHT,
+	             TABLE_ID_SYSMAPS, "height",
+	             SQL_COLUMN_TYPE_INT, 11,
+	             false, SQL_KEY_NONE, "400");
+	defineColumn(staticInfo, ITEM_ID_ZBX_SYSMAPS_BACKGROUNDID,
+	             TABLE_ID_SYSMAPS, "backgroundid",
+	             SQL_COLUMN_TYPE_BIGUINT, 20,
+	             true, SQL_KEY_MUL, NULL);
+	defineColumn(staticInfo, ITEM_ID_ZBX_SYSMAPS_LABEL_TYPE,
+	             TABLE_ID_SYSMAPS, "label_type",
+	             SQL_COLUMN_TYPE_INT, 11,
+	             false, SQL_KEY_NONE, "2");
+	defineColumn(staticInfo, ITEM_ID_ZBX_SYSMAPS_LABEL_LOCATION,
+	             TABLE_ID_SYSMAPS, "label_location",
+	             SQL_COLUMN_TYPE_INT, 11,
+	             false, SQL_KEY_NONE, "3");
+	defineColumn(staticInfo, ITEM_ID_ZBX_SYSMAPS_HIGHLIGHT,
+	             TABLE_ID_SYSMAPS, "highlight",
+	             SQL_COLUMN_TYPE_INT, 11,
+	             false, SQL_KEY_NONE, "1");
+	defineColumn(staticInfo, ITEM_ID_ZBX_SYSMAPS_EXPANDPROBLEM,
+	             TABLE_ID_SYSMAPS, "expandproblem",
+	             SQL_COLUMN_TYPE_INT, 11,
+	             false, SQL_KEY_NONE, "1");
+	defineColumn(staticInfo, ITEM_ID_ZBX_SYSMAPS_MARKELEMENTS,
+	             TABLE_ID_SYSMAPS, "markelements",
+	             SQL_COLUMN_TYPE_INT, 11,
+	             false, SQL_KEY_NONE, "0");
+	defineColumn(staticInfo, ITEM_ID_ZBX_SYSMAPS_SHOW_UNACK,
+	             TABLE_ID_SYSMAPS, "show_unack",
+	             SQL_COLUMN_TYPE_INT, 11,
+	             false, SQL_KEY_NONE, "0");
+	defineColumn(staticInfo, ITEM_ID_ZBX_SYSMAPS_GRID_SIZE,
+	             TABLE_ID_SYSMAPS, "grid_size",
+	             SQL_COLUMN_TYPE_INT, 11,
+	             false, SQL_KEY_NONE, "50");
+	defineColumn(staticInfo, ITEM_ID_ZBX_SYSMAPS_GRID_SHOW,
+	             TABLE_ID_SYSMAPS, "grid_show",
+	             SQL_COLUMN_TYPE_INT, 11,
+	             false, SQL_KEY_NONE, "1");
+	defineColumn(staticInfo, ITEM_ID_ZBX_SYSMAPS_GRID_ALIGN,
+	             TABLE_ID_SYSMAPS, "grid_align",
+	             SQL_COLUMN_TYPE_INT, 11,
+	             false, SQL_KEY_NONE, "1");
+	defineColumn(staticInfo, ITEM_ID_ZBX_SYSMAPS_LABEL_FORMAT,
+	             TABLE_ID_SYSMAPS, "label_format",
+	             SQL_COLUMN_TYPE_INT, 11,
+	             false, SQL_KEY_NONE, "0");
+	defineColumn(staticInfo, ITEM_ID_ZBX_SYSMAPS_LABEL_TYPE_HOST,
+	             TABLE_ID_SYSMAPS, "label_type_host",
+	             SQL_COLUMN_TYPE_INT, 11,
+	             false, SQL_KEY_NONE, "2");
+	defineColumn(staticInfo, ITEM_ID_ZBX_SYSMAPS_LABEL_TYPE_HOSTGROUP,
+	             TABLE_ID_SYSMAPS, "label_type_hostgroup",
+	             SQL_COLUMN_TYPE_INT, 11,
+	             false, SQL_KEY_NONE, "2");
+	defineColumn(staticInfo, ITEM_ID_ZBX_SYSMAPS_LABEL_TYPE_TRIGGER,
+	             TABLE_ID_SYSMAPS, "label_type_trigger",
+	             SQL_COLUMN_TYPE_INT, 11,
+	             false, SQL_KEY_NONE, "2");
+	defineColumn(staticInfo, ITEM_ID_ZBX_SYSMAPS_LABEL_TYPE_MAP,
+	             TABLE_ID_SYSMAPS, "label_type_map",
+	             SQL_COLUMN_TYPE_INT, 11,
+	             false, SQL_KEY_NONE, "2");
+	defineColumn(staticInfo, ITEM_ID_ZBX_SYSMAPS_LABEL_TYPE_IMAGE,
+	             TABLE_ID_SYSMAPS, "label_type_image",
+	             SQL_COLUMN_TYPE_INT, 11,
+	             false, SQL_KEY_NONE, "2");
+	defineColumn(staticInfo, ITEM_ID_ZBX_SYSMAPS_LABEL_STRING_HOST,
+	             TABLE_ID_SYSMAPS, "label_string_host",
+	             SQL_COLUMN_TYPE_VARCHAR, 255,
+	             false, SQL_KEY_NONE, "");
+	defineColumn(staticInfo, ITEM_ID_ZBX_SYSMAPS_LABEL_STRING_HOSTGROUP,
+	             TABLE_ID_SYSMAPS, "label_string_hostgroup",
+	             SQL_COLUMN_TYPE_VARCHAR, 255,
+	             false, SQL_KEY_NONE, "");
+	defineColumn(staticInfo, ITEM_ID_ZBX_SYSMAPS_LABEL_STRING_TRIGGER,
+	             TABLE_ID_SYSMAPS, "label_string_trigger",
+	             SQL_COLUMN_TYPE_VARCHAR, 255,
+	             false, SQL_KEY_NONE, "");
+	defineColumn(staticInfo, ITEM_ID_ZBX_SYSMAPS_LABEL_STRING_MAP,
+	             TABLE_ID_SYSMAPS, "label_string_map",
+	             SQL_COLUMN_TYPE_VARCHAR, 255,
+	             false, SQL_KEY_NONE, "");
+	defineColumn(staticInfo, ITEM_ID_ZBX_SYSMAPS_LABEL_STRING_IMAGE,
+	             TABLE_ID_SYSMAPS, "label_string_image",
+	             SQL_COLUMN_TYPE_VARCHAR, 255,
+	             false, SQL_KEY_NONE, "");
+	defineColumn(staticInfo, ITEM_ID_ZBX_SYSMAPS_ICONMAPID,
+	             TABLE_ID_SYSMAPS, "iconmapid",
+	             SQL_COLUMN_TYPE_BIGUINT, 20,
+	             true, SQL_KEY_MUL, NULL);
+	defineColumn(staticInfo, ITEM_ID_ZBX_SYSMAPS_EXPAND_MACROS,
+	             TABLE_ID_SYSMAPS, "expand_macros",
 	             SQL_COLUMN_TYPE_INT, 11,
 	             false, SQL_KEY_NONE, "0");
 }
