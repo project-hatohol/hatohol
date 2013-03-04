@@ -22,7 +22,7 @@
 // SQLProcessorInfo
 // ---------------------------------------------------------------------------
 SQLProcessorInfo::SQLProcessorInfo(const ParsableString &_statement)
-: statement(_statement)
+: statement(StringUtils::replace(_statement.getString(), "\n\t", " "))
 {
 }
 
