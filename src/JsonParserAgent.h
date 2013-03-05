@@ -27,7 +27,7 @@ using namespace std;
 class JsonParserAgent
 {
 public:
-	JsonParserAgent(const char *data);
+	JsonParserAgent(const string &data);
 	virtual ~JsonParserAgent();
 	const char *getErrorMessage(void);
 	bool hasError(void);

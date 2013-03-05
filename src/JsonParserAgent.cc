@@ -24,13 +24,13 @@ using namespace mlpl;
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
-JsonParserAgent::JsonParserAgent(const char *data)
+JsonParserAgent::JsonParserAgent(const string &data)
 : m_reader(NULL),
   m_error(NULL)
 {
 	m_error = NULL;
 	m_parser = json_parser_new();
-	if (!json_parser_load_from_data(m_parser, data, -1, &m_error))
+	if (!json_parser_load_from_data(m_parser, data.c_str(), -1, &m_error))
 		return;
 	m_reader = json_reader_new(json_parser_get_root(m_parser));
 }
