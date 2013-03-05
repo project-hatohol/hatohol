@@ -140,7 +140,6 @@ bool ArmZabbixAPI::mainThreadOneProc(void)
 	MLPL_DBG("auth token: %s\n", m_auth_token.c_str());
 
 	g_object_unref(msg);
-	getTrigger();
 	return true;
 }
 

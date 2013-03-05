@@ -25,11 +25,11 @@ class ArmZabbixAPI : public ArmBase
 {
 public:
 	ArmZabbixAPI(const char *server = "localhost");
+	void getTrigger(void);
 
 protected:
 	string getInitialJsonRequest(void);
 	bool parseInitialResponse(SoupMessage *msg);
-	void getTrigger(void);
 	bool mainThreadOneProc(void);
 
 	// virtual methods

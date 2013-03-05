@@ -33,6 +33,7 @@ DataStoreZabbix::~DataStoreZabbix(void)
 
 void DataStoreZabbix::getTriggers(void)
 {
+	m_armApi.getTrigger();
 }
 
 // ---------------------------------------------------------------------------
