@@ -15,18 +15,11 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef DataStoreZabbix_h
-#define DataStoreZabbix_h
+#ifndef DataStore_h
+#define DataStore_h
 
-#include "ArmZabbixAPI.h"
-#include "DataStore.h"
-
-class DataStoreZabbix : public DataStore {
+class DataStore {
 public:
-	DataStoreZabbix(void);
-	void getTriggers(void);
-private:
-	ArmZabbixAPI	m_armApi;
 };
 
-#endif // DataStoreZabbix_h
+#endif // DataStore_h
