@@ -32,6 +32,8 @@ public:
 	const char *getErrorMessage(void);
 	bool hasError(void);
 	bool read(const string &member, string &dest);
+	bool startObject(const string &member);
+	void endObject(void);
 
 protected:
 	void internalCheck(void);

@@ -66,6 +66,15 @@ bool JsonParserAgent::read(const string &member, string &dest)
 	return true;
 }
 
+bool JsonParserAgent::startObject(const string &member)
+{
+	return false;
+}
+
+void JsonParserAgent::endObject(void)
+{
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
