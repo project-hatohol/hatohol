@@ -17,7 +17,7 @@ libasura_la_SOURCES = \
 	ItemPtr.cc ItemTablePtr.cc ItemGroupPtr.cc ItemDataUtils.cc \
 	VirtualDataStore.cc VirtualDataStoreZabbix.cc \
 	VirtualDataStoreZabbixProfiles.cc \
-	DataStoreManager.cc DataStoreZabbix.cc \
+	DataStore.cc DataStoreManager.cc DataStoreZabbix.cc \
 	JsonBuilderAgent.cc JsonParserAgent.cc \
 	ArmController.cc \
 	ArmBase.cc ArmZabbixAPI.cc
