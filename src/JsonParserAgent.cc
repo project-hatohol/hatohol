@@ -57,10 +57,10 @@ bool JsonParserAgent::hasError(void)
 	return m_error != NULL;
 }
 
-bool JsonParserAgent::read(const char *member, string &dest)
+bool JsonParserAgent::read(const string &member, string &dest)
 {
 	internalCheck();
-	if (!json_reader_read_member(m_reader, member))
+	if (!json_reader_read_member(m_reader, member.c_str()))
 		return false;
 	dest = json_reader_get_string_value(m_reader);
 	return true;
