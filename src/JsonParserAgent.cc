@@ -69,11 +69,14 @@ bool JsonParserAgent::read(const string &member, string &dest)
 
 bool JsonParserAgent::startObject(const string &member)
 {
-	return false;
+	if (!json_reader_read_member(m_reader, member.c_str()))
+		return false;
+	return true;
 }
 
 void JsonParserAgent::endObject(void)
 {
+	json_reader_end_member(m_reader);
 }
 
 // ---------------------------------------------------------------------------

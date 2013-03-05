@@ -37,6 +37,22 @@ void test_parseString(void)
 	assertReadWord(parser, "name1", "123");
 }
 
+void test_parseStringInObject(void)
+{
+	string json;
+	assertReadFile("fixtures/testJson02.json", json);
+	JsonParserAgent parser(json);
+	cppcut_assert_equal(false, parser.hasError());
+
+	cppcut_assert_equal(true, parser.startObject("object0"));
+	assertReadWord(parser, "food", "donuts");
+	parser.endObject();
+	cppcut_assert_equal(true, parser.startObject("object1"));
+	assertReadWord(parser, "name", "dog");
+	assertReadWord(parser, "age", "5");
+	parser.endObject();
+}
+
 } //namespace testJsonParserAgent
 
 

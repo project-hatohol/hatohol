@@ -1,0 +1,9 @@
+{
+  "object0":{
+    "food":"donuts"
+  },
+  "object1":{
+    "name":"dog",
+    "age":"5"
+  }
+}
