@@ -19,7 +19,6 @@ libasura_la_SOURCES = \
 	VirtualDataStoreZabbixProfiles.cc \
 	DataStore.cc DataStoreManager.cc DataStoreZabbix.cc \
 	JsonBuilderAgent.cc JsonParserAgent.cc \
-	ArmController.cc \
 	ArmBase.cc ArmZabbixAPI.cc
 
 AM_CXXFLAGS = -Wall -g \

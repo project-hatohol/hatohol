@@ -29,7 +29,6 @@ using namespace mlpl;
 #include "Asura.h"
 #include "Utils.h"
 #include "FaceMySQL.h"
-#include "ArmController.h"
 #include "VirtualDataStoreZabbix.h"
 
 int mainRoutine(int argc, char *argv[])
@@ -45,8 +44,6 @@ int mainRoutine(int argc, char *argv[])
 	FaceMySQL face(cmdArg);
 	face.start();
 
-	ArmController armController(cmdArg);
-	armController.start();
 	VirtualDataStoreZabbix *vdsZabbix
 	  = VirtualDataStoreZabbix::getInstance();
 	vdsZabbix->passCommandLineArg(cmdArg);
