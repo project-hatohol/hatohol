@@ -59,20 +59,20 @@ void JsonBuilderAgent::endObject(void)
 	json_builder_end_object(m_builder);
 }
 
-void JsonBuilderAgent::addNull(const char *member)
+void JsonBuilderAgent::addNull(const string &member)
 {
-	json_builder_set_member_name(m_builder, member);
+	json_builder_set_member_name(m_builder, member.c_str());
 	json_builder_add_null_value(m_builder);
 }
 
-void JsonBuilderAgent::add(const char *member, const char *value)
+void JsonBuilderAgent::add(const string &member, const string &value)
 {
-	json_builder_set_member_name(m_builder, member);
-	json_builder_add_string_value(m_builder, value);
+	json_builder_set_member_name(m_builder, member.c_str());
+	json_builder_add_string_value(m_builder, value.c_str());
 }
 
-void JsonBuilderAgent::add(const char *member, gint64 value)
+void JsonBuilderAgent::add(const string &member, gint64 value)
 {
-	json_builder_set_member_name(m_builder, member);
+	json_builder_set_member_name(m_builder, member.c_str());
 	json_builder_add_int_value(m_builder, value);
 }

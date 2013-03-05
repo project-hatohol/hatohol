@@ -31,9 +31,9 @@ public:
 	string generate(void);
 	void startObject(const char *member = NULL);
 	void endObject(void);
-	void add(const char *member, const char *value);
-	void add(const char *member, gint64 value);
-	void addNull(const char *member);
+	void add(const string &member, const string &value);
+	void add(const string &member, gint64 value);
+	void addNull(const string &member);
 
 private:
 	JsonBuilder *m_builder;
