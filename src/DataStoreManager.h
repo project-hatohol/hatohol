@@ -25,15 +25,19 @@ using namespace std;
 #include "DataStore.h"
 
 class DataStoreManager {
+	// Currently multi-thread unsafe.
 public:
 	DataStoreManager(void);
 	virtual ~DataStoreManager();
 	bool add(const string &storeName, DataStore *dataStore);
+	const DataStoreVector &getDataStoreVector(void) const;
+
 private:
 	typedef map<const string, DataStore*> DataStoreMap;
 	typedef DataStoreMap::iterator        DataStoreMapIterator;
 
-	DataStoreMap m_dataStoreMap;
+	DataStoreMap    m_dataStoreMap;
+	DataStoreVector m_dataStoreVector;
 };
 
 #endif // DataStoreManager_h
