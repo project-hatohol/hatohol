@@ -18,8 +18,16 @@
 #ifndef DataStore_h
 #define DataStore_h
 
+#include <map>
+#include <vector>
+using namespace std;
+
 class DataStore {
 public:
 };
+
+typedef vector<DataStore *>             DataStoreVector;
+typedef DataStoreVector::iterator       DataStoreVectorIterator;
+typedef DataStoreVector::const_iterator DataStoreVectorConstIterator;
 
 #endif // DataStore_h
