@@ -33,6 +33,7 @@ class VirtualDataStoreZabbix : public VirtualDataStore
 public:
 	static VirtualDataStoreZabbix *getInstance(void);
 	const ItemTablePtr getItemTable(ItemGroupId groupId);
+	virtual void passCommandLineArg(const CommandLineArg &cmdArg);
 
 protected:
 	ItemTable *createStaticItemTable(ItemGroupId groupId);

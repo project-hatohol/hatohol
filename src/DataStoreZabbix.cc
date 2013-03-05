@@ -23,6 +23,8 @@
 // ---------------------------------------------------------------------------
 DataStoreZabbix::DataStoreZabbix(void)
 {
+	bool autoDeleteObject = true;
+	m_armApi.start(autoDeleteObject);
 }
 
 DataStoreZabbix::~DataStoreZabbix(void)

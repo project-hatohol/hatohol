@@ -23,12 +23,14 @@
 using namespace std;
 
 #include "DataStore.h"
+#include "Utils.h"
 
 class DataStoreManager {
 	// Currently multi-thread unsafe.
 public:
 	DataStoreManager(void);
 	virtual ~DataStoreManager();
+	virtual void passCommandLineArg(const CommandLineArg &cmdArg);
 	bool add(const string &storeName, DataStore *dataStore);
 	DataStoreVector &getDataStoreVector(void);
 

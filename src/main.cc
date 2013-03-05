@@ -47,6 +47,9 @@ int mainRoutine(int argc, char *argv[])
 
 	ArmController armController(cmdArg);
 	armController.start();
+	VirtualDataStoreZabbix *vdsZabbix
+	  = VirtualDataStoreZabbix::getInstance();
+	vdsZabbix->passCommandLineArg(cmdArg);
 
 	GMainLoop *loop = g_main_loop_new(NULL, FALSE);
 	g_main_loop_run(loop);

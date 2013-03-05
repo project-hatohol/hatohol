@@ -11,6 +11,10 @@ DataStoreManager::~DataStoreManager()
 {
 }
 
+void DataStoreManager::passCommandLineArg(const CommandLineArg &cmdArg)
+{
+}
+
 bool DataStoreManager::add(const string &storeName, DataStore *dataStore)
 {
 	pair<DataStoreMapIterator, bool> result = 

@@ -66,6 +66,25 @@ const ItemTablePtr VirtualDataStoreZabbix::getItemTable(ItemGroupId groupId)
 	return ItemTablePtr(table);
 }
 
+void VirtualDataStoreZabbix::passCommandLineArg(const CommandLineArg &cmdArg)
+{
+	for (size_t i = 0; i < cmdArg.size(); i++) {
+		if (cmdArg[i] == "--data-store-zabbix") {
+			if (i == cmdArg.size() -1) {
+				MLPL_ERR(
+				  "--data-store-zabbix is specified, but no "
+				  "arguments.");
+				return;
+			}
+			// TODO: support multiple data store
+			i++;
+			const string &name = cmdArg[i];
+			DataStoreZabbix *dataStore = new DataStoreZabbix();
+			add(name, dataStore);
+		}
+	}
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
