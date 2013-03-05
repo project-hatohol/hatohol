@@ -24,25 +24,26 @@ void _assertReadWord(JsonParserAgent &parser,
 }
 #define assertReadWord(A,X,Y) cut_trace(_assertReadWord(A,X, Y))
 
+#define DEFINE_PARSER_AND_READ(PARTHER, JSON_MATERIAL) \
+string _json; \
+assertReadFile(JSON_MATERIAL, _json); \
+JsonParserAgent parser(_json); \
+cppcut_assert_equal(false, parser.hasError());
+
+
 // -------------------------------------------------------------------------
 // test cases
 // -------------------------------------------------------------------------
 void test_parseString(void)
 {
-	string json;
-	assertReadFile("fixtures/testJson01.json", json);
-	JsonParserAgent parser(json);
-	cppcut_assert_equal(false, parser.hasError());
+	DEFINE_PARSER_AND_READ(parser, "fixtures/testJson01.json");
 	assertReadWord(parser, "name0", "string value");
 	assertReadWord(parser, "name1", "123");
 }
 
 void test_parseStringInObject(void)
 {
-	string json;
-	assertReadFile("fixtures/testJson02.json", json);
-	JsonParserAgent parser(json);
-	cppcut_assert_equal(false, parser.hasError());
+	DEFINE_PARSER_AND_READ(parser, "fixtures/testJson02.json");
 
 	cppcut_assert_equal(true, parser.startObject("object0"));
 	assertReadWord(parser, "food", "donuts");
