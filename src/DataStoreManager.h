@@ -31,13 +31,19 @@ public:
 	DataStoreManager(void);
 	virtual ~DataStoreManager();
 	virtual void passCommandLineArg(const CommandLineArg &cmdArg);
+
+	// Elements regisgtered in this function should be freed by
+	// this class (i.e. owner is changed).
 	bool add(const string &storeName, DataStore *dataStore);
+
 	DataStoreVector &getDataStoreVector(void);
 
 private:
 	typedef map<const string, DataStore*> DataStoreMap;
 	typedef DataStoreMap::iterator        DataStoreMapIterator;
 
+	// Elements in m_dataStoreMap and m_dataStoreVector are the same.
+	// So it's only necessary to free elements in one.
 	DataStoreMap    m_dataStoreMap;
 	DataStoreVector m_dataStoreVector;
 };
