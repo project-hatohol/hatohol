@@ -15,21 +15,16 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef DataStore_h
-#define DataStore_h
+#include "DataStore.h"
 
-#include <map>
-#include <vector>
-using namespace std;
+// ---------------------------------------------------------------------------
+// Public methods
+// ---------------------------------------------------------------------------
+DataStore::DataStore(void)
+{
+}
 
-class DataStore {
-public:
-	DataStore(void);
-	virtual ~DataStore();
-};
+DataStore::~DataStore()
+{
+}
 
-typedef vector<DataStore *>             DataStoreVector;
-typedef DataStoreVector::iterator       DataStoreVectorIterator;
-typedef DataStoreVector::const_iterator DataStoreVectorConstIterator;
-
-#endif // DataStore_h

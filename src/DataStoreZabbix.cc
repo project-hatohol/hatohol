@@ -25,6 +25,10 @@ DataStoreZabbix::DataStoreZabbix(void)
 {
 }
 
+DataStoreZabbix::~DataStoreZabbix(void)
+{
+}
+
 void DataStoreZabbix::getTriggers(void)
 {
 }
