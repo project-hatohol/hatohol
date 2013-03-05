@@ -42,6 +42,11 @@ VirtualDataStoreZabbix *VirtualDataStoreZabbix::getInstance(void)
 	return m_instance;
 }
 
+bool VirtualDataStoreZabbix::add(const string &storeName, DataStore *dataStore)
+{
+	return m_dataStoreManager.add(storeName, dataStore);
+}
+
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
@@ -89,7 +94,15 @@ ItemTable *VirtualDataStoreZabbix::createStaticItemTable(ItemGroupId groupId)
 
 ItemTablePtr VirtualDataStoreZabbix::getTriggers(void)
 {
-	m_dataStoreZabbix.getTriggers();
+	// TODO: merge data of all stores. Now just call a stub function.
+	DataStoreVector &dataStoreVect =
+	   m_dataStoreManager.getDataStoreVector();
+	for (size_t i = 0; i < dataStoreVect.size(); i++) {
+		DataStore *dataStore = dataStoreVect[i];
+		DataStoreZabbix *dataStoreZabbix = 
+		  dynamic_cast<DataStoreZabbix *>(dataStore);
+		dataStoreZabbix->getTriggers();
+	}
 	return ItemTablePtr();
 }
 

@@ -26,12 +26,14 @@ using namespace std;
 #include "VirtualDataStore.h"
 #include "ReadWriteLock.h"
 #include "DataStoreZabbix.h"
+#include "DataStoreManager.h"
 
 class VirtualDataStoreZabbix : public VirtualDataStore
 {
 public:
 	static VirtualDataStoreZabbix *getInstance(void);
 	const ItemTablePtr getItemTable(ItemGroupId groupId);
+	bool add(const string &storeName, DataStore *dataStore);
 
 protected:
 	ItemTable *createStaticItemTable(ItemGroupId groupId);
@@ -48,7 +50,7 @@ private:
 	ReadWriteLock       m_staticItemTableMapLock;
 
 	DataGeneratorMap    m_dataGeneratorMap;
-	DataStoreZabbix     m_dataStoreZabbix;
+	DataStoreManager    m_dataStoreManager;
 
 	VirtualDataStoreZabbix(void);
 	virtual ~VirtualDataStoreZabbix();
