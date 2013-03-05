@@ -45,9 +45,17 @@ VirtualDataStoreZabbix *VirtualDataStoreZabbix::getInstance(void)
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
-const ItemTablePtr
-VirtualDataStoreZabbix::getItemTable(ItemGroupId groupId) const
+const ItemTablePtr VirtualDataStoreZabbix::getItemTable(ItemGroupId groupId)
 {
+	// search from DataGenerators
+	DataGeneratorMapIterator generatorIt = 
+	  m_dataGeneratorMap.find(groupId);
+	if (generatorIt != m_dataGeneratorMap.end()) {
+		DataGenerator generator = generatorIt->second;
+		return (this->*generator)();
+	}
+
+	// search from built-in on memory database
 	ItemGroupIdTableMapConstIterator it;
 	ItemTable *table = NULL;
 	m_staticItemTableMapLock.readLock();
@@ -65,7 +73,6 @@ ItemTable *VirtualDataStoreZabbix::createStaticItemTable(ItemGroupId groupId)
 {
 	pair<ItemGroupIdTableMapIterator, bool> result;
 	ItemTable *table = new ItemTable();
-
 	m_staticItemTableMapLock.writeLock();;
 	result = m_staticItemTableMap.insert
 	         (pair<ItemGroupId, ItemTable *>(groupId, table));
@@ -78,6 +85,12 @@ ItemTable *VirtualDataStoreZabbix::createStaticItemTable(ItemGroupId groupId)
 		throw invalid_argument(msg);
 	}
 	return table;
+}
+
+ItemTablePtr VirtualDataStoreZabbix::getTriggers(void)
+{
+	m_dataStoreZabbix.getTriggers();
+	return ItemTablePtr();
 }
 
 // ---------------------------------------------------------------------------
@@ -275,7 +288,8 @@ VirtualDataStoreZabbix::VirtualDataStoreZabbix(void)
 	//
 	// triggers
 	//
-	table = createStaticItemTable(GROUP_ID_ZBX_TRIGGERS);
+	m_dataGeneratorMap[GROUP_ID_ZBX_TRIGGERS] = 
+	  &VirtualDataStoreZabbix::getTriggers;
 
 	//
 	// functions

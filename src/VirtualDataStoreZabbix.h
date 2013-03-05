@@ -25,21 +25,30 @@ using namespace std;
 #include "ItemTablePtr.h"
 #include "VirtualDataStore.h"
 #include "ReadWriteLock.h"
+#include "DataStoreZabbix.h"
 
 class VirtualDataStoreZabbix : public VirtualDataStore
 {
 public:
 	static VirtualDataStoreZabbix *getInstance(void);
-	const ItemTablePtr getItemTable(ItemGroupId groupId) const;
+	const ItemTablePtr getItemTable(ItemGroupId groupId);
 
 protected:
 	ItemTable *createStaticItemTable(ItemGroupId groupId);
+	ItemTablePtr getTriggers(void);
 
 private:
+	typedef ItemTablePtr (VirtualDataStoreZabbix::*DataGenerator)(void);
+	typedef map<ItemGroupId, DataGenerator>  DataGeneratorMap;
+	typedef DataGeneratorMap::iterator       DataGeneratorMapIterator;
+
 	static GMutex                  m_mutex;
 	static VirtualDataStoreZabbix *m_instance;
 	ItemGroupIdTableMap m_staticItemTableMap;
 	ReadWriteLock       m_staticItemTableMapLock;
+
+	DataGeneratorMap    m_dataGeneratorMap;
+	DataStoreZabbix     m_dataStoreZabbix;
 
 	VirtualDataStoreZabbix(void);
 	virtual ~VirtualDataStoreZabbix();
