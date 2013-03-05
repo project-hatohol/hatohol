@@ -18,6 +18,7 @@ noinst_LTLIBRARIES = \
 	testItemTablePtr.la \
 	testItemDataUtils.la \
 	testFormulaOperator.la \
+	testJsonParserAgent.la \
 	libFormulaTestUtils.la libHelpers.la
 
 endif
@@ -27,7 +28,7 @@ AM_CFLAGS = -g -Wall $(GLIB_CFLAGS)
 AM_LDFLAGS = -module -rpath $(libdir) -avoid-version -no-undefined
 INCLUDES = \
 	$(CUTTER_CFLAGS) $(CPPCUTTER_CFLAGS) \
-	$(GLIB_CFLAGS) $(MLPL_CFLAGS) -I ../src
+	$(GLIB_CFLAGS) $(MLPL_CFLAGS) $(JSON_GLIB_CFLAGS) -I ../src
 
 LIBS = \
 	$(CUTTER_LIBS) $(CPPCUTTER_LIBS) \
