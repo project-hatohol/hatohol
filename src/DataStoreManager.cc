@@ -24,7 +24,7 @@ bool DataStoreManager::add(const string &storeName, DataStore *dataStore)
 	return result.second;
 }
 
-const DataStoreVector &DataStoreManager::getDataStoreVector(void) const
+DataStoreVector &DataStoreManager::getDataStoreVector(void)
 {
 	return m_dataStoreVector;
 }

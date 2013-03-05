@@ -30,7 +30,7 @@ public:
 	DataStoreManager(void);
 	virtual ~DataStoreManager();
 	bool add(const string &storeName, DataStore *dataStore);
-	const DataStoreVector &getDataStoreVector(void) const;
+	DataStoreVector &getDataStoreVector(void);
 
 private:
 	typedef map<const string, DataStore*> DataStoreMap;
