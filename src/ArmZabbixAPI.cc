@@ -83,6 +83,39 @@ bool ArmZabbixAPI::parseInitialResponse(SoupMessage *msg)
 	return true;
 }
 
+void ArmZabbixAPI::getTrigger(void)
+{
+	JsonBuilderAgent agent;
+	agent.startObject();
+	agent.add("jsonrpc", "2.0");
+	agent.add("method", "trigger.get");
+
+	agent.startObject("params");
+	agent.add("output", "extend");
+	agent.add("selectFunctions", "extend");
+	agent.endObject();
+
+	agent.add("auth", m_auth_token);
+	agent.add("id", 1);
+	agent.endObject();
+
+	string request_body = agent.generate();
+	SoupSession *session = soup_session_sync_new();
+	SoupMessage *msg = soup_message_new(SOUP_METHOD_GET, m_uri.c_str());
+
+	soup_message_headers_set_content_type(msg->request_headers,
+	                                      MIME_JSON_RPC, NULL);
+	soup_message_body_append(msg->request_body, SOUP_MEMORY_TEMPORARY,
+	                         request_body.c_str(), request_body.size());
+	guint ret = soup_session_send_message(session, msg);
+	if (ret != SOUP_STATUS_OK) {
+		MLPL_ERR("Failed to get: code: %d: %s\n", ret, m_uri.c_str());
+		return;
+	}
+	MLPL_DBG("body: %d, %s\n", msg->response_body->length,
+	                           msg->response_body->data);
+}
+
 bool ArmZabbixAPI::mainThreadOneProc(void)
 {
 	SoupSession *session = soup_session_sync_new();
@@ -107,6 +140,7 @@ bool ArmZabbixAPI::mainThreadOneProc(void)
 	MLPL_DBG("auth token: %s\n", m_auth_token.c_str());
 
 	g_object_unref(msg);
+	getTrigger();
 	return true;
 }
 

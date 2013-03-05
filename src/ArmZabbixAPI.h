@@ -29,6 +29,7 @@ public:
 protected:
 	string getInitialJsonRequest(void);
 	bool parseInitialResponse(SoupMessage *msg);
+	void getTrigger(void);
 	bool mainThreadOneProc(void);
 
 	// virtual methods
