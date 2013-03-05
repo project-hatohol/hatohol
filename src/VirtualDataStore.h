@@ -19,8 +19,9 @@
 #define VirtualDataStore_h
 
 #include "VirtualDataStore.h"
+#include "DataStoreManager.h"
 
-class VirtualDataStore
+class VirtualDataStore : public DataStoreManager
 {
 public:
 	VirtualDataStore(void);

@@ -33,7 +33,6 @@ class VirtualDataStoreZabbix : public VirtualDataStore
 public:
 	static VirtualDataStoreZabbix *getInstance(void);
 	const ItemTablePtr getItemTable(ItemGroupId groupId);
-	bool add(const string &storeName, DataStore *dataStore);
 
 protected:
 	ItemTable *createStaticItemTable(ItemGroupId groupId);
@@ -50,7 +49,6 @@ private:
 	ReadWriteLock       m_staticItemTableMapLock;
 
 	DataGeneratorMap    m_dataGeneratorMap;
-	DataStoreManager    m_dataStoreManager;
 
 	VirtualDataStoreZabbix(void);
 	virtual ~VirtualDataStoreZabbix();
