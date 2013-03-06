@@ -40,13 +40,16 @@ protected:
 	void getString(JsonParserAgent &parser, const string &name,
 	               string &value);
 
-	void pushInt   (JsonParserAgent &parser, ItemGroup *itemGroup,
-	                const string &name, ItemId itemId);
-	void pushUint64(JsonParserAgent &parser, ItemGroup *itemGroup,
-	                const string &name, ItemId itemId);
-	void pushString(JsonParserAgent &parser, ItemGroup *itemGroup,
-	                const string &name, ItemId itemId);
+	int      pushInt   (JsonParserAgent &parser, ItemGroup *itemGroup,
+	                    const string &name, ItemId itemId);
+	uint64_t pushUint64(JsonParserAgent &parser, ItemGroup *itemGroup,
+	                    const string &name, ItemId itemId);
+	string   pushString(JsonParserAgent &parser, ItemGroup *itemGroup,
+	                    const string &name, ItemId itemId);
 
+	void pushFunctionsCache(JsonParserAgent &parser);
+	void pushFunctionsCacheOne(JsonParserAgent &parser,
+	                           ItemGroup *itemGroup, int index);
 	void parseAndPushTriggerData(JsonParserAgent &parser,
 	                             ItemTablePtr &tablePtr, int index);
 

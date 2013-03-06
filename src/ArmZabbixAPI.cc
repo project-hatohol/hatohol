@@ -36,11 +36,13 @@ static const char *MIME_JSON_RPC = "application/json-rpc";
 struct ArmZabbixAPI::PrivateContext
 {
 	bool         gotTriggers;
+	uint64_t     triggerid;
 	ItemTablePtr functionsTablePtr;
 
 	// constructors
 	PrivateContext(void)
-	: gotTriggers(false)
+	: gotTriggers(false),
+	  triggerid(0)
 	{
 	}
 };
@@ -113,8 +115,10 @@ ItemTablePtr ArmZabbixAPI::getTrigger(void)
 	}
 
 	m_ctx->gotTriggers = false;
+	m_ctx->functionsTablePtr = ItemTablePtr();
 	for (int i = 0; i < numTriggers; i++)
 		parseAndPushTriggerData(parser, tablePtr, i);
+	m_ctx->gotTriggers = true;
 	return tablePtr;
 }
 
@@ -125,7 +129,7 @@ ItemTablePtr ArmZabbixAPI::getFunctions(void)
 		  "Cache for 'functions' is empty. 'triggers' may not have "
 		  "been retrieved.");
 	}
-	return ItemTablePtr();
+	return m_ctx->functionsTablePtr;
 }
 
 // ---------------------------------------------------------------------------
@@ -216,31 +220,58 @@ void ArmZabbixAPI::getString(JsonParserAgent &parser, const string &name,
 	}
 }
 
-void ArmZabbixAPI::pushInt(JsonParserAgent &parser, ItemGroup *itemGroup,
-                           const string &name, ItemId itemId)
+int ArmZabbixAPI::pushInt(JsonParserAgent &parser, ItemGroup *itemGroup,
+                          const string &name, ItemId itemId)
 {
 	string value;
 	getString(parser, name, value);
 	int valInt = atoi(value.c_str());
 	itemGroup->add(new ItemInt(itemId, valInt), false);
+	return valInt;
 }
 
-void ArmZabbixAPI::pushUint64(JsonParserAgent &parser, ItemGroup *itemGroup,
-                              const string &name, ItemId itemId)
+uint64_t ArmZabbixAPI::pushUint64(JsonParserAgent &parser, ItemGroup *itemGroup,
+                                  const string &name, ItemId itemId)
 {
 	string value;
 	getString(parser, name, value);
 	uint64_t valU64;
 	sscanf(value.c_str(), "%"PRIu64, &valU64);
 	itemGroup->add(new ItemUint64(itemId, valU64), false);
+	return valU64;
 }
 
-void ArmZabbixAPI::pushString(JsonParserAgent &parser, ItemGroup *itemGroup,
-                              const string &name, ItemId itemId)
+string ArmZabbixAPI::pushString(JsonParserAgent &parser, ItemGroup *itemGroup,
+                                const string &name, ItemId itemId)
 {
 	string value;
 	getString(parser, name, value);
 	itemGroup->add(new ItemString(itemId, value), false);
+	return value;
+}
+
+void ArmZabbixAPI::pushFunctionsCacheOne(JsonParserAgent &parser,
+                                         ItemGroup *grp, int index)
+{
+	startElement(parser, index);
+	pushUint64(parser, grp, "functionid", ITEM_ID_ZBX_FUNCTIONS_FUNCTIONID);
+	pushUint64(parser, grp, "itemid",     ITEM_ID_ZBX_FUNCTIONS_ITEMID);
+	pushString(parser, grp, "function",   ITEM_ID_ZBX_FUNCTIONS_FUNCTION);
+	pushString(parser, grp, "parameter",  ITEM_ID_ZBX_FUNCTIONS_PARAMETER);
+	parser.endElement();
+}
+
+void ArmZabbixAPI::pushFunctionsCache(JsonParserAgent &parser)
+{
+	startObject(parser, "functions");
+	int numFunctions = parser.countElements();
+	for (int i = 0; i < numFunctions; i++) {
+		ItemGroup *itemGroup = m_ctx->functionsTablePtr->addNewGroup();
+		ItemId id = ITEM_ID_ZBX_FUNCTIONS_TRIGGERID;
+		itemGroup->add(new ItemUint64(id, m_ctx->triggerid), false);
+		pushFunctionsCacheOne(parser, itemGroup, i);
+	}
+	parser.endObject();
 }
 
 void ArmZabbixAPI::parseAndPushTriggerData(JsonParserAgent &parser,
@@ -248,7 +279,8 @@ void ArmZabbixAPI::parseAndPushTriggerData(JsonParserAgent &parser,
 {
 	startElement(parser, index);
 	ItemGroup *grp = tablePtr->addNewGroup();
-	pushUint64(parser, grp, "triggerid", ITEM_ID_ZBX_TRIGGERS_TRIGGERID);
+	m_ctx->triggerid =
+	  pushUint64(parser, grp, "triggerid", ITEM_ID_ZBX_TRIGGERS_TRIGGERID);
 	pushString(parser, grp, "expression",ITEM_ID_ZBX_TRIGGERS_EXPRESSION);
 	pushString(parser, grp, "url",       ITEM_ID_ZBX_TRIGGERS_URL);
 	pushInt   (parser, grp, "status",    ITEM_ID_ZBX_TRIGGERS_STATUS);
@@ -261,6 +293,10 @@ void ArmZabbixAPI::parseAndPushTriggerData(JsonParserAgent &parser,
 	pushInt   (parser, grp, "type",      ITEM_ID_ZBX_TRIGGERS_TYPE);
 	pushInt   (parser, grp, "value_flags",ITEM_ID_ZBX_TRIGGERS_VALUE_FLAGS);
 	pushInt   (parser, grp, "flags",     ITEM_ID_ZBX_TRIGGERS_FLAGS);
+
+	// get functions
+	pushFunctionsCache(parser);
+
 	parser.endElement();
 }
 
