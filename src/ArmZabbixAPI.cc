@@ -24,6 +24,8 @@ using namespace mlpl;
 #include "ArmZabbixAPI.h"
 #include "JsonParserAgent.h"
 #include "JsonBuilderAgent.h"
+#include "DataStoreException.h"
+#include "ItemEnum.h"
 
 static const int DEFAULT_SERVER_PORT = 80;
 static const int DEFAULT_RETRY_INTERVAL = 10;
@@ -83,7 +85,7 @@ bool ArmZabbixAPI::parseInitialResponse(SoupMessage *msg)
 	return true;
 }
 
-void ArmZabbixAPI::getTrigger(void)
+ItemTablePtr ArmZabbixAPI::getTrigger(void)
 {
 	JsonBuilderAgent agent;
 	agent.startObject();
@@ -109,11 +111,27 @@ void ArmZabbixAPI::getTrigger(void)
 	                         request_body.c_str(), request_body.size());
 	guint ret = soup_session_send_message(session, msg);
 	if (ret != SOUP_STATUS_OK) {
-		MLPL_ERR("Failed to get: code: %d: %s\n", ret, m_uri.c_str());
-		return;
+		THROW_DATA_STORE_EXCEPTION(
+		  "Failed to get: code: %d: %s", ret, m_uri.c_str());
 	}
-	MLPL_DBG("body: %d, %s\n", msg->response_body->length,
-	                           msg->response_body->data);
+
+	JsonParserAgent parser(msg->response_body->data);
+	if (parser.hasError()) {
+		THROW_DATA_STORE_EXCEPTION(
+		  "Failed to parser: %s", parser.getErrorMessage());
+	}
+	startObject(parser, "result");
+
+	ItemTablePtr tablePtr;
+	int numTriggers = parser.countElements();
+	if (numTriggers < 1) {
+		MLPL_DBG("The number of triggers: %d\n", numTriggers);
+		return tablePtr;
+	}
+
+	for (int i = 0; i < numTriggers; i++)
+		parseAndPushTriggerData(parser, tablePtr, i);
+	return tablePtr;
 }
 
 bool ArmZabbixAPI::mainThreadOneProc(void)
@@ -141,6 +159,78 @@ bool ArmZabbixAPI::mainThreadOneProc(void)
 
 	g_object_unref(msg);
 	return true;
+}
+
+void ArmZabbixAPI::startObject(JsonParserAgent &parser, const string &name)
+{
+	if (!parser.startObject(name)) {
+		THROW_DATA_STORE_EXCEPTION(
+		  "Failed to read object: %s", name.c_str());
+	}
+}
+
+void ArmZabbixAPI::startElement(JsonParserAgent &parser, int index)
+{
+	if (!parser.startElement(index)) {
+		THROW_DATA_STORE_EXCEPTION(
+		  "Failed to start element: %d",index);
+	}
+}
+
+void ArmZabbixAPI::getString(JsonParserAgent &parser, const string &name,
+                             string &value)
+{
+	if (!parser.read(name.c_str(), value)) {
+		THROW_DATA_STORE_EXCEPTION("Failed to read: %s", name.c_str());
+	}
+}
+
+void ArmZabbixAPI::pushInt(JsonParserAgent &parser, ItemGroup *itemGroup,
+                           const string &name, ItemId itemId)
+{
+	string value;
+	getString(parser, name, value);
+	int valInt = atoi(value.c_str());
+	itemGroup->add(new ItemInt(itemId, valInt), false);
+}
+
+void ArmZabbixAPI::pushUint64(JsonParserAgent &parser, ItemGroup *itemGroup,
+                              const string &name, ItemId itemId)
+{
+	string value;
+	getString(parser, name, value);
+	uint64_t valU64;
+	sscanf(value.c_str(), "%"PRIu64, &valU64);
+	itemGroup->add(new ItemUint64(itemId, valU64), false);
+}
+
+void ArmZabbixAPI::pushString(JsonParserAgent &parser, ItemGroup *itemGroup,
+                              const string &name, ItemId itemId)
+{
+	string value;
+	getString(parser, name, value);
+	itemGroup->add(new ItemString(itemId, value), false);
+}
+
+void ArmZabbixAPI::parseAndPushTriggerData(JsonParserAgent &parser,
+                                           ItemTablePtr &tablePtr, int index)
+{
+	startElement(parser, index);
+	ItemGroup *grp = tablePtr->addNewGroup();
+	pushUint64(parser, grp, "triggerid", ITEM_ID_ZBX_TRIGGERS_TRIGGERID);
+	pushString(parser, grp, "expression",ITEM_ID_ZBX_TRIGGERS_EXPRESSION);
+	pushString(parser, grp, "url",       ITEM_ID_ZBX_TRIGGERS_URL);
+	pushInt   (parser, grp, "status",    ITEM_ID_ZBX_TRIGGERS_STATUS);
+	pushInt   (parser, grp, "value",     ITEM_ID_ZBX_TRIGGERS_VALUE);
+	pushInt   (parser, grp, "priority",  ITEM_ID_ZBX_TRIGGERS_PRIORITY);
+	pushInt   (parser, grp, "lastchange",ITEM_ID_ZBX_TRIGGERS_LASTCHANGE);
+	pushString(parser, grp, "comments",  ITEM_ID_ZBX_TRIGGERS_COMMENTS);
+	pushString(parser, grp, "error",     ITEM_ID_ZBX_TRIGGERS_ERROR);
+	pushUint64(parser, grp, "templateid",ITEM_ID_ZBX_TRIGGERS_TEMPLATEID);
+	pushInt   (parser, grp, "type",      ITEM_ID_ZBX_TRIGGERS_TYPE);
+	pushInt   (parser, grp, "value_flags",ITEM_ID_ZBX_TRIGGERS_VALUE_FLAGS);
+	pushInt   (parser, grp, "flags",     ITEM_ID_ZBX_TRIGGERS_FLAGS);
+	parser.endElement();
 }
 
 gpointer ArmZabbixAPI::mainThread(AsuraThreadArg *arg)

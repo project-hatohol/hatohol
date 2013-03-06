@@ -20,17 +20,33 @@
 
 #include <libsoup/soup.h>
 #include "ArmBase.h"
+#include "ItemTablePtr.h"
+#include "JsonParserAgent.h"
 
 class ArmZabbixAPI : public ArmBase
 {
 public:
 	ArmZabbixAPI(const char *server = "localhost");
-	void getTrigger(void);
+	ItemTablePtr getTrigger(void);
 
 protected:
 	string getInitialJsonRequest(void);
 	bool parseInitialResponse(SoupMessage *msg);
 	bool mainThreadOneProc(void);
+	void startObject(JsonParserAgent &parser, const string &name);
+	void startElement(JsonParserAgent &parser, int index);
+	void getString(JsonParserAgent &parser, const string &name,
+	               string &value);
+
+	void pushInt   (JsonParserAgent &parser, ItemGroup *itemGroup,
+	                const string &name, ItemId itemId);
+	void pushUint64(JsonParserAgent &parser, ItemGroup *itemGroup,
+	                const string &name, ItemId itemId);
+	void pushString(JsonParserAgent &parser, ItemGroup *itemGroup,
+	                const string &name, ItemId itemId);
+
+	void parseAndPushTriggerData(JsonParserAgent &parser,
+	                             ItemTablePtr &tablePtr, int index);
 
 	// virtual methods
 	gpointer mainThread(AsuraThreadArg *arg);
