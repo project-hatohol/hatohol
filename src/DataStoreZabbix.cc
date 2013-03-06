@@ -36,6 +36,11 @@ ItemTablePtr DataStoreZabbix::getTriggers(void)
 	return m_armApi.getTrigger();
 }
 
+ItemTablePtr DataStoreZabbix::getFunctions(void)
+{
+	return m_armApi.getFunctions();
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------

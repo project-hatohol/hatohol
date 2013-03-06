@@ -33,11 +33,24 @@ static const int DEFAULT_REPEAT_INTERVAL = 30;
 
 static const char *MIME_JSON_RPC = "application/json-rpc";
 
+struct ArmZabbixAPI::PrivateContext
+{
+	bool         gotTriggers;
+	ItemTablePtr functionsTablePtr;
+
+	// constructors
+	PrivateContext(void)
+	: gotTriggers(false)
+	{
+	}
+};
+
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
 ArmZabbixAPI::ArmZabbixAPI(const char *server)
-: m_server(server),
+: m_ctx(NULL),
+  m_server(server),
   m_server_port(DEFAULT_SERVER_PORT),
   m_retry_interval(DEFAULT_RETRY_INTERVAL),
   m_repeat_interval(DEFAULT_REPEAT_INTERVAL)
@@ -46,6 +59,23 @@ ArmZabbixAPI::ArmZabbixAPI(const char *server)
 	m_uri = "http://";
 	m_uri += m_server;
 	m_uri += "/zabbix/api_jsonrpc.php";
+	m_ctx = new PrivateContext();
+}
+
+ArmZabbixAPI::~ArmZabbixAPI()
+{
+	if (m_ctx)
+		delete m_ctx;
+}
+
+ItemTablePtr ArmZabbixAPI::getFunctions(void)
+{
+	if (!m_ctx->gotTriggers) {
+		THROW_DATA_STORE_EXCEPTION(
+		  "Cache for 'functions' is empty. 'triggers' may not have "
+		  "been retrieved.");
+	}
+	return ItemTablePtr();
 }
 
 // ---------------------------------------------------------------------------
@@ -129,6 +159,7 @@ ItemTablePtr ArmZabbixAPI::getTrigger(void)
 		return tablePtr;
 	}
 
+	m_ctx->gotTriggers = false;
 	for (int i = 0; i < numTriggers; i++)
 		parseAndPushTriggerData(parser, tablePtr, i);
 	return tablePtr;

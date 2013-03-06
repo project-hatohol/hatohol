@@ -26,6 +26,7 @@ public:
 	DataStoreZabbix(void);
 	virtual ~DataStoreZabbix();
 	ItemTablePtr getTriggers(void);
+	ItemTablePtr getFunctions(void);
 private:
 	ArmZabbixAPI	m_armApi;
 };

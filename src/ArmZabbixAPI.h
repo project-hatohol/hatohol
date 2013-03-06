@@ -27,7 +27,9 @@ class ArmZabbixAPI : public ArmBase
 {
 public:
 	ArmZabbixAPI(const char *server = "localhost");
+	virtual ~ArmZabbixAPI();
 	ItemTablePtr getTrigger(void);
+	ItemTablePtr getFunctions(void);
 
 protected:
 	string getInitialJsonRequest(void);
@@ -52,6 +54,8 @@ protected:
 	gpointer mainThread(AsuraThreadArg *arg);
 
 private:
+	struct PrivateContext;
+	PrivateContext *m_ctx;
 	string m_server;
 	string m_auth_token;
 	string m_uri;

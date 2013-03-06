@@ -38,6 +38,7 @@ public:
 protected:
 	ItemTable *createStaticItemTable(ItemGroupId groupId);
 	ItemTablePtr getTriggers(void);
+	ItemTablePtr getFunctions(void);
 
 private:
 	typedef ItemTablePtr (VirtualDataStoreZabbix::*DataGenerator)(void);
