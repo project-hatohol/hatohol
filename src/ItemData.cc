@@ -50,9 +50,10 @@ ItemDataException::ItemDataException(ItemDataExceptionType type,
 	else
 		header = StringUtils::sprintf("Unknown exception (%d)", type);
 	string msg = StringUtils::sprintf(
-	  "%s: '%s' between %s and %s",
+	  "%s: '%s' between %s and %s (ItemID: %"PRIu_ITEM" and %"PRIu_ITEM")",
 	  header.c_str(), operatorName,
-	  lhs.getNativeTypeName(), rhs.getNativeTypeName());
+	  lhs.getNativeTypeName(), rhs.getNativeTypeName(),
+	  lhs.getId(), rhs.getId());
 
 	setBrief(msg);
 }
