@@ -750,7 +750,7 @@ void SQLProcessorZabbix::init(void)
 	             SQL_COLUMN_TYPE_VARCHAR, 64,
 	             false, SQL_KEY_NONE, "");
 	defineColumn(staticInfo, ITEM_ID_ZBX_ITEMS_PASSWORD,
-	             TABLE_ID_ITEMS, "passowrd",
+	             TABLE_ID_ITEMS, "password",
 	             SQL_COLUMN_TYPE_VARCHAR, 64,
 	             false, SQL_KEY_NONE, "");
 	defineColumn(staticInfo, ITEM_ID_ZBX_ITEMS_PUBLICKEY,
