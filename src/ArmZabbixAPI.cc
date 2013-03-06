@@ -68,53 +68,6 @@ ArmZabbixAPI::~ArmZabbixAPI()
 		delete m_ctx;
 }
 
-ItemTablePtr ArmZabbixAPI::getFunctions(void)
-{
-	if (!m_ctx->gotTriggers) {
-		THROW_DATA_STORE_EXCEPTION(
-		  "Cache for 'functions' is empty. 'triggers' may not have "
-		  "been retrieved.");
-	}
-	return ItemTablePtr();
-}
-
-// ---------------------------------------------------------------------------
-// Protected methods
-// ---------------------------------------------------------------------------
-string ArmZabbixAPI::getInitialJsonRequest(void)
-{
-	JsonBuilderAgent agent;
-	agent.startObject();
-	agent.addNull("auth");
-	agent.add("method", "user.login");
-	agent.add("id", 1);
-
-	agent.startObject("params");
-	agent.add("user" , "admin");
-	agent.add("password", "zabbix");
-	agent.endObject();
-
-	agent.add("jsonrpc", "2.0");
-	agent.endObject();
-
-	return agent.generate();
-}
-
-bool ArmZabbixAPI::parseInitialResponse(SoupMessage *msg)
-{
-	JsonParserAgent parser(msg->response_body->data);
-	if (parser.hasError()) {
-		MLPL_ERR("Failed to parser: %s\n", parser.getErrorMessage());
-		return false;
-	}
-
-	if (!parser.read("result", m_auth_token)) {
-		MLPL_ERR("Failed to read: result\n");
-		return false;
-	}
-	return true;
-}
-
 ItemTablePtr ArmZabbixAPI::getTrigger(void)
 {
 	JsonBuilderAgent agent;
@@ -163,6 +116,53 @@ ItemTablePtr ArmZabbixAPI::getTrigger(void)
 	for (int i = 0; i < numTriggers; i++)
 		parseAndPushTriggerData(parser, tablePtr, i);
 	return tablePtr;
+}
+
+ItemTablePtr ArmZabbixAPI::getFunctions(void)
+{
+	if (!m_ctx->gotTriggers) {
+		THROW_DATA_STORE_EXCEPTION(
+		  "Cache for 'functions' is empty. 'triggers' may not have "
+		  "been retrieved.");
+	}
+	return ItemTablePtr();
+}
+
+// ---------------------------------------------------------------------------
+// Protected methods
+// ---------------------------------------------------------------------------
+string ArmZabbixAPI::getInitialJsonRequest(void)
+{
+	JsonBuilderAgent agent;
+	agent.startObject();
+	agent.addNull("auth");
+	agent.add("method", "user.login");
+	agent.add("id", 1);
+
+	agent.startObject("params");
+	agent.add("user" , "admin");
+	agent.add("password", "zabbix");
+	agent.endObject();
+
+	agent.add("jsonrpc", "2.0");
+	agent.endObject();
+
+	return agent.generate();
+}
+
+bool ArmZabbixAPI::parseInitialResponse(SoupMessage *msg)
+{
+	JsonParserAgent parser(msg->response_body->data);
+	if (parser.hasError()) {
+		MLPL_ERR("Failed to parser: %s\n", parser.getErrorMessage());
+		return false;
+	}
+
+	if (!parser.read("result", m_auth_token)) {
+		MLPL_ERR("Failed to read: result\n");
+		return false;
+	}
+	return true;
 }
 
 bool ArmZabbixAPI::mainThreadOneProc(void)
