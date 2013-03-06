@@ -25,7 +25,7 @@ class DataStoreZabbix : public DataStore {
 public:
 	DataStoreZabbix(void);
 	virtual ~DataStoreZabbix();
-	void getTriggers(void);
+	ItemTablePtr getTriggers(void);
 private:
 	ArmZabbixAPI	m_armApi;
 };

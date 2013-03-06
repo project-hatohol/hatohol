@@ -114,7 +114,8 @@ ItemTablePtr VirtualDataStoreZabbix::getTriggers(void)
 		DataStore *dataStore = dataStoreVect[i];
 		DataStoreZabbix *dataStoreZabbix = 
 		  dynamic_cast<DataStoreZabbix *>(dataStore);
-		dataStoreZabbix->getTriggers();
+		// return on the first time (here is an experimental)
+		return dataStoreZabbix->getTriggers();
 	}
 	return ItemTablePtr();
 }

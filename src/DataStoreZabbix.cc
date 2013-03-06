@@ -31,9 +31,9 @@ DataStoreZabbix::~DataStoreZabbix(void)
 {
 }
 
-void DataStoreZabbix::getTriggers(void)
+ItemTablePtr DataStoreZabbix::getTriggers(void)
 {
-	m_armApi.getTrigger();
+	return m_armApi.getTrigger();
 }
 
 // ---------------------------------------------------------------------------
