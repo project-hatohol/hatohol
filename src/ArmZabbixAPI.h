@@ -30,6 +30,7 @@ public:
 	virtual ~ArmZabbixAPI();
 	ItemTablePtr getTrigger(void);
 	ItemTablePtr getFunctions(void);
+	ItemTablePtr getHosts(void);
 
 protected:
 	string getInitialJsonRequest(void);
@@ -52,6 +53,8 @@ protected:
 	                           ItemGroup *itemGroup, int index);
 	void parseAndPushTriggerData(JsonParserAgent &parser,
 	                             ItemTablePtr &tablePtr, int index);
+	void parseAndPushHostsData(JsonParserAgent &parser,
+	                           ItemTablePtr &tablePtr, int index);
 
 	// virtual methods
 	gpointer mainThread(AsuraThreadArg *arg);

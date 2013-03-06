@@ -132,6 +132,55 @@ ItemTablePtr ArmZabbixAPI::getFunctions(void)
 	return m_ctx->functionsTablePtr;
 }
 
+ItemTablePtr ArmZabbixAPI::getHosts(void)
+{
+	JsonBuilderAgent agent;
+	agent.startObject();
+	agent.add("jsonrpc", "2.0");
+	agent.add("method", "host.get");
+
+	agent.startObject("params");
+	agent.add("output", "extend");
+	agent.endObject(); // params
+
+	agent.add("auth", m_auth_token);
+	agent.add("id", 1);
+	agent.endObject();
+
+	string request_body = agent.generate();
+	SoupSession *session = soup_session_sync_new();
+	SoupMessage *msg = soup_message_new(SOUP_METHOD_GET, m_uri.c_str());
+
+	soup_message_headers_set_content_type(msg->request_headers,
+	                                      MIME_JSON_RPC, NULL);
+	soup_message_body_append(msg->request_body, SOUP_MEMORY_TEMPORARY,
+	                         request_body.c_str(), request_body.size());
+	guint ret = soup_session_send_message(session, msg);
+	if (ret != SOUP_STATUS_OK) {
+		THROW_DATA_STORE_EXCEPTION(
+		  "Failed to get: code: %d: %s", ret, m_uri.c_str());
+	}
+
+	JsonParserAgent parser(msg->response_body->data);
+	if (parser.hasError()) {
+		THROW_DATA_STORE_EXCEPTION(
+		  "Failed to parser: %s", parser.getErrorMessage());
+	}
+	printf("%s\n", msg->response_body->data);
+	startObject(parser, "result");
+
+	ItemTablePtr tablePtr;
+	int numData = parser.countElements();
+	if (numData < 1) {
+		MLPL_DBG("The number of hosts: %d\n", numData);
+		return tablePtr;
+	}
+
+	for (int i = 0; i < numData; i++)
+		parseAndPushHostsData(parser, tablePtr, i);
+	return tablePtr;
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
@@ -297,6 +346,62 @@ void ArmZabbixAPI::parseAndPushTriggerData(JsonParserAgent &parser,
 	// get functions
 	pushFunctionsCache(parser);
 
+	parser.endElement();
+}
+
+void ArmZabbixAPI::parseAndPushHostsData(JsonParserAgent &parser,
+                                         ItemTablePtr &tablePtr, int index)
+{
+	startElement(parser, index);
+	ItemGroup *grp = tablePtr->addNewGroup();
+	pushUint64(parser, grp, "hostid",       ITEM_ID_ZBX_HOSTS_HOSTID);
+	pushUint64(parser, grp, "proxy_hostid", ITEM_ID_ZBX_HOSTS_PROXY_HOSTID);
+	pushString(parser, grp, "host",         ITEM_ID_ZBX_HOSTS_HOST);
+	pushInt   (parser, grp, "status",       ITEM_ID_ZBX_HOSTS_STATUS);
+	pushInt   (parser, grp, "disable_until",
+	           ITEM_ID_ZBX_HOSTS_DISABLE_UNTIL);
+	pushString(parser, grp, "error",        ITEM_ID_ZBX_HOSTS_ERROR);
+	pushInt   (parser, grp, "available",    ITEM_ID_ZBX_HOSTS_AVAILABLE);
+	pushInt   (parser, grp, "errors_from",  ITEM_ID_ZBX_HOSTS_ERRORS_FROM);
+	pushInt   (parser, grp, "lastaccess",   ITEM_ID_ZBX_HOSTS_LASTACCESS);
+	pushInt   (parser, grp, "ipmi_authtype",
+	           ITEM_ID_ZBX_HOSTS_IPMI_AUTHTYPE);
+	pushInt   (parser, grp, "ipmi_privilege",
+	           ITEM_ID_ZBX_HOSTS_IPMI_PRIVILEGE);
+	pushString(parser, grp, "ipmi_username",
+	           ITEM_ID_ZBX_HOSTS_IPMI_USERNAME);
+	pushString(parser, grp, "ipmi_password",
+	           ITEM_ID_ZBX_HOSTS_IPMI_PASSWORD);
+	pushInt   (parser, grp, "ipmi_disable_until",
+	           ITEM_ID_ZBX_HOSTS_IPMI_DISABLE_UNTIL);
+	pushInt   (parser, grp, "ipmi_available",
+	           ITEM_ID_ZBX_HOSTS_IPMI_AVAILABLE);
+	pushInt   (parser, grp, "snmp_disable_until",
+	           ITEM_ID_ZBX_HOSTS_SNMP_DISABLE_UNTIL);
+	pushInt   (parser, grp, "snmp_available",
+	           ITEM_ID_ZBX_HOSTS_SNMP_AVAILABLE);
+	pushUint64(parser, grp, "maintenanceid",
+	           ITEM_ID_ZBX_HOSTS_MAINTENANCEID);
+	pushInt   (parser, grp, "maintenance_status",
+	           ITEM_ID_ZBX_HOSTS_MAINTENANCE_STATUS);
+	pushInt   (parser, grp, "maintenance_type",
+	           ITEM_ID_ZBX_HOSTS_MAINTENANCE_TYPE);
+	pushInt   (parser, grp, "maintenance_from",
+	           ITEM_ID_ZBX_HOSTS_MAINTENANCE_FROM);
+	pushInt   (parser, grp, "ipmi_errors_from",
+	           ITEM_ID_ZBX_HOSTS_IPMI_ERRORS_FROM);
+	pushInt   (parser, grp, "snmp_errors_from",
+	           ITEM_ID_ZBX_HOSTS_SNMP_ERRORS_FROM);
+	pushString(parser, grp, "ipmi_error", ITEM_ID_ZBX_HOSTS_IPMI_ERROR);
+	pushString(parser, grp, "snmp_error", ITEM_ID_ZBX_HOSTS_SNMP_ERROR);
+	pushInt   (parser, grp, "jmx_disable_until",
+	           ITEM_ID_ZBX_HOSTS_JMX_DISABLE_UNTIL);
+	pushInt   (parser, grp, "jmx_available",
+	           ITEM_ID_ZBX_HOSTS_JMX_AVAILABLE);
+	pushInt   (parser, grp, "jmx_errors_from",
+	           ITEM_ID_ZBX_HOSTS_JMX_ERRORS_FROM);
+	pushString(parser, grp, "jmx_error", ITEM_ID_ZBX_HOSTS_JMX_ERROR);
+	pushString(parser, grp, "name",      ITEM_ID_ZBX_HOSTS_NAME);
 	parser.endElement();
 }
 
