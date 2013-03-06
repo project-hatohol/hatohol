@@ -74,6 +74,26 @@ void test_parseStringInArray(void)
 	parser.endObject();
 }
 
+void test_parseStringInObjectInArray(void)
+{
+	DEFINE_PARSER_AND_READ(parser, "fixtures/testJson04.json");
+
+	cppcut_assert_equal(true, parser.startObject("array0"));
+	cppcut_assert_equal(2, parser.countElements());
+
+	cppcut_assert_equal(true, parser.startElement(0));
+	assertReadWord(parser, "key0", "value0");
+	assertReadWord(parser, "key1", "value1");
+	parser.endElement();
+
+	cppcut_assert_equal(true, parser.startElement(1));
+	assertReadWord(parser, "key0X", "value0Y");
+	assertReadWord(parser, "key1X", "value1Y");
+	parser.endElement();
+
+	parser.endObject(); // array0;
+}
+
 } //namespace testJsonParserAgent
 
 

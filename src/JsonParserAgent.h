@@ -35,6 +35,8 @@ public:
 	bool read(int index, string &dest);
 	bool startObject(const string &member);
 	void endObject(void);
+	bool startElement(int index);
+	void endElement(void);
 	int countElements(void);
 
 protected:

@@ -89,6 +89,16 @@ void JsonParserAgent::endObject(void)
 	json_reader_end_member(m_reader);
 }
 
+bool JsonParserAgent::startElement(int index)
+{
+	return json_reader_read_element(m_reader, index);
+}
+
+void JsonParserAgent::endElement(void)
+{
+	json_reader_end_element(m_reader);
+}
+
 int JsonParserAgent::countElements(void)
 {
 	return json_reader_count_elements(m_reader);
