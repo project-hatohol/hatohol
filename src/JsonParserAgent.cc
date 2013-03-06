@@ -67,6 +67,16 @@ bool JsonParserAgent::read(const string &member, string &dest)
 	return true;
 }
 
+bool JsonParserAgent::read(int index, string &dest)
+{
+	internalCheck();
+	if (!json_reader_read_element(m_reader,index))
+		return false;
+	dest = json_reader_get_string_value(m_reader);
+	json_reader_end_member(m_reader);
+	return true;
+}
+
 bool JsonParserAgent::startObject(const string &member)
 {
 	if (!json_reader_read_member(m_reader, member.c_str()))
@@ -77,6 +87,11 @@ bool JsonParserAgent::startObject(const string &member)
 void JsonParserAgent::endObject(void)
 {
 	json_reader_end_member(m_reader);
+}
+
+int JsonParserAgent::countElements(void)
+{
+	return json_reader_count_elements(m_reader);
 }
 
 // ---------------------------------------------------------------------------

@@ -22,6 +22,14 @@ void _assertReadWord(JsonParserAgent &parser,
 	cppcut_assert_equal(true, parser.read(name, actual));
 	cppcut_assert_equal(expect, actual);
 }
+
+void _assertReadWord(JsonParserAgent &parser,
+                     int index, const string &expect)
+{
+	string actual;
+	cppcut_assert_equal(true, parser.read(index, actual));
+	cppcut_assert_equal(expect, actual);
+}
 #define assertReadWord(A,X,Y) cut_trace(_assertReadWord(A,X, Y))
 
 #define DEFINE_PARSER_AND_READ(PARTHER, JSON_MATERIAL) \
@@ -51,6 +59,18 @@ void test_parseStringInObject(void)
 	cppcut_assert_equal(true, parser.startObject("object1"));
 	assertReadWord(parser, "name", "dog");
 	assertReadWord(parser, "age", "5");
+	parser.endObject();
+}
+
+void test_parseStringInArray(void)
+{
+	DEFINE_PARSER_AND_READ(parser, "fixtures/testJson03.json");
+
+	cppcut_assert_equal(true, parser.startObject("array0"));
+	cppcut_assert_equal(3, parser.countElements());
+	assertReadWord(parser, 0, "elem0");
+	assertReadWord(parser, 1, "elem1");
+	assertReadWord(parser, 2, "elem2");
 	parser.endObject();
 }
 
