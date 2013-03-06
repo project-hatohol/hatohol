@@ -214,7 +214,6 @@ ItemTablePtr ArmZabbixAPI::getHosts(void)
 		THROW_DATA_STORE_EXCEPTION(
 		  "Failed to parser: %s", parser.getErrorMessage());
 	}
-	printf("%s\n", msg->response_body->data);
 	startObject(parser, "result");
 
 	ItemTablePtr tablePtr;
