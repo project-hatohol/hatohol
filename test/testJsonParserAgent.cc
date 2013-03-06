@@ -32,11 +32,11 @@ void _assertReadWord(JsonParserAgent &parser,
 }
 #define assertReadWord(A,X,Y) cut_trace(_assertReadWord(A,X, Y))
 
-#define DEFINE_PARSER_AND_READ(PARTHER, JSON_MATERIAL) \
+#define DEFINE_PARSER_AND_READ(PARSER, JSON_MATERIAL) \
 string _json; \
 assertReadFile(JSON_MATERIAL, _json); \
 JsonParserAgent parser(_json); \
-cppcut_assert_equal(false, parser.hasError());
+cppcut_assert_equal(false, PARSER.hasError());
 
 
 // -------------------------------------------------------------------------
