@@ -73,7 +73,7 @@ bool JsonParserAgent::read(int index, string &dest)
 	if (!json_reader_read_element(m_reader,index))
 		return false;
 	dest = json_reader_get_string_value(m_reader);
-	json_reader_end_member(m_reader);
+	json_reader_end_element(m_reader);
 	return true;
 }
 
