@@ -142,7 +142,13 @@ ItemTable *ItemTable::innerJoin
 	ItemTable *table = new ItemTable();
 	InnerJoinArg arg = {
 	  table, itemTable, NULL, indexLeftColumn, indexRightColumn};
-	foreach<InnerJoinArg &>(innerJoinForeach, arg);
+	try {
+		foreach<InnerJoinArg &>(innerJoinForeach, arg);
+	} catch (...) {
+		itemTable->readUnlock();
+		readUnlock();
+		throw;
+	}
 	itemTable->readUnlock();
 	readUnlock();
 	return table;
@@ -178,7 +184,13 @@ ItemTable *ItemTable::crossJoin(const ItemTable *itemTable) const
 
 	ItemTable *table = new ItemTable();
 	CrossJoinArg arg = {table, itemTable};
-	foreach<CrossJoinArg &>(crossJoinForeach, arg);
+	try {
+		foreach<CrossJoinArg &>(crossJoinForeach, arg);
+	} catch (...) {
+		itemTable->readUnlock();
+		readUnlock();
+		throw;
+	}
 	itemTable->readUnlock();
 	readUnlock();
 	return table;
