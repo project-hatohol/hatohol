@@ -39,6 +39,7 @@ protected:
 	ItemTable *createStaticItemTable(ItemGroupId groupId);
 	ItemTablePtr getTriggers(void);
 	ItemTablePtr getFunctions(void);
+	ItemTablePtr getItems(void);
 	ItemTablePtr getHosts(void);
 
 private:

@@ -30,6 +30,7 @@ public:
 	virtual ~ArmZabbixAPI();
 	ItemTablePtr getTrigger(void);
 	ItemTablePtr getFunctions(void);
+	ItemTablePtr getItems(void);
 	ItemTablePtr getHosts(void);
 
 protected:
@@ -53,6 +54,8 @@ protected:
 	                           ItemGroup *itemGroup, int index);
 	void parseAndPushTriggerData(JsonParserAgent &parser,
 	                             ItemTablePtr &tablePtr, int index);
+	void parseAndPushItemsData(JsonParserAgent &parser,
+	                           ItemTablePtr &tablePtr, int index);
 	void parseAndPushHostsData(JsonParserAgent &parser,
 	                           ItemTablePtr &tablePtr, int index);
 

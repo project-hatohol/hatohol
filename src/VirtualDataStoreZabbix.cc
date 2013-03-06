@@ -135,6 +135,21 @@ ItemTablePtr VirtualDataStoreZabbix::getFunctions(void)
 	return ItemTablePtr();
 }
 
+ItemTablePtr VirtualDataStoreZabbix::getItems(void)
+{
+	// TODO: merge data of all stores. Now just call a stub function.
+	DataStoreVector &dataStoreVect = getDataStoreVector();
+	for (size_t i = 0; i < dataStoreVect.size(); i++) {
+		DataStore *dataStore = dataStoreVect[i];
+		DataStoreZabbix *dataStoreZabbix = 
+		  dynamic_cast<DataStoreZabbix *>(dataStore);
+		// return on the first time (here is an experimental)
+		return dataStoreZabbix->getItems();
+	}
+	THROW_ASURA_EXCEPTION("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	return ItemTablePtr();
+}
+
 ItemTablePtr VirtualDataStoreZabbix::getHosts(void)
 {
 	// TODO: merge data of all stores. Now just call a stub function.
@@ -357,7 +372,8 @@ VirtualDataStoreZabbix::VirtualDataStoreZabbix(void)
 	//
 	// items
 	//
-	table = createStaticItemTable(GROUP_ID_ZBX_ITEMS);
+	m_dataGeneratorMap[GROUP_ID_ZBX_ITEMS] = 
+	  &VirtualDataStoreZabbix::getItems;
 
 	//
 	// hosts

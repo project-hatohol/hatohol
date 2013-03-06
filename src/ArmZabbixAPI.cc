@@ -132,6 +132,54 @@ ItemTablePtr ArmZabbixAPI::getFunctions(void)
 	return m_ctx->functionsTablePtr;
 }
 
+ItemTablePtr ArmZabbixAPI::getItems(void)
+{
+	JsonBuilderAgent agent;
+	agent.startObject();
+	agent.add("jsonrpc", "2.0");
+	agent.add("method", "item.get");
+
+	agent.startObject("params");
+	agent.add("output", "extend");
+	agent.endObject(); // params
+
+	agent.add("auth", m_auth_token);
+	agent.add("id", 1);
+	agent.endObject();
+
+	string request_body = agent.generate();
+	SoupSession *session = soup_session_sync_new();
+	SoupMessage *msg = soup_message_new(SOUP_METHOD_GET, m_uri.c_str());
+
+	soup_message_headers_set_content_type(msg->request_headers,
+	                                      MIME_JSON_RPC, NULL);
+	soup_message_body_append(msg->request_body, SOUP_MEMORY_TEMPORARY,
+	                         request_body.c_str(), request_body.size());
+	guint ret = soup_session_send_message(session, msg);
+	if (ret != SOUP_STATUS_OK) {
+		THROW_DATA_STORE_EXCEPTION(
+		  "Failed to get: code: %d: %s", ret, m_uri.c_str());
+	}
+
+	JsonParserAgent parser(msg->response_body->data);
+	if (parser.hasError()) {
+		THROW_DATA_STORE_EXCEPTION(
+		  "Failed to parser: %s", parser.getErrorMessage());
+	}
+	startObject(parser, "result");
+
+	ItemTablePtr tablePtr;
+	int numData = parser.countElements();
+	if (numData < 1) {
+		MLPL_DBG("The number of hosts: %d\n", numData);
+		return tablePtr;
+	}
+
+	for (int i = 0; i < numData; i++)
+		parseAndPushItemsData(parser, tablePtr, i);
+	return tablePtr;
+}
+
 ItemTablePtr ArmZabbixAPI::getHosts(void)
 {
 	JsonBuilderAgent agent;
@@ -345,6 +393,72 @@ void ArmZabbixAPI::parseAndPushTriggerData(JsonParserAgent &parser,
 
 	// get functions
 	pushFunctionsCache(parser);
+
+	parser.endElement();
+}
+
+void ArmZabbixAPI::parseAndPushItemsData(JsonParserAgent &parser,
+                                         ItemTablePtr &tablePtr, int index)
+{
+	startElement(parser, index);
+	ItemGroup *grp = tablePtr->addNewGroup();
+	pushUint64(parser, grp, "itemid",       ITEM_ID_ZBX_ITEMS_ITEMID);
+	pushInt   (parser, grp, "type",         ITEM_ID_ZBX_ITEMS_TYPE);
+	pushString(parser, grp, "snmp_community",
+	           ITEM_ID_ZBX_ITEMS_SNMP_COMMUNITY);
+	pushString(parser, grp, "snmp_oid",     ITEM_ID_ZBX_ITEMS_SNMP_OID);
+	pushUint64(parser, grp, "hostid",       ITEM_ID_ZBX_ITEMS_HOSTID);
+	pushString(parser, grp, "name",         ITEM_ID_ZBX_ITEMS_NAME);
+	pushString(parser, grp, "key_",         ITEM_ID_ZBX_ITEMS_KEY_);
+	pushInt   (parser, grp, "delay",        ITEM_ID_ZBX_ITEMS_DELAY);
+	pushInt   (parser, grp, "history",      ITEM_ID_ZBX_ITEMS_HISTORY);
+	pushInt   (parser, grp, "trends",       ITEM_ID_ZBX_ITEMS_TRENDS);
+	pushString(parser, grp, "lastvalue",    ITEM_ID_ZBX_ITEMS_LASTVALUE);
+
+	pushInt   (parser, grp, "lastclock",    ITEM_ID_ZBX_ITEMS_LASTCLOCK);
+	pushString(parser, grp, "prevvalue",    ITEM_ID_ZBX_ITEMS_PREVVALUE);
+	pushInt   (parser, grp, "status",       ITEM_ID_ZBX_ITEMS_STATUS);
+	pushInt   (parser, grp, "value_type",   ITEM_ID_ZBX_ITEMS_VALUE_TYPE);
+	pushString(parser, grp, "trapper_hosts",
+	           ITEM_ID_ZBX_ITEMS_TRAPPER_HOSTS);
+
+	pushString(parser, grp, "units",        ITEM_ID_ZBX_ITEMS_UNITS);
+	pushInt   (parser, grp, "multiplier",   ITEM_ID_ZBX_ITEMS_MULTIPLIER);
+	pushInt   (parser, grp, "delta",        ITEM_ID_ZBX_ITEMS_DELTA);
+	pushString(parser, grp, "prevorgvalue", ITEM_ID_ZBX_ITEMS_PREVORGVALUE);
+	pushString(parser, grp, "snmpv3_securityname",
+	           ITEM_ID_ZBX_ITEMS_SNMPV3_SECURITYNAME);
+	pushInt   (parser, grp, "snmpv3_securitylevel",
+	           ITEM_ID_ZBX_ITEMS_SNMPV3_SECURITYLEVEL);
+	pushString(parser, grp, "snmpv3_authpassphrase",
+	           ITEM_ID_ZBX_ITEMS_SNMPV3_AUTHPASSPHRASE);
+	pushString(parser, grp, "snmpv3_privpassphrase",
+	           ITEM_ID_ZBX_ITEMS_SNMPV3_PRIVPASSPRASE);
+	pushString(parser, grp, "formula",     ITEM_ID_ZBX_ITEMS_FORMULA);
+	pushString(parser, grp, "error",       ITEM_ID_ZBX_ITEMS_ERROR);
+	pushString(parser, grp, "lastlogsize", ITEM_ID_ZBX_ITEMS_LASTLOGSIZE);
+	pushString(parser, grp, "logtimefmt",  ITEM_ID_ZBX_ITEMS_LOGTIMEFMT);
+	pushUint64(parser, grp, "templateid",  ITEM_ID_ZBX_ITEMS_TEMPLATEID);
+	pushUint64(parser, grp, "valuemapid",  ITEM_ID_ZBX_ITEMS_VALUEMAPID);
+	pushString(parser, grp, "delay_flex",  ITEM_ID_ZBX_ITEMS_DELAY_FLEX);
+	pushString(parser, grp, "params",      ITEM_ID_ZBX_ITEMS_PARAMS);
+	pushString(parser, grp, "ipmi_sensor", ITEM_ID_ZBX_ITEMS_IPMI_SENSOR);
+	pushInt   (parser, grp, "data_type",   ITEM_ID_ZBX_ITEMS_DATA_TYPE);
+	pushInt   (parser, grp, "authtype",    ITEM_ID_ZBX_ITEMS_AUTHTYPE);
+	pushString(parser, grp, "username",    ITEM_ID_ZBX_ITEMS_USERNAME);
+	pushString(parser, grp, "password",    ITEM_ID_ZBX_ITEMS_PASSWORD);
+	pushString(parser, grp, "publickey",   ITEM_ID_ZBX_ITEMS_PUBLICKEY);
+	pushString(parser, grp, "privatekey",  ITEM_ID_ZBX_ITEMS_PRIVATEKEY);
+	pushInt   (parser, grp, "mtime",       ITEM_ID_ZBX_ITEMS_MTIME);
+	pushInt   (parser, grp, "lastns",      ITEM_ID_ZBX_ITEMS_LASTNS);
+	pushInt   (parser, grp, "flags",       ITEM_ID_ZBX_ITEMS_FLAGS);
+	pushString(parser, grp, "filter",      ITEM_ID_ZBX_ITEMS_FILTER);
+	pushUint64(parser, grp, "interfaceid", ITEM_ID_ZBX_ITEMS_INTERFACEID);
+	pushString(parser, grp, "port",        ITEM_ID_ZBX_ITEMS_PORT);
+	pushString(parser, grp, "description", ITEM_ID_ZBX_ITEMS_DESCRIPTION);
+	pushInt   (parser, grp, "inventory_link",
+	           ITEM_ID_ZBX_ITEMS_INVENTORY_LINK);
+	pushString(parser, grp, "lifetime",    ITEM_ID_ZBX_ITEMS_LIFETIME);
 
 	parser.endElement();
 }

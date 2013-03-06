@@ -41,6 +41,11 @@ ItemTablePtr DataStoreZabbix::getFunctions(void)
 	return m_armApi.getFunctions();
 }
 
+ItemTablePtr DataStoreZabbix::getItems(void)
+{
+	return m_armApi.getItems();
+}
+
 ItemTablePtr DataStoreZabbix::getHosts(void)
 {
 	return m_armApi.getHosts();
