@@ -377,19 +377,19 @@ void ArmZabbixAPI::parseAndPushTriggerData(JsonParserAgent &parser,
 	ItemGroup *grp = tablePtr->addNewGroup();
 	m_ctx->triggerid =
 	  pushUint64(parser, grp, "triggerid", ITEM_ID_ZBX_TRIGGERS_TRIGGERID);
-	pushString(parser, grp, "expression",ITEM_ID_ZBX_TRIGGERS_EXPRESSION);
-	pushString(parser, grp, "description",ITEM_ID_ZBX_TRIGGERS_DESCRIPTION);
-	pushString(parser, grp, "url",       ITEM_ID_ZBX_TRIGGERS_URL);
-	pushInt   (parser, grp, "status",    ITEM_ID_ZBX_TRIGGERS_STATUS);
-	pushInt   (parser, grp, "value",     ITEM_ID_ZBX_TRIGGERS_VALUE);
-	pushInt   (parser, grp, "priority",  ITEM_ID_ZBX_TRIGGERS_PRIORITY);
-	pushInt   (parser, grp, "lastchange",ITEM_ID_ZBX_TRIGGERS_LASTCHANGE);
-	pushString(parser, grp, "comments",  ITEM_ID_ZBX_TRIGGERS_COMMENTS);
-	pushString(parser, grp, "error",     ITEM_ID_ZBX_TRIGGERS_ERROR);
-	pushUint64(parser, grp, "templateid",ITEM_ID_ZBX_TRIGGERS_TEMPLATEID);
-	pushInt   (parser, grp, "type",      ITEM_ID_ZBX_TRIGGERS_TYPE);
-	pushInt   (parser, grp, "value_flags",ITEM_ID_ZBX_TRIGGERS_VALUE_FLAGS);
-	pushInt   (parser, grp, "flags",     ITEM_ID_ZBX_TRIGGERS_FLAGS);
+	pushString(parser, grp, "expression",  ITEM_ID_ZBX_TRIGGERS_EXPRESSION);
+	pushString(parser, grp, "description", ITEM_ID_ZBX_TRIGGERS_DESCRIPTION);
+	pushString(parser, grp, "url",         ITEM_ID_ZBX_TRIGGERS_URL);
+	pushInt   (parser, grp, "status",      ITEM_ID_ZBX_TRIGGERS_STATUS);
+	pushInt   (parser, grp, "value",       ITEM_ID_ZBX_TRIGGERS_VALUE);
+	pushInt   (parser, grp, "priority",    ITEM_ID_ZBX_TRIGGERS_PRIORITY);
+	pushInt   (parser, grp, "lastchange",  ITEM_ID_ZBX_TRIGGERS_LASTCHANGE);
+	pushString(parser, grp, "comments",    ITEM_ID_ZBX_TRIGGERS_COMMENTS);
+	pushString(parser, grp, "error",       ITEM_ID_ZBX_TRIGGERS_ERROR);
+	pushUint64(parser, grp, "templateid",  ITEM_ID_ZBX_TRIGGERS_TEMPLATEID);
+	pushInt   (parser, grp, "type",        ITEM_ID_ZBX_TRIGGERS_TYPE);
+	pushInt   (parser, grp, "value_flags", ITEM_ID_ZBX_TRIGGERS_VALUE_FLAGS);
+	pushInt   (parser, grp, "flags",       ITEM_ID_ZBX_TRIGGERS_FLAGS);
 
 	// get functions
 	pushFunctionsCache(parser);
