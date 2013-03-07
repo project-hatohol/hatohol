@@ -19,6 +19,7 @@
 #define SQLTableFormula_h
 
 #include <list>
+#include <map>
 #include <string>
 using namespace std;
 
@@ -37,6 +38,21 @@ class SQLTableFormula
 public:
 	virtual ~SQLTableFormula();
 	virtual ItemTablePtr getTable(void) = 0;
+
+protected:
+	static const int COLUMN_INDEX_OFFSET_NOT_FOUND = -1;
+	struct TableSizeInfo {
+		string tableName;
+		size_t numColumns;
+		size_t accumulateduColumnOffset;
+	};
+
+	int getColumnIndexOffset(const string &tableName);
+	void addTableSizeInfo(const string &tableName, size_t numColumns);
+
+private:
+	list<TableSizeInfo> m_tableSizeInfoList;
+	map<string, TableSizeInfo *> m_tableSizeInfoMap;
 };
 
 // ---------------------------------------------------------------------------

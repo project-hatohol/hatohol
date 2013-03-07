@@ -26,6 +26,18 @@ SQLTableFormula::~SQLTableFormula()
 {
 }
 
+int SQLTableFormula::getColumnIndexOffset(const string &tableName)
+{
+	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	return  COLUMN_INDEX_OFFSET_NOT_FOUND;
+}
+
+void SQLTableFormula::addTableSizeInfo(const string &tableName,
+                                       size_t numColumns)
+{
+	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+}
+
 // ---------------------------------------------------------------------------
 // SQLTableElement
 // ---------------------------------------------------------------------------
@@ -146,7 +158,6 @@ ItemTablePtr SQLTableInnerJoin::getTable(void)
 		  "leftFormula (%p) or rightFormula (%p) is NULL.\n",
 		  leftFormula, rightFormula);
 	}
-
 	return innerJoin(leftFormula->getTable(), rightFormula->getTable(),
 	                 m_indexLeftJoinColumn, m_indexRightJoinColumn);
 }
