@@ -32,11 +32,13 @@ static const int expectedRefCountOfResultTableInTheSimplestCase = 3;
 //
 static const int TABLE0_ID  = 1;
 static const int TABLE1_ID  = 2;
+static const int TABLE2_ID  = 3;
 static const int TABLE_Z_ID = 1000000;
 static const int TABLE_N_ID = 1000001;
 
 static const char *TABLE0_NAME = "TestTable0";
 static const char *TABLE1_NAME = "TestTable1";
+static const char *TABLE2_NAME = "TestTable2";
 static const char *TABLE_Z_NAME = "TestTableZ"; // Empty (Zero) Table
 static const char *TABLE_N_NAME = "TestTableN"; // Null Table
 
@@ -50,6 +52,9 @@ static const char *COLUMN_NAME_AGE    = "age";
 static const char *COLUMN_NAME_ANIMAL = "animal";
 static const char *COLUMN_NAME_FOOD   = "food";
 
+static const char *COLUMN_NAME_MENTAL_AGE = "mental_age";
+static const char *COLUMN_NAME_FAVORITE   = "favorite";
+
 static const char *COLUMN_NAME_Z_NUM  = "z_num";
 static const char *COLUMN_NAME_Z_STR  = "z_str";
 
@@ -60,6 +65,9 @@ enum {
 	ITEM_ID_AGE,
 	ITEM_ID_ANIMAL,
 	ITEM_ID_FOOD,
+
+	ITEM_ID_MENTAL_AGE,
+	ITEM_ID_FAVORITE,
 
 	ITEM_ID_Z_NUM,
 	ITEM_ID_Z_STR,
@@ -76,6 +84,14 @@ static ColumnDef COLUMN1_DEFS[NUM_COLUMN1_DEFS] = {
   {ITEM_ID_AGE,    TABLE1_NAME, COLUMN_NAME_AGE,    SQL_COLUMN_TYPE_INT, 11, 0},
   {ITEM_ID_ANIMAL, TABLE1_NAME, COLUMN_NAME_ANIMAL, SQL_COLUMN_TYPE_VARCHAR, 20, 0},
   {ITEM_ID_FOOD,   TABLE1_NAME, COLUMN_NAME_FOOD,   SQL_COLUMN_TYPE_VARCHAR, 20, 0},
+};
+
+static const size_t NUM_COLUMN2_DEFS = 2;
+static ColumnDef COLUMN2_DEFS[NUM_COLUMN2_DEFS] = {
+  {ITEM_ID_MENTAL_AGE, TABLE2_NAME, COLUMN_NAME_MENTAL_AGE,
+   SQL_COLUMN_TYPE_INT, 11, 0},
+  {ITEM_ID_FAVORITE,   TABLE2_NAME, COLUMN_NAME_FAVORITE,
+   SQL_COLUMN_TYPE_VARCHAR, 20, 0},
 };
 
 static const size_t NUM_COLUMN_Z_DEFS = 2;
@@ -117,12 +133,29 @@ static TestData1 testData1[] = {
 };
 static size_t numTestData1 = sizeof(testData1) / sizeof(TestData1);
 
+struct TestData2 {
+	int         mentalAge;
+	const char *favorite;
+};
+
+static TestData2 testData2[] = {
+  {20,  "Dragon"},
+  {100, "Dog"},
+};
+static size_t numTestData2 = sizeof(testData2) / sizeof(TestData2);
+
 struct TestDataZ {
 };
 
 static TestDataZ testDataZ[] = {
 };
 static size_t numTestDataZ = sizeof(testDataZ) / sizeof(TestDataZ);
+
+struct TestDataPointerSet {
+	TestData0 *data0;
+	TestData1 *data1;
+	TestData2 *data2;
+};
 
 //
 // Test Data structure
@@ -137,6 +170,7 @@ struct TableData {
 static const TableData tableData[] = {
   {TABLE0_ID, TABLE0_NAME, NUM_COLUMN0_DEFS, COLUMN0_DEFS},
   {TABLE1_ID, TABLE1_NAME, NUM_COLUMN1_DEFS, COLUMN1_DEFS},
+  {TABLE2_ID, TABLE2_NAME, NUM_COLUMN2_DEFS, COLUMN2_DEFS},
   {TABLE_Z_ID, TABLE_Z_NAME, NUM_COLUMN_Z_DEFS, COLUMN_Z_DEFS},
   {TABLE_N_ID, TABLE_N_NAME, NUM_COLUMN_Z_DEFS, COLUMN_Z_DEFS},
 };
@@ -155,6 +189,7 @@ public:
 		// To use the same table for tests
 		m_table0Ptr = makeTable0();
 		m_table1Ptr = makeTable1();
+		m_table2Ptr = makeTable2();
 
 		initStaticInfo();
 	}
@@ -167,6 +202,7 @@ public:
 private:
 	static ItemTablePtr    m_table0Ptr;
 	static ItemTablePtr    m_table1Ptr;
+	static ItemTablePtr    m_table2Ptr;
 	TableNameStaticInfoMap m_tableNameStaticInfoMap;
 	SQLTableStaticInfo     m_staticInfo[NUM_TABLE_DATA];
 
@@ -200,6 +236,10 @@ private:
 		return m_table1Ptr;
 	}
 
+	static ItemTablePtr table2GetFunc(void) {
+		return m_table2Ptr;
+	}
+
 	static ItemTablePtr tableZGetFunc(void) {
 		return ItemTablePtr();
 	}
@@ -212,6 +252,7 @@ private:
 		SQLTableGetFunc tableGetFuncArray[NUM_TABLE_DATA] = {
 			table0GetFunc,
 			table1GetFunc,
+			table2GetFunc,
 			tableZGetFunc,
 			tableNGetFunc,
 		};
@@ -247,10 +288,24 @@ private:
 		}
 		return tablePtr;
 	}
+
+	ItemTablePtr makeTable2(void) {
+		ItemTablePtr tablePtr;
+		for (size_t i = 0; i < numTestData2; i++) {
+			ItemGroup *grp = tablePtr->addNewGroup();
+			grp->add(new ItemInt(ITEM_ID_MENTAL_AGE,
+			                     testData2[i].mentalAge), false);
+			grp->add(new ItemString(ITEM_ID_FAVORITE,
+			                        testData2[i].favorite), false);
+		}
+		return tablePtr;
+	}
+
 };
 
 ItemTablePtr TestSQLProcessor::m_table0Ptr;
 ItemTablePtr TestSQLProcessor::m_table1Ptr;
+ItemTablePtr TestSQLProcessor::m_table2Ptr;
 
 static const int getMaxDataInTestData(void)
 {
@@ -897,6 +952,69 @@ void test_innerJoinWithTableNames(void) {
 	    tableVarName0, COLUMN_NAME_NUMBER,
 	    tableVarName1, COLUMN_NAME_AGE);
 	assertInerJoinHelper(statement);
+}
+
+void test_innerJoinThreeTables(void) {
+	string statement =
+	  StringUtils::sprintf("select * from %s inner join %s on %s.%s=%s.%s "
+	                       "inner join %s on %s.%s=%s.%s",
+	                       TABLE0_NAME, TABLE1_NAME,
+	                       TABLE0_NAME, COLUMN_NAME_NUMBER,
+	                       TABLE1_NAME, COLUMN_NAME_AGE,
+	                       TABLE2_NAME,
+	                       TABLE1_NAME, COLUMN_NAME_ANIMAL,
+	                       TABLE2_NAME, COLUMN_NAME_FAVORITE);
+	// check the result
+	const size_t expectedNumColumns = NUM_COLUMN0_DEFS + NUM_COLUMN1_DEFS
+	                                  + NUM_COLUMN2_DEFS;
+	DEFINE_SELECTINFO_AND_ASSERT_SELECT(
+	  selectInfo, statement, expectedNumColumns);
+
+	vector<TestDataPointerSet> expectDataPtrVector;
+	for (size_t i = 0; i < numTestData0; i++) {
+		TestData0 *data0 = &testData0[i];
+		for (size_t j = 0;  j < numTestData1; j++) {
+			TestData1 *data1 = &testData1[j];
+			if (data0->number != data1->age)
+				continue;
+			for (size_t k = 0;  k < numTestData2; k++) {
+				TestData2 *data2 = &testData2[k];
+				if (strcmp(data1->animal, data2->favorite))
+					continue;
+				TestDataPointerSet dataSet;
+				dataSet.data0 = data0;
+				dataSet.data1 = data1;
+				dataSet.data2 = data2;
+				expectDataPtrVector.push_back(dataSet);
+			}
+		}
+	}
+	cppcut_assert_equal(expectDataPtrVector.size(), 
+	                    selectInfo.textRows.size());
+	for (size_t i = 0; i < expectDataPtrVector.size(); i++) {
+		TestData0 *data0 = expectDataPtrVector[i].data0;
+		TestData1 *data1 = expectDataPtrVector[i].data1;
+		TestData2 *data2 = expectDataPtrVector[i].data2;
+		StringVector &textVect = selectInfo.textRows[i];
+		int tvecIdx = 0;
+
+		// testData0
+		cppcut_assert_equal(StringUtils::toString(data0->number),
+		                    textVect[tvecIdx++]);
+		cppcut_assert_equal(string(data0->name), textVect[tvecIdx++]);
+
+		// testData1
+		cppcut_assert_equal(StringUtils::toString(data1->age),
+		                    textVect[tvecIdx++]);
+		cppcut_assert_equal(string(data1->animal), textVect[tvecIdx++]);
+		cppcut_assert_equal(string(data1->food), textVect[tvecIdx++]);
+
+		// testData2
+		cppcut_assert_equal(StringUtils::toString(data2->mentalAge),
+		                    textVect[tvecIdx++]);
+		cppcut_assert_equal(string(data2->favorite),
+		                    textVect[tvecIdx++]);
+	}
 }
 
 void test_groupBy(void) {
