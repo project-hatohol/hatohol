@@ -378,6 +378,7 @@ void ArmZabbixAPI::parseAndPushTriggerData(JsonParserAgent &parser,
 	m_ctx->triggerid =
 	  pushUint64(parser, grp, "triggerid", ITEM_ID_ZBX_TRIGGERS_TRIGGERID);
 	pushString(parser, grp, "expression",ITEM_ID_ZBX_TRIGGERS_EXPRESSION);
+	pushString(parser, grp, "description",ITEM_ID_ZBX_TRIGGERS_DESCRIPTION);
 	pushString(parser, grp, "url",       ITEM_ID_ZBX_TRIGGERS_URL);
 	pushInt   (parser, grp, "status",    ITEM_ID_ZBX_TRIGGERS_STATUS);
 	pushInt   (parser, grp, "value",     ITEM_ID_ZBX_TRIGGERS_VALUE);
