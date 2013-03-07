@@ -24,26 +24,94 @@
 // ---------------------------------------------------------------------------
 SQLTableFormula::~SQLTableFormula()
 {
+	TableSizeInfoVectorIterator it = m_tableSizeInfoVector.begin();
+	for (; it != m_tableSizeInfoVector.end(); ++it)
+		delete *it;
 }
 
-int SQLTableFormula::getColumnIndexOffset(const string &tableName)
+size_t SQLTableFormula::getColumnIndexOffset(const string &tableName)
 {
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
-	return  COLUMN_INDEX_OFFSET_NOT_FOUND;
+	if (m_tableSizeInfoVector.empty())
+		fixupTableSizeInfo();
+
+	TableSizeInfoMapIterator it = m_tableVarSizeInfoMap.find(tableName);
+	bool found = false;
+	if (it != m_tableVarSizeInfoMap.end())
+		found = true;
+	if (!found) {
+		it = m_tableSizeInfoMap.find(tableName);
+		if (it != m_tableSizeInfoMap.end())
+			found = true;
+	}
+	if (!found) {
+		THROW_SQL_PROCESSOR_EXCEPTION(
+		  "Not found table: %s", tableName.c_str());
+	}
+	TableSizeInfo *tableSizeInfo = it->second;
+	return tableSizeInfo->accumulatedColumnOffset;
+}
+
+const SQLTableFormula::TableSizeInfoVector &
+  SQLTableFormula::getTableSizeInfoVector(void)
+{
+	if (m_tableSizeInfoVector.empty())
+		fixupTableSizeInfo();
+	return m_tableSizeInfoVector;
 }
 
 void SQLTableFormula::addTableSizeInfo(const string &tableName,
+                                       const string &tableVar,
                                        size_t numColumns)
 {
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	size_t accumulatedColumnOffset = 0;
+	if (!m_tableSizeInfoVector.empty()) {
+		TableSizeInfo *prev = m_tableSizeInfoVector.back();
+		accumulatedColumnOffset =
+		  prev->accumulatedColumnOffset + prev->numColumns;
+	}
+
+	TableSizeInfo *tableSizeInfo = new TableSizeInfo();
+	tableSizeInfo->name = tableName;
+	tableSizeInfo->varName = tableVar;
+	tableSizeInfo->numColumns = numColumns;
+	tableSizeInfo->accumulatedColumnOffset = accumulatedColumnOffset;
+
+	m_tableSizeInfoVector.push_back(tableSizeInfo);
+	m_tableSizeInfoMap[tableName] = tableSizeInfo;
+	if (!tableVar.empty())
+		m_tableVarSizeInfoMap[tableVar] = tableSizeInfo;
+}
+
+void SQLTableFormula::makeTableSizeInfo(const TableSizeInfoVector &leftList,
+                                        const TableSizeInfoVector &rightList)
+{
+	if (!m_tableSizeInfoVector.empty()) {
+		THROW_SQL_PROCESSOR_EXCEPTION(
+		  "m_tableSizeInfoVector: Not empty.");
+	}
+	TableSizeInfoVectorConstIterator it = leftList.begin();
+	for (; it != leftList.end(); ++it) {
+		const TableSizeInfo *tableSizeInfo = *it;
+		addTableSizeInfo(tableSizeInfo->name,
+		                 tableSizeInfo->varName,
+		                 tableSizeInfo->numColumns);
+	}
+	for (it = rightList.begin(); it != rightList.end(); ++it) {
+		const TableSizeInfo *tableSizeInfo = *it;
+		addTableSizeInfo(tableSizeInfo->name,
+		                 tableSizeInfo->varName,
+		                 tableSizeInfo->numColumns);
+	}
 }
 
 // ---------------------------------------------------------------------------
 // SQLTableElement
 // ---------------------------------------------------------------------------
-SQLTableElement::SQLTableElement(const string &name, const string &varName)
+SQLTableElement::SQLTableElement(const string &name, const string &varName,
+                                 SQLColumnIndexResoveler *resolver)
 : m_name(name),
-  m_varName(varName)
+  m_varName(varName),
+  m_columnIndexResolver(resolver)
 {
 }
 
@@ -65,6 +133,13 @@ void SQLTableElement::setItemTable(ItemTablePtr itemTablePtr)
 ItemTablePtr SQLTableElement::getTable(void)
 {
 	return m_itemTablePtr;
+}
+
+void SQLTableElement::fixupTableSizeInfo(void)
+{
+	string &name = m_varName.empty() ? m_name : m_varName;
+	size_t numColumns = m_columnIndexResolver->getNumberOfColumns(name);
+	addTableSizeInfo(m_name, m_varName, numColumns);
 }
 
 // ---------------------------------------------------------------------------
@@ -95,6 +170,19 @@ void SQLTableJoin::setLeftFormula(SQLTableFormula *tableFormula)
 void SQLTableJoin::setRightFormula(SQLTableFormula *tableFormula)
 {
 	m_rightFormula = tableFormula;;
+}
+
+void SQLTableJoin::fixupTableSizeInfo(void)
+{
+	SQLTableFormula *leftFormula = getLeftFormula();
+	SQLTableFormula *rightFormula = getRightFormula();
+	if (!leftFormula || !rightFormula) {
+		THROW_SQL_PROCESSOR_EXCEPTION(
+		  "leftFormula (%p) or rightFormula (%p) is NULL.\n",
+		  leftFormula, rightFormula);
+	}
+	makeTableSizeInfo(leftFormula->getTableSizeInfoVector(),
+	                  rightFormula->getTableSizeInfoVector());
 }
 
 // ---------------------------------------------------------------------------
@@ -140,17 +228,6 @@ ItemTablePtr SQLTableInnerJoin::getTable(void)
 	if (!m_columnIndexResolver)
 		THROW_ASURA_EXCEPTION("m_columnIndexResolver: NULL");
 
-	if (m_indexLeftJoinColumn == INDEX_NOT_SET) {
-		m_indexLeftJoinColumn =
-		  m_columnIndexResolver->getIndex(m_leftTableName,
-		                                  m_leftColumnName);
-	}
-	if (m_indexRightJoinColumn == INDEX_NOT_SET) {
-		m_indexRightJoinColumn =
-		  m_columnIndexResolver->getIndex(m_rightTableName,
-		                                  m_rightColumnName);
-	}
-
 	SQLTableFormula *leftFormula = getLeftFormula();
 	SQLTableFormula *rightFormula = getRightFormula();
 	if (!leftFormula || !rightFormula) {
@@ -158,6 +235,22 @@ ItemTablePtr SQLTableInnerJoin::getTable(void)
 		  "leftFormula (%p) or rightFormula (%p) is NULL.\n",
 		  leftFormula, rightFormula);
 	}
+
+	if (m_indexLeftJoinColumn == INDEX_NOT_SET) {
+		m_indexLeftJoinColumn =
+		  m_columnIndexResolver->getIndex(m_leftTableName,
+		                                  m_leftColumnName);
+		m_indexLeftJoinColumn +=
+		   leftFormula->getColumnIndexOffset(m_leftTableName);
+	}
+	if (m_indexRightJoinColumn == INDEX_NOT_SET) {
+		m_indexRightJoinColumn =
+		  m_columnIndexResolver->getIndex(m_rightTableName,
+		                                  m_rightColumnName);
+		m_indexRightJoinColumn +=
+		  rightFormula->getColumnIndexOffset(m_rightTableName);
+	}
+
 	return innerJoin(leftFormula->getTable(), rightFormula->getTable(),
 	                 m_indexLeftJoinColumn, m_indexRightJoinColumn);
 }

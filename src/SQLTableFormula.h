@@ -18,7 +18,7 @@
 #ifndef SQLTableFormula_h
 #define SQLTableFormula_h
 
-#include <list>
+#include <vector>
 #include <map>
 #include <string>
 using namespace std;
@@ -36,23 +36,35 @@ using namespace mlpl;
 class SQLTableFormula
 {
 public:
+	struct TableSizeInfo {
+		string name;
+		string varName;
+		size_t numColumns;
+		size_t accumulatedColumnOffset;
+	};
+	typedef vector<TableSizeInfo *>       TableSizeInfoVector;
+	typedef TableSizeInfoVector::iterator TableSizeInfoVectorIterator;
+	typedef TableSizeInfoVector::const_iterator
+	  TableSizeInfoVectorConstIterator;
+	typedef map<string, TableSizeInfo *>  TableSizeInfoMap;
+	typedef TableSizeInfoMap::iterator    TableSizeInfoMapIterator;
+
 	virtual ~SQLTableFormula();
 	virtual ItemTablePtr getTable(void) = 0;
+	virtual size_t getColumnIndexOffset(const string &tableName);
+	const TableSizeInfoVector &getTableSizeInfoVector(void);
 
 protected:
-	static const int COLUMN_INDEX_OFFSET_NOT_FOUND = -1;
-	struct TableSizeInfo {
-		string tableName;
-		size_t numColumns;
-		size_t accumulateduColumnOffset;
-	};
-
-	int getColumnIndexOffset(const string &tableName);
-	void addTableSizeInfo(const string &tableName, size_t numColumns);
+	virtual void fixupTableSizeInfo(void) = 0;
+	void addTableSizeInfo(const string &tableName,
+	                      const string &tableVar, size_t numColumns);
+	void makeTableSizeInfo(const TableSizeInfoVector &leftList,
+	                       const TableSizeInfoVector &rightList);
 
 private:
-	list<TableSizeInfo> m_tableSizeInfoList;
-	map<string, TableSizeInfo *> m_tableSizeInfoMap;
+	TableSizeInfoVector m_tableSizeInfoVector;
+	TableSizeInfoMap    m_tableSizeInfoMap;
+	TableSizeInfoMap    m_tableVarSizeInfoMap;
 };
 
 // ---------------------------------------------------------------------------
@@ -61,17 +73,21 @@ private:
 class SQLTableElement : public SQLTableFormula
 {
 public:
-	SQLTableElement(const string &name,
-	                const string &varName = StringUtils::EMPTY_STRING);
+	SQLTableElement(const string &name, const string &varName,
+	                SQLColumnIndexResoveler *resolver);
 	const string &getName(void) const;
 	const string &getVarName(void) const;
 	void setItemTable(ItemTablePtr itemTablePtr);
 	virtual ItemTablePtr getTable(void);
 
+protected:
+	virtual void fixupTableSizeInfo(void);
+
 private:
 	string m_name;
 	string m_varName;
 	ItemTablePtr m_itemTablePtr;
+	SQLColumnIndexResoveler *m_columnIndexResolver;
 };
 
 typedef list<SQLTableElement *>             SQLTableElementList;
@@ -90,6 +106,9 @@ public:
 	void setLeftFormula(SQLTableFormula *tableFormula);
 	void setRightFormula(SQLTableFormula *tableFormula);
 
+protected:
+	virtual void fixupTableSizeInfo(void);
+
 private:
 	SQLJoinType      m_type;
 	SQLTableFormula *m_leftFormula;
@@ -107,7 +126,6 @@ public:
 
 private:
 };
-
 
 // ---------------------------------------------------------------------------
 // SQLTableInnerJoin

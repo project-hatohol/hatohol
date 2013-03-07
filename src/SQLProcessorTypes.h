@@ -117,6 +117,7 @@ class SQLColumnIndexResoveler {
 public:
 	virtual int getIndex(const string &tableName,
 	                     const string &columnName) const = 0;
+	virtual size_t getNumberOfColumns(const string &tableName) const = 0;
 };
 
 class SQLProcessorSelect;

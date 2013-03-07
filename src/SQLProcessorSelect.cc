@@ -63,8 +63,15 @@ public:
 	                     const string &columnName) const
 	{
 		const SQLTableStaticInfo *staticInfo =
-		  getTableStaticInfo(tableName, columnName);
+		  getTableStaticInfo(tableName);
 		return SQLUtils::getColumnIndex(columnName, staticInfo);
+	}
+
+	virtual size_t getNumberOfColumns(const string &tableName) const
+	{
+		const SQLTableStaticInfo *staticInfo =
+		  getTableStaticInfo(tableName);
+		return staticInfo->columnDefList.size();
 	}
 
 	void setTableVarInfoMap(SQLTableVarNameInfoMap *tableVarInfoMap)
@@ -74,8 +81,7 @@ public:
 
 protected:
 	const SQLTableStaticInfo *
-	getTableStaticInfo(const string &tableName,
-	                   const string &columnName) const
+	getTableStaticInfo(const string &tableName) const
 	{
 		if (m_tableVarInfoMap) {
 			SQLTableVarNameInfoMapIterator it =
