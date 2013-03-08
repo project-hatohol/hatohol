@@ -135,6 +135,28 @@ ItemTablePtr SQLTableElement::getTable(void)
 	return m_itemTablePtr;
 }
 
+ItemGroupPtr SQLTableElement::getJoinedRow(void)
+{
+	MLPL_BUG("Not implemented\n", __PRETTY_FUNCTION__);
+	return ItemGroupPtr();
+}
+
+void SQLTableElement::startRowIterator(void)
+{
+	MLPL_BUG("Not implemented\n", __PRETTY_FUNCTION__);
+}
+
+bool SQLTableElement::rowIteratorEnd(void)
+{
+	MLPL_BUG("Not implemented\n", __PRETTY_FUNCTION__);
+	return true;
+}
+
+void SQLTableElement::rowIteratorInc(void)
+{
+	MLPL_BUG("Not implemented\n", __PRETTY_FUNCTION__);
+}
+
 void SQLTableElement::fixupTableSizeInfo(void)
 {
 	string &name = m_varName.empty() ? m_name : m_varName;
@@ -205,6 +227,12 @@ ItemTablePtr SQLTableCrossJoin::getTable(void)
 	return crossJoin(leftFormula->getTable(), rightFormula->getTable());
 }
 
+ItemGroupPtr SQLTableCrossJoin::getJoinedRow(void)
+{
+	MLPL_BUG("Not implemented\n", __PRETTY_FUNCTION__);
+	return ItemGroupPtr();
+}
+
 // ---------------------------------------------------------------------------
 // SQLTableInnerJoin
 // ---------------------------------------------------------------------------
@@ -253,6 +281,12 @@ ItemTablePtr SQLTableInnerJoin::getTable(void)
 
 	return innerJoin(leftFormula->getTable(), rightFormula->getTable(),
 	                 m_indexLeftJoinColumn, m_indexRightJoinColumn);
+}
+
+ItemGroupPtr SQLTableInnerJoin::getJoinedRow(void)
+{
+	MLPL_BUG("Not implemented\n", __PRETTY_FUNCTION__);
+	return ItemGroupPtr();
 }
 
 const string &SQLTableInnerJoin::getLeftTableName(void) const

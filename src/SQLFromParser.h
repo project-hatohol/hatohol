@@ -90,6 +90,7 @@ protected:
 	                             string &tableName, string &columnName);
 	void parseInnerJoinLeftField(const string &fieldName);
 	void parseInnerJoinRightField(const string &fieldName);
+	void IterateTableRowForJoin(SQLTableElementListIterator tableItr);
 
 	//
 	// SeparatorChecker callbacks

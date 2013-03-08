@@ -47,6 +47,9 @@ struct SQLFromParser::PrivateContext {
 	string           innerJoinRightColumnName;
 	SQLColumnIndexResoveler *columnIndexResolver;
 
+	// variables used when join calculation
+	ItemTablePtr     joinedTable;
+
 	// constructor
 	PrivateContext(void)
 	: state(PARSING_STAT_EXPECT_TABLE_NAME),
@@ -125,16 +128,16 @@ SeparatorCheckerWithCallback *SQLFromParser::getSeparatorChecker(void)
 	return &m_separator;
 }
 
-ItemTablePtr
+void
 SQLFromParser::setColumnIndexResolver(SQLColumnIndexResoveler *resolver)
 {
 	m_ctx->columnIndexResolver = resolver;
-	return ItemTablePtr();
 }
 
-void SQLFromParser::doJoin(void)
+ItemTablePtr SQLFromParser::doJoin(void)
 {
-	MLPL_BUG("Under construction: %s\n", __PRETTY_FUNCTION__);
+	IterateTableRowForJoin(m_ctx->tableElementList.begin());
+	return m_ctx->joinedTable;
 }
 
 void SQLFromParser::add(const string &word, const string &wordLower)
@@ -240,6 +243,23 @@ void SQLFromParser::subParserExpectRightField
   (const string &word, const string &wordLower)
 {
 	parseInnerJoinRightField(word);
+}
+
+void SQLFromParser::IterateTableRowForJoin(SQLTableElementListIterator tableItr)
+{
+	if (tableItr == m_ctx->tableElementList.end()) {
+		m_ctx->joinedTable->add(m_ctx->tableFormula->getJoinedRow(),
+		                        false);
+		return;
+	}
+
+	SQLTableElement *tableElement = *tableItr;
+	SQLTableElementListIterator nextTableItr = tableItr;
+	++nextTableItr;
+	for (tableElement->startRowIterator();
+	     !tableElement->rowIteratorEnd(); tableElement->rowIteratorInc()) {
+		IterateTableRowForJoin(nextTableItr);
+	}
 }
 
 //
