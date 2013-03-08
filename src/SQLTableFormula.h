@@ -113,6 +113,7 @@ public:
 	SQLTableFormula *getRightFormula(void) const;
 	void setLeftFormula(SQLTableFormula *tableFormula);
 	void setRightFormula(SQLTableFormula *tableFormula);
+	virtual ItemGroupPtr getActiveRow(void);
 
 protected:
 	virtual void fixupTableSizeInfo(void);
@@ -131,7 +132,6 @@ class SQLTableCrossJoin : public SQLTableJoin
 public:
 	SQLTableCrossJoin(void);
 	virtual ItemTablePtr getTable(void);
-	virtual ItemGroupPtr getActiveRow(void);
 
 private:
 };
