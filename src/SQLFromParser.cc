@@ -248,6 +248,8 @@ void SQLFromParser::subParserExpectRightField
 void SQLFromParser::IterateTableRowForJoin(SQLTableElementListIterator tableItr)
 {
 	if (tableItr == m_ctx->tableElementList.end()) {
+		MLPL_BUG("MUST IMPLEMENTED: check the where condition. "
+		         "If it is false, return immediately.\n");
 		m_ctx->joinedTable->add(m_ctx->tableFormula->getActiveRow(),
 		                        false);
 		return;
