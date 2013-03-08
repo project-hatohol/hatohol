@@ -143,18 +143,17 @@ ItemGroupPtr SQLTableElement::getJoinedRow(void)
 
 void SQLTableElement::startRowIterator(void)
 {
-	MLPL_BUG("Not implemented\n", __PRETTY_FUNCTION__);
+	m_currSelectedGroup = m_itemTablePtr->getItemGroupList().begin();
 }
 
 bool SQLTableElement::rowIteratorEnd(void)
 {
-	MLPL_BUG("Not implemented\n", __PRETTY_FUNCTION__);
-	return true;
+	return m_currSelectedGroup == m_itemTablePtr->getItemGroupList().end();
 }
 
 void SQLTableElement::rowIteratorInc(void)
 {
-	MLPL_BUG("Not implemented\n", __PRETTY_FUNCTION__);
+	++m_currSelectedGroup;
 }
 
 void SQLTableElement::fixupTableSizeInfo(void)

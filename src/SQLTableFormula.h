@@ -95,6 +95,7 @@ private:
 	string m_varName;
 	ItemTablePtr m_itemTablePtr;
 	SQLColumnIndexResoveler *m_columnIndexResolver;
+	ItemGroupListConstIterator m_currSelectedGroup;
 };
 
 typedef list<SQLTableElement *>             SQLTableElementList;
