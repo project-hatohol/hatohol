@@ -227,8 +227,25 @@ ItemTablePtr SQLTableCrossJoin::getTable(void)
 
 ItemGroupPtr SQLTableCrossJoin::getActiveRow(void)
 {
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
-	return ItemGroupPtr();
+
+	SQLTableFormula *leftFormula = getLeftFormula();
+	SQLTableFormula *rightFormula = getRightFormula();
+	if (!leftFormula || !rightFormula) {
+		THROW_SQL_PROCESSOR_EXCEPTION(
+		  "leftFormula (%p) or rightFormula (%p) is NULL.\n",
+		  leftFormula, rightFormula);
+	}
+
+	ItemGroupPtr itemGroup = ItemGroupPtr(new ItemGroup(), false);
+
+	ItemGroupPtr leftRow = leftFormula->getActiveRow();
+	for (size_t i = 0; i < leftRow->getNumberOfItems(); i++)
+		itemGroup->add(leftRow->getItemAt(i));
+	ItemGroupPtr rightRow = rightFormula->getActiveRow();
+	for (size_t i = 0; i < rightRow->getNumberOfItems(); i++)
+		itemGroup->add(rightRow->getItemAt(i));
+
+	return itemGroup;
 }
 
 // ---------------------------------------------------------------------------
