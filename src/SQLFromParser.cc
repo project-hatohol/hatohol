@@ -256,9 +256,11 @@ void SQLFromParser::IterateTableRowForJoin(SQLTableElementListIterator tableItr)
 	SQLTableElement *tableElement = *tableItr;
 	SQLTableElementListIterator nextTableItr = tableItr;
 	++nextTableItr;
-	for (tableElement->startRowIterator();
-	     !tableElement->rowIteratorEnd(); tableElement->rowIteratorInc()) {
+
+	tableElement->startRowIterator();
+	while (!tableElement->rowIteratorEnd()) {
 		IterateTableRowForJoin(nextTableItr);
+		tableElement->rowIteratorInc();
 	}
 }
 
