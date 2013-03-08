@@ -402,9 +402,7 @@ static void _asssertExecSelect
 		                         expectedNumSelectedRows,
 		                         expectedNumRows);
 	} catch (const AsuraException &e) {
-		cut_fail("Got exception: <%s:%d> %s",
-		         e.getSourceFileName().c_str(), e.getLineNumber(),
-		         e.what());
+		cut_fail("Got exception: %s", e.getFancyMessage().c_str());
 	}
 }
 #define asssertExecSelect(S, ENC, ...) \
