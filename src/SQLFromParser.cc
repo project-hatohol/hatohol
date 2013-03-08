@@ -125,9 +125,16 @@ SeparatorCheckerWithCallback *SQLFromParser::getSeparatorChecker(void)
 	return &m_separator;
 }
 
-void SQLFromParser::setColumnIndexResolver(SQLColumnIndexResoveler *resolver)
+ItemTablePtr
+SQLFromParser::setColumnIndexResolver(SQLColumnIndexResoveler *resolver)
 {
 	m_ctx->columnIndexResolver = resolver;
+	return ItemTablePtr();
+}
+
+void SQLFromParser::doJoin(void)
+{
+	MLPL_BUG("Under construction: %s\n", __PRETTY_FUNCTION__);
 }
 
 void SQLFromParser::add(const string &word, const string &wordLower)

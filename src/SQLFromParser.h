@@ -36,6 +36,7 @@ public:
 	SQLTableElementList &getTableElementList(void) const;
 	SeparatorCheckerWithCallback *getSeparatorChecker(void);
 	void setColumnIndexResolver(SQLColumnIndexResoveler *resolver);
+	ItemTablePtr doJoin(void);
 
 	virtual void add(const string& word, const string &wordLower);
 	virtual void flush(void);
