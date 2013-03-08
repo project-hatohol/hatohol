@@ -137,8 +137,7 @@ ItemTablePtr SQLTableElement::getTable(void)
 
 ItemGroupPtr SQLTableElement::getActiveRow(void)
 {
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
-	return ItemGroupPtr();
+	return *m_currSelectedGroup;
 }
 
 void SQLTableElement::startRowIterator(void)
