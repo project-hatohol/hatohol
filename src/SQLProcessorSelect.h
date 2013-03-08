@@ -89,6 +89,10 @@ struct SQLTableInfo {
 	// So we must not explicitly free them.
 	const SQLTableStaticInfo *staticInfo;
 
+	// The owner of the tableElement is SQLFormula in SQLFromParser.
+	// So we must not explicitly free it.
+	SQLTableElement *tableElement;
+
 	// constructor and methods
 	SQLTableInfo(void);
 };

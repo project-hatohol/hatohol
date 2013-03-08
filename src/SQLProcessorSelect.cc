@@ -215,7 +215,8 @@ class SQLFormulaColumnDataGetter : public FormulaVariableDataGetter {
 public:
 	SQLFormulaColumnDataGetter(const string &name,
 	                           SQLSelectInfo *selectInfo)
-	: m_columnInfo(NULL)
+	: m_columnInfo(NULL),
+	  m_columnIndex(-1)
 	{
 		SQLColumnNameMapIterator it
 		  = selectInfo->columnNameMap.find(name);
@@ -254,6 +255,16 @@ public:
 		return ItemDataPtr(itemGroupPtr->getItem(itemId));
 	}
 
+	virtual ItemDataPtr getDataOfActiveRow(void)
+	{
+		if (m_columnIndex < 0)
+			m_columnIndex = getColumnIndex();
+		SQLTableElement *tableElement =
+		  m_columnInfo->tableInfo->tableElement;
+		ItemGroupPtr itemGroupPtr = tableElement->getJoinedRow();
+		return ItemDataPtr(itemGroupPtr->getItemAt(m_columnIndex));
+	}
+
 	SQLColumnInfo *getColumnInfo(void) const
 	{
 		return m_columnInfo;
@@ -261,6 +272,22 @@ public:
 
 private:
 	SQLColumnInfo *m_columnInfo;
+	int            m_columnIndex;
+
+	int getColumnIndex(void)
+	{
+		const ColumnNameAccessInfoMap &columnAccessInfoMap =
+		  m_columnInfo->tableInfo->staticInfo->columnAccessInfoMap;
+		ColumnNameAccessInfoMapConstIterator it =
+		  columnAccessInfoMap.find(m_columnInfo->baseName);
+		if (it == columnAccessInfoMap.end()) {
+			THROW_ASURA_EXCEPTION(
+			  "Not found: %s in columnAccessInfoMap",
+		          m_columnInfo->baseName.c_str());
+		}
+		const ColumnAccessInfo &accessInfo = it->second;
+		return accessInfo.index;
+	}
 };
 
 // ---------------------------------------------------------------------------
@@ -304,7 +331,8 @@ ItemDataPtr SQLOutputColumn::getItem(const ItemGroup *itemGroup) const
 // Public methods (SQLTableInfo)
 // ---------------------------------------------------------------------------
 SQLTableInfo::SQLTableInfo(void)
-: staticInfo(NULL)
+: staticInfo(NULL),
+  tableElement(NULL)
 {
 }
 
@@ -534,10 +562,11 @@ void SQLProcessorSelect::makeTableInfo(void)
 	  fromParser.getTableElementList().begin();
 	for (; it != fromParser.getTableElementList().end(); ++it) {
 		// make selectInfo->tables
-		const SQLTableElement *tableElem = *it;
+		SQLTableElement *tableElem = *it;
 		SQLTableInfo *tableInfo = new SQLTableInfo();
 		tableInfo->name    = tableElem->getName();
 		tableInfo->varName = tableElem->getVarName();
+		tableInfo->tableElement = tableElem;
 		selectInfo->tables.push_back(tableInfo);
 
 		// make selectInfo->tableVarInfoMap
