@@ -135,7 +135,7 @@ ItemTablePtr SQLTableElement::getTable(void)
 	return m_itemTablePtr;
 }
 
-ItemGroupPtr SQLTableElement::getJoinedRow(void)
+ItemGroupPtr SQLTableElement::getActiveRow(void)
 {
 	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
 	return ItemGroupPtr();
@@ -226,7 +226,7 @@ ItemTablePtr SQLTableCrossJoin::getTable(void)
 	return crossJoin(leftFormula->getTable(), rightFormula->getTable());
 }
 
-ItemGroupPtr SQLTableCrossJoin::getJoinedRow(void)
+ItemGroupPtr SQLTableCrossJoin::getActiveRow(void)
 {
 	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
 	return ItemGroupPtr();
@@ -282,7 +282,7 @@ ItemTablePtr SQLTableInnerJoin::getTable(void)
 	                 m_indexLeftJoinColumn, m_indexRightJoinColumn);
 }
 
-ItemGroupPtr SQLTableInnerJoin::getJoinedRow(void)
+ItemGroupPtr SQLTableInnerJoin::getActiveRow(void)
 {
 	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
 	return ItemGroupPtr();

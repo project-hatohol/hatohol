@@ -261,7 +261,7 @@ public:
 			m_columnIndex = getColumnIndex();
 		SQLTableElement *tableElement =
 		  m_columnInfo->tableInfo->tableElement;
-		ItemGroupPtr itemGroupPtr = tableElement->getJoinedRow();
+		ItemGroupPtr itemGroupPtr = tableElement->getActiveRow();
 		return ItemDataPtr(itemGroupPtr->getItemAt(m_columnIndex));
 	}
 

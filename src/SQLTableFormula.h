@@ -52,7 +52,7 @@ public:
 
 	virtual ~SQLTableFormula();
 	virtual ItemTablePtr getTable(void) = 0;
-	virtual ItemGroupPtr getJoinedRow(void) = 0;
+	virtual ItemGroupPtr getActiveRow(void) = 0;
 	virtual size_t getColumnIndexOffset(const string &tableName);
 	const TableSizeInfoVector &getTableSizeInfoVector(void);
 
@@ -81,7 +81,7 @@ public:
 	const string &getVarName(void) const;
 	void setItemTable(ItemTablePtr itemTablePtr);
 	virtual ItemTablePtr getTable(void);
-	virtual ItemGroupPtr getJoinedRow(void);
+	virtual ItemGroupPtr getActiveRow(void);
 
 	void startRowIterator(void);
 	bool rowIteratorEnd(void);
@@ -131,7 +131,7 @@ class SQLTableCrossJoin : public SQLTableJoin
 public:
 	SQLTableCrossJoin(void);
 	virtual ItemTablePtr getTable(void);
-	virtual ItemGroupPtr getJoinedRow(void);
+	virtual ItemGroupPtr getActiveRow(void);
 
 private:
 };
@@ -148,7 +148,7 @@ public:
 	                  const string &rightColumnName,
 	                  SQLColumnIndexResoveler *resolver);
 	virtual ItemTablePtr getTable(void);
-	virtual ItemGroupPtr getJoinedRow(void);
+	virtual ItemGroupPtr getActiveRow(void);
 
 	const string &getLeftTableName(void) const;
 	const string &getLeftColumnName(void) const;

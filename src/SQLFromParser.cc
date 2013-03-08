@@ -248,7 +248,7 @@ void SQLFromParser::subParserExpectRightField
 void SQLFromParser::IterateTableRowForJoin(SQLTableElementListIterator tableItr)
 {
 	if (tableItr == m_ctx->tableElementList.end()) {
-		m_ctx->joinedTable->add(m_ctx->tableFormula->getJoinedRow(),
+		m_ctx->joinedTable->add(m_ctx->tableFormula->getActiveRow(),
 		                        false);
 		return;
 	}
