@@ -68,23 +68,20 @@ void ItemTable::add(ItemGroup *group, bool doRef)
 		ItemGroup *tail = m_groupList.back();
 		if (!freezeTailGroupIfFirstGroup(tail)) {
 			writeUnlock();
-			string msg;
-			TRMSG(msg, "Failed to freeze the tail group.");
-			throw invalid_argument(msg);
+			THROW_ASURA_EXCEPTION(
+			  "Failed to freeze the tail group.");
 		}
 		const ItemGroupType *groupType0 = tail->getItemGroupType();
 		const ItemGroupType *groupType1 = group->getItemGroupType();
 		if (groupType1 == NULL) {
 			if (!group->setItemGroupType(groupType0)) {
 				writeUnlock();
-				throw invalid_argument("Failed to call "
-				                       "setItemGroupType.");
+				THROW_ASURA_EXCEPTION(
+				  "Failed to call setItemGroupType.");
 			}
 		} else if (*groupType0 != *groupType1) {
 			writeUnlock();
-			string msg;
-			TRMSG(msg, "ItemGroupTypes unmatched");
-			throw invalid_argument(msg);
+			THROW_ASURA_EXCEPTION("ItemGroupTypes unmatched");
 		}
 	}
 
