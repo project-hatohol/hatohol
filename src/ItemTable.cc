@@ -196,6 +196,11 @@ ItemTable *ItemTable::crossJoin(const ItemTable *itemTable) const
 	return table;
 }
 
+const ItemGroupList &ItemTable::getItemGroupList(void) const
+{
+	return m_groupList;
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------

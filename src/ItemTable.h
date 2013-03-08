@@ -44,6 +44,7 @@ public:
 	ItemTable *rightOuterJoin(const ItemTable *itemTable) const;
 	ItemTable *fullOuterJoin(const ItemTable *itemTable) const;
 	ItemTable *crossJoin(const ItemTable *itemTable) const;
+	const ItemGroupList &getItemGroupList(void) const;
 
 	template <typename T>
 	bool foreach(bool (*func)(const ItemGroup *, T arg), T arg) const
