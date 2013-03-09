@@ -25,6 +25,17 @@ public:
 	~ItemIntTester() {
 		destructorCalled = true;
 	}
+
+	void throwUndefinedOperator(void)
+	{
+		THROW_ITEM_DATA_EXCEPTION_UNDEFINED_OPERATION("TestOperator");
+	}
+
+	void throwUndefinedOperatorTwoArg(void)
+	{
+		THROW_ITEM_DATA_EXCEPTION_UNDEFINED_OPERATION(
+		  "TestOperator", *this);
+	}
 };
 
 static const int TEST_ITEM_ID = 1;
@@ -549,5 +560,31 @@ void test_operatorSubstBoolString(void)
 	cppcut_assert_equal(true, gotException);
 }
 
+// ---------------------------------------------------------------------------
+// ItemDataException
+// ---------------------------------------------------------------------------
+void test_throwUndefinedOperator(void)
+{
+	ItemIntTester *tester = new ItemIntTester(SYSTEM_ITEM_ID_ANONYMOUS, 0);
+	bool gotException = false;
+	try {
+		tester->throwUndefinedOperator();
+	} catch (const ItemDataException &e) {
+		gotException = true;
+	}
+	cppcut_assert_equal(true, gotException);
+}
+
+void test_throwUndefinedOperatorTwoArg(void)
+{
+	ItemIntTester *tester = new ItemIntTester(SYSTEM_ITEM_ID_ANONYMOUS, 0);
+	bool gotException = false;
+	try {
+		tester->throwUndefinedOperatorTwoArg();
+	} catch (const ItemDataException &e) {
+		gotException = true;
+	}
+	cppcut_assert_equal(true, gotException);
+}
 
 } // namespace testItemData

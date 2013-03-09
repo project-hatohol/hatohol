@@ -39,8 +39,32 @@ const char *ItemData::m_nativeTypeNames[] =
 ItemDataException::ItemDataException(ItemDataExceptionType type,
                                      const char *sourceFileName, int lineNumber,
                                      const char *operatorName,
+                                     const ItemData &lhs)
+: AsuraException("", sourceFileName, lineNumber)
+{
+	string header = getMessageHeader(type);
+	string msg = StringUtils::sprintf(
+	  "%s: '%s' (%s) (ItemID: %"PRIu_ITEM")",
+	  header.c_str(), operatorName, lhs.getNativeTypeName(), lhs.getId());
+	setBrief(msg);
+}
+ItemDataException::ItemDataException(ItemDataExceptionType type,
+                                     const char *sourceFileName, int lineNumber,
+                                     const char *operatorName,
                                      const ItemData &lhs, const ItemData &rhs)
 : AsuraException("", sourceFileName, lineNumber)
+{
+	string header = getMessageHeader(type);
+	string msg = StringUtils::sprintf(
+	  "%s: '%s' between %s and %s (ItemID: %"PRIu_ITEM" and %"PRIu_ITEM")",
+	  header.c_str(), operatorName,
+	  lhs.getNativeTypeName(), rhs.getNativeTypeName(),
+	  lhs.getId(), rhs.getId());
+
+	setBrief(msg);
+}
+
+string ItemDataException::getMessageHeader(const ItemDataExceptionType type)
 {
 	string header;
 	if (type == ITEM_DATA_EXCEPTION_UNDEFINED_OPERATION)
@@ -49,13 +73,7 @@ ItemDataException::ItemDataException(ItemDataExceptionType type,
 		header = "Invalid operation";
 	else
 		header = StringUtils::sprintf("Unknown exception (%d)", type);
-	string msg = StringUtils::sprintf(
-	  "%s: '%s' between %s and %s (ItemID: %"PRIu_ITEM" and %"PRIu_ITEM")",
-	  header.c_str(), operatorName,
-	  lhs.getNativeTypeName(), rhs.getNativeTypeName(),
-	  lhs.getId(), rhs.getId());
-
-	setBrief(msg);
+	return header;
 }
 
 // ---------------------------------------------------------------------------

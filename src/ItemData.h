@@ -54,13 +54,19 @@ public:
 	ItemDataException(ItemDataExceptionType type,
 	                  const char *sourceFileName, int lineNumber,
 	                  const char *operatorName,
+	                  const ItemData &lhs);
+	ItemDataException(ItemDataExceptionType type,
+	                  const char *sourceFileName, int lineNumber,
+	                  const char *operatorName,
 	                  const ItemData &lhs, const ItemData &rhs);
+protected:
+	string getMessageHeader(const ItemDataExceptionType type);
 };
-#define THROW_ITEM_DATA_EXCEPTION_UNDEFINED_OPERATION(OP, RHS) \
-throw ItemDataException(ITEM_DATA_EXCEPTION_UNDEFINED_OPERATION, __FILE__, __LINE__, OP, *this, RHS)
+#define THROW_ITEM_DATA_EXCEPTION_UNDEFINED_OPERATION(OP, ...) \
+throw ItemDataException(ITEM_DATA_EXCEPTION_UNDEFINED_OPERATION, __FILE__, __LINE__, OP, *this, ##__VA_ARGS__)
 
-#define THROW_ITEM_DATA_EXCEPTION_INVALID_OPERATION(OP, RHS) \
-throw ItemDataException(ITEM_DATA_EXCEPTION_INVALID_OPERATION, __FILE__, __LINE__, OP, *this, RHS)
+#define THROW_ITEM_DATA_EXCEPTION_INVALID_OPERATION(OP, ...) \
+throw ItemDataException(ITEM_DATA_EXCEPTION_INVALID_OPERATION, __FILE__, __LINE__, OP, *this, ##__VA_ARGS__)
 
 typedef vector<ItemId>               ItemIdVector;
 typedef ItemIdVector::iterator       ItemIdVectorIterator;
