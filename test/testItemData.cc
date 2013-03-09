@@ -258,6 +258,19 @@ void test_getStringString(void)
 }
 
 // -------------------------------------------------------------------------
+// operator cast to bool
+// -------------------------------------------------------------------------
+void test_castBoolToBool(void)
+{
+	x_item = new ItemBool(true);
+	cppcut_assert_equal(true, static_cast<bool>(*x_item));
+
+	y_item = new ItemBool(false);
+	cppcut_assert_equal(false, static_cast<bool>(*y_item));
+}
+
+
+// -------------------------------------------------------------------------
 // operatorGt
 // -------------------------------------------------------------------------
 void test_operatorGtIntPositive(void)

@@ -106,6 +106,7 @@ public:
 	virtual bool isNull(void) const;
 	virtual void setNull(void);
 
+	virtual operator bool () const = 0;
 	virtual ItemData & operator =(const ItemData &itemData) = 0;
 	virtual ItemData * operator +(const ItemData &itemData) const = 0;
 	virtual ItemData * operator /(const ItemData &itemData) const = 0;
@@ -168,6 +169,11 @@ public:
 		ss << m_data;
 		readUnlock();
 		return ss.str();
+	}
+
+	virtual operator bool () const {
+		THROW_ITEM_DATA_EXCEPTION_UNDEFINED_OPERATION("cast to bool");
+		return false;
 	}
 
 	virtual ItemData & operator =(const ItemData &itemData) {
@@ -283,6 +289,8 @@ typedef ItemGeneric<uint64_t, ITEM_TYPE_UINT64> ItemUint64;
 typedef ItemGeneric<int,      ITEM_TYPE_INT>    ItemInt;
 typedef ItemGeneric<double,   ITEM_TYPE_DOUBLE> ItemDouble;
 typedef ItemGeneric<string,   ITEM_TYPE_STRING> ItemString;
+
+template<> ItemBool::operator bool() const;
 
 template<> bool ItemInt::operator >(const ItemData &itemData) const;
 template<> bool ItemInt::operator <(const ItemData &itemData) const;

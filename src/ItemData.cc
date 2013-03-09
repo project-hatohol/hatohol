@@ -135,6 +135,14 @@ void ItemData::setNull(void)
 }
 
 //
+// ItemBool
+//
+template<> ItemBool::operator bool() const
+{
+	return get();
+}
+
+//
 // ItemInt
 //
 template<> bool ItemInt::operator >(const ItemData &itemData) const
