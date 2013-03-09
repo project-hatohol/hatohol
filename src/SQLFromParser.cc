@@ -252,7 +252,7 @@ void SQLFromParser::IterateTableRowForJoin(SQLTableElementListIterator tableItr)
 		         "If it is false, return immediately.\n");
 		ItemGroupPtr activeRow = m_ctx->tableFormula->getActiveRow();
 		activeRow->freeze();
-		m_ctx->joinedTable->add(activeRow, false);
+		m_ctx->joinedTable->add(activeRow);
 		return;
 	}
 
