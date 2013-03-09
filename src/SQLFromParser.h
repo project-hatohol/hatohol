@@ -25,6 +25,7 @@ using namespace std;
 using namespace mlpl;
 
 #include "SQLTableFormula.h"
+#include "FormulaElement.h"
 
 class SQLFromParser
 {
@@ -36,7 +37,7 @@ public:
 	SQLTableElementList &getTableElementList(void) const;
 	SeparatorCheckerWithCallback *getSeparatorChecker(void);
 	void setColumnIndexResolver(SQLColumnIndexResoveler *resolver);
-	ItemTablePtr doJoin(void);
+	ItemTablePtr doJoin(FormulaElement *whereFormula);
 
 	virtual void add(const string& word, const string &wordLower);
 	virtual void flush(void);
@@ -90,7 +91,8 @@ protected:
 	                             string &tableName, string &columnName);
 	void parseInnerJoinLeftField(const string &fieldName);
 	void parseInnerJoinRightField(const string &fieldName);
-	void IterateTableRowForJoin(SQLTableElementListIterator tableItr);
+	void IterateTableRowForJoin(SQLTableElementListIterator tableItr,
+	                            FormulaElement *whereFormula);
 
 	//
 	// SeparatorChecker callbacks

@@ -827,7 +827,9 @@ void SQLProcessorSelect::doJoin(void)
 	  m_ctx->selectInfo->fromParser.getTableFormula()->getTable();
 
 	// Under construction
-	m_ctx->selectInfo->fromParser.doJoin();
+	SQLSelectInfo *selectInfo = m_ctx->selectInfo;
+	FormulaElement *whereFormula = selectInfo->whereParser.getFormula();
+	m_ctx->selectInfo->fromParser.doJoin(whereFormula);
 }
 
 void SQLProcessorSelect::selectMatchingRows(void)

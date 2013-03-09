@@ -134,9 +134,9 @@ SQLFromParser::setColumnIndexResolver(SQLColumnIndexResoveler *resolver)
 	m_ctx->columnIndexResolver = resolver;
 }
 
-ItemTablePtr SQLFromParser::doJoin(void)
+ItemTablePtr SQLFromParser::doJoin(FormulaElement *whereFormula)
 {
-	IterateTableRowForJoin(m_ctx->tableElementList.begin());
+	IterateTableRowForJoin(m_ctx->tableElementList.begin(), whereFormula);
 	return m_ctx->joinedTable;
 }
 
@@ -245,11 +245,25 @@ void SQLFromParser::subParserExpectRightField
 	parseInnerJoinRightField(word);
 }
 
-void SQLFromParser::IterateTableRowForJoin(SQLTableElementListIterator tableItr)
+void SQLFromParser::IterateTableRowForJoin(SQLTableElementListIterator tableItr,
+                                           FormulaElement *whereFormula)
 {
 	if (tableItr == m_ctx->tableElementList.end()) {
-		MLPL_BUG("MUST IMPLEMENTED: check the where condition. "
-		         "If it is false, return immediately.\n");
+		bool shouldAdd = false;
+		if (whereFormula == NULL) {
+			// This condition occurs when no where section.
+			shouldAdd = true;
+		} else {
+			ItemDataPtr matched = whereFormula->evaluate();
+			if (!matched.hasData()) {
+				THROW_SQL_PROCESSOR_EXCEPTION(
+				  "The evaluated result of the where conditon "
+				  "has no data.");
+			}
+			shouldAdd = *matched;
+		}
+		if (!shouldAdd)
+			return;
 		ItemGroupPtr activeRow = m_ctx->tableFormula->getActiveRow();
 		activeRow->freeze();
 		m_ctx->joinedTable->add(activeRow);
@@ -262,7 +276,7 @@ void SQLFromParser::IterateTableRowForJoin(SQLTableElementListIterator tableItr)
 
 	tableElement->startRowIterator();
 	while (!tableElement->rowIteratorEnd()) {
-		IterateTableRowForJoin(nextTableItr);
+		IterateTableRowForJoin(nextTableItr, whereFormula);
 		tableElement->rowIteratorInc();
 	}
 }
