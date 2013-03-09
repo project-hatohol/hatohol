@@ -25,7 +25,10 @@ namespace testSQLProcessor {
 // dereference the same ItemTable when there's no where section and no grouping.
 // (Note: This strongly depends on the current implementation)
 // So the number of the referece count should be 3.
-static const int expectedRefCountOfResultTableInTheSimplestCase = 3;
+//static const int expectedRefCountOfResultTableInTheSimplestCase = 3;
+
+// When using doJoinWithFromParser(), the following variable should be one.
+static const int expectedRefCountOfResultTableInTheSimplestCase = 1;
 
 //
 // Test Table Definition

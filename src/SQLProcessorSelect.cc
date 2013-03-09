@@ -239,6 +239,17 @@ public:
 
 	virtual ItemDataPtr getData(void)
 	{
+		return getDataOfActiveRow();
+	}
+
+	/*
+	 * getDataFromJoinedTable() is not used now. If this is used,
+	 * replace getDataOfActiveRow() in the getData() with this,
+	 * and enables doJoin() and selectMatchingRows() instead of
+	 * doJoinWithFromParser().
+	 */
+	virtual ItemDataPtr getDataFromJoinedTable(void)
+	{
 		if (m_columnInfo->columnType !=
 		    SQLColumnInfo::COLUMN_TYPE_NORMAL) {
 			THROW_ASURA_EXCEPTION(
@@ -439,10 +450,18 @@ bool SQLProcessorSelect::select(SQLSelectInfo &selectInfo)
 		makeItemTables();
 
 		// join tables
+		doJoinWithFromParser();
+
+		/*  doJoin() and selectMatchingRows() is not used now.
+		 *  But it may be faster than doJoinWithFromParser(),
+		 *  we keep them with comment out.
+		--------------------------------------------------------
+		// join tables
 		doJoin();
 
 		// pickup matching rows
 		selectMatchingRows();
+		-------------------------------------------------------- */
 
 		// grouping if needed
 		makeGroups();
@@ -821,15 +840,19 @@ void SQLProcessorSelect::makeItemTables(void)
 	}
 }
 
+void SQLProcessorSelect::doJoinWithFromParser(void)
+{
+	SQLSelectInfo *selectInfo = m_ctx->selectInfo;
+	FormulaElement *whereFormula = selectInfo->whereParser.getFormula();
+	selectInfo->selectedTable =
+	  m_ctx->selectInfo->fromParser.doJoin(whereFormula);
+}
+
 void SQLProcessorSelect::doJoin(void)
 {
 	m_ctx->selectInfo->joinedTable =
 	  m_ctx->selectInfo->fromParser.getTableFormula()->getTable();
 
-	// Under construction
-	SQLSelectInfo *selectInfo = m_ctx->selectInfo;
-	FormulaElement *whereFormula = selectInfo->whereParser.getFormula();
-	m_ctx->selectInfo->fromParser.doJoin(whereFormula);
 }
 
 void SQLProcessorSelect::selectMatchingRows(void)
