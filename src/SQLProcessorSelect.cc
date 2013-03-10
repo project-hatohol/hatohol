@@ -149,6 +149,7 @@ struct SQLProcessorSelect::PrivateContext {
 	SQLProcessorColumnIndexResolver columnIndexResolver;
 
 	// currently processed Item Group used in selectMatchingRows()
+	bool                useEvalTargetItemGroup;
 	ItemGroupPtr        evalTargetItemGroup;
 
 	// The number of times to be masked for generating output lines.
@@ -173,6 +174,7 @@ struct SQLProcessorSelect::PrivateContext {
 	  separatorSpaceComma(" ,"),
 	  section(SELECT_PARSING_SECTION_COLUMN),
 	  columnIndexResolver(nameInfoMap),
+	  useEvalTargetItemGroup(false),
 	  evalTargetItemGroup(NULL),
 	  makeTextRowsWriteMaskCount(0)
 	{
@@ -185,6 +187,7 @@ struct SQLProcessorSelect::PrivateContext {
 		section = SELECT_PARSING_SECTION_COLUMN;
 		currWord.clear();
 		currWordLower.clear();
+		useEvalTargetItemGroup = false;
 		evalTargetItemGroup = NULL;
 		makeTextRowsWriteMaskCount = 0;
 		concatOutputTextSet.clear();
@@ -214,9 +217,11 @@ map<string, SelectSectionParser>
 class SQLFormulaColumnDataGetter : public FormulaVariableDataGetter {
 public:
 	SQLFormulaColumnDataGetter(const string &name,
-	                           SQLSelectInfo *selectInfo)
+	                           SQLSelectInfo *selectInfo,
+	                           bool &useEvalTargetItemGroup)
 	: m_columnInfo(NULL),
-	  m_columnIndex(-1)
+	  m_columnIndex(-1),
+	  m_useEvalTargetItemGroup(useEvalTargetItemGroup)
 	{
 		SQLColumnNameMapIterator it
 		  = selectInfo->columnNameMap.find(name);
@@ -239,7 +244,10 @@ public:
 
 	virtual ItemDataPtr getData(void)
 	{
-		return getDataOfActiveRow();
+		if (m_useEvalTargetItemGroup)
+			return getDataFromJoinedTable();
+		else
+			return getDataOfActiveRow();
 	}
 
 	/*
@@ -284,6 +292,7 @@ public:
 private:
 	SQLColumnInfo *m_columnInfo;
 	int            m_columnIndex;
+	bool          &m_useEvalTargetItemGroup;
 
 	int getColumnIndex(void)
 	{
@@ -882,6 +891,7 @@ void SQLProcessorSelect::makeGroups(void)
 
 void SQLProcessorSelect::makeTextOutputForAllGroups(void)
 {
+	m_ctx->useEvalTargetItemGroup = true;
 	ItemTablePtrListIterator it = m_ctx->selectInfo->groupedTables.begin();
 	for (; it != m_ctx->selectInfo->groupedTables.end(); ++it)
 		makeTextOutput(*it);
@@ -1203,7 +1213,8 @@ SQLProcessorSelect::formulaColumnDataGetterFactory(const string &name,
 {
 	PrivateContext *ctx = static_cast<PrivateContext *>(priv);
 	SQLSelectInfo *selectInfo = ctx->selectInfo;
-	return new SQLFormulaColumnDataGetter(name, selectInfo);
+	return new SQLFormulaColumnDataGetter(name, selectInfo,
+	                                      ctx->useEvalTargetItemGroup);
 }
 
 void SQLProcessorSelect::makeGroupedTableForColumn(const string &columnName)
