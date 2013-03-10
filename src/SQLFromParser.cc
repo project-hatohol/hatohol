@@ -245,38 +245,42 @@ void SQLFromParser::subParserExpectRightField
 	parseInnerJoinRightField(word);
 }
 
+void SQLFromParser::doJoineOneRow(FormulaElement *whereFormula)
+{
+	bool shouldAdd = false;
+	if (whereFormula == NULL) {
+		// This condition occurs when no where section.
+		shouldAdd = true;
+	} else {
+		ItemDataPtr matched = whereFormula->evaluate();
+		if (!matched.hasData()) {
+			THROW_SQL_PROCESSOR_EXCEPTION(
+			  "The evaluated result of the where conditon "
+			  "has no data.");
+		}
+		shouldAdd = *matched;
+	}
+	if (!shouldAdd)
+		return;
+	ItemGroupPtr activeRow = m_ctx->tableFormula->getActiveRow();
+	activeRow->freeze();
+	m_ctx->joinedTable->add(activeRow);
+}
+
 void SQLFromParser::IterateTableRowForJoin(SQLTableElementListIterator tableItr,
                                            FormulaElement *whereFormula)
 {
-	if (tableItr == m_ctx->tableElementList.end()) {
-		bool shouldAdd = false;
-		if (whereFormula == NULL) {
-			// This condition occurs when no where section.
-			shouldAdd = true;
-		} else {
-			ItemDataPtr matched = whereFormula->evaluate();
-			if (!matched.hasData()) {
-				THROW_SQL_PROCESSOR_EXCEPTION(
-				  "The evaluated result of the where conditon "
-				  "has no data.");
-			}
-			shouldAdd = *matched;
-		}
-		if (!shouldAdd)
-			return;
-		ItemGroupPtr activeRow = m_ctx->tableFormula->getActiveRow();
-		activeRow->freeze();
-		m_ctx->joinedTable->add(activeRow);
-		return;
-	}
-
 	SQLTableElement *tableElement = *tableItr;
 	SQLTableElementListIterator nextTableItr = tableItr;
 	++nextTableItr;
+	bool lastTable = (nextTableItr == m_ctx->tableElementList.end());
 
 	tableElement->startRowIterator();
 	while (!tableElement->rowIteratorEnd()) {
-		IterateTableRowForJoin(nextTableItr, whereFormula);
+		if (!lastTable)
+			IterateTableRowForJoin(nextTableItr, whereFormula);
+		else
+			doJoineOneRow(whereFormula);
 		tableElement->rowIteratorInc();
 	}
 }

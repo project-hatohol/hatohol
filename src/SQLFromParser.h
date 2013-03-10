@@ -91,6 +91,7 @@ protected:
 	                             string &tableName, string &columnName);
 	void parseInnerJoinLeftField(const string &fieldName);
 	void parseInnerJoinRightField(const string &fieldName);
+	void doJoineOneRow(FormulaElement *whereFormula);
 	void IterateTableRowForJoin(SQLTableElementListIterator tableItr,
 	                            FormulaElement *whereFormula);
 
