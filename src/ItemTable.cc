@@ -42,6 +42,8 @@ struct ItemTable::InnerJoinArg
 // Public methods
 // ---------------------------------------------------------------------------
 ItemTable::ItemTable(void)
+: m_indexVector(NULL),
+  m_multiIndexVector(NULL)
 {
 }
 
@@ -52,6 +54,10 @@ ItemTable::ItemTable(const ItemTable &itemTable)
 	for (; it != itemTable.m_groupList.end(); ++it)
 		m_groupList.push_back(*it);
 	itemTable.readUnlock();
+	if (m_indexVector)
+		delete m_indexVector;
+	if (m_multiIndexVector)
+		delete m_indexVector;
 }
 
 ItemGroup *ItemTable::addNewGroup(void)

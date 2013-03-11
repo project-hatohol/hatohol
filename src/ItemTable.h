@@ -23,6 +23,7 @@ using namespace std;
 
 #include "UsedCountable.h"
 #include "ItemGroup.h"
+#include "ItemDataUtils.h"
 
 class ItemTable;
 typedef map<ItemGroupId, ItemTable *>       ItemGroupIdTableMap;
@@ -87,6 +88,8 @@ protected:
 
 private:
 	ItemGroupList m_groupList;
+	ItemDataSet       *m_indexVector;
+	ItemDataMultiSet  *m_multiIndexVector;
 };
 
 #endif  // ItemTable_h
