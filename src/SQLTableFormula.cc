@@ -326,10 +326,17 @@ ItemGroupPtr SQLTableInnerJoin::getActiveRow(void)
 		m_indexRightJoinColumn +=
 		  rightFormula->getColumnIndexOffset(m_rightTableName);
 	}
-	ItemData *leftData =
-	  leftFormula->getActiveRow()->getItemAt(m_indexLeftJoinColumn);
-	ItemData *rightData =
-	  rightFormula->getActiveRow()->getItemAt(m_indexRightJoinColumn);
+
+
+	ItemGroupPtr leftGrpPtr = leftFormula->getActiveRow();
+	if (!leftGrpPtr.hasData())
+		return leftGrpPtr;
+	ItemData *leftData = leftGrpPtr->getItemAt(m_indexLeftJoinColumn);
+	ItemGroupPtr rightGrpPtr = rightFormula->getActiveRow();
+	ItemData *rightData = rightGrpPtr->getItemAt(m_indexRightJoinColumn);
+	if (!rightGrpPtr.hasData())
+		return rightGrpPtr;
+
 	if (*leftData != *rightData)
 		return ItemGroupPtr(NULL);
 
