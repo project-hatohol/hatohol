@@ -263,6 +263,8 @@ void SQLFromParser::doJoineOneRow(FormulaElement *whereFormula)
 	if (!shouldAdd)
 		return;
 	ItemGroupPtr activeRow = m_ctx->tableFormula->getActiveRow();
+	if (!activeRow.hasData())
+		return;
 	activeRow->freeze();
 	m_ctx->joinedTable->add(activeRow);
 }

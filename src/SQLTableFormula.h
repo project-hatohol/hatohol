@@ -52,6 +52,15 @@ public:
 
 	virtual ~SQLTableFormula();
 	virtual ItemTablePtr getTable(void) = 0;
+
+	/**
+	 * Return the active row, which is the currently selected row on
+	 * the calculation of join.
+	 *
+	 * @return An active row on success. If there is no active row,
+	 *         return ItemGroupPtr::hasData() is false. This typically
+	 *         happens when the condition on the join is not satisfied.
+	 */
 	virtual ItemGroupPtr getActiveRow(void) = 0;
 	virtual size_t getColumnIndexOffset(const string &tableName);
 	const TableSizeInfoVector &getTableSizeInfoVector(void);
