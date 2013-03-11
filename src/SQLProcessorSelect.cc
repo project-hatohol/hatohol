@@ -251,10 +251,9 @@ public:
 	}
 
 	/*
-	 * getDataFromJoinedTable() is not used now. If this is used,
-	 * replace getDataOfActiveRow() in the getData() with this,
-	 * and enables doJoin() and selectMatchingRows() instead of
-	 * doJoinWithFromParser().
+	 * getDataFromJoinedTable() is used when text output is created.
+	 * At the one time, it was used to calculation of join. Now it
+	 * is replaced by getDataOfActiveRow().
 	 */
 	virtual ItemDataPtr getDataFromJoinedTable(void)
 	{
