@@ -23,7 +23,6 @@ using namespace std;
 
 #include "ItemDataPtr.h"
 #include "ItemEnum.h"
-#include "ItemTablePtr.h"
 
 class ItemDataUtils {
 public:
@@ -39,8 +38,6 @@ struct ItemDataPtrComparator {
 };
 
 typedef set<ItemDataPtr, ItemDataPtrComparator> ItemDataSet;
-typedef map<ItemDataPtr, ItemTablePtr, ItemDataPtrComparator> ItemDataTableMap;
-typedef ItemDataTableMap::iterator ItemDataTableMapIterator;
 
 #endif // ItemDataUtils_h
 
