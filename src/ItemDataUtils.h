@@ -38,6 +38,7 @@ struct ItemDataPtrComparator {
 };
 
 typedef set<ItemDataPtr, ItemDataPtrComparator> ItemDataSet;
+typedef multiset<ItemDataPtr, ItemDataPtrComparator> ItemDataMultiSet;
 
 #endif // ItemDataUtils_h
 
