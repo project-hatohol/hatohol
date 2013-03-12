@@ -78,29 +78,67 @@ enum {
 
 static const size_t NUM_COLUMN0_DEFS = 2;
 static ColumnDef COLUMN0_DEFS[NUM_COLUMN0_DEFS] = {
-  {ITEM_ID_NUMBER, TABLE0_NAME, COLUMN_NAME_NUMBER, SQL_COLUMN_TYPE_INT, 11, 0},
-  {ITEM_ID_NAME,   TABLE0_NAME, COLUMN_NAME_NAME,   SQL_COLUMN_TYPE_VARCHAR, 20, 0},
+  {
+    ITEM_ID_NUMBER, TABLE0_NAME, COLUMN_NAME_NUMBER,
+    SQL_COLUMN_TYPE_INT, 11, 0, /* columnLength,, decFracLength */
+    false, /* canbeNull */ 
+    SQL_KEY_NONE, 0 /* falgs */
+  }, {
+    ITEM_ID_NAME, TABLE0_NAME, COLUMN_NAME_NAME,
+    SQL_COLUMN_TYPE_VARCHAR, 20, 0, /* columnLength,, decFracLength */
+    false, /* canbeNull */ 
+    SQL_KEY_NONE, 0 /* falgs */
+  },
 };
 
 static const size_t NUM_COLUMN1_DEFS = 3;
 static ColumnDef COLUMN1_DEFS[NUM_COLUMN1_DEFS] = {
-  {ITEM_ID_AGE,    TABLE1_NAME, COLUMN_NAME_AGE,    SQL_COLUMN_TYPE_INT, 11, 0},
-  {ITEM_ID_ANIMAL, TABLE1_NAME, COLUMN_NAME_ANIMAL, SQL_COLUMN_TYPE_VARCHAR, 20, 0},
-  {ITEM_ID_FOOD,   TABLE1_NAME, COLUMN_NAME_FOOD,   SQL_COLUMN_TYPE_VARCHAR, 20, 0},
+  {
+    ITEM_ID_AGE, TABLE1_NAME, COLUMN_NAME_AGE,
+    SQL_COLUMN_TYPE_INT, 11, 0, /* columnLength,, decFracLength */
+    false, /* canbeNull */ 
+    SQL_KEY_NONE, 0 /* falgs */
+  }, {
+    ITEM_ID_ANIMAL, TABLE1_NAME, COLUMN_NAME_ANIMAL,
+    SQL_COLUMN_TYPE_VARCHAR, 20, 0, /* columnLength,, decFracLength */
+    false, /* canbeNull */ 
+    SQL_KEY_NONE, 0 /* falgs */
+  }, {
+    ITEM_ID_FOOD, TABLE1_NAME, COLUMN_NAME_FOOD,
+    SQL_COLUMN_TYPE_VARCHAR, 20, 0, /* columnLength,, decFracLength */
+    false, /* canbeNull */ 
+    SQL_KEY_NONE, 0 /* falgs */
+  },
 };
 
 static const size_t NUM_COLUMN2_DEFS = 2;
 static ColumnDef COLUMN2_DEFS[NUM_COLUMN2_DEFS] = {
-  {ITEM_ID_MENTAL_AGE, TABLE2_NAME, COLUMN_NAME_MENTAL_AGE,
-   SQL_COLUMN_TYPE_INT, 11, 0},
-  {ITEM_ID_FAVORITE,   TABLE2_NAME, COLUMN_NAME_FAVORITE,
-   SQL_COLUMN_TYPE_VARCHAR, 20, 0},
+  {
+    ITEM_ID_MENTAL_AGE, TABLE2_NAME, COLUMN_NAME_MENTAL_AGE,
+    SQL_COLUMN_TYPE_INT, 11, 0, /* columnLength,, decFracLength */
+    false, /* canbeNull */ 
+    SQL_KEY_NONE, 0 /* falgs */
+  }, {
+    ITEM_ID_FAVORITE, TABLE2_NAME, COLUMN_NAME_FAVORITE,
+    SQL_COLUMN_TYPE_VARCHAR, 20, 0, /* columnLength,, decFracLength */
+    false, /* canbeNull */ 
+    SQL_KEY_NONE, 0 /* falgs */
+  },
 };
 
 static const size_t NUM_COLUMN_Z_DEFS = 2;
 static ColumnDef COLUMN_Z_DEFS[NUM_COLUMN_Z_DEFS] = {
-  {ITEM_ID_Z_NUM, TABLE_Z_NAME, COLUMN_NAME_Z_NUM, SQL_COLUMN_TYPE_INT, 11, 0},
-  {ITEM_ID_Z_STR, TABLE_Z_NAME, COLUMN_NAME_Z_STR, SQL_COLUMN_TYPE_VARCHAR, 20, 0},
+  {
+    ITEM_ID_Z_NUM, TABLE_Z_NAME, COLUMN_NAME_Z_NUM,
+    SQL_COLUMN_TYPE_INT, 11, 0, /* columnLength,, decFracLength */
+    false, /* canbeNull */ 
+    SQL_KEY_NONE, 0 /* falgs */
+  }, {
+    ITEM_ID_Z_STR, TABLE_Z_NAME, COLUMN_NAME_Z_STR,
+    SQL_COLUMN_TYPE_VARCHAR, 20, 0, /* columnLength,, decFracLength */
+    false, /* canbeNull */ 
+    SQL_KEY_NONE, 0 /* falgs */
+  },
 };
 
 //
