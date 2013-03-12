@@ -366,7 +366,7 @@ void ArmZabbixAPI::pushFunctionsCache(JsonParserAgent &parser)
 		ItemId id = ITEM_ID_ZBX_FUNCTIONS_TRIGGERID;
 		itemGroup->add(new ItemUint64(id, m_ctx->triggerid), false);
 		pushFunctionsCacheOne(parser, itemGroup, i);
-		m_ctx->functionsTablePtr->add(itemGroup, false);
+		m_ctx->functionsTablePtr->add(itemGroup);
 	}
 	parser.endObject();
 }
