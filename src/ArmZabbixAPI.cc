@@ -362,10 +362,11 @@ void ArmZabbixAPI::pushFunctionsCache(JsonParserAgent &parser)
 	startObject(parser, "functions");
 	int numFunctions = parser.countElements();
 	for (int i = 0; i < numFunctions; i++) {
-		ItemGroup *itemGroup = m_ctx->functionsTablePtr->addNewGroup();
+		ItemGroupPtr itemGroup;
 		ItemId id = ITEM_ID_ZBX_FUNCTIONS_TRIGGERID;
 		itemGroup->add(new ItemUint64(id, m_ctx->triggerid), false);
 		pushFunctionsCacheOne(parser, itemGroup, i);
+		m_ctx->functionsTablePtr->add(itemGroup, false);
 	}
 	parser.endObject();
 }
@@ -374,7 +375,7 @@ void ArmZabbixAPI::parseAndPushTriggerData(JsonParserAgent &parser,
                                            ItemTablePtr &tablePtr, int index)
 {
 	startElement(parser, index);
-	ItemGroup *grp = tablePtr->addNewGroup();
+	ItemGroupPtr grp;
 	m_ctx->triggerid =
 	  pushUint64(parser, grp, "triggerid", ITEM_ID_ZBX_TRIGGERS_TRIGGERID);
 	pushString(parser, grp, "expression",  ITEM_ID_ZBX_TRIGGERS_EXPRESSION);
@@ -390,6 +391,7 @@ void ArmZabbixAPI::parseAndPushTriggerData(JsonParserAgent &parser,
 	pushInt   (parser, grp, "type",        ITEM_ID_ZBX_TRIGGERS_TYPE);
 	pushInt   (parser, grp, "value_flags", ITEM_ID_ZBX_TRIGGERS_VALUE_FLAGS);
 	pushInt   (parser, grp, "flags",       ITEM_ID_ZBX_TRIGGERS_FLAGS);
+	tablePtr->add(grp);
 
 	// get functions
 	pushFunctionsCache(parser);
@@ -401,7 +403,7 @@ void ArmZabbixAPI::parseAndPushItemsData(JsonParserAgent &parser,
                                          ItemTablePtr &tablePtr, int index)
 {
 	startElement(parser, index);
-	ItemGroup *grp = tablePtr->addNewGroup();
+	ItemGroupPtr grp;
 	pushUint64(parser, grp, "itemid",       ITEM_ID_ZBX_ITEMS_ITEMID);
 	pushInt   (parser, grp, "type",         ITEM_ID_ZBX_ITEMS_TYPE);
 	pushString(parser, grp, "snmp_community",
@@ -459,6 +461,7 @@ void ArmZabbixAPI::parseAndPushItemsData(JsonParserAgent &parser,
 	pushInt   (parser, grp, "inventory_link",
 	           ITEM_ID_ZBX_ITEMS_INVENTORY_LINK);
 	pushString(parser, grp, "lifetime",    ITEM_ID_ZBX_ITEMS_LIFETIME);
+	tablePtr->add(grp);
 
 	parser.endElement();
 }
@@ -467,7 +470,7 @@ void ArmZabbixAPI::parseAndPushHostsData(JsonParserAgent &parser,
                                          ItemTablePtr &tablePtr, int index)
 {
 	startElement(parser, index);
-	ItemGroup *grp = tablePtr->addNewGroup();
+	ItemGroupPtr grp;
 	pushUint64(parser, grp, "hostid",       ITEM_ID_ZBX_HOSTS_HOSTID);
 	pushUint64(parser, grp, "proxy_hostid", ITEM_ID_ZBX_HOSTS_PROXY_HOSTID);
 	pushString(parser, grp, "host",         ITEM_ID_ZBX_HOSTS_HOST);
@@ -516,6 +519,7 @@ void ArmZabbixAPI::parseAndPushHostsData(JsonParserAgent &parser,
 	           ITEM_ID_ZBX_HOSTS_JMX_ERRORS_FROM);
 	pushString(parser, grp, "jmx_error", ITEM_ID_ZBX_HOSTS_JMX_ERROR);
 	pushString(parser, grp, "name",      ITEM_ID_ZBX_HOSTS_NAME);
+	tablePtr->add(grp);
 	parser.endElement();
 }
 

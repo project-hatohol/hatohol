@@ -60,23 +60,14 @@ ItemTable::ItemTable(const ItemTable &itemTable)
 	}
 }
 
-ItemGroup *ItemTable::addNewGroup(void)
-{
-	ItemGroup *grp = new ItemGroup();
-	add(grp, false);
-	return grp;
-}
-
 void ItemTable::add(ItemGroup *group, bool doRef)
 {
+	if (!group->isFreezed())
+		group->freeze();
+
 	writeLock();
 	if (!m_groupList.empty()) {
 		ItemGroup *tail = m_groupList.back();
-		if (!freezeTailGroupIfFirstGroup(tail)) {
-			writeUnlock();
-			THROW_ASURA_EXCEPTION(
-			  "Failed to freeze the tail group.");
-		}
 		const ItemGroupType *groupType0 = tail->getItemGroupType();
 		const ItemGroupType *groupType1 = group->getItemGroupType();
 		if (groupType1 == NULL) {
@@ -258,24 +249,11 @@ ItemTable::~ItemTable()
 	}
 }
 
-bool ItemTable::freezeTailGroupIfFirstGroup(ItemGroup *tail)
-{
-	if (tail->isFreezed())
-		return true;
-
-	size_t numList = m_groupList.size();
-	if (numList == 1) {
-		tail->freeze();
-		return true;
-	}
-	return false;
-}
-
 void ItemTable::joinForeachCore(ItemTable *newTable,
                                 const ItemGroup *itemGroupLTable,
                                 const ItemGroup *itemGroupRTable)
 {
-	ItemGroup *newGroup = newTable->addNewGroup();
+	ItemGroupPtr newGroup;
 	const ItemGroup *itemGroupArray[] = {
 	  itemGroupLTable, itemGroupRTable, NULL};
 	for (size_t index = 0; itemGroupArray[index] != NULL; index++) {
@@ -284,6 +262,7 @@ void ItemTable::joinForeachCore(ItemTable *newTable,
 		for (size_t i = 0; i < numItems; i++)
 			newGroup->add(itemGroup->getItemAt(i));
 	}
+	newTable->add(newGroup);
 }
 
 bool ItemTable::crossJoinForeachRTable(const ItemGroup *itemGroupRTable,

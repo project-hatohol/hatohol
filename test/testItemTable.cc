@@ -121,14 +121,6 @@ void test_constructor(void)
 	cppcut_assert_equal(1, x_table->getUsedCount());
 }
 
-void test_addNewGroup(void)
-{
-	x_table = new ItemTable();
-	ItemGroup *grp = x_table->addNewGroup();
-	cut_assert_not_null(grp);
-	cppcut_assert_equal(1, grp->getUsedCount());
-}
-
 void test_addNoRef(void)
 {
 	x_table = new ItemTable();
@@ -151,10 +143,10 @@ void test_getNumberOfRows(void)
 	x_table = new ItemTable();
 	cut_assert_equal_int(0, x_table->getNumberOfRows());
 
-	ItemGroup *grp = x_table->addNewGroup();
+	x_table->add(new ItemGroup(), false);
 	cut_assert_equal_int(1, x_table->getNumberOfRows());
 
-	grp = x_table->addNewGroup();
+	x_table->add(new ItemGroup(), false);
 	cut_assert_equal_int(2, x_table->getNumberOfRows());
 }
 
@@ -163,48 +155,55 @@ void test_getNumberOfColumns(void)
 	x_table = new ItemTable();
 	cut_assert_equal_int(0, x_table->getNumberOfColumns());
 
-	ItemGroup *grp = x_table->addNewGroup();
+	x_table->add(new ItemGroup(), false);
 	cut_assert_equal_int(0, x_table->getNumberOfColumns());
 }
 
 void test_addWhenHasMoreThanOneGroup(void)
 {
 	x_table = new ItemTable();
-	ItemGroup *grp = x_table->addNewGroup();
+	ItemGroup *grp = new ItemGroup();
 	grp->add(new ItemInt(ITEM_ID_0, 500), false);
 	grp->add(new ItemString(ITEM_ID_1, "foo"), false);
+	x_table->add(grp, false);
 
 	// add second group
-	grp = x_table->addNewGroup();
+	grp = new ItemGroup();
 	const ItemGroupType *itemGroupType = grp->getItemGroupType();
+	cut_assert_null(itemGroupType);
+
+	grp->add(new ItemInt(ITEM_ID_0, 500), false);
+	grp->add(new ItemString(ITEM_ID_1, "foo"), false);
+	x_table->add(grp, false);
+
+	itemGroupType = grp->getItemGroupType();
 	cut_assert_not_null(itemGroupType);
 	cppcut_assert_equal(ITEM_TYPE_INT, itemGroupType->getType(0));
 	cppcut_assert_equal(ITEM_TYPE_STRING, itemGroupType->getType(1));
 
-	// add items
-	grp->add(new ItemInt(ITEM_ID_0, 500), false);
-	grp->add(new ItemString(ITEM_ID_1, "foo"), false);
-
 	// add thrid group
-	grp = x_table->addNewGroup();
+	grp = new ItemGroup();
 	grp->add(new ItemInt(ITEM_ID_0, -20), false);
 	grp->add(new ItemString(ITEM_ID_1, "dog"), false);
+	x_table->add(grp, false);
 	cppcut_assert_equal((size_t)3, x_table->getNumberOfRows());
 }
 
 void test_addInvalidItemsWhenHasMoreThanOneGroup(void)
 {
 	x_table = new ItemTable();
-	ItemGroup *grp = x_table->addNewGroup();
+	ItemGroup *grp = new ItemGroup();
 	grp->add(new ItemInt(ITEM_ID_0, 500), false);
 	grp->add(new ItemString(ITEM_ID_1, "foo"), false);
+	x_table->add(grp, false);
 
 	// add second group
-	grp = x_table->addNewGroup();
+	grp = new ItemGroup();
 	ItemData *item = new ItemString(ITEM_ID_1, "foo");
 	bool gotException = false;
 	try {
 		grp->add(item, false);
+		x_table->add(grp, false);
 	} catch (const AsuraException &e) {
 		item->unref();
 		gotException = true;
@@ -215,12 +214,13 @@ void test_addInvalidItemsWhenHasMoreThanOneGroup(void)
 void test_addItemsWhenPreviousGroupIncompletion(void)
 {
 	x_table = new ItemTable();
-	ItemGroup *grp = x_table->addNewGroup();
+	ItemGroup *grp = new ItemGroup();
 	grp->add(new ItemInt(ITEM_ID_0, 500), false);
 	grp->add(new ItemString(ITEM_ID_1, "foo"), false);
+	x_table->add(grp, false);
 
 	// add second group
-	grp = x_table->addNewGroup();
+	grp = new ItemGroup();
 	grp->add(new ItemInt(ITEM_ID_0, 200), false);
 
 	// add thrid group
@@ -228,6 +228,7 @@ void test_addItemsWhenPreviousGroupIncompletion(void)
 	ItemData *item = new ItemInt(ITEM_ID_0, -5);
 	try {
 		grp->add(item, false);
+		x_table->add(grp, false);
 	} catch (const AsuraException &e) {
 		item->unref();
 		gotException = true;

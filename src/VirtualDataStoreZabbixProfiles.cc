@@ -49,8 +49,8 @@ void VirtualDataStoreZabbix::registerProfiles(ItemTable *table)
 
 void register01(ItemTable *table)
 {
-	ItemGroup *grp;
-	grp = table->addNewGroup();
+	ItemGroupPtr grp;
+	grp = ItemGroupPtr();
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_PROFILEID, 1));
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_USERID,    1));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_IDX, "web.menu.view.last"));
@@ -60,8 +60,9 @@ void register01(ItemTable *table)
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_VALUE_STR, "tr_status.php"));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_SOURCE,    ""));
 	ADD(new ItemInt(ITEM_ID_ZBX_PROFILES_TYPE,         3));
+	table->add(grp);
 
-	grp = table->addNewGroup();
+	grp = ItemGroupPtr();
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_PROFILEID, 2));
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_USERID,    1));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_IDX, "web.paging.lastpage"));
@@ -71,8 +72,9 @@ void register01(ItemTable *table)
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_VALUE_STR, "tr_status.php"));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_SOURCE,    ""));
 	ADD(new ItemInt(ITEM_ID_ZBX_PROFILES_TYPE,         3));
+	table->add(grp);
 
-	grp = table->addNewGroup();
+	grp = ItemGroupPtr();
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_PROFILEID, 3));
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_USERID,    1));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_IDX, "web.menu.cm.last"));
@@ -82,8 +84,9 @@ void register01(ItemTable *table)
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_VALUE_STR, "hostinventoriesoverview.php"));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_SOURCE,    ""));
 	ADD(new ItemInt(ITEM_ID_ZBX_PROFILES_TYPE,         3));
+	table->add(grp);
 
-	grp = table->addNewGroup();
+	grp = ItemGroupPtr();
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_PROFILEID, 4));
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_USERID,    1));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_IDX, "web.hostinventoriesoverview.php.sort"));
@@ -93,8 +96,9 @@ void register01(ItemTable *table)
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_VALUE_STR, "host_count"));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_SOURCE,    ""));
 	ADD(new ItemInt(ITEM_ID_ZBX_PROFILES_TYPE,         3));
+	table->add(grp);
 
-	grp = table->addNewGroup();
+	grp = ItemGroupPtr();
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_PROFILEID, 5));
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_USERID,    1));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_IDX, "web.hostinventoriesoverview.php.sortorder"));
@@ -104,8 +108,9 @@ void register01(ItemTable *table)
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_VALUE_STR, "DESC"));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_SOURCE,    ""));
 	ADD(new ItemInt(ITEM_ID_ZBX_PROFILES_TYPE,         3));
+	table->add(grp);
 
-	grp = table->addNewGroup();
+	grp = ItemGroupPtr();
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_PROFILEID, 6));
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_USERID,    1));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_IDX, "web.cm.groupid"));
@@ -115,8 +120,9 @@ void register01(ItemTable *table)
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_VALUE_STR, ""));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_SOURCE,    ""));
 	ADD(new ItemInt(ITEM_ID_ZBX_PROFILES_TYPE,         1));
+	table->add(grp);
 
-	grp = table->addNewGroup();
+	grp = ItemGroupPtr();
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_PROFILEID, 7));
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_USERID,    1));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_IDX, "web.latest.groupid"));
@@ -126,8 +132,9 @@ void register01(ItemTable *table)
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_VALUE_STR, ""));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_SOURCE,    ""));
 	ADD(new ItemInt(ITEM_ID_ZBX_PROFILES_TYPE,         1));
+	table->add(grp);
 
-	grp = table->addNewGroup();
+	grp = ItemGroupPtr();
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_PROFILEID, 8));
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_USERID,    1));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_IDX, "web.discovery.php.sort"));
@@ -137,8 +144,9 @@ void register01(ItemTable *table)
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_VALUE_STR, "ip"));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_SOURCE,    ""));
 	ADD(new ItemInt(ITEM_ID_ZBX_PROFILES_TYPE,         3));
+	table->add(grp);
 
-	grp = table->addNewGroup();
+	grp = ItemGroupPtr();
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_PROFILEID, 9));
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_USERID,    1));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_IDX, "web.discovery.php.sortorder"));
@@ -148,8 +156,9 @@ void register01(ItemTable *table)
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_VALUE_STR, "DESC"));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_SOURCE,    ""));
 	ADD(new ItemInt(ITEM_ID_ZBX_PROFILES_TYPE,         3));
+	table->add(grp);
 
-	grp = table->addNewGroup();
+	grp = ItemGroupPtr();
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_PROFILEID, 10));
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_USERID,    1));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_IDX, "web.view.druleid"));
@@ -159,12 +168,13 @@ void register01(ItemTable *table)
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_VALUE_STR, ""));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_SOURCE,    ""));
 	ADD(new ItemInt(ITEM_ID_ZBX_PROFILES_TYPE,         1));
+	table->add(grp);
 }
 
 void register02(ItemTable *table)
 {
-	ItemGroup *grp;
-	grp = table->addNewGroup();
+	ItemGroupPtr grp;
+	grp = ItemGroupPtr();
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_PROFILEID, 11));
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_USERID,    1));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_IDX, "web.latest.druleid"));
@@ -174,8 +184,9 @@ void register02(ItemTable *table)
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_VALUE_STR, ""));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_SOURCE,    ""));
 	ADD(new ItemInt(ITEM_ID_ZBX_PROFILES_TYPE,         1));
+	table->add(grp);
 
-	grp = table->addNewGroup();
+	grp = ItemGroupPtr();
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_PROFILEID, 12));
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_USERID,    1));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_IDX, "web.view.groupid"));
@@ -185,8 +196,9 @@ void register02(ItemTable *table)
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_VALUE_STR, ""));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_SOURCE,    ""));
 	ADD(new ItemInt(ITEM_ID_ZBX_PROFILES_TYPE,         1));
+	table->add(grp);
 
-	grp = table->addNewGroup();
+	grp = ItemGroupPtr();
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_PROFILEID, 13));
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_USERID,    1));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_IDX, "web.menu.reports.last"));
@@ -196,8 +208,9 @@ void register02(ItemTable *table)
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_VALUE_STR, "report1.php"));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_SOURCE,    ""));
 	ADD(new ItemInt(ITEM_ID_ZBX_PROFILES_TYPE,         3));
+	table->add(grp);
 
-	grp = table->addNewGroup();
+	grp = ItemGroupPtr();
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_PROFILEID, 14));
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_USERID,    1));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_IDX, "web.menu.admin.last"));
@@ -207,8 +220,9 @@ void register02(ItemTable *table)
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_VALUE_STR, "adm.gui.php"));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_SOURCE,    ""));
 	ADD(new ItemInt(ITEM_ID_ZBX_PROFILES_TYPE,         3));
+	table->add(grp);
 
-	grp = table->addNewGroup();
+	grp = ItemGroupPtr();
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_PROFILEID, 15));
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_USERID,    1));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_IDX, "web.proxies.php.sort"));
@@ -218,8 +232,9 @@ void register02(ItemTable *table)
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_VALUE_STR, "host"));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_SOURCE,    ""));
 	ADD(new ItemInt(ITEM_ID_ZBX_PROFILES_TYPE,         3));
+	table->add(grp);
 
-	grp = table->addNewGroup();
+	grp = ItemGroupPtr();
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_PROFILEID, 16));
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_USERID,    1));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_IDX, "web.proxies.php.sortorder"));
@@ -229,8 +244,9 @@ void register02(ItemTable *table)
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_VALUE_STR, "ASC"));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_SOURCE,    ""));
 	ADD(new ItemInt(ITEM_ID_ZBX_PROFILES_TYPE,         3));
+	table->add(grp);
 
-	grp = table->addNewGroup();
+	grp = ItemGroupPtr();
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_PROFILEID, 17));
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_USERID,    1));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_IDX, "web.paging.page"));
@@ -240,8 +256,9 @@ void register02(ItemTable *table)
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_VALUE_STR, ""));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_SOURCE,    ""));
 	ADD(new ItemInt(ITEM_ID_ZBX_PROFILES_TYPE,         2));
+	table->add(grp);
 
-	grp = table->addNewGroup();
+	grp = ItemGroupPtr();
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_PROFILEID, 18));
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_USERID,    1));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_IDX, "web.menu.config.last"));
@@ -251,8 +268,9 @@ void register02(ItemTable *table)
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_VALUE_STR, "templates.php"));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_SOURCE,    ""));
 	ADD(new ItemInt(ITEM_ID_ZBX_PROFILES_TYPE,         3));
+	table->add(grp);
 
-	grp = table->addNewGroup();
+	grp = ItemGroupPtr();
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_PROFILEID, 19));
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_USERID,    1));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_IDX, "web.hostgroups.php.sort"));
@@ -262,8 +280,9 @@ void register02(ItemTable *table)
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_VALUE_STR, "name"));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_SOURCE,    ""));
 	ADD(new ItemInt(ITEM_ID_ZBX_PROFILES_TYPE,         3));
+	table->add(grp);
 
-	grp = table->addNewGroup();
+	grp = ItemGroupPtr();
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_PROFILEID, 20));
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_USERID,    1));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_IDX, "web.hostgroups.php.sortorder"));
@@ -273,12 +292,13 @@ void register02(ItemTable *table)
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_VALUE_STR, "ASC"));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_SOURCE,    ""));
 	ADD(new ItemInt(ITEM_ID_ZBX_PROFILES_TYPE,         3));
+	table->add(grp);
 }
 
 void register03(ItemTable *table)
 {
-	ItemGroup *grp;
-	grp = table->addNewGroup();
+	ItemGroupPtr grp;
+	grp = ItemGroupPtr();
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_PROFILEID, 21));
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_USERID,    1));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_IDX, "web.hosts.php.sort"));
@@ -288,8 +308,9 @@ void register03(ItemTable *table)
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_VALUE_STR, "name"));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_SOURCE,    ""));
 	ADD(new ItemInt(ITEM_ID_ZBX_PROFILES_TYPE,         3));
+	table->add(grp);
 
-	grp = table->addNewGroup();
+	grp = ItemGroupPtr();
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_PROFILEID, 22));
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_USERID,    1));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_IDX, "web.hosts.php.sortorder"));
@@ -299,8 +320,9 @@ void register03(ItemTable *table)
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_VALUE_STR, "ASC"));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_SOURCE,    ""));
 	ADD(new ItemInt(ITEM_ID_ZBX_PROFILES_TYPE,         3));
+	table->add(grp);
 
-	grp = table->addNewGroup();
+	grp = ItemGroupPtr();
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_PROFILEID, 23));
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_USERID,    1));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_IDX, "web.config.groupid"));
@@ -310,8 +332,9 @@ void register03(ItemTable *table)
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_VALUE_STR, ""));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_SOURCE,    ""));
 	ADD(new ItemInt(ITEM_ID_ZBX_PROFILES_TYPE,         1));
+	table->add(grp);
 
-	grp = table->addNewGroup();
+	grp = ItemGroupPtr();
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_PROFILEID, 24));
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_USERID,    1));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_IDX, "web.overview.view.style"));
@@ -321,8 +344,9 @@ void register03(ItemTable *table)
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_VALUE_STR, ""));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_SOURCE,    ""));
 	ADD(new ItemInt(ITEM_ID_ZBX_PROFILES_TYPE,         2));
+	table->add(grp);
 
-	grp = table->addNewGroup();
+	grp = ItemGroupPtr();
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_PROFILEID, 25));
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_USERID,    1));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_IDX, "web.overview.type"));
@@ -332,8 +356,9 @@ void register03(ItemTable *table)
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_VALUE_STR, ""));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_SOURCE,    ""));
 	ADD(new ItemInt(ITEM_ID_ZBX_PROFILES_TYPE,         2));
+	table->add(grp);
 
-	grp = table->addNewGroup();
+	grp = ItemGroupPtr();
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_PROFILEID, 26));
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_USERID,    1));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_IDX, "web.httpmon.php.sort"));
@@ -343,8 +368,9 @@ void register03(ItemTable *table)
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_VALUE_STR, "wt.name"));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_SOURCE,    ""));
 	ADD(new ItemInt(ITEM_ID_ZBX_PROFILES_TYPE,         3));
+	table->add(grp);
 
-	grp = table->addNewGroup();
+	grp = ItemGroupPtr();
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_PROFILEID, 27));
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_USERID,    1));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_IDX, "web.httpmon.php.sortorder"));
@@ -354,8 +380,9 @@ void register03(ItemTable *table)
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_VALUE_STR, "DESC"));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_SOURCE,    ""));
 	ADD(new ItemInt(ITEM_ID_ZBX_PROFILES_TYPE,         3));
+	table->add(grp);
 
-	grp = table->addNewGroup();
+	grp = ItemGroupPtr();
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_PROFILEID, 28));
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_USERID,    1));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_IDX, "web.latest.php.sort"));
@@ -365,8 +392,9 @@ void register03(ItemTable *table)
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_VALUE_STR, "i.name"));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_SOURCE,    ""));
 	ADD(new ItemInt(ITEM_ID_ZBX_PROFILES_TYPE,         3));
+	table->add(grp);
 
-	grp = table->addNewGroup();
+	grp = ItemGroupPtr();
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_PROFILEID, 29));
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_USERID,    1));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_IDX, "web.latest.php.sortorder"));
@@ -376,8 +404,9 @@ void register03(ItemTable *table)
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_VALUE_STR, "ASC"));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_SOURCE,    ""));
 	ADD(new ItemInt(ITEM_ID_ZBX_PROFILES_TYPE,         3));
+	table->add(grp);
 
-	grp = table->addNewGroup();
+	grp = ItemGroupPtr();
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_PROFILEID, 30));
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_USERID,    1));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_IDX, "web.slideconf.php.sort"));
@@ -387,12 +416,13 @@ void register03(ItemTable *table)
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_VALUE_STR, "name"));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_SOURCE,    ""));
 	ADD(new ItemInt(ITEM_ID_ZBX_PROFILES_TYPE,         3));
+	table->add(grp);
 }
 
 void register04(ItemTable *table)
 {
-	ItemGroup *grp;
-	grp = table->addNewGroup();
+	ItemGroupPtr grp;
+	grp = ItemGroupPtr();
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_PROFILEID, 31));
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_USERID,    1));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_IDX, "web.slideconf.php.sortorder"));
@@ -402,8 +432,9 @@ void register04(ItemTable *table)
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_VALUE_STR, "ASC"));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_SOURCE,    ""));
 	ADD(new ItemInt(ITEM_ID_ZBX_PROFILES_TYPE,         3));
+	table->add(grp);
 
-	grp = table->addNewGroup();
+	grp = ItemGroupPtr();
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_PROFILEID, 32));
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_USERID,    1));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_IDX, "web.screenconf.php.sort"));
@@ -413,8 +444,9 @@ void register04(ItemTable *table)
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_VALUE_STR, "name"));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_SOURCE,    ""));
 	ADD(new ItemInt(ITEM_ID_ZBX_PROFILES_TYPE,         3));
+	table->add(grp);
 
-	grp = table->addNewGroup();
+	grp = ItemGroupPtr();
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_PROFILEID, 33));
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_USERID,    1));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_IDX, "web.screenconf.php.sortorder"));
@@ -424,8 +456,9 @@ void register04(ItemTable *table)
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_VALUE_STR, "ASC"));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_SOURCE,    ""));
 	ADD(new ItemInt(ITEM_ID_ZBX_PROFILES_TYPE,         3));
+	table->add(grp);
 
-	grp = table->addNewGroup();
+	grp = ItemGroupPtr();
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_PROFILEID, 34));
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_USERID,    1));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_IDX, "web.screenconf.config"));
@@ -435,8 +468,9 @@ void register04(ItemTable *table)
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_VALUE_STR, ""));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_SOURCE,    ""));
 	ADD(new ItemInt(ITEM_ID_ZBX_PROFILES_TYPE,         2));
+	table->add(grp);
 
-	grp = table->addNewGroup();
+	grp = ItemGroupPtr();
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_PROFILEID, 35));
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_USERID,    1));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_IDX, "web.discoveryconf.php.sort"));
@@ -446,8 +480,9 @@ void register04(ItemTable *table)
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_VALUE_STR, "name"));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_SOURCE,    ""));
 	ADD(new ItemInt(ITEM_ID_ZBX_PROFILES_TYPE,         3));
+	table->add(grp);
 
-	grp = table->addNewGroup();
+	grp = ItemGroupPtr();
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_PROFILEID, 36));
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_USERID,    1));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_IDX, "web.discoveryconf.php.sortorder"));
@@ -457,8 +492,9 @@ void register04(ItemTable *table)
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_VALUE_STR, "ASC"));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_SOURCE,    ""));
 	ADD(new ItemInt(ITEM_ID_ZBX_PROFILES_TYPE,         3));
+	table->add(grp);
 
-	grp = table->addNewGroup();
+	grp = ItemGroupPtr();
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_PROFILEID, 37));
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_USERID,    1));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_IDX, "web.usergrps.php.sort"));
@@ -468,8 +504,9 @@ void register04(ItemTable *table)
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_VALUE_STR, "name"));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_SOURCE,    ""));
 	ADD(new ItemInt(ITEM_ID_ZBX_PROFILES_TYPE,         3));
+	table->add(grp);
 
-	grp = table->addNewGroup();
+	grp = ItemGroupPtr();
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_PROFILEID, 38));
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_USERID,    1));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_IDX, "web.usergrps.php.sortorder"));
@@ -479,8 +516,9 @@ void register04(ItemTable *table)
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_VALUE_STR, "ASC"));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_SOURCE,    ""));
 	ADD(new ItemInt(ITEM_ID_ZBX_PROFILES_TYPE,         3));
+	table->add(grp);
 
-	grp = table->addNewGroup();
+	grp = ItemGroupPtr();
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_PROFILEID, 39));
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_USERID,    1));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_IDX, "web.users.php.sort"));
@@ -490,8 +528,9 @@ void register04(ItemTable *table)
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_VALUE_STR, "alias"));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_SOURCE,    ""));
 	ADD(new ItemInt(ITEM_ID_ZBX_PROFILES_TYPE,         3));
+	table->add(grp);
 
-	grp = table->addNewGroup();
+	grp = ItemGroupPtr();
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_PROFILEID, 40));
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_USERID,    1));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_IDX, "web.users.php.sortorder"));
@@ -501,12 +540,13 @@ void register04(ItemTable *table)
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_VALUE_STR, "ASC"));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_SOURCE,    ""));
 	ADD(new ItemInt(ITEM_ID_ZBX_PROFILES_TYPE,         3));
+	table->add(grp);
 }
 
 void register05(ItemTable *table)
 {
-	ItemGroup *grp;
-	grp = table->addNewGroup();
+	ItemGroupPtr grp;
+	grp = ItemGroupPtr();
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_PROFILEID, 41));
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_USERID,    1));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_IDX, "web.users.filter.usrgrpid"));
@@ -516,8 +556,9 @@ void register05(ItemTable *table)
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_VALUE_STR, ""));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_SOURCE,    ""));
 	ADD(new ItemInt(ITEM_ID_ZBX_PROFILES_TYPE,         1));
+	table->add(grp);
 
-	grp = table->addNewGroup();
+	grp = ItemGroupPtr();
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_PROFILEID, 42));
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_USERID,    1));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_IDX, "web.tr_status.php.sort"));
@@ -527,8 +568,9 @@ void register05(ItemTable *table)
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_VALUE_STR, "lastchange"));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_SOURCE,    ""));
 	ADD(new ItemInt(ITEM_ID_ZBX_PROFILES_TYPE,         3));
+	table->add(grp);
 
-	grp = table->addNewGroup();
+	grp = ItemGroupPtr();
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_PROFILEID, 43));
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_USERID,    1));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_IDX, "web.tr_status.php.sortorder"));
@@ -538,8 +580,9 @@ void register05(ItemTable *table)
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_VALUE_STR, "DESC"));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_SOURCE,    ""));
 	ADD(new ItemInt(ITEM_ID_ZBX_PROFILES_TYPE,         3));
+	table->add(grp);
 
-	grp = table->addNewGroup();
+	grp = ItemGroupPtr();
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_PROFILEID, 44));
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_USERID,    1));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_IDX, "web.events.source"));
@@ -549,8 +592,9 @@ void register05(ItemTable *table)
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_VALUE_STR, ""));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_SOURCE,    ""));
 	ADD(new ItemInt(ITEM_ID_ZBX_PROFILES_TYPE,         2));
+	table->add(grp);
 
-	grp = table->addNewGroup();
+	grp = ItemGroupPtr();
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_PROFILEID, 45));
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_USERID,    1));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_IDX, "web.view.hostid"));
@@ -560,8 +604,9 @@ void register05(ItemTable *table)
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_VALUE_STR, ""));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_SOURCE,    ""));
 	ADD(new ItemInt(ITEM_ID_ZBX_PROFILES_TYPE,         1));
+	table->add(grp);
 
-	grp = table->addNewGroup();
+	grp = ItemGroupPtr();
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_PROFILEID, 46));
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_USERID,    1));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_IDX, "web.latest.hostid"));
@@ -571,8 +616,9 @@ void register05(ItemTable *table)
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_VALUE_STR, ""));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_SOURCE,    ""));
 	ADD(new ItemInt(ITEM_ID_ZBX_PROFILES_TYPE,         1));
+	table->add(grp);
 
-	grp = table->addNewGroup();
+	grp = ItemGroupPtr();
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_PROFILEID, 47));
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_USERID,    1));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_IDX, "web.item.graph.period"));
@@ -582,8 +628,9 @@ void register05(ItemTable *table)
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_VALUE_STR, ""));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_SOURCE,    ""));
 	ADD(new ItemInt(ITEM_ID_ZBX_PROFILES_TYPE,         2));
+	table->add(grp);
 
-	grp = table->addNewGroup();
+	grp = ItemGroupPtr();
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_PROFILEID, 48));
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_USERID,    1));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_IDX, "web.item.graph.stime"));
@@ -593,8 +640,9 @@ void register05(ItemTable *table)
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_VALUE_STR, "20121229103154"));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_SOURCE,    ""));
 	ADD(new ItemInt(ITEM_ID_ZBX_PROFILES_TYPE,         3));
+	table->add(grp);
 
-	grp = table->addNewGroup();
+	grp = ItemGroupPtr();
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_PROFILEID, 49));
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_USERID,    1));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_IDX, "web.item.graph.isnow"));
@@ -604,12 +652,13 @@ void register05(ItemTable *table)
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_VALUE_STR, ""));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_SOURCE,    ""));
 	ADD(new ItemInt(ITEM_ID_ZBX_PROFILES_TYPE,         3));
+	table->add(grp);
 }
 
 void register06(ItemTable *table)
 {
-	ItemGroup *grp;
-	grp = table->addNewGroup();
+	ItemGroupPtr grp;
+	grp = ItemGroupPtr();
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_PROFILEID, 50));
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_USERID,    1));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_IDX, "web.item.graph.period"));
@@ -619,8 +668,9 @@ void register06(ItemTable *table)
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_VALUE_STR, ""));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_SOURCE,    ""));
 	ADD(new ItemInt(ITEM_ID_ZBX_PROFILES_TYPE,         2));
+	table->add(grp);
 
-	grp = table->addNewGroup();
+	grp = ItemGroupPtr();
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_PROFILEID, 51));
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_USERID,    1));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_IDX, "web.item.graph.stime"));
@@ -630,8 +680,9 @@ void register06(ItemTable *table)
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_VALUE_STR, "20121229162033"));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_SOURCE,    ""));
 	ADD(new ItemInt(ITEM_ID_ZBX_PROFILES_TYPE,         3));
+	table->add(grp);
 
-	grp = table->addNewGroup();
+	grp = ItemGroupPtr();
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_PROFILEID, 52));
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_USERID,    1));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_IDX, "web.item.graph.isnow"));
@@ -641,8 +692,9 @@ void register06(ItemTable *table)
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_VALUE_STR, "1"));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_SOURCE,    ""));
 	ADD(new ItemInt(ITEM_ID_ZBX_PROFILES_TYPE,         3));
+	table->add(grp);
 
-	grp = table->addNewGroup();
+	grp = ItemGroupPtr();
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_PROFILEID, 53));
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_USERID,    1));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_IDX, "web.history.filter.state"));
@@ -652,8 +704,9 @@ void register06(ItemTable *table)
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_VALUE_STR, ""));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_SOURCE,    ""));
 	ADD(new ItemInt(ITEM_ID_ZBX_PROFILES_TYPE,         2));
+	table->add(grp);
 
-	grp = table->addNewGroup();
+	grp = ItemGroupPtr();
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_PROFILEID, 54));
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_USERID,    1));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_IDX, "web.item.graph.period"));
@@ -663,8 +716,9 @@ void register06(ItemTable *table)
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_VALUE_STR, ""));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_SOURCE,    ""));
 	ADD(new ItemInt(ITEM_ID_ZBX_PROFILES_TYPE,         2));
+	table->add(grp);
 
-	grp = table->addNewGroup();
+	grp = ItemGroupPtr();
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_PROFILEID, 55));
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_USERID,    1));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_IDX, "web.item.graph.stime"));
@@ -674,8 +728,9 @@ void register06(ItemTable *table)
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_VALUE_STR, "20121228162426"));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_SOURCE,    ""));
 	ADD(new ItemInt(ITEM_ID_ZBX_PROFILES_TYPE,         3));
+	table->add(grp);
 
-	grp = table->addNewGroup();
+	grp = ItemGroupPtr();
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_PROFILEID, 56));
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_USERID,    1));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_IDX, "web.item.graph.isnow"));
@@ -685,8 +740,9 @@ void register06(ItemTable *table)
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_VALUE_STR, ""));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_SOURCE,    ""));
 	ADD(new ItemInt(ITEM_ID_ZBX_PROFILES_TYPE,         3));
+	table->add(grp);
 
-	grp = table->addNewGroup();
+	grp = ItemGroupPtr();
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_PROFILEID, 57));
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_USERID,    1));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_IDX, "web.avail_report.config"));
@@ -696,8 +752,9 @@ void register06(ItemTable *table)
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_VALUE_STR, ""));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_SOURCE,    ""));
 	ADD(new ItemInt(ITEM_ID_ZBX_PROFILES_TYPE,         2));
+	table->add(grp);
 
-	grp = table->addNewGroup();
+	grp = ItemGroupPtr();
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_PROFILEID, 58));
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_USERID,    1));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_IDX, "web.reports.groupid"));
@@ -707,8 +764,9 @@ void register06(ItemTable *table)
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_VALUE_STR, ""));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_SOURCE,    ""));
 	ADD(new ItemInt(ITEM_ID_ZBX_PROFILES_TYPE,         1));
+	table->add(grp);
 
-	grp = table->addNewGroup();
+	grp = ItemGroupPtr();
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_PROFILEID, 59));
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_USERID,    1));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_IDX, "web.reports.hostid"));
@@ -718,12 +776,13 @@ void register06(ItemTable *table)
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_VALUE_STR, ""));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_SOURCE,    ""));
 	ADD(new ItemInt(ITEM_ID_ZBX_PROFILES_TYPE,         1));
+	table->add(grp);
 }
 
 void register07(ItemTable *table)
 {
-	ItemGroup *grp;
-	grp = table->addNewGroup();
+	ItemGroupPtr grp;
+	grp = ItemGroupPtr();
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_PROFILEID, 60));
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_USERID,    1));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_IDX, "web.item.graph.period"));
@@ -733,8 +792,9 @@ void register07(ItemTable *table)
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_VALUE_STR, ""));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_SOURCE,    ""));
 	ADD(new ItemInt(ITEM_ID_ZBX_PROFILES_TYPE,         2));
+	table->add(grp);
 
-	grp = table->addNewGroup();
+	grp = ItemGroupPtr();
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_PROFILEID, 61));
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_USERID,    1));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_IDX, "web.item.graph.stime"));
@@ -744,8 +804,9 @@ void register07(ItemTable *table)
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_VALUE_STR, "20121004045746"));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_SOURCE,    ""));
 	ADD(new ItemInt(ITEM_ID_ZBX_PROFILES_TYPE,         3));
+	table->add(grp);
 
-	grp = table->addNewGroup();
+	grp = ItemGroupPtr();
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_PROFILEID, 62));
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_USERID,    1));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_IDX, "web.item.graph.isnow"));
@@ -755,8 +816,9 @@ void register07(ItemTable *table)
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_VALUE_STR, ""));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_SOURCE,    ""));
 	ADD(new ItemInt(ITEM_ID_ZBX_PROFILES_TYPE,         3));
+	table->add(grp);
 
-	grp = table->addNewGroup();
+	grp = ItemGroupPtr();
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_PROFILEID, 63));
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_USERID,    1));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_IDX, "web.view.graphid"));
@@ -766,8 +828,9 @@ void register07(ItemTable *table)
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_VALUE_STR, ""));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_SOURCE,    ""));
 	ADD(new ItemInt(ITEM_ID_ZBX_PROFILES_TYPE,         1));
+	table->add(grp);
 
-	grp = table->addNewGroup();
+	grp = ItemGroupPtr();
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_PROFILEID, 64));
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_USERID,    1));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_IDX, "web.latest.graphid"));
@@ -777,8 +840,9 @@ void register07(ItemTable *table)
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_VALUE_STR, ""));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_SOURCE,    ""));
 	ADD(new ItemInt(ITEM_ID_ZBX_PROFILES_TYPE,         1));
+	table->add(grp);
 
-	grp = table->addNewGroup();
+	grp = ItemGroupPtr();
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_PROFILEID, 65));
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_USERID,    1));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_IDX, "web.screens.period"));
@@ -788,8 +852,9 @@ void register07(ItemTable *table)
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_VALUE_STR, ""));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_SOURCE,    ""));
 	ADD(new ItemInt(ITEM_ID_ZBX_PROFILES_TYPE,         2));
+	table->add(grp);
 
-	grp = table->addNewGroup();
+	grp = ItemGroupPtr();
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_PROFILEID, 66));
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_USERID,    1));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_IDX, "web.screens.stime"));
@@ -799,8 +864,9 @@ void register07(ItemTable *table)
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_VALUE_STR, "20121004113120"));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_SOURCE,    ""));
 	ADD(new ItemInt(ITEM_ID_ZBX_PROFILES_TYPE,         3));
+	table->add(grp);
 
-	grp = table->addNewGroup();
+	grp = ItemGroupPtr();
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_PROFILEID, 67));
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_USERID,    1));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_IDX, "web.screens.isnow"));
@@ -810,8 +876,9 @@ void register07(ItemTable *table)
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_VALUE_STR, "1"));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_SOURCE,    ""));
 	ADD(new ItemInt(ITEM_ID_ZBX_PROFILES_TYPE,         3));
+	table->add(grp);
 
-	grp = table->addNewGroup();
+	grp = ItemGroupPtr();
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_PROFILEID, 68));
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_USERID,    1));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_IDX, "web.screens.graphid"));
@@ -821,8 +888,9 @@ void register07(ItemTable *table)
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_VALUE_STR, ""));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_SOURCE,    ""));
 	ADD(new ItemInt(ITEM_ID_ZBX_PROFILES_TYPE,         1));
+	table->add(grp);
 
-	grp = table->addNewGroup();
+	grp = ItemGroupPtr();
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_PROFILEID, 69));
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_USERID,    1));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_IDX, "web.screens.period"));
@@ -832,12 +900,13 @@ void register07(ItemTable *table)
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_VALUE_STR, ""));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_SOURCE,    ""));
 	ADD(new ItemInt(ITEM_ID_ZBX_PROFILES_TYPE,         2));
+	table->add(grp);
 }
 
 void register08(ItemTable *table)
 {
-	ItemGroup *grp;
-	grp = table->addNewGroup();
+	ItemGroupPtr grp;
+	grp = ItemGroupPtr();
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_PROFILEID, 70));
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_USERID,    1));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_IDX, "web.screens.stime"));
@@ -847,8 +916,9 @@ void register08(ItemTable *table)
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_VALUE_STR, "20121229152939"));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_SOURCE,    ""));
 	ADD(new ItemInt(ITEM_ID_ZBX_PROFILES_TYPE,         3));
+	table->add(grp);
 
-	grp = table->addNewGroup();
+	grp = ItemGroupPtr();
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_PROFILEID, 71));
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_USERID,    1));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_IDX, "web.screens.isnow"));
@@ -858,8 +928,9 @@ void register08(ItemTable *table)
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_VALUE_STR, "1"));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_SOURCE,    ""));
 	ADD(new ItemInt(ITEM_ID_ZBX_PROFILES_TYPE,         3));
+	table->add(grp);
 
-	grp = table->addNewGroup();
+	grp = ItemGroupPtr();
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_PROFILEID, 72));
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_USERID,    1));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_IDX, "web.graphs.php.sort"));
@@ -869,8 +940,9 @@ void register08(ItemTable *table)
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_VALUE_STR, "name"));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_SOURCE,    ""));
 	ADD(new ItemInt(ITEM_ID_ZBX_PROFILES_TYPE,         3));
+	table->add(grp);
 
-	grp = table->addNewGroup();
+	grp = ItemGroupPtr();
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_PROFILEID, 73));
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_USERID,    1));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_IDX, "web.graphs.php.sortorder"));
@@ -880,8 +952,9 @@ void register08(ItemTable *table)
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_VALUE_STR, "ASC"));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_SOURCE,    ""));
 	ADD(new ItemInt(ITEM_ID_ZBX_PROFILES_TYPE,         3));
+	table->add(grp);
 
-	grp = table->addNewGroup();
+	grp = ItemGroupPtr();
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_PROFILEID, 74));
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_USERID,    1));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_IDX, "web.config.hostid"));
@@ -891,8 +964,9 @@ void register08(ItemTable *table)
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_VALUE_STR, ""));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_SOURCE,    ""));
 	ADD(new ItemInt(ITEM_ID_ZBX_PROFILES_TYPE,         1));
+	table->add(grp);
 
-	grp = table->addNewGroup();
+	grp = ItemGroupPtr();
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_PROFILEID, 75));
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_USERID,    1));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_IDX, "web.item.graph.period"));
@@ -902,8 +976,9 @@ void register08(ItemTable *table)
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_VALUE_STR, ""));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_SOURCE,    ""));
 	ADD(new ItemInt(ITEM_ID_ZBX_PROFILES_TYPE,         2));
+	table->add(grp);
 
-	grp = table->addNewGroup();
+	grp = ItemGroupPtr();
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_PROFILEID, 76));
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_USERID,    1));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_IDX, "web.item.graph.stime"));
@@ -913,8 +988,9 @@ void register08(ItemTable *table)
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_VALUE_STR, "20121004121245"));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_SOURCE,    ""));
 	ADD(new ItemInt(ITEM_ID_ZBX_PROFILES_TYPE,         3));
+	table->add(grp);
 
-	grp = table->addNewGroup();
+	grp = ItemGroupPtr();
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_PROFILEID, 77));
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_USERID,    1));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_IDX, "web.item.graph.isnow"));
@@ -924,8 +1000,9 @@ void register08(ItemTable *table)
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_VALUE_STR, "1"));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_SOURCE,    ""));
 	ADD(new ItemInt(ITEM_ID_ZBX_PROFILES_TYPE,         3));
+	table->add(grp);
 
-	grp = table->addNewGroup();
+	grp = ItemGroupPtr();
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_PROFILEID, 78));
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_USERID,    1));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_IDX, "web.item.graph.period"));
@@ -935,8 +1012,9 @@ void register08(ItemTable *table)
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_VALUE_STR, ""));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_SOURCE,    ""));
 	ADD(new ItemInt(ITEM_ID_ZBX_PROFILES_TYPE,         2));
+	table->add(grp);
 
-	grp = table->addNewGroup();
+	grp = ItemGroupPtr();
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_PROFILEID, 79));
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_USERID,    1));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_IDX, "web.item.graph.stime"));
@@ -946,12 +1024,13 @@ void register08(ItemTable *table)
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_VALUE_STR, "20121004121257"));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_SOURCE,    ""));
 	ADD(new ItemInt(ITEM_ID_ZBX_PROFILES_TYPE,         3));
+	table->add(grp);
 }
 
 void register09(ItemTable *table)
 {
-	ItemGroup *grp;
-	grp = table->addNewGroup();
+	ItemGroupPtr grp;
+	grp = ItemGroupPtr();
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_PROFILEID, 80));
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_USERID,    1));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_IDX, "web.item.graph.isnow"));
@@ -961,8 +1040,9 @@ void register09(ItemTable *table)
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_VALUE_STR, ""));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_SOURCE,    ""));
 	ADD(new ItemInt(ITEM_ID_ZBX_PROFILES_TYPE,         3));
+	table->add(grp);
 
-	grp = table->addNewGroup();
+	grp = ItemGroupPtr();
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_PROFILEID, 81));
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_USERID,    1));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_IDX, "web.item.graph.period"));
@@ -972,8 +1052,9 @@ void register09(ItemTable *table)
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_VALUE_STR, ""));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_SOURCE,    ""));
 	ADD(new ItemInt(ITEM_ID_ZBX_PROFILES_TYPE,         2));
+	table->add(grp);
 
-	grp = table->addNewGroup();
+	grp = ItemGroupPtr();
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_PROFILEID, 82));
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_USERID,    1));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_IDX, "web.item.graph.stime"));
@@ -983,8 +1064,9 @@ void register09(ItemTable *table)
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_VALUE_STR, "20121004121323"));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_SOURCE,    ""));
 	ADD(new ItemInt(ITEM_ID_ZBX_PROFILES_TYPE,         3));
+	table->add(grp);
 
-	grp = table->addNewGroup();
+	grp = ItemGroupPtr();
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_PROFILEID, 83));
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_USERID,    1));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_IDX, "web.item.graph.isnow"));
@@ -994,8 +1076,9 @@ void register09(ItemTable *table)
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_VALUE_STR, ""));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_SOURCE,    ""));
 	ADD(new ItemInt(ITEM_ID_ZBX_PROFILES_TYPE,         3));
+	table->add(grp);
 
-	grp = table->addNewGroup();
+	grp = ItemGroupPtr();
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_PROFILEID, 84));
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_USERID,    1));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_IDX, "web.item.graph.period"));
@@ -1005,8 +1088,9 @@ void register09(ItemTable *table)
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_VALUE_STR, ""));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_SOURCE,    ""));
 	ADD(new ItemInt(ITEM_ID_ZBX_PROFILES_TYPE,         2));
+	table->add(grp);
 
-	grp = table->addNewGroup();
+	grp = ItemGroupPtr();
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_PROFILEID, 85));
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_USERID,    1));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_IDX, "web.item.graph.stime"));
@@ -1016,8 +1100,9 @@ void register09(ItemTable *table)
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_VALUE_STR, "20121004121344"));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_SOURCE,    ""));
 	ADD(new ItemInt(ITEM_ID_ZBX_PROFILES_TYPE,         3));
+	table->add(grp);
 
-	grp = table->addNewGroup();
+	grp = ItemGroupPtr();
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_PROFILEID, 86));
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_USERID,    1));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_IDX, "web.item.graph.isnow"));
@@ -1027,8 +1112,9 @@ void register09(ItemTable *table)
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_VALUE_STR, ""));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_SOURCE,    ""));
 	ADD(new ItemInt(ITEM_ID_ZBX_PROFILES_TYPE,         3));
+	table->add(grp);
 
-	grp = table->addNewGroup();
+	grp = ItemGroupPtr();
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_PROFILEID, 87));
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_USERID,    1));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_IDX, "web.item.graph.period"));
@@ -1038,8 +1124,9 @@ void register09(ItemTable *table)
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_VALUE_STR, ""));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_SOURCE,    ""));
 	ADD(new ItemInt(ITEM_ID_ZBX_PROFILES_TYPE,         2));
+	table->add(grp);
 
-	grp = table->addNewGroup();
+	grp = ItemGroupPtr();
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_PROFILEID, 88));
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_USERID,    1));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_IDX, "web.item.graph.stime"));
@@ -1049,8 +1136,9 @@ void register09(ItemTable *table)
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_VALUE_STR, "20121004125509"));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_SOURCE,    ""));
 	ADD(new ItemInt(ITEM_ID_ZBX_PROFILES_TYPE,         3));
+	table->add(grp);
 
-	grp = table->addNewGroup();
+	grp = ItemGroupPtr();
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_PROFILEID, 89));
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_USERID,    1));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_IDX, "web.item.graph.isnow"));
@@ -1060,12 +1148,13 @@ void register09(ItemTable *table)
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_VALUE_STR, ""));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_SOURCE,    ""));
 	ADD(new ItemInt(ITEM_ID_ZBX_PROFILES_TYPE,         3));
+	table->add(grp);
 }
 
 void register10(ItemTable *table)
 {
-	ItemGroup *grp;
-	grp = table->addNewGroup();
+	ItemGroupPtr grp;
+	grp = ItemGroupPtr();
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_PROFILEID, 90));
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_USERID,    1));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_IDX, "web.item.graph.period"));
@@ -1075,8 +1164,9 @@ void register10(ItemTable *table)
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_VALUE_STR, ""));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_SOURCE,    ""));
 	ADD(new ItemInt(ITEM_ID_ZBX_PROFILES_TYPE,         2));
+	table->add(grp);
 
-	grp = table->addNewGroup();
+	grp = ItemGroupPtr();
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_PROFILEID, 91));
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_USERID,    1));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_IDX, "web.item.graph.stime"));
@@ -1086,8 +1176,9 @@ void register10(ItemTable *table)
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_VALUE_STR, "20121004150157"));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_SOURCE,    ""));
 	ADD(new ItemInt(ITEM_ID_ZBX_PROFILES_TYPE,         3));
+	table->add(grp);
 
-	grp = table->addNewGroup();
+	grp = ItemGroupPtr();
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_PROFILEID, 92));
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_USERID,    1));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_IDX, "web.item.graph.isnow"));
@@ -1097,8 +1188,9 @@ void register10(ItemTable *table)
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_VALUE_STR, ""));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_SOURCE,    ""));
 	ADD(new ItemInt(ITEM_ID_ZBX_PROFILES_TYPE,         3));
+	table->add(grp);
 
-	grp = table->addNewGroup();
+	grp = ItemGroupPtr();
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_PROFILEID, 93));
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_USERID,    1));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_IDX, "web.item.graph.period"));
@@ -1108,8 +1200,9 @@ void register10(ItemTable *table)
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_VALUE_STR, ""));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_SOURCE,    ""));
 	ADD(new ItemInt(ITEM_ID_ZBX_PROFILES_TYPE,         2));
+	table->add(grp);
 
-	grp = table->addNewGroup();
+	grp = ItemGroupPtr();
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_PROFILEID, 94));
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_USERID,    1));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_IDX, "web.item.graph.stime"));
@@ -1119,8 +1212,9 @@ void register10(ItemTable *table)
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_VALUE_STR, "20121229152759"));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_SOURCE,    ""));
 	ADD(new ItemInt(ITEM_ID_ZBX_PROFILES_TYPE,         3));
+	table->add(grp);
 
-	grp = table->addNewGroup();
+	grp = ItemGroupPtr();
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_PROFILEID, 95));
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_USERID,    1));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_IDX, "web.item.graph.isnow"));
@@ -1130,8 +1224,9 @@ void register10(ItemTable *table)
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_VALUE_STR, ""));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_SOURCE,    ""));
 	ADD(new ItemInt(ITEM_ID_ZBX_PROFILES_TYPE,         3));
+	table->add(grp);
 
-	grp = table->addNewGroup();
+	grp = ItemGroupPtr();
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_PROFILEID, 96));
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_USERID,    1));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_IDX, "web.screens.elementid"));
@@ -1141,8 +1236,9 @@ void register10(ItemTable *table)
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_VALUE_STR, ""));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_SOURCE,    ""));
 	ADD(new ItemInt(ITEM_ID_ZBX_PROFILES_TYPE,         1));
+	table->add(grp);
 
-	grp = table->addNewGroup();
+	grp = ItemGroupPtr();
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_PROFILEID, 97));
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_USERID,    1));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_IDX, "web.screens.period"));
@@ -1152,8 +1248,9 @@ void register10(ItemTable *table)
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_VALUE_STR, ""));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_SOURCE,    ""));
 	ADD(new ItemInt(ITEM_ID_ZBX_PROFILES_TYPE,         2));
+	table->add(grp);
 
-	grp = table->addNewGroup();
+	grp = ItemGroupPtr();
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_PROFILEID, 98));
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_USERID,    1));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_IDX, "web.screens.stime"));
@@ -1163,8 +1260,9 @@ void register10(ItemTable *table)
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_VALUE_STR, "20121229152943"));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_SOURCE,    ""));
 	ADD(new ItemInt(ITEM_ID_ZBX_PROFILES_TYPE,         3));
+	table->add(grp);
 
-	grp = table->addNewGroup();
+	grp = ItemGroupPtr();
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_PROFILEID, 99));
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_USERID,    1));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_IDX, "web.screens.isnow"));
@@ -1174,12 +1272,13 @@ void register10(ItemTable *table)
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_VALUE_STR, "1"));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_SOURCE,    ""));
 	ADD(new ItemInt(ITEM_ID_ZBX_PROFILES_TYPE,         3));
+	table->add(grp);
 }
 
 void register11(ItemTable *table)
 {
-	ItemGroup *grp;
-	grp = table->addNewGroup();
+	ItemGroupPtr grp;
+	grp = ItemGroupPtr();
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_PROFILEID, 100));
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_USERID,    1));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_IDX, "web.templates.php.sort"));
@@ -1189,8 +1288,9 @@ void register11(ItemTable *table)
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_VALUE_STR, "name"));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_SOURCE,    ""));
 	ADD(new ItemInt(ITEM_ID_ZBX_PROFILES_TYPE,         3));
+	table->add(grp);
 
-	grp = table->addNewGroup();
+	grp = ItemGroupPtr();
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_PROFILEID, 101));
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_USERID,    1));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_IDX, "web.templates.php.sortorder"));
@@ -1200,8 +1300,9 @@ void register11(ItemTable *table)
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_VALUE_STR, "ASC"));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_SOURCE,    ""));
 	ADD(new ItemInt(ITEM_ID_ZBX_PROFILES_TYPE,         3));
+	table->add(grp);
 
-	grp = table->addNewGroup();
+	grp = ItemGroupPtr();
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_PROFILEID, 102));
 	ADD(new ItemUint64(ITEM_ID_ZBX_PROFILES_USERID,    1));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_IDX, "web.templates.php.groupid"));
@@ -1211,5 +1312,6 @@ void register11(ItemTable *table)
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_VALUE_STR, ""));
 	ADD(new ItemString(ITEM_ID_ZBX_PROFILES_SOURCE,    ""));
 	ADD(new ItemInt(ITEM_ID_ZBX_PROFILES_TYPE,         1));
+	table->add(grp);
 }
 

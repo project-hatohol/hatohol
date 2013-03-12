@@ -18,8 +18,9 @@ static ItemTable * addItems(T* srcTable, int numTable,
 {
 	ItemTable *table = new ItemTable();
 	for (int i = 0; i < numTable; i++) {
-		ItemGroup *grp = table->addNewGroup();
+		ItemGroup* grp = new ItemGroup();
 		(*addFunc)(grp, &srcTable[i]);
+		table->add(grp, false);
 	}
 	return table;
 }

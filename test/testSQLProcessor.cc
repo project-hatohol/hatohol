@@ -269,11 +269,12 @@ private:
 	ItemTablePtr makeTable0(void) {
 		ItemTablePtr tablePtr;
 		for (size_t i = 0; i < numTestData0; i++) {
-			ItemGroup *grp = tablePtr->addNewGroup();
+			ItemGroupPtr grp;
 			grp->add(new ItemInt(ITEM_ID_NUMBER,
 			                     testData0[i].number), false);
 			grp->add(new ItemString(ITEM_ID_NAME,
 			                        testData0[i].name), false);
+			tablePtr->add(grp);
 		}
 		return tablePtr;
 	}
@@ -281,13 +282,14 @@ private:
 	ItemTablePtr makeTable1(void) {
 		ItemTablePtr tablePtr;
 		for (size_t i = 0; i < numTestData1; i++) {
-			ItemGroup *grp = tablePtr->addNewGroup();
+			ItemGroupPtr grp;
 			grp->add(new ItemInt(ITEM_ID_AGE,
 			                     testData1[i].age), false);
 			grp->add(new ItemString(ITEM_ID_ANIMAL,
 			                        testData1[i].animal), false);
 			grp->add(new ItemString(ITEM_ID_FOOD,
 			                        testData1[i].food), false);
+			tablePtr->add(grp);
 		}
 		return tablePtr;
 	}
@@ -295,11 +297,12 @@ private:
 	ItemTablePtr makeTable2(void) {
 		ItemTablePtr tablePtr;
 		for (size_t i = 0; i < numTestData2; i++) {
-			ItemGroup *grp = tablePtr->addNewGroup();
+			ItemGroupPtr grp;
 			grp->add(new ItemInt(ITEM_ID_MENTAL_AGE,
 			                     testData2[i].mentalAge), false);
 			grp->add(new ItemString(ITEM_ID_FAVORITE,
 			                        testData2[i].favorite), false);
+			tablePtr->add(grp);
 		}
 		return tablePtr;
 	}

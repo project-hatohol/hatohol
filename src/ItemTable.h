@@ -34,7 +34,6 @@ class ItemTable : public UsedCountable {
 public:
 	ItemTable(void);
 	ItemTable(const ItemTable &itemTable);
-	ItemGroup *addNewGroup(void);
 	void add(ItemGroup *group, bool doRef = true);
 	size_t getNumberOfColumns(void) const;
 	size_t getNumberOfRows(void) const;
@@ -71,7 +70,6 @@ public:
 
 protected:
 	virtual ~ItemTable();
-	bool freezeTailGroupIfFirstGroup(ItemGroup *tail);
 	static void joinForeachCore(ItemTable *newTable,
 	                            const ItemGroup *itemGroupLTable,
 	                            const ItemGroup *itemGroupRTable);
