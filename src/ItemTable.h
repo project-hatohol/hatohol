@@ -45,7 +45,7 @@ public:
 	ItemTable *fullOuterJoin(const ItemTable *itemTable) const;
 	ItemTable *crossJoin(const ItemTable *itemTable) const;
 	const ItemGroupList &getItemGroupList(void) const;
-	void defineIndex(vector<ItemDataIndexType> &indexTypeVector);
+	void defineIndex(const vector<ItemDataIndexType> &indexTypeVector);
 
 	template <typename T>
 	bool foreach(bool (*func)(const ItemGroup *, T arg), T arg) const

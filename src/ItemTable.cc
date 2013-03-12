@@ -205,7 +205,7 @@ const ItemGroupList &ItemTable::getItemGroupList(void) const
 	return m_groupList;
 }
 
-void ItemTable::defineIndex(vector<ItemDataIndexType> &indexTypeVector)
+void ItemTable::defineIndex(const vector<ItemDataIndexType> &indexTypeVector)
 {
 	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
 
