@@ -563,9 +563,46 @@ void _assertEqualUnawareOfOrder(multiset<string> expectedSet,
 #define assertEqualUnawareOfOrder(E,T,I) \
 cut_trace(_assertEqualUnawareOfOrder(E,T,I))
 
+static
+void resetTestData(ColumnDef *columnDef, size_t numColumns,
+                   SQLKeyType keyType = SQL_KEY_NONE)
+{
+	for (size_t i = 0; i < numColumns; i++)
+		columnDef[i].keyType = keyType;
+}
+
+static void resetTestData0(SQLKeyType keyType = SQL_KEY_NONE)
+{
+	resetTestData(COLUMN0_DEFS, NUM_COLUMN0_DEFS, keyType);
+}
+
+static void resetTestData1(SQLKeyType keyType = SQL_KEY_NONE)
+{
+	resetTestData(COLUMN1_DEFS, NUM_COLUMN1_DEFS, keyType);
+}
+
+static void resetTestData2(SQLKeyType keyType = SQL_KEY_NONE)
+{
+	resetTestData(COLUMN2_DEFS, NUM_COLUMN2_DEFS, keyType);
+}
+
+static void resetTestDataZ(SQLKeyType keyType = SQL_KEY_NONE)
+{
+	resetTestData(COLUMN_Z_DEFS, NUM_COLUMN_Z_DEFS, keyType);
+}
+
+static void resetTestData(void)
+{
+	resetTestData0();
+	resetTestData1();
+	resetTestData2();
+	resetTestDataZ();
+}
+
 void setup(void)
 {
 	asuraInit();
+	resetTestData();
 }
 
 // ---------------------------------------------------------------------------
