@@ -66,6 +66,10 @@ private:
 	ItemDataForIndexMultiSet *m_multiIndex;
 };
 
+typedef vector<ItemDataIndex *>             ItemDataIndexVector;
+typedef ItemDataIndexVector::iterator       ItemDataIndexVectorIterator;
+typedef ItemDataIndexVector::const_iterator ItemDataIndexVectorConstIterator;
+
 #endif // ItemDataUtils_h
 
 
