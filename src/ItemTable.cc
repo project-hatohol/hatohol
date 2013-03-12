@@ -204,9 +204,35 @@ const ItemGroupList &ItemTable::getItemGroupList(void) const
 	return m_groupList;
 }
 
-void ItemTable::addIndex(vector<ItemDataIndexType> &indexTypeVector)
+void ItemTable::defineIndex(vector<ItemDataIndexType> &indexTypeVector)
 {
 	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+
+	// pre check
+	if (!m_indexVector.empty())
+		THROW_ASURA_EXCEPTION("m_indexVector is NOT empty.");
+
+	if (!m_groupList.empty()) {
+		if (m_groupList.size() != indexTypeVector.size()) {
+			THROW_ASURA_EXCEPTION(
+			  "m_groupList.size() [%zd] != "
+			  "indexTypeVector.size() [%zd]",
+			  m_groupList.size(), indexTypeVector.size());
+		}
+	}
+
+	// make ItemDataIndex instances
+	for (size_t i = 0; i < indexTypeVector.size(); i++) {
+		ItemDataIndexType type = indexTypeVector[i];
+		m_indexVector.push_back(new ItemDataIndex(type));
+		if (type != ITEM_DATA_INDEX_TYPE_NONE)
+			m_indexedColumnIndexes.push_back(i);
+	}
+
+	// make indexes if this table has data
+	ItemGroupListIterator it = m_groupList.begin();
+	for (; it != m_groupList.end(); ++it)
+		updateIndex(*it);
 }
 
 // ---------------------------------------------------------------------------
@@ -282,4 +308,15 @@ bool ItemTable::innerJoinForeach(const ItemGroup *itemGroup, InnerJoinArg &arg)
 	arg.itemGroupLTable = itemGroup;
 	arg.rightTable->foreach<InnerJoinArg &>(innerJoinForeachRTable, arg);
 	return true;
+}
+
+void ItemTable::updateIndex(ItemGroup *itemGroup)
+{
+	for (size_t i = 0; i < m_indexedColumnIndexes.size(); i++) {
+		size_t columnIndex = m_indexedColumnIndexes[i];
+		ItemDataIndex *index = m_indexVector[columnIndex];
+		ItemData *itemData = itemGroup->getItemAt(columnIndex);
+		if (!index->insert(itemData))
+			THROW_ASURA_EXCEPTION("Failed to make index.");
+	}
 }

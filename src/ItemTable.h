@@ -46,7 +46,7 @@ public:
 	ItemTable *fullOuterJoin(const ItemTable *itemTable) const;
 	ItemTable *crossJoin(const ItemTable *itemTable) const;
 	const ItemGroupList &getItemGroupList(void) const;
-	void addIndex(vector<ItemDataIndexType> &indexTypeVector);
+	void defineIndex(vector<ItemDataIndexType> &indexTypeVector);
 
 	template <typename T>
 	bool foreach(bool (*func)(const ItemGroup *, T arg), T arg) const
@@ -86,10 +86,12 @@ protected:
 	                             InnerJoinArg &arg);
 	static bool innerJoinForeachRTable(const ItemGroup *itemGroupRTable,
                                            InnerJoinArg &arg);
+	void updateIndex(ItemGroup *itemGroup);
 
 private:
 	ItemGroupList m_groupList;
 	vector<ItemDataIndex *> m_indexVector;
+	vector<size_t>          m_indexedColumnIndexes;
 };
 
 #endif  // ItemTable_h
