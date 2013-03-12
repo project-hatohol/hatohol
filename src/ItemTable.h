@@ -88,8 +88,8 @@ protected:
 
 private:
 	ItemGroupList m_groupList;
-	vector<ItemDataIndex *> m_indexVector;
-	vector<size_t>          m_indexedColumnIndexes;
+	ItemDataIndexVector m_indexVector;
+	vector<size_t>      m_indexedColumnIndexes;
 };
 
 #endif  // ItemTable_h
