@@ -245,7 +245,6 @@ void SQLProcessorInsert::doInsetToTable(SQLInsertInfo &insertInfo)
 		}
 		grpPtr->add(dataPtr);
 	}
-	grpPtr->freeze();
 
 	// Insert row
 	ItemTablePtr tablePtr = (*tableStaticInfo->tableGetFunc)();

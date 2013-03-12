@@ -210,7 +210,6 @@ ItemGroupPtr SQLTableJoin::getActiveRow(void)
 	ItemGroupPtr rightRow = rightFormula->getActiveRow();
 	for (size_t i = 0; i < rightRow->getNumberOfItems(); i++)
 		itemGroup->add(rightRow->getItemAt(i));
-	itemGroup->freeze();
 
 	return itemGroup;
 }
