@@ -58,6 +58,7 @@ class ItemDataIndex {
 public:
 	ItemDataIndex(ItemDataIndexType type);
 	virtual ~ItemDataIndex();
+	ItemDataIndexType getIndexType(void) const;
 	bool insert(const ItemData *itemData, ItemGroup* itemGroup);
 	bool find(const ItemData *itemData, vector<ItemDataPtrForIndex> &);
 private:

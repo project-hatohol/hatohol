@@ -207,8 +207,6 @@ const ItemGroupList &ItemTable::getItemGroupList(void) const
 
 void ItemTable::defineIndex(const vector<ItemDataIndexType> &indexTypeVector)
 {
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
-
 	// pre check
 	if (!m_indexVector.empty())
 		THROW_ASURA_EXCEPTION("m_indexVector is NOT empty.");
@@ -234,6 +232,16 @@ void ItemTable::defineIndex(const vector<ItemDataIndexType> &indexTypeVector)
 	ItemGroupListIterator it = m_groupList.begin();
 	for (; it != m_groupList.end(); ++it)
 		updateIndex(*it);
+}
+
+const ItemDataIndexVector &ItemTable::getIndexVector(void) const
+{
+	return m_indexVector;
+}
+
+const vector<size_t> &ItemTable::getIndexedColumns(void) const
+{
+	return m_indexedColumnIndexes;
 }
 
 // ---------------------------------------------------------------------------
@@ -309,3 +317,4 @@ void ItemTable::updateIndex(ItemGroup *itemGroup)
 			THROW_ASURA_EXCEPTION("Failed to make index.");
 	}
 }
+

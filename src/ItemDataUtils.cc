@@ -64,6 +64,11 @@ ItemDataIndex::~ItemDataIndex()
 		delete m_multiIndex;
 }
 
+ItemDataIndexType ItemDataIndex::getIndexType(void) const
+{
+	return m_type;
+}
+
 bool ItemDataIndex::insert(const ItemData *itemData,
                            ItemGroup* itemGroup)
 {

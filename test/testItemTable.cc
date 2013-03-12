@@ -312,4 +312,28 @@ void test_innerJoin(void)
 	assertJoin.run(assertJoinRunner);
 }
 
+void test_defineIndex(void)
+{
+	vector<ItemDataIndexType> indexTypeVector;
+	indexTypeVector.push_back(ITEM_DATA_INDEX_TYPE_UNIQUE);
+	indexTypeVector.push_back(ITEM_DATA_INDEX_TYPE_NONE);
+	indexTypeVector.push_back(ITEM_DATA_INDEX_TYPE_MULTI);
+	x_table = new ItemTable();
+	x_table->defineIndex(indexTypeVector);
+
+	const ItemDataIndexVector &actualIndexes = x_table->getIndexVector();
+	cppcut_assert_equal(indexTypeVector.size(), actualIndexes.size());
+	for (size_t i = 0; i < actualIndexes.size(); i++) {
+		const ItemDataIndex *itemDataIndex = actualIndexes[i];
+		cppcut_assert_equal(indexTypeVector[i],
+		                    itemDataIndex->getIndexType());
+	}
+
+	const vector<size_t> &indexedColumns = x_table->getIndexedColumns();
+	const size_t expectedNumIndexedColumns = 2;
+	cppcut_assert_equal(expectedNumIndexedColumns, indexedColumns.size());
+	cppcut_assert_equal((size_t)0, indexedColumns[0]);
+	cppcut_assert_equal((size_t)2, indexedColumns[1]);
+}
+
 } // namespace testItemTable
