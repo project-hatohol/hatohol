@@ -295,7 +295,7 @@ void test_selectCountItemsHosts(void)
 	executeCommand(cmd);
 	vector<string> lines;
 	NumberStringMap nsmap;
-	assertRecord(0, nsmap);
+	assertRecord(3, nsmap);
 }
 
 void test_selectSumOneDivDelay(void)
@@ -307,7 +307,7 @@ void test_selectSumOneDivDelay(void)
 	executeCommand(cmd);
 	vector<string> lines;
 	NumberStringMap nsmap;
-	assertRecord(0, nsmap);
+	assertRecord(2, nsmap);
 }
 
 void test_selectDistinctGroupIdName(void)
