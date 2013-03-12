@@ -42,8 +42,6 @@ struct ItemTable::InnerJoinArg
 // Public methods
 // ---------------------------------------------------------------------------
 ItemTable::ItemTable(void)
-: m_indexVector(NULL),
-  m_multiIndexVector(NULL)
 {
 }
 
@@ -54,10 +52,12 @@ ItemTable::ItemTable(const ItemTable &itemTable)
 	for (; it != itemTable.m_groupList.end(); ++it)
 		m_groupList.push_back(*it);
 	itemTable.readUnlock();
-	if (m_indexVector)
-		delete m_indexVector;
-	if (m_multiIndexVector)
-		delete m_indexVector;
+
+	for (size_t i = 0; i < m_indexVector.size(); i++) {
+		ItemDataIndex *index = m_indexVector[i];
+		if (index)
+			delete index;
+	}
 }
 
 ItemGroup *ItemTable::addNewGroup(void)
@@ -202,6 +202,11 @@ ItemTable *ItemTable::crossJoin(const ItemTable *itemTable) const
 const ItemGroupList &ItemTable::getItemGroupList(void) const
 {
 	return m_groupList;
+}
+
+void ItemTable::addIndex(vector<ItemDataIndexType> &indexTypeVector)
+{
+	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
 }
 
 // ---------------------------------------------------------------------------

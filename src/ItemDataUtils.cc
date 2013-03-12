@@ -17,6 +17,9 @@
 
 #include "ItemDataUtils.h"
 
+// ---------------------------------------------------------------------------
+// ItemDataUtils
+// ---------------------------------------------------------------------------
 ItemDataPtr ItemDataUtils::createAsNumber(const string &word)
 {
 	bool isFloat;
@@ -43,3 +46,33 @@ ItemDataPtr ItemDataUtils::createAsNumberOrString(const string &word)
 	return createAsNumber(word);
 }
 
+// ---------------------------------------------------------------------------
+// ItemDataIndex
+// ---------------------------------------------------------------------------
+ItemDataIndex::ItemDataIndex(ItemDataIndexType type)
+: m_type(type),
+  m_index(NULL),
+  m_multiIndex(NULL)
+{
+}
+
+ItemDataIndex::~ItemDataIndex()
+{
+	if (m_index)
+		delete m_index;
+	if (m_multiIndex)
+		delete m_multiIndex;
+}
+
+bool ItemDataIndex::insert(const ItemDataPtr &itemDataPtr)
+{
+	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	return false;
+}
+
+bool ItemDataIndex::find(const ItemDataPtr &itemDataPtr,
+                         vector<ItemDataPtr> &foundItems)
+{
+	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	return false;
+}

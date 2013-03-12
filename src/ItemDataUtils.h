@@ -40,6 +40,24 @@ struct ItemDataPtrComparator {
 typedef set<ItemDataPtr, ItemDataPtrComparator> ItemDataSet;
 typedef multiset<ItemDataPtr, ItemDataPtrComparator> ItemDataMultiSet;
 
+enum ItemDataIndexType {
+	ITEM_DATA_INDEX_TYPE_NONE,
+	ITEM_DATA_INDEX_TYPE_UNIQUE,
+	ITEM_DATA_INDEX_TYPE_MULTI,
+};
+
+class ItemDataIndex {
+public:
+	ItemDataIndex(ItemDataIndexType type);
+	virtual ~ItemDataIndex();
+	bool insert(const ItemDataPtr &itemDataPtr);
+	bool find(const ItemDataPtr &itemDataPtr, vector<ItemDataPtr> &);
+private:
+	ItemDataIndexType m_type;
+	ItemDataSet      *m_index;
+	ItemDataMultiSet *m_multiIndex;
+};
+
 #endif // ItemDataUtils_h
 
 

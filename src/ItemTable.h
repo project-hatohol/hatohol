@@ -46,6 +46,7 @@ public:
 	ItemTable *fullOuterJoin(const ItemTable *itemTable) const;
 	ItemTable *crossJoin(const ItemTable *itemTable) const;
 	const ItemGroupList &getItemGroupList(void) const;
+	void addIndex(vector<ItemDataIndexType> &indexTypeVector);
 
 	template <typename T>
 	bool foreach(bool (*func)(const ItemGroup *, T arg), T arg) const
@@ -88,8 +89,7 @@ protected:
 
 private:
 	ItemGroupList m_groupList;
-	ItemDataSet       *m_indexVector;
-	ItemDataMultiSet  *m_multiIndexVector;
+	vector<ItemDataIndex *> m_indexVector;
 };
 
 #endif  // ItemTable_h
