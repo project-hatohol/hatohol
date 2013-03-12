@@ -89,7 +89,17 @@ void ItemTable::add(ItemGroup *group, bool doRef)
 			writeUnlock();
 			THROW_ASURA_EXCEPTION("ItemGroupTypes unmatched");
 		}
+	} else if (!m_indexVector.empty()) {
+		size_t sizeOfGroup = group->getNumberOfItems();
+		if (m_indexVector.size() != sizeOfGroup) {
+			THROW_ASURA_EXCEPTION(
+			  "Index vector size (%zd) != group size (%zd)",
+			  m_indexVector.size(), sizeOfGroup);
+		}
 	}
+
+	if (!m_indexVector.empty())
+		updateIndex(group);
 
 	m_groupList.push_back(group);
 	writeUnlock();
@@ -316,7 +326,7 @@ void ItemTable::updateIndex(ItemGroup *itemGroup)
 		size_t columnIndex = m_indexedColumnIndexes[i];
 		ItemDataIndex *index = m_indexVector[columnIndex];
 		ItemData *itemData = itemGroup->getItemAt(columnIndex);
-		if (!index->insert(itemData))
+		if (!index->insert(itemData, itemGroup))
 			THROW_ASURA_EXCEPTION("Failed to make index.");
 	}
 }

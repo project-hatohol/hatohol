@@ -22,6 +22,7 @@
 using namespace std;
 
 #include "ItemDataPtr.h"
+#include "ItemGroupPtr.h"
 #include "ItemEnum.h"
 
 class ItemDataUtils {
@@ -46,16 +47,23 @@ enum ItemDataIndexType {
 	ITEM_DATA_INDEX_TYPE_MULTI,
 };
 
+struct ItemDataPtrForIndex : public ItemDataPtr {
+	ItemGroupPtr itemGroup;
+};
+
+typedef set<ItemDataPtrForIndex, ItemDataPtrComparator> ItemDataForIndexSet;
+typedef multiset<ItemDataPtrForIndex, ItemDataPtrComparator> ItemDataForIndexMultiSet;
+
 class ItemDataIndex {
 public:
 	ItemDataIndex(ItemDataIndexType type);
 	virtual ~ItemDataIndex();
-	bool insert(const ItemDataPtr &itemDataPtr);
-	bool find(const ItemDataPtr &itemDataPtr, vector<ItemDataPtr> &);
+	bool insert(const ItemData *itemData, ItemGroup* itemGroup);
+	bool find(const ItemData *itemData, vector<ItemDataPtrForIndex> &);
 private:
 	ItemDataIndexType m_type;
-	ItemDataSet      *m_index;
-	ItemDataMultiSet *m_multiIndex;
+	ItemDataForIndexSet      *m_index;
+	ItemDataForIndexMultiSet *m_multiIndex;
 };
 
 #endif // ItemDataUtils_h

@@ -64,14 +64,15 @@ ItemDataIndex::~ItemDataIndex()
 		delete m_multiIndex;
 }
 
-bool ItemDataIndex::insert(const ItemDataPtr &itemDataPtr)
+bool ItemDataIndex::insert(const ItemData *itemData,
+                           ItemGroup* itemGroup)
 {
 	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
 	return false;
 }
 
-bool ItemDataIndex::find(const ItemDataPtr &itemDataPtr,
-                         vector<ItemDataPtr> &foundItems)
+bool ItemDataIndex::find(const ItemData *itemData,
+                         vector<ItemDataPtrForIndex> &foundItems)
 {
 	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
 	return false;
