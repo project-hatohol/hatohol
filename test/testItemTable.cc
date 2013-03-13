@@ -43,6 +43,10 @@ struct TableStruct1 {
 static TableStruct0 tableContent0[] = {
   {10, "anri", "red"},
   {20, "mai", "blue"},
+  {30, "footaro", "blue"},
+  {40, "rei", "blue"},
+  {50, "love", "yellow"},
+  {60, "while", "blue"},
 };
 static const size_t NUM_TABLE0 = sizeof(tableContent0) / sizeof(TableStruct0);
 
@@ -95,6 +99,14 @@ static void assertEmptyTable(ItemTable *table)
 	cut_trace(cppcut_assert_equal((size_t)0, table->getNumberOfRows()));
 	cut_trace(cppcut_assert_equal((size_t)0, table->getNumberOfColumns()));
 }
+
+#define GET_ITEMS(TABLE, MEMBER, NUM_DATA, EXPECT, CONTAINER) \
+{ \
+  for (size_t i = 0; i < NUM_DATA; i++) { \
+    if (TABLE[i].MEMBER == EXPECT) \
+      CONTAINER.push_back(i); \
+  } \
+} while(0)
 
 static const int NUM_TABLE_POOL = 10;
 static ItemTable *g_table[NUM_TABLE_POOL];
@@ -334,6 +346,56 @@ void test_defineIndex(void)
 	cppcut_assert_equal(expectedNumIndexedColumns, indexedColumns.size());
 	cppcut_assert_equal((size_t)0, indexedColumns[0]);
 	cppcut_assert_equal((size_t)2, indexedColumns[1]);
+}
+
+void test_findIndex(void)
+{
+	x_table = addItems<TableStruct0>(tableContent0, NUM_TABLE0,
+	                                 addItemTable0);
+	vector<ItemDataIndexType> indexTypeVector;
+	indexTypeVector.push_back(ITEM_DATA_INDEX_TYPE_UNIQUE);
+	indexTypeVector.push_back(ITEM_DATA_INDEX_TYPE_NONE);
+	indexTypeVector.push_back(ITEM_DATA_INDEX_TYPE_MULTI);
+	x_table = new ItemTable();
+	x_table->defineIndex(indexTypeVector);
+	const ItemDataIndexVector &actualIndexes = x_table->getIndexVector();
+
+	// find unique index for age
+	const ItemDataIndex *itemDataIndex = actualIndexes[0];
+	vector<ItemDataPtrForIndex> foundItems;
+	const int findValue = tableContent0[0].age;
+	ItemDataPtr itemData(new ItemInt(findValue), false);
+	bool successed = itemDataIndex->find((const ItemData *)itemData,
+	                                     foundItems);
+	cppcut_assert_equal(true, successed);
+
+	vector<size_t> expectedItemIndexes;
+	GET_ITEMS(tableContent0, age, NUM_TABLE0,
+	          findValue, expectedItemIndexes);
+	cppcut_assert_equal(expectedItemIndexes.size(), foundItems.size());
+	for (size_t i = 0; i < expectedItemIndexes.size(); i++) {
+		size_t index = expectedItemIndexes[i];
+		cppcut_assert_equal(findValue, tableContent0[index].age);
+	}
+
+	// find unique index for favoriteColor
+	itemDataIndex = actualIndexes[2];
+	foundItems.clear();
+	const string findValueFavorite = "blue";
+	ItemDataPtr itemDataFavorite(new ItemString(findValueFavorite), false);
+	successed = itemDataIndex->find((const ItemData *)itemDataFavorite,
+	                                foundItems);
+	cppcut_assert_equal(true, successed);
+
+	expectedItemIndexes.clear();
+	GET_ITEMS(tableContent0, favoriteColor, NUM_TABLE0,
+	          findValueFavorite, expectedItemIndexes);
+	cppcut_assert_equal(expectedItemIndexes.size(), foundItems.size());
+	for (size_t i = 0; i < expectedItemIndexes.size(); i++) {
+		size_t index = expectedItemIndexes[i];
+		cppcut_assert_equal(findValueFavorite,
+		                    string(tableContent0[index].favoriteColor));
+	}
 }
 
 } // namespace testItemTable
