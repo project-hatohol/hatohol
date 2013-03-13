@@ -403,7 +403,7 @@ VirtualDataStoreZabbix::VirtualDataStoreZabbix(void)
 	table->add(grp);
 
 	grp = ItemGroupPtr();
-	ADD(new ItemUint64(ITEM_ID_ZBX_GROUPS_GROUPID,  1));
+	ADD(new ItemUint64(ITEM_ID_ZBX_GROUPS_GROUPID,  2));
 	ADD(new ItemString(ITEM_ID_ZBX_GROUPS_NAME,     "Linux servers"));
 	ADD(new ItemInt   (ITEM_ID_ZBX_GROUPS_INTERNAL, 0));
 	table->add(grp);
@@ -417,7 +417,7 @@ VirtualDataStoreZabbix::VirtualDataStoreZabbix(void)
 	grp = ItemGroupPtr();
 	ADD(new ItemUint64(ITEM_ID_ZBX_GROUPS_GROUPID,  5));
 	ADD(new ItemString(ITEM_ID_ZBX_GROUPS_NAME,     "Discovered hosts"));
-	ADD(new ItemInt   (ITEM_ID_ZBX_GROUPS_INTERNAL, 0));
+	ADD(new ItemInt   (ITEM_ID_ZBX_GROUPS_INTERNAL, 1));
 	table->add(grp);
 
 	//
