@@ -91,6 +91,10 @@ bool ItemDataIndex::insert(const ItemData *itemData,
 		ItemDataPtrForIndex itemPtrForIndex(itemData, itemGroup);
 		pair<ItemDataForIndexSetIterator, bool> result = 
 		  m_index->insert(itemPtrForIndex);
+		if (!result.second) {
+			MLPL_DBG("Failed to insert: %s\n",
+			         itemData->getString().c_str());
+		}
 		return result.second;
 	} else if (m_type == ITEM_DATA_INDEX_TYPE_MULTI) {
 		ItemDataPtrForIndex itemPtrForIndex(itemData, itemGroup);
