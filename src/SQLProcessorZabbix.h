@@ -38,10 +38,11 @@ public:
 	const char *getDBName(void);
 
 private:
-	static TableNameStaticInfoMap m_tableNameStaticInfoMap;
+	static TableNameStaticInfoMap   m_tableNameStaticInfoMap;
+	static ItemGroupIdStaticInfoMap m_groupIdStaticInfoMap;
 
 	static SQLTableStaticInfo *
-	defineTable(int tableId, const char *tableName,
+	defineTable(int tableId, const char *tableName, ItemGroupId groupId,
 	            SQLTableGetFunc tableGetFunc);
 	static void defineColumn(SQLTableStaticInfo *staticInfo,
 	                         ItemId itemId,

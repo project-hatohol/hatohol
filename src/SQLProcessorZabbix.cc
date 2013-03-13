@@ -79,13 +79,14 @@ static const char *TABLE_NAME_SYSMAP_URL = "sysmap_url";
 static const char *TABLE_NAME_DRULES = "drules";
 
 TableNameStaticInfoMap SQLProcessorZabbix::m_tableNameStaticInfoMap;
+ItemGroupIdStaticInfoMap SQLProcessorZabbix::m_groupIdStaticInfoMap;
 
 // ---------------------------------------------------------------------------
 // Public static methods
 // ---------------------------------------------------------------------------
 void SQLProcessorZabbix::init(void)
 {
-#define MAKE_FUNC(G) tableGetFuncTemplate<G>
+#define MAKE_FUNC(G) G, tableGetFuncTemplate<G>
 
 	static SQLTableStaticInfo *staticInfo;
 	staticInfo =
@@ -1718,7 +1719,26 @@ ItemTablePtr SQLProcessorZabbix::tableGetFuncTemplate(void)
 	const ItemGroupId itemGroupId = GROUP_ID;
 	VirtualDataStoreZabbix *dataStore =
 	  VirtualDataStoreZabbix::getInstance();
-	return dataStore->getItemTable(itemGroupId);
+	ItemTablePtr tablePtr = dataStore->getItemTable(itemGroupId);
+
+	// TODO: table obtained by the zabbix data store will be 'const'
+	//       in the future. At that time, adding will be needed every
+	//       call.
+	if (!tablePtr->getIndexVector().empty())
+		return tablePtr;
+
+	// add Indexes
+	ItemGroupIdStaticInfoMapIterator it = 
+	  m_groupIdStaticInfoMap.find(itemGroupId);
+	if (it == m_groupIdStaticInfoMap.end()) {
+		MLPL_DBG("Not found: Group ID: %"PRIu_ITEM_GROUP"\n",
+		         itemGroupId);
+		return ItemTablePtr();
+	}
+	const SQLTableStaticInfo *staticInfo = it->second;
+	if (!staticInfo->indexTypeVector.empty())
+		tablePtr->defineIndex(staticInfo->indexTypeVector);
+	return tablePtr;
 }
 
 // ---------------------------------------------------------------------------
@@ -1726,6 +1746,7 @@ ItemTablePtr SQLProcessorZabbix::tableGetFuncTemplate(void)
 // ---------------------------------------------------------------------------
 SQLTableStaticInfo *
 SQLProcessorZabbix::defineTable(int tableId, const char *tableName,
+                                ItemGroupId groupId,
                                 SQLTableGetFunc tableGetFunc)
 {
 	SQLTableStaticInfo *staticInfo = new SQLTableStaticInfo();
@@ -1733,6 +1754,7 @@ SQLProcessorZabbix::defineTable(int tableId, const char *tableName,
 	staticInfo->tableName = tableName;
 	staticInfo->tableGetFunc = tableGetFunc;
 	m_tableNameStaticInfoMap[tableName] = staticInfo;
+	m_groupIdStaticInfoMap[groupId] = staticInfo;
 	return staticInfo;
 }
 
@@ -1775,4 +1797,12 @@ void SQLProcessorZabbix::defineColumn(SQLTableStaticInfo *staticInfo,
 	ColumnNameAccessInfoMap &map = staticInfo->columnAccessInfoMap;
 	ColumnAccessInfo accessInfo = {index, &columnDef};
 	map[columnName] = accessInfo;
+
+	// index type
+	ItemDataIndexType indexType = ITEM_DATA_INDEX_TYPE_NONE;
+	if (keyType == SQL_KEY_PRI)
+		indexType = ITEM_DATA_INDEX_TYPE_UNIQUE;
+	else if (keyType == SQL_KEY_MUL)
+		indexType = ITEM_DATA_INDEX_TYPE_MULTI;
+	staticInfo->indexTypeVector.push_back(indexType);
 }

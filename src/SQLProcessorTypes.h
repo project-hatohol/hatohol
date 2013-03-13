@@ -103,6 +103,7 @@ struct SQLTableStaticInfo {
 	const char             *tableName;
 	SQLTableGetFunc         tableGetFunc;
 	const ColumnDefList     columnDefList;
+	vector<ItemDataIndexType> indexTypeVector;
 
 	// The value (ColumnDefinition *) points an instance in
 	// 'columnDefList' in this struct.
@@ -112,6 +113,9 @@ struct SQLTableStaticInfo {
 
 typedef map<string, const SQLTableStaticInfo *> TableNameStaticInfoMap;
 typedef TableNameStaticInfoMap::iterator TableNameStaticInfoMapIterator;
+
+typedef map<ItemGroupId, const SQLTableStaticInfo *> ItemGroupIdStaticInfoMap;
+typedef ItemGroupIdStaticInfoMap::iterator ItemGroupIdStaticInfoMapIterator;
 
 class SQLColumnIndexResoveler {
 public:
