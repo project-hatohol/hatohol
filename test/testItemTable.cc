@@ -403,4 +403,37 @@ void test_findIndexMulti(void)
 	}
 }
 
+void test_findIndexUniqueAddDataAfter(void)
+{
+	x_table = new ItemTable();
+	vector<ItemDataIndexType> indexTypeVector;
+	indexTypeVector.push_back(ITEM_DATA_INDEX_TYPE_UNIQUE);
+	indexTypeVector.push_back(ITEM_DATA_INDEX_TYPE_NONE);
+	indexTypeVector.push_back(ITEM_DATA_INDEX_TYPE_MULTI);
+	x_table->defineIndex(indexTypeVector);
+
+	for (int i = 0; i < NUM_TABLE0; i++) {
+		ItemGroup* grp = new ItemGroup();
+		addItemTable0(grp, &tableContent0[i]);
+		x_table->add(grp, false);
+	}
+
+	// find unique index for age
+	const ItemDataIndexVector &actualIndexes = x_table->getIndexVector();
+	const ItemDataIndex *itemDataIndex = actualIndexes[0];
+	vector<ItemDataPtrForIndex> foundItems;
+	const int findValue = tableContent0[0].age;
+	ItemDataPtr itemData(new ItemInt(findValue), false);
+	itemDataIndex->find((const ItemData *)itemData, foundItems);
+	vector<size_t> expectedItemIndexes;
+	GET_ITEMS(tableContent0, age, NUM_TABLE0,
+	          findValue, expectedItemIndexes);
+	cppcut_assert_equal(expectedItemIndexes.size(), foundItems.size());
+	for (size_t i = 0; i < expectedItemIndexes.size(); i++) {
+		size_t index = expectedItemIndexes[i];
+		cppcut_assert_equal(findValue, tableContent0[index].age);
+	}
+}
+
+
 } // namespace testItemTable
