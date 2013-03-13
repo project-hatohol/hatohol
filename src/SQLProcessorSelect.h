@@ -70,6 +70,7 @@ struct SQLOutputColumn
 	SQLOutputColumn(const SQLColumnInfo *_columnInfo);
 	~SQLOutputColumn();
 	ItemDataPtr getItem(const ItemGroup *itemGroup) const;
+	void resetStatistics(void);
 };
 
 struct SQLColumnInfo;

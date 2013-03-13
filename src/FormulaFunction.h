@@ -52,7 +52,6 @@ private:
 class FormulaStatisticalFunc : public FormulaFunction {
 public:
 	FormulaStatisticalFunc(int numArguments = NUM_ARGUMENTS_VARIABLE);
-	virtual void resetStatistics(void) = 0;
 };
 
 // ---------------------------------------------------------------------------

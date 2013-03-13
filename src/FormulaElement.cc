@@ -125,6 +125,13 @@ FormulaElement *FormulaElement::findInsertPoint(FormulaElement *insertElem,
 	return prev;
 }
 
+void FormulaElement::resetStatistics(void)
+{
+	// SHOULD BE CONSIDERED:
+	// If statistical functions are used as a part of a formula,
+	// we should add call child resetStatistics() in chains.
+}
+
 bool FormulaElement::getHandDataWithCheck(ItemDataPtr &dataPtr,
                                           FormulaElement *hand,
                                           const char *handName)

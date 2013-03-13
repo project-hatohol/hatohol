@@ -200,6 +200,12 @@ struct SQLProcessorSelect::PrivateContext {
 		columnIndexResolver.setTableVarInfoMap
 		  (&selectInfo->tableVarInfoMap);
 	};
+
+	void resetStatistics(void) {
+		size_t outColumnSize = selectInfo->outputColumnVector.size();
+		for (size_t i = 0; i < outColumnSize; i++)
+			selectInfo->outputColumnVector[i].resetStatistics();
+	}
 };
 
 const SelectSubParser SQLProcessorSelect::PrivateContext::selectSubParsers[] = {
@@ -344,6 +350,12 @@ ItemDataPtr SQLOutputColumn::getItem(const ItemGroup *itemGroup) const
 		return itemGroup->getItem(columnDef->itemId);
 	MLPL_BUG("formulaInfo and columnInfo are both NULL.");
 	return ItemDataPtr();
+}
+
+void SQLOutputColumn::resetStatistics(void)
+{
+	if (formulaInfo)
+		formulaInfo->formula->resetStatistics();
 }
 
 // ---------------------------------------------------------------------------
@@ -892,8 +904,10 @@ void SQLProcessorSelect::makeTextOutputForAllGroups(void)
 {
 	m_ctx->useEvalTargetItemGroup = true;
 	ItemTablePtrListIterator it = m_ctx->selectInfo->groupedTables.begin();
-	for (; it != m_ctx->selectInfo->groupedTables.end(); ++it)
+	for (; it != m_ctx->selectInfo->groupedTables.end(); ++it) {
 		makeTextOutput(*it);
+		m_ctx->resetStatistics();
+	}
 }
 
 void SQLProcessorSelect::makeTextOutput(ItemTablePtr &tablePtr)

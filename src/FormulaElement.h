@@ -83,6 +83,7 @@ public:
 	                                FormulaElement *upperLimitElem = NULL);
 
 	virtual ItemDataPtr evaluate(void) = 0;
+	virtual void resetStatistics(void);
 
 	// mainly for debug
 	int getTreeInfo(string &str, int maxNumElem = -1, int currNum = 0,

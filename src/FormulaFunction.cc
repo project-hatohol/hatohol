@@ -138,6 +138,7 @@ ItemDataPtr FormulaFuncMax::evaluate(void)
 void FormulaFuncMax::resetStatistics(void)
 {
 	m_maxData = ItemDataPtr();
+	FormulaElement::resetStatistics();
 }
 
 // ---------------------------------------------------------------------------
@@ -176,6 +177,7 @@ void FormulaFuncCount::resetStatistics(void)
 {
 	m_count = 0;
 	m_itemDataSet.clear();
+	FormulaElement::resetStatistics();
 }
 
 bool FormulaFuncCount::isDistinct(void) const
@@ -222,4 +224,5 @@ ItemDataPtr FormulaFuncSum::evaluate(void)
 void FormulaFuncSum::resetStatistics(void)
 {
 	m_dataPtr = NULL;
+	FormulaElement::resetStatistics();
 }
