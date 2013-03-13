@@ -352,6 +352,8 @@ void ArmZabbixAPI::pushFunctionsCacheOne(JsonParserAgent &parser,
 	startElement(parser, index);
 	pushUint64(parser, grp, "functionid", ITEM_ID_ZBX_FUNCTIONS_FUNCTIONID);
 	pushUint64(parser, grp, "itemid",     ITEM_ID_ZBX_FUNCTIONS_ITEMID);
+	grp->add(new ItemUint64(ITEM_ID_ZBX_FUNCTIONS_TRIGGERID,
+	                        m_ctx->triggerid), false);
 	pushString(parser, grp, "function",   ITEM_ID_ZBX_FUNCTIONS_FUNCTION);
 	pushString(parser, grp, "parameter",  ITEM_ID_ZBX_FUNCTIONS_PARAMETER);
 	parser.endElement();
@@ -363,8 +365,6 @@ void ArmZabbixAPI::pushFunctionsCache(JsonParserAgent &parser)
 	int numFunctions = parser.countElements();
 	for (int i = 0; i < numFunctions; i++) {
 		ItemGroupPtr itemGroup;
-		ItemId id = ITEM_ID_ZBX_FUNCTIONS_TRIGGERID;
-		itemGroup->add(new ItemUint64(id, m_ctx->triggerid), false);
 		pushFunctionsCacheOne(parser, itemGroup, i);
 		m_ctx->functionsTablePtr->add(itemGroup);
 	}
