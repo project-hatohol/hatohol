@@ -61,7 +61,9 @@ static void _assertRecord(size_t numExpectedLines, NumberStringMap &nsmap,
 	vector<string> lines;
 	string stdOutStr(g_standardOutput);
 	StringUtils::split(lines, stdOutStr, '\n');
-	cppcut_assert_equal(numExpectedLines, lines.size());
+	cppcut_assert_equal(
+	  numExpectedLines, lines.size(),
+	  cut_message("Standard output:\n%s", g_standardOutput));
 
 	NumberStringMapIterator it = nsmap.begin();
 	for (; it != nsmap.end(); ++it) {
