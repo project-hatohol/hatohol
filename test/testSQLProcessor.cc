@@ -167,10 +167,14 @@ struct TestData1 {
 };
 
 static TestData1 testData1[] = {
-  {20, "bird", "meet"},
-  {-5, "cat", "parfait"},
+  {20, "bird", "meat"},
+  {5, "cat", "parfait"},
   {100,"Dragon", "orange"},
   {52, "fellow", "pizza"},
+  {100, "Dragon", "fish"},
+  {5, "cat", "cat food"},
+  {5, "lion", "meat"},
+  {5, "cat", "dog food"},
 };
 static size_t numTestData1 = sizeof(testData1) / sizeof(TestData1);
 
@@ -380,6 +384,44 @@ static void getValueData0NumberEqData1Age(multiset<int> &valueSet)
 	}
 }
 
+struct CountableNumberStringPair {
+	int    num;
+	string str;
+	size_t count;
+};
+
+static CountableNumberStringPair *
+findNumberStringPair(vector<CountableNumberStringPair> &nsPairVect,
+                     int number, const string &str)
+{
+	for (size_t i = 0; i < nsPairVect.size(); i++) {
+		CountableNumberStringPair &nsPair = nsPairVect[i];
+		if (nsPair.num != number)
+			continue;
+		if (nsPair.str != str)
+			continue;
+		return &nsPair;
+	}
+	return NULL;
+}
+
+static void
+getValueDistinctAgeAnimalSet(vector<CountableNumberStringPair> &nsPairVect)
+{
+	CountableNumberStringPair *nsPtr;
+	for (size_t i = 0; i < numTestData1; i++) {
+		nsPtr = findNumberStringPair
+		          (nsPairVect, testData1[i].age, testData1[i].animal);
+		if (nsPtr) {
+			nsPtr->count++;
+		} else {
+			CountableNumberStringPair nsPair;
+			nsPair.num = testData1[i].age;
+			nsPair.str = testData1[i].animal;
+			nsPair.count = 1;
+		}
+	}
+}
 
 static void
 getIndexesOfDataWithValueInTestData0(vector<size_t> &indexes, int value)
@@ -1147,6 +1189,46 @@ void test_groupByCountDistinct(void) {
 	                    selectInfo.textRows.size());
 	for (int i = 0; i < expectedOutputSet.size(); i++)
 		cppcut_assert_equal(string("1"), selectInfo.textRows[i][0]);
+}
+
+void test_groupByTwoColumns(void) {
+	string statement =
+	  StringUtils::sprintf("select count(%s),%s,%s from %s group by %s,%s",
+	                       COLUMN_NAME_AGE, COLUMN_NAME_AGE,TABLE1_NAME,
+	                       COLUMN_NAME_AGE, COLUMN_NAME_ANIMAL);
+	// check the result
+	vector<CountableNumberStringPair> distinctValues;
+	getValueDistinctAgeAnimalSet(distinctValues);
+	const size_t expectedNumColumns = 3;
+	const size_t expectedNumRows = distinctValues.size();
+	DEFINE_SELECTINFO_AND_ASSERT_SELECT(
+	  selectInfo, statement, expectedNumColumns, numTestData1,
+	  expectedNumRows);
+
+	// make the expected output string set and check it
+	multiset<string> expectedOutputSet;
+	for (size_t i = 0; i < distinctValues.size(); i++) {
+		CountableNumberStringPair &nsPair = distinctValues[i];
+		string text =
+		  StringUtils::sprintf("%d,%d,%s",
+		                       nsPair.count, nsPair.num,
+		                       nsPair.str.c_str());
+		expectedOutputSet.insert(text);
+	}
+
+	// make the merged actual output string
+	vector<StringVector> actualOutput;
+	for (size_t i = 0; i < selectInfo.textRows.size(); i++) {
+		StringVector &rows = selectInfo.textRows[i];
+		string str =
+		  StringUtils::sprintf("%s,%s,%s",
+		    rows[0].c_str(), rows[1].c_str(), rows[2].c_str());
+		StringVector strVec;
+		strVec.push_back(str);
+		actualOutput.push_back(strVec);
+	}
+
+	assertEqualUnawareOfOrder(expectedOutputSet, actualOutput, 0);
 }
 
 void test_whereIn(void) {
