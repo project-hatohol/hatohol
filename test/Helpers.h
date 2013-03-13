@@ -14,9 +14,12 @@ void _assertStringVector(StringVector &expected, StringVector &actual);
 
 template<typename T>
 static ItemTable * addItems(T* srcTable, int numTable,
-                            void (*addFunc)(ItemGroup *, T *))
+                            void (*addFunc)(ItemGroup *, T *),
+                            void (*tableCreatedCb)(ItemTable *) = NULL)
 {
 	ItemTable *table = new ItemTable();
+	if (tableCreatedCb)
+		(*tableCreatedCb)(table);
 	for (int i = 0; i < numTable; i++) {
 		ItemGroup* grp = new ItemGroup();
 		(*addFunc)(grp, &srcTable[i]);
