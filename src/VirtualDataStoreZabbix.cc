@@ -310,7 +310,7 @@ VirtualDataStoreZabbix::VirtualDataStoreZabbix(void)
 	table->add(grp);
 
 	grp = ItemGroupPtr();
-	ADD(new ItemUint64(ITEM_ID_ZBX_USRGRP_USRGRPID,  11));
+	ADD(new ItemUint64(ITEM_ID_ZBX_USRGRP_USRGRPID,  12));
 	ADD(new ItemString(ITEM_ID_ZBX_USRGRP_NAME, "No access to the frontend"));
 	ADD(new ItemInt(ITEM_ID_ZBX_USRGRP_GUI_ACCESS,   2));
 	ADD(new ItemInt(ITEM_ID_ZBX_USRGRP_USERS_STATUS, 0));
