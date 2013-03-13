@@ -8,6 +8,7 @@ using namespace std;
 using namespace mlpl;
 
 #include <cstdio>
+#include <sys/time.h>
 #include <cutter.h>
 #include <cppcutter.h>
 #include <glib.h>
@@ -98,6 +99,22 @@ static void executeCommand(const char *cmd)
 	cppcut_assert_equal((gboolean)TRUE, g_spawnRet,
 	                    cut_message("%s", execResult()));
 	cppcut_assert_equal(0, g_exitStatus, cut_message("%s", execResult()));
+}
+
+static string g_sessionId;
+static void createRandomSessionId(void)
+{
+	struct timeval tv;
+	cppcut_assert_equal(0, gettimeofday(&tv, NULL));
+	unsigned int seed = tv.tv_sec * 1000000 + tv.tv_usec;
+	srand(seed);
+	for (int i = 0; i < 32; i++) {
+		char buf[100];
+		int x = 16 * ((double)rand() / RAND_MAX);
+		if (x >= 16)
+			x = 15;
+		g_sessionId += StringUtils::sprintf("%x", x);
+	}
 }
 
 // ---------------------------------------------------------------------------
@@ -213,10 +230,12 @@ void test_selectUseridAutoLogoutLastAccess(void)
 
 void test_insertSessions(void)
 {
+	createRandomSessionId();
 	const char *cmd = "use zabbix;"
 	  "INSERT INTO sessions (sessionid,userid,lastaccess,status) "
-	  "VALUES ('9ba4d7eb67f2025db7d3e881ee64702c',2,1361063975,0)";
-	executeCommand(cmd);
+	  "VALUES ('%s',2,1361063975,0)";
+	string cmdStr = StringUtils::sprintf(cmd, g_sessionId.c_str());
+	executeCommand(cmdStr.c_str());
 	NumberStringMap nsmap;
 	assertRecord(0, nsmap);
 }
@@ -226,8 +245,9 @@ void test_updateSessions(void)
 	cut_trace(test_insertSessions());
 	const char *cmd = "use zabbix;"
 	  "UPDATE sessions SET lastaccess=1361275141 "
-	  "WHERE userid=2 AND sessionid='9ba4d7eb67f2025db7d3e881ee64702c'";
-	executeCommand(cmd);
+	  "WHERE userid=2 AND sessionid='%s'";
+	string cmdStr = StringUtils::sprintf(cmd, g_sessionId.c_str());
+	executeCommand(cmdStr.c_str());
 	NumberStringMap nsmap;
 	assertRecord(0, nsmap);
 }
