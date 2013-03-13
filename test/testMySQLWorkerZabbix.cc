@@ -111,7 +111,6 @@ static void createRandomSessionId(void)
 	unsigned int seed = tv.tv_sec * 1000000 + tv.tv_usec;
 	srand(seed);
 	for (int i = 0; i < 32; i++) {
-		char buf[100];
 		int x = 16 * ((double)rand() / RAND_MAX);
 		if (x >= 16)
 			x = 15;
