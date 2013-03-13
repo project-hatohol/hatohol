@@ -62,6 +62,12 @@ void FormulaFunction::pushArgument(FormulaElement *formulaElement)
 //
 // Virtual methods
 //
+void FormulaFunction::resetStatistics(void)
+{
+	for (size_t i = 0; i < m_argVector.size(); i++)
+		m_argVector[i]->resetStatistics();;
+}
+
 bool FormulaFunction::addArgument(FormulaElement *argument)
 {
 	if (m_numArgument >= 0) {
@@ -138,7 +144,7 @@ ItemDataPtr FormulaFuncMax::evaluate(void)
 void FormulaFuncMax::resetStatistics(void)
 {
 	m_maxData = ItemDataPtr();
-	FormulaElement::resetStatistics();
+	FormulaFunction::resetStatistics();
 }
 
 // ---------------------------------------------------------------------------
@@ -177,7 +183,7 @@ void FormulaFuncCount::resetStatistics(void)
 {
 	m_count = 0;
 	m_itemDataSet.clear();
-	FormulaElement::resetStatistics();
+	FormulaFunction::resetStatistics();
 }
 
 bool FormulaFuncCount::isDistinct(void) const
@@ -224,5 +230,5 @@ ItemDataPtr FormulaFuncSum::evaluate(void)
 void FormulaFuncSum::resetStatistics(void)
 {
 	m_dataPtr = NULL;
-	FormulaElement::resetStatistics();
+	FormulaFunction::resetStatistics();
 }

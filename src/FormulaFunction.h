@@ -31,6 +31,7 @@ public:
 
 	FormulaFunction(int m_numArgument = NUM_ARGUMENTS_VARIABLE);
 	virtual ~FormulaFunction();
+	virtual void resetStatistics(void);
 	virtual bool addArgument(FormulaElement *argument);
 	virtual bool close(void);
 
