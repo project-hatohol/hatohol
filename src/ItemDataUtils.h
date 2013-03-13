@@ -60,7 +60,8 @@ public:
 	virtual ~ItemDataIndex();
 	ItemDataIndexType getIndexType(void) const;
 	bool insert(const ItemData *itemData, ItemGroup* itemGroup);
-	bool find(const ItemData *itemData, vector<ItemDataPtrForIndex> &);
+	bool find(const ItemData *itemData,
+	          vector<ItemDataPtrForIndex> &foundItems) const;
 private:
 	ItemDataIndexType m_type;
 	ItemDataForIndexSet      *m_index;

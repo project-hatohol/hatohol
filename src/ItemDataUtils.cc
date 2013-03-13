@@ -77,7 +77,7 @@ bool ItemDataIndex::insert(const ItemData *itemData,
 }
 
 bool ItemDataIndex::find(const ItemData *itemData,
-                         vector<ItemDataPtrForIndex> &foundItems)
+                         vector<ItemDataPtrForIndex> &foundItems) const
 {
 	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
 	return false;
