@@ -55,13 +55,13 @@ static const char *execResult(void)
 	return str.c_str();
 }
 
-static void _assertRecord(int numExpectedLines, NumberStringMap &nsmap,
+static void _assertRecord(size_t numExpectedLines, NumberStringMap &nsmap,
                           vector<string> *linesOut = NULL)
 {
 	vector<string> lines;
 	string stdOutStr(g_standardOutput);
 	StringUtils::split(lines, stdOutStr, '\n');
-	cut_assert_equal_int(numExpectedLines, lines.size());
+	cppcut_assert_equal(numExpectedLines, lines.size());
 
 	NumberStringMapIterator it = nsmap.begin();
 	for (; it != nsmap.end(); ++it) {
