@@ -48,11 +48,17 @@ enum ItemDataIndexType {
 };
 
 struct ItemDataPtrForIndex : public ItemDataPtr {
-	ItemGroupPtr itemGroup;
+	ItemGroupPtr itemGroupPtr;
+
+	// construct
+	ItemDataPtrForIndex(const ItemData *itemData, const ItemGroup *itemGrp);
 };
 
 typedef set<ItemDataPtrForIndex, ItemDataPtrComparator> ItemDataForIndexSet;
+typedef ItemDataForIndexSet::iterator ItemDataForIndexSetIterator;
+
 typedef multiset<ItemDataPtrForIndex, ItemDataPtrComparator> ItemDataForIndexMultiSet;
+typedef ItemDataForIndexMultiSet::iterator ItemDataForIndexMultiSetIterator;
 
 class ItemDataIndex {
 public:
@@ -60,7 +66,7 @@ public:
 	virtual ~ItemDataIndex();
 	ItemDataIndexType getIndexType(void) const;
 	bool insert(const ItemData *itemData, ItemGroup* itemGroup);
-	bool find(const ItemData *itemData,
+	void find(const ItemData *itemData,
 	          vector<ItemDataPtrForIndex> &foundItems) const;
 private:
 	ItemDataIndexType m_type;

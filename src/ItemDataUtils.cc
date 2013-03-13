@@ -47,6 +47,17 @@ ItemDataPtr ItemDataUtils::createAsNumberOrString(const string &word)
 }
 
 // ---------------------------------------------------------------------------
+// ItemDataPtrForIndex
+// ---------------------------------------------------------------------------
+ItemDataPtrForIndex::ItemDataPtrForIndex(const ItemData *itemData,
+                                         const ItemGroup *itemGrp)
+// TODO: remove cast by letting ItemPtr have a const pointer.
+: ItemDataPtr((ItemData *)itemData),
+  itemGroupPtr((ItemGroup *)itemGrp)
+{
+}
+
+// ---------------------------------------------------------------------------
 // ItemDataIndex
 // ---------------------------------------------------------------------------
 ItemDataIndex::ItemDataIndex(ItemDataIndexType type)
@@ -54,6 +65,10 @@ ItemDataIndex::ItemDataIndex(ItemDataIndexType type)
   m_index(NULL),
   m_multiIndex(NULL)
 {
+	if (m_type == ITEM_DATA_INDEX_TYPE_UNIQUE)
+		m_index = new ItemDataForIndexSet();
+	else if (m_type == ITEM_DATA_INDEX_TYPE_MULTI)
+		m_multiIndex = new ItemDataForIndexMultiSet();
 }
 
 ItemDataIndex::~ItemDataIndex()
@@ -72,13 +87,40 @@ ItemDataIndexType ItemDataIndex::getIndexType(void) const
 bool ItemDataIndex::insert(const ItemData *itemData,
                            ItemGroup* itemGroup)
 {
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	if (m_type == ITEM_DATA_INDEX_TYPE_UNIQUE) {
+		ItemDataPtrForIndex itemPtrForIndex(itemData, itemGroup);
+		pair<ItemDataForIndexSetIterator, bool> result = 
+		  m_index->insert(itemPtrForIndex);
+		return result.second;
+	} else if (m_type == ITEM_DATA_INDEX_TYPE_MULTI) {
+		ItemDataPtrForIndex itemPtrForIndex(itemData, itemGroup);
+		m_multiIndex->insert(itemPtrForIndex);
+		return true;
+	}
+	MLPL_WARN("Unexpectedly insert() is called: type: %d\n", m_type);
 	return false;
 }
 
-bool ItemDataIndex::find(const ItemData *itemData,
+void ItemDataIndex::find(const ItemData *itemData,
                          vector<ItemDataPtrForIndex> &foundItems) const
 {
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
-	return false;
+	if (m_type == ITEM_DATA_INDEX_TYPE_UNIQUE) {
+		ItemDataPtrForIndex key(itemData, NULL);
+		ItemDataForIndexSetIterator it = m_index->find(key);
+		if (it == m_index->end())
+			return;
+		foundItems.push_back(*it);
+	} else if (m_type == ITEM_DATA_INDEX_TYPE_MULTI) {
+		ItemDataPtrForIndex key(itemData, NULL);
+		pair<ItemDataForIndexMultiSetIterator,
+		     ItemDataForIndexMultiSetIterator> itrSet =
+		  m_multiIndex->equal_range(key);
+		if (itrSet.first == itrSet.second)
+			return;
+		ItemDataForIndexMultiSetIterator it = itrSet.first;
+		for (; it != itrSet.second; ++it)
+			foundItems.push_back(*it);
+	} else {
+		MLPL_WARN("Unexpectedly find() is called: type: %d\n", m_type);
+	}
 }
