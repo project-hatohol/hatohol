@@ -1122,6 +1122,33 @@ void test_groupBy(void) {
 	                          selectInfo.textRows, targetIndex);
 }
 
+void test_groupByCountDistinct(void) {
+	string statement =
+	  StringUtils::sprintf("select count(distinct %s) from %s group by %s",
+	                       COLUMN_NAME_NUMBER, TABLE0_NAME,
+	                       COLUMN_NAME_NUMBER);
+	// check the result
+	set<int> distinctValues;
+	getDistinctValueInTestData0(distinctValues);
+	const size_t expectedNumColumns = 1;
+	const size_t expectedNumRows = distinctValues.size();
+	DEFINE_SELECTINFO_AND_ASSERT_SELECT(
+	  selectInfo, statement, expectedNumColumns, numTestData0,
+	  expectedNumRows);
+
+	// make the expected output string set and check it
+	multiset<string> expectedOutputSet;
+	for (set<int>::iterator it = distinctValues.begin();
+	     it != distinctValues.end(); ++it) {
+		string text = StringUtils::sprintf("%d", *it);
+		expectedOutputSet.insert(text);
+	}
+	cppcut_assert_equal(expectedOutputSet.size(),
+	                    selectInfo.textRows.size());
+	for (int i = 0; i < expectedOutputSet.size(); i++)
+		cppcut_assert_equal(string("1"), selectInfo.textRows[i][0]);
+}
+
 void test_whereIn(void) {
 	int selectValue0 = -5;
 	int selectValue1 = 15;
