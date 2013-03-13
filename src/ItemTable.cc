@@ -212,7 +212,8 @@ void ItemTable::defineIndex(const vector<ItemDataIndexType> &indexTypeVector)
 		THROW_ASURA_EXCEPTION("m_indexVector is NOT empty.");
 
 	if (!m_groupList.empty()) {
-		if (m_groupList.size() != indexTypeVector.size()) {
+		ItemGroup *firstGroup = *m_groupList.begin();
+		if (firstGroup->getNumberOfItems() != indexTypeVector.size()) {
 			THROW_ASURA_EXCEPTION(
 			  "m_groupList.size() [%zd] != "
 			  "indexTypeVector.size() [%zd]",
