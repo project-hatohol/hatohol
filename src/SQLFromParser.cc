@@ -247,6 +247,10 @@ void SQLFromParser::subParserExpectRightField
 
 void SQLFromParser::doJoineOneRow(FormulaElement *whereFormula)
 {
+	ItemGroupPtr activeRow = m_ctx->tableFormula->getActiveRow();
+	if (!activeRow.hasData())
+		return;
+
 	bool shouldAdd = false;
 	if (whereFormula == NULL) {
 		// This condition occurs when no where section.
@@ -261,9 +265,6 @@ void SQLFromParser::doJoineOneRow(FormulaElement *whereFormula)
 		shouldAdd = *matched;
 	}
 	if (!shouldAdd)
-		return;
-	ItemGroupPtr activeRow = m_ctx->tableFormula->getActiveRow();
-	if (!activeRow.hasData())
 		return;
 	m_ctx->joinedTable->add(activeRow);
 }
