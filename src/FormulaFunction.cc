@@ -65,7 +65,7 @@ void FormulaFunction::pushArgument(FormulaElement *formulaElement)
 void FormulaFunction::resetStatistics(void)
 {
 	for (size_t i = 0; i < m_argVector.size(); i++)
-		m_argVector[i]->resetStatistics();;
+		m_argVector[i]->resetStatistics();
 }
 
 bool FormulaFunction::addArgument(FormulaElement *argument)
