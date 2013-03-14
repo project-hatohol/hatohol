@@ -1195,7 +1195,7 @@ void test_groupByTwoColumns(void) {
 	string statement =
 	  StringUtils::sprintf("select count(%s),%s,%s from %s group by %s,%s",
 	                       COLUMN_NAME_AGE,
-	                       COLUMN_NAME_AGE,COLUMN_NAME_ANIMAL,
+	                       COLUMN_NAME_AGE, COLUMN_NAME_ANIMAL,
 	                       TABLE1_NAME,
 	                       COLUMN_NAME_AGE, COLUMN_NAME_ANIMAL);
 	// check the result
