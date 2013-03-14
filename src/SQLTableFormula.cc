@@ -342,6 +342,38 @@ void SQLTableInnerJoin::prepareJoin(JoinContext *joinCtx)
 	}
 	rightTableCtx->innerJoinLeftTableCtx = leftTableCtx;
 	SQLTableJoin::prepareJoin(joinCtx);
+
+	//
+	// The following lines are for getActiveRows()
+	//
+
+	// The following code is copied from getTable(). We want to
+	// extract same part as a function.
+	if (!m_columnIndexResolver)
+		THROW_ASURA_EXCEPTION("m_columnIndexResolver: NULL");
+
+	SQLTableFormula *leftFormula = getLeftFormula();
+	SQLTableFormula *rightFormula = getRightFormula();
+	if (!leftFormula || !rightFormula) {
+		THROW_SQL_PROCESSOR_EXCEPTION(
+		  "leftFormula (%p) or rightFormula (%p) is NULL.\n",
+		  leftFormula, rightFormula);
+	}
+
+	if (m_indexLeftJoinColumn == INDEX_NOT_SET) {
+		m_indexLeftJoinColumn =
+		  m_columnIndexResolver->getIndex(m_leftTableName,
+		                                  m_leftColumnName);
+		m_indexLeftJoinColumn +=
+		   leftFormula->getColumnIndexOffset(m_leftTableName);
+	}
+	if (m_indexRightJoinColumn == INDEX_NOT_SET) {
+		m_indexRightJoinColumn =
+		  m_columnIndexResolver->getIndex(m_rightTableName,
+		                                  m_rightColumnName);
+		m_indexRightJoinColumn +=
+		  rightFormula->getColumnIndexOffset(m_rightTableName);
+	}
 }
 
 ItemTablePtr SQLTableInnerJoin::getTable(void)
@@ -378,34 +410,8 @@ ItemTablePtr SQLTableInnerJoin::getTable(void)
 
 ItemGroupPtr SQLTableInnerJoin::getActiveRow(void)
 {
-	// The following code is copied from getTable(). We want to
-	// extract same part as a function.
-	if (!m_columnIndexResolver)
-		THROW_ASURA_EXCEPTION("m_columnIndexResolver: NULL");
-
 	SQLTableFormula *leftFormula = getLeftFormula();
 	SQLTableFormula *rightFormula = getRightFormula();
-	if (!leftFormula || !rightFormula) {
-		THROW_SQL_PROCESSOR_EXCEPTION(
-		  "leftFormula (%p) or rightFormula (%p) is NULL.\n",
-		  leftFormula, rightFormula);
-	}
-
-	if (m_indexLeftJoinColumn == INDEX_NOT_SET) {
-		m_indexLeftJoinColumn =
-		  m_columnIndexResolver->getIndex(m_leftTableName,
-		                                  m_leftColumnName);
-		m_indexLeftJoinColumn +=
-		   leftFormula->getColumnIndexOffset(m_leftTableName);
-	}
-	if (m_indexRightJoinColumn == INDEX_NOT_SET) {
-		m_indexRightJoinColumn =
-		  m_columnIndexResolver->getIndex(m_rightTableName,
-		                                  m_rightColumnName);
-		m_indexRightJoinColumn +=
-		  rightFormula->getColumnIndexOffset(m_rightTableName);
-	}
-
 
 	ItemGroupPtr leftGrpPtr = leftFormula->getActiveRow();
 	if (!leftGrpPtr.hasData())
