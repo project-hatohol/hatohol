@@ -419,6 +419,7 @@ getValueDistinctAgeAnimalSet(vector<CountableNumberStringPair> &nsPairVect)
 			nsPair.num = testData1[i].age;
 			nsPair.str = testData1[i].animal;
 			nsPair.count = 1;
+			nsPairVect.push_back(nsPair);
 		}
 	}
 }
