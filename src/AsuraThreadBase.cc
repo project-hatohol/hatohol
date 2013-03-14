@@ -43,7 +43,7 @@ AsuraThreadBase::~AsuraThreadBase()
 
 void AsuraThreadBase::start(bool autoDeleteObject)
 {
-	AsuraThreadArg *arg = new AsuraThreadArg();;
+	AsuraThreadArg *arg = new AsuraThreadArg();
 	arg->obj = this;
 	arg->autoDeleteObject = autoDeleteObject;
 	GError *error = NULL;

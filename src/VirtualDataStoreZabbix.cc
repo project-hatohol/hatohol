@@ -92,10 +92,10 @@ ItemTable *VirtualDataStoreZabbix::createStaticItemTable(ItemGroupId groupId)
 {
 	pair<ItemGroupIdTableMapIterator, bool> result;
 	ItemTable *table = new ItemTable();
-	m_staticItemTableMapLock.writeLock();;
+	m_staticItemTableMapLock.writeLock();
 	result = m_staticItemTableMap.insert
 	         (pair<ItemGroupId, ItemTable *>(groupId, table));
-	m_staticItemTableMapLock.writeUnlock();;
+	m_staticItemTableMapLock.writeUnlock();
 	if (!result.second) {
 		string msg;
 		TRMSG(msg, "Failed: insert: groupId: %"PRIx_ITEM_GROUP". "

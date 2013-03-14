@@ -43,7 +43,7 @@ struct SQLFormulaParser::PrivateContext {
 
 	void pushPendingWords(string &raw, string &lower) {
 		pendingWord = raw;
-		pendingWordLower = lower;;
+		pendingWordLower = lower;
 	}
 
 	bool hasPendingWord(void) {

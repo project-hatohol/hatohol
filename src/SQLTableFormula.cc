@@ -306,12 +306,12 @@ void SQLTableJoin::prepareJoin(JoinContext *joinCtx)
 
 void SQLTableJoin::setLeftFormula(SQLTableFormula *tableFormula)
 {
-	m_leftFormula = tableFormula;;
+	m_leftFormula = tableFormula;
 }
 
 void SQLTableJoin::setRightFormula(SQLTableFormula *tableFormula)
 {
-	m_rightFormula = tableFormula;;
+	m_rightFormula = tableFormula;
 }
 
 ItemGroupPtr SQLTableJoin::getActiveRow(void)
@@ -416,7 +416,7 @@ void SQLTableInnerJoin::prepareJoin(JoinContext *joinCtx)
 	rightTableCtx->innerJoinColumnIndex =
 	  m_columnIndexResolver->getIndex(m_rightTableName,
 	                                  m_rightColumnName);
-	m_rightTableElement = rightTableCtx->tableElement;;
+	m_rightTableElement = rightTableCtx->tableElement;
 	SQLTableJoin::prepareJoin(joinCtx);
 
 	//

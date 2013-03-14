@@ -57,7 +57,7 @@ protected:
 
 	typedef void (SQLFormulaParser::*FunctionParser)(void);
 	typedef map<string, FunctionParser> FunctionParserMap;
-	typedef FunctionParserMap::iterator FunctionParserMapIterator;;
+	typedef FunctionParserMap::iterator FunctionParserMapIterator;
 
 
 	//

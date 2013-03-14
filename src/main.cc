@@ -56,7 +56,7 @@ int mainRoutine(int argc, char *argv[])
 
 int main(int argc, char *argv[])
 {
-	int ret = EXIT_FAILURE;;
+	int ret = EXIT_FAILURE;
 	try {
 		ret = mainRoutine(argc, argv);
 	} catch (const AsuraException &e){
