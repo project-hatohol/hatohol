@@ -383,7 +383,8 @@ SQLTableInnerJoin::SQLTableInnerJoin
   m_rightColumnName(rightColumnName),
   m_indexLeftJoinColumn(INDEX_NOT_SET),
   m_indexRightJoinColumn(INDEX_NOT_SET),
-  m_columnIndexResolver(resolver)
+  m_columnIndexResolver(resolver),
+  m_rightTableElement(NULL)
 {
 }
 
@@ -415,6 +416,7 @@ void SQLTableInnerJoin::prepareJoin(JoinContext *joinCtx)
 	rightTableCtx->innerJoinColumnIndex =
 	  m_columnIndexResolver->getIndex(m_rightTableName,
 	                                  m_rightColumnName);
+	m_rightTableElement = rightTableCtx->tableElement;;
 	SQLTableJoin::prepareJoin(joinCtx);
 
 	//
@@ -484,6 +486,10 @@ ItemTablePtr SQLTableInnerJoin::getTable(void)
 
 ItemGroupPtr SQLTableInnerJoin::getActiveRow(void)
 {
+	// Right table is in an indexing mode, we can skip the condition check.
+	if (m_rightTableElement->isIndexingMode())
+		return  SQLTableJoin::getActiveRow();
+
 	SQLTableFormula *leftFormula = getLeftFormula();
 	SQLTableFormula *rightFormula = getRightFormula();
 

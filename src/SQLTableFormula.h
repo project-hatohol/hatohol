@@ -211,6 +211,7 @@ private:
 	size_t m_indexLeftJoinColumn;
 	size_t m_indexRightJoinColumn;
 	SQLColumnIndexResoveler *m_columnIndexResolver;
+	SQLTableElement *m_rightTableElement;
 };
 
 #endif // SQLTableFormula_h
