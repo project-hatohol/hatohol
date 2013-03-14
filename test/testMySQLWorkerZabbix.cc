@@ -303,7 +303,7 @@ void test_selectCountTrigger(void)
 	executeCommand(cmd);
 	vector<string> lines;
 	NumberStringMap nsmap;
-	assertRecord(0, nsmap);
+	assertRecord(3, nsmap);
 }
 
 void test_selectCountItemsHosts(void)
