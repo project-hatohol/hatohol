@@ -136,7 +136,26 @@ SQLFromParser::setColumnIndexResolver(SQLColumnIndexResoveler *resolver)
 
 ItemTablePtr SQLFromParser::doJoin(FormulaElement *whereFormula)
 {
-	m_ctx->tableFormula->prepareJoin();
+	// preparation
+	JoinContext joinCtx;
+	SQLTableElementListIterator it = m_ctx->tableElementList.begin();
+	for (; it != m_ctx->tableElementList.end(); ++it) {
+		JoinedTableContext *tableCtx = new JoinedTableContext();
+		SQLTableElement *tableElement = *it;
+		tableElement->setJoinedTableContext(tableCtx);
+
+		tableCtx->tableElement = tableElement;
+		const string &name = tableElement->getName();
+		joinCtx.tableNameCtxMap[name] = tableCtx;
+		const string &var = tableElement->getVarName();
+		if (!var.empty())
+			joinCtx.tableVarCtxMap[var] = tableCtx;
+
+		joinCtx.tableCtxVector.push_back(tableCtx);
+	}
+	m_ctx->tableFormula->prepareJoin(&joinCtx);
+
+	// execute join loop
 	IterateTableRowForJoin(m_ctx->tableElementList.begin(), whereFormula);
 	return m_ctx->joinedTable;
 }

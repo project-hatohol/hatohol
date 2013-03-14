@@ -32,6 +32,34 @@ using namespace mlpl;
 #include "ItemGroupPtr.h"
 
 // ---------------------------------------------------------------------------
+// JoinedTableContext
+// ---------------------------------------------------------------------------
+class SQLTableElement;
+struct JoinedTableContext {
+	SQLTableElement    *tableElement;
+	bool                hasIndex;
+	ItemGroupPtr        activeRow;
+	JoinedTableContext *innerJoinLeftTableCtx;
+	int                 innerJoinColumnIndex; // Right Hand
+
+	// methods
+	JoinedTableContext(void);
+};
+
+// ---------------------------------------------------------------------------
+// JoinContext
+// ---------------------------------------------------------------------------
+struct JoinContext {
+	map<string, JoinedTableContext *> tableNameCtxMap;
+	map<string, JoinedTableContext *> tableVarCtxMap;
+	vector<JoinedTableContext *>      tableCtxVector;
+
+	// methods
+	virtual ~JoinContext();
+	JoinedTableContext *getTableContext(const string &name);
+};
+
+// ---------------------------------------------------------------------------
 // SQLTableFormula
 // ---------------------------------------------------------------------------
 class SQLTableFormula
@@ -52,7 +80,7 @@ public:
 
 	virtual ~SQLTableFormula();
 	virtual ItemTablePtr getTable(void) = 0;
-	virtual void prepareJoin(void);
+	virtual void prepareJoin(JoinContext *joinCtx);
 
 	/**
 	 * Return the active row, which is the currently selected row on
@@ -96,6 +124,7 @@ public:
 	void startRowIterator(void);
 	bool rowIteratorEnd(void);
 	void rowIteratorInc(void);
+	void setJoinedTableContext(JoinedTableContext *joinedTableCtx);
 
 protected:
 	virtual void fixupTableSizeInfo(void);
@@ -106,6 +135,7 @@ private:
 	ItemTablePtr m_itemTablePtr;
 	SQLColumnIndexResoveler *m_columnIndexResolver;
 	ItemGroupListConstIterator m_currSelectedGroup;
+	JoinedTableContext        *m_joinedTableCtx;
 };
 
 typedef list<SQLTableElement *>             SQLTableElementList;
@@ -123,7 +153,7 @@ public:
 	SQLTableFormula *getRightFormula(void) const;
 	void setLeftFormula(SQLTableFormula *tableFormula);
 	void setRightFormula(SQLTableFormula *tableFormula);
-	virtual void prepareJoin(void);
+	virtual void prepareJoin(JoinContext *joinCtx);
 	virtual ItemGroupPtr getActiveRow(void);
 
 protected:
@@ -158,7 +188,7 @@ public:
 	                  const string &rightTableName,
 	                  const string &rightColumnName,
 	                  SQLColumnIndexResoveler *resolver);
-	virtual void prepareJoin(void);
+	virtual void prepareJoin(JoinContext *joinCtx);
 	virtual ItemTablePtr getTable(void);
 	virtual ItemGroupPtr getActiveRow(void);
 

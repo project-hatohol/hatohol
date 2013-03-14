@@ -20,6 +20,39 @@
 #include "AsuraException.h"
 
 // ---------------------------------------------------------------------------
+// JoinedTableContext
+// ---------------------------------------------------------------------------
+JoinedTableContext::JoinedTableContext(void)
+: tableElement(NULL),
+  hasIndex(false),
+  innerJoinLeftTableCtx(NULL),
+  innerJoinColumnIndex(-1)
+{
+}
+
+
+// ---------------------------------------------------------------------------
+// JoinContext
+// ---------------------------------------------------------------------------
+JoinContext::~JoinContext()
+{
+	for (size_t i = 0; i < tableCtxVector.size(); i++)
+		delete tableCtxVector[i];
+}
+
+JoinedTableContext *JoinContext::getTableContext(const string &name)
+{
+	map<string, JoinedTableContext *>::iterator it =
+	  tableVarCtxMap.find(name);
+	if (it != tableVarCtxMap.end())
+		return it->second;
+	it = tableNameCtxMap.find(name);
+	if (it != tableNameCtxMap.end())
+		return it->second;
+	return NULL;
+}
+
+// ---------------------------------------------------------------------------
 // SQLTableFormula
 // ---------------------------------------------------------------------------
 SQLTableFormula::~SQLTableFormula()
@@ -29,7 +62,7 @@ SQLTableFormula::~SQLTableFormula()
 		delete *it;
 }
 
-void SQLTableFormula::prepareJoin(void)
+void SQLTableFormula::prepareJoin(JoinContext *joinCtx)
 {
 }
 
@@ -115,7 +148,8 @@ SQLTableElement::SQLTableElement(const string &name, const string &varName,
                                  SQLColumnIndexResoveler *resolver)
 : m_name(name),
   m_varName(varName),
-  m_columnIndexResolver(resolver)
+  m_columnIndexResolver(resolver),
+  m_joinedTableCtx(NULL)
 {
 }
 
@@ -129,6 +163,7 @@ const string &SQLTableElement::getVarName(void) const
 	return m_varName;
 }
 
+// This function is called from SQLProcessorSelect::makeItemTables()
 void SQLTableElement::setItemTable(ItemTablePtr itemTablePtr)
 {
 	m_itemTablePtr = itemTablePtr;
@@ -166,6 +201,15 @@ void SQLTableElement::fixupTableSizeInfo(void)
 	addTableSizeInfo(m_name, m_varName, numColumns);
 }
 
+// This function is called from
+//   SQLProcessorSelect::doJoinWithFromParser
+//     -> SQLFromParser::doJoin()
+// So In this point, m_itemTablePtr must have a valid value.
+void SQLTableElement::setJoinedTableContext(JoinedTableContext *joinedTableCtx)
+{
+	m_joinedTableCtx = joinedTableCtx;
+}
+
 // ---------------------------------------------------------------------------
 // SQLTableJoin
 // ---------------------------------------------------------------------------
@@ -186,10 +230,10 @@ SQLTableFormula *SQLTableJoin::getRightFormula(void) const
 	return m_rightFormula;
 }
 
-void SQLTableJoin::prepareJoin(void)
+void SQLTableJoin::prepareJoin(JoinContext *joinCtx)
 {
-	m_leftFormula->prepareJoin();
-	m_rightFormula->prepareJoin();
+	m_leftFormula->prepareJoin(joinCtx);
+	m_rightFormula->prepareJoin(joinCtx);
 }
 
 void SQLTableJoin::setLeftFormula(SQLTableFormula *tableFormula)
@@ -275,10 +319,29 @@ SQLTableInnerJoin::SQLTableInnerJoin
 {
 }
 
-void SQLTableInnerJoin::prepareJoin(void)
+void SQLTableInnerJoin::prepareJoin(JoinContext *joinCtx)
 {
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
-	SQLTableJoin::prepareJoin();
+	JoinedTableContext *leftTableCtx =
+	  joinCtx->getTableContext(m_leftTableName);
+	JoinedTableContext *rightTableCtx =
+	  joinCtx->getTableContext(m_rightTableName);
+	if (!leftTableCtx || !rightTableCtx) {
+		THROW_SQL_PROCESSOR_EXCEPTION(
+		  "leftTableCtx (%s:%p) or lightTableCtx (%s:%p) is NULL.\n",
+		  m_leftTableName.c_str(), leftTableCtx,
+		  m_rightTableName.c_str(), rightTableCtx);
+	}
+
+	if (rightTableCtx->innerJoinLeftTableCtx) {
+		THROW_SQL_PROCESSOR_EXCEPTION(
+		  "rightTableCtx->innerJoinLeftTableCtx: Not null. "
+		  "rightTable: %s, innerJoinLeftTable: %s",
+		  m_rightTableName.c_str(),
+		  rightTableCtx->innerJoinLeftTableCtx
+		    ->tableElement->getName().c_str());
+	}
+	rightTableCtx->innerJoinLeftTableCtx = leftTableCtx;
+	SQLTableJoin::prepareJoin(joinCtx);
 }
 
 ItemTablePtr SQLTableInnerJoin::getTable(void)
