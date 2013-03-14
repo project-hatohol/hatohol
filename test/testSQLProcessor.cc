@@ -1064,6 +1064,30 @@ void test_innerJoin(void) {
 	assertInerJoinHelper(statement);
 }
 
+void test_innerJoinLeftHasIndex(void)
+{
+	int columnIndex = ITEM_ID_NUMBER - ITEM_ID_NUMBER;
+	COLUMN0_DEFS[columnIndex].keyType = SQL_KEY_PRI;
+	cut_trace(test_innerJoin());
+}
+
+void test_innerJoinRightHasIndex(void)
+{
+	int columnIndex = ITEM_ID_AGE - ITEM_ID_AGE;
+	COLUMN1_DEFS[columnIndex].keyType = SQL_KEY_PRI;
+	cut_trace(test_innerJoin());
+}
+
+void test_innerJoinLeftRightIndex(void)
+{
+	int columnIndex;
+	columnIndex = ITEM_ID_NUMBER - ITEM_ID_NUMBER;
+	COLUMN0_DEFS[columnIndex].keyType = SQL_KEY_PRI;
+	columnIndex = ITEM_ID_AGE - ITEM_ID_AGE;
+	COLUMN1_DEFS[columnIndex].keyType = SQL_KEY_PRI;
+	cut_trace(test_innerJoin());
+}
+
 void test_innerJoinWithTableNames(void) {
 	const char *tableVarName0 = "tvar0";
 	const char *tableVarName1 = "tvar1";
