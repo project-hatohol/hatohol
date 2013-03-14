@@ -41,6 +41,26 @@ struct ItemDataPtrComparator {
 typedef set<ItemDataPtr, ItemDataPtrComparator> ItemDataSet;
 typedef multiset<ItemDataPtr, ItemDataPtrComparator> ItemDataMultiSet;
 
+struct ItemGroupPtrComparator {
+	bool operator()(const ItemGroupPtr &grpPtr0,
+	                const ItemGroupPtr &grpPtr1) const {
+		size_t size0 = grpPtr0->getNumberOfItems();
+		size_t size1 = grpPtr1->getNumberOfItems();
+		if (size0 != size1)
+			return size0 < size1;
+
+		for (size_t i = 0; i < size0; i++) {
+			const ItemData *data0 = grpPtr0->getItemAt(i);
+			const ItemData *data1 = grpPtr1->getItemAt(i);
+			if (*data0 < *data1)
+				return true;
+			if (*data1 < *data0)
+				return false;
+		}
+		return false;
+	}
+};
+
 enum ItemDataIndexType {
 	ITEM_DATA_INDEX_TYPE_NONE,
 	ITEM_DATA_INDEX_TYPE_UNIQUE,

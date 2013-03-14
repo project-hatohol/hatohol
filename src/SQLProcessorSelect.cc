@@ -158,8 +158,8 @@ struct SQLProcessorSelect::PrivateContext {
 
 	// Members for processing GROUP BY
 	StringVector        groupByColumns;
-	ItemDataTableMap    groupedTableMap;
-	size_t              groupTargetColumnIndex;
+	vector<size_t>      groupByColumnIndexes;
+	ItemGroupTableMap   groupedTableMap;
 
 	// methods
 	PrivateContext(SQLProcessorSelect *procSelect, const string &_dbName,
@@ -192,6 +192,7 @@ struct SQLProcessorSelect::PrivateContext {
 		makeTextRowsWriteMaskCount = 0;
 		concatOutputTextSet.clear();
 		groupByColumns.clear();
+		groupByColumnIndexes.clear();
 		groupedTableMap.clear();
 	}
 
@@ -894,10 +895,9 @@ void SQLProcessorSelect::makeGroups(void)
 		m_ctx->selectInfo->groupedTables.push_back(selectedTable);
 		return;
 	}
-	for (size_t i = 0; i < m_ctx->groupByColumns.size(); i++) {
-		string columnName = m_ctx->groupByColumns[i];
-		makeGroupedTableForColumn(columnName);
-	}
+
+	// When 'GROUP BY' is specified
+	makeGroupByTables();
 }
 
 void SQLProcessorSelect::makeTextOutputForAllGroups(void)
@@ -952,13 +952,22 @@ bool SQLProcessorSelect::makeGroupedTable(const ItemGroup *itemGroup,
 {
 	ItemGroup *nonConstItemGroup = const_cast<ItemGroup *>(itemGroup);
 	PrivateContext *ctx = sqlProcSelect->m_ctx;
-	ItemDataTableMap &groupedTableMap = ctx->groupedTableMap;
-	ItemDataPtr dataPtr = itemGroup->getItemAt(ctx->groupTargetColumnIndex);
-	ItemDataTableMapIterator it = groupedTableMap.find(dataPtr);
+
+	// make an ItemGroup for the target columns of GROUP BY
+	ItemGroupPtr targetItemGroup;
+	for (size_t i = 0; i < ctx->groupByColumnIndexes.size(); i++) {
+		size_t targetIndex = ctx->groupByColumnIndexes[i];
+		targetItemGroup->add(itemGroup->getItemAt(targetIndex));
+	}
+
+	// If the first combination of ItemData (targetItemGroup) comes,
+	// we insert a new table into groupedTableMap.
+	ItemGroupTableMap &groupedTableMap = ctx->groupedTableMap;
+	ItemGroupTableMapIterator it = groupedTableMap.find(targetItemGroup);
 	if (it == groupedTableMap.end()) {
 		ItemTablePtr tablePtr;
 		tablePtr->add(nonConstItemGroup);
-		groupedTableMap[dataPtr] = tablePtr;
+		groupedTableMap[targetItemGroup] = tablePtr;
 	} else {
 		ItemTablePtr &tablePtr = it->second;
 		tablePtr->add(nonConstItemGroup);
@@ -1230,12 +1239,40 @@ SQLProcessorSelect::formulaColumnDataGetterFactory(const string &name,
 	                                      ctx->useEvalTargetItemGroup);
 }
 
-void SQLProcessorSelect::makeGroupedTableForColumn(const string &columnName)
+void SQLProcessorSelect::makeGroupByTables(void)
 {
 	ItemTablePtr &selectedTable = m_ctx->selectInfo->selectedTable;
 
-	// search the column index
+	// make target column index vector
+	for (size_t i = 0; i < m_ctx->groupByColumns.size(); i++) {
+		string &columnName = m_ctx->groupByColumns[i];
+		size_t columnIndex = getColumnIndexInJoinedTable(columnName);
+		m_ctx->groupByColumnIndexes.push_back(columnIndex);
+	}
 
+	// divide the joined table into the grouped
+	selectedTable->foreach<SQLProcessorSelect *>(makeGroupedTable, this);
+
+	// copy the table pointers to groupedTables.
+	ItemGroupTableMapIterator it = m_ctx->groupedTableMap.begin();
+	for (; it != m_ctx->groupedTableMap.end(); ++it)
+		m_ctx->selectInfo->groupedTables.push_back(it->second);
+}
+
+bool SQLProcessorSelect::checkSectionParserChange(void)
+{
+	map<string, SelectSectionParser>::iterator it;
+	it = m_ctx->selectSectionParserMap.find(m_ctx->currWordLower);
+	if (it == m_ctx->selectSectionParserMap.end())
+		return false;
+	// When the function returns 'true', it means
+	// the current word is section keyword and
+	SelectSectionParser sectionParser = it->second;
+	return (this->*sectionParser)();
+}
+
+size_t SQLProcessorSelect::getColumnIndexInJoinedTable(const string &columnName)
+{
 	// TODO: use more efficient algorithm
 	// (However, typical number of tables is two or three. So this
 	//  may not take a lot of time.)
@@ -1261,26 +1298,7 @@ void SQLProcessorSelect::makeGroupedTableForColumn(const string &columnName)
 	} else {
 		tableStaticInfo = (*tables.begin())->staticInfo;
 	}
-	m_ctx->groupTargetColumnIndex =
-	  baseIndex + SQLUtils::getColumnIndex(baseName, tableStaticInfo);
-
-	// make map: key:column, value table
-	selectedTable->foreach<SQLProcessorSelect *>(makeGroupedTable, this);
-
-	// copy the table pointers to groupedTables.
-	ItemDataTableMapIterator it = m_ctx->groupedTableMap.begin();
-	for (; it != m_ctx->groupedTableMap.end(); ++it)
-		m_ctx->selectInfo->groupedTables.push_back(it->second);
-}
-
-bool SQLProcessorSelect::checkSectionParserChange(void)
-{
-	map<string, SelectSectionParser>::iterator it;
-	it = m_ctx->selectSectionParserMap.find(m_ctx->currWordLower);
-	if (it == m_ctx->selectSectionParserMap.end())
-		return false;
-	// When the function returns 'true', it means
-	// the current word is section keyword and
-	SelectSectionParser sectionParser = it->second;
-	return (this->*sectionParser)();
+	size_t index = baseIndex +
+	               SQLUtils::getColumnIndex(baseName, tableStaticInfo);
+	return index;
 }

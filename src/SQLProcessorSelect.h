@@ -273,8 +273,9 @@ protected:
 	  getTableInfoFromVarName(const string &tableVar) const;
 	static FormulaVariableDataGetter *
 	  formulaColumnDataGetterFactory(const string &name, void *priv);
-	void makeGroupedTableForColumn(const string &columnName);
+	void makeGroupByTables(void);
 	bool checkSectionParserChange(void);
+	size_t getColumnIndexInJoinedTable(const string &columnName);
 
 private:
 	struct PrivateContext;
