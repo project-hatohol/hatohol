@@ -52,6 +52,7 @@ public:
 
 	virtual ~SQLTableFormula();
 	virtual ItemTablePtr getTable(void) = 0;
+	virtual void prepareJoin(void);
 
 	/**
 	 * Return the active row, which is the currently selected row on
@@ -122,6 +123,7 @@ public:
 	SQLTableFormula *getRightFormula(void) const;
 	void setLeftFormula(SQLTableFormula *tableFormula);
 	void setRightFormula(SQLTableFormula *tableFormula);
+	virtual void prepareJoin(void);
 	virtual ItemGroupPtr getActiveRow(void);
 
 protected:
@@ -156,6 +158,7 @@ public:
 	                  const string &rightTableName,
 	                  const string &rightColumnName,
 	                  SQLColumnIndexResoveler *resolver);
+	virtual void prepareJoin(void);
 	virtual ItemTablePtr getTable(void);
 	virtual ItemGroupPtr getActiveRow(void);
 

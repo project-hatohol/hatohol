@@ -136,6 +136,7 @@ SQLFromParser::setColumnIndexResolver(SQLColumnIndexResoveler *resolver)
 
 ItemTablePtr SQLFromParser::doJoin(FormulaElement *whereFormula)
 {
+	m_ctx->tableFormula->prepareJoin();
 	IterateTableRowForJoin(m_ctx->tableElementList.begin(), whereFormula);
 	return m_ctx->joinedTable;
 }

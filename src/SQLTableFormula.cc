@@ -29,6 +29,10 @@ SQLTableFormula::~SQLTableFormula()
 		delete *it;
 }
 
+void SQLTableFormula::prepareJoin(void)
+{
+}
+
 size_t SQLTableFormula::getColumnIndexOffset(const string &tableName)
 {
 	if (m_tableSizeInfoVector.empty())
@@ -182,6 +186,12 @@ SQLTableFormula *SQLTableJoin::getRightFormula(void) const
 	return m_rightFormula;
 }
 
+void SQLTableJoin::prepareJoin(void)
+{
+	m_leftFormula->prepareJoin();
+	m_rightFormula->prepareJoin();
+}
+
 void SQLTableJoin::setLeftFormula(SQLTableFormula *tableFormula)
 {
 	m_leftFormula = tableFormula;;
@@ -263,6 +273,12 @@ SQLTableInnerJoin::SQLTableInnerJoin
   m_indexRightJoinColumn(INDEX_NOT_SET),
   m_columnIndexResolver(resolver)
 {
+}
+
+void SQLTableInnerJoin::prepareJoin(void)
+{
+	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	SQLTableJoin::prepareJoin();
 }
 
 ItemTablePtr SQLTableInnerJoin::getTable(void)
