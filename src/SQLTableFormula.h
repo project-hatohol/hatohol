@@ -37,13 +37,16 @@ using namespace mlpl;
 class SQLTableElement;
 struct JoinedTableContext {
 	SQLTableElement    *tableElement;
-	ItemGroupPtr        activeRow;
 	JoinedTableContext *innerJoinLeftTableCtx;
-	int                 innerJoinColumnIndex; // Right Hand
+	int                 innerJoinLeftColumnIndex;
+	int                 innerJoinColumnIndex; // Right Hand (This table)
 	ItemDataIndex      *itemDataIndex;
+	vector<ItemDataPtrForIndex> indexMatchedItems;
+	size_t                      indexMatchedItemsIndex;
 
 	// methods
 	JoinedTableContext(void);
+	void clearIndexingVariables(void);
 };
 
 // ---------------------------------------------------------------------------
@@ -126,6 +129,7 @@ public:
 	bool rowIteratorEnd(void);
 	void rowIteratorInc(void);
 	void setJoinedTableContext(JoinedTableContext *joinedTableCtx);
+	bool isIndexingMode(void);
 
 protected:
 	virtual void fixupTableSizeInfo(void);

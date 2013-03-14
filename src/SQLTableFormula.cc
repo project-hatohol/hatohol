@@ -25,11 +25,17 @@
 JoinedTableContext::JoinedTableContext(void)
 : tableElement(NULL),
   innerJoinLeftTableCtx(NULL),
+  innerJoinLeftColumnIndex(-1),
   innerJoinColumnIndex(-1),
   itemDataIndex(NULL)
 {
 }
 
+void JoinedTableContext::clearIndexingVariables(void)
+{
+	indexMatchedItems.clear();
+	indexMatchedItemsIndex = 0;
+}
 
 // ---------------------------------------------------------------------------
 // JoinContext
@@ -201,12 +207,38 @@ ItemTablePtr SQLTableElement::getTable(void)
 
 ItemGroupPtr SQLTableElement::getActiveRow(void)
 {
-	return *m_currSelectedGroup;
+	// Non-indexing mode
+	if (!isIndexingMode())
+		return *m_currSelectedGroup;
+
+	// Indexing mode
+	size_t index = m_joinedTableCtx->indexMatchedItemsIndex;
+	ItemDataPtrForIndex &dataForIndex =
+	  m_joinedTableCtx->indexMatchedItems[index];
+	return dataForIndex.itemGroupPtr;
 }
 
 void SQLTableElement::startRowIterator(void)
 {
 	m_currSelectedGroup = m_itemTablePtr->getItemGroupList().begin();
+
+	// Non-indexing mode
+	if (!isIndexingMode())
+		return;
+
+	// Indexing mode
+	SQLTableElement *leftTable =
+	  m_joinedTableCtx->innerJoinLeftTableCtx->tableElement;
+	ItemGroupPtr leftRow = leftTable->getActiveRow();
+	ItemDataPtr leftItem =
+	  leftRow->getItemAt(m_joinedTableCtx->innerJoinLeftColumnIndex);
+	m_joinedTableCtx->clearIndexingVariables();
+	m_joinedTableCtx->itemDataIndex
+	  ->find(leftItem, m_joinedTableCtx->indexMatchedItems);
+	if (m_joinedTableCtx->indexMatchedItems.empty()) {
+		// not found
+		m_currSelectedGroup = m_itemTablePtr->getItemGroupList().end();
+	}
 }
 
 bool SQLTableElement::rowIteratorEnd(void)
@@ -216,7 +248,17 @@ bool SQLTableElement::rowIteratorEnd(void)
 
 void SQLTableElement::rowIteratorInc(void)
 {
-	++m_currSelectedGroup;
+	// Non-indexing mode
+	if (!isIndexingMode()) {
+		++m_currSelectedGroup;
+		return;
+	}
+
+	// Indexing mode
+	size_t numMatchedItems = m_joinedTableCtx->indexMatchedItems.size();
+	m_joinedTableCtx->indexMatchedItemsIndex++;
+	if (m_joinedTableCtx->indexMatchedItemsIndex >= numMatchedItems)
+		m_currSelectedGroup = m_itemTablePtr->getItemGroupList().end();
 }
 
 void SQLTableElement::fixupTableSizeInfo(void)
@@ -229,6 +271,11 @@ void SQLTableElement::fixupTableSizeInfo(void)
 void SQLTableElement::setJoinedTableContext(JoinedTableContext *joinedTableCtx)
 {
 	m_joinedTableCtx = joinedTableCtx;
+}
+
+bool SQLTableElement::isIndexingMode(void)
+{
+	return m_joinedTableCtx->itemDataIndex;
 }
 
 // ---------------------------------------------------------------------------
@@ -362,6 +409,9 @@ void SQLTableInnerJoin::prepareJoin(JoinContext *joinCtx)
 		    ->tableElement->getName().c_str());
 	}
 	rightTableCtx->innerJoinLeftTableCtx = leftTableCtx;
+	rightTableCtx->innerJoinLeftColumnIndex =
+	  m_columnIndexResolver->getIndex(m_leftTableName,
+	                                  m_leftColumnName);
 	rightTableCtx->innerJoinColumnIndex =
 	  m_columnIndexResolver->getIndex(m_rightTableName,
 	                                  m_rightColumnName);
