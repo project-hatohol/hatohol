@@ -221,10 +221,29 @@ static const TableData tableData[] = {
 };
 static const size_t NUM_TABLE_DATA = sizeof(tableData) / sizeof(TableData);
 
+
 //
 // Test helper class: TestSQLProcessor
 //
 #define TBL_FNC(X) static_cast<SQLTableMakeFunc>(X)
+
+static void setIndexes(ItemTable *table, ColumnDef *columnDef, size_t numDef)
+{
+	vector<ItemDataIndexType> indexTypeVector;
+	for (size_t i = 0; i < numDef; i++) {
+		ItemDataIndexType keyType = ITEM_DATA_INDEX_TYPE_NONE;
+		if (columnDef[i].keyType == SQL_KEY_NONE)
+			keyType = ITEM_DATA_INDEX_TYPE_NONE;
+		else if (columnDef[i].keyType == SQL_KEY_PRI)
+			keyType = ITEM_DATA_INDEX_TYPE_UNIQUE;
+		else if (columnDef[i].keyType == SQL_KEY_MUL)
+			keyType = ITEM_DATA_INDEX_TYPE_MULTI;
+		else
+			cut_fail("Unknown key: %d\n", columnDef[i].keyType);
+		indexTypeVector.push_back(keyType);
+	}
+	table->defineIndex(indexTypeVector);
+}
 
 class TestSQLProcessor : public SQLProcessor {
 public:
@@ -310,6 +329,7 @@ private:
 
 	ItemTablePtr makeTable0(void) {
 		ItemTablePtr tablePtr;
+		setIndexes(tablePtr, COLUMN0_DEFS, NUM_COLUMN0_DEFS);
 		for (size_t i = 0; i < numTestData0; i++) {
 			ItemGroupPtr grp;
 			grp->add(new ItemInt(ITEM_ID_NUMBER,
@@ -323,6 +343,7 @@ private:
 
 	ItemTablePtr makeTable1(void) {
 		ItemTablePtr tablePtr;
+		setIndexes(tablePtr, COLUMN1_DEFS, NUM_COLUMN1_DEFS);
 		for (size_t i = 0; i < numTestData1; i++) {
 			ItemGroupPtr grp;
 			grp->add(new ItemInt(ITEM_ID_AGE,
@@ -338,6 +359,7 @@ private:
 
 	ItemTablePtr makeTable2(void) {
 		ItemTablePtr tablePtr;
+		setIndexes(tablePtr, COLUMN2_DEFS, NUM_COLUMN2_DEFS);
 		for (size_t i = 0; i < numTestData2; i++) {
 			ItemGroupPtr grp;
 			grp->add(new ItemInt(ITEM_ID_MENTAL_AGE,
@@ -1067,14 +1089,14 @@ void test_innerJoin(void) {
 void test_innerJoinLeftHasIndex(void)
 {
 	int columnIndex = ITEM_ID_NUMBER - ITEM_ID_NUMBER;
-	COLUMN0_DEFS[columnIndex].keyType = SQL_KEY_PRI;
+	COLUMN0_DEFS[columnIndex].keyType = SQL_KEY_MUL;
 	cut_trace(test_innerJoin());
 }
 
 void test_innerJoinRightHasIndex(void)
 {
 	int columnIndex = ITEM_ID_AGE - ITEM_ID_AGE;
-	COLUMN1_DEFS[columnIndex].keyType = SQL_KEY_PRI;
+	COLUMN1_DEFS[columnIndex].keyType = SQL_KEY_MUL;
 	cut_trace(test_innerJoin());
 }
 
@@ -1082,9 +1104,9 @@ void test_innerJoinLeftRightIndex(void)
 {
 	int columnIndex;
 	columnIndex = ITEM_ID_NUMBER - ITEM_ID_NUMBER;
-	COLUMN0_DEFS[columnIndex].keyType = SQL_KEY_PRI;
+	COLUMN0_DEFS[columnIndex].keyType = SQL_KEY_MUL;
 	columnIndex = ITEM_ID_AGE - ITEM_ID_AGE;
-	COLUMN1_DEFS[columnIndex].keyType = SQL_KEY_PRI;
+	COLUMN1_DEFS[columnIndex].keyType = SQL_KEY_MUL;
 	cut_trace(test_innerJoin());
 }
 
