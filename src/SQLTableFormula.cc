@@ -24,9 +24,9 @@
 // ---------------------------------------------------------------------------
 JoinedTableContext::JoinedTableContext(void)
 : tableElement(NULL),
-  hasIndex(false),
   innerJoinLeftTableCtx(NULL),
-  innerJoinColumnIndex(-1)
+  innerJoinColumnIndex(-1),
+  itemDataIndex(NULL)
 {
 }
 
@@ -169,6 +169,31 @@ void SQLTableElement::setItemTable(ItemTablePtr itemTablePtr)
 	m_itemTablePtr = itemTablePtr;
 }
 
+void SQLTableElement::prepareJoin(JoinContext *joinCtx)
+{
+	if (m_joinedTableCtx->innerJoinColumnIndex < 0)
+		return;
+
+	// This function is called from
+	//   SQLProcessorSelect::doJoinWithFromParser
+	//     -> SQLFromParser::doJoin()
+	// So m_itemTablePtr must have a valid value here.
+	size_t columnIndex = m_joinedTableCtx->innerJoinColumnIndex;
+	const ItemDataIndexVector &indexVector =
+	  m_itemTablePtr->getIndexVector();
+	if (indexVector.empty())
+		return;
+	if (indexVector.size() < columnIndex) {
+		THROW_ASURA_EXCEPTION(
+		  "indexVector.size (%zd) < innerJoinColumnIndex (%zd)",
+		  indexVector.size(), columnIndex);
+	}
+	ItemDataIndex *itemIndex = indexVector[columnIndex];
+	if (itemIndex->getIndexType() == ITEM_DATA_INDEX_TYPE_NONE)
+		return;
+	m_joinedTableCtx->itemDataIndex = itemIndex;
+}
+
 ItemTablePtr SQLTableElement::getTable(void)
 {
 	return m_itemTablePtr;
@@ -201,10 +226,6 @@ void SQLTableElement::fixupTableSizeInfo(void)
 	addTableSizeInfo(m_name, m_varName, numColumns);
 }
 
-// This function is called from
-//   SQLProcessorSelect::doJoinWithFromParser
-//     -> SQLFromParser::doJoin()
-// So In this point, m_itemTablePtr must have a valid value.
 void SQLTableElement::setJoinedTableContext(JoinedTableContext *joinedTableCtx)
 {
 	m_joinedTableCtx = joinedTableCtx;
@@ -341,6 +362,9 @@ void SQLTableInnerJoin::prepareJoin(JoinContext *joinCtx)
 		    ->tableElement->getName().c_str());
 	}
 	rightTableCtx->innerJoinLeftTableCtx = leftTableCtx;
+	rightTableCtx->innerJoinColumnIndex =
+	  m_columnIndexResolver->getIndex(m_rightTableName,
+	                                  m_rightColumnName);
 	SQLTableJoin::prepareJoin(joinCtx);
 
 	//

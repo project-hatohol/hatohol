@@ -37,10 +37,10 @@ using namespace mlpl;
 class SQLTableElement;
 struct JoinedTableContext {
 	SQLTableElement    *tableElement;
-	bool                hasIndex;
 	ItemGroupPtr        activeRow;
 	JoinedTableContext *innerJoinLeftTableCtx;
 	int                 innerJoinColumnIndex; // Right Hand
+	ItemDataIndex      *itemDataIndex;
 
 	// methods
 	JoinedTableContext(void);
@@ -118,6 +118,7 @@ public:
 	const string &getName(void) const;
 	const string &getVarName(void) const;
 	void setItemTable(ItemTablePtr itemTablePtr);
+	virtual void prepareJoin(JoinContext *joinCtx);
 	virtual ItemTablePtr getTable(void);
 	virtual ItemGroupPtr getActiveRow(void);
 
