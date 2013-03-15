@@ -256,6 +256,14 @@ FormulaValue::FormulaValue(string &str)
 	m_itemDataPtr = ItemDataPtr(new ItemString(ITEM_ID_NOBODY, str), false);
 }
 
+FormulaOptimizationResult FormulaValue::optimize(void)
+{
+	FormulaOptimizationResult result;
+	result.type = FORMULA_ALWAYS_CONST;
+	result.itemData = m_itemDataPtr;
+	return result;
+}
+
 ItemDataPtr FormulaValue::evaluate(void)
 {
 	return m_itemDataPtr;

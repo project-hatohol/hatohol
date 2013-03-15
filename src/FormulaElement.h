@@ -134,6 +134,7 @@ public:
 	FormulaValue(int number);
 	FormulaValue(double number);
 	FormulaValue(string &str);
+	virtual FormulaOptimizationResult optimize(void);
 	virtual ItemDataPtr evaluate(void);
 
 protected:
