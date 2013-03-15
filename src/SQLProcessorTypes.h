@@ -140,4 +140,7 @@ struct SQLProcessorSelectShareInfo {
 	void clear(void);
 };
 
+class SQLFoundRowOnJoinException {
+};
+
 #endif // SQLProcessorTypes_h

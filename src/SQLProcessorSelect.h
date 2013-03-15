@@ -219,7 +219,7 @@ protected:
 	void setColumnTypeAndDefInColumnInfo(void);
 	void makeColumnDefs(void);
 	void makeItemTables(void);
-	void doJoinWithFromParser(void);
+	void doJoinWithFromParser(bool existsMode = false);
 	void doJoin(void);
 	void selectMatchingRows(void);
 	void makeGroups(void);

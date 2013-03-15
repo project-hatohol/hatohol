@@ -487,8 +487,15 @@ bool SQLProcessorSelect::runForExists(SQLSelectInfo &selectInfo)
 		 // Should be the first call
 		setupForSelect(selectInfo);
 	}
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
-	return false;
+
+	bool exists = false;
+	try {
+		bool existsMode = true;
+		doJoinWithFromParser(existsMode);
+	} catch (const SQLFoundRowOnJoinException &e) {
+		exists = true;
+	}
+	return exists;
 }
 
 // ---------------------------------------------------------------------------
@@ -878,12 +885,12 @@ void SQLProcessorSelect::makeItemTables(void)
 	}
 }
 
-void SQLProcessorSelect::doJoinWithFromParser(void)
+void SQLProcessorSelect::doJoinWithFromParser(bool existsMode)
 {
 	SQLSelectInfo *selectInfo = m_ctx->selectInfo;
 	FormulaElement *whereFormula = selectInfo->whereParser.getFormula();
 	selectInfo->selectedTable =
-	  m_ctx->selectInfo->fromParser.doJoin(whereFormula);
+	  m_ctx->selectInfo->fromParser.doJoin(whereFormula, existsMode);
 }
 
 void SQLProcessorSelect::doJoin(void)
