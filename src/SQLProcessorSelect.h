@@ -208,6 +208,7 @@ public:
 	bool runForExists(SQLSelectInfo &selectInfo);
 
 protected:
+	void setupForSelect(SQLSelectInfo &selectInfo);
 	void setSelectInfoToPrivateContext(SQLSelectInfo &selectInfo);
 	void parseSelectStatement(void);
 	void makeTableInfo(void);

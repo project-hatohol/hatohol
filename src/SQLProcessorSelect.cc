@@ -448,27 +448,9 @@ void SQLProcessorSelect::init(void)
 
 bool SQLProcessorSelect::select(SQLSelectInfo &selectInfo)
 {
-	m_ctx->clear();
-	setSelectInfoToPrivateContext(selectInfo);
 	try {
-		// disassemble the query statement
-		parseSelectStatement();
-		makeTableInfo();
-		checkParsedResult();
-
-		// set members in SQLFormulaColumnDataGetter
-		fixupColumnNameMap();
-
-		// associate each table with static table information
-		associateTableWithStaticInfo();
-
-		// associate each column with the table
-		associateColumnWithTable();
-
-		// make ItemTable objects for all specified tables
-		setColumnTypeAndDefInColumnInfo();
-		makeColumnDefs();
-		makeItemTables();
+		// basic setup
+		setupForSelect(selectInfo);
 
 		// join tables
 		doJoinWithFromParser();
@@ -501,8 +483,11 @@ bool SQLProcessorSelect::select(SQLSelectInfo &selectInfo)
 
 bool SQLProcessorSelect::runForExists(SQLSelectInfo &selectInfo)
 {
-	THROW_SQL_PROCESSOR_EXCEPTION("Not implemented: %s",
-	                              __PRETTY_FUNCTION__);
+	if (selectInfo.tables.empty()) {
+		 // Should be the first call
+		setupForSelect(selectInfo);
+	}
+	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
 	return false;
 }
 
@@ -542,6 +527,31 @@ bool SQLProcessorSelect::checkSelectedAllColumns
 	if (columnInfo.baseName == "*")
 		return true;
 	return false;
+}
+
+void SQLProcessorSelect::setupForSelect(SQLSelectInfo &selectInfo)
+{
+	m_ctx->clear();
+	setSelectInfoToPrivateContext(selectInfo);
+
+	// disassemble the query statement
+	parseSelectStatement();
+	makeTableInfo();
+	checkParsedResult();
+
+	// set members in SQLFormulaColumnDataGetter
+	fixupColumnNameMap();
+
+	// associate each table with static table information
+	associateTableWithStaticInfo();
+
+	// associate each column with the table
+	associateColumnWithTable();
+
+	// make ItemTable objects for all specified tables
+	setColumnTypeAndDefInColumnInfo();
+	makeColumnDefs();
+	makeItemTables();
 }
 
 void SQLProcessorSelect::setSelectInfoToPrivateContext(SQLSelectInfo &selectInfo)
