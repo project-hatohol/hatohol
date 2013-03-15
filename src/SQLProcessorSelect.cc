@@ -147,6 +147,7 @@ struct SQLProcessorSelect::PrivateContext {
 	string              currWordLower;
 
 	SQLProcessorColumnIndexResolver columnIndexResolver;
+	FormulaOptimizationResult       whereFormulaOptimizationResult;
 
 	// currently processed Item Group used in selectMatchingRows()
 	bool                useEvalTargetItemGroup;
@@ -559,6 +560,9 @@ void SQLProcessorSelect::setupForSelect(SQLSelectInfo &selectInfo)
 	setColumnTypeAndDefInColumnInfo();
 	makeColumnDefs();
 	makeItemTables();
+
+	// optimization of the formula
+	optimizeFormula();
 }
 
 void SQLProcessorSelect::setSelectInfoToPrivateContext(SQLSelectInfo &selectInfo)
@@ -885,8 +889,31 @@ void SQLProcessorSelect::makeItemTables(void)
 	}
 }
 
+void SQLProcessorSelect::optimizeFormula(void)
+{
+	SQLWhereParser &whereParser = m_ctx->selectInfo->whereParser;
+	FormulaElement *whereFormula = whereParser.getFormula();
+	if (!whereFormula) {
+		m_ctx->whereFormulaOptimizationResult.type = FORMULA_ALWAYS_TRUE;
+		return;
+	}
+	m_ctx->whereFormulaOptimizationResult = whereFormula->optimize();
+}
+
 void SQLProcessorSelect::doJoinWithFromParser(bool existsMode)
 {
+	FormulaOptimizationResultType type = m_ctx->whereFormulaOptimizationResult.type;
+	if (type == FORMULA_ALWAYS_FALSE) {
+		if (!existsMode) {
+			// selectInfo->selectedTable should be an empty table.
+			// So nothing to do.
+			return;
+		} else {
+			THROW_ASURA_EXCEPTION(
+			  "Not implemented: %s", __PRETTY_FUNCTION__);
+		}
+	}
+
 	SQLSelectInfo *selectInfo = m_ctx->selectInfo;
 	FormulaElement *whereFormula = selectInfo->whereParser.getFormula();
 	selectInfo->selectedTable =
