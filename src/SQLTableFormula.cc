@@ -184,11 +184,11 @@ void SQLTableElement::prepareJoin(JoinContext *joinCtx)
 	//   SQLProcessorSelect::doJoinWithFromParser
 	//     -> SQLFromParser::doJoin()
 	// So m_itemTablePtr must have a valid value here.
+	if (!m_itemTablePtr->hasIndex())
+		return;
 	size_t columnIndex = m_joinedTableCtx->innerJoinColumnIndex;
 	const ItemDataIndexVector &indexVector =
 	  m_itemTablePtr->getIndexVector();
-	if (indexVector.empty())
-		return;
 	if (indexVector.size() < columnIndex) {
 		THROW_ASURA_EXCEPTION(
 		  "indexVector.size (%zd) < innerJoinColumnIndex (%zd)",

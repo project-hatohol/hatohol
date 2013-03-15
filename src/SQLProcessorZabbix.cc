@@ -1724,7 +1724,7 @@ ItemTablePtr SQLProcessorZabbix::tableGetFuncTemplate(void)
 	// TODO: table obtained by the zabbix data store will be 'const'
 	//       in the future. At that time, adding will be needed every
 	//       call.
-	if (!tablePtr->getIndexVector().empty())
+	if (tablePtr->hasIndex())
 		return tablePtr;
 
 	// add Indexes

@@ -45,6 +45,7 @@ public:
 	ItemTable *fullOuterJoin(const ItemTable *itemTable) const;
 	ItemTable *crossJoin(const ItemTable *itemTable) const;
 	const ItemGroupList &getItemGroupList(void) const;
+	bool hasIndex(void) const;
 	void defineIndex(const vector<ItemDataIndexType> &indexTypeVector);
 	const ItemDataIndexVector &getIndexVector(void) const;
 	const vector<size_t> &getIndexedColumns(void) const;

@@ -80,7 +80,7 @@ void ItemTable::add(ItemGroup *group, bool doRef)
 			writeUnlock();
 			THROW_ASURA_EXCEPTION("ItemGroupTypes unmatched");
 		}
-	} else if (!m_indexVector.empty()) {
+	} else if (hasIndex()) {
 		size_t sizeOfGroup = group->getNumberOfItems();
 		if (m_indexVector.size() != sizeOfGroup) {
 			THROW_ASURA_EXCEPTION(
@@ -89,7 +89,7 @@ void ItemTable::add(ItemGroup *group, bool doRef)
 		}
 	}
 
-	if (!m_indexVector.empty())
+	if (hasIndex())
 		updateIndex(group);
 
 	m_groupList.push_back(group);
@@ -205,10 +205,15 @@ const ItemGroupList &ItemTable::getItemGroupList(void) const
 	return m_groupList;
 }
 
+bool ItemTable::hasIndex(void) const
+{
+	return !m_indexVector.empty();
+}
+
 void ItemTable::defineIndex(const vector<ItemDataIndexType> &indexTypeVector)
 {
 	// pre check
-	if (!m_indexVector.empty())
+	if (hasIndex())
 		THROW_ASURA_EXCEPTION("m_indexVector is NOT empty.");
 
 	if (!m_groupList.empty()) {
