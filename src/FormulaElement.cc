@@ -228,6 +228,18 @@ int FormulaElement::getTreeInfo(string &str, int maxNumElem, int currNum,
 	return currNum;
 }
 
+FormulaOptimizationResult &
+FormulaElement::setOptimizationResult(FormulaOptimizationResult &result)
+{
+	m_optimizationResult = result;
+	return m_optimizationResult;
+}
+
+FormulaOptimizationResult &FormulaElement::getOptimizationResult(void)
+{
+	return m_optimizationResult;
+}
+
 string FormulaElement::getTreeInfoAdditional(void)
 {
 	return "-";
@@ -269,7 +281,7 @@ FormulaOptimizationResult FormulaValue::optimize(void)
 	FormulaOptimizationResult result;
 	result.type = FORMULA_ALWAYS_CONST;
 	result.itemData = m_itemDataPtr;
-	return result;
+	return setOptimizationResult(result);
 }
 
 ItemDataPtr FormulaValue::evaluate(void)

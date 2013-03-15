@@ -112,6 +112,9 @@ protected:
 	bool getLeftHandDataWithCheck(ItemDataPtr &dataPtr);
 	bool getRightHandDataWithCheck(ItemDataPtr &dataPtr);
 	void setTerminalElement(void);
+	virtual FormulaOptimizationResult &
+	  setOptimizationResult(FormulaOptimizationResult &result);
+	FormulaOptimizationResult &getOptimizationResult(void);
 	virtual string getTreeInfoAdditional(void);
 
 private:
@@ -121,6 +124,7 @@ private:
 	FormulaElement  *m_parent;
 	FormulaElementPriority m_priority;
 	bool             m_terminalElement;
+	FormulaOptimizationResult m_optimizationResult;
 };
 
 typedef vector<FormulaElement *>       FormulaElementVector;
