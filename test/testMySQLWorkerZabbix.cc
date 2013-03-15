@@ -506,4 +506,46 @@ void test_updateUserHitory(void)
 	assertRecord(0, nsmap);
 }
 
+void test_distinctHostName()
+{
+	const char *cmd = "use zabbix;"
+	  "SELECT  DISTINCT  t.*,h.name AS hostname,h.host,h.hostid "
+	  "FROM triggers t,functions f,items i,hosts h WHERE  NOT EXISTS ( "
+	    "SELECT ff.functionid FROM functions ff WHERE "
+	    "ff.triggerid=t.triggerid AND EXISTS ( "
+	      "SELECT ii.itemid FROM items ii,hosts hh WHERE "
+	      "ff.itemid=ii.itemid AND hh.hostid=ii.hostid AND "
+	      "( ii.status<>0 OR hh.status<>0 ) "
+	    ") "
+	  ") AND t.status=0 AND (  (t.value IN ('1'))  AND  "
+	  "(t.flags IN ('0','4'))  ) AND f.triggerid=t.triggerid AND "
+	  "f.itemid=i.itemid AND h.hostid=i.hostid AND t.triggerid "
+	  "BETWEEN 000000000000000 AND 099999999999999";
+	executeCommand(cmd);
+	vector<string> lines;
+	NumberStringMap nsmap;
+	assertRecord(0, nsmap);
+}
+
+void test_selectTAll()
+{
+	const char *cmd = "use zabbix;"
+	  "SELECT   t.* FROM triggers t WHERE  NOT EXISTS ( "
+	    "SELECT ff.functionid FROM functions ff WHERE "
+	    "ff.triggerid=t.triggerid AND EXISTS ( "
+	      "SELECT ii.itemid FROM items ii,hosts hh WHERE "
+	      "ff.itemid=ii.itemid AND hh.hostid=ii.hostid AND "
+	      "( ii.status<>0 OR hh.status<>0 ) "
+	    ") "
+	  ") AND t.status=0 AND (  (t.value IN ('1'))  AND  "
+	  "(t.flags IN ('0','4'))  ) AND t.triggerid "
+	  "BETWEEN 000000000000000 AND 099999999999999 "
+	  "ORDER BY lastchange DESC,t.lastchange DESC";
+	executeCommand(cmd);
+	vector<string> lines;
+	NumberStringMap nsmap;
+	assertRecord(0, nsmap);
+}
+
+
 } // namespace testMySQLWorkerZabbix
