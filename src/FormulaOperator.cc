@@ -233,6 +233,30 @@ FormulaOperatorAnd::~FormulaOperatorAnd()
 {
 }
 
+FormulaOptimizationResult FormulaOperatorAnd::optimize(void)
+{
+	FormulaElement *leftHand = getLeftHand();
+	if (leftHand == NULL)
+		THROW_SQL_PROCESSOR_EXCEPTION("Left hand is NULL.");
+	FormulaOptimizationResult resultLeft = leftHand->optimize();
+	if (resultLeft.type == FORMULA_ALWAYS_FALSE)
+		return resultLeft;
+
+	FormulaElement *rightHand = getRightHand();
+	if (rightHand == NULL)
+		THROW_SQL_PROCESSOR_EXCEPTION("Left hand is NULL.");
+	FormulaOptimizationResult resultRight = rightHand->optimize();
+	if (resultRight.type == FORMULA_ALWAYS_FALSE)
+		return resultRight;
+
+	bool leftIsTrue  = (resultLeft.type  == FORMULA_ALWAYS_TRUE);
+	bool rightIsTrue = (resultRight.type == FORMULA_ALWAYS_TRUE);
+	if (leftIsTrue && rightIsTrue)
+		return resultLeft;
+
+	return FormulaOptimizationResult();
+}
+
 ItemDataPtr FormulaOperatorAnd::evaluate(void)
 {
 	ItemDataPtr v0, v1;

@@ -112,6 +112,7 @@ class FormulaOperatorAnd : public FormulaElement {
 public:
 	FormulaOperatorAnd(void);
 	virtual ~FormulaOperatorAnd();
+	virtual FormulaOptimizationResult optimize(void);
 	virtual ItemDataPtr evaluate(void);
 };
 
