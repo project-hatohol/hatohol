@@ -318,7 +318,8 @@ FormulaExists::FormulaExists(const string &statement,
 : FormulaElement(FORMULA_ELEM_PRIO_EXISTS),
   m_processorSelectFactory(procSelectFactory),
   m_statement(statement),
-  m_processorSelect(NULL)
+  m_processorSelect(NULL),
+  m_selectInfo(NULL)
 {
 }
 
