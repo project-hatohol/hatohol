@@ -55,6 +55,9 @@ enum FormulaOptimizationResultType {
 struct FormulaOptimizationResult {
 	FormulaOptimizationResultType type;
 	ItemDataPtr                   itemData;
+
+	// constructor
+	FormulaOptimizationResult(void);
 };
 
 // ---------------------------------------------------------------------------

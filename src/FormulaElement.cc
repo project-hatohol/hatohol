@@ -24,6 +24,14 @@ using namespace mlpl;
 #include "ItemEnum.h"
 
 // ---------------------------------------------------------------------------
+// FormulaOptimizationResult
+// ---------------------------------------------------------------------------
+FormulaOptimizationResult::FormulaOptimizationResult(void)
+: type(FORMULA_UNFIXED)
+{
+}
+
+// ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
 FormulaElement::FormulaElement(FormulaElementPriority priority, bool unary)
