@@ -45,6 +45,18 @@ enum FormulaElementPriority {
 	FORMULA_ELEM_PRIO_OR,
 };
 
+enum FormulaOptimizationResultType {
+	FORMULA_UNFIXED,
+	FORMULA_ALWAYS_CONST,
+	FORMULA_ALWAYS_TRUE,
+	FORMULA_ALWAYS_FALSE,
+};
+
+struct FormulaOptimizationResult {
+	FormulaOptimizationResultType type;
+	ItemDataPtr                   itemData;
+};
+
 // ---------------------------------------------------------------------------
 // class: FormulaElement
 // ---------------------------------------------------------------------------
@@ -82,6 +94,7 @@ public:
 	FormulaElement *findInsertPoint(FormulaElement *insertElem,
 	                                FormulaElement *upperLimitElem = NULL);
 
+	virtual FormulaOptimizationResult optimize(void);
 	virtual ItemDataPtr evaluate(void) = 0;
 	virtual void resetStatistics(void);
 

@@ -125,6 +125,13 @@ FormulaElement *FormulaElement::findInsertPoint(FormulaElement *insertElem,
 	return prev;
 }
 
+FormulaOptimizationResult FormulaElement::optimize(void)
+{
+	FormulaOptimizationResult result;
+	result.type = FORMULA_UNFIXED;
+	return result;
+}
+
 void FormulaElement::resetStatistics(void)
 {
 	if (m_leftHand)
