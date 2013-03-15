@@ -22,6 +22,7 @@
 #include "ItemDataPtr.h"
 #include "ItemGroupPtr.h"
 #include "SQLProcessorTypes.h"
+#include "SQLProcessorSelect.h"
 
 // ---------------------------------------------------------------------------
 // class: FormulaParenthesis
@@ -168,6 +169,7 @@ private:
 	SQLProcessorSelectFactory &m_processorSelectFactory;
 	string                     m_statement;
 	SQLProcessorSelect        *m_processorSelect;
+	SQLSelectInfo             *m_selectInfo;
 };
 
 // ---------------------------------------------------------------------------

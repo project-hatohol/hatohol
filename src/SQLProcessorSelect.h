@@ -193,6 +193,19 @@ public:
 	SQLProcessorSelect(const SQLProcessorSelect *parent);
 	virtual ~SQLProcessorSelect();
 	virtual bool select(SQLSelectInfo &selectInfo);
+	
+	/**
+	 * Execute select operation for 'EXISTS'.
+	 *
+	 * @selectInfo An SQLSelectInfo instance. Similar to select(),
+	 *             it is needed only to set statement for the first call.
+	 *             Howerver, for the 2nd or more call, different from
+	 *             select(), the instance should repeatedly be used
+	 *             for the performance.
+	 * @return \true when at least one row is selected. Otherwise, \false
+	 *         is returned.
+	 */
+	bool runForExists(SQLSelectInfo &selectInfo);
 
 protected:
 	void setSelectInfoToPrivateContext(SQLSelectInfo &selectInfo);

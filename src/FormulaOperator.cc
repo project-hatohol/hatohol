@@ -326,6 +326,8 @@ FormulaExists::~FormulaExists()
 {
 	if (m_processorSelect)
 		delete m_processorSelect;
+	if (m_selectInfo)
+		delete m_selectInfo;
 }
 
 const string &FormulaExists::getStatement(void) const
@@ -335,16 +337,13 @@ const string &FormulaExists::getStatement(void) const
 
 ItemDataPtr FormulaExists::evaluate(void)
 {
-	if (!m_processorSelect)
+	if (!m_processorSelect) {
 		m_processorSelect = m_processorSelectFactory();
-	ParsableString parsableStatement(m_statement);
-	SQLSelectInfo selectInfo(parsableStatement);
-	if (!m_processorSelect->select(selectInfo)) {
-		THROW_SQL_PROCESSOR_EXCEPTION(
-		  "Failed to call select: %s", m_statement.c_str());
-	}
-	bool hasRows = !selectInfo.textRows.empty();
-	return ItemDataPtr(new ItemBool(hasRows), false);
+		ParsableString parsableStatement(m_statement);
+		m_selectInfo = new SQLSelectInfo(parsableStatement);
+        }
+	bool exists = m_processorSelect->runForExists(*m_selectInfo);
+	return ItemDataPtr(new ItemBool(exists), false);
 }
 
 // ---------------------------------------------------------------------------

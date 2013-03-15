@@ -499,6 +499,13 @@ bool SQLProcessorSelect::select(SQLSelectInfo &selectInfo)
 	return true;
 }
 
+bool SQLProcessorSelect::runForExists(SQLSelectInfo &selectInfo)
+{
+	THROW_SQL_PROCESSOR_EXCEPTION("Not implemented: %s",
+	                              __PRETTY_FUNCTION__);
+	return false;
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
