@@ -366,11 +366,14 @@ void test_selectTriggerChanged(void)
 	  "SELECT  DISTINCT  t.triggerid,t.lastchange,i.hostid "
 	  "FROM triggers t,functions f,items i "
 	  "WHERE  1=0  AND f.triggerid=t.triggerid AND f.itemid=i.itemid AND "
-	  "NOT EXISTS ( SELECT ff.functionid FROM functions ff WHERE "
-	  "ff.triggerid=t.triggerid AND EXISTS ( SELECT ii.itemid "
-	  "FROM items ii,hosts hh WHERE ff.itemid=ii.itemid AND "
-	  "hh.hostid=ii.hostid AND ( ii.status<>0 OR hh.status<>0 ) ) ) AND "
-	  "t.status=0 AND (  (t.flags IN ('0','4'))  ) AND ((t.value=1) "
+	  "NOT EXISTS ( "
+	    "SELECT ff.functionid FROM functions ff WHERE "
+	    "ff.triggerid=t.triggerid AND EXISTS ( "
+	      "SELECT ii.itemid FROM items ii,hosts hh WHERE "
+	      "ff.itemid=ii.itemid AND hh.hostid=ii.hostid AND "
+	      "( ii.status<>0 OR hh.status<>0 ) )"
+	    " ) "
+	  "AND t.status=0 AND (  (t.flags IN ('0','4'))  ) AND ((t.value=1) "
 	  "OR ((t.value=0) AND (t.lastchange>1362119599)))";
 	executeCommand(cmd);
 	vector<string> lines;
