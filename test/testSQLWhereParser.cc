@@ -494,7 +494,7 @@ void test_optimize1Eq1(void)
 {
 	string statement = StringUtils::sprintf("1=1");
 	DEFINE_PARSER_AND_RUN(whereParser, formula, statement);
-	assertTypeFormulaIsNotNull(formula);
+	assertFormulaComparatorEqual(formula);
 	FormulaOptimizationResult result = formula->optimize();
 	cppcut_assert_equal(FORMULA_ALWAYS_TRUE, result.type);
 }
@@ -503,7 +503,7 @@ void test_optimize1Eq0(void)
 {
 	string statement = StringUtils::sprintf("1=0");
 	DEFINE_PARSER_AND_RUN(whereParser, formula, statement);
-	assertTypeFormulaIsNotNull(formula);
+	assertFormulaComparatorEqual(formula);
 	FormulaOptimizationResult result = formula->optimize();
 	cppcut_assert_equal(FORMULA_ALWAYS_FALSE, result.type);
 }
