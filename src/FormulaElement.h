@@ -58,6 +58,7 @@ struct FormulaOptimizationResult {
 
 	// constructor
 	FormulaOptimizationResult(void);
+	FormulaOptimizationResult &operator=(const FormulaOptimizationResult &);
 };
 
 // ---------------------------------------------------------------------------

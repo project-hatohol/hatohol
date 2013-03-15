@@ -41,6 +41,7 @@ class FormulaComparatorEqual : public FormulaElement {
 public:
 	FormulaComparatorEqual(void);
 	virtual ~FormulaComparatorEqual();
+	virtual FormulaOptimizationResult optimize(void);
 	virtual ItemDataPtr evaluate(void);
 };
 

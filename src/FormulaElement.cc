@@ -31,6 +31,14 @@ FormulaOptimizationResult::FormulaOptimizationResult(void)
 {
 }
 
+FormulaOptimizationResult &
+FormulaOptimizationResult::operator=(const FormulaOptimizationResult &rhs)
+{
+	type = rhs.type;
+	itemData = rhs.itemData;
+	return *this;
+}
+
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
