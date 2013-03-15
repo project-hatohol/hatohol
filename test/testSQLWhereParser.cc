@@ -508,5 +508,41 @@ void test_optimize1Eq0(void)
 	cppcut_assert_equal(FORMULA_ALWAYS_FALSE, result.type);
 }
 
+void test_optimize1Eq1And1Eq1(void)
+{
+	string statement = StringUtils::sprintf("1=1 and 1=1");
+	DEFINE_PARSER_AND_RUN(whereParser, formula, statement);
+	assertFormulaComparatorEqual(formula);
+	FormulaOptimizationResult result = formula->optimize();
+	cppcut_assert_equal(FORMULA_ALWAYS_TRUE, result.type);
+}
+
+void test_optimize1Eq1AndVar(void)
+{
+	string statement = StringUtils::sprintf("1=1 and var");
+	DEFINE_PARSER_AND_RUN(whereParser, formula, statement);
+	assertFormulaComparatorEqual(formula);
+	FormulaOptimizationResult result = formula->optimize();
+	cppcut_assert_equal(FORMULA_UNFIXED, result.type);
+}
+
+void test_optimize1Eq0AndVar(void)
+{
+	string statement = StringUtils::sprintf("1=0 and var");
+	DEFINE_PARSER_AND_RUN(whereParser, formula, statement);
+	assertFormulaComparatorEqual(formula);
+	FormulaOptimizationResult result = formula->optimize();
+	cppcut_assert_equal(FORMULA_ALWAYS_FALSE, result.type);
+}
+
+void test_optimize1Eq0And1Eq1(void)
+{
+	string statement = StringUtils::sprintf("1=0 and 1=1");
+	DEFINE_PARSER_AND_RUN(whereParser, formula, statement);
+	assertFormulaComparatorEqual(formula);
+	FormulaOptimizationResult result = formula->optimize();
+	cppcut_assert_equal(FORMULA_ALWAYS_FALSE, result.type);
+}
+
 } // namespace testSQLWhereParser
 
