@@ -88,6 +88,9 @@ protected:
 	void makeTableElement(
 	       const string &tableName,
 	       const string &varName = StringUtils::EMPTY_STRING);
+	void associateColumnComparisonInfoWithTableProcessorContext
+	       (const ColumnComparisonInfoList &columnComparisonInfoList,
+	        SQLTableProcessContextIndex *ctxIndex);
 	void makeCrossJoin(void);
 	void makeInnerJoin(void);
 	void parseInnerJoinLeftField(const string &fieldName);

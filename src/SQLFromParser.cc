@@ -139,9 +139,10 @@ SQLFromParser::setColumnIndexResolver(SQLColumnIndexResoveler *resolver)
 }
 
 void SQLFromParser::prepareJoin(
-  const ColumnComparisonInfoList &getColumnComparisonInfoList,
+  const ColumnComparisonInfoList &columnComparisonInfoList,
   SQLTableProcessContextIndex *ctxIndex)
 {
+	// make SQLTableProcessContext
 	SQLTableElementListIterator it = m_ctx->tableElementList.begin();
 	for (; it != m_ctx->tableElementList.end(); ++it) {
 		SQLTableProcessContext *tableCtx = new SQLTableProcessContext();
@@ -157,6 +158,12 @@ void SQLFromParser::prepareJoin(
 
 		ctxIndex->tableCtxVector.push_back(tableCtx);
 	}
+
+	// associate column comparison info list with SQLTableProcessorContext
+	associateColumnComparisonInfoWithTableProcessorContext
+	  (columnComparisonInfoList, ctxIndex);
+
+	// call prepration function for each SQLTableFormula.
 	m_ctx->tableFormula->prepareJoin(ctxIndex);
 }
 
@@ -370,6 +377,23 @@ void SQLFromParser::makeTableElement(const string &tableName,
 	}
 	insertTableFormula(tableElem);
 	m_ctx->state = PARSING_STAT_CREATED_TABLE;
+}
+
+void SQLFromParser::associateColumnComparisonInfoWithTableProcessorContext
+  (const ColumnComparisonInfoList &columnComparisonInfoList,
+   SQLTableProcessContextIndex *ctxIndex)
+{
+	ColumnComparisonInfoListConstIterator it =
+	  columnComparisonInfoList.begin();
+	for (; it != columnComparisonInfoList.begin(); ++it) {
+		const ColumnComparisonInfo *columnCompInfo = *it;
+		SQLTableProcessContext *leftCtx =
+		   ctxIndex->getTableContext(columnCompInfo->leftTableName);
+		SQLTableProcessContext *rightCtx =
+		   ctxIndex->getTableContext(columnCompInfo->rightTableName);
+		MLPL_BUG("Not implemented: %s (%p, %p)\n", __PRETTY_FUNCTION__,
+		         leftCtx, rightCtx);
+	}
 }
 
 void SQLFromParser::makeCrossJoin(void)
