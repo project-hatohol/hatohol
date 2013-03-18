@@ -36,6 +36,9 @@ using namespace mlpl;
 // ---------------------------------------------------------------------------
 class SQLTableElement;
 struct SQLTableProcessContext {
+	// assigned from 0 in order of appearance in a statement
+	size_t                  id;
+
 	SQLTableElement        *tableElement;
 	SQLTableProcessContext *equalBoundTableCtx;
 	int                     equalBoundColumnIndex;   // in other table

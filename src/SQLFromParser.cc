@@ -146,6 +146,7 @@ void SQLFromParser::prepareJoin(
 	SQLTableElementListIterator it = m_ctx->tableElementList.begin();
 	for (; it != m_ctx->tableElementList.end(); ++it) {
 		SQLTableProcessContext *tableCtx = new SQLTableProcessContext();
+		tableCtx->id =  ctxIndex->tableCtxVector.size();
 		SQLTableElement *tableElement = *it;
 		tableElement->setSQLTableProcessContext(tableCtx);
 
@@ -387,12 +388,47 @@ void SQLFromParser::associateColumnComparisonInfoWithTableProcessorContext
 	  columnComparisonInfoList.begin();
 	for (; it != columnComparisonInfoList.begin(); ++it) {
 		const ColumnComparisonInfo *columnCompInfo = *it;
-		SQLTableProcessContext *leftCtx =
+		SQLTableProcessContext *leftTableCtx =
 		   ctxIndex->getTableContext(columnCompInfo->leftTableName);
-		SQLTableProcessContext *rightCtx =
+		SQLTableProcessContext *rightTableCtx =
 		   ctxIndex->getTableContext(columnCompInfo->rightTableName);
-		MLPL_BUG("Not implemented: %s (%p, %p)\n", __PRETTY_FUNCTION__,
-		         leftCtx, rightCtx);
+		if (leftTableCtx == NULL || rightTableCtx == NULL) {
+			THROW_SQL_PROCESSOR_EXCEPTION(
+			  "getTableContext: NULL, %s.%s (%p), %s.%s (%p)",
+			  columnCompInfo->leftTableName.c_str(),
+			  columnCompInfo->leftColumnName.c_str(),
+			  leftTableCtx,
+			  columnCompInfo->rightTableName.c_str(),
+			  columnCompInfo->rightColumnName.c_str(),
+			  rightTableCtx);
+		}
+
+		SQLTableProcessContext *tableCtx0, *tableCtx1;
+		const string *tableName0, *tableName1;
+		const string *columnName0, *columnName1;
+		if (leftTableCtx->id < rightTableCtx->id) {
+			tableCtx0 = leftTableCtx;
+			tableCtx1 = rightTableCtx;;
+			tableName0 = &columnCompInfo->leftTableName;
+			tableName1 = &columnCompInfo->rightTableName;
+			columnName0 = &columnCompInfo->leftColumnName;
+			columnName1 = &columnCompInfo->rightColumnName;
+		} else {
+			tableCtx0 = rightTableCtx;
+			tableCtx1 = leftTableCtx;;
+			tableName0 = &columnCompInfo->rightTableName;
+			tableName1 = &columnCompInfo->leftTableName;
+			columnName0 = &columnCompInfo->rightColumnName;
+			columnName1 = &columnCompInfo->leftColumnName;
+		}
+
+		tableCtx1->equalBoundTableCtx = tableCtx0;
+		tableCtx1->equalBoundColumnIndex =
+		  m_ctx->columnIndexResolver->getIndex(*tableName0,
+		                                       *columnName0);
+		tableCtx1->equalBoundMyIndex =
+		  m_ctx->columnIndexResolver->getIndex(*tableName1,
+		                                       *columnName1);
 	}
 }
 

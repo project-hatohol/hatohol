@@ -23,7 +23,8 @@
 // SQLTableProcessContext
 // ---------------------------------------------------------------------------
 SQLTableProcessContext::SQLTableProcessContext(void)
-: tableElement(NULL),
+: id(-1),
+  tableElement(NULL),
   equalBoundTableCtx(NULL),
   equalBoundColumnIndex(-1),
   equalBoundMyIndex(-1),
@@ -185,7 +186,7 @@ void SQLTableElement::setItemTable(ItemTablePtr itemTablePtr)
 
 void SQLTableElement::prepareJoin(SQLTableProcessContextIndex *ctxIndex)
 {
-	if (m_tableProcessCtx->equalBoundColumnIndex < 0)
+	if (m_tableProcessCtx->equalBoundMyIndex < 0)
 		return;
 
 	// This function is called from
@@ -194,12 +195,12 @@ void SQLTableElement::prepareJoin(SQLTableProcessContextIndex *ctxIndex)
 	// So m_itemTablePtr must have a valid value here.
 	if (!m_itemTablePtr->hasIndex())
 		return;
-	size_t columnIndex = m_tableProcessCtx->equalBoundColumnIndex;
+	size_t columnIndex = m_tableProcessCtx->equalBoundMyIndex;
 	const ItemDataIndexVector &indexVector =
 	  m_itemTablePtr->getIndexVector();
 	if (indexVector.size() < columnIndex) {
 		THROW_ASURA_EXCEPTION(
-		  "indexVector.size (%zd) < equalBoundColumnIndex (%zd)",
+		  "indexVector.size (%zd) < equalBoundMyIndex (%zd)",
 		  indexVector.size(), columnIndex);
 	}
 	ItemDataIndex *itemIndex = indexVector[columnIndex];
@@ -398,6 +399,9 @@ SQLTableInnerJoin::SQLTableInnerJoin
 
 void SQLTableInnerJoin::prepareJoin(SQLTableProcessContextIndex *ctxIndex)
 {
+	// Current implementation of inner join overwrites equalBoundTableCtx,
+	// equalBoundColumnIndex, and equalBoundMyIndex.
+	// However, the combination of them may improve performance.
 	SQLTableProcessContext *leftTableCtx =
 	  ctxIndex->getTableContext(m_leftTableName);
 	SQLTableProcessContext *rightTableCtx =
@@ -421,7 +425,7 @@ void SQLTableInnerJoin::prepareJoin(SQLTableProcessContextIndex *ctxIndex)
 	rightTableCtx->equalBoundColumnIndex =
 	  m_columnIndexResolver->getIndex(m_leftTableName,
 	                                  m_leftColumnName);
-	rightTableCtx->equalBoundColumnIndex =
+	rightTableCtx->equalBoundMyIndex =
 	  m_columnIndexResolver->getIndex(m_rightTableName,
 	                                  m_rightColumnName);
 	m_rightTableElement = rightTableCtx->tableElement;
