@@ -38,15 +38,15 @@ void SQLTableProcessContext::clearIndexingVariables(void)
 }
 
 // ---------------------------------------------------------------------------
-// JoinContext
+// SQLTableProcessContextIndex
 // ---------------------------------------------------------------------------
-JoinContext::~JoinContext()
+SQLTableProcessContextIndex::~SQLTableProcessContextIndex()
 {
 	for (size_t i = 0; i < tableCtxVector.size(); i++)
 		delete tableCtxVector[i];
 }
 
-SQLTableProcessContext *JoinContext::getTableContext(const string &name)
+SQLTableProcessContext *SQLTableProcessContextIndex::getTableContext(const string &name)
 {
 	map<string, SQLTableProcessContext *>::iterator it =
 	  tableVarCtxMap.find(name);
@@ -68,7 +68,7 @@ SQLTableFormula::~SQLTableFormula()
 		delete *it;
 }
 
-void SQLTableFormula::prepareJoin(JoinContext *joinCtx)
+void SQLTableFormula::prepareJoin(SQLTableProcessContextIndex *ctxIndex)
 {
 }
 
@@ -175,7 +175,7 @@ void SQLTableElement::setItemTable(ItemTablePtr itemTablePtr)
 	m_itemTablePtr = itemTablePtr;
 }
 
-void SQLTableElement::prepareJoin(JoinContext *joinCtx)
+void SQLTableElement::prepareJoin(SQLTableProcessContextIndex *ctxIndex)
 {
 	if (m_tableProcessCtx->equalBoundColumnIndex < 0)
 		return;
@@ -298,10 +298,10 @@ SQLTableFormula *SQLTableJoin::getRightFormula(void) const
 	return m_rightFormula;
 }
 
-void SQLTableJoin::prepareJoin(JoinContext *joinCtx)
+void SQLTableJoin::prepareJoin(SQLTableProcessContextIndex *ctxIndex)
 {
-	m_leftFormula->prepareJoin(joinCtx);
-	m_rightFormula->prepareJoin(joinCtx);
+	m_leftFormula->prepareJoin(ctxIndex);
+	m_rightFormula->prepareJoin(ctxIndex);
 }
 
 void SQLTableJoin::setLeftFormula(SQLTableFormula *tableFormula)
@@ -388,12 +388,12 @@ SQLTableInnerJoin::SQLTableInnerJoin
 {
 }
 
-void SQLTableInnerJoin::prepareJoin(JoinContext *joinCtx)
+void SQLTableInnerJoin::prepareJoin(SQLTableProcessContextIndex *ctxIndex)
 {
 	SQLTableProcessContext *leftTableCtx =
-	  joinCtx->getTableContext(m_leftTableName);
+	  ctxIndex->getTableContext(m_leftTableName);
 	SQLTableProcessContext *rightTableCtx =
-	  joinCtx->getTableContext(m_rightTableName);
+	  ctxIndex->getTableContext(m_rightTableName);
 	if (!leftTableCtx || !rightTableCtx) {
 		THROW_SQL_PROCESSOR_EXCEPTION(
 		  "leftTableCtx (%s:%p) or lightTableCtx (%s:%p) is NULL.\n",
@@ -417,7 +417,7 @@ void SQLTableInnerJoin::prepareJoin(JoinContext *joinCtx)
 	  m_columnIndexResolver->getIndex(m_rightTableName,
 	                                  m_rightColumnName);
 	m_rightTableElement = rightTableCtx->tableElement;
-	SQLTableJoin::prepareJoin(joinCtx);
+	SQLTableJoin::prepareJoin(ctxIndex);
 
 	//
 	// The following lines are for getActiveRows()

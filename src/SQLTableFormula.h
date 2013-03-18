@@ -53,15 +53,15 @@ struct SQLTableProcessContext {
 };
 
 // ---------------------------------------------------------------------------
-// JoinContext
+// SQLTableProcessContextIndex
 // ---------------------------------------------------------------------------
-struct JoinContext {
+struct SQLTableProcessContextIndex {
 	map<string, SQLTableProcessContext *> tableNameCtxMap;
 	map<string, SQLTableProcessContext *> tableVarCtxMap;
 	vector<SQLTableProcessContext *>      tableCtxVector;
 
 	// methods
-	virtual ~JoinContext();
+	virtual ~SQLTableProcessContextIndex();
 	SQLTableProcessContext *getTableContext(const string &name);
 };
 
@@ -86,7 +86,7 @@ public:
 
 	virtual ~SQLTableFormula();
 	virtual ItemTablePtr getTable(void) = 0;
-	virtual void prepareJoin(JoinContext *joinCtx);
+	virtual void prepareJoin(SQLTableProcessContextIndex *ctxIndex);
 
 	/**
 	 * Return the active row, which is the currently selected row on
@@ -124,7 +124,7 @@ public:
 	const string &getName(void) const;
 	const string &getVarName(void) const;
 	void setItemTable(ItemTablePtr itemTablePtr);
-	virtual void prepareJoin(JoinContext *joinCtx);
+	virtual void prepareJoin(SQLTableProcessContextIndex *ctxIndex);
 	virtual ItemTablePtr getTable(void);
 	virtual ItemGroupPtr getActiveRow(void);
 
@@ -161,7 +161,7 @@ public:
 	SQLTableFormula *getRightFormula(void) const;
 	void setLeftFormula(SQLTableFormula *tableFormula);
 	void setRightFormula(SQLTableFormula *tableFormula);
-	virtual void prepareJoin(JoinContext *joinCtx);
+	virtual void prepareJoin(SQLTableProcessContextIndex *ctxIndex);
 	virtual ItemGroupPtr getActiveRow(void);
 
 protected:
@@ -196,7 +196,7 @@ public:
 	                  const string &rightTableName,
 	                  const string &rightColumnName,
 	                  SQLColumnIndexResoveler *resolver);
-	virtual void prepareJoin(JoinContext *joinCtx);
+	virtual void prepareJoin(SQLTableProcessContextIndex *ctxIndex);
 	virtual ItemTablePtr getTable(void);
 	virtual ItemGroupPtr getActiveRow(void);
 

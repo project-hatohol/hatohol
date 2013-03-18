@@ -141,7 +141,7 @@ SQLFromParser::setColumnIndexResolver(SQLColumnIndexResoveler *resolver)
 void SQLFromParser::prepareJoin(
   const ColumnComparisonInfoList &getColumnComparisonInfoList)
 {
-	JoinContext joinCtx;
+	SQLTableProcessContextIndex ctxIndex;
 	SQLTableElementListIterator it = m_ctx->tableElementList.begin();
 	for (; it != m_ctx->tableElementList.end(); ++it) {
 		SQLTableProcessContext *tableCtx = new SQLTableProcessContext();
@@ -150,14 +150,14 @@ void SQLFromParser::prepareJoin(
 
 		tableCtx->tableElement = tableElement;
 		const string &name = tableElement->getName();
-		joinCtx.tableNameCtxMap[name] = tableCtx;
+		ctxIndex.tableNameCtxMap[name] = tableCtx;
 		const string &var = tableElement->getVarName();
 		if (!var.empty())
-			joinCtx.tableVarCtxMap[var] = tableCtx;
+			ctxIndex.tableVarCtxMap[var] = tableCtx;
 
-		joinCtx.tableCtxVector.push_back(tableCtx);
+		ctxIndex.tableCtxVector.push_back(tableCtx);
 	}
-	m_ctx->tableFormula->prepareJoin(&joinCtx);
+	m_ctx->tableFormula->prepareJoin(&ctxIndex);
 }
 
 ItemTablePtr SQLFromParser::doJoin(FormulaElement *whereFormula,
