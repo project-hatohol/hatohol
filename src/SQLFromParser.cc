@@ -144,9 +144,9 @@ void SQLFromParser::prepareJoin(
 	JoinContext joinCtx;
 	SQLTableElementListIterator it = m_ctx->tableElementList.begin();
 	for (; it != m_ctx->tableElementList.end(); ++it) {
-		JoinedTableContext *tableCtx = new JoinedTableContext();
+		SQLTableProcessContext *tableCtx = new SQLTableProcessContext();
 		SQLTableElement *tableElement = *it;
-		tableElement->setJoinedTableContext(tableCtx);
+		tableElement->setSQLTableProcessContext(tableCtx);
 
 		tableCtx->tableElement = tableElement;
 		const string &name = tableElement->getName();

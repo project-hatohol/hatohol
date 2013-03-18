@@ -20,18 +20,18 @@
 #include "AsuraException.h"
 
 // ---------------------------------------------------------------------------
-// JoinedTableContext
+// SQLTableProcessContext
 // ---------------------------------------------------------------------------
-JoinedTableContext::JoinedTableContext(void)
+SQLTableProcessContext::SQLTableProcessContext(void)
 : tableElement(NULL),
-  innerJoinLeftTableCtx(NULL),
-  innerJoinLeftColumnIndex(-1),
-  innerJoinColumnIndex(-1),
+  equalBoundTableCtx(NULL),
+  equalBoundColumnIndex(-1),
+  equalBoundMyIndex(-1),
   itemDataIndex(NULL)
 {
 }
 
-void JoinedTableContext::clearIndexingVariables(void)
+void SQLTableProcessContext::clearIndexingVariables(void)
 {
 	indexMatchedItems.clear();
 	indexMatchedItemsIndex = 0;
@@ -46,9 +46,9 @@ JoinContext::~JoinContext()
 		delete tableCtxVector[i];
 }
 
-JoinedTableContext *JoinContext::getTableContext(const string &name)
+SQLTableProcessContext *JoinContext::getTableContext(const string &name)
 {
-	map<string, JoinedTableContext *>::iterator it =
+	map<string, SQLTableProcessContext *>::iterator it =
 	  tableVarCtxMap.find(name);
 	if (it != tableVarCtxMap.end())
 		return it->second;
@@ -155,7 +155,7 @@ SQLTableElement::SQLTableElement(const string &name, const string &varName,
 : m_name(name),
   m_varName(varName),
   m_columnIndexResolver(resolver),
-  m_joinedTableCtx(NULL)
+  m_tableProcessCtx(NULL)
 {
 }
 
@@ -177,7 +177,7 @@ void SQLTableElement::setItemTable(ItemTablePtr itemTablePtr)
 
 void SQLTableElement::prepareJoin(JoinContext *joinCtx)
 {
-	if (m_joinedTableCtx->innerJoinColumnIndex < 0)
+	if (m_tableProcessCtx->equalBoundColumnIndex < 0)
 		return;
 
 	// This function is called from
@@ -186,18 +186,18 @@ void SQLTableElement::prepareJoin(JoinContext *joinCtx)
 	// So m_itemTablePtr must have a valid value here.
 	if (!m_itemTablePtr->hasIndex())
 		return;
-	size_t columnIndex = m_joinedTableCtx->innerJoinColumnIndex;
+	size_t columnIndex = m_tableProcessCtx->equalBoundColumnIndex;
 	const ItemDataIndexVector &indexVector =
 	  m_itemTablePtr->getIndexVector();
 	if (indexVector.size() < columnIndex) {
 		THROW_ASURA_EXCEPTION(
-		  "indexVector.size (%zd) < innerJoinColumnIndex (%zd)",
+		  "indexVector.size (%zd) < equalBoundColumnIndex (%zd)",
 		  indexVector.size(), columnIndex);
 	}
 	ItemDataIndex *itemIndex = indexVector[columnIndex];
 	if (itemIndex->getIndexType() == ITEM_DATA_INDEX_TYPE_NONE)
 		return;
-	m_joinedTableCtx->itemDataIndex = itemIndex;
+	m_tableProcessCtx->itemDataIndex = itemIndex;
 }
 
 ItemTablePtr SQLTableElement::getTable(void)
@@ -212,9 +212,9 @@ ItemGroupPtr SQLTableElement::getActiveRow(void)
 		return *m_currSelectedGroup;
 
 	// Indexing mode
-	size_t index = m_joinedTableCtx->indexMatchedItemsIndex;
+	size_t index = m_tableProcessCtx->indexMatchedItemsIndex;
 	ItemDataPtrForIndex &dataForIndex =
-	  m_joinedTableCtx->indexMatchedItems[index];
+	  m_tableProcessCtx->indexMatchedItems[index];
 	return dataForIndex.itemGroupPtr;
 }
 
@@ -228,14 +228,14 @@ void SQLTableElement::startRowIterator(void)
 
 	// Indexing mode
 	SQLTableElement *leftTable =
-	  m_joinedTableCtx->innerJoinLeftTableCtx->tableElement;
+	  m_tableProcessCtx->equalBoundTableCtx->tableElement;
 	ItemGroupPtr leftRow = leftTable->getActiveRow();
 	ItemDataPtr leftItem =
-	  leftRow->getItemAt(m_joinedTableCtx->innerJoinLeftColumnIndex);
-	m_joinedTableCtx->clearIndexingVariables();
-	m_joinedTableCtx->itemDataIndex
-	  ->find(leftItem, m_joinedTableCtx->indexMatchedItems);
-	if (m_joinedTableCtx->indexMatchedItems.empty()) {
+	  leftRow->getItemAt(m_tableProcessCtx->equalBoundColumnIndex);
+	m_tableProcessCtx->clearIndexingVariables();
+	m_tableProcessCtx->itemDataIndex
+	  ->find(leftItem, m_tableProcessCtx->indexMatchedItems);
+	if (m_tableProcessCtx->indexMatchedItems.empty()) {
 		// not found
 		m_currSelectedGroup = m_itemTablePtr->getItemGroupList().end();
 	}
@@ -255,9 +255,9 @@ void SQLTableElement::rowIteratorInc(void)
 	}
 
 	// Indexing mode
-	size_t numMatchedItems = m_joinedTableCtx->indexMatchedItems.size();
-	m_joinedTableCtx->indexMatchedItemsIndex++;
-	if (m_joinedTableCtx->indexMatchedItemsIndex >= numMatchedItems)
+	size_t numMatchedItems = m_tableProcessCtx->indexMatchedItems.size();
+	m_tableProcessCtx->indexMatchedItemsIndex++;
+	if (m_tableProcessCtx->indexMatchedItemsIndex >= numMatchedItems)
 		m_currSelectedGroup = m_itemTablePtr->getItemGroupList().end();
 }
 
@@ -268,14 +268,14 @@ void SQLTableElement::fixupTableSizeInfo(void)
 	addTableSizeInfo(m_name, m_varName, numColumns);
 }
 
-void SQLTableElement::setJoinedTableContext(JoinedTableContext *joinedTableCtx)
+void SQLTableElement::setSQLTableProcessContext(SQLTableProcessContext *joinedTableCtx)
 {
-	m_joinedTableCtx = joinedTableCtx;
+	m_tableProcessCtx = joinedTableCtx;
 }
 
 bool SQLTableElement::isIndexingMode(void)
 {
-	return m_joinedTableCtx->itemDataIndex;
+	return m_tableProcessCtx->itemDataIndex;
 }
 
 // ---------------------------------------------------------------------------
@@ -390,9 +390,9 @@ SQLTableInnerJoin::SQLTableInnerJoin
 
 void SQLTableInnerJoin::prepareJoin(JoinContext *joinCtx)
 {
-	JoinedTableContext *leftTableCtx =
+	SQLTableProcessContext *leftTableCtx =
 	  joinCtx->getTableContext(m_leftTableName);
-	JoinedTableContext *rightTableCtx =
+	SQLTableProcessContext *rightTableCtx =
 	  joinCtx->getTableContext(m_rightTableName);
 	if (!leftTableCtx || !rightTableCtx) {
 		THROW_SQL_PROCESSOR_EXCEPTION(
@@ -401,19 +401,19 @@ void SQLTableInnerJoin::prepareJoin(JoinContext *joinCtx)
 		  m_rightTableName.c_str(), rightTableCtx);
 	}
 
-	if (rightTableCtx->innerJoinLeftTableCtx) {
+	if (rightTableCtx->equalBoundTableCtx) {
 		THROW_SQL_PROCESSOR_EXCEPTION(
-		  "rightTableCtx->innerJoinLeftTableCtx: Not null. "
+		  "rightTableCtx->equalBoundTableCtx: Not null. "
 		  "rightTable: %s, innerJoinLeftTable: %s",
 		  m_rightTableName.c_str(),
-		  rightTableCtx->innerJoinLeftTableCtx
+		  rightTableCtx->equalBoundTableCtx
 		    ->tableElement->getName().c_str());
 	}
-	rightTableCtx->innerJoinLeftTableCtx = leftTableCtx;
-	rightTableCtx->innerJoinLeftColumnIndex =
+	rightTableCtx->equalBoundTableCtx = leftTableCtx;
+	rightTableCtx->equalBoundColumnIndex =
 	  m_columnIndexResolver->getIndex(m_leftTableName,
 	                                  m_leftColumnName);
-	rightTableCtx->innerJoinColumnIndex =
+	rightTableCtx->equalBoundColumnIndex =
 	  m_columnIndexResolver->getIndex(m_rightTableName,
 	                                  m_rightColumnName);
 	m_rightTableElement = rightTableCtx->tableElement;

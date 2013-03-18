@@ -32,23 +32,23 @@ using namespace mlpl;
 #include "ItemGroupPtr.h"
 
 // ---------------------------------------------------------------------------
-// JoinedTableContext
+// SQLTableProcessContext
 // ---------------------------------------------------------------------------
 class SQLTableElement;
-struct JoinedTableContext {
-	SQLTableElement    *tableElement;
-	JoinedTableContext *innerJoinLeftTableCtx;
-	int                 innerJoinLeftColumnIndex;
-	int                 innerJoinColumnIndex; // Right Hand (This table)
+struct SQLTableProcessContext {
+	SQLTableElement        *tableElement;
+	SQLTableProcessContext *equalBoundTableCtx;
+	int                     equalBoundColumnIndex;   // in other table
+	int                     equalBoundMyIndex;       // in this table
 
 	// The body of 'itemDataIndex' in ItemTable instance
-	ItemDataIndex      *itemDataIndex;
+	ItemDataIndex          *itemDataIndex;
 
 	vector<ItemDataPtrForIndex> indexMatchedItems;
 	size_t                      indexMatchedItemsIndex;
 
 	// methods
-	JoinedTableContext(void);
+	SQLTableProcessContext(void);
 	void clearIndexingVariables(void);
 };
 
@@ -56,13 +56,13 @@ struct JoinedTableContext {
 // JoinContext
 // ---------------------------------------------------------------------------
 struct JoinContext {
-	map<string, JoinedTableContext *> tableNameCtxMap;
-	map<string, JoinedTableContext *> tableVarCtxMap;
-	vector<JoinedTableContext *>      tableCtxVector;
+	map<string, SQLTableProcessContext *> tableNameCtxMap;
+	map<string, SQLTableProcessContext *> tableVarCtxMap;
+	vector<SQLTableProcessContext *>      tableCtxVector;
 
 	// methods
 	virtual ~JoinContext();
-	JoinedTableContext *getTableContext(const string &name);
+	SQLTableProcessContext *getTableContext(const string &name);
 };
 
 // ---------------------------------------------------------------------------
@@ -131,7 +131,7 @@ public:
 	void startRowIterator(void);
 	bool rowIteratorEnd(void);
 	void rowIteratorInc(void);
-	void setJoinedTableContext(JoinedTableContext *joinedTableCtx);
+	void setSQLTableProcessContext(SQLTableProcessContext *joinedTableCtx);
 	bool isIndexingMode(void);
 
 protected:
@@ -143,7 +143,7 @@ private:
 	ItemTablePtr m_itemTablePtr;
 	SQLColumnIndexResoveler *m_columnIndexResolver;
 	ItemGroupListConstIterator m_currSelectedGroup;
-	JoinedTableContext        *m_joinedTableCtx;
+	SQLTableProcessContext    *m_tableProcessCtx;
 };
 
 typedef list<SQLTableElement *>             SQLTableElementList;
