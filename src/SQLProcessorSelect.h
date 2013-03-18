@@ -220,6 +220,7 @@ protected:
 	void makeColumnDefs(void);
 	void makeItemTables(void);
 	void optimizeFormula(void);
+	void pickupColumnComparisons(void);
 	void doJoinWithFromParser(bool existsMode = false);
 	void doJoin(void);
 	void selectMatchingRows(void);

@@ -25,18 +25,6 @@ using namespace std;
 #include "FormulaElement.h"
 #include "FormulaOperator.h"
 
-struct ColumnComparisonInfo {
-	string leftTableName;
-	string leftColumnName;
-	string rightTableName;
-	string rightColumnName;
-};
-
-typedef list<ColumnComparisonInfo *>       ColumnComparisonInfoList;
-typedef ColumnComparisonInfoList::iterator ColumnComparisonInfoListIterator;
-typedef ColumnComparisonInfoList::const_iterator
-   ColumnComparisonInfoListConstIterator;
-
 class ColumnComparisonPicker {
 public:
 	virtual ~ColumnComparisonPicker();

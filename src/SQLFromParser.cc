@@ -138,10 +138,9 @@ SQLFromParser::setColumnIndexResolver(SQLColumnIndexResoveler *resolver)
 	m_ctx->columnIndexResolver = resolver;
 }
 
-ItemTablePtr SQLFromParser::doJoin(FormulaElement *whereFormula,
-                                   bool existsMode)
+void SQLFromParser::prepareJoin(
+  const ColumnComparisonInfoList &getColumnComparisonInfoList)
 {
-	// preparation
 	JoinContext joinCtx;
 	SQLTableElementListIterator it = m_ctx->tableElementList.begin();
 	for (; it != m_ctx->tableElementList.end(); ++it) {
@@ -159,7 +158,11 @@ ItemTablePtr SQLFromParser::doJoin(FormulaElement *whereFormula,
 		joinCtx.tableCtxVector.push_back(tableCtx);
 	}
 	m_ctx->tableFormula->prepareJoin(&joinCtx);
+}
 
+ItemTablePtr SQLFromParser::doJoin(FormulaElement *whereFormula,
+                                   bool existsMode)
+{
 	// execute join loop
 	m_ctx->existsMode = existsMode;
 	IterateTableRowForJoin(m_ctx->tableElementList.begin(), whereFormula);

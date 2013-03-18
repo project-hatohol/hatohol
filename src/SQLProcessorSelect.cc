@@ -30,6 +30,7 @@ using namespace std;
 #include "ItemEnum.h"
 #include "SQLUtils.h"
 #include "Utils.h"
+#include "ColumnComparisonPicker.h"
 
 typedef bool (SQLProcessorSelect::*SelectSectionParser)(void);
 typedef void (SQLProcessorSelect::*SelectSubParser)(void);
@@ -148,6 +149,7 @@ struct SQLProcessorSelect::PrivateContext {
 
 	SQLProcessorColumnIndexResolver columnIndexResolver;
 	FormulaOptimizationResult       whereFormulaOptimizationResult;
+	ColumnComparisonPicker          columnComparisonPicker;
 
 	// currently processed Item Group used in selectMatchingRows()
 	bool                useEvalTargetItemGroup;
@@ -563,6 +565,9 @@ void SQLProcessorSelect::setupForSelect(SQLSelectInfo &selectInfo)
 
 	// optimization of the formula
 	optimizeFormula();
+
+	// pickup column comparison components
+	pickupColumnComparisons();
 }
 
 void SQLProcessorSelect::setSelectInfoToPrivateContext(SQLSelectInfo &selectInfo)
@@ -899,6 +904,20 @@ void SQLProcessorSelect::optimizeFormula(void)
 		return;
 	}
 	m_ctx->whereFormulaOptimizationResult = whereFormula->optimize();
+}
+
+void SQLProcessorSelect::pickupColumnComparisons(void)
+{
+	if (m_ctx->whereFormulaOptimizationResult.type == FORMULA_ALWAYS_FALSE)
+		return;
+	SQLWhereParser &whereParser = m_ctx->selectInfo->whereParser;
+	FormulaElement *formula = whereParser.getFormula();
+	m_ctx->columnComparisonPicker.pickupPrimary(formula);
+	
+	// prepare join with the pickup columns
+	SQLSelectInfo *selectInfo = m_ctx->selectInfo;
+	selectInfo->fromParser.prepareJoin(
+	  m_ctx->columnComparisonPicker.getColumnComparisonInfoList());
 }
 
 void SQLProcessorSelect::doJoinWithFromParser(bool existsMode)

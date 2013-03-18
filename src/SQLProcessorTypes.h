@@ -143,4 +143,16 @@ struct SQLProcessorSelectShareInfo {
 class SQLFoundRowOnJoinException {
 };
 
+struct ColumnComparisonInfo {
+	string leftTableName;
+	string leftColumnName;
+	string rightTableName;
+	string rightColumnName;
+};
+
+typedef list<ColumnComparisonInfo *>       ColumnComparisonInfoList;
+typedef ColumnComparisonInfoList::iterator ColumnComparisonInfoListIterator;
+typedef ColumnComparisonInfoList::const_iterator
+   ColumnComparisonInfoListConstIterator;
+
 #endif // SQLProcessorTypes_h
