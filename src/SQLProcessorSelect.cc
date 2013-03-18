@@ -894,7 +894,8 @@ void SQLProcessorSelect::optimizeFormula(void)
 	SQLWhereParser &whereParser = m_ctx->selectInfo->whereParser;
 	FormulaElement *whereFormula = whereParser.getFormula();
 	if (!whereFormula) {
-		m_ctx->whereFormulaOptimizationResult.type = FORMULA_ALWAYS_TRUE;
+		m_ctx->whereFormulaOptimizationResult.type =
+		   FORMULA_ALWAYS_TRUE;
 		return;
 	}
 	m_ctx->whereFormulaOptimizationResult = whereFormula->optimize();
