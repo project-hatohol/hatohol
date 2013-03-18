@@ -87,11 +87,9 @@ bool ColumnComparisonPicker::pickupOperatorAnd
   (ColumnComparisonInfoList &columnCompList, FormulaOperatorAnd *operatorAnd)
 {
 	FormulaElement *leftElem = operatorAnd->getLeftHand();
-	if (!picupPrimaryRecursive(columnCompList, leftElem))
-		return false;
+	picupPrimaryRecursive(columnCompList, leftElem);
 
 	FormulaElement *rightElem = operatorAnd->getRightHand();
-	if (!picupPrimaryRecursive(columnCompList, rightElem))
-		return false;
+	picupPrimaryRecursive(columnCompList, rightElem);
 	return true;
 }
