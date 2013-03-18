@@ -654,6 +654,56 @@ void test_columnComparisonThreeComp(void)
 	                           rightTable2, rightColumn2);
 }
 
+void test_columnComparisonOr(void)
+{
+	string statement = "A.C1=B.C1 or C.C2=D.C2";
+	DEFINE_PARSER_AND_RUN(whereParser, formula, statement);
+	ColumnComparisonPicker columnCompPicker;
+	columnCompPicker.pickupPrimary(formula);
+	const ColumnComparisonInfoList &columnCompInfoList = 
+	  columnCompPicker.getColumnComparisonInfoList();
+	cppcut_assert_equal((size_t)0, columnCompInfoList.size());
+}
+
+void test_columnComparisonAndOr(void)
+{
+	const char *leftTable = "a";
+	const char *leftColumn = "c1";
+	const char *rightTable = "b";
+	const char *rightColumn = "c2";
+	string statement =
+	   StringUtils::sprintf("%s.%s=%s.%s and (A.C1=B.C1 or C.C2=D.C2)",
+	                        leftTable, leftColumn, rightTable, rightColumn);
+	DEFINE_PARSER_AND_RUN(whereParser, formula, statement);
+	ColumnComparisonPicker columnCompPicker;
+	columnCompPicker.pickupPrimary(formula);
+	const ColumnComparisonInfoList &columnCompInfoList = 
+	  columnCompPicker.getColumnComparisonInfoList();
+	cppcut_assert_equal((size_t)1, columnCompInfoList.size());
+	assertColumnComparisonInfo(*columnCompInfoList.begin(),
+	                           leftTable, leftColumn,
+	                           rightTable, rightColumn);
+}
+
+void test_columnComparisonOrAnd(void)
+{
+	const char *leftTable = "a";
+	const char *leftColumn = "c1";
+	const char *rightTable = "b";
+	const char *rightColumn = "c2";
+	string statement =
+	   StringUtils::sprintf("(A.C1=B.C1 or C.C2=D.C2) and %s.%s=%s.%s",
+	                        leftTable, leftColumn, rightTable, rightColumn);
+	DEFINE_PARSER_AND_RUN(whereParser, formula, statement);
+	ColumnComparisonPicker columnCompPicker;
+	columnCompPicker.pickupPrimary(formula);
+	const ColumnComparisonInfoList &columnCompInfoList = 
+	  columnCompPicker.getColumnComparisonInfoList();
+	cppcut_assert_equal((size_t)1, columnCompInfoList.size());
+	assertColumnComparisonInfo(*columnCompInfoList.begin(),
+	                           leftTable, leftColumn,
+	                           rightTable, rightColumn);
+}
 
 } // namespace testSQLWhereParser
 
