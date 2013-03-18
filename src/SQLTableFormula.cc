@@ -42,8 +42,16 @@ void SQLTableProcessContext::clearIndexingVariables(void)
 // ---------------------------------------------------------------------------
 SQLTableProcessContextIndex::~SQLTableProcessContextIndex()
 {
+	clear();
+}
+
+void SQLTableProcessContextIndex::clear(void)
+{
 	for (size_t i = 0; i < tableCtxVector.size(); i++)
 		delete tableCtxVector[i];
+	tableCtxVector.clear();
+	tableNameCtxMap.clear();
+	tableCtxVector.clear();
 }
 
 SQLTableProcessContext *SQLTableProcessContextIndex::getTableContext(const string &name)

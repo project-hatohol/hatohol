@@ -62,6 +62,7 @@ struct SQLTableProcessContextIndex {
 
 	// methods
 	virtual ~SQLTableProcessContextIndex();
+	void clear(void);
 	SQLTableProcessContext *getTableContext(const string &name);
 };
 
