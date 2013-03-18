@@ -40,7 +40,10 @@ struct JoinedTableContext {
 	JoinedTableContext *innerJoinLeftTableCtx;
 	int                 innerJoinLeftColumnIndex;
 	int                 innerJoinColumnIndex; // Right Hand (This table)
+
+	// The body of 'itemDataIndex' in ItemTable instance
 	ItemDataIndex      *itemDataIndex;
+
 	vector<ItemDataPtrForIndex> indexMatchedItems;
 	size_t                      indexMatchedItemsIndex;
 
