@@ -150,6 +150,7 @@ struct SQLProcessorSelect::PrivateContext {
 	SQLProcessorColumnIndexResolver columnIndexResolver;
 	FormulaOptimizationResult       whereFormulaOptimizationResult;
 	ColumnComparisonPicker          columnComparisonPicker;
+	SQLTableProcessContextIndex    *tableProcessContextIndex;
 
 	// currently processed Item Group used in selectMatchingRows()
 	bool                useEvalTargetItemGroup;
@@ -167,7 +168,8 @@ struct SQLProcessorSelect::PrivateContext {
 	// methods
 	PrivateContext(SQLProcessorSelect *procSelect, const string &_dbName,
 	               TableNameStaticInfoMap &nameInfoMap,
-	               const SQLProcessorSelect *parentProc = NULL)
+	               const SQLProcessorSelect *parentProc = NULL,
+	               SQLTableProcessContextIndex *tableProcCtxIdx = NULL)
 	: procSelectFactory(procSelect),
 	  shareInfo(procSelectFactory),
 	  parentProcessor(parentProc),
@@ -177,10 +179,21 @@ struct SQLProcessorSelect::PrivateContext {
 	  separatorSpaceComma(" ,"),
 	  section(SELECT_PARSING_SECTION_COLUMN),
 	  columnIndexResolver(nameInfoMap),
+	  tableProcessContextIndex(tableProcCtxIdx),
 	  useEvalTargetItemGroup(false),
 	  evalTargetItemGroup(NULL),
 	  makeTextRowsWriteMaskCount(0)
 	{
+		if (!parentProc) {
+			tableProcessContextIndex =
+			   new SQLTableProcessContextIndex();
+		}
+	}
+
+	virtual ~PrivateContext()
+	{
+		if (!parentProcessor && tableProcessContextIndex)
+			delete tableProcessContextIndex;
 	}
 
 	void clear(void)
@@ -191,6 +204,8 @@ struct SQLProcessorSelect::PrivateContext {
 		currWord.clear();
 		currWordLower.clear();
 		useEvalTargetItemGroup = false;
+		if (!parentProcessor)
+			tableProcessContextIndex->clear();
 		evalTargetItemGroup = NULL;
 		makeTextRowsWriteMaskCount = 0;
 		concatOutputTextSet.clear();
@@ -517,7 +532,8 @@ SQLProcessorSelect::SQLProcessorSelect(const SQLProcessorSelect *parent)
 {
 	m_ctx = new PrivateContext(this, parent->m_ctx->dbName,
 	                           parent->m_ctx->tableNameStaticInfoMap,
-	                           parent);
+	                           parent,
+	                           parent->m_ctx->tableProcessContextIndex);
 	setup();
 }
 
@@ -917,7 +933,8 @@ void SQLProcessorSelect::pickupColumnComparisons(void)
 	// prepare join with the pickup columns
 	SQLSelectInfo *selectInfo = m_ctx->selectInfo;
 	selectInfo->fromParser.prepareJoin(
-	  m_ctx->columnComparisonPicker.getColumnComparisonInfoList());
+	  m_ctx->columnComparisonPicker.getColumnComparisonInfoList(),
+	  m_ctx->tableProcessContextIndex);
 }
 
 void SQLProcessorSelect::doJoinWithFromParser(bool existsMode)
