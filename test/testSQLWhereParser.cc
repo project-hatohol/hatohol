@@ -613,6 +613,47 @@ void test_columnComparisonTwoEq(void)
 	                           rightTable1, rightColumn1);
 }
 
+void test_columnComparisonThreeComp(void)
+{
+	const char *leftTable0 = "a";
+	const char *leftColumn0 = "c1";
+	const char *rightTable0 = "b";
+	const char *rightColumn0 = "c2";
+	const char *leftTable1 = "udon";
+	const char *leftColumn1 = "dog";
+	const char *rightTable1 = "soba";
+	const char *rightColumn1 = "cat";
+	const char *leftTable2 = "fish";
+	const char *leftColumn2 = "red";
+	const char *rightTable2 = "cow";
+	const char *rightColumn2 = "black";
+	string statement =
+	   StringUtils::sprintf(
+	     "%s.%s=%s.%s and %s.%s=%s.%s and %s.%s=%s.%s",
+	     leftTable0, leftColumn0, rightTable0, rightColumn0,
+	     leftTable1, leftColumn1, rightTable1, rightColumn1,
+	     leftTable2, leftColumn2, rightTable2, rightColumn2);
+	DEFINE_PARSER_AND_RUN(whereParser, formula, statement);
+	ColumnComparisonPicker columnCompPicker;
+	columnCompPicker.pickupPrimary(formula);
+	const ColumnComparisonInfoList &columnCompInfoList = 
+	  columnCompPicker.getColumnComparisonInfoList();
+	cppcut_assert_equal((size_t)3, columnCompInfoList.size());
+
+   	ColumnComparisonInfoListConstIterator it = columnCompInfoList.begin();
+	assertColumnComparisonInfo(*it,
+	                           leftTable0, leftColumn0,
+	                           rightTable0, rightColumn0);
+	++it;
+	assertColumnComparisonInfo(*it,
+	                           leftTable1, leftColumn1,
+	                           rightTable1, rightColumn1);
+	++it;
+	assertColumnComparisonInfo(*it,
+	                           leftTable2, leftColumn2,
+	                           rightTable2, rightColumn2);
+}
+
 
 } // namespace testSQLWhereParser
 
