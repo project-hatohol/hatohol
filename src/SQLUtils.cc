@@ -116,6 +116,23 @@ ItemDataPtr SQLUtils::getItemDataFromItemGroupWithColumnName
 	return dataPtr;
 }
 
+void SQLUtils::decomposeTableAndColumn(const string &fieldName,
+                                       string &tableName, string &columnName)
+{
+	size_t dotPosition = fieldName.find(".");
+	if (dotPosition == string::npos) {
+		THROW_SQL_PROCESSOR_EXCEPTION(
+		  "'dot' is not found in join field: %s", fieldName.c_str());
+	}
+	if (dotPosition == 0 || dotPosition == fieldName.size() - 1) {
+		THROW_SQL_PROCESSOR_EXCEPTION(
+		  "The position of 'dot' is invalid: %s (%d)",
+		  fieldName.c_str(), dotPosition);
+	}
+	tableName = string(fieldName, 0, dotPosition);
+	columnName = string(fieldName, dotPosition + 1);
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------

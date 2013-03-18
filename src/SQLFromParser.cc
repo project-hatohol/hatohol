@@ -19,6 +19,7 @@
 #include "FormulaOperator.h"
 #include "ItemDataUtils.h"
 #include "SQLProcessorException.h"
+#include "SQLUtils.h"
 
 SQLFromParser::SubParser SQLFromParser::m_subParsers[] = {
 	&SQLFromParser::subParserExpectTableName,
@@ -401,37 +402,19 @@ void SQLFromParser::makeInnerJoin(void)
 	m_ctx->state = PARSING_STAT_EXPECT_TABLE_NAME;
 }
 
-void SQLFromParser::decomposeTableAndColumn(const string &fieldName,
-                                            string &tableName,
-                                            string &columnName)
-{
-	size_t dotPosition = fieldName.find(".");
-	if (dotPosition == string::npos) {
-		THROW_SQL_PROCESSOR_EXCEPTION(
-		  "'dot' is not found in join field: %s", fieldName.c_str());
-	}
-	if (dotPosition == 0 || dotPosition == fieldName.size() - 1) {
-		THROW_SQL_PROCESSOR_EXCEPTION(
-		  "The position of 'dot' is invalid: %s (%d)",
-		  fieldName.c_str(), dotPosition);
-	}
-	tableName = string(fieldName, 0, dotPosition);
-	columnName = string(fieldName, dotPosition + 1);
-}
-
 void SQLFromParser::parseInnerJoinLeftField(const string &fieldName)
 {
-	decomposeTableAndColumn(fieldName,
-	                        m_ctx->innerJoinLeftTableName,
-	                        m_ctx->innerJoinLeftColumnName);
+	SQLUtils::decomposeTableAndColumn(fieldName,
+	                                  m_ctx->innerJoinLeftTableName,
+	                                  m_ctx->innerJoinLeftColumnName);
 	m_ctx->state = PARSING_STAT_EXPECT_INNER_JOIN_EQUAL;
 }
 
 void SQLFromParser::parseInnerJoinRightField(const string &fieldName)
 {
-	decomposeTableAndColumn(fieldName,
-	                        m_ctx->innerJoinRightTableName,
-	                        m_ctx->innerJoinRightColumnName);
+	SQLUtils::decomposeTableAndColumn(fieldName,
+	                                  m_ctx->innerJoinRightTableName,
+	                                  m_ctx->innerJoinRightColumnName);
 	makeInnerJoin();
 	m_ctx->state = PARSING_STAT_CREATED_TABLE;
 }

@@ -87,8 +87,6 @@ protected:
 	       const string &varName = StringUtils::EMPTY_STRING);
 	void makeCrossJoin(void);
 	void makeInnerJoin(void);
-	void decomposeTableAndColumn(const string &fieldName,
-	                             string &tableName, string &columnName);
 	void parseInnerJoinLeftField(const string &fieldName);
 	void parseInnerJoinRightField(const string &fieldName);
 	void doJoineOneRow(FormulaElement *whereFormula);
