@@ -23,6 +23,7 @@
 using namespace std;
 
 #include "FormulaElement.h"
+#include "FormulaOperator.h"
 
 struct ColumnComparisonInfo {
 	string leftTableName;
@@ -33,12 +34,26 @@ struct ColumnComparisonInfo {
 
 typedef list<ColumnComparisonInfo *>       ColumnComparisonInfoList;
 typedef ColumnComparisonInfoList::iterator ColumnComparisonInfoListIterator;
+typedef ColumnComparisonInfoList::const_iterator
+   ColumnComparisonInfoListConstIterator;
 
 class ColumnComparisonPicker {
 public:
-	void pickupFirstLevel(ColumnComparisonInfoList &columnCompList,
-	                      FormulaElement *formula);
+	virtual ~ColumnComparisonPicker();
+	void pickupPrimary(FormulaElement *formula);
+	const ColumnComparisonInfoList &getColumnComparisonInfoList(void) const;
+protected:
+	bool picupPrimaryRecursive
+	       (ColumnComparisonInfoList &columnCompList,
+	        FormulaElement *formula);
+	bool pickupComparatorEqual
+	       (ColumnComparisonInfoList &columnCompList,
+	        FormulaComparatorEqual *compEq);
+	bool pickupOperatorAnd
+	       (ColumnComparisonInfoList &columnCompList,
+	        FormulaOperatorAnd *operatorAnd);
 private:
+	ColumnComparisonInfoList m_columnCompList;
 };
 
 #endif // FormulaVariableComaprisonPicker_h

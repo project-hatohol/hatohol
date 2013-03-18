@@ -16,12 +16,82 @@
 */
 
 #include "ColumnComparisonPicker.h"
+#include "SQLUtils.h"
 
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
-void ColumnComparisonPicker::pickupFirstLevel
+ColumnComparisonPicker::~ColumnComparisonPicker()
+{
+	ColumnComparisonInfoListIterator it = m_columnCompList.begin();
+	for (; it != m_columnCompList.end(); ++it)
+		delete *it;
+}
+
+void ColumnComparisonPicker::pickupPrimary
+  (FormulaElement *formula)
+{
+	picupPrimaryRecursive(m_columnCompList, formula);
+}
+
+const ColumnComparisonInfoList &
+ColumnComparisonPicker::getColumnComparisonInfoList(void) const
+{
+	return m_columnCompList;
+}
+
+// ---------------------------------------------------------------------------
+// Protected methods
+// ---------------------------------------------------------------------------
+bool ColumnComparisonPicker::picupPrimaryRecursive
   (ColumnComparisonInfoList &columnCompList, FormulaElement *formula)
 {
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	FormulaComparatorEqual *compEq =
+	   dynamic_cast<FormulaComparatorEqual *>(formula);
+	if (compEq)
+		return pickupComparatorEqual(columnCompList, compEq);
+
+	FormulaOperatorAnd *operatorAnd =
+	   dynamic_cast<FormulaOperatorAnd *>(formula);
+	if (operatorAnd)
+		return pickupOperatorAnd(columnCompList, operatorAnd);
+
+	return false;
+}
+
+bool ColumnComparisonPicker::pickupComparatorEqual
+  (ColumnComparisonInfoList &columnCompList, FormulaComparatorEqual *compEq)
+{
+	FormulaVariable *leftVariable =
+	   dynamic_cast<FormulaVariable *>(compEq->getLeftHand());
+	if (!leftVariable)
+		return false;
+
+	FormulaVariable *rightVariable =
+	   dynamic_cast<FormulaVariable *>(compEq->getRightHand());
+	if (!rightVariable)
+		return false;
+
+	ColumnComparisonInfo *columnCompInfo = new ColumnComparisonInfo();
+	SQLUtils::decomposeTableAndColumn(leftVariable->getName(),
+	                                  columnCompInfo->leftTableName,
+	                                  columnCompInfo->leftColumnName);
+	SQLUtils::decomposeTableAndColumn(rightVariable->getName(),
+	                                  columnCompInfo->rightTableName,
+	                                  columnCompInfo->rightColumnName);
+	columnCompList.push_back(columnCompInfo);
+	return true;
+}
+
+bool ColumnComparisonPicker::pickupOperatorAnd
+  (ColumnComparisonInfoList &columnCompList, FormulaOperatorAnd *operatorAnd)
+{
+	FormulaElement *leftElem = operatorAnd->getLeftHand();
+	if (!picupPrimaryRecursive(columnCompList, leftElem))
+		return false;
+
+	FormulaElement *rightElem = operatorAnd->getRightHand();
+	if (!picupPrimaryRecursive(columnCompList, rightElem))
+		return false;
+	return true;
 }

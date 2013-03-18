@@ -16,6 +16,7 @@ using namespace mlpl;
 #include "FormulaTestUtils.h"
 #include "Asura.h"
 #include "AsuraException.h"
+#include "ColumnComparisonPicker.h"
 
 namespace testSQLWhereParser {
 
@@ -94,6 +95,19 @@ static void _assertWhereIn(T *expectedValueArray, size_t numValue)
 }
 #define assertWhereIn(T, VT, EXP, NUM) \
 cut_trace((_assertWhereIn<T, VT>(EXP, NUM)))
+
+static void _assertColumnComparisonInfo
+  (const ColumnComparisonInfo *columnCompInfo, 
+   const string &leftTable, const string &leftColumn,
+   const string &rightTable, const string &rightColumn)
+{
+	cppcut_assert_equal(leftTable,   columnCompInfo->leftTableName);
+	cppcut_assert_equal(leftColumn,  columnCompInfo->leftColumnName);
+	cppcut_assert_equal(rightTable,  columnCompInfo->rightTableName);
+	cppcut_assert_equal(rightColumn, columnCompInfo->rightColumnName);
+}
+#define assertColumnComparisonInfo(CCI, LT, LC, RT, RC) \
+cut_trace((_assertColumnComparisonInfo(CCI, LT, LC, RT, RC)))
 
 void setup(void)
 {
@@ -543,6 +557,30 @@ void test_optimize1Eq0And1Eq1(void)
 	FormulaOptimizationResult result = formula->optimize();
 	cppcut_assert_equal(FORMULA_ALWAYS_FALSE, result.type);
 }
+
+//
+// ColumnComparisonPicker
+//
+void test_columnComparisonOne(void)
+{
+	const char *leftTable = "a";
+	const char *leftColumn = "c1";
+	const char *rightTable = "b";
+	const char *rightColumn = "c2";
+	string statement =
+	   StringUtils::sprintf("%s.%s=%s.%s",
+	                        leftTable, leftColumn, rightTable, rightColumn);
+	DEFINE_PARSER_AND_RUN(whereParser, formula, statement);
+	ColumnComparisonPicker columnCompPicker;
+	columnCompPicker.pickupPrimary(formula);
+	const ColumnComparisonInfoList &columnCompInfoList = 
+	  columnCompPicker.getColumnComparisonInfoList();
+	cppcut_assert_equal((size_t)1, columnCompInfoList.size());
+	assertColumnComparisonInfo(*columnCompInfoList.begin(),
+	                           leftTable, leftColumn,
+	                           rightTable, rightColumn);
+}
+
 
 } // namespace testSQLWhereParser
 
