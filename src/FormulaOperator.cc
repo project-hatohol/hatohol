@@ -86,7 +86,8 @@ FormulaOptimizationResult FormulaComparatorEqual::optimize(void)
 		else
 			result.type = FORMULA_ALWAYS_FALSE;
 	}
-	return setOptimizationResult(result);
+	setOptimizationResult(result);
+	return result;
 }
 
 ItemDataPtr FormulaComparatorEqual::evaluate(void)
@@ -239,20 +240,26 @@ FormulaOptimizationResult FormulaOperatorAnd::optimize(void)
 	if (leftHand == NULL)
 		THROW_SQL_PROCESSOR_EXCEPTION("Left hand is NULL.");
 	FormulaOptimizationResult resultLeft = leftHand->optimize();
-	if (resultLeft.type == FORMULA_ALWAYS_FALSE)
-		return setOptimizationResult(resultLeft);
+	if (resultLeft.type == FORMULA_ALWAYS_FALSE) {
+		setOptimizationResult(resultLeft);
+		return resultLeft;
+	}
 
 	FormulaElement *rightHand = getRightHand();
 	if (rightHand == NULL)
 		THROW_SQL_PROCESSOR_EXCEPTION("Left hand is NULL.");
 	FormulaOptimizationResult resultRight = rightHand->optimize();
-	if (resultRight.type == FORMULA_ALWAYS_FALSE)
-		return setOptimizationResult(resultRight);
+	if (resultRight.type == FORMULA_ALWAYS_FALSE) {
+		setOptimizationResult(resultRight);
+		return resultRight;
+	}
 
 	bool leftIsTrue  = (resultLeft.type  == FORMULA_ALWAYS_TRUE);
 	bool rightIsTrue = (resultRight.type == FORMULA_ALWAYS_TRUE);
-	if (leftIsTrue && rightIsTrue)
-		return setOptimizationResult(resultLeft);
+	if (leftIsTrue && rightIsTrue) {
+		setOptimizationResult(resultLeft);
+		return resultLeft;
+	}
 
 	return getOptimizationResult();
 }

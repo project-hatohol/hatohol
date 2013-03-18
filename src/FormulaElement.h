@@ -112,8 +112,7 @@ protected:
 	bool getLeftHandDataWithCheck(ItemDataPtr &dataPtr);
 	bool getRightHandDataWithCheck(ItemDataPtr &dataPtr);
 	void setTerminalElement(void);
-	virtual FormulaOptimizationResult &
-	  setOptimizationResult(FormulaOptimizationResult &result);
+	virtual void setOptimizationResult(FormulaOptimizationResult &result);
 	FormulaOptimizationResult &getOptimizationResult(void);
 	virtual string getTreeInfoAdditional(void);
 
