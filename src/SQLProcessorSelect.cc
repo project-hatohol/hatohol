@@ -902,7 +902,8 @@ void SQLProcessorSelect::optimizeFormula(void)
 
 void SQLProcessorSelect::doJoinWithFromParser(bool existsMode)
 {
-	FormulaOptimizationResultType type = m_ctx->whereFormulaOptimizationResult.type;
+	FormulaOptimizationResultType type =
+	   m_ctx->whereFormulaOptimizationResult.type;
 	if (type == FORMULA_ALWAYS_FALSE) {
 		if (!existsMode) {
 			// selectInfo->selectedTable should be an empty table.
