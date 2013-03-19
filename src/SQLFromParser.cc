@@ -384,6 +384,11 @@ void SQLFromParser::associateColumnComparisonInfoWithTableProcessorContext
   (const ColumnComparisonInfoList &columnComparisonInfoList,
    SQLTableProcessContextIndex *ctxIndex)
 {
+	// NOTE: Current implementation just overwrites equalBoundTablexCtx
+	// and related variables when they have already been set. The latest
+	// written one may not be the most effective indexes. So more smart
+	// algorithm should be applied.
+
 	ColumnComparisonInfoListConstIterator it =
 	  columnComparisonInfoList.begin();
 	for (; it != columnComparisonInfoList.end(); ++it) {
