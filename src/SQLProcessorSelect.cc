@@ -56,7 +56,8 @@ class SQLProcessorColumnIndexResolver : public SQLColumnIndexResoveler {
 public:
 	SQLProcessorColumnIndexResolver(TableNameStaticInfoMap &nameInfoMap)
 	: m_tableNameStaticInfoMap(nameInfoMap),
-	  m_tableVarInfoMap(NULL)
+	  m_tableVarInfoMap(NULL),
+	  m_parentResolver(NULL)
 	{
 	}
 
@@ -80,6 +81,11 @@ public:
 		m_tableVarInfoMap = tableVarInfoMap;
 	}
 
+	void setParentResolver(SQLProcessorColumnIndexResolver *parentResolver)
+	{
+		m_parentResolver = parentResolver;
+	}
+
 protected:
 	const SQLTableStaticInfo *
 	getTableStaticInfo(const string &tableName) const
@@ -95,16 +101,27 @@ protected:
 
 		TableNameStaticInfoMapIterator it;
 		it = m_tableNameStaticInfoMap.find(tableName);
-		if (it == m_tableNameStaticInfoMap.end()) {
-			THROW_SQL_PROCESSOR_EXCEPTION(
-			  "Not found table: %s", tableName.c_str());
+		if (it != m_tableNameStaticInfoMap.end())
+			return it->second;
+
+		// try to find from the parent
+		const SQLTableStaticInfo *staticInfo = NULL;
+		if (m_parentResolver) {
+			staticInfo =
+			   m_parentResolver->getTableStaticInfo(tableName);
 		}
-		return it->second;
+		if (staticInfo)
+			return staticInfo;
+
+		THROW_SQL_PROCESSOR_EXCEPTION(
+		  "Not found table: %s", tableName.c_str());
+		return NULL;
 	}
 
 private:
 	TableNameStaticInfoMap &m_tableNameStaticInfoMap;
 	SQLTableVarNameInfoMap *m_tableVarInfoMap;
+	SQLProcessorColumnIndexResolver *m_parentResolver;
 };
 
 class SQLProcessorSelectFactoryImpl : public SQLProcessorSelectFactory {
@@ -187,6 +204,10 @@ struct SQLProcessorSelect::PrivateContext {
 		if (!parentProc) {
 			tableProcessContextIndex =
 			   new SQLTableProcessContextIndex();
+		}
+		if (parentProc) {
+			columnIndexResolver.setParentResolver
+			  (&parentProc->m_ctx->columnIndexResolver);
 		}
 	}
 
