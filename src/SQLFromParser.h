@@ -37,11 +37,11 @@ public:
 	SQLTableElementList &getTableElementList(void) const;
 	SeparatorCheckerWithCallback *getSeparatorChecker(void);
 	void setColumnIndexResolver(SQLColumnIndexResoveler *resolver);
+	void setSubQueryMode(SQLSubQueryMode subQueryMode);
 	void prepareJoin
 	  (const ColumnComparisonInfoList &getColumnComparisonInfoList,
 	   SQLTableProcessContextIndex *ctxIndex);
-	ItemTablePtr doJoin(FormulaElement *whereFormula,
-	                    SQLSubQueryMode subQueryMode);
+	ItemTablePtr doJoin(FormulaElement *whereFormula);
 
 	virtual void add(const string& word, const string &wordLower);
 	virtual void flush(void);

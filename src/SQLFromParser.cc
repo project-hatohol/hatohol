@@ -138,6 +138,11 @@ SQLFromParser::setColumnIndexResolver(SQLColumnIndexResoveler *resolver)
 	m_ctx->columnIndexResolver = resolver;
 }
 
+void SQLFromParser::setSubQueryMode(SQLSubQueryMode subQueryMode)
+{
+	m_ctx->subQueryMode = subQueryMode;
+}
+
 void SQLFromParser::prepareJoin(
   const ColumnComparisonInfoList &columnComparisonInfoList,
   SQLTableProcessContextIndex *ctxIndex)
@@ -168,11 +173,9 @@ void SQLFromParser::prepareJoin(
 	m_ctx->tableFormula->prepareJoin(ctxIndex);
 }
 
-ItemTablePtr SQLFromParser::doJoin(FormulaElement *whereFormula,
-                                   SQLSubQueryMode subQueryMode)
+ItemTablePtr SQLFromParser::doJoin(FormulaElement *whereFormula)
 {
 	// execute join loop
-	m_ctx->subQueryMode = subQueryMode;
 	IterateTableRowForJoin(m_ctx->tableElementList.begin(), whereFormula);
 	return m_ctx->joinedTable;
 }

@@ -131,9 +131,9 @@ public:
 	{
 	}
 
-	virtual SQLProcessorSelect * operator()(void)
+	virtual SQLProcessorSelect *create(SQLSubQueryMode subQueryMode)
 	{
-		return new SQLProcessorSelect(m_parent);
+		return new SQLProcessorSelect(m_parent, subQueryMode);
 	}
 
 private:
@@ -168,6 +168,7 @@ struct SQLProcessorSelect::PrivateContext {
 	FormulaOptimizationResult       whereFormulaOptimizationResult;
 	ColumnComparisonPicker          columnComparisonPicker;
 	SQLTableProcessContextIndex    *tableProcessContextIndex;
+	SQLSubQueryMode                 subQueryMode;
 
 	// currently processed Item Group used in selectMatchingRows()
 	bool                useEvalTargetItemGroup;
@@ -186,7 +187,8 @@ struct SQLProcessorSelect::PrivateContext {
 	PrivateContext(SQLProcessorSelect *procSelect, const string &_dbName,
 	               TableNameStaticInfoMap &nameInfoMap,
 	               const SQLProcessorSelect *parentProc = NULL,
-	               SQLTableProcessContextIndex *tableProcCtxIdx = NULL)
+	               SQLTableProcessContextIndex *tableProcCtxIdx = NULL,
+	               SQLSubQueryMode _subQueryMode = SQL_SUB_QUERY_NONE)
 	: procSelectFactory(procSelect),
 	  shareInfo(procSelectFactory),
 	  parentProcessor(parentProc),
@@ -197,6 +199,7 @@ struct SQLProcessorSelect::PrivateContext {
 	  section(SELECT_PARSING_SECTION_COLUMN),
 	  columnIndexResolver(nameInfoMap),
 	  tableProcessContextIndex(tableProcCtxIdx),
+	  subQueryMode(_subQueryMode),
 	  useEvalTargetItemGroup(false),
 	  evalTargetItemGroup(NULL),
 	  makeTextRowsWriteMaskCount(0)
@@ -520,8 +523,7 @@ bool SQLProcessorSelect::select(SQLSelectInfo &selectInfo)
 	return true;
 }
 
-bool SQLProcessorSelect::runForExists(SQLSelectInfo &selectInfo,
-                                      SQLSubQueryMode subQueryMode)
+bool SQLProcessorSelect::runForExists(SQLSelectInfo &selectInfo)
 {
 	if (selectInfo.tables.empty()) {
 		 // Should be the first call
@@ -530,7 +532,7 @@ bool SQLProcessorSelect::runForExists(SQLSelectInfo &selectInfo,
 
 	bool exists = false;
 	try {
-		doJoinWithFromParser(subQueryMode);
+		doJoinWithFromParser();
 	} catch (const SQLFoundRowOnJoinException &e) {
 		exists = true;
 	}
@@ -548,13 +550,15 @@ SQLProcessorSelect::SQLProcessorSelect
 	setup();
 }
 
-SQLProcessorSelect::SQLProcessorSelect(const SQLProcessorSelect *parent)
+SQLProcessorSelect::SQLProcessorSelect(const SQLProcessorSelect *parent,
+                                       SQLSubQueryMode subQueryMode)
 : m_ctx(NULL)
 {
 	m_ctx = new PrivateContext(this, parent->m_ctx->dbName,
 	                           parent->m_ctx->tableNameStaticInfoMap,
 	                           parent,
-	                           parent->m_ctx->tableProcessContextIndex);
+	                           parent->m_ctx->tableProcessContextIndex,
+	                           subQueryMode);
 	setup();
 }
 
@@ -958,12 +962,12 @@ void SQLProcessorSelect::pickupColumnComparisons(void)
 	  m_ctx->tableProcessContextIndex);
 }
 
-void SQLProcessorSelect::doJoinWithFromParser(SQLSubQueryMode subQueryMode)
+void SQLProcessorSelect::doJoinWithFromParser(void)
 {
 	FormulaOptimizationResultType type =
 	   m_ctx->whereFormulaOptimizationResult.type;
 	if (type == FORMULA_ALWAYS_FALSE) {
-		if (subQueryMode == SQL_SUB_QUERY_NONE) {
+		if (m_ctx->subQueryMode == SQL_SUB_QUERY_NONE) {
 			// selectInfo->selectedTable should be an empty table.
 			// So nothing to do.
 			return;
@@ -976,7 +980,7 @@ void SQLProcessorSelect::doJoinWithFromParser(SQLSubQueryMode subQueryMode)
 	SQLSelectInfo *selectInfo = m_ctx->selectInfo;
 	FormulaElement *whereFormula = selectInfo->whereParser.getFormula();
 	selectInfo->selectedTable =
-	  m_ctx->selectInfo->fromParser.doJoin(whereFormula, subQueryMode);
+	  m_ctx->selectInfo->fromParser.doJoin(whereFormula);
 }
 
 void SQLProcessorSelect::doJoin(void)
@@ -1148,6 +1152,7 @@ bool SQLProcessorSelect::parseSectionFrom(void)
 	m_ctx->section = SELECT_PARSING_SECTION_FROM;
 	m_ctx->selectInfo->fromParser.setColumnIndexResolver
 	  (&m_ctx->columnIndexResolver);
+	m_ctx->selectInfo->fromParser.setSubQueryMode(m_ctx->subQueryMode);
 	return true;
 }
 

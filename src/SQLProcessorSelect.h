@@ -190,7 +190,8 @@ public:
 	static void init(void);
 	SQLProcessorSelect(const string &dbName,
 	                   TableNameStaticInfoMap &tableNameStaticInfoMap);
-	SQLProcessorSelect(const SQLProcessorSelect *parent);
+	SQLProcessorSelect(const SQLProcessorSelect *parent,
+	                   SQLSubQueryMode subQueryMode);
 	virtual ~SQLProcessorSelect();
 	virtual bool select(SQLSelectInfo &selectInfo);
 	
@@ -206,8 +207,7 @@ public:
 	 * @return \true when at least one row is selected. Otherwise, \false
 	 *         is returned.
 	 */
-	bool runForExists(SQLSelectInfo &selectInfo,
-	                  SQLSubQueryMode subQueryMode);
+	bool runForExists(SQLSelectInfo &selectInfo);
 
 protected:
 	void setupForSelect(SQLSelectInfo &selectInfo);
@@ -223,8 +223,7 @@ protected:
 	void makeItemTables(void);
 	void optimizeFormula(void);
 	void pickupColumnComparisons(void);
-	void doJoinWithFromParser(SQLSubQueryMode subQueryMode
-	                          = SQL_SUB_QUERY_NONE);
+	void doJoinWithFromParser(void);
 	void doJoin(void);
 	void selectMatchingRows(void);
 	void makeGroups(void);

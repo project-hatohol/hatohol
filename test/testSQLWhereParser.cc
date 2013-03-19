@@ -28,7 +28,7 @@ FormulaVariableDataGetter *columnDataGetter(const string &name, void *priv)
 
 class SQLProcessorSelectFactoryImpl : public SQLProcessorSelectFactory
 {
-	virtual SQLProcessorSelect * operator()(void) {
+	virtual SQLProcessorSelect *create(SQLSubQueryMode subQueryMode) {
 		return NULL;
 	}
 };

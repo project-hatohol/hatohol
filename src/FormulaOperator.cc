@@ -405,19 +405,20 @@ const string &FormulaExists::getStatement(void) const
 ItemDataPtr FormulaExists::evaluate(void)
 {
 	if (!m_processorSelect) {
-		m_processorSelect = m_processorSelectFactory();
+		SQLSubQueryMode subQueryMode;
+		FormulaElement *parent = getParent();
+		FormulaOperatorNot *parentIsFormulaOperatorNot = 
+		  dynamic_cast<FormulaOperatorNot *>(parent);
+		if (!parentIsFormulaOperatorNot)
+			subQueryMode = SQL_SUB_QUERY_EXISTS;
+		else
+			subQueryMode = SQL_SUB_QUERY_NOT_EXISTS;
+		m_processorSelect =
+		   m_processorSelectFactory.create(subQueryMode);
 		ParsableString parsableStatement(m_statement);
 		m_selectInfo = new SQLSelectInfo(parsableStatement);
-		FormulaElement *parent = getParent();
-		FormulaOperatorNot *parentIsFormulaOpeNot = 
-		  dynamic_cast<FormulaOperatorNot *>(parent);
-		if (!parentIsFormulaOpeNot)
-			m_subQueryMode = SQL_SUB_QUERY_EXISTS;
-		else
-			m_subQueryMode = SQL_SUB_QUERY_NOT_EXISTS;
 	}
-	bool exists = m_processorSelect->runForExists(*m_selectInfo,
-	                                              m_subQueryMode);
+	bool exists = m_processorSelect->runForExists(*m_selectInfo);
 	return ItemDataPtr(new ItemBool(exists), false);
 }
 

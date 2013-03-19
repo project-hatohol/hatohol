@@ -133,7 +133,7 @@ public:
 class SQLProcessorSelect;
 class SQLProcessorSelectFactory {
 public:
-	virtual SQLProcessorSelect * operator()(void) = 0;
+	virtual SQLProcessorSelect *create(SQLSubQueryMode subQueryMode) = 0;
 };
 
 struct SQLProcessorSelectShareInfo {
