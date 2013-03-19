@@ -520,7 +520,8 @@ bool SQLProcessorSelect::select(SQLSelectInfo &selectInfo)
 	return true;
 }
 
-bool SQLProcessorSelect::runForExists(SQLSelectInfo &selectInfo)
+bool SQLProcessorSelect::runForExists(SQLSelectInfo &selectInfo,
+                                      SQLExistsMode existsMode)
 {
 	if (selectInfo.tables.empty()) {
 		 // Should be the first call
@@ -529,7 +530,6 @@ bool SQLProcessorSelect::runForExists(SQLSelectInfo &selectInfo)
 
 	bool exists = false;
 	try {
-		bool existsMode = true;
 		doJoinWithFromParser(existsMode);
 	} catch (const SQLFoundRowOnJoinException &e) {
 		exists = true;
@@ -958,12 +958,12 @@ void SQLProcessorSelect::pickupColumnComparisons(void)
 	  m_ctx->tableProcessContextIndex);
 }
 
-void SQLProcessorSelect::doJoinWithFromParser(bool existsMode)
+void SQLProcessorSelect::doJoinWithFromParser(SQLExistsMode existsMode)
 {
 	FormulaOptimizationResultType type =
 	   m_ctx->whereFormulaOptimizationResult.type;
 	if (type == FORMULA_ALWAYS_FALSE) {
-		if (!existsMode) {
+		if (existsMode == SQL_NO_EXISTS_MODE) {
 			// selectInfo->selectedTable should be an empty table.
 			// So nothing to do.
 			return;

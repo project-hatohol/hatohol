@@ -205,7 +205,7 @@ public:
 	 * @return \true when at least one row is selected. Otherwise, \false
 	 *         is returned.
 	 */
-	bool runForExists(SQLSelectInfo &selectInfo);
+	bool runForExists(SQLSelectInfo &selectInfo, SQLExistsMode existsMode);
 
 protected:
 	void setupForSelect(SQLSelectInfo &selectInfo);
@@ -221,7 +221,8 @@ protected:
 	void makeItemTables(void);
 	void optimizeFormula(void);
 	void pickupColumnComparisons(void);
-	void doJoinWithFromParser(bool existsMode = false);
+	void
+	   doJoinWithFromParser(SQLExistsMode existsMode = SQL_NO_EXISTS_MODE);
 	void doJoin(void);
 	void selectMatchingRows(void);
 	void makeGroups(void);

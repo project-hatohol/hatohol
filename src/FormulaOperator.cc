@@ -384,7 +384,8 @@ FormulaExists::FormulaExists(const string &statement,
   m_processorSelectFactory(procSelectFactory),
   m_statement(statement),
   m_processorSelect(NULL),
-  m_selectInfo(NULL)
+  m_selectInfo(NULL),
+  m_existsMode(SQL_NO_EXISTS_MODE)
 {
 }
 
@@ -407,8 +408,16 @@ ItemDataPtr FormulaExists::evaluate(void)
 		m_processorSelect = m_processorSelectFactory();
 		ParsableString parsableStatement(m_statement);
 		m_selectInfo = new SQLSelectInfo(parsableStatement);
-        }
-	bool exists = m_processorSelect->runForExists(*m_selectInfo);
+		FormulaElement *parent = getParent();
+		FormulaOperatorNot *parentIsFormulaOpeNot = 
+		  dynamic_cast<FormulaOperatorNot *>(parent);
+		if (!parentIsFormulaOpeNot)
+			m_existsMode = SQL_EXISTS;
+		else
+			m_existsMode = SQL_NOT_EXISTS;
+	}
+	bool exists = m_processorSelect->runForExists(*m_selectInfo,
+	                                              m_existsMode);
 	return ItemDataPtr(new ItemBool(exists), false);
 }
 

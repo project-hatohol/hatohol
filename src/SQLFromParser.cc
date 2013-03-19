@@ -49,7 +49,7 @@ struct SQLFromParser::PrivateContext {
 	SQLColumnIndexResoveler *columnIndexResolver;
 
 	// variables used when join calculation
-	bool             existsMode;
+	SQLExistsMode    existsMode;
 	ItemTablePtr     joinedTable;
 
 	// constructor
@@ -59,7 +59,7 @@ struct SQLFromParser::PrivateContext {
 	  onParsingInnerJoin(false),
 	  rightTableOfInnerJoin(NULL),
 	  columnIndexResolver(NULL),
-	  existsMode(false)
+	  existsMode(SQL_NO_EXISTS_MODE)
 	{
 	}
 
@@ -78,7 +78,7 @@ struct SQLFromParser::PrivateContext {
 		innerJoinLeftColumnName.clear();
 		innerJoinRightTableName.clear();
 		innerJoinRightColumnName.clear();
-		existsMode = false;
+		existsMode = SQL_NO_EXISTS_MODE;
 	}
 
 };
@@ -169,7 +169,7 @@ void SQLFromParser::prepareJoin(
 }
 
 ItemTablePtr SQLFromParser::doJoin(FormulaElement *whereFormula,
-                                   bool existsMode)
+                                   SQLExistsMode existsMode)
 {
 	// execute join loop
 	m_ctx->existsMode = existsMode;
@@ -304,7 +304,7 @@ void SQLFromParser::doJoineOneRow(FormulaElement *whereFormula)
 	if (!shouldAdd)
 		return;
 	m_ctx->joinedTable->add(activeRow);
-	if (m_ctx->existsMode)
+	if (m_ctx->existsMode == SQL_EXISTS)
 		throw SQLFoundRowOnJoinException();
 }
 

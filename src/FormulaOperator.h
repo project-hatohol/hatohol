@@ -172,6 +172,7 @@ private:
 	string                     m_statement;
 	SQLProcessorSelect        *m_processorSelect;
 	SQLSelectInfo             *m_selectInfo;
+	SQLExistsMode              m_existsMode;
 };
 
 // ---------------------------------------------------------------------------

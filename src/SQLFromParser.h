@@ -40,7 +40,8 @@ public:
 	void prepareJoin
 	  (const ColumnComparisonInfoList &getColumnComparisonInfoList,
 	   SQLTableProcessContextIndex *ctxIndex);
-	ItemTablePtr doJoin(FormulaElement *whereFormula, bool existsMode);
+	ItemTablePtr doJoin(FormulaElement *whereFormula,
+	                    SQLExistsMode existsMode);
 
 	virtual void add(const string& word, const string &wordLower);
 	virtual void flush(void);

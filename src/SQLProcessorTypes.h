@@ -52,6 +52,12 @@ enum SQLKeyType {
 	SQL_KEY_UNI,
 };
 
+enum SQLExistsMode {
+	SQL_NO_EXISTS_MODE,
+	SQL_EXISTS,
+	SQL_NOT_EXISTS,
+};
+
 struct SQLProcessorInfo {
 	// input statement
 	ParsableString   statement;
