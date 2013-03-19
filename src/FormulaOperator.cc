@@ -385,7 +385,7 @@ FormulaExists::FormulaExists(const string &statement,
   m_statement(statement),
   m_processorSelect(NULL),
   m_selectInfo(NULL),
-  m_existsMode(SQL_NO_EXISTS_MODE)
+  m_subQueryMode(SQL_SUB_QUERY_NONE)
 {
 }
 
@@ -412,12 +412,12 @@ ItemDataPtr FormulaExists::evaluate(void)
 		FormulaOperatorNot *parentIsFormulaOpeNot = 
 		  dynamic_cast<FormulaOperatorNot *>(parent);
 		if (!parentIsFormulaOpeNot)
-			m_existsMode = SQL_EXISTS;
+			m_subQueryMode = SQL_SUB_QUERY_EXISTS;
 		else
-			m_existsMode = SQL_NOT_EXISTS;
+			m_subQueryMode = SQL_SUB_QUERY_NOT_EXISTS;
 	}
 	bool exists = m_processorSelect->runForExists(*m_selectInfo,
-	                                              m_existsMode);
+	                                              m_subQueryMode);
 	return ItemDataPtr(new ItemBool(exists), false);
 }
 

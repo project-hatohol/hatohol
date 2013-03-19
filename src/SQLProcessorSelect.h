@@ -202,10 +202,12 @@ public:
 	 *             Howerver, for the 2nd or more call, different from
 	 *             select(), the instance should repeatedly be used
 	 *             for the performance.
+	 * @subQueryMode A mode of sub query.
 	 * @return \true when at least one row is selected. Otherwise, \false
 	 *         is returned.
 	 */
-	bool runForExists(SQLSelectInfo &selectInfo, SQLExistsMode existsMode);
+	bool runForExists(SQLSelectInfo &selectInfo,
+	                  SQLSubQueryMode subQueryMode);
 
 protected:
 	void setupForSelect(SQLSelectInfo &selectInfo);
@@ -221,8 +223,8 @@ protected:
 	void makeItemTables(void);
 	void optimizeFormula(void);
 	void pickupColumnComparisons(void);
-	void
-	   doJoinWithFromParser(SQLExistsMode existsMode = SQL_NO_EXISTS_MODE);
+	void doJoinWithFromParser(SQLSubQueryMode subQueryMode
+	                          = SQL_SUB_QUERY_NONE);
 	void doJoin(void);
 	void selectMatchingRows(void);
 	void makeGroups(void);

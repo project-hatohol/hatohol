@@ -41,7 +41,7 @@ public:
 	  (const ColumnComparisonInfoList &getColumnComparisonInfoList,
 	   SQLTableProcessContextIndex *ctxIndex);
 	ItemTablePtr doJoin(FormulaElement *whereFormula,
-	                    SQLExistsMode existsMode);
+	                    SQLSubQueryMode subQueryMode);
 
 	virtual void add(const string& word, const string &wordLower);
 	virtual void flush(void);

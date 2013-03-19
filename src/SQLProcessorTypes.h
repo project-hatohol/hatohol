@@ -52,10 +52,10 @@ enum SQLKeyType {
 	SQL_KEY_UNI,
 };
 
-enum SQLExistsMode {
-	SQL_NO_EXISTS_MODE,
-	SQL_EXISTS,
-	SQL_NOT_EXISTS,
+enum SQLSubQueryMode {
+	SQL_SUB_QUERY_NONE,
+	SQL_SUB_QUERY_EXISTS,
+	SQL_SUB_QUERY_NOT_EXISTS,
 };
 
 struct SQLProcessorInfo {

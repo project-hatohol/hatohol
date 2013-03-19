@@ -521,7 +521,7 @@ bool SQLProcessorSelect::select(SQLSelectInfo &selectInfo)
 }
 
 bool SQLProcessorSelect::runForExists(SQLSelectInfo &selectInfo,
-                                      SQLExistsMode existsMode)
+                                      SQLSubQueryMode subQueryMode)
 {
 	if (selectInfo.tables.empty()) {
 		 // Should be the first call
@@ -530,7 +530,7 @@ bool SQLProcessorSelect::runForExists(SQLSelectInfo &selectInfo,
 
 	bool exists = false;
 	try {
-		doJoinWithFromParser(existsMode);
+		doJoinWithFromParser(subQueryMode);
 	} catch (const SQLFoundRowOnJoinException &e) {
 		exists = true;
 	}
@@ -958,12 +958,12 @@ void SQLProcessorSelect::pickupColumnComparisons(void)
 	  m_ctx->tableProcessContextIndex);
 }
 
-void SQLProcessorSelect::doJoinWithFromParser(SQLExistsMode existsMode)
+void SQLProcessorSelect::doJoinWithFromParser(SQLSubQueryMode subQueryMode)
 {
 	FormulaOptimizationResultType type =
 	   m_ctx->whereFormulaOptimizationResult.type;
 	if (type == FORMULA_ALWAYS_FALSE) {
-		if (existsMode == SQL_NO_EXISTS_MODE) {
+		if (subQueryMode == SQL_SUB_QUERY_NONE) {
 			// selectInfo->selectedTable should be an empty table.
 			// So nothing to do.
 			return;
@@ -976,7 +976,7 @@ void SQLProcessorSelect::doJoinWithFromParser(SQLExistsMode existsMode)
 	SQLSelectInfo *selectInfo = m_ctx->selectInfo;
 	FormulaElement *whereFormula = selectInfo->whereParser.getFormula();
 	selectInfo->selectedTable =
-	  m_ctx->selectInfo->fromParser.doJoin(whereFormula, existsMode);
+	  m_ctx->selectInfo->fromParser.doJoin(whereFormula, subQueryMode);
 }
 
 void SQLProcessorSelect::doJoin(void)
