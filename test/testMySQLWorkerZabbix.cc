@@ -524,7 +524,7 @@ void test_distinctHostName()
 	executeCommand(cmd);
 	vector<string> lines;
 	NumberStringMap nsmap;
-	assertRecord(0, nsmap);
+	assertRecord(3, nsmap);
 }
 
 void test_selectTAll()
@@ -544,7 +544,7 @@ void test_selectTAll()
 	executeCommand(cmd);
 	vector<string> lines;
 	NumberStringMap nsmap;
-	assertRecord(0, nsmap);
+	assertRecord(3, nsmap);
 }
 
 
