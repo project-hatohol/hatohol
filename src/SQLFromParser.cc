@@ -386,7 +386,7 @@ void SQLFromParser::associateColumnComparisonInfoWithTableProcessorContext
 {
 	ColumnComparisonInfoListConstIterator it =
 	  columnComparisonInfoList.begin();
-	for (; it != columnComparisonInfoList.begin(); ++it) {
+	for (; it != columnComparisonInfoList.end(); ++it) {
 		const ColumnComparisonInfo *columnCompInfo = *it;
 		SQLTableProcessContext *leftTableCtx =
 		   ctxIndex->getTableContext(columnCompInfo->leftTableName);
