@@ -372,7 +372,8 @@ void SQLFromParser::makeTableElement(const string &tableName,
                                      const string &varName)
 {
 	SQLTableElement *tableElem =
-	  new SQLTableElement(tableName, varName, m_ctx->columnIndexResolver);
+	  new SQLTableElement(tableName, varName, m_ctx->columnIndexResolver,
+	                      m_ctx->subQueryMode);
 	m_ctx->tableElementList.push_back(tableElem);
 	if (m_ctx->onParsingInnerJoin) {
 		m_ctx->rightTableOfInnerJoin = tableElem;

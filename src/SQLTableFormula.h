@@ -124,7 +124,8 @@ class SQLTableElement : public SQLTableFormula
 {
 public:
 	SQLTableElement(const string &name, const string &varName,
-	                SQLColumnIndexResoveler *resolver);
+	                SQLColumnIndexResoveler *resolver,
+	                SQLSubQueryMode subQueryMode);
 	const string &getName(void) const;
 	const string &getVarName(void) const;
 	void setItemTable(ItemTablePtr itemTablePtr);
@@ -148,6 +149,7 @@ private:
 	SQLColumnIndexResoveler *m_columnIndexResolver;
 	ItemGroupListConstIterator m_currSelectedGroup;
 	SQLTableProcessContext    *m_tableProcessCtx;
+	SQLSubQueryMode            m_subQueryMode;
 };
 
 typedef list<SQLTableElement *>             SQLTableElementList;

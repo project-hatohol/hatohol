@@ -160,11 +160,13 @@ void SQLTableFormula::makeTableSizeInfo(const TableSizeInfoVector &leftList,
 // SQLTableElement
 // ---------------------------------------------------------------------------
 SQLTableElement::SQLTableElement(const string &name, const string &varName,
-                                 SQLColumnIndexResoveler *resolver)
+                                 SQLColumnIndexResoveler *resolver,
+                                 SQLSubQueryMode subQueryMode)
 : m_name(name),
   m_varName(varName),
   m_columnIndexResolver(resolver),
-  m_tableProcessCtx(NULL)
+  m_tableProcessCtx(NULL),
+  m_subQueryMode(subQueryMode)
 {
 }
 
