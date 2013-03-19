@@ -146,7 +146,7 @@ void SQLFromParser::prepareJoin(
 	SQLTableElementListIterator it = m_ctx->tableElementList.begin();
 	for (; it != m_ctx->tableElementList.end(); ++it) {
 		SQLTableProcessContext *tableCtx = new SQLTableProcessContext();
-		tableCtx->id =  ctxIndex->tableCtxVector.size();
+		tableCtx->id = ctxIndex->tableCtxVector.size();
 		SQLTableElement *tableElement = *it;
 		tableElement->setSQLTableProcessContext(tableCtx);
 
