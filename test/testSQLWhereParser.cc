@@ -96,18 +96,21 @@ static void _assertWhereIn(T *expectedValueArray, size_t numValue)
 #define assertWhereIn(T, VT, EXP, NUM) \
 cut_trace((_assertWhereIn<T, VT>(EXP, NUM)))
 
-static void _assertPrimaryCondition
-  (const PrimaryCondition *columnCompInfo, 
+static void _assertPrimaryConditionColumnsEqual
+  (const PrimaryCondition *primaryCondition, 
    const string &leftTable, const string &leftColumn,
    const string &rightTable, const string &rightColumn)
 {
-	cppcut_assert_equal(leftTable,   columnCompInfo->leftTableName);
-	cppcut_assert_equal(leftColumn,  columnCompInfo->leftColumnName);
-	cppcut_assert_equal(rightTable,  columnCompInfo->rightTableName);
-	cppcut_assert_equal(rightColumn, columnCompInfo->rightColumnName);
+	const PrimaryConditionColumnsEqual *condColumnsEqual =
+	  dynamic_cast<const PrimaryConditionColumnsEqual *>(primaryCondition);
+	cppcut_assert_not_null(condColumnsEqual);
+	cppcut_assert_equal(leftTable,   condColumnsEqual->getLeftTableName());
+	cppcut_assert_equal(leftColumn,  condColumnsEqual->getLeftColumnName());
+	cppcut_assert_equal(rightTable,  condColumnsEqual->getRightTableName());
+	cppcut_assert_equal(rightColumn, condColumnsEqual->getRightColumnName());
 }
-#define assertPrimaryCondition(CCI, LT, LC, RT, RC) \
-cut_trace((_assertPrimaryCondition(CCI, LT, LC, RT, RC)))
+#define assertPrimaryConditionColumnsEqual(CCI, LT, LC, RT, RC) \
+cut_trace((_assertPrimaryConditionColumnsEqual(CCI, LT, LC, RT, RC)))
 
 void setup(void)
 {
@@ -576,9 +579,9 @@ void test_columnComparisonOne(void)
 	const PrimaryConditionList &columnCompInfoList = 
 	  columnCompPicker.getPrimaryConditionList();
 	cppcut_assert_equal((size_t)1, columnCompInfoList.size());
-	assertPrimaryCondition(*columnCompInfoList.begin(),
-	                           leftTable, leftColumn,
-	                           rightTable, rightColumn);
+	assertPrimaryConditionColumnsEqual(*columnCompInfoList.begin(),
+	                                   leftTable, leftColumn,
+	                                   rightTable, rightColumn);
 }
 
 void test_columnComparisonTwoEq(void)
@@ -603,14 +606,14 @@ void test_columnComparisonTwoEq(void)
 	  columnCompPicker.getPrimaryConditionList();
 	cppcut_assert_equal((size_t)2, columnCompInfoList.size());
 
-   	PrimaryConditionListConstIterator it = columnCompInfoList.begin();
-	assertPrimaryCondition(*it,
-	                           leftTable0, leftColumn0,
-	                           rightTable0, rightColumn0);
+	PrimaryConditionListConstIterator it = columnCompInfoList.begin();
+	assertPrimaryConditionColumnsEqual(*it,
+	                                   leftTable0, leftColumn0,
+	                                   rightTable0, rightColumn0);
 	++it;
-	assertPrimaryCondition(*it,
-	                           leftTable1, leftColumn1,
-	                           rightTable1, rightColumn1);
+	assertPrimaryConditionColumnsEqual(*it,
+	                                   leftTable1, leftColumn1,
+	                                   rightTable1, rightColumn1);
 }
 
 void test_columnComparisonThreeComp(void)
@@ -640,18 +643,18 @@ void test_columnComparisonThreeComp(void)
 	  columnCompPicker.getPrimaryConditionList();
 	cppcut_assert_equal((size_t)3, columnCompInfoList.size());
 
-   	PrimaryConditionListConstIterator it = columnCompInfoList.begin();
-	assertPrimaryCondition(*it,
-	                           leftTable0, leftColumn0,
-	                           rightTable0, rightColumn0);
+	PrimaryConditionListConstIterator it = columnCompInfoList.begin();
+	assertPrimaryConditionColumnsEqual(*it,
+	                                   leftTable0, leftColumn0,
+	                                   rightTable0, rightColumn0);
 	++it;
-	assertPrimaryCondition(*it,
-	                           leftTable1, leftColumn1,
-	                           rightTable1, rightColumn1);
+	assertPrimaryConditionColumnsEqual(*it,
+	                                   leftTable1, leftColumn1,
+	                                   rightTable1, rightColumn1);
 	++it;
-	assertPrimaryCondition(*it,
-	                           leftTable2, leftColumn2,
-	                           rightTable2, rightColumn2);
+	assertPrimaryConditionColumnsEqual(*it,
+	                                   leftTable2, leftColumn2,
+	                                   rightTable2, rightColumn2);
 }
 
 void test_columnComparisonOr(void)
@@ -680,9 +683,9 @@ void test_columnComparisonAndOr(void)
 	const PrimaryConditionList &columnCompInfoList = 
 	  columnCompPicker.getPrimaryConditionList();
 	cppcut_assert_equal((size_t)1, columnCompInfoList.size());
-	assertPrimaryCondition(*columnCompInfoList.begin(),
-	                       leftTable, leftColumn,
-	                       rightTable, rightColumn);
+	assertPrimaryConditionColumnsEqual(*columnCompInfoList.begin(),
+	                                   leftTable, leftColumn,
+	                                   rightTable, rightColumn);
 }
 
 void test_columnComparisonOrAnd(void)
@@ -700,9 +703,9 @@ void test_columnComparisonOrAnd(void)
 	const PrimaryConditionList &columnCompInfoList = 
 	  columnCompPicker.getPrimaryConditionList();
 	cppcut_assert_equal((size_t)1, columnCompInfoList.size());
-	assertPrimaryCondition(*columnCompInfoList.begin(),
-	                       leftTable, leftColumn,
-	                       rightTable, rightColumn);
+	assertPrimaryConditionColumnsEqual(*columnCompInfoList.begin(),
+	                                   leftTable, leftColumn,
+	                                   rightTable, rightColumn);
 }
 
 void test_removeParenthesis(void)

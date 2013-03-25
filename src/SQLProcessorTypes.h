@@ -149,17 +149,4 @@ struct SQLProcessorSelectShareInfo {
 class SQLFoundRowOnJoinException {
 };
 
-class PrimaryCondition {
-public:
-	// These variables will be changed to private later.
-	string leftTableName;
-	string leftColumnName;
-	string rightTableName;
-	string rightColumnName;
-};
-
-typedef list<PrimaryCondition *>             PrimaryConditionList;
-typedef PrimaryConditionList::iterator       PrimaryConditionListIterator;
-typedef PrimaryConditionList::const_iterator PrimaryConditionListConstIterator;
-
 #endif // SQLProcessorTypes_h

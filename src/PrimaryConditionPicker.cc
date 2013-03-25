@@ -76,13 +76,14 @@ bool PrimaryConditionPicker::pickupComparatorEqual
 	if (!rightVariable)
 		return false;
 
-	PrimaryCondition *primaryCondition = new PrimaryCondition();
+	string leftTableName, leftColumnName, rightTableName, rightColumnName;
 	SQLUtils::decomposeTableAndColumn(leftVariable->getName(),
-	                                  primaryCondition->leftTableName,
-	                                  primaryCondition->leftColumnName);
+	                                  leftTableName, leftColumnName);
 	SQLUtils::decomposeTableAndColumn(rightVariable->getName(),
-	                                  primaryCondition->rightTableName,
-	                                  primaryCondition->rightColumnName);
+	                                  rightTableName, rightColumnName);
+	PrimaryConditionColumnsEqual *primaryCondition =
+	   new PrimaryConditionColumnsEqual(leftTableName, leftColumnName,
+	                                    rightTableName, rightColumnName);
 	primaryConditionList.push_back(primaryCondition);
 	return true;
 }

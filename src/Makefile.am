@@ -10,7 +10,7 @@ libasura_la_SOURCES = \
 	SQLProcessorSelect.cc SQLProcessorInsert.cc SQLProcessorUpdate.cc \
 	SQLFormulaParser.cc SQLColumnParser.cc SQLWhereParser.cc \
 	SQLFromParser.cc SQLTableFormula.cc \
-	PrimaryConditionPicker.cc \
+	PrimaryCondition.cc PrimaryConditionPicker.cc \
 	FormulaElement.cc FormulaOperator.cc FormulaFunction.cc \
 	ReadWriteLock.cc UsedCountable.cc \
 	ItemGroupType.cc ItemGroupTypeManager.cc \

@@ -397,48 +397,64 @@ void SQLFromParser::associatePrimaryConditionsWithTableProcessorContext
 	  primaryConditionarisonList.begin();
 	for (; it != primaryConditionarisonList.end(); ++it) {
 		const PrimaryCondition *primaryCondition = *it;
-		SQLTableProcessContext *leftTableCtx =
-		   ctxIndex->getTableContext(primaryCondition->leftTableName);
-		SQLTableProcessContext *rightTableCtx =
-		   ctxIndex->getTableContext(primaryCondition->rightTableName);
-		if (leftTableCtx == NULL || rightTableCtx == NULL) {
+		const PrimaryConditionColumnsEqual *condColumnsEqual =
+		   dynamic_cast<const PrimaryConditionColumnsEqual *>
+		    (primaryCondition);
+		if (condColumnsEqual) {
+			associatePrimaryConditionColumnsEqual(condColumnsEqual,
+			                                      ctxIndex);
+		}
+		else {
 			THROW_SQL_PROCESSOR_EXCEPTION(
-			  "getTableContext: NULL, %s.%s (%p), %s.%s (%p)",
-			  primaryCondition->leftTableName.c_str(),
-			  primaryCondition->leftColumnName.c_str(),
-			  leftTableCtx,
-			  primaryCondition->rightTableName.c_str(),
-			  primaryCondition->rightColumnName.c_str(),
-			  rightTableCtx);
+			  "Unexpected type: %s\n",
+			   DEMANGLED_TYPE_NAME(*primaryCondition));
 		}
-
-		SQLTableProcessContext *tableCtx0, *tableCtx1;
-		const string *tableName0, *tableName1;
-		const string *columnName0, *columnName1;
-		if (leftTableCtx->id < rightTableCtx->id) {
-			tableCtx0 = leftTableCtx;
-			tableCtx1 = rightTableCtx;;
-			tableName0 = &primaryCondition->leftTableName;
-			tableName1 = &primaryCondition->rightTableName;
-			columnName0 = &primaryCondition->leftColumnName;
-			columnName1 = &primaryCondition->rightColumnName;
-		} else {
-			tableCtx0 = rightTableCtx;
-			tableCtx1 = leftTableCtx;;
-			tableName0 = &primaryCondition->rightTableName;
-			tableName1 = &primaryCondition->leftTableName;
-			columnName0 = &primaryCondition->rightColumnName;
-			columnName1 = &primaryCondition->leftColumnName;
-		}
-
-		tableCtx1->equalBoundTableCtx = tableCtx0;
-		tableCtx1->equalBoundColumnIndex =
-		  m_ctx->columnIndexResolver->getIndex(*tableName0,
-		                                       *columnName0);
-		tableCtx1->equalBoundMyIndex =
-		  m_ctx->columnIndexResolver->getIndex(*tableName1,
-		                                       *columnName1);
 	}
+}
+
+void SQLFromParser::associatePrimaryConditionColumnsEqual
+  (const PrimaryConditionColumnsEqual *condColumnsEqual,
+   SQLTableProcessContextIndex *ctxIndex)
+{
+	SQLTableProcessContext *leftTableCtx =
+	   ctxIndex->getTableContext(condColumnsEqual->getLeftTableName());
+	SQLTableProcessContext *rightTableCtx =
+	   ctxIndex->getTableContext(condColumnsEqual->getRightTableName());
+	if (leftTableCtx == NULL || rightTableCtx == NULL) {
+		THROW_SQL_PROCESSOR_EXCEPTION(
+		  "getTableContext: NULL, %s.%s (%p), %s.%s (%p)",
+		  condColumnsEqual->getLeftTableName().c_str(),
+		  condColumnsEqual->getLeftColumnName().c_str(),
+		  leftTableCtx,
+		  condColumnsEqual->getRightTableName().c_str(),
+		  condColumnsEqual->getRightColumnName().c_str(),
+		  rightTableCtx);
+	}
+
+	SQLTableProcessContext *tableCtx0, *tableCtx1;
+	const string *tableName0, *tableName1;
+	const string *columnName0, *columnName1;
+	if (leftTableCtx->id < rightTableCtx->id) {
+		tableCtx0 = leftTableCtx;
+		tableCtx1 = rightTableCtx;;
+		tableName0 = &condColumnsEqual->getLeftTableName();
+		tableName1 = &condColumnsEqual->getRightTableName();
+		columnName0 = &condColumnsEqual->getLeftColumnName();
+		columnName1 = &condColumnsEqual->getRightColumnName();
+	} else {
+		tableCtx0 = rightTableCtx;
+		tableCtx1 = leftTableCtx;;
+		tableName0 = &condColumnsEqual->getRightTableName();
+		tableName1 = &condColumnsEqual->getLeftTableName();
+		columnName0 = &condColumnsEqual->getRightColumnName();
+		columnName1 = &condColumnsEqual->getLeftColumnName();
+	}
+
+	tableCtx1->equalBoundTableCtx = tableCtx0;
+	tableCtx1->equalBoundColumnIndex =
+	  m_ctx->columnIndexResolver->getIndex(*tableName0, *columnName0);
+	tableCtx1->equalBoundMyIndex =
+	  m_ctx->columnIndexResolver->getIndex(*tableName1, *columnName1);
 }
 
 void SQLFromParser::makeCrossJoin(void)

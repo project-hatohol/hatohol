@@ -26,6 +26,7 @@ using namespace mlpl;
 
 #include "SQLTableFormula.h"
 #include "FormulaElement.h"
+#include "PrimaryCondition.h"
 
 class SQLFromParser
 {
@@ -91,6 +92,9 @@ protected:
 	       const string &varName = StringUtils::EMPTY_STRING);
 	void associatePrimaryConditionsWithTableProcessorContext
 	       (const PrimaryConditionList &primaryConditionList,
+	        SQLTableProcessContextIndex *ctxIndex);
+	void associatePrimaryConditionColumnsEqual
+	       (const PrimaryConditionColumnsEqual *condColumnsEqual,
 	        SQLTableProcessContextIndex *ctxIndex);
 	void makeCrossJoin(void);
 	void makeInnerJoin(void);
