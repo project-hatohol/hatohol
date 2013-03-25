@@ -98,7 +98,8 @@ public:
 
 	static void decomposeTableAndColumn(const string &fieldName,
 	                                    string &tableName,
-	                                    string &columnName);
+	                                    string &columnName,
+	                                    bool allowNoTableName = false);
 protected:
 	typedef ItemDataPtr (*ItemDataCreator)
 	  (const ColumnDef *columnDef, const char *value);

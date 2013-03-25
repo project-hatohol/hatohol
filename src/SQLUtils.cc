@@ -117,10 +117,15 @@ ItemDataPtr SQLUtils::getItemDataFromItemGroupWithColumnName
 }
 
 void SQLUtils::decomposeTableAndColumn(const string &fieldName,
-                                       string &tableName, string &columnName)
+                                       string &tableName, string &columnName,
+                                       bool allowNoTableName)
 {
 	size_t dotPosition = fieldName.find(".");
 	if (dotPosition == string::npos) {
+		if (allowNoTableName) {
+			columnName = fieldName;
+			return;
+		}
 		THROW_SQL_PROCESSOR_EXCEPTION(
 		  "'dot' is not found in join field: %s", fieldName.c_str());
 	}
