@@ -99,6 +99,7 @@ public:
 	                                FormulaElement *upperLimitElem = NULL);
 
 	virtual FormulaOptimizationResult optimize(void);
+	virtual void removeParenthesis(void);
 	virtual ItemDataPtr evaluate(void) = 0;
 	virtual void resetStatistics(void);
 

@@ -148,6 +148,14 @@ FormulaOptimizationResult FormulaElement::optimize(void)
 	return result;
 }
 
+void FormulaElement::removeParenthesis(void)
+{
+	if (m_leftHand)
+		m_leftHand->removeParenthesis();
+	if (m_rightHand)
+		m_rightHand->removeParenthesis();
+}
+
 void FormulaElement::resetStatistics(void)
 {
 	if (m_leftHand)
