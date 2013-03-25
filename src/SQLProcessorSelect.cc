@@ -30,7 +30,7 @@ using namespace std;
 #include "ItemEnum.h"
 #include "SQLUtils.h"
 #include "Utils.h"
-#include "ColumnComparisonPicker.h"
+#include "PrimaryConditionPicker.h"
 
 typedef bool (SQLProcessorSelect::*SelectSectionParser)(void);
 typedef void (SQLProcessorSelect::*SelectSubParser)(void);
@@ -166,7 +166,7 @@ struct SQLProcessorSelect::PrivateContext {
 
 	SQLProcessorColumnIndexResolver columnIndexResolver;
 	FormulaOptimizationResult       whereFormulaOptimizationResult;
-	ColumnComparisonPicker          columnComparisonPicker;
+	PrimaryConditionPicker          primaryConditionPicker;
 	SQLTableProcessContextIndex    *tableProcessContextIndex;
 	SQLSubQueryMode                 subQueryMode;
 
@@ -956,12 +956,12 @@ void SQLProcessorSelect::pickupColumnComparisons(void)
 		return;
 	SQLWhereParser &whereParser = m_ctx->selectInfo->whereParser;
 	FormulaElement *formula = whereParser.getFormula();
-	m_ctx->columnComparisonPicker.pickupPrimary(formula);
+	m_ctx->primaryConditionPicker.pickupPrimary(formula);
 	
 	// prepare join with the pickup columns
 	SQLSelectInfo *selectInfo = m_ctx->selectInfo;
 	selectInfo->fromParser.prepareJoin(
-	  m_ctx->columnComparisonPicker.getColumnComparisonInfoList(),
+	  m_ctx->primaryConditionPicker.getPrimaryConditionList(),
 	  m_ctx->tableProcessContextIndex);
 }
 

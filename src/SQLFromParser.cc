@@ -144,7 +144,7 @@ void SQLFromParser::setSubQueryMode(SQLSubQueryMode subQueryMode)
 }
 
 void SQLFromParser::prepareJoin(
-  const ColumnComparisonInfoList &columnComparisonInfoList,
+  const PrimaryConditionList &primaryConditionList,
   SQLTableProcessContextIndex *ctxIndex)
 {
 	// make SQLTableProcessContext
@@ -166,8 +166,8 @@ void SQLFromParser::prepareJoin(
 	}
 
 	// associate column comparison info list with SQLTableProcessorContext
-	associateColumnComparisonInfoWithTableProcessorContext
-	  (columnComparisonInfoList, ctxIndex);
+	associatePrimaryConditionsWithTableProcessorContext
+	  (primaryConditionList, ctxIndex);
 
 	// call prepration function for each SQLTableFormula.
 	m_ctx->tableFormula->prepareJoin(ctxIndex);
@@ -384,8 +384,8 @@ void SQLFromParser::makeTableElement(const string &tableName,
 	m_ctx->state = PARSING_STAT_CREATED_TABLE;
 }
 
-void SQLFromParser::associateColumnComparisonInfoWithTableProcessorContext
-  (const ColumnComparisonInfoList &columnComparisonInfoList,
+void SQLFromParser::associatePrimaryConditionsWithTableProcessorContext
+  (const PrimaryConditionList &primaryConditionarisonList,
    SQLTableProcessContextIndex *ctxIndex)
 {
 	// NOTE: Current implementation just overwrites equalBoundTablexCtx
@@ -393,22 +393,22 @@ void SQLFromParser::associateColumnComparisonInfoWithTableProcessorContext
 	// written one may not be the most effective indexes. So more smart
 	// algorithm should be applied.
 
-	ColumnComparisonInfoListConstIterator it =
-	  columnComparisonInfoList.begin();
-	for (; it != columnComparisonInfoList.end(); ++it) {
-		const ColumnComparisonInfo *columnCompInfo = *it;
+	PrimaryConditionListConstIterator it =
+	  primaryConditionarisonList.begin();
+	for (; it != primaryConditionarisonList.end(); ++it) {
+		const PrimaryCondition *primaryCondition = *it;
 		SQLTableProcessContext *leftTableCtx =
-		   ctxIndex->getTableContext(columnCompInfo->leftTableName);
+		   ctxIndex->getTableContext(primaryCondition->leftTableName);
 		SQLTableProcessContext *rightTableCtx =
-		   ctxIndex->getTableContext(columnCompInfo->rightTableName);
+		   ctxIndex->getTableContext(primaryCondition->rightTableName);
 		if (leftTableCtx == NULL || rightTableCtx == NULL) {
 			THROW_SQL_PROCESSOR_EXCEPTION(
 			  "getTableContext: NULL, %s.%s (%p), %s.%s (%p)",
-			  columnCompInfo->leftTableName.c_str(),
-			  columnCompInfo->leftColumnName.c_str(),
+			  primaryCondition->leftTableName.c_str(),
+			  primaryCondition->leftColumnName.c_str(),
 			  leftTableCtx,
-			  columnCompInfo->rightTableName.c_str(),
-			  columnCompInfo->rightColumnName.c_str(),
+			  primaryCondition->rightTableName.c_str(),
+			  primaryCondition->rightColumnName.c_str(),
 			  rightTableCtx);
 		}
 
@@ -418,17 +418,17 @@ void SQLFromParser::associateColumnComparisonInfoWithTableProcessorContext
 		if (leftTableCtx->id < rightTableCtx->id) {
 			tableCtx0 = leftTableCtx;
 			tableCtx1 = rightTableCtx;;
-			tableName0 = &columnCompInfo->leftTableName;
-			tableName1 = &columnCompInfo->rightTableName;
-			columnName0 = &columnCompInfo->leftColumnName;
-			columnName1 = &columnCompInfo->rightColumnName;
+			tableName0 = &primaryCondition->leftTableName;
+			tableName1 = &primaryCondition->rightTableName;
+			columnName0 = &primaryCondition->leftColumnName;
+			columnName1 = &primaryCondition->rightColumnName;
 		} else {
 			tableCtx0 = rightTableCtx;
 			tableCtx1 = leftTableCtx;;
-			tableName0 = &columnCompInfo->rightTableName;
-			tableName1 = &columnCompInfo->leftTableName;
-			columnName0 = &columnCompInfo->rightColumnName;
-			columnName1 = &columnCompInfo->leftColumnName;
+			tableName0 = &primaryCondition->rightTableName;
+			tableName1 = &primaryCondition->leftTableName;
+			columnName0 = &primaryCondition->rightColumnName;
+			columnName1 = &primaryCondition->leftColumnName;
 		}
 
 		tableCtx1->equalBoundTableCtx = tableCtx0;

@@ -16,7 +16,7 @@ using namespace mlpl;
 #include "FormulaTestUtils.h"
 #include "Asura.h"
 #include "AsuraException.h"
-#include "ColumnComparisonPicker.h"
+#include "PrimaryConditionPicker.h"
 
 namespace testSQLWhereParser {
 
@@ -96,8 +96,8 @@ static void _assertWhereIn(T *expectedValueArray, size_t numValue)
 #define assertWhereIn(T, VT, EXP, NUM) \
 cut_trace((_assertWhereIn<T, VT>(EXP, NUM)))
 
-static void _assertColumnComparisonInfo
-  (const ColumnComparisonInfo *columnCompInfo, 
+static void _assertPrimaryCondition
+  (const PrimaryCondition *columnCompInfo, 
    const string &leftTable, const string &leftColumn,
    const string &rightTable, const string &rightColumn)
 {
@@ -106,8 +106,8 @@ static void _assertColumnComparisonInfo
 	cppcut_assert_equal(rightTable,  columnCompInfo->rightTableName);
 	cppcut_assert_equal(rightColumn, columnCompInfo->rightColumnName);
 }
-#define assertColumnComparisonInfo(CCI, LT, LC, RT, RC) \
-cut_trace((_assertColumnComparisonInfo(CCI, LT, LC, RT, RC)))
+#define assertPrimaryCondition(CCI, LT, LC, RT, RC) \
+cut_trace((_assertPrimaryCondition(CCI, LT, LC, RT, RC)))
 
 void setup(void)
 {
@@ -559,7 +559,7 @@ void test_optimize1Eq0And1Eq1(void)
 }
 
 //
-// ColumnComparisonPicker
+// PrimaryConditionPicker
 //
 void test_columnComparisonOne(void)
 {
@@ -571,12 +571,12 @@ void test_columnComparisonOne(void)
 	   StringUtils::sprintf("%s.%s=%s.%s",
 	                        leftTable, leftColumn, rightTable, rightColumn);
 	DEFINE_PARSER_AND_RUN(whereParser, formula, statement);
-	ColumnComparisonPicker columnCompPicker;
+	PrimaryConditionPicker columnCompPicker;
 	columnCompPicker.pickupPrimary(formula);
-	const ColumnComparisonInfoList &columnCompInfoList = 
-	  columnCompPicker.getColumnComparisonInfoList();
+	const PrimaryConditionList &columnCompInfoList = 
+	  columnCompPicker.getPrimaryConditionList();
 	cppcut_assert_equal((size_t)1, columnCompInfoList.size());
-	assertColumnComparisonInfo(*columnCompInfoList.begin(),
+	assertPrimaryCondition(*columnCompInfoList.begin(),
 	                           leftTable, leftColumn,
 	                           rightTable, rightColumn);
 }
@@ -597,18 +597,18 @@ void test_columnComparisonTwoEq(void)
 	     leftTable0, leftColumn0, rightTable0, rightColumn0,
 	     leftTable1, leftColumn1, rightTable1, rightColumn1);
 	DEFINE_PARSER_AND_RUN(whereParser, formula, statement);
-	ColumnComparisonPicker columnCompPicker;
+	PrimaryConditionPicker columnCompPicker;
 	columnCompPicker.pickupPrimary(formula);
-	const ColumnComparisonInfoList &columnCompInfoList = 
-	  columnCompPicker.getColumnComparisonInfoList();
+	const PrimaryConditionList &columnCompInfoList = 
+	  columnCompPicker.getPrimaryConditionList();
 	cppcut_assert_equal((size_t)2, columnCompInfoList.size());
 
-   	ColumnComparisonInfoListConstIterator it = columnCompInfoList.begin();
-	assertColumnComparisonInfo(*it,
+   	PrimaryConditionListConstIterator it = columnCompInfoList.begin();
+	assertPrimaryCondition(*it,
 	                           leftTable0, leftColumn0,
 	                           rightTable0, rightColumn0);
 	++it;
-	assertColumnComparisonInfo(*it,
+	assertPrimaryCondition(*it,
 	                           leftTable1, leftColumn1,
 	                           rightTable1, rightColumn1);
 }
@@ -634,22 +634,22 @@ void test_columnComparisonThreeComp(void)
 	     leftTable1, leftColumn1, rightTable1, rightColumn1,
 	     leftTable2, leftColumn2, rightTable2, rightColumn2);
 	DEFINE_PARSER_AND_RUN(whereParser, formula, statement);
-	ColumnComparisonPicker columnCompPicker;
+	PrimaryConditionPicker columnCompPicker;
 	columnCompPicker.pickupPrimary(formula);
-	const ColumnComparisonInfoList &columnCompInfoList = 
-	  columnCompPicker.getColumnComparisonInfoList();
+	const PrimaryConditionList &columnCompInfoList = 
+	  columnCompPicker.getPrimaryConditionList();
 	cppcut_assert_equal((size_t)3, columnCompInfoList.size());
 
-   	ColumnComparisonInfoListConstIterator it = columnCompInfoList.begin();
-	assertColumnComparisonInfo(*it,
+   	PrimaryConditionListConstIterator it = columnCompInfoList.begin();
+	assertPrimaryCondition(*it,
 	                           leftTable0, leftColumn0,
 	                           rightTable0, rightColumn0);
 	++it;
-	assertColumnComparisonInfo(*it,
+	assertPrimaryCondition(*it,
 	                           leftTable1, leftColumn1,
 	                           rightTable1, rightColumn1);
 	++it;
-	assertColumnComparisonInfo(*it,
+	assertPrimaryCondition(*it,
 	                           leftTable2, leftColumn2,
 	                           rightTable2, rightColumn2);
 }
@@ -658,10 +658,10 @@ void test_columnComparisonOr(void)
 {
 	string statement = "A.C1=B.C1 or C.C2=D.C2";
 	DEFINE_PARSER_AND_RUN(whereParser, formula, statement);
-	ColumnComparisonPicker columnCompPicker;
+	PrimaryConditionPicker columnCompPicker;
 	columnCompPicker.pickupPrimary(formula);
-	const ColumnComparisonInfoList &columnCompInfoList = 
-	  columnCompPicker.getColumnComparisonInfoList();
+	const PrimaryConditionList &columnCompInfoList = 
+	  columnCompPicker.getPrimaryConditionList();
 	cppcut_assert_equal((size_t)0, columnCompInfoList.size());
 }
 
@@ -675,14 +675,14 @@ void test_columnComparisonAndOr(void)
 	   StringUtils::sprintf("%s.%s=%s.%s and (A.C1=B.C1 or C.C2=D.C2)",
 	                        leftTable, leftColumn, rightTable, rightColumn);
 	DEFINE_PARSER_AND_RUN(whereParser, formula, statement);
-	ColumnComparisonPicker columnCompPicker;
+	PrimaryConditionPicker columnCompPicker;
 	columnCompPicker.pickupPrimary(formula);
-	const ColumnComparisonInfoList &columnCompInfoList = 
-	  columnCompPicker.getColumnComparisonInfoList();
+	const PrimaryConditionList &columnCompInfoList = 
+	  columnCompPicker.getPrimaryConditionList();
 	cppcut_assert_equal((size_t)1, columnCompInfoList.size());
-	assertColumnComparisonInfo(*columnCompInfoList.begin(),
-	                           leftTable, leftColumn,
-	                           rightTable, rightColumn);
+	assertPrimaryCondition(*columnCompInfoList.begin(),
+	                       leftTable, leftColumn,
+	                       rightTable, rightColumn);
 }
 
 void test_columnComparisonOrAnd(void)
@@ -695,14 +695,14 @@ void test_columnComparisonOrAnd(void)
 	   StringUtils::sprintf("(A.C1=B.C1 or C.C2=D.C2) and %s.%s=%s.%s",
 	                        leftTable, leftColumn, rightTable, rightColumn);
 	DEFINE_PARSER_AND_RUN(whereParser, formula, statement);
-	ColumnComparisonPicker columnCompPicker;
+	PrimaryConditionPicker columnCompPicker;
 	columnCompPicker.pickupPrimary(formula);
-	const ColumnComparisonInfoList &columnCompInfoList = 
-	  columnCompPicker.getColumnComparisonInfoList();
+	const PrimaryConditionList &columnCompInfoList = 
+	  columnCompPicker.getPrimaryConditionList();
 	cppcut_assert_equal((size_t)1, columnCompInfoList.size());
-	assertColumnComparisonInfo(*columnCompInfoList.begin(),
-	                           leftTable, leftColumn,
-	                           rightTable, rightColumn);
+	assertPrimaryCondition(*columnCompInfoList.begin(),
+	                       leftTable, leftColumn,
+	                       rightTable, rightColumn);
 }
 
 void test_removeParenthesis(void)

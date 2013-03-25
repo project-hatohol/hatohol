@@ -39,7 +39,7 @@ public:
 	void setColumnIndexResolver(SQLColumnIndexResoveler *resolver);
 	void setSubQueryMode(SQLSubQueryMode subQueryMode);
 	void prepareJoin
-	  (const ColumnComparisonInfoList &getColumnComparisonInfoList,
+	  (const PrimaryConditionList &primaryConditionList,
 	   SQLTableProcessContextIndex *ctxIndex);
 	ItemTablePtr doJoin(FormulaElement *whereFormula);
 
@@ -89,8 +89,8 @@ protected:
 	void makeTableElement(
 	       const string &tableName,
 	       const string &varName = StringUtils::EMPTY_STRING);
-	void associateColumnComparisonInfoWithTableProcessorContext
-	       (const ColumnComparisonInfoList &columnComparisonInfoList,
+	void associatePrimaryConditionsWithTableProcessorContext
+	       (const PrimaryConditionList &primaryConditionList,
 	        SQLTableProcessContextIndex *ctxIndex);
 	void makeCrossJoin(void);
 	void makeInnerJoin(void);

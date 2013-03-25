@@ -15,8 +15,8 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef ColumnComparisonPicker_h
-#define ColumnComparisonPicker_h
+#ifndef PrimaryConditionPicker_h
+#define PrimaryConditionPicker_h
 
 #include <list>
 #include <string>
@@ -25,26 +25,27 @@ using namespace std;
 #include "FormulaElement.h"
 #include "FormulaOperator.h"
 
-class ColumnComparisonPicker {
+class PrimaryConditionPicker {
 public:
-	virtual ~ColumnComparisonPicker();
+	virtual ~PrimaryConditionPicker();
 	void pickupPrimary(FormulaElement *formula);
-	const ColumnComparisonInfoList &getColumnComparisonInfoList(void) const;
+	const PrimaryConditionList &getPrimaryConditionList(void) const;
 protected:
 	bool picupPrimaryRecursive
-	       (ColumnComparisonInfoList &columnCompList,
+	       (PrimaryConditionList &primaryConditionList,
 	        FormulaElement *formula);
 	bool pickupComparatorEqual
-	       (ColumnComparisonInfoList &columnCompList,
+	       (PrimaryConditionList &primaryConditionList,
 	        FormulaComparatorEqual *compEq);
 	bool pickupOperatorAnd
-	       (ColumnComparisonInfoList &columnCompList,
+	       (PrimaryConditionList &primaryConditionList,
 	        FormulaOperatorAnd *operatorAnd);
 	bool pickupFormulaIn
-	       (ColumnComparisonInfoList &columnCompList, FormulaIn *formulaIn);
+	       (PrimaryConditionList &primaryConditionList,
+	        FormulaIn *formulaIn);
 
 private:
-	ColumnComparisonInfoList m_columnCompList;
+	PrimaryConditionList m_primaryConditionList;
 };
 
 #endif // FormulaVariableComaprisonPicker_h

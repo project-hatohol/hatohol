@@ -15,56 +15,56 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "ColumnComparisonPicker.h"
+#include "PrimaryConditionPicker.h"
 #include "SQLUtils.h"
 
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
-ColumnComparisonPicker::~ColumnComparisonPicker()
+PrimaryConditionPicker::~PrimaryConditionPicker()
 {
-	ColumnComparisonInfoListIterator it = m_columnCompList.begin();
-	for (; it != m_columnCompList.end(); ++it)
+	PrimaryConditionListIterator it = m_primaryConditionList.begin();
+	for (; it != m_primaryConditionList.end(); ++it)
 		delete *it;
 }
 
-void ColumnComparisonPicker::pickupPrimary
+void PrimaryConditionPicker::pickupPrimary
   (FormulaElement *formula)
 {
-	picupPrimaryRecursive(m_columnCompList, formula);
+	picupPrimaryRecursive(m_primaryConditionList, formula);
 }
 
-const ColumnComparisonInfoList &
-ColumnComparisonPicker::getColumnComparisonInfoList(void) const
+const PrimaryConditionList &
+PrimaryConditionPicker::getPrimaryConditionList(void) const
 {
-	return m_columnCompList;
+	return m_primaryConditionList;
 }
 
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
-bool ColumnComparisonPicker::picupPrimaryRecursive
-  (ColumnComparisonInfoList &columnCompList, FormulaElement *formula)
+bool PrimaryConditionPicker::picupPrimaryRecursive
+  (PrimaryConditionList &primaryConditionList, FormulaElement *formula)
 {
 	FormulaComparatorEqual *compEq =
 	   dynamic_cast<FormulaComparatorEqual *>(formula);
 	if (compEq)
-		return pickupComparatorEqual(columnCompList, compEq);
+		return pickupComparatorEqual(primaryConditionList, compEq);
 
 	FormulaOperatorAnd *operatorAnd =
 	   dynamic_cast<FormulaOperatorAnd *>(formula);
 	if (operatorAnd)
-		return pickupOperatorAnd(columnCompList, operatorAnd);
+		return pickupOperatorAnd(primaryConditionList, operatorAnd);
 
 	FormulaIn *formulaIn = dynamic_cast<FormulaIn *>(formula);
 	if (formulaIn)
-		return pickupFormulaIn(columnCompList, formulaIn);
+		return pickupFormulaIn(primaryConditionList, formulaIn);
 
 	return false;
 }
 
-bool ColumnComparisonPicker::pickupComparatorEqual
-  (ColumnComparisonInfoList &columnCompList, FormulaComparatorEqual *compEq)
+bool PrimaryConditionPicker::pickupComparatorEqual
+  (PrimaryConditionList &primaryConditionList, FormulaComparatorEqual *compEq)
 {
 	FormulaVariable *leftVariable =
 	   dynamic_cast<FormulaVariable *>(compEq->getLeftHand());
@@ -76,37 +76,37 @@ bool ColumnComparisonPicker::pickupComparatorEqual
 	if (!rightVariable)
 		return false;
 
-	ColumnComparisonInfo *columnCompInfo = new ColumnComparisonInfo();
+	PrimaryCondition *primaryCondition = new PrimaryCondition();
 	SQLUtils::decomposeTableAndColumn(leftVariable->getName(),
-	                                  columnCompInfo->leftTableName,
-	                                  columnCompInfo->leftColumnName);
+	                                  primaryCondition->leftTableName,
+	                                  primaryCondition->leftColumnName);
 	SQLUtils::decomposeTableAndColumn(rightVariable->getName(),
-	                                  columnCompInfo->rightTableName,
-	                                  columnCompInfo->rightColumnName);
-	columnCompList.push_back(columnCompInfo);
+	                                  primaryCondition->rightTableName,
+	                                  primaryCondition->rightColumnName);
+	primaryConditionList.push_back(primaryCondition);
 	return true;
 }
 
-bool ColumnComparisonPicker::pickupOperatorAnd
-  (ColumnComparisonInfoList &columnCompList, FormulaOperatorAnd *operatorAnd)
+bool PrimaryConditionPicker::pickupOperatorAnd
+  (PrimaryConditionList &primaryConditionList, FormulaOperatorAnd *operatorAnd)
 {
 	FormulaElement *leftElem = operatorAnd->getLeftHand();
-	picupPrimaryRecursive(columnCompList, leftElem);
+	picupPrimaryRecursive(primaryConditionList, leftElem);
 
 	FormulaElement *rightElem = operatorAnd->getRightHand();
-	picupPrimaryRecursive(columnCompList, rightElem);
+	picupPrimaryRecursive(primaryConditionList, rightElem);
 	return true;
 }
 
-bool ColumnComparisonPicker::pickupFormulaIn
-  (ColumnComparisonInfoList &columnCompList, FormulaIn *formulaIn)
+bool PrimaryConditionPicker::pickupFormulaIn
+  (PrimaryConditionList &primaryConditionList, FormulaIn *formulaIn)
 {
 	FormulaVariable *leftVariable =
 	   dynamic_cast<FormulaVariable *>(formulaIn->getLeftHand());
 	if (!leftVariable)
 		return false;
 
-	// TODO: make a ColumnComparisonInfo instance and push it to the list.
+	// TODO: make a PrimaryCondition instance and push it to the list.
 
 	return true;
 }
