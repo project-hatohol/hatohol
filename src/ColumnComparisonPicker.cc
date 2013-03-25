@@ -56,6 +56,10 @@ bool ColumnComparisonPicker::picupPrimaryRecursive
 	if (operatorAnd)
 		return pickupOperatorAnd(columnCompList, operatorAnd);
 
+	FormulaIn *formulaIn = dynamic_cast<FormulaIn *>(formula);
+	if (formulaIn)
+		return pickupFormulaIn(columnCompList, formulaIn);
+
 	return false;
 }
 
@@ -91,5 +95,18 @@ bool ColumnComparisonPicker::pickupOperatorAnd
 
 	FormulaElement *rightElem = operatorAnd->getRightHand();
 	picupPrimaryRecursive(columnCompList, rightElem);
+	return true;
+}
+
+bool ColumnComparisonPicker::pickupFormulaIn
+  (ColumnComparisonInfoList &columnCompList, FormulaIn *formulaIn)
+{
+	FormulaVariable *leftVariable =
+	   dynamic_cast<FormulaVariable *>(formulaIn->getLeftHand());
+	if (!leftVariable)
+		return false;
+
+	// TODO: make a ColumnComparisonInfo instance and push it to the list.
+
 	return true;
 }

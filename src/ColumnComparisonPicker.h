@@ -40,6 +40,9 @@ protected:
 	bool pickupOperatorAnd
 	       (ColumnComparisonInfoList &columnCompList,
 	        FormulaOperatorAnd *operatorAnd);
+	bool pickupFormulaIn
+	       (ColumnComparisonInfoList &columnCompList, FormulaIn *formulaIn);
+
 private:
 	ColumnComparisonInfoList m_columnCompList;
 };
