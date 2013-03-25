@@ -102,12 +102,24 @@ bool PrimaryConditionPicker::pickupOperatorAnd
 bool PrimaryConditionPicker::pickupFormulaIn
   (PrimaryConditionList &primaryConditionList, FormulaIn *formulaIn)
 {
+	// get column name
 	FormulaVariable *leftVariable =
 	   dynamic_cast<FormulaVariable *>(formulaIn->getLeftHand());
 	if (!leftVariable)
 		return false;
+	string tableName, columnName;
+	SQLUtils::decomposeTableAndColumn(leftVariable->getName(),
+	                                  tableName, columnName, true);
+	// create PrimaryConditionConstants instance
+	PrimaryConditionConstants *primaryCondition =
+	   new PrimaryConditionConstants(tableName, columnName);
 
-	// TODO: make a PrimaryCondition instance and push it to the list.
+	// add constants
+	const ItemGroupPtr itemGroup = formulaIn->getValues();
+	size_t numItems = itemGroup->getNumberOfItems();
+	for (size_t i = 0; i < numItems; i++)
+		primaryCondition->add(itemGroup->getItemAt(i));
 
+	primaryConditionList.push_back(primaryCondition);
 	return true;
 }

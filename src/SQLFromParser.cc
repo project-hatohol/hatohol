@@ -403,12 +403,21 @@ void SQLFromParser::associatePrimaryConditionsWithTableProcessorContext
 		if (condColumnsEqual) {
 			associatePrimaryConditionColumnsEqual(condColumnsEqual,
 			                                      ctxIndex);
+			continue;
 		}
-		else {
-			THROW_SQL_PROCESSOR_EXCEPTION(
-			  "Unexpected type: %s\n",
-			   DEMANGLED_TYPE_NAME(*primaryCondition));
+
+		const PrimaryConditionConstants *condConstants =
+		   dynamic_cast<const PrimaryConditionConstants *>
+		    (primaryCondition);
+		if (condConstants) {
+			associatePrimaryConditionConstants(condConstants,
+			                                   ctxIndex);
+			continue;
 		}
+
+		THROW_SQL_PROCESSOR_EXCEPTION(
+		  "Unexpected type: %s\n",
+		   DEMANGLED_TYPE_NAME(*primaryCondition));
 	}
 }
 
@@ -455,6 +464,13 @@ void SQLFromParser::associatePrimaryConditionColumnsEqual
 	  m_ctx->columnIndexResolver->getIndex(*tableName0, *columnName0);
 	tableCtx1->equalBoundMyIndex =
 	  m_ctx->columnIndexResolver->getIndex(*tableName1, *columnName1);
+}
+
+void SQLFromParser::associatePrimaryConditionConstants
+  (const PrimaryConditionConstants *condConstants,
+   SQLTableProcessContextIndex *ctxIndex)
+{
+	MLPL_BUG("Not implemented yet: %s\n", __PRETTY_FUNCTION__);
 }
 
 void SQLFromParser::makeCrossJoin(void)

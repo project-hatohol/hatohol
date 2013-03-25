@@ -96,6 +96,9 @@ protected:
 	void associatePrimaryConditionColumnsEqual
 	       (const PrimaryConditionColumnsEqual *condColumnsEqual,
 	        SQLTableProcessContextIndex *ctxIndex);
+	void associatePrimaryConditionConstants
+	       (const PrimaryConditionConstants *condConstants,
+	        SQLTableProcessContextIndex *ctxIndex);
 	void makeCrossJoin(void);
 	void makeInnerJoin(void);
 	void parseInnerJoinLeftField(const string &fieldName);
