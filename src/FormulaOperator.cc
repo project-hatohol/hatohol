@@ -33,6 +33,40 @@ FormulaParenthesis::~FormulaParenthesis()
 {
 }
 
+void FormulaParenthesis::removeParenthesis(void)
+{
+	FormulaElement *child = getLeftHand();
+	if (!child) {
+		MLPL_WARN("LeftHand of FormulaParenthesis: NULL\n");
+		return;
+	}
+	
+	FormulaElement *parent = getParent();
+	if (!parent) {
+		// This element is root element.
+		// TODO: remove this element in this case too.
+		return;
+	}
+
+	// Attaches the parent hand to the child.
+	FormulaElement *parentLeftHand = parent->getLeftHand();
+	FormulaElement *parentRightHand = parent->getRightHand();
+	if (parentLeftHand == static_cast<FormulaElement *>(this)) {
+		parent->setLeftHand(child);
+	} else if (parentRightHand == static_cast<FormulaElement *>(this)) {
+		parent->setRightHand(child);
+	} else {
+		THROW_SQL_PROCESSOR_EXCEPTION(
+		  "Not found the hand for this element.");
+	}
+	setLeftHand(NULL);
+
+	// calls removeParenthesis() in chain.
+	child->removeParenthesis();
+
+	delete this;
+}
+
 ItemDataPtr FormulaParenthesis::evaluate(void)
 {
 	FormulaElement *child = getLeftHand();

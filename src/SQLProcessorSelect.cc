@@ -945,6 +945,9 @@ void SQLProcessorSelect::optimizeFormula(void)
 		return;
 	}
 	m_ctx->whereFormulaOptimizationResult = whereFormula->optimize();
+
+	// remove FormulaParenthesis elements from the tree
+	whereFormula->removeParenthesis();
 }
 
 void SQLProcessorSelect::pickupColumnComparisons(void)

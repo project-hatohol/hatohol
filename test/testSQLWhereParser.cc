@@ -705,5 +705,45 @@ void test_columnComparisonOrAnd(void)
 	                           rightTable, rightColumn);
 }
 
+void test_removeParenthesis(void)
+{
+	const char *eqColumn0 = "a";
+	const char *eqColumn1 = "b";
+	const char *inColumn  = "c";
+	string statement =
+	   StringUtils::sprintf("(%s=%s) AND (%s IN ('1','3'))",
+	                        eqColumn0, eqColumn1, inColumn);
+	DEFINE_PARSER_AND_RUN(whereParser, formula, statement);
+	formula->removeParenthesis();
+
+	assertFormulaOperatorAnd(formula);
+	FormulaElement *leftHand = formula->getLeftHand();
+	assertFormulaComparatorEqual(leftHand);
+	assertFormulaVariable(leftHand->getLeftHand(), eqColumn0);
+	assertFormulaVariable(leftHand->getRightHand(), eqColumn1);
+
+	assertTypeFormulaIn(formula->getRightHand());
+}
+
+void test_removeMultipleParenthesis(void)
+{
+	const char *eqColumn0 = "a";
+	const char *eqColumn1 = "b";
+	const char *inColumn  = "c";
+	string statement =
+	   StringUtils::sprintf("((%s=%s)) AND (((%s IN ('1','3'))))",
+	                        eqColumn0, eqColumn1, inColumn);
+	DEFINE_PARSER_AND_RUN(whereParser, formula, statement);
+	formula->removeParenthesis();
+
+	assertFormulaOperatorAnd(formula);
+	FormulaElement *leftHand = formula->getLeftHand();
+	assertFormulaComparatorEqual(leftHand);
+	assertFormulaVariable(leftHand->getLeftHand(), eqColumn0);
+	assertFormulaVariable(leftHand->getRightHand(), eqColumn1);
+
+	assertTypeFormulaIn(formula->getRightHand());
+}
+
 } // namespace testSQLWhereParser
 

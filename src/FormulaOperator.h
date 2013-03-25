@@ -31,6 +31,7 @@ class FormulaParenthesis : public FormulaElement {
 public:
 	FormulaParenthesis(void);
 	virtual ~FormulaParenthesis();
+	virtual void removeParenthesis(void);
 	virtual ItemDataPtr evaluate(void);
 };
 
