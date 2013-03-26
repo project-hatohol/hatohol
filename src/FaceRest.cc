@@ -47,6 +47,7 @@ FaceRest::~FaceRest()
 gpointer FaceRest::mainThread(AsuraThreadArg *arg)
 {
 	m_soupServer = soup_server_new(SOUP_SERVER_PORT, m_port, NULL);
+	soup_server_add_handler(m_soupServer, NULL, handlerDefault, this, NULL);
 	soup_server_run(m_soupServer);
 	MLPL_INFO("exited face-rest\n");
 	return NULL;
@@ -69,4 +70,13 @@ size_t FaceRest::parseCmdArgPort(CommandLineArg &cmdArg, size_t idx)
 
 	m_port = port;
 	return idx;
+}
+
+// handlers
+void FaceRest::handlerDefault(SoupServer *server, SoupMessage *msg,
+                              const char *path, GHashTable *query,
+                              SoupClientContext *client, gpointer user_data)
+{
+	MLPL_DBG("Default handler: path: %s, method: %s\n",
+	         path, msg->method);
 }

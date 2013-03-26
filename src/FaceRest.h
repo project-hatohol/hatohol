@@ -33,6 +33,12 @@ protected:
 	// generic sub routines
 	size_t parseCmdArgPort(CommandLineArg &cmdArg, size_t idx);
 
+	// handlers
+	static void
+	  handlerDefault(SoupServer *server, SoupMessage *msg,
+	                 const char *path, GHashTable *query,
+	                 SoupClientContext *client, gpointer user_data);
+
 private:
 	guint       m_port;
 	SoupServer *m_soupServer;
