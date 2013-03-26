@@ -79,4 +79,5 @@ void FaceRest::handlerDefault(SoupServer *server, SoupMessage *msg,
 {
 	MLPL_DBG("Default handler: path: %s, method: %s\n",
 	         path, msg->method);
+	soup_message_set_status(msg, SOUP_STATUS_NOT_FOUND);
 }
