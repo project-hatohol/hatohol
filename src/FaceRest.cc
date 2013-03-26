@@ -26,7 +26,8 @@ static const int DEFAULT_PORT = 33194;
 // Public methods
 // ---------------------------------------------------------------------------
 FaceRest::FaceRest(CommandLineArg &cmdArg)
-: m_port(DEFAULT_PORT)
+: m_port(DEFAULT_PORT),
+  m_soupServer(NULL)
 {
 	for (size_t i = 0; i < cmdArg.size(); i++) {
 		string &cmd = cmdArg[i];
@@ -45,8 +46,9 @@ FaceRest::~FaceRest()
 // ---------------------------------------------------------------------------
 gpointer FaceRest::mainThread(AsuraThreadArg *arg)
 {
-	// TODO: make a rest server
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	m_soupServer = soup_server_new(SOUP_SERVER_PORT, m_port, NULL);
+	soup_server_run(m_soupServer);
+	MLPL_INFO("exited face-rest\n");
 	return NULL;
 }
 

@@ -18,12 +18,7 @@
 #ifndef FaceRest_h
 #define FaceRest_h
 
-#include <vector>
-#include <string>
-using namespace std;
-
-#include <gio/gio.h>
-#include "Utils.h"
+#include <libsoup/soup.h>
 #include "FaceBase.h"
 
 class FaceRest : public FaceBase {
@@ -39,7 +34,8 @@ protected:
 	size_t parseCmdArgPort(CommandLineArg &cmdArg, size_t idx);
 
 private:
-	int      m_port;
+	int         m_port;
+	SoupServer *m_soupServer;
 };
 
 #endif // FaceRest_h
