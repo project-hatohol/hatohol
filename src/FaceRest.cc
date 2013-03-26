@@ -20,7 +20,7 @@ using namespace mlpl;
 
 #include "FaceRest.h"
 
-static const int DEFAULT_PORT = 33194;
+static const guint DEFAULT_PORT = 33194;
 
 // ---------------------------------------------------------------------------
 // Public methods
