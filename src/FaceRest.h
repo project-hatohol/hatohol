@@ -39,7 +39,13 @@ protected:
 	                 const char *path, GHashTable *query,
 	                 SoupClientContext *client, gpointer user_data);
 
+	static void handlerGetServers
+	  (SoupServer *server, SoupMessage *msg, const char *path,
+	   GHashTable *query, SoupClientContext *client, gpointer user_data);
+
 private:
+	static const char *pathForGetServers;
+
 	guint       m_port;
 	SoupServer *m_soupServer;
 };

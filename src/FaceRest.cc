@@ -22,6 +22,8 @@ using namespace mlpl;
 
 static const guint DEFAULT_PORT = 33194;
 
+const char *FaceRest::pathForGetServers = "/servers";
+
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
@@ -48,6 +50,8 @@ gpointer FaceRest::mainThread(AsuraThreadArg *arg)
 {
 	m_soupServer = soup_server_new(SOUP_SERVER_PORT, m_port, NULL);
 	soup_server_add_handler(m_soupServer, NULL, handlerDefault, this, NULL);
+	soup_server_add_handler(m_soupServer, pathForGetServers,
+	                        handlerGetServers, this, NULL);
 	soup_server_run(m_soupServer);
 	MLPL_INFO("exited face-rest\n");
 	return NULL;
@@ -80,4 +84,12 @@ void FaceRest::handlerDefault(SoupServer *server, SoupMessage *msg,
 	MLPL_DBG("Default handler: path: %s, method: %s\n",
 	         path, msg->method);
 	soup_message_set_status(msg, SOUP_STATUS_NOT_FOUND);
+}
+
+void FaceRest::handlerGetServers
+  (SoupServer *server, SoupMessage *msg, const char *path,
+   GHashTable *query, SoupClientContext *client, gpointer user_data)
+{
+	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	soup_message_set_status(msg, SOUP_STATUS_NOT_IMPLEMENTED);
 }
