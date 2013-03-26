@@ -99,6 +99,7 @@ protected:
 	void associatePrimaryConditionConstants
 	       (const PrimaryConditionConstants *condConstants,
 	        SQLTableProcessContextIndex *ctxIndex);
+	void selectTableRowIteratorEachTable(SQLTableProcessContext *tableCtx);
 	void makeCrossJoin(void);
 	void makeInnerJoin(void);
 	void parseInnerJoinLeftField(const string &fieldName);

@@ -32,6 +32,63 @@ using namespace mlpl;
 #include "ItemGroupPtr.h"
 
 // ---------------------------------------------------------------------------
+// SQLRowIterator
+// ---------------------------------------------------------------------------
+struct SQLTableProcessContext;
+
+class SQLTableRowIterator {
+public:
+	virtual ~SQLTableRowIterator();
+	virtual bool isIndexed(const ItemDataIndexVector &indexVector) = 0;
+	virtual int getNumberOfRows(void) = 0;
+	virtual bool start(void) = 0;
+	virtual ItemGroupPtr getRow(void) = 0;
+	virtual bool increment(void) = 0;
+};
+
+class SQLTableRowIteratorColumnsEqual : public SQLTableRowIterator {
+
+public:
+	SQLTableRowIteratorColumnsEqual(SQLTableProcessContext *otherTableCtx,
+	                                int otherIndex, int myIndex);
+	virtual bool isIndexed(const ItemDataIndexVector &indexVector);
+	virtual int getNumberOfRows(void);
+	virtual bool start(void);
+	ItemGroupPtr getRow(void);
+	virtual bool increment(void);
+
+protected:
+	void clearIndexingVariables(void);
+
+private:
+	SQLTableProcessContext *m_otherTableCtx;
+	size_t                  m_otherIndex;    // in the other table
+	size_t                  m_myIndex;       // in this table
+
+	// The body of 'itemDataIndex' in ItemTable instance
+	ItemDataIndex          *m_itemDataIndex;
+
+	vector<ItemDataPtrForIndex> m_indexMatchedItems;
+	size_t                      m_indexMatchedItemsIndex;
+
+};
+
+class SQLTableRowIteratorConstants : public SQLTableRowIterator {
+public:
+	SQLTableRowIteratorConstants(size_t columnIndex,
+	                             const ItemGroupPtr &values);
+	virtual bool isIndexed(const ItemDataIndexVector &indexVector);
+	virtual int getNumberOfRows(void);
+	virtual bool start(void);
+	ItemGroupPtr getRow(void);
+	virtual bool increment(void);
+
+private:
+	size_t             m_columnIndex;
+	const ItemGroupPtr m_values;
+};
+
+// ---------------------------------------------------------------------------
 // SQLTableProcessContext
 // ---------------------------------------------------------------------------
 class SQLTableElement;
@@ -39,20 +96,15 @@ struct SQLTableProcessContext {
 	// assigned from 0 in order of appearance in a statement
 	size_t                  id;
 
+	// SQLTableElement instance corresponding to this instance
 	SQLTableElement        *tableElement;
-	SQLTableProcessContext *equalBoundTableCtx;
-	int                     equalBoundColumnIndex;   // in other table
-	int                     equalBoundMyIndex;       // in this table
 
-	// The body of 'itemDataIndex' in ItemTable instance
-	ItemDataIndex          *itemDataIndex;
-
-	vector<ItemDataPtrForIndex> indexMatchedItems;
-	size_t                      indexMatchedItemsIndex;
+	// SQLTableRowIterator instances and a pointer to the selected one
+	vector<SQLTableRowIterator *> rowIteratorVector;
 
 	// methods
 	SQLTableProcessContext(void);
-	void clearIndexingVariables(void);
+	virtual ~SQLTableProcessContext();
 };
 
 // ---------------------------------------------------------------------------
@@ -61,12 +113,16 @@ struct SQLTableProcessContext {
 struct SQLTableProcessContextIndex {
 	map<string, SQLTableProcessContext *> tableNameCtxMap;
 	map<string, SQLTableProcessContext *> tableVarCtxMap;
+
+	// This vector is the owner of SQLTableProcessContext instances.
 	vector<SQLTableProcessContext *>      tableCtxVector;
 
 	// methods
 	virtual ~SQLTableProcessContextIndex();
 	void clear(void);
-	SQLTableProcessContext *getTableContext(const string &name);
+	SQLTableProcessContext *
+	  getTableContext(const string &name,
+	                  bool throwExceptionIfNotFound = true);
 };
 
 // ---------------------------------------------------------------------------
@@ -129,6 +185,7 @@ public:
 	const string &getName(void) const;
 	const string &getVarName(void) const;
 	void setItemTable(ItemTablePtr itemTablePtr);
+	void selectRowIterator(SQLTableProcessContext *tableCtx);
 	virtual void prepareJoin(SQLTableProcessContextIndex *ctxIndex);
 	virtual ItemTablePtr getTable(void);
 	virtual ItemGroupPtr getActiveRow(void);
@@ -138,6 +195,8 @@ public:
 	void rowIteratorInc(void);
 	void setSQLTableProcessContext(SQLTableProcessContext *joinedTableCtx);
 	bool isIndexingMode(void);
+
+	void forceSetRowIterator(SQLTableRowIterator *rowIterator);
 
 protected:
 	virtual void fixupTableSizeInfo(void);
@@ -149,6 +208,7 @@ private:
 	SQLColumnIndexResoveler *m_columnIndexResolver;
 	ItemGroupListConstIterator m_currSelectedGroup;
 	SQLTableProcessContext    *m_tableProcessCtx;
+	SQLTableRowIterator       *m_selectedRowIterator;
 	SQLSubQueryMode            m_subQueryMode;
 };
 

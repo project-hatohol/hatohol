@@ -170,6 +170,12 @@ void SQLFromParser::prepareJoin(
 	  (primaryConditionList, ctxIndex);
 
 	// call prepration function for each SQLTableFormula.
+	for (size_t i = 0; i < ctxIndex->tableCtxVector.size(); i++) {
+		SQLTableProcessContext *tableCtx =
+		   ctxIndex->tableCtxVector[i];
+		tableCtx->tableElement->selectRowIterator(tableCtx);
+	}
+
 	m_ctx->tableFormula->prepareJoin(ctxIndex);
 }
 
@@ -388,11 +394,8 @@ void SQLFromParser::associatePrimaryConditionsWithTableProcessorContext
   (const PrimaryConditionList &primaryConditionarisonList,
    SQLTableProcessContextIndex *ctxIndex)
 {
-	// NOTE: Current implementation just overwrites equalBoundTablexCtx
-	// and related variables when they have already been set. The latest
-	// written one may not be the most effective indexes. So more smart
-	// algorithm should be applied.
-
+	// make SQLTableRowIterator instances corresponding to
+	// PrimaryCondition instances.
 	PrimaryConditionListConstIterator it =
 	  primaryConditionarisonList.begin();
 	for (; it != primaryConditionarisonList.end(); ++it) {
@@ -429,48 +432,47 @@ void SQLFromParser::associatePrimaryConditionColumnsEqual
 	   ctxIndex->getTableContext(condColumnsEqual->getLeftTableName());
 	SQLTableProcessContext *rightTableCtx =
 	   ctxIndex->getTableContext(condColumnsEqual->getRightTableName());
-	if (leftTableCtx == NULL || rightTableCtx == NULL) {
-		THROW_SQL_PROCESSOR_EXCEPTION(
-		  "getTableContext: NULL, %s.%s (%p), %s.%s (%p)",
-		  condColumnsEqual->getLeftTableName().c_str(),
-		  condColumnsEqual->getLeftColumnName().c_str(),
-		  leftTableCtx,
-		  condColumnsEqual->getRightTableName().c_str(),
-		  condColumnsEqual->getRightColumnName().c_str(),
-		  rightTableCtx);
-	}
 
 	SQLTableProcessContext *tableCtx0, *tableCtx1;
-	const string *tableName0, *tableName1;
-	const string *columnName0, *columnName1;
+	int columnIdx0, columnIdx1;
 	if (leftTableCtx->id < rightTableCtx->id) {
 		tableCtx0 = leftTableCtx;
 		tableCtx1 = rightTableCtx;;
-		tableName0 = &condColumnsEqual->getLeftTableName();
-		tableName1 = &condColumnsEqual->getRightTableName();
-		columnName0 = &condColumnsEqual->getLeftColumnName();
-		columnName1 = &condColumnsEqual->getRightColumnName();
+		columnIdx0 = m_ctx->columnIndexResolver->getIndex
+		               (condColumnsEqual->getLeftTableName(),
+		                condColumnsEqual->getLeftColumnName());
+		columnIdx1 = m_ctx->columnIndexResolver->getIndex
+		               (condColumnsEqual->getRightTableName(),
+		                condColumnsEqual->getRightColumnName());
 	} else {
 		tableCtx0 = rightTableCtx;
 		tableCtx1 = leftTableCtx;;
-		tableName0 = &condColumnsEqual->getRightTableName();
-		tableName1 = &condColumnsEqual->getLeftTableName();
-		columnName0 = &condColumnsEqual->getRightColumnName();
-		columnName1 = &condColumnsEqual->getLeftColumnName();
+		columnIdx0 = m_ctx->columnIndexResolver->getIndex
+		               (condColumnsEqual->getRightTableName(),
+		                condColumnsEqual->getRightColumnName());
+		columnIdx1 = m_ctx->columnIndexResolver->getIndex
+		               (condColumnsEqual->getLeftTableName(),
+		                condColumnsEqual->getLeftColumnName());
 	}
-
-	tableCtx1->equalBoundTableCtx = tableCtx0;
-	tableCtx1->equalBoundColumnIndex =
-	  m_ctx->columnIndexResolver->getIndex(*tableName0, *columnName0);
-	tableCtx1->equalBoundMyIndex =
-	  m_ctx->columnIndexResolver->getIndex(*tableName1, *columnName1);
+	SQLTableRowIteratorColumnsEqual *rowIterator = 
+	  new SQLTableRowIteratorColumnsEqual(tableCtx0,
+	                                      columnIdx0, columnIdx1);
+	tableCtx1->rowIteratorVector.push_back(rowIterator);
 }
 
 void SQLFromParser::associatePrimaryConditionConstants
   (const PrimaryConditionConstants *condConstants,
    SQLTableProcessContextIndex *ctxIndex)
 {
-	MLPL_BUG("Not implemented yet: %s\n", __PRETTY_FUNCTION__);
+	SQLTableProcessContext *tableCtx =
+	   ctxIndex->getTableContext(condConstants->getTableName());
+	int columnIdx = m_ctx->columnIndexResolver->getIndex
+		          (condConstants->getTableName(),
+		           condConstants->getColumnName());
+	SQLTableRowIteratorConstants *rowIterator =
+	  new SQLTableRowIteratorConstants(columnIdx,
+                                           condConstants->getConstants());
+	tableCtx->rowIteratorVector.push_back(rowIterator);
 }
 
 void SQLFromParser::makeCrossJoin(void)

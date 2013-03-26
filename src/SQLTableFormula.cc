@@ -20,22 +20,132 @@
 #include "AsuraException.h"
 
 // ---------------------------------------------------------------------------
+// SQLRowIterator
+// ---------------------------------------------------------------------------
+SQLTableRowIterator::~SQLTableRowIterator()
+{
+}
+
+// ---------------------------------------------------------------------------
+// SQLRowIteratorColumnsEqual
+// ---------------------------------------------------------------------------
+SQLTableRowIteratorColumnsEqual::SQLTableRowIteratorColumnsEqual
+  (SQLTableProcessContext *otherTableCtx, int otherIndex, int myIndex)
+: m_otherTableCtx(otherTableCtx),
+  m_otherIndex(otherIndex),
+  m_myIndex(myIndex)
+{
+}
+
+bool SQLTableRowIteratorColumnsEqual::isIndexed
+  (const ItemDataIndexVector &indexVector)
+{
+	if (indexVector.size() < m_myIndex) {
+		THROW_ASURA_EXCEPTION(
+		  "indexVector.size (%zd) < m_myIndex (%d)",
+		  indexVector.size(), m_myIndex);
+	}
+	ItemDataIndex *itemIndex = indexVector[m_myIndex];
+	if (itemIndex->getIndexType() == ITEM_DATA_INDEX_TYPE_NONE)
+		return false;
+	m_itemDataIndex = itemIndex;
+	return true;
+}
+
+int SQLTableRowIteratorColumnsEqual::getNumberOfRows(void)
+{
+	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	return -1;
+}
+
+bool SQLTableRowIteratorColumnsEqual::start(void)
+{
+	SQLTableElement *leftTable = m_otherTableCtx->tableElement;
+	ItemGroupPtr leftRow = leftTable->getActiveRow();
+	ItemDataPtr leftItem = leftRow->getItemAt(m_otherIndex);
+	clearIndexingVariables();
+	m_itemDataIndex->find(leftItem, m_indexMatchedItems);
+	if (m_indexMatchedItems.empty())
+		return false; // Not found
+	return true;
+}
+
+ItemGroupPtr SQLTableRowIteratorColumnsEqual::getRow(void)
+{
+	size_t index = m_indexMatchedItemsIndex;
+	ItemDataPtrForIndex &dataForIndex = m_indexMatchedItems[index];
+	return dataForIndex.itemGroupPtr;
+}
+
+void SQLTableRowIteratorColumnsEqual::clearIndexingVariables(void)
+{
+	m_indexMatchedItems.clear();
+	m_indexMatchedItemsIndex = 0;
+}
+
+bool SQLTableRowIteratorColumnsEqual::increment(void)
+{
+	size_t numMatchedItems = m_indexMatchedItems.size();
+	m_indexMatchedItemsIndex++;
+	if (m_indexMatchedItemsIndex >= numMatchedItems)
+		return false;
+	return true;
+}
+
+// ---------------------------------------------------------------------------
+// SQLRowIteratorConstants
+// ---------------------------------------------------------------------------
+SQLTableRowIteratorConstants::SQLTableRowIteratorConstants
+  (size_t columnIndex, const ItemGroupPtr &values)
+: m_columnIndex(columnIndex),
+  m_values(values)
+{
+}
+
+bool SQLTableRowIteratorConstants::isIndexed
+  (const ItemDataIndexVector &indexVector)
+{
+	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	return false;
+}
+
+int SQLTableRowIteratorConstants::getNumberOfRows(void)
+{
+	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	return -1;
+}
+
+bool SQLTableRowIteratorConstants::start(void)
+{
+	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	return false;
+}
+
+ItemGroupPtr SQLTableRowIteratorConstants::getRow(void)
+{
+	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	return ItemGroupPtr();
+}
+
+bool SQLTableRowIteratorConstants::increment(void)
+{
+	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	return false;
+}
+
+// ---------------------------------------------------------------------------
 // SQLTableProcessContext
 // ---------------------------------------------------------------------------
 SQLTableProcessContext::SQLTableProcessContext(void)
 : id(-1),
-  tableElement(NULL),
-  equalBoundTableCtx(NULL),
-  equalBoundColumnIndex(-1),
-  equalBoundMyIndex(-1),
-  itemDataIndex(NULL)
+  tableElement(NULL)
 {
 }
 
-void SQLTableProcessContext::clearIndexingVariables(void)
+SQLTableProcessContext::~SQLTableProcessContext()
 {
-	indexMatchedItems.clear();
-	indexMatchedItemsIndex = 0;
+	for (size_t i = 0; i < rowIteratorVector.size(); i++)
+		delete rowIteratorVector[i];
 }
 
 // ---------------------------------------------------------------------------
@@ -55,7 +165,9 @@ void SQLTableProcessContextIndex::clear(void)
 	tableCtxVector.clear();
 }
 
-SQLTableProcessContext *SQLTableProcessContextIndex::getTableContext(const string &name)
+SQLTableProcessContext *
+SQLTableProcessContextIndex::getTableContext(const string &name,
+                                             bool throwExceptionIfNotFound)
 {
 	map<string, SQLTableProcessContext *>::iterator it =
 	  tableVarCtxMap.find(name);
@@ -64,6 +176,14 @@ SQLTableProcessContext *SQLTableProcessContextIndex::getTableContext(const strin
 	it = tableNameCtxMap.find(name);
 	if (it != tableNameCtxMap.end())
 		return it->second;
+
+	if (tableCtxVector.size() == 1 && name.empty())
+		return tableCtxVector[0];
+
+	if (throwExceptionIfNotFound) {
+		THROW_SQL_PROCESSOR_EXCEPTION(
+		  "Not found table: %s", name.c_str());
+	}
 	return NULL;
 }
 
@@ -166,6 +286,7 @@ SQLTableElement::SQLTableElement(const string &name, const string &varName,
   m_varName(varName),
   m_columnIndexResolver(resolver),
   m_tableProcessCtx(NULL),
+  m_selectedRowIterator(NULL),
   m_subQueryMode(subQueryMode)
 {
 }
@@ -186,29 +307,46 @@ void SQLTableElement::setItemTable(ItemTablePtr itemTablePtr)
 	m_itemTablePtr = itemTablePtr;
 }
 
-void SQLTableElement::prepareJoin(SQLTableProcessContextIndex *ctxIndex)
+void SQLTableElement::selectRowIterator(SQLTableProcessContext *tableCtx)
 {
-	if (m_tableProcessCtx->equalBoundMyIndex < 0)
+	if (tableCtx->rowIteratorVector.empty())
 		return;
 
 	// This function is called from
-	//   SQLProcessorSelect::doJoinWithFromParser
-	//     -> SQLFromParser::doJoin()
+	//   SQLProcessorSelect::pickupColumnComparisons()
+	//     -> SQLFromParser::prepareJoin()
 	// So m_itemTablePtr must have a valid value here.
 	if (!m_itemTablePtr->hasIndex())
 		return;
-	size_t columnIndex = m_tableProcessCtx->equalBoundMyIndex;
 	const ItemDataIndexVector &indexVector =
 	  m_itemTablePtr->getIndexVector();
-	if (indexVector.size() < columnIndex) {
-		THROW_ASURA_EXCEPTION(
-		  "indexVector.size (%zd) < equalBoundMyIndex (%zd)",
-		  indexVector.size(), columnIndex);
+
+	// we pickup SQLTableRowIterator instances that can use the indexes.
+	vector<SQLTableRowIterator *> indexedRowIterators;
+	for (size_t i = 0; i < tableCtx->rowIteratorVector.size(); i++) {
+		SQLTableRowIterator *rowIterator =
+		   tableCtx->rowIteratorVector[i];
+		if (!rowIterator->isIndexed(indexVector))
+			continue;
+		indexedRowIterators.push_back(rowIterator);
 	}
-	ItemDataIndex *itemIndex = indexVector[columnIndex];
-	if (itemIndex->getIndexType() == ITEM_DATA_INDEX_TYPE_NONE)
+	if (indexedRowIterators.empty())
 		return;
-	m_tableProcessCtx->itemDataIndex = itemIndex;
+
+	// select the row iterator whose number of rows is minimum
+	int minNumRows = indexedRowIterators[0]->getNumberOfRows();
+	m_selectedRowIterator = indexedRowIterators[0];
+	for (size_t i = 1; i < tableCtx->rowIteratorVector.size(); i++) {
+		int numRows = indexedRowIterators[i]->getNumberOfRows();
+		if (numRows < minNumRows) {
+			minNumRows = numRows;
+			m_selectedRowIterator = indexedRowIterators[i];
+		}
+	}
+}
+
+void SQLTableElement::prepareJoin(SQLTableProcessContextIndex *ctxIndex)
+{
 }
 
 ItemTablePtr SQLTableElement::getTable(void)
@@ -223,10 +361,7 @@ ItemGroupPtr SQLTableElement::getActiveRow(void)
 		return *m_currSelectedGroup;
 
 	// Indexing mode
-	size_t index = m_tableProcessCtx->indexMatchedItemsIndex;
-	ItemDataPtrForIndex &dataForIndex =
-	  m_tableProcessCtx->indexMatchedItems[index];
-	return dataForIndex.itemGroupPtr;
+	return m_selectedRowIterator->getRow();
 }
 
 void SQLTableElement::startRowIterator(void)
@@ -238,18 +373,8 @@ void SQLTableElement::startRowIterator(void)
 		return;
 
 	// Indexing mode
-	SQLTableElement *leftTable =
-	  m_tableProcessCtx->equalBoundTableCtx->tableElement;
-	ItemGroupPtr leftRow = leftTable->getActiveRow();
-	ItemDataPtr leftItem =
-	  leftRow->getItemAt(m_tableProcessCtx->equalBoundColumnIndex);
-	m_tableProcessCtx->clearIndexingVariables();
-	m_tableProcessCtx->itemDataIndex
-	  ->find(leftItem, m_tableProcessCtx->indexMatchedItems);
-	if (m_tableProcessCtx->indexMatchedItems.empty()) {
-		// not found
+	if (!m_selectedRowIterator->start()) // not found
 		m_currSelectedGroup = m_itemTablePtr->getItemGroupList().end();
-	}
 }
 
 bool SQLTableElement::rowIteratorEnd(void)
@@ -266,9 +391,7 @@ void SQLTableElement::rowIteratorInc(void)
 	}
 
 	// Indexing mode
-	size_t numMatchedItems = m_tableProcessCtx->indexMatchedItems.size();
-	m_tableProcessCtx->indexMatchedItemsIndex++;
-	if (m_tableProcessCtx->indexMatchedItemsIndex >= numMatchedItems)
+	if (!m_selectedRowIterator->increment()) // reaches the end
 		m_currSelectedGroup = m_itemTablePtr->getItemGroupList().end();
 }
 
@@ -286,7 +409,18 @@ void SQLTableElement::setSQLTableProcessContext(SQLTableProcessContext *joinedTa
 
 bool SQLTableElement::isIndexingMode(void)
 {
-	return m_tableProcessCtx->itemDataIndex;
+	return m_selectedRowIterator;
+}
+
+void SQLTableElement::forceSetRowIterator(SQLTableRowIterator *rowIterator)
+{
+	// We set rowIterator even when the rowIterator uses indexes.
+	const ItemDataIndexVector &indexVector =
+	  m_itemTablePtr->getIndexVector();
+	if (!rowIterator->isIndexed(indexVector))
+		return;
+
+	m_selectedRowIterator = rowIterator;
 }
 
 // ---------------------------------------------------------------------------
@@ -401,8 +535,7 @@ SQLTableInnerJoin::SQLTableInnerJoin
 
 void SQLTableInnerJoin::prepareJoin(SQLTableProcessContextIndex *ctxIndex)
 {
-	// Current implementation of inner join overwrites equalBoundTableCtx,
-	// equalBoundColumnIndex, and equalBoundMyIndex.
+	// Current implementation of inner join overwrites selectedRowIterator.
 	// However, the combination of them may improve performance.
 	SQLTableProcessContext *leftTableCtx =
 	  ctxIndex->getTableContext(m_leftTableName);
@@ -415,22 +548,20 @@ void SQLTableInnerJoin::prepareJoin(SQLTableProcessContextIndex *ctxIndex)
 		  m_rightTableName.c_str(), rightTableCtx);
 	}
 
-	if (rightTableCtx->equalBoundTableCtx) {
-		THROW_SQL_PROCESSOR_EXCEPTION(
-		  "rightTableCtx->equalBoundTableCtx: Not null. "
-		  "rightTable: %s, innerJoinLeftTable: %s",
-		  m_rightTableName.c_str(),
-		  rightTableCtx->equalBoundTableCtx
-		    ->tableElement->getName().c_str());
-	}
-	rightTableCtx->equalBoundTableCtx = leftTableCtx;
-	rightTableCtx->equalBoundColumnIndex =
+	size_t leftColumnIdx =
 	  m_columnIndexResolver->getIndex(m_leftTableName,
 	                                  m_leftColumnName);
-	rightTableCtx->equalBoundMyIndex =
+	size_t rightColumnIdx =
 	  m_columnIndexResolver->getIndex(m_rightTableName,
 	                                  m_rightColumnName);
 	m_rightTableElement = rightTableCtx->tableElement;
+	SQLTableRowIteratorColumnsEqual *rowIterator = 
+	  new SQLTableRowIteratorColumnsEqual(leftTableCtx, leftColumnIdx,
+	                                      rightColumnIdx);
+	rightTableCtx->rowIteratorVector.push_back(rowIterator);
+	m_rightTableElement->forceSetRowIterator(rowIterator);
+
+	// call this function in chain
 	SQLTableJoin::prepareJoin(ctxIndex);
 
 	//

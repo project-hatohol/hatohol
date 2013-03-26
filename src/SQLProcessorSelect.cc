@@ -56,6 +56,7 @@ class SQLProcessorColumnIndexResolver : public SQLColumnIndexResoveler {
 public:
 	SQLProcessorColumnIndexResolver(TableNameStaticInfoMap &nameInfoMap)
 	: m_tableNameStaticInfoMap(nameInfoMap),
+	  m_tables(NULL),
 	  m_tableVarInfoMap(NULL),
 	  m_parentResolver(NULL)
 	{
@@ -76,8 +77,10 @@ public:
 		return staticInfo->columnDefList.size();
 	}
 
-	void setTableVarInfoMap(SQLTableVarNameInfoMap *tableVarInfoMap)
+	void setTableInfo(const SQLTableInfoList *tables,
+	                  SQLTableVarNameInfoMap *tableVarInfoMap)
 	{
+		m_tables = tables;
 		m_tableVarInfoMap = tableVarInfoMap;
 	}
 
@@ -90,6 +93,10 @@ protected:
 	const SQLTableStaticInfo *
 	getTableStaticInfo(const string &tableName) const
 	{
+		if (tableName.empty() && m_tables->size() == 1) {
+			return (*m_tables->begin())->staticInfo;
+		}
+
 		if (m_tableVarInfoMap) {
 			SQLTableVarNameInfoMapIterator it =
 			  m_tableVarInfoMap->find(tableName);
@@ -120,7 +127,11 @@ protected:
 
 private:
 	TableNameStaticInfoMap &m_tableNameStaticInfoMap;
+
+	// The following two pointers point members in SelectInfo
+	const SQLTableInfoList *m_tables;
 	SQLTableVarNameInfoMap *m_tableVarInfoMap;
+
 	SQLProcessorColumnIndexResolver *m_parentResolver;
 };
 
@@ -223,7 +234,7 @@ struct SQLProcessorSelect::PrivateContext {
 	void clear(void)
 	{
 		shareInfo.clear();
-		columnIndexResolver.setTableVarInfoMap(NULL);
+		columnIndexResolver.setTableInfo(NULL, NULL);
 		section = SELECT_PARSING_SECTION_COLUMN;
 		currWord.clear();
 		currWordLower.clear();
@@ -240,8 +251,8 @@ struct SQLProcessorSelect::PrivateContext {
 
 	void setSelectInfo(SQLSelectInfo *_selectInfo) {
 		selectInfo = _selectInfo;
-		columnIndexResolver.setTableVarInfoMap
-		  (&selectInfo->tableVarInfoMap);
+		columnIndexResolver.setTableInfo(&selectInfo->tables,
+		                                 &selectInfo->tableVarInfoMap);
 	};
 
 	void resetStatistics(void) {
