@@ -124,5 +124,27 @@ void DBAgentSQLite3::openDatabase(void)
 
 void DBAgentSQLite3::createTableSystem(void)
 {
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	// make table
+	string sql = "CREATE TABLE ";
+	sql += TABLE_NAME_SYSTEM;
+	sql += "(version INTEGER)";
+	char *errmsg;
+	int result = sqlite3_exec(m_db, sql.c_str(), NULL, NULL, &errmsg);
+	if (result != SQLITE_OK) {
+		string err = errmsg;
+		sqlite3_free(errmsg);
+		THROW_ASURA_EXCEPTION("Failed to exec: %d, %s, %s",
+		                      result, err.c_str(), sql.c_str());
+	}
+
+	// insert the version
+	sql = StringUtils::sprintf("INSERT INTO %s VALUES(%d)",
+	                           TABLE_NAME_SYSTEM,  DB_VERSION);
+	result = sqlite3_exec(m_db, sql.c_str(), NULL, NULL, &errmsg);
+	if (result != SQLITE_OK) {
+		string err = errmsg;
+		sqlite3_free(errmsg);
+		THROW_ASURA_EXCEPTION("Failed to exec: %d, %s, %s",
+		                      result, err.c_str(), sql.c_str());
+	}
 }
