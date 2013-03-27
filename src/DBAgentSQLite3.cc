@@ -15,47 +15,30 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "ConfigManager.h"
-#include "DBAgentSQLite3.h"
+#include "Logger.h"
+using namespace mlpl;
 
-GMutex ConfigManager::m_mutex;
-ConfigManager *ConfigManager::m_instance = NULL;
+#include "DBAgentSQLite3.h"
 
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
-ConfigManager *ConfigManager::getInstance(void)
-{
-	if (m_instance)
-		return m_instance;
-
-	g_mutex_lock(&m_mutex);
-	if (!m_instance)
-		m_instance = new ConfigManager();
-	g_mutex_unlock(&m_mutex);
-
-	return m_instance;
-}
-
-void addTargetServer(MonitoringServerInfo *monitoringServerInfo)
-{
-	DBAgentSQLite3 dbAgent;
-	dbAgent.addTargetServer(monitoringServerInfo);
-}
-
-void getTargetServers(MonitoringServerInfoList &monitoringServers)
-{
-	DBAgentSQLite3 dbAgent;
-	dbAgent.getTargetServers(monitoringServers);
-}
-
-// ---------------------------------------------------------------------------
-// Private methods
-// ---------------------------------------------------------------------------
-ConfigManager::ConfigManager(void)
+DBAgentSQLite3::DBAgentSQLite3(void)
 {
 }
 
-ConfigManager::~ConfigManager()
+DBAgentSQLite3::~DBAgentSQLite3()
 {
+}
+
+void DBAgentSQLite3::addTargetServer
+  (MonitoringServerInfo *monitoringServerInfo)
+{
+	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+}
+
+void DBAgentSQLite3::getTargetServers
+  (MonitoringServerInfoList &monitoringServers)
+{
+	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
 }

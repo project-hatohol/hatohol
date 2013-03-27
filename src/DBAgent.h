@@ -15,28 +15,42 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef ConfigManager_h
-#define ConfigManager_h
+#ifndef DBAgent_h
+#define DBAgent_h
+
+#include <string>
+#include <list>
+using namespace std;
 
 #include <glib.h>
 #include <stdint.h>
 
-#include "DBAgent.h"
-
-class ConfigManager {
-public:
-	ConfigManager *getInstance(void);
-
-	void addTargetServer(MonitoringServerInfo *monitoringServerInfo);
-	void getTargetServers(MonitoringServerInfoList &monitoringServers);
-
-private:
-	static GMutex         m_mutex;
-	static ConfigManager *m_instance;
-
-	// Constructor and destructor
-	ConfigManager(void);
-	virtual ~ConfigManager();
+enum MonitoringSystemType {
+	MONITORING_SYSTEM_ZABBIX,
 };
 
-#endif // ConfigManager_h
+struct MonitoringServerInfo {
+	uint32_t             id;
+	MonitoringSystemType type;
+	string               hostName;
+	string               ipAddress;
+	string               nickname;
+};
+
+typedef list<MonitoringServerInfo>         MonitoringServerInfoList;
+typedef MonitoringServerInfoList::iterator MonitoringServerInfoListIterator;
+
+class DBAgent {
+public:
+	DBAgent(void);
+	virtual ~DBAgent();
+
+	// virtual methods
+	virtual void
+	   addTargetServer(MonitoringServerInfo *monitoringServerInfo) = 0;
+	virtual void
+	   getTargetServers(MonitoringServerInfoList &monitoringServers) = 0;
+private:
+};
+
+#endif // DBAgent_h

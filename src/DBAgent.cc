@@ -15,47 +15,15 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "ConfigManager.h"
-#include "DBAgentSQLite3.h"
-
-GMutex ConfigManager::m_mutex;
-ConfigManager *ConfigManager::m_instance = NULL;
+#include "DBAgent.h"
 
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
-ConfigManager *ConfigManager::getInstance(void)
-{
-	if (m_instance)
-		return m_instance;
-
-	g_mutex_lock(&m_mutex);
-	if (!m_instance)
-		m_instance = new ConfigManager();
-	g_mutex_unlock(&m_mutex);
-
-	return m_instance;
-}
-
-void addTargetServer(MonitoringServerInfo *monitoringServerInfo)
-{
-	DBAgentSQLite3 dbAgent;
-	dbAgent.addTargetServer(monitoringServerInfo);
-}
-
-void getTargetServers(MonitoringServerInfoList &monitoringServers)
-{
-	DBAgentSQLite3 dbAgent;
-	dbAgent.getTargetServers(monitoringServers);
-}
-
-// ---------------------------------------------------------------------------
-// Private methods
-// ---------------------------------------------------------------------------
-ConfigManager::ConfigManager(void)
+DBAgent::DBAgent(void)
 {
 }
 
-ConfigManager::~ConfigManager()
+DBAgent::~DBAgent()
 {
 }

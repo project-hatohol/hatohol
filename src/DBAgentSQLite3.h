@@ -15,28 +15,22 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef ConfigManager_h
-#define ConfigManager_h
-
-#include <glib.h>
-#include <stdint.h>
+#ifndef DBAgentSQLite3_h
+#define DBAgentSQLite3_h
 
 #include "DBAgent.h"
 
-class ConfigManager {
+class DBAgentSQLite3 {
 public:
-	ConfigManager *getInstance(void);
+	DBAgentSQLite3(void);
+	virtual ~DBAgentSQLite3();
 
-	void addTargetServer(MonitoringServerInfo *monitoringServerInfo);
-	void getTargetServers(MonitoringServerInfoList &monitoringServers);
-
+	// virtual methods
+	virtual void
+	   addTargetServer(MonitoringServerInfo *monitoringServerInfo);
+	virtual void
+	   getTargetServers(MonitoringServerInfoList &monitoringServers);
 private:
-	static GMutex         m_mutex;
-	static ConfigManager *m_instance;
-
-	// Constructor and destructor
-	ConfigManager(void);
-	virtual ~ConfigManager();
 };
 
-#endif // ConfigManager_h
+#endif // DBAgentSQLite3_h
