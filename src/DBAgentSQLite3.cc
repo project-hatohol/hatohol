@@ -42,6 +42,8 @@ void DBAgentSQLite3::init(const string &path)
 	DBAgentSQLite3 dbAgent;
 	if (!dbAgent.checkExistTable(TABLE_NAME_SYSTEM))
 		dbAgent.createTableSystem();
+	else
+		dbAgent.updateDBIfNeeded();
 }
 
 DBAgentSQLite3::DBAgentSQLite3(void)
@@ -108,6 +110,12 @@ void DBAgentSQLite3::getTargetServers
 	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
 }
 
+int DBAgentSQLite3::getDBVersion(void)
+{
+	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	return DB_VERSION;
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
@@ -150,4 +158,11 @@ void DBAgentSQLite3::createTableSystem(void)
 		THROW_ASURA_EXCEPTION("Failed to exec: %d, %s, %s",
 		                      result, err.c_str(), sql.c_str());
 	}
+}
+
+void DBAgentSQLite3::updateDBIfNeeded(void)
+{
+	if (getDBVersion() == DB_VERSION)
+		return;
+	THROW_ASURA_EXCEPTION("Not implemented: %s", __PRETTY_FUNCTION__);
 }

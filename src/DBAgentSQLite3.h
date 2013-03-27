@@ -30,6 +30,8 @@ public:
 	DBAgentSQLite3(void);
 	virtual ~DBAgentSQLite3();
 
+	int getDBVersion(void);
+
 	// virtual methods
 	virtual bool checkExistTable(const string &tableName);
 	virtual void
@@ -40,6 +42,7 @@ public:
 protected:
 	void openDatabase(void);
 	void createTableSystem(void);
+	void updateDBIfNeeded(void);
 
 private:
 	static string m_dbPath;
