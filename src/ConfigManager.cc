@@ -36,6 +36,16 @@ ConfigManager *ConfigManager::getInstance(void)
 	return m_instance;
 }
 
+void addTargetServer(MonitoringServerInfo *monitoringServerInfo)
+{
+	// TODO: implement
+}
+
+void getTargetServers(MonitoringServerInfoList &monitoringServers)
+{
+	// TODO: implement
+}
+
 // ---------------------------------------------------------------------------
 // Private methods
 // ---------------------------------------------------------------------------
