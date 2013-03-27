@@ -18,22 +18,35 @@
 #include "Logger.h"
 using namespace mlpl;
 
+static const char *DEFAULT_DB_PATH = "/tmp/asura.db";
+
 #include "DBAgentSQLite3.h"
+#include "AsuraException.h"
 
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
 DBAgentSQLite3::DBAgentSQLite3(void)
+: m_db(NULL),
+  m_dbPath(DEFAULT_DB_PATH)
 {
 }
 
 DBAgentSQLite3::~DBAgentSQLite3()
 {
+	if (m_db) {
+		int result = sqlite3_close(m_db);
+		if (result != SQLITE_OK) {
+			// Should we throw an exception ?
+			MLPL_ERR("Failed to close sqlite: %d\n", result);
+		}
+	}
 }
 
 void DBAgentSQLite3::addTargetServer
   (MonitoringServerInfo *monitoringServerInfo)
 {
+	openDatabase();
 	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
 }
 
@@ -42,3 +55,21 @@ void DBAgentSQLite3::getTargetServers
 {
 	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
 }
+
+// ---------------------------------------------------------------------------
+// Protected methods
+// ---------------------------------------------------------------------------
+void DBAgentSQLite3::openDatabase(void)
+{
+	if (m_db)
+		return;
+
+	int result = sqlite3_open_v2(m_dbPath.c_str(), &m_db,
+	                             SQLITE_OPEN_READWRITE|SQLITE_OPEN_CREATE,
+	                             NULL);
+	if (result == SQLITE_OK) {
+		THROW_ASURA_EXCEPTION("Failed to open sqlite: %d, %s",
+		                      result, m_dbPath.c_str());
+	}
+}
+

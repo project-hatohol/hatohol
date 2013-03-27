@@ -36,6 +36,12 @@ JSON_GLIB_REQUIRED=0.15.0
 PKG_CHECK_MODULES(JSON_GLIB, json-glib-1.0 >= $JSON_GLIB_REQUIRED)
 
 dnl **************************************************************
+dnl Checks for SQLite3
+dnl **************************************************************
+SQLITE3_REQUIRED=3.7.0
+PKG_CHECK_MODULES(SQLITE3, sqlite3 >= $SQLITE3_REQUIRED)
+
+dnl **************************************************************
 dnl Checks for Cutter
 dnl **************************************************************
 CUTTER_REQUIRED=1.2.2

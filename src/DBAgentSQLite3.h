@@ -18,6 +18,8 @@
 #ifndef DBAgentSQLite3_h
 #define DBAgentSQLite3_h
 
+#include <sqlite3.h>
+
 #include "DBAgent.h"
 
 class DBAgentSQLite3 {
@@ -30,7 +32,13 @@ public:
 	   addTargetServer(MonitoringServerInfo *monitoringServerInfo);
 	virtual void
 	   getTargetServers(MonitoringServerInfoList &monitoringServers);
+
+protected:
+	void openDatabase(void);
+
 private:
+	sqlite3 *m_db;
+	string   m_dbPath;
 };
 
 #endif // DBAgentSQLite3_h
