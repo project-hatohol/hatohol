@@ -26,6 +26,7 @@
 #include "SQLProcessorUpdate.h"
 #include "FaceMySQLWorker.h"
 #include "AsuraException.h"
+#include "DBAgentSQLite3.h"
 
 static GStaticMutex mutex = G_STATIC_MUTEX_INIT;
 static bool initDone = false; 
@@ -39,6 +40,7 @@ void asuraInit(void)
 	}
 
 	AsuraException::init();
+	DBAgentSQLite3::init();
 	ItemData::init();
 	SQLUtils::init();
 	SQLFormulaParser::init();

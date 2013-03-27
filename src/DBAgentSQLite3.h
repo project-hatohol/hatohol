@@ -24,6 +24,7 @@
 
 class DBAgentSQLite3 {
 public:
+	static void init(void);
 	DBAgentSQLite3(void);
 	virtual ~DBAgentSQLite3();
 

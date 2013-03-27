@@ -26,6 +26,12 @@ static const char *DEFAULT_DB_PATH = "/tmp/asura.db";
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
+void DBAgentSQLite3::init(void)
+{
+	// TODO: check the DB version.
+	//       If the DB version is old, update the content
+}
+
 DBAgentSQLite3::DBAgentSQLite3(void)
 : m_db(NULL),
   m_dbPath(DEFAULT_DB_PATH)
