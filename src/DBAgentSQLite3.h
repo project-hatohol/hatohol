@@ -29,6 +29,7 @@ public:
 	virtual ~DBAgentSQLite3();
 
 	// virtual methods
+	virtual bool checkExistTable(const string &tableName);
 	virtual void
 	   addTargetServer(MonitoringServerInfo *monitoringServerInfo);
 	virtual void
@@ -36,6 +37,7 @@ public:
 
 protected:
 	void openDatabase(void);
+	void createTableSystem(void);
 
 private:
 	sqlite3 *m_db;

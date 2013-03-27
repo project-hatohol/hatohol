@@ -15,10 +15,14 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <cstring>
+
 #include "Logger.h"
 using namespace mlpl;
 
 static const char *DEFAULT_DB_PATH = "/tmp/asura.db";
+static const int DB_VERSION = 1;
+static const char *TABLE_NAME_SYSTEM = "system";
 
 #include "DBAgentSQLite3.h"
 #include "AsuraException.h"
@@ -30,12 +34,17 @@ void DBAgentSQLite3::init(void)
 {
 	// TODO: check the DB version.
 	//       If the DB version is old, update the content
+
+	DBAgentSQLite3 dbAgent;
+	if (!dbAgent.checkExistTable(TABLE_NAME_SYSTEM))
+		dbAgent.createTableSystem();
 }
 
 DBAgentSQLite3::DBAgentSQLite3(void)
 : m_db(NULL),
   m_dbPath(DEFAULT_DB_PATH)
 {
+	openDatabase();
 }
 
 DBAgentSQLite3::~DBAgentSQLite3()
@@ -49,10 +58,44 @@ DBAgentSQLite3::~DBAgentSQLite3()
 	}
 }
 
+bool DBAgentSQLite3::checkExistTable(const string &tableName)
+{
+	int result;
+	sqlite3_stmt *stmt;
+	const char *query = "SELECT COUNT(*) FROM sqlite_master "
+	                    "WHERE type='table' AND name='?'";
+	result = sqlite3_prepare(m_db, query, strlen(query), &stmt, NULL);
+	if (result != SQLITE_OK) {
+		sqlite3_finalize(stmt);
+		THROW_ASURA_EXCEPTION("Failed to call sqlite3_prepare(): %d",
+		                      result);
+	}
+
+	sqlite3_reset(stmt);
+	result = sqlite3_bind_text(stmt, 1, tableName.c_str(),
+	                           -1, SQLITE_STATIC);
+	if (result == SQLITE_OK) {
+		sqlite3_finalize(stmt);
+		THROW_ASURA_EXCEPTION("Failed to call sqlite3_bind(): %d",
+		                      result);
+	}
+	
+	int count = 0;
+	while ((result = sqlite3_step(stmt)) == SQLITE_ROW) {
+		count = sqlite3_column_int(stmt, 1);
+	}
+	if (result != SQLITE_DONE) {
+		sqlite3_finalize(stmt);
+		THROW_ASURA_EXCEPTION("Failed to call sqlite3_step(): %d",
+		                      result);
+	}
+	sqlite3_finalize(stmt);
+	return count > 0;
+}
+
 void DBAgentSQLite3::addTargetServer
   (MonitoringServerInfo *monitoringServerInfo)
 {
-	openDatabase();
 	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
 }
 
@@ -73,9 +116,13 @@ void DBAgentSQLite3::openDatabase(void)
 	int result = sqlite3_open_v2(m_dbPath.c_str(), &m_db,
 	                             SQLITE_OPEN_READWRITE|SQLITE_OPEN_CREATE,
 	                             NULL);
-	if (result == SQLITE_OK) {
+	if (result != SQLITE_OK) {
 		THROW_ASURA_EXCEPTION("Failed to open sqlite: %d, %s",
 		                      result, m_dbPath.c_str());
 	}
 }
 
+void DBAgentSQLite3::createTableSystem(void)
+{
+	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+}

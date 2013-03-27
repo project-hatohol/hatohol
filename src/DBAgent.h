@@ -46,6 +46,7 @@ public:
 	virtual ~DBAgent();
 
 	// virtual methods
+	virtual bool checkExistTable(const string &tableName) = 0;
 	virtual void
 	   addTargetServer(MonitoringServerInfo *monitoringServerInfo) = 0;
 	virtual void
