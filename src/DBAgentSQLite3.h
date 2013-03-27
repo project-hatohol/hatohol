@@ -26,8 +26,7 @@ class DBAgentSQLite3 {
 public:
 	static const int DB_VERSION;
 
-	static void init(void);
-	static void setDatabasePath(const string &path);
+	static void init(const string &path);
 	DBAgentSQLite3(void);
 	virtual ~DBAgentSQLite3();
 

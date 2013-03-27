@@ -63,8 +63,7 @@ err:
 void setup(void)
 {
 	deleteDB();
-	DBAgentSQLite3::setDatabasePath(dbPath);
-	DBAgentSQLite3::init();
+	DBAgentSQLite3::init(dbPath);
 }
 
 // ---------------------------------------------------------------------------

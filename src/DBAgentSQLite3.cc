@@ -24,8 +24,8 @@ using namespace mlpl;
 #include "DBAgentSQLite3.h"
 #include "AsuraException.h"
 
-static const char *DEFAULT_DB_PATH = "/tmp/asura.db";
 static const char *TABLE_NAME_SYSTEM = "system";
+static const char *DEFAULT_DB_PATH = "/tmp/DBAgentSQLite3Default.db";
 
 const int DBAgentSQLite3::DB_VERSION = 1;
 string DBAgentSQLite3::m_dbPath = DEFAULT_DB_PATH;
@@ -33,19 +33,15 @@ string DBAgentSQLite3::m_dbPath = DEFAULT_DB_PATH;
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
-void DBAgentSQLite3::init(void)
+void DBAgentSQLite3::init(const string &path)
 {
 	// TODO: check the DB version.
 	//       If the DB version is old, update the content
+	m_dbPath = path;
 
 	DBAgentSQLite3 dbAgent;
 	if (!dbAgent.checkExistTable(TABLE_NAME_SYSTEM))
 		dbAgent.createTableSystem();
-}
-
-void DBAgentSQLite3::setDatabasePath(const string &path)
-{
-	m_dbPath = path;
 }
 
 DBAgentSQLite3::DBAgentSQLite3(void)
