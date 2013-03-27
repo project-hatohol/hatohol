@@ -203,7 +203,7 @@ void DBAgentSQLite3::createTableServers(void)
 {
 	// make table
 	string sql = "CREATE TABLE ";
-	sql += TABLE_NAME_SYSTEM;
+	sql += TABLE_NAME_SERVERS;
 	sql += "(id INTEGER PRIMARY KEY, type INTEGER, hostname TEXT, "
 	       " ip_address TEXT, nickname TEXT)";
 	char *errmsg;
