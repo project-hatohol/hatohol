@@ -64,4 +64,10 @@ do { \
 	throw AsuraException(msg, __FILE__, __LINE__); \
 } while (0)
 
+#define ASURA_ASSERT(COND, FMT, ...) \
+do { \
+	if (!(COND)) { \
+		THROW_ASURA_EXCEPTION("ASSERTION failed: [%s] : " FMT, #COND, ##__VA_ARGS__); \
+	} \
+} while (0)
 #endif // AsuraException_h
