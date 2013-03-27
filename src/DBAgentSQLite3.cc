@@ -112,8 +112,33 @@ void DBAgentSQLite3::getTargetServers
 
 int DBAgentSQLite3::getDBVersion(void)
 {
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
-	return DB_VERSION;
+	int result;
+	sqlite3_stmt *stmt;
+	string query = "SELECT version FROM ";
+	query += TABLE_NAME_SYSTEM;
+	result = sqlite3_prepare(m_db, query.c_str(), query.size(),
+	                         &stmt, NULL);
+	if (result != SQLITE_OK) {
+		sqlite3_finalize(stmt);
+		THROW_ASURA_EXCEPTION("Failed to call sqlite3_prepare(): %d",
+		                      result);
+	}
+	sqlite3_reset(stmt);
+	int version = 0;
+	int count = 0;
+	while ((result = sqlite3_step(stmt)) == SQLITE_ROW) {
+		version = sqlite3_column_int(stmt, 1);
+		count++;
+	}
+	if (result != SQLITE_DONE) {
+		sqlite3_finalize(stmt);
+		THROW_ASURA_EXCEPTION("Failed to call sqlite3_step(): %d",
+		                      result);
+	}
+	sqlite3_finalize(stmt);
+	if (count == 0)
+		THROW_ASURA_EXCEPTION("Not found 'version'");
+	return version;
 }
 
 // ---------------------------------------------------------------------------
