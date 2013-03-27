@@ -25,6 +25,7 @@ using namespace mlpl;
 #include "AsuraException.h"
 
 static const char *TABLE_NAME_SYSTEM = "system";
+static const char *TABLE_NAME_SERVERS = "servers";
 static const char *DEFAULT_DB_PATH = "/tmp/DBAgentSQLite3Default.db";
 
 const int DBAgentSQLite3::DB_VERSION = 1;
@@ -44,6 +45,10 @@ void DBAgentSQLite3::init(const string &path)
 		dbAgent.createTableSystem();
 	else
 		dbAgent.updateDBIfNeeded();
+
+	// check the servers table
+	if (dbAgent.isTableExisting(TABLE_NAME_SERVERS))
+		dbAgent.createTableServers();
 }
 
 DBAgentSQLite3::DBAgentSQLite3(void)
@@ -192,4 +197,21 @@ void DBAgentSQLite3::updateDBIfNeeded(void)
 	if (getDBVersion() == DB_VERSION)
 		return;
 	THROW_ASURA_EXCEPTION("Not implemented: %s", __PRETTY_FUNCTION__);
+}
+
+void DBAgentSQLite3::createTableServers(void)
+{
+	// make table
+	string sql = "CREATE TABLE ";
+	sql += TABLE_NAME_SYSTEM;
+	sql += "(id INTEGER PRIMARY KEY, type INTEGER, hostname TEXT, "
+	       " ip_address TEXT, nickname TEXT)";
+	char *errmsg;
+	int result = sqlite3_exec(m_db, sql.c_str(), NULL, NULL, &errmsg);
+	if (result != SQLITE_OK) {
+		string err = errmsg;
+		sqlite3_free(errmsg);
+		THROW_ASURA_EXCEPTION("Failed to exec: %d, %s, %s",
+		                      result, err.c_str(), sql.c_str());
+	}
 }

@@ -43,6 +43,7 @@ protected:
 	void openDatabase(void);
 	void createTableSystem(void);
 	void updateDBIfNeeded(void);
+	void createTableServers(void);
 
 private:
 	static string m_dbPath;
