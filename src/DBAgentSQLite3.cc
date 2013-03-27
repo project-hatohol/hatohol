@@ -136,8 +136,10 @@ int DBAgentSQLite3::getDBVersion(void)
 		                      result);
 	}
 	sqlite3_finalize(stmt);
-	if (count == 0)
-		THROW_ASURA_EXCEPTION("Not found 'version'");
+	if (count != 1) {
+		THROW_ASURA_EXCEPTION(
+		  "Returned count of rows is not one (%d)", count);
+	}
 	return version;
 }
 
