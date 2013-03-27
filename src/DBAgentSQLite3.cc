@@ -20,12 +20,14 @@
 #include "Logger.h"
 using namespace mlpl;
 
+#include "DBAgentSQLite3.h"
+#include "AsuraException.h"
+
 static const char *DEFAULT_DB_PATH = "/tmp/asura.db";
 static const int DB_VERSION = 1;
 static const char *TABLE_NAME_SYSTEM = "system";
 
-#include "DBAgentSQLite3.h"
-#include "AsuraException.h"
+string DBAgentSQLite3::m_dbPath = DEFAULT_DB_PATH;
 
 // ---------------------------------------------------------------------------
 // Public methods
@@ -40,9 +42,13 @@ void DBAgentSQLite3::init(void)
 		dbAgent.createTableSystem();
 }
 
+void DBAgentSQLite3::setDatabasePath(const string &path)
+{
+	m_dbPath = path;
+}
+
 DBAgentSQLite3::DBAgentSQLite3(void)
-: m_db(NULL),
-  m_dbPath(DEFAULT_DB_PATH)
+: m_db(NULL)
 {
 	openDatabase();
 }

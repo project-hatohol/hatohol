@@ -25,6 +25,7 @@
 class DBAgentSQLite3 {
 public:
 	static void init(void);
+	static void setDatabasePath(const string &path);
 	DBAgentSQLite3(void);
 	virtual ~DBAgentSQLite3();
 
@@ -40,8 +41,8 @@ protected:
 	void createTableSystem(void);
 
 private:
-	sqlite3 *m_db;
-	string   m_dbPath;
+	static string m_dbPath;
+	sqlite3      *m_db;
 };
 
 #endif // DBAgentSQLite3_h
