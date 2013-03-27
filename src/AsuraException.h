@@ -19,6 +19,7 @@
 #define AsuraException_h
 
 #include <Logger.h>
+#include <StringUtils.h>
 using namespace mlpl;
 
 #include <exception>
