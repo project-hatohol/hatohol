@@ -40,7 +40,7 @@ void DBAgentSQLite3::init(const string &path)
 	m_dbPath = path;
 
 	DBAgentSQLite3 dbAgent;
-	if (!dbAgent.checkExistTable(TABLE_NAME_SYSTEM))
+	if (!dbAgent.isTableExisting(TABLE_NAME_SYSTEM))
 		dbAgent.createTableSystem();
 	else
 		dbAgent.updateDBIfNeeded();
@@ -63,7 +63,7 @@ DBAgentSQLite3::~DBAgentSQLite3()
 	}
 }
 
-bool DBAgentSQLite3::checkExistTable(const string &tableName)
+bool DBAgentSQLite3::isTableExisting(const string &tableName)
 {
 	int result;
 	sqlite3_stmt *stmt;

@@ -33,7 +33,7 @@ public:
 	int getDBVersion(void);
 
 	// virtual methods
-	virtual bool checkExistTable(const string &tableName);
+	virtual bool isTableExisting(const string &tableName);
 	virtual void
 	   addTargetServer(MonitoringServerInfo *monitoringServerInfo);
 	virtual void
