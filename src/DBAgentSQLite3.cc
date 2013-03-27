@@ -16,6 +16,7 @@
 */
 
 #include <cstring>
+#include <cstdio>
 
 #include "Logger.h"
 using namespace mlpl;
@@ -24,9 +25,9 @@ using namespace mlpl;
 #include "AsuraException.h"
 
 static const char *DEFAULT_DB_PATH = "/tmp/asura.db";
-static const int DB_VERSION = 1;
 static const char *TABLE_NAME_SYSTEM = "system";
 
+const int DBAgentSQLite3::DB_VERSION = 1;
 string DBAgentSQLite3::m_dbPath = DEFAULT_DB_PATH;
 
 // ---------------------------------------------------------------------------

@@ -8,6 +8,7 @@ TESTS_ENVIRONMENT = NO_MAKE=yes CUTTER="$(CUTTER)"
 
 noinst_LTLIBRARIES = \
 	testAsuraException.la testSQLProcessorException.la \
+	testDBAgentSQLite3.la \
 	testSQLUtils.la testSQLProcessor.la \
 	testSQLProcessorInsert.la testSQLProcessorUpdate.la \
 	testFormulaElement.la \
