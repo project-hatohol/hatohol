@@ -157,7 +157,7 @@ void test_testIsTableExistingNotIncluded(void)
 	cppcut_assert_equal(false, dbAgent.isTableExisting("NotExistTable"));
 }
 
-void test_testIsRecordxisting(void)
+void test_testIsRecordExisting(void)
 {
 	DEFINE_DBAGENT_WITH_INIT("FooTable.db", dbAgent);
 	string expectTrueCondition = "id=1";
