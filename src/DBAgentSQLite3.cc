@@ -116,8 +116,9 @@ bool DBAgentSQLite3::isRecordExisting(const string &tableName,
 	                         &stmt, NULL);
 	if (result != SQLITE_OK) {
 		sqlite3_finalize(stmt);
-		THROW_ASURA_EXCEPTION("Failed to call sqlite3_prepare(): %d",
-		                      result);
+		THROW_ASURA_EXCEPTION(
+		  "Failed to call sqlite3_prepare(): %d: %s",
+		  result, query.c_str());
 	}
 	sqlite3_reset(stmt);
 	bool found = false;
