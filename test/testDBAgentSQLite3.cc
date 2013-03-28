@@ -67,6 +67,7 @@ static string getFixturesDir(void)
 	free(cwd);
 	dir += G_DIR_SEPARATOR;
 	dir += "fixtures";
+	dir += G_DIR_SEPARATOR;
 	return dir;
 }
 
