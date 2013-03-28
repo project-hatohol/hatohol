@@ -162,7 +162,36 @@ void DBAgentSQLite3::addTargetServer
 void DBAgentSQLite3::getTargetServers
   (MonitoringServerInfoList &monitoringServers)
 {
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	execSql("BEGIN");
+
+	int result;
+	sqlite3_stmt *stmt;
+	string query = "SELECT id, type, hostname, ip_address, nickname FROM ";
+	query += TABLE_NAME_SERVERS;
+	result = sqlite3_prepare(m_db, query.c_str(), query.size(),
+	                         &stmt, NULL);
+	if (result != SQLITE_OK) {
+		sqlite3_finalize(stmt);
+		THROW_ASURA_EXCEPTION("Failed to call sqlite3_prepare(): %d",
+		                      result);
+	}
+	sqlite3_reset(stmt);
+	while ((result = sqlite3_step(stmt)) == SQLITE_ROW) {
+		monitoringServers.push_back(MonitoringServerInfo());
+		MonitoringServerInfo &svInfo = monitoringServers.back();
+		svInfo.id   = sqlite3_column_int(stmt, 0);
+		svInfo.type = (MonitoringSystemType)sqlite3_column_int(stmt, 1);
+		svInfo.hostName  = (const char *)sqlite3_column_text(stmt, 2);
+		svInfo.ipAddress = (const char *)sqlite3_column_text(stmt, 3);
+		svInfo.nickname  = (const char *)sqlite3_column_text(stmt, 4);
+	}
+	sqlite3_finalize(stmt);
+	if (result != SQLITE_DONE) {
+		THROW_ASURA_EXCEPTION("Failed to call sqlite3_step(): %d",
+		                      result);
+	}
+
+	execSql("COMMIT");
 }
 
 int DBAgentSQLite3::getDBVersion(void)

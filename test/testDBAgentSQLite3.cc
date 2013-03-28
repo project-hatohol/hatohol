@@ -12,14 +12,27 @@ namespace testDBAgentSQLite3 {
 
 static string dbPath = "/tmp/testDBAgentSQLite3.db";
 
-static MonitoringServerInfo serverInfo = 
-{
+static MonitoringServerInfo serverInfo[] = 
+{{
 	1,                        // id
 	MONITORING_SYSTEM_ZABBIX, // type
 	"pochi.dog.com",          // hostname
 	"192.168.0.5",            // ip_address
 	"POCHI",                  // nickname
-};
+},{
+	2,                        // id
+	MONITORING_SYSTEM_ZABBIX, // type
+	"mike.dog.com",           // hostname
+	"192.168.1.5",            // ip_address
+	"MIKE",                   // nickname
+},{
+	3,                        // id
+	MONITORING_SYSTEM_ZABBIX, // type
+	"hachi.dog.com",          // hostname
+	"192.168.10.1",           // ip_address
+	"8",                      // nickname
+}};
+static size_t NumServerInfo = sizeof(serverInfo) / sizeof(MonitoringServerInfo);
 
 static void deleteDB(void)
 {
@@ -92,6 +105,33 @@ string _path = getFixturesDir() + DB_NAME; \
 DBAgentSQLite3::init(_path); \
 DBAgentSQLite3 OBJ_NAME; \
 
+static void _assertAddServerToDB(MonitoringServerInfo *serverInfo)
+{
+	DBAgentSQLite3 dbAgent;
+	bool gotException = false;
+	try {
+		dbAgent.addTargetServer(serverInfo);
+	} catch (const AsuraException &e) {
+		gotException = true;
+		cut_fail("%s", e.getFancyMessage().c_str());
+	} catch (...) {
+		gotException = true;
+	}
+	cppcut_assert_equal(false, gotException);
+}
+#define assertAddServerToDB(X) cut_trace(_assertAddServerToDB(X))
+
+static string makeExpectedOutput(MonitoringServerInfo *serverInfo)
+{
+	string expectedOut = StringUtils::sprintf
+	                       ("%u|%d|%s|%s|%s\n",
+	                        serverInfo->id, serverInfo->type,
+	                        serverInfo->hostName.c_str(),
+	                        serverInfo->ipAddress.c_str(),
+	                        serverInfo->nickname.c_str());
+	return expectedOut;
+}
+
 void setup(void)
 {
 	deleteDB();
@@ -144,8 +184,9 @@ void test_testAddTargetServer(void)
 {
 	DBAgentSQLite3 dbAgent;
 	bool gotException = false;
+	MonitoringServerInfo *testInfo = serverInfo;
 	try {
-		dbAgent.addTargetServer(&serverInfo);
+		dbAgent.addTargetServer(testInfo);
 	} catch (const AsuraException &e) {
 		gotException = true;
 		cut_fail("%s", e.getFancyMessage().c_str());
@@ -160,11 +201,31 @@ void test_testAddTargetServer(void)
 	string result = executeCommand(cmd);
 	string expectedOut = StringUtils::sprintf
 	                       ("%u|%d|%s|%s|%s\n",
-	                        serverInfo.id, serverInfo.type,
-	                        serverInfo.hostName.c_str(),
-	                        serverInfo.ipAddress.c_str(),
-	                        serverInfo.nickname.c_str());
+	                        testInfo->id, testInfo->type,
+	                        testInfo->hostName.c_str(),
+	                        testInfo->ipAddress.c_str(),
+	                        testInfo->nickname.c_str());
 	cppcut_assert_equal(expectedOut, result);
+}
+
+void test_testGetTargetServers(void)
+{
+	for (size_t i = 0; i < NumServerInfo; i++)
+		assertAddServerToDB(&serverInfo[i]);
+
+	DBAgentSQLite3 dbAgent;
+	MonitoringServerInfoList monitoringServers;
+	dbAgent.getTargetServers(monitoringServers);
+	cppcut_assert_equal(NumServerInfo, monitoringServers.size());
+
+	string expectedText;
+	string actualText;
+	MonitoringServerInfoListIterator it = monitoringServers.begin();
+	for (size_t i = 0; i < NumServerInfo; i++, ++it) {
+		expectedText += makeExpectedOutput(&serverInfo[i]);
+		actualText += makeExpectedOutput(&(*it));
+	}
+	cppcut_assert_equal(expectedText, actualText);
 }
 
 } // testDBAgentSQLite3
