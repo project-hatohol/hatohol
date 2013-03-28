@@ -19,10 +19,14 @@
 using namespace mlpl;
 
 #include "FaceRest.h"
+#include "JsonBuilderAgent.h"
+#include "AsuraException.h"
+#include "ConfigManager.h"
 
 static const guint DEFAULT_PORT = 33194;
 
 const char *FaceRest::pathForGetServers = "/servers";
+static const char *MIME_JSON = "application/json";
 
 // ---------------------------------------------------------------------------
 // Public methods
@@ -76,6 +80,11 @@ size_t FaceRest::parseCmdArgPort(CommandLineArg &cmdArg, size_t idx)
 	return idx;
 }
 
+void FaceRest::replyError(SoupMessage *msg, const string &errorMessage)
+{
+	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+}
+
 // handlers
 void FaceRest::handlerDefault(SoupServer *server, SoupMessage *msg,
                               const char *path, GHashTable *query,
@@ -90,6 +99,47 @@ void FaceRest::handlerGetServers
   (SoupServer *server, SoupMessage *msg, const char *path,
    GHashTable *query, SoupClientContext *client, gpointer user_data)
 {
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	try {
+		handlerGetServersThrowable(server, msg, path, query,
+		                           client, user_data);
+	} catch (const AsuraException &e) {
+		MLPL_INFO("Got Exception: %s\n", e.getFancyMessage().c_str());
+		replyError(msg, e.getFancyMessage());
+	}
+}
+
+void FaceRest::handlerGetServersThrowable
+  (SoupServer *server, SoupMessage *msg, const char *path,
+   GHashTable *query, SoupClientContext *client, gpointer user_data)
+{
 	soup_message_set_status(msg, SOUP_STATUS_NOT_IMPLEMENTED);
+	ConfigManager *configManager = ConfigManager::getInstance();
+
+	MonitoringServerInfoList monitoringServers;
+	configManager->getTargetServers(monitoringServers);
+
+	JsonBuilderAgent agent;
+	agent.startObject();
+	agent.addTrue("result");
+	agent.add("numberOfServers", monitoringServers.size());
+	agent.startArray("servers");
+	MonitoringServerInfoListIterator it = monitoringServers.begin();
+	for (; it != monitoringServers.end(); ++it) {
+		MonitoringServerInfo &serverInfo = *it;
+		agent.startObject();
+		agent.add("id", serverInfo.id);
+		agent.add("type", serverInfo.type);
+		agent.add("hostName", serverInfo.hostName);
+		agent.add("ipAddress", serverInfo.ipAddress);
+		agent.add("nickname", serverInfo.nickname);
+		agent.endObject();
+	}
+	agent.endArray();
+	agent.endObject();
+	string response = agent.generate();
+	soup_message_headers_set_content_type(msg->response_headers,
+	                                      MIME_JSON, NULL);
+	soup_message_body_append(msg->response_body, SOUP_MEMORY_COPY,
+	                         response.c_str(), response.size());
+	soup_message_set_status(msg, SOUP_STATUS_OK);
 }

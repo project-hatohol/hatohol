@@ -32,6 +32,7 @@ protected:
 
 	// generic sub routines
 	size_t parseCmdArgPort(CommandLineArg &cmdArg, size_t idx);
+	static void replyError(SoupMessage *msg, const string &errorMessage);
 
 	// handlers
 	static void
@@ -40,6 +41,9 @@ protected:
 	                 SoupClientContext *client, gpointer user_data);
 
 	static void handlerGetServers
+	  (SoupServer *server, SoupMessage *msg, const char *path,
+	   GHashTable *query, SoupClientContext *client, gpointer user_data);
+	static void handlerGetServersThrowable
 	  (SoupServer *server, SoupMessage *msg, const char *path,
 	   GHashTable *query, SoupClientContext *client, gpointer user_data);
 
