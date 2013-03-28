@@ -6,10 +6,20 @@
 using namespace mlpl;
 
 #include "DBAgentSQLite3.h"
+#include "AsuraException.h"
 
 namespace testDBAgentSQLite3 {
 
 static string dbPath = "/tmp/testDBAgentSQLite3.db";
+
+static MonitoringServerInfo serverInfo = 
+{
+	1,                        // id
+	MONITORING_SYSTEM_ZABBIX, // type
+	"pochi.dog.com",          // hostname
+	"192.168.0.5",            // ip_address
+	"POCHI",                  // nickname
+};
 
 static void deleteDB(void)
 {
@@ -122,6 +132,21 @@ void test_testIsRecordExistingNotIncluded(void)
 	string expectFalseCondition = "id=100";
 	cppcut_assert_equal
 	  (false, dbAgent.isRecordExisting("foo", expectFalseCondition));
+}
+
+void test_testAddTargetServer(void)
+{
+	DBAgentSQLite3 dbAgent;
+	bool gotException = false;
+	try {
+		dbAgent.addTargetServer(&serverInfo);
+	} catch (const AsuraException &e) {
+		gotException = true;
+		cut_fail("%s", e.getFancyMessage().c_str());
+	} catch (...) {
+		gotException = true;
+	}
+	cppcut_assert_equal(false, gotException);
 }
 
 } // testDBAgentSQLite3

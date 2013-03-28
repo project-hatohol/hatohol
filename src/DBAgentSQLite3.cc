@@ -17,6 +17,7 @@
 
 #include <cstring>
 #include <cstdio>
+#include <stdarg.h>
 
 #include "Logger.h"
 using namespace mlpl;
@@ -265,5 +266,22 @@ void DBAgentSQLite3::createTableServers(void)
 
 void DBAgentSQLite3::execSql(const char *fmt, ...)
 {
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	// make a query string
+	va_list ap;
+	va_start(ap, fmt);
+	char *sql = sqlite3_vmprintf(fmt, ap);
+	va_end(ap);
+
+	// execute the query
+	char *errmsg;
+	int result = sqlite3_exec(m_db, sql, NULL, NULL, &errmsg);
+	if (result != SQLITE_OK) {
+		string err = errmsg;
+		string sqlStr = sql;
+		sqlite3_free(errmsg);
+		sqlite3_free(sql);
+		THROW_ASURA_EXCEPTION("Failed to exec: %d, %s, %s",
+		                      result, err.c_str(), sqlStr.c_str());
+	}
+	sqlite3_free(sql);
 }
