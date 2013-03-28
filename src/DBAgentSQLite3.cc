@@ -106,8 +106,31 @@ bool DBAgentSQLite3::isTableExisting(const string &tableName)
 bool DBAgentSQLite3::isRecordExisting(const string &tableName,
                                       const string &condition)
 {
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
-	return false;
+	int result;
+	sqlite3_stmt *stmt;
+	string query = StringUtils::sprintf(
+	                 "SELECT * FROM %s WHERE %s",
+	                 tableName.c_str(), condition.c_str());
+	result = sqlite3_prepare(m_db, query.c_str(), query.size(),
+	                         &stmt, NULL);
+	if (result != SQLITE_OK) {
+		sqlite3_finalize(stmt);
+		THROW_ASURA_EXCEPTION("Failed to call sqlite3_prepare(): %d",
+		                      result);
+	}
+	sqlite3_reset(stmt);
+	bool found = false;
+	while ((result = sqlite3_step(stmt)) == SQLITE_ROW) {
+		found = true;
+		break;
+	}
+	if (result != SQLITE_ROW && result != SQLITE_DONE) {
+		sqlite3_finalize(stmt);
+		THROW_ASURA_EXCEPTION("Failed to call sqlite3_step(): %d",
+		                      result);
+	}
+	sqlite3_finalize(stmt);
+	return found;
 }
 
 void DBAgentSQLite3::addTargetServer

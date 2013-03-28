@@ -71,6 +71,11 @@ static string getFixturesDir(void)
 	return dir;
 }
 
+#define DEFINE_DBAGENT_WITH_INIT(DB_NAME, OBJ_NAME) \
+string _path = getFixturesDir() + DB_NAME; \
+DBAgentSQLite3::init(_path); \
+DBAgentSQLite3 OBJ_NAME; \
+
 void setup(void)
 {
 	deleteDB();
@@ -107,6 +112,22 @@ void test_testIsTableExistingNotIncluded(void)
 	DBAgentSQLite3::init(path);
 	DBAgentSQLite3 dbAgent;
 	cppcut_assert_equal(false, dbAgent.isTableExisting("NotExistTable"));
+}
+
+void test_testIsRecordxisting(void)
+{
+	DEFINE_DBAGENT_WITH_INIT("FooTable.db", dbAgent);
+	string expectTrueCondition = "id=1";
+	cppcut_assert_equal
+	  (true, dbAgent.isRecordExisting("foo", expectTrueCondition));
+}
+
+void test_testIsRecordExistingNotIncluded(void)
+{
+	DEFINE_DBAGENT_WITH_INIT("FooTable.db", dbAgent);
+	string expectFalseCondition = "id=100";
+	cppcut_assert_equal
+	  (false, dbAgent.isRecordExisting("foo", expectFalseCondition));
 }
 
 } // testDBAgentSQLite3
