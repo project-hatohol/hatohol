@@ -73,7 +73,7 @@ bool DBAgentSQLite3::isTableExisting(const string &tableName)
 	int result;
 	sqlite3_stmt *stmt;
 	const char *query = "SELECT COUNT(*) FROM sqlite_master "
-	                    "WHERE type='table' AND name='?'";
+	                    "WHERE type='table' AND name=?";
 	result = sqlite3_prepare(m_db, query, strlen(query), &stmt, NULL);
 	if (result != SQLITE_OK) {
 		sqlite3_finalize(stmt);
