@@ -92,7 +92,7 @@ bool DBAgentSQLite3::isTableExisting(const string &tableName)
 	
 	int count = 0;
 	while ((result = sqlite3_step(stmt)) == SQLITE_ROW) {
-		count = sqlite3_column_int(stmt, 1);
+		count = sqlite3_column_int(stmt, 0);
 	}
 	if (result != SQLITE_DONE) {
 		sqlite3_finalize(stmt);
@@ -132,7 +132,7 @@ int DBAgentSQLite3::getDBVersion(void)
 	int version = 0;
 	int count = 0;
 	while ((result = sqlite3_step(stmt)) == SQLITE_ROW) {
-		version = sqlite3_column_int(stmt, 1);
+		version = sqlite3_column_int(stmt, 0);
 		count++;
 	}
 	if (result != SQLITE_DONE) {
