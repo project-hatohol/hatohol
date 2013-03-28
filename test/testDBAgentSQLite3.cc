@@ -182,29 +182,15 @@ void test_testIsRecordExistingNotIncluded(void)
 
 void test_testAddTargetServer(void)
 {
-	DBAgentSQLite3 dbAgent;
-	bool gotException = false;
+	// added a record
 	MonitoringServerInfo *testInfo = serverInfo;
-	try {
-		dbAgent.addTargetServer(testInfo);
-	} catch (const AsuraException &e) {
-		gotException = true;
-		cut_fail("%s", e.getFancyMessage().c_str());
-	} catch (...) {
-		gotException = true;
-	}
-	cppcut_assert_equal(false, gotException);
+	assertAddServerToDB(testInfo);
 
 	// confirm with the command line tool
 	string cmd = StringUtils::sprintf(
 	               "sqlite3 %s \"select * from servers\"", dbPath.c_str());
 	string result = executeCommand(cmd);
-	string expectedOut = StringUtils::sprintf
-	                       ("%u|%d|%s|%s|%s\n",
-	                        testInfo->id, testInfo->type,
-	                        testInfo->hostName.c_str(),
-	                        testInfo->ipAddress.c_str(),
-	                        testInfo->nickname.c_str());
+	string expectedOut = makeExpectedOutput(testInfo);
 	cppcut_assert_equal(expectedOut, result);
 }
 
