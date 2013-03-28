@@ -76,3 +76,15 @@ void JsonBuilderAgent::add(const string &member, gint64 value)
 	json_builder_set_member_name(m_builder, member.c_str());
 	json_builder_add_int_value(m_builder, value);
 }
+
+void JsonBuilderAgent::addTrue(const string &member)
+{
+	json_builder_set_member_name(m_builder, member.c_str());
+	json_builder_add_boolean_value(m_builder, TRUE);
+}
+
+void JsonBuilderAgent::addFalse(const string &member)
+{
+	json_builder_set_member_name(m_builder, member.c_str());
+	json_builder_add_boolean_value(m_builder, FALSE);
+}
