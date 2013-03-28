@@ -47,6 +47,8 @@ public:
 
 	// virtual methods
 	virtual bool isTableExisting(const string &tableName) = 0;
+	virtual bool isRecordExisting(const string &tableName,
+	                              const string &condition) = 0;
 	virtual void
 	   addTargetServer(MonitoringServerInfo *monitoringServerInfo) = 0;
 	virtual void

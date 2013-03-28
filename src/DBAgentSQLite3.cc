@@ -103,10 +103,36 @@ bool DBAgentSQLite3::isTableExisting(const string &tableName)
 	return count > 0;
 }
 
+bool DBAgentSQLite3::isRecordExisting(const string &tableName,
+                                      const string &condition)
+{
+	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	return false;
+}
+
 void DBAgentSQLite3::addTargetServer
   (MonitoringServerInfo *monitoringServerInfo)
 {
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	string condition = StringUtils::sprintf("id=%u",
+	                                        monitoringServerInfo->id);
+	execSql("BEGIN");
+	if (!isRecordExisting(TABLE_NAME_SERVERS, condition)) {
+		execSql("INSERT INTO %s VALUES(%u,%d,%Q,%Q,%Q)",
+		        TABLE_NAME_SERVERS,
+		        monitoringServerInfo->id, monitoringServerInfo->type,
+		        monitoringServerInfo->hostName.c_str(),
+		        monitoringServerInfo->ipAddress.c_str(),
+		        monitoringServerInfo->nickname.c_str());
+	} else {
+		execSql("UPDATE %s SET type=%d, hostname=%Q, "
+		        "ip_address=%Q, nickname=%Q",
+		        TABLE_NAME_SERVERS,
+		        monitoringServerInfo->type,
+		        monitoringServerInfo->hostName.c_str(),
+		        monitoringServerInfo->ipAddress.c_str(),
+		        monitoringServerInfo->nickname.c_str());
+	}
+	execSql("COMMIT");
 }
 
 void DBAgentSQLite3::getTargetServers
@@ -212,4 +238,9 @@ void DBAgentSQLite3::createTableServers(void)
 		THROW_ASURA_EXCEPTION("Failed to exec: %d, %s, %s",
 		                      result, err.c_str(), sql.c_str());
 	}
+}
+
+void DBAgentSQLite3::execSql(const char *fmt, ...)
+{
+	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
 }

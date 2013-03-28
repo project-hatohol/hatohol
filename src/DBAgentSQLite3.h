@@ -34,6 +34,8 @@ public:
 
 	// virtual methods
 	virtual bool isTableExisting(const string &tableName);
+	virtual bool isRecordExisting(const string &tableName,
+	                              const string &condition);
 	virtual void
 	   addTargetServer(MonitoringServerInfo *monitoringServerInfo);
 	virtual void
@@ -44,6 +46,7 @@ protected:
 	void createTableSystem(void);
 	void updateDBIfNeeded(void);
 	void createTableServers(void);
+	void execSql(const char *fmt, ...);
 
 private:
 	static string m_dbPath;
