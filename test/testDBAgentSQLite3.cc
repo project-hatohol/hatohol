@@ -27,6 +27,45 @@ static void deleteDB(void)
 	cut_assert_not_exist_path(dbPath.c_str());
 }
 
+static string executeCommand(const string &commandLine)
+{
+	gboolean ret;
+	gchar *standardOutput = NULL;
+	gchar *standardError = NULL;
+	gint exitStatus;
+	GError *error = NULL;
+	string errorStr;
+	string stdoutStr, stderrStr;
+	int version;
+
+	ret = g_spawn_command_line_sync(commandLine.c_str(),
+	                                &standardOutput, &standardError,
+	                                &exitStatus, &error);
+	if (standardOutput) {
+		stdoutStr = standardOutput;
+		g_free(standardOutput);
+	}
+	if (standardError) {
+		stderrStr = standardError;
+		g_free(standardError);
+	}
+	if (!ret)
+		goto err;
+	if (exitStatus != 0)
+		goto err;
+	return stdoutStr;
+
+err:
+	if (error) {
+		errorStr = error->message;
+		g_error_free(error);
+	}
+	cut_fail("ret: %d, exit status: %d\n<<stdout>>\n%s\n<<stderr>>\n%s\n"
+	         "<<error->message>>\n%s",
+	         ret, exitStatus, stdoutStr.c_str(), stderrStr.c_str(), 
+	         errorStr.c_str());
+}
+
 static int getDBVersion(void)
 {
 	gboolean ret;
@@ -147,6 +186,18 @@ void test_testAddTargetServer(void)
 		gotException = true;
 	}
 	cppcut_assert_equal(false, gotException);
+
+	// confirm with the command line tool
+	string cmd = StringUtils::sprintf(
+	               "sqlite3 %s \"select * from servers\"", dbPath.c_str());
+	string result = executeCommand(cmd);
+	string expectedOut = StringUtils::sprintf
+	                       ("%u|%d|%s|%s|%s\n",
+	                        serverInfo.id, serverInfo.type,
+	                        serverInfo.hostName.c_str(),
+	                        serverInfo.ipAddress.c_str(),
+	                        serverInfo.nickname.c_str());
+	cppcut_assert_equal(expectedOut, result);
 }
 
 } // testDBAgentSQLite3
