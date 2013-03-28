@@ -48,7 +48,7 @@ void DBAgentSQLite3::init(const string &path)
 		dbAgent.updateDBIfNeeded();
 
 	// check the servers table
-	if (dbAgent.isTableExisting(TABLE_NAME_SERVERS))
+	if (!dbAgent.isTableExisting(TABLE_NAME_SERVERS))
 		dbAgent.createTableServers();
 }
 
