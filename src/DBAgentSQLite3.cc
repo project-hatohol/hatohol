@@ -126,12 +126,11 @@ bool DBAgentSQLite3::isRecordExisting(const string &tableName,
 		found = true;
 		break;
 	}
+	sqlite3_finalize(stmt);
 	if (result != SQLITE_ROW && result != SQLITE_DONE) {
-		sqlite3_finalize(stmt);
 		THROW_ASURA_EXCEPTION("Failed to call sqlite3_step(): %d",
 		                      result);
 	}
-	sqlite3_finalize(stmt);
 	return found;
 }
 
