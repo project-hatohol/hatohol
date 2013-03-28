@@ -106,7 +106,7 @@ void test_testIsTableExistingNotIncluded(void)
 	string path = getFixturesDir() + testDBName;
 	DBAgentSQLite3::init(path);
 	DBAgentSQLite3 dbAgent;
-	cppcut_assert_equal(false, dbAgent.isTableExisting("goo"));
+	cppcut_assert_equal(false, dbAgent.isTableExisting("NotExistTable"));
 }
 
 } // testDBAgentSQLite3
