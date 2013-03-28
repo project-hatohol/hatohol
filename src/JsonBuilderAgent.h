@@ -31,6 +31,8 @@ public:
 	string generate(void);
 	void startObject(const char *member = NULL);
 	void endObject(void);
+	void startArray(const string &member);
+	void endArray(void);
 	void add(const string &member, const string &value);
 	void add(const string &member, gint64 value);
 	void addTrue(const string &member);

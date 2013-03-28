@@ -59,6 +59,17 @@ void JsonBuilderAgent::endObject(void)
 	json_builder_end_object(m_builder);
 }
 
+void JsonBuilderAgent::startArray(const string &member)
+{
+	json_builder_set_member_name(m_builder, member.c_str());
+	json_builder_begin_array(m_builder);
+}
+
+void JsonBuilderAgent::endArray(void)
+{
+	 json_builder_end_array(m_builder);
+}
+
 void JsonBuilderAgent::addNull(const string &member)
 {
 	json_builder_set_member_name(m_builder, member.c_str());
