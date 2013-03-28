@@ -98,19 +98,13 @@ void test_createSystemTable(void)
 
 void test_testIsTableExisting(void)
 {
-	const string testDBName = "FooTable.db";
-	string path = getFixturesDir() + testDBName;
-	DBAgentSQLite3::init(path);
-	DBAgentSQLite3 dbAgent;
+	DEFINE_DBAGENT_WITH_INIT("FooTable.db", dbAgent);
 	cppcut_assert_equal(true, dbAgent.isTableExisting("foo"));
 }
 
 void test_testIsTableExistingNotIncluded(void)
 {
-	const string testDBName = "FooTable.db";
-	string path = getFixturesDir() + testDBName;
-	DBAgentSQLite3::init(path);
-	DBAgentSQLite3 dbAgent;
+	DEFINE_DBAGENT_WITH_INIT("FooTable.db", dbAgent);
 	cppcut_assert_equal(false, dbAgent.isTableExisting("NotExistTable"));
 }
 
