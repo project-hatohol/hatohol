@@ -37,13 +37,14 @@ ConfigManager *ConfigManager::getInstance(void)
 	return m_instance;
 }
 
-void addTargetServer(MonitoringServerInfo *monitoringServerInfo)
+void ConfigManager::addTargetServer(MonitoringServerInfo *monitoringServerInfo)
 {
 	DBAgentSQLite3 dbAgent;
 	dbAgent.addTargetServer(monitoringServerInfo);
 }
 
-void getTargetServers(MonitoringServerInfoList &monitoringServers)
+void ConfigManager::getTargetServers
+  (MonitoringServerInfoList &monitoringServers)
 {
 	DBAgentSQLite3 dbAgent;
 	dbAgent.getTargetServers(monitoringServers);
