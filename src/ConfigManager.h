@@ -25,7 +25,7 @@
 
 class ConfigManager {
 public:
-	ConfigManager *getInstance(void);
+	static ConfigManager *getInstance(void);
 
 	void addTargetServer(MonitoringServerInfo *monitoringServerInfo);
 	void getTargetServers(MonitoringServerInfoList &monitoringServers);
