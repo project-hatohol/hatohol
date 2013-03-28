@@ -84,7 +84,7 @@ bool DBAgentSQLite3::isTableExisting(const string &tableName)
 	sqlite3_reset(stmt);
 	result = sqlite3_bind_text(stmt, 1, tableName.c_str(),
 	                           -1, SQLITE_STATIC);
-	if (result == SQLITE_OK) {
+	if (result != SQLITE_OK) {
 		sqlite3_finalize(stmt);
 		THROW_ASURA_EXCEPTION("Failed to call sqlite3_bind(): %d",
 		                      result);
