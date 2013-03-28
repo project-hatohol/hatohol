@@ -60,6 +60,16 @@ err:
 	         errorStr.c_str());
 }
 
+static string getFixturesDir(void)
+{
+	char *cwd = get_current_dir_name();
+	string dir = cwd;
+	free(cwd);
+	dir += G_DIR_SEPARATOR;
+	dir += "fixtures";
+	return dir;
+}
+
 void setup(void)
 {
 	deleteDB();
@@ -78,6 +88,15 @@ void test_createSystemTable(void)
 	}
 	cut_assert_exist_path(dbPath.c_str());
 	cppcut_assert_equal(DBAgentSQLite3::DB_VERSION, getDBVersion());
+}
+
+void test_testIsTableExisting(void)
+{
+	const string testDBName = "FooTable.db";
+	string path = getFixturesDir() + testDBName;
+	DBAgentSQLite3::init(path);
+	DBAgentSQLite3 dbAgent;
+	cppcut_assert_equal(true, dbAgent.isTableExisting("foo"));
 }
 
 } // testDBAgentSQLite3
