@@ -100,5 +100,14 @@ void test_testIsTableExisting(void)
 	cppcut_assert_equal(true, dbAgent.isTableExisting("foo"));
 }
 
+void test_testIsTableExistingNotIncluded(void)
+{
+	const string testDBName = "FooTable.db";
+	string path = getFixturesDir() + testDBName;
+	DBAgentSQLite3::init(path);
+	DBAgentSQLite3 dbAgent;
+	cppcut_assert_equal(false, dbAgent.isTableExisting("goo"));
+}
+
 } // testDBAgentSQLite3
 
