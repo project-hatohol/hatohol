@@ -51,6 +51,9 @@ testSQLProcessorInsert_la_LIBADD = ./libHelpers.la
 testSQLProcessorUpdate_la_SOURCES = testSQLProcessorUpdate.cc
 testSQLProcessorUpdate_la_LIBADD = ./libHelpers.la ./libFormulaTestUtils.la
 
+testDBAgentSQLite3_la_SOURCES = testDBAgentSQLite3.cc
+testDBAgentSQLite3_la_LIBADD = ./libHelpers.la
+
 testMySQLWorkerZabbix_la_SOURCES = testMySQLWorkerZabbix.cc
 testItemData_la_SOURCES = testItemData.cc
 testItemGroup_la_SOURCES = testItemGroup.cc

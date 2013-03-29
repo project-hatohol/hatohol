@@ -41,5 +41,6 @@ static void _assertItemData(const ItemGroup *itemGroup, T expected, int &idx)
 #define assertItemData(T, IGRP, E, IDX) \
 cut_trace(_assertItemData<T>(IGRP, E, IDX))
 
+string executeCommand(const string &commandLine);
 
 #endif // Helpers_h
