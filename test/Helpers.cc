@@ -1,4 +1,5 @@
 #include <cppcutter.h>
+#include <unistd.h>
 #include "Helpers.h"
 
 void _assertStringVector(StringVector &expected, StringVector &actual)
@@ -45,5 +46,16 @@ err:
 	         "<<error->message>>\n%s",
 	         ret, exitStatus, stdoutStr.c_str(), stderrStr.c_str(), 
 	         errorStr.c_str());
+}
+
+string getFixturesDir(void)
+{
+	char *cwd = get_current_dir_name();
+	string dir = cwd;
+	free(cwd);
+	dir += G_DIR_SEPARATOR;
+	dir += "fixtures";
+	dir += G_DIR_SEPARATOR;
+	return dir;
 }
 

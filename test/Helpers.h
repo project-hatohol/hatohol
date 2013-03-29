@@ -42,5 +42,6 @@ static void _assertItemData(const ItemGroup *itemGroup, T expected, int &idx)
 cut_trace(_assertItemData<T>(IGRP, E, IDX))
 
 string executeCommand(const string &commandLine);
+string getFixturesDir(void);
 
 #endif // Helpers_h

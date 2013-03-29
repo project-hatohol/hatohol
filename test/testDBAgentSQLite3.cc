@@ -51,17 +51,6 @@ static int getDBVersion(void)
 	return version;
 }
 
-static string getFixturesDir(void)
-{
-	char *cwd = get_current_dir_name();
-	string dir = cwd;
-	free(cwd);
-	dir += G_DIR_SEPARATOR;
-	dir += "fixtures";
-	dir += G_DIR_SEPARATOR;
-	return dir;
-}
-
 #define DEFINE_DBAGENT_WITH_INIT(DB_NAME, OBJ_NAME) \
 string _path = getFixturesDir() + DB_NAME; \
 DBAgentSQLite3::init(_path); \
