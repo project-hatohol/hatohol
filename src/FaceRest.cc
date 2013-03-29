@@ -23,6 +23,10 @@ using namespace mlpl;
 #include "AsuraException.h"
 #include "ConfigManager.h"
 
+typedef void (*RestHandler)
+  (SoupServer *server, SoupMessage *msg, const char *path,
+   GHashTable *query, SoupClientContext *client, gpointer user_data);
+
 static const guint DEFAULT_PORT = 33194;
 
 const char *FaceRest::pathForGetServers = "/servers";
@@ -55,7 +59,8 @@ gpointer FaceRest::mainThread(AsuraThreadArg *arg)
 	m_soupServer = soup_server_new(SOUP_SERVER_PORT, m_port, NULL);
 	soup_server_add_handler(m_soupServer, NULL, handlerDefault, this, NULL);
 	soup_server_add_handler(m_soupServer, pathForGetServers,
-	                        handlerGetServers, this, NULL);
+	                        launchHandlerInTryBlock,
+	                        (gpointer)handlerGetServers, NULL);
 	soup_server_run(m_soupServer);
 	MLPL_INFO("exited face-rest\n");
 	return NULL;
@@ -95,20 +100,20 @@ void FaceRest::handlerDefault(SoupServer *server, SoupMessage *msg,
 	soup_message_set_status(msg, SOUP_STATUS_NOT_FOUND);
 }
 
-void FaceRest::handlerGetServers
+void FaceRest::launchHandlerInTryBlock
   (SoupServer *server, SoupMessage *msg, const char *path,
    GHashTable *query, SoupClientContext *client, gpointer user_data)
 {
+	RestHandler handler = reinterpret_cast<RestHandler>(user_data);
 	try {
-		handlerGetServersThrowable(server, msg, path, query,
-		                           client, user_data);
+		(*handler)(server, msg, path, query, client, user_data);
 	} catch (const AsuraException &e) {
 		MLPL_INFO("Got Exception: %s\n", e.getFancyMessage().c_str());
 		replyError(msg, e.getFancyMessage());
 	}
 }
 
-void FaceRest::handlerGetServersThrowable
+void FaceRest::handlerGetServers
   (SoupServer *server, SoupMessage *msg, const char *path,
    GHashTable *query, SoupClientContext *client, gpointer user_data)
 {
