@@ -13,7 +13,8 @@ noinst_LTLIBRARIES = \
 	testSQLProcessorInsert.la testSQLProcessorUpdate.la \
 	testFormulaElement.la \
 	testSQLFromParser.la testSQLWhereParser.la \
-	testSQLColumnParser.la testMySQLWorkerZabbix.la \
+	testSQLColumnParser.la \
+	testMySQLWorkerZabbix.la testFaceRest.la \
 	testItemData.la testItemGroup.la \
 	testItemPtr.la testItemGroupType.la testItemTable.la \
 	testItemTablePtr.la \
@@ -29,7 +30,8 @@ AM_CFLAGS = -g -Wall $(GLIB_CFLAGS)
 AM_LDFLAGS = -module -rpath $(libdir) -avoid-version -no-undefined
 INCLUDES = \
 	$(CUTTER_CFLAGS) $(CPPCUTTER_CFLAGS) \
-	$(GLIB_CFLAGS) $(MLPL_CFLAGS) $(JSON_GLIB_CFLAGS) -I ../src
+	$(GLIB_CFLAGS) $(MLPL_CFLAGS) $(JSON_GLIB_CFLAGS) $(LIBSOUP_CFLAGS) \
+	-I ../src
 
 LIBS = \
 	$(CUTTER_LIBS) $(CPPCUTTER_LIBS) \
@@ -53,6 +55,9 @@ testSQLProcessorUpdate_la_LIBADD = ./libHelpers.la ./libFormulaTestUtils.la
 
 testDBAgentSQLite3_la_SOURCES = testDBAgentSQLite3.cc
 testDBAgentSQLite3_la_LIBADD = ./libHelpers.la
+
+testFaceRest_la_SOURCES = testFaceRest.cc
+testFaceRest_la_LIBADD = ./libHelpers.la
 
 testMySQLWorkerZabbix_la_SOURCES = testMySQLWorkerZabbix.cc
 testItemData_la_SOURCES = testItemData.cc

@@ -8,32 +8,11 @@ using namespace mlpl;
 #include "DBAgentSQLite3.h"
 #include "AsuraException.h"
 #include "Helpers.h"
+#include "DBAgentTest.h"
 
 namespace testDBAgentSQLite3 {
 
 static string dbPath = "/tmp/testDBAgentSQLite3.db";
-
-static MonitoringServerInfo serverInfo[] = 
-{{
-	1,                        // id
-	MONITORING_SYSTEM_ZABBIX, // type
-	"pochi.dog.com",          // hostname
-	"192.168.0.5",            // ip_address
-	"POCHI",                  // nickname
-},{
-	2,                        // id
-	MONITORING_SYSTEM_ZABBIX, // type
-	"mike.dog.com",           // hostname
-	"192.168.1.5",            // ip_address
-	"MIKE",                   // nickname
-},{
-	3,                        // id
-	MONITORING_SYSTEM_ZABBIX, // type
-	"hachi.dog.com",          // hostname
-	"192.168.10.1",           // ip_address
-	"8",                      // nickname
-}};
-static size_t NumServerInfo = sizeof(serverInfo) / sizeof(MonitoringServerInfo);
 
 static void deleteDB(void)
 {
