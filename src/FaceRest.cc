@@ -30,6 +30,8 @@ typedef void (*RestHandler)
 static const guint DEFAULT_PORT = 33194;
 
 const char *FaceRest::pathForGetServers = "/servers";
+const char *FaceRest::pathForGetTriggers = "/triggers";
+
 static const char *MIME_JSON = "application/json";
 
 // ---------------------------------------------------------------------------
@@ -61,6 +63,9 @@ gpointer FaceRest::mainThread(AsuraThreadArg *arg)
 	soup_server_add_handler(m_soupServer, pathForGetServers,
 	                        launchHandlerInTryBlock,
 	                        (gpointer)handlerGetServers, NULL);
+	soup_server_add_handler(m_soupServer, pathForGetTriggers,
+	                        launchHandlerInTryBlock,
+	                        (gpointer)handlerGetTriggers, NULL);
 	soup_server_run(m_soupServer);
 	MLPL_INFO("exited face-rest\n");
 	return NULL;
@@ -147,4 +152,12 @@ void FaceRest::handlerGetServers
 	soup_message_body_append(msg->response_body, SOUP_MEMORY_COPY,
 	                         response.c_str(), response.size());
 	soup_message_set_status(msg, SOUP_STATUS_OK);
+}
+
+void FaceRest::handlerGetTriggers
+  (SoupServer *server, SoupMessage *msg, const char *path,
+   GHashTable *query, SoupClientContext *client, gpointer user_data)
+{
+	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	soup_message_set_status(msg, SOUP_STATUS_NOT_IMPLEMENTED);
 }
