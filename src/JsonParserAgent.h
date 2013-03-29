@@ -31,6 +31,7 @@ public:
 	virtual ~JsonParserAgent();
 	const char *getErrorMessage(void);
 	bool hasError(void);
+	bool read(const string &member, bool &dest);
 	bool read(const string &member, int64_t &dest);
 	bool read(const string &member, string &dest);
 	bool read(int index, string &dest);
