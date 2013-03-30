@@ -122,7 +122,6 @@ void FaceRest::handlerGetServers
   (SoupServer *server, SoupMessage *msg, const char *path,
    GHashTable *query, SoupClientContext *client, gpointer user_data)
 {
-	soup_message_set_status(msg, SOUP_STATUS_NOT_IMPLEMENTED);
 	ConfigManager *configManager = ConfigManager::getInstance();
 
 	MonitoringServerInfoList monitoringServers;
