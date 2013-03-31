@@ -85,6 +85,11 @@ void VirtualDataStoreZabbix::passCommandLineArg(const CommandLineArg &cmdArg)
 	}
 }
 
+void VirtualDataStoreZabbix::getTriggerList(TriggerInfoList &triggerList)
+{
+	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------

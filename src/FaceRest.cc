@@ -22,6 +22,7 @@ using namespace mlpl;
 #include "JsonBuilderAgent.h"
 #include "AsuraException.h"
 #include "ConfigManager.h"
+#include "VirtualDataStoreZabbix.h"
 
 typedef void (*RestHandler)
   (SoupServer *server, SoupMessage *msg, const char *path,
@@ -157,6 +158,35 @@ void FaceRest::handlerGetTriggers
   (SoupServer *server, SoupMessage *msg, const char *path,
    GHashTable *query, SoupClientContext *client, gpointer user_data)
 {
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
-	soup_message_set_status(msg, SOUP_STATUS_NOT_IMPLEMENTED);
+	VirtualDataStoreZabbix *vdsz = VirtualDataStoreZabbix::getInstance();
+
+	TriggerInfoList triggerList;
+	vdsz->getTriggerList(triggerList);
+
+	JsonBuilderAgent agent;
+	agent.startObject();
+	agent.addTrue("result");
+	agent.add("numberOfTriggers", triggerList.size());
+	agent.startArray("triggers");
+	TriggerInfoListIterator it = triggerList.begin();
+	for (; it != triggerList.end(); ++it) {
+		TriggerInfo &triggerInfo = *it;
+		agent.startObject();
+		agent.add("status",   triggerInfo.status);
+		agent.add("severity", triggerInfo.severity);
+		agent.add("lastChangeTime", triggerInfo.lastChangedTime.tv_sec);
+		agent.add("serverId", triggerInfo.serverId);
+		agent.add("hostId",   triggerInfo.hostId);
+		agent.add("hostName", triggerInfo.hostName);
+		agent.add("brief",    triggerInfo.brief);
+		agent.endObject();
+	}
+	agent.endArray();
+	agent.endObject();
+	string response = agent.generate();
+	soup_message_headers_set_content_type(msg->response_headers,
+	                                      MIME_JSON, NULL);
+	soup_message_body_append(msg->response_body, SOUP_MEMORY_COPY,
+	                         response.c_str(), response.size());
+	soup_message_set_status(msg, SOUP_STATUS_OK);
 }

@@ -35,6 +35,9 @@ public:
 	const ItemTablePtr getItemTable(ItemGroupId groupId);
 	virtual void passCommandLineArg(const CommandLineArg &cmdArg);
 
+	// Virtual functions
+	virtual void getTriggerList(TriggerInfoList &triggerList);
+
 protected:
 	ItemTable *createStaticItemTable(ItemGroupId groupId);
 	ItemTablePtr getTriggers(void);
