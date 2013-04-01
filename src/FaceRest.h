@@ -25,6 +25,7 @@ class FaceRest : public FaceBase {
 public:
 	FaceRest(CommandLineArg &cmdArg);
 	virtual ~FaceRest();
+	virtual void stop(void);
 
 protected:
 	// virtual methods
@@ -56,6 +57,7 @@ private:
 
 	guint       m_port;
 	SoupServer *m_soupServer;
+	GMutex     *m_stopMutex;
 };
 
 #endif // FaceRest_h
