@@ -147,6 +147,7 @@ void test_triggers(void)
 		assertValueInParser(g_parser, "hostId", triggerInfo.hostId);
 		assertValueInParser(g_parser, "hostName", triggerInfo.hostName);
 		assertValueInParser(g_parser, "brief", triggerInfo.brief);
+		g_parser->endElement();
 	}
 	g_parser->endObject();
 }
