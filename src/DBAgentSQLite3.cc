@@ -219,7 +219,7 @@ void DBAgentSQLite3::addTriggerInfo(TriggerInfo *triggerInfo)
 	} else {
 		execSql("UPDATE %s SET status=%d, severity=%d, "
 		        "last_change_time_sec=%d, last_change_time_ns=%d, "
-		        "server_id=%u, hostId=%Q, hostName=%Q, brief=%Q",
+		        "server_id=%u, host_id=%Q, host_name=%Q, brief=%Q",
 		        TABLE_NAME_TRIGGERS,
 		        triggerInfo->status, triggerInfo->severity,
 		        triggerInfo->lastChangeTime.tv_sec, 
