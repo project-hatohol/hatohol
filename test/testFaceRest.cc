@@ -11,9 +11,81 @@ namespace testFaceRest {
 static const unsigned int TEST_PORT = 53194;
 static const char *TEST_DB_NAME = "ThreeServers.db";
 
+static FaceRest *g_faceRest = NULL;
+static JsonParserAgent *g_parser = NULL;
+
+static void startFaceRest(const string &testDBName)
+{
+	string dbPath = getFixturesDir() + testDBName;
+	DBAgentSQLite3::init(dbPath);
+
+	CommandLineArg arg;
+	arg.push_back("--face-rest-port");
+	arg.push_back(StringUtils::sprintf("%u", TEST_PORT));
+	g_faceRest = new FaceRest(arg);
+	bool autoDeleteObject = true;
+	g_faceRest->start(autoDeleteObject);
+}
+
+static JsonParserAgent *getResponseAsJsonParser(const string url)
+{
+	string getCmd =
+	  StringUtils::sprintf("wget -q http://localhost:%u%s -O -",
+	                       TEST_PORT, url.c_str());
+	string response = executeCommand(getCmd);
+	JsonParserAgent *parser = new JsonParserAgent(response);
+	if (parser->hasError()) {
+		string parserErrMsg = parser->getErrorMessage();
+		delete parser;
+		cut_fail("%s\n%s", parserErrMsg.c_str(), response.c_str());
+	}
+	return parser;
+}
+
+static void _assertValueInParser(JsonParserAgent *parser,
+                                 const string &member, bool expected)
+{
+	bool val;
+	cppcut_assert_equal(true, parser->read(member, val));
+	cppcut_assert_equal(expected, val);
+}
+
+static void _assertValueInParser(JsonParserAgent *parser,
+                                 const string &member, uint32_t expected)
+{
+	int64_t val;
+	cppcut_assert_equal(true, parser->read(member, val));
+	cppcut_assert_equal(expected, (uint32_t)val);
+}
+
+static void _assertValueInParser(JsonParserAgent *parser,
+                                 const string &member, timespec &expected)
+{
+	int64_t val;
+	cppcut_assert_equal(true, parser->read(member, val));
+	cppcut_assert_equal((uint32_t)expected.tv_sec, (uint32_t)val);
+}
+
+#define assertValueInParser(P,M,E) cut_trace(_assertValueInParser(P,M,E));
+
 void setup(void)
 {
 	asuraInit();
+}
+
+void teardown(void)
+{
+	if (g_faceRest) {
+		g_faceRest->stop();
+		// g_face will be automatically destroyed, because it is starte
+		// with autoDeleteObject flag 
+		g_faceRest = NULL;
+	}
+
+	if (g_parser) {
+		delete g_parser;
+		g_parser = NULL;
+	}
 }
 
 // ---------------------------------------------------------------------------
@@ -78,6 +150,30 @@ void test_servers(void)
 		parser.endElement();
 	}
 	parser.endObject();
+}
+
+void test_triggers(void)
+{
+	string testDBName = "testTriggerList.db";
+	startFaceRest(testDBName);
+	g_parser = getResponseAsJsonParser("/triggers");
+	assertValueInParser(g_parser, "result", true);
+	assertValueInParser(g_parser, "numberOfTriggers",
+	                    (uint32_t)NumTestTriggerInfo);
+	g_parser->startObject("triggers");
+	for (int i = 0; i < NumTestTriggerInfo; i++) {
+		g_parser->startElement(i);
+		TriggerInfo &triggerInfo = testTriggerInfo[i];
+		assertValueInParser(g_parser, "status", 
+		                    (uint32_t)triggerInfo.status);
+		assertValueInParser(g_parser, "severity",
+		                    (uint32_t)triggerInfo.severity);
+		assertValueInParser(g_parser, "lastChangeTime",
+		                    triggerInfo.lastChangeTime);
+		assertValueInParser(g_parser, "serverId", triggerInfo.serverId);
+
+	}
+	g_parser->endObject();
 }
 
 } // namespace testFaceRest
