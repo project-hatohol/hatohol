@@ -51,6 +51,7 @@ enum TriggerSeverityType {
 };
 
 struct TriggerInfo {
+	uint64_t            id;
 	TriggerStatusType   status;
 	TriggerSeverityType severity;
 	timespec            lastChangeTime;
