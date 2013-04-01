@@ -34,6 +34,12 @@ public:
 	virtual ~AsuraThreadBase();
 	void start(bool autoDeleteObject = false);
 
+	/**
+	 * Send a stop request. This function blocks until
+	 * the thread is stopped.
+	 */
+	virtual void stop(void);
+
 protected:
 	// virtual methods
 	virtual gpointer mainThread(AsuraThreadArg *arg) = 0;

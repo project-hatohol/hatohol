@@ -54,6 +54,10 @@ void AsuraThreadBase::start(bool autoDeleteObject)
 	}
 }
 
+void AsuraThreadBase::stop(void)
+{
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
