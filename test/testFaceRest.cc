@@ -81,7 +81,8 @@ static void _assertValueInParser(JsonParserAgent *parser,
 
 void setup(void)
 {
-	if (getenv("VERBOSE") == string("1"))
+	char *env = getenv("VERBOSE");
+	if (env && env == string("1"))
 		g_verboseMode = true;
 	asuraInit();
 }
