@@ -41,8 +41,8 @@ typedef list<MonitoringServerInfo>         MonitoringServerInfoList;
 typedef MonitoringServerInfoList::iterator MonitoringServerInfoListIterator;
 
 enum TriggerStatusType {
-	TRIGER_STATUS_OK,
-	TRIGER_STATUS_PROBLEM,
+	TRIGGER_STATUS_OK,
+	TRIGGER_STATUS_PROBLEM,
 };
 
 enum TriggerSeverityType {
