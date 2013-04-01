@@ -8,7 +8,7 @@ LIBS = ../../src/libasura.la ../libHelpers.la
 
 mkTestDB_SOURCES = mkTestDB.cc
 
-testDatabase.db: mkTestDB
+testDatabase.db: mkTestDB ../../src/libasura.la
 	rm -f $@
 	mkTestDB $@
 
