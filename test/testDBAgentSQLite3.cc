@@ -35,12 +35,13 @@ string _path = getFixturesDir() + DB_NAME; \
 DBAgentSQLite3::init(_path); \
 DBAgentSQLite3 OBJ_NAME; \
 
-static void _assertAddServerToDB(MonitoringServerInfo *serverInfo)
+template<typename T> void _assertAddToDB
+  (T *elem, void (*func)(DBAgentSQLite3 &, T *))
 {
 	DBAgentSQLite3 dbAgent;
 	bool gotException = false;
 	try {
-		dbAgent.addTargetServer(serverInfo);
+		(*func)(dbAgent, elem);
 	} catch (const AsuraException &e) {
 		gotException = true;
 		cut_fail("%s", e.getFancyMessage().c_str());
@@ -49,24 +50,21 @@ static void _assertAddServerToDB(MonitoringServerInfo *serverInfo)
 	}
 	cppcut_assert_equal(false, gotException);
 }
-#define assertAddServerToDB(X) cut_trace(_assertAddServerToDB(X))
 
-static void _assertAddTriggerToDB(TriggerInfo *triggerInfo)
+static void addTargetServer
+  (DBAgentSQLite3 &dbAgent, MonitoringServerInfo *serverInfo)
 {
-	DBAgentSQLite3 dbAgent;
-	bool gotException = false;
-	try {
-		dbAgent.addTriggerInfo(triggerInfo);
-	} catch (const AsuraException &e) {
-		gotException = true;
-		cut_fail("%s", e.getFancyMessage().c_str());
-	} catch (...) {
-		gotException = true;
-	}
-	cppcut_assert_equal(false, gotException);
+	dbAgent.addTargetServer(serverInfo);
 }
-#define assertAddTriggerToDB(X) cut_trace(_assertAddTriggerToDB(X))
+#define assertAddServerToDB(X) \
+cut_trace(_assertAddToDB<MonitoringServerInfo>(X, addTargetServer))
 
+static void addTriggerInfo(DBAgentSQLite3 &dbAgent, TriggerInfo *triggerInfo)
+{
+	dbAgent.addTriggerInfo(triggerInfo);
+}
+#define assertAddTriggerToDB(X) \
+cut_trace(_assertAddToDB<TriggerInfo>(X, addTriggerInfo))
 
 static string makeExpectedOutput(MonitoringServerInfo *serverInfo)
 {
