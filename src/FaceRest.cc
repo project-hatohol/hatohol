@@ -79,6 +79,7 @@ void FaceRest::stop(void)
 gpointer FaceRest::mainThread(AsuraThreadArg *arg)
 {
 	m_soupServer = soup_server_new(SOUP_SERVER_PORT, m_port, NULL);
+	ASURA_ASSERT(m_soupServer, "failed: soup_server_new: %u\n", m_port);
 	soup_server_add_handler(m_soupServer, NULL, handlerDefault, this, NULL);
 	soup_server_add_handler(m_soupServer, pathForGetServers,
 	                        launchHandlerInTryBlock,
