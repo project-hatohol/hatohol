@@ -1,4 +1,4 @@
-#SUBDIRS = fixtures
+SUBDIRS = fixtures
 
 EXTRA_DIST = run-test.sh
 

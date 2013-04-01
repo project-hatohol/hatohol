@@ -74,6 +74,7 @@ AC_OUTPUT([
 Makefile
 src/Makefile
 test/Makefile
+test/fixtures/Makefile
 ])
 
 echo

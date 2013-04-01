@@ -1,0 +1,13 @@
+if WITH_CUTTER
+all: testTriggerList.db
+noinst_PROGRAMS = mkTestDB
+endif
+
+AM_CXXFLAGS = -g -Wall -I .. -I ../../src $(GLIB_CFLAGS)
+LIBS = ../../src/libasura.la
+
+mkTestDB_SOURCES = mkTestDB.cc
+
+testTriggerList.db: mkTestDB
+	rm -f $@
+	mkTestDB $@
