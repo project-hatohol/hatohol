@@ -22,6 +22,7 @@
 #include "ItemGroupEnum.h"
 #include "ItemEnum.h"
 #include "VirtualDataStoreZabbixMacro.h"
+#include "DBAgentSQLite3.h"
 
 GMutex VirtualDataStoreZabbix::m_mutex;
 VirtualDataStoreZabbix *VirtualDataStoreZabbix::m_instance = NULL;
@@ -87,7 +88,8 @@ void VirtualDataStoreZabbix::passCommandLineArg(const CommandLineArg &cmdArg)
 
 void VirtualDataStoreZabbix::getTriggerList(TriggerInfoList &triggerList)
 {
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	DBAgentSQLite3 dbAgent;
+	dbAgent.getTriggerInfoList(triggerList);
 }
 
 // ---------------------------------------------------------------------------
