@@ -66,6 +66,14 @@ static void _assertValueInParser(JsonParserAgent *parser,
 	cppcut_assert_equal((uint32_t)expected.tv_sec, (uint32_t)val);
 }
 
+static void _assertValueInParser(JsonParserAgent *parser,
+                                 const string &member, const string &expected)
+{
+	string val;
+	cppcut_assert_equal(true, parser->read(member, val));
+	cppcut_assert_equal(expected, val);
+}
+
 #define assertValueInParser(P,M,E) cut_trace(_assertValueInParser(P,M,E));
 
 void setup(void)
@@ -93,63 +101,23 @@ void teardown(void)
 // ---------------------------------------------------------------------------
 void test_servers(void)
 {
-	string dbPath = getFixturesDir() + TEST_DB_NAME;
-	DBAgentSQLite3::init(dbPath);
-
-	CommandLineArg arg;
-	arg.push_back("--face-rest-port");
-	arg.push_back(StringUtils::sprintf("%u", TEST_PORT));
-	FaceRest faceRest(arg);
-	faceRest.start();
-
-	string getCmd =
-	  StringUtils::sprintf("wget -q http://localhost:%u/servers -O -",
-	                       TEST_PORT);
-	string response = executeCommand(getCmd);
-	JsonParserAgent parser(response);
-	cppcut_assert_equal(false, parser.hasError(),
-	                    cut_message("%s\n%s",
-	                                parser.getErrorMessage(),
-	                                response.c_str()));
-	bool result;
-	cppcut_assert_equal(true, parser.read("result", result));
-	cppcut_assert_equal(true, result);
-
-	int64_t numServers;
-	cppcut_assert_equal(true, parser.read("numberOfServers", numServers));
-	cppcut_assert_equal(NumServerInfo, (size_t)numServers);
-
-	parser.startObject("servers");
-	for (int i = 0; i < numServers; i++) {
-		parser.startElement(i);
+	startFaceRest(TEST_DB_NAME);
+	g_parser = getResponseAsJsonParser("/servers");
+	assertValueInParser(g_parser, "result", true);
+	assertValueInParser(g_parser, "numberOfServers",
+	                    (uint32_t)NumServerInfo);
+	g_parser->startObject("servers");
+	for (int i = 0; i < NumServerInfo; i++) {
+		g_parser->startElement(i);
 		MonitoringServerInfo &svInfo = serverInfo[i];
-		// id
-		int64_t id;
-		cppcut_assert_equal(true, parser.read("id", id));
-		cppcut_assert_equal(svInfo.id, (uint32_t)id);
-
-		// type
-		int64_t type;
-		cppcut_assert_equal(true, parser.read("type", type));
-		cppcut_assert_equal(svInfo.type, (MonitoringSystemType)type);
-
-		// host name
-		string hostname;
-		cppcut_assert_equal(true, parser.read("hostName", hostname));
-		cppcut_assert_equal(svInfo.hostName, hostname);
-
-		// IP address
-		string ipAddress;
-		cppcut_assert_equal(true, parser.read("ipAddress", ipAddress));
-		cppcut_assert_equal(svInfo.ipAddress, ipAddress);
-
-		// nickname
-		string nickname;
-		cppcut_assert_equal(true, parser.read("nickname", nickname));
-		cppcut_assert_equal(svInfo.nickname, nickname);
-		parser.endElement();
+		assertValueInParser(g_parser, "id",        svInfo.id);
+		assertValueInParser(g_parser, "type", (uint32_t)svInfo.type);
+		assertValueInParser(g_parser, "hostName",  svInfo.hostName);
+		assertValueInParser(g_parser, "ipAddress", svInfo.ipAddress);
+		assertValueInParser(g_parser, "nickname",  svInfo.nickname);
+		g_parser->endElement();
 	}
-	parser.endObject();
+	g_parser->endObject();
 }
 
 void test_triggers(void)
