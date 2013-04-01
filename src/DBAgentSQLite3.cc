@@ -54,6 +54,10 @@ void DBAgentSQLite3::init(const string &path)
 	// check the servers table
 	if (!dbAgent.isTableExisting(TABLE_NAME_SERVERS))
 		dbAgent.createTableServers();
+
+	// check the trigger table
+	if (!dbAgent.isTableExisting(TABLE_NAME_TRIGGERS))
+		dbAgent.createTableTriggers();
 }
 
 DBAgentSQLite3::DBAgentSQLite3(void)
@@ -317,6 +321,23 @@ void DBAgentSQLite3::createTableServers(void)
 	sql += TABLE_NAME_SERVERS;
 	sql += "(id INTEGER PRIMARY KEY, type INTEGER, hostname TEXT, "
 	       " ip_address TEXT, nickname TEXT)";
+	char *errmsg;
+	int result = sqlite3_exec(m_db, sql.c_str(), NULL, NULL, &errmsg);
+	if (result != SQLITE_OK) {
+		string err = errmsg;
+		sqlite3_free(errmsg);
+		THROW_ASURA_EXCEPTION("Failed to exec: %d, %s, %s",
+		                      result, err.c_str(), sql.c_str());
+	}
+}
+
+void DBAgentSQLite3::createTableTriggers(void)
+{
+	string sql = "CREATE TABLE ";
+	sql += TABLE_NAME_TRIGGERS;
+	sql += "(id INTEGER PRIMARY KEY, status INTEGER, severity INTEGER, "
+	       " last_change_time_sec INTEGER, last_change_time_ns INTERGET, "
+	       " serverId INTEGER, hostId TEXT, hostName TEXT, brief TEXT)";
 	char *errmsg;
 	int result = sqlite3_exec(m_db, sql.c_str(), NULL, NULL, &errmsg);
 	if (result != SQLITE_OK) {

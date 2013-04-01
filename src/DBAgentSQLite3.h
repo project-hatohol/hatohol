@@ -48,6 +48,7 @@ protected:
 	void createTableSystem(void);
 	void updateDBIfNeeded(void);
 	void createTableServers(void);
+	void createTableTriggers(void);
 	void execSql(const char *fmt, ...);
 
 private:
