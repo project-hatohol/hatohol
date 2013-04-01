@@ -40,6 +40,8 @@ public:
 	   addTargetServer(MonitoringServerInfo *monitoringServerInfo);
 	virtual void
 	   getTargetServers(MonitoringServerInfoList &monitoringServers);
+	virtual void
+	   addTriggerInfo(TriggerInfo *triggerInfo);
 
 protected:
 	void openDatabase(void);

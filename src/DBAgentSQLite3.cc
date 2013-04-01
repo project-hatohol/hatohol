@@ -25,8 +25,12 @@ using namespace mlpl;
 #include "DBAgentSQLite3.h"
 #include "AsuraException.h"
 
+#define __STDC_FORMAT_MACROS
+#include <inttypes.h>
+
 static const char *TABLE_NAME_SYSTEM = "system";
 static const char *TABLE_NAME_SERVERS = "servers";
+static const char *TABLE_NAME_TRIGGERS = "triggers";
 static const char *DEFAULT_DB_PATH = "/tmp/DBAgentSQLite3Default.db";
 
 const int DBAgentSQLite3::DB_VERSION = 1;
@@ -191,6 +195,36 @@ void DBAgentSQLite3::getTargetServers
 		                      result);
 	}
 
+	execSql("COMMIT");
+}
+
+void DBAgentSQLite3::addTriggerInfo(TriggerInfo *triggerInfo)
+{
+	string condition = StringUtils::sprintf("id=%"PRIu64, triggerInfo->id);
+	execSql("BEGIN");
+	if (!isRecordExisting(TABLE_NAME_TRIGGERS, condition)) {
+		execSql("INSERT INTO %s VALUES(%lu,%d,%d,%d,%d,%u,%Q,%Q,%Q)",
+		        TABLE_NAME_TRIGGERS, triggerInfo->id,
+		        triggerInfo->status, triggerInfo->severity,
+		        triggerInfo->lastChangeTime.tv_sec, 
+		        triggerInfo->lastChangeTime.tv_nsec, 
+		        triggerInfo->serverId,
+		        triggerInfo->hostId.c_str(),
+		        triggerInfo->hostName.c_str(),
+		        triggerInfo->brief.c_str());
+	} else {
+		execSql("UPDATE %s SET status=%d, severity=%d, "
+		        "last_change_time_sec=%d, last_change_time_ns=%d, "
+		        "server_id=%u, hostId=%Q, hostName=%Q, brief=%Q",
+		        TABLE_NAME_TRIGGERS,
+		        triggerInfo->status, triggerInfo->severity,
+		        triggerInfo->lastChangeTime.tv_sec, 
+		        triggerInfo->lastChangeTime.tv_nsec, 
+		        triggerInfo->serverId,
+		        triggerInfo->hostId.c_str(),
+		        triggerInfo->hostName.c_str(),
+		        triggerInfo->brief.c_str());
+	}
 	execSql("COMMIT");
 }
 
