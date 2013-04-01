@@ -1,4 +1,4 @@
-SUBDIRS = fixtures
+SUBDIRS = . fixtures
 
 EXTRA_DIST = run-test.sh
 
@@ -73,7 +73,7 @@ testFormulaOperator_la_LIBADD = ./libFormulaTestUtils.la
 libFormulaTestUtils_la_SOURCES = FormulaTestUtils.cc
 libFormulaTestUtils_la_LDFLAGS =
 
-libHelpers_la_SOURCES = Helpers.cc
+libHelpers_la_SOURCES = Helpers.cc DBAgentTest.cc
 libHelpers_la_LDFLAGS =
 
 echo-cutter:

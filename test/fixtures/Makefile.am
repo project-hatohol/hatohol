@@ -4,7 +4,7 @@ noinst_PROGRAMS = mkTestDB
 endif
 
 AM_CXXFLAGS = -g -Wall -I .. -I ../../src $(GLIB_CFLAGS)
-LIBS = ../../src/libasura.la
+LIBS = ../../src/libasura.la ../libHelpers.la
 
 mkTestDB_SOURCES = mkTestDB.cc
 
