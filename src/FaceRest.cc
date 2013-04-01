@@ -174,7 +174,7 @@ void FaceRest::handlerGetTriggers
 		agent.startObject();
 		agent.add("status",   triggerInfo.status);
 		agent.add("severity", triggerInfo.severity);
-		agent.add("lastChangeTime", triggerInfo.lastChangedTime.tv_sec);
+		agent.add("lastChangeTime", triggerInfo.lastChangeTime.tv_sec);
 		agent.add("serverId", triggerInfo.serverId);
 		agent.add("hostId",   triggerInfo.hostId);
 		agent.add("hostName", triggerInfo.hostName);

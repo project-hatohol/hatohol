@@ -53,7 +53,7 @@ enum TriggerSeverityType {
 struct TriggerInfo {
 	TriggerStatusType   status;
 	TriggerSeverityType severity;
-	timespec            lastChangedTime;
+	timespec            lastChangeTime;
 	uint32_t            serverId;
 	string              hostId;
 	string              hostName;
