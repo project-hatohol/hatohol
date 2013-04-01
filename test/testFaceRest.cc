@@ -139,7 +139,9 @@ void test_triggers(void)
 		assertValueInParser(g_parser, "lastChangeTime",
 		                    triggerInfo.lastChangeTime);
 		assertValueInParser(g_parser, "serverId", triggerInfo.serverId);
-
+		assertValueInParser(g_parser, "hostId", triggerInfo.hostId);
+		assertValueInParser(g_parser, "hostName", triggerInfo.hostName);
+		assertValueInParser(g_parser, "hostBrief", triggerInfo.brief);
 	}
 	g_parser->endObject();
 }
