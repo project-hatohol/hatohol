@@ -116,7 +116,17 @@ size_t FaceRest::parseCmdArgPort(CommandLineArg &cmdArg, size_t idx)
 
 void FaceRest::replyError(SoupMessage *msg, const string &errorMessage)
 {
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	JsonBuilderAgent agent;
+	agent.startObject();
+	agent.addFalse("result");
+	agent.add("message", errorMessage.c_str());
+	agent.endObject();
+	string response = agent.generate();
+	soup_message_headers_set_content_type(msg->response_headers,
+	                                      MIME_JSON, NULL);
+	soup_message_body_append(msg->response_body, SOUP_MEMORY_COPY,
+	                         response.c_str(), response.size());
+	soup_message_set_status(msg, SOUP_STATUS_OK);
 }
 
 // handlers
