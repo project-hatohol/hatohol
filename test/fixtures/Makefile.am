@@ -1,5 +1,5 @@
 if WITH_CUTTER
-all: testDatabase.db FooTable.db
+noinst_DATA = testDatabase.db FooTable.db
 noinst_PROGRAMS = mkTestDB
 endif
 
