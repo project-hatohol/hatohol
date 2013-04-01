@@ -9,7 +9,7 @@
 namespace testFaceRest {
 
 static const unsigned int TEST_PORT = 53194;
-static const char *TEST_DB_NAME = "ThreeServers.db";
+static const char *TEST_DB_NAME = "testDatabase.db";
 
 static FaceRest *g_faceRest = NULL;
 static JsonParserAgent *g_parser = NULL;
@@ -122,8 +122,7 @@ void test_servers(void)
 
 void test_triggers(void)
 {
-	string testDBName = "testTriggerList.db";
-	startFaceRest(testDBName);
+	startFaceRest(TEST_DB_NAME);
 	g_parser = getResponseAsJsonParser("/triggers");
 	assertValueInParser(g_parser, "result", true);
 	assertValueInParser(g_parser, "numberOfTriggers",

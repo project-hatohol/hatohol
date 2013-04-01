@@ -18,6 +18,11 @@ int main(int argc, char *argv[])
 	DBAgentSQLite3::init(dbName);
 
 	DBAgentSQLite3 dbAgent;
+	for (size_t i = 0; i < NumServerInfo; i++) {
+		MonitoringServerInfo *svInfo = &serverInfo[i];
+		dbAgent.addTargetServer(svInfo);
+	} 
+
 	for (size_t i = 0; i < NumTestTriggerInfo; i++) {
 		TriggerInfo *trigInfo = &testTriggerInfo[i];
 		dbAgent.addTriggerInfo(trigInfo);
