@@ -1,5 +1,5 @@
 if WITH_CUTTER
-all: testTriggerList.db
+all: testTriggerList.db FooTable.db
 noinst_PROGRAMS = mkTestDB
 endif
 
@@ -11,3 +11,7 @@ mkTestDB_SOURCES = mkTestDB.cc
 testTriggerList.db: mkTestDB
 	rm -f $@
 	mkTestDB $@
+
+FooTable.db: mkFooTable.sh
+	rm -f $@
+	mkFooTable.sh $@
