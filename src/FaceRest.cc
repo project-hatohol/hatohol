@@ -65,7 +65,7 @@ void FaceRest::stop(void)
 	// cannot be accessed.
 	GMutex *stopMutex = m_stopMutex;
 
-	soup_server_quit(m_soupServer);
+	soup_server_disconnect(m_soupServer);
 
 	// waits for the return of soup_server_run() in mainThread.
 	g_mutex_lock(stopMutex);
