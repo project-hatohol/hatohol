@@ -40,6 +40,29 @@ struct MonitoringServerInfo {
 typedef list<MonitoringServerInfo>         MonitoringServerInfoList;
 typedef MonitoringServerInfoList::iterator MonitoringServerInfoListIterator;
 
+enum TriggerStatusType {
+	TRIGER_STATUS_OK,
+	TRIGER_STATUS_PROBLEM,
+};
+
+enum TriggerSeverityType {
+	TRIGGER_SEVERITY_INFO,
+	TRIGGER_SEVERITY_WARN,
+};
+
+struct TriggerInfo {
+	TriggerStatusType   status;
+	TriggerSeverityType severity;
+	timespec            lastChangedTime;
+	uint32_t            serverId;
+	string              hostId;
+	string              hostName;
+	string              brief;
+};
+
+typedef list<TriggerInfo>         TriggerInfoList;
+typedef TriggerInfoList::iterator TriggerInfoListIterator;
+
 class DBAgent {
 public:
 	DBAgent(void);
