@@ -232,6 +232,48 @@ void DBAgentSQLite3::addTriggerInfo(TriggerInfo *triggerInfo)
 	execSql("COMMIT");
 }
 
+void DBAgentSQLite3::getTriggerInfoList(TriggerInfoList &triggerInfoList)
+{
+	execSql("BEGIN");
+
+	int result;
+	sqlite3_stmt *stmt;
+	string query = "SELECT id, status, severity, last_change_time_sec, "
+	               "last_change_time_ns, server_id, host_id, host_name, "
+	               "brief FROM ";
+	query += TABLE_NAME_TRIGGERS;
+	result = sqlite3_prepare(m_db, query.c_str(), query.size(),
+	                         &stmt, NULL);
+	if (result != SQLITE_OK) {
+		sqlite3_finalize(stmt);
+		THROW_ASURA_EXCEPTION("Failed to call sqlite3_prepare(): %d",
+		                      result);
+	}
+	sqlite3_reset(stmt);
+	while ((result = sqlite3_step(stmt)) == SQLITE_ROW) {
+		triggerInfoList.push_back(TriggerInfo());
+		TriggerInfo &trigInfo = triggerInfoList.back();
+		trigInfo.id   = sqlite3_column_int(stmt, 0);
+		trigInfo.status =
+		   (TriggerStatusType)sqlite3_column_int(stmt, 1);
+		trigInfo.severity =
+		   (TriggerSeverityType)sqlite3_column_int(stmt, 2);
+		trigInfo.lastChangeTime.tv_sec  = sqlite3_column_int(stmt, 3);
+		trigInfo.lastChangeTime.tv_nsec = sqlite3_column_int(stmt, 4);
+		trigInfo.serverId = sqlite3_column_int(stmt, 5);
+		trigInfo.hostId   = (const char *)sqlite3_column_text(stmt, 6);
+		trigInfo.hostName = (const char *)sqlite3_column_text(stmt, 7);
+		trigInfo.brief    = (const char *)sqlite3_column_text(stmt, 8);
+	}
+	sqlite3_finalize(stmt);
+	if (result != SQLITE_DONE) {
+		THROW_ASURA_EXCEPTION("Failed to call sqlite3_step(): %d",
+		                      result);
+	}
+
+	execSql("COMMIT");
+}
+
 int DBAgentSQLite3::getDBVersion(void)
 {
 	int result;
@@ -337,7 +379,7 @@ void DBAgentSQLite3::createTableTriggers(void)
 	sql += TABLE_NAME_TRIGGERS;
 	sql += "(id INTEGER PRIMARY KEY, status INTEGER, severity INTEGER, "
 	       " last_change_time_sec INTEGER, last_change_time_ns INTERGET, "
-	       " serverId INTEGER, hostId TEXT, hostName TEXT, brief TEXT)";
+	       " server_id INTEGER, host_id TEXT, host_name TEXT, brief TEXT)";
 	char *errmsg;
 	int result = sqlite3_exec(m_db, sql.c_str(), NULL, NULL, &errmsg);
 	if (result != SQLITE_OK) {
