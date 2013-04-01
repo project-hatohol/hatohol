@@ -8,6 +8,7 @@
 
 namespace testFaceRest {
 
+static bool g_verboseMode = false;
 static const unsigned int TEST_PORT = 53194;
 static const char *TEST_DB_NAME = "testDatabase.db";
 
@@ -33,6 +34,8 @@ static JsonParserAgent *getResponseAsJsonParser(const string url)
 	  StringUtils::sprintf("wget -q http://localhost:%u%s -O -",
 	                       TEST_PORT, url.c_str());
 	string response = executeCommand(getCmd);
+	if (g_verboseMode)
+		cut_notify("<<response>>\n%s\n", response.c_str());
 	JsonParserAgent *parser = new JsonParserAgent(response);
 	if (parser->hasError()) {
 		string parserErrMsg = parser->getErrorMessage();
@@ -78,6 +81,8 @@ static void _assertValueInParser(JsonParserAgent *parser,
 
 void setup(void)
 {
+	if (getenv("VERBOSE") == string("1"))
+		g_verboseMode = true;
 	asuraInit();
 }
 
