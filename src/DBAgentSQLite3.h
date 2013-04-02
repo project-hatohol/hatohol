@@ -22,7 +22,7 @@
 
 #include "DBAgent.h"
 
-class DBAgentSQLite3 {
+class DBAgentSQLite3 : public DBAgent {
 public:
 	static const int DB_VERSION;
 
