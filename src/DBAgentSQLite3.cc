@@ -506,7 +506,7 @@ void DBAgentSQLite3::createIndex(const string &tableName,
 	string sql = "CREATE ";
 	if (isUniqueKey)
 		sql += "UNIQUE ";
-	sql += "INDEX ";
+	sql += "INDEX ON ";
 	sql += tableName;
 	sql += "(";
 	for (size_t i = 0; i < targetIndexes.size(); i++) {
