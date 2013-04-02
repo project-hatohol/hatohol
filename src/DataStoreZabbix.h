@@ -23,7 +23,7 @@
 
 class DataStoreZabbix : public DataStore {
 public:
-	DataStoreZabbix(void);
+	DataStoreZabbix(int dataStoreId);
 	virtual ~DataStoreZabbix();
 	ItemTablePtr getTriggers(void);
 	ItemTablePtr getFunctions(void);

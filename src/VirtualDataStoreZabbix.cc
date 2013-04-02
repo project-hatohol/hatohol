@@ -80,7 +80,7 @@ void VirtualDataStoreZabbix::passCommandLineArg(const CommandLineArg &cmdArg)
 			// TODO: support multiple data store
 			i++;
 			const string &name = cmdArg[i];
-			DataStoreZabbix *dataStore = new DataStoreZabbix();
+			DataStoreZabbix *dataStore = new DataStoreZabbix(i);
 			add(name, dataStore);
 		}
 	}

@@ -26,7 +26,7 @@
 class ArmZabbixAPI : public ArmBase
 {
 public:
-	ArmZabbixAPI(const char *server = "localhost");
+	ArmZabbixAPI(int zabbixServerId, const char *server = "localhost");
 	virtual ~ArmZabbixAPI();
 	ItemTablePtr getTrigger(void);
 	ItemTablePtr getFunctions(void);

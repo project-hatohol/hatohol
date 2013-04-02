@@ -21,7 +21,8 @@
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
-DataStoreZabbix::DataStoreZabbix(void)
+DataStoreZabbix::DataStoreZabbix(int dataStoreId)
+: m_armApi(dataStoreId)
 {
 	bool autoDeleteObject = true;
 	m_armApi.start(autoDeleteObject);

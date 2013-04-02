@@ -35,13 +35,15 @@ static const char *MIME_JSON_RPC = "application/json-rpc";
 
 struct ArmZabbixAPI::PrivateContext
 {
+	int          zabbixServerId;
 	bool         gotTriggers;
 	uint64_t     triggerid;
 	ItemTablePtr functionsTablePtr;
 
 	// constructors
-	PrivateContext(void)
-	: gotTriggers(false),
+	PrivateContext(int _zabbixServerId)
+	: zabbixServerId(_zabbixServerId),
+	  gotTriggers(false),
 	  triggerid(0)
 	{
 	}
@@ -50,7 +52,7 @@ struct ArmZabbixAPI::PrivateContext
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
-ArmZabbixAPI::ArmZabbixAPI(const char *server)
+ArmZabbixAPI::ArmZabbixAPI(int zabbixServerId, const char *server)
 : m_ctx(NULL),
   m_server(server),
   m_server_port(DEFAULT_SERVER_PORT),
@@ -61,7 +63,7 @@ ArmZabbixAPI::ArmZabbixAPI(const char *server)
 	m_uri = "http://";
 	m_uri += m_server;
 	m_uri += "/zabbix/api_jsonrpc.php";
-	m_ctx = new PrivateContext();
+	m_ctx = new PrivateContext(zabbixServerId);
 }
 
 ArmZabbixAPI::~ArmZabbixAPI()
