@@ -19,7 +19,7 @@
 #include "DBWorkerZabbix.h"
 #include "ItemEnum.h"
 
-static const char *tableNameTriggersRaw2_0 = "triggers_raw_2.0";
+static const char *tableNameTriggersRaw2_0 = "triggers_raw_2_0";
 
 static ColumnDef triggersRaw2_0[] = {
 {
@@ -183,6 +183,11 @@ static size_t NumTriggersRaw2_0 = sizeof(triggersRaw2_0) / sizeof(ColumnDef);
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
+void DBWorkerZabbix::init(void)
+{
+	DBAgentSQLite3::addDBFileChangedCallback(dbFileChangedCallback);
+}
+
 DBWorkerZabbix::DBWorkerZabbix(void)
 : m_dbAgent(NULL)
 {
@@ -198,6 +203,20 @@ DBWorkerZabbix::~DBWorkerZabbix()
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
+void DBWorkerZabbix::createTablesIfNeeded(void)
+{
+	DBAgentSQLite3 dbAgent;
+	if (!dbAgent.isTableExisting(tableNameTriggersRaw2_0)) {
+		DBWorkerZabbix dbWorker;
+		dbWorker.createTableTriggersRaw2_0();
+	}
+}
+
+void DBWorkerZabbix::dbFileChangedCallback(void)
+{
+	createTablesIfNeeded();
+}
+
 void DBWorkerZabbix::createTableTriggersRaw2_0(void)
 {
 	TableCreationArg arg;

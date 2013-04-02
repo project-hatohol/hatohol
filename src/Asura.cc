@@ -27,6 +27,7 @@
 #include "FaceMySQLWorker.h"
 #include "AsuraException.h"
 #include "DBAgentSQLite3.h"
+#include "DBWorkerZabbix.h"
 
 static GStaticMutex mutex = G_STATIC_MUTEX_INIT;
 static bool initDone = false; 
@@ -42,7 +43,10 @@ void asuraInit(void)
 	}
 
 	AsuraException::init();
+
+	DBWorkerZabbix::init(); // must be put before DBAgentSQLite3::init()
 	DBAgentSQLite3::init(DEFAULT_SQLITE3_DB_PATH);
+
 	ItemData::init();
 	SQLUtils::init();
 	SQLFormulaParser::init();
