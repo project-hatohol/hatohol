@@ -305,6 +305,89 @@ int DBAgentSQLite3::getDBVersion(void)
 	return version;
 }
 
+void DBAgentSQLite3::createTable(TableCreationArg &tableCreationArg)
+{
+	vector<size_t> multipleKeyColumnIndexVector;
+	vector<size_t> uniqueKeyColumnIndexVector;
+
+	// make a SQL statement
+	string sql = "CREATE TABLE ";
+	sql += tableCreationArg.tableName;
+	sql += "(";
+	for (size_t i = 0; i < tableCreationArg.numColumns; i++) {
+		ColumnDef &columnDef = tableCreationArg.columnDefs[i];
+
+		// set type
+		sql += columnDef.columnName;
+		sql += " ";
+		switch (columnDef.type) {
+		case SQL_COLUMN_TYPE_INT:
+		case SQL_COLUMN_TYPE_BIGUINT:
+			sql += "INTEGER";
+			break;
+		case SQL_COLUMN_TYPE_VARCHAR:
+		case SQL_COLUMN_TYPE_CHAR:
+		case SQL_COLUMN_TYPE_TEXT:
+			sql += "TEXT";
+			break;
+		case SQL_COLUMN_TYPE_DOUBLE:
+			sql += "REAL";
+			break;
+		default:
+			ASURA_ASSERT(true, "Unknown column type: %d (%s)",
+			             columnDef.type, columnDef.columnName);
+		}
+		sql += " ";
+
+		// set key
+		switch (columnDef.keyType) {
+		case SQL_KEY_PRI:
+			sql += "PRIMARY KEY";
+			break;
+		case SQL_KEY_MUL:
+			multipleKeyColumnIndexVector.push_back(i);
+			break;
+		case SQL_KEY_UNI:
+			uniqueKeyColumnIndexVector.push_back(i);
+			break;
+		case SQL_KEY_NONE:
+			break;
+		default:
+			ASURA_ASSERT(true, "Unknown column type: %d (%s)",
+			             columnDef.keyType, columnDef.columnName);
+		}
+
+		if (i < tableCreationArg.numColumns - 1)
+			sql += ",";
+	}
+	sql += ")";
+
+	// exectute the SQL statement
+	char *errmsg;
+	int result = sqlite3_exec(m_db, sql.c_str(), NULL, NULL, &errmsg);
+	if (result != SQLITE_OK) {
+		string err = errmsg;
+		sqlite3_free(errmsg);
+		THROW_ASURA_EXCEPTION("Failed to exec: %d, %s, %s",
+		                      result, err.c_str(), sql.c_str());
+	}
+
+	// add indexes
+	if (!multipleKeyColumnIndexVector.empty()) {
+		bool isUniqueKey = false;
+		createIndex(tableCreationArg.tableName,
+		            tableCreationArg.columnDefs, "multiple_index",
+		            multipleKeyColumnIndexVector, isUniqueKey);
+	}
+
+	if (!uniqueKeyColumnIndexVector.empty()) {
+		bool isUniqueKey = true;
+		createIndex(tableCreationArg.tableName,
+		            tableCreationArg.columnDefs, "unique_index",
+		            uniqueKeyColumnIndexVector, isUniqueKey);
+	}
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
@@ -411,3 +494,37 @@ void DBAgentSQLite3::execSql(const char *fmt, ...)
 	}
 	sqlite3_free(sql);
 }
+
+void DBAgentSQLite3::createIndex(const string &tableName, 
+                                 ColumnDef *columnDefs, const string &indexName,
+                                 const vector<size_t> &targetIndexes,
+                                 bool isUniqueKey)
+{
+	ASURA_ASSERT(!targetIndexes.empty(), "target indexes vector is empty.");
+
+	// make an SQL statement
+	string sql = "CREATE ";
+	if (isUniqueKey)
+		sql += "UNIQUE ";
+	sql += "INDEX ";
+	sql += tableName;
+	sql += "(";
+	for (size_t i = 0; i < targetIndexes.size(); i++) {
+		ColumnDef &columnDef = columnDefs[i];
+		sql += columnDef.columnName;
+		if (i < targetIndexes.size() - 1)
+			sql += ",";
+	}
+	sql += ")";
+
+	// execute the SQL statement
+	char *errmsg;
+	int result = sqlite3_exec(m_db, sql.c_str(), NULL, NULL, &errmsg);
+	if (result != SQLITE_OK) {
+		string err = errmsg;
+		sqlite3_free(errmsg);
+		THROW_ASURA_EXCEPTION("Failed to exec: %d, %s, %s",
+		                      result, err.c_str(), sql.c_str());
+	}
+}
+

@@ -20,6 +20,7 @@
 
 #include <sqlite3.h>
 
+#include "SQLProcessorTypes.h"
 #include "DBAgent.h"
 
 class DBAgentSQLite3 : public DBAgent {
@@ -44,6 +45,8 @@ public:
 	   addTriggerInfo(TriggerInfo *triggerInfo);
 	virtual void getTriggerInfoList(TriggerInfoList &triggerInfoList);
 
+	virtual void createTable(TableCreationArg &tableCreationArg);
+
 protected:
 	void openDatabase(void);
 	void createTableSystem(void);
@@ -51,6 +54,10 @@ protected:
 	void createTableServers(void);
 	void createTableTriggers(void);
 	void execSql(const char *fmt, ...);
+
+	void createIndex(const string &tableName, ColumnDef *columnDefs,
+	                 const string &indexName,
+	                 const vector<size_t> &targetIndexes, bool isUniqueKey);
 
 private:
 	static string m_dbPath;

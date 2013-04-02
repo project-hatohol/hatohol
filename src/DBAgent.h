@@ -25,6 +25,8 @@ using namespace std;
 #include <glib.h>
 #include <stdint.h>
 
+#include "SQLProcessorTypes.h"
+
 enum MonitoringSystemType {
 	MONITORING_SYSTEM_ZABBIX,
 };
@@ -64,6 +66,12 @@ struct TriggerInfo {
 typedef list<TriggerInfo>         TriggerInfoList;
 typedef TriggerInfoList::iterator TriggerInfoListIterator;
 
+struct TableCreationArg {
+	string        tableName;
+	size_t        numColumns;
+	ColumnDef    *columnDefs;
+};
+
 class DBAgent {
 public:
 	DBAgent(void);
@@ -77,6 +85,8 @@ public:
 	   addTargetServer(MonitoringServerInfo *monitoringServerInfo) = 0;
 	virtual void
 	   getTargetServers(MonitoringServerInfoList &monitoringServers) = 0;
+
+	virtual void createTable(TableCreationArg &tableCreationArg) = 0;
 private:
 };
 
