@@ -35,6 +35,7 @@ static const char *DEFAULT_DB_PATH = "/tmp/DBAgentSQLite3Default.db";
 
 const int DBAgentSQLite3::DB_VERSION = 1;
 string DBAgentSQLite3::m_dbPath = DEFAULT_DB_PATH;
+DBFileChangedCallbackFuncList DBAgentSQLite3::m_dbFileChangedCallbackFuncList;
 
 // ---------------------------------------------------------------------------
 // Public methods
@@ -58,6 +59,19 @@ void DBAgentSQLite3::init(const string &path)
 	// check the trigger table
 	if (!dbAgent.isTableExisting(TABLE_NAME_TRIGGERS))
 		dbAgent.createTableTriggers();
+
+	// send notification of changed the DBFile
+	DBFileChangedCallbackFuncListIterator it =
+	  m_dbFileChangedCallbackFuncList.begin();
+	for (; it != m_dbFileChangedCallbackFuncList.end(); ++it) {
+		DBFileChangedCallbackFunc func = *it;
+		(*func)();
+	}
+}
+
+void DBAgentSQLite3::addDBFileChangedCallback(DBFileChangedCallbackFunc cbFunc)
+{
+	m_dbFileChangedCallbackFuncList.push_back(cbFunc);
 }
 
 DBAgentSQLite3::DBAgentSQLite3(void)

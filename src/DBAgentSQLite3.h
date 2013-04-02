@@ -23,11 +23,22 @@
 #include "SQLProcessorTypes.h"
 #include "DBAgent.h"
 
+typedef void (*DBFileChangedCallbackFunc)(void);
+typedef list<DBFileChangedCallbackFunc> DBFileChangedCallbackFuncList;
+typedef DBFileChangedCallbackFuncList::iterator
+  DBFileChangedCallbackFuncListIterator;
+
 class DBAgentSQLite3 : public DBAgent {
 public:
 	static const int DB_VERSION;
 
 	static void init(const string &path);
+
+	/**
+	 * This function is not MT-safe. So it must be called in series.
+	 */
+	static void addDBFileChangedCallback(DBFileChangedCallbackFunc);
+
 	DBAgentSQLite3(void);
 	virtual ~DBAgentSQLite3();
 
@@ -61,6 +72,7 @@ protected:
 
 private:
 	static string m_dbPath;
+	static list<DBFileChangedCallbackFunc> m_dbFileChangedCallbackFuncList;
 	sqlite3      *m_db;
 };
 
