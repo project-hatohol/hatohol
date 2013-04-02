@@ -3,7 +3,7 @@ noinst_DATA = testDatabase.db FooTable.db
 noinst_PROGRAMS = mkTestDB
 endif
 
-AM_CXXFLAGS = -g -Wall -I .. -I ../../src $(GLIB_CFLAGS)
+AM_CXXFLAGS = -g -Wall -I .. -I ../../src $(GLIB_CFLAGS) $(MLPL_CFLAGS)
 LIBS = ../../src/libasura.la ../libHelpers.la
 
 mkTestDB_SOURCES = mkTestDB.cc
