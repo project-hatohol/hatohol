@@ -18,6 +18,7 @@
 #include "DBAgentSQLite3.h"
 #include "DBClientZabbix.h"
 #include "ItemEnum.h"
+#include "ConfigManager.h"
 
 static const char *tableNameTriggersRaw2_0 = "triggers_raw_2_0";
 
@@ -179,8 +180,6 @@ static ColumnDef triggersRaw2_0[] = {
 }
 };
 static size_t NumTriggersRaw2_0 = sizeof(triggersRaw2_0) / sizeof(ColumnDef);
-
-static const int DBDomainIDZabbixRawOffset = 0x1000;
 
 // ---------------------------------------------------------------------------
 // Public methods

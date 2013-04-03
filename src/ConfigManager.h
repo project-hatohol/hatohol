@@ -23,6 +23,8 @@
 
 #include "DBAgent.h"
 
+static const int DBDomainIDZabbixRawOffset = 0x1000;
+
 class ConfigManager {
 public:
 	static ConfigManager *getInstance(void);
