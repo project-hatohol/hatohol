@@ -16,7 +16,7 @@
 */
 
 #include "DBAgentSQLite3.h"
-#include "DBWorkerZabbix.h"
+#include "DBClientZabbix.h"
 #include "ItemEnum.h"
 
 static const char *tableNameTriggersRaw2_0 = "triggers_raw_2_0";
@@ -185,18 +185,18 @@ static const int DBDomainIDZabbixRawOffset = 0x1000;
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
-void DBWorkerZabbix::init(void)
+void DBClientZabbix::init(void)
 {
 }
 
-DBWorkerZabbix::DBWorkerZabbix(int zabbixServerId)
+DBClientZabbix::DBClientZabbix(int zabbixServerId)
 : m_dbAgent(NULL)
 {
 	DBDomainId domainId = DBDomainIDZabbixRawOffset + zabbixServerId;
 	m_dbAgent = new DBAgentSQLite3(domainId);
 }
 
-DBWorkerZabbix::~DBWorkerZabbix()
+DBClientZabbix::~DBClientZabbix()
 {
 	if (m_dbAgent)
 		delete m_dbAgent;
@@ -205,21 +205,21 @@ DBWorkerZabbix::~DBWorkerZabbix()
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
-void DBWorkerZabbix::createTablesIfNeeded(DBDomainId domainId)
+void DBClientZabbix::createTablesIfNeeded(DBDomainId domainId)
 {
 	DBAgentSQLite3 dbAgent(domainId);
 	if (!dbAgent.isTableExisting(tableNameTriggersRaw2_0)) {
-		DBWorkerZabbix dbWorker(domainId);
+		DBClientZabbix dbWorker(domainId);
 		dbWorker.createTableTriggersRaw2_0();
 	}
 }
 
-void DBWorkerZabbix::dbFileSetupCallback(DBDomainId domainId)
+void DBClientZabbix::dbFileSetupCallback(DBDomainId domainId)
 {
 	createTablesIfNeeded(domainId);
 }
 
-void DBWorkerZabbix::createTableTriggersRaw2_0(void)
+void DBClientZabbix::createTableTriggersRaw2_0(void)
 {
 	TableCreationArg arg;
 	arg.tableName  = tableNameTriggersRaw2_0;

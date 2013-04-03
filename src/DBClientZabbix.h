@@ -15,16 +15,16 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef DBWorkerZabbix_h
-#define DBWorkerZabbix_h
+#ifndef DBClientZabbix_h
+#define DBClientZabbix_h
 
 #include "DBAgent.h"
 
-class DBWorkerZabbix {
+class DBClientZabbix {
 public:
 	static void init(void);
-	DBWorkerZabbix(int zabbixServerId);
-	virtual ~DBWorkerZabbix();
+	DBClientZabbix(int zabbixServerId);
+	virtual ~DBClientZabbix();
 
 protected:
 	static void createTablesIfNeeded(DBDomainId domainId);
@@ -35,4 +35,4 @@ private:
 	DBAgent *m_dbAgent;
 };
 
-#endif // DBWorkerZabbix_h
+#endif // DBClientZabbix_h
