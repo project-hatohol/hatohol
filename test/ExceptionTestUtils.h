@@ -9,11 +9,13 @@ void _assertThrow(void)
 	const char *brief = "foo";
 	bool exceptionReceived = false;
 	try {
-		throw new ThrowExceptionType(brief);
-	} catch (CaughtExceptionType *e) {
+		throw ThrowExceptionType(brief);
+	} catch (const CaughtExceptionType &e) {
 		exceptionReceived = true;
-		cppcut_assert_equal(string(brief), string(e->what()));
-		delete e;
+		string expected = "<:-1> ";
+		expected += brief;
+		expected += "\n";
+		cppcut_assert_equal(expected, string(e.what()));
 	}
 	cppcut_assert_equal(true, exceptionReceived);
 }
