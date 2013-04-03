@@ -22,14 +22,13 @@
 
 class DBClientZabbix {
 public:
-	static void init(void);
-	DBClientZabbix(int zabbixServerId);
+	DBClientZabbix(size_t zabbixServerId);
 	virtual ~DBClientZabbix();
 
 protected:
-	static void createTablesIfNeeded(DBDomainId domainId);
-	static void dbFileSetupCallback(DBDomainId domainId);
-	void createTableTriggersRaw2_0(void);
+	static void dbSetupFunc(DBDomainId domainId);
+	static void createTableTriggersRaw2_0(const string &dbPath);
+	void prepareSetupFuncCallback(size_t zabbixServerId);
 
 private:
 	struct PrivateContext;

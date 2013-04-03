@@ -24,6 +24,7 @@
 #include "DBAgent.h"
 
 static const int DBDomainIDZabbixRawOffset = 0x1000;
+static const size_t NumMaxZabbixServers = 100;
 
 class ConfigManager {
 public:
@@ -31,6 +32,7 @@ public:
 
 	void addTargetServer(MonitoringServerInfo *monitoringServerInfo);
 	void getTargetServers(MonitoringServerInfoList &monitoringServers);
+	const string &getDatabaseDirectory(void) const;
 
 private:
 	struct PrivateContext;

@@ -18,9 +18,12 @@
 #include "ConfigManager.h"
 #include "DBAgentSQLite3.h"
 
+static const char *DEFAULT_DATABASE_DIR = "/tmp";
+
 struct ConfigManager::PrivateContext {
 	static GMutex         mutex;
 	static ConfigManager *instance;
+	string                databaseDirectory;
 
 	// methods
 	static void lock(void)
@@ -66,6 +69,11 @@ void ConfigManager::getTargetServers
 	dbAgent.getTargetServers(monitoringServers);
 }
 
+const string &ConfigManager::getDatabaseDirectory(void) const
+{
+	return m_ctx->databaseDirectory;
+}
+
 // ---------------------------------------------------------------------------
 // Private methods
 // ---------------------------------------------------------------------------
@@ -73,6 +81,7 @@ ConfigManager::ConfigManager(void)
 : m_ctx(NULL)
 {
 	m_ctx = new PrivateContext();
+	m_ctx->databaseDirectory = DEFAULT_DATABASE_DIR;
 }
 
 ConfigManager::~ConfigManager()

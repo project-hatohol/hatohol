@@ -183,6 +183,8 @@ static size_t NumTriggersRaw2_0 = sizeof(triggersRaw2_0) / sizeof(ColumnDef);
 
 struct DBClientZabbix::PrivateContext
 {
+	static GMutex mutex;
+	static bool   dbInitializedFlags[NumMaxZabbixServers];
 	DBAgent *dbAgent;
 
 	// methods
@@ -196,19 +198,40 @@ struct DBClientZabbix::PrivateContext
 		if (dbAgent)
 			delete dbAgent;
 	}
+
+	static void lock(void)
+	{
+		g_mutex_lock(&mutex);
+	}
+
+	static void unlock(void)
+	{
+		g_mutex_unlock(&mutex);
+	}
 };
+
+GMutex DBClientZabbix::PrivateContext::mutex;
+bool   DBClientZabbix::PrivateContext::dbInitializedFlags[NumMaxZabbixServers];
 
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
-void DBClientZabbix::init(void)
-{
-}
-
-DBClientZabbix::DBClientZabbix(int zabbixServerId)
+DBClientZabbix::DBClientZabbix(size_t zabbixServerId)
 : m_ctx(NULL)
 {
+	ASURA_ASSERT(zabbixServerId < NumMaxZabbixServers,
+	   "The specified zabbix server ID is larger than max: %d",
+	   zabbixServerId); 
 	m_ctx = new PrivateContext();
+
+	m_ctx->lock();
+	if (!m_ctx->dbInitializedFlags[zabbixServerId]) {
+		// The setup function: dbSetupFunc() is called from
+		// the constructor of DBAgentSQLite3() below.
+		prepareSetupFuncCallback(zabbixServerId);
+		m_ctx->dbInitializedFlags[zabbixServerId] = true;
+	}
+	m_ctx->unlock();
 
 	DBDomainId domainId = DBDomainIDZabbixRawOffset + zabbixServerId;
 	m_ctx->dbAgent = new DBAgentSQLite3(domainId);
@@ -223,25 +246,33 @@ DBClientZabbix::~DBClientZabbix()
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
-void DBClientZabbix::createTablesIfNeeded(DBDomainId domainId)
+void DBClientZabbix::dbSetupFunc(DBDomainId domainId)
 {
-	DBAgentSQLite3 dbAgent(domainId);
-	if (!dbAgent.isTableExisting(tableNameTriggersRaw2_0)) {
-		DBClientZabbix dbWorker(domainId);
-		dbWorker.createTableTriggersRaw2_0();
-	}
+	const string dbPath = DBAgentSQLite3::findDBPath(domainId);
+	if (DBAgentSQLite3::isTableExisting(dbPath, tableNameTriggersRaw2_0))
+		return;
+	createTableTriggersRaw2_0(dbPath);
 }
 
-void DBClientZabbix::dbFileSetupCallback(DBDomainId domainId)
-{
-	createTablesIfNeeded(domainId);
-}
-
-void DBClientZabbix::createTableTriggersRaw2_0(void)
+void DBClientZabbix::createTableTriggersRaw2_0(const string &dbPath)
 {
 	TableCreationArg arg;
 	arg.tableName  = tableNameTriggersRaw2_0;
 	arg.numColumns = NumTriggersRaw2_0;
 	arg.columnDefs = triggersRaw2_0;
-	m_ctx->dbAgent->createTable(arg);
+	DBAgentSQLite3::createTable(dbPath, arg);
 }
+
+void DBClientZabbix::prepareSetupFuncCallback(size_t zabbixServerId)
+{
+	ConfigManager *configMgr = ConfigManager::getInstance();
+	const string &dbDirectory = configMgr->getDatabaseDirectory();
+
+	DBDomainId domainId = DBDomainIDZabbixRawOffset + zabbixServerId;
+	DBAgent::addSetupFunction(DBDomainIDZabbixRawOffset, dbSetupFunc);
+	string dbPath =
+	  StringUtils::sprintf("%s/DBClientZabbix-%d.db",
+	                       dbDirectory.c_str(), zabbixServerId);
+	DBAgentSQLite3::defineDBPath(domainId, dbPath);
+}
+
