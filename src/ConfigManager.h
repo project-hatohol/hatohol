@@ -33,8 +33,8 @@ public:
 	void getTargetServers(MonitoringServerInfoList &monitoringServers);
 
 private:
-	static GMutex         m_mutex;
-	static ConfigManager *m_instance;
+	struct PrivateContext;
+	PrivateContext *m_ctx;
 
 	// Constructor and destructor
 	ConfigManager(void);

@@ -18,23 +18,39 @@
 #include "ConfigManager.h"
 #include "DBAgentSQLite3.h"
 
-GMutex ConfigManager::m_mutex;
-ConfigManager *ConfigManager::m_instance = NULL;
+struct ConfigManager::PrivateContext {
+	static GMutex         mutex;
+	static ConfigManager *instance;
+
+	// methods
+	static void lock(void)
+	{
+		g_mutex_lock(&mutex);
+	}
+
+	static void unlock(void)
+	{
+		g_mutex_unlock(&mutex);
+	}
+};
+
+GMutex         ConfigManager::PrivateContext::mutex;
+ConfigManager *ConfigManager::PrivateContext::instance = NULL;
 
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
 ConfigManager *ConfigManager::getInstance(void)
 {
-	if (m_instance)
-		return m_instance;
+	if (PrivateContext::instance)
+		return PrivateContext::instance;
 
-	g_mutex_lock(&m_mutex);
-	if (!m_instance)
-		m_instance = new ConfigManager();
-	g_mutex_unlock(&m_mutex);
+	PrivateContext::lock();
+	if (!PrivateContext::instance)
+		PrivateContext::instance = new ConfigManager();
+	PrivateContext::unlock();
 
-	return m_instance;
+	return PrivateContext::instance;
 }
 
 void ConfigManager::addTargetServer(MonitoringServerInfo *monitoringServerInfo)
@@ -54,9 +70,13 @@ void ConfigManager::getTargetServers
 // Private methods
 // ---------------------------------------------------------------------------
 ConfigManager::ConfigManager(void)
+: m_ctx(NULL)
 {
+	m_ctx = new PrivateContext();
 }
 
 ConfigManager::~ConfigManager()
 {
+	if (m_ctx)
+		delete m_ctx;
 }
