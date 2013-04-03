@@ -342,33 +342,8 @@ void DBAgentSQLite3::getTriggerInfoList(TriggerInfoList &triggerInfoList)
 
 int DBAgentSQLite3::getDBVersion(void)
 {
-	int result;
-	sqlite3_stmt *stmt;
-	string query = "SELECT version FROM ";
-	query += TABLE_NAME_SYSTEM;
-	result = sqlite3_prepare(m_ctx->db, query.c_str(), query.size(),
-	                         &stmt, NULL);
-	if (result != SQLITE_OK) {
-		sqlite3_finalize(stmt);
-		THROW_ASURA_EXCEPTION("Failed to call sqlite3_prepare(): %d",
-		                      result);
-	}
-	sqlite3_reset(stmt);
-	int version = 0;
-	int count = 0;
-	while ((result = sqlite3_step(stmt)) == SQLITE_ROW) {
-		version = sqlite3_column_int(stmt, 0);
-		count++;
-	}
-	if (result != SQLITE_DONE) {
-		sqlite3_finalize(stmt);
-		THROW_ASURA_EXCEPTION("Failed to call sqlite3_step(): %d",
-		                      result);
-	}
-	sqlite3_finalize(stmt);
-	ASURA_ASSERT(count == 1,
-	             "Returned count of rows is not one (%d)", count);
-	return version;
+	ASURA_ASSERT(m_ctx->db, "m_ctx->db is NULL");
+	return getDBVersion(m_ctx->db);
 }
 
 void DBAgentSQLite3::createTable(TableCreationArg &tableCreationArg)
