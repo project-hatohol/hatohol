@@ -32,7 +32,7 @@ static int getDBVersion(void)
 
 #define DEFINE_DBAGENT_WITH_INIT(DB_NAME, OBJ_NAME) \
 string _path = getFixturesDir() + DB_NAME; \
-DBAgentSQLite3::init(_path); \
+DBAgentSQLite3::defineDBPath(DefaultDBDomainId, _path); \
 DBAgentSQLite3 OBJ_NAME; \
 
 template<typename T> void _assertAddToDB
@@ -95,7 +95,8 @@ static string makeExpectedOutput(TriggerInfo *triggerInfo)
 void setup(void)
 {
 	deleteDB();
-	DBAgentSQLite3::init(dbPath);
+	DBAgentSQLite3::init();
+	DBAgentSQLite3::defineDBPath(DefaultDBDomainId, dbPath);
 }
 
 // ---------------------------------------------------------------------------

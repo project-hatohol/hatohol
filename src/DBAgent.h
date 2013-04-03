@@ -72,9 +72,16 @@ struct TableCreationArg {
 	ColumnDef    *columnDefs;
 };
 
+typedef uint32_t DBDomainId;
+typedef void (*DBSetupFunc)(DBDomainId domainId);
+static const DBDomainId DefaultDBDomainId = 0;
+
 class DBAgent {
 public:
-	DBAgent(void);
+	static void
+	   addSetupFunction(DBDomainId domainId, DBSetupFunc setupFunc);
+
+	DBAgent(DBDomainId = DefaultDBDomainId);
 	virtual ~DBAgent();
 
 	// virtual methods
@@ -87,7 +94,10 @@ public:
 	   getTargetServers(MonitoringServerInfoList &monitoringServers) = 0;
 
 	virtual void createTable(TableCreationArg &tableCreationArg) = 0;
+
 private:
+	struct PrivateContext;
+	PrivateContext *m_ctx;
 };
 
 #endif // DBAgent_h

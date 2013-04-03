@@ -180,18 +180,20 @@ static ColumnDef triggersRaw2_0[] = {
 };
 static size_t NumTriggersRaw2_0 = sizeof(triggersRaw2_0) / sizeof(ColumnDef);
 
+static const int DBDomainIDZabbixRawOffset = 0x1000;
+
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
 void DBWorkerZabbix::init(void)
 {
-	DBAgentSQLite3::addDBFileChangedCallback(dbFileChangedCallback);
 }
 
-DBWorkerZabbix::DBWorkerZabbix(void)
+DBWorkerZabbix::DBWorkerZabbix(int zabbixServerId)
 : m_dbAgent(NULL)
 {
-	m_dbAgent = new DBAgentSQLite3();
+	DBDomainId domainId = DBDomainIDZabbixRawOffset + zabbixServerId;
+	m_dbAgent = new DBAgentSQLite3(domainId);
 }
 
 DBWorkerZabbix::~DBWorkerZabbix()
@@ -203,18 +205,18 @@ DBWorkerZabbix::~DBWorkerZabbix()
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
-void DBWorkerZabbix::createTablesIfNeeded(void)
+void DBWorkerZabbix::createTablesIfNeeded(DBDomainId domainId)
 {
-	DBAgentSQLite3 dbAgent;
+	DBAgentSQLite3 dbAgent(domainId);
 	if (!dbAgent.isTableExisting(tableNameTriggersRaw2_0)) {
-		DBWorkerZabbix dbWorker;
+		DBWorkerZabbix dbWorker(domainId);
 		dbWorker.createTableTriggersRaw2_0();
 	}
 }
 
-void DBWorkerZabbix::dbFileChangedCallback(void)
+void DBWorkerZabbix::dbFileSetupCallback(DBDomainId domainId)
 {
-	createTablesIfNeeded();
+	createTablesIfNeeded(domainId);
 }
 
 void DBWorkerZabbix::createTableTriggersRaw2_0(void)

@@ -26,6 +26,7 @@ using namespace mlpl;
 #include "JsonBuilderAgent.h"
 #include "DataStoreException.h"
 #include "ItemEnum.h"
+#include "DBWorkerZabbix.h"
 
 static const int DEFAULT_SERVER_PORT = 80;
 static const int DEFAULT_RETRY_INTERVAL = 10;
@@ -39,12 +40,14 @@ struct ArmZabbixAPI::PrivateContext
 	bool         gotTriggers;
 	uint64_t     triggerid;
 	ItemTablePtr functionsTablePtr;
+	DBWorkerZabbix dbWorkerZabbix;
 
 	// constructors
 	PrivateContext(int _zabbixServerId)
 	: zabbixServerId(_zabbixServerId),
 	  gotTriggers(false),
-	  triggerid(0)
+	  triggerid(0),
+	  dbWorkerZabbix(_zabbixServerId)
 	{
 	}
 };

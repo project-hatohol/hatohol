@@ -17,13 +17,66 @@
 
 #include "DBAgent.h"
 
+typedef multimap<DBDomainId, DBSetupFunc> DBSetupFuncMap;
+typedef DBSetupFuncMap::iterator          DBSetupFuncMapIterator;
+
+struct DBAgent::PrivateContext
+{
+	static GMutex             mutex;
+	static DBSetupFuncMap     setupFuncMap;
+
+	// methods
+	static void lock(void)
+	{
+		g_mutex_lock(&mutex);
+	}
+
+	static void unlock(void)
+	{
+		g_mutex_unlock(&mutex);
+	}
+};
+
+GMutex         DBAgent::PrivateContext::mutex;
+DBSetupFuncMap DBAgent::PrivateContext::setupFuncMap;
+
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
-DBAgent::DBAgent(void)
+void DBAgent::addSetupFunction(DBDomainId domainId, DBSetupFunc setupFunc)
 {
+	PrivateContext::lock();
+	PrivateContext::setupFuncMap.insert
+	  (pair<DBDomainId, DBSetupFunc>(domainId, setupFunc));
+	PrivateContext::unlock();
+}
+
+DBAgent::DBAgent(DBDomainId domainId)
+: m_ctx(NULL)
+{
+	m_ctx = new PrivateContext();
+
+	PrivateContext::lock();
+	pair<DBSetupFuncMapIterator, DBSetupFuncMapIterator> matchedRange = 
+	  PrivateContext::setupFuncMap.equal_range(domainId);
+	DBSetupFuncMapIterator it = matchedRange.first;
+	for (; it != matchedRange.second; ++it) {
+		DBSetupFunc setupFunc = it->second;
+		try {
+			(*setupFunc)(domainId);
+		} catch (...) {
+			// Note: contetns in DBSetupFuncMap remains.
+			PrivateContext::unlock();
+			throw;
+		}
+	}
+	PrivateContext::setupFuncMap.erase
+	  (matchedRange.first, matchedRange.second);
+	PrivateContext::unlock();
 }
 
 DBAgent::~DBAgent()
 {
+	if (m_ctx)
+		delete m_ctx;
 }

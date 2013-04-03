@@ -31,64 +31,116 @@ using namespace mlpl;
 static const char *TABLE_NAME_SYSTEM = "system";
 static const char *TABLE_NAME_SERVERS = "servers";
 static const char *TABLE_NAME_TRIGGERS = "triggers";
-static const char *DEFAULT_DB_PATH = "/tmp/DBAgentSQLite3Default.db";
 
 const int DBAgentSQLite3::DB_VERSION = 1;
-string DBAgentSQLite3::m_dbPath = DEFAULT_DB_PATH;
-DBFileChangedCallbackFuncList DBAgentSQLite3::m_dbFileChangedCallbackFuncList;
+
+typedef map<DBDomainId, string>     DBDomainIdPathMap;
+typedef DBDomainIdPathMap::iterator DBDomainIdPathMapIterator;
+
+struct DBAgentSQLite3::PrivateContext {
+	static GMutex            mutex;
+	static DBDomainIdPathMap domainIdPathMap;
+
+	string        dbPath;
+	sqlite3      *db;
+
+	// methods
+	PrivateContext(void)
+	: db(NULL)
+	{
+	}
+
+	static void lock(void)
+	{
+		g_mutex_lock(&mutex);
+	}
+
+	static void unlock(void)
+	{
+		g_mutex_unlock(&mutex);
+	}
+};
+
+GMutex            DBAgentSQLite3::PrivateContext::mutex;
+DBDomainIdPathMap DBAgentSQLite3::PrivateContext::domainIdPathMap;
 
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
-void DBAgentSQLite3::init(const string &path)
+void DBAgentSQLite3::defineDBPath(DBDomainId domainId, const string &path)
 {
+	PrivateContext::lock();
+	DBDomainIdPathMapIterator it =
+	  PrivateContext::domainIdPathMap.find(domainId);
+	if (it != PrivateContext::domainIdPathMap.end()) {
+		it->second = path;
+		PrivateContext::unlock();
+		return;
+	}
+
+	pair<DBDomainIdPathMapIterator, bool> result =
+	  PrivateContext::domainIdPathMap.insert
+	    (pair<DBDomainId, string>(domainId, path));
+	PrivateContext::unlock();
+
+	ASURA_ASSERT(result.second,
+	  "Failed to insert. Probably domain id (%u) is duplicated", domainId);
+}
+
+void DBAgentSQLite3::init(void)
+{
+	DBAgent::addSetupFunction(DefaultDBDomainId, defaultSetupFunc);
+}
+
+void DBAgentSQLite3::defaultSetupFunc(DBDomainId domainId)
+{
+	// We don't lock DB (use transaction) in the existence check of
+	// a table and create it, because, this function is called in series.
+
+	// search dbPath
+	const string &dbPath = findDBPath(domainId);
+
 	// TODO: check the DB version.
 	//       If the DB version is old, update the content
-	m_dbPath = path;
-
-	DBAgentSQLite3 dbAgent;
-	if (!dbAgent.isTableExisting(TABLE_NAME_SYSTEM))
-		dbAgent.createTableSystem();
+	if (!isTableExisting(dbPath, TABLE_NAME_SYSTEM))
+		createTableSystem(dbPath);
 	else
-		dbAgent.updateDBIfNeeded();
+		updateDBIfNeeded(dbPath);
+
 
 	// check the servers table
-	if (!dbAgent.isTableExisting(TABLE_NAME_SERVERS))
-		dbAgent.createTableServers();
+	if (!isTableExisting(dbPath, TABLE_NAME_SERVERS))
+		createTableServers(dbPath);
 
 	// check the trigger table
-	if (!dbAgent.isTableExisting(TABLE_NAME_TRIGGERS))
-		dbAgent.createTableTriggers();
-
-	// send notification of changed the DBFile
-	DBFileChangedCallbackFuncListIterator it =
-	  m_dbFileChangedCallbackFuncList.begin();
-	for (; it != m_dbFileChangedCallbackFuncList.end(); ++it) {
-		DBFileChangedCallbackFunc func = *it;
-		(*func)();
-	}
+	if (!isTableExisting(dbPath, TABLE_NAME_TRIGGERS))
+		createTableTriggers(dbPath);
 }
 
-void DBAgentSQLite3::addDBFileChangedCallback(DBFileChangedCallbackFunc cbFunc)
+DBAgentSQLite3::DBAgentSQLite3(DBDomainId domainId)
+: DBAgent(domainId),
+  m_ctx(NULL)
 {
-	m_dbFileChangedCallbackFuncList.push_back(cbFunc);
-}
-
-DBAgentSQLite3::DBAgentSQLite3(void)
-: m_db(NULL)
-{
+	// We don't lock DB (use transaction) in the existence check of
+	m_ctx = new PrivateContext();
+	m_ctx->dbPath = findDBPath(domainId);
 	openDatabase();
 }
 
 DBAgentSQLite3::~DBAgentSQLite3()
 {
-	if (m_db) {
-		int result = sqlite3_close(m_db);
+	if (!m_ctx)
+		return;
+
+	if (m_ctx->db) {
+		int result = sqlite3_close(m_ctx->db);
 		if (result != SQLITE_OK) {
 			// Should we throw an exception ?
 			MLPL_ERR("Failed to close sqlite: %d\n", result);
 		}
 	}
+
+	delete m_ctx;
 }
 
 bool DBAgentSQLite3::isTableExisting(const string &tableName)
@@ -97,7 +149,7 @@ bool DBAgentSQLite3::isTableExisting(const string &tableName)
 	sqlite3_stmt *stmt;
 	const char *query = "SELECT COUNT(*) FROM sqlite_master "
 	                    "WHERE type='table' AND name=?";
-	result = sqlite3_prepare(m_db, query, strlen(query), &stmt, NULL);
+	result = sqlite3_prepare(m_ctx->db, query, strlen(query), &stmt, NULL);
 	if (result != SQLITE_OK) {
 		sqlite3_finalize(stmt);
 		THROW_ASURA_EXCEPTION("Failed to call sqlite3_prepare(): %d",
@@ -134,7 +186,7 @@ bool DBAgentSQLite3::isRecordExisting(const string &tableName,
 	string query = StringUtils::sprintf(
 	                 "SELECT * FROM %s WHERE %s",
 	                 tableName.c_str(), condition.c_str());
-	result = sqlite3_prepare(m_db, query.c_str(), query.size(),
+	result = sqlite3_prepare(m_ctx->db, query.c_str(), query.size(),
 	                         &stmt, NULL);
 	if (result != SQLITE_OK) {
 		sqlite3_finalize(stmt);
@@ -190,7 +242,7 @@ void DBAgentSQLite3::getTargetServers
 	sqlite3_stmt *stmt;
 	string query = "SELECT id, type, hostname, ip_address, nickname FROM ";
 	query += TABLE_NAME_SERVERS;
-	result = sqlite3_prepare(m_db, query.c_str(), query.size(),
+	result = sqlite3_prepare(m_ctx->db, query.c_str(), query.size(),
 	                         &stmt, NULL);
 	if (result != SQLITE_OK) {
 		sqlite3_finalize(stmt);
@@ -256,7 +308,7 @@ void DBAgentSQLite3::getTriggerInfoList(TriggerInfoList &triggerInfoList)
 	               "last_change_time_ns, server_id, host_id, host_name, "
 	               "brief FROM ";
 	query += TABLE_NAME_TRIGGERS;
-	result = sqlite3_prepare(m_db, query.c_str(), query.size(),
+	result = sqlite3_prepare(m_ctx->db, query.c_str(), query.size(),
 	                         &stmt, NULL);
 	if (result != SQLITE_OK) {
 		sqlite3_finalize(stmt);
@@ -294,7 +346,7 @@ int DBAgentSQLite3::getDBVersion(void)
 	sqlite3_stmt *stmt;
 	string query = "SELECT version FROM ";
 	query += TABLE_NAME_SYSTEM;
-	result = sqlite3_prepare(m_db, query.c_str(), query.size(),
+	result = sqlite3_prepare(m_ctx->db, query.c_str(), query.size(),
 	                         &stmt, NULL);
 	if (result != SQLITE_OK) {
 		sqlite3_finalize(stmt);
@@ -378,7 +430,7 @@ void DBAgentSQLite3::createTable(TableCreationArg &tableCreationArg)
 
 	// exectute the SQL statement
 	char *errmsg;
-	int result = sqlite3_exec(m_db, sql.c_str(), NULL, NULL, &errmsg);
+	int result = sqlite3_exec(m_ctx->db, sql.c_str(), NULL, NULL, &errmsg);
 	if (result != SQLITE_OK) {
 		string err = errmsg;
 		sqlite3_free(errmsg);
@@ -405,31 +457,147 @@ void DBAgentSQLite3::createTable(TableCreationArg &tableCreationArg)
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
-void DBAgentSQLite3::openDatabase(void)
+const string &DBAgentSQLite3::findDBPath(DBDomainId domainId)
 {
-	if (m_db)
-		return;
+	PrivateContext::lock();
+	DBDomainIdPathMapIterator it =
+	   PrivateContext::domainIdPathMap.find(domainId);
+	PrivateContext::unlock();
+	ASURA_ASSERT(it != PrivateContext::domainIdPathMap.end(),
+	             "Not found DBPath: %u", domainId);
+	return it->second;
+}
 
-	int result = sqlite3_open_v2(m_dbPath.c_str(), &m_db,
+sqlite3 *DBAgentSQLite3::openDatabase(const string &dbPath)
+{
+	sqlite3 *db = NULL;
+	int result = sqlite3_open_v2(dbPath.c_str(), &db,
 	                             SQLITE_OPEN_READWRITE|SQLITE_OPEN_CREATE,
 	                             NULL);
 	if (result != SQLITE_OK) {
 		THROW_ASURA_EXCEPTION("Failed to open sqlite: %d, %s",
-		                      result, m_dbPath.c_str());
+		                      result, dbPath.c_str());
 	}
+	return db;
 }
 
-void DBAgentSQLite3::createTableSystem(void)
+int DBAgentSQLite3::getDBVersion(const string &dbPath)
 {
+	int version;
+	sqlite3 *db = openDatabase(dbPath);
+	try {
+		version = getDBVersion(db);
+	} catch (...) {
+		sqlite3_close(db);
+		throw;
+	}
+	sqlite3_close(db);
+	return version;
+}
+
+int DBAgentSQLite3::getDBVersion(sqlite3 *db)
+{
+	int result;
+	sqlite3_stmt *stmt;
+	string query = "SELECT version FROM ";
+	query += TABLE_NAME_SYSTEM;
+	result = sqlite3_prepare(db, query.c_str(), query.size(),
+	                         &stmt, NULL);
+	if (result != SQLITE_OK) {
+		sqlite3_finalize(stmt);
+		THROW_ASURA_EXCEPTION("Failed to call sqlite3_prepare(): %d",
+		                      result);
+	}
+	sqlite3_reset(stmt);
+	int version = 0;
+	int count = 0;
+	while ((result = sqlite3_step(stmt)) == SQLITE_ROW) {
+		version = sqlite3_column_int(stmt, 0);
+		count++;
+	}
+	if (result != SQLITE_DONE) {
+		sqlite3_finalize(stmt);
+		THROW_ASURA_EXCEPTION("Failed to call sqlite3_step(): %d",
+		                      result);
+	}
+	sqlite3_finalize(stmt);
+	ASURA_ASSERT(count == 1,
+	             "Returned count of rows is not one (%d)", count);
+	return version;
+}
+
+bool DBAgentSQLite3::isTableExisting(const string &dbPath,
+                                     const string &tableName)
+{
+	bool exist;
+	sqlite3 *db = openDatabase(dbPath);
+	try {
+		exist = isTableExisting(db, tableName);
+	} catch (...) {
+		sqlite3_close(db);
+		throw;
+	}
+	sqlite3_close(db);
+	return exist;
+}
+
+bool DBAgentSQLite3::isTableExisting(sqlite3 *db,
+                                     const string &tableName)
+{
+	int result;
+	sqlite3_stmt *stmt;
+	const char *query = "SELECT COUNT(*) FROM sqlite_master "
+	                    "WHERE type='table' AND name=?";
+	result = sqlite3_prepare(db, query, strlen(query), &stmt, NULL);
+	if (result != SQLITE_OK) {
+		sqlite3_finalize(stmt);
+		THROW_ASURA_EXCEPTION("Failed to call sqlite3_prepare(): %d",
+		                      result);
+	}
+
+	sqlite3_reset(stmt);
+	result = sqlite3_bind_text(stmt, 1, tableName.c_str(),
+	                           -1, SQLITE_STATIC);
+	if (result != SQLITE_OK) {
+		sqlite3_finalize(stmt);
+		THROW_ASURA_EXCEPTION("Failed to call sqlite3_bind(): %d",
+		                      result);
+	}
+	
+	int count = 0;
+	while ((result = sqlite3_step(stmt)) == SQLITE_ROW) {
+		count = sqlite3_column_int(stmt, 0);
+	}
+	if (result != SQLITE_DONE) {
+		sqlite3_finalize(stmt);
+		THROW_ASURA_EXCEPTION("Failed to call sqlite3_step(): %d",
+		                      result);
+	}
+	sqlite3_finalize(stmt);
+	return count > 0;
+}
+
+void DBAgentSQLite3::updateDBIfNeeded(const string &dbPath)
+{
+	if (getDBVersion(dbPath) == DB_VERSION)
+		return;
+	THROW_ASURA_EXCEPTION("Not implemented: %s", __PRETTY_FUNCTION__);
+}
+
+void DBAgentSQLite3::createTableSystem(const string &dbPath)
+{
+	sqlite3 *db = openDatabase(dbPath);
+
 	// make table
 	string sql = "CREATE TABLE ";
 	sql += TABLE_NAME_SYSTEM;
 	sql += "(version INTEGER)";
 	char *errmsg;
-	int result = sqlite3_exec(m_db, sql.c_str(), NULL, NULL, &errmsg);
+	int result = sqlite3_exec(db, sql.c_str(), NULL, NULL, &errmsg);
 	if (result != SQLITE_OK) {
 		string err = errmsg;
 		sqlite3_free(errmsg);
+		sqlite3_close(db);
 		THROW_ASURA_EXCEPTION("Failed to exec: %d, %s, %s",
 		                      result, err.c_str(), sql.c_str());
 	}
@@ -437,53 +605,77 @@ void DBAgentSQLite3::createTableSystem(void)
 	// insert the version
 	sql = StringUtils::sprintf("INSERT INTO %s VALUES(%d)",
 	                           TABLE_NAME_SYSTEM,  DB_VERSION);
-	result = sqlite3_exec(m_db, sql.c_str(), NULL, NULL, &errmsg);
+	result = sqlite3_exec(db, sql.c_str(), NULL, NULL, &errmsg);
 	if (result != SQLITE_OK) {
 		string err = errmsg;
 		sqlite3_free(errmsg);
+		sqlite3_close(db);
 		THROW_ASURA_EXCEPTION("Failed to exec: %d, %s, %s",
 		                      result, err.c_str(), sql.c_str());
 	}
+
+	sqlite3_close(db);
 }
 
-void DBAgentSQLite3::updateDBIfNeeded(void)
+void DBAgentSQLite3::createTableServers(const string &dbPath)
 {
-	if (getDBVersion() == DB_VERSION)
-		return;
-	THROW_ASURA_EXCEPTION("Not implemented: %s", __PRETTY_FUNCTION__);
-}
+	sqlite3 *db = openDatabase(dbPath);
 
-void DBAgentSQLite3::createTableServers(void)
-{
 	// make table
 	string sql = "CREATE TABLE ";
 	sql += TABLE_NAME_SERVERS;
 	sql += "(id INTEGER PRIMARY KEY, type INTEGER, hostname TEXT, "
 	       " ip_address TEXT, nickname TEXT)";
 	char *errmsg;
-	int result = sqlite3_exec(m_db, sql.c_str(), NULL, NULL, &errmsg);
+	int result = sqlite3_exec(db, sql.c_str(), NULL, NULL, &errmsg);
 	if (result != SQLITE_OK) {
 		string err = errmsg;
 		sqlite3_free(errmsg);
+		sqlite3_close(db);
 		THROW_ASURA_EXCEPTION("Failed to exec: %d, %s, %s",
 		                      result, err.c_str(), sql.c_str());
 	}
+
+	sqlite3_close(db);
 }
 
-void DBAgentSQLite3::createTableTriggers(void)
+void DBAgentSQLite3::createTableTriggers(const string &dbPath)
 {
+	sqlite3 *db = openDatabase(dbPath);
+
 	string sql = "CREATE TABLE ";
 	sql += TABLE_NAME_TRIGGERS;
 	sql += "(id INTEGER PRIMARY KEY, status INTEGER, severity INTEGER, "
 	       " last_change_time_sec INTEGER, last_change_time_ns INTERGET, "
 	       " server_id INTEGER, host_id TEXT, host_name TEXT, brief TEXT)";
 	char *errmsg;
-	int result = sqlite3_exec(m_db, sql.c_str(), NULL, NULL, &errmsg);
+	int result = sqlite3_exec(db, sql.c_str(), NULL, NULL, &errmsg);
 	if (result != SQLITE_OK) {
 		string err = errmsg;
 		sqlite3_free(errmsg);
+		sqlite3_close(db);
 		THROW_ASURA_EXCEPTION("Failed to exec: %d, %s, %s",
 		                      result, err.c_str(), sql.c_str());
+	}
+
+	sqlite3_close(db);
+}
+
+
+//
+// Non static methods
+//
+void DBAgentSQLite3::openDatabase(void)
+{
+	if (m_ctx->db)
+		return;
+
+	int result = sqlite3_open_v2(m_ctx->dbPath.c_str(), &m_ctx->db,
+	                             SQLITE_OPEN_READWRITE|SQLITE_OPEN_CREATE,
+	                             NULL);
+	if (result != SQLITE_OK) {
+		THROW_ASURA_EXCEPTION("Failed to open sqlite: %d, %s",
+		                      result, m_ctx->dbPath.c_str());
 	}
 }
 
@@ -497,7 +689,7 @@ void DBAgentSQLite3::execSql(const char *fmt, ...)
 
 	// execute the query
 	char *errmsg;
-	int result = sqlite3_exec(m_db, sql, NULL, NULL, &errmsg);
+	int result = sqlite3_exec(m_ctx->db, sql, NULL, NULL, &errmsg);
 	if (result != SQLITE_OK) {
 		string err = errmsg;
 		string sqlStr = sql;
@@ -535,7 +727,7 @@ void DBAgentSQLite3::createIndex(const string &tableName,
 
 	// execute the SQL statement
 	char *errmsg;
-	int result = sqlite3_exec(m_db, sql.c_str(), NULL, NULL, &errmsg);
+	int result = sqlite3_exec(m_ctx->db, sql.c_str(), NULL, NULL, &errmsg);
 	if (result != SQLITE_OK) {
 		string err = errmsg;
 		sqlite3_free(errmsg);

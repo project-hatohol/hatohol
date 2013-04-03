@@ -18,7 +18,7 @@ static JsonParserAgent *g_parser = NULL;
 static void startFaceRest(const string &testDBName)
 {
 	string dbPath = getFixturesDir() + testDBName;
-	DBAgentSQLite3::init(dbPath);
+	DBAgentSQLite3::defineDBPath(DefaultDBDomainId, dbPath);
 
 	CommandLineArg arg;
 	arg.push_back("--face-rest-port");

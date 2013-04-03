@@ -15,7 +15,7 @@ int main(int argc, char *argv[])
 	printf("DBName: %s\n", dbName.c_str());
 
 	asuraInit();
-	DBAgentSQLite3::init(dbName);
+	DBAgentSQLite3::defineDBPath(DefaultDBDomainId, dbName);
 
 	DBAgentSQLite3 dbAgent;
 	for (size_t i = 0; i < NumServerInfo; i++) {

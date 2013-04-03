@@ -23,12 +23,12 @@
 class DBWorkerZabbix {
 public:
 	static void init(void);
-	DBWorkerZabbix(void);
+	DBWorkerZabbix(int zabbixServerId);
 	virtual ~DBWorkerZabbix();
 
 protected:
-	static void createTablesIfNeeded(void);
-	static void dbFileChangedCallback(void);
+	static void createTablesIfNeeded(DBDomainId domainId);
+	static void dbFileSetupCallback(DBDomainId domainId);
 	void createTableTriggersRaw2_0(void);
 
 private:

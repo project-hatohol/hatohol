@@ -44,8 +44,10 @@ void asuraInit(void)
 
 	AsuraException::init();
 
-	DBWorkerZabbix::init(); // must be put before DBAgentSQLite3::init()
-	DBAgentSQLite3::init(DEFAULT_SQLITE3_DB_PATH);
+	DBAgentSQLite3::defineDBPath(DefaultDBDomainId,
+	                             DEFAULT_SQLITE3_DB_PATH);
+	DBAgentSQLite3::init();
+	DBWorkerZabbix::init();
 
 	ItemData::init();
 	SQLUtils::init();

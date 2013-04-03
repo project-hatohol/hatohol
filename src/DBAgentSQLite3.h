@@ -23,25 +23,28 @@
 #include "SQLProcessorTypes.h"
 #include "DBAgent.h"
 
-typedef void (*DBFileChangedCallbackFunc)(void);
-typedef list<DBFileChangedCallbackFunc> DBFileChangedCallbackFuncList;
-typedef DBFileChangedCallbackFuncList::iterator
-  DBFileChangedCallbackFuncListIterator;
-
 class DBAgentSQLite3 : public DBAgent {
 public:
+	// static methods
 	static const int DB_VERSION;
 
-	static void init(const string &path);
+	static void init(void);
 
 	/**
-	 * This function is not MT-safe. So it must be called in series.
+	 * define database path
+	 *
+	 * @domainId domain ID. If the domainId has already been set, the path
+	 *                      is overwritten.
+	 * @path     A path of the database.
 	 */
-	static void addDBFileChangedCallback(DBFileChangedCallbackFunc);
+	static void defineDBPath(DBDomainId domainId, const string &path);
+	static void defaultSetupFunc(DBDomainId domainId);
 
-	DBAgentSQLite3(void);
+	// constructor and destructor
+	DBAgentSQLite3(DBDomainId domainId = DefaultDBDomainId);
 	virtual ~DBAgentSQLite3();
 
+	// generic methods
 	int getDBVersion(void);
 
 	// virtual methods
@@ -59,11 +62,20 @@ public:
 	virtual void createTable(TableCreationArg &tableCreationArg);
 
 protected:
+	static const string &findDBPath(DBDomainId domainId);
+	static sqlite3 *openDatabase(const string &dbPath);
+	static int getDBVersion(const string &dbPath);
+	static int getDBVersion(sqlite3 *db);
+	static bool isTableExisting(const string &dbPath,
+	                            const string &tableName);
+	static bool isTableExisting(sqlite3 *db,
+	                            const string &tableName);
+	static void updateDBIfNeeded(const string &dbPath);
+	static void createTableSystem(const string &dbPath);
+	static void createTableServers(const string &dbPath);
+	static void createTableTriggers(const string &dbPath);
+
 	void openDatabase(void);
-	void createTableSystem(void);
-	void updateDBIfNeeded(void);
-	void createTableServers(void);
-	void createTableTriggers(void);
 	void execSql(const char *fmt, ...);
 
 	void createIndex(const string &tableName, ColumnDef *columnDefs,
@@ -71,9 +83,8 @@ protected:
 	                 const vector<size_t> &targetIndexes, bool isUniqueKey);
 
 private:
-	static string m_dbPath;
-	static list<DBFileChangedCallbackFunc> m_dbFileChangedCallbackFuncList;
-	sqlite3      *m_db;
+	struct PrivateContext;
+	PrivateContext *m_ctx;
 };
 
 #endif // DBAgentSQLite3_h
