@@ -42,6 +42,9 @@ public:
 	static const string &findDBPath(DBDomainId domainId);
 	static bool isTableExisting(const string &dbPath,
 	                            const string &tableName);
+	static void createTable(const string &dbPath,
+	                        TableCreationArg &tableCreationArg);
+
 
 	// constructor and destructor
 	DBAgentSQLite3(DBDomainId domainId = DefaultDBDomainId);
@@ -61,7 +64,6 @@ public:
 	virtual void
 	   addTriggerInfo(TriggerInfo *triggerInfo);
 	virtual void getTriggerInfoList(TriggerInfoList &triggerInfoList);
-
 	virtual void createTable(TableCreationArg &tableCreationArg);
 
 protected:
@@ -70,17 +72,21 @@ protected:
 	static int getDBVersion(sqlite3 *db);
 	static bool isTableExisting(sqlite3 *db,
 	                            const string &tableName);
+	static void createTable(sqlite3 *db,
+	                        TableCreationArg &tableCreationArg);
 	static void updateDBIfNeeded(const string &dbPath);
 	static void createTableSystem(const string &dbPath);
 	static void createTableServers(const string &dbPath);
 	static void createTableTriggers(const string &dbPath);
+	static void createIndex(sqlite3 *db,
+	                        const string &tableName, ColumnDef *columnDefs,
+	                        const string &indexName,
+	                        const vector<size_t> &targetIndexes,
+	                        bool isUniqueKey);
+
 
 	void openDatabase(void);
 	void execSql(const char *fmt, ...);
-
-	void createIndex(const string &tableName, ColumnDef *columnDefs,
-	                 const string &indexName,
-	                 const vector<size_t> &targetIndexes, bool isUniqueKey);
 
 private:
 	struct PrivateContext;
