@@ -670,13 +670,8 @@ void DBAgentSQLite3::openDatabase(void)
 	if (m_ctx->db)
 		return;
 
-	int result = sqlite3_open_v2(m_ctx->dbPath.c_str(), &m_ctx->db,
-	                             SQLITE_OPEN_READWRITE|SQLITE_OPEN_CREATE,
-	                             NULL);
-	if (result != SQLITE_OK) {
-		THROW_ASURA_EXCEPTION("Failed to open sqlite: %d, %s",
-		                      result, m_ctx->dbPath.c_str());
-	}
+	ASURA_ASSERT(!m_ctx->dbPath.empty(), "dbPath is empty.");
+	m_ctx->db = openDatabase(m_ctx->dbPath);
 }
 
 void DBAgentSQLite3::execSql(const char *fmt, ...)
