@@ -145,37 +145,8 @@ DBAgentSQLite3::~DBAgentSQLite3()
 
 bool DBAgentSQLite3::isTableExisting(const string &tableName)
 {
-	int result;
-	sqlite3_stmt *stmt;
-	const char *query = "SELECT COUNT(*) FROM sqlite_master "
-	                    "WHERE type='table' AND name=?";
-	result = sqlite3_prepare(m_ctx->db, query, strlen(query), &stmt, NULL);
-	if (result != SQLITE_OK) {
-		sqlite3_finalize(stmt);
-		THROW_ASURA_EXCEPTION("Failed to call sqlite3_prepare(): %d",
-		                      result);
-	}
-
-	sqlite3_reset(stmt);
-	result = sqlite3_bind_text(stmt, 1, tableName.c_str(),
-	                           -1, SQLITE_STATIC);
-	if (result != SQLITE_OK) {
-		sqlite3_finalize(stmt);
-		THROW_ASURA_EXCEPTION("Failed to call sqlite3_bind(): %d",
-		                      result);
-	}
-	
-	int count = 0;
-	while ((result = sqlite3_step(stmt)) == SQLITE_ROW) {
-		count = sqlite3_column_int(stmt, 0);
-	}
-	if (result != SQLITE_DONE) {
-		sqlite3_finalize(stmt);
-		THROW_ASURA_EXCEPTION("Failed to call sqlite3_step(): %d",
-		                      result);
-	}
-	sqlite3_finalize(stmt);
-	return count > 0;
+	ASURA_ASSERT(m_ctx->db, "m_ctx->db is NULL");
+	return isTableExisting(m_ctx->db, tableName);
 }
 
 bool DBAgentSQLite3::isRecordExisting(const string &tableName,
