@@ -32,7 +32,8 @@ protected:
 	void createTableTriggersRaw2_0(void);
 
 private:
-	DBAgent *m_dbAgent;
+	struct PrivateContext;
+	PrivateContext *m_ctx;
 };
 
 #endif // DBClientZabbix_h

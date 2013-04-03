@@ -181,6 +181,23 @@ static ColumnDef triggersRaw2_0[] = {
 };
 static size_t NumTriggersRaw2_0 = sizeof(triggersRaw2_0) / sizeof(ColumnDef);
 
+struct DBClientZabbix::PrivateContext
+{
+	DBAgent *dbAgent;
+
+	// methods
+	PrivateContext(void)
+	: dbAgent(NULL)
+	{
+	}
+
+	~PrivateContext()
+	{
+		if (dbAgent)
+			delete dbAgent;
+	}
+};
+
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
@@ -189,16 +206,18 @@ void DBClientZabbix::init(void)
 }
 
 DBClientZabbix::DBClientZabbix(int zabbixServerId)
-: m_dbAgent(NULL)
+: m_ctx(NULL)
 {
+	m_ctx = new PrivateContext();
+
 	DBDomainId domainId = DBDomainIDZabbixRawOffset + zabbixServerId;
-	m_dbAgent = new DBAgentSQLite3(domainId);
+	m_ctx->dbAgent = new DBAgentSQLite3(domainId);
 }
 
 DBClientZabbix::~DBClientZabbix()
 {
-	if (m_dbAgent)
-		delete m_dbAgent;
+	if (m_ctx)
+		delete m_ctx;
 }
 
 // ---------------------------------------------------------------------------
@@ -224,5 +243,5 @@ void DBClientZabbix::createTableTriggersRaw2_0(void)
 	arg.tableName  = tableNameTriggersRaw2_0;
 	arg.numColumns = NumTriggersRaw2_0;
 	arg.columnDefs = triggersRaw2_0;
-	m_dbAgent->createTable(arg);
+	m_ctx->dbAgent->createTable(arg);
 }
