@@ -39,6 +39,9 @@ public:
 	 */
 	static void defineDBPath(DBDomainId domainId, const string &path);
 	static void defaultSetupFunc(DBDomainId domainId);
+	static const string &findDBPath(DBDomainId domainId);
+	static bool isTableExisting(const string &dbPath,
+	                            const string &tableName);
 
 	// constructor and destructor
 	DBAgentSQLite3(DBDomainId domainId = DefaultDBDomainId);
@@ -62,12 +65,9 @@ public:
 	virtual void createTable(TableCreationArg &tableCreationArg);
 
 protected:
-	static const string &findDBPath(DBDomainId domainId);
 	static sqlite3 *openDatabase(const string &dbPath);
 	static int getDBVersion(const string &dbPath);
 	static int getDBVersion(sqlite3 *db);
-	static bool isTableExisting(const string &dbPath,
-	                            const string &tableName);
 	static bool isTableExisting(sqlite3 *db,
 	                            const string &tableName);
 	static void updateDBIfNeeded(const string &dbPath);

@@ -117,6 +117,32 @@ void DBAgentSQLite3::defaultSetupFunc(DBDomainId domainId)
 		createTableTriggers(dbPath);
 }
 
+const string &DBAgentSQLite3::findDBPath(DBDomainId domainId)
+{
+	PrivateContext::lock();
+	DBDomainIdPathMapIterator it =
+	   PrivateContext::domainIdPathMap.find(domainId);
+	PrivateContext::unlock();
+	ASURA_ASSERT(it != PrivateContext::domainIdPathMap.end(),
+	             "Not found DBPath: %u", domainId);
+	return it->second;
+}
+
+bool DBAgentSQLite3::isTableExisting(const string &dbPath,
+                                     const string &tableName)
+{
+	bool exist;
+	sqlite3 *db = openDatabase(dbPath);
+	try {
+		exist = isTableExisting(db, tableName);
+	} catch (...) {
+		sqlite3_close(db);
+		throw;
+	}
+	sqlite3_close(db);
+	return exist;
+}
+
 DBAgentSQLite3::DBAgentSQLite3(DBDomainId domainId)
 : DBAgent(domainId),
   m_ctx(NULL)
@@ -403,17 +429,6 @@ void DBAgentSQLite3::createTable(TableCreationArg &tableCreationArg)
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
-const string &DBAgentSQLite3::findDBPath(DBDomainId domainId)
-{
-	PrivateContext::lock();
-	DBDomainIdPathMapIterator it =
-	   PrivateContext::domainIdPathMap.find(domainId);
-	PrivateContext::unlock();
-	ASURA_ASSERT(it != PrivateContext::domainIdPathMap.end(),
-	             "Not found DBPath: %u", domainId);
-	return it->second;
-}
-
 sqlite3 *DBAgentSQLite3::openDatabase(const string &dbPath)
 {
 	sqlite3 *db = NULL;
@@ -470,21 +485,6 @@ int DBAgentSQLite3::getDBVersion(sqlite3 *db)
 	ASURA_ASSERT(count == 1,
 	             "Returned count of rows is not one (%d)", count);
 	return version;
-}
-
-bool DBAgentSQLite3::isTableExisting(const string &dbPath,
-                                     const string &tableName)
-{
-	bool exist;
-	sqlite3 *db = openDatabase(dbPath);
-	try {
-		exist = isTableExisting(db, tableName);
-	} catch (...) {
-		sqlite3_close(db);
-		throw;
-	}
-	sqlite3_close(db);
-	return exist;
 }
 
 bool DBAgentSQLite3::isTableExisting(sqlite3 *db,
