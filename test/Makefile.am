@@ -8,7 +8,7 @@ TESTS_ENVIRONMENT = NO_MAKE=yes CUTTER="$(CUTTER)"
 
 noinst_LTLIBRARIES = \
 	testAsuraException.la testSQLProcessorException.la \
-	testDBAgentSQLite3.la \
+	testDBAgentSQLite3.la testDBClientZabbix.la \
 	testSQLUtils.la testSQLProcessor.la \
 	testSQLProcessorInsert.la testSQLProcessorUpdate.la \
 	testFormulaElement.la \
@@ -55,6 +55,9 @@ testSQLProcessorUpdate_la_LIBADD = ./libHelpers.la ./libFormulaTestUtils.la
 
 testDBAgentSQLite3_la_SOURCES = testDBAgentSQLite3.cc
 testDBAgentSQLite3_la_LIBADD = ./libHelpers.la
+
+testDBClientZabbix_la_SOURCES = testDBClientZabbix.cc
+testDBClientZabbix_la_LIBADD = ./libHelpers.la
 
 testFaceRest_la_SOURCES = testFaceRest.cc
 testFaceRest_la_LIBADD = ./libHelpers.la

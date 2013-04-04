@@ -269,7 +269,8 @@ void DBClientZabbix::prepareSetupFuncCallback(size_t zabbixServerId)
 	const string &dbDirectory = configMgr->getDatabaseDirectory();
 
 	DBDomainId domainId = DBDomainIDZabbixRawOffset + zabbixServerId;
-	DBAgent::addSetupFunction(DBDomainIDZabbixRawOffset, dbSetupFunc);
+	DBAgent::addSetupFunction(DBDomainIDZabbixRawOffset + zabbixServerId,
+	                          dbSetupFunc);
 	string dbPath =
 	  StringUtils::sprintf("%s/DBClientZabbix-%d.db",
 	                       dbDirectory.c_str(), zabbixServerId);
