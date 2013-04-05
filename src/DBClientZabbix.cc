@@ -25,7 +25,7 @@ static const char *TABLE_NAME_TRIGGERS_RAW_2_0 = "triggers_raw_2_0";
 static ColumnDef triggersRaw2_0[] = {
 {
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_TRIGGERS_RAW_2_0,           // tableName
+	TABLE_NAME_TRIGGERS_RAW_2_0,       // tableName
 	"replica_generation_id",           // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -36,7 +36,7 @@ static ColumnDef triggersRaw2_0[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_ZBX_TRIGGERS_TRIGGERID,    // itemId
-	TABLE_NAME_TRIGGERS_RAW_2_0,           // tableName
+	TABLE_NAME_TRIGGERS_RAW_2_0,       // tableName
 	"triggerid",                       // columnName
 	SQL_COLUMN_TYPE_BIGUINT,           // type
 	20,                                // columnLength
@@ -47,7 +47,7 @@ static ColumnDef triggersRaw2_0[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_ZBX_TRIGGERS_EXPRESSION,   // itemId
-	TABLE_NAME_TRIGGERS_RAW_2_0,           // tableName
+	TABLE_NAME_TRIGGERS_RAW_2_0,       // tableName
 	"expression",                      // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
 	255,                               // columnLength
@@ -58,7 +58,7 @@ static ColumnDef triggersRaw2_0[] = {
 	"",                                // defaultValue
 }, {
 	ITEM_ID_ZBX_TRIGGERS_DESCRIPTION,  // itemId
-	TABLE_NAME_TRIGGERS_RAW_2_0,           // tableName
+	TABLE_NAME_TRIGGERS_RAW_2_0,       // tableName
 	"description",                     // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
 	255,                               // columnLength
@@ -69,7 +69,7 @@ static ColumnDef triggersRaw2_0[] = {
 	"",                                // defaultValue
 }, {
 	ITEM_ID_ZBX_TRIGGERS_URL,          // itemId
-	TABLE_NAME_TRIGGERS_RAW_2_0,           // tableName
+	TABLE_NAME_TRIGGERS_RAW_2_0,       // tableName
 	"url",                             // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
 	255,                               // columnLength
@@ -80,7 +80,7 @@ static ColumnDef triggersRaw2_0[] = {
 	"",                                // defaultValue
 }, {
 	ITEM_ID_ZBX_TRIGGERS_STATUS,       // itemId
-	TABLE_NAME_TRIGGERS_RAW_2_0,           // tableName
+	TABLE_NAME_TRIGGERS_RAW_2_0,       // tableName
 	"status",                          // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -91,7 +91,7 @@ static ColumnDef triggersRaw2_0[] = {
 	"0",                               // defaultValue
 }, {
 	ITEM_ID_ZBX_TRIGGERS_VALUE,        // itemId
-	TABLE_NAME_TRIGGERS_RAW_2_0,           // tableName
+	TABLE_NAME_TRIGGERS_RAW_2_0,       // tableName
 	"value",                           // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -102,7 +102,7 @@ static ColumnDef triggersRaw2_0[] = {
 	"0",                               // defaultValue
 }, {
 	ITEM_ID_ZBX_TRIGGERS_PRIORITY,     // itemId
-	TABLE_NAME_TRIGGERS_RAW_2_0,           // tableName
+	TABLE_NAME_TRIGGERS_RAW_2_0,       // tableName
 	"priority",                        // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -113,7 +113,7 @@ static ColumnDef triggersRaw2_0[] = {
 	"0",                               // defaultValue
 }, {
 	ITEM_ID_ZBX_TRIGGERS_LASTCHANGE,   // itemId
-	TABLE_NAME_TRIGGERS_RAW_2_0,           // tableName
+	TABLE_NAME_TRIGGERS_RAW_2_0,       // tableName
 	"lastchange",                      // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -124,7 +124,7 @@ static ColumnDef triggersRaw2_0[] = {
 	"0",                               // defaultValue
 }, {
 	ITEM_ID_ZBX_TRIGGERS_COMMENTS,     // itemId
-	TABLE_NAME_TRIGGERS_RAW_2_0,           // tableName
+	TABLE_NAME_TRIGGERS_RAW_2_0,       // tableName
 	"comments",                        // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -135,7 +135,7 @@ static ColumnDef triggersRaw2_0[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_ZBX_TRIGGERS_ERROR,        // itemId
-	TABLE_NAME_TRIGGERS_RAW_2_0,           // tableName
+	TABLE_NAME_TRIGGERS_RAW_2_0,       // tableName
 	"error",                           // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
 	128,                               // columnLength
@@ -146,7 +146,7 @@ static ColumnDef triggersRaw2_0[] = {
 	"",                                // defaultValue
 }, {
 	ITEM_ID_ZBX_TRIGGERS_TEMPLATEID,   // itemId
-	TABLE_NAME_TRIGGERS_RAW_2_0,           // tableName
+	TABLE_NAME_TRIGGERS_RAW_2_0,       // tableName
 	"templateid",                      // columnName
 	SQL_COLUMN_TYPE_BIGUINT,           // type
 	20,                                // columnLength
@@ -157,7 +157,7 @@ static ColumnDef triggersRaw2_0[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_ZBX_TRIGGERS_TYPE,         // itemId
-	TABLE_NAME_TRIGGERS_RAW_2_0,           // tableName
+	TABLE_NAME_TRIGGERS_RAW_2_0,       // tableName
 	"type",                            // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -168,7 +168,7 @@ static ColumnDef triggersRaw2_0[] = {
 	"0",                               // defaultValue
 }, {
 	ITEM_ID_ZBX_TRIGGERS_VALUE_FLAGS,  // itemId
-	TABLE_NAME_TRIGGERS_RAW_2_0,           // tableName
+	TABLE_NAME_TRIGGERS_RAW_2_0,       // tableName
 	"value_flags",                     // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -179,7 +179,7 @@ static ColumnDef triggersRaw2_0[] = {
 	"0",                               // defaultValue
 }, {
 	ITEM_ID_ZBX_TRIGGERS_FLAGS,        // itemId
-	TABLE_NAME_TRIGGERS_RAW_2_0,           // tableName
+	TABLE_NAME_TRIGGERS_RAW_2_0,       // tableName
 	"flags",                           // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
