@@ -20,9 +20,13 @@
 #include "ItemEnum.h"
 #include "ConfigManager.h"
 
+const int DBClientZabbix::DB_VERSION = 1;
+
 static const char *TABLE_NAME_SYSTEM = "system";
 static const char *TABLE_NAME_REPLICA_GENERATION = "replica_generation";
 static const char *TABLE_NAME_TRIGGERS_RAW_2_0 = "triggers_raw_2_0";
+
+static const int REPLICA_GENERATION_NONE = -1;
 
 static const ColumnDef COLUMN_DEF_SYSTEM[] = {
 {
@@ -341,6 +345,21 @@ void DBClientZabbix::createTableSystem(const string &dbPath)
 	arg.numColumns = NUM_COLUMNS_SYSTEM;
 	arg.columnDefs = COLUMN_DEF_SYSTEM;
 	DBAgentSQLite3::createTable(dbPath, arg);
+
+	// insert default value
+	RowInsertArg insArg;
+	insArg.tableName = TABLE_NAME_SYSTEM;
+	insArg.numColumns = NUM_COLUMNS_SYSTEM;
+	insArg.columnDefs = COLUMN_DEF_SYSTEM;
+
+	InsertValue val;
+	val.vUint64 = DB_VERSION;
+	insArg.row.push_back(val);
+
+	val.vInt = REPLICA_GENERATION_NONE;
+	insArg.row.push_back(val);
+
+	DBAgentSQLite3::insert(dbPath, insArg);
 }
 
 void DBClientZabbix::createTableReplicaGeneration(const string &dbPath)

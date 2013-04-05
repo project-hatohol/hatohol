@@ -61,7 +61,17 @@ void test_createDB(void)
 
 void test_createTableSystem(void)
 {
-	assertCreateTable(TEST_ZABBIX_SERVER_ID + 1, "system");
+	int svId = TEST_ZABBIX_SERVER_ID + 1;
+	assertCreateTable(svId, "system");
+
+	// check content
+	string dbPath = getDBPathOfClientZabbix(svId);
+	string cmd = StringUtils::sprintf("sqlite3 %s \"select * from %s\"",
+	                                  dbPath.c_str(), "system");
+	string output = executeCommand(cmd);
+	string expectedOut =
+	   StringUtils::sprintf("%d|-1\n", DBClientZabbix::DB_VERSION);
+	cppcut_assert_equal(expectedOut, output);
 }
 
 void test_createTableReplicaGeneration(void)

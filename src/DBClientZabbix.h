@@ -22,6 +22,8 @@
 
 class DBClientZabbix {
 public:
+	static const int DB_VERSION;
+
 	DBClientZabbix(size_t zabbixServerId);
 	virtual ~DBClientZabbix();
 
