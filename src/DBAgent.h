@@ -72,6 +72,20 @@ struct TableCreationArg {
 	const ColumnDef    *columnDefs;
 };
 
+union InsertValue {
+	int         vInt;
+	uint64_t    vUint64;
+	const char *vString;
+	double      vDouble;
+};
+
+struct RowInsertArg {
+	string tableName;
+	vector<InsertValue> row;
+	size_t              numColumns;
+	const ColumnDef    *columnDefs;
+};
+
 typedef uint32_t DBDomainId;
 typedef void (*DBSetupFunc)(DBDomainId domainId);
 static const DBDomainId DefaultDBDomainId = 0;
