@@ -51,7 +51,7 @@ static const ColumnDef COLUMN_DEF_SYSTEM[] = {
 static const size_t NUM_COLUMNS_SYSTEM =
   sizeof(COLUMN_DEF_SYSTEM) / sizeof(ColumnDef);
 
-static ColumnDef triggersRaw2_0[] = {
+static const ColumnDef TRIGGERS_RAW_2_0[] = {
 {
 	ITEM_ID_NOT_SET,                   // itemId
 	TABLE_NAME_TRIGGERS_RAW_2_0,       // tableName
@@ -219,7 +219,8 @@ static ColumnDef triggersRaw2_0[] = {
 	"0",                               // defaultValue
 }
 };
-static size_t NumTriggersRaw2_0 = sizeof(triggersRaw2_0) / sizeof(ColumnDef);
+static const size_t NUM_TRIGGERS_RAW_2_0 =
+   sizeof(TRIGGERS_RAW_2_0) / sizeof(ColumnDef);
 
 struct DBClientZabbix::PrivateContext
 {
@@ -310,8 +311,8 @@ void DBClientZabbix::createTableTriggersRaw2_0(const string &dbPath)
 {
 	TableCreationArg arg;
 	arg.tableName  = TABLE_NAME_TRIGGERS_RAW_2_0;
-	arg.numColumns = NumTriggersRaw2_0;
-	arg.columnDefs = triggersRaw2_0;
+	arg.numColumns = NUM_TRIGGERS_RAW_2_0;
+	arg.columnDefs = TRIGGERS_RAW_2_0;
 	DBAgentSQLite3::createTable(dbPath, arg);
 }
 
