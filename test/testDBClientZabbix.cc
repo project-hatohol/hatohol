@@ -44,6 +44,16 @@ static string deleteDatabase(int id)
 	return dbPath;
 }
 
+static void _assertCreateTable(int svId, const string &tableName)
+{
+	string dbPath = deleteDatabase(svId);
+	DBClientZabbix dbCliZBX(svId);
+	string command = "sqlite3 " + dbPath + " \".table\"";
+	string output = executeCommand(command);
+	assertExist(tableName, output);
+}
+#define assertCreateTable(I,T) cut_trace(_assertCreateTable(I,T))
+
 void setup(void)
 {
 	asuraInit();
@@ -62,14 +72,14 @@ void test_createDB(void)
 	cut_assert_exist_path(dbPath.c_str());
 }
 
+void test_createTableSystem(void)
+{
+	assertCreateTable(TEST_ZABBIX_SERVER_ID + 1, "system");
+}
+
 void test_createTableTriggersRaw2_0(void)
 {
-	int svId = TEST_ZABBIX_SERVER_ID + 1;
-	string dbPath = deleteDatabase(svId);
-	DBClientZabbix dbCliZBX(svId);
-	string command = "sqlite3 " + dbPath + " \".table\"";
-	string output = executeCommand(command);
-	assertExist("triggers_raw_2_0", output);
+	assertCreateTable(TEST_ZABBIX_SERVER_ID + 2, "triggers_raw_2_0");
 }
 
 } // testDBClientZabbix

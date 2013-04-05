@@ -20,7 +20,36 @@
 #include "ItemEnum.h"
 #include "ConfigManager.h"
 
+static const char *TABLE_NAME_SYSTEM = "system";
 static const char *TABLE_NAME_TRIGGERS_RAW_2_0 = "triggers_raw_2_0";
+
+static const ColumnDef COLUMN_DEF_SYSTEM[] = {
+{
+	ITEM_ID_NOT_SET,                   // itemId
+	TABLE_NAME_SYSTEM,                 // tableName
+	"version",                         // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	11,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}, {
+	ITEM_ID_NOT_SET,                   // itemId
+	TABLE_NAME_SYSTEM,                 // tableName
+	"latest_triggers_generation_id",   // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	11,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}
+};
+static const size_t NUM_COLUMNS_SYSTEM =
+  sizeof(COLUMN_DEF_SYSTEM) / sizeof(ColumnDef);
 
 static ColumnDef triggersRaw2_0[] = {
 {
@@ -260,9 +289,21 @@ DBClientZabbix::~DBClientZabbix()
 void DBClientZabbix::dbSetupFunc(DBDomainId domainId)
 {
 	const string dbPath = DBAgentSQLite3::findDBPath(domainId);
-	if (DBAgentSQLite3::isTableExisting(dbPath, TABLE_NAME_TRIGGERS_RAW_2_0))
-		return;
-	createTableTriggersRaw2_0(dbPath);
+	if (!DBAgentSQLite3::isTableExisting(dbPath, TABLE_NAME_SYSTEM))
+		createTableSystem(dbPath);
+	if (!DBAgentSQLite3::isTableExisting(dbPath,
+	                                     TABLE_NAME_TRIGGERS_RAW_2_0)) {
+		createTableTriggersRaw2_0(dbPath);
+	}
+}
+
+void DBClientZabbix::createTableSystem(const string &dbPath)
+{
+	TableCreationArg arg;
+	arg.tableName  = TABLE_NAME_SYSTEM;
+	arg.numColumns = NUM_COLUMNS_SYSTEM;
+	arg.columnDefs = COLUMN_DEF_SYSTEM;
+	DBAgentSQLite3::createTable(dbPath, arg);
 }
 
 void DBClientZabbix::createTableTriggersRaw2_0(const string &dbPath)
