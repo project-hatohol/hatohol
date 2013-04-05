@@ -79,7 +79,8 @@ protected:
 	static void createTableServers(const string &dbPath);
 	static void createTableTriggers(const string &dbPath);
 	static void createIndex(sqlite3 *db,
-	                        const string &tableName, ColumnDef *columnDefs,
+	                        const string &tableName,
+	                        const ColumnDef *columnDefs,
 	                        const string &indexName,
 	                        const vector<size_t> &targetIndexes,
 	                        bool isUniqueKey);

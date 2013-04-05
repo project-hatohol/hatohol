@@ -470,7 +470,7 @@ void DBAgentSQLite3::createTable(sqlite3 *db,
 	sql += tableCreationArg.tableName;
 	sql += "(";
 	for (size_t i = 0; i < tableCreationArg.numColumns; i++) {
-		ColumnDef &columnDef = tableCreationArg.columnDefs[i];
+		const ColumnDef &columnDef = tableCreationArg.columnDefs[i];
 
 		// set type
 		sql += columnDef.columnName;
@@ -628,7 +628,8 @@ void DBAgentSQLite3::createTableTriggers(const string &dbPath)
 }
 
 void DBAgentSQLite3::createIndex(sqlite3 *db, const string &tableName, 
-                                 ColumnDef *columnDefs, const string &indexName,
+                                 const ColumnDef *columnDefs,
+                                 const string &indexName,
                                  const vector<size_t> &targetIndexes,
                                  bool isUniqueKey)
 {
@@ -644,7 +645,7 @@ void DBAgentSQLite3::createIndex(sqlite3 *db, const string &tableName,
 	sql += tableName;
 	sql += "(";
 	for (size_t i = 0; i < targetIndexes.size(); i++) {
-		ColumnDef &columnDef = columnDefs[i];
+		const ColumnDef &columnDef = columnDefs[i];
 		sql += columnDef.columnName;
 		if (i < targetIndexes.size() - 1)
 			sql += ",";

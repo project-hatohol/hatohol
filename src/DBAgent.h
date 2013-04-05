@@ -67,9 +67,9 @@ typedef list<TriggerInfo>         TriggerInfoList;
 typedef TriggerInfoList::iterator TriggerInfoListIterator;
 
 struct TableCreationArg {
-	string        tableName;
-	size_t        numColumns;
-	ColumnDef    *columnDefs;
+	string              tableName;
+	size_t              numColumns;
+	const ColumnDef    *columnDefs;
 };
 
 typedef uint32_t DBDomainId;
