@@ -23,19 +23,6 @@ static string getDBPathOfClientZabbix(int zabbixServerId)
 	return dbPath;
 }
 
-static void _assertExist(const string &target, const string &words)
-{
-	StringVector splitWords;
-	string wordsStripCR = StringUtils::eraseChars(words, "\n");
-	StringUtils::split(splitWords, wordsStripCR, ' ');
-	for (size_t i = 0; i < splitWords.size(); i++) {
-		if (splitWords[i] == target)
-			return;
-	}
-	cut_fail("Not found: %s in %s", target.c_str(), words.c_str());
-}
-#define assertExist(T,W) cut_trace(_assertExist(T,W))
-
 static string deleteDatabase(int id)
 {
 	string dbPath = getDBPathOfClientZabbix(id);

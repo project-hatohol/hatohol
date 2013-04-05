@@ -41,6 +41,9 @@ static void _assertItemData(const ItemGroup *itemGroup, T expected, int &idx)
 #define assertItemData(T, IGRP, E, IDX) \
 cut_trace(_assertItemData<T>(IGRP, E, IDX))
 
+extern void _assertExist(const string &target, const string &words);
+#define assertExist(T,W) cut_trace(_assertExist(T,W))
+
 string executeCommand(const string &commandLine);
 string getFixturesDir(void);
 
