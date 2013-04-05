@@ -28,6 +28,7 @@ public:
 protected:
 	static void dbSetupFunc(DBDomainId domainId);
 	static void createTableSystem(const string &dbPath);
+	static void createTableReplicaGeneration(const string &dbPath);
 	static void createTableTriggersRaw2_0(const string &dbPath);
 	void prepareSetupFuncCallback(size_t zabbixServerId);
 

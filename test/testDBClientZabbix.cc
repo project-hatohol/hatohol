@@ -77,9 +77,14 @@ void test_createTableSystem(void)
 	assertCreateTable(TEST_ZABBIX_SERVER_ID + 1, "system");
 }
 
+void test_createTableReplicaGeneration(void)
+{
+	assertCreateTable(TEST_ZABBIX_SERVER_ID + 2, "replica_generation");
+}
+
 void test_createTableTriggersRaw2_0(void)
 {
-	assertCreateTable(TEST_ZABBIX_SERVER_ID + 2, "triggers_raw_2_0");
+	assertCreateTable(TEST_ZABBIX_SERVER_ID + 3, "triggers_raw_2_0");
 }
 
 } // testDBClientZabbix

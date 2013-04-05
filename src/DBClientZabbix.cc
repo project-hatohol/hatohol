@@ -21,6 +21,7 @@
 #include "ConfigManager.h"
 
 static const char *TABLE_NAME_SYSTEM = "system";
+static const char *TABLE_NAME_REPLICA_GENERATION = "replica_generation";
 static const char *TABLE_NAME_TRIGGERS_RAW_2_0 = "triggers_raw_2_0";
 
 static const ColumnDef COLUMN_DEF_SYSTEM[] = {
@@ -51,7 +52,36 @@ static const ColumnDef COLUMN_DEF_SYSTEM[] = {
 static const size_t NUM_COLUMNS_SYSTEM =
   sizeof(COLUMN_DEF_SYSTEM) / sizeof(ColumnDef);
 
-static const ColumnDef TRIGGERS_RAW_2_0[] = {
+static const ColumnDef COLUMN_DEF_REPLICA_GENERATION[] = {
+{
+	ITEM_ID_NOT_SET,                   // itemId
+	TABLE_NAME_REPLICA_GENERATION,     // tableName
+	"replica_generation_id",           // columnName
+	SQL_COLUMN_TYPE_BIGUINT,           // type
+	20,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_PRI,                       // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}, {
+	ITEM_ID_NOT_SET,                   // itemId
+	TABLE_NAME_REPLICA_GENERATION,     // tableName
+	"time",                            // columnName
+	SQL_COLUMN_TYPE_BIGUINT,           // type
+	20,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_UNI,                       // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}
+};
+static const size_t NUM_COLUMNS_REPLICA_GENERATION =
+  sizeof(COLUMN_DEF_REPLICA_GENERATION) / sizeof(ColumnDef);
+
+
+static const ColumnDef COLUMN_DEF_TRIGGERS_RAW_2_0[] = {
 {
 	ITEM_ID_NOT_SET,                   // itemId
 	TABLE_NAME_TRIGGERS_RAW_2_0,       // tableName
@@ -219,8 +249,8 @@ static const ColumnDef TRIGGERS_RAW_2_0[] = {
 	"0",                               // defaultValue
 }
 };
-static const size_t NUM_TRIGGERS_RAW_2_0 =
-   sizeof(TRIGGERS_RAW_2_0) / sizeof(ColumnDef);
+static const size_t NUM_COLUMNS_TRIGGERS_RAW_2_0 =
+   sizeof(COLUMN_DEF_TRIGGERS_RAW_2_0) / sizeof(ColumnDef);
 
 struct DBClientZabbix::PrivateContext
 {
@@ -292,6 +322,12 @@ void DBClientZabbix::dbSetupFunc(DBDomainId domainId)
 	const string dbPath = DBAgentSQLite3::findDBPath(domainId);
 	if (!DBAgentSQLite3::isTableExisting(dbPath, TABLE_NAME_SYSTEM))
 		createTableSystem(dbPath);
+
+	if (!DBAgentSQLite3::isTableExisting(dbPath,
+	                                     TABLE_NAME_REPLICA_GENERATION)) {
+		createTableReplicaGeneration(dbPath);
+	}
+
 	if (!DBAgentSQLite3::isTableExisting(dbPath,
 	                                     TABLE_NAME_TRIGGERS_RAW_2_0)) {
 		createTableTriggersRaw2_0(dbPath);
@@ -307,12 +343,21 @@ void DBClientZabbix::createTableSystem(const string &dbPath)
 	DBAgentSQLite3::createTable(dbPath, arg);
 }
 
+void DBClientZabbix::createTableReplicaGeneration(const string &dbPath)
+{
+	TableCreationArg arg;
+	arg.tableName  = TABLE_NAME_REPLICA_GENERATION;
+	arg.numColumns = NUM_COLUMNS_REPLICA_GENERATION;
+	arg.columnDefs = COLUMN_DEF_REPLICA_GENERATION;
+	DBAgentSQLite3::createTable(dbPath, arg);
+}
+
 void DBClientZabbix::createTableTriggersRaw2_0(const string &dbPath)
 {
 	TableCreationArg arg;
 	arg.tableName  = TABLE_NAME_TRIGGERS_RAW_2_0;
-	arg.numColumns = NUM_TRIGGERS_RAW_2_0;
-	arg.columnDefs = TRIGGERS_RAW_2_0;
+	arg.numColumns = NUM_COLUMNS_TRIGGERS_RAW_2_0;
+	arg.columnDefs = COLUMN_DEF_TRIGGERS_RAW_2_0;
 	DBAgentSQLite3::createTable(dbPath, arg);
 }
 
