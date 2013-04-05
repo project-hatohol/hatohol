@@ -14,6 +14,57 @@ namespace testDBAgentSQLite3 {
 
 static string dbPath = "/tmp/testDBAgentSQLite3.db";
 
+static const char *TABLE_NAME_TEST = "test_table";
+static const ColumnDef COLUMN_DEF_TEST[] = {
+{
+	ITEM_ID_NOT_SET,                   // itemId
+	TABLE_NAME_TEST,                   // tableName
+	"id",                              // columnName
+	SQL_COLUMN_TYPE_BIGUINT,           // type
+	20,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_PRI,                       // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+},{
+	ITEM_ID_NOT_SET,                   // itemId
+	TABLE_NAME_TEST,                   // tableName
+	"age",                             // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	11,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+},{
+	ITEM_ID_NOT_SET,                   // itemId
+	TABLE_NAME_TEST,                   // tableName
+	"name",                            // columnName
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	255,                               // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+},{
+	ITEM_ID_NOT_SET,                   // itemId
+	TABLE_NAME_TEST,                   // tableName
+	"height",                          // columnName
+	SQL_COLUMN_TYPE_DOUBLE,            // type
+	3,                                 // columnLength
+	1,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}
+};
+static const size_t NUM_COLUMNS_TEST =
+  sizeof(COLUMN_DEF_TEST) / sizeof(ColumnDef);
+
 static void deleteDB(void)
 {
 	unlink(dbPath.c_str());
@@ -207,6 +258,22 @@ void test_testGetTriggerInfoList(void)
 		actualText += makeExpectedOutput(&(*it));
 	}
 	cppcut_assert_equal(expectedText, actualText);
+}
+
+void test_createStatic(void)
+{
+	TableCreationArg arg;
+	arg.tableName = TABLE_NAME_TEST;
+	arg.numColumns = NUM_COLUMNS_TEST;
+	arg.columnDefs = COLUMN_DEF_TEST;
+	DBAgentSQLite3::createTable(dbPath, arg);
+
+	// check if the table has been created successfully
+	cut_assert_exist_path(dbPath.c_str());
+	string cmd = StringUtils::sprintf("sqlite3 %s \".table\"",
+	                                  dbPath.c_str());
+	string output = executeCommand(cmd);
+	assertExist(TABLE_NAME_TEST, output);
 }
 
 } // testDBAgentSQLite3
