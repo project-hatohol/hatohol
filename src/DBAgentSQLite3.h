@@ -44,7 +44,7 @@ public:
 	                            const string &tableName);
 	static void createTable(const string &dbPath,
 	                        TableCreationArg &tableCreationArg);
-
+	static void insert(const string &dbPath, RowInsertArg &rowInsertArg);
 
 	// constructor and destructor
 	DBAgentSQLite3(DBDomainId domainId = DefaultDBDomainId);
@@ -74,6 +74,7 @@ protected:
 	                            const string &tableName);
 	static void createTable(sqlite3 *db,
 	                        TableCreationArg &tableCreationArg);
+	static void insert(sqlite3 *db, RowInsertArg &rowInsertArg);
 	static void updateDBIfNeeded(const string &dbPath);
 	static void createTableSystem(const string &dbPath);
 	static void createTableServers(const string &dbPath);

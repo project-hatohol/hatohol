@@ -156,6 +156,18 @@ void DBAgentSQLite3::createTable(const string &dbPath,
 	sqlite3_close(db);
 }
 
+void DBAgentSQLite3::insert(const string &dbPath, RowInsertArg &rowInsertArg)
+{
+	sqlite3 *db = openDatabase(dbPath);
+	try {
+		insert(db, rowInsertArg);
+	} catch (...) {
+		sqlite3_close(db);
+		throw;
+	}
+	sqlite3_close(db);
+}
+
 DBAgentSQLite3::DBAgentSQLite3(DBDomainId domainId)
 : DBAgent(domainId),
   m_ctx(NULL)
@@ -540,6 +552,65 @@ void DBAgentSQLite3::createTable(sqlite3 *db,
 		createIndex(db, tableCreationArg.tableName,
 		            tableCreationArg.columnDefs, "unique_index",
 		            uniqueKeyColumnIndexVector, isUniqueKey);
+	}
+}
+
+void DBAgentSQLite3::insert(sqlite3 *db, RowInsertArg &rowInsertArg)
+{
+	ASURA_ASSERT(rowInsertArg.row.size() == rowInsertArg.numColumns,
+	             "Invalid number of colums: %zd, %zd",
+	             rowInsertArg.row.size(), rowInsertArg.numColumns);
+
+	// make a SQL statement
+	char *_sql;
+	string fmt;
+	string sql = "INSERT INTO ";
+	sql += rowInsertArg.tableName;
+	sql += " VALUES (";
+	for (size_t i = 0; i < rowInsertArg.row.size(); i++) {
+		InsertValue &value = rowInsertArg.row[i];
+		const ColumnDef &columnDef = rowInsertArg.columnDefs[i];
+
+		// set type
+		switch (columnDef.type) {
+		case SQL_COLUMN_TYPE_INT:
+			sql += StringUtils::sprintf("%d", value.vInt);
+			break;
+		case SQL_COLUMN_TYPE_BIGUINT:
+			sql += StringUtils::sprintf("%"PRIu64, value.vUint64);
+			break;
+		case SQL_COLUMN_TYPE_VARCHAR:
+		case SQL_COLUMN_TYPE_CHAR:
+		case SQL_COLUMN_TYPE_TEXT:
+			_sql = sqlite3_mprintf("%Q", value.vString);
+			sql += _sql;
+			sqlite3_free(_sql);
+			break;
+		case SQL_COLUMN_TYPE_DOUBLE:
+			fmt = StringUtils::sprintf("%%%d.%dlf",
+			                           columnDef.columnLength,
+			                           columnDef.decFracLength);
+			sql += StringUtils::sprintf(fmt.c_str(), value.vDouble);
+			break;
+		default:
+			ASURA_ASSERT(true, "Unknown column type: %d (%s)",
+			             columnDef.type, columnDef.columnName);
+		}
+		sql += " ";
+
+		if (i < rowInsertArg.row.size()- 1)
+			sql += ",";
+	}
+	sql += ")";
+
+	// exectute the SQL statement
+	char *errmsg;
+	int result = sqlite3_exec(db, sql.c_str(), NULL, NULL, &errmsg);
+	if (result != SQLITE_OK) {
+		string err = errmsg;
+		sqlite3_free(errmsg);
+		THROW_ASURA_EXCEPTION("Failed to exec: %d, %s, %s",
+		                      result, err.c_str(), sql.c_str());
 	}
 }
 
