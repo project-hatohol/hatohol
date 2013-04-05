@@ -24,6 +24,17 @@ static const char *tableNameTriggersRaw2_0 = "triggers_raw_2_0";
 
 static ColumnDef triggersRaw2_0[] = {
 {
+	ITEM_ID_NOT_SET,                   // itemId
+	tableNameTriggersRaw2_0,           // tableName
+	"replica_generation_id",           // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	11,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_MUL,                       // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}, {
 	ITEM_ID_ZBX_TRIGGERS_TRIGGERID,    // itemId
 	tableNameTriggersRaw2_0,           // tableName
 	"triggerid",                       // columnName
