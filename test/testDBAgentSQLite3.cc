@@ -284,7 +284,7 @@ void test_insertStatic(void)
 	arg.numColumns = NUM_COLUMNS_TEST;
 	arg.columnDefs = COLUMN_DEF_TEST;
 
-	DBAgentInsertValue val;
+	DBAgentValue val;
 	const uint64_t ID = 1;
 	const int AGE = 14;
 	const char *NAME = "rei";

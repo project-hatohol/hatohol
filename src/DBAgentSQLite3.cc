@@ -580,7 +580,7 @@ void DBAgentSQLite3::insert(sqlite3 *db, DBAgentInsertArg &insertArg)
 	sql += insertArg.tableName;
 	sql += " VALUES (";
 	for (size_t i = 0; i < insertArg.row.size(); i++) {
-		DBAgentInsertValue &value = insertArg.row[i];
+		DBAgentValue &value = insertArg.row[i];
 		const ColumnDef &columnDef = insertArg.columnDefs[i];
 
 		// set type

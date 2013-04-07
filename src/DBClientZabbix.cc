@@ -352,7 +352,7 @@ void DBClientZabbix::createTableSystem(const string &dbPath)
 	insArg.numColumns = NUM_COLUMNS_SYSTEM;
 	insArg.columnDefs = COLUMN_DEF_SYSTEM;
 
-	DBAgentInsertValue val;
+	DBAgentValue val;
 	val.vUint64 = DB_VERSION;
 	insArg.row.push_back(val);
 

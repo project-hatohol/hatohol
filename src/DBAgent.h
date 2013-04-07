@@ -72,7 +72,7 @@ struct DBAgentTableCreationArg {
 	const ColumnDef    *columnDefs;
 };
 
-union DBAgentInsertValue {
+union DBAgentValue {
 	int         vInt;
 	uint64_t    vUint64;
 	const char *vString;
@@ -81,7 +81,7 @@ union DBAgentInsertValue {
 
 struct DBAgentInsertArg {
 	string tableName;
-	vector<DBAgentInsertValue> row;
+	vector<DBAgentValue> row;
 	size_t              numColumns;
 	const ColumnDef    *columnDefs;
 };
