@@ -43,8 +43,9 @@ public:
 	static bool isTableExisting(const string &dbPath,
 	                            const string &tableName);
 	static void createTable(const string &dbPath,
-	                        TableCreationArg &tableCreationArg);
-	static void insert(const string &dbPath, RowInsertArg &rowInsertArg);
+	                        DBAgentTableCreationArg &tableCreationArg);
+	static void insert(const string &dbPath,
+	                   DBAgentInsertArg &intsertArg);
 	static void select(const string &dbPath, DBAgentSelectArg &selecttArg);
 
 	// constructor and destructor
@@ -65,7 +66,7 @@ public:
 	virtual void
 	   addTriggerInfo(TriggerInfo *triggerInfo);
 	virtual void getTriggerInfoList(TriggerInfoList &triggerInfoList);
-	virtual void createTable(TableCreationArg &tableCreationArg);
+	virtual void createTable(DBAgentTableCreationArg &tableCreationArg);
 
 protected:
 	static sqlite3 *openDatabase(const string &dbPath);
@@ -74,8 +75,8 @@ protected:
 	static bool isTableExisting(sqlite3 *db,
 	                            const string &tableName);
 	static void createTable(sqlite3 *db,
-	                        TableCreationArg &tableCreationArg);
-	static void insert(sqlite3 *db, RowInsertArg &rowInsertArg);
+	                        DBAgentTableCreationArg &tableCreationArg);
+	static void insert(sqlite3 *db, DBAgentInsertArg &insertArg);
 	static void select(sqlite3 *db, DBAgentSelectArg &selectArg);
 	static void updateDBIfNeeded(const string &dbPath);
 	static void createTableSystem(const string &dbPath);

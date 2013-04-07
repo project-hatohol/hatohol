@@ -263,7 +263,7 @@ void test_testGetTriggerInfoList(void)
 
 void test_createStatic(void)
 {
-	TableCreationArg arg;
+	DBAgentTableCreationArg arg;
 	arg.tableName = TABLE_NAME_TEST;
 	arg.numColumns = NUM_COLUMNS_TEST;
 	arg.columnDefs = COLUMN_DEF_TEST;
@@ -279,12 +279,12 @@ void test_createStatic(void)
 
 void test_insertStatic(void)
 {
-	RowInsertArg arg;
+	DBAgentInsertArg arg;
 	arg.tableName = TABLE_NAME_TEST;
 	arg.numColumns = NUM_COLUMNS_TEST;
 	arg.columnDefs = COLUMN_DEF_TEST;
 
-	InsertValue val;
+	DBAgentInsertValue val;
 	const uint64_t ID = 1;
 	const int AGE = 14;
 	const char *NAME = "rei";
@@ -304,7 +304,7 @@ void test_insertStatic(void)
 	arg.row.push_back(val);
 
 	test_createStatic();
-	TableCreationArg creatArg;
+	DBAgentTableCreationArg creatArg;
 	creatArg.tableName = TABLE_NAME_TEST;
 	creatArg.numColumns = NUM_COLUMNS_TEST;
 	creatArg.columnDefs = COLUMN_DEF_TEST;

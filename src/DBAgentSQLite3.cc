@@ -144,7 +144,7 @@ bool DBAgentSQLite3::isTableExisting(const string &dbPath,
 }
 
 void DBAgentSQLite3::createTable(const string &dbPath,
-                                 TableCreationArg &tableCreationArg)
+                                 DBAgentTableCreationArg &tableCreationArg)
 {
 	sqlite3 *db = openDatabase(dbPath);
 	try {
@@ -156,11 +156,11 @@ void DBAgentSQLite3::createTable(const string &dbPath,
 	sqlite3_close(db);
 }
 
-void DBAgentSQLite3::insert(const string &dbPath, RowInsertArg &rowInsertArg)
+void DBAgentSQLite3::insert(const string &dbPath, DBAgentInsertArg &insertArg)
 {
 	sqlite3 *db = openDatabase(dbPath);
 	try {
-		insert(db, rowInsertArg);
+		insert(db, insertArg);
 	} catch (...) {
 		sqlite3_close(db);
 		throw;
@@ -380,7 +380,7 @@ int DBAgentSQLite3::getDBVersion(void)
 	return getDBVersion(m_ctx->db);
 }
 
-void DBAgentSQLite3::createTable(TableCreationArg &tableCreationArg)
+void DBAgentSQLite3::createTable(DBAgentTableCreationArg &tableCreationArg)
 {
 	ASURA_ASSERT(m_ctx->db, "m_ctx->db is NULL");
 	createTable(m_ctx->db,tableCreationArg);
@@ -484,7 +484,7 @@ bool DBAgentSQLite3::isTableExisting(sqlite3 *db,
 }
 
 void DBAgentSQLite3::createTable(sqlite3 *db,
-                                 TableCreationArg &tableCreationArg)
+                                 DBAgentTableCreationArg &tableCreationArg)
 {
 	vector<size_t> multipleKeyColumnIndexVector;
 	vector<size_t> uniqueKeyColumnIndexVector;
@@ -567,21 +567,21 @@ void DBAgentSQLite3::createTable(sqlite3 *db,
 	}
 }
 
-void DBAgentSQLite3::insert(sqlite3 *db, RowInsertArg &rowInsertArg)
+void DBAgentSQLite3::insert(sqlite3 *db, DBAgentInsertArg &insertArg)
 {
-	ASURA_ASSERT(rowInsertArg.row.size() == rowInsertArg.numColumns,
+	ASURA_ASSERT(insertArg.row.size() == insertArg.numColumns,
 	             "Invalid number of colums: %zd, %zd",
-	             rowInsertArg.row.size(), rowInsertArg.numColumns);
+	             insertArg.row.size(), insertArg.numColumns);
 
 	// make a SQL statement
 	char *_sql;
 	string fmt;
 	string sql = "INSERT INTO ";
-	sql += rowInsertArg.tableName;
+	sql += insertArg.tableName;
 	sql += " VALUES (";
-	for (size_t i = 0; i < rowInsertArg.row.size(); i++) {
-		InsertValue &value = rowInsertArg.row[i];
-		const ColumnDef &columnDef = rowInsertArg.columnDefs[i];
+	for (size_t i = 0; i < insertArg.row.size(); i++) {
+		DBAgentInsertValue &value = insertArg.row[i];
+		const ColumnDef &columnDef = insertArg.columnDefs[i];
 
 		// set type
 		switch (columnDef.type) {
@@ -610,7 +610,7 @@ void DBAgentSQLite3::insert(sqlite3 *db, RowInsertArg &rowInsertArg)
 		}
 		sql += " ";
 
-		if (i < rowInsertArg.row.size()- 1)
+		if (i < insertArg.row.size()- 1)
 			sql += ",";
 	}
 	sql += ")";

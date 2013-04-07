@@ -340,19 +340,19 @@ void DBClientZabbix::dbSetupFunc(DBDomainId domainId)
 
 void DBClientZabbix::createTableSystem(const string &dbPath)
 {
-	TableCreationArg arg;
+	DBAgentTableCreationArg arg;
 	arg.tableName  = TABLE_NAME_SYSTEM;
 	arg.numColumns = NUM_COLUMNS_SYSTEM;
 	arg.columnDefs = COLUMN_DEF_SYSTEM;
 	DBAgentSQLite3::createTable(dbPath, arg);
 
 	// insert default value
-	RowInsertArg insArg;
+	DBAgentInsertArg insArg;
 	insArg.tableName = TABLE_NAME_SYSTEM;
 	insArg.numColumns = NUM_COLUMNS_SYSTEM;
 	insArg.columnDefs = COLUMN_DEF_SYSTEM;
 
-	InsertValue val;
+	DBAgentInsertValue val;
 	val.vUint64 = DB_VERSION;
 	insArg.row.push_back(val);
 
@@ -364,7 +364,7 @@ void DBClientZabbix::createTableSystem(const string &dbPath)
 
 void DBClientZabbix::createTableReplicaGeneration(const string &dbPath)
 {
-	TableCreationArg arg;
+	DBAgentTableCreationArg arg;
 	arg.tableName  = TABLE_NAME_REPLICA_GENERATION;
 	arg.numColumns = NUM_COLUMNS_REPLICA_GENERATION;
 	arg.columnDefs = COLUMN_DEF_REPLICA_GENERATION;
@@ -373,7 +373,7 @@ void DBClientZabbix::createTableReplicaGeneration(const string &dbPath)
 
 void DBClientZabbix::createTableTriggersRaw2_0(const string &dbPath)
 {
-	TableCreationArg arg;
+	DBAgentTableCreationArg arg;
 	arg.tableName  = TABLE_NAME_TRIGGERS_RAW_2_0;
 	arg.numColumns = NUM_COLUMNS_TRIGGERS_RAW_2_0;
 	arg.columnDefs = COLUMN_DEF_TRIGGERS_RAW_2_0;

@@ -66,22 +66,22 @@ struct TriggerInfo {
 typedef list<TriggerInfo>         TriggerInfoList;
 typedef TriggerInfoList::iterator TriggerInfoListIterator;
 
-struct TableCreationArg {
+struct DBAgentTableCreationArg {
 	string              tableName;
 	size_t              numColumns;
 	const ColumnDef    *columnDefs;
 };
 
-union InsertValue {
+union DBAgentInsertValue {
 	int         vInt;
 	uint64_t    vUint64;
 	const char *vString;
 	double      vDouble;
 };
 
-struct RowInsertArg {
+struct DBAgentInsertArg {
 	string tableName;
-	vector<InsertValue> row;
+	vector<DBAgentInsertValue> row;
 	size_t              numColumns;
 	const ColumnDef    *columnDefs;
 };
@@ -111,7 +111,7 @@ public:
 	virtual void
 	   getTargetServers(MonitoringServerInfoList &monitoringServers) = 0;
 
-	virtual void createTable(TableCreationArg &tableCreationArg) = 0;
+	virtual void createTable(DBAgentTableCreationArg &tableCreationArg) = 0;
 
 private:
 	struct PrivateContext;
