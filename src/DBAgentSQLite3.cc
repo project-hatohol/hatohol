@@ -168,6 +168,18 @@ void DBAgentSQLite3::insert(const string &dbPath, RowInsertArg &rowInsertArg)
 	sqlite3_close(db);
 }
 
+void DBAgentSQLite3::select(const string &dbPath, DBAgentSelectArg &selectArg)
+{
+	sqlite3 *db = openDatabase(dbPath);
+	try {
+		select(db, selectArg);
+	} catch (...) {
+		sqlite3_close(db);
+		throw;
+	}
+	sqlite3_close(db);
+}
+
 DBAgentSQLite3::DBAgentSQLite3(DBDomainId domainId)
 : DBAgent(domainId),
   m_ctx(NULL)
@@ -612,6 +624,11 @@ void DBAgentSQLite3::insert(sqlite3 *db, RowInsertArg &rowInsertArg)
 		THROW_ASURA_EXCEPTION("Failed to exec: %d, %s, %s",
 		                      result, err.c_str(), sql.c_str());
 	}
+}
+
+void DBAgentSQLite3::select(sqlite3 *db, DBAgentSelectArg &selectArg)
+{
+	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
 }
 
 void DBAgentSQLite3::updateDBIfNeeded(const string &dbPath)

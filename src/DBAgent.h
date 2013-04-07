@@ -86,6 +86,10 @@ struct RowInsertArg {
 	const ColumnDef    *columnDefs;
 };
 
+struct DBAgentSelectArg {
+	string tableName;
+};
+
 typedef uint32_t DBDomainId;
 typedef void (*DBSetupFunc)(DBDomainId domainId);
 static const DBDomainId DefaultDBDomainId = 0;
