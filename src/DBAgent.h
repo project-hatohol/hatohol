@@ -92,7 +92,7 @@ struct DBAgentSelectArg {
 	vector<size_t>      columnIndexes;
 
 	// output
-	ItemDataVector      dataVector;
+	ItemTablePtr        dataTable;
 };
 
 typedef uint32_t DBDomainId;
