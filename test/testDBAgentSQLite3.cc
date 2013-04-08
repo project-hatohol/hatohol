@@ -178,8 +178,8 @@ void _assertInsertStatic(uint64_t id, int age, const char *name, double height)
 	               dbPath.c_str(), TABLE_NAME_TEST, id);
 	string output = executeCommand(cmd);
 	
-	const int indexDefHeight = 3;
-	const ColumnDef &columnDefHeight = COLUMN_DEF_TEST[indexDefHeight];
+	const ColumnDef &columnDefHeight =
+	   COLUMN_DEF_TEST[IDX_TEST_TABLE_HEIGHT];
 	
 	// Here we also use PRId64 (not PRIu64) with the same
 	//  reason of the above comment.
