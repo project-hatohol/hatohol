@@ -156,11 +156,7 @@ void setup(void)
 // ---------------------------------------------------------------------------
 void test_createSystemTable(void)
 {
-	{
-		// we use a block to call destructor of dbAgent for
-		// closing a DB.
-		DBAgentSQLite3 dbAgent;
-	}
+	DBAgentSQLite3 dbAgent;
 	cut_assert_exist_path(dbPath.c_str());
 	cppcut_assert_equal(DBAgentSQLite3::DB_VERSION, getDBVersion());
 }
