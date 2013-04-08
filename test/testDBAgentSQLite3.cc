@@ -66,6 +66,13 @@ static const ColumnDef COLUMN_DEF_TEST[] = {
 static const size_t NUM_COLUMNS_TEST =
   sizeof(COLUMN_DEF_TEST) / sizeof(ColumnDef);
 
+enum {
+	IDX_TEST_TABLE_ID,
+	IDX_TEST_TABLE_AGE,
+	IDX_TEST_TABLE_NAME,
+	IDX_TEST_TABLE_HEIGHT,
+};
+
 static void deleteDB(void)
 {
 	unlink(dbPath.c_str());
@@ -381,6 +388,79 @@ void test_insertStaticUint64_0xffffffffffffffff(void)
 	const char *NAME = "rei";
 	const double HEIGHT = 158.2;
 	assertInsertStatic(ID, AGE, NAME, HEIGHT);
+}
+
+void test_selectStatic(void)
+{
+	// make table
+	assertCreateStatic();
+
+	// insert data
+	const size_t numData = 3;
+	const uint64_t ID[numData]   = {1, 2, 0xfedcba9876543210};
+	const int AGE[numData]       = {14, 17, 180};
+	const char *NAME[numData]    = {"rei", "aoi", "giraffe"};
+	const double HEIGHT[numData] = {158.2, 203.9, -23593.2};
+	for (size_t i = 0; i < numData; i++)
+		assertInsertStatic(ID[i], AGE[i], NAME[i], HEIGHT[i]);
+	map<uint64_t, size_t> idMap;
+	for (size_t i = 0; i < numData; i++)
+		idMap[ID[i]] = i;
+	cppcut_assert_equal(numData, idMap.size());
+
+	// get records
+	DBAgentSelectArg arg;
+	arg.tableName = TABLE_NAME_TEST;
+	arg.columnDefs = COLUMN_DEF_TEST;
+	arg.columnIndexes.push_back(IDX_TEST_TABLE_ID);
+	arg.columnIndexes.push_back(IDX_TEST_TABLE_AGE);
+	arg.columnIndexes.push_back(IDX_TEST_TABLE_NAME);
+	arg.columnIndexes.push_back(IDX_TEST_TABLE_HEIGHT);
+	DBAgentSQLite3::select(dbPath, arg);
+
+	// check the result
+	const ItemGroupList &groupList = arg.dataTable->getItemGroupList();
+	cppcut_assert_equal(groupList.size(), arg.dataTable->getNumberOfRows());
+	ItemGroupListConstIterator it = groupList.begin();
+	size_t srcDataIdx = 0;
+	map<uint64_t, size_t>::iterator itrId;
+	for (; it != groupList.end(); ++it, srcDataIdx++) {
+		ItemData *itemData;
+		size_t columnIdx = 0;
+		const ItemGroup *itemGroup = *it;
+		cppcut_assert_equal(itemGroup->getNumberOfItems(),
+		                    NUM_COLUMNS_TEST);
+
+		// id
+		uint64_t id;
+		itemData = itemGroup->getItemAt(columnIdx++);
+		itemData->get(&id);
+		itrId = idMap.find(id);
+		cppcut_assert_equal(false, itrId == idMap.end(),
+		                    cut_message("id: 0x%"PRIx64, id));
+		srcDataIdx = itrId->second;
+
+		// age
+		int valInt;
+		itemData = itemGroup->getItemAt(columnIdx++);
+		itemData->get(&valInt);
+		cppcut_assert_equal(AGE[srcDataIdx], valInt);
+
+		// name
+		string valStr;
+		itemData = itemGroup->getItemAt(columnIdx++);
+		itemData->get(&valStr);
+		cppcut_assert_equal(NAME[srcDataIdx], valStr.c_str());
+
+		// height
+		double valDouble;
+		itemData = itemGroup->getItemAt(columnIdx++);
+		itemData->get(&valDouble);
+		cppcut_assert_equal(HEIGHT[srcDataIdx], valDouble);
+
+		// delete the element from idSet
+		idMap.erase(itrId);
+	}
 }
 
 } // testDBAgentSQLite3
