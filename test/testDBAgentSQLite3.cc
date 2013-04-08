@@ -338,5 +338,44 @@ void test_insertStatic(void)
 	assertInsertStatic(ID, AGE, NAME, HEIGHT);
 }
 
+void test_insertStaticUint64_0x7fffffffffffffff(void)
+{
+	// create table
+	assertCreateStatic();
+
+	// insert a row
+	const uint64_t ID = 0x7fffffffffffffff;
+	const int AGE = 14;
+	const char *NAME = "rei";
+	const double HEIGHT = 158.2;
+	assertInsertStatic(ID, AGE, NAME, HEIGHT);
+}
+
+void test_insertStaticUint64_0x8000000000000000(void)
+{
+	// create table
+	assertCreateStatic();
+
+	// insert a row
+	const uint64_t ID = 0x8000000000000000;
+	const int AGE = 14;
+	const char *NAME = "rei";
+	const double HEIGHT = 158.2;
+	assertInsertStatic(ID, AGE, NAME, HEIGHT);
+}
+
+void test_insertStaticUint64_0xffffffffffffffff(void)
+{
+	// create table
+	assertCreateStatic();
+
+	// insert a row
+	const uint64_t ID = 0xffffffffffffffff;
+	const int AGE = 14;
+	const char *NAME = "rei";
+	const double HEIGHT = 158.2;
+	assertInsertStatic(ID, AGE, NAME, HEIGHT);
+}
+
 } // testDBAgentSQLite3
 
