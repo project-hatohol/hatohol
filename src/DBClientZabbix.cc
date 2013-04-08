@@ -19,6 +19,7 @@
 #include "DBClientZabbix.h"
 #include "ItemEnum.h"
 #include "ConfigManager.h"
+#include "AsuraException.h"
 
 const int DBClientZabbix::DB_VERSION = 1;
 
@@ -55,6 +56,12 @@ static const ColumnDef COLUMN_DEF_SYSTEM[] = {
 };
 static const size_t NUM_COLUMNS_SYSTEM =
   sizeof(COLUMN_DEF_SYSTEM) / sizeof(ColumnDef);
+
+enum {
+	IDX_SYSTEM_VERSION,
+	IDX_SYSTEM_LATEST_TRIGGERS_GENERATION_ID,
+	NUM_IDX_SYSTEM,
+};
 
 static const ColumnDef COLUMN_DEF_REPLICA_GENERATION[] = {
 {
@@ -384,9 +391,33 @@ void DBClientZabbix::createTableTriggersRaw2_0(const string &dbPath)
 
 void DBClientZabbix::updateDBIfNeeded(const string &dbPath)
 {
-	if (getDBVersion() == DB_VERSION)
+	if (getDBVersion(dbPath) == DB_VERSION)
 		return;
 	THROW_ASURA_EXCEPTION("Not implemented: %s", __PRETTY_FUNCTION__);
+}
+
+bool DBClientZabbix::getDBVersion(const string &dbPath)
+{
+	DBAgentSelectArg arg;
+	arg.tableName = TABLE_NAME_SYSTEM;
+	arg.columnDefs = COLUMN_DEF_SYSTEM;
+	arg.columnIndexes.push_back(IDX_SYSTEM_VERSION);
+	DBAgentSQLite3::select(dbPath, arg);
+
+	const ItemGroupList &itemGroupList = arg.dataTable->getItemGroupList();
+	ASURA_ASSERT(
+	  itemGroupList.size() == 1,
+	  "itemGroupList.size(): %zd", itemGroupList.size());
+	ItemGroupListConstIterator it = itemGroupList.begin();
+	const ItemGroup *itemGroup = *it;
+	ASURA_ASSERT(
+	  itemGroup->getNumberOfItems() == 1,
+	  "itemGroup->getNumberOfItems: %zd", itemGroup->getNumberOfItems());
+	ItemInt *itemVersion =
+	  dynamic_cast<ItemInt *>(itemGroup->getItemAt(0));
+	ASURA_ASSERT(itemVersion != NULL, "type: itemVersion: %s\n",
+	             DEMANGLED_TYPE_NAME(*itemVersion));
+	return itemVersion->get();
 }
 
 void DBClientZabbix::prepareSetupFuncCallback(size_t zabbixServerId)
