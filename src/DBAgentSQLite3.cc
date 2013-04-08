@@ -632,7 +632,7 @@ void DBAgentSQLite3::insert(sqlite3 *db, DBAgentInsertArg &insertArg)
 			sql += StringUtils::sprintf("%d", value.vInt);
 			break;
 		case SQL_COLUMN_TYPE_BIGUINT:
-			sql += StringUtils::sprintf("%"PRIu64, value.vUint64);
+			sql += StringUtils::sprintf("%"PRId64, value.vUint64);
 			break;
 		case SQL_COLUMN_TYPE_VARCHAR:
 		case SQL_COLUMN_TYPE_CHAR:

@@ -162,15 +162,21 @@ void _assertInsertStatic(uint64_t id, int age, const char *name, double height)
 	DBAgentSQLite3::insert(dbPath, arg);
 
 	// check if the columns is inserted
+
+	// INFO: We use the trick that unsigned interger is stored as
+	// signed interger. So large integers (MSB bit is one) are recognized
+	// as negative intergers. So we use PRId64 in the following statement.
 	string cmd = StringUtils::sprintf(
-	               "sqlite3 %s \"select * from %s where id=%"PRIu64 "\"",
+	               "sqlite3 %s \"select * from %s where id=%"PRId64 "\"",
 	               dbPath.c_str(), TABLE_NAME_TEST, id);
 	string output = executeCommand(cmd);
 	
 	const int indexDefHeight = 3;
 	const ColumnDef &columnDefHeight = COLUMN_DEF_TEST[indexDefHeight];
 	
-	string fmt = StringUtils::sprintf("%%"PRIu64"|%%d|%%s|%%%d.%dlf\n",
+	// Here we also use PRId64 (not PRIu64) with the same
+	//  reason of the above comment.
+	string fmt = StringUtils::sprintf("%%"PRId64"|%%d|%%s|%%%d.%dlf\n",
 	                                  columnDefHeight.columnLength,
 	                                  columnDefHeight.decFracLength);
 	string expectedOut = StringUtils::sprintf(fmt.c_str(),
