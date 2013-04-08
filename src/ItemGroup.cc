@@ -37,7 +37,7 @@ void ItemGroup::add(ItemData *data, bool doRef)
 	writeLock();
 	if (m_freeze) {
 		writeUnlock();
-		throw invalid_argument("Object: freezed");
+		THROW_ASURA_EXCEPTION("Object: freezed");
 	}
 
 	ItemDataType itemDataType = data->getItemType();
@@ -113,9 +113,7 @@ void ItemGroup::freeze(void)
 	}
 	if (m_groupType) {
 		writeUnlock();
-		string msg;
-		TRMSG(msg, "m_groupType: NULL");
-		throw logic_error(msg);
+		THROW_ASURA_EXCEPTION("m_groupType: NULL");
 	}
 
 	m_freeze = true;
