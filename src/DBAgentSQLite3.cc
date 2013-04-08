@@ -145,11 +145,14 @@ bool DBAgentSQLite3::isTableExisting(const string &dbPath,
 	bool exist;
 	sqlite3 *db = openDatabase(dbPath);
 	try {
+		execSql(db, "BEGIN");
 		exist = isTableExisting(db, tableName);
 	} catch (...) {
+		execSql(db, "ROLLBACK");
 		sqlite3_close(db);
 		throw;
 	}
+	execSql(db, "COMMIT");
 	sqlite3_close(db);
 	return exist;
 }
@@ -159,11 +162,14 @@ void DBAgentSQLite3::createTable(const string &dbPath,
 {
 	sqlite3 *db = openDatabase(dbPath);
 	try {
+		execSql(db, "BEGIN");
 		createTable(db, tableCreationArg);
 	} catch (...) {
+		execSql(db, "ROLLBACK");
 		sqlite3_close(db);
 		throw;
 	}
+	execSql(db, "COMMIT");
 	sqlite3_close(db);
 }
 
@@ -171,11 +177,14 @@ void DBAgentSQLite3::insert(const string &dbPath, DBAgentInsertArg &insertArg)
 {
 	sqlite3 *db = openDatabase(dbPath);
 	try {
+		execSql(db, "BEGIN");
 		insert(db, insertArg);
 	} catch (...) {
+		execSql(db, "ROLLBACK");
 		sqlite3_close(db);
 		throw;
 	}
+	execSql(db, "COMMIT");
 	sqlite3_close(db);
 }
 
@@ -183,11 +192,14 @@ void DBAgentSQLite3::select(const string &dbPath, DBAgentSelectArg &selectArg)
 {
 	sqlite3 *db = openDatabase(dbPath);
 	try {
+		execSql(db, "BEGIN");
 		select(db, selectArg);
 	} catch (...) {
+		execSql(db, "ROLLBACK");
 		sqlite3_close(db);
 		throw;
 	}
+	execSql(db, "COMMIT");
 	sqlite3_close(db);
 }
 
