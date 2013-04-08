@@ -135,6 +135,52 @@ void _assertCreateStatic(void)
 }
 #define assertCreateStatic() cut_trace(_assertCreateStatic())
 
+void _assertInsertStatic(uint64_t id, int age, const char *name, double height)
+{
+	DBAgentInsertArg arg;
+	arg.tableName = TABLE_NAME_TEST;
+	arg.numColumns = NUM_COLUMNS_TEST;
+	arg.columnDefs = COLUMN_DEF_TEST;
+
+	DBAgentValue val;
+	val.vUint64 = id;
+	arg.row.push_back(val);
+
+	val.vInt = age;
+	arg.row.push_back(val); 
+	val.vString = name;
+	arg.row.push_back(val);
+
+	// height
+	val.vDouble = height;
+	arg.row.push_back(val);
+
+	DBAgentTableCreationArg creatArg;
+	creatArg.tableName = TABLE_NAME_TEST;
+	creatArg.numColumns = NUM_COLUMNS_TEST;
+	creatArg.columnDefs = COLUMN_DEF_TEST;
+	DBAgentSQLite3::insert(dbPath, arg);
+
+	// check if the columns is inserted
+	string cmd = StringUtils::sprintf(
+	               "sqlite3 %s \"select * from %s where id=%"PRIu64 "\"",
+	               dbPath.c_str(), TABLE_NAME_TEST, id);
+	string output = executeCommand(cmd);
+	
+	const int indexDefHeight = 3;
+	const ColumnDef &columnDefHeight = COLUMN_DEF_TEST[indexDefHeight];
+	
+	string fmt = StringUtils::sprintf("%%"PRIu64"|%%d|%%s|%%%d.%dlf\n",
+	                                  columnDefHeight.columnLength,
+	                                  columnDefHeight.decFracLength);
+	string expectedOut = StringUtils::sprintf(fmt.c_str(),
+	                                          id, age, name, height);
+	cppcut_assert_equal(expectedOut, output);
+}
+
+#define assertInsertStatic(ID,AGE,NAME,HEIGHT) \
+cut_trace(_assertInsertStatic(ID,AGE,NAME,HEIGHT));
+
 static string makeExpectedOutput(MonitoringServerInfo *serverInfo)
 {
 	string expectedOut = StringUtils::sprintf
@@ -281,51 +327,15 @@ void test_createStatic(void)
 
 void test_insertStatic(void)
 {
-	DBAgentInsertArg arg;
-	arg.tableName = TABLE_NAME_TEST;
-	arg.numColumns = NUM_COLUMNS_TEST;
-	arg.columnDefs = COLUMN_DEF_TEST;
+	// create table
+	assertCreateStatic();
 
-	DBAgentValue val;
+	// insert a row
 	const uint64_t ID = 1;
 	const int AGE = 14;
 	const char *NAME = "rei";
 	const double HEIGHT = 158.2;
-
-	val.vUint64 = ID;
-	arg.row.push_back(val);
-
-	val.vInt = AGE;
-	arg.row.push_back(val);
-
-	val.vString = NAME;
-	arg.row.push_back(val);
-
-	// height
-	val.vDouble = HEIGHT;
-	arg.row.push_back(val);
-
-	test_createStatic();
-	DBAgentTableCreationArg creatArg;
-	creatArg.tableName = TABLE_NAME_TEST;
-	creatArg.numColumns = NUM_COLUMNS_TEST;
-	creatArg.columnDefs = COLUMN_DEF_TEST;
-	DBAgentSQLite3::insert(dbPath, arg);
-
-	// check if the columns is inserted
-	string cmd = StringUtils::sprintf("sqlite3 %s \"select * from %s\"",
-	                                  dbPath.c_str(), TABLE_NAME_TEST);
-	string output = executeCommand(cmd);
-	
-	const int indexDefHeight = 3;
-	const ColumnDef &columnDefHeight = COLUMN_DEF_TEST[indexDefHeight];
-	
-	string fmt = StringUtils::sprintf("%%"PRIu64"|%%d|%%s|%%%d.%dlf\n",
-	                                  columnDefHeight.columnLength,
-	                                  columnDefHeight.decFracLength);
-	string expectedOut = StringUtils::sprintf(fmt.c_str(),
-	                                          ID, AGE, NAME, HEIGHT);
-	cppcut_assert_equal(expectedOut, output);
+	assertInsertStatic(ID, AGE, NAME, HEIGHT);
 }
 
 } // testDBAgentSQLite3
