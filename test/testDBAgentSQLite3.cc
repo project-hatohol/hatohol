@@ -182,7 +182,7 @@ void _assertInsertStatic(uint64_t id, int age, const char *name, double height)
 	   COLUMN_DEF_TEST[IDX_TEST_TABLE_HEIGHT];
 	
 	// Here we also use PRId64 (not PRIu64) with the same
-	//  reason of the above comment.
+	// reason of the above comment.
 	string fmt = StringUtils::sprintf("%%"PRId64"|%%d|%%s|%%%d.%dlf\n",
 	                                  columnDefHeight.columnLength,
 	                                  columnDefHeight.decFracLength);
