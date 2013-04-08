@@ -162,10 +162,6 @@ void _assertInsertStatic(uint64_t id, int age, const char *name, double height)
 	val.vDouble = height;
 	arg.row.push_back(val);
 
-	DBAgentTableCreationArg creatArg;
-	creatArg.tableName = TABLE_NAME_TEST;
-	creatArg.numColumns = NUM_COLUMNS_TEST;
-	creatArg.columnDefs = COLUMN_DEF_TEST;
 	DBAgentSQLite3::insert(dbPath, arg);
 
 	// check if the columns is inserted
