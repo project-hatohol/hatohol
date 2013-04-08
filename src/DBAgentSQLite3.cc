@@ -28,6 +28,17 @@ using namespace mlpl;
 #define __STDC_FORMAT_MACROS
 #include <inttypes.h>
 
+#define MAKE_SQL_STATEMENT_FROM_VAARG(LAST_ARG, STR_NAME) \
+string STR_NAME; \
+{ \
+	va_list ap; \
+	va_start(ap, fmt); \
+	char *_sql = sqlite3_vmprintf(fmt, ap); \
+	STR_NAME = _sql; \
+	sqlite3_free(_sql); \
+	va_end(ap); \
+} \
+
 static const char *TABLE_NAME_SYSTEM = "system";
 static const char *TABLE_NAME_SERVERS = "servers";
 static const char *TABLE_NAME_TRIGGERS = "triggers";
@@ -400,6 +411,26 @@ sqlite3 *DBAgentSQLite3::openDatabase(const string &dbPath)
 		                      result, dbPath.c_str());
 	}
 	return db;
+}
+
+void DBAgentSQLite3::_execSql(sqlite3 *db, const string &sql)
+{
+	char *errmsg;
+	int result = sqlite3_exec(db, sql.c_str(), NULL, NULL, &errmsg);
+	if (result != SQLITE_OK) {
+		string err = errmsg;
+		THROW_ASURA_EXCEPTION("Failed to exec: %d, %s, %s",
+		                      result, err.c_str(), sql.c_str());
+	}
+}
+
+void DBAgentSQLite3::execSql(sqlite3 *db, const char *fmt, ...)
+{
+	// make a query string
+	MAKE_SQL_STATEMENT_FROM_VAARG(fmt, sql);
+
+	// execute the query
+	_execSql(db, sql);
 }
 
 int DBAgentSQLite3::getDBVersion(const string &dbPath)
@@ -838,22 +869,9 @@ void DBAgentSQLite3::openDatabase(void)
 void DBAgentSQLite3::execSql(const char *fmt, ...)
 {
 	// make a query string
-	va_list ap;
-	va_start(ap, fmt);
-	char *sql = sqlite3_vmprintf(fmt, ap);
-	va_end(ap);
+	MAKE_SQL_STATEMENT_FROM_VAARG(fmt, sql);
 
 	// execute the query
-	char *errmsg;
-	int result = sqlite3_exec(m_ctx->db, sql, NULL, NULL, &errmsg);
-	if (result != SQLITE_OK) {
-		string err = errmsg;
-		string sqlStr = sql;
-		sqlite3_free(errmsg);
-		sqlite3_free(sql);
-		THROW_ASURA_EXCEPTION("Failed to exec: %d, %s, %s",
-		                      result, err.c_str(), sqlStr.c_str());
-	}
-	sqlite3_free(sql);
+	_execSql(m_ctx->db, sql);
 }
 
