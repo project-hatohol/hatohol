@@ -118,6 +118,23 @@ static void addTriggerInfo(DBAgentSQLite3 &dbAgent, TriggerInfo *triggerInfo)
 #define assertAddTriggerToDB(X) \
 cut_trace(_assertAddToDB<TriggerInfo>(X, addTriggerInfo))
 
+void _assertCreateStatic(void)
+{
+	DBAgentTableCreationArg arg;
+	arg.tableName = TABLE_NAME_TEST;
+	arg.numColumns = NUM_COLUMNS_TEST;
+	arg.columnDefs = COLUMN_DEF_TEST;
+	DBAgentSQLite3::createTable(dbPath, arg);
+
+	// check if the table has been created successfully
+	cut_assert_exist_path(dbPath.c_str());
+	string cmd = StringUtils::sprintf("sqlite3 %s \".table\"",
+	                                  dbPath.c_str());
+	string output = executeCommand(cmd);
+	assertExist(TABLE_NAME_TEST, output);
+}
+#define assertCreateStatic() cut_trace(_assertCreateStatic())
+
 static string makeExpectedOutput(MonitoringServerInfo *serverInfo)
 {
 	string expectedOut = StringUtils::sprintf
@@ -259,18 +276,7 @@ void test_testGetTriggerInfoList(void)
 
 void test_createStatic(void)
 {
-	DBAgentTableCreationArg arg;
-	arg.tableName = TABLE_NAME_TEST;
-	arg.numColumns = NUM_COLUMNS_TEST;
-	arg.columnDefs = COLUMN_DEF_TEST;
-	DBAgentSQLite3::createTable(dbPath, arg);
-
-	// check if the table has been created successfully
-	cut_assert_exist_path(dbPath.c_str());
-	string cmd = StringUtils::sprintf("sqlite3 %s \".table\"",
-	                                  dbPath.c_str());
-	string output = executeCommand(cmd);
-	assertExist(TABLE_NAME_TEST, output);
+	assertCreateStatic();
 }
 
 void test_insertStatic(void)
