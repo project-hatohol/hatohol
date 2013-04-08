@@ -360,14 +360,8 @@ void DBClientZabbix::createTableSystem(const string &dbPath)
 	insArg.tableName = TABLE_NAME_SYSTEM;
 	insArg.numColumns = NUM_COLUMNS_SYSTEM;
 	insArg.columnDefs = COLUMN_DEF_SYSTEM;
-
-	DBAgentValue val;
-	val.vUint64 = DB_VERSION;
-	insArg.row.push_back(val);
-
-	val.vInt = REPLICA_GENERATION_NONE;
-	insArg.row.push_back(val);
-
+	insArg.row->add(new ItemInt(DB_VERSION), false);
+	insArg.row->add(new ItemInt(REPLICA_GENERATION_NONE), false);
 	DBAgentSQLite3::insert(dbPath, insArg);
 }
 
