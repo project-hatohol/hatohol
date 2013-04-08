@@ -628,7 +628,79 @@ void DBAgentSQLite3::insert(sqlite3 *db, DBAgentInsertArg &insertArg)
 
 void DBAgentSQLite3::select(sqlite3 *db, DBAgentSelectArg &selectArg)
 {
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	string sql = "SELECT ";
+	for (size_t i = 0; i < selectArg.columnIndexes.size(); i++) {
+		size_t idx = selectArg.columnIndexes[i];
+		const ColumnDef &columnDef = selectArg.columnDefs[idx];
+		sql += columnDef.columnName;
+		sql += " ";
+		if (i < selectArg.columnIndexes.size()- 1)
+			sql += ",";
+	}
+	sql += "FROM ";
+	sql += selectArg.tableName;
+
+	// exectute
+	int result;
+	sqlite3_stmt *stmt;
+	result = sqlite3_prepare(db, sql.c_str(), sql.size(), &stmt, NULL);
+	if (result != SQLITE_OK) {
+		sqlite3_finalize(stmt);
+		THROW_ASURA_EXCEPTION("Failed to call sqlite3_prepare(): %d",
+		                      result);
+	}
+
+	sqlite3_reset(stmt);
+	if (result != SQLITE_OK) {
+		sqlite3_finalize(stmt);
+		THROW_ASURA_EXCEPTION("Failed to call sqlite3_bind(): %d",
+		                      result);
+	}
+	
+	while ((result = sqlite3_step(stmt)) == SQLITE_ROW)
+		selectGetValuesIteration(selectArg, stmt);
+	if (result != SQLITE_DONE) {
+		sqlite3_finalize(stmt);
+		THROW_ASURA_EXCEPTION("Failed to call sqlite3_step(): %d",
+		                      result);
+	}
+	sqlite3_finalize(stmt);
+}
+
+void DBAgentSQLite3::selectGetValuesIteration(DBAgentSelectArg &selectArg,
+                                              sqlite3_stmt *stmt)
+{
+	ItemData *itemData;
+	for (size_t i = 0; i < selectArg.columnIndexes.size(); i++) {
+		size_t idx = selectArg.columnIndexes[i];
+		const ColumnDef &columnDef = selectArg.columnDefs[idx];
+		switch (columnDef.type) {
+		case SQL_COLUMN_TYPE_INT:
+			itemData = new ItemInt(sqlite3_column_int(stmt, i));
+			break;
+
+		case SQL_COLUMN_TYPE_BIGUINT:
+			itemData = new ItemUint64(sqlite3_column_int(stmt, i));
+			break;
+
+		case SQL_COLUMN_TYPE_VARCHAR:
+		case SQL_COLUMN_TYPE_CHAR:
+		case SQL_COLUMN_TYPE_TEXT:
+			itemData = new ItemString((const char *)
+			                          sqlite3_column_text(stmt, i));
+			break;
+
+		case SQL_COLUMN_TYPE_DOUBLE:
+			itemData = new ItemDouble
+			                 (sqlite3_column_double(stmt, i));
+			break;
+
+		default:
+			THROW_ASURA_EXCEPTION("Unknown column type: %d",
+		                              columnDef.type);
+		}
+		selectArg.dataVector.push_back(itemData);
+	}
 }
 
 void DBAgentSQLite3::updateDBIfNeeded(const string &dbPath)

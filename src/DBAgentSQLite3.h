@@ -78,6 +78,8 @@ protected:
 	                        DBAgentTableCreationArg &tableCreationArg);
 	static void insert(sqlite3 *db, DBAgentInsertArg &insertArg);
 	static void select(sqlite3 *db, DBAgentSelectArg &selectArg);
+	static void selectGetValuesIteration(DBAgentSelectArg &selectArg,
+	                                     sqlite3_stmt *stmt);
 	static void updateDBIfNeeded(const string &dbPath);
 	static void createTableSystem(const string &dbPath);
 	static void createTableServers(const string &dbPath);

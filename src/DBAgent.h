@@ -88,6 +88,11 @@ struct DBAgentInsertArg {
 
 struct DBAgentSelectArg {
 	string tableName;
+	const ColumnDef    *columnDefs;
+	vector<size_t>      columnIndexes;
+
+	// output
+	ItemDataVector      dataVector;
 };
 
 typedef uint32_t DBDomainId;
