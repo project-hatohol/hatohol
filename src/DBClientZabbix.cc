@@ -326,6 +326,8 @@ void DBClientZabbix::dbSetupFunc(DBDomainId domainId)
 	const string dbPath = DBAgentSQLite3::findDBPath(domainId);
 	if (!DBAgentSQLite3::isTableExisting(dbPath, TABLE_NAME_SYSTEM))
 		createTableSystem(dbPath);
+	else
+		updateDBIfNeeded(dbPath);
 
 	if (!DBAgentSQLite3::isTableExisting(dbPath,
 	                                     TABLE_NAME_REPLICA_GENERATION)) {
@@ -378,6 +380,13 @@ void DBClientZabbix::createTableTriggersRaw2_0(const string &dbPath)
 	arg.numColumns = NUM_COLUMNS_TRIGGERS_RAW_2_0;
 	arg.columnDefs = COLUMN_DEF_TRIGGERS_RAW_2_0;
 	DBAgentSQLite3::createTable(dbPath, arg);
+}
+
+void DBClientZabbix::updateDBIfNeeded(const string &dbPath)
+{
+	if (getDBVersion() == DB_VERSION)
+		return;
+	THROW_ASURA_EXCEPTION("Not implemented: %s", __PRETTY_FUNCTION__);
 }
 
 void DBClientZabbix::prepareSetupFuncCallback(size_t zabbixServerId)
