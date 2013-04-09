@@ -36,15 +36,25 @@ static const char *MIME_JSON_RPC = "application/json-rpc";
 
 struct ArmZabbixAPI::PrivateContext
 {
-	int          zabbixServerId;
-	bool         gotTriggers;
-	uint64_t     triggerid;
-	ItemTablePtr functionsTablePtr;
+	string         server;
+	string         auth_token;
+	string         uri;
+	int            server_port;
+	int            retry_interval;	// in sec
+	int            repeat_interval;	// in sec;
+	int            zabbixServerId;
+	bool           gotTriggers;
+	uint64_t       triggerid;
+	ItemTablePtr   functionsTablePtr;
 	DBClientZabbix dbClientZabbix;
 
 	// constructors
 	PrivateContext(int _zabbixServerId)
-	: zabbixServerId(_zabbixServerId),
+	: server(server),
+	  server_port(DEFAULT_SERVER_PORT),
+	  retry_interval(DEFAULT_RETRY_INTERVAL),
+	  repeat_interval(DEFAULT_REPEAT_INTERVAL),
+	  zabbixServerId(_zabbixServerId),
 	  gotTriggers(false),
 	  triggerid(0),
 	  dbClientZabbix(_zabbixServerId)
@@ -56,17 +66,13 @@ struct ArmZabbixAPI::PrivateContext
 // Public methods
 // ---------------------------------------------------------------------------
 ArmZabbixAPI::ArmZabbixAPI(int zabbixServerId, const char *server)
-: m_ctx(NULL),
-  m_server(server),
-  m_server_port(DEFAULT_SERVER_PORT),
-  m_retry_interval(DEFAULT_RETRY_INTERVAL),
-  m_repeat_interval(DEFAULT_REPEAT_INTERVAL)
+: m_ctx(NULL)
 {
-	m_server = "localhost";
-	m_uri = "http://";
-	m_uri += m_server;
-	m_uri += "/zabbix/api_jsonrpc.php";
 	m_ctx = new PrivateContext(zabbixServerId);
+	m_ctx->server = "localhost";
+	m_ctx->uri = "http://";
+	m_ctx->uri += m_ctx->server;
+	m_ctx->uri += "/zabbix/api_jsonrpc.php";
 }
 
 ArmZabbixAPI::~ArmZabbixAPI()
@@ -87,13 +93,13 @@ ItemTablePtr ArmZabbixAPI::getTrigger(void)
 	agent.add("selectFunctions", "extend");
 	agent.endObject();
 
-	agent.add("auth", m_auth_token);
+	agent.add("auth", m_ctx->auth_token);
 	agent.add("id", 1);
 	agent.endObject();
 
 	string request_body = agent.generate();
 	SoupSession *session = soup_session_sync_new();
-	SoupMessage *msg = soup_message_new(SOUP_METHOD_GET, m_uri.c_str());
+	SoupMessage *msg = soup_message_new(SOUP_METHOD_GET, m_ctx->uri.c_str());
 
 	soup_message_headers_set_content_type(msg->request_headers,
 	                                      MIME_JSON_RPC, NULL);
@@ -102,7 +108,7 @@ ItemTablePtr ArmZabbixAPI::getTrigger(void)
 	guint ret = soup_session_send_message(session, msg);
 	if (ret != SOUP_STATUS_OK) {
 		THROW_DATA_STORE_EXCEPTION(
-		  "Failed to get: code: %d: %s", ret, m_uri.c_str());
+		  "Failed to get: code: %d: %s", ret, m_ctx->uri.c_str());
 	}
 
 	JsonParserAgent parser(msg->response_body->data);
@@ -148,13 +154,13 @@ ItemTablePtr ArmZabbixAPI::getItems(void)
 	agent.add("output", "extend");
 	agent.endObject(); // params
 
-	agent.add("auth", m_auth_token);
+	agent.add("auth", m_ctx->auth_token);
 	agent.add("id", 1);
 	agent.endObject();
 
 	string request_body = agent.generate();
 	SoupSession *session = soup_session_sync_new();
-	SoupMessage *msg = soup_message_new(SOUP_METHOD_GET, m_uri.c_str());
+	SoupMessage *msg = soup_message_new(SOUP_METHOD_GET, m_ctx->uri.c_str());
 
 	soup_message_headers_set_content_type(msg->request_headers,
 	                                      MIME_JSON_RPC, NULL);
@@ -163,7 +169,7 @@ ItemTablePtr ArmZabbixAPI::getItems(void)
 	guint ret = soup_session_send_message(session, msg);
 	if (ret != SOUP_STATUS_OK) {
 		THROW_DATA_STORE_EXCEPTION(
-		  "Failed to get: code: %d: %s", ret, m_uri.c_str());
+		  "Failed to get: code: %d: %s", ret, m_ctx->uri.c_str());
 	}
 
 	JsonParserAgent parser(msg->response_body->data);
@@ -196,13 +202,13 @@ ItemTablePtr ArmZabbixAPI::getHosts(void)
 	agent.add("output", "extend");
 	agent.endObject(); // params
 
-	agent.add("auth", m_auth_token);
+	agent.add("auth", m_ctx->auth_token);
 	agent.add("id", 1);
 	agent.endObject();
 
 	string request_body = agent.generate();
 	SoupSession *session = soup_session_sync_new();
-	SoupMessage *msg = soup_message_new(SOUP_METHOD_GET, m_uri.c_str());
+	SoupMessage *msg = soup_message_new(SOUP_METHOD_GET, m_ctx->uri.c_str());
 
 	soup_message_headers_set_content_type(msg->request_headers,
 	                                      MIME_JSON_RPC, NULL);
@@ -211,7 +217,7 @@ ItemTablePtr ArmZabbixAPI::getHosts(void)
 	guint ret = soup_session_send_message(session, msg);
 	if (ret != SOUP_STATUS_OK) {
 		THROW_DATA_STORE_EXCEPTION(
-		  "Failed to get: code: %d: %s", ret, m_uri.c_str());
+		  "Failed to get: code: %d: %s", ret, m_ctx->uri.c_str());
 	}
 
 	JsonParserAgent parser(msg->response_body->data);
@@ -263,7 +269,7 @@ bool ArmZabbixAPI::parseInitialResponse(SoupMessage *msg)
 		return false;
 	}
 
-	if (!parser.read("result", m_auth_token)) {
+	if (!parser.read("result", m_ctx->auth_token)) {
 		MLPL_ERR("Failed to read: result\n");
 		return false;
 	}
@@ -273,7 +279,7 @@ bool ArmZabbixAPI::parseInitialResponse(SoupMessage *msg)
 bool ArmZabbixAPI::mainThreadOneProc(void)
 {
 	SoupSession *session = soup_session_sync_new();
-	SoupMessage *msg = soup_message_new(SOUP_METHOD_GET, m_uri.c_str());
+	SoupMessage *msg = soup_message_new(SOUP_METHOD_GET, m_ctx->uri.c_str());
 
 	soup_message_headers_set_content_type(msg->request_headers,
 	                                      MIME_JSON_RPC, NULL);
@@ -284,14 +290,15 @@ bool ArmZabbixAPI::mainThreadOneProc(void)
 
 	guint ret = soup_session_send_message(session, msg);
 	if (ret != SOUP_STATUS_OK) {
-		MLPL_ERR("Failed to get: code: %d: %s\n", ret, m_uri.c_str());
+		MLPL_ERR("Failed to get: code: %d: %s\n",
+	                 ret, m_ctx->uri.c_str());
 		return false;
 	}
 	MLPL_DBG("body: %d, %s\n", msg->response_body->length,
 	                           msg->response_body->data);
 	if (!parseInitialResponse(msg))
 		return false;
-	MLPL_DBG("auth token: %s\n", m_auth_token.c_str());
+	MLPL_DBG("auth token: %s\n", m_ctx->auth_token.c_str());
 
 	g_object_unref(msg);
 	return true;
@@ -531,11 +538,11 @@ void ArmZabbixAPI::parseAndPushHostsData(JsonParserAgent &parser,
 gpointer ArmZabbixAPI::mainThread(AsuraThreadArg *arg)
 {
 	MLPL_INFO("started: ArmZabbixAPI (server: %s)\n",
-	          __PRETTY_FUNCTION__, m_server.c_str());
+	          __PRETTY_FUNCTION__, m_ctx->server.c_str());
 	while (true) {
-		int sleepTime = m_repeat_interval;
+		int sleepTime = m_ctx->repeat_interval;
 		if (!mainThreadOneProc())
-			sleepTime = m_retry_interval;
+			sleepTime = m_ctx->retry_interval;
 		sleep(sleepTime);
 	}
 	return NULL;
