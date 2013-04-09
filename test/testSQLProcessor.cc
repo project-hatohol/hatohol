@@ -389,7 +389,6 @@ static const int getMaxDataInTestData(void)
 
 static void getDistinctValueInTestData0(set<int> &valueSet)
 {
-	int count = 0;
 	for (size_t i = 0; i < numTestData0; i++)
 		valueSet.insert(testData0[i].number);
 }
