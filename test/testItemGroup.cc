@@ -111,7 +111,7 @@ void test_addWhenFreezed(void)
 	bool gotException = false;
 	try {
 		x_grp->add(new ItemInt(ITEM_ID_2, -3), false);
-	} catch (invalid_argument e) {
+	} catch (const AsuraException &e) {
 		gotException = true;
 	}
 	cppcut_assert_equal(true, gotException);
