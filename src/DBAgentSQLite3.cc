@@ -408,6 +408,24 @@ int DBAgentSQLite3::getDBVersion(void)
 	return getDBVersion(m_ctx->db);
 }
 
+void DBAgentSQLite3::begin(void)
+{
+	ASURA_ASSERT(m_ctx->db, "m_ctx->db is NULL");
+	_execSql(m_ctx->db, "BEGIN");
+}
+
+void DBAgentSQLite3::commit(void)
+{
+	ASURA_ASSERT(m_ctx->db, "m_ctx->db is NULL");
+	_execSql(m_ctx->db, "COMMIT");
+}
+
+void DBAgentSQLite3::rollback(void)
+{
+	ASURA_ASSERT(m_ctx->db, "m_ctx->db is NULL");
+	_execSql(m_ctx->db, "ROLLBACK");
+}
+
 void DBAgentSQLite3::createTable(DBAgentTableCreationArg &tableCreationArg)
 {
 	ASURA_ASSERT(m_ctx->db, "m_ctx->db is NULL");

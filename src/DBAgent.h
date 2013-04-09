@@ -109,6 +109,9 @@ public:
 	virtual void
 	   getTargetServers(MonitoringServerInfoList &monitoringServers) = 0;
 
+	virtual void begin(void) = 0;
+	virtual void commit(void) = 0;
+	virtual void rollback(void) = 0;
 	virtual void createTable(DBAgentTableCreationArg &tableCreationArg) = 0;
 	virtual void insert(DBAgentInsertArg &intsertArg) = 0;
 	virtual void select(DBAgentSelectArg &selecttArg) = 0;

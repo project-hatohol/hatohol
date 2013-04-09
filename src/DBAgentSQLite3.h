@@ -66,6 +66,10 @@ public:
 	virtual void
 	   addTriggerInfo(TriggerInfo *triggerInfo);
 	virtual void getTriggerInfoList(TriggerInfoList &triggerInfoList);
+
+	virtual void begin(void);
+	virtual void commit(void);
+	virtual void rollback(void);
 	virtual void createTable(DBAgentTableCreationArg &tableCreationArg);
 	virtual void insert(DBAgentInsertArg &insertArg);
 	virtual void select(DBAgentSelectArg &selectArg);
