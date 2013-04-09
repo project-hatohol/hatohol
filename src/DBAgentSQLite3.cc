@@ -749,7 +749,6 @@ void DBAgentSQLite3::update(sqlite3 *db, DBAgentUpdateArg &updateArg)
 	             numColumns, updateArg.columnIndexes.size());
 
 	// make a SQL statement
-	string fmt;
 	string sql = "UPDATE ";
 	sql += updateArg.tableName;
 	sql += " SET ";
