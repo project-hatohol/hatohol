@@ -416,12 +416,14 @@ void DBAgentSQLite3::createTable(DBAgentTableCreationArg &tableCreationArg)
 
 void DBAgentSQLite3::insert(DBAgentInsertArg &insertArg)
 {
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	ASURA_ASSERT(m_ctx->db, "m_ctx->db is NULL");
+	insert(m_ctx->db, insertArg);
 }
 
 void DBAgentSQLite3::select(DBAgentSelectArg &selectArg)
 {
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	ASURA_ASSERT(m_ctx->db, "m_ctx->db is NULL");
+	select(m_ctx->db, selectArg);
 }
 
 // ---------------------------------------------------------------------------
