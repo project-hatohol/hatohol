@@ -45,8 +45,8 @@ public:
 	static void createTable(const string &dbPath,
 	                        DBAgentTableCreationArg &tableCreationArg);
 	static void insert(const string &dbPath,
-	                   DBAgentInsertArg &intsertArg);
-	static void select(const string &dbPath, DBAgentSelectArg &selecttArg);
+	                   DBAgentInsertArg &insertArg);
+	static void select(const string &dbPath, DBAgentSelectArg &selectArg);
 
 	// constructor and destructor
 	DBAgentSQLite3(DBDomainId domainId = DefaultDBDomainId);
@@ -67,8 +67,8 @@ public:
 	   addTriggerInfo(TriggerInfo *triggerInfo);
 	virtual void getTriggerInfoList(TriggerInfoList &triggerInfoList);
 	virtual void createTable(DBAgentTableCreationArg &tableCreationArg);
-	virtual void insert(DBAgentInsertArg &intsertArg);
-	virtual void select(DBAgentSelectArg &selecttArg);
+	virtual void insert(DBAgentInsertArg &insertArg);
+	virtual void select(DBAgentSelectArg &selectArg);
 
 protected:
 	static sqlite3 *openDatabase(const string &dbPath);

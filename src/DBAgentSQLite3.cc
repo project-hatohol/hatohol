@@ -414,12 +414,12 @@ void DBAgentSQLite3::createTable(DBAgentTableCreationArg &tableCreationArg)
 	createTable(m_ctx->db,tableCreationArg);
 }
 
-void DBAgentSQLite3::insert(DBAgentInsertArg &intsertArg)
+void DBAgentSQLite3::insert(DBAgentInsertArg &insertArg)
 {
 	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
 }
 
-void DBAgentSQLite3::select(DBAgentSelectArg &selecttArg)
+void DBAgentSQLite3::select(DBAgentSelectArg &selectArg)
 {
 	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
 }
