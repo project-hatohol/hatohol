@@ -113,7 +113,7 @@ void test_servers(void)
 	assertValueInParser(g_parser, "numberOfServers",
 	                    (uint32_t)NumServerInfo);
 	g_parser->startObject("servers");
-	for (int i = 0; i < NumServerInfo; i++) {
+	for (size_t i = 0; i < NumServerInfo; i++) {
 		g_parser->startElement(i);
 		MonitoringServerInfo &svInfo = serverInfo[i];
 		assertValueInParser(g_parser, "id",        svInfo.id);
@@ -134,7 +134,7 @@ void test_triggers(void)
 	assertValueInParser(g_parser, "numberOfTriggers",
 	                    (uint32_t)NumTestTriggerInfo);
 	g_parser->startObject("triggers");
-	for (int i = 0; i < NumTestTriggerInfo; i++) {
+	for (size_t i = 0; i < NumTestTriggerInfo; i++) {
 		g_parser->startElement(i);
 		TriggerInfo &triggerInfo = testTriggerInfo[i];
 		assertValueInParser(g_parser, "status", 

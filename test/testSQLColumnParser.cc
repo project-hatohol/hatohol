@@ -178,7 +178,7 @@ void test_multiColumn(void)
 	  columnParser.getFormulaInfoVector();
 	cppcut_assert_equal(numNames, formulaInfoVector.size());
 
-	for (int i = 0; i < numNames; i++) 
+	for (size_t i = 0; i < numNames; i++) 
 		assertColumn(formulaInfoVector[i], names[i]);
 }
 
