@@ -110,6 +110,8 @@ public:
 	   getTargetServers(MonitoringServerInfoList &monitoringServers) = 0;
 
 	virtual void createTable(DBAgentTableCreationArg &tableCreationArg) = 0;
+	virtual void insert(DBAgentInsertArg &intsertArg) = 0;
+	virtual void select(DBAgentSelectArg &selecttArg) = 0;
 
 private:
 	struct PrivateContext;

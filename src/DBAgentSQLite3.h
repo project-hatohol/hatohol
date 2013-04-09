@@ -67,6 +67,8 @@ public:
 	   addTriggerInfo(TriggerInfo *triggerInfo);
 	virtual void getTriggerInfoList(TriggerInfoList &triggerInfoList);
 	virtual void createTable(DBAgentTableCreationArg &tableCreationArg);
+	virtual void insert(DBAgentInsertArg &intsertArg);
+	virtual void select(DBAgentSelectArg &selecttArg);
 
 protected:
 	static sqlite3 *openDatabase(const string &dbPath);

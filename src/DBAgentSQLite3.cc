@@ -414,6 +414,16 @@ void DBAgentSQLite3::createTable(DBAgentTableCreationArg &tableCreationArg)
 	createTable(m_ctx->db,tableCreationArg);
 }
 
+void DBAgentSQLite3::insert(DBAgentInsertArg &intsertArg)
+{
+	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+}
+
+void DBAgentSQLite3::select(DBAgentSelectArg &selecttArg)
+{
+	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
