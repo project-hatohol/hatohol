@@ -142,18 +142,8 @@ void _assertCreateStatic(void)
 }
 #define assertCreateStatic() cut_trace(_assertCreateStatic())
 
-void _assertInsertStatic(uint64_t id, int age, const char *name, double height)
+void _assertExistRecord(uint64_t id, int age, const char *name, double height)
 {
-	DBAgentInsertArg arg;
-	arg.tableName = TABLE_NAME_TEST;
-	arg.numColumns = NUM_COLUMNS_TEST;
-	arg.columnDefs = COLUMN_DEF_TEST;
-	arg.row->add(new ItemUint64(id), false);
-	arg.row->add(new ItemInt(age), false);
-	arg.row->add(new ItemString(name), false);
-	arg.row->add(new ItemDouble(height), false);
-	DBAgentSQLite3::insert(dbPath, arg);
-
 	// check if the columns is inserted
 
 	// INFO: We use the trick that unsigned interger is stored as
@@ -176,7 +166,23 @@ void _assertInsertStatic(uint64_t id, int age, const char *name, double height)
 	                                          id, age, name, height);
 	cppcut_assert_equal(expectedOut, output);
 }
+#define assertExistRecord(ID,AGE,NAME,HEIGHT) \
+cut_trace(_assertExistRecord(ID,AGE,NAME,HEIGHT))
 
+void _assertInsertStatic(uint64_t id, int age, const char *name, double height)
+{
+	DBAgentInsertArg arg;
+	arg.tableName = TABLE_NAME_TEST;
+	arg.numColumns = NUM_COLUMNS_TEST;
+	arg.columnDefs = COLUMN_DEF_TEST;
+	arg.row->add(new ItemUint64(id), false);
+	arg.row->add(new ItemInt(age), false);
+	arg.row->add(new ItemString(name), false);
+	arg.row->add(new ItemDouble(height), false);
+	DBAgentSQLite3::insert(dbPath, arg);
+
+	assertExistRecord(id, age, name,height);
+}
 #define assertInsertStatic(ID,AGE,NAME,HEIGHT) \
 cut_trace(_assertInsertStatic(ID,AGE,NAME,HEIGHT));
 
@@ -193,29 +199,8 @@ void _assertUpdateStatic(uint64_t id, int age, const char *name, double height)
 	arg.row->add(new ItemDouble(height), false);
 	DBAgentSQLite3::update(dbPath, arg);
 
-	// check if the columns is inserted
-
-	// INFO: We use the trick that unsigned interger is stored as
-	// signed interger. So large integers (MSB bit is one) are recognized
-	// as negative intergers. So we use PRId64 in the following statement.
-	string cmd = StringUtils::sprintf(
-	               "sqlite3 %s \"select * from %s where id=%"PRId64 "\"",
-	               dbPath.c_str(), TABLE_NAME_TEST, id);
-	string output = executeCommand(cmd);
-	
-	const ColumnDef &columnDefHeight =
-	   COLUMN_DEF_TEST[IDX_TEST_TABLE_HEIGHT];
-	
-	// Here we also use PRId64 (not PRIu64) with the same
-	// reason of the above comment.
-	string fmt = StringUtils::sprintf("%%"PRId64"|%%d|%%s|%%%d.%dlf\n",
-	                                  columnDefHeight.columnLength,
-	                                  columnDefHeight.decFracLength);
-	string expectedOut = StringUtils::sprintf(fmt.c_str(),
-	                                          id, age, name, height);
-	cppcut_assert_equal(expectedOut, output);
+	assertExistRecord(id, age, name,height);
 }
-
 #define assertUpdateStatic(ID,AGE,NAME,HEIGHT) \
 cut_trace(_assertUpdateStatic(ID,AGE,NAME,HEIGHT));
 
