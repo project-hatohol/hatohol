@@ -26,6 +26,8 @@ using namespace mlpl;
 #include "DBAgentSQLite3.h"
 #include "AsuraException.h"
 
+#include <inttypes.h>
+
 #define MAKE_SQL_STATEMENT_FROM_VAARG(LAST_ARG, STR_NAME) \
 string STR_NAME; \
 { \

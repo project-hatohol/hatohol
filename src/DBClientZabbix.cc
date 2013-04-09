@@ -68,8 +68,8 @@ static const ColumnDef COLUMN_DEF_REPLICA_GENERATION[] = {
 	ITEM_ID_NOT_SET,                   // itemId
 	TABLE_NAME_REPLICA_GENERATION,     // tableName
 	"replica_generation_id",           // columnName
-	SQL_COLUMN_TYPE_BIGUINT,           // type
-	20,                                // columnLength
+	SQL_COLUMN_TYPE_INT,               // type
+	11,                                // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
 	SQL_KEY_PRI,                       // keyType
@@ -325,6 +325,19 @@ DBClientZabbix::~DBClientZabbix()
 		delete m_ctx;
 }
 
+void DBClientZabbix::addTriggersRaw2_0(ItemTablePtr tablePtr)
+{
+	m_ctx->dbAgent->begin();
+	try {
+		int newId = updateReplicaGeneration();
+		addTriggersRaw2_0WithTryBlock(newId, tablePtr);
+	} catch (...) {
+		m_ctx->dbAgent->rollback();
+		throw;
+	}
+	m_ctx->dbAgent->commit();
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
@@ -414,6 +427,9 @@ bool DBClientZabbix::getDBVersion(const string &dbPath)
 	return itemVersion->get();
 }
 
+//
+// Non-static methods
+//
 void DBClientZabbix::prepareSetupFuncCallback(size_t zabbixServerId)
 {
 	ConfigManager *configMgr = ConfigManager::getInstance();
@@ -426,5 +442,76 @@ void DBClientZabbix::prepareSetupFuncCallback(size_t zabbixServerId)
 	  StringUtils::sprintf("%s/DBClientZabbix-%d.db",
 	                       dbDirectory.c_str(), zabbixServerId);
 	DBAgentSQLite3::defineDBPath(domainId, dbPath);
+}
+
+int DBClientZabbix::getLatestTriggersGenerationId(void)
+{
+	DBAgentSelectArg arg;
+	arg.tableName = TABLE_NAME_SYSTEM;
+	arg.columnDefs = COLUMN_DEF_SYSTEM;
+	arg.columnIndexes.push_back(IDX_SYSTEM_LATEST_TRIGGERS_GENERATION_ID);
+	m_ctx->dbAgent->select(arg);
+
+	const ItemGroupList &itemGroupList = arg.dataTable->getItemGroupList();
+	ASURA_ASSERT(
+	  itemGroupList.size() == 1,
+	  "itemGroupList.size(): %zd", itemGroupList.size());
+	ItemGroupListConstIterator it = itemGroupList.begin();
+	const ItemGroup *itemGroup = *it;
+	ASURA_ASSERT(
+	  itemGroup->getNumberOfItems() == 1,
+	  "itemGroup->getNumberOfItems: %zd", itemGroup->getNumberOfItems());
+	ItemInt *item =
+	  dynamic_cast<ItemInt *>(itemGroup->getItemAt(0));
+	ASURA_ASSERT(item != NULL, "type: itemVersion: %s\n",
+	             DEMANGLED_TYPE_NAME(*item));
+	return item->get();
+}
+
+int DBClientZabbix::updateReplicaGeneration(void)
+{
+	// We assumed that this function is called in the transcation.
+	int id = getLatestTriggersGenerationId();
+	int newId = id++;
+
+	// insert the generation id
+	uint64_t currTime = Utils::getCurrTimeAsMicroSecond();
+	DBAgentInsertArg insertArg;
+	insertArg.tableName = TABLE_NAME_REPLICA_GENERATION;
+	insertArg.numColumns = NUM_COLUMNS_REPLICA_GENERATION;
+	insertArg.columnDefs = COLUMN_DEF_REPLICA_GENERATION;
+	insertArg.row->add(new ItemInt(newId), false);
+	insertArg.row->add(new ItemUint64(currTime), false);
+
+	// update the latest generation
+	DBAgentUpdateArg updateArg;
+	updateArg.tableName = TABLE_NAME_SYSTEM;
+	updateArg.columnIndexes.push_back(
+	  IDX_SYSTEM_LATEST_TRIGGERS_GENERATION_ID);
+	updateArg.row->add(new ItemInt(newId), false);
+	m_ctx->dbAgent->update(updateArg);
+
+	return newId;
+}
+
+void DBClientZabbix::addTriggersRaw2_0WithTryBlock(int generationId,
+                                                   ItemTablePtr tablePtr)
+{
+	// We assumed that this function is called in the transcation.
+
+	const ItemGroupList &itemGroupList = tablePtr->getItemGroupList();
+	ItemGroupListConstIterator it = itemGroupList.begin();
+	for (; it != itemGroupList.end(); ++it) {
+		const ItemGroup *itemGroup = *it;
+		DBAgentInsertArg arg;
+		arg.tableName = TABLE_NAME_TRIGGERS_RAW_2_0;
+		arg.numColumns = NUM_COLUMNS_TRIGGERS_RAW_2_0;
+		arg.columnDefs = COLUMN_DEF_TRIGGERS_RAW_2_0;
+
+		arg.row->add(new ItemInt(generationId), false);
+		for (size_t i = 0; i < itemGroup->getNumberOfItems(); i++)
+			arg.row->add(itemGroup->getItemAt(i));
+		m_ctx->dbAgent->insert(arg);
+	}
 }
 

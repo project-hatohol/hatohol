@@ -27,6 +27,8 @@ public:
 	DBClientZabbix(size_t zabbixServerId);
 	virtual ~DBClientZabbix();
 
+	void addTriggersRaw2_0(ItemTablePtr tablePtr);
+
 protected:
 	static void dbSetupFunc(DBDomainId domainId);
 	static void createTableSystem(const string &dbPath);
@@ -35,6 +37,10 @@ protected:
 	static void updateDBIfNeeded(const string &dbPath);
 	static bool getDBVersion(const string &dbPath);
 	void prepareSetupFuncCallback(size_t zabbixServerId);
+	int getLatestTriggersGenerationId(void);
+	int updateReplicaGeneration(void);
+	void addTriggersRaw2_0WithTryBlock(int generationId,
+	                                   ItemTablePtr tablePtr);
 
 private:
 	struct PrivateContext;

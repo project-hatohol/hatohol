@@ -299,6 +299,7 @@ bool ArmZabbixAPI::mainThreadOneProc(void)
 	if (!parseInitialResponse(msg))
 		return false;
 	MLPL_DBG("auth token: %s\n", m_ctx->auth_token.c_str());
+	updateTriggers();
 
 	g_object_unref(msg);
 	return true;
@@ -535,6 +536,15 @@ void ArmZabbixAPI::parseAndPushHostsData(JsonParserAgent &parser,
 	parser.endElement();
 }
 
+void ArmZabbixAPI::updateTriggers(void)
+{
+	ItemTablePtr tablePtr = getTrigger();
+	m_ctx->dbClientZabbix.addTriggersRaw2_0(tablePtr);
+}
+
+//
+// virtual methods
+//
 gpointer ArmZabbixAPI::mainThread(AsuraThreadArg *arg)
 {
 	MLPL_INFO("started: ArmZabbixAPI (server: %s)\n",

@@ -59,6 +59,8 @@ protected:
 	void parseAndPushHostsData(JsonParserAgent &parser,
 	                           ItemTablePtr &tablePtr, int index);
 
+	void updateTriggers(void);
+
 	// virtual methods
 	gpointer mainThread(AsuraThreadArg *arg);
 
