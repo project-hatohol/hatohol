@@ -486,6 +486,7 @@ int DBClientZabbix::updateReplicaGeneration(void)
 	// update the latest generation
 	DBAgentUpdateArg updateArg;
 	updateArg.tableName = TABLE_NAME_SYSTEM;
+	updateArg.columnDefs = COLUMN_DEF_SYSTEM;
 	updateArg.columnIndexes.push_back(
 	  IDX_SYSTEM_LATEST_TRIGGERS_GENERATION_ID);
 	updateArg.row->add(new ItemInt(newId), false);
