@@ -71,3 +71,15 @@ string getFixturesDir(void)
 	return dir;
 }
 
+bool isVerboseMode(void)
+{
+	static bool checked = false;
+	static bool verboseMode = false;
+	if (!checked) {
+		char *env = getenv("VERBOSE");
+		if (env && env == string("1"))
+			verboseMode = true;
+		checked = true;
+	}
+	return verboseMode;
+}
