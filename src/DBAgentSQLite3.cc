@@ -718,54 +718,13 @@ void DBAgentSQLite3::insert(sqlite3 *db, DBAgentInsertArg &insertArg)
 	             numColumns, insertArg.numColumns);
 
 	// make a SQL statement
-	char *_sql;
-	string fmt;
 	string sql = "INSERT INTO ";
 	sql += insertArg.tableName;
 	sql += " VALUES (";
 	for (size_t i = 0; i < numColumns; i++) {
 		const ColumnDef &columnDef = insertArg.columnDefs[i];
 		const ItemData *itemData = insertArg.row->getItemAt(i);
-
-		// set type
-		switch (columnDef.type) {
-		case SQL_COLUMN_TYPE_INT:
-		{
-			DEFINE_AND_ASSERT(itemData, const ItemInt, item);
-			sql += StringUtils::sprintf("%d", item->get());
-			break;
-		}
-		case SQL_COLUMN_TYPE_BIGUINT:
-		{
-			DEFINE_AND_ASSERT(itemData, const ItemUint64, item);
-			sql += StringUtils::sprintf("%"PRId64, item->get());
-			break;
-		}
-		case SQL_COLUMN_TYPE_VARCHAR:
-		case SQL_COLUMN_TYPE_CHAR:
-		case SQL_COLUMN_TYPE_TEXT:
-		{
-			DEFINE_AND_ASSERT(itemData, const ItemString, item);
-			_sql = sqlite3_mprintf("%Q", item->get().c_str());
-			sql += _sql;
-			sqlite3_free(_sql);
-			break;
-		}
-		case SQL_COLUMN_TYPE_DOUBLE:
-		{
-			DEFINE_AND_ASSERT(itemData, const ItemDouble, item);
-			fmt = StringUtils::sprintf("%%%d.%dlf",
-			                           columnDef.columnLength,
-			                           columnDef.decFracLength);
-			sql += StringUtils::sprintf(fmt.c_str(), item->get());
-			break;
-		}
-		default:
-			ASURA_ASSERT(true, "Unknown column type: %d (%s)",
-			             columnDef.type, columnDef.columnName);
-		}
-		sql += " ";
-
+		sql += getColumnValueString(&columnDef, itemData);
 		if (i < numColumns-1)
 			sql += ",";
 	}
