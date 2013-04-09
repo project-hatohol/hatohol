@@ -79,6 +79,8 @@ protected:
 	static sqlite3 *openDatabase(const string &dbPath);
 	static void execSql(sqlite3 *db, const char *fmt, ...);
 	static void _execSql(sqlite3 *db, const string &sql);
+	static string getColumnValueString(const ColumnDef *columnDef,
+	                                   const ItemData *itemData);
 	static int getDBVersion(const string &dbPath);
 	static int getDBVersion(sqlite3 *db);
 	static bool isTableExisting(sqlite3 *db,
@@ -100,7 +102,6 @@ protected:
 	                        const string &indexName,
 	                        const vector<size_t> &targetIndexes,
 	                        bool isUniqueKey);
-
 
 	void openDatabase(void);
 	void execSql(const char *fmt, ...);

@@ -486,6 +486,50 @@ void DBAgentSQLite3::execSql(sqlite3 *db, const char *fmt, ...)
 	_execSql(db, sql);
 }
 
+string DBAgentSQLite3::getColumnValueString(const ColumnDef *columnDef,
+                                            const ItemData *itemData)
+{
+	string valueStr;
+	switch (columnDef->type) {
+	case SQL_COLUMN_TYPE_INT:
+	{
+		DEFINE_AND_ASSERT(itemData, const ItemInt, item);
+		valueStr = StringUtils::sprintf("%d", item->get());
+		break;
+	}
+	case SQL_COLUMN_TYPE_BIGUINT:
+	{
+		DEFINE_AND_ASSERT(itemData, const ItemUint64, item);
+		valueStr = StringUtils::sprintf("%"PRId64, item->get());
+		break;
+	}
+	case SQL_COLUMN_TYPE_VARCHAR:
+	case SQL_COLUMN_TYPE_CHAR:
+	case SQL_COLUMN_TYPE_TEXT:
+	{
+		DEFINE_AND_ASSERT(itemData, const ItemString, item);
+		char *str = sqlite3_mprintf("%Q", item->get().c_str());
+		valueStr = str;
+		sqlite3_free(str);
+		break;
+	}
+	case SQL_COLUMN_TYPE_DOUBLE:
+	{
+		string fmt;
+		DEFINE_AND_ASSERT(itemData, const ItemDouble, item);
+		fmt = StringUtils::sprintf("%%%d.%dlf",
+		                           columnDef->columnLength,
+		                           columnDef->decFracLength);
+		valueStr = StringUtils::sprintf(fmt.c_str(), item->get());
+		break;
+	}
+	default:
+		ASURA_ASSERT(true, "Unknown column type: %d (%s)",
+		             columnDef->type, columnDef->columnName);
+	}
+	return valueStr;
+}
+
 int DBAgentSQLite3::getDBVersion(const string &dbPath)
 {
 	int version;
@@ -725,7 +769,38 @@ void DBAgentSQLite3::insert(sqlite3 *db, DBAgentInsertArg &insertArg)
 
 void DBAgentSQLite3::update(sqlite3 *db, DBAgentUpdateArg &updateArg)
 {
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	size_t numColumns = updateArg.row->getNumberOfItems();
+	ASURA_ASSERT(numColumns == updateArg.columnIndexes.size(),
+	             "Invalid number of colums: %zd, %zd",
+	             numColumns, updateArg.columnIndexes.size());
+
+	// make a SQL statement
+	string fmt;
+	string sql = "UPDATE ";
+	sql += updateArg.tableName;
+	sql += " SET ";
+	for (size_t i = 0; i < numColumns; i++) {
+		size_t columnIdx = updateArg.columnIndexes[i];
+		const ColumnDef &columnDef = updateArg.columnDefs[columnIdx];
+		const ItemData *itemData = updateArg.row->getItemAt(i);
+		string valueStr = getColumnValueString(&columnDef, itemData);
+
+		sql += columnDef.columnName;
+		sql = "=";
+		sql += valueStr;
+		if (i < numColumns-1)
+			sql += ",";
+	}
+
+	// exectute the SQL statement
+	char *errmsg;
+	int result = sqlite3_exec(db, sql.c_str(), NULL, NULL, &errmsg);
+	if (result != SQLITE_OK) {
+		string err = errmsg;
+		sqlite3_free(errmsg);
+		THROW_ASURA_EXCEPTION("Failed to exec: %d, %s, %s",
+		                      result, err.c_str(), sql.c_str());
+	}
 }
 
 void DBAgentSQLite3::select(sqlite3 *db, DBAgentSelectArg &selectArg)
