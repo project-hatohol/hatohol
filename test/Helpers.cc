@@ -30,7 +30,6 @@ string executeCommand(const string &commandLine)
 	GError *error = NULL;
 	string errorStr;
 	string stdoutStr, stderrStr;
-	int version;
 
 	ret = g_spawn_command_line_sync(commandLine.c_str(),
 	                                &standardOutput, &standardError,
