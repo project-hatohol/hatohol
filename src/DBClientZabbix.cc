@@ -196,8 +196,8 @@ static const ColumnDef COLUMN_DEF_TRIGGERS_RAW_2_0[] = {
 	ITEM_ID_ZBX_TRIGGERS_COMMENTS,     // itemId
 	TABLE_NAME_TRIGGERS_RAW_2_0,       // tableName
 	"comments",                        // columnName
-	SQL_COLUMN_TYPE_INT,               // type
-	11,                                // columnLength
+	SQL_COLUMN_TYPE_TEXT,              // type
+	0,                                 // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
 	SQL_KEY_NONE,                      // keyType
