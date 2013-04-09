@@ -57,6 +57,7 @@ err:
 	         "<<error->message>>\n%s",
 	         ret, exitStatus, stdoutStr.c_str(), stderrStr.c_str(), 
 	         errorStr.c_str());
+	return "";
 }
 
 string getFixturesDir(void)
