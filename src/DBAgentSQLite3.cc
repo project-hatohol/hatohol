@@ -193,6 +193,21 @@ void DBAgentSQLite3::insert(const string &dbPath, DBAgentInsertArg &insertArg)
 	sqlite3_close(db);
 }
 
+void DBAgentSQLite3::update(const string &dbPath, DBAgentUpdateArg &updateArg)
+{
+	sqlite3 *db = openDatabase(dbPath);
+	try {
+		execSql(db, "BEGIN");
+		update(db, updateArg);
+	} catch (...) {
+		execSql(db, "ROLLBACK");
+		sqlite3_close(db);
+		throw;
+	}
+	execSql(db, "COMMIT");
+	sqlite3_close(db);
+}
+
 void DBAgentSQLite3::select(const string &dbPath, DBAgentSelectArg &selectArg)
 {
 	sqlite3 *db = openDatabase(dbPath);

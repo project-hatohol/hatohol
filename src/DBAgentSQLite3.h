@@ -46,6 +46,8 @@ public:
 	                        DBAgentTableCreationArg &tableCreationArg);
 	static void insert(const string &dbPath,
 	                   DBAgentInsertArg &insertArg);
+	static void update(const string &dbPath,
+	                   DBAgentUpdateArg &updateArg);
 	static void select(const string &dbPath, DBAgentSelectArg &selectArg);
 
 	// constructor and destructor
