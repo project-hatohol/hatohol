@@ -521,9 +521,9 @@ ParsableString _parsable(STATEMENT); \
 SQLSelectInfo SEL_VAR(_parsable); \
 asssertExecSelect(SEL_VAR, ENC, ##__VA_ARGS__);
 
-typedef string (*TestDataGetter)(int row, int column);
+typedef string (*TestDataGetter)(size_t row, size_t column);
 
-static string testData0Getter(int row, int column)
+static string testData0Getter(size_t row, size_t column)
 {
 	cppcut_assert_equal(true, row < numTestData0);
 	cppcut_assert_equal(true, column < NUM_COLUMN0_DEFS);
@@ -534,7 +534,7 @@ static string testData0Getter(int row, int column)
 	return "";
 }
 
-static string testData1Getter(int row, int column)
+static string testData1Getter(size_t row, size_t column)
 {
 	cppcut_assert_equal(true, row < numTestData1);
 	cppcut_assert_equal(true, column < NUM_COLUMN1_DEFS);
@@ -715,7 +715,7 @@ void test_selectMultiColumn(void)
 	  = selectInfo.columnParser.getFormulaInfoVector();
 	cppcut_assert_equal(numColumns, formulaInfoVector.size());
 
-	for (int idx = 0; idx < numColumns; idx++) {
+	for (size_t idx = 0; idx < numColumns; idx++) {
 		SQLFormulaInfo *formulaInfo = formulaInfoVector[idx];
 		cppcut_assert_equal(string(columns[idx]),
 		                    formulaInfo->expression);
@@ -1233,7 +1233,7 @@ void test_groupByCountDistinct(void) {
 	}
 	cppcut_assert_equal(expectedOutputSet.size(),
 	                    selectInfo.textRows.size());
-	for (int i = 0; i < expectedOutputSet.size(); i++)
+	for (size_t i = 0; i < expectedOutputSet.size(); i++)
 		cppcut_assert_equal(string("1"), selectInfo.textRows[i][0]);
 }
 
