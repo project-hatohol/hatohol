@@ -786,7 +786,7 @@ void DBAgentSQLite3::update(sqlite3 *db, DBAgentUpdateArg &updateArg)
 		string valueStr = getColumnValueString(&columnDef, itemData);
 
 		sql += columnDef.columnName;
-		sql = "=";
+		sql += "=";
 		sql += valueStr;
 		if (i < numColumns-1)
 			sql += ",";
