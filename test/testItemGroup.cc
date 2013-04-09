@@ -104,7 +104,6 @@ void test_addDuplicativeItemIdAndGetThem(void)
 void test_addWhenFreezed(void)
 {
 	ItemInt *item0 = new ItemInt(ITEM_ID_0, 500);
-	ItemInt *item1 = new ItemInt(ITEM_ID_0, -8500);
 	x_grp = new ItemGroup();
 	x_grp->add(item0, false);
 	x_grp->freeze();

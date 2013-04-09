@@ -56,7 +56,6 @@ void test_constructWithNull(void)
 
 void test_numUsedWithoutRef(void)
 {
-	int val = 20;
 	x_item = new ItemInt(DEFAULT_ITEM_ID, DEFAULT_INT_VALUE);
 	ItemDataPtr dataPtr(x_item, false);
 	cppcut_assert_equal(1, x_item->getUsedCount());
