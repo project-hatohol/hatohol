@@ -26,9 +26,9 @@ public:
 	AssertJoin(ItemTable *itemTable,
 	           RefDataType0 *refTable0, RefDataType1 *refTable1,
 	           size_t numRowsRefTable0, size_t numRowsRefTable1)
-	: m_itemTable(itemTable),
-	  m_refTable0(refTable0),
+	: m_refTable0(refTable0),
 	  m_refTable1(refTable1),
+	  m_itemTable(itemTable),
 	  m_numRowsRefTable0(numRowsRefTable0),
 	  m_numRowsRefTable1(numRowsRefTable1),
 	  m_refTable0Index(0),
