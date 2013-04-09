@@ -28,8 +28,6 @@ using namespace std;
 using namespace mlpl;
 
 #include <stdint.h>
-
-#define __STDC_FORMAT_MACROS
 #include <inttypes.h>
 
 #include "UsedCountable.h"

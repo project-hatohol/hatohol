@@ -1,4 +1,3 @@
-#define __STDC_FORMAT_MACROS
 #include <cppcutter.h>
 #include <cutter.h>
 #include <unistd.h>

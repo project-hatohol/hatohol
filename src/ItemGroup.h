@@ -22,7 +22,6 @@
 #include <list>
 using namespace std;
 
-#define __STDC_FORMAT_MACROS
 #include <inttypes.h>
 
 #include "ItemData.h"
