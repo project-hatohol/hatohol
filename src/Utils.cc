@@ -24,6 +24,7 @@ using namespace mlpl;
 #include <stdexcept>
 #include <unistd.h>
 #include <errno.h>
+#include <sys/time.h>
 #include "Utils.h"
 #include "FormulaElement.h"
 
@@ -109,6 +110,18 @@ void Utils::showTreeInfo(FormulaElement *formulaElement, int fd,
 		buf += writtenBytes;
 		remainBytes -= writtenBytes;
 	}
+}
+
+uint64_t Utils::getCurrTimeAsMicroSecond(void)
+{
+	struct timeval tv;
+	if (gettimeofday(&tv, NULL) == -1) {
+		MLPL_ERR("Failed to call gettimeofday: %d\n", errno);
+		return 0;
+	}
+	uint64_t currTime = tv.tv_usec;
+	currTime += 1000 * 1000 * tv.tv_sec;
+	return currTime;
 }
 
 // ---------------------------------------------------------------------------

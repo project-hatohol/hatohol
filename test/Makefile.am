@@ -36,7 +36,7 @@ testAsura_la_SOURCES = \
 	testItemTablePtr.cc \
 	testItemDataUtils.cc \
 	testFormulaOperator.cc \
-	testJsonParserAgent.cc
+	testJsonParserAgent.cc testUtils.cc
 testAsura_la_LDFLAGS = $(AM_LDFLAGS) $(LIBS) ./libTest.la
 
 libTest_la_SOURCES = \

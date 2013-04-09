@@ -22,6 +22,7 @@
 #include <vector>
 #include <string>
 #include <typeinfo>
+#include <inttypes.h>
 using namespace std;
 
 #include <StringUtils.h>
@@ -42,6 +43,7 @@ public:
 	static void showTreeInfo(FormulaElement *formulaElement, int fd = 1,
 	                         bool fromRoot = true, int maxNumElem = -1,
 	                         int currNum = 0, int depth = 0);
+	static uint64_t getCurrTimeAsMicroSecond(void);
 
 protected:
 	static string makeDemangledStackTraceString(string &stackTraceLine);
