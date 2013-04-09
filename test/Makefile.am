@@ -10,7 +10,7 @@ noinst_LTLIBRARIES = libTest.la testAsura.la
 endif
 
 # default
-AM_CFLAGS = -g -Wall
+AM_CXXFLAGS = -g -Wall
 AM_LDFLAGS = -module -rpath $(libdir) -avoid-version -no-undefined
 INCLUDES = \
 	$(CUTTER_CFLAGS) $(CPPCUTTER_CFLAGS) \
