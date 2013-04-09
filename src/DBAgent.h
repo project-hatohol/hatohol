@@ -120,9 +120,9 @@ public:
 	virtual void commit(void) = 0;
 	virtual void rollback(void) = 0;
 	virtual void createTable(DBAgentTableCreationArg &tableCreationArg) = 0;
-	virtual void insert(DBAgentInsertArg &intsertArg) = 0;
+	virtual void insert(DBAgentInsertArg &insertArg) = 0;
 	virtual void update(DBAgentUpdateArg &updateArg) = 0;
-	virtual void select(DBAgentSelectArg &selecttArg) = 0;
+	virtual void select(DBAgentSelectArg &selectArg) = 0;
 
 private:
 	struct PrivateContext;
