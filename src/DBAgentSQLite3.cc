@@ -438,6 +438,12 @@ void DBAgentSQLite3::insert(DBAgentInsertArg &insertArg)
 	insert(m_ctx->db, insertArg);
 }
 
+void DBAgentSQLite3::update(DBAgentUpdateArg &updateArg)
+{
+	ASURA_ASSERT(m_ctx->db, "m_ctx->db is NULL");
+	update(m_ctx->db, updateArg);
+}
+
 void DBAgentSQLite3::select(DBAgentSelectArg &selectArg)
 {
 	ASURA_ASSERT(m_ctx->db, "m_ctx->db is NULL");
@@ -715,6 +721,11 @@ void DBAgentSQLite3::insert(sqlite3 *db, DBAgentInsertArg &insertArg)
 		THROW_ASURA_EXCEPTION("Failed to exec: %d, %s, %s",
 		                      result, err.c_str(), sql.c_str());
 	}
+}
+
+void DBAgentSQLite3::update(sqlite3 *db, DBAgentUpdateArg &updateArg)
+{
+	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
 }
 
 void DBAgentSQLite3::select(sqlite3 *db, DBAgentSelectArg &selectArg)

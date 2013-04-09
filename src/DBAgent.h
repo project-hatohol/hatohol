@@ -79,6 +79,13 @@ struct DBAgentInsertArg {
 	const ItemGroupPtr  row;
 };
 
+struct DBAgentUpdateArg {
+	string tableName;
+	const ColumnDef    *columnDefs;
+	vector<size_t>      columnIndexes;
+	const ItemGroupPtr  row;
+};
+
 struct DBAgentSelectArg {
 	string tableName;
 	const ColumnDef    *columnDefs;
@@ -114,6 +121,7 @@ public:
 	virtual void rollback(void) = 0;
 	virtual void createTable(DBAgentTableCreationArg &tableCreationArg) = 0;
 	virtual void insert(DBAgentInsertArg &intsertArg) = 0;
+	virtual void update(DBAgentUpdateArg &updateArg) = 0;
 	virtual void select(DBAgentSelectArg &selecttArg) = 0;
 
 private:

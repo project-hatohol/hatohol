@@ -72,6 +72,7 @@ public:
 	virtual void rollback(void);
 	virtual void createTable(DBAgentTableCreationArg &tableCreationArg);
 	virtual void insert(DBAgentInsertArg &insertArg);
+	virtual void update(DBAgentUpdateArg &updateArg);
 	virtual void select(DBAgentSelectArg &selectArg);
 
 protected:
@@ -85,6 +86,7 @@ protected:
 	static void createTable(sqlite3 *db,
 	                        DBAgentTableCreationArg &tableCreationArg);
 	static void insert(sqlite3 *db, DBAgentInsertArg &insertArg);
+	static void update(sqlite3 *db, DBAgentUpdateArg &updateArg);
 	static void select(sqlite3 *db, DBAgentSelectArg &selectArg);
 	static void selectGetValuesIteration(DBAgentSelectArg &selectArg,
 	                                     sqlite3_stmt *stmt);
