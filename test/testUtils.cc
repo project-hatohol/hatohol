@@ -2,6 +2,7 @@
 #include <sys/time.h>
 #include <errno.h>
 #include "Utils.h"
+#include "Helpers.h"
 
 namespace testUtils {
 
@@ -23,6 +24,8 @@ void test_getCurrTimeAsMicroSecond(void)
 	timeError -= tv.tv_sec * 1000 * 1000;
 	timeError -= tv.tv_usec;
 	cppcut_assert_equal(true, timeError < allowedErrorInMicroSec);
+	if (isVerboseMode())
+		cut_notify("timeError: %"PRIu64 " [us]", timeError);
 }
 
 } // namespace testUtils
