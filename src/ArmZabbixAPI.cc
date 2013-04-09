@@ -49,8 +49,8 @@ struct ArmZabbixAPI::PrivateContext
 	DBClientZabbix dbClientZabbix;
 
 	// constructors
-	PrivateContext(int _zabbixServerId)
-	: server(server),
+	PrivateContext(const char *serverName, int _zabbixServerId)
+	: server(serverName),
 	  server_port(DEFAULT_SERVER_PORT),
 	  retry_interval(DEFAULT_RETRY_INTERVAL),
 	  repeat_interval(DEFAULT_REPEAT_INTERVAL),
@@ -68,7 +68,7 @@ struct ArmZabbixAPI::PrivateContext
 ArmZabbixAPI::ArmZabbixAPI(int zabbixServerId, const char *server)
 : m_ctx(NULL)
 {
-	m_ctx = new PrivateContext(zabbixServerId);
+	m_ctx = new PrivateContext(server, zabbixServerId);
 	m_ctx->server = "localhost";
 	m_ctx->uri = "http://";
 	m_ctx->uri += m_ctx->server;
