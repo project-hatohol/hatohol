@@ -36,11 +36,12 @@ testAsura_la_SOURCES = \
 	testItemTablePtr.cc \
 	testItemDataUtils.cc \
 	testFormulaOperator.cc \
-	testJsonParserAgent.cc testUtils.cc
+	testJsonParserAgent.cc testUtils.cc \
+	testArmZabbixAPI.cc
 testAsura_la_LDFLAGS = $(AM_LDFLAGS) $(LIBS) ./libTest.la
 
 libTest_la_SOURCES = \
-	FormulaTestUtils.cc Helpers.cc DBAgentTest.cc
+	FormulaTestUtils.cc Helpers.cc DBAgentTest.cc ZabbixAPIEmulator.cc
 libTest_la_LDFLAGS =
 
 echo-cutter:
