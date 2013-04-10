@@ -32,6 +32,7 @@ public:
 	virtual ~ArmZabbixAPI();
 	void setPollingInterval(int sec);
 	int getPollingInterval(void) const;
+	void requestExit(void);
 	ItemTablePtr getTrigger(void);
 	ItemTablePtr getFunctions(void);
 	ItemTablePtr getItems(void);

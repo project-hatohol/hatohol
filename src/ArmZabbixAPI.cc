@@ -47,6 +47,7 @@ struct ArmZabbixAPI::PrivateContext
 	uint64_t       triggerid;
 	ItemTablePtr   functionsTablePtr;
 	DBClientZabbix dbClientZabbix;
+	volatile int   exitRequest;
 
 	// constructors
 	PrivateContext(const char *serverName, int _zabbixServerId)
@@ -57,8 +58,19 @@ struct ArmZabbixAPI::PrivateContext
 	  zabbixServerId(_zabbixServerId),
 	  gotTriggers(false),
 	  triggerid(0),
-	  dbClientZabbix(_zabbixServerId)
+	  dbClientZabbix(_zabbixServerId),
+	  exitRequest(0)
 	{
+	}
+
+	bool hasExitRequest(void) const
+	{
+		return g_atomic_int_get(&exitRequest);
+	}
+
+	void setExitRequest(void)
+	{
+		g_atomic_int_set(&exitRequest, 1);
 	}
 };
 
@@ -89,6 +101,11 @@ void ArmZabbixAPI::setPollingInterval(int sec)
 int ArmZabbixAPI::getPollingInterval(void) const
 {
 	return m_ctx->repeatInterval;
+}
+
+void ArmZabbixAPI::requestExit(void)
+{
+	m_ctx->setExitRequest();
 }
 
 ItemTablePtr ArmZabbixAPI::getTrigger(void)
@@ -530,7 +547,7 @@ gpointer ArmZabbixAPI::mainThread(AsuraThreadArg *arg)
 {
 	MLPL_INFO("started: ArmZabbixAPI (server: %s)\n",
 	          __PRETTY_FUNCTION__, m_ctx->server.c_str());
-	while (true) {
+	while (m_ctx->hasExitRequest()) {
 		int sleepTime = m_ctx->repeatInterval;
 		if (!mainThreadOneProc())
 			sleepTime = m_ctx->retryInterval;
