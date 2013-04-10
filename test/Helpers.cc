@@ -1,6 +1,7 @@
 #include <cppcutter.h>
 #include <unistd.h>
 #include "Helpers.h"
+#include "DBClientZabbix.h"
 
 void _assertStringVector(StringVector &expected, StringVector &actual)
 {
@@ -82,4 +83,12 @@ bool isVerboseMode(void)
 		checked = true;
 	}
 	return verboseMode;
+}
+
+string deleteDBClientZabbixDB(int serverId)
+{
+	string dbPath = DBClientZabbix::getDBPath(serverId);
+	unlink(dbPath.c_str());
+	cut_assert_not_exist_path(dbPath.c_str());
+	return dbPath;
 }

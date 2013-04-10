@@ -14,26 +14,9 @@ namespace testDBClientZabbix {
 
 static const int TEST_ZABBIX_SERVER_ID = 3;
 
-static string getDBPathOfClientZabbix(int zabbixServerId)
-{
-	ConfigManager *confMgr = ConfigManager::getInstance();
-	string dbPath = confMgr->getDatabaseDirectory()
-	                + StringUtils::sprintf("/DBClientZabbix-%d.db",
-	                                       zabbixServerId);
-	return dbPath;
-}
-
-static string deleteDatabase(int id)
-{
-	string dbPath = getDBPathOfClientZabbix(id);
-	unlink(dbPath.c_str());
-	cut_assert_not_exist_path(dbPath.c_str());
-	return dbPath;
-}
-
 static void _assertCreateTable(int svId, const string &tableName)
 {
-	string dbPath = deleteDatabase(svId);
+	string dbPath = deleteDBClientZabbixDB(svId);
 	DBClientZabbix dbCliZBX(svId);
 	string command = "sqlite3 " + dbPath + " \".table\"";
 	string output = executeCommand(command);
@@ -52,7 +35,7 @@ void setup(void)
 void test_createDB(void)
 {
 	// remove the DB that already exists
-	string dbPath = deleteDatabase(TEST_ZABBIX_SERVER_ID);
+	string dbPath = deleteDBClientZabbixDB(TEST_ZABBIX_SERVER_ID);
 
 	// create an instance (the database will be automatically created)
 	DBClientZabbix dbCliZBX(TEST_ZABBIX_SERVER_ID);
@@ -65,7 +48,7 @@ void test_createTableSystem(void)
 	assertCreateTable(svId, "system");
 
 	// check content
-	string dbPath = getDBPathOfClientZabbix(svId);
+	string dbPath = DBClientZabbix::getDBPath(svId);
 	string cmd = StringUtils::sprintf("sqlite3 %s \"select * from %s\"",
 	                                  dbPath.c_str(), "system");
 	string output = executeCommand(cmd);

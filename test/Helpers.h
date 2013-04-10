@@ -47,5 +47,6 @@ extern void _assertExist(const string &target, const string &words);
 string executeCommand(const string &commandLine);
 string getFixturesDir(void);
 bool isVerboseMode(void);
+string deleteDBClientZabbixDB(int serverId);
 
 #endif // Helpers_h
