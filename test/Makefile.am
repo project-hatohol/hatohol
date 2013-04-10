@@ -38,7 +38,8 @@ testAsura_la_SOURCES = \
 	testFormulaOperator.cc \
 	testJsonParserAgent.cc testUtils.cc \
 	testArmZabbixAPI.cc
-testAsura_la_LDFLAGS = $(AM_LDFLAGS) $(LIBS) ./libTest.la
+testAsura_la_LDFLAGS = $(AM_LDFLAGS) $(LIBS)
+testAsura_la_LIBADD = libTest.la
 
 libTest_la_SOURCES = \
 	FormulaTestUtils.cc Helpers.cc DBAgentTest.cc ZabbixAPIEmulator.cc
