@@ -28,7 +28,6 @@ using namespace mlpl;
 #include "ItemEnum.h"
 #include "DBClientZabbix.h"
 
-static const int DEFAULT_SERVER_PORT = 80;
 static const int DEFAULT_RETRY_INTERVAL = 10;
 static const int DEFAULT_REPEAT_INTERVAL = 30;
 
@@ -50,9 +49,9 @@ struct ArmZabbixAPI::PrivateContext
 	volatile int   exitRequest;
 
 	// constructors
-	PrivateContext(const char *serverName, int _zabbixServerId)
+	PrivateContext(const char *serverName, int port, int _zabbixServerId)
 	: server(serverName),
-	  serverPort(DEFAULT_SERVER_PORT),
+	  serverPort(port),
 	  retryInterval(DEFAULT_RETRY_INTERVAL),
 	  repeatInterval(DEFAULT_REPEAT_INTERVAL),
 	  zabbixServerId(_zabbixServerId),
@@ -77,13 +76,15 @@ struct ArmZabbixAPI::PrivateContext
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
-ArmZabbixAPI::ArmZabbixAPI(int zabbixServerId, const char *server)
+ArmZabbixAPI::ArmZabbixAPI(int zabbixServerId, const char *server,
+                           int serverPort)
 : m_ctx(NULL)
 {
-	m_ctx = new PrivateContext(server, zabbixServerId);
+	m_ctx = new PrivateContext(server, serverPort, zabbixServerId);
 	m_ctx->server = "localhost";
 	m_ctx->uri = "http://";
 	m_ctx->uri += m_ctx->server;
+	m_ctx->uri += StringUtils::sprintf(":%d", serverPort);
 	m_ctx->uri += "/zabbix/api_jsonrpc.php";
 }
 

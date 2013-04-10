@@ -27,8 +27,10 @@ class ArmZabbixAPI : public ArmBase
 {
 public:
 	static const int POLLING_DISABLED = -1;
+	static const int DEFAULT_SERVER_PORT = 80;
 
-	ArmZabbixAPI(int zabbixServerId, const char *server = "localhost");
+	ArmZabbixAPI(int zabbixServerId, const char *server = "localhost",
+	             int serverPort = DEFAULT_SERVER_PORT);
 	virtual ~ArmZabbixAPI();
 	void setPollingInterval(int sec);
 	int getPollingInterval(void) const;

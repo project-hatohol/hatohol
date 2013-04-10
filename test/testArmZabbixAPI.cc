@@ -17,8 +17,8 @@ typedef bool (ArmZabbixAPITestee::*ThreadOneProc)(void);
 	static const size_t NUM_TEST_TRIGGER_READ = 3;
 
 public:
-	ArmZabbixAPITestee(int zabbixServerId, const char *server)
-	: ArmZabbixAPI(zabbixServerId, server),
+	ArmZabbixAPITestee(int zabbixServerId, const char *server, int port)
+	: ArmZabbixAPI(zabbixServerId, server, port),
 	  m_result(false),
 	  m_threadOneProc(&ArmZabbixAPITestee::defaultThreadOneProc),
 	  m_countThreadOneProc(0)
@@ -129,7 +129,7 @@ void test_getTriggers(void)
 {
 	int svId = 0;
 	deleteDBClientZabbixDB(svId);
-	ArmZabbixAPITestee armZbxApiTestee(svId, "localhost");
+	ArmZabbixAPITestee armZbxApiTestee(svId, "localhost", EMULATOR_PORT);
 	cppcut_assert_equal
 	  (true, armZbxApiTestee.testGetTriggers(),
 	   cut_message("%s\n", armZbxApiTestee.errorMessage().c_str()));
