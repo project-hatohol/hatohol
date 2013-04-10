@@ -81,12 +81,12 @@ ArmZabbixAPI::~ArmZabbixAPI()
 		delete m_ctx;
 }
 
-void ArmZabbixAPI::setPollingInterval(unsigned int sec)
+void ArmZabbixAPI::setPollingInterval(int sec)
 {
 	m_ctx->repeatInterval = sec;
 }
 
-unsigned int ArmZabbixAPI::getPollingInterval(void) const
+int ArmZabbixAPI::getPollingInterval(void) const
 {
 	return m_ctx->repeatInterval;
 }

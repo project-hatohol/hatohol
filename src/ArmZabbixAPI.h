@@ -26,10 +26,12 @@
 class ArmZabbixAPI : public ArmBase
 {
 public:
+	static const int POLLING_DISABLED = -1;
+
 	ArmZabbixAPI(int zabbixServerId, const char *server = "localhost");
 	virtual ~ArmZabbixAPI();
-	void setPollingInterval(unsigned int sec);
-	unsigned int getPollingInterval(void) const;
+	void setPollingInterval(int sec);
+	int getPollingInterval(void) const;
 	ItemTablePtr getTrigger(void);
 	ItemTablePtr getFunctions(void);
 	ItemTablePtr getItems(void);
