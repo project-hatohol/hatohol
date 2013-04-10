@@ -91,7 +91,6 @@ static const ColumnDef COLUMN_DEF_REPLICA_GENERATION[] = {
 static const size_t NUM_COLUMNS_REPLICA_GENERATION =
   sizeof(COLUMN_DEF_REPLICA_GENERATION) / sizeof(ColumnDef);
 
-
 static const ColumnDef COLUMN_DEF_TRIGGERS_RAW_2_0[] = {
 {
 	ITEM_ID_NOT_SET,                   // itemId
