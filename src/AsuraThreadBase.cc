@@ -27,18 +27,34 @@ using namespace mlpl;
 #include "AsuraThreadBase.h"
 #include "AsuraException.h"
 
+struct AsuraThreadBase::PrivateContext {
+	GThread *thread;
+
+	// methods
+	PrivateContext(void)
+	: thread(NULL)
+	{
+	}
+};
+
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
 AsuraThreadBase::AsuraThreadBase(void)
-: m_thread(NULL)
+: m_ctx(NULL)
 {
+	m_ctx = new PrivateContext();
 }
 
 AsuraThreadBase::~AsuraThreadBase()
 {
-	if (m_thread)
-		g_thread_unref(m_thread);
+	if (!m_ctx)
+		return;
+
+	if (m_ctx->thread)
+		g_thread_unref(m_ctx->thread);
+	if (m_ctx)
+		delete m_ctx;
 }
 
 void AsuraThreadBase::start(bool autoDeleteObject)
@@ -47,8 +63,9 @@ void AsuraThreadBase::start(bool autoDeleteObject)
 	arg->obj = this;
 	arg->autoDeleteObject = autoDeleteObject;
 	GError *error = NULL;
-	m_thread = g_thread_try_new("AsuraThread", threadStarter, arg, &error);
-	if (m_thread == NULL) {
+	m_ctx->thread =
+	   g_thread_try_new("AsuraThread", threadStarter, arg, &error);
+	if (m_ctx->thread == NULL) {
 		MLPL_ERR("Failed to call g_thread_try_new: %s\n",
 		         error->message);
 	}

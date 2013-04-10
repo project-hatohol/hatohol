@@ -48,7 +48,8 @@ protected:
 	virtual gpointer mainThread(AsuraThreadArg *arg) = 0;
 
 private:
-	GThread *m_thread;
+	struct PrivateContext;
+	PrivateContext *m_ctx;
 
 	static gpointer threadStarter(gpointer data);
 };
