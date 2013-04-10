@@ -4,6 +4,7 @@
 #include "Asura.h"
 #include "ZabbixAPIEmulator.h"
 #include "ArmZabbixAPI.h"
+#include "Helpers.h"
 
 namespace testArmZabbixAPI {
 static GMutex g_mutex;
@@ -41,6 +42,7 @@ void setup(void)
 void test_getTriggers(void)
 {
 	int svId = 0;
+	deleteDBClientZabbixDB(svId);
 	ArmZabbixAPITestee armZbxApiTestee(svId, "localhost");
 	armZbxApiTestee.start();
 	wait_mutex();

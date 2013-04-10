@@ -81,6 +81,16 @@ ArmZabbixAPI::~ArmZabbixAPI()
 		delete m_ctx;
 }
 
+void ArmZabbixAPI::setPollingInterval(unsigned int sec)
+{
+	m_ctx->repeatInterval = sec;
+}
+
+unsigned int ArmZabbixAPI::getPollingInterval(void) const
+{
+	return m_ctx->repeatInterval;
+}
+
 ItemTablePtr ArmZabbixAPI::getTrigger(void)
 {
 	JsonBuilderAgent agent;
