@@ -24,6 +24,7 @@ LIBS = \
 # Test cases
 testAsura_la_SOURCES = \
 	testAsuraException.cc testSQLProcessorException.cc \
+	testAsuraThreadBase.cc \
 	testDBAgentSQLite3.cc testDBClientZabbix.cc \
 	testSQLUtils.cc testSQLProcessor.cc \
 	testSQLProcessorInsert.cc testSQLProcessorUpdate.cc \

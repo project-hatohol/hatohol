@@ -29,11 +29,42 @@ using namespace mlpl;
 
 struct AsuraThreadBase::PrivateContext {
 	GThread *thread;
+	GRWLock rwlock;
+	ExceptionCallbackInfoList exceptionCbList;
 
 	// methods
 	PrivateContext(void)
 	: thread(NULL)
 	{
+		g_rw_lock_init(&rwlock);
+	}
+
+	virtual ~PrivateContext()
+	{
+		if (thread)
+			g_thread_unref(thread);
+
+		g_rw_lock_clear(&rwlock);
+	}
+
+	void read_lock(void)
+	{
+		g_rw_lock_reader_lock(&rwlock);
+	}
+
+	void read_unlock(void)
+	{
+		g_rw_lock_reader_unlock(&rwlock);
+	}
+
+	void write_lock(void)
+	{
+		g_rw_lock_writer_lock(&rwlock);
+	}
+
+	void write_unlock(void)
+	{
+		g_rw_lock_writer_unlock(&rwlock);
 	}
 };
 
@@ -48,11 +79,6 @@ AsuraThreadBase::AsuraThreadBase(void)
 
 AsuraThreadBase::~AsuraThreadBase()
 {
-	if (!m_ctx)
-		return;
-
-	if (m_ctx->thread)
-		g_thread_unref(m_ctx->thread);
 	if (m_ctx)
 		delete m_ctx;
 }
@@ -75,15 +101,31 @@ void AsuraThreadBase::stop(void)
 {
 }
 
-void *AsuraThreadBase::addExceptionCallback(ExceptionCallbackFunc func)
+void AsuraThreadBase::addExceptionCallback(ExceptionCallbackFunc func,
+                                           void *data)
 {
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
-	return NULL;
+	ExceptionCallbackInfo exceptionInfo;
+	exceptionInfo.func = func;
+	exceptionInfo.data = data;
+
+	m_ctx->write_lock();
+	m_ctx->exceptionCbList.push_back(exceptionInfo);
+	m_ctx->write_unlock();
 }
 
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
+void AsuraThreadBase::doExceptionCallback(const exception &e)
+{
+	m_ctx->read_lock();
+	ExceptionCallbackInfoListIterator it = m_ctx->exceptionCbList.begin();
+	for (; it != m_ctx->exceptionCbList.end(); ++it) {
+		ExceptionCallbackInfo &exceptionInfo = *it;
+		(*exceptionInfo.func)(e, exceptionInfo.data);
+	}
+	m_ctx->read_unlock();
+}
 
 // ---------------------------------------------------------------------------
 // Private methods
@@ -97,8 +139,10 @@ gpointer AsuraThreadBase::threadStarter(gpointer data)
 	} catch (const AsuraException &e) {
 		MLPL_ERR("Got Asura Exception: %s\n",
 		         e.getFancyMessage().c_str());
+		arg->obj->doExceptionCallback(e);
 	} catch (const exception &e) {
 		MLPL_ERR("Got Exception: %s\n", e.what());
+		arg->obj->doExceptionCallback(e);
 	}
 	if (arg->autoDeleteObject)
 		delete arg->obj;

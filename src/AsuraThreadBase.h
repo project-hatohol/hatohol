@@ -18,6 +18,7 @@
 #ifndef AsuraThreadBase_h
 #define AsuraThreadBase_h
 
+#include <list>
 #include <glib.h>
 #include <Utils.h>
 
@@ -29,13 +30,21 @@ struct AsuraThreadArg {
 };
 
 class AsuraThreadBase {
-public:
+private:
 	typedef void (*ExceptionCallbackFunc)(const exception &e, void *data);
+	struct ExceptionCallbackInfo {
+		ExceptionCallbackFunc func;
+		void                 *data;
+	};
+	typedef list<ExceptionCallbackInfo> ExceptionCallbackInfoList;
+	typedef ExceptionCallbackInfoList::iterator
+	        ExceptionCallbackInfoListIterator;
 
+public:
 	AsuraThreadBase(void);
 	virtual ~AsuraThreadBase();
 	void start(bool autoDeleteObject = false);
-	void *addExceptionCallback(ExceptionCallbackFunc func);
+	void addExceptionCallback(ExceptionCallbackFunc func, void *data);
 
 	/**
 	 * Send a stop request. This function blocks until
@@ -44,6 +53,8 @@ public:
 	virtual void stop(void);
 
 protected:
+	void doExceptionCallback(const exception &e);
+
 	// virtual methods
 	virtual gpointer mainThread(AsuraThreadArg *arg) = 0;
 
