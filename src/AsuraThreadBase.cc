@@ -31,6 +31,7 @@ struct AsuraThreadBase::PrivateContext {
 	GThread *thread;
 	GRWLock rwlock;
 	ExceptionCallbackInfoList exceptionCbList;
+	ExitCallbackInfoList      exitCbList;
 
 	// methods
 	PrivateContext(void)
@@ -113,6 +114,17 @@ void AsuraThreadBase::addExceptionCallback(ExceptionCallbackFunc func,
 	m_ctx->write_unlock();
 }
 
+void AsuraThreadBase::addExitCallback(ExitCallbackFunc func, void *data)
+{
+	ExitCallbackInfo exitInfo;
+	exitInfo.func = func;
+	exitInfo.data = data;
+
+	m_ctx->write_lock();
+	m_ctx->exitCbList.push_back(exitInfo);
+	m_ctx->write_unlock();
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
@@ -123,6 +135,17 @@ void AsuraThreadBase::doExceptionCallback(const exception &e)
 	for (; it != m_ctx->exceptionCbList.end(); ++it) {
 		ExceptionCallbackInfo &exceptionInfo = *it;
 		(*exceptionInfo.func)(e, exceptionInfo.data);
+	}
+	m_ctx->read_unlock();
+}
+
+void AsuraThreadBase::doExitCallback(void)
+{
+	m_ctx->read_lock();
+	ExitCallbackInfoListIterator it = m_ctx->exitCbList.begin();
+	for (; it != m_ctx->exitCbList.end(); ++it) {
+		ExitCallbackInfo &exitInfo = *it;
+		(*exitInfo.func)(exitInfo.data);
 	}
 	m_ctx->read_unlock();
 }
@@ -144,6 +167,7 @@ gpointer AsuraThreadBase::threadStarter(gpointer data)
 		MLPL_ERR("Got Exception: %s\n", e.what());
 		arg->obj->doExceptionCallback(e);
 	}
+	arg->obj->doExitCallback();
 	if (arg->autoDeleteObject)
 		delete arg->obj;
 	delete arg;

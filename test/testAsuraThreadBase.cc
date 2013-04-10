@@ -19,6 +19,11 @@ void exceptionCallbackFunc(const exception &e, void *data)
 	sync.unlock();
 }
 
+void exitCallbackFunc(void *data)
+{
+	sync.unlock();
+}
+
 class AsuraThreadTestImpl : public AsuraThreadBase {
 public:
 	AsuraThreadTestImpl(void)
@@ -71,6 +76,13 @@ void test_exceptionCallback(void)
 	AsuraThreadTestImpl threadTestee;
 	threadTestee.setTestFunc(throwAsuraExceptionFunc, NULL);
 	threadTestee.addExceptionCallback(exceptionCallbackFunc, NULL);
+	cppcut_assert_equal(true, threadTestee.doTest());
+}
+
+void test_exitCallback(void)
+{
+	AsuraThreadTestImpl threadTestee;
+	threadTestee.addExitCallback(exitCallbackFunc, NULL);
 	cppcut_assert_equal(true, threadTestee.doTest());
 }
 

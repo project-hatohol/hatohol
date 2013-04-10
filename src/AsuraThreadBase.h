@@ -40,11 +40,20 @@ private:
 	typedef ExceptionCallbackInfoList::iterator
 	        ExceptionCallbackInfoListIterator;
 
+	typedef void (*ExitCallbackFunc)(void *data);
+	struct ExitCallbackInfo {
+		ExitCallbackFunc func;
+		void            *data;
+	};
+	typedef list<ExitCallbackInfo>         ExitCallbackInfoList;
+	typedef ExitCallbackInfoList::iterator ExitCallbackInfoListIterator;
+
 public:
 	AsuraThreadBase(void);
 	virtual ~AsuraThreadBase();
 	void start(bool autoDeleteObject = false);
 	void addExceptionCallback(ExceptionCallbackFunc func, void *data);
+	void addExitCallback(ExitCallbackFunc func, void *data);
 
 	/**
 	 * Send a stop request. This function blocks until
@@ -54,6 +63,7 @@ public:
 
 protected:
 	void doExceptionCallback(const exception &e);
+	void doExitCallback(void);
 
 	// virtual methods
 	virtual gpointer mainThread(AsuraThreadArg *arg) = 0;
