@@ -286,35 +286,6 @@ bool ArmZabbixAPI::parseInitialResponse(SoupMessage *msg)
 	return true;
 }
 
-bool ArmZabbixAPI::mainThreadOneProc(void)
-{
-	SoupSession *session = soup_session_sync_new();
-	SoupMessage *msg = soup_message_new(SOUP_METHOD_GET, m_ctx->uri.c_str());
-
-	soup_message_headers_set_content_type(msg->request_headers,
-	                                      MIME_JSON_RPC, NULL);
-	string request_body = getInitialJsonRequest();
-	soup_message_body_append(msg->request_body, SOUP_MEMORY_TEMPORARY,
-	                         request_body.c_str(), request_body.size());
-	
-
-	guint ret = soup_session_send_message(session, msg);
-	if (ret != SOUP_STATUS_OK) {
-		MLPL_ERR("Failed to get: code: %d: %s\n",
-	                 ret, m_ctx->uri.c_str());
-		return false;
-	}
-	MLPL_DBG("body: %d, %s\n", msg->response_body->length,
-	                           msg->response_body->data);
-	if (!parseInitialResponse(msg))
-		return false;
-	MLPL_DBG("auth token: %s\n", m_ctx->authToken.c_str());
-	updateTriggers();
-
-	g_object_unref(msg);
-	return true;
-}
-
 void ArmZabbixAPI::startObject(JsonParserAgent &parser, const string &name)
 {
 	if (!parser.startObject(name)) {
@@ -566,6 +537,38 @@ gpointer ArmZabbixAPI::mainThread(AsuraThreadArg *arg)
 		sleep(sleepTime);
 	}
 	return NULL;
+}
+
+//
+// virtual methods defined in this class
+//
+bool ArmZabbixAPI::mainThreadOneProc(void)
+{
+	SoupSession *session = soup_session_sync_new();
+	SoupMessage *msg = soup_message_new(SOUP_METHOD_GET, m_ctx->uri.c_str());
+
+	soup_message_headers_set_content_type(msg->request_headers,
+	                                      MIME_JSON_RPC, NULL);
+	string request_body = getInitialJsonRequest();
+	soup_message_body_append(msg->request_body, SOUP_MEMORY_TEMPORARY,
+	                         request_body.c_str(), request_body.size());
+	
+
+	guint ret = soup_session_send_message(session, msg);
+	if (ret != SOUP_STATUS_OK) {
+		MLPL_ERR("Failed to get: code: %d: %s\n",
+	                 ret, m_ctx->uri.c_str());
+		return false;
+	}
+	MLPL_DBG("body: %d, %s\n", msg->response_body->length,
+	                           msg->response_body->data);
+	if (!parseInitialResponse(msg))
+		return false;
+	MLPL_DBG("auth token: %s\n", m_ctx->authToken.c_str());
+	updateTriggers();
+
+	g_object_unref(msg);
+	return true;
 }
 
 // ---------------------------------------------------------------------------

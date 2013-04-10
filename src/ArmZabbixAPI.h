@@ -40,7 +40,6 @@ public:
 protected:
 	string getInitialJsonRequest(void);
 	bool parseInitialResponse(SoupMessage *msg);
-	bool mainThreadOneProc(void);
 	void startObject(JsonParserAgent &parser, const string &name);
 	void startElement(JsonParserAgent &parser, int index);
 	void getString(JsonParserAgent &parser, const string &name,
@@ -67,6 +66,9 @@ protected:
 
 	// virtual methods
 	gpointer mainThread(AsuraThreadArg *arg);
+
+	// virtual methods defined in this class
+	virtual bool mainThreadOneProc(void);
 
 private:
 	struct PrivateContext;
