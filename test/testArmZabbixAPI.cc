@@ -5,15 +5,10 @@
 #include "ZabbixAPIEmulator.h"
 #include "ArmZabbixAPI.h"
 #include "Helpers.h"
+#include "Synchronizer.h"
 
 namespace testArmZabbixAPI {
-static GMutex g_mutex;
-
-static void wait_mutex(void)
-{
-	g_mutex_lock(&g_mutex);
-	g_mutex_unlock(&g_mutex);
-}
+static Synchronizer g_sync;
 
 class ArmZabbixAPITestee :  public ArmZabbixAPI {
 public:
@@ -21,8 +16,7 @@ public:
 	: ArmZabbixAPI(zabbixServerId, server),
 	  m_result(false)
 	{
-		if (!g_mutex_trylock(&g_mutex))
-			cut_fail("g_mutex is used.");
+		addExceptionCallback(_exceptionCb, this);
 	}
 
 	bool getResult(void) const
@@ -37,13 +31,27 @@ public:
 
 	bool testGetTriggers(void)
 	{
+		g_sync.lock();
 		setPollingInterval(0);
 		start();
-		wait_mutex();
-		return false;
+		g_sync.wait();
+		return m_result;
 	}
 
 protected:
+	static void _exceptionCb(const exception &e, void *data)
+	{
+		ArmZabbixAPITestee *obj =
+		   static_cast<ArmZabbixAPITestee *>(data);
+		obj->exceptionCb(e);
+	}
+
+	void exceptionCb(const exception &e)
+	{
+		m_result = false;
+		m_errorMessage = e.what();
+		g_sync.unlock();
+	}
 
 private:
 	bool m_result;
@@ -56,6 +64,10 @@ ZabbixAPIEmulator g_apiEmulator;
 
 void setup(void)
 {
+	if (!g_sync.trylock())
+		cut_fail("g_sync is not unlocked.");
+	g_sync.unlock();
+
 	asuraInit();
 	if (!g_apiEmulator.isRunning())
 		g_apiEmulator.start(EMULATOR_PORT);
@@ -63,8 +75,8 @@ void setup(void)
 
 void teardown(void)
 {
-	if (!g_mutex_trylock(&g_mutex))
-		g_mutex_unlock(&g_mutex);
+	if (!g_sync.trylock())
+		g_sync.unlock();
 }
 
 // ---------------------------------------------------------------------------
