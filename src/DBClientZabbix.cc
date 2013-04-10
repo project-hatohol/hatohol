@@ -476,7 +476,7 @@ int DBClientZabbix::updateReplicaGeneration(void)
 {
 	// We assumed that this function is called in the transcation.
 	int id = getLatestTriggersGenerationId();
-	int newId = id++;
+	int newId = id + 1;
 
 	// insert the generation id
 	uint64_t currTime = Utils::getCurrTimeAsMicroSecond();
