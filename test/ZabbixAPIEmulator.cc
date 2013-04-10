@@ -1,6 +1,5 @@
 #include <cstdio>
 #include <Logger.h>
-#include <libsoup/soup.h>
 
 #include "ZabbixAPIEmulator.h"
 
@@ -57,6 +56,8 @@ void ZabbixAPIEmulator::start(guint port)
 	}
 	
 	m_ctx->soupServer = soup_server_new(SOUP_SERVER_PORT, port, NULL);
+	soup_server_add_handler(m_ctx->soupServer, NULL, handlerDefault,
+	                        this, NULL);
 	m_ctx->thread = g_thread_new("ZabbixAPIEmulator", _mainThread, this);
 }
 
@@ -73,4 +74,13 @@ gpointer ZabbixAPIEmulator::mainThread(void)
 {
 	soup_server_run(m_ctx->soupServer);
 	return NULL;
+}
+
+void ZabbixAPIEmulator::handlerDefault
+  (SoupServer *server, SoupMessage *msg, const char *path, GHashTable *query,
+   SoupClientContext *client, gpointer user_data)
+{
+	MLPL_DBG("Default handler: path: %s, method: %s\n",
+	         path, msg->method);
+	soup_message_set_status(msg, SOUP_STATUS_NOT_FOUND);
 }

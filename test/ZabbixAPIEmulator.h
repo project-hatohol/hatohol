@@ -2,6 +2,7 @@
 #define ZabbixAPIEmulator_h
 
 #include <glib.h>
+#include <libsoup/soup.h>
 
 class ZabbixAPIEmulator {
 public:
@@ -14,6 +15,9 @@ public:
 protected:
 	static gpointer _mainThread(gpointer data);
 	gpointer mainThread(void);
+	static void handlerDefault
+	  (SoupServer *server, SoupMessage *msg, const char *path,
+	   GHashTable *query, SoupClientContext *client, gpointer user_data);
 
 private:
 	struct PrivateContext;
