@@ -58,6 +58,12 @@ void AsuraThreadBase::stop(void)
 {
 }
 
+void *AsuraThreadBase::addExceptionCallback(ExceptionCallbackFunc func)
+{
+	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	return NULL;
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------

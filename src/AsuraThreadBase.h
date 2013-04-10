@@ -30,9 +30,12 @@ struct AsuraThreadArg {
 
 class AsuraThreadBase {
 public:
+	typedef void (*ExceptionCallbackFunc)(const exception &e, void *data);
+
 	AsuraThreadBase(void);
 	virtual ~AsuraThreadBase();
 	void start(bool autoDeleteObject = false);
+	void *addExceptionCallback(ExceptionCallbackFunc func);
 
 	/**
 	 * Send a stop request. This function blocks until
