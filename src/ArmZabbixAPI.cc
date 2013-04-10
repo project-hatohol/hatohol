@@ -37,11 +37,11 @@ static const char *MIME_JSON_RPC = "application/json-rpc";
 struct ArmZabbixAPI::PrivateContext
 {
 	string         server;
-	string         auth_token;
+	string         authToken;
 	string         uri;
-	int            server_port;
-	int            retry_interval;	// in sec
-	int            repeat_interval;	// in sec;
+	int            serverPort;
+	int            retryInterval;	// in sec
+	int            repeatInterval;	// in sec;
 	int            zabbixServerId;
 	bool           gotTriggers;
 	uint64_t       triggerid;
@@ -51,9 +51,9 @@ struct ArmZabbixAPI::PrivateContext
 	// constructors
 	PrivateContext(const char *serverName, int _zabbixServerId)
 	: server(serverName),
-	  server_port(DEFAULT_SERVER_PORT),
-	  retry_interval(DEFAULT_RETRY_INTERVAL),
-	  repeat_interval(DEFAULT_REPEAT_INTERVAL),
+	  serverPort(DEFAULT_SERVER_PORT),
+	  retryInterval(DEFAULT_RETRY_INTERVAL),
+	  repeatInterval(DEFAULT_REPEAT_INTERVAL),
 	  zabbixServerId(_zabbixServerId),
 	  gotTriggers(false),
 	  triggerid(0),
@@ -93,7 +93,7 @@ ItemTablePtr ArmZabbixAPI::getTrigger(void)
 	agent.add("selectFunctions", "extend");
 	agent.endObject();
 
-	agent.add("auth", m_ctx->auth_token);
+	agent.add("auth", m_ctx->authToken);
 	agent.add("id", 1);
 	agent.endObject();
 
@@ -154,7 +154,7 @@ ItemTablePtr ArmZabbixAPI::getItems(void)
 	agent.add("output", "extend");
 	agent.endObject(); // params
 
-	agent.add("auth", m_ctx->auth_token);
+	agent.add("auth", m_ctx->authToken);
 	agent.add("id", 1);
 	agent.endObject();
 
@@ -202,7 +202,7 @@ ItemTablePtr ArmZabbixAPI::getHosts(void)
 	agent.add("output", "extend");
 	agent.endObject(); // params
 
-	agent.add("auth", m_ctx->auth_token);
+	agent.add("auth", m_ctx->authToken);
 	agent.add("id", 1);
 	agent.endObject();
 
@@ -269,7 +269,7 @@ bool ArmZabbixAPI::parseInitialResponse(SoupMessage *msg)
 		return false;
 	}
 
-	if (!parser.read("result", m_ctx->auth_token)) {
+	if (!parser.read("result", m_ctx->authToken)) {
 		MLPL_ERR("Failed to read: result\n");
 		return false;
 	}
@@ -298,7 +298,7 @@ bool ArmZabbixAPI::mainThreadOneProc(void)
 	                           msg->response_body->data);
 	if (!parseInitialResponse(msg))
 		return false;
-	MLPL_DBG("auth token: %s\n", m_ctx->auth_token.c_str());
+	MLPL_DBG("auth token: %s\n", m_ctx->authToken.c_str());
 	updateTriggers();
 
 	g_object_unref(msg);
@@ -550,9 +550,9 @@ gpointer ArmZabbixAPI::mainThread(AsuraThreadArg *arg)
 	MLPL_INFO("started: ArmZabbixAPI (server: %s)\n",
 	          __PRETTY_FUNCTION__, m_ctx->server.c_str());
 	while (true) {
-		int sleepTime = m_ctx->repeat_interval;
+		int sleepTime = m_ctx->repeatInterval;
 		if (!mainThreadOneProc())
-			sleepTime = m_ctx->retry_interval;
+			sleepTime = m_ctx->retryInterval;
 		sleep(sleepTime);
 	}
 	return NULL;
