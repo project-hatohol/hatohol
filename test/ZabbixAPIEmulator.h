@@ -9,7 +9,7 @@ public:
 	virtual ~ZabbixAPIEmulator();
 
 	bool isRunning(void);
-	void start(void);
+	void start(guint port);
 
 protected:
 	static gpointer _mainThread(gpointer data);
