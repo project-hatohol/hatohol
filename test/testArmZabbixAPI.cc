@@ -11,10 +11,17 @@ namespace testArmZabbixAPI {
 static Synchronizer g_sync;
 
 class ArmZabbixAPITestee :  public ArmZabbixAPI {
+
+typedef bool (ArmZabbixAPITestee::*ThreadOneProc)(void);
+
+	static const size_t NUM_TEST_TRIGGER_READ = 3;
+
 public:
 	ArmZabbixAPITestee(int zabbixServerId, const char *server)
 	: ArmZabbixAPI(zabbixServerId, server),
-	  m_result(false)
+	  m_result(false),
+	  m_threadOneProc(&ArmZabbixAPITestee::defaultThreadOneProc),
+	  m_countThreadOneProc(0)
 	{
 		addExceptionCallback(_exceptionCb, this);
 	}
@@ -31,8 +38,11 @@ public:
 
 	bool testGetTriggers(void)
 	{
+		m_countThreadOneProc = 0;
 		g_sync.lock();
 		setPollingInterval(0);
+		m_threadOneProc = &ArmZabbixAPITestee::threadOneProcTriggers;
+		addExitCallback(exitCbTriggers, this);
 		start();
 		g_sync.wait();
 		return m_result;
@@ -46,6 +56,11 @@ protected:
 		obj->exceptionCb(e);
 	}
 
+	static void exitCbTriggers(void *)
+	{
+		g_sync.unlock();
+	}
+
 	void exceptionCb(const exception &e)
 	{
 		m_result = false;
@@ -53,9 +68,37 @@ protected:
 		g_sync.unlock();
 	}
 
+	bool defaultThreadOneProc(void)
+	{
+		THROW_ASURA_EXCEPTION("m_threadOneProc is not set.");
+		return false;
+	}
+
+	bool threadOneProcTriggers(void)
+	{
+		bool succeeded = ArmZabbixAPI::mainThreadOneProc();
+		if (!succeeded) {
+			m_result = false;
+			m_errorMessage = "Failed: mainThreadOneProc()";
+		} else if (m_countThreadOneProc == NUM_TEST_TRIGGER_READ) {
+			m_result = true;
+			requestExit();
+		}
+		return succeeded;
+	}
+
+	// virtual function
+	bool mainThreadOneProc(void)
+	{
+		m_countThreadOneProc++;;
+		return (this->*m_threadOneProc)();
+	}
+
 private:
 	bool m_result;
 	string m_errorMessage;
+	ThreadOneProc m_threadOneProc;
+	size_t        m_countThreadOneProc;
 };
 
 static const guint EMULATOR_PORT = 33333;
