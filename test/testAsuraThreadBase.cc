@@ -1,46 +1,11 @@
 #include <cppcutter.h>
 #include "AsuraThreadBase.h"
 #include "AsuraException.h"
+#include "Synchronizer.h"
 
 namespace testAsuraThreadBase {
 
 typedef gpointer (*TestFunc)(void *data);
-
-class Synchronizer {
-	GMutex g_mutex;
-public:
-	Synchronizer(void)
-	{
-		g_mutex_init(&g_mutex);
-	}
-
-	virtual ~Synchronizer()
-	{
-		g_mutex_clear(&g_mutex);
-	}
-
-	void lock(void)
-	{
-		g_mutex_lock(&g_mutex);
-	}
-
-	void unlock(void)
-	{
-		g_mutex_unlock(&g_mutex);
-	}
-
-	gboolean trylock(void)
-	{
-		return g_mutex_trylock(&g_mutex);
-	}
-
-
-	void wait(void)
-	{
-		lock();
-		unlock();
-	}
-};
 static Synchronizer sync;
 
 static gpointer throwAsuraExceptionFunc(void *data)
