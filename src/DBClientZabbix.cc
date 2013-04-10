@@ -298,6 +298,16 @@ bool   DBClientZabbix::PrivateContext::dbInitializedFlags[NumMaxZabbixServers];
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
+string DBClientZabbix::getDBPath(size_t zabbixServerId)
+{
+	ConfigManager *configMgr = ConfigManager::getInstance();
+	const string &dbDirectory = configMgr->getDatabaseDirectory();
+	string dbPath =
+	  StringUtils::sprintf("%s/DBClientZabbix-%d.db",
+	                       dbDirectory.c_str(), zabbixServerId);
+	return dbPath;
+}
+
 DBClientZabbix::DBClientZabbix(size_t zabbixServerId)
 : m_ctx(NULL)
 {
@@ -432,16 +442,10 @@ bool DBClientZabbix::getDBVersion(const string &dbPath)
 //
 void DBClientZabbix::prepareSetupFuncCallback(size_t zabbixServerId)
 {
-	ConfigManager *configMgr = ConfigManager::getInstance();
-	const string &dbDirectory = configMgr->getDatabaseDirectory();
-
 	DBDomainId domainId = DBDomainIDZabbixRawOffset + zabbixServerId;
 	DBAgent::addSetupFunction(DBDomainIDZabbixRawOffset + zabbixServerId,
 	                          dbSetupFunc);
-	string dbPath =
-	  StringUtils::sprintf("%s/DBClientZabbix-%d.db",
-	                       dbDirectory.c_str(), zabbixServerId);
-	DBAgentSQLite3::defineDBPath(domainId, dbPath);
+	DBAgentSQLite3::defineDBPath(domainId, getDBPath(zabbixServerId));
 }
 
 int DBClientZabbix::getLatestTriggersGenerationId(void)
