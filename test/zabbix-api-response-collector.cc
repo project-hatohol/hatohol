@@ -26,10 +26,10 @@ ZabbixAPIResponseCollector::~ZabbixAPIResponseCollector()
 
 static void printUsage(void)
 {
-	printf("Usage:\n");
-	printf("\n");
-	printf("$ zabbix-api-response-collector server\n");
-	printf("\n");
+	fprintf(stderr, "Usage:\n");
+	fprintf(stderr, "\n");
+	fprintf(stderr, "$ zabbix-api-response-collector server\n");
+	fprintf(stderr, "\n");
 }
 
 int main(int argc, char *argv[])
