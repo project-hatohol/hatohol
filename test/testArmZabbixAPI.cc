@@ -80,6 +80,7 @@ protected:
 		if (!succeeded) {
 			m_result = false;
 			m_errorMessage = "Failed: mainThreadOneProc()";
+			requestExit();
 		} else if (m_countThreadOneProc == NUM_TEST_TRIGGER_READ) {
 			m_result = true;
 			requestExit();
