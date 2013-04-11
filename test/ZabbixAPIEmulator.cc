@@ -10,12 +10,14 @@ struct ZabbixAPIEmulator::PrivateContext {
 	GThread    *thread;
 	guint       port;
 	SoupServer *soupServer;
+	OperationMode operationMode;
 	
 	// methods
 	PrivateContext(void)
 	: thread(NULL),
 	  port(0),
-	  soupServer(NULL)
+	  soupServer(NULL),
+	  operationMode(OPE_MODE_NORMAL)
 	{
 	}
 
@@ -62,6 +64,11 @@ void ZabbixAPIEmulator::start(guint port)
 	soup_server_add_handler(m_ctx->soupServer, "/zabbix/api_jsonrpc.php",
 	                        handlerAPI, this, NULL);
 	m_ctx->thread = g_thread_new("ZabbixAPIEmulator", _mainThread, this);
+}
+
+void ZabbixAPIEmulator::setOperationMode(OperationMode mode)
+{
+	m_ctx->operationMode = mode;
 }
 
 // ---------------------------------------------------------------------------

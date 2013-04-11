@@ -4,6 +4,11 @@
 #include <glib.h>
 #include <libsoup/soup.h>
 
+enum OperationMode {
+	OPE_MODE_NORMAL,
+	OPE_MODE_HTTP_NOT_FOUND,
+};
+
 class ZabbixAPIEmulator {
 public:
 	ZabbixAPIEmulator(void);
@@ -11,6 +16,7 @@ public:
 
 	bool isRunning(void);
 	void start(guint port);
+	void setOperationMode(OperationMode mode);
 
 protected:
 	static gpointer _mainThread(gpointer data);
