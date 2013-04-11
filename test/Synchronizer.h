@@ -10,6 +10,7 @@ public:
 	virtual ~Synchronizer();
 	void lock(void);
 	void unlock(void);
+	void forceUnlock(void);
 	gboolean trylock(void);
 	void wait(void);
 };

@@ -20,6 +20,17 @@ void Synchronizer::unlock(void)
 	g_mutex_unlock(&g_mutex);
 }
 
+void Synchronizer::forceUnlock(void)
+{
+	// We wanted to write the following code, but that is just 'unlock()'
+	// if (!trylock())
+	//	unlock();
+	// else
+	//	unlock();
+
+	unlock();
+}
+
 gboolean Synchronizer::trylock(void)
 {
 	return g_mutex_trylock(&g_mutex);

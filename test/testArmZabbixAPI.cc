@@ -164,8 +164,7 @@ void setup(void)
 
 void teardown(void)
 {
-	if (!g_sync.trylock())
-		g_sync.unlock();
+	g_sync.forceUnlock();
 }
 
 // ---------------------------------------------------------------------------
