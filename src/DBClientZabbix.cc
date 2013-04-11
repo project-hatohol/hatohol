@@ -307,6 +307,13 @@ string DBClientZabbix::getDBPath(size_t zabbixServerId)
 	return dbPath;
 }
 
+void DBClientZabbix::resetDBInitializedFlags(void)
+{
+	// This function is mainly for test
+	for (size_t i = 0; i < NumMaxZabbixServers; i++)
+		PrivateContext::dbInitializedFlags[i] = false;
+}
+
 DBClientZabbix::DBClientZabbix(size_t zabbixServerId)
 : m_ctx(NULL)
 {

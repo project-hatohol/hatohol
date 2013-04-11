@@ -6,6 +6,7 @@
 #include "ArmZabbixAPI.h"
 #include "Helpers.h"
 #include "Synchronizer.h"
+#include "DBClientZabbix.h"
 
 namespace testArmZabbixAPI {
 static Synchronizer g_sync;
@@ -157,6 +158,7 @@ void setup(void)
 	                    cut_message("g_sync is locked."));
 
 	asuraInit();
+	DBClientZabbix::resetDBInitializedFlags();
 	if (!g_apiEmulator.isRunning())
 		g_apiEmulator.start(EMULATOR_PORT);
 }

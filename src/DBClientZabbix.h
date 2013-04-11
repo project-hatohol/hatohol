@@ -24,6 +24,7 @@ class DBClientZabbix {
 public:
 	static const int DB_VERSION;
 	static string getDBPath(size_t zabbixServerId);
+	static void resetDBInitializedFlags(void);
 
 	DBClientZabbix(size_t zabbixServerId);
 	virtual ~DBClientZabbix();
