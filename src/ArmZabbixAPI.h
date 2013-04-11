@@ -42,7 +42,7 @@ public:
 
 protected:
 	SoupSession *getSession(void);
-	bool openSession(void);
+	bool openSession(SoupMessage **msgPtr = NULL);
 	SoupMessage *queryTrigger(void);
 	string getInitialJsonRequest(void);
 	bool parseInitialResponse(SoupMessage *msg);

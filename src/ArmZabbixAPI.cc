@@ -268,7 +268,7 @@ SoupSession *ArmZabbixAPI::getSession(void)
 	return m_ctx->session;
 }
 
-bool ArmZabbixAPI::openSession(void)
+bool ArmZabbixAPI::openSession(SoupMessage **msgPtr)
 {
 	SoupMessage *msg = soup_message_new(SOUP_METHOD_GET, m_ctx->uri.c_str());
 
@@ -289,10 +289,18 @@ bool ArmZabbixAPI::openSession(void)
 	MLPL_DBG("body: %d, %s\n", msg->response_body->length,
 	                           msg->response_body->data);
 	bool succeeded = parseInitialResponse(msg);
-	g_object_unref(msg);
-	if (!succeeded)
+	if (!succeeded) {
+		g_object_unref(msg);
 		return false;
+	}
 	MLPL_DBG("auth token: %s\n", m_ctx->authToken.c_str());
+
+	// copy the SoupMessage object if msgPtr is not NULL.
+	if (msgPtr)
+		*msgPtr = msg;
+	else 
+		g_object_unref(msg);
+
 	return true;
 }
 
