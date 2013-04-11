@@ -111,33 +111,9 @@ void ArmZabbixAPI::requestExit(void)
 
 ItemTablePtr ArmZabbixAPI::getTrigger(void)
 {
-	JsonBuilderAgent agent;
-	agent.startObject();
-	agent.add("jsonrpc", "2.0");
-	agent.add("method", "trigger.get");
-
-	agent.startObject("params");
-	agent.add("output", "extend");
-	agent.add("selectFunctions", "extend");
-	agent.endObject();
-
-	agent.add("auth", m_ctx->authToken);
-	agent.add("id", 1);
-	agent.endObject();
-
-	string request_body = agent.generate();
-	SoupSession *session = soup_session_sync_new();
-	SoupMessage *msg = soup_message_new(SOUP_METHOD_GET, m_ctx->uri.c_str());
-
-	soup_message_headers_set_content_type(msg->request_headers,
-	                                      MIME_JSON_RPC, NULL);
-	soup_message_body_append(msg->request_body, SOUP_MEMORY_TEMPORARY,
-	                         request_body.c_str(), request_body.size());
-	guint ret = soup_session_send_message(session, msg);
-	if (ret != SOUP_STATUS_OK) {
-		THROW_DATA_STORE_EXCEPTION(
-		  "Failed to get: code: %d: %s", ret, m_ctx->uri.c_str());
-	}
+	SoupMessage *msg = queryTrigger();
+	if (!msg)
+		THROW_DATA_STORE_EXCEPTION("Failed to query triggers.");
 
 	JsonParserAgent parser(msg->response_body->data);
 	if (parser.hasError()) {
@@ -282,6 +258,38 @@ SoupMessage *ArmZabbixAPI::openSession(void)
 	                         request_body.c_str(), request_body.size());
 	
 
+	guint ret = soup_session_send_message(session, msg);
+	if (ret != SOUP_STATUS_OK) {
+		MLPL_ERR("Failed to get: code: %d: %s\n",
+	                 ret, m_ctx->uri.c_str());
+		return NULL;
+	}
+	return msg;
+}
+
+SoupMessage *ArmZabbixAPI::queryTrigger(void)
+{
+	JsonBuilderAgent agent;
+	agent.startObject();
+	agent.add("jsonrpc", "2.0");
+	agent.add("method", "trigger.get");
+
+	agent.startObject("params");
+	agent.add("output", "extend");
+	agent.add("selectFunctions", "extend");
+	agent.endObject();
+
+	agent.add("auth", m_ctx->authToken);
+	agent.add("id", 1);
+	agent.endObject();
+
+	string request_body = agent.generate();
+	SoupSession *session = soup_session_sync_new();
+	SoupMessage *msg = soup_message_new(SOUP_METHOD_GET, m_ctx->uri.c_str());
+	soup_message_headers_set_content_type(msg->request_headers,
+	                                      MIME_JSON_RPC, NULL);
+	soup_message_body_append(msg->request_body, SOUP_MEMORY_TEMPORARY,
+	                         request_body.c_str(), request_body.size());
 	guint ret = soup_session_send_message(session, msg);
 	if (ret != SOUP_STATUS_OK) {
 		MLPL_ERR("Failed to get: code: %d: %s\n",
