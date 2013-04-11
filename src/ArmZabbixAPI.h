@@ -41,6 +41,7 @@ public:
 	ItemTablePtr getHosts(void);
 
 protected:
+	SoupMessage *openSession(void);
 	string getInitialJsonRequest(void);
 	bool parseInitialResponse(SoupMessage *msg);
 	void startObject(JsonParserAgent &parser, const string &name);
