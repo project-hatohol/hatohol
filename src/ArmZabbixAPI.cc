@@ -117,9 +117,11 @@ ItemTablePtr ArmZabbixAPI::getTrigger(void)
 
 	JsonParserAgent parser(msg->response_body->data);
 	if (parser.hasError()) {
+		g_object_unref(msg);
 		THROW_DATA_STORE_EXCEPTION(
 		  "Failed to parser: %s", parser.getErrorMessage());
 	}
+	g_object_unref(msg);
 	startObject(parser, "result");
 
 	ItemTablePtr tablePtr;
@@ -172,11 +174,13 @@ ItemTablePtr ArmZabbixAPI::getItems(void)
 	                         request_body.c_str(), request_body.size());
 	guint ret = soup_session_send_message(session, msg);
 	if (ret != SOUP_STATUS_OK) {
+		g_object_unref(msg);
 		THROW_DATA_STORE_EXCEPTION(
 		  "Failed to get: code: %d: %s", ret, m_ctx->uri.c_str());
 	}
 
 	JsonParserAgent parser(msg->response_body->data);
+	g_object_unref(msg);
 	if (parser.hasError()) {
 		THROW_DATA_STORE_EXCEPTION(
 		  "Failed to parser: %s", parser.getErrorMessage());
@@ -220,11 +224,13 @@ ItemTablePtr ArmZabbixAPI::getHosts(void)
 	                         request_body.c_str(), request_body.size());
 	guint ret = soup_session_send_message(session, msg);
 	if (ret != SOUP_STATUS_OK) {
+		g_object_unref(msg);
 		THROW_DATA_STORE_EXCEPTION(
 		  "Failed to get: code: %d: %s", ret, m_ctx->uri.c_str());
 	}
 
 	JsonParserAgent parser(msg->response_body->data);
+	g_object_unref(msg);
 	if (parser.hasError()) {
 		THROW_DATA_STORE_EXCEPTION(
 		  "Failed to parser: %s", parser.getErrorMessage());
@@ -598,12 +604,13 @@ bool ArmZabbixAPI::mainThreadOneProc(void)
 		return false;
 	MLPL_DBG("body: %d, %s\n", msg->response_body->length,
 	                           msg->response_body->data);
-	if (!parseInitialResponse(msg))
+	bool succeeded = parseInitialResponse(msg);
+	g_object_unref(msg);
+	if (!succeeded)
 		return false;
 	MLPL_DBG("auth token: %s\n", m_ctx->authToken.c_str());
 	updateTriggers();
 
-	g_object_unref(msg);
 	return true;
 }
 
