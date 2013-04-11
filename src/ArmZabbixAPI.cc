@@ -260,6 +260,7 @@ SoupMessage *ArmZabbixAPI::openSession(void)
 
 	guint ret = soup_session_send_message(session, msg);
 	if (ret != SOUP_STATUS_OK) {
+		g_object_unref(msg);
 		MLPL_ERR("Failed to get: code: %d: %s\n",
 	                 ret, m_ctx->uri.c_str());
 		return NULL;
@@ -292,6 +293,7 @@ SoupMessage *ArmZabbixAPI::queryTrigger(void)
 	                         request_body.c_str(), request_body.size());
 	guint ret = soup_session_send_message(session, msg);
 	if (ret != SOUP_STATUS_OK) {
+		g_object_unref(msg);
 		MLPL_ERR("Failed to get: code: %d: %s\n",
 	                 ret, m_ctx->uri.c_str());
 		return NULL;
