@@ -608,11 +608,10 @@ gpointer ArmZabbixAPI::mainThread(AsuraThreadArg *arg)
 	          __PRETTY_FUNCTION__, m_ctx->server.c_str());
 	while (!m_ctx->hasExitRequest()) {
 		int sleepTime = m_ctx->repeatInterval;
-		if (!mainThreadOneProc()) {
-			if (m_ctx->hasExitRequest())
-				break;
+		if (!mainThreadOneProc())
 			sleepTime = m_ctx->retryInterval;
-		}
+		if (m_ctx->hasExitRequest())
+			break;
 		sleep(sleepTime);
 	}
 	return NULL;
