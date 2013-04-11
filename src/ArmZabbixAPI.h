@@ -41,6 +41,7 @@ public:
 	ItemTablePtr getHosts(void);
 
 protected:
+	SoupSession *getSession(void);
 	SoupMessage *openSession(void);
 	SoupMessage *queryTrigger(void);
 	string getInitialJsonRequest(void);

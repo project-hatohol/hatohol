@@ -42,6 +42,7 @@ struct ArmZabbixAPI::PrivateContext
 	int            retryInterval;	// in sec
 	int            repeatInterval;	// in sec;
 	int            zabbixServerId;
+	SoupSession   *session;
 	bool           gotTriggers;
 	uint64_t       triggerid;
 	ItemTablePtr   functionsTablePtr;
@@ -55,11 +56,18 @@ struct ArmZabbixAPI::PrivateContext
 	  retryInterval(DEFAULT_RETRY_INTERVAL),
 	  repeatInterval(DEFAULT_REPEAT_INTERVAL),
 	  zabbixServerId(_zabbixServerId),
+	  session(NULL),
 	  gotTriggers(false),
 	  triggerid(0),
 	  dbClientZabbix(_zabbixServerId),
 	  exitRequest(0)
 	{
+	}
+
+	~PrivateContext()
+	{
+		if (session)
+			g_object_unref(session);
 	}
 
 	bool hasExitRequest(void) const
@@ -165,14 +173,13 @@ ItemTablePtr ArmZabbixAPI::getItems(void)
 	agent.endObject();
 
 	string request_body = agent.generate();
-	SoupSession *session = soup_session_sync_new();
 	SoupMessage *msg = soup_message_new(SOUP_METHOD_GET, m_ctx->uri.c_str());
 
 	soup_message_headers_set_content_type(msg->request_headers,
 	                                      MIME_JSON_RPC, NULL);
 	soup_message_body_append(msg->request_body, SOUP_MEMORY_TEMPORARY,
 	                         request_body.c_str(), request_body.size());
-	guint ret = soup_session_send_message(session, msg);
+	guint ret = soup_session_send_message(getSession(), msg);
 	if (ret != SOUP_STATUS_OK) {
 		g_object_unref(msg);
 		THROW_DATA_STORE_EXCEPTION(
@@ -215,14 +222,13 @@ ItemTablePtr ArmZabbixAPI::getHosts(void)
 	agent.endObject();
 
 	string request_body = agent.generate();
-	SoupSession *session = soup_session_sync_new();
 	SoupMessage *msg = soup_message_new(SOUP_METHOD_GET, m_ctx->uri.c_str());
 
 	soup_message_headers_set_content_type(msg->request_headers,
 	                                      MIME_JSON_RPC, NULL);
 	soup_message_body_append(msg->request_body, SOUP_MEMORY_TEMPORARY,
 	                         request_body.c_str(), request_body.size());
-	guint ret = soup_session_send_message(session, msg);
+	guint ret = soup_session_send_message(getSession(), msg);
 	if (ret != SOUP_STATUS_OK) {
 		g_object_unref(msg);
 		THROW_DATA_STORE_EXCEPTION(
@@ -252,9 +258,18 @@ ItemTablePtr ArmZabbixAPI::getHosts(void)
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
+SoupSession *ArmZabbixAPI::getSession(void)
+{
+	// NOTE: current implementaion is not MT-safe.
+	//       If we have to use this function from multiple threads,
+	//       it is only necessary to prepare sessions by thread.
+	if (!m_ctx->session)
+		m_ctx->session = soup_session_sync_new();
+	return m_ctx->session;
+}
+
 SoupMessage *ArmZabbixAPI::openSession(void)
 {
-	SoupSession *session = soup_session_sync_new();
 	SoupMessage *msg = soup_message_new(SOUP_METHOD_GET, m_ctx->uri.c_str());
 
 	soup_message_headers_set_content_type(msg->request_headers,
@@ -264,7 +279,7 @@ SoupMessage *ArmZabbixAPI::openSession(void)
 	                         request_body.c_str(), request_body.size());
 	
 
-	guint ret = soup_session_send_message(session, msg);
+	guint ret = soup_session_send_message(getSession(), msg);
 	if (ret != SOUP_STATUS_OK) {
 		g_object_unref(msg);
 		MLPL_ERR("Failed to get: code: %d: %s\n",
@@ -291,13 +306,12 @@ SoupMessage *ArmZabbixAPI::queryTrigger(void)
 	agent.endObject();
 
 	string request_body = agent.generate();
-	SoupSession *session = soup_session_sync_new();
 	SoupMessage *msg = soup_message_new(SOUP_METHOD_GET, m_ctx->uri.c_str());
 	soup_message_headers_set_content_type(msg->request_headers,
 	                                      MIME_JSON_RPC, NULL);
 	soup_message_body_append(msg->request_body, SOUP_MEMORY_TEMPORARY,
 	                         request_body.c_str(), request_body.size());
-	guint ret = soup_session_send_message(session, msg);
+	guint ret = soup_session_send_message(getSession(), msg);
 	if (ret != SOUP_STATUS_OK) {
 		g_object_unref(msg);
 		MLPL_ERR("Failed to get: code: %d: %s\n",
