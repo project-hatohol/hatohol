@@ -106,6 +106,25 @@ static const guint EMULATOR_PORT = 33333;
 
 ZabbixAPIEmulator g_apiEmulator;
 
+static guint getTestPort(void)
+{
+	static guint port = 0;
+	if (port != 0)
+		return port;
+
+	char *env = getenv("TEST_ARM_ZABBIX_API_PORT");
+	if (!env) {
+		port = EMULATOR_PORT;
+		return port;
+	}
+
+	guint _port = atoi(env);
+	if (_port > 65535)
+		cut_fail("Invalid string: %s", env);
+	port = _port;
+	return port;
+}
+
 void setup(void)
 {
 	if (!g_sync.trylock())
@@ -130,7 +149,7 @@ void test_getTriggers(void)
 {
 	int svId = 0;
 	deleteDBClientZabbixDB(svId);
-	ArmZabbixAPITestee armZbxApiTestee(svId, "localhost", EMULATOR_PORT);
+	ArmZabbixAPITestee armZbxApiTestee(svId, "localhost", getTestPort());
 	cppcut_assert_equal
 	  (true, armZbxApiTestee.testGetTriggers(),
 	   cut_message("%s\n", armZbxApiTestee.errorMessage().c_str()));
