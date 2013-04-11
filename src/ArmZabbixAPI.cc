@@ -268,7 +268,7 @@ SoupSession *ArmZabbixAPI::getSession(void)
 	return m_ctx->session;
 }
 
-SoupMessage *ArmZabbixAPI::openSession(void)
+bool ArmZabbixAPI::openSession(void)
 {
 	SoupMessage *msg = soup_message_new(SOUP_METHOD_GET, m_ctx->uri.c_str());
 
@@ -284,9 +284,16 @@ SoupMessage *ArmZabbixAPI::openSession(void)
 		g_object_unref(msg);
 		MLPL_ERR("Failed to get: code: %d: %s\n",
 	                 ret, m_ctx->uri.c_str());
-		return NULL;
+		return false;
 	}
-	return msg;
+	MLPL_DBG("body: %d, %s\n", msg->response_body->length,
+	                           msg->response_body->data);
+	bool succeeded = parseInitialResponse(msg);
+	g_object_unref(msg);
+	if (!succeeded)
+		return false;
+	MLPL_DBG("auth token: %s\n", m_ctx->authToken.c_str());
+	return true;
 }
 
 SoupMessage *ArmZabbixAPI::queryTrigger(void)
@@ -613,16 +620,8 @@ gpointer ArmZabbixAPI::mainThread(AsuraThreadArg *arg)
 //
 bool ArmZabbixAPI::mainThreadOneProc(void)
 {
-	SoupMessage *msg = openSession();
-	if (!msg)
+	if (!openSession())
 		return false;
-	MLPL_DBG("body: %d, %s\n", msg->response_body->length,
-	                           msg->response_body->data);
-	bool succeeded = parseInitialResponse(msg);
-	g_object_unref(msg);
-	if (!succeeded)
-		return false;
-	MLPL_DBG("auth token: %s\n", m_ctx->authToken.c_str());
 	updateTriggers();
 
 	return true;

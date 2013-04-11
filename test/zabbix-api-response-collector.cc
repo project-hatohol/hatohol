@@ -52,12 +52,10 @@ bool ZabbixAPIResponseCollector::execute(const string &command,
 bool ZabbixAPIResponseCollector::commandFuncTrigger
   (const string &command, vector<string>& cmdArgs)
 {
-	SoupMessage *msg = openSession();
-	if (!msg)
+	if (!openSession())
 		return false;
-	g_object_unref(msg);
 
-	msg = queryTrigger();
+	SoupMessage *msg = queryTrigger();
 	if (!msg)
 		return false;
 	printf("%s\n", msg->response_body->data);
