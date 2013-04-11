@@ -18,6 +18,9 @@ protected:
 	static void handlerDefault
 	  (SoupServer *server, SoupMessage *msg, const char *path,
 	   GHashTable *query, SoupClientContext *client, gpointer user_data);
+	static void handlerAPI
+	  (SoupServer *server, SoupMessage *msg, const char *path,
+	   GHashTable *query, SoupClientContext *client, gpointer user_data);
 
 private:
 	struct PrivateContext;
