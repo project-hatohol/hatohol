@@ -7,7 +7,7 @@ TESTS = run-test.sh
 TESTS_ENVIRONMENT = NO_MAKE=yes CUTTER="$(CUTTER)"
 
 noinst_LTLIBRARIES = libTest.la testAsura.la
-noinst_PROGRAMS = zabbix-server-response-collector
+noinst_PROGRAMS = zabbix-api-response-collector
 endif
 
 # default
@@ -48,8 +48,8 @@ libTest_la_SOURCES = \
 	Synchronizer.cc
 libTest_la_LDFLAGS =
 
-zabbix_server_response_collector_LDFLAGS =
-zabbix_server_response_collector_LDADD = ../src/libasura.la
+zabbix_api_response_collector_LDFLAGS =
+zabbix_api_response_collector_LDADD = ../src/libasura.la
 
 echo-cutter:
 	@echo $(CUTTER)

@@ -28,7 +28,7 @@ static void printUsage(void)
 {
 	printf("Usage:\n");
 	printf("\n");
-	printf("$ zabbix-server-response-collect server\n");
+	printf("$ zabbix-api-response-collector server\n");
 	printf("\n");
 }
 
