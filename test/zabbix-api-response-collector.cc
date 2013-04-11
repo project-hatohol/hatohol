@@ -55,10 +55,13 @@ bool ZabbixAPIResponseCollector::commandFuncTrigger
 	SoupMessage *msg = openSession();
 	if (!msg)
 		return false;
+	g_object_unref(msg);
+
 	msg = queryTrigger();
 	if (!msg)
 		return false;
 	printf("%s\n", msg->response_body->data);
+	g_object_unref(msg);
 	return true;
 }
 
