@@ -48,5 +48,8 @@ libTest_la_SOURCES = \
 	Synchronizer.cc
 libTest_la_LDFLAGS =
 
+zabbix_server_response_collector_LDFLAGS =
+zabbix_server_response_collector_LDADD = ../src/libasura.la
+
 echo-cutter:
 	@echo $(CUTTER)
