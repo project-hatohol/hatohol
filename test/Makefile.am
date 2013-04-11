@@ -7,6 +7,7 @@ TESTS = run-test.sh
 TESTS_ENVIRONMENT = NO_MAKE=yes CUTTER="$(CUTTER)"
 
 noinst_LTLIBRARIES = libTest.la testAsura.la
+noinst_PROGRAMS = zabbix-server-response-collector
 endif
 
 # default
