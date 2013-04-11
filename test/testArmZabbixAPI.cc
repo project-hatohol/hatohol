@@ -36,6 +36,17 @@ public:
 		return m_errorMessage;
 	}
 
+	bool testOpenSession(void)
+	{
+		g_sync.lock();
+		setPollingInterval(0);
+		m_threadOneProc = &ArmZabbixAPITestee::threadOneProcOpenSession;
+		addExitCallback(exitCbDefault, this);
+		start();
+		g_sync.wait();
+		return m_result;
+	}
+
 	bool testGetTriggers(void)
 	{
 		m_countThreadOneProc = 0;
@@ -56,6 +67,11 @@ protected:
 		obj->exceptionCb(e);
 	}
 
+	static void exitCbDefault(void *)
+	{
+		g_sync.unlock();
+	}
+
 	static void exitCbTriggers(void *)
 	{
 		g_sync.unlock();
@@ -72,6 +88,16 @@ protected:
 	{
 		THROW_ASURA_EXCEPTION("m_threadOneProc is not set.");
 		return false;
+	}
+
+	bool threadOneProcOpenSession(void)
+	{
+		bool succeeded = openSession();
+		if (!succeeded)
+			m_errorMessage = "Failed: mainThreadOneProc()";
+		m_result = succeeded;
+		requestExit();
+		return succeeded;
 	}
 
 	bool threadOneProcTriggers(void)
@@ -145,6 +171,16 @@ void teardown(void)
 // ---------------------------------------------------------------------------
 // Test cases
 // ---------------------------------------------------------------------------
+void test_openSession(void)
+{
+	int svId = 0;
+	deleteDBClientZabbixDB(svId);
+	ArmZabbixAPITestee armZbxApiTestee(svId, "localhost", getTestPort());
+	cppcut_assert_equal
+	  (true, armZbxApiTestee.testOpenSession(),
+	   cut_message("%s\n", armZbxApiTestee.errorMessage().c_str()));
+}
+
 void test_getTriggers(void)
 {
 	int svId = 0;
