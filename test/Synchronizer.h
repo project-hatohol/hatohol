@@ -11,7 +11,8 @@ public:
 	void lock(void);
 	void unlock(void);
 	void forceUnlock(void);
-	gboolean trylock(void);
+	bool trylock(void);
+	bool isLocked(void);
 	void wait(void);
 };
 

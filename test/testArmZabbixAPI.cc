@@ -153,9 +153,8 @@ static guint getTestPort(void)
 
 void setup(void)
 {
-	if (!g_sync.trylock())
-		cut_fail("g_sync is not unlocked.");
-	g_sync.unlock();
+	cppcut_assert_equal(false, g_sync.isLocked(),
+	                    cut_message("g_sync is locked."));
 
 	asuraInit();
 	if (!g_apiEmulator.isRunning())

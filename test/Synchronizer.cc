@@ -31,9 +31,19 @@ void Synchronizer::forceUnlock(void)
 	unlock();
 }
 
-gboolean Synchronizer::trylock(void)
+bool Synchronizer::trylock(void)
 {
 	return g_mutex_trylock(&g_mutex);
+}
+
+bool Synchronizer::isLocked(void)
+{
+	bool locked = false;
+	if (trylock())
+		unlock();
+	else
+		locked = true;
+	return locked;
 }
 
 void Synchronizer::wait(void)
