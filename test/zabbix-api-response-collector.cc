@@ -1,6 +1,7 @@
 #include <cstdio>
 #include <cstdlib>
 
+#include "Asura.h"
 #include "ArmZabbixAPI.h"
 
 static const int DEFAULT_PORT = 80;
@@ -51,7 +52,14 @@ bool ZabbixAPIResponseCollector::execute(const string &command,
 bool ZabbixAPIResponseCollector::commandFuncTrigger
   (const string &command, vector<string>& cmdArgs)
 {
-	return false;
+	SoupMessage *msg = openSession();
+	if (!msg)
+		return false;;
+	msg = queryTrigger();
+	if (!msg)
+		return false;;
+	printf("%s\n", msg->response_body->data);
+	return true;
 }
 
 static void printUsage(void)
@@ -67,6 +75,8 @@ static void printUsage(void)
 
 int main(int argc, char *argv[])
 {
+	g_type_init();
+	asuraInit();
 	if (argc < 3) {
 		printUsage();
 		return EXIT_FAILURE;
