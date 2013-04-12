@@ -1,6 +1,7 @@
 #ifndef Helpers_h
 #define Helpers_h
 
+#include <cppcutter.h>
 #include <StringUtils.h>
 using namespace mlpl;
 
