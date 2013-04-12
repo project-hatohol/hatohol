@@ -156,6 +156,11 @@ string ZabbixAPIEmulator::generateAuthToken(void)
 
 void ZabbixAPIEmulator::handlerAPIDispatch(APIHandlerArg &arg)
 {
+	if (m_ctx->operationMode == OPE_MODE_HTTP_NOT_FOUND) {
+		soup_message_set_status(arg.msg, SOUP_STATUS_NOT_FOUND);
+		return;
+	}
+
 	JsonParserAgent parser(arg.msg->request_body->data);
 	if (parser.hasError()) {
 		THROW_ASURA_EXCEPTION("Error in parsing: %s",
