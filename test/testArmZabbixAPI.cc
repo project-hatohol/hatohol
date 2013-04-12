@@ -190,6 +190,15 @@ void test_getTriggers(void)
 	cppcut_assert_equal
 	  (true, armZbxApiTestee.testGetTriggers(),
 	   cut_message("%s\n", armZbxApiTestee.errorMessage().c_str()));
+	
+	// check the database
+	string statement = "select count(*) from replica_generation";
+	string numGenerations = execSqlite3ForDBClinetZabbix(svId, statement);
+
+	static size_t expectedNumGenerations = 3;
+	cppcut_assert_equal(
+	  StringUtils::sprintf("%zd\n", expectedNumGenerations),
+	  numGenerations);
 }
 
 void test_httpNotFound(void)
