@@ -15,7 +15,7 @@ class ArmZabbixAPITestee :  public ArmZabbixAPI {
 
 typedef bool (ArmZabbixAPITestee::*ThreadOneProc)(void);
 
-	static const size_t NUM_TEST_TRIGGER_READ = 3;
+static const size_t NUM_TEST_TRIGGER_READ = 3;
 
 public:
 	ArmZabbixAPITestee(int zabbixServerId, const char *server, int port)
