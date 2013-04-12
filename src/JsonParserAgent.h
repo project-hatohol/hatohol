@@ -35,6 +35,21 @@ public:
 	bool read(const string &member, int64_t &dest);
 	bool read(const string &member, string &dest);
 	bool read(int index, string &dest);
+
+	/**
+	 * checks whether the element is Null.
+	 *
+	 * @param member
+	 * A key name to be checked.
+	 *
+	 * @param dest
+	 * The result is returned to this value.
+	 *
+	 * @return
+	 * true if the parse is successed, which doesn't depends on whether
+	 * the element is null. Otherwise false is returned.
+	 */ 
+	bool isNull(const string &member, bool &dest);
 	bool startObject(const string &member);
 	void endObject(void);
 	bool startElement(int index);
