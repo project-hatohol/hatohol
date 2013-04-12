@@ -6,6 +6,7 @@
 #include "ZabbixAPIEmulator.h"
 #include "JsonParserAgent.h"
 #include "AsuraException.h"
+#include "Helpers.h"
 
 using namespace mlpl;
 
@@ -197,6 +198,15 @@ void ZabbixAPIEmulator::handlerAPIDispatch(APIHandlerArg &arg)
 
 void ZabbixAPIEmulator::APIHandlerUserLogin(APIHandlerArg &arg)
 {
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
-	soup_message_set_status(arg.msg, SOUP_STATUS_NOT_FOUND);
+	static const char *LOGIN_RES_FILE = "zabbix-api-res-login-001.json";
+	string path = getFixturesDir() + LOGIN_RES_FILE;
+	gchar *contents;
+	gsize length;
+	gboolean succeeded =
+	  g_file_get_contents(path.c_str(), &contents, &length, NULL);
+	if (!succeeded)
+		THROW_ASURA_EXCEPTION("Failed to read file: %s", path.c_str());
+	soup_message_body_append(arg.msg->response_body, SOUP_MEMORY_TAKE,
+	                         contents, length);
+	soup_message_set_status(arg.msg, SOUP_STATUS_OK);
 }
