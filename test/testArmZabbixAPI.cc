@@ -176,7 +176,6 @@ void teardown(void)
 void test_openSession(void)
 {
 	int svId = 0;
-	deleteDBClientZabbixDB(svId);
 	ArmZabbixAPITestee armZbxApiTestee(svId, "localhost", getTestPort());
 	cppcut_assert_equal
 	  (true, armZbxApiTestee.testOpenSession(),
