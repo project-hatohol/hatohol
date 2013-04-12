@@ -20,15 +20,9 @@ void Synchronizer::unlock(void)
 	g_mutex_unlock(&g_mutex);
 }
 
-void Synchronizer::forceUnlock(void)
+void Synchronizer::reset(void)
 {
-	// We wanted to write the following code, but that is just 'unlock()'
-	// if (!trylock())
-	//	unlock();
-	// else
-	//	unlock();
-
-	unlock();
+	g_mutex_init(&g_mutex);
 }
 
 bool Synchronizer::trylock(void)

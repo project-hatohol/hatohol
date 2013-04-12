@@ -167,7 +167,7 @@ void setup(void)
 
 void teardown(void)
 {
-	g_sync.forceUnlock();
+	g_sync.reset();
 }
 
 // ---------------------------------------------------------------------------
