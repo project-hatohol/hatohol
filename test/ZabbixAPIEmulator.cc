@@ -159,10 +159,35 @@ void ZabbixAPIEmulator::handlerAPIDispatch(APIHandlerArg &arg)
 	                              rpcVersion.c_str());
 	}
 
+	// id
+	int64_t id;
+	if (!parser.read("id", id))
+		THROW_ASURA_EXCEPTION("Not found: id");
+
 	// method
 	string method;
 	if (!parser.read("method", method))
 		THROW_ASURA_EXCEPTION("Not found: method");
+
+	// auth
+	bool isNull;
+	if (!parser.isNull("auth", isNull))
+		THROW_ASURA_EXCEPTION("Not found: auth");
+	if (isNull) {
+		if (method != "user.login")
+			THROW_ASURA_EXCEPTION("auth: empty");
+	} else {
+		string auth;
+		if (!parser.read("auth", auth))
+			THROW_ASURA_EXCEPTION("Not found: auth");
+		set<string>::iterator it = m_ctx->authTokens.find(auth);
+		if (it == m_ctx->authTokens.end()) {
+			THROW_ASURA_EXCEPTION("Not found: auth token: %s",
+			                      auth.c_str());
+		}
+	}
+
+	// dispatch
 	APIHandlerMapIterator it = m_ctx->apiHandlerMap.find(method);
 	if (it == m_ctx->apiHandlerMap.end())
 		THROW_ASURA_EXCEPTION("Unknown method: %s", method.c_str());
