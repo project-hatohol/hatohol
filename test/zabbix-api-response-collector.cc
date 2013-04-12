@@ -23,12 +23,15 @@ public:
 
 protected:
 	bool commandFuncTrigger(const string &command, vector<string>& cmdArgs);
+	bool commandFuncOpen(const string &command, vector<string>& cmdArgs);
 };
 
 ZabbixAPIResponseCollector::ZabbixAPIResponseCollector
   (const string &server, int port)
 : ArmZabbixAPI(ZBX_SVR_ID, server.c_str(), port)
 {
+	m_commandFuncMap["open"] = 
+	  &ZabbixAPIResponseCollector::commandFuncOpen;
 	m_commandFuncMap["trigger"] = 
 	  &ZabbixAPIResponseCollector::commandFuncTrigger;
 }
@@ -49,10 +52,21 @@ bool ZabbixAPIResponseCollector::execute(const string &command,
 	return (this->*func)(command, cmdArgs);
 }
 
+bool ZabbixAPIResponseCollector::commandFuncOpen
+  (const string &command, vector<string>& cmdArgs)
+{
+	SoupMessage *msg;
+	if (!openSession(&msg))
+		return false;
+	printf("%s\n", msg->response_body->data);
+	g_object_unref(msg);
+	return true;
+}
+
 bool ZabbixAPIResponseCollector::commandFuncTrigger
   (const string &command, vector<string>& cmdArgs)
 {
-	if (!openSession())
+	if (!commandFuncOpen(command, cmdArgs))
 		return false;
 
 	SoupMessage *msg = queryTrigger();
@@ -70,6 +84,7 @@ static void printUsage(void)
 	fprintf(stderr, "$ zabbix-api-response-collector server commad\n");
 	fprintf(stderr, "\n");
 	fprintf(stderr, "command:\n");
+	fprintf(stderr, "  open\n");
 	fprintf(stderr, "  trigger\n");
 	fprintf(stderr, "\n");
 }

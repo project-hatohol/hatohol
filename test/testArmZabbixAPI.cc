@@ -161,6 +161,8 @@ void setup(void)
 	DBClientZabbix::resetDBInitializedFlags();
 	if (!g_apiEmulator.isRunning())
 		g_apiEmulator.start(EMULATOR_PORT);
+	else
+		g_apiEmulator.setOperationMode(OPE_MODE_NORMAL);
 }
 
 void teardown(void)
@@ -188,6 +190,19 @@ void test_getTriggers(void)
 	ArmZabbixAPITestee armZbxApiTestee(svId, "localhost", getTestPort());
 	cppcut_assert_equal
 	  (true, armZbxApiTestee.testGetTriggers(),
+	   cut_message("%s\n", armZbxApiTestee.errorMessage().c_str()));
+}
+
+void test_httpNotFound(void)
+{
+	if (getTestPort() != EMULATOR_PORT)
+		cut_pend("Test port is not emulator port.");
+
+	g_apiEmulator.setOperationMode(OPE_MODE_HTTP_NOT_FOUND);
+	int svId = 0;
+	ArmZabbixAPITestee armZbxApiTestee(svId, "localhost", getTestPort());
+	cppcut_assert_equal
+	  (true, armZbxApiTestee.testOpenSession(),
 	   cut_message("%s\n", armZbxApiTestee.errorMessage().c_str()));
 }
 
