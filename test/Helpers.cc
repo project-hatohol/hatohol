@@ -92,3 +92,14 @@ string deleteDBClientZabbixDB(int serverId)
 	cut_assert_not_exist_path(dbPath.c_str());
 	return dbPath;
 }
+
+string execSqlite3ForDBClinetZabbix(int serverId, const string &statement)
+{
+	string dbPath = DBClientZabbix::getDBPath(serverId);
+	cut_assert_exist_path(dbPath.c_str());
+	string commandLine =
+	  StringUtils::sprintf("sqlite3 %s \"%s\"",
+	                       dbPath.c_str(), statement.c_str());
+	string result = executeCommand(commandLine);
+	return result;
+}
