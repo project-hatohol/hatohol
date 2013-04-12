@@ -492,6 +492,7 @@ int DBClientZabbix::updateReplicaGeneration(void)
 	insertArg.columnDefs = COLUMN_DEF_REPLICA_GENERATION;
 	insertArg.row->add(new ItemInt(newId), false);
 	insertArg.row->add(new ItemUint64(currTime), false);
+	m_ctx->dbAgent->insert(insertArg);
 
 	// update the latest generation
 	DBAgentUpdateArg updateArg;
