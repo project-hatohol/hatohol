@@ -202,7 +202,7 @@ void test_httpNotFound(void)
 	int svId = 0;
 	ArmZabbixAPITestee armZbxApiTestee(svId, "localhost", getTestPort());
 	cppcut_assert_equal
-	  (true, armZbxApiTestee.testOpenSession(),
+	  (false, armZbxApiTestee.testOpenSession(),
 	   cut_message("%s\n", armZbxApiTestee.errorMessage().c_str()));
 }
 
