@@ -53,6 +53,8 @@ ZabbixAPIEmulator::ZabbixAPIEmulator(void)
 	m_ctx = new PrivateContext();
 	m_ctx->apiHandlerMap["user.login"] = 
 	  &ZabbixAPIEmulator::APIHandlerUserLogin;
+	m_ctx->apiHandlerMap["trigger.get"] = 
+	  &ZabbixAPIEmulator::APIHandlerTriggerGet;
 }
 
 ZabbixAPIEmulator::~ZabbixAPIEmulator()
@@ -199,6 +201,21 @@ void ZabbixAPIEmulator::handlerAPIDispatch(APIHandlerArg &arg)
 void ZabbixAPIEmulator::APIHandlerUserLogin(APIHandlerArg &arg)
 {
 	static const char *LOGIN_RES_FILE = "zabbix-api-res-login-001.json";
+	string path = getFixturesDir() + LOGIN_RES_FILE;
+	gchar *contents;
+	gsize length;
+	gboolean succeeded =
+	  g_file_get_contents(path.c_str(), &contents, &length, NULL);
+	if (!succeeded)
+		THROW_ASURA_EXCEPTION("Failed to read file: %s", path.c_str());
+	soup_message_body_append(arg.msg->response_body, SOUP_MEMORY_TAKE,
+	                         contents, length);
+	soup_message_set_status(arg.msg, SOUP_STATUS_OK);
+}
+
+void ZabbixAPIEmulator::APIHandlerTriggerGet(APIHandlerArg &arg)
+{
+	static const char *LOGIN_RES_FILE = "zabbix-api-res-triggers-001.json";
 	string path = getFixturesDir() + LOGIN_RES_FILE;
 	gchar *contents;
 	gsize length;
