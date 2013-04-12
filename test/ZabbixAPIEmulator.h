@@ -3,6 +3,7 @@
 
 #include <glib.h>
 #include <libsoup/soup.h>
+#include "JsonParserAgent.h"
 
 enum OperationMode {
 	OPE_MODE_NORMAL,
@@ -11,6 +12,9 @@ enum OperationMode {
 
 class ZabbixAPIEmulator {
 public:
+	struct APIHandlerArg;
+	typedef void (ZabbixAPIEmulator::*APIHandler)(APIHandlerArg &);
+
 	ZabbixAPIEmulator(void);
 	virtual ~ZabbixAPIEmulator();
 
@@ -21,12 +25,16 @@ public:
 protected:
 	static gpointer _mainThread(gpointer data);
 	gpointer mainThread(void);
+	static void startObject(JsonParserAgent &parser, const string &name);
 	static void handlerDefault
 	  (SoupServer *server, SoupMessage *msg, const char *path,
 	   GHashTable *query, SoupClientContext *client, gpointer user_data);
 	static void handlerAPI
 	  (SoupServer *server, SoupMessage *msg, const char *path,
 	   GHashTable *query, SoupClientContext *client, gpointer user_data);
+
+	void handlerAPIDispatch(APIHandlerArg &arg);
+	void APIHandlerUserLogin(APIHandlerArg &arg);
 
 private:
 	struct PrivateContext;
