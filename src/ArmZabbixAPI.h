@@ -42,7 +42,19 @@ public:
 
 protected:
 	SoupSession *getSession(void);
+
+	/**
+	 * open a session with with Zabbix API server
+	 *
+	 * @msgPtr An address of SoupMessage object pointer.
+	 *         If this parameter is not NULL, SoupMessage object pointer is
+	 *         copied to this parameter. Otherwise, the object is freeed
+	 *         in this function and the parameter is not changed.
+	 * @return true if session is oppned successfully.
+	 *         Otherwise, false is returned.
+	 */
 	bool openSession(SoupMessage **msgPtr = NULL);
+
 	SoupMessage *queryTrigger(void);
 	string getInitialJsonRequest(void);
 	bool parseInitialResponse(SoupMessage *msg);
