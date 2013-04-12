@@ -17,6 +17,7 @@ struct ZabbixAPIEmulator::APIHandlerArg
 	const char        *path;
 	GHashTable        *query;
 	SoupClientContext *client;
+	int64_t            id;
 };
 
 typedef map<string, ZabbixAPIEmulator::APIHandler> APIHandlerMap;
@@ -145,6 +146,14 @@ void ZabbixAPIEmulator::handlerAPI
 	}
 }
 
+string ZabbixAPIEmulator::generateAuthToken(void)
+{
+	string token;
+	for (int i = 0; i < 16; i++)
+		token += StringUtils::sprintf("%02x", (random() % 0x100));
+	return token;
+}
+
 void ZabbixAPIEmulator::handlerAPIDispatch(APIHandlerArg &arg)
 {
 	JsonParserAgent parser(arg.msg->request_body->data);
@@ -166,6 +175,7 @@ void ZabbixAPIEmulator::handlerAPIDispatch(APIHandlerArg &arg)
 	int64_t id;
 	if (!parser.read("id", id))
 		THROW_ASURA_EXCEPTION("Not found: id");
+	arg.id = id;
 
 	// method
 	string method;
@@ -200,16 +210,13 @@ void ZabbixAPIEmulator::handlerAPIDispatch(APIHandlerArg &arg)
 
 void ZabbixAPIEmulator::APIHandlerUserLogin(APIHandlerArg &arg)
 {
-	static const char *LOGIN_RES_FILE = "zabbix-api-res-login-001.json";
-	string path = getFixturesDir() + LOGIN_RES_FILE;
-	gchar *contents;
-	gsize length;
-	gboolean succeeded =
-	  g_file_get_contents(path.c_str(), &contents, &length, NULL);
-	if (!succeeded)
-		THROW_ASURA_EXCEPTION("Failed to read file: %s", path.c_str());
-	soup_message_body_append(arg.msg->response_body, SOUP_MEMORY_TAKE,
-	                         contents, length);
+	string authToken = generateAuthToken();
+	m_ctx->authTokens.insert(authToken);
+	const char *fmt = 
+	  "{\"jsonrpc\":\"2.0\",\"result\":\"%s\",\"id\":%"PRId64"}";
+	string response = StringUtils::sprintf(fmt, authToken.c_str(), arg.id);
+	soup_message_body_append(arg.msg->response_body, SOUP_MEMORY_COPY,
+	                         response.c_str(), response.size());
 	soup_message_set_status(arg.msg, SOUP_STATUS_OK);
 }
 

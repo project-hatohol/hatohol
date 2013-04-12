@@ -33,6 +33,7 @@ protected:
 	  (SoupServer *server, SoupMessage *msg, const char *path,
 	   GHashTable *query, SoupClientContext *client, gpointer user_data);
 
+	string generateAuthToken(void);
 	void handlerAPIDispatch(APIHandlerArg &arg);
 	void APIHandlerUserLogin(APIHandlerArg &arg);
 	void APIHandlerTriggerGet(APIHandlerArg &arg);
