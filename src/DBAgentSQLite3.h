@@ -99,6 +99,8 @@ protected:
 	                   DBAgentSelectWithStatementArg &selectArg);
 	static void selectGetValuesIteration(DBAgentSelectArg &selectArg,
 	                                     sqlite3_stmt *stmt);
+	static ItemDataPtr getValue(sqlite3_stmt *stmt, size_t index,
+	                            SQLColumnType columnType);
 	static void updateDBIfNeeded(const string &dbPath);
 	static void createTableSystem(const string &dbPath);
 	static void createTableServers(const string &dbPath);
