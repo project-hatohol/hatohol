@@ -223,6 +223,22 @@ void DBAgentSQLite3::select(const string &dbPath, DBAgentSelectArg &selectArg)
 	sqlite3_close(db);
 }
 
+void DBAgentSQLite3::select(const string &dbPath,
+                            DBAgentSelectWithStatementArg &selectArg)
+{
+	sqlite3 *db = openDatabase(dbPath);
+	try {
+		execSql(db, "BEGIN");
+		select(db, selectArg);
+	} catch (...) {
+		execSql(db, "ROLLBACK");
+		sqlite3_close(db);
+		throw;
+	}
+	execSql(db, "COMMIT");
+	sqlite3_close(db);
+}
+
 DBAgentSQLite3::DBAgentSQLite3(DBDomainId domainId)
 : DBAgent(domainId),
   m_ctx(NULL)

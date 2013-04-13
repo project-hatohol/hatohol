@@ -72,6 +72,12 @@ enum {
 	IDX_TEST_TABLE_HEIGHT,
 };
 
+static const size_t NUM_TEST_DATA = 3;
+static const uint64_t ID[NUM_TEST_DATA]   = {1, 2, 0xfedcba9876543210};
+static const int AGE[NUM_TEST_DATA]       = {14, 17, 180};
+static const char *NAME[NUM_TEST_DATA]    = {"rei", "aoi", "giraffe"};
+static const double HEIGHT[NUM_TEST_DATA] = {158.2, 203.9, -23593.2};
+
 static void deleteDB(void)
 {
 	unlink(dbPath.c_str());
@@ -202,6 +208,20 @@ void _assertUpdateStatic(uint64_t id, int age, const char *name, double height)
 }
 #define assertUpdateStatic(ID,AGE,NAME,HEIGHT) \
 cut_trace(_assertUpdateStatic(ID,AGE,NAME,HEIGHT));
+
+static void makeTestDB(void)
+{
+	// make table
+	assertCreateStatic();
+
+	// insert data
+	for (size_t i = 0; i < NUM_TEST_DATA; i++)
+		assertInsertStatic(ID[i], AGE[i], NAME[i], HEIGHT[i]);
+	map<uint64_t, size_t> idMap;
+	for (size_t i = 0; i < NUM_TEST_DATA; i++)
+		idMap[ID[i]] = i;
+	cppcut_assert_equal(NUM_TEST_DATA, idMap.size());
+}
 
 static string makeExpectedOutput(MonitoringServerInfo *serverInfo)
 {
@@ -483,6 +503,24 @@ void test_selectStatic(void)
 		// delete the element from idSet
 		idMap.erase(itrId);
 	}
+}
+
+void test_selectStatementStatic(void)
+{
+	makeTestDB();
+	DBAgentSelectWithStatementArg arg;
+	arg.tableName = TABLE_NAME_TEST;
+	arg.statement = "count(*)";
+	DBAgentSQLite3::select(dbPath, arg);
+
+	const ItemGroupList &itemList = arg.dataTable->getItemGroupList();
+	cppcut_assert_equal((size_t)1, itemList.size());
+	const ItemGroup *itemGroup = *itemList.begin();
+	cppcut_assert_equal((size_t)1, itemGroup->getNumberOfItems());
+
+	string expectedCount = StringUtils::sprintf("%zd", NUM_TEST_DATA);
+	cppcut_assert_equal(expectedCount,
+	                    itemGroup->getItemAt(0)->getString());
 }
 
 } // testDBAgentSQLite3

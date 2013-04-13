@@ -49,6 +49,8 @@ public:
 	static void update(const string &dbPath,
 	                   DBAgentUpdateArg &updateArg);
 	static void select(const string &dbPath, DBAgentSelectArg &selectArg);
+	static void select(const string &dbPath,
+	                   DBAgentSelectWithStatementArg &selectArg);
 
 	// constructor and destructor
 	DBAgentSQLite3(DBDomainId domainId = DefaultDBDomainId);
