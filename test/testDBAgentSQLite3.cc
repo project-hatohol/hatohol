@@ -77,6 +77,7 @@ static const uint64_t ID[NUM_TEST_DATA]   = {1, 2, 0xfedcba9876543210};
 static const int AGE[NUM_TEST_DATA]       = {14, 17, 180};
 static const char *NAME[NUM_TEST_DATA]    = {"rei", "aoi", "giraffe"};
 static const double HEIGHT[NUM_TEST_DATA] = {158.2, 203.9, -23593.2};
+static map<uint64_t, size_t> g_testDataIdIndexMap;
 
 static void deleteDB(void)
 {
@@ -217,10 +218,9 @@ static void makeTestDB(void)
 	// insert data
 	for (size_t i = 0; i < NUM_TEST_DATA; i++)
 		assertInsertStatic(ID[i], AGE[i], NAME[i], HEIGHT[i]);
-	map<uint64_t, size_t> idMap;
 	for (size_t i = 0; i < NUM_TEST_DATA; i++)
-		idMap[ID[i]] = i;
-	cppcut_assert_equal(NUM_TEST_DATA, idMap.size());
+		g_testDataIdIndexMap[ID[i]] = i;
+	cppcut_assert_equal(NUM_TEST_DATA, g_testDataIdIndexMap.size());
 }
 
 static string makeExpectedOutput(MonitoringServerInfo *serverInfo)
@@ -251,6 +251,7 @@ static string makeExpectedOutput(TriggerInfo *triggerInfo)
 
 void setup(void)
 {
+	g_testDataIdIndexMap.clear();
 	deleteDB();
 	DBAgentSQLite3::init();
 	DBAgentSQLite3::defineDBPath(DefaultDBDomainId, dbPath);
@@ -434,21 +435,7 @@ void test_updateStatic(void)
 
 void test_selectStatic(void)
 {
-	// make table
-	assertCreateStatic();
-
-	// insert data
-	const size_t numData = 3;
-	const uint64_t ID[numData]   = {1, 2, 0xfedcba9876543210};
-	const int AGE[numData]       = {14, 17, 180};
-	const char *NAME[numData]    = {"rei", "aoi", "giraffe"};
-	const double HEIGHT[numData] = {158.2, 203.9, -23593.2};
-	for (size_t i = 0; i < numData; i++)
-		assertInsertStatic(ID[i], AGE[i], NAME[i], HEIGHT[i]);
-	map<uint64_t, size_t> idMap;
-	for (size_t i = 0; i < numData; i++)
-		idMap[ID[i]] = i;
-	cppcut_assert_equal(numData, idMap.size());
+	makeTestDB();
 
 	// get records
 	DBAgentSelectArg arg;
@@ -477,8 +464,8 @@ void test_selectStatic(void)
 		uint64_t id;
 		itemData = itemGroup->getItemAt(columnIdx++);
 		itemData->get(&id);
-		itrId = idMap.find(id);
-		cppcut_assert_equal(false, itrId == idMap.end(),
+		itrId = g_testDataIdIndexMap.find(id);
+		cppcut_assert_equal(false, itrId == g_testDataIdIndexMap.end(),
 		                    cut_message("id: 0x%"PRIx64, id));
 		srcDataIdx = itrId->second;
 
@@ -501,7 +488,7 @@ void test_selectStatic(void)
 		cppcut_assert_equal(HEIGHT[srcDataIdx], valDouble);
 
 		// delete the element from idSet
-		idMap.erase(itrId);
+		g_testDataIdIndexMap.erase(itrId);
 	}
 }
 
