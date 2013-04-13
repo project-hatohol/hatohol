@@ -33,6 +33,7 @@ public:
 	void addTargetServer(MonitoringServerInfo *monitoringServerInfo);
 	void getTargetServers(MonitoringServerInfoList &monitoringServers);
 	const string &getDatabaseDirectory(void) const;
+	size_t getNumberOfPreservedReplicaGenerationTrigger(void) const;
 
 private:
 	struct PrivateContext;
