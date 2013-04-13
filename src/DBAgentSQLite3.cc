@@ -882,40 +882,11 @@ void DBAgentSQLite3::select(sqlite3 *db,
 void DBAgentSQLite3::selectGetValuesIteration(DBAgentSelectArg &selectArg,
                                               sqlite3_stmt *stmt)
 {
-	sqlite3_int64 int64val;
-	const char *str;
 	ItemGroupPtr itemGroup(new ItemGroup(), false);
 	for (size_t i = 0; i < selectArg.columnIndexes.size(); i++) {
 		size_t idx = selectArg.columnIndexes[i];
 		const ColumnDef &columnDef = selectArg.columnDefs[idx];
-		switch (columnDef.type) {
-		case SQL_COLUMN_TYPE_INT:
-			itemGroup->add(
-			  new ItemInt(sqlite3_column_int(stmt, i)), false);
-			break;
-
-		case SQL_COLUMN_TYPE_BIGUINT:
-			int64val = sqlite3_column_int64(stmt, i);
-			itemGroup->add(new ItemUint64(int64val), false);
-			break;
-
-		case SQL_COLUMN_TYPE_VARCHAR:
-		case SQL_COLUMN_TYPE_CHAR:
-		case SQL_COLUMN_TYPE_TEXT:
-			str = (const char *)sqlite3_column_text(stmt, i);
-			itemGroup->add(new ItemString(str), false);
-			break;
-
-		case SQL_COLUMN_TYPE_DOUBLE:
-			itemGroup->add(
-			  new ItemDouble(sqlite3_column_double(stmt, i)),
-			  false);
-			break;
-
-		default:
-			THROW_ASURA_EXCEPTION("Unknown column type: %d",
-		                              columnDef.type);
-		}
+		itemGroup->add(getValue(stmt, i, columnDef.type));
 	}
 	selectArg.dataTable->add(itemGroup);
 }
