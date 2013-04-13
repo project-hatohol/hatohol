@@ -7,6 +7,7 @@
 #include "Helpers.h"
 #include "Synchronizer.h"
 #include "DBClientZabbix.h"
+#include "ConfigManager.h"
 
 namespace testArmZabbixAPI {
 static Synchronizer g_sync;
@@ -15,7 +16,7 @@ class ArmZabbixAPITestee :  public ArmZabbixAPI {
 
 typedef bool (ArmZabbixAPITestee::*ThreadOneProc)(void);
 
-static const size_t NUM_TEST_TRIGGER_READ = 3;
+static const size_t NUM_TEST_TRIGGER_READ = 10;
 
 public:
 	ArmZabbixAPITestee(int zabbixServerId, const char *server, int port)
@@ -195,7 +196,9 @@ void test_getTriggers(void)
 	string statement = "select count(*) from replica_generation";
 	string numGenerations = execSqlite3ForDBClinetZabbix(svId, statement);
 
-	static size_t expectedNumGenerations = 3;
+	ConfigManager *confMgr = ConfigManager::getInstance();
+	static size_t expectedNumGenerations =
+	   confMgr->getNumberOfPreservedReplicaGenerationTrigger();
 	cppcut_assert_equal(
 	  StringUtils::sprintf("%zd\n", expectedNumGenerations),
 	  numGenerations);
