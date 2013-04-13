@@ -44,6 +44,20 @@ string STR_NAME; \
 	ASURA_ASSERT(VAR_NAME != NULL, "Failed to cast: %s -> %s", \
 	             DEMANGLED_TYPE_NAME(*ITEM_DATA), #ACTUAL_TYPE); \
 
+#define TRANSCATION_PREPARE(DB_PATH, SQLITE3_DB_NAME) \
+	sqlite3 *SQLITE3_DB_NAME = openDatabase(DB_PATH); \
+	try { \
+		execSql(db, "BEGIN");
+
+#define TRANSCATION_EXECUTE(SQLITE3_DB_NAME) \
+	} catch (...) { \
+		execSql(SQLITE3_DB_NAME, "ROLLBACK"); \
+		sqlite3_close(SQLITE3_DB_NAME); \
+		throw; \
+	} \
+	execSql(SQLITE3_DB_NAME, "COMMIT"); \
+	sqlite3_close(SQLITE3_DB_NAME);
+
 static const char *TABLE_NAME_SYSTEM = "system";
 static const char *TABLE_NAME_SERVERS = "servers";
 static const char *TABLE_NAME_TRIGGERS = "triggers";
@@ -148,95 +162,47 @@ bool DBAgentSQLite3::isTableExisting(const string &dbPath,
                                      const string &tableName)
 {
 	bool exist;
-	sqlite3 *db = openDatabase(dbPath);
-	try {
-		execSql(db, "BEGIN");
+	TRANSCATION_PREPARE(dbPath, db) {
 		exist = isTableExisting(db, tableName);
-	} catch (...) {
-		execSql(db, "ROLLBACK");
-		sqlite3_close(db);
-		throw;
-	}
-	execSql(db, "COMMIT");
-	sqlite3_close(db);
+	} TRANSCATION_EXECUTE(db);
 	return exist;
 }
 
 void DBAgentSQLite3::createTable(const string &dbPath,
                                  DBAgentTableCreationArg &tableCreationArg)
 {
-	sqlite3 *db = openDatabase(dbPath);
-	try {
-		execSql(db, "BEGIN");
+	TRANSCATION_PREPARE(dbPath, db) {
 		createTable(db, tableCreationArg);
-	} catch (...) {
-		execSql(db, "ROLLBACK");
-		sqlite3_close(db);
-		throw;
-	}
-	execSql(db, "COMMIT");
-	sqlite3_close(db);
+	} TRANSCATION_EXECUTE(db);
 }
 
 void DBAgentSQLite3::insert(const string &dbPath, DBAgentInsertArg &insertArg)
 {
-	sqlite3 *db = openDatabase(dbPath);
-	try {
-		execSql(db, "BEGIN");
+	TRANSCATION_PREPARE(dbPath, db) {
 		insert(db, insertArg);
-	} catch (...) {
-		execSql(db, "ROLLBACK");
-		sqlite3_close(db);
-		throw;
-	}
-	execSql(db, "COMMIT");
-	sqlite3_close(db);
+	} TRANSCATION_EXECUTE(db);
 }
 
 void DBAgentSQLite3::update(const string &dbPath, DBAgentUpdateArg &updateArg)
 {
-	sqlite3 *db = openDatabase(dbPath);
-	try {
-		execSql(db, "BEGIN");
+	TRANSCATION_PREPARE(dbPath, db) {
 		update(db, updateArg);
-	} catch (...) {
-		execSql(db, "ROLLBACK");
-		sqlite3_close(db);
-		throw;
-	}
-	execSql(db, "COMMIT");
-	sqlite3_close(db);
+	} TRANSCATION_EXECUTE(db);
 }
 
 void DBAgentSQLite3::select(const string &dbPath, DBAgentSelectArg &selectArg)
 {
-	sqlite3 *db = openDatabase(dbPath);
-	try {
-		execSql(db, "BEGIN");
+	TRANSCATION_PREPARE(dbPath, db) {
 		select(db, selectArg);
-	} catch (...) {
-		execSql(db, "ROLLBACK");
-		sqlite3_close(db);
-		throw;
-	}
-	execSql(db, "COMMIT");
-	sqlite3_close(db);
+	} TRANSCATION_EXECUTE(db);
 }
 
 void DBAgentSQLite3::select(const string &dbPath,
                             DBAgentSelectWithStatementArg &selectArg)
 {
-	sqlite3 *db = openDatabase(dbPath);
-	try {
-		execSql(db, "BEGIN");
+	TRANSCATION_PREPARE(dbPath, db) {
 		select(db, selectArg);
-	} catch (...) {
-		execSql(db, "ROLLBACK");
-		sqlite3_close(db);
-		throw;
-	}
-	execSql(db, "COMMIT");
-	sqlite3_close(db);
+	} TRANSCATION_EXECUTE(db);
 }
 
 DBAgentSQLite3::DBAgentSQLite3(DBDomainId domainId)
