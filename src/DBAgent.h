@@ -95,6 +95,14 @@ struct DBAgentSelectArg {
 	ItemTablePtr        dataTable;
 };
 
+struct DBAgentSelectWithStatementArg {
+	string tableName;
+	string statement;
+
+	// output
+	ItemTablePtr        dataTable;
+};
+
 typedef uint32_t DBDomainId;
 typedef void (*DBSetupFunc)(DBDomainId domainId);
 static const DBDomainId DefaultDBDomainId = 0;
@@ -123,6 +131,7 @@ public:
 	virtual void insert(DBAgentInsertArg &insertArg) = 0;
 	virtual void update(DBAgentUpdateArg &updateArg) = 0;
 	virtual void select(DBAgentSelectArg &selectArg) = 0;
+	virtual void select(DBAgentSelectWithStatementArg &selectArg) = 0;
 
 private:
 	struct PrivateContext;

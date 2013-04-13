@@ -76,6 +76,7 @@ public:
 	virtual void insert(DBAgentInsertArg &insertArg);
 	virtual void update(DBAgentUpdateArg &updateArg);
 	virtual void select(DBAgentSelectArg &selectArg);
+	virtual void select(DBAgentSelectWithStatementArg &selectArg);
 
 protected:
 	static sqlite3 *openDatabase(const string &dbPath);
@@ -92,6 +93,8 @@ protected:
 	static void insert(sqlite3 *db, DBAgentInsertArg &insertArg);
 	static void update(sqlite3 *db, DBAgentUpdateArg &updateArg);
 	static void select(sqlite3 *db, DBAgentSelectArg &selectArg);
+	static void select(sqlite3 *db,
+	                   DBAgentSelectWithStatementArg &selectArg);
 	static void selectGetValuesIteration(DBAgentSelectArg &selectArg,
 	                                     sqlite3_stmt *stmt);
 	static void updateDBIfNeeded(const string &dbPath);

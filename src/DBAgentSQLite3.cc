@@ -465,6 +465,12 @@ void DBAgentSQLite3::select(DBAgentSelectArg &selectArg)
 	select(m_ctx->db, selectArg);
 }
 
+void DBAgentSQLite3::select(DBAgentSelectWithStatementArg &selectArg)
+{
+	ASURA_ASSERT(m_ctx->db, "m_ctx->db is NULL");
+	select(m_ctx->db, selectArg);
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
@@ -815,6 +821,12 @@ void DBAgentSQLite3::select(sqlite3 *db, DBAgentSelectArg &selectArg)
 		                      result);
 	}
 	sqlite3_finalize(stmt);
+}
+
+void DBAgentSQLite3::select(sqlite3 *db,
+                            DBAgentSelectWithStatementArg &selectArg)
+{
+	MLPL_BUG("Not implemented: %s", __PRETTY_FUNCTION__);
 }
 
 void DBAgentSQLite3::selectGetValuesIteration(DBAgentSelectArg &selectArg,
