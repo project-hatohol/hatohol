@@ -277,12 +277,13 @@ static void _assertSelectHeightOrder(size_t limit = 0, size_t offset = 0)
 	set<double>::reverse_iterator heightIt = expectedSet.rbegin();
 	size_t count = 0;
 	for (size_t i = 0; i < NUM_TEST_DATA && count < arg.limit;
-	     i++, ++grpListIt, ++heightIt, count++) {
+	     i++, ++heightIt, count++) {
 		int idx = 0;
 		double expected = *heightIt;
 		if (i < arg.offset)
 			continue;
 		assertItemData(double, *grpListIt, expected, idx);
+		grpListIt++;
 	}
 }
 #define assertSelectHeightOrder(...) \
