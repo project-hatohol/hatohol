@@ -46,7 +46,7 @@ protected:
 	void addTriggersRaw2_0WithTryBlock(int generationId,
 	                                   ItemTablePtr tablePtr);
 	void deleteOldTriggersRaw2_0(void);
-	int getNumberOfGenerationsForTriggers(void);
+	int getStartIdToRemove(void);
 
 private:
 	struct PrivateContext;

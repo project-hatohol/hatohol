@@ -558,38 +558,40 @@ void DBClientZabbix::addTriggersRaw2_0WithTryBlock(int generationId,
 void DBClientZabbix::deleteOldTriggersRaw2_0(void)
 {
 	// check the number of generations
-	ConfigManager *confMgr = ConfigManager::getInstance();
-	int numReserved =
-	    confMgr->getNumberOfPreservedReplicaGenerationTrigger();
-	int numGenerations = getNumberOfGenerationsForTriggers();
-	if (numGenerations <= numReserved)
+	int startId = getStartIdToRemove();
+	if (startId == REPLICA_GENERATION_NONE)
 		return;
 
 	// delete old triggers if needed
 	MLPL_BUG("Not implemented (delete old triggers): %s\n",
 	         __PRETTY_FUNCTION__);
+
 }
 
-int DBClientZabbix::getNumberOfGenerationsForTriggers(void)
+int DBClientZabbix::getStartIdToRemove(void)
 {
-	// get the number of generations (triggers)
 	DBAgentSelectWithStatementArg arg;
 	arg.tableName = TABLE_NAME_REPLICA_GENERATION;
 
-	const char *replicaGenIdColumnName =
-	  COLUMN_DEF_REPLICA_GENERATION[IDX_REPLICA_GENERATION_ID].columnName;
-	const char *targetIdColumnName =
-	  COLUMN_DEF_REPLICA_GENERATION[IDX_REPLICA_GENERATION_TARGET_ID].columnName;
-	arg.statements.push_back(
-	   StringUtils::sprintf("count(distinct %s)", replicaGenIdColumnName));
-	arg.columnTypes.push_back(SQL_COLUMN_TYPE_INT);
+	const ColumnDef &columnDefGenId =
+	  COLUMN_DEF_REPLICA_GENERATION[IDX_REPLICA_GENERATION_ID];
+	arg.statements.push_back(columnDefGenId.columnName);
+	arg.columnTypes.push_back(columnDefGenId.type);
 
+	const ColumnDef &columnDefTargetId = 
+	  COLUMN_DEF_REPLICA_GENERATION[IDX_REPLICA_GENERATION_TARGET_ID];
 	arg.condition =
 	   StringUtils::sprintf("%s=%d",
-	                        targetIdColumnName,
+	                        columnDefTargetId.columnName,
 	                        REPLICA_GENERATION_TARGET_ID_TRIGGER);
+	arg.limit = 1;
+	ConfigManager *confMgr = ConfigManager::getInstance();
+	arg.offset = confMgr->getNumberOfPreservedReplicaGenerationTrigger();
 	m_ctx->dbAgent->select(arg);
-	int numGenerations = ItemTableUtils::getFirstRowData
-	                       <int, ItemInt>(arg.dataTable);
-	return numGenerations;
+	if (arg.dataTable->getItemGroupList().empty())
+		return REPLICA_GENERATION_NONE;
+
+	int startIdToRemove = ItemTableUtils::getFirstRowData
+	                        <int, ItemInt>(arg.dataTable);
+	return startIdToRemove;
 }
