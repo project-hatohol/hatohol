@@ -562,13 +562,9 @@ void test_selectStatementStaticWithCondAllColumns(void)
 	// check the results
 	int idx = 0;
 	assertItemData(uint64_t, itemGroup, ID[targetRow], idx);
-	idx++;
 	assertItemData(int,      itemGroup, AGE[targetRow], idx);
-	idx++;
 	assertItemData(string,   itemGroup, NAME[targetRow], idx);
-	idx++;
 	assertItemData(double,   itemGroup, HEIGHT[targetRow], idx);
-	idx++;
 }
 
 } // testDBAgentSQLite3
