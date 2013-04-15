@@ -640,5 +640,51 @@ void test_selectStatementStaticWithOrderByLimitOffsetOverData(void)
 	assertSelectHeightOrder(1, NUM_TEST_DATA, 0);
 }
 
+void test_deleteStatic(void)
+{
+	// create table
+	assertCreateStatic();
+
+	// insert the second row
+	const size_t NUM_TEST = 3;
+	const uint64_t ID[NUM_TEST]   = {1,2,3};
+	const int AGE[NUM_TEST]       = {14, 17, 16};
+	const char *NAME[NUM_TEST]    = {"rei", "mio", "azusa"};
+	const double HEIGHT[NUM_TEST] = {158.2, 165.3, 155.2};
+	for (size_t i = 0; i < NUM_TEST; i++)
+		assertInsertStatic(ID[i], AGE[i], NAME[i], HEIGHT[i]);
+
+	// delete
+	DBAgentDeleteArg arg;
+	arg.tableName = TABLE_NAME_TEST;
+	const int thresAge = 15;
+	const ColumnDef &columnDefAge = COLUMN_DEF_TEST[IDX_TEST_TABLE_AGE];
+	arg.condition = StringUtils::sprintf
+	                  ("%s<%d", columnDefAge.columnName, thresAge);
+	DBAgentSQLite3::deleteRows(dbPath, arg);
+
+	// check
+	cut_assert_exist_path(dbPath.c_str());
+	const ColumnDef &columnDefId = COLUMN_DEF_TEST[IDX_TEST_TABLE_ID];
+	string cmd = StringUtils::sprintf(
+	               "sqlite3 %s \"SELECT %s FROM %s ORDER BY %s ASC\"",
+	               dbPath.c_str(), columnDefId.columnName,
+	               TABLE_NAME_TEST, columnDefId.columnName);
+	string output = executeCommand(cmd);
+	vector<string> actualIds;
+	StringUtils::split(actualIds, output, '\n');
+	size_t matchCount = 0;
+	for (size_t i = 0; i < NUM_TEST; i++) {
+		if (AGE[i] < thresAge)
+			continue;
+		cppcut_assert_equal(true, actualIds.size() > matchCount);
+		string &actualIdStr = actualIds[matchCount];
+		string expectedIdStr = StringUtils::sprintf("%d", ID[i]);
+		cppcut_assert_equal(expectedIdStr, actualIdStr);
+		matchCount++;
+	}
+	cppcut_assert_equal(matchCount, actualIds.size());
+}
+
 } // testDBAgentSQLite3
 
