@@ -645,7 +645,7 @@ void test_deleteStatic(void)
 	// create table
 	assertCreateStatic();
 
-	// insert the second row
+	// insert rows
 	const size_t NUM_TEST = 3;
 	const uint64_t ID[NUM_TEST]   = {1,2,3};
 	const int AGE[NUM_TEST]       = {14, 17, 16};
