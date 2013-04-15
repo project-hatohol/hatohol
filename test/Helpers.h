@@ -30,7 +30,7 @@ static ItemTable * addItems(T* srcTable, int numTable,
 }
 
 template<typename T>
-static void _assertItemData(const ItemGroup *itemGroup, T expected, int &idx)
+static void _assertItemData(const ItemGroup *itemGroup, const T &expected, int &idx)
 {
 	T val;
 	ItemData *itemZ = itemGroup->getItemAt(idx);
