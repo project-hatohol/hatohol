@@ -20,8 +20,10 @@
 #include "ItemEnum.h"
 #include "ConfigManager.h"
 #include "AsuraException.h"
+#include "ItemTableUtils.h"
 
-const int DBClientZabbix::DB_VERSION = 1;
+const int DBClientZabbix::DB_VERSION = 2;
+const int DBClientZabbix::NUM_PRESERVED_GENRATIONS_TRIGGERS = 3;
 
 static const char *TABLE_NAME_SYSTEM = "system";
 static const char *TABLE_NAME_REPLICA_GENERATION = "replica_generation";
@@ -63,6 +65,11 @@ enum {
 	NUM_IDX_SYSTEM,
 };
 
+enum {
+	REPLICA_GENERATION_TARGET_ID_TRIGGER,
+	NUM_REPLICA_GENERATION_TARGET_ID,
+};
+
 static const ColumnDef COLUMN_DEF_REPLICA_GENERATION[] = {
 {
 	ITEM_ID_NOT_SET,                   // itemId
@@ -86,10 +93,28 @@ static const ColumnDef COLUMN_DEF_REPLICA_GENERATION[] = {
 	SQL_KEY_UNI,                       // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
+}, {
+	ITEM_ID_NOT_SET,                   // itemId
+	TABLE_NAME_REPLICA_GENERATION,     // tableName
+	"target_id",                       // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	11,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_UNI,                       // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
 }
 };
 static const size_t NUM_COLUMNS_REPLICA_GENERATION =
   sizeof(COLUMN_DEF_REPLICA_GENERATION) / sizeof(ColumnDef);
+
+enum {
+	IDX_REPLICA_GENERATION_ID,
+	IDX_REPLICA_GENERATION_TIME,
+	IDX_REPLICA_GENERATION_TARGET_ID,
+	NUM_IDX_REPLICA_GENERATION,
+};
 
 static const ColumnDef COLUMN_DEF_TRIGGERS_RAW_2_0[] = {
 {
@@ -347,6 +372,7 @@ void DBClientZabbix::addTriggersRaw2_0(ItemTablePtr tablePtr)
 	try {
 		int newId = updateReplicaGeneration();
 		addTriggersRaw2_0WithTryBlock(newId, tablePtr);
+		deleteOldTriggersRaw2_0();
 	} catch (...) {
 		m_ctx->dbAgent->rollback();
 		throw;
@@ -492,6 +518,8 @@ int DBClientZabbix::updateReplicaGeneration(void)
 	insertArg.columnDefs = COLUMN_DEF_REPLICA_GENERATION;
 	insertArg.row->add(new ItemInt(newId), false);
 	insertArg.row->add(new ItemUint64(currTime), false);
+	insertArg.row->add(new ItemInt(REPLICA_GENERATION_TARGET_ID_TRIGGER),
+	                   false);
 	m_ctx->dbAgent->insert(insertArg);
 
 	// update the latest generation
@@ -527,3 +555,36 @@ void DBClientZabbix::addTriggersRaw2_0WithTryBlock(int generationId,
 	}
 }
 
+void DBClientZabbix::deleteOldTriggersRaw2_0(void)
+{
+	// get the number of generations (triggers)
+	DBAgentSelectWithStatementArg arg;
+	arg.tableName = TABLE_NAME_REPLICA_GENERATION;
+
+	const char *replicaGenIdColumnName =
+	  COLUMN_DEF_REPLICA_GENERATION[IDX_REPLICA_GENERATION_ID].columnName;
+	const char *targetIdColumnName =
+	  COLUMN_DEF_REPLICA_GENERATION[IDX_REPLICA_GENERATION_TARGET_ID].columnName;
+	arg.statements.push_back(
+	   StringUtils::sprintf("count(distinct %s)", replicaGenIdColumnName));
+	arg.columnTypes.push_back(SQL_COLUMN_TYPE_INT);
+
+	arg.condition =
+	   StringUtils::sprintf("%s=%d",
+	                        targetIdColumnName,
+	                        REPLICA_GENERATION_TARGET_ID_TRIGGER);
+	m_ctx->dbAgent->select(arg);
+
+	// check the number of generations
+	ConfigManager *confMgr = ConfigManager::getInstance();
+	int numGenerations = ItemTableUtils::getFirstRowData
+	                       <int, ItemInt>(arg.dataTable);
+	int numReserved =
+	    confMgr->getNumberOfPreservedReplicaGenerationTrigger();
+	if (numGenerations <= numReserved)
+		return;
+
+	// delete old triggers if needed
+	MLPL_BUG("Not implemented (delete old triggers): %s\n",
+	         __PRETTY_FUNCTION__);
+}

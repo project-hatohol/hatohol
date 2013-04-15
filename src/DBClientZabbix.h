@@ -23,6 +23,8 @@
 class DBClientZabbix {
 public:
 	static const int DB_VERSION;
+	static const int NUM_PRESERVED_GENRATIONS_TRIGGERS;
+
 	static string getDBPath(size_t zabbixServerId);
 	static void resetDBInitializedFlags(void);
 
@@ -43,6 +45,7 @@ protected:
 	int updateReplicaGeneration(void);
 	void addTriggersRaw2_0WithTryBlock(int generationId,
 	                                   ItemTablePtr tablePtr);
+	void deleteOldTriggersRaw2_0(void);
 
 private:
 	struct PrivateContext;
