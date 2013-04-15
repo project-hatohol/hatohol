@@ -812,6 +812,10 @@ void DBAgentSQLite3::select(sqlite3 *db,
 	sql += selectArg.statement;
 	sql += " FROM ";
 	sql += selectArg.tableName;
+	if (!selectArg.condition.empty()) {
+		sql += " WHERE ";
+		sql += selectArg.condition;
+	}
 
 	// exectute
 	int result;

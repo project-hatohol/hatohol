@@ -98,6 +98,7 @@ struct DBAgentSelectArg {
 struct DBAgentSelectWithStatementArg {
 	string tableName;
 	string statement;
+	string condition;
 
 	// output
 	ItemTablePtr        dataTable;

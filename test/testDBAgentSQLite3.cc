@@ -510,5 +510,29 @@ void test_selectStatementStatic(void)
 	                    itemGroup->getItemAt(0)->getString());
 }
 
+void test_selectStatementStaticWithCond(void)
+{
+	const ColumnDef &columnDefId = COLUMN_DEF_TEST[IDX_TEST_TABLE_ID];
+	size_t targetRow = 1;
+
+	makeTestDB();
+	DBAgentSelectWithStatementArg arg;
+	arg.tableName = TABLE_NAME_TEST;
+	arg.statement = columnDefId.columnName;
+
+	arg.condition = StringUtils::sprintf
+	                  ("%s=%d", columnDefId.columnName, ID[targetRow]);
+	DBAgentSQLite3::select(dbPath, arg);
+
+	const ItemGroupList &itemList = arg.dataTable->getItemGroupList();
+	cppcut_assert_equal((size_t)1, itemList.size());
+	const ItemGroup *itemGroup = *itemList.begin();
+	cppcut_assert_equal((size_t)1, itemGroup->getNumberOfItems());
+
+	string expectedId = StringUtils::sprintf("%zd", ID[targetRow]);
+	cppcut_assert_equal(expectedId,
+	                    itemGroup->getItemAt(0)->getString());
+}
+
 } // testDBAgentSQLite3
 
