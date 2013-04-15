@@ -249,6 +249,45 @@ static string makeExpectedOutput(TriggerInfo *triggerInfo)
 	return expectedOut;
 }
 
+static void _assertSelectHeightOrder(size_t limit = 0, size_t offset = 0)
+{
+	makeTestDB();
+	DBAgentSelectWithStatementArg arg;
+	arg.tableName = TABLE_NAME_TEST;
+	const ColumnDef &columnDef = COLUMN_DEF_TEST[IDX_TEST_TABLE_HEIGHT];
+	arg.statements.push_back(columnDef.columnName);
+	arg.columnTypes.push_back(columnDef.type);
+	arg.orderBy = StringUtils::sprintf("%s DESC", columnDef.columnName);
+	arg.limit = limit;
+	arg.offset = offset;
+	DBAgentSQLite3::select(dbPath, arg);
+
+	// check the result
+	const ItemGroupList &itemList = arg.dataTable->getItemGroupList();
+	size_t numExpectedRows = limit == 0 ? NUM_TEST_DATA : arg.limit;
+	cppcut_assert_equal(numExpectedRows, itemList.size());
+	const ItemGroup *itemGroup = *itemList.begin();
+	cppcut_assert_equal((size_t)1, itemGroup->getNumberOfItems());
+
+	set<double> expectedSet;
+	for (size_t i = 0; i < NUM_TEST_DATA; i++)
+		expectedSet.insert(HEIGHT[i]);
+
+	ItemGroupListConstIterator grpListIt = itemList.begin();
+	set<double>::reverse_iterator heightIt = expectedSet.rbegin();
+	size_t count = 0;
+	for (size_t i = 0; i < NUM_TEST_DATA && count < arg.limit;
+	     i++, ++grpListIt, ++heightIt, count++) {
+		int idx = 0;
+		double expected = *heightIt;
+		if (i < arg.offset)
+			continue;
+		assertItemData(double, *grpListIt, expected, idx);
+	}
+}
+#define assertSelectHeightOrder(L, ...) \
+cut_trace(_assertSelectHeightOrder(L, ##__VA_ARGS__))
+
 void setup(void)
 {
 	g_testDataIdIndexMap.clear();
@@ -569,68 +608,12 @@ void test_selectStatementStaticWithCondAllColumns(void)
 
 void test_selectStatementStaticWithOrderBy(void)
 {
-	makeTestDB();
-	DBAgentSelectWithStatementArg arg;
-	arg.tableName = TABLE_NAME_TEST;
-	const ColumnDef &columnDef = COLUMN_DEF_TEST[IDX_TEST_TABLE_HEIGHT];
-	arg.statements.push_back(columnDef.columnName);
-	arg.columnTypes.push_back(columnDef.type);
-	arg.orderBy = StringUtils::sprintf("%s DESC", columnDef.columnName);
-	DBAgentSQLite3::select(dbPath, arg);
-
-	// check the result
-	const ItemGroupList &itemList = arg.dataTable->getItemGroupList();
-	cppcut_assert_equal(NUM_TEST_DATA, itemList.size());
-	const ItemGroup *itemGroup = *itemList.begin();
-	cppcut_assert_equal((size_t)1, itemGroup->getNumberOfItems());
-
-	set<double> expectedSet;
-	for (size_t i = 0; i < NUM_TEST_DATA; i++)
-		expectedSet.insert(HEIGHT[i]);
-
-	ItemGroupListConstIterator grpListIt = itemList.begin();
-	set<double>::reverse_iterator heightIt = expectedSet.rbegin();
-	for (size_t i = 0; i < NUM_TEST_DATA; i++, ++grpListIt, ++heightIt) {
-		int idx = 0;
-		double expected = *heightIt;
-		assertItemData(double, *grpListIt, expected, idx);
-	}
+	assertSelectHeightOrder(0);
 }
 
 void test_selectStatementStaticWithOrderByLimit(void)
 {
-	makeTestDB();
-	DBAgentSelectWithStatementArg arg;
-	arg.tableName = TABLE_NAME_TEST;
-	const ColumnDef &columnDef = COLUMN_DEF_TEST[IDX_TEST_TABLE_HEIGHT];
-	arg.statements.push_back(columnDef.columnName);
-	arg.columnTypes.push_back(columnDef.type);
-	arg.orderBy = StringUtils::sprintf("%s DESC", columnDef.columnName);
-	arg.limit = 2;
-	arg.offset = 0;
-	DBAgentSQLite3::select(dbPath, arg);
-
-	// check the result
-	const ItemGroupList &itemList = arg.dataTable->getItemGroupList();
-	cppcut_assert_equal(arg.limit, itemList.size());
-	const ItemGroup *itemGroup = *itemList.begin();
-	cppcut_assert_equal((size_t)1, itemGroup->getNumberOfItems());
-
-	set<double> expectedSet;
-	for (size_t i = 0; i < NUM_TEST_DATA; i++)
-		expectedSet.insert(HEIGHT[i]);
-
-	ItemGroupListConstIterator grpListIt = itemList.begin();
-	set<double>::reverse_iterator heightIt = expectedSet.rbegin();
-	size_t count = 0;
-	for (size_t i = 0; i < NUM_TEST_DATA && count < arg.limit;
-	     i++, ++grpListIt, ++heightIt, count++) {
-		int idx = 0;
-		double expected = *heightIt;
-		if (i < arg.offset)
-			continue;
-		assertItemData(double, *grpListIt, expected, idx);
-	}
+	assertSelectHeightOrder(1);
 }
 
 } // testDBAgentSQLite3
