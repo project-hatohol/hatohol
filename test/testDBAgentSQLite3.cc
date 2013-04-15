@@ -249,7 +249,8 @@ static string makeExpectedOutput(TriggerInfo *triggerInfo)
 	return expectedOut;
 }
 
-static void _assertSelectHeightOrder(size_t limit = 0, size_t offset = 0)
+static void _assertSelectHeightOrder(size_t limit = 0, size_t offset = 0,
+                                     size_t forceExpectedRows = (size_t)-1)
 {
 	makeTestDB();
 	DBAgentSelectWithStatementArg arg;
@@ -264,8 +265,15 @@ static void _assertSelectHeightOrder(size_t limit = 0, size_t offset = 0)
 
 	// check the result
 	const ItemGroupList &itemList = arg.dataTable->getItemGroupList();
-	size_t numExpectedRows = limit == 0 ? NUM_TEST_DATA : arg.limit;
+	size_t numExpectedRows;
+	if (forceExpectedRows == (size_t)-1)
+		numExpectedRows = limit == 0 ? NUM_TEST_DATA : arg.limit;
+	else
+		numExpectedRows = forceExpectedRows;
 	cppcut_assert_equal(numExpectedRows, itemList.size());
+	if (numExpectedRows == 0)
+		return;
+
 	const ItemGroup *itemGroup = *itemList.begin();
 	cppcut_assert_equal((size_t)1, itemGroup->getNumberOfItems());
 
@@ -625,6 +633,11 @@ void test_selectStatementStaticWithOrderByLimitTwo(void)
 void test_selectStatementStaticWithOrderByLimitOffset(void)
 {
 	assertSelectHeightOrder(2, 1);
+}
+
+void test_selectStatementStaticWithOrderByLimitOffsetOverData(void)
+{
+	assertSelectHeightOrder(1, NUM_TEST_DATA, 0);
 }
 
 } // testDBAgentSQLite3
