@@ -864,8 +864,9 @@ void DBAgentSQLite3::select(sqlite3 *db,
 	size_t numTableColumns = selectArg.dataTable->getNumberOfColumns();
 	ASURA_ASSERT((numTableRows == 0) ||
 	             ((numTableRows > 0) && (numTableColumns == numColumns)),
-	             "Sanity check error: rows: %zd, columns: %zd",
-	             numTableRows, numTableColumns);
+	             "Sanity check error: numTableRows: %zd, numTableColumns: "
+	             "%zd, numColumns: %zd",
+	             numTableRows, numTableColumns, numColumns);
 }
 
 void DBAgentSQLite3::selectGetValuesIteration(DBAgentSelectArg &selectArg,
