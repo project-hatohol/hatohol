@@ -20,6 +20,12 @@
 typedef multimap<DBDomainId, DBSetupFunc> DBSetupFuncMap;
 typedef DBSetupFuncMap::iterator          DBSetupFuncMapIterator;
 
+DBAgentSelectWithStatementArg::DBAgentSelectWithStatementArg(void)
+: limit(0),
+  offset(0)
+{
+}
+
 struct DBAgent::PrivateContext
 {
 	static GMutex             mutex;

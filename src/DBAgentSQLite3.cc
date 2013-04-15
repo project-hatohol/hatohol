@@ -826,6 +826,14 @@ void DBAgentSQLite3::select(sqlite3 *db,
 		sql += " WHERE ";
 		sql += selectArg.condition;
 	}
+	if (!selectArg.orderBy.empty()) {
+		sql += " ORDER BY ";
+		sql += selectArg.orderBy;
+	}
+	if (selectArg.limit > 0)
+		sql += StringUtils::sprintf(" LIMIT %zd ", selectArg.limit);
+	if (selectArg.offset > 0)
+		sql += StringUtils::sprintf(" OFFSET %zd ", selectArg.offset);
 
 	// exectute
 	int result;

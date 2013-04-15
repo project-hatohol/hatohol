@@ -100,10 +100,15 @@ struct DBAgentSelectWithStatementArg {
 	vector<string>        statements;
 	vector<SQLColumnType> columnTypes;
 	string condition;
-	
+	string orderBy;
+	size_t limit;
+	size_t offset;
 
 	// output
 	ItemTablePtr        dataTable;
+
+	// constructor
+	DBAgentSelectWithStatementArg(void);
 };
 
 typedef uint32_t DBDomainId;
