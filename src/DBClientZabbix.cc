@@ -287,6 +287,10 @@ static const ColumnDef COLUMN_DEF_TRIGGERS_RAW_2_0[] = {
 static const size_t NUM_COLUMNS_TRIGGERS_RAW_2_0 =
    sizeof(COLUMN_DEF_TRIGGERS_RAW_2_0) / sizeof(ColumnDef);
 
+enum {
+	IDX_TRIG_RAW_2_0_GENERATION_ID,
+};
+
 struct DBClientZabbix::PrivateContext
 {
 	static GMutex mutex;
@@ -563,9 +567,27 @@ void DBClientZabbix::deleteOldTriggersRaw2_0(void)
 		return;
 
 	// delete old triggers if needed
-	MLPL_BUG("Not implemented (delete old triggers): %s\n",
-	         __PRETTY_FUNCTION__);
+	DBAgentDeleteArg argTrig;
+	argTrig.tableName = TABLE_NAME_TRIGGERS_RAW_2_0;
+	const ColumnDef &columnDefTriggerGenId =
+	  COLUMN_DEF_TRIGGERS_RAW_2_0[IDX_TRIG_RAW_2_0_GENERATION_ID];
+	argTrig.condition = StringUtils::sprintf(
+	                      "%s<=%d",
+	                      columnDefTriggerGenId.columnName, startId);
+	m_ctx->dbAgent->deleteRows(argTrig);
 
+	DBAgentDeleteArg argGen;
+	argGen.tableName = TABLE_NAME_REPLICA_GENERATION;
+	const ColumnDef &columnDefReplicaGenId =
+	  COLUMN_DEF_REPLICA_GENERATION[IDX_REPLICA_GENERATION_ID];
+	const ColumnDef &columnDefReplicaTargetId =
+	  COLUMN_DEF_REPLICA_GENERATION[IDX_REPLICA_GENERATION_TARGET_ID];
+	argGen.condition = StringUtils::sprintf(
+	                     "%s<=%d and %s=%d",
+	                     columnDefReplicaGenId.columnName, startId,
+	                     columnDefReplicaTargetId.columnName,
+	                     REPLICA_GENERATION_TARGET_ID_TRIGGER);
+	m_ctx->dbAgent->deleteRows(argGen);
 }
 
 int DBClientZabbix::getStartIdToRemove(void)
@@ -584,6 +606,8 @@ int DBClientZabbix::getStartIdToRemove(void)
 	   StringUtils::sprintf("%s=%d",
 	                        columnDefTargetId.columnName,
 	                        REPLICA_GENERATION_TARGET_ID_TRIGGER);
+	arg.orderBy = StringUtils::sprintf("%s DESC",
+	                                   columnDefGenId.columnName);
 	arg.limit = 1;
 	ConfigManager *confMgr = ConfigManager::getInstance();
 	arg.offset = confMgr->getNumberOfPreservedReplicaGenerationTrigger();
