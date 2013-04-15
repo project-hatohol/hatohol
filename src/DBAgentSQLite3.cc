@@ -808,8 +808,18 @@ void DBAgentSQLite3::select(sqlite3 *db, DBAgentSelectArg &selectArg)
 void DBAgentSQLite3::select(sqlite3 *db,
                             DBAgentSelectWithStatementArg &selectArg)
 {
+	size_t numColumns = selectArg.statements.size();
+	ASURA_ASSERT(numColumns > 0, "Vector size must not be zero");
+	ASURA_ASSERT(numColumns == selectArg.columnTypes.size(),
+	             "Vector size mismatch: statements (%zd):columnTypes (%zd)",
+	             numColumns, selectArg.columnTypes.size());
+
 	string sql = "SELECT ";
-	sql += selectArg.statement;
+	for (size_t i = 0; i < numColumns; i++) {
+		sql += selectArg.statements[i];
+		if (i < numColumns-1)
+			sql += ",";
+	}
 	sql += " FROM ";
 	sql += selectArg.tableName;
 	if (!selectArg.condition.empty()) {
@@ -833,20 +843,29 @@ void DBAgentSQLite3::select(sqlite3 *db,
 		THROW_ASURA_EXCEPTION("Failed to call sqlite3_bind(): %d",
 		                      result);
 	}
-	
+	ItemGroupPtr itemGroup = ItemGroupPtr(new ItemGroup(), false);
+	size_t index = 0;
 	while ((result = sqlite3_step(stmt)) == SQLITE_ROW) {
 		ItemDataPtr itemDataPtr =
-		  getValue(stmt, 0, SQL_COLUMN_TYPE_TEXT);
-		ItemGroup *itemGroup = new ItemGroup();
+		  getValue(stmt, index, selectArg.columnTypes[index]);
+		index++;
 		itemGroup->add(itemDataPtr);
-		selectArg.dataTable->add(itemGroup, false);
 	}
+	selectArg.dataTable->add(itemGroup);
 	if (result != SQLITE_DONE) {
 		sqlite3_finalize(stmt);
 		THROW_ASURA_EXCEPTION("Failed to call sqlite3_step(): %d",
 		                      result);
 	}
 	sqlite3_finalize(stmt);
+
+	// check the result
+	size_t numTableRows = selectArg.dataTable->getNumberOfRows();
+	size_t numTableColumns = selectArg.dataTable->getNumberOfColumns();
+	ASURA_ASSERT((numTableRows == 0) ||
+	             ((numTableRows > 0) && (numTableColumns == numColumns)),
+	             "Sanity check error: rows: %zd, columns: %zd",
+	             numTableRows, numTableColumns);
 }
 
 void DBAgentSQLite3::selectGetValuesIteration(DBAgentSelectArg &selectArg,

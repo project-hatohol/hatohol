@@ -97,8 +97,10 @@ struct DBAgentSelectArg {
 
 struct DBAgentSelectWithStatementArg {
 	string tableName;
-	string statement;
+	vector<string>        statements;
+	vector<SQLColumnType> columnTypes;
 	string condition;
+	
 
 	// output
 	ItemTablePtr        dataTable;

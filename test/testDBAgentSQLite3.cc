@@ -497,7 +497,8 @@ void test_selectStatementStatic(void)
 	makeTestDB();
 	DBAgentSelectWithStatementArg arg;
 	arg.tableName = TABLE_NAME_TEST;
-	arg.statement = "count(*)";
+	arg.statements.push_back("count(*)");
+	arg.columnTypes.push_back(SQL_COLUMN_TYPE_TEXT);
 	DBAgentSQLite3::select(dbPath, arg);
 
 	const ItemGroupList &itemList = arg.dataTable->getItemGroupList();
@@ -518,10 +519,11 @@ void test_selectStatementStaticWithCond(void)
 	makeTestDB();
 	DBAgentSelectWithStatementArg arg;
 	arg.tableName = TABLE_NAME_TEST;
-	arg.statement = columnDefId.columnName;
+	arg.statements.push_back(columnDefId.columnName);
+	arg.columnTypes.push_back(SQL_COLUMN_TYPE_BIGUINT);
 
 	arg.condition = StringUtils::sprintf
-	                  ("%s=%d", columnDefId.columnName, ID[targetRow]);
+	                  ("%s=%zd", columnDefId.columnName, ID[targetRow]);
 	DBAgentSQLite3::select(dbPath, arg);
 
 	const ItemGroupList &itemList = arg.dataTable->getItemGroupList();
@@ -529,9 +531,44 @@ void test_selectStatementStaticWithCond(void)
 	const ItemGroup *itemGroup = *itemList.begin();
 	cppcut_assert_equal((size_t)1, itemGroup->getNumberOfItems());
 
-	string expectedId = StringUtils::sprintf("%zd", ID[targetRow]);
-	cppcut_assert_equal(expectedId,
-	                    itemGroup->getItemAt(0)->getString());
+	ItemUint64 *item = dynamic_cast<ItemUint64 *>(itemGroup->getItemAt(0));
+	cppcut_assert_not_null(item);
+	cppcut_assert_equal(ID[targetRow], item->get());
+}
+
+void test_selectStatementStaticWithCondAllColumns(void)
+{
+	const ColumnDef &columnDefId = COLUMN_DEF_TEST[IDX_TEST_TABLE_ID];
+	size_t targetRow = 1;
+
+	makeTestDB();
+	DBAgentSelectWithStatementArg arg;
+	arg.tableName = TABLE_NAME_TEST;
+	for (size_t i = 0; i < NUM_COLUMNS_TEST; i++) {
+		const ColumnDef &columnDef = COLUMN_DEF_TEST[i];
+		arg.statements.push_back(columnDef.columnName);
+		arg.columnTypes.push_back(columnDef.type);
+	}
+
+	arg.condition = StringUtils::sprintf
+	                  ("%s=%zd", columnDefId.columnName, ID[targetRow]);
+	DBAgentSQLite3::select(dbPath, arg);
+
+	const ItemGroupList &itemList = arg.dataTable->getItemGroupList();
+	cppcut_assert_equal((size_t)1, itemList.size());
+	const ItemGroup *itemGroup = *itemList.begin();
+	cppcut_assert_equal(NUM_COLUMNS_TEST, itemGroup->getNumberOfItems());
+
+	// check the results
+	int idx = 0;
+	assertItemData(uint64_t, itemGroup, ID[targetRow], idx);
+	idx++;
+	assertItemData(int,      itemGroup, AGE[targetRow], idx);
+	idx++;
+	assertItemData(string,   itemGroup, NAME[targetRow], idx);
+	idx++;
+	assertItemData(double,   itemGroup, HEIGHT[targetRow], idx);
+	idx++;
 }
 
 } // testDBAgentSQLite3
