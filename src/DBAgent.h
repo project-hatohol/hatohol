@@ -111,6 +111,11 @@ struct DBAgentSelectWithStatementArg {
 	DBAgentSelectWithStatementArg(void);
 };
 
+struct DBAgentDeleteArg {
+	string tableName;
+	string condition;
+};
+
 typedef uint32_t DBDomainId;
 typedef void (*DBSetupFunc)(DBDomainId domainId);
 static const DBDomainId DefaultDBDomainId = 0;
@@ -140,6 +145,7 @@ public:
 	virtual void update(DBAgentUpdateArg &updateArg) = 0;
 	virtual void select(DBAgentSelectArg &selectArg) = 0;
 	virtual void select(DBAgentSelectWithStatementArg &selectArg) = 0;
+	virtual void deleteRows(DBAgentDeleteArg &deleteArg) = 0;
 
 private:
 	struct PrivateContext;

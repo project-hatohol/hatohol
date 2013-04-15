@@ -205,6 +205,14 @@ void DBAgentSQLite3::select(const string &dbPath,
 	} TRANSCATION_EXECUTE(db);
 }
 
+void DBAgentSQLite3::deleteRows(const string &dbPath,
+                                DBAgentDeleteArg &deleteArg)
+{
+	TRANSCATION_PREPARE(dbPath, db) {
+		deleteRows(db, deleteArg);
+	} TRANSCATION_EXECUTE(db);
+}
+
 DBAgentSQLite3::DBAgentSQLite3(DBDomainId domainId)
 : DBAgent(domainId),
   m_ctx(NULL)
@@ -451,6 +459,12 @@ void DBAgentSQLite3::select(DBAgentSelectWithStatementArg &selectArg)
 {
 	ASURA_ASSERT(m_ctx->db, "m_ctx->db is NULL");
 	select(m_ctx->db, selectArg);
+}
+
+void DBAgentSQLite3::deleteRows(DBAgentDeleteArg &deleteArg)
+{
+	ASURA_ASSERT(m_ctx->db, "m_ctx->db is NULL");
+	deleteRows(m_ctx->db, deleteArg);
 }
 
 // ---------------------------------------------------------------------------
@@ -875,6 +889,18 @@ void DBAgentSQLite3::select(sqlite3 *db,
 	             "Sanity check error: numTableRows: %zd, numTableColumns: "
 	             "%zd, numColumns: %zd",
 	             numTableRows, numTableColumns, numColumns);
+}
+
+void DBAgentSQLite3::deleteRows(sqlite3 *db, DBAgentDeleteArg &deleteArg)
+{
+	ASURA_ASSERT(!deleteArg.tableName.empty(), "Table name: empty");
+	string sql = "DELETE FROM ";
+	sql += deleteArg.tableName;
+	if (!deleteArg.condition.empty()) {
+		sql += " WHERE ";
+		sql += deleteArg.condition;
+	}
+	_execSql(db, sql.c_str());
 }
 
 void DBAgentSQLite3::selectGetValuesIteration(DBAgentSelectArg &selectArg,

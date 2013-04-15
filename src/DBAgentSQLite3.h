@@ -51,6 +51,8 @@ public:
 	static void select(const string &dbPath, DBAgentSelectArg &selectArg);
 	static void select(const string &dbPath,
 	                   DBAgentSelectWithStatementArg &selectArg);
+	static void deleteRows(const string &dbPath,
+                               DBAgentDeleteArg &deleteArg);
 
 	// constructor and destructor
 	DBAgentSQLite3(DBDomainId domainId = DefaultDBDomainId);
@@ -79,6 +81,7 @@ public:
 	virtual void update(DBAgentUpdateArg &updateArg);
 	virtual void select(DBAgentSelectArg &selectArg);
 	virtual void select(DBAgentSelectWithStatementArg &selectArg);
+	virtual void deleteRows(DBAgentDeleteArg &deleteArg);
 
 protected:
 	static sqlite3 *openDatabase(const string &dbPath);
@@ -97,6 +100,7 @@ protected:
 	static void select(sqlite3 *db, DBAgentSelectArg &selectArg);
 	static void select(sqlite3 *db,
 	                   DBAgentSelectWithStatementArg &selectArg);
+	static void deleteRows(sqlite3 *db, DBAgentDeleteArg &deleteArg);
 	static void selectGetValuesIteration(DBAgentSelectArg &selectArg,
 	                                     sqlite3_stmt *stmt);
 	static ItemDataPtr getValue(sqlite3_stmt *stmt, size_t index,
