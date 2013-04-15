@@ -557,6 +557,21 @@ void DBClientZabbix::addTriggersRaw2_0WithTryBlock(int generationId,
 
 void DBClientZabbix::deleteOldTriggersRaw2_0(void)
 {
+	// check the number of generations
+	ConfigManager *confMgr = ConfigManager::getInstance();
+	int numReserved =
+	    confMgr->getNumberOfPreservedReplicaGenerationTrigger();
+	int numGenerations = getNumberOfGenerationsForTriggers();
+	if (numGenerations <= numReserved)
+		return;
+
+	// delete old triggers if needed
+	MLPL_BUG("Not implemented (delete old triggers): %s\n",
+	         __PRETTY_FUNCTION__);
+}
+
+int DBClientZabbix::getNumberOfGenerationsForTriggers(void)
+{
 	// get the number of generations (triggers)
 	DBAgentSelectWithStatementArg arg;
 	arg.tableName = TABLE_NAME_REPLICA_GENERATION;
@@ -574,17 +589,7 @@ void DBClientZabbix::deleteOldTriggersRaw2_0(void)
 	                        targetIdColumnName,
 	                        REPLICA_GENERATION_TARGET_ID_TRIGGER);
 	m_ctx->dbAgent->select(arg);
-
-	// check the number of generations
-	ConfigManager *confMgr = ConfigManager::getInstance();
 	int numGenerations = ItemTableUtils::getFirstRowData
 	                       <int, ItemInt>(arg.dataTable);
-	int numReserved =
-	    confMgr->getNumberOfPreservedReplicaGenerationTrigger();
-	if (numGenerations <= numReserved)
-		return;
-
-	// delete old triggers if needed
-	MLPL_BUG("Not implemented (delete old triggers): %s\n",
-	         __PRETTY_FUNCTION__);
+	return numGenerations;
 }
