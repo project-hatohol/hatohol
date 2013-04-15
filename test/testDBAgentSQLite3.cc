@@ -616,5 +616,10 @@ void test_selectStatementStaticWithOrderByLimit(void)
 	assertSelectHeightOrder(1);
 }
 
+void test_selectStatementStaticWithOrderByLimitTwo(void)
+{
+	assertSelectHeightOrder(2);
+}
+
 } // testDBAgentSQLite3
 
