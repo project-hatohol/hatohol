@@ -285,8 +285,8 @@ static void _assertSelectHeightOrder(size_t limit = 0, size_t offset = 0)
 		assertItemData(double, *grpListIt, expected, idx);
 	}
 }
-#define assertSelectHeightOrder(L, ...) \
-cut_trace(_assertSelectHeightOrder(L, ##__VA_ARGS__))
+#define assertSelectHeightOrder(...) \
+cut_trace(_assertSelectHeightOrder(__VA_ARGS__))
 
 void setup(void)
 {
@@ -608,7 +608,7 @@ void test_selectStatementStaticWithCondAllColumns(void)
 
 void test_selectStatementStaticWithOrderBy(void)
 {
-	assertSelectHeightOrder(0);
+	assertSelectHeightOrder();
 }
 
 void test_selectStatementStaticWithOrderByLimit(void)
