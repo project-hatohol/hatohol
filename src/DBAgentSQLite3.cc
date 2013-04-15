@@ -843,15 +843,15 @@ void DBAgentSQLite3::select(sqlite3 *db,
 		THROW_ASURA_EXCEPTION("Failed to call sqlite3_bind(): %d",
 		                      result);
 	}
-	ItemGroupPtr itemGroup = ItemGroupPtr(new ItemGroup(), false);
-	size_t index = 0;
 	while ((result = sqlite3_step(stmt)) == SQLITE_ROW) {
-		ItemDataPtr itemDataPtr =
-		  getValue(stmt, index, selectArg.columnTypes[index]);
-		index++;
-		itemGroup->add(itemDataPtr);
+		ItemGroupPtr itemGroup = ItemGroupPtr(new ItemGroup(), false);
+		for (size_t index = 0; index < numColumns; index++) {
+			ItemDataPtr itemDataPtr =
+			  getValue(stmt, index, selectArg.columnTypes[index]);
+			itemGroup->add(itemDataPtr);
+		}
+		selectArg.dataTable->add(itemGroup);
 	}
-	selectArg.dataTable->add(itemGroup);
 	if (result != SQLITE_DONE) {
 		sqlite3_finalize(stmt);
 		THROW_ASURA_EXCEPTION("Failed to call sqlite3_step(): %d",
