@@ -205,7 +205,10 @@ void test_getTriggers(void)
 	   cut_message("%s\n", armZbxApiTestee.errorMessage().c_str()));
 	
 	// check the database
-	string statement = "select count(*) from replica_generation";
+	string statement = StringUtils::sprintf(
+	  "select count(*) from replica_generation where target_id=%d",
+	  DBClientZabbix::REPLICA_GENERATION_TARGET_ID_TRIGGER);
+	
 	string numGenerations = execSqlite3ForDBClinetZabbix(svId, statement);
 
 	ConfigManager *confMgr = ConfigManager::getInstance();
@@ -226,7 +229,9 @@ void test_getFunctions(void)
 	   cut_message("%s\n", armZbxApiTestee.errorMessage().c_str()));
 	
 	// check the database
-	string statement = "select count(*) from replica_generation";
+	string statement = StringUtils::sprintf(
+	  "select count(*) from replica_generation where target_id=%d",
+	  DBClientZabbix::REPLICA_GENERATION_TARGET_ID_FUNCTION);
 	string numGenerations = execSqlite3ForDBClinetZabbix(svId, statement);
 
 	ConfigManager *confMgr = ConfigManager::getInstance();
