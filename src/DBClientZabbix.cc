@@ -449,7 +449,7 @@ void DBClientZabbix::updateDBIfNeeded(const string &dbPath)
 	THROW_ASURA_EXCEPTION("Not implemented: %s", __PRETTY_FUNCTION__);
 }
 
-bool DBClientZabbix::getDBVersion(const string &dbPath)
+int DBClientZabbix::getDBVersion(const string &dbPath)
 {
 	DBAgentSelectArg arg;
 	arg.tableName = TABLE_NAME_SYSTEM;
