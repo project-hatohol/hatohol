@@ -463,7 +463,8 @@ void DBClientZabbix::addTriggersRaw2_0(ItemTablePtr tablePtr)
 {
 	m_ctx->dbAgent->begin();
 	try {
-		int newId = updateReplicaGeneration();
+		int newId = updateReplicaGeneration
+		              (REPLICA_GENERATION_TARGET_ID_TRIGGER);
 		addTriggersRaw2_0WithTryBlock(newId, tablePtr);
 		deleteOldTriggersRaw2_0();
 	} catch (...) {
@@ -477,7 +478,8 @@ void DBClientZabbix::addFunctionsRaw2_0(ItemTablePtr tablePtr)
 {
 	m_ctx->dbAgent->begin();
 	try {
-		int newId = updateReplicaGeneration();
+		int newId = updateReplicaGeneration
+		              (REPLICA_GENERATION_TARGET_ID_FUNCTION);
 		addFunctionsRaw2_0WithTryBlock(newId, tablePtr);
 		deleteOldFunctionsRaw2_0();
 	} catch (...) {
@@ -625,7 +627,7 @@ int DBClientZabbix::getLatestTriggersGenerationId(void)
 	return item->get();
 }
 
-int DBClientZabbix::updateReplicaGeneration(void)
+int DBClientZabbix::updateReplicaGeneration(int replicaGenerationId)
 {
 	// We assumed that this function is called in the transcation.
 	int id = getLatestTriggersGenerationId();
@@ -639,8 +641,7 @@ int DBClientZabbix::updateReplicaGeneration(void)
 	insertArg.columnDefs = COLUMN_DEF_REPLICA_GENERATION;
 	insertArg.row->add(new ItemInt(newId), false);
 	insertArg.row->add(new ItemUint64(currTime), false);
-	insertArg.row->add(new ItemInt(REPLICA_GENERATION_TARGET_ID_TRIGGER),
-	                   false);
+	insertArg.row->add(new ItemInt(replicaGenerationId), false);
 	m_ctx->dbAgent->insert(insertArg);
 
 	// update the latest generation
