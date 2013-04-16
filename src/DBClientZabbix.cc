@@ -55,6 +55,17 @@ static const ColumnDef COLUMN_DEF_SYSTEM[] = {
 	SQL_KEY_NONE,                      // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
+}, {
+	ITEM_ID_NOT_SET,                   // itemId
+	TABLE_NAME_SYSTEM,                 // tableName
+	"latest_functions_generation_id",  // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	11,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
 }
 };
 static const size_t NUM_COLUMNS_SYSTEM =
@@ -63,6 +74,7 @@ static const size_t NUM_COLUMNS_SYSTEM =
 enum {
 	IDX_SYSTEM_VERSION,
 	IDX_SYSTEM_LATEST_TRIGGERS_GENERATION_ID,
+	IDX_SYSTEM_LATEST_FUNCTIONS_GENERATION_ID,
 	NUM_IDX_SYSTEM,
 };
 
@@ -501,6 +513,7 @@ void DBClientZabbix::createTableSystem(const string &dbPath)
 	insArg.numColumns = NUM_COLUMNS_SYSTEM;
 	insArg.columnDefs = COLUMN_DEF_SYSTEM;
 	insArg.row->add(new ItemInt(DB_VERSION), false);
+	insArg.row->add(new ItemInt(REPLICA_GENERATION_NONE), false);
 	insArg.row->add(new ItemInt(REPLICA_GENERATION_NONE), false);
 	DBAgentSQLite3::insert(dbPath, insArg);
 }

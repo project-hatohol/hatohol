@@ -53,7 +53,7 @@ void test_createTableSystem(void)
 	                                  dbPath.c_str(), "system");
 	string output = executeCommand(cmd);
 	string expectedOut =
-	   StringUtils::sprintf("%d|-1\n", DBClientZabbix::DB_VERSION);
+	   StringUtils::sprintf("%d|-1|-1\n", DBClientZabbix::DB_VERSION);
 	cppcut_assert_equal(expectedOut, output);
 }
 
