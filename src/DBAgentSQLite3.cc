@@ -699,15 +699,17 @@ void DBAgentSQLite3::createTable(sqlite3 *db,
 	// add indexes
 	if (!multipleKeyColumnIndexVector.empty()) {
 		bool isUniqueKey = false;
+		string indexName = "mul_index_" + tableCreationArg.tableName;
 		createIndex(db, tableCreationArg.tableName,
-		            tableCreationArg.columnDefs, "multiple_index",
+		            tableCreationArg.columnDefs, indexName,
 		            multipleKeyColumnIndexVector, isUniqueKey);
 	}
 
 	if (!uniqueKeyColumnIndexVector.empty()) {
 		bool isUniqueKey = true;
+		string indexName = "uni_index_" + tableCreationArg.tableName;
 		createIndex(db, tableCreationArg.tableName,
-		            tableCreationArg.columnDefs, "unique_index",
+		            tableCreationArg.columnDefs, indexName,
 		            uniqueKeyColumnIndexVector, isUniqueKey);
 	}
 }
