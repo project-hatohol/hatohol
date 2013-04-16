@@ -61,6 +61,18 @@ public:
 		return m_result;
 	}
 
+	bool testGetFunctions(void)
+	{
+		m_countThreadOneProc = 0;
+		g_sync.lock();
+		setPollingInterval(0);
+		m_threadOneProc = &ArmZabbixAPITestee::threadOneProcTriggers;
+		addExitCallback(exitCbTriggers, this);
+		start();
+		g_sync.wait();
+		return m_result;
+	}
+
 protected:
 	static void _exceptionCb(const exception &e, void *data)
 	{
@@ -190,6 +202,27 @@ void test_getTriggers(void)
 	ArmZabbixAPITestee armZbxApiTestee(svId, "localhost", getTestPort());
 	cppcut_assert_equal
 	  (true, armZbxApiTestee.testGetTriggers(),
+	   cut_message("%s\n", armZbxApiTestee.errorMessage().c_str()));
+	
+	// check the database
+	string statement = "select count(*) from replica_generation";
+	string numGenerations = execSqlite3ForDBClinetZabbix(svId, statement);
+
+	ConfigManager *confMgr = ConfigManager::getInstance();
+	static size_t expectedNumGenerations =
+	   confMgr->getNumberOfPreservedReplicaGenerationTrigger();
+	cppcut_assert_equal(
+	  StringUtils::sprintf("%zd\n", expectedNumGenerations),
+	  numGenerations);
+}
+
+void test_getFunctions(void)
+{
+	int svId = 0;
+	deleteDBClientZabbixDB(svId);
+	ArmZabbixAPITestee armZbxApiTestee(svId, "localhost", getTestPort());
+	cppcut_assert_equal
+	  (true, armZbxApiTestee.testGetFunctions(),
 	   cut_message("%s\n", armZbxApiTestee.errorMessage().c_str()));
 	
 	// check the database
