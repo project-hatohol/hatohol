@@ -33,9 +33,11 @@ public:
 	virtual ~DBClientZabbix();
 
 	void addTriggersRaw2_0(ItemTablePtr tablePtr);
+	void addFunctionsRaw2_0(ItemTablePtr tablePtr);
 
 protected:
 	static void dbSetupFunc(DBDomainId domainId);
+	static void createTable(const string &dbPath);
 	static void createTableSystem(const string &dbPath);
 	static void createTableReplicaGeneration(const string &dbPath);
 	static void createTableTriggersRaw2_0(const string &dbPath);
@@ -47,7 +49,10 @@ protected:
 	int updateReplicaGeneration(void);
 	void addTriggersRaw2_0WithTryBlock(int generationId,
 	                                   ItemTablePtr tablePtr);
+	void addFunctionsRaw2_0WithTryBlock(int generationId,
+	                                    ItemTablePtr tablePtr);
 	void deleteOldTriggersRaw2_0(void);
+	void deleteOldFunctionsRaw2_0(void);
 	int getStartIdToRemove(void);
 
 private:

@@ -79,6 +79,7 @@ enum {
 
 enum {
 	REPLICA_GENERATION_TARGET_ID_TRIGGER,
+	REPLICA_GENERATION_TARGET_ID_FUNCTION,
 	NUM_REPLICA_GENERATION_TARGET_ID,
 };
 
@@ -472,6 +473,20 @@ void DBClientZabbix::addTriggersRaw2_0(ItemTablePtr tablePtr)
 	m_ctx->dbAgent->commit();
 }
 
+void DBClientZabbix::addFunctionsRaw2_0(ItemTablePtr tablePtr)
+{
+	m_ctx->dbAgent->begin();
+	try {
+		int newId = updateReplicaGeneration();
+		addFunctionsRaw2_0WithTryBlock(newId, tablePtr);
+		deleteOldFunctionsRaw2_0();
+	} catch (...) {
+		m_ctx->dbAgent->rollback();
+		throw;
+	}
+	m_ctx->dbAgent->commit();
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
@@ -661,6 +676,25 @@ void DBClientZabbix::addTriggersRaw2_0WithTryBlock(int generationId,
 	}
 }
 
+void DBClientZabbix::addFunctionsRaw2_0WithTryBlock(int generationId,
+                                                   ItemTablePtr tablePtr)
+{
+	const ItemGroupList &itemGroupList = tablePtr->getItemGroupList();
+	ItemGroupListConstIterator it = itemGroupList.begin();
+	for (; it != itemGroupList.end(); ++it) {
+		const ItemGroup *itemGroup = *it;
+		DBAgentInsertArg arg;
+		arg.tableName = TABLE_NAME_FUNCTIONS_RAW_2_0;
+		arg.numColumns = NUM_COLUMNS_FUNCTIONS_RAW_2_0;
+		arg.columnDefs = COLUMN_DEF_FUNCTIONS_RAW_2_0;
+
+		arg.row->add(new ItemInt(generationId), false);
+		for (size_t i = 0; i < itemGroup->getNumberOfItems(); i++)
+			arg.row->add(itemGroup->getItemAt(i));
+		m_ctx->dbAgent->insert(arg);
+	}
+}
+
 void DBClientZabbix::deleteOldTriggersRaw2_0(void)
 {
 	// check the number of generations
@@ -689,6 +723,37 @@ void DBClientZabbix::deleteOldTriggersRaw2_0(void)
 	                     columnDefReplicaGenId.columnName, startId,
 	                     columnDefReplicaTargetId.columnName,
 	                     REPLICA_GENERATION_TARGET_ID_TRIGGER);
+	m_ctx->dbAgent->deleteRows(argGen);
+}
+
+void DBClientZabbix::deleteOldFunctionsRaw2_0(void)
+{
+	// check the number of generations
+	int startId = getStartIdToRemove();
+	if (startId == REPLICA_GENERATION_NONE)
+		return;
+
+	// delete old functions if needed
+	DBAgentDeleteArg argFunc;
+	argFunc.tableName = TABLE_NAME_FUNCTIONS_RAW_2_0;
+	const ColumnDef &columnDefFunctionGenId =
+	  COLUMN_DEF_FUNCTIONS_RAW_2_0[IDX_FUNC_RAW_2_0_GENERATION_ID];
+	argFunc.condition = StringUtils::sprintf(
+	                      "%s<=%d",
+	                      columnDefFunctionGenId.columnName, startId);
+	m_ctx->dbAgent->deleteRows(argFunc);
+
+	DBAgentDeleteArg argGen;
+	argGen.tableName = TABLE_NAME_REPLICA_GENERATION;
+	const ColumnDef &columnDefReplicaGenId =
+	  COLUMN_DEF_REPLICA_GENERATION[IDX_REPLICA_GENERATION_ID];
+	const ColumnDef &columnDefReplicaTargetId =
+	  COLUMN_DEF_REPLICA_GENERATION[IDX_REPLICA_GENERATION_TARGET_ID];
+	argGen.condition = StringUtils::sprintf(
+	                     "%s<=%d and %s=%d",
+	                     columnDefReplicaGenId.columnName, startId,
+	                     columnDefReplicaTargetId.columnName,
+	                     REPLICA_GENERATION_TARGET_ID_FUNCTION);
 	m_ctx->dbAgent->deleteRows(argGen);
 }
 
