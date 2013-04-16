@@ -71,5 +71,10 @@ void test_createTableTriggersRaw2_0(void)
 	assertCreateTable(TEST_ZABBIX_SERVER_ID + 3, "triggers_raw_2_0");
 }
 
+void test_createTableFunctionsRaw2_0(void)
+{
+	assertCreateTable(TEST_ZABBIX_SERVER_ID + 3, "functions_raw_2_0");
+}
+
 } // testDBClientZabbix
 
