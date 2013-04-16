@@ -27,6 +27,7 @@ static void _assertCreateTable(int svId, const string &tableName)
 void setup(void)
 {
 	asuraInit();
+	DBClientZabbix::resetDBInitializedFlags();
 }
 
 // ---------------------------------------------------------------------------
