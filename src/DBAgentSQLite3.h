@@ -49,8 +49,7 @@ public:
 	static void update(const string &dbPath,
 	                   DBAgentUpdateArg &updateArg);
 	static void select(const string &dbPath, DBAgentSelectArg &selectArg);
-	static void select(const string &dbPath,
-	                   DBAgentSelectWithStatementArg &selectArg);
+	static void select(const string &dbPath, DBAgentSelectExArg &selectArg);
 	static void deleteRows(const string &dbPath,
                                DBAgentDeleteArg &deleteArg);
 
@@ -80,7 +79,7 @@ public:
 	virtual void insert(DBAgentInsertArg &insertArg);
 	virtual void update(DBAgentUpdateArg &updateArg);
 	virtual void select(DBAgentSelectArg &selectArg);
-	virtual void select(DBAgentSelectWithStatementArg &selectArg);
+	virtual void select(DBAgentSelectExArg &selectExArg);
 	virtual void deleteRows(DBAgentDeleteArg &deleteArg);
 
 protected:
@@ -98,8 +97,7 @@ protected:
 	static void insert(sqlite3 *db, DBAgentInsertArg &insertArg);
 	static void update(sqlite3 *db, DBAgentUpdateArg &updateArg);
 	static void select(sqlite3 *db, DBAgentSelectArg &selectArg);
-	static void select(sqlite3 *db,
-	                   DBAgentSelectWithStatementArg &selectArg);
+	static void select(sqlite3 *db, DBAgentSelectExArg &selectExArg);
 	static void deleteRows(sqlite3 *db, DBAgentDeleteArg &deleteArg);
 	static void selectGetValuesIteration(DBAgentSelectArg &selectArg,
 	                                     sqlite3_stmt *stmt);

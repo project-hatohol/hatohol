@@ -95,7 +95,7 @@ struct DBAgentSelectArg {
 	ItemTablePtr        dataTable;
 };
 
-struct DBAgentSelectWithStatementArg {
+struct DBAgentSelectExArg {
 	string tableName;
 	vector<string>        statements;
 	vector<SQLColumnType> columnTypes;
@@ -108,7 +108,7 @@ struct DBAgentSelectWithStatementArg {
 	ItemTablePtr        dataTable;
 
 	// constructor
-	DBAgentSelectWithStatementArg(void);
+	DBAgentSelectExArg(void);
 };
 
 struct DBAgentDeleteArg {
@@ -144,7 +144,7 @@ public:
 	virtual void insert(DBAgentInsertArg &insertArg) = 0;
 	virtual void update(DBAgentUpdateArg &updateArg) = 0;
 	virtual void select(DBAgentSelectArg &selectArg) = 0;
-	virtual void select(DBAgentSelectWithStatementArg &selectArg) = 0;
+	virtual void select(DBAgentSelectExArg &selectExArg) = 0;
 	virtual void deleteRows(DBAgentDeleteArg &deleteArg) = 0;
 
 private:

@@ -592,7 +592,7 @@ void DBClientZabbix::deleteOldTriggersRaw2_0(void)
 
 int DBClientZabbix::getStartIdToRemove(void)
 {
-	DBAgentSelectWithStatementArg arg;
+	DBAgentSelectExArg arg;
 	arg.tableName = TABLE_NAME_REPLICA_GENERATION;
 
 	const ColumnDef &columnDefGenId =

@@ -20,7 +20,7 @@
 typedef multimap<DBDomainId, DBSetupFunc> DBSetupFuncMap;
 typedef DBSetupFuncMap::iterator          DBSetupFuncMapIterator;
 
-DBAgentSelectWithStatementArg::DBAgentSelectWithStatementArg(void)
+DBAgentSelectExArg::DBAgentSelectExArg(void)
 : limit(0),
   offset(0)
 {

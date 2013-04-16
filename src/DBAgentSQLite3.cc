@@ -198,10 +198,10 @@ void DBAgentSQLite3::select(const string &dbPath, DBAgentSelectArg &selectArg)
 }
 
 void DBAgentSQLite3::select(const string &dbPath,
-                            DBAgentSelectWithStatementArg &selectArg)
+                            DBAgentSelectExArg &selectExArg)
 {
 	TRANSCATION_PREPARE(dbPath, db) {
-		select(db, selectArg);
+		select(db, selectExArg);
 	} TRANSCATION_EXECUTE(db);
 }
 
@@ -455,10 +455,10 @@ void DBAgentSQLite3::select(DBAgentSelectArg &selectArg)
 	select(m_ctx->db, selectArg);
 }
 
-void DBAgentSQLite3::select(DBAgentSelectWithStatementArg &selectArg)
+void DBAgentSQLite3::select(DBAgentSelectExArg &selectExArg)
 {
 	ASURA_ASSERT(m_ctx->db, "m_ctx->db is NULL");
-	select(m_ctx->db, selectArg);
+	select(m_ctx->db, selectExArg);
 }
 
 void DBAgentSQLite3::deleteRows(DBAgentDeleteArg &deleteArg)
@@ -819,35 +819,34 @@ void DBAgentSQLite3::select(sqlite3 *db, DBAgentSelectArg &selectArg)
 	sqlite3_finalize(stmt);
 }
 
-void DBAgentSQLite3::select(sqlite3 *db,
-                            DBAgentSelectWithStatementArg &selectArg)
+void DBAgentSQLite3::select(sqlite3 *db, DBAgentSelectExArg &selectExArg)
 {
-	size_t numColumns = selectArg.statements.size();
+	size_t numColumns = selectExArg.statements.size();
 	ASURA_ASSERT(numColumns > 0, "Vector size must not be zero");
-	ASURA_ASSERT(numColumns == selectArg.columnTypes.size(),
+	ASURA_ASSERT(numColumns == selectExArg.columnTypes.size(),
 	             "Vector size mismatch: statements (%zd):columnTypes (%zd)",
-	             numColumns, selectArg.columnTypes.size());
+	             numColumns, selectExArg.columnTypes.size());
 
 	string sql = "SELECT ";
 	for (size_t i = 0; i < numColumns; i++) {
-		sql += selectArg.statements[i];
+		sql += selectExArg.statements[i];
 		if (i < numColumns-1)
 			sql += ",";
 	}
 	sql += " FROM ";
-	sql += selectArg.tableName;
-	if (!selectArg.condition.empty()) {
+	sql += selectExArg.tableName;
+	if (!selectExArg.condition.empty()) {
 		sql += " WHERE ";
-		sql += selectArg.condition;
+		sql += selectExArg.condition;
 	}
-	if (!selectArg.orderBy.empty()) {
+	if (!selectExArg.orderBy.empty()) {
 		sql += " ORDER BY ";
-		sql += selectArg.orderBy;
+		sql += selectExArg.orderBy;
 	}
-	if (selectArg.limit > 0)
-		sql += StringUtils::sprintf(" LIMIT %zd ", selectArg.limit);
-	if (selectArg.offset > 0)
-		sql += StringUtils::sprintf(" OFFSET %zd ", selectArg.offset);
+	if (selectExArg.limit > 0)
+		sql += StringUtils::sprintf(" LIMIT %zd ", selectExArg.limit);
+	if (selectExArg.offset > 0)
+		sql += StringUtils::sprintf(" OFFSET %zd ", selectExArg.offset);
 
 	// exectute
 	int result;
@@ -869,10 +868,10 @@ void DBAgentSQLite3::select(sqlite3 *db,
 		ItemGroupPtr itemGroup = ItemGroupPtr(new ItemGroup(), false);
 		for (size_t index = 0; index < numColumns; index++) {
 			ItemDataPtr itemDataPtr =
-			  getValue(stmt, index, selectArg.columnTypes[index]);
+			  getValue(stmt, index, selectExArg.columnTypes[index]);
 			itemGroup->add(itemDataPtr);
 		}
-		selectArg.dataTable->add(itemGroup);
+		selectExArg.dataTable->add(itemGroup);
 	}
 	if (result != SQLITE_DONE) {
 		sqlite3_finalize(stmt);
@@ -882,8 +881,8 @@ void DBAgentSQLite3::select(sqlite3 *db,
 	sqlite3_finalize(stmt);
 
 	// check the result
-	size_t numTableRows = selectArg.dataTable->getNumberOfRows();
-	size_t numTableColumns = selectArg.dataTable->getNumberOfColumns();
+	size_t numTableRows = selectExArg.dataTable->getNumberOfRows();
+	size_t numTableColumns = selectExArg.dataTable->getNumberOfColumns();
 	ASURA_ASSERT((numTableRows == 0) ||
 	             ((numTableRows > 0) && (numTableColumns == numColumns)),
 	             "Sanity check error: numTableRows: %zd, numTableColumns: "

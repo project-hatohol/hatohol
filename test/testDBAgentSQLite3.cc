@@ -253,7 +253,7 @@ static void _assertSelectHeightOrder(size_t limit = 0, size_t offset = 0,
                                      size_t forceExpectedRows = (size_t)-1)
 {
 	makeTestDB();
-	DBAgentSelectWithStatementArg arg;
+	DBAgentSelectExArg arg;
 	arg.tableName = TABLE_NAME_TEST;
 	const ColumnDef &columnDef = COLUMN_DEF_TEST[IDX_TEST_TABLE_HEIGHT];
 	arg.statements.push_back(columnDef.columnName);
@@ -540,10 +540,10 @@ void test_selectStatic(void)
 	}
 }
 
-void test_selectStatementStatic(void)
+void test_selectExStatic(void)
 {
 	makeTestDB();
-	DBAgentSelectWithStatementArg arg;
+	DBAgentSelectExArg arg;
 	arg.tableName = TABLE_NAME_TEST;
 	arg.statements.push_back("count(*)");
 	arg.columnTypes.push_back(SQL_COLUMN_TYPE_TEXT);
@@ -559,13 +559,13 @@ void test_selectStatementStatic(void)
 	                    itemGroup->getItemAt(0)->getString());
 }
 
-void test_selectStatementStaticWithCond(void)
+void test_selectExStaticWithCond(void)
 {
 	const ColumnDef &columnDefId = COLUMN_DEF_TEST[IDX_TEST_TABLE_ID];
 	size_t targetRow = 1;
 
 	makeTestDB();
-	DBAgentSelectWithStatementArg arg;
+	DBAgentSelectExArg arg;
 	arg.tableName = TABLE_NAME_TEST;
 	arg.statements.push_back(columnDefId.columnName);
 	arg.columnTypes.push_back(SQL_COLUMN_TYPE_BIGUINT);
@@ -584,13 +584,13 @@ void test_selectStatementStaticWithCond(void)
 	cppcut_assert_equal(ID[targetRow], item->get());
 }
 
-void test_selectStatementStaticWithCondAllColumns(void)
+void test_selectExStaticWithCondAllColumns(void)
 {
 	const ColumnDef &columnDefId = COLUMN_DEF_TEST[IDX_TEST_TABLE_ID];
 	size_t targetRow = 1;
 
 	makeTestDB();
-	DBAgentSelectWithStatementArg arg;
+	DBAgentSelectExArg arg;
 	arg.tableName = TABLE_NAME_TEST;
 	for (size_t i = 0; i < NUM_COLUMNS_TEST; i++) {
 		const ColumnDef &columnDef = COLUMN_DEF_TEST[i];
@@ -615,27 +615,27 @@ void test_selectStatementStaticWithCondAllColumns(void)
 	assertItemData(double,   itemGroup, HEIGHT[targetRow], idx);
 }
 
-void test_selectStatementStaticWithOrderBy(void)
+void test_selectExStaticWithOrderBy(void)
 {
 	assertSelectHeightOrder();
 }
 
-void test_selectStatementStaticWithOrderByLimit(void)
+void test_selectExStaticWithOrderByLimit(void)
 {
 	assertSelectHeightOrder(1);
 }
 
-void test_selectStatementStaticWithOrderByLimitTwo(void)
+void test_selectExStaticWithOrderByLimitTwo(void)
 {
 	assertSelectHeightOrder(2);
 }
 
-void test_selectStatementStaticWithOrderByLimitOffset(void)
+void test_selectExStaticWithOrderByLimitOffset(void)
 {
 	assertSelectHeightOrder(2, 1);
 }
 
-void test_selectStatementStaticWithOrderByLimitOffsetOverData(void)
+void test_selectExStaticWithOrderByLimitOffsetOverData(void)
 {
 	assertSelectHeightOrder(1, NUM_TEST_DATA, 0);
 }
