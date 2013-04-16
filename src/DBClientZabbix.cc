@@ -28,6 +28,7 @@ const int DBClientZabbix::NUM_PRESERVED_GENRATIONS_TRIGGERS = 3;
 static const char *TABLE_NAME_SYSTEM = "system";
 static const char *TABLE_NAME_REPLICA_GENERATION = "replica_generation";
 static const char *TABLE_NAME_TRIGGERS_RAW_2_0 = "triggers_raw_2_0";
+static const char *TABLE_NAME_FUNCTIONS_RAW_2_0 = "functions_raw_2_0";
 
 static const int REPLICA_GENERATION_NONE = -1;
 
@@ -291,6 +292,82 @@ enum {
 	IDX_TRIG_RAW_2_0_GENERATION_ID,
 };
 
+static const ColumnDef COLUMN_DEF_FUNCTIONS_RAW_2_0[] = {
+{
+	ITEM_ID_NOT_SET,                   // itemId
+	TABLE_NAME_FUNCTIONS_RAW_2_0,      // tableName
+	"replica_generation_id",           // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	11,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_MUL,                       // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}, {
+	ITEM_ID_NOT_SET,                   // itemId
+	TABLE_NAME_FUNCTIONS_RAW_2_0,      // tableName
+	"functionid",                      // columnName
+	SQL_COLUMN_TYPE_BIGUINT,           // type
+	20,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_PRI,                       // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}, {
+	ITEM_ID_NOT_SET,                   // itemId
+	TABLE_NAME_FUNCTIONS_RAW_2_0,      // tableName
+	"itemid",                          // columnName
+	SQL_COLUMN_TYPE_BIGUINT,           // type
+	20,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_MUL,                       // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}, {
+	ITEM_ID_NOT_SET,                   // itemId
+	TABLE_NAME_FUNCTIONS_RAW_2_0,      // tableName
+	"triggerid",                       // columnName
+	SQL_COLUMN_TYPE_BIGUINT,           // type
+	20,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_MUL,                       // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}, {
+	ITEM_ID_NOT_SET,                   // itemId
+	TABLE_NAME_FUNCTIONS_RAW_2_0,      // tableName
+	"function",                        // columnName
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	12,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}, {
+	ITEM_ID_NOT_SET,                   // itemId
+	TABLE_NAME_FUNCTIONS_RAW_2_0,      // tableName
+	"parameters",                      // columnName
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	255,                               // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}
+};
+static const size_t NUM_COLUMNS_FUNCTIONS_RAW_2_0 =
+   sizeof(COLUMN_DEF_FUNCTIONS_RAW_2_0) / sizeof(ColumnDef);
+
+enum {
+	IDX_FUNC_RAW_2_0_GENERATION_ID,
+};
+
 struct DBClientZabbix::PrivateContext
 {
 	static GMutex mutex;
@@ -404,6 +481,10 @@ void DBClientZabbix::dbSetupFunc(DBDomainId domainId)
 	                                     TABLE_NAME_TRIGGERS_RAW_2_0)) {
 		createTableTriggersRaw2_0(dbPath);
 	}
+	if (!DBAgentSQLite3::isTableExisting(dbPath,
+	                                     TABLE_NAME_FUNCTIONS_RAW_2_0)) {
+		createTableFunctionsRaw2_0(dbPath);
+	}
 }
 
 void DBClientZabbix::createTableSystem(const string &dbPath)
@@ -439,6 +520,15 @@ void DBClientZabbix::createTableTriggersRaw2_0(const string &dbPath)
 	arg.tableName  = TABLE_NAME_TRIGGERS_RAW_2_0;
 	arg.numColumns = NUM_COLUMNS_TRIGGERS_RAW_2_0;
 	arg.columnDefs = COLUMN_DEF_TRIGGERS_RAW_2_0;
+	DBAgentSQLite3::createTable(dbPath, arg);
+}
+
+void DBClientZabbix::createTableFunctionsRaw2_0(const string &dbPath)
+{
+	DBAgentTableCreationArg arg;
+	arg.tableName  = TABLE_NAME_FUNCTIONS_RAW_2_0;
+	arg.numColumns = NUM_COLUMNS_FUNCTIONS_RAW_2_0;
+	arg.columnDefs = COLUMN_DEF_FUNCTIONS_RAW_2_0;
 	DBAgentSQLite3::createTable(dbPath, arg);
 }
 

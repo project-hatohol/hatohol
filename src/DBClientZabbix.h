@@ -38,6 +38,7 @@ protected:
 	static void createTableSystem(const string &dbPath);
 	static void createTableReplicaGeneration(const string &dbPath);
 	static void createTableTriggersRaw2_0(const string &dbPath);
+	static void createTableFunctionsRaw2_0(const string &dbPath);
 	static void updateDBIfNeeded(const string &dbPath);
 	static int getDBVersion(const string &dbPath);
 	void prepareSetupFuncCallback(size_t zabbixServerId);
