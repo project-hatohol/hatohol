@@ -24,13 +24,12 @@
 
 const int DBClientZabbix::DB_VERSION = 2;
 const int DBClientZabbix::NUM_PRESERVED_GENRATIONS_TRIGGERS = 3;
+const int DBClientZabbix::REPLICA_GENERATION_NONE = -1;
 
 static const char *TABLE_NAME_SYSTEM = "system";
 static const char *TABLE_NAME_REPLICA_GENERATION = "replica_generation";
 static const char *TABLE_NAME_TRIGGERS_RAW_2_0 = "triggers_raw_2_0";
 static const char *TABLE_NAME_FUNCTIONS_RAW_2_0 = "functions_raw_2_0";
-
-static const int REPLICA_GENERATION_NONE = -1;
 
 static const ColumnDef COLUMN_DEF_SYSTEM[] = {
 {

@@ -24,6 +24,7 @@ class DBClientZabbix {
 public:
 	static const int DB_VERSION;
 	static const int NUM_PRESERVED_GENRATIONS_TRIGGERS;
+	static const int REPLICA_GENERATION_NONE;
 
 	static string getDBPath(size_t zabbixServerId);
 	static void resetDBInitializedFlags(void);
