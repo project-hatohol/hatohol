@@ -83,6 +83,7 @@ protected:
 	                           ItemTablePtr &tablePtr, int index);
 
 	void updateTriggers(void);
+	void updateFunctions(void);
 
 	// virtual methods
 	gpointer mainThread(AsuraThreadArg *arg);

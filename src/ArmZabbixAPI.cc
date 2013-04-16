@@ -607,6 +607,12 @@ void ArmZabbixAPI::updateTriggers(void)
 	m_ctx->dbClientZabbix.addTriggersRaw2_0(tablePtr);
 }
 
+void ArmZabbixAPI::updateFunctions(void)
+{
+	ItemTablePtr tablePtr = getFunctions();
+	m_ctx->dbClientZabbix.addFunctionsRaw2_0(tablePtr);
+}
+
 //
 // virtual methods
 //
@@ -633,6 +639,7 @@ bool ArmZabbixAPI::mainThreadOneProc(void)
 	if (!openSession())
 		return false;
 	updateTriggers();
+	updateFunctions();
 
 	return true;
 }
