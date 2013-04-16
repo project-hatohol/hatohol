@@ -643,7 +643,7 @@ int DBClientZabbix::updateReplicaGeneration(void)
 void DBClientZabbix::addTriggersRaw2_0WithTryBlock(int generationId,
                                                    ItemTablePtr tablePtr)
 {
-	// We assumed that this function is called in the transcation.
+	// We assumed that this function is called in the transaction.
 
 	const ItemGroupList &itemGroupList = tablePtr->getItemGroupList();
 	ItemGroupListConstIterator it = itemGroupList.begin();
