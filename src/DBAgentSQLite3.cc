@@ -47,7 +47,7 @@ string STR_NAME; \
 #define TRANSACTION_PREPARE(DB_PATH, SQLITE3_DB_NAME) \
 	sqlite3 *SQLITE3_DB_NAME = openDatabase(DB_PATH); \
 	try { \
-		execSql(db, "BEGIN");
+		execSql(SQLITE3_DB_NAME, "BEGIN");
 
 #define TRANSACTION_EXECUTE(SQLITE3_DB_NAME) \
 	} catch (...) { \
