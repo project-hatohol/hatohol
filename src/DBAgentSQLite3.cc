@@ -44,12 +44,12 @@ string STR_NAME; \
 	ASURA_ASSERT(VAR_NAME != NULL, "Failed to cast: %s -> %s", \
 	             DEMANGLED_TYPE_NAME(*ITEM_DATA), #ACTUAL_TYPE); \
 
-#define TRANSCATION_PREPARE(DB_PATH, SQLITE3_DB_NAME) \
+#define TRANSACTION_PREPARE(DB_PATH, SQLITE3_DB_NAME) \
 	sqlite3 *SQLITE3_DB_NAME = openDatabase(DB_PATH); \
 	try { \
 		execSql(db, "BEGIN");
 
-#define TRANSCATION_EXECUTE(SQLITE3_DB_NAME) \
+#define TRANSACTION_EXECUTE(SQLITE3_DB_NAME) \
 	} catch (...) { \
 		execSql(SQLITE3_DB_NAME, "ROLLBACK"); \
 		sqlite3_close(SQLITE3_DB_NAME); \
@@ -162,55 +162,55 @@ bool DBAgentSQLite3::isTableExisting(const string &dbPath,
                                      const string &tableName)
 {
 	bool exist;
-	TRANSCATION_PREPARE(dbPath, db) {
+	TRANSACTION_PREPARE(dbPath, db) {
 		exist = isTableExisting(db, tableName);
-	} TRANSCATION_EXECUTE(db);
+	} TRANSACTION_EXECUTE(db);
 	return exist;
 }
 
 void DBAgentSQLite3::createTable(const string &dbPath,
                                  DBAgentTableCreationArg &tableCreationArg)
 {
-	TRANSCATION_PREPARE(dbPath, db) {
+	TRANSACTION_PREPARE(dbPath, db) {
 		createTable(db, tableCreationArg);
-	} TRANSCATION_EXECUTE(db);
+	} TRANSACTION_EXECUTE(db);
 }
 
 void DBAgentSQLite3::insert(const string &dbPath, DBAgentInsertArg &insertArg)
 {
-	TRANSCATION_PREPARE(dbPath, db) {
+	TRANSACTION_PREPARE(dbPath, db) {
 		insert(db, insertArg);
-	} TRANSCATION_EXECUTE(db);
+	} TRANSACTION_EXECUTE(db);
 }
 
 void DBAgentSQLite3::update(const string &dbPath, DBAgentUpdateArg &updateArg)
 {
-	TRANSCATION_PREPARE(dbPath, db) {
+	TRANSACTION_PREPARE(dbPath, db) {
 		update(db, updateArg);
-	} TRANSCATION_EXECUTE(db);
+	} TRANSACTION_EXECUTE(db);
 }
 
 void DBAgentSQLite3::select(const string &dbPath, DBAgentSelectArg &selectArg)
 {
-	TRANSCATION_PREPARE(dbPath, db) {
+	TRANSACTION_PREPARE(dbPath, db) {
 		select(db, selectArg);
-	} TRANSCATION_EXECUTE(db);
+	} TRANSACTION_EXECUTE(db);
 }
 
 void DBAgentSQLite3::select(const string &dbPath,
                             DBAgentSelectExArg &selectExArg)
 {
-	TRANSCATION_PREPARE(dbPath, db) {
+	TRANSACTION_PREPARE(dbPath, db) {
 		select(db, selectExArg);
-	} TRANSCATION_EXECUTE(db);
+	} TRANSACTION_EXECUTE(db);
 }
 
 void DBAgentSQLite3::deleteRows(const string &dbPath,
                                 DBAgentDeleteArg &deleteArg)
 {
-	TRANSCATION_PREPARE(dbPath, db) {
+	TRANSACTION_PREPARE(dbPath, db) {
 		deleteRows(db, deleteArg);
-	} TRANSCATION_EXECUTE(db);
+	} TRANSACTION_EXECUTE(db);
 }
 
 DBAgentSQLite3::DBAgentSQLite3(DBDomainId domainId)
