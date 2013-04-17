@@ -223,7 +223,7 @@ void test_getTriggers(void)
 
 	ConfigManager *confMgr = ConfigManager::getInstance();
 	static size_t expectedNumGenerations =
-	   confMgr->getNumberOfPreservedReplicaGenerationTrigger();
+	   confMgr->getNumberOfPreservedReplicaGeneration();
 	cppcut_assert_equal(
 	  StringUtils::sprintf("%zd\n", expectedNumGenerations),
 	  numGenerations);
@@ -246,7 +246,7 @@ void test_getFunctions(void)
 
 	ConfigManager *confMgr = ConfigManager::getInstance();
 	static size_t expectedNumGenerations =
-	   confMgr->getNumberOfPreservedReplicaGenerationTrigger();
+	   confMgr->getNumberOfPreservedReplicaGeneration();
 	cppcut_assert_equal(
 	  StringUtils::sprintf("%zd\n", expectedNumGenerations),
 	  numGenerations);

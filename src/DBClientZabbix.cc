@@ -771,7 +771,7 @@ int DBClientZabbix::getStartIdToRemove(int replicaTargetId)
 	                                   columnDefGenId.columnName);
 	arg.limit = 1;
 	ConfigManager *confMgr = ConfigManager::getInstance();
-	arg.offset = confMgr->getNumberOfPreservedReplicaGenerationTrigger();
+	arg.offset = confMgr->getNumberOfPreservedReplicaGeneration();
 	m_ctx->dbAgent->select(arg);
 	if (arg.dataTable->getItemGroupList().empty())
 		return REPLICA_GENERATION_NONE;

@@ -19,7 +19,7 @@
 #include "DBAgentSQLite3.h"
 
 static const char *DEFAULT_DATABASE_DIR = "/tmp";
-static const size_t DEFAULT_NUM_PRESERVED_REPLICA_GENERATION_TRIGGER = 3;
+static const size_t DEFAULT_NUM_PRESERVED_REPLICA_GENERATION = 3;
 
 struct ConfigManager::PrivateContext {
 	static GMutex         mutex;
@@ -75,9 +75,9 @@ const string &ConfigManager::getDatabaseDirectory(void) const
 	return m_ctx->databaseDirectory;
 }
 
-size_t ConfigManager::getNumberOfPreservedReplicaGenerationTrigger(void) const
+size_t ConfigManager::getNumberOfPreservedReplicaGeneration(void) const
 {
-	return DEFAULT_NUM_PRESERVED_REPLICA_GENERATION_TRIGGER;
+	return DEFAULT_NUM_PRESERVED_REPLICA_GENERATION;
 }
 
 // ---------------------------------------------------------------------------
