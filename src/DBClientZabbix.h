@@ -57,8 +57,9 @@ protected:
 	  (int generationId, ItemTablePtr tablePtr,
 	   const string &tableName, size_t numColumns,
 	   const ColumnDef *columnDefs);
-	void deleteOldTriggersRaw2_0(void);
-	void deleteOldFunctionsRaw2_0(void);
+	void deleteOldReplicatedItems
+	  (int replicaTargetId, const string &tableName,
+	   const ColumnDef *columnDefs, int generationIdIdx);
 	int getStartIdToRemove(int replicaTargetId);
 
 private:

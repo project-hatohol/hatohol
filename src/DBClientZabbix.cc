@@ -463,7 +463,11 @@ void DBClientZabbix::addTriggersRaw2_0(ItemTablePtr tablePtr)
 		                   TABLE_NAME_TRIGGERS_RAW_2_0,
 		                   NUM_COLUMNS_TRIGGERS_RAW_2_0,
 		                   COLUMN_DEF_TRIGGERS_RAW_2_0);
-		deleteOldTriggersRaw2_0();
+		deleteOldReplicatedItems
+		  (REPLICA_GENERATION_TARGET_ID_TRIGGER,
+		   TABLE_NAME_TRIGGERS_RAW_2_0,
+		   COLUMN_DEF_TRIGGERS_RAW_2_0,
+		   IDX_TRIG_RAW_2_0_GENERATION_ID);
 	} catch (...) {
 		m_ctx->dbAgent->rollback();
 		throw;
@@ -481,7 +485,11 @@ void DBClientZabbix::addFunctionsRaw2_0(ItemTablePtr tablePtr)
 		                   TABLE_NAME_FUNCTIONS_RAW_2_0,
 		                   NUM_COLUMNS_FUNCTIONS_RAW_2_0,
 		                   COLUMN_DEF_FUNCTIONS_RAW_2_0);
-		deleteOldFunctionsRaw2_0();
+		deleteOldReplicatedItems
+		  (REPLICA_GENERATION_TARGET_ID_FUNCTION,
+		   TABLE_NAME_FUNCTIONS_RAW_2_0,
+		   COLUMN_DEF_FUNCTIONS_RAW_2_0,
+		   IDX_FUNC_RAW_2_0_GENERATION_ID);
 	} catch (...) {
 		m_ctx->dbAgent->rollback();
 		throw;
@@ -679,23 +687,24 @@ void DBClientZabbix::addReplicatedItems(
 	}
 }
 
-void DBClientZabbix::deleteOldTriggersRaw2_0(void)
+void DBClientZabbix::deleteOldReplicatedItems
+  (int replicaTargetId, const string &tableName, const ColumnDef *columnDefs,
+   int generationIdIdx)
 {
 	// check the number of generations
-	int startId = getStartIdToRemove(REPLICA_GENERATION_TARGET_ID_TRIGGER);
+	int startId = getStartIdToRemove(replicaTargetId);
 	if (startId == REPLICA_GENERATION_NONE)
 		return;
 
-	// delete old triggers if needed
-	DBAgentDeleteArg argTrig;
-	argTrig.tableName = TABLE_NAME_TRIGGERS_RAW_2_0;
-	const ColumnDef &columnDefTriggerGenId =
-	  COLUMN_DEF_TRIGGERS_RAW_2_0[IDX_TRIG_RAW_2_0_GENERATION_ID];
-	argTrig.condition = StringUtils::sprintf(
-	                      "%s<=%d",
-	                      columnDefTriggerGenId.columnName, startId);
-	m_ctx->dbAgent->deleteRows(argTrig);
+	// delete unncessary rows from the replica table
+	DBAgentDeleteArg deleteArg;
+	deleteArg.tableName = tableName;
+	const ColumnDef &columnDefGenId = columnDefs[generationIdIdx];
+	deleteArg.condition =
+	   StringUtils::sprintf("%s<=%d", columnDefGenId.columnName, startId);
+	m_ctx->dbAgent->deleteRows(deleteArg);
 
+	// delete unncessary rows from the replica generation table
 	DBAgentDeleteArg argGen;
 	argGen.tableName = TABLE_NAME_REPLICA_GENERATION;
 	const ColumnDef &columnDefReplicaGenId =
@@ -706,38 +715,7 @@ void DBClientZabbix::deleteOldTriggersRaw2_0(void)
 	                     "%s<=%d and %s=%d",
 	                     columnDefReplicaGenId.columnName, startId,
 	                     columnDefReplicaTargetId.columnName,
-	                     REPLICA_GENERATION_TARGET_ID_TRIGGER);
-	m_ctx->dbAgent->deleteRows(argGen);
-}
-
-void DBClientZabbix::deleteOldFunctionsRaw2_0(void)
-{
-	// check the number of generations
-	int startId = getStartIdToRemove(REPLICA_GENERATION_TARGET_ID_FUNCTION);
-	if (startId == REPLICA_GENERATION_NONE)
-		return;
-
-	// delete old functions if needed
-	DBAgentDeleteArg argFunc;
-	argFunc.tableName = TABLE_NAME_FUNCTIONS_RAW_2_0;
-	const ColumnDef &columnDefFunctionGenId =
-	  COLUMN_DEF_FUNCTIONS_RAW_2_0[IDX_FUNC_RAW_2_0_GENERATION_ID];
-	argFunc.condition = StringUtils::sprintf(
-	                      "%s<=%d",
-	                      columnDefFunctionGenId.columnName, startId);
-	m_ctx->dbAgent->deleteRows(argFunc);
-
-	DBAgentDeleteArg argGen;
-	argGen.tableName = TABLE_NAME_REPLICA_GENERATION;
-	const ColumnDef &columnDefReplicaGenId =
-	  COLUMN_DEF_REPLICA_GENERATION[IDX_REPLICA_GENERATION_ID];
-	const ColumnDef &columnDefReplicaTargetId =
-	  COLUMN_DEF_REPLICA_GENERATION[IDX_REPLICA_GENERATION_TARGET_ID];
-	argGen.condition = StringUtils::sprintf(
-	                     "%s<=%d and %s=%d",
-	                     columnDefReplicaGenId.columnName, startId,
-	                     columnDefReplicaTargetId.columnName,
-	                     REPLICA_GENERATION_TARGET_ID_FUNCTION);
+	                     replicaTargetId);
 	m_ctx->dbAgent->deleteRows(argGen);
 }
 
