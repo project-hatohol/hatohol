@@ -16,6 +16,7 @@
 */
 
 #include "DBAgentSQLite3.h"
+#include "DBAgentFactory.h"
 #include "DBClientZabbix.h"
 #include "ItemEnum.h"
 #include "ConfigManager.h"
@@ -1401,7 +1402,7 @@ DBClientZabbix::DBClientZabbix(size_t zabbixServerId)
 	m_ctx->unlock();
 
 	DBDomainId domainId = DBDomainIDZabbixRawOffset + zabbixServerId;
-	m_ctx->dbAgent = new DBAgentSQLite3(domainId);
+	m_ctx->dbAgent = DBAgentFactory::create(domainId);
 }
 
 DBClientZabbix::~DBClientZabbix()
