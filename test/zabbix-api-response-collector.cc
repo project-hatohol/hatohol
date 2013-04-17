@@ -100,7 +100,6 @@ bool ZabbixAPIResponseCollector::commandFuncItem
 bool ZabbixAPIResponseCollector::commandFuncHost
   (const string &command, vector<string>& cmdArgs)
 {
-	/*
 	if (!commandFuncOpen(command, cmdArgs))
 		return false;
 
@@ -109,7 +108,6 @@ bool ZabbixAPIResponseCollector::commandFuncHost
 		return false;
 	printf("%s\n", msg->response_body->data);
 	g_object_unref(msg);
-*/
 	return true;
 }
 
