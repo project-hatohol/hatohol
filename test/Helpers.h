@@ -49,6 +49,6 @@ string executeCommand(const string &commandLine);
 string getFixturesDir(void);
 bool isVerboseMode(void);
 string deleteDBClientZabbixDB(int serverId);
-string execSqlite3ForDBClinetZabbix(int serverId, const string &statement);
+string execSqlite3ForDBClientZabbix(int serverId, const string &statement);
 
 #endif // Helpers_h

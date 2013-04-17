@@ -200,7 +200,7 @@ static void _assertTestGet(ArmZabbixAPITestee::GetTestType testType,
 	  "select count(*) from replica_generation where target_id=%d",
 	  targetId);
 	
-	string numGenerations = execSqlite3ForDBClinetZabbix(svId, statement);
+	string numGenerations = execSqlite3ForDBClientZabbix(svId, statement);
 
 	ConfigManager *confMgr = ConfigManager::getInstance();
 	static size_t expectedNumGenerations =

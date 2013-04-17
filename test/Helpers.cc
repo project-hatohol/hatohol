@@ -93,7 +93,7 @@ string deleteDBClientZabbixDB(int serverId)
 	return dbPath;
 }
 
-string execSqlite3ForDBClinetZabbix(int serverId, const string &statement)
+string execSqlite3ForDBClientZabbix(int serverId, const string &statement)
 {
 	string dbPath = DBClientZabbix::getDBPath(serverId);
 	cut_assert_exist_path(dbPath.c_str());
