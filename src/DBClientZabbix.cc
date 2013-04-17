@@ -1437,6 +1437,13 @@ void DBClientZabbix::dbSetupFunc(DBDomainId domainId)
 		            NUM_COLUMNS_ITEMS_RAW_2_0,
 		            COLUMN_DEF_ITEMS_RAW_2_0);
 	}
+	if (!DBAgentSQLite3::isTableExisting(dbPath,
+	                                     TABLE_NAME_HOSTS_RAW_2_0)) {
+		createTable(dbPath,
+		            TABLE_NAME_HOSTS_RAW_2_0,
+		            NUM_COLUMNS_HOSTS_RAW_2_0,
+		            COLUMN_DEF_HOSTS_RAW_2_0);
+	}
 }
 
 void DBClientZabbix::createTable
