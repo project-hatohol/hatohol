@@ -51,26 +51,14 @@ public:
 
 	bool testGetTriggers(void)
 	{
-		m_countThreadOneProc = 0;
-		g_sync.lock();
-		setPollingInterval(0);
-		m_threadOneProc = &ArmZabbixAPITestee::threadOneProcTriggers;
-		addExitCallback(exitCbDefault, this);
-		start();
-		g_sync.wait();
-		return m_result;
+		return launch(&ArmZabbixAPITestee::threadOneProcTriggers,
+		              exitCbDefault, this);
 	}
 
 	bool testGetFunctions(void)
 	{
-		m_countThreadOneProc = 0;
-		g_sync.lock();
-		setPollingInterval(0);
-		m_threadOneProc = &ArmZabbixAPITestee::threadOneProcFunctions;
-		addExitCallback(exitCbDefault, this);
-		start();
-		g_sync.wait();
-		return m_result;
+		return launch(&ArmZabbixAPITestee::threadOneProcFunctions,
+		              exitCbDefault, this);
 	}
 
 protected:
@@ -84,6 +72,19 @@ protected:
 	static void exitCbDefault(void *)
 	{
 		g_sync.unlock();
+	}
+
+	bool launch(ThreadOneProc threadOneProc, 
+	            void (*exitCb)(void *), void *exitCbData)
+	{
+		m_countThreadOneProc = 0;
+		g_sync.lock();
+		setPollingInterval(0);
+		m_threadOneProc = threadOneProc;
+		addExitCallback(exitCb, exitCbData);
+		start();
+		g_sync.wait();
+		return m_result;
 	}
 
 	void exceptionCb(const exception &e)
