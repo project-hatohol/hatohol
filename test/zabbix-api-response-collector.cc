@@ -23,6 +23,7 @@ public:
 
 protected:
 	bool commandFuncTrigger(const string &command, vector<string>& cmdArgs);
+	bool commandFuncItem(const string &command, vector<string>& cmdArgs);
 	bool commandFuncOpen(const string &command, vector<string>& cmdArgs);
 };
 
@@ -34,6 +35,8 @@ ZabbixAPIResponseCollector::ZabbixAPIResponseCollector
 	  &ZabbixAPIResponseCollector::commandFuncOpen;
 	m_commandFuncMap["trigger"] = 
 	  &ZabbixAPIResponseCollector::commandFuncTrigger;
+	m_commandFuncMap["item"] = 
+	  &ZabbixAPIResponseCollector::commandFuncItem;
 }
 
 ZabbixAPIResponseCollector::~ZabbixAPIResponseCollector()
@@ -77,6 +80,20 @@ bool ZabbixAPIResponseCollector::commandFuncTrigger
 	return true;
 }
 
+bool ZabbixAPIResponseCollector::commandFuncItem
+  (const string &command, vector<string>& cmdArgs)
+{
+	if (!commandFuncOpen(command, cmdArgs))
+		return false;
+
+	SoupMessage *msg = queryItem();
+	if (!msg)
+		return false;
+	printf("%s\n", msg->response_body->data);
+	g_object_unref(msg);
+	return true;
+}
+
 static void printUsage(void)
 {
 	fprintf(stderr, "Usage:\n");
@@ -86,6 +103,7 @@ static void printUsage(void)
 	fprintf(stderr, "command:\n");
 	fprintf(stderr, "  open\n");
 	fprintf(stderr, "  trigger\n");
+	fprintf(stderr, "  item\n");
 	fprintf(stderr, "\n");
 }
 
