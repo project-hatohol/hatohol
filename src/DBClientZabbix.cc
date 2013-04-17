@@ -31,6 +31,7 @@ static const char *TABLE_NAME_REPLICA_GENERATION = "replica_generation";
 static const char *TABLE_NAME_TRIGGERS_RAW_2_0 = "triggers_raw_2_0";
 static const char *TABLE_NAME_FUNCTIONS_RAW_2_0 = "functions_raw_2_0";
 static const char *TABLE_NAME_ITEMS_RAW_2_0 = "items_raw_2_0";
+static const char *TABLE_NAME_HOSTS_RAW_2_0 = "hosts_raw_2_0";
 
 static const ColumnDef COLUMN_DEF_SYSTEM[] = {
 {
@@ -919,6 +920,353 @@ static const ColumnDef COLUMN_DEF_ITEMS_RAW_2_0[] = {
 };
 static const size_t NUM_COLUMNS_ITEMS_RAW_2_0 =
   sizeof(COLUMN_DEF_ITEMS_RAW_2_0) / sizeof(ColumnDef);
+
+static const ColumnDef COLUMN_DEF_HOSTS_RAW_2_0[] = {
+{
+	ITEM_ID_NOT_SET,                   // itemId
+	TABLE_NAME_HOSTS_RAW_2_0,          // tableName
+	"replica_generation_id",           // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	11,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_MUL,                       // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}, {
+	ITEM_ID_ZBX_HOSTS_HOSTID,          // itemId
+	TABLE_NAME_HOSTS_RAW_2_0,          // tableName
+	"hostid",                          // columnName
+	SQL_COLUMN_TYPE_BIGUINT,           // type
+	20,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_MUL,                       // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}, {
+	ITEM_ID_ZBX_HOSTS_PROXY_HOSTID,    // itemId
+	TABLE_NAME_HOSTS_RAW_2_0,          // tableName
+	"proxy_hostid",                    // columnName
+	SQL_COLUMN_TYPE_BIGUINT,           // type
+	20,                                // columnLength
+	0,                                 // decFracLength
+	true,                              // canBeNull
+	SQL_KEY_MUL,                       // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}, {
+	ITEM_ID_ZBX_HOSTS_HOST,            // itemId
+	TABLE_NAME_HOSTS_RAW_2_0,          // tableName
+	"host",                            // columnName
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	64,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_MUL,                       // keyType
+	0,                                 // flags
+	"",                                // defaultValue
+}, {
+	ITEM_ID_ZBX_HOSTS_STATUS,          // itemId
+	TABLE_NAME_HOSTS_RAW_2_0,          // tableName
+	"status",                          // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	11,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_MUL,                       // keyType
+	0,                                 // flags
+	"0",                               // defaultValue
+}, {
+	ITEM_ID_ZBX_HOSTS_DISABLE_UNTIL,   // itemId
+	TABLE_NAME_HOSTS_RAW_2_0,          // tableName
+	"disable_until",                   // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	11,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	"0",                               // defaultValue
+}, {
+	ITEM_ID_ZBX_HOSTS_ERROR,           // itemId
+	TABLE_NAME_HOSTS_RAW_2_0,          // tableName
+	"error",                           // columnName
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	128,                               // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	"",                                // defaultValue
+}, {
+	ITEM_ID_ZBX_HOSTS_AVAILABLE,       // itemId
+	TABLE_NAME_HOSTS_RAW_2_0,          // tableName
+	"available",                       // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	11,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	"0",                               // defaultValue
+}, {
+	ITEM_ID_ZBX_HOSTS_ERRORS_FROM,     // itemId
+	TABLE_NAME_HOSTS_RAW_2_0,          // tableName
+	"errors_from",                     // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	11,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	"0",                               // defaultValue
+}, {
+	ITEM_ID_ZBX_HOSTS_LASTACCESS,      // itemId
+	TABLE_NAME_HOSTS_RAW_2_0,          // tableName
+	"lastaccess",                      // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	11,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	"0",                               // defaultValue
+}, {
+	ITEM_ID_ZBX_HOSTS_IPMI_AUTHTYPE,   // itemId
+	TABLE_NAME_HOSTS_RAW_2_0,          // tableName
+	"ipmi_authtype",                   // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	11,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	"0",                               // defaultValue
+}, {
+	ITEM_ID_ZBX_HOSTS_IPMI_PRIVILEGE,  // itemId
+	TABLE_NAME_HOSTS_RAW_2_0,          // tableName
+	"ipmi_privilege",                  // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	11,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	"2",                               // defaultValue
+}, {
+	ITEM_ID_ZBX_HOSTS_IPMI_USERNAME,   // itemId
+	TABLE_NAME_HOSTS_RAW_2_0,          // tableName
+	"ipmi_username",                   // columnName
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	16,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	"",                                // defaultValue
+}, {
+	ITEM_ID_ZBX_HOSTS_IPMI_PASSWORD,   // itemId
+	TABLE_NAME_HOSTS_RAW_2_0,          // tableName
+	"ipmi_password",                   // columnName
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	20,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	"",                                // defaultValue
+}, {
+	ITEM_ID_ZBX_HOSTS_IPMI_DISABLE_UNTIL, // itemId
+	TABLE_NAME_HOSTS_RAW_2_0,          // tableName
+	"ipmi_disable_until",              // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	11,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	"0",                               // defaultValue
+}, {
+	ITEM_ID_ZBX_HOSTS_IPMI_AVAILABLE,  // itemId
+	TABLE_NAME_HOSTS_RAW_2_0,          // tableName
+	"ipmi_available",                  // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	11,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	"0",                               // defaultValue
+}, {
+	ITEM_ID_ZBX_HOSTS_SNMP_DISABLE_UNTIL, // itemId
+	TABLE_NAME_HOSTS_RAW_2_0,          // tableName
+	"snmp_disable_until",              // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	11,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	"0",                               // defaultValue
+}, {
+	ITEM_ID_ZBX_HOSTS_SNMP_AVAILABLE,  // itemId
+	TABLE_NAME_HOSTS_RAW_2_0,          // tableName
+	"snmp_available",                  // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	11,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	"0",                               // defaultValue
+}, {
+	ITEM_ID_ZBX_HOSTS_MAINTENANCEID,   // itemId
+	TABLE_NAME_HOSTS_RAW_2_0,          // tableName
+	"maintenanceid",                   // columnName
+	SQL_COLUMN_TYPE_BIGUINT,           // type
+	20,                                // columnLength
+	0,                                 // decFracLength
+	true,                              // canBeNull
+	SQL_KEY_MUL,                       // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}, {
+	ITEM_ID_ZBX_HOSTS_MAINTENANCE_STATUS, // itemId
+	TABLE_NAME_HOSTS_RAW_2_0,          // tableName
+	"maintenance_status",              // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	11,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	"0",                               // defaultValue
+}, {
+	ITEM_ID_ZBX_HOSTS_MAINTENANCE_TYPE,// itemId
+	TABLE_NAME_HOSTS_RAW_2_0,          // tableName
+	"maintenace_type",                 // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	11,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	"0",                               // defaultValue
+}, {
+	ITEM_ID_ZBX_HOSTS_MAINTENANCE_FROM,// itemId
+	TABLE_NAME_HOSTS_RAW_2_0,          // tableName
+	"maintenance_from",                // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	11,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	"0",                               // defaultValue
+}, {
+	ITEM_ID_ZBX_HOSTS_IPMI_ERRORS_FROM,// itemId
+	TABLE_NAME_HOSTS_RAW_2_0,          // tableName
+	"ipmi_errors_from",                // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	11,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	"0",                               // defaultValue
+}, {
+	ITEM_ID_ZBX_HOSTS_SNMP_ERRORS_FROM,// itemId
+	TABLE_NAME_HOSTS_RAW_2_0,          // tableName
+	"snmp_errors_from",                // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	11,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	"0",                               // defaultValue
+}, {
+	ITEM_ID_ZBX_HOSTS_IPMI_ERROR,      // itemId
+	TABLE_NAME_HOSTS_RAW_2_0,          // tableName
+	"ipmi_error",                      // columnName
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	128,                               // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	"",                                // defaultValue
+}, {
+	ITEM_ID_ZBX_HOSTS_SNMP_ERROR,      // itemId
+	TABLE_NAME_HOSTS_RAW_2_0,          // tableName
+	"snmp_error",                      // columnName
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	128,                               // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	"",                                // defaultValue
+}, {
+	ITEM_ID_ZBX_HOSTS_JMX_DISABLE_UNTIL,// itemId
+	TABLE_NAME_HOSTS_RAW_2_0,          // tableName
+	"jmx_disable_until",               // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	11,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	"0",                               // defaultValue
+}, {
+	ITEM_ID_ZBX_HOSTS_JMX_AVAILABLE,   // itemId
+	TABLE_NAME_HOSTS_RAW_2_0,          // tableName
+	"jmx_available",                   // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	11,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	"0",                               // defaultValue
+}, {
+	ITEM_ID_ZBX_HOSTS_JMX_ERRORS_FROM, // itemId
+	TABLE_NAME_HOSTS_RAW_2_0,          // tableName
+	"jmx_errors_from",                 // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	11,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	"0",                               // defaultValue
+}, {
+	ITEM_ID_ZBX_HOSTS_JMX_ERROR,       // itemId
+	TABLE_NAME_HOSTS_RAW_2_0,          // tableName
+	"jmx_error",                       // columnName
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	128,                               // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	"",                                // defaultValue
+}, {
+	ITEM_ID_ZBX_HOSTS_NAME,            // itemId
+	TABLE_NAME_HOSTS_RAW_2_0,          // tableName
+	"name",                            // columnName
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	64,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_MUL,                       // keyType
+	0,                                 // flags
+	"",                                // defaultValue
+}
+};
+static const size_t NUM_COLUMNS_HOSTS_RAW_2_0 =
+   sizeof(COLUMN_DEF_HOSTS_RAW_2_0) / sizeof(ColumnDef);
 
 struct DBClientZabbix::PrivateContext
 {
