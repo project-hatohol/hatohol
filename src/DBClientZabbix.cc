@@ -510,7 +510,10 @@ void DBClientZabbix::dbSetupFunc(DBDomainId domainId)
 
 	if (!DBAgentSQLite3::isTableExisting(dbPath,
 	                                     TABLE_NAME_REPLICA_GENERATION)) {
-		createTableReplicaGeneration(dbPath);
+		createTable(dbPath,
+		            TABLE_NAME_REPLICA_GENERATION,
+		            NUM_COLUMNS_REPLICA_GENERATION,
+		            COLUMN_DEF_REPLICA_GENERATION);
 	}
 
 	if (!DBAgentSQLite3::isTableExisting(dbPath,
@@ -553,15 +556,6 @@ void DBClientZabbix::createTableSystem(const string &dbPath)
 	insArg.row->add(new ItemInt(REPLICA_GENERATION_NONE), false);
 	insArg.row->add(new ItemInt(REPLICA_GENERATION_NONE), false);
 	DBAgentSQLite3::insert(dbPath, insArg);
-}
-
-void DBClientZabbix::createTableReplicaGeneration(const string &dbPath)
-{
-	DBAgentTableCreationArg arg;
-	arg.tableName  = TABLE_NAME_REPLICA_GENERATION;
-	arg.numColumns = NUM_COLUMNS_REPLICA_GENERATION;
-	arg.columnDefs = COLUMN_DEF_REPLICA_GENERATION;
-	DBAgentSQLite3::createTable(dbPath, arg);
 }
 
 void DBClientZabbix::createTableTriggersRaw2_0(const string &dbPath)
