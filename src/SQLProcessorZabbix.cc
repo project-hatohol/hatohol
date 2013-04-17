@@ -599,7 +599,7 @@ void SQLProcessorZabbix::init(void)
 	             SQL_COLUMN_TYPE_VARCHAR, 12,
 	             false, SQL_KEY_NONE, "");
 	defineColumn(staticInfo, ITEM_ID_ZBX_FUNCTIONS_PARAMETER,
-	             TABLE_ID_FUNCTIONS, "parameters",
+	             TABLE_ID_FUNCTIONS, "parameter",
 	             SQL_COLUMN_TYPE_VARCHAR, 255,
 	             false, SQL_KEY_NONE, "0");
 

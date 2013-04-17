@@ -399,7 +399,7 @@ static const ColumnDef COLUMN_DEF_FUNCTIONS_RAW_2_0[] = {
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
 	TABLE_NAME_FUNCTIONS_RAW_2_0,      // tableName
-	"parameters",                      // columnName
+	"parameter",                       // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
 	255,                               // columnLength
 	0,                                 // decFracLength
