@@ -55,7 +55,7 @@ public:
 		g_sync.lock();
 		setPollingInterval(0);
 		m_threadOneProc = &ArmZabbixAPITestee::threadOneProcTriggers;
-		addExitCallback(exitCbTriggers, this);
+		addExitCallback(exitCbDefault, this);
 		start();
 		g_sync.wait();
 		return m_result;
@@ -67,7 +67,7 @@ public:
 		g_sync.lock();
 		setPollingInterval(0);
 		m_threadOneProc = &ArmZabbixAPITestee::threadOneProcFunctions;
-		addExitCallback(exitCbTriggers, this);
+		addExitCallback(exitCbDefault, this);
 		start();
 		g_sync.wait();
 		return m_result;
@@ -82,11 +82,6 @@ protected:
 	}
 
 	static void exitCbDefault(void *)
-	{
-		g_sync.unlock();
-	}
-
-	static void exitCbTriggers(void *)
 	{
 		g_sync.unlock();
 	}
