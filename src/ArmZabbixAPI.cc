@@ -159,32 +159,9 @@ ItemTablePtr ArmZabbixAPI::getFunctions(void)
 
 ItemTablePtr ArmZabbixAPI::getItems(void)
 {
-	JsonBuilderAgent agent;
-	agent.startObject();
-	agent.add("jsonrpc", "2.0");
-	agent.add("method", "item.get");
-
-	agent.startObject("params");
-	agent.add("output", "extend");
-	agent.endObject(); // params
-
-	agent.add("auth", m_ctx->authToken);
-	agent.add("id", 1);
-	agent.endObject();
-
-	string request_body = agent.generate();
-	SoupMessage *msg = soup_message_new(SOUP_METHOD_GET, m_ctx->uri.c_str());
-
-	soup_message_headers_set_content_type(msg->request_headers,
-	                                      MIME_JSON_RPC, NULL);
-	soup_message_body_append(msg->request_body, SOUP_MEMORY_TEMPORARY,
-	                         request_body.c_str(), request_body.size());
-	guint ret = soup_session_send_message(getSession(), msg);
-	if (ret != SOUP_STATUS_OK) {
-		g_object_unref(msg);
-		THROW_DATA_STORE_EXCEPTION(
-		  "Failed to get: code: %d: %s", ret, m_ctx->uri.c_str());
-	}
+	SoupMessage *msg = queryItem();
+	if (!msg)
+		THROW_DATA_STORE_EXCEPTION("Failed to query items.");
 
 	JsonParserAgent parser(msg->response_body->data);
 	g_object_unref(msg);
@@ -332,6 +309,37 @@ SoupMessage *ArmZabbixAPI::queryTrigger(void)
 		MLPL_ERR("Failed to get: code: %d: %s\n",
 	                 ret, m_ctx->uri.c_str());
 		return NULL;
+	}
+	return msg;
+}
+
+SoupMessage *ArmZabbixAPI::queryItem(void)
+{
+	JsonBuilderAgent agent;
+	agent.startObject();
+	agent.add("jsonrpc", "2.0");
+	agent.add("method", "item.get");
+
+	agent.startObject("params");
+	agent.add("output", "extend");
+	agent.endObject(); // params
+
+	agent.add("auth", m_ctx->authToken);
+	agent.add("id", 1);
+	agent.endObject();
+
+	string request_body = agent.generate();
+	SoupMessage *msg = soup_message_new(SOUP_METHOD_GET, m_ctx->uri.c_str());
+
+	soup_message_headers_set_content_type(msg->request_headers,
+	                                      MIME_JSON_RPC, NULL);
+	soup_message_body_append(msg->request_body, SOUP_MEMORY_TEMPORARY,
+	                         request_body.c_str(), request_body.size());
+	guint ret = soup_session_send_message(getSession(), msg);
+	if (ret != SOUP_STATUS_OK) {
+		g_object_unref(msg);
+		THROW_DATA_STORE_EXCEPTION(
+		  "Failed to get: code: %d: %s", ret, m_ctx->uri.c_str());
 	}
 	return msg;
 }

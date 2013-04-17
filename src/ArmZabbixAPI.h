@@ -58,6 +58,7 @@ protected:
 	bool openSession(SoupMessage **msgPtr = NULL);
 
 	SoupMessage *queryTrigger(void);
+	SoupMessage *queryItem(void);
 	string getInitialJsonRequest(void);
 	bool parseInitialResponse(SoupMessage *msg);
 	void startObject(JsonParserAgent &parser, const string &name);
