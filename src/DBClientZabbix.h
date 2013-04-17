@@ -49,7 +49,7 @@ protected:
 	  (const string &dbPath, const string &tableName, size_t numColumns,
 	   const ColumnDef *columnDefs,
 	   CreateTableInitializer initializer = NULL, void *data = NULL);
-	static void createTableSystem(const string &dbPath);
+	static void tableInitializerSystem(const string &dbPath, void *);
 	static void updateDBIfNeeded(const string &dbPath);
 	static int getDBVersion(const string &dbPath);
 	void prepareSetupFuncCallback(size_t zabbixServerId);

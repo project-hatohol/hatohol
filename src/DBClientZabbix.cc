@@ -503,10 +503,13 @@ void DBClientZabbix::addFunctionsRaw2_0(ItemTablePtr tablePtr)
 void DBClientZabbix::dbSetupFunc(DBDomainId domainId)
 {
 	const string dbPath = DBAgentSQLite3::findDBPath(domainId);
-	if (!DBAgentSQLite3::isTableExisting(dbPath, TABLE_NAME_SYSTEM))
-		createTableSystem(dbPath);
-	else
+	if (!DBAgentSQLite3::isTableExisting(dbPath, TABLE_NAME_SYSTEM)) {
+		createTable(dbPath,
+		            TABLE_NAME_SYSTEM, NUM_COLUMNS_SYSTEM,
+		            COLUMN_DEF_SYSTEM, tableInitializerSystem);
+	} else {
 		updateDBIfNeeded(dbPath);
+	}
 
 	if (!DBAgentSQLite3::isTableExisting(dbPath,
 	                                     TABLE_NAME_REPLICA_GENERATION)) {
@@ -545,14 +548,8 @@ void DBClientZabbix::createTable
 		(*initializer)(dbPath, data);
 }
 
-void DBClientZabbix::createTableSystem(const string &dbPath)
+void DBClientZabbix::tableInitializerSystem(const string &dbPath, void *data)
 {
-	DBAgentTableCreationArg arg;
-	arg.tableName  = TABLE_NAME_SYSTEM;
-	arg.numColumns = NUM_COLUMNS_SYSTEM;
-	arg.columnDefs = COLUMN_DEF_SYSTEM;
-	DBAgentSQLite3::createTable(dbPath, arg);
-
 	// insert default value
 	DBAgentInsertArg insArg;
 	insArg.tableName = TABLE_NAME_SYSTEM;
