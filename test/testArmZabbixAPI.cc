@@ -12,6 +12,13 @@
 namespace testArmZabbixAPI {
 static Synchronizer g_sync;
 
+static const char *COLUMN_NAME_OF_LAST_REPLICA_GENERATION[] = {
+  "latest_triggers_generation_id",    // REPLICA_GENERATION_TARGET_ID_TRIGGER
+  "latest_functions_generation_id",   // REPLICA_GENERATION_TARGET_ID_FUNCTION
+};
+static const size_t NUM_COLUMN_NAME_OF_LAST_REPLICA_GENERATION =
+  sizeof(COLUMN_NAME_OF_LAST_REPLICA_GENERATION) / sizeof(const char *);
+
 class ArmZabbixAPITestee :  public ArmZabbixAPI {
 
 typedef bool (ArmZabbixAPITestee::*ThreadOneProc)(void);
@@ -208,6 +215,24 @@ static void _assertTestGet(ArmZabbixAPITestee::GetTestType testType,
 	cppcut_assert_equal(
 	  StringUtils::sprintf("%zd\n", expectedNumGenerations),
 	  numGenerations);
+
+	// check the consistency with system table and replica generation table
+	cppcut_assert_equal(true,
+	  (size_t)targetId < NUM_COLUMN_NAME_OF_LAST_REPLICA_GENERATION);
+	const char *columnName = 
+	  COLUMN_NAME_OF_LAST_REPLICA_GENERATION[targetId];
+	statement = StringUtils::sprintf("select %s from system", columnName);
+	string newestGenIdSystem =
+	   execSqlite3ForDBClientZabbix(svId, statement);
+
+	statement = StringUtils::sprintf(
+	  "select replica_generation_id from replica_generation "
+	  "where target_id=%d ORDER BY replica_generation_id DESC LIMIT 1",
+	  targetId);
+	string newestGenIdGenTable =
+	   execSqlite3ForDBClientZabbix(svId, statement);
+
+	cppcut_assert_equal(newestGenIdSystem, newestGenIdGenTable);
 }
 #define assertTestGet(TYPE, TARGET_ID) \
 cut_trace(_assertTestGet(TYPE, TARGET_ID))
