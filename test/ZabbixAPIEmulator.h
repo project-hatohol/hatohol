@@ -37,6 +37,7 @@ protected:
 	void handlerAPIDispatch(APIHandlerArg &arg);
 	void APIHandlerUserLogin(APIHandlerArg &arg);
 	void APIHandlerTriggerGet(APIHandlerArg &arg);
+	void APIHandlerItemGet(APIHandlerArg &arg);
 
 private:
 	struct PrivateContext;
