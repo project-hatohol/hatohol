@@ -42,7 +42,7 @@ public:
 	void addFunctionsRaw2_0(ItemTablePtr tablePtr);
 
 protected:
-	typedef void (*CreateTableInitializer)(void *);
+	typedef void (*CreateTableInitializer)(const string &dbPath, void *);
 
 	static void dbSetupFunc(DBDomainId domainId);
 	static void createTable

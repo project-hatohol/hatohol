@@ -539,7 +539,7 @@ void DBClientZabbix::createTable
 	arg.columnDefs = columnDefs;
 	DBAgentSQLite3::createTable(dbPath, arg);
 	if (initializer)
-		(*initializer)(data);
+		(*initializer)(dbPath, data);
 }
 
 void DBClientZabbix::createTableSystem(const string &dbPath)
