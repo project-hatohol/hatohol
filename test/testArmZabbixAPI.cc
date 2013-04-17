@@ -19,6 +19,11 @@ typedef bool (ArmZabbixAPITestee::*ThreadOneProc)(void);
 static const size_t NUM_TEST_TRIGGER_READ = 10;
 
 public:
+	enum GetTestType {
+		GET_TEST_TYPE_TRIGGERS,
+		GET_TEST_TYPE_FUNCTIONS,
+	};
+
 	ArmZabbixAPITestee(int zabbixServerId, const char *server, int port)
 	: ArmZabbixAPI(zabbixServerId, server, port),
 	  m_result(false),
@@ -49,16 +54,21 @@ public:
 		return m_result;
 	}
 
-	bool testGetTriggers(void)
+	bool testGet(GetTestType type)
 	{
-		return launch(&ArmZabbixAPITestee::threadOneProcTriggers,
-		              exitCbDefault, this);
-	}
-
-	bool testGetFunctions(void)
-	{
-		return launch(&ArmZabbixAPITestee::threadOneProcFunctions,
-		              exitCbDefault, this);
+		bool succeeded = false;
+		if (type == GET_TEST_TYPE_TRIGGERS) {
+			succeeded =
+			  launch(&ArmZabbixAPITestee::threadOneProcTriggers,
+			         exitCbDefault, this);
+		} else if (type == GET_TEST_TYPE_FUNCTIONS) {
+			succeeded =
+			  launch(&ArmZabbixAPITestee::threadOneProcFunctions,
+			         exitCbDefault, this);
+		} else {
+			cut_fail("Unknown get test type: %d\n", type);
+		}
+		return succeeded;
 	}
 
 protected:
@@ -175,6 +185,33 @@ static guint getTestPort(void)
 	return port;
 }
 
+static void _assertTestGet(ArmZabbixAPITestee::GetTestType testType,
+                           int targetId)
+{
+	int svId = 0;
+	deleteDBClientZabbixDB(svId);
+	ArmZabbixAPITestee armZbxApiTestee(svId, "localhost", getTestPort());
+	cppcut_assert_equal
+	  (true, armZbxApiTestee.testGet(testType),
+	   cut_message("%s\n", armZbxApiTestee.errorMessage().c_str()));
+	
+	// check the database
+	string statement = StringUtils::sprintf(
+	  "select count(*) from replica_generation where target_id=%d",
+	  targetId);
+	
+	string numGenerations = execSqlite3ForDBClinetZabbix(svId, statement);
+
+	ConfigManager *confMgr = ConfigManager::getInstance();
+	static size_t expectedNumGenerations =
+	   confMgr->getNumberOfPreservedReplicaGeneration();
+	cppcut_assert_equal(
+	  StringUtils::sprintf("%zd\n", expectedNumGenerations),
+	  numGenerations);
+}
+#define assertTestGet(TYPE, TARGET_ID) \
+cut_trace(_assertTestGet(TYPE, TARGET_ID))
+
 void setup(void)
 {
 	cppcut_assert_equal(false, g_sync.isLocked(),
@@ -207,49 +244,16 @@ void test_openSession(void)
 
 void test_getTriggers(void)
 {
-	int svId = 0;
-	deleteDBClientZabbixDB(svId);
-	ArmZabbixAPITestee armZbxApiTestee(svId, "localhost", getTestPort());
-	cppcut_assert_equal
-	  (true, armZbxApiTestee.testGetTriggers(),
-	   cut_message("%s\n", armZbxApiTestee.errorMessage().c_str()));
-	
-	// check the database
-	string statement = StringUtils::sprintf(
-	  "select count(*) from replica_generation where target_id=%d",
+	assertTestGet(
+	  ArmZabbixAPITestee::GET_TEST_TYPE_TRIGGERS,
 	  DBClientZabbix::REPLICA_GENERATION_TARGET_ID_TRIGGER);
-	
-	string numGenerations = execSqlite3ForDBClinetZabbix(svId, statement);
-
-	ConfigManager *confMgr = ConfigManager::getInstance();
-	static size_t expectedNumGenerations =
-	   confMgr->getNumberOfPreservedReplicaGeneration();
-	cppcut_assert_equal(
-	  StringUtils::sprintf("%zd\n", expectedNumGenerations),
-	  numGenerations);
 }
 
 void test_getFunctions(void)
 {
-	int svId = 0;
-	deleteDBClientZabbixDB(svId);
-	ArmZabbixAPITestee armZbxApiTestee(svId, "localhost", getTestPort());
-	cppcut_assert_equal
-	  (true, armZbxApiTestee.testGetFunctions(),
-	   cut_message("%s\n", armZbxApiTestee.errorMessage().c_str()));
-	
-	// check the database
-	string statement = StringUtils::sprintf(
-	  "select count(*) from replica_generation where target_id=%d",
+	assertTestGet(
+	  ArmZabbixAPITestee::GET_TEST_TYPE_FUNCTIONS,
 	  DBClientZabbix::REPLICA_GENERATION_TARGET_ID_FUNCTION);
-	string numGenerations = execSqlite3ForDBClinetZabbix(svId, statement);
-
-	ConfigManager *confMgr = ConfigManager::getInstance();
-	static size_t expectedNumGenerations =
-	   confMgr->getNumberOfPreservedReplicaGeneration();
-	cppcut_assert_equal(
-	  StringUtils::sprintf("%zd\n", expectedNumGenerations),
-	  numGenerations);
 }
 
 void test_httpNotFound(void)
