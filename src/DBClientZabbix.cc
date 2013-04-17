@@ -136,6 +136,11 @@ enum {
 	NUM_IDX_REPLICA_GENERATION,
 };
 
+const int DBClientZabbix::REPLICA_TARGET_ID_SYSTEM_LATEST_COLUMNS_MAP[] = {
+	IDX_SYSTEM_LATEST_TRIGGERS_GENERATION_ID,
+	IDX_SYSTEM_LATEST_FUNCTIONS_GENERATION_ID,
+};
+
 static const ColumnDef COLUMN_DEF_TRIGGERS_RAW_2_0[] = {
 {
 	ITEM_ID_NOT_SET,                   // itemId
@@ -1514,15 +1519,22 @@ void DBClientZabbix::prepareSetupFuncCallback(size_t zabbixServerId)
 	DBAgentSQLite3::defineDBPath(domainId, getDBPath(zabbixServerId));
 }
 
-int DBClientZabbix::getLatestTriggersGenerationId(void)
+int DBClientZabbix::getLatestGenerationId(void)
 {
-	DBAgentSelectArg arg;
-	arg.tableName = TABLE_NAME_SYSTEM;
-	arg.columnDefs = COLUMN_DEF_SYSTEM;
-	arg.columnIndexes.push_back(IDX_SYSTEM_LATEST_TRIGGERS_GENERATION_ID);
+	DBAgentSelectExArg arg;
+	const ColumnDef columnDefReplicaGenId = 
+	  COLUMN_DEF_REPLICA_GENERATION[IDX_REPLICA_GENERATION_ID];
+	arg.tableName = TABLE_NAME_REPLICA_GENERATION;
+	arg.statements.push_back(columnDefReplicaGenId.columnName);
+	arg.columnTypes.push_back(columnDefReplicaGenId.type);
+	arg.orderBy = columnDefReplicaGenId.columnName;
+	arg.orderBy += " DESC";
+	arg.limit = 1;
 	m_ctx->dbAgent->select(arg);
 
 	const ItemGroupList &itemGroupList = arg.dataTable->getItemGroupList();
+	if (itemGroupList.empty())
+		return REPLICA_GENERATION_NONE;
 	ASURA_ASSERT(
 	  itemGroupList.size() == 1,
 	  "itemGroupList.size(): %zd", itemGroupList.size());
@@ -1541,7 +1553,7 @@ int DBClientZabbix::getLatestTriggersGenerationId(void)
 int DBClientZabbix::updateReplicaGeneration(int replicaTargetId)
 {
 	// We assumed that this function is called in the transcation.
-	int id = getLatestTriggersGenerationId();
+	int id = getLatestGenerationId();
 	int newId = id + 1;
 
 	// insert the generation id
@@ -1559,8 +1571,9 @@ int DBClientZabbix::updateReplicaGeneration(int replicaTargetId)
 	DBAgentUpdateArg updateArg;
 	updateArg.tableName = TABLE_NAME_SYSTEM;
 	updateArg.columnDefs = COLUMN_DEF_SYSTEM;
-	updateArg.columnIndexes.push_back(
-	  IDX_SYSTEM_LATEST_TRIGGERS_GENERATION_ID);
+	int columnIdx =
+	   REPLICA_TARGET_ID_SYSTEM_LATEST_COLUMNS_MAP[replicaTargetId];
+	updateArg.columnIndexes.push_back(columnIdx);
 	updateArg.row->add(new ItemInt(newId), false);
 	m_ctx->dbAgent->update(updateArg);
 

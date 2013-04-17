@@ -27,6 +27,7 @@ public:
 		REPLICA_GENERATION_TARGET_ID_FUNCTION,
 		NUM_REPLICA_GENERATION_TARGET_ID,
 	};
+	static const int REPLICA_TARGET_ID_SYSTEM_LATEST_COLUMNS_MAP[];
 
 	static const int DB_VERSION;
 	static const int NUM_PRESERVED_GENRATIONS_TRIGGERS;
@@ -53,7 +54,7 @@ protected:
 	static void updateDBIfNeeded(const string &dbPath);
 	static int getDBVersion(const string &dbPath);
 	void prepareSetupFuncCallback(size_t zabbixServerId);
-	int getLatestTriggersGenerationId(void);
+	int getLatestGenerationId(void);
 	int updateReplicaGeneration(int replicaTargetId);
 	void addReplicatedItems
 	  (int generationId, ItemTablePtr tablePtr,
