@@ -614,6 +614,12 @@ void ArmZabbixAPI::updateItems(void)
 	m_ctx->dbClientZabbix.addItemsRaw2_0(tablePtr);
 }
 
+void ArmZabbixAPI::updateHosts(void)
+{
+	ItemTablePtr tablePtr = getHosts();
+	m_ctx->dbClientZabbix.addHostsRaw2_0(tablePtr);
+}
+
 //
 // virtual methods
 //
