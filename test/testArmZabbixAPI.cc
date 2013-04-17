@@ -66,7 +66,7 @@ public:
 		m_countThreadOneProc = 0;
 		g_sync.lock();
 		setPollingInterval(0);
-		m_threadOneProc = &ArmZabbixAPITestee::threadOneProcTriggers;
+		m_threadOneProc = &ArmZabbixAPITestee::threadOneProcFunctions;
 		addExitCallback(exitCbTriggers, this);
 		start();
 		g_sync.wait();
@@ -117,6 +117,16 @@ protected:
 	bool threadOneProcTriggers(void)
 	{
 		updateTriggers();
+		return true;
+	}
+
+	bool threadOneProcFunctions(void)
+	{
+		// updateTriggers() is neccessary before updateFunctions(),
+		// because 'function' information is obtained at the same time
+		// as a response of 'triggers.get' request.
+		updateTriggers();
+		updateFunctions();
 		return true;
 	}
 
