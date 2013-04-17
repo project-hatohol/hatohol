@@ -353,7 +353,7 @@ static const ColumnDef COLUMN_DEF_FUNCTIONS_RAW_2_0[] = {
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
-	ITEM_ID_NOT_SET,                   // itemId
+	ITEM_ID_ZBX_FUNCTIONS_FUNCTIONID,  // itemId
 	TABLE_NAME_FUNCTIONS_RAW_2_0,      // tableName
 	"functionid",                      // columnName
 	SQL_COLUMN_TYPE_BIGUINT,           // type
@@ -364,7 +364,7 @@ static const ColumnDef COLUMN_DEF_FUNCTIONS_RAW_2_0[] = {
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
-	ITEM_ID_NOT_SET,                   // itemId
+	ITEM_ID_ZBX_FUNCTIONS_ITEMID,      // itemId
 	TABLE_NAME_FUNCTIONS_RAW_2_0,      // tableName
 	"itemid",                          // columnName
 	SQL_COLUMN_TYPE_BIGUINT,           // type
@@ -375,7 +375,7 @@ static const ColumnDef COLUMN_DEF_FUNCTIONS_RAW_2_0[] = {
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
-	ITEM_ID_NOT_SET,                   // itemId
+	ITEM_ID_ZBX_FUNCTIONS_TRIGGERID,   // itemId
 	TABLE_NAME_FUNCTIONS_RAW_2_0,      // tableName
 	"triggerid",                       // columnName
 	SQL_COLUMN_TYPE_BIGUINT,           // type
@@ -386,7 +386,7 @@ static const ColumnDef COLUMN_DEF_FUNCTIONS_RAW_2_0[] = {
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
-	ITEM_ID_NOT_SET,                   // itemId
+	ITEM_ID_ZBX_FUNCTIONS_FUNCTION,    // itemId
 	TABLE_NAME_FUNCTIONS_RAW_2_0,      // tableName
 	"function",                        // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
@@ -397,7 +397,7 @@ static const ColumnDef COLUMN_DEF_FUNCTIONS_RAW_2_0[] = {
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
-	ITEM_ID_NOT_SET,                   // itemId
+	ITEM_ID_ZBX_FUNCTIONS_PARAMETER,   // itemId
 	TABLE_NAME_FUNCTIONS_RAW_2_0,      // tableName
 	"parameter",                       // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
