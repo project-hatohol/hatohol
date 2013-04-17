@@ -116,23 +116,27 @@ protected:
 
 	bool threadOneProcTriggers(void)
 	{
-		bool succeeded = ArmZabbixAPI::mainThreadOneProc();
-		if (!succeeded) {
-			m_result = false;
-			m_errorMessage = "Failed: mainThreadOneProc()";
-			requestExit();
-		} else if (m_countThreadOneProc == NUM_TEST_TRIGGER_READ) {
-			m_result = true;
-			requestExit();
-		}
-		return succeeded;
+		updateTriggers();
+		return true;
 	}
 
 	// virtual function
 	bool mainThreadOneProc(void)
 	{
-		m_countThreadOneProc++;;
-		return (this->*m_threadOneProc)();
+		if (!openSession()) {
+			requestExit();
+			return false;
+		}
+		if (!(this->*m_threadOneProc)()) {
+			requestExit();
+			return false;
+		}
+		m_countThreadOneProc++;
+		if (m_countThreadOneProc++ >= NUM_TEST_TRIGGER_READ) {
+			m_result = true;
+			requestExit();
+		}
+		return true;
 	}
 
 private:
