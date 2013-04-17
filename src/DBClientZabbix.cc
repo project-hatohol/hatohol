@@ -459,7 +459,10 @@ void DBClientZabbix::addTriggersRaw2_0(ItemTablePtr tablePtr)
 	try {
 		int newId = updateReplicaGeneration
 		              (REPLICA_GENERATION_TARGET_ID_TRIGGER);
-		addTriggersRaw2_0WithTryBlock(newId, tablePtr);
+		addReplicatedItems(newId, tablePtr,
+		                   TABLE_NAME_TRIGGERS_RAW_2_0,
+		                   NUM_COLUMNS_TRIGGERS_RAW_2_0,
+		                   COLUMN_DEF_TRIGGERS_RAW_2_0);
 		deleteOldTriggersRaw2_0();
 	} catch (...) {
 		m_ctx->dbAgent->rollback();
@@ -474,7 +477,10 @@ void DBClientZabbix::addFunctionsRaw2_0(ItemTablePtr tablePtr)
 	try {
 		int newId = updateReplicaGeneration
 		              (REPLICA_GENERATION_TARGET_ID_FUNCTION);
-		addFunctionsRaw2_0WithTryBlock(newId, tablePtr);
+		addReplicatedItems(newId, tablePtr,
+		                   TABLE_NAME_FUNCTIONS_RAW_2_0,
+		                   NUM_COLUMNS_FUNCTIONS_RAW_2_0,
+		                   COLUMN_DEF_FUNCTIONS_RAW_2_0);
 		deleteOldFunctionsRaw2_0();
 	} catch (...) {
 		m_ctx->dbAgent->rollback();
@@ -650,38 +656,21 @@ int DBClientZabbix::updateReplicaGeneration(int replicaTargetId)
 	return newId;
 }
 
-void DBClientZabbix::addTriggersRaw2_0WithTryBlock(int generationId,
-                                                   ItemTablePtr tablePtr)
+void DBClientZabbix::addReplicatedItems(
+  int generationId, ItemTablePtr tablePtr,
+  const string &tableName, size_t numColumns, const ColumnDef *columnDefs)
 {
+	//
 	// We assumed that this function is called in the transaction.
-
+	//
 	const ItemGroupList &itemGroupList = tablePtr->getItemGroupList();
 	ItemGroupListConstIterator it = itemGroupList.begin();
 	for (; it != itemGroupList.end(); ++it) {
 		const ItemGroup *itemGroup = *it;
 		DBAgentInsertArg arg;
-		arg.tableName = TABLE_NAME_TRIGGERS_RAW_2_0;
-		arg.numColumns = NUM_COLUMNS_TRIGGERS_RAW_2_0;
-		arg.columnDefs = COLUMN_DEF_TRIGGERS_RAW_2_0;
-
-		arg.row->add(new ItemInt(generationId), false);
-		for (size_t i = 0; i < itemGroup->getNumberOfItems(); i++)
-			arg.row->add(itemGroup->getItemAt(i));
-		m_ctx->dbAgent->insert(arg);
-	}
-}
-
-void DBClientZabbix::addFunctionsRaw2_0WithTryBlock(int generationId,
-                                                   ItemTablePtr tablePtr)
-{
-	const ItemGroupList &itemGroupList = tablePtr->getItemGroupList();
-	ItemGroupListConstIterator it = itemGroupList.begin();
-	for (; it != itemGroupList.end(); ++it) {
-		const ItemGroup *itemGroup = *it;
-		DBAgentInsertArg arg;
-		arg.tableName = TABLE_NAME_FUNCTIONS_RAW_2_0;
-		arg.numColumns = NUM_COLUMNS_FUNCTIONS_RAW_2_0;
-		arg.columnDefs = COLUMN_DEF_FUNCTIONS_RAW_2_0;
+		arg.tableName = tableName;
+		arg.numColumns = numColumns;
+		arg.columnDefs = columnDefs;
 
 		arg.row->add(new ItemInt(generationId), false);
 		for (size_t i = 0; i < itemGroup->getNumberOfItems(); i++)

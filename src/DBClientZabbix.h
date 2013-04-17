@@ -53,10 +53,10 @@ protected:
 	void prepareSetupFuncCallback(size_t zabbixServerId);
 	int getLatestTriggersGenerationId(void);
 	int updateReplicaGeneration(int replicaTargetId);
-	void addTriggersRaw2_0WithTryBlock(int generationId,
-	                                   ItemTablePtr tablePtr);
-	void addFunctionsRaw2_0WithTryBlock(int generationId,
-	                                    ItemTablePtr tablePtr);
+	void addReplicatedItems
+	  (int generationId, ItemTablePtr tablePtr,
+	   const string &tableName, size_t numColumns,
+	   const ColumnDef *columnDefs);
 	void deleteOldTriggersRaw2_0(void);
 	void deleteOldFunctionsRaw2_0(void);
 	int getStartIdToRemove(int replicaTargetId);
