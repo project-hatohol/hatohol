@@ -59,7 +59,7 @@ protected:
 	                                    ItemTablePtr tablePtr);
 	void deleteOldTriggersRaw2_0(void);
 	void deleteOldFunctionsRaw2_0(void);
-	int getStartIdToRemove(void);
+	int getStartIdToRemove(int replicaTargetId);
 
 private:
 	struct PrivateContext;

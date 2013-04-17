@@ -693,7 +693,7 @@ void DBClientZabbix::addFunctionsRaw2_0WithTryBlock(int generationId,
 void DBClientZabbix::deleteOldTriggersRaw2_0(void)
 {
 	// check the number of generations
-	int startId = getStartIdToRemove();
+	int startId = getStartIdToRemove(REPLICA_GENERATION_TARGET_ID_TRIGGER);
 	if (startId == REPLICA_GENERATION_NONE)
 		return;
 
@@ -724,7 +724,7 @@ void DBClientZabbix::deleteOldTriggersRaw2_0(void)
 void DBClientZabbix::deleteOldFunctionsRaw2_0(void)
 {
 	// check the number of generations
-	int startId = getStartIdToRemove();
+	int startId = getStartIdToRemove(REPLICA_GENERATION_TARGET_ID_FUNCTION);
 	if (startId == REPLICA_GENERATION_NONE)
 		return;
 
@@ -752,7 +752,7 @@ void DBClientZabbix::deleteOldFunctionsRaw2_0(void)
 	m_ctx->dbAgent->deleteRows(argGen);
 }
 
-int DBClientZabbix::getStartIdToRemove(void)
+int DBClientZabbix::getStartIdToRemove(int replicaTargetId)
 {
 	DBAgentSelectExArg arg;
 	arg.tableName = TABLE_NAME_REPLICA_GENERATION;
@@ -766,8 +766,7 @@ int DBClientZabbix::getStartIdToRemove(void)
 	  COLUMN_DEF_REPLICA_GENERATION[IDX_REPLICA_GENERATION_TARGET_ID];
 	arg.condition =
 	   StringUtils::sprintf("%s=%d",
-	                        columnDefTargetId.columnName,
-	                        REPLICA_GENERATION_TARGET_ID_TRIGGER);
+	                        columnDefTargetId.columnName, replicaTargetId);
 	arg.orderBy = StringUtils::sprintf("%s DESC",
 	                                   columnDefGenId.columnName);
 	arg.limit = 1;
