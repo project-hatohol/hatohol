@@ -54,8 +54,9 @@ void test_createTableSystem(void)
 	                                  dbPath.c_str(), "system");
 	string output = executeCommand(cmd);
 	string expectedOut =
-	   StringUtils::sprintf("%d|%d|%d\n",
+	   StringUtils::sprintf("%d|%d|%d|%d\n",
 	                        DBClientZabbix::DB_VERSION,
+	                        DBClientZabbix::REPLICA_GENERATION_NONE,
 	                        DBClientZabbix::REPLICA_GENERATION_NONE,
 	                        DBClientZabbix::REPLICA_GENERATION_NONE);
 	cppcut_assert_equal(expectedOut, output);
