@@ -25,6 +25,7 @@ public:
 	enum {
 		REPLICA_GENERATION_TARGET_ID_TRIGGER,
 		REPLICA_GENERATION_TARGET_ID_FUNCTION,
+		REPLICA_GENERATION_TARGET_ID_ITEM,
 		NUM_REPLICA_GENERATION_TARGET_ID,
 	};
 	static const int REPLICA_TARGET_ID_SYSTEM_LATEST_COLUMNS_MAP[];
@@ -42,6 +43,7 @@ public:
 
 	void addTriggersRaw2_0(ItemTablePtr tablePtr);
 	void addFunctionsRaw2_0(ItemTablePtr tablePtr);
+	void addItemsRaw2_0(ItemTablePtr tablePtr);
 
 protected:
 	typedef void (*CreateTableInitializer)(const string &dbPath, void *);

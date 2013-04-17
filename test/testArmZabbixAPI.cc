@@ -29,6 +29,7 @@ public:
 	enum GetTestType {
 		GET_TEST_TYPE_TRIGGERS,
 		GET_TEST_TYPE_FUNCTIONS,
+		GET_TEST_TYPE_ITEMS,
 	};
 
 	ArmZabbixAPITestee(int zabbixServerId, const char *server, int port)
@@ -71,6 +72,10 @@ public:
 		} else if (type == GET_TEST_TYPE_FUNCTIONS) {
 			succeeded =
 			  launch(&ArmZabbixAPITestee::threadOneProcFunctions,
+			         exitCbDefault, this);
+		} else if (type == GET_TEST_TYPE_ITEMS) {
+			succeeded =
+			  launch(&ArmZabbixAPITestee::threadOneProcItems,
 			         exitCbDefault, this);
 		} else {
 			cut_fail("Unknown get test type: %d\n", type);
@@ -140,6 +145,12 @@ protected:
 		// as a response of 'triggers.get' request.
 		updateTriggers();
 		updateFunctions();
+		return true;
+	}
+
+	bool threadOneProcItems(void)
+	{
+		updateItems();
 		return true;
 	}
 
@@ -279,6 +290,13 @@ void test_getFunctions(void)
 	assertTestGet(
 	  ArmZabbixAPITestee::GET_TEST_TYPE_FUNCTIONS,
 	  DBClientZabbix::REPLICA_GENERATION_TARGET_ID_FUNCTION);
+}
+
+void test_getItems(void)
+{
+	assertTestGet(
+	  ArmZabbixAPITestee::GET_TEST_TYPE_ITEMS,
+	  DBClientZabbix::REPLICA_GENERATION_TARGET_ID_ITEM);
 }
 
 void test_httpNotFound(void)

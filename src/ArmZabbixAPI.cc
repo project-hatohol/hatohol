@@ -613,6 +613,12 @@ void ArmZabbixAPI::updateFunctions(void)
 	m_ctx->dbClientZabbix.addFunctionsRaw2_0(tablePtr);
 }
 
+void ArmZabbixAPI::updateItems(void)
+{
+	ItemTablePtr tablePtr = getItems();
+	m_ctx->dbClientZabbix.addItemsRaw2_0(tablePtr);
+}
+
 //
 // virtual methods
 //

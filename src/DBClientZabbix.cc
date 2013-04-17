@@ -109,6 +109,7 @@ enum {
 	IDX_SYSTEM_VERSION,
 	IDX_SYSTEM_LATEST_TRIGGERS_GENERATION_ID,
 	IDX_SYSTEM_LATEST_FUNCTIONS_GENERATION_ID,
+	IDX_SYSTEM_LATEST_ITEMS_GENERATION_ID,
 	NUM_IDX_SYSTEM,
 };
 
@@ -161,6 +162,7 @@ enum {
 const int DBClientZabbix::REPLICA_TARGET_ID_SYSTEM_LATEST_COLUMNS_MAP[] = {
 	IDX_SYSTEM_LATEST_TRIGGERS_GENERATION_ID,
 	IDX_SYSTEM_LATEST_FUNCTIONS_GENERATION_ID,
+	IDX_SYSTEM_LATEST_ITEMS_GENERATION_ID,
 };
 static const size_t NUM_REPLICA_TARGET_ID_SYSTEM_LATEST_COLUMNS_MAP =
   sizeof(DBClientZabbix::REPLICA_TARGET_ID_SYSTEM_LATEST_COLUMNS_MAP) / sizeof(int);
@@ -1308,6 +1310,10 @@ static const ColumnDef COLUMN_DEF_HOSTS_RAW_2_0[] = {
 static const size_t NUM_COLUMNS_HOSTS_RAW_2_0 =
    sizeof(COLUMN_DEF_HOSTS_RAW_2_0) / sizeof(ColumnDef);
 
+enum {
+  IDX_ITEM_RAW_2_0_GENERATION_ID,
+};
+
 struct DBClientZabbix::PrivateContext
 {
 	static GMutex mutex;
@@ -1430,6 +1436,24 @@ void DBClientZabbix::addFunctionsRaw2_0(ItemTablePtr tablePtr)
 		   TABLE_NAME_FUNCTIONS_RAW_2_0,
 		   COLUMN_DEF_FUNCTIONS_RAW_2_0,
 		   IDX_FUNC_RAW_2_0_GENERATION_ID);
+	}
+	TRANSACTION_END();
+}
+
+void DBClientZabbix::addItemsRaw2_0(ItemTablePtr tablePtr)
+{
+	TRANSACTION_BEGIN() {
+		int newId = updateReplicaGeneration
+		              (REPLICA_GENERATION_TARGET_ID_ITEM);
+		addReplicatedItems(newId, tablePtr,
+		                   TABLE_NAME_ITEMS_RAW_2_0,
+		                   NUM_COLUMNS_ITEMS_RAW_2_0,
+		                   COLUMN_DEF_ITEMS_RAW_2_0);
+		deleteOldReplicatedItems
+		  (REPLICA_GENERATION_TARGET_ID_ITEM,
+		   TABLE_NAME_ITEMS_RAW_2_0,
+		   COLUMN_DEF_ITEMS_RAW_2_0,
+		   IDX_ITEM_RAW_2_0_GENERATION_ID);
 	}
 	TRANSACTION_END();
 }

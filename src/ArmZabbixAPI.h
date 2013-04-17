@@ -84,6 +84,7 @@ protected:
 
 	void updateTriggers(void);
 	void updateFunctions(void);
+	void updateItems(void);
 
 	// virtual methods
 	gpointer mainThread(AsuraThreadArg *arg);
