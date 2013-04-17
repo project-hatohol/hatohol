@@ -22,7 +22,8 @@
 
 class DBAgentFactory {
 public:
-	static DBAgent* create(DBDomainId domainId = DefaultDBDomainId);
+	static DBAgent* create(DBDomainId domainId = DefaultDBDomainId,
+	                       bool skipSetup = false);
 };
 
 #endif // DBAgentFactory_h

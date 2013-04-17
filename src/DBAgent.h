@@ -125,7 +125,7 @@ public:
 	static void
 	   addSetupFunction(DBDomainId domainId, DBSetupFunc setupFunc);
 
-	DBAgent(DBDomainId = DefaultDBDomainId);
+	DBAgent(DBDomainId = DefaultDBDomainId, bool skipSetup = false);
 	virtual ~DBAgent();
 
 	// virtual methods

@@ -21,8 +21,8 @@
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
-DBAgent* DBAgentFactory::create(DBDomainId domainId)
+DBAgent* DBAgentFactory::create(DBDomainId domainId, bool skipSetup)
 {
 	// Currently we suport SQLite3 only. So we simply crate it here.
-	return new DBAgentSQLite3(domainId);
+	return new DBAgentSQLite3(domainId, skipSetup);
 }

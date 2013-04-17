@@ -54,7 +54,8 @@ public:
                                DBAgentDeleteArg &deleteArg);
 
 	// constructor and destructor
-	DBAgentSQLite3(DBDomainId domainId = DefaultDBDomainId);
+	DBAgentSQLite3(DBDomainId domainId = DefaultDBDomainId,
+	               bool skipSetup = false);
 	virtual ~DBAgentSQLite3();
 
 	// generic methods

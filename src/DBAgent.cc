@@ -57,10 +57,12 @@ void DBAgent::addSetupFunction(DBDomainId domainId, DBSetupFunc setupFunc)
 	PrivateContext::unlock();
 }
 
-DBAgent::DBAgent(DBDomainId domainId)
+DBAgent::DBAgent(DBDomainId domainId, bool skipSetup)
 : m_ctx(NULL)
 {
 	m_ctx = new PrivateContext();
+	if (skipSetup)
+		return;
 
 	PrivateContext::lock();
 	pair<DBSetupFuncMapIterator, DBSetupFuncMapIterator> matchedRange = 

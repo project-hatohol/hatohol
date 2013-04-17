@@ -213,8 +213,8 @@ void DBAgentSQLite3::deleteRows(const string &dbPath,
 	} TRANSACTION_EXECUTE(db);
 }
 
-DBAgentSQLite3::DBAgentSQLite3(DBDomainId domainId)
-: DBAgent(domainId),
+DBAgentSQLite3::DBAgentSQLite3(DBDomainId domainId, bool skipSetup)
+: DBAgent(domainId, skipSetup),
   m_ctx(NULL)
 {
 	// We don't lock DB (use transaction) in the existence check of
