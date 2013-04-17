@@ -698,7 +698,7 @@ void SQLProcessorZabbix::init(void)
 	             TABLE_ID_ITEMS, "snmpv3_authpassphrase",
 	             SQL_COLUMN_TYPE_VARCHAR, 64,
 	             false, SQL_KEY_NONE, "");
-	defineColumn(staticInfo, ITEM_ID_ZBX_ITEMS_SNMPV3_PRIVPASSPRASE,
+	defineColumn(staticInfo, ITEM_ID_ZBX_ITEMS_SNMPV3_PRIVPASSPHRASE,
 	             TABLE_ID_ITEMS, "snmpv3_privpassphrase",
 	             SQL_COLUMN_TYPE_VARCHAR, 64,
 	             false, SQL_KEY_NONE, "");

@@ -513,7 +513,7 @@ void ArmZabbixAPI::parseAndPushItemsData(JsonParserAgent &parser,
 	pushString(parser, grp, "snmpv3_authpassphrase",
 	           ITEM_ID_ZBX_ITEMS_SNMPV3_AUTHPASSPHRASE);
 	pushString(parser, grp, "snmpv3_privpassphrase",
-	           ITEM_ID_ZBX_ITEMS_SNMPV3_PRIVPASSPRASE);
+	           ITEM_ID_ZBX_ITEMS_SNMPV3_PRIVPASSPHRASE);
 	pushString(parser, grp, "formula",     ITEM_ID_ZBX_ITEMS_FORMULA);
 	pushString(parser, grp, "error",       ITEM_ID_ZBX_ITEMS_ERROR);
 	pushString(parser, grp, "lastlogsize", ITEM_ID_ZBX_ITEMS_LASTLOGSIZE);
