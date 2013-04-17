@@ -15,6 +15,7 @@ static Synchronizer g_sync;
 static const char *COLUMN_NAME_OF_LAST_REPLICA_GENERATION[] = {
   "latest_triggers_generation_id",    // REPLICA_GENERATION_TARGET_ID_TRIGGER
   "latest_functions_generation_id",   // REPLICA_GENERATION_TARGET_ID_FUNCTION
+  "latest_items_generation_id",       // REPLICA_GENERATION_TARGET_ID_ITEMS
 };
 static const size_t NUM_COLUMN_NAME_OF_LAST_REPLICA_GENERATION =
   sizeof(COLUMN_NAME_OF_LAST_REPLICA_GENERATION) / sizeof(const char *);
