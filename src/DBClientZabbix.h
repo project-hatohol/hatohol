@@ -42,8 +42,13 @@ public:
 	void addFunctionsRaw2_0(ItemTablePtr tablePtr);
 
 protected:
+	typedef void (*CreateTableInitializer)(void *);
+
 	static void dbSetupFunc(DBDomainId domainId);
-	static void createTable(const string &dbPath);
+	static void createTable
+	  (const string &dbPath, const string &tableName, size_t numColumns,
+	   const ColumnDef *columnDefs,
+	   CreateTableInitializer initializer = NULL, void *data = NULL);
 	static void createTableSystem(const string &dbPath);
 	static void createTableReplicaGeneration(const string &dbPath);
 	static void createTableTriggersRaw2_0(const string &dbPath);

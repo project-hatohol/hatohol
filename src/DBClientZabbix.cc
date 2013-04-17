@@ -523,6 +523,19 @@ void DBClientZabbix::dbSetupFunc(DBDomainId domainId)
 	}
 }
 
+void DBClientZabbix::createTable
+  (const string &dbPath, const string &tableName, size_t numColumns,
+   const ColumnDef *columnDefs, CreateTableInitializer initializer, void *data)
+{
+	DBAgentTableCreationArg arg;
+	arg.tableName  = tableName;
+	arg.numColumns = numColumns;
+	arg.columnDefs = columnDefs;
+	DBAgentSQLite3::createTable(dbPath, arg);
+	if (initializer)
+		(*initializer)(data);
+}
+
 void DBClientZabbix::createTableSystem(const string &dbPath)
 {
 	DBAgentTableCreationArg arg;
