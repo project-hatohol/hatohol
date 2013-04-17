@@ -61,6 +61,7 @@ protected:
 	SoupMessage *queryCommon(JsonBuilderAgent &agent);
 	SoupMessage *queryTrigger(void);
 	SoupMessage *queryItem(void);
+	SoupMessage *queryHost(void);
 	string getInitialJsonRequest(void);
 	bool parseInitialResponse(SoupMessage *msg);
 	void startObject(JsonParserAgent &parser, const string &name);
