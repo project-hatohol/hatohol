@@ -52,7 +52,7 @@ protected:
 	static int getDBVersion(const string &dbPath);
 	void prepareSetupFuncCallback(size_t zabbixServerId);
 	int getLatestTriggersGenerationId(void);
-	int updateReplicaGeneration(int replicaGenerationId);
+	int updateReplicaGeneration(int replicaTargetId);
 	void addTriggersRaw2_0WithTryBlock(int generationId,
 	                                   ItemTablePtr tablePtr);
 	void addFunctionsRaw2_0WithTryBlock(int generationId,

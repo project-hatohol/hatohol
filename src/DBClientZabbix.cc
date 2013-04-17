@@ -621,7 +621,7 @@ int DBClientZabbix::getLatestTriggersGenerationId(void)
 	return item->get();
 }
 
-int DBClientZabbix::updateReplicaGeneration(int replicaGenerationId)
+int DBClientZabbix::updateReplicaGeneration(int replicaTargetId)
 {
 	// We assumed that this function is called in the transcation.
 	int id = getLatestTriggersGenerationId();
@@ -635,7 +635,7 @@ int DBClientZabbix::updateReplicaGeneration(int replicaGenerationId)
 	insertArg.columnDefs = COLUMN_DEF_REPLICA_GENERATION;
 	insertArg.row->add(new ItemInt(newId), false);
 	insertArg.row->add(new ItemUint64(currTime), false);
-	insertArg.row->add(new ItemInt(replicaGenerationId), false);
+	insertArg.row->add(new ItemInt(replicaTargetId), false);
 	m_ctx->dbAgent->insert(insertArg);
 
 	// update the latest generation
