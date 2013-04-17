@@ -22,6 +22,7 @@
 #include "ArmBase.h"
 #include "ItemTablePtr.h"
 #include "JsonParserAgent.h"
+#include "JsonBuilderAgent.h"
 
 class ArmZabbixAPI : public ArmBase
 {
@@ -57,6 +58,7 @@ protected:
 	 */
 	bool openSession(SoupMessage **msgPtr = NULL);
 
+	SoupMessage *queryCommon(JsonBuilderAgent &agent);
 	SoupMessage *queryTrigger(void);
 	SoupMessage *queryItem(void);
 	string getInitialJsonRequest(void);
