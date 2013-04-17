@@ -140,6 +140,8 @@ const int DBClientZabbix::REPLICA_TARGET_ID_SYSTEM_LATEST_COLUMNS_MAP[] = {
 	IDX_SYSTEM_LATEST_TRIGGERS_GENERATION_ID,
 	IDX_SYSTEM_LATEST_FUNCTIONS_GENERATION_ID,
 };
+static const size_t NUM_REPLICA_TARGET_ID_SYSTEM_LATEST_COLUMNS_MAP =
+  sizeof(DBClientZabbix::REPLICA_TARGET_ID_SYSTEM_LATEST_COLUMNS_MAP) / sizeof(int);
 
 static const ColumnDef COLUMN_DEF_TRIGGERS_RAW_2_0[] = {
 {
@@ -1319,6 +1321,14 @@ bool   DBClientZabbix::PrivateContext::dbInitializedFlags[NumMaxZabbixServers];
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
+void DBClientZabbix::init(void)
+{
+	ASURA_ASSERT(
+	  NUM_REPLICA_TARGET_ID_SYSTEM_LATEST_COLUMNS_MAP
+	  == NUM_REPLICA_GENERATION_TARGET_ID,
+	  "Elements may missing: REPLICA_TARGET_ID_SYSTEM_LATEST_COLUMNS_MAP");
+}
+
 string DBClientZabbix::getDBPath(size_t zabbixServerId)
 {
 	ConfigManager *configMgr = ConfigManager::getInstance();
