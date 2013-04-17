@@ -518,7 +518,10 @@ void DBClientZabbix::dbSetupFunc(DBDomainId domainId)
 
 	if (!DBAgentSQLite3::isTableExisting(dbPath,
 	                                     TABLE_NAME_TRIGGERS_RAW_2_0)) {
-		createTableTriggersRaw2_0(dbPath);
+		createTable(dbPath,
+		            TABLE_NAME_TRIGGERS_RAW_2_0,
+		            NUM_COLUMNS_TRIGGERS_RAW_2_0,
+		            COLUMN_DEF_TRIGGERS_RAW_2_0);
 	}
 	if (!DBAgentSQLite3::isTableExisting(dbPath,
 	                                     TABLE_NAME_FUNCTIONS_RAW_2_0)) {
@@ -556,15 +559,6 @@ void DBClientZabbix::createTableSystem(const string &dbPath)
 	insArg.row->add(new ItemInt(REPLICA_GENERATION_NONE), false);
 	insArg.row->add(new ItemInt(REPLICA_GENERATION_NONE), false);
 	DBAgentSQLite3::insert(dbPath, insArg);
-}
-
-void DBClientZabbix::createTableTriggersRaw2_0(const string &dbPath)
-{
-	DBAgentTableCreationArg arg;
-	arg.tableName  = TABLE_NAME_TRIGGERS_RAW_2_0;
-	arg.numColumns = NUM_COLUMNS_TRIGGERS_RAW_2_0;
-	arg.columnDefs = COLUMN_DEF_TRIGGERS_RAW_2_0;
-	DBAgentSQLite3::createTable(dbPath, arg);
 }
 
 void DBClientZabbix::createTableFunctionsRaw2_0(const string &dbPath)
