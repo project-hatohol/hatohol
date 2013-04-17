@@ -22,6 +22,17 @@
 #include "AsuraException.h"
 #include "ItemTableUtils.h"
 
+#define TRANSACTION_BEGIN() \
+	m_ctx->dbAgent->begin(); \
+	try
+
+#define TRANSACTION_END() \
+	catch (...) { \
+		m_ctx->dbAgent->rollback(); \
+		throw; \
+	} \
+	m_ctx->dbAgent->commit()
+
 const int DBClientZabbix::DB_VERSION = 2;
 const int DBClientZabbix::NUM_PRESERVED_GENRATIONS_TRIGGERS = 3;
 const int DBClientZabbix::REPLICA_GENERATION_NONE = -1;
@@ -1349,8 +1360,7 @@ DBClientZabbix::~DBClientZabbix()
 
 void DBClientZabbix::addTriggersRaw2_0(ItemTablePtr tablePtr)
 {
-	m_ctx->dbAgent->begin();
-	try {
+	TRANSACTION_BEGIN() {
 		int newId = updateReplicaGeneration
 		              (REPLICA_GENERATION_TARGET_ID_TRIGGER);
 		addReplicatedItems(newId, tablePtr,
@@ -1362,17 +1372,13 @@ void DBClientZabbix::addTriggersRaw2_0(ItemTablePtr tablePtr)
 		   TABLE_NAME_TRIGGERS_RAW_2_0,
 		   COLUMN_DEF_TRIGGERS_RAW_2_0,
 		   IDX_TRIG_RAW_2_0_GENERATION_ID);
-	} catch (...) {
-		m_ctx->dbAgent->rollback();
-		throw;
 	}
-	m_ctx->dbAgent->commit();
+	TRANSACTION_END();
 }
 
 void DBClientZabbix::addFunctionsRaw2_0(ItemTablePtr tablePtr)
 {
-	m_ctx->dbAgent->begin();
-	try {
+	TRANSACTION_BEGIN() {
 		int newId = updateReplicaGeneration
 		              (REPLICA_GENERATION_TARGET_ID_FUNCTION);
 		addReplicatedItems(newId, tablePtr,
@@ -1384,11 +1390,8 @@ void DBClientZabbix::addFunctionsRaw2_0(ItemTablePtr tablePtr)
 		   TABLE_NAME_FUNCTIONS_RAW_2_0,
 		   COLUMN_DEF_FUNCTIONS_RAW_2_0,
 		   IDX_FUNC_RAW_2_0_GENERATION_ID);
-	} catch (...) {
-		m_ctx->dbAgent->rollback();
-		throw;
 	}
-	m_ctx->dbAgent->commit();
+	TRANSACTION_END();
 }
 
 // ---------------------------------------------------------------------------
