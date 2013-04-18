@@ -47,7 +47,7 @@ void test_createTableServers(void)
 	string statement = "select * from " + tableName;
 	string output = execSqlite3ForDBClient(DB_DOMAIN_ID_OFFSET_ASURA,
 	                                       statement);
-	string expectedOut = StringUtils::sprintf("\n"); // currently no data
+	string expectedOut = StringUtils::sprintf(""); // currently no data
 	cppcut_assert_equal(expectedOut, output);
 }
 
