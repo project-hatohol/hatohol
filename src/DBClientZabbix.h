@@ -49,8 +49,7 @@ public:
 
 protected:
 	static void tableInitializerSystem(DBAgent *dbAgent, void *data);
-	static void updateDBIfNeeded(DBAgent *dbAgent);
-	static int getDBVersion(DBAgent *dbAgent);
+	static void updateDBIfNeeded(DBAgent *dbAgent, int oldVer, void *data);
 
 	void prepareSetupFuncCallback(size_t zabbixServerId);
 	int getLatestGenerationId(void);

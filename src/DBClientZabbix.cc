@@ -48,17 +48,6 @@ static const ColumnDef COLUMN_DEF_SYSTEM[] = {
 {
 	ITEM_ID_NOT_SET,                   // itemId
 	TABLE_NAME_SYSTEM,                 // tableName
-	"version",                         // columnName
-	SQL_COLUMN_TYPE_INT,               // type
-	11,                                // columnLength
-	0,                                 // decFracLength
-	false,                             // canBeNull
-	SQL_KEY_NONE,                      // keyType
-	0,                                 // flags
-	NULL,                              // defaultValue
-}, {
-	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_SYSTEM,                 // tableName
 	"latest_triggers_generation_id",   // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -106,7 +95,6 @@ static const size_t NUM_COLUMNS_SYSTEM =
   sizeof(COLUMN_DEF_SYSTEM) / sizeof(ColumnDef);
 
 enum {
-	IDX_SYSTEM_VERSION,
 	IDX_SYSTEM_LATEST_TRIGGERS_GENERATION_ID,
 	IDX_SYSTEM_LATEST_FUNCTIONS_GENERATION_ID,
 	IDX_SYSTEM_LATEST_ITEMS_GENERATION_ID,
@@ -1482,7 +1470,6 @@ void DBClientZabbix::tableInitializerSystem(DBAgent *dbAgent, void *data)
 	insArg.tableName = TABLE_NAME_SYSTEM;
 	insArg.numColumns = NUM_COLUMNS_SYSTEM;
 	insArg.columnDefs = COLUMN_DEF_SYSTEM;
-	insArg.row->add(new ItemInt(DB_VERSION), false);
 	insArg.row->add(new ItemInt(REPLICA_GENERATION_NONE), false);
 	insArg.row->add(new ItemInt(REPLICA_GENERATION_NONE), false);
 	insArg.row->add(new ItemInt(REPLICA_GENERATION_NONE), false);
@@ -1490,35 +1477,11 @@ void DBClientZabbix::tableInitializerSystem(DBAgent *dbAgent, void *data)
 	dbAgent->insert(insArg);
 }
 
-void DBClientZabbix::updateDBIfNeeded(DBAgent *dbAgent)
+void DBClientZabbix::updateDBIfNeeded(DBAgent *dbAgent, int oldVer, void *data)
 {
-	if (getDBVersion(dbAgent) == DB_VERSION)
-		return;
-	THROW_ASURA_EXCEPTION("Not implemented: %s", __PRETTY_FUNCTION__);
-}
-
-int DBClientZabbix::getDBVersion(DBAgent *dbAgent)
-{
-	DBAgentSelectArg arg;
-	arg.tableName = TABLE_NAME_SYSTEM;
-	arg.columnDefs = COLUMN_DEF_SYSTEM;
-	arg.columnIndexes.push_back(IDX_SYSTEM_VERSION);
-	dbAgent->select(arg);
-
-	const ItemGroupList &itemGroupList = arg.dataTable->getItemGroupList();
-	ASURA_ASSERT(
-	  itemGroupList.size() == 1,
-	  "itemGroupList.size(): %zd", itemGroupList.size());
-	ItemGroupListConstIterator it = itemGroupList.begin();
-	const ItemGroup *itemGroup = *it;
-	ASURA_ASSERT(
-	  itemGroup->getNumberOfItems() == 1,
-	  "itemGroup->getNumberOfItems: %zd", itemGroup->getNumberOfItems());
-	ItemInt *itemVersion =
-	  dynamic_cast<ItemInt *>(itemGroup->getItemAt(0));
-	ASURA_ASSERT(itemVersion != NULL, "type: itemVersion: %s\n",
-	             DEMANGLED_TYPE_NAME(*itemVersion));
-	return itemVersion->get();
+	THROW_ASURA_EXCEPTION(
+	  "Not implemented: %s, oldVer: %d, curr: %d, data: %p",
+	  __PRETTY_FUNCTION__, oldVer, DBClientZabbix::DB_VERSION, data);
 }
 
 //

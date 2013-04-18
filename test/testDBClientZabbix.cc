@@ -41,6 +41,15 @@ void test_createDB(void)
 	// create an instance (the database will be automatically created)
 	DBClientZabbix dbCliZBX(TEST_ZABBIX_SERVER_ID);
 	cut_assert_exist_path(dbPath.c_str());
+
+	// check the version
+	string statement = "select * from _dbclient";
+	string output = execSqlite3ForDBClientZabbix(TEST_ZABBIX_SERVER_ID,
+	                                             statement);
+	string expectedOut = StringUtils::sprintf("%d|%d\n",
+	                                          DBClient::DB_VERSION,
+	                                          DBClientZabbix::DB_VERSION);
+	cppcut_assert_equal(expectedOut, output);
 }
 
 void test_createTableSystem(void)
@@ -52,8 +61,7 @@ void test_createTableSystem(void)
 	string statement = "select * from system";
 	string output = execSqlite3ForDBClientZabbix(svId, statement);
 	string expectedOut =
-	   StringUtils::sprintf("%d|%d|%d|%d|%d\n",
-	                        DBClientZabbix::DB_VERSION,
+	   StringUtils::sprintf("%d|%d|%d|%d\n",
 	                        DBClientZabbix::REPLICA_GENERATION_NONE,
 	                        DBClientZabbix::REPLICA_GENERATION_NONE,
 	                        DBClientZabbix::REPLICA_GENERATION_NONE,
