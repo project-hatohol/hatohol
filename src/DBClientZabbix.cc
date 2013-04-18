@@ -1490,7 +1490,6 @@ void DBClientZabbix::addHostsRaw2_0(ItemTablePtr tablePtr)
 // ---------------------------------------------------------------------------
 void DBClientZabbix::dbSetupFunc(DBDomainId domainId)
 {
-	const string dbPath = DBAgentSQLite3::findDBPath(domainId);
 	bool skipSetup = true;
 	auto_ptr<DBAgent> dbAgent(DBAgentFactory::create(domainId, skipSetup));
 	if (!dbAgent->isTableExisting(TABLE_NAME_SYSTEM)) {
@@ -1498,7 +1497,7 @@ void DBClientZabbix::dbSetupFunc(DBDomainId domainId)
 		            TABLE_NAME_SYSTEM, NUM_COLUMNS_SYSTEM,
 		            COLUMN_DEF_SYSTEM, tableInitializerSystem);
 	} else {
-		updateDBIfNeeded(dbPath);
+		updateDBIfNeeded(dbAgent.get());
 	}
 
 	if (!dbAgent->isTableExisting(TABLE_NAME_REPLICA_GENERATION)) {
@@ -1579,20 +1578,20 @@ void DBClientZabbix::tableInitializerSystem(DBAgent *dbAgent, void *data)
 	dbAgent->insert(insArg);
 }
 
-void DBClientZabbix::updateDBIfNeeded(const string &dbPath)
+void DBClientZabbix::updateDBIfNeeded(DBAgent *dbAgent)
 {
-	if (getDBVersion(dbPath) == DB_VERSION)
+	if (getDBVersion(dbAgent) == DB_VERSION)
 		return;
 	THROW_ASURA_EXCEPTION("Not implemented: %s", __PRETTY_FUNCTION__);
 }
 
-int DBClientZabbix::getDBVersion(const string &dbPath)
+int DBClientZabbix::getDBVersion(DBAgent *dbAgent)
 {
 	DBAgentSelectArg arg;
 	arg.tableName = TABLE_NAME_SYSTEM;
 	arg.columnDefs = COLUMN_DEF_SYSTEM;
 	arg.columnIndexes.push_back(IDX_SYSTEM_VERSION);
-	DBAgentSQLite3::select(dbPath, arg);
+	dbAgent->select(arg);
 
 	const ItemGroupList &itemGroupList = arg.dataTable->getItemGroupList();
 	ASURA_ASSERT(

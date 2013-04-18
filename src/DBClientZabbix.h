@@ -60,8 +60,9 @@ protected:
 	   const ColumnDef *columnDefs,
 	   CreateTableInitializer initializer = NULL, void *data = NULL);
 	static void tableInitializerSystem(DBAgent *dbAgent, void *data);
-	static void updateDBIfNeeded(const string &dbPath);
-	static int getDBVersion(const string &dbPath);
+	static void updateDBIfNeeded(DBAgent *dbAgent);
+	static int getDBVersion(DBAgent *dbAgent);
+
 	void prepareSetupFuncCallback(size_t zabbixServerId);
 	int getLatestGenerationId(void);
 	int updateReplicaGeneration(int replicaTargetId);
