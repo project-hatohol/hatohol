@@ -817,8 +817,9 @@ void DBAgentSQLite3::select(sqlite3 *db, DBAgentSelectArg &selectArg)
 	result = sqlite3_prepare(db, sql.c_str(), sql.size(), &stmt, NULL);
 	if (result != SQLITE_OK) {
 		sqlite3_finalize(stmt);
-		THROW_ASURA_EXCEPTION("Failed to call sqlite3_prepare(): %d",
-		                      result);
+		THROW_ASURA_EXCEPTION(
+		  "Failed to call sqlite3_prepare(): %d, %s",
+		  result, sql.c_str());
 	}
 
 	sqlite3_reset(stmt);
@@ -873,8 +874,9 @@ void DBAgentSQLite3::select(sqlite3 *db, DBAgentSelectExArg &selectExArg)
 	result = sqlite3_prepare(db, sql.c_str(), sql.size(), &stmt, NULL);
 	if (result != SQLITE_OK) {
 		sqlite3_finalize(stmt);
-		THROW_ASURA_EXCEPTION("Failed to call sqlite3_prepare(): %d",
-		                      result);
+		THROW_ASURA_EXCEPTION(
+		  "Failed to call sqlite3_prepare(): %d, %s",
+		  result, sql.c_str());
 	}
 
 	sqlite3_reset(stmt);
