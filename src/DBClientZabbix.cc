@@ -1522,19 +1522,6 @@ void DBClientZabbix::dbSetupFunc(DBDomainId domainId, void *data)
 	}
 }
 
-void DBClientZabbix::createTable
-  (DBAgent *dbAgent, const string &tableName, size_t numColumns,
-   const ColumnDef *columnDefs, CreateTableInitializer initializer, void *data)
-{
-	DBAgentTableCreationArg arg;
-	arg.tableName  = tableName;
-	arg.numColumns = numColumns;
-	arg.columnDefs = columnDefs;
-	dbAgent->createTable(arg);
-	if (initializer)
-		(*initializer)(dbAgent, data);
-}
-
 void DBClientZabbix::tableInitializerSystem(DBAgent *dbAgent, void *data)
 {
 	// insert default value

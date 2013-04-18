@@ -26,6 +26,15 @@ public:
 	virtual ~DBClient();
 
 protected:
+	typedef void (*CreateTableInitializer)(DBAgent *, void *);
+
+	// static methods
+	static void createTable
+	  (DBAgent *dbAgent, const string &tableName, size_t numColumns,
+	   const ColumnDef *columnDefs,
+	   CreateTableInitializer initializer = NULL, void *data = NULL);
+
+	// non-static methods
 	void setDBAgent(DBAgent *dbAgent);
 	DBAgent *getDBAgent(void) const;
 

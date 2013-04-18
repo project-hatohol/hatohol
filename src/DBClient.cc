@@ -63,6 +63,22 @@ DBClient::~DBClient()
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
+
+// static methods
+void DBClient::createTable
+  (DBAgent *dbAgent, const string &tableName, size_t numColumns,
+   const ColumnDef *columnDefs, CreateTableInitializer initializer, void *data)
+{
+	DBAgentTableCreationArg arg;
+	arg.tableName  = tableName;
+	arg.numColumns = numColumns;
+	arg.columnDefs = columnDefs;
+	dbAgent->createTable(arg);
+	if (initializer)
+		(*initializer)(dbAgent, data);
+}
+
+// non-static methods
 void DBClient::setDBAgent(DBAgent *dbAgent)
 {
 	m_ctx->dbAgent = dbAgent;
