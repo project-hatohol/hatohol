@@ -1391,8 +1391,7 @@ void DBClientZabbix::addTriggersRaw2_0(ItemTablePtr tablePtr)
 		   TABLE_NAME_TRIGGERS_RAW_2_0,
 		   COLUMN_DEF_TRIGGERS_RAW_2_0,
 		   IDX_TRIG_RAW_2_0_GENERATION_ID);
-	}
-	DBCLIENT_TRANSACTION_END();
+	} DBCLIENT_TRANSACTION_END();
 }
 
 void DBClientZabbix::addFunctionsRaw2_0(ItemTablePtr tablePtr)
@@ -1409,8 +1408,7 @@ void DBClientZabbix::addFunctionsRaw2_0(ItemTablePtr tablePtr)
 		   TABLE_NAME_FUNCTIONS_RAW_2_0,
 		   COLUMN_DEF_FUNCTIONS_RAW_2_0,
 		   IDX_FUNC_RAW_2_0_GENERATION_ID);
-	}
-	DBCLIENT_TRANSACTION_END();
+	} DBCLIENT_TRANSACTION_END();
 }
 
 void DBClientZabbix::addItemsRaw2_0(ItemTablePtr tablePtr)
@@ -1427,8 +1425,7 @@ void DBClientZabbix::addItemsRaw2_0(ItemTablePtr tablePtr)
 		   TABLE_NAME_ITEMS_RAW_2_0,
 		   COLUMN_DEF_ITEMS_RAW_2_0,
 		   IDX_ITEM_RAW_2_0_GENERATION_ID);
-	}
-	DBCLIENT_TRANSACTION_END();
+	} DBCLIENT_TRANSACTION_END();
 }
 
 void DBClientZabbix::addHostsRaw2_0(ItemTablePtr tablePtr)
@@ -1445,8 +1442,7 @@ void DBClientZabbix::addHostsRaw2_0(ItemTablePtr tablePtr)
 		   TABLE_NAME_HOSTS_RAW_2_0,
 		   COLUMN_DEF_HOSTS_RAW_2_0,
 		   IDX_HOST_RAW_2_0_GENERATION_ID);
-	}
-	DBCLIENT_TRANSACTION_END();
+	} DBCLIENT_TRANSACTION_END();
 }
 
 // ---------------------------------------------------------------------------
