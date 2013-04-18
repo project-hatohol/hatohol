@@ -22,8 +22,8 @@
 
 class DBClient {
 public:
-	typedef void (*CreateTableInitializer)(DBAgent *, void *);
-	typedef void (*DBUpdater)(DBAgent *, void *, int oldVer);
+	typedef void (*CreateTableInitializer)(DBAgent *, void *data);
+	typedef void (*DBUpdater)(DBAgent *, int oldVer, void *data);
 
 	struct DBSetupTableInfo {
 		const char            *name;

@@ -147,7 +147,7 @@ void DBClient::updateDBIfNeeded(DBAgent *dbAgent, DBSetupFuncArg *setupFuncArg)
 	dbVersion = getDBVersion(dbAgent, columnDef);
 	if (dbVersion != setupFuncArg->version) {
 		void *data = setupFuncArg->dbUpdaterData;
-		(*setupFuncArg->dbUpdater)(dbAgent, data, dbVersion);
+		(*setupFuncArg->dbUpdater)(dbAgent, dbVersion, data);
 	}
 }
 
