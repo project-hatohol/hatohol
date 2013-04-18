@@ -180,26 +180,27 @@ void DBClient::dbSetupFunc(DBDomainId domainId, void *data)
 {
 	DBSetupFuncArg *setupFuncArg = static_cast<DBSetupFuncArg *>(data);
 	bool skipSetup = true;
-	auto_ptr<DBAgent> dbAgent(DBAgentFactory::create(domainId, skipSetup));
-	if (!dbAgent->isTableExisting(TABLE_NAME_DBCLIENT)) {
-		createTable(dbAgent.get(),
+	auto_ptr<DBAgent> rawDBAgent(DBAgentFactory::create(domainId,
+	                                                    skipSetup));
+	if (!rawDBAgent->isTableExisting(TABLE_NAME_DBCLIENT)) {
+		createTable(rawDBAgent.get(),
 		            TABLE_NAME_DBCLIENT, NUM_COLUMNS_DBCLIENT,
 		            COLUMN_DEF_DBCLIENT, tableInitializerDBClient,
 		            setupFuncArg);
 	} else {
-		updateDBIfNeeded(dbAgent.get(), setupFuncArg);
+		updateDBIfNeeded(rawDBAgent.get(), setupFuncArg);
 	}
 
 	for (size_t i = 0; i < setupFuncArg->numTableInfo; i++) {
 		const DBSetupTableInfo &tableInfo
 		  = setupFuncArg->tableInfoArray[i];
-		if (dbAgent->isTableExisting(tableInfo.name))
+		if (rawDBAgent->isTableExisting(tableInfo.name))
 			continue;
-		createTable(dbAgent.get(), tableInfo.name,
+		createTable(rawDBAgent.get(), tableInfo.name,
 		            tableInfo.numColumns, tableInfo.columnDefs);
 		if (!tableInfo.initializer)
 			continue;
-		(*tableInfo.initializer)(dbAgent.get(),
+		(*tableInfo.initializer)(rawDBAgent.get(),
 	                                 tableInfo.initializerData);
 	}
 }
