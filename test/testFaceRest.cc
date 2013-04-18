@@ -17,6 +17,7 @@ static JsonParserAgent *g_parser = NULL;
 static void startFaceRest(const string &testDBName)
 {
 	string dbPath = getFixturesDir() + testDBName;
+	// TODO: remove the direct call of DBAgentSQLite3's API.
 	DBAgentSQLite3::defineDBPath(DefaultDBDomainId, dbPath);
 
 	CommandLineArg arg;
