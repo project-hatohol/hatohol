@@ -1403,7 +1403,7 @@ DBClientZabbix::DBClientZabbix(size_t zabbixServerId)
 	}
 	m_ctx->unlock();
 
-	DBDomainId domainId = DBDomainIDZabbixRawOffset + zabbixServerId;
+	DBDomainId domainId = DB_DOMAIN_ID_OFFSET_ZABBIX + zabbixServerId;
 	m_ctx->dbAgent = DBAgentFactory::create(domainId);
 }
 
@@ -1597,7 +1597,7 @@ int DBClientZabbix::getDBVersion(DBAgent *dbAgent)
 //
 void DBClientZabbix::prepareSetupFuncCallback(size_t zabbixServerId)
 {
-	DBDomainId domainId = DBDomainIDZabbixRawOffset + zabbixServerId;
+	DBDomainId domainId = DB_DOMAIN_ID_OFFSET_ZABBIX + zabbixServerId;
 	DBAgent::addSetupFunction(domainId, dbSetupFunc);
 	DBAgentSQLite3::defineDBPath(domainId, getDBPath(zabbixServerId));
 }
