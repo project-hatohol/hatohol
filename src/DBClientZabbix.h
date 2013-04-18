@@ -18,9 +18,9 @@
 #ifndef DBClientZabbix_h
 #define DBClientZabbix_h
 
-#include "DBAgent.h"
+#include "DBClient.h"
 
-class DBClientZabbix {
+class DBClientZabbix : public DBClient {
 public:
 	enum {
 		REPLICA_GENERATION_TARGET_ID_TRIGGER,

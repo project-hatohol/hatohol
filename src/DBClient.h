@@ -15,15 +15,15 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef DBClientAsura_h
-#define DBClientAsura_h
+#ifndef DBClient_h
+#define DBClient_h
 
-#include "DBClient.h"
+#include "DBAgent.h"
 
-class DBClientAsura : public DBClient {
+class DBClient {
 public:
-	DBClientAsura(void);
-	virtual ~DBClientAsura();
+	DBClient(void);
+	virtual ~DBClient();
 
 protected:
 
@@ -32,4 +32,4 @@ private:
 	PrivateContext *m_ctx;
 };
 
-#endif // DBClientAsura_h
+#endif // DBClient_h
