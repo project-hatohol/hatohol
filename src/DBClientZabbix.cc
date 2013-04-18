@@ -1598,8 +1598,7 @@ int DBClientZabbix::getDBVersion(DBAgent *dbAgent)
 void DBClientZabbix::prepareSetupFuncCallback(size_t zabbixServerId)
 {
 	DBDomainId domainId = DBDomainIDZabbixRawOffset + zabbixServerId;
-	DBAgent::addSetupFunction(DBDomainIDZabbixRawOffset + zabbixServerId,
-	                          dbSetupFunc);
+	DBAgent::addSetupFunction(domainId, dbSetupFunc);
 	DBAgentSQLite3::defineDBPath(domainId, getDBPath(zabbixServerId));
 }
 
