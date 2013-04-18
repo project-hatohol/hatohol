@@ -20,13 +20,17 @@
 struct DBClient::PrivateContext
 {
 	static GMutex mutex;
+	DBAgent      *dbAgent;
 
 	PrivateContext(void)
+	: dbAgent(NULL)
 	{
 	}
 
 	virtual ~PrivateContext()
 	{
+		if (dbAgent)
+			delete dbAgent;
 	}
 
 	static void lock(void)
@@ -59,3 +63,12 @@ DBClient::~DBClient()
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
+void DBClient::setDBAgent(DBAgent *dbAgent)
+{
+	m_ctx->dbAgent = dbAgent;
+}
+
+DBAgent *DBClient::getDBAgent(void) const
+{
+	return m_ctx->dbAgent;
+}

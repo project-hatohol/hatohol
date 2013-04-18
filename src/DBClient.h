@@ -26,6 +26,8 @@ public:
 	virtual ~DBClient();
 
 protected:
+	void setDBAgent(DBAgent *dbAgent);
+	DBAgent *getDBAgent(void) const;
 
 private:
 	struct PrivateContext;

@@ -25,15 +25,15 @@
 #include "ItemTableUtils.h"
 
 #define TRANSACTION_BEGIN() \
-	m_ctx->dbAgent->begin(); \
+	getDBAgent()->begin(); \
 	try
 
 #define TRANSACTION_END() \
 	catch (...) { \
-		m_ctx->dbAgent->rollback(); \
+		getDBAgent()->rollback(); \
 		throw; \
 	} \
-	m_ctx->dbAgent->commit()
+	getDBAgent()->commit()
 
 const int DBClientZabbix::DB_VERSION = 2;
 const int DBClientZabbix::NUM_PRESERVED_GENRATIONS_TRIGGERS = 3;
@@ -1326,18 +1326,14 @@ struct DBClientZabbix::PrivateContext
 {
 	static GMutex mutex;
 	static bool   dbInitializedFlags[NumMaxZabbixServers];
-	DBAgent *dbAgent;
 
 	// methods
 	PrivateContext(void)
-	: dbAgent(NULL)
 	{
 	}
 
 	~PrivateContext()
 	{
-		if (dbAgent)
-			delete dbAgent;
 	}
 
 	static void lock(void)
@@ -1396,7 +1392,7 @@ DBClientZabbix::DBClientZabbix(size_t zabbixServerId)
 		m_ctx->dbInitializedFlags[zabbixServerId] = true;
 	}
 	DBDomainId domainId = DB_DOMAIN_ID_OFFSET_ZABBIX + zabbixServerId;
-	m_ctx->dbAgent = DBAgentFactory::create(domainId);
+	setDBAgent(DBAgentFactory::create(domainId));
 	m_ctx->unlock();
 }
 
@@ -1605,7 +1601,7 @@ int DBClientZabbix::getLatestGenerationId(void)
 	arg.orderBy = columnDefReplicaGenId.columnName;
 	arg.orderBy += " DESC";
 	arg.limit = 1;
-	m_ctx->dbAgent->select(arg);
+	getDBAgent()->select(arg);
 
 	const ItemGroupList &itemGroupList = arg.dataTable->getItemGroupList();
 	if (itemGroupList.empty())
@@ -1640,7 +1636,7 @@ int DBClientZabbix::updateReplicaGeneration(int replicaTargetId)
 	insertArg.row->add(new ItemInt(newId), false);
 	insertArg.row->add(new ItemUint64(currTime), false);
 	insertArg.row->add(new ItemInt(replicaTargetId), false);
-	m_ctx->dbAgent->insert(insertArg);
+	getDBAgent()->insert(insertArg);
 
 	// update the latest generation
 	DBAgentUpdateArg updateArg;
@@ -1650,7 +1646,7 @@ int DBClientZabbix::updateReplicaGeneration(int replicaTargetId)
 	   REPLICA_TARGET_ID_SYSTEM_LATEST_COLUMNS_MAP[replicaTargetId];
 	updateArg.columnIndexes.push_back(columnIdx);
 	updateArg.row->add(new ItemInt(newId), false);
-	m_ctx->dbAgent->update(updateArg);
+	getDBAgent()->update(updateArg);
 
 	return newId;
 }
@@ -1674,7 +1670,7 @@ void DBClientZabbix::addReplicatedItems(
 		arg.row->add(new ItemInt(generationId), false);
 		for (size_t i = 0; i < itemGroup->getNumberOfItems(); i++)
 			arg.row->add(itemGroup->getItemAt(i));
-		m_ctx->dbAgent->insert(arg);
+		getDBAgent()->insert(arg);
 	}
 }
 
@@ -1693,7 +1689,7 @@ void DBClientZabbix::deleteOldReplicatedItems
 	const ColumnDef &columnDefGenId = columnDefs[generationIdIdx];
 	deleteArg.condition =
 	   StringUtils::sprintf("%s<=%d", columnDefGenId.columnName, startId);
-	m_ctx->dbAgent->deleteRows(deleteArg);
+	getDBAgent()->deleteRows(deleteArg);
 
 	// delete unncessary rows from the replica generation table
 	DBAgentDeleteArg argGen;
@@ -1707,7 +1703,7 @@ void DBClientZabbix::deleteOldReplicatedItems
 	                     columnDefReplicaGenId.columnName, startId,
 	                     columnDefReplicaTargetId.columnName,
 	                     replicaTargetId);
-	m_ctx->dbAgent->deleteRows(argGen);
+	getDBAgent()->deleteRows(argGen);
 }
 
 int DBClientZabbix::getStartIdToRemove(int replicaTargetId)
@@ -1730,7 +1726,7 @@ int DBClientZabbix::getStartIdToRemove(int replicaTargetId)
 	arg.limit = 1;
 	ConfigManager *confMgr = ConfigManager::getInstance();
 	arg.offset = confMgr->getNumberOfPreservedReplicaGeneration();
-	m_ctx->dbAgent->select(arg);
+	getDBAgent()->select(arg);
 	if (arg.dataTable->getItemGroupList().empty())
 		return REPLICA_GENERATION_NONE;
 
