@@ -55,10 +55,6 @@ protected:
 	  (DBAgent *dbAgent, const string &tableName, size_t numColumns,
 	   const ColumnDef *columnDefs,
 	   CreateTableInitializer initializer = NULL, void *data = NULL);
-	static void createTable
-	  (const string &dbPath, const string &tableName, size_t numColumns,
-	   const ColumnDef *columnDefs,
-	   CreateTableInitializer initializer = NULL, void *data = NULL);
 	static void tableInitializerSystem(DBAgent *dbAgent, void *data);
 	static void updateDBIfNeeded(DBAgent *dbAgent);
 	static int getDBVersion(DBAgent *dbAgent);

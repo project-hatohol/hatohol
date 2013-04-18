@@ -1534,23 +1534,6 @@ void DBClientZabbix::dbSetupFunc(DBDomainId domainId)
 }
 
 void DBClientZabbix::createTable
-  (const string &dbPath, const string &tableName, size_t numColumns,
-   const ColumnDef *columnDefs, CreateTableInitializer initializer, void *data)
-{
-	// NOTE: This functions will be removed after code that explitly uses
-	//       SQLite3's static methods is removed.
-	DBAgentTableCreationArg arg;
-	arg.tableName  = tableName;
-	arg.numColumns = numColumns;
-	arg.columnDefs = columnDefs;
-	DBAgentSQLite3::createTable(dbPath, arg);
-
-	// This won't work, but noproblem (nobody use this)
-	if (initializer)
-		(*initializer)(NULL, data); // This won't work, but nobody use
-}
-
-void DBClientZabbix::createTable
   (DBAgent *dbAgent, const string &tableName, size_t numColumns,
    const ColumnDef *columnDefs, CreateTableInitializer initializer, void *data)
 {
