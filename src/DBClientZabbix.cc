@@ -15,6 +15,8 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <memory>
+
 #include "DBAgentSQLite3.h"
 #include "DBAgentFactory.h"
 #include "DBClientZabbix.h"
@@ -1490,9 +1492,9 @@ void DBClientZabbix::dbSetupFunc(DBDomainId domainId)
 {
 	const string dbPath = DBAgentSQLite3::findDBPath(domainId);
 	bool skipSetup = true;
-	DBAgent *dbAgent = DBAgentFactory::create(domainId, skipSetup);
+	auto_ptr<DBAgent> dbAgent(DBAgentFactory::create(domainId, skipSetup));
 	if (!dbAgent->isTableExisting(TABLE_NAME_SYSTEM)) {
-		createTable(dbAgent,
+		createTable(dbAgent.get(),
 		            TABLE_NAME_SYSTEM, NUM_COLUMNS_SYSTEM,
 		            COLUMN_DEF_SYSTEM, tableInitializerSystem);
 	} else {
