@@ -5,7 +5,7 @@ lib_LTLIBRARIES = libasura.la
 libasura_la_SOURCES = \
 	Asura.cc AsuraThreadBase.cc AsuraException.cc \
 	ConfigManager.cc DBAgent.cc DBAgentFactory.cc DBAgentSQLite3.cc \
-	DBClientZabbix.cc \
+	DBClientAsura.cc DBClientZabbix.cc \
 	Utils.cc FaceBase.cc FaceMySQL.cc FaceMySQLWorker.cc \
 	FaceRest.cc \
 	SQLProcessorTypes.cc SQLProcessorException.cc SQLUtils.cc \
