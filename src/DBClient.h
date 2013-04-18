@@ -30,6 +30,7 @@ protected:
 	DBAgent *getDBAgent(void) const;
 
 	virtual void insert(DBAgentInsertArg &insertArg);
+	virtual void update(DBAgentUpdateArg &updateArg);
 
 private:
 	struct PrivateContext;

@@ -77,3 +77,8 @@ void DBClient::insert(DBAgentInsertArg &insertArg)
 {
 	getDBAgent()->insert(insertArg);
 }
+
+void DBClient::update(DBAgentUpdateArg &updateArg)
+{
+	getDBAgent()->update(updateArg);
+}

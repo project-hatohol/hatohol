@@ -1646,7 +1646,7 @@ int DBClientZabbix::updateReplicaGeneration(int replicaTargetId)
 	   REPLICA_TARGET_ID_SYSTEM_LATEST_COLUMNS_MAP[replicaTargetId];
 	updateArg.columnIndexes.push_back(columnIdx);
 	updateArg.row->add(new ItemInt(newId), false);
-	getDBAgent()->update(updateArg);
+	update(updateArg);
 
 	return newId;
 }
