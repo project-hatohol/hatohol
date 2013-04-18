@@ -1508,30 +1508,26 @@ void DBClientZabbix::dbSetupFunc(DBDomainId domainId)
 		            COLUMN_DEF_REPLICA_GENERATION);
 	}
 
-	if (!DBAgentSQLite3::isTableExisting(dbPath,
-	                                     TABLE_NAME_TRIGGERS_RAW_2_0)) {
-		createTable(dbPath,
+	if (!dbAgent->isTableExisting(TABLE_NAME_TRIGGERS_RAW_2_0)) {
+		createTable(dbAgent.get(),
 		            TABLE_NAME_TRIGGERS_RAW_2_0,
 		            NUM_COLUMNS_TRIGGERS_RAW_2_0,
 		            COLUMN_DEF_TRIGGERS_RAW_2_0);
 	}
-	if (!DBAgentSQLite3::isTableExisting(dbPath,
-	                                     TABLE_NAME_FUNCTIONS_RAW_2_0)) {
-		createTable(dbPath,
+	if (!dbAgent->isTableExisting(TABLE_NAME_FUNCTIONS_RAW_2_0)) {
+		createTable(dbAgent.get(),
 		            TABLE_NAME_FUNCTIONS_RAW_2_0,
 		            NUM_COLUMNS_FUNCTIONS_RAW_2_0,
 		            COLUMN_DEF_FUNCTIONS_RAW_2_0);
 	}
-	if (!DBAgentSQLite3::isTableExisting(dbPath,
-	                                     TABLE_NAME_ITEMS_RAW_2_0)) {
-		createTable(dbPath,
+	if (!dbAgent->isTableExisting(TABLE_NAME_ITEMS_RAW_2_0)) {
+		createTable(dbAgent.get(),
 		            TABLE_NAME_ITEMS_RAW_2_0,
 		            NUM_COLUMNS_ITEMS_RAW_2_0,
 		            COLUMN_DEF_ITEMS_RAW_2_0);
 	}
-	if (!DBAgentSQLite3::isTableExisting(dbPath,
-	                                     TABLE_NAME_HOSTS_RAW_2_0)) {
-		createTable(dbPath,
+	if (!dbAgent->isTableExisting(TABLE_NAME_HOSTS_RAW_2_0)) {
+		createTable(dbAgent.get(),
 		            TABLE_NAME_HOSTS_RAW_2_0,
 		            NUM_COLUMNS_HOSTS_RAW_2_0,
 		            COLUMN_DEF_HOSTS_RAW_2_0);
