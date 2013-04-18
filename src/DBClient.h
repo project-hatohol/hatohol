@@ -32,6 +32,7 @@ protected:
 	virtual void insert(DBAgentInsertArg &insertArg);
 	virtual void update(DBAgentUpdateArg &updateArg);
 	virtual void select(DBAgentSelectArg &selectArg);
+	virtual void select(DBAgentSelectExArg &selectExArg);
 
 private:
 	struct PrivateContext;

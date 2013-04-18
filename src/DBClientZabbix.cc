@@ -1601,7 +1601,7 @@ int DBClientZabbix::getLatestGenerationId(void)
 	arg.orderBy = columnDefReplicaGenId.columnName;
 	arg.orderBy += " DESC";
 	arg.limit = 1;
-	getDBAgent()->select(arg);
+	select(arg);
 
 	const ItemGroupList &itemGroupList = arg.dataTable->getItemGroupList();
 	if (itemGroupList.empty())
@@ -1726,7 +1726,7 @@ int DBClientZabbix::getStartIdToRemove(int replicaTargetId)
 	arg.limit = 1;
 	ConfigManager *confMgr = ConfigManager::getInstance();
 	arg.offset = confMgr->getNumberOfPreservedReplicaGeneration();
-	getDBAgent()->select(arg);
+	select(arg);
 	if (arg.dataTable->getItemGroupList().empty())
 		return REPLICA_GENERATION_NONE;
 

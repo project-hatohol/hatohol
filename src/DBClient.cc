@@ -87,3 +87,8 @@ void DBClient::select(DBAgentSelectArg &selectArg)
 {
 	getDBAgent()->select(selectArg);
 }
+
+void DBClient::select(DBAgentSelectExArg &selectExArg)
+{
+	getDBAgent()->select(selectExArg);
+}
