@@ -1636,7 +1636,7 @@ int DBClientZabbix::updateReplicaGeneration(int replicaTargetId)
 	insertArg.row->add(new ItemInt(newId), false);
 	insertArg.row->add(new ItemUint64(currTime), false);
 	insertArg.row->add(new ItemInt(replicaTargetId), false);
-	getDBAgent()->insert(insertArg);
+	insert(insertArg);
 
 	// update the latest generation
 	DBAgentUpdateArg updateArg;
@@ -1670,7 +1670,7 @@ void DBClientZabbix::addReplicatedItems(
 		arg.row->add(new ItemInt(generationId), false);
 		for (size_t i = 0; i < itemGroup->getNumberOfItems(); i++)
 			arg.row->add(itemGroup->getItemAt(i));
-		getDBAgent()->insert(arg);
+		insert(arg);
 	}
 }
 

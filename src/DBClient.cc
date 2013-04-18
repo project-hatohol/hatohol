@@ -72,3 +72,8 @@ DBAgent *DBClient::getDBAgent(void) const
 {
 	return m_ctx->dbAgent;
 }
+
+void DBClient::insert(DBAgentInsertArg &insertArg)
+{
+	getDBAgent()->insert(insertArg);
+}

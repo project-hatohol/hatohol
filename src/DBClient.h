@@ -29,6 +29,8 @@ protected:
 	void setDBAgent(DBAgent *dbAgent);
 	DBAgent *getDBAgent(void) const;
 
+	virtual void insert(DBAgentInsertArg &insertArg);
+
 private:
 	struct PrivateContext;
 	PrivateContext *m_ctx;
