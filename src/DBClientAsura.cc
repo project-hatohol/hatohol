@@ -34,6 +34,7 @@ struct DBClientAsura::PrivateContext
 		g_mutex_unlock(&mutex);
 	}
 };
+GMutex DBClientAsura::PrivateContext::mutex;
 
 // ---------------------------------------------------------------------------
 // Public methods
