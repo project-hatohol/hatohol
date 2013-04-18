@@ -17,7 +17,6 @@
 
 #include <memory>
 
-#include "DBAgentSQLite3.h"
 #include "DBAgentFactory.h"
 #include "DBClientZabbix.h"
 #include "ItemEnum.h"
@@ -1369,16 +1368,6 @@ void DBClientZabbix::init(void)
 	  NUM_REPLICA_GENERATION_TARGET_ID);
 }
 
-string DBClientZabbix::getDBPath(size_t zabbixServerId)
-{
-	ConfigManager *configMgr = ConfigManager::getInstance();
-	const string &dbDirectory = configMgr->getDatabaseDirectory();
-	string dbPath =
-	  StringUtils::sprintf("%s/DBClientZabbix-%d.db",
-	                       dbDirectory.c_str(), zabbixServerId);
-	return dbPath;
-}
-
 DBDomainId DBClientZabbix::getDBDomainId(int zabbixServerId)
 {
 	return DB_DOMAIN_ID_OFFSET_ZABBIX + zabbixServerId;
@@ -1402,7 +1391,7 @@ DBClientZabbix::DBClientZabbix(size_t zabbixServerId)
 	m_ctx->lock();
 	if (!m_ctx->dbInitializedFlags[zabbixServerId]) {
 		// The setup function: dbSetupFunc() is called from
-		// the constructor of DBAgentSQLite3() below.
+		// the creation of DBAgent instance below.
 		prepareSetupFuncCallback(zabbixServerId);
 		m_ctx->dbInitializedFlags[zabbixServerId] = true;
 	}
@@ -1604,7 +1593,6 @@ void DBClientZabbix::prepareSetupFuncCallback(size_t zabbixServerId)
 {
 	DBDomainId domainId = getDBDomainId(zabbixServerId);
 	DBAgent::addSetupFunction(domainId, dbSetupFunc);
-	DBAgentSQLite3::defineDBPath(domainId, getDBPath(zabbixServerId));
 }
 
 int DBClientZabbix::getLatestGenerationId(void)

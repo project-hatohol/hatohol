@@ -2,6 +2,7 @@
 #include <unistd.h>
 #include "Helpers.h"
 #include "DBClientZabbix.h"
+#include "DBAgentSQLite3.h"
 
 void _assertStringVector(StringVector &expected, StringVector &actual)
 {
@@ -87,7 +88,8 @@ bool isVerboseMode(void)
 
 string deleteDBClientZabbixDB(int serverId)
 {
-	string dbPath = DBClientZabbix::getDBPath(serverId);
+	DBDomainId domainId = DBClientZabbix::getDBDomainId(serverId);
+	string dbPath = DBAgentSQLite3::getDBPath(domainId);
 	unlink(dbPath.c_str());
 	cut_assert_not_exist_path(dbPath.c_str());
 	return dbPath;
@@ -95,7 +97,8 @@ string deleteDBClientZabbixDB(int serverId)
 
 string execSqlite3ForDBClientZabbix(int serverId, const string &statement)
 {
-	string dbPath = DBClientZabbix::getDBPath(serverId);
+	DBDomainId domainId = DBClientZabbix::getDBDomainId(serverId);
+	string dbPath = DBAgentSQLite3::getDBPath(domainId);
 	cut_assert_exist_path(dbPath.c_str());
 	string commandLine =
 	  StringUtils::sprintf("sqlite3 %s \"%s\"",

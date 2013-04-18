@@ -49,10 +49,8 @@ void test_createTableSystem(void)
 	assertCreateTable(svId, "system");
 
 	// check content
-	string dbPath = DBClientZabbix::getDBPath(svId);
-	string cmd = StringUtils::sprintf("sqlite3 %s \"select * from %s\"",
-	                                  dbPath.c_str(), "system");
-	string output = executeCommand(cmd);
+	string statement = "select * from system";
+	string output = execSqlite3ForDBClientZabbix(svId, statement);
 	string expectedOut =
 	   StringUtils::sprintf("%d|%d|%d|%d|%d\n",
 	                        DBClientZabbix::DB_VERSION,

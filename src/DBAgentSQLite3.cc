@@ -25,6 +25,7 @@ using namespace mlpl;
 
 #include "DBAgentSQLite3.h"
 #include "AsuraException.h"
+#include "ConfigManager.h"
 
 #include <inttypes.h>
 
@@ -97,6 +98,16 @@ DBDomainIdPathMap DBAgentSQLite3::PrivateContext::domainIdPathMap;
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
+string DBAgentSQLite3::getDBPath(DBDomainId domainId)
+{
+	ConfigManager *configMgr = ConfigManager::getInstance();
+	const string &dbDirectory = configMgr->getDatabaseDirectory();
+	string dbPath =
+	  StringUtils::sprintf("%s/DBClientZabbix-%d.db",
+	                       dbDirectory.c_str(), domainId);
+	return dbPath;
+}
+
 void DBAgentSQLite3::defineDBPath(DBDomainId domainId, const string &path)
 {
 	PrivateContext::lock();
@@ -149,12 +160,18 @@ void DBAgentSQLite3::defaultSetupFunc(DBDomainId domainId)
 
 const string &DBAgentSQLite3::findDBPath(DBDomainId domainId)
 {
+	string dbPath;
 	PrivateContext::lock();
 	DBDomainIdPathMapIterator it =
 	   PrivateContext::domainIdPathMap.find(domainId);
+	if (it == PrivateContext::domainIdPathMap.end()) {
+		string path = getDBPath(domainId);
+		pair<DBDomainIdPathMapIterator, bool> result =
+		  PrivateContext::domainIdPathMap.insert
+		    (pair<DBDomainId,string>(domainId, path));
+		it = result.first;
+	}
 	PrivateContext::unlock();
-	ASURA_ASSERT(it != PrivateContext::domainIdPathMap.end(),
-	             "Not found DBPath: %u", domainId);
 	return it->second;
 }
 

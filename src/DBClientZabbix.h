@@ -36,7 +36,6 @@ public:
 	static const int REPLICA_GENERATION_NONE;
 
 	static void init(void);
-	static string getDBPath(size_t zabbixServerId);
 	static DBDomainId getDBDomainId(int zabbixServerId);
 	static void resetDBInitializedFlags(void);
 
