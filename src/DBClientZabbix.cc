@@ -1379,6 +1379,11 @@ string DBClientZabbix::getDBPath(size_t zabbixServerId)
 	return dbPath;
 }
 
+DBDomainId DBClientZabbix::getDomainId(int zabbixServerId)
+{
+	return DB_DOMAIN_ID_OFFSET_ZABBIX + zabbixServerId;
+}
+
 void DBClientZabbix::resetDBInitializedFlags(void)
 {
 	// This function is mainly for test
@@ -1597,7 +1602,7 @@ int DBClientZabbix::getDBVersion(DBAgent *dbAgent)
 //
 void DBClientZabbix::prepareSetupFuncCallback(size_t zabbixServerId)
 {
-	DBDomainId domainId = DB_DOMAIN_ID_OFFSET_ZABBIX + zabbixServerId;
+	DBDomainId domainId = getDomainId(zabbixServerId);
 	DBAgent::addSetupFunction(domainId, dbSetupFunc);
 	DBAgentSQLite3::defineDBPath(domainId, getDBPath(zabbixServerId));
 }
