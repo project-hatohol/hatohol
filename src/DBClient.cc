@@ -50,6 +50,11 @@ static const ColumnDef COLUMN_DEF_DBCLIENT[] = {
 static const size_t NUM_COLUMNS_DBCLIENT =
   sizeof(COLUMN_DEF_DBCLIENT) / sizeof(ColumnDef);
 
+enum {
+	IDX_DBCLIENT_SELF_DB_VERSION,
+	IDX_DBCLIENT_VERSION,
+	NUM_IDX_DBCLIENT,
+};
 
 struct DBClient::PrivateContext
 {
@@ -128,7 +133,46 @@ void DBClient::tableInitializerDBClient(DBAgent *dbAgent, void *data)
 
 void DBClient::updateDBIfNeeded(DBAgent *dbAgent, DBSetupFuncArg *setupFuncArg)
 {
-	THROW_ASURA_EXCEPTION("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	// check the version for this class's database
+	const ColumnDef *columnDef =
+	 &COLUMN_DEF_DBCLIENT[IDX_DBCLIENT_SELF_DB_VERSION];
+	int dbVersion = getDBVersion(dbAgent, columnDef);
+	if (dbVersion != DBClient::DB_VERSION) {
+		THROW_ASURA_EXCEPTION("Not implemented: %s\n",
+		                      __PRETTY_FUNCTION__);
+	}
+
+	// check the version for this class's database
+	columnDef = &COLUMN_DEF_DBCLIENT[IDX_DBCLIENT_VERSION];
+	dbVersion = getDBVersion(dbAgent, columnDef);
+	if (dbVersion != setupFuncArg->version) {
+		void *data = setupFuncArg->dbUpdaterData;
+		(*setupFuncArg->dbUpdater)(dbAgent, data, dbVersion);
+	}
+}
+
+int DBClient::getDBVersion(DBAgent *dbAgent, const ColumnDef *columnDef)
+{
+	DBAgentSelectArg arg;
+	arg.tableName = columnDef->tableName;
+	arg.columnDefs = columnDef;
+	arg.columnIndexes.push_back(0);
+	dbAgent->select(arg);
+
+	const ItemGroupList &itemGroupList = arg.dataTable->getItemGroupList();
+	ASURA_ASSERT(
+	  itemGroupList.size() == 1,
+	  "itemGroupList.size(): %zd", itemGroupList.size());
+	ItemGroupListConstIterator it = itemGroupList.begin();
+	const ItemGroup *itemGroup = *it;
+	ASURA_ASSERT(
+	  itemGroup->getNumberOfItems() == 1,
+	  "itemGroup->getNumberOfItems: %zd", itemGroup->getNumberOfItems());
+	ItemInt *itemVersion =
+	  dynamic_cast<ItemInt *>(itemGroup->getItemAt(0));
+	ASURA_ASSERT(itemVersion != NULL, "type: itemVersion: %s\n",
+	             DEMANGLED_TYPE_NAME(*itemVersion));
+	return itemVersion->get();
 }
 
 // non-static methods

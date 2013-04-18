@@ -23,7 +23,7 @@
 class DBClient {
 public:
 	typedef void (*CreateTableInitializer)(DBAgent *, void *);
-	typedef void (*DBUpdater)(DBAgent *, void *);
+	typedef void (*DBUpdater)(DBAgent *, void *, int oldVer);
 
 	struct DBSetupTableInfo {
 		const char            *name;
@@ -55,6 +55,7 @@ protected:
 	static void tableInitializerDBClient(DBAgent *dbAgent, void *data);
 	static void updateDBIfNeeded(DBAgent *dbAgent,
 	                             DBSetupFuncArg *setupFuncArg);
+	static int getDBVersion(DBAgent *dbAgent, const ColumnDef *columnDef);
 
 	// non-static methods
 	static void dbSetupFunc(DBDomainId domainId, void *data);
