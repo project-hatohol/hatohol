@@ -22,17 +22,6 @@
 #include "ItemTableUtils.h"
 #include "DBAgentFactory.h"
 
-#define TRANSACTION_BEGIN() \
-	begin(); \
-	try
-
-#define TRANSACTION_END() \
-	catch (...) { \
-		rollback(); \
-		throw; \
-	} \
-	commit()
-
 const int DBClientZabbix::DB_VERSION = 2;
 const int DBClientZabbix::NUM_PRESERVED_GENRATIONS_TRIGGERS = 3;
 const int DBClientZabbix::REPLICA_GENERATION_NONE = -1;
@@ -1390,7 +1379,7 @@ DBClientZabbix::~DBClientZabbix()
 
 void DBClientZabbix::addTriggersRaw2_0(ItemTablePtr tablePtr)
 {
-	TRANSACTION_BEGIN() {
+	DBCLIENT_TRANSACTION_BEGIN() {
 		int newId = updateReplicaGeneration
 		              (REPLICA_GENERATION_TARGET_ID_TRIGGER);
 		addReplicatedItems(newId, tablePtr,
@@ -1403,12 +1392,12 @@ void DBClientZabbix::addTriggersRaw2_0(ItemTablePtr tablePtr)
 		   COLUMN_DEF_TRIGGERS_RAW_2_0,
 		   IDX_TRIG_RAW_2_0_GENERATION_ID);
 	}
-	TRANSACTION_END();
+	DBCLIENT_TRANSACTION_END();
 }
 
 void DBClientZabbix::addFunctionsRaw2_0(ItemTablePtr tablePtr)
 {
-	TRANSACTION_BEGIN() {
+	DBCLIENT_TRANSACTION_BEGIN() {
 		int newId = updateReplicaGeneration
 		              (REPLICA_GENERATION_TARGET_ID_FUNCTION);
 		addReplicatedItems(newId, tablePtr,
@@ -1421,12 +1410,12 @@ void DBClientZabbix::addFunctionsRaw2_0(ItemTablePtr tablePtr)
 		   COLUMN_DEF_FUNCTIONS_RAW_2_0,
 		   IDX_FUNC_RAW_2_0_GENERATION_ID);
 	}
-	TRANSACTION_END();
+	DBCLIENT_TRANSACTION_END();
 }
 
 void DBClientZabbix::addItemsRaw2_0(ItemTablePtr tablePtr)
 {
-	TRANSACTION_BEGIN() {
+	DBCLIENT_TRANSACTION_BEGIN() {
 		int newId = updateReplicaGeneration
 		              (REPLICA_GENERATION_TARGET_ID_ITEM);
 		addReplicatedItems(newId, tablePtr,
@@ -1439,12 +1428,12 @@ void DBClientZabbix::addItemsRaw2_0(ItemTablePtr tablePtr)
 		   COLUMN_DEF_ITEMS_RAW_2_0,
 		   IDX_ITEM_RAW_2_0_GENERATION_ID);
 	}
-	TRANSACTION_END();
+	DBCLIENT_TRANSACTION_END();
 }
 
 void DBClientZabbix::addHostsRaw2_0(ItemTablePtr tablePtr)
 {
-	TRANSACTION_BEGIN() {
+	DBCLIENT_TRANSACTION_BEGIN() {
 		int newId = updateReplicaGeneration
 		              (REPLICA_GENERATION_TARGET_ID_HOST);
 		addReplicatedItems(newId, tablePtr,
@@ -1457,7 +1446,7 @@ void DBClientZabbix::addHostsRaw2_0(ItemTablePtr tablePtr)
 		   COLUMN_DEF_HOSTS_RAW_2_0,
 		   IDX_HOST_RAW_2_0_GENERATION_ID);
 	}
-	TRANSACTION_END();
+	DBCLIENT_TRANSACTION_END();
 }
 
 // ---------------------------------------------------------------------------
