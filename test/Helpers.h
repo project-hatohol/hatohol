@@ -6,6 +6,7 @@
 using namespace mlpl;
 
 #include "ItemTable.h"
+#include "DBAgent.h"
 
 typedef pair<int,int>      IntIntPair;
 typedef vector<IntIntPair> IntIntPairVector;
@@ -48,6 +49,7 @@ extern void _assertExist(const string &target, const string &words);
 string executeCommand(const string &commandLine);
 string getFixturesDir(void);
 bool isVerboseMode(void);
+string deleteDBClientDB(DBDomainId domainId);
 string deleteDBClientZabbixDB(int serverId);
 string execSqlite3ForDBClientZabbix(int serverId, const string &statement);
 

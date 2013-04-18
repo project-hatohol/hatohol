@@ -86,14 +86,19 @@ bool isVerboseMode(void)
 	return verboseMode;
 }
 
-string deleteDBClientZabbixDB(int serverId)
+string deleteDBClientDB(DBDomainId domainId)
 {
-	DBDomainId domainId = DBClientZabbix::getDBDomainId(serverId);
 	// TODO: remove the direct call of DBAgentSQLite3's API.
 	string dbPath = DBAgentSQLite3::getDBPath(domainId);
 	unlink(dbPath.c_str());
 	cut_assert_not_exist_path(dbPath.c_str());
 	return dbPath;
+}
+
+string deleteDBClientZabbixDB(int serverId)
+{
+	DBDomainId domainId = DBClientZabbix::getDBDomainId(serverId);
+	return  deleteDBClientDB(domainId);
 }
 
 string execSqlite3ForDBClientZabbix(int serverId, const string &statement)
