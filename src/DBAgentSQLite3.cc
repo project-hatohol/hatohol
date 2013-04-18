@@ -105,7 +105,6 @@ string DBAgentSQLite3::getDefaultDBPath(DBDomainId domainId)
 	string dbPath =
 	  StringUtils::sprintf("%s/DBAgentSQLite3-%d.db",
 	                       dbDirectory.c_str(), domainId);
-	printf("***** dbPath: %s\n", dbPath.c_str());
 	return dbPath;
 }
 
@@ -238,7 +237,6 @@ DBAgentSQLite3::DBAgentSQLite3(DBDomainId domainId, bool skipSetup)
 	// We don't lock DB (use transaction) in the existence check of
 	m_ctx = new PrivateContext();
 	m_ctx->dbPath = findDBPath(domainId);
-	printf("domainId: %d, path: %s\n", domainId, m_ctx->dbPath.c_str());
 	openDatabase();
 }
 
