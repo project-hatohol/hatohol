@@ -1501,9 +1501,8 @@ void DBClientZabbix::dbSetupFunc(DBDomainId domainId)
 		updateDBIfNeeded(dbPath);
 	}
 
-	if (!DBAgentSQLite3::isTableExisting(dbPath,
-	                                     TABLE_NAME_REPLICA_GENERATION)) {
-		createTable(dbPath,
+	if (!dbAgent->isTableExisting(TABLE_NAME_REPLICA_GENERATION)) {
+		createTable(dbAgent.get(),
 		            TABLE_NAME_REPLICA_GENERATION,
 		            NUM_COLUMNS_REPLICA_GENERATION,
 		            COLUMN_DEF_REPLICA_GENERATION);
