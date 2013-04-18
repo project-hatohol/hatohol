@@ -37,7 +37,7 @@ public:
 
 	static void init(void);
 	static string getDBPath(size_t zabbixServerId);
-	static DBDomainId getDomainId(int zabbixServerId);
+	static DBDomainId getDBDomainId(int zabbixServerId);
 	static void resetDBInitializedFlags(void);
 
 	DBClientZabbix(size_t zabbixServerId);
