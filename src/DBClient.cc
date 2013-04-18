@@ -254,3 +254,9 @@ void DBClient::deleteRows(DBAgentDeleteArg &deleteArg)
 {
 	getDBAgent()->deleteRows(deleteArg);
 }
+
+bool DBClient::isRecordExisting(const string &tableName,
+                                const string &condition)
+{
+	return getDBAgent()->isRecordExisting(tableName, condition);
+}

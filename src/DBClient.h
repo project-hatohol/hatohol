@@ -71,6 +71,8 @@ protected:
 	void select(DBAgentSelectArg &selectArg);
 	void select(DBAgentSelectExArg &selectExArg);
 	void deleteRows(DBAgentDeleteArg &deleteArg);
+	bool isRecordExisting(const string &tableName,
+	                      const string &condition);
 
 private:
 	struct PrivateContext;
