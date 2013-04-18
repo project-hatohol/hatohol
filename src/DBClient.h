@@ -79,4 +79,15 @@ private:
 	PrivateContext *m_ctx;
 };
 
+#define DBCLIENT_TRANSACTION_BEGIN() \
+	begin(); \
+	try
+
+#define DBCLIENT_TRANSACTION_END() \
+	catch (...) { \
+		rollback(); \
+		throw; \
+	} \
+	commit()
+
 #endif // DBClient_h
