@@ -101,9 +101,8 @@ string deleteDBClientZabbixDB(int serverId)
 	return  deleteDBClientDB(domainId);
 }
 
-string execSqlite3ForDBClientZabbix(int serverId, const string &statement)
+string execSqlite3ForDBClient(DBDomainId domainId, const string &statement)
 {
-	DBDomainId domainId = DBClientZabbix::getDBDomainId(serverId);
 	// TODO: remove the direct call of DBAgentSQLite3's API.
 	string dbPath = DBAgentSQLite3::getDBPath(domainId);
 	cut_assert_exist_path(dbPath.c_str());
@@ -112,4 +111,10 @@ string execSqlite3ForDBClientZabbix(int serverId, const string &statement)
 	                       dbPath.c_str(), statement.c_str());
 	string result = executeCommand(commandLine);
 	return result;
+}
+
+string execSqlite3ForDBClientZabbix(int serverId, const string &statement)
+{
+	DBDomainId domainId = DBClientZabbix::getDBDomainId(serverId);
+	return execSqlite3ForDBClient(domainId, statement);
 }

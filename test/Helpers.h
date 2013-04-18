@@ -51,6 +51,7 @@ string getFixturesDir(void);
 bool isVerboseMode(void);
 string deleteDBClientDB(DBDomainId domainId);
 string deleteDBClientZabbixDB(int serverId);
+string execSqlite3ForDBClient(DBDomainId domainId, const string &statement);
 string execSqlite3ForDBClientZabbix(int serverId, const string &statement);
 
 #endif // Helpers_h
