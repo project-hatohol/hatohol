@@ -37,7 +37,7 @@ public:
 	 *                      is overwritten.
 	 * @path     A path of the database.
 	 */
-	static string getDBPath(DBDomainId domainId);
+	static string getDefaultDBPath(DBDomainId domainId);
 	static void defineDBPath(DBDomainId domainId, const string &path);
 	static void defaultSetupFunc(DBDomainId domainId, void *data);
 	static const string &findDBPath(DBDomainId domainId);

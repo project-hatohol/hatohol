@@ -98,13 +98,14 @@ DBDomainIdPathMap DBAgentSQLite3::PrivateContext::domainIdPathMap;
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
-string DBAgentSQLite3::getDBPath(DBDomainId domainId)
+string DBAgentSQLite3::getDefaultDBPath(DBDomainId domainId)
 {
 	ConfigManager *configMgr = ConfigManager::getInstance();
 	const string &dbDirectory = configMgr->getDatabaseDirectory();
 	string dbPath =
 	  StringUtils::sprintf("%s/DBAgentSQLite3-%d.db",
 	                       dbDirectory.c_str(), domainId);
+	printf("***** dbPath: %s\n", dbPath.c_str());
 	return dbPath;
 }
 
@@ -165,7 +166,7 @@ const string &DBAgentSQLite3::findDBPath(DBDomainId domainId)
 	DBDomainIdPathMapIterator it =
 	   PrivateContext::domainIdPathMap.find(domainId);
 	if (it == PrivateContext::domainIdPathMap.end()) {
-		string path = getDBPath(domainId);
+		string path = getDefaultDBPath(domainId);
 		pair<DBDomainIdPathMapIterator, bool> result =
 		  PrivateContext::domainIdPathMap.insert
 		    (pair<DBDomainId,string>(domainId, path));
@@ -237,6 +238,7 @@ DBAgentSQLite3::DBAgentSQLite3(DBDomainId domainId, bool skipSetup)
 	// We don't lock DB (use transaction) in the existence check of
 	m_ctx = new PrivateContext();
 	m_ctx->dbPath = findDBPath(domainId);
+	printf("domainId: %d, path: %s\n", domainId, m_ctx->dbPath.c_str());
 	openDatabase();
 }
 

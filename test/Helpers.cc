@@ -89,7 +89,7 @@ bool isVerboseMode(void)
 string deleteDBClientDB(DBDomainId domainId)
 {
 	// TODO: remove the direct call of DBAgentSQLite3's API.
-	string dbPath = DBAgentSQLite3::getDBPath(domainId);
+	string dbPath = DBAgentSQLite3::findDBPath(domainId);
 	unlink(dbPath.c_str());
 	cut_assert_not_exist_path(dbPath.c_str());
 	return dbPath;
@@ -104,7 +104,7 @@ string deleteDBClientZabbixDB(int serverId)
 string execSqlite3ForDBClient(DBDomainId domainId, const string &statement)
 {
 	// TODO: remove the direct call of DBAgentSQLite3's API.
-	string dbPath = DBAgentSQLite3::getDBPath(domainId);
+	string dbPath = DBAgentSQLite3::findDBPath(domainId);
 	cut_assert_exist_path(dbPath.c_str());
 	string commandLine =
 	  StringUtils::sprintf("sqlite3 %s \"%s\"",
