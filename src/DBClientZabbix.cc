@@ -25,15 +25,15 @@
 #include "ItemTableUtils.h"
 
 #define TRANSACTION_BEGIN() \
-	getDBAgent()->begin(); \
+	begin(); \
 	try
 
 #define TRANSACTION_END() \
 	catch (...) { \
-		getDBAgent()->rollback(); \
+		rollback(); \
 		throw; \
 	} \
-	getDBAgent()->commit()
+	commit()
 
 const int DBClientZabbix::DB_VERSION = 2;
 const int DBClientZabbix::NUM_PRESERVED_GENRATIONS_TRIGGERS = 3;

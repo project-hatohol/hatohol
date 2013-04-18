@@ -73,6 +73,21 @@ DBAgent *DBClient::getDBAgent(void) const
 	return m_ctx->dbAgent;
 }
 
+void DBClient::begin(void)
+{
+	getDBAgent()->begin();
+}
+
+void DBClient::rollback(void)
+{
+	getDBAgent()->rollback();
+}
+
+void DBClient::commit(void)
+{
+	getDBAgent()->commit();
+}
+
 void DBClient::insert(DBAgentInsertArg &insertArg)
 {
 	getDBAgent()->insert(insertArg);

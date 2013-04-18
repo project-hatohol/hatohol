@@ -29,6 +29,10 @@ protected:
 	void setDBAgent(DBAgent *dbAgent);
 	DBAgent *getDBAgent(void) const;
 
+	void begin(void);
+	void rollback(void);
+	void commit(void);
+
 	void insert(DBAgentInsertArg &insertArg);
 	void update(DBAgentUpdateArg &updateArg);
 	void select(DBAgentSelectArg &selectArg);
