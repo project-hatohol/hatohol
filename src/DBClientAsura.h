@@ -26,6 +26,7 @@ public:
 	virtual ~DBClientAsura();
 
 protected:
+	void prepareSetupFunction(void);
 
 private:
 	struct PrivateContext;
