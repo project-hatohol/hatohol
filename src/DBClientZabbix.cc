@@ -1489,8 +1489,10 @@ void DBClientZabbix::addHostsRaw2_0(ItemTablePtr tablePtr)
 void DBClientZabbix::dbSetupFunc(DBDomainId domainId)
 {
 	const string dbPath = DBAgentSQLite3::findDBPath(domainId);
-	if (!DBAgentSQLite3::isTableExisting(dbPath, TABLE_NAME_SYSTEM)) {
-		createTable(dbPath,
+	bool skipSetup = true;
+	DBAgent *dbAgent = DBAgentFactory::create(domainId, skipSetup);
+	if (!dbAgent->isTableExisting(TABLE_NAME_SYSTEM)) {
+		createTable(dbAgent,
 		            TABLE_NAME_SYSTEM, NUM_COLUMNS_SYSTEM,
 		            COLUMN_DEF_SYSTEM, tableInitializerSystem);
 	} else {
@@ -1539,16 +1541,33 @@ void DBClientZabbix::createTable
   (const string &dbPath, const string &tableName, size_t numColumns,
    const ColumnDef *columnDefs, CreateTableInitializer initializer, void *data)
 {
+	// NOTE: This functions will be removed after code that explitly uses
+	//       SQLite3's static methods is removed.
 	DBAgentTableCreationArg arg;
 	arg.tableName  = tableName;
 	arg.numColumns = numColumns;
 	arg.columnDefs = columnDefs;
 	DBAgentSQLite3::createTable(dbPath, arg);
+
+	// This won't work, but noproblem (nobody use this)
 	if (initializer)
-		(*initializer)(dbPath, data);
+		(*initializer)(NULL, data); // This won't work, but nobody use
 }
 
-void DBClientZabbix::tableInitializerSystem(const string &dbPath, void *data)
+void DBClientZabbix::createTable
+  (DBAgent *dbAgent, const string &tableName, size_t numColumns,
+   const ColumnDef *columnDefs, CreateTableInitializer initializer, void *data)
+{
+	DBAgentTableCreationArg arg;
+	arg.tableName  = tableName;
+	arg.numColumns = numColumns;
+	arg.columnDefs = columnDefs;
+	dbAgent->createTable(arg);
+	if (initializer)
+		(*initializer)(dbAgent, data);
+}
+
+void DBClientZabbix::tableInitializerSystem(DBAgent *dbAgent, void *data)
 {
 	// insert default value
 	DBAgentInsertArg insArg;
@@ -1560,7 +1579,7 @@ void DBClientZabbix::tableInitializerSystem(const string &dbPath, void *data)
 	insArg.row->add(new ItemInt(REPLICA_GENERATION_NONE), false);
 	insArg.row->add(new ItemInt(REPLICA_GENERATION_NONE), false);
 	insArg.row->add(new ItemInt(REPLICA_GENERATION_NONE), false);
-	DBAgentSQLite3::insert(dbPath, insArg);
+	dbAgent->insert(insArg);
 }
 
 void DBClientZabbix::updateDBIfNeeded(const string &dbPath)

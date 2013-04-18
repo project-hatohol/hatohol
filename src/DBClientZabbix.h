@@ -48,14 +48,18 @@ public:
 	void addHostsRaw2_0(ItemTablePtr tablePtr);
 
 protected:
-	typedef void (*CreateTableInitializer)(const string &dbPath, void *);
+	typedef void (*CreateTableInitializer)(DBAgent *, void *);
 
 	static void dbSetupFunc(DBDomainId domainId);
+	static void createTable
+	  (DBAgent *dbAgent, const string &tableName, size_t numColumns,
+	   const ColumnDef *columnDefs,
+	   CreateTableInitializer initializer = NULL, void *data = NULL);
 	static void createTable
 	  (const string &dbPath, const string &tableName, size_t numColumns,
 	   const ColumnDef *columnDefs,
 	   CreateTableInitializer initializer = NULL, void *data = NULL);
-	static void tableInitializerSystem(const string &dbPath, void *);
+	static void tableInitializerSystem(DBAgent *dbAgent, void *data);
 	static void updateDBIfNeeded(const string &dbPath);
 	static int getDBVersion(const string &dbPath);
 	void prepareSetupFuncCallback(size_t zabbixServerId);
