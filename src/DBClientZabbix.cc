@@ -1395,10 +1395,9 @@ DBClientZabbix::DBClientZabbix(size_t zabbixServerId)
 		prepareSetupFuncCallback(zabbixServerId);
 		m_ctx->dbInitializedFlags[zabbixServerId] = true;
 	}
-	m_ctx->unlock();
-
 	DBDomainId domainId = DB_DOMAIN_ID_OFFSET_ZABBIX + zabbixServerId;
 	m_ctx->dbAgent = DBAgentFactory::create(domainId);
+	m_ctx->unlock();
 }
 
 DBClientZabbix::~DBClientZabbix()
