@@ -48,7 +48,6 @@ public:
 	void addHostsRaw2_0(ItemTablePtr tablePtr);
 
 protected:
-	static void dbSetupFunc(DBDomainId domainId, void *data);
 	static void tableInitializerSystem(DBAgent *dbAgent, void *data);
 	static void updateDBIfNeeded(DBAgent *dbAgent);
 	static int getDBVersion(DBAgent *dbAgent);

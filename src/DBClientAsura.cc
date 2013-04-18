@@ -19,10 +19,12 @@
 
 #include "DBAgentFactory.h"
 #include "DBClientAsura.h"
+#include "ConfigManager.h"
 
 struct DBClientAsura::PrivateContext
 {
 	static GMutex mutex;
+	static bool   initialized;
 
 	PrivateContext(void)
 	{
@@ -43,6 +45,7 @@ struct DBClientAsura::PrivateContext
 	}
 };
 GMutex DBClientAsura::PrivateContext::mutex;
+bool   DBClientAsura::PrivateContext::initialized = false;
 
 // ---------------------------------------------------------------------------
 // Public methods
@@ -51,6 +54,16 @@ DBClientAsura::DBClientAsura(void)
 : m_ctx(NULL)
 {
 	m_ctx = new PrivateContext();
+
+	m_ctx->lock();
+	if (!m_ctx->initialized) {
+		// The setup function: dbSetupFunc() is called from
+		// the creation of DBAgent instance below.
+		DBAgent::addSetupFunction(DB_DOMAIN_ID_OFFSET_ASURA,
+		                          dbSetupFunc);
+	}
+	m_ctx->unlock();
+	setDBAgent(DBAgentFactory::create(DB_DOMAIN_ID_OFFSET_ASURA));
 }
 
 DBClientAsura::~DBClientAsura()

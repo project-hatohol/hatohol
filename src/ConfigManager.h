@@ -23,6 +23,7 @@
 
 #include "DBAgent.h"
 
+static const int DB_DOMAIN_ID_OFFSET_ASURA  = 0x0000;
 static const int DB_DOMAIN_ID_OFFSET_ZABBIX = 0x1000;
 static const size_t NumMaxZabbixServers = 100;
 

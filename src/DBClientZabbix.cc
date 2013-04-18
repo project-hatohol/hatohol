@@ -15,14 +15,12 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <memory>
-
-#include "DBAgentFactory.h"
 #include "DBClientZabbix.h"
 #include "ItemEnum.h"
 #include "ConfigManager.h"
 #include "AsuraException.h"
 #include "ItemTableUtils.h"
+#include "DBAgentFactory.h"
 
 #define TRANSACTION_BEGIN() \
 	begin(); \
@@ -1477,51 +1475,6 @@ void DBClientZabbix::addHostsRaw2_0(ItemTablePtr tablePtr)
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
-void DBClientZabbix::dbSetupFunc(DBDomainId domainId, void *data)
-{
-	bool skipSetup = true;
-	auto_ptr<DBAgent> dbAgent(DBAgentFactory::create(domainId, skipSetup));
-	if (!dbAgent->isTableExisting(TABLE_NAME_SYSTEM)) {
-		createTable(dbAgent.get(),
-		            TABLE_NAME_SYSTEM, NUM_COLUMNS_SYSTEM,
-		            COLUMN_DEF_SYSTEM, tableInitializerSystem);
-	} else {
-		updateDBIfNeeded(dbAgent.get());
-	}
-
-	if (!dbAgent->isTableExisting(TABLE_NAME_REPLICA_GENERATION)) {
-		createTable(dbAgent.get(),
-		            TABLE_NAME_REPLICA_GENERATION,
-		            NUM_COLUMNS_REPLICA_GENERATION,
-		            COLUMN_DEF_REPLICA_GENERATION);
-	}
-
-	if (!dbAgent->isTableExisting(TABLE_NAME_TRIGGERS_RAW_2_0)) {
-		createTable(dbAgent.get(),
-		            TABLE_NAME_TRIGGERS_RAW_2_0,
-		            NUM_COLUMNS_TRIGGERS_RAW_2_0,
-		            COLUMN_DEF_TRIGGERS_RAW_2_0);
-	}
-	if (!dbAgent->isTableExisting(TABLE_NAME_FUNCTIONS_RAW_2_0)) {
-		createTable(dbAgent.get(),
-		            TABLE_NAME_FUNCTIONS_RAW_2_0,
-		            NUM_COLUMNS_FUNCTIONS_RAW_2_0,
-		            COLUMN_DEF_FUNCTIONS_RAW_2_0);
-	}
-	if (!dbAgent->isTableExisting(TABLE_NAME_ITEMS_RAW_2_0)) {
-		createTable(dbAgent.get(),
-		            TABLE_NAME_ITEMS_RAW_2_0,
-		            NUM_COLUMNS_ITEMS_RAW_2_0,
-		            COLUMN_DEF_ITEMS_RAW_2_0);
-	}
-	if (!dbAgent->isTableExisting(TABLE_NAME_HOSTS_RAW_2_0)) {
-		createTable(dbAgent.get(),
-		            TABLE_NAME_HOSTS_RAW_2_0,
-		            NUM_COLUMNS_HOSTS_RAW_2_0,
-		            COLUMN_DEF_HOSTS_RAW_2_0);
-	}
-}
-
 void DBClientZabbix::tableInitializerSystem(DBAgent *dbAgent, void *data)
 {
 	// insert default value
@@ -1573,8 +1526,46 @@ int DBClientZabbix::getDBVersion(DBAgent *dbAgent)
 //
 void DBClientZabbix::prepareSetupFuncCallback(size_t zabbixServerId)
 {
+	static const DBSetupTableInfo DB_TABLE_INFO[] = {
+	{
+		TABLE_NAME_SYSTEM,
+		NUM_COLUMNS_SYSTEM,
+		COLUMN_DEF_SYSTEM,
+		tableInitializerSystem,
+	}, {
+		TABLE_NAME_REPLICA_GENERATION,
+		NUM_COLUMNS_SYSTEM,
+		COLUMN_DEF_SYSTEM,
+	}, {
+		TABLE_NAME_TRIGGERS_RAW_2_0,
+		NUM_COLUMNS_TRIGGERS_RAW_2_0,
+		COLUMN_DEF_TRIGGERS_RAW_2_0,
+	}, {
+		TABLE_NAME_FUNCTIONS_RAW_2_0,
+		NUM_COLUMNS_FUNCTIONS_RAW_2_0,
+		COLUMN_DEF_FUNCTIONS_RAW_2_0,
+	}, {
+		TABLE_NAME_ITEMS_RAW_2_0,
+		NUM_COLUMNS_ITEMS_RAW_2_0,
+		COLUMN_DEF_ITEMS_RAW_2_0,
+	}, {
+		TABLE_NAME_HOSTS_RAW_2_0,
+		NUM_COLUMNS_HOSTS_RAW_2_0,
+		COLUMN_DEF_HOSTS_RAW_2_0,
+	},
+	};
+	static const size_t NUM_TABLE_INFO =
+	sizeof(DB_TABLE_INFO) / sizeof(DBClient::DBSetupTableInfo);
+
+	static const DBSetupFuncArg DB_SETUP_FUNC_ARG = {
+		DB_VERSION,
+		NUM_TABLE_INFO,
+		DB_TABLE_INFO,
+	};
+
 	DBDomainId domainId = getDBDomainId(zabbixServerId);
-	DBAgent::addSetupFunction(domainId, dbSetupFunc);
+	DBAgent::addSetupFunction(domainId, dbSetupFunc,
+	                          (void *)&DB_SETUP_FUNC_ARG);
 }
 
 int DBClientZabbix::getLatestGenerationId(void)

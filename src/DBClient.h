@@ -22,19 +22,42 @@
 
 class DBClient {
 public:
+	typedef void (*CreateTableInitializer)(DBAgent *, void *);
+	typedef void (*DBUpdater)(DBAgent *, void *);
+
+	struct DBSetupTableInfo {
+		const char            *name;
+		size_t                 numColumns;
+		const ColumnDef       *columnDefs;
+		CreateTableInitializer initializer;
+		void                  *initializerData;
+	};
+
+	struct DBSetupFuncArg {
+		int                     version;
+		size_t                  numTableInfo;
+		const DBSetupTableInfo *tableInfoArray;
+		DBUpdater              *dbUpdater;
+		void                   *dbUpdaterData;
+	};
+
+	static int DB_VERSION;
+
 	DBClient(void);
 	virtual ~DBClient();
 
 protected:
-	typedef void (*CreateTableInitializer)(DBAgent *, void *);
-
 	// static methods
 	static void createTable
 	  (DBAgent *dbAgent, const string &tableName, size_t numColumns,
 	   const ColumnDef *columnDefs,
 	   CreateTableInitializer initializer = NULL, void *data = NULL);
+	static void tableInitializerDBClient(DBAgent *dbAgent, void *data);
+	static void updateDBIfNeeded(DBAgent *dbAgent,
+	                             DBSetupFuncArg *setupFuncArg);
 
 	// non-static methods
+	static void dbSetupFunc(DBDomainId domainId, void *data);
 	void setDBAgent(DBAgent *dbAgent);
 	DBAgent *getDBAgent(void) const;
 

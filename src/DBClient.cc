@@ -15,7 +15,41 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <memory>
 #include "DBClient.h"
+#include "DBAgentFactory.h"
+
+int DBClient::DB_VERSION = 1;
+static const char *TABLE_NAME_DBCLIENT = "_dbclient";
+
+static const ColumnDef COLUMN_DEF_DBCLIENT[] = {
+{
+	ITEM_ID_NOT_SET,                   // itemId
+	TABLE_NAME_DBCLIENT,               // tableName
+	"self_db_version",                 // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	11,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}, {
+	ITEM_ID_NOT_SET,                   // itemId
+	TABLE_NAME_DBCLIENT,               // tableName
+	"version",                         // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	11,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+},
+};
+static const size_t NUM_COLUMNS_DBCLIENT =
+  sizeof(COLUMN_DEF_DBCLIENT) / sizeof(ColumnDef);
+
 
 struct DBClient::PrivateContext
 {
@@ -78,7 +112,54 @@ void DBClient::createTable
 		(*initializer)(dbAgent, data);
 }
 
+void DBClient::tableInitializerDBClient(DBAgent *dbAgent, void *data)
+{
+	DBSetupFuncArg *setupFuncArg = static_cast<DBSetupFuncArg *>(data);
+
+	// insert default value
+	DBAgentInsertArg insArg;
+	insArg.tableName = TABLE_NAME_DBCLIENT;
+	insArg.numColumns = NUM_COLUMNS_DBCLIENT;
+	insArg.columnDefs = COLUMN_DEF_DBCLIENT;
+	insArg.row->add(new ItemInt(DB_VERSION), false);
+	insArg.row->add(new ItemInt(setupFuncArg->version), false);
+	dbAgent->insert(insArg);
+}
+
+void DBClient::updateDBIfNeeded(DBAgent *dbAgent, DBSetupFuncArg *setupFuncArg)
+{
+	THROW_ASURA_EXCEPTION("Not implemented: %s\n", __PRETTY_FUNCTION__);
+}
+
 // non-static methods
+void DBClient::dbSetupFunc(DBDomainId domainId, void *data)
+{
+	DBSetupFuncArg *setupFuncArg = static_cast<DBSetupFuncArg *>(data);
+	bool skipSetup = true;
+	auto_ptr<DBAgent> dbAgent(DBAgentFactory::create(domainId, skipSetup));
+	if (!dbAgent->isTableExisting(TABLE_NAME_DBCLIENT)) {
+		createTable(dbAgent.get(),
+		            TABLE_NAME_DBCLIENT, NUM_COLUMNS_DBCLIENT,
+		            COLUMN_DEF_DBCLIENT, tableInitializerDBClient,
+		            setupFuncArg);
+	} else {
+		updateDBIfNeeded(dbAgent.get(), setupFuncArg);
+	}
+
+	for (size_t i = 0; i < setupFuncArg->numTableInfo; i++) {
+		const DBSetupTableInfo &tableInfo
+		  = setupFuncArg->tableInfoArray[i];
+		if (dbAgent->isTableExisting(tableInfo.name))
+			continue;
+		createTable(dbAgent.get(), tableInfo.name,
+		            tableInfo.numColumns, tableInfo.columnDefs);
+		if (!tableInfo.initializer)
+			continue;
+		(*tableInfo.initializer)(dbAgent.get(),
+	                                 tableInfo.initializerData);
+	}
+}
+
 void DBClient::setDBAgent(DBAgent *dbAgent)
 {
 	m_ctx->dbAgent = dbAgent;
