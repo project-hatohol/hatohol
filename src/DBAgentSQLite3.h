@@ -39,7 +39,7 @@ public:
 	 */
 	static string getDBPath(DBDomainId domainId);
 	static void defineDBPath(DBDomainId domainId, const string &path);
-	static void defaultSetupFunc(DBDomainId domainId);
+	static void defaultSetupFunc(DBDomainId domainId, void *data);
 	static const string &findDBPath(DBDomainId domainId);
 	static bool isTableExisting(const string &dbPath,
 	                            const string &tableName);

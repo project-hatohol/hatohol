@@ -1477,7 +1477,7 @@ void DBClientZabbix::addHostsRaw2_0(ItemTablePtr tablePtr)
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
-void DBClientZabbix::dbSetupFunc(DBDomainId domainId)
+void DBClientZabbix::dbSetupFunc(DBDomainId domainId, void *data)
 {
 	bool skipSetup = true;
 	auto_ptr<DBAgent> dbAgent(DBAgentFactory::create(domainId, skipSetup));

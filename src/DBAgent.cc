@@ -17,8 +17,13 @@
 
 #include "DBAgent.h"
 
-typedef multimap<DBDomainId, DBSetupFunc> DBSetupFuncMap;
-typedef DBSetupFuncMap::iterator          DBSetupFuncMapIterator;
+struct DBSetupInfo {
+	DBSetupFunc func;
+	void       *data;
+};
+
+typedef multimap<DBDomainId, DBSetupInfo> DBSetupInfoMap;
+typedef DBSetupInfoMap::iterator          DBSetupInfoMapIterator;
 
 DBAgentSelectExArg::DBAgentSelectExArg(void)
 : limit(0),
@@ -29,7 +34,7 @@ DBAgentSelectExArg::DBAgentSelectExArg(void)
 struct DBAgent::PrivateContext
 {
 	static GMutex             mutex;
-	static DBSetupFuncMap     setupFuncMap;
+	static DBSetupInfoMap     setupInfoMap;
 
 	// methods
 	static void lock(void)
@@ -44,16 +49,20 @@ struct DBAgent::PrivateContext
 };
 
 GMutex         DBAgent::PrivateContext::mutex;
-DBSetupFuncMap DBAgent::PrivateContext::setupFuncMap;
+DBSetupInfoMap DBAgent::PrivateContext::setupInfoMap;
 
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
-void DBAgent::addSetupFunction(DBDomainId domainId, DBSetupFunc setupFunc)
+void DBAgent::addSetupFunction(DBDomainId domainId,
+                               DBSetupFunc setupFunc, void *data)
 {
+	DBSetupInfo setupInfo;
+	setupInfo.func = setupFunc;
+	setupInfo.data = data;
 	PrivateContext::lock();
-	PrivateContext::setupFuncMap.insert
-	  (pair<DBDomainId, DBSetupFunc>(domainId, setupFunc));
+	PrivateContext::setupInfoMap.insert
+	  (pair<DBDomainId, DBSetupInfo>(domainId, setupInfo));
 	PrivateContext::unlock();
 }
 
@@ -65,20 +74,22 @@ DBAgent::DBAgent(DBDomainId domainId, bool skipSetup)
 		return;
 
 	PrivateContext::lock();
-	pair<DBSetupFuncMapIterator, DBSetupFuncMapIterator> matchedRange = 
-	  PrivateContext::setupFuncMap.equal_range(domainId);
-	DBSetupFuncMapIterator it = matchedRange.first;
+	pair<DBSetupInfoMapIterator, DBSetupInfoMapIterator> matchedRange = 
+	  PrivateContext::setupInfoMap.equal_range(domainId);
+	DBSetupInfoMapIterator it = matchedRange.first;
 	for (; it != matchedRange.second; ++it) {
-		DBSetupFunc setupFunc = it->second;
+		DBSetupInfo &setupInfo = it->second;
+		DBSetupFunc &setupFunc = setupInfo.func;
+		void        *data      = setupInfo.data;
 		try {
-			(*setupFunc)(domainId);
+			(*setupFunc)(domainId, data);
 		} catch (...) {
-			// Note: contetns in DBSetupFuncMap remains.
+			// Note: contetns in DBSetupInfoMap remains.
 			PrivateContext::unlock();
 			throw;
 		}
 	}
-	PrivateContext::setupFuncMap.erase
+	PrivateContext::setupInfoMap.erase
 	  (matchedRange.first, matchedRange.second);
 	PrivateContext::unlock();
 }

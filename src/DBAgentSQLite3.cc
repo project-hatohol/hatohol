@@ -133,7 +133,7 @@ void DBAgentSQLite3::init(void)
 	DBAgent::addSetupFunction(DefaultDBDomainId, defaultSetupFunc);
 }
 
-void DBAgentSQLite3::defaultSetupFunc(DBDomainId domainId)
+void DBAgentSQLite3::defaultSetupFunc(DBDomainId domainId, void *data)
 {
 	// We don't lock DB (use transaction) in the existence check of
 	// a table and create it, because, this function is called in series.

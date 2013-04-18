@@ -50,7 +50,7 @@ public:
 protected:
 	typedef void (*CreateTableInitializer)(DBAgent *, void *);
 
-	static void dbSetupFunc(DBDomainId domainId);
+	static void dbSetupFunc(DBDomainId domainId, void *data);
 	static void createTable
 	  (DBAgent *dbAgent, const string &tableName, size_t numColumns,
 	   const ColumnDef *columnDefs,
