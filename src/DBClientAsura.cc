@@ -22,6 +22,17 @@
 
 struct DBClientAsura::PrivateContext
 {
+	static GMutex mutex;
+
+	static void lock(void)
+	{
+		g_mutex_lock(&mutex);
+	}
+
+	static void unlock(void)
+	{
+		g_mutex_unlock(&mutex);
+	}
 };
 
 // ---------------------------------------------------------------------------
