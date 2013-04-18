@@ -33,6 +33,7 @@ protected:
 	virtual void update(DBAgentUpdateArg &updateArg);
 	virtual void select(DBAgentSelectArg &selectArg);
 	virtual void select(DBAgentSelectExArg &selectExArg);
+	virtual void deleteRows(DBAgentDeleteArg &deleteArg);
 
 private:
 	struct PrivateContext;

@@ -1689,7 +1689,7 @@ void DBClientZabbix::deleteOldReplicatedItems
 	const ColumnDef &columnDefGenId = columnDefs[generationIdIdx];
 	deleteArg.condition =
 	   StringUtils::sprintf("%s<=%d", columnDefGenId.columnName, startId);
-	getDBAgent()->deleteRows(deleteArg);
+	deleteRows(deleteArg);
 
 	// delete unncessary rows from the replica generation table
 	DBAgentDeleteArg argGen;
@@ -1703,7 +1703,7 @@ void DBClientZabbix::deleteOldReplicatedItems
 	                     columnDefReplicaGenId.columnName, startId,
 	                     columnDefReplicaTargetId.columnName,
 	                     replicaTargetId);
-	getDBAgent()->deleteRows(argGen);
+	deleteRows(argGen);
 }
 
 int DBClientZabbix::getStartIdToRemove(int replicaTargetId)
