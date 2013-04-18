@@ -103,7 +103,7 @@ string DBAgentSQLite3::getDBPath(DBDomainId domainId)
 	ConfigManager *configMgr = ConfigManager::getInstance();
 	const string &dbDirectory = configMgr->getDatabaseDirectory();
 	string dbPath =
-	  StringUtils::sprintf("%s/DBClientZabbix-%d.db",
+	  StringUtils::sprintf("%s/DBAgentSQLite3-%d.db",
 	                       dbDirectory.c_str(), domainId);
 	return dbPath;
 }
