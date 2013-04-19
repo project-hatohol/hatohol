@@ -422,6 +422,10 @@ void DBClientAsura::prepareSetupFunction(void)
 		TABLE_NAME_SERVERS,
 		NUM_COLUMNS_SERVERS,
 		COLUMN_DEF_SERVERS,
+	}, {
+		TABLE_NAME_TRIGGERS,
+		NUM_COLUMNS_TRIGGERS,
+		COLUMN_DEF_TRIGGERS,
 	}
 	};
 	static const size_t NUM_TABLE_INFO =
