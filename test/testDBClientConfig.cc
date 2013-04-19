@@ -31,7 +31,7 @@ static string makeExpectedOutput(MonitoringServerInfo *serverInfo)
 void setup(void)
 {
 	asuraInit();
-	DBClientAsura::resetDBInitializedFlags();
+	DBClientConfig::resetDBInitializedFlags();
 }
 
 // ---------------------------------------------------------------------------
