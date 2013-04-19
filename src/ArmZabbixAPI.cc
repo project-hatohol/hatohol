@@ -647,6 +647,8 @@ bool ArmZabbixAPI::mainThreadOneProc(void)
 		return false;
 	updateTriggers();
 	updateFunctions();
+	updateItems();
+	updateHosts();
 
 	return true;
 }
