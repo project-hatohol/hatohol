@@ -59,12 +59,6 @@ string STR_NAME; \
 	execSql(SQLITE3_DB_NAME, "COMMIT"); \
 	sqlite3_close(SQLITE3_DB_NAME);
 
-static const char *TABLE_NAME_SYSTEM = "system";
-static const char *TABLE_NAME_SERVERS = "servers";
-static const char *TABLE_NAME_TRIGGERS = "triggers";
-
-const int DBAgentSQLite3::DB_VERSION = 1;
-
 typedef map<DBDomainId, string>     DBDomainIdPathMap;
 typedef DBDomainIdPathMap::iterator DBDomainIdPathMapIterator;
 
@@ -126,36 +120,6 @@ void DBAgentSQLite3::defineDBPath(DBDomainId domainId, const string &path)
 
 	ASURA_ASSERT(result.second,
 	  "Failed to insert. Probably domain id (%u) is duplicated", domainId);
-}
-
-void DBAgentSQLite3::init(void)
-{
-	DBAgent::addSetupFunction(DefaultDBDomainId, defaultSetupFunc);
-}
-
-void DBAgentSQLite3::defaultSetupFunc(DBDomainId domainId, void *data)
-{
-	// We don't lock DB (use transaction) in the existence check of
-	// a table and create it, because, this function is called in series.
-
-	// search dbPath
-	const string &dbPath = findDBPath(domainId);
-
-	// TODO: check the DB version.
-	//       If the DB version is old, update the content
-	if (!isTableExisting(dbPath, TABLE_NAME_SYSTEM))
-		createTableSystem(dbPath);
-	else
-		updateDBIfNeeded(dbPath);
-
-
-	// check the servers table
-	if (!isTableExisting(dbPath, TABLE_NAME_SERVERS))
-		createTableServers(dbPath);
-
-	// check the trigger table
-	if (!isTableExisting(dbPath, TABLE_NAME_TRIGGERS))
-		createTableTriggers(dbPath);
 }
 
 const string &DBAgentSQLite3::findDBPath(DBDomainId domainId)
@@ -292,144 +256,6 @@ bool DBAgentSQLite3::isRecordExisting(const string &tableName,
 	return found;
 }
 
-void DBAgentSQLite3::addTargetServer
-  (MonitoringServerInfo *monitoringServerInfo)
-{
-	string condition = StringUtils::sprintf("id=%u",
-	                                        monitoringServerInfo->id);
-	execSql("BEGIN");
-	if (!isRecordExisting(TABLE_NAME_SERVERS, condition)) {
-		execSql("INSERT INTO %s VALUES(%u,%d,%Q,%Q,%Q)",
-		        TABLE_NAME_SERVERS,
-		        monitoringServerInfo->id, monitoringServerInfo->type,
-		        monitoringServerInfo->hostName.c_str(),
-		        monitoringServerInfo->ipAddress.c_str(),
-		        monitoringServerInfo->nickname.c_str());
-	} else {
-		execSql("UPDATE %s SET type=%d, hostname=%Q, "
-		        "ip_address=%Q, nickname=%Q",
-		        TABLE_NAME_SERVERS,
-		        monitoringServerInfo->type,
-		        monitoringServerInfo->hostName.c_str(),
-		        monitoringServerInfo->ipAddress.c_str(),
-		        monitoringServerInfo->nickname.c_str());
-	}
-	execSql("COMMIT");
-}
-
-void DBAgentSQLite3::getTargetServers
-  (MonitoringServerInfoList &monitoringServers)
-{
-	execSql("BEGIN");
-
-	int result;
-	sqlite3_stmt *stmt;
-	string query = "SELECT id, type, hostname, ip_address, nickname FROM ";
-	query += TABLE_NAME_SERVERS;
-	result = sqlite3_prepare(m_ctx->db, query.c_str(), query.size(),
-	                         &stmt, NULL);
-	if (result != SQLITE_OK) {
-		sqlite3_finalize(stmt);
-		THROW_ASURA_EXCEPTION("Failed to call sqlite3_prepare(): %d",
-		                      result);
-	}
-	sqlite3_reset(stmt);
-	while ((result = sqlite3_step(stmt)) == SQLITE_ROW) {
-		monitoringServers.push_back(MonitoringServerInfo());
-		MonitoringServerInfo &svInfo = monitoringServers.back();
-		svInfo.id   = sqlite3_column_int(stmt, 0);
-		svInfo.type = (MonitoringSystemType)sqlite3_column_int(stmt, 1);
-		svInfo.hostName  = (const char *)sqlite3_column_text(stmt, 2);
-		svInfo.ipAddress = (const char *)sqlite3_column_text(stmt, 3);
-		svInfo.nickname  = (const char *)sqlite3_column_text(stmt, 4);
-	}
-	sqlite3_finalize(stmt);
-	if (result != SQLITE_DONE) {
-		THROW_ASURA_EXCEPTION("Failed to call sqlite3_step(): %d",
-		                      result);
-	}
-
-	execSql("COMMIT");
-}
-
-void DBAgentSQLite3::addTriggerInfo(TriggerInfo *triggerInfo)
-{
-	string condition = StringUtils::sprintf("id=%"PRIu64, triggerInfo->id);
-	execSql("BEGIN");
-	if (!isRecordExisting(TABLE_NAME_TRIGGERS, condition)) {
-		execSql("INSERT INTO %s VALUES(%lu,%d,%d,%d,%d,%u,%Q,%Q,%Q)",
-		        TABLE_NAME_TRIGGERS, triggerInfo->id,
-		        triggerInfo->status, triggerInfo->severity,
-		        triggerInfo->lastChangeTime.tv_sec, 
-		        triggerInfo->lastChangeTime.tv_nsec, 
-		        triggerInfo->serverId,
-		        triggerInfo->hostId.c_str(),
-		        triggerInfo->hostName.c_str(),
-		        triggerInfo->brief.c_str());
-	} else {
-		execSql("UPDATE %s SET status=%d, severity=%d, "
-		        "last_change_time_sec=%d, last_change_time_ns=%d, "
-		        "server_id=%u, host_id=%Q, host_name=%Q, brief=%Q",
-		        TABLE_NAME_TRIGGERS,
-		        triggerInfo->status, triggerInfo->severity,
-		        triggerInfo->lastChangeTime.tv_sec, 
-		        triggerInfo->lastChangeTime.tv_nsec, 
-		        triggerInfo->serverId,
-		        triggerInfo->hostId.c_str(),
-		        triggerInfo->hostName.c_str(),
-		        triggerInfo->brief.c_str());
-	}
-	execSql("COMMIT");
-}
-
-void DBAgentSQLite3::getTriggerInfoList(TriggerInfoList &triggerInfoList)
-{
-	execSql("BEGIN");
-
-	int result;
-	sqlite3_stmt *stmt;
-	string query = "SELECT id, status, severity, last_change_time_sec, "
-	               "last_change_time_ns, server_id, host_id, host_name, "
-	               "brief FROM ";
-	query += TABLE_NAME_TRIGGERS;
-	result = sqlite3_prepare(m_ctx->db, query.c_str(), query.size(),
-	                         &stmt, NULL);
-	if (result != SQLITE_OK) {
-		sqlite3_finalize(stmt);
-		THROW_ASURA_EXCEPTION("Failed to call sqlite3_prepare(): %d",
-		                      result);
-	}
-	sqlite3_reset(stmt);
-	while ((result = sqlite3_step(stmt)) == SQLITE_ROW) {
-		triggerInfoList.push_back(TriggerInfo());
-		TriggerInfo &trigInfo = triggerInfoList.back();
-		trigInfo.id   = sqlite3_column_int(stmt, 0);
-		trigInfo.status =
-		   (TriggerStatusType)sqlite3_column_int(stmt, 1);
-		trigInfo.severity =
-		   (TriggerSeverityType)sqlite3_column_int(stmt, 2);
-		trigInfo.lastChangeTime.tv_sec  = sqlite3_column_int(stmt, 3);
-		trigInfo.lastChangeTime.tv_nsec = sqlite3_column_int(stmt, 4);
-		trigInfo.serverId = sqlite3_column_int(stmt, 5);
-		trigInfo.hostId   = (const char *)sqlite3_column_text(stmt, 6);
-		trigInfo.hostName = (const char *)sqlite3_column_text(stmt, 7);
-		trigInfo.brief    = (const char *)sqlite3_column_text(stmt, 8);
-	}
-	sqlite3_finalize(stmt);
-	if (result != SQLITE_DONE) {
-		THROW_ASURA_EXCEPTION("Failed to call sqlite3_step(): %d",
-		                      result);
-	}
-
-	execSql("COMMIT");
-}
-
-int DBAgentSQLite3::getDBVersion(void)
-{
-	ASURA_ASSERT(m_ctx->db, "m_ctx->db is NULL");
-	return getDBVersion(m_ctx->db);
-}
-
 void DBAgentSQLite3::begin(void)
 {
 	ASURA_ASSERT(m_ctx->db, "m_ctx->db is NULL");
@@ -562,51 +388,6 @@ string DBAgentSQLite3::getColumnValueString(const ColumnDef *columnDef,
 		             columnDef->type, columnDef->columnName);
 	}
 	return valueStr;
-}
-
-int DBAgentSQLite3::getDBVersion(const string &dbPath)
-{
-	int version;
-	sqlite3 *db = openDatabase(dbPath);
-	try {
-		version = getDBVersion(db);
-	} catch (...) {
-		sqlite3_close(db);
-		throw;
-	}
-	sqlite3_close(db);
-	return version;
-}
-
-int DBAgentSQLite3::getDBVersion(sqlite3 *db)
-{
-	int result;
-	sqlite3_stmt *stmt;
-	string query = "SELECT version FROM ";
-	query += TABLE_NAME_SYSTEM;
-	result = sqlite3_prepare(db, query.c_str(), query.size(),
-	                         &stmt, NULL);
-	if (result != SQLITE_OK) {
-		sqlite3_finalize(stmt);
-		THROW_ASURA_EXCEPTION("Failed to call sqlite3_prepare(): %d",
-		                      result);
-	}
-	sqlite3_reset(stmt);
-	int version = 0;
-	int count = 0;
-	while ((result = sqlite3_step(stmt)) == SQLITE_ROW) {
-		version = sqlite3_column_int(stmt, 0);
-		count++;
-	}
-	if (result != SQLITE_DONE) {
-		sqlite3_finalize(stmt);
-		THROW_ASURA_EXCEPTION("Failed to call sqlite3_step(): %d",
-		                      result);
-	}
-	sqlite3_finalize(stmt);
-	ASURA_ASSERT(count == 1,
-	             "Returned count of rows is not one (%d)", count);
-	return version;
 }
 
 bool DBAgentSQLite3::isTableExisting(sqlite3 *db,
@@ -966,90 +747,6 @@ ItemDataPtr DBAgentSQLite3::getValue(sqlite3_stmt *stmt,
 		ASURA_ASSERT(false, "Unknown column type: %d", columnType);
 	}
 	return ItemDataPtr(itemData, false);
-}
-
-void DBAgentSQLite3::updateDBIfNeeded(const string &dbPath)
-{
-	if (getDBVersion(dbPath) == DB_VERSION)
-		return;
-	THROW_ASURA_EXCEPTION("Not implemented: %s", __PRETTY_FUNCTION__);
-}
-
-void DBAgentSQLite3::createTableSystem(const string &dbPath)
-{
-	sqlite3 *db = openDatabase(dbPath);
-
-	// make table
-	string sql = "CREATE TABLE ";
-	sql += TABLE_NAME_SYSTEM;
-	sql += "(version INTEGER)";
-	char *errmsg;
-	int result = sqlite3_exec(db, sql.c_str(), NULL, NULL, &errmsg);
-	if (result != SQLITE_OK) {
-		string err = errmsg;
-		sqlite3_free(errmsg);
-		sqlite3_close(db);
-		THROW_ASURA_EXCEPTION("Failed to exec: %d, %s, %s",
-		                      result, err.c_str(), sql.c_str());
-	}
-
-	// insert the version
-	sql = StringUtils::sprintf("INSERT INTO %s VALUES(%d)",
-	                           TABLE_NAME_SYSTEM,  DB_VERSION);
-	result = sqlite3_exec(db, sql.c_str(), NULL, NULL, &errmsg);
-	if (result != SQLITE_OK) {
-		string err = errmsg;
-		sqlite3_free(errmsg);
-		sqlite3_close(db);
-		THROW_ASURA_EXCEPTION("Failed to exec: %d, %s, %s",
-		                      result, err.c_str(), sql.c_str());
-	}
-
-	sqlite3_close(db);
-}
-
-void DBAgentSQLite3::createTableServers(const string &dbPath)
-{
-	sqlite3 *db = openDatabase(dbPath);
-
-	// make table
-	string sql = "CREATE TABLE ";
-	sql += TABLE_NAME_SERVERS;
-	sql += "(id INTEGER PRIMARY KEY, type INTEGER, hostname TEXT, "
-	       " ip_address TEXT, nickname TEXT)";
-	char *errmsg;
-	int result = sqlite3_exec(db, sql.c_str(), NULL, NULL, &errmsg);
-	if (result != SQLITE_OK) {
-		string err = errmsg;
-		sqlite3_free(errmsg);
-		sqlite3_close(db);
-		THROW_ASURA_EXCEPTION("Failed to exec: %d, %s, %s",
-		                      result, err.c_str(), sql.c_str());
-	}
-
-	sqlite3_close(db);
-}
-
-void DBAgentSQLite3::createTableTriggers(const string &dbPath)
-{
-	sqlite3 *db = openDatabase(dbPath);
-
-	string sql = "CREATE TABLE ";
-	sql += TABLE_NAME_TRIGGERS;
-	sql += "(id INTEGER PRIMARY KEY, status INTEGER, severity INTEGER, "
-	       " last_change_time_sec INTEGER, last_change_time_ns INTERGET, "
-	       " server_id INTEGER, host_id TEXT, host_name TEXT, brief TEXT)";
-	char *errmsg;
-	int result = sqlite3_exec(db, sql.c_str(), NULL, NULL, &errmsg);
-	if (result != SQLITE_OK) {
-		string err = errmsg;
-		sqlite3_free(errmsg);
-		sqlite3_close(db);
-		THROW_ASURA_EXCEPTION("Failed to exec: %d, %s, %s",
-		                      result, err.c_str(), sql.c_str());
-	}
-
-	sqlite3_close(db);
 }
 
 void DBAgentSQLite3::createIndex(sqlite3 *db, const string &tableName, 

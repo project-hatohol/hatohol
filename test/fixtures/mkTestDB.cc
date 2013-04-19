@@ -3,6 +3,7 @@
 #include "Asura.h"
 #include "DBAgentTest.h"
 #include "DBAgentSQLite3.h"
+#include "DBClientAsura.h"
 
 int main(int argc, char *argv[])
 {
@@ -17,15 +18,15 @@ int main(int argc, char *argv[])
 	asuraInit();
 	DBAgentSQLite3::defineDBPath(DefaultDBDomainId, dbName);
 
-	DBAgentSQLite3 dbAgent;
+	DBClientAsura dbAsura;
 	for (size_t i = 0; i < NumServerInfo; i++) {
 		MonitoringServerInfo *svInfo = &serverInfo[i];
-		dbAgent.addTargetServer(svInfo);
+		dbAsura.addTargetServer(svInfo);
 	} 
 
 	for (size_t i = 0; i < NumTestTriggerInfo; i++) {
 		TriggerInfo *trigInfo = &testTriggerInfo[i];
-		dbAgent.addTriggerInfo(trigInfo);
+		dbAsura.addTriggerInfo(trigInfo);
 	} 
 
 	return EXIT_SUCCESS;

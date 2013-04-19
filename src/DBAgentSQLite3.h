@@ -25,11 +25,6 @@
 
 class DBAgentSQLite3 : public DBAgent {
 public:
-	// static methods
-	static const int DB_VERSION;
-
-	static void init(void);
-
 	/**
 	 * define database path
 	 *
@@ -39,7 +34,6 @@ public:
 	 */
 	static string getDefaultDBPath(DBDomainId domainId);
 	static void defineDBPath(DBDomainId domainId, const string &path);
-	static void defaultSetupFunc(DBDomainId domainId, void *data);
 	static const string &findDBPath(DBDomainId domainId);
 	static bool isTableExisting(const string &dbPath,
 	                            const string &tableName);
@@ -59,22 +53,10 @@ public:
 	               bool skipSetup = false);
 	virtual ~DBAgentSQLite3();
 
-	// generic methods
-	int getDBVersion(void);
-
 	// virtual methods
 	virtual bool isTableExisting(const string &tableName);
 	virtual bool isRecordExisting(const string &tableName,
 	                              const string &condition);
-	// TODO: remove the following 4 functions after DBClientAsura works
-	virtual void
-	   addTargetServer(MonitoringServerInfo *monitoringServerInfo);
-	virtual void
-	   getTargetServers(MonitoringServerInfoList &monitoringServers);
-	virtual void
-	   addTriggerInfo(TriggerInfo *triggerInfo);
-	virtual void getTriggerInfoList(TriggerInfoList &triggerInfoList);
-
 	virtual void begin(void);
 	virtual void commit(void);
 	virtual void rollback(void);
@@ -91,8 +73,6 @@ protected:
 	static void _execSql(sqlite3 *db, const string &sql);
 	static string getColumnValueString(const ColumnDef *columnDef,
 	                                   const ItemData *itemData);
-	static int getDBVersion(const string &dbPath);
-	static int getDBVersion(sqlite3 *db);
 	static bool isTableExisting(sqlite3 *db,
 	                            const string &tableName);
 	static void createTable(sqlite3 *db,
@@ -106,10 +86,6 @@ protected:
 	                                     sqlite3_stmt *stmt);
 	static ItemDataPtr getValue(sqlite3_stmt *stmt, size_t index,
 	                            SQLColumnType columnType);
-	static void updateDBIfNeeded(const string &dbPath);
-	static void createTableSystem(const string &dbPath);
-	static void createTableServers(const string &dbPath);
-	static void createTableTriggers(const string &dbPath);
 	static void createIndex(sqlite3 *db,
 	                        const string &tableName,
 	                        const ColumnDef *columnDefs,

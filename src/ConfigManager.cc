@@ -16,7 +16,7 @@
 */
 
 #include "ConfigManager.h"
-#include "DBAgentSQLite3.h"
+#include "DBClientAsura.h"
 
 static const char *DEFAULT_DATABASE_DIR = "/tmp";
 static const size_t DEFAULT_NUM_PRESERVED_REPLICA_GENERATION = 3;
@@ -59,15 +59,15 @@ ConfigManager *ConfigManager::getInstance(void)
 
 void ConfigManager::addTargetServer(MonitoringServerInfo *monitoringServerInfo)
 {
-	DBAgentSQLite3 dbAgent;
-	dbAgent.addTargetServer(monitoringServerInfo);
+	DBClientAsura dbAsura;
+	dbAsura.addTargetServer(monitoringServerInfo);
 }
 
 void ConfigManager::getTargetServers
   (MonitoringServerInfoList &monitoringServers)
 {
-	DBAgentSQLite3 dbAgent;
-	dbAgent.getTargetServers(monitoringServers);
+	DBClientAsura dbAsura;
+	dbAsura.getTargetServers(monitoringServers);
 }
 
 const string &ConfigManager::getDatabaseDirectory(void) const

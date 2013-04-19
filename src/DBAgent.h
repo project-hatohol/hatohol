@@ -132,11 +132,6 @@ public:
 	virtual bool isTableExisting(const string &tableName) = 0;
 	virtual bool isRecordExisting(const string &tableName,
 	                              const string &condition) = 0;
-	virtual void
-	   addTargetServer(MonitoringServerInfo *monitoringServerInfo) = 0;
-	virtual void
-	   getTargetServers(MonitoringServerInfoList &monitoringServers) = 0;
-
 	virtual void begin(void) = 0;
 	virtual void commit(void) = 0;
 	virtual void rollback(void) = 0;

@@ -22,7 +22,7 @@
 #include "ItemGroupEnum.h"
 #include "ItemEnum.h"
 #include "VirtualDataStoreZabbixMacro.h"
-#include "DBAgentSQLite3.h"
+#include "DBClientAsura.h"
 
 GMutex VirtualDataStoreZabbix::m_mutex;
 VirtualDataStoreZabbix *VirtualDataStoreZabbix::m_instance = NULL;
@@ -88,8 +88,8 @@ void VirtualDataStoreZabbix::passCommandLineArg(const CommandLineArg &cmdArg)
 
 void VirtualDataStoreZabbix::getTriggerList(TriggerInfoList &triggerList)
 {
-	DBAgentSQLite3 dbAgent;
-	dbAgent.getTriggerInfoList(triggerList);
+	DBClientAsura dbAsura;
+	dbAsura.getTriggerInfoList(triggerList);
 }
 
 // ---------------------------------------------------------------------------
