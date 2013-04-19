@@ -136,7 +136,7 @@ void _assertExistRecord(uint64_t id, int age, const char *name, double height)
 #define assertExistRecord(ID,AGE,NAME,HEIGHT) \
 cut_trace(_assertExistRecord(ID,AGE,NAME,HEIGHT))
 
-void _assertInsertStatic(uint64_t id, int age, const char *name, double height)
+void _assertInsert(uint64_t id, int age, const char *name, double height)
 {
 	bool skipSetup = true;
 	DBAgentSQLite3 dbAgent(DefaultDBDomainId, skipSetup);
@@ -153,8 +153,8 @@ void _assertInsertStatic(uint64_t id, int age, const char *name, double height)
 
 	assertExistRecord(id, age, name,height);
 }
-#define assertInsertStatic(ID,AGE,NAME,HEIGHT) \
-cut_trace(_assertInsertStatic(ID,AGE,NAME,HEIGHT));
+#define assertInsert(ID,AGE,NAME,HEIGHT) \
+cut_trace(_assertInsert(ID,AGE,NAME,HEIGHT));
 
 void _assertUpdateStatic(uint64_t id, int age, const char *name, double height)
 {
@@ -181,7 +181,7 @@ static void makeTestDB(void)
 
 	// insert data
 	for (size_t i = 0; i < NUM_TEST_DATA; i++)
-		assertInsertStatic(ID[i], AGE[i], NAME[i], HEIGHT[i]);
+		assertInsert(ID[i], AGE[i], NAME[i], HEIGHT[i]);
 	for (size_t i = 0; i < NUM_TEST_DATA; i++)
 		g_testDataIdIndexMap[ID[i]] = i;
 	cppcut_assert_equal(NUM_TEST_DATA, g_testDataIdIndexMap.size());
@@ -288,7 +288,7 @@ void test_insertStatic(void)
 	const int AGE = 14;
 	const char *NAME = "rei";
 	const double HEIGHT = 158.2;
-	assertInsertStatic(ID, AGE, NAME, HEIGHT);
+	assertInsert(ID, AGE, NAME, HEIGHT);
 }
 
 void test_insertStaticUint64_0x7fffffffffffffff(void)
@@ -301,7 +301,7 @@ void test_insertStaticUint64_0x7fffffffffffffff(void)
 	const int AGE = 14;
 	const char *NAME = "rei";
 	const double HEIGHT = 158.2;
-	assertInsertStatic(ID, AGE, NAME, HEIGHT);
+	assertInsert(ID, AGE, NAME, HEIGHT);
 }
 
 void test_insertStaticUint64_0x8000000000000000(void)
@@ -314,7 +314,7 @@ void test_insertStaticUint64_0x8000000000000000(void)
 	const int AGE = 14;
 	const char *NAME = "rei";
 	const double HEIGHT = 158.2;
-	assertInsertStatic(ID, AGE, NAME, HEIGHT);
+	assertInsert(ID, AGE, NAME, HEIGHT);
 }
 
 void test_insertStaticUint64_0xffffffffffffffff(void)
@@ -327,7 +327,7 @@ void test_insertStaticUint64_0xffffffffffffffff(void)
 	const int AGE = 14;
 	const char *NAME = "rei";
 	const double HEIGHT = 158.2;
-	assertInsertStatic(ID, AGE, NAME, HEIGHT);
+	assertInsert(ID, AGE, NAME, HEIGHT);
 }
 
 void test_updateStatic(void)
@@ -514,7 +514,7 @@ void test_deleteStatic(void)
 	const char *NAME[NUM_TEST]    = {"rei", "mio", "azusa"};
 	const double HEIGHT[NUM_TEST] = {158.2, 165.3, 155.2};
 	for (size_t i = 0; i < NUM_TEST; i++)
-		assertInsertStatic(ID[i], AGE[i], NAME[i], HEIGHT[i]);
+		assertInsert(ID[i], AGE[i], NAME[i], HEIGHT[i]);
 
 	// delete
 	DBAgentDeleteArg arg;
