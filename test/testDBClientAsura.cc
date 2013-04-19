@@ -59,9 +59,9 @@ void test_createDB(void)
 	cppcut_assert_equal(expectedOut, output);
 }
 
-void test_createTableServers(void)
+void test_createTableTrigger(void)
 {
-	const string tableName = "servers";
+	const string tableName = "triggers";
 	string dbPath = deleteDBClientDB(DB_DOMAIN_ID_ASURA);
 	DBClientAsura dbAsura;
 	string command = "sqlite3 " + dbPath + " \".table\"";
