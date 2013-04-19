@@ -312,4 +312,6 @@ template<> bool ItemUint64::operator ==(const ItemData &itemData) const;
 template<> ItemData * ItemString::operator /(const ItemData &itemData) const;
 template<> ItemData * ItemString::operator /(const ItemData &itemData) const;
 
+#define ADD_NEW_ITEM(TYPE, VAL) add(new Item##TYPE(VAL), false)
+
 #endif // ItemData_h
