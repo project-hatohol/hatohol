@@ -139,14 +139,6 @@ const string &DBAgentSQLite3::findDBPath(DBDomainId domainId)
 	return it->second;
 }
 
-void DBAgentSQLite3::createTable(const string &dbPath,
-                                 DBAgentTableCreationArg &tableCreationArg)
-{
-	TRANSACTION_PREPARE(dbPath, db) {
-		createTable(db, tableCreationArg);
-	} TRANSACTION_EXECUTE(db);
-}
-
 void DBAgentSQLite3::insert(const string &dbPath, DBAgentInsertArg &insertArg)
 {
 	TRANSACTION_PREPARE(dbPath, db) {
