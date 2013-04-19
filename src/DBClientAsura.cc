@@ -21,6 +21,15 @@
 #include "DBClientAsura.h"
 #include "ConfigManager.h"
 
+#define GET_FROM_GRP(NATIVE_TYPE, ITEM_TYPE, ITEM_GRP, IDX) \
+ItemDataUtils::get<NATIVE_TYPE, ITEM_TYPE>(ITEM_GRP->getItemAt(IDX));
+
+#define GET_INT_FROM_GRP(ITEM_GRP, IDX) \
+GET_FROM_GRP(int, ItemInt, ITEM_GRP, IDX)
+
+#define GET_STRING_FROM_GRP(ITEM_GRP, IDX) \
+GET_FROM_GRP(string, ItemString, ITEM_GRP, IDX)
+
 static const char *TABLE_NAME_SERVERS = "servers";
 
 static const ColumnDef COLUMN_DEF_SERVERS[] = {
@@ -211,17 +220,12 @@ void DBClientAsura::getTargetServers
 		monitoringServers.push_back(MonitoringServerInfo());
 		MonitoringServerInfo &svInfo = monitoringServers.back();
 
-		svInfo.id = ItemDataUtils::get<int, ItemInt>
-		  (itemGroup->getItemAt(idx++));
-		int type =ItemDataUtils::get<int, ItemInt>
-		  (itemGroup->getItemAt(idx++));
-		svInfo.type = static_cast<MonitoringSystemType>(type);
-		svInfo.hostName = ItemDataUtils::get<string, ItemString>
-		  (itemGroup->getItemAt(idx++));
-		svInfo.ipAddress = ItemDataUtils::get<string, ItemString>
-		  (itemGroup->getItemAt(idx++));
-		svInfo.nickname = ItemDataUtils::get<string, ItemString>
-		  (itemGroup->getItemAt(idx++));
+		svInfo.id        = GET_INT_FROM_GRP(itemGroup, idx++);
+		int type         = GET_INT_FROM_GRP(itemGroup, idx++);
+		svInfo.type      = static_cast<MonitoringSystemType>(type);
+		svInfo.hostName  = GET_STRING_FROM_GRP(itemGroup, idx++);
+		svInfo.ipAddress = GET_STRING_FROM_GRP(itemGroup, idx++);
+		svInfo.nickname  = GET_STRING_FROM_GRP(itemGroup, idx++);
 	}
 }
 
