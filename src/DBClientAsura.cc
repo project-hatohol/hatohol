@@ -22,78 +22,7 @@
 #include "ConfigManager.h"
 #include "DBClientUtils.h"
 
-static const char *TABLE_NAME_SERVERS = "servers";
 static const char *TABLE_NAME_TRIGGERS = "triggers";
-
-static const ColumnDef COLUMN_DEF_SERVERS[] = {
-{
-	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_SERVERS,                // tableName
-	"id",                              // columnName
-	SQL_COLUMN_TYPE_INT,               // type
-	11,                                // columnLength
-	0,                                 // decFracLength
-	false,                             // canBeNull
-	SQL_KEY_PRI,                       // keyType
-	0,                                 // flags
-	NULL,                              // defaultValue
-}, {
-	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_SERVERS,                // tableName
-	"type",                            // columnName
-	SQL_COLUMN_TYPE_INT,               // type
-	11,                                // columnLength
-	0,                                 // decFracLength
-	false,                             // canBeNull
-	SQL_KEY_NONE,                      // keyType
-	0,                                 // flags
-	NULL,                              // defaultValue
-}, {
-	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_SERVERS,                // tableName
-	"hostname",                        // columnName
-	SQL_COLUMN_TYPE_VARCHAR,           // type
-	255,                               // columnLength
-	0,                                 // decFracLength
-	false,                             // canBeNull
-	SQL_KEY_NONE,                      // keyType
-	0,                                 // flags
-	NULL,                              // defaultValue
-}, {
-	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_SERVERS,                // tableName
-	"ip_address",                      // columnName
-	SQL_COLUMN_TYPE_VARCHAR,           // type
-	255,                               // columnLength
-	0,                                 // decFracLength
-	false,                             // canBeNull
-	SQL_KEY_NONE,                      // keyType
-	0,                                 // flags
-	NULL,                              // defaultValue
-}, {
-	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_SERVERS,                // tableName
-	"nickname",                        // columnName
-	SQL_COLUMN_TYPE_VARCHAR,           // type
-	255,                               // columnLength
-	0,                                 // decFracLength
-	false,                             // canBeNull
-	SQL_KEY_NONE,                      // keyType
-	0,                                 // flags
-	NULL,                              // defaultValue
-}
-};
-static const size_t NUM_COLUMNS_SERVERS =
-  sizeof(COLUMN_DEF_SERVERS) / sizeof(ColumnDef);
-
-enum {
-	IDX_SERVERS_ID,
-	IDX_SERVERS_TYPE,
-	IDX_SERVERS_HOSTNAME,
-	IDX_SERVERS_IP_ADDRESS,
-	IDX_SERVERS_NICKNAME,
-	NUM_IDX_SERVERS,
-};
 
 static const ColumnDef COLUMN_DEF_TRIGGERS[] = {
 {
@@ -378,10 +307,6 @@ void DBClientAsura::prepareSetupFunction(void)
 {
 	static const DBSetupTableInfo DB_TABLE_INFO[] = {
 	{
-		TABLE_NAME_SERVERS,
-		NUM_COLUMNS_SERVERS,
-		COLUMN_DEF_SERVERS,
-	}, {
 		TABLE_NAME_TRIGGERS,
 		NUM_COLUMNS_TRIGGERS,
 		COLUMN_DEF_TRIGGERS,
