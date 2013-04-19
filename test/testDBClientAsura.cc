@@ -101,5 +101,24 @@ void test_testAddTargetServer(void)
 	cppcut_assert_equal(expectedOut, result);
 }
 
+void test_testGetTargetServers(void)
+{
+	for (size_t i = 0; i < NumServerInfo; i++)
+		assertAddServerToDB(&serverInfo[i]);
+
+	MonitoringServerInfoList monitoringServers;
+	DBClientAsura dbAsura;
+	dbAsura.getTargetServers(monitoringServers);
+	cppcut_assert_equal(NumServerInfo, monitoringServers.size());
+
+	string expectedText;
+	string actualText;
+	MonitoringServerInfoListIterator it = monitoringServers.begin();
+	for (size_t i = 0; i < NumServerInfo; i++, ++it) {
+		expectedText += makeExpectedOutput(&serverInfo[i]);
+		actualText += makeExpectedOutput(&(*it));
+	}
+	cppcut_assert_equal(expectedText, actualText);
+}
 
 } // namespace testDBClientAsura
