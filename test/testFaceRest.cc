@@ -5,6 +5,7 @@
 #include "JsonParserAgent.h"
 #include "DBAgentSQLite3.h"
 #include "DBClientTest.h"
+#include "ConfigManager.h"
 
 namespace testFaceRest {
 
@@ -18,7 +19,8 @@ static void startFaceRest(const string &testDBName)
 {
 	string dbPath = getFixturesDir() + testDBName;
 	// TODO: remove the direct call of DBAgentSQLite3's API.
-	DBAgentSQLite3::defineDBPath(DEFAULT_DB_DOMAIN_ID, dbPath);
+	DBAgentSQLite3::defineDBPath(DB_DOMAIN_ID_CONFIG, dbPath);
+	DBAgentSQLite3::defineDBPath(DB_DOMAIN_ID_ASURA, dbPath);
 
 	CommandLineArg arg;
 	arg.push_back("--face-rest-port");
