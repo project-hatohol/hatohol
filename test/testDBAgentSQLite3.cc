@@ -138,6 +138,9 @@ cut_trace(_assertExistRecord(ID,AGE,NAME,HEIGHT))
 
 void _assertInsertStatic(uint64_t id, int age, const char *name, double height)
 {
+	bool skipSetup = true;
+	DBAgentSQLite3 dbAgent(DefaultDBDomainId, skipSetup);
+
 	DBAgentInsertArg arg;
 	arg.tableName = TABLE_NAME_TEST;
 	arg.numColumns = NUM_COLUMNS_TEST;
@@ -146,7 +149,7 @@ void _assertInsertStatic(uint64_t id, int age, const char *name, double height)
 	arg.row->add(new ItemInt(age), false);
 	arg.row->add(new ItemString(name), false);
 	arg.row->add(new ItemDouble(height), false);
-	DBAgentSQLite3::insert(dbPath, arg);
+	dbAgent.insert(arg);
 
 	assertExistRecord(id, age, name,height);
 }

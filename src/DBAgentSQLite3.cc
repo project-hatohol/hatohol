@@ -139,13 +139,6 @@ const string &DBAgentSQLite3::findDBPath(DBDomainId domainId)
 	return it->second;
 }
 
-void DBAgentSQLite3::insert(const string &dbPath, DBAgentInsertArg &insertArg)
-{
-	TRANSACTION_PREPARE(dbPath, db) {
-		insert(db, insertArg);
-	} TRANSACTION_EXECUTE(db);
-}
-
 void DBAgentSQLite3::update(const string &dbPath, DBAgentUpdateArg &updateArg)
 {
 	TRANSACTION_PREPARE(dbPath, db) {
