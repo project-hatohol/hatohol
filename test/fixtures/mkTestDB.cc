@@ -17,8 +17,8 @@ int main(int argc, char *argv[])
 	printf("DBName: %s\n", dbName.c_str());
 
 	asuraInit();
-	DBAgentSQLite3::defineDBPath(DB_DOMAIN_ID_OFFSET_CONFIG, dbName);
-	DBAgentSQLite3::defineDBPath(DB_DOMAIN_ID_OFFSET_ASURA, dbName);
+	DBAgentSQLite3::defineDBPath(DB_DOMAIN_ID_CONFIG, dbName);
+	DBAgentSQLite3::defineDBPath(DB_DOMAIN_ID_ASURA, dbName);
 
 	for (size_t i = 0; i < NumServerInfo; i++) {
 		MonitoringServerInfo *svInfo = &serverInfo[i];

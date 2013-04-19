@@ -271,7 +271,7 @@ DBClientAsura::DBClientAsura(void)
 		prepareSetupFunction();
 	}
 	m_ctx->unlock();
-	setDBAgent(DBAgentFactory::create(DB_DOMAIN_ID_OFFSET_ASURA));
+	setDBAgent(DBAgentFactory::create(DB_DOMAIN_ID_ASURA));
 }
 
 DBClientAsura::~DBClientAsura()
@@ -407,6 +407,6 @@ void DBClientAsura::prepareSetupFunction(void)
 		DB_TABLE_INFO,
 	};
 
-	DBAgent::addSetupFunction(DB_DOMAIN_ID_OFFSET_ASURA,
+	DBAgent::addSetupFunction(DB_DOMAIN_ID_ASURA,
 	                          dbSetupFunc, (void *)&DB_SETUP_FUNC_ARG);
 }

@@ -44,7 +44,7 @@ void setup(void)
 void test_createDB(void)
 {
 	// remove the DB that already exists
-	string dbPath = deleteDBClientDB(DB_DOMAIN_ID_OFFSET_ASURA);
+	string dbPath = deleteDBClientDB(DB_DOMAIN_ID_ASURA);
 
 	// create an instance (the database will be automatically created)
 	DBClientAsura dbAsura;
@@ -52,8 +52,7 @@ void test_createDB(void)
 
 	// check the version
 	string statement = "select * from _dbclient";
-	string output = execSqlite3ForDBClient(DB_DOMAIN_ID_OFFSET_ASURA,
-	                                       statement);
+	string output = execSqlite3ForDBClient(DB_DOMAIN_ID_ASURA, statement);
 	string expectedOut = StringUtils::sprintf("%d|%d\n",
 	                                          DBClient::DB_VERSION,
 	                                          DBClientAsura::DB_VERSION);
@@ -63,22 +62,21 @@ void test_createDB(void)
 void test_createTableServers(void)
 {
 	const string tableName = "servers";
-	string dbPath = deleteDBClientDB(DB_DOMAIN_ID_OFFSET_ASURA);
+	string dbPath = deleteDBClientDB(DB_DOMAIN_ID_ASURA);
 	DBClientAsura dbAsura;
 	string command = "sqlite3 " + dbPath + " \".table\"";
 	assertExist(tableName, executeCommand(command));
 
 	// check content
 	string statement = "select * from " + tableName;
-	string output = execSqlite3ForDBClient(DB_DOMAIN_ID_OFFSET_ASURA,
-	                                       statement);
+	string output = execSqlite3ForDBClient(DB_DOMAIN_ID_ASURA, statement);
 	string expectedOut = StringUtils::sprintf(""); // currently no data
 	cppcut_assert_equal(expectedOut, output);
 }
 
 void test_testAddTriggerInfo(void)
 {
-	string dbPath = deleteDBClientDB(DB_DOMAIN_ID_OFFSET_ASURA);
+	string dbPath = deleteDBClientDB(DB_DOMAIN_ID_ASURA);
 
 	// added a record
 	TriggerInfo *testInfo = testTriggerInfo;

@@ -1341,7 +1341,7 @@ void DBClientZabbix::init(void)
 
 DBDomainId DBClientZabbix::getDBDomainId(int zabbixServerId)
 {
-	return DB_DOMAIN_ID_OFFSET_ZABBIX + zabbixServerId;
+	return DB_DOMAIN_ID_ZABBIX + zabbixServerId;
 }
 
 void DBClientZabbix::resetDBInitializedFlags(void)
@@ -1366,7 +1366,7 @@ DBClientZabbix::DBClientZabbix(size_t zabbixServerId)
 		prepareSetupFuncCallback(zabbixServerId);
 		m_ctx->dbInitializedFlags[zabbixServerId] = true;
 	}
-	DBDomainId domainId = DB_DOMAIN_ID_OFFSET_ZABBIX + zabbixServerId;
+	DBDomainId domainId = DB_DOMAIN_ID_ZABBIX + zabbixServerId;
 	setDBAgent(DBAgentFactory::create(domainId));
 	m_ctx->unlock();
 }

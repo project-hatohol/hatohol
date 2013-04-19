@@ -151,7 +151,7 @@ DBClientConfig::DBClientConfig(void)
 		prepareSetupFunction();
 	}
 	m_ctx->unlock();
-	setDBAgent(DBAgentFactory::create(DB_DOMAIN_ID_OFFSET_CONFIG));
+	setDBAgent(DBAgentFactory::create(DB_DOMAIN_ID_CONFIG));
 }
 
 DBClientConfig::~DBClientConfig()
@@ -258,6 +258,6 @@ void DBClientConfig::prepareSetupFunction(void)
 		DB_TABLE_INFO,
 	};
 
-	DBAgent::addSetupFunction(DB_DOMAIN_ID_OFFSET_CONFIG,
+	DBAgent::addSetupFunction(DB_DOMAIN_ID_CONFIG,
 	                          dbSetupFunc, (void *)&DB_SETUP_FUNC_ARG);
 }
