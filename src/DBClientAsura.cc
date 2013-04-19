@@ -20,6 +20,7 @@
 #include "DBAgentFactory.h"
 #include "DBClientAsura.h"
 #include "ConfigManager.h"
+#include "DBClientUtils.h"
 
 #define GET_FROM_GRP(NATIVE_TYPE, ITEM_TYPE, ITEM_GRP, IDX) \
 ItemDataUtils::get<NATIVE_TYPE, ITEM_TYPE>(ITEM_GRP->getItemAt(IDX));
