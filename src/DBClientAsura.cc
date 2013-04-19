@@ -24,6 +24,9 @@
 #define GET_FROM_GRP(NATIVE_TYPE, ITEM_TYPE, ITEM_GRP, IDX) \
 ItemDataUtils::get<NATIVE_TYPE, ITEM_TYPE>(ITEM_GRP->getItemAt(IDX));
 
+#define GET_UINT64_FROM_GRP(ITEM_GRP, IDX) \
+GET_FROM_GRP(uint64_t, ItemUint64, ITEM_GRP, IDX)
+
 #define GET_INT_FROM_GRP(ITEM_GRP, IDX) \
 GET_FROM_GRP(int, ItemInt, ITEM_GRP, IDX)
 
@@ -414,7 +417,46 @@ void DBClientAsura::addTriggerInfo(TriggerInfo *triggerInfo)
 
 void DBClientAsura::getTriggerInfoList(TriggerInfoList &triggerInfoList)
 {
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	DBAgentSelectArg arg;
+	arg.tableName = TABLE_NAME_TRIGGERS;
+	arg.columnDefs = COLUMN_DEF_TRIGGERS;
+	arg.columnIndexes.push_back(IDX_TRIGGERS_ID);
+	arg.columnIndexes.push_back(IDX_TRIGGERS_STATUS);
+	arg.columnIndexes.push_back(IDX_TRIGGERS_SEVERITY);
+	arg.columnIndexes.push_back(IDX_TRIGGERS_LAST_CHANGE_TIME_SEC);
+	arg.columnIndexes.push_back(IDX_TRIGGERS_LAST_CHANGE_TIME_NS);
+	arg.columnIndexes.push_back(IDX_TRIGGERS_SERVER_ID);
+	arg.columnIndexes.push_back(IDX_TRIGGERS_HOST_ID);
+	arg.columnIndexes.push_back(IDX_TRIGGERS_HOSTNAME);
+	arg.columnIndexes.push_back(IDX_TRIGGERS_BRIEF);
+
+	DBCLIENT_TRANSACTION_BEGIN() {
+		select(arg);
+	} DBCLIENT_TRANSACTION_END();
+
+	// check the result and copy
+	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
+	ItemGroupListConstIterator it = grpList.begin();
+	for (; it != grpList.end(); ++it) {
+		size_t idx = 0;
+		const ItemGroup *itemGroup = *it;
+		triggerInfoList.push_back(TriggerInfo());
+		TriggerInfo &trigInfo = triggerInfoList.back();
+
+		trigInfo.id        = GET_UINT64_FROM_GRP(itemGroup, idx++);
+		int status         = GET_INT_FROM_GRP(itemGroup, idx++);
+		trigInfo.status    = static_cast<TriggerStatusType>(status);
+		int severity       = GET_INT_FROM_GRP(itemGroup, idx++);
+		trigInfo.severity  = static_cast<TriggerSeverityType>(severity);
+		trigInfo.lastChangeTime.tv_sec = 
+		  GET_INT_FROM_GRP(itemGroup, idx++);
+		trigInfo.lastChangeTime.tv_nsec =
+		  GET_INT_FROM_GRP(itemGroup, idx++);
+		trigInfo.serverId  = GET_INT_FROM_GRP(itemGroup, idx++);
+		trigInfo.hostId    = GET_STRING_FROM_GRP(itemGroup, idx++);
+		trigInfo.hostName  = GET_STRING_FROM_GRP(itemGroup, idx++);
+		trigInfo.brief     = GET_STRING_FROM_GRP(itemGroup, idx++);
+	}
 }
 
 // ---------------------------------------------------------------------------
