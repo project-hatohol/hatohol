@@ -186,6 +186,45 @@ void DBClientAsura::addTargetServer(MonitoringServerInfo *monitoringServerInfo)
 	} DBCLIENT_TRANSACTION_END();
 }
 
+void DBClientAsura::getTargetServers
+  (MonitoringServerInfoList &monitoringServers)
+{
+	DBAgentSelectArg arg;
+	arg.tableName = TABLE_NAME_SERVERS;
+	arg.columnDefs = COLUMN_DEF_SERVERS;
+	arg.columnIndexes.push_back(IDX_SERVERS_ID);
+	arg.columnIndexes.push_back(IDX_SERVERS_TYPE);
+	arg.columnIndexes.push_back(IDX_SERVERS_HOSTNAME);
+	arg.columnIndexes.push_back(IDX_SERVERS_IP_ADDRESS);
+	arg.columnIndexes.push_back(IDX_SERVERS_NICKNAME);
+
+	DBCLIENT_TRANSACTION_BEGIN() {
+		select(arg);
+	} DBCLIENT_TRANSACTION_END();
+
+	// check the result and copy
+	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
+	ItemGroupListConstIterator it = grpList.begin();
+	for (; it != grpList.end(); ++it) {
+		size_t idx = 0;
+		const ItemGroup *itemGroup = *it;
+		monitoringServers.push_back(MonitoringServerInfo());
+		MonitoringServerInfo &svInfo = monitoringServers.back();
+
+		svInfo.id = ItemDataUtils::get<int, ItemInt>
+		  (itemGroup->getItemAt(idx++));
+		int type =ItemDataUtils::get<int, ItemInt>
+		  (itemGroup->getItemAt(idx++));
+		svInfo.type = static_cast<MonitoringSystemType>(type);
+		svInfo.hostName = ItemDataUtils::get<string, ItemString>
+		  (itemGroup->getItemAt(idx++));
+		svInfo.ipAddress = ItemDataUtils::get<string, ItemString>
+		  (itemGroup->getItemAt(idx++));
+		svInfo.nickname = ItemDataUtils::get<string, ItemString>
+		  (itemGroup->getItemAt(idx++));
+	}
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
