@@ -91,8 +91,7 @@ DBAgentSQLite3 OBJ_NAME; \
 
 void _assertCreate(void)
 {
-	bool skipSetup = true;
-	DBAgentSQLite3 dbAgent(DefaultDBDomainId, skipSetup);
+	DBAgentSQLite3 dbAgent;
 
 	DBAgentTableCreationArg arg;
 	arg.tableName = TABLE_NAME_TEST;
@@ -138,8 +137,7 @@ cut_trace(_assertExistRecord(ID,AGE,NAME,HEIGHT))
 
 void _assertInsert(uint64_t id, int age, const char *name, double height)
 {
-	bool skipSetup = true;
-	DBAgentSQLite3 dbAgent(DefaultDBDomainId, skipSetup);
+	DBAgentSQLite3 dbAgent;
 
 	DBAgentInsertArg arg;
 	arg.tableName = TABLE_NAME_TEST;
@@ -158,8 +156,7 @@ cut_trace(_assertInsert(ID,AGE,NAME,HEIGHT));
 
 void _assertUpdate(uint64_t id, int age, const char *name, double height)
 {
-	bool skipSetup = true;
-	DBAgentSQLite3 dbAgent(DefaultDBDomainId, skipSetup);
+	DBAgentSQLite3 dbAgent;
 
 	DBAgentUpdateArg arg;
 	arg.tableName = TABLE_NAME_TEST;
@@ -350,8 +347,7 @@ void test_select(void)
 {
 	makeTestDB();
 
-	bool skipSetup = true;
-	DBAgentSQLite3 dbAgent(DefaultDBDomainId, skipSetup);
+	DBAgentSQLite3 dbAgent;
 
 	// get records
 	DBAgentSelectArg arg;
