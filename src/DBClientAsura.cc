@@ -84,6 +84,15 @@ static const ColumnDef COLUMN_DEF_SERVERS[] = {
 static const size_t NUM_COLUMNS_SERVERS =
   sizeof(COLUMN_DEF_SERVERS) / sizeof(ColumnDef);
 
+enum {
+	IDX_SERVERS_ID,
+	IDX_SERVERS_TYPE,
+	IDX_SERVERS_HOSTNAME,
+	IDX_SERVERS_IP_ADDRESS,
+	IDX_SERVERS_NICKNAME,
+	NUM_IDX_SERVERS,
+};
+
 struct DBClientAsura::PrivateContext
 {
 	static GMutex mutex;
@@ -157,13 +166,21 @@ void DBClientAsura::addTargetServer(MonitoringServerInfo *monitoringServerInfo)
 			DBAgentUpdateArg arg;
 			arg.tableName = TABLE_NAME_SERVERS;
 			arg.columnDefs = COLUMN_DEF_SERVERS;
+
 			arg.row->ADD_NEW_ITEM(Int, monitoringServerInfo->type);
+			arg.columnIndexes.push_back(IDX_SERVERS_TYPE);
+
 			arg.row->ADD_NEW_ITEM(String,
 			                      monitoringServerInfo->hostName);
+			arg.columnIndexes.push_back(IDX_SERVERS_HOSTNAME);
+
 			arg.row->ADD_NEW_ITEM(String,
 			                      monitoringServerInfo->ipAddress);
+			arg.columnIndexes.push_back(IDX_SERVERS_IP_ADDRESS);
+
 			arg.row->ADD_NEW_ITEM(String,
 			                      monitoringServerInfo->nickname);
+			arg.columnIndexes.push_back(IDX_SERVERS_NICKNAME);
 			update(arg);
 		}
 	} DBCLIENT_TRANSACTION_END();
