@@ -281,7 +281,7 @@ void test_create(void)
 	assertCreate();
 }
 
-void test_insertStatic(void)
+void test_insert(void)
 {
 	// create table
 	assertCreate();
@@ -294,7 +294,7 @@ void test_insertStatic(void)
 	assertInsert(ID, AGE, NAME, HEIGHT);
 }
 
-void test_insertStaticUint64_0x7fffffffffffffff(void)
+void test_insertUint64_0x7fffffffffffffff(void)
 {
 	// create table
 	assertCreate();
@@ -307,7 +307,7 @@ void test_insertStaticUint64_0x7fffffffffffffff(void)
 	assertInsert(ID, AGE, NAME, HEIGHT);
 }
 
-void test_insertStaticUint64_0x8000000000000000(void)
+void test_insertUint64_0x8000000000000000(void)
 {
 	// create table
 	assertCreate();
@@ -320,7 +320,7 @@ void test_insertStaticUint64_0x8000000000000000(void)
 	assertInsert(ID, AGE, NAME, HEIGHT);
 }
 
-void test_insertStaticUint64_0xffffffffffffffff(void)
+void test_insertUint64_0xffffffffffffffff(void)
 {
 	// create table
 	assertCreate();
@@ -333,10 +333,10 @@ void test_insertStaticUint64_0xffffffffffffffff(void)
 	assertInsert(ID, AGE, NAME, HEIGHT);
 }
 
-void test_updateStatic(void)
+void test_update(void)
 {
 	// create table and insert a row
-	test_insertStatic();
+	test_insert();
 
 	// insert a row
 	const uint64_t ID = 9;
