@@ -11,7 +11,7 @@ using namespace mlpl;
 
 namespace testDBAgentSQLite3 {
 
-static string dbPath = "/tmp/testDBAgentSQLite3.db";
+static string dbPath = DBAgentSQLite3::findDBPath(DefaultDBDomainId);
 
 static const char *TABLE_NAME_TEST = "test_table";
 static const ColumnDef COLUMN_DEF_TEST[] = {
@@ -89,13 +89,16 @@ string _path = getFixturesDir() + DB_NAME; \
 DBAgentSQLite3::defineDBPath(DefaultDBDomainId, _path); \
 DBAgentSQLite3 OBJ_NAME; \
 
-void _assertCreateStatic(void)
+void _assertCreate(void)
 {
+	bool skipSetup = true;
+	DBAgentSQLite3 dbAgent(DefaultDBDomainId, skipSetup);
+
 	DBAgentTableCreationArg arg;
 	arg.tableName = TABLE_NAME_TEST;
 	arg.numColumns = NUM_COLUMNS_TEST;
 	arg.columnDefs = COLUMN_DEF_TEST;
-	DBAgentSQLite3::createTable(dbPath, arg);
+	dbAgent.createTable(arg);
 
 	// check if the table has been created successfully
 	cut_assert_exist_path(dbPath.c_str());
@@ -104,7 +107,7 @@ void _assertCreateStatic(void)
 	string output = executeCommand(cmd);
 	assertExist(TABLE_NAME_TEST, output);
 }
-#define assertCreateStatic() cut_trace(_assertCreateStatic())
+#define assertCreate() cut_trace(_assertCreate())
 
 void _assertExistRecord(uint64_t id, int age, const char *name, double height)
 {
@@ -171,7 +174,7 @@ cut_trace(_assertUpdateStatic(ID,AGE,NAME,HEIGHT));
 static void makeTestDB(void)
 {
 	// make table
-	assertCreateStatic();
+	assertCreate();
 
 	// insert data
 	for (size_t i = 0; i < NUM_TEST_DATA; i++)
@@ -267,15 +270,15 @@ void test_testIsRecordExistingNotIncluded(void)
 	  (false, dbAgent.isRecordExisting("foo", expectFalseCondition));
 }
 
-void test_createStatic(void)
+void test_create(void)
 {
-	assertCreateStatic();
+	assertCreate();
 }
 
 void test_insertStatic(void)
 {
 	// create table
-	assertCreateStatic();
+	assertCreate();
 
 	// insert a row
 	const uint64_t ID = 1;
@@ -288,7 +291,7 @@ void test_insertStatic(void)
 void test_insertStaticUint64_0x7fffffffffffffff(void)
 {
 	// create table
-	assertCreateStatic();
+	assertCreate();
 
 	// insert a row
 	const uint64_t ID = 0x7fffffffffffffff;
@@ -301,7 +304,7 @@ void test_insertStaticUint64_0x7fffffffffffffff(void)
 void test_insertStaticUint64_0x8000000000000000(void)
 {
 	// create table
-	assertCreateStatic();
+	assertCreate();
 
 	// insert a row
 	const uint64_t ID = 0x8000000000000000;
@@ -314,7 +317,7 @@ void test_insertStaticUint64_0x8000000000000000(void)
 void test_insertStaticUint64_0xffffffffffffffff(void)
 {
 	// create table
-	assertCreateStatic();
+	assertCreate();
 
 	// insert a row
 	const uint64_t ID = 0xffffffffffffffff;
@@ -499,7 +502,7 @@ void test_selectExStaticWithOrderByLimitOffsetOverData(void)
 void test_deleteStatic(void)
 {
 	// create table
-	assertCreateStatic();
+	assertCreate();
 
 	// insert rows
 	const size_t NUM_TEST = 3;
