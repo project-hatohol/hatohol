@@ -225,6 +225,16 @@ void DBClientAsura::getTargetServers
 	}
 }
 
+void DBClientAsura::addTriggerInfo(TriggerInfo *triggerInfo)
+{
+	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+}
+
+void DBClientAsura::getTriggerInfoList(TriggerInfoList &triggerInfoList)
+{
+	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------

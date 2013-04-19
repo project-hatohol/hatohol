@@ -27,6 +27,8 @@ public:
 
 	void addTargetServer(MonitoringServerInfo *monitoringServerInfo);
 	void getTargetServers(MonitoringServerInfoList &monitoringServers);
+	void addTriggerInfo(TriggerInfo *triggerInfo);
+	void getTriggerInfoList(TriggerInfoList &triggerInfoList);
 
 protected:
 	void prepareSetupFunction(void);

@@ -224,7 +224,7 @@ static void makeTestDB(void)
 	cppcut_assert_equal(NUM_TEST_DATA, g_testDataIdIndexMap.size());
 }
 
-// TODO: remove after the DBClientAsura works
+// TODO: remove the following two functions after the DBClientAsura works
 static string makeExpectedOutput(MonitoringServerInfo *serverInfo)
 {
 	string expectedOut = StringUtils::sprintf

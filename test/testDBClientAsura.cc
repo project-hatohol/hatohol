@@ -31,6 +31,14 @@ static void addTargetServer(MonitoringServerInfo *serverInfo)
 #define assertAddServerToDB(X) \
 cut_trace(_assertAddToDB<MonitoringServerInfo>(X, addTargetServer))
 
+static void addTriggerInfo(TriggerInfo *triggerInfo)
+{
+	DBClientAsura dbAsura;
+	dbAsura.addTriggerInfo(triggerInfo);
+}
+#define assertAddTriggerToDB(X) \
+cut_trace(_assertAddToDB<TriggerInfo>(X, addTriggerInfo))
+
 static string makeExpectedOutput(MonitoringServerInfo *serverInfo)
 {
 	string expectedOut = StringUtils::sprintf
@@ -39,6 +47,21 @@ static string makeExpectedOutput(MonitoringServerInfo *serverInfo)
 	                        serverInfo->hostName.c_str(),
 	                        serverInfo->ipAddress.c_str(),
 	                        serverInfo->nickname.c_str());
+	return expectedOut;
+}
+
+static string makeExpectedOutput(TriggerInfo *triggerInfo)
+{
+	string expectedOut = StringUtils::sprintf
+	                       ("%u|%d|%d|%d|%d|%u|%s|%s|%s\n",
+	                        triggerInfo->id,
+	                        triggerInfo->status, triggerInfo->severity,
+	                        triggerInfo->lastChangeTime.tv_sec,
+	                        triggerInfo->lastChangeTime.tv_nsec,
+	                        triggerInfo->serverId,
+	                        triggerInfo->hostId.c_str(),
+	                        triggerInfo->hostName.c_str(),
+	                        triggerInfo->brief.c_str());
 	return expectedOut;
 }
 
@@ -116,6 +139,42 @@ void test_testGetTargetServers(void)
 	MonitoringServerInfoListIterator it = monitoringServers.begin();
 	for (size_t i = 0; i < NumServerInfo; i++, ++it) {
 		expectedText += makeExpectedOutput(&serverInfo[i]);
+		actualText += makeExpectedOutput(&(*it));
+	}
+	cppcut_assert_equal(expectedText, actualText);
+}
+
+void test_testAddTriggerInfo(void)
+{
+	string dbPath = deleteDBClientDB(DB_DOMAIN_ID_OFFSET_ASURA);
+
+	// added a record
+	TriggerInfo *testInfo = testTriggerInfo;
+	assertAddTriggerToDB(testInfo);
+
+	// confirm with the command line tool
+	string cmd = StringUtils::sprintf(
+	               "sqlite3 %s \"select * from triggers\"", dbPath.c_str());
+	string result = executeCommand(cmd);
+	string expectedOut = makeExpectedOutput(testInfo);
+	cppcut_assert_equal(expectedOut, result);
+}
+
+void test_testGetTriggerInfoList(void)
+{
+	for (size_t i = 0; i < NumTestTriggerInfo; i++)
+		assertAddTriggerToDB(&testTriggerInfo[i]);
+
+	TriggerInfoList triggerInfoList;
+	DBClientAsura dbAsura;
+	dbAsura.getTriggerInfoList(triggerInfoList);
+	cppcut_assert_equal(NumTestTriggerInfo, triggerInfoList.size());
+
+	string expectedText;
+	string actualText;
+	TriggerInfoListIterator it = triggerInfoList.begin();
+	for (size_t i = 0; i < NumTestTriggerInfo; i++, ++it) {
+		expectedText += makeExpectedOutput(&testTriggerInfo[i]);
 		actualText += makeExpectedOutput(&(*it));
 	}
 	cppcut_assert_equal(expectedText, actualText);

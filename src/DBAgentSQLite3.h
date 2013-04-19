@@ -66,6 +66,7 @@ public:
 	virtual bool isTableExisting(const string &tableName);
 	virtual bool isRecordExisting(const string &tableName,
 	                              const string &condition);
+	// TODO: remove the following 4 functions after DBClientAsura works
 	virtual void
 	   addTargetServer(MonitoringServerInfo *monitoringServerInfo);
 	virtual void
