@@ -8,7 +8,7 @@ using namespace mlpl;
 #include "DBAgentSQLite3.h"
 #include "AsuraException.h"
 #include "Helpers.h"
-#include "DBAgentTest.h"
+#include "DBAgentTest.h" // TODO: remove after the DBClientAsura works
 
 namespace testDBAgentSQLite3 {
 
@@ -100,6 +100,7 @@ string _path = getFixturesDir() + DB_NAME; \
 DBAgentSQLite3::defineDBPath(DefaultDBDomainId, _path); \
 DBAgentSQLite3 OBJ_NAME; \
 
+// TODO: remove after DBClientAsura works
 template<typename T> void _assertAddToDB
   (T *elem, void (*func)(DBAgentSQLite3 &, T *))
 {
@@ -223,6 +224,7 @@ static void makeTestDB(void)
 	cppcut_assert_equal(NUM_TEST_DATA, g_testDataIdIndexMap.size());
 }
 
+// TODO: remove after the DBClientAsura works
 static string makeExpectedOutput(MonitoringServerInfo *serverInfo)
 {
 	string expectedOut = StringUtils::sprintf
@@ -343,6 +345,7 @@ void test_testIsRecordExistingNotIncluded(void)
 	  (false, dbAgent.isRecordExisting("foo", expectFalseCondition));
 }
 
+// TODO: remove after the DBClientAsura works
 void test_testAddTargetServer(void)
 {
 	// added a record
