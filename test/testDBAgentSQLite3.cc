@@ -191,6 +191,7 @@ static void _assertSelectHeightOrder(size_t limit = 0, size_t offset = 0,
                                      size_t forceExpectedRows = (size_t)-1)
 {
 	makeTestDB();
+	DBAgentSQLite3 dbAgent;
 	DBAgentSelectExArg arg;
 	arg.tableName = TABLE_NAME_TEST;
 	const ColumnDef &columnDef = COLUMN_DEF_TEST[IDX_TEST_TABLE_HEIGHT];
@@ -199,7 +200,7 @@ static void _assertSelectHeightOrder(size_t limit = 0, size_t offset = 0,
 	arg.orderBy = StringUtils::sprintf("%s DESC", columnDef.columnName);
 	arg.limit = limit;
 	arg.offset = offset;
-	DBAgentSQLite3::select(dbPath, arg);
+	dbAgent.select(arg);
 
 	// check the result
 	const ItemGroupList &itemList = arg.dataTable->getItemGroupList();
@@ -407,11 +408,12 @@ void test_select(void)
 void test_selectExStatic(void)
 {
 	makeTestDB();
+	DBAgentSQLite3 dbAgent;
 	DBAgentSelectExArg arg;
 	arg.tableName = TABLE_NAME_TEST;
 	arg.statements.push_back("count(*)");
 	arg.columnTypes.push_back(SQL_COLUMN_TYPE_TEXT);
-	DBAgentSQLite3::select(dbPath, arg);
+	dbAgent.select(arg);
 
 	const ItemGroupList &itemList = arg.dataTable->getItemGroupList();
 	cppcut_assert_equal((size_t)1, itemList.size());
@@ -429,6 +431,7 @@ void test_selectExStaticWithCond(void)
 	size_t targetRow = 1;
 
 	makeTestDB();
+	DBAgentSQLite3 dbAgent;
 	DBAgentSelectExArg arg;
 	arg.tableName = TABLE_NAME_TEST;
 	arg.statements.push_back(columnDefId.columnName);
@@ -436,7 +439,7 @@ void test_selectExStaticWithCond(void)
 
 	arg.condition = StringUtils::sprintf
 	                  ("%s=%zd", columnDefId.columnName, ID[targetRow]);
-	DBAgentSQLite3::select(dbPath, arg);
+	dbAgent.select(arg);
 
 	const ItemGroupList &itemList = arg.dataTable->getItemGroupList();
 	cppcut_assert_equal((size_t)1, itemList.size());
@@ -454,6 +457,7 @@ void test_selectExStaticWithCondAllColumns(void)
 	size_t targetRow = 1;
 
 	makeTestDB();
+	DBAgentSQLite3 dbAgent;
 	DBAgentSelectExArg arg;
 	arg.tableName = TABLE_NAME_TEST;
 	for (size_t i = 0; i < NUM_COLUMNS_TEST; i++) {
@@ -464,7 +468,7 @@ void test_selectExStaticWithCondAllColumns(void)
 
 	arg.condition = StringUtils::sprintf
 	                  ("%s=%zd", columnDefId.columnName, ID[targetRow]);
-	DBAgentSQLite3::select(dbPath, arg);
+	dbAgent.select(arg);
 
 	const ItemGroupList &itemList = arg.dataTable->getItemGroupList();
 	cppcut_assert_equal((size_t)1, itemList.size());

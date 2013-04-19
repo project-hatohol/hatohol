@@ -139,14 +139,6 @@ const string &DBAgentSQLite3::findDBPath(DBDomainId domainId)
 	return it->second;
 }
 
-void DBAgentSQLite3::select(const string &dbPath,
-                            DBAgentSelectExArg &selectExArg)
-{
-	TRANSACTION_PREPARE(dbPath, db) {
-		select(db, selectExArg);
-	} TRANSACTION_EXECUTE(db);
-}
-
 void DBAgentSQLite3::deleteRows(const string &dbPath,
                                 DBAgentDeleteArg &deleteArg)
 {

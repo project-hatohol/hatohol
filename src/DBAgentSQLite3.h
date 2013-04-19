@@ -35,7 +35,6 @@ public:
 	static string getDefaultDBPath(DBDomainId domainId);
 	static void defineDBPath(DBDomainId domainId, const string &path);
 	static const string &findDBPath(DBDomainId domainId);
-	static void select(const string &dbPath, DBAgentSelectExArg &selectArg);
 	static void deleteRows(const string &dbPath,
                                DBAgentDeleteArg &deleteArg);
 
