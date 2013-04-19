@@ -35,8 +35,6 @@ public:
 	static string getDefaultDBPath(DBDomainId domainId);
 	static void defineDBPath(DBDomainId domainId, const string &path);
 	static const string &findDBPath(DBDomainId domainId);
-	static bool isTableExisting(const string &dbPath,
-	                            const string &tableName);
 	static void createTable(const string &dbPath,
 	                        DBAgentTableCreationArg &tableCreationArg);
 	static void insert(const string &dbPath,

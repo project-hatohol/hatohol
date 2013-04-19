@@ -139,16 +139,6 @@ const string &DBAgentSQLite3::findDBPath(DBDomainId domainId)
 	return it->second;
 }
 
-bool DBAgentSQLite3::isTableExisting(const string &dbPath,
-                                     const string &tableName)
-{
-	bool exist;
-	TRANSACTION_PREPARE(dbPath, db) {
-		exist = isTableExisting(db, tableName);
-	} TRANSACTION_EXECUTE(db);
-	return exist;
-}
-
 void DBAgentSQLite3::createTable(const string &dbPath,
                                  DBAgentTableCreationArg &tableCreationArg)
 {
