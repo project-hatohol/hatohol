@@ -26,7 +26,7 @@
 static const int DB_DOMAIN_ID_OFFSET_CONFIG = 0x0010;
 static const int DB_DOMAIN_ID_OFFSET_ASURA  = 0x0000;
 static const int DB_DOMAIN_ID_OFFSET_ZABBIX = 0x1000;
-static const size_t NumMaxZabbixServers = 100;
+static const size_t NUM_MAX_ZABBIX_SERVERS = 100;
 
 class ConfigManager {
 public:

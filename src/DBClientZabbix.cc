@@ -1300,7 +1300,7 @@ enum {
 struct DBClientZabbix::PrivateContext
 {
 	static GMutex mutex;
-	static bool   dbInitializedFlags[NumMaxZabbixServers];
+	static bool   dbInitializedFlags[NUM_MAX_ZABBIX_SERVERS];
 
 	// methods
 	PrivateContext(void)
@@ -1323,7 +1323,7 @@ struct DBClientZabbix::PrivateContext
 };
 
 GMutex DBClientZabbix::PrivateContext::mutex;
-bool   DBClientZabbix::PrivateContext::dbInitializedFlags[NumMaxZabbixServers];
+bool DBClientZabbix::PrivateContext::dbInitializedFlags[NUM_MAX_ZABBIX_SERVERS];
 
 // ---------------------------------------------------------------------------
 // Public methods
@@ -1347,14 +1347,14 @@ DBDomainId DBClientZabbix::getDBDomainId(int zabbixServerId)
 void DBClientZabbix::resetDBInitializedFlags(void)
 {
 	// This function is mainly for test
-	for (size_t i = 0; i < NumMaxZabbixServers; i++)
+	for (size_t i = 0; i < NUM_MAX_ZABBIX_SERVERS; i++)
 		PrivateContext::dbInitializedFlags[i] = false;
 }
 
 DBClientZabbix::DBClientZabbix(size_t zabbixServerId)
 : m_ctx(NULL)
 {
-	ASURA_ASSERT(zabbixServerId < NumMaxZabbixServers,
+	ASURA_ASSERT(zabbixServerId < NUM_MAX_ZABBIX_SERVERS,
 	   "The specified zabbix server ID is larger than max: %d",
 	   zabbixServerId); 
 	m_ctx = new PrivateContext();
