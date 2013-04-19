@@ -25,6 +25,8 @@ public:
 	DBClientAsura(void);
 	virtual ~DBClientAsura();
 
+	void addTargetServer(MonitoringServerInfo *monitoringServerInfo);
+
 protected:
 	void prepareSetupFunction(void);
 

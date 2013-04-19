@@ -134,6 +134,41 @@ DBClientAsura::~DBClientAsura()
 		delete m_ctx;
 }
 
+void DBClientAsura::addTargetServer(MonitoringServerInfo *monitoringServerInfo)
+{
+	string condition = StringUtils::sprintf("id=%u",
+	                                        monitoringServerInfo->id);
+	DBCLIENT_TRANSACTION_BEGIN() {
+		if (!isRecordExisting(TABLE_NAME_SERVERS, condition)) {
+			DBAgentInsertArg arg;
+			arg.tableName = TABLE_NAME_SERVERS;
+			arg.numColumns = NUM_COLUMNS_SERVERS;
+			arg.columnDefs = COLUMN_DEF_SERVERS;
+			arg.row->ADD_NEW_ITEM(Int, monitoringServerInfo->id);
+			arg.row->ADD_NEW_ITEM(Int, monitoringServerInfo->type);
+			arg.row->ADD_NEW_ITEM(String,
+			                      monitoringServerInfo->hostName);
+			arg.row->ADD_NEW_ITEM(String,
+			                      monitoringServerInfo->ipAddress);
+			arg.row->ADD_NEW_ITEM(String,
+			                      monitoringServerInfo->nickname);
+			insert(arg);
+		} else {
+			DBAgentUpdateArg arg;
+			arg.tableName = TABLE_NAME_SERVERS;
+			arg.columnDefs = COLUMN_DEF_SERVERS;
+			arg.row->ADD_NEW_ITEM(Int, monitoringServerInfo->type);
+			arg.row->ADD_NEW_ITEM(String,
+			                      monitoringServerInfo->hostName);
+			arg.row->ADD_NEW_ITEM(String,
+			                      monitoringServerInfo->ipAddress);
+			arg.row->ADD_NEW_ITEM(String,
+			                      monitoringServerInfo->nickname);
+			update(arg);
+		}
+	} DBCLIENT_TRANSACTION_END();
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
