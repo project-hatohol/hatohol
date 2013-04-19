@@ -156,8 +156,11 @@ void _assertInsert(uint64_t id, int age, const char *name, double height)
 #define assertInsert(ID,AGE,NAME,HEIGHT) \
 cut_trace(_assertInsert(ID,AGE,NAME,HEIGHT));
 
-void _assertUpdateStatic(uint64_t id, int age, const char *name, double height)
+void _assertUpdate(uint64_t id, int age, const char *name, double height)
 {
+	bool skipSetup = true;
+	DBAgentSQLite3 dbAgent(DefaultDBDomainId, skipSetup);
+
 	DBAgentUpdateArg arg;
 	arg.tableName = TABLE_NAME_TEST;
 	for (size_t i = IDX_TEST_TABLE_ID; i < NUM_COLUMNS_TEST; i++)
@@ -167,12 +170,12 @@ void _assertUpdateStatic(uint64_t id, int age, const char *name, double height)
 	arg.row->add(new ItemInt(age), false);
 	arg.row->add(new ItemString(name), false);
 	arg.row->add(new ItemDouble(height), false);
-	DBAgentSQLite3::update(dbPath, arg);
+	dbAgent.update(arg);
 
 	assertExistRecord(id, age, name,height);
 }
-#define assertUpdateStatic(ID,AGE,NAME,HEIGHT) \
-cut_trace(_assertUpdateStatic(ID,AGE,NAME,HEIGHT));
+#define assertUpdate(ID,AGE,NAME,HEIGHT) \
+cut_trace(_assertUpdate(ID,AGE,NAME,HEIGHT));
 
 static void makeTestDB(void)
 {
@@ -340,7 +343,7 @@ void test_updateStatic(void)
 	const int AGE = 20;
 	const char *NAME = "yui";
 	const double HEIGHT = 158.0;
-	assertUpdateStatic(ID, AGE, NAME, HEIGHT);
+	assertUpdate(ID, AGE, NAME, HEIGHT);
 }
 
 void test_selectStatic(void)
