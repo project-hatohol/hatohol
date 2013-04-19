@@ -31,6 +31,7 @@ GET_FROM_GRP(int, ItemInt, ITEM_GRP, IDX)
 GET_FROM_GRP(string, ItemString, ITEM_GRP, IDX)
 
 static const char *TABLE_NAME_SERVERS = "servers";
+static const char *TABLE_NAME_TRIGGERS = "triggers";
 
 static const ColumnDef COLUMN_DEF_SERVERS[] = {
 {
@@ -100,6 +101,125 @@ enum {
 	IDX_SERVERS_IP_ADDRESS,
 	IDX_SERVERS_NICKNAME,
 	NUM_IDX_SERVERS,
+};
+
+static const ColumnDef COLUMN_DEF_TRIGGERS[] = {
+{
+	ITEM_ID_NOT_SET,                   // itemId
+	TABLE_NAME_TRIGGERS,               // tableName
+	"id",                              // columnName
+	SQL_COLUMN_TYPE_BIGUINT,           // type
+	11,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_PRI,                       // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}, {
+	ITEM_ID_NOT_SET,                   // itemId
+	TABLE_NAME_TRIGGERS,               // tableName
+	"status",                          // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	11,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}, {
+	ITEM_ID_NOT_SET,                   // itemId
+	TABLE_NAME_TRIGGERS,               // tableName
+	"severity",                        // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	11,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}, {
+	ITEM_ID_NOT_SET,                   // itemId
+	TABLE_NAME_TRIGGERS,               // tableName
+	"last_change_time_sec",            // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	11,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}, {
+	ITEM_ID_NOT_SET,                   // itemId
+	TABLE_NAME_TRIGGERS,               // tableName
+	"last_change_time_ns",             // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	11,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}, {
+	ITEM_ID_NOT_SET,                   // itemId
+	TABLE_NAME_TRIGGERS,               // tableName
+	"server_id",                       // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	11,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}, {
+	ITEM_ID_NOT_SET,                   // itemId
+	TABLE_NAME_TRIGGERS,               // tableName
+	"host_id",                         // columnName
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	255,                               // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}, {
+	ITEM_ID_NOT_SET,                   // itemId
+	TABLE_NAME_TRIGGERS,               // tableName
+	"hostname",                        // columnName
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	255,                               // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}, {
+	ITEM_ID_NOT_SET,                   // itemId
+	TABLE_NAME_TRIGGERS,               // tableName
+	"brief",                           // columnName
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	255,                               // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}
+};
+
+static const size_t NUM_COLUMNS_TRIGGERS =
+  sizeof(COLUMN_DEF_TRIGGERS) / sizeof(ColumnDef);
+
+enum {
+	IDX_TRIGGERS_ID,
+	IDX_TRIGGERS_STATUS,
+	IDX_TRIGGERS_SEVERITY,
+	IDX_TRIGGERS_LAST_CHANGE_TIME_SEC,
+	IDX_TRIGGERS_LAST_CHANGE_TIME_NS,
+	IDX_TRIGGERS_SERVER_ID,
+	IDX_TRIGGERS_HOST_ID,
+	IDX_TRIGGERS_HOSTNAME,
+	IDX_TRIGGERS_BRIEF,
+	NUM_IDX_TRIGGERS,
 };
 
 struct DBClientAsura::PrivateContext
@@ -231,7 +351,60 @@ void DBClientAsura::getTargetServers
 
 void DBClientAsura::addTriggerInfo(TriggerInfo *triggerInfo)
 {
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	string condition = StringUtils::sprintf("id=%"PRIu64, triggerInfo->id);
+	DBCLIENT_TRANSACTION_BEGIN() {
+		if (!isRecordExisting(TABLE_NAME_TRIGGERS, condition)) {
+			DBAgentInsertArg arg;
+			arg.tableName = TABLE_NAME_TRIGGERS;
+			arg.numColumns = NUM_COLUMNS_TRIGGERS;
+			arg.columnDefs = COLUMN_DEF_TRIGGERS;
+			arg.row->ADD_NEW_ITEM(Uint64, triggerInfo->id);
+			arg.row->ADD_NEW_ITEM(Int, triggerInfo->status);
+			arg.row->ADD_NEW_ITEM(Int, triggerInfo->severity),
+			arg.row->ADD_NEW_ITEM
+			  (Int, triggerInfo->lastChangeTime.tv_sec); 
+			arg.row->ADD_NEW_ITEM
+			  (Int, triggerInfo->lastChangeTime.tv_nsec); 
+			arg.row->ADD_NEW_ITEM(Int, triggerInfo->serverId);
+			arg.row->ADD_NEW_ITEM(String, triggerInfo->hostId);
+			arg.row->ADD_NEW_ITEM(String, triggerInfo->hostName);
+			arg.row->ADD_NEW_ITEM(String, triggerInfo->brief);
+			insert(arg);
+		} else {
+			DBAgentUpdateArg arg;
+			arg.tableName = TABLE_NAME_TRIGGERS;
+			arg.columnDefs = COLUMN_DEF_TRIGGERS;
+
+			arg.row->ADD_NEW_ITEM(Int, triggerInfo->status);
+			arg.columnIndexes.push_back(IDX_TRIGGERS_STATUS);
+
+			arg.row->ADD_NEW_ITEM(Int, triggerInfo->severity);
+			arg.columnIndexes.push_back(IDX_TRIGGERS_SEVERITY);
+
+			arg.row->ADD_NEW_ITEM
+			  (Int, triggerInfo->lastChangeTime.tv_sec); 
+			arg.columnIndexes.push_back
+			  (IDX_TRIGGERS_LAST_CHANGE_TIME_SEC);
+
+			arg.row->ADD_NEW_ITEM
+			  (Int, triggerInfo->lastChangeTime.tv_nsec); 
+			arg.columnIndexes.push_back
+			  (IDX_TRIGGERS_LAST_CHANGE_TIME_NS);
+
+			arg.row->ADD_NEW_ITEM(Int, triggerInfo->serverId);
+			arg.columnIndexes.push_back(IDX_TRIGGERS_SERVER_ID);
+
+			arg.row->ADD_NEW_ITEM(String, triggerInfo->hostId);
+			arg.columnIndexes.push_back(IDX_TRIGGERS_HOST_ID);
+
+			arg.row->ADD_NEW_ITEM(String, triggerInfo->hostName);
+			arg.columnIndexes.push_back(IDX_TRIGGERS_HOSTNAME);
+
+			arg.row->ADD_NEW_ITEM(String, triggerInfo->brief);
+			arg.columnIndexes.push_back(IDX_TRIGGERS_BRIEF);
+			update(arg);
+		}
+	} DBCLIENT_TRANSACTION_END();
 }
 
 void DBClientAsura::getTriggerInfoList(TriggerInfoList &triggerInfoList)
