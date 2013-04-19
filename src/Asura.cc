@@ -44,7 +44,7 @@ void asuraInit(void)
 
 	AsuraException::init();
 
-	DBAgentSQLite3::defineDBPath(DefaultDBDomainId,
+	DBAgentSQLite3::defineDBPath(DEFAULT_DB_DOMAIN_ID,
 	                             DEFAULT_SQLITE3_DB_PATH);
 	DBClientZabbix::init();
 

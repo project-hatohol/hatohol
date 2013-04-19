@@ -78,14 +78,14 @@ struct DBAgentDeleteArg {
 
 typedef uint32_t DBDomainId;
 typedef void (*DBSetupFunc)(DBDomainId domainId, void *data);
-static const DBDomainId DefaultDBDomainId = 0;
+static const DBDomainId DEFAULT_DB_DOMAIN_ID = 0;
 
 class DBAgent {
 public:
 	static void addSetupFunction(DBDomainId domainId,
 	                             DBSetupFunc setupFunc, void *data = NULL);
 
-	DBAgent(DBDomainId = DefaultDBDomainId, bool skipSetup = false);
+	DBAgent(DBDomainId = DEFAULT_DB_DOMAIN_ID, bool skipSetup = false);
 	virtual ~DBAgent();
 
 	// virtual methods

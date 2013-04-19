@@ -18,7 +18,7 @@ static void startFaceRest(const string &testDBName)
 {
 	string dbPath = getFixturesDir() + testDBName;
 	// TODO: remove the direct call of DBAgentSQLite3's API.
-	DBAgentSQLite3::defineDBPath(DefaultDBDomainId, dbPath);
+	DBAgentSQLite3::defineDBPath(DEFAULT_DB_DOMAIN_ID, dbPath);
 
 	CommandLineArg arg;
 	arg.push_back("--face-rest-port");

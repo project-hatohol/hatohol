@@ -11,7 +11,7 @@ using namespace mlpl;
 
 namespace testDBAgentSQLite3 {
 
-static string dbPath = DBAgentSQLite3::getDBPath(DefaultDBDomainId);
+static string dbPath = DBAgentSQLite3::getDBPath(DEFAULT_DB_DOMAIN_ID);
 
 static const char *TABLE_NAME_TEST = "test_table";
 static const ColumnDef COLUMN_DEF_TEST[] = {
@@ -86,7 +86,7 @@ static void deleteDB(void)
 
 #define DEFINE_DBAGENT_WITH_INIT(DB_NAME, OBJ_NAME) \
 string _path = getFixturesDir() + DB_NAME; \
-DBAgentSQLite3::defineDBPath(DefaultDBDomainId, _path); \
+DBAgentSQLite3::defineDBPath(DEFAULT_DB_DOMAIN_ID, _path); \
 DBAgentSQLite3 OBJ_NAME; \
 
 void _assertCreate(void)
@@ -240,7 +240,7 @@ void setup(void)
 {
 	g_testDataIdIndexMap.clear();
 	deleteDB();
-	DBAgentSQLite3::defineDBPath(DefaultDBDomainId, dbPath);
+	DBAgentSQLite3::defineDBPath(DEFAULT_DB_DOMAIN_ID, dbPath);
 }
 
 // ---------------------------------------------------------------------------
