@@ -34,7 +34,7 @@ public:
 	 */
 	static string getDefaultDBPath(DBDomainId domainId);
 	static void defineDBPath(DBDomainId domainId, const string &path);
-	static const string &findDBPath(DBDomainId domainId);
+	static const string &getDBPath(DBDomainId domainId);
 
 	// constructor and destructor
 	DBAgentSQLite3(DBDomainId domainId = DefaultDBDomainId,

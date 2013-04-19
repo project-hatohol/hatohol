@@ -11,7 +11,7 @@ using namespace mlpl;
 
 namespace testDBAgentSQLite3 {
 
-static string dbPath = DBAgentSQLite3::findDBPath(DefaultDBDomainId);
+static string dbPath = DBAgentSQLite3::getDBPath(DefaultDBDomainId);
 
 static const char *TABLE_NAME_TEST = "test_table";
 static const ColumnDef COLUMN_DEF_TEST[] = {

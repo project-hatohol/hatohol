@@ -108,7 +108,7 @@ void DBAgentSQLite3::defineDBPath(DBDomainId domainId, const string &path)
 	  "Failed to insert. Probably domain id (%u) is duplicated", domainId);
 }
 
-const string &DBAgentSQLite3::findDBPath(DBDomainId domainId)
+const string &DBAgentSQLite3::getDBPath(DBDomainId domainId)
 {
 	string dbPath;
 	PrivateContext::lock();
@@ -131,7 +131,7 @@ DBAgentSQLite3::DBAgentSQLite3(DBDomainId domainId, bool skipSetup)
 {
 	// We don't lock DB (use transaction) in the existence check of
 	m_ctx = new PrivateContext();
-	m_ctx->dbPath = findDBPath(domainId);
+	m_ctx->dbPath = getDBPath(domainId);
 	openDatabase();
 }
 
