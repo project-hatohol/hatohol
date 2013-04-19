@@ -45,20 +45,6 @@ string STR_NAME; \
 	ASURA_ASSERT(VAR_NAME != NULL, "Failed to cast: %s -> %s", \
 	             DEMANGLED_TYPE_NAME(*ITEM_DATA), #ACTUAL_TYPE); \
 
-#define TRANSACTION_PREPARE(DB_PATH, SQLITE3_DB_NAME) \
-	sqlite3 *SQLITE3_DB_NAME = openDatabase(DB_PATH); \
-	try { \
-		execSql(SQLITE3_DB_NAME, "BEGIN");
-
-#define TRANSACTION_EXECUTE(SQLITE3_DB_NAME) \
-	} catch (...) { \
-		execSql(SQLITE3_DB_NAME, "ROLLBACK"); \
-		sqlite3_close(SQLITE3_DB_NAME); \
-		throw; \
-	} \
-	execSql(SQLITE3_DB_NAME, "COMMIT"); \
-	sqlite3_close(SQLITE3_DB_NAME);
-
 typedef map<DBDomainId, string>     DBDomainIdPathMap;
 typedef DBDomainIdPathMap::iterator DBDomainIdPathMapIterator;
 
