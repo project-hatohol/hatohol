@@ -1,7 +1,7 @@
-#ifndef DBAgentTest_h
-#define DBAgentTest_h
+#ifndef DBClientAsuraTest_h
+#define DBClientAsuraTest_h
 
-#include "DBAgent.h"
+#include "DBClientAsura.h"
 
 extern MonitoringServerInfo serverInfo[];
 extern size_t NumServerInfo;
@@ -9,5 +9,5 @@ extern size_t NumServerInfo;
 extern TriggerInfo testTriggerInfo[];
 extern size_t NumTestTriggerInfo;
 
-#endif // DBAgentTest_h
+#endif // DBClientAsuraTest_h
 

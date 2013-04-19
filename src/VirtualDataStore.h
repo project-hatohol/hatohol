@@ -22,7 +22,7 @@
 
 #include "VirtualDataStore.h"
 #include "DataStoreManager.h"
-#include "DBAgent.h"
+#include "DBClientAsura.h"
 
 class VirtualDataStore : public DataStoreManager
 {

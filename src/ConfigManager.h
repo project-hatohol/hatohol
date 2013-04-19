@@ -21,7 +21,7 @@
 #include <glib.h>
 #include <stdint.h>
 
-#include "DBAgent.h"
+#include "DBClientAsura.h"
 
 static const int DB_DOMAIN_ID_OFFSET_ASURA  = 0x0000;
 static const int DB_DOMAIN_ID_OFFSET_ZABBIX = 0x1000;

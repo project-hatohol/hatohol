@@ -18,7 +18,48 @@
 #ifndef DBClientAsura_h
 #define DBClientAsura_h
 
+#include <list>
 #include "DBClient.h"
+
+enum MonitoringSystemType {
+	MONITORING_SYSTEM_ZABBIX,
+};
+
+struct MonitoringServerInfo {
+	uint32_t             id;
+	MonitoringSystemType type;
+	string               hostName;
+	string               ipAddress;
+	string               nickname;
+};
+
+typedef list<MonitoringServerInfo>         MonitoringServerInfoList;
+typedef MonitoringServerInfoList::iterator MonitoringServerInfoListIterator;
+
+enum TriggerStatusType {
+	TRIGGER_STATUS_OK,
+	TRIGGER_STATUS_PROBLEM,
+};
+
+enum TriggerSeverityType {
+	TRIGGER_SEVERITY_INFO,
+	TRIGGER_SEVERITY_WARN,
+};
+
+struct TriggerInfo {
+	uint64_t            id;
+	TriggerStatusType   status;
+	TriggerSeverityType severity;
+	timespec            lastChangeTime;
+	uint32_t            serverId;
+	string              hostId;
+	string              hostName;
+	string              brief;
+};
+
+typedef list<TriggerInfo>         TriggerInfoList;
+typedef TriggerInfoList::iterator TriggerInfoListIterator;
+
 
 class DBClientAsura : public DBClient {
 public:

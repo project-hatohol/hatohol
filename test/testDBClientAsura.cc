@@ -5,7 +5,7 @@
 #include "DBClientAsura.h"
 #include "ConfigManager.h"
 #include "Helpers.h"
-#include "DBAgentTest.h"
+#include "DBClientAsuraTest.h"
 
 namespace testDBClientAsura {
 

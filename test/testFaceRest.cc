@@ -4,7 +4,7 @@
 #include "Helpers.h"
 #include "JsonParserAgent.h"
 #include "DBAgentSQLite3.h"
-#include "DBAgentTest.h"
+#include "DBClientAsuraTest.h"
 
 namespace testFaceRest {
 

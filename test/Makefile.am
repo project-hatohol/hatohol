@@ -44,8 +44,8 @@ testAsura_la_LDFLAGS = $(AM_LDFLAGS) $(LIBS)
 testAsura_la_LIBADD = libTest.la
 
 libTest_la_SOURCES = \
-	FormulaTestUtils.cc Helpers.cc DBAgentTest.cc ZabbixAPIEmulator.cc \
-	Synchronizer.cc
+	FormulaTestUtils.cc Helpers.cc DBClientAsuraTest.cc \
+	ZabbixAPIEmulator.cc Synchronizer.cc
 libTest_la_LDFLAGS =
 
 zabbix_api_response_collector_LDFLAGS =
