@@ -529,7 +529,8 @@ void test_deleteStatic(void)
 	const ColumnDef &columnDefAge = COLUMN_DEF_TEST[IDX_TEST_TABLE_AGE];
 	arg.condition = StringUtils::sprintf
 	                  ("%s<%d", columnDefAge.columnName, thresAge);
-	DBAgentSQLite3::deleteRows(dbPath, arg);
+	DBAgentSQLite3 dbAgent;
+	dbAgent.deleteRows(arg);
 
 	// check
 	cut_assert_exist_path(dbPath.c_str());

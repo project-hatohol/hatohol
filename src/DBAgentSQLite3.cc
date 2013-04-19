@@ -139,14 +139,6 @@ const string &DBAgentSQLite3::findDBPath(DBDomainId domainId)
 	return it->second;
 }
 
-void DBAgentSQLite3::deleteRows(const string &dbPath,
-                                DBAgentDeleteArg &deleteArg)
-{
-	TRANSACTION_PREPARE(dbPath, db) {
-		deleteRows(db, deleteArg);
-	} TRANSACTION_EXECUTE(db);
-}
-
 DBAgentSQLite3::DBAgentSQLite3(DBDomainId domainId, bool skipSetup)
 : DBAgent(domainId, skipSetup),
   m_ctx(NULL)
