@@ -21,21 +21,6 @@
 #include <list>
 #include "DBClient.h"
 
-enum MonitoringSystemType {
-	MONITORING_SYSTEM_ZABBIX,
-};
-
-struct MonitoringServerInfo {
-	uint32_t             id;
-	MonitoringSystemType type;
-	string               hostName;
-	string               ipAddress;
-	string               nickname;
-};
-
-typedef list<MonitoringServerInfo>         MonitoringServerInfoList;
-typedef MonitoringServerInfoList::iterator MonitoringServerInfoListIterator;
-
 enum TriggerStatusType {
 	TRIGGER_STATUS_OK,
 	TRIGGER_STATUS_PROBLEM,
@@ -60,7 +45,6 @@ struct TriggerInfo {
 typedef list<TriggerInfo>         TriggerInfoList;
 typedef TriggerInfoList::iterator TriggerInfoListIterator;
 
-
 class DBClientAsura : public DBClient {
 public:
 	static void resetDBInitializedFlags(void);
@@ -68,8 +52,6 @@ public:
 	DBClientAsura(void);
 	virtual ~DBClientAsura();
 
-	void addTargetServer(MonitoringServerInfo *monitoringServerInfo);
-	void getTargetServers(MonitoringServerInfoList &monitoringServers);
 	void addTriggerInfo(TriggerInfo *triggerInfo);
 	void getTriggerInfoList(TriggerInfoList &triggerInfoList);
 

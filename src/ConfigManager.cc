@@ -16,7 +16,7 @@
 */
 
 #include "ConfigManager.h"
-#include "DBClientAsura.h"
+#include "DBClientConfig.h"
 
 static const char *DEFAULT_DATABASE_DIR = "/tmp";
 static const size_t DEFAULT_NUM_PRESERVED_REPLICA_GENERATION = 3;
@@ -59,15 +59,15 @@ ConfigManager *ConfigManager::getInstance(void)
 
 void ConfigManager::addTargetServer(MonitoringServerInfo *monitoringServerInfo)
 {
-	DBClientAsura dbAsura;
-	dbAsura.addTargetServer(monitoringServerInfo);
+	DBClientConfig dbConfig;
+	dbConfig.addTargetServer(monitoringServerInfo);
 }
 
 void ConfigManager::getTargetServers
   (MonitoringServerInfoList &monitoringServers)
 {
-	DBClientAsura dbAsura;
-	dbAsura.getTargetServers(monitoringServers);
+	DBClientConfig dbConfig;
+	dbConfig.getTargetServers(monitoringServers);
 }
 
 const string &ConfigManager::getDatabaseDirectory(void) const

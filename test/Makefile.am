@@ -26,7 +26,8 @@ LIBS = \
 testAsura_la_SOURCES = \
 	testAsuraException.cc testSQLProcessorException.cc \
 	testAsuraThreadBase.cc \
-	testDBAgentSQLite3.cc testDBClientAsura.cc testDBClientZabbix.cc \
+	testDBAgentSQLite3.cc \
+	testDBClientConfig.cc testDBClientAsura.cc testDBClientZabbix.cc \
 	testSQLUtils.cc testSQLProcessor.cc \
 	testSQLProcessorInsert.cc testSQLProcessorUpdate.cc \
 	testFormulaElement.cc \
@@ -44,7 +45,7 @@ testAsura_la_LDFLAGS = $(AM_LDFLAGS) $(LIBS)
 testAsura_la_LIBADD = libTest.la
 
 libTest_la_SOURCES = \
-	FormulaTestUtils.cc Helpers.cc DBClientAsuraTest.cc \
+	FormulaTestUtils.cc Helpers.cc DBClientTest.cc \
 	ZabbixAPIEmulator.cc Synchronizer.cc
 libTest_la_LDFLAGS =
 

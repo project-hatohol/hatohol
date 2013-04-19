@@ -54,4 +54,18 @@ string deleteDBClientZabbixDB(int serverId);
 string execSqlite3ForDBClient(DBDomainId domainId, const string &statement);
 string execSqlite3ForDBClientZabbix(int serverId, const string &statement);
 
+template<typename T> void _assertAddToDB(T *arg, void (*func)(T *))
+{
+	bool gotException = false;
+	try {
+		(*func)(arg);
+	} catch (const AsuraException &e) {
+		gotException = true;
+		cut_fail("%s", e.getFancyMessage().c_str());
+	} catch (...) {
+		gotException = true;
+	}
+	cppcut_assert_equal(false, gotException);
+}
+
 #endif // Helpers_h

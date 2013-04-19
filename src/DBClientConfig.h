@@ -15,35 +15,43 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef ConfigManager_h
-#define ConfigManager_h
+#ifndef DBClientConfig_h
+#define DBClientConfig_h
 
-#include <glib.h>
-#include <stdint.h>
+#include <list>
+#include "DBClient.h"
 
-#include "DBClientConfig.h"
+enum MonitoringSystemType {
+	MONITORING_SYSTEM_ZABBIX,
+};
 
-static const int DB_DOMAIN_ID_OFFSET_CONFIG = 0x0010;
-static const int DB_DOMAIN_ID_OFFSET_ASURA  = 0x0000;
-static const int DB_DOMAIN_ID_OFFSET_ZABBIX = 0x1000;
-static const size_t NumMaxZabbixServers = 100;
+struct MonitoringServerInfo {
+	uint32_t             id;
+	MonitoringSystemType type;
+	string               hostName;
+	string               ipAddress;
+	string               nickname;
+};
 
-class ConfigManager {
+typedef list<MonitoringServerInfo>         MonitoringServerInfoList;
+typedef MonitoringServerInfoList::iterator MonitoringServerInfoListIterator;
+
+class DBClientConfig : public DBClient {
 public:
-	static ConfigManager *getInstance(void);
+	static void resetDBInitializedFlags(void);
+
+	DBClientConfig(void);
+	virtual ~DBClientConfig();
 
 	void addTargetServer(MonitoringServerInfo *monitoringServerInfo);
 	void getTargetServers(MonitoringServerInfoList &monitoringServers);
-	const string &getDatabaseDirectory(void) const;
-	size_t getNumberOfPreservedReplicaGeneration(void) const;
+
+protected:
+	void prepareSetupFunction(void);
 
 private:
 	struct PrivateContext;
 	PrivateContext *m_ctx;
-
-	// Constructor and destructor
-	ConfigManager(void);
-	virtual ~ConfigManager();
 };
 
-#endif // ConfigManager_h
+#endif // DBClientConfig_h
