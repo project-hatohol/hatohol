@@ -251,6 +251,11 @@ bool   DBClientAsura::PrivateContext::initialized = false;
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
+void DBClientAsura::resetDBInitializedFlags(void)
+{
+	PrivateContext::initialized = false;
+}
+
 DBClientAsura::DBClientAsura(void)
 : m_ctx(NULL)
 {

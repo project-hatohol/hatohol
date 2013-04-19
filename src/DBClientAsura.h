@@ -22,6 +22,8 @@
 
 class DBClientAsura : public DBClient {
 public:
+	static void resetDBInitializedFlags(void);
+
 	DBClientAsura(void);
 	virtual ~DBClientAsura();
 

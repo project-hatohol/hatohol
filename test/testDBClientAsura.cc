@@ -68,6 +68,7 @@ static string makeExpectedOutput(TriggerInfo *triggerInfo)
 void setup(void)
 {
 	asuraInit();
+	DBClientAsura::resetDBInitializedFlags();
 }
 
 // ---------------------------------------------------------------------------
