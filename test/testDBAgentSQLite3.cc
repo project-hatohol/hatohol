@@ -346,9 +346,12 @@ void test_updateStatic(void)
 	assertUpdate(ID, AGE, NAME, HEIGHT);
 }
 
-void test_selectStatic(void)
+void test_select(void)
 {
 	makeTestDB();
+
+	bool skipSetup = true;
+	DBAgentSQLite3 dbAgent(DefaultDBDomainId, skipSetup);
 
 	// get records
 	DBAgentSelectArg arg;
@@ -358,7 +361,7 @@ void test_selectStatic(void)
 	arg.columnIndexes.push_back(IDX_TEST_TABLE_AGE);
 	arg.columnIndexes.push_back(IDX_TEST_TABLE_NAME);
 	arg.columnIndexes.push_back(IDX_TEST_TABLE_HEIGHT);
-	DBAgentSQLite3::select(dbPath, arg);
+	dbAgent.select(arg);
 
 	// check the result
 	const ItemGroupList &groupList = arg.dataTable->getItemGroupList();
