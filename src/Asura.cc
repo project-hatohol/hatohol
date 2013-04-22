@@ -34,14 +34,8 @@
 static GStaticMutex mutex = G_STATIC_MUTEX_INIT;
 static bool initDone = false; 
 
-void asuraInit(void)
+static void init(void)
 {
-	g_static_mutex_lock(&mutex);
-	if (initDone) {
-		g_static_mutex_unlock(&mutex);
-		return;
-	}
-
 	AsuraException::init();
 
 	DBAgentSQLite3::init();
@@ -61,7 +55,20 @@ void asuraInit(void)
 	SQLProcessorUpdate::init();
 	SQLProcessorZabbix::init();
 	SQLProcessorFactory::init();
+}
 
-	initDone = true;
+static void reset(void)
+{
+	DBClientZabbix::reset();
+}
+
+void asuraInit(void)
+{
+	g_static_mutex_lock(&mutex);
+	if (!initDone) {
+		init();
+		initDone = true;
+	}
+	reset();
 	g_static_mutex_unlock(&mutex);
 }

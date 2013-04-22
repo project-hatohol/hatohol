@@ -1339,6 +1339,11 @@ void DBClientZabbix::init(void)
 	  NUM_REPLICA_GENERATION_TARGET_ID);
 }
 
+void DBClientZabbix::reset(void)
+{
+	DBClientZabbix::resetDBInitializedFlags();
+}
+
 DBDomainId DBClientZabbix::getDBDomainId(int zabbixServerId)
 {
 	return DB_DOMAIN_ID_ZABBIX + zabbixServerId;
