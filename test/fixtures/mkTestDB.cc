@@ -6,6 +6,28 @@
 #include "DBClientAsura.h"
 #include "ConfigManager.h"
 
+typedef void (*DBMaker)(const string &dbName);
+
+static void makeDBConfig(const string &dbName)
+{
+	DBAgentSQLite3::defineDBPath(DB_DOMAIN_ID_CONFIG, dbName);
+	for (size_t i = 0; i < NumServerInfo; i++) {
+		MonitoringServerInfo *svInfo = &serverInfo[i];
+		DBClientConfig dbConfig;
+		dbConfig.addTargetServer(svInfo);
+	} 
+}
+
+static void makeDBAsura(const string &dbName)
+{
+	DBAgentSQLite3::defineDBPath(DB_DOMAIN_ID_ASURA, dbName);
+	for (size_t i = 0; i < NumTestTriggerInfo; i++) {
+		TriggerInfo *trigInfo = &testTriggerInfo[i];
+		DBClientAsura dbAsura;
+		dbAsura.addTriggerInfo(trigInfo);
+	} 
+}
+
 int main(int argc, char *argv[])
 {
 	if (argc < 3) {
@@ -13,26 +35,25 @@ int main(int argc, char *argv[])
 		return EXIT_FAILURE;
 	}
 
-	string dbNameConfig(argv[1]);
-	string dbNameAsura(argv[2]);
-	printf("DBName (config): %s\n", dbNameConfig.c_str());
-	printf("DBName (asura) : %s\n", dbNameAsura.c_str());
+	string command(argv[1]);
+	string dbName(argv[2]);
+
+	printf("command: %s\n", command.c_str());
+	printf("DBName : %s\n", dbName.c_str());
 
 	asuraInit();
-	DBAgentSQLite3::defineDBPath(DB_DOMAIN_ID_CONFIG, dbNameConfig);
-	DBAgentSQLite3::defineDBPath(DB_DOMAIN_ID_ASURA, dbNameAsura);
+	DBMaker dbMaker = NULL;
+	if (command == "config")
+		dbMaker = makeDBConfig;
+	else if (command == "asura")
+		dbMaker = makeDBAsura;
 
-	for (size_t i = 0; i < NumServerInfo; i++) {
-		MonitoringServerInfo *svInfo = &serverInfo[i];
-		DBClientConfig dbConfig;
-		dbConfig.addTargetServer(svInfo);
-	} 
+	if (!dbMaker) {
+		printf("Unknwon command\n");
+		return EXIT_FAILURE;
+	}
 
-	for (size_t i = 0; i < NumTestTriggerInfo; i++) {
-		TriggerInfo *trigInfo = &testTriggerInfo[i];
-		DBClientAsura dbAsura;
-		dbAsura.addTriggerInfo(trigInfo);
-	} 
+	(*dbMaker)(dbName);
 
 	return EXIT_SUCCESS;
 }
