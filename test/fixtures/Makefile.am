@@ -10,7 +10,7 @@ LIBS = ../../src/libasura.la ../libTest.la
 mkTestDB_SOURCES = mkTestDB.cc
 
 $(TEST_DBS): mkTestDB ../../src/libasura.la
-	rm -f $@
+	rm -f $(TEST_DBS)
 	mkTestDB $(TEST_DBS)
 
 FooTable.db: mkFooTable.sh
