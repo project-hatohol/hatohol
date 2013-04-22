@@ -32,6 +32,24 @@ static string makeExpectedOutput(TriggerInfo *triggerInfo)
 	return expectedOut;
 }
 
+static void _assertGetTriggers(void)
+{
+	TriggerInfoList triggerInfoList;
+	DBClientAsura dbAsura;
+	dbAsura.getTriggerInfoList(triggerInfoList);
+	cppcut_assert_equal(NumTestTriggerInfo, triggerInfoList.size());
+
+	string expectedText;
+	string actualText;
+	TriggerInfoListIterator it = triggerInfoList.begin();
+	for (size_t i = 0; i < NumTestTriggerInfo; i++, ++it) {
+		expectedText += makeExpectedOutput(&testTriggerInfo[i]);
+		actualText += makeExpectedOutput(&(*it));
+	}
+	cppcut_assert_equal(expectedText, actualText);
+}
+#define assertGetTriggers() cut_trace(_assertGetTriggers())
+
 void setup(void)
 {
 	asuraInit();
@@ -93,20 +111,7 @@ void test_testGetTriggerInfoList(void)
 {
 	for (size_t i = 0; i < NumTestTriggerInfo; i++)
 		assertAddTriggerToDB(&testTriggerInfo[i]);
-
-	TriggerInfoList triggerInfoList;
-	DBClientAsura dbAsura;
-	dbAsura.getTriggerInfoList(triggerInfoList);
-	cppcut_assert_equal(NumTestTriggerInfo, triggerInfoList.size());
-
-	string expectedText;
-	string actualText;
-	TriggerInfoListIterator it = triggerInfoList.begin();
-	for (size_t i = 0; i < NumTestTriggerInfo; i++, ++it) {
-		expectedText += makeExpectedOutput(&testTriggerInfo[i]);
-		actualText += makeExpectedOutput(&(*it));
-	}
-	cppcut_assert_equal(expectedText, actualText);
+	assertGetTriggers();
 }
 
 void test_setTriggerInfoList(void)
@@ -119,23 +124,7 @@ void test_setTriggerInfoList(void)
 		triggerInfoList.push_back(testTriggerInfo[i]);
 	dbAsura.setTriggerInfoList(triggerInfoList);
 
-	// Below are the same as those in test_testGetTriggerInfoList().
-	// We will extract them to a function.
-	{
-	TriggerInfoList triggerInfoList;
-	DBClientAsura dbAsura;
-	dbAsura.getTriggerInfoList(triggerInfoList);
-	cppcut_assert_equal(NumTestTriggerInfo, triggerInfoList.size());
-
-	string expectedText;
-	string actualText;
-	TriggerInfoListIterator it = triggerInfoList.begin();
-	for (size_t i = 0; i < NumTestTriggerInfo; i++, ++it) {
-		expectedText += makeExpectedOutput(&testTriggerInfo[i]);
-		actualText += makeExpectedOutput(&(*it));
-	}
-	cppcut_assert_equal(expectedText, actualText);
-	}
+	assertGetTriggers();
 }
 
 } // namespace testDBClientAsura
