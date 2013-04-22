@@ -302,7 +302,7 @@ void DBClientAsura::getTriggerInfoList(TriggerInfoList &triggerInfoList)
 
 void DBClientAsura::setTriggerInfoList(const TriggerInfoList &triggerInfoList)
 {
-	MLPL_BUG("Not implemented: %s\n");
+	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
 }
 
 // ---------------------------------------------------------------------------
