@@ -27,8 +27,6 @@ using namespace mlpl;
 #include "AsuraException.h"
 #include "ConfigManager.h"
 
-#include <inttypes.h>
-
 static const char *DEFAULT_SQLITE3_DB_PATH = "/tmp/asura.db";
 
 #define MAKE_SQL_STATEMENT_FROM_VAARG(LAST_ARG, STR_NAME) \
