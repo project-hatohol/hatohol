@@ -80,6 +80,7 @@ DBDomainIdPathMap DBAgentSQLite3::PrivateContext::domainIdPathMap;
 // ---------------------------------------------------------------------------
 void DBAgentSQLite3::init(void)
 {
+	PrivateContext::domainIdPathMap.clear();
 	defineDBPath(DEFAULT_DB_DOMAIN_ID, DEFAULT_SQLITE3_DB_PATH);
 }
 
