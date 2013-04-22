@@ -123,7 +123,7 @@ bool   DBClientConfig::PrivateContext::initialized = false;
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
-void DBClientConfig::init(void)
+void DBClientConfig::reset(void)
 {
 	resetDBInitializedFlags();
 }

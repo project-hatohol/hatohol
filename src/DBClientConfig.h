@@ -38,7 +38,7 @@ typedef MonitoringServerInfoList::iterator MonitoringServerInfoListIterator;
 
 class DBClientConfig : public DBClient {
 public:
-	static void init(void);
+	static void reset(void);
 
 	DBClientConfig(void);
 	virtual ~DBClientConfig();
