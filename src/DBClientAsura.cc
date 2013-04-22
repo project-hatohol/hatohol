@@ -172,9 +172,9 @@ bool   DBClientAsura::PrivateContext::initialized = false;
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
-void DBClientAsura::resetDBInitializedFlags(void)
+void DBClientAsura::init(void)
 {
-	PrivateContext::initialized = false;
+	resetDBInitializedFlags();
 }
 
 DBClientAsura::DBClientAsura(void)
@@ -303,6 +303,11 @@ void DBClientAsura::getTriggerInfoList(TriggerInfoList &triggerInfoList)
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
+void DBClientAsura::resetDBInitializedFlags(void)
+{
+	PrivateContext::initialized = false;
+}
+
 void DBClientAsura::prepareSetupFunction(void)
 {
 	static const DBSetupTableInfo DB_TABLE_INFO[] = {

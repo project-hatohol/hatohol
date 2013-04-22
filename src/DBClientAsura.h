@@ -47,7 +47,7 @@ typedef TriggerInfoList::iterator TriggerInfoListIterator;
 
 class DBClientAsura : public DBClient {
 public:
-	static void resetDBInitializedFlags(void);
+	static void init(void);
 
 	DBClientAsura(void);
 	virtual ~DBClientAsura();
@@ -56,6 +56,7 @@ public:
 	void getTriggerInfoList(TriggerInfoList &triggerInfoList);
 
 protected:
+	static void resetDBInitializedFlags(void);
 	void prepareSetupFunction(void);
 
 private:
