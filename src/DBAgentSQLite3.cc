@@ -29,6 +29,8 @@ using namespace mlpl;
 
 #include <inttypes.h>
 
+static const char *DEFAULT_SQLITE3_DB_PATH = "/tmp/asura.db";
+
 #define MAKE_SQL_STATEMENT_FROM_VAARG(LAST_ARG, STR_NAME) \
 string STR_NAME; \
 { \
@@ -78,6 +80,11 @@ DBDomainIdPathMap DBAgentSQLite3::PrivateContext::domainIdPathMap;
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
+void DBAgentSQLite3::init(void)
+{
+	defineDBPath(DEFAULT_DB_DOMAIN_ID, DEFAULT_SQLITE3_DB_PATH);
+}
+
 string DBAgentSQLite3::getDefaultDBPath(DBDomainId domainId)
 {
 	ConfigManager *configMgr = ConfigManager::getInstance();

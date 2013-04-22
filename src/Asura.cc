@@ -32,8 +32,6 @@
 static GStaticMutex mutex = G_STATIC_MUTEX_INIT;
 static bool initDone = false; 
 
-static const char *DEFAULT_SQLITE3_DB_PATH = "/tmp/asura.db";
-
 void asuraInit(void)
 {
 	g_static_mutex_lock(&mutex);
@@ -44,8 +42,7 @@ void asuraInit(void)
 
 	AsuraException::init();
 
-	DBAgentSQLite3::defineDBPath(DEFAULT_DB_DOMAIN_ID,
-	                             DEFAULT_SQLITE3_DB_PATH);
+	DBAgentSQLite3::init();
 	DBClientZabbix::init();
 
 	ItemData::init();
