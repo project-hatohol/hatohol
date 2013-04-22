@@ -109,4 +109,33 @@ void test_testGetTriggerInfoList(void)
 	cppcut_assert_equal(expectedText, actualText);
 }
 
+void test_setTriggerInfoList(void)
+{
+	deleteDBClientDB(DB_DOMAIN_ID_ASURA);
+
+	DBClientAsura dbAsura;
+	TriggerInfoList triggerInfoList;
+	for (size_t i = 0; i < NumTestTriggerInfo; i++)
+		triggerInfoList.push_back(testTriggerInfo[i]);
+	dbAsura.setTriggerInfoList(triggerInfoList);
+
+	// Below are the same as those in test_testGetTriggerInfoList().
+	// We will extract them to a function.
+	{
+	TriggerInfoList triggerInfoList;
+	DBClientAsura dbAsura;
+	dbAsura.getTriggerInfoList(triggerInfoList);
+	cppcut_assert_equal(NumTestTriggerInfo, triggerInfoList.size());
+
+	string expectedText;
+	string actualText;
+	TriggerInfoListIterator it = triggerInfoList.begin();
+	for (size_t i = 0; i < NumTestTriggerInfo; i++, ++it) {
+		expectedText += makeExpectedOutput(&testTriggerInfo[i]);
+		actualText += makeExpectedOutput(&(*it));
+	}
+	cppcut_assert_equal(expectedText, actualText);
+	}
+}
+
 } // namespace testDBClientAsura
