@@ -42,8 +42,9 @@ struct TriggerInfo {
 	string              brief;
 };
 
-typedef list<TriggerInfo>         TriggerInfoList;
-typedef TriggerInfoList::iterator TriggerInfoListIterator;
+typedef list<TriggerInfo>               TriggerInfoList;
+typedef TriggerInfoList::iterator       TriggerInfoListIterator;
+typedef TriggerInfoList::const_iterator TriggerInfoListConstIterator;
 
 class DBClientAsura : public DBClient {
 public:

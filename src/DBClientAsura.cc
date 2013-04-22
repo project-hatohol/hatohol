@@ -251,7 +251,16 @@ void DBClientAsura::getTriggerInfoList(TriggerInfoList &triggerInfoList)
 
 void DBClientAsura::setTriggerInfoList(const TriggerInfoList &triggerInfoList)
 {
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	DBAgentDeleteArg deleteArg;
+	deleteArg.tableName = TABLE_NAME_TRIGGERS;
+	// deleteArg.condition is not specified, because we delete all rows.
+
+	TriggerInfoListConstIterator it = triggerInfoList.begin();
+	DBCLIENT_TRANSACTION_BEGIN() {
+		deleteRows(deleteArg);
+		for (; it != triggerInfoList.end(); ++it)
+			addTriggerInfoBare(*it);
+	} DBCLIENT_TRANSACTION_END();
 }
 
 // ---------------------------------------------------------------------------
