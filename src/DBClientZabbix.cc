@@ -1445,6 +1445,12 @@ void DBClientZabbix::addHostsRaw2_0(ItemTablePtr tablePtr)
 	} DBCLIENT_TRANSACTION_END();
 }
 
+void DBClientZabbix::getTriggersAsAsuraFormat
+  (TriggerInfoList &triggerInfoList) const
+{
+	MLPL_BUG("Not implemented: %s\n");
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------

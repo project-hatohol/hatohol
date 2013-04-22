@@ -54,6 +54,7 @@ public:
 
 	void addTriggerInfo(TriggerInfo *triggerInfo);
 	void getTriggerInfoList(TriggerInfoList &triggerInfoList);
+	void setTriggerInfoList(const TriggerInfoList &triggerInfoList);
 
 protected:
 	static void resetDBInitializedFlags(void);

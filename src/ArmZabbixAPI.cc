@@ -27,6 +27,7 @@ using namespace mlpl;
 #include "DataStoreException.h"
 #include "ItemEnum.h"
 #include "DBClientZabbix.h"
+#include "DBClientAsura.h"
 
 static const int DEFAULT_RETRY_INTERVAL = 10;
 static const int DEFAULT_REPEAT_INTERVAL = 30;
@@ -47,6 +48,7 @@ struct ArmZabbixAPI::PrivateContext
 	uint64_t       triggerid;
 	ItemTablePtr   functionsTablePtr;
 	DBClientZabbix dbClientZabbix;
+	DBClientAsura  dbClientAsura;
 	volatile int   exitRequest;
 
 	// constructors
@@ -638,6 +640,13 @@ gpointer ArmZabbixAPI::mainThread(AsuraThreadArg *arg)
 	return NULL;
 }
 
+void ArmZabbixAPI::makeAsuraTriggers(void)
+{
+	TriggerInfoList triggerInfoList;
+	m_ctx->dbClientZabbix.getTriggersAsAsuraFormat(triggerInfoList);
+	m_ctx->dbClientAsura.setTriggerInfoList(triggerInfoList);
+}
+
 //
 // virtual methods defined in this class
 //
@@ -649,6 +658,7 @@ bool ArmZabbixAPI::mainThreadOneProc(void)
 	updateFunctions();
 	updateItems();
 	updateHosts();
+	makeAsuraTriggers();
 
 	return true;
 }

@@ -19,6 +19,7 @@
 #define DBClientZabbix_h
 
 #include "DBClient.h"
+#include "DBClientAsura.h"
 
 class DBClientZabbix : public DBClient {
 public:
@@ -46,6 +47,8 @@ public:
 	void addFunctionsRaw2_0(ItemTablePtr tablePtr);
 	void addItemsRaw2_0(ItemTablePtr tablePtr);
 	void addHostsRaw2_0(ItemTablePtr tablePtr);
+
+	void getTriggersAsAsuraFormat(TriggerInfoList &triggerInfoList) const;
 
 protected:
 	static void tableInitializerSystem(DBAgent *dbAgent, void *data);

@@ -91,6 +91,8 @@ protected:
 	void updateItems(void);
 	void updateHosts(void);
 
+	void makeAsuraTriggers(void);
+
 	// virtual methods
 	gpointer mainThread(AsuraThreadArg *arg);
 

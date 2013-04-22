@@ -300,6 +300,11 @@ void DBClientAsura::getTriggerInfoList(TriggerInfoList &triggerInfoList)
 	}
 }
 
+void DBClientAsura::setTriggerInfoList(const TriggerInfoList &triggerInfoList)
+{
+	MLPL_BUG("Not implemented: %s\n");
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
