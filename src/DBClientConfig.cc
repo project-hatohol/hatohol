@@ -123,9 +123,9 @@ bool   DBClientConfig::PrivateContext::initialized = false;
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
-void DBClientConfig::resetDBInitializedFlags(void)
+void DBClientConfig::init(void)
 {
-	PrivateContext::initialized = false;
+	resetDBInitializedFlags();
 }
 
 DBClientConfig::DBClientConfig(void)
@@ -229,6 +229,11 @@ void DBClientConfig::getTargetServers
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
+void DBClientConfig::resetDBInitializedFlags(void)
+{
+	PrivateContext::initialized = false;
+}
+
 void DBClientConfig::prepareSetupFunction(void)
 {
 	static const DBSetupTableInfo DB_TABLE_INFO[] = {

@@ -38,7 +38,7 @@ typedef MonitoringServerInfoList::iterator MonitoringServerInfoListIterator;
 
 class DBClientConfig : public DBClient {
 public:
-	static void resetDBInitializedFlags(void);
+	static void init(void);
 
 	DBClientConfig(void);
 	virtual ~DBClientConfig();
@@ -47,6 +47,7 @@ public:
 	void getTargetServers(MonitoringServerInfoList &monitoringServers);
 
 protected:
+	static void resetDBInitializedFlags(void);
 	void prepareSetupFunction(void);
 
 private:

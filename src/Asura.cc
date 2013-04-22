@@ -27,6 +27,7 @@
 #include "FaceMySQLWorker.h"
 #include "AsuraException.h"
 #include "DBAgentSQLite3.h"
+#include "DBClientConfig.h"
 #include "DBClientZabbix.h"
 
 static GStaticMutex mutex = G_STATIC_MUTEX_INIT;
@@ -43,6 +44,7 @@ void asuraInit(void)
 	AsuraException::init();
 
 	DBAgentSQLite3::init();
+	DBClientConfig::init();
 	DBClientZabbix::init();
 
 	ItemData::init();
