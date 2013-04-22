@@ -200,59 +200,8 @@ DBClientAsura::~DBClientAsura()
 
 void DBClientAsura::addTriggerInfo(TriggerInfo *triggerInfo)
 {
-	string condition = StringUtils::sprintf("id=%"PRIu64, triggerInfo->id);
 	DBCLIENT_TRANSACTION_BEGIN() {
-		if (!isRecordExisting(TABLE_NAME_TRIGGERS, condition)) {
-			DBAgentInsertArg arg;
-			arg.tableName = TABLE_NAME_TRIGGERS;
-			arg.numColumns = NUM_COLUMNS_TRIGGERS;
-			arg.columnDefs = COLUMN_DEF_TRIGGERS;
-			arg.row->ADD_NEW_ITEM(Uint64, triggerInfo->id);
-			arg.row->ADD_NEW_ITEM(Int, triggerInfo->status);
-			arg.row->ADD_NEW_ITEM(Int, triggerInfo->severity),
-			arg.row->ADD_NEW_ITEM
-			  (Int, triggerInfo->lastChangeTime.tv_sec); 
-			arg.row->ADD_NEW_ITEM
-			  (Int, triggerInfo->lastChangeTime.tv_nsec); 
-			arg.row->ADD_NEW_ITEM(Int, triggerInfo->serverId);
-			arg.row->ADD_NEW_ITEM(String, triggerInfo->hostId);
-			arg.row->ADD_NEW_ITEM(String, triggerInfo->hostName);
-			arg.row->ADD_NEW_ITEM(String, triggerInfo->brief);
-			insert(arg);
-		} else {
-			DBAgentUpdateArg arg;
-			arg.tableName = TABLE_NAME_TRIGGERS;
-			arg.columnDefs = COLUMN_DEF_TRIGGERS;
-
-			arg.row->ADD_NEW_ITEM(Int, triggerInfo->status);
-			arg.columnIndexes.push_back(IDX_TRIGGERS_STATUS);
-
-			arg.row->ADD_NEW_ITEM(Int, triggerInfo->severity);
-			arg.columnIndexes.push_back(IDX_TRIGGERS_SEVERITY);
-
-			arg.row->ADD_NEW_ITEM
-			  (Int, triggerInfo->lastChangeTime.tv_sec); 
-			arg.columnIndexes.push_back
-			  (IDX_TRIGGERS_LAST_CHANGE_TIME_SEC);
-
-			arg.row->ADD_NEW_ITEM
-			  (Int, triggerInfo->lastChangeTime.tv_nsec); 
-			arg.columnIndexes.push_back
-			  (IDX_TRIGGERS_LAST_CHANGE_TIME_NS);
-
-			arg.row->ADD_NEW_ITEM(Int, triggerInfo->serverId);
-			arg.columnIndexes.push_back(IDX_TRIGGERS_SERVER_ID);
-
-			arg.row->ADD_NEW_ITEM(String, triggerInfo->hostId);
-			arg.columnIndexes.push_back(IDX_TRIGGERS_HOST_ID);
-
-			arg.row->ADD_NEW_ITEM(String, triggerInfo->hostName);
-			arg.columnIndexes.push_back(IDX_TRIGGERS_HOSTNAME);
-
-			arg.row->ADD_NEW_ITEM(String, triggerInfo->brief);
-			arg.columnIndexes.push_back(IDX_TRIGGERS_BRIEF);
-			update(arg);
-		}
+		addTriggerInfoBare(*triggerInfo);
 	} DBCLIENT_TRANSACTION_END();
 }
 
@@ -333,4 +282,60 @@ void DBClientAsura::prepareSetupFunction(void)
 
 	DBAgent::addSetupFunction(DB_DOMAIN_ID_ASURA,
 	                          dbSetupFunc, (void *)&DB_SETUP_FUNC_ARG);
+}
+
+void DBClientAsura::addTriggerInfoBare(const TriggerInfo &triggerInfo)
+{
+	string condition = StringUtils::sprintf("id=%"PRIu64, triggerInfo.id);
+	if (!isRecordExisting(TABLE_NAME_TRIGGERS, condition)) {
+		DBAgentInsertArg arg;
+		arg.tableName = TABLE_NAME_TRIGGERS;
+		arg.numColumns = NUM_COLUMNS_TRIGGERS;
+		arg.columnDefs = COLUMN_DEF_TRIGGERS;
+		arg.row->ADD_NEW_ITEM(Uint64, triggerInfo.id);
+		arg.row->ADD_NEW_ITEM(Int, triggerInfo.status);
+		arg.row->ADD_NEW_ITEM(Int, triggerInfo.severity),
+		arg.row->ADD_NEW_ITEM
+		  (Int, triggerInfo.lastChangeTime.tv_sec); 
+		arg.row->ADD_NEW_ITEM
+		  (Int, triggerInfo.lastChangeTime.tv_nsec); 
+		arg.row->ADD_NEW_ITEM(Int, triggerInfo.serverId);
+		arg.row->ADD_NEW_ITEM(String, triggerInfo.hostId);
+		arg.row->ADD_NEW_ITEM(String, triggerInfo.hostName);
+		arg.row->ADD_NEW_ITEM(String, triggerInfo.brief);
+		insert(arg);
+	} else {
+		DBAgentUpdateArg arg;
+		arg.tableName = TABLE_NAME_TRIGGERS;
+		arg.columnDefs = COLUMN_DEF_TRIGGERS;
+
+		arg.row->ADD_NEW_ITEM(Int, triggerInfo.status);
+		arg.columnIndexes.push_back(IDX_TRIGGERS_STATUS);
+
+		arg.row->ADD_NEW_ITEM(Int, triggerInfo.severity);
+		arg.columnIndexes.push_back(IDX_TRIGGERS_SEVERITY);
+
+		arg.row->ADD_NEW_ITEM
+		  (Int, triggerInfo.lastChangeTime.tv_sec); 
+		arg.columnIndexes.push_back
+		  (IDX_TRIGGERS_LAST_CHANGE_TIME_SEC);
+
+		arg.row->ADD_NEW_ITEM
+		  (Int, triggerInfo.lastChangeTime.tv_nsec); 
+		arg.columnIndexes.push_back
+		  (IDX_TRIGGERS_LAST_CHANGE_TIME_NS);
+
+		arg.row->ADD_NEW_ITEM(Int, triggerInfo.serverId);
+		arg.columnIndexes.push_back(IDX_TRIGGERS_SERVER_ID);
+
+		arg.row->ADD_NEW_ITEM(String, triggerInfo.hostId);
+		arg.columnIndexes.push_back(IDX_TRIGGERS_HOST_ID);
+
+		arg.row->ADD_NEW_ITEM(String, triggerInfo.hostName);
+		arg.columnIndexes.push_back(IDX_TRIGGERS_HOSTNAME);
+
+		arg.row->ADD_NEW_ITEM(String, triggerInfo.brief);
+		arg.columnIndexes.push_back(IDX_TRIGGERS_BRIEF);
+		update(arg);
+	}
 }

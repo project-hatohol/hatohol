@@ -59,6 +59,7 @@ public:
 protected:
 	static void resetDBInitializedFlags(void);
 	void prepareSetupFunction(void);
+	void addTriggerInfoBare(const TriggerInfo &triggerInfo);
 
 private:
 	struct PrivateContext;
