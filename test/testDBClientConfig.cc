@@ -87,6 +87,7 @@ void test_testAddTargetServer(void)
 
 void test_testGetTargetServers(void)
 {
+	deleteDBClientDB(DB_DOMAIN_ID_CONFIG);
 	for (size_t i = 0; i < NumServerInfo; i++)
 		assertAddServerToDB(&serverInfo[i]);
 
