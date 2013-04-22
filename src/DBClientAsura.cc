@@ -172,7 +172,7 @@ bool   DBClientAsura::PrivateContext::initialized = false;
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
-void DBClientAsura::init(void)
+void DBClientAsura::reset(void)
 {
 	resetDBInitializedFlags();
 }

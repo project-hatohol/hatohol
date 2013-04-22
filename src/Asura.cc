@@ -39,7 +39,6 @@ static void init(void)
 	AsuraException::init();
 
 	DBAgentSQLite3::init();
-	DBClientAsura::init();
 	DBClientZabbix::init();
 
 	ItemData::init();
@@ -59,6 +58,7 @@ static void init(void)
 static void reset(void)
 {
 	DBClientConfig::reset();
+	DBClientAsura::reset();
 	DBClientZabbix::reset();
 }
 

@@ -48,7 +48,7 @@ typedef TriggerInfoList::const_iterator TriggerInfoListConstIterator;
 
 class DBClientAsura : public DBClient {
 public:
-	static void init(void);
+	static void reset(void);
 
 	DBClientAsura(void);
 	virtual ~DBClientAsura();
