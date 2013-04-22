@@ -1,5 +1,6 @@
+TEST_DBS = testDatabase-config.db testDatabase-asura.db
 if WITH_CUTTER
-noinst_DATA = testDatabase.db FooTable.db
+noinst_DATA = $(TEST_DBS) FooTable.db
 noinst_PROGRAMS = mkTestDB
 endif
 
@@ -8,9 +9,9 @@ LIBS = ../../src/libasura.la ../libTest.la
 
 mkTestDB_SOURCES = mkTestDB.cc
 
-testDatabase.db: mkTestDB ../../src/libasura.la
+$(TEST_DBS): mkTestDB ../../src/libasura.la
 	rm -f $@
-	mkTestDB $@
+	mkTestDB $(TEST_DBS)
 
 FooTable.db: mkFooTable.sh
 	rm -f $@

@@ -10,17 +10,19 @@
 namespace testFaceRest {
 
 static const unsigned int TEST_PORT = 53194;
-static const char *TEST_DB_NAME = "testDatabase.db";
+static const char *TEST_DB_CONFIG_NAME = "testDatabase-config.db";
+static const char *TEST_DB_ASURA_NAME = "testDatabase-asura.db";
 
 static FaceRest *g_faceRest = NULL;
 static JsonParserAgent *g_parser = NULL;
 
-static void startFaceRest(const string &testDBName)
+static void startFaceRest(void)
 {
-	string dbPath = getFixturesDir() + testDBName;
+	string dbPathConfig = getFixturesDir() + TEST_DB_CONFIG_NAME;
+	string dbPathAsura  = getFixturesDir() + TEST_DB_ASURA_NAME;
 	// TODO: remove the direct call of DBAgentSQLite3's API.
-	DBAgentSQLite3::defineDBPath(DB_DOMAIN_ID_CONFIG, dbPath);
-	DBAgentSQLite3::defineDBPath(DB_DOMAIN_ID_ASURA, dbPath);
+	DBAgentSQLite3::defineDBPath(DB_DOMAIN_ID_CONFIG, dbPathConfig);
+	DBAgentSQLite3::defineDBPath(DB_DOMAIN_ID_ASURA, dbPathAsura);
 
 	CommandLineArg arg;
 	arg.push_back("--face-rest-port");
@@ -106,7 +108,7 @@ void teardown(void)
 // ---------------------------------------------------------------------------
 void test_servers(void)
 {
-	startFaceRest(TEST_DB_NAME);
+	startFaceRest();
 	g_parser = getResponseAsJsonParser("/servers");
 	assertValueInParser(g_parser, "result", true);
 	assertValueInParser(g_parser, "numberOfServers",
@@ -127,7 +129,7 @@ void test_servers(void)
 
 void test_triggers(void)
 {
-	startFaceRest(TEST_DB_NAME);
+	startFaceRest();
 	g_parser = getResponseAsJsonParser("/triggers");
 	assertValueInParser(g_parser, "result", true);
 	assertValueInParser(g_parser, "numberOfTriggers",

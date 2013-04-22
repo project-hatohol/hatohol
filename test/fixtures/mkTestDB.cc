@@ -8,17 +8,19 @@
 
 int main(int argc, char *argv[])
 {
-	if (argc < 2) {
+	if (argc < 3) {
 		fprintf(stderr, "Need one argument for the DB name.");
 		return EXIT_FAILURE;
 	}
 
-	string dbName(argv[1]);
-	printf("DBName: %s\n", dbName.c_str());
+	string dbNameConfig(argv[1]);
+	string dbNameAsura(argv[2]);
+	printf("DBName (config): %s\n", dbNameConfig.c_str());
+	printf("DBName (asura) : %s\n", dbNameAsura.c_str());
 
 	asuraInit();
-	DBAgentSQLite3::defineDBPath(DB_DOMAIN_ID_CONFIG, dbName);
-	DBAgentSQLite3::defineDBPath(DB_DOMAIN_ID_ASURA, dbName);
+	DBAgentSQLite3::defineDBPath(DB_DOMAIN_ID_CONFIG, dbNameConfig);
+	DBAgentSQLite3::defineDBPath(DB_DOMAIN_ID_ASURA, dbNameAsura);
 
 	for (size_t i = 0; i < NumServerInfo; i++) {
 		MonitoringServerInfo *svInfo = &serverInfo[i];
