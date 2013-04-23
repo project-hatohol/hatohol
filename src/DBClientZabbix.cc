@@ -1588,8 +1588,8 @@ void DBClientZabbix::addHostsRaw2_0(ItemTablePtr tablePtr)
 void DBClientZabbix::getTriggersAsAsuraFormat(TriggerInfoList &triggerInfoList)
 {
 	// get data from data base
-	DBAgentSelectExArg arg;
-	if (m_ctx->selectExArgForTriggerAsAsuraFormat.tableName.empty())
+	DBAgentSelectExArg &arg = m_ctx->selectExArgForTriggerAsAsuraFormat;
+	if (arg.tableName.empty())
 		makeSelectExArgForTriggerAsAsuraFormat();
 	DBCLIENT_TRANSACTION_BEGIN() {
 		select(arg);
@@ -1897,32 +1897,43 @@ void DBClientZabbix::makeSelectExArgForTriggerAsAsuraFormat(void)
 	//
 	// statements and columnTypes
 	//
+	string columnName;
 
 	// status
 	const ColumnDef &triggersStatus =
 	   COLUMN_DEF_TRIGGERS_RAW_2_0[IDX_TRIGGERS_RAW_2_0_STATUS];
-	arg.statements.push_back(triggersStatus.columnName);
+	columnName = StringUtils::sprintf("%s.%s",
+	               VAR_TRIGGERS, triggersStatus.columnName);
+	arg.statements.push_back(columnName);
 	arg.columnTypes.push_back(triggersStatus.type);
 
 	// severity
 	const ColumnDef &triggersSeverity =
 	   COLUMN_DEF_TRIGGERS_RAW_2_0[IDX_TRIGGERS_RAW_2_0_PRIORITY];
-	arg.statements.push_back(triggersSeverity.columnName);
+	columnName = StringUtils::sprintf("%s.%s",
+	               VAR_TRIGGERS, triggersSeverity.columnName);
+	arg.statements.push_back(columnName);
 	arg.columnTypes.push_back(triggersSeverity.type);
 
 	// lastChangeTime
 	const ColumnDef &triggersLastchange = 
 	   COLUMN_DEF_TRIGGERS_RAW_2_0[IDX_TRIGGERS_RAW_2_0_LASTCHANGE];
-	arg.statements.push_back(triggersLastchange.columnName);
+	columnName = StringUtils::sprintf("%s.%s",
+	               VAR_TRIGGERS, triggersLastchange.columnName);
+	arg.statements.push_back(columnName);
 	arg.columnTypes.push_back(triggersLastchange.type);
 
 	// hostId
-	arg.statements.push_back(hostsHostid.columnName);
+	columnName = StringUtils::sprintf("%s.%s",
+	               VAR_HOSTS, hostsHostid.columnName);
+	arg.statements.push_back(columnName);
 	arg.columnTypes.push_back(hostsHostid.type);
 
 	// hostName
 	const ColumnDef &hostsName =
 	   COLUMN_DEF_HOSTS_RAW_2_0[IDX_HOSTS_RAW_2_0_NAME];
-	arg.statements.push_back(hostsName.columnName);
+	columnName = StringUtils::sprintf("%s.%s",
+	               VAR_HOSTS, hostsName.columnName);
+	arg.statements.push_back(columnName);
 	arg.columnTypes.push_back(hostsName.type);
 }
