@@ -42,7 +42,7 @@ string STR_NAME; \
 
 #define DEFINE_AND_ASSERT(ITEM_DATA, ACTUAL_TYPE, VAR_NAME) \
 	ACTUAL_TYPE *VAR_NAME = dynamic_cast<ACTUAL_TYPE *>(ITEM_DATA); \
-	ASURA_ASSERT(VAR_NAME != NULL, "Failed to cast: %s -> %s", \
+	ASURA_ASSERT(VAR_NAME != NULL, "Failed to dynamic cast: %s -> %s", \
 	             DEMANGLED_TYPE_NAME(*ITEM_DATA), #ACTUAL_TYPE); \
 
 typedef map<DBDomainId, string>     DBDomainIdPathMap;
