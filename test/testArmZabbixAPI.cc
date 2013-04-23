@@ -90,6 +90,12 @@ public:
 		return succeeded;
 	}
 
+	bool testMainThreadOneProc(void)
+	{
+		return ArmZabbixAPI::mainThreadOneProc();
+		
+	}
+
 protected:
 	static void _exceptionCb(const exception &e, void *data)
 	{
@@ -329,6 +335,14 @@ void test_httpNotFound(void)
 	cppcut_assert_equal
 	  (false, armZbxApiTestee.testOpenSession(),
 	   cut_message("%s\n", armZbxApiTestee.errorMessage().c_str()));
+}
+
+void test_mainThreadOneProc()
+{
+	int svId = 0;
+	deleteDBClientZabbixDB(svId);
+	ArmZabbixAPITestee armZbxApiTestee(svId, "localhost", getTestPort());
+	cppcut_assert_equal(true, armZbxApiTestee.testMainThreadOneProc());
 }
 
 } // namespace testArmZabbixAPI
