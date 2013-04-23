@@ -49,7 +49,7 @@ public:
 	void addItemsRaw2_0(ItemTablePtr tablePtr);
 	void addHostsRaw2_0(ItemTablePtr tablePtr);
 
-	void getTriggersAsAsuraFormat(TriggerInfoList &triggerInfoList) const;
+	void getTriggersAsAsuraFormat(TriggerInfoList &triggerInfoList);
 
 protected:
 	static void tableInitializerSystem(DBAgent *dbAgent, void *data);
@@ -66,6 +66,7 @@ protected:
 	  (int replicaTargetId, const string &tableName,
 	   const ColumnDef *columnDefs, int generationIdIdx);
 	int getStartIdToRemove(int replicaTargetId);
+	void makeSelectExArgForTriggerAsAsuraFormat(void);
 
 private:
 	struct PrivateContext;

@@ -22,6 +22,13 @@
 #include "ItemTableUtils.h"
 #include "DBAgentFactory.h"
 
+// TODO: This macro is the identical to that in DBAgentSQLite3.cc
+//       we will clean up code later.
+#define DEFINE_AND_ASSERT(ITEM_DATA, ACTUAL_TYPE, VAR_NAME) \
+	ACTUAL_TYPE *VAR_NAME = dynamic_cast<ACTUAL_TYPE *>(ITEM_DATA); \
+	ASURA_ASSERT(VAR_NAME != NULL, "Failed to dynamic cast: %s -> %s", \
+	             DEMANGLED_TYPE_NAME(*ITEM_DATA), #ACTUAL_TYPE); \
+
 const int DBClientZabbix::DB_VERSION = 2;
 const int DBClientZabbix::NUM_PRESERVED_GENRATIONS_TRIGGERS = 3;
 const int DBClientZabbix::REPLICA_GENERATION_NONE = -1;
@@ -965,7 +972,7 @@ static const size_t NUM_COLUMNS_ITEMS_RAW_2_0 =
 
 enum {
 	IDX_ITEMS_RAW_2_0_GENERATION_ID,
-	IDX_ITEMS_RAW_2_0_ITEMSID,
+	IDX_ITEMS_RAW_2_0_ITEMID,
 	IDX_ITEMS_RAW_2_0_TYPE,
 	IDX_ITEMS_RAW_2_0_SNMP_COMMUNITY,
 	IDX_ITEMS_RAW_2_0_SNMP_OID,
@@ -1402,9 +1409,12 @@ struct DBClientZabbix::PrivateContext
 {
 	static GMutex mutex;
 	static bool   dbInitializedFlags[NUM_MAX_ZABBIX_SERVERS];
+	size_t             serverId;
+	DBAgentSelectExArg selectExArgForTriggerAsAsuraFormat;
 
 	// methods
-	PrivateContext(void)
+	PrivateContext(size_t _serverId)
+	: serverId(_serverId)
 	{
 	}
 
@@ -1487,7 +1497,7 @@ DBClientZabbix::DBClientZabbix(size_t zabbixServerId)
 	ASURA_ASSERT(zabbixServerId < NUM_MAX_ZABBIX_SERVERS,
 	   "The specified zabbix server ID is larger than max: %d",
 	   zabbixServerId); 
-	m_ctx = new PrivateContext();
+	m_ctx = new PrivateContext(zabbixServerId);
 
 	m_ctx->lock();
 	if (!m_ctx->dbInitializedFlags[zabbixServerId]) {
@@ -1575,10 +1585,59 @@ void DBClientZabbix::addHostsRaw2_0(ItemTablePtr tablePtr)
 	} DBCLIENT_TRANSACTION_END();
 }
 
-void DBClientZabbix::getTriggersAsAsuraFormat
-  (TriggerInfoList &triggerInfoList) const
+void DBClientZabbix::getTriggersAsAsuraFormat(TriggerInfoList &triggerInfoList)
 {
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	// get data from data base
+	DBAgentSelectExArg arg;
+	if (m_ctx->selectExArgForTriggerAsAsuraFormat.tableName.empty())
+		makeSelectExArgForTriggerAsAsuraFormat();
+	DBCLIENT_TRANSACTION_BEGIN() {
+		select(arg);
+	} DBCLIENT_TRANSACTION_END();
+
+	// copy obtained data to triggerInfoList
+	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
+	ItemGroupListConstIterator it = grpList.begin();
+	uint64_t count = 0;
+	for (; it != grpList.end(); ++it, count++) {
+		int idx = 0;
+		const ItemGroup *itemGroup = *it;
+		TriggerInfo trigInfo;
+
+		// id
+		trigInfo.id = count;
+
+		// status
+		DEFINE_AND_ASSERT(
+		   itemGroup->getItemAt(idx++), ItemInt, itemStatus);
+		trigInfo.status = (TriggerStatusType)itemStatus->get();
+
+		// severity
+		DEFINE_AND_ASSERT(
+		   itemGroup->getItemAt(idx++), ItemInt, itemSeverity);
+		trigInfo.severity = (TriggerSeverityType)itemSeverity->get();
+
+		// lastChangeTime
+		DEFINE_AND_ASSERT(
+		   itemGroup->getItemAt(idx++), ItemInt, itemLastchange);
+		trigInfo.lastChangeTime.tv_sec = itemLastchange->get();
+		trigInfo.lastChangeTime.tv_nsec = 0;
+
+		// serverId
+		trigInfo.serverId = m_ctx->serverId;
+
+		// hostId
+		DEFINE_AND_ASSERT(
+		   itemGroup->getItemAt(idx++), ItemUint64, itemHostid);
+		trigInfo.hostId = itemHostid->get();
+
+		// hostName
+		DEFINE_AND_ASSERT(
+		   itemGroup->getItemAt(idx++), ItemString, itemHostName);
+		trigInfo.hostName = itemHostName->get();
+
+		triggerInfoList.push_back(trigInfo);
+	}
 }
 
 // ---------------------------------------------------------------------------
@@ -1795,4 +1854,75 @@ int DBClientZabbix::getStartIdToRemove(int replicaTargetId)
 	int startIdToRemove = ItemTableUtils::getFirstRowData
 	                        <int, ItemInt>(arg.dataTable);
 	return startIdToRemove;
+}
+
+void DBClientZabbix::makeSelectExArgForTriggerAsAsuraFormat(void)
+{
+	DBAgentSelectExArg &arg = m_ctx->selectExArgForTriggerAsAsuraFormat;
+
+	// tableName
+	const ColumnDef &triggersTriggerid =
+	   COLUMN_DEF_TRIGGERS_RAW_2_0[IDX_TRIGGERS_RAW_2_0_TRIGGERID];
+	const ColumnDef &functionsTriggerid =
+	   COLUMN_DEF_FUNCTIONS_RAW_2_0[IDX_FUNCTIONS_RAW_2_0_TRIGGERID];
+	const ColumnDef &functionsItemid =
+	   COLUMN_DEF_FUNCTIONS_RAW_2_0[IDX_FUNCTIONS_RAW_2_0_ITEMID];
+	const ColumnDef &itemsItemid =
+	   COLUMN_DEF_ITEMS_RAW_2_0[IDX_ITEMS_RAW_2_0_ITEMID];
+	const ColumnDef &itemsHostid =
+	   COLUMN_DEF_ITEMS_RAW_2_0[IDX_ITEMS_RAW_2_0_HOSTID];
+	const ColumnDef &hostsHostid =
+	   COLUMN_DEF_HOSTS_RAW_2_0[IDX_HOSTS_RAW_2_0_HOSTID];
+
+	static const char *VAR_TRIGGERS  = "t";
+	static const char *VAR_FUNCTIONS = "f";
+	static const char *VAR_ITEMS     = "i";
+	static const char *VAR_HOSTS     = "h";
+	arg.tableName = StringUtils::sprintf(
+	   "%s %s "
+	   "inner join %s %s on %s.%s=%s.%s "
+	   "inner join %s %s on %s.%s=%s.%s "
+	   "inner join %s %s on %s.%s=%s.%s",
+	   TABLE_NAME_TRIGGERS_RAW_2_0, VAR_TRIGGERS,
+	   TABLE_NAME_FUNCTIONS_RAW_2_0, VAR_FUNCTIONS,
+	     VAR_TRIGGERS, triggersTriggerid.columnName,
+	     VAR_FUNCTIONS, functionsTriggerid.columnName,
+	   TABLE_NAME_ITEMS_RAW_2_0, VAR_ITEMS,
+	     VAR_FUNCTIONS, functionsItemid.columnName,
+	     VAR_ITEMS, itemsItemid.columnName,
+	   TABLE_NAME_HOSTS_RAW_2_0, VAR_HOSTS,
+	     VAR_ITEMS, itemsHostid.columnName,
+	     VAR_HOSTS, hostsHostid.columnName);
+
+	//
+	// statements and columnTypes
+	//
+
+	// status
+	const ColumnDef &triggersStatus =
+	   COLUMN_DEF_TRIGGERS_RAW_2_0[IDX_TRIGGERS_RAW_2_0_STATUS];
+	arg.statements.push_back(triggersStatus.columnName);
+	arg.columnTypes.push_back(triggersStatus.type);
+
+	// severity
+	const ColumnDef &triggersSeverity =
+	   COLUMN_DEF_TRIGGERS_RAW_2_0[IDX_TRIGGERS_RAW_2_0_PRIORITY];
+	arg.statements.push_back(triggersSeverity.columnName);
+	arg.columnTypes.push_back(triggersSeverity.type);
+
+	// lastChangeTime
+	const ColumnDef &triggersLastchange = 
+	   COLUMN_DEF_TRIGGERS_RAW_2_0[IDX_TRIGGERS_RAW_2_0_LASTCHANGE];
+	arg.statements.push_back(triggersLastchange.columnName);
+	arg.columnTypes.push_back(triggersLastchange.type);
+
+	// hostId
+	arg.statements.push_back(hostsHostid.columnName);
+	arg.columnTypes.push_back(hostsHostid.type);
+
+	// hostName
+	const ColumnDef &hostsName =
+	   COLUMN_DEF_HOSTS_RAW_2_0[IDX_HOSTS_RAW_2_0_NAME];
+	arg.statements.push_back(hostsName.columnName);
+	arg.columnTypes.push_back(hostsName.type);
 }
