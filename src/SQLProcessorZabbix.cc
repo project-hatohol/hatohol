@@ -974,39 +974,39 @@ void SQLProcessorZabbix::init(void)
 	staticInfo =
 	  defineTable(TABLE_ID_EVENTS, TABLE_NAME_EVENTS,
 	              MAKE_FUNC(GROUP_ID_ZBX_EVENTS));
-	defineColumn(staticInfo, ITEM_ID_EVENTS_EVENTID,
+	defineColumn(staticInfo, ITEM_ID_ZBX_EVENTS_EVENTID,
 	             TABLE_ID_EVENTS, "eventid",
 	             SQL_COLUMN_TYPE_BIGUINT, 20,
 	             false, SQL_KEY_PRI, NULL);
-	defineColumn(staticInfo, ITEM_ID_EVENTS_SOURCE,
+	defineColumn(staticInfo, ITEM_ID_ZBX_EVENTS_SOURCE,
 	             TABLE_ID_EVENTS, "source",
 	             SQL_COLUMN_TYPE_INT, 11,
 	             false, SQL_KEY_NONE, "0");
-	defineColumn(staticInfo, ITEM_ID_EVENTS_OBJECT,
+	defineColumn(staticInfo, ITEM_ID_ZBX_EVENTS_OBJECT,
 	             TABLE_ID_EVENTS, "object",
 	             SQL_COLUMN_TYPE_INT, 11,
 	             false, SQL_KEY_MUL, "0");
-	defineColumn(staticInfo, ITEM_ID_EVENTS_OBJECTID,
+	defineColumn(staticInfo, ITEM_ID_ZBX_EVENTS_OBJECTID,
 	             TABLE_ID_EVENTS, "objectid",
 	             SQL_COLUMN_TYPE_BIGUINT, 20,
 	             false, SQL_KEY_NONE, "0");
-	defineColumn(staticInfo, ITEM_ID_EVENTS_CLOCK,
+	defineColumn(staticInfo, ITEM_ID_ZBX_EVENTS_CLOCK,
 	             TABLE_ID_EVENTS, "clock",
 	             SQL_COLUMN_TYPE_INT, 11,
 	             false, SQL_KEY_MUL, "0");
-	defineColumn(staticInfo, ITEM_ID_EVENTS_VALUE,
+	defineColumn(staticInfo, ITEM_ID_ZBX_EVENTS_VALUE,
 	             TABLE_ID_EVENTS, "value",
 	             SQL_COLUMN_TYPE_INT, 11,
 	             false, SQL_KEY_NONE, "0");
-	defineColumn(staticInfo, ITEM_ID_EVENTS_ACKNOWLEDGED,
+	defineColumn(staticInfo, ITEM_ID_ZBX_EVENTS_ACKNOWLEDGED,
 	             TABLE_ID_EVENTS, "acknowledged",
 	             SQL_COLUMN_TYPE_INT, 11,
 	             false, SQL_KEY_NONE, "0");
-	defineColumn(staticInfo, ITEM_ID_EVENTS_NS,
+	defineColumn(staticInfo, ITEM_ID_ZBX_EVENTS_NS,
 	             TABLE_ID_EVENTS, "ns",
 	             SQL_COLUMN_TYPE_INT, 11,
 	             false, SQL_KEY_NONE, "0");
-	defineColumn(staticInfo, ITEM_ID_EVENTS_VALUE_CHANGED,
+	defineColumn(staticInfo, ITEM_ID_ZBX_EVENTS_VALUE_CHANGED,
 	             TABLE_ID_EVENTS, "value_changed",
 	             SQL_COLUMN_TYPE_INT, 11,
 	             false, SQL_KEY_NONE, "0");
