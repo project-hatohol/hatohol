@@ -648,7 +648,7 @@ void ArmZabbixAPI::parseAndPushEventsData(JsonParserAgent &parser,
 	startElement(parser, index);
 	ItemGroupPtr grp;
 	pushUint64(parser, grp, "eventid",      ITEM_ID_ZBX_EVENTS_EVENTID);
-	pushInt   (parser, grp, "souce",        ITEM_ID_ZBX_EVENTS_SOURCE);
+	pushInt   (parser, grp, "source",       ITEM_ID_ZBX_EVENTS_SOURCE);
 	pushInt   (parser, grp, "object",       ITEM_ID_ZBX_EVENTS_OBJECT);
 	pushUint64(parser, grp, "objectid",     ITEM_ID_ZBX_EVENTS_OBJECTID);
 	pushInt   (parser, grp, "clock",        ITEM_ID_ZBX_EVENTS_CLOCK);
