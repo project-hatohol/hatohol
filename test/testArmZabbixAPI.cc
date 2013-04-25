@@ -17,6 +17,7 @@ static const char *COLUMN_NAME_OF_LAST_REPLICA_GENERATION[] = {
   "latest_functions_generation_id",   // REPLICA_GENERATION_TARGET_ID_FUNCTION
   "latest_items_generation_id",       // REPLICA_GENERATION_TARGET_ID_ITEMS
   "latest_hosts_generation_id",       // REPLICA_GENERATION_TARGET_ID_ITEMS
+  "latest_events_generation_id",      // REPLICA_GENERATION_TARGET_ID_EVENTS
 };
 static const size_t NUM_COLUMN_NAME_OF_LAST_REPLICA_GENERATION =
   sizeof(COLUMN_NAME_OF_LAST_REPLICA_GENERATION) / sizeof(const char *);
@@ -33,6 +34,7 @@ public:
 		GET_TEST_TYPE_FUNCTIONS,
 		GET_TEST_TYPE_ITEMS,
 		GET_TEST_TYPE_HOSTS,
+		GET_TEST_TYPE_EVENTS,
 	};
 
 	ArmZabbixAPITestee(int zabbixServerId, const char *server, int port)
@@ -83,6 +85,10 @@ public:
 		} else if (type == GET_TEST_TYPE_HOSTS) {
 			succeeded =
 			  launch(&ArmZabbixAPITestee::threadOneProcHosts,
+			         exitCbDefault, this);
+		} else if (type == GET_TEST_TYPE_EVENTS) {
+			succeeded =
+			  launch(&ArmZabbixAPITestee::threadOneProcEvents,
 			         exitCbDefault, this);
 		} else {
 			cut_fail("Unknown get test type: %d\n", type);
@@ -170,6 +176,12 @@ protected:
 	bool threadOneProcHosts(void)
 	{
 		updateHosts();
+		return true;
+	}
+
+	bool threadOneProcEvents(void)
+	{
+		updateEvents();
 		return true;
 	}
 
@@ -322,6 +334,13 @@ void test_getHosts(void)
 	assertTestGet(
 	  ArmZabbixAPITestee::GET_TEST_TYPE_HOSTS,
 	  DBClientZabbix::REPLICA_GENERATION_TARGET_ID_HOST);
+}
+
+void test_getEvents(void)
+{
+	assertTestGet(
+	  ArmZabbixAPITestee::GET_TEST_TYPE_EVENTS,
+	  DBClientZabbix::REPLICA_GENERATION_TARGET_ID_EVENT);
 }
 
 void test_httpNotFound(void)

@@ -61,7 +61,7 @@ ZabbixAPIEmulator::ZabbixAPIEmulator(void)
 	m_ctx->apiHandlerMap["host.get"] = 
 	  &ZabbixAPIEmulator::APIHandlerHostGet;
 	m_ctx->apiHandlerMap["event.get"] = 
-	  &ZabbixAPIEmulator::APIHandlerHostGet;
+	  &ZabbixAPIEmulator::APIHandlerEventGet;
 }
 
 ZabbixAPIEmulator::~ZabbixAPIEmulator()
