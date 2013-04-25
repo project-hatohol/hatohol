@@ -1821,6 +1821,7 @@ void DBClientZabbix::tableInitializerSystem(DBAgent *dbAgent, void *data)
 	insArg.row->add(new ItemInt(REPLICA_GENERATION_NONE), false);
 	insArg.row->add(new ItemInt(REPLICA_GENERATION_NONE), false);
 	insArg.row->add(new ItemInt(REPLICA_GENERATION_NONE), false);
+	insArg.row->add(new ItemInt(REPLICA_GENERATION_NONE), false);
 	dbAgent->insert(insArg);
 }
 
