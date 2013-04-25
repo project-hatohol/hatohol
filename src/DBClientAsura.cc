@@ -267,6 +267,12 @@ void DBClientAsura::setTriggerInfoList(const TriggerInfoList &triggerInfoList,
 	} DBCLIENT_TRANSACTION_END();
 }
 
+void DBClientAsura::setEventInfoList(const EventInfoList &eventInfoList,
+                                     uint32_t serverId)
+{
+	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------

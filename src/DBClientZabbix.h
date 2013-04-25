@@ -52,6 +52,7 @@ public:
 	void addEventsRaw2_0(ItemTablePtr tablePtr);
 
 	void getTriggersAsAsuraFormat(TriggerInfoList &triggerInfoList);
+	void getEventsAsAsuraFormat(EventInfoList &eventInfoList);
 
 protected:
 	static void tableInitializerSystem(DBAgent *dbAgent, void *data);

@@ -46,6 +46,13 @@ typedef list<TriggerInfo>               TriggerInfoList;
 typedef TriggerInfoList::iterator       TriggerInfoListIterator;
 typedef TriggerInfoList::const_iterator TriggerInfoListConstIterator;
 
+struct EventInfo {
+};
+
+typedef list<EventInfo>               EventInfoList;
+typedef EventInfoList::iterator       EventInfoListIterator;
+typedef EventInfoList::const_iterator EventInfoListConstIterator;
+
 class DBClientAsura : public DBClient {
 public:
 	static void reset(void);
@@ -57,6 +64,8 @@ public:
 	void getTriggerInfoList(TriggerInfoList &triggerInfoList);
 	void setTriggerInfoList(const TriggerInfoList &triggerInfoList,
 	                        uint32_t serverId);
+	void setEventInfoList(const EventInfoList &eventInfoList,
+	                      uint32_t serverId);
 
 protected:
 	static void resetDBInitializedFlags(void);

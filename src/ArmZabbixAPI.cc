@@ -718,6 +718,14 @@ void ArmZabbixAPI::makeAsuraTriggers(void)
 	                                        m_ctx->zabbixServerId);
 }
 
+void ArmZabbixAPI::makeAsuraEvents(void)
+{
+	EventInfoList eventInfoList;
+	m_ctx->dbClientZabbix.getEventsAsAsuraFormat(eventInfoList);
+	m_ctx->dbClientAsura.setEventInfoList(eventInfoList,
+	                                      m_ctx->zabbixServerId);
+}
+
 //
 // virtual methods defined in this class
 //
@@ -732,6 +740,7 @@ bool ArmZabbixAPI::mainThreadOneProc(void)
 	makeAsuraTriggers();
 
 	updateEvents();
+	makeAsuraEvents();
 
 	return true;
 }

@@ -1807,6 +1807,11 @@ void DBClientZabbix::getTriggersAsAsuraFormat(TriggerInfoList &triggerInfoList)
 	}
 }
 
+void DBClientZabbix::getEventsAsAsuraFormat(EventInfoList &eventInfoList)
+{
+	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
