@@ -63,7 +63,7 @@ protected:
 	SoupMessage *queryTrigger(void);
 	SoupMessage *queryItem(void);
 	SoupMessage *queryHost(void);
-	SoupMessage *queryEvents(void);
+	SoupMessage *queryEvent(void);
 	string getInitialJsonRequest(void);
 	bool parseInitialResponse(SoupMessage *msg);
 	void startObject(JsonParserAgent &parser, const string &name);

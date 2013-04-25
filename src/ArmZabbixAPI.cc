@@ -213,7 +213,7 @@ ItemTablePtr ArmZabbixAPI::getHosts(void)
 
 ItemTablePtr ArmZabbixAPI::getEvents(void)
 {
-	SoupMessage *msg = queryEvents();
+	SoupMessage *msg = queryEvent();
 	if (!msg)
 		THROW_DATA_STORE_EXCEPTION("Failed to query hosts.");
 
@@ -359,7 +359,7 @@ SoupMessage *ArmZabbixAPI::queryHost(void)
 	return queryCommon(agent);
 }
 
-SoupMessage *ArmZabbixAPI::queryEvents(void)
+SoupMessage *ArmZabbixAPI::queryEvent(void)
 {
 	JsonBuilderAgent agent;
 	agent.startObject();
