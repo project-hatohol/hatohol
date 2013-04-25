@@ -122,7 +122,8 @@ void test_setTriggerInfoList(void)
 	TriggerInfoList triggerInfoList;
 	for (size_t i = 0; i < NumTestTriggerInfo; i++)
 		triggerInfoList.push_back(testTriggerInfo[i]);
-	dbAsura.setTriggerInfoList(triggerInfoList);
+	uint32_t serverId = testTriggerInfo[0].serverId;
+	dbAsura.setTriggerInfoList(triggerInfoList, serverId);
 
 	assertGetTriggers();
 }

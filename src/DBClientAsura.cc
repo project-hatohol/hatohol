@@ -249,11 +249,15 @@ void DBClientAsura::getTriggerInfoList(TriggerInfoList &triggerInfoList)
 	}
 }
 
-void DBClientAsura::setTriggerInfoList(const TriggerInfoList &triggerInfoList)
+void DBClientAsura::setTriggerInfoList(const TriggerInfoList &triggerInfoList,
+                                       uint32_t serverId)
 {
 	DBAgentDeleteArg deleteArg;
 	deleteArg.tableName = TABLE_NAME_TRIGGERS;
-	// deleteArg.condition is not specified, because we delete all rows.
+	deleteArg.condition =
+	  StringUtils::sprintf("%s=%u",
+	    COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SERVER_ID].columnName,
+	    serverId);
 
 	TriggerInfoListConstIterator it = triggerInfoList.begin();
 	DBCLIENT_TRANSACTION_BEGIN() {

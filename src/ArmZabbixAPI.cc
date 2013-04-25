@@ -714,7 +714,8 @@ void ArmZabbixAPI::makeAsuraTriggers(void)
 {
 	TriggerInfoList triggerInfoList;
 	m_ctx->dbClientZabbix.getTriggersAsAsuraFormat(triggerInfoList);
-	m_ctx->dbClientAsura.setTriggerInfoList(triggerInfoList);
+	m_ctx->dbClientAsura.setTriggerInfoList(triggerInfoList,
+	                                        m_ctx->zabbixServerId);
 }
 
 //
