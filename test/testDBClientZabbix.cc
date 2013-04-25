@@ -60,7 +60,8 @@ void test_createTableSystem(void)
 	string statement = "select * from system";
 	string output = execSqlite3ForDBClientZabbix(svId, statement);
 	string expectedOut =
-	   StringUtils::sprintf("%d|%d|%d|%d\n",
+	   StringUtils::sprintf("%d|%d|%d|%d|%d\n",
+	                        DBClientZabbix::REPLICA_GENERATION_NONE,
 	                        DBClientZabbix::REPLICA_GENERATION_NONE,
 	                        DBClientZabbix::REPLICA_GENERATION_NONE,
 	                        DBClientZabbix::REPLICA_GENERATION_NONE,
