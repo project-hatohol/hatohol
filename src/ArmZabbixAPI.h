@@ -40,6 +40,7 @@ public:
 	ItemTablePtr getFunctions(void);
 	ItemTablePtr getItems(void);
 	ItemTablePtr getHosts(void);
+	ItemTablePtr getEvents(void);
 
 protected:
 	SoupSession *getSession(void);
@@ -62,6 +63,7 @@ protected:
 	SoupMessage *queryTrigger(void);
 	SoupMessage *queryItem(void);
 	SoupMessage *queryHost(void);
+	SoupMessage *queryEvents(void);
 	string getInitialJsonRequest(void);
 	bool parseInitialResponse(SoupMessage *msg);
 	void startObject(JsonParserAgent &parser, const string &name);
@@ -85,11 +87,14 @@ protected:
 	                           ItemTablePtr &tablePtr, int index);
 	void parseAndPushHostsData(JsonParserAgent &parser,
 	                           ItemTablePtr &tablePtr, int index);
+	void parseAndPushEventsData(JsonParserAgent &parser,
+	                            ItemTablePtr &tablePtr, int index);
 
 	void updateTriggers(void);
 	void updateFunctions(void);
 	void updateItems(void);
 	void updateHosts(void);
+	void updateEvents(void);
 
 	void makeAsuraTriggers(void);
 

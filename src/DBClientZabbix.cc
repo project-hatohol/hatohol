@@ -1585,6 +1585,11 @@ void DBClientZabbix::addHostsRaw2_0(ItemTablePtr tablePtr)
 	} DBCLIENT_TRANSACTION_END();
 }
 
+void DBClientZabbix::addEventsRaw2_0(ItemTablePtr tablePtr)
+{
+	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+}
+
 void DBClientZabbix::getTriggersAsAsuraFormat(TriggerInfoList &triggerInfoList)
 {
 	// get data from data base

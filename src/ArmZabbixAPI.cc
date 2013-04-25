@@ -211,6 +211,32 @@ ItemTablePtr ArmZabbixAPI::getHosts(void)
 	return tablePtr;
 }
 
+ItemTablePtr ArmZabbixAPI::getEvents(void)
+{
+	SoupMessage *msg = queryEvents();
+	if (!msg)
+		THROW_DATA_STORE_EXCEPTION("Failed to query hosts.");
+
+	JsonParserAgent parser(msg->response_body->data);
+	g_object_unref(msg);
+	if (parser.hasError()) {
+		THROW_DATA_STORE_EXCEPTION(
+		  "Failed to parser: %s", parser.getErrorMessage());
+	}
+	startObject(parser, "result");
+
+	ItemTablePtr tablePtr;
+	int numData = parser.countElements();
+	if (numData < 1) {
+		MLPL_DBG("The number of events: %d\n", numData);
+		return tablePtr;
+	}
+
+	for (int i = 0; i < numData; i++)
+		parseAndPushEventsData(parser, tablePtr, i);
+	return tablePtr;
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
@@ -321,6 +347,24 @@ SoupMessage *ArmZabbixAPI::queryHost(void)
 	agent.startObject();
 	agent.add("jsonrpc", "2.0");
 	agent.add("method", "host.get");
+
+	agent.startObject("params");
+	agent.add("output", "extend");
+	agent.endObject(); // params
+
+	agent.add("auth", m_ctx->authToken);
+	agent.add("id", 1);
+	agent.endObject();
+
+	return queryCommon(agent);
+}
+
+SoupMessage *ArmZabbixAPI::queryEvents(void)
+{
+	JsonBuilderAgent agent;
+	agent.startObject();
+	agent.add("jsonrpc", "2.0");
+	agent.add("method", "event.get");
 
 	agent.startObject("params");
 	agent.add("output", "extend");
@@ -598,6 +642,26 @@ void ArmZabbixAPI::parseAndPushHostsData(JsonParserAgent &parser,
 	parser.endElement();
 }
 
+void ArmZabbixAPI::parseAndPushEventsData(JsonParserAgent &parser,
+                                          ItemTablePtr &tablePtr, int index)
+{
+	startElement(parser, index);
+	ItemGroupPtr grp;
+	pushUint64(parser, grp, "eventid",      ITEM_ID_ZBX_EVENTS_EVENTID);
+	pushInt   (parser, grp, "souce",        ITEM_ID_ZBX_EVENTS_SOURCE);
+	pushInt   (parser, grp, "object",       ITEM_ID_ZBX_EVENTS_OBJECT);
+	pushUint64(parser, grp, "objectid",     ITEM_ID_ZBX_EVENTS_OBJECTID);
+	pushInt   (parser, grp, "clock",        ITEM_ID_ZBX_EVENTS_CLOCK);
+	pushInt   (parser, grp, "value",        ITEM_ID_ZBX_EVENTS_VALUE);
+	pushInt   (parser, grp, "acknowledged",
+	           ITEM_ID_ZBX_EVENTS_ACKNOWLEDGED);
+	pushInt   (parser, grp, "ns",           ITEM_ID_ZBX_EVENTS_NS);
+	pushInt   (parser, grp, "value_changed",
+	           ITEM_ID_ZBX_EVENTS_VALUE_CHANGED);
+	tablePtr->add(grp);
+	parser.endElement();
+}
+
 void ArmZabbixAPI::updateTriggers(void)
 {
 	ItemTablePtr tablePtr = getTrigger();
@@ -620,6 +684,12 @@ void ArmZabbixAPI::updateHosts(void)
 {
 	ItemTablePtr tablePtr = getHosts();
 	m_ctx->dbClientZabbix.addHostsRaw2_0(tablePtr);
+}
+
+void ArmZabbixAPI::updateEvents(void)
+{
+	ItemTablePtr tablePtr = getEvents();
+	m_ctx->dbClientZabbix.addEventsRaw2_0(tablePtr);
 }
 
 //
@@ -659,6 +729,8 @@ bool ArmZabbixAPI::mainThreadOneProc(void)
 	updateItems();
 	updateHosts();
 	makeAsuraTriggers();
+
+	updateEvents();
 
 	return true;
 }
