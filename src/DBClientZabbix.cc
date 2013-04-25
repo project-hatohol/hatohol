@@ -1863,6 +1863,10 @@ void DBClientZabbix::prepareSetupFuncCallback(size_t zabbixServerId)
 		TABLE_NAME_HOSTS_RAW_2_0,
 		NUM_COLUMNS_HOSTS_RAW_2_0,
 		COLUMN_DEF_HOSTS_RAW_2_0,
+	}, {
+		TABLE_NAME_EVENTS_RAW_2_0,
+		NUM_COLUMNS_EVENTS_RAW_2_0,
+		COLUMN_DEF_EVENTS_RAW_2_0,
 	},
 	};
 	static const size_t NUM_TABLE_INFO =
