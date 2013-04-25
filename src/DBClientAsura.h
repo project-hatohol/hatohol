@@ -47,8 +47,8 @@ typedef TriggerInfoList::iterator       TriggerInfoListIterator;
 typedef TriggerInfoList::const_iterator TriggerInfoListConstIterator;
 
 enum EventValue {
-	EVENT_ACTIVE;
-	EVENT_INACTIVE;
+	EVENT_ACTIVE,
+	EVENT_INACTIVE,
 };
 
 struct EventInfo {
