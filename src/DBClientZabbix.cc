@@ -86,6 +86,17 @@ static const ColumnDef COLUMN_DEF_SYSTEM[] = {
 	SQL_KEY_NONE,                      // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
+}, {
+	ITEM_ID_NOT_SET,                   // itemId
+	TABLE_NAME_SYSTEM,                 // tableName
+	"latest_events_generation_id",     // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	11,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
 }
 };
 static const size_t NUM_COLUMNS_SYSTEM =
@@ -96,6 +107,7 @@ enum {
 	IDX_SYSTEM_LATEST_FUNCTIONS_GENERATION_ID,
 	IDX_SYSTEM_LATEST_ITEMS_GENERATION_ID,
 	IDX_SYSTEM_LATEST_HOSTS_GENERATION_ID,
+	IDX_SYSTEM_LATEST_EVENTS_GENERATION_ID,
 	NUM_IDX_SYSTEM,
 };
 
@@ -150,6 +162,7 @@ const int DBClientZabbix::REPLICA_TARGET_ID_SYSTEM_LATEST_COLUMNS_MAP[] = {
 	IDX_SYSTEM_LATEST_FUNCTIONS_GENERATION_ID,
 	IDX_SYSTEM_LATEST_ITEMS_GENERATION_ID,
 	IDX_SYSTEM_LATEST_HOSTS_GENERATION_ID,
+	IDX_SYSTEM_LATEST_EVENTS_GENERATION_ID,
 };
 static const size_t NUM_REPLICA_TARGET_ID_SYSTEM_LATEST_COLUMNS_MAP =
   sizeof(DBClientZabbix::REPLICA_TARGET_ID_SYSTEM_LATEST_COLUMNS_MAP) / sizeof(int);
@@ -1724,7 +1737,19 @@ void DBClientZabbix::addHostsRaw2_0(ItemTablePtr tablePtr)
 
 void DBClientZabbix::addEventsRaw2_0(ItemTablePtr tablePtr)
 {
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	DBCLIENT_TRANSACTION_BEGIN() {
+		int newId = updateReplicaGeneration
+		              (REPLICA_GENERATION_TARGET_ID_EVENT);
+		addReplicatedItems(newId, tablePtr,
+		                   TABLE_NAME_EVENTS_RAW_2_0,
+		                   NUM_COLUMNS_EVENTS_RAW_2_0,
+		                   COLUMN_DEF_EVENTS_RAW_2_0);
+		deleteOldReplicatedItems
+		  (REPLICA_GENERATION_TARGET_ID_EVENT,
+		   TABLE_NAME_EVENTS_RAW_2_0,
+		   COLUMN_DEF_EVENTS_RAW_2_0,
+		   IDX_EVENTS_RAW_2_0_GENERATION_ID);
+	} DBCLIENT_TRANSACTION_END();
 }
 
 void DBClientZabbix::getTriggersAsAsuraFormat(TriggerInfoList &triggerInfoList)
