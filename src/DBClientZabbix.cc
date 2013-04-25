@@ -1817,11 +1817,11 @@ void DBClientZabbix::tableInitializerSystem(DBAgent *dbAgent, void *data)
 	insArg.tableName = TABLE_NAME_SYSTEM;
 	insArg.numColumns = NUM_COLUMNS_SYSTEM;
 	insArg.columnDefs = COLUMN_DEF_SYSTEM;
-	insArg.row->add(new ItemInt(REPLICA_GENERATION_NONE), false);
-	insArg.row->add(new ItemInt(REPLICA_GENERATION_NONE), false);
-	insArg.row->add(new ItemInt(REPLICA_GENERATION_NONE), false);
-	insArg.row->add(new ItemInt(REPLICA_GENERATION_NONE), false);
-	insArg.row->add(new ItemInt(REPLICA_GENERATION_NONE), false);
+	insArg.row->add(new ItemInt(REPLICA_GENERATION_NONE), false); // trig.
+	insArg.row->add(new ItemInt(REPLICA_GENERATION_NONE), false); // func.
+	insArg.row->add(new ItemInt(REPLICA_GENERATION_NONE), false); // items
+	insArg.row->add(new ItemInt(REPLICA_GENERATION_NONE), false); // hosts
+	insArg.row->add(new ItemInt(REPLICA_GENERATION_NONE), false); // events
 	dbAgent->insert(insArg);
 }
 
