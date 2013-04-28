@@ -1,3 +1,8 @@
+[S] Short-term, [M] Middle-term, [L] Long-term
+====
+* [S] support Ubuntu 13.04 and CentOS 6.3 (glib 2.22)
+* [S] remove lock from ItemData, ItemGroup, and ItemTable.
+      We use them as const. (i.e. They are never changed after created)
 * [S] make a REST API of events
 * [M] make a mechanism to replica partially
 * [S] make a command line tool that get/set zabbix servers to monitoring.
