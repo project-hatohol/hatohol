@@ -91,7 +91,7 @@ void AsuraThreadBase::start(bool autoDeleteObject)
 	arg->autoDeleteObject = autoDeleteObject;
 	GError *error = NULL;
 	m_ctx->thread =
-	   g_thread_try_new("AsuraThread", threadStarter, arg, &error);
+	  g_thread_try_new("AsuraThread", threadStarter, arg, &error);
 	if (m_ctx->thread == NULL) {
 		MLPL_ERR("Failed to call g_thread_try_new: %s\n",
 		         error->message);
