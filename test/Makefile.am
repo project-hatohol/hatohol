@@ -49,7 +49,7 @@ libTest_la_SOURCES = \
 	ZabbixAPIEmulator.cc Synchronizer.cc
 libTest_la_LDFLAGS =
 
-zabbix_api_response_collector_LDFLAGS =
+zabbix_api_response_collector_LDFLAGS = -lstdc++
 zabbix_api_response_collector_LDADD = $(LIBS)
 
 echo-cutter:
