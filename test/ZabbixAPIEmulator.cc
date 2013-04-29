@@ -46,7 +46,7 @@ struct ZabbixAPIEmulator::PrivateContext {
 #ifdef GLIB_VERSION_2_32
 			g_thread_unref(thread);
 #else
-			g_object_unref(thread);
+			// nothing to do
 #endif // GLIB_VERSION_2_32
 		}
 	}
