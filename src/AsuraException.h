@@ -26,6 +26,12 @@ using namespace mlpl;
 #include <string>
 using namespace std;
 
+#ifdef _GLIBCXX_USE_NOEXCEPT
+#define _ASURA_NOEXCEPT _GLIBCXX_USE_NOEXCEPT
+#else
+#define _ASURA_NOEXCEPT
+#endif
+
 #define ASURA_STACK_TRACE_SET_ENV "ASURA_EXCEPTION_STACK_TRACE"
 
 class AsuraException : public exception
@@ -37,8 +43,8 @@ public:
 	explicit AsuraException(const string &brief,
 	                        const char *sourceFileName = "",
 	                        int lineNumber = UNKNOWN_LINE_NUMBER);
-	virtual ~AsuraException() _GLIBCXX_USE_NOEXCEPT;
-	virtual const char* what() const _GLIBCXX_USE_NOEXCEPT;
+	virtual ~AsuraException() _ASURA_NOEXCEPT;
+	virtual const char* what() const _ASURA_NOEXCEPT;
 	virtual const string getFancyMessage(void) const;
 
 	const string &getSourceFileName(void) const;

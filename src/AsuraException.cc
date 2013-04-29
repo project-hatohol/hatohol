@@ -43,11 +43,11 @@ AsuraException::AsuraException(const string &brief,
 		saveStackTrace();
 }
 
-AsuraException::~AsuraException() _GLIBCXX_USE_NOEXCEPT
+AsuraException::~AsuraException() _ASURA_NOEXCEPT
 {
 }
 
-const char* AsuraException::what() const _GLIBCXX_USE_NOEXCEPT
+const char* AsuraException::what() const _ASURA_NOEXCEPT
 {
 	return getFancyMessage().c_str();
 }
