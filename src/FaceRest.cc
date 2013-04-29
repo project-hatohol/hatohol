@@ -56,8 +56,6 @@ FaceRest::~FaceRest()
 {
 	if (m_stopMutex)
 		delete m_stopMutex;
-	if (m_soupServer)
-		delete m_soupServer;
 }
 
 void FaceRest::stop(void)
