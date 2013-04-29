@@ -16,6 +16,7 @@
 */
 
 #include <glib.h>
+#include <glib-object.h>
 
 #include <Logger.h>
 using namespace mlpl;
@@ -29,7 +30,11 @@ using namespace mlpl;
 
 struct AsuraThreadBase::PrivateContext {
 	GThread *thread;
+#ifdef GLIB_VERSION_2_32
 	GRWLock rwlock;
+#else
+	GStaticMutex lock;
+#endif // GLIB_VERSION_2_32
 	ExceptionCallbackInfoList exceptionCbList;
 	ExitCallbackInfoList      exitCbList;
 
@@ -37,35 +42,64 @@ struct AsuraThreadBase::PrivateContext {
 	PrivateContext(void)
 	: thread(NULL)
 	{
+#ifdef GLIB_VERSION_2_32
 		g_rw_lock_init(&rwlock);
+#else
+		g_static_mutex_init(&lock);
+#endif // GLIB_VERSION_2_32
 	}
 
 	virtual ~PrivateContext()
 	{
-		if (thread)
+		if (thread) {
+#ifdef GLIB_VERSION_2_32
 			g_thread_unref(thread);
+#else
+			g_object_unref(thread);
+#endif // GLIB_VERSION_2_32
+		}
 
+#ifdef GLIB_VERSION_2_32
 		g_rw_lock_clear(&rwlock);
+#else
+		g_static_mutex_free(&lock);
+#endif // GLIB_VERSION_2_32
 	}
 
 	void read_lock(void)
 	{
+#ifdef GLIB_VERSION_2_32
 		g_rw_lock_reader_lock(&rwlock);
+#else
+		g_static_mutex_lock(&lock);
+#endif // GLIB_VERSION_2_32
 	}
 
 	void read_unlock(void)
 	{
+#ifdef GLIB_VERSION_2_32
 		g_rw_lock_reader_unlock(&rwlock);
+#else
+		g_static_mutex_unlock(&lock);
+#endif // GLIB_VERSION_2_32
 	}
 
 	void write_lock(void)
 	{
+#ifdef GLIB_VERSION_2_32
 		g_rw_lock_writer_lock(&rwlock);
+#else
+		g_static_mutex_lock(&lock);
+#endif // GLIB_VERSION_2_32
 	}
 
 	void write_unlock(void)
 	{
+#ifdef GLIB_VERSION_2_32
 		g_rw_lock_writer_unlock(&rwlock);
+#else
+		g_static_mutex_unlock(&lock);
+#endif // GLIB_VERSION_2_32
 	}
 };
 
@@ -91,7 +125,11 @@ void AsuraThreadBase::start(bool autoDeleteObject)
 	arg->autoDeleteObject = autoDeleteObject;
 	GError *error = NULL;
 	m_ctx->thread =
+#ifdef GLIB_VERSION_2_32
 	  g_thread_try_new("AsuraThread", threadStarter, arg, &error);
+#else
+	  g_thread_create(threadStarter, arg, TRUE, &error);
+#endif // GLIB_VERSION_2_32
 	if (m_ctx->thread == NULL) {
 		MLPL_ERR("Failed to call g_thread_try_new: %s\n",
 		         error->message);

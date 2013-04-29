@@ -1551,7 +1551,7 @@ enum {
 
 struct DBClientZabbix::PrivateContext
 {
-	static GMutex mutex;
+	static GStaticMutex mutex;
 	static bool   dbInitializedFlags[NUM_MAX_ZABBIX_SERVERS];
 	size_t             serverId;
 	DBAgentSelectExArg selectExArgForTriggerAsAsuraFormat;
@@ -1568,16 +1568,16 @@ struct DBClientZabbix::PrivateContext
 
 	static void lock(void)
 	{
-		g_mutex_lock(&mutex);
+		g_static_mutex_lock(&mutex);
 	}
 
 	static void unlock(void)
 	{
-		g_mutex_unlock(&mutex);
+		g_static_mutex_unlock(&mutex);
 	}
 };
 
-GMutex DBClientZabbix::PrivateContext::mutex;
+GStaticMutex DBClientZabbix::PrivateContext::mutex = G_STATIC_MUTEX_INIT;
 bool DBClientZabbix::PrivateContext::dbInitializedFlags[NUM_MAX_ZABBIX_SERVERS];
 
 // ---------------------------------------------------------------------------

@@ -49,7 +49,7 @@ typedef map<DBDomainId, string>     DBDomainIdPathMap;
 typedef DBDomainIdPathMap::iterator DBDomainIdPathMapIterator;
 
 struct DBAgentSQLite3::PrivateContext {
-	static GMutex            mutex;
+	static GStaticMutex      mutex;
 	static DBDomainIdPathMap domainIdPathMap;
 
 	string        dbPath;
@@ -63,16 +63,16 @@ struct DBAgentSQLite3::PrivateContext {
 
 	static void lock(void)
 	{
-		g_mutex_lock(&mutex);
+		g_static_mutex_lock(&mutex);
 	}
 
 	static void unlock(void)
 	{
-		g_mutex_unlock(&mutex);
+		g_static_mutex_unlock(&mutex);
 	}
 };
 
-GMutex            DBAgentSQLite3::PrivateContext::mutex;
+GStaticMutex      DBAgentSQLite3::PrivateContext::mutex = G_STATIC_MUTEX_INIT;
 DBDomainIdPathMap DBAgentSQLite3::PrivateContext::domainIdPathMap;
 
 // ---------------------------------------------------------------------------

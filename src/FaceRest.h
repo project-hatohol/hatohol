@@ -57,7 +57,7 @@ private:
 
 	guint       m_port;
 	SoupServer *m_soupServer;
-	GMutex     *m_stopMutex;
+	GStaticMutex m_stopMutex;
 };
 
 #endif // FaceRest_h

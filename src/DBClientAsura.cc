@@ -145,7 +145,7 @@ enum {
 
 struct DBClientAsura::PrivateContext
 {
-	static GMutex mutex;
+	static GStaticMutex mutex;
 	static bool   initialized;
 
 	PrivateContext(void)
@@ -158,15 +158,15 @@ struct DBClientAsura::PrivateContext
 
 	static void lock(void)
 	{
-		g_mutex_lock(&mutex);
+		g_static_mutex_lock(&mutex);
 	}
 
 	static void unlock(void)
 	{
-		g_mutex_unlock(&mutex);
+		g_static_mutex_unlock(&mutex);
 	}
 };
-GMutex DBClientAsura::PrivateContext::mutex;
+GStaticMutex DBClientAsura::PrivateContext::mutex = G_STATIC_MUTEX_INIT;
 bool   DBClientAsura::PrivateContext::initialized = false;
 
 // ---------------------------------------------------------------------------

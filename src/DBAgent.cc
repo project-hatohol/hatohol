@@ -33,22 +33,22 @@ DBAgentSelectExArg::DBAgentSelectExArg(void)
 
 struct DBAgent::PrivateContext
 {
-	static GMutex             mutex;
+	static GStaticMutex       mutex;
 	static DBSetupInfoMap     setupInfoMap;
 
 	// methods
 	static void lock(void)
 	{
-		g_mutex_lock(&mutex);
+		g_static_mutex_lock(&mutex);
 	}
 
 	static void unlock(void)
 	{
-		g_mutex_unlock(&mutex);
+		g_static_mutex_unlock(&mutex);
 	}
 };
 
-GMutex         DBAgent::PrivateContext::mutex;
+GStaticMutex   DBAgent::PrivateContext::mutex = G_STATIC_MUTEX_INIT;
 DBSetupInfoMap DBAgent::PrivateContext::setupInfoMap;
 
 // ---------------------------------------------------------------------------

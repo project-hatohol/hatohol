@@ -50,7 +50,7 @@ private:
 	typedef map<ItemGroupId, DataGenerator>  DataGeneratorMap;
 	typedef DataGeneratorMap::iterator       DataGeneratorMapIterator;
 
-	static GMutex                  m_mutex;
+	static GStaticMutex            m_mutex;
 	static VirtualDataStoreZabbix *m_instance;
 	ItemGroupIdTableMap m_staticItemTableMap;
 	ReadWriteLock       m_staticItemTableMapLock;

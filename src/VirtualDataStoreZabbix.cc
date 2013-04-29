@@ -24,7 +24,7 @@
 #include "VirtualDataStoreZabbixMacro.h"
 #include "DBClientAsura.h"
 
-GMutex VirtualDataStoreZabbix::m_mutex;
+GStaticMutex VirtualDataStoreZabbix::m_mutex = G_STATIC_MUTEX_INIT;
 VirtualDataStoreZabbix *VirtualDataStoreZabbix::m_instance = NULL;
 
 // ---------------------------------------------------------------------------
@@ -35,10 +35,10 @@ VirtualDataStoreZabbix *VirtualDataStoreZabbix::getInstance(void)
 	if (m_instance)
 		return m_instance;
 
-	g_mutex_lock(&m_mutex);
+	g_static_mutex_lock(&m_mutex);
 	if (!m_instance)
 		m_instance = new VirtualDataStoreZabbix();
-	g_mutex_unlock(&m_mutex);
+	g_static_mutex_unlock(&m_mutex);
 
 	return m_instance;
 }

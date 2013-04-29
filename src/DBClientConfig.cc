@@ -96,7 +96,7 @@ enum {
 
 struct DBClientConfig::PrivateContext
 {
-	static GMutex mutex;
+	static GStaticMutex mutex;
 	static bool   initialized;
 
 	PrivateContext(void)
@@ -109,15 +109,15 @@ struct DBClientConfig::PrivateContext
 
 	static void lock(void)
 	{
-		g_mutex_lock(&mutex);
+		g_static_mutex_lock(&mutex);
 	}
 
 	static void unlock(void)
 	{
-		g_mutex_unlock(&mutex);
+		g_static_mutex_unlock(&mutex);
 	}
 };
-GMutex DBClientConfig::PrivateContext::mutex;
+GStaticMutex DBClientConfig::PrivateContext::mutex = G_STATIC_MUTEX_INIT;
 bool   DBClientConfig::PrivateContext::initialized = false;
 
 // ---------------------------------------------------------------------------

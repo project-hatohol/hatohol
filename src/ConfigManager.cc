@@ -22,23 +22,23 @@ static const char *DEFAULT_DATABASE_DIR = "/tmp";
 static const size_t DEFAULT_NUM_PRESERVED_REPLICA_GENERATION = 3;
 
 struct ConfigManager::PrivateContext {
-	static GMutex         mutex;
+	static GStaticMutex   mutex;
 	static ConfigManager *instance;
 	string                databaseDirectory;
 
 	// methods
 	static void lock(void)
 	{
-		g_mutex_lock(&mutex);
+		g_static_mutex_lock(&mutex);
 	}
 
 	static void unlock(void)
 	{
-		g_mutex_unlock(&mutex);
+		g_static_mutex_unlock(&mutex);
 	}
 };
 
-GMutex         ConfigManager::PrivateContext::mutex;
+GStaticMutex   ConfigManager::PrivateContext::mutex = G_STATIC_MUTEX_INIT;
 ConfigManager *ConfigManager::PrivateContext::instance = NULL;
 
 // ---------------------------------------------------------------------------

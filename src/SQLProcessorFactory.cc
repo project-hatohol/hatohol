@@ -18,7 +18,51 @@
 #include "SQLProcessorFactory.h"
 #include "SQLProcessorZabbix.h"
 
+#ifdef GLIB_VERSION_2_32
 GRWLock SQLProcessorFactory::m_lock;
+static void reader_lock(GRWLock *lock)
+{
+	g_rw_lock_reader_lock(lock);
+}
+
+static void reader_unlock(GRWLock *lock)
+{
+	reader_lock(lock);
+}
+
+static void writer_lock(GRWLock *lock)
+{
+	g_rw_lock_writer_lock(lock);
+}
+
+static void writer_unlock(GRWLock *lock)
+{
+	writer_lock(lock);
+}
+
+#else
+GStaticMutex SQLProcessorFactory::m_lock = G_STATIC_MUTEX_INIT;
+static void reader_lock(GStaticMutex *lock)
+{
+	g_static_mutex_lock(lock);
+}
+
+static void reader_unlock(GStaticMutex *lock)
+{
+	g_static_mutex_unlock(lock);
+}
+
+static void writer_lock(GStaticMutex *lock)
+{
+	g_static_mutex_lock(lock);
+}
+
+static void writer_unlock(GStaticMutex *lock)
+{
+	g_static_mutex_unlock(lock);
+}
+
+#endif // GLIB_VERSION_2_32
 map<string, SQLProcessorCreatorFunc> SQLProcessorFactory::m_factoryMap;
 
 // ---------------------------------------------------------------------------
@@ -35,20 +79,20 @@ SQLProcessor *SQLProcessorFactory::create(string &DBName)
 	map<string, SQLProcessorCreatorFunc>::iterator it;
 	SQLProcessor *composer = NULL;
 
-	g_rw_lock_reader_lock(&m_lock);
+	reader_lock(&m_lock);
 	it = m_factoryMap.find(DBName);
 	if (it != m_factoryMap.end()) {
 		SQLProcessorCreatorFunc creator = it->second;
 		composer = (*creator)();
 	}
-	g_rw_lock_reader_unlock(&m_lock);
+	reader_unlock(&m_lock);
 
 	return composer;
 }
 
 void SQLProcessorFactory::addFactory(string name, SQLProcessorCreatorFunc factory)
 {
-	g_rw_lock_writer_lock(&m_lock);
+	writer_lock(&m_lock);
 	m_factoryMap[name] = factory;
-	g_rw_lock_writer_unlock(&m_lock);
+	writer_unlock(&m_lock);
 }

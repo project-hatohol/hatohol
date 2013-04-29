@@ -31,7 +31,11 @@ public:
 	void writeUnlock(void) const;
 
 private:
+#ifdef GLIB_VERSION_2_32
 	mutable GRWLock      m_lock;
+#else
+	mutable GStaticMutex m_lock;
+#endif // GLIB_VERSION_2_32
 };
 
 #endif // ReadWriteLock_h

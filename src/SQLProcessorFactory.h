@@ -37,7 +37,11 @@ public:
 protected:
 
 private:
+#ifdef GLIB_VERSION_2_32
 	static GRWLock m_lock;
+#else
+	static GStaticMutex m_lock;
+#endif // GLIB_VERSION_2_32
 	static map<string, SQLProcessorCreatorFunc> m_factoryMap;
 };
 

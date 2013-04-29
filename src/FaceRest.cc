@@ -40,9 +40,9 @@ static const char *MIME_JSON = "application/json";
 // ---------------------------------------------------------------------------
 FaceRest::FaceRest(CommandLineArg &cmdArg)
 : m_port(DEFAULT_PORT),
-  m_soupServer(NULL),
-  m_stopMutex(NULL)
+  m_soupServer(NULL)
 {
+	g_static_mutex_init(&m_stopMutex);
 	for (size_t i = 0; i < cmdArg.size(); i++) {
 		string &cmd = cmdArg[i];
 		if (cmd == "--face-rest-port")
@@ -53,8 +53,7 @@ FaceRest::FaceRest(CommandLineArg &cmdArg)
 
 FaceRest::~FaceRest()
 {
-	if (m_stopMutex)
-		delete m_stopMutex;
+	g_static_mutex_free(&m_stopMutex);
 	if (m_soupServer)
 		delete m_soupServer;
 }
@@ -79,11 +78,9 @@ gpointer FaceRest::mainThread(AsuraThreadArg *arg)
 	soup_server_add_handler(m_soupServer, pathForGetTriggers,
 	                        launchHandlerInTryBlock,
 	                        (gpointer)handlerGetTriggers, NULL);
-	m_stopMutex = new GMutex();
-	g_mutex_init(m_stopMutex);
-	g_mutex_lock(m_stopMutex);
+	g_static_mutex_lock(&m_stopMutex);
 	soup_server_run(m_soupServer);
-	g_mutex_unlock(m_stopMutex);
+	g_static_mutex_unlock(&m_stopMutex);
 	MLPL_INFO("exited face-rest\n");
 	return NULL;
 }
