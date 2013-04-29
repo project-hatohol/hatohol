@@ -62,6 +62,12 @@ void FaceRest::stop(void)
 {
 	ASURA_ASSERT(m_soupServer, "m_soupServer: NULL");
 	soup_server_quit(m_soupServer);
+
+	// wait for the return from soup_server_run() in the
+	// main thread. This synchronization ensures that the delete of
+	// this instance after stop() is safe.
+	g_static_mutex_lock(&m_stopMutex);
+	g_static_mutex_unlock(&m_stopMutex);
 }
 
 // ---------------------------------------------------------------------------
