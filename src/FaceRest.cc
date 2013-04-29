@@ -53,24 +53,16 @@ FaceRest::FaceRest(CommandLineArg &cmdArg)
 
 FaceRest::~FaceRest()
 {
+	if (m_stopMutex)
+		delete m_stopMutex;
+	if (m_soupServer)
+		delete m_soupServer;
 }
 
 void FaceRest::stop(void)
 {
 	ASURA_ASSERT(m_soupServer, "m_soupServer: NULL");
-
-	// we copy the pointer: m_stopMutex to the local variable.
-	// If auto delete flag is enabled, this object will be destroyed
-	// soon after calling soup_server_quit(). So the member variable
-	// cannot be accessed.
-	GMutex *stopMutex = m_stopMutex;
-
-	soup_server_disconnect(m_soupServer);
-
-	// waits for the return of soup_server_run() in mainThread.
-	g_mutex_lock(stopMutex);
-	g_mutex_unlock(stopMutex);
-	delete stopMutex;
+	soup_server_quit(m_soupServer);
 }
 
 // ---------------------------------------------------------------------------
