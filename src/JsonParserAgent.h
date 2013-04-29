@@ -19,6 +19,7 @@
 #define JsonParserAgent_h
 
 #include <string>
+#include <stdint.h>
 using namespace std;
 
 #include <glib.h>
