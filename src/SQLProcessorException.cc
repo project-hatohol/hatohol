@@ -24,6 +24,6 @@ SQLProcessorException::SQLProcessorException(const string &brief,
 {
 }
 
-SQLProcessorException::~SQLProcessorException() _GLIBCXX_USE_NOEXCEPT
+SQLProcessorException::~SQLProcessorException() _ASURA_NOEXCEPT
 {
 }

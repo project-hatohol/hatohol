@@ -26,7 +26,7 @@ public:
 	explicit SQLProcessorException(const string &brief,
 	                               const char *sourceFileName = "",
 	                               int lineNumber = UNKNOWN_LINE_NUMBER);
-	virtual ~SQLProcessorException() _GLIBCXX_USE_NOEXCEPT;
+	virtual ~SQLProcessorException() _ASURA_NOEXCEPT;
 private:
 };
 
