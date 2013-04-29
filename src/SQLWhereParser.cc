@@ -291,7 +291,7 @@ void SQLWhereParser::makeFormulaExistsAndCleanup(void)
 	SQLProcessorSelectShareInfo *shareInfo = getShareInfo();
 	const ParsableString *statement = shareInfo->statement;
 	const char *end = statement->getParsingPosition() - 1;
-	long length = reinterpret_cast<long>(end - m_ctx->existsStatementBegin);
+	long length = end - m_ctx->existsStatementBegin;
 	string innerSelect = string(m_ctx->existsStatementBegin, length);
 	SQLProcessorSelectFactory &selectFactory =
 	  shareInfo->processorSelectFactory;
