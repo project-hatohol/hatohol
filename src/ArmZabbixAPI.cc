@@ -91,7 +91,7 @@ ArmZabbixAPI::ArmZabbixAPI(int zabbixServerId, const char *server,
 : m_ctx(NULL)
 {
 	m_ctx = new PrivateContext(server, serverPort, zabbixServerId);
-	m_ctx->server = "localhost";
+	m_ctx->server = server;
 	m_ctx->uri = "http://";
 	m_ctx->uri += m_ctx->server;
 	m_ctx->uri += StringUtils::sprintf(":%d", serverPort);
