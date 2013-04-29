@@ -42,6 +42,13 @@ struct ZabbixAPIEmulator::PrivateContext {
 
 	virtual ~PrivateContext()
 	{
+		if (thread) {
+#ifdef GLIB_VERSION_2_32
+			g_thread_unref(thread);
+#else
+			g_object_unref(thread);
+#endif // GLIB_VERSION_2_32
+		}
 	}
 };
 
@@ -67,7 +74,7 @@ ZabbixAPIEmulator::ZabbixAPIEmulator(void)
 ZabbixAPIEmulator::~ZabbixAPIEmulator()
 {
 	if (isRunning()) {
-		soup_server_disconnect(m_ctx->soupServer);
+		soup_server_quit(m_ctx->soupServer);
 		g_object_unref(m_ctx->soupServer);
 		m_ctx->soupServer = NULL;
 	}
@@ -92,7 +99,11 @@ void ZabbixAPIEmulator::start(guint port)
 	                        this, NULL);
 	soup_server_add_handler(m_ctx->soupServer, "/zabbix/api_jsonrpc.php",
 	                        handlerAPI, this, NULL);
+#ifdef GLIB_VERSION_2_32
 	m_ctx->thread = g_thread_new("ZabbixAPIEmulator", _mainThread, this);
+#else
+	m_ctx->thread = g_thread_create(_mainThread, this, TRUE, NULL);
+#endif // GLIB_VERSION_2_32
 }
 
 void ZabbixAPIEmulator::setOperationMode(OperationMode mode)

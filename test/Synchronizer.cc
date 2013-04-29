@@ -2,32 +2,32 @@
 
 Synchronizer::Synchronizer(void)
 {
-	g_mutex_init(&g_mutex);
+	g_static_mutex_init(&g_mutex);
 }
 
 Synchronizer::~Synchronizer()
 {
-	g_mutex_clear(&g_mutex);
+	g_static_mutex_free(&g_mutex);
 }
 
 void Synchronizer::lock(void)
 {
-	g_mutex_lock(&g_mutex);
+	g_static_mutex_lock(&g_mutex);
 }
 
 void Synchronizer::unlock(void)
 {
-	g_mutex_unlock(&g_mutex);
+	g_static_mutex_unlock(&g_mutex);
 }
 
 void Synchronizer::reset(void)
 {
-	g_mutex_init(&g_mutex);
+	g_static_mutex_init(&g_mutex);
 }
 
 bool Synchronizer::trylock(void)
 {
-	return g_mutex_trylock(&g_mutex);
+	return g_static_mutex_trylock(&g_mutex);
 }
 
 bool Synchronizer::isLocked(void)

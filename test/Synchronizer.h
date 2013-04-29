@@ -4,7 +4,7 @@
 #include <glib.h>
 
 class Synchronizer {
-	GMutex g_mutex;
+	GStaticMutex g_mutex;
 public:
 	Synchronizer(void);
 	virtual ~Synchronizer();
