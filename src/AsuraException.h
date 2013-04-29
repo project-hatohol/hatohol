@@ -29,7 +29,7 @@ using namespace std;
 #ifdef _GLIBCXX_USE_NOEXCEPT
 #define _ASURA_NOEXCEPT _GLIBCXX_USE_NOEXCEPT
 #else
-#define _ASURA_NOEXCEPT
+#define _ASURA_NOEXCEPT throw()
 #endif
 
 #define ASURA_STACK_TRACE_SET_ENV "ASURA_EXCEPTION_STACK_TRACE"
