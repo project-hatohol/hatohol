@@ -145,7 +145,9 @@ static void printUsage(void)
 
 int main(int argc, char *argv[])
 {
+#ifndef GLIB_VERSION_2_36
 	g_type_init();
+#endif // GLIB_VERSION_2_36
 	asuraInit();
 	if (argc < 3) {
 		printUsage();

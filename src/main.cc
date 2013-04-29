@@ -34,7 +34,9 @@ using namespace mlpl;
 
 int mainRoutine(int argc, char *argv[])
 {
+#ifndef GLIB_VERSION_2_36
 	g_type_init();
+#endif // GLIB_VERSION_2_36
 	asuraInit();
 	MLPL_INFO("started asura: ver. %s\n", PACKAGE_VERSION);
 
