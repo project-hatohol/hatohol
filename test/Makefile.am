@@ -20,7 +20,7 @@ INCLUDES = \
 
 LIBS = \
 	$(CUTTER_LIBS) $(CPPCUTTER_LIBS) \
-	$(GLIB_LIBS) $(MLPL_LIBS) ../src/libasura.la
+	$(GLIB_LIBS) $(GIO_LIBS) $(MLPL_LIBS) ../src/libasura.la
 
 # Test cases
 testAsura_la_SOURCES = \
@@ -50,7 +50,7 @@ libTest_la_SOURCES = \
 libTest_la_LDFLAGS =
 
 zabbix_api_response_collector_LDFLAGS =
-zabbix_api_response_collector_LDADD = ../src/libasura.la
+zabbix_api_response_collector_LDADD = $(LIBS)
 
 echo-cutter:
 	@echo $(CUTTER)
