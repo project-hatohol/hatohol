@@ -55,7 +55,7 @@ struct AsuraThreadBase::PrivateContext {
 #ifdef GLIB_VERSION_2_32
 			g_thread_unref(thread);
 #else
-			g_object_unref(thread);
+			// no need to code for freeing
 #endif // GLIB_VERSION_2_32
 		}
 
