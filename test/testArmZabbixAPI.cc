@@ -239,7 +239,7 @@ static void _assertTestGet(ArmZabbixAPITestee::GetTestType testType,
 {
 	int svId = 0;
 	deleteDBClientZabbixDB(svId);
-	ArmZabbixAPITestee armZbxApiTestee(svId, "localhost", getTestPort());
+	ArmZabbixAPITestee armZbxApiTestee(svId, "127.0.0.1", getTestPort());
 	cppcut_assert_equal
 	  (true, armZbxApiTestee.testGet(testType),
 	   cut_message("%s\n", armZbxApiTestee.errorMessage().c_str()));
@@ -302,7 +302,7 @@ void teardown(void)
 void test_openSession(void)
 {
 	int svId = 0;
-	ArmZabbixAPITestee armZbxApiTestee(svId, "localhost", getTestPort());
+	ArmZabbixAPITestee armZbxApiTestee(svId, "127.0.0.1", getTestPort());
 	cppcut_assert_equal
 	  (true, armZbxApiTestee.testOpenSession(),
 	   cut_message("%s\n", armZbxApiTestee.errorMessage().c_str()));
@@ -350,7 +350,7 @@ void test_httpNotFound(void)
 
 	g_apiEmulator.setOperationMode(OPE_MODE_HTTP_NOT_FOUND);
 	int svId = 0;
-	ArmZabbixAPITestee armZbxApiTestee(svId, "localhost", getTestPort());
+	ArmZabbixAPITestee armZbxApiTestee(svId, "127.0.0.1", getTestPort());
 	cppcut_assert_equal
 	  (false, armZbxApiTestee.testOpenSession(),
 	   cut_message("%s\n", armZbxApiTestee.errorMessage().c_str()));
@@ -360,7 +360,7 @@ void test_mainThreadOneProc()
 {
 	int svId = 0;
 	deleteDBClientZabbixDB(svId);
-	ArmZabbixAPITestee armZbxApiTestee(svId, "localhost", getTestPort());
+	ArmZabbixAPITestee armZbxApiTestee(svId, "127.0.0.1", getTestPort());
 	cppcut_assert_equal(true, armZbxApiTestee.testMainThreadOneProc());
 }
 
