@@ -56,8 +56,11 @@ FaceRest::~FaceRest()
 {
 	if (m_stopMutex)
 		delete m_stopMutex;
-	if (m_soupServer)
+	if (m_soupServer) {
+		SoupSocket *sock = soup_server_get_listener(m_soupServer);
+		soup_socket_disconnect(sock);
 		g_object_unref(m_soupServer);
+	}
 }
 
 void FaceRest::stop(void)
