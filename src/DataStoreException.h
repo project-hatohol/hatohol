@@ -26,7 +26,7 @@ public:
 	explicit DataStoreException(const string &brief,
 	                            const char *sourceFileName = "",
 	                            int lineNumber = UNKNOWN_LINE_NUMBER);
-	virtual ~DataStoreException() _GLIBCXX_USE_NOEXCEPT;
+	virtual ~DataStoreException() _ASURA_NOEXCEPT;
 private:
 };
 

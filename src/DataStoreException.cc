@@ -24,6 +24,6 @@ DataStoreException::DataStoreException(const string &brief,
 {
 }
 
-DataStoreException::~DataStoreException() _GLIBCXX_USE_NOEXCEPT
+DataStoreException::~DataStoreException() _ASURA_NOEXCEPT
 {
 }
