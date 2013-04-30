@@ -17,6 +17,9 @@
 
 #include <memory>
 
+#include <MutexLock.h>
+using namespace mlpl;
+
 #include "DBAgentFactory.h"
 #include "DBClientAsura.h"
 #include "ConfigManager.h"
@@ -145,7 +148,7 @@ enum {
 
 struct DBClientAsura::PrivateContext
 {
-	static GStaticMutex mutex;
+	static MutexLock mutex;
 	static bool   initialized;
 
 	PrivateContext(void)
@@ -158,15 +161,15 @@ struct DBClientAsura::PrivateContext
 
 	static void lock(void)
 	{
-		g_static_mutex_lock(&mutex);
+		mutex.lock();
 	}
 
 	static void unlock(void)
 	{
-		g_static_mutex_unlock(&mutex);
+		mutex.unlock();
 	}
 };
-GStaticMutex DBClientAsura::PrivateContext::mutex = G_STATIC_MUTEX_INIT;
+MutexLock DBClientAsura::PrivateContext::mutex;
 bool   DBClientAsura::PrivateContext::initialized = false;
 
 // ---------------------------------------------------------------------------
