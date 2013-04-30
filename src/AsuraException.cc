@@ -53,7 +53,7 @@ const char* AsuraException::what() const _ASURA_NOEXCEPT
 	// show the exception message (empty string is shown)
 	// when this function returns the char array on the stack.
 	// So we here return that on the heap, which is valid
-	// until the object is destoyed.
+	// until the object is destroyed.
 	m_whatCache = getFancyMessage();
 	return m_whatCache.c_str();
 }
