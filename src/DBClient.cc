@@ -16,6 +16,10 @@
 */
 
 #include <memory>
+
+#include <MutexLock.h>
+using namespace mlpl;
+
 #include "DBClient.h"
 #include "DBAgentFactory.h"
 
@@ -58,7 +62,7 @@ enum {
 
 struct DBClient::PrivateContext
 {
-	static GStaticMutex mutex;
+	static MutexLock mutex;
 	DBAgent      *dbAgent;
 
 	PrivateContext(void)
@@ -74,15 +78,15 @@ struct DBClient::PrivateContext
 
 	static void lock(void)
 	{
-		g_static_mutex_lock(&mutex);
+		mutex.lock();
 	}
 
 	static void unlock(void)
 	{
-		g_static_mutex_unlock(&mutex);
+		mutex.unlock();
 	}
 };
-GStaticMutex DBClient::PrivateContext::mutex = G_STATIC_MUTEX_INIT;
+MutexLock DBClient::PrivateContext::mutex;
 
 // ---------------------------------------------------------------------------
 // Public methods
