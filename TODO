@@ -1,13 +1,11 @@
 [S] Short-term, [M] Middle-term, [L] Long-term
 ====
-* [S] support Ubuntu 13.04 and CentOS 6.3 (glib 2.22)
+* [S] make a REST API of events (including tests)
 * [S] remove lock from ItemData, ItemGroup, and ItemTable.
       We use them as const. (i.e. They are never changed after created)
-* [S] make a REST API of events
 * [M] make a mechanism to replica partially
 * [S] make a command line tool that get/set zabbix servers to monitoring.
 * [S] make a API and the depending mechanism to draw graph for UI.
-* [M] improve performance the lock (not read-write lock) that was taken in commit: 2a25c4d to build with GLIB version below 2.32.
 * [M] add a capability to detect sign and number width (32bit, 64bit or mode) in StringUtils::isNumber().
   - Then fix the code to make FormulaValue.
 * [S] Extract common code from SQLProcessor::pickupMatchingRows() and SQLProcessorUpdate::updateMatchingRows() and merged them cleanly.
