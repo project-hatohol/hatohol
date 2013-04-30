@@ -28,8 +28,6 @@ static void startFaceRest(void)
 	arg.push_back("--face-rest-port");
 	arg.push_back(StringUtils::sprintf("%u", TEST_PORT));
 	g_faceRest = new FaceRest(arg);
-	bool autoDeleteObject = true;
-	g_faceRest->start(autoDeleteObject);
 }
 
 static JsonParserAgent *getResponseAsJsonParser(const string url)
@@ -91,9 +89,13 @@ void setup(void)
 void teardown(void)
 {
 	if (g_faceRest) {
-		g_faceRest->stop();
-		// g_face will be automatically destroyed, because it is starte
-		// with autoDeleteObject flag 
+		try {
+			g_faceRest->stop();
+		} catch (const AsuraException &e) {
+			printf("Got exception: %s\n",
+			       e.getFancyMessage().c_str());
+		}
+		delete g_faceRest;
 		g_faceRest = NULL;
 	}
 
