@@ -463,7 +463,19 @@ void DBClientAsura::getEventInfoList(EventInfoList &eventInfoList)
 void DBClientAsura::setEventInfoList(const EventInfoList &eventInfoList,
                                      uint32_t serverId)
 {
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	DBAgentDeleteArg deleteArg;
+	deleteArg.tableName = TABLE_NAME_EVENTS;
+	deleteArg.condition =
+	  StringUtils::sprintf("%s=%u",
+	    COLUMN_DEF_EVENTS[IDX_EVENTS_SERVER_ID].columnName,
+	    serverId);
+	deleteRows(deleteArg);
+
+	EventInfoListConstIterator it = eventInfoList.begin();
+	DBCLIENT_TRANSACTION_BEGIN() {
+		for (; it != eventInfoList.end(); ++it)
+			addEventInfoBare(*it);
+	} DBCLIENT_TRANSACTION_END();
 }
 
 // ---------------------------------------------------------------------------
@@ -548,6 +560,45 @@ void DBClientAsura::addTriggerInfoBare(const TriggerInfo &triggerInfo)
 
 		arg.row->ADD_NEW_ITEM(String, triggerInfo.brief);
 		arg.columnIndexes.push_back(IDX_TRIGGERS_BRIEF);
+		update(arg);
+	}
+}
+
+void DBClientAsura::addEventInfoBare(const EventInfo &eventInfo)
+{
+	string condition = StringUtils::sprintf("id=%"PRIu64, eventInfo.id);
+	if (!isRecordExisting(TABLE_NAME_EVENTS, condition)) {
+		DBAgentInsertArg arg;
+		arg.tableName = TABLE_NAME_EVENTS;
+		arg.numColumns = NUM_COLUMNS_EVENTS;
+		arg.columnDefs = COLUMN_DEF_EVENTS;
+		arg.row->ADD_NEW_ITEM(Uint64, eventInfo.id);
+		arg.row->ADD_NEW_ITEM(Int, eventInfo.time.tv_sec); 
+		arg.row->ADD_NEW_ITEM(Int, eventInfo.time.tv_nsec); 
+		arg.row->ADD_NEW_ITEM(Int, eventInfo.eventValue);
+		arg.row->ADD_NEW_ITEM(Int, eventInfo.serverId),
+		arg.row->ADD_NEW_ITEM(Uint64, eventInfo.triggerId);
+		insert(arg);
+	} else {
+		DBAgentUpdateArg arg;
+		arg.tableName = TABLE_NAME_EVENTS;
+		arg.columnDefs = COLUMN_DEF_EVENTS;
+
+		arg.row->ADD_NEW_ITEM(Int, eventInfo.time.tv_sec); 
+		arg.columnIndexes.push_back(IDX_EVENTS_TIME_SEC);
+
+		arg.row->ADD_NEW_ITEM(Int, eventInfo.time.tv_nsec); 
+		arg.columnIndexes.push_back(IDX_EVENTS_TIME_NS);
+
+		arg.row->ADD_NEW_ITEM(Int, eventInfo.eventValue);
+		arg.columnIndexes.push_back(IDX_EVENTS_EVENT_VALUE);
+
+		arg.row->ADD_NEW_ITEM(Int, eventInfo.serverId);
+		arg.columnIndexes.push_back(IDX_EVENTS_SERVER_ID);
+
+		arg.row->ADD_NEW_ITEM(Uint64, eventInfo.triggerId);
+		arg.columnIndexes.push_back(IDX_EVENTS_TRIGGER_ID);
+
 		update(arg);
 	}
 }

@@ -83,6 +83,7 @@ protected:
 	static void resetDBInitializedFlags(void);
 	void prepareSetupFunction(void);
 	void addTriggerInfoBare(const TriggerInfo &triggerInfo);
+	void addEventInfoBare(const EventInfo &eventInfo);
 
 private:
 	struct PrivateContext;
