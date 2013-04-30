@@ -4,6 +4,7 @@
 * [S] remove lock from ItemData, ItemGroup, and ItemTable.
       We use them as const. (i.e. They are never changed after created)
 * [M] make a mechanism to replica partially
+* [S] cleaned up the way to create ArmZabbix instances for several servers.
 * [S] make a command line tool that get/set zabbix servers to monitoring.
 * [S] make a API and the depending mechanism to draw graph for UI.
 * [M] add a capability to detect sign and number width (32bit, 64bit or mode) in StringUtils::isNumber().
@@ -14,10 +15,3 @@
 * [M] Support the form: insert into table values (xx, xxx, xxx, xx)
 * [S] Organize ItemDataUtils and SQLUtils.
 * [S] Added mechanism to destroy elements that has not been attached to the tree in SQLFormulaParser, especially on an exception.
-
-* [M] Mechanism for local DB
-Stores data such as configuration.
-
-* [M] Mechanism for run ArmZabbix 
-The parameters of ArmZabbix such as IP address should be
-obtained from the local DB.
