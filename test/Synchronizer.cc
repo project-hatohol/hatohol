@@ -1,33 +1,38 @@
 #include "Synchronizer.h"
+using namespace mlpl;
 
 Synchronizer::Synchronizer(void)
+: m_mutex(NULL)
 {
-	g_static_mutex_init(&g_mutex);
+	m_mutex = new MutexLock();
 }
 
 Synchronizer::~Synchronizer()
 {
-	g_static_mutex_free(&g_mutex);
+	if (m_mutex)
+		delete m_mutex;
 }
 
 void Synchronizer::lock(void)
 {
-	g_static_mutex_lock(&g_mutex);
+	m_mutex->lock();
 }
 
 void Synchronizer::unlock(void)
 {
-	g_static_mutex_unlock(&g_mutex);
+	m_mutex->unlock();
 }
 
 void Synchronizer::reset(void)
 {
-	g_static_mutex_init(&g_mutex);
+	if (m_mutex)
+		delete m_mutex;
+	m_mutex = new MutexLock();
 }
 
 bool Synchronizer::trylock(void)
 {
-	return g_static_mutex_trylock(&g_mutex);
+	return m_mutex->trylock();
 }
 
 bool Synchronizer::isLocked(void)

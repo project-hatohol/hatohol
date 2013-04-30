@@ -2,9 +2,10 @@
 #define Synchronizer_h
 
 #include <glib.h>
+#include <MutexLock.h>
 
 class Synchronizer {
-	GStaticMutex g_mutex;
+	mlpl::MutexLock *m_mutex;
 public:
 	Synchronizer(void);
 	virtual ~Synchronizer();
