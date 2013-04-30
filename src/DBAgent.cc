@@ -15,6 +15,9 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <MutexLock.h>
+using namespace mlpl;
+
 #include "DBAgent.h"
 
 struct DBSetupInfo {
@@ -33,22 +36,22 @@ DBAgentSelectExArg::DBAgentSelectExArg(void)
 
 struct DBAgent::PrivateContext
 {
-	static GStaticMutex       mutex;
+	static MutexLock          mutex;
 	static DBSetupInfoMap     setupInfoMap;
 
 	// methods
 	static void lock(void)
 	{
-		g_static_mutex_lock(&mutex);
+		mutex.lock();
 	}
 
 	static void unlock(void)
 	{
-		g_static_mutex_unlock(&mutex);
+		mutex.unlock();
 	}
 };
 
-GStaticMutex   DBAgent::PrivateContext::mutex = G_STATIC_MUTEX_INIT;
+MutexLock      DBAgent::PrivateContext::mutex;
 DBSetupInfoMap DBAgent::PrivateContext::setupInfoMap;
 
 // ---------------------------------------------------------------------------
