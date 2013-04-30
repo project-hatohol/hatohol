@@ -33,7 +33,7 @@ static void startFaceRest(void)
 static JsonParserAgent *getResponseAsJsonParser(const string url)
 {
 	string getCmd =
-	  StringUtils::sprintf("wget -q http://localhost:%u%s -O -",
+	  StringUtils::sprintf("wget http://localhost:%u%s -O -",
 	                       TEST_PORT, url.c_str());
 	string response = executeCommand(getCmd);
 	if (isVerboseMode())
