@@ -15,6 +15,9 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <MutexLock.h>
+using namespace mlpl;
+
 #include "ConfigManager.h"
 #include "DBClientConfig.h"
 
@@ -22,23 +25,23 @@ static const char *DEFAULT_DATABASE_DIR = "/tmp";
 static const size_t DEFAULT_NUM_PRESERVED_REPLICA_GENERATION = 3;
 
 struct ConfigManager::PrivateContext {
-	static GStaticMutex   mutex;
+	static MutexLock      mutex;
 	static ConfigManager *instance;
 	string                databaseDirectory;
 
 	// methods
 	static void lock(void)
 	{
-		g_static_mutex_lock(&mutex);
+		mutex.lock();
 	}
 
 	static void unlock(void)
 	{
-		g_static_mutex_unlock(&mutex);
+		mutex.unlock();
 	}
 };
 
-GStaticMutex   ConfigManager::PrivateContext::mutex = G_STATIC_MUTEX_INIT;
+MutexLock      ConfigManager::PrivateContext::mutex;
 ConfigManager *ConfigManager::PrivateContext::instance = NULL;
 
 // ---------------------------------------------------------------------------
