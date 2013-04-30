@@ -59,6 +59,7 @@ private:
 	static bool m_saveStackTrace;
 
 	string m_what;
+	mutable string m_whatCache;
 	string m_sourceFileName;
 	int    m_lineNumber;
 	string m_stackTrace;
