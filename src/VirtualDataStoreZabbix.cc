@@ -92,6 +92,12 @@ void VirtualDataStoreZabbix::getTriggerList(TriggerInfoList &triggerList)
 	dbAsura.getTriggerInfoList(triggerList);
 }
 
+void VirtualDataStoreZabbix::getEventList(EventInfoList &eventList)
+{
+	DBClientAsura dbAsura;
+	dbAsura.getEventInfoList(eventList);
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------

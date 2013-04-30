@@ -55,7 +55,9 @@ struct EventInfo {
 	uint64_t            id;
 	timespec            time;
 	EventValue          eventValue;
+	uint32_t            serverId;
 	uint64_t            triggerId;
+	TriggerInfo         triggerInfo;
 };
 
 typedef list<EventInfo>               EventInfoList;
@@ -73,6 +75,7 @@ public:
 	void getTriggerInfoList(TriggerInfoList &triggerInfoList);
 	void setTriggerInfoList(const TriggerInfoList &triggerInfoList,
 	                        uint32_t serverId);
+	void getEventInfoList(EventInfoList &eventInfoList);
 	void setEventInfoList(const EventInfoList &eventInfoList,
 	                      uint32_t serverId);
 

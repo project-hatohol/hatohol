@@ -51,10 +51,14 @@ protected:
 	static void handlerGetTriggers
 	  (SoupServer *server, SoupMessage *msg, const char *path,
 	   GHashTable *query, SoupClientContext *client, gpointer user_data);
+	static void handlerGetEvents
+	  (SoupServer *server, SoupMessage *msg, const char *path,
+	   GHashTable *query, SoupClientContext *client, gpointer user_data);
 
 private:
 	static const char *pathForGetServers;
 	static const char *pathForGetTriggers;
+	static const char *pathForGetEvents;
 
 	guint       m_port;
 	SoupServer *m_soupServer;

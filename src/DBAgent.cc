@@ -34,6 +34,19 @@ DBAgentSelectExArg::DBAgentSelectExArg(void)
 {
 }
 
+void DBAgentSelectExArg::pushColumn
+  (const ColumnDef &columnDef, const string &varName)
+{
+	string statement;
+	if (!varName.empty()) {
+		statement = varName;
+		statement += ".";
+	}
+	statement += columnDef.columnName;
+	statements.push_back(statement);
+	columnTypes.push_back(columnDef.type);
+}
+
 struct DBAgent::PrivateContext
 {
 	static MutexLock          mutex;

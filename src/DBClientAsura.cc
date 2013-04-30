@@ -26,6 +26,7 @@ using namespace mlpl;
 #include "DBClientUtils.h"
 
 static const char *TABLE_NAME_TRIGGERS = "triggers";
+static const char *TABLE_NAME_EVENTS   = "events";
 
 static const ColumnDef COLUMN_DEF_TRIGGERS[] = {
 {
@@ -36,7 +37,7 @@ static const ColumnDef COLUMN_DEF_TRIGGERS[] = {
 	20,                                // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
-	SQL_KEY_PRI,                       // keyType
+	SQL_KEY_MUL,                       // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
@@ -91,7 +92,7 @@ static const ColumnDef COLUMN_DEF_TRIGGERS[] = {
 	11,                                // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
-	SQL_KEY_NONE,                      // keyType
+	SQL_KEY_MUL,                       // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
@@ -144,6 +145,89 @@ enum {
 	IDX_TRIGGERS_HOSTNAME,
 	IDX_TRIGGERS_BRIEF,
 	NUM_IDX_TRIGGERS,
+};
+
+static const ColumnDef COLUMN_DEF_EVENTS[] = {
+{
+	ITEM_ID_NOT_SET,                   // itemId
+	TABLE_NAME_EVENTS,                 // tableName
+	"id",                              // columnName
+	SQL_COLUMN_TYPE_BIGUINT,           // type
+	20,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_PRI,                       // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}, {
+	ITEM_ID_NOT_SET,                   // itemId
+	TABLE_NAME_EVENTS,                 // tableName
+	"time_sec",                        // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	11,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}, {
+	ITEM_ID_NOT_SET,                   // itemId
+	TABLE_NAME_EVENTS,                 // tableName
+	"time_ns",                         // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	11,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}, {
+	ITEM_ID_NOT_SET,                   // itemId
+	TABLE_NAME_EVENTS,                 // tableName
+	"event_value",                     // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	11,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}, {
+	ITEM_ID_NOT_SET,                   // itemId
+	TABLE_NAME_EVENTS,                 // tableName
+	"server_id",                       // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	11,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_MUL,                       // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}, {
+	ITEM_ID_NOT_SET,                   // itemId
+	TABLE_NAME_EVENTS,                 // tableName
+	"trigger_id",                      // columnName
+	SQL_COLUMN_TYPE_BIGUINT,           // type
+	20,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_MUL,                       // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+},
+};
+
+static const size_t NUM_COLUMNS_EVENTS =
+  sizeof(COLUMN_DEF_EVENTS) / sizeof(ColumnDef);
+
+enum {
+	IDX_EVENTS_ID,
+	IDX_EVENTS_TIME_SEC,
+	IDX_EVENTS_TIME_NS,
+	IDX_EVENTS_EVENT_VALUE,
+	IDX_EVENTS_SERVER_ID,
+	IDX_EVENTS_TRIGGER_ID,
+	NUM_IDX_EVENTS,
 };
 
 struct DBClientAsura::PrivateContext
@@ -268,6 +352,112 @@ void DBClientAsura::setTriggerInfoList(const TriggerInfoList &triggerInfoList,
 		for (; it != triggerInfoList.end(); ++it)
 			addTriggerInfoBare(*it);
 	} DBCLIENT_TRANSACTION_END();
+}
+
+void DBClientAsura::getEventInfoList(EventInfoList &eventInfoList)
+{
+	const ColumnDef &eventsId =
+	  COLUMN_DEF_EVENTS[IDX_EVENTS_ID];
+	const ColumnDef &eventsTimeSec =
+	  COLUMN_DEF_EVENTS[IDX_EVENTS_TIME_SEC];
+	const ColumnDef &eventsTimeNs =
+	  COLUMN_DEF_EVENTS[IDX_EVENTS_TIME_NS];
+	const ColumnDef &eventsEventValue = 
+	  COLUMN_DEF_EVENTS[IDX_EVENTS_EVENT_VALUE];
+	const ColumnDef &eventsServerId =
+	  COLUMN_DEF_EVENTS[IDX_EVENTS_SERVER_ID];
+	const ColumnDef &eventsTriggerId =
+	  COLUMN_DEF_EVENTS[IDX_EVENTS_TRIGGER_ID];
+
+	const ColumnDef &triggersTriggerId =
+	  COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_ID];
+	const ColumnDef &triggersStatus =
+	  COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_STATUS];
+	const ColumnDef &triggersSeverity =
+	  COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SEVERITY];
+	const ColumnDef &triggersLastChangeTimeSec = 
+	  COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_LAST_CHANGE_TIME_SEC];
+	const ColumnDef &triggersLastChangeTimeNs = 
+	  COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_LAST_CHANGE_TIME_NS];
+	const ColumnDef &triggersServerId =
+	  COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SERVER_ID];
+	const ColumnDef &triggersHostId =
+	  COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_HOST_ID];
+	const ColumnDef &triggersHostName =
+	  COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_HOSTNAME];
+	const ColumnDef &triggersBrief =
+	  COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_BRIEF];
+
+	DBAgentSelectExArg arg;
+
+	// Tables
+	const static char *VAR_EVENTS = "e";
+	const static char *VAR_TRIGGERS = "t";
+	arg.tableName = StringUtils::sprintf(
+	  " %s %s inner join %s %s on %s.%s=%s.%s",
+	  TABLE_NAME_EVENTS, VAR_EVENTS,
+	  TABLE_NAME_TRIGGERS, VAR_TRIGGERS,
+	  VAR_EVENTS, eventsTriggerId.columnName,
+	  VAR_TRIGGERS, triggersTriggerId.columnName);
+
+	// Columns
+	arg.pushColumn(eventsId,         VAR_EVENTS);
+	arg.pushColumn(eventsTimeSec,    VAR_EVENTS);
+	arg.pushColumn(eventsTimeNs,     VAR_EVENTS);
+	arg.pushColumn(eventsEventValue, VAR_EVENTS);
+	arg.pushColumn(eventsServerId,   VAR_EVENTS);
+	arg.pushColumn(eventsTriggerId,  VAR_EVENTS);
+
+	arg.pushColumn(triggersStatus,   VAR_TRIGGERS);
+	arg.pushColumn(triggersSeverity, VAR_TRIGGERS);
+	arg.pushColumn(triggersLastChangeTimeSec, VAR_TRIGGERS);
+	arg.pushColumn(triggersLastChangeTimeNs,  VAR_TRIGGERS);
+	arg.pushColumn(triggersHostId,   VAR_TRIGGERS);
+	arg.pushColumn(triggersHostName, VAR_TRIGGERS);
+	arg.pushColumn(triggersBrief,    VAR_TRIGGERS);
+
+	// Condition
+	arg.condition = StringUtils::sprintf(
+	  "%s.%d=%s.%d", 
+	  VAR_EVENTS, eventsServerId.columnName,
+	  VAR_TRIGGERS, triggersServerId.columnName);
+
+	DBCLIENT_TRANSACTION_BEGIN() {
+		select(arg);
+	} DBCLIENT_TRANSACTION_END();
+
+	// check the result and copy
+	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
+	ItemGroupListConstIterator it = grpList.begin();
+	for (; it != grpList.end(); ++it) {
+		size_t idx = 0;
+		const ItemGroup *itemGroup = *it;
+		eventInfoList.push_back(EventInfo());
+		EventInfo &eventInfo = eventInfoList.back();
+
+		eventInfo.id         = GET_UINT64_FROM_GRP(itemGroup, idx++);
+		eventInfo.time.tv_sec  = GET_INT_FROM_GRP(itemGroup, idx++);
+		eventInfo.time.tv_nsec = GET_INT_FROM_GRP(itemGroup, idx++);
+		int eventValue       = GET_INT_FROM_GRP(itemGroup, idx++);
+		eventInfo.eventValue = static_cast<EventValue>(eventValue);
+		eventInfo.serverId   = GET_INT_FROM_GRP(itemGroup, idx++);
+		eventInfo.triggerId  = GET_UINT64_FROM_GRP(itemGroup, idx++);
+
+		TriggerInfo &trigInfo = eventInfo.triggerInfo;
+		trigInfo.id        = eventInfo.triggerId;
+		int status         = GET_INT_FROM_GRP(itemGroup, idx++);
+		trigInfo.status    = static_cast<TriggerStatusType>(status);
+		int severity       = GET_INT_FROM_GRP(itemGroup, idx++);
+		trigInfo.severity  = static_cast<TriggerSeverityType>(severity);
+		trigInfo.lastChangeTime.tv_sec = 
+		  GET_INT_FROM_GRP(itemGroup, idx++);
+		trigInfo.lastChangeTime.tv_nsec =
+		  GET_INT_FROM_GRP(itemGroup, idx++);
+		trigInfo.serverId  = eventInfo.serverId;
+		trigInfo.hostId    = GET_STRING_FROM_GRP(itemGroup, idx++);
+		trigInfo.hostName  = GET_STRING_FROM_GRP(itemGroup, idx++);
+		trigInfo.brief     = GET_STRING_FROM_GRP(itemGroup, idx++);
+	}
 }
 
 void DBClientAsura::setEventInfoList(const EventInfoList &eventInfoList,

@@ -67,8 +67,9 @@ struct DBAgentSelectExArg {
 	// output
 	ItemTablePtr        dataTable;
 
-	// constructor
+	// constructor and methods
 	DBAgentSelectExArg(void);
+	void pushColumn(const ColumnDef &columnDef, const string &varName = "");
 };
 
 struct DBAgentDeleteArg {

@@ -32,6 +32,7 @@ static const guint DEFAULT_PORT = 33194;
 
 const char *FaceRest::pathForGetServers = "/servers";
 const char *FaceRest::pathForGetTriggers = "/triggers";
+const char *FaceRest::pathForGetEvents   = "/events";
 
 static const char *MIME_JSON = "application/json";
 
@@ -94,6 +95,9 @@ gpointer FaceRest::mainThread(AsuraThreadArg *arg)
 	soup_server_add_handler(m_soupServer, pathForGetTriggers,
 	                        launchHandlerInTryBlock,
 	                        (gpointer)handlerGetTriggers, NULL);
+	soup_server_add_handler(m_soupServer, pathForGetEvents,
+	                        launchHandlerInTryBlock,
+	                        (gpointer)handlerGetEvents, NULL);
 	m_stopMutex->lock();
 	soup_server_run(m_soupServer);
 	m_stopMutex->unlock();
@@ -218,6 +222,44 @@ void FaceRest::handlerGetTriggers
 		agent.add("hostId",   triggerInfo.hostId);
 		agent.add("hostName", triggerInfo.hostName);
 		agent.add("brief",    triggerInfo.brief);
+		agent.endObject();
+	}
+	agent.endArray();
+	agent.endObject();
+	string response = agent.generate();
+	soup_message_headers_set_content_type(msg->response_headers,
+	                                      MIME_JSON, NULL);
+	soup_message_body_append(msg->response_body, SOUP_MEMORY_COPY,
+	                         response.c_str(), response.size());
+	soup_message_set_status(msg, SOUP_STATUS_OK);
+}
+
+void FaceRest::handlerGetEvents
+  (SoupServer *server, SoupMessage *msg, const char *path,
+   GHashTable *query, SoupClientContext *client, gpointer user_data)
+{
+	VirtualDataStoreZabbix *vdsz = VirtualDataStoreZabbix::getInstance();
+
+	EventInfoList eventList;
+	vdsz->getEventList(eventList);
+
+	JsonBuilderAgent agent;
+	agent.startObject();
+	agent.addTrue("result");
+	agent.add("numberOfEvents", eventList.size());
+	agent.startArray("events");
+	EventInfoListIterator it = eventList.begin();
+	for (; it != eventList.end(); ++it) {
+		EventInfo &eventInfo = *it;
+		agent.startObject();
+		agent.add("time",   eventInfo.time.tv_sec);
+		agent.add("eventValue", eventInfo.eventValue);
+		agent.add("serverId", eventInfo.serverId);
+		agent.add("status",   eventInfo.triggerInfo.status);
+		agent.add("severity", eventInfo.triggerInfo.severity);
+		agent.add("hostId",   eventInfo.triggerInfo.hostId);
+		agent.add("hostName", eventInfo.triggerInfo.hostName);
+		agent.add("brief",    eventInfo.triggerInfo.brief);
 		agent.endObject();
 	}
 	agent.endArray();

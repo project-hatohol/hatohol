@@ -39,6 +39,7 @@ public:
 
 	// Virtual functions
 	virtual void getTriggerList(TriggerInfoList &triggerList);
+	virtual void getEventList(EventInfoList &eventList);
 
 protected:
 	ItemTable *createStaticItemTable(ItemGroupId groupId);
