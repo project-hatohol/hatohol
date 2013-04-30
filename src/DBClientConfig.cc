@@ -17,6 +17,9 @@
 
 #include <memory>
 
+#include <MutexLock.h>
+using namespace std;
+
 #include "DBAgentFactory.h"
 #include "DBClientConfig.h"
 #include "ConfigManager.h"
@@ -96,7 +99,7 @@ enum {
 
 struct DBClientConfig::PrivateContext
 {
-	static GStaticMutex mutex;
+	static MutexLock mutex;
 	static bool   initialized;
 
 	PrivateContext(void)
@@ -109,15 +112,15 @@ struct DBClientConfig::PrivateContext
 
 	static void lock(void)
 	{
-		g_static_mutex_lock(&mutex);
+		mutex.lock();
 	}
 
 	static void unlock(void)
 	{
-		g_static_mutex_unlock(&mutex);
+		mutex.unlock();
 	}
 };
-GStaticMutex DBClientConfig::PrivateContext::mutex = G_STATIC_MUTEX_INIT;
+MutexLock DBClientConfig::PrivateContext::mutex;
 bool   DBClientConfig::PrivateContext::initialized = false;
 
 // ---------------------------------------------------------------------------
