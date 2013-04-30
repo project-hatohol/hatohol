@@ -670,7 +670,7 @@ string FaceMySQLWorker::getFixedLengthStringAndIncIndex(SmartBuffer &buf,
 
 int FaceMySQLWorker::typeConvert(SQLColumnType type)
 {
-	if (type >= TYPE_CONVERT_TABLE_SIZE) {
+	if (type >= (int)TYPE_CONVERT_TABLE_SIZE) {
 		MLPL_BUG("type: %d > TYPE_CONVERT_TABLE_SIZE\n", type);
 		return TYPE_VAR_UNKNOWN;
 	}
