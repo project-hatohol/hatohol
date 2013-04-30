@@ -28,6 +28,7 @@ static void startFaceRest(void)
 	arg.push_back("--face-rest-port");
 	arg.push_back(StringUtils::sprintf("%u", TEST_PORT));
 	g_faceRest = new FaceRest(arg);
+	g_faceRest->start();
 }
 
 static JsonParserAgent *getResponseAsJsonParser(const string url)
