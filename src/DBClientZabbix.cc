@@ -15,6 +15,9 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <MutexLock.h>
+using namespace mlpl;
+
 #include "DBClientZabbix.h"
 #include "ItemEnum.h"
 #include "ConfigManager.h"
@@ -1551,7 +1554,7 @@ enum {
 
 struct DBClientZabbix::PrivateContext
 {
-	static GStaticMutex mutex;
+	static MutexLock mutex;
 	static bool   dbInitializedFlags[NUM_MAX_ZABBIX_SERVERS];
 	size_t             serverId;
 	DBAgentSelectExArg selectExArgForTriggerAsAsuraFormat;
@@ -1568,16 +1571,16 @@ struct DBClientZabbix::PrivateContext
 
 	static void lock(void)
 	{
-		g_static_mutex_lock(&mutex);
+		mutex.lock();
 	}
 
 	static void unlock(void)
 	{
-		g_static_mutex_unlock(&mutex);
+		mutex.unlock();
 	}
 };
 
-GStaticMutex DBClientZabbix::PrivateContext::mutex = G_STATIC_MUTEX_INIT;
+MutexLock DBClientZabbix::PrivateContext::mutex;
 bool DBClientZabbix::PrivateContext::dbInitializedFlags[NUM_MAX_ZABBIX_SERVERS];
 
 // ---------------------------------------------------------------------------
