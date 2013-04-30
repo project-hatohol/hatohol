@@ -21,6 +21,8 @@
 #include <map>
 using namespace std;
 
+#include <MutexLock.h>
+
 #include <glib.h>
 #include "ItemTablePtr.h"
 #include "VirtualDataStore.h"
@@ -50,7 +52,7 @@ private:
 	typedef map<ItemGroupId, DataGenerator>  DataGeneratorMap;
 	typedef DataGeneratorMap::iterator       DataGeneratorMapIterator;
 
-	static GStaticMutex            m_mutex;
+	static mlpl::MutexLock         m_mutex;
 	static VirtualDataStoreZabbix *m_instance;
 	ItemGroupIdTableMap m_staticItemTableMap;
 	ReadWriteLock       m_staticItemTableMapLock;
