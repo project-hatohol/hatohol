@@ -17,7 +17,7 @@
 
 #include <glib.h>
 
-#include "MutexLock.h"
+#include <MutexLock.h>
 using namespace mlpl;
 
 #include "Asura.h"
