@@ -16,7 +16,7 @@
 */
 
 #include "Asura.h"
-#include "glib.h"
+#include <glib.h>
 
 #include "SQLUtils.h"
 #include "SQLProcessorZabbix.h"
