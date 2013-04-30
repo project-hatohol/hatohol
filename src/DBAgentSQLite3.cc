@@ -20,6 +20,7 @@
 #include <stdarg.h>
 #include <inttypes.h>
 
+#include <MutexLock.h>
 #include "Logger.h"
 using namespace mlpl;
 
@@ -49,7 +50,7 @@ typedef map<DBDomainId, string>     DBDomainIdPathMap;
 typedef DBDomainIdPathMap::iterator DBDomainIdPathMapIterator;
 
 struct DBAgentSQLite3::PrivateContext {
-	static GStaticMutex      mutex;
+	static MutexLock         mutex;
 	static DBDomainIdPathMap domainIdPathMap;
 
 	string        dbPath;
@@ -63,16 +64,16 @@ struct DBAgentSQLite3::PrivateContext {
 
 	static void lock(void)
 	{
-		g_static_mutex_lock(&mutex);
+		mutex.lock();
 	}
 
 	static void unlock(void)
 	{
-		g_static_mutex_unlock(&mutex);
+		mutex.unlock();
 	}
 };
 
-GStaticMutex      DBAgentSQLite3::PrivateContext::mutex = G_STATIC_MUTEX_INIT;
+MutexLock         DBAgentSQLite3::PrivateContext::mutex;
 DBDomainIdPathMap DBAgentSQLite3::PrivateContext::domainIdPathMap;
 
 // ---------------------------------------------------------------------------
