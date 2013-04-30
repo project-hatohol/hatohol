@@ -270,6 +270,7 @@ void DBAgentSQLite3::_execSql(sqlite3 *db, const string &sql)
 	int result = sqlite3_exec(db, sql.c_str(), NULL, NULL, &errmsg);
 	if (result != SQLITE_OK) {
 		string err = errmsg;
+		sqlite3_free(errmsg);
 		THROW_ASURA_EXCEPTION("Failed to exec: %d, %s, %s",
 		                      result, err.c_str(), sql.c_str());
 	}
