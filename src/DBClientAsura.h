@@ -66,6 +66,7 @@ typedef EventInfoList::const_iterator EventInfoListConstIterator;
 
 class DBClientAsura : public DBClient {
 public:
+	static void init(void);
 	static void reset(void);
 
 	DBClientAsura(void);

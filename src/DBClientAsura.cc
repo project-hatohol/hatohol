@@ -259,6 +259,17 @@ bool   DBClientAsura::PrivateContext::initialized = false;
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
+void DBClientAsura::init(void)
+{
+	ASURA_ASSERT(NUM_COLUMNS_TRIGGERS == NUM_IDX_TRIGGERS,
+	  "NUM_COLUMNS_TRIGGERS: %zd, NUM_IDX_TRIGGERS: %zd",
+	  NUM_COLUMNS_TRIGGERS, NUM_IDX_TRIGGERS);
+
+	ASURA_ASSERT(NUM_COLUMNS_EVENTS == NUM_IDX_EVENTS,
+	  "NUM_COLUMNS_EVENTS: %zd, NUM_IDX_EVENTS: %zd",
+	  NUM_COLUMNS_EVENTS, NUM_IDX_EVENTS);
+}
+
 void DBClientAsura::reset(void)
 {
 	resetDBInitializedFlags();
