@@ -17,6 +17,9 @@
 
 #include <glib.h>
 
+#include "MutexLock.h"
+using namespace mlpl;
+
 #include "Asura.h"
 #include "SQLUtils.h"
 #include "SQLProcessorZabbix.h"
@@ -31,7 +34,7 @@
 #include "DBClientAsura.h"
 #include "DBClientZabbix.h"
 
-static GStaticMutex mutex = G_STATIC_MUTEX_INIT;
+static MutexLock mutex;
 static bool initDone = false; 
 
 static void init(void)
@@ -64,11 +67,11 @@ static void reset(void)
 
 void asuraInit(void)
 {
-	g_static_mutex_lock(&mutex);
+	mutex.lock();
 	if (!initDone) {
 		init();
 		initDone = true;
 	}
 	reset();
-	g_static_mutex_unlock(&mutex);
+	mutex.unlock();
 }
