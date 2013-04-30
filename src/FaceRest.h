@@ -19,6 +19,7 @@
 #define FaceRest_h
 
 #include <libsoup/soup.h>
+#include <MutexLock.h>
 #include "FaceBase.h"
 
 class FaceRest : public FaceBase {
@@ -57,7 +58,7 @@ private:
 
 	guint       m_port;
 	SoupServer *m_soupServer;
-	GStaticMutex *m_stopMutex;
+	mlpl::MutexLock *m_stopMutex;
 };
 
 #endif // FaceRest_h
