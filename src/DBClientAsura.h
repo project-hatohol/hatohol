@@ -76,6 +76,8 @@ public:
 	void getTriggerInfoList(TriggerInfoList &triggerInfoList);
 	void setTriggerInfoList(const TriggerInfoList &triggerInfoList,
 	                        uint32_t serverId);
+
+	void addEventInfo(EventInfo *eventInfo);
 	void getEventInfoList(EventInfoList &eventInfoList);
 	void setEventInfoList(const EventInfoList &eventInfoList,
 	                      uint32_t serverId);

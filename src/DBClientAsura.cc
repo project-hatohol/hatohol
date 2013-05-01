@@ -365,6 +365,13 @@ void DBClientAsura::setTriggerInfoList(const TriggerInfoList &triggerInfoList,
 	} DBCLIENT_TRANSACTION_END();
 }
 
+void DBClientAsura::addEventInfo(EventInfo *eventInfo)
+{
+	DBCLIENT_TRANSACTION_BEGIN() {
+		addEventInfoBare(*eventInfo);
+	} DBCLIENT_TRANSACTION_END();
+}
+
 void DBClientAsura::getEventInfoList(EventInfoList &eventInfoList)
 {
 	const ColumnDef &eventsServerId =
