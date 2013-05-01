@@ -180,9 +180,6 @@ void test_setItemGroupTypeWhenAlreadySet(void)
 
 void test_setItemGroupTypeWhenHasData(void)
 {
-	cut_pend("Makes dead-lock in the revision: 45d784a2. "
-	         "We'll remove locks from ItemTable as described in TODO. "
-	         "Then this problem will naturally be resolved.");
 	// make ItemDataVector
 	y_grp = new ItemGroup();
 	y_grp->add(new ItemInt(ITEM_ID_0, 500), false);
