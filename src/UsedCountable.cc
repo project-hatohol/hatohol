@@ -15,33 +15,27 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <stdexcept>
+#include <glib.h>
 #include "UsedCountable.h"
-#include "Utils.h"
+#include "AsuraException.h"
 
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
 void UsedCountable::ref(void) const
 {
-	// TODO: to be atomic
-	m_usedCount++;
+	g_atomic_int_inc(&m_usedCount);
 }
 
 void UsedCountable::unref(void)
 {
-	// TODO: to be atomic
-	m_usedCount--;
-	int usedCount = m_usedCount;
-	if (usedCount == 0)
+	if (g_atomic_int_dec_and_test(&m_usedCount))
 		delete this;
 }
 
 int UsedCountable::getUsedCount(void) const
 {
-	// TODO: to be atomic
-	int usedCount = m_usedCount;
-	return usedCount;
+	return g_atomic_int_get(&m_usedCount);
 }
 
 // ---------------------------------------------------------------------------
@@ -54,11 +48,8 @@ UsedCountable::UsedCountable(int initialUsedCount)
 
 UsedCountable::~UsedCountable()
 {
-	if (getUsedCount() > 0) {
-		string msg;
-		TRMSG(msg, "used count: %d.", m_usedCount);
-		throw logic_error(msg);
-	}
+	ASURA_ASSERT(m_usedCount == 0,
+	             "used count: %d.", m_usedCount);
 }
 
 // ---------------------------------------------------------------------------
