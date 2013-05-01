@@ -274,7 +274,6 @@ protected:
 	virtual ~ItemGeneric() {
 	}
 
-
 private:
 	T m_data;
 };
