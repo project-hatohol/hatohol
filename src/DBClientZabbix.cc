@@ -2147,49 +2147,19 @@ void DBClientZabbix::makeSelectExArgForTriggerAsAsuraFormat(void)
 	//
 	// statements and columnTypes
 	//
-	string columnName;
-
-	// trigger id
-	columnName = StringUtils::sprintf("%s.%s",
-	               VAR_TRIGGERS, triggersTriggerid.columnName);
-	arg.statements.push_back(columnName);
-	arg.columnTypes.push_back(triggersTriggerid.type);
-
-	// status
 	const ColumnDef &triggersStatus =
 	   COLUMN_DEF_TRIGGERS_RAW_2_0[IDX_TRIGGERS_RAW_2_0_STATUS];
-	columnName = StringUtils::sprintf("%s.%s",
-	               VAR_TRIGGERS, triggersStatus.columnName);
-	arg.statements.push_back(columnName);
-	arg.columnTypes.push_back(triggersStatus.type);
-
-	// severity
 	const ColumnDef &triggersSeverity =
 	   COLUMN_DEF_TRIGGERS_RAW_2_0[IDX_TRIGGERS_RAW_2_0_PRIORITY];
-	columnName = StringUtils::sprintf("%s.%s",
-	               VAR_TRIGGERS, triggersSeverity.columnName);
-	arg.statements.push_back(columnName);
-	arg.columnTypes.push_back(triggersSeverity.type);
-
-	// lastChangeTime
 	const ColumnDef &triggersLastchange = 
 	   COLUMN_DEF_TRIGGERS_RAW_2_0[IDX_TRIGGERS_RAW_2_0_LASTCHANGE];
-	columnName = StringUtils::sprintf("%s.%s",
-	               VAR_TRIGGERS, triggersLastchange.columnName);
-	arg.statements.push_back(columnName);
-	arg.columnTypes.push_back(triggersLastchange.type);
-
-	// hostId
-	columnName = StringUtils::sprintf("%s.%s",
-	               VAR_HOSTS, hostsHostid.columnName);
-	arg.statements.push_back(columnName);
-	arg.columnTypes.push_back(hostsHostid.type);
-
-	// hostName
 	const ColumnDef &hostsName =
 	   COLUMN_DEF_HOSTS_RAW_2_0[IDX_HOSTS_RAW_2_0_NAME];
-	columnName = StringUtils::sprintf("%s.%s",
-	               VAR_HOSTS, hostsName.columnName);
-	arg.statements.push_back(columnName);
-	arg.columnTypes.push_back(hostsName.type);
+
+	arg.pushColumn(triggersTriggerid,  VAR_TRIGGERS);
+	arg.pushColumn(triggersStatus,     VAR_TRIGGERS);
+	arg.pushColumn(triggersSeverity,   VAR_TRIGGERS);
+	arg.pushColumn(triggersLastchange, VAR_TRIGGERS);
+	arg.pushColumn(hostsHostid,        VAR_HOSTS);
+	arg.pushColumn(hostsName,          VAR_HOSTS);
 }
