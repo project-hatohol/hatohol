@@ -144,15 +144,11 @@ public:
 
 	// virtual methods
 	virtual void set(void *src) {
-		writeLock();
 		m_data = *static_cast<T *>(src);
-		writeUnlock();
 	}
 
 	virtual void get(void *dst) const {
-		readLock();
 		*static_cast<T *>(dst) = m_data;
-		readUnlock();
 	}
 
 	virtual T get(void) const {
@@ -163,9 +159,7 @@ public:
 
 	virtual string getString(void) const {
 		stringstream ss;
-		readLock();
 		ss << m_data;
-		readUnlock();
 		return ss.str();
 	}
 

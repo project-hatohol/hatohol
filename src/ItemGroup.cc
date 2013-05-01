@@ -34,9 +34,7 @@ ItemGroup::ItemGroup(void)
 
 void ItemGroup::add(ItemData *data, bool doRef)
 {
-	writeLock();
 	if (m_freeze) {
-		writeUnlock();
 		THROW_ASURA_EXCEPTION("Object: freezed");
 	}
 
@@ -45,7 +43,6 @@ void ItemGroup::add(ItemData *data, bool doRef)
 		size_t index = m_itemVector.size();
 		ItemDataType expectedType = m_groupType->getType(index);
 		if (expectedType != itemDataType) {
-			writeUnlock();
 			THROW_ASURA_EXCEPTION(
 			  "ItemDataType (%d) is not the expected (%d)",
 			  itemDataType, expectedType);
@@ -57,7 +54,6 @@ void ItemGroup::add(ItemData *data, bool doRef)
 	ItemId itemId = data->getId();
 	m_itemMap.insert(pair<ItemId, ItemData *>(itemId, data));
 	m_itemVector.push_back(data);
-	writeUnlock();
 	if (doRef)
 		data->ref();
 }
@@ -65,54 +61,43 @@ void ItemGroup::add(ItemData *data, bool doRef)
 ItemData *ItemGroup::getItem(ItemId itemId) const
 {
 	ItemData *data = NULL;
-	readLock();
 	ItemDataMapConstIterator it = m_itemMap.find(itemId);
 	if (it != m_itemMap.end())
 		data = it->second;
-	readUnlock();
 	return data;
 }
 
 ItemDataVector ItemGroup::getItems(ItemId itemId) const
 {
 	ItemDataVector v;
-	readLock();
 	pair<ItemDataMultimapConstIterator, ItemDataMultimapConstIterator>
 	  itPair = m_itemMap.equal_range(itemId);
 	for (; itPair.first != itPair.second; ++itPair.first) {
 		ItemData *item = (itPair.first)->second;
 		v.push_back(item);
 	}
-	readUnlock();
 	return v;
 }
 
 ItemData *ItemGroup::getItemAt(size_t index) const
 {
-	readLock();
 	ItemData *data = m_itemVector[index];
-	readUnlock();
 	return data;
 }
 
 size_t ItemGroup::getNumberOfItems(void) const
 {
-	readLock();
 	size_t ret = m_itemVector.size();
-	readUnlock();
 	return ret;
 }
 
 void ItemGroup::freeze(void)
 {
-	writeLock();
 	if (m_freeze) {
-		writeUnlock();
 		MLPL_WARN("m_freeze: already set.\n");
 		return;
 	}
 	if (m_groupType) {
-		writeUnlock();
 		THROW_ASURA_EXCEPTION("m_groupType: NULL");
 	}
 
@@ -120,31 +105,22 @@ void ItemGroup::freeze(void)
 
 	ItemGroupTypeManager *typeManager = ItemGroupTypeManager::getInstance();
 	m_groupType = typeManager->getItemGroupType(m_itemVector);
-	writeUnlock();
 }
 
 bool ItemGroup::isFreezed(void) const
 {
-	readLock();
-	bool ret = m_freeze;
-	readUnlock();
-	return ret;
+	return m_freeze;
 }
 
 const ItemGroupType *ItemGroup::getItemGroupType(void) const
 {
-	readLock();
-	const ItemGroupType *ret = m_groupType;
-	readUnlock();
-	return ret;
+	return m_groupType;
 }
 
 bool ItemGroup::setItemGroupType(const ItemGroupType *itemGroupType)
 {
 	string msg;
-	writeLock();
 	if (m_groupType) {
-		writeUnlock();
 		if (m_groupType == itemGroupType) {
 			MLPL_WARN("The indentical ItemGroupType is set.\n");
 			return true;
@@ -161,7 +137,6 @@ bool ItemGroup::setItemGroupType(const ItemGroupType *itemGroupType)
 	}
 
 	m_groupType = itemGroupType;
-	writeUnlock();
 	return true;
 }
 

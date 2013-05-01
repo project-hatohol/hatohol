@@ -54,20 +54,13 @@ public:
 	bool foreach(bool (*func)(const ItemGroup *, T arg), T arg) const
 	{
 		bool ret = true;
-		readLock();
-		try {
-			ItemGroupListConstIterator it = m_groupList.begin();
-			for (; it != m_groupList.end(); ++it) {
-				if (!(*func)(*it, arg)) {
-					ret = false;
-					break;
-				}
+		ItemGroupListConstIterator it = m_groupList.begin();
+		for (; it != m_groupList.end(); ++it) {
+			if (!(*func)(*it, arg)) {
+				ret = false;
+				break;
 			}
-		} catch (...) {
-			readUnlock();
-			throw;
 		}
-		readUnlock();
 		return ret;
 	}
 

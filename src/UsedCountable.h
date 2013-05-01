@@ -18,9 +18,7 @@
 #ifndef UsedCountable_h
 #define UsedCountable_h
 
-#include "ReadWriteLock.h"
-
-class UsedCountable : public ReadWriteLock {
+class UsedCountable {
 public:
 	void ref(void) const;
 	void unref(void);
@@ -31,7 +29,7 @@ protected:
 	virtual ~UsedCountable();
 
 private:
-	mutable int m_usedCount;
+	mutable volatile int m_usedCount;
 };
 
 #endif // UsedCountable_h

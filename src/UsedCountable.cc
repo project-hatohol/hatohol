@@ -24,26 +24,23 @@
 // ---------------------------------------------------------------------------
 void UsedCountable::ref(void) const
 {
-	writeLock();
+	// TODO: to be atomic
 	m_usedCount++;
-	writeUnlock();
 }
 
 void UsedCountable::unref(void)
 {
-	writeLock();
+	// TODO: to be atomic
 	m_usedCount--;
 	int usedCount = m_usedCount;
-	writeUnlock();
 	if (usedCount == 0)
 		delete this;
 }
 
 int UsedCountable::getUsedCount(void) const
 {
-	readLock();
+	// TODO: to be atomic
 	int usedCount = m_usedCount;
-	readUnlock();
 	return usedCount;
 }
 

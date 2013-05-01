@@ -47,11 +47,9 @@ ItemTable::ItemTable(void)
 
 ItemTable::ItemTable(const ItemTable &itemTable)
 {
-	itemTable.readLock();
 	ItemGroupListConstIterator it = itemTable.m_groupList.begin();
 	for (; it != itemTable.m_groupList.end(); ++it)
 		m_groupList.push_back(*it);
-	itemTable.readUnlock();
 
 	for (size_t i = 0; i < m_indexVector.size(); i++) {
 		ItemDataIndex *index = m_indexVector[i];
@@ -65,19 +63,16 @@ void ItemTable::add(ItemGroup *group, bool doRef)
 	if (!group->isFreezed())
 		group->freeze();
 
-	writeLock();
 	if (!m_groupList.empty()) {
 		ItemGroup *tail = m_groupList.back();
 		const ItemGroupType *groupType0 = tail->getItemGroupType();
 		const ItemGroupType *groupType1 = group->getItemGroupType();
 		if (groupType1 == NULL) {
 			if (!group->setItemGroupType(groupType0)) {
-				writeUnlock();
 				THROW_ASURA_EXCEPTION(
 				  "Failed to call setItemGroupType.");
 			}
 		} else if (*groupType0 != *groupType1) {
-			writeUnlock();
 			THROW_ASURA_EXCEPTION("ItemGroupTypes unmatched");
 		}
 	} else if (hasIndex()) {
@@ -93,49 +88,33 @@ void ItemTable::add(ItemGroup *group, bool doRef)
 		updateIndex(group);
 
 	m_groupList.push_back(group);
-	writeUnlock();
 	if (doRef)
 		group->ref();
 }
 
 size_t ItemTable::getNumberOfColumns(void) const
 {
-	readLock();
-	if (m_groupList.empty()) {
-		readUnlock();
+	if (m_groupList.empty())
 		return 0;
-	}
-	size_t ret = (*m_groupList.begin())->getNumberOfItems();
-	readUnlock();
-	return ret;
+	return (*m_groupList.begin())->getNumberOfItems();
 }
 
 size_t ItemTable::getNumberOfRows(void) const
 {
-	readLock();
-	size_t ret = m_groupList.size();
-	readUnlock();
-	return ret;
+	return m_groupList.size();
 }
 
 ItemTable *ItemTable::innerJoin
   (const ItemTable *itemTable,
    size_t indexLeftColumn, size_t indexRightColumn) const
 {
-	readLock();
-	itemTable->readLock();
-	if (m_groupList.empty() || itemTable->m_groupList.empty()) {
-		itemTable->readUnlock();
-		readUnlock();
+	if (m_groupList.empty() || itemTable->m_groupList.empty())
 		return new ItemTable();
-	}
 
 	size_t numColumnLTable = getNumberOfColumns();
 	size_t numColumnRTable = itemTable->getNumberOfColumns();
 	if (indexLeftColumn >= numColumnLTable ||
 	    indexRightColumn >= numColumnRTable) {
-		itemTable->readUnlock();
-		readUnlock();
 		MLPL_BUG("Invalid parameter: numColumnL: %zd, indexL: %zd, "
 		         "numColumnR: %zd, indexR: %zd\n",
 		         numColumnLTable, indexLeftColumn,
@@ -146,15 +125,7 @@ ItemTable *ItemTable::innerJoin
 	ItemTable *table = new ItemTable();
 	InnerJoinArg arg = {
 	  table, itemTable, NULL, indexLeftColumn, indexRightColumn};
-	try {
-		foreach<InnerJoinArg &>(innerJoinForeach, arg);
-	} catch (...) {
-		itemTable->readUnlock();
-		readUnlock();
-		throw;
-	}
-	itemTable->readUnlock();
-	readUnlock();
+	foreach<InnerJoinArg &>(innerJoinForeach, arg);
 	return table;
 }
 
@@ -178,25 +149,12 @@ ItemTable *ItemTable::fullOuterJoin(const ItemTable *itemTable) const
 
 ItemTable *ItemTable::crossJoin(const ItemTable *itemTable) const
 {
-	readLock();
-	itemTable->readLock();
-	if (m_groupList.empty() || itemTable->m_groupList.empty()) {
-		itemTable->readUnlock();
-		readUnlock();
+	if (m_groupList.empty() || itemTable->m_groupList.empty())
 		return new ItemTable();
-	}
 
 	ItemTable *table = new ItemTable();
 	CrossJoinArg arg = {table, itemTable};
-	try {
-		foreach<CrossJoinArg &>(crossJoinForeach, arg);
-	} catch (...) {
-		itemTable->readUnlock();
-		readUnlock();
-		throw;
-	}
-	itemTable->readUnlock();
-	readUnlock();
+	foreach<CrossJoinArg &>(crossJoinForeach, arg);
 	return table;
 }
 
