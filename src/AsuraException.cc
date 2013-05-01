@@ -49,11 +49,15 @@ AsuraException::~AsuraException() _ASURA_NOEXCEPT
 
 const char* AsuraException::what() const _ASURA_NOEXCEPT
 {
-	// GLIBC (at least 2.17) or libstdc++'s default catch handler doesn't
-	// show the exception message (empty string is shown)
-	// when this function returns the char array on the stack.
-	// So we here return that on the heap, which is valid
-	// until the object is destroyed.
+	// Th char. pointer this function returns may be used after this
+	// function returns in the caller. If we return
+	// 'getFancyMessage().c_str()', the pointed region will be
+	// destroyed at the end of this function. As a result, the caller
+	// may have the invalid pointer.
+	// Actually, we got an empty string on the defualt exception handler
+	// of the system on Ubuntu 13.04.
+	// So we here return char array that is valid until this object
+	// is destroyed.
 	m_whatCache = getFancyMessage();
 	return m_whatCache.c_str();
 }
