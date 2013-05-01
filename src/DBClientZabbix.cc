@@ -1785,6 +1785,9 @@ void DBClientZabbix::getTriggersAsAsuraFormat(TriggerInfoList &triggerInfoList)
 		const ItemGroup *itemGroup = *it;
 		TriggerInfo trigInfo;
 
+		// serverId
+		trigInfo.serverId = m_ctx->serverId;
+
 		// id
 		DEFINE_AND_ASSERT(
 		   itemGroup->getItemAt(idx++), ItemUint64, itemId);
@@ -1805,9 +1808,6 @@ void DBClientZabbix::getTriggersAsAsuraFormat(TriggerInfoList &triggerInfoList)
 		   itemGroup->getItemAt(idx++), ItemInt, itemLastchange);
 		trigInfo.lastChangeTime.tv_sec = itemLastchange->get();
 		trigInfo.lastChangeTime.tv_nsec = 0;
-
-		// serverId
-		trigInfo.serverId = m_ctx->serverId;
 
 		// hostId
 		DEFINE_AND_ASSERT(
@@ -1848,6 +1848,7 @@ void DBClientZabbix::getEventsAsAsuraFormat(EventInfoList &eventInfoList)
 		const ItemGroup *itemGroup = *it;
 		EventInfo eventInfo;
 
+		// serverId
 		eventInfo.serverId = m_ctx->serverId;
 
 		// event id
