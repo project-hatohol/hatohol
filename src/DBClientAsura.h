@@ -52,10 +52,10 @@ enum EventValue {
 };
 
 struct EventInfo {
+	uint32_t            serverId;
 	uint64_t            id;
 	timespec            time;
 	EventValue          eventValue;
-	uint32_t            serverId;
 	uint64_t            triggerId;
 	TriggerInfo         triggerInfo;
 };

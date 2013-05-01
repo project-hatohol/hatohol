@@ -1552,6 +1552,13 @@ enum {
 	NUM_IDX_EVENTS_RAW_2_0,
 };
 
+enum {
+	EVENT_OBJECT_TRIGGER = 0,
+	EVENT_OBJECT_DHOST,
+	EVENT_OBJECT_DSERVICE,
+	EVENT_OBJECT_ZABBIX_ACTIVE
+};
+
 struct DBClientZabbix::PrivateContext
 {
 	static MutexLock mutex;
@@ -1812,7 +1819,63 @@ void DBClientZabbix::getTriggersAsAsuraFormat(TriggerInfoList &triggerInfoList)
 
 void DBClientZabbix::getEventsAsAsuraFormat(EventInfoList &eventInfoList)
 {
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	// get data from data base
+	DBAgentSelectArg arg;
+	arg.tableName = TABLE_NAME_EVENTS_RAW_2_0;
+	arg.columnDefs = COLUMN_DEF_EVENTS_RAW_2_0;
+	arg.columnIndexes.push_back(IDX_EVENTS_RAW_2_0_EVENTID);
+	arg.columnIndexes.push_back(IDX_EVENTS_RAW_2_0_OBJECT);
+	arg.columnIndexes.push_back(IDX_EVENTS_RAW_2_0_OBJECTID);
+	arg.columnIndexes.push_back(IDX_EVENTS_RAW_2_0_CLOCK);
+	arg.columnIndexes.push_back(IDX_EVENTS_RAW_2_0_VALUE);
+	arg.columnIndexes.push_back(IDX_EVENTS_RAW_2_0_NS);
+
+	DBCLIENT_TRANSACTION_BEGIN() {
+		select(arg);
+	} DBCLIENT_TRANSACTION_END();
+
+	// copy obtained data to eventInfoList
+	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
+	ItemGroupListConstIterator it = grpList.begin();
+	for (; it != grpList.end(); ++it) {
+		int idx = 0;
+		const ItemGroup *itemGroup = *it;
+		EventInfo eventInfo;
+
+		eventInfo.serverId = m_ctx->serverId;
+
+		// event id
+		DEFINE_AND_ASSERT(
+		   itemGroup->getItemAt(idx++), ItemUint64, itemEventId);
+		eventInfo.id = itemEventId->get();
+
+		// object
+		DEFINE_AND_ASSERT(
+		   itemGroup->getItemAt(idx++), ItemInt, itemObject);
+		int object = itemObject->get();
+		if (object != EVENT_OBJECT_TRIGGER)
+			continue;
+
+		// object id
+		DEFINE_AND_ASSERT(
+		   itemGroup->getItemAt(idx++), ItemUint64, itemObjectId);
+		eventInfo.triggerId = itemObjectId->get();
+
+		// clock
+		DEFINE_AND_ASSERT(
+		   itemGroup->getItemAt(idx++), ItemInt, itemSec);
+		eventInfo.time.tv_sec = itemSec->get();
+
+		// value
+		DEFINE_AND_ASSERT(
+		   itemGroup->getItemAt(idx++), ItemInt, itemValue);
+		eventInfo.eventValue = (EventValue)itemValue->get();
+
+		// ns
+		DEFINE_AND_ASSERT(
+		   itemGroup->getItemAt(idx++), ItemInt, itemNs);
+		eventInfo.time.tv_nsec = itemNs->get();
+	}
 }
 
 // ---------------------------------------------------------------------------
