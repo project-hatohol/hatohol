@@ -49,15 +49,15 @@ AsuraException::~AsuraException() _ASURA_NOEXCEPT
 
 const char* AsuraException::what() const _ASURA_NOEXCEPT
 {
-	// Th char. pointer this function returns may be used after this
+	// The 'char' pointer this function returns may be used after this
 	// function returns in the caller. If we return
 	// 'getFancyMessage().c_str()', the pointed region will be
 	// destroyed at the end of this function. As a result, the caller
-	// may have the invalid pointer.
+	// has an invalid pointer.
 	// Actually, we got an empty string on the defualt exception handler
 	// of the system on Ubuntu 13.04.
-	// So we here return char array that is valid until this object
-	// is destroyed.
+	// So we here return 'char' pointer of a string member variable,
+	// which is valid until this object is destroyed.
 	m_whatCache = getFancyMessage();
 	return m_whatCache.c_str();
 }
