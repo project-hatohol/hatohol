@@ -24,29 +24,29 @@ size_t NumServerInfo = sizeof(serverInfo) / sizeof(MonitoringServerInfo);
 
 TriggerInfo testTriggerInfo[] = 
 {{
+	1,                        // serverId
 	1,                        // id
 	TRIGGER_STATUS_OK,        // status
 	TRIGGER_SEVERITY_INFO,    // severity
 	{1362957197,0},           // lastChangeTime
-	1,                        // serverId
 	"235012",                 // hostId,
 	"hostX1",                 // hostName,
 	"TEST Trigger 1",         // brief,
 },{
+	3,                        // serverId
 	2,                        // id
 	TRIGGER_STATUS_PROBLEM,   // status
 	TRIGGER_SEVERITY_WARN,    // severity
 	{1362957200,0},           // lastChangeTime
-	3,                        // serverId
 	"10001",                  // hostId,
 	"hostZ1",                 // hostName,
 	"TEST Trigger 2",         // brief,
 },{
+	3,                        // serverId
 	3,                        // id
 	TRIGGER_STATUS_PROBLEM,   // status
 	TRIGGER_SEVERITY_INFO,    // severity
 	{1362951000,0},           // lastChangeTime
-	3,                        // serverId
 	"10002",                  // hostId,
 	"hostZ2",                 // hostName,
 	"TEST Trigger 3",         // brief,
