@@ -53,3 +53,20 @@ TriggerInfo testTriggerInfo[] =
 }};
 size_t NumTestTriggerInfo = sizeof(testTriggerInfo) / sizeof(TriggerInfo);
 
+EventInfo testEventInfo[] = {
+{
+	3,                        // serverId
+	1,                        // id
+	{1362957200,0},           // time
+	EVENT_ACTIVE,             // eventValue
+	2,                        // triggerId
+}, {
+	3,                        // serverId
+	2,                        // id
+	{1362951000,0},           // time
+	EVENT_ACTIVE,             // eventValue
+	3,                        // triggerId
+},
+};
+size_t NumTestEventInfo = sizeof(testEventInfo) / sizeof(EventInfo);
+

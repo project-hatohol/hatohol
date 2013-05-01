@@ -21,10 +21,18 @@ static void makeDBConfig(const string &dbName)
 static void makeDBAsura(const string &dbName)
 {
 	DBAgentSQLite3::defineDBPath(DB_DOMAIN_ID_ASURA, dbName);
+	DBClientAsura dbAsura;
+
+	// Triggers
 	for (size_t i = 0; i < NumTestTriggerInfo; i++) {
 		TriggerInfo *trigInfo = &testTriggerInfo[i];
-		DBClientAsura dbAsura;
 		dbAsura.addTriggerInfo(trigInfo);
+	} 
+
+	// Events
+	for (size_t i = 0; i < NumTestEventInfo; i++) {
+		EventInfo *eventInfo = &testEventInfo[i];
+		dbAsura.addEventInfo(eventInfo);
 	} 
 }
 

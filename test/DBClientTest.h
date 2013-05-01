@@ -10,5 +10,8 @@ extern size_t NumServerInfo;
 extern TriggerInfo testTriggerInfo[];
 extern size_t NumTestTriggerInfo;
 
+extern EventInfo testEventInfo[];
+extern size_t NumTestEventInfo;
+
 #endif // DBClientTest_h
 

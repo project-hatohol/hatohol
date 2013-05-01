@@ -156,4 +156,27 @@ void test_triggers(void)
 	g_parser->endObject();
 }
 
+void test_events(void)
+{
+	startFaceRest();
+	g_parser = getResponseAsJsonParser("/events");
+	assertValueInParser(g_parser, "result", true);
+	assertValueInParser(g_parser, "numberOfEvents",
+	                    (uint32_t)NumTestEventInfo);
+	g_parser->startObject("events");
+	for (size_t i = 0; i < NumTestEventInfo; i++) {
+		g_parser->startElement(i);
+		EventInfo &eventInfo = testEventInfo[i];
+		assertValueInParser(g_parser, "serverId", eventInfo.serverId);
+		assertValueInParser(g_parser, "id", (uint32_t)eventInfo.id);
+		assertValueInParser(g_parser, "time", eventInfo.time);
+		assertValueInParser(g_parser, "eventValue",
+		                    (uint32_t)eventInfo.eventValue);
+		assertValueInParser(g_parser, "triggerId",
+		                    (uint32_t)eventInfo.triggerId);
+		g_parser->endElement();
+	}
+	g_parser->endObject();
+}
+
 } // namespace testFaceRest
