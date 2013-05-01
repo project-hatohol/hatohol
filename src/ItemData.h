@@ -151,10 +151,8 @@ public:
 		*static_cast<T *>(dst) = m_data;
 	}
 
-	virtual T get(void) const {
-		T val;
-		get(&val);
-		return val;
+	virtual const T &get(void) const {
+		return m_data;
 	}
 
 	virtual string getString(void) const {
