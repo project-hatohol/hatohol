@@ -170,9 +170,7 @@ public:
 		const ItemDataType &type0 = getItemType();
 		const ItemDataType &type1 = itemData.getItemType();
 		if (type0 == type1) {
-			T val;
-			itemData.get(&val);
-			set(&val);
+			itemData.get(&m_data);
 			return *this;
 		}
 		THROW_ITEM_DATA_EXCEPTION_UNDEFINED_OPERATION("=", itemData);
