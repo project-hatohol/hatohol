@@ -167,9 +167,7 @@ public:
 	}
 
 	virtual ItemData & operator =(const ItemData &itemData) {
-		const ItemDataType &type0 = getItemType();
-		const ItemDataType &type1 = itemData.getItemType();
-		if (type0 == type1) {
+		if (isSameType(itemData)) {
 			itemData.get(&m_data);
 			return *this;
 		}
@@ -178,9 +176,7 @@ public:
 	}
 
 	virtual ItemData * operator +(const ItemData &itemData) const {
-		const ItemDataType &type0 = getItemType();
-		const ItemDataType &type1 = itemData.getItemType();
-		if (type0 == type1) {
+		if (isSameType(itemData)) {
 			const T &v0 = m_data;
 			const T &v1 = cast(itemData)->get();
 			return new ItemGeneric(v0 + v1);
@@ -190,9 +186,7 @@ public:
 	}
 
 	virtual ItemData * operator /(const ItemData &itemData) const {
-		const ItemDataType &type0 = getItemType();
-		const ItemDataType &type1 = itemData.getItemType();
-		if (type0 == type1) {
+		if (isSameType(itemData)) {
 			T v0, v1;
 			get(&v0);
 			itemData.get(&v1);
@@ -203,9 +197,7 @@ public:
 	}
 
 	virtual bool operator >(const ItemData &itemData) const {
-		const ItemDataType &type0 = getItemType();
-		const ItemDataType &type1 = itemData.getItemType();
-		if (type0 == type1) {
+		if (isSameType(itemData)) {
 			T v0, v1;
 			get(&v0);
 			itemData.get(&v1);
@@ -216,9 +208,7 @@ public:
 	}
 
 	virtual bool operator <(const ItemData &itemData) const {
-		const ItemDataType &type0 = getItemType();
-		const ItemDataType &type1 = itemData.getItemType();
-		if (type0 == type1) {
+		if (isSameType(itemData)) {
 			T v0, v1;
 			get(&v0);
 			itemData.get(&v1);
@@ -238,9 +228,7 @@ public:
 	}
 
 	virtual bool operator ==(const ItemData &itemData) const {
-		const ItemDataType &type0 = getItemType();
-		const ItemDataType &type1 = itemData.getItemType();
-		if (type0 == type1) {
+		if (isSameType(itemData)) {
 			T v0, v1;
 			get(&v0);
 			itemData.get(&v1);
@@ -257,9 +245,7 @@ public:
 
 	virtual void operator +=(const ItemData &itemData)
 	{
-		const ItemDataType &type0 = getItemType();
-		const ItemDataType &type1 = itemData.getItemType();
-		if (type0 == type1) {
+		if (isSameType(itemData)) {
 			T v0, v1;
 			get(&v0);
 			itemData.get(&v1);
@@ -275,6 +261,13 @@ public:
 		const ItemGeneric<T, ITEM_TYPE> *castedItem =
 		  dynamic_cast<const ItemGeneric<T, ITEM_TYPE> *>(&itemData);
 		return castedItem;
+	}
+
+	bool isSameType(const ItemData &itemData) const
+	{
+		const ItemDataType &type0 = getItemType();
+		const ItemDataType &type1 = itemData.getItemType();
+		return type0 == type1;
 	}
 
 protected:
