@@ -156,16 +156,7 @@ void test_triggers(void)
 	for (size_t i = 0; i < NumTestTriggerInfo; i++) {
 		g_parser->startElement(i);
 		TriggerInfo &triggerInfo = testTriggerInfo[i];
-		assertValueInParser(g_parser, "status", 
-		                    (uint32_t)triggerInfo.status);
-		assertValueInParser(g_parser, "severity",
-		                    (uint32_t)triggerInfo.severity);
-		assertValueInParser(g_parser, "lastChangeTime",
-		                    triggerInfo.lastChangeTime);
-		assertValueInParser(g_parser, "serverId", triggerInfo.serverId);
-		assertValueInParser(g_parser, "hostId", triggerInfo.hostId);
-		assertValueInParser(g_parser, "hostName", triggerInfo.hostName);
-		assertValueInParser(g_parser, "brief", triggerInfo.brief);
+		assertTestTriggerInfo(triggerInfo);
 		g_parser->endElement();
 	}
 	g_parser->endObject();
