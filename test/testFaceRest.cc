@@ -65,7 +65,7 @@ static void _assertValueInParser(JsonParserAgent *parser,
 }
 
 static void _assertValueInParser(JsonParserAgent *parser,
-                                 const string &member, timespec &expected)
+                                 const string &member, const timespec &expected)
 {
 	int64_t val;
 	cppcut_assert_equal(true, parser->read(member, val));
@@ -88,6 +88,8 @@ static void _assertTestTriggerInfo(const TriggerInfo &triggerInfo)
 	                    (uint32_t)triggerInfo.status);
 	assertValueInParser(g_parser, "severity",
 	                    (uint32_t)triggerInfo.severity);
+	assertValueInParser(g_parser, "lastChangeTime",
+	                    triggerInfo.lastChangeTime);
 	assertValueInParser(g_parser, "serverId", triggerInfo.serverId);
 	assertValueInParser(g_parser, "hostId", triggerInfo.hostId);
 	assertValueInParser(g_parser, "hostName", triggerInfo.hostName);
