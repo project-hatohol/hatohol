@@ -21,11 +21,11 @@ static string makeExpectedOutput(TriggerInfo *triggerInfo)
 {
 	string expectedOut = StringUtils::sprintf
 	                       ("%u|%d|%d|%d|%d|%u|%s|%s|%s\n",
+	                        triggerInfo->serverId,
 	                        triggerInfo->id,
 	                        triggerInfo->status, triggerInfo->severity,
 	                        triggerInfo->lastChangeTime.tv_sec,
 	                        triggerInfo->lastChangeTime.tv_nsec,
-	                        triggerInfo->serverId,
 	                        triggerInfo->hostId.c_str(),
 	                        triggerInfo->hostName.c_str(),
 	                        triggerInfo->brief.c_str());
