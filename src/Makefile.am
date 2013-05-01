@@ -35,4 +35,4 @@ AM_LDFLAGS = \
 	$(MLPL_LIBS) $(GLIB_LIBS) $(GIO_LIBS) \
 	$(LIBSOUP_LIBS) $(JSON_GLIB_LIBS) $(SQLITE3_LIBS)
 
-asura_LDADD = -lasura
+asura_LDADD = libasura.la
