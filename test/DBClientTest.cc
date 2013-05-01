@@ -1,3 +1,4 @@
+#include <cutter.h>
 #include "DBClientTest.h"
 
 MonitoringServerInfo serverInfo[] = 
@@ -70,3 +71,17 @@ EventInfo testEventInfo[] = {
 };
 size_t NumTestEventInfo = sizeof(testEventInfo) / sizeof(EventInfo);
 
+const TriggerInfo &searchTestTriggerInfo(const EventInfo &eventInfo)
+{
+	for (size_t i = 0; i < NumTestTriggerInfo; i++) {
+		TriggerInfo &trigInfo = testTriggerInfo[i];
+		if (trigInfo.serverId != eventInfo.serverId)
+			continue;
+		if (trigInfo.id != eventInfo.triggerId)
+			continue;
+		return trigInfo;
+	}
+	cut_fail("Not found: server ID: %u, trigger ID: %"PRIu64,
+	         eventInfo.serverId, eventInfo.triggerId);
+	return *(new TriggerInfo()); // never exectuted, just to pass build
+}

@@ -13,5 +13,7 @@ extern size_t NumTestTriggerInfo;
 extern EventInfo testEventInfo[];
 extern size_t NumTestEventInfo;
 
+const TriggerInfo &searchTestTriggerInfo(const EventInfo &eventInfo);
+
 #endif // DBClientTest_h
 

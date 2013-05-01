@@ -82,6 +82,19 @@ static void _assertValueInParser(JsonParserAgent *parser,
 
 #define assertValueInParser(P,M,E) cut_trace(_assertValueInParser(P,M,E));
 
+static void _assertTestTriggerInfo(const TriggerInfo &triggerInfo)
+{
+	assertValueInParser(g_parser, "status", 
+	                    (uint32_t)triggerInfo.status);
+	assertValueInParser(g_parser, "severity",
+	                    (uint32_t)triggerInfo.severity);
+	assertValueInParser(g_parser, "serverId", triggerInfo.serverId);
+	assertValueInParser(g_parser, "hostId", triggerInfo.hostId);
+	assertValueInParser(g_parser, "hostName", triggerInfo.hostName);
+	assertValueInParser(g_parser, "brief", triggerInfo.brief);
+}
+#define assertTestTriggerInfo(T) cut_trace(_assertTestTriggerInfo(T))
+
 void setup(void)
 {
 	asuraInit();
@@ -173,6 +186,12 @@ void test_events(void)
 		                    (uint32_t)eventInfo.eventValue);
 		assertValueInParser(g_parser, "triggerId",
 		                    (uint32_t)eventInfo.triggerId);
+
+		// check the trigger part
+		const TriggerInfo &expectedTriggerInfo =
+			searchTestTriggerInfo(eventInfo);
+		assertTestTriggerInfo(expectedTriggerInfo);
+
 		g_parser->endElement();
 	}
 	g_parser->endObject();
