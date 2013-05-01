@@ -190,6 +190,7 @@ static const ColumnDef COLUMN_DEF_TRIGGERS_RAW_2_0[] = {
 	20,                                // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
+	// MUL -> PRI after the generation replication feature is removed
 	SQL_KEY_MUL,                       // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
@@ -380,6 +381,7 @@ static const ColumnDef COLUMN_DEF_FUNCTIONS_RAW_2_0[] = {
 	20,                                // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
+	// MUL -> PRI after the generation replication feature is removed
 	SQL_KEY_MUL,                       // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
@@ -462,6 +464,7 @@ static const ColumnDef COLUMN_DEF_ITEMS_RAW_2_0[] = {
 	20,                                // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
+	// MUL -> PRI after the generation replication feature is removed
 	SQL_KEY_MUL,                       // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
@@ -1060,6 +1063,7 @@ static const ColumnDef COLUMN_DEF_HOSTS_RAW_2_0[] = {
 	20,                                // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
+	// MUL -> PRI after the generation replication feature is removed
 	SQL_KEY_MUL,                       // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
@@ -1442,6 +1446,7 @@ static const ColumnDef COLUMN_DEF_EVENTS_RAW_2_0[] = {
 	20,                                // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
+	// MUL -> PRI after the generation replication feature is removed
 	SQL_KEY_MUL,                       // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
