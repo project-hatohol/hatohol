@@ -487,10 +487,10 @@ void DBClientAsura::setEventInfoList(const EventInfoList &eventInfoList,
 	  StringUtils::sprintf("%s=%u",
 	    COLUMN_DEF_EVENTS[IDX_EVENTS_SERVER_ID].columnName,
 	    serverId);
-	deleteRows(deleteArg);
 
 	EventInfoListConstIterator it = eventInfoList.begin();
 	DBCLIENT_TRANSACTION_BEGIN() {
+		deleteRows(deleteArg);
 		for (; it != eventInfoList.end(); ++it)
 			addEventInfoBare(*it);
 	} DBCLIENT_TRANSACTION_END();
