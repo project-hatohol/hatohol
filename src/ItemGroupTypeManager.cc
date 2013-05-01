@@ -32,7 +32,7 @@ ItemGroupTypeManager *ItemGroupTypeManager::getInstance(void)
 	m_lock.writeLock();
 	if (!m_instance)
 		m_instance = new ItemGroupTypeManager();
-	m_lock.writeUnlock();
+	m_lock.unlock();
 	return m_instance;
 }
 
@@ -48,7 +48,7 @@ ItemGroupTypeManager::getItemGroupType(const ItemDataVector &itemDataVector)
 		delete groupType;
 		groupType = *it;
 	}
-	m_lock.writeUnlock();
+	m_lock.unlock();
 
 	return groupType;
 }

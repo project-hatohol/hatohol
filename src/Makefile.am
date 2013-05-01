@@ -15,7 +15,7 @@ libasura_la_SOURCES = \
 	SQLFromParser.cc SQLTableFormula.cc \
 	PrimaryCondition.cc PrimaryConditionPicker.cc \
 	FormulaElement.cc FormulaOperator.cc FormulaFunction.cc \
-	ReadWriteLock.cc UsedCountable.cc \
+	UsedCountable.cc \
 	ItemGroupType.cc ItemGroupTypeManager.cc \
 	ItemData.cc ItemGroup.cc ItemTable.cc \
 	ItemPtr.cc ItemTablePtr.cc ItemGroupPtr.cc ItemDataUtils.cc \

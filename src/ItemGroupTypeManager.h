@@ -19,7 +19,7 @@
 #define ItemGroupTypeManager_h
 
 #include <glib.h>
-#include "ReadWriteLock.h"
+#include <ReadWriteLock.h>
 #include "ItemGroupType.h"
 
 class ItemGroupTypeManager

@@ -63,7 +63,7 @@ const ItemTablePtr VirtualDataStoreZabbix::getItemTable(ItemGroupId groupId)
 	it = m_staticItemTableMap.find(groupId);
 	if (it != m_staticItemTableMap.end())
 		table = it->second;
-	m_staticItemTableMapLock.readUnlock();
+	m_staticItemTableMapLock.unlock();
 	return ItemTablePtr(table);
 }
 
@@ -108,7 +108,7 @@ ItemTable *VirtualDataStoreZabbix::createStaticItemTable(ItemGroupId groupId)
 	m_staticItemTableMapLock.writeLock();
 	result = m_staticItemTableMap.insert
 	         (pair<ItemGroupId, ItemTable *>(groupId, table));
-	m_staticItemTableMapLock.writeUnlock();
+	m_staticItemTableMapLock.unlock();
 	if (!result.second) {
 		string msg;
 		TRMSG(msg, "Failed: insert: groupId: %"PRIx_ITEM_GROUP". "

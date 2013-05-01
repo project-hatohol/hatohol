@@ -22,11 +22,11 @@
 using namespace std;
 
 #include <MutexLock.h>
+#include <ReadWriteLock.h>
 
 #include <glib.h>
 #include "ItemTablePtr.h"
 #include "VirtualDataStore.h"
-#include "ReadWriteLock.h"
 #include "DataStoreZabbix.h"
 #include "DataStoreManager.h"
 
