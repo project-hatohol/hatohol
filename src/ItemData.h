@@ -181,9 +181,8 @@ public:
 		const ItemDataType &type0 = getItemType();
 		const ItemDataType &type1 = itemData.getItemType();
 		if (type0 == type1) {
-			T v0, v1;
-			get(&v0);
-			itemData.get(&v1);
+			const T &v0 = m_data;
+			const T &v1 = cast(itemData)->get();
 			return new ItemGeneric(v0 + v1);
 		}
 		THROW_ITEM_DATA_EXCEPTION_UNDEFINED_OPERATION("+", itemData);
@@ -269,6 +268,13 @@ public:
 			return;
 		}
 		THROW_ITEM_DATA_EXCEPTION_UNDEFINED_OPERATION("+=", itemData);
+	}
+
+	const ItemGeneric<T, ITEM_TYPE> *cast(const ItemData &itemData) const
+	{
+		const ItemGeneric<T, ITEM_TYPE> *castedItem =
+		  dynamic_cast<const ItemGeneric<T, ITEM_TYPE> *>(&itemData);
+		return castedItem;
 	}
 
 protected:
