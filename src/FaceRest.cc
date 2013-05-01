@@ -252,9 +252,10 @@ void FaceRest::handlerGetEvents
 	for (; it != eventList.end(); ++it) {
 		EventInfo &eventInfo = *it;
 		agent.startObject();
+		agent.add("serverId", eventInfo.serverId);
 		agent.add("time",   eventInfo.time.tv_sec);
 		agent.add("eventValue", eventInfo.eventValue);
-		agent.add("serverId", eventInfo.serverId);
+		agent.add("triggerId", eventInfo.triggerId);
 		agent.add("status",   eventInfo.triggerInfo.status);
 		agent.add("severity", eventInfo.triggerInfo.severity);
 		agent.add("hostId",   eventInfo.triggerInfo.hostId);

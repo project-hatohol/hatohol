@@ -168,7 +168,6 @@ void test_events(void)
 		g_parser->startElement(i);
 		EventInfo &eventInfo = testEventInfo[i];
 		assertValueInParser(g_parser, "serverId", eventInfo.serverId);
-		assertValueInParser(g_parser, "id", (uint32_t)eventInfo.id);
 		assertValueInParser(g_parser, "time", eventInfo.time);
 		assertValueInParser(g_parser, "eventValue",
 		                    (uint32_t)eventInfo.eventValue);
