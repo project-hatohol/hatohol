@@ -1780,14 +1780,15 @@ void DBClientZabbix::getTriggersAsAsuraFormat(TriggerInfoList &triggerInfoList)
 	// copy obtained data to triggerInfoList
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
 	ItemGroupListConstIterator it = grpList.begin();
-	uint64_t count = 0;
-	for (; it != grpList.end(); ++it, count++) {
+	for (; it != grpList.end(); ++it) {
 		int idx = 0;
 		const ItemGroup *itemGroup = *it;
 		TriggerInfo trigInfo;
 
 		// id
-		trigInfo.id = count;
+		DEFINE_AND_ASSERT(
+		   itemGroup->getItemAt(idx++), ItemUint64, itemId);
+		trigInfo.id = itemId->get();
 
 		// status
 		DEFINE_AND_ASSERT(
@@ -2146,6 +2147,12 @@ void DBClientZabbix::makeSelectExArgForTriggerAsAsuraFormat(void)
 	// statements and columnTypes
 	//
 	string columnName;
+
+	// trigger id
+	columnName = StringUtils::sprintf("%s.%s",
+	               VAR_TRIGGERS, triggersTriggerid.columnName);
+	arg.statements.push_back(columnName);
+	arg.columnTypes.push_back(triggersTriggerid.type);
 
 	// status
 	const ColumnDef &triggersStatus =
