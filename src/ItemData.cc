@@ -148,8 +148,7 @@ template<> ItemBool::operator bool() const
 template<> bool ItemInt::operator >(const ItemData &itemData) const
 {
 	if (itemData.getItemType() == ITEM_TYPE_INT) {
-		int data;
-		itemData.get(&data);
+		const int &data = cast(itemData)->get();
 		return (m_data > data);
 	} else {
 		THROW_ITEM_DATA_EXCEPTION_UNDEFINED_OPERATION(">", itemData);
@@ -161,14 +160,12 @@ template<> bool ItemInt::operator <(const ItemData &itemData) const
 {
 	ItemDataType itemType = itemData.getItemType();
 	if (itemType == ITEM_TYPE_INT) {
-		int data;
-		itemData.get(&data);
+		const int &data = cast(itemData)->get();
 		return (m_data < data);
 	} else if (itemType == ITEM_TYPE_UINT64) {
 		if (m_data < 0)
 			return true;
-		uint64_t data;
-		itemData.get(&data);
+		const uint64_t &data = ItemUint64::cast(itemData)->get();
 		return (static_cast<uint64_t>(m_data) < data);
 	} else {
 		THROW_ITEM_DATA_EXCEPTION_UNDEFINED_OPERATION("<", itemData);
@@ -179,8 +176,7 @@ template<> bool ItemInt::operator <(const ItemData &itemData) const
 template<> bool ItemInt::operator >=(const ItemData &itemData) const
 {
 	if (itemData.getItemType() == ITEM_TYPE_INT) {
-		int data;
-		itemData.get(&data);
+		const int &data = cast(itemData)->get();
 		return (m_data >= data);
 	} else {
 		THROW_ITEM_DATA_EXCEPTION_UNDEFINED_OPERATION(">=", itemData);
@@ -191,8 +187,7 @@ template<> bool ItemInt::operator >=(const ItemData &itemData) const
 template<> bool ItemInt::operator <=(const ItemData &itemData) const
 {
 	if (itemData.getItemType() == ITEM_TYPE_INT) {
-		int data;
-		itemData.get(&data);
+		const int &data = cast(itemData)->get();
 		return (m_data <= data);
 	} else {
 		THROW_ITEM_DATA_EXCEPTION_UNDEFINED_OPERATION("<=", itemData);
@@ -206,12 +201,10 @@ template<> bool ItemInt::operator <=(const ItemData &itemData) const
 template<> bool ItemUint64::operator >(const ItemData &itemData) const
 {
 	if (itemData.getItemType() == ITEM_TYPE_UINT64) {
-		uint64_t data;
-		itemData.get(&data);
+		const uint64_t &data = cast(itemData)->get();
 		return (m_data > data);
 	} else if (itemData.getItemType() == ITEM_TYPE_INT) {
-		int data;
-		itemData.get(&data);
+		const int &data = ItemInt::cast(itemData)->get();
 		if (data < 0) {
 			MLPL_WARN("'data' is negative. "
 			          "The result may not be wrong.");
@@ -227,12 +220,10 @@ template<> bool ItemUint64::operator >(const ItemData &itemData) const
 template<> bool ItemUint64::operator <(const ItemData &itemData) const
 {
 	if (itemData.getItemType() == ITEM_TYPE_UINT64) {
-		uint64_t data;
-		itemData.get(&data);
+		const uint64_t &data = cast(itemData)->get();
 		return (m_data < data);
 	} else if (itemData.getItemType() == ITEM_TYPE_INT) {
-		int data;
-		itemData.get(&data);
+		const int &data = ItemInt::cast(itemData)->get();
 		if (data < 0) {
 			MLPL_WARN("'data' is negative. "
 			          "The result may not be wrong.");
@@ -248,12 +239,10 @@ template<> bool ItemUint64::operator <(const ItemData &itemData) const
 template<> bool ItemUint64::operator >=(const ItemData &itemData) const
 {
 	if (itemData.getItemType() == ITEM_TYPE_UINT64) {
-		uint64_t data;
-		itemData.get(&data);
+		const uint64_t &data = cast(itemData)->get();
 		return (m_data >= data);
 	} else if (itemData.getItemType() == ITEM_TYPE_INT) {
-		int data;
-		itemData.get(&data);
+		const int &data = ItemInt::cast(itemData)->get();
 		if (data < 0) {
 			MLPL_WARN("'data' is negative. "
 			          "The result may not be wrong.");
@@ -270,12 +259,10 @@ template<> bool ItemUint64::operator >=(const ItemData &itemData) const
 template<> bool ItemUint64::operator <=(const ItemData &itemData) const
 {
 	if (itemData.getItemType() == ITEM_TYPE_UINT64) {
-		uint64_t data;
-		itemData.get(&data);
+		const uint64_t &data = cast(itemData)->get();
 		return (m_data <= data);
 	} else if (itemData.getItemType() == ITEM_TYPE_INT) {
-		int data;
-		itemData.get(&data);
+		const int &data = ItemInt::cast(itemData)->get();
 		if (data < 0) {
 			MLPL_WARN("'data' is negative. "
 			          "The result may not be wrong.");
@@ -291,12 +278,10 @@ template<> bool ItemUint64::operator <=(const ItemData &itemData) const
 template<> bool ItemUint64::operator ==(const ItemData &itemData) const
 {
 	if (itemData.getItemType() == ITEM_TYPE_UINT64) {
-		uint64_t data;
-		itemData.get(&data);
+		const uint64_t &data = cast(itemData)->get();
 		return (m_data == data);
 	} else if (itemData.getItemType() == ITEM_TYPE_INT) {
-		int data;
-		itemData.get(&data);
+		const int &data = ItemInt::cast(itemData)->get();
 		if (data < 0) {
 			MLPL_WARN("'data' is negative. "
 			          "The result may not be wrong.");

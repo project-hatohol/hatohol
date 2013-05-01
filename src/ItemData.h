@@ -142,7 +142,7 @@ public:
 	  m_data(data) {
 	}
 
-	const ItemGeneric<T, ITEM_TYPE> *cast(const ItemData &itemData) const
+	static const ItemGeneric<T, ITEM_TYPE> *cast(const ItemData &itemData)
 	{
 		const ItemGeneric<T, ITEM_TYPE> *castedItem =
 		  dynamic_cast<const ItemGeneric<T, ITEM_TYPE> *>(&itemData);
