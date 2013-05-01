@@ -162,7 +162,7 @@ public:
 	}
 
 	// virtual methods (override)
-	virtual void set(void *src) e {
+	virtual void set(void *src) {
 		m_data = *static_cast<T *>(src);
 	}
 
@@ -202,9 +202,8 @@ public:
 
 	virtual ItemData * operator /(const ItemData &itemData) const {
 		if (isSameType(itemData)) {
-			T v0, v1;
-			get(&v0);
-			itemData.get(&v1);
+			const T &v0 = m_data;
+			const T &v1 = cast(itemData)->get();
 			return new ItemGeneric(v0 / v1);
 		}
 		THROW_ITEM_DATA_EXCEPTION_UNDEFINED_OPERATION("+", itemData);
@@ -213,9 +212,8 @@ public:
 
 	virtual bool operator >(const ItemData &itemData) const {
 		if (isSameType(itemData)) {
-			T v0, v1;
-			get(&v0);
-			itemData.get(&v1);
+			const T &v0 = m_data;
+			const T &v1 = cast(itemData)->get();
 			return v0 > v1;
 		}
 		THROW_ITEM_DATA_EXCEPTION_UNDEFINED_OPERATION(">", itemData);
@@ -224,9 +222,8 @@ public:
 
 	virtual bool operator <(const ItemData &itemData) const {
 		if (isSameType(itemData)) {
-			T v0, v1;
-			get(&v0);
-			itemData.get(&v1);
+			const T &v0 = m_data;
+			const T &v1 = cast(itemData)->get();
 			return v0 < v1;
 		}
 		THROW_ITEM_DATA_EXCEPTION_UNDEFINED_OPERATION("<", itemData);
@@ -244,9 +241,8 @@ public:
 
 	virtual bool operator ==(const ItemData &itemData) const {
 		if (isSameType(itemData)) {
-			T v0, v1;
-			get(&v0);
-			itemData.get(&v1);
+			const T &v0 = m_data;
+			const T &v1 = cast(itemData)->get();
 			return (v0 == v1);
 		}
 		THROW_ITEM_DATA_EXCEPTION_UNDEFINED_OPERATION("==", itemData);
@@ -261,11 +257,7 @@ public:
 	virtual void operator +=(const ItemData &itemData)
 	{
 		if (isSameType(itemData)) {
-			T v0, v1;
-			get(&v0);
-			itemData.get(&v1);
-			v0 += v1;
-			set(&v0);
+			m_data += cast(itemData)->get();
 			return;
 		}
 		THROW_ITEM_DATA_EXCEPTION_UNDEFINED_OPERATION("+=", itemData);
