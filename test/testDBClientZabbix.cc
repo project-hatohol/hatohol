@@ -94,5 +94,10 @@ void test_createTableHostsRaw2_0(void)
 	assertCreateTable(TEST_ZABBIX_SERVER_ID + 3, "hosts_raw_2_0");
 }
 
+void test_createTableEventsRaw2_0(void)
+{
+	assertCreateTable(TEST_ZABBIX_SERVER_ID + 3, "events_raw_2_0");
+}
+
 } // testDBClientZabbix
 
