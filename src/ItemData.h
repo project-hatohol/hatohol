@@ -142,17 +142,32 @@ public:
 	  m_data(data) {
 	}
 
-	// virtual methods
-	virtual void set(void *src) {
+	const ItemGeneric<T, ITEM_TYPE> *cast(const ItemData &itemData) const
+	{
+		const ItemGeneric<T, ITEM_TYPE> *castedItem =
+		  dynamic_cast<const ItemGeneric<T, ITEM_TYPE> *>(&itemData);
+		return castedItem;
+	}
+
+	bool isSameType(const ItemData &itemData) const
+	{
+		const ItemDataType &type0 = getItemType();
+		const ItemDataType &type1 = itemData.getItemType();
+		return type0 == type1;
+	}
+
+	// virtual methods defined in this class
+	virtual const T &get(void) const {
+		return m_data;
+	}
+
+	// virtual methods (override)
+	virtual void set(void *src) e {
 		m_data = *static_cast<T *>(src);
 	}
 
 	virtual void get(void *dst) const {
 		*static_cast<T *>(dst) = m_data;
-	}
-
-	virtual const T &get(void) const {
-		return m_data;
 	}
 
 	virtual string getString(void) const {
@@ -254,20 +269,6 @@ public:
 			return;
 		}
 		THROW_ITEM_DATA_EXCEPTION_UNDEFINED_OPERATION("+=", itemData);
-	}
-
-	const ItemGeneric<T, ITEM_TYPE> *cast(const ItemData &itemData) const
-	{
-		const ItemGeneric<T, ITEM_TYPE> *castedItem =
-		  dynamic_cast<const ItemGeneric<T, ITEM_TYPE> *>(&itemData);
-		return castedItem;
-	}
-
-	bool isSameType(const ItemData &itemData) const
-	{
-		const ItemDataType &type0 = getItemType();
-		const ItemDataType &type1 = itemData.getItemType();
-		return type0 == type1;
 	}
 
 protected:
