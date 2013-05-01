@@ -436,7 +436,7 @@ void DBClientAsura::getEventInfoList(EventInfoList &eventInfoList)
 
 	// Condition
 	arg.condition = StringUtils::sprintf(
-	  "%s.%d=%s.%d", 
+	  "%s.%s=%s.%s", 
 	  VAR_EVENTS, eventsServerId.columnName,
 	  VAR_TRIGGERS, triggersServerId.columnName);
 
