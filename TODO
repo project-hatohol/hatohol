@@ -1,6 +1,5 @@
 [S] Short-term, [M] Middle-term, [L] Long-term
 ====
-* [S] make a REST API of events (including tests)
 * [S] remove lock from ItemData, ItemGroup, and ItemTable.
       We use them as const. (i.e. They are never changed after created)
 * [M] make a mechanism to replica partially
