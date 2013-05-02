@@ -2005,9 +2005,9 @@ int DBClientZabbix::updateReplicaGeneration(int replicaTargetId)
 	insertArg.tableName = TABLE_NAME_REPLICA_GENERATION;
 	insertArg.numColumns = NUM_COLUMNS_REPLICA_GENERATION;
 	insertArg.columnDefs = COLUMN_DEF_REPLICA_GENERATION;
-	insertArg.row->add(new ItemInt(newId), false);
-	insertArg.row->add(new ItemUint64(currTime), false);
-	insertArg.row->add(new ItemInt(replicaTargetId), false);
+	insertArg.row->ADD_NEW_ITEM(Int, newId);
+	insertArg.row->ADD_NEW_ITEM(Uint64, currTime);
+	insertArg.row->ADD_NEW_ITEM(Int, replicaTargetId);
 	insert(insertArg);
 
 	// update the latest generation
