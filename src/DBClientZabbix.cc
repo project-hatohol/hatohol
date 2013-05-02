@@ -1896,7 +1896,7 @@ void DBClientZabbix::tableInitializerSystem(DBAgent *dbAgent, void *data)
 	insArg.tableName = TABLE_NAME_SYSTEM;
 	insArg.numColumns = NUM_COLUMNS_SYSTEM;
 	insArg.columnDefs = COLUMN_DEF_SYSTEM;
-	InProcessItemGroupPtr row(new ItemGroup(), false);
+	InProcessItemGroupPtr row;
 	row->ADD_NEW_ITEM(Int, REPLICA_GENERATION_NONE); // trig.
 	row->ADD_NEW_ITEM(Int, REPLICA_GENERATION_NONE); // func.
 	row->ADD_NEW_ITEM(Int, REPLICA_GENERATION_NONE); // items
