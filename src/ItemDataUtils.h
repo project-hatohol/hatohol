@@ -30,9 +30,9 @@ public:
 	static ItemDataPtr createAsNumber(const string &word);
 	static ItemDataPtr createAsNumberOrString(const string &word);
 	template<typename NativeType, typename ItemDataType>
-	static NativeType get(ItemData *itemData) {
+	static const NativeType get(const ItemData *itemData) {
 		ASURA_ASSERT(itemData, "itemData: NULL");
-		ItemDataType *casted = dynamic_cast<ItemDataType *>(itemData);
+		const ItemDataType *casted = ItemDataType::cast(*itemData);
 		ASURA_ASSERT(casted, "Invalid cast: %s -> %s",
 		             DEMANGLED_TYPE_NAME(itemData),
 		             DEMANGLED_TYPE_NAME(ItemDataType));
