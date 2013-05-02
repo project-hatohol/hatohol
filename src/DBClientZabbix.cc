@@ -2017,7 +2017,7 @@ int DBClientZabbix::updateReplicaGeneration(int replicaTargetId)
 	int columnIdx =
 	   REPLICA_TARGET_ID_SYSTEM_LATEST_COLUMNS_MAP[replicaTargetId];
 	updateArg.columnIndexes.push_back(columnIdx);
-	updateArg.row->add(new ItemInt(newId), false);
+	updateArg.row->ADD_NEW_ITEM(Int, newId);
 	update(updateArg);
 
 	return newId;
@@ -2039,7 +2039,7 @@ void DBClientZabbix::addReplicatedItems(
 		arg.numColumns = numColumns;
 		arg.columnDefs = columnDefs;
 
-		arg.row->add(new ItemInt(generationId), false);
+		arg.row->ADD_NEW_ITEM(Int, generationId);
 		for (size_t i = 0; i < itemGroup->getNumberOfItems(); i++)
 			arg.row->add(itemGroup->getItemAt(i));
 		insert(arg);
