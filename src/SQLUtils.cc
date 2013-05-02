@@ -105,8 +105,7 @@ ItemDataPtr SQLUtils::getItemDataFromItemGroupWithColumnName
 	if (!columnDef)
 		return ItemDataPtr();
 	ItemId itemId = columnDef->itemId;
-	// TODO: remove const_cast
-	ItemDataPtr dataPtr = const_cast<ItemData *>(itemGroup->getItem(itemId));
+	ItemDataPtr dataPtr = itemGroup->getItem(itemId);
 	if (!dataPtr) {
 		MLPL_DBG("Not found: item: %s (%"PRIu_ITEM"), "
 		         "table: %s\n",

@@ -62,8 +62,7 @@ bool SQLTableRowIteratorColumnsEqual::start(void)
 {
 	SQLTableElement *leftTable = m_otherTableCtx->tableElement;
 	ItemGroupPtr leftRow = leftTable->getActiveRow();
-	// TODO: remove const_cast
-	ItemDataPtr leftItem = const_cast<ItemData *>(leftRow->getItemAt(m_otherIndex));
+	ItemDataPtr leftItem = leftRow->getItemAt(m_otherIndex);
 	clearIndexingVariables();
 	m_itemDataIndex->find(leftItem, m_indexMatchedItems);
 	if (m_indexMatchedItems.empty())

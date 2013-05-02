@@ -106,8 +106,8 @@ const string &ItemDataUtils::getString(const ItemData *itemData)
 // ---------------------------------------------------------------------------
 ItemDataPtrForIndex::ItemDataPtrForIndex(const ItemData *itemData,
                                          const ItemGroup *itemGrp)
+: ItemDataPtr(itemData),
 // TODO: remove cast by letting ItemPtr have a const pointer.
-: ItemDataPtr((ItemData *)itemData),
   itemGroupPtr((ItemGroup *)itemGrp)
 {
 }
