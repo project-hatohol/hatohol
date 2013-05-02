@@ -138,7 +138,7 @@ bool SQLProcessorInsert::insert(SQLInsertInfo &insertInfo)
 			return false;
 		checkTableAndColumns(insertInfo);
 		makeColumnDefValueMap(insertInfo);
-		doInsetToTable(insertInfo);
+		doInsertToTable(insertInfo);
 	} catch (const SQLProcessorException &e) {
 		MLPL_DBG("Got SQLProcessorException: %s",
 		         e.getFancyMessage().c_str());
@@ -213,7 +213,7 @@ void SQLProcessorInsert::makeColumnDefValueMap(SQLInsertInfo &insertInfo)
 	}
 }
 
-void SQLProcessorInsert::doInsetToTable(SQLInsertInfo &insertInfo)
+void SQLProcessorInsert::doInsertToTable(SQLInsertInfo &insertInfo)
 {
 	ItemDataPtr dataPtr;
 	VariableItemGroupPtr grpPtr;

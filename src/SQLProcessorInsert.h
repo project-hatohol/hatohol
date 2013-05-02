@@ -65,7 +65,7 @@ protected:
 	bool parseInsertStatement(SQLInsertInfo &insertInfo);
 	void checkTableAndColumns(SQLInsertInfo &insertInfo);
 	void makeColumnDefValueMap(SQLInsertInfo &insertInfo);
-	void doInsetToTable(SQLInsertInfo &insertInfo);
+	void doInsertToTable(SQLInsertInfo &insertInfo);
 
 	//
 	// Sub parsers
