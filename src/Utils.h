@@ -37,7 +37,7 @@ typedef vector<string> CommandLineArg;
 class Utils {
 public:
 	static string makeDemangledStackTraceLines(void **trace, int num);
-	static void assertNotNull(void *ptr);
+	static void assertNotNull(const void *ptr);
 	static string demangle(string &str);
 	static string demangle(const char *);
 	static void showTreeInfo(FormulaElement *formulaElement, int fd = 1,

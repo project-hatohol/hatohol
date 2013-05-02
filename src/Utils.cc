@@ -44,7 +44,7 @@ string Utils::makeDemangledStackTraceLines(void **trace, int num)
 	return str;
 }
 
-void Utils::assertNotNull(void *ptr)
+void Utils::assertNotNull(const void *ptr)
 {
 	if (ptr)
 		return;
