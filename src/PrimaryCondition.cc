@@ -82,7 +82,7 @@ void PrimaryConditionConstants::add(ItemDataPtr itemData)
 	m_itemGroup->add(itemData);
 }
 
-const ItemGroupPtr &PrimaryConditionConstants::getConstants(void) const
+const ItemGroupPtr PrimaryConditionConstants::getConstants(void) const
 {
-	return m_itemGroup;
+	return ItemGroupPtr(m_itemGroup);
 }

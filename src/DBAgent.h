@@ -36,14 +36,14 @@ struct DBAgentInsertArg {
 	string tableName;
 	size_t              numColumns;
 	const ColumnDef    *columnDefs;
-	const ItemGroupPtr  row;
+	ItemGroupPtr        row;
 };
 
 struct DBAgentUpdateArg {
 	string tableName;
 	const ColumnDef    *columnDefs;
 	vector<size_t>      columnIndexes;
-	const ItemGroupPtr  row;
+	ItemGroupPtr        row;
 };
 
 struct DBAgentSelectArg {

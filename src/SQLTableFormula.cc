@@ -469,8 +469,7 @@ ItemGroupPtr SQLTableJoin::getActiveRow(void)
 		  leftFormula, rightFormula);
 	}
 
-	ItemGroupPtr itemGroup = ItemGroupPtr(new ItemGroup(), false);
-
+	InProcessItemGroupPtr itemGroup;
 	ItemGroupPtr leftRow = leftFormula->getActiveRow();
 	for (size_t i = 0; i < leftRow->getNumberOfItems(); i++)
 		itemGroup->add(leftRow->getItemAt(i));
@@ -478,7 +477,7 @@ ItemGroupPtr SQLTableJoin::getActiveRow(void)
 	for (size_t i = 0; i < rightRow->getNumberOfItems(); i++)
 		itemGroup->add(rightRow->getItemAt(i));
 
-	return itemGroup;
+	return ItemGroupPtr(itemGroup);
 }
 
 void SQLTableJoin::fixupTableSizeInfo(void)

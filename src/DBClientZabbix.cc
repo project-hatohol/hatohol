@@ -1896,11 +1896,13 @@ void DBClientZabbix::tableInitializerSystem(DBAgent *dbAgent, void *data)
 	insArg.tableName = TABLE_NAME_SYSTEM;
 	insArg.numColumns = NUM_COLUMNS_SYSTEM;
 	insArg.columnDefs = COLUMN_DEF_SYSTEM;
-	insArg.row->ADD_NEW_ITEM(Int, REPLICA_GENERATION_NONE); // trig.
-	insArg.row->ADD_NEW_ITEM(Int, REPLICA_GENERATION_NONE); // func.
-	insArg.row->ADD_NEW_ITEM(Int, REPLICA_GENERATION_NONE); // items
-	insArg.row->ADD_NEW_ITEM(Int, REPLICA_GENERATION_NONE); // hosts
-	insArg.row->ADD_NEW_ITEM(Int, REPLICA_GENERATION_NONE); // events
+	InProcessItemGroupPtr row(new ItemGroup(), false);
+	row->ADD_NEW_ITEM(Int, REPLICA_GENERATION_NONE); // trig.
+	row->ADD_NEW_ITEM(Int, REPLICA_GENERATION_NONE); // func.
+	row->ADD_NEW_ITEM(Int, REPLICA_GENERATION_NONE); // items
+	row->ADD_NEW_ITEM(Int, REPLICA_GENERATION_NONE); // hosts
+	row->ADD_NEW_ITEM(Int, REPLICA_GENERATION_NONE); // events
+	insArg.row = row;
 	dbAgent->insert(insArg);
 }
 
@@ -2005,9 +2007,11 @@ int DBClientZabbix::updateReplicaGeneration(int replicaTargetId)
 	insertArg.tableName = TABLE_NAME_REPLICA_GENERATION;
 	insertArg.numColumns = NUM_COLUMNS_REPLICA_GENERATION;
 	insertArg.columnDefs = COLUMN_DEF_REPLICA_GENERATION;
-	insertArg.row->ADD_NEW_ITEM(Int, newId);
-	insertArg.row->ADD_NEW_ITEM(Uint64, currTime);
-	insertArg.row->ADD_NEW_ITEM(Int, replicaTargetId);
+	InProcessItemGroupPtr row;
+	row->ADD_NEW_ITEM(Int, newId);
+	row->ADD_NEW_ITEM(Uint64, currTime);
+	row->ADD_NEW_ITEM(Int, replicaTargetId);
+	insertArg.row = row;
 	insert(insertArg);
 
 	// update the latest generation
@@ -2017,7 +2021,10 @@ int DBClientZabbix::updateReplicaGeneration(int replicaTargetId)
 	int columnIdx =
 	   REPLICA_TARGET_ID_SYSTEM_LATEST_COLUMNS_MAP[replicaTargetId];
 	updateArg.columnIndexes.push_back(columnIdx);
-	updateArg.row->ADD_NEW_ITEM(Int, newId);
+	InProcessItemGroupPtr rowUpdate;
+	rowUpdate->ADD_NEW_ITEM(Int, newId);
+	updateArg.row = rowUpdate;
+
 	update(updateArg);
 
 	return newId;
@@ -2039,9 +2046,11 @@ void DBClientZabbix::addReplicatedItems(
 		arg.numColumns = numColumns;
 		arg.columnDefs = columnDefs;
 
-		arg.row->ADD_NEW_ITEM(Int, generationId);
+		InProcessItemGroupPtr row;
+		row->ADD_NEW_ITEM(Int, generationId);
 		for (size_t i = 0; i < itemGroup->getNumberOfItems(); i++)
-			arg.row->add(itemGroup->getItemAt(i));
+			row->add(itemGroup->getItemAt(i));
+		arg.row = row;
 		insert(arg);
 	}
 }

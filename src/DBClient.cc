@@ -130,8 +130,10 @@ void DBClient::tableInitializerDBClient(DBAgent *dbAgent, void *data)
 	insArg.tableName = TABLE_NAME_DBCLIENT;
 	insArg.numColumns = NUM_COLUMNS_DBCLIENT;
 	insArg.columnDefs = COLUMN_DEF_DBCLIENT;
-	insArg.row->ADD_NEW_ITEM(Int, DB_VERSION);
-	insArg.row->ADD_NEW_ITEM(Int, setupFuncArg->version);
+	InProcessItemGroupPtr row;
+	row->ADD_NEW_ITEM(Int, DB_VERSION);
+	row->ADD_NEW_ITEM(Int, setupFuncArg->version);
+	insArg.row = row;
 	dbAgent->insert(insArg);
 }
 

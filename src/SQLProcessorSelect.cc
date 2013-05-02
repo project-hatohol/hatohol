@@ -1082,14 +1082,15 @@ bool SQLProcessorSelect::makeGroupedTable(const ItemGroup *itemGroup,
 	PrivateContext *ctx = sqlProcSelect->m_ctx;
 
 	// make an ItemGroup for the target columns of GROUP BY
-	ItemGroupPtr targetItemGroup;
+	InProcessItemGroupPtr _targetItemGroup;
 	for (size_t i = 0; i < ctx->groupByColumnIndexes.size(); i++) {
 		size_t targetIndex = ctx->groupByColumnIndexes[i];
-		targetItemGroup->add(itemGroup->getItemAt(targetIndex));
+		_targetItemGroup->add(itemGroup->getItemAt(targetIndex));
 	}
 
 	// If the first combination of ItemData (targetItemGroup) comes,
 	// we insert a new table into groupedTableMap.
+	ItemGroupPtr targetItemGroup(_targetItemGroup);
 	ItemGroupTableMap &groupedTableMap = ctx->groupedTableMap;
 	ItemGroupTableMapIterator it = groupedTableMap.find(targetItemGroup);
 	if (it == groupedTableMap.end()) {

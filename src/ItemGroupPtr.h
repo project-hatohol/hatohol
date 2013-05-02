@@ -24,7 +24,8 @@ using namespace mlpl;
 #include "ItemGroup.h"
 #include "ItemPtr.h"
 
-typedef ItemPtr<ItemGroup> ItemGroupPtr;
+typedef ItemPtr<ItemGroup>       InProcessItemGroupPtr;
+typedef ItemPtr<const ItemGroup> ItemGroupPtr;
 
 template<>
 ItemPtr<ItemGroup>::ItemPtr(void);

@@ -156,40 +156,43 @@ void DBClientConfig::addTargetServer(MonitoringServerInfo *monitoringServerInfo)
 {
 	string condition = StringUtils::sprintf("id=%u",
 	                                        monitoringServerInfo->id);
+	InProcessItemGroupPtr row;
 	DBCLIENT_TRANSACTION_BEGIN() {
 		if (!isRecordExisting(TABLE_NAME_SERVERS, condition)) {
 			DBAgentInsertArg arg;
 			arg.tableName = TABLE_NAME_SERVERS;
 			arg.numColumns = NUM_COLUMNS_SERVERS;
 			arg.columnDefs = COLUMN_DEF_SERVERS;
-			arg.row->ADD_NEW_ITEM(Int, monitoringServerInfo->id);
-			arg.row->ADD_NEW_ITEM(Int, monitoringServerInfo->type);
-			arg.row->ADD_NEW_ITEM(String,
-			                      monitoringServerInfo->hostName);
-			arg.row->ADD_NEW_ITEM(String,
+			row->ADD_NEW_ITEM(Int, monitoringServerInfo->id);
+			row->ADD_NEW_ITEM(Int, monitoringServerInfo->type);
+			row->ADD_NEW_ITEM(String,
+			                  monitoringServerInfo->hostName);
+			row->ADD_NEW_ITEM(String,
 			                      monitoringServerInfo->ipAddress);
-			arg.row->ADD_NEW_ITEM(String,
-			                      monitoringServerInfo->nickname);
+			row->ADD_NEW_ITEM(String,
+			                  monitoringServerInfo->nickname);
+			arg.row = row;
 			insert(arg);
 		} else {
 			DBAgentUpdateArg arg;
 			arg.tableName = TABLE_NAME_SERVERS;
 			arg.columnDefs = COLUMN_DEF_SERVERS;
 
-			arg.row->ADD_NEW_ITEM(Int, monitoringServerInfo->type);
+			row->ADD_NEW_ITEM(Int, monitoringServerInfo->type);
 			arg.columnIndexes.push_back(IDX_SERVERS_TYPE);
 
-			arg.row->ADD_NEW_ITEM(String,
+			row->ADD_NEW_ITEM(String,
 			                      monitoringServerInfo->hostName);
 			arg.columnIndexes.push_back(IDX_SERVERS_HOSTNAME);
 
-			arg.row->ADD_NEW_ITEM(String,
+			row->ADD_NEW_ITEM(String,
 			                      monitoringServerInfo->ipAddress);
 			arg.columnIndexes.push_back(IDX_SERVERS_IP_ADDRESS);
 
-			arg.row->ADD_NEW_ITEM(String,
-			                      monitoringServerInfo->nickname);
+			row->ADD_NEW_ITEM(String,
+			                  monitoringServerInfo->nickname);
 			arg.columnIndexes.push_back(IDX_SERVERS_NICKNAME);
+			arg.row = row;
 			update(arg);
 		}
 	} DBCLIENT_TRANSACTION_END();

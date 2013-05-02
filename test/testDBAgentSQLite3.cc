@@ -143,10 +143,12 @@ void _assertInsert(uint64_t id, int age, const char *name, double height)
 	arg.tableName = TABLE_NAME_TEST;
 	arg.numColumns = NUM_COLUMNS_TEST;
 	arg.columnDefs = COLUMN_DEF_TEST;
-	arg.row->add(new ItemUint64(id), false);
-	arg.row->add(new ItemInt(age), false);
-	arg.row->add(new ItemString(name), false);
-	arg.row->add(new ItemDouble(height), false);
+	InProcessItemGroupPtr row;
+	row->ADD_NEW_ITEM(Uint64, id);
+	row->ADD_NEW_ITEM(Int, age);
+	row->ADD_NEW_ITEM(String, name);
+	row->ADD_NEW_ITEM(Double, height);
+	arg.row = row;
 	dbAgent.insert(arg);
 
 	assertExistRecord(id, age, name,height);
@@ -163,10 +165,12 @@ void _assertUpdate(uint64_t id, int age, const char *name, double height)
 	for (size_t i = IDX_TEST_TABLE_ID; i < NUM_COLUMNS_TEST; i++)
 		arg.columnIndexes.push_back(i);
 	arg.columnDefs = COLUMN_DEF_TEST;
-	arg.row->add(new ItemUint64(id), false);
-	arg.row->add(new ItemInt(age), false);
-	arg.row->add(new ItemString(name), false);
-	arg.row->add(new ItemDouble(height), false);
+	InProcessItemGroupPtr row;
+	row->ADD_NEW_ITEM(Uint64, id);
+	row->ADD_NEW_ITEM(Int, age);
+	row->ADD_NEW_ITEM(String, name);
+	row->ADD_NEW_ITEM(Double, height);
+	arg.row = row;
 	dbAgent.update(arg);
 
 	assertExistRecord(id, age, name,height);

@@ -46,7 +46,7 @@ struct SQLWhereParser::PrivateContext {
 	ItemDataPtr betweenV0;
 	ItemDataPtr betweenV1;
 
-	ItemGroupPtr inValues;
+	InProcessItemGroupPtr inValues;
 	bool         openQuot;
 	int          nestCountForExists;
 	const char  *existsStatementBegin;
@@ -67,7 +67,7 @@ struct SQLWhereParser::PrivateContext {
 		betweenV0 = NULL;
 		betweenV1 = NULL;
 
-		inValues = ItemGroupPtr();
+		inValues = InProcessItemGroupPtr();
 		openQuot = false;
 
 		nestCountForExists = 0;
@@ -206,7 +206,7 @@ void SQLWhereParser::closeInParenthesis(void)
 {
 	if (m_ctx->inValues->getNumberOfItems() == 0)
 		THROW_SQL_PROCESSOR_EXCEPTION("No parameters in IN operator.");
-	FormulaIn *formulaIn = new FormulaIn(m_ctx->inValues);
+	FormulaIn *formulaIn = new FormulaIn(ItemGroupPtr(m_ctx->inValues));
 	insertElement(formulaIn);
 }
 

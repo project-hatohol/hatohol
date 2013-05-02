@@ -68,12 +68,12 @@ public:
 	const string &getTableName(void) const;
 	const string &getColumnName(void) const;
 	void add(ItemDataPtr itemData);
-	const ItemGroupPtr &getConstants(void) const;
+	const ItemGroupPtr getConstants(void) const;
 
 private:
 	string       m_tableName;
 	string       m_columnName;
-	ItemGroupPtr m_itemGroup;
+	InProcessItemGroupPtr m_itemGroup;
 };
 
 #endif // PrimaryCondition_h

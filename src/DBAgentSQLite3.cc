@@ -606,7 +606,7 @@ void DBAgentSQLite3::select(sqlite3 *db, DBAgentSelectExArg &selectExArg)
 		                      result);
 	}
 	while ((result = sqlite3_step(stmt)) == SQLITE_ROW) {
-		ItemGroupPtr itemGroup = ItemGroupPtr(new ItemGroup(), false);
+		InProcessItemGroupPtr itemGroup;
 		for (size_t index = 0; index < numColumns; index++) {
 			ItemDataPtr itemDataPtr =
 			  getValue(stmt, index, selectExArg.columnTypes[index]);
@@ -646,7 +646,7 @@ void DBAgentSQLite3::deleteRows(sqlite3 *db, DBAgentDeleteArg &deleteArg)
 void DBAgentSQLite3::selectGetValuesIteration(DBAgentSelectArg &selectArg,
                                               sqlite3_stmt *stmt)
 {
-	ItemGroupPtr itemGroup(new ItemGroup(), false);
+	InProcessItemGroupPtr itemGroup;
 	for (size_t i = 0; i < selectArg.columnIndexes.size(); i++) {
 		size_t idx = selectArg.columnIndexes[i];
 		const ColumnDef &columnDef = selectArg.columnDefs[idx];

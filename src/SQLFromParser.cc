@@ -312,7 +312,8 @@ void SQLFromParser::doJoineOneRow(FormulaElement *whereFormula)
 	}
 	if (!shouldAdd)
 		return;
-	m_ctx->joinedTable->add(activeRow);
+	// TODO: remove const_cast
+	m_ctx->joinedTable->add(const_cast<ItemGroup *>((const ItemGroup *)activeRow));
 	if (m_ctx->subQueryMode == SQL_SUB_QUERY_EXISTS)
 		throw SQLFoundRowOnJoinException();
 }
