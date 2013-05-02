@@ -46,6 +46,61 @@ ItemDataPtr ItemDataUtils::createAsNumberOrString(const string &word)
 	return createAsNumber(word);
 }
 
+template<>
+const bool &ItemDataUtils::get<bool> (const ItemData *itemData)
+{
+	return getBool(itemData);
+}
+
+template<>
+const int &ItemDataUtils::get<int> (const ItemData *itemData)
+{
+	return getInt(itemData);
+}
+
+template<>
+const uint64_t &ItemDataUtils::get<uint64_t> (const ItemData *itemData)
+{
+	return getUint64(itemData);
+}
+
+template<>
+const double &ItemDataUtils::get<double>(const ItemData *itemData)
+{
+	return getDouble(itemData);
+}
+
+template<>
+const string &ItemDataUtils::get<string>(const ItemData *itemData)
+{
+	return getString(itemData);
+}
+
+const bool &ItemDataUtils::getBool(const ItemData *itemData)
+{
+	return get<bool, ItemBool>(itemData);
+}
+
+const int &ItemDataUtils::getInt(const ItemData *itemData)
+{
+	return get<int, ItemInt>(itemData);
+}
+
+const uint64_t &ItemDataUtils::getUint64(const ItemData *itemData)
+{
+	return get<uint64_t, ItemUint64>(itemData);
+}
+
+const double &ItemDataUtils::getDouble(const ItemData *itemData)
+{
+	return get<double, ItemDouble>(itemData);
+}
+
+const string &ItemDataUtils::getString(const ItemData *itemData)
+{
+	return get<string, ItemString>(itemData);
+}
+
 // ---------------------------------------------------------------------------
 // ItemDataPtrForIndex
 // ---------------------------------------------------------------------------
