@@ -33,11 +33,10 @@ static ItemTable * addItems(T* srcTable, int numTable,
 template<typename T>
 static void _assertItemData(const ItemGroup *itemGroup, const T &expected, int &idx)
 {
-	T val;
 	ItemData *itemZ = itemGroup->getItemAt(idx);
 	cut_assert_not_null(itemZ);
 	idx++;
-	itemZ->get(&val);
+	const T &val = ItemDataUtils::get<T>(itemZ);
 	cut_trace(cppcut_assert_equal(expected, val));
 }
 #define assertItemData(T, IGRP, E, IDX) \

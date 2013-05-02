@@ -10,6 +10,7 @@ using namespace mlpl;
 #include <cutter.h>
 #include <cppcutter.h>
 #include "ItemData.h"
+#include "ItemDataUtils.h"
 
 namespace testItemData {
 
@@ -53,8 +54,7 @@ template<typename NativeType, class ItemDataType>
 static void _assertGet(NativeType val)
 {
 	ItemData *item = new ItemDataType(val);
-	NativeType readValue;
-	item->get(&readValue);
+	NativeType readValue = ItemDataUtils::get<NativeType>(item);
 	cppcut_assert_equal(val, readValue);
 }
 #define assertGet(NT,IDT,V) cut_trace((_assertGet<NT,IDT>(V)))
@@ -63,9 +63,8 @@ template<typename NativeType, class ItemDataType>
 static void _assertSet(NativeType val, NativeType newVal)
 {
 	ItemData *item = new ItemDataType(val);
-	NativeType readValue;
 	item->set(&newVal);
-	item->get(&readValue);
+	NativeType readValue = ItemDataUtils::get<NativeType>(item);
 	cppcut_assert_equal(newVal, readValue);
 }
 #define assertSet(NT,IDT,V,NV) cut_trace((_assertSet<NT,IDT>(V,NV)))

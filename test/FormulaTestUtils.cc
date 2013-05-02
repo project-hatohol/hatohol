@@ -1,4 +1,5 @@
 #include <cppcutter.h>
+#include "ItemDataUtils.h"
 #include "FormulaTestUtils.h"
 
 void _assertFormulaVariable(FormulaElement *elem, const char *expected)
@@ -17,8 +18,7 @@ void _assertFormulaValue(FormulaElement *elem, int expected)
 	cut_assert_not_null(formulaValue);
 	ItemDataPtr dataPtr = formulaValue->evaluate();
 	cppcut_assert_equal(ITEM_TYPE_INT, dataPtr->getItemType());
-	int actual;
-	dataPtr->get(&actual);
+	int actual = ItemDataUtils::getInt(dataPtr);
 	cppcut_assert_equal(expected, actual);
 }
 
@@ -29,8 +29,7 @@ void _assertFormulaValue(FormulaElement *elem, double expected)
 	cut_assert_not_null(formulaValue);
 	ItemDataPtr dataPtr = formulaValue->evaluate();
 	cppcut_assert_equal(ITEM_TYPE_DOUBLE, dataPtr->getItemType());
-	double actual;
-	dataPtr->get(&actual);
+	double actual = ItemDataUtils::getDouble(dataPtr);;
 	cppcut_assert_equal(expected, actual);
 }
 
@@ -41,8 +40,7 @@ void _assertFormulaValue(FormulaElement *elem, const char *expected)
 	cut_assert_not_null(formulaValue);
 	ItemDataPtr dataPtr = formulaValue->evaluate();
 	cppcut_assert_equal(ITEM_TYPE_STRING, dataPtr->getItemType());
-	string actual;
-	dataPtr->get(&actual);
+	string actual = ItemDataUtils::getString(dataPtr);
 	cppcut_assert_equal(string(expected), actual);
 }
 

@@ -2,6 +2,7 @@
 #include <cppcutter.h>
 
 #include "FormulaElement.h"
+#include "ItemDataUtils.h"
 
 namespace testFormulaElement {
 
@@ -203,8 +204,7 @@ void test_formulaValueInt(void)
 	FormulaValue formulaValue(num);
 	cppcut_assert_equal(true, formulaValue.isTerminalElement());
 	ItemDataPtr itemData = formulaValue.evaluate();
-	int actual;
-	itemData->get(&actual);
+	int actual = ItemDataUtils::getInt(itemData);
 	cppcut_assert_equal(num, actual);
 	cppcut_assert_equal(2, itemData->getUsedCount());
 }
@@ -215,8 +215,7 @@ void test_formulaValueString(void)
 	FormulaValue formulaValue(str);
 	cppcut_assert_equal(true, formulaValue.isTerminalElement());
 	ItemDataPtr itemData = formulaValue.evaluate();
-	string actual;
-	itemData->get(&actual);
+	string actual = ItemDataUtils::getString(itemData);
 	cppcut_assert_equal(str, actual);
 	cppcut_assert_equal(2, itemData->getUsedCount());
 }

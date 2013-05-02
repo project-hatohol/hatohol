@@ -374,30 +374,26 @@ void test_select(void)
 		                    NUM_COLUMNS_TEST);
 
 		// id
-		uint64_t id;
 		itemData = itemGroup->getItemAt(columnIdx++);
-		itemData->get(&id);
+		uint64_t id = ItemDataUtils::getUint64(itemData);
 		itrId = g_testDataIdIndexMap.find(id);
 		cppcut_assert_equal(false, itrId == g_testDataIdIndexMap.end(),
 		                    cut_message("id: 0x%"PRIx64, id));
 		srcDataIdx = itrId->second;
 
 		// age
-		int valInt;
 		itemData = itemGroup->getItemAt(columnIdx++);
-		itemData->get(&valInt);
+		int valInt = ItemDataUtils::getInt(itemData);
 		cppcut_assert_equal(AGE[srcDataIdx], valInt);
 
 		// name
-		string valStr;
 		itemData = itemGroup->getItemAt(columnIdx++);
-		itemData->get(&valStr);
+		string valStr = ItemDataUtils::getString(itemData);
 		cppcut_assert_equal(NAME[srcDataIdx], valStr.c_str());
 
 		// height
-		double valDouble;
 		itemData = itemGroup->getItemAt(columnIdx++);
-		itemData->get(&valDouble);
+		double valDouble = ItemDataUtils::getDouble(itemData);
 		cppcut_assert_equal(HEIGHT[srcDataIdx], valDouble);
 
 		// delete the element from idSet

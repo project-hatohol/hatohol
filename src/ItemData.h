@@ -99,7 +99,6 @@ public:
 	const ItemDataType &getItemType(void) const;
 	const char *getNativeTypeName(void) const;
 	virtual void set(void *src) = 0;
-	virtual void get(void *dst) const = 0;
 	virtual string getString(void) const = 0;
 	virtual bool isNull(void) const;
 	virtual void setNull(void);
@@ -166,10 +165,6 @@ public:
 		m_data = *static_cast<T *>(src);
 	}
 
-	virtual void get(void *dst) const {
-		*static_cast<T *>(dst) = m_data;
-	}
-
 	virtual string getString(void) const {
 		stringstream ss;
 		ss << m_data;
@@ -183,7 +178,7 @@ public:
 
 	virtual ItemData & operator =(const ItemData &itemData) {
 		if (isSameType(itemData)) {
-			itemData.get(&m_data);
+			m_data = cast(itemData)->get();
 			return *this;
 		}
 		THROW_ITEM_DATA_EXCEPTION_UNDEFINED_OPERATION("=", itemData);
