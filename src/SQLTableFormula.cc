@@ -62,7 +62,8 @@ bool SQLTableRowIteratorColumnsEqual::start(void)
 {
 	SQLTableElement *leftTable = m_otherTableCtx->tableElement;
 	ItemGroupPtr leftRow = leftTable->getActiveRow();
-	ItemDataPtr leftItem = leftRow->getItemAt(m_otherIndex);
+	// TODO: remove const_cast
+	ItemDataPtr leftItem = const_cast<ItemData *>(leftRow->getItemAt(m_otherIndex));
 	clearIndexingVariables();
 	m_itemDataIndex->find(leftItem, m_indexMatchedItems);
 	if (m_indexMatchedItems.empty())
@@ -641,9 +642,10 @@ ItemGroupPtr SQLTableInnerJoin::getActiveRow(void)
 	ItemGroupPtr leftGrpPtr = leftFormula->getActiveRow();
 	if (!leftGrpPtr.hasData())
 		return leftGrpPtr;
-	ItemData *leftData = leftGrpPtr->getItemAt(m_indexLeftJoinColumn);
+	const ItemData *leftData = leftGrpPtr->getItemAt(m_indexLeftJoinColumn);
 	ItemGroupPtr rightGrpPtr = rightFormula->getActiveRow();
-	ItemData *rightData = rightGrpPtr->getItemAt(m_indexRightJoinColumn);
+	const ItemData *rightData =
+	   rightGrpPtr->getItemAt(m_indexRightJoinColumn);
 	if (!rightGrpPtr.hasData())
 		return rightGrpPtr;
 

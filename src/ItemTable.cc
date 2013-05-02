@@ -254,9 +254,10 @@ bool ItemTable::crossJoinForeach(const ItemGroup *itemGroup, CrossJoinArg &arg)
 bool ItemTable::innerJoinForeachRTable(const ItemGroup *itemGroupRTable,
                                        InnerJoinArg &arg)
 {
-	ItemData *leftData =
+	const ItemData *leftData =
 	  arg.itemGroupLTable->getItemAt(arg.indexLeftColumn);
-	ItemData *rightData = itemGroupRTable->getItemAt(arg.indexRightColumn);
+	const ItemData *rightData =
+	   itemGroupRTable->getItemAt(arg.indexRightColumn);
 	if (*leftData != *rightData)
 		return true;
 
@@ -276,7 +277,7 @@ void ItemTable::updateIndex(ItemGroup *itemGroup)
 	for (size_t i = 0; i < m_indexedColumnIndexes.size(); i++) {
 		size_t columnIndex = m_indexedColumnIndexes[i];
 		ItemDataIndex *index = m_indexVector[columnIndex];
-		ItemData *itemData = itemGroup->getItemAt(columnIndex);
+		const ItemData *itemData = itemGroup->getItemAt(columnIndex);
 		if (!index->insert(itemData, itemGroup))
 			THROW_ASURA_EXCEPTION("Failed to make index.");
 	}

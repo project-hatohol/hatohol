@@ -172,8 +172,8 @@ int DBClient::getDBVersion(DBAgent *dbAgent, const ColumnDef *columnDef)
 	ASURA_ASSERT(
 	  itemGroup->getNumberOfItems() == 1,
 	  "itemGroup->getNumberOfItems: %zd", itemGroup->getNumberOfItems());
-	ItemInt *itemVersion =
-	  dynamic_cast<ItemInt *>(itemGroup->getItemAt(0));
+	const ItemInt *itemVersion =
+	  dynamic_cast<const ItemInt *>(itemGroup->getItemAt(0));
 	ASURA_ASSERT(itemVersion != NULL, "type: itemVersion: %s\n",
 	             DEMANGLED_TYPE_NAME(*itemVersion));
 	return itemVersion->get();

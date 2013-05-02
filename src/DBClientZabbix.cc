@@ -28,7 +28,8 @@ using namespace mlpl;
 // TODO: This macro is the identical to that in DBAgentSQLite3.cc
 //       we will clean up code later.
 #define DEFINE_AND_ASSERT(ITEM_DATA, ACTUAL_TYPE, VAR_NAME) \
-	ACTUAL_TYPE *VAR_NAME = dynamic_cast<ACTUAL_TYPE *>(ITEM_DATA); \
+	const ACTUAL_TYPE *VAR_NAME = \
+	  dynamic_cast<const ACTUAL_TYPE *>(ITEM_DATA); \
 	ASURA_ASSERT(VAR_NAME != NULL, "Failed to dynamic cast: %s -> %s", \
 	             DEMANGLED_TYPE_NAME(*ITEM_DATA), #ACTUAL_TYPE); \
 
@@ -1985,8 +1986,8 @@ int DBClientZabbix::getLatestGenerationId(void)
 	ASURA_ASSERT(
 	  itemGroup->getNumberOfItems() == 1,
 	  "itemGroup->getNumberOfItems: %zd", itemGroup->getNumberOfItems());
-	ItemInt *item =
-	  dynamic_cast<ItemInt *>(itemGroup->getItemAt(0));
+	const ItemInt *item =
+	  dynamic_cast<const ItemInt *>(itemGroup->getItemAt(0));
 	ASURA_ASSERT(item != NULL, "type: itemVersion: %s\n",
 	             DEMANGLED_TYPE_NAME(*item));
 	return item->get();

@@ -71,15 +71,15 @@ typedef ItemIdVector::iterator       ItemIdVectorIterator;
 typedef ItemIdVector::const_iterator ItemIdVectorConstIterator;
 
 class ItemData;
-typedef map<ItemId, ItemData *>     ItemDataMap;
-typedef ItemDataMap::iterator       ItemDataMapIterator;
-typedef ItemDataMap::const_iterator ItemDataMapConstIterator;
+typedef map<ItemId, const ItemData *> ItemDataMap;
+typedef ItemDataMap::iterator         ItemDataMapIterator;
+typedef ItemDataMap::const_iterator   ItemDataMapConstIterator;
 
-typedef multimap<ItemId, ItemData *>     ItemDataMultimap;
-typedef ItemDataMultimap::iterator       ItemDataMultimapIterator;
-typedef ItemDataMultimap::const_iterator ItemDataMultimapConstIterator;
+typedef multimap<ItemId, const ItemData *> ItemDataMultimap;
+typedef ItemDataMultimap::iterator         ItemDataMultimapIterator;
+typedef ItemDataMultimap::const_iterator   ItemDataMultimapConstIterator;
 
-typedef vector<ItemData *>             ItemDataVector;
+typedef vector<const ItemData *>       ItemDataVector;
 typedef ItemDataVector::iterator       ItemDataVectorIterator;
 typedef ItemDataVector::const_iterator ItemDataVectorConstIterator;
 

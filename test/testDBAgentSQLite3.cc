@@ -367,7 +367,7 @@ void test_select(void)
 	size_t srcDataIdx = 0;
 	map<uint64_t, size_t>::iterator itrId;
 	for (; it != groupList.end(); ++it, srcDataIdx++) {
-		ItemData *itemData;
+		const ItemData *itemData;
 		size_t columnIdx = 0;
 		const ItemGroup *itemGroup = *it;
 		cppcut_assert_equal(itemGroup->getNumberOfItems(),
@@ -442,7 +442,8 @@ void test_selectExStaticWithCond(void)
 	const ItemGroup *itemGroup = *itemList.begin();
 	cppcut_assert_equal((size_t)1, itemGroup->getNumberOfItems());
 
-	ItemUint64 *item = dynamic_cast<ItemUint64 *>(itemGroup->getItemAt(0));
+	const ItemUint64 *item =
+	   dynamic_cast<const ItemUint64 *>(itemGroup->getItemAt(0));
 	cppcut_assert_not_null(item);
 	cppcut_assert_equal(ID[targetRow], item->get());
 }

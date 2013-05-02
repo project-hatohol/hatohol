@@ -330,7 +330,8 @@ public:
 		}
 		ItemGroupPtr &itemGroupPtr =
 		  *m_columnInfo->currTargetItemGroupAddr;
-		return ItemDataPtr(itemGroupPtr->getItem(itemId));
+		// TODO: remove const_cast
+		return ItemDataPtr(const_cast<ItemData *>(itemGroupPtr->getItem(itemId)));
 	}
 
 	virtual ItemDataPtr getDataOfActiveRow(void)
@@ -340,7 +341,8 @@ public:
 		SQLTableElement *tableElement =
 		  m_columnInfo->tableInfo->tableElement;
 		ItemGroupPtr itemGroupPtr = tableElement->getActiveRow();
-		return ItemDataPtr(itemGroupPtr->getItemAt(m_columnIndex));
+		// TOOD: remove const_cast
+		return ItemDataPtr(const_cast<ItemData *>(itemGroupPtr->getItemAt(m_columnIndex)));
 	}
 
 	SQLColumnInfo *getColumnInfo(void) const
@@ -401,7 +403,7 @@ ItemDataPtr SQLOutputColumn::getItem(const ItemGroup *itemGroup) const
 	if (formulaInfo)
 		return formulaInfo->formula->evaluate();
 	if (columnInfo)
-		return itemGroup->getItem(columnDef->itemId);
+		return const_cast<ItemData *>(itemGroup->getItem(columnDef->itemId)); // TODO: remove const_cast
 	MLPL_BUG("formulaInfo and columnInfo are both NULL.");
 	return ItemDataPtr();
 }

@@ -28,7 +28,7 @@ using namespace std;
 class ItemTableUtils {
 public:
 	template<typename NativeType, typename ItemDataType>
-	static NativeType getFirstRowData(ItemTablePtr tablePtr,
+	static const NativeType &getFirstRowData(ItemTablePtr tablePtr,
 	                                  size_t columnIndex = 0)
 	{
 		const ItemGroupList &grpList = tablePtr->getItemGroupList();
@@ -39,8 +39,9 @@ public:
 		             "itemGroup:Items: %zd, columnIndex: %zd",
 		             itemGroup->getNumberOfItems() > columnIndex);
 
-		ItemDataType *itemData = dynamic_cast<ItemDataType *>
-		                           (itemGroup->getItemAt(columnIndex));
+		const ItemDataType *itemData =
+		   dynamic_cast<const ItemDataType *>
+		     (itemGroup->getItemAt(columnIndex));
 		ASURA_ASSERT(itemData,
 		   "Failed to dynamic_cast: required: %s, actual: %s",
 		   DEMANGLED_TYPE_NAME(ItemDataType),

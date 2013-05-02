@@ -85,8 +85,9 @@ static void _assertFormulaInWithVarNameT
 	size_t numExpected = expectedValues.size();
 	cppcut_assert_equal(numExpected, grpPtr->getNumberOfItems());
 	for (size_t i = 0; i < numExpected; i++) {
-		ItemData *data = grpPtr->getItemAt(i);
-		ItemDataType *item = dynamic_cast<ItemDataType *>(data);
+		const ItemData *data = grpPtr->getItemAt(i);
+		const ItemDataType *item =
+		   dynamic_cast<const ItemDataType *>(data);
 		cppcut_assert_not_null(item);
 		cppcut_assert_equal(expectedValues[i], item->get());
 	}

@@ -32,7 +32,7 @@ ItemGroup::ItemGroup(void)
 {
 }
 
-void ItemGroup::add(ItemData *data, bool doRef)
+void ItemGroup::add(const ItemData *data, bool doRef)
 {
 	if (m_freeze) {
 		THROW_ASURA_EXCEPTION("Object: freezed");
@@ -52,15 +52,15 @@ void ItemGroup::add(ItemData *data, bool doRef)
 	}
 
 	ItemId itemId = data->getId();
-	m_itemMap.insert(pair<ItemId, ItemData *>(itemId, data));
+	m_itemMap.insert(pair<ItemId, const ItemData *>(itemId, data));
 	m_itemVector.push_back(data);
 	if (doRef)
 		data->ref();
 }
 
-ItemData *ItemGroup::getItem(ItemId itemId) const
+const ItemData *ItemGroup::getItem(ItemId itemId) const
 {
-	ItemData *data = NULL;
+	const ItemData *data = NULL;
 	ItemDataMapConstIterator it = m_itemMap.find(itemId);
 	if (it != m_itemMap.end())
 		data = it->second;
@@ -73,15 +73,15 @@ ItemDataVector ItemGroup::getItems(ItemId itemId) const
 	pair<ItemDataMultimapConstIterator, ItemDataMultimapConstIterator>
 	  itPair = m_itemMap.equal_range(itemId);
 	for (; itPair.first != itPair.second; ++itPair.first) {
-		ItemData *item = (itPair.first)->second;
+		const ItemData *item = (itPair.first)->second;
 		v.push_back(item);
 	}
 	return v;
 }
 
-ItemData *ItemGroup::getItemAt(size_t index) const
+const ItemData *ItemGroup::getItemAt(size_t index) const
 {
-	ItemData *data = m_itemVector[index];
+	const ItemData *data = m_itemVector[index];
 	return data;
 }
 
@@ -148,7 +148,7 @@ ItemGroup::~ItemGroup()
 	// We don't need to take a lock, because this object is no longer used.
 	ItemDataMapIterator it = m_itemMap.begin();
 	for (; it != m_itemMap.end(); ++it) {
-		ItemData *data = it->second;
+		const ItemData *data = it->second;
 		data->unref();
 	}
 }

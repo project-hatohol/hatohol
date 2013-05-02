@@ -43,10 +43,10 @@ typedef ItemGroupList::const_iterator ItemGroupListConstIterator;
 class ItemGroup : public UsedCountable {
 public:
 	ItemGroup(void);
-	void add(ItemData *data, bool doRef = true);
-	ItemData *getItem(ItemId itemId) const;
+	void add(const ItemData *data, bool doRef = true);
+	const ItemData *getItem(ItemId itemId) const;
 	ItemDataVector getItems(ItemId itemId) const;
-	ItemData *getItemAt(size_t index) const;
+	const ItemData *getItemAt(size_t index) const;
 	size_t getNumberOfItems(void) const;
 	void freeze();
 	bool isFreezed(void) const;

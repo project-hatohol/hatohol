@@ -33,7 +33,7 @@ static ItemTable * addItems(T* srcTable, int numTable,
 template<typename T>
 static void _assertItemData(const ItemGroup *itemGroup, const T &expected, int &idx)
 {
-	ItemData *itemZ = itemGroup->getItemAt(idx);
+	const ItemData *itemZ = itemGroup->getItemAt(idx);
 	cut_assert_not_null(itemZ);
 	idx++;
 	const T &val = ItemDataUtils::get<T>(itemZ);
