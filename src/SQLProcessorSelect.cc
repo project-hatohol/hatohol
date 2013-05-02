@@ -340,7 +340,7 @@ public:
 		SQLTableElement *tableElement =
 		  m_columnInfo->tableInfo->tableElement;
 		ItemGroupPtr itemGroupPtr = tableElement->getActiveRow();
-		return ItemDataPtr(itemGroupPtr->getItemAt(m_columnIndex));
+		return itemGroupPtr->getItemAt(m_columnIndex);
 	}
 
 	SQLColumnInfo *getColumnInfo(void) const
