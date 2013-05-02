@@ -21,7 +21,7 @@
 class UsedCountable {
 public:
 	void ref(void) const;
-	void unref(void);
+	void unref(void) const;
 	int getUsedCount(void) const;
 
 protected:

@@ -27,7 +27,7 @@ void UsedCountable::ref(void) const
 	g_atomic_int_inc(&m_usedCount);
 }
 
-void UsedCountable::unref(void)
+void UsedCountable::unref(void) const
 {
 	if (g_atomic_int_dec_and_test(&m_usedCount))
 		delete this;
