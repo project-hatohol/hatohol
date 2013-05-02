@@ -533,7 +533,7 @@ void DBClientAsura::prepareSetupFunction(void)
 void DBClientAsura::addTriggerInfoBare(const TriggerInfo &triggerInfo)
 {
 	string condition = StringUtils::sprintf("id=%"PRIu64, triggerInfo.id);
-	InProcessItemGroupPtr row;
+	VariableItemGroupPtr row;
 	if (!isRecordExisting(TABLE_NAME_TRIGGERS, condition)) {
 		DBAgentInsertArg arg;
 		arg.tableName = TABLE_NAME_TRIGGERS;
@@ -588,7 +588,7 @@ void DBClientAsura::addTriggerInfoBare(const TriggerInfo &triggerInfo)
 void DBClientAsura::addEventInfoBare(const EventInfo &eventInfo)
 {
 	string condition = StringUtils::sprintf("id=%"PRIu64, eventInfo.id);
-	InProcessItemGroupPtr row;
+	VariableItemGroupPtr row;
 	if (!isRecordExisting(TABLE_NAME_EVENTS, condition)) {
 		DBAgentInsertArg arg;
 		arg.tableName = TABLE_NAME_EVENTS;

@@ -225,7 +225,7 @@ void ItemTable::joinForeachCore(ItemTable *newTable,
                                 const ItemGroup *itemGroupLTable,
                                 const ItemGroup *itemGroupRTable)
 {
-	InProcessItemGroupPtr newGroup;
+	VariableItemGroupPtr newGroup;
 	const ItemGroup *itemGroupArray[] = {
 	  itemGroupLTable, itemGroupRTable, NULL};
 	for (size_t index = 0; itemGroupArray[index] != NULL; index++) {

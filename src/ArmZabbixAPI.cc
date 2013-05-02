@@ -483,7 +483,7 @@ void ArmZabbixAPI::pushFunctionsCache(JsonParserAgent &parser)
 	startObject(parser, "functions");
 	int numFunctions = parser.countElements();
 	for (int i = 0; i < numFunctions; i++) {
-		InProcessItemGroupPtr itemGroup;
+		VariableItemGroupPtr itemGroup;
 		pushFunctionsCacheOne(parser, itemGroup, i);
 		m_ctx->functionsTablePtr->add(itemGroup);
 	}
@@ -494,7 +494,7 @@ void ArmZabbixAPI::parseAndPushTriggerData(JsonParserAgent &parser,
                                            ItemTablePtr &tablePtr, int index)
 {
 	startElement(parser, index);
-	InProcessItemGroupPtr grp;
+	VariableItemGroupPtr grp;
 	m_ctx->triggerid =
 	  pushUint64(parser, grp, "triggerid", ITEM_ID_ZBX_TRIGGERS_TRIGGERID);
 	pushString(parser, grp, "expression",  ITEM_ID_ZBX_TRIGGERS_EXPRESSION);
@@ -522,7 +522,7 @@ void ArmZabbixAPI::parseAndPushItemsData(JsonParserAgent &parser,
                                          ItemTablePtr &tablePtr, int index)
 {
 	startElement(parser, index);
-	InProcessItemGroupPtr grp;
+	VariableItemGroupPtr grp;
 	pushUint64(parser, grp, "itemid",       ITEM_ID_ZBX_ITEMS_ITEMID);
 	pushInt   (parser, grp, "type",         ITEM_ID_ZBX_ITEMS_TYPE);
 	pushString(parser, grp, "snmp_community",
@@ -589,7 +589,7 @@ void ArmZabbixAPI::parseAndPushHostsData(JsonParserAgent &parser,
                                          ItemTablePtr &tablePtr, int index)
 {
 	startElement(parser, index);
-	InProcessItemGroupPtr grp;
+	VariableItemGroupPtr grp;
 	pushUint64(parser, grp, "hostid",       ITEM_ID_ZBX_HOSTS_HOSTID);
 	pushUint64(parser, grp, "proxy_hostid", ITEM_ID_ZBX_HOSTS_PROXY_HOSTID);
 	pushString(parser, grp, "host",         ITEM_ID_ZBX_HOSTS_HOST);
@@ -646,7 +646,7 @@ void ArmZabbixAPI::parseAndPushEventsData(JsonParserAgent &parser,
                                           ItemTablePtr &tablePtr, int index)
 {
 	startElement(parser, index);
-	InProcessItemGroupPtr grp;
+	VariableItemGroupPtr grp;
 	pushUint64(parser, grp, "eventid",      ITEM_ID_ZBX_EVENTS_EVENTID);
 	pushInt   (parser, grp, "source",       ITEM_ID_ZBX_EVENTS_SOURCE);
 	pushInt   (parser, grp, "object",       ITEM_ID_ZBX_EVENTS_OBJECT);

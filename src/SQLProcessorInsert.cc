@@ -216,7 +216,7 @@ void SQLProcessorInsert::makeColumnDefValueMap(SQLInsertInfo &insertInfo)
 void SQLProcessorInsert::doInsetToTable(SQLInsertInfo &insertInfo)
 {
 	ItemDataPtr dataPtr;
-	InProcessItemGroupPtr grpPtr;
+	VariableItemGroupPtr grpPtr;
 	ItemIdValueMapIterator colValIt;
 	ColumnDefListConstIterator it;
 	const SQLTableStaticInfo *tableStaticInfo = m_ctx->tableStaticInfo;

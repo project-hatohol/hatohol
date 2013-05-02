@@ -156,7 +156,7 @@ void DBClientConfig::addTargetServer(MonitoringServerInfo *monitoringServerInfo)
 {
 	string condition = StringUtils::sprintf("id=%u",
 	                                        monitoringServerInfo->id);
-	InProcessItemGroupPtr row;
+	VariableItemGroupPtr row;
 	DBCLIENT_TRANSACTION_BEGIN() {
 		if (!isRecordExisting(TABLE_NAME_SERVERS, condition)) {
 			DBAgentInsertArg arg;

@@ -469,7 +469,7 @@ ItemGroupPtr SQLTableJoin::getActiveRow(void)
 		  leftFormula, rightFormula);
 	}
 
-	InProcessItemGroupPtr itemGroup;
+	VariableItemGroupPtr itemGroup;
 	ItemGroupPtr leftRow = leftFormula->getActiveRow();
 	for (size_t i = 0; i < leftRow->getNumberOfItems(); i++)
 		itemGroup->add(leftRow->getItemAt(i));

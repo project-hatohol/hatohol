@@ -1896,7 +1896,7 @@ void DBClientZabbix::tableInitializerSystem(DBAgent *dbAgent, void *data)
 	insArg.tableName = TABLE_NAME_SYSTEM;
 	insArg.numColumns = NUM_COLUMNS_SYSTEM;
 	insArg.columnDefs = COLUMN_DEF_SYSTEM;
-	InProcessItemGroupPtr row;
+	VariableItemGroupPtr row;
 	row->ADD_NEW_ITEM(Int, REPLICA_GENERATION_NONE); // trig.
 	row->ADD_NEW_ITEM(Int, REPLICA_GENERATION_NONE); // func.
 	row->ADD_NEW_ITEM(Int, REPLICA_GENERATION_NONE); // items
@@ -2007,7 +2007,7 @@ int DBClientZabbix::updateReplicaGeneration(int replicaTargetId)
 	insertArg.tableName = TABLE_NAME_REPLICA_GENERATION;
 	insertArg.numColumns = NUM_COLUMNS_REPLICA_GENERATION;
 	insertArg.columnDefs = COLUMN_DEF_REPLICA_GENERATION;
-	InProcessItemGroupPtr row;
+	VariableItemGroupPtr row;
 	row->ADD_NEW_ITEM(Int, newId);
 	row->ADD_NEW_ITEM(Uint64, currTime);
 	row->ADD_NEW_ITEM(Int, replicaTargetId);
@@ -2021,7 +2021,7 @@ int DBClientZabbix::updateReplicaGeneration(int replicaTargetId)
 	int columnIdx =
 	   REPLICA_TARGET_ID_SYSTEM_LATEST_COLUMNS_MAP[replicaTargetId];
 	updateArg.columnIndexes.push_back(columnIdx);
-	InProcessItemGroupPtr rowUpdate;
+	VariableItemGroupPtr rowUpdate;
 	rowUpdate->ADD_NEW_ITEM(Int, newId);
 	updateArg.row = rowUpdate;
 
@@ -2046,7 +2046,7 @@ void DBClientZabbix::addReplicatedItems(
 		arg.numColumns = numColumns;
 		arg.columnDefs = columnDefs;
 
-		InProcessItemGroupPtr row;
+		VariableItemGroupPtr row;
 		row->ADD_NEW_ITEM(Int, generationId);
 		for (size_t i = 0; i < itemGroup->getNumberOfItems(); i++)
 			row->add(itemGroup->getItemAt(i));

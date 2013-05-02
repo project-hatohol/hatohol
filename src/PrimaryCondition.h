@@ -73,7 +73,7 @@ public:
 private:
 	string       m_tableName;
 	string       m_columnName;
-	InProcessItemGroupPtr m_itemGroup;
+	VariableItemGroupPtr m_itemGroup;
 };
 
 #endif // PrimaryCondition_h

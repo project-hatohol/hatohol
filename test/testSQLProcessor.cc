@@ -331,7 +331,7 @@ private:
 		ItemTablePtr tablePtr;
 		setIndexes(tablePtr, COLUMN0_DEFS, NUM_COLUMN0_DEFS);
 		for (size_t i = 0; i < numTestData0; i++) {
-			InProcessItemGroupPtr grp;
+			VariableItemGroupPtr grp;
 			grp->add(new ItemInt(ITEM_ID_NUMBER,
 			                     testData0[i].number), false);
 			grp->add(new ItemString(ITEM_ID_NAME,
@@ -345,7 +345,7 @@ private:
 		ItemTablePtr tablePtr;
 		setIndexes(tablePtr, COLUMN1_DEFS, NUM_COLUMN1_DEFS);
 		for (size_t i = 0; i < numTestData1; i++) {
-			InProcessItemGroupPtr grp;
+			VariableItemGroupPtr grp;
 			grp->add(new ItemInt(ITEM_ID_AGE,
 			                     testData1[i].age), false);
 			grp->add(new ItemString(ITEM_ID_ANIMAL,
@@ -361,7 +361,7 @@ private:
 		ItemTablePtr tablePtr;
 		setIndexes(tablePtr, COLUMN2_DEFS, NUM_COLUMN2_DEFS);
 		for (size_t i = 0; i < numTestData2; i++) {
-			InProcessItemGroupPtr grp;
+			VariableItemGroupPtr grp;
 			grp->add(new ItemInt(ITEM_ID_MENTAL_AGE,
 			                     testData2[i].mentalAge), false);
 			grp->add(new ItemString(ITEM_ID_FAVORITE,

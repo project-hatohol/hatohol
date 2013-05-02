@@ -184,7 +184,7 @@ ItemTablePtr VirtualDataStoreZabbix::getHosts(void)
 VirtualDataStoreZabbix::VirtualDataStoreZabbix(void)
 {
 	ItemTable *table;
-	InProcessItemGroupPtr grp;
+	VariableItemGroupPtr grp;
 
 	//
 	// nodes
@@ -195,7 +195,7 @@ VirtualDataStoreZabbix::VirtualDataStoreZabbix(void)
 	// config
 	//
 	table = createStaticItemTable(GROUP_ID_ZBX_CONFIG);
-	grp = InProcessItemGroupPtr();
+	grp = VariableItemGroupPtr();
 	ADD(new ItemUint64(ITEM_ID_ZBX_CONFIG_CONFIGID, 1));
 	ADD(new ItemInt(ITEM_ID_ZBX_CONFIG_ALERT_HISTORY, 365));
 	ADD(new ItemInt(ITEM_ID_ZBX_CONFIG_EVENT_HISTORY, 365));
@@ -248,7 +248,7 @@ VirtualDataStoreZabbix::VirtualDataStoreZabbix(void)
 	// users
 	//
 	table = createStaticItemTable(GROUP_ID_ZBX_USERS);
-	grp = InProcessItemGroupPtr();
+	grp = VariableItemGroupPtr();
 	ADD(new ItemUint64(ITEM_ID_ZBX_USERS_USERID,  1));
 	ADD(new ItemString(ITEM_ID_ZBX_USERS_ALIAS,   "Admin"));
 	ADD(new ItemString(ITEM_ID_ZBX_USERS_NAME,    "Zabbix"));
@@ -267,7 +267,7 @@ VirtualDataStoreZabbix::VirtualDataStoreZabbix(void)
 	ADD(new ItemInt(ITEM_ID_ZBX_USERS_ROWS_PER_PAGE,  50 ));
 	table->add(grp);
 
-	grp = InProcessItemGroupPtr();
+	grp = VariableItemGroupPtr();
 	ADD(new ItemUint64(ITEM_ID_ZBX_USERS_USERID,  2));
 	ADD(new ItemString(ITEM_ID_ZBX_USERS_ALIAS,   "guest"));
 	ADD(new ItemString(ITEM_ID_ZBX_USERS_NAME,    "Default"));
@@ -290,7 +290,7 @@ VirtualDataStoreZabbix::VirtualDataStoreZabbix(void)
 	// usrgrp
 	//
 	table = createStaticItemTable(GROUP_ID_ZBX_USRGRP);
-	grp = InProcessItemGroupPtr();
+	grp = VariableItemGroupPtr();
 	ADD(new ItemUint64(ITEM_ID_ZBX_USRGRP_USRGRPID,  7));
 	ADD(new ItemString(ITEM_ID_ZBX_USRGRP_NAME, "Zabbix administrators"));
 	ADD(new ItemInt(ITEM_ID_ZBX_USRGRP_GUI_ACCESS,   0));
@@ -298,7 +298,7 @@ VirtualDataStoreZabbix::VirtualDataStoreZabbix(void)
 	ADD(new ItemInt(ITEM_ID_ZBX_USRGRP_DEBUG_MODE,   0));
 	table->add(grp);
 
-	grp = InProcessItemGroupPtr();
+	grp = VariableItemGroupPtr();
 	ADD(new ItemUint64(ITEM_ID_ZBX_USRGRP_USRGRPID,  8));
 	ADD(new ItemString(ITEM_ID_ZBX_USRGRP_NAME, "Guests"));
 	ADD(new ItemInt(ITEM_ID_ZBX_USRGRP_GUI_ACCESS,   0));
@@ -306,7 +306,7 @@ VirtualDataStoreZabbix::VirtualDataStoreZabbix(void)
 	ADD(new ItemInt(ITEM_ID_ZBX_USRGRP_DEBUG_MODE,   0));
 	table->add(grp);
 
-	grp = InProcessItemGroupPtr();
+	grp = VariableItemGroupPtr();
 	ADD(new ItemUint64(ITEM_ID_ZBX_USRGRP_USRGRPID,  9));
 	ADD(new ItemString(ITEM_ID_ZBX_USRGRP_NAME, "Disabled"));
 	ADD(new ItemInt(ITEM_ID_ZBX_USRGRP_GUI_ACCESS,   0));
@@ -314,7 +314,7 @@ VirtualDataStoreZabbix::VirtualDataStoreZabbix(void)
 	ADD(new ItemInt(ITEM_ID_ZBX_USRGRP_DEBUG_MODE,   0));
 	table->add(grp);
 
-	grp = InProcessItemGroupPtr();
+	grp = VariableItemGroupPtr();
 	ADD(new ItemUint64(ITEM_ID_ZBX_USRGRP_USRGRPID,  11));
 	ADD(new ItemString(ITEM_ID_ZBX_USRGRP_NAME, "Enabled debug mode"));
 	ADD(new ItemInt(ITEM_ID_ZBX_USRGRP_GUI_ACCESS,   0));
@@ -322,7 +322,7 @@ VirtualDataStoreZabbix::VirtualDataStoreZabbix(void)
 	ADD(new ItemInt(ITEM_ID_ZBX_USRGRP_DEBUG_MODE,   1));
 	table->add(grp);
 
-	grp = InProcessItemGroupPtr();
+	grp = VariableItemGroupPtr();
 	ADD(new ItemUint64(ITEM_ID_ZBX_USRGRP_USRGRPID,  12));
 	ADD(new ItemString(ITEM_ID_ZBX_USRGRP_NAME, "No access to the frontend"));
 	ADD(new ItemInt(ITEM_ID_ZBX_USRGRP_GUI_ACCESS,   2));
@@ -334,13 +334,13 @@ VirtualDataStoreZabbix::VirtualDataStoreZabbix(void)
 	// users_groups
 	//
 	table = createStaticItemTable(GROUP_ID_ZBX_USERS_GROUPS);
-	grp = InProcessItemGroupPtr();
+	grp = VariableItemGroupPtr();
 	ADD(new ItemUint64(ITEM_ID_ZBX_USERS_GROUPS_ID,       4));
 	ADD(new ItemUint64(ITEM_ID_ZBX_USERS_GROUPS_USRGRPID, 7));
 	ADD(new ItemUint64(ITEM_ID_ZBX_USERS_GROUPS_USERID,   1));
 	table->add(grp);
 
-	grp = InProcessItemGroupPtr();
+	grp = VariableItemGroupPtr();
 	ADD(new ItemUint64(ITEM_ID_ZBX_USERS_GROUPS_ID,       2));
 	ADD(new ItemUint64(ITEM_ID_ZBX_USERS_GROUPS_USRGRPID, 8));
 	ADD(new ItemUint64(ITEM_ID_ZBX_USERS_GROUPS_USERID,   2));
@@ -361,7 +361,7 @@ VirtualDataStoreZabbix::VirtualDataStoreZabbix(void)
 	// user_history
 	//
 	table = createStaticItemTable(GROUP_ID_ZBX_USER_HISTORY);
-	grp = InProcessItemGroupPtr();
+	grp = VariableItemGroupPtr();
 	ADD(new ItemUint64(ITEM_ID_ZBX_USER_HISTORY_USERHISTORYID, 1));
 	ADD(new ItemUint64(ITEM_ID_ZBX_USER_HISTORY_USERID,        1));
 	ADD(new ItemString(ITEM_ID_ZBX_USER_HISTORY_TITLE1, "History"));
@@ -409,25 +409,25 @@ VirtualDataStoreZabbix::VirtualDataStoreZabbix(void)
 	// groups
 	//
 	table = createStaticItemTable(GROUP_ID_ZBX_GROUPS);
-	grp = InProcessItemGroupPtr();
+	grp = VariableItemGroupPtr();
 	ADD(new ItemUint64(ITEM_ID_ZBX_GROUPS_GROUPID,  1));
 	ADD(new ItemString(ITEM_ID_ZBX_GROUPS_NAME,     "Templates"));
 	ADD(new ItemInt   (ITEM_ID_ZBX_GROUPS_INTERNAL, 0));
 	table->add(grp);
 
-	grp = InProcessItemGroupPtr();
+	grp = VariableItemGroupPtr();
 	ADD(new ItemUint64(ITEM_ID_ZBX_GROUPS_GROUPID,  2));
 	ADD(new ItemString(ITEM_ID_ZBX_GROUPS_NAME,     "Linux servers"));
 	ADD(new ItemInt   (ITEM_ID_ZBX_GROUPS_INTERNAL, 0));
 	table->add(grp);
 
-	grp = InProcessItemGroupPtr();
+	grp = VariableItemGroupPtr();
 	ADD(new ItemUint64(ITEM_ID_ZBX_GROUPS_GROUPID,  4));
 	ADD(new ItemString(ITEM_ID_ZBX_GROUPS_NAME,     "Zabbix servers"));
 	ADD(new ItemInt   (ITEM_ID_ZBX_GROUPS_INTERNAL, 0));
 	table->add(grp);
 
-	grp = InProcessItemGroupPtr();
+	grp = VariableItemGroupPtr();
 	ADD(new ItemUint64(ITEM_ID_ZBX_GROUPS_GROUPID,  5));
 	ADD(new ItemString(ITEM_ID_ZBX_GROUPS_NAME,     "Discovered hosts"));
 	ADD(new ItemInt   (ITEM_ID_ZBX_GROUPS_INTERNAL, 1));
@@ -452,7 +452,7 @@ VirtualDataStoreZabbix::VirtualDataStoreZabbix(void)
 	// scripts
 	//
 	table = createStaticItemTable(GROUP_ID_ZBX_SCRIPTS);
-	grp = InProcessItemGroupPtr();
+	grp = VariableItemGroupPtr();
 	ADD(new ItemUint64(ITEM_ID_ZBX_SCRIPTS_SCRIPTID,     1));
 	ADD(new ItemString(ITEM_ID_ZBX_SCRIPTS_NAME,         "Ping"));
 	ADD(new ItemString(ITEM_ID_ZBX_SCRIPTS_COMMAND,
@@ -466,7 +466,7 @@ VirtualDataStoreZabbix::VirtualDataStoreZabbix(void)
 	ADD(new ItemInt   (ITEM_ID_ZBX_SCRIPTS_EXECUTE_ON,   1));
 	table->add(grp);
 
-	grp = InProcessItemGroupPtr();
+	grp = VariableItemGroupPtr();
 	ADD(new ItemUint64(ITEM_ID_ZBX_SCRIPTS_SCRIPTID,     2));
 	ADD(new ItemString(ITEM_ID_ZBX_SCRIPTS_NAME,         "Traceroute"));
 	ADD(new ItemString(ITEM_ID_ZBX_SCRIPTS_COMMAND,
@@ -480,7 +480,7 @@ VirtualDataStoreZabbix::VirtualDataStoreZabbix(void)
 	ADD(new ItemInt   (ITEM_ID_ZBX_SCRIPTS_EXECUTE_ON,   1));
 	table->add(grp);
 
-	grp = InProcessItemGroupPtr();
+	grp = VariableItemGroupPtr();
 	ADD(new ItemUint64(ITEM_ID_ZBX_SCRIPTS_SCRIPTID,     3));
 	ADD(new ItemString(ITEM_ID_ZBX_SCRIPTS_NAME,
 	                   "Detect operating system"));
@@ -509,7 +509,7 @@ VirtualDataStoreZabbix::VirtualDataStoreZabbix(void)
 	// screens
 	//
 	table = createStaticItemTable(GROUP_ID_ZBX_SCREENS);
-	grp = InProcessItemGroupPtr();
+	grp = VariableItemGroupPtr();
 	ADD(new ItemUint64(ITEM_ID_ZBX_SCREENS_SCREENID,     3));
 	ADD(new ItemString(ITEM_ID_ZBX_SCREENS_NAME, "System performance"));
 	ADD(new ItemInt   (ITEM_ID_ZBX_SCREENS_HSIZE,        2));
@@ -517,7 +517,7 @@ VirtualDataStoreZabbix::VirtualDataStoreZabbix(void)
 	ADD(new ItemUint64(ITEM_ID_ZBX_SCREENS_TEMPLATEID,   10001));
 	table->add(grp);
 
-	grp = InProcessItemGroupPtr();
+	grp = VariableItemGroupPtr();
 	ADD(new ItemUint64(ITEM_ID_ZBX_SCREENS_SCREENID,     4));
 	ADD(new ItemString(ITEM_ID_ZBX_SCREENS_NAME, "Zabbix server health"));
 	ADD(new ItemInt   (ITEM_ID_ZBX_SCREENS_HSIZE,        2));
@@ -525,7 +525,7 @@ VirtualDataStoreZabbix::VirtualDataStoreZabbix(void)
 	ADD(new ItemUint64(ITEM_ID_ZBX_SCREENS_TEMPLATEID,   10047));
 	table->add(grp);
 
-	grp = InProcessItemGroupPtr();
+	grp = VariableItemGroupPtr();
 	ADD(new ItemUint64(ITEM_ID_ZBX_SCREENS_SCREENID,     5));
 	ADD(new ItemString(ITEM_ID_ZBX_SCREENS_NAME, "System performance"));
 	ADD(new ItemInt   (ITEM_ID_ZBX_SCREENS_HSIZE,        2));
@@ -533,7 +533,7 @@ VirtualDataStoreZabbix::VirtualDataStoreZabbix(void)
 	ADD(new ItemUint64(ITEM_ID_ZBX_SCREENS_TEMPLATEID,   10076));
 	table->add(grp);
 
-	grp = InProcessItemGroupPtr();
+	grp = VariableItemGroupPtr();
 	ADD(new ItemUint64(ITEM_ID_ZBX_SCREENS_SCREENID,     6));
 	ADD(new ItemString(ITEM_ID_ZBX_SCREENS_NAME, "System performance"));
 	ADD(new ItemInt   (ITEM_ID_ZBX_SCREENS_HSIZE,        2));
@@ -541,7 +541,7 @@ VirtualDataStoreZabbix::VirtualDataStoreZabbix(void)
 	ADD(new ItemUint64(ITEM_ID_ZBX_SCREENS_TEMPLATEID,   10077));
 	table->add(grp);
 
-	grp = InProcessItemGroupPtr();
+	grp = VariableItemGroupPtr();
 	ADD(new ItemUint64(ITEM_ID_ZBX_SCREENS_SCREENID,     7));
 	ADD(new ItemString(ITEM_ID_ZBX_SCREENS_NAME, "System performance"));
 	ADD(new ItemInt   (ITEM_ID_ZBX_SCREENS_HSIZE,        2));
@@ -549,7 +549,7 @@ VirtualDataStoreZabbix::VirtualDataStoreZabbix(void)
 	ADD(new ItemUint64(ITEM_ID_ZBX_SCREENS_TEMPLATEID,   10075));
 	table->add(grp);
 
-	grp = InProcessItemGroupPtr();
+	grp = VariableItemGroupPtr();
 	ADD(new ItemUint64(ITEM_ID_ZBX_SCREENS_SCREENID,     9));
 	ADD(new ItemString(ITEM_ID_ZBX_SCREENS_NAME, "System performance"));
 	ADD(new ItemInt   (ITEM_ID_ZBX_SCREENS_HSIZE,        2));
@@ -557,7 +557,7 @@ VirtualDataStoreZabbix::VirtualDataStoreZabbix(void)
 	ADD(new ItemUint64(ITEM_ID_ZBX_SCREENS_TEMPLATEID,   10074));
 	table->add(grp);
 
-	grp = InProcessItemGroupPtr();
+	grp = VariableItemGroupPtr();
 	ADD(new ItemUint64(ITEM_ID_ZBX_SCREENS_SCREENID,     10));
 	ADD(new ItemString(ITEM_ID_ZBX_SCREENS_NAME, "System performance"));
 	ADD(new ItemInt   (ITEM_ID_ZBX_SCREENS_HSIZE,        2));
@@ -565,7 +565,7 @@ VirtualDataStoreZabbix::VirtualDataStoreZabbix(void)
 	ADD(new ItemUint64(ITEM_ID_ZBX_SCREENS_TEMPLATEID,   10078));
 	table->add(grp);
 
-	grp = InProcessItemGroupPtr();
+	grp = VariableItemGroupPtr();
 	ADD(new ItemUint64(ITEM_ID_ZBX_SCREENS_SCREENID,     15));
 	ADD(new ItemString(ITEM_ID_ZBX_SCREENS_NAME, "MySQL performance"));
 	ADD(new ItemInt   (ITEM_ID_ZBX_SCREENS_HSIZE,        2));
@@ -573,7 +573,7 @@ VirtualDataStoreZabbix::VirtualDataStoreZabbix(void)
 	ADD(new ItemUint64(ITEM_ID_ZBX_SCREENS_TEMPLATEID,   10073));
 	table->add(grp);
 
-	grp = InProcessItemGroupPtr();
+	grp = VariableItemGroupPtr();
 	ADD(new ItemUint64(ITEM_ID_ZBX_SCREENS_SCREENID,     16));
 	ADD(new ItemString(ITEM_ID_ZBX_SCREENS_NAME, "Zabbix server"));
 	ADD(new ItemInt   (ITEM_ID_ZBX_SCREENS_HSIZE,        2));
@@ -595,7 +595,7 @@ VirtualDataStoreZabbix::VirtualDataStoreZabbix(void)
 	// sysmaps
 	//
 	table = createStaticItemTable(GROUP_ID_ZBX_SYSMAPS);
-	grp = InProcessItemGroupPtr();
+	grp = VariableItemGroupPtr();
 	ADD(new ItemUint64(ITEM_ID_ZBX_SYSMAPS_SYSMAPID,     1));
 	ADD(new ItemString(ITEM_ID_ZBX_SYSMAPS_NAME, "Local network"));
 	ADD(new ItemInt   (ITEM_ID_ZBX_SYSMAPS_WIDTH,        680));
@@ -634,7 +634,7 @@ VirtualDataStoreZabbix::VirtualDataStoreZabbix(void)
 	// drules
 	//
 	table = createStaticItemTable(GROUP_ID_ZBX_DRULES);
-	grp = InProcessItemGroupPtr();
+	grp = VariableItemGroupPtr();
 	ADD(new ItemUint64(ITEM_ID_ZBX_DRULES_DRULEID,   2));
 	ADD_AS_NULL(new ItemUint64(ITEM_ID_ZBX_DRULES_PROXY_HOSTID, 0));
 	ADD(new ItemString(ITEM_ID_ZBX_DRULES_NAME,      "Local network"));

@@ -143,7 +143,7 @@ void _assertInsert(uint64_t id, int age, const char *name, double height)
 	arg.tableName = TABLE_NAME_TEST;
 	arg.numColumns = NUM_COLUMNS_TEST;
 	arg.columnDefs = COLUMN_DEF_TEST;
-	InProcessItemGroupPtr row;
+	VariableItemGroupPtr row;
 	row->ADD_NEW_ITEM(Uint64, id);
 	row->ADD_NEW_ITEM(Int, age);
 	row->ADD_NEW_ITEM(String, name);
@@ -165,7 +165,7 @@ void _assertUpdate(uint64_t id, int age, const char *name, double height)
 	for (size_t i = IDX_TEST_TABLE_ID; i < NUM_COLUMNS_TEST; i++)
 		arg.columnIndexes.push_back(i);
 	arg.columnDefs = COLUMN_DEF_TEST;
-	InProcessItemGroupPtr row;
+	VariableItemGroupPtr row;
 	row->ADD_NEW_ITEM(Uint64, id);
 	row->ADD_NEW_ITEM(Int, age);
 	row->ADD_NEW_ITEM(String, name);

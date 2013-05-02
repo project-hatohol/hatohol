@@ -46,7 +46,7 @@ struct SQLWhereParser::PrivateContext {
 	ItemDataPtr betweenV0;
 	ItemDataPtr betweenV1;
 
-	InProcessItemGroupPtr inValues;
+	VariableItemGroupPtr inValues;
 	bool         openQuot;
 	int          nestCountForExists;
 	const char  *existsStatementBegin;
@@ -67,7 +67,7 @@ struct SQLWhereParser::PrivateContext {
 		betweenV0 = NULL;
 		betweenV1 = NULL;
 
-		inValues = InProcessItemGroupPtr();
+		inValues = VariableItemGroupPtr();
 		openQuot = false;
 
 		nestCountForExists = 0;

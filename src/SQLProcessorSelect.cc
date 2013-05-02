@@ -1082,7 +1082,7 @@ bool SQLProcessorSelect::makeGroupedTable(const ItemGroup *itemGroup,
 	PrivateContext *ctx = sqlProcSelect->m_ctx;
 
 	// make an ItemGroup for the target columns of GROUP BY
-	InProcessItemGroupPtr _targetItemGroup;
+	VariableItemGroupPtr _targetItemGroup;
 	for (size_t i = 0; i < ctx->groupByColumnIndexes.size(); i++) {
 		size_t targetIndex = ctx->groupByColumnIndexes[i];
 		_targetItemGroup->add(itemGroup->getItemAt(targetIndex));
