@@ -117,9 +117,8 @@ bool PrimaryConditionPicker::pickupFormulaIn
 	// add constants
 	const ItemGroupPtr itemGroup = formulaIn->getValues();
 	size_t numItems = itemGroup->getNumberOfItems();
-	// TODO: remove const_cast
 	for (size_t i = 0; i < numItems; i++)
-		primaryCondition->add(const_cast<ItemData *>(itemGroup->getItemAt(i)));
+		primaryCondition->add(itemGroup->getItemAt(i));
 
 	primaryConditionList.push_back(primaryCondition);
 	return true;
