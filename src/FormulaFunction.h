@@ -109,7 +109,7 @@ protected:
 	static const int NUM_ARGUMENTS_FUNC_SUM = 1;
 
 private:
-	ItemDataPtr m_dataPtr;
+	InProcessItemDataPtr m_dataPtr;
 };
 
 #endif // FormulaFunction_h

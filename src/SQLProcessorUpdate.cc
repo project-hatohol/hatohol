@@ -376,7 +376,8 @@ bool SQLProcessorUpdate::updateMatchingCell
 		return false;
 	}
 
-	*dataPtr = *srcDataPtr;
+	// TODO: check if this is safe
+	*const_cast<ItemData *>(&*dataPtr) = *srcDataPtr;
 	return true;
 }
 

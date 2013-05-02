@@ -25,6 +25,7 @@ using namespace mlpl;
 #include "ItemGroup.h"
 #include "ItemPtr.h"
 
-typedef ItemPtr<ItemData> ItemDataPtr;
+typedef ItemPtr<ItemData>       InProcessItemDataPtr;
+typedef ItemPtr<const ItemData> ItemDataPtr;
 
 #endif // #define ItemDataPtr_h

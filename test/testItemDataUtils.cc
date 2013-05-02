@@ -13,7 +13,7 @@ void test_createAsNumberInt(void)
 	string numberStr = StringUtils::sprintf("%d", number);
 	ItemDataPtr dataPtr = ItemDataUtils::createAsNumber(numberStr);
 	cppcut_assert_equal(true, dataPtr.hasData());
-	ItemInt *itemInt = dynamic_cast<ItemInt *>((ItemData *)dataPtr);
+	const ItemInt *itemInt = dynamic_cast<const ItemInt *>(&*dataPtr);
 	cppcut_assert_not_null(itemInt);
 	cppcut_assert_equal(number, itemInt->get());
 }

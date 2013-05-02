@@ -220,11 +220,11 @@ ItemDataPtr FormulaFuncSum::evaluate(void)
 		return dataPtr;
 
 	if (!m_dataPtr.hasData())
-		m_dataPtr = dataPtr;
+		m_dataPtr = InProcessItemDataPtr(dataPtr->clone(), false);
 	else 
 		*m_dataPtr += *dataPtr;
 
-	return m_dataPtr;
+	return ItemDataPtr(m_dataPtr);
 }
 
 void FormulaFuncSum::resetStatistics(void)

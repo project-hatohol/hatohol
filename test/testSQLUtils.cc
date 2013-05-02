@@ -36,8 +36,8 @@ void _assertCreateItemData(const ColumnDef *columnDefinition,
 	ss << data;
 	string value = ss.str();
 	ItemDataPtr dataPtr = SQLUtils::createItemData(columnDefinition, value);
-	ItemDataType *createdItemData =
-	  dynamic_cast<ItemDataType *>((ItemData *)dataPtr);
+	const ItemDataType *createdItemData =
+	  dynamic_cast<const ItemDataType *>(&*dataPtr);
 	cppcut_assert_not_null(createdItemData);
 	cppcut_assert_equal(testItemId, createdItemData->getId());
 	ValueType actual = createdItemData->get();
