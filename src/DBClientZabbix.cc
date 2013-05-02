@@ -1896,11 +1896,11 @@ void DBClientZabbix::tableInitializerSystem(DBAgent *dbAgent, void *data)
 	insArg.tableName = TABLE_NAME_SYSTEM;
 	insArg.numColumns = NUM_COLUMNS_SYSTEM;
 	insArg.columnDefs = COLUMN_DEF_SYSTEM;
-	insArg.row->add(new ItemInt(REPLICA_GENERATION_NONE), false); // trig.
-	insArg.row->add(new ItemInt(REPLICA_GENERATION_NONE), false); // func.
-	insArg.row->add(new ItemInt(REPLICA_GENERATION_NONE), false); // items
-	insArg.row->add(new ItemInt(REPLICA_GENERATION_NONE), false); // hosts
-	insArg.row->add(new ItemInt(REPLICA_GENERATION_NONE), false); // events
+	insArg.row->ADD_NEW_ITEM(Int, REPLICA_GENERATION_NONE);
+	insArg.row->ADD_NEW_ITEM(Int, REPLICA_GENERATION_NONE); // func.
+	insArg.row->ADD_NEW_ITEM(Int, REPLICA_GENERATION_NONE); // items
+	insArg.row->ADD_NEW_ITEM(Int, REPLICA_GENERATION_NONE); // hosts
+	insArg.row->ADD_NEW_ITEM(Int, REPLICA_GENERATION_NONE); // events
 	dbAgent->insert(insArg);
 }
 
