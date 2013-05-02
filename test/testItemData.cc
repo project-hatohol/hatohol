@@ -50,11 +50,16 @@ static ItemData *&y_item = g_item[1];
 static ItemData *&z_item = g_item[2];
 static ItemData *&w_item = g_item[3];
 
+// for assertion helpers
+static ItemData *&A_item = g_item[9];
+static ItemData *&B_item = g_item[8];
+static ItemData *&C_item = g_item[7];
+
 template<typename NativeType, class ItemDataType>
 static void _assertGet(NativeType val)
 {
-	ItemData *item = new ItemDataType(val);
-	NativeType readValue = ItemDataUtils::get<NativeType>(item);
+	A_item = new ItemDataType(val);
+	NativeType readValue = ItemDataUtils::get<NativeType>(A_item);
 	cppcut_assert_equal(val, readValue);
 }
 #define assertGet(NT,IDT,V) cut_trace((_assertGet<NT,IDT>(V)))
@@ -62,8 +67,8 @@ static void _assertGet(NativeType val)
 template<typename NativeType, class ItemDataType>
 static void _assertGetValue(NativeType val)
 {
-	ItemData *item = new ItemDataType(val);
-	ItemDataType *itemSub = dynamic_cast<ItemDataType *>(item);
+	A_item = new ItemDataType(val);
+	ItemDataType *itemSub = dynamic_cast<ItemDataType *>(A_item);
 	cppcut_assert_not_null(itemSub);
 	cppcut_assert_equal(val, itemSub->get());
 }
@@ -72,21 +77,21 @@ static void _assertGetValue(NativeType val)
 template<typename NativeType, class ItemDataType>
 static void _assertGetString(NativeType val)
 {
-	ItemData *item = new ItemDataType(val);
+	A_item = new ItemDataType(val);
 	stringstream ss;
 	ss << val;
-	cppcut_assert_equal(ss.str(), item->getString());
+	cppcut_assert_equal(ss.str(), A_item->getString());
 }
 #define assertGetString(NT,IDT,V) cut_trace((_assertGetString<NT,IDT>(V)))
 
 template <typename T, typename ItemDataType>
 void assertOperatorPlus(T &v0, T &v1)
 {
-	x_item = new ItemDataType(v0);
-	y_item = new ItemDataType(v1);
-	z_item = *x_item + *y_item;
-	cppcut_assert_not_null(z_item);
-	ItemDataType *item = dynamic_cast<ItemDataType *>(z_item);
+	A_item = new ItemDataType(v0);
+	B_item = new ItemDataType(v1);
+	C_item = *A_item + *B_item;
+	cppcut_assert_not_null(C_item);
+	ItemDataType *item = dynamic_cast<ItemDataType *>(C_item);
 	cppcut_assert_not_null(item);
 	cppcut_assert_equal(v0 + v1, item->get());
 }
@@ -107,15 +112,15 @@ void teardown(void)
 void test_constructWithoutSpecificId(void)
 {
 	int val = 2080;
-	ItemData *item = new ItemUint64(val);
-	cppcut_assert_equal(SYSTEM_ITEM_ID_ANONYMOUS, item->getId());
+	x_item = new ItemUint64(val);
+	cppcut_assert_equal(SYSTEM_ITEM_ID_ANONYMOUS, x_item->getId());
 }
 
 void test_getId(void)
 {
 	int id = 5;
-	ItemData *item = new ItemInt(id, -5);
-	cut_assert_equal_int(id, item->getId());
+	x_item = new ItemInt(id, -5);
+	cut_assert_equal_int(id, x_item->getId());
 }
 
 void test_RefUnref(void)
