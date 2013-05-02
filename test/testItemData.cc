@@ -118,7 +118,7 @@ void test_getId(void)
 	cut_assert_equal_int(id, item->getId());
 }
 
-void testRefUnref(void)
+void test_RefUnref(void)
 {
 	ItemIntTester *tester = new ItemIntTester(1, 10);
 	tester->destructorCalled = false;
