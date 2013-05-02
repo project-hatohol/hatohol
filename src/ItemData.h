@@ -101,6 +101,7 @@ public:
 	virtual string getString(void) const = 0;
 	virtual bool isNull(void) const;
 	virtual void setNull(void);
+	virtual ItemData *clone(void) const = 0;
 
 	virtual operator bool () const = 0;
 	virtual ItemData & operator =(const ItemData &itemData) = 0;
@@ -160,6 +161,10 @@ public:
 	}
 
 	// virtual methods (override)
+	virtual ItemData *clone(void) const {
+		return new ItemGeneric<T, ITEM_TYPE>(getId(), m_data);
+	}
+
 	virtual string getString(void) const {
 		stringstream ss;
 		ss << m_data;

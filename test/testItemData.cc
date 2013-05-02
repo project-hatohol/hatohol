@@ -133,6 +133,19 @@ void testRefUnref(void)
 	cppcut_assert_equal(true, tester->destructorCalled);
 }
 
+void test_Clone(void)
+{
+	const ItemId id = 5;
+	const int val = -8;
+	x_item = new ItemInt(id, val);
+	cppcut_assert_not_null(x_item);
+	y_item = x_item->clone();
+	cppcut_assert_not_null(y_item);
+	cppcut_assert_equal(id, y_item->getId());
+	cppcut_assert_equal(x_item->getItemType(), y_item->getItemType());
+	cppcut_assert_equal(val, ItemDataUtils::get<int>(y_item));
+}
+
 // -------------------------------------------------------------------------
 // get
 // -------------------------------------------------------------------------
