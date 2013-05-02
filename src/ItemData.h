@@ -98,7 +98,6 @@ public:
 	ItemId getId(void) const;
 	const ItemDataType &getItemType(void) const;
 	const char *getNativeTypeName(void) const;
-	virtual void set(void *src) = 0;
 	virtual string getString(void) const = 0;
 	virtual bool isNull(void) const;
 	virtual void setNull(void);
@@ -161,10 +160,6 @@ public:
 	}
 
 	// virtual methods (override)
-	virtual void set(void *src) {
-		m_data = *static_cast<T *>(src);
-	}
-
 	virtual string getString(void) const {
 		stringstream ss;
 		ss << m_data;

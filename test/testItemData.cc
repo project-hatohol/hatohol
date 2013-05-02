@@ -60,16 +60,6 @@ static void _assertGet(NativeType val)
 #define assertGet(NT,IDT,V) cut_trace((_assertGet<NT,IDT>(V)))
 
 template<typename NativeType, class ItemDataType>
-static void _assertSet(NativeType val, NativeType newVal)
-{
-	ItemData *item = new ItemDataType(val);
-	item->set(&newVal);
-	NativeType readValue = ItemDataUtils::get<NativeType>(item);
-	cppcut_assert_equal(newVal, readValue);
-}
-#define assertSet(NT,IDT,V,NV) cut_trace((_assertSet<NT,IDT>(V,NV)))
-
-template<typename NativeType, class ItemDataType>
 static void _assertGetValue(NativeType val)
 {
 	ItemData *item = new ItemDataType(val);
@@ -169,34 +159,6 @@ void test_getDouble(void)
 void test_getString(void)
 {
 	assertGet(string, ItemString, "test String");
-}
-
-// -------------------------------------------------------------------------
-// set
-// -------------------------------------------------------------------------
-void test_setBool(void)
-{
-	assertSet(bool, ItemBool, false, true);
-}
-
-void test_setInt(void)
-{
-	assertSet(int, ItemInt, 12345, 88);
-}
-
-void test_setUint64(void)
-{
-	assertSet(uint64_t, ItemUint64, 0xfedcba9876543210, 0x89abcdef01234567);
-}
-
-void test_setDouble(void)
-{
-	assertSet(double, ItemDouble, -5.2, -4.8);
-}
-
-void test_setString(void)
-{
-	assertSet(string, ItemString, "test String", "FOO");
 }
 
 // -------------------------------------------------------------------------
