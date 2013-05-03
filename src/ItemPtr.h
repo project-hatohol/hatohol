@@ -91,5 +91,3 @@ private:
 };
 
 #endif // #define ItemPtr_h
-
-
