@@ -33,6 +33,7 @@ struct SQLUpdateInfo : public SQLProcessorInfo {
 	const SQLTableStaticInfo *tableStaticInfo;
 	ItemTablePtr             tablePtr;
 
+	// TODO: replace this member with the global static object.
 	// convinient variable
 	ItemDataPtr      itemFalsePtr;
 
