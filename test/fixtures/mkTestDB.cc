@@ -1,3 +1,4 @@
+#include <glib-object.h>
 #include <cstdio>
 #include <cstdlib>
 #include "Asura.h"
@@ -49,6 +50,9 @@ int main(int argc, char *argv[])
 	printf("command: %s\n", command.c_str());
 	printf("DBName : %s\n", dbName.c_str());
 
+#ifndef GLIB_VERSION_2_36
+	g_type_init();
+#endif // GLIB_VERSION_2_36
 	asuraInit();
 	DBMaker dbMaker = NULL;
 	if (command == "config")
