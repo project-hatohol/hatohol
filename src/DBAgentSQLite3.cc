@@ -549,8 +549,10 @@ void DBAgentSQLite3::select(sqlite3 *db, DBAgentSelectArg &selectArg)
 		                      result);
 	}
 	
+	VariableItemTablePtr dataTable;
 	while ((result = sqlite3_step(stmt)) == SQLITE_ROW)
-		selectGetValuesIteration(selectArg, stmt);
+		selectGetValuesIteration(selectArg, stmt, dataTable);
+	selectArg.dataTable = dataTable;
 	if (result != SQLITE_DONE) {
 		sqlite3_finalize(stmt);
 		THROW_ASURA_EXCEPTION("Failed to call sqlite3_step(): %d",
@@ -646,7 +648,8 @@ void DBAgentSQLite3::deleteRows(sqlite3 *db, DBAgentDeleteArg &deleteArg)
 }
 
 void DBAgentSQLite3::selectGetValuesIteration(DBAgentSelectArg &selectArg,
-                                              sqlite3_stmt *stmt)
+                                              sqlite3_stmt *stmt,
+                                              VariableItemTablePtr &dataTable)
 {
 	VariableItemGroupPtr itemGroup;
 	for (size_t i = 0; i < selectArg.columnIndexes.size(); i++) {
@@ -654,9 +657,7 @@ void DBAgentSQLite3::selectGetValuesIteration(DBAgentSelectArg &selectArg,
 		const ColumnDef &columnDef = selectArg.columnDefs[idx];
 		itemGroup->add(getValue(stmt, i, columnDef.type));
 	}
-	VariableItemTablePtr dataTable;
 	dataTable->add(itemGroup);
-	selectArg.dataTable = dataTable;
 }
 
 ItemDataPtr DBAgentSQLite3::getValue(sqlite3_stmt *stmt,

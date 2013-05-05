@@ -73,7 +73,8 @@ protected:
 	static void select(sqlite3 *db, DBAgentSelectExArg &selectExArg);
 	static void deleteRows(sqlite3 *db, DBAgentDeleteArg &deleteArg);
 	static void selectGetValuesIteration(DBAgentSelectArg &selectArg,
-	                                     sqlite3_stmt *stmt);
+	                                     sqlite3_stmt *stmt,
+	                                     VariableItemTablePtr &dataTable);
 	static ItemDataPtr getValue(sqlite3_stmt *stmt, size_t index,
 	                            SQLColumnType columnType);
 	static void createIndex(sqlite3 *db,
