@@ -477,6 +477,7 @@ ItemGroupPtr SQLTableJoin::getActiveRow(void)
 	for (size_t i = 0; i < rightRow->getNumberOfItems(); i++)
 		itemGroup->add(rightRow->getItemAt(i));
 
+	itemGroup->freeze();
 	return ItemGroupPtr(itemGroup);
 }
 
