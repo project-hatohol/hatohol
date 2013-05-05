@@ -24,6 +24,12 @@ ItemPtr<ItemTable>::ItemPtr(void)
 	m_data = new ItemTable();
 }
 
+template<> ItemTablePtr::ItemPtr(void)
+: m_data(NULL)
+{
+	m_data = new ItemTable();
+}
+
 ItemTablePtr
 innerJoin(const ItemTablePtr &tablePtr0, const ItemTablePtr &tablePtr1,
           size_t indexLeftJoinColumn, size_t indexRightJoinColumn)
