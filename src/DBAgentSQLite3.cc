@@ -28,8 +28,6 @@ using namespace mlpl;
 #include "AsuraException.h"
 #include "ConfigManager.h"
 
-static const char *DEFAULT_SQLITE3_DB_PATH = "/tmp/asura.db";
-
 #define MAKE_SQL_STATEMENT_FROM_VAARG(LAST_ARG, STR_NAME) \
 string STR_NAME; \
 { \
@@ -82,7 +80,14 @@ DBDomainIdPathMap DBAgentSQLite3::PrivateContext::domainIdPathMap;
 void DBAgentSQLite3::init(void)
 {
 	PrivateContext::domainIdPathMap.clear();
-	defineDBPath(DEFAULT_DB_DOMAIN_ID, DEFAULT_SQLITE3_DB_PATH);
+
+	// Currently ConfigManger doesn't have init(), so calling
+	// getDefaultDBPath() that internall uses ConfigManager is no
+	// problem. However, if we add ConfigManager::init() in the future,
+	// The order of ConfigManager::init() and DBAgentSQLite3::init() has
+	// be well considered.
+	string dbPath = getDefaultDBPath(DEFAULT_DB_DOMAIN_ID);
+	defineDBPath(DEFAULT_DB_DOMAIN_ID, dbPath);
 }
 
 string DBAgentSQLite3::getDefaultDBPath(DBDomainId domainId)
