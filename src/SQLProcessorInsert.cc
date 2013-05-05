@@ -247,7 +247,8 @@ void SQLProcessorInsert::doInsertToTable(SQLInsertInfo &insertInfo)
 	}
 
 	// Insert row
-	// TODO: remove const_cast
+	// TODO: Consider how to change the on-memory DB.
+	//       Finally we have to remove the following const_cast.
 	VariableItemTablePtr tablePtr(const_cast<ItemTable *>(
 	  (const ItemTable *)(*tableStaticInfo->tableGetFunc)()));
 	tablePtr->add(grpPtr);
