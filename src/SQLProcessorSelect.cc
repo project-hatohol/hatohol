@@ -1069,15 +1069,14 @@ bool SQLProcessorSelect::pickupMatchingRows(const ItemGroup *itemGroup,
                                             SQLProcessorSelect *sqlProcSelect)
 {
 	PrivateContext *ctx = sqlProcSelect->m_ctx;
-	ItemGroup *nonConstItemGroup = const_cast<ItemGroup *>(itemGroup);
-	ctx->evalTargetItemGroup = nonConstItemGroup;
+	ctx->evalTargetItemGroup = itemGroup;
 	FormulaElement *formula = ctx->selectInfo->whereParser.getFormula();
 	ItemDataPtr result = formula->evaluate();
 	if (!result.hasData())
 		THROW_SQL_PROCESSOR_EXCEPTION("result has no data.");
 	if (*result == *ctx->selectInfo->itemFalsePtr)
 		return true;
-	ctx->workTable->add(nonConstItemGroup);
+	ctx->workTable->add(itemGroup);
 	return true;
 }
 
@@ -1120,8 +1119,7 @@ bool SQLProcessorSelect::makeTextRows(const ItemGroup *itemGroup,
 	else
 		ctx->makeTextRowsWriteMaskCount--;
 
-	ItemGroup *nonConstItemGroup = const_cast<ItemGroup *>(itemGroup);
-	ctx->evalTargetItemGroup = nonConstItemGroup;
+	ctx->evalTargetItemGroup = itemGroup;
 
 	StringVector textVector;
 	for (size_t i = 0; i < selectInfo->outputColumnVector.size(); i++) {
