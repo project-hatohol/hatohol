@@ -79,8 +79,6 @@ DBDomainIdPathMap DBAgentSQLite3::PrivateContext::domainIdPathMap;
 // ---------------------------------------------------------------------------
 void DBAgentSQLite3::init(void)
 {
-	PrivateContext::domainIdPathMap.clear();
-
 	// Currently ConfigManger doesn't have init(), so calling
 	// getDefaultDBPath() that internall uses ConfigManager is no
 	// problem. However, if we add ConfigManager::init() in the future,
