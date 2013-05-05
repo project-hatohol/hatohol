@@ -64,7 +64,7 @@ void ItemTable::add(ItemGroup *group, bool doRef)
 		group->freeze();
 
 	if (!m_groupList.empty()) {
-		ItemGroup *tail = m_groupList.back();
+		const ItemGroup *tail = m_groupList.back();
 		const ItemGroupType *groupType0 = tail->getItemGroupType();
 		const ItemGroupType *groupType1 = group->getItemGroupType();
 		if (groupType1 == NULL) {
@@ -90,6 +90,35 @@ void ItemTable::add(ItemGroup *group, bool doRef)
 	m_groupList.push_back(group);
 	if (doRef)
 		group->ref();
+}
+
+void ItemTable::add(const ItemGroup *group)
+{
+	// TODO: extract common part from this function and add(ItemGroup*)
+	ASURA_ASSERT(group->isFreezed(), "Group not freezed.");
+
+	const ItemGroupType *groupType1 = group->getItemGroupType();
+	ASURA_ASSERT(groupType1, "ItemGroupType is NULL.");
+
+	if (!m_groupList.empty()) {
+		const ItemGroup *tail = m_groupList.back();
+		const ItemGroupType *groupType0 = tail->getItemGroupType();
+		ASURA_ASSERT(*groupType0 == *groupType1,
+		             "ItemGroupTypes unmatched");
+	} else if (hasIndex()) {
+		size_t sizeOfGroup = group->getNumberOfItems();
+		if (m_indexVector.size() != sizeOfGroup) {
+			THROW_ASURA_EXCEPTION(
+			  "Index vector size (%zd) != group size (%zd)",
+			  m_indexVector.size(), sizeOfGroup);
+		}
+	}
+
+	if (hasIndex())
+		updateIndex(group);
+
+	m_groupList.push_back(group);
+	group->ref();
 }
 
 size_t ItemTable::getNumberOfColumns(void) const
@@ -175,7 +204,7 @@ void ItemTable::defineIndex(const vector<ItemDataIndexType> &indexTypeVector)
 		THROW_ASURA_EXCEPTION("m_indexVector is NOT empty.");
 
 	if (!m_groupList.empty()) {
-		ItemGroup *firstGroup = *m_groupList.begin();
+		const ItemGroup *firstGroup = *m_groupList.begin();
 		if (firstGroup->getNumberOfItems() != indexTypeVector.size()) {
 			THROW_ASURA_EXCEPTION(
 			  "m_groupList.size() [%zd] != "
@@ -216,7 +245,7 @@ ItemTable::~ItemTable()
 	// We don't need to take a lock, because this object is no longer used.
 	ItemGroupListIterator it = m_groupList.begin();
 	for (; it != m_groupList.end(); ++it) {
-		ItemGroup *group = *it;
+		const ItemGroup *group = *it;
 		group->unref();
 	}
 }
@@ -272,7 +301,7 @@ bool ItemTable::innerJoinForeach(const ItemGroup *itemGroup, InnerJoinArg &arg)
 	return true;
 }
 
-void ItemTable::updateIndex(ItemGroup *itemGroup)
+void ItemTable::updateIndex(const ItemGroup *itemGroup)
 {
 	for (size_t i = 0; i < m_indexedColumnIndexes.size(); i++) {
 		size_t columnIndex = m_indexedColumnIndexes[i];

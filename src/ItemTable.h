@@ -35,6 +35,7 @@ public:
 	ItemTable(void);
 	ItemTable(const ItemTable &itemTable);
 	void add(ItemGroup *group, bool doRef = true);
+	void add(const ItemGroup *group);
 	size_t getNumberOfColumns(void) const;
 	size_t getNumberOfRows(void) const;
 	ItemTable *innerJoin(const ItemTable *itemTable,
@@ -80,7 +81,7 @@ protected:
 	                             InnerJoinArg &arg);
 	static bool innerJoinForeachRTable(const ItemGroup *itemGroupRTable,
                                            InnerJoinArg &arg);
-	void updateIndex(ItemGroup *itemGroup);
+	void updateIndex(const ItemGroup *itemGroup);
 
 private:
 	ItemGroupList m_groupList;

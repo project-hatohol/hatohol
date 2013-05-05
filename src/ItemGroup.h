@@ -36,7 +36,7 @@ typedef map<ItemGroupId, ItemGroup *> ItemGroupMap;
 typedef ItemGroupMap::iterator        ItemGroupMapIterator;
 typedef ItemGroupMap::const_iterator  ItemGroupMapConstIterator;
 
-typedef list<ItemGroup *>             ItemGroupList;
+typedef list<const ItemGroup *>       ItemGroupList;
 typedef ItemGroupList::iterator       ItemGroupListIterator;
 typedef ItemGroupList::const_iterator ItemGroupListConstIterator;
 

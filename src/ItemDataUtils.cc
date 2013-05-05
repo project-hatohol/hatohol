@@ -139,7 +139,7 @@ ItemDataIndexType ItemDataIndex::getIndexType(void) const
 }
 
 bool ItemDataIndex::insert(const ItemData *itemData,
-                           ItemGroup* itemGroup)
+                           const ItemGroup* itemGroup)
 {
 	if (m_type == ITEM_DATA_INDEX_TYPE_UNIQUE) {
 		ItemDataPtrForIndex itemPtrForIndex(itemData, itemGroup);
