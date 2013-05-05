@@ -395,8 +395,7 @@ bool SQLProcessorUpdate::updateMatchingRows(const ItemGroup *itemGroup,
                                             PrivateContext *ctx)
 {
 	SQLUpdateInfo *updateInfo = ctx->updateInfo;
-	ItemGroup *nonConstItemGroup = const_cast<ItemGroup *>(itemGroup);
-	ctx->evalTargetItemGroup = nonConstItemGroup;
+	ctx->evalTargetItemGroup = itemGroup;
 	FormulaElement *formula = ctx->updateInfo->whereParser.getFormula();
 	ItemDataPtr result = formula->evaluate();
 	if (!result.hasData()) {
@@ -408,7 +407,7 @@ bool SQLProcessorUpdate::updateMatchingRows(const ItemGroup *itemGroup,
 
 	bool ret;
 	for (size_t i = 0; i < updateInfo->columnVector.size(); i++) {
-		ret = updateMatchingCell(nonConstItemGroup, ctx,
+		ret = updateMatchingCell(itemGroup, ctx,
 		                         updateInfo->columnVector[i],
 		                         updateInfo->valueVector[i]);
 		if (!ret)
