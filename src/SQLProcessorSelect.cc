@@ -1084,7 +1084,6 @@ bool SQLProcessorSelect::pickupMatchingRows(const ItemGroup *itemGroup,
 bool SQLProcessorSelect::makeGroupedTable(const ItemGroup *itemGroup,
                                           SQLProcessorSelect *sqlProcSelect)
 {
-	ItemGroup *nonConstItemGroup = const_cast<ItemGroup *>(itemGroup);
 	PrivateContext *ctx = sqlProcSelect->m_ctx;
 
 	// make an ItemGroup for the target columns of GROUP BY
@@ -1101,11 +1100,11 @@ bool SQLProcessorSelect::makeGroupedTable(const ItemGroup *itemGroup,
 	ItemGroupTableMapIterator it = groupedTableMap.find(targetItemGroup);
 	if (it == groupedTableMap.end()) {
 		VariableItemTablePtr tablePtr;
-		tablePtr->add(nonConstItemGroup);
+		tablePtr->add(itemGroup);
 		groupedTableMap[targetItemGroup] = tablePtr;
 	} else {
 		VariableItemTablePtr &tablePtr = it->second;
-		tablePtr->add(nonConstItemGroup);
+		tablePtr->add(itemGroup);
 	}
 	return true;
 }
