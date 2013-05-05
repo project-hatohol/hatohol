@@ -58,6 +58,7 @@ public:
 	virtual void deleteRows(DBAgentDeleteArg &deleteArg);
 
 protected:
+	static void checkDBPath(const string &dbPath);
 	static sqlite3 *openDatabase(const string &dbPath);
 	static void execSql(sqlite3 *db, const char *fmt, ...);
 	static void _execSql(sqlite3 *db, const string &sql);

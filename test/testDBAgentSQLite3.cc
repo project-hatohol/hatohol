@@ -8,10 +8,12 @@ using namespace mlpl;
 #include "DBAgentSQLite3.h"
 #include "AsuraException.h"
 #include "Helpers.h"
+#include "ConfigManager.h"
 
 namespace testDBAgentSQLite3 {
 
 static string g_dbPath = DBAgentSQLite3::getDBPath(DEFAULT_DB_DOMAIN_ID);
+static string g_originalDBPath;
 
 static const char *TABLE_NAME_TEST = "test_table";
 static const ColumnDef COLUMN_DEF_TEST[] = {
@@ -250,6 +252,16 @@ void setup(void)
 // ---------------------------------------------------------------------------
 // Test cases
 // ---------------------------------------------------------------------------
+void test_dbPathByEnv(void)
+{
+	const char *dbDir = getenv(ConfigManager::ASURA_DB_DIR_ENV_VAR_NAME);
+	if (!dbDir) {
+		cut_omit("Not set: %s", 
+	                 ConfigManager::ASURA_DB_DIR_ENV_VAR_NAME);
+	}
+	cppcut_assert_equal(0, strncmp(dbDir, g_dbPath.c_str(), strlen(dbDir)));
+}
+
 void test_testIsTableExisting(void)
 {
 	DEFINE_DBAGENT_WITH_INIT("FooTable.db", dbAgent);

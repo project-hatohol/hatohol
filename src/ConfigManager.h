@@ -34,6 +34,7 @@ static const size_t NUM_MAX_ZABBIX_SERVERS = 100;
 
 class ConfigManager {
 public:
+	static const char *ASURA_DB_DIR_ENV_VAR_NAME;
 	static ConfigManager *getInstance(void);
 
 	void addTargetServer(MonitoringServerInfo *monitoringServerInfo);

@@ -19,6 +19,7 @@
 #include <cstdio>
 #include <stdarg.h>
 #include <inttypes.h>
+#include <gio/gio.h>
 
 #include <MutexLock.h>
 #include <Logger.h>
@@ -80,10 +81,15 @@ DBDomainIdPathMap DBAgentSQLite3::PrivateContext::domainIdPathMap;
 void DBAgentSQLite3::init(void)
 {
 	// Currently ConfigManger doesn't have init(), so calling
-	// getDefaultDBPath() that internall uses ConfigManager is no
-	// problem. However, if we add ConfigManager::init() in the future,
+	// the following functions and getDefaultDBPath() that use
+	// ConfigManager is no problem.
+	// However, if we add ConfigManager::init() in the future,
 	// The order of ConfigManager::init() and DBAgentSQLite3::init() has
 	// be well considered.
+	ConfigManager *configMgr = ConfigManager::getInstance();
+	const string &dbDirectory = configMgr->getDatabaseDirectory();
+	checkDBPath(dbDirectory);
+
 	string dbPath = getDefaultDBPath(DEFAULT_DB_DOMAIN_ID);
 	defineDBPath(DEFAULT_DB_DOMAIN_ID, dbPath);
 }
@@ -254,6 +260,39 @@ void DBAgentSQLite3::deleteRows(DBAgentDeleteArg &deleteArg)
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
+void DBAgentSQLite3::checkDBPath(const string &dbPath)
+{
+	GFile *gfile = g_file_new_for_path(dbPath.c_str());
+
+	// check if the specified path is directory
+	GFileType type =
+	   g_file_query_file_type(gfile, G_FILE_QUERY_INFO_NONE, NULL);
+	if (type != G_FILE_TYPE_UNKNOWN && type != G_FILE_TYPE_DIRECTORY) {
+		g_object_unref(gfile);
+		THROW_ASURA_EXCEPTION("Specified dir is not directory:%s\n",
+		                      dbPath.c_str());
+	}
+
+	// try to the directory if it doesn't exist
+	if (type == G_FILE_TYPE_UNKNOWN) {
+		GError *error = NULL;
+		gboolean successed =
+		  g_file_make_directory_with_parents(gfile, NULL, &error);
+		if (!successed) {
+			string msg = error->message;
+			g_error_free(error);
+			g_object_unref(gfile);
+			THROW_ASURA_EXCEPTION(
+			  "Failed to create dir. for DB: %s: %s\n",
+			  dbPath.c_str(), msg.c_str());
+		}
+	}
+
+	// Should we check if we can write on the directory ?
+
+	g_object_unref(gfile);
+}
+
 sqlite3 *DBAgentSQLite3::openDatabase(const string &dbPath)
 {
 	sqlite3 *db = NULL;

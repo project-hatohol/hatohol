@@ -21,6 +21,7 @@ using namespace mlpl;
 #include "ConfigManager.h"
 #include "DBClientConfig.h"
 
+const char *ConfigManager::ASURA_DB_DIR_ENV_VAR_NAME = "ASURA_DB_DIR";
 static const char *DEFAULT_DATABASE_DIR = "/tmp";
 static const size_t DEFAULT_NUM_PRESERVED_REPLICA_GENERATION = 3;
 
@@ -90,7 +91,11 @@ ConfigManager::ConfigManager(void)
 : m_ctx(NULL)
 {
 	m_ctx = new PrivateContext();
-	m_ctx->databaseDirectory = DEFAULT_DATABASE_DIR;
+	const char *envDBDir = getenv(ASURA_DB_DIR_ENV_VAR_NAME);
+	if (envDBDir)
+		m_ctx->databaseDirectory = envDBDir;
+	else
+		m_ctx->databaseDirectory = DEFAULT_DATABASE_DIR;
 }
 
 ConfigManager::~ConfigManager()
