@@ -17,7 +17,7 @@ namespace testItemTablePtr {
 // ---------------------------------------------------------------------------
 void test_constructor(void)
 {
-	ItemTablePtr tablePtr;
+	VariableItemTablePtr tablePtr;
 	cut_assert_not_null((ItemTable *)tablePtr);
 }
 

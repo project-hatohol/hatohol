@@ -24,7 +24,8 @@ using namespace std;
 #include "ItemPtr.h"
 #include "ItemTable.h"
 
-typedef ItemPtr<ItemTable> ItemTablePtr;
+typedef ItemPtr<ItemTable>       VariableItemTablePtr;
+typedef ItemPtr<const ItemTable> ItemTablePtr;
 
 typedef list<ItemTablePtr>                 ItemTablePtrList;
 typedef list<ItemTablePtr>::iterator       ItemTablePtrListIterator;

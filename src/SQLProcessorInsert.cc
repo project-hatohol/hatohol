@@ -247,7 +247,9 @@ void SQLProcessorInsert::doInsertToTable(SQLInsertInfo &insertInfo)
 	}
 
 	// Insert row
-	ItemTablePtr tablePtr = (*tableStaticInfo->tableGetFunc)();
+	// TODO: remove const_cast
+	VariableItemTablePtr tablePtr(const_cast<ItemTable *>(
+	  (const ItemTable *)(*tableStaticInfo->tableGetFunc)()));
 	tablePtr->add(grpPtr);
 }
 

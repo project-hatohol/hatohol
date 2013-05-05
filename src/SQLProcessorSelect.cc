@@ -194,6 +194,9 @@ struct SQLProcessorSelect::PrivateContext {
 	vector<size_t>      groupByColumnIndexes;
 	ItemGroupTableMap   groupedTableMap;
 
+	// temporary variable (used in pickupMatchingRows)
+	VariableItemTablePtr workTable;
+
 	// methods
 	PrivateContext(SQLProcessorSelect *procSelect, const string &_dbName,
 	               TableNameStaticInfoMap &nameInfoMap,
@@ -1012,8 +1015,11 @@ void SQLProcessorSelect::selectMatchingRows(void)
 		selectInfo->selectedTable = selectInfo->joinedTable;
 		return;
 	}
+
+	m_ctx->workTable = VariableItemTablePtr();
 	selectInfo->joinedTable->foreach<SQLProcessorSelect *>
 	  (pickupMatchingRows, this);
+	m_ctx->selectInfo->selectedTable = m_ctx->workTable;
 }
 
 void SQLProcessorSelect::makeGroups(void)
@@ -1071,7 +1077,7 @@ bool SQLProcessorSelect::pickupMatchingRows(const ItemGroup *itemGroup,
 		THROW_SQL_PROCESSOR_EXCEPTION("result has no data.");
 	if (*result == *ctx->selectInfo->itemFalsePtr)
 		return true;
-	ctx->selectInfo->selectedTable->add(nonConstItemGroup);
+	ctx->workTable->add(nonConstItemGroup);
 	return true;
 }
 
@@ -1094,12 +1100,16 @@ bool SQLProcessorSelect::makeGroupedTable(const ItemGroup *itemGroup,
 	ItemGroupTableMap &groupedTableMap = ctx->groupedTableMap;
 	ItemGroupTableMapIterator it = groupedTableMap.find(targetItemGroup);
 	if (it == groupedTableMap.end()) {
-		ItemTablePtr tablePtr;
+		VariableItemTablePtr tablePtr;
 		tablePtr->add(nonConstItemGroup);
 		groupedTableMap[targetItemGroup] = tablePtr;
 	} else {
+		// TODO: remove const_cast
 		ItemTablePtr &tablePtr = it->second;
-		tablePtr->add(nonConstItemGroup);
+		//tablePtr->add(nonConstItemGroup);
+		ItemTable *itemTable =
+		  const_cast<ItemTable *>((const ItemTable *)tablePtr);
+		itemTable->add(nonConstItemGroup);
 	}
 	return true;
 }

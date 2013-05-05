@@ -46,7 +46,7 @@ VirtualDataStoreZabbix *VirtualDataStoreZabbix::getInstance(void)
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
-const ItemTablePtr VirtualDataStoreZabbix::getItemTable(ItemGroupId groupId)
+ItemTablePtr VirtualDataStoreZabbix::getItemTable(ItemGroupId groupId)
 {
 	// search from DataGenerators
 	DataGeneratorMapIterator generatorIt = 

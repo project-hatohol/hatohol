@@ -46,7 +46,7 @@ struct ArmZabbixAPI::PrivateContext
 	SoupSession   *session;
 	bool           gotTriggers;
 	uint64_t       triggerid;
-	ItemTablePtr   functionsTablePtr;
+	VariableItemTablePtr functionsTablePtr;
 	DBClientZabbix dbClientZabbix;
 	DBClientAsura  dbClientAsura;
 	volatile int   exitRequest;
@@ -134,19 +134,19 @@ ItemTablePtr ArmZabbixAPI::getTrigger(void)
 	g_object_unref(msg);
 	startObject(parser, "result");
 
-	ItemTablePtr tablePtr;
+	VariableItemTablePtr tablePtr;
 	int numTriggers = parser.countElements();
 	if (numTriggers < 1) {
 		MLPL_DBG("The number of triggers: %d\n", numTriggers);
-		return tablePtr;
+		return ItemTablePtr(tablePtr);
 	}
 
 	m_ctx->gotTriggers = false;
-	m_ctx->functionsTablePtr = ItemTablePtr();
+	m_ctx->functionsTablePtr = VariableItemTablePtr();
 	for (int i = 0; i < numTriggers; i++)
 		parseAndPushTriggerData(parser, tablePtr, i);
 	m_ctx->gotTriggers = true;
-	return tablePtr;
+	return ItemTablePtr(tablePtr);
 }
 
 ItemTablePtr ArmZabbixAPI::getFunctions(void)
@@ -156,7 +156,7 @@ ItemTablePtr ArmZabbixAPI::getFunctions(void)
 		  "Cache for 'functions' is empty. 'triggers' may not have "
 		  "been retrieved.");
 	}
-	return m_ctx->functionsTablePtr;
+	return ItemTablePtr(m_ctx->functionsTablePtr);
 }
 
 ItemTablePtr ArmZabbixAPI::getItems(void)
@@ -173,16 +173,16 @@ ItemTablePtr ArmZabbixAPI::getItems(void)
 	}
 	startObject(parser, "result");
 
-	ItemTablePtr tablePtr;
+	VariableItemTablePtr tablePtr;
 	int numData = parser.countElements();
 	if (numData < 1) {
 		MLPL_DBG("The number of hosts: %d\n", numData);
-		return tablePtr;
+		return ItemTablePtr(tablePtr);
 	}
 
 	for (int i = 0; i < numData; i++)
 		parseAndPushItemsData(parser, tablePtr, i);
-	return tablePtr;
+	return ItemTablePtr(tablePtr);
 }
 
 ItemTablePtr ArmZabbixAPI::getHosts(void)
@@ -199,16 +199,16 @@ ItemTablePtr ArmZabbixAPI::getHosts(void)
 	}
 	startObject(parser, "result");
 
-	ItemTablePtr tablePtr;
+	VariableItemTablePtr tablePtr;
 	int numData = parser.countElements();
 	if (numData < 1) {
 		MLPL_DBG("The number of hosts: %d\n", numData);
-		return tablePtr;
+		return ItemTablePtr(tablePtr);
 	}
 
 	for (int i = 0; i < numData; i++)
 		parseAndPushHostsData(parser, tablePtr, i);
-	return tablePtr;
+	return ItemTablePtr(tablePtr);
 }
 
 ItemTablePtr ArmZabbixAPI::getEvents(void)
@@ -225,16 +225,16 @@ ItemTablePtr ArmZabbixAPI::getEvents(void)
 	}
 	startObject(parser, "result");
 
-	ItemTablePtr tablePtr;
+	VariableItemTablePtr tablePtr;
 	int numData = parser.countElements();
 	if (numData < 1) {
 		MLPL_DBG("The number of events: %d\n", numData);
-		return tablePtr;
+		return ItemTablePtr(tablePtr);
 	}
 
 	for (int i = 0; i < numData; i++)
 		parseAndPushEventsData(parser, tablePtr, i);
-	return tablePtr;
+	return ItemTablePtr(tablePtr);
 }
 
 // ---------------------------------------------------------------------------
@@ -490,8 +490,8 @@ void ArmZabbixAPI::pushFunctionsCache(JsonParserAgent &parser)
 	parser.endObject();
 }
 
-void ArmZabbixAPI::parseAndPushTriggerData(JsonParserAgent &parser,
-                                           ItemTablePtr &tablePtr, int index)
+void ArmZabbixAPI::parseAndPushTriggerData
+  (JsonParserAgent &parser, VariableItemTablePtr &tablePtr, int index)
 {
 	startElement(parser, index);
 	VariableItemGroupPtr grp;
@@ -518,8 +518,8 @@ void ArmZabbixAPI::parseAndPushTriggerData(JsonParserAgent &parser,
 	parser.endElement();
 }
 
-void ArmZabbixAPI::parseAndPushItemsData(JsonParserAgent &parser,
-                                         ItemTablePtr &tablePtr, int index)
+void ArmZabbixAPI::parseAndPushItemsData
+  (JsonParserAgent &parser, VariableItemTablePtr &tablePtr, int index)
 {
 	startElement(parser, index);
 	VariableItemGroupPtr grp;
@@ -585,8 +585,8 @@ void ArmZabbixAPI::parseAndPushItemsData(JsonParserAgent &parser,
 	parser.endElement();
 }
 
-void ArmZabbixAPI::parseAndPushHostsData(JsonParserAgent &parser,
-                                         ItemTablePtr &tablePtr, int index)
+void ArmZabbixAPI::parseAndPushHostsData
+  (JsonParserAgent &parser, VariableItemTablePtr &tablePtr, int index)
 {
 	startElement(parser, index);
 	VariableItemGroupPtr grp;
@@ -642,8 +642,8 @@ void ArmZabbixAPI::parseAndPushHostsData(JsonParserAgent &parser,
 	parser.endElement();
 }
 
-void ArmZabbixAPI::parseAndPushEventsData(JsonParserAgent &parser,
-                                          ItemTablePtr &tablePtr, int index)
+void ArmZabbixAPI::parseAndPushEventsData
+  (JsonParserAgent &parser, VariableItemTablePtr &tablePtr, int index)
 {
 	startElement(parser, index);
 	VariableItemGroupPtr grp;

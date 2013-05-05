@@ -50,7 +50,7 @@ struct SQLFromParser::PrivateContext {
 
 	// variables used when join calculation
 	SQLSubQueryMode  subQueryMode;
-	ItemTablePtr     joinedTable;
+	VariableItemTablePtr joinedTable;
 
 	// constructor
 	PrivateContext(void)
@@ -183,7 +183,7 @@ ItemTablePtr SQLFromParser::doJoin(FormulaElement *whereFormula)
 {
 	// execute join loop
 	IterateTableRowForJoin(m_ctx->tableElementList.begin(), whereFormula);
-	return m_ctx->joinedTable;
+	return ItemTablePtr(m_ctx->joinedTable);
 }
 
 void SQLFromParser::add(const string &word, const string &wordLower)
@@ -313,7 +313,8 @@ void SQLFromParser::doJoineOneRow(FormulaElement *whereFormula)
 	if (!shouldAdd)
 		return;
 	// TODO: remove const_cast
-	m_ctx->joinedTable->add(const_cast<ItemGroup *>((const ItemGroup *)activeRow));
+	m_ctx->joinedTable->add(
+	  const_cast<ItemGroup *>((const ItemGroup *)activeRow));
 	if (m_ctx->subQueryMode == SQL_SUB_QUERY_EXISTS)
 		throw SQLFoundRowOnJoinException();
 }

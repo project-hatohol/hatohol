@@ -82,13 +82,13 @@ protected:
 	void pushFunctionsCacheOne(JsonParserAgent &parser,
 	                           ItemGroup *itemGroup, int index);
 	void parseAndPushTriggerData(JsonParserAgent &parser,
-	                             ItemTablePtr &tablePtr, int index);
+	                             VariableItemTablePtr &tablePtr, int index);
 	void parseAndPushItemsData(JsonParserAgent &parser,
-	                           ItemTablePtr &tablePtr, int index);
+	                           VariableItemTablePtr &tablePtr, int index);
 	void parseAndPushHostsData(JsonParserAgent &parser,
-	                           ItemTablePtr &tablePtr, int index);
+	                           VariableItemTablePtr &tablePtr, int index);
 	void parseAndPushEventsData(JsonParserAgent &parser,
-	                            ItemTablePtr &tablePtr, int index);
+	                            VariableItemTablePtr &tablePtr, int index);
 
 	void updateTriggers(void);
 	void updateFunctions(void);

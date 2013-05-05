@@ -328,7 +328,7 @@ private:
 	}
 
 	ItemTablePtr makeTable0(void) {
-		ItemTablePtr tablePtr;
+		VariableItemTablePtr tablePtr;
 		setIndexes(tablePtr, COLUMN0_DEFS, NUM_COLUMN0_DEFS);
 		for (size_t i = 0; i < numTestData0; i++) {
 			VariableItemGroupPtr grp;
@@ -338,11 +338,11 @@ private:
 			                        testData0[i].name), false);
 			tablePtr->add(grp);
 		}
-		return tablePtr;
+		return ItemTablePtr(tablePtr);
 	}
 
 	ItemTablePtr makeTable1(void) {
-		ItemTablePtr tablePtr;
+		VariableItemTablePtr tablePtr;
 		setIndexes(tablePtr, COLUMN1_DEFS, NUM_COLUMN1_DEFS);
 		for (size_t i = 0; i < numTestData1; i++) {
 			VariableItemGroupPtr grp;
@@ -354,11 +354,11 @@ private:
 			                        testData1[i].food), false);
 			tablePtr->add(grp);
 		}
-		return tablePtr;
+		return ItemTablePtr(tablePtr);
 	}
 
 	ItemTablePtr makeTable2(void) {
-		ItemTablePtr tablePtr;
+		VariableItemTablePtr tablePtr;
 		setIndexes(tablePtr, COLUMN2_DEFS, NUM_COLUMN2_DEFS);
 		for (size_t i = 0; i < numTestData2; i++) {
 			VariableItemGroupPtr grp;
@@ -368,7 +368,7 @@ private:
 			                        testData2[i].favorite), false);
 			tablePtr->add(grp);
 		}
-		return tablePtr;
+		return ItemTablePtr(tablePtr);
 	}
 
 };
@@ -602,8 +602,9 @@ void _assertInerJoinHelper(const string &statement)
 	cppcut_assert_equal(expectedRefCountOfResultTableInTheSimplestCase,
 	                    selectInfo.joinedTable->getUsedCount());
 
+	// TODO: remove const_cast
 	AssertInnerJoin<TestData0, TestData1, InnerJoinedRowsCheckerNumberAge>
-	  assertJoin((ItemTable *)selectInfo.selectedTable,
+	  assertJoin(const_cast<ItemTable *>((const ItemTable *)selectInfo.selectedTable),
 	             testData0, testData1, numTestData0, numTestData1);
 	assertJoin.run(assertJoinRunner);
 }
@@ -1070,8 +1071,9 @@ void test_crossJoin(void) {
 	cppcut_assert_equal(expectedRefCountOfResultTableInTheSimplestCase,
 	                    selectInfo.joinedTable->getUsedCount());
 
+	// TODO: remove const_cast
 	AssertCrossJoin<TestData0, TestData1>
-	  assertJoin((ItemTable *)selectInfo.selectedTable,
+	  assertJoin(const_cast<ItemTable *>((const ItemTable *)selectInfo.selectedTable),
 	             testData0, testData1, numTestData0, numTestData1);
 	assertJoin.run(assertJoinRunner);
 }

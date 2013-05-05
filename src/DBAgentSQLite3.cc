@@ -605,6 +605,7 @@ void DBAgentSQLite3::select(sqlite3 *db, DBAgentSelectExArg &selectExArg)
 		THROW_ASURA_EXCEPTION("Failed to call sqlite3_bind(): %d",
 		                      result);
 	}
+	VariableItemTablePtr dataTable;
 	while ((result = sqlite3_step(stmt)) == SQLITE_ROW) {
 		VariableItemGroupPtr itemGroup;
 		for (size_t index = 0; index < numColumns; index++) {
@@ -612,8 +613,9 @@ void DBAgentSQLite3::select(sqlite3 *db, DBAgentSelectExArg &selectExArg)
 			  getValue(stmt, index, selectExArg.columnTypes[index]);
 			itemGroup->add(itemDataPtr);
 		}
-		selectExArg.dataTable->add(itemGroup);
+		dataTable->add(itemGroup);
 	}
+	selectExArg.dataTable = dataTable;
 	if (result != SQLITE_DONE) {
 		sqlite3_finalize(stmt);
 		THROW_ASURA_EXCEPTION("Failed to call sqlite3_step(): %d",
@@ -652,7 +654,9 @@ void DBAgentSQLite3::selectGetValuesIteration(DBAgentSelectArg &selectArg,
 		const ColumnDef &columnDef = selectArg.columnDefs[idx];
 		itemGroup->add(getValue(stmt, i, columnDef.type));
 	}
-	selectArg.dataTable->add(itemGroup);
+	VariableItemTablePtr dataTable;
+	dataTable->add(itemGroup);
+	selectArg.dataTable = dataTable;
 }
 
 ItemDataPtr DBAgentSQLite3::getValue(sqlite3_stmt *stmt,

@@ -1719,13 +1719,16 @@ ItemTablePtr SQLProcessorZabbix::tableGetFuncTemplate(void)
 	const ItemGroupId itemGroupId = GROUP_ID;
 	VirtualDataStoreZabbix *dataStore =
 	  VirtualDataStoreZabbix::getInstance();
-	ItemTablePtr tablePtr = dataStore->getItemTable(itemGroupId);
+	const ItemTable *_itemTable = dataStore->getItemTable(itemGroupId);
+	// TODO: consider if the following 'cosnt_cast' is safe when
+	//       the ItemTable objects from the DataStore are used concurrently.
+	VariableItemTablePtr tablePtr(const_cast<ItemTable *>(_itemTable));
 
 	// TODO: table obtained by the zabbix data store will be 'const'
 	//       in the future. At that time, adding will be needed every
 	//       call.
 	if (tablePtr->hasIndex())
-		return tablePtr;
+		return ItemTablePtr(tablePtr);
 
 	// add Indexes
 	ItemGroupIdStaticInfoMapIterator it = 
@@ -1738,7 +1741,7 @@ ItemTablePtr SQLProcessorZabbix::tableGetFuncTemplate(void)
 	const SQLTableStaticInfo *staticInfo = it->second;
 	if (!staticInfo->indexTypeVector.empty())
 		tablePtr->defineIndex(staticInfo->indexTypeVector);
-	return tablePtr;
+	return ItemTablePtr(tablePtr);
 }
 
 // ---------------------------------------------------------------------------
