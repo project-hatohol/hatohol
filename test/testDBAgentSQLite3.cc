@@ -11,7 +11,7 @@ using namespace mlpl;
 
 namespace testDBAgentSQLite3 {
 
-static string dbPath = DBAgentSQLite3::getDBPath(DEFAULT_DB_DOMAIN_ID);
+static string g_dbPath = DBAgentSQLite3::getDBPath(DEFAULT_DB_DOMAIN_ID);
 
 static const char *TABLE_NAME_TEST = "test_table";
 static const ColumnDef COLUMN_DEF_TEST[] = {
@@ -80,8 +80,8 @@ static map<uint64_t, size_t> g_testDataIdIndexMap;
 
 static void deleteDB(void)
 {
-	unlink(dbPath.c_str());
-	cut_assert_not_exist_path(dbPath.c_str());
+	unlink(g_dbPath.c_str());
+	cut_assert_not_exist_path(g_dbPath.c_str());
 }
 
 #define DEFINE_DBAGENT_WITH_INIT(DB_NAME, OBJ_NAME) \
@@ -100,9 +100,9 @@ void _assertCreate(void)
 	dbAgent.createTable(arg);
 
 	// check if the table has been created successfully
-	cut_assert_exist_path(dbPath.c_str());
+	cut_assert_exist_path(g_dbPath.c_str());
 	string cmd = StringUtils::sprintf("sqlite3 %s \".table\"",
-	                                  dbPath.c_str());
+	                                  g_dbPath.c_str());
 	string output = executeCommand(cmd);
 	assertExist(TABLE_NAME_TEST, output);
 }
@@ -117,7 +117,7 @@ void _assertExistRecord(uint64_t id, int age, const char *name, double height)
 	// as negative intergers. So we use PRId64 in the following statement.
 	string cmd = StringUtils::sprintf(
 	               "sqlite3 %s \"select * from %s where id=%"PRId64 "\"",
-	               dbPath.c_str(), TABLE_NAME_TEST, id);
+	               g_dbPath.c_str(), TABLE_NAME_TEST, id);
 	string output = executeCommand(cmd);
 	
 	const ColumnDef &columnDefHeight =
@@ -244,7 +244,7 @@ void setup(void)
 {
 	g_testDataIdIndexMap.clear();
 	deleteDB();
-	DBAgentSQLite3::defineDBPath(DEFAULT_DB_DOMAIN_ID, dbPath);
+	DBAgentSQLite3::defineDBPath(DEFAULT_DB_DOMAIN_ID, g_dbPath);
 }
 
 // ---------------------------------------------------------------------------
@@ -534,11 +534,11 @@ void test_deleteStatic(void)
 	dbAgent.deleteRows(arg);
 
 	// check
-	cut_assert_exist_path(dbPath.c_str());
+	cut_assert_exist_path(g_dbPath.c_str());
 	const ColumnDef &columnDefId = COLUMN_DEF_TEST[IDX_TEST_TABLE_ID];
 	string cmd = StringUtils::sprintf(
 	               "sqlite3 %s \"SELECT %s FROM %s ORDER BY %s ASC\"",
-	               dbPath.c_str(), columnDefId.columnName,
+	               g_dbPath.c_str(), columnDefId.columnName,
 	               TABLE_NAME_TEST, columnDefId.columnName);
 	string output = executeCommand(cmd);
 	vector<string> actualIds;
