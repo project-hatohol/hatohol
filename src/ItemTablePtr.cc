@@ -17,8 +17,7 @@
 
 #include "ItemTablePtr.h"
 
-template<>
-ItemPtr<ItemTable>::ItemPtr(void)
+template<> VariableItemTablePtr::ItemPtr(void)
 : m_data(NULL)
 {
 	m_data = new ItemTable();
