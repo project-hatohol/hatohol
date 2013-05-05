@@ -1104,12 +1104,8 @@ bool SQLProcessorSelect::makeGroupedTable(const ItemGroup *itemGroup,
 		tablePtr->add(nonConstItemGroup);
 		groupedTableMap[targetItemGroup] = tablePtr;
 	} else {
-		// TODO: remove const_cast
-		ItemTablePtr &tablePtr = it->second;
-		//tablePtr->add(nonConstItemGroup);
-		ItemTable *itemTable =
-		  const_cast<ItemTable *>((const ItemTable *)tablePtr);
-		itemTable->add(nonConstItemGroup);
+		VariableItemTablePtr &tablePtr = it->second;
+		tablePtr->add(nonConstItemGroup);
 	}
 	return true;
 }
@@ -1395,8 +1391,10 @@ void SQLProcessorSelect::makeGroupByTables(void)
 
 	// copy the table pointers to groupedTables.
 	ItemGroupTableMapIterator it = m_ctx->groupedTableMap.begin();
-	for (; it != m_ctx->groupedTableMap.end(); ++it)
-		m_ctx->selectInfo->groupedTables.push_back(it->second);
+	for (; it != m_ctx->groupedTableMap.end(); ++it) {
+		ItemTablePtr tablePtr(it->second);
+		m_ctx->selectInfo->groupedTables.push_back(tablePtr);
+	}
 }
 
 bool SQLProcessorSelect::checkSectionParserChange(void)

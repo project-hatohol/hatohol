@@ -50,7 +50,7 @@ crossJoin     (const ItemTablePtr &tablePtr0, const ItemTablePtr &tablePtr1);
 template<> VariableItemTablePtr::ItemPtr(void);
 template<> ItemTablePtr::ItemPtr(void);
 
-typedef map<ItemGroupPtr, ItemTablePtr, ItemGroupPtrComparator>
+typedef map<ItemGroupPtr, VariableItemTablePtr, ItemGroupPtrComparator>
   ItemGroupTableMap;
 typedef ItemGroupTableMap::iterator ItemGroupTableMapIterator;
 
