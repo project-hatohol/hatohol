@@ -94,6 +94,11 @@ void DBAgentSQLite3::init(void)
 	defineDBPath(DEFAULT_DB_DOMAIN_ID, dbPath);
 }
 
+void DBAgentSQLite3::reset(void)
+{
+	PrivateContext::domainIdPathMap.clear();
+}
+
 string DBAgentSQLite3::getDefaultDBPath(DBDomainId domainId)
 {
 	ConfigManager *configMgr = ConfigManager::getInstance();

@@ -26,6 +26,7 @@
 class DBAgentSQLite3 : public DBAgent {
 public:
 	static void init(void);
+	static void reset(void);
 
 	/**
 	 * define database path

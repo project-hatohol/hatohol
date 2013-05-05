@@ -61,6 +61,7 @@ static void init(void)
 
 static void reset(void)
 {
+	DBAgentSQLite3::reset();
 	DBClientConfig::reset();
 	DBClientAsura::reset();
 	DBClientZabbix::reset();
