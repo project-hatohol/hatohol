@@ -37,6 +37,9 @@ struct SQLProcessorUpdate::PrivateContext {
 	bool               openQuot;
 	SeparatorCheckerWithCallback *whereParserSeparatorChecker;
 
+	// group to be being processed
+	ItemGroupPtr       evalTargetItemGroup;
+
 	// constructor
 	PrivateContext(TableNameStaticInfoMap &_tableNameStaticInfoMap)
 	: tableNameStaticInfoMap(_tableNameStaticInfoMap),
@@ -44,7 +47,8 @@ struct SQLProcessorUpdate::PrivateContext {
 	  updateInfo(NULL),
 	  section(UPDATE_PARSING_SECTION_UPDATE),
 	  openQuot(false),
-	  whereParserSeparatorChecker(NULL)
+	  whereParserSeparatorChecker(NULL),
+	  evalTargetItemGroup(NULL)
 	{
 	}
 
@@ -54,6 +58,7 @@ struct SQLProcessorUpdate::PrivateContext {
 		section = UPDATE_PARSING_SECTION_UPDATE;
 		openQuot = false;
 		whereParserSeparatorChecker = NULL;
+		evalTargetItemGroup = NULL;
 	}
 };
 
@@ -72,9 +77,11 @@ SQLProcessorUpdate::m_updateSubParsers[] = {
 class SQLFormulaUpdateColumnDataGetter : public FormulaVariableDataGetter {
 public:
 	SQLFormulaUpdateColumnDataGetter(const string &name,
-	                                 SQLUpdateInfo *updateInfo)
+	                                 SQLUpdateInfo *updateInfo,
+	                                 ItemGroupPtr &evalTargetItemGroup)
 	: m_name(name),
-	  m_updateInfo(updateInfo)
+	  m_updateInfo(updateInfo),
+	  m_evalTargetItemGroup(evalTargetItemGroup)
 	{
 	}
 
@@ -83,13 +90,14 @@ public:
 		ItemDataPtr dataPtr = 
 		  SQLUtils::getItemDataFromItemGroupWithColumnName
 		    (m_name, m_updateInfo->tableStaticInfo,
-		     m_updateInfo->evalTargetItemGroup);
+		     m_evalTargetItemGroup);
 		return dataPtr;
 	}
 
 private:
 	string         m_name;
 	SQLUpdateInfo *m_updateInfo;
+	ItemGroupPtr  &m_evalTargetItemGroup;
 };
 
 // ---------------------------------------------------------------------------
@@ -97,7 +105,6 @@ private:
 // ---------------------------------------------------------------------------
 SQLUpdateInfo::SQLUpdateInfo(ParsableString &_statement)
 : SQLProcessorInfo(_statement),
-  evalTargetItemGroup(NULL),
   itemFalsePtr(new ItemBool(false), false)
 {
 }
@@ -207,8 +214,8 @@ void SQLProcessorUpdate::getTable(SQLUpdateInfo &updateInfo)
 void SQLProcessorUpdate::doUpdate(SQLUpdateInfo &updateInfo)
 {
 	bool successed =
-	  updateInfo.tablePtr->foreach<SQLUpdateInfo&>
-	                                (updateMatchingRows, updateInfo);
+	  updateInfo.tablePtr->foreach<PrivateContext *>
+	                                (updateMatchingRows, m_ctx);
 	if (!successed) {
 		THROW_SQL_PROCESSOR_EXCEPTION(
 		  "Failed to search matched rows.");
@@ -258,7 +265,7 @@ void SQLProcessorUpdate::parsePostOneSet(void)
 	SQLWhereParser &whereParser = m_ctx->updateInfo->whereParser;
 	m_ctx->whereParserSeparatorChecker = whereParser.getSeparatorChecker();
 	whereParser.setColumnDataGetterFactory(formulaColumnDataGetterFactory,
-	                                       m_ctx->updateInfo);
+	                                       m_ctx);
 }
 
 void SQLProcessorUpdate::parseWhere(void)
@@ -351,25 +358,28 @@ FormulaVariableDataGetter *
 SQLProcessorUpdate::formulaColumnDataGetterFactory(const string &name,
                                                    void *priv)
 {
-	SQLUpdateInfo *updateInfo = static_cast<SQLUpdateInfo *>(priv);
-	return new SQLFormulaUpdateColumnDataGetter(name, updateInfo);
+	PrivateContext *ctx = static_cast<PrivateContext *>(priv);
+	SQLUpdateInfo *updateInfo = ctx->updateInfo;
+	return new SQLFormulaUpdateColumnDataGetter(name, updateInfo,
+	                                            ctx->evalTargetItemGroup);
 }
 
 bool SQLProcessorUpdate::updateMatchingCell
-  (const ItemGroup *itemGroup, SQLUpdateInfo &updateInfo,
+  (const ItemGroup *itemGroup, PrivateContext *ctx,
    string &columnName, string &value)
 {
+	SQLUpdateInfo *updateInfo = ctx->updateInfo;
 	ItemDataPtr dataPtr = 
 	  SQLUtils::getItemDataFromItemGroupWithColumnName
-	    (columnName, updateInfo.tableStaticInfo,
-	     updateInfo.evalTargetItemGroup);
+	    (columnName, updateInfo->tableStaticInfo,
+	     ctx->evalTargetItemGroup);
 	if (!dataPtr.hasData()) {
 		MLPL_DBG("result has no data.\n");
 		return false;
 	}
 
 	const ColumnDef *columnDef =
-	  SQLUtils::getColumnDef(columnName, updateInfo.tableStaticInfo);
+	  SQLUtils::getColumnDef(columnName, updateInfo->tableStaticInfo);
 	ItemDataPtr srcDataPtr = SQLUtils::createItemData(columnDef, value);
 	if (!srcDataPtr.hasData()) {
 		MLPL_DBG("result has no data.\n");
@@ -382,24 +392,25 @@ bool SQLProcessorUpdate::updateMatchingCell
 }
 
 bool SQLProcessorUpdate::updateMatchingRows(const ItemGroup *itemGroup,
-                                            SQLUpdateInfo &updateInfo)
+                                            PrivateContext *ctx)
 {
+	SQLUpdateInfo *updateInfo = ctx->updateInfo;
 	ItemGroup *nonConstItemGroup = const_cast<ItemGroup *>(itemGroup);
-	updateInfo.evalTargetItemGroup = nonConstItemGroup;
-	FormulaElement *formula = updateInfo.whereParser.getFormula();
+	ctx->evalTargetItemGroup = nonConstItemGroup;
+	FormulaElement *formula = ctx->updateInfo->whereParser.getFormula();
 	ItemDataPtr result = formula->evaluate();
 	if (!result.hasData()) {
 		MLPL_DBG("result has no data.\n");
 		return false;
 	}
-	if (*result == *updateInfo.itemFalsePtr)
+	if (*result == *updateInfo->itemFalsePtr)
 		return true;
 
 	bool ret;
-	for (size_t i = 0; i < updateInfo.columnVector.size(); i++) {
-		ret = updateMatchingCell(nonConstItemGroup, updateInfo,
-		                         updateInfo.columnVector[i],
-		                         updateInfo.valueVector[i]);
+	for (size_t i = 0; i < updateInfo->columnVector.size(); i++) {
+		ret = updateMatchingCell(nonConstItemGroup, ctx,
+		                         updateInfo->columnVector[i],
+		                         updateInfo->valueVector[i]);
 		if (!ret)
 			return false;
 	}

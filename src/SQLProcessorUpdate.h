@@ -33,9 +33,6 @@ struct SQLUpdateInfo : public SQLProcessorInfo {
 	const SQLTableStaticInfo *tableStaticInfo;
 	ItemTablePtr             tablePtr;
 
-	// group to be being processed
-	ItemGroup       *evalTargetItemGroup;
-
 	// convinient variable
 	ItemDataPtr      itemFalsePtr;
 
@@ -112,9 +109,9 @@ protected:
 	static FormulaVariableDataGetter *
 	  formulaColumnDataGetterFactory(const string &name, void *priv);
 	static bool updateMatchingRows(const ItemGroup *itemGroup,
-	                               SQLUpdateInfo &updateInfo);
+	                               PrivateContext *ctx);
 	static bool updateMatchingCell(const ItemGroup *itemGroup,
-	                               SQLUpdateInfo &updateInfo,
+	                               PrivateContext *ctx,
 	                               string &columnName, string &value);
 
 private:

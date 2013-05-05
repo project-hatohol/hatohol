@@ -94,7 +94,7 @@ public:
 	static ItemDataPtr
 	  getItemDataFromItemGroupWithColumnName
 	    (string &columnName, const SQLTableStaticInfo *tableStaticInfo,
-	     ItemGroup *itemGroup);
+	     const ItemGroup *itemGroup);
 
 	static void decomposeTableAndColumn(const string &fieldName,
 	                                    string &tableName,
