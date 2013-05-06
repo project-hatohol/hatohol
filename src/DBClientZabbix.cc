@@ -37,6 +37,8 @@ const int DBClientZabbix::DB_VERSION = 2;
 const int DBClientZabbix::NUM_PRESERVED_GENRATIONS_TRIGGERS = 3;
 const int DBClientZabbix::REPLICA_GENERATION_NONE = -1;
 
+const uint64_t DBClientZabbix::EVENT_ID_NOT_FOUND = -1;
+
 static const char *TABLE_NAME_SYSTEM = "system";
 static const char *TABLE_NAME_REPLICA_GENERATION = "replica_generation";
 static const char *TABLE_NAME_TRIGGERS_RAW_2_0 = "triggers_raw_2_0";
@@ -1884,6 +1886,29 @@ void DBClientZabbix::getEventsAsAsuraFormat(EventInfoList &eventInfoList)
 		   itemGroup->getItemAt(idx++), ItemInt, itemNs);
 		eventInfo.time.tv_nsec = itemNs->get();
 	}
+}
+
+uint64_t DBClientZabbix::getLastEventId(void)
+{
+	const ColumnDef &columnDefEventId = 
+	  COLUMN_DEF_EVENTS_RAW_2_0[IDX_EVENTS_RAW_2_0_EVENTID];
+
+	DBAgentSelectExArg arg;
+	arg.tableName = TABLE_NAME_EVENTS_RAW_2_0;
+	arg.statements.push_back(
+	  StringUtils::sprintf("max(%s)", columnDefEventId.columnName));
+	arg.columnTypes.push_back(columnDefEventId.type);
+
+	DBCLIENT_TRANSACTION_BEGIN() {
+		select(arg);
+	} DBCLIENT_TRANSACTION_END();
+
+	if (arg.dataTable->getNumberOfRows() == 0)
+		return EVENT_ID_NOT_FOUND;
+
+	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
+	const ItemData *lastEventId = (*grpList.begin())->getItemAt(0);
+	return ItemDataUtils::getUint64(lastEventId);
 }
 
 // ---------------------------------------------------------------------------

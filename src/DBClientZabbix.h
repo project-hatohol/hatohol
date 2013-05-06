@@ -37,6 +37,8 @@ public:
 	static const int NUM_PRESERVED_GENRATIONS_TRIGGERS;
 	static const int REPLICA_GENERATION_NONE;
 
+	static const uint64_t EVENT_ID_NOT_FOUND;
+
 	static void init(void);
 	static void reset(void);
 	static DBDomainId getDBDomainId(int zabbixServerId);
@@ -53,6 +55,14 @@ public:
 
 	void getTriggersAsAsuraFormat(TriggerInfoList &triggerInfoList);
 	void getEventsAsAsuraFormat(EventInfoList &eventInfoList);
+
+	/**
+	 * get the last (biggest) event ID in the database.
+	 * @return
+	 * The last event ID. If the database has no event data,
+	 * EVENT_ID_NOT_FOUND is returned.
+	 */
+	uint64_t getLastEventId(void);
 
 protected:
 	static void tableInitializerSystem(DBAgent *dbAgent, void *data);
