@@ -211,9 +211,9 @@ ItemTablePtr ArmZabbixAPI::getHosts(void)
 	return ItemTablePtr(tablePtr);
 }
 
-ItemTablePtr ArmZabbixAPI::getEvents(void)
+ItemTablePtr ArmZabbixAPI::getEvents(uint64_t eventIdOffset)
 {
-	SoupMessage *msg = queryEvent();
+	SoupMessage *msg = queryEvent(eventIdOffset);
 	if (!msg)
 		THROW_DATA_STORE_EXCEPTION("Failed to query hosts.");
 
@@ -359,7 +359,7 @@ SoupMessage *ArmZabbixAPI::queryHost(void)
 	return queryCommon(agent);
 }
 
-SoupMessage *ArmZabbixAPI::queryEvent(void)
+SoupMessage *ArmZabbixAPI::queryEvent(uint64_t eventIdOffset)
 {
 	JsonBuilderAgent agent;
 	agent.startObject();
@@ -368,6 +368,8 @@ SoupMessage *ArmZabbixAPI::queryEvent(void)
 
 	agent.startObject("params");
 	agent.add("output", "extend");
+	string eventIdStr = StringUtils::sprintf("%"PRId64, eventIdOffset);
+	agent.add("eventid_from", eventIdStr.c_str());
 	agent.endObject(); // params
 
 	agent.add("auth", m_ctx->authToken);
@@ -688,7 +690,13 @@ void ArmZabbixAPI::updateHosts(void)
 
 void ArmZabbixAPI::updateEvents(void)
 {
-	ItemTablePtr tablePtr = getEvents();
+	uint64_t eventIdOffset;
+	uint64_t lastEventId = m_ctx->dbClientZabbix.getLastEventId();
+	if (lastEventId == DBClientZabbix::EVENT_ID_NOT_FOUND)
+		eventIdOffset = 0;
+	else
+		eventIdOffset = lastEventId + 1;
+	ItemTablePtr tablePtr = getEvents(eventIdOffset);
 	m_ctx->dbClientZabbix.addEventsRaw2_0(tablePtr);
 }
 

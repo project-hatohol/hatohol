@@ -40,7 +40,7 @@ public:
 	ItemTablePtr getFunctions(void);
 	ItemTablePtr getItems(void);
 	ItemTablePtr getHosts(void);
-	ItemTablePtr getEvents(void);
+	ItemTablePtr getEvents(uint64_t eventIdOffset);
 
 protected:
 	SoupSession *getSession(void);
@@ -63,7 +63,7 @@ protected:
 	SoupMessage *queryTrigger(void);
 	SoupMessage *queryItem(void);
 	SoupMessage *queryHost(void);
-	SoupMessage *queryEvent(void);
+	SoupMessage *queryEvent(uint64_t eventIdOffset);
 	string getInitialJsonRequest(void);
 	bool parseInitialResponse(SoupMessage *msg);
 	void startObject(JsonParserAgent &parser, const string &name);
