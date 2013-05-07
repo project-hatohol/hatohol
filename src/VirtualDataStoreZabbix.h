@@ -36,7 +36,7 @@ public:
 	static VirtualDataStoreZabbix *getInstance(void);
 	// TODO: a consider const qualifier should be added again
 	ItemTablePtr getItemTable(ItemGroupId groupId);
-	virtual void passCommandLineArg(const CommandLineArg &cmdArg);
+	void start(void);
 
 	// Virtual functions
 	virtual void getTriggerList(TriggerInfoList &triggerList);

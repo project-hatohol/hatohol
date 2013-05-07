@@ -22,6 +22,7 @@
 #include "ItemGroupEnum.h"
 #include "ItemEnum.h"
 #include "VirtualDataStoreZabbixMacro.h"
+#include "DBClientConfig.h"
 #include "DBClientAsura.h"
 
 MutexLock    VirtualDataStoreZabbix::m_mutex;
@@ -67,22 +68,17 @@ ItemTablePtr VirtualDataStoreZabbix::getItemTable(ItemGroupId groupId)
 	return ItemTablePtr(table);
 }
 
-void VirtualDataStoreZabbix::passCommandLineArg(const CommandLineArg &cmdArg)
+void VirtualDataStoreZabbix::start(void)
 {
-	for (size_t i = 0; i < cmdArg.size(); i++) {
-		if (cmdArg[i] == "--data-store-zabbix") {
-			if (i == cmdArg.size() -1) {
-				MLPL_ERR(
-				  "--data-store-zabbix is specified, but no "
-				  "arguments.");
-				return;
-			}
-			// TODO: support multiple data store
-			i++;
-			const string &name = cmdArg[i];
-			DataStoreZabbix *dataStore = new DataStoreZabbix(i);
-			add(name, dataStore);
-		}
+	DBClientConfig dbConfig;
+	MonitoringServerInfoList monitoringServers;
+	dbConfig.getTargetServers(monitoringServers);
+
+	MonitoringServerInfoListIterator it = monitoringServers.begin();
+	for (; it != monitoringServers.end(); ++it) {
+		MonitoringServerInfo &svInfo = *it;
+		DataStoreZabbix *dataStore = new DataStoreZabbix(svInfo.id);
+		add(svInfo.id, dataStore);
 	}
 }
 

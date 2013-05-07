@@ -18,11 +18,11 @@ void DataStoreManager::passCommandLineArg(const CommandLineArg &cmdArg)
 {
 }
 
-bool DataStoreManager::add(const string &storeName, DataStore *dataStore)
+bool DataStoreManager::add(uint32_t storeId, DataStore *dataStore)
 {
 	pair<DataStoreMapIterator, bool> result = 
 	  m_dataStoreMap.insert
-	    (pair<const string, DataStore *>(storeName, dataStore));
+	    (pair<uint32_t, DataStore *>(storeId, dataStore));
 
 	bool successed = result.second;
 	if (successed) {

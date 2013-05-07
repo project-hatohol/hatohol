@@ -34,13 +34,13 @@ public:
 
 	// Elements regisgtered in this function should be freed by
 	// this class (i.e. owner is changed).
-	bool add(const string &storeName, DataStore *dataStore);
+	bool add(uint32_t storeId, DataStore *dataStore);
 
 	DataStoreVector &getDataStoreVector(void);
 
 private:
-	typedef map<const string, DataStore*> DataStoreMap;
-	typedef DataStoreMap::iterator        DataStoreMapIterator;
+	typedef map<uint32_t, DataStore*> DataStoreMap;
+	typedef DataStoreMap::iterator    DataStoreMapIterator;
 
 	// Elements in m_dataStoreMap and m_dataStoreVector are the same.
 	// So it's only necessary to free elements in one.

@@ -52,7 +52,7 @@ int mainRoutine(int argc, char *argv[])
 
 	VirtualDataStoreZabbix *vdsZabbix
 	  = VirtualDataStoreZabbix::getInstance();
-	vdsZabbix->passCommandLineArg(cmdArg);
+	vdsZabbix->start();
 
 	GMainLoop *loop = g_main_loop_new(NULL, FALSE);
 	g_main_loop_run(loop);
