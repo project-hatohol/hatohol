@@ -227,10 +227,9 @@ ItemTablePtr ArmZabbixAPI::getEvents(uint64_t eventIdOffset)
 
 	VariableItemTablePtr tablePtr;
 	int numData = parser.countElements();
-	if (numData < 1) {
-		MLPL_DBG("The number of events: %d\n", numData);
+	MLPL_DBG("The number of events: %d\n", numData);
+	if (numData < 1)
 		return ItemTablePtr(tablePtr);
-	}
 
 	for (int i = 0; i < numData; i++)
 		parseAndPushEventsData(parser, tablePtr, i);
