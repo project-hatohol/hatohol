@@ -26,7 +26,7 @@ class ArmZabbixAPITestee :  public ArmZabbixAPI {
 
 typedef bool (ArmZabbixAPITestee::*ThreadOneProc)(void);
 
-static const size_t NUM_TEST_TRIGGER_READ = 10;
+static const size_t NUM_TEST_READ_TIMES = 10;
 
 public:
 	enum GetTestType {
@@ -197,7 +197,7 @@ protected:
 			return false;
 		}
 		m_countThreadOneProc++;
-		if (m_countThreadOneProc++ >= NUM_TEST_TRIGGER_READ) {
+		if (m_countThreadOneProc++ >= NUM_TEST_READ_TIMES) {
 			m_result = true;
 			requestExit();
 		}
