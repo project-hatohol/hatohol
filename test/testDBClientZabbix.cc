@@ -59,13 +59,9 @@ void test_createTableSystem(void)
 	// check content
 	string statement = "select * from system";
 	string output = execSqlite3ForDBClientZabbix(svId, statement);
+	int dummyValue = 0;
 	string expectedOut =
-	   StringUtils::sprintf("%d|%d|%d|%d|%d\n",
-	                        DBClientZabbix::REPLICA_GENERATION_NONE,
-	                        DBClientZabbix::REPLICA_GENERATION_NONE,
-	                        DBClientZabbix::REPLICA_GENERATION_NONE,
-	                        DBClientZabbix::REPLICA_GENERATION_NONE,
-	                        DBClientZabbix::REPLICA_GENERATION_NONE);
+	   StringUtils::sprintf("%d\n", dummyValue);
 	cppcut_assert_equal(expectedOut, output);
 }
 

@@ -23,19 +23,7 @@
 
 class DBClientZabbix : public DBClient {
 public:
-	enum {
-		REPLICA_GENERATION_TARGET_ID_TRIGGER,
-		REPLICA_GENERATION_TARGET_ID_FUNCTION,
-		REPLICA_GENERATION_TARGET_ID_ITEM,
-		REPLICA_GENERATION_TARGET_ID_HOST,
-		NUM_REPLICA_GENERATION_TARGET_ID,
-	};
-	static const int REPLICA_TARGET_ID_SYSTEM_LATEST_COLUMNS_MAP[];
-
 	static const int DB_VERSION;
-	static const int NUM_PRESERVED_GENRATIONS_TRIGGERS;
-	static const int REPLICA_GENERATION_NONE;
-
 	static const uint64_t EVENT_ID_NOT_FOUND;
 
 	static void init(void);
@@ -68,19 +56,9 @@ protected:
 	static void updateDBIfNeeded(DBAgent *dbAgent, int oldVer, void *data);
 
 	void prepareSetupFuncCallback(size_t zabbixServerId);
-	int getLatestGenerationId(void);
-	int updateReplicaGeneration(int replicaTargetId);
-	void addReplicatedItems
-	  (int generationId, ItemTablePtr tablePtr,
-	   const string &tableName, size_t numColumns,
-	   const ColumnDef *columnDefs);
-	void deleteOldReplicatedItems
-	  (int replicaTargetId, const string &tableName,
-	   const ColumnDef *columnDefs, int generationIdIdx);
 	void addItems(
 	  ItemTablePtr tablePtr, const string &tableName,
 	  size_t numColumns, const ColumnDef *columnDefs);
-	int getStartIdToRemove(int replicaTargetId);
 	void makeSelectExArgForTriggerAsAsuraFormat(void);
 
 private:

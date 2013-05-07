@@ -12,15 +12,6 @@
 namespace testArmZabbixAPI {
 static Synchronizer g_sync;
 
-static const char *COLUMN_NAME_OF_LAST_REPLICA_GENERATION[] = {
-  "latest_triggers_generation_id",    // REPLICA_GENERATION_TARGET_ID_TRIGGER
-  "latest_functions_generation_id",   // REPLICA_GENERATION_TARGET_ID_FUNCTION
-  "latest_items_generation_id",       // REPLICA_GENERATION_TARGET_ID_ITEMS
-  "latest_hosts_generation_id",       // REPLICA_GENERATION_TARGET_ID_ITEMS
-  "latest_events_generation_id",      // REPLICA_GENERATION_TARGET_ID_EVENTS
-};
-static const size_t NUM_COLUMN_NAME_OF_LAST_REPLICA_GENERATION =
-  sizeof(COLUMN_NAME_OF_LAST_REPLICA_GENERATION) / sizeof(const char *);
 static const size_t NUM_TEST_READ_TIMES = 10;
 
 class ArmZabbixAPITestee :  public ArmZabbixAPI {
@@ -245,46 +236,14 @@ static void _assertReceiveData(ArmZabbixAPITestee::GetTestType testType,
 #define assertReceiveData(TYPE, SERVER_ID) \
 cut_trace(_assertReceiveData(TYPE, SERVER_ID))
 
-static void _assertTestGet(ArmZabbixAPITestee::GetTestType testType,
-                           int targetId)
+static void _assertTestGet(ArmZabbixAPITestee::GetTestType testType)
 {
 	int svId = 0;
 	assertReceiveData(testType, svId);
 
-	// check the database
-	string statement = StringUtils::sprintf(
-	  "select count(*) from replica_generation where target_id=%d",
-	  targetId);
-	
-	string numGenerations = execSqlite3ForDBClientZabbix(svId, statement);
-
-	ConfigManager *confMgr = ConfigManager::getInstance();
-	static size_t expectedNumGenerations =
-	   confMgr->getNumberOfPreservedReplicaGeneration();
-	cppcut_assert_equal(
-	  StringUtils::sprintf("%zd\n", expectedNumGenerations),
-	  numGenerations);
-
-	// check the consistency with system table and replica generation table
-	cppcut_assert_equal(true,
-	  (size_t)targetId < NUM_COLUMN_NAME_OF_LAST_REPLICA_GENERATION);
-	const char *columnName = 
-	  COLUMN_NAME_OF_LAST_REPLICA_GENERATION[targetId];
-	statement = StringUtils::sprintf("select %s from system", columnName);
-	string newestGenIdSystem =
-	   execSqlite3ForDBClientZabbix(svId, statement);
-
-	statement = StringUtils::sprintf(
-	  "select replica_generation_id from replica_generation "
-	  "where target_id=%d ORDER BY replica_generation_id DESC LIMIT 1",
-	  targetId);
-	string newestGenIdGenTable =
-	   execSqlite3ForDBClientZabbix(svId, statement);
-
-	cppcut_assert_equal(newestGenIdSystem, newestGenIdGenTable);
+	// TODO: add the check of the database
 }
-#define assertTestGet(TYPE, TARGET_ID) \
-cut_trace(_assertTestGet(TYPE, TARGET_ID))
+#define assertTestGet(TYPE) cut_trace(_assertTestGet(TYPE))
 
 void setup(void)
 {
@@ -318,38 +277,29 @@ void test_openSession(void)
 
 void test_getTriggers(void)
 {
-	assertTestGet(
-	  ArmZabbixAPITestee::GET_TEST_TYPE_TRIGGERS,
-	  DBClientZabbix::REPLICA_GENERATION_TARGET_ID_TRIGGER);
+	assertTestGet(ArmZabbixAPITestee::GET_TEST_TYPE_TRIGGERS);
 }
 
 void test_getFunctions(void)
 {
-	assertTestGet(
-	  ArmZabbixAPITestee::GET_TEST_TYPE_FUNCTIONS,
-	  DBClientZabbix::REPLICA_GENERATION_TARGET_ID_FUNCTION);
+	assertTestGet(ArmZabbixAPITestee::GET_TEST_TYPE_FUNCTIONS);
 }
 
 void test_getItems(void)
 {
-	assertTestGet(
-	  ArmZabbixAPITestee::GET_TEST_TYPE_ITEMS,
-	  DBClientZabbix::REPLICA_GENERATION_TARGET_ID_ITEM);
+	assertTestGet(ArmZabbixAPITestee::GET_TEST_TYPE_ITEMS);
 }
 
 void test_getHosts(void)
 {
-	assertTestGet(
-	  ArmZabbixAPITestee::GET_TEST_TYPE_HOSTS,
-	  DBClientZabbix::REPLICA_GENERATION_TARGET_ID_HOST);
+	assertTestGet(ArmZabbixAPITestee::GET_TEST_TYPE_HOSTS);
 }
 
 void test_getEvents(void)
 {
 	// We expect empty data for the last two times.
 	g_apiEmulator.setNumberOfEventSlices(NUM_TEST_READ_TIMES-2);
-	assertReceiveData(
-	  ArmZabbixAPITestee::GET_TEST_TYPE_EVENTS, 0);
+	assertReceiveData(ArmZabbixAPITestee::GET_TEST_TYPE_EVENTS, 0);
 }
 
 void test_httpNotFound(void)
