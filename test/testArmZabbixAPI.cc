@@ -21,12 +21,11 @@ static const char *COLUMN_NAME_OF_LAST_REPLICA_GENERATION[] = {
 };
 static const size_t NUM_COLUMN_NAME_OF_LAST_REPLICA_GENERATION =
   sizeof(COLUMN_NAME_OF_LAST_REPLICA_GENERATION) / sizeof(const char *);
+static const size_t NUM_TEST_READ_TIMES = 10;
 
 class ArmZabbixAPITestee :  public ArmZabbixAPI {
 
 typedef bool (ArmZabbixAPITestee::*ThreadOneProc)(void);
-
-static const size_t NUM_TEST_READ_TIMES = 10;
 
 public:
 	enum GetTestType {
