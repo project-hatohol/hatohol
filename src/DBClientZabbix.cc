@@ -168,7 +168,6 @@ const int DBClientZabbix::REPLICA_TARGET_ID_SYSTEM_LATEST_COLUMNS_MAP[] = {
 	IDX_SYSTEM_LATEST_FUNCTIONS_GENERATION_ID,
 	IDX_SYSTEM_LATEST_ITEMS_GENERATION_ID,
 	IDX_SYSTEM_LATEST_HOSTS_GENERATION_ID,
-	IDX_SYSTEM_LATEST_EVENTS_GENERATION_ID,
 };
 static const size_t NUM_REPLICA_TARGET_ID_SYSTEM_LATEST_COLUMNS_MAP =
   sizeof(DBClientZabbix::REPLICA_TARGET_ID_SYSTEM_LATEST_COLUMNS_MAP) / sizeof(int);
@@ -1431,17 +1430,6 @@ enum {
 
 static const ColumnDef COLUMN_DEF_EVENTS_RAW_2_0[] = {
 {
-	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_EVENTS_RAW_2_0,         // tableName
-	"replica_generation_id",           // columnName
-	SQL_COLUMN_TYPE_INT,               // type
-	11,                                // columnLength
-	0,                                 // decFracLength
-	false,                             // canBeNull
-	SQL_KEY_MUL,                       // keyType
-	0,                                 // flags
-	NULL,                              // defaultValue
-}, {
 	ITEM_ID_ZBX_EVENTS_EVENTID,        // itemId
 	TABLE_NAME_EVENTS_RAW_2_0,         // tableName
 	"eventid",                         // columnName
@@ -1449,8 +1437,7 @@ static const ColumnDef COLUMN_DEF_EVENTS_RAW_2_0[] = {
 	20,                                // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
-	// MUL -> PRI after the generation replication feature is removed
-	SQL_KEY_MUL,                       // keyType
+	SQL_KEY_PRI,                       // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
@@ -1547,7 +1534,6 @@ static const size_t NUM_COLUMNS_EVENTS_RAW_2_0 =
    sizeof(COLUMN_DEF_EVENTS_RAW_2_0) / sizeof(ColumnDef);
 
 enum {
-	IDX_EVENTS_RAW_2_0_GENERATION_ID,
 	IDX_EVENTS_RAW_2_0_EVENTID,
 	IDX_EVENTS_RAW_2_0_SOURCE,
 	IDX_EVENTS_RAW_2_0_OBJECT,
@@ -1756,17 +1742,8 @@ void DBClientZabbix::addHostsRaw2_0(ItemTablePtr tablePtr)
 void DBClientZabbix::addEventsRaw2_0(ItemTablePtr tablePtr)
 {
 	DBCLIENT_TRANSACTION_BEGIN() {
-		int newId = updateReplicaGeneration
-		              (REPLICA_GENERATION_TARGET_ID_EVENT);
-		addReplicatedItems(newId, tablePtr,
-		                   TABLE_NAME_EVENTS_RAW_2_0,
-		                   NUM_COLUMNS_EVENTS_RAW_2_0,
-		                   COLUMN_DEF_EVENTS_RAW_2_0);
-		deleteOldReplicatedItems
-		  (REPLICA_GENERATION_TARGET_ID_EVENT,
-		   TABLE_NAME_EVENTS_RAW_2_0,
-		   COLUMN_DEF_EVENTS_RAW_2_0,
-		   IDX_EVENTS_RAW_2_0_GENERATION_ID);
+		addItems(tablePtr, TABLE_NAME_EVENTS_RAW_2_0,
+		         NUM_COLUMNS_EVENTS_RAW_2_0, COLUMN_DEF_EVENTS_RAW_2_0);
 	} DBCLIENT_TRANSACTION_END();
 }
 
@@ -2073,6 +2050,30 @@ void DBClientZabbix::addReplicatedItems(
 
 		VariableItemGroupPtr row;
 		row->ADD_NEW_ITEM(Int, generationId);
+		for (size_t i = 0; i < itemGroup->getNumberOfItems(); i++)
+			row->add(itemGroup->getItemAt(i));
+		arg.row = row;
+		insert(arg);
+	}
+}
+
+void DBClientZabbix::addItems(
+  ItemTablePtr tablePtr,
+  const string &tableName, size_t numColumns, const ColumnDef *columnDefs)
+{
+	//
+	// We assumed that this function is called in the transaction.
+	//
+	const ItemGroupList &itemGroupList = tablePtr->getItemGroupList();
+	ItemGroupListConstIterator it = itemGroupList.begin();
+	for (; it != itemGroupList.end(); ++it) {
+		const ItemGroup *itemGroup = *it;
+		DBAgentInsertArg arg;
+		arg.tableName = tableName;
+		arg.numColumns = numColumns;
+		arg.columnDefs = columnDefs;
+
+		VariableItemGroupPtr row;
 		for (size_t i = 0; i < itemGroup->getNumberOfItems(); i++)
 			row->add(itemGroup->getItemAt(i));
 		arg.row = row;

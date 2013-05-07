@@ -234,16 +234,24 @@ static guint getTestPort(void)
 	return port;
 }
 
-static void _assertTestGet(ArmZabbixAPITestee::GetTestType testType,
-                           int targetId)
+static void _assertReceiveData(ArmZabbixAPITestee::GetTestType testType,
+                               int svId)
 {
-	int svId = 0;
 	deleteDBClientZabbixDB(svId);
 	ArmZabbixAPITestee armZbxApiTestee(svId, "127.0.0.1", getTestPort());
 	cppcut_assert_equal
 	  (true, armZbxApiTestee.testGet(testType),
 	   cut_message("%s\n", armZbxApiTestee.errorMessage().c_str()));
-	
+}
+#define assertReceiveData(TYPE, SERVER_ID) \
+cut_trace(_assertReceiveData(TYPE, SERVER_ID))
+
+static void _assertTestGet(ArmZabbixAPITestee::GetTestType testType,
+                           int targetId)
+{
+	int svId = 0;
+	assertReceiveData(testType, svId);
+
 	// check the database
 	string statement = StringUtils::sprintf(
 	  "select count(*) from replica_generation where target_id=%d",
@@ -338,9 +346,8 @@ void test_getHosts(void)
 
 void test_getEvents(void)
 {
-	assertTestGet(
-	  ArmZabbixAPITestee::GET_TEST_TYPE_EVENTS,
-	  DBClientZabbix::REPLICA_GENERATION_TARGET_ID_EVENT);
+	assertReceiveData(
+	  ArmZabbixAPITestee::GET_TEST_TYPE_EVENTS, 0);
 }
 
 void test_httpNotFound(void)

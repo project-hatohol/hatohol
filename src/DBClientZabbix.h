@@ -28,7 +28,6 @@ public:
 		REPLICA_GENERATION_TARGET_ID_FUNCTION,
 		REPLICA_GENERATION_TARGET_ID_ITEM,
 		REPLICA_GENERATION_TARGET_ID_HOST,
-		REPLICA_GENERATION_TARGET_ID_EVENT,
 		NUM_REPLICA_GENERATION_TARGET_ID,
 	};
 	static const int REPLICA_TARGET_ID_SYSTEM_LATEST_COLUMNS_MAP[];
@@ -78,6 +77,9 @@ protected:
 	void deleteOldReplicatedItems
 	  (int replicaTargetId, const string &tableName,
 	   const ColumnDef *columnDefs, int generationIdIdx);
+	void addItems(
+	  ItemTablePtr tablePtr, const string &tableName,
+	  size_t numColumns, const ColumnDef *columnDefs);
 	int getStartIdToRemove(int replicaTargetId);
 	void makeSelectExArgForTriggerAsAsuraFormat(void);
 
