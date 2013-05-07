@@ -22,7 +22,8 @@
 
 static void printUsage(void)
 {
-	printf("Usage: asura-config-db-creator <path>/dbfile.db config.dat\n");
+	printf("Usage:\n");
+	printf("$ asura-config-db-creator <path>/dbfile.db config.dat\n");
 	printf("\n");
 }
 
