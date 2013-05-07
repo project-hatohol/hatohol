@@ -43,6 +43,7 @@ public:
 	DBClientConfig(void);
 	virtual ~DBClientConfig();
 
+	bool isFaceMySQLEnabled(void);
 	void addTargetServer(MonitoringServerInfo *monitoringServerInfo);
 	void getTargetServers(MonitoringServerInfoList &monitoringServers);
 

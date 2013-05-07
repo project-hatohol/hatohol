@@ -175,6 +175,20 @@ DBClientConfig::~DBClientConfig()
 		delete m_ctx;
 }
 
+bool DBClientConfig::isFaceMySQLEnabled(void)
+{
+	DBAgentSelectArg arg;
+	arg.tableName = TABLE_NAME_SYSTEM;
+	arg.columnDefs = COLUMN_DEF_SYSTEM;
+	arg.columnIndexes.push_back(IDX_SYSTEM_ENABLE_FACE_MYSQL);
+	DBCLIENT_TRANSACTION_BEGIN() {
+		select(arg);
+	} DBCLIENT_TRANSACTION_END();
+	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
+	ASURA_ASSERT(!grpList.empty(), "Objtained Table: empty");
+	return ItemDataUtils::getInt((*grpList.begin())->getItemAt(0));
+}
+
 void DBClientConfig::addTargetServer(MonitoringServerInfo *monitoringServerInfo)
 {
 	string condition = StringUtils::sprintf("id=%u",

@@ -31,6 +31,7 @@ using namespace mlpl;
 #include "FaceMySQL.h"
 #include "FaceRest.h"
 #include "VirtualDataStoreZabbix.h"
+#include "DBClientConfig.h"
 
 int mainRoutine(int argc, char *argv[])
 {
@@ -44,8 +45,11 @@ int mainRoutine(int argc, char *argv[])
 	for (int i = 1; i < argc; i++)
 		cmdArg.push_back(argv[i]);
 
-	FaceMySQL face(cmdArg);
-	face.start();
+	DBClientConfig dbConfig;
+	if (dbConfig.isFaceMySQLEnabled()) {
+		FaceMySQL face(cmdArg);
+		face.start();
+	}
 
 	FaceRest rest(cmdArg);
 	rest.start();
