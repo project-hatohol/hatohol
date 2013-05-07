@@ -34,7 +34,7 @@ int main(int argc, char *argv[])
 #endif // GLIB_VERSION_2_36
 	asuraInit();
 
-	if (argc < 2) {
+	if (argc < 3) {
 		printUsage();
 		return EXIT_FAILURE;
 	}
