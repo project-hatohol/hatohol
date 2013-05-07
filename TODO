@@ -1,10 +1,10 @@
 [S] Short-term, [M] Middle-term, [L] Long-term
 ====
-* [M] make a mechanism to replica partially
 * [S] cleaned up the way to create ArmZabbix instances for several servers.
       (i.e. we provide a standard start way)
-* [S] add a standard exit way. (including implementation of SIGNAL handlers.)
 * [S] make a command line tool that get/set zabbix servers to monitoring.
+* [S] add a standard exit way. (including implementation of SIGNAL handlers.)
+* [M] make a mechanism to replica partially
 * [S] make a API and the depending mechanism to draw graph for UI.
 * [S] add a way to specify database directory by setting file.
 * [M] fix code that are marked with TODO comments.
