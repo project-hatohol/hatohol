@@ -8,18 +8,24 @@ MonitoringServerInfo serverInfo[] =
 	"pochi.dog.com",          // hostname
 	"192.168.0.5",            // ip_address
 	"POCHI",                  // nickname
+	10,                       // polling_interval_sec,
+	5,                        // retry_interval_sec,
 },{
 	2,                        // id
 	MONITORING_SYSTEM_ZABBIX, // type
 	"mike.dog.com",           // hostname
 	"192.168.1.5",            // ip_address
 	"MIKE",                   // nickname
+	30,                       // polling_interval_sec,
+	15,                       // retry_interval_sec,
 },{
 	3,                        // id
 	MONITORING_SYSTEM_ZABBIX, // type
 	"hachi.dog.com",          // hostname
 	"192.168.10.1",           // ip_address
 	"8",                      // nickname
+	60,                       // polling_interval_sec,
+	60,                       // retry_interval_sec,
 }};
 size_t NumServerInfo = sizeof(serverInfo) / sizeof(MonitoringServerInfo);
 

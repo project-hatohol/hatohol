@@ -31,6 +31,8 @@ struct MonitoringServerInfo {
 	string               hostName;
 	string               ipAddress;
 	string               nickname;
+	int                  pollingIntervalSec;
+	int                  retryIntervalSec;
 };
 
 typedef list<MonitoringServerInfo>         MonitoringServerInfoList;

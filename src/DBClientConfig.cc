@@ -106,6 +106,28 @@ static const ColumnDef COLUMN_DEF_SERVERS[] = {
 	SQL_KEY_NONE,                      // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
+}, {
+	ITEM_ID_NOT_SET,                   // itemId
+	TABLE_NAME_SERVERS,                // tableName
+	"polling_interval_sec",            // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	11,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}, {
+	ITEM_ID_NOT_SET,                   // itemId
+	TABLE_NAME_SERVERS,                // tableName
+	"retry_interval_sec",              // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	11,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
 }
 };
 static const size_t NUM_COLUMNS_SERVERS =
@@ -117,6 +139,8 @@ enum {
 	IDX_SERVERS_HOSTNAME,
 	IDX_SERVERS_IP_ADDRESS,
 	IDX_SERVERS_NICKNAME,
+	IDX_SERVERS_POLLING_INTERVAL_SEC,
+	IDX_SERVERS_RETRY_INTERVAL_SEC,
 	NUM_IDX_SERVERS,
 };
 
@@ -208,6 +232,10 @@ void DBClientConfig::addTargetServer(MonitoringServerInfo *monitoringServerInfo)
 			                      monitoringServerInfo->ipAddress);
 			row->ADD_NEW_ITEM(String,
 			                  monitoringServerInfo->nickname);
+			row->ADD_NEW_ITEM
+			  (Int, monitoringServerInfo->pollingIntervalSec);
+			row->ADD_NEW_ITEM
+			  (Int, monitoringServerInfo->retryIntervalSec);
 			arg.row = row;
 			insert(arg);
 		} else {
@@ -229,6 +257,15 @@ void DBClientConfig::addTargetServer(MonitoringServerInfo *monitoringServerInfo)
 			row->ADD_NEW_ITEM(String,
 			                  monitoringServerInfo->nickname);
 			arg.columnIndexes.push_back(IDX_SERVERS_NICKNAME);
+
+			row->ADD_NEW_ITEM
+			  (Int, monitoringServerInfo->pollingIntervalSec);
+			arg.columnIndexes.push_back
+			  (IDX_SERVERS_POLLING_INTERVAL_SEC);
+			row->ADD_NEW_ITEM
+			  (Int, monitoringServerInfo->retryIntervalSec);
+			arg.columnIndexes.push_back
+			  (IDX_SERVERS_RETRY_INTERVAL_SEC);
 			arg.row = row;
 			update(arg);
 		}
@@ -246,6 +283,8 @@ void DBClientConfig::getTargetServers
 	arg.columnIndexes.push_back(IDX_SERVERS_HOSTNAME);
 	arg.columnIndexes.push_back(IDX_SERVERS_IP_ADDRESS);
 	arg.columnIndexes.push_back(IDX_SERVERS_NICKNAME);
+	arg.columnIndexes.push_back(IDX_SERVERS_POLLING_INTERVAL_SEC);
+	arg.columnIndexes.push_back(IDX_SERVERS_RETRY_INTERVAL_SEC);
 
 	DBCLIENT_TRANSACTION_BEGIN() {
 		select(arg);
@@ -266,6 +305,10 @@ void DBClientConfig::getTargetServers
 		svInfo.hostName  = GET_STRING_FROM_GRP(itemGroup, idx++);
 		svInfo.ipAddress = GET_STRING_FROM_GRP(itemGroup, idx++);
 		svInfo.nickname  = GET_STRING_FROM_GRP(itemGroup, idx++);
+		svInfo.pollingIntervalSec
+		                 = GET_INT_FROM_GRP(itemGroup, idx++);
+		svInfo.retryIntervalSec
+		                 = GET_INT_FROM_GRP(itemGroup, idx++);
 	}
 }
 
