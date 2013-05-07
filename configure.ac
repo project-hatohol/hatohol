@@ -1,6 +1,6 @@
 AC_PREREQ(2.63)
 
-AC_INIT(asura, 0.0.1)
+AC_INIT(asura, 0.0.2)
 AM_INIT_AUTOMAKE([1.9 no-dist-gzip dist-bzip2 tar-pax])
 
 AC_DISABLE_STATIC
@@ -73,6 +73,7 @@ dnl **************************************************************
 AC_OUTPUT([
 Makefile
 src/Makefile
+tools/Makefile
 test/Makefile
 test/fixtures/Makefile
 ])
