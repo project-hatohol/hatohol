@@ -54,6 +54,23 @@ void test_createDB(void)
 	cppcut_assert_equal(expectedOut, output);
 }
 
+void test_createTableSystem(void)
+{
+	const string tableName = "system";
+	string dbPath = deleteDBClientDB(DB_DOMAIN_ID_CONFIG);
+	DBClientConfig dbConfig;
+	string command = "sqlite3 " + dbPath + " \".table\"";
+	assertExist(tableName, executeCommand(command));
+
+	// check content
+	string statement = "select * from " + tableName;
+	string output = execSqlite3ForDBClient(DB_DOMAIN_ID_CONFIG, statement);
+	int expectedEnableFaceMySQL = 0;
+	string expectedOut =
+	   StringUtils::sprintf("%d\n", expectedEnableFaceMySQL);
+	cppcut_assert_equal(expectedOut, output);
+}
+
 void test_createTableServers(void)
 {
 	const string tableName = "servers";

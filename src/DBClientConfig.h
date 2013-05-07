@@ -48,6 +48,7 @@ public:
 
 protected:
 	static void resetDBInitializedFlags(void);
+	static void tableInitializerSystem(DBAgent *dbAgent, void *data);
 	void prepareSetupFunction(void);
 
 private:

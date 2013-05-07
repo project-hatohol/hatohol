@@ -25,7 +25,30 @@ using namespace std;
 #include "ConfigManager.h"
 #include "DBClientUtils.h"
 
+static const char *TABLE_NAME_SYSTEM  = "system";
 static const char *TABLE_NAME_SERVERS = "servers";
+
+static const ColumnDef COLUMN_DEF_SYSTEM[] = {
+{
+	ITEM_ID_NOT_SET,                   // itemId
+	TABLE_NAME_SYSTEM,                 // tableName
+	"enable_face_mysql",               // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	11,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+},
+};
+static const size_t NUM_COLUMNS_SYSTEM =
+  sizeof(COLUMN_DEF_SYSTEM) / sizeof(ColumnDef);
+
+enum {
+	IDX_SYSTEM_ENABLE_FACE_MYSQL,
+	NUM_IDX_SYSTEM,
+};
 
 static const ColumnDef COLUMN_DEF_SERVERS[] = {
 {
@@ -240,10 +263,28 @@ void DBClientConfig::resetDBInitializedFlags(void)
 	PrivateContext::initialized = false;
 }
 
+void DBClientConfig::tableInitializerSystem(DBAgent *dbAgent, void *data)
+{
+	// insert default value
+	DBAgentInsertArg insArg;
+	insArg.tableName = TABLE_NAME_SYSTEM;
+	insArg.numColumns = NUM_COLUMNS_SYSTEM;
+	insArg.columnDefs = COLUMN_DEF_SYSTEM;
+	VariableItemGroupPtr row;
+	row->ADD_NEW_ITEM(Int, 0); // enable_face_mysql
+	insArg.row = row;
+	dbAgent->insert(insArg);
+}
+
 void DBClientConfig::prepareSetupFunction(void)
 {
 	static const DBSetupTableInfo DB_TABLE_INFO[] = {
 	{
+		TABLE_NAME_SYSTEM,
+		NUM_COLUMNS_SYSTEM,
+		COLUMN_DEF_SYSTEM,
+		tableInitializerSystem,
+	}, {
 		TABLE_NAME_SERVERS,
 		NUM_COLUMNS_SERVERS,
 		COLUMN_DEF_SERVERS,
