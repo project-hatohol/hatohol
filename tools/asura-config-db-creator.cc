@@ -32,10 +32,76 @@ static void printUsage(void)
 	fprintf(stderr, "\n");
 }
 
-static bool parseServerConfigLine(const string &buf,
-                                  MonitoringServerInfo &serverInfo)
+bool checkUnexpectedFinish(ParsableString &parsable, size_t lineNo)
 {
-	// TODO: implemented
+	if (parsable.finished()) {
+		fprintf(stderr, "Unexpectedly line finished: %zd: %s\n",
+		        lineNo, parsable.getString());
+		return false;
+	}
+	return true;
+}
+
+static bool extractString(ParsableString &parsable, string &str, size_t lineNo)
+{
+	string word = parsable.readWord(ParsableString::SEPARATOR_COMMA);
+	str = StringUtils::stripBothEndsSpaces(word);
+	return true;
+}
+
+static bool parseServerConfigLine(ParsableString &parsable,
+                                  MonitoringServerInfoList &serverInfoList,
+                                  size_t lineNo)
+{
+	string word;
+	MonitoringServerInfo serverInfo;
+
+	// ID
+	word = parsable.readWord(ParsableString::SEPARATOR_COMMA);
+	if (!checkUnexpectedFinish(parsable, lineNo))
+		return false;
+	serverInfo.id = atoi(word.c_str());
+
+	// Type
+	word = parsable.readWord(ParsableString::SEPARATOR_COMMA);
+	if (!checkUnexpectedFinish(parsable, lineNo))
+		return false;
+	serverInfo.type = (MonitoringSystemType)atoi(word.c_str());
+
+	// Hostname
+	if (!extractString(parsable, word, lineNo))
+		return false;
+	serverInfo.hostName = word;
+
+	// IP address
+	if (!extractString(parsable, word, lineNo))
+		return false;
+	serverInfo.ipAddress = word;
+
+	// Nickname
+	if (!extractString(parsable, word, lineNo))
+		return false;
+	serverInfo.nickname = word;
+
+	// Port
+	word = parsable.readWord(ParsableString::SEPARATOR_COMMA);
+	if (!checkUnexpectedFinish(parsable, lineNo))
+		return false;
+	serverInfo.port = atoi(word.c_str());
+
+	// Polling Interval
+	word = parsable.readWord(ParsableString::SEPARATOR_COMMA);
+	if (!checkUnexpectedFinish(parsable, lineNo))
+		return false;
+	serverInfo.pollingIntervalSec = atoi(word.c_str());
+
+	// Retry Interval
+	word = parsable.readWord(ParsableString::SEPARATOR_COMMA);
+	serverInfo.retryIntervalSec = atoi(word.c_str());
+
+	// push back the info
+	serverInfoList.push_back(serverInfo);
+	return true;
 }
 
 static bool readConfigFile(const string &configFilePath,
@@ -48,15 +114,47 @@ static bool readConfigFile(const string &configFilePath,
 		return false;
 	}
 
-	string buf;
-	while (getline(ifs, buf)) {
-		MonitoringServerInfo serverInfo;
-		if (!parseServerConfigLine(buf, serverInfo))
+	string line;
+	size_t lineNo = 0;
+	MonitoringServerInfo serverInfo;
+	while (getline(ifs, line)) {
+		lineNo++;
+		string strippedLine = StringUtils::stripBothEndsSpaces(line);
+
+		// skip empty line
+		if (strippedLine.empty())
+			continue;
+
+		// skip comment line
+		if (strippedLine[0] == '#')
+			continue;
+
+		// try to find colon
+		SeparatorChecker separator(":");
+		ParsableString parsable(strippedLine);
+		string element = parsable.readWord(separator);
+		if (!checkUnexpectedFinish(parsable, lineNo))
 			return false;
-		serverInfoList.push_back(serverInfo);
+
+		// dispatch
+		if (element == "server") {
+			if (!parseServerConfigLine(parsable, serverInfoList,
+			                           lineNo))
+				return false;
+		} else {
+			fprintf(stderr, "Unknown element: %zd: %s\n",
+			        lineNo, element.c_str());
+			return false;
+		}
 	}
 
 	return true;
+}
+
+static bool validateServerInfoList(MonitoringServerInfoList &serverInfoList)
+{
+	// TODO: implemented
+	return false;
 }
 
 int main(int argc, char *argv[])
@@ -77,6 +175,10 @@ int main(int argc, char *argv[])
 	// opening config.dat and read it
 	MonitoringServerInfoList serverInfoList;
 	if (!readConfigFile(configFilePath, serverInfoList))
+		return EXIT_FAILURE;
+
+	// validation
+	if (!validateServerInfoList(serverInfoList))
 		return EXIT_FAILURE;
 
 	// Save data to DB.
