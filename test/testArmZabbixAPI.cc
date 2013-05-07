@@ -14,6 +14,18 @@ static Synchronizer g_sync;
 
 static const size_t NUM_TEST_READ_TIMES = 10;
 
+static MonitoringServerInfo g_defaultServerInfo =
+{
+	0,                        // id
+	MONITORING_SYSTEM_ZABBIX, // type
+	"127.0.0.1",              // hostname
+	"127.0.0.1",              // ip_address
+	"No name",                // nickname
+	0,                        // port
+	10,                       // polling_interval_sec,
+	5,                        // retry_interval_sec,
+};
+
 class ArmZabbixAPITestee :  public ArmZabbixAPI {
 
 typedef bool (ArmZabbixAPITestee::*ThreadOneProc)(void);
@@ -27,8 +39,8 @@ public:
 		GET_TEST_TYPE_EVENTS,
 	};
 
-	ArmZabbixAPITestee(int zabbixServerId, const char *server, int port)
-	: ArmZabbixAPI(zabbixServerId, server, port),
+	ArmZabbixAPITestee(const MonitoringServerInfo &serverInfo)
+	: ArmZabbixAPI(serverInfo),
 	  m_result(false),
 	  m_threadOneProc(&ArmZabbixAPITestee::defaultThreadOneProc),
 	  m_countThreadOneProc(0)
@@ -227,8 +239,12 @@ static guint getTestPort(void)
 static void _assertReceiveData(ArmZabbixAPITestee::GetTestType testType,
                                int svId)
 {
+	MonitoringServerInfo serverInfo = g_defaultServerInfo;
+	serverInfo.id = svId;
+	serverInfo.port = getTestPort();
+
 	deleteDBClientZabbixDB(svId);
-	ArmZabbixAPITestee armZbxApiTestee(svId, "127.0.0.1", getTestPort());
+	ArmZabbixAPITestee armZbxApiTestee(serverInfo);
 	cppcut_assert_equal
 	  (true, armZbxApiTestee.testGet(testType),
 	   cut_message("%s\n", armZbxApiTestee.errorMessage().c_str()));
@@ -269,7 +285,11 @@ void teardown(void)
 void test_openSession(void)
 {
 	int svId = 0;
-	ArmZabbixAPITestee armZbxApiTestee(svId, "127.0.0.1", getTestPort());
+	MonitoringServerInfo serverInfo = g_defaultServerInfo;
+	serverInfo.id = svId;
+	serverInfo.port = getTestPort();
+
+	ArmZabbixAPITestee armZbxApiTestee(serverInfo);
 	cppcut_assert_equal
 	  (true, armZbxApiTestee.testOpenSession(),
 	   cut_message("%s\n", armZbxApiTestee.errorMessage().c_str()));
@@ -309,7 +329,10 @@ void test_httpNotFound(void)
 
 	g_apiEmulator.setOperationMode(OPE_MODE_HTTP_NOT_FOUND);
 	int svId = 0;
-	ArmZabbixAPITestee armZbxApiTestee(svId, "127.0.0.1", getTestPort());
+	MonitoringServerInfo serverInfo = g_defaultServerInfo;
+	serverInfo.id = svId;
+	serverInfo.port = getTestPort();
+	ArmZabbixAPITestee armZbxApiTestee(serverInfo);
 	cppcut_assert_equal
 	  (false, armZbxApiTestee.testOpenSession(),
 	   cut_message("%s\n", armZbxApiTestee.errorMessage().c_str()));
@@ -318,8 +341,11 @@ void test_httpNotFound(void)
 void test_mainThreadOneProc()
 {
 	int svId = 0;
+	MonitoringServerInfo serverInfo = g_defaultServerInfo;
+	serverInfo.id = svId;
+	serverInfo.port = getTestPort();
 	deleteDBClientZabbixDB(svId);
-	ArmZabbixAPITestee armZbxApiTestee(svId, "127.0.0.1", getTestPort());
+	ArmZabbixAPITestee armZbxApiTestee(serverInfo);
 	cppcut_assert_equal(true, armZbxApiTestee.testMainThreadOneProc());
 }
 

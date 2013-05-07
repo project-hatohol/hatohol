@@ -21,8 +21,8 @@
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
-DataStoreZabbix::DataStoreZabbix(int dataStoreId)
-: m_armApi(dataStoreId)
+DataStoreZabbix::DataStoreZabbix(const MonitoringServerInfo &serverInfo)
+: m_armApi(serverInfo)
 {
 	m_armApi.start();
 }

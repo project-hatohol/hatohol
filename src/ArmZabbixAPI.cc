@@ -52,18 +52,19 @@ struct ArmZabbixAPI::PrivateContext
 	volatile int   exitRequest;
 
 	// constructors
-	PrivateContext(const char *serverName, int port, int _zabbixServerId)
-	: server(serverName),
-	  serverPort(port),
-	  retryInterval(DEFAULT_RETRY_INTERVAL),
-	  repeatInterval(DEFAULT_REPEAT_INTERVAL),
-	  zabbixServerId(_zabbixServerId),
+	PrivateContext(const MonitoringServerInfo &serverInfo)
+	: server(serverInfo.hostName),
+	  serverPort(serverInfo.port),
+	  retryInterval(serverInfo.pollingIntervalSec),
+	  repeatInterval(serverInfo.retryIntervalSec),
+	  zabbixServerId(serverInfo.id),
 	  session(NULL),
 	  gotTriggers(false),
 	  triggerid(0),
-	  dbClientZabbix(_zabbixServerId),
+	  dbClientZabbix(serverInfo.id),
 	  exitRequest(0)
 	{
+		// TODO: use serverInfo.ipAddress if it is given.
 	}
 
 	~PrivateContext()
@@ -86,14 +87,13 @@ struct ArmZabbixAPI::PrivateContext
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
-ArmZabbixAPI::ArmZabbixAPI(int zabbixServerId, const char *server,
-                           int serverPort)
+ArmZabbixAPI::ArmZabbixAPI(const MonitoringServerInfo &serverInfo)
 : m_ctx(NULL)
 {
-	m_ctx = new PrivateContext(server, serverPort, zabbixServerId);
+	m_ctx = new PrivateContext(serverInfo);
 	m_ctx->uri = "http://";
 	m_ctx->uri += m_ctx->server;
-	m_ctx->uri += StringUtils::sprintf(":%d", serverPort);
+	m_ctx->uri += StringUtils::sprintf(":%d", m_ctx->serverPort);
 	m_ctx->uri += "/zabbix/api_jsonrpc.php";
 }
 

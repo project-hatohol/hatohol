@@ -16,8 +16,7 @@ class ZabbixAPIResponseCollector : public ArmZabbixAPI
 
 	CommandFuncMap m_commandFuncMap;
 public:
-	ZabbixAPIResponseCollector(const string &server,
-	                           int port = DEFAULT_PORT);
+	ZabbixAPIResponseCollector(const MonitoringServerInfo &serverInfo);
 	virtual ~ZabbixAPIResponseCollector();
 	bool execute(const string &command, vector<string> &cmdArg);
 
@@ -30,8 +29,8 @@ protected:
 };
 
 ZabbixAPIResponseCollector::ZabbixAPIResponseCollector
-  (const string &server, int port)
-: ArmZabbixAPI(ZBX_SVR_ID, server.c_str(), port)
+  (const MonitoringServerInfo &serverInfo)
+: ArmZabbixAPI(serverInfo)
 {
 	m_commandFuncMap["open"] = 
 	  &ZabbixAPIResponseCollector::commandFuncOpen;
@@ -159,7 +158,20 @@ int main(int argc, char *argv[])
 	for (int i = 3; i < argc; i++)
 		cmdArgs.push_back(argv[i]);
 
-	ZabbixAPIResponseCollector collector(server);
+	static MonitoringServerInfo serverInfo = 
+	{
+		ZBX_SVR_ID,               // id
+		MONITORING_SYSTEM_ZABBIX, // type
+		"",                       // hostname
+		"",                       // ip_address
+		"",                       // nickname
+		DEFAULT_PORT,             // port
+		10,                       // polling_interval_sec,
+		5,                        // retry_interval_sec,
+	};
+	serverInfo.hostName = server;
+
+	ZabbixAPIResponseCollector collector(serverInfo);
 	if (!collector.execute(command, cmdArgs))
 		return EXIT_FAILURE;
 	return EXIT_SUCCESS;
