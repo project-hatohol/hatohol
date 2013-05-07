@@ -31,6 +31,7 @@ struct MonitoringServerInfo {
 	string               hostName;
 	string               ipAddress;
 	string               nickname;
+	int                  port;
 	int                  pollingIntervalSec;
 	int                  retryIntervalSec;
 };

@@ -20,11 +20,12 @@ cut_trace(_assertAddToDB<MonitoringServerInfo>(X, addTargetServer))
 static string makeExpectedOutput(MonitoringServerInfo *serverInfo)
 {
 	string expectedOut = StringUtils::sprintf
-	                       ("%u|%d|%s|%s|%s|%d|%d\n",
+	                       ("%u|%d|%s|%s|%s|%d|%d|%d\n",
 	                        serverInfo->id, serverInfo->type,
 	                        serverInfo->hostName.c_str(),
 	                        serverInfo->ipAddress.c_str(),
 	                        serverInfo->nickname.c_str(),
+	                        serverInfo->port,
 	                        serverInfo->pollingIntervalSec,
 	                        serverInfo->retryIntervalSec);
 	return expectedOut;
