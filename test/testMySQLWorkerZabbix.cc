@@ -27,6 +27,7 @@ gint     g_exitStatus;
 
 void setup()
 {
+	cut_pend("This test will be recreated to execute without the running asura process.");
 }
 
 void teardown()
