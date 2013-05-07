@@ -29,6 +29,8 @@ using namespace mlpl;
 #include "AsuraException.h"
 #include "ConfigManager.h"
 
+const static int TRANSACTION_TIME_OUT_MSEC = 30 * 1000;
+
 #define MAKE_SQL_STATEMENT_FROM_VAARG(LAST_ARG, STR_NAME) \
 string STR_NAME; \
 { \
@@ -211,7 +213,7 @@ bool DBAgentSQLite3::isRecordExisting(const string &tableName,
 void DBAgentSQLite3::begin(void)
 {
 	ASURA_ASSERT(m_ctx->db, "m_ctx->db is NULL");
-	_execSql(m_ctx->db, "BEGIN");
+	_execSql(m_ctx->db, "BEGIN IMMEDIATE");
 }
 
 void DBAgentSQLite3::commit(void)
@@ -308,6 +310,7 @@ sqlite3 *DBAgentSQLite3::openDatabase(const string &dbPath)
 		THROW_ASURA_EXCEPTION("Failed to open sqlite: %d, %s",
 		                      result, dbPath.c_str());
 	}
+	sqlite3_busy_timeout(db, TRANSACTION_TIME_OUT_MSEC);
 	return db;
 }
 
