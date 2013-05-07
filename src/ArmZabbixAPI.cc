@@ -40,8 +40,8 @@ struct ArmZabbixAPI::PrivateContext
 	string         authToken;
 	string         uri;
 	int            serverPort;
-	int            retryInterval;	// in sec
-	int            repeatInterval;	// in sec;
+	int            retryInterval;   // in sec
+	int            repeatInterval;  // in sec;
 	int            zabbixServerId;
 	SoupSession   *session;
 	bool           gotTriggers;
