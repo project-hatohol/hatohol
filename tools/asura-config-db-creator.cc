@@ -17,14 +17,46 @@
 
 #include <cstdio>
 #include <cstdlib>
+#include <fstream>
+#include <string>
 #include <glib-object.h>
 #include "Asura.h"
+#include "DBClientConfig.h"
+
+using namespace std;
 
 static void printUsage(void)
 {
-	printf("Usage:\n");
-	printf("$ asura-config-db-creator <path>/dbfile.db config.dat\n");
-	printf("\n");
+	fprintf(stderr, "Usage:\n");
+	fprintf(stderr, "$ asura-config-db-creator config.dat dbfile.db\n");
+	fprintf(stderr, "\n");
+}
+
+static bool parseServerConfigLine(const string &buf,
+                                  MonitoringServerInfo &serverInfo)
+{
+	// TODO: implemented
+}
+
+static bool readConfigFile(const string &configFilePath,
+                           MonitoringServerInfoList &serverInfoList)
+{
+	ifstream ifs(configFilePath.c_str());
+	if (!ifs) {
+		fprintf(stderr, "Failed to open file: %s\n",
+		        configFilePath.c_str());
+		return false;
+	}
+
+	string buf;
+	while (getline(ifs, buf)) {
+		MonitoringServerInfo serverInfo;
+		if (!parseServerConfigLine(buf, serverInfo))
+			return false;
+		serverInfoList.push_back(serverInfo);
+	}
+
+	return true;
 }
 
 int main(int argc, char *argv[])
@@ -39,6 +71,15 @@ int main(int argc, char *argv[])
 		return EXIT_FAILURE;
 	}
 
+	const string configFilePath = argv[1];
+	const string configDBPath = argv[2];
+
+	// opening config.dat and read it
+	MonitoringServerInfoList serverInfoList;
+	if (!readConfigFile(configFilePath, serverInfoList))
+		return EXIT_FAILURE;
+
+	// Save data to DB.
 	// TODO: implemented
 
 	return EXIT_SUCCESS;
