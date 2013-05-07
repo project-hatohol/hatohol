@@ -26,7 +26,7 @@ enum MonitoringSystemType {
 };
 
 struct MonitoringServerInfo {
-	uint32_t             id;
+	int                  id;
 	MonitoringSystemType type;
 	string               hostName;
 	string               ipAddress;
