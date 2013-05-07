@@ -118,3 +118,11 @@ string execSqlite3ForDBClientZabbix(int serverId, const string &statement)
 	DBDomainId domainId = DBClientZabbix::getDBDomainId(serverId);
 	return execSqlite3ForDBClient(domainId, statement);
 }
+
+void _assertCreateTable(DBDomainId domainId, const string &tableName)
+{
+	string dbPath = DBAgentSQLite3::getDBPath(domainId);
+	string command = "sqlite3 " + dbPath + " \".table\"";
+	string output = executeCommand(command);
+	assertExist(tableName, output);
+}

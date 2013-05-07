@@ -57,11 +57,10 @@ void test_createDB(void)
 void test_createTableSystem(void)
 {
 	const string tableName = "system";
-	string dbPath = deleteDBClientDB(DB_DOMAIN_ID_CONFIG);
+	deleteDBClientDB(DB_DOMAIN_ID_CONFIG);
 	DBClientConfig dbConfig;
-	string command = "sqlite3 " + dbPath + " \".table\"";
-	assertExist(tableName, executeCommand(command));
-
+	assertCreateTable(DB_DOMAIN_ID_CONFIG, tableName);
+	
 	// check content
 	string statement = "select * from " + tableName;
 	string output = execSqlite3ForDBClient(DB_DOMAIN_ID_CONFIG, statement);
@@ -74,10 +73,9 @@ void test_createTableSystem(void)
 void test_createTableServers(void)
 {
 	const string tableName = "servers";
-	string dbPath = deleteDBClientDB(DB_DOMAIN_ID_CONFIG);
+	deleteDBClientDB(DB_DOMAIN_ID_CONFIG);
 	DBClientConfig dbConfig;
-	string command = "sqlite3 " + dbPath + " \".table\"";
-	assertExist(tableName, executeCommand(command));
+	assertCreateTable(DB_DOMAIN_ID_CONFIG, tableName);
 
 	// check content
 	string statement = "select * from " + tableName;

@@ -14,15 +14,13 @@ namespace testDBClientZabbix {
 
 static const int TEST_ZABBIX_SERVER_ID = 3;
 
-static void _assertCreateTable(int svId, const string &tableName)
+static void _assertCreateTableZBX(int svId, const string &tableName)
 {
 	string dbPath = deleteDBClientZabbixDB(svId);
 	DBClientZabbix dbCliZBX(svId);
-	string command = "sqlite3 " + dbPath + " \".table\"";
-	string output = executeCommand(command);
-	assertExist(tableName, output);
+	assertCreateTable(DBClientZabbix::getDBDomainId(svId),tableName);
 }
-#define assertCreateTable(I,T) cut_trace(_assertCreateTable(I,T))
+#define assertCreateTableZBX(I,T) cut_trace(_assertCreateTableZBX(I,T))
 
 void setup(void)
 {
@@ -54,7 +52,7 @@ void test_createDB(void)
 void test_createTableSystem(void)
 {
 	int svId = TEST_ZABBIX_SERVER_ID + 1;
-	assertCreateTable(svId, "system");
+	assertCreateTableZBX(svId, "system");
 
 	// check content
 	string statement = "select * from system";
@@ -67,27 +65,27 @@ void test_createTableSystem(void)
 
 void test_createTableTriggersRaw2_0(void)
 {
-	assertCreateTable(TEST_ZABBIX_SERVER_ID + 3, "triggers_raw_2_0");
+	assertCreateTableZBX(TEST_ZABBIX_SERVER_ID + 3, "triggers_raw_2_0");
 }
 
 void test_createTableFunctionsRaw2_0(void)
 {
-	assertCreateTable(TEST_ZABBIX_SERVER_ID + 3, "functions_raw_2_0");
+	assertCreateTableZBX(TEST_ZABBIX_SERVER_ID + 3, "functions_raw_2_0");
 }
 
 void test_createTableItemsRaw2_0(void)
 {
-	assertCreateTable(TEST_ZABBIX_SERVER_ID + 3, "items_raw_2_0");
+	assertCreateTableZBX(TEST_ZABBIX_SERVER_ID + 3, "items_raw_2_0");
 }
 
 void test_createTableHostsRaw2_0(void)
 {
-	assertCreateTable(TEST_ZABBIX_SERVER_ID + 3, "hosts_raw_2_0");
+	assertCreateTableZBX(TEST_ZABBIX_SERVER_ID + 3, "hosts_raw_2_0");
 }
 
 void test_createTableEventsRaw2_0(void)
 {
-	assertCreateTable(TEST_ZABBIX_SERVER_ID + 3, "events_raw_2_0");
+	assertCreateTableZBX(TEST_ZABBIX_SERVER_ID + 3, "events_raw_2_0");
 }
 
 } // testDBClientZabbix
