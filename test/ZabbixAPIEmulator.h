@@ -17,6 +17,8 @@ public:
 
 	ZabbixAPIEmulator(void);
 	virtual ~ZabbixAPIEmulator();
+	void reset(void);
+	void setNumberOfEventSlices(size_t numSlices);
 
 	bool isRunning(void);
 	void start(guint port);
@@ -40,6 +42,9 @@ protected:
 	void APIHandlerItemGet(APIHandlerArg &arg);
 	void APIHandlerHostGet(APIHandlerArg &arg);
 	void APIHandlerEventGet(APIHandlerArg &arg);
+	void makeSlicedEvent(const string &path, size_t numSlices);
+	string makeEmptyResponse(APIHandlerArg &arg);
+	string getSlicedResponse(const string &slice, APIHandlerArg &arg);
 
 private:
 	struct PrivateContext;

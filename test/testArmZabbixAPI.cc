@@ -301,6 +301,7 @@ void setup(void)
 void teardown(void)
 {
 	g_sync.reset();
+	g_apiEmulator.reset();
 }
 
 // ---------------------------------------------------------------------------
@@ -345,6 +346,8 @@ void test_getHosts(void)
 
 void test_getEvents(void)
 {
+	// We expect empty data for the last two times.
+	g_apiEmulator.setNumberOfEventSlices(NUM_TEST_READ_TIMES-2);
 	assertReceiveData(
 	  ArmZabbixAPITestee::GET_TEST_TYPE_EVENTS, 0);
 }

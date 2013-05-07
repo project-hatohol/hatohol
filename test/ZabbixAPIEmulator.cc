@@ -5,6 +5,7 @@
 
 #include "ZabbixAPIEmulator.h"
 #include "JsonParserAgent.h"
+#include "JsonBuilderAgent.h"
 #include "AsuraException.h"
 #include "Helpers.h"
 
@@ -30,13 +31,18 @@ struct ZabbixAPIEmulator::PrivateContext {
 	OperationMode operationMode;
 	set<string>   authTokens;
 	APIHandlerMap apiHandlerMap;
+	size_t        numEventSlices;
+	size_t        currEventSliceIndex;
+	vector<string> slicedEventVector;
 	
 	// methods
 	PrivateContext(void)
 	: thread(NULL),
 	  port(0),
 	  soupServer(NULL),
-	  operationMode(OPE_MODE_NORMAL)
+	  operationMode(OPE_MODE_NORMAL),
+	  numEventSlices(0),
+	  currEventSliceIndex(0)
 	{
 	}
 
@@ -49,6 +55,13 @@ struct ZabbixAPIEmulator::PrivateContext {
 			// nothing to do
 #endif // GLIB_VERSION_2_32
 		}
+	}
+
+	void reset(void)
+	{
+		numEventSlices = 0;
+		currEventSliceIndex = 0;
+		slicedEventVector.clear();
 	}
 };
 
@@ -80,6 +93,16 @@ ZabbixAPIEmulator::~ZabbixAPIEmulator()
 	}
 	if (m_ctx)
 		delete m_ctx;
+}
+
+void ZabbixAPIEmulator::reset(void)
+{
+	m_ctx->reset();
+}
+
+void ZabbixAPIEmulator::setNumberOfEventSlices(size_t numSlices)
+{
+	m_ctx->numEventSlices = numSlices;
 }
 
 bool ZabbixAPIEmulator::isRunning(void)
@@ -289,15 +312,105 @@ void ZabbixAPIEmulator::APIHandlerHostGet(APIHandlerArg &arg)
 
 void ZabbixAPIEmulator::APIHandlerEventGet(APIHandlerArg &arg)
 {
-	static const char *LOGIN_RES_FILE = "zabbix-api-res-events-002.json";
-	string path = getFixturesDir() + LOGIN_RES_FILE;
 	gchar *contents;
 	gsize length;
-	gboolean succeeded =
-	  g_file_get_contents(path.c_str(), &contents, &length, NULL);
-	if (!succeeded)
-		THROW_ASURA_EXCEPTION("Failed to read file: %s", path.c_str());
+	static const char *DATA_FILE = "zabbix-api-res-events-002.json";
+	string path = getFixturesDir() + DATA_FILE;
+	if (m_ctx->numEventSlices != 0) {
+		// slice mode
+		string response;
+		if (m_ctx->slicedEventVector.empty())
+			makeSlicedEvent(path, m_ctx->numEventSlices);
+		size_t idx = m_ctx->currEventSliceIndex;
+		if (idx < m_ctx->slicedEventVector.size()) {
+			const string &slice = m_ctx->slicedEventVector[idx];
+			response = getSlicedResponse(slice, arg);
+		} else {
+			response = makeEmptyResponse(arg);
+		}
+		contents = g_strdup(response.c_str());
+		length = response.size();
+		m_ctx->currEventSliceIndex++;
+	} else {
+		// entire mode
+		gboolean succeeded =
+		  g_file_get_contents(path.c_str(), &contents, &length, NULL);
+		if (!succeeded) {
+			THROW_ASURA_EXCEPTION(
+			  "Failed to read file: %s", path.c_str());
+		}
+	}
+
 	soup_message_body_append(arg.msg->response_body, SOUP_MEMORY_TAKE,
 	                         contents, length);
 	soup_message_set_status(arg.msg, SOUP_STATUS_OK);
+}
+
+void ZabbixAPIEmulator::makeSlicedEvent(const string &path, size_t numSlices)
+{
+	static const char *EVENT_ELEMENT_NAMES[] = {
+	  "eventid", "source", "object", "objectid", "clock", "value",
+	  "acknowledged", "ns", "value_changed", NULL
+	};
+	ASURA_ASSERT(numSlices > 0, "numSlices: %zd", numSlices);
+
+	gchar *contents;
+	ASURA_ASSERT(
+	  g_file_get_contents(path.c_str(), &contents, NULL, NULL),
+	  "Failed to read file: %s", path.c_str());
+
+	JsonParserAgent parser(contents);
+	g_free(contents);
+	ASURA_ASSERT(!parser.hasError(), "%s", parser.getErrorMessage());
+
+	ASURA_ASSERT(parser.startObject("result"),
+	  "%s", parser.getErrorMessage());
+	int numElements = parser.countElements();
+	size_t numAddedSlices = 0;
+	int currSliceIndex = 0;
+	for (size_t i = 0; i < numSlices; i++) {
+		string slice;
+		size_t numData;
+		if (i < numSlices - 1) {
+			size_t numExpectedSlices = 
+			  (double)numElements/numSlices*(i+1);
+			numData = numExpectedSlices - numAddedSlices;
+		} else {
+			numData = numElements - numAddedSlices;
+		}
+		for (size_t j = 0; j < numData; j++, currSliceIndex++) {
+			string str;
+			ASURA_ASSERT(
+			  parser.startElement(currSliceIndex),
+			  "%s", parser.getErrorMessage());
+			JsonBuilderAgent builder;
+			builder.startObject();
+			const char **elementName = EVENT_ELEMENT_NAMES;
+			for (; *elementName; elementName++) {
+				ASURA_ASSERT(parser.read(*elementName, str),
+				  "elementName: %s", *elementName);
+				builder.add(*elementName, str);
+			}
+			builder.endObject();
+			parser.endElement();
+			slice += builder.generate();
+			if (j != numData -1)
+				slice += ",";
+		}
+		m_ctx->slicedEventVector.push_back(slice);
+		numAddedSlices += numData;
+	}
+}
+
+string ZabbixAPIEmulator::makeEmptyResponse(APIHandlerArg &arg)
+{
+	return getSlicedResponse("", arg);
+}
+
+string ZabbixAPIEmulator::getSlicedResponse(const string &slice,
+                                            APIHandlerArg &arg)
+{
+	const char *fmt = 
+	  "{\"jsonrpc\":\"2.0\",\"result\":[%s],\"id\":%"PRId64"}";
+	return StringUtils::sprintf(fmt, slice.c_str(), arg.id);
 }
