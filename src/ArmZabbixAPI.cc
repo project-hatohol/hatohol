@@ -215,7 +215,7 @@ ItemTablePtr ArmZabbixAPI::getEvents(uint64_t eventIdOffset)
 {
 	SoupMessage *msg = queryEvent(eventIdOffset);
 	if (!msg)
-		THROW_DATA_STORE_EXCEPTION("Failed to query event.");
+		THROW_DATA_STORE_EXCEPTION("Failed to query events.");
 
 	JsonParserAgent parser(msg->response_body->data);
 	g_object_unref(msg);
