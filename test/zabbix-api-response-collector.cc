@@ -166,8 +166,8 @@ int main(int argc, char *argv[])
 		"",                       // ip_address
 		"",                       // nickname
 		DEFAULT_PORT,             // port
-		10,                       // polling_interval_sec,
-		5,                        // retry_interval_sec,
+		10,                       // polling_interval_sec
+		5,                        // retry_interval_sec
 	};
 	serverInfo.hostName = server;
 

@@ -22,8 +22,8 @@ static MonitoringServerInfo g_defaultServerInfo =
 	"127.0.0.1",              // ip_address
 	"No name",                // nickname
 	0,                        // port
-	10,                       // polling_interval_sec,
-	5,                        // retry_interval_sec,
+	10,                       // polling_interval_sec
+	5,                        // retry_interval_sec
 };
 
 class ArmZabbixAPITestee :  public ArmZabbixAPI {

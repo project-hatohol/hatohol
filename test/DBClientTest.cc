@@ -9,8 +9,8 @@ MonitoringServerInfo serverInfo[] =
 	"192.168.0.5",            // ip_address
 	"POCHI",                  // nickname
 	80,                       // port
-	10,                       // polling_interval_sec,
-	5,                        // retry_interval_sec,
+	10,                       // polling_interval_sec
+	5,                        // retry_interval_sec
 },{
 	2,                        // id
 	MONITORING_SYSTEM_ZABBIX, // type
@@ -18,8 +18,8 @@ MonitoringServerInfo serverInfo[] =
 	"192.168.1.5",            // ip_address
 	"MIKE",                   // nickname
 	80,                       // port
-	30,                       // polling_interval_sec,
-	15,                       // retry_interval_sec,
+	30,                       // polling_interval_sec
+	15,                       // retry_interval_sec
 },{
 	3,                        // id
 	MONITORING_SYSTEM_ZABBIX, // type
@@ -27,8 +27,8 @@ MonitoringServerInfo serverInfo[] =
 	"192.168.10.1",           // ip_address
 	"8",                      // nickname
 	8080,                     // port
-	60,                       // polling_interval_sec,
-	60,                       // retry_interval_sec,
+	60,                       // polling_interval_sec
+	60,                       // retry_interval_sec
 }};
 size_t NumServerInfo = sizeof(serverInfo) / sizeof(MonitoringServerInfo);
 
