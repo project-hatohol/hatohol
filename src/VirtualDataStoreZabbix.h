@@ -37,6 +37,7 @@ public:
 	// TODO: a consider const qualifier should be added again
 	ItemTablePtr getItemTable(ItemGroupId groupId);
 	void start(void);
+	void stop(void);
 
 	// Virtual functions
 	virtual void getTriggerList(TriggerInfoList &triggerList);

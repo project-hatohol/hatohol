@@ -38,6 +38,7 @@ using namespace mlpl;
 static int pipefd[2];
 
 struct ExecContext {
+	VirtualDataStoreZabbix *vdsZabbix;
 	GMainLoop *loop;
 };
 
@@ -63,7 +64,8 @@ gboolean exitFunc(GIOChannel *source, GIOCondition condition, gpointer data)
 	MLPL_INFO("recieved stop request.\n");
 	ExecContext *ctx = static_cast<ExecContext *>(data);
 
-	// TODO: to shoutdown servers
+	// shoutdown servers
+	ctx->vdsZabbix->stop();
 
 	// Because this function is beeing called, ctx->loop must have valid
 	// value even if a signal is received before ctx->loop is created.
@@ -109,13 +111,14 @@ int mainRoutine(int argc, char *argv[])
 	}
 
 	// start REST server
+	// 'rest' is on a stack. The destructor of it will be automatically
+	// called at the end of this function.
 	FaceRest rest(cmdArg);
 	rest.start();
 
 	// start VirtualDataStoreZabbix
-	VirtualDataStoreZabbix *vdsZabbix
-	  = VirtualDataStoreZabbix::getInstance();
-	vdsZabbix->start();
+	ctx.vdsZabbix = VirtualDataStoreZabbix::getInstance();
+	ctx.vdsZabbix->start();
 
 	// main loop of GLIB
 	ctx.loop = g_main_loop_new(NULL, FALSE);
