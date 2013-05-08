@@ -100,8 +100,12 @@ public:
 
 	bool testMainThreadOneProc(void)
 	{
+		// This test is typically executed without the start of
+		// the thread of ArmZabbixAPI. The exit callback (that unlock
+		// mutex in ArmZabbixAPI) is never called. So we explicitly
+		// call exitCallbackFunc() here to unlock the mutex;
+		exitCallbackFunc(static_cast<ArmZabbixAPI *>(this));
 		return ArmZabbixAPI::mainThreadOneProc();
-		
 	}
 
 protected:
