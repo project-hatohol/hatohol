@@ -22,6 +22,8 @@
 #include <glib-object.h>
 #include "Asura.h"
 #include "DBClientConfig.h"
+#include "ConfigManager.h"
+#include "DBAgentSQLite3.h"
 
 using namespace std;
 
@@ -222,7 +224,20 @@ int main(int argc, char *argv[])
 		return EXIT_FAILURE;
 
 	// Save data to DB.
-	// TODO: implemented
+	DBAgentSQLite3::defineDBPath(DB_DOMAIN_ID_CONFIG, configDBPath);
+	DBClientConfig dbConfig;
+	MonitoringServerInfoListIterator it = serverInfoList.begin();
+	for (; it != serverInfoList.end(); ++it) {
+		MonitoringServerInfo &svInfo = *it;
+		dbConfig.addTargetServer(&svInfo);
+
+		printf("SERVER: ID: %d, TYPE: %d, HOSTNAME: %s, IP ADDR: %s "
+		       "NICKNAME: %s, PORT: %d, POLLING: %d, RETRY: %d\n",
+		       svInfo.id, svInfo.type, svInfo.hostName.c_str(),
+		       svInfo.ipAddress.c_str(), svInfo.nickname.c_str(),
+		       svInfo.port, svInfo.pollingIntervalSec,
+		       svInfo.retryIntervalSec);
+	}
 
 	return EXIT_SUCCESS;
 }
