@@ -37,6 +37,10 @@ using namespace mlpl;
 
 static int pipefd[2];
 
+struct ExecContext {
+	GMainLoop *loop;
+};
+
 static void signalHandlerToExit(int signo, siginfo_t *info, void *arg)
 {
 	// We use close() to notify the exit request from a signal handler,
@@ -57,18 +61,25 @@ static void setupSignalHandlerForExit(int signo)
 gboolean exitFunc(GIOChannel *source, GIOCondition condition, gpointer data)
 {
 	MLPL_INFO("recieved stop request.\n");
-	// TODO: implement
+	ExecContext *ctx = static_cast<ExecContext *>(data);
+
+	// TODO: to shoutdown servers
+
+	// Because this function is beeing called, ctx->loop must have the
+	// valid value.
+	g_main_loop_quit(ctx->loop);
+
 	return FALSE;
 }
 
-static void setupGizmoForExit(void)
+static void setupGizmoForExit(gpointer data)
 {
 	// open a pipe to communicate with the main thread
 	ASURA_ASSERT(pipe(pipefd) == 0,
 		     "Failed to open pipe: errno: %d", errno);
 
 	GIOChannel *ioch = g_io_channel_unix_new(pipefd[0]);
-	g_io_add_watch(ioch, G_IO_HUP, exitFunc, NULL);
+	g_io_add_watch(ioch, G_IO_HUP, exitFunc, data);
 }
 
 int mainRoutine(int argc, char *argv[])
@@ -80,7 +91,8 @@ int mainRoutine(int argc, char *argv[])
 	MLPL_INFO("started asura: ver. %s\n", PACKAGE_VERSION);
 
 	// setup signal handlers for exit
-	setupGizmoForExit();
+	ExecContext ctx;
+	setupGizmoForExit(&ctx);
 	setupSignalHandlerForExit(SIGTERM);
 
 	// parse command line arguemnt
@@ -106,8 +118,8 @@ int mainRoutine(int argc, char *argv[])
 	vdsZabbix->start();
 
 	// main loop of GLIB
-	GMainLoop *loop = g_main_loop_new(NULL, FALSE);
-	g_main_loop_run(loop);
+	ctx.loop = g_main_loop_new(NULL, FALSE);
+	g_main_loop_run(ctx.loop);
 
 	return EXIT_SUCCESS;
 }
