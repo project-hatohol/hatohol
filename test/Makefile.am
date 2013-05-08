@@ -11,7 +11,7 @@ noinst_PROGRAMS = zabbix-api-response-collector
 endif
 
 # default
-AM_CXXFLAGS = -g -Wall -D__STDC_FORMAT_MACROS
+AM_CXXFLAGS = -g3 -Wall -D__STDC_FORMAT_MACROS
 AM_LDFLAGS = -module -rpath $(libdir) -avoid-version -no-undefined
 INCLUDES = \
 	$(CUTTER_CFLAGS) $(CPPCUTTER_CFLAGS) \

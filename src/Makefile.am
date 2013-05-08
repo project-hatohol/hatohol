@@ -26,7 +26,7 @@ libasura_la_SOURCES = \
 	JsonBuilderAgent.cc JsonParserAgent.cc \
 	ArmBase.cc ArmZabbixAPI.cc
 
-AM_CXXFLAGS = -Wall -g \
+AM_CXXFLAGS = -Wall -g3 \
 	-D__STDC_FORMAT_MACROS \
 	$(MLPL_CFLAGS) $(GLIB_CFLAGS) $(GIO_CFLAGS) \
 	$(LIBSOUP_CFLAGS) $(JSON_GLIB_CFLAGS) $(SQLITE3_CFLAGS)
