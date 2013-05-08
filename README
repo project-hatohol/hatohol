@@ -1,13 +1,61 @@
 Asura
-===
+=====
 
-Asura unifies the monitoring data from monitoring software
-and give the unified data in various way.
+Asura acquires the monitoring data from from multiple monitoring software,
+unifies them, serves the unified data with the format that is independent of
+the specific monitoring software in various way.
 
-=======================
+==============================================
+Currently supported monitoring software
+==============================================
+- ZABBIX 2.0
+
+==============================================
+Currently supported output method
+==============================================
+- REST
+
+==============================================
 How to build
-=======================
+==============================================
 $ autogen.sh
 $ ./configure
 $ make
 $ sudo make install
+
+==============================================
+How to start
+==============================================
+(1) Make configuration database
+
+[1-1] Prepare configuraiont data text file as a source of binary database.
+
+<Tips> There is a template file in <install path>/share/asura/asura-config.dat.example. 
+Ex.) cp /usr/local/share/asura/asura-config.dat.example asura-config.dat
+
+[1-2] Add server information to asura-config.dat
+[1-3] Create the binary database
+$ asura-config-db-creator asura-config.dat asura-config.db
+where 'asura-config.db' is the binary database and its name is arbitrary.
+
+(2) Prepare the data base directory 
+Asura automatically creates databases for storing its data. You have to 
+decide the direcory for the DBs and make it if necessary.
+
+Ex.)
+# mkdir /var/lib/asura
+
+(3) start 
+$ ASURA_DB_DIR=<directory preapred in step (2)> asura --config-db <path>/asura-config.db
+
+Ex.)
+$ ASURA_DB_DIR=/var/lib/asura asura --config-db /var/lib/asura-config.db
+
+<Tips> After the 2nd start, you can start only with the above step (3).
+<Tips> If you omit the environment variable 'ASURA_DB_DIR', the databases are
+created in /tmp.
+
+==============================================
+How to stop
+==============================================
+(Not written yet)
