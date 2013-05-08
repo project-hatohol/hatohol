@@ -58,4 +58,8 @@ created in /tmp.
 ==============================================
 How to stop
 ==============================================
-(Not written yet)
+Send one of the following signals to asura process.
+- SIGKILL
+
+Ex.)
+$ pkill asura

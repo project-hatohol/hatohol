@@ -17,7 +17,9 @@
 
 #include <cstdio>
 #include <cstdlib>
+#include <cstring>
 #include <glib.h>
+#include <errno.h>
 
 #include <string>
 #include <vector>
@@ -33,6 +35,42 @@ using namespace mlpl;
 #include "VirtualDataStoreZabbix.h"
 #include "DBClientConfig.h"
 
+static int pipefd[2];
+
+static void signalHandlerToExit(int signo, siginfo_t *info, void *arg)
+{
+	// We use close() to notify the exit request from a signal handler,
+	// because close() is one of the asynchronus SIGNAL safe functions.
+	close(pipefd[1]);
+}
+
+static void setupSignalHandlerForExit(int signo)
+{
+	struct sigaction sa;
+	memset(&sa, 0, sizeof(struct sigaction));
+	sa.sa_sigaction = signalHandlerToExit;
+	sa.sa_flags |= (SA_RESTART|SA_SIGINFO);
+	ASURA_ASSERT(sigaction(signo, &sa, NULL ) == 0,
+	             "Failed to set SIGNAL: %d, errno: %d\n", signo, errno);
+}
+
+gboolean exitFunc(GIOChannel *source, GIOCondition condition, gpointer data)
+{
+	MLPL_INFO("recieved stop request.\n");
+	// TODO: implement
+	return FALSE;
+}
+
+static void setupGizmoForExit(void)
+{
+	// open a pipe to communicate with the main thread
+	ASURA_ASSERT(pipe(pipefd) == 0,
+		     "Failed to open pipe: errno: %d", errno);
+
+	GIOChannel *ioch = g_io_channel_unix_new(pipefd[0]);
+	g_io_add_watch(ioch, G_IO_HUP, exitFunc, NULL);
+}
+
 int mainRoutine(int argc, char *argv[])
 {
 #ifndef GLIB_VERSION_2_36
@@ -41,6 +79,11 @@ int mainRoutine(int argc, char *argv[])
 	asuraInit();
 	MLPL_INFO("started asura: ver. %s\n", PACKAGE_VERSION);
 
+	// setup signal handlers for exit
+	setupGizmoForExit();
+	setupSignalHandlerForExit(SIGTERM);
+
+	// parse command line arguemnt
 	CommandLineArg cmdArg;
 	for (int i = 1; i < argc; i++)
 		cmdArg.push_back(argv[i]);
@@ -62,6 +105,7 @@ int mainRoutine(int argc, char *argv[])
 	  = VirtualDataStoreZabbix::getInstance();
 	vdsZabbix->start();
 
+	// main loop of GLIB
 	GMainLoop *loop = g_main_loop_new(NULL, FALSE);
 	g_main_loop_run(loop);
 
