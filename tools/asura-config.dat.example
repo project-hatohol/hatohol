@@ -1,0 +1,9 @@
+#
+# Example config file for Asura.
+#
+# A comment line begins with '#'
+# A empty line is ignored.
+
+# server: Server ID, TYPE (0: Zabbix), Hostname, IP Address, nickname, Port, Polling Interval (sec.), Retry Interval (sec.)
+
+server: 1, 0, localhost, 127.0.0.1, My machine, 80, 30, 10
