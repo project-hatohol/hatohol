@@ -6,4 +6,8 @@ AM_CXXFLAGS = -Wall -g \
 	-I ../src $(MLPL_CFLAGS) $(GLIB_CFLAGS)
 
 AM_LDFLAGS = ../src/libasura.la $(MLPL_LIBS) $(GLIB_LIBS)
-EXTRA_DIST = asura-config.dat.example
+
+config_example_DATA = asura-config.dat.example
+config_exampledir = $(pkgdatadir)
+
+EXTRA_DIST = $(config_example_DATA)
