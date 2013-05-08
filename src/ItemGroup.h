@@ -51,7 +51,6 @@ public:
 	void freeze();
 	bool isFreezed(void) const;
 	const ItemGroupType *getItemGroupType(void) const;
-	bool setItemGroupType(const ItemGroupType *itemGroupType);
 
 protected:
 	virtual ~ItemGroup();

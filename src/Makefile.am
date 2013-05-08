@@ -16,8 +16,7 @@ libasura_la_SOURCES = \
 	PrimaryCondition.cc PrimaryConditionPicker.cc \
 	FormulaElement.cc FormulaOperator.cc FormulaFunction.cc \
 	UsedCountable.cc \
-	ItemGroupType.cc ItemGroupTypeManager.cc \
-	ItemData.cc ItemGroup.cc ItemTable.cc \
+	ItemGroupType.cc ItemData.cc ItemGroup.cc ItemTable.cc \
 	ItemPtr.cc ItemTablePtr.cc ItemGroupPtr.cc ItemDataUtils.cc \
 	VirtualDataStore.cc VirtualDataStoreZabbix.cc \
 	VirtualDataStoreZabbixProfiles.cc \

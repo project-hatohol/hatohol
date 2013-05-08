@@ -21,7 +21,6 @@ using namespace mlpl;
 #include <stdexcept>
 #include "Utils.h"
 #include "ItemGroup.h"
-#include "ItemGroupTypeManager.h"
 
 // ---------------------------------------------------------------------------
 // Public methods
@@ -100,8 +99,7 @@ void ItemGroup::freeze(void)
 	ASURA_ASSERT(!m_groupType, "m_groupType: Not NULL");
 	m_freeze = true;
 
-	ItemGroupTypeManager *typeManager = ItemGroupTypeManager::getInstance();
-	m_groupType = typeManager->getItemGroupType(m_itemVector);
+	m_groupType = new ItemGroupType(m_itemVector);
 }
 
 bool ItemGroup::isFreezed(void) const
@@ -112,29 +110,6 @@ bool ItemGroup::isFreezed(void) const
 const ItemGroupType *ItemGroup::getItemGroupType(void) const
 {
 	return m_groupType;
-}
-
-bool ItemGroup::setItemGroupType(const ItemGroupType *itemGroupType)
-{
-	string msg;
-	if (m_groupType) {
-		if (m_groupType == itemGroupType) {
-			MLPL_WARN("The indentical ItemGroupType is set.\n");
-			return true;
-		}
-		TRMSG(msg, "m_groupType: alread set.");
-		MLPL_BUG(msg.c_str());
-		return false;
-	}
-
-	if (!m_itemVector.empty()) {
-		TRMSG(msg, "m_itemVector is not empty.");
-		MLPL_BUG(msg.c_str());
-		return false;
-	}
-
-	m_groupType = itemGroupType;
-	return true;
 }
 
 // ---------------------------------------------------------------------------
@@ -148,5 +123,7 @@ ItemGroup::~ItemGroup()
 		const ItemData *data = it->second;
 		data->unref();
 	}
+	if (m_groupType)
+		delete m_groupType;
 }
 

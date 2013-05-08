@@ -67,14 +67,10 @@ void ItemTable::add(ItemGroup *group, bool doRef)
 		const ItemGroup *tail = m_groupList.back();
 		const ItemGroupType *groupType0 = tail->getItemGroupType();
 		const ItemGroupType *groupType1 = group->getItemGroupType();
-		if (groupType1 == NULL) {
-			if (!group->setItemGroupType(groupType0)) {
-				THROW_ASURA_EXCEPTION(
-				  "Failed to call setItemGroupType.");
-			}
-		} else if (*groupType0 != *groupType1) {
-			THROW_ASURA_EXCEPTION("ItemGroupTypes unmatched");
-		}
+		ASURA_ASSERT(groupType0, "groupType0: NULL");
+		ASURA_ASSERT(groupType1, "groupType1: NULL");
+		ASURA_ASSERT(*groupType0 == *groupType1,
+		             "ItemGroupTypes unmatched");
 	} else if (hasIndex()) {
 		size_t sizeOfGroup = group->getNumberOfItems();
 		if (m_indexVector.size() != sizeOfGroup) {

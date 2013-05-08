@@ -27,23 +27,6 @@ static ItemGroup *g_grp[NUM_GROUP_POOL];
 static ItemGroup *&x_grp = g_grp[0];
 static ItemGroup *&y_grp = g_grp[1];
 
-static void assertSetItemGroupType(void)
-{
-	// make ItemDataVector
-	y_grp = new ItemGroup();
-	y_grp->add(new ItemInt(ITEM_ID_0, 500), false);
-	y_grp->add(new ItemString(ITEM_ID_1, "foo"), false);
-	y_grp->freeze();
-	const ItemGroupType *itemGroupType = y_grp->getItemGroupType();
-	cut_trace(cut_assert_not_null(itemGroupType));
-
-	// set ItemGroupTable
-	x_grp = new ItemGroup();
-	x_grp->setItemGroupType(itemGroupType);
-	cut_trace(
-	  cppcut_assert_equal(itemGroupType, x_grp->getItemGroupType()));
-}
-
 void teardown()
 {
 	for (int i = 0; i < NUM_GROUP_POOL; i++) {
@@ -153,77 +136,6 @@ void test_getItemGroupType(void)
 	cppcut_assert_equal((size_t)2, groupType->getSize());
 	cppcut_assert_equal(ITEM_TYPE_INT, groupType->getType(0));
 	cppcut_assert_equal(ITEM_TYPE_STRING, groupType->getType(1));
-}
-
-void test_setItemGroupType(void)
-{
-	assertSetItemGroupType();
-}
-
-void test_setItemGroupTypeWhenAlreadySet(void)
-{
-	// make ItemDataVector
-	y_grp = new ItemGroup();
-	y_grp->add(new ItemInt(ITEM_ID_0, 500), false);
-	y_grp->add(new ItemString(ITEM_ID_1, "foo"), false);
-	const ItemGroupType *itemGroupType = y_grp->getItemGroupType();
-
-	// set ItemGroupTable
-	x_grp = new ItemGroup();
-	x_grp->setItemGroupType(itemGroupType);
-	x_grp->add(new ItemInt(ITEM_ID_0, 500), false);
-	x_grp->freeze();
-	cut_assert_not_null(x_grp->getItemGroupType());
-
-	cppcut_assert_equal(false, x_grp->setItemGroupType(itemGroupType));
-}
-
-void test_setItemGroupTypeWhenHasData(void)
-{
-	// make ItemDataVector
-	y_grp = new ItemGroup();
-	y_grp->add(new ItemInt(ITEM_ID_0, 500), false);
-	y_grp->add(new ItemString(ITEM_ID_1, "foo"), false);
-	const ItemGroupType *itemGroupType = y_grp->getItemGroupType();
-
-	// set ItemGroupTable
-	x_grp = new ItemGroup();
-	x_grp->setItemGroupType(itemGroupType);
-	x_grp->add(new ItemInt(ITEM_ID_0, 500), false);
-	cppcut_assert_equal(false, x_grp->setItemGroupType(itemGroupType));
-}
-
-void test_addWhenHasItemGroupType(void)
-{
-	assertSetItemGroupType();
-	x_grp->add(new ItemInt(ITEM_ID_0, 400), false);
-	x_grp->add(new ItemString(ITEM_ID_1, "goo"), false);
-	cppcut_assert_equal((size_t)2, x_grp->getNumberOfItems());
-}
-
-void test_addInvalidItemTypeWhenHasItemGroupType(void)
-{
-	assertSetItemGroupType();
-	x_grp->add(new ItemInt(ITEM_ID_0, 400), false);
-	bool gotException = false;
-	ItemData *item = NULL;
-	try {
-		item = new ItemInt(ITEM_ID_1, 10);
-		x_grp->add(item, false);
-	} catch (const AsuraException &e) {
-		gotException = true;
-		item->unref();
-	}
-	cppcut_assert_equal(true, gotException);
-}
-
-void test_autoFreeze(void)
-{
-	assertSetItemGroupType();
-	x_grp->add(new ItemInt(ITEM_ID_0, 400), false);
-	cppcut_assert_equal(false, x_grp->isFreezed());
-	x_grp->add(new ItemString(ITEM_ID_1, "goo"), false);
-	cppcut_assert_equal(true, x_grp->isFreezed());
 }
 
 } // testItemGroup
