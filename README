@@ -59,7 +59,7 @@ created in /tmp.
 How to stop
 ==============================================
 Send one of the following signals to asura process.
-- SIGKILL
+- SIGTERM
 
 Ex.)
 $ pkill asura
