@@ -153,8 +153,48 @@ static bool readConfigFile(const string &configFilePath,
 
 static bool validateServerInfoList(MonitoringServerInfoList &serverInfoList)
 {
-	// TODO: implemented
-	return false;
+	set<int> serverIds;
+	MonitoringServerInfoListIterator it = serverInfoList.begin();
+	for (; it != serverInfoList.end(); ++it) {
+		// ID (Don't be duplicative)
+		MonitoringServerInfo &svInfo = *it;
+		if (serverIds.find(svInfo.id) != serverIds.end()) {
+			fprintf(stderr, "Duplicated server ID: %d\n",
+			        svInfo.id);
+			return false;
+		}
+		serverIds.insert(svInfo.id);
+
+		// should be given hostname or IP address.
+		if (svInfo.hostName.empty() && svInfo.ipAddress.empty()) {
+			fprintf(stderr,
+			        "Sould be specify hostname or IP adress.\n");
+		}
+
+		// TODO: If IP address is given, check the format
+
+		// port
+		if (svInfo.port < 0 || svInfo.port > 65535) {
+			fprintf(stderr, "Invalid port: %d\n", svInfo.port);
+			return false;
+		}
+
+		// polling interval
+		if (svInfo.pollingIntervalSec < 0) {
+			fprintf(stderr, "Invalid polling interval: %d\n",
+			        svInfo.pollingIntervalSec);
+			return false;
+		}
+
+		// retry interval
+		if (svInfo.retryIntervalSec < 0) {
+			fprintf(stderr, "Invalid retry interval: %d\n",
+			        svInfo.retryIntervalSec);
+			return false;
+		}
+	}
+	
+	return true;
 }
 
 int main(int argc, char *argv[])
