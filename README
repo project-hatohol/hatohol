@@ -60,6 +60,7 @@ How to stop
 ==============================================
 Send one of the following signals to asura process.
 - SIGTERM
+- SIGINT (This signal is also sent by Ctrl-C)
 
 Ex.)
 $ pkill asura
