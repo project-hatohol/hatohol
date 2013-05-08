@@ -45,13 +45,13 @@ decide the direcory for the DBs and make it if necessary.
 Ex.)
 # mkdir /var/lib/asura
 
-(3) start 
+(3) start asura process
 $ ASURA_DB_DIR=<directory preapred in step (2)> asura --config-db <path>/asura-config.db
 
 Ex.)
 $ ASURA_DB_DIR=/var/lib/asura asura --config-db /var/lib/asura-config.db
 
-<Tips> After the 2nd start, you can start only with the above step (3).
+<Tips> From the 2nd time, you can start only with the above step (3).
 <Tips> If you omit the environment variable 'ASURA_DB_DIR', the databases are
 created in /tmp.
 
