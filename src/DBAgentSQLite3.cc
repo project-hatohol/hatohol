@@ -101,16 +101,6 @@ void DBAgentSQLite3::reset(void)
 	PrivateContext::domainIdPathMap.clear();
 }
 
-string DBAgentSQLite3::getDefaultDBPath(DBDomainId domainId)
-{
-	ConfigManager *configMgr = ConfigManager::getInstance();
-	const string &dbDirectory = configMgr->getDatabaseDirectory();
-	string dbPath =
-	  StringUtils::sprintf("%s/DBAgentSQLite3-%d.db",
-	                       dbDirectory.c_str(), domainId);
-	return dbPath;
-}
-
 void DBAgentSQLite3::defineDBPath(DBDomainId domainId, const string &path)
 {
 	PrivateContext::lock();
@@ -267,6 +257,16 @@ void DBAgentSQLite3::deleteRows(DBAgentDeleteArg &deleteArg)
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
+string DBAgentSQLite3::getDefaultDBPath(DBDomainId domainId)
+{
+	ConfigManager *configMgr = ConfigManager::getInstance();
+	const string &dbDirectory = configMgr->getDatabaseDirectory();
+	string dbPath =
+	  StringUtils::sprintf("%s/DBAgentSQLite3-%d.db",
+	                       dbDirectory.c_str(), domainId);
+	return dbPath;
+}
+
 void DBAgentSQLite3::checkDBPath(const string &dbPath)
 {
 	GFile *gfile = g_file_new_for_path(dbPath.c_str());

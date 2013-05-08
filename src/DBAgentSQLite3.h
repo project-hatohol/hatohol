@@ -35,7 +35,6 @@ public:
 	 *                      is overwritten.
 	 * @path     A path of the database.
 	 */
-	static string getDefaultDBPath(DBDomainId domainId);
 	static void defineDBPath(DBDomainId domainId, const string &path);
 	static const string &getDBPath(DBDomainId domainId);
 
@@ -59,6 +58,7 @@ public:
 	virtual void deleteRows(DBAgentDeleteArg &deleteArg);
 
 protected:
+	static string getDefaultDBPath(DBDomainId domainId);
 	static void checkDBPath(const string &dbPath);
 	static sqlite3 *openDatabase(const string &dbPath);
 	static void execSql(sqlite3 *db, const char *fmt, ...);
