@@ -209,7 +209,6 @@ void DBClientConfig::parseCommandLineArgument(CommandLineArg &cmdArg)
 	}
 }
 
-
 DBClientConfig::DBClientConfig(void)
 : m_ctx(NULL)
 {
