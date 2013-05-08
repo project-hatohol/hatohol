@@ -45,6 +45,7 @@ int mainRoutine(int argc, char *argv[])
 	for (int i = 1; i < argc; i++)
 		cmdArg.push_back(argv[i]);
 
+	// setup configuration database
 	DBClientConfig::parseCommandLineArgument(cmdArg);
 	DBClientConfig dbConfig;
 	if (dbConfig.isFaceMySQLEnabled()) {
@@ -52,9 +53,11 @@ int mainRoutine(int argc, char *argv[])
 		face.start();
 	}
 
+	// start REST server
 	FaceRest rest(cmdArg);
 	rest.start();
 
+	// start VirtualDataStoreZabbix
 	VirtualDataStoreZabbix *vdsZabbix
 	  = VirtualDataStoreZabbix::getInstance();
 	vdsZabbix->start();
