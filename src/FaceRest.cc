@@ -54,6 +54,7 @@ FaceRest::FaceRest(CommandLineArg &cmdArg)
 
 FaceRest::~FaceRest()
 {
+	MLPL_INFO("FaceRest: stop process: started.\n");
 	if (m_stopMutex)
 		delete m_stopMutex;
 	if (m_soupServer) {
@@ -61,6 +62,7 @@ FaceRest::~FaceRest()
 		soup_socket_disconnect(sock);
 		g_object_unref(m_soupServer);
 	}
+	MLPL_INFO("FaceRest: stop process: completed.\n");
 }
 
 void FaceRest::stop(void)
