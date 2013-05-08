@@ -65,8 +65,8 @@ gboolean exitFunc(GIOChannel *source, GIOCondition condition, gpointer data)
 
 	// TODO: to shoutdown servers
 
-	// Because this function is beeing called, ctx->loop must have the
-	// valid value.
+	// Because this function is beeing called, ctx->loop must have valid
+	// value even if a signal is received before ctx->loop is created.
 	g_main_loop_quit(ctx->loop);
 
 	return FALSE;
