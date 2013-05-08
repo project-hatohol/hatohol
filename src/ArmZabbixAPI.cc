@@ -19,6 +19,8 @@
 #include <MutexLock.h>
 using namespace mlpl;
 
+#include <errno.h>
+#include <semaphore.h>
 #include <libsoup/soup.h>
 #include <json-glib/json-glib.h>
 
@@ -52,6 +54,7 @@ struct ArmZabbixAPI::PrivateContext
 	DBClientAsura  dbClientAsura;
 	volatile int   exitRequest;
 	MutexLock      exitMutex;
+	sem_t          sleepSemaphore;
 
 	// constructors
 	PrivateContext(const MonitoringServerInfo &serverInfo)
@@ -67,10 +70,16 @@ struct ArmZabbixAPI::PrivateContext
 	  exitRequest(0)
 	{
 		// TODO: use serverInfo.ipAddress if it is given.
+
+		const int pshared = 1;
+		ASURA_ASSERT(sem_init(&sleepSemaphore, pshared, 0) == 0,
+		             "Failed to sem_init(): %d\n", errno);
 	}
 
 	~PrivateContext()
 	{
+		if (sem_destroy(&sleepSemaphore) != 0)
+			MLPL_ERR("Failed to call sem_destroy(): %d\n", errno);
 		if (session)
 			g_object_unref(session);
 	}
@@ -108,6 +117,8 @@ ArmZabbixAPI::~ArmZabbixAPI()
 	          m_ctx->zabbixServerId, m_ctx->server.c_str());
 
 	// wait for the exit of the polling thread
+	if (sem_post(&m_ctx->sleepSemaphore) == -1)
+		MLPL_ERR("Failed to call sem_post: %d\n", errno);
 	requestExit();
 	m_ctx->exitMutex.lock();
 
@@ -731,7 +742,22 @@ gpointer ArmZabbixAPI::mainThread(AsuraThreadArg *arg)
 			sleepTime = m_ctx->retryInterval;
 		if (m_ctx->hasExitRequest())
 			break;
-		sleep(sleepTime);
+
+		// sleep with timeout
+		timespec ts;
+		if (clock_gettime(CLOCK_REALTIME, &ts) == -1) {
+			MLPL_ERR("Failed to call clock_gettime: %d\n", errno);
+			sleep(10); // to avoid burnup
+		}
+		ts.tv_sec += sleepTime;
+		int result = sem_timedwait(&m_ctx->sleepSemaphore, &ts);
+		if (result == -1) {
+			if (errno == ETIMEDOUT)
+				; // This is normal case
+			else if (errno == EINTR)
+				; // In this case, we also do nothing
+		}
+		// The up of the semaphore is done only from the destructor.
 	}
 	return NULL;
 }
