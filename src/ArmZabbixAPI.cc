@@ -16,6 +16,7 @@
 */
 
 #include <Logger.h>
+#include <MutexLock.h>
 using namespace mlpl;
 
 #include <libsoup/soup.h>
@@ -50,6 +51,7 @@ struct ArmZabbixAPI::PrivateContext
 	DBClientZabbix dbClientZabbix;
 	DBClientAsura  dbClientAsura;
 	volatile int   exitRequest;
+	MutexLock      exitMutex;
 
 	// constructors
 	PrivateContext(const MonitoringServerInfo &serverInfo)
@@ -95,12 +97,24 @@ ArmZabbixAPI::ArmZabbixAPI(const MonitoringServerInfo &serverInfo)
 	m_ctx->uri += m_ctx->server;
 	m_ctx->uri += StringUtils::sprintf(":%d", m_ctx->serverPort);
 	m_ctx->uri += "/zabbix/api_jsonrpc.php";
+
+	m_ctx->exitMutex.lock();
+	addExitCallback(exitCallbackFunc, this);
 }
 
 ArmZabbixAPI::~ArmZabbixAPI()
 {
+	MLPL_INFO("ArmZabbixAPI [%d:%s]: exit process started.\n",
+	          m_ctx->zabbixServerId, m_ctx->server.c_str());
+
+	// wait for the exit of the polling thread
+	requestExit();
+	m_ctx->exitMutex.lock();
+
 	if (m_ctx)
 		delete m_ctx;
+	MLPL_INFO("ArmZabbixAPI [%d:%s]: exit process completed.\n",
+	          m_ctx->zabbixServerId, m_ctx->server.c_str());
 }
 
 void ArmZabbixAPI::setPollingInterval(int sec)
@@ -238,6 +252,12 @@ ItemTablePtr ArmZabbixAPI::getEvents(uint64_t eventIdOffset)
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
+void ArmZabbixAPI::exitCallbackFunc(void *data)
+{
+	ArmZabbixAPI *obj = static_cast<ArmZabbixAPI *>(data);
+	obj->m_ctx->exitMutex.unlock();
+}
+
 SoupSession *ArmZabbixAPI::getSession(void)
 {
 	// NOTE: current implementaion is not MT-safe.

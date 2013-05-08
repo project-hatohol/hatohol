@@ -85,7 +85,7 @@ void VirtualDataStoreZabbix::start(void)
 void VirtualDataStoreZabbix::stop(void)
 {
 	MLPL_INFO("VirtualDataStoreZabbix: stop process: started.\n");
-	// TODO: shutdown all DataStores
+	closeAllStores();
 }
 
 void VirtualDataStoreZabbix::getTriggerList(TriggerInfoList &triggerList)

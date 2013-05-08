@@ -38,6 +38,9 @@ public:
 
 	DataStoreVector &getDataStoreVector(void);
 
+protected:
+	void closeAllStores(void);
+
 private:
 	typedef map<uint32_t, DataStore*> DataStoreMap;
 	typedef DataStoreMap::iterator    DataStoreMapIterator;

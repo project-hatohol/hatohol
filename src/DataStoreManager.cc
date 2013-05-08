@@ -9,9 +9,7 @@ DataStoreManager::DataStoreManager(void)
 
 DataStoreManager::~DataStoreManager()
 {
-	for (size_t i = 0; i < m_dataStoreVector.size(); i++)
-		delete m_dataStoreVector[i];
-	// No need to free elements in m_dataStoreMap.
+	closeAllStores();
 }
 
 void DataStoreManager::passCommandLineArg(const CommandLineArg &cmdArg)
@@ -39,3 +37,9 @@ DataStoreVector &DataStoreManager::getDataStoreVector(void)
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
+void DataStoreManager::closeAllStores(void)
+{
+	for (size_t i = 0; i < m_dataStoreVector.size(); i++)
+		delete m_dataStoreVector[i];
+	m_dataStoreVector.clear();
+}

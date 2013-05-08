@@ -43,6 +43,7 @@ public:
 	ItemTablePtr getEvents(uint64_t eventIdOffset);
 
 protected:
+	static void exitCallbackFunc(void *data);
 	SoupSession *getSession(void);
 
 	/**
