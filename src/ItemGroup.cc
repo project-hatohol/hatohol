@@ -97,10 +97,7 @@ void ItemGroup::freeze(void)
 		MLPL_WARN("m_freeze: already set.\n");
 		return;
 	}
-	if (m_groupType) {
-		THROW_ASURA_EXCEPTION("m_groupType: NULL");
-	}
-
+	ASURA_ASSERT(!m_groupType, "m_groupType: Not NULL");
 	m_freeze = true;
 
 	ItemGroupTypeManager *typeManager = ItemGroupTypeManager::getInstance();
