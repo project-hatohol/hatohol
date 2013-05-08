@@ -1,6 +1,5 @@
 [S] Short-term, [M] Middle-term, [L] Long-term
 ====
-* [S] add a standard exit way. (including implementation of SIGNAL handlers.)
 * [S] fix major memory leaks.
 * [M] make a mechanism to replica partially
 * [S] make a API and the depending mechanism to draw graph for UI.
