@@ -45,6 +45,7 @@ int mainRoutine(int argc, char *argv[])
 	for (int i = 1; i < argc; i++)
 		cmdArg.push_back(argv[i]);
 
+	DBClientConfig::parseCommandLineArgument(cmdArg);
 	DBClientConfig dbConfig;
 	if (dbConfig.isFaceMySQLEnabled()) {
 		FaceMySQL face(cmdArg);

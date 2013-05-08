@@ -24,9 +24,12 @@ using namespace std;
 #include "DBClientConfig.h"
 #include "ConfigManager.h"
 #include "DBClientUtils.h"
+#include "DBAgentSQLite3.h"
 
 static const char *TABLE_NAME_SYSTEM  = "system";
 static const char *TABLE_NAME_SERVERS = "servers";
+
+const char *DBClientConfig::DEFAULT_DB_NAME = "asura-config.db";
 
 static const ColumnDef COLUMN_DEF_SYSTEM[] = {
 {
@@ -189,6 +192,23 @@ void DBClientConfig::reset(void)
 {
 	resetDBInitializedFlags();
 }
+
+void DBClientConfig::parseCommandLineArgument(CommandLineArg &cmdArg)
+{
+	for (size_t i = 0; i < cmdArg.size(); i++) {
+		string &arg = cmdArg[i];
+		if (arg == "--config-db") {
+			ASURA_ASSERT(i < cmdArg.size()-1,
+			             "--config-db needs database path.");
+			i++;
+			string dbPath = cmdArg[i];
+			MLPL_INFO("Configuration DB: %s\n", dbPath.c_str());
+			DBAgentSQLite3::defineDBPath(DB_DOMAIN_ID_CONFIG,
+			                             dbPath);
+		}
+	}
+}
+
 
 DBClientConfig::DBClientConfig(void)
 : m_ctx(NULL)
