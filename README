@@ -74,5 +74,5 @@ How to set the port number of REST service
 Ex.)
 $ asura --face-rest-port 3000
 
-(2) Otherwise if the port num in the configuration DB is not 0, it is used.
+(2) Otherwise if the port number in the configuration DB is not 0, it is used.
 (3) Otherwise the default port: 33194 is used.
