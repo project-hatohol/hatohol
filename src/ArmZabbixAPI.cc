@@ -113,11 +113,12 @@ ArmZabbixAPI::ArmZabbixAPI(const MonitoringServerInfo &serverInfo)
 
 ArmZabbixAPI::~ArmZabbixAPI()
 {
-	// We make a copy of the server name on the stack, because m_ctx is
-	// destroyed before it is used in the last message.
+	// We make a copy of the server ID and the name in m_ctx on the stack,
+	// because m_ctx is destroyed before it is used in the last message.
+	int serverId = m_ctx->zabbixServerId;
 	string serverName = m_ctx->server;
 	MLPL_INFO("ArmZabbixAPI [%d:%s]: exit process started.\n",
-	          m_ctx->zabbixServerId, serverName.c_str());
+	          serverId, serverName.c_str());
 
 	// wait for the exit of the polling thread
 	if (sem_post(&m_ctx->sleepSemaphore) == -1)
@@ -128,7 +129,7 @@ ArmZabbixAPI::~ArmZabbixAPI()
 	if (m_ctx)
 		delete m_ctx;
 	MLPL_INFO("ArmZabbixAPI [%d:%s]: exit process completed.\n",
-	          m_ctx->zabbixServerId, serverName.c_str());
+	          serverId, serverName.c_str());
 }
 
 void ArmZabbixAPI::setPollingInterval(int sec)
