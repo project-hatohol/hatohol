@@ -29,11 +29,22 @@ using namespace std;
 static const char *TABLE_NAME_SYSTEM  = "system";
 static const char *TABLE_NAME_SERVERS = "servers";
 
-int DBClientConfig::CONFIG_DB_VERSION = 3;
+int DBClientConfig::CONFIG_DB_VERSION = 4;
 const char *DBClientConfig::DEFAULT_DB_NAME = "asura-config.db";
 
 static const ColumnDef COLUMN_DEF_SYSTEM[] = {
 {
+	ITEM_ID_NOT_SET,                   // itemId
+	TABLE_NAME_SYSTEM,                 // tableName
+	"database_dir",                    // columnName
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	255,                               // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	"",                                // defaultValue
+}, {
 	ITEM_ID_NOT_SET,                   // itemId
 	TABLE_NAME_SYSTEM,                 // tableName
 	"enable_face_mysql",               // columnName
@@ -61,6 +72,7 @@ static const size_t NUM_COLUMNS_SYSTEM =
   sizeof(COLUMN_DEF_SYSTEM) / sizeof(ColumnDef);
 
 enum {
+	IDX_SYSTEM_DATABASE_DIR,
 	IDX_SYSTEM_ENABLE_FACE_MYSQL,
 	IDX_SYSTEM_FACE_REST_PORT,
 	NUM_IDX_SYSTEM,
@@ -400,6 +412,8 @@ void DBClientConfig::resetDBInitializedFlags(void)
 
 void DBClientConfig::tableInitializerSystem(DBAgent *dbAgent, void *data)
 {
+	const ColumnDef &columnDefDatabaseDir =
+	  COLUMN_DEF_SYSTEM[IDX_SYSTEM_DATABASE_DIR];
 	const ColumnDef &columnDefFaceRestPort =
 	  COLUMN_DEF_SYSTEM[IDX_SYSTEM_FACE_REST_PORT];
 
@@ -409,6 +423,10 @@ void DBClientConfig::tableInitializerSystem(DBAgent *dbAgent, void *data)
 	insArg.numColumns = NUM_COLUMNS_SYSTEM;
 	insArg.columnDefs = COLUMN_DEF_SYSTEM;
 	VariableItemGroupPtr row;
+
+	// database_dir
+	row->ADD_NEW_ITEM(String, columnDefDatabaseDir.defaultValue);
+
 	row->ADD_NEW_ITEM(Int, 0); // enable_face_mysql
 
 	// face_reset_port

@@ -68,10 +68,12 @@ void test_createTableSystem(void)
 	// check content
 	string statement = "select * from " + tableName;
 	string output = execSqlite3ForDBClient(DB_DOMAIN_ID_CONFIG, statement);
+	const char *expectedDatabasePath = "";
 	int expectedEnableFaceMySQL = 0;
 	int expectedFaceRestPort    = 0;
 	string expectedOut =
-	   StringUtils::sprintf("%d|%d\n",
+	   StringUtils::sprintf("%s|%d|%d\n",
+	                        expectedDatabasePath,
 	                        expectedEnableFaceMySQL, expectedFaceRestPort);
 	cppcut_assert_equal(expectedOut, output);
 }
