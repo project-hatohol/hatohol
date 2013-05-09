@@ -36,9 +36,29 @@ const char *FaceRest::pathForGetEvents   = "/events";
 
 static const char *MIME_JSON = "application/json";
 
+enum FormatType {
+	FORMAT_JSON,
+	FORMAT_JSONP,
+};
+
+struct FaceRest::HandlerArg
+{
+	FormatType formatType;
+};
+
+typedef map<string, FormatType> FormatTypeMap;
+typedef FormatTypeMap::iterator FormatTypeMapIterator;;
+static FormatTypeMap g_formatTypeMap;
+
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
+void FaceRest::init(void)
+{
+	g_formatTypeMap["json"] = FORMAT_JSON;
+	g_formatTypeMap["jsonp"] = FORMAT_JSONP;
+}
+
 FaceRest::FaceRest(CommandLineArg &cmdArg)
 : m_port(DEFAULT_PORT),
   m_soupServer(NULL)
@@ -165,8 +185,20 @@ void FaceRest::launchHandlerInTryBlock
    GHashTable *query, SoupClientContext *client, gpointer user_data)
 {
 	RestHandler handler = reinterpret_cast<RestHandler>(user_data);
+	string extension = getExtension(path);
+	FormatTypeMapIterator it = g_formatTypeMap.find(extension);
+	if (it == g_formatTypeMap.end()) {
+		string errMsg = StringUtils::sprintf(
+		  "Unsupported extension: %s, path: %s\n",
+		  extension.c_str(), path);
+		replyError(msg, errMsg);
+		return;
+	}
+
+	HandlerArg arg;
+	arg.formatType = it->second;
 	try {
-		(*handler)(server, msg, path, query, client, user_data);
+		(*handler)(server, msg, path, query, client, &arg);
 	} catch (const AsuraException &e) {
 		MLPL_INFO("Got Exception: %s\n", e.getFancyMessage().c_str());
 		replyError(msg, e.getFancyMessage());
@@ -175,7 +207,7 @@ void FaceRest::launchHandlerInTryBlock
 
 void FaceRest::handlerHelloPage
   (SoupServer *server, SoupMessage *msg, const char *path,
-   GHashTable *query, SoupClientContext *client, gpointer user_data)
+   GHashTable *query, SoupClientContext *client, HandlerArg *arg)
 {
 	string response;
 	const char *pageTemplate =
@@ -190,7 +222,7 @@ void FaceRest::handlerHelloPage
 
 void FaceRest::handlerGetServers
   (SoupServer *server, SoupMessage *msg, const char *path,
-   GHashTable *query, SoupClientContext *client, gpointer user_data)
+   GHashTable *query, SoupClientContext *client, HandlerArg *arg)
 {
 	ConfigManager *configManager = ConfigManager::getInstance();
 
@@ -225,7 +257,7 @@ void FaceRest::handlerGetServers
 
 void FaceRest::handlerGetTriggers
   (SoupServer *server, SoupMessage *msg, const char *path,
-   GHashTable *query, SoupClientContext *client, gpointer user_data)
+   GHashTable *query, SoupClientContext *client, HandlerArg *arg)
 {
 	VirtualDataStoreZabbix *vdsz = VirtualDataStoreZabbix::getInstance();
 
@@ -262,7 +294,7 @@ void FaceRest::handlerGetTriggers
 
 void FaceRest::handlerGetEvents
   (SoupServer *server, SoupMessage *msg, const char *path,
-   GHashTable *query, SoupClientContext *client, gpointer user_data)
+   GHashTable *query, SoupClientContext *client, HandlerArg *arg)
 {
 	VirtualDataStoreZabbix *vdsz = VirtualDataStoreZabbix::getInstance();
 

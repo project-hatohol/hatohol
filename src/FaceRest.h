@@ -23,6 +23,7 @@
 
 class FaceRest : public FaceBase {
 public:
+	static void init(void);
 	FaceRest(CommandLineArg &cmdArg);
 	virtual ~FaceRest();
 	virtual void stop(void);
@@ -37,26 +38,27 @@ protected:
 	static string getExtension(const string &path);
 
 	// handlers
+        struct HandlerArg;
 	static void
 	  handlerDefault(SoupServer *server, SoupMessage *msg,
 	                 const char *path, GHashTable *query,
 	                 SoupClientContext *client, gpointer user_data);
-
 	static void launchHandlerInTryBlock
 	  (SoupServer *server, SoupMessage *msg, const char *path,
 	   GHashTable *query, SoupClientContext *client, gpointer user_data);
+
 	static void handlerHelloPage
 	  (SoupServer *server, SoupMessage *msg, const char *path,
-	   GHashTable *query, SoupClientContext *client, gpointer user_data);
+	   GHashTable *query, SoupClientContext *client, HandlerArg *arg);
 	static void handlerGetServers
 	  (SoupServer *server, SoupMessage *msg, const char *path,
-	   GHashTable *query, SoupClientContext *client, gpointer user_data);
+	   GHashTable *query, SoupClientContext *client, HandlerArg *arg);
 	static void handlerGetTriggers
 	  (SoupServer *server, SoupMessage *msg, const char *path,
-	   GHashTable *query, SoupClientContext *client, gpointer user_data);
+	   GHashTable *query, SoupClientContext *client, HandlerArg *arg);
 	static void handlerGetEvents
 	  (SoupServer *server, SoupMessage *msg, const char *path,
-	   GHashTable *query, SoupClientContext *client, gpointer user_data);
+	   GHashTable *query, SoupClientContext *client, HandlerArg *arg);
 
 private:
 	static const char *pathForGetServers;

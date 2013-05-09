@@ -174,7 +174,7 @@ void test_getExtensionNull(void)
 void test_servers(void)
 {
 	startFaceRest();
-	g_parser = getResponseAsJsonParser("/servers");
+	g_parser = getResponseAsJsonParser("/servers.json");
 	assertValueInParser(g_parser, "result", true);
 	assertValueInParser(g_parser, "numberOfServers",
 	                    (uint32_t)NumServerInfo);
@@ -195,7 +195,7 @@ void test_servers(void)
 void test_triggers(void)
 {
 	startFaceRest();
-	g_parser = getResponseAsJsonParser("/triggers");
+	g_parser = getResponseAsJsonParser("/triggers.json");
 	assertValueInParser(g_parser, "result", true);
 	assertValueInParser(g_parser, "numberOfTriggers",
 	                    (uint32_t)NumTestTriggerInfo);
@@ -212,7 +212,7 @@ void test_triggers(void)
 void test_events(void)
 {
 	startFaceRest();
-	g_parser = getResponseAsJsonParser("/events");
+	g_parser = getResponseAsJsonParser("/events.json");
 	assertValueInParser(g_parser, "result", true);
 	assertValueInParser(g_parser, "numberOfEvents",
 	                    (uint32_t)NumTestEventInfo);

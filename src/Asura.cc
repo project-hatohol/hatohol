@@ -28,6 +28,7 @@ using namespace mlpl;
 #include "SQLProcessorInsert.h"
 #include "SQLProcessorUpdate.h"
 #include "FaceMySQLWorker.h"
+#include "FaceRest.h"
 #include "AsuraException.h"
 #include "DBAgentSQLite3.h"
 #include "DBClientConfig.h"
@@ -57,6 +58,8 @@ static void init(void)
 	SQLProcessorUpdate::init();
 	SQLProcessorZabbix::init();
 	SQLProcessorFactory::init();
+
+	FaceRest::init();
 }
 
 static void reset(void)
