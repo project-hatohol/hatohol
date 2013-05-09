@@ -18,6 +18,9 @@ Currently supported output method
 ==============================================
 How to build
 ==============================================
+First, you need to install MLPL (https://github.com/miraclelinux/mlpl)
+Then input the following commands.
+
 $ autogen.sh
 $ ./configure
 $ make
@@ -54,6 +57,10 @@ $ ASURA_DB_DIR=/var/lib/asura asura --config-db /var/lib/asura-config.db
 <Tips> From the 2nd time, you can start only with the above step (3).
 <Tips> If you omit the environment variable 'ASURA_DB_DIR', the databases are
 created in /tmp.
+
+<Tips> When the process successfully starts, asura reply the HTML message
+including ASURA version on http://<hostname>:<RestPort>/hello.html.
+Ex.) http://localhost:33194/hello.html
 
 ==============================================
 How to stop
