@@ -156,6 +156,16 @@ static bool readConfigFile(const string &configFilePath, ConfigValue &confValue)
 	return true;
 }
 
+static bool validatePort(int port)
+{
+	// port
+	if (port < 0 || port > 65535) {
+		fprintf(stderr, "Invalid port: %d\n", port);
+		return false;
+	}
+	return true;
+}
+
 static bool validateServerInfoList(ConfigValue &confValue)
 {
 	set<int> serverIds;
@@ -179,10 +189,8 @@ static bool validateServerInfoList(ConfigValue &confValue)
 		// TODO: If IP address is given, check the format
 
 		// port
-		if (svInfo.port < 0 || svInfo.port > 65535) {
-			fprintf(stderr, "Invalid port: %d\n", svInfo.port);
+		if (!validatePort(svInfo.port))
 			return false;
-		}
 
 		// polling interval
 		if (svInfo.pollingIntervalSec < 0) {
