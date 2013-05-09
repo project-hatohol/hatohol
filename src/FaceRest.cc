@@ -37,6 +37,7 @@ const char *FaceRest::pathForGetEvents   = "/events";
 static const char *MIME_JSON = "application/json";
 
 enum FormatType {
+	FORMAT_HTML,
 	FORMAT_JSON,
 	FORMAT_JSONP,
 };
@@ -55,6 +56,7 @@ static FormatTypeMap g_formatTypeMap;
 // ---------------------------------------------------------------------------
 void FaceRest::init(void)
 {
+	g_formatTypeMap["html"] = FORMAT_HTML;
 	g_formatTypeMap["json"] = FORMAT_JSON;
 	g_formatTypeMap["jsonp"] = FORMAT_JSONP;
 }
