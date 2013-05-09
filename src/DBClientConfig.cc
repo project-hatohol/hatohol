@@ -253,7 +253,7 @@ bool DBClientConfig::isFaceMySQLEnabled(void)
 		select(arg);
 	} DBCLIENT_TRANSACTION_END();
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
-	ASURA_ASSERT(!grpList.empty(), "Objtained Table: empty");
+	ASURA_ASSERT(!grpList.empty(), "Obtained Table: empty");
 	return ItemDataUtils::getInt((*grpList.begin())->getItemAt(0));
 }
 
