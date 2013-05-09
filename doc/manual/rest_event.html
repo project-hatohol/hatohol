@@ -1,0 +1,118 @@
+<html>
+<head>
+ <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+ <link rel="stylesheet" type="text/css" href="manual.css">
+</head>
+
+<body>
+<h1>Event</h1>
+
+<h2>Request</h2>
+<h3>Path</h3>
+<table>
+<tr>
+  <td>/events</td>
+</tr>
+</table>
+
+<h3>Parameters</h3>
+<table>
+<tr>
+  <td>nothing</td>
+</tr>
+</table>
+
+<h2>Response</h2>
+<table>
+<tr>
+  <th>Key</th>
+  <th>Value type</th>
+  <th>Brief</th>
+  <th>Reply</th>
+</tr>
+<tr>
+  <td>result</td>
+  <td>Boolean</td>
+  <td>True on success. Otherwise False.</td>
+  <td>A</td>
+</tr>
+<tr>
+  <td>message</td>
+  <td>String</td>
+  <td>Error message. This key is reply only when result is False.</td>
+  <td>F</td>
+</tr>
+<tr>
+  <td>numberOfEvents</td>
+  <td>Number</td>
+  <td>The number of events.</td>
+  <td>T</td>
+</tr>
+<tr>
+  <td>events</td>
+  <td>Array</td>
+  <td>The array of event object.</td>
+  <td>T</td>
+</tr>
+</table>
+A: always, T: only when result is True, F: only when result is False.
+
+<h3>Event Object</h3>
+<table>
+<tr>
+  <th>Key</th>
+  <th>Value type</th>
+  <th>Brief</th>
+</tr>
+<tr>
+  <td>serverId</td>
+  <td>Number</td>
+  <td>A unique server ID.</td>
+</tr>
+<tr>
+  <td>time</td>
+  <td>Number</td>
+  <td></td>
+</tr>
+<tr>
+  <td>eventValue</td>
+  <td>Number</td>
+  <td></td>
+</tr>
+<tr>
+  <td>triggerId</td>
+  <td>Number</td>
+  <td></td>
+</tr>
+<tr>
+  <td>status</td>
+  <td>Number</td>
+  <td></td>
+</tr>
+<tr>
+  <td>severity</td>
+  <td>Number</td>
+  <td></td>
+</tr>
+<tr>
+  <td>lastChangeTime</td>
+  <td>Number</td>
+  <td></td>
+</tr>
+<tr>
+  <td>hostId</td>
+  <td>String</td>
+  <td></td>
+</tr>
+<tr>
+  <td>hostName</td>
+  <td>String</td>
+  <td></td>
+</tr>
+<tr>
+  <td>brief</td>
+  <td>String</td>
+  <td>Brief of the event(trigger).</td>
+</tr>
+</body>
+</html>
