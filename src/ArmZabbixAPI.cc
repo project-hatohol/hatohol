@@ -138,7 +138,7 @@ int ArmZabbixAPI::getPollingInterval(void) const
 
 void ArmZabbixAPI::requestExit(void)
 {
-	// wait for the exit of the polling thread
+	// to return immediately from the waiting.
 	if (sem_post(&m_ctx->sleepSemaphore) == -1)
 		MLPL_ERR("Failed to call sem_post: %d\n", errno);
 	m_ctx->setExitRequest();
