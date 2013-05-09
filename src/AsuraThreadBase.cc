@@ -20,6 +20,7 @@
 
 #include <Logger.h>
 #include <MutexLock.h>
+#include <ReadWriteLock.h>
 using namespace mlpl;
 
 #include <exception>
@@ -31,11 +32,7 @@ using namespace mlpl;
 
 struct AsuraThreadBase::PrivateContext {
 	GThread *thread;
-#ifdef GLIB_VERSION_2_32
-	GRWLock rwlock;
-#else
-	GStaticMutex lock;
-#endif // GLIB_VERSION_2_32
+	ReadWriteLock rwlock;
 	ExceptionCallbackInfoList exceptionCbList;
 	ExitCallbackInfoList      exitCbList;
 	MutexLock                 mutexForThreadExit;
@@ -44,11 +41,6 @@ struct AsuraThreadBase::PrivateContext {
 	PrivateContext(void)
 	: thread(NULL)
 	{
-#ifdef GLIB_VERSION_2_32
-		g_rw_lock_init(&rwlock);
-#else
-		g_static_mutex_init(&lock);
-#endif // GLIB_VERSION_2_32
 	}
 
 	virtual ~PrivateContext()
@@ -60,48 +52,26 @@ struct AsuraThreadBase::PrivateContext {
 			// no need to code for freeing
 #endif // GLIB_VERSION_2_32
 		}
-
-#ifdef GLIB_VERSION_2_32
-		g_rw_lock_clear(&rwlock);
-#else
-		g_static_mutex_free(&lock);
-#endif // GLIB_VERSION_2_32
 	}
 
 	void read_lock(void)
 	{
-#ifdef GLIB_VERSION_2_32
-		g_rw_lock_reader_lock(&rwlock);
-#else
-		g_static_mutex_lock(&lock);
-#endif // GLIB_VERSION_2_32
+		rwlock.readLock();
 	}
 
 	void read_unlock(void)
 	{
-#ifdef GLIB_VERSION_2_32
-		g_rw_lock_reader_unlock(&rwlock);
-#else
-		g_static_mutex_unlock(&lock);
-#endif // GLIB_VERSION_2_32
+		rwlock.unlock();
 	}
 
 	void write_lock(void)
 	{
-#ifdef GLIB_VERSION_2_32
-		g_rw_lock_writer_lock(&rwlock);
-#else
-		g_static_mutex_lock(&lock);
-#endif // GLIB_VERSION_2_32
+		rwlock.writeLock();
 	}
 
 	void write_unlock(void)
 	{
-#ifdef GLIB_VERSION_2_32
-		g_rw_lock_writer_unlock(&rwlock);
-#else
-		g_static_mutex_unlock(&lock);
-#endif // GLIB_VERSION_2_32
+		rwlock.unlock();
 	}
 };
 
