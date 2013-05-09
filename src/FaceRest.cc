@@ -43,6 +43,11 @@ FaceRest::FaceRest(CommandLineArg &cmdArg)
 : m_port(DEFAULT_PORT),
   m_soupServer(NULL)
 {
+	DBClientConfig dbConfig;
+	int port = dbConfig.getFaceRestPort();
+	if (port != 0 && Utils::isValidPort(port))
+		m_port = port;
+
 	for (size_t i = 0; i < cmdArg.size(); i++) {
 		string &cmd = cmdArg[i];
 		if (cmd == "--face-rest-port")
