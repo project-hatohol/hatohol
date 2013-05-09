@@ -730,7 +730,7 @@ void ArmZabbixAPI::updateEvents(void)
 gpointer ArmZabbixAPI::mainThread(AsuraThreadArg *arg)
 {
 	MLPL_INFO("started: ArmZabbixAPI (server: %s)\n",
-	          __PRETTY_FUNCTION__, m_ctx->server.c_str());
+	          m_ctx->server.c_str());
 	while (!m_ctx->hasExitRequest()) {
 		int sleepTime = m_ctx->repeatInterval;
 		if (!mainThreadOneProc())
