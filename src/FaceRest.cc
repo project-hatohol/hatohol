@@ -137,6 +137,19 @@ void FaceRest::replyError(SoupMessage *msg, const string &errorMessage)
 	soup_message_set_status(msg, SOUP_STATUS_OK);
 }
 
+string FaceRest::getExtension(const string &path)
+{
+	string ext;
+	int len = path.size();
+	for (int i = len-1; i >= 0; i--) {
+		if (path[i] != '.')
+			continue;
+		ext = string(path, i+1);
+		break;
+	}
+	return ext;
+}
+
 // handlers
 void FaceRest::handlerDefault(SoupServer *server, SoupMessage *msg,
                               const char *path, GHashTable *query,

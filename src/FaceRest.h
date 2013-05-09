@@ -34,6 +34,7 @@ protected:
 	// generic sub routines
 	size_t parseCmdArgPort(CommandLineArg &cmdArg, size_t idx);
 	static void replyError(SoupMessage *msg, const string &errorMessage);
+	static string getExtension(const string &path);
 
 	// handlers
 	static void
