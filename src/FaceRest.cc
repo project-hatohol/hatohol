@@ -49,7 +49,6 @@ FaceRest::FaceRest(CommandLineArg &cmdArg)
 			i = parseCmdArgPort(cmdArg, i);
 	}
 	MLPL_INFO("started face-rest, port: %d\n", m_port);
-	m_stopMutex = new MutexLock();
 }
 
 FaceRest::~FaceRest()
@@ -58,8 +57,6 @@ FaceRest::~FaceRest()
 	stop();
 
 	MLPL_INFO("FaceRest: stop process: started.\n");
-	if (m_stopMutex)
-		delete m_stopMutex;
 	if (m_soupServer) {
 		SoupSocket *sock = soup_server_get_listener(m_soupServer);
 		soup_socket_disconnect(sock);
@@ -71,19 +68,7 @@ FaceRest::~FaceRest()
 void FaceRest::stop(void)
 {
 	ASURA_ASSERT(m_soupServer, "m_soupServer: NULL");
-
-	// We make and use a copy of m_stopMutex. This object will be
-	// destroyed soon after calling soup_server_quit() when auto
-	// delete flag is set. So the this->m_stopMutex will be invalid.
-	MutexLock *stopMutex = m_stopMutex;
-
 	soup_server_quit(m_soupServer);
-
-	// wait for the return from soup_server_run() in the
-	// main thread. This synchronization ensures that the delete of
-	// this instance after stop() is safe.
-	stopMutex->lock();
-	stopMutex->unlock();
 
 	AsuraThreadBase::stop();
 }
@@ -105,9 +90,7 @@ gpointer FaceRest::mainThread(AsuraThreadArg *arg)
 	soup_server_add_handler(m_soupServer, pathForGetEvents,
 	                        launchHandlerInTryBlock,
 	                        (gpointer)handlerGetEvents, NULL);
-	m_stopMutex->lock();
 	soup_server_run(m_soupServer);
-	m_stopMutex->unlock();
 	MLPL_INFO("exited face-rest\n");
 	return NULL;
 }
