@@ -153,6 +153,9 @@ void DBClient::updateDBIfNeeded(DBAgent *dbAgent, DBSetupFuncArg *setupFuncArg)
 	dbVersion = getDBVersion(dbAgent, columnDef);
 	if (dbVersion != setupFuncArg->version) {
 		void *data = setupFuncArg->dbUpdaterData;
+		ASURA_ASSERT(setupFuncArg->dbUpdater,
+		             "Updater: NULL, expect/actual ver. %d/%d",
+		             setupFuncArg->version, dbVersion);
 		(*setupFuncArg->dbUpdater)(dbAgent, dbVersion, data);
 	}
 }
