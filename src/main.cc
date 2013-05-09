@@ -97,6 +97,8 @@ int mainRoutine(int argc, char *argv[])
 	setupGizmoForExit(&ctx);
 	setupSignalHandlerForExit(SIGTERM);
 	setupSignalHandlerForExit(SIGINT);
+	setupSignalHandlerForExit(SIGHUP);
+	setupSignalHandlerForExit(SIGUSR1);
 
 	// parse command line arguemnt
 	CommandLineArg cmdArg;
