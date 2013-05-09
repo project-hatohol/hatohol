@@ -1683,6 +1683,9 @@ void DBClientZabbix::getEventsAsAsuraFormat(EventInfoList &eventInfoList)
 		DEFINE_AND_ASSERT(
 		   itemGroup->getItemAt(idx++), ItemInt, itemNs);
 		eventInfo.time.tv_nsec = itemNs->get();
+
+		// push back this event
+		eventInfoList.push_back(eventInfo);
 	}
 }
 
