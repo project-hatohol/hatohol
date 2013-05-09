@@ -34,6 +34,7 @@ static string makeExpectedOutput(MonitoringServerInfo *serverInfo)
 void setup(void)
 {
 	asuraInit();
+	deleteDBClientDB(DB_DOMAIN_ID_CONFIG);
 }
 
 // ---------------------------------------------------------------------------
@@ -60,7 +61,6 @@ void test_createDB(void)
 void test_createTableSystem(void)
 {
 	const string tableName = "system";
-	deleteDBClientDB(DB_DOMAIN_ID_CONFIG);
 	DBClientConfig dbConfig;
 	assertCreateTable(DB_DOMAIN_ID_CONFIG, tableName);
 	
@@ -78,7 +78,6 @@ void test_createTableSystem(void)
 void test_createTableServers(void)
 {
 	const string tableName = "servers";
-	deleteDBClientDB(DB_DOMAIN_ID_CONFIG);
 	DBClientConfig dbConfig;
 	assertCreateTable(DB_DOMAIN_ID_CONFIG, tableName);
 
@@ -107,7 +106,6 @@ void test_testAddTargetServer(void)
 
 void test_testGetTargetServers(void)
 {
-	deleteDBClientDB(DB_DOMAIN_ID_CONFIG);
 	for (size_t i = 0; i < NumServerInfo; i++)
 		assertAddServerToDB(&serverInfo[i]);
 
