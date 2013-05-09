@@ -29,7 +29,7 @@ using namespace std;
 static const char *TABLE_NAME_SYSTEM  = "system";
 static const char *TABLE_NAME_SERVERS = "servers";
 
-int DBClientConfig::CONFIG_DB_VERSION = 2;
+int DBClientConfig::CONFIG_DB_VERSION = 3;
 const char *DBClientConfig::DEFAULT_DB_NAME = "asura-config.db";
 
 static const ColumnDef COLUMN_DEF_SYSTEM[] = {
@@ -44,6 +44,17 @@ static const ColumnDef COLUMN_DEF_SYSTEM[] = {
 	SQL_KEY_NONE,                      // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
+}, {
+	ITEM_ID_NOT_SET,                   // itemId
+	TABLE_NAME_SYSTEM,                 // tableName
+	"face_rest_port",                  // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	11,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	"0",                               // defaultValue
 },
 };
 static const size_t NUM_COLUMNS_SYSTEM =
@@ -51,6 +62,7 @@ static const size_t NUM_COLUMNS_SYSTEM =
 
 enum {
 	IDX_SYSTEM_ENABLE_FACE_MYSQL,
+	IDX_SYSTEM_FACE_REST_PORT,
 	NUM_IDX_SYSTEM,
 };
 
@@ -360,6 +372,9 @@ void DBClientConfig::resetDBInitializedFlags(void)
 
 void DBClientConfig::tableInitializerSystem(DBAgent *dbAgent, void *data)
 {
+	const ColumnDef &columnDefFaceRestPort =
+	  COLUMN_DEF_SYSTEM[IDX_SYSTEM_FACE_REST_PORT];
+
 	// insert default value
 	DBAgentInsertArg insArg;
 	insArg.tableName = TABLE_NAME_SYSTEM;
@@ -367,6 +382,10 @@ void DBClientConfig::tableInitializerSystem(DBAgent *dbAgent, void *data)
 	insArg.columnDefs = COLUMN_DEF_SYSTEM;
 	VariableItemGroupPtr row;
 	row->ADD_NEW_ITEM(Int, 0); // enable_face_mysql
+
+	// face_reset_port
+	row->ADD_NEW_ITEM(Int, atoi(columnDefFaceRestPort.defaultValue));
+
 	insArg.row = row;
 	dbAgent->insert(insArg);
 }
