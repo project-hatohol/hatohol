@@ -44,6 +44,7 @@ public:
 	                         bool fromRoot = true, int maxNumElem = -1,
 	                         int currNum = 0, int depth = 0);
 	static uint64_t getCurrTimeAsMicroSecond(void);
+	static bool isValidPort(int port, bool showErrorMsg = true);
 
 protected:
 	static string makeDemangledStackTraceString(string &stackTraceLine);
