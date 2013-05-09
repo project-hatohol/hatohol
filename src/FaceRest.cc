@@ -86,6 +86,9 @@ gpointer FaceRest::mainThread(AsuraThreadArg *arg)
 	m_soupServer = soup_server_new(SOUP_SERVER_PORT, m_port, NULL);
 	ASURA_ASSERT(m_soupServer, "failed: soup_server_new: %u\n", m_port);
 	soup_server_add_handler(m_soupServer, NULL, handlerDefault, this, NULL);
+	soup_server_add_handler(m_soupServer, "/hello.html",
+	                        launchHandlerInTryBlock,
+	                        (gpointer)handlerHelloPage, NULL);
 	soup_server_add_handler(m_soupServer, pathForGetServers,
 	                        launchHandlerInTryBlock,
 	                        (gpointer)handlerGetServers, NULL);
@@ -155,6 +158,21 @@ void FaceRest::launchHandlerInTryBlock
 		MLPL_INFO("Got Exception: %s\n", e.getFancyMessage().c_str());
 		replyError(msg, e.getFancyMessage());
 	}
+}
+
+void FaceRest::handlerHelloPage
+  (SoupServer *server, SoupMessage *msg, const char *path,
+   GHashTable *query, SoupClientContext *client, gpointer user_data)
+{
+	string response;
+	const char *pageTemplate =
+	  "<html>"
+	  "ASURA ver. %s"
+	  "</html>";
+	response = StringUtils::sprintf(pageTemplate, PACKAGE_VERSION);
+	soup_message_body_append(msg->response_body, SOUP_MEMORY_COPY,
+	                         response.c_str(), response.size());
+	soup_message_set_status(msg, SOUP_STATUS_OK);
 }
 
 void FaceRest::handlerGetServers
