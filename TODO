@@ -1,6 +1,5 @@
 [S] Short-term, [M] Middle-term, [L] Long-term
 ====
-* [S] stabilize on CentOS6.3. (currently several tests sometimes crash and blocked)
 * [S] set rest port by configuration file
 * [S] set DB directory by configuration file
 * [S] show status by WEB Interface of asura
