@@ -19,6 +19,7 @@
 #include <glib-object.h>
 
 #include <Logger.h>
+#include <MutexLock.h>
 using namespace mlpl;
 
 #include <exception>
@@ -37,6 +38,7 @@ struct AsuraThreadBase::PrivateContext {
 #endif // GLIB_VERSION_2_32
 	ExceptionCallbackInfoList exceptionCbList;
 	ExitCallbackInfoList      exitCbList;
+	MutexLock                 mutexForThreadExit;
 
 	// methods
 	PrivateContext(void)
@@ -138,6 +140,8 @@ void AsuraThreadBase::start(bool autoDeleteObject)
 
 void AsuraThreadBase::stop(void)
 {
+	m_ctx->mutexForThreadExit.lock();
+	m_ctx->mutexForThreadExit.unlock();
 }
 
 void AsuraThreadBase::addExceptionCallback(ExceptionCallbackFunc func,
@@ -195,6 +199,7 @@ gpointer AsuraThreadBase::threadStarter(gpointer data)
 {
 	gpointer ret = NULL;
 	AsuraThreadArg *arg = static_cast<AsuraThreadArg *>(data);
+	arg->obj->m_ctx->mutexForThreadExit.lock();
 	try {
 		ret = arg->obj->mainThread(arg);
 	} catch (const AsuraException &e) {
@@ -204,8 +209,12 @@ gpointer AsuraThreadBase::threadStarter(gpointer data)
 	} catch (const exception &e) {
 		MLPL_ERR("Got Exception: %s\n", e.what());
 		arg->obj->doExceptionCallback(e);
+	} catch (...) {
+		arg->obj->m_ctx->mutexForThreadExit.unlock();
+		throw;
 	}
 	arg->obj->doExitCallback();
+	arg->obj->m_ctx->mutexForThreadExit.unlock();
 	if (arg->autoDeleteObject)
 		delete arg->obj;
 	delete arg;

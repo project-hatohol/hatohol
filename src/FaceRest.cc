@@ -54,6 +54,9 @@ FaceRest::FaceRest(CommandLineArg &cmdArg)
 
 FaceRest::~FaceRest()
 {
+	// wait for the finish of the thread
+	stop();
+
 	MLPL_INFO("FaceRest: stop process: started.\n");
 	if (m_stopMutex)
 		delete m_stopMutex;
@@ -81,6 +84,8 @@ void FaceRest::stop(void)
 	// this instance after stop() is safe.
 	stopMutex->lock();
 	stopMutex->unlock();
+
+	AsuraThreadBase::stop();
 }
 
 // ---------------------------------------------------------------------------

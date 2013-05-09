@@ -113,6 +113,9 @@ ArmZabbixAPI::ArmZabbixAPI(const MonitoringServerInfo &serverInfo)
 
 ArmZabbixAPI::~ArmZabbixAPI()
 {
+	// wait for the finish of the thread
+	stop();
+
 	// We make a copy of the server ID and the name in m_ctx on the stack,
 	// because m_ctx is destroyed before it is used in the last message.
 	int serverId = m_ctx->zabbixServerId;
