@@ -257,6 +257,34 @@ bool DBClientConfig::isFaceMySQLEnabled(void)
 	return ItemDataUtils::getInt((*grpList.begin())->getItemAt(0));
 }
 
+int  DBClientConfig::getFaceRestPort(void)
+{
+	DBAgentSelectArg arg;
+	arg.tableName = TABLE_NAME_SYSTEM;
+	arg.columnDefs = COLUMN_DEF_SYSTEM;
+	arg.columnIndexes.push_back(IDX_SYSTEM_FACE_REST_PORT);
+	DBCLIENT_TRANSACTION_BEGIN() {
+		select(arg);
+	} DBCLIENT_TRANSACTION_END();
+	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
+	ASURA_ASSERT(!grpList.empty(), "Obtained Table: empty");
+	return ItemDataUtils::getInt((*grpList.begin())->getItemAt(0));
+}
+
+void DBClientConfig::setFaceRestPort(int port)
+{
+	DBAgentUpdateArg arg;
+	arg.tableName = TABLE_NAME_SYSTEM;
+	arg.columnDefs = COLUMN_DEF_SYSTEM;
+	arg.columnIndexes.push_back(IDX_SYSTEM_FACE_REST_PORT);
+	VariableItemGroupPtr row;
+	row->ADD_NEW_ITEM(Int, port);
+	arg.row = row;
+	DBCLIENT_TRANSACTION_BEGIN() {
+		update(arg);
+	} DBCLIENT_TRANSACTION_END();
+}
+
 void DBClientConfig::addTargetServer(MonitoringServerInfo *monitoringServerInfo)
 {
 	string condition = StringUtils::sprintf("id=%u",

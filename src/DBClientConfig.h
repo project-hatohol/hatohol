@@ -50,6 +50,8 @@ public:
 	virtual ~DBClientConfig();
 
 	bool isFaceMySQLEnabled(void);
+	int  getFaceRestPort(void);
+	void setFaceRestPort(int port);
 	void addTargetServer(MonitoringServerInfo *monitoringServerInfo);
 	void getTargetServers(MonitoringServerInfoList &monitoringServers);
 

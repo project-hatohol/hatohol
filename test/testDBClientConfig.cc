@@ -33,6 +33,7 @@ static string makeExpectedOutput(MonitoringServerInfo *serverInfo)
 
 void setup(void)
 {
+	deleteDBClientDB(DB_DOMAIN_ID_CONFIG);
 	asuraInit();
 	deleteDBClientDB(DB_DOMAIN_ID_CONFIG);
 }
@@ -122,6 +123,14 @@ void test_testGetTargetServers(void)
 		actualText += makeExpectedOutput(&(*it));
 	}
 	cppcut_assert_equal(expectedText, actualText);
+}
+
+void test_testSetGetFaceRestPort(void)
+{
+	const int portNumber = 501;
+	DBClientConfig dbConfig;
+	dbConfig.setFaceRestPort(portNumber);
+	cppcut_assert_equal(portNumber, dbConfig.getFaceRestPort());
 }
 
 } // namespace testDBClientConfig

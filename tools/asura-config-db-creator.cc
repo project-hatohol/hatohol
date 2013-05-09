@@ -28,7 +28,14 @@
 using namespace std;
 
 struct ConfigValue {
+	int                      faceRestPort;
 	MonitoringServerInfoList serverInfoList;
+	
+	// constructor
+	ConfigValue(void)
+	: faceRestPort(0)
+	{
+	}
 };
 
 static void printUsage(void)
@@ -52,6 +59,13 @@ static bool extractString(ParsableString &parsable, string &str, size_t lineNo)
 {
 	string word = parsable.readWord(ParsableString::SEPARATOR_COMMA);
 	str = StringUtils::stripBothEndsSpaces(word);
+	return true;
+}
+
+static bool parseInt(ParsableString &parsable, int &intVal, size_t lineNo)
+{
+	string word = parsable.readWord(ParsableString::SEPARATOR_COMMA);
+	intVal = atoi(word.c_str());
 	return true;
 }
 
@@ -142,7 +156,11 @@ static bool readConfigFile(const string &configFilePath, ConfigValue &confValue)
 			return false;
 
 		// dispatch
-		if (element == "server") {
+		bool succeeded = true;
+		if (element == "faceRestPort") {
+			succeeded =
+			   parseInt(parsable, confValue.faceRestPort, lineNo);
+		} else if (element == "server") {
 			if (!parseServerConfigLine
 			       (parsable, confValue.serverInfoList, lineNo))
 				return false;
@@ -151,6 +169,8 @@ static bool readConfigFile(const string &configFilePath, ConfigValue &confValue)
 			        lineNo, element.c_str());
 			return false;
 		}
+		if (!succeeded)
+			return false;
 	}
 
 	return true;
@@ -231,12 +251,22 @@ int main(int argc, char *argv[])
 		return EXIT_FAILURE;
 
 	// validation
+	if (!validatePort(confValue.faceRestPort))
+		return EXIT_FAILURE;
 	if (!validateServerInfoList(confValue))
 		return EXIT_FAILURE;
 
+	//
 	// Save data to DB.
+	//
 	DBAgentSQLite3::defineDBPath(DB_DOMAIN_ID_CONFIG, configDBPath);
 	DBClientConfig dbConfig;
+
+	// FaceRest port
+	dbConfig.setFaceRestPort(confValue.faceRestPort);
+	printf("FaceRest port: %d\n", confValue.faceRestPort);
+
+	// servers
 	MonitoringServerInfoListIterator it = confValue.serverInfoList.begin();
 	for (; it != confValue.serverInfoList.end(); ++it) {
 		MonitoringServerInfo &svInfo = *it;
