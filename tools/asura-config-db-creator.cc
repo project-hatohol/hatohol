@@ -27,6 +27,10 @@
 
 using namespace std;
 
+struct ConfigValue {
+	MonitoringServerInfoList serverInfoList;
+};
+
 static void printUsage(void)
 {
 	fprintf(stderr, "Usage:\n");
@@ -106,8 +110,7 @@ static bool parseServerConfigLine(ParsableString &parsable,
 	return true;
 }
 
-static bool readConfigFile(const string &configFilePath,
-                           MonitoringServerInfoList &serverInfoList)
+static bool readConfigFile(const string &configFilePath, ConfigValue &confValue)
 {
 	ifstream ifs(configFilePath.c_str());
 	if (!ifs) {
@@ -140,8 +143,8 @@ static bool readConfigFile(const string &configFilePath,
 
 		// dispatch
 		if (element == "server") {
-			if (!parseServerConfigLine(parsable, serverInfoList,
-			                           lineNo))
+			if (!parseServerConfigLine
+			       (parsable, confValue.serverInfoList, lineNo))
 				return false;
 		} else {
 			fprintf(stderr, "Unknown element: %zd: %s\n",
@@ -153,11 +156,11 @@ static bool readConfigFile(const string &configFilePath,
 	return true;
 }
 
-static bool validateServerInfoList(MonitoringServerInfoList &serverInfoList)
+static bool validateServerInfoList(ConfigValue &confValue)
 {
 	set<int> serverIds;
-	MonitoringServerInfoListIterator it = serverInfoList.begin();
-	for (; it != serverInfoList.end(); ++it) {
+	MonitoringServerInfoListIterator it = confValue.serverInfoList.begin();
+	for (; it != confValue.serverInfoList.end(); ++it) {
 		// ID (Don't be duplicative)
 		MonitoringServerInfo &svInfo = *it;
 		if (serverIds.find(svInfo.id) != serverIds.end()) {
@@ -215,19 +218,19 @@ int main(int argc, char *argv[])
 	const string configDBPath = argv[2];
 
 	// opening config.dat and read it
-	MonitoringServerInfoList serverInfoList;
-	if (!readConfigFile(configFilePath, serverInfoList))
+	ConfigValue confValue;
+	if (!readConfigFile(configFilePath, confValue))
 		return EXIT_FAILURE;
 
 	// validation
-	if (!validateServerInfoList(serverInfoList))
+	if (!validateServerInfoList(confValue))
 		return EXIT_FAILURE;
 
 	// Save data to DB.
 	DBAgentSQLite3::defineDBPath(DB_DOMAIN_ID_CONFIG, configDBPath);
 	DBClientConfig dbConfig;
-	MonitoringServerInfoListIterator it = serverInfoList.begin();
-	for (; it != serverInfoList.end(); ++it) {
+	MonitoringServerInfoListIterator it = confValue.serverInfoList.begin();
+	for (; it != confValue.serverInfoList.end(); ++it) {
 		MonitoringServerInfo &svInfo = *it;
 		dbConfig.addTargetServer(&svInfo);
 
