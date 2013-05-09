@@ -110,7 +110,7 @@ size_t FaceRest::parseCmdArgPort(CommandLineArg &cmdArg, size_t idx)
 	idx++;
 	string &port_str = cmdArg[idx];
 	int port = atoi(port_str.c_str());
-	if (Utils::isValidPort(port, false)) {
+	if (!Utils::isValidPort(port, false)) {
 		MLPL_ERR("invalid port: %s, %d\n", port_str.c_str(), port);
 		return idx;
 	}
