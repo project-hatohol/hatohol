@@ -255,6 +255,34 @@ DBClientConfig::~DBClientConfig()
 		delete m_ctx;
 }
 
+string DBClientConfig::getDatabaseDir(void)
+{
+	DBAgentSelectArg arg;
+	arg.tableName = TABLE_NAME_SYSTEM;
+	arg.columnDefs = COLUMN_DEF_SYSTEM;
+	arg.columnIndexes.push_back(IDX_SYSTEM_DATABASE_DIR);
+	DBCLIENT_TRANSACTION_BEGIN() {
+		select(arg);
+	} DBCLIENT_TRANSACTION_END();
+	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
+	ASURA_ASSERT(!grpList.empty(), "Obtained Table: empty");
+	return ItemDataUtils::getString((*grpList.begin())->getItemAt(0));
+}
+
+void DBClientConfig::setDatabaseDir(const string &dir)
+{
+	DBAgentUpdateArg arg;
+	arg.tableName = TABLE_NAME_SYSTEM;
+	arg.columnDefs = COLUMN_DEF_SYSTEM;
+	arg.columnIndexes.push_back(IDX_SYSTEM_DATABASE_DIR);
+	VariableItemGroupPtr row;
+	row->ADD_NEW_ITEM(String, dir);
+	arg.row = row;
+	DBCLIENT_TRANSACTION_BEGIN() {
+		update(arg);
+	} DBCLIENT_TRANSACTION_END();
+}
+
 bool DBClientConfig::isFaceMySQLEnabled(void)
 {
 	DBAgentSelectArg arg;

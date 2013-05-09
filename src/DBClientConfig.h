@@ -49,6 +49,8 @@ public:
 	DBClientConfig(void);
 	virtual ~DBClientConfig();
 
+	string  getDatabaseDir(void);
+	void setDatabaseDir(const string &dir);
 	bool isFaceMySQLEnabled(void);
 	int  getFaceRestPort(void);
 	void setFaceRestPort(int port);

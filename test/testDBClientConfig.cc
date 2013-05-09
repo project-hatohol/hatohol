@@ -127,6 +127,14 @@ void test_testGetTargetServers(void)
 	cppcut_assert_equal(expectedText, actualText);
 }
 
+void test_testSetGetDatabaseDir(void)
+{
+	const string databaseDir = "/dir1/dir2";
+	DBClientConfig dbConfig;
+	dbConfig.setDatabaseDir(databaseDir);
+	cppcut_assert_equal(databaseDir, dbConfig.getDatabaseDir());
+}
+
 void test_testSetGetFaceRestPort(void)
 {
 	const int portNumber = 501;
