@@ -41,7 +41,7 @@ public:
 		void                   *dbUpdaterData;
 	};
 
-	static int DB_VERSION;
+	static int DBCLIENT_DB_VERSION;
 
 	DBClient(void);
 	virtual ~DBClient();

@@ -23,7 +23,7 @@
 
 class DBClientZabbix : public DBClient {
 public:
-	static const int DB_VERSION;
+	static const int ZABBIX_DB_VERSION;
 	static const uint64_t EVENT_ID_NOT_FOUND;
 
 	static void init(void);

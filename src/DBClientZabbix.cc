@@ -33,7 +33,7 @@ using namespace mlpl;
 	ASURA_ASSERT(VAR_NAME != NULL, "Failed to dynamic cast: %s -> %s", \
 	             DEMANGLED_TYPE_NAME(*ITEM_DATA), #ACTUAL_TYPE); \
 
-const int DBClientZabbix::DB_VERSION = 2;
+const int DBClientZabbix::ZABBIX_DB_VERSION = 2;
 const uint64_t DBClientZabbix::EVENT_ID_NOT_FOUND = -1;
 
 static const char *TABLE_NAME_SYSTEM = "system";
@@ -1729,7 +1729,7 @@ void DBClientZabbix::updateDBIfNeeded(DBAgent *dbAgent, int oldVer, void *data)
 {
 	THROW_ASURA_EXCEPTION(
 	  "Not implemented: %s, oldVer: %d, curr: %d, data: %p",
-	  __PRETTY_FUNCTION__, oldVer, DBClientZabbix::DB_VERSION, data);
+	  __PRETTY_FUNCTION__, oldVer, DBClientZabbix::ZABBIX_DB_VERSION, data);
 }
 
 //
@@ -1769,7 +1769,7 @@ void DBClientZabbix::prepareSetupFuncCallback(size_t zabbixServerId)
 	sizeof(DB_TABLE_INFO) / sizeof(DBClient::DBSetupTableInfo);
 
 	static const DBSetupFuncArg DB_SETUP_FUNC_ARG = {
-		DB_VERSION,
+		ZABBIX_DB_VERSION,
 		NUM_TABLE_INFO,
 		DB_TABLE_INFO,
 	};

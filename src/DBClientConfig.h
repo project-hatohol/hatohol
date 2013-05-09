@@ -41,6 +41,7 @@ typedef MonitoringServerInfoList::iterator MonitoringServerInfoListIterator;
 
 class DBClientConfig : public DBClient {
 public:
+	static int CONFIG_DB_VERSION;
 	static const char *DEFAULT_DB_NAME;
 	static void reset(void);
 	static void parseCommandLineArgument(CommandLineArg &cmdArg);

@@ -23,7 +23,7 @@ using namespace mlpl;
 #include "DBClient.h"
 #include "DBAgentFactory.h"
 
-int DBClient::DB_VERSION = 1;
+int DBClient::DBCLIENT_DB_VERSION = 1;
 static const char *TABLE_NAME_DBCLIENT = "_dbclient";
 
 static const ColumnDef COLUMN_DEF_DBCLIENT[] = {
@@ -131,7 +131,7 @@ void DBClient::tableInitializerDBClient(DBAgent *dbAgent, void *data)
 	insArg.numColumns = NUM_COLUMNS_DBCLIENT;
 	insArg.columnDefs = COLUMN_DEF_DBCLIENT;
 	VariableItemGroupPtr row;
-	row->ADD_NEW_ITEM(Int, DB_VERSION);
+	row->ADD_NEW_ITEM(Int, DBCLIENT_DB_VERSION);
 	row->ADD_NEW_ITEM(Int, setupFuncArg->version);
 	insArg.row = row;
 	dbAgent->insert(insArg);
@@ -143,7 +143,7 @@ void DBClient::updateDBIfNeeded(DBAgent *dbAgent, DBSetupFuncArg *setupFuncArg)
 	const ColumnDef *columnDef =
 	 &COLUMN_DEF_DBCLIENT[IDX_DBCLIENT_SELF_DB_VERSION];
 	int dbVersion = getDBVersion(dbAgent, columnDef);
-	if (dbVersion != DBClient::DB_VERSION) {
+	if (dbVersion != DBCLIENT_DB_VERSION) {
 		THROW_ASURA_EXCEPTION("Not implemented: %s\n",
 		                      __PRETTY_FUNCTION__);
 	}

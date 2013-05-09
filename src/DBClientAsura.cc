@@ -28,6 +28,8 @@ using namespace mlpl;
 static const char *TABLE_NAME_TRIGGERS = "triggers";
 static const char *TABLE_NAME_EVENTS   = "events";
 
+int DBClientAsura::ASURA_DB_VERSION = 1;
+
 static const ColumnDef COLUMN_DEF_TRIGGERS[] = {
 {
 	ITEM_ID_NOT_SET,                   // itemId
@@ -521,7 +523,7 @@ void DBClientAsura::prepareSetupFunction(void)
 	sizeof(DB_TABLE_INFO) / sizeof(DBSetupTableInfo);
 
 	static const DBSetupFuncArg DB_SETUP_FUNC_ARG = {
-		DB_VERSION,
+		ASURA_DB_VERSION,
 		NUM_TABLE_INFO,
 		DB_TABLE_INFO,
 	};

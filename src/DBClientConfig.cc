@@ -29,6 +29,7 @@ using namespace std;
 static const char *TABLE_NAME_SYSTEM  = "system";
 static const char *TABLE_NAME_SERVERS = "servers";
 
+int DBClientConfig::CONFIG_DB_VERSION = 2;
 const char *DBClientConfig::DEFAULT_DB_NAME = "asura-config.db";
 
 static const ColumnDef COLUMN_DEF_SYSTEM[] = {
@@ -388,7 +389,7 @@ void DBClientConfig::prepareSetupFunction(void)
 	sizeof(DB_TABLE_INFO) / sizeof(DBSetupTableInfo);
 
 	static const DBSetupFuncArg DB_SETUP_FUNC_ARG = {
-		DB_VERSION,
+		CONFIG_DB_VERSION,
 		NUM_TABLE_INFO,
 		DB_TABLE_INFO,
 	};

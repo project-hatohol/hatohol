@@ -51,9 +51,9 @@ void test_createDB(void)
 	// check the version
 	string statement = "select * from _dbclient";
 	string output = execSqlite3ForDBClient(DB_DOMAIN_ID_CONFIG, statement);
-	string expectedOut = StringUtils::sprintf("%d|%d\n",
-	                                          DBClient::DB_VERSION,
-	                                          DBClientConfig::DB_VERSION);
+	string expectedOut = StringUtils::sprintf
+	                       ("%d|%d\n", DBClient::DBCLIENT_DB_VERSION,
+	                                   DBClientConfig::CONFIG_DB_VERSION);
 	cppcut_assert_equal(expectedOut, output);
 }
 
