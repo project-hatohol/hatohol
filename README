@@ -6,14 +6,20 @@ consolites them, serves the data with the format that is independent of
 the specific monitoring software in various way.
 
 ==============================================
-Currently supported monitoring software
+Supported monitoring software
 ==============================================
 - ZABBIX 2.0
 
 ==============================================
-Currently supported output method
+Supported output method
 ==============================================
 - REST
+
+==============================================
+Supported platforms
+==============================================
+- CentOS 6.3 (x86_64)
+- Ubuntsu 13.04 (x86_64)
 
 ==============================================
 How to build
