@@ -104,7 +104,6 @@ public:
 		// the thread of ArmZabbixAPI. The exit callback (that unlock
 		// mutex in ArmZabbixAPI) is never called. So we explicitly
 		// call exitCallbackFunc() here to unlock the mutex;
-		exitCallbackFunc(static_cast<ArmZabbixAPI *>(this));
 		return ArmZabbixAPI::mainThreadOneProc();
 	}
 

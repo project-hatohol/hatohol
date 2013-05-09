@@ -53,7 +53,6 @@ struct ArmZabbixAPI::PrivateContext
 	DBClientZabbix dbClientZabbix;
 	DBClientAsura  dbClientAsura;
 	volatile int   exitRequest;
-	MutexLock      exitMutex;
 	sem_t          sleepSemaphore;
 
 	// constructors
@@ -106,16 +105,10 @@ ArmZabbixAPI::ArmZabbixAPI(const MonitoringServerInfo &serverInfo)
 	m_ctx->uri += m_ctx->server;
 	m_ctx->uri += StringUtils::sprintf(":%d", m_ctx->serverPort);
 	m_ctx->uri += "/zabbix/api_jsonrpc.php";
-
-	m_ctx->exitMutex.lock();
-	addExitCallback(exitCallbackFunc, this);
 }
 
 ArmZabbixAPI::~ArmZabbixAPI()
 {
-	// wait for the finish of the thread
-	stop();
-
 	// We make a copy of the server ID and the name in m_ctx on the stack,
 	// because m_ctx is destroyed before it is used in the last message.
 	int serverId = m_ctx->zabbixServerId;
@@ -126,8 +119,9 @@ ArmZabbixAPI::~ArmZabbixAPI()
 	// wait for the exit of the polling thread
 	if (sem_post(&m_ctx->sleepSemaphore) == -1)
 		MLPL_ERR("Failed to call sem_post: %d\n", errno);
+	// wait for the finish of the thread
 	requestExit();
-	m_ctx->exitMutex.lock();
+	stop();
 
 	if (m_ctx)
 		delete m_ctx;
@@ -270,12 +264,6 @@ ItemTablePtr ArmZabbixAPI::getEvents(uint64_t eventIdOffset)
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
-void ArmZabbixAPI::exitCallbackFunc(void *data)
-{
-	ArmZabbixAPI *obj = static_cast<ArmZabbixAPI *>(data);
-	obj->m_ctx->exitMutex.unlock();
-}
-
 SoupSession *ArmZabbixAPI::getSession(void)
 {
 	// NOTE: current implementaion is not MT-safe.
