@@ -241,4 +241,9 @@ void test_events(void)
 	assertEvents("/events.json");
 }
 
+void test_eventsJsonp(void)
+{
+	assertEvents("/events.jsonp", "foo");
+}
+
 } // namespace testFaceRest
