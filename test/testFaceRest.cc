@@ -47,15 +47,17 @@ static JsonParserAgent *getResponseAsJsonParser(const string &url,
 	string response = executeCommand(getCmd);
 
 	// if JSONP, check the callback name
-	size_t lenCallbackName = callbackName.size();
-	size_t minimumLen = lenCallbackName + 2; // +2 for ''(' and ')'
-	cppcut_assert_equal(true, response.size() > minimumLen);
+	if (!callbackParam.empty()) {
+		size_t lenCallbackName = callbackName.size();
+		size_t minimumLen = lenCallbackName + 2; // +2 for ''(' and ')'
+		cppcut_assert_equal(true, response.size() > minimumLen);
 
-	cut_assert_equal_substring(
-	  callbackName.c_str(), response.c_str(), lenCallbackName);
-	cppcut_assert_equal(')', response[response.size()-1]);
-	response = string(response, lenCallbackName+1,
-	                  response.size() - minimumLen);
+		cut_assert_equal_substring(
+		  callbackName.c_str(), response.c_str(), lenCallbackName);
+		cppcut_assert_equal(')', response[response.size()-1]);
+		response = string(response, lenCallbackName+1,
+		                  response.size() - minimumLen);
+	}
 
 	// check the JSON body
 	if (isVerboseMode())
