@@ -231,6 +231,11 @@ void test_triggers(void)
 	assertTriggers("/triggers.json");
 }
 
+void test_triggersJsonp(void)
+{
+	assertTriggers("/triggers.jsonp", "foo");
+}
+
 void test_events(void)
 {
 	assertEvents("/events.json");
