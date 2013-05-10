@@ -34,7 +34,9 @@ const char *FaceRest::pathForGetServers = "/servers";
 const char *FaceRest::pathForGetTriggers = "/triggers";
 const char *FaceRest::pathForGetEvents   = "/events";
 
+static const char *MIME_HTML = "text/html";
 static const char *MIME_JSON = "application/json";
+static const char *MIME_JAVASCRIPT = "text/javascript";
 
 enum FormatType {
 	FORMAT_HTML,
@@ -45,11 +47,16 @@ enum FormatType {
 struct FaceRest::HandlerArg
 {
 	FormatType formatType;
+	const char *mimeType;
 };
 
 typedef map<string, FormatType> FormatTypeMap;
 typedef FormatTypeMap::iterator FormatTypeMapIterator;;
 static FormatTypeMap g_formatTypeMap;
+
+typedef map<FormatType, const char *> MimeTypeMap;
+typedef MimeTypeMap::iterator   MimeTypeMapIterator;;
+static MimeTypeMap g_mimeTypeMap;
 
 // ---------------------------------------------------------------------------
 // Public methods
@@ -59,6 +66,10 @@ void FaceRest::init(void)
 	g_formatTypeMap["html"] = FORMAT_HTML;
 	g_formatTypeMap["json"] = FORMAT_JSON;
 	g_formatTypeMap["jsonp"] = FORMAT_JSONP;
+
+	g_mimeTypeMap[FORMAT_HTML] = MIME_HTML;
+	g_mimeTypeMap[FORMAT_JSON] = MIME_JSON;
+	g_mimeTypeMap[FORMAT_JSONP] = MIME_JAVASCRIPT;
 }
 
 FaceRest::FaceRest(CommandLineArg &cmdArg)
@@ -187,18 +198,28 @@ void FaceRest::launchHandlerInTryBlock
    GHashTable *query, SoupClientContext *client, gpointer user_data)
 {
 	RestHandler handler = reinterpret_cast<RestHandler>(user_data);
+
+	HandlerArg arg;
+
+	// format
 	string extension = getExtension(path);
-	FormatTypeMapIterator it = g_formatTypeMap.find(extension);
-	if (it == g_formatTypeMap.end()) {
+	FormatTypeMapIterator fmtIt = g_formatTypeMap.find(extension);
+	if (fmtIt == g_formatTypeMap.end()) {
 		string errMsg = StringUtils::sprintf(
 		  "Unsupported extension: %s, path: %s\n",
 		  extension.c_str(), path);
 		replyError(msg, errMsg);
 		return;
 	}
+	arg.formatType = fmtIt->second;
 
-	HandlerArg arg;
-	arg.formatType = it->second;
+	// MIME
+	MimeTypeMapIterator mimeIt = g_mimeTypeMap.find(arg.formatType);
+	ASURA_ASSERT(
+	  mimeIt != g_mimeTypeMap.end(),
+	  "Invalid formatType: %d, %s", arg.formatType, extension.c_str());
+	arg.mimeType = mimeIt->second;
+
 	try {
 		(*handler)(server, msg, path, query, client, &arg);
 	} catch (const AsuraException &e) {
@@ -251,7 +272,7 @@ void FaceRest::handlerGetServers
 	agent.endObject();
 	string response = agent.generate();
 	soup_message_headers_set_content_type(msg->response_headers,
-	                                      MIME_JSON, NULL);
+	                                      arg->mimeType, NULL);
 	soup_message_body_append(msg->response_body, SOUP_MEMORY_COPY,
 	                         response.c_str(), response.size());
 	soup_message_set_status(msg, SOUP_STATUS_OK);
@@ -288,7 +309,7 @@ void FaceRest::handlerGetTriggers
 	agent.endObject();
 	string response = agent.generate();
 	soup_message_headers_set_content_type(msg->response_headers,
-	                                      MIME_JSON, NULL);
+	                                      arg->mimeType, NULL);
 	soup_message_body_append(msg->response_body, SOUP_MEMORY_COPY,
 	                         response.c_str(), response.size());
 	soup_message_set_status(msg, SOUP_STATUS_OK);
@@ -329,7 +350,7 @@ void FaceRest::handlerGetEvents
 	agent.endObject();
 	string response = agent.generate();
 	soup_message_headers_set_content_type(msg->response_headers,
-	                                      MIME_JSON, NULL);
+	                                      arg->mimeType, NULL);
 	soup_message_body_append(msg->response_body, SOUP_MEMORY_COPY,
 	                         response.c_str(), response.size());
 	soup_message_set_status(msg, SOUP_STATUS_OK);
