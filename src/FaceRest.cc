@@ -179,7 +179,11 @@ string FaceRest::getJsonpCallbackName(GHashTable *query, HandlerArg *arg)
 		throw AsuraException("Not found parameter: callback");
 
 	const char *callbackName = (const char *)value;
-	// TODO: validate the callback name.
+	string errMsg;
+	if (!Utils::validateJSMethodName(callbackName, errMsg)) {
+		THROW_ASURA_EXCEPTION(
+		  "Invalid callback name: %s", errMsg.c_str());
+	}
 	return callbackName;
 }
 
