@@ -142,6 +142,24 @@ static void _assertServers(const string &path, const string &callbackName = "")
 }
 #define assertServers(P,...) cut_trace(_assertServers(P,##__VA_ARGS__))
 
+static void _assertTriggers(const string &path, const string &callbackName = "")
+{
+	startFaceRest();
+	g_parser = getResponseAsJsonParser(path, callbackName);
+	assertValueInParser(g_parser, "result", true);
+	assertValueInParser(g_parser, "numberOfTriggers",
+	                    (uint32_t)NumTestTriggerInfo);
+	g_parser->startObject("triggers");
+	for (size_t i = 0; i < NumTestTriggerInfo; i++) {
+		g_parser->startElement(i);
+		TriggerInfo &triggerInfo = testTriggerInfo[i];
+		assertTestTriggerInfo(triggerInfo);
+		g_parser->endElement();
+	}
+	g_parser->endObject();
+}
+#define assertTriggers(P,...) cut_trace(_assertTriggers(P,##__VA_ARGS__))
+
 void setup(void)
 {
 	asuraInit();
@@ -181,19 +199,7 @@ void test_serversJsonp(void)
 
 void test_triggers(void)
 {
-	startFaceRest();
-	g_parser = getResponseAsJsonParser("/triggers.json");
-	assertValueInParser(g_parser, "result", true);
-	assertValueInParser(g_parser, "numberOfTriggers",
-	                    (uint32_t)NumTestTriggerInfo);
-	g_parser->startObject("triggers");
-	for (size_t i = 0; i < NumTestTriggerInfo; i++) {
-		g_parser->startElement(i);
-		TriggerInfo &triggerInfo = testTriggerInfo[i];
-		assertTestTriggerInfo(triggerInfo);
-		g_parser->endElement();
-	}
-	g_parser->endObject();
+	assertTriggers("/triggers.json");
 }
 
 void test_events(void)
