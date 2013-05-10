@@ -160,6 +160,35 @@ static void _assertTriggers(const string &path, const string &callbackName = "")
 }
 #define assertTriggers(P,...) cut_trace(_assertTriggers(P,##__VA_ARGS__))
 
+static void _assertEvents(const string &path, const string &callbackName = "")
+{
+	startFaceRest();
+	g_parser = getResponseAsJsonParser("/events.json");
+	assertValueInParser(g_parser, "result", true);
+	assertValueInParser(g_parser, "numberOfEvents",
+	                    (uint32_t)NumTestEventInfo);
+	g_parser->startObject("events");
+	for (size_t i = 0; i < NumTestEventInfo; i++) {
+		g_parser->startElement(i);
+		EventInfo &eventInfo = testEventInfo[i];
+		assertValueInParser(g_parser, "serverId", eventInfo.serverId);
+		assertValueInParser(g_parser, "time", eventInfo.time);
+		assertValueInParser(g_parser, "eventValue",
+		                    (uint32_t)eventInfo.eventValue);
+		assertValueInParser(g_parser, "triggerId",
+		                    (uint32_t)eventInfo.triggerId);
+
+		// check the trigger part
+		const TriggerInfo &expectedTriggerInfo =
+			searchTestTriggerInfo(eventInfo);
+		assertTestTriggerInfo(expectedTriggerInfo);
+
+		g_parser->endElement();
+	}
+	g_parser->endObject();
+}
+#define assertEvents(P,...) cut_trace(_assertEvents(P,##__VA_ARGS__))
+
 void setup(void)
 {
 	asuraInit();
@@ -204,30 +233,7 @@ void test_triggers(void)
 
 void test_events(void)
 {
-	startFaceRest();
-	g_parser = getResponseAsJsonParser("/events.json");
-	assertValueInParser(g_parser, "result", true);
-	assertValueInParser(g_parser, "numberOfEvents",
-	                    (uint32_t)NumTestEventInfo);
-	g_parser->startObject("events");
-	for (size_t i = 0; i < NumTestEventInfo; i++) {
-		g_parser->startElement(i);
-		EventInfo &eventInfo = testEventInfo[i];
-		assertValueInParser(g_parser, "serverId", eventInfo.serverId);
-		assertValueInParser(g_parser, "time", eventInfo.time);
-		assertValueInParser(g_parser, "eventValue",
-		                    (uint32_t)eventInfo.eventValue);
-		assertValueInParser(g_parser, "triggerId",
-		                    (uint32_t)eventInfo.triggerId);
-
-		// check the trigger part
-		const TriggerInfo &expectedTriggerInfo =
-			searchTestTriggerInfo(eventInfo);
-		assertTestTriggerInfo(expectedTriggerInfo);
-
-		g_parser->endElement();
-	}
-	g_parser->endObject();
+	assertEvents("/events.json");
 }
 
 } // namespace testFaceRest
