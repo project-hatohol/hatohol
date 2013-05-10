@@ -31,7 +31,7 @@ static void startFaceRest(void)
 	g_faceRest->start();
 }
 
-static JsonParserAgent *getResponseAsJsonParser(const string url)
+static JsonParserAgent *getResponseAsJsonParser(const string &url)
 {
 	string getCmd =
 	  StringUtils::sprintf("wget http://localhost:%u%s -O -",
