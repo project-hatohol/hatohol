@@ -176,7 +176,7 @@ string FaceRest::getJsonpCallbackName(GHashTable *query, HandlerArg *arg)
 		return "";
 	gpointer value = g_hash_table_lookup(query, "callback");
 	if (!value)
-		throw AsuraException("Not found parameter: callback");
+		THROW_ASURA_EXCEPTION("Not found parameter: callback");
 
 	const char *callbackName = (const char *)value;
 	string errMsg;
