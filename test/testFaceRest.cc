@@ -120,6 +120,28 @@ static void _assertTestTriggerInfo(const TriggerInfo &triggerInfo)
 }
 #define assertTestTriggerInfo(T) cut_trace(_assertTestTriggerInfo(T))
 
+static void _assertServers(const string &path, const string &callbackName = "")
+{
+	startFaceRest();
+	g_parser = getResponseAsJsonParser(path, callbackName);
+	assertValueInParser(g_parser, "result", true);
+	assertValueInParser(g_parser, "numberOfServers",
+	                    (uint32_t)NumServerInfo);
+	g_parser->startObject("servers");
+	for (size_t i = 0; i < NumServerInfo; i++) {
+		g_parser->startElement(i);
+		MonitoringServerInfo &svInfo = serverInfo[i];
+		assertValueInParser(g_parser, "id",   (uint32_t)svInfo.id);
+		assertValueInParser(g_parser, "type", (uint32_t)svInfo.type);
+		assertValueInParser(g_parser, "hostName",  svInfo.hostName);
+		assertValueInParser(g_parser, "ipAddress", svInfo.ipAddress);
+		assertValueInParser(g_parser, "nickname",  svInfo.nickname);
+		g_parser->endElement();
+	}
+	g_parser->endObject();
+}
+#define assertServers(P,...) cut_trace(_assertServers(P,##__VA_ARGS__))
+
 void setup(void)
 {
 	asuraInit();
@@ -149,44 +171,12 @@ void teardown(void)
 // ---------------------------------------------------------------------------
 void test_servers(void)
 {
-	startFaceRest();
-	g_parser = getResponseAsJsonParser("/servers.json");
-	assertValueInParser(g_parser, "result", true);
-	assertValueInParser(g_parser, "numberOfServers",
-	                    (uint32_t)NumServerInfo);
-	g_parser->startObject("servers");
-	for (size_t i = 0; i < NumServerInfo; i++) {
-		g_parser->startElement(i);
-		MonitoringServerInfo &svInfo = serverInfo[i];
-		assertValueInParser(g_parser, "id",   (uint32_t)svInfo.id);
-		assertValueInParser(g_parser, "type", (uint32_t)svInfo.type);
-		assertValueInParser(g_parser, "hostName",  svInfo.hostName);
-		assertValueInParser(g_parser, "ipAddress", svInfo.ipAddress);
-		assertValueInParser(g_parser, "nickname",  svInfo.nickname);
-		g_parser->endElement();
-	}
-	g_parser->endObject();
+	assertServers("/servers.json");
 }
 
 void test_serversJsonp(void)
 {
-	startFaceRest();
-	g_parser = getResponseAsJsonParser("/servers.jsonp", "foo");
-	assertValueInParser(g_parser, "result", true);
-	assertValueInParser(g_parser, "numberOfServers",
-	                    (uint32_t)NumServerInfo);
-	g_parser->startObject("servers");
-	for (size_t i = 0; i < NumServerInfo; i++) {
-		g_parser->startElement(i);
-		MonitoringServerInfo &svInfo = serverInfo[i];
-		assertValueInParser(g_parser, "id",   (uint32_t)svInfo.id);
-		assertValueInParser(g_parser, "type", (uint32_t)svInfo.type);
-		assertValueInParser(g_parser, "hostName",  svInfo.hostName);
-		assertValueInParser(g_parser, "ipAddress", svInfo.ipAddress);
-		assertValueInParser(g_parser, "nickname",  svInfo.nickname);
-		g_parser->endElement();
-	}
-	g_parser->endObject();
+	assertServers("/servers.jsonp", "foo");
 }
 
 void test_triggers(void)
