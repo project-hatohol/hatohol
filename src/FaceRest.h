@@ -37,7 +37,6 @@ protected:
 	// generic sub routines
 	size_t parseCmdArgPort(CommandLineArg &cmdArg, size_t idx);
 	static void replyError(SoupMessage *msg, const string &errorMessage);
-	static string getExtension(const string &path);
 	static string getJsonpCallbackName(GHashTable *query, HandlerArg *arg);
 	static string wrapForJsonp(const string &jsonBody,
                                    const string &callbackName);

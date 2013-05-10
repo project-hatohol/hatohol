@@ -16,20 +16,6 @@ static const char *TEST_DB_ASURA_NAME = "testDatabase-asura.db";
 static FaceRest *g_faceRest = NULL;
 static JsonParserAgent *g_parser = NULL;
 
-class TestFaceRest : public FaceRest
-{
-public:
-	TestFaceRest(CommandLineArg &cmdArg)
-	: FaceRest(cmdArg)
-	{
-	}
-
-	static string callGetExtension(const string &path)
-	{
-		return getExtension(path);
-	}
-};
-
 static void startFaceRest(void)
 {
 	string dbPathConfig = getFixturesDir() + TEST_DB_CONFIG_NAME;
@@ -111,13 +97,6 @@ static void _assertTestTriggerInfo(const TriggerInfo &triggerInfo)
 }
 #define assertTestTriggerInfo(T) cut_trace(_assertTestTriggerInfo(T))
 
-static void _assertGetExtension(const string &path, const string &expected)
-{
-	string actualExt = TestFaceRest::callGetExtension(path);
-	cppcut_assert_equal(expected, actualExt);
-}
-#define assertGetExtension(P, E) cut_trace(_assertGetExtension(P, E))
-
 void setup(void)
 {
 	asuraInit();
@@ -145,32 +124,6 @@ void teardown(void)
 // ---------------------------------------------------------------------------
 // Test cases
 // ---------------------------------------------------------------------------
-void test_getExtension(void)
-{
-	string extension = "json";
-	string path = "/hoge/foo/gator." + extension;
-	assertGetExtension(path, extension);
-}
-
-void test_getExtensionLastDot(void)
-{
-	assertGetExtension("/hoge/foo/gator.", "");
-}
-
-void test_getExtensionNoDot(void)
-{
-	assertGetExtension("/hoge/foo/gator", "");
-}
-
-void test_getExtensionRoot(void)
-{
-	assertGetExtension("/", "");
-}
-
-void test_getExtensionNull(void)
-{
-	assertGetExtension("", "");
-}
 void test_servers(void)
 {
 	startFaceRest();

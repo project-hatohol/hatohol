@@ -17,6 +17,13 @@ static void _assertValidateJSMethodName(const string &name, bool expect)
 #define assertValidateJSMethodName(N,E) \
 cut_trace(_assertValidateJSMethodName(N,E))
 
+static void _assertGetExtension(const string &path, const string &expected)
+{
+	string actualExt = Utils::getExtension(path);
+	cppcut_assert_equal(expected, actualExt);
+}
+#define assertGetExtension(P, E) cut_trace(_assertGetExtension(P, E))
+
 void setup(void)
 {
 	asuraInit();
@@ -68,6 +75,33 @@ void test_validateJSMethodNameWithDot(void)
 void test_validateJSMethodNameWithExclamation(void)
 {
 	assertValidateJSMethodName("o!o", false);
+}
+
+void test_getExtension(void)
+{
+	string extension = "json";
+	string path = "/hoge/foo/gator." + extension;
+	assertGetExtension(path, extension);
+}
+
+void test_getExtensionLastDot(void)
+{
+	assertGetExtension("/hoge/foo/gator.", "");
+}
+
+void test_getExtensionNoDot(void)
+{
+	assertGetExtension("/hoge/foo/gator", "");
+}
+
+void test_getExtensionRoot(void)
+{
+	assertGetExtension("/", "");
+}
+
+void test_getExtensionNull(void)
+{
+	assertGetExtension("", "");
 }
 
 } // namespace testUtils

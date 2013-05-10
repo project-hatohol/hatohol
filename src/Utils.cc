@@ -175,6 +175,19 @@ bool Utils::validateJSMethodName(const string &name, string &errorMessage)
 	return true;
 }
 
+string Utils::getExtension(const string &path)
+{
+	string ext;
+	int len = path.size();
+	for (int i = len-1; i >= 0; i--) {
+		if (path[i] != '.')
+			continue;
+		ext = string(path, i+1);
+		break;
+	}
+	return ext;
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------

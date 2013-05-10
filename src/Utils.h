@@ -46,6 +46,7 @@ public:
 	                         int currNum = 0, int depth = 0);
 	static uint64_t getCurrTimeAsMicroSecond(void);
 	static bool isValidPort(int port, bool showErrorMsg = true);
+	static string getExtension(const string &path);
 	static bool validateJSMethodName(const string &name,
 	                                 string &errorMessage);
 

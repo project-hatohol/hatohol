@@ -170,19 +170,6 @@ void FaceRest::replyError(SoupMessage *msg, const string &errorMessage)
 	soup_message_set_status(msg, SOUP_STATUS_OK);
 }
 
-string FaceRest::getExtension(const string &path)
-{
-	string ext;
-	int len = path.size();
-	for (int i = len-1; i >= 0; i--) {
-		if (path[i] != '.')
-			continue;
-		ext = string(path, i+1);
-		break;
-	}
-	return ext;
-}
-
 string FaceRest::getJsonpCallbackName(GHashTable *query, HandlerArg *arg)
 {
 	if (arg->formatType != FORMAT_JSONP)
@@ -225,7 +212,7 @@ void FaceRest::launchHandlerInTryBlock
 	HandlerArg arg;
 
 	// format
-	string extension = getExtension(path);
+	string extension = Utils::getExtension(path);
 	FormatTypeMapIterator fmtIt = g_formatTypeMap.find(extension);
 	if (fmtIt == g_formatTypeMap.end()) {
 		string errMsg = StringUtils::sprintf(
