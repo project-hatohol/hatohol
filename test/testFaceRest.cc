@@ -48,6 +48,35 @@ static JsonParserAgent *getResponseAsJsonParser(const string &url)
 	return parser;
 }
 
+static JsonParserAgent *getResponseAsJsonpParser(const string url,
+                                                 const string &callbackName)
+{
+	string getCmd =
+	  StringUtils::sprintf("wget http://localhost:%u%s?callback=%s -O -",
+	                       TEST_PORT, url.c_str(), callbackName.c_str());
+	string response = executeCommand(getCmd);
+	
+	size_t lenCallbackName = callbackName.size();
+	size_t minimumLen = lenCallbackName + 2; // +2 for ''(' and ')'
+	cppcut_assert_equal(true, response.size() > minimumLen);
+
+	cut_assert_equal_substring(
+	  callbackName.c_str(), response.c_str(), lenCallbackName);
+	cppcut_assert_equal(')', response[response.size()-1]);
+	response = string(response, lenCallbackName+1,
+	                  response.size() - minimumLen);
+
+	if (isVerboseMode())
+		cut_notify("<<response>>\n%s\n", response.c_str());
+	JsonParserAgent *parser = new JsonParserAgent(response);
+	if (parser->hasError()) {
+		string parserErrMsg = parser->getErrorMessage();
+		delete parser;
+		cut_fail("%s\n%s", parserErrMsg.c_str(), response.c_str());
+	}
+	return parser;
+}
+
 static void _assertValueInParser(JsonParserAgent *parser,
                                  const string &member, bool expected)
 {
@@ -128,6 +157,27 @@ void test_servers(void)
 {
 	startFaceRest();
 	g_parser = getResponseAsJsonParser("/servers.json");
+	assertValueInParser(g_parser, "result", true);
+	assertValueInParser(g_parser, "numberOfServers",
+	                    (uint32_t)NumServerInfo);
+	g_parser->startObject("servers");
+	for (size_t i = 0; i < NumServerInfo; i++) {
+		g_parser->startElement(i);
+		MonitoringServerInfo &svInfo = serverInfo[i];
+		assertValueInParser(g_parser, "id",   (uint32_t)svInfo.id);
+		assertValueInParser(g_parser, "type", (uint32_t)svInfo.type);
+		assertValueInParser(g_parser, "hostName",  svInfo.hostName);
+		assertValueInParser(g_parser, "ipAddress", svInfo.ipAddress);
+		assertValueInParser(g_parser, "nickname",  svInfo.nickname);
+		g_parser->endElement();
+	}
+	g_parser->endObject();
+}
+
+void test_serversJsonp(void)
+{
+	startFaceRest();
+	g_parser = getResponseAsJsonpParser("/servers.jsonp", "foo");
 	assertValueInParser(g_parser, "result", true);
 	assertValueInParser(g_parser, "numberOfServers",
 	                    (uint32_t)NumServerInfo);
