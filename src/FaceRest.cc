@@ -183,6 +183,29 @@ string FaceRest::getExtension(const string &path)
 	return ext;
 }
 
+string FaceRest::getJsonpCallbackName(GHashTable *query, HandlerArg *arg)
+{
+	if (arg->formatType != FORMAT_JSONP)
+		return "";
+	gpointer value = g_hash_table_lookup(query, "callback");
+	if (!value)
+		throw AsuraException("Not found parameter: callback");
+
+	const char *callbackName = (const char *)value;
+	// TODO: validate the callback name.
+	return callbackName;
+}
+
+string FaceRest::wrapForJsonp(const string &jsonBody,
+                              const string &callbackName)
+{
+	string jsonp = callbackName;
+	jsonp += "(";
+	jsonp += jsonBody;
+	jsonp += ")";
+	return jsonp;
+}
+
 // handlers
 void FaceRest::handlerDefault(SoupServer *server, SoupMessage *msg,
                               const char *path, GHashTable *query,
@@ -248,6 +271,7 @@ void FaceRest::handlerGetServers
    GHashTable *query, SoupClientContext *client, HandlerArg *arg)
 {
 	ConfigManager *configManager = ConfigManager::getInstance();
+	string jsonpCallbackName = getJsonpCallbackName(query, arg);
 
 	MonitoringServerInfoList monitoringServers;
 	configManager->getTargetServers(monitoringServers);
@@ -271,6 +295,8 @@ void FaceRest::handlerGetServers
 	agent.endArray();
 	agent.endObject();
 	string response = agent.generate();
+	if (!jsonpCallbackName.empty())
+		response = wrapForJsonp(response, jsonpCallbackName);
 	soup_message_headers_set_content_type(msg->response_headers,
 	                                      arg->mimeType, NULL);
 	soup_message_body_append(msg->response_body, SOUP_MEMORY_COPY,
@@ -283,6 +309,7 @@ void FaceRest::handlerGetTriggers
    GHashTable *query, SoupClientContext *client, HandlerArg *arg)
 {
 	VirtualDataStoreZabbix *vdsz = VirtualDataStoreZabbix::getInstance();
+	string jsonpCallbackName = getJsonpCallbackName(query, arg);
 
 	TriggerInfoList triggerList;
 	vdsz->getTriggerList(triggerList);
@@ -308,6 +335,8 @@ void FaceRest::handlerGetTriggers
 	agent.endArray();
 	agent.endObject();
 	string response = agent.generate();
+	if (!jsonpCallbackName.empty())
+		response = wrapForJsonp(response, jsonpCallbackName);
 	soup_message_headers_set_content_type(msg->response_headers,
 	                                      arg->mimeType, NULL);
 	soup_message_body_append(msg->response_body, SOUP_MEMORY_COPY,
@@ -320,6 +349,7 @@ void FaceRest::handlerGetEvents
    GHashTable *query, SoupClientContext *client, HandlerArg *arg)
 {
 	VirtualDataStoreZabbix *vdsz = VirtualDataStoreZabbix::getInstance();
+	string jsonpCallbackName = getJsonpCallbackName(query, arg);
 
 	EventInfoList eventList;
 	vdsz->getEventList(eventList);
@@ -349,6 +379,8 @@ void FaceRest::handlerGetEvents
 	agent.endArray();
 	agent.endObject();
 	string response = agent.generate();
+	if (!jsonpCallbackName.empty())
+		response = wrapForJsonp(response, jsonpCallbackName);
 	soup_message_headers_set_content_type(msg->response_headers,
 	                                      arg->mimeType, NULL);
 	soup_message_body_append(msg->response_body, SOUP_MEMORY_COPY,

@@ -29,6 +29,8 @@ public:
 	virtual void stop(void);
 
 protected:
+        struct HandlerArg;
+
 	// virtual methods
 	gpointer mainThread(AsuraThreadArg *arg);
 
@@ -36,9 +38,10 @@ protected:
 	size_t parseCmdArgPort(CommandLineArg &cmdArg, size_t idx);
 	static void replyError(SoupMessage *msg, const string &errorMessage);
 	static string getExtension(const string &path);
-
+	static string getJsonpCallbackName(GHashTable *query, HandlerArg *arg);
+	static string wrapForJsonp(const string &jsonBody,
+                                   const string &callbackName);
 	// handlers
-        struct HandlerArg;
 	static void
 	  handlerDefault(SoupServer *server, SoupMessage *msg,
 	                 const char *path, GHashTable *query,
