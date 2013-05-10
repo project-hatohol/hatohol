@@ -36,6 +36,7 @@ typedef vector<string> CommandLineArg;
 
 class Utils {
 public:
+	static void init(void);
 	static string makeDemangledStackTraceLines(void **trace, int num);
 	static void assertNotNull(const void *ptr);
 	static string demangle(string &str);
@@ -45,6 +46,8 @@ public:
 	                         int currNum = 0, int depth = 0);
 	static uint64_t getCurrTimeAsMicroSecond(void);
 	static bool isValidPort(int port, bool showErrorMsg = true);
+	static bool validateJSMethodName(const string &name,
+	                                 string &errorMessage);
 
 protected:
 	static string makeDemangledStackTraceString(string &stackTraceLine);

@@ -1,13 +1,25 @@
 #include <cppcutter.h>
 #include <sys/time.h>
 #include <errno.h>
+#include "Asura.h"
 #include "Utils.h"
 #include "Helpers.h"
 
 namespace testUtils {
 
+static void _assertValidateJSMethodName(const string &name, bool expect)
+{
+	string errMsg;
+	cppcut_assert_equal(
+	  expect, Utils::validateJSMethodName(name, errMsg),
+	  cut_message("%s", errMsg.c_str()));
+}
+#define assertValidateJSMethodName(N,E) \
+cut_trace(_assertValidateJSMethodName(N,E))
+
 void setup(void)
 {
+	asuraInit();
 }
 
 // ---------------------------------------------------------------------------
@@ -26,6 +38,36 @@ void test_getCurrTimeAsMicroSecond(void)
 	cppcut_assert_equal(true, timeError < allowedErrorInMicroSec);
 	if (isVerboseMode())
 		cut_notify("timeError: %"PRIu64 " [us]", timeError);
+}
+
+void test_validateJSMethodName(void)
+{
+	assertValidateJSMethodName("IYHoooo_21", true);
+}
+
+void test_validateJSMethodNameEmpty(void)
+{
+	assertValidateJSMethodName("", false);
+}
+
+void test_validateJSMethodNameFromNumber(void)
+{
+	assertValidateJSMethodName("1foo", false);
+}
+
+void test_validateJSMethodNameWithSpace(void)
+{
+	assertValidateJSMethodName("o o", false);
+}
+
+void test_validateJSMethodNameWithDot(void)
+{
+	assertValidateJSMethodName("o.o", false);
+}
+
+void test_validateJSMethodNameWithExclamation(void)
+{
+	assertValidateJSMethodName("o!o", false);
 }
 
 } // namespace testUtils

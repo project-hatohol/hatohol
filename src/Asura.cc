@@ -21,6 +21,7 @@
 using namespace mlpl;
 
 #include "Asura.h"
+#include "Utils.h"
 #include "SQLUtils.h"
 #include "SQLProcessorZabbix.h"
 #include "SQLProcessorFactory.h"
@@ -40,6 +41,7 @@ static bool initDone = false;
 
 static void init(void)
 {
+	Utils::init();
 	AsuraException::init();
 
 	DBAgentSQLite3::init();

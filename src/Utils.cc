@@ -28,9 +28,26 @@ using namespace mlpl;
 #include "Utils.h"
 #include "FormulaElement.h"
 
+const static size_t SIZE_JS_METHOD_VALID_CODE_MAP = 0x100;
+static bool g_jsMethodValidCodeMap[SIZE_JS_METHOD_VALID_CODE_MAP];
+
+
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
+void Utils::init(void)
+{
+	for (size_t i = 0; i < SIZE_JS_METHOD_VALID_CODE_MAP; i++)
+		g_jsMethodValidCodeMap[i] = false;
+	for (size_t i = 'A'; i <= 'Z'; i++)
+		g_jsMethodValidCodeMap[i] = true;
+	for (size_t i = 'a'; i <= 'z'; i++)
+		g_jsMethodValidCodeMap[i] = true;
+	for (size_t i = '0'; i <= '9'; i++)
+		g_jsMethodValidCodeMap[i] = true;
+	g_jsMethodValidCodeMap['_'] = true;
+}
+
 string Utils::makeDemangledStackTraceLines(void **trace, int num)
 {
 	char **symbols = backtrace_symbols(trace, num);
@@ -131,6 +148,30 @@ bool Utils::isValidPort(int port, bool showErrorMsg)
 			MLPL_ERR("invalid port: %s, %d\n", port);
 		return false;
 	}
+	return true;
+}
+
+bool Utils::validateJSMethodName(const string &name, string &errorMessage)
+{
+	if (name.empty()) {
+		errorMessage = "empty name.";
+		return false;
+	}
+
+	if (name[0] >= '0' && name[0] <= '9') {
+		errorMessage = "begins from a number.";
+		return false;
+	}
+
+	for (size_t i = 0; i < name.size(); i++) {
+		int code = name[i];
+		if (g_jsMethodValidCodeMap[code])
+			continue;
+		errorMessage = StringUtils::sprintf(
+		  "invalid charactor code: %02x at index: %zd", code, i);
+		return false;
+	}
+
 	return true;
 }
 
