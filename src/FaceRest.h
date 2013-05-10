@@ -20,6 +20,7 @@
 
 #include <libsoup/soup.h>
 #include "FaceBase.h"
+#include "JsonBuilderAgent.h"
 
 class FaceRest : public FaceBase {
 public:
@@ -40,6 +41,10 @@ protected:
 	static string getJsonpCallbackName(GHashTable *query, HandlerArg *arg);
 	static string wrapForJsonp(const string &jsonBody,
                                    const string &callbackName);
+	static void replyJsonData(JsonBuilderAgent &agent, SoupMessage *msg,
+	                          const string &jsonpCallbackName,
+	                          HandlerArg *arg);
+
 	// handlers
 	static void
 	  handlerDefault(SoupServer *server, SoupMessage *msg,

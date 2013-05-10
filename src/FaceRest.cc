@@ -197,6 +197,19 @@ string FaceRest::wrapForJsonp(const string &jsonBody,
 	return jsonp;
 }
 
+void FaceRest::replyJsonData(JsonBuilderAgent &agent, SoupMessage *msg,
+                             const string &jsonpCallbackName, HandlerArg *arg)
+{
+	string response = agent.generate();
+	if (!jsonpCallbackName.empty())
+		response = wrapForJsonp(response, jsonpCallbackName);
+	soup_message_headers_set_content_type(msg->response_headers,
+	                                      arg->mimeType, NULL);
+	soup_message_body_append(msg->response_body, SOUP_MEMORY_COPY,
+	                         response.c_str(), response.size());
+	soup_message_set_status(msg, SOUP_STATUS_OK);
+}
+
 // handlers
 void FaceRest::handlerDefault(SoupServer *server, SoupMessage *msg,
                               const char *path, GHashTable *query,
@@ -285,14 +298,8 @@ void FaceRest::handlerGetServers
 	}
 	agent.endArray();
 	agent.endObject();
-	string response = agent.generate();
-	if (!jsonpCallbackName.empty())
-		response = wrapForJsonp(response, jsonpCallbackName);
-	soup_message_headers_set_content_type(msg->response_headers,
-	                                      arg->mimeType, NULL);
-	soup_message_body_append(msg->response_body, SOUP_MEMORY_COPY,
-	                         response.c_str(), response.size());
-	soup_message_set_status(msg, SOUP_STATUS_OK);
+
+	replyJsonData(agent, msg, jsonpCallbackName, arg);
 }
 
 void FaceRest::handlerGetTriggers
@@ -325,14 +332,8 @@ void FaceRest::handlerGetTriggers
 	}
 	agent.endArray();
 	agent.endObject();
-	string response = agent.generate();
-	if (!jsonpCallbackName.empty())
-		response = wrapForJsonp(response, jsonpCallbackName);
-	soup_message_headers_set_content_type(msg->response_headers,
-	                                      arg->mimeType, NULL);
-	soup_message_body_append(msg->response_body, SOUP_MEMORY_COPY,
-	                         response.c_str(), response.size());
-	soup_message_set_status(msg, SOUP_STATUS_OK);
+
+	replyJsonData(agent, msg, jsonpCallbackName, arg);
 }
 
 void FaceRest::handlerGetEvents
@@ -369,12 +370,6 @@ void FaceRest::handlerGetEvents
 	}
 	agent.endArray();
 	agent.endObject();
-	string response = agent.generate();
-	if (!jsonpCallbackName.empty())
-		response = wrapForJsonp(response, jsonpCallbackName);
-	soup_message_headers_set_content_type(msg->response_headers,
-	                                      arg->mimeType, NULL);
-	soup_message_body_append(msg->response_body, SOUP_MEMORY_COPY,
-	                         response.c_str(), response.size());
-	soup_message_set_status(msg, SOUP_STATUS_OK);
+
+	replyJsonData(agent, msg, jsonpCallbackName, arg);
 }
