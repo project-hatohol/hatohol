@@ -13,6 +13,7 @@ Contents:
 
    servers
    triggers
+   events
 
 
 Indices and tables
