@@ -163,7 +163,7 @@ static void _assertTriggers(const string &path, const string &callbackName = "")
 static void _assertEvents(const string &path, const string &callbackName = "")
 {
 	startFaceRest();
-	g_parser = getResponseAsJsonParser("/events.json");
+	g_parser = getResponseAsJsonParser(path, callbackName);
 	assertValueInParser(g_parser, "result", true);
 	assertValueInParser(g_parser, "numberOfEvents",
 	                    (uint32_t)NumTestEventInfo);
