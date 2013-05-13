@@ -146,6 +146,8 @@ static void _assertTriggers(const string &path, const string &callbackName = "")
 {
 	startFaceRest();
 	g_parser = getResponseAsJsonParser(path, callbackName);
+	assertValueInParser(g_parser, "apiVersion",
+	                    (uint32_t)FaceRest::API_VERSION_TRIGGERS);
 	assertValueInParser(g_parser, "result", true);
 	assertValueInParser(g_parser, "numberOfTriggers",
 	                    (uint32_t)NumTestTriggerInfo);
@@ -164,6 +166,8 @@ static void _assertEvents(const string &path, const string &callbackName = "")
 {
 	startFaceRest();
 	g_parser = getResponseAsJsonParser(path, callbackName);
+	assertValueInParser(g_parser, "apiVersion",
+	                    (uint32_t)FaceRest::API_VERSION_EVENTS);
 	assertValueInParser(g_parser, "result", true);
 	assertValueInParser(g_parser, "numberOfEvents",
 	                    (uint32_t)NumTestEventInfo);

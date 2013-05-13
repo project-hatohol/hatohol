@@ -24,6 +24,10 @@ using namespace mlpl;
 #include "ConfigManager.h"
 #include "VirtualDataStoreZabbix.h"
 
+int FaceRest::API_VERSION_SERVERS  = 1;
+int FaceRest::API_VERSION_TRIGGERS = 1;
+int FaceRest::API_VERSION_EVENTS   = 1;
+
 typedef void (*RestHandler)
   (SoupServer *server, SoupMessage *msg, const char *path,
    GHashTable *query, SoupClientContext *client, gpointer user_data);
@@ -282,6 +286,7 @@ void FaceRest::handlerGetServers
 
 	JsonBuilderAgent agent;
 	agent.startObject();
+	agent.add("apiVersion", API_VERSION_SERVERS);
 	agent.addTrue("result");
 	agent.add("numberOfServers", monitoringServers.size());
 	agent.startArray("servers");
@@ -314,6 +319,7 @@ void FaceRest::handlerGetTriggers
 
 	JsonBuilderAgent agent;
 	agent.startObject();
+	agent.add("apiVersion", API_VERSION_TRIGGERS);
 	agent.addTrue("result");
 	agent.add("numberOfTriggers", triggerList.size());
 	agent.startArray("triggers");
@@ -348,6 +354,7 @@ void FaceRest::handlerGetEvents
 
 	JsonBuilderAgent agent;
 	agent.startObject();
+	agent.add("apiVersion", API_VERSION_EVENTS);
 	agent.addTrue("result");
 	agent.add("numberOfEvents", eventList.size());
 	agent.startArray("events");

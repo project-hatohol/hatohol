@@ -41,6 +41,11 @@ Repsponse structure
      - Value type
      - Brief
      - Condition
+   * - apiVersion
+     - Number
+     - An API version of this URL.
+       This document is written for version **1**.
+     - A
    * - result
      - Boolean
      - True on success. Otherwise False and the reason is shown in the
