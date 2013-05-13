@@ -124,6 +124,8 @@ static void _assertServers(const string &path, const string &callbackName = "")
 {
 	startFaceRest();
 	g_parser = getResponseAsJsonParser(path, callbackName);
+	assertValueInParser(g_parser, "apiVersion",
+	                    (uint32_t)FaceRest::API_VERSION_SERVERS);
 	assertValueInParser(g_parser, "result", true);
 	assertValueInParser(g_parser, "numberOfServers",
 	                    (uint32_t)NumServerInfo);
