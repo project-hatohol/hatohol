@@ -61,9 +61,7 @@ Repsponse structure
      - The array of `Trigger object`_.
      - T
 
-.. note::
-
-**Condition** A: always, T: only when result is True, F: only when result is False.
+.. note:: [Condition] A: always, T: only when result is True, F: only when result is False.
 
 Trigger object
 -------------
