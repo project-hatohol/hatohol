@@ -12,6 +12,7 @@ Contents:
    :maxdepth: 2
 
    servers
+   triggers
 
 
 Indices and tables
