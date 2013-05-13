@@ -59,9 +59,7 @@ Repsponse structure
      - The array of `Server object`_.
      - T
 
-.. note::
-
-**Condition** A: always, T: only when result is True, F: only when result is False.
+.. note:: [Condition] A: always, T: only when result is True, F: only when result is False.
 
 Server object
 -------------
