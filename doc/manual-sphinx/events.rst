@@ -83,9 +83,9 @@ Event object
    * - time
      - Number
      - A time of the event.
-   * - eventValue
+   * - type
      - Number
-     - Active status of the event.
+     - An `Event type`_.
    * - triggerId
      - Number
      - The trigger ID.
@@ -98,3 +98,13 @@ Event object
    * - brief
      - String
      - A brief of the event.
+
+Event type
+-------------
+.. list-table::
+
+   * - 0
+     - TRIGGER_ACTIVATED
+   * - 1
+     - TRIGGER_DEACTIVATED
+

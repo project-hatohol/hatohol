@@ -68,13 +68,13 @@ EventInfo testEventInfo[] = {
 	3,                        // serverId
 	1,                        // id
 	{1362957200,0},           // time
-	EVENT_ACTIVE,             // eventValue
+	TRIGGER_ACTIVATED,        // type
 	2,                        // triggerId
 }, {
 	3,                        // serverId
 	2,                        // id
 	{1362951000,0},           // time
-	EVENT_ACTIVE,             // eventValue
+	TRIGGER_ACTIVATED,        // type
 	3,                        // triggerId
 },
 };

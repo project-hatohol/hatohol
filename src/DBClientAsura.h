@@ -46,16 +46,16 @@ typedef list<TriggerInfo>               TriggerInfoList;
 typedef TriggerInfoList::iterator       TriggerInfoListIterator;
 typedef TriggerInfoList::const_iterator TriggerInfoListConstIterator;
 
-enum EventValue {
-	EVENT_ACTIVE,
-	EVENT_INACTIVE,
+enum EventType {
+	TRIGGER_ACTIVATED,
+	TRIGGER_DEACTIVATED,
 };
 
 struct EventInfo {
 	uint32_t            serverId;
 	uint64_t            id;
 	timespec            time;
-	EventValue          eventValue;
+	EventType           type;
 	uint64_t            triggerId;
 	TriggerInfo         triggerInfo;
 };

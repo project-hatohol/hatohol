@@ -179,8 +179,7 @@ static void _assertEvents(const string &path, const string &callbackName = "")
 		EventInfo &eventInfo = testEventInfo[i];
 		assertValueInParser(g_parser, "serverId", eventInfo.serverId);
 		assertValueInParser(g_parser, "time", eventInfo.time);
-		assertValueInParser(g_parser, "eventValue",
-		                    (uint32_t)eventInfo.eventValue);
+		assertValueInParser(g_parser, "type", (uint32_t)eventInfo.type);
 		assertValueInParser(g_parser, "triggerId",
 		                    (uint32_t)eventInfo.triggerId);
 

@@ -227,7 +227,7 @@ enum {
 	IDX_EVENTS_ID,
 	IDX_EVENTS_TIME_SEC,
 	IDX_EVENTS_TIME_NS,
-	IDX_EVENTS_EVENT_VALUE,
+	IDX_EVENTS_EVENT_TYPE,
 	IDX_EVENTS_TRIGGER_ID,
 	NUM_IDX_EVENTS,
 };
@@ -394,7 +394,7 @@ void DBClientAsura::getEventInfoList(EventInfoList &eventInfoList)
 	const ColumnDef &eventsTimeNs =
 	  COLUMN_DEF_EVENTS[IDX_EVENTS_TIME_NS];
 	const ColumnDef &eventsEventValue = 
-	  COLUMN_DEF_EVENTS[IDX_EVENTS_EVENT_VALUE];
+	  COLUMN_DEF_EVENTS[IDX_EVENTS_EVENT_TYPE];
 	const ColumnDef &eventsTriggerId =
 	  COLUMN_DEF_EVENTS[IDX_EVENTS_TRIGGER_ID];
 
@@ -468,8 +468,8 @@ void DBClientAsura::getEventInfoList(EventInfoList &eventInfoList)
 		eventInfo.id         = GET_UINT64_FROM_GRP(itemGroup, idx++);
 		eventInfo.time.tv_sec  = GET_INT_FROM_GRP(itemGroup, idx++);
 		eventInfo.time.tv_nsec = GET_INT_FROM_GRP(itemGroup, idx++);
-		int eventValue       = GET_INT_FROM_GRP(itemGroup, idx++);
-		eventInfo.eventValue = static_cast<EventValue>(eventValue);
+		int type             = GET_INT_FROM_GRP(itemGroup, idx++);
+		eventInfo.type       = static_cast<EventType>(type);
 		eventInfo.triggerId  = GET_UINT64_FROM_GRP(itemGroup, idx++);
 
 		TriggerInfo &trigInfo = eventInfo.triggerInfo;
@@ -609,7 +609,7 @@ void DBClientAsura::addEventInfoBare(const EventInfo &eventInfo)
 		row->ADD_NEW_ITEM(Uint64, eventInfo.id);
 		row->ADD_NEW_ITEM(Int, eventInfo.time.tv_sec); 
 		row->ADD_NEW_ITEM(Int, eventInfo.time.tv_nsec); 
-		row->ADD_NEW_ITEM(Int, eventInfo.eventValue);
+		row->ADD_NEW_ITEM(Int, eventInfo.type);
 		row->ADD_NEW_ITEM(Uint64, eventInfo.triggerId);
 		arg.row = row;
 		insert(arg);
@@ -627,8 +627,8 @@ void DBClientAsura::addEventInfoBare(const EventInfo &eventInfo)
 		row->ADD_NEW_ITEM(Int, eventInfo.time.tv_nsec); 
 		arg.columnIndexes.push_back(IDX_EVENTS_TIME_NS);
 
-		row->ADD_NEW_ITEM(Int, eventInfo.eventValue);
-		arg.columnIndexes.push_back(IDX_EVENTS_EVENT_VALUE);
+		row->ADD_NEW_ITEM(Int, eventInfo.type);
+		arg.columnIndexes.push_back(IDX_EVENTS_EVENT_TYPE);
 
 		row->ADD_NEW_ITEM(Uint64, eventInfo.triggerId);
 		arg.columnIndexes.push_back(IDX_EVENTS_TRIGGER_ID);

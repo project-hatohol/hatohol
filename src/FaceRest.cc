@@ -365,7 +365,7 @@ void FaceRest::handlerGetEvents
 		agent.startObject();
 		agent.add("serverId", eventInfo.serverId);
 		agent.add("time",   eventInfo.time.tv_sec);
-		agent.add("eventValue", eventInfo.eventValue);
+		agent.add("type",      eventInfo.type);
 		agent.add("triggerId", eventInfo.triggerId);
 		agent.add("status",         triggerInfo.status);
 		agent.add("severity",       triggerInfo.severity);

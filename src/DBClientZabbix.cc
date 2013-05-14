@@ -1674,10 +1674,10 @@ void DBClientZabbix::getEventsAsAsuraFormat(EventInfoList &eventInfoList)
 		   itemGroup->getItemAt(idx++), ItemInt, itemSec);
 		eventInfo.time.tv_sec = itemSec->get();
 
-		// value
+		// type
 		DEFINE_AND_ASSERT(
 		   itemGroup->getItemAt(idx++), ItemInt, itemValue);
-		eventInfo.eventValue = (EventValue)itemValue->get();
+		eventInfo.type = (EventType)itemValue->get();
 
 		// ns
 		DEFINE_AND_ASSERT(
@@ -1718,11 +1718,11 @@ bool DBClientZabbix::transformEventItemGroupToEventInfo
 	  ItemInt, itemSec);
 	eventInfo.time.tv_sec = itemSec->get();
 
-	// value
+	// type
 	DEFINE_AND_ASSERT(
 	  eventItemGroup->getItem(ITEM_ID_ZBX_EVENTS_VALUE),
 	  ItemInt, itemValue);
-	eventInfo.eventValue = (EventValue)itemValue->get();
+	eventInfo.type = (EventType)itemValue->get();
 
 	// ns
 	DEFINE_AND_ASSERT(
