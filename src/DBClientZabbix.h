@@ -30,6 +30,11 @@ public:
 	static void reset(void);
 	static DBDomainId getDBDomainId(int zabbixServerId);
 	static void resetDBInitializedFlags(void);
+	static void transformEventsToAsuraFormat(EventInfoList &eventInfoList,
+	                                         const ItemTablePtr events,
+	                                         uint32_t serverId);
+	static bool transformEventItemGroupToEventInfo(EventInfo &eventInfo,
+	                                               const ItemGroup *event);
 
 	DBClientZabbix(size_t zabbixServerId);
 	virtual ~DBClientZabbix();

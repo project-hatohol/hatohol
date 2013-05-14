@@ -1689,6 +1689,64 @@ void DBClientZabbix::getEventsAsAsuraFormat(EventInfoList &eventInfoList)
 	}
 }
 
+bool DBClientZabbix::transformEventItemGroupToEventInfo
+  (EventInfo &eventInfo, const ItemGroup *eventItemGroup)
+{
+	// event id
+	DEFINE_AND_ASSERT(
+	  eventItemGroup->getItem(ITEM_ID_ZBX_EVENTS_EVENTID),
+	  ItemUint64, itemEventId);
+	eventInfo.id = itemEventId->get();
+
+	// object
+	DEFINE_AND_ASSERT(
+	   eventItemGroup->getItem(ITEM_ID_ZBX_EVENTS_OBJECT),
+	   ItemInt, itemObject);
+	int object = itemObject->get();
+	if (object != EVENT_OBJECT_TRIGGER)
+		return false;
+
+	// object id
+	DEFINE_AND_ASSERT(
+	  eventItemGroup->getItem(ITEM_ID_ZBX_EVENTS_OBJECTID),
+	  ItemUint64, itemObjectId);
+	eventInfo.triggerId = itemObjectId->get();
+
+	// clock
+	DEFINE_AND_ASSERT(
+	  eventItemGroup->getItem(ITEM_ID_ZBX_EVENTS_CLOCK),
+	  ItemInt, itemSec);
+	eventInfo.time.tv_sec = itemSec->get();
+
+	// value
+	DEFINE_AND_ASSERT(
+	  eventItemGroup->getItem(ITEM_ID_ZBX_EVENTS_VALUE),
+	  ItemInt, itemValue);
+	eventInfo.eventValue = (EventValue)itemValue->get();
+
+	// ns
+	DEFINE_AND_ASSERT(
+	  eventItemGroup->getItem(ITEM_ID_ZBX_EVENTS_NS),
+	  ItemInt, itemNs);
+	eventInfo.time.tv_nsec = itemNs->get();
+
+	return true;
+}
+
+void DBClientZabbix::transformEventsToAsuraFormat
+  (EventInfoList &eventInfoList, const ItemTablePtr events, uint32_t serverId)
+{
+	const ItemGroupList &itemGroupList = events->getItemGroupList();
+	ItemGroupListConstIterator it = itemGroupList.begin();
+	for (; it != itemGroupList.end(); ++it) {
+		EventInfo eventInfo;
+		eventInfo.serverId = serverId;
+		if (!transformEventItemGroupToEventInfo(eventInfo, *it))
+			continue;
+		eventInfoList.push_back(eventInfo);
+	}
+}
+
 uint64_t DBClientZabbix::getLastEventId(void)
 {
 	const ColumnDef &columnDefEventId = 

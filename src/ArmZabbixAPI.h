@@ -94,10 +94,10 @@ protected:
 	void updateFunctions(void);
 	void updateItems(void);
 	void updateHosts(void);
-	void updateEvents(void);
+	ItemTablePtr updateEvents(void);
 
 	void makeAsuraTriggers(void);
-	void makeAsuraEvents(void);
+	void makeAsuraEvents(ItemTablePtr events);
 
 	// virtual methods
 	gpointer mainThread(AsuraThreadArg *arg);

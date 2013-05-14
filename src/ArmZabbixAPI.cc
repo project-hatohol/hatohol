@@ -712,7 +712,7 @@ void ArmZabbixAPI::updateHosts(void)
 	m_ctx->dbClientZabbix.addHostsRaw2_0(tablePtr);
 }
 
-void ArmZabbixAPI::updateEvents(void)
+ItemTablePtr ArmZabbixAPI::updateEvents(void)
 {
 	uint64_t eventIdOffset;
 	uint64_t lastEventId = m_ctx->dbClientZabbix.getLastEventId();
@@ -722,6 +722,7 @@ void ArmZabbixAPI::updateEvents(void)
 		eventIdOffset = lastEventId + 1;
 	ItemTablePtr tablePtr = getEvents(eventIdOffset);
 	m_ctx->dbClientZabbix.addEventsRaw2_0(tablePtr);
+	return tablePtr;
 }
 
 //
@@ -765,12 +766,12 @@ void ArmZabbixAPI::makeAsuraTriggers(void)
 	                                        m_ctx->zabbixServerId);
 }
 
-void ArmZabbixAPI::makeAsuraEvents(void)
+void ArmZabbixAPI::makeAsuraEvents(ItemTablePtr events)
 {
 	EventInfoList eventInfoList;
-	m_ctx->dbClientZabbix.getEventsAsAsuraFormat(eventInfoList);
-	m_ctx->dbClientAsura.setEventInfoList(eventInfoList,
-	                                      m_ctx->zabbixServerId);
+	DBClientZabbix::transformEventsToAsuraFormat(eventInfoList, events,
+	                                             m_ctx->zabbixServerId);
+	m_ctx->dbClientAsura.addEventInfoList(eventInfoList);
 }
 
 //
@@ -786,8 +787,8 @@ bool ArmZabbixAPI::mainThreadOneProc(void)
 	updateHosts();
 	makeAsuraTriggers();
 
-	updateEvents();
-	makeAsuraEvents();
+	ItemTablePtr events = updateEvents();
+	makeAsuraEvents(events);
 
 	return true;
 }
