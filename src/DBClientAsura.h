@@ -98,6 +98,7 @@ public:
 	void setEventInfoList(const EventInfoList &eventInfoList,
 	                      uint32_t serverId);
 
+	void addItemInfo(ItemInfo *itemInfo);
 	void addItemInfoList(const ItemInfoList &itemInfoList);
 	void getItemInfoList(ItemInfoList &itemInfoList);
 

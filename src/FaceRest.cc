@@ -27,6 +27,7 @@ using namespace mlpl;
 int FaceRest::API_VERSION_SERVERS  = 1;
 int FaceRest::API_VERSION_TRIGGERS = 1;
 int FaceRest::API_VERSION_EVENTS   = 1;
+int FaceRest::API_VERSION_ITEMS;
 
 typedef void (*RestHandler)
   (SoupServer *server, SoupMessage *msg, const char *path,
@@ -37,6 +38,7 @@ static const guint DEFAULT_PORT = 33194;
 const char *FaceRest::pathForGetServers = "/servers";
 const char *FaceRest::pathForGetTriggers = "/triggers";
 const char *FaceRest::pathForGetEvents   = "/events";
+const char *FaceRest::pathForGetItems    = "/items";
 
 static const char *MIME_HTML = "text/html";
 static const char *MIME_JSON = "application/json";
@@ -135,6 +137,9 @@ gpointer FaceRest::mainThread(AsuraThreadArg *arg)
 	soup_server_add_handler(m_soupServer, pathForGetEvents,
 	                        launchHandlerInTryBlock,
 	                        (gpointer)handlerGetEvents, NULL);
+	soup_server_add_handler(m_soupServer, pathForGetItems,
+	                        launchHandlerInTryBlock,
+	                        (gpointer)handlerGetItems, NULL);
 	soup_server_run(m_soupServer);
 	MLPL_INFO("exited face-rest\n");
 	return NULL;
@@ -373,6 +378,40 @@ void FaceRest::handlerGetEvents
 		agent.add("hostId",         triggerInfo.hostId);
 		agent.add("hostName",       triggerInfo.hostName);
 		agent.add("brief",          triggerInfo.brief);
+		agent.endObject();
+	}
+	agent.endArray();
+	agent.endObject();
+
+	replyJsonData(agent, msg, jsonpCallbackName, arg);
+}
+
+void FaceRest::handlerGetItems
+  (SoupServer *server, SoupMessage *msg, const char *path,
+   GHashTable *query, SoupClientContext *client, HandlerArg *arg)
+{
+	string jsonpCallbackName = getJsonpCallbackName(query, arg);
+
+	ItemInfoList itemList;
+	DBClientAsura dbAsura;
+	dbAsura.getItemInfoList(itemList);
+
+	JsonBuilderAgent agent;
+	agent.startObject();
+	agent.add("apiVersion", API_VERSION_EVENTS);
+	agent.addTrue("result");
+	agent.add("numberOfItems", itemList.size());
+	agent.startArray("items");
+	ItemInfoListIterator it = itemList.begin();
+	for (; it != itemList.end(); ++it) {
+		ItemInfo &itemInfo = *it;
+		agent.startObject();
+		agent.add("serverId",  itemInfo.serverId);
+		agent.add("hostId",    itemInfo.hostId);
+		agent.add("brief",     itemInfo.brief.c_str());
+		agent.add("lastValueTime", itemInfo.lastValueTime.tv_sec);
+		agent.add("lastValue", itemInfo.lastValue);
+		agent.add("prevValue", itemInfo.prevValue);
 		agent.endObject();
 	}
 	agent.endArray();

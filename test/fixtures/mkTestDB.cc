@@ -35,6 +35,12 @@ static void makeDBAsura(const string &dbName)
 		EventInfo *eventInfo = &testEventInfo[i];
 		dbAsura.addEventInfo(eventInfo);
 	} 
+
+	// Items
+	for (size_t i = 0; i < NumTestItemInfo; i++) {
+		ItemInfo *itemInfo = &testItemInfo[i];
+		dbAsura.addItemInfo(itemInfo);
+	} 
 }
 
 int main(int argc, char *argv[])

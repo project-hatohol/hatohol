@@ -202,6 +202,32 @@ static void _assertEvents(const string &path, const string &callbackName = "")
 }
 #define assertEvents(P,...) cut_trace(_assertEvents(P,##__VA_ARGS__))
 
+static void _assertItems(const string &path, const string &callbackName = "")
+{
+	startFaceRest();
+	g_parser = getResponseAsJsonParser(path, callbackName);
+	assertValueInParser(g_parser, "apiVersion",
+	                    (uint32_t)FaceRest::API_VERSION_EVENTS);
+	assertValueInParser(g_parser, "result", true);
+	assertValueInParser(g_parser, "numberOfItems",
+	                    (uint32_t)NumTestItemInfo);
+	g_parser->startObject("items");
+	for (size_t i = 0; i < NumTestItemInfo; i++) {
+		g_parser->startElement(i);
+		ItemInfo &itemInfo = testItemInfo[i];
+		assertValueInParser(g_parser, "serverId", itemInfo.serverId);
+		assertValueInParser(g_parser, "hostId", itemInfo.hostId);
+		assertValueInParser(g_parser, "brief", itemInfo.brief);
+		assertValueInParser(g_parser, "lastValueTime",
+		                    itemInfo.lastValueTime);
+		assertValueInParser(g_parser, "lastValue", itemInfo.lastValue);
+		assertValueInParser(g_parser, "prevValue", itemInfo.prevValue);
+		g_parser->endElement();
+	}
+	g_parser->endObject();
+}
+#define assertItems(P,...) cut_trace(_assertItems(P,##__VA_ARGS__))
+
 void setup(void)
 {
 	asuraInit();
@@ -257,6 +283,16 @@ void test_events(void)
 void test_eventsJsonp(void)
 {
 	assertEvents("/events.jsonp", "foo");
+}
+
+void test_items(void)
+{
+	assertItems("/items.json");
+}
+
+void test_itemsJsonp(void)
+{
+	assertItems("/items.jsonp", "foo");
 }
 
 } // namespace testFaceRest

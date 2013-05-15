@@ -169,7 +169,6 @@ void test_addItemInfoList(void)
 	ItemInfoList itemInfoList;
 	for (size_t i = 0; i < NumTestItemInfo; i++)
 		itemInfoList.push_back(testItemInfo[i]);
-	uint32_t serverId = testItemInfo[0].serverId;
 	dbAsura.addItemInfoList(itemInfoList);
 
 	assertGetItems();

@@ -619,6 +619,13 @@ void DBClientAsura::setEventInfoList(const EventInfoList &eventInfoList,
 	} DBCLIENT_TRANSACTION_END();
 }
 
+void DBClientAsura::addItemInfo(ItemInfo *itemInfo)
+{
+	DBCLIENT_TRANSACTION_BEGIN() {
+		addItemInfoBare(*itemInfo);
+	} DBCLIENT_TRANSACTION_END();
+}
+
 void DBClientAsura::addItemInfoList(const ItemInfoList &itemInfoList)
 {
 	ItemInfoListConstIterator it = itemInfoList.begin();
