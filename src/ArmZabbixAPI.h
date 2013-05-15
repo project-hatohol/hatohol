@@ -92,12 +92,13 @@ protected:
 
 	void updateTriggers(void);
 	void updateFunctions(void);
-	void updateItems(void);
+	ItemTablePtr updateItems(void);
 	void updateHosts(void);
 	ItemTablePtr updateEvents(void);
 
 	void makeAsuraTriggers(void);
 	void makeAsuraEvents(ItemTablePtr events);
+	void makeAsuraItems(ItemTablePtr events);
 
 	// virtual methods
 	gpointer mainThread(AsuraThreadArg *arg);

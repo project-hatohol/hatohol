@@ -1747,6 +1747,63 @@ void DBClientZabbix::transformEventsToAsuraFormat
 	}
 }
 
+bool DBClientZabbix::transformItemItemGroupToItemInfo
+  (ItemInfo &itemInfo, const ItemGroup *itemItemGroup)
+{
+	// item id
+	DEFINE_AND_ASSERT(
+	  itemItemGroup->getItem(ITEM_ID_ZBX_ITEMS_ITEMID),
+	  ItemUint64, itemItemId);
+	itemInfo.id = itemItemId->get();
+
+	// host id
+	DEFINE_AND_ASSERT(
+	   itemItemGroup->getItem(ITEM_ID_ZBX_ITEMS_HOSTID),
+	   ItemUint64, itemHostId);
+	itemInfo.hostId = itemHostId->get();
+
+	// brief
+	DEFINE_AND_ASSERT(
+	  itemItemGroup->getItem(ITEM_ID_ZBX_ITEMS_DESCRIPTION),
+	  ItemString, itemDescription);
+	itemInfo.brief = itemDescription->get();
+
+	// last value time
+	DEFINE_AND_ASSERT(
+	  itemItemGroup->getItem(ITEM_ID_ZBX_ITEMS_LASTCLOCK),
+	  ItemInt, itemLastClock);
+	itemInfo.lastValueTime.tv_sec = itemLastClock->get();
+	itemInfo.lastValueTime.tv_nsec = 0;
+
+	// last value
+	DEFINE_AND_ASSERT(
+	  itemItemGroup->getItem(ITEM_ID_ZBX_ITEMS_LASTVALUE),
+	  ItemString, itemLastValue);
+	itemInfo.lastValue = itemLastValue->get();
+
+	// prev value
+	DEFINE_AND_ASSERT(
+	  itemItemGroup->getItem(ITEM_ID_ZBX_ITEMS_PREVVALUE),
+	  ItemString, itemPrevValue);
+	itemInfo.prevValue = itemPrevValue->get();
+
+	return true;
+}
+
+void DBClientZabbix::transformItemsToAsuraFormat
+  (ItemInfoList &eventInfoList, const ItemTablePtr events, uint32_t serverId)
+{
+	const ItemGroupList &itemGroupList = events->getItemGroupList();
+	ItemGroupListConstIterator it = itemGroupList.begin();
+	for (; it != itemGroupList.end(); ++it) {
+		ItemInfo eventInfo;
+		eventInfo.serverId = serverId;
+		if (!transformItemItemGroupToItemInfo(eventInfo, *it))
+			continue;
+		eventInfoList.push_back(eventInfo);
+	}
+}
+
 uint64_t DBClientZabbix::getLastEventId(void)
 {
 	const ColumnDef &columnDefEventId = 

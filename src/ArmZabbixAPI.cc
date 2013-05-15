@@ -700,10 +700,11 @@ void ArmZabbixAPI::updateFunctions(void)
 	m_ctx->dbClientZabbix.addFunctionsRaw2_0(tablePtr);
 }
 
-void ArmZabbixAPI::updateItems(void)
+ItemTablePtr ArmZabbixAPI::updateItems(void)
 {
 	ItemTablePtr tablePtr = getItems();
 	m_ctx->dbClientZabbix.addItemsRaw2_0(tablePtr);
+	return tablePtr;
 }
 
 void ArmZabbixAPI::updateHosts(void)
@@ -774,6 +775,14 @@ void ArmZabbixAPI::makeAsuraEvents(ItemTablePtr events)
 	m_ctx->dbClientAsura.addEventInfoList(eventInfoList);
 }
 
+void ArmZabbixAPI::makeAsuraItems(ItemTablePtr items)
+{
+	ItemInfoList itemInfoList;
+	DBClientZabbix::transformItemsToAsuraFormat(itemInfoList, items,
+	                                            m_ctx->zabbixServerId);
+	m_ctx->dbClientAsura.addItemInfoList(itemInfoList);
+}
+
 //
 // virtual methods defined in this class
 //
@@ -783,12 +792,14 @@ bool ArmZabbixAPI::mainThreadOneProc(void)
 		return false;
 	updateTriggers();
 	updateFunctions();
-	updateItems();
+	ItemTablePtr items = updateItems();
 	updateHosts();
 	makeAsuraTriggers();
 
 	ItemTablePtr events = updateEvents();
 	makeAsuraEvents(events);
+
+	makeAsuraItems(items);
 
 	return true;
 }

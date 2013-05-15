@@ -35,6 +35,11 @@ public:
 	                                         uint32_t serverId);
 	static bool transformEventItemGroupToEventInfo(EventInfo &eventInfo,
 	                                               const ItemGroup *event);
+	static void transformItemsToAsuraFormat(ItemInfoList &eventInfoList,
+	                                        const ItemTablePtr events,
+	                                        uint32_t serverId);
+	static bool transformItemItemGroupToItemInfo(ItemInfo &itemInfo,
+	                                             const ItemGroup *item);
 
 	DBClientZabbix(size_t zabbixServerId);
 	virtual ~DBClientZabbix();
