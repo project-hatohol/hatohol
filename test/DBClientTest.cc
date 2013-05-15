@@ -77,11 +77,11 @@ EventInfo testEventInfo[] = {
 	TRIGGER_ACTIVATED,        // type
 	3,                        // triggerId
 }, {
-	4,                        // serverId
+	1,                        // serverId
 	1,                        // id
 	{1362951000,0},           // time
 	TRIGGER_ACTIVATED,        // type
-	3,                        // triggerId
+	1,                        // triggerId
 },
 };
 size_t NumTestEventInfo = sizeof(testEventInfo) / sizeof(EventInfo);
