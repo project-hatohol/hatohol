@@ -90,7 +90,7 @@ Event object
      - Number
      - The trigger ID.
    * - hostId
-     - String
+     - Number
      - A host ID.
    * - hostName
      - String
