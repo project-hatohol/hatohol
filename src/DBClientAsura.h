@@ -67,12 +67,16 @@ typedef EventInfoList::const_iterator EventInfoListConstIterator;
 struct ItemInfo {
 	uint32_t            serverId;
 	uint64_t            id;
-	uint64_t            hostid;
+	uint64_t            hostId;
 	string              brief;
 	timespec            lastValueTime;
 	string              lastValue;
 	string              prevValue;
 };
+
+typedef list<ItemInfo>               ItemInfoList;
+typedef ItemInfoList::iterator       ItemInfoListIterator;
+typedef ItemInfoList::const_iterator ItemInfoListConstIterator;
 
 class DBClientAsura : public DBClient {
 public:
@@ -94,11 +98,15 @@ public:
 	void setEventInfoList(const EventInfoList &eventInfoList,
 	                      uint32_t serverId);
 
+	void addItemInfoList(const ItemInfoList &itemInfoList);
+	void getItemInfoList(ItemInfoList &itemInfoList);
+
 protected:
 	static void resetDBInitializedFlags(void);
 	void prepareSetupFunction(void);
 	void addTriggerInfoBare(const TriggerInfo &triggerInfo);
 	void addEventInfoBare(const EventInfo &eventInfo);
+	void addItemInfoBare(const ItemInfo &eventInfo);
 
 private:
 	struct PrivateContext;

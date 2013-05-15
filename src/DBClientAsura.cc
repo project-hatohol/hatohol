@@ -27,8 +27,9 @@ using namespace mlpl;
 
 static const char *TABLE_NAME_TRIGGERS = "triggers";
 static const char *TABLE_NAME_EVENTS   = "events";
+static const char *TABLE_NAME_ITEMS    = "items";
 
-int DBClientAsura::ASURA_DB_VERSION = 1;
+int DBClientAsura::ASURA_DB_VERSION = 2;
 
 static const ColumnDef COLUMN_DEF_TRIGGERS[] = {
 {
@@ -232,6 +233,113 @@ enum {
 	NUM_IDX_EVENTS,
 };
 
+static const ColumnDef COLUMN_DEF_ITEMS[] = {
+{
+	ITEM_ID_NOT_SET,                   // itemId
+	TABLE_NAME_ITEMS,                  // tableName
+	"server_id",                       // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	11,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_MUL,                       // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}, {
+	ITEM_ID_NOT_SET,                   // itemId
+	TABLE_NAME_ITEMS,                  // tableName
+	"id",                              // columnName
+	SQL_COLUMN_TYPE_BIGUINT,           // type
+	20,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_PRI,                       // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}, {
+	ITEM_ID_NOT_SET,                   // itemId
+	TABLE_NAME_ITEMS,                  // tableName
+	"host_id",                         // columnName
+	SQL_COLUMN_TYPE_BIGUINT,           // type
+	11,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}, {
+	ITEM_ID_NOT_SET,                   // itemId
+	TABLE_NAME_ITEMS,                  // tableName
+	"brief",                           // columnName
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	255,                               // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}, {
+	ITEM_ID_NOT_SET,                   // itemId
+	TABLE_NAME_ITEMS,                  // tableName
+	"last_value_time_sec",             // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	11,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}, {
+	ITEM_ID_NOT_SET,                   // itemId
+	TABLE_NAME_ITEMS,                  // tableName
+	"last_value_time_ns",              // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	11,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}, {
+	ITEM_ID_NOT_SET,                   // itemId
+	TABLE_NAME_ITEMS,                  // tableName
+	"last_value",                      // columnName
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	255,                               // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}, {
+	ITEM_ID_NOT_SET,                   // itemId
+	TABLE_NAME_ITEMS,                  // tableName
+	"prev_value",                      // columnName
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	255,                               // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+},
+};
+
+static const size_t NUM_COLUMNS_ITEMS =
+  sizeof(COLUMN_DEF_ITEMS) / sizeof(ColumnDef);
+
+enum {
+	IDX_ITEMS_SERVER_ID,
+	IDX_ITEMS_ID,
+	IDX_ITEMS_HOST_ID,
+	IDX_ITEMS_BRIEF,
+	IDX_ITEMS_LAST_VALUE_TIME_SEC,
+	IDX_ITEMS_LAST_VALUE_TIME_NS,
+	IDX_ITEMS_LAST_VALUE,
+	IDX_ITEMS_PREV_VALUE,
+	NUM_IDX_ITEMS,
+};
+
 struct DBClientAsura::PrivateContext
 {
 	static MutexLock mutex;
@@ -270,6 +378,10 @@ void DBClientAsura::init(void)
 	ASURA_ASSERT(NUM_COLUMNS_EVENTS == NUM_IDX_EVENTS,
 	  "NUM_COLUMNS_EVENTS: %zd, NUM_IDX_EVENTS: %zd",
 	  NUM_COLUMNS_EVENTS, NUM_IDX_EVENTS);
+
+	ASURA_ASSERT(NUM_COLUMNS_ITEMS == NUM_IDX_ITEMS,
+	  "NUM_COLUMNS_ITEMS: %zd, NUM_IDX_ITEMS: %zd",
+	  NUM_COLUMNS_ITEMS, NUM_IDX_ITEMS);
 }
 
 void DBClientAsura::reset(void)
@@ -507,6 +619,55 @@ void DBClientAsura::setEventInfoList(const EventInfoList &eventInfoList,
 	} DBCLIENT_TRANSACTION_END();
 }
 
+void DBClientAsura::addItemInfoList(const ItemInfoList &itemInfoList)
+{
+	ItemInfoListConstIterator it = itemInfoList.begin();
+	DBCLIENT_TRANSACTION_BEGIN() {
+		for (; it != itemInfoList.end(); ++it)
+			addItemInfoBare(*it);
+	} DBCLIENT_TRANSACTION_END();
+}
+
+void DBClientAsura::getItemInfoList(ItemInfoList &itemInfoList)
+{
+	DBAgentSelectArg arg;
+	arg.tableName = TABLE_NAME_ITEMS;
+	arg.columnDefs = COLUMN_DEF_ITEMS;
+	arg.columnIndexes.push_back(IDX_ITEMS_SERVER_ID);
+	arg.columnIndexes.push_back(IDX_ITEMS_ID);
+	arg.columnIndexes.push_back(IDX_ITEMS_HOST_ID);
+	arg.columnIndexes.push_back(IDX_ITEMS_BRIEF);
+	arg.columnIndexes.push_back(IDX_ITEMS_LAST_VALUE_TIME_SEC);
+	arg.columnIndexes.push_back(IDX_ITEMS_LAST_VALUE_TIME_NS);
+	arg.columnIndexes.push_back(IDX_ITEMS_LAST_VALUE);
+	arg.columnIndexes.push_back(IDX_ITEMS_PREV_VALUE);
+
+	DBCLIENT_TRANSACTION_BEGIN() {
+		select(arg);
+	} DBCLIENT_TRANSACTION_END();
+
+	// check the result and copy
+	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
+	ItemGroupListConstIterator it = grpList.begin();
+	for (; it != grpList.end(); ++it) {
+		size_t idx = 0;
+		const ItemGroup *itemGroup = *it;
+		itemInfoList.push_back(ItemInfo());
+		ItemInfo &itemInfo = itemInfoList.back();
+
+		itemInfo.serverId  = GET_INT_FROM_GRP(itemGroup, idx++);
+		itemInfo.id        = GET_UINT64_FROM_GRP(itemGroup, idx++);
+		itemInfo.hostId    = GET_UINT64_FROM_GRP(itemGroup, idx++);
+		itemInfo.brief     = GET_STRING_FROM_GRP(itemGroup, idx++);
+		itemInfo.lastValueTime.tv_sec = 
+		  GET_INT_FROM_GRP(itemGroup, idx++);
+		itemInfo.lastValueTime.tv_nsec =
+		  GET_INT_FROM_GRP(itemGroup, idx++);
+		itemInfo.lastValue = GET_STRING_FROM_GRP(itemGroup, idx++);
+		itemInfo.prevValue = GET_STRING_FROM_GRP(itemGroup, idx++);
+	}
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
@@ -526,6 +687,10 @@ void DBClientAsura::prepareSetupFunction(void)
 		TABLE_NAME_EVENTS,
 		NUM_COLUMNS_EVENTS,
 		COLUMN_DEF_EVENTS,
+	}, {
+		TABLE_NAME_ITEMS,
+		NUM_COLUMNS_ITEMS,
+		COLUMN_DEF_ITEMS,
 	}
 	};
 	static const size_t NUM_TABLE_INFO =
@@ -634,6 +799,59 @@ void DBClientAsura::addEventInfoBare(const EventInfo &eventInfo)
 		arg.columnIndexes.push_back(IDX_EVENTS_TRIGGER_ID);
 		arg.row = row;
 
+		update(arg);
+	}
+}
+
+void DBClientAsura::addItemInfoBare(const ItemInfo &itemInfo)
+{
+	string condition = StringUtils::sprintf("id=%"PRIu64, itemInfo.id);
+	VariableItemGroupPtr row;
+	if (!isRecordExisting(TABLE_NAME_ITEMS, condition)) {
+		DBAgentInsertArg arg;
+		arg.tableName = TABLE_NAME_ITEMS;
+		arg.numColumns = NUM_COLUMNS_ITEMS;
+		arg.columnDefs = COLUMN_DEF_ITEMS;
+		row->ADD_NEW_ITEM(Int,    itemInfo.serverId);
+		row->ADD_NEW_ITEM(Uint64, itemInfo.id);
+		row->ADD_NEW_ITEM(Uint64, itemInfo.hostId);
+		row->ADD_NEW_ITEM(String, itemInfo.brief);
+		row->ADD_NEW_ITEM(Int,    itemInfo.lastValueTime.tv_sec); 
+		row->ADD_NEW_ITEM(Int,    itemInfo.lastValueTime.tv_nsec); 
+		row->ADD_NEW_ITEM(String, itemInfo.lastValue);
+		row->ADD_NEW_ITEM(String, itemInfo.prevValue);
+		arg.row = row;
+		insert(arg);
+	} else {
+		DBAgentUpdateArg arg;
+		arg.tableName = TABLE_NAME_ITEMS;
+		arg.columnDefs = COLUMN_DEF_ITEMS;
+
+		row->ADD_NEW_ITEM(Int, itemInfo.serverId);
+		arg.columnIndexes.push_back(IDX_ITEMS_SERVER_ID);
+
+		row->ADD_NEW_ITEM(Uint64, itemInfo.id);
+		arg.columnIndexes.push_back(IDX_ITEMS_ID);
+
+		row->ADD_NEW_ITEM(Uint64, itemInfo.hostId);
+		arg.columnIndexes.push_back(IDX_ITEMS_HOST_ID);
+
+		row->ADD_NEW_ITEM(String, itemInfo.brief);
+		arg.columnIndexes.push_back(IDX_ITEMS_BRIEF);
+
+		row->ADD_NEW_ITEM(Int, itemInfo.lastValueTime.tv_sec); 
+		arg.columnIndexes.push_back(IDX_ITEMS_LAST_VALUE_TIME_SEC);
+
+		row->ADD_NEW_ITEM(Int, itemInfo.lastValueTime.tv_nsec); 
+		arg.columnIndexes.push_back(IDX_ITEMS_LAST_VALUE_TIME_NS);
+
+		row->ADD_NEW_ITEM(String, itemInfo.lastValue);
+		arg.columnIndexes.push_back(IDX_ITEMS_LAST_VALUE);
+
+		row->ADD_NEW_ITEM(String, itemInfo.prevValue);
+		arg.columnIndexes.push_back(IDX_ITEMS_PREV_VALUE);
+
+		arg.row = row;
 		update(arg);
 	}
 }

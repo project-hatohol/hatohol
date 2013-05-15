@@ -80,6 +80,27 @@ EventInfo testEventInfo[] = {
 };
 size_t NumTestEventInfo = sizeof(testEventInfo) / sizeof(EventInfo);
 
+ItemInfo testItemInfo[] = {
+{
+	3,                        // serverId
+	1,                        // id
+	5,                        // hostId
+	"The age of the cat.",    // brief
+	{1362957200,0},           // lastValueTime
+	"1",                      // lastValue
+	"5",                      // prevValue
+}, {
+	3,                        // serverId
+	2,                        // id
+	100,                      // hostId
+	"All roads lead to Rome.",// brief
+	{1362951000,0},           // lastValueTime
+	"Osaka",                  // lastValue
+	"Ichikawa",               // prevValue
+},
+};
+size_t NumTestItemInfo = sizeof(testItemInfo) / sizeof(ItemInfo);
+
 const TriggerInfo &searchTestTriggerInfo(const EventInfo &eventInfo)
 {
 	for (size_t i = 0; i < NumTestTriggerInfo; i++) {

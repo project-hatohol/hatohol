@@ -50,6 +50,39 @@ static void _assertGetTriggers(void)
 }
 #define assertGetTriggers() cut_trace(_assertGetTriggers())
 
+static string makeExpectedItemOutput(ItemInfo *itemInfo)
+{
+	string expectedOut = StringUtils::sprintf
+	                       ("%u|%d|%u|%s|%d|%d|%s|%s\n",
+	                        itemInfo->serverId,
+	                        itemInfo->id,
+	                        itemInfo->hostId,
+	                        itemInfo->brief.c_str(),
+	                        itemInfo->lastValueTime.tv_sec,
+	                        itemInfo->lastValueTime.tv_nsec,
+	                        itemInfo->lastValue.c_str(),
+	                        itemInfo->prevValue.c_str());
+	return expectedOut;
+}
+
+static void _assertGetItems(void)
+{
+	ItemInfoList itemInfoList;
+	DBClientAsura dbAsura;
+	dbAsura.getItemInfoList(itemInfoList);
+	cppcut_assert_equal(NumTestItemInfo, itemInfoList.size());
+
+	string expectedText;
+	string actualText;
+	ItemInfoListIterator it = itemInfoList.begin();
+	for (size_t i = 0; i < NumTestItemInfo; i++, ++it) {
+		expectedText += makeExpectedItemOutput(&testItemInfo[i]);
+		actualText += makeExpectedItemOutput(&(*it));
+	}
+	cppcut_assert_equal(expectedText, actualText);
+}
+#define assertGetItems() cut_trace(_assertGetItems())
+
 void setup(void)
 {
 	asuraInit();
@@ -126,6 +159,20 @@ void test_setTriggerInfoList(void)
 	dbAsura.setTriggerInfoList(triggerInfoList, serverId);
 
 	assertGetTriggers();
+}
+
+void test_addItemInfoList(void)
+{
+	deleteDBClientDB(DB_DOMAIN_ID_ASURA);
+
+	DBClientAsura dbAsura;
+	ItemInfoList itemInfoList;
+	for (size_t i = 0; i < NumTestItemInfo; i++)
+		itemInfoList.push_back(testItemInfo[i]);
+	uint32_t serverId = testItemInfo[0].serverId;
+	dbAsura.addItemInfoList(itemInfoList);
+
+	assertGetItems();
 }
 
 } // namespace testDBClientAsura
