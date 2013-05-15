@@ -9,7 +9,7 @@ LIBS = ../../src/libasura.la ../libTest.la
 
 mkTestDB_SOURCES = mkTestDB.cc
 
-$(TEST_DBS): mkTestDB ../../src/libasura.la
+$(TEST_DBS): mkTestDB ../../src/libasura.la ../libTest.la
 testDatabase-config.db:
 	rm -f $@
 	mkTestDB config $@
