@@ -64,6 +64,16 @@ typedef list<EventInfo>               EventInfoList;
 typedef EventInfoList::iterator       EventInfoListIterator;
 typedef EventInfoList::const_iterator EventInfoListConstIterator;
 
+struct ItemInfo {
+	uint32_t            serverId;
+	uint64_t            id;
+	uint64_t            hostid;
+	string              brief;
+	timespec            lastValueTime;
+	string              lastValue;
+	string              prevValue;
+};
+
 class DBClientAsura : public DBClient {
 public:
 	static int ASURA_DB_VERSION;
