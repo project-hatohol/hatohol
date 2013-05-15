@@ -708,7 +708,8 @@ void DBClientAsura::prepareSetupFunction(void)
 
 void DBClientAsura::addTriggerInfoBare(const TriggerInfo &triggerInfo)
 {
-	string condition = StringUtils::sprintf("id=%"PRIu64, triggerInfo.id);
+	string condition = StringUtils::sprintf
+	  ("server_id=%d and id=%"PRIu64, triggerInfo.serverId, triggerInfo.id);
 	VariableItemGroupPtr row;
 	if (!isRecordExisting(TABLE_NAME_TRIGGERS, condition)) {
 		DBAgentInsertArg arg;
@@ -763,7 +764,8 @@ void DBClientAsura::addTriggerInfoBare(const TriggerInfo &triggerInfo)
 
 void DBClientAsura::addEventInfoBare(const EventInfo &eventInfo)
 {
-	string condition = StringUtils::sprintf("id=%"PRIu64, eventInfo.id);
+	string condition = StringUtils::sprintf
+	  ("server_id=%d and id=%"PRIu64, eventInfo.serverId, eventInfo.id);
 	VariableItemGroupPtr row;
 	if (!isRecordExisting(TABLE_NAME_EVENTS, condition)) {
 		DBAgentInsertArg arg;
@@ -805,7 +807,8 @@ void DBClientAsura::addEventInfoBare(const EventInfo &eventInfo)
 
 void DBClientAsura::addItemInfoBare(const ItemInfo &itemInfo)
 {
-	string condition = StringUtils::sprintf("id=%"PRIu64, itemInfo.id);
+	string condition = StringUtils::sprintf("server_id=%d and id=%"PRIu64,
+	                                        itemInfo.serverId, itemInfo.id);
 	VariableItemGroupPtr row;
 	if (!isRecordExisting(TABLE_NAME_ITEMS, condition)) {
 		DBAgentInsertArg arg;
