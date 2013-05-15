@@ -20,13 +20,13 @@ cut_trace(_assertAddToDB<TriggerInfo>(X, addTriggerInfo))
 static string makeExpectedOutput(TriggerInfo *triggerInfo)
 {
 	string expectedOut = StringUtils::sprintf
-	                       ("%u|%d|%d|%d|%d|%u|%s|%s|%s\n",
+	                       ("%u|%d|%d|%d|%d|%u|%u|%s|%s\n",
 	                        triggerInfo->serverId,
 	                        triggerInfo->id,
 	                        triggerInfo->status, triggerInfo->severity,
 	                        triggerInfo->lastChangeTime.tv_sec,
 	                        triggerInfo->lastChangeTime.tv_nsec,
-	                        triggerInfo->hostId.c_str(),
+	                        triggerInfo->hostId,
 	                        triggerInfo->hostName.c_str(),
 	                        triggerInfo->brief.c_str());
 	return expectedOut;

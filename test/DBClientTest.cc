@@ -39,7 +39,7 @@ TriggerInfo testTriggerInfo[] =
 	TRIGGER_STATUS_OK,        // status
 	TRIGGER_SEVERITY_INFO,    // severity
 	{1362957197,0},           // lastChangeTime
-	"235012",                 // hostId,
+	235012,                   // hostId,
 	"hostX1",                 // hostName,
 	"TEST Trigger 1",         // brief,
 },{
@@ -48,7 +48,7 @@ TriggerInfo testTriggerInfo[] =
 	TRIGGER_STATUS_PROBLEM,   // status
 	TRIGGER_SEVERITY_WARN,    // severity
 	{1362957200,0},           // lastChangeTime
-	"10001",                  // hostId,
+	10001,                    // hostId,
 	"hostZ1",                 // hostName,
 	"TEST Trigger 2",         // brief,
 },{
@@ -57,7 +57,7 @@ TriggerInfo testTriggerInfo[] =
 	TRIGGER_STATUS_PROBLEM,   // status
 	TRIGGER_SEVERITY_INFO,    // severity
 	{1362951000,0},           // lastChangeTime
-	"10002",                  // hostId,
+	10002,                    // hostId,
 	"hostZ2",                 // hostName,
 	"TEST Trigger 3",         // brief,
 }};

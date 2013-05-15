@@ -37,7 +37,7 @@ struct TriggerInfo {
 	TriggerStatusType   status;
 	TriggerSeverityType severity;
 	timespec            lastChangeTime;
-	string              hostId;
+	uint64_t            hostId;
 	string              hostName;
 	string              brief;
 };

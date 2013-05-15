@@ -91,7 +91,7 @@ Trigger object
      - Number
      - A server ID.
    * - hostId
-     - String
+     - Number
      - A host ID.
    * - hostName
      - String

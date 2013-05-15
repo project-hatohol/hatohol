@@ -88,6 +88,14 @@ static void _assertValueInParser(JsonParserAgent *parser,
 }
 
 static void _assertValueInParser(JsonParserAgent *parser,
+                                 const string &member, uint64_t expected)
+{
+	int64_t val;
+	cppcut_assert_equal(true, parser->read(member, val));
+	cppcut_assert_equal(expected, (uint64_t)val);
+}
+
+static void _assertValueInParser(JsonParserAgent *parser,
                                  const string &member, const timespec &expected)
 {
 	int64_t val;

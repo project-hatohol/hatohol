@@ -101,8 +101,8 @@ static const ColumnDef COLUMN_DEF_TRIGGERS[] = {
 	ITEM_ID_NOT_SET,                   // itemId
 	TABLE_NAME_TRIGGERS,               // tableName
 	"host_id",                         // columnName
-	SQL_COLUMN_TYPE_VARCHAR,           // type
-	255,                               // columnLength
+	SQL_COLUMN_TYPE_BIGUINT,           // type
+	20,                                // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
 	SQL_KEY_NONE,                      // keyType
@@ -343,7 +343,7 @@ void DBClientAsura::getTriggerInfoList(TriggerInfoList &triggerInfoList)
 		  GET_INT_FROM_GRP(itemGroup, idx++);
 		trigInfo.lastChangeTime.tv_nsec =
 		  GET_INT_FROM_GRP(itemGroup, idx++);
-		trigInfo.hostId    = GET_STRING_FROM_GRP(itemGroup, idx++);
+		trigInfo.hostId    = GET_UINT64_FROM_GRP(itemGroup, idx++);
 		trigInfo.hostName  = GET_STRING_FROM_GRP(itemGroup, idx++);
 		trigInfo.brief     = GET_STRING_FROM_GRP(itemGroup, idx++);
 	}
@@ -483,7 +483,7 @@ void DBClientAsura::getEventInfoList(EventInfoList &eventInfoList)
 		  GET_INT_FROM_GRP(itemGroup, idx++);
 		trigInfo.lastChangeTime.tv_nsec =
 		  GET_INT_FROM_GRP(itemGroup, idx++);
-		trigInfo.hostId    = GET_STRING_FROM_GRP(itemGroup, idx++);
+		trigInfo.hostId    = GET_UINT64_FROM_GRP(itemGroup, idx++);
 		trigInfo.hostName  = GET_STRING_FROM_GRP(itemGroup, idx++);
 		trigInfo.brief     = GET_STRING_FROM_GRP(itemGroup, idx++);
 	}
@@ -556,7 +556,7 @@ void DBClientAsura::addTriggerInfoBare(const TriggerInfo &triggerInfo)
 		row->ADD_NEW_ITEM(Int, triggerInfo.severity),
 		row->ADD_NEW_ITEM(Int, triggerInfo.lastChangeTime.tv_sec); 
 		row->ADD_NEW_ITEM(Int, triggerInfo.lastChangeTime.tv_nsec); 
-		row->ADD_NEW_ITEM(String, triggerInfo.hostId);
+		row->ADD_NEW_ITEM(Uint64, triggerInfo.hostId);
 		row->ADD_NEW_ITEM(String, triggerInfo.hostName);
 		row->ADD_NEW_ITEM(String, triggerInfo.brief);
 		arg.row = row;
@@ -583,7 +583,7 @@ void DBClientAsura::addTriggerInfoBare(const TriggerInfo &triggerInfo)
 		arg.columnIndexes.push_back
 		  (IDX_TRIGGERS_LAST_CHANGE_TIME_NS);
 
-		row->ADD_NEW_ITEM(String, triggerInfo.hostId);
+		row->ADD_NEW_ITEM(Uint64, triggerInfo.hostId);
 		arg.columnIndexes.push_back(IDX_TRIGGERS_HOST_ID);
 
 		row->ADD_NEW_ITEM(String, triggerInfo.hostName);
