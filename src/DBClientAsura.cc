@@ -170,7 +170,7 @@ static const ColumnDef COLUMN_DEF_EVENTS[] = {
 	20,                                // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
-	SQL_KEY_PRI,                       // keyType
+	SQL_KEY_MUL,                       // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
@@ -253,7 +253,7 @@ static const ColumnDef COLUMN_DEF_ITEMS[] = {
 	20,                                // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
-	SQL_KEY_PRI,                       // keyType
+	SQL_KEY_MUL,                       // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {

@@ -76,6 +76,12 @@ EventInfo testEventInfo[] = {
 	{1362951000,0},           // time
 	TRIGGER_ACTIVATED,        // type
 	3,                        // triggerId
+}, {
+	4,                        // serverId
+	1,                        // id
+	{1362951000,0},           // time
+	TRIGGER_ACTIVATED,        // type
+	3,                        // triggerId
 },
 };
 size_t NumTestEventInfo = sizeof(testEventInfo) / sizeof(EventInfo);
@@ -92,6 +98,14 @@ ItemInfo testItemInfo[] = {
 }, {
 	3,                        // serverId
 	2,                        // id
+	100,                      // hostId
+	"All roads lead to Rome.",// brief
+	{1362951000,0},           // lastValueTime
+	"Osaka",                  // lastValue
+	"Ichikawa",               // prevValue
+}, {
+	4,                        // serverId
+	1,                        // id
 	100,                      // hostId
 	"All roads lead to Rome.",// brief
 	{1362951000,0},           // lastValueTime
