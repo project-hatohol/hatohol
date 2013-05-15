@@ -61,7 +61,7 @@ Repsponse structure
      - Number
      - The number of triggers.
      - T
-   * - triggers.
+   * - triggers
      - Array
      - The array of `Trigger object`_.
      - T
