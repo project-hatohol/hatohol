@@ -14,6 +14,7 @@ Contents:
    servers
    triggers
    events
+   items
 
 
 Indices and tables
