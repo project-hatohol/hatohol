@@ -27,7 +27,7 @@ using namespace mlpl;
 int FaceRest::API_VERSION_SERVERS  = 1;
 int FaceRest::API_VERSION_TRIGGERS = 1;
 int FaceRest::API_VERSION_EVENTS   = 1;
-int FaceRest::API_VERSION_ITEMS;
+int FaceRest::API_VERSION_ITEMS    = 1;
 
 typedef void (*RestHandler)
   (SoupServer *server, SoupMessage *msg, const char *path,
