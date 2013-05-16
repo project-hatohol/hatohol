@@ -269,8 +269,8 @@ void ZabbixAPIEmulator::APIHandlerUserLogin(APIHandlerArg &arg)
 
 void ZabbixAPIEmulator::APIHandlerTriggerGet(APIHandlerArg &arg)
 {
-	static const char *LOGIN_RES_FILE = "zabbix-api-res-triggers-001.json";
-	string path = getFixturesDir() + LOGIN_RES_FILE;
+	static const char *DATA_FILE = "zabbix-api-res-triggers-001.json";
+	string path = getFixturesDir() + DATA_FILE;
 	gchar *contents;
 	gsize length;
 	gboolean succeeded =
@@ -322,8 +322,8 @@ void ZabbixAPIEmulator::APIHandlerItemGet(APIHandlerArg &arg)
 
 void ZabbixAPIEmulator::APIHandlerHostGet(APIHandlerArg &arg)
 {
-	static const char *LOGIN_RES_FILE = "zabbix-api-res-hosts-001.json";
-	string path = getFixturesDir() + LOGIN_RES_FILE;
+	static const char *DATA_FILE = "zabbix-api-res-hosts-001.json";
+	string path = getFixturesDir() + DATA_FILE;
 	gchar *contents;
 	gsize length;
 	gboolean succeeded =
