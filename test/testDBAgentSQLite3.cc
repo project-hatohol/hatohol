@@ -158,7 +158,8 @@ void _assertInsert(uint64_t id, int age, const char *name, double height)
 #define assertInsert(ID,AGE,NAME,HEIGHT) \
 cut_trace(_assertInsert(ID,AGE,NAME,HEIGHT));
 
-void _assertUpdate(uint64_t id, int age, const char *name, double height)
+void _assertUpdate(uint64_t id, int age, const char *name, double height,
+                   const string &condition = "")
 {
 	DBAgentSQLite3 dbAgent;
 
@@ -173,12 +174,13 @@ void _assertUpdate(uint64_t id, int age, const char *name, double height)
 	row->ADD_NEW_ITEM(String, name);
 	row->ADD_NEW_ITEM(Double, height);
 	arg.row = row;
+	arg.condition = condition;
 	dbAgent.update(arg);
 
 	assertExistRecord(id, age, name,height);
 }
-#define assertUpdate(ID,AGE,NAME,HEIGHT) \
-cut_trace(_assertUpdate(ID,AGE,NAME,HEIGHT));
+#define assertUpdate(ID,AGE,NAME,HEIGHT, ...) \
+cut_trace(_assertUpdate(ID,AGE,NAME,HEIGHT, ##__VA_ARGS__));
 
 static void makeTestDB(void)
 {
@@ -358,6 +360,30 @@ void test_update(void)
 	const char *NAME = "yui";
 	const double HEIGHT = 158.0;
 	assertUpdate(ID, AGE, NAME, HEIGHT);
+}
+
+void test_updateCondition(void)
+{
+	// create table
+	assertCreate();
+
+	static const size_t NUM_DATA = 3;
+	const uint64_t ID[NUM_DATA]   = {1, 3, 9};
+	const int      AGE[NUM_DATA]  = {20, 18, 17};
+	const char    *NAME[NUM_DATA] = {"yui", "aoi", "Q-taro"};
+	const double HEIGHT[NUM_DATA] = {158.0, 161.3, 70.0};
+
+	// insert the first and the second rows
+	for (size_t  i = 0; i < NUM_DATA - 1; i++)
+		assertInsert(ID[i], AGE[i], NAME[i], HEIGHT[i]);
+
+	// update the second row
+	size_t targetIdx = NUM_DATA - 2;
+	string condition =
+	   StringUtils::sprintf("age=%d and name='%s'",
+	                        AGE[targetIdx], NAME[targetIdx]);
+	size_t idx = NUM_DATA - 1;
+	assertUpdate(ID[idx], AGE[idx], NAME[idx], HEIGHT[idx], condition);
 }
 
 void test_select(void)

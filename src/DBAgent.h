@@ -44,6 +44,7 @@ struct DBAgentUpdateArg {
 	const ColumnDef    *columnDefs;
 	vector<size_t>      columnIndexes;
 	ItemGroupPtr        row;
+	string condition;
 };
 
 struct DBAgentSelectArg {

@@ -556,6 +556,12 @@ void DBAgentSQLite3::update(sqlite3 *db, DBAgentUpdateArg &updateArg)
 			sql += ",";
 	}
 
+	// condition
+	if (!updateArg.condition.empty()) {
+		sql += " WHERE ";
+		sql += updateArg.condition;
+	}
+
 	// exectute the SQL statement
 	char *errmsg;
 	int result = sqlite3_exec(db, sql.c_str(), NULL, NULL, &errmsg);
