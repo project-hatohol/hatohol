@@ -33,7 +33,7 @@ using namespace mlpl;
 	ASURA_ASSERT(VAR_NAME != NULL, "Failed to dynamic cast: %s -> %s", \
 	             DEMANGLED_TYPE_NAME(*ITEM_DATA), #ACTUAL_TYPE); \
 
-const int DBClientZabbix::ZABBIX_DB_VERSION = 2;
+const int DBClientZabbix::ZABBIX_DB_VERSION = 3;
 const uint64_t DBClientZabbix::EVENT_ID_NOT_FOUND = -1;
 
 static const char *TABLE_NAME_SYSTEM = "system";
@@ -843,6 +843,17 @@ static const ColumnDef COLUMN_DEF_ITEMS_RAW_2_0[] = {
 	SQL_KEY_NONE,                      // keyType
 	0,                                 // flags
 	"30",                              // defaultValue
+}, {
+	ITEM_ID_ZBX_ITEMS_APPLICATIONID,   // itemId
+	TABLE_NAME_ITEMS_RAW_2_0,          // tableName
+	"applicationid",                   // columnName
+	SQL_COLUMN_TYPE_BIGUINT,           // type
+	20,                                // columnLength
+	0,                                 // decFracLength
+	true,                              // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
 }
 };
 static const size_t NUM_COLUMNS_ITEMS_RAW_2_0 =
@@ -897,6 +908,7 @@ enum {
 	IDX_ITEMS_RAW_2_0_DESCRIPTION,
 	IDX_ITEMS_RAW_2_0_INVENTORY_LINK,
 	IDX_ITEMS_RAW_2_0_LIFETIME,
+	IDX_ITEMS_RAW_2_0_APPLICATIONID,
 	NUM_IDX_ITEMS_RAW_2_0,
 };
 

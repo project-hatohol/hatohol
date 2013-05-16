@@ -83,6 +83,7 @@ protected:
 	                           ItemGroup *itemGroup, int index);
 	void parseAndPushTriggerData(JsonParserAgent &parser,
 	                             VariableItemTablePtr &tablePtr, int index);
+	void pushApplicationid(JsonParserAgent &parser, ItemGroup *itemGroup);
 	void parseAndPushItemsData(JsonParserAgent &parser,
 	                           VariableItemTablePtr &tablePtr, int index);
 	void parseAndPushHostsData(JsonParserAgent &parser,

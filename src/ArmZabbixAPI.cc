@@ -545,6 +545,27 @@ void ArmZabbixAPI::parseAndPushTriggerData
 	parser.endElement();
 }
 
+void ArmZabbixAPI::pushApplicationid(JsonParserAgent &parser,
+                                     ItemGroup *itemGroup)
+{
+	ItemId itemId = ITEM_ID_ZBX_ITEMS_APPLICATIONID;
+	startObject(parser, "applications");
+	int numElem = parser.countElements();
+	if (numElem == 0) {
+		ItemData *data = new ItemUint64(itemId, 0);
+		data->setNull();
+		itemGroup->add(data, false);
+	} else  {
+		for (int i = 0; i < numElem; i++) {
+			startElement(parser, i);
+			pushUint64(parser, itemGroup, "applicationid", itemId);
+			break; // we use the first applicationid
+		}
+		parser.endElement();
+	}
+	parser.endObject();
+}
+
 void ArmZabbixAPI::parseAndPushItemsData
   (JsonParserAgent &parser, VariableItemTablePtr &tablePtr, int index)
 {
@@ -607,6 +628,10 @@ void ArmZabbixAPI::parseAndPushItemsData
 	pushInt   (parser, grp, "inventory_link",
 	           ITEM_ID_ZBX_ITEMS_INVENTORY_LINK);
 	pushString(parser, grp, "lifetime",    ITEM_ID_ZBX_ITEMS_LIFETIME);
+
+	// application
+	pushApplicationid(parser, grp);
+
 	tablePtr->add(grp);
 
 	parser.endElement();
