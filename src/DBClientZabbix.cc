@@ -316,7 +316,7 @@ enum {
 static const ColumnDef COLUMN_DEF_ITEMS_RAW_2_0[] = {
 {
 	ITEM_ID_ZBX_ITEMS_ITEMID,          // itemId
-	TABLE_NAME_FUNCTIONS_RAW_2_0,      // tableName
+	TABLE_NAME_ITEMS_RAW_2_0,          // tableName
 	"itemid",                          // columnName
 	SQL_COLUMN_TYPE_BIGUINT,           // type
 	20,                                // columnLength
@@ -327,7 +327,7 @@ static const ColumnDef COLUMN_DEF_ITEMS_RAW_2_0[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_ZBX_ITEMS_TYPE,            // itemId
-	TABLE_NAME_FUNCTIONS_RAW_2_0,      // tableName
+	TABLE_NAME_ITEMS_RAW_2_0,          // tableName
 	"type",                            // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -338,7 +338,7 @@ static const ColumnDef COLUMN_DEF_ITEMS_RAW_2_0[] = {
 	"0",                               // defaultValue
 }, {
 	ITEM_ID_ZBX_ITEMS_SNMP_COMMUNITY,  // itemId
-	TABLE_NAME_FUNCTIONS_RAW_2_0,      // tableName
+	TABLE_NAME_ITEMS_RAW_2_0,          // tableName
 	"snmp_community",                  // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
 	64,                                // columnLength
@@ -349,7 +349,7 @@ static const ColumnDef COLUMN_DEF_ITEMS_RAW_2_0[] = {
 	"",                                // defaultValue
 }, {
 	ITEM_ID_ZBX_ITEMS_SNMP_OID,        // itemId
-	TABLE_NAME_FUNCTIONS_RAW_2_0,      // tableName
+	TABLE_NAME_ITEMS_RAW_2_0,          // tableName
 	"snmp_oid",                        // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
 	255,                               // columnLength
@@ -360,7 +360,7 @@ static const ColumnDef COLUMN_DEF_ITEMS_RAW_2_0[] = {
 	"",                                // defaultValue
 }, {
 	ITEM_ID_ZBX_ITEMS_HOSTID,          // itemId
-	TABLE_NAME_FUNCTIONS_RAW_2_0,      // tableName
+	TABLE_NAME_ITEMS_RAW_2_0,          // tableName
 	"hostid",                          // columnName
 	SQL_COLUMN_TYPE_BIGUINT,           // type
 	20,                                // columnLength
@@ -371,7 +371,7 @@ static const ColumnDef COLUMN_DEF_ITEMS_RAW_2_0[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_ZBX_ITEMS_NAME,            // itemId
-	TABLE_NAME_FUNCTIONS_RAW_2_0,      // tableName
+	TABLE_NAME_ITEMS_RAW_2_0,          // tableName
 	"name",                            // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
 	255,                               // columnLength
@@ -382,7 +382,7 @@ static const ColumnDef COLUMN_DEF_ITEMS_RAW_2_0[] = {
 	"",                                // defaultValue
 }, {
 	ITEM_ID_ZBX_ITEMS_KEY_,            // itemId
-	TABLE_NAME_FUNCTIONS_RAW_2_0,      // tableName
+	TABLE_NAME_ITEMS_RAW_2_0,          // tableName
 	"key_",                            // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
 	255,                               // columnLength
@@ -393,7 +393,7 @@ static const ColumnDef COLUMN_DEF_ITEMS_RAW_2_0[] = {
 	"",                                // defaultValue
 }, {
 	ITEM_ID_ZBX_ITEMS_DELAY,           // itemId
-	TABLE_NAME_FUNCTIONS_RAW_2_0,      // tableName
+	TABLE_NAME_ITEMS_RAW_2_0,          // tableName
 	"delay",                           // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -404,7 +404,7 @@ static const ColumnDef COLUMN_DEF_ITEMS_RAW_2_0[] = {
 	"0",                               // defaultValue
 }, {
 	ITEM_ID_ZBX_ITEMS_HISTORY,         // itemId
-	TABLE_NAME_FUNCTIONS_RAW_2_0,      // tableName
+	TABLE_NAME_ITEMS_RAW_2_0,          // tableName
 	"history",                         // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -415,7 +415,7 @@ static const ColumnDef COLUMN_DEF_ITEMS_RAW_2_0[] = {
 	"90",                              // defaultValue
 }, {
 	ITEM_ID_ZBX_ITEMS_TRENDS,          // itemId
-	TABLE_NAME_FUNCTIONS_RAW_2_0,      // tableName
+	TABLE_NAME_ITEMS_RAW_2_0,          // tableName
 	"trends",                          // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -426,7 +426,7 @@ static const ColumnDef COLUMN_DEF_ITEMS_RAW_2_0[] = {
 	"365",                             // defaultValue
 }, {
 	ITEM_ID_ZBX_ITEMS_LASTVALUE,       // itemId
-	TABLE_NAME_FUNCTIONS_RAW_2_0,      // tableName
+	TABLE_NAME_ITEMS_RAW_2_0,          // tableName
 	"lastvalue",                       // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
 	255,                               // columnLength
@@ -437,7 +437,7 @@ static const ColumnDef COLUMN_DEF_ITEMS_RAW_2_0[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_ZBX_ITEMS_LASTCLOCK,       // itemId
-	TABLE_NAME_FUNCTIONS_RAW_2_0,      // tableName
+	TABLE_NAME_ITEMS_RAW_2_0,          // tableName
 	"lastclock",                       // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -448,7 +448,7 @@ static const ColumnDef COLUMN_DEF_ITEMS_RAW_2_0[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_ZBX_ITEMS_PREVVALUE,       // itemId
-	TABLE_NAME_FUNCTIONS_RAW_2_0,      // tableName
+	TABLE_NAME_ITEMS_RAW_2_0,          // tableName
 	"prevvalue",                       // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
 	255,                               // columnLength
@@ -459,7 +459,7 @@ static const ColumnDef COLUMN_DEF_ITEMS_RAW_2_0[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_ZBX_ITEMS_STATUS,          // itemId
-	TABLE_NAME_FUNCTIONS_RAW_2_0,      // tableName
+	TABLE_NAME_ITEMS_RAW_2_0,          // tableName
 	"status",                          // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -470,7 +470,7 @@ static const ColumnDef COLUMN_DEF_ITEMS_RAW_2_0[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_ZBX_ITEMS_VALUE_TYPE,      // itemId
-	TABLE_NAME_FUNCTIONS_RAW_2_0,      // tableName
+	TABLE_NAME_ITEMS_RAW_2_0,          // tableName
 	"value_type",                      // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -481,7 +481,7 @@ static const ColumnDef COLUMN_DEF_ITEMS_RAW_2_0[] = {
 	"0",                               // defaultValue
 }, {
 	ITEM_ID_ZBX_ITEMS_TRAPPER_HOSTS,   // itemId
-	TABLE_NAME_FUNCTIONS_RAW_2_0,      // tableName
+	TABLE_NAME_ITEMS_RAW_2_0,          // tableName
 	"trapper_hosts",                   // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
 	255,                               // columnLength
@@ -492,7 +492,7 @@ static const ColumnDef COLUMN_DEF_ITEMS_RAW_2_0[] = {
 	"",                                // defaultValue
 }, {
 	ITEM_ID_ZBX_ITEMS_UNITS,           // itemId
-	TABLE_NAME_FUNCTIONS_RAW_2_0,      // tableName
+	TABLE_NAME_ITEMS_RAW_2_0,          // tableName
 	"units",                           // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
 	255,                               // columnLength
@@ -503,7 +503,7 @@ static const ColumnDef COLUMN_DEF_ITEMS_RAW_2_0[] = {
 	"",                                // defaultValue
 }, {
 	ITEM_ID_ZBX_ITEMS_MULTIPLIER,      // itemId
-	TABLE_NAME_FUNCTIONS_RAW_2_0,      // tableName
+	TABLE_NAME_ITEMS_RAW_2_0,          // tableName
 	"multiplier",                      // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -514,7 +514,7 @@ static const ColumnDef COLUMN_DEF_ITEMS_RAW_2_0[] = {
 	"0",                               // defaultValue
 }, {
 	ITEM_ID_ZBX_ITEMS_DELTA,           // itemId
-	TABLE_NAME_FUNCTIONS_RAW_2_0,      // tableName
+	TABLE_NAME_ITEMS_RAW_2_0,          // tableName
 	"delta",                           // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -525,7 +525,7 @@ static const ColumnDef COLUMN_DEF_ITEMS_RAW_2_0[] = {
 	"0",                               // defaultValue
 }, {
 	ITEM_ID_ZBX_ITEMS_PREVORGVALUE,    // itemId
-	TABLE_NAME_FUNCTIONS_RAW_2_0,      // tableName
+	TABLE_NAME_ITEMS_RAW_2_0,          // tableName
 	"prevorgvalue",                    // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
 	255,                               // columnLength
@@ -536,7 +536,7 @@ static const ColumnDef COLUMN_DEF_ITEMS_RAW_2_0[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_ZBX_ITEMS_SNMPV3_SECURITYNAME, // itemId
-	TABLE_NAME_FUNCTIONS_RAW_2_0,      // tableName
+	TABLE_NAME_ITEMS_RAW_2_0,          // tableName
 	"snmpv3_securityname",             // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
 	64,                                // columnLength
@@ -547,7 +547,7 @@ static const ColumnDef COLUMN_DEF_ITEMS_RAW_2_0[] = {
 	"",                                // defaultValue
 }, {
 	ITEM_ID_ZBX_ITEMS_SNMPV3_SECURITYLEVEL, // itemId
-	TABLE_NAME_FUNCTIONS_RAW_2_0,      // tableName
+	TABLE_NAME_ITEMS_RAW_2_0,          // tableName
 	"snmpv3_securitylevel",            // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -558,7 +558,7 @@ static const ColumnDef COLUMN_DEF_ITEMS_RAW_2_0[] = {
 	"0",                               // defaultValue
 }, {
 	ITEM_ID_ZBX_ITEMS_SNMPV3_AUTHPASSPHRASE, // itemId
-	TABLE_NAME_FUNCTIONS_RAW_2_0,      // tableName
+	TABLE_NAME_ITEMS_RAW_2_0,          // tableName
 	"snmpv3_authpassphrase",           // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
 	64,                                // columnLength
@@ -569,7 +569,7 @@ static const ColumnDef COLUMN_DEF_ITEMS_RAW_2_0[] = {
 	"",                                // defaultValue
 }, {
 	ITEM_ID_ZBX_ITEMS_SNMPV3_PRIVPASSPHRASE, // itemId
-	TABLE_NAME_FUNCTIONS_RAW_2_0,      // tableName
+	TABLE_NAME_ITEMS_RAW_2_0,          // tableName
 	"snmpv3_privpassphrase",           // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
 	64,                                // columnLength
@@ -580,7 +580,7 @@ static const ColumnDef COLUMN_DEF_ITEMS_RAW_2_0[] = {
 	"",                                // defaultValue
 }, {
 	ITEM_ID_ZBX_ITEMS_FORMULA,         // itemId
-	TABLE_NAME_FUNCTIONS_RAW_2_0,      // tableName
+	TABLE_NAME_ITEMS_RAW_2_0,          // tableName
 	"formula",                         // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
 	255,                               // columnLength
@@ -591,7 +591,7 @@ static const ColumnDef COLUMN_DEF_ITEMS_RAW_2_0[] = {
 	"1",                               // defaultValue
 }, {
 	ITEM_ID_ZBX_ITEMS_ERROR,           // itemId
-	TABLE_NAME_FUNCTIONS_RAW_2_0,      // tableName
+	TABLE_NAME_ITEMS_RAW_2_0,          // tableName
 	"error",                           // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
 	128,                               // columnLength
@@ -602,7 +602,7 @@ static const ColumnDef COLUMN_DEF_ITEMS_RAW_2_0[] = {
 	"",                                // defaultValue
 }, {
 	ITEM_ID_ZBX_ITEMS_LASTLOGSIZE,     // itemId
-	TABLE_NAME_FUNCTIONS_RAW_2_0,      // tableName
+	TABLE_NAME_ITEMS_RAW_2_0,          // tableName
 	"lastlogsize",                     // columnName
 	SQL_COLUMN_TYPE_BIGUINT,           // type
 	20,                                // columnLength
@@ -613,7 +613,7 @@ static const ColumnDef COLUMN_DEF_ITEMS_RAW_2_0[] = {
 	"0",                               // defaultValue
 }, {
 	ITEM_ID_ZBX_ITEMS_LOGTIMEFMT,      // itemId
-	TABLE_NAME_FUNCTIONS_RAW_2_0,      // tableName
+	TABLE_NAME_ITEMS_RAW_2_0,          // tableName
 	"logtimefmt",                      // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
 	64,                                // columnLength
@@ -624,7 +624,7 @@ static const ColumnDef COLUMN_DEF_ITEMS_RAW_2_0[] = {
 	"",                                // defaultValue
 }, {
 	ITEM_ID_ZBX_ITEMS_TEMPLATEID,      // itemId
-	TABLE_NAME_FUNCTIONS_RAW_2_0,      // tableName
+	TABLE_NAME_ITEMS_RAW_2_0,          // tableName
 	"templateid",                      // columnName
 	SQL_COLUMN_TYPE_BIGUINT,           // type
 	20,                                // columnLength
@@ -635,7 +635,7 @@ static const ColumnDef COLUMN_DEF_ITEMS_RAW_2_0[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_ZBX_ITEMS_VALUEMAPID,      // itemId
-	TABLE_NAME_FUNCTIONS_RAW_2_0,      // tableName
+	TABLE_NAME_ITEMS_RAW_2_0,          // tableName
 	"valuemapid",                      // columnName
 	SQL_COLUMN_TYPE_BIGUINT,           // type
 	20,                                // columnLength
@@ -646,7 +646,7 @@ static const ColumnDef COLUMN_DEF_ITEMS_RAW_2_0[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_ZBX_ITEMS_DELAY_FLEX,      // itemId
-	TABLE_NAME_FUNCTIONS_RAW_2_0,      // tableName
+	TABLE_NAME_ITEMS_RAW_2_0,          // tableName
 	"delay_flex",                      // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
 	64,                                // columnLength
@@ -657,7 +657,7 @@ static const ColumnDef COLUMN_DEF_ITEMS_RAW_2_0[] = {
 	"",                                // defaultValue
 }, {
 	ITEM_ID_ZBX_ITEMS_PARAMS,          // itemId
-	TABLE_NAME_FUNCTIONS_RAW_2_0,      // tableName
+	TABLE_NAME_ITEMS_RAW_2_0,          // tableName
 	"params",                          // columnName
 	SQL_COLUMN_TYPE_TEXT,              // type
 	0,                                 // columnLength
@@ -668,7 +668,7 @@ static const ColumnDef COLUMN_DEF_ITEMS_RAW_2_0[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_ZBX_ITEMS_IPMI_SENSOR,     // itemId
-	TABLE_NAME_FUNCTIONS_RAW_2_0,      // tableName
+	TABLE_NAME_ITEMS_RAW_2_0,          // tableName
 	"ipmi_sensor",                     // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
 	128,                               // columnLength
@@ -679,7 +679,7 @@ static const ColumnDef COLUMN_DEF_ITEMS_RAW_2_0[] = {
 	"",                                // defaultValue
 }, {
 	ITEM_ID_ZBX_ITEMS_DATA_TYPE,       // itemId
-	TABLE_NAME_FUNCTIONS_RAW_2_0,      // tableName
+	TABLE_NAME_ITEMS_RAW_2_0,          // tableName
 	"data_type",                       // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -690,7 +690,7 @@ static const ColumnDef COLUMN_DEF_ITEMS_RAW_2_0[] = {
 	"0",                               // defaultValue
 }, {
 	ITEM_ID_ZBX_ITEMS_AUTHTYPE,        // itemId
-	TABLE_NAME_FUNCTIONS_RAW_2_0,      // tableName
+	TABLE_NAME_ITEMS_RAW_2_0,          // tableName
 	"authtype",                        // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -701,7 +701,7 @@ static const ColumnDef COLUMN_DEF_ITEMS_RAW_2_0[] = {
 	"0",                               // defaultValue
 }, {
 	ITEM_ID_ZBX_ITEMS_USERNAME,        // itemId
-	TABLE_NAME_FUNCTIONS_RAW_2_0,      // tableName
+	TABLE_NAME_ITEMS_RAW_2_0,          // tableName
 	"username",                        // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
 	64,                                // columnLength
@@ -712,7 +712,7 @@ static const ColumnDef COLUMN_DEF_ITEMS_RAW_2_0[] = {
 	"",                                // defaultValue
 }, {
 	ITEM_ID_ZBX_ITEMS_PASSWORD,        // itemId
-	TABLE_NAME_FUNCTIONS_RAW_2_0,      // tableName
+	TABLE_NAME_ITEMS_RAW_2_0,          // tableName
 	"password",                        // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
 	64,                                // columnLength
@@ -723,7 +723,7 @@ static const ColumnDef COLUMN_DEF_ITEMS_RAW_2_0[] = {
 	"",                                // defaultValue
 }, {
 	ITEM_ID_ZBX_ITEMS_PUBLICKEY,       // itemId
-	TABLE_NAME_FUNCTIONS_RAW_2_0,      // tableName
+	TABLE_NAME_ITEMS_RAW_2_0,          // tableName
 	"publickey",                       // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
 	64,                                // columnLength
@@ -734,7 +734,7 @@ static const ColumnDef COLUMN_DEF_ITEMS_RAW_2_0[] = {
 	"",                                // defaultValue
 }, {
 	ITEM_ID_ZBX_ITEMS_PRIVATEKEY,      // itemId
-	TABLE_NAME_FUNCTIONS_RAW_2_0,      // tableName
+	TABLE_NAME_ITEMS_RAW_2_0,          // tableName
 	"privatekey",                      // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
 	64,                                // columnLength
@@ -745,7 +745,7 @@ static const ColumnDef COLUMN_DEF_ITEMS_RAW_2_0[] = {
 	"",                                // defaultValue
 }, {
 	ITEM_ID_ZBX_ITEMS_MTIME,           // itemId
-	TABLE_NAME_FUNCTIONS_RAW_2_0,      // tableName
+	TABLE_NAME_ITEMS_RAW_2_0,          // tableName
 	"mtime",                           // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -756,7 +756,7 @@ static const ColumnDef COLUMN_DEF_ITEMS_RAW_2_0[] = {
 	"0",                               // defaultValue
 }, {
 	ITEM_ID_ZBX_ITEMS_LASTNS,          // itemId
-	TABLE_NAME_FUNCTIONS_RAW_2_0,      // tableName
+	TABLE_NAME_ITEMS_RAW_2_0,          // tableName
 	"lastns",                          // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -767,7 +767,7 @@ static const ColumnDef COLUMN_DEF_ITEMS_RAW_2_0[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_ZBX_ITEMS_FLAGS,           // itemId
-	TABLE_NAME_FUNCTIONS_RAW_2_0,      // tableName
+	TABLE_NAME_ITEMS_RAW_2_0,          // tableName
 	"flags",                           // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -778,7 +778,7 @@ static const ColumnDef COLUMN_DEF_ITEMS_RAW_2_0[] = {
 	"0",                               // defaultValue
 }, {
 	ITEM_ID_ZBX_ITEMS_FILTER,          // itemId
-	TABLE_NAME_FUNCTIONS_RAW_2_0,      // tableName
+	TABLE_NAME_ITEMS_RAW_2_0,          // tableName
 	"filter",                          // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
 	255,                               // columnLength
@@ -789,7 +789,7 @@ static const ColumnDef COLUMN_DEF_ITEMS_RAW_2_0[] = {
 	"",                                // defaultValue
 }, {
 	ITEM_ID_ZBX_ITEMS_INTERFACEID,     // itemId
-	TABLE_NAME_FUNCTIONS_RAW_2_0,      // tableName
+	TABLE_NAME_ITEMS_RAW_2_0,          // tableName
 	"interfaceid",                     // columnName
 	SQL_COLUMN_TYPE_BIGUINT,           // type
 	20,                                // columnLength
@@ -800,7 +800,7 @@ static const ColumnDef COLUMN_DEF_ITEMS_RAW_2_0[] = {
 	"",                                // defaultValue
 }, {
 	ITEM_ID_ZBX_ITEMS_PORT,            // itemId
-	TABLE_NAME_FUNCTIONS_RAW_2_0,      // tableName
+	TABLE_NAME_ITEMS_RAW_2_0,          // tableName
 	"port",                            // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
 	64,                                // columnLength
@@ -811,7 +811,7 @@ static const ColumnDef COLUMN_DEF_ITEMS_RAW_2_0[] = {
 	"",                                // defaultValue
 }, {
 	ITEM_ID_ZBX_ITEMS_DESCRIPTION,     // itemId
-	TABLE_NAME_FUNCTIONS_RAW_2_0,      // tableName
+	TABLE_NAME_ITEMS_RAW_2_0,          // tableName
 	"description",                     // columnName
 	SQL_COLUMN_TYPE_TEXT,              // type
 	0,                                 // columnLength
@@ -822,7 +822,7 @@ static const ColumnDef COLUMN_DEF_ITEMS_RAW_2_0[] = {
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_ZBX_ITEMS_INVENTORY_LINK,  // itemId
-	TABLE_NAME_FUNCTIONS_RAW_2_0,      // tableName
+	TABLE_NAME_ITEMS_RAW_2_0,          // tableName
 	"inventory_link",                  // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -833,7 +833,7 @@ static const ColumnDef COLUMN_DEF_ITEMS_RAW_2_0[] = {
 	"0",                               // defaultValue
 }, {
 	ITEM_ID_ZBX_ITEMS_LIFETIME,        // itemId
-	TABLE_NAME_FUNCTIONS_RAW_2_0,      // tableName
+	TABLE_NAME_ITEMS_RAW_2_0,          // tableName
 	"lifetime",                        // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
 	64,                                // columnLength
