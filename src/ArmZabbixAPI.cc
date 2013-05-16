@@ -814,7 +814,7 @@ ItemTablePtr ArmZabbixAPI::updateEvents(void)
 ItemTablePtr ArmZabbixAPI::updateApplications(void)
 {
 	ItemTablePtr tablePtr = getApplications();
-	// m_ctx->dbClientZabbix.addApplicationRaw2_0(tablePtr);
+	m_ctx->dbClientZabbix.addApplicationRaw2_0(tablePtr);
 	return tablePtr;
 }
 

@@ -1645,6 +1645,20 @@ void DBClientZabbix::addEventsRaw2_0(ItemTablePtr tablePtr)
 	} DBCLIENT_TRANSACTION_END();
 }
 
+void DBClientZabbix::addApplicationRaw2_0(ItemTablePtr tablePtr)
+{
+	DBCLIENT_TRANSACTION_BEGIN() {
+		// TODO: This implementaion is transitional. We'll implement
+		// a function that get data partially.
+		DBAgentDeleteArg arg;
+		arg.tableName = TABLE_NAME_APPLICATIONS_RAW_2_0,
+		deleteRows(arg);
+		addItems(tablePtr, TABLE_NAME_APPLICATIONS_RAW_2_0,
+		         NUM_COLUMNS_APPLICATIONS_RAW_2_0,
+		         COLUMN_DEF_APPLICATIONS_RAW_2_0);
+	} DBCLIENT_TRANSACTION_END();
+}
+
 void DBClientZabbix::getTriggersAsAsuraFormat(TriggerInfoList &triggerInfoList)
 {
 	// get data from data base

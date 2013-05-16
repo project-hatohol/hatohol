@@ -36,6 +36,7 @@ public:
 		GET_TEST_TYPE_FUNCTIONS,
 		GET_TEST_TYPE_ITEMS,
 		GET_TEST_TYPE_HOSTS,
+		GET_TEST_TYPE_APPLICATIONS,
 		GET_TEST_TYPE_EVENTS,
 	};
 
@@ -87,6 +88,10 @@ public:
 		} else if (type == GET_TEST_TYPE_HOSTS) {
 			succeeded =
 			  launch(&ArmZabbixAPITestee::threadOneProcHosts,
+			         exitCbDefault, this);
+		} else if (type == GET_TEST_TYPE_APPLICATIONS) {
+			succeeded =
+			  launch(&ArmZabbixAPITestee::threadOneProcApplications,
 			         exitCbDefault, this);
 		} else if (type == GET_TEST_TYPE_EVENTS) {
 			succeeded =
@@ -181,6 +186,12 @@ protected:
 	bool threadOneProcHosts(void)
 	{
 		updateHosts();
+		return true;
+	}
+
+	bool threadOneProcApplications(void)
+	{
+		updateApplications();
 		return true;
 	}
 
@@ -323,6 +334,11 @@ void test_getEvents(void)
 	// We expect empty data for the last two times.
 	g_apiEmulator.setNumberOfEventSlices(NUM_TEST_READ_TIMES-2);
 	assertReceiveData(ArmZabbixAPITestee::GET_TEST_TYPE_EVENTS, 0);
+}
+
+void test_getApplications(void)
+{
+	assertTestGet(ArmZabbixAPITestee::GET_TEST_TYPE_APPLICATIONS);
 }
 
 void test_httpNotFound(void)
