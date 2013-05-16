@@ -282,8 +282,31 @@ void ZabbixAPIEmulator::APIHandlerTriggerGet(APIHandlerArg &arg)
 
 void ZabbixAPIEmulator::APIHandlerItemGet(APIHandlerArg &arg)
 {
-	static const char *LOGIN_RES_FILE = "zabbix-api-res-items-001.json";
-	string path = getFixturesDir() + LOGIN_RES_FILE;
+	// check if selectApplications option is set
+	string request(arg.msg->request_body->data,
+	               arg.msg->request_body->length);
+	JsonParserAgent parser(request);
+	if (parser.hasError())
+		THROW_ASURA_EXCEPTION("Failed to parse: %s", request.c_str());
+	
+	bool selectApplications = false;
+	if (parser.startObject("params")) {
+		string selectAppStr;
+		if (parser.read("selectApplications", selectAppStr)) {
+			ASURA_ASSERT(selectAppStr == "refer",
+			             "selectApplications: %s: not supported",
+			             selectAppStr.c_str());
+			selectApplications = true;
+		}
+	}
+
+	// make response
+	const char *dataFileName;
+	if (selectApplications)
+		dataFileName = "zabbix-api-res-items-003.json";
+	else
+		dataFileName = "zabbix-api-res-items-001.json";
+	string path = getFixturesDir() + dataFileName;
 	gchar *contents;
 	gsize length;
 	gboolean succeeded =
