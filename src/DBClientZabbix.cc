@@ -42,6 +42,7 @@ static const char *TABLE_NAME_FUNCTIONS_RAW_2_0 = "functions_raw_2_0";
 static const char *TABLE_NAME_ITEMS_RAW_2_0 = "items_raw_2_0";
 static const char *TABLE_NAME_HOSTS_RAW_2_0 = "hosts_raw_2_0";
 static const char *TABLE_NAME_EVENTS_RAW_2_0 = "events_raw_2_0";
+static const char *TABLE_NAME_APPLICATIONS_RAW_2_0 = "application_raw_2_0";
 
 static const ColumnDef COLUMN_DEF_SYSTEM[] = {
 {
@@ -1394,6 +1395,64 @@ enum {
 	EVENT_OBJECT_ZABBIX_ACTIVE
 };
 
+static const ColumnDef COLUMN_DEF_APPLICATIONS_RAW_2_0[] = {
+{
+	ITEM_ID_ZBX_APPLICATIONS_APPLICATIONID, // itemId
+	TABLE_NAME_APPLICATIONS_RAW_2_0,   // tableName
+	"applicationid",                   // columnName
+	SQL_COLUMN_TYPE_BIGUINT,           // type
+	20,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_PRI,                       // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}, {
+	ITEM_ID_ZBX_APPLICATIONS_HOSTID,   // itemId
+	TABLE_NAME_APPLICATIONS_RAW_2_0,   // tableName
+	"hostid",                          // columnName
+	SQL_COLUMN_TYPE_BIGUINT,           // type
+	20,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_MUL,                       // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}, {
+	ITEM_ID_ZBX_APPLICATIONS_NAME,     // itemId
+	TABLE_NAME_APPLICATIONS_RAW_2_0,   // tableName
+	"name",                            // columnName
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	255,                               // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	"",                                // defaultValue
+}, {
+	ITEM_ID_ZBX_APPLICATIONS_TEMPLATEID, // itemId
+	TABLE_NAME_APPLICATIONS_RAW_2_0,   // tableName
+	"templateid",                      // columnName
+	SQL_COLUMN_TYPE_BIGUINT,           // type
+	20,                                // columnLength
+	0,                                 // decFracLength
+	true,                              // canBeNull
+	SQL_KEY_MUL,                       // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}
+};
+static const size_t NUM_COLUMNS_APPLICATIONS_RAW_2_0 =
+  sizeof(COLUMN_DEF_APPLICATIONS_RAW_2_0) / sizeof(ColumnDef);
+
+enum {
+	IDX_APPLICATIONS_RAW_2_0_APPLICATIONID,
+	IDX_APPLICATIONS_RAW_2_0_HOSTID,
+	IDX_APPLICATIONS_RAW_2_0_NAME,
+	IDX_APPLICATIONS_RAW_2_0_TEMPLATEID,
+	NUM_IDX_APPLICATIONS_RAW_2_0,
+};
+
 struct DBClientZabbix::PrivateContext
 {
 	static MutexLock mutex;
@@ -1459,6 +1518,12 @@ void DBClientZabbix::init(void)
 	  "Invalid number of elements: NUM_COLUMNS_EVENTS_RAW_2_0 (%zd), "
 	  "NUM_IDX_EVENTS_RAW_2_0 (%zd)",
 	  NUM_COLUMNS_EVENTS_RAW_2_0, NUM_IDX_EVENTS_RAW_2_0);
+
+	ASURA_ASSERT(
+	  NUM_COLUMNS_APPLICATIONS_RAW_2_0 == NUM_IDX_APPLICATIONS_RAW_2_0,
+	  "Invalid number of elements: NUM_COLUMNS_APPLICATIONS_RAW_2_0 (%zd), "
+	  "NUM_IDX_APPLICATIONS_RAW_2_0 (%zd)",
+	  NUM_COLUMNS_APPLICATIONS_RAW_2_0, NUM_IDX_APPLICATIONS_RAW_2_0);
 }
 
 void DBClientZabbix::reset(void)
@@ -1886,6 +1951,10 @@ void DBClientZabbix::prepareSetupFuncCallback(size_t zabbixServerId)
 		TABLE_NAME_EVENTS_RAW_2_0,
 		NUM_COLUMNS_EVENTS_RAW_2_0,
 		COLUMN_DEF_EVENTS_RAW_2_0,
+	}, {
+		TABLE_NAME_APPLICATIONS_RAW_2_0,
+		NUM_COLUMNS_APPLICATIONS_RAW_2_0,
+		COLUMN_DEF_APPLICATIONS_RAW_2_0,
 	},
 	};
 	static const size_t NUM_TABLE_INFO =
