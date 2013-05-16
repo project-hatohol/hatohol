@@ -82,6 +82,8 @@ ZabbixAPIEmulator::ZabbixAPIEmulator(void)
 	  &ZabbixAPIEmulator::APIHandlerHostGet;
 	m_ctx->apiHandlerMap["event.get"] = 
 	  &ZabbixAPIEmulator::APIHandlerEventGet;
+	m_ctx->apiHandlerMap["application.get"] = 
+	  &ZabbixAPIEmulator::APIHandlerApplicationGet;
 }
 
 ZabbixAPIEmulator::~ZabbixAPIEmulator()
@@ -364,6 +366,22 @@ void ZabbixAPIEmulator::APIHandlerEventGet(APIHandlerArg &arg)
 		}
 	}
 
+	soup_message_body_append(arg.msg->response_body, SOUP_MEMORY_TAKE,
+	                         contents, length);
+	soup_message_set_status(arg.msg, SOUP_STATUS_OK);
+}
+
+void ZabbixAPIEmulator::APIHandlerApplicationGet(APIHandlerArg &arg)
+{
+	static const char *DATA_FILE =
+	   "zabbix-api-res-applications-003.json";
+	string path = getFixturesDir() + DATA_FILE;
+	gchar *contents;
+	gsize length;
+	gboolean succeeded =
+	  g_file_get_contents(path.c_str(), &contents, &length, NULL);
+	if (!succeeded)
+		THROW_ASURA_EXCEPTION("Failed to read file: %s", path.c_str());
 	soup_message_body_append(arg.msg->response_body, SOUP_MEMORY_TAKE,
 	                         contents, length);
 	soup_message_set_status(arg.msg, SOUP_STATUS_OK);
