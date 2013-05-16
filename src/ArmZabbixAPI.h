@@ -40,6 +40,7 @@ public:
 	ItemTablePtr getFunctions(void);
 	ItemTablePtr getItems(void);
 	ItemTablePtr getHosts(void);
+	ItemTablePtr getApplications(void);
 	ItemTablePtr getEvents(uint64_t eventIdOffset);
 
 protected:
@@ -63,6 +64,7 @@ protected:
 	SoupMessage *queryTrigger(void);
 	SoupMessage *queryItem(void);
 	SoupMessage *queryHost(void);
+	SoupMessage *queryApplication(void);
 	SoupMessage *queryEvent(uint64_t eventIdOffset);
 	string getInitialJsonRequest(void);
 	bool parseInitialResponse(SoupMessage *msg);
@@ -88,6 +90,9 @@ protected:
 	                           VariableItemTablePtr &tablePtr, int index);
 	void parseAndPushHostsData(JsonParserAgent &parser,
 	                           VariableItemTablePtr &tablePtr, int index);
+	void parseAndPushApplicationsData(JsonParserAgent &parser,
+	                                  VariableItemTablePtr &tablePtr,
+	                                  int index);
 	void parseAndPushEventsData(JsonParserAgent &parser,
 	                            VariableItemTablePtr &tablePtr, int index);
 
@@ -96,6 +101,7 @@ protected:
 	ItemTablePtr updateItems(void);
 	void updateHosts(void);
 	ItemTablePtr updateEvents(void);
+	ItemTablePtr updateApplications(void);
 
 	void makeAsuraTriggers(void);
 	void makeAsuraEvents(ItemTablePtr events);
