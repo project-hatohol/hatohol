@@ -37,6 +37,7 @@ protected:
 
 	string generateAuthToken(void);
 	void handlerAPIDispatch(APIHandlerArg &arg);
+	void APIHandlerGetWithFile(APIHandlerArg &arg, const string &dataFile);
 	void APIHandlerUserLogin(APIHandlerArg &arg);
 	void APIHandlerTriggerGet(APIHandlerArg &arg);
 	void APIHandlerItemGet(APIHandlerArg &arg);
