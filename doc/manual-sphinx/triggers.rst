@@ -78,12 +78,10 @@ Trigger object
      - Brief
    * - status
      - Number
-     - A trigger status.
-       **[TODO]** The meaning of each number
+     - A `Trigger status`_.
    * - severity
      - Number
-     - A severity of the trigger.
-       **[TODO]** The meaning of each number.
+     - A `Trigger severity`_.
    * - lastChangeTime
      - Number
      - A last change time of the trigger.
@@ -99,3 +97,21 @@ Trigger object
    * - brief
      - String
      - A brief of the trigger.
+
+Trigger status
+--------------
+.. list-table::
+
+   * - 0
+     - TRIGGER_STATUS_OK
+   * - 1
+     - TRIGGER_STATUS_PROBLEM
+
+Trigger severity
+----------------
+.. list-table::
+
+   * - 0
+     - TRIGGER_SEVERITY_INFO
+   * - 1
+     - TRIGGER_SEVERITY_WARN
