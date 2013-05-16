@@ -25,6 +25,7 @@ protected:
 	bool commandFuncItem(const string &command, vector<string>& cmdArgs);
 	bool commandFuncHost(const string &command, vector<string>& cmdArgs);
 	bool commandFuncEvent(const string &command, vector<string>& cmdArgs);
+	bool commandFuncApplication(const string &command, vector<string>& cmdArgs);
 	bool commandFuncOpen(const string &command, vector<string>& cmdArgs);
 };
 
@@ -42,6 +43,8 @@ ZabbixAPIResponseCollector::ZabbixAPIResponseCollector
 	  &ZabbixAPIResponseCollector::commandFuncHost;
 	m_commandFuncMap["event"] = 
 	  &ZabbixAPIResponseCollector::commandFuncEvent;
+	m_commandFuncMap["application"] = 
+	  &ZabbixAPIResponseCollector::commandFuncApplication;
 }
 
 ZabbixAPIResponseCollector::~ZabbixAPIResponseCollector()
@@ -127,6 +130,20 @@ bool ZabbixAPIResponseCollector::commandFuncEvent
 	return true;
 }
 
+bool ZabbixAPIResponseCollector::commandFuncApplication
+  (const string &command, vector<string>& cmdArgs)
+{
+	if (!commandFuncOpen(command, cmdArgs))
+		return false;
+
+	SoupMessage *msg = queryApplication();
+	if (!msg)
+		return false;
+	printf("%s\n", msg->response_body->data);
+	g_object_unref(msg);
+	return true;
+}
+
 static void printUsage(void)
 {
 	fprintf(stderr, "Usage:\n");
@@ -139,6 +156,7 @@ static void printUsage(void)
 	fprintf(stderr, "  item\n");
 	fprintf(stderr, "  host\n");
 	fprintf(stderr, "  event\n");
+	fprintf(stderr, "  application\n");
 	fprintf(stderr, "\n");
 }
 
