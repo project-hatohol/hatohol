@@ -1610,6 +1610,11 @@ void DBClientZabbix::getTriggersAsAsuraFormat(TriggerInfoList &triggerInfoList)
 		trigInfo.lastChangeTime.tv_sec = itemLastchange->get();
 		trigInfo.lastChangeTime.tv_nsec = 0;
 
+		// brief
+		DEFINE_AND_ASSERT(
+		   itemGroup->getItemAt(idx++), ItemString, itemDescription);
+		trigInfo.brief = itemDescription->get();
+
 		// hostId
 		DEFINE_AND_ASSERT(
 		   itemGroup->getItemAt(idx++), ItemUint64, itemHostid);
@@ -1968,6 +1973,8 @@ void DBClientZabbix::makeSelectExArgForTriggerAsAsuraFormat(void)
 	   COLUMN_DEF_TRIGGERS_RAW_2_0[IDX_TRIGGERS_RAW_2_0_PRIORITY];
 	const ColumnDef &triggersLastchange = 
 	   COLUMN_DEF_TRIGGERS_RAW_2_0[IDX_TRIGGERS_RAW_2_0_LASTCHANGE];
+	const ColumnDef &triggersDescription =
+	   COLUMN_DEF_TRIGGERS_RAW_2_0[IDX_TRIGGERS_RAW_2_0_DESCRIPTION];
 	const ColumnDef &hostsName =
 	   COLUMN_DEF_HOSTS_RAW_2_0[IDX_HOSTS_RAW_2_0_NAME];
 
@@ -1975,6 +1982,7 @@ void DBClientZabbix::makeSelectExArgForTriggerAsAsuraFormat(void)
 	arg.pushColumn(triggersStatus,     VAR_TRIGGERS);
 	arg.pushColumn(triggersSeverity,   VAR_TRIGGERS);
 	arg.pushColumn(triggersLastchange, VAR_TRIGGERS);
+	arg.pushColumn(triggersDescription,VAR_TRIGGERS);
 	arg.pushColumn(hostsHostid,        VAR_HOSTS);
 	arg.pushColumn(hostsName,          VAR_HOSTS);
 }
