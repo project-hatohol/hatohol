@@ -412,6 +412,7 @@ void FaceRest::handlerGetItems
 		agent.add("lastValueTime", itemInfo.lastValueTime.tv_sec);
 		agent.add("lastValue", itemInfo.lastValue);
 		agent.add("prevValue", itemInfo.prevValue);
+		agent.add("itemGroupName", itemInfo.itemGroupName);
 		agent.endObject();
 	}
 	agent.endArray();

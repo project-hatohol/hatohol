@@ -94,3 +94,6 @@ Item object
    * - prevValue
      - String
      - The previous value.
+   * - itemGroupName
+     - String
+     - The item group name.
