@@ -29,7 +29,7 @@ static const char *TABLE_NAME_TRIGGERS = "triggers";
 static const char *TABLE_NAME_EVENTS   = "events";
 static const char *TABLE_NAME_ITEMS    = "items";
 
-int DBClientAsura::ASURA_DB_VERSION = 2;
+int DBClientAsura::ASURA_DB_VERSION = 3;
 
 static const ColumnDef COLUMN_DEF_TRIGGERS[] = {
 {
@@ -322,6 +322,17 @@ static const ColumnDef COLUMN_DEF_ITEMS[] = {
 	SQL_KEY_NONE,                      // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
+}, {
+	ITEM_ID_NOT_SET,                   // itemId
+	TABLE_NAME_ITEMS,                  // tableName
+	"item_group_name",                 // columnName
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	255,                               // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
 },
 };
 
@@ -337,6 +348,7 @@ enum {
 	IDX_ITEMS_LAST_VALUE_TIME_NS,
 	IDX_ITEMS_LAST_VALUE,
 	IDX_ITEMS_PREV_VALUE,
+	IDX_ITEMS_ITEM_GROUP_NAME,
 	NUM_IDX_ITEMS,
 };
 
@@ -648,6 +660,7 @@ void DBClientAsura::getItemInfoList(ItemInfoList &itemInfoList)
 	arg.columnIndexes.push_back(IDX_ITEMS_LAST_VALUE_TIME_NS);
 	arg.columnIndexes.push_back(IDX_ITEMS_LAST_VALUE);
 	arg.columnIndexes.push_back(IDX_ITEMS_PREV_VALUE);
+	arg.columnIndexes.push_back(IDX_ITEMS_ITEM_GROUP_NAME);
 
 	DBCLIENT_TRANSACTION_BEGIN() {
 		select(arg);
@@ -672,6 +685,7 @@ void DBClientAsura::getItemInfoList(ItemInfoList &itemInfoList)
 		  GET_INT_FROM_GRP(itemGroup, idx++);
 		itemInfo.lastValue = GET_STRING_FROM_GRP(itemGroup, idx++);
 		itemInfo.prevValue = GET_STRING_FROM_GRP(itemGroup, idx++);
+		itemInfo.itemGroupName = GET_STRING_FROM_GRP(itemGroup, idx++);
 	}
 }
 
@@ -832,6 +846,7 @@ void DBClientAsura::addItemInfoBare(const ItemInfo &itemInfo)
 		row->ADD_NEW_ITEM(Int,    itemInfo.lastValueTime.tv_nsec); 
 		row->ADD_NEW_ITEM(String, itemInfo.lastValue);
 		row->ADD_NEW_ITEM(String, itemInfo.prevValue);
+		row->ADD_NEW_ITEM(String, itemInfo.itemGroupName);
 		arg.row = row;
 		insert(arg);
 	} else {
@@ -862,6 +877,9 @@ void DBClientAsura::addItemInfoBare(const ItemInfo &itemInfo)
 
 		row->ADD_NEW_ITEM(String, itemInfo.prevValue);
 		arg.columnIndexes.push_back(IDX_ITEMS_PREV_VALUE);
+
+		row->ADD_NEW_ITEM(String, itemInfo.itemGroupName);
+		arg.columnIndexes.push_back(IDX_ITEMS_ITEM_GROUP_NAME);
 
 		arg.row = row;
 		arg.condition = condition;

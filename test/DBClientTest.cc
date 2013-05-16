@@ -95,6 +95,7 @@ ItemInfo testItemInfo[] = {
 	{1362957200,0},           // lastValueTime
 	"1",                      // lastValue
 	"5",                      // prevValue
+	"number",                 // itemGroupName,
 }, {
 	3,                        // serverId
 	2,                        // id
@@ -103,6 +104,7 @@ ItemInfo testItemInfo[] = {
 	{1362951000,0},           // lastValueTime
 	"Osaka",                  // lastValue
 	"Ichikawa",               // prevValue
+	"City",                   // itemGroupName,
 }, {
 	4,                        // serverId
 	1,                        // id
@@ -111,6 +113,7 @@ ItemInfo testItemInfo[] = {
 	{1362951000,0},           // lastValueTime
 	"Osaka",                  // lastValue
 	"Ichikawa",               // prevValue
+	"City",                   // itemGroupName,
 },
 };
 size_t NumTestItemInfo = sizeof(testItemInfo) / sizeof(ItemInfo);

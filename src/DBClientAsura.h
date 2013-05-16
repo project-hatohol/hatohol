@@ -72,6 +72,7 @@ struct ItemInfo {
 	timespec            lastValueTime;
 	string              lastValue;
 	string              prevValue;
+	string              itemGroupName;
 };
 
 typedef list<ItemInfo>               ItemInfoList;

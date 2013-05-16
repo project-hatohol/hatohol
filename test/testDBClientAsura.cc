@@ -53,7 +53,7 @@ static void _assertGetTriggers(void)
 static string makeExpectedItemOutput(ItemInfo *itemInfo)
 {
 	string expectedOut = StringUtils::sprintf
-	                       ("%u|%d|%u|%s|%d|%d|%s|%s\n",
+	                       ("%u|%d|%u|%s|%d|%d|%s|%s|%s\n",
 	                        itemInfo->serverId,
 	                        itemInfo->id,
 	                        itemInfo->hostId,
@@ -61,7 +61,8 @@ static string makeExpectedItemOutput(ItemInfo *itemInfo)
 	                        itemInfo->lastValueTime.tv_sec,
 	                        itemInfo->lastValueTime.tv_nsec,
 	                        itemInfo->lastValue.c_str(),
-	                        itemInfo->prevValue.c_str());
+	                        itemInfo->prevValue.c_str(),
+	                        itemInfo->itemGroupName.c_str());
 	return expectedOut;
 }
 
