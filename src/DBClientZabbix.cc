@@ -42,7 +42,7 @@ static const char *TABLE_NAME_FUNCTIONS_RAW_2_0 = "functions_raw_2_0";
 static const char *TABLE_NAME_ITEMS_RAW_2_0 = "items_raw_2_0";
 static const char *TABLE_NAME_HOSTS_RAW_2_0 = "hosts_raw_2_0";
 static const char *TABLE_NAME_EVENTS_RAW_2_0 = "events_raw_2_0";
-static const char *TABLE_NAME_APPLICATIONS_RAW_2_0 = "application_raw_2_0";
+static const char *TABLE_NAME_APPLICATIONS_RAW_2_0 = "applications_raw_2_0";
 
 static const ColumnDef COLUMN_DEF_SYSTEM[] = {
 {
