@@ -765,6 +765,7 @@ void DBClientAsura::addTriggerInfoBare(const TriggerInfo &triggerInfo)
 		row->ADD_NEW_ITEM(String, triggerInfo.brief);
 		arg.columnIndexes.push_back(IDX_TRIGGERS_BRIEF);
 		arg.row = row;
+		arg.condition = condition;
 		update(arg);
 	}
 }
@@ -808,6 +809,7 @@ void DBClientAsura::addEventInfoBare(const EventInfo &eventInfo)
 		arg.columnIndexes.push_back(IDX_EVENTS_TRIGGER_ID);
 		arg.row = row;
 
+		arg.condition = condition;
 		update(arg);
 	}
 }
@@ -862,6 +864,7 @@ void DBClientAsura::addItemInfoBare(const ItemInfo &itemInfo)
 		arg.columnIndexes.push_back(IDX_ITEMS_PREV_VALUE);
 
 		arg.row = row;
+		arg.condition = condition;
 		update(arg);
 	}
 }
