@@ -39,7 +39,8 @@ public:
 	                                        const ItemTablePtr events,
 	                                        uint32_t serverId);
 	static bool transformItemItemGroupToItemInfo(ItemInfo &itemInfo,
-	                                             const ItemGroup *item);
+	                                             const ItemGroup *item,
+	                                             DBClientZabbix &dbZabbix);
 
 	DBClientZabbix(size_t zabbixServerId);
 	virtual ~DBClientZabbix();
@@ -61,6 +62,7 @@ public:
 	 * EVENT_ID_NOT_FOUND is returned.
 	 */
 	uint64_t getLastEventId(void);
+	string getApplicationName(uint64_t applicationId);
 
 protected:
 	static void tableInitializerSystem(DBAgent *dbAgent, void *data);

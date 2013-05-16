@@ -1844,7 +1844,7 @@ void DBClientZabbix::transformEventsToAsuraFormat
 }
 
 bool DBClientZabbix::transformItemItemGroupToItemInfo
-  (ItemInfo &itemInfo, const ItemGroup *itemItemGroup)
+  (ItemInfo &itemInfo, const ItemGroup *itemItemGroup, DBClientZabbix &dbZabbix)
 {
 	// item id
 	DEFINE_AND_ASSERT(
@@ -1883,18 +1883,26 @@ bool DBClientZabbix::transformItemItemGroupToItemInfo
 	  ItemString, itemPrevValue);
 	itemInfo.prevValue = itemPrevValue->get();
 
+	// itemGroupName
+	DEFINE_AND_ASSERT(
+	  itemItemGroup->getItem(ITEM_ID_ZBX_ITEMS_APPLICATIONID),
+	  ItemUint64, itemApplicationid);
+	uint64_t applicationId = itemApplicationid->get();
+	itemInfo.itemGroupName = dbZabbix.getApplicationName(applicationId);
+
 	return true;
 }
 
 void DBClientZabbix::transformItemsToAsuraFormat
   (ItemInfoList &eventInfoList, const ItemTablePtr events, uint32_t serverId)
 {
+	DBClientZabbix dbZabbix(serverId);
 	const ItemGroupList &itemGroupList = events->getItemGroupList();
 	ItemGroupListConstIterator it = itemGroupList.begin();
 	for (; it != itemGroupList.end(); ++it) {
 		ItemInfo eventInfo;
 		eventInfo.serverId = serverId;
-		if (!transformItemItemGroupToItemInfo(eventInfo, *it))
+		if (!transformItemItemGroupToItemInfo(eventInfo, *it, dbZabbix))
 			continue;
 		eventInfoList.push_back(eventInfo);
 	}
@@ -1921,6 +1929,27 @@ uint64_t DBClientZabbix::getLastEventId(void)
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
 	const ItemData *lastEventId = (*grpList.begin())->getItemAt(0);
 	return ItemDataUtils::getUint64(lastEventId);
+}
+
+string DBClientZabbix::getApplicationName(uint64_t applicationId)
+{
+	const ColumnDef &columnAppName =
+	   COLUMN_DEF_APPLICATIONS_RAW_2_0[IDX_APPLICATIONS_RAW_2_0_NAME];
+	DBAgentSelectExArg arg;
+	arg.tableName = TABLE_NAME_APPLICATIONS_RAW_2_0;
+	arg.pushColumn(columnAppName);
+	arg.condition = StringUtils::sprintf("applicationid=%"PRIu64,
+	                                           applicationId);
+	DBCLIENT_TRANSACTION_BEGIN() {
+		select(arg);
+	} DBCLIENT_TRANSACTION_END();
+
+	if (arg.dataTable->getNumberOfRows() == 0)
+		return "";
+
+	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
+	const ItemData *applicationName = (*grpList.begin())->getItemAt(0);
+	return ItemDataUtils::getString(applicationName);
 }
 
 // ---------------------------------------------------------------------------
