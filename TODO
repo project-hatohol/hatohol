@@ -1,6 +1,5 @@
 [S] Short-term, [M] Middle-term, [L] Long-term
 ====
-* [S] items via REST service
 * [S] error response by the requested format.
 * [S] show status by WEB Interface of asura
 * [M] make a mechanism to replica partially
