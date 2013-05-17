@@ -25,6 +25,7 @@ class DBClientZabbix : public DBClient {
 public:
 	static const int ZABBIX_DB_VERSION;
 	static const uint64_t EVENT_ID_NOT_FOUND;
+	static const int TRIGGER_CHANGE_TIME_NOT_FOUND;
 
 	static void init(void);
 	static void reset(void);
@@ -62,6 +63,15 @@ public:
 	 * EVENT_ID_NOT_FOUND is returned.
 	 */
 	uint64_t getLastEventId(void);
+
+	/**
+	 * get the last trigger change time in the database.
+	 * @return
+	 * The last change time. If the database has no event data,
+	 * TRIGGER_CHANGE_TIME_NOT_FOUND is returned.
+	 */
+	int getTriggerLastChange(void);
+
 	string getApplicationName(uint64_t applicationId);
 
 protected:

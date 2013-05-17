@@ -35,6 +35,7 @@ using namespace mlpl;
 
 const int DBClientZabbix::ZABBIX_DB_VERSION = 3;
 const uint64_t DBClientZabbix::EVENT_ID_NOT_FOUND = -1;
+const int DBClientZabbix::TRIGGER_CHANGE_TIME_NOT_FOUND = -1;
 
 static const char *TABLE_NAME_SYSTEM = "system";
 static const char *TABLE_NAME_TRIGGERS_RAW_2_0 = "triggers_raw_2_0";
@@ -152,7 +153,7 @@ static const ColumnDef COLUMN_DEF_TRIGGERS_RAW_2_0[] = {
 	11,                                // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
-	SQL_KEY_NONE,                      // keyType
+	SQL_KEY_MUL,                       // keyType
 	0,                                 // flags
 	"0",                               // defaultValue
 }, {
@@ -1929,6 +1930,30 @@ uint64_t DBClientZabbix::getLastEventId(void)
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
 	const ItemData *lastEventId = (*grpList.begin())->getItemAt(0);
 	return ItemDataUtils::getUint64(lastEventId);
+}
+
+int DBClientZabbix::getTriggerLastChange(void)
+{
+	const ColumnDef &columnDefTriggerLastChange =
+	  COLUMN_DEF_TRIGGERS_RAW_2_0[IDX_TRIGGERS_RAW_2_0_LASTCHANGE];
+
+	DBAgentSelectExArg arg;
+	arg.tableName = TABLE_NAME_TRIGGERS_RAW_2_0;
+	arg.statements.push_back(
+	  StringUtils::sprintf("max(%s)",
+	                       columnDefTriggerLastChange.columnName));
+	arg.columnTypes.push_back(columnDefTriggerLastChange.type);
+
+	DBCLIENT_TRANSACTION_BEGIN() {
+		select(arg);
+	} DBCLIENT_TRANSACTION_END();
+
+	if (arg.dataTable->getNumberOfRows() == 0)
+		return TRIGGER_CHANGE_TIME_NOT_FOUND;
+
+	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
+	const ItemData *itemData = (*grpList.begin())->getItemAt(0);
+	return ItemDataUtils::getInt(itemData);
 }
 
 string DBClientZabbix::getApplicationName(uint64_t applicationId)
