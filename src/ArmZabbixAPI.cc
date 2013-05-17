@@ -144,9 +144,9 @@ void ArmZabbixAPI::requestExit(void)
 	m_ctx->setExitRequest();
 }
 
-ItemTablePtr ArmZabbixAPI::getTrigger(void)
+ItemTablePtr ArmZabbixAPI::getTrigger(int requestSince)
 {
-	SoupMessage *msg = queryTrigger();
+	SoupMessage *msg = queryTrigger(requestSince);
 	if (!msg)
 		THROW_DATA_STORE_EXCEPTION("Failed to query triggers.");
 
@@ -353,7 +353,7 @@ SoupMessage *ArmZabbixAPI::queryCommon(JsonBuilderAgent &agent)
 	return msg;
 }
 
-SoupMessage *ArmZabbixAPI::queryTrigger(void)
+SoupMessage *ArmZabbixAPI::queryTrigger(int requestSince)
 {
 	JsonBuilderAgent agent;
 	agent.startObject();
@@ -363,6 +363,7 @@ SoupMessage *ArmZabbixAPI::queryTrigger(void)
 	agent.startObject("params");
 	agent.add("output", "extend");
 	agent.add("selectFunctions", "extend");
+	agent.add("lastChangeSince", requestSince);
 	agent.endObject();
 
 	agent.add("auth", m_ctx->authToken);
@@ -775,7 +776,15 @@ void ArmZabbixAPI::parseAndPushEventsData
 
 ItemTablePtr ArmZabbixAPI::updateTriggers(void)
 {
-	ItemTablePtr tablePtr = getTrigger();
+	int requestSince;
+	int lastChange = m_ctx->dbClientZabbix.getTriggerLastChange();
+
+	// TODO: to be considered that we may leak triggers.
+	if (lastChange == DBClientZabbix::TRIGGER_CHANGE_TIME_NOT_FOUND)
+		requestSince = 0;
+	else
+		requestSince = lastChange;
+	ItemTablePtr tablePtr = getTrigger(requestSince);
 	m_ctx->dbClientZabbix.addTriggersRaw2_0(tablePtr);
 	return tablePtr;
 }

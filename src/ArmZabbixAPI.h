@@ -36,7 +36,7 @@ public:
 	void setPollingInterval(int sec);
 	int getPollingInterval(void) const;
 	void requestExit(void);
-	ItemTablePtr getTrigger(void);
+	ItemTablePtr getTrigger(int requestSince = 0);
 	ItemTablePtr getFunctions(void);
 	ItemTablePtr getItems(void);
 	ItemTablePtr getHosts(void);
@@ -61,7 +61,7 @@ protected:
 	bool openSession(SoupMessage **msgPtr = NULL);
 
 	SoupMessage *queryCommon(JsonBuilderAgent &agent);
-	SoupMessage *queryTrigger(void);
+	SoupMessage *queryTrigger(int requestSince = 0);
 	SoupMessage *queryItem(void);
 	SoupMessage *queryHost(void);
 	SoupMessage *queryApplication(void);
