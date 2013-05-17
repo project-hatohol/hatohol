@@ -96,7 +96,7 @@ protected:
 	void parseAndPushEventsData(JsonParserAgent &parser,
 	                            VariableItemTablePtr &tablePtr, int index);
 
-	void updateTriggers(void);
+	ItemTablePtr updateTriggers(void);
 	void updateFunctions(void);
 	ItemTablePtr updateItems(void);
 	void updateHosts(void);

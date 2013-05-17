@@ -773,10 +773,11 @@ void ArmZabbixAPI::parseAndPushEventsData
 	parser.endElement();
 }
 
-void ArmZabbixAPI::updateTriggers(void)
+ItemTablePtr ArmZabbixAPI::updateTriggers(void)
 {
 	ItemTablePtr tablePtr = getTrigger();
 	m_ctx->dbClientZabbix.addTriggersRaw2_0(tablePtr);
+	return tablePtr;
 }
 
 void ArmZabbixAPI::updateFunctions(void)
