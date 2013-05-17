@@ -89,6 +89,10 @@ protected:
 	  size_t numColumns, const ColumnDef *columnDefs);
 	void makeSelectExArgForTriggerAsAsuraFormat(void);
 
+	bool isRecordExisting(
+	  const ItemGroup *itemGroup, const string &tableName,
+	  size_t numColumns, const ColumnDef &columnCheck);
+
 private:
 	struct PrivateContext;
 	PrivateContext *m_ctx;

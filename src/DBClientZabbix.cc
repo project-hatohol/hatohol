@@ -2064,12 +2064,9 @@ void DBClientZabbix::addItems(
 		if (updateCheckIndex >= 0) {
 			const ColumnDef &columnCheck =
 			  columnDefs[updateCheckIndex];
-			const ItemData *item =
-			  itemGroup->getItem(columnCheck.itemId);
-			uint64_t val = ItemDataUtils::getUint64(item);
-			string condition = StringUtils::sprintf(
-			  "%s=%"PRIu64, columnCheck.columnName, val);
-			if (!isRecordExisting(tableName, condition)) {
+			bool exist = isRecordExisting(itemGroup, tableName,
+				                      numColumns, columnCheck);
+			if (!exist) {
 				updateItems(itemGroup, tableName,
 				            numColumns, columnDefs);
 				continue;
@@ -2171,4 +2168,15 @@ void DBClientZabbix::makeSelectExArgForTriggerAsAsuraFormat(void)
 	arg.pushColumn(triggersDescription,VAR_TRIGGERS);
 	arg.pushColumn(hostsHostid,        VAR_HOSTS);
 	arg.pushColumn(hostsName,          VAR_HOSTS);
+}
+
+bool DBClientZabbix::isRecordExisting(
+  const ItemGroup *itemGroup, const string &tableName,
+  size_t numColumns, const ColumnDef &columnCheck)
+{
+	const ItemData *item = itemGroup->getItem(columnCheck.itemId);
+	uint64_t val = ItemDataUtils::getUint64(item);
+	string condition = StringUtils::sprintf(
+	                     "%s=%"PRIu64, columnCheck.columnName, val);
+	return DBClient::isRecordExisting(tableName, condition);
 }
