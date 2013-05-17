@@ -1585,14 +1585,10 @@ DBClientZabbix::~DBClientZabbix()
 void DBClientZabbix::addTriggersRaw2_0(ItemTablePtr tablePtr)
 {
 	DBCLIENT_TRANSACTION_BEGIN() {
-		// TODO: This implementaion is transitional. We'll implement
-		// a function that get data partially.
-		DBAgentDeleteArg arg;
-		arg.tableName = TABLE_NAME_TRIGGERS_RAW_2_0;
-		deleteRows(arg);
 		addItems(tablePtr, TABLE_NAME_TRIGGERS_RAW_2_0,
 		         NUM_COLUMNS_TRIGGERS_RAW_2_0,
-		         COLUMN_DEF_TRIGGERS_RAW_2_0);
+		         COLUMN_DEF_TRIGGERS_RAW_2_0,
+		         IDX_TRIGGERS_RAW_2_0_TRIGGERID);
 	} DBCLIENT_TRANSACTION_END();
 }
 
@@ -2053,7 +2049,8 @@ void DBClientZabbix::prepareSetupFuncCallback(size_t zabbixServerId)
 
 void DBClientZabbix::addItems(
   ItemTablePtr tablePtr,
-  const string &tableName, size_t numColumns, const ColumnDef *columnDefs)
+  const string &tableName, size_t numColumns, const ColumnDef *columnDefs,
+  int updateCheckIndex)
 {
 	//
 	// We assumed that this function is called in the transaction.
@@ -2062,6 +2059,24 @@ void DBClientZabbix::addItems(
 	ItemGroupListConstIterator it = itemGroupList.begin();
 	for (; it != itemGroupList.end(); ++it) {
 		const ItemGroup *itemGroup = *it;
+
+		// update if needed
+		if (updateCheckIndex >= 0) {
+			const ColumnDef &columnCheck =
+			  columnDefs[updateCheckIndex];
+			const ItemData *item =
+			  itemGroup->getItem(columnCheck.itemId);
+			uint64_t val = ItemDataUtils::getUint64(item);
+			string condition = StringUtils::sprintf(
+			  "%s=%"PRIu64, columnCheck.columnName, val);
+			if (!isRecordExisting(tableName, condition)) {
+				updateItems(itemGroup, tableName,
+				            numColumns, columnDefs);
+				continue;
+			}
+		}
+
+		// insert
 		DBAgentInsertArg arg;
 		arg.tableName = tableName;
 		arg.numColumns = numColumns;
@@ -2073,6 +2088,28 @@ void DBClientZabbix::addItems(
 		arg.row = row;
 		insert(arg);
 	}
+}
+
+void DBClientZabbix::updateItems(
+  const ItemGroup *itemGroup,
+  const string &tableName, size_t numColumns, const ColumnDef *columnDefs)
+{
+	//
+	// We assumed that this function is called in the transaction.
+	//
+	DBAgentUpdateArg arg;
+	arg.tableName = tableName;
+	arg.columnDefs = columnDefs;
+	VariableItemGroupPtr row;
+	ASURA_ASSERT(itemGroup->getNumberOfItems() == numColumns,
+	             "Mismatch: %zd, %zd",
+	             itemGroup->getNumberOfItems(), numColumns);
+	for (size_t i = 0; i < itemGroup->getNumberOfItems(); i++) {
+		row->add(itemGroup->getItemAt(i));
+		arg.columnIndexes.push_back(i);
+	}
+	arg.row = row;
+	update(arg);
 }
 
 void DBClientZabbix::makeSelectExArgForTriggerAsAsuraFormat(void)

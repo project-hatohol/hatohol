@@ -81,6 +81,11 @@ protected:
 	void prepareSetupFuncCallback(size_t zabbixServerId);
 	void addItems(
 	  ItemTablePtr tablePtr, const string &tableName,
+	  size_t numColumns, const ColumnDef *columnDefs,
+	  int updateCheckIndex = -1);
+	void updateItems(
+	  const ItemGroup *itemGroup,
+	  const string &tableName,
 	  size_t numColumns, const ColumnDef *columnDefs);
 	void makeSelectExArgForTriggerAsAsuraFormat(void);
 
