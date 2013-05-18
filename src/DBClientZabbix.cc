@@ -2131,35 +2131,19 @@ void DBClientZabbix::makeSelectExArgForTriggerAsAsuraFormat(void)
 	// tableName
 	const ColumnDef &triggersTriggerid =
 	   COLUMN_DEF_TRIGGERS_RAW_2_0[IDX_TRIGGERS_RAW_2_0_TRIGGERID];
-	const ColumnDef &functionsTriggerid =
-	   COLUMN_DEF_FUNCTIONS_RAW_2_0[IDX_FUNCTIONS_RAW_2_0_TRIGGERID];
-	const ColumnDef &functionsItemid =
-	   COLUMN_DEF_FUNCTIONS_RAW_2_0[IDX_FUNCTIONS_RAW_2_0_ITEMID];
-	const ColumnDef &itemsItemid =
-	   COLUMN_DEF_ITEMS_RAW_2_0[IDX_ITEMS_RAW_2_0_ITEMID];
-	const ColumnDef &itemsHostid =
-	   COLUMN_DEF_ITEMS_RAW_2_0[IDX_ITEMS_RAW_2_0_HOSTID];
+	const ColumnDef &triggersHostid =
+	   COLUMN_DEF_TRIGGERS_RAW_2_0[IDX_TRIGGERS_RAW_2_0_HOSTID];
 	const ColumnDef &hostsHostid =
 	   COLUMN_DEF_HOSTS_RAW_2_0[IDX_HOSTS_RAW_2_0_HOSTID];
 
 	static const char *VAR_TRIGGERS  = "t";
-	static const char *VAR_FUNCTIONS = "f";
-	static const char *VAR_ITEMS     = "i";
 	static const char *VAR_HOSTS     = "h";
 	arg.tableName = StringUtils::sprintf(
 	   "%s %s "
-	   "inner join %s %s on %s.%s=%s.%s "
-	   "inner join %s %s on %s.%s=%s.%s "
 	   "inner join %s %s on %s.%s=%s.%s",
 	   TABLE_NAME_TRIGGERS_RAW_2_0, VAR_TRIGGERS,
-	   TABLE_NAME_FUNCTIONS_RAW_2_0, VAR_FUNCTIONS,
-	     VAR_TRIGGERS, triggersTriggerid.columnName,
-	     VAR_FUNCTIONS, functionsTriggerid.columnName,
-	   TABLE_NAME_ITEMS_RAW_2_0, VAR_ITEMS,
-	     VAR_FUNCTIONS, functionsItemid.columnName,
-	     VAR_ITEMS, itemsItemid.columnName,
 	   TABLE_NAME_HOSTS_RAW_2_0, VAR_HOSTS,
-	     VAR_ITEMS, itemsHostid.columnName,
+	     VAR_TRIGGERS, triggersHostid.columnName,
 	     VAR_HOSTS, hostsHostid.columnName);
 
 	//
