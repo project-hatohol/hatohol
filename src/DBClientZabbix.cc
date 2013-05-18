@@ -2114,6 +2114,9 @@ void DBClientZabbix::updateItems(
 	             "Mismatch: %zd, %zd",
 	             itemGroup->getNumberOfItems(), numColumns);
 	for (size_t i = 0; i < itemGroup->getNumberOfItems(); i++) {
+		// exclude primary
+		if (columnDefs[i].keyType == SQL_KEY_PRI)
+			continue;
 		row->add(itemGroup->getItemAt(i));
 		arg.columnIndexes.push_back(i);
 	}
