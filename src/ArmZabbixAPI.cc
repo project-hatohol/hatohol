@@ -161,10 +161,9 @@ ItemTablePtr ArmZabbixAPI::getTrigger(int requestSince)
 
 	VariableItemTablePtr tablePtr;
 	int numTriggers = parser.countElements();
-	if (numTriggers < 1) {
-		MLPL_DBG("The number of triggers: %d\n", numTriggers);
+	MLPL_DBG("The number of triggers: %d\n", numTriggers);
+	if (numTriggers < 1)
 		return ItemTablePtr(tablePtr);
-	}
 
 	m_ctx->gotTriggers = false;
 	m_ctx->functionsTablePtr = VariableItemTablePtr();
@@ -200,10 +199,9 @@ ItemTablePtr ArmZabbixAPI::getItems(void)
 
 	VariableItemTablePtr tablePtr;
 	int numData = parser.countElements();
-	if (numData < 1) {
-		MLPL_DBG("The number of hosts: %d\n", numData);
+	MLPL_DBG("The number of hosts: %d\n", numData);
+	if (numData < 1)
 		return ItemTablePtr(tablePtr);
-	}
 
 	for (int i = 0; i < numData; i++)
 		parseAndPushItemsData(parser, tablePtr, i);
@@ -226,10 +224,9 @@ ItemTablePtr ArmZabbixAPI::getHosts(void)
 
 	VariableItemTablePtr tablePtr;
 	int numData = parser.countElements();
-	if (numData < 1) {
-		MLPL_DBG("The number of hosts: %d\n", numData);
+	MLPL_DBG("The number of hosts: %d\n", numData);
+	if (numData < 1)
 		return ItemTablePtr(tablePtr);
-	}
 
 	for (int i = 0; i < numData; i++)
 		parseAndPushHostsData(parser, tablePtr, i);
