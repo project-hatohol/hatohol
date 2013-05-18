@@ -2078,7 +2078,7 @@ void DBClientZabbix::addItems(
 			  columnDefs[updateCheckIndex];
 			bool exist = isRecordExisting(itemGroup, tableName,
 				                      numColumns, columnCheck);
-			if (!exist) {
+			if (!!exist) {
 				updateItems(itemGroup, tableName,
 				            numColumns, columnDefs);
 				continue;
