@@ -1,6 +1,12 @@
 [S] Short-term, [M] Middle-term, [L] Long-term
 ====
+* [S] add 'selectHosts' option to query of triggers.
+* [S] delete independent query for hosts.
+* [S] delta query for items.
 * [S] error response by the requested format.
+* [M] update item's lastValue by the request.
+* [M] serve history data for chart.
+* [S] discus about config file.
 * [S] show status by WEB Interface of asura
 * [M] make a mechanism to replica partially
 * [S] make a API and the depending mechanism to draw graph for UI.
