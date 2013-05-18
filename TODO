@@ -9,6 +9,7 @@
 * [S] discus about config file.
 * [S] show status by WEB Interface of asura
 * [M] make a mechanism to replica partially
+* [M] synchronize the deleted items, trigger, hosts, etc.
 * [S] make a API and the depending mechanism to draw graph for UI.
 * [S] add a way to specify database directory by setting file.
 * [M] fix code that are marked with TODO comments.
