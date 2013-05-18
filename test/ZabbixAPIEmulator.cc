@@ -188,6 +188,26 @@ void ZabbixAPIEmulator::handlerAPI
 	}
 }
 
+bool ZabbixAPIEmulator::hasParameter
+  (APIHandlerArg &arg, const string &paramName, const string &expectedValue)
+{
+	string request(arg.msg->request_body->data,
+	               arg.msg->request_body->length);
+	JsonParserAgent parser(request);
+	if (parser.hasError())
+		THROW_ASURA_EXCEPTION("Failed to parse: %s", request.c_str());
+	
+	if (!parser.startObject("params"))
+		return false;
+	string value;
+	ASURA_ASSERT(parser.read(paramName, value), "Failed to read: %s: %s",
+	             paramName.c_str(), parser.getErrorMessage());
+	ASURA_ASSERT(value == expectedValue,
+	             "value: %s: not supported (expected: %s)",
+	             value.c_str(), expectedValue.c_str());
+	return true;
+}
+
 string ZabbixAPIEmulator::generateAuthToken(void)
 {
 	string token;
@@ -284,8 +304,12 @@ void ZabbixAPIEmulator::APIHandlerUserLogin(APIHandlerArg &arg)
 
 void ZabbixAPIEmulator::APIHandlerTriggerGet(APIHandlerArg &arg)
 {
-	static const char *DATA_FILE = "zabbix-api-res-triggers-001.json";
-	APIHandlerGetWithFile(arg, DATA_FILE);
+	const char *dataFileName;
+	if (hasParameter(arg, "selectHosts", "refer"))
+		dataFileName = "zabbix-api-res-triggers-003-hosts.json";
+	else
+		dataFileName = "zabbix-api-res-triggers-001.json";
+	APIHandlerGetWithFile(arg, dataFileName);
 }
 
 void ZabbixAPIEmulator::APIHandlerItemGet(APIHandlerArg &arg)

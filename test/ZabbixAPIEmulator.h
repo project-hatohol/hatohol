@@ -34,6 +34,8 @@ protected:
 	static void handlerAPI
 	  (SoupServer *server, SoupMessage *msg, const char *path,
 	   GHashTable *query, SoupClientContext *client, gpointer user_data);
+	static bool hasParameter(APIHandlerArg &arg, const string &paramName,
+	                         const string &expectedValue);
 
 	string generateAuthToken(void);
 	void handlerAPIDispatch(APIHandlerArg &arg);

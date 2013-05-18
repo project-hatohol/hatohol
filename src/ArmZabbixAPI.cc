@@ -364,6 +364,7 @@ SoupMessage *ArmZabbixAPI::queryTrigger(int requestSince)
 	agent.add("output", "extend");
 	agent.add("selectFunctions", "extend");
 	agent.add("lastChangeSince", requestSince);
+	agent.add("selectHosts", "refer");
 	agent.endObject();
 
 	agent.add("auth", m_ctx->authToken);
@@ -581,6 +582,10 @@ void ArmZabbixAPI::parseAndPushTriggerData
 	pushInt   (parser, grp, "type",        ITEM_ID_ZBX_TRIGGERS_TYPE);
 	pushInt   (parser, grp, "value_flags", ITEM_ID_ZBX_TRIGGERS_VALUE_FLAGS);
 	pushInt   (parser, grp, "flags",       ITEM_ID_ZBX_TRIGGERS_FLAGS);
+
+	// get hostid
+	pushTriggersHostid(parser, grp);
+
 	tablePtr->add(grp);
 
 	// get functions
@@ -603,6 +608,27 @@ void ArmZabbixAPI::pushApplicationid(JsonParserAgent &parser,
 		for (int i = 0; i < numElem; i++) {
 			startElement(parser, i);
 			pushUint64(parser, itemGroup, "applicationid", itemId);
+			break; // we use the first applicationid
+		}
+		parser.endElement();
+	}
+	parser.endObject();
+}
+
+void ArmZabbixAPI::pushTriggersHostid(JsonParserAgent &parser,
+                                      ItemGroup *itemGroup)
+{
+	ItemId itemId = ITEM_ID_ZBX_TRIGGERS_HOSTID;
+	startObject(parser, "hosts");
+	int numElem = parser.countElements();
+	if (numElem == 0) {
+		ItemData *data = new ItemUint64(itemId, 0);
+		data->setNull();
+		itemGroup->add(data, false);
+	} else  {
+		for (int i = 0; i < numElem; i++) {
+			startElement(parser, i);
+			pushUint64(parser, itemGroup, "hostid", itemId);
 			break; // we use the first applicationid
 		}
 		parser.endElement();
