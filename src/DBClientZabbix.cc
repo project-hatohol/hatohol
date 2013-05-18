@@ -33,7 +33,7 @@ using namespace mlpl;
 	ASURA_ASSERT(VAR_NAME != NULL, "Failed to dynamic cast: %s -> %s", \
 	             DEMANGLED_TYPE_NAME(*ITEM_DATA), #ACTUAL_TYPE); \
 
-const int DBClientZabbix::ZABBIX_DB_VERSION = 3;
+const int DBClientZabbix::ZABBIX_DB_VERSION = 4;
 const uint64_t DBClientZabbix::EVENT_ID_NOT_FOUND = -1;
 const int DBClientZabbix::TRIGGER_CHANGE_TIME_NOT_FOUND = -1;
 
@@ -222,6 +222,17 @@ static const ColumnDef COLUMN_DEF_TRIGGERS_RAW_2_0[] = {
 	SQL_KEY_NONE,                      // keyType
 	0,                                 // flags
 	"0",                               // defaultValue
+}, {
+	ITEM_ID_ZBX_TRIGGERS_HOSTID,       // itemId
+	TABLE_NAME_TRIGGERS_RAW_2_0,       // tableName
+	"hostid",                          // columnName
+	SQL_COLUMN_TYPE_BIGUINT,           // type
+	20,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	"0",                               // defaultValue
 }
 };
 static const size_t NUM_COLUMNS_TRIGGERS_RAW_2_0 =
@@ -242,6 +253,7 @@ enum {
 	IDX_TRIGGERS_RAW_2_0_TYPE,
 	IDX_TRIGGERS_RAW_2_0_VALUE_FLAGS,
 	IDX_TRIGGERS_RAW_2_0_FLAGS,
+	IDX_TRIGGERS_RAW_2_0_HOSTID,
 	NUM_IDX_TRIGGERS_RAW_2_0,
 };
 
