@@ -199,7 +199,7 @@ ItemTablePtr ArmZabbixAPI::getItems(void)
 
 	VariableItemTablePtr tablePtr;
 	int numData = parser.countElements();
-	MLPL_DBG("The number of hosts: %d\n", numData);
+	MLPL_DBG("The number of items: %d\n", numData);
 	if (numData < 1)
 		return ItemTablePtr(tablePtr);
 
