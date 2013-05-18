@@ -1,6 +1,5 @@
 [S] Short-term, [M] Middle-term, [L] Long-term
 ====
-* [S] add 'selectHosts' option to query of triggers.
 * [S] delete independent query for hosts.
 * [S] delta query for items.
 * [S] error response by the requested format.
