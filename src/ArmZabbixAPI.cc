@@ -362,7 +362,11 @@ SoupMessage *ArmZabbixAPI::queryTrigger(int requestSince)
 
 	agent.startObject("params");
 	agent.add("output", "extend");
-	agent.add("selectFunctions", "extend");
+
+	// We are no longer request 'functions'.
+	// See also comments in mainThreadOneProc().
+	//
+	// agent.add("selectFunctions", "extend");
 	agent.add("lastChangeSince", requestSince);
 	agent.add("selectHosts", "refer");
 	agent.endObject();
@@ -588,8 +592,11 @@ void ArmZabbixAPI::parseAndPushTriggerData
 
 	tablePtr->add(grp);
 
+	// We are no longer request 'functions'.
+	// See also comments in mainThreadOneProc().
+	//
 	// get functions
-	pushFunctionsCache(parser);
+	// pushFunctionsCache(parser);
 
 	parser.endElement();
 }
@@ -919,7 +926,15 @@ bool ArmZabbixAPI::mainThreadOneProc(void)
 	if (!openSession())
 		return false;
 	updateTriggers();
-	updateFunctions();
+
+	// Currently functions is no longer updated, because ZABBIX can
+	// return host ID diretory (If we use DBs as exactly the same as
+	// those in Zabbix Server, we have to join triggers, functions, and
+	// items to get the host ID). The related functions and structures
+	// main for the possiblity of future use again.
+	//
+	// updateFunctions();
+
 	ItemTablePtr items = updateItems();
 	updateHosts();
 	updateApplications();
