@@ -931,7 +931,7 @@ void ArmZabbixAPI::extractHostIds(vector<uint64_t> &hostIdVector,
 	ItemGroupListConstIterator it = grpList.begin();
 	for (; it != grpList.end(); ++it) {
 		uint64_t hostId = ItemDataUtils::getUint64(
-		   (*it)->getItem(ITEM_ID_ZBX_APPLICATIONS_HOSTID));
+		   (*it)->getItem(ITEM_ID_ZBX_TRIGGERS_HOSTID));
 		hostIdSet.insert(hostId);
 	}
 
