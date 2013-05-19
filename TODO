@@ -3,6 +3,7 @@
 * [S] delete independent query for hosts.
 * [S] delta query for items.
 * [S] error response by the requested format.
+* [S] reuse the auth key obtained once.
 * [M] update item's lastValue by the request.
 * [M] serve history data for chart.
 * [S] discus about config file.
