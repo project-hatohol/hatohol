@@ -35,6 +35,7 @@ public:
 	void endArray(void);
 	void add(const string &member, const string &value);
 	void add(const string &member, gint64 value);
+	void add(const gint64 value);
 	void addTrue(const string &member);
 	void addFalse(const string &member);
 	void addNull(const string &member);
