@@ -839,10 +839,8 @@ ItemTablePtr ArmZabbixAPI::updateItems(void)
 	return tablePtr;
 }
 
-void ArmZabbixAPI::updateHosts(void)
+void ArmZabbixAPI::updateHosts(const vector<uint64_t> &hostIdVector)
 {
-	vector<uint64_t> hostIdVector;
-	// TODO: fill hostIdVector;
 	ItemTablePtr tablePtr = getHosts(hostIdVector);
 	m_ctx->dbClientZabbix.addHostsRaw2_0(tablePtr);
 }
@@ -924,6 +922,24 @@ void ArmZabbixAPI::makeAsuraItems(ItemTablePtr items)
 	m_ctx->dbClientAsura.addItemInfoList(itemInfoList);
 }
 
+void ArmZabbixAPI::extractHostIds(vector<uint64_t> &hostIdVector,
+                                  ItemTablePtr triggers)
+{
+	// First, make set to remove duplication
+	set<uint64_t> hostIdSet;
+	const ItemGroupList &grpList = triggers->getItemGroupList();
+	ItemGroupListConstIterator it = grpList.begin();
+	for (; it != grpList.end(); ++it) {
+		uint64_t hostId = ItemDataUtils::getUint64(
+		   (*it)->getItem(ITEM_ID_ZBX_APPLICATIONS_HOSTID));
+		hostIdSet.insert(hostId);
+	}
+
+	set<uint64_t>::iterator jt = hostIdSet.begin();
+	for (; jt != hostIdSet.end(); ++jt)
+		hostIdVector.push_back(*jt);
+}
+
 //
 // virtual methods defined in this class
 //
@@ -931,7 +947,10 @@ bool ArmZabbixAPI::mainThreadOneProc(void)
 {
 	if (!openSession())
 		return false;
-	updateTriggers();
+	ItemTablePtr triggers = updateTriggers();
+	vector<uint64_t> hostIdVector;
+	extractHostIds(hostIdVector, triggers);
+	updateHosts(hostIdVector);
 
 	// Currently functions is no longer updated, because ZABBIX can
 	// return host ID diretory (If we use DBs as exactly the same as
@@ -942,7 +961,6 @@ bool ArmZabbixAPI::mainThreadOneProc(void)
 	// updateFunctions();
 
 	ItemTablePtr items = updateItems();
-	updateHosts();
 	updateApplications();
 	makeAsuraTriggers();
 
