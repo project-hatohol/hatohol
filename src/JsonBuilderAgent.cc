@@ -67,7 +67,7 @@ void JsonBuilderAgent::startArray(const string &member)
 
 void JsonBuilderAgent::endArray(void)
 {
-	 json_builder_end_array(m_builder);
+	json_builder_end_array(m_builder);
 }
 
 void JsonBuilderAgent::addNull(const string &member)
