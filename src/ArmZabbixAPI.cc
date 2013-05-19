@@ -923,22 +923,23 @@ void ArmZabbixAPI::makeAsuraItems(ItemTablePtr items)
 	m_ctx->dbClientAsura.addItemInfoList(itemInfoList);
 }
 
-void ArmZabbixAPI::extractHostIds(vector<uint64_t> &hostIdVector,
-                                  ItemTablePtr triggers)
+template<typename T>
+void ArmZabbixAPI::makeItemVector(vector<T> &idVector, ItemTablePtr itemTable,
+                                  ItemId itemId)
 {
-	// First, make set to remove duplication
-	set<uint64_t> hostIdSet;
-	const ItemGroupList &grpList = triggers->getItemGroupList();
+	// First, make a set to remove duplication
+	set<T> idSet;
+	const ItemGroupList &grpList = itemTable->getItemGroupList();
 	ItemGroupListConstIterator it = grpList.begin();
 	for (; it != grpList.end(); ++it) {
-		uint64_t hostId = ItemDataUtils::getUint64(
-		   (*it)->getItem(ITEM_ID_ZBX_TRIGGERS_HOSTID));
-		hostIdSet.insert(hostId);
+		T id = ItemDataUtils::get<T>((*it)->getItem(itemId));
+		idSet.insert(id);
 	}
 
-	set<uint64_t>::iterator jt = hostIdSet.begin();
-	for (; jt != hostIdSet.end(); ++jt)
-		hostIdVector.push_back(*jt);
+	// Then, make a set to remove duplication
+	typename set<T>::iterator jt = idSet.begin();
+	for (; jt != idSet.end(); ++jt)
+		idVector.push_back(*jt);
 }
 
 //
@@ -975,7 +976,8 @@ bool ArmZabbixAPI::mainThreadOneProc(void)
 		return false;
 	ItemTablePtr triggers = updateTriggers();
 	vector<uint64_t> hostIdVector;
-	extractHostIds(hostIdVector, triggers);
+	makeItemVector<uint64_t>(hostIdVector, triggers,
+	                         ITEM_ID_ZBX_TRIGGERS_HOSTID);
 	ItemTablePtr hosts = updateHosts(hostIdVector);
 	checkObtainedHostIds(hosts, hostIdVector);
 

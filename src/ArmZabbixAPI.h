@@ -120,8 +120,9 @@ protected:
 	void makeAsuraEvents(ItemTablePtr events);
 	void makeAsuraItems(ItemTablePtr events);
 
-	void extractHostIds(vector<uint64_t> &hostIdVector,
-	                    ItemTablePtr triggers);
+	template<typename T>
+	void makeItemVector(vector<T> &idVector, ItemTablePtr itemTable,
+	                    ItemId itemId);
 	void checkObtainedHostIds(ItemTablePtr hosts,
 	                          const vector<uint64_t> &hostIdVector);
 
