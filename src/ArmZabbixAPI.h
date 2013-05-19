@@ -112,7 +112,7 @@ protected:
 	ItemTablePtr updateTriggers(void);
 	void updateFunctions(void);
 	ItemTablePtr updateItems(void);
-	void updateHosts(const vector<uint64_t> &hostIdVector);
+	ItemTablePtr updateHosts(const vector<uint64_t> &hostIdVector);
 	ItemTablePtr updateEvents(void);
 	ItemTablePtr updateApplications(void);
 
@@ -122,6 +122,8 @@ protected:
 
 	void extractHostIds(vector<uint64_t> &hostIdVector,
 	                    ItemTablePtr triggers);
+	void checkObtainedHostIds(ItemTablePtr hosts,
+	                          const vector<uint64_t> &hostIdVector);
 
 	// virtual methods
 	gpointer mainThread(AsuraThreadArg *arg);

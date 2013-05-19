@@ -839,10 +839,11 @@ ItemTablePtr ArmZabbixAPI::updateItems(void)
 	return tablePtr;
 }
 
-void ArmZabbixAPI::updateHosts(const vector<uint64_t> &hostIdVector)
+ItemTablePtr ArmZabbixAPI::updateHosts(const vector<uint64_t> &hostIdVector)
 {
 	ItemTablePtr tablePtr = getHosts(hostIdVector);
 	m_ctx->dbClientZabbix.addHostsRaw2_0(tablePtr);
+	return tablePtr;
 }
 
 ItemTablePtr ArmZabbixAPI::updateEvents(void)
@@ -941,6 +942,31 @@ void ArmZabbixAPI::extractHostIds(vector<uint64_t> &hostIdVector,
 }
 
 //
+// This function just shows a warning if there is missing host ID.
+//
+void ArmZabbixAPI::checkObtainedHostIds(ItemTablePtr hosts,
+                                        const vector<uint64_t> &hostIdVector)
+{
+	// make the set of requested host IDs
+	set<uint64_t> hostIdSet;
+	for (size_t i = 0; i < hostIdVector.size(); i++)
+		hostIdSet.insert(hostIdVector[i]);
+
+	// compare the obtained host IDs to the requested
+	const ItemGroupList &grpList = hosts->getItemGroupList();
+	ItemGroupListConstIterator it = grpList.begin();
+	for (; it != grpList.end(); ++it) {
+		uint64_t hostId = ItemDataUtils::getUint64(
+		   (*it)->getItem(ITEM_ID_ZBX_HOSTS_HOSTID));
+		set<uint64_t>::iterator jt = hostIdSet.find(hostId);
+		if (jt == hostIdSet.end())
+			MLPL_WARN("Not returned: HOST ID: %"PRIu64, hostId);
+		else
+			hostIdSet.erase(jt);
+	}
+}
+
+//
 // virtual methods defined in this class
 //
 bool ArmZabbixAPI::mainThreadOneProc(void)
@@ -950,7 +976,8 @@ bool ArmZabbixAPI::mainThreadOneProc(void)
 	ItemTablePtr triggers = updateTriggers();
 	vector<uint64_t> hostIdVector;
 	extractHostIds(hostIdVector, triggers);
-	updateHosts(hostIdVector);
+	ItemTablePtr hosts = updateHosts(hostIdVector);
+	checkObtainedHostIds(hosts, hostIdVector);
 
 	// Currently functions is no longer updated, because ZABBIX can
 	// return host ID diretory (If we use DBs as exactly the same as
