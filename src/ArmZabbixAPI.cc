@@ -208,9 +208,9 @@ ItemTablePtr ArmZabbixAPI::getItems(void)
 	return ItemTablePtr(tablePtr);
 }
 
-ItemTablePtr ArmZabbixAPI::getHosts(void)
+ItemTablePtr ArmZabbixAPI::getHosts(const vector<uint64_t> &hostIdVector)
 {
-	SoupMessage *msg = queryHost();
+	SoupMessage *msg = queryHost(hostIdVector);
 	if (!msg)
 		THROW_DATA_STORE_EXCEPTION("Failed to query hosts.");
 
@@ -394,7 +394,7 @@ SoupMessage *ArmZabbixAPI::queryItem(void)
 	return queryCommon(agent);
 }
 
-SoupMessage *ArmZabbixAPI::queryHost(void)
+SoupMessage *ArmZabbixAPI::queryHost(const vector<uint64_t> &hostIdVector)
 {
 	JsonBuilderAgent agent;
 	agent.startObject();
@@ -403,6 +403,13 @@ SoupMessage *ArmZabbixAPI::queryHost(void)
 
 	agent.startObject("params");
 	agent.add("output", "extend");
+	if (!hostIdVector.empty()) {
+		agent.startArray("hostids");
+		vector<uint64_t>::const_iterator it = hostIdVector.begin();
+		for (; it != hostIdVector.end(); ++it)
+			agent.add(*it);
+		agent.endArray();
+	}
 	agent.endObject(); // params
 
 	agent.add("auth", m_ctx->authToken);
@@ -834,7 +841,9 @@ ItemTablePtr ArmZabbixAPI::updateItems(void)
 
 void ArmZabbixAPI::updateHosts(void)
 {
-	ItemTablePtr tablePtr = getHosts();
+	vector<uint64_t> hostIdVector;
+	// TODO: fill hostIdVector;
+	ItemTablePtr tablePtr = getHosts(hostIdVector);
 	m_ctx->dbClientZabbix.addHostsRaw2_0(tablePtr);
 }
 

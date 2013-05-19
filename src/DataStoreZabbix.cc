@@ -48,7 +48,8 @@ ItemTablePtr DataStoreZabbix::getItems(void)
 
 ItemTablePtr DataStoreZabbix::getHosts(void)
 {
-	return m_armApi.getHosts();
+	vector<uint64_t> hostIdVector;
+	return m_armApi.getHosts(hostIdVector);
 }
 
 // ---------------------------------------------------------------------------

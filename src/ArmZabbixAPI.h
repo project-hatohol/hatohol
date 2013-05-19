@@ -39,7 +39,19 @@ public:
 	ItemTablePtr getTrigger(int requestSince = 0);
 	ItemTablePtr getFunctions(void);
 	ItemTablePtr getItems(void);
-	ItemTablePtr getHosts(void);
+
+	/**
+	 * get the hosts database with Zabbix API server
+	 *
+	 * @param hostIdVector
+	 * When this vector is empty, all hosts are requested. Otherwise,
+	 * only the hosts with the IDs are requested.
+	 *
+	 * @return
+	 * An ItemTablePtr instance that has hosts data.
+	 */
+	ItemTablePtr getHosts(const vector<uint64_t> &hostIdVector);
+
 	ItemTablePtr getApplications(void);
 	ItemTablePtr getEvents(uint64_t eventIdOffset);
 
@@ -63,7 +75,7 @@ protected:
 	SoupMessage *queryCommon(JsonBuilderAgent &agent);
 	SoupMessage *queryTrigger(int requestSince = 0);
 	SoupMessage *queryItem(void);
-	SoupMessage *queryHost(void);
+	SoupMessage *queryHost(const vector<uint64_t> &hostIdVector);
 	SoupMessage *queryApplication(void);
 	SoupMessage *queryEvent(uint64_t eventIdOffset);
 	string getInitialJsonRequest(void);
