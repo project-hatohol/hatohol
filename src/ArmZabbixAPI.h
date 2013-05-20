@@ -140,8 +140,10 @@ protected:
 	template<typename T>
 	void makeItemVector(vector<T> &idVector, ItemTablePtr itemTable,
 	                    ItemId itemId);
-	void checkObtainedHostIds(ItemTablePtr hosts,
-	                          const vector<uint64_t> &hostIdVector);
+	template<typename T>
+	void checkObtainedItems(const ItemTable *obtainedItemTable,
+	                        const vector<T> &requestedItemVector,
+	                        const ItemId itemId);
 
 	// virtual methods
 	gpointer mainThread(AsuraThreadArg *arg);

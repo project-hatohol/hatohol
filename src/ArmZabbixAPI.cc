@@ -871,7 +871,8 @@ void ArmZabbixAPI::updateHosts(const ItemTable *triggers)
 	m_ctx->dbClientZabbix.addHostsRaw2_0(tablePtr);
 
 	// check the result
-	checkObtainedHostIds(tablePtr, absentHostIdVector);
+	checkObtainedItems<uint64_t>(tablePtr, absentHostIdVector,
+	                             ITEM_ID_ZBX_HOSTS_HOSTID);
 }
 
 ItemTablePtr ArmZabbixAPI::updateEvents(void)
@@ -972,25 +973,31 @@ void ArmZabbixAPI::makeItemVector(vector<T> &idVector, ItemTablePtr itemTable,
 //
 // This function just shows a warning if there is missing host ID.
 //
-void ArmZabbixAPI::checkObtainedHostIds(ItemTablePtr hosts,
-                                        const vector<uint64_t> &hostIdVector)
+template<typename T>
+void ArmZabbixAPI::checkObtainedItems(const ItemTable *obtainedItemTable,
+                                      const vector<T> &requestedItemVector,
+                                      const ItemId itemId)
 {
 	// make the set of requested host IDs
-	set<uint64_t> hostIdSet;
-	for (size_t i = 0; i < hostIdVector.size(); i++)
-		hostIdSet.insert(hostIdVector[i]);
+	set<T> requestedItemSet;
+	for (size_t i = 0; i < requestedItemVector.size(); i++)
+		requestedItemSet.insert(requestedItemVector[i]);
 
 	// compare the obtained host IDs to the requested
-	const ItemGroupList &grpList = hosts->getItemGroupList();
+	const ItemGroupList &grpList = obtainedItemTable->getItemGroupList();
 	ItemGroupListConstIterator it = grpList.begin();
 	for (; it != grpList.end(); ++it) {
-		uint64_t hostId = ItemDataUtils::getUint64(
-		   (*it)->getItem(ITEM_ID_ZBX_HOSTS_HOSTID));
-		set<uint64_t>::iterator jt = hostIdSet.find(hostId);
-		if (jt == hostIdSet.end())
-			MLPL_WARN("Not returned: HOST ID: %"PRIu64, hostId);
-		else
-			hostIdSet.erase(jt);
+		const ItemData *itemData = (*it)->getItem(itemId);
+		T item = ItemDataUtils::get<T>(itemData);
+		typename set<T>::iterator jt = requestedItemSet.find(item);
+		if (jt == requestedItemSet.end()) {
+			MLPL_WARN(
+			  "Not found in the obtained item table: %s "
+			  "(%"PRIu64")",
+		          itemData->getString().c_str(), itemId);
+		} else {
+			requestedItemSet.erase(jt);
+		}
 	}
 }
 
