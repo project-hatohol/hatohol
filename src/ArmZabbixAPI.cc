@@ -26,6 +26,7 @@ using namespace mlpl;
 #include <json-glib/json-glib.h>
 
 #include "ArmZabbixAPI.h"
+#include "ArmZabbixAPI-template.h"
 #include "JsonParserAgent.h"
 #include "JsonBuilderAgent.h"
 #include "DataStoreException.h"
@@ -1004,29 +1005,6 @@ void ArmZabbixAPI::makeAsuraItems(ItemTablePtr items)
 	DBClientZabbix::transformItemsToAsuraFormat(itemInfoList, items,
 	                                            m_ctx->zabbixServerId);
 	m_ctx->dbClientAsura.addItemInfoList(itemInfoList);
-}
-
-template<typename T>
-void ArmZabbixAPI::makeItemVector(vector<T> &idVector,
-                                  const ItemTable *itemTable,
-                                  const ItemId itemId)
-{
-	// First, make a set to remove duplication
-	set<T> idSet;
-	const ItemGroupList &grpList = itemTable->getItemGroupList();
-	ItemGroupListConstIterator it = grpList.begin();
-	for (; it != grpList.end(); ++it) {
-		const ItemData *itemData = (*it)->getItem(itemId);
-		if (itemData->isNull())
-			continue;
-		T id = ItemDataUtils::get<T>(itemData);
-		idSet.insert(id);
-	}
-
-	// Then, make a set to remove duplication
-	typename set<T>::iterator jt = idSet.begin();
-	for (; jt != idSet.end(); ++jt)
-		idVector.push_back(*jt);
 }
 
 //
