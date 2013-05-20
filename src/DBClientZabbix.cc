@@ -1986,7 +1986,7 @@ string DBClientZabbix::getApplicationName(uint64_t applicationId)
 }
 
 void DBClientZabbix::pickupAbsentHostIds(vector<uint64_t> absentHostIdVector,
-                                         const vector<uint64_t> hostIdVector)
+                                         const vector<uint64_t> &hostIdVector)
 {
 	string condition;
 	static const string tableName = TABLE_NAME_HOSTS_RAW_2_0;
