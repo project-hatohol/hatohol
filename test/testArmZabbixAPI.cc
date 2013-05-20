@@ -185,8 +185,7 @@ protected:
 
 	bool threadOneProcHosts(void)
 	{
-		vector<uint64_t> hostIds;
-		updateHosts(hostIds);
+		updateHosts();
 		return true;
 	}
 

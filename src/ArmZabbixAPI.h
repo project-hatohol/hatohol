@@ -112,6 +112,12 @@ protected:
 	ItemTablePtr updateTriggers(void);
 	void updateFunctions(void);
 	ItemTablePtr updateItems(void);
+
+	/**
+	 * get all hosts in the ZABBIX server and save them in the replica DB.
+	 */
+	void         updateHosts(void);
+
 	ItemTablePtr updateHosts(const vector<uint64_t> &hostIdVector);
 	ItemTablePtr updateEvents(void);
 	ItemTablePtr updateApplications(void);
