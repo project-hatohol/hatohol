@@ -4,10 +4,12 @@
 #include "Asura.h"
 #include "ZabbixAPIEmulator.h"
 #include "ArmZabbixAPI.h"
+#include "ArmZabbixAPI-template.h"
 #include "Helpers.h"
 #include "Synchronizer.h"
 #include "DBClientZabbix.h"
 #include "ConfigManager.h"
+#include "ItemTablePtr.h"
 
 namespace testArmZabbixAPI {
 static Synchronizer g_sync;
@@ -110,6 +112,30 @@ public:
 		// mutex in ArmZabbixAPI) is never called. So we explicitly
 		// call exitCallbackFunc() here to unlock the mutex;
 		return ArmZabbixAPI::mainThreadOneProc();
+	}
+
+	void assertMakeItemVector(void)
+	{
+		// make test data and call the target method.
+		const ItemId pickupItemId = 1;
+		const size_t numTestData = 10;
+		vector<int> itemVector;
+		VariableItemTablePtr table;
+		for (size_t i = 0; i < numTestData; i++) {
+			VariableItemGroupPtr grp;
+			ItemInt *item = new ItemInt(pickupItemId, i);
+			grp->add(item, false);
+			table->add(grp);
+		}
+		makeItemVector<int>(itemVector, table, pickupItemId);
+		
+		// check
+		size_t expectedNumData = numTestData;
+		cppcut_assert_equal(expectedNumData, itemVector.size());
+		for (size_t i = 0; i < expectedNumData; i++) {
+			int item = itemVector[i];
+			cppcut_assert_equal((int)i, item);
+		}
 	}
 
 protected:
@@ -366,6 +392,12 @@ void test_mainThreadOneProc()
 	deleteDBClientZabbixDB(svId);
 	ArmZabbixAPITestee armZbxApiTestee(serverInfo);
 	cppcut_assert_equal(true, armZbxApiTestee.testMainThreadOneProc());
+}
+
+void test_makeItemVecotr(void)
+{
+	ArmZabbixAPITestee armZbxApiTestee(g_defaultServerInfo);
+	armZbxApiTestee.assertMakeItemVector();
 }
 
 } // namespace testArmZabbixAPI
