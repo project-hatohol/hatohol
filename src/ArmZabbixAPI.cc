@@ -887,11 +887,10 @@ ItemTablePtr ArmZabbixAPI::updateEvents(void)
 	return tablePtr;
 }
 
-ItemTablePtr ArmZabbixAPI::updateApplications(void)
+void ArmZabbixAPI::updateApplications(void)
 {
 	ItemTablePtr tablePtr = getApplications();
 	m_ctx->dbClientZabbix.addApplicationRaw2_0(tablePtr);
-	return tablePtr;
 }
 
 //

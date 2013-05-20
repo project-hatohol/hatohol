@@ -125,7 +125,12 @@ protected:
 	void updateHosts(const ItemTable *triggers);
 
 	ItemTablePtr updateEvents(void);
-	ItemTablePtr updateApplications(void);
+
+	/**
+	 * get all applications in the ZABBIX server and save them
+	 * in the replica DB.
+	 */
+	void updateApplications(void);
 
 	void makeAsuraTriggers(void);
 	void makeAsuraEvents(ItemTablePtr events);
