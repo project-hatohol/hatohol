@@ -116,7 +116,7 @@ protected:
 	/**
 	 * get all hosts in the ZABBIX server and save them in the replica DB.
 	 */
-	void         updateHosts(void);
+	void updateHosts(void);
 
 	/**
 	 * get hosts that have one of the IDs specified by hostIdVector.
