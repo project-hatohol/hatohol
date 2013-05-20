@@ -1016,7 +1016,10 @@ void ArmZabbixAPI::makeItemVector(vector<T> &idVector,
 	const ItemGroupList &grpList = itemTable->getItemGroupList();
 	ItemGroupListConstIterator it = grpList.begin();
 	for (; it != grpList.end(); ++it) {
-		T id = ItemDataUtils::get<T>((*it)->getItem(itemId));
+		const ItemData *itemData = (*it)->getItem(itemId);
+		if (itemData->isNull())
+			continue;
+		T id = ItemDataUtils::get<T>(itemData);
 		idSet.insert(id);
 	}
 
