@@ -1985,6 +1985,25 @@ string DBClientZabbix::getApplicationName(uint64_t applicationId)
 	return ItemDataUtils::getString(applicationName);
 }
 
+void DBClientZabbix::pickupAbsentHostIds(vector<uint64_t> absentHostIdVector,
+                                         const vector<uint64_t> hostIdVector)
+{
+	string condition;
+	static const string tableName = TABLE_NAME_HOSTS_RAW_2_0;
+	static const string hostidName =
+	  COLUMN_DEF_HOSTS_RAW_2_0[IDX_HOSTS_RAW_2_0_HOSTID].columnName;
+	DBCLIENT_TRANSACTION_BEGIN() {
+		for (size_t i = 0; i < hostIdVector.size(); i++) {
+			uint64_t id = hostIdVector[i];
+			condition = hostidName;
+			condition += StringUtils::sprintf("=%"PRIu64, id);
+			if (DBClient::isRecordExisting(tableName, condition))
+				continue;
+			absentHostIdVector.push_back(id);
+		}
+	} DBCLIENT_TRANSACTION_END();
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------

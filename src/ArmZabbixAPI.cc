@@ -847,11 +847,31 @@ void ArmZabbixAPI::updateHosts(void)
 	m_ctx->dbClientZabbix.addHostsRaw2_0(tablePtr);
 }
 
-ItemTablePtr ArmZabbixAPI::updateHosts(const vector<uint64_t> &hostIdVector)
+void ArmZabbixAPI::updateHosts(const ItemTable *triggers)
 {
+	if (triggers->getNumberOfRows() == 0)
+		return;
+
+	// make a vector that has host IDs used in the above trigger table.
+	vector<uint64_t> hostIdVector;
+	makeItemVector<uint64_t>(hostIdVector, triggers,
+	                         ITEM_ID_ZBX_TRIGGERS_HOSTID);
+	if (hostIdVector.empty())
+		return;
+
+	// extract host IDs that is not in the replication DB.
+	vector<uint64_t> absentHostIdVector;
+	m_ctx->dbClientZabbix.pickupAbsentHostIds(absentHostIdVector,
+	                                          hostIdVector);
+	if (absentHostIdVector.empty())
+		return;
+
+	// get needed hosts via ZABBIX API
 	ItemTablePtr tablePtr = getHosts(hostIdVector);
 	m_ctx->dbClientZabbix.addHostsRaw2_0(tablePtr);
-	return tablePtr;
+
+	// check the result
+	checkObtainedHostIds(tablePtr, absentHostIdVector);
 }
 
 ItemTablePtr ArmZabbixAPI::updateEvents(void)
@@ -982,12 +1002,12 @@ bool ArmZabbixAPI::mainThreadOneProc(void)
 {
 	if (!openSession())
 		return false;
+
+	// get triggers
 	ItemTablePtr triggers = updateTriggers();
-	vector<uint64_t> hostIdVector;
-	makeItemVector<uint64_t>(hostIdVector, triggers,
-	                         ITEM_ID_ZBX_TRIGGERS_HOSTID);
-	ItemTablePtr hosts = updateHosts(hostIdVector);
-	checkObtainedHostIds(hosts, hostIdVector);
+
+	// update needed hosts
+	updateHosts(triggers);
 
 	// Currently functions is no longer updated, because ZABBIX can
 	// return host ID diretory (If we use DBs as exactly the same as

@@ -118,7 +118,12 @@ protected:
 	 */
 	void         updateHosts(void);
 
-	ItemTablePtr updateHosts(const vector<uint64_t> &hostIdVector);
+	/**
+	 * get hosts that have one of the IDs specified by hostIdVector.
+	 * @param hostIdVector A vector of host ID.
+	 */
+	void updateHosts(const ItemTable *triggers);
+
 	ItemTablePtr updateEvents(void);
 	ItemTablePtr updateApplications(void);
 

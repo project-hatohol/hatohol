@@ -74,6 +74,9 @@ public:
 
 	string getApplicationName(uint64_t applicationId);
 
+	void pickupAbsentHostIds(vector<uint64_t> absentHostIdVector,
+	                         const vector<uint64_t> hostIdVector);
+
 protected:
 	static void tableInitializerSystem(DBAgent *dbAgent, void *data);
 	static void updateDBIfNeeded(DBAgent *dbAgent, int oldVer, void *data);
