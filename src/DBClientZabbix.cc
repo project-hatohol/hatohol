@@ -1985,7 +1985,7 @@ string DBClientZabbix::getApplicationName(uint64_t applicationId)
 	return ItemDataUtils::getString(applicationName);
 }
 
-void DBClientZabbix::pickupAbsentHostIds(vector<uint64_t> absentHostIdVector,
+void DBClientZabbix::pickupAbsentHostIds(vector<uint64_t> &absentHostIdVector,
                                          const vector<uint64_t> &hostIdVector)
 {
 	string condition;

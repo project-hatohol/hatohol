@@ -74,7 +74,7 @@ public:
 
 	string getApplicationName(uint64_t applicationId);
 
-	void pickupAbsentHostIds(vector<uint64_t> absentHostIdVector,
+	void pickupAbsentHostIds(vector<uint64_t> &absentHostIdVector,
 	                         const vector<uint64_t> &hostIdVector);
 
 protected:
