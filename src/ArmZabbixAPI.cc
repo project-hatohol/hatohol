@@ -19,6 +19,7 @@
 #include <MutexLock.h>
 using namespace mlpl;
 
+#include <sstream>
 #include <errno.h>
 #include <semaphore.h>
 #include <libsoup/soup.h>
@@ -31,6 +32,8 @@ using namespace mlpl;
 #include "ItemEnum.h"
 #include "DBClientZabbix.h"
 #include "DBClientAsura.h"
+
+using namespace std;
 
 static const int DEFAULT_RETRY_INTERVAL = 10;
 static const int DEFAULT_REPEAT_INTERVAL = 30;
@@ -979,25 +982,31 @@ void ArmZabbixAPI::checkObtainedItems(const ItemTable *obtainedItemTable,
                                       const vector<T> &requestedItemVector,
                                       const ItemId itemId)
 {
-	// make the set of requested host IDs
-	set<T> requestedItemSet;
-	for (size_t i = 0; i < requestedItemVector.size(); i++)
-		requestedItemSet.insert(requestedItemVector[i]);
+	size_t numRequested = requestedItemVector.size();
 
-	// compare the obtained host IDs to the requested
+	// make the set of obtained items
+	set<T> obtainedItemSet;
 	const ItemGroupList &grpList = obtainedItemTable->getItemGroupList();
 	ItemGroupListConstIterator it = grpList.begin();
 	for (; it != grpList.end(); ++it) {
 		const ItemData *itemData = (*it)->getItem(itemId);
 		T item = ItemDataUtils::get<T>(itemData);
-		typename set<T>::iterator jt = requestedItemSet.find(item);
-		if (jt == requestedItemSet.end()) {
+		obtainedItemSet.insert(item);
+	}
+
+	// check the requested ID is in the obtained
+	for (size_t i = 0; i < numRequested; i++) {
+		const T &reqItem = requestedItemVector[i];
+		typename set<T>::iterator it = obtainedItemSet.find(reqItem);
+		if (it == obtainedItemSet.end()) {
+			ostringstream ss;
+			ss << reqItem;
 			MLPL_WARN(
-			  "Not found in the obtained item table: %s "
+			  "Not found in the obtained items: %s "
 			  "(%"PRIu64")\n",
-		          itemData->getString().c_str(), itemId);
+		          ss.str().c_str(), itemId);
 		} else {
-			requestedItemSet.erase(jt);
+			obtainedItemSet.erase(it);
 		}
 	}
 }
