@@ -51,7 +51,7 @@ public:
 	void addItemsRaw2_0(ItemTablePtr tablePtr);
 	void addHostsRaw2_0(ItemTablePtr tablePtr);
 	void addEventsRaw2_0(ItemTablePtr tablePtr);
-	void addApplicationRaw2_0(ItemTablePtr tablePtr);
+	void addApplicationsRaw2_0(ItemTablePtr tablePtr);
 
 	void getTriggersAsAsuraFormat(TriggerInfoList &triggerInfoList);
 	void getEventsAsAsuraFormat(EventInfoList &eventInfoList);

@@ -1654,7 +1654,7 @@ void DBClientZabbix::addEventsRaw2_0(ItemTablePtr tablePtr)
 	} DBCLIENT_TRANSACTION_END();
 }
 
-void DBClientZabbix::addApplicationRaw2_0(ItemTablePtr tablePtr)
+void DBClientZabbix::addApplicationsRaw2_0(ItemTablePtr tablePtr)
 {
 	DBCLIENT_TRANSACTION_BEGIN() {
 		// TODO: This implementaion is transitional. We'll implement
