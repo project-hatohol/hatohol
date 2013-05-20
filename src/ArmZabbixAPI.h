@@ -119,7 +119,8 @@ protected:
 	void updateHosts(void);
 
 	/**
-	 * get hosts that have one of the IDs specified by hostIdVector.
+	 * get hosts that have one of the IDs specified by hostIdVector
+	 * and save them in the replica DB.
 	 * @param hostIdVector A vector of host ID.
 	 */
 	void updateHosts(const ItemTable *triggers);
