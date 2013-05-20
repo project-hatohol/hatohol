@@ -114,27 +114,33 @@ public:
 		return ArmZabbixAPI::mainThreadOneProc();
 	}
 
-	void assertMakeItemVector(void)
+	void assertMakeItemVector(bool testNull = false)
 	{
 		// make test data and call the target method.
 		const ItemId pickupItemId = 1;
 		const size_t numTestData = 10;
 		vector<int> itemVector;
+		vector<int> expectedItemVector;
 		VariableItemTablePtr table;
 		for (size_t i = 0; i < numTestData; i++) {
 			VariableItemGroupPtr grp;
 			ItemInt *item = new ItemInt(pickupItemId, i);
+			if (testNull && i % 2 == 0)
+				item->setNull();
+			else
+				expectedItemVector.push_back(i);
 			grp->add(item, false);
 			table->add(grp);
 		}
 		makeItemVector<int>(itemVector, table, pickupItemId);
 		
 		// check
-		size_t expectedNumData = numTestData;
-		cppcut_assert_equal(expectedNumData, itemVector.size());
-		for (size_t i = 0; i < expectedNumData; i++) {
-			int item = itemVector[i];
-			cppcut_assert_equal((int)i, item);
+		cppcut_assert_equal(expectedItemVector.size(),
+		                    itemVector.size());
+		for (size_t i = 0; i < expectedItemVector.size(); i++) {
+			int expected = expectedItemVector[i];
+			int actual = itemVector[i];
+			cppcut_assert_equal(expected, actual);
 		}
 	}
 
@@ -398,6 +404,12 @@ void test_makeItemVecotr(void)
 {
 	ArmZabbixAPITestee armZbxApiTestee(g_defaultServerInfo);
 	armZbxApiTestee.assertMakeItemVector();
+}
+
+void test_makeItemVecotrWithNullValue(void)
+{
+	ArmZabbixAPITestee armZbxApiTestee(g_defaultServerInfo);
+	armZbxApiTestee.assertMakeItemVector(true);
 }
 
 } // namespace testArmZabbixAPI
