@@ -2004,6 +2004,27 @@ void DBClientZabbix::pickupAbsentHostIds(vector<uint64_t> &absentHostIdVector,
 	} DBCLIENT_TRANSACTION_END();
 }
 
+void DBClientZabbix::pickupAbsentApplcationIds
+  (vector<uint64_t> &absentAppIdVector, const vector<uint64_t> &appIdVector)
+{
+	// Merge pickupAbsentHostIds() by making a commonly used method.
+	string condition;
+	static const string tableName = TABLE_NAME_APPLICATIONS_RAW_2_0;
+	static const string appidName =
+	  COLUMN_DEF_APPLICATIONS_RAW_2_0[
+	    IDX_APPLICATIONS_RAW_2_0_APPLICATIONID].columnName;
+	DBCLIENT_TRANSACTION_BEGIN() {
+		for (size_t i = 0; i < appIdVector.size(); i++) {
+			uint64_t id = appIdVector[i];
+			condition = appidName;
+			condition += StringUtils::sprintf("=%"PRIu64, id);
+			if (DBClient::isRecordExisting(tableName, condition))
+				continue;
+			absentAppIdVector.push_back(id);
+		}
+	} DBCLIENT_TRANSACTION_END();
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
@@ -2198,3 +2219,4 @@ bool DBClientZabbix::isRecordExisting(
 	                     "%s=%"PRIu64, columnCheck.columnName, val);
 	return DBClient::isRecordExisting(tableName, condition);
 }
+

@@ -24,10 +24,14 @@
 #include "JsonParserAgent.h"
 #include "JsonBuilderAgent.h"
 #include "DBClientConfig.h"
+#include "DBClientZabbix.h"
 
 class ArmZabbixAPI : public ArmBase
 {
 public:
+	typedef ItemTablePtr
+	  (ArmZabbixAPI::*DataGetter)(const vector<uint64_t> &idVector);
+
 	static const int POLLING_DISABLED = -1;
 	static const int DEFAULT_SERVER_PORT = 80;
 
@@ -52,7 +56,7 @@ public:
 	 */
 	ItemTablePtr getHosts(const vector<uint64_t> &hostIdVector);
 
-	ItemTablePtr getApplications(void);
+	ItemTablePtr getApplications(const vector<uint64_t> &appIdVector);
 	ItemTablePtr getEvents(uint64_t eventIdOffset);
 
 protected:
@@ -76,7 +80,7 @@ protected:
 	SoupMessage *queryTrigger(int requestSince = 0);
 	SoupMessage *queryItem(void);
 	SoupMessage *queryHost(const vector<uint64_t> &hostIdVector);
-	SoupMessage *queryApplication(void);
+	SoupMessage *queryApplication(const vector<uint64_t> &appIdVector);
 	SoupMessage *queryEvent(uint64_t eventIdOffset);
 	string getInitialJsonRequest(void);
 	bool parseInitialResponse(SoupMessage *msg);
@@ -109,6 +113,14 @@ protected:
 	void parseAndPushEventsData(JsonParserAgent &parser,
 	                            VariableItemTablePtr &tablePtr, int index);
 
+	template<typename T>
+	void updateOnlyNeededItem(
+	  const ItemTable *primaryTable,
+	  const ItemId pickupItemId, const ItemId checkItemId,
+	  ArmZabbixAPI::DataGetter dataGetter,
+	  DBClientZabbix::AbsentItemPicker absentItemPicker,
+	  DBClientZabbix::TableSaver tableSaver);
+
 	ItemTablePtr updateTriggers(void);
 	void updateFunctions(void);
 	ItemTablePtr updateItems(void);
@@ -132,6 +144,14 @@ protected:
 	 * in the replica DB.
 	 */
 	void updateApplications(void);
+
+	/**
+	 * get applications with the specified IDs and save them
+	 * in the replica DB.
+	 * @param items
+	 * A pointer to ItableTable instance that is obtained by updateItems().
+	 */
+	void updateApplications(const ItemTable *items);
 
 	void makeAsuraTriggers(void);
 	void makeAsuraEvents(ItemTablePtr events);

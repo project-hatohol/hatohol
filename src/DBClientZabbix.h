@@ -23,6 +23,11 @@
 
 class DBClientZabbix : public DBClient {
 public:
+	typedef void (DBClientZabbix::*AbsentItemPicker)
+	               (vector<uint64_t> &absentHostIdVector,
+	                const vector<uint64_t> &hostIdVector);
+	typedef void (DBClientZabbix::*TableSaver)(ItemTablePtr tablePtr);
+
 	static const int ZABBIX_DB_VERSION;
 	static const uint64_t EVENT_ID_NOT_FOUND;
 	static const int TRIGGER_CHANGE_TIME_NOT_FOUND;
@@ -76,6 +81,8 @@ public:
 
 	void pickupAbsentHostIds(vector<uint64_t> &absentHostIdVector,
 	                         const vector<uint64_t> &hostIdVector);
+	void pickupAbsentApplcationIds(vector<uint64_t> &absentAppIdVector,
+	                               const vector<uint64_t> &appIdVector);
 
 protected:
 	static void tableInitializerSystem(DBAgent *dbAgent, void *data);

@@ -236,9 +236,9 @@ ItemTablePtr ArmZabbixAPI::getHosts(const vector<uint64_t> &hostIdVector)
 	return ItemTablePtr(tablePtr);
 }
 
-ItemTablePtr ArmZabbixAPI::getApplications(void)
+ItemTablePtr ArmZabbixAPI::getApplications(const vector<uint64_t> &appIdVector)
 {
-	SoupMessage *msg = queryApplication();
+	SoupMessage *msg = queryApplication(appIdVector);
 	if (!msg)
 		THROW_DATA_STORE_EXCEPTION("Failed to query application.");
 
@@ -422,7 +422,7 @@ SoupMessage *ArmZabbixAPI::queryHost(const vector<uint64_t> &hostIdVector)
 	return queryCommon(agent);
 }
 
-SoupMessage *ArmZabbixAPI::queryApplication(void)
+SoupMessage *ArmZabbixAPI::queryApplication(const vector<uint64_t> &appIdVector)
 {
 	JsonBuilderAgent agent;
 	agent.startObject();
@@ -431,6 +431,13 @@ SoupMessage *ArmZabbixAPI::queryApplication(void)
 
 	agent.startObject("params");
 	agent.add("output", "extend");
+	if (!appIdVector.empty()) {
+		agent.startArray("appids");
+		vector<uint64_t>::const_iterator it = appIdVector.begin();
+		for (; it != appIdVector.end(); ++it)
+			agent.add(*it);
+		agent.endArray();
+	}
 	agent.endObject(); // params
 
 	agent.add("auth", m_ctx->authToken);
@@ -814,6 +821,38 @@ void ArmZabbixAPI::parseAndPushEventsData
 	parser.endElement();
 }
 
+template<typename T>
+void ArmZabbixAPI::updateOnlyNeededItem
+  (const ItemTable *primaryTable,
+   const ItemId pickupItemId, const ItemId checkItemId,
+   ArmZabbixAPI::DataGetter dataGetter,
+   DBClientZabbix::AbsentItemPicker absentItemPicker,
+   DBClientZabbix::TableSaver tableSaver)
+{
+	if (primaryTable->getNumberOfRows() == 0)
+		return;
+
+	// make a vector that has items used in the table.
+	vector<T> usedItemVector;
+	makeItemVector<T>(usedItemVector, primaryTable, pickupItemId);
+	if (usedItemVector.empty())
+		return;
+
+	// extract items that are not in the replication DB.
+	vector<T> absentItemVector;
+	(m_ctx->dbClientZabbix.*absentItemPicker)(absentItemVector,
+	                                          usedItemVector);
+	if (absentItemVector.empty())
+		return;
+
+	// get needed data via ZABBIX API
+	ItemTablePtr tablePtr = (this->*dataGetter)(absentItemVector);
+	(m_ctx->dbClientZabbix.*tableSaver)(tablePtr);
+
+	// check the result
+	checkObtainedItems<uint64_t>(tablePtr, absentItemVector, checkItemId);
+}
+
 ItemTablePtr ArmZabbixAPI::updateTriggers(void)
 {
 	int requestSince;
@@ -893,8 +932,21 @@ ItemTablePtr ArmZabbixAPI::updateEvents(void)
 
 void ArmZabbixAPI::updateApplications(void)
 {
-	ItemTablePtr tablePtr = getApplications();
+	// getHosts() tries to get all hosts when an empty vector is passed.
+	static const vector<uint64_t> appIdVector;
+	ItemTablePtr tablePtr = getApplications(appIdVector);
 	m_ctx->dbClientZabbix.addApplicationsRaw2_0(tablePtr);
+}
+
+void ArmZabbixAPI::updateApplications(const ItemTable *items)
+{
+	updateOnlyNeededItem<uint64_t>(
+	  items,
+	  ITEM_ID_ZBX_ITEMS_APPLICATIONID, 
+	  ITEM_ID_ZBX_APPLICATIONS_APPLICATIONID, 
+	  &ArmZabbixAPI::getApplications,
+	  &DBClientZabbix::pickupAbsentApplcationIds,
+	  &DBClientZabbix::addApplicationsRaw2_0);
 }
 
 //
@@ -983,6 +1035,11 @@ void ArmZabbixAPI::checkObtainedItems(const ItemTable *obtainedItemTable,
                                       const ItemId itemId)
 {
 	size_t numRequested = requestedItemVector.size();
+	size_t numObtained = obtainedItemTable->getNumberOfRows();
+	if (numRequested != numObtained) {
+		MLPL_WARN("requested: %zd, obtained: %zd\n",
+		          numRequested, numObtained);
+	}
 
 	// make the set of obtained items
 	set<T> obtainedItemSet;
@@ -1033,8 +1090,12 @@ bool ArmZabbixAPI::mainThreadOneProc(void)
 	//
 	// updateFunctions();
 
+	// get items
 	ItemTablePtr items = updateItems();
-	updateApplications();
+
+	// update needed applications
+	updateApplications(items);
+
 	makeAsuraTriggers();
 
 	ItemTablePtr events = updateEvents();
