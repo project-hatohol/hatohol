@@ -952,8 +952,9 @@ void ArmZabbixAPI::makeAsuraItems(ItemTablePtr items)
 }
 
 template<typename T>
-void ArmZabbixAPI::makeItemVector(vector<T> &idVector, ItemTablePtr itemTable,
-                                  ItemId itemId)
+void ArmZabbixAPI::makeItemVector(vector<T> &idVector,
+                                  const ItemTable *itemTable,
+                                  const ItemId itemId)
 {
 	// First, make a set to remove duplication
 	set<T> idSet;

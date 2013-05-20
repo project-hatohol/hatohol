@@ -138,8 +138,8 @@ protected:
 	void makeAsuraItems(ItemTablePtr events);
 
 	template<typename T>
-	void makeItemVector(vector<T> &idVector, ItemTablePtr itemTable,
-	                    ItemId itemId);
+	void makeItemVector(vector<T> &idVector, const ItemTable *itemTable,
+	                    const ItemId itemId);
 	template<typename T>
 	void checkObtainedItems(const ItemTable *obtainedItemTable,
 	                        const vector<T> &requestedItemVector,
