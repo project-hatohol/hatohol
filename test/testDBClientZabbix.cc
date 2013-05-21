@@ -101,6 +101,18 @@ _assertGetEventsAsAsuraFormatWithMissingData(bool noHostData = false)
 	// get asura format data and check
 	TriggerInfoList triggerInfoList;
 	dbZabbix.getTriggersAsAsuraFormat(triggerInfoList);
+
+	TriggerInfoListIterator it = triggerInfoList.begin();
+	for (; it != triggerInfoList.end(); ++it) {
+		TriggerInfo &triggerInfo = *it;
+		cppcut_assert_equal((uint64_t)1, triggerInfo.id);
+
+		uint64_t expectedHostId = noHostData ? 0 : 1;
+		cppcut_assert_equal(expectedHostId, triggerInfo.hostId);
+
+		string expectedHostName = noHostData ? "" : "name";
+		cppcut_assert_equal(expectedHostName, triggerInfo.hostName);
+	}
 }
 #define assertGetEventsAsAsuraFormatWithMissingData(...) \
 cut_trace(_assertGetEventsAsAsuraFormatWithMissingData(__VA_ARGS__))
