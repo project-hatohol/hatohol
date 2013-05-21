@@ -173,18 +173,7 @@ void test_createTableEventsRaw2_0(void)
 
 void test_getEventsAsAsuraFormat(void)
 {
-	// preparation
-	int svId = TEST_ZABBIX_SERVER_ID;
-	deleteDBClientZabbixDB(svId);
-	DBClientZabbix dbZabbix(svId);
-	
-	// write test dat to DB
-	dbZabbix.addTriggersRaw2_0(makeTestTriggerData());
-	dbZabbix.addHostsRaw2_0(makeTestHostData());
-
-	// get asura format data and check
-	TriggerInfoList triggerInfoList;
-	dbZabbix.getTriggersAsAsuraFormat(triggerInfoList);
+	assertGetEventsAsAsuraFormatWithMissingData();
 }
 
 void test_getEventsAsAsuraFormatWithMissingData(void)
