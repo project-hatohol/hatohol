@@ -46,9 +46,11 @@ static ItemTablePtr makeTestTriggerData(void)
 	return (ItemTablePtr)triggers;
 }
 
-static ItemTablePtr makeTestHostData(void)
+static ItemTablePtr makeTestHostData(bool returnEmptyTable = false)
 {
 	VariableItemTablePtr hosts;
+	if (returnEmptyTable)
+		return (ItemTablePtr)hosts;
 	VariableItemGroupPtr grp;
 	grp->ADD_NEW_ITEM(Uint64, ITEM_ID_ZBX_HOSTS_HOSTID,            1);
 	grp->ADD_NEW_ITEM(Uint64, ITEM_ID_ZBX_HOSTS_PROXY_HOSTID,      0);
@@ -83,6 +85,25 @@ static ItemTablePtr makeTestHostData(void)
 	hosts->add(grp);
 	return (ItemTablePtr)hosts;
 }
+
+static void
+_assertGetEventsAsAsuraFormatWithMissingData(bool noHostData = false)
+{
+	// preparation
+	int svId = TEST_ZABBIX_SERVER_ID;
+	deleteDBClientZabbixDB(svId);
+	DBClientZabbix dbZabbix(svId);
+	
+	// write test dat to DB
+	dbZabbix.addTriggersRaw2_0(makeTestTriggerData());
+	dbZabbix.addHostsRaw2_0(makeTestHostData(noHostData));
+
+	// get asura format data and check
+	TriggerInfoList triggerInfoList;
+	dbZabbix.getTriggersAsAsuraFormat(triggerInfoList);
+}
+#define assertGetEventsAsAsuraFormatWithMissingData(...) \
+cut_trace(_assertGetEventsAsAsuraFormatWithMissingData(__VA_ARGS__))
 
 void setup(void)
 {
@@ -164,6 +185,11 @@ void test_getEventsAsAsuraFormat(void)
 	// get asura format data and check
 	TriggerInfoList triggerInfoList;
 	dbZabbix.getTriggersAsAsuraFormat(triggerInfoList);
+}
+
+void test_getEventsAsAsuraFormatWithMissingData(void)
+{
+	assertGetEventsAsAsuraFormatWithMissingData(true);
 }
 
 } // testDBClientZabbix
