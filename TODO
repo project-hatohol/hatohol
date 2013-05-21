@@ -1,6 +1,5 @@
 [S] Short-term, [M] Middle-term, [L] Long-term
 ====
-* [S] delete independent query for hosts.
 * [S] delta query for items.
 * [S] error response by the requested format.
 * [S] reuse the auth key obtained once.
@@ -8,7 +7,6 @@
 * [M] serve history data for chart.
 * [S] discus about config file.
 * [S] show status by WEB Interface of asura
-* [M] make a mechanism to replica partially
 * [M] synchronize the deleted items, trigger, hosts, etc.
 * [S] make a API and the depending mechanism to draw graph for UI.
 * [S] add a way to specify database directory by setting file.
