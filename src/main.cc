@@ -89,6 +89,9 @@ int mainRoutine(int argc, char *argv[])
 #ifndef GLIB_VERSION_2_36
 	g_type_init();
 #endif // GLIB_VERSION_2_36
+#ifndef GLIB_VERSION_2_32
+	g_thread_init(NULL);
+#endif // GLIB_VERSION_2_32 
 	asuraInit();
 	MLPL_INFO("started asura: ver. %s\n", PACKAGE_VERSION);
 

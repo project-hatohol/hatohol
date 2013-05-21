@@ -23,6 +23,9 @@ GLIB_REQUIRED=2.22
 PKG_CHECK_MODULES(GLIB, glib-2.0 >= $GLIB_REQUIRED)
 PKG_CHECK_MODULES(GIO, gio-2.0 >= $GLIB_REQUIRED)
 
+GTHREAD_REQUIRED=2.22
+PKG_CHECK_MODULES(GTHREAD, gthread-2.0 >= $GTHREAD_REQUIRED)
+
 dnl **************************************************************
 dnl Checks for libsoup
 dnl **************************************************************
