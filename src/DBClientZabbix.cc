@@ -2170,7 +2170,7 @@ void DBClientZabbix::makeSelectExArgForTriggerAsAsuraFormat(void)
 	static const char *VAR_HOSTS     = "h";
 	arg.tableName = StringUtils::sprintf(
 	   "%s %s "
-	   "inner join %s %s on %s.%s=%s.%s",
+	   "left join %s %s on %s.%s=%s.%s",
 	   TABLE_NAME_TRIGGERS_RAW_2_0, VAR_TRIGGERS,
 	   TABLE_NAME_HOSTS_RAW_2_0, VAR_HOSTS,
 	     VAR_TRIGGERS, triggersHostid.columnName,
