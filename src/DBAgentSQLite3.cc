@@ -736,6 +736,8 @@ ItemDataPtr DBAgentSQLite3::getValue(sqlite3_stmt *stmt,
 	case SQL_COLUMN_TYPE_CHAR:
 	case SQL_COLUMN_TYPE_TEXT:
 		str = (const char *)sqlite3_column_text(stmt, index);
+		if (!str)
+			str = "";
 		itemData = new ItemString(str);
 		break;
 
