@@ -746,6 +746,11 @@ ItemDataPtr DBAgentSQLite3::getValue(sqlite3_stmt *stmt,
 	default:
 		ASURA_ASSERT(false, "Unknown column type: %d", columnType);
 	}
+
+	// check null
+	if (sqlite3_column_type(stmt, index) == SQLITE_NULL)
+		itemData->setNull();
+
 	return ItemDataPtr(itemData, false);
 }
 
