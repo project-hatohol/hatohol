@@ -12,12 +12,12 @@ mkTestDB_SOURCES = mkTestDB.cc
 $(TEST_DBS): mkTestDB ../../src/libasura.la ../libTest.la
 testDatabase-config.db:
 	rm -f $@
-	mkTestDB config $@
+	./mkTestDB config $@
 
 testDatabase-asura.db:
 	rm -f $@
-	mkTestDB asura $@
+	./mkTestDB asura $@
 
 FooTable.db: mkFooTable.sh
 	rm -f $@
-	mkFooTable.sh $@
+	./mkFooTable.sh $@
