@@ -86,8 +86,7 @@ static ItemTablePtr makeTestHostData(bool returnEmptyTable = false)
 	return (ItemTablePtr)hosts;
 }
 
-static void
-_assertGetEventsAsAsuraFormatWithMissingData(bool noHostData = false)
+static void _assertGetEventsAsAsuraFormat(bool noHostData = false)
 {
 	// preparation
 	int svId = TEST_ZABBIX_SERVER_ID;
@@ -114,8 +113,8 @@ _assertGetEventsAsAsuraFormatWithMissingData(bool noHostData = false)
 		cppcut_assert_equal(expectedHostName, triggerInfo.hostName);
 	}
 }
-#define assertGetEventsAsAsuraFormatWithMissingData(...) \
-cut_trace(_assertGetEventsAsAsuraFormatWithMissingData(__VA_ARGS__))
+#define assertGetEventsAsAsuraFormat(...) \
+cut_trace(_assertGetEventsAsAsuraFormat(__VA_ARGS__))
 
 void setup(void)
 {
@@ -185,12 +184,12 @@ void test_createTableEventsRaw2_0(void)
 
 void test_getEventsAsAsuraFormat(void)
 {
-	assertGetEventsAsAsuraFormatWithMissingData();
+	assertGetEventsAsAsuraFormat();
 }
 
 void test_getEventsAsAsuraFormatWithMissingData(void)
 {
-	assertGetEventsAsAsuraFormatWithMissingData(true);
+	assertGetEventsAsAsuraFormat(true);
 }
 
 } // testDBClientZabbix
