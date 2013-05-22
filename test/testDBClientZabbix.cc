@@ -14,10 +14,13 @@ namespace testDBClientZabbix {
 
 static const int TEST_ZABBIX_SERVER_ID = 3;
 
+#define DELETE_DB_AND_DEFINE_DBCLIENT_ZABBIX(SVID, DBPATH) \
+	string DBPATH = deleteDBClientZabbixDB(SVID); \
+	DBClientZabbix dbCliZBX(SVID);
+
 static void _assertCreateTableZBX(int svId, const string &tableName)
 {
-	string dbPath = deleteDBClientZabbixDB(svId);
-	DBClientZabbix dbCliZBX(svId);
+	DELETE_DB_AND_DEFINE_DBCLIENT_ZABBIX(svId, dbPath)
 	assertCreateTable(DBClientZabbix::getDBDomainId(svId),tableName);
 }
 #define assertCreateTableZBX(I,T) cut_trace(_assertCreateTableZBX(I,T))
