@@ -1645,6 +1645,9 @@ void DBClientZabbix::addHostsRaw2_0(ItemTablePtr tablePtr)
 void DBClientZabbix::addEventsRaw2_0(ItemTablePtr tablePtr)
 {
 	DBCLIENT_TRANSACTION_BEGIN() {
+		// Presently, the synchronization algorith is not assumed to
+		// get the duplicated events. So we don't specify 5th argument
+		// for a update check.
 		addItems(tablePtr, TABLE_NAME_EVENTS_RAW_2_0,
 		         NUM_COLUMNS_EVENTS_RAW_2_0, COLUMN_DEF_EVENTS_RAW_2_0);
 	} DBCLIENT_TRANSACTION_END();
