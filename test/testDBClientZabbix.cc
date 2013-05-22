@@ -131,6 +131,19 @@ static void _assertGetEventsAsAsuraFormat(bool noHostData = false)
 #define assertGetEventsAsAsuraFormat(...) \
 cut_trace(_assertGetEventsAsAsuraFormat(__VA_ARGS__))
 
+void _assertAddHostsRaw2_0(bool writeTwice = false)
+{
+	DELETE_DB_AND_DEFINE_DBCLIENT_ZABBIX_STDID(dbZabbix);
+
+	// The first write is insertion, the second is the update.
+	dbZabbix.addHostsRaw2_0(makeTestHostData());
+	if (writeTwice)
+		dbZabbix.addHostsRaw2_0(makeTestHostData());
+}
+
+#define assertAddHostsRaw2_0(...) \
+cut_trace(_assertAddHostsRaw2_0(__VA_ARGS__))
+
 void _assertAddApplicationsRaw2_0(bool writeTwice = false)
 {
 	DELETE_DB_AND_DEFINE_DBCLIENT_ZABBIX_STDID(dbZabbix);
@@ -218,6 +231,16 @@ void test_getEventsAsAsuraFormat(void)
 void test_getEventsAsAsuraFormatWithMissingData(void)
 {
 	assertGetEventsAsAsuraFormat(true);
+}
+
+void test_addHostsRaw2_0Insert(void)
+{
+	assertAddHostsRaw2_0();
+}
+
+void test_addHostsRaw2_0Update(void)
+{
+	assertAddHostsRaw2_0(true);
 }
 
 void test_addApplicationsRaw2_0Insert(void)
