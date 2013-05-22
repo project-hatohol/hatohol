@@ -1637,7 +1637,8 @@ void DBClientZabbix::addHostsRaw2_0(ItemTablePtr tablePtr)
 	DBCLIENT_TRANSACTION_BEGIN() {
 		addItems(tablePtr, TABLE_NAME_HOSTS_RAW_2_0,
 		         NUM_COLUMNS_HOSTS_RAW_2_0,
-		         COLUMN_DEF_HOSTS_RAW_2_0);
+		         COLUMN_DEF_HOSTS_RAW_2_0,
+		         IDX_HOSTS_RAW_2_0_HOSTID);
 	} DBCLIENT_TRANSACTION_END();
 }
 
