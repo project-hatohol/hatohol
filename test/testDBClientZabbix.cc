@@ -86,6 +86,18 @@ static ItemTablePtr makeTestHostData(bool returnEmptyTable = false)
 	return (ItemTablePtr)hosts;
 }
 
+static ItemTablePtr makeTestApplicationData(void)
+{
+	VariableItemTablePtr app;
+	VariableItemGroupPtr grp;
+	grp->ADD_NEW_ITEM(Uint64, ITEM_ID_ZBX_APPLICATIONS_APPLICATIONID, 1);
+	grp->ADD_NEW_ITEM(Uint64, ITEM_ID_ZBX_APPLICATIONS_HOSTID,        3);
+	grp->ADD_NEW_ITEM(String, ITEM_ID_ZBX_APPLICATIONS_NAME,        "App");
+	grp->ADD_NEW_ITEM(Uint64, ITEM_ID_ZBX_APPLICATIONS_TEMPLATEID,    0);
+	app->add(grp);
+	return (ItemTablePtr)app;
+}
+
 static void _assertGetEventsAsAsuraFormat(bool noHostData = false)
 {
 	// preparation
@@ -190,6 +202,19 @@ void test_getEventsAsAsuraFormat(void)
 void test_getEventsAsAsuraFormatWithMissingData(void)
 {
 	assertGetEventsAsAsuraFormat(true);
+}
+
+void test_addApplicationsRaw2_0Update(void)
+{
+	// preparation
+	int svId = TEST_ZABBIX_SERVER_ID;
+	deleteDBClientZabbixDB(svId);
+	DBClientZabbix dbZabbix(svId);
+
+	// write test dat to DB twice.
+	// The first write is insertion, the second is the update.
+	dbZabbix.addApplicationsRaw2_0(makeTestApplicationData());
+	dbZabbix.addApplicationsRaw2_0(makeTestApplicationData());
 }
 
 } // testDBClientZabbix
