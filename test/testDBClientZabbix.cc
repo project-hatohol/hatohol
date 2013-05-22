@@ -227,15 +227,7 @@ void test_addApplicationsRaw2_0Insert(void)
 
 void test_addApplicationsRaw2_0Update(void)
 {
-	// preparation
-	int svId = TEST_ZABBIX_SERVER_ID;
-	deleteDBClientZabbixDB(svId);
-	DBClientZabbix dbZabbix(svId);
-
-	// write test dat to DB twice.
-	// The first write is insertion, the second is the update.
-	dbZabbix.addApplicationsRaw2_0(makeTestApplicationData());
-	dbZabbix.addApplicationsRaw2_0(makeTestApplicationData());
+	assertAddApplicationsRaw2_0(true);
 }
 
 } // testDBClientZabbix
