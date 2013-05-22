@@ -18,6 +18,9 @@ static const int TEST_ZABBIX_SERVER_ID = 3;
 	string DBPATH = deleteDBClientZabbixDB(SVID); \
 	DBClientZabbix OBJNAME(SVID);
 
+#define DELETE_DB_AND_DEFINE_DBCLIENT_ZABBIX_STDID(OBJNAME) \
+DELETE_DB_AND_DEFINE_DBCLIENT_ZABBIX(TEST_ZABBIX_SERVER_ID, OBJNAME, _dbPath)
+
 static void _assertCreateTableZBX(int svId, const string &tableName)
 {
 	DELETE_DB_AND_DEFINE_DBCLIENT_ZABBIX(svId, dbClientZabbix, dbPath)
@@ -103,10 +106,7 @@ static ItemTablePtr makeTestApplicationData(void)
 
 static void _assertGetEventsAsAsuraFormat(bool noHostData = false)
 {
-	// preparation
-	int svId = TEST_ZABBIX_SERVER_ID;
-	deleteDBClientZabbixDB(svId);
-	DBClientZabbix dbZabbix(svId);
+	DELETE_DB_AND_DEFINE_DBCLIENT_ZABBIX_STDID(dbZabbix);
 	
 	// write test dat to DB
 	dbZabbix.addTriggersRaw2_0(makeTestTriggerData());
@@ -133,10 +133,7 @@ cut_trace(_assertGetEventsAsAsuraFormat(__VA_ARGS__))
 
 void _assertAddApplicationsRaw2_0(bool writeTwice = false)
 {
-	// preparation
-	int svId = TEST_ZABBIX_SERVER_ID;
-	deleteDBClientZabbixDB(svId);
-	DBClientZabbix dbZabbix(svId);
+	DELETE_DB_AND_DEFINE_DBCLIENT_ZABBIX_STDID(dbZabbix);
 
 	// The first write is insertion, the second is the update.
 	dbZabbix.addApplicationsRaw2_0(makeTestApplicationData());
