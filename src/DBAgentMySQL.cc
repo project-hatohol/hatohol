@@ -17,6 +17,45 @@
 
 #include "DBAgentMySQL.h"
 
+struct DBAgentMySQL::PrivateContext {
+	MYSQL mysql;
+	bool  connected;
+
+	PrivateContext(void)
+	: connected(false)
+	{
+	}
+};
+
+// ---------------------------------------------------------------------------
+// Public methods
+// ---------------------------------------------------------------------------
+DBAgentMySQL::DBAgentMySQL(const char *db)
+: m_ctx(NULL)
+{
+	const char *host = NULL; // localhost is used.
+	const char *user = NULL; // current user name is used.
+	const char *passwd = NULL; // passwd is not checked.
+	unsigned int port = 0; // default port is used.
+	const char *unixSocket = NULL;
+	unsigned long clientFlag = 0;
+	m_ctx = new PrivateContext();
+	mysql_init(&m_ctx->mysql);
+	MYSQL *result = mysql_real_connect(&m_ctx->mysql, host, user, passwd,
+	                                   db, port, unixSocket, clientFlag);
+	if (!result) {
+		THROW_ASURA_EXCEPTION("Failed to connect to MySQL: %s: %s\n",
+		                      db, mysql_error(&m_ctx->mysql));
+	}
+	m_ctx->connected = true;
+}
+
+DBAgentMySQL::~DBAgentMySQL()
+{
+	if (m_ctx)
+		delete m_ctx;
+}
+
 bool DBAgentMySQL::isTableExisting(const string &tableName)
 {
 	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);

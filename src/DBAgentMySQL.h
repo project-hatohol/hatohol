@@ -23,6 +23,10 @@
 
 class DBAgentMySQL : public DBAgent {
 public:
+	// constructor and destructor
+	DBAgentMySQL(const char *db);
+	virtual ~DBAgentMySQL();
+
 	// virtual methods
 	virtual bool isTableExisting(const string &tableName);
 	virtual bool isRecordExisting(const string &tableName,
@@ -36,6 +40,10 @@ public:
 	virtual void select(DBAgentSelectArg &selectArg);
 	virtual void select(DBAgentSelectExArg &selectExArg);
 	virtual void deleteRows(DBAgentDeleteArg &deleteArg);
+
+private:
+	struct PrivateContext;
+	PrivateContext *m_ctx;
 };
 
 #endif // DBAgentMySQL_h
