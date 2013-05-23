@@ -736,7 +736,9 @@ ItemDataPtr DBAgentSQLite3::getValue(sqlite3_stmt *stmt,
 	case SQL_COLUMN_TYPE_CHAR:
 	case SQL_COLUMN_TYPE_TEXT:
 		str = (const char *)sqlite3_column_text(stmt, index);
-		itemData  = new ItemString(str);
+		if (!str)
+			str = "";
+		itemData = new ItemString(str);
 		break;
 
 	case SQL_COLUMN_TYPE_DOUBLE:
@@ -746,6 +748,11 @@ ItemDataPtr DBAgentSQLite3::getValue(sqlite3_stmt *stmt,
 	default:
 		ASURA_ASSERT(false, "Unknown column type: %d", columnType);
 	}
+
+	// check null
+	if (sqlite3_column_type(stmt, index) == SQLITE_NULL)
+		itemData->setNull();
+
 	return ItemDataPtr(itemData, false);
 }
 

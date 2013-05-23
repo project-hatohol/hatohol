@@ -1635,20 +1635,19 @@ void DBClientZabbix::addItemsRaw2_0(ItemTablePtr tablePtr)
 void DBClientZabbix::addHostsRaw2_0(ItemTablePtr tablePtr)
 {
 	DBCLIENT_TRANSACTION_BEGIN() {
-		// TODO: This implementaion is transitional. We'll implement
-		// a function that get data partially.
-		DBAgentDeleteArg arg;
-		arg.tableName = TABLE_NAME_HOSTS_RAW_2_0,
-		deleteRows(arg);
 		addItems(tablePtr, TABLE_NAME_HOSTS_RAW_2_0,
 		         NUM_COLUMNS_HOSTS_RAW_2_0,
-		         COLUMN_DEF_HOSTS_RAW_2_0);
+		         COLUMN_DEF_HOSTS_RAW_2_0,
+		         IDX_HOSTS_RAW_2_0_HOSTID);
 	} DBCLIENT_TRANSACTION_END();
 }
 
 void DBClientZabbix::addEventsRaw2_0(ItemTablePtr tablePtr)
 {
 	DBCLIENT_TRANSACTION_BEGIN() {
+		// Presently, the synchronization algorith is not assumed to
+		// get the duplicated events. So we don't specify 5th argument
+		// for a update check.
 		addItems(tablePtr, TABLE_NAME_EVENTS_RAW_2_0,
 		         NUM_COLUMNS_EVENTS_RAW_2_0, COLUMN_DEF_EVENTS_RAW_2_0);
 	} DBCLIENT_TRANSACTION_END();
@@ -1657,14 +1656,10 @@ void DBClientZabbix::addEventsRaw2_0(ItemTablePtr tablePtr)
 void DBClientZabbix::addApplicationsRaw2_0(ItemTablePtr tablePtr)
 {
 	DBCLIENT_TRANSACTION_BEGIN() {
-		// TODO: This implementaion is transitional. We'll implement
-		// a function that get data partially.
-		DBAgentDeleteArg arg;
-		arg.tableName = TABLE_NAME_APPLICATIONS_RAW_2_0,
-		deleteRows(arg);
 		addItems(tablePtr, TABLE_NAME_APPLICATIONS_RAW_2_0,
 		         NUM_COLUMNS_APPLICATIONS_RAW_2_0,
-		         COLUMN_DEF_APPLICATIONS_RAW_2_0);
+		         COLUMN_DEF_APPLICATIONS_RAW_2_0,
+		         IDX_APPLICATIONS_RAW_2_0_APPLICATIONID);
 	} DBCLIENT_TRANSACTION_END();
 }
 
@@ -2180,7 +2175,7 @@ void DBClientZabbix::makeSelectExArgForTriggerAsAsuraFormat(void)
 	static const char *VAR_HOSTS     = "h";
 	arg.tableName = StringUtils::sprintf(
 	   "%s %s "
-	   "inner join %s %s on %s.%s=%s.%s",
+	   "left join %s %s on %s.%s=%s.%s",
 	   TABLE_NAME_TRIGGERS_RAW_2_0, VAR_TRIGGERS,
 	   TABLE_NAME_HOSTS_RAW_2_0, VAR_HOSTS,
 	     VAR_TRIGGERS, triggersHostid.columnName,

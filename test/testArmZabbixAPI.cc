@@ -46,7 +46,8 @@ public:
 	: ArmZabbixAPI(serverInfo),
 	  m_result(false),
 	  m_threadOneProc(&ArmZabbixAPITestee::defaultThreadOneProc),
-	  m_countThreadOneProc(0)
+	  m_countThreadOneProc(0),
+	  m_repeatThreadOneProc(1)
 	{
 		addExceptionCallback(_exceptionCb, this);
 	}
@@ -90,11 +91,11 @@ public:
 		} else if (type == GET_TEST_TYPE_HOSTS) {
 			succeeded =
 			  launch(&ArmZabbixAPITestee::threadOneProcHosts,
-			         exitCbDefault, this);
+			         exitCbDefault, this, 1);
 		} else if (type == GET_TEST_TYPE_APPLICATIONS) {
 			succeeded =
 			  launch(&ArmZabbixAPITestee::threadOneProcApplications,
-			         exitCbDefault, this);
+			         exitCbDefault, this, 1);
 		} else if (type == GET_TEST_TYPE_EVENTS) {
 			succeeded =
 			  launch(&ArmZabbixAPITestee::threadOneProcEvents,
@@ -158,9 +159,11 @@ protected:
 	}
 
 	bool launch(ThreadOneProc threadOneProc, 
-	            void (*exitCb)(void *), void *exitCbData)
+	            void (*exitCb)(void *), void *exitCbData,
+	            size_t numRepeat = NUM_TEST_READ_TIMES)
 	{
 		m_countThreadOneProc = 0;
+		m_repeatThreadOneProc = numRepeat;
 		g_sync.lock();
 		setPollingInterval(0);
 		m_threadOneProc = threadOneProc;
@@ -245,7 +248,7 @@ protected:
 			return false;
 		}
 		m_countThreadOneProc++;
-		if (m_countThreadOneProc++ >= NUM_TEST_READ_TIMES) {
+		if (m_countThreadOneProc++ >= m_repeatThreadOneProc) {
 			m_result = true;
 			requestExit();
 		}
@@ -257,6 +260,7 @@ private:
 	string m_errorMessage;
 	ThreadOneProc m_threadOneProc;
 	size_t        m_countThreadOneProc;
+	size_t        m_repeatThreadOneProc;
 };
 
 static const guint EMULATOR_PORT = 33333;

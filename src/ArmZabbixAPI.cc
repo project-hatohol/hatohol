@@ -433,7 +433,7 @@ SoupMessage *ArmZabbixAPI::queryApplication(const vector<uint64_t> &appIdVector)
 	agent.startObject("params");
 	agent.add("output", "extend");
 	if (!appIdVector.empty()) {
-		agent.startArray("appids");
+		agent.startArray("applicationids");
 		vector<uint64_t>::const_iterator it = appIdVector.begin();
 		for (; it != appIdVector.end(); ++it)
 			agent.add(*it);
@@ -892,30 +892,13 @@ void ArmZabbixAPI::updateHosts(void)
 
 void ArmZabbixAPI::updateHosts(const ItemTable *triggers)
 {
-	if (triggers->getNumberOfRows() == 0)
-		return;
-
-	// make a vector that has host IDs used in the above trigger table.
-	vector<uint64_t> hostIdVector;
-	makeItemVector<uint64_t>(hostIdVector, triggers,
-	                         ITEM_ID_ZBX_TRIGGERS_HOSTID);
-	if (hostIdVector.empty())
-		return;
-
-	// extract host IDs that is not in the replication DB.
-	vector<uint64_t> absentHostIdVector;
-	m_ctx->dbClientZabbix.pickupAbsentHostIds(absentHostIdVector,
-	                                          hostIdVector);
-	if (absentHostIdVector.empty())
-		return;
-
-	// get needed hosts via ZABBIX API
-	ItemTablePtr tablePtr = getHosts(hostIdVector);
-	m_ctx->dbClientZabbix.addHostsRaw2_0(tablePtr);
-
-	// check the result
-	checkObtainedItems<uint64_t>(tablePtr, absentHostIdVector,
-	                             ITEM_ID_ZBX_HOSTS_HOSTID);
+	updateOnlyNeededItem<uint64_t>(
+	  triggers,
+	  ITEM_ID_ZBX_TRIGGERS_HOSTID,
+	  ITEM_ID_ZBX_HOSTS_HOSTID,
+	  &ArmZabbixAPI::getHosts,
+	  &DBClientZabbix::pickupAbsentHostIds,
+	  &DBClientZabbix::addHostsRaw2_0);
 }
 
 ItemTablePtr ArmZabbixAPI::updateEvents(void)
