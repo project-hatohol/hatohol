@@ -16,6 +16,7 @@ AM_LDFLAGS = -module -rpath $(libdir) -avoid-version -no-undefined
 INCLUDES = \
 	$(CUTTER_CFLAGS) $(CPPCUTTER_CFLAGS) \
 	$(GLIB_CFLAGS) $(MLPL_CFLAGS) $(JSON_GLIB_CFLAGS) $(LIBSOUP_CFLAGS) \
+	$(MYSQL_CFLAGS) \
 	-I ../src
 
 LIBS = \
@@ -26,7 +27,7 @@ LIBS = \
 testAsura_la_SOURCES = \
 	testAsuraException.cc testSQLProcessorException.cc \
 	testAsuraThreadBase.cc \
-	testDBAgentSQLite3.cc \
+	testDBAgentSQLite3.cc testDBAgentMySQL.cc \
 	testDBClientConfig.cc testDBClientAsura.cc testDBClientZabbix.cc \
 	testSQLUtils.cc testSQLProcessor.cc \
 	testSQLProcessorInsert.cc testSQLProcessorUpdate.cc \
