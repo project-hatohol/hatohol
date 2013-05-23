@@ -433,7 +433,7 @@ SoupMessage *ArmZabbixAPI::queryApplication(const vector<uint64_t> &appIdVector)
 	agent.startObject("params");
 	agent.add("output", "extend");
 	if (!appIdVector.empty()) {
-		agent.startArray("appids");
+		agent.startArray("applicationids");
 		vector<uint64_t>::const_iterator it = appIdVector.begin();
 		for (; it != appIdVector.end(); ++it)
 			agent.add(*it);
