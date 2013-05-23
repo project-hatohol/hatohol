@@ -7,7 +7,7 @@ static const char *TEST_DB_NAME = "test_db_agent_mysql";
 
 DBAgentMySQL *g_dbAgent = NULL;
 
-static void _createDBAgent(void)
+static void _createGlobalDBAgent(void)
 {
 	try {
 		g_dbAgent = new DBAgentMySQL(TEST_DB_NAME);
@@ -15,7 +15,7 @@ static void _createDBAgent(void)
 		cut_fail("%s", e.what());
 	}
 }
-#define createDBAgent() cut_trace(_createDBAgent())
+#define createGlobalDBAgent() cut_trace(_createGlobalDBAgent())
 
 void teardown(void)
 {
@@ -30,7 +30,7 @@ void teardown(void)
 // ---------------------------------------------------------------------------
 void test_create(void)
 {
-	createDBAgent();
+	createGlobalDBAgent();
 }
 
 } // testDBAgentMySQL
