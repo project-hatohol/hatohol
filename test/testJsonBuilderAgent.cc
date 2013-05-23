@@ -6,7 +6,7 @@ namespace testJsonBuilderAgent {
 // -------------------------------------------------------------------------
 // test cases
 // -------------------------------------------------------------------------
-void test_parseString(void)
+void test_emptyObject(void)
 {
 	JsonBuilderAgent agent;
 	agent.startObject();
