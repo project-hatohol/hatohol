@@ -52,8 +52,10 @@ DBAgentMySQL::DBAgentMySQL(const char *db)
 
 DBAgentMySQL::~DBAgentMySQL()
 {
-	if (m_ctx)
+	if (m_ctx) {
+		mysql_close(&m_ctx->mysql);
 		delete m_ctx;
+	}
 }
 
 bool DBAgentMySQL::isTableExisting(const string &tableName)
