@@ -3,7 +3,7 @@
 
 namespace testDBAgentMySQL {
 
-static const char *TEST_DB_NAME = "db_agent_mysql_test";
+static const char *TEST_DB_NAME = "test_db_agent_mysql";
 
 DBAgentMySQL *g_dbAgent = NULL;
 
