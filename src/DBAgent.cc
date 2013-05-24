@@ -115,3 +115,23 @@ DBAgent::~DBAgent()
 	if (m_ctx)
 		delete m_ctx;
 }
+
+// ---------------------------------------------------------------------------
+// Protected methods
+// ---------------------------------------------------------------------------
+string DBAgent::makeSelectStatement(DBAgentSelectArg &selectArg)
+{
+	size_t numColumns = selectArg.columnIndexes.size();
+	string sql = "SELECT ";
+	for (size_t i = 0; i < numColumns; i++) {
+		size_t idx = selectArg.columnIndexes[i];
+		const ColumnDef &columnDef = selectArg.columnDefs[idx];
+		sql += columnDef.columnName;
+		sql += " ";
+		if (i < selectArg.columnIndexes.size()- 1)
+			sql += ",";
+	}
+	sql += "FROM ";
+	sql += selectArg.tableName;
+	return sql;
+}
