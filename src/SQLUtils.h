@@ -100,6 +100,9 @@ public:
 	                                    string &tableName,
 	                                    string &columnName,
 	                                    bool allowNoTableName = false);
+	static ItemDataPtr createFromString(const string &str,
+	                                    SQLColumnType type);
+
 protected:
 	typedef ItemDataPtr (*ItemDataCreator)
 	  (const ColumnDef *columnDef, const char *value);

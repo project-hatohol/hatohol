@@ -138,6 +138,33 @@ void SQLUtils::decomposeTableAndColumn(const string &fieldName,
 	columnName = string(fieldName, dotPosition + 1);
 }
 
+ItemDataPtr SQLUtils::createFromString(const string &str, SQLColumnType type)
+{
+	ItemData *itemData = NULL;
+	switch(type) {
+	case SQL_COLUMN_TYPE_INT:
+		itemData = new ItemInt(atoi(str.c_str()));
+		break;
+	case SQL_COLUMN_TYPE_BIGUINT:
+		uint64_t val;
+		sscanf(str.c_str(), "%"PRIu64, &val);
+		itemData = new ItemUint64(val);
+		break;
+	case SQL_COLUMN_TYPE_VARCHAR:
+	case SQL_COLUMN_TYPE_CHAR:
+	case SQL_COLUMN_TYPE_TEXT:
+		itemData = new ItemString(str);
+		break;
+	case SQL_COLUMN_TYPE_DOUBLE:
+		itemData = new ItemDouble(atof(str.c_str()));
+		break;
+	case NUM_SQL_COLUMN_TYPES:
+	default:
+		THROW_ASURA_EXCEPTION("Unknown column type: %d\n", type);
+	}
+	return itemData;
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
