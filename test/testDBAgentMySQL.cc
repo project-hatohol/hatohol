@@ -321,6 +321,11 @@ void test_insertUint64_0xffffffffffffffff(void)
 	  (*g_dbAgent, 0xffffffffffffffff);
 }
 
+void test_select(void)
+{
+	createGlobalDBAgent();
+	dbAgentTestSelect(*g_dbAgent);
+}
 
 } // testDBAgentMySQL
 

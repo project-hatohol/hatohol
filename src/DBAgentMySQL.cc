@@ -213,7 +213,25 @@ void DBAgentMySQL::update(DBAgentUpdateArg &updateArg)
 
 void DBAgentMySQL::select(DBAgentSelectArg &selectArg)
 {
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	ASURA_ASSERT(m_ctx->connected, "Not connected.");
+
+	string query = "SELECT ";
+	for (size_t i = 0; i < selectArg.columnIndexes.size(); i++) {
+		size_t idx = selectArg.columnIndexes[i];
+		const ColumnDef &columnDef = selectArg.columnDefs[idx];
+		query += columnDef.columnName;
+		query += " ";
+		if (i < selectArg.columnIndexes.size()- 1)
+			query += ",";
+	}
+	query += "FROM ";
+	query += selectArg.tableName;
+
+	if (mysql_query(&m_ctx->mysql, query.c_str()) != 0) {
+		THROW_ASURA_EXCEPTION("Failed to query: %s: %s\n",
+		                      query.c_str(),
+		                      mysql_error(&m_ctx->mysql));
+	}
 }
 
 void DBAgentMySQL::select(DBAgentSelectExArg &selectExArg)
