@@ -18,6 +18,27 @@ static string g_originalDBPath;
 
 static map<uint64_t, size_t> g_testDataIdIndexMap;
 
+class DBAgentCheckerSQLite3 : public DBAgentChecker {
+public:
+	// overriden virtual methods
+	virtual void assertTable(const DBAgentTableCreationArg &arg)
+	{
+		// check if the table has been created successfully
+		cut_assert_exist_path(g_dbPath.c_str());
+		string cmd = StringUtils::sprintf("sqlite3 %s \".table\"",
+		                                  g_dbPath.c_str());
+		string output = executeCommand(cmd);
+		assertExist(TABLE_NAME_TEST, output);
+	}
+
+	virtual void assertInsert(const DBAgentInsertArg &arg,
+	                          uint64_t id, int age, const char *name,
+	                          double height)
+	{
+		cut_fail("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	}
+};
+
 static void deleteDB(void)
 {
 	unlink(g_dbPath.c_str());
@@ -230,9 +251,10 @@ void test_testIsRecordExistingNotIncluded(void)
 	  (false, dbAgent.isRecordExisting("foo", expectFalseCondition));
 }
 
-void test_create(void)
+void test_createTable(void)
 {
-	assertCreate();
+	DBAgentSQLite3 dbAgent;
+	createTable<DBAgentSQLite3, DBAgentCheckerSQLite3>(dbAgent);
 }
 
 void test_insert(void)
