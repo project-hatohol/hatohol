@@ -300,5 +300,13 @@ void test_insert(void)
 	testInsert<DBAgentMySQL, DBAgentCheckerMySQL>(*g_dbAgent);
 }
 
+void test_insertUint64_0x7fffffffffffffff(void)
+{
+	createGlobalDBAgent();
+	testInsertUint64_0x7fffffffffffffff
+	  <DBAgentMySQL, DBAgentCheckerMySQL>(*g_dbAgent);
+}
+
+
 } // testDBAgentMySQL
 
