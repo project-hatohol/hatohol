@@ -29,6 +29,11 @@ public:
 	                          double height) = 0;
 };
 
+void _checkInsert(DBAgent &dbAgent, DBAgentChecker &checker,
+                   uint64_t id, int age, const char *name, double height);
+#define checkInsert(AGENT,CHECKER,ID,AGE,NAME,HEIGHT) \
+cut_trace(_checkInsert(AGENT,CHECKER,ID,AGE,NAME,HEIGHT));
+
 template<class AGENT, class AGENT_CHECKER>
 void createTable(AGENT &dbAgent)
 {
@@ -41,5 +46,21 @@ void createTable(AGENT &dbAgent)
 	AGENT_CHECKER checker;
 	checker.assertTable(arg);
 };
+
+template<class AGENT, class AGENT_CHECKER>
+void testInsert(AGENT &dbAgent)
+{
+	// create table
+	createTable<AGENT, AGENT_CHECKER>(dbAgent);
+
+	// insert a row
+	const uint64_t ID = 1;
+	const int AGE = 14;
+	const char *NAME = "rei";
+	const double HEIGHT = 158.2;
+
+	AGENT_CHECKER checker;
+	checkInsert(dbAgent, checker, ID, AGE, NAME, HEIGHT);
+}
 
 #endif // DBAgentTestCommon_h

@@ -55,3 +55,21 @@ const uint64_t ID[NUM_TEST_DATA]   = {1, 2, 0xfedcba9876543210};
 const int AGE[NUM_TEST_DATA]       = {14, 17, 180};
 const char *NAME[NUM_TEST_DATA]    = {"rei", "aoi", "giraffe"};
 const double HEIGHT[NUM_TEST_DATA] = {158.2, 203.9, -23593.2};
+
+void _checkInsert(DBAgent &dbAgent, DBAgentChecker &checker,
+                   uint64_t id, int age, const char *name, double height)
+{
+	DBAgentInsertArg arg;
+	arg.tableName = TABLE_NAME_TEST;
+	arg.numColumns = NUM_COLUMNS_TEST;
+	arg.columnDefs = COLUMN_DEF_TEST;
+	VariableItemGroupPtr row;
+	row->ADD_NEW_ITEM(Uint64, id);
+	row->ADD_NEW_ITEM(Int, age);
+	row->ADD_NEW_ITEM(String, name);
+	row->ADD_NEW_ITEM(Double, height);
+	arg.row = row;
+	dbAgent.insert(arg);
+
+	checker.assertInsert(arg, id, age, name, height);
+}

@@ -266,26 +266,6 @@ static void _createGlobalDBAgent(void)
 }
 #define createGlobalDBAgent() cut_trace(_createGlobalDBAgent())
 
-void _assertInsert(uint64_t id, int age, const char *name, double height)
-{
-	DBAgentInsertArg arg;
-	arg.tableName = TABLE_NAME_TEST;
-	arg.numColumns = NUM_COLUMNS_TEST;
-	arg.columnDefs = COLUMN_DEF_TEST;
-	VariableItemGroupPtr row;
-	row->ADD_NEW_ITEM(Uint64, id);
-	row->ADD_NEW_ITEM(Int, age);
-	row->ADD_NEW_ITEM(String, name);
-	row->ADD_NEW_ITEM(Double, height);
-	arg.row = row;
-	g_dbAgent->insert(arg);
-
-	DBAgentCheckerMySQL checker;
-	checker.assertInsert(arg, id, age, name, height);
-}
-#define assertInsert(ID,AGE,NAME,HEIGHT) \
-cut_trace(_assertInsert(ID,AGE,NAME,HEIGHT));
-
 void setup(void)
 {
 	bool recreate = true;
@@ -316,15 +296,8 @@ void test_createTable(void)
 
 void test_insert(void)
 {
-	// create table
-	test_createTable();
-
-	// insert a row
-	const uint64_t ID = 1;
-	const int AGE = 14;
-	const char *NAME = "rei";
-	const double HEIGHT = 158.2;
-	assertInsert(ID, AGE, NAME, HEIGHT);
+	createGlobalDBAgent();
+	testInsert<DBAgentMySQL, DBAgentCheckerMySQL>(*g_dbAgent);
 }
 
 } // testDBAgentMySQL
