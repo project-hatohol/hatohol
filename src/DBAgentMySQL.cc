@@ -120,7 +120,7 @@ void DBAgentMySQL::createTable(DBAgentTableCreationArg &tableCreationArg)
 			                              columnDef.decFracLength);
 			break;
 		default:
-			ASURA_ASSERT(true, "Unknown type: %d", columnDef.type);
+			ASURA_ASSERT(false, "Unknown type: %d", columnDef.type);
 		}
 
 		// nullable
