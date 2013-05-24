@@ -2,6 +2,7 @@
 #define DBAgentTestCommon_h
 
 #include "SQLProcessorTypes.h"
+#include "DBAgent.h"
 
 extern const char *TABLE_NAME_TEST;
 extern const ColumnDef COLUMN_DEF_TEST[];
@@ -19,5 +20,10 @@ extern const uint64_t ID[];
 extern const int AGE[];
 extern const char *NAME[];
 extern const double HEIGHT[];
+
+class DBAgentChecker {
+public:
+	virtual void assertTable(const DBAgentTableCreationArg &arg) = 0;
+};
 
 #endif // DBAgentTestCommon_h

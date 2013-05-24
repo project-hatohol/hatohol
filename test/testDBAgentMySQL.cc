@@ -1,5 +1,7 @@
 #include <cppcutter.h>
 #include "DBAgentMySQL.h"
+#include "DBAgentTest.h"
+#include "Helpers.h"
 
 namespace testDBAgentMySQL {
 
@@ -7,7 +9,137 @@ static const char *TEST_DB_NAME = "test_db_agent_mysql";
 
 DBAgentMySQL *g_dbAgent = NULL;
 
-static void makeTestDBIfNeeded(void)
+class DBAgentCheckerMySQL : public DBAgentChecker {
+public:
+	// overriden virtual methods
+	virtual void assertTable(const DBAgentTableCreationArg &arg)
+	{
+		// get the table information with mysql command.
+		string cmd = "mysql -D ";
+		cmd += TEST_DB_NAME;
+		cmd += " -B -e \"desc ";
+		cmd += TABLE_NAME_TEST;
+		cmd += "\"";
+		string result = executeCommand(cmd);
+
+		// check the number of obtained lines
+		size_t linesIdx = 0;
+		StringVector lines;
+		StringUtils::split(lines, result, '\n');
+		cppcut_assert_equal(NUM_COLUMNS_TEST+1, lines.size());
+
+		// assert header output
+		const char *headers[] = {
+		  "Field", "Type", "Null", "Key", "Default", "Extra"};
+		const size_t numHeaders =
+			sizeof(headers) / sizeof(const char *);
+		StringVector actualHeaders;
+		StringUtils::split(actualHeaders, lines[linesIdx++], '\t');
+		cppcut_assert_equal(numHeaders, actualHeaders.size());
+		for (size_t i = 0; i < numHeaders; i++) {
+			cppcut_assert_equal(string(headers[i]),
+			                    actualHeaders[i]);
+		}
+
+		// assert tables
+		string expected;
+		for (size_t  i = 0; i < NUM_COLUMNS_TEST; i++) {
+			size_t idx = 0;
+			StringVector words;
+			const bool doMerge = false;
+			StringUtils::split(words, lines[linesIdx++], '\t',
+			                   doMerge);
+			cppcut_assert_equal(numHeaders, words.size());
+			const ColumnDef &columnDef = COLUMN_DEF_TEST[i];
+
+			// column name
+			expected = columnDef.columnName;
+			cppcut_assert_equal(expected, words[idx++]);
+
+			// type
+			switch (columnDef.type) {
+			case SQL_COLUMN_TYPE_INT:
+				expected = StringUtils::sprintf("int(%zd)",
+				             columnDef.columnLength);
+				break;             
+			case SQL_COLUMN_TYPE_BIGUINT:
+				expected = StringUtils::sprintf(
+				             "bigint(%zd) unsigned",
+				             columnDef.columnLength);
+				break;             
+			case SQL_COLUMN_TYPE_VARCHAR:
+				expected = StringUtils::sprintf("varchar(%zd)",
+				             columnDef.columnLength);
+				break;
+			case SQL_COLUMN_TYPE_CHAR:
+				expected = StringUtils::sprintf("char(%zd)",
+				             columnDef.columnLength);
+				break;
+			case SQL_COLUMN_TYPE_TEXT:
+				expected = "text";
+				break;
+			case SQL_COLUMN_TYPE_DOUBLE:
+				expected = StringUtils::sprintf(
+				             "double(%zd,%zd)",
+				             columnDef.columnLength,
+				             columnDef.decFracLength);
+				break;
+			case NUM_SQL_COLUMN_TYPES:
+			default:
+				cut_fail("Unknwon type: %d\n", columnDef.type);
+			}
+			cppcut_assert_equal(expected, words[idx++]);
+
+			// nullable
+			expected = columnDef.canBeNull ? "YES" : "NO";
+			cppcut_assert_equal(expected, words[idx++]);
+
+			// key
+			switch (columnDef.keyType) {
+			case SQL_KEY_PRI:
+				expected = "PRI";
+				break;
+			case SQL_KEY_UNI:
+				expected = "UNI";
+				break;
+			case SQL_KEY_MUL:
+				expected = "MUL";
+				break;
+			case SQL_KEY_NONE:
+				expected = "";
+				break;
+			default:
+				cut_fail("Unknwon key type: %d\n",
+				         columnDef.keyType);
+			}
+			cppcut_assert_equal(expected, words[idx++]);
+
+			// default
+			expected = columnDef.defaultValue ?: "NULL";
+			cppcut_assert_equal(expected, words[idx++]);
+
+			// extra
+			expected = "";
+			cppcut_assert_equal(expected, words[idx++]);
+		}
+	}
+};
+
+static bool dropTestDB(MYSQL *mysql)
+{
+	string query = "DROP DATABASE ";
+	query += TEST_DB_NAME;
+	return mysql_query(mysql, query.c_str()) == 0;
+}
+
+static bool makeTestDB(MYSQL *mysql)
+{
+	string query = "CREATE DATABASE ";
+	query += TEST_DB_NAME;
+	return mysql_query(mysql, query.c_str()) == 0;
+}
+
+static void makeTestDBIfNeeded(bool recreate = false)
 {
 	// make a connection
 	const char *host = NULL; // localhost is used.
@@ -46,25 +178,30 @@ static void makeTestDBIfNeeded(void)
 	mysql_free_result(result);
 
 	// make DB if needed
-	int error = 0;
+	bool noError = false;
 	if (!found) {
-		string query = "CREATE DATABASE ";
-		query += TEST_DB_NAME;
-		error = mysql_query(&mysql, query.c_str());
+		if (!makeTestDB(&mysql))
+			goto exit;
+	} else if (recreate) {
+		if (!dropTestDB(&mysql))
+			goto exit;
+		if (!makeTestDB(&mysql))
+			goto exit;
 	}
+	noError = true;
 
+exit:
 	// close the connection
 	string errmsg;
-	if (error)
+	if (!noError)
 		errmsg = mysql_error(&mysql);
 	mysql_close(&mysql);
-	cppcut_assert_equal(0, error,
+	cppcut_assert_equal(true, noError,
 	   cut_message("Failed to query: %s", errmsg.c_str()));
 }
 
 static void _createGlobalDBAgent(void)
 {
-	makeTestDBIfNeeded();
 	try {
 		g_dbAgent = new DBAgentMySQL(TEST_DB_NAME);
 	} catch (const exception &e) {
@@ -72,6 +209,12 @@ static void _createGlobalDBAgent(void)
 	}
 }
 #define createGlobalDBAgent() cut_trace(_createGlobalDBAgent())
+
+void setup(void)
+{
+	bool recreate = true;
+	makeTestDBIfNeeded(recreate);
+}
 
 void teardown(void)
 {
@@ -87,6 +230,20 @@ void teardown(void)
 void test_create(void)
 {
 	createGlobalDBAgent();
+}
+
+void test_createTable(void)
+{
+	createGlobalDBAgent();
+
+	DBAgentTableCreationArg arg;
+	arg.tableName = TABLE_NAME_TEST;
+	arg.numColumns = NUM_COLUMNS_TEST;
+	arg.columnDefs = COLUMN_DEF_TEST;
+	g_dbAgent->createTable(arg);
+	
+	DBAgentCheckerMySQL checker;
+	checker.assertTable(arg);
 }
 
 } // testDBAgentMySQL
