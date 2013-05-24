@@ -259,7 +259,7 @@ void test_createTable(void)
 void test_insert(void)
 {
 	DBAgentSQLite3 dbAgent;
-	testInsert<DBAgentSQLite3, DBAgentCheckerSQLite3>(dbAgent);
+	dbAgentTestInsert(dbAgent, dbAgentChecker);
 }
 
 void test_insertUint64_0x7fffffffffffffff(void)

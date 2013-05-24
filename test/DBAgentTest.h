@@ -43,22 +43,7 @@ void _checkInsert(DBAgent &dbAgent, DBAgentChecker &checker,
 cut_trace(_checkInsert(AGENT,CHECKER,ID,AGE,NAME,HEIGHT));
 
 void dbAgentTestCreateTable(DBAgent &dbAgent, DBAgentChecker &checker);
-
-template<class AGENT, class AGENT_CHECKER>
-void testInsert(AGENT &dbAgent)
-{
-	// create table
-	AGENT_CHECKER checker;
-	dbAgentTestCreateTable(dbAgent, checker);
-
-	// insert a row
-	const uint64_t ID = 1;
-	const int AGE = 14;
-	const char *NAME = "rei";
-	const double HEIGHT = 158.2;
-
-	checkInsert(dbAgent, checker, ID, AGE, NAME, HEIGHT);
-}
+void dbAgentTestInsert(DBAgent &dbAgent, DBAgentChecker &checker);
 
 template<class AGENT, class AGENT_CHECKER>
 void testInsertUint64(AGENT &dbAgent, uint64_t ID)

@@ -299,7 +299,7 @@ void test_createTable(void)
 void test_insert(void)
 {
 	createGlobalDBAgent();
-	testInsert<DBAgentMySQL, DBAgentCheckerMySQL>(*g_dbAgent);
+	dbAgentTestInsert(*g_dbAgent, dbAgentChecker);
 }
 
 void test_insertUint64_0x7fffffffffffffff(void)
