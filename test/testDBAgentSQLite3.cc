@@ -14,9 +14,6 @@ using namespace mlpl;
 namespace testDBAgentSQLite3 {
 
 static string g_dbPath = DBAgentSQLite3::getDBPath(DEFAULT_DB_DOMAIN_ID);
-static string g_originalDBPath;
-
-static map<uint64_t, size_t> g_testDataIdIndexMap;
 
 void _assertExistRecord(uint64_t id, int age, const char *name, double height)
 {
@@ -204,22 +201,8 @@ void _assertUpdate(uint64_t id, int age, const char *name, double height,
 #define assertUpdate(ID,AGE,NAME,HEIGHT, ...) \
 cut_trace(_assertUpdate(ID,AGE,NAME,HEIGHT, ##__VA_ARGS__));
 
-static void makeTestDB(void)
-{
-	// make table
-	assertCreate();
-
-	// insert data
-	for (size_t i = 0; i < NUM_TEST_DATA; i++)
-		assertInsert(ID[i], AGE[i], NAME[i], HEIGHT[i]);
-	for (size_t i = 0; i < NUM_TEST_DATA; i++)
-		g_testDataIdIndexMap[ID[i]] = i;
-	cppcut_assert_equal(NUM_TEST_DATA, g_testDataIdIndexMap.size());
-}
-
 void setup(void)
 {
-	g_testDataIdIndexMap.clear();
 	deleteDB();
 	DBAgentSQLite3::defineDBPath(DEFAULT_DB_DOMAIN_ID, g_dbPath);
 }
