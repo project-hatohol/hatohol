@@ -29,6 +29,70 @@ public:
 		                                  g_dbPath.c_str());
 		string output = executeCommand(cmd);
 		assertExist(TABLE_NAME_TEST, output);
+
+		//
+		// check table definition
+		//
+		cmd = StringUtils::sprintf(
+		  "sqlite3 %s \"select * from sqlite_master\"",
+		  g_dbPath.c_str());
+		output = executeCommand(cmd);
+		StringVector outVec;
+		StringUtils::split(outVec, output, '|');
+		const size_t expectedNumOut = 5;
+		cppcut_assert_equal(expectedNumOut, outVec.size());
+
+		// fixed 'table'
+		size_t idx = 0;
+		string expected = "table";
+		cppcut_assert_equal(expected, outVec[idx++]);
+
+		// name and table name
+		cppcut_assert_equal(string(TABLE_NAME_TEST), outVec[idx++]);
+		cppcut_assert_equal(string(TABLE_NAME_TEST), outVec[idx++]);
+
+		// rootpage (we ignore it)
+		idx++;
+
+		// table schema
+		expected = StringUtils::sprintf("CREATE TABLE %s(",
+		                                TABLE_NAME_TEST);
+		for (size_t i = 0; i < arg.numColumns; i++) {
+			const ColumnDef &columnDef = arg.columnDefs[i];
+
+			// name
+			expected += columnDef.columnName;
+			expected += " ";
+
+			// type 
+			switch(columnDef.type) {
+			case SQL_COLUMN_TYPE_INT:
+			case SQL_COLUMN_TYPE_BIGUINT:
+				expected += "INTEGER ";
+				break;             
+			case SQL_COLUMN_TYPE_VARCHAR:
+			case SQL_COLUMN_TYPE_CHAR:
+			case SQL_COLUMN_TYPE_TEXT:
+				expected += "TEXT ";
+				break;
+			case SQL_COLUMN_TYPE_DOUBLE:
+				expected += "REAL ";
+				break;
+			case NUM_SQL_COLUMN_TYPES:
+			default:
+				cut_fail("Unknwon type: %d\n", columnDef.type);
+			}
+
+			// key 
+			if (columnDef.keyType == SQL_KEY_PRI)
+				expected += "PRIMARY KEY";
+
+			if (i < arg.numColumns - 1)
+				expected += ",";
+		}
+		expected += ")\n";
+		cppcut_assert_equal(expected, outVec[idx++]);
+
 	}
 
 	virtual void assertInsert(const DBAgentInsertArg &arg,
