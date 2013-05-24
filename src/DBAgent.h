@@ -106,6 +106,7 @@ public:
 
 protected:
 	string makeSelectStatement(DBAgentSelectArg &selectArg);
+	string makeSelectStatement(DBAgentSelectExArg &selectExArg);
 
 private:
 	struct PrivateContext;

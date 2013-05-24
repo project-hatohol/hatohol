@@ -249,36 +249,8 @@ void DBAgentMySQL::select(DBAgentSelectArg &selectArg)
 void DBAgentMySQL::select(DBAgentSelectExArg &selectExArg)
 {
 	ASURA_ASSERT(m_ctx->connected, "Not connected.");
-	size_t numColumns = selectExArg.statements.size();
-	ASURA_ASSERT(numColumns > 0, "Vector size must not be zero");
-	ASURA_ASSERT(numColumns == selectExArg.columnTypes.size(),
-	             "Vector size mismatch: statements (%zd):columnTypes (%zd)",
-	             numColumns, selectExArg.columnTypes.size());
 
-	string query = "SELECT ";
-	for (size_t i = 0; i < numColumns; i++) {
-		query += selectExArg.statements[i];
-		if (i < numColumns-1)
-			query += ",";
-	}
-	query += " FROM ";
-	query += selectExArg.tableName;
-	if (!selectExArg.condition.empty()) {
-		query += " WHERE ";
-		query += selectExArg.condition;
-	}
-	if (!selectExArg.orderBy.empty()) {
-		query += " ORDER BY ";
-		query += selectExArg.orderBy;
-	}
-	if (selectExArg.limit > 0)
-		query += StringUtils::sprintf(" LIMIT %zd ", selectExArg.limit);
-	if (selectExArg.offset > 0) {
-		query += StringUtils::sprintf(" OFFSET %zd ",
-		                              selectExArg.offset);
-	}
-
-	// exectute
+	string query = makeSelectStatement(selectExArg);
 	if (mysql_query(&m_ctx->mysql, query.c_str()) != 0) {
 		THROW_ASURA_EXCEPTION("Failed to query: %s: %s\n",
 		                      query.c_str(),
@@ -293,6 +265,7 @@ void DBAgentMySQL::select(DBAgentSelectExArg &selectExArg)
 
 	MYSQL_ROW row;
 	VariableItemTablePtr dataTable;
+	size_t numColumns = selectExArg.statements.size();
 	while ((row = mysql_fetch_row(result))) {
 		VariableItemGroupPtr itemGroup;
 		for (size_t i = 0; i < numColumns; i++) {
