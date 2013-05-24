@@ -16,6 +16,7 @@
 */
 
 #include "DBAgentMySQL.h"
+#include "SQLUtils.h"
 
 struct DBAgentMySQL::PrivateContext {
 	MYSQL mysql;
@@ -214,9 +215,10 @@ void DBAgentMySQL::update(DBAgentUpdateArg &updateArg)
 void DBAgentMySQL::select(DBAgentSelectArg &selectArg)
 {
 	ASURA_ASSERT(m_ctx->connected, "Not connected.");
+	size_t numColumns = selectArg.columnIndexes.size();
 
 	string query = "SELECT ";
-	for (size_t i = 0; i < selectArg.columnIndexes.size(); i++) {
+	for (size_t i = 0; i < numColumns; i++) {
 		size_t idx = selectArg.columnIndexes[i];
 		const ColumnDef &columnDef = selectArg.columnDefs[idx];
 		query += columnDef.columnName;
@@ -232,6 +234,27 @@ void DBAgentMySQL::select(DBAgentSelectArg &selectArg)
 		                      query.c_str(),
 		                      mysql_error(&m_ctx->mysql));
 	}
+
+	MYSQL_RES *result = mysql_store_result(&m_ctx->mysql);
+	if (!result) {
+		THROW_ASURA_EXCEPTION("Failed to call mysql_store_result: %s\n",
+		                      mysql_error(&m_ctx->mysql));
+	}
+
+	MYSQL_ROW row;
+	VariableItemTablePtr dataTable;
+	while ((row = mysql_fetch_row(result))) {
+		VariableItemGroupPtr itemGroup;
+		for (size_t i = 0; i < numColumns; i++) {
+			const ColumnDef &columnDef = selectArg.columnDefs[i];
+			ItemDataPtr itemDataPtr =
+			  SQLUtils::createFromString(row[i], columnDef.type);
+			itemGroup->add(itemDataPtr);
+		}
+		dataTable->add(itemGroup);
+	}
+	mysql_free_result(result);
+	selectArg.dataTable = dataTable;
 }
 
 void DBAgentMySQL::select(DBAgentSelectExArg &selectExArg)
