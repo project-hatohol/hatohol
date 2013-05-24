@@ -126,6 +126,8 @@ public:
 	}
 };
 
+static DBAgentCheckerSQLite3 dbAgentChecker;
+
 static void deleteDB(void)
 {
 	unlink(g_dbPath.c_str());
@@ -251,7 +253,7 @@ void test_testIsRecordExistingNotIncluded(void)
 void test_createTable(void)
 {
 	DBAgentSQLite3 dbAgent;
-	createTable<DBAgentSQLite3, DBAgentCheckerSQLite3>(dbAgent);
+	dbAgentTestCreateTable(dbAgent, dbAgentChecker);
 }
 
 void test_insert(void)

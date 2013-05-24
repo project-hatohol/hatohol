@@ -42,24 +42,14 @@ void _checkInsert(DBAgent &dbAgent, DBAgentChecker &checker,
 #define checkInsert(AGENT,CHECKER,ID,AGE,NAME,HEIGHT) \
 cut_trace(_checkInsert(AGENT,CHECKER,ID,AGE,NAME,HEIGHT));
 
-template<class AGENT, class AGENT_CHECKER>
-void createTable(AGENT &dbAgent)
-{
-	DBAgentTableCreationArg arg;
-	arg.tableName = TABLE_NAME_TEST;
-	arg.numColumns = NUM_COLUMNS_TEST;
-	arg.columnDefs = COLUMN_DEF_TEST;
-	dbAgent.createTable(arg);
-
-	AGENT_CHECKER checker;
-	checker.assertTable(arg);
-};
+void dbAgentTestCreateTable(DBAgent &dbAgent, DBAgentChecker &checker);
 
 template<class AGENT, class AGENT_CHECKER>
 void testInsert(AGENT &dbAgent)
 {
 	// create table
-	createTable<AGENT, AGENT_CHECKER>(dbAgent);
+	AGENT_CHECKER checker;
+	dbAgentTestCreateTable(dbAgent, checker);
 
 	// insert a row
 	const uint64_t ID = 1;
@@ -67,7 +57,6 @@ void testInsert(AGENT &dbAgent)
 	const char *NAME = "rei";
 	const double HEIGHT = 158.2;
 
-	AGENT_CHECKER checker;
 	checkInsert(dbAgent, checker, ID, AGE, NAME, HEIGHT);
 }
 
@@ -75,14 +64,14 @@ template<class AGENT, class AGENT_CHECKER>
 void testInsertUint64(AGENT &dbAgent, uint64_t ID)
 {
 	// create table
-	createTable<AGENT, AGENT_CHECKER>(dbAgent);
+	AGENT_CHECKER checker;
+	dbAgentTestCreateTable(dbAgent, checker);
 
 	// insert a row
 	const int AGE = 14;
 	const char *NAME = "rei";
 	const double HEIGHT = 158.2;
 
-	AGENT_CHECKER checker;
 	checkInsert(dbAgent, checker, ID, AGE, NAME, HEIGHT);
 }
 

@@ -181,6 +181,8 @@ public:
 	}
 };
 
+static DBAgentCheckerMySQL dbAgentChecker;
+
 static bool dropTestDB(MYSQL *mysql)
 {
 	string query = "DROP DATABASE ";
@@ -291,7 +293,7 @@ void test_create(void)
 void test_createTable(void)
 {
 	createGlobalDBAgent();
-	createTable<DBAgentMySQL, DBAgentCheckerMySQL>(*g_dbAgent);
+	dbAgentTestCreateTable(*g_dbAgent, dbAgentChecker);
 }
 
 void test_insert(void)

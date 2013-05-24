@@ -75,6 +75,17 @@ void _checkInsert(DBAgent &dbAgent, DBAgentChecker &checker,
 	checker.assertInsert(arg, id, age, name, height);
 }
 
+void dbAgentTestCreateTable(DBAgent &dbAgent, DBAgentChecker &checker)
+{
+	DBAgentTableCreationArg arg;
+	arg.tableName = TABLE_NAME_TEST;
+	arg.numColumns = NUM_COLUMNS_TEST;
+	arg.columnDefs = COLUMN_DEF_TEST;
+	dbAgent.createTable(arg);
+
+	checker.assertTable(arg);
+}
+
 void dbAgentTestSelect(DBAgent &dbAgent)
 {
 	map<uint64_t, size_t> testDataIdIndexMap;
