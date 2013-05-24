@@ -390,7 +390,7 @@ void test_select(void)
 	dbAgentTestSelect(dbAgent);
 }
 
-void test_selectExStatic(void)
+void test_selectEx(void)
 {
 	makeTestDB();
 	DBAgentSQLite3 dbAgent;
@@ -410,7 +410,7 @@ void test_selectExStatic(void)
 	                    itemGroup->getItemAt(0)->getString());
 }
 
-void test_selectExStaticWithCond(void)
+void test_selectExWithCond(void)
 {
 	const ColumnDef &columnDefId = COLUMN_DEF_TEST[IDX_TEST_TABLE_ID];
 	size_t targetRow = 1;
@@ -437,7 +437,7 @@ void test_selectExStaticWithCond(void)
 	cppcut_assert_equal(ID[targetRow], item->get());
 }
 
-void test_selectExStaticWithCondAllColumns(void)
+void test_selectExWithCondAllColumns(void)
 {
 	const ColumnDef &columnDefId = COLUMN_DEF_TEST[IDX_TEST_TABLE_ID];
 	size_t targetRow = 1;
@@ -469,32 +469,32 @@ void test_selectExStaticWithCondAllColumns(void)
 	assertItemData(double,   itemGroup, HEIGHT[targetRow], idx);
 }
 
-void test_selectExStaticWithOrderBy(void)
+void test_selectExWithOrderBy(void)
 {
 	assertSelectHeightOrder();
 }
 
-void test_selectExStaticWithOrderByLimit(void)
+void test_selectExWithOrderByLimit(void)
 {
 	assertSelectHeightOrder(1);
 }
 
-void test_selectExStaticWithOrderByLimitTwo(void)
+void test_selectExWithOrderByLimitTwo(void)
 {
 	assertSelectHeightOrder(2);
 }
 
-void test_selectExStaticWithOrderByLimitOffset(void)
+void test_selectExWithOrderByLimitOffset(void)
 {
 	assertSelectHeightOrder(2, 1);
 }
 
-void test_selectExStaticWithOrderByLimitOffsetOverData(void)
+void test_selectExWithOrderByLimitOffsetOverData(void)
 {
 	assertSelectHeightOrder(1, NUM_TEST_DATA, 0);
 }
 
-void test_deleteStatic(void)
+void test_delete(void)
 {
 	// create table
 	assertCreate();
