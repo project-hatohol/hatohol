@@ -345,5 +345,23 @@ void test_selectExWithCondAllColumns(void)
 	dbAgentTestSelectExWithCondAllColumns(*g_dbAgent);
 }
 
+void test_selectExWithOrderByLimitTwo(void)
+{
+	createGlobalDBAgent();
+	dbAgentTestSelectHeightOrder(*g_dbAgent, 2);
+}
+
+void test_selectExWithOrderByLimitOffset(void)
+{
+	createGlobalDBAgent();
+	dbAgentTestSelectHeightOrder(*g_dbAgent, 2, 1);
+}
+
+void test_selectExWithOrderByLimitOffsetOverData(void)
+{
+	createGlobalDBAgent();
+	dbAgentTestSelectHeightOrder(*g_dbAgent, 1, NUM_TEST_DATA, 0);
+}
+
 } // testDBAgentMySQL
 
