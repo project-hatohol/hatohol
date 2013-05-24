@@ -333,5 +333,17 @@ void test_selectEx(void)
 	dbAgentTestSelectEx(*g_dbAgent);
 }
 
+void test_selectExWithCond(void)
+{
+	createGlobalDBAgent();
+	dbAgentTestSelectExWithCond(*g_dbAgent);
+}
+
+void test_selectExWithCondAllColumns(void)
+{
+	createGlobalDBAgent();
+	dbAgentTestSelectExWithCondAllColumns(*g_dbAgent);
+}
+
 } // testDBAgentMySQL
 
