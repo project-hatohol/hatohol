@@ -90,5 +90,8 @@ void dbAgentTestSelect(DBAgent &dbAgent);
 void dbAgentTestSelectEx(DBAgent &dbAgent);
 void dbAgentTestSelectExWithCond(DBAgent &dbAgent);
 void dbAgentTestSelectExWithCondAllColumns(DBAgent &dbAgent);
+void dbAgentTestSelectHeightOrder
+ (DBAgent &dbAgent, size_t limit = 0, size_t offset = 0,
+  size_t forceExpectedRows = (size_t)-1);
 
 #endif // DBAgentTestCommon_h

@@ -214,6 +214,53 @@ void dbAgentTestSelectExWithCondAllColumns(DBAgent &dbAgent)
 	assertItemData(double,   itemGroup, HEIGHT[targetRow], idx);
 }
 
+void dbAgentTestSelectHeightOrder
+  (DBAgent &dbAgent, size_t limit, size_t offset, size_t forceExpectedRows)
+{
+	DBAgentChecker::createTable(dbAgent);
+	DBAgentChecker::makeTestData(dbAgent);
+
+	DBAgentSelectExArg arg;
+	arg.tableName = TABLE_NAME_TEST;
+	const ColumnDef &columnDef = COLUMN_DEF_TEST[IDX_TEST_TABLE_HEIGHT];
+	arg.statements.push_back(columnDef.columnName);
+	arg.columnTypes.push_back(columnDef.type);
+	arg.orderBy = StringUtils::sprintf("%s DESC", columnDef.columnName);
+	arg.limit = limit;
+	arg.offset = offset;
+	dbAgent.select(arg);
+
+	// check the result
+	const ItemGroupList &itemList = arg.dataTable->getItemGroupList();
+	size_t numExpectedRows;
+	if (forceExpectedRows == (size_t)-1)
+		numExpectedRows = limit == 0 ? NUM_TEST_DATA : arg.limit;
+	else
+		numExpectedRows = forceExpectedRows;
+	cppcut_assert_equal(numExpectedRows, itemList.size());
+	if (numExpectedRows == 0)
+		return;
+
+	const ItemGroup *itemGroup = *itemList.begin();
+	cppcut_assert_equal((size_t)1, itemGroup->getNumberOfItems());
+
+	set<double> expectedSet;
+	for (size_t i = 0; i < NUM_TEST_DATA; i++)
+		expectedSet.insert(HEIGHT[i]);
+
+	ItemGroupListConstIterator grpListIt = itemList.begin();
+	set<double>::reverse_iterator heightIt = expectedSet.rbegin();
+	size_t count = 0;
+	for (size_t i = 0; i < NUM_TEST_DATA && count < arg.limit;
+	     i++, ++heightIt, count++) {
+		int idx = 0;
+		double expected = *heightIt;
+		if (i < arg.offset)
+			continue;
+		assertItemData(double, *grpListIt, expected, idx);
+		grpListIt++;
+	}
+}
 
 // --------------------------------------------------------------------------
 // DBAgentChecker

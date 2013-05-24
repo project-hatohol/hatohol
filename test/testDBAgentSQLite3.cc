@@ -217,55 +217,6 @@ static void makeTestDB(void)
 	cppcut_assert_equal(NUM_TEST_DATA, g_testDataIdIndexMap.size());
 }
 
-static void _assertSelectHeightOrder(size_t limit = 0, size_t offset = 0,
-                                     size_t forceExpectedRows = (size_t)-1)
-{
-	makeTestDB();
-	DBAgentSQLite3 dbAgent;
-	DBAgentSelectExArg arg;
-	arg.tableName = TABLE_NAME_TEST;
-	const ColumnDef &columnDef = COLUMN_DEF_TEST[IDX_TEST_TABLE_HEIGHT];
-	arg.statements.push_back(columnDef.columnName);
-	arg.columnTypes.push_back(columnDef.type);
-	arg.orderBy = StringUtils::sprintf("%s DESC", columnDef.columnName);
-	arg.limit = limit;
-	arg.offset = offset;
-	dbAgent.select(arg);
-
-	// check the result
-	const ItemGroupList &itemList = arg.dataTable->getItemGroupList();
-	size_t numExpectedRows;
-	if (forceExpectedRows == (size_t)-1)
-		numExpectedRows = limit == 0 ? NUM_TEST_DATA : arg.limit;
-	else
-		numExpectedRows = forceExpectedRows;
-	cppcut_assert_equal(numExpectedRows, itemList.size());
-	if (numExpectedRows == 0)
-		return;
-
-	const ItemGroup *itemGroup = *itemList.begin();
-	cppcut_assert_equal((size_t)1, itemGroup->getNumberOfItems());
-
-	set<double> expectedSet;
-	for (size_t i = 0; i < NUM_TEST_DATA; i++)
-		expectedSet.insert(HEIGHT[i]);
-
-	ItemGroupListConstIterator grpListIt = itemList.begin();
-	set<double>::reverse_iterator heightIt = expectedSet.rbegin();
-	size_t count = 0;
-	for (size_t i = 0; i < NUM_TEST_DATA && count < arg.limit;
-	     i++, ++heightIt, count++) {
-		int idx = 0;
-		double expected = *heightIt;
-		if (i < arg.offset)
-			continue;
-		assertItemData(double, *grpListIt, expected, idx);
-		grpListIt++;
-	}
-}
-#define assertSelectHeightOrder(...) \
-cut_trace(_assertSelectHeightOrder(__VA_ARGS__))
-
 void setup(void)
 {
 	g_testDataIdIndexMap.clear();
@@ -410,27 +361,32 @@ void test_selectExWithCondAllColumns(void)
 
 void test_selectExWithOrderBy(void)
 {
-	assertSelectHeightOrder();
+	DBAgentSQLite3 dbAgent;
+	dbAgentTestSelectHeightOrder(dbAgent);
 }
 
 void test_selectExWithOrderByLimit(void)
 {
-	assertSelectHeightOrder(1);
+	DBAgentSQLite3 dbAgent;
+	dbAgentTestSelectHeightOrder(dbAgent, 1);
 }
 
 void test_selectExWithOrderByLimitTwo(void)
 {
-	assertSelectHeightOrder(2);
+	DBAgentSQLite3 dbAgent;
+	dbAgentTestSelectHeightOrder(dbAgent, 2);
 }
 
 void test_selectExWithOrderByLimitOffset(void)
 {
-	assertSelectHeightOrder(2, 1);
+	DBAgentSQLite3 dbAgent;
+	dbAgentTestSelectHeightOrder(dbAgent, 2, 1);
 }
 
 void test_selectExWithOrderByLimitOffsetOverData(void)
 {
-	assertSelectHeightOrder(1, NUM_TEST_DATA, 0);
+	DBAgentSQLite3 dbAgent;
+	dbAgentTestSelectHeightOrder(dbAgent, 1, NUM_TEST_DATA, 0);
 }
 
 void test_delete(void)
