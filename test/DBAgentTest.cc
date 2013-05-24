@@ -152,6 +152,34 @@ void dbAgentTestSelectEx(DBAgent &dbAgent)
 	                    itemGroup->getItemAt(0)->getString());
 }
 
+void dbAgentTestSelectExWithCond(DBAgent &dbAgent)
+{
+	const ColumnDef &columnDefId = COLUMN_DEF_TEST[IDX_TEST_TABLE_ID];
+	size_t targetRow = 1;
+
+	DBAgentChecker::createTable(dbAgent);
+	DBAgentChecker::makeTestData(dbAgent);
+
+	DBAgentSelectExArg arg;
+	arg.tableName = TABLE_NAME_TEST;
+	arg.statements.push_back(columnDefId.columnName);
+	arg.columnTypes.push_back(SQL_COLUMN_TYPE_BIGUINT);
+
+	arg.condition = StringUtils::sprintf
+	                  ("%s=%zd", columnDefId.columnName, ID[targetRow]);
+	dbAgent.select(arg);
+
+	const ItemGroupList &itemList = arg.dataTable->getItemGroupList();
+	cppcut_assert_equal((size_t)1, itemList.size());
+	const ItemGroup *itemGroup = *itemList.begin();
+	cppcut_assert_equal((size_t)1, itemGroup->getNumberOfItems());
+
+	const ItemUint64 *item =
+	   dynamic_cast<const ItemUint64 *>(itemGroup->getItemAt(0));
+	cppcut_assert_not_null(item);
+	cppcut_assert_equal(ID[targetRow], item->get());
+}
+
 // --------------------------------------------------------------------------
 // DBAgentChecker
 // --------------------------------------------------------------------------
