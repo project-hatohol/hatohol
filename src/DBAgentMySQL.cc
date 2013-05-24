@@ -154,7 +154,56 @@ void DBAgentMySQL::createTable(DBAgentTableCreationArg &tableCreationArg)
 
 void DBAgentMySQL::insert(DBAgentInsertArg &insertArg)
 {
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	ASURA_ASSERT(m_ctx->connected, "Not connected.");
+	ASURA_ASSERT(insertArg.numColumns == insertArg.row->getNumberOfItems(),
+	             "numColumn: %zd != row: %zd",
+	             insertArg.numColumns, insertArg.row->getNumberOfItems());
+
+	string query = StringUtils::sprintf("INSERT INTO %s (",
+	                                    insertArg.tableName.c_str());
+	for (size_t i = 0; i < insertArg.numColumns; i++) {
+		const ColumnDef &columnDef = insertArg.columnDefs[i];
+		query += columnDef.columnName;
+		if (i < insertArg.numColumns -1)
+			query += ",";
+	}
+	query += ") VALUES (";
+	for (size_t i = 0; i < insertArg.numColumns; i++) {
+		const ColumnDef &columnDef = insertArg.columnDefs[i];
+		const ItemData *itemData = insertArg.row->getItemAt(i);
+		switch (columnDef.type) {
+		case SQL_COLUMN_TYPE_INT:
+		case SQL_COLUMN_TYPE_BIGUINT:
+		case SQL_COLUMN_TYPE_DOUBLE:
+			query += itemData->getString();
+			break;
+		case SQL_COLUMN_TYPE_VARCHAR:
+		case SQL_COLUMN_TYPE_CHAR:
+		case SQL_COLUMN_TYPE_TEXT:
+		{ // bracket is used to avoid an error: jump to case label
+			string src =  itemData->getString();
+			char *escaped = new char[src.size() * 2 + 1]; 
+			mysql_real_escape_string(&m_ctx->mysql, escaped,
+			                         src.c_str(), src.size());
+			query += "'";
+			query += escaped,
+			query += "'";
+			delete escaped;
+			break;
+		}
+		default:
+			ASURA_ASSERT(false, "Unknown type: %d", columnDef.type);
+		}
+		if (i < insertArg.numColumns -1)
+			query += ",";
+	}
+	query += ")";
+
+	if (mysql_query(&m_ctx->mysql, query.c_str()) != 0) {
+		THROW_ASURA_EXCEPTION("Failed to query: %s: %s\n",
+		                      query.c_str(),
+		                      mysql_error(&m_ctx->mysql));
+	}
 }
 
 void DBAgentMySQL::update(DBAgentUpdateArg &updateArg)

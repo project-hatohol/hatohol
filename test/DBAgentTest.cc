@@ -40,7 +40,7 @@ const ColumnDef COLUMN_DEF_TEST[] = {
 	TABLE_NAME_TEST,                   // tableName
 	"height",                          // columnName
 	SQL_COLUMN_TYPE_DOUBLE,            // type
-	3,                                 // columnLength
+	15,                                // columnLength
 	1,                                 // decFracLength
 	false,                             // canBeNull
 	SQL_KEY_NONE,                      // keyType

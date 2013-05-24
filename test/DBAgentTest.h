@@ -24,6 +24,9 @@ extern const double HEIGHT[];
 class DBAgentChecker {
 public:
 	virtual void assertTable(const DBAgentTableCreationArg &arg) = 0;
+	virtual void assertInsert(const DBAgentInsertArg &arg,
+	                          uint64_t id, int age, const char *name,
+	                          double height) = 0;
 };
 
 #endif // DBAgentTestCommon_h

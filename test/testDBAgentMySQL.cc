@@ -123,6 +123,62 @@ public:
 			cppcut_assert_equal(expected, words[idx++]);
 		}
 	}
+
+	virtual void assertInsert(const DBAgentInsertArg &arg,
+	                          uint64_t id, int age, const char *name,
+	                          double height)
+	{
+		// get the table information with mysql command.
+		string cmd = "mysql -D ";
+		cmd += TEST_DB_NAME;
+		cmd += " -B -e \"select * from ";
+		cmd += TABLE_NAME_TEST;
+		cmd += "\"";
+		string result = executeCommand(cmd);
+
+		// check the number of obtained lines
+		size_t linesIdx = 0;
+		StringVector lines;
+		StringUtils::split(lines, result, '\n');
+		size_t numExpectedLines = 2;
+		cppcut_assert_equal(numExpectedLines, lines.size());
+
+		// assert header output
+		StringVector actualHeaders;
+		StringUtils::split(actualHeaders, lines[linesIdx++], '\t');
+		cppcut_assert_equal(arg.numColumns, actualHeaders.size());
+		for (size_t i = 0; i < arg.numColumns; i++) {
+			const ColumnDef &columnDefs = arg.columnDefs[i];
+			cppcut_assert_equal(string(columnDefs.columnName),
+			                    actualHeaders[i]);
+		}
+
+		// value
+		size_t idx = 0;
+		string expected;
+		StringVector words;
+		StringUtils::split(words, lines[linesIdx++], '\t');
+		cppcut_assert_equal(arg.numColumns, words.size());
+
+		// id
+		expected = StringUtils::sprintf("%"PRIu64, id);
+		cppcut_assert_equal(expected, words[idx++]);
+
+		// age
+		expected = StringUtils::sprintf("%d", age);
+		cppcut_assert_equal(expected, words[idx++]);
+
+		// name
+		expected = name;
+		cppcut_assert_equal(expected, words[idx++]);
+
+		// height
+		const ColumnDef &columnDef = arg.columnDefs[idx];
+		string fmt = StringUtils::sprintf("%%.%zdlf",
+		               columnDef.decFracLength);
+		expected = StringUtils::sprintf(fmt.c_str(), height);
+		cppcut_assert_equal(expected, words[idx++]);
+	}
 };
 
 static bool dropTestDB(MYSQL *mysql)
@@ -210,6 +266,26 @@ static void _createGlobalDBAgent(void)
 }
 #define createGlobalDBAgent() cut_trace(_createGlobalDBAgent())
 
+void _assertInsert(uint64_t id, int age, const char *name, double height)
+{
+	DBAgentInsertArg arg;
+	arg.tableName = TABLE_NAME_TEST;
+	arg.numColumns = NUM_COLUMNS_TEST;
+	arg.columnDefs = COLUMN_DEF_TEST;
+	VariableItemGroupPtr row;
+	row->ADD_NEW_ITEM(Uint64, id);
+	row->ADD_NEW_ITEM(Int, age);
+	row->ADD_NEW_ITEM(String, name);
+	row->ADD_NEW_ITEM(Double, height);
+	arg.row = row;
+	g_dbAgent->insert(arg);
+
+	DBAgentCheckerMySQL checker;
+	checker.assertInsert(arg, id, age, name, height);
+}
+#define assertInsert(ID,AGE,NAME,HEIGHT) \
+cut_trace(_assertInsert(ID,AGE,NAME,HEIGHT));
+
 void setup(void)
 {
 	bool recreate = true;
@@ -244,6 +320,19 @@ void test_createTable(void)
 	
 	DBAgentCheckerMySQL checker;
 	checker.assertTable(arg);
+}
+
+void test_insert(void)
+{
+	// create table
+	test_createTable();
+
+	// insert a row
+	const uint64_t ID = 1;
+	const int AGE = 14;
+	const char *NAME = "rei";
+	const double HEIGHT = 158.2;
+	assertInsert(ID, AGE, NAME, HEIGHT);
 }
 
 } // testDBAgentMySQL
