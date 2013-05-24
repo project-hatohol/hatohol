@@ -64,13 +64,12 @@ void testInsert(AGENT &dbAgent)
 }
 
 template<class AGENT, class AGENT_CHECKER>
-void testInsertUint64_0x7fffffffffffffff(AGENT &dbAgent)
+void testInsertUint64(AGENT &dbAgent, uint64_t ID)
 {
 	// create table
 	createTable<AGENT, AGENT_CHECKER>(dbAgent);
 
 	// insert a row
-	const uint64_t ID = 0x7fffffffffffffff;
 	const int AGE = 14;
 	const char *NAME = "rei";
 	const double HEIGHT = 158.2;
@@ -78,40 +77,5 @@ void testInsertUint64_0x7fffffffffffffff(AGENT &dbAgent)
 	AGENT_CHECKER checker;
 	checkInsert(dbAgent, checker, ID, AGE, NAME, HEIGHT);
 }
-
-template<class AGENT, class AGENT_CHECKER>
-void testInsertUint64_0x8000000000000000(AGENT &dbAgent)
-{
-	// create table
-	createTable<AGENT, AGENT_CHECKER>(dbAgent);
-
-
-	// insert a row
-	const uint64_t ID = 0x8000000000000000;
-	const int AGE = 14;
-	const char *NAME = "rei";
-	const double HEIGHT = 158.2;
-
-	AGENT_CHECKER checker;
-	checkInsert(dbAgent, checker, ID, AGE, NAME, HEIGHT);
-}
-
-template<class AGENT, class AGENT_CHECKER>
-void testInsertUint64_0xffffffffffffffff(AGENT &dbAgent)
-{
-	// create table
-	createTable<AGENT, AGENT_CHECKER>(dbAgent);
-
-
-	// insert a row
-	const uint64_t ID = 0xffffffffffffffff;
-	const int AGE = 14;
-	const char *NAME = "rei";
-	const double HEIGHT = 158.2;
-
-	AGENT_CHECKER checker;
-	checkInsert(dbAgent, checker, ID, AGE, NAME, HEIGHT);
-}
-
 
 #endif // DBAgentTestCommon_h

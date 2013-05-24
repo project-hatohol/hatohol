@@ -329,22 +329,22 @@ void test_insert(void)
 void test_insertUint64_0x7fffffffffffffff(void)
 {
 	DBAgentSQLite3 dbAgent;
-	testInsertUint64_0x7fffffffffffffff
-	  <DBAgentSQLite3, DBAgentCheckerSQLite3>(dbAgent);
+	testInsertUint64<DBAgentSQLite3, DBAgentCheckerSQLite3>
+	  (dbAgent, 0x7fffffffffffffff);
 }
 
 void test_insertUint64_0x8000000000000000(void)
 {
 	DBAgentSQLite3 dbAgent;
-	testInsertUint64_0x8000000000000000
-	  <DBAgentSQLite3, DBAgentCheckerSQLite3>(dbAgent);
+	testInsertUint64<DBAgentSQLite3, DBAgentCheckerSQLite3>
+	  (dbAgent, 0x8000000000000000);
 }
 
 void test_insertUint64_0xffffffffffffffff(void)
 {
 	DBAgentSQLite3 dbAgent;
-	testInsertUint64_0xffffffffffffffff
-	  <DBAgentSQLite3, DBAgentCheckerSQLite3>(dbAgent);
+	testInsertUint64<DBAgentSQLite3, DBAgentCheckerSQLite3>
+	  (dbAgent, 0xffffffffffffffff);
 }
 
 void test_update(void)

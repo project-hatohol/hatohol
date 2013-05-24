@@ -303,22 +303,22 @@ void test_insert(void)
 void test_insertUint64_0x7fffffffffffffff(void)
 {
 	createGlobalDBAgent();
-	testInsertUint64_0x7fffffffffffffff
-	  <DBAgentMySQL, DBAgentCheckerMySQL>(*g_dbAgent);
+	testInsertUint64<DBAgentMySQL, DBAgentCheckerMySQL>
+	  (*g_dbAgent,0x7fffffffffffffff);
 }
 
 void test_insertUint64_0x8000000000000000(void)
 {
 	createGlobalDBAgent();
-	testInsertUint64_0x8000000000000000
-	  <DBAgentMySQL, DBAgentCheckerMySQL>(*g_dbAgent);
+	testInsertUint64<DBAgentMySQL, DBAgentCheckerMySQL>
+	  (*g_dbAgent, 0x8000000000000000);
 }
 
 void test_insertUint64_0xffffffffffffffff(void)
 {
 	createGlobalDBAgent();
-	testInsertUint64_0xffffffffffffffff
-	  <DBAgentMySQL, DBAgentCheckerMySQL>(*g_dbAgent);
+	testInsertUint64<DBAgentMySQL, DBAgentCheckerMySQL>
+	  (*g_dbAgent, 0xffffffffffffffff);
 }
 
 
