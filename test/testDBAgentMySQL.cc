@@ -327,5 +327,11 @@ void test_select(void)
 	dbAgentTestSelect(*g_dbAgent);
 }
 
+void test_selectEx(void)
+{
+	createGlobalDBAgent();
+	dbAgentTestSelectEx(*g_dbAgent);
+}
+
 } // testDBAgentMySQL
 

@@ -259,7 +259,72 @@ void DBAgentMySQL::select(DBAgentSelectArg &selectArg)
 
 void DBAgentMySQL::select(DBAgentSelectExArg &selectExArg)
 {
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	ASURA_ASSERT(m_ctx->connected, "Not connected.");
+	size_t numColumns = selectExArg.statements.size();
+	ASURA_ASSERT(numColumns > 0, "Vector size must not be zero");
+	ASURA_ASSERT(numColumns == selectExArg.columnTypes.size(),
+	             "Vector size mismatch: statements (%zd):columnTypes (%zd)",
+	             numColumns, selectExArg.columnTypes.size());
+
+	string query = "SELECT ";
+	for (size_t i = 0; i < numColumns; i++) {
+		query += selectExArg.statements[i];
+		if (i < numColumns-1)
+			query += ",";
+	}
+	query += " FROM ";
+	query += selectExArg.tableName;
+	if (!selectExArg.condition.empty()) {
+		query += " WHERE ";
+		query += selectExArg.condition;
+	}
+	if (!selectExArg.orderBy.empty()) {
+		query += " ORDER BY ";
+		query += selectExArg.orderBy;
+	}
+	if (selectExArg.limit > 0)
+		query += StringUtils::sprintf(" LIMIT %zd ", selectExArg.limit);
+	if (selectExArg.offset > 0) {
+		query += StringUtils::sprintf(" OFFSET %zd ",
+		                              selectExArg.offset);
+	}
+
+	// exectute
+	if (mysql_query(&m_ctx->mysql, query.c_str()) != 0) {
+		THROW_ASURA_EXCEPTION("Failed to query: %s: %s\n",
+		                      query.c_str(),
+		                      mysql_error(&m_ctx->mysql));
+	}
+
+	MYSQL_RES *result = mysql_store_result(&m_ctx->mysql);
+	if (!result) {
+		THROW_ASURA_EXCEPTION("Failed to call mysql_store_result: %s\n",
+		                      mysql_error(&m_ctx->mysql));
+	}
+
+	MYSQL_ROW row;
+	VariableItemTablePtr dataTable;
+	while ((row = mysql_fetch_row(result))) {
+		VariableItemGroupPtr itemGroup;
+		for (size_t i = 0; i < numColumns; i++) {
+			SQLColumnType type = selectExArg.columnTypes[i];
+			ItemDataPtr itemDataPtr =
+			  SQLUtils::createFromString(row[i], type);
+			itemGroup->add(itemDataPtr);
+		}
+		dataTable->add(itemGroup);
+	}
+	mysql_free_result(result);
+	selectExArg.dataTable = dataTable;
+
+	// check the result
+	size_t numTableRows = selectExArg.dataTable->getNumberOfRows();
+	size_t numTableColumns = selectExArg.dataTable->getNumberOfColumns();
+	ASURA_ASSERT((numTableRows == 0) ||
+	             ((numTableRows > 0) && (numTableColumns == numColumns)),
+	             "Sanity check error: numTableRows: %zd, numTableColumns: "
+	             "%zd, numColumns: %zd",
+	             numTableRows, numTableColumns, numColumns);
 }
 
 void DBAgentMySQL::deleteRows(DBAgentDeleteArg &deleteArg)
