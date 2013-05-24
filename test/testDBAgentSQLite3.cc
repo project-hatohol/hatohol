@@ -386,59 +386,8 @@ void test_updateCondition(void)
 
 void test_select(void)
 {
-	makeTestDB();
-
 	DBAgentSQLite3 dbAgent;
-
-	// get records
-	DBAgentSelectArg arg;
-	arg.tableName = TABLE_NAME_TEST;
-	arg.columnDefs = COLUMN_DEF_TEST;
-	arg.columnIndexes.push_back(IDX_TEST_TABLE_ID);
-	arg.columnIndexes.push_back(IDX_TEST_TABLE_AGE);
-	arg.columnIndexes.push_back(IDX_TEST_TABLE_NAME);
-	arg.columnIndexes.push_back(IDX_TEST_TABLE_HEIGHT);
-	dbAgent.select(arg);
-
-	// check the result
-	const ItemGroupList &groupList = arg.dataTable->getItemGroupList();
-	cppcut_assert_equal(groupList.size(), arg.dataTable->getNumberOfRows());
-	ItemGroupListConstIterator it = groupList.begin();
-	size_t srcDataIdx = 0;
-	map<uint64_t, size_t>::iterator itrId;
-	for (; it != groupList.end(); ++it, srcDataIdx++) {
-		const ItemData *itemData;
-		size_t columnIdx = 0;
-		const ItemGroup *itemGroup = *it;
-		cppcut_assert_equal(itemGroup->getNumberOfItems(),
-		                    NUM_COLUMNS_TEST);
-
-		// id
-		itemData = itemGroup->getItemAt(columnIdx++);
-		uint64_t id = ItemDataUtils::getUint64(itemData);
-		itrId = g_testDataIdIndexMap.find(id);
-		cppcut_assert_equal(false, itrId == g_testDataIdIndexMap.end(),
-		                    cut_message("id: 0x%"PRIx64, id));
-		srcDataIdx = itrId->second;
-
-		// age
-		itemData = itemGroup->getItemAt(columnIdx++);
-		int valInt = ItemDataUtils::getInt(itemData);
-		cppcut_assert_equal(AGE[srcDataIdx], valInt);
-
-		// name
-		itemData = itemGroup->getItemAt(columnIdx++);
-		string valStr = ItemDataUtils::getString(itemData);
-		cppcut_assert_equal(NAME[srcDataIdx], valStr.c_str());
-
-		// height
-		itemData = itemGroup->getItemAt(columnIdx++);
-		double valDouble = ItemDataUtils::getDouble(itemData);
-		cppcut_assert_equal(HEIGHT[srcDataIdx], valDouble);
-
-		// delete the element from idSet
-		g_testDataIdIndexMap.erase(itrId);
-	}
+	dbAgentTestSelect(dbAgent);
 }
 
 void test_selectExStatic(void)

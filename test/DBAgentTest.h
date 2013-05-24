@@ -1,6 +1,7 @@
 #ifndef DBAgentTestCommon_h
 #define DBAgentTestCommon_h
 
+#include <cppcutter.h>
 #include "SQLProcessorTypes.h"
 #include "DBAgent.h"
 
@@ -27,6 +28,12 @@ public:
 	virtual void assertInsert(const DBAgentInsertArg &arg,
 	                          uint64_t id, int age, const char *name,
 	                          double height) = 0;
+
+	static void createTable(DBAgent &dbAgent);
+	static void insert(DBAgent &dbAgent, uint64_t id, int age,
+	                   const char *name, double height);
+	static void makeTestData(DBAgent &dbAgent,
+	                         map<uint64_t, size_t> &testDataIdIndexMap);
 };
 
 void _checkInsert(DBAgent &dbAgent, DBAgentChecker &checker,
@@ -77,5 +84,7 @@ void testInsertUint64(AGENT &dbAgent, uint64_t ID)
 	AGENT_CHECKER checker;
 	checkInsert(dbAgent, checker, ID, AGE, NAME, HEIGHT);
 }
+
+void dbAgentTestSelect(DBAgent &dbAgent);
 
 #endif // DBAgentTestCommon_h
