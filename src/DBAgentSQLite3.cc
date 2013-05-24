@@ -366,9 +366,7 @@ string DBAgentSQLite3::getColumnValueString(const ColumnDef *columnDef,
 	{
 		string fmt;
 		DEFINE_AND_ASSERT(itemData, const ItemDouble, item);
-		fmt = StringUtils::sprintf("%%%d.%dlf",
-		                           columnDef->columnLength,
-		                           columnDef->decFracLength);
+		fmt = StringUtils::sprintf("%%.%dlf", columnDef->decFracLength);
 		valueStr = StringUtils::sprintf(fmt.c_str(), item->get());
 		break;
 	}
