@@ -94,6 +94,7 @@ void dbAgentTestSelect(DBAgent &dbAgent)
 	// check the result
 	const ItemGroupList &groupList = arg.dataTable->getItemGroupList();
 	cppcut_assert_equal(groupList.size(), arg.dataTable->getNumberOfRows());
+	cppcut_assert_equal(NUM_TEST_DATA, groupList.size());
 	ItemGroupListConstIterator it = groupList.begin();
 	size_t srcDataIdx = 0;
 	map<uint64_t, size_t>::iterator itrId;
