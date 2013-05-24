@@ -392,22 +392,8 @@ void test_select(void)
 
 void test_selectEx(void)
 {
-	makeTestDB();
 	DBAgentSQLite3 dbAgent;
-	DBAgentSelectExArg arg;
-	arg.tableName = TABLE_NAME_TEST;
-	arg.statements.push_back("count(*)");
-	arg.columnTypes.push_back(SQL_COLUMN_TYPE_TEXT);
-	dbAgent.select(arg);
-
-	const ItemGroupList &itemList = arg.dataTable->getItemGroupList();
-	cppcut_assert_equal((size_t)1, itemList.size());
-	const ItemGroup *itemGroup = *itemList.begin();
-	cppcut_assert_equal((size_t)1, itemGroup->getNumberOfItems());
-
-	string expectedCount = StringUtils::sprintf("%zd", NUM_TEST_DATA);
-	cppcut_assert_equal(expectedCount,
-	                    itemGroup->getItemAt(0)->getString());
+	dbAgentTestSelectEx(dbAgent);
 }
 
 void test_selectExWithCond(void)

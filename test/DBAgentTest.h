@@ -32,6 +32,7 @@ public:
 	static void createTable(DBAgent &dbAgent);
 	static void insert(DBAgent &dbAgent, uint64_t id, int age,
 	                   const char *name, double height);
+	static void makeTestData(DBAgent &dbAgent);
 	static void makeTestData(DBAgent &dbAgent,
 	                         map<uint64_t, size_t> &testDataIdIndexMap);
 };
@@ -86,5 +87,6 @@ void testInsertUint64(AGENT &dbAgent, uint64_t ID)
 }
 
 void dbAgentTestSelect(DBAgent &dbAgent);
+void dbAgentTestSelectEx(DBAgent &dbAgent);
 
 #endif // DBAgentTestCommon_h

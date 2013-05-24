@@ -131,6 +131,27 @@ void dbAgentTestSelect(DBAgent &dbAgent)
 	}
 }
 
+void dbAgentTestSelectEx(DBAgent &dbAgent)
+{
+	DBAgentChecker::createTable(dbAgent);
+	DBAgentChecker::makeTestData(dbAgent);
+
+	DBAgentSelectExArg arg;
+	arg.tableName = TABLE_NAME_TEST;
+	arg.statements.push_back("count(*)");
+	arg.columnTypes.push_back(SQL_COLUMN_TYPE_TEXT);
+	dbAgent.select(arg);
+
+	const ItemGroupList &itemList = arg.dataTable->getItemGroupList();
+	cppcut_assert_equal((size_t)1, itemList.size());
+	const ItemGroup *itemGroup = *itemList.begin();
+	cppcut_assert_equal((size_t)1, itemGroup->getNumberOfItems());
+
+	string expectedCount = StringUtils::sprintf("%zd", NUM_TEST_DATA);
+	cppcut_assert_equal(expectedCount,
+	                    itemGroup->getItemAt(0)->getString());
+}
+
 // --------------------------------------------------------------------------
 // DBAgentChecker
 // --------------------------------------------------------------------------
@@ -159,11 +180,16 @@ void DBAgentChecker::insert
 	dbAgent.insert(arg);
 }
 
-void DBAgentChecker::makeTestData
-  (DBAgent &dbAgent, map<uint64_t, size_t> &testDataIdIndexMap)
+void DBAgentChecker::makeTestData(DBAgent &dbAgent)
 {
 	for (size_t i = 0; i < NUM_TEST_DATA; i++)
 		insert(dbAgent, ID[i], AGE[i], NAME[i], HEIGHT[i]);
+}
+
+void DBAgentChecker::makeTestData
+  (DBAgent &dbAgent, map<uint64_t, size_t> &testDataIdIndexMap)
+{
+	makeTestData(dbAgent);
 	for (size_t i = 0; i < NUM_TEST_DATA; i++)
 		testDataIdIndexMap[ID[i]] = i;
 	cppcut_assert_equal(NUM_TEST_DATA, testDataIdIndexMap.size());
