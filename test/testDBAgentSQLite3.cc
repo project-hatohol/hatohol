@@ -18,6 +18,32 @@ static string g_originalDBPath;
 
 static map<uint64_t, size_t> g_testDataIdIndexMap;
 
+void _assertExistRecord(uint64_t id, int age, const char *name, double height)
+{
+	// check if the columns is inserted
+
+	// INFO: We use the trick that unsigned interger is stored as
+	// signed interger. So large integers (MSB bit is one) are recognized
+	// as negative intergers. So we use PRId64 in the following statement.
+	string cmd = StringUtils::sprintf(
+	               "sqlite3 %s \"select * from %s where id=%"PRId64 "\"",
+	               g_dbPath.c_str(), TABLE_NAME_TEST, id);
+	string output = executeCommand(cmd);
+	
+	const ColumnDef &columnDefHeight =
+	   COLUMN_DEF_TEST[IDX_TEST_TABLE_HEIGHT];
+	
+	// Here we also use PRId64 (not PRIu64) with the same
+	// reason of the above comment.
+	string fmt = StringUtils::sprintf("%%"PRId64"|%%d|%%s|%%.%dlf\n",
+	                                  columnDefHeight.decFracLength);
+	string expectedOut = StringUtils::sprintf(fmt.c_str(),
+	                                          id, age, name, height);
+	cppcut_assert_equal(expectedOut, output);
+}
+#define assertExistRecord(ID,AGE,NAME,HEIGHT) \
+cut_trace(_assertExistRecord(ID,AGE,NAME,HEIGHT))
+
 class DBAgentCheckerSQLite3 : public DBAgentChecker {
 public:
 	// overriden virtual methods
@@ -99,7 +125,7 @@ public:
 	                          uint64_t id, int age, const char *name,
 	                          double height)
 	{
-		cut_fail("Not implemented: %s\n", __PRETTY_FUNCTION__);
+		assertExistRecord(id, age, name,height);
 	}
 };
 
@@ -132,33 +158,6 @@ void _assertCreate(void)
 	assertExist(TABLE_NAME_TEST, output);
 }
 #define assertCreate() cut_trace(_assertCreate())
-
-void _assertExistRecord(uint64_t id, int age, const char *name, double height)
-{
-	// check if the columns is inserted
-
-	// INFO: We use the trick that unsigned interger is stored as
-	// signed interger. So large integers (MSB bit is one) are recognized
-	// as negative intergers. So we use PRId64 in the following statement.
-	string cmd = StringUtils::sprintf(
-	               "sqlite3 %s \"select * from %s where id=%"PRId64 "\"",
-	               g_dbPath.c_str(), TABLE_NAME_TEST, id);
-	string output = executeCommand(cmd);
-	
-	const ColumnDef &columnDefHeight =
-	   COLUMN_DEF_TEST[IDX_TEST_TABLE_HEIGHT];
-	
-	// Here we also use PRId64 (not PRIu64) with the same
-	// reason of the above comment.
-	string fmt = StringUtils::sprintf("%%"PRId64"|%%d|%%s|%%%d.%dlf\n",
-	                                  columnDefHeight.columnLength,
-	                                  columnDefHeight.decFracLength);
-	string expectedOut = StringUtils::sprintf(fmt.c_str(),
-	                                          id, age, name, height);
-	cppcut_assert_equal(expectedOut, output);
-}
-#define assertExistRecord(ID,AGE,NAME,HEIGHT) \
-cut_trace(_assertExistRecord(ID,AGE,NAME,HEIGHT))
 
 void _assertInsert(uint64_t id, int age, const char *name, double height)
 {
@@ -323,15 +322,8 @@ void test_createTable(void)
 
 void test_insert(void)
 {
-	// create table
-	assertCreate();
-
-	// insert a row
-	const uint64_t ID = 1;
-	const int AGE = 14;
-	const char *NAME = "rei";
-	const double HEIGHT = 158.2;
-	assertInsert(ID, AGE, NAME, HEIGHT);
+	DBAgentSQLite3 dbAgent;
+	testInsert<DBAgentSQLite3, DBAgentCheckerSQLite3>(dbAgent);
 }
 
 void test_insertUint64_0x7fffffffffffffff(void)
