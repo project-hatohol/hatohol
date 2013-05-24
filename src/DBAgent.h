@@ -105,7 +105,7 @@ public:
 	virtual void deleteRows(DBAgentDeleteArg &deleteArg) = 0;
 
 protected:
-	string makeSelectStatement(DBAgentSelectArg &selectArg);
+	static string makeSelectStatement(DBAgentSelectArg &selectArg);
 	string makeSelectStatement(DBAgentSelectExArg &selectExArg);
 
 private:

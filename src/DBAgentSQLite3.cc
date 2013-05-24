@@ -573,17 +573,7 @@ void DBAgentSQLite3::update(sqlite3 *db, DBAgentUpdateArg &updateArg)
 
 void DBAgentSQLite3::select(sqlite3 *db, DBAgentSelectArg &selectArg)
 {
-	string sql = "SELECT ";
-	for (size_t i = 0; i < selectArg.columnIndexes.size(); i++) {
-		size_t idx = selectArg.columnIndexes[i];
-		const ColumnDef &columnDef = selectArg.columnDefs[idx];
-		sql += columnDef.columnName;
-		sql += " ";
-		if (i < selectArg.columnIndexes.size()- 1)
-			sql += ",";
-	}
-	sql += "FROM ";
-	sql += selectArg.tableName;
+	string sql = makeSelectStatement(selectArg);
 
 	// exectute
 	int result;
