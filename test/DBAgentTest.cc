@@ -1,4 +1,5 @@
 #include "DBAgentTest.h"
+#include "Helpers.h"
 
 const char *TABLE_NAME_TEST = "test_table";
 const ColumnDef COLUMN_DEF_TEST[] = {
@@ -179,6 +180,40 @@ void dbAgentTestSelectExWithCond(DBAgent &dbAgent)
 	cppcut_assert_not_null(item);
 	cppcut_assert_equal(ID[targetRow], item->get());
 }
+
+void dbAgentTestSelectExWithCondAllColumns(DBAgent &dbAgent)
+{
+	const ColumnDef &columnDefId = COLUMN_DEF_TEST[IDX_TEST_TABLE_ID];
+	size_t targetRow = 1;
+
+	DBAgentChecker::createTable(dbAgent);
+	DBAgentChecker::makeTestData(dbAgent);
+
+	DBAgentSelectExArg arg;
+	arg.tableName = TABLE_NAME_TEST;
+	for (size_t i = 0; i < NUM_COLUMNS_TEST; i++) {
+		const ColumnDef &columnDef = COLUMN_DEF_TEST[i];
+		arg.statements.push_back(columnDef.columnName);
+		arg.columnTypes.push_back(columnDef.type);
+	}
+
+	arg.condition = StringUtils::sprintf
+	                  ("%s=%zd", columnDefId.columnName, ID[targetRow]);
+	dbAgent.select(arg);
+
+	const ItemGroupList &itemList = arg.dataTable->getItemGroupList();
+	cppcut_assert_equal((size_t)1, itemList.size());
+	const ItemGroup *itemGroup = *itemList.begin();
+	cppcut_assert_equal(NUM_COLUMNS_TEST, itemGroup->getNumberOfItems());
+
+	// check the results
+	int idx = 0;
+	assertItemData(uint64_t, itemGroup, ID[targetRow], idx);
+	assertItemData(int,      itemGroup, AGE[targetRow], idx);
+	assertItemData(string,   itemGroup, NAME[targetRow], idx);
+	assertItemData(double,   itemGroup, HEIGHT[targetRow], idx);
+}
+
 
 // --------------------------------------------------------------------------
 // DBAgentChecker

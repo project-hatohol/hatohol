@@ -89,5 +89,6 @@ void testInsertUint64(AGENT &dbAgent, uint64_t ID)
 void dbAgentTestSelect(DBAgent &dbAgent);
 void dbAgentTestSelectEx(DBAgent &dbAgent);
 void dbAgentTestSelectExWithCond(DBAgent &dbAgent);
+void dbAgentTestSelectExWithCondAllColumns(DBAgent &dbAgent);
 
 #endif // DBAgentTestCommon_h
