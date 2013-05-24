@@ -335,15 +335,9 @@ void test_insertUint64_0x7fffffffffffffff(void)
 
 void test_insertUint64_0x8000000000000000(void)
 {
-	// create table
-	assertCreate();
-
-	// insert a row
-	const uint64_t ID = 0x8000000000000000;
-	const int AGE = 14;
-	const char *NAME = "rei";
-	const double HEIGHT = 158.2;
-	assertInsert(ID, AGE, NAME, HEIGHT);
+	DBAgentSQLite3 dbAgent;
+	testInsertUint64_0x8000000000000000
+	  <DBAgentSQLite3, DBAgentCheckerSQLite3>(dbAgent);
 }
 
 void test_insertUint64_0xffffffffffffffff(void)
