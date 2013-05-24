@@ -311,15 +311,7 @@ void test_create(void)
 void test_createTable(void)
 {
 	createGlobalDBAgent();
-
-	DBAgentTableCreationArg arg;
-	arg.tableName = TABLE_NAME_TEST;
-	arg.numColumns = NUM_COLUMNS_TEST;
-	arg.columnDefs = COLUMN_DEF_TEST;
-	g_dbAgent->createTable(arg);
-	
-	DBAgentCheckerMySQL checker;
-	checker.assertTable(arg);
+	createTable<DBAgentMySQL, DBAgentCheckerMySQL>(*g_dbAgent);
 }
 
 void test_insert(void)

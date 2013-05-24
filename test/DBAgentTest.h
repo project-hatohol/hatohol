@@ -29,4 +29,17 @@ public:
 	                          double height) = 0;
 };
 
+template<class AGENT, class AGENT_CHECKER>
+void createTable(AGENT &dbAgent)
+{
+	DBAgentTableCreationArg arg;
+	arg.tableName = TABLE_NAME_TEST;
+	arg.numColumns = NUM_COLUMNS_TEST;
+	arg.columnDefs = COLUMN_DEF_TEST;
+	dbAgent.createTable(arg);
+
+	AGENT_CHECKER checker;
+	checker.assertTable(arg);
+};
+
 #endif // DBAgentTestCommon_h
