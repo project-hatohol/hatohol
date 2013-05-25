@@ -385,3 +385,44 @@ void DBAgentChecker::makeTestData
 	cppcut_assert_equal(NUM_TEST_DATA, testDataIdIndexMap.size());
 }
 
+void dbAgentTestDelete(DBAgent &dbAgent, DBAgentChecker &checker)
+{
+	// create table
+	dbAgentTestCreateTable(dbAgent, checker);
+
+	// insert rows
+	const size_t NUM_TEST = 3;
+	const uint64_t ID[NUM_TEST]   = {1,2,3};
+	const int AGE[NUM_TEST]       = {14, 17, 16};
+	const char *NAME[NUM_TEST]    = {"rei", "mio", "azusa"};
+	const double HEIGHT[NUM_TEST] = {158.2, 165.3, 155.2};
+	for (size_t i = 0; i < NUM_TEST; i++) {
+		checkInsert(dbAgent, checker,
+		            ID[i], AGE[i], NAME[i], HEIGHT[i]);
+	}
+
+	// delete
+	DBAgentDeleteArg arg;
+	arg.tableName = TABLE_NAME_TEST;
+	const int thresAge = 15;
+	const ColumnDef &columnDefAge = COLUMN_DEF_TEST[IDX_TEST_TABLE_AGE];
+	arg.condition = StringUtils::sprintf
+	                  ("%s<%d", columnDefAge.columnName, thresAge);
+	dbAgent.deleteRows(arg);
+
+	// check
+	vector<string> actualIds;
+	const ColumnDef &columnDefId = COLUMN_DEF_TEST[IDX_TEST_TABLE_ID];
+	checker.getIDStringVector(columnDefId, actualIds);
+	size_t matchCount = 0;
+	for (size_t i = 0; i < NUM_TEST; i++) {
+		if (AGE[i] < thresAge)
+			continue;
+		cppcut_assert_equal(true, actualIds.size() > matchCount);
+		string &actualIdStr = actualIds[matchCount];
+		string expectedIdStr = StringUtils::sprintf("%d", ID[i]);
+		cppcut_assert_equal(expectedIdStr, actualIdStr);
+		matchCount++;
+	}
+	cppcut_assert_equal(matchCount, actualIds.size());
+}

@@ -186,6 +186,12 @@ public:
 	{
 		cut_fail("Not implemented: %s", __PRETTY_FUNCTION__);
 	}
+
+	virtual void getIDStringVector(const ColumnDef &columnDefId,
+	                               vector<string> &actualIds)
+	{
+		cut_fail("Not implemented: %s", __PRETTY_FUNCTION__);
+	}
 };
 
 static DBAgentCheckerMySQL dbAgentChecker;

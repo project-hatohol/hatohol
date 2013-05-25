@@ -31,6 +31,8 @@ public:
 	virtual void assertUpdate(uint64_t id, int age,
 	                          const char *name, double height,
 	                          const string &condition = "") = 0;
+	virtual void getIDStringVector(const ColumnDef &columnDefId,
+	                               vector<string> &actualIds) = 0;
 
 	static void createTable(DBAgent &dbAgent);
 	static void insert(DBAgent &dbAgent, uint64_t id, int age,
@@ -58,5 +60,6 @@ void dbAgentTestSelectExWithCondAllColumns(DBAgent &dbAgent);
 void dbAgentTestSelectHeightOrder
  (DBAgent &dbAgent, size_t limit = 0, size_t offset = 0,
   size_t forceExpectedRows = (size_t)-1);
+void dbAgentTestDelete(DBAgent &dbAgent, DBAgentChecker &checker);
 
 #endif // DBAgentTestCommon_h
