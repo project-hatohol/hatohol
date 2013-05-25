@@ -181,46 +181,6 @@ string _path = getFixturesDir() + DB_NAME; \
 DBAgentSQLite3::defineDBPath(DEFAULT_DB_DOMAIN_ID, _path); \
 DBAgentSQLite3 OBJ_NAME; \
 
-void _assertCreate(void)
-{
-	DBAgentSQLite3 dbAgent;
-
-	DBAgentTableCreationArg arg;
-	arg.tableName = TABLE_NAME_TEST;
-	arg.numColumns = NUM_COLUMNS_TEST;
-	arg.columnDefs = COLUMN_DEF_TEST;
-	dbAgent.createTable(arg);
-
-	// check if the table has been created successfully
-	cut_assert_exist_path(g_dbPath.c_str());
-	string cmd = StringUtils::sprintf("sqlite3 %s \".table\"",
-	                                  g_dbPath.c_str());
-	string output = executeCommand(cmd);
-	assertExist(TABLE_NAME_TEST, output);
-}
-#define assertCreate() cut_trace(_assertCreate())
-
-void _assertInsert(uint64_t id, int age, const char *name, double height)
-{
-	DBAgentSQLite3 dbAgent;
-
-	DBAgentInsertArg arg;
-	arg.tableName = TABLE_NAME_TEST;
-	arg.numColumns = NUM_COLUMNS_TEST;
-	arg.columnDefs = COLUMN_DEF_TEST;
-	VariableItemGroupPtr row;
-	row->ADD_NEW_ITEM(Uint64, id);
-	row->ADD_NEW_ITEM(Int, age);
-	row->ADD_NEW_ITEM(String, name);
-	row->ADD_NEW_ITEM(Double, height);
-	arg.row = row;
-	dbAgent.insert(arg);
-
-	assertExistRecord(id, age, name,height);
-}
-#define assertInsert(ID,AGE,NAME,HEIGHT) \
-cut_trace(_assertInsert(ID,AGE,NAME,HEIGHT));
-
 void setup(void)
 {
 	deleteDB();
