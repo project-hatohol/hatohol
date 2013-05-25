@@ -75,6 +75,27 @@ void _checkInsert(DBAgent &dbAgent, DBAgentChecker &checker,
 	checker.assertInsert(arg, id, age, name, height);
 }
 
+static void checkUpdate(DBAgent &dbAgent, DBAgentChecker &checker,
+                        uint64_t id, int age, const char *name, double height,
+                        const string &condition = "")
+{
+	DBAgentUpdateArg arg;
+	arg.tableName = TABLE_NAME_TEST;
+	for (size_t i = IDX_TEST_TABLE_ID; i < NUM_COLUMNS_TEST; i++)
+		arg.columnIndexes.push_back(i);
+	arg.columnDefs = COLUMN_DEF_TEST;
+	VariableItemGroupPtr row;
+	row->ADD_NEW_ITEM(Uint64, id);
+	row->ADD_NEW_ITEM(Int, age);
+	row->ADD_NEW_ITEM(String, name);
+	row->ADD_NEW_ITEM(Double, height);
+	arg.row = row;
+	arg.condition = condition;
+	dbAgent.update(arg);
+
+	checker.assertUpdate(id, age, name, height);
+}
+
 void dbAgentTestCreateTable(DBAgent &dbAgent, DBAgentChecker &checker)
 {
 	DBAgentTableCreationArg arg;
@@ -124,7 +145,7 @@ void dbAgentTestUpdate(DBAgent &dbAgent, DBAgentChecker &checker)
 	const int AGE = 20;
 	const char *NAME = "yui";
 	const double HEIGHT = 158.0;
-	checker.assertUpdate(ID, AGE, NAME, HEIGHT);
+	checkUpdate(dbAgent, checker, ID, AGE, NAME, HEIGHT);
 }
 
 void dbAgentTestUpdateCondition(DBAgent &dbAgent, DBAgentChecker &checker)
@@ -150,8 +171,8 @@ void dbAgentTestUpdateCondition(DBAgent &dbAgent, DBAgentChecker &checker)
 	   StringUtils::sprintf("age=%d and name='%s'",
 	                        AGE[targetIdx], NAME[targetIdx]);
 	size_t idx = NUM_DATA - 1;
-	checker.assertUpdate(ID[idx], AGE[idx], NAME[idx], HEIGHT[idx],
-	                     condition);
+	checkUpdate(dbAgent, checker,
+	            ID[idx], AGE[idx], NAME[idx], HEIGHT[idx], condition);
 }
 
 void dbAgentTestSelect(DBAgent &dbAgent)

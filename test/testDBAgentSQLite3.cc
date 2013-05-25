@@ -41,28 +41,6 @@ void _assertExistRecord(uint64_t id, int age, const char *name, double height)
 #define assertExistRecord(ID,AGE,NAME,HEIGHT) \
 cut_trace(_assertExistRecord(ID,AGE,NAME,HEIGHT))
 
-void _assertUpdate(uint64_t id, int age, const char *name, double height,
-                   const string &condition = "")
-{
-	DBAgentSQLite3 dbAgent;
-
-	DBAgentUpdateArg arg;
-	arg.tableName = TABLE_NAME_TEST;
-	for (size_t i = IDX_TEST_TABLE_ID; i < NUM_COLUMNS_TEST; i++)
-		arg.columnIndexes.push_back(i);
-	arg.columnDefs = COLUMN_DEF_TEST;
-	VariableItemGroupPtr row;
-	row->ADD_NEW_ITEM(Uint64, id);
-	row->ADD_NEW_ITEM(Int, age);
-	row->ADD_NEW_ITEM(String, name);
-	row->ADD_NEW_ITEM(Double, height);
-	arg.row = row;
-	arg.condition = condition;
-	dbAgent.update(arg);
-
-	assertExistRecord(id, age, name,height);
-}
-
 class DBAgentCheckerSQLite3 : public DBAgentChecker {
 public:
 	// overriden virtual methods
@@ -151,7 +129,7 @@ public:
 	                          const char *name, double height,
 	                          const string &condition)
 	{
-		_assertUpdate(id, age, name, height, condition);
+		assertExistRecord(id, age, name,height);
 	}
 
 	virtual void getIDStringVector(const ColumnDef &columnDefId,
