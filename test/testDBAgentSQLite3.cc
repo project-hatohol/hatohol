@@ -41,6 +41,28 @@ void _assertExistRecord(uint64_t id, int age, const char *name, double height)
 #define assertExistRecord(ID,AGE,NAME,HEIGHT) \
 cut_trace(_assertExistRecord(ID,AGE,NAME,HEIGHT))
 
+void _assertUpdate(uint64_t id, int age, const char *name, double height,
+                   const string &condition = "")
+{
+	DBAgentSQLite3 dbAgent;
+
+	DBAgentUpdateArg arg;
+	arg.tableName = TABLE_NAME_TEST;
+	for (size_t i = IDX_TEST_TABLE_ID; i < NUM_COLUMNS_TEST; i++)
+		arg.columnIndexes.push_back(i);
+	arg.columnDefs = COLUMN_DEF_TEST;
+	VariableItemGroupPtr row;
+	row->ADD_NEW_ITEM(Uint64, id);
+	row->ADD_NEW_ITEM(Int, age);
+	row->ADD_NEW_ITEM(String, name);
+	row->ADD_NEW_ITEM(Double, height);
+	arg.row = row;
+	arg.condition = condition;
+	dbAgent.update(arg);
+
+	assertExistRecord(id, age, name,height);
+}
+
 class DBAgentCheckerSQLite3 : public DBAgentChecker {
 public:
 	// overriden virtual methods
@@ -124,6 +146,12 @@ public:
 	{
 		assertExistRecord(id, age, name,height);
 	}
+
+	virtual void assertUpdate(uint64_t id, int age, const char *name,
+	                          double height)
+	{
+		_assertUpdate(id, age, name, height);
+	}
 };
 
 static DBAgentCheckerSQLite3 dbAgentChecker;
@@ -178,30 +206,6 @@ void _assertInsert(uint64_t id, int age, const char *name, double height)
 }
 #define assertInsert(ID,AGE,NAME,HEIGHT) \
 cut_trace(_assertInsert(ID,AGE,NAME,HEIGHT));
-
-void _assertUpdate(uint64_t id, int age, const char *name, double height,
-                   const string &condition = "")
-{
-	DBAgentSQLite3 dbAgent;
-
-	DBAgentUpdateArg arg;
-	arg.tableName = TABLE_NAME_TEST;
-	for (size_t i = IDX_TEST_TABLE_ID; i < NUM_COLUMNS_TEST; i++)
-		arg.columnIndexes.push_back(i);
-	arg.columnDefs = COLUMN_DEF_TEST;
-	VariableItemGroupPtr row;
-	row->ADD_NEW_ITEM(Uint64, id);
-	row->ADD_NEW_ITEM(Int, age);
-	row->ADD_NEW_ITEM(String, name);
-	row->ADD_NEW_ITEM(Double, height);
-	arg.row = row;
-	arg.condition = condition;
-	dbAgent.update(arg);
-
-	assertExistRecord(id, age, name,height);
-}
-#define assertUpdate(ID,AGE,NAME,HEIGHT, ...) \
-cut_trace(_assertUpdate(ID,AGE,NAME,HEIGHT, ##__VA_ARGS__));
 
 void setup(void)
 {
@@ -282,15 +286,8 @@ void test_insertUint64_0xffffffffffffffff(void)
 
 void test_update(void)
 {
-	// create table and insert a row
-	test_insert();
-
-	// insert a row
-	const uint64_t ID = 9;
-	const int AGE = 20;
-	const char *NAME = "yui";
-	const double HEIGHT = 158.0;
-	assertUpdate(ID, AGE, NAME, HEIGHT);
+	DBAgentSQLite3 dbAgent;
+	dbAgentTestUpdate(dbAgent, dbAgentChecker);
 }
 
 void test_updateCondition(void)
@@ -314,7 +311,7 @@ void test_updateCondition(void)
 	   StringUtils::sprintf("age=%d and name='%s'",
 	                        AGE[targetIdx], NAME[targetIdx]);
 	size_t idx = NUM_DATA - 1;
-	assertUpdate(ID[idx], AGE[idx], NAME[idx], HEIGHT[idx], condition);
+	_assertUpdate(ID[idx], AGE[idx], NAME[idx], HEIGHT[idx], condition);
 }
 
 void test_select(void)

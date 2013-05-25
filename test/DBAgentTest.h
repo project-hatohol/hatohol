@@ -28,6 +28,8 @@ public:
 	virtual void assertInsert(const DBAgentInsertArg &arg,
 	                          uint64_t id, int age, const char *name,
 	                          double height) = 0;
+	virtual void assertUpdate(uint64_t id, int age,
+	                          const char *name, double height) = 0;
 
 	static void createTable(DBAgent &dbAgent);
 	static void insert(DBAgent &dbAgent, uint64_t id, int age,
@@ -46,6 +48,7 @@ void dbAgentTestCreateTable(DBAgent &dbAgent, DBAgentChecker &checker);
 void dbAgentTestInsert(DBAgent &dbAgent, DBAgentChecker &checker);
 void dbAgentTestInsertUint64
   (DBAgent &dbAgent, DBAgentChecker &checker, uint64_t id);
+void dbAgentTestUpdate(DBAgent &dbAgent, DBAgentChecker &checker);
 void dbAgentTestSelect(DBAgent &dbAgent);
 void dbAgentTestSelectEx(DBAgent &dbAgent);
 void dbAgentTestSelectExWithCond(DBAgent &dbAgent);

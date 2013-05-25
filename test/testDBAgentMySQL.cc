@@ -179,6 +179,12 @@ public:
 		expected = StringUtils::sprintf(fmt.c_str(), height);
 		cppcut_assert_equal(expected, words[idx++]);
 	}
+
+	virtual void assertUpdate(uint64_t id, int age,
+	                          const char *name, double height)
+	{
+		cut_fail("Not implemented: %s", __PRETTY_FUNCTION__);
+	}
 };
 
 static DBAgentCheckerMySQL dbAgentChecker;
