@@ -100,6 +100,20 @@ void dbAgentTestInsert(DBAgent &dbAgent, DBAgentChecker &checker)
 	checkInsert(dbAgent, checker, ID, AGE, NAME, HEIGHT);
 }
 
+void dbAgentTestInsertUint64
+  (DBAgent &dbAgent, DBAgentChecker &checker, uint64_t id)
+{
+	// create table
+	dbAgentTestCreateTable(dbAgent, checker);
+
+	// insert a row
+	const int AGE = 14;
+	const char *NAME = "rei";
+	const double HEIGHT = 158.2;
+
+	checkInsert(dbAgent, checker, id, AGE, NAME, HEIGHT);
+}
+
 void dbAgentTestSelect(DBAgent &dbAgent)
 {
 	map<uint64_t, size_t> testDataIdIndexMap;
