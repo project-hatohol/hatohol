@@ -57,8 +57,8 @@ const int AGE[NUM_TEST_DATA]       = {14, 17, 180};
 const char *NAME[NUM_TEST_DATA]    = {"rei", "aoi", "giraffe"};
 const double HEIGHT[NUM_TEST_DATA] = {158.2, 203.9, -23593.2};
 
-void _checkInsert(DBAgent &dbAgent, DBAgentChecker &checker,
-                   uint64_t id, int age, const char *name, double height)
+static void checkInsert(DBAgent &dbAgent, DBAgentChecker &checker,
+                        uint64_t id, int age, const char *name, double height)
 {
 	DBAgentInsertArg arg;
 	arg.tableName = TABLE_NAME_TEST;

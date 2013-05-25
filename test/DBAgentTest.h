@@ -42,11 +42,6 @@ public:
 	                         map<uint64_t, size_t> &testDataIdIndexMap);
 };
 
-void _checkInsert(DBAgent &dbAgent, DBAgentChecker &checker,
-                   uint64_t id, int age, const char *name, double height);
-#define checkInsert(AGENT,CHECKER,ID,AGE,NAME,HEIGHT) \
-cut_trace(_checkInsert(AGENT,CHECKER,ID,AGE,NAME,HEIGHT));
-
 void dbAgentTestCreateTable(DBAgent &dbAgent, DBAgentChecker &checker);
 void dbAgentTestInsert(DBAgent &dbAgent, DBAgentChecker &checker);
 void dbAgentTestInsertUint64
