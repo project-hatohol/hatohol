@@ -147,10 +147,11 @@ public:
 		assertExistRecord(id, age, name,height);
 	}
 
-	virtual void assertUpdate(uint64_t id, int age, const char *name,
-	                          double height)
+	virtual void assertUpdate(uint64_t id, int age,
+	                          const char *name, double height,
+	                          const string &condition)
 	{
-		_assertUpdate(id, age, name, height);
+		_assertUpdate(id, age, name, height, condition);
 	}
 };
 
@@ -292,26 +293,8 @@ void test_update(void)
 
 void test_updateCondition(void)
 {
-	// create table
-	assertCreate();
-
-	static const size_t NUM_DATA = 3;
-	const uint64_t ID[NUM_DATA]   = {1, 3, 9};
-	const int      AGE[NUM_DATA]  = {20, 18, 17};
-	const char    *NAME[NUM_DATA] = {"yui", "aoi", "Q-taro"};
-	const double HEIGHT[NUM_DATA] = {158.0, 161.3, 70.0};
-
-	// insert the first and the second rows
-	for (size_t  i = 0; i < NUM_DATA - 1; i++)
-		assertInsert(ID[i], AGE[i], NAME[i], HEIGHT[i]);
-
-	// update the second row
-	size_t targetIdx = NUM_DATA - 2;
-	string condition =
-	   StringUtils::sprintf("age=%d and name='%s'",
-	                        AGE[targetIdx], NAME[targetIdx]);
-	size_t idx = NUM_DATA - 1;
-	_assertUpdate(ID[idx], AGE[idx], NAME[idx], HEIGHT[idx], condition);
+	DBAgentSQLite3 dbAgent;
+	dbAgentTestUpdateCondition(dbAgent, dbAgentChecker);
 }
 
 void test_select(void)

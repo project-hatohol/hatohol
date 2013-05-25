@@ -127,6 +127,33 @@ void dbAgentTestUpdate(DBAgent &dbAgent, DBAgentChecker &checker)
 	checker.assertUpdate(ID, AGE, NAME, HEIGHT);
 }
 
+void dbAgentTestUpdateCondition(DBAgent &dbAgent, DBAgentChecker &checker)
+{
+	// create table
+	dbAgentTestCreateTable(dbAgent, checker);
+
+	static const size_t NUM_DATA = 3;
+	const uint64_t ID[NUM_DATA]   = {1, 3, 9};
+	const int      AGE[NUM_DATA]  = {20, 18, 17};
+	const char    *NAME[NUM_DATA] = {"yui", "aoi", "Q-taro"};
+	const double HEIGHT[NUM_DATA] = {158.0, 161.3, 70.0};
+
+	// insert the first and the second rows
+	for (size_t  i = 0; i < NUM_DATA - 1; i++) {
+		checkInsert(dbAgent, checker,
+		            ID[i], AGE[i], NAME[i], HEIGHT[i]);
+	}
+
+	// update the second row
+	size_t targetIdx = NUM_DATA - 2;
+	string condition =
+	   StringUtils::sprintf("age=%d and name='%s'",
+	                        AGE[targetIdx], NAME[targetIdx]);
+	size_t idx = NUM_DATA - 1;
+	checker.assertUpdate(ID[idx], AGE[idx], NAME[idx], HEIGHT[idx],
+	                     condition);
+}
+
 void dbAgentTestSelect(DBAgent &dbAgent)
 {
 	map<uint64_t, size_t> testDataIdIndexMap;

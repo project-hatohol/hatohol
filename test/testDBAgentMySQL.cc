@@ -181,7 +181,8 @@ public:
 	}
 
 	virtual void assertUpdate(uint64_t id, int age,
-	                          const char *name, double height)
+	                          const char *name, double height,
+	                          const string &condition)
 	{
 		cut_fail("Not implemented: %s", __PRETTY_FUNCTION__);
 	}
