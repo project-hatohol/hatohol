@@ -25,12 +25,10 @@ extern const double HEIGHT[];
 class DBAgentChecker {
 public:
 	virtual void assertTable(const DBAgentTableCreationArg &arg) = 0;
-	virtual void assertInsert(const DBAgentInsertArg &arg,
-	                          uint64_t id, int age, const char *name,
-	                          double height) = 0;
-	virtual void assertUpdate(uint64_t id, int age,
-	                          const char *name, double height,
-	                          const string &condition = "") = 0;
+	virtual void assertExistingRecord(uint64_t id, int age,
+	                                  const char *name, double height,
+	                                  size_t numColumns,
+	                                  const ColumnDef *columnDefs) = 0;
 	virtual void getIDStringVector(const ColumnDef &columnDefId,
 	                               vector<string> &actualIds) = 0;
 

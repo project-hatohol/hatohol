@@ -118,9 +118,10 @@ public:
 
 	}
 
-	virtual void assertInsert(const DBAgentInsertArg &arg,
-	                          uint64_t id, int age, const char *name,
-	                          double height)
+	virtual void assertExistingRecord(uint64_t id, int age,
+	                                  const char *name, double height,
+	                                  size_t numColumns,
+	                                  const ColumnDef *columnDefs)
 	{
 		assertExistRecord(id, age, name,height);
 	}

@@ -124,9 +124,10 @@ public:
 		}
 	}
 
-	virtual void assertInsert(const DBAgentInsertArg &arg,
-	                          uint64_t id, int age, const char *name,
-	                          double height)
+	virtual void assertExistingRecord(uint64_t id, int age,
+	                                  const char *name, double height,
+	                                  size_t numColumns,
+	                                  const ColumnDef *columnDefs)
 	{
 		// get the table information with mysql command.
 		string cmd = "mysql -D ";
@@ -146,10 +147,10 @@ public:
 		// assert header output
 		StringVector actualHeaders;
 		StringUtils::split(actualHeaders, lines[linesIdx++], '\t');
-		cppcut_assert_equal(arg.numColumns, actualHeaders.size());
-		for (size_t i = 0; i < arg.numColumns; i++) {
-			const ColumnDef &columnDefs = arg.columnDefs[i];
-			cppcut_assert_equal(string(columnDefs.columnName),
+		cppcut_assert_equal(numColumns, actualHeaders.size());
+		for (size_t i = 0; i < numColumns; i++) {
+			const ColumnDef &columnDef = columnDefs[i];
+			cppcut_assert_equal(string(columnDef.columnName),
 			                    actualHeaders[i]);
 		}
 
@@ -158,7 +159,7 @@ public:
 		string expected;
 		StringVector words;
 		StringUtils::split(words, lines[linesIdx++], '\t');
-		cppcut_assert_equal(arg.numColumns, words.size());
+		cppcut_assert_equal(numColumns, words.size());
 
 		// id
 		expected = StringUtils::sprintf("%"PRIu64, id);
@@ -173,18 +174,11 @@ public:
 		cppcut_assert_equal(expected, words[idx++]);
 
 		// height
-		const ColumnDef &columnDef = arg.columnDefs[idx];
+		const ColumnDef &columnDef = columnDefs[idx];
 		string fmt = StringUtils::sprintf("%%.%zdlf",
 		               columnDef.decFracLength);
 		expected = StringUtils::sprintf(fmt.c_str(), height);
 		cppcut_assert_equal(expected, words[idx++]);
-	}
-
-	virtual void assertUpdate(uint64_t id, int age,
-	                          const char *name, double height,
-	                          const string &condition)
-	{
-		cut_fail("Not implemented: %s", __PRETTY_FUNCTION__);
 	}
 
 	virtual void getIDStringVector(const ColumnDef &columnDefId,

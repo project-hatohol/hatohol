@@ -72,7 +72,8 @@ static void checkInsert(DBAgent &dbAgent, DBAgentChecker &checker,
 	arg.row = row;
 	dbAgent.insert(arg);
 
-	checker.assertInsert(arg, id, age, name, height);
+	checker.assertExistingRecord(id, age, name, height,
+	                             NUM_COLUMNS_TEST, COLUMN_DEF_TEST);
 }
 
 static void checkUpdate(DBAgent &dbAgent, DBAgentChecker &checker,
@@ -93,7 +94,8 @@ static void checkUpdate(DBAgent &dbAgent, DBAgentChecker &checker,
 	arg.condition = condition;
 	dbAgent.update(arg);
 
-	checker.assertUpdate(id, age, name, height);
+	checker.assertExistingRecord(id, age, name, height,
+	                             NUM_COLUMNS_TEST, COLUMN_DEF_TEST);
 }
 
 void dbAgentTestCreateTable(DBAgent &dbAgent, DBAgentChecker &checker)
