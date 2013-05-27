@@ -266,26 +266,21 @@ void test_extractItemKeys(void)
 	StringVector vect;
 	DBClientZabbixTester::extractItemKeys
 	  (vect, "vm.memory.size[available]");
-	StringVector expected;
-	expected.push_back("available");
-	assertStringVector(expected, vect);
+	assertStringVectorVA(vect, "available", NULL);
 }
 
 void test_extractItemKeysNoBracket(void)
 {
 	StringVector vect;
 	DBClientZabbixTester::extractItemKeys(vect, "system.uname");
-	StringVector expected;
-	assertStringVector(expected, vect);
+	assertStringVectorVA(vect, NULL);
 }
 
 void test_extractItemKeysNullParams(void)
 {
 	StringVector vect;
 	DBClientZabbixTester::extractItemKeys(vect, "proc.num[]");
-	StringVector expected;
-	expected.push_back("");
-	assertStringVector(expected, vect);
+	assertStringVectorVA(vect, "", NULL);
 }
 
 } // testDBClientZabbix

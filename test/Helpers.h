@@ -14,6 +14,10 @@ typedef vector<IntIntPair> IntIntPairVector;
 void _assertStringVector(StringVector &expected, StringVector &actual);
 #define assertStringVector(E,A) cut_trace(_assertStringVector(E,A))
 
+void _assertStringVectorVA(StringVector &actual, ...);
+#define assertStringVectorVA(A,...) \
+cut_trace(_assertStringVectorVA(A,##__VA_ARGS__))
+
 template<typename T>
 static ItemTable * addItems(T* srcTable, int numTable,
                             void (*addFunc)(ItemGroup *, T *),

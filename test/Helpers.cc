@@ -11,6 +11,21 @@ void _assertStringVector(StringVector &expected, StringVector &actual)
 		cppcut_assert_equal(expected[i], actual[i]);
 }
 
+void _assertStringVectorVA(StringVector &actual, ...)
+{
+	StringVector expectedVect;
+	va_list valist;
+	va_start(valist, actual);
+	while (true) {
+		const char *expected = va_arg(valist, const char *);
+		if (!expected)
+			break;
+		expectedVect.push_back(expected);
+	}
+	va_end(valist);
+	assertStringVector(expectedVect, actual);
+}
+
 void _assertExist(const string &target, const string &words)
 {
 	StringVector splitWords;
