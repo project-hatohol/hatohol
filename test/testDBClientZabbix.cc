@@ -271,5 +271,13 @@ void test_extractItemKeys(void)
 	assertStringVector(expected, vect);
 }
 
+void test_extractItemKeysNoBracket(void)
+{
+	StringVector vect;
+	DBClientZabbixTester::extractItemKeys(vect, "system.uname");
+	StringVector expected;
+	assertStringVector(expected, vect);
+}
+
 } // testDBClientZabbix
 
