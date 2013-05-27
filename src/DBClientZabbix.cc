@@ -1864,7 +1864,7 @@ bool DBClientZabbix::transformItemItemGroupToItemInfo
 
 	// brief
 	DEFINE_AND_ASSERT(
-	  itemItemGroup->getItem(ITEM_ID_ZBX_ITEMS_DESCRIPTION),
+	  itemItemGroup->getItem(ITEM_ID_ZBX_ITEMS_NAME),
 	  ItemString, itemDescription);
 	itemInfo.brief = itemDescription->get();
 
