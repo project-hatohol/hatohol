@@ -348,5 +348,13 @@ void test_makeItemBriefTwoParam(void)
 	  "Free disk space on /");
 }
 
+void test_makeItemBriefTwoKeys(void)
+{
+	DBClientZabbixTester::testMakeItemBrief(
+	  "Zabbix $4 $2 processes, in %",
+	  "zabbix[process,unreachable poller,avg,busy]",
+	  "Zabbix busy unreachable poller processes, in %");
+}
+
 } // testDBClientZabbix
 
