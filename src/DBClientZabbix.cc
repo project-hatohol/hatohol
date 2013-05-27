@@ -2043,6 +2043,26 @@ void DBClientZabbix::updateDBIfNeeded(DBAgent *dbAgent, int oldVer, void *data)
 	  __PRETTY_FUNCTION__, oldVer, DBClientZabbix::ZABBIX_DB_VERSION, data);
 }
 
+void DBClientZabbix::extractItemKeys(StringVector &params, const string &key)
+{
+	// find '['
+	size_t pos = key.find_first_of('[');
+	if (pos == string::npos)
+		return;
+
+	// we assume the last character is ']'
+	if (key[key.size()-1] != ']') {
+		MLPL_WARN("The last charater is not ']': %s", key.c_str());
+		return;
+	}
+
+	// split parameters
+	string paramString(key, pos+1, key.size()-pos-2);
+	if (paramString.empty())
+		return;
+	StringUtils::split(params, paramString, ',');
+}
+
 //
 // Non-static methods
 //

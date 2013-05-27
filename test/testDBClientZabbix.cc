@@ -21,6 +21,14 @@ DBClientZabbix OBJNAME(SVID);
 #define DELETE_DB_AND_DEFINE_DBCLIENT_ZABBIX_STDID(OBJNAME) \
 DELETE_DB_AND_DEFINE_DBCLIENT_ZABBIX(TEST_ZABBIX_SERVER_ID, OBJNAME, _dbPath)
 
+class DBClientZabbixTester : public DBClientZabbix {
+public:
+	static void extractItemKeys(StringVector &params, const string &key)
+	{
+		DBClientZabbix::extractItemKeys(params, key);
+	}
+};
+
 static void _assertCreateTableZBX(int svId, const string &tableName)
 {
 	DELETE_DB_AND_DEFINE_DBCLIENT_ZABBIX(svId, dbClientZabbix, dbPath)
@@ -251,6 +259,16 @@ void test_addApplicationsRaw2_0Insert(void)
 void test_addApplicationsRaw2_0Update(void)
 {
 	assertAddApplicationsRaw2_0(true);
+}
+
+void test_extractItemKeys(void)
+{
+	StringVector vect;
+	DBClientZabbixTester::extractItemKeys
+	  (vect, "vm.memory.size[available]");
+	StringVector expected;
+	expected.push_back("available");
+	assertStringVector(expected, vect);
 }
 
 } // testDBClientZabbix

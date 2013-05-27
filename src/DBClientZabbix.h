@@ -87,6 +87,7 @@ public:
 protected:
 	static void tableInitializerSystem(DBAgent *dbAgent, void *data);
 	static void updateDBIfNeeded(DBAgent *dbAgent, int oldVer, void *data);
+	static void extractItemKeys(StringVector &params, const string &key);
 
 	void prepareSetupFuncCallback(size_t zabbixServerId);
 	void addItems(
