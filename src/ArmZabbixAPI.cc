@@ -43,7 +43,6 @@ struct ArmZabbixAPI::PrivateContext
 {
 	string         authToken;
 	string         uri;
-	int            serverPort;
 	int            retryInterval;   // in sec
 	int            repeatInterval;  // in sec;
 	int            zabbixServerId;
@@ -56,8 +55,7 @@ struct ArmZabbixAPI::PrivateContext
 
 	// constructors
 	PrivateContext(const MonitoringServerInfo &serverInfo)
-	: serverPort(serverInfo.port),
-	  retryInterval(serverInfo.pollingIntervalSec),
+	: retryInterval(serverInfo.pollingIntervalSec),
 	  repeatInterval(serverInfo.retryIntervalSec),
 	  zabbixServerId(serverInfo.id),
 	  session(NULL),
@@ -85,7 +83,7 @@ ArmZabbixAPI::ArmZabbixAPI(const MonitoringServerInfo &serverInfo)
 	m_ctx = new PrivateContext(serverInfo);
 	m_ctx->uri = "http://";
 	m_ctx->uri += serverInfo.hostName;
-	m_ctx->uri += StringUtils::sprintf(":%d", m_ctx->serverPort);
+	m_ctx->uri += StringUtils::sprintf(":%d", serverInfo.port);
 	m_ctx->uri += "/zabbix/api_jsonrpc.php";
 }
 
