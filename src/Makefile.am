@@ -24,7 +24,7 @@ libasura_la_SOURCES = \
 	DataStoreException.cc \
 	DataStore.cc DataStoreManager.cc DataStoreZabbix.cc \
 	JsonBuilderAgent.cc JsonParserAgent.cc \
-	ArmBase.cc ArmZabbixAPI.cc
+	ArmBase.cc ArmZabbixAPI.cc ArmNagiosNDOUtils.cc
 
 AM_CXXFLAGS = -Wall -g3 \
 	-D__STDC_FORMAT_MACROS \
