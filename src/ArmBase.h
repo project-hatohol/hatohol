@@ -29,7 +29,7 @@ public:
 
 protected:
 	bool hasExitRequest(void) const;
-	void setExitRequest(void);
+	void requestExit(void);
 	const MonitoringServerInfo &getServerInfo(void) const;
 
 private:

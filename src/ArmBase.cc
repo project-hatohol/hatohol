@@ -69,8 +69,11 @@ bool ArmBase::hasExitRequest(void) const
 	return g_atomic_int_get(&m_ctx->exitRequest);
 }
 
-void ArmBase::setExitRequest(void)
+void ArmBase::requestExit(void)
 {
+	// to return immediately from the waiting.
+	if (sem_post(&m_ctx->sleepSemaphore) == -1)
+		MLPL_ERR("Failed to call sem_post: %d\n", errno);
 	g_atomic_int_set(&m_ctx->exitRequest, 1);
 }
 
