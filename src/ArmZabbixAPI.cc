@@ -41,7 +41,6 @@ static const char *MIME_JSON_RPC = "application/json-rpc";
 
 struct ArmZabbixAPI::PrivateContext
 {
-	string         server;
 	string         authToken;
 	string         uri;
 	int            serverPort;
@@ -57,8 +56,7 @@ struct ArmZabbixAPI::PrivateContext
 
 	// constructors
 	PrivateContext(const MonitoringServerInfo &serverInfo)
-	: server(serverInfo.hostName),
-	  serverPort(serverInfo.port),
+	: serverPort(serverInfo.port),
 	  retryInterval(serverInfo.pollingIntervalSec),
 	  repeatInterval(serverInfo.retryIntervalSec),
 	  zabbixServerId(serverInfo.id),
@@ -86,19 +84,19 @@ ArmZabbixAPI::ArmZabbixAPI(const MonitoringServerInfo &serverInfo)
 {
 	m_ctx = new PrivateContext(serverInfo);
 	m_ctx->uri = "http://";
-	m_ctx->uri += m_ctx->server;
+	m_ctx->uri += serverInfo.hostName;
 	m_ctx->uri += StringUtils::sprintf(":%d", m_ctx->serverPort);
 	m_ctx->uri += "/zabbix/api_jsonrpc.php";
 }
 
 ArmZabbixAPI::~ArmZabbixAPI()
 {
-	// We make a copy of the server ID and the name in m_ctx on the stack,
-	// because m_ctx is destroyed before it is used in the last message.
-	int serverId = m_ctx->zabbixServerId;
-	string serverName = m_ctx->server;
+	// The body of serverInfo in ArmBase. So it can be used
+	// anywhere in this function.
+	const MonitoringServerInfo &svInfo = getServerInfo();
+	
 	MLPL_INFO("ArmZabbixAPI [%d:%s]: exit process started.\n",
-	          serverId, serverName.c_str());
+	          svInfo.id, svInfo.hostName.c_str());
 
 	// wait for the finish of the thread
 	requestExit();
@@ -107,7 +105,7 @@ ArmZabbixAPI::~ArmZabbixAPI()
 	if (m_ctx)
 		delete m_ctx;
 	MLPL_INFO("ArmZabbixAPI [%d:%s]: exit process completed.\n",
-	          serverId, serverName.c_str());
+	          svInfo.id, svInfo.hostName.c_str());
 }
 
 void ArmZabbixAPI::setPollingInterval(int sec)
@@ -910,8 +908,9 @@ void ArmZabbixAPI::updateApplications(const ItemTable *items)
 //
 gpointer ArmZabbixAPI::mainThread(AsuraThreadArg *arg)
 {
+	const MonitoringServerInfo &svInfo = getServerInfo();
 	MLPL_INFO("started: ArmZabbixAPI (server: %s)\n",
-	          m_ctx->server.c_str());
+	          svInfo.hostName.c_str());
 	while (!hasExitRequest()) {
 		int sleepTime = m_ctx->repeatInterval;
 		if (!mainThreadOneProc())
