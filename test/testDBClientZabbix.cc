@@ -290,6 +290,12 @@ void test_extractItemKeysTwo(void)
 	assertStringVectorVA(vect, "/boot", "free", NULL);
 }
 
+void test_extractItemKeysWithEmptyParams(void)
+{
+	StringVector vect;
+	DBClientZabbixTester::extractItemKeys(vect, "proc.num[,,run]");
+	assertStringVectorVA(vect, "", "", "run", NULL);
+}
 
 } // testDBClientZabbix
 

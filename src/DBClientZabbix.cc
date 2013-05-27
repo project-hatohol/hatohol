@@ -2062,7 +2062,8 @@ void DBClientZabbix::extractItemKeys(StringVector &params, const string &key)
 		params.push_back("");
 		return;
 	}
-	StringUtils::split(params, paramString, ',');
+	const bool doMerge = false;
+	StringUtils::split(params, paramString, ',', doMerge);
 }
 
 //
