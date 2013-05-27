@@ -37,8 +37,6 @@ public:
 
 	ArmZabbixAPI(const MonitoringServerInfo &serverInfo);
 	virtual ~ArmZabbixAPI();
-	void setPollingInterval(int sec);
-	int getPollingInterval(void) const;
 	ItemTablePtr getTrigger(int requestSince = 0);
 	ItemTablePtr getFunctions(void);
 	ItemTablePtr getItems(void);

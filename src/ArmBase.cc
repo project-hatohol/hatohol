@@ -62,6 +62,21 @@ ArmBase::~ArmBase()
 		delete m_ctx;
 }
 
+void ArmBase::setPollingInterval(int sec)
+{
+	m_ctx->serverInfo.pollingIntervalSec = sec;
+}
+
+int ArmBase::getPollingInterval(void) const
+{
+	return m_ctx->serverInfo.pollingIntervalSec;
+}
+
+int ArmBase::getRetryInterval(void) const
+{
+	return m_ctx->serverInfo.retryIntervalSec;
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------

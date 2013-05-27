@@ -27,6 +27,10 @@ public:
 	ArmBase(const MonitoringServerInfo &serverInfo);
 	virtual ~ArmBase();
 
+	void setPollingInterval(int sec);
+	int getPollingInterval(void) const;
+	int getRetryInterval(void) const;
+
 protected:
 	bool hasExitRequest(void) const;
 	void requestExit(void);

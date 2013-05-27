@@ -43,8 +43,6 @@ struct ArmZabbixAPI::PrivateContext
 {
 	string         authToken;
 	string         uri;
-	int            retryInterval;   // in sec
-	int            repeatInterval;  // in sec;
 	int            zabbixServerId;
 	SoupSession   *session;
 	bool           gotTriggers;
@@ -55,9 +53,7 @@ struct ArmZabbixAPI::PrivateContext
 
 	// constructors
 	PrivateContext(const MonitoringServerInfo &serverInfo)
-	: retryInterval(serverInfo.pollingIntervalSec),
-	  repeatInterval(serverInfo.retryIntervalSec),
-	  zabbixServerId(serverInfo.id),
+	: zabbixServerId(serverInfo.id),
 	  session(NULL),
 	  gotTriggers(false),
 	  triggerid(0),
@@ -104,16 +100,6 @@ ArmZabbixAPI::~ArmZabbixAPI()
 		delete m_ctx;
 	MLPL_INFO("ArmZabbixAPI [%d:%s]: exit process completed.\n",
 	          svInfo.id, svInfo.hostName.c_str());
-}
-
-void ArmZabbixAPI::setPollingInterval(int sec)
-{
-	m_ctx->repeatInterval = sec;
-}
-
-int ArmZabbixAPI::getPollingInterval(void) const
-{
-	return m_ctx->repeatInterval;
 }
 
 ItemTablePtr ArmZabbixAPI::getTrigger(int requestSince)
@@ -910,9 +896,9 @@ gpointer ArmZabbixAPI::mainThread(AsuraThreadArg *arg)
 	MLPL_INFO("started: ArmZabbixAPI (server: %s)\n",
 	          svInfo.hostName.c_str());
 	while (!hasExitRequest()) {
-		int sleepTime = m_ctx->repeatInterval;
+		int sleepTime = getPollingInterval();
 		if (!mainThreadOneProc())
-			sleepTime = m_ctx->retryInterval;
+			sleepTime = getRetryInterval();
 		if (hasExitRequest())
 			break;
 		sleepInterruptible(sleepTime);
