@@ -307,5 +307,20 @@ void test_getItemVariable(void)
 	cppcut_assert_equal(1, DBClientZabbixTester::getItemVariable("$1"));
 }
 
+void test_getItemVariableMultipleDigits(void)
+{
+	cppcut_assert_equal(123, DBClientZabbixTester::getItemVariable("$123"));
+}
+
+void test_getItemVariableWord(void)
+{
+	cppcut_assert_equal(-1, DBClientZabbixTester::getItemVariable("abc"));
+}
+
+void test_getItemVariableDoubleDollar(void)
+{
+	cppcut_assert_equal(-1, DBClientZabbixTester::getItemVariable("$$"));
+}
+
 } // testDBClientZabbix
 

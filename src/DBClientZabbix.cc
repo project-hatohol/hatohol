@@ -2046,21 +2046,24 @@ void DBClientZabbix::updateDBIfNeeded(DBAgent *dbAgent, int oldVer, void *data)
 int DBClientZabbix::getItemVariable(const string &word)
 {
 	if (word.empty())
-		return false;
+		return -1;
 
 	// check the first '$'
 	const char *wordPtr = word.c_str();
 	if (wordPtr[0] != '$')
-		return false;
+		return -1;
 
 	// check if the remaining characters are all numbers.
+	int val = 0;
 	for (size_t idx = 1; wordPtr[idx]; idx++) {
+		val *= 10;
 		if (wordPtr[idx] < '0')
-			return false;
+			return -1;
 		if (wordPtr[idx] > '9')
-			return false;
+			return -1;
+		val += wordPtr[idx] - '0';
 	}
-	return true;
+	return val;
 }
 
 void DBClientZabbix::extractItemKeys(StringVector &params, const string &key)
