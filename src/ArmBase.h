@@ -19,9 +19,22 @@
 #define ArmBase_h
 
 #include "AsuraThreadBase.h"
+#include "DBClientConfig.h"
 
 class ArmBase : public AsuraThreadBase
 {
+public:
+	ArmBase(const MonitoringServerInfo &serverInfo);
+	virtual ~ArmBase();
+
+protected:
+	bool hasExitRequest(void) const;
+	void setExitRequest(void);
+	const MonitoringServerInfo &getServerInfo(void) const;
+
+private:
+	struct PrivateContext;
+	PrivateContext *m_ctx;
 };
 
 #endif // ArmBase_h

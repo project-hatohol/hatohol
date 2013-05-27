@@ -102,7 +102,8 @@ struct ArmZabbixAPI::PrivateContext
 // Public methods
 // ---------------------------------------------------------------------------
 ArmZabbixAPI::ArmZabbixAPI(const MonitoringServerInfo &serverInfo)
-: m_ctx(NULL)
+: ArmBase(serverInfo),
+  m_ctx(NULL)
 {
 	m_ctx = new PrivateContext(serverInfo);
 	m_ctx->uri = "http://";

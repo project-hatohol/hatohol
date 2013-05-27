@@ -15,4 +15,66 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <semaphore.h>
+#include <errno.h>
+#include <Logger.h>
 #include "ArmBase.h"
+#include "AsuraException.h"
+
+using namespace mlpl;
+
+struct ArmBase::PrivateContext
+{
+	MonitoringServerInfo serverInfo; // we have the copy.
+	sem_t          sleepSemaphore;
+	volatile int   exitRequest;
+
+	PrivateContext(const MonitoringServerInfo &_serverInfo)
+	: serverInfo(_serverInfo),
+	  exitRequest(0)
+	{
+		static const int PSHARED = 1;
+		ASURA_ASSERT(sem_init(&sleepSemaphore, PSHARED, 0) == 0,
+		             "Failed to sem_init(): %d\n", errno);
+	}
+
+	virtual ~PrivateContext()
+	{
+		if (sem_destroy(&sleepSemaphore) != 0)
+			MLPL_ERR("Failed to call sem_destroy(): %d\n", errno);
+	}
+
+};
+
+// ---------------------------------------------------------------------------
+// Public methods
+// ---------------------------------------------------------------------------
+ArmBase::ArmBase(const MonitoringServerInfo &serverInfo)
+: m_ctx(NULL)
+{
+	m_ctx = new PrivateContext(serverInfo);
+}
+
+ArmBase::~ArmBase()
+{
+	if (m_ctx)
+		delete m_ctx;
+}
+
+// ---------------------------------------------------------------------------
+// Protected methods
+// ---------------------------------------------------------------------------
+bool ArmBase::hasExitRequest(void) const
+{
+	return g_atomic_int_get(&m_ctx->exitRequest);
+}
+
+void ArmBase::setExitRequest(void)
+{
+	g_atomic_int_set(&m_ctx->exitRequest, 1);
+}
+
+const MonitoringServerInfo &ArmBase::getServerInfo(void) const
+{
+	return m_ctx->serverInfo;
+}
