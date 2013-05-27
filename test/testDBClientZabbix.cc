@@ -283,5 +283,13 @@ void test_extractItemKeysNullParams(void)
 	assertStringVectorVA(vect, "", NULL);
 }
 
+void test_extractItemKeysTwo(void)
+{
+	StringVector vect;
+	DBClientZabbixTester::extractItemKeys(vect, "vfs.fs.size[/boot,free]");
+	assertStringVectorVA(vect, "/boot", "free", NULL);
+}
+
+
 } // testDBClientZabbix
 
