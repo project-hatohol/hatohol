@@ -341,5 +341,12 @@ void test_makeItemBrief(void)
 	  "CPU idle time");
 }
 
+void test_makeItemBriefTwoParam(void)
+{
+	DBClientZabbixTester::testMakeItemBrief(
+	  "Free disk space on $1", "vfs.fs.size[/,free]",
+	  "Free disk space on /");
+}
+
 } // testDBClientZabbix
 

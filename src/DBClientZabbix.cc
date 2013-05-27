@@ -2083,7 +2083,7 @@ string DBClientZabbix::makeItemBrief(const ItemGroup *itemItemGroup)
 		BriefElem &briefElem = briefElemVect[i];
 		if (briefElem.variableIndex <= 0) {
 			brief += briefElem.word;
-		} else if (params.size() <= (size_t)briefElem.variableIndex) {
+		} else if (params.size() >= (size_t)briefElem.variableIndex) {
 			// normal case
 			brief += params[briefElem.variableIndex-1];
 		} else {
