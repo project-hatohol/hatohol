@@ -279,5 +279,14 @@ void test_extractItemKeysNoBracket(void)
 	assertStringVector(expected, vect);
 }
 
+void test_extractItemKeysNullParams(void)
+{
+	StringVector vect;
+	DBClientZabbixTester::extractItemKeys(vect, "proc.num[]");
+	StringVector expected;
+	expected.push_back("");
+	assertStringVector(expected, vect);
+}
+
 } // testDBClientZabbix
 
