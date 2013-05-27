@@ -2058,8 +2058,10 @@ void DBClientZabbix::extractItemKeys(StringVector &params, const string &key)
 
 	// split parameters
 	string paramString(key, pos+1, key.size()-pos-2);
-	if (paramString.empty())
+	if (paramString.empty()) {
+		params.push_back("");
 		return;
+	}
 	StringUtils::split(params, paramString, ',');
 }
 
