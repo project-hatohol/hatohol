@@ -15,6 +15,7 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <unistd.h>
 #include <semaphore.h>
 #include <errno.h>
 #include <Logger.h>
@@ -80,4 +81,24 @@ void ArmBase::requestExit(void)
 const MonitoringServerInfo &ArmBase::getServerInfo(void) const
 {
 	return m_ctx->serverInfo;
+}
+
+
+void ArmBase::sleepInterruptible(int sleepTime)
+{
+	// sleep with timeout
+	timespec ts;
+	if (clock_gettime(CLOCK_REALTIME, &ts) == -1) {
+		MLPL_ERR("Failed to call clock_gettime: %d\n", errno);
+		sleep(10); // to avoid burnup
+	}
+	ts.tv_sec += sleepTime;
+	int result = sem_timedwait(&m_ctx->sleepSemaphore, &ts);
+	if (result == -1) {
+		if (errno == ETIMEDOUT)
+			; // This is normal case
+		else if (errno == EINTR)
+			; // In this case, we also do nothing
+	}
+	// The up of the semaphore is done only from the destructor.
 }

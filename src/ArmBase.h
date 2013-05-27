@@ -31,6 +31,7 @@ protected:
 	bool hasExitRequest(void) const;
 	void requestExit(void);
 	const MonitoringServerInfo &getServerInfo(void) const;
+	void sleepInterruptible(int sleepTime);
 
 private:
 	struct PrivateContext;

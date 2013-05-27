@@ -20,8 +20,6 @@
 using namespace mlpl;
 
 #include <sstream>
-#include <errno.h>
-#include <semaphore.h>
 #include <libsoup/soup.h>
 #include <json-glib/json-glib.h>
 
@@ -56,8 +54,6 @@ struct ArmZabbixAPI::PrivateContext
 	VariableItemTablePtr functionsTablePtr;
 	DBClientZabbix dbClientZabbix;
 	DBClientAsura  dbClientAsura;
-	volatile int   exitRequest;
-	sem_t          sleepSemaphore;
 
 	// constructors
 	PrivateContext(const MonitoringServerInfo &serverInfo)
@@ -69,32 +65,15 @@ struct ArmZabbixAPI::PrivateContext
 	  session(NULL),
 	  gotTriggers(false),
 	  triggerid(0),
-	  dbClientZabbix(serverInfo.id),
-	  exitRequest(0)
+	  dbClientZabbix(serverInfo.id)
 	{
 		// TODO: use serverInfo.ipAddress if it is given.
-
-		const int pshared = 1;
-		ASURA_ASSERT(sem_init(&sleepSemaphore, pshared, 0) == 0,
-		             "Failed to sem_init(): %d\n", errno);
 	}
 
 	~PrivateContext()
 	{
-		if (sem_destroy(&sleepSemaphore) != 0)
-			MLPL_ERR("Failed to call sem_destroy(): %d\n", errno);
 		if (session)
 			g_object_unref(session);
-	}
-
-	bool hasExitRequest(void) const
-	{
-		return g_atomic_int_get(&exitRequest);
-	}
-
-	void setExitRequest(void)
-	{
-		g_atomic_int_set(&exitRequest, 1);
 	}
 };
 
@@ -139,14 +118,6 @@ void ArmZabbixAPI::setPollingInterval(int sec)
 int ArmZabbixAPI::getPollingInterval(void) const
 {
 	return m_ctx->repeatInterval;
-}
-
-void ArmZabbixAPI::requestExit(void)
-{
-	// to return immediately from the waiting.
-	if (sem_post(&m_ctx->sleepSemaphore) == -1)
-		MLPL_ERR("Failed to call sem_post: %d\n", errno);
-	m_ctx->setExitRequest();
 }
 
 ItemTablePtr ArmZabbixAPI::getTrigger(int requestSince)
@@ -941,28 +912,13 @@ gpointer ArmZabbixAPI::mainThread(AsuraThreadArg *arg)
 {
 	MLPL_INFO("started: ArmZabbixAPI (server: %s)\n",
 	          m_ctx->server.c_str());
-	while (!m_ctx->hasExitRequest()) {
+	while (!hasExitRequest()) {
 		int sleepTime = m_ctx->repeatInterval;
 		if (!mainThreadOneProc())
 			sleepTime = m_ctx->retryInterval;
-		if (m_ctx->hasExitRequest())
+		if (hasExitRequest())
 			break;
-
-		// sleep with timeout
-		timespec ts;
-		if (clock_gettime(CLOCK_REALTIME, &ts) == -1) {
-			MLPL_ERR("Failed to call clock_gettime: %d\n", errno);
-			sleep(10); // to avoid burnup
-		}
-		ts.tv_sec += sleepTime;
-		int result = sem_timedwait(&m_ctx->sleepSemaphore, &ts);
-		if (result == -1) {
-			if (errno == ETIMEDOUT)
-				; // This is normal case
-			else if (errno == EINTR)
-				; // In this case, we also do nothing
-		}
-		// The up of the semaphore is done only from the destructor.
+		sleepInterruptible(sleepTime);
 	}
 	return NULL;
 }
