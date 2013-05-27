@@ -389,6 +389,7 @@ SoupMessage *ArmZabbixAPI::queryItem(void)
 	agent.startObject("params");
 	agent.add("output", "extend");
 	agent.add("selectApplications", "refer");
+	agent.addTrue("monitored");
 	agent.endObject(); // params
 
 	agent.add("auth", m_ctx->authToken);
