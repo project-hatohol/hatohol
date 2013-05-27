@@ -87,6 +87,7 @@ public:
 protected:
 	static void tableInitializerSystem(DBAgent *dbAgent, void *data);
 	static void updateDBIfNeeded(DBAgent *dbAgent, int oldVer, void *data);
+	static string makeItemBrief(const ItemGroup *itemItemGroup);
 
 	/**
 	 * check if the given word is a variable (e.g. $1, $2, ...).

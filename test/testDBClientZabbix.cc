@@ -32,6 +32,18 @@ public:
 	{
 		return DBClientZabbix::getItemVariable(word);
 	}
+
+	static void testMakeItemBrief(const string &name, const string &key,
+	                              const string &expected)
+	{
+		VariableItemGroupPtr itemGroup;
+		itemGroup->ADD_NEW_ITEM(String,
+		                        ITEM_ID_ZBX_ITEMS_NAME, name);
+		itemGroup->ADD_NEW_ITEM(String,
+		                        ITEM_ID_ZBX_ITEMS_KEY_, key);
+		cppcut_assert_equal(
+		  expected, DBClientZabbixTester::makeItemBrief(itemGroup));
+	}
 };
 
 static void _assertCreateTableZBX(int svId, const string &tableName)
@@ -320,6 +332,13 @@ void test_getItemVariableWord(void)
 void test_getItemVariableDoubleDollar(void)
 {
 	cppcut_assert_equal(-1, DBClientZabbixTester::getItemVariable("$$"));
+}
+
+void test_makeItemBrief(void)
+{
+	DBClientZabbixTester::testMakeItemBrief(
+	  "CPU $2 time", "system.cpu.util[,idle]",
+	  "CPU idle time");
 }
 
 } // testDBClientZabbix

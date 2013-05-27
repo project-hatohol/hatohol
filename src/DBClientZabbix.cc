@@ -25,6 +25,11 @@ using namespace mlpl;
 #include "ItemTableUtils.h"
 #include "DBAgentFactory.h"
 
+struct BriefElem {
+	string word;
+	int    variableIndex;
+};
+
 // TODO: This macro is the identical to that in DBAgentSQLite3.cc
 //       we will clean up code later.
 #define DEFINE_AND_ASSERT(ITEM_DATA, ACTUAL_TYPE, VAR_NAME) \
@@ -2041,6 +2046,58 @@ void DBClientZabbix::updateDBIfNeeded(DBAgent *dbAgent, int oldVer, void *data)
 	THROW_ASURA_EXCEPTION(
 	  "Not implemented: %s, oldVer: %d, curr: %d, data: %p",
 	  __PRETTY_FUNCTION__, oldVer, DBClientZabbix::ZABBIX_DB_VERSION, data);
+}
+
+string DBClientZabbix::makeItemBrief(const ItemGroup *itemItemGroup)
+{
+	// get items.name
+	DEFINE_AND_ASSERT(
+	  itemItemGroup->getItem(ITEM_ID_ZBX_ITEMS_NAME),
+	  ItemString, itemName);
+	string name = itemName->get();
+	StringVector vect;
+	StringUtils::split(vect, name, ' ');
+
+	// summarize word and variables ($n : n = 1,2,3,..)
+	vector<BriefElem> briefElemVect;
+	for (size_t i = 0; i < vect.size(); i++) {
+		briefElemVect.push_back(BriefElem());
+		BriefElem &briefElem = briefElemVect.back();
+		briefElem.variableIndex = getItemVariable(vect[i]);
+		if (briefElem.variableIndex <= 0)
+			briefElem.word = vect[i];
+	}
+
+	// extract words to be replace
+	DEFINE_AND_ASSERT(
+	  itemItemGroup->getItem(ITEM_ID_ZBX_ITEMS_KEY_),
+	  ItemString, itemKey_);
+	string itemKey = itemKey_->get();
+
+	StringVector params;
+	extractItemKeys(params, itemKey);
+
+	// make a brief
+	string brief;
+	for (size_t i = 0; i < briefElemVect.size(); i++) {
+		BriefElem &briefElem = briefElemVect[i];
+		if (briefElem.variableIndex <= 0) {
+			brief += briefElem.word;
+		} else if (params.size() <= (size_t)briefElem.variableIndex) {
+			// normal case
+			brief += params[briefElem.variableIndex-1];
+		} else {
+			// error case
+			MLPL_WARN("Not found index: %d, %s, %s\n",
+			          briefElem.variableIndex,
+			          name.c_str(), itemKey.c_str());
+			brief += "<INTERNAL ERROR>";
+		}
+		if (i < briefElemVect.size()-1)
+			brief += " ";
+	}
+
+	return brief;
 }
 
 int DBClientZabbix::getItemVariable(const string &word)
