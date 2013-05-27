@@ -27,6 +27,11 @@ public:
 	{
 		DBClientZabbix::extractItemKeys(params, key);
 	}
+
+	static int getItemVariable(const string &word) 
+	{
+		return DBClientZabbix::getItemVariable(word);
+	}
 };
 
 static void _assertCreateTableZBX(int svId, const string &tableName)
@@ -295,6 +300,11 @@ void test_extractItemKeysWithEmptyParams(void)
 	StringVector vect;
 	DBClientZabbixTester::extractItemKeys(vect, "proc.num[,,run]");
 	assertStringVectorVA(vect, "", "", "run", NULL);
+}
+
+void test_getItemVariable(void)
+{
+	cppcut_assert_equal(1, DBClientZabbixTester::getItemVariable("$1"));
 }
 
 } // testDBClientZabbix

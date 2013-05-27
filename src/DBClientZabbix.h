@@ -87,6 +87,16 @@ public:
 protected:
 	static void tableInitializerSystem(DBAgent *dbAgent, void *data);
 	static void updateDBIfNeeded(DBAgent *dbAgent, int oldVer, void *data);
+
+	/**
+	 * check if the given word is a variable (e.g. $1, $2, ...).
+	 * @params word.
+	 * A word to be checked.
+	 * @return 
+	 * A variable number if the given word is a variable. Otherwise
+	 * -1 is returned.
+	 */
+	static int  getItemVariable(const string &word);
 	static void extractItemKeys(StringVector &params, const string &key);
 
 	void prepareSetupFuncCallback(size_t zabbixServerId);
