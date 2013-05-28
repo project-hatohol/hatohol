@@ -117,3 +117,16 @@ void ArmBase::sleepInterruptible(int sleepTime)
 	}
 	// The up of the semaphore is done only from the destructor.
 }
+
+gpointer ArmBase::mainThread(AsuraThreadArg *arg)
+{
+	while (!hasExitRequest()) {
+		int sleepTime = getPollingInterval();
+		if (!mainThreadOneProc())
+			sleepTime = getRetryInterval();
+		if (hasExitRequest())
+			break;
+		sleepInterruptible(sleepTime);
+	}
+	return NULL;
+}

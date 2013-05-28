@@ -65,6 +65,16 @@ ArmNagiosNDOUtils::~ArmNagiosNDOUtils()
 // ---------------------------------------------------------------------------
 gpointer ArmNagiosNDOUtils::mainThread(AsuraThreadArg *arg)
 {
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
-	return NULL;
+	const MonitoringServerInfo &svInfo = getServerInfo();
+	MLPL_INFO("started: ArmNagiosNDOUtils (server: %s)\n",
+	          svInfo.hostName.c_str());
+	return ArmBase::mainThread(arg);
 }
+
+bool ArmNagiosNDOUtils::mainThreadOneProc(void)
+{
+	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	return false;
+}
+
+

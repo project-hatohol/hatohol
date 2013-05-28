@@ -37,6 +37,12 @@ protected:
 	const MonitoringServerInfo &getServerInfo(void) const;
 	void sleepInterruptible(int sleepTime);
 
+	// virtual methods
+	gpointer mainThread(AsuraThreadArg *arg);
+
+	// virtual methods defined in this class
+	virtual bool mainThreadOneProc(void) = 0;
+
 private:
 	struct PrivateContext;
 	PrivateContext *m_ctx;

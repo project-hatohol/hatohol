@@ -163,9 +163,7 @@ protected:
 	                        const ItemId itemId);
 
 	// virtual methods
-	gpointer mainThread(AsuraThreadArg *arg);
-
-	// virtual methods defined in this class
+	virtual gpointer mainThread(AsuraThreadArg *arg);
 	virtual bool mainThreadOneProc(void);
 
 private:

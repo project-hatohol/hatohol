@@ -895,15 +895,7 @@ gpointer ArmZabbixAPI::mainThread(AsuraThreadArg *arg)
 	const MonitoringServerInfo &svInfo = getServerInfo();
 	MLPL_INFO("started: ArmZabbixAPI (server: %s)\n",
 	          svInfo.hostName.c_str());
-	while (!hasExitRequest()) {
-		int sleepTime = getPollingInterval();
-		if (!mainThreadOneProc())
-			sleepTime = getRetryInterval();
-		if (hasExitRequest())
-			break;
-		sleepInterruptible(sleepTime);
-	}
-	return NULL;
+	return ArmBase::mainThread(arg);
 }
 
 void ArmZabbixAPI::makeAsuraTriggers(void)
@@ -972,9 +964,6 @@ void ArmZabbixAPI::checkObtainedItems(const ItemTable *obtainedItemTable,
 	}
 }
 
-//
-// virtual methods defined in this class
-//
 bool ArmZabbixAPI::mainThreadOneProc(void)
 {
 	if (!openSession())

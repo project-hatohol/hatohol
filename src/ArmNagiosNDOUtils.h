@@ -34,7 +34,8 @@ public:
 
 protected:
 	// virtual methods
-	gpointer mainThread(AsuraThreadArg *arg);
+	virtual gpointer mainThread(AsuraThreadArg *arg);
+	virtual bool mainThreadOneProc(void);
 
 private:
 	struct PrivateContext;
