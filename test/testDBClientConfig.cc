@@ -9,6 +9,17 @@
 
 namespace testDBClientConfig {
 
+void _assertGetHostAddress
+  (const string &ipAddr, const string &hostName, const char *expectValue)
+{
+	MonitoringServerInfo svInfo;
+	svInfo.ipAddress = ipAddr;
+	svInfo.hostName  = hostName;
+	cppcut_assert_equal(expectValue, svInfo.getHostAddress());
+}
+#define assertGetHostAddress(IP, HOSTNAME, EXPECT) \
+cut_trace(_assertGetHostAddress(IP, HOSTNAME, EXPECT))
+
 static void addTargetServer(MonitoringServerInfo *serverInfo)
 {
 	DBClientConfig dbConfig;
@@ -41,6 +52,23 @@ void setup(void)
 // ---------------------------------------------------------------------------
 // Test cases
 // ---------------------------------------------------------------------------
+void test_getHostAddressIP(void)
+{
+	const char *ipAddr = "192.168.1.1";
+	assertGetHostAddress(ipAddr, "example.com", ipAddr);
+}
+
+void test_getHostAddressHostName(void)
+{
+	const char *hostName = "example.com";
+	assertGetHostAddress("", hostName, hostName);
+}
+
+void test_getHostAddressBothNotSet(void)
+{
+	assertGetHostAddress("", "", NULL);
+}
+
 void test_createDB(void)
 {
 	// remove the DB that already exists

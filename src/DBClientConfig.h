@@ -49,6 +49,17 @@ struct MonitoringServerInfo {
 	string               userName;
 	string               password;
 	string               dbName; // for naigos ndutils
+
+	// methods
+
+	/**
+	 * return an appropriate host information for connection.
+	 * @return
+	 * If ipAddress is set, it is returned. Otherwise, if hostName is set,
+	 * it is returned. If ipAddress and hostName are both not set, NULL
+	 * is returned.
+	 */
+	const char *getHostAddress(void);
 };
 
 typedef list<MonitoringServerInfo>         MonitoringServerInfoList;

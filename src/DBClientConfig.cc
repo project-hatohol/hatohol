@@ -184,6 +184,16 @@ enum {
 	NUM_IDX_SERVERS,
 };
 
+
+const char *MonitoringServerInfo::getHostAddress(void)
+{
+	if (!ipAddress.empty())
+		return ipAddress.c_str();
+	if (!hostName.empty())
+		return hostName.c_str();
+	return NULL;
+}
+
 struct DBClientConfig::PrivateContext
 {
 	static MutexLock mutex;
