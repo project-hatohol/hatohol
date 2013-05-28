@@ -31,13 +31,10 @@ struct DBAgentMySQL::PrivateContext {
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
-DBAgentMySQL::DBAgentMySQL(const char *db)
+DBAgentMySQL::DBAgentMySQL(const char *db, const char *user, const char *passwd,
+                           const char *host, unsigned int port)
 : m_ctx(NULL)
 {
-	const char *host = NULL; // localhost is used.
-	const char *user = NULL; // current user name is used.
-	const char *passwd = NULL; // passwd is not checked.
-	unsigned int port = 0; // default port is used.
 	const char *unixSocket = NULL;
 	unsigned long clientFlag = 0;
 	m_ctx = new PrivateContext();

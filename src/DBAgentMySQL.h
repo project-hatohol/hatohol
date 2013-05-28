@@ -24,7 +24,11 @@
 class DBAgentMySQL : public DBAgent {
 public:
 	// constructor and destructor
-	DBAgentMySQL(const char *db);
+	DBAgentMySQL(const char *db,            // When the parameter is NULL,
+	             const char *user = NULL,   //   current user name is used
+	             const char *passwd = NULL, //   passwd is not checked
+	             const char *host = NULL,   //   localhost is used
+	             unsigned int port = 0);    //   default port is used
 	virtual ~DBAgentMySQL();
 
 	// virtual methods
