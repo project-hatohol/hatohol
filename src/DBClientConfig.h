@@ -59,7 +59,7 @@ struct MonitoringServerInfo {
 	 * it is returned. If ipAddress and hostName are both not set, NULL
 	 * is returned.
 	 */
-	const char *getHostAddress(void);
+	const char *getHostAddress(void) const;
 };
 
 typedef list<MonitoringServerInfo>         MonitoringServerInfoList;

@@ -185,7 +185,7 @@ enum {
 };
 
 
-const char *MonitoringServerInfo::getHostAddress(void)
+const char *MonitoringServerInfo::getHostAddress(void) const
 {
 	if (!ipAddress.empty())
 		return ipAddress.c_str();
