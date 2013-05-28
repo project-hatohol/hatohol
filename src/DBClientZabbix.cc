@@ -1868,10 +1868,7 @@ bool DBClientZabbix::transformItemItemGroupToItemInfo
 	itemInfo.hostId = itemHostId->get();
 
 	// brief
-	DEFINE_AND_ASSERT(
-	  itemItemGroup->getItem(ITEM_ID_ZBX_ITEMS_NAME),
-	  ItemString, itemDescription);
-	itemInfo.brief = itemDescription->get();
+	itemInfo.brief = makeItemBrief(itemItemGroup);
 
 	// last value time
 	DEFINE_AND_ASSERT(
