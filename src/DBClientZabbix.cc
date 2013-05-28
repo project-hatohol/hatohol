@@ -1876,6 +1876,11 @@ bool DBClientZabbix::transformItemItemGroupToItemInfo
 	  ItemInt, itemLastClock);
 	itemInfo.lastValueTime.tv_sec = itemLastClock->get();
 	itemInfo.lastValueTime.tv_nsec = 0;
+	if (itemInfo.lastValueTime.tv_sec == 0) {
+		// We assume that template item name in this case such as
+		// 'Incoming network traffic on {#IFNAME}'
+		return false;
+	}
 
 	// last value
 	DEFINE_AND_ASSERT(
