@@ -16,13 +16,23 @@
 */
 
 #include "ArmNagiosNDOUtils.h"
+#include "DBAgentMySQL.h"
 
 using namespace std;
 
 struct ArmNagiosNDOUtils::PrivateContext
 {
+	DBAgentMySQL dbAgent;
+
 	// methods
-	PrivateContext(void)
+	PrivateContext(const MonitoringServerInfo &serverInfo)
+	: dbAgent(serverInfo.dbName.c_str(), serverInfo.userName.c_str(),
+	          serverInfo.password.c_str(),
+ 	          // TODO: use ipAddress depending on the situation
+	          //       Should such function is created in
+	          //       MonitoringServerInfo ?
+	          serverInfo.hostName.c_str(),
+	          serverInfo.port)
 	{
 	}
 
@@ -38,7 +48,7 @@ ArmNagiosNDOUtils::ArmNagiosNDOUtils(const MonitoringServerInfo &serverInfo)
 : ArmBase(serverInfo),
   m_ctx(NULL)
 {
-	m_ctx = new PrivateContext();
+	m_ctx = new PrivateContext(serverInfo);
 }
 
 ArmNagiosNDOUtils::~ArmNagiosNDOUtils()
@@ -51,5 +61,10 @@ ArmNagiosNDOUtils::~ArmNagiosNDOUtils()
 }
 
 // ---------------------------------------------------------------------------
-// Private methods
+// Protected methods
 // ---------------------------------------------------------------------------
+gpointer ArmNagiosNDOUtils::mainThread(AsuraThreadArg *arg)
+{
+	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	return NULL;
+}

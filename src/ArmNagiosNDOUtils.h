@@ -33,6 +33,8 @@ public:
 	virtual ~ArmNagiosNDOUtils();
 
 protected:
+	// virtual methods
+	gpointer mainThread(AsuraThreadArg *arg);
 
 private:
 	struct PrivateContext;
