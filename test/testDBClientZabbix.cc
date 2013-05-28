@@ -356,5 +356,11 @@ void test_makeItemBriefTwoKeys(void)
 	  "Zabbix busy unreachable poller processes, in %");
 }
 
+void test_makeItemBriefNoVariables(void)
+{
+	DBClientZabbixTester::testMakeItemBrief(
+	  "Host name", "system.hostname", "Host name");
+}
+
 } // testDBClientZabbix
 
