@@ -36,7 +36,7 @@ struct MonitoringServerInfo {
 	int                  pollingIntervalSec;
 	int                  retryIntervalSec;
 
-	// The folloing parameters are used in different purposes
+	// The following parameters are used in different purposes
 	// depending on the MonitringSystemType.
 	//
 	// [MONITORING_SYSTEM_ZABBIX]
