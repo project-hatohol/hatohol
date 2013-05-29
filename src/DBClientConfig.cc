@@ -184,7 +184,6 @@ enum {
 	NUM_IDX_SERVERS,
 };
 
-
 const char *MonitoringServerInfo::getHostAddress(void) const
 {
 	if (!ipAddress.empty())
