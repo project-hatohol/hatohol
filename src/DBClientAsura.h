@@ -29,6 +29,8 @@ enum TriggerStatusType {
 enum TriggerSeverityType {
 	TRIGGER_SEVERITY_INFO,
 	TRIGGER_SEVERITY_WARN,
+	TRIGGER_SEVERITY_CRITICAL,
+	TRIGGER_SEVERITY_UNKNOWN,
 };
 
 struct TriggerInfo {
