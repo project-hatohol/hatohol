@@ -28,11 +28,7 @@ struct ArmNagiosNDOUtils::PrivateContext
 	PrivateContext(const MonitoringServerInfo &serverInfo)
 	: dbAgent(serverInfo.dbName.c_str(), serverInfo.userName.c_str(),
 	          serverInfo.password.c_str(),
- 	          // TODO: use ipAddress depending on the situation
-	          //       Should such function is created in
-	          //       MonitoringServerInfo ?
-	          serverInfo.hostName.c_str(),
-	          serverInfo.port)
+	          serverInfo.getHostAddress(), serverInfo.port)
 	{
 	}
 
