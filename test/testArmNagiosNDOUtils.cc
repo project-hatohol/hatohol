@@ -4,15 +4,9 @@
 
 namespace testArmNagiosNDOUtils {
 
-void setup(void)
-{
-	asuraInit();
-}
+static ArmNagiosNDOUtils *g_armNagi = NULL;
 
-// ---------------------------------------------------------------------------
-// Test cases
-// ---------------------------------------------------------------------------
-void test_create(void)
+static void createGlobalInstance(void)
 {
 	MonitoringServerInfo serverInfo;
 	serverInfo.id = 1;
@@ -28,12 +22,34 @@ void test_create(void)
 	serverInfo.dbName   = "ndoutils";
 	bool gotException = false;
 	try {
-		ArmNagiosNDOUtils armNagios(serverInfo);
+		g_armNagi = new ArmNagiosNDOUtils(serverInfo);
 	} catch (const exception &e) {
 		gotException = true;
 		cut_fail("Got exception: %s", e.what());
 	}
 	cppcut_assert_equal(false, gotException);
+}
+
+void setup(void)
+{
+	asuraInit();
+	createGlobalInstance();
+}
+
+void teardown(void)
+{
+	if (g_armNagi) {
+		delete g_armNagi;
+		g_armNagi = NULL;
+	}
+}
+
+// ---------------------------------------------------------------------------
+// Test cases
+// ---------------------------------------------------------------------------
+void test_create(void)
+{
+	cppcut_assert_not_null(g_armNagi);
 }
 
 } // namespace testArmNagiosNDOUtils
