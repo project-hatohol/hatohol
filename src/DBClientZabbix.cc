@@ -1694,10 +1694,10 @@ void DBClientZabbix::getTriggersAsAsuraFormat(TriggerInfoList &triggerInfoList)
 		   itemGroup->getItemAt(idx++), ItemUint64, itemId);
 		trigInfo.id = itemId->get();
 
-		// status
+		// value
 		DEFINE_AND_ASSERT(
-		   itemGroup->getItemAt(idx++), ItemInt, itemStatus);
-		trigInfo.status = (TriggerStatusType)itemStatus->get();
+		   itemGroup->getItemAt(idx++), ItemInt, itemValue);
+		trigInfo.status = (TriggerStatusType)itemValue->get();
 
 		// severity
 		DEFINE_AND_ASSERT(
@@ -2289,8 +2289,8 @@ void DBClientZabbix::makeSelectExArgForTriggerAsAsuraFormat(void)
 	//
 	// statements and columnTypes
 	//
-	const ColumnDef &triggersStatus =
-	   COLUMN_DEF_TRIGGERS_RAW_2_0[IDX_TRIGGERS_RAW_2_0_STATUS];
+	const ColumnDef &triggersValue =
+	   COLUMN_DEF_TRIGGERS_RAW_2_0[IDX_TRIGGERS_RAW_2_0_VALUE];
 	const ColumnDef &triggersSeverity =
 	   COLUMN_DEF_TRIGGERS_RAW_2_0[IDX_TRIGGERS_RAW_2_0_PRIORITY];
 	const ColumnDef &triggersLastchange = 
@@ -2301,7 +2301,7 @@ void DBClientZabbix::makeSelectExArgForTriggerAsAsuraFormat(void)
 	   COLUMN_DEF_HOSTS_RAW_2_0[IDX_HOSTS_RAW_2_0_NAME];
 
 	arg.pushColumn(triggersTriggerid,  VAR_TRIGGERS);
-	arg.pushColumn(triggersStatus,     VAR_TRIGGERS);
+	arg.pushColumn(triggersValue,      VAR_TRIGGERS);
 	arg.pushColumn(triggersSeverity,   VAR_TRIGGERS);
 	arg.pushColumn(triggersLastchange, VAR_TRIGGERS);
 	arg.pushColumn(triggersDescription,VAR_TRIGGERS);
