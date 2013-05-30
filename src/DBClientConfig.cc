@@ -405,6 +405,7 @@ void DBClientConfig::addTargetServer(MonitoringServerInfo *monitoringServerInfo)
 			DBAgentUpdateArg arg;
 			arg.tableName = TABLE_NAME_SERVERS;
 			arg.columnDefs = COLUMN_DEF_SERVERS;
+			arg.condition  = condition;
 
 			row->ADD_NEW_ITEM(Int, monitoringServerInfo->type);
 			arg.columnIndexes.push_back(IDX_SERVERS_TYPE);
