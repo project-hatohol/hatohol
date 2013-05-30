@@ -119,6 +119,18 @@ static bool parseServerConfigLine(ParsableString &parsable,
 	word = parsable.readWord(ParsableString::SEPARATOR_COMMA);
 	serverInfo.retryIntervalSec = atoi(word.c_str());
 
+	// user name and passowrd
+	serverInfo.userName =
+	   parsable.readWord(ParsableString::SEPARATOR_COMMA);
+	serverInfo.password =
+	   parsable.readWord(ParsableString::SEPARATOR_COMMA);
+
+	// dbName
+	if (serverInfo.type == MONITORING_SYSTEM_NAGIOS) {
+		serverInfo.dbName =
+		   parsable.readWord(ParsableString::SEPARATOR_COMMA);
+	}
+
 	// push back the info
 	serverInfoList.push_back(serverInfo);
 	return true;
@@ -273,11 +285,14 @@ int main(int argc, char *argv[])
 		dbConfig.addTargetServer(&svInfo);
 
 		printf("SERVER: ID: %d, TYPE: %d, HOSTNAME: %s, IP ADDR: %s "
-		       "NICKNAME: %s, PORT: %d, POLLING: %d, RETRY: %d\n",
+		       "NICKNAME: %s, PORT: %d, POLLING: %d, RETRY: %d "
+		       "USERNAME: %s, PASSWORD: %s, DB NAME: %s\n",
 		       svInfo.id, svInfo.type, svInfo.hostName.c_str(),
 		       svInfo.ipAddress.c_str(), svInfo.nickname.c_str(),
 		       svInfo.port, svInfo.pollingIntervalSec,
-		       svInfo.retryIntervalSec);
+		       svInfo.retryIntervalSec,
+		       svInfo.userName.c_str(), svInfo.password.c_str(),
+		       svInfo.dbName.c_str());
 	}
 
 	return EXIT_SUCCESS;
