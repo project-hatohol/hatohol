@@ -70,24 +70,7 @@ ItemTablePtr VirtualDataStoreZabbix::getItemTable(ItemGroupId groupId)
 
 void VirtualDataStoreZabbix::start(void)
 {
-	DBClientConfig dbConfig;
-	MonitoringServerInfoList monitoringServers;
-	dbConfig.getTargetServers(monitoringServers);
-
-	MonitoringServerInfoListIterator it = monitoringServers.begin();
-	for (; it != monitoringServers.end(); ++it) {
-		MonitoringServerInfo &svInfo = *it;
-		if (svInfo.type != MONITORING_SYSTEM_ZABBIX)
-			continue;
-		DataStoreZabbix *dataStore = new DataStoreZabbix(svInfo);
-		add(svInfo.id, dataStore);
-	}
-}
-
-void VirtualDataStoreZabbix::stop(void)
-{
-	MLPL_INFO("VirtualDataStoreZabbix: stop process: started.\n");
-	closeAllStores();
+	VirtualDataStore::start<DataStoreZabbix>(MONITORING_SYSTEM_ZABBIX);
 }
 
 void VirtualDataStoreZabbix::getTriggerList(TriggerInfoList &triggerList)

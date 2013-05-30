@@ -27,3 +27,12 @@ VirtualDataStore::VirtualDataStore(void)
 VirtualDataStore::~VirtualDataStore(void)
 {
 }
+
+// ---------------------------------------------------------------------------
+// Protected methods
+// ---------------------------------------------------------------------------
+void VirtualDataStore::stop(void)
+{
+	MLPL_INFO("VirtualDataStore: stop process: started.\n");
+	closeAllStores();
+}

@@ -23,14 +23,34 @@
 #include "VirtualDataStore.h"
 #include "DataStoreManager.h"
 #include "DBClientAsura.h"
+#include "DBClientConfig.h"
 
 class VirtualDataStore : public DataStoreManager
 {
 public:
 	VirtualDataStore(void);
 	virtual ~VirtualDataStore(void);
+	void stop(void);
 
 	virtual void getTriggerList(TriggerInfoList &triggerList) = 0;
+
+protected:
+	template<class T>
+	void start(MonitoringSystemType systemType)
+	{
+		DBClientConfig dbConfig;
+		MonitoringServerInfoList monitoringServers;
+		dbConfig.getTargetServers(monitoringServers);
+
+		MonitoringServerInfoListIterator it = monitoringServers.begin();
+		for (; it != monitoringServers.end(); ++it) {
+			MonitoringServerInfo &svInfo = *it;
+			if (svInfo.type != systemType)
+				continue;
+			DataStore *dataStore = new T(svInfo);
+			add(svInfo.id, dataStore);
+		}
+	}
 };
 
 #endif // VirtualDataStore_h
