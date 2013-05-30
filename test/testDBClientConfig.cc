@@ -31,14 +31,17 @@ cut_trace(_assertAddToDB<MonitoringServerInfo>(X, addTargetServer))
 static string makeExpectedOutput(MonitoringServerInfo *serverInfo)
 {
 	string expectedOut = StringUtils::sprintf
-	                       ("%u|%d|%s|%s|%s|%d|%d|%d\n",
+	                       ("%u|%d|%s|%s|%s|%d|%d|%d|%s|%s|%s\n",
 	                        serverInfo->id, serverInfo->type,
 	                        serverInfo->hostName.c_str(),
 	                        serverInfo->ipAddress.c_str(),
 	                        serverInfo->nickname.c_str(),
 	                        serverInfo->port,
 	                        serverInfo->pollingIntervalSec,
-	                        serverInfo->retryIntervalSec);
+	                        serverInfo->retryIntervalSec,
+	                        serverInfo->userName.c_str(),
+	                        serverInfo->password.c_str(),
+	                        serverInfo->dbName.c_str());
 	return expectedOut;
 }
 

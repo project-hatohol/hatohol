@@ -29,7 +29,7 @@ using namespace std;
 static const char *TABLE_NAME_SYSTEM  = "system";
 static const char *TABLE_NAME_SERVERS = "servers";
 
-int DBClientConfig::CONFIG_DB_VERSION = 4;
+int DBClientConfig::CONFIG_DB_VERSION = 5;
 const char *DBClientConfig::DEFAULT_DB_NAME = "asura-config.db";
 
 static const ColumnDef COLUMN_DEF_SYSTEM[] = {
@@ -167,6 +167,39 @@ static const ColumnDef COLUMN_DEF_SERVERS[] = {
 	SQL_KEY_NONE,                      // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
+}, {
+	ITEM_ID_NOT_SET,                   // itemId
+	TABLE_NAME_SERVERS,                // tableName
+	"user_name",                       // columnName
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	255,                               // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}, {
+	ITEM_ID_NOT_SET,                   // itemId
+	TABLE_NAME_SERVERS,                // tableName
+	"password",                        // columnName
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	255,                               // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}, {
+	ITEM_ID_NOT_SET,                   // itemId
+	TABLE_NAME_SERVERS,                // tableName
+	"db_name",                         // columnName
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	255,                               // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
 }
 };
 static const size_t NUM_COLUMNS_SERVERS =
@@ -181,6 +214,9 @@ enum {
 	IDX_SERVERS_PORT,
 	IDX_SERVERS_POLLING_INTERVAL_SEC,
 	IDX_SERVERS_RETRY_INTERVAL_SEC,
+	IDX_SERVERS_USER_NAME,
+	IDX_SERVERS_PASSWORD,
+	IDX_SERVERS_DB_NAME,
 	NUM_IDX_SERVERS,
 };
 
@@ -358,6 +394,11 @@ void DBClientConfig::addTargetServer(MonitoringServerInfo *monitoringServerInfo)
 			  (Int, monitoringServerInfo->pollingIntervalSec);
 			row->ADD_NEW_ITEM
 			  (Int, monitoringServerInfo->retryIntervalSec);
+			row->ADD_NEW_ITEM
+			  (String, monitoringServerInfo->userName);
+			row->ADD_NEW_ITEM
+			  (String, monitoringServerInfo->password);
+			row->ADD_NEW_ITEM(String, monitoringServerInfo->dbName);
 			arg.row = row;
 			insert(arg);
 		} else {
@@ -391,6 +432,17 @@ void DBClientConfig::addTargetServer(MonitoringServerInfo *monitoringServerInfo)
 			  (Int, monitoringServerInfo->retryIntervalSec);
 			arg.columnIndexes.push_back
 			  (IDX_SERVERS_RETRY_INTERVAL_SEC);
+
+			row->ADD_NEW_ITEM(String,
+			                  monitoringServerInfo->userName);
+			arg.columnIndexes.push_back(IDX_SERVERS_USER_NAME);
+			row->ADD_NEW_ITEM(String,
+			                  monitoringServerInfo->password);
+			arg.columnIndexes.push_back(IDX_SERVERS_PASSWORD);
+			row->ADD_NEW_ITEM(String,
+			                  monitoringServerInfo->dbName);
+			arg.columnIndexes.push_back(IDX_SERVERS_DB_NAME);
+
 			arg.row = row;
 			update(arg);
 		}
@@ -411,6 +463,9 @@ void DBClientConfig::getTargetServers
 	arg.columnIndexes.push_back(IDX_SERVERS_PORT);
 	arg.columnIndexes.push_back(IDX_SERVERS_POLLING_INTERVAL_SEC);
 	arg.columnIndexes.push_back(IDX_SERVERS_RETRY_INTERVAL_SEC);
+	arg.columnIndexes.push_back(IDX_SERVERS_USER_NAME);
+	arg.columnIndexes.push_back(IDX_SERVERS_PASSWORD);
+	arg.columnIndexes.push_back(IDX_SERVERS_DB_NAME);
 
 	DBCLIENT_TRANSACTION_BEGIN() {
 		select(arg);
@@ -436,6 +491,9 @@ void DBClientConfig::getTargetServers
 		                 = GET_INT_FROM_GRP(itemGroup, idx++);
 		svInfo.retryIntervalSec
 		                 = GET_INT_FROM_GRP(itemGroup, idx++);
+		svInfo.userName  = GET_STRING_FROM_GRP(itemGroup, idx++);
+		svInfo.password  = GET_STRING_FROM_GRP(itemGroup, idx++);
+		svInfo.dbName    = GET_STRING_FROM_GRP(itemGroup, idx++);
 	}
 }
 

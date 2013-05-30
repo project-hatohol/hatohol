@@ -11,6 +11,9 @@ MonitoringServerInfo serverInfo[] =
 	80,                       // port
 	10,                       // polling_interval_sec
 	5,                        // retry_interval_sec
+	"foo",                    // user_name
+	"goo",                    // password
+	"dbX",                    // db_name
 },{
 	2,                        // id
 	MONITORING_SYSTEM_ZABBIX, // type
@@ -20,6 +23,9 @@ MonitoringServerInfo serverInfo[] =
 	80,                       // port
 	30,                       // polling_interval_sec
 	15,                       // retry_interval_sec
+	"Einstein",               // user_name
+	"Albert",                 // password
+	"gravity",                // db_name
 },{
 	3,                        // id
 	MONITORING_SYSTEM_ZABBIX, // type
@@ -29,6 +35,9 @@ MonitoringServerInfo serverInfo[] =
 	8080,                     // port
 	60,                       // polling_interval_sec
 	60,                       // retry_interval_sec
+	"Fermi",                  // user_name
+	"fermion",                // password
+	"",                       // db_name
 }};
 size_t NumServerInfo = sizeof(serverInfo) / sizeof(MonitoringServerInfo);
 
