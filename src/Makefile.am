@@ -23,7 +23,7 @@ libasura_la_SOURCES = \
 	VirtualDataStoreZabbixProfiles.cc \
 	DataStoreException.cc \
 	DataStore.cc DataStoreManager.cc DataStoreZabbix.cc \
-	DataStoreNagios.cc \
+	DataStoreNagios.cc VirtualDataStoreNagios.cc \
 	JsonBuilderAgent.cc JsonParserAgent.cc \
 	ArmBase.cc ArmZabbixAPI.cc ArmNagiosNDOUtils.cc
 
