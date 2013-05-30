@@ -20,9 +20,24 @@
 
 using namespace std;
 
+// TODO: This macro is the identical to that in DBAgentSQLite3.cc and
+//       DBClientZabbix.cc.We will clean up code later.
+#define DEFINE_AND_ASSERT(ITEM_DATA, ACTUAL_TYPE, VAR_NAME) \
+	const ACTUAL_TYPE *VAR_NAME = \
+	  dynamic_cast<const ACTUAL_TYPE *>(ITEM_DATA); \
+	ASURA_ASSERT(VAR_NAME != NULL, "Failed to dynamic cast: %s -> %s", \
+	             DEMANGLED_TYPE_NAME(*ITEM_DATA), #ACTUAL_TYPE); \
+
 static const char *TABLE_NAME_SERVICES      = "nagios_services";
 static const char *TABLE_NAME_SERVICESTATUS = "nagios_servicestatus";
 static const char *TABLE_NAME_HOSTS         = "nagios_hosts";
+
+enum
+{
+	STATE_OK       = 0,
+	STATE_WARNING  = 1,
+	STATE_CRITICAL = 2,
+};
 
 // [NOTE]
 //   The following columns are listed only for used ones.
@@ -141,6 +156,17 @@ enum {
 // Definitions: nagios_hosts
 static const ColumnDef COLUMN_DEF_HOSTS[] = {
 {
+	ITEM_ID_NAGIOS_HOSTS_HOST_ID,      // itemId
+	TABLE_NAME_HOSTS,                  // tableName
+	"host_id",                         // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	11,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_PRI,                       // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}, {
 	ITEM_ID_NAGIOS_HOSTS_HOST_OBJECT_ID, // itemId
 	TABLE_NAME_HOSTS,                  // tableName
 	"host_object_id",                  // columnName
@@ -154,7 +180,7 @@ static const ColumnDef COLUMN_DEF_HOSTS[] = {
 }, {
 	ITEM_ID_NAGIOS_HOSTS_DISPLAY_NAME,// itemId
 	TABLE_NAME_HOSTS,                  // tableName
-	"status_update_time",              // columnName
+	"display_name",                    // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
 	64,                                // columnLength
 	0,                                 // decFracLength
@@ -169,6 +195,7 @@ static const size_t NUM_COLUMNS_HOSTS =
   sizeof(COLUMN_DEF_HOSTS) / sizeof(ColumnDef);
 
 enum {
+	IDX_HOSTS_HOST_ID,
 	IDX_HOSTS_HOST_OBJECT_ID,
 	IDX_HOSTS_DISPLAY_NAME,
 	NUM_IDX_HOSTS,
@@ -180,6 +207,8 @@ enum {
 struct ArmNagiosNDOUtils::PrivateContext
 {
 	DBAgentMySQL dbAgent;
+	DBClientAsura dbAsura;
+	DBAgentSelectExArg selectTriggerArg;
 
 	// methods
 	PrivateContext(const MonitoringServerInfo &serverInfo)
@@ -202,6 +231,7 @@ ArmNagiosNDOUtils::ArmNagiosNDOUtils(const MonitoringServerInfo &serverInfo)
   m_ctx(NULL)
 {
 	m_ctx = new PrivateContext(serverInfo);
+	makeSelectTriggerArg();
 }
 
 ArmNagiosNDOUtils::~ArmNagiosNDOUtils()
@@ -216,6 +246,141 @@ ArmNagiosNDOUtils::~ArmNagiosNDOUtils()
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
+void ArmNagiosNDOUtils::makeSelectTriggerArg(void)
+{
+	const static char *VAR_SERVICES = "sv";
+	const static char *VAR_STATUS   = "st";
+	const static char *VAR_HOSTS    = "h";
+
+	// table name
+	const ColumnDef &columnDefServicesServiceObjectId = 
+	  COLUMN_DEF_SERVICES[IDX_SERVICES_SERVICE_OBJECT_ID];
+	const ColumnDef &columnDefServicesHostObjectId = 
+	  COLUMN_DEF_SERVICES[IDX_SERVICES_HOST_OBJECT_ID];
+	const ColumnDef &columnDefStatusServiceObjectId = 
+	  COLUMN_DEF_SERVICESTATUS[IDX_SERVICESTATUS_SERVICE_OBJECT_ID];
+	const ColumnDef &columnDefHostsHostObjectId = 
+	  COLUMN_DEF_HOSTS[IDX_HOSTS_HOST_OBJECT_ID];
+	m_ctx->selectTriggerArg.tableName =
+	  StringUtils::sprintf(
+	    "%s %s "
+	    "inner join %s %s on %s.%s=%s.%s "
+	    "inner join %s %s on %s.%s=%s.%s",
+	    TABLE_NAME_SERVICES,      VAR_SERVICES,
+	    TABLE_NAME_SERVICESTATUS, VAR_STATUS,
+	    VAR_SERVICES, columnDefServicesServiceObjectId.columnName,
+	    VAR_STATUS,   columnDefStatusServiceObjectId.columnName,
+	    TABLE_NAME_HOSTS,         VAR_HOSTS,
+	    VAR_SERVICES, columnDefServicesHostObjectId.columnName,
+	    VAR_HOSTS,    columnDefHostsHostObjectId.columnName);
+
+	// statements
+	const ColumnDef &columnDefServicesServiceId = 
+	  COLUMN_DEF_SERVICES[IDX_SERVICES_SERVICE_ID];
+	const ColumnDef &columnDefStatusCurrentState =
+	  COLUMN_DEF_SERVICESTATUS[IDX_SERVICESTATUS_CURRENT_STATE];
+	const ColumnDef &columnDefStatusUpdateTime =
+	  COLUMN_DEF_SERVICESTATUS[IDX_SERVICESTATUS_STATUS_UPDATE_TIME];
+	const ColumnDef &columnDefHostsHostId =
+	  COLUMN_DEF_HOSTS[IDX_HOSTS_HOST_ID];
+	const ColumnDef &columnDefHostsDisplayName =
+	  COLUMN_DEF_HOSTS[IDX_HOSTS_DISPLAY_NAME];
+	const ColumnDef &columnDefStatusOutput = 
+	  COLUMN_DEF_SERVICESTATUS[IDX_SERVICESTATUS_OUTPUT];
+
+	// service_id
+	m_ctx->selectTriggerArg.pushColumn(columnDefServicesServiceId,
+	                                   VAR_SERVICES);
+	// current_status
+	m_ctx->selectTriggerArg.pushColumn(columnDefStatusCurrentState,
+	                                   VAR_STATUS);
+	// status_update_time
+	m_ctx->selectTriggerArg.pushColumn(columnDefStatusUpdateTime,
+	                                   VAR_STATUS);
+	// host_id
+	m_ctx->selectTriggerArg.pushColumn(columnDefHostsHostId,
+	                                   VAR_HOSTS);
+	// hosts.display_name 
+	m_ctx->selectTriggerArg.pushColumn(columnDefHostsDisplayName,
+	                                   VAR_HOSTS);
+	// output
+	m_ctx->selectTriggerArg.pushColumn(columnDefStatusOutput,
+	                                   VAR_STATUS);
+
+	// contiditon
+	m_ctx->selectTriggerArg.condition = StringUtils::sprintf(
+	  "%s.%s>%d",
+	  VAR_STATUS, columnDefStatusCurrentState.columnName, STATE_OK);
+}
+
+void ArmNagiosNDOUtils::getTrigger(void)
+{
+	// TODO: should use transaction
+	m_ctx->dbAgent.select(m_ctx->selectTriggerArg);
+	size_t numTriggers =
+	   m_ctx->selectTriggerArg.dataTable->getNumberOfRows();
+	MLPL_DBG("The number of triggers: %zd\n", numTriggers);
+
+	const MonitoringServerInfo &svInfo = getServerInfo();
+	TriggerInfoList triggerInfoList;
+	const ItemGroupList &grpList =
+	  m_ctx->selectTriggerArg.dataTable->getItemGroupList();
+	ItemGroupListConstIterator it = grpList.begin();
+	for (; it != grpList.end(); ++it) {
+		int idx = 0;
+		const ItemGroup *itemGroup = *it;
+		TriggerInfo trigInfo;
+
+		// serverId
+		trigInfo.serverId = svInfo.id;
+
+		// id (service_id)
+		DEFINE_AND_ASSERT(
+		   itemGroup->getItemAt(idx++), ItemInt, itemId);
+		trigInfo.id = itemId->get();
+
+		// status and severity (current_status)
+		DEFINE_AND_ASSERT(
+		   itemGroup->getItemAt(idx++), ItemInt, itemStatus);
+		int currentStatus = itemStatus->get();
+		trigInfo.status = TRIGGER_STATUS_OK;
+		trigInfo.severity = TRIGGER_SEVERITY_UNKNOWN;
+		if (currentStatus != STATE_OK) {
+			trigInfo.status = TRIGGER_STATUS_PROBLEM;
+			if (currentStatus == STATE_WARNING)
+				trigInfo.severity = TRIGGER_SEVERITY_WARN;
+			else if (currentStatus == STATE_CRITICAL)
+				trigInfo.severity = TRIGGER_SEVERITY_CRITICAL;
+			else
+				MLPL_WARN("Unknown status: %d", currentStatus);
+		}
+
+		// lastChangeTime (status_update_time)
+		DEFINE_AND_ASSERT(
+		   itemGroup->getItemAt(idx++), ItemInt, itemLastchange);
+		trigInfo.lastChangeTime.tv_sec = itemLastchange->get();
+		trigInfo.lastChangeTime.tv_nsec = 0;
+
+		// hostId (host_id)
+		DEFINE_AND_ASSERT(
+		   itemGroup->getItemAt(idx++), ItemInt, itemHostid);
+		trigInfo.hostId = itemHostid->get();
+
+		// hostName (hosts.display_name)
+		DEFINE_AND_ASSERT(
+		   itemGroup->getItemAt(idx++), ItemString, itemHostName);
+		trigInfo.hostName = itemHostName->get();
+
+		// brief (output)
+		DEFINE_AND_ASSERT(
+		   itemGroup->getItemAt(idx++), ItemString, itemDescription);
+		trigInfo.brief = itemDescription->get();
+
+		triggerInfoList.push_back(trigInfo);
+	}
+	m_ctx->dbAsura.setTriggerInfoList(triggerInfoList, svInfo.id);
+}
+
 gpointer ArmNagiosNDOUtils::mainThread(AsuraThreadArg *arg)
 {
 	const MonitoringServerInfo &svInfo = getServerInfo();
@@ -226,8 +391,12 @@ gpointer ArmNagiosNDOUtils::mainThread(AsuraThreadArg *arg)
 
 bool ArmNagiosNDOUtils::mainThreadOneProc(void)
 {
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
-	return false;
+	try {
+		getTrigger();
+	} catch (const exception e) {
+		MLPL_ERR("Got exception: %s", e.what());
+		return false;
+	}
+	return true;
 }
-
 

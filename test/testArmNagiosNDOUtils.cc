@@ -4,8 +4,23 @@
 
 namespace testArmNagiosNDOUtils {
 
-static ArmNagiosNDOUtils *g_armNagi = NULL;
+class ArmNagiosNDOUtilsTestee : public ArmNagiosNDOUtils {
+public:
+	ArmNagiosNDOUtilsTestee(const MonitoringServerInfo &serverInfo)
+	: ArmNagiosNDOUtils(serverInfo)
+	{
+	}
 
+	void getTrigger(void)
+	{
+		ArmNagiosNDOUtils::getTrigger();
+	} 
+};
+
+static ArmNagiosNDOUtils *g_armNagi = NULL;
+static ArmNagiosNDOUtilsTestee *g_armNagiTestee = NULL;
+
+template<class T>
 static void createGlobalInstance(void)
 {
 	MonitoringServerInfo serverInfo;
@@ -22,18 +37,20 @@ static void createGlobalInstance(void)
 	serverInfo.dbName   = "ndoutils";
 	bool gotException = false;
 	try {
-		g_armNagi = new ArmNagiosNDOUtils(serverInfo);
+		g_armNagi = new T(serverInfo);
 	} catch (const exception &e) {
 		gotException = true;
 		cut_fail("Got exception: %s", e.what());
 	}
 	cppcut_assert_equal(false, gotException);
+
+	// If T is ArmNagiosNDOUtils, the following cast will return NULL.
+	g_armNagiTestee = dynamic_cast<ArmNagiosNDOUtilsTestee *>(g_armNagi);
 }
 
 void setup(void)
 {
 	asuraInit();
-	createGlobalInstance();
 }
 
 void teardown(void)
@@ -41,6 +58,7 @@ void teardown(void)
 	if (g_armNagi) {
 		delete g_armNagi;
 		g_armNagi = NULL;
+		g_armNagiTestee = NULL;
 	}
 }
 
@@ -49,7 +67,14 @@ void teardown(void)
 // ---------------------------------------------------------------------------
 void test_create(void)
 {
+	createGlobalInstance<ArmNagiosNDOUtils>();
 	cppcut_assert_not_null(g_armNagi);
+}
+
+void test_getTrigger(void)
+{
+	createGlobalInstance<ArmNagiosNDOUtilsTestee>();
+	g_armNagiTestee->getTrigger();
 }
 
 } // namespace testArmNagiosNDOUtils

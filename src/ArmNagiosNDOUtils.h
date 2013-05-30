@@ -33,6 +33,9 @@ public:
 	virtual ~ArmNagiosNDOUtils();
 
 protected:
+	void makeSelectTriggerArg(void);
+	void getTrigger(void);
+
 	// virtual methods
 	virtual gpointer mainThread(AsuraThreadArg *arg);
 	virtual bool mainThreadOneProc(void);

@@ -77,6 +77,8 @@ void VirtualDataStoreZabbix::start(void)
 	MonitoringServerInfoListIterator it = monitoringServers.begin();
 	for (; it != monitoringServers.end(); ++it) {
 		MonitoringServerInfo &svInfo = *it;
+		if (svInfo.type != MONITORING_SYSTEM_ZABBIX)
+			continue;
 		DataStoreZabbix *dataStore = new DataStoreZabbix(svInfo);
 		add(svInfo.id, dataStore);
 	}
