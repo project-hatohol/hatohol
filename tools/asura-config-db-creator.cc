@@ -119,16 +119,21 @@ static bool parseServerConfigLine(ParsableString &parsable,
 	word = parsable.readWord(ParsableString::SEPARATOR_COMMA);
 	serverInfo.retryIntervalSec = atoi(word.c_str());
 
-	// user name and passowrd
-	serverInfo.userName =
-	   parsable.readWord(ParsableString::SEPARATOR_COMMA);
-	serverInfo.password =
-	   parsable.readWord(ParsableString::SEPARATOR_COMMA);
+	// user name
+	if (!extractString(parsable, word, lineNo))
+		return false;
+	serverInfo.userName = word;
+
+	// passowrd
+	if (!extractString(parsable, word, lineNo))
+		return false;
+	serverInfo.password = word;
 
 	// dbName
 	if (serverInfo.type == MONITORING_SYSTEM_NAGIOS) {
-		serverInfo.dbName =
-		   parsable.readWord(ParsableString::SEPARATOR_COMMA);
+		if (!extractString(parsable, word, lineNo))
+			return false;
+		serverInfo.dbName = word;
 	}
 
 	// push back the info
