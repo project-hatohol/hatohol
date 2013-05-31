@@ -99,6 +99,40 @@ $ asura --face-rest-port 3000
 (3) Otherwise the default port: 33194 is used.
 
 ==============================================
+Tips to configure Nagios NDOUtils
+==============================================
+In the following steps, it is asummed that the nagios server,
+ndoutils (ndo2db), and DB (MySQL) are on the same computer.
+(1) Install an Nagios NDOUtils package
+(2) Edit /etc/nagios/nagios.cfg to use an ndoutils broker module
+The line like below is needed.
+
+broker_module=/usr/lib/ndoutils/ndomod-mysql-3x.o config_file=/etc/nagios3/ndomod.cfg
+
+(3) Edit ndo2db.cfg to set database information.
+The example of major target parameters are
+
+db_name=ndoutils
+db_user=ndoutils
+db_pass=admin
+
+(4) Make a database and set the appropriate permission to it
+Ex.)
+# mysql
+mysql> CREATE DATABASE ndoutils;
+mysql> GRANT all on ndoutils.* TO ndoutils@localhost IDENTIFIED BY 'admin';
+
+* Make tables. The command is prepared. The following is for ubuntu 13.04
+# cd /usr/share/dbconfig-common/data/ndoutils-mysql/install
+# mysql -D ndoutils < mysql
+
+(5) start ndo2db and nagios3
+* In ubuntsu 13.04, edit of ENABLE_NDOUTILS variable in /etc/default/ndoutils
+  is also needed.
+
+ENABLE_NDOUTILS=1
+
+==============================================
 API Reference Manual for REST service
 ==============================================
 The API reference manual can be created as below.
