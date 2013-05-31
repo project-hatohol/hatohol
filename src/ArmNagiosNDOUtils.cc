@@ -31,12 +31,21 @@ using namespace std;
 static const char *TABLE_NAME_SERVICES      = "nagios_services";
 static const char *TABLE_NAME_SERVICESTATUS = "nagios_servicestatus";
 static const char *TABLE_NAME_HOSTS         = "nagios_hosts";
+static const char *TABLE_NAME_STATEHISTORY  = "nagios_statehistory";
 
 enum
 {
 	STATE_OK       = 0,
 	STATE_WARNING  = 1,
 	STATE_CRITICAL = 2,
+};
+
+// The explanation of soft and hard state can be found in
+// http://nagios.sourceforge.net/docs/3_0/statetypes.html
+enum
+{
+	SOFT_STATE = 0,
+	HARD_STATE = 1,
 };
 
 // [NOTE]
@@ -201,14 +210,98 @@ enum {
 	NUM_IDX_HOSTS,
 };
 
+// Definitions: nagios_statehistory
+static const ColumnDef COLUMN_DEF_STATEHISTORY[] = {
+{
+	ITEM_ID_NAGIOS_STATEHISTORY_STATEHISTORY_ID, // itemId
+	TABLE_NAME_STATEHISTORY,           // tableName
+	"statehistory_id",                 // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	11,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_PRI,                       // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}, {
+	ITEM_ID_NAGIOS_STATEHISTORY_STATE_TIME, // itemId
+	TABLE_NAME_HOSTS,                  // tableName
+	"state_time",                      // columnName
+	SQL_COLUMN_TYPE_DATETIME,          // type
+	11,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	"0",                               // defaultValue
+}, {
+	ITEM_ID_NAGIOS_STATEHISTORY_OBJECT_ID, // itemId
+	TABLE_NAME_HOSTS,                  // tableName
+	"object_id",                       // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	11,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	"0",                               // defaultValue
+}, {
+	ITEM_ID_NAGIOS_STATEHISTORY_STATE, // itemId
+	TABLE_NAME_HOSTS,                  // tableName
+	"state",                           // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	11,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	"0",                               // defaultValue
+}, {
+	ITEM_ID_NAGIOS_STATEHISTORY_STATE_TYPE, // itemId
+	TABLE_NAME_HOSTS,                  // tableName
+	"state_type",                      // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	11,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	"0",                               // defaultValue
+}, {
+	ITEM_ID_NAGIOS_STATEHISTORY_OUTPUT, // itemId
+	TABLE_NAME_HOSTS,                  // tableName
+	"output",                          // columnName
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	255,                               // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	"",                               // defaultValue
+},
+};
+
+static const size_t NUM_COLUMNS_STATEHISTORY =
+  sizeof(COLUMN_DEF_STATEHISTORY) / sizeof(ColumnDef);
+
+enum {
+	IDX_STATEHISTORY_STATEHISTORY_ID,
+	IDX_STATEHISTORY_STATE_TIME,
+	IDX_STATEHISTORY_OBJECT_ID,
+	IDX_STATEHISTORY_STATE,
+	IDX_STATEHISTORY_STATE_TYPE,
+	IDX_STATEHISTORY_OUTPUT,
+	NUM_IDX_STATEHISTORY,
+};
+
 // ---------------------------------------------------------------------------
 // Private context
 // ---------------------------------------------------------------------------
 struct ArmNagiosNDOUtils::PrivateContext
 {
 	DBAgentMySQL dbAgent;
-	DBClientAsura dbAsura;
-	DBAgentSelectExArg selectTriggerArg;
+	DBClientAsura dbAsura; DBAgentSelectExArg selectTriggerArg;
+	DBAgentSelectExArg selectEventArg;
 
 	// methods
 	PrivateContext(const MonitoringServerInfo &serverInfo)
@@ -232,6 +325,7 @@ ArmNagiosNDOUtils::ArmNagiosNDOUtils(const MonitoringServerInfo &serverInfo)
 {
 	m_ctx = new PrivateContext(serverInfo);
 	makeSelectTriggerArg();
+	makeSelectEventArg();
 }
 
 ArmNagiosNDOUtils::~ArmNagiosNDOUtils()
@@ -313,6 +407,84 @@ void ArmNagiosNDOUtils::makeSelectTriggerArg(void)
 	  VAR_STATUS, columnDefStatusCurrentState.columnName, STATE_OK);
 }
 
+void ArmNagiosNDOUtils::makeSelectEventArg(void)
+{
+	const static char *VAR_STATEHISTORY = "sh";
+	const static char *VAR_SERVICES     = "sv";
+	const static char *VAR_HOSTS        = "h";
+
+	// table name
+	const ColumnDef &columnDefStateHistoryObjectId = 
+	  COLUMN_DEF_STATEHISTORY[IDX_STATEHISTORY_OBJECT_ID];
+	const ColumnDef &columnDefServicesServiceObjectId = 
+	  COLUMN_DEF_SERVICES[IDX_SERVICES_SERVICE_OBJECT_ID];
+	const ColumnDef &columnDefServicesHostObjectId = 
+	  COLUMN_DEF_SERVICES[IDX_SERVICES_HOST_OBJECT_ID];
+	const ColumnDef &columnDefHostsHostObjectId = 
+	  COLUMN_DEF_HOSTS[IDX_HOSTS_HOST_OBJECT_ID];
+	m_ctx->selectEventArg.tableName =
+	  StringUtils::sprintf(
+	    "%s %s "
+	    "inner join %s %s on %s.%s=%s.%s "
+	    "inner join %s %s on %s.%s=%s.%s",
+	    TABLE_NAME_STATEHISTORY,  VAR_STATEHISTORY,
+	    TABLE_NAME_SERVICES,      VAR_SERVICES,
+	    VAR_STATEHISTORY, columnDefStateHistoryObjectId.columnName,
+	    VAR_SERVICES,     columnDefServicesServiceObjectId.columnName,
+	    TABLE_NAME_HOSTS,         VAR_HOSTS,
+	    VAR_SERVICES,     columnDefServicesHostObjectId.columnName,
+	    VAR_HOSTS,        columnDefHostsHostObjectId.columnName);
+
+	// statements
+	const ColumnDef &columnDefStateHistoryStateHistoryId =
+	  COLUMN_DEF_STATEHISTORY[IDX_STATEHISTORY_STATEHISTORY_ID];
+	const ColumnDef &columnDefStateHistoryState =
+	  COLUMN_DEF_STATEHISTORY[IDX_STATEHISTORY_STATE];
+	const ColumnDef &columnDefStateHistoryStateTime =
+	  COLUMN_DEF_STATEHISTORY[IDX_STATEHISTORY_STATE_TIME];
+
+	const ColumnDef &columnDefServicesServiceId =
+	  COLUMN_DEF_SERVICES[IDX_SERVICES_SERVICE_ID];
+	const ColumnDef &columnDefHostsHostId =
+	  COLUMN_DEF_HOSTS[IDX_HOSTS_HOST_ID];
+	const ColumnDef &columnDefHostsDisplayName =
+	  COLUMN_DEF_HOSTS[IDX_HOSTS_DISPLAY_NAME];
+
+	const ColumnDef &columnDefStateHistoryOutput = 
+	  COLUMN_DEF_STATEHISTORY[IDX_STATEHISTORY_OUTPUT];
+	const ColumnDef &columnDefStateHistoryStateType = 
+	  COLUMN_DEF_STATEHISTORY[IDX_STATEHISTORY_STATE_TYPE];
+
+	// statehistory_id
+	m_ctx->selectEventArg.pushColumn(columnDefStateHistoryStateHistoryId,
+	                                 VAR_STATEHISTORY);
+	// state
+	m_ctx->selectEventArg.pushColumn(columnDefStateHistoryState,
+	                                 VAR_STATEHISTORY);
+	// state time
+	m_ctx->selectEventArg.pushColumn(columnDefStateHistoryStateTime,
+	                                 VAR_STATEHISTORY);
+
+	// sevice id
+	m_ctx->selectEventArg.pushColumn(columnDefServicesServiceId,
+	                                 VAR_SERVICES);
+	// host_id
+	m_ctx->selectEventArg.pushColumn(columnDefHostsHostId,
+	                                 VAR_HOSTS);
+	// hosts.display_name 
+	m_ctx->selectEventArg.pushColumn(columnDefHostsDisplayName,
+	                                 VAR_HOSTS);
+	// output
+	m_ctx->selectEventArg.pushColumn(columnDefStateHistoryOutput,
+	                                 VAR_STATEHISTORY);
+
+	// contiditon
+	m_ctx->selectEventArg.condition = StringUtils::sprintf(
+	  "%s.%s=%d",
+	  VAR_STATEHISTORY, columnDefStateHistoryStateType.columnName,
+	  HARD_STATE);
+}
+
 void ArmNagiosNDOUtils::getTrigger(void)
 {
 	// TODO: should use transaction
@@ -381,6 +553,15 @@ void ArmNagiosNDOUtils::getTrigger(void)
 	m_ctx->dbAsura.setTriggerInfoList(triggerInfoList, svInfo.id);
 }
 
+void ArmNagiosNDOUtils::getEvent(void)
+{
+	// TODO: should use transaction
+	m_ctx->dbAgent.select(m_ctx->selectEventArg);
+	size_t numEvents =
+	   m_ctx->selectEventArg.dataTable->getNumberOfRows();
+	MLPL_DBG("The number of triggers: %zd\n", numEvents);
+}
+
 gpointer ArmNagiosNDOUtils::mainThread(AsuraThreadArg *arg)
 {
 	const MonitoringServerInfo &svInfo = getServerInfo();
@@ -393,6 +574,7 @@ bool ArmNagiosNDOUtils::mainThreadOneProc(void)
 {
 	try {
 		getTrigger();
+		getEvent();
 	} catch (const exception e) {
 		MLPL_ERR("Got exception: %s", e.what());
 		return false;

@@ -15,6 +15,11 @@ public:
 	{
 		ArmNagiosNDOUtils::getTrigger();
 	} 
+
+	void getEvent(void)
+	{
+		ArmNagiosNDOUtils::getEvent();
+	} 
 };
 
 static ArmNagiosNDOUtils *g_armNagi = NULL;
@@ -75,6 +80,12 @@ void test_getTrigger(void)
 {
 	createGlobalInstance<ArmNagiosNDOUtilsTestee>();
 	g_armNagiTestee->getTrigger();
+}
+
+void test_getEvent(void)
+{
+	createGlobalInstance<ArmNagiosNDOUtilsTestee>();
+	g_armNagiTestee->getEvent();
 }
 
 } // namespace testArmNagiosNDOUtils
