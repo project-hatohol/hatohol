@@ -59,7 +59,16 @@ struct EventInfo {
 	timespec            time;
 	EventType           type;
 	uint64_t            triggerId;
+
+	// TODO: The member 'triggerInfo' will be removed,
+	//       after we modify the way to process ZABBIX events.
 	TriggerInfo         triggerInfo;
+
+	TriggerStatusType   status;
+	TriggerSeverityType severity;
+	uint64_t            hostId;
+	string              hostName;
+	string              brief;
 };
 
 typedef list<EventInfo>               EventInfoList;
