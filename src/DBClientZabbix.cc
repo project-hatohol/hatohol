@@ -25,14 +25,6 @@ using namespace mlpl;
 #include "ItemTableUtils.h"
 #include "DBAgentFactory.h"
 
-// TODO: This macro is the identical to that in DBAgentSQLite3.cc
-//       we will clean up code later.
-#define DEFINE_AND_ASSERT(ITEM_DATA, ACTUAL_TYPE, VAR_NAME) \
-	const ACTUAL_TYPE *VAR_NAME = \
-	  dynamic_cast<const ACTUAL_TYPE *>(ITEM_DATA); \
-	ASURA_ASSERT(VAR_NAME != NULL, "Failed to dynamic cast: %s -> %s", \
-	             DEMANGLED_TYPE_NAME(*ITEM_DATA), #ACTUAL_TYPE); \
-
 const int DBClientZabbix::ZABBIX_DB_VERSION = 4;
 const uint64_t DBClientZabbix::EVENT_ID_NOT_FOUND = -1;
 const int DBClientZabbix::TRIGGER_CHANGE_TIME_NOT_FOUND = -1;
