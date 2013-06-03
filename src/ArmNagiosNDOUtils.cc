@@ -293,7 +293,8 @@ enum {
 struct ArmNagiosNDOUtils::PrivateContext
 {
 	DBAgentMySQL dbAgent;
-	DBClientAsura dbAsura; DBAgentSelectExArg selectTriggerArg;
+	DBClientAsura dbAsura;
+	DBAgentSelectExArg selectTriggerArg;
 	DBAgentSelectExArg selectEventArg;
 
 	// methods
