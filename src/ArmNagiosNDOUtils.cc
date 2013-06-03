@@ -553,7 +553,75 @@ void ArmNagiosNDOUtils::getEvent(void)
 	m_ctx->dbAgent.select(m_ctx->selectEventArg);
 	size_t numEvents =
 	   m_ctx->selectEventArg.dataTable->getNumberOfRows();
-	MLPL_DBG("The number of triggers: %zd\n", numEvents);
+	MLPL_DBG("The number of events: %zd\n", numEvents);
+
+	// TODO: use addEventInfoList with the newly added data.
+	const MonitoringServerInfo &svInfo = getServerInfo();
+	EventInfoList eventInfoList;
+	const ItemGroupList &grpList =
+	  m_ctx->selectEventArg.dataTable->getItemGroupList();
+	ItemGroupListConstIterator it = grpList.begin();
+	for (; it != grpList.end(); ++it) {
+		int idx = 0;
+		const ItemGroup *itemGroup = *it;
+		EventInfo eventInfo;
+
+		// serverId
+		eventInfo.serverId = svInfo.id;
+
+		// id (statehistory_id)
+		DEFINE_AND_ASSERT(
+		   itemGroup->getItemAt(idx++), ItemInt, itemId);
+		eventInfo.id = itemId->get();
+
+		// type, status, and severity (state)
+		DEFINE_AND_ASSERT(
+		   itemGroup->getItemAt(idx++), ItemInt, itemState);
+		int state = itemState->get();
+		if (state == STATE_OK) {
+			eventInfo.type = TRIGGER_DEACTIVATED;
+			eventInfo.status = TRIGGER_STATUS_OK,
+			eventInfo.severity = TRIGGER_SEVERITY_UNKNOWN;
+		} else {
+			eventInfo.type = TRIGGER_ACTIVATED;
+			eventInfo.status = TRIGGER_STATUS_PROBLEM;
+			if (state == STATE_WARNING)
+				eventInfo.severity = TRIGGER_SEVERITY_WARN;
+			if (state == STATE_CRITICAL)
+				eventInfo.severity = TRIGGER_SEVERITY_CRITICAL;
+			else
+				eventInfo.severity = TRIGGER_SEVERITY_UNKNOWN;
+		}
+
+		// time (state_time)
+		DEFINE_AND_ASSERT(
+		   itemGroup->getItemAt(idx++), ItemInt, itemStateTime);
+		eventInfo.time.tv_sec = itemStateTime->get();
+		eventInfo.time.tv_nsec = 0;
+
+		// trigger id (service_id)
+		DEFINE_AND_ASSERT(
+		   itemGroup->getItemAt(idx++), ItemInt, itemServiceId);
+		eventInfo.triggerId = itemServiceId->get();
+
+		// hostId (host_id)
+		DEFINE_AND_ASSERT(
+		   itemGroup->getItemAt(idx++), ItemInt, itemHostid);
+		eventInfo.hostId = itemHostid->get();
+
+		// hostName (hosts.display_name)
+		DEFINE_AND_ASSERT(
+		   itemGroup->getItemAt(idx++), ItemString, itemHostName);
+		eventInfo.hostName = itemHostName->get();
+
+		// brief (output)
+		DEFINE_AND_ASSERT(
+		   itemGroup->getItemAt(idx++), ItemString, itemDescription);
+		eventInfo.brief = itemDescription->get();
+
+		eventInfoList.push_back(eventInfo);
+	}
+	m_ctx->dbAsura.setEventInfoList(eventInfoList, svInfo.id);
 }
 
 gpointer ArmNagiosNDOUtils::mainThread(AsuraThreadArg *arg)
