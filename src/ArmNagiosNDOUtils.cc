@@ -637,7 +637,7 @@ bool ArmNagiosNDOUtils::mainThreadOneProc(void)
 	try {
 		getTrigger();
 		getEvent();
-	} catch (const exception e) {
+	} catch (const exception &e) {
 		MLPL_ERR("Got exception: %s", e.what());
 		return false;
 	}
