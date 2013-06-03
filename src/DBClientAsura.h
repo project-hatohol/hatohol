@@ -64,6 +64,8 @@ struct EventInfo {
 	//       after we modify the way to process ZABBIX events.
 	TriggerInfo         triggerInfo;
 
+	// status and type are basically same information.
+	// so they should be unified.
 	TriggerStatusType   status;
 	TriggerSeverityType severity;
 	uint64_t            hostId;

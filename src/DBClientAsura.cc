@@ -217,6 +217,61 @@ static const ColumnDef COLUMN_DEF_EVENTS[] = {
 	SQL_KEY_MUL,                       // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
+}, {
+	ITEM_ID_NOT_SET,                   // itemId
+	TABLE_NAME_EVENTS,                 // tableName
+	"status",                          // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	11,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}, {
+	ITEM_ID_NOT_SET,                   // itemId
+	TABLE_NAME_EVENTS,                 // tableName
+	"severity",                        // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	11,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}, {
+	ITEM_ID_NOT_SET,                   // itemId
+	TABLE_NAME_TRIGGERS,               // tableName
+	"host_id",                         // columnName
+	SQL_COLUMN_TYPE_BIGUINT,           // type
+	20,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}, {
+	ITEM_ID_NOT_SET,                   // itemId
+	TABLE_NAME_TRIGGERS,               // tableName
+	"hostname",                        // columnName
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	255,                               // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}, {
+	ITEM_ID_NOT_SET,                   // itemId
+	TABLE_NAME_TRIGGERS,               // tableName
+	"brief",                           // columnName
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	255,                               // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
 },
 };
 
@@ -230,6 +285,11 @@ enum {
 	IDX_EVENTS_TIME_NS,
 	IDX_EVENTS_EVENT_TYPE,
 	IDX_EVENTS_TRIGGER_ID,
+	IDX_EVENTS_STATUS,
+	IDX_EVENTS_SEVERITY,
+	IDX_EVENTS_HOST_ID,
+	IDX_EVENTS_HOST_NAME,
+	IDX_EVENTS_BRIEF,
 	NUM_IDX_EVENTS,
 };
 
@@ -800,6 +860,11 @@ void DBClientAsura::addEventInfoBare(const EventInfo &eventInfo)
 		row->ADD_NEW_ITEM(Int, eventInfo.time.tv_nsec); 
 		row->ADD_NEW_ITEM(Int, eventInfo.type);
 		row->ADD_NEW_ITEM(Uint64, eventInfo.triggerId);
+		row->ADD_NEW_ITEM(Int, eventInfo.status);
+		row->ADD_NEW_ITEM(Int, eventInfo.severity);
+		row->ADD_NEW_ITEM(Uint64, eventInfo.hostId);
+		row->ADD_NEW_ITEM(String, eventInfo.hostName);
+		row->ADD_NEW_ITEM(String, eventInfo.brief);
 		arg.row = row;
 		insert(arg);
 	} else {
@@ -821,8 +886,23 @@ void DBClientAsura::addEventInfoBare(const EventInfo &eventInfo)
 
 		row->ADD_NEW_ITEM(Uint64, eventInfo.triggerId);
 		arg.columnIndexes.push_back(IDX_EVENTS_TRIGGER_ID);
-		arg.row = row;
 
+		row->ADD_NEW_ITEM(Int, eventInfo.status);
+		arg.columnIndexes.push_back(IDX_EVENTS_STATUS);
+
+		row->ADD_NEW_ITEM(Int, eventInfo.severity);
+		arg.columnIndexes.push_back(IDX_EVENTS_SEVERITY);
+
+		row->ADD_NEW_ITEM(Uint64, eventInfo.hostId);
+		arg.columnIndexes.push_back(IDX_EVENTS_HOST_ID);
+
+		row->ADD_NEW_ITEM(String, eventInfo.hostName);
+		arg.columnIndexes.push_back(IDX_EVENTS_HOST_NAME);
+
+		row->ADD_NEW_ITEM(String, eventInfo.brief);
+		arg.columnIndexes.push_back(IDX_EVENTS_BRIEF);
+
+		arg.row = row;
 		arg.condition = condition;
 		update(arg);
 	}
