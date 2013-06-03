@@ -141,6 +141,17 @@ static const ColumnDef COLUMN_DEF_SERVICESTATUS[] = {
 	SQL_KEY_MUL,                       // keyType
 	0,                                 // flags
 	"0",                               // defaultValue
+}, {
+	ITEM_ID_NAGIOS_SERVICESTATUS_CHECK_COMMAND, // itemId
+	TABLE_NAME_SERVICESTATUS,          // tableName
+	"check_command",                   // columnName
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	255,                               // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	"",                                // defaultValue
 },
 };
 
@@ -152,6 +163,7 @@ enum {
 	IDX_SERVICESTATUS_STATUS_UPDATE_TIME,
 	IDX_SERVICESTATUS_OUTPUT,
 	IDX_SERVICESTATUS_CURRENT_STATE,
+	IDX_SERVICESTATUS_CHECK_COMMAND,
 	NUM_IDX_SERVICESTATUS,
 };
 
@@ -296,6 +308,7 @@ struct ArmNagiosNDOUtils::PrivateContext
 	DBClientAsura dbAsura;
 	DBAgentSelectExArg selectTriggerArg;
 	DBAgentSelectExArg selectEventArg;
+	DBAgentSelectExArg selectItemArg;
 
 	// methods
 	PrivateContext(const MonitoringServerInfo &serverInfo)
@@ -320,6 +333,7 @@ ArmNagiosNDOUtils::ArmNagiosNDOUtils(const MonitoringServerInfo &serverInfo)
 	m_ctx = new PrivateContext(serverInfo);
 	makeSelectTriggerArg();
 	makeSelectEventArg();
+	makeSelectItemArg();
 }
 
 ArmNagiosNDOUtils::~ArmNagiosNDOUtils()
@@ -479,6 +493,54 @@ void ArmNagiosNDOUtils::makeSelectEventArg(void)
 	  HARD_STATE);
 }
 
+void ArmNagiosNDOUtils::makeSelectItemArg(void)
+{
+	const static char *VAR_SERVICES = "sv";
+	const static char *VAR_STATUS   = "st";
+
+	// table name
+	const ColumnDef &columnDefServicesServiceObjectId = 
+	  COLUMN_DEF_SERVICES[IDX_SERVICES_SERVICE_OBJECT_ID];
+	const ColumnDef &columnDefStatusServiceObjectId = 
+	  COLUMN_DEF_SERVICESTATUS[IDX_SERVICESTATUS_SERVICE_OBJECT_ID];
+	m_ctx->selectItemArg.tableName =
+	  StringUtils::sprintf(
+	    "%s %s "
+	    "inner join %s %s on %s.%s=%s.%s",
+	    TABLE_NAME_SERVICES,      VAR_SERVICES,
+	    TABLE_NAME_SERVICESTATUS, VAR_STATUS,
+	    VAR_SERVICES, columnDefServicesServiceObjectId.columnName,
+	    VAR_STATUS,   columnDefStatusServiceObjectId.columnName);
+
+	// statements
+	const ColumnDef &columnDefServicesServiceId = 
+	  COLUMN_DEF_SERVICES[IDX_SERVICES_SERVICE_ID];
+	const ColumnDef &columnDefServicesHostObjectId = 
+	  COLUMN_DEF_SERVICES[IDX_SERVICES_HOST_OBJECT_ID];
+	const ColumnDef &columnDefStatusCheckCommand =
+	  COLUMN_DEF_SERVICESTATUS[IDX_SERVICESTATUS_CHECK_COMMAND];
+	const ColumnDef &columnDefStatusOutput = 
+	  COLUMN_DEF_SERVICESTATUS[IDX_SERVICESTATUS_OUTPUT];
+	const ColumnDef &columnDefStatusUpdateTime =
+	  COLUMN_DEF_SERVICESTATUS[IDX_SERVICESTATUS_STATUS_UPDATE_TIME];
+
+	// service_id
+	m_ctx->selectItemArg.pushColumn(columnDefServicesServiceId,
+	                                VAR_SERVICES);
+	// host_id
+	m_ctx->selectItemArg.pushColumn(columnDefServicesHostObjectId,
+	                                VAR_SERVICES);
+	// check_command
+	m_ctx->selectItemArg.pushColumn(columnDefStatusCheckCommand,
+	                                VAR_STATUS);
+	// status_update_time
+	m_ctx->selectItemArg.pushColumn(columnDefStatusUpdateTime,
+	                                VAR_STATUS);
+	// output
+	m_ctx->selectItemArg.pushColumn(columnDefStatusOutput,
+	                                VAR_STATUS);
+}
+
 void ArmNagiosNDOUtils::getTrigger(void)
 {
 	// TODO: should use transaction
@@ -624,6 +686,65 @@ void ArmNagiosNDOUtils::getEvent(void)
 	m_ctx->dbAsura.setEventInfoList(eventInfoList, svInfo.id);
 }
 
+void ArmNagiosNDOUtils::getItem(void)
+{
+	// TODO: should use transaction
+	m_ctx->dbAgent.select(m_ctx->selectItemArg);
+	size_t numItems =
+	   m_ctx->selectItemArg.dataTable->getNumberOfRows();
+	MLPL_DBG("The number of items: %zd\n", numItems);
+
+	const MonitoringServerInfo &svInfo = getServerInfo();
+	ItemInfoList itemInfoList;
+	const ItemGroupList &grpList =
+	  m_ctx->selectItemArg.dataTable->getItemGroupList();
+	ItemGroupListConstIterator it = grpList.begin();
+	for (; it != grpList.end(); ++it) {
+		int idx = 0;
+		const ItemGroup *itemGroup = *it;
+		ItemInfo itemInfo;
+
+		// serverId
+		itemInfo.serverId = svInfo.id;
+
+		// id (service_id)
+		DEFINE_AND_ASSERT(
+		   itemGroup->getItemAt(idx++), ItemInt, itemId);
+		itemInfo.id = itemId->get();
+
+		// host Id (host_id)
+		DEFINE_AND_ASSERT(
+		   itemGroup->getItemAt(idx++), ItemInt, itemHostid);
+		itemInfo.hostId = itemHostid->get();
+
+		// brief (check_command)
+		DEFINE_AND_ASSERT(
+		   itemGroup->getItemAt(idx++), ItemString, itemCheckCmd);
+		itemInfo.brief = itemCheckCmd->get();
+
+		// lastChangeTime (status_update_time)
+		DEFINE_AND_ASSERT(
+		   itemGroup->getItemAt(idx++), ItemInt, itemUpdateTime);
+		itemInfo.lastValueTime.tv_sec = itemUpdateTime->get();
+		itemInfo.lastValueTime.tv_nsec = 0;
+
+		// last_value (last_value)
+		DEFINE_AND_ASSERT(
+		   itemGroup->getItemAt(idx++), ItemString, itemOutput);
+		itemInfo.lastValue = itemOutput->get();
+
+		// prev_value (Not available)
+		itemInfo.prevValue = "N/A";
+
+		// itemGroupName
+		// TODO: We will take into account 'servicegroup' table.
+		itemInfo.itemGroupName = "No group";
+
+		itemInfoList.push_back(itemInfo);
+	}
+	m_ctx->dbAsura.addItemInfoList(itemInfoList);
+}
+
 gpointer ArmNagiosNDOUtils::mainThread(AsuraThreadArg *arg)
 {
 	const MonitoringServerInfo &svInfo = getServerInfo();
@@ -637,6 +758,7 @@ bool ArmNagiosNDOUtils::mainThreadOneProc(void)
 	try {
 		getTrigger();
 		getEvent();
+		getItem();
 	} catch (const exception &e) {
 		MLPL_ERR("Got exception: %s\n", e.what());
 		return false;

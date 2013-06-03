@@ -35,8 +35,10 @@ public:
 protected:
 	void makeSelectTriggerArg(void);
 	void makeSelectEventArg(void);
+	void makeSelectItemArg(void);
 	void getTrigger(void);
 	void getEvent(void);
+	void getItem(void);
 
 	// virtual methods
 	virtual gpointer mainThread(AsuraThreadArg *arg);
