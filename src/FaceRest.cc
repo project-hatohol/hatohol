@@ -366,18 +366,16 @@ void FaceRest::handlerGetEvents
 	EventInfoListIterator it = eventList.begin();
 	for (; it != eventList.end(); ++it) {
 		EventInfo &eventInfo = *it;
-		TriggerInfo &triggerInfo = eventInfo.triggerInfo;
 		agent.startObject();
-		agent.add("serverId", eventInfo.serverId);
-		agent.add("time",   eventInfo.time.tv_sec);
+		agent.add("serverId",  eventInfo.serverId);
+		agent.add("time",      eventInfo.time.tv_sec);
 		agent.add("type",      eventInfo.type);
 		agent.add("triggerId", eventInfo.triggerId);
-		agent.add("status",         triggerInfo.status);
-		agent.add("severity",       triggerInfo.severity);
-		agent.add("lastChangeTime", triggerInfo.lastChangeTime.tv_sec);
-		agent.add("hostId",         triggerInfo.hostId);
-		agent.add("hostName",       triggerInfo.hostName);
-		agent.add("brief",          triggerInfo.brief);
+		agent.add("status",    eventInfo.status);
+		agent.add("severity",  eventInfo.severity);
+		agent.add("hostId",    eventInfo.hostId);
+		agent.add("hostName",  eventInfo.hostName);
+		agent.add("brief",     eventInfo.brief);
 		agent.endObject();
 	}
 	agent.endArray();

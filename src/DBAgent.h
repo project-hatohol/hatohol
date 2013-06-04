@@ -104,6 +104,10 @@ public:
 	virtual void select(DBAgentSelectExArg &selectExArg) = 0;
 	virtual void deleteRows(DBAgentDeleteArg &deleteArg) = 0;
 
+protected:
+	static string makeSelectStatement(DBAgentSelectArg &selectArg);
+	static string makeSelectStatement(DBAgentSelectExArg &selectExArg);
+
 private:
 	struct PrivateContext;
 	PrivateContext *m_ctx;

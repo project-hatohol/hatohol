@@ -45,6 +45,15 @@ SQLITE3_REQUIRED=3.6.0
 PKG_CHECK_MODULES(SQLITE3, sqlite3 >= $SQLITE3_REQUIRED)
 
 dnl **************************************************************
+dnl Checks for MySQL
+dnl **************************************************************
+AC_CHECK_PROGS(MYSQL_CONFIG, mysql_config)
+MYSQL_CFLAGS=`$MYSQL_CONFIG --cflags`
+MYSQL_LIBS=`$MYSQL_CONFIG --libs`
+AC_SUBST(MYSQL_CFLAGS)
+AC_SUBST(MYSQL_LIBS)
+
+dnl **************************************************************
 dnl Checks for Cutter
 dnl **************************************************************
 CUTTER_REQUIRED=1.2.2

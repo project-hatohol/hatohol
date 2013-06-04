@@ -42,11 +42,6 @@ string STR_NAME; \
 	va_end(ap); \
 } \
 
-#define DEFINE_AND_ASSERT(ITEM_DATA, ACTUAL_TYPE, VAR_NAME) \
-	ACTUAL_TYPE *VAR_NAME = dynamic_cast<ACTUAL_TYPE *>(ITEM_DATA); \
-	ASURA_ASSERT(VAR_NAME != NULL, "Failed to dynamic cast: %s -> %s", \
-	             DEMANGLED_TYPE_NAME(*ITEM_DATA), #ACTUAL_TYPE); \
-
 typedef map<DBDomainId, string>     DBDomainIdPathMap;
 typedef DBDomainIdPathMap::iterator DBDomainIdPathMapIterator;
 
@@ -342,13 +337,13 @@ string DBAgentSQLite3::getColumnValueString(const ColumnDef *columnDef,
 	switch (columnDef->type) {
 	case SQL_COLUMN_TYPE_INT:
 	{
-		DEFINE_AND_ASSERT(itemData, const ItemInt, item);
+		DEFINE_AND_ASSERT(itemData, ItemInt, item);
 		valueStr = StringUtils::sprintf("%d", item->get());
 		break;
 	}
 	case SQL_COLUMN_TYPE_BIGUINT:
 	{
-		DEFINE_AND_ASSERT(itemData, const ItemUint64, item);
+		DEFINE_AND_ASSERT(itemData, ItemUint64, item);
 		valueStr = StringUtils::sprintf("%"PRId64, item->get());
 		break;
 	}
@@ -356,7 +351,7 @@ string DBAgentSQLite3::getColumnValueString(const ColumnDef *columnDef,
 	case SQL_COLUMN_TYPE_CHAR:
 	case SQL_COLUMN_TYPE_TEXT:
 	{
-		DEFINE_AND_ASSERT(itemData, const ItemString, item);
+		DEFINE_AND_ASSERT(itemData, ItemString, item);
 		char *str = sqlite3_mprintf("%Q", item->get().c_str());
 		valueStr = str;
 		sqlite3_free(str);
@@ -365,10 +360,8 @@ string DBAgentSQLite3::getColumnValueString(const ColumnDef *columnDef,
 	case SQL_COLUMN_TYPE_DOUBLE:
 	{
 		string fmt;
-		DEFINE_AND_ASSERT(itemData, const ItemDouble, item);
-		fmt = StringUtils::sprintf("%%%d.%dlf",
-		                           columnDef->columnLength,
-		                           columnDef->decFracLength);
+		DEFINE_AND_ASSERT(itemData, ItemDouble, item);
+		fmt = StringUtils::sprintf("%%.%dlf", columnDef->decFracLength);
 		valueStr = StringUtils::sprintf(fmt.c_str(), item->get());
 		break;
 	}
@@ -575,17 +568,7 @@ void DBAgentSQLite3::update(sqlite3 *db, DBAgentUpdateArg &updateArg)
 
 void DBAgentSQLite3::select(sqlite3 *db, DBAgentSelectArg &selectArg)
 {
-	string sql = "SELECT ";
-	for (size_t i = 0; i < selectArg.columnIndexes.size(); i++) {
-		size_t idx = selectArg.columnIndexes[i];
-		const ColumnDef &columnDef = selectArg.columnDefs[idx];
-		sql += columnDef.columnName;
-		sql += " ";
-		if (i < selectArg.columnIndexes.size()- 1)
-			sql += ",";
-	}
-	sql += "FROM ";
-	sql += selectArg.tableName;
+	string sql = makeSelectStatement(selectArg);
 
 	// exectute
 	int result;
@@ -619,32 +602,7 @@ void DBAgentSQLite3::select(sqlite3 *db, DBAgentSelectArg &selectArg)
 
 void DBAgentSQLite3::select(sqlite3 *db, DBAgentSelectExArg &selectExArg)
 {
-	size_t numColumns = selectExArg.statements.size();
-	ASURA_ASSERT(numColumns > 0, "Vector size must not be zero");
-	ASURA_ASSERT(numColumns == selectExArg.columnTypes.size(),
-	             "Vector size mismatch: statements (%zd):columnTypes (%zd)",
-	             numColumns, selectExArg.columnTypes.size());
-
-	string sql = "SELECT ";
-	for (size_t i = 0; i < numColumns; i++) {
-		sql += selectExArg.statements[i];
-		if (i < numColumns-1)
-			sql += ",";
-	}
-	sql += " FROM ";
-	sql += selectExArg.tableName;
-	if (!selectExArg.condition.empty()) {
-		sql += " WHERE ";
-		sql += selectExArg.condition;
-	}
-	if (!selectExArg.orderBy.empty()) {
-		sql += " ORDER BY ";
-		sql += selectExArg.orderBy;
-	}
-	if (selectExArg.limit > 0)
-		sql += StringUtils::sprintf(" LIMIT %zd ", selectExArg.limit);
-	if (selectExArg.offset > 0)
-		sql += StringUtils::sprintf(" OFFSET %zd ", selectExArg.offset);
+	string sql = makeSelectStatement(selectExArg);
 
 	// exectute
 	int result;
@@ -663,6 +621,7 @@ void DBAgentSQLite3::select(sqlite3 *db, DBAgentSelectExArg &selectExArg)
 		THROW_ASURA_EXCEPTION("Failed to call sqlite3_bind(): %d",
 		                      result);
 	}
+	size_t numColumns = selectExArg.statements.size();
 	VariableItemTablePtr dataTable;
 	while ((result = sqlite3_step(stmt)) == SQLITE_ROW) {
 		VariableItemGroupPtr itemGroup;

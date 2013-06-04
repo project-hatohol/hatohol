@@ -190,12 +190,13 @@ static void _assertEvents(const string &path, const string &callbackName = "")
 		assertValueInParser(g_parser, "type", (uint32_t)eventInfo.type);
 		assertValueInParser(g_parser, "triggerId",
 		                    (uint32_t)eventInfo.triggerId);
-
-		// check the trigger part
-		const TriggerInfo &expectedTriggerInfo =
-			searchTestTriggerInfo(eventInfo);
-		assertTestTriggerInfo(expectedTriggerInfo);
-
+		assertValueInParser(g_parser, "status",
+		                    (uint32_t)eventInfo.status);
+		assertValueInParser(g_parser, "severity",
+		                    (uint32_t)eventInfo.severity);
+		assertValueInParser(g_parser, "hostId",   eventInfo.hostId);
+		assertValueInParser(g_parser, "hostName", eventInfo.hostName);
+		assertValueInParser(g_parser, "brief",    eventInfo.brief);
 		g_parser->endElement();
 	}
 	g_parser->endObject();

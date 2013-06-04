@@ -20,8 +20,6 @@
 using namespace mlpl;
 
 #include <sstream>
-#include <errno.h>
-#include <semaphore.h>
 #include <libsoup/soup.h>
 #include <json-glib/json-glib.h>
 
@@ -43,12 +41,8 @@ static const char *MIME_JSON_RPC = "application/json-rpc";
 
 struct ArmZabbixAPI::PrivateContext
 {
-	string         server;
 	string         authToken;
 	string         uri;
-	int            serverPort;
-	int            retryInterval;   // in sec
-	int            repeatInterval;  // in sec;
 	int            zabbixServerId;
 	SoupSession   *session;
 	bool           gotTriggers;
@@ -56,45 +50,22 @@ struct ArmZabbixAPI::PrivateContext
 	VariableItemTablePtr functionsTablePtr;
 	DBClientZabbix dbClientZabbix;
 	DBClientAsura  dbClientAsura;
-	volatile int   exitRequest;
-	sem_t          sleepSemaphore;
 
 	// constructors
 	PrivateContext(const MonitoringServerInfo &serverInfo)
-	: server(serverInfo.hostName),
-	  serverPort(serverInfo.port),
-	  retryInterval(serverInfo.pollingIntervalSec),
-	  repeatInterval(serverInfo.retryIntervalSec),
-	  zabbixServerId(serverInfo.id),
+	: zabbixServerId(serverInfo.id),
 	  session(NULL),
 	  gotTriggers(false),
 	  triggerid(0),
-	  dbClientZabbix(serverInfo.id),
-	  exitRequest(0)
+	  dbClientZabbix(serverInfo.id)
 	{
 		// TODO: use serverInfo.ipAddress if it is given.
-
-		const int pshared = 1;
-		ASURA_ASSERT(sem_init(&sleepSemaphore, pshared, 0) == 0,
-		             "Failed to sem_init(): %d\n", errno);
 	}
 
 	~PrivateContext()
 	{
-		if (sem_destroy(&sleepSemaphore) != 0)
-			MLPL_ERR("Failed to call sem_destroy(): %d\n", errno);
 		if (session)
 			g_object_unref(session);
-	}
-
-	bool hasExitRequest(void) const
-	{
-		return g_atomic_int_get(&exitRequest);
-	}
-
-	void setExitRequest(void)
-	{
-		g_atomic_int_set(&exitRequest, 1);
 	}
 };
 
@@ -102,23 +73,24 @@ struct ArmZabbixAPI::PrivateContext
 // Public methods
 // ---------------------------------------------------------------------------
 ArmZabbixAPI::ArmZabbixAPI(const MonitoringServerInfo &serverInfo)
-: m_ctx(NULL)
+: ArmBase(serverInfo),
+  m_ctx(NULL)
 {
 	m_ctx = new PrivateContext(serverInfo);
 	m_ctx->uri = "http://";
-	m_ctx->uri += m_ctx->server;
-	m_ctx->uri += StringUtils::sprintf(":%d", m_ctx->serverPort);
+	m_ctx->uri += serverInfo.getHostAddress();
+	m_ctx->uri += StringUtils::sprintf(":%d", serverInfo.port);
 	m_ctx->uri += "/zabbix/api_jsonrpc.php";
 }
 
 ArmZabbixAPI::~ArmZabbixAPI()
 {
-	// We make a copy of the server ID and the name in m_ctx on the stack,
-	// because m_ctx is destroyed before it is used in the last message.
-	int serverId = m_ctx->zabbixServerId;
-	string serverName = m_ctx->server;
+	// The body of serverInfo in ArmBase. So it can be used
+	// anywhere in this function.
+	const MonitoringServerInfo &svInfo = getServerInfo();
+	
 	MLPL_INFO("ArmZabbixAPI [%d:%s]: exit process started.\n",
-	          serverId, serverName.c_str());
+	          svInfo.id, svInfo.hostName.c_str());
 
 	// wait for the finish of the thread
 	requestExit();
@@ -127,25 +99,7 @@ ArmZabbixAPI::~ArmZabbixAPI()
 	if (m_ctx)
 		delete m_ctx;
 	MLPL_INFO("ArmZabbixAPI [%d:%s]: exit process completed.\n",
-	          serverId, serverName.c_str());
-}
-
-void ArmZabbixAPI::setPollingInterval(int sec)
-{
-	m_ctx->repeatInterval = sec;
-}
-
-int ArmZabbixAPI::getPollingInterval(void) const
-{
-	return m_ctx->repeatInterval;
-}
-
-void ArmZabbixAPI::requestExit(void)
-{
-	// to return immediately from the waiting.
-	if (sem_post(&m_ctx->sleepSemaphore) == -1)
-		MLPL_ERR("Failed to call sem_post: %d\n", errno);
-	m_ctx->setExitRequest();
+	          svInfo.id, svInfo.hostName.c_str());
 }
 
 ItemTablePtr ArmZabbixAPI::getTrigger(int requestSince)
@@ -939,32 +893,10 @@ void ArmZabbixAPI::updateApplications(const ItemTable *items)
 //
 gpointer ArmZabbixAPI::mainThread(AsuraThreadArg *arg)
 {
+	const MonitoringServerInfo &svInfo = getServerInfo();
 	MLPL_INFO("started: ArmZabbixAPI (server: %s)\n",
-	          m_ctx->server.c_str());
-	while (!m_ctx->hasExitRequest()) {
-		int sleepTime = m_ctx->repeatInterval;
-		if (!mainThreadOneProc())
-			sleepTime = m_ctx->retryInterval;
-		if (m_ctx->hasExitRequest())
-			break;
-
-		// sleep with timeout
-		timespec ts;
-		if (clock_gettime(CLOCK_REALTIME, &ts) == -1) {
-			MLPL_ERR("Failed to call clock_gettime: %d\n", errno);
-			sleep(10); // to avoid burnup
-		}
-		ts.tv_sec += sleepTime;
-		int result = sem_timedwait(&m_ctx->sleepSemaphore, &ts);
-		if (result == -1) {
-			if (errno == ETIMEDOUT)
-				; // This is normal case
-			else if (errno == EINTR)
-				; // In this case, we also do nothing
-		}
-		// The up of the semaphore is done only from the destructor.
-	}
-	return NULL;
+	          svInfo.hostName.c_str());
+	return ArmBase::mainThread(arg);
 }
 
 void ArmZabbixAPI::makeAsuraTriggers(void)
@@ -1033,9 +965,6 @@ void ArmZabbixAPI::checkObtainedItems(const ItemTable *obtainedItemTable,
 	}
 }
 
-//
-// virtual methods defined in this class
-//
 bool ArmZabbixAPI::mainThreadOneProc(void)
 {
 	if (!openSession())

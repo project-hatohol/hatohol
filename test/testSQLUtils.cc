@@ -1,5 +1,6 @@
 #include <sstream>
 #include <cppcutter.h>
+#include <time.h>
 #include "SQLUtils.h"
 
 namespace testSQLUtils {
@@ -101,6 +102,24 @@ void test_itemChar(void)
 {
 	string data = "foo";
 	assertCreateItemData(string, ItemString, &testDefChar, data);
+}
+
+void test_createFromStringDatetime(void)
+{
+	time_t time = 1369797965; // 2013-05-29 12:26:05
+	struct tm tm;
+	tm.tm_year = 2013;
+	tm.tm_mon  = 5;
+	tm.tm_mday = 29;
+	tm.tm_hour = 12;
+	tm.tm_min  = 26;
+	tm.tm_sec  = 5;
+	string str = StringUtils::sprintf("%04d-%02d-%02d %02d:%02d:%02d",
+	                                  tm.tm_year, tm.tm_mon, tm.tm_mday,
+	                                  tm.tm_hour, tm.tm_min, tm.tm_sec);
+	ItemDataPtr dataPtr =
+	  SQLUtils::createFromString(str, SQL_COLUMN_TYPE_DATETIME);
+	cppcut_assert_equal((int)time, ItemDataUtils::getInt(dataPtr));
 }
 
 } // namespace testSQLUtils

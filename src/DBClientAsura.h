@@ -29,6 +29,8 @@ enum TriggerStatusType {
 enum TriggerSeverityType {
 	TRIGGER_SEVERITY_INFO,
 	TRIGGER_SEVERITY_WARN,
+	TRIGGER_SEVERITY_CRITICAL,
+	TRIGGER_SEVERITY_UNKNOWN,
 };
 
 struct TriggerInfo {
@@ -57,7 +59,14 @@ struct EventInfo {
 	timespec            time;
 	EventType           type;
 	uint64_t            triggerId;
-	TriggerInfo         triggerInfo;
+
+	// status and type are basically same information.
+	// so they should be unified.
+	TriggerStatusType   status;
+	TriggerSeverityType severity;
+	uint64_t            hostId;
+	string              hostName;
+	string              brief;
 };
 
 typedef list<EventInfo>               EventInfoList;
@@ -81,6 +90,7 @@ typedef ItemInfoList::const_iterator ItemInfoListConstIterator;
 
 class DBClientAsura : public DBClient {
 public:
+	static uint64_t EVENT_NOT_FOUND;
 	static int ASURA_DB_VERSION;
 	static void init(void);
 	static void reset(void);
@@ -92,12 +102,31 @@ public:
 	void getTriggerInfoList(TriggerInfoList &triggerInfoList);
 	void setTriggerInfoList(const TriggerInfoList &triggerInfoList,
 	                        uint32_t serverId);
+	/**
+	 * get the last change time of the trigger that belongs to
+	 * the specified server
+	 * @param serverId A target server ID.
+	 * @return
+	 * The last change time of tringer in unix time. If there is no
+	 * trigger information, 0 is returned.
+	 */
+	int  getLastChangeTimeOfTrigger(uint32_t serverId);
 
 	void addEventInfo(EventInfo *eventInfo);
 	void addEventInfoList(const EventInfoList &eventInfoList);
 	void getEventInfoList(EventInfoList &eventInfoList);
 	void setEventInfoList(const EventInfoList &eventInfoList,
 	                      uint32_t serverId);
+
+	/**
+	 * get the last (maximum) event ID of the event that belongs to
+	 * the specified server
+	 * @param serverId A target server ID.
+	 * @return
+	 * The last event ID. If there is no event data, EVENT_NOT_FOUND
+	 * is returned.
+	 */
+	uint64_t getLastEventId(uint32_t serverId);
 
 	void addItemInfo(ItemInfo *itemInfo);
 	void addItemInfoList(const ItemInfoList &itemInfoList);

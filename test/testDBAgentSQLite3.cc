@@ -9,106 +9,11 @@ using namespace mlpl;
 #include "AsuraException.h"
 #include "Helpers.h"
 #include "ConfigManager.h"
+#include "DBAgentTest.h"
 
 namespace testDBAgentSQLite3 {
 
 static string g_dbPath = DBAgentSQLite3::getDBPath(DEFAULT_DB_DOMAIN_ID);
-static string g_originalDBPath;
-
-static const char *TABLE_NAME_TEST = "test_table";
-static const ColumnDef COLUMN_DEF_TEST[] = {
-{
-	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_TEST,                   // tableName
-	"id",                              // columnName
-	SQL_COLUMN_TYPE_BIGUINT,           // type
-	20,                                // columnLength
-	0,                                 // decFracLength
-	false,                             // canBeNull
-	SQL_KEY_PRI,                       // keyType
-	0,                                 // flags
-	NULL,                              // defaultValue
-},{
-	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_TEST,                   // tableName
-	"age",                             // columnName
-	SQL_COLUMN_TYPE_INT,               // type
-	11,                                // columnLength
-	0,                                 // decFracLength
-	false,                             // canBeNull
-	SQL_KEY_NONE,                      // keyType
-	0,                                 // flags
-	NULL,                              // defaultValue
-},{
-	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_TEST,                   // tableName
-	"name",                            // columnName
-	SQL_COLUMN_TYPE_VARCHAR,           // type
-	255,                               // columnLength
-	0,                                 // decFracLength
-	false,                             // canBeNull
-	SQL_KEY_NONE,                      // keyType
-	0,                                 // flags
-	NULL,                              // defaultValue
-},{
-	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_TEST,                   // tableName
-	"height",                          // columnName
-	SQL_COLUMN_TYPE_DOUBLE,            // type
-	3,                                 // columnLength
-	1,                                 // decFracLength
-	false,                             // canBeNull
-	SQL_KEY_NONE,                      // keyType
-	0,                                 // flags
-	NULL,                              // defaultValue
-}
-};
-static const size_t NUM_COLUMNS_TEST =
-  sizeof(COLUMN_DEF_TEST) / sizeof(ColumnDef);
-
-enum {
-	IDX_TEST_TABLE_ID,
-	IDX_TEST_TABLE_AGE,
-	IDX_TEST_TABLE_NAME,
-	IDX_TEST_TABLE_HEIGHT,
-};
-
-static const size_t NUM_TEST_DATA = 3;
-static const uint64_t ID[NUM_TEST_DATA]   = {1, 2, 0xfedcba9876543210};
-static const int AGE[NUM_TEST_DATA]       = {14, 17, 180};
-static const char *NAME[NUM_TEST_DATA]    = {"rei", "aoi", "giraffe"};
-static const double HEIGHT[NUM_TEST_DATA] = {158.2, 203.9, -23593.2};
-static map<uint64_t, size_t> g_testDataIdIndexMap;
-
-static void deleteDB(void)
-{
-	unlink(g_dbPath.c_str());
-	cut_assert_not_exist_path(g_dbPath.c_str());
-}
-
-#define DEFINE_DBAGENT_WITH_INIT(DB_NAME, OBJ_NAME) \
-string _path = getFixturesDir() + DB_NAME; \
-DBAgentSQLite3::defineDBPath(DEFAULT_DB_DOMAIN_ID, _path); \
-DBAgentSQLite3 OBJ_NAME; \
-
-void _assertCreate(void)
-{
-	DBAgentSQLite3 dbAgent;
-
-	DBAgentTableCreationArg arg;
-	arg.tableName = TABLE_NAME_TEST;
-	arg.numColumns = NUM_COLUMNS_TEST;
-	arg.columnDefs = COLUMN_DEF_TEST;
-	dbAgent.createTable(arg);
-
-	// check if the table has been created successfully
-	cut_assert_exist_path(g_dbPath.c_str());
-	string cmd = StringUtils::sprintf("sqlite3 %s \".table\"",
-	                                  g_dbPath.c_str());
-	string output = executeCommand(cmd);
-	assertExist(TABLE_NAME_TEST, output);
-}
-#define assertCreate() cut_trace(_assertCreate())
 
 void _assertExistRecord(uint64_t id, int age, const char *name, double height)
 {
@@ -127,8 +32,7 @@ void _assertExistRecord(uint64_t id, int age, const char *name, double height)
 	
 	// Here we also use PRId64 (not PRIu64) with the same
 	// reason of the above comment.
-	string fmt = StringUtils::sprintf("%%"PRId64"|%%d|%%s|%%%d.%dlf\n",
-	                                  columnDefHeight.columnLength,
+	string fmt = StringUtils::sprintf("%%"PRId64"|%%d|%%s|%%.%dlf\n",
 	                                  columnDefHeight.decFracLength);
 	string expectedOut = StringUtils::sprintf(fmt.c_str(),
 	                                          id, age, name, height);
@@ -137,116 +41,127 @@ void _assertExistRecord(uint64_t id, int age, const char *name, double height)
 #define assertExistRecord(ID,AGE,NAME,HEIGHT) \
 cut_trace(_assertExistRecord(ID,AGE,NAME,HEIGHT))
 
-void _assertInsert(uint64_t id, int age, const char *name, double height)
-{
-	DBAgentSQLite3 dbAgent;
+class DBAgentCheckerSQLite3 : public DBAgentChecker {
+public:
+	// overriden virtual methods
+	virtual void assertTable(const DBAgentTableCreationArg &arg)
+	{
+		// check if the table has been created successfully
+		cut_assert_exist_path(g_dbPath.c_str());
+		string cmd = StringUtils::sprintf("sqlite3 %s \".table\"",
+		                                  g_dbPath.c_str());
+		string output = executeCommand(cmd);
+		assertExist(TABLE_NAME_TEST, output);
 
-	DBAgentInsertArg arg;
-	arg.tableName = TABLE_NAME_TEST;
-	arg.numColumns = NUM_COLUMNS_TEST;
-	arg.columnDefs = COLUMN_DEF_TEST;
-	VariableItemGroupPtr row;
-	row->ADD_NEW_ITEM(Uint64, id);
-	row->ADD_NEW_ITEM(Int, age);
-	row->ADD_NEW_ITEM(String, name);
-	row->ADD_NEW_ITEM(Double, height);
-	arg.row = row;
-	dbAgent.insert(arg);
+		//
+		// check table definition
+		//
+		cmd = StringUtils::sprintf(
+		  "sqlite3 %s \"select * from sqlite_master\"",
+		  g_dbPath.c_str());
+		output = executeCommand(cmd);
+		StringVector outVec;
+		StringUtils::split(outVec, output, '|');
+		const size_t expectedNumOut = 5;
+		cppcut_assert_equal(expectedNumOut, outVec.size());
 
-	assertExistRecord(id, age, name,height);
-}
-#define assertInsert(ID,AGE,NAME,HEIGHT) \
-cut_trace(_assertInsert(ID,AGE,NAME,HEIGHT));
+		// fixed 'table'
+		size_t idx = 0;
+		string expected = "table";
+		cppcut_assert_equal(expected, outVec[idx++]);
 
-void _assertUpdate(uint64_t id, int age, const char *name, double height,
-                   const string &condition = "")
-{
-	DBAgentSQLite3 dbAgent;
+		// name and table name
+		cppcut_assert_equal(string(TABLE_NAME_TEST), outVec[idx++]);
+		cppcut_assert_equal(string(TABLE_NAME_TEST), outVec[idx++]);
 
-	DBAgentUpdateArg arg;
-	arg.tableName = TABLE_NAME_TEST;
-	for (size_t i = IDX_TEST_TABLE_ID; i < NUM_COLUMNS_TEST; i++)
-		arg.columnIndexes.push_back(i);
-	arg.columnDefs = COLUMN_DEF_TEST;
-	VariableItemGroupPtr row;
-	row->ADD_NEW_ITEM(Uint64, id);
-	row->ADD_NEW_ITEM(Int, age);
-	row->ADD_NEW_ITEM(String, name);
-	row->ADD_NEW_ITEM(Double, height);
-	arg.row = row;
-	arg.condition = condition;
-	dbAgent.update(arg);
+		// rootpage (we ignore it)
+		idx++;
 
-	assertExistRecord(id, age, name,height);
-}
-#define assertUpdate(ID,AGE,NAME,HEIGHT, ...) \
-cut_trace(_assertUpdate(ID,AGE,NAME,HEIGHT, ##__VA_ARGS__));
+		// table schema
+		expected = StringUtils::sprintf("CREATE TABLE %s(",
+		                                TABLE_NAME_TEST);
+		for (size_t i = 0; i < arg.numColumns; i++) {
+			const ColumnDef &columnDef = arg.columnDefs[i];
 
-static void makeTestDB(void)
-{
-	// make table
-	assertCreate();
+			// name
+			expected += columnDef.columnName;
+			expected += " ";
 
-	// insert data
-	for (size_t i = 0; i < NUM_TEST_DATA; i++)
-		assertInsert(ID[i], AGE[i], NAME[i], HEIGHT[i]);
-	for (size_t i = 0; i < NUM_TEST_DATA; i++)
-		g_testDataIdIndexMap[ID[i]] = i;
-	cppcut_assert_equal(NUM_TEST_DATA, g_testDataIdIndexMap.size());
-}
+			// type 
+			switch(columnDef.type) {
+			case SQL_COLUMN_TYPE_INT:
+			case SQL_COLUMN_TYPE_BIGUINT:
+				expected += "INTEGER ";
+				break;             
+			case SQL_COLUMN_TYPE_VARCHAR:
+			case SQL_COLUMN_TYPE_CHAR:
+			case SQL_COLUMN_TYPE_TEXT:
+				expected += "TEXT ";
+				break;
+			case SQL_COLUMN_TYPE_DOUBLE:
+				expected += "REAL ";
+				break;
+			case NUM_SQL_COLUMN_TYPES:
+			default:
+				cut_fail("Unknwon type: %d\n", columnDef.type);
+			}
 
-static void _assertSelectHeightOrder(size_t limit = 0, size_t offset = 0,
-                                     size_t forceExpectedRows = (size_t)-1)
-{
-	makeTestDB();
-	DBAgentSQLite3 dbAgent;
-	DBAgentSelectExArg arg;
-	arg.tableName = TABLE_NAME_TEST;
-	const ColumnDef &columnDef = COLUMN_DEF_TEST[IDX_TEST_TABLE_HEIGHT];
-	arg.statements.push_back(columnDef.columnName);
-	arg.columnTypes.push_back(columnDef.type);
-	arg.orderBy = StringUtils::sprintf("%s DESC", columnDef.columnName);
-	arg.limit = limit;
-	arg.offset = offset;
-	dbAgent.select(arg);
+			// key 
+			if (columnDef.keyType == SQL_KEY_PRI)
+				expected += "PRIMARY KEY";
 
-	// check the result
-	const ItemGroupList &itemList = arg.dataTable->getItemGroupList();
-	size_t numExpectedRows;
-	if (forceExpectedRows == (size_t)-1)
-		numExpectedRows = limit == 0 ? NUM_TEST_DATA : arg.limit;
-	else
-		numExpectedRows = forceExpectedRows;
-	cppcut_assert_equal(numExpectedRows, itemList.size());
-	if (numExpectedRows == 0)
-		return;
+			if (i < arg.numColumns - 1)
+				expected += ",";
+		}
+		expected += ")\n";
+		cppcut_assert_equal(expected, outVec[idx++]);
 
-	const ItemGroup *itemGroup = *itemList.begin();
-	cppcut_assert_equal((size_t)1, itemGroup->getNumberOfItems());
-
-	set<double> expectedSet;
-	for (size_t i = 0; i < NUM_TEST_DATA; i++)
-		expectedSet.insert(HEIGHT[i]);
-
-	ItemGroupListConstIterator grpListIt = itemList.begin();
-	set<double>::reverse_iterator heightIt = expectedSet.rbegin();
-	size_t count = 0;
-	for (size_t i = 0; i < NUM_TEST_DATA && count < arg.limit;
-	     i++, ++heightIt, count++) {
-		int idx = 0;
-		double expected = *heightIt;
-		if (i < arg.offset)
-			continue;
-		assertItemData(double, *grpListIt, expected, idx);
-		grpListIt++;
 	}
+
+	virtual void assertExistingRecord(uint64_t id, int age,
+	                                  const char *name, double height,
+	                                  size_t numColumns,
+	                                  const ColumnDef *columnDefs)
+	{
+		assertExistRecord(id, age, name,height);
+	}
+
+	virtual void assertUpdate(uint64_t id, int age,
+	                          const char *name, double height,
+	                          const string &condition)
+	{
+		assertExistRecord(id, age, name,height);
+	}
+
+	virtual void getIDStringVector(const ColumnDef &columnDefId,
+	                               vector<string> &actualIds)
+	{
+		cut_assert_exist_path(g_dbPath.c_str());
+		string cmd =
+		  StringUtils::sprintf(
+		    "sqlite3 %s \"SELECT %s FROM %s ORDER BY %s ASC\"",
+		    g_dbPath.c_str(), columnDefId.columnName,
+		    TABLE_NAME_TEST, columnDefId.columnName);
+		string output = executeCommand(cmd);
+		StringUtils::split(actualIds, output, '\n');
+	}
+};
+
+static DBAgentCheckerSQLite3 dbAgentChecker;
+
+static void deleteDB(void)
+{
+	unlink(g_dbPath.c_str());
+	cut_assert_not_exist_path(g_dbPath.c_str());
 }
-#define assertSelectHeightOrder(...) \
-cut_trace(_assertSelectHeightOrder(__VA_ARGS__))
+
+#define DEFINE_DBAGENT_WITH_INIT(DB_NAME, OBJ_NAME) \
+string _path = getFixturesDir() + DB_NAME; \
+DBAgentSQLite3::defineDBPath(DEFAULT_DB_DOMAIN_ID, _path); \
+DBAgentSQLite3 OBJ_NAME; \
 
 void setup(void)
 {
-	g_testDataIdIndexMap.clear();
 	deleteDB();
 	DBAgentSQLite3::defineDBPath(DEFAULT_DB_DOMAIN_ID, g_dbPath);
 }
@@ -292,306 +207,106 @@ void test_testIsRecordExistingNotIncluded(void)
 	  (false, dbAgent.isRecordExisting("foo", expectFalseCondition));
 }
 
-void test_create(void)
+void test_createTable(void)
 {
-	assertCreate();
+	DBAgentSQLite3 dbAgent;
+	dbAgentTestCreateTable(dbAgent, dbAgentChecker);
 }
 
 void test_insert(void)
 {
-	// create table
-	assertCreate();
-
-	// insert a row
-	const uint64_t ID = 1;
-	const int AGE = 14;
-	const char *NAME = "rei";
-	const double HEIGHT = 158.2;
-	assertInsert(ID, AGE, NAME, HEIGHT);
+	DBAgentSQLite3 dbAgent;
+	dbAgentTestInsert(dbAgent, dbAgentChecker);
 }
 
 void test_insertUint64_0x7fffffffffffffff(void)
 {
-	// create table
-	assertCreate();
-
-	// insert a row
-	const uint64_t ID = 0x7fffffffffffffff;
-	const int AGE = 14;
-	const char *NAME = "rei";
-	const double HEIGHT = 158.2;
-	assertInsert(ID, AGE, NAME, HEIGHT);
+	DBAgentSQLite3 dbAgent;
+	dbAgentTestInsertUint64(dbAgent, dbAgentChecker, 0x7fffffffffffffff);
 }
 
 void test_insertUint64_0x8000000000000000(void)
 {
-	// create table
-	assertCreate();
-
-	// insert a row
-	const uint64_t ID = 0x8000000000000000;
-	const int AGE = 14;
-	const char *NAME = "rei";
-	const double HEIGHT = 158.2;
-	assertInsert(ID, AGE, NAME, HEIGHT);
+	DBAgentSQLite3 dbAgent;
+	dbAgentTestInsertUint64(dbAgent, dbAgentChecker, 0x8000000000000000);
 }
 
 void test_insertUint64_0xffffffffffffffff(void)
 {
-	// create table
-	assertCreate();
-
-	// insert a row
-	const uint64_t ID = 0xffffffffffffffff;
-	const int AGE = 14;
-	const char *NAME = "rei";
-	const double HEIGHT = 158.2;
-	assertInsert(ID, AGE, NAME, HEIGHT);
+	DBAgentSQLite3 dbAgent;
+	dbAgentTestInsertUint64(dbAgent, dbAgentChecker, 0xffffffffffffffff);
 }
 
 void test_update(void)
 {
-	// create table and insert a row
-	test_insert();
-
-	// insert a row
-	const uint64_t ID = 9;
-	const int AGE = 20;
-	const char *NAME = "yui";
-	const double HEIGHT = 158.0;
-	assertUpdate(ID, AGE, NAME, HEIGHT);
+	DBAgentSQLite3 dbAgent;
+	dbAgentTestUpdate(dbAgent, dbAgentChecker);
 }
 
 void test_updateCondition(void)
 {
-	// create table
-	assertCreate();
-
-	static const size_t NUM_DATA = 3;
-	const uint64_t ID[NUM_DATA]   = {1, 3, 9};
-	const int      AGE[NUM_DATA]  = {20, 18, 17};
-	const char    *NAME[NUM_DATA] = {"yui", "aoi", "Q-taro"};
-	const double HEIGHT[NUM_DATA] = {158.0, 161.3, 70.0};
-
-	// insert the first and the second rows
-	for (size_t  i = 0; i < NUM_DATA - 1; i++)
-		assertInsert(ID[i], AGE[i], NAME[i], HEIGHT[i]);
-
-	// update the second row
-	size_t targetIdx = NUM_DATA - 2;
-	string condition =
-	   StringUtils::sprintf("age=%d and name='%s'",
-	                        AGE[targetIdx], NAME[targetIdx]);
-	size_t idx = NUM_DATA - 1;
-	assertUpdate(ID[idx], AGE[idx], NAME[idx], HEIGHT[idx], condition);
+	DBAgentSQLite3 dbAgent;
+	dbAgentTestUpdateCondition(dbAgent, dbAgentChecker);
 }
 
 void test_select(void)
 {
-	makeTestDB();
-
 	DBAgentSQLite3 dbAgent;
-
-	// get records
-	DBAgentSelectArg arg;
-	arg.tableName = TABLE_NAME_TEST;
-	arg.columnDefs = COLUMN_DEF_TEST;
-	arg.columnIndexes.push_back(IDX_TEST_TABLE_ID);
-	arg.columnIndexes.push_back(IDX_TEST_TABLE_AGE);
-	arg.columnIndexes.push_back(IDX_TEST_TABLE_NAME);
-	arg.columnIndexes.push_back(IDX_TEST_TABLE_HEIGHT);
-	dbAgent.select(arg);
-
-	// check the result
-	const ItemGroupList &groupList = arg.dataTable->getItemGroupList();
-	cppcut_assert_equal(groupList.size(), arg.dataTable->getNumberOfRows());
-	ItemGroupListConstIterator it = groupList.begin();
-	size_t srcDataIdx = 0;
-	map<uint64_t, size_t>::iterator itrId;
-	for (; it != groupList.end(); ++it, srcDataIdx++) {
-		const ItemData *itemData;
-		size_t columnIdx = 0;
-		const ItemGroup *itemGroup = *it;
-		cppcut_assert_equal(itemGroup->getNumberOfItems(),
-		                    NUM_COLUMNS_TEST);
-
-		// id
-		itemData = itemGroup->getItemAt(columnIdx++);
-		uint64_t id = ItemDataUtils::getUint64(itemData);
-		itrId = g_testDataIdIndexMap.find(id);
-		cppcut_assert_equal(false, itrId == g_testDataIdIndexMap.end(),
-		                    cut_message("id: 0x%"PRIx64, id));
-		srcDataIdx = itrId->second;
-
-		// age
-		itemData = itemGroup->getItemAt(columnIdx++);
-		int valInt = ItemDataUtils::getInt(itemData);
-		cppcut_assert_equal(AGE[srcDataIdx], valInt);
-
-		// name
-		itemData = itemGroup->getItemAt(columnIdx++);
-		string valStr = ItemDataUtils::getString(itemData);
-		cppcut_assert_equal(NAME[srcDataIdx], valStr.c_str());
-
-		// height
-		itemData = itemGroup->getItemAt(columnIdx++);
-		double valDouble = ItemDataUtils::getDouble(itemData);
-		cppcut_assert_equal(HEIGHT[srcDataIdx], valDouble);
-
-		// delete the element from idSet
-		g_testDataIdIndexMap.erase(itrId);
-	}
+	dbAgentTestSelect(dbAgent);
 }
 
-void test_selectExStatic(void)
+void test_selectEx(void)
 {
-	makeTestDB();
 	DBAgentSQLite3 dbAgent;
-	DBAgentSelectExArg arg;
-	arg.tableName = TABLE_NAME_TEST;
-	arg.statements.push_back("count(*)");
-	arg.columnTypes.push_back(SQL_COLUMN_TYPE_TEXT);
-	dbAgent.select(arg);
-
-	const ItemGroupList &itemList = arg.dataTable->getItemGroupList();
-	cppcut_assert_equal((size_t)1, itemList.size());
-	const ItemGroup *itemGroup = *itemList.begin();
-	cppcut_assert_equal((size_t)1, itemGroup->getNumberOfItems());
-
-	string expectedCount = StringUtils::sprintf("%zd", NUM_TEST_DATA);
-	cppcut_assert_equal(expectedCount,
-	                    itemGroup->getItemAt(0)->getString());
+	dbAgentTestSelectEx(dbAgent);
 }
 
-void test_selectExStaticWithCond(void)
+void test_selectExWithCond(void)
 {
-	const ColumnDef &columnDefId = COLUMN_DEF_TEST[IDX_TEST_TABLE_ID];
-	size_t targetRow = 1;
-
-	makeTestDB();
 	DBAgentSQLite3 dbAgent;
-	DBAgentSelectExArg arg;
-	arg.tableName = TABLE_NAME_TEST;
-	arg.statements.push_back(columnDefId.columnName);
-	arg.columnTypes.push_back(SQL_COLUMN_TYPE_BIGUINT);
-
-	arg.condition = StringUtils::sprintf
-	                  ("%s=%zd", columnDefId.columnName, ID[targetRow]);
-	dbAgent.select(arg);
-
-	const ItemGroupList &itemList = arg.dataTable->getItemGroupList();
-	cppcut_assert_equal((size_t)1, itemList.size());
-	const ItemGroup *itemGroup = *itemList.begin();
-	cppcut_assert_equal((size_t)1, itemGroup->getNumberOfItems());
-
-	const ItemUint64 *item =
-	   dynamic_cast<const ItemUint64 *>(itemGroup->getItemAt(0));
-	cppcut_assert_not_null(item);
-	cppcut_assert_equal(ID[targetRow], item->get());
+	dbAgentTestSelectExWithCond(dbAgent);
 }
 
-void test_selectExStaticWithCondAllColumns(void)
+void test_selectExWithCondAllColumns(void)
 {
-	const ColumnDef &columnDefId = COLUMN_DEF_TEST[IDX_TEST_TABLE_ID];
-	size_t targetRow = 1;
-
-	makeTestDB();
 	DBAgentSQLite3 dbAgent;
-	DBAgentSelectExArg arg;
-	arg.tableName = TABLE_NAME_TEST;
-	for (size_t i = 0; i < NUM_COLUMNS_TEST; i++) {
-		const ColumnDef &columnDef = COLUMN_DEF_TEST[i];
-		arg.statements.push_back(columnDef.columnName);
-		arg.columnTypes.push_back(columnDef.type);
-	}
-
-	arg.condition = StringUtils::sprintf
-	                  ("%s=%zd", columnDefId.columnName, ID[targetRow]);
-	dbAgent.select(arg);
-
-	const ItemGroupList &itemList = arg.dataTable->getItemGroupList();
-	cppcut_assert_equal((size_t)1, itemList.size());
-	const ItemGroup *itemGroup = *itemList.begin();
-	cppcut_assert_equal(NUM_COLUMNS_TEST, itemGroup->getNumberOfItems());
-
-	// check the results
-	int idx = 0;
-	assertItemData(uint64_t, itemGroup, ID[targetRow], idx);
-	assertItemData(int,      itemGroup, AGE[targetRow], idx);
-	assertItemData(string,   itemGroup, NAME[targetRow], idx);
-	assertItemData(double,   itemGroup, HEIGHT[targetRow], idx);
+	dbAgentTestSelectExWithCondAllColumns(dbAgent);
 }
 
-void test_selectExStaticWithOrderBy(void)
+void test_selectExWithOrderBy(void)
 {
-	assertSelectHeightOrder();
-}
-
-void test_selectExStaticWithOrderByLimit(void)
-{
-	assertSelectHeightOrder(1);
-}
-
-void test_selectExStaticWithOrderByLimitTwo(void)
-{
-	assertSelectHeightOrder(2);
-}
-
-void test_selectExStaticWithOrderByLimitOffset(void)
-{
-	assertSelectHeightOrder(2, 1);
-}
-
-void test_selectExStaticWithOrderByLimitOffsetOverData(void)
-{
-	assertSelectHeightOrder(1, NUM_TEST_DATA, 0);
-}
-
-void test_deleteStatic(void)
-{
-	// create table
-	assertCreate();
-
-	// insert rows
-	const size_t NUM_TEST = 3;
-	const uint64_t ID[NUM_TEST]   = {1,2,3};
-	const int AGE[NUM_TEST]       = {14, 17, 16};
-	const char *NAME[NUM_TEST]    = {"rei", "mio", "azusa"};
-	const double HEIGHT[NUM_TEST] = {158.2, 165.3, 155.2};
-	for (size_t i = 0; i < NUM_TEST; i++)
-		assertInsert(ID[i], AGE[i], NAME[i], HEIGHT[i]);
-
-	// delete
-	DBAgentDeleteArg arg;
-	arg.tableName = TABLE_NAME_TEST;
-	const int thresAge = 15;
-	const ColumnDef &columnDefAge = COLUMN_DEF_TEST[IDX_TEST_TABLE_AGE];
-	arg.condition = StringUtils::sprintf
-	                  ("%s<%d", columnDefAge.columnName, thresAge);
 	DBAgentSQLite3 dbAgent;
-	dbAgent.deleteRows(arg);
+	dbAgentTestSelectHeightOrder(dbAgent);
+}
 
-	// check
-	cut_assert_exist_path(g_dbPath.c_str());
-	const ColumnDef &columnDefId = COLUMN_DEF_TEST[IDX_TEST_TABLE_ID];
-	string cmd = StringUtils::sprintf(
-	               "sqlite3 %s \"SELECT %s FROM %s ORDER BY %s ASC\"",
-	               g_dbPath.c_str(), columnDefId.columnName,
-	               TABLE_NAME_TEST, columnDefId.columnName);
-	string output = executeCommand(cmd);
-	vector<string> actualIds;
-	StringUtils::split(actualIds, output, '\n');
-	size_t matchCount = 0;
-	for (size_t i = 0; i < NUM_TEST; i++) {
-		if (AGE[i] < thresAge)
-			continue;
-		cppcut_assert_equal(true, actualIds.size() > matchCount);
-		string &actualIdStr = actualIds[matchCount];
-		string expectedIdStr = StringUtils::sprintf("%d", ID[i]);
-		cppcut_assert_equal(expectedIdStr, actualIdStr);
-		matchCount++;
-	}
-	cppcut_assert_equal(matchCount, actualIds.size());
+void test_selectExWithOrderByLimit(void)
+{
+	DBAgentSQLite3 dbAgent;
+	dbAgentTestSelectHeightOrder(dbAgent, 1);
+}
+
+void test_selectExWithOrderByLimitTwo(void)
+{
+	DBAgentSQLite3 dbAgent;
+	dbAgentTestSelectHeightOrder(dbAgent, 2);
+}
+
+void test_selectExWithOrderByLimitOffset(void)
+{
+	DBAgentSQLite3 dbAgent;
+	dbAgentTestSelectHeightOrder(dbAgent, 2, 1);
+}
+
+void test_selectExWithOrderByLimitOffsetOverData(void)
+{
+	DBAgentSQLite3 dbAgent;
+	dbAgentTestSelectHeightOrder(dbAgent, 1, NUM_TEST_DATA, 0);
+}
+
+void test_delete(void)
+{
+	DBAgentSQLite3 dbAgent;
+	dbAgentTestDelete(dbAgent, dbAgentChecker);
 }
 
 } // testDBAgentSQLite3

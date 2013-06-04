@@ -15,24 +15,27 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef VirtualDataStoreNagios_h
+#define VirtualDataStoreNagios_h
+
 #include "VirtualDataStore.h"
 
-// ---------------------------------------------------------------------------
-// Public methods
-// ---------------------------------------------------------------------------
-VirtualDataStore::VirtualDataStore(void)
+class VirtualDataStoreNagios : public VirtualDataStore
 {
-}
+public:
+	static VirtualDataStoreNagios *getInstance(void);
+	void start(void);
 
-VirtualDataStore::~VirtualDataStore(void)
-{
-}
+	// overriden virtual methods
+	virtual void getTriggerList(TriggerInfoList &triggerList);
 
-// ---------------------------------------------------------------------------
-// Protected methods
-// ---------------------------------------------------------------------------
-void VirtualDataStore::stop(void)
-{
-	MLPL_INFO("VirtualDataStore: stop process: started.\n");
-	closeAllStores();
-}
+protected:
+	VirtualDataStoreNagios(void);
+	~VirtualDataStoreNagios();
+
+private:
+	struct PrivateContext;
+	PrivateContext *m_ctx;
+};
+
+#endif // VirtualDataStoreNagios_h

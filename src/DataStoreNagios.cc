@@ -14,25 +14,36 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+#include "DataStoreNagios.h"
 
-#include "VirtualDataStore.h"
+#include <cstdio>
+
+struct DataStoreNagios::PrivateContext
+{
+	ArmNagiosNDOUtils  armNDO;
+
+	PrivateContext(const MonitoringServerInfo &serverInfo)
+	: armNDO(serverInfo)
+	{
+	}
+};
 
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
-VirtualDataStore::VirtualDataStore(void)
+DataStoreNagios::DataStoreNagios(const MonitoringServerInfo &serverInfo)
+: m_ctx(NULL)
 {
+	m_ctx = new PrivateContext(serverInfo);
+	m_ctx->armNDO.start();
 }
 
-VirtualDataStore::~VirtualDataStore(void)
+DataStoreNagios::~DataStoreNagios()
 {
+	if (m_ctx)
+		delete m_ctx;
 }
 
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
-void VirtualDataStore::stop(void)
-{
-	MLPL_INFO("VirtualDataStore: stop process: started.\n");
-	closeAllStores();
-}

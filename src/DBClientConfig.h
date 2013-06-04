@@ -23,6 +23,7 @@
 
 enum MonitoringSystemType {
 	MONITORING_SYSTEM_ZABBIX,
+	MONITORING_SYSTEM_NAGIOS,
 };
 
 struct MonitoringServerInfo {
@@ -34,6 +35,31 @@ struct MonitoringServerInfo {
 	int                  port;
 	int                  pollingIntervalSec;
 	int                  retryIntervalSec;
+
+	// The following variables are used in different purposes
+	// depending on the MonitoringSystemType.
+	//
+	// [MONITORING_SYSTEM_ZABBIX]
+	//   userName, passowrd: loggin for the ZABBIX server.
+	//   dbName            : Not used
+	//
+	// [MONITORING_SYSTEM_NAGIOS]
+	//   userName, passowrd: MySQL user name and the password.
+	//   dbName            : MySQL database name.
+	string               userName;
+	string               password;
+	string               dbName; // for naigos ndutils
+
+	// methods
+
+	/**
+	 * return an appropriate host information for connection.
+	 * @return
+	 * If ipAddress is set, it is returned. Otherwise, if hostName is set,
+	 * it is returned. If ipAddress and hostName are both not set, NULL
+	 * is returned.
+	 */
+	const char *getHostAddress(void) const;
 };
 
 typedef list<MonitoringServerInfo>         MonitoringServerInfoList;

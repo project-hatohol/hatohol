@@ -29,6 +29,7 @@ static const char *TABLE_NAME_TRIGGERS = "triggers";
 static const char *TABLE_NAME_EVENTS   = "events";
 static const char *TABLE_NAME_ITEMS    = "items";
 
+uint64_t DBClientAsura::EVENT_NOT_FOUND = -1;
 int DBClientAsura::ASURA_DB_VERSION = 3;
 
 static const ColumnDef COLUMN_DEF_TRIGGERS[] = {
@@ -217,6 +218,61 @@ static const ColumnDef COLUMN_DEF_EVENTS[] = {
 	SQL_KEY_MUL,                       // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
+}, {
+	ITEM_ID_NOT_SET,                   // itemId
+	TABLE_NAME_EVENTS,                 // tableName
+	"status",                          // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	11,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}, {
+	ITEM_ID_NOT_SET,                   // itemId
+	TABLE_NAME_EVENTS,                 // tableName
+	"severity",                        // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	11,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}, {
+	ITEM_ID_NOT_SET,                   // itemId
+	TABLE_NAME_TRIGGERS,               // tableName
+	"host_id",                         // columnName
+	SQL_COLUMN_TYPE_BIGUINT,           // type
+	20,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}, {
+	ITEM_ID_NOT_SET,                   // itemId
+	TABLE_NAME_TRIGGERS,               // tableName
+	"hostname",                        // columnName
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	255,                               // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}, {
+	ITEM_ID_NOT_SET,                   // itemId
+	TABLE_NAME_TRIGGERS,               // tableName
+	"brief",                           // columnName
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	255,                               // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
 },
 };
 
@@ -230,6 +286,11 @@ enum {
 	IDX_EVENTS_TIME_NS,
 	IDX_EVENTS_EVENT_TYPE,
 	IDX_EVENTS_TRIGGER_ID,
+	IDX_EVENTS_STATUS,
+	IDX_EVENTS_SEVERITY,
+	IDX_EVENTS_HOST_ID,
+	IDX_EVENTS_HOST_NAME,
+	IDX_EVENTS_BRIEF,
 	NUM_IDX_EVENTS,
 };
 
@@ -491,6 +552,32 @@ void DBClientAsura::setTriggerInfoList(const TriggerInfoList &triggerInfoList,
 	} DBCLIENT_TRANSACTION_END();
 }
 
+int DBClientAsura::getLastChangeTimeOfTrigger(uint32_t serverId)
+{
+	DBAgentSelectExArg arg;
+	arg.tableName = TABLE_NAME_TRIGGERS;
+	string stmt = StringUtils::sprintf("max(%s)", 
+	    COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_LAST_CHANGE_TIME_SEC].columnName);
+	arg.statements.push_back(stmt);
+	arg.columnTypes.push_back(
+	    COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SERVER_ID].type);
+	arg.condition = StringUtils::sprintf("%s=%u",
+	    COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SERVER_ID].columnName,
+	    serverId);
+
+	DBCLIENT_TRANSACTION_BEGIN() {
+		select(arg);
+	} DBCLIENT_TRANSACTION_END();
+
+	// get the result
+	if (arg.dataTable->getNumberOfRows() == 0)
+		return 0;
+
+	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
+	const ItemData *lastTime = (*grpList.begin())->getItemAt(0);
+	return ItemDataUtils::getInt(lastTime);
+}
+
 void DBClientAsura::addEventInfo(EventInfo *eventInfo)
 {
 	DBCLIENT_TRANSACTION_BEGIN() {
@@ -530,10 +617,6 @@ void DBClientAsura::getEventInfoList(EventInfoList &eventInfoList)
 	  COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_STATUS];
 	const ColumnDef &triggersSeverity =
 	  COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SEVERITY];
-	const ColumnDef &triggersLastChangeTimeSec = 
-	  COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_LAST_CHANGE_TIME_SEC];
-	const ColumnDef &triggersLastChangeTimeNs = 
-	  COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_LAST_CHANGE_TIME_NS];
 	const ColumnDef &triggersHostId =
 	  COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_HOST_ID];
 	const ColumnDef &triggersHostName =
@@ -563,8 +646,6 @@ void DBClientAsura::getEventInfoList(EventInfoList &eventInfoList)
 
 	arg.pushColumn(triggersStatus,   VAR_TRIGGERS);
 	arg.pushColumn(triggersSeverity, VAR_TRIGGERS);
-	arg.pushColumn(triggersLastChangeTimeSec, VAR_TRIGGERS);
-	arg.pushColumn(triggersLastChangeTimeNs,  VAR_TRIGGERS);
 	arg.pushColumn(triggersHostId,   VAR_TRIGGERS);
 	arg.pushColumn(triggersHostName, VAR_TRIGGERS);
 	arg.pushColumn(triggersBrief,    VAR_TRIGGERS);
@@ -596,20 +677,13 @@ void DBClientAsura::getEventInfoList(EventInfoList &eventInfoList)
 		eventInfo.type       = static_cast<EventType>(type);
 		eventInfo.triggerId  = GET_UINT64_FROM_GRP(itemGroup, idx++);
 
-		TriggerInfo &trigInfo = eventInfo.triggerInfo;
-		trigInfo.serverId  = eventInfo.serverId;
-		trigInfo.id        = eventInfo.triggerId;
-		int status         = GET_INT_FROM_GRP(itemGroup, idx++);
-		trigInfo.status    = static_cast<TriggerStatusType>(status);
-		int severity       = GET_INT_FROM_GRP(itemGroup, idx++);
-		trigInfo.severity  = static_cast<TriggerSeverityType>(severity);
-		trigInfo.lastChangeTime.tv_sec = 
-		  GET_INT_FROM_GRP(itemGroup, idx++);
-		trigInfo.lastChangeTime.tv_nsec =
-		  GET_INT_FROM_GRP(itemGroup, idx++);
-		trigInfo.hostId    = GET_UINT64_FROM_GRP(itemGroup, idx++);
-		trigInfo.hostName  = GET_STRING_FROM_GRP(itemGroup, idx++);
-		trigInfo.brief     = GET_STRING_FROM_GRP(itemGroup, idx++);
+		int status          = GET_INT_FROM_GRP(itemGroup, idx++);
+		eventInfo.status    = static_cast<TriggerStatusType>(status);
+		int severity        = GET_INT_FROM_GRP(itemGroup, idx++);
+		eventInfo.severity  = static_cast<TriggerSeverityType>(severity);
+		eventInfo.hostId    = GET_UINT64_FROM_GRP(itemGroup, idx++);
+		eventInfo.hostName  = GET_STRING_FROM_GRP(itemGroup, idx++);
+		eventInfo.brief     = GET_STRING_FROM_GRP(itemGroup, idx++);
 	}
 }
 
@@ -629,6 +703,30 @@ void DBClientAsura::setEventInfoList(const EventInfoList &eventInfoList,
 		for (; it != eventInfoList.end(); ++it)
 			addEventInfoBare(*it);
 	} DBCLIENT_TRANSACTION_END();
+}
+
+uint64_t DBClientAsura::getLastEventId(uint32_t serverId)
+{
+	DBAgentSelectExArg arg;
+	arg.tableName = TABLE_NAME_EVENTS;
+	string stmt = StringUtils::sprintf("max(%s)", 
+	    COLUMN_DEF_EVENTS[IDX_EVENTS_ID].columnName);
+	arg.statements.push_back(stmt);
+	arg.columnTypes.push_back(COLUMN_DEF_EVENTS[IDX_EVENTS_ID].type);
+	arg.condition = StringUtils::sprintf("%s=%u",
+	    COLUMN_DEF_EVENTS[IDX_EVENTS_SERVER_ID].columnName, serverId);
+
+	DBCLIENT_TRANSACTION_BEGIN() {
+		select(arg);
+	} DBCLIENT_TRANSACTION_END();
+
+	// get the result
+	if (arg.dataTable->getNumberOfRows() == 0)
+		return EVENT_NOT_FOUND;
+
+	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
+	const ItemData *lastId = (*grpList.begin())->getItemAt(0);
+	return ItemDataUtils::getUint64(lastId);
 }
 
 void DBClientAsura::addItemInfo(ItemInfo *itemInfo)
@@ -800,6 +898,11 @@ void DBClientAsura::addEventInfoBare(const EventInfo &eventInfo)
 		row->ADD_NEW_ITEM(Int, eventInfo.time.tv_nsec); 
 		row->ADD_NEW_ITEM(Int, eventInfo.type);
 		row->ADD_NEW_ITEM(Uint64, eventInfo.triggerId);
+		row->ADD_NEW_ITEM(Int, eventInfo.status);
+		row->ADD_NEW_ITEM(Int, eventInfo.severity);
+		row->ADD_NEW_ITEM(Uint64, eventInfo.hostId);
+		row->ADD_NEW_ITEM(String, eventInfo.hostName);
+		row->ADD_NEW_ITEM(String, eventInfo.brief);
 		arg.row = row;
 		insert(arg);
 	} else {
@@ -821,8 +924,23 @@ void DBClientAsura::addEventInfoBare(const EventInfo &eventInfo)
 
 		row->ADD_NEW_ITEM(Uint64, eventInfo.triggerId);
 		arg.columnIndexes.push_back(IDX_EVENTS_TRIGGER_ID);
-		arg.row = row;
 
+		row->ADD_NEW_ITEM(Int, eventInfo.status);
+		arg.columnIndexes.push_back(IDX_EVENTS_STATUS);
+
+		row->ADD_NEW_ITEM(Int, eventInfo.severity);
+		arg.columnIndexes.push_back(IDX_EVENTS_SEVERITY);
+
+		row->ADD_NEW_ITEM(Uint64, eventInfo.hostId);
+		arg.columnIndexes.push_back(IDX_EVENTS_HOST_ID);
+
+		row->ADD_NEW_ITEM(String, eventInfo.hostName);
+		arg.columnIndexes.push_back(IDX_EVENTS_HOST_NAME);
+
+		row->ADD_NEW_ITEM(String, eventInfo.brief);
+		arg.columnIndexes.push_back(IDX_EVENTS_BRIEF);
+
+		arg.row = row;
 		arg.condition = condition;
 		update(arg);
 	}

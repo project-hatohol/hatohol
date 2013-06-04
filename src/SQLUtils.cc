@@ -28,6 +28,7 @@ SQLUtils::ItemDataCreator SQLUtils::m_itemDataCreators[] =
 	&SQLUtils::creatorChar,
 	&SQLUtils::creatorVarchar, // SQL_COLUMN_TYPE_TEXT
 	&SQLUtils::creatorDouble,
+	&SQLUtils::creatorDatetime
 };
 
 size_t SQLUtils::m_numItemDataCreators
@@ -138,6 +139,52 @@ void SQLUtils::decomposeTableAndColumn(const string &fieldName,
 	columnName = string(fieldName, dotPosition + 1);
 }
 
+ItemDataPtr SQLUtils::createFromString(const string &str, SQLColumnType type)
+{
+	ItemData *itemData = NULL;
+	switch(type) {
+	case SQL_COLUMN_TYPE_INT:
+		itemData = new ItemInt(atoi(str.c_str()));
+		break;
+	case SQL_COLUMN_TYPE_BIGUINT:
+		uint64_t val;
+		sscanf(str.c_str(), "%"PRIu64, &val);
+		itemData = new ItemUint64(val);
+		break;
+	case SQL_COLUMN_TYPE_VARCHAR:
+	case SQL_COLUMN_TYPE_CHAR:
+	case SQL_COLUMN_TYPE_TEXT:
+		itemData = new ItemString(str);
+		break;
+	case SQL_COLUMN_TYPE_DOUBLE:
+		itemData = new ItemDouble(atof(str.c_str()));
+		break;
+	case SQL_COLUMN_TYPE_DATETIME:
+	{ // brace is needed to avoid the error: jump to case label
+		struct tm tm;
+		int numVal = sscanf(str.c_str(),
+		                    "%04d-%02d-%02d %02d:%02d:%02d",
+		                    &tm.tm_year, &tm.tm_mon, &tm.tm_mday,
+		                    &tm.tm_hour, &tm.tm_min, &tm.tm_sec);
+		static const int EXPECT_NUM_VAL = 6;
+		if (numVal != EXPECT_NUM_VAL) {
+			MLPL_WARN(
+			  "Probably, parse of the time failed: %d, %s\n",
+			  numVal, str.c_str());
+		}
+		tm.tm_year -= 1900;
+		tm.tm_mon--; // tm_mon is counted from 0 in POSIX time APIs.
+		time_t time = mktime(&tm);
+		itemData = new ItemInt((int)time);
+		break;
+	}
+	case NUM_SQL_COLUMN_TYPES:
+	default:
+		THROW_ASURA_EXCEPTION("Unknown column type: %d\n", type);
+	}
+	return itemData;
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
@@ -202,4 +249,11 @@ ItemDataPtr SQLUtils::creatorDouble(const ColumnDef *columnDef,
 	}
 	ItemId itemId = columnDef->itemId;
 	return ItemDataPtr(new ItemDouble(itemId, atof(value)), false);
+}
+
+ItemDataPtr SQLUtils::creatorDatetime(const ColumnDef *columnDef,
+                                      const char *value)
+{
+	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	return ItemDataPtr();
 }

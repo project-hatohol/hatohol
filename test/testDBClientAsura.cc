@@ -50,6 +50,39 @@ static void _assertGetTriggers(void)
 }
 #define assertGetTriggers() cut_trace(_assertGetTriggers())
 
+// TODO: The names of makeExpectedOutput() and makeExpectedItemOutput()
+//       will be changed to be the similar of this function.
+static string makeEventOutput(EventInfo &eventInfo)
+{
+	string output = StringUtils::sprintf
+	                  ("%u|%d|%d|%d|%d|%u|%u|%s|%s\n",
+	                   eventInfo.serverId, eventInfo.id,
+	                   eventInfo.time.tv_sec, eventInfo.time.tv_nsec,
+	                   eventInfo.status, eventInfo.severity,
+	                   eventInfo.hostId,
+	                   eventInfo.hostName.c_str(),
+	                   eventInfo.brief.c_str());
+	return output;
+}
+
+static void _assertGetEvents(void)
+{
+	EventInfoList eventInfoList;
+	DBClientAsura dbAsura;
+	dbAsura.getEventInfoList(eventInfoList);
+	cppcut_assert_equal(NumTestEventInfo, eventInfoList.size());
+
+	string expectedText;
+	string actualText;
+	EventInfoListIterator it = eventInfoList.begin();
+	for (size_t i = 0; i < NumTestEventInfo; i++, ++it) {
+		expectedText += makeEventOutput(testEventInfo[i]);
+		actualText += makeEventOutput(*it);
+	}
+	cppcut_assert_equal(expectedText, actualText);
+}
+#define assertGetEvents() cut_trace(_assertGetEvents())
+
 static string makeExpectedItemOutput(ItemInfo *itemInfo)
 {
 	string expectedOut = StringUtils::sprintf
@@ -173,6 +206,32 @@ void test_addItemInfoList(void)
 	dbAsura.addItemInfoList(itemInfoList);
 
 	assertGetItems();
+}
+
+void test_addEventInfoList(void)
+{
+	// DBClientAsura internally joins the trigger table and the event table.
+	// So we also have to add trigger data.
+	// When the internal join is removed, the following line will not be
+	// needed.
+	test_setTriggerInfoList();
+
+	DBClientAsura dbAsura;
+	EventInfoList eventInfoList;
+	for (size_t i = 0; i < NumTestEventInfo; i++)
+		eventInfoList.push_back(testEventInfo[i]);
+	dbAsura.addEventInfoList(eventInfoList);
+
+	assertGetEvents();
+}
+
+void test_getLastEventId(void)
+{
+	test_addEventInfoList();
+	DBClientAsura dbAsura;
+	const int serverid = 3;
+	cppcut_assert_equal(findLastEventId(serverid),
+	                    dbAsura.getLastEventId(serverid));
 }
 
 } // namespace testDBClientAsura

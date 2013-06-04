@@ -15,24 +15,19 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "VirtualDataStore.h"
+#ifndef DataStoreNagios_h
+#define DataStoreNagios_h
 
-// ---------------------------------------------------------------------------
-// Public methods
-// ---------------------------------------------------------------------------
-VirtualDataStore::VirtualDataStore(void)
-{
-}
+#include "ArmNagiosNDOUtils.h"
+#include "DataStore.h"
 
-VirtualDataStore::~VirtualDataStore(void)
-{
-}
+class DataStoreNagios : public DataStore {
+public:
+	DataStoreNagios(const MonitoringServerInfo &serverInfo);
+	virtual ~DataStoreNagios();
+private:
+	struct PrivateContext;
+	PrivateContext *m_ctx;
+};
 
-// ---------------------------------------------------------------------------
-// Protected methods
-// ---------------------------------------------------------------------------
-void VirtualDataStore::stop(void)
-{
-	MLPL_INFO("VirtualDataStore: stop process: started.\n");
-	closeAllStores();
-}
+#endif // DataStoreNagios_h

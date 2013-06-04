@@ -11,6 +11,9 @@ MonitoringServerInfo serverInfo[] =
 	80,                       // port
 	10,                       // polling_interval_sec
 	5,                        // retry_interval_sec
+	"foo",                    // user_name
+	"goo",                    // password
+	"dbX",                    // db_name
 },{
 	2,                        // id
 	MONITORING_SYSTEM_ZABBIX, // type
@@ -20,6 +23,9 @@ MonitoringServerInfo serverInfo[] =
 	80,                       // port
 	30,                       // polling_interval_sec
 	15,                       // retry_interval_sec
+	"Einstein",               // user_name
+	"Albert",                 // password
+	"gravity",                // db_name
 },{
 	3,                        // id
 	MONITORING_SYSTEM_ZABBIX, // type
@@ -29,6 +35,9 @@ MonitoringServerInfo serverInfo[] =
 	8080,                     // port
 	60,                       // polling_interval_sec
 	60,                       // retry_interval_sec
+	"Fermi",                  // user_name
+	"fermion",                // password
+	"",                       // db_name
 }};
 size_t NumServerInfo = sizeof(serverInfo) / sizeof(MonitoringServerInfo);
 
@@ -70,18 +79,33 @@ EventInfo testEventInfo[] = {
 	{1362957200,0},           // time
 	TRIGGER_ACTIVATED,        // type
 	2,                        // triggerId
+	TRIGGER_STATUS_PROBLEM,   // status
+	TRIGGER_SEVERITY_WARN,    // severity
+	10001,                    // hostId,
+	"hostZ1",                 // hostName,
+	"TEST Trigger 2",         // brief,
 }, {
 	3,                        // serverId
 	2,                        // id
 	{1362951000,0},           // time
 	TRIGGER_ACTIVATED,        // type
 	3,                        // triggerId
+	TRIGGER_STATUS_PROBLEM,   // status
+	TRIGGER_SEVERITY_INFO,    // severity
+	10002,                    // hostId,
+	"hostZ2",                 // hostName,
+	"TEST Trigger 3",         // brief,
 }, {
 	1,                        // serverId
 	1,                        // id
 	{1362951000,0},           // time
 	TRIGGER_ACTIVATED,        // type
 	1,                        // triggerId
+	TRIGGER_STATUS_OK,        // status
+	TRIGGER_SEVERITY_INFO,    // severity
+	235012,                   // hostId,
+	"hostX1",                 // hostName,
+	"TEST Trigger 1",         // brief,
 },
 };
 size_t NumTestEventInfo = sizeof(testEventInfo) / sizeof(EventInfo);
@@ -131,4 +155,22 @@ const TriggerInfo &searchTestTriggerInfo(const EventInfo &eventInfo)
 	cut_fail("Not found: server ID: %u, trigger ID: %"PRIu64,
 	         eventInfo.serverId, eventInfo.triggerId);
 	return *(new TriggerInfo()); // never exectuted, just to pass build
+}
+
+uint64_t findLastEventId(uint32_t serverId)
+{
+	bool found = false;
+	uint64_t maxId = 0;
+	for (size_t i = 0; i < NumTestEventInfo; i++) {
+		EventInfo &eventInfo = testEventInfo[i];
+		if (eventInfo.serverId != serverId)
+			continue;
+		if (eventInfo.id >= maxId) {
+			maxId = eventInfo.id;
+			found = true;
+		}
+	}
+	if (!found)
+		return DBClientAsura::EVENT_NOT_FOUND;
+	return maxId;
 }

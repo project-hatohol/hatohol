@@ -15,37 +15,40 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef ArmBase_h
-#define ArmBase_h
+#ifndef ArmNagiosNDOUtils_h
+#define ArmNagiosNDOUtils_h
 
-#include "AsuraThreadBase.h"
+#include <libsoup/soup.h>
+#include "ArmBase.h"
+#include "ItemTablePtr.h"
+#include "JsonParserAgent.h"
+#include "JsonBuilderAgent.h"
 #include "DBClientConfig.h"
+#include "DBClientZabbix.h"
 
-class ArmBase : public AsuraThreadBase
+class ArmNagiosNDOUtils : public ArmBase
 {
 public:
-	ArmBase(const MonitoringServerInfo &serverInfo);
-	virtual ~ArmBase();
-
-	void setPollingInterval(int sec);
-	int getPollingInterval(void) const;
-	int getRetryInterval(void) const;
+	ArmNagiosNDOUtils(const MonitoringServerInfo &serverInfo);
+	virtual ~ArmNagiosNDOUtils();
 
 protected:
-	bool hasExitRequest(void) const;
-	void requestExit(void);
-	const MonitoringServerInfo &getServerInfo(void) const;
-	void sleepInterruptible(int sleepTime);
+	void makeSelectTriggerArg(void);
+	void makeSelectEventArg(void);
+	void makeSelectItemArg(void);
+	void addConditionForTriggerQuery(void);
+	void addConditionForEventQuery(void);
+	void getTrigger(void);
+	void getEvent(void);
+	void getItem(void);
 
 	// virtual methods
-	gpointer mainThread(AsuraThreadArg *arg);
-
-	// virtual methods defined in this class
-	virtual bool mainThreadOneProc(void) = 0;
+	virtual gpointer mainThread(AsuraThreadArg *arg);
+	virtual bool mainThreadOneProc(void);
 
 private:
 	struct PrivateContext;
 	PrivateContext *m_ctx;
 };
 
-#endif // ArmBase_h
+#endif // ArmNagiosNDOUtils_h

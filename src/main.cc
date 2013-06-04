@@ -33,12 +33,14 @@ using namespace mlpl;
 #include "FaceMySQL.h"
 #include "FaceRest.h"
 #include "VirtualDataStoreZabbix.h"
+#include "VirtualDataStoreNagios.h"
 #include "DBClientConfig.h"
 
 static int pipefd[2];
 
 struct ExecContext {
 	VirtualDataStoreZabbix *vdsZabbix;
+	VirtualDataStoreNagios *vdsNagios;
 	GMainLoop *loop;
 };
 
@@ -66,6 +68,7 @@ gboolean exitFunc(GIOChannel *source, GIOCondition condition, gpointer data)
 
 	// shoutdown servers
 	ctx->vdsZabbix->stop();
+	ctx->vdsNagios->stop();
 
 	// Because this function is beeing called, ctx->loop must have valid
 	// value even if a signal is received before ctx->loop is created.
@@ -125,6 +128,10 @@ int mainRoutine(int argc, char *argv[])
 	// start VirtualDataStoreZabbix
 	ctx.vdsZabbix = VirtualDataStoreZabbix::getInstance();
 	ctx.vdsZabbix->start();
+
+	// start VirtualDataStoreNagios
+	ctx.vdsNagios = VirtualDataStoreNagios::getInstance();
+	ctx.vdsNagios->start();
 
 	// main loop of GLIB
 	ctx.loop = g_main_loop_new(NULL, FALSE);
