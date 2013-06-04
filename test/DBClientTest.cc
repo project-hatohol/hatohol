@@ -79,7 +79,6 @@ EventInfo testEventInfo[] = {
 	{1362957200,0},           // time
 	TRIGGER_ACTIVATED,        // type
 	2,                        // triggerId
-	testTriggerInfo[0],       // dummy (this will be removed later)
 	TRIGGER_STATUS_PROBLEM,   // status
 	TRIGGER_SEVERITY_WARN,    // severity
 	10001,                    // hostId,
@@ -91,7 +90,6 @@ EventInfo testEventInfo[] = {
 	{1362951000,0},           // time
 	TRIGGER_ACTIVATED,        // type
 	3,                        // triggerId
-	testTriggerInfo[0],       // dummy (this will be removed later)
 	TRIGGER_STATUS_PROBLEM,   // status
 	TRIGGER_SEVERITY_INFO,    // severity
 	10002,                    // hostId,
@@ -103,7 +101,6 @@ EventInfo testEventInfo[] = {
 	{1362951000,0},           // time
 	TRIGGER_ACTIVATED,        // type
 	1,                        // triggerId
-	testTriggerInfo[0],       // dummy (this will be removed later)
 	TRIGGER_STATUS_OK,        // status
 	TRIGGER_SEVERITY_INFO,    // severity
 	235012,                   // hostId,

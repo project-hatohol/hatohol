@@ -60,10 +60,6 @@ struct EventInfo {
 	EventType           type;
 	uint64_t            triggerId;
 
-	// TODO: The member 'triggerInfo' will be removed,
-	//       after we modify the way to process ZABBIX events.
-	TriggerInfo         triggerInfo;
-
 	// status and type are basically same information.
 	// so they should be unified.
 	TriggerStatusType   status;

@@ -617,10 +617,6 @@ void DBClientAsura::getEventInfoList(EventInfoList &eventInfoList)
 	  COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_STATUS];
 	const ColumnDef &triggersSeverity =
 	  COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SEVERITY];
-	const ColumnDef &triggersLastChangeTimeSec = 
-	  COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_LAST_CHANGE_TIME_SEC];
-	const ColumnDef &triggersLastChangeTimeNs = 
-	  COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_LAST_CHANGE_TIME_NS];
 	const ColumnDef &triggersHostId =
 	  COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_HOST_ID];
 	const ColumnDef &triggersHostName =
@@ -650,8 +646,6 @@ void DBClientAsura::getEventInfoList(EventInfoList &eventInfoList)
 
 	arg.pushColumn(triggersStatus,   VAR_TRIGGERS);
 	arg.pushColumn(triggersSeverity, VAR_TRIGGERS);
-	arg.pushColumn(triggersLastChangeTimeSec, VAR_TRIGGERS);
-	arg.pushColumn(triggersLastChangeTimeNs,  VAR_TRIGGERS);
 	arg.pushColumn(triggersHostId,   VAR_TRIGGERS);
 	arg.pushColumn(triggersHostName, VAR_TRIGGERS);
 	arg.pushColumn(triggersBrief,    VAR_TRIGGERS);
@@ -683,20 +677,13 @@ void DBClientAsura::getEventInfoList(EventInfoList &eventInfoList)
 		eventInfo.type       = static_cast<EventType>(type);
 		eventInfo.triggerId  = GET_UINT64_FROM_GRP(itemGroup, idx++);
 
-		TriggerInfo &trigInfo = eventInfo.triggerInfo;
-		trigInfo.serverId  = eventInfo.serverId;
-		trigInfo.id        = eventInfo.triggerId;
-		int status         = GET_INT_FROM_GRP(itemGroup, idx++);
-		trigInfo.status    = static_cast<TriggerStatusType>(status);
-		int severity       = GET_INT_FROM_GRP(itemGroup, idx++);
-		trigInfo.severity  = static_cast<TriggerSeverityType>(severity);
-		trigInfo.lastChangeTime.tv_sec = 
-		  GET_INT_FROM_GRP(itemGroup, idx++);
-		trigInfo.lastChangeTime.tv_nsec =
-		  GET_INT_FROM_GRP(itemGroup, idx++);
-		trigInfo.hostId    = GET_UINT64_FROM_GRP(itemGroup, idx++);
-		trigInfo.hostName  = GET_STRING_FROM_GRP(itemGroup, idx++);
-		trigInfo.brief     = GET_STRING_FROM_GRP(itemGroup, idx++);
+		int status          = GET_INT_FROM_GRP(itemGroup, idx++);
+		eventInfo.status    = static_cast<TriggerStatusType>(status);
+		int severity        = GET_INT_FROM_GRP(itemGroup, idx++);
+		eventInfo.severity  = static_cast<TriggerSeverityType>(severity);
+		eventInfo.hostId    = GET_UINT64_FROM_GRP(itemGroup, idx++);
+		eventInfo.hostName  = GET_STRING_FROM_GRP(itemGroup, idx++);
+		eventInfo.brief     = GET_STRING_FROM_GRP(itemGroup, idx++);
 	}
 }
 

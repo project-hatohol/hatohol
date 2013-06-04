@@ -54,14 +54,6 @@ static void _assertGetTriggers(void)
 //       will be changed to be the similar of this function.
 static string makeEventOutput(EventInfo &eventInfo)
 {
-	/* Current we use this quick version */
-	string output = StringUtils::sprintf
-	                  ("%u|%d|%d|%d\n",
-	                   eventInfo.serverId, eventInfo.id,
-	                   eventInfo.time.tv_sec, eventInfo.time.tv_nsec);
-
-	/* This full version is used after the join in DBClientAsura is
-	 * removed. 
 	string output = StringUtils::sprintf
 	                  ("%u|%d|%d|%d|%d|%u|%u|%s|%s\n",
 	                   eventInfo.serverId, eventInfo.id,
@@ -70,7 +62,6 @@ static string makeEventOutput(EventInfo &eventInfo)
 	                   eventInfo.hostId,
 	                   eventInfo.hostName.c_str(),
 	                   eventInfo.brief.c_str());
-	*/
 	return output;
 }
 
