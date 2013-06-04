@@ -172,6 +172,7 @@ ItemDataPtr SQLUtils::createFromString(const string &str, SQLColumnType type)
 			  "Probably, parse of the time failed: %d, %s\n",
 			  numVal, str.c_str());
 		}
+		tm.tm_year -= 1900;
 		tm.tm_mon--; // tm_mon is counted from 0 in POSIX time APIs.
 		time_t time = mktime(&tm);
 		itemData = new ItemInt((int)time);
