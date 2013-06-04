@@ -310,6 +310,7 @@ struct ArmNagiosNDOUtils::PrivateContext
 	DBAgentSelectExArg selectTriggerArg;
 	string             selectTriggerBaseCondition;
 	DBAgentSelectExArg selectEventArg;
+	string             selectEventBaseCondition;
 	DBAgentSelectExArg selectItemArg;
 
 	// methods
@@ -490,10 +491,11 @@ void ArmNagiosNDOUtils::makeSelectEventArg(void)
 	                                 VAR_STATEHISTORY);
 
 	// contiditon
-	m_ctx->selectEventArg.condition = StringUtils::sprintf(
-	  "%s.%s=%d",
+	m_ctx->selectEventBaseCondition = StringUtils::sprintf(
+	  "%s.%s=%d and %s.%s>=",
 	  VAR_STATEHISTORY, columnDefStateHistoryStateType.columnName,
-	  HARD_STATE);
+	  HARD_STATE,
+	  VAR_STATEHISTORY, columnDefStateHistoryStateHistoryId.columnName);
 }
 
 void ArmNagiosNDOUtils::makeSelectItemArg(void)
@@ -557,6 +559,19 @@ void ArmNagiosNDOUtils::addConditionForTriggerQuery(void)
 	   StringUtils::sprintf("'%04d-%02d-%02d %02d:%02d:%02d'",
 	                        1900+tm.tm_year, tm.tm_mon+1, tm.tm_mday,
 	                        tm.tm_hour, tm.tm_min, tm.tm_sec);
+}
+
+void ArmNagiosNDOUtils::addConditionForEventQuery(void)
+{
+	const MonitoringServerInfo &svInfo = getServerInfo();
+	uint64_t lastEventId = m_ctx->dbAsura.getLastEventId(svInfo.id);
+	string cond;
+	m_ctx->selectEventArg.condition = m_ctx->selectEventBaseCondition;
+	if (lastEventId == DBClientAsura::EVENT_NOT_FOUND)
+ 		cond = "0";
+	else
+ 		cond = StringUtils::sprintf("%"PRIu64, lastEventId+1);
+	m_ctx->selectEventArg.condition += cond;
 }
 
 void ArmNagiosNDOUtils::getTrigger(void)
@@ -631,6 +646,8 @@ void ArmNagiosNDOUtils::getTrigger(void)
 
 void ArmNagiosNDOUtils::getEvent(void)
 {
+	addConditionForEventQuery();
+
 	// TODO: should use transaction
 	m_ctx->dbAgent.select(m_ctx->selectEventArg);
 	size_t numEvents =
@@ -703,7 +720,7 @@ void ArmNagiosNDOUtils::getEvent(void)
 
 		eventInfoList.push_back(eventInfo);
 	}
-	m_ctx->dbAsura.setEventInfoList(eventInfoList, svInfo.id);
+	m_ctx->dbAsura.addEventInfoList(eventInfoList);
 }
 
 void ArmNagiosNDOUtils::getItem(void)
