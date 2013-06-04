@@ -103,17 +103,17 @@ Trouble Shooting
 ==============================================
 Asura shows "Failed to get" and doesn't acquire information
 ------------------------------------------------------------
-- Do not change or remove user “Admin” and its password (zabbix)
-Currently Asura tries to login as “Admin” to get information from zabbix server.
+- Do not change or remove user "Admin" and its password (zabbix)
+Currently Asura tries to login as "Admin" to get information from zabbix server.
 
 - Check if your servers are correctly registered to Asura's database.
 You can verify them by checking the result from http://localhost:33194/servers.json.
-(In case you start Asura with default port number) For example, if value of “servers"
+(In case you start Asura with default port number) For example, if value of "servers"
 is empty, no servers are registered in the database. If you can see other unexpected
 results, check it too.
 Even if no servers are registered in the database or you specify non existent sqlite
 database with --config-db parameter, Asura starts without any error messages. If the
-specified database doesn’t exist, Asura automatically create it.
+specified database doesn't exist, Asura automatically create it.
 
 ==============================================
 API Reference Manual for REST service
