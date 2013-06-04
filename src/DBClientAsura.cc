@@ -551,6 +551,32 @@ void DBClientAsura::setTriggerInfoList(const TriggerInfoList &triggerInfoList,
 	} DBCLIENT_TRANSACTION_END();
 }
 
+int DBClientAsura::getLastChangeTimeOfTrigger(uint32_t serverId)
+{
+	DBAgentSelectExArg arg;
+	arg.tableName = TABLE_NAME_TRIGGERS;
+	string stmt = StringUtils::sprintf("max(%s)", 
+	    COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_LAST_CHANGE_TIME_SEC].columnName);
+	arg.statements.push_back(stmt);
+	arg.columnTypes.push_back(
+	    COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SERVER_ID].type);
+	arg.condition = StringUtils::sprintf("%s=%u",
+	    COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SERVER_ID].columnName,
+	    serverId);
+
+	DBCLIENT_TRANSACTION_BEGIN() {
+		select(arg);
+	} DBCLIENT_TRANSACTION_END();
+
+	// get the result
+	if (arg.dataTable->getNumberOfRows() == 0)
+		return 0;
+
+	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
+	const ItemData *lastTime = (*grpList.begin())->getItemAt(0);
+	return ItemDataUtils::getInt(lastTime);
+}
+
 void DBClientAsura::addEventInfo(EventInfo *eventInfo)
 {
 	DBCLIENT_TRANSACTION_BEGIN() {

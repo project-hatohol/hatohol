@@ -15,6 +15,7 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <time.h>
 #include "ArmNagiosNDOUtils.h"
 #include "DBAgentMySQL.h"
 #include "Utils.h"
@@ -307,6 +308,7 @@ struct ArmNagiosNDOUtils::PrivateContext
 	DBAgentMySQL dbAgent;
 	DBClientAsura dbAsura;
 	DBAgentSelectExArg selectTriggerArg;
+	string             selectTriggerBaseCondition;
 	DBAgentSelectExArg selectEventArg;
 	DBAgentSelectExArg selectItemArg;
 
@@ -410,9 +412,10 @@ void ArmNagiosNDOUtils::makeSelectTriggerArg(void)
 	                                   VAR_STATUS);
 
 	// contiditon
-	m_ctx->selectTriggerArg.condition = StringUtils::sprintf(
-	  "%s.%s>%d",
-	  VAR_STATUS, columnDefStatusCurrentState.columnName, STATE_OK);
+	m_ctx->selectTriggerBaseCondition = StringUtils::sprintf(
+	  "%s.%s>%d and %s.%s>=",
+	  VAR_STATUS, columnDefStatusCurrentState.columnName, STATE_OK,
+	  VAR_STATUS, columnDefStatusUpdateTime.columnName);
 }
 
 void ArmNagiosNDOUtils::makeSelectEventArg(void)
@@ -541,8 +544,25 @@ void ArmNagiosNDOUtils::makeSelectItemArg(void)
 	                                VAR_STATUS);
 }
 
+void ArmNagiosNDOUtils::addConditionForTriggerQuery(void)
+{
+	const MonitoringServerInfo &svInfo = getServerInfo();
+	time_t lastUpdateTime =
+	   m_ctx->dbAsura.getLastChangeTimeOfTrigger(svInfo.id);
+	struct tm tm;
+	localtime_r(&lastUpdateTime, &tm);
+
+	m_ctx->selectTriggerArg.condition = m_ctx->selectTriggerBaseCondition;
+	m_ctx->selectTriggerArg.condition +=
+	   StringUtils::sprintf("'%04d-%02d-%02d %02d:%02d:%02d'",
+	                        1900+tm.tm_year, tm.tm_mon+1, tm.tm_mday,
+	                        tm.tm_hour, tm.tm_min, tm.tm_sec);
+}
+
 void ArmNagiosNDOUtils::getTrigger(void)
 {
+	addConditionForTriggerQuery();
+
 	// TODO: should use transaction
 	m_ctx->dbAgent.select(m_ctx->selectTriggerArg);
 	size_t numTriggers =

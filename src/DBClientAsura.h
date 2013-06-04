@@ -105,6 +105,15 @@ public:
 	void getTriggerInfoList(TriggerInfoList &triggerInfoList);
 	void setTriggerInfoList(const TriggerInfoList &triggerInfoList,
 	                        uint32_t serverId);
+	/**
+	 * get the last change time of the trigger that belongs to
+	 * the specified server
+	 * @param serverId A target server ID.
+	 * @return
+	 * The last change time of tringer in unix time. If there is no
+	 * trigger information, 0 is returned.
+	 */
+	int  getLastChangeTimeOfTrigger(uint32_t serverId);
 
 	void addEventInfo(EventInfo *eventInfo);
 	void addEventInfoList(const EventInfoList &eventInfoList);
