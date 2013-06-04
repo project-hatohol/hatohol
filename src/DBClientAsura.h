@@ -94,6 +94,7 @@ typedef ItemInfoList::const_iterator ItemInfoListConstIterator;
 
 class DBClientAsura : public DBClient {
 public:
+	static uint64_t EVENT_NOT_FOUND;
 	static int ASURA_DB_VERSION;
 	static void init(void);
 	static void reset(void);
@@ -120,6 +121,16 @@ public:
 	void getEventInfoList(EventInfoList &eventInfoList);
 	void setEventInfoList(const EventInfoList &eventInfoList,
 	                      uint32_t serverId);
+
+	/**
+	 * get the last (maximum) event ID of the event that belongs to
+	 * the specified server
+	 * @param serverId A target server ID.
+	 * @return
+	 * The last event ID. If there is no event data, EVENT_NOT_FOUND
+	 * is returned.
+	 */
+	uint64_t getLastEventId(uint32_t serverId);
 
 	void addItemInfo(ItemInfo *itemInfo);
 	void addItemInfoList(const ItemInfoList &itemInfoList);

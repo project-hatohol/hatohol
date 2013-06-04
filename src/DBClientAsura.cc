@@ -29,6 +29,7 @@ static const char *TABLE_NAME_TRIGGERS = "triggers";
 static const char *TABLE_NAME_EVENTS   = "events";
 static const char *TABLE_NAME_ITEMS    = "items";
 
+uint64_t DBClientAsura::EVENT_NOT_FOUND = -1;
 int DBClientAsura::ASURA_DB_VERSION = 3;
 
 static const ColumnDef COLUMN_DEF_TRIGGERS[] = {
@@ -715,6 +716,30 @@ void DBClientAsura::setEventInfoList(const EventInfoList &eventInfoList,
 		for (; it != eventInfoList.end(); ++it)
 			addEventInfoBare(*it);
 	} DBCLIENT_TRANSACTION_END();
+}
+
+uint64_t DBClientAsura::getLastEventId(uint32_t serverId)
+{
+	DBAgentSelectExArg arg;
+	arg.tableName = TABLE_NAME_EVENTS;
+	string stmt = StringUtils::sprintf("max(%s)", 
+	    COLUMN_DEF_EVENTS[IDX_EVENTS_ID].columnName);
+	arg.statements.push_back(stmt);
+	arg.columnTypes.push_back(COLUMN_DEF_EVENTS[IDX_EVENTS_ID].type);
+	arg.condition = StringUtils::sprintf("%s=%u",
+	    COLUMN_DEF_EVENTS[IDX_EVENTS_SERVER_ID].columnName, serverId);
+
+	DBCLIENT_TRANSACTION_BEGIN() {
+		select(arg);
+	} DBCLIENT_TRANSACTION_END();
+
+	// get the result
+	if (arg.dataTable->getNumberOfRows() == 0)
+		return EVENT_NOT_FOUND;
+
+	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
+	const ItemData *lastId = (*grpList.begin())->getItemAt(0);
+	return ItemDataUtils::getUint64(lastId);
 }
 
 void DBClientAsura::addItemInfo(ItemInfo *itemInfo)

@@ -159,3 +159,21 @@ const TriggerInfo &searchTestTriggerInfo(const EventInfo &eventInfo)
 	         eventInfo.serverId, eventInfo.triggerId);
 	return *(new TriggerInfo()); // never exectuted, just to pass build
 }
+
+uint64_t findLastEventId(uint32_t serverId)
+{
+	bool found = false;
+	uint64_t maxId = 0;
+	for (size_t i = 0; i < NumTestEventInfo; i++) {
+		EventInfo &eventInfo = testEventInfo[i];
+		if (eventInfo.serverId != serverId)
+			continue;
+		if (eventInfo.id >= maxId) {
+			maxId = eventInfo.id;
+			found = true;
+		}
+	}
+	if (!found)
+		return DBClientAsura::EVENT_NOT_FOUND;
+	return maxId;
+}
