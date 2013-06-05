@@ -1,22 +1,26 @@
 [S] Short-term, [M] Middle-term, [L] Long-term
 ====
-* [S] delta query for items.
-* [S] error response by the requested format.
 * [S] reuse the auth key obtained once.
-* [M] update item's lastValue by the request.
-* [M] serve history data for chart.
+* [S] added a mechanism to set user name and password for ZABBIX API.
+* [S] error response by the requested format.
+* [S] stop executing configure script when mysql-config is missing.
+* [M] update items by the request.
+* [M] add mechanism for graph.
 * [S] discus about config file.
-* [S] show status by WEB Interface of asura
 * [M] synchronize the deleted items, trigger, hosts, etc.
-* [S] make a API and the depending mechanism to draw graph for UI.
+* [S] show queick internall status of asura by WEB Interface for debugging or detail investigation.
 * [S] add a way to specify database directory by setting file.
 * [M] fix code that are marked with TODO comments.
 * [M] detect small memory leaks and fix it
+
+========
+Belolow are related with SQLProcessor, which is not actively developed in present.
+========
 * [M] add a capability to detect sign and number width (32bit, 64bit or mode) in StringUtils::isNumber().
   - Then fix the code to make FormulaValue.
 * [S] Extract common code from SQLProcessor::pickupMatchingRows() and SQLProcessorUpdate::updateMatchingRows() and merged them cleanly.
 * [M] Support Key type on columns (PRIMARY, UNIQUE, etc.)
   - check the duplication on insert
 * [M] Support the form: insert into table values (xx, xxx, xxx, xx)
-* [S] Organize ItemDataUtils and SQLUtils.
+* [S] consider integration of ItemDataUtils and SQLUtils.
 * [S] Added mechanism to destroy elements that has not been attached to the tree in SQLFormulaParser, especially on an exception.
