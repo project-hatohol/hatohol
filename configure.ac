@@ -48,6 +48,11 @@ dnl **************************************************************
 dnl Checks for MySQL
 dnl **************************************************************
 AC_CHECK_PROGS(MYSQL_CONFIG, mysql_config)
+
+MYSQL_VERSION_H=`$MYSQL_CONFIG --variable=pkgincludedir`/mysql_version.h
+AC_CHECK_HEADER([$MYSQL_VERSION_H], [],
+  [AC_MSG_ERROR([You don't have mysql_version.h. Please install development package of MySQL.])])
+
 MYSQL_CFLAGS=`$MYSQL_CONFIG --cflags`
 MYSQL_LIBS=`$MYSQL_CONFIG --libs`
 AC_SUBST(MYSQL_CFLAGS)
