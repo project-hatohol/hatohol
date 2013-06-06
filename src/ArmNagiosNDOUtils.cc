@@ -414,9 +414,7 @@ void ArmNagiosNDOUtils::makeSelectTriggerArg(void)
 
 	// contiditon
 	m_ctx->selectTriggerBaseCondition = StringUtils::sprintf(
-	  "%s.%s>%d and %s.%s>=",
-	  VAR_STATUS, columnDefStatusCurrentState.columnName, STATE_OK,
-	  VAR_STATUS, columnDefStatusUpdateTime.columnName);
+	  "%s.%s>=", VAR_STATUS, columnDefStatusUpdateTime.columnName);
 }
 
 void ArmNagiosNDOUtils::makeSelectEventArg(void)
