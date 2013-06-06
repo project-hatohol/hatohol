@@ -195,6 +195,30 @@ void test_setTriggerInfoList(void)
 	assertGetTriggers();
 }
 
+void test_addTriggerInfoList(void)
+{
+	deleteDBClientDB(DB_DOMAIN_ID_ASURA);
+
+	size_t i;
+	DBClientAsura dbAsura;
+
+	// First call
+	size_t numFirstAdd = NumTestTriggerInfo / 2;
+	TriggerInfoList triggerInfoList0;
+	for (i = 0; i < numFirstAdd; i++)
+		triggerInfoList0.push_back(testTriggerInfo[i]);
+	dbAsura.addTriggerInfoList(triggerInfoList0);
+
+	// Second call
+	TriggerInfoList triggerInfoList1;
+	for (; i < NumTestTriggerInfo; i++)
+		triggerInfoList1.push_back(testTriggerInfo[i]);
+	dbAsura.addTriggerInfoList(triggerInfoList1);
+
+	// Check
+	assertGetTriggers();
+}
+
 void test_addItemInfoList(void)
 {
 	deleteDBClientDB(DB_DOMAIN_ID_ASURA);

@@ -641,7 +641,7 @@ void ArmNagiosNDOUtils::getTrigger(void)
 
 		triggerInfoList.push_back(trigInfo);
 	}
-	m_ctx->dbAsura.setTriggerInfoList(triggerInfoList, svInfo.id);
+	m_ctx->dbAsura.addTriggerInfoList(triggerInfoList);
 }
 
 void ArmNagiosNDOUtils::getEvent(void)

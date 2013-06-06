@@ -490,6 +490,15 @@ void DBClientAsura::addTriggerInfo(TriggerInfo *triggerInfo)
 	} DBCLIENT_TRANSACTION_END();
 }
 
+void DBClientAsura::addTriggerInfoList(const TriggerInfoList &triggerInfoList)
+{
+	TriggerInfoListConstIterator it = triggerInfoList.begin();
+	DBCLIENT_TRANSACTION_BEGIN() {
+		for (; it != triggerInfoList.end(); ++it)
+			addTriggerInfoBare(*it);
+	} DBCLIENT_TRANSACTION_END();
+}
+
 void DBClientAsura::getTriggerInfoList(TriggerInfoList &triggerInfoList)
 {
 	DBAgentSelectArg arg;

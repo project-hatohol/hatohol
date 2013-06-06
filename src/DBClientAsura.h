@@ -99,6 +99,7 @@ public:
 	virtual ~DBClientAsura();
 
 	void addTriggerInfo(TriggerInfo *triggerInfo);
+	void addTriggerInfoList(const TriggerInfoList &triggerInfoList);
 	void getTriggerInfoList(TriggerInfoList &triggerInfoList);
 	void setTriggerInfoList(const TriggerInfoList &triggerInfoList,
 	                        uint32_t serverId);
