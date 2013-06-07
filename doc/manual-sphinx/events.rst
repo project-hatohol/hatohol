@@ -104,7 +104,8 @@ Event type
 .. list-table::
 
    * - 0
-     - TRIGGER_ACTIVATED
+     - EVENT_TYPE_ACTIVATED
    * - 1
-     - TRIGGER_DEACTIVATED
-
+     - EVENT_TYPE_DEACTIVATED
+   * - 2
+     - EVENT_TYPE_UNKNOWN
