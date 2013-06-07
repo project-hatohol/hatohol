@@ -77,7 +77,7 @@ EventInfo testEventInfo[] = {
 	3,                        // serverId
 	1,                        // id
 	{1362957200,0},           // time
-	TRIGGER_ACTIVATED,        // type
+	EVENT_TYPE_ACTIVATED,        // type
 	2,                        // triggerId
 	TRIGGER_STATUS_PROBLEM,   // status
 	TRIGGER_SEVERITY_WARN,    // severity
@@ -88,7 +88,7 @@ EventInfo testEventInfo[] = {
 	3,                        // serverId
 	2,                        // id
 	{1362951000,0},           // time
-	TRIGGER_ACTIVATED,        // type
+	EVENT_TYPE_ACTIVATED,        // type
 	3,                        // triggerId
 	TRIGGER_STATUS_PROBLEM,   // status
 	TRIGGER_SEVERITY_INFO,    // severity
@@ -99,7 +99,7 @@ EventInfo testEventInfo[] = {
 	1,                        // serverId
 	1,                        // id
 	{1362951000,0},           // time
-	TRIGGER_ACTIVATED,        // type
+	EVENT_TYPE_ACTIVATED,        // type
 	1,                        // triggerId
 	TRIGGER_STATUS_OK,        // status
 	TRIGGER_SEVERITY_INFO,    // severity
