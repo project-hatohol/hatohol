@@ -341,6 +341,13 @@ void test_makeItemBrief(void)
 	  "CPU idle time");
 }
 
+void test_makeItemBriefOverNumVariable10(void)
+{
+	DBClientZabbixTester::testMakeItemBrief(
+	  "ABC $12", "foo[P1,P2,P3,P4,P5,P6,P7,P8,P9,P10,P11,P12,P13]",
+	  "ABC P12");
+}
+
 void test_makeItemBriefTwoParam(void)
 {
 	DBClientZabbixTester::testMakeItemBrief(
