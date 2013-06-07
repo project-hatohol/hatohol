@@ -51,6 +51,7 @@ typedef TriggerInfoList::const_iterator TriggerInfoListConstIterator;
 enum EventType {
 	TRIGGER_ACTIVATED,
 	TRIGGER_DEACTIVATED,
+	TRIGGER_UNKNOWN,
 };
 
 struct EventInfo {
