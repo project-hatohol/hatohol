@@ -82,8 +82,8 @@ fi
 
 AM_CONDITIONAL([WITH_CUTTER], [test "$ac_cv_use_cutter" != "no"])
 if test "$ac_cv_use_cutter" != "no"; then
-  AC_CHECK_PROG([SQLITE3], [sqlite3])
-  if test -z "$SQLITE3"; then
+  AC_CHECK_PROG([have_sqlite3], [sqlite3], [yes], [no])
+  if test "$have_sqlite3" = "no"; then
     AC_MSG_ERROR([You don't have sqlite3 command. It's required to generate test data.])
   fi
   AC_DEFINE(WITH_CUTTER, 1, [Define to 1 if you use Cutter])
