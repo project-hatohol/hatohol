@@ -86,7 +86,7 @@ static void _assertGetEvents(void)
 static string makeExpectedItemOutput(ItemInfo *itemInfo)
 {
 	string expectedOut = StringUtils::sprintf
-	                       ("%u|%llu|%d|%d|%d|%lu|%llu|%s|%s\n",
+	                       ("%u|%llu|%llu|%s|%ld|%lu|%s|%s|%s\n",
 	                        itemInfo->serverId,
 	                        itemInfo->id,
 	                        itemInfo->hostId,
