@@ -20,7 +20,7 @@ cut_trace(_assertAddToDB<TriggerInfo>(X, addTriggerInfo))
 static string makeExpectedOutput(TriggerInfo *triggerInfo)
 {
 	string expectedOut = StringUtils::sprintf
-	                       ("%u|%d|%d|%d|%d|%u|%u|%s|%s\n",
+	                       ("%u|%llu|%d|%d|%d|%lu|%llu|%s|%s\n",
 	                        triggerInfo->serverId,
 	                        triggerInfo->id,
 	                        triggerInfo->status, triggerInfo->severity,
@@ -55,7 +55,7 @@ static void _assertGetTriggers(void)
 static string makeEventOutput(EventInfo &eventInfo)
 {
 	string output = StringUtils::sprintf
-	                  ("%u|%d|%d|%d|%d|%u|%u|%s|%s\n",
+	                  ("%u|%llu|%ld|%ld|%d|%u|%llu|%s|%s\n",
 	                   eventInfo.serverId, eventInfo.id,
 	                   eventInfo.time.tv_sec, eventInfo.time.tv_nsec,
 	                   eventInfo.status, eventInfo.severity,
@@ -86,7 +86,7 @@ static void _assertGetEvents(void)
 static string makeExpectedItemOutput(ItemInfo *itemInfo)
 {
 	string expectedOut = StringUtils::sprintf
-	                       ("%u|%d|%u|%s|%d|%d|%s|%s|%s\n",
+	                       ("%u|%llu|%d|%d|%d|%lu|%llu|%s|%s\n",
 	                        itemInfo->serverId,
 	                        itemInfo->id,
 	                        itemInfo->hostId,
