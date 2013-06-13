@@ -86,6 +86,7 @@ AsuraThreadBase::AsuraThreadBase(void)
 
 AsuraThreadBase::~AsuraThreadBase()
 {
+	stop();
 	if (m_ctx)
 		delete m_ctx;
 }
