@@ -128,6 +128,24 @@ static void _assertTestTriggerInfo(const TriggerInfo &triggerInfo)
 }
 #define assertTestTriggerInfo(T) cut_trace(_assertTestTriggerInfo(T))
 
+static void assertServersInParser(JsonParserAgent *parser)
+{
+	assertValueInParser(parser, "numberOfServers",
+	                    (uint32_t)NumServerInfo);
+	parser->startObject("servers");
+	for (size_t i = 0; i < NumServerInfo; i++) {
+		parser->startElement(i);
+		MonitoringServerInfo &svInfo = serverInfo[i];
+		assertValueInParser(parser, "id",   (uint32_t)svInfo.id);
+		assertValueInParser(parser, "type", (uint32_t)svInfo.type);
+		assertValueInParser(parser, "hostName",  svInfo.hostName);
+		assertValueInParser(parser, "ipAddress", svInfo.ipAddress);
+		assertValueInParser(parser, "nickname",  svInfo.nickname);
+		parser->endElement();
+	}
+	parser->endObject();
+}
+
 static void _assertServers(const string &path, const string &callbackName = "")
 {
 	startFaceRest();
@@ -135,20 +153,7 @@ static void _assertServers(const string &path, const string &callbackName = "")
 	assertValueInParser(g_parser, "apiVersion",
 	                    (uint32_t)FaceRest::API_VERSION_SERVERS);
 	assertValueInParser(g_parser, "result", true);
-	assertValueInParser(g_parser, "numberOfServers",
-	                    (uint32_t)NumServerInfo);
-	g_parser->startObject("servers");
-	for (size_t i = 0; i < NumServerInfo; i++) {
-		g_parser->startElement(i);
-		MonitoringServerInfo &svInfo = serverInfo[i];
-		assertValueInParser(g_parser, "id",   (uint32_t)svInfo.id);
-		assertValueInParser(g_parser, "type", (uint32_t)svInfo.type);
-		assertValueInParser(g_parser, "hostName",  svInfo.hostName);
-		assertValueInParser(g_parser, "ipAddress", svInfo.ipAddress);
-		assertValueInParser(g_parser, "nickname",  svInfo.nickname);
-		g_parser->endElement();
-	}
-	g_parser->endObject();
+	assertServersInParser(g_parser);
 }
 #define assertServers(P,...) cut_trace(_assertServers(P,##__VA_ARGS__))
 
@@ -169,6 +174,7 @@ static void _assertTriggers(const string &path, const string &callbackName = "")
 		g_parser->endElement();
 	}
 	g_parser->endObject();
+	assertServersInParser(g_parser);
 }
 #define assertTriggers(P,...) cut_trace(_assertTriggers(P,##__VA_ARGS__))
 
@@ -200,6 +206,7 @@ static void _assertEvents(const string &path, const string &callbackName = "")
 		g_parser->endElement();
 	}
 	g_parser->endObject();
+	assertServersInParser(g_parser);
 }
 #define assertEvents(P,...) cut_trace(_assertEvents(P,##__VA_ARGS__))
 
@@ -226,6 +233,7 @@ static void _assertItems(const string &path, const string &callbackName = "")
 		g_parser->endElement();
 	}
 	g_parser->endObject();
+	assertServersInParser(g_parser);
 }
 #define assertItems(P,...) cut_trace(_assertItems(P,##__VA_ARGS__))
 

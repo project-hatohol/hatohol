@@ -279,20 +279,12 @@ void FaceRest::handlerHelloPage
 	soup_message_set_status(msg, SOUP_STATUS_OK);
 }
 
-void FaceRest::handlerGetServers
-  (SoupServer *server, SoupMessage *msg, const char *path,
-   GHashTable *query, SoupClientContext *client, HandlerArg *arg)
+static void addServers(JsonBuilderAgent &agent)
 {
 	ConfigManager *configManager = ConfigManager::getInstance();
-	string jsonpCallbackName = getJsonpCallbackName(query, arg);
-
 	MonitoringServerInfoList monitoringServers;
 	configManager->getTargetServers(monitoringServers);
 
-	JsonBuilderAgent agent;
-	agent.startObject();
-	agent.add("apiVersion", API_VERSION_SERVERS);
-	agent.addTrue("result");
 	agent.add("numberOfServers", monitoringServers.size());
 	agent.startArray("servers");
 	MonitoringServerInfoListIterator it = monitoringServers.begin();
@@ -307,6 +299,19 @@ void FaceRest::handlerGetServers
 		agent.endObject();
 	}
 	agent.endArray();
+}
+
+void FaceRest::handlerGetServers
+  (SoupServer *server, SoupMessage *msg, const char *path,
+   GHashTable *query, SoupClientContext *client, HandlerArg *arg)
+{
+	string jsonpCallbackName = getJsonpCallbackName(query, arg);
+
+	JsonBuilderAgent agent;
+	agent.startObject();
+	agent.add("apiVersion", API_VERSION_SERVERS);
+	agent.addTrue("result");
+	addServers(agent);
 	agent.endObject();
 
 	replyJsonData(agent, msg, jsonpCallbackName, arg);
@@ -342,6 +347,7 @@ void FaceRest::handlerGetTriggers
 		agent.endObject();
 	}
 	agent.endArray();
+	addServers(agent);
 	agent.endObject();
 
 	replyJsonData(agent, msg, jsonpCallbackName, arg);
@@ -361,7 +367,7 @@ void FaceRest::handlerGetEvents
 	agent.startObject();
 	agent.add("apiVersion", API_VERSION_EVENTS);
 	agent.addTrue("result");
-	agent.add("numberOfEvents", eventList.size());
+	addServers(agent);
 	agent.startArray("events");
 	EventInfoListIterator it = eventList.begin();
 	for (; it != eventList.end(); ++it) {
@@ -379,6 +385,7 @@ void FaceRest::handlerGetEvents
 		agent.endObject();
 	}
 	agent.endArray();
+	agent.add("numberOfEvents", eventList.size());
 	agent.endObject();
 
 	replyJsonData(agent, msg, jsonpCallbackName, arg);
@@ -414,6 +421,7 @@ void FaceRest::handlerGetItems
 		agent.endObject();
 	}
 	agent.endArray();
+	addServers(agent);
 	agent.endObject();
 
 	replyJsonData(agent, msg, jsonpCallbackName, arg);
