@@ -301,6 +301,22 @@ static void addServers(JsonBuilderAgent &agent)
 	agent.endArray();
 }
 
+static void addServersIdNameHash(JsonBuilderAgent &agent)
+{
+	ConfigManager *configManager = ConfigManager::getInstance();
+	MonitoringServerInfoList monitoringServers;
+	configManager->getTargetServers(monitoringServers);
+
+	agent.startObject("servers");
+	MonitoringServerInfoListIterator it = monitoringServers.begin();
+	for (; it != monitoringServers.end(); ++it) {
+		MonitoringServerInfo &serverInfo = *it;
+		agent.add(StringUtils::toString(serverInfo.id),
+                          serverInfo.hostName);
+	}
+	agent.endObject();
+}
+
 void FaceRest::handlerGetServers
   (SoupServer *server, SoupMessage *msg, const char *path,
    GHashTable *query, SoupClientContext *client, HandlerArg *arg)
@@ -347,7 +363,7 @@ void FaceRest::handlerGetTriggers
 		agent.endObject();
 	}
 	agent.endArray();
-	addServers(agent);
+	addServersIdNameHash(agent);
 	agent.endObject();
 
 	replyJsonData(agent, msg, jsonpCallbackName, arg);
@@ -367,7 +383,7 @@ void FaceRest::handlerGetEvents
 	agent.startObject();
 	agent.add("apiVersion", API_VERSION_EVENTS);
 	agent.addTrue("result");
-	addServers(agent);
+	addServersIdNameHash(agent);
 	agent.startArray("events");
 	EventInfoListIterator it = eventList.begin();
 	for (; it != eventList.end(); ++it) {
@@ -421,7 +437,7 @@ void FaceRest::handlerGetItems
 		agent.endObject();
 	}
 	agent.endArray();
-	addServers(agent);
+	addServersIdNameHash(agent);
 	agent.endObject();
 
 	replyJsonData(agent, msg, jsonpCallbackName, arg);

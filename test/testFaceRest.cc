@@ -146,6 +146,18 @@ static void assertServersInParser(JsonParserAgent *parser)
 	parser->endObject();
 }
 
+static void assertServersIdNameHashInParser(JsonParserAgent *parser)
+{
+	parser->startObject("servers");
+	for (size_t i = 0; i < NumServerInfo; i++) {
+		MonitoringServerInfo &svInfo = serverInfo[i];
+		assertValueInParser(parser,
+				    StringUtils::toString(svInfo.id),
+				    svInfo.hostName);
+	}
+	parser->endObject();
+}
+
 static void _assertServers(const string &path, const string &callbackName = "")
 {
 	startFaceRest();
@@ -174,7 +186,7 @@ static void _assertTriggers(const string &path, const string &callbackName = "")
 		g_parser->endElement();
 	}
 	g_parser->endObject();
-	assertServersInParser(g_parser);
+	assertServersIdNameHashInParser(g_parser);
 }
 #define assertTriggers(P,...) cut_trace(_assertTriggers(P,##__VA_ARGS__))
 
@@ -206,7 +218,7 @@ static void _assertEvents(const string &path, const string &callbackName = "")
 		g_parser->endElement();
 	}
 	g_parser->endObject();
-	assertServersInParser(g_parser);
+	assertServersIdNameHashInParser(g_parser);
 }
 #define assertEvents(P,...) cut_trace(_assertEvents(P,##__VA_ARGS__))
 
@@ -233,7 +245,7 @@ static void _assertItems(const string &path, const string &callbackName = "")
 		g_parser->endElement();
 	}
 	g_parser->endObject();
-	assertServersInParser(g_parser);
+	assertServersIdNameHashInParser(g_parser);
 }
 #define assertItems(P,...) cut_trace(_assertItems(P,##__VA_ARGS__))
 
