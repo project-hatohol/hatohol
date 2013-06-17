@@ -307,7 +307,7 @@ static void addServersIdNameHash(JsonBuilderAgent &agent)
 	MonitoringServerInfoList monitoringServers;
 	configManager->getTargetServers(monitoringServers);
 
-	agent.startObject("servers");
+	agent.startObject("serverNames");
 	MonitoringServerInfoListIterator it = monitoringServers.begin();
 	for (; it != monitoringServers.end(); ++it) {
 		MonitoringServerInfo &serverInfo = *it;
