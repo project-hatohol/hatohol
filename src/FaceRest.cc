@@ -311,13 +311,12 @@ static void addHostsIdNameHash(JsonBuilderAgent &agent,
 			       HostNameMaps &hostMaps)
 {
 	HostNameMaps::iterator server_it = hostMaps.find(serverInfo.id);
-	if (server_it == hostMaps.end())
-		return;
-
 	agent.startObject("hosts");
 	HostNameMap &hosts = server_it->second;
-	HostNameMap::iterator it;
-	for (it = hosts.begin(); it != hosts.end(); it++) {
+	for (HostNameMap::iterator it = hosts.begin();
+	     server_it != hostMaps.end() && it != hosts.end();
+	     it++)
+	{
 		agent.startObject(StringUtils::toString(it->first));
 		agent.add("name", it->second);
 		agent.endObject();
