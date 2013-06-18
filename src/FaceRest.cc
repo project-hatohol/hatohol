@@ -384,7 +384,7 @@ void FaceRest::handlerGetEvents
 	agent.startObject();
 	agent.add("apiVersion", API_VERSION_EVENTS);
 	agent.addTrue("result");
-	addServersIdNameHash(agent);
+	agent.add("numberOfEvents", eventList.size());
 	agent.startArray("events");
 	EventInfoListIterator it = eventList.begin();
 	for (; it != eventList.end(); ++it) {
@@ -402,7 +402,7 @@ void FaceRest::handlerGetEvents
 		agent.endObject();
 	}
 	agent.endArray();
-	agent.add("numberOfEvents", eventList.size());
+	addServersIdNameHash(agent);
 	agent.endObject();
 
 	replyJsonData(agent, msg, jsonpCallbackName, arg);
