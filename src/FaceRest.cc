@@ -311,7 +311,7 @@ static void addServersIdNameHash(JsonBuilderAgent &agent)
 	MonitoringServerInfoListIterator it = monitoringServers.begin();
 	for (; it != monitoringServers.end(); ++it) {
 		MonitoringServerInfo &serverInfo = *it;
-		agent.startObject(StringUtils::toString(serverInfo.id).c_str());
+		agent.startObject(StringUtils::toString(serverInfo.id));
 		agent.add("name", serverInfo.hostName);
 		agent.endObject();
 	}
