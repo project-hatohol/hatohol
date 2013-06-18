@@ -123,7 +123,6 @@ static void _assertTestTriggerInfo(const TriggerInfo &triggerInfo)
 	                    triggerInfo.lastChangeTime);
 	assertValueInParser(g_parser, "serverId", triggerInfo.serverId);
 	assertValueInParser(g_parser, "hostId", triggerInfo.hostId);
-	assertValueInParser(g_parser, "hostName", triggerInfo.hostName);
 	assertValueInParser(g_parser, "brief", triggerInfo.brief);
 }
 #define assertTestTriggerInfo(T) cut_trace(_assertTestTriggerInfo(T))
@@ -142,6 +141,42 @@ static void assertServersInParser(JsonParserAgent *parser)
 		assertValueInParser(parser, "ipAddress", svInfo.ipAddress);
 		assertValueInParser(parser, "nickname",  svInfo.nickname);
 		parser->endElement();
+	}
+	parser->endObject();
+}
+
+static void assertHostsIdNameHashInParser(TriggerInfo *triggers,
+                                          size_t numberOfTriggers,
+                                          JsonParserAgent *parser)
+{
+	parser->startObject("servers");
+	for (size_t i = 0; i < numberOfTriggers; i++) {
+		TriggerInfo &triggerInfo = triggers[i];
+		parser->startObject(StringUtils::toString(triggerInfo.serverId));
+		parser->startObject("hosts");
+		parser->startObject(StringUtils::toString(triggerInfo.hostId));
+		assertValueInParser(parser, "name", triggerInfo.hostName);
+		parser->endObject();
+		parser->endObject();
+		parser->endObject();
+	}
+	parser->endObject();
+}
+
+static void assertHostsIdNameHashInParser(EventInfo *events,
+                                          size_t numberOfEvents,
+                                          JsonParserAgent *parser)
+{
+	parser->startObject("servers");
+	for (size_t i = 0; i < numberOfEvents; i++) {
+		EventInfo &eventInfo = events[i];
+		parser->startObject(StringUtils::toString(eventInfo.serverId));
+		parser->startObject("hosts");
+		parser->startObject(StringUtils::toString(eventInfo.hostId));
+		assertValueInParser(parser, "name", eventInfo.hostName);
+		parser->endObject();
+		parser->endObject();
+		parser->endObject();
 	}
 	parser->endObject();
 }
@@ -186,6 +221,8 @@ static void _assertTriggers(const string &path, const string &callbackName = "")
 		g_parser->endElement();
 	}
 	g_parser->endObject();
+	assertHostsIdNameHashInParser(testTriggerInfo, NumTestTriggerInfo,
+				      g_parser);
 	assertServersIdNameHashInParser(g_parser);
 }
 #define assertTriggers(P,...) cut_trace(_assertTriggers(P,##__VA_ARGS__))
@@ -213,11 +250,12 @@ static void _assertEvents(const string &path, const string &callbackName = "")
 		assertValueInParser(g_parser, "severity",
 		                    (uint32_t)eventInfo.severity);
 		assertValueInParser(g_parser, "hostId",   eventInfo.hostId);
-		assertValueInParser(g_parser, "hostName", eventInfo.hostName);
 		assertValueInParser(g_parser, "brief",    eventInfo.brief);
 		g_parser->endElement();
 	}
 	g_parser->endObject();
+	assertHostsIdNameHashInParser(testEventInfo, NumTestEventInfo,
+				      g_parser);
 	assertServersIdNameHashInParser(g_parser);
 }
 #define assertEvents(P,...) cut_trace(_assertEvents(P,##__VA_ARGS__))

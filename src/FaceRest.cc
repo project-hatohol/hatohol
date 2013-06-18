@@ -33,6 +33,11 @@ typedef void (*RestHandler)
   (SoupServer *server, SoupMessage *msg, const char *path,
    GHashTable *query, SoupClientContext *client, gpointer user_data);
 
+typedef uint64_t ServerID;
+typedef uint64_t HostID;
+typedef map<HostID, string> HostNameMap;
+typedef map<ServerID, HostNameMap> HostNameMaps;
+
 static const guint DEFAULT_PORT = 33194;
 
 const char *FaceRest::pathForGetServers = "/servers";
@@ -301,7 +306,27 @@ static void addServers(JsonBuilderAgent &agent)
 	agent.endArray();
 }
 
-static void addServersIdNameHash(JsonBuilderAgent &agent)
+static void addHostsIdNameHash(JsonBuilderAgent &agent,
+			       MonitoringServerInfo &serverInfo,
+			       HostNameMaps &hostMaps)
+{
+	HostNameMaps::iterator server_it = hostMaps.find(serverInfo.id);
+	if (server_it == hostMaps.end())
+		return;
+
+	agent.startObject("hosts");
+	HostNameMap &hosts = server_it->second;
+	HostNameMap::iterator it;
+	for (it = hosts.begin(); it != hosts.end(); it++) {
+		agent.startObject(StringUtils::toString(it->first));
+		agent.add("name", it->second);
+		agent.endObject();
+	}
+	agent.endObject();
+}
+
+static void addServersIdNameHash(JsonBuilderAgent &agent,
+                                 HostNameMaps *hostMaps = NULL)
 {
 	ConfigManager *configManager = ConfigManager::getInstance();
 	MonitoringServerInfoList monitoringServers;
@@ -313,6 +338,8 @@ static void addServersIdNameHash(JsonBuilderAgent &agent)
 		MonitoringServerInfo &serverInfo = *it;
 		agent.startObject(StringUtils::toString(serverInfo.id));
 		agent.add("name", serverInfo.hostName);
+		if (hostMaps)
+			addHostsIdNameHash(agent, serverInfo, *hostMaps);
 		agent.endObject();
 	}
 	agent.endObject();
@@ -351,6 +378,7 @@ void FaceRest::handlerGetTriggers
 	agent.add("numberOfTriggers", triggerList.size());
 	agent.startArray("triggers");
 	TriggerInfoListIterator it = triggerList.begin();
+	HostNameMaps hostMaps;
 	for (; it != triggerList.end(); ++it) {
 		TriggerInfo &triggerInfo = *it;
 		agent.startObject();
@@ -359,12 +387,14 @@ void FaceRest::handlerGetTriggers
 		agent.add("lastChangeTime", triggerInfo.lastChangeTime.tv_sec);
 		agent.add("serverId", triggerInfo.serverId);
 		agent.add("hostId",   triggerInfo.hostId);
-		agent.add("hostName", triggerInfo.hostName);
 		agent.add("brief",    triggerInfo.brief);
 		agent.endObject();
+
+		hostMaps[triggerInfo.serverId][triggerInfo.hostId]
+		  = triggerInfo.hostName;
 	}
 	agent.endArray();
-	addServersIdNameHash(agent);
+	addServersIdNameHash(agent, &hostMaps);
 	agent.endObject();
 
 	replyJsonData(agent, msg, jsonpCallbackName, arg);
@@ -387,6 +417,7 @@ void FaceRest::handlerGetEvents
 	agent.add("numberOfEvents", eventList.size());
 	agent.startArray("events");
 	EventInfoListIterator it = eventList.begin();
+	HostNameMaps hostMaps;
 	for (; it != eventList.end(); ++it) {
 		EventInfo &eventInfo = *it;
 		agent.startObject();
@@ -397,12 +428,14 @@ void FaceRest::handlerGetEvents
 		agent.add("status",    eventInfo.status);
 		agent.add("severity",  eventInfo.severity);
 		agent.add("hostId",    eventInfo.hostId);
-		agent.add("hostName",  eventInfo.hostName);
 		agent.add("brief",     eventInfo.brief);
 		agent.endObject();
+
+		hostMaps[eventInfo.serverId][eventInfo.hostId]
+		  = eventInfo.hostName;
 	}
 	agent.endArray();
-	addServersIdNameHash(agent);
+	addServersIdNameHash(agent, &hostMaps);
 	agent.endObject();
 
 	replyJsonData(agent, msg, jsonpCallbackName, arg);
