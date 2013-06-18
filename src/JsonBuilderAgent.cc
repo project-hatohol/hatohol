@@ -54,6 +54,11 @@ void JsonBuilderAgent::startObject(const char *member)
 	json_builder_begin_object(m_builder);
 }
 
+void JsonBuilderAgent::startObject(const string &member)
+{
+        startObject(member.c_str());
+}
+
 void JsonBuilderAgent::endObject(void)
 {
 	json_builder_end_object(m_builder);

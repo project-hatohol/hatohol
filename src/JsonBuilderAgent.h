@@ -30,6 +30,7 @@ public:
 	~JsonBuilderAgent();
 	string generate(void);
 	void startObject(const char *member = NULL);
+	void startObject(const string &member);
 	void endObject(void);
 	void startArray(const string &member);
 	void endArray(void);
