@@ -139,7 +139,7 @@ protected:
 	void prepareSetupFunction(void);
 	void addTriggerInfoBare(const TriggerInfo &triggerInfo);
 	void addEventInfoBare(const EventInfo &eventInfo);
-	void addItemInfoBare(const ItemInfo &eventInfo);
+	void addItemInfoBare(const ItemInfo &itemInfo);
 
 private:
 	struct PrivateContext;
