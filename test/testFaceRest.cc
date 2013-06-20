@@ -186,9 +186,9 @@ static void assertServersIdNameHashInParser(JsonParserAgent *parser)
 	parser->startObject("servers");
 	for (size_t i = 0; i < NumServerInfo; i++) {
 		MonitoringServerInfo &svInfo = serverInfo[i];
-                parser->startObject(StringUtils::toString(svInfo.id));
+		parser->startObject(StringUtils::toString(svInfo.id));
 		assertValueInParser(parser, "name", svInfo.hostName);
-                parser->endObject();
+		parser->endObject();
 	}
 	parser->endObject();
 }
