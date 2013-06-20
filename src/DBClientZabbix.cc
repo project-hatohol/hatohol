@@ -1897,17 +1897,17 @@ bool DBClientZabbix::transformItemItemGroupToItemInfo
 }
 
 void DBClientZabbix::transformItemsToAsuraFormat
-  (ItemInfoList &eventInfoList, const ItemTablePtr events, uint32_t serverId)
+  (ItemInfoList &itemInfoList, const ItemTablePtr items, uint32_t serverId)
 {
 	DBClientZabbix dbZabbix(serverId);
-	const ItemGroupList &itemGroupList = events->getItemGroupList();
+	const ItemGroupList &itemGroupList = items->getItemGroupList();
 	ItemGroupListConstIterator it = itemGroupList.begin();
 	for (; it != itemGroupList.end(); ++it) {
-		ItemInfo eventInfo;
-		eventInfo.serverId = serverId;
-		if (!transformItemItemGroupToItemInfo(eventInfo, *it, dbZabbix))
+		ItemInfo itemInfo;
+		itemInfo.serverId = serverId;
+		if (!transformItemItemGroupToItemInfo(itemInfo, *it, dbZabbix))
 			continue;
-		eventInfoList.push_back(eventInfo);
+		itemInfoList.push_back(itemInfo);
 	}
 }
 
