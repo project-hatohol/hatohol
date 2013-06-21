@@ -2,7 +2,7 @@ Asura
 =====
 
 Asura acquires the monitoring data from multiple monitoring software,
-consolites them, serves the data with the format that is independent of
+consolidates them, serves the data with the format that is independent of
 the specific monitoring software in various way.
 
 ==============================================
