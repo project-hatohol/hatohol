@@ -1,0 +1,7 @@
+markdown_checker:
+A tool to generate HTML ouput from markdown text with Sundown.
+It helps developpers update/modify README.md.
+
+Before using this script, you have to install php
+and sundown extension.
+
