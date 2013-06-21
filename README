@@ -25,7 +25,9 @@ Supported platforms
 ==============================================
 Required libraries
 ==============================================
+- MLPL (https://github.com/miraclelinux/mlpl)
 - sqlite3 >= 3.6.0 (https://www.sqlite.org/)
+- MySQL
 - libsoup >= 2.22 (https://live.gnome.org/LibSoup)
 - json-glib >= 0.12.0 (https://live.gnome.org/JsonGlib/)
   (CentOS and EPEL does not contain json-glib.)
