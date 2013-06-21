@@ -65,6 +65,10 @@ Repsponse structure
      - Array
      - The array of `Event object`_.
      - True
+   * - servers
+     - Object
+     - List of `Server object`_. Keys for each `Server object`_ are server IDs which corresponds to serverId values in `Trigger object`_.
+     - True
 
 .. note:: [Condition] Always: always, True: only when result is True, False: only when result is False.
 
@@ -92,12 +96,36 @@ Event object
    * - hostId
      - Number
      - A host ID.
-   * - hostName
-     - String
-     - A host name the event is concerned with.
    * - brief
      - String
      - A brief of the event.
+
+Server object
+-------------
+.. list-table::
+   :header-rows: 1
+
+   * - Key
+     - Value type
+     - Brief
+   * - name
+     - String
+     - A hostname of the server.
+   * - hosts
+     - Object
+     - List of `Host object`_. Keys for each `Host object`_ are host IDs which corresponds to hostId values in `Trigger object`_.
+
+Host object
+-------------
+.. list-table::
+   :header-rows: 1
+
+   * - Key
+     - Value type
+     - Brief
+   * - name
+     - String
+     - A hostname of the host.
 
 Event type
 -------------
