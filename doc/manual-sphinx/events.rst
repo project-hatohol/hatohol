@@ -66,7 +66,7 @@ Repsponse structure
      - The array of `Event object`_.
      - True
 
-.. note:: [Condition] A: always, T: only when result is True, F: only when result is False.
+.. note:: [Condition] Always: always, True: only when result is True, False: only when result is False.
 
 Event object
 -------------
