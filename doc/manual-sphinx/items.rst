@@ -67,7 +67,7 @@ Repsponse structure
      - True
    * - servers
      - Object
-     - List of `Server object`_. Keys for each `Server object`_ are server IDs which corresponds to serverId values in `Trigger object`_.
+     - List of `Server object`_. Keys for each `Server object`_ are server IDs which corresponds to serverId values in `Item object`_.
      - True
 
 .. note:: [Condition] Always: always, True: only when result is True, False: only when result is False.

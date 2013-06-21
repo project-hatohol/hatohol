@@ -67,7 +67,7 @@ Repsponse structure
      - True
    * - servers
      - Object
-     - List of `Server object`_. Keys for each `Server object`_ are server IDs which corresponds to serverId values in `Trigger object`_.
+     - List of `Server object`_. Keys for each `Server object`_ are server IDs which corresponds to serverId values in `Event object`_.
      - True
 
 .. note:: [Condition] Always: always, True: only when result is True, False: only when result is False.
@@ -113,7 +113,7 @@ Server object
      - A hostname of the server.
    * - hosts
      - Object
-     - List of `Host object`_. Keys for each `Host object`_ are host IDs which corresponds to hostId values in `Trigger object`_.
+     - List of `Host object`_. Keys for each `Host object`_ are host IDs which corresponds to hostId values in `Event object`_.
 
 Host object
 -------------
