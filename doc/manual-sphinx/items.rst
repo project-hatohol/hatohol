@@ -47,24 +47,24 @@ Repsponse structure
      - Number
      - An API version of this URL.
        This document is written for version **1**.
-     - A
+     - Always
    * - result
      - Boolean
      - True on success. Otherwise False and the reason is shown in the
        element: message.
-     - A
+     - Always
    * - message
      - String
      - Error message. This key is reply only when result is False.
-     - F
+     - False
    * - numberOfItems
      - Number
      - The number of triggers.
-     - T
+     - True
    * - items
      - Array
      - The array of `Item object`_.
-     - T
+     - True
 
 .. note:: [Condition] A: always, T: only when result is True, F: only when result is False.
 
