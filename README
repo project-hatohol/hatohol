@@ -38,7 +38,7 @@ How to build
 First, you need to install MLPL (https://github.com/miraclelinux/mlpl)
 Then input the following commands.
 
-$ autogen.sh
+$ ./autogen.sh
 $ ./configure
 $ make
 $ sudo make install
