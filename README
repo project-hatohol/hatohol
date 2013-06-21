@@ -28,7 +28,7 @@ Required libraries
 - sqlite3 >= 3.6.0 (https://www.sqlite.org/)
 - libsoup >= 2.22 (https://live.gnome.org/LibSoup)
 - json-glib >= 0.12.0 (https://live.gnome.org/JsonGlib/)
-  (CentOS and EPEL do not contain json-glib.)
+  (CentOS and EPEL does not contain json-glib.)
 
 ==============================================
 How to build
