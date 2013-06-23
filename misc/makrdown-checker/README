@@ -5,3 +5,8 @@ It helps developpers update/modify README.md.
 Before using this script, you have to install php
 and sundown extension.
 
+On ubuntu, 'sundown' can be installed like,
+$ pecl install sundown-beta
+
+[Usage]
+$ ./markdonw-checker [README]
