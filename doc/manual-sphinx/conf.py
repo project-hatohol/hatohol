@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-# ASURA REST Service documentation build configuration file, created by
+# HATOHOL REST Service documentation build configuration file, created by
 # sphinx-quickstart on Fri May 10 16:52:33 2013.
 #
 # This file is execfile()d with the current directory set to its containing dir.
@@ -41,7 +41,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = 'ASURA REST Service'
+project = 'HATOHOL REST Service'
 copyright = '2013, MIRACLE LINUX CORPORATION'
 
 # The version info for the project you're documenting, acts as replacement for
@@ -165,7 +165,7 @@ html_static_path = ['_static']
 #html_file_suffix = None
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'ASURARESTServicedoc'
+htmlhelp_basename = 'HATOHOLRESTServicedoc'
 
 
 # -- Options for LaTeX output --------------------------------------------------
@@ -184,7 +184,7 @@ latex_elements = {
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-  ('index', 'ASURARESTService.tex', 'ASURA REST Service Documentation',
+  ('index', 'HATOHOLRESTService.tex', 'HATOHOL REST Service Documentation',
    'MIRACLE LINUX CORPORATION', 'manual'),
 ]
 
@@ -214,7 +214,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'asurarestservice', 'ASURA REST Service Documentation',
+    ('index', 'hatoholrestservice', 'HATOHOL REST Service Documentation',
      ['MIRACLE LINUX CORPORATION'], 1)
 ]
 
@@ -228,8 +228,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-  ('index', 'ASURARESTService', 'ASURA REST Service Documentation',
-   'MIRACLE LINUX CORPORATION', 'ASURARESTService', 'One line description of project.',
+  ('index', 'HATOHOLRESTService', 'HATOHOL REST Service Documentation',
+   'MIRACLE LINUX CORPORATION', 'HATOHOLRESTService', 'One line description of project.',
    'Miscellaneous'),
 ]
 
