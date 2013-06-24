@@ -1,4 +1,4 @@
-/* Asura
+/* Hatohol
    Copyright (C) 2013 MIRACLE LINUX CORPORATION
  
    This program is free software: you can redistribute it and/or modify
@@ -306,7 +306,7 @@ enum {
 struct ArmNagiosNDOUtils::PrivateContext
 {
 	DBAgentMySQL dbAgent;
-	DBClientAsura dbAsura;
+	DBClientHatohol dbHatohol;
 	DBAgentSelectExArg selectTriggerArg;
 	string             selectTriggerBaseCondition;
 	DBAgentSelectExArg selectEventArg;
@@ -548,7 +548,7 @@ void ArmNagiosNDOUtils::addConditionForTriggerQuery(void)
 {
 	const MonitoringServerInfo &svInfo = getServerInfo();
 	time_t lastUpdateTime =
-	   m_ctx->dbAsura.getLastChangeTimeOfTrigger(svInfo.id);
+	   m_ctx->dbHatohol.getLastChangeTimeOfTrigger(svInfo.id);
 	struct tm tm;
 	localtime_r(&lastUpdateTime, &tm);
 
@@ -562,10 +562,10 @@ void ArmNagiosNDOUtils::addConditionForTriggerQuery(void)
 void ArmNagiosNDOUtils::addConditionForEventQuery(void)
 {
 	const MonitoringServerInfo &svInfo = getServerInfo();
-	uint64_t lastEventId = m_ctx->dbAsura.getLastEventId(svInfo.id);
+	uint64_t lastEventId = m_ctx->dbHatohol.getLastEventId(svInfo.id);
 	string cond;
 	m_ctx->selectEventArg.condition = m_ctx->selectEventBaseCondition;
-	if (lastEventId == DBClientAsura::EVENT_NOT_FOUND)
+	if (lastEventId == DBClientHatohol::EVENT_NOT_FOUND)
  		cond = "0";
 	else
  		cond = StringUtils::sprintf("%"PRIu64, lastEventId+1);
@@ -639,7 +639,7 @@ void ArmNagiosNDOUtils::getTrigger(void)
 
 		triggerInfoList.push_back(trigInfo);
 	}
-	m_ctx->dbAsura.addTriggerInfoList(triggerInfoList);
+	m_ctx->dbHatohol.addTriggerInfoList(triggerInfoList);
 }
 
 void ArmNagiosNDOUtils::getEvent(void)
@@ -718,7 +718,7 @@ void ArmNagiosNDOUtils::getEvent(void)
 
 		eventInfoList.push_back(eventInfo);
 	}
-	m_ctx->dbAsura.addEventInfoList(eventInfoList);
+	m_ctx->dbHatohol.addEventInfoList(eventInfoList);
 }
 
 void ArmNagiosNDOUtils::getItem(void)
@@ -777,10 +777,10 @@ void ArmNagiosNDOUtils::getItem(void)
 
 		itemInfoList.push_back(itemInfo);
 	}
-	m_ctx->dbAsura.addItemInfoList(itemInfoList);
+	m_ctx->dbHatohol.addItemInfoList(itemInfoList);
 }
 
-gpointer ArmNagiosNDOUtils::mainThread(AsuraThreadArg *arg)
+gpointer ArmNagiosNDOUtils::mainThread(HatoholThreadArg *arg)
 {
 	const MonitoringServerInfo &svInfo = getServerInfo();
 	MLPL_INFO("started: ArmNagiosNDOUtils (server: %s)\n",

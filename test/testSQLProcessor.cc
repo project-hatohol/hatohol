@@ -12,11 +12,11 @@ using namespace mlpl;
 #include <cppcutter.h>
 #include "SQLProcessor.h"
 #include "FormulaFunction.h"
-#include "Asura.h"
+#include "Hatohol.h"
 #include "Utils.h"
 #include "FormulaTestUtils.h"
 #include "AssertJoin.h"
-#include "AsuraException.h"
+#include "HatoholException.h"
 #include "Helpers.h"
 
 namespace testSQLProcessor {
@@ -509,7 +509,7 @@ static void _asssertExecSelect
 		assertSQLSelectInfoBasic(selectInfo, expectedNumColumns,
 		                         expectedNumSelectedRows,
 		                         expectedNumRows);
-	} catch (const AsuraException &e) {
+	} catch (const HatoholException &e) {
 		cut_fail("Got exception: %s", e.getFancyMessage().c_str());
 	}
 }
@@ -666,7 +666,7 @@ static void resetTestData(void)
 
 void setup(void)
 {
-	asuraInit();
+	hatoholInit();
 	resetTestData();
 }
 

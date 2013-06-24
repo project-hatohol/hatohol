@@ -1,4 +1,4 @@
-/* Asura
+/* Hatohol
    Copyright (C) 2013 MIRACLE LINUX CORPORATION
  
    This program is free software: you can redistribute it and/or modify
@@ -163,7 +163,7 @@ void SQLColumnParser::closeCurrentFormulaString(void)
 	if (m_ctx->currFormulaString.empty())
 		return;
 	if (m_formulaInfoVector.empty())
-		THROW_ASURA_EXCEPTION("m_formulaInfoVector is empty.");
+		THROW_HATOHOL_EXCEPTION("m_formulaInfoVector is empty.");
 
 	SQLFormulaInfo *formulaInfo = m_formulaInfoVector.back();
 	formulaInfo->expression =
@@ -178,7 +178,7 @@ void SQLColumnParser::closeCurrentFormula(void)
 	formulaInfo->hasStatisticalFunc = hasStatisticalFunc();
 	formulaInfo->formula = takeFormula();
 	if (!formulaInfo->formula)
-		THROW_ASURA_EXCEPTION("formulaInfo->formula is NULL.");
+		THROW_HATOHOL_EXCEPTION("formulaInfo->formula is NULL.");
 }
 
 //

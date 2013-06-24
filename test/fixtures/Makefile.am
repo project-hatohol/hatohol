@@ -1,22 +1,22 @@
-TEST_DBS = testDatabase-config.db testDatabase-asura.db
+TEST_DBS = testDatabase-config.db testDatabase-hatohol.db
 if WITH_CUTTER
 noinst_DATA = $(TEST_DBS) FooTable.db
 noinst_PROGRAMS = mkTestDB
 endif
 
 AM_CXXFLAGS = -g3 -Wall -I .. -I ../../src $(GLIB_CFLAGS) $(MLPL_CFLAGS)
-LIBS = ../../src/libasura.la ../libTest.la
+LIBS = ../../src/libhatohol.la ../libTest.la
 
 mkTestDB_SOURCES = mkTestDB.cc
 
-$(TEST_DBS): mkTestDB ../../src/libasura.la ../libTest.la
+$(TEST_DBS): mkTestDB ../../src/libhatohol.la ../libTest.la
 testDatabase-config.db:
 	rm -f $@
 	./mkTestDB config $@
 
-testDatabase-asura.db:
+testDatabase-hatohol.db:
 	rm -f $@
-	./mkTestDB asura $@
+	./mkTestDB hatohol $@
 
 FooTable.db: mkFooTable.sh
 	rm -f $@

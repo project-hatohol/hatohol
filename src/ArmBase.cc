@@ -1,4 +1,4 @@
-/* Asura
+/* Hatohol
    Copyright (C) 2013 MIRACLE LINUX CORPORATION
  
    This program is free software: you can redistribute it and/or modify
@@ -20,7 +20,7 @@
 #include <errno.h>
 #include <Logger.h>
 #include "ArmBase.h"
-#include "AsuraException.h"
+#include "HatoholException.h"
 
 using namespace mlpl;
 
@@ -35,7 +35,7 @@ struct ArmBase::PrivateContext
 	  exitRequest(0)
 	{
 		static const int PSHARED = 1;
-		ASURA_ASSERT(sem_init(&sleepSemaphore, PSHARED, 0) == 0,
+		HATOHOL_ASSERT(sem_init(&sleepSemaphore, PSHARED, 0) == 0,
 		             "Failed to sem_init(): %d\n", errno);
 	}
 
@@ -118,7 +118,7 @@ void ArmBase::sleepInterruptible(int sleepTime)
 	// The up of the semaphore is done only from the destructor.
 }
 
-gpointer ArmBase::mainThread(AsuraThreadArg *arg)
+gpointer ArmBase::mainThread(HatoholThreadArg *arg)
 {
 	while (!hasExitRequest()) {
 		int sleepTime = getPollingInterval();

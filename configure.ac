@@ -1,6 +1,6 @@
 AC_PREREQ(2.63)
 
-AC_INIT(asura, 0.0.2)
+AC_INIT(hatohol, 0.0.2)
 AM_INIT_AUTOMAKE([1.9 no-dist-gzip dist-bzip2 tar-pax])
 
 AC_DISABLE_STATIC
@@ -52,12 +52,12 @@ AC_CHECK_PROGS(MYSQL_CONFIG, mysql_config)
 MYSQL_CFLAGS=`$MYSQL_CONFIG --cflags`
 MYSQL_LIBS=`$MYSQL_CONFIG --libs`
 
-asura_save_CFLAGS=$CFLAGS
+hatohol_save_CFLAGS=$CFLAGS
 CFLAGS="$CFLAGS $MYSQL_CFLAGS"
 AC_TRY_COMPILE([#include <mysql_version.h>],
   [int version = MYSQL_VERSION_ID;], [],
   [AC_MSG_ERROR([You don't have mysql_version.h. Please install development package of MySQL.])])
-CFLAGS=$asura_save_CFLAGS
+CFLAGS=$hatohol_save_CFLAGS
 
 AC_SUBST(MYSQL_CFLAGS)
 AC_SUBST(MYSQL_LIBS)

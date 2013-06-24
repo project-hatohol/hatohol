@@ -14,8 +14,8 @@ using namespace mlpl;
 #include "SQLWhereParser.h"
 #include "FormulaOperator.h"
 #include "FormulaTestUtils.h"
-#include "Asura.h"
-#include "AsuraException.h"
+#include "Hatohol.h"
+#include "HatoholException.h"
 #include "PrimaryConditionPicker.h"
 
 namespace testSQLWhereParser {
@@ -52,7 +52,7 @@ static void _assertInputStatement(SQLWhereParser &whereParser,
 			whereParser.add(word, lower);
 		}
 		whereParser.close();
-	} catch (const AsuraException &e) {
+	} catch (const HatoholException &e) {
 		cut_fail("Got exception: %s", e.getFancyMessage().c_str());
 	}
 }
@@ -114,7 +114,7 @@ cut_trace((_assertPrimaryConditionColumnsEqual(CCI, LT, LC, RT, RC)))
 
 void setup(void)
 {
-	asuraInit();
+	hatoholInit();
 }
 
 // ---------------------------------------------------------------------------

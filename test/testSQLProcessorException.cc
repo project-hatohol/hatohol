@@ -12,9 +12,9 @@ void test_throw(void)
 	assertThrow(SQLProcessorException, SQLProcessorException);
 }
 
-void test_throwAsAsuraException(void)
+void test_throwAsHatoholException(void)
 {
-	assertThrow(SQLProcessorException, AsuraException);
+	assertThrow(SQLProcessorException, HatoholException);
 }
 
 void test_throwAsException(void)

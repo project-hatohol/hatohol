@@ -1,4 +1,4 @@
-/* Asura
+/* Hatohol
    Copyright (C) 2013 MIRACLE LINUX CORPORATION
  
    This program is free software: you can redistribute it and/or modify
@@ -279,7 +279,7 @@ void SQLWhereParser::setupParsingExists(void)
 {
 	SQLProcessorSelectShareInfo *shareInfo = getShareInfo();
 	if (shareInfo == NULL)
-		THROW_ASURA_EXCEPTION("getShareInfo(): NULL\n");
+		THROW_HATOHOL_EXCEPTION("getShareInfo(): NULL\n");
 	shareInfo->allowSectionParserChange = false;
 	m_ctx->existsStatementBegin =
 	  shareInfo->statement->getParsingPosition() + 1;

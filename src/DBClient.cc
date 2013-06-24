@@ -1,4 +1,4 @@
-/* Asura
+/* Hatohol
    Copyright (C) 2013 MIRACLE LINUX CORPORATION
  
    This program is free software: you can redistribute it and/or modify
@@ -144,7 +144,7 @@ void DBClient::updateDBIfNeeded(DBAgent *dbAgent, DBSetupFuncArg *setupFuncArg)
 	 &COLUMN_DEF_DBCLIENT[IDX_DBCLIENT_SELF_DB_VERSION];
 	int dbVersion = getDBVersion(dbAgent, columnDef);
 	if (dbVersion != DBCLIENT_DB_VERSION) {
-		THROW_ASURA_EXCEPTION("Not implemented: %s\n",
+		THROW_HATOHOL_EXCEPTION("Not implemented: %s\n",
 		                      __PRETTY_FUNCTION__);
 	}
 
@@ -153,7 +153,7 @@ void DBClient::updateDBIfNeeded(DBAgent *dbAgent, DBSetupFuncArg *setupFuncArg)
 	dbVersion = getDBVersion(dbAgent, columnDef);
 	if (dbVersion != setupFuncArg->version) {
 		void *data = setupFuncArg->dbUpdaterData;
-		ASURA_ASSERT(setupFuncArg->dbUpdater,
+		HATOHOL_ASSERT(setupFuncArg->dbUpdater,
 		             "Updater: NULL, expect/actual ver. %d/%d",
 		             setupFuncArg->version, dbVersion);
 		(*setupFuncArg->dbUpdater)(dbAgent, dbVersion, data);
@@ -169,17 +169,17 @@ int DBClient::getDBVersion(DBAgent *dbAgent, const ColumnDef *columnDef)
 	dbAgent->select(arg);
 
 	const ItemGroupList &itemGroupList = arg.dataTable->getItemGroupList();
-	ASURA_ASSERT(
+	HATOHOL_ASSERT(
 	  itemGroupList.size() == 1,
 	  "itemGroupList.size(): %zd", itemGroupList.size());
 	ItemGroupListConstIterator it = itemGroupList.begin();
 	const ItemGroup *itemGroup = *it;
-	ASURA_ASSERT(
+	HATOHOL_ASSERT(
 	  itemGroup->getNumberOfItems() == 1,
 	  "itemGroup->getNumberOfItems: %zd", itemGroup->getNumberOfItems());
 	const ItemInt *itemVersion =
 	  dynamic_cast<const ItemInt *>(itemGroup->getItemAt(0));
-	ASURA_ASSERT(itemVersion != NULL, "type: itemVersion: %s\n",
+	HATOHOL_ASSERT(itemVersion != NULL, "type: itemVersion: %s\n",
 	             DEMANGLED_TYPE_NAME(*itemVersion));
 	return itemVersion->get();
 }

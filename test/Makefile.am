@@ -6,7 +6,7 @@ if WITH_CUTTER
 TESTS = run-test.sh
 TESTS_ENVIRONMENT = NO_MAKE=yes CUTTER="$(CUTTER)"
 
-noinst_LTLIBRARIES = libTest.la testAsura.la
+noinst_LTLIBRARIES = libTest.la testHatohol.la
 noinst_PROGRAMS = zabbix-api-response-collector
 endif
 
@@ -21,14 +21,14 @@ INCLUDES = \
 
 LIBS = \
 	$(CUTTER_LIBS) $(CPPCUTTER_LIBS) \
-	$(GLIB_LIBS) $(GIO_LIBS) $(MLPL_LIBS) ../src/libasura.la
+	$(GLIB_LIBS) $(GIO_LIBS) $(MLPL_LIBS) ../src/libhatohol.la
 
 # Test cases
-testAsura_la_SOURCES = \
-	testAsuraException.cc testSQLProcessorException.cc \
-	testAsuraThreadBase.cc \
+testHatohol_la_SOURCES = \
+	testHatoholException.cc testSQLProcessorException.cc \
+	testHatoholThreadBase.cc \
 	testDBAgentSQLite3.cc testDBAgentMySQL.cc \
-	testDBClientConfig.cc testDBClientAsura.cc testDBClientZabbix.cc \
+	testDBClientConfig.cc testDBClientHatohol.cc testDBClientZabbix.cc \
 	testSQLUtils.cc testSQLProcessor.cc \
 	testSQLProcessorInsert.cc testSQLProcessorUpdate.cc \
 	testFormulaElement.cc \
@@ -42,8 +42,8 @@ testAsura_la_SOURCES = \
 	testFormulaOperator.cc \
 	testJsonParserAgent.cc testJsonBuilderAgent.cc testUtils.cc \
 	testArmZabbixAPI.cc testArmNagiosNDOUtils.cc
-testAsura_la_LDFLAGS = $(AM_LDFLAGS) $(LIBS)
-testAsura_la_LIBADD = libTest.la
+testHatohol_la_LDFLAGS = $(AM_LDFLAGS) $(LIBS)
+testHatohol_la_LIBADD = libTest.la
 
 libTest_la_SOURCES = \
 	FormulaTestUtils.cc Helpers.cc DBAgentTest.cc DBClientTest.cc \

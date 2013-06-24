@@ -1,4 +1,4 @@
-/* Asura
+/* Hatohol
    Copyright (C) 2013 MIRACLE LINUX CORPORATION
  
    This program is free software: you can redistribute it and/or modify
@@ -21,7 +21,7 @@ using namespace mlpl;
 #include "DBClientZabbix.h"
 #include "ItemEnum.h"
 #include "ConfigManager.h"
-#include "AsuraException.h"
+#include "HatoholException.h"
 #include "ItemTableUtils.h"
 #include "DBAgentFactory.h"
 
@@ -1480,7 +1480,7 @@ struct DBClientZabbix::PrivateContext
 	static MutexLock mutex;
 	static bool   dbInitializedFlags[NUM_MAX_ZABBIX_SERVERS];
 	size_t             serverId;
-	DBAgentSelectExArg selectExArgForTriggerAsAsuraFormat;
+	DBAgentSelectExArg selectExArgForTriggerAsHatoholFormat;
 
 	// methods
 	PrivateContext(size_t _serverId)
@@ -1511,37 +1511,37 @@ bool DBClientZabbix::PrivateContext::dbInitializedFlags[NUM_MAX_ZABBIX_SERVERS];
 // ---------------------------------------------------------------------------
 void DBClientZabbix::init(void)
 {
-	ASURA_ASSERT(
+	HATOHOL_ASSERT(
 	  NUM_COLUMNS_TRIGGERS_RAW_2_0 == NUM_IDX_TRIGGERS_RAW_2_0,
 	  "Invalid number of elements: NUM_COLUMNS_TRIGGERS_RAW_2_0 (%zd), "
 	  "NUM_IDX_TRIGGERS_RAW_2_0 (%zd)",
 	  NUM_COLUMNS_TRIGGERS_RAW_2_0, NUM_IDX_TRIGGERS_RAW_2_0);
 
-	ASURA_ASSERT(
+	HATOHOL_ASSERT(
 	  NUM_COLUMNS_FUNCTIONS_RAW_2_0 == NUM_IDX_FUNCTIONS_RAW_2_0,
 	  "Invalid number of elements: NUM_COLUMNS_FUNCTIONS_RAW_2_0 (%zd), "
 	  "NUM_IDX_FUNCTIONS_RAW_2_0 (%zd)",
 	  NUM_COLUMNS_FUNCTIONS_RAW_2_0, NUM_IDX_FUNCTIONS_RAW_2_0);
 
-	ASURA_ASSERT(
+	HATOHOL_ASSERT(
 	  NUM_COLUMNS_ITEMS_RAW_2_0 == NUM_IDX_ITEMS_RAW_2_0,
 	  "Invalid number of elements: NUM_COLUMNS_ITEMS_RAW_2_0 (%zd), "
 	  "NUM_IDX_ITEMS_RAW_2_0 (%zd)",
 	  NUM_COLUMNS_ITEMS_RAW_2_0, NUM_IDX_ITEMS_RAW_2_0);
 
-	ASURA_ASSERT(
+	HATOHOL_ASSERT(
 	  NUM_COLUMNS_HOSTS_RAW_2_0 == NUM_IDX_HOSTS_RAW_2_0,
 	  "Invalid number of elements: NUM_COLUMNS_HOSTS_RAW_2_0 (%zd), "
 	  "NUM_IDX_HOSTS_RAW_2_0 (%zd)",
 	  NUM_COLUMNS_HOSTS_RAW_2_0, NUM_IDX_HOSTS_RAW_2_0);
 
-	ASURA_ASSERT(
+	HATOHOL_ASSERT(
 	  NUM_COLUMNS_EVENTS_RAW_2_0 == NUM_IDX_EVENTS_RAW_2_0,
 	  "Invalid number of elements: NUM_COLUMNS_EVENTS_RAW_2_0 (%zd), "
 	  "NUM_IDX_EVENTS_RAW_2_0 (%zd)",
 	  NUM_COLUMNS_EVENTS_RAW_2_0, NUM_IDX_EVENTS_RAW_2_0);
 
-	ASURA_ASSERT(
+	HATOHOL_ASSERT(
 	  NUM_COLUMNS_APPLICATIONS_RAW_2_0 == NUM_IDX_APPLICATIONS_RAW_2_0,
 	  "Invalid number of elements: NUM_COLUMNS_APPLICATIONS_RAW_2_0 (%zd), "
 	  "NUM_IDX_APPLICATIONS_RAW_2_0 (%zd)",
@@ -1568,7 +1568,7 @@ void DBClientZabbix::resetDBInitializedFlags(void)
 DBClientZabbix::DBClientZabbix(size_t zabbixServerId)
 : m_ctx(NULL)
 {
-	ASURA_ASSERT(zabbixServerId < NUM_MAX_ZABBIX_SERVERS,
+	HATOHOL_ASSERT(zabbixServerId < NUM_MAX_ZABBIX_SERVERS,
 	   "The specified zabbix server ID is larger than max: %d",
 	   zabbixServerId); 
 	m_ctx = new PrivateContext(zabbixServerId);
@@ -1660,12 +1660,12 @@ void DBClientZabbix::addApplicationsRaw2_0(ItemTablePtr tablePtr)
 	} DBCLIENT_TRANSACTION_END();
 }
 
-void DBClientZabbix::getTriggersAsAsuraFormat(TriggerInfoList &triggerInfoList)
+void DBClientZabbix::getTriggersAsHatoholFormat(TriggerInfoList &triggerInfoList)
 {
 	// get data from data base
-	DBAgentSelectExArg &arg = m_ctx->selectExArgForTriggerAsAsuraFormat;
+	DBAgentSelectExArg &arg = m_ctx->selectExArgForTriggerAsHatoholFormat;
 	if (arg.tableName.empty())
-		makeSelectExArgForTriggerAsAsuraFormat();
+		makeSelectExArgForTriggerAsHatoholFormat();
 	DBCLIENT_TRANSACTION_BEGIN() {
 		select(arg);
 	} DBCLIENT_TRANSACTION_END();
@@ -1721,7 +1721,7 @@ void DBClientZabbix::getTriggersAsAsuraFormat(TriggerInfoList &triggerInfoList)
 	}
 }
 
-void DBClientZabbix::getEventsAsAsuraFormat(EventInfoList &eventInfoList)
+void DBClientZabbix::getEventsAsHatoholFormat(EventInfoList &eventInfoList)
 {
 	// get data from data base
 	DBAgentSelectArg arg;
@@ -1830,7 +1830,7 @@ bool DBClientZabbix::transformEventItemGroupToEventInfo
 	return true;
 }
 
-void DBClientZabbix::transformEventsToAsuraFormat
+void DBClientZabbix::transformEventsToHatoholFormat
   (EventInfoList &eventInfoList, const ItemTablePtr events, uint32_t serverId)
 {
 	const ItemGroupList &itemGroupList = events->getItemGroupList();
@@ -1896,7 +1896,7 @@ bool DBClientZabbix::transformItemItemGroupToItemInfo
 	return true;
 }
 
-void DBClientZabbix::transformItemsToAsuraFormat
+void DBClientZabbix::transformItemsToHatoholFormat
   (ItemInfoList &itemInfoList, const ItemTablePtr items, uint32_t serverId)
 {
 	DBClientZabbix dbZabbix(serverId);
@@ -2037,7 +2037,7 @@ void DBClientZabbix::tableInitializerSystem(DBAgent *dbAgent, void *data)
 
 void DBClientZabbix::updateDBIfNeeded(DBAgent *dbAgent, int oldVer, void *data)
 {
-	THROW_ASURA_EXCEPTION(
+	THROW_HATOHOL_EXCEPTION(
 	  "Not implemented: %s, oldVer: %d, curr: %d, data: %p",
 	  __PRETTY_FUNCTION__, oldVer, DBClientZabbix::ZABBIX_DB_VERSION, data);
 }
@@ -2242,7 +2242,7 @@ void DBClientZabbix::updateItems(
 	arg.tableName = tableName;
 	arg.columnDefs = columnDefs;
 	VariableItemGroupPtr row;
-	ASURA_ASSERT(itemGroup->getNumberOfItems() == numColumns,
+	HATOHOL_ASSERT(itemGroup->getNumberOfItems() == numColumns,
 	             "Mismatch: %zd, %zd",
 	             itemGroup->getNumberOfItems(), numColumns);
 	for (size_t i = 0; i < itemGroup->getNumberOfItems(); i++) {
@@ -2256,9 +2256,9 @@ void DBClientZabbix::updateItems(
 	update(arg);
 }
 
-void DBClientZabbix::makeSelectExArgForTriggerAsAsuraFormat(void)
+void DBClientZabbix::makeSelectExArgForTriggerAsHatoholFormat(void)
 {
-	DBAgentSelectExArg &arg = m_ctx->selectExArgForTriggerAsAsuraFormat;
+	DBAgentSelectExArg &arg = m_ctx->selectExArgForTriggerAsHatoholFormat;
 
 	// tableName
 	const ColumnDef &triggersTriggerid =

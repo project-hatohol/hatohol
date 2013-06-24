@@ -13,8 +13,8 @@ using namespace mlpl;
 #include <cppcutter.h>
 #include "SQLColumnParser.h"
 #include "FormulaTestUtils.h"
-#include "Asura.h"
-#include "AsuraException.h"
+#include "Hatohol.h"
+#include "HatoholException.h"
 
 namespace testSQLColumnParser {
 
@@ -38,7 +38,7 @@ static void _assertInputStatement(SQLColumnParser &columnParser,
 			columnParser.add(word, lower);
 		}
 		columnParser.close();
-	} catch (const AsuraException &e) {
+	} catch (const HatoholException &e) {
 		cut_fail("Got exception: %s", e.getFancyMessage().c_str());
 	}
 }
@@ -111,7 +111,7 @@ void _assertSum(ParsableString &statement, const char *columnName)
 
 void setup(void)
 {
-	asuraInit();
+	hatoholInit();
 }
 
 // ---------------------------------------------------------------------------

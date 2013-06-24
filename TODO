@@ -8,7 +8,7 @@
 * [M] add mechanism for graph.
 * [S] discus about config file.
 * [M] synchronize the deleted items, trigger, hosts, etc.
-* [S] show queick internall status of asura by WEB Interface for debugging or detail investigation.
+* [S] show queick internall status of hatohol by WEB Interface for debugging or detail investigation.
 * [S] add a way to specify database directory by setting file.
 * [M] fix code that are marked with TODO comments.
 * [M] detect small memory leaks and fix it

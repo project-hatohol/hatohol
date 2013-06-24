@@ -1,4 +1,4 @@
-/* Asura
+/* Hatohol
    Copyright (C) 2013 MIRACLE LINUX CORPORATION
  
    This program is free software: you can redistribute it and/or modify
@@ -15,21 +15,21 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef AsuraThreadBase_h
-#define AsuraThreadBase_h
+#ifndef HatoholThreadBase_h
+#define HatoholThreadBase_h
 
 #include <list>
 #include <glib.h>
 #include <Utils.h>
 
-class AsuraThreadBase;
+class HatoholThreadBase;
 
-struct AsuraThreadArg {
-	AsuraThreadBase *obj;
+struct HatoholThreadArg {
+	HatoholThreadBase *obj;
 	bool autoDeleteObject;
 };
 
-class AsuraThreadBase {
+class HatoholThreadBase {
 private:
 	typedef void (*ExceptionCallbackFunc)(const exception &e, void *data);
 	struct ExceptionCallbackInfo {
@@ -49,8 +49,8 @@ private:
 	typedef ExitCallbackInfoList::iterator ExitCallbackInfoListIterator;
 
 public:
-	AsuraThreadBase(void);
-	virtual ~AsuraThreadBase();
+	HatoholThreadBase(void);
+	virtual ~HatoholThreadBase();
 	void start(bool autoDeleteObject = false);
 	void addExceptionCallback(ExceptionCallbackFunc func, void *data);
 	void addExitCallback(ExitCallbackFunc func, void *data);
@@ -66,7 +66,7 @@ protected:
 	void doExitCallback(void);
 
 	// virtual methods
-	virtual gpointer mainThread(AsuraThreadArg *arg) = 0;
+	virtual gpointer mainThread(HatoholThreadArg *arg) = 0;
 
 private:
 	struct PrivateContext;
@@ -75,5 +75,5 @@ private:
 	static gpointer threadStarter(gpointer data);
 };
 
-#endif // AsuraThreadBase_h
+#endif // HatoholThreadBase_h
 

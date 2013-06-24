@@ -1,4 +1,4 @@
-/* Asura
+/* Hatohol
    Copyright (C) 2013 MIRACLE LINUX CORPORATION
  
    This program is free software: you can redistribute it and/or modify
@@ -28,7 +28,7 @@ using namespace std;
 #include <Logger.h>
 using namespace mlpl;
 
-#include "Asura.h"
+#include "Hatohol.h"
 #include "Utils.h"
 #include "FaceMySQL.h"
 #include "FaceRest.h"
@@ -57,7 +57,7 @@ static void setupSignalHandlerForExit(int signo)
 	memset(&sa, 0, sizeof(struct sigaction));
 	sa.sa_sigaction = signalHandlerToExit;
 	sa.sa_flags |= (SA_RESTART|SA_SIGINFO);
-	ASURA_ASSERT(sigaction(signo, &sa, NULL ) == 0,
+	HATOHOL_ASSERT(sigaction(signo, &sa, NULL ) == 0,
 	             "Failed to set SIGNAL: %d, errno: %d\n", signo, errno);
 }
 
@@ -80,7 +80,7 @@ gboolean exitFunc(GIOChannel *source, GIOCondition condition, gpointer data)
 static void setupGizmoForExit(gpointer data)
 {
 	// open a pipe to communicate with the main thread
-	ASURA_ASSERT(pipe(pipefd) == 0,
+	HATOHOL_ASSERT(pipe(pipefd) == 0,
 		     "Failed to open pipe: errno: %d", errno);
 
 	GIOChannel *ioch = g_io_channel_unix_new(pipefd[0]);
@@ -95,8 +95,8 @@ int mainRoutine(int argc, char *argv[])
 #ifndef GLIB_VERSION_2_32
 	g_thread_init(NULL);
 #endif // GLIB_VERSION_2_32 
-	asuraInit();
-	MLPL_INFO("started asura: ver. %s\n", PACKAGE_VERSION);
+	hatoholInit();
+	MLPL_INFO("started hatohol server: ver. %s\n", PACKAGE_VERSION);
 
 	// setup signal handlers for exit
 	ExecContext ctx;
@@ -145,7 +145,7 @@ int main(int argc, char *argv[])
 	int ret = EXIT_FAILURE;
 	try {
 		ret = mainRoutine(argc, argv);
-	} catch (const AsuraException &e){
+	} catch (const HatoholException &e){
 		MLPL_ERR("Got exception: %s", e.getFancyMessage().c_str());
 	} catch (const exception &e) {
 		MLPL_ERR("Got exception: %s", e.what());

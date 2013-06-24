@@ -1,4 +1,4 @@
-/* Asura
+/* Hatohol
    Copyright (C) 2013 MIRACLE LINUX CORPORATION
  
    This program is free software: you can redistribute it and/or modify
@@ -27,10 +27,10 @@ using namespace mlpl;
 #include <stdexcept>
 
 #include "Utils.h"
-#include "AsuraThreadBase.h"
-#include "AsuraException.h"
+#include "HatoholThreadBase.h"
+#include "HatoholException.h"
 
-struct AsuraThreadBase::PrivateContext {
+struct HatoholThreadBase::PrivateContext {
 	GThread *thread;
 	ReadWriteLock rwlock;
 	ExceptionCallbackInfoList exceptionCbList;
@@ -78,28 +78,28 @@ struct AsuraThreadBase::PrivateContext {
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
-AsuraThreadBase::AsuraThreadBase(void)
+HatoholThreadBase::HatoholThreadBase(void)
 : m_ctx(NULL)
 {
 	m_ctx = new PrivateContext();
 }
 
-AsuraThreadBase::~AsuraThreadBase()
+HatoholThreadBase::~HatoholThreadBase()
 {
 	stop();
 	if (m_ctx)
 		delete m_ctx;
 }
 
-void AsuraThreadBase::start(bool autoDeleteObject)
+void HatoholThreadBase::start(bool autoDeleteObject)
 {
-	AsuraThreadArg *arg = new AsuraThreadArg();
+	HatoholThreadArg *arg = new HatoholThreadArg();
 	arg->obj = this;
 	arg->autoDeleteObject = autoDeleteObject;
 	GError *error = NULL;
 	m_ctx->thread =
 #ifdef GLIB_VERSION_2_32
-	  g_thread_try_new("AsuraThread", threadStarter, arg, &error);
+	  g_thread_try_new("HatoholThread", threadStarter, arg, &error);
 #else
 	  g_thread_create(threadStarter, arg, TRUE, &error);
 #endif // GLIB_VERSION_2_32
@@ -109,13 +109,13 @@ void AsuraThreadBase::start(bool autoDeleteObject)
 	}
 }
 
-void AsuraThreadBase::stop(void)
+void HatoholThreadBase::stop(void)
 {
 	m_ctx->mutexForThreadExit.lock();
 	m_ctx->mutexForThreadExit.unlock();
 }
 
-void AsuraThreadBase::addExceptionCallback(ExceptionCallbackFunc func,
+void HatoholThreadBase::addExceptionCallback(ExceptionCallbackFunc func,
                                            void *data)
 {
 	ExceptionCallbackInfo exceptionInfo;
@@ -127,7 +127,7 @@ void AsuraThreadBase::addExceptionCallback(ExceptionCallbackFunc func,
 	m_ctx->write_unlock();
 }
 
-void AsuraThreadBase::addExitCallback(ExitCallbackFunc func, void *data)
+void HatoholThreadBase::addExitCallback(ExitCallbackFunc func, void *data)
 {
 	ExitCallbackInfo exitInfo;
 	exitInfo.func = func;
@@ -141,7 +141,7 @@ void AsuraThreadBase::addExitCallback(ExitCallbackFunc func, void *data)
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
-void AsuraThreadBase::doExceptionCallback(const exception &e)
+void HatoholThreadBase::doExceptionCallback(const exception &e)
 {
 	m_ctx->read_lock();
 	ExceptionCallbackInfoListIterator it = m_ctx->exceptionCbList.begin();
@@ -152,7 +152,7 @@ void AsuraThreadBase::doExceptionCallback(const exception &e)
 	m_ctx->read_unlock();
 }
 
-void AsuraThreadBase::doExitCallback(void)
+void HatoholThreadBase::doExitCallback(void)
 {
 	m_ctx->read_lock();
 	ExitCallbackInfoListIterator it = m_ctx->exitCbList.begin();
@@ -166,15 +166,15 @@ void AsuraThreadBase::doExitCallback(void)
 // ---------------------------------------------------------------------------
 // Private methods
 // ---------------------------------------------------------------------------
-gpointer AsuraThreadBase::threadStarter(gpointer data)
+gpointer HatoholThreadBase::threadStarter(gpointer data)
 {
 	gpointer ret = NULL;
-	AsuraThreadArg *arg = static_cast<AsuraThreadArg *>(data);
+	HatoholThreadArg *arg = static_cast<HatoholThreadArg *>(data);
 	arg->obj->m_ctx->mutexForThreadExit.lock();
 	try {
 		ret = arg->obj->mainThread(arg);
-	} catch (const AsuraException &e) {
-		MLPL_ERR("Got Asura Exception: %s\n",
+	} catch (const HatoholException &e) {
+		MLPL_ERR("Got Hatohol Exception: %s\n",
 		         e.getFancyMessage().c_str());
 		arg->obj->doExceptionCallback(e);
 	} catch (const exception &e) {

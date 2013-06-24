@@ -1,4 +1,4 @@
-/* Asura
+/* Hatohol
    Copyright (C) 2013 MIRACLE LINUX CORPORATION
  
    This program is free software: you can redistribute it and/or modify
@@ -30,7 +30,7 @@ static const char *TABLE_NAME_SYSTEM  = "system";
 static const char *TABLE_NAME_SERVERS = "servers";
 
 int DBClientConfig::CONFIG_DB_VERSION = 5;
-const char *DBClientConfig::DEFAULT_DB_NAME = "asura-config.db";
+const char *DBClientConfig::DEFAULT_DB_NAME = "hatohol-config.db";
 
 static const ColumnDef COLUMN_DEF_SYSTEM[] = {
 {
@@ -268,7 +268,7 @@ void DBClientConfig::parseCommandLineArgument(CommandLineArg &cmdArg)
 	for (size_t i = 0; i < cmdArg.size(); i++) {
 		string &arg = cmdArg[i];
 		if (arg == "--config-db") {
-			ASURA_ASSERT(i < cmdArg.size()-1,
+			HATOHOL_ASSERT(i < cmdArg.size()-1,
 			             "--config-db needs database path.");
 			i++;
 			string dbPath = cmdArg[i];
@@ -310,7 +310,7 @@ string DBClientConfig::getDatabaseDir(void)
 		select(arg);
 	} DBCLIENT_TRANSACTION_END();
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
-	ASURA_ASSERT(!grpList.empty(), "Obtained Table: empty");
+	HATOHOL_ASSERT(!grpList.empty(), "Obtained Table: empty");
 	return ItemDataUtils::getString((*grpList.begin())->getItemAt(0));
 }
 
@@ -338,7 +338,7 @@ bool DBClientConfig::isFaceMySQLEnabled(void)
 		select(arg);
 	} DBCLIENT_TRANSACTION_END();
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
-	ASURA_ASSERT(!grpList.empty(), "Obtained Table: empty");
+	HATOHOL_ASSERT(!grpList.empty(), "Obtained Table: empty");
 	return ItemDataUtils::getInt((*grpList.begin())->getItemAt(0));
 }
 
@@ -352,7 +352,7 @@ int  DBClientConfig::getFaceRestPort(void)
 		select(arg);
 	} DBCLIENT_TRANSACTION_END();
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
-	ASURA_ASSERT(!grpList.empty(), "Obtained Table: empty");
+	HATOHOL_ASSERT(!grpList.empty(), "Obtained Table: empty");
 	return ItemDataUtils::getInt((*grpList.begin())->getItemAt(0));
 }
 

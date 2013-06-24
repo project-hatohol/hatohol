@@ -1,4 +1,4 @@
-/* Asura
+/* Hatohol
    Copyright (C) 2013 MIRACLE LINUX CORPORATION
  
    This program is free software: you can redistribute it and/or modify
@@ -42,7 +42,7 @@ DBAgentMySQL::DBAgentMySQL(const char *db, const char *user, const char *passwd,
 	MYSQL *result = mysql_real_connect(&m_ctx->mysql, host, user, passwd,
 	                                   db, port, unixSocket, clientFlag);
 	if (!result) {
-		THROW_ASURA_EXCEPTION("Failed to connect to MySQL: %s: %s\n",
+		THROW_HATOHOL_EXCEPTION("Failed to connect to MySQL: %s: %s\n",
 		                      db, mysql_error(&m_ctx->mysql));
 	}
 	m_ctx->connected = true;
@@ -85,7 +85,7 @@ void DBAgentMySQL::rollback(void)
 
 void DBAgentMySQL::createTable(DBAgentTableCreationArg &tableCreationArg)
 {
-	ASURA_ASSERT(m_ctx->connected, "Not connected.");
+	HATOHOL_ASSERT(m_ctx->connected, "Not connected.");
 	string query = StringUtils::sprintf("CREATE TABLE %s (",
 	                                    tableCreationArg.tableName.c_str());
 	
@@ -118,7 +118,7 @@ void DBAgentMySQL::createTable(DBAgentTableCreationArg &tableCreationArg)
 			                              columnDef.decFracLength);
 			break;
 		default:
-			ASURA_ASSERT(false, "Unknown type: %d", columnDef.type);
+			HATOHOL_ASSERT(false, "Unknown type: %d", columnDef.type);
 		}
 
 		// nullable
@@ -135,7 +135,7 @@ void DBAgentMySQL::createTable(DBAgentTableCreationArg &tableCreationArg)
 		case SQL_KEY_NONE:
 			break;
 		default:
-			ASURA_ASSERT(false,
+			HATOHOL_ASSERT(false,
 			  "Unknown key type: %d", columnDef.keyType);
 		}
 
@@ -144,7 +144,7 @@ void DBAgentMySQL::createTable(DBAgentTableCreationArg &tableCreationArg)
 	}
 	query += ")";
 	if (mysql_query(&m_ctx->mysql, query.c_str()) != 0) {
-		THROW_ASURA_EXCEPTION("Failed to query: %s: %s\n",
+		THROW_HATOHOL_EXCEPTION("Failed to query: %s: %s\n",
 		                      query.c_str(),
 		                      mysql_error(&m_ctx->mysql));
 	}
@@ -152,8 +152,8 @@ void DBAgentMySQL::createTable(DBAgentTableCreationArg &tableCreationArg)
 
 void DBAgentMySQL::insert(DBAgentInsertArg &insertArg)
 {
-	ASURA_ASSERT(m_ctx->connected, "Not connected.");
-	ASURA_ASSERT(insertArg.numColumns == insertArg.row->getNumberOfItems(),
+	HATOHOL_ASSERT(m_ctx->connected, "Not connected.");
+	HATOHOL_ASSERT(insertArg.numColumns == insertArg.row->getNumberOfItems(),
 	             "numColumn: %zd != row: %zd",
 	             insertArg.numColumns, insertArg.row->getNumberOfItems());
 
@@ -190,7 +190,7 @@ void DBAgentMySQL::insert(DBAgentInsertArg &insertArg)
 			break;
 		}
 		default:
-			ASURA_ASSERT(false, "Unknown type: %d", columnDef.type);
+			HATOHOL_ASSERT(false, "Unknown type: %d", columnDef.type);
 		}
 		if (i < insertArg.numColumns -1)
 			query += ",";
@@ -198,7 +198,7 @@ void DBAgentMySQL::insert(DBAgentInsertArg &insertArg)
 	query += ")";
 
 	if (mysql_query(&m_ctx->mysql, query.c_str()) != 0) {
-		THROW_ASURA_EXCEPTION("Failed to query: %s: %s\n",
+		THROW_HATOHOL_EXCEPTION("Failed to query: %s: %s\n",
 		                      query.c_str(),
 		                      mysql_error(&m_ctx->mysql));
 	}
@@ -211,18 +211,18 @@ void DBAgentMySQL::update(DBAgentUpdateArg &updateArg)
 
 void DBAgentMySQL::select(DBAgentSelectArg &selectArg)
 {
-	ASURA_ASSERT(m_ctx->connected, "Not connected.");
+	HATOHOL_ASSERT(m_ctx->connected, "Not connected.");
 
 	string query = makeSelectStatement(selectArg);
 	if (mysql_query(&m_ctx->mysql, query.c_str()) != 0) {
-		THROW_ASURA_EXCEPTION("Failed to query: %s: %s\n",
+		THROW_HATOHOL_EXCEPTION("Failed to query: %s: %s\n",
 		                      query.c_str(),
 		                      mysql_error(&m_ctx->mysql));
 	}
 
 	MYSQL_RES *result = mysql_store_result(&m_ctx->mysql);
 	if (!result) {
-		THROW_ASURA_EXCEPTION("Failed to call mysql_store_result: %s\n",
+		THROW_HATOHOL_EXCEPTION("Failed to call mysql_store_result: %s\n",
 		                      mysql_error(&m_ctx->mysql));
 	}
 
@@ -245,18 +245,18 @@ void DBAgentMySQL::select(DBAgentSelectArg &selectArg)
 
 void DBAgentMySQL::select(DBAgentSelectExArg &selectExArg)
 {
-	ASURA_ASSERT(m_ctx->connected, "Not connected.");
+	HATOHOL_ASSERT(m_ctx->connected, "Not connected.");
 
 	string query = makeSelectStatement(selectExArg);
 	if (mysql_query(&m_ctx->mysql, query.c_str()) != 0) {
-		THROW_ASURA_EXCEPTION("Failed to query: %s: %s\n",
+		THROW_HATOHOL_EXCEPTION("Failed to query: %s: %s\n",
 		                      query.c_str(),
 		                      mysql_error(&m_ctx->mysql));
 	}
 
 	MYSQL_RES *result = mysql_store_result(&m_ctx->mysql);
 	if (!result) {
-		THROW_ASURA_EXCEPTION("Failed to call mysql_store_result: %s\n",
+		THROW_HATOHOL_EXCEPTION("Failed to call mysql_store_result: %s\n",
 		                      mysql_error(&m_ctx->mysql));
 	}
 
@@ -279,7 +279,7 @@ void DBAgentMySQL::select(DBAgentSelectExArg &selectExArg)
 	// check the result
 	size_t numTableRows = selectExArg.dataTable->getNumberOfRows();
 	size_t numTableColumns = selectExArg.dataTable->getNumberOfColumns();
-	ASURA_ASSERT((numTableRows == 0) ||
+	HATOHOL_ASSERT((numTableRows == 0) ||
 	             ((numTableRows > 0) && (numTableColumns == numColumns)),
 	             "Sanity check error: numTableRows: %zd, numTableColumns: "
 	             "%zd, numColumns: %zd",

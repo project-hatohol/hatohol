@@ -1,10 +1,10 @@
 #include <glib-object.h>
 #include <cstdio>
 #include <cstdlib>
-#include "Asura.h"
+#include "Hatohol.h"
 #include "DBClientTest.h"
 #include "DBAgentSQLite3.h"
-#include "DBClientAsura.h"
+#include "DBClientHatohol.h"
 #include "ConfigManager.h"
 
 typedef void (*DBMaker)(const string &dbName);
@@ -19,27 +19,27 @@ static void makeDBConfig(const string &dbName)
 	} 
 }
 
-static void makeDBAsura(const string &dbName)
+static void makeDBHatohol(const string &dbName)
 {
-	DBAgentSQLite3::defineDBPath(DB_DOMAIN_ID_ASURA, dbName);
-	DBClientAsura dbAsura;
+	DBAgentSQLite3::defineDBPath(DB_DOMAIN_ID_HATOHOL, dbName);
+	DBClientHatohol dbHatohol;
 
 	// Triggers
 	for (size_t i = 0; i < NumTestTriggerInfo; i++) {
 		TriggerInfo *trigInfo = &testTriggerInfo[i];
-		dbAsura.addTriggerInfo(trigInfo);
+		dbHatohol.addTriggerInfo(trigInfo);
 	} 
 
 	// Events
 	for (size_t i = 0; i < NumTestEventInfo; i++) {
 		EventInfo *eventInfo = &testEventInfo[i];
-		dbAsura.addEventInfo(eventInfo);
+		dbHatohol.addEventInfo(eventInfo);
 	} 
 
 	// Items
 	for (size_t i = 0; i < NumTestItemInfo; i++) {
 		ItemInfo *itemInfo = &testItemInfo[i];
-		dbAsura.addItemInfo(itemInfo);
+		dbHatohol.addItemInfo(itemInfo);
 	} 
 }
 
@@ -59,12 +59,12 @@ int main(int argc, char *argv[])
 #ifndef GLIB_VERSION_2_36
 	g_type_init();
 #endif // GLIB_VERSION_2_36
-	asuraInit();
+	hatoholInit();
 	DBMaker dbMaker = NULL;
 	if (command == "config")
 		dbMaker = makeDBConfig;
-	else if (command == "asura")
-		dbMaker = makeDBAsura;
+	else if (command == "hatohol")
+		dbMaker = makeDBHatohol;
 
 	if (!dbMaker) {
 		printf("Unknwon command\n");

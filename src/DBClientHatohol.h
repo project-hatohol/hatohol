@@ -1,4 +1,4 @@
-/* Asura
+/* Hatohol
    Copyright (C) 2013 MIRACLE LINUX CORPORATION
  
    This program is free software: you can redistribute it and/or modify
@@ -15,8 +15,8 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef DBClientAsura_h
-#define DBClientAsura_h
+#ifndef DBClientHatohol_h
+#define DBClientHatohol_h
 
 #include <list>
 #include "DBClient.h"
@@ -89,15 +89,15 @@ typedef list<ItemInfo>               ItemInfoList;
 typedef ItemInfoList::iterator       ItemInfoListIterator;
 typedef ItemInfoList::const_iterator ItemInfoListConstIterator;
 
-class DBClientAsura : public DBClient {
+class DBClientHatohol : public DBClient {
 public:
 	static uint64_t EVENT_NOT_FOUND;
-	static int ASURA_DB_VERSION;
+	static int HATOHOL_DB_VERSION;
 	static void init(void);
 	static void reset(void);
 
-	DBClientAsura(void);
-	virtual ~DBClientAsura();
+	DBClientHatohol(void);
+	virtual ~DBClientHatohol();
 
 	void addTriggerInfo(TriggerInfo *triggerInfo);
 	void addTriggerInfoList(const TriggerInfoList &triggerInfoList);
@@ -146,4 +146,4 @@ private:
 	PrivateContext *m_ctx;
 };
 
-#endif // DBClientAsura_h
+#endif // DBClientHatohol_h

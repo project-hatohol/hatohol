@@ -1,45 +1,45 @@
 #include <cppcutter.h>
-#include "AsuraException.h"
+#include "HatoholException.h"
 #include "ExceptionTestUtils.h"
 
-namespace testAsuraException {
+namespace testHatoholException {
 
 // ---------------------------------------------------------------------------
 // Test cases
 // ---------------------------------------------------------------------------
 void test_throw(void)
 {
-	assertThrow(AsuraException, AsuraException);
+	assertThrow(HatoholException, HatoholException);
 }
 
 void test_throwAsException(void)
 {
-	assertThrow(AsuraException, exception);
+	assertThrow(HatoholException, exception);
 }
 
-void test_asuraAssertPass(void)
+void test_hatoholAssertPass(void)
 {
 	bool gotException = false;
 	int a = 1;
 	try {
-		ASURA_ASSERT(a == 1, "a == 1 @ %s", __func__);
-	} catch (const AsuraException &e) {
+		HATOHOL_ASSERT(a == 1, "a == 1 @ %s", __func__);
+	} catch (const HatoholException &e) {
 		gotException = true;
 	}
 	cppcut_assert_equal(false, gotException);
 }
 
-void test_asuraAssertFail(void)
+void test_hatoholAssertFail(void)
 {
 	bool gotException = false;
 	int a = 2;
 	try {
-		ASURA_ASSERT(a == 1, "a = %d", a);
-	} catch (const AsuraException &e) {
+		HATOHOL_ASSERT(a == 1, "a = %d", a);
+	} catch (const HatoholException &e) {
 		cut_notify("<<MSG>>\n%s", e.getFancyMessage().c_str());
 		gotException = true;
 	}
 	cppcut_assert_equal(true, gotException);
 }
 
-} // namespace testAsuraException
+} // namespace testHatoholException

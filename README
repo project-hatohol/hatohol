@@ -1,7 +1,7 @@
-Asura
-=====
+Hatohol Server
+===============
 
-Asura acquires the monitoring data from multiple monitoring software,
+Hatohol acquires the monitoring data from multiple monitoring software,
 consolites them, serves the data with the format that is independent of
 the specific monitoring software in various way.
 
@@ -47,53 +47,53 @@ How to start
 
 [1-1] Prepare configuraiont data text file as a source of binary database.
 
-<Tips> There is a template file in <install path>/share/asura/asura-config.dat.example. 
-Ex.) cp /usr/local/share/asura/asura-config.dat.example asura-config.dat
+<Tips> There is a template file in <install path>/share/hatohol/hatohol-config.dat.example. 
+Ex.) cp /usr/local/share/hatohol/hatohol-config.dat.example hatohol-config.dat
 
-[1-2] Add server information to asura-config.dat
+[1-2] Add server information to hatohol-config.dat
 [1-3] Create the binary database
-$ asura-config-db-creator asura-config.dat asura-config.db
-where 'asura-config.db' is the binary database and its name is arbitrary.
+$ hatohol-config-db-creator hatohol-config.dat hatohol-config.db
+where 'hatohol-config.db' is the binary database and its name is arbitrary.
 
 (2) Prepare the data base directory 
-Asura automatically creates databases for storing its data. You have to 
+Hatohol automatically creates databases for storing its data. You have to 
 decide the direcory for the DBs and make it if necessary.
 
 Ex.)
-# mkdir /var/lib/asura
+# mkdir /var/lib/hatohol
 
-(3) start asura process
-$ ASURA_DB_DIR=<directory preapred in step (2)> asura --config-db <path>/asura-config.db
+(3) start Hatohol Server process
+$ HATOHOL_DB_DIR=<directory preapred in step (2)> hatohol --config-db <path>/hatohol-config.db
 
 Ex.)
-$ ASURA_DB_DIR=/var/lib/asura asura --config-db /var/lib/asura-config.db
+$ HATOHOL_DB_DIR=/var/lib/hatohol hatohol --config-db /var/lib/hatohol-config.db
 
 <Tips> From the 2nd time, you can start only with the above step (3).
-<Tips> If you omit the environment variable 'ASURA_DB_DIR', the databases are
+<Tips> If you omit the environment variable 'HATOHOL_DB_DIR', the databases are
 created in /tmp.
 
-<Tips> When the process successfully starts, asura reply the HTML message
-including ASURA version on http://<hostname>:<RestPort>/hello.html.
+<Tips> When the process successfully starts, Hatohol reply the HTML message
+including HATOHOL version on http://<hostname>:<RestPort>/hello.html.
 Ex.) http://localhost:33194/hello.html
 
 ==============================================
 How to stop
 ==============================================
-Send one of the following signals to asura process.
+Send one of the following signals to hatohol process.
 - SIGTERM
 - SIGINT (This signal is also sent by Ctrl-C)
 - SIGHUP
 - SIGUSR1
 
 Ex.)
-$ pkill asura
+$ pkill hatohol
 
 ==============================================
 How to set the port number of REST service
 ==============================================
 (1) If the command line option --face-rest-port is specified, it is used.
 Ex.)
-$ asura --face-rest-port 3000
+$ hatohol --face-rest-port 3000
 
 (2) Otherwise if the port number in the configuration DB is not 0, it is used.
 (3) Otherwise the default port: 33194 is used.
@@ -101,19 +101,19 @@ $ asura --face-rest-port 3000
 ==============================================
 Trouble Shooting
 ==============================================
-Asura shows "Failed to get" and doesn't acquire information
+Hatohol shows "Failed to get" and doesn't acquire information
 ------------------------------------------------------------
 - Do not change or remove user "Admin" and its password (zabbix)
-Currently Asura tries to login as "Admin" to get information from zabbix server.
+Currently Hatohol tries to login as "Admin" to get information from zabbix server.
 
-- Check if your servers are correctly registered to Asura's database.
+- Check if your servers are correctly registered to Hatohol's database.
 You can verify them by checking the result from http://localhost:33194/servers.json.
-(In case you start Asura with default port number) For example, if value of "servers"
+(In case you start Hatohol with default port number) For example, if value of "servers"
 is empty, no servers are registered in the database. If you can see other unexpected
 results, check it too.
 Even if no servers are registered in the database or you specify non existent sqlite
-database with --config-db parameter, Asura starts without any error messages. If the
-specified database doesn't exist, Asura automatically create it.
+database with --config-db parameter, Hatohol starts without any error messages. If the
+specified database doesn't exist, Hatohol automatically create it.
 
 ==============================================
 Tips to configure Nagios NDOUtils

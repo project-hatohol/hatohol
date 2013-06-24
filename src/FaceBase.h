@@ -1,4 +1,4 @@
-/* Asura
+/* Hatohol
    Copyright (C) 2013 MIRACLE LINUX CORPORATION
  
    This program is free software: you can redistribute it and/or modify
@@ -18,9 +18,9 @@
 #ifndef FaceBase_h
 #define FaceBase_h
 
-#include "AsuraThreadBase.h"
+#include "HatoholThreadBase.h"
 
-class FaceBase : public AsuraThreadBase {
+class FaceBase : public HatoholThreadBase {
 public:
 	FaceBase(void);
 	virtual ~FaceBase();

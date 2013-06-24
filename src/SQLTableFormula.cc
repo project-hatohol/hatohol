@@ -1,4 +1,4 @@
-/* Asura
+/* Hatohol
    Copyright (C) 2013 MIRACLE LINUX CORPORATION
  
    This program is free software: you can redistribute it and/or modify
@@ -17,7 +17,7 @@
 
 #include "SQLTableFormula.h"
 #include "SQLProcessorException.h"
-#include "AsuraException.h"
+#include "HatoholException.h"
 
 // ---------------------------------------------------------------------------
 // SQLRowIterator
@@ -41,7 +41,7 @@ bool SQLTableRowIteratorColumnsEqual::isIndexed
   (const ItemDataIndexVector &indexVector)
 {
 	if (indexVector.size() < m_myIndex) {
-		THROW_ASURA_EXCEPTION(
+		THROW_HATOHOL_EXCEPTION(
 		  "indexVector.size (%zd) < m_myIndex (%d)",
 		  indexVector.size(), m_myIndex);
 	}
@@ -571,7 +571,7 @@ void SQLTableInnerJoin::prepareJoin(SQLTableProcessContextIndex *ctxIndex)
 	// The following code is copied from getTable(). We want to
 	// extract same part as a function.
 	if (!m_columnIndexResolver)
-		THROW_ASURA_EXCEPTION("m_columnIndexResolver: NULL");
+		THROW_HATOHOL_EXCEPTION("m_columnIndexResolver: NULL");
 
 	SQLTableFormula *leftFormula = getLeftFormula();
 	SQLTableFormula *rightFormula = getRightFormula();
@@ -600,7 +600,7 @@ void SQLTableInnerJoin::prepareJoin(SQLTableProcessContextIndex *ctxIndex)
 ItemTablePtr SQLTableInnerJoin::getTable(void)
 {
 	if (!m_columnIndexResolver)
-		THROW_ASURA_EXCEPTION("m_columnIndexResolver: NULL");
+		THROW_HATOHOL_EXCEPTION("m_columnIndexResolver: NULL");
 
 	SQLTableFormula *leftFormula = getLeftFormula();
 	SQLTableFormula *rightFormula = getRightFormula();

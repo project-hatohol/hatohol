@@ -1,4 +1,4 @@
-/* Asura
+/* Hatohol
    Copyright (C) 2013 MIRACLE LINUX CORPORATION
  
    This program is free software: you can redistribute it and/or modify
@@ -18,15 +18,15 @@
 #ifndef SQLProcessorException_h
 #define SQLProcessorException_h
 
-#include "AsuraException.h"
+#include "HatoholException.h"
 
-class SQLProcessorException : public AsuraException
+class SQLProcessorException : public HatoholException
 {
 public:
 	explicit SQLProcessorException(const string &brief,
 	                               const char *sourceFileName = "",
 	                               int lineNumber = UNKNOWN_LINE_NUMBER);
-	virtual ~SQLProcessorException() _ASURA_NOEXCEPT;
+	virtual ~SQLProcessorException() _HATOHOL_NOEXCEPT;
 private:
 };
 

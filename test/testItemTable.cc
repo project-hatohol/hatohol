@@ -272,7 +272,7 @@ void test_addInvalidItemsWhenHasMoreThanOneGroup(void)
 	try {
 		grp->add(item, false);
 		x_table->add(grp, false);
-	} catch (const AsuraException &e) {
+	} catch (const HatoholException &e) {
 		item->unref();
 		gotException = true;
 	}
@@ -297,7 +297,7 @@ void test_addItemsWhenPreviousGroupIncompletion(void)
 	try {
 		grp->add(item, false);
 		x_table->add(grp, false);
-	} catch (const AsuraException &e) {
+	} catch (const HatoholException &e) {
 		item->unref();
 		gotException = true;
 	}

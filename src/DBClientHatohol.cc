@@ -1,4 +1,4 @@
-/* Asura
+/* Hatohol
    Copyright (C) 2013 MIRACLE LINUX CORPORATION
  
    This program is free software: you can redistribute it and/or modify
@@ -21,7 +21,7 @@
 using namespace mlpl;
 
 #include "DBAgentFactory.h"
-#include "DBClientAsura.h"
+#include "DBClientHatohol.h"
 #include "ConfigManager.h"
 #include "DBClientUtils.h"
 
@@ -29,8 +29,8 @@ static const char *TABLE_NAME_TRIGGERS = "triggers";
 static const char *TABLE_NAME_EVENTS   = "events";
 static const char *TABLE_NAME_ITEMS    = "items";
 
-uint64_t DBClientAsura::EVENT_NOT_FOUND = -1;
-int DBClientAsura::ASURA_DB_VERSION = 3;
+uint64_t DBClientHatohol::EVENT_NOT_FOUND = -1;
+int DBClientHatohol::HATOHOL_DB_VERSION = 3;
 
 static const ColumnDef COLUMN_DEF_TRIGGERS[] = {
 {
@@ -413,7 +413,7 @@ enum {
 	NUM_IDX_ITEMS,
 };
 
-struct DBClientAsura::PrivateContext
+struct DBClientHatohol::PrivateContext
 {
 	static MutexLock mutex;
 	static bool   initialized;
@@ -436,33 +436,33 @@ struct DBClientAsura::PrivateContext
 		mutex.unlock();
 	}
 };
-MutexLock DBClientAsura::PrivateContext::mutex;
-bool   DBClientAsura::PrivateContext::initialized = false;
+MutexLock DBClientHatohol::PrivateContext::mutex;
+bool   DBClientHatohol::PrivateContext::initialized = false;
 
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
-void DBClientAsura::init(void)
+void DBClientHatohol::init(void)
 {
-	ASURA_ASSERT(NUM_COLUMNS_TRIGGERS == NUM_IDX_TRIGGERS,
+	HATOHOL_ASSERT(NUM_COLUMNS_TRIGGERS == NUM_IDX_TRIGGERS,
 	  "NUM_COLUMNS_TRIGGERS: %zd, NUM_IDX_TRIGGERS: %zd",
 	  NUM_COLUMNS_TRIGGERS, NUM_IDX_TRIGGERS);
 
-	ASURA_ASSERT(NUM_COLUMNS_EVENTS == NUM_IDX_EVENTS,
+	HATOHOL_ASSERT(NUM_COLUMNS_EVENTS == NUM_IDX_EVENTS,
 	  "NUM_COLUMNS_EVENTS: %zd, NUM_IDX_EVENTS: %zd",
 	  NUM_COLUMNS_EVENTS, NUM_IDX_EVENTS);
 
-	ASURA_ASSERT(NUM_COLUMNS_ITEMS == NUM_IDX_ITEMS,
+	HATOHOL_ASSERT(NUM_COLUMNS_ITEMS == NUM_IDX_ITEMS,
 	  "NUM_COLUMNS_ITEMS: %zd, NUM_IDX_ITEMS: %zd",
 	  NUM_COLUMNS_ITEMS, NUM_IDX_ITEMS);
 }
 
-void DBClientAsura::reset(void)
+void DBClientHatohol::reset(void)
 {
 	resetDBInitializedFlags();
 }
 
-DBClientAsura::DBClientAsura(void)
+DBClientHatohol::DBClientHatohol(void)
 : m_ctx(NULL)
 {
 	m_ctx = new PrivateContext();
@@ -474,23 +474,23 @@ DBClientAsura::DBClientAsura(void)
 		prepareSetupFunction();
 	}
 	m_ctx->unlock();
-	setDBAgent(DBAgentFactory::create(DB_DOMAIN_ID_ASURA));
+	setDBAgent(DBAgentFactory::create(DB_DOMAIN_ID_HATOHOL));
 }
 
-DBClientAsura::~DBClientAsura()
+DBClientHatohol::~DBClientHatohol()
 {
 	if (m_ctx)
 		delete m_ctx;
 }
 
-void DBClientAsura::addTriggerInfo(TriggerInfo *triggerInfo)
+void DBClientHatohol::addTriggerInfo(TriggerInfo *triggerInfo)
 {
 	DBCLIENT_TRANSACTION_BEGIN() {
 		addTriggerInfoBare(*triggerInfo);
 	} DBCLIENT_TRANSACTION_END();
 }
 
-void DBClientAsura::addTriggerInfoList(const TriggerInfoList &triggerInfoList)
+void DBClientHatohol::addTriggerInfoList(const TriggerInfoList &triggerInfoList)
 {
 	TriggerInfoListConstIterator it = triggerInfoList.begin();
 	DBCLIENT_TRANSACTION_BEGIN() {
@@ -499,7 +499,7 @@ void DBClientAsura::addTriggerInfoList(const TriggerInfoList &triggerInfoList)
 	} DBCLIENT_TRANSACTION_END();
 }
 
-void DBClientAsura::getTriggerInfoList(TriggerInfoList &triggerInfoList)
+void DBClientHatohol::getTriggerInfoList(TriggerInfoList &triggerInfoList)
 {
 	DBAgentSelectArg arg;
 	arg.tableName = TABLE_NAME_TRIGGERS;
@@ -543,7 +543,7 @@ void DBClientAsura::getTriggerInfoList(TriggerInfoList &triggerInfoList)
 	}
 }
 
-void DBClientAsura::setTriggerInfoList(const TriggerInfoList &triggerInfoList,
+void DBClientHatohol::setTriggerInfoList(const TriggerInfoList &triggerInfoList,
                                        uint32_t serverId)
 {
 	DBAgentDeleteArg deleteArg;
@@ -561,7 +561,7 @@ void DBClientAsura::setTriggerInfoList(const TriggerInfoList &triggerInfoList,
 	} DBCLIENT_TRANSACTION_END();
 }
 
-int DBClientAsura::getLastChangeTimeOfTrigger(uint32_t serverId)
+int DBClientHatohol::getLastChangeTimeOfTrigger(uint32_t serverId)
 {
 	DBAgentSelectExArg arg;
 	arg.tableName = TABLE_NAME_TRIGGERS;
@@ -587,14 +587,14 @@ int DBClientAsura::getLastChangeTimeOfTrigger(uint32_t serverId)
 	return ItemDataUtils::getInt(lastTime);
 }
 
-void DBClientAsura::addEventInfo(EventInfo *eventInfo)
+void DBClientHatohol::addEventInfo(EventInfo *eventInfo)
 {
 	DBCLIENT_TRANSACTION_BEGIN() {
 		addEventInfoBare(*eventInfo);
 	} DBCLIENT_TRANSACTION_END();
 }
 
-void DBClientAsura::addEventInfoList(const EventInfoList &eventInfoList)
+void DBClientHatohol::addEventInfoList(const EventInfoList &eventInfoList)
 {
 	EventInfoListConstIterator it = eventInfoList.begin();
 	DBCLIENT_TRANSACTION_BEGIN() {
@@ -603,7 +603,7 @@ void DBClientAsura::addEventInfoList(const EventInfoList &eventInfoList)
 	} DBCLIENT_TRANSACTION_END();
 }
 
-void DBClientAsura::getEventInfoList(EventInfoList &eventInfoList)
+void DBClientHatohol::getEventInfoList(EventInfoList &eventInfoList)
 {
 	const ColumnDef &eventsServerId =
 	  COLUMN_DEF_EVENTS[IDX_EVENTS_SERVER_ID];
@@ -696,7 +696,7 @@ void DBClientAsura::getEventInfoList(EventInfoList &eventInfoList)
 	}
 }
 
-void DBClientAsura::setEventInfoList(const EventInfoList &eventInfoList,
+void DBClientHatohol::setEventInfoList(const EventInfoList &eventInfoList,
                                      uint32_t serverId)
 {
 	DBAgentDeleteArg deleteArg;
@@ -714,7 +714,7 @@ void DBClientAsura::setEventInfoList(const EventInfoList &eventInfoList,
 	} DBCLIENT_TRANSACTION_END();
 }
 
-uint64_t DBClientAsura::getLastEventId(uint32_t serverId)
+uint64_t DBClientHatohol::getLastEventId(uint32_t serverId)
 {
 	DBAgentSelectExArg arg;
 	arg.tableName = TABLE_NAME_EVENTS;
@@ -738,14 +738,14 @@ uint64_t DBClientAsura::getLastEventId(uint32_t serverId)
 	return ItemDataUtils::getUint64(lastId);
 }
 
-void DBClientAsura::addItemInfo(ItemInfo *itemInfo)
+void DBClientHatohol::addItemInfo(ItemInfo *itemInfo)
 {
 	DBCLIENT_TRANSACTION_BEGIN() {
 		addItemInfoBare(*itemInfo);
 	} DBCLIENT_TRANSACTION_END();
 }
 
-void DBClientAsura::addItemInfoList(const ItemInfoList &itemInfoList)
+void DBClientHatohol::addItemInfoList(const ItemInfoList &itemInfoList)
 {
 	ItemInfoListConstIterator it = itemInfoList.begin();
 	DBCLIENT_TRANSACTION_BEGIN() {
@@ -754,7 +754,7 @@ void DBClientAsura::addItemInfoList(const ItemInfoList &itemInfoList)
 	} DBCLIENT_TRANSACTION_END();
 }
 
-void DBClientAsura::getItemInfoList(ItemInfoList &itemInfoList)
+void DBClientHatohol::getItemInfoList(ItemInfoList &itemInfoList)
 {
 	DBAgentSelectArg arg;
 	arg.tableName = TABLE_NAME_ITEMS;
@@ -799,12 +799,12 @@ void DBClientAsura::getItemInfoList(ItemInfoList &itemInfoList)
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
-void DBClientAsura::resetDBInitializedFlags(void)
+void DBClientHatohol::resetDBInitializedFlags(void)
 {
 	PrivateContext::initialized = false;
 }
 
-void DBClientAsura::prepareSetupFunction(void)
+void DBClientHatohol::prepareSetupFunction(void)
 {
 	static const DBSetupTableInfo DB_TABLE_INFO[] = {
 	{
@@ -825,16 +825,16 @@ void DBClientAsura::prepareSetupFunction(void)
 	sizeof(DB_TABLE_INFO) / sizeof(DBSetupTableInfo);
 
 	static const DBSetupFuncArg DB_SETUP_FUNC_ARG = {
-		ASURA_DB_VERSION,
+		HATOHOL_DB_VERSION,
 		NUM_TABLE_INFO,
 		DB_TABLE_INFO,
 	};
 
-	DBAgent::addSetupFunction(DB_DOMAIN_ID_ASURA,
+	DBAgent::addSetupFunction(DB_DOMAIN_ID_HATOHOL,
 	                          dbSetupFunc, (void *)&DB_SETUP_FUNC_ARG);
 }
 
-void DBClientAsura::addTriggerInfoBare(const TriggerInfo &triggerInfo)
+void DBClientHatohol::addTriggerInfoBare(const TriggerInfo &triggerInfo)
 {
 	string condition = StringUtils::sprintf
 	  ("server_id=%d and id=%"PRIu64, triggerInfo.serverId, triggerInfo.id);
@@ -891,7 +891,7 @@ void DBClientAsura::addTriggerInfoBare(const TriggerInfo &triggerInfo)
 	}
 }
 
-void DBClientAsura::addEventInfoBare(const EventInfo &eventInfo)
+void DBClientHatohol::addEventInfoBare(const EventInfo &eventInfo)
 {
 	string condition = StringUtils::sprintf
 	  ("server_id=%d and id=%"PRIu64, eventInfo.serverId, eventInfo.id);
@@ -955,7 +955,7 @@ void DBClientAsura::addEventInfoBare(const EventInfo &eventInfo)
 	}
 }
 
-void DBClientAsura::addItemInfoBare(const ItemInfo &itemInfo)
+void DBClientHatohol::addItemInfoBare(const ItemInfo &itemInfo)
 {
 	string condition = StringUtils::sprintf("server_id=%d and id=%"PRIu64,
 	                                        itemInfo.serverId, itemInfo.id);

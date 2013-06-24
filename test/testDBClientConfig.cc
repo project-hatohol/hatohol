@@ -1,7 +1,7 @@
 #include <cppcutter.h>
 #include <cutter.h>
 
-#include "Asura.h"
+#include "Hatohol.h"
 #include "DBClientConfig.h"
 #include "ConfigManager.h"
 #include "Helpers.h"
@@ -48,7 +48,7 @@ static string makeExpectedOutput(MonitoringServerInfo *serverInfo)
 void setup(void)
 {
 	deleteDBClientDB(DB_DOMAIN_ID_CONFIG);
-	asuraInit();
+	hatoholInit();
 	deleteDBClientDB(DB_DOMAIN_ID_CONFIG);
 }
 

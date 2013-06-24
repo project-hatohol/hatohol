@@ -2,7 +2,7 @@
 #define DBClientTest_h
 
 #include "DBClientConfig.h"
-#include "DBClientAsura.h"
+#include "DBClientHatohol.h"
 
 extern MonitoringServerInfo serverInfo[];
 extern size_t NumServerInfo;

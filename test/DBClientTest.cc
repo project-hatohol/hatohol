@@ -171,6 +171,6 @@ uint64_t findLastEventId(uint32_t serverId)
 		}
 	}
 	if (!found)
-		return DBClientAsura::EVENT_NOT_FOUND;
+		return DBClientHatohol::EVENT_NOT_FOUND;
 	return maxId;
 }

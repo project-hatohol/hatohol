@@ -1,4 +1,4 @@
-/* Asura
+/* Hatohol
    Copyright (C) 2013 MIRACLE LINUX CORPORATION
  
    This program is free software: you can redistribute it and/or modify
@@ -19,7 +19,7 @@
 #define DBClientZabbix_h
 
 #include "DBClient.h"
-#include "DBClientAsura.h"
+#include "DBClientHatohol.h"
 
 class DBClientZabbix : public DBClient {
 public:
@@ -36,12 +36,12 @@ public:
 	static void reset(void);
 	static DBDomainId getDBDomainId(int zabbixServerId);
 	static void resetDBInitializedFlags(void);
-	static void transformEventsToAsuraFormat(EventInfoList &eventInfoList,
+	static void transformEventsToHatoholFormat(EventInfoList &eventInfoList,
 	                                         const ItemTablePtr events,
 	                                         uint32_t serverId);
 	static bool transformEventItemGroupToEventInfo(EventInfo &eventInfo,
 	                                               const ItemGroup *event);
-	static void transformItemsToAsuraFormat(ItemInfoList &eventInfoList,
+	static void transformItemsToHatoholFormat(ItemInfoList &eventInfoList,
 	                                        const ItemTablePtr events,
 	                                        uint32_t serverId);
 	static bool transformItemItemGroupToItemInfo(ItemInfo &itemInfo,
@@ -58,8 +58,8 @@ public:
 	void addEventsRaw2_0(ItemTablePtr tablePtr);
 	void addApplicationsRaw2_0(ItemTablePtr tablePtr);
 
-	void getTriggersAsAsuraFormat(TriggerInfoList &triggerInfoList);
-	void getEventsAsAsuraFormat(EventInfoList &eventInfoList);
+	void getTriggersAsHatoholFormat(TriggerInfoList &triggerInfoList);
+	void getEventsAsHatoholFormat(EventInfoList &eventInfoList);
 
 	/**
 	 * get the last (biggest) event ID in the database.
@@ -109,7 +109,7 @@ protected:
 	  const ItemGroup *itemGroup,
 	  const string &tableName,
 	  size_t numColumns, const ColumnDef *columnDefs);
-	void makeSelectExArgForTriggerAsAsuraFormat(void);
+	void makeSelectExArgForTriggerAsHatoholFormat(void);
 
 	bool isRecordExisting(
 	  const ItemGroup *itemGroup, const string &tableName,

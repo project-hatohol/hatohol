@@ -1,4 +1,4 @@
-/* Asura
+/* Hatohol
    Copyright (C) 2013 MIRACLE LINUX CORPORATION
  
    This program is free software: you can redistribute it and/or modify
@@ -43,7 +43,7 @@ protected:
 	void getItem(void);
 
 	// virtual methods
-	virtual gpointer mainThread(AsuraThreadArg *arg);
+	virtual gpointer mainThread(HatoholThreadArg *arg);
 	virtual bool mainThreadOneProc(void);
 
 private:

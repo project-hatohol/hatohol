@@ -1,12 +1,12 @@
-sbin_PROGRAMS = asura
-asura_SOURCES = main.cc
+sbin_PROGRAMS = hatohol
+hatohol_SOURCES = main.cc
 
-lib_LTLIBRARIES = libasura.la
-libasura_la_SOURCES = \
-	Asura.cc AsuraThreadBase.cc AsuraException.cc \
+lib_LTLIBRARIES = libhatohol.la
+libhatohol_la_SOURCES = \
+	Hatohol.cc HatoholThreadBase.cc HatoholException.cc \
 	ConfigManager.cc DBAgent.cc DBAgentFactory.cc \
 	DBAgentSQLite3.cc DBAgentMySQL.cc \
-	DBClient.cc DBClientConfig.cc DBClientAsura.cc DBClientZabbix.cc \
+	DBClient.cc DBClientConfig.cc DBClientHatohol.cc DBClientZabbix.cc \
 	Utils.cc FaceBase.cc FaceMySQL.cc FaceMySQLWorker.cc \
 	FaceRest.cc \
 	SQLProcessorTypes.cc SQLProcessorException.cc SQLUtils.cc \
@@ -36,4 +36,4 @@ AM_LDFLAGS = -lrt \
 	$(MLPL_LIBS) $(GLIB_LIBS) $(GTHREAD_LIBS) $(GIO_LIBS) \
 	$(LIBSOUP_LIBS) $(JSON_GLIB_LIBS) $(SQLITE3_LIBS) $(MYSQL_LIBS)
 
-asura_LDADD = libasura.la
+hatohol_LDADD = libhatohol.la

@@ -1,4 +1,4 @@
-/* Asura
+/* Hatohol
    Copyright (C) 2013 MIRACLE LINUX CORPORATION
  
    This program is free software: you can redistribute it and/or modify
@@ -26,7 +26,7 @@ using namespace std;
 #include <cstring>
 #include "SQLProcessorSelect.h"
 #include "SQLProcessorException.h"
-#include "AsuraException.h"
+#include "HatoholException.h"
 #include "ItemEnum.h"
 #include "SQLUtils.h"
 #include "Utils.h"
@@ -322,13 +322,13 @@ public:
 	{
 		if (m_columnInfo->columnType !=
 		    SQLColumnInfo::COLUMN_TYPE_NORMAL) {
-			THROW_ASURA_EXCEPTION(
+			THROW_HATOHOL_EXCEPTION(
 			  "m_columnInfo->columnType(%d) != TYPE_NORMAL.",
 			  m_columnInfo->columnType);
 		}
 		ItemId itemId = m_columnInfo->columnDef->itemId;
 		if (!m_columnInfo->currTargetItemGroupAddr) {
-			THROW_ASURA_EXCEPTION(
+			THROW_HATOHOL_EXCEPTION(
 			  "m_columnInfo->currTargetItemGroupAddr: NULL");
 		}
 		ItemGroupPtr &itemGroupPtr =
@@ -363,7 +363,7 @@ private:
 		ColumnNameAccessInfoMapConstIterator it =
 		  columnAccessInfoMap.find(m_columnInfo->baseName);
 		if (it == columnAccessInfoMap.end()) {
-			THROW_ASURA_EXCEPTION(
+			THROW_HATOHOL_EXCEPTION(
 			  "Not found: %s in columnAccessInfoMap",
 		          m_columnInfo->baseName.c_str());
 		}
@@ -495,7 +495,7 @@ void SQLProcessorSelect::init(void)
 	size_t size =
 	  sizeof(PrivateContext::selectSubParsers) / sizeof(SelectSubParser);
 	if (size != NUM_SELECT_PARSING_SECTION) {
-		THROW_ASURA_EXCEPTION(
+		THROW_HATOHOL_EXCEPTION(
 		  "sizeof(m_selectSubParsers) is invalid: "
 		  "(expcect/actual: %d/%d).",
 		  NUM_SELECT_PARSING_SECTION, size);
@@ -670,7 +670,7 @@ void SQLProcessorSelect::parseSelectStatement(void)
 
 		// parse each component
 		if (m_ctx->section >= NUM_SELECT_PARSING_SECTION) {
-			THROW_ASURA_EXCEPTION(
+			THROW_HATOHOL_EXCEPTION(
 			  "section(%d) >= NUM_SELECT_PARSING_SECTION\n",
 			  m_ctx->section);
 		}
@@ -929,7 +929,7 @@ void SQLProcessorSelect::makeItemTables(void)
 	SQLTableElementList &tableElemList =
 	  selectInfo->fromParser.getTableElementList();
 	if (tableElemList.size() != tables.size()) {
-		THROW_ASURA_EXCEPTION(
+		THROW_HATOHOL_EXCEPTION(
 		  "tableElemList.size() != tables.size() (%zd, %zd)",
 		  tableElemList.size(), tables.size());
 	}
@@ -989,7 +989,7 @@ void SQLProcessorSelect::doJoinWithFromParser(void)
 			// So nothing to do.
 			return;
 		} else {
-			THROW_ASURA_EXCEPTION(
+			THROW_HATOHOL_EXCEPTION(
 			  "Not implemented: %s", __PRETTY_FUNCTION__);
 		}
 	}
@@ -1127,7 +1127,7 @@ bool SQLProcessorSelect::makeTextRows(const ItemGroup *itemGroup,
 		  selectInfo->outputColumnVector[i];
 		const ItemDataPtr itemPtr = outputColumn.getItem(itemGroup);
 		if (!itemPtr.hasData()) {
-			THROW_ASURA_EXCEPTION(
+			THROW_HATOHOL_EXCEPTION(
 			  "Failed to get item data: index: %d\n", i);
 		}
 		if (!doOutput)

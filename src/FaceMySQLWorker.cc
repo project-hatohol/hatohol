@@ -1,4 +1,4 @@
-/* Asura
+/* Hatohol
    Copyright (C) 2013 MIRACLE LINUX CORPORATION
  
    This program is free software: you can redistribute it and/or modify
@@ -158,7 +158,7 @@ FaceMySQLWorker::~FaceMySQLWorker()
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
-gpointer FaceMySQLWorker::mainThread(AsuraThreadArg *arg)
+gpointer FaceMySQLWorker::mainThread(HatoholThreadArg *arg)
 {
 	MLPL_DBG("%s\n", __PRETTY_FUNCTION__);
 
@@ -829,7 +829,7 @@ bool FaceMySQLWorker::querySelectVersionComment(ParsableString &query)
 {
 	// [REF] http://dev.mysql.com/doc/internals/en/text-protocol.html#packet-COM_QUERY
 
-	static const char VERSION_COMMENT[] = "ASURA";
+	static const char VERSION_COMMENT[] = "HATOHOL";
 
 	// Number of columns
 	int numColum = 1;

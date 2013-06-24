@@ -1,4 +1,4 @@
-/* Asura
+/* Hatohol
    Copyright (C) 2013 MIRACLE LINUX CORPORATION
  
    This program is free software: you can redistribute it and/or modify
@@ -232,7 +232,7 @@ void SQLFormulaParser::setFunctionParserMap(FunctionParserMap *fncParserMap)
 FormulaVariable *SQLFormulaParser::makeFormulaVariable(string &name)
 {
 	if (!m_columnDataGetterFactory)
-		THROW_ASURA_EXCEPTION("m_columnDataGetterFactory: NULL.");
+		THROW_HATOHOL_EXCEPTION("m_columnDataGetterFactory: NULL.");
 	FormulaVariableDataGetter *dataGetter =
 	  (*m_columnDataGetterFactory)(name, m_columnDataGetterFactoryPriv);
 	FormulaVariable *formulaVariable =
@@ -317,7 +317,7 @@ void SQLFormulaParser::insertElement(FormulaElement *formulaElement)
 		if (!right) {
 			string tree;
 			m_formula->getTreeInfo(tree);
-			THROW_ASURA_EXCEPTION(
+			THROW_HATOHOL_EXCEPTION(
 			  "targetElem->getRightHand(): NULL, targetElem: %p\n"
 			  "%s",
 			  targetElem, tree.c_str());
@@ -333,7 +333,7 @@ void SQLFormulaParser::insertElement(FormulaElement *formulaElement)
 		} else if (targetParent->getRightHand() != targetElem) {
 			string tree;
 			m_formula->getTreeInfo(tree);
-			THROW_ASURA_EXCEPTION(
+			THROW_HATOHOL_EXCEPTION(
 			  "targetParent->getRightHand(): [%p] != "
 			  "targetElement [%p]\n%s",
 			  targetParent->getRightHand(), targetElem,
@@ -363,13 +363,13 @@ void SQLFormulaParser::insertAsRightHand(FormulaElement *formulaElement)
 
 	if (!currElement->getLeftHand()) {
 		currElement->getRootElement()->getTreeInfo(treeInfo);
-		THROW_ASURA_EXCEPTION("Left hand element: NULL, %p.\n%s",
+		THROW_HATOHOL_EXCEPTION("Left hand element: NULL, %p.\n%s",
 		                      formulaElement, treeInfo.c_str());
 	}
 
 	if (currElement->getRightHand()) {
 		currElement->getRootElement()->getTreeInfo(treeInfo);
-		THROW_ASURA_EXCEPTION("Righthand element: NOT NULL, %p.\n%s",
+		THROW_HATOHOL_EXCEPTION("Righthand element: NOT NULL, %p.\n%s",
 		                      formulaElement, treeInfo.c_str());
 	}
 
@@ -398,7 +398,7 @@ void SQLFormulaParser::insertAsHand(FormulaElement *formulaElement)
 
 	string treeInfo;
 	formulaElement->getRootElement()->getTreeInfo(treeInfo);
-	THROW_ASURA_EXCEPTION("Both hands are not NULL: %p.\n%s",
+	THROW_HATOHOL_EXCEPTION("Both hands are not NULL: %p.\n%s",
 	                      formulaElement, treeInfo.c_str());
 }
 

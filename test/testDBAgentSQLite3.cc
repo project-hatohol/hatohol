@@ -6,7 +6,7 @@
 using namespace mlpl;
 
 #include "DBAgentSQLite3.h"
-#include "AsuraException.h"
+#include "HatoholException.h"
 #include "Helpers.h"
 #include "ConfigManager.h"
 #include "DBAgentTest.h"
@@ -171,10 +171,10 @@ void setup(void)
 // ---------------------------------------------------------------------------
 void test_dbPathByEnv(void)
 {
-	const char *dbDir = getenv(ConfigManager::ASURA_DB_DIR_ENV_VAR_NAME);
+	const char *dbDir = getenv(ConfigManager::HATOHOL_DB_DIR_ENV_VAR_NAME);
 	if (!dbDir) {
 		cut_omit("Not set: %s", 
-	                 ConfigManager::ASURA_DB_DIR_ENV_VAR_NAME);
+	                 ConfigManager::HATOHOL_DB_DIR_ENV_VAR_NAME);
 	}
 	cppcut_assert_equal(0, strncmp(dbDir, g_dbPath.c_str(), strlen(dbDir)));
 }
