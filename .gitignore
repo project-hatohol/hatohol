@@ -22,7 +22,7 @@ src/.libs/
 src/*.swp
 src/Makefile
 src/Makefile.in
-src/asura
+src/hatohol
 src/*.o
 src/*.lo
 src/*.la
@@ -34,4 +34,15 @@ test/*.swp
 test/*.o
 test/*.lo
 test/*.la
+test/zabbix-api-response-collector
+test/fixtures/.deps/
+test/fixtures/.libs/
+test/fixtures/FooTable.db
+test/fixtures/mkTestDB
+test/fixtures/testDatabase-hatohol.db
+test/fixtures/*.o
+tools/.deps/
+tools/.libs/
+tools/hatohol-config-db-creator
+tools/hatohol-config-db-creator.o
 touch
