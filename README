@@ -25,23 +25,54 @@ Supported platforms
 ==============================================
 Required libraries
 ==============================================
-- MLPL (https://github.com/miraclelinux/mlpl)
 - sqlite3 >= 3.6.0 (https://www.sqlite.org/)
 - MySQL
 - libsoup >= 2.22 (https://live.gnome.org/LibSoup)
 - json-glib >= 0.12.0 (https://live.gnome.org/JsonGlib/)
   (CentOS and EPEL do not contain json-glib.)
+- MLPL (https://github.com/miraclelinux/mlpl)
+  (Currently no distribution contains it)
 
-==============================================
-How to build
-==============================================
-First, you need to install MLPL (https://github.com/miraclelinux/mlpl)
-Then input the following commands.
+Example to install required libraries on CentOS 6.4
+---------------------------------------------------
+First, you need to install development tools to build Asura and some required
+packages
+
+# yum groupinstall "Development Tools"
+
+You can install sqlite3, MySQL and libsoup by following command:
+
+# yum install sqlite-devel mysql-devel libsoup-devel
+
+To install json-glib and MLPL, you need to get source packages and build them.
+
+Getting json-glib:
+$ wget http://ftp.gnome.org/pub/GNOME/sources/json-glib/0.12/json-glib-0.12.6.tar.bz2
+$ tar xvfj json-glib-0.12.6.tar.bz2
+
+Getting MLPL:
+$ git clone https://github.com/miraclelinux/mlpl.git
+
+You can build & install json-glib and MLPL by following commands:
 
 $ ./autogen.sh
 $ ./configure
 $ make
-$ sudo make install
+$ su
+# make install
+# /sbin/ldconfig
+
+==============================================
+How to build Asura
+==============================================
+First, you need to install required libraries.
+Then run the following commands to install Asura:
+
+$ ./autogen.sh
+$ ./configure
+$ make
+$ su
+# make install
 
 ==============================================
 How to start
