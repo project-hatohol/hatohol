@@ -1,5 +1,5 @@
 #include <cppcutter.h>
-#include "Asura.h"
+#include "Hatohol.h"
 #include "FaceRest.h"
 #include "Helpers.h"
 #include "JsonParserAgent.h"
@@ -11,7 +11,7 @@ namespace testFaceRest {
 
 static const unsigned int TEST_PORT = 53194;
 static const char *TEST_DB_CONFIG_NAME = "testDatabase-config.db";
-static const char *TEST_DB_ASURA_NAME = "testDatabase-asura.db";
+static const char *TEST_DB_HATOHOL_NAME = "testDatabase-hatohol.db";
 
 static FaceRest *g_faceRest = NULL;
 static JsonParserAgent *g_parser = NULL;
@@ -19,10 +19,10 @@ static JsonParserAgent *g_parser = NULL;
 static void startFaceRest(void)
 {
 	string dbPathConfig = getFixturesDir() + TEST_DB_CONFIG_NAME;
-	string dbPathAsura  = getFixturesDir() + TEST_DB_ASURA_NAME;
+	string dbPathHatohol  = getFixturesDir() + TEST_DB_HATOHOL_NAME;
 	// TODO: remove the direct call of DBAgentSQLite3's API.
 	DBAgentSQLite3::defineDBPath(DB_DOMAIN_ID_CONFIG, dbPathConfig);
-	DBAgentSQLite3::defineDBPath(DB_DOMAIN_ID_ASURA, dbPathAsura);
+	DBAgentSQLite3::defineDBPath(DB_DOMAIN_ID_HATOHOL, dbPathHatohol);
 
 	CommandLineArg arg;
 	arg.push_back("--face-rest-port");
@@ -289,7 +289,7 @@ static void _assertItems(const string &path, const string &callbackName = "")
 
 void setup(void)
 {
-	asuraInit();
+	hatoholInit();
 }
 
 void teardown(void)
@@ -297,7 +297,7 @@ void teardown(void)
 	if (g_faceRest) {
 		try {
 			g_faceRest->stop();
-		} catch (const AsuraException &e) {
+		} catch (const HatoholException &e) {
 			printf("Got exception: %s\n",
 			       e.getFancyMessage().c_str());
 		}

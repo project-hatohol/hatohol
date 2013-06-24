@@ -1,4 +1,4 @@
-/* Asura
+/* Hatohol
    Copyright (C) 2013 MIRACLE LINUX CORPORATION
  
    This program is free software: you can redistribute it and/or modify
@@ -23,7 +23,7 @@
 #include "ItemEnum.h"
 #include "VirtualDataStoreZabbixMacro.h"
 #include "DBClientConfig.h"
-#include "DBClientAsura.h"
+#include "DBClientHatohol.h"
 
 MutexLock    VirtualDataStoreZabbix::m_mutex;
 VirtualDataStoreZabbix *VirtualDataStoreZabbix::m_instance = NULL;
@@ -75,14 +75,14 @@ void VirtualDataStoreZabbix::start(void)
 
 void VirtualDataStoreZabbix::getTriggerList(TriggerInfoList &triggerList)
 {
-	DBClientAsura dbAsura;
-	dbAsura.getTriggerInfoList(triggerList);
+	DBClientHatohol dbHatohol;
+	dbHatohol.getTriggerInfoList(triggerList);
 }
 
 void VirtualDataStoreZabbix::getEventList(EventInfoList &eventList)
 {
-	DBClientAsura dbAsura;
-	dbAsura.getEventInfoList(eventList);
+	DBClientHatohol dbHatohol;
+	dbHatohol.getEventInfoList(eventList);
 }
 
 // ---------------------------------------------------------------------------
@@ -131,7 +131,7 @@ ItemTablePtr VirtualDataStoreZabbix::getFunctions(void)
 		// return on the first time (here is an experimental)
 		return dataStoreZabbix->getFunctions();
 	}
-	THROW_ASURA_EXCEPTION("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	THROW_HATOHOL_EXCEPTION("Not implemented: %s\n", __PRETTY_FUNCTION__);
 	return ItemTablePtr();
 }
 
@@ -146,7 +146,7 @@ ItemTablePtr VirtualDataStoreZabbix::getItems(void)
 		// return on the first time (here is an experimental)
 		return dataStoreZabbix->getItems();
 	}
-	THROW_ASURA_EXCEPTION("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	THROW_HATOHOL_EXCEPTION("Not implemented: %s\n", __PRETTY_FUNCTION__);
 	return ItemTablePtr();
 }
 
@@ -161,7 +161,7 @@ ItemTablePtr VirtualDataStoreZabbix::getHosts(void)
 		// return on the first time (here is an experimental)
 		return dataStoreZabbix->getHosts();
 	}
-	THROW_ASURA_EXCEPTION("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	THROW_HATOHOL_EXCEPTION("Not implemented: %s\n", __PRETTY_FUNCTION__);
 	return ItemTablePtr();
 }
 

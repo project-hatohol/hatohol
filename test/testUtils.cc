@@ -1,7 +1,7 @@
 #include <cppcutter.h>
 #include <sys/time.h>
 #include <errno.h>
-#include "Asura.h"
+#include "Hatohol.h"
 #include "Utils.h"
 #include "Helpers.h"
 
@@ -26,7 +26,7 @@ static void _assertGetExtension(const string &path, const string &expected)
 
 void setup(void)
 {
-	asuraInit();
+	hatoholInit();
 }
 
 // ---------------------------------------------------------------------------

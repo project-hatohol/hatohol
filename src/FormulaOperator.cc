@@ -1,4 +1,4 @@
-/* Asura
+/* Hatohol
    Copyright (C) 2013 MIRACLE LINUX CORPORATION
  
    This program is free software: you can redistribute it and/or modify
@@ -17,7 +17,7 @@
 
 #include "FormulaOperator.h"
 #include "ItemEnum.h"
-#include "AsuraException.h"
+#include "HatoholException.h"
 #include "SQLProcessorSelect.h"
 #include "SQLProcessorException.h"
 

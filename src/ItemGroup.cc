@@ -1,4 +1,4 @@
-/* Asura
+/* Hatohol
    Copyright (C) 2013 MIRACLE LINUX CORPORATION
  
    This program is free software: you can redistribute it and/or modify
@@ -34,7 +34,7 @@ ItemGroup::ItemGroup(void)
 void ItemGroup::add(const ItemData *data, bool doRef)
 {
 	if (m_freeze) {
-		THROW_ASURA_EXCEPTION("Object: freezed");
+		THROW_HATOHOL_EXCEPTION("Object: freezed");
 	}
 
 	ItemDataType itemDataType = data->getItemType();
@@ -42,7 +42,7 @@ void ItemGroup::add(const ItemData *data, bool doRef)
 		size_t index = m_itemVector.size();
 		ItemDataType expectedType = m_groupType->getType(index);
 		if (expectedType != itemDataType) {
-			THROW_ASURA_EXCEPTION(
+			THROW_HATOHOL_EXCEPTION(
 			  "ItemDataType (%d) is not the expected (%d)",
 			  itemDataType, expectedType);
 		}
@@ -96,7 +96,7 @@ void ItemGroup::freeze(void)
 		MLPL_WARN("m_freeze: already set.\n");
 		return;
 	}
-	ASURA_ASSERT(!m_groupType, "m_groupType: Not NULL");
+	HATOHOL_ASSERT(!m_groupType, "m_groupType: Not NULL");
 	m_freeze = true;
 
 	m_groupType = new ItemGroupType(m_itemVector);

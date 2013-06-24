@@ -1,4 +1,4 @@
-/* Asura
+/* Hatohol
    Copyright (C) 2013 MIRACLE LINUX CORPORATION
  
    This program is free software: you can redistribute it and/or modify
@@ -54,7 +54,7 @@ FaceMySQL::~FaceMySQL()
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
-gpointer FaceMySQL::mainThread(AsuraThreadArg *arg)
+gpointer FaceMySQL::mainThread(HatoholThreadArg *arg)
 {
 	GError *error = NULL;
 	m_socket = g_socket_new(G_SOCKET_FAMILY_IPV4, G_SOCKET_TYPE_STREAM,

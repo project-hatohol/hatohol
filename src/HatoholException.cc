@@ -1,4 +1,4 @@
-/* Asura
+/* Hatohol
    Copyright (C) 2013 MIRACLE LINUX CORPORATION
  
    This program is free software: you can redistribute it and/or modify
@@ -16,24 +16,24 @@
 */
 
 #include <cstdlib>
-#include "AsuraException.h"
+#include "HatoholException.h"
 #include "Utils.h"
 
-bool AsuraException::m_saveStackTrace = false;
+bool HatoholException::m_saveStackTrace = false;
 
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
-void AsuraException::init(void)
+void HatoholException::init(void)
 {
-	char *env = getenv(ASURA_STACK_TRACE_SET_ENV);
+	char *env = getenv(HATOHOL_STACK_TRACE_SET_ENV);
 	if (!env)
 		return;
 	if (string("1") == env)
 		m_saveStackTrace = true;
 }
 
-AsuraException::AsuraException(const string &brief,
+HatoholException::HatoholException(const string &brief,
                                const char *sourceFileName, int lineNumber)
 : m_what(brief),
   m_sourceFileName(sourceFileName),
@@ -43,11 +43,11 @@ AsuraException::AsuraException(const string &brief,
 		saveStackTrace();
 }
 
-AsuraException::~AsuraException() _ASURA_NOEXCEPT
+HatoholException::~HatoholException() _HATOHOL_NOEXCEPT
 {
 }
 
-const char* AsuraException::what() const _ASURA_NOEXCEPT
+const char* HatoholException::what() const _HATOHOL_NOEXCEPT
 {
 	// The 'char' pointer this function returns may be used after this
 	// function returns in the caller. If we return
@@ -62,7 +62,7 @@ const char* AsuraException::what() const _ASURA_NOEXCEPT
 	return m_whatCache.c_str();
 }
 
-const string AsuraException::getFancyMessage(void) const
+const string HatoholException::getFancyMessage(void) const
 {
 	string msg =
 	   StringUtils::sprintf("<%s:%d> %s\n",
@@ -73,17 +73,17 @@ const string AsuraException::getFancyMessage(void) const
 	return msg;
 }
 
-const string &AsuraException::getSourceFileName(void) const
+const string &HatoholException::getSourceFileName(void) const
 {
 	return m_sourceFileName;
 }
 
-int AsuraException::getLineNumber(void) const
+int HatoholException::getLineNumber(void) const
 {
 	return m_lineNumber;
 }
 
-const string &AsuraException::getStackTrace(void) const
+const string &HatoholException::getStackTrace(void) const
 {
 	return m_stackTrace;
 }
@@ -91,14 +91,14 @@ const string &AsuraException::getStackTrace(void) const
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
-void AsuraException::saveStackTrace(void)
+void HatoholException::saveStackTrace(void)
 {
 	void *trace[128];
 	int n = backtrace(trace, sizeof(trace) / sizeof(trace[0]));
 	m_stackTrace = Utils::makeDemangledStackTraceLines(trace, n);
 }
 
-void AsuraException::setBrief(const string &brief)
+void HatoholException::setBrief(const string &brief)
 {
 	m_what = brief;
 }

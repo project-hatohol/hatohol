@@ -93,7 +93,7 @@ void test_addWhenFreezed(void)
 	bool gotException = false;
 	try {
 		x_grp->add(new ItemInt(ITEM_ID_2, -3), false);
-	} catch (const AsuraException &e) {
+	} catch (const HatoholException &e) {
 		gotException = true;
 	}
 	cppcut_assert_equal(true, gotException);

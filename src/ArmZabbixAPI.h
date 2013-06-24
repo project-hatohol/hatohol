@@ -1,4 +1,4 @@
-/* Asura
+/* Hatohol
    Copyright (C) 2013 MIRACLE LINUX CORPORATION
  
    This program is free software: you can redistribute it and/or modify
@@ -150,9 +150,9 @@ protected:
 	 */
 	void updateApplications(const ItemTable *items);
 
-	void makeAsuraTriggers(void);
-	void makeAsuraEvents(ItemTablePtr events);
-	void makeAsuraItems(ItemTablePtr events);
+	void makeHatoholTriggers(void);
+	void makeHatoholEvents(ItemTablePtr events);
+	void makeHatoholItems(ItemTablePtr events);
 
 	template<typename T>
 	void makeItemVector(vector<T> &idVector, const ItemTable *itemTable,
@@ -163,7 +163,7 @@ protected:
 	                        const ItemId itemId);
 
 	// virtual methods
-	virtual gpointer mainThread(AsuraThreadArg *arg);
+	virtual gpointer mainThread(HatoholThreadArg *arg);
 	virtual bool mainThreadOneProc(void);
 
 private:

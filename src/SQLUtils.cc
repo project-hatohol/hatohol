@@ -1,4 +1,4 @@
-/* Asura
+/* Hatohol
    Copyright (C) 2013 MIRACLE LINUX CORPORATION
  
    This program is free software: you can redistribute it and/or modify
@@ -18,7 +18,7 @@
 #include "SQLUtils.h"
 #include "SQLProcessorTypes.h"
 #include "SQLProcessorException.h"
-#include "AsuraException.h"
+#include "HatoholException.h"
 
 SQLUtils::ItemDataCreator SQLUtils::m_itemDataCreators[] =
 {
@@ -41,7 +41,7 @@ void SQLUtils::init(void)
 {
 	// check
 	if (m_numItemDataCreators != NUM_SQL_COLUMN_TYPES) {
-		THROW_ASURA_EXCEPTION(
+		THROW_HATOHOL_EXCEPTION(
 		  "The number of m_itemDataCreator is wrong: "
 		  "expected/acutual: %zd/%zd",
 		  NUM_SQL_COLUMN_TYPES, m_numItemDataCreators);
@@ -83,7 +83,7 @@ ItemDataPtr SQLUtils::createDefaultItemData(const ColumnDef *columnDef)
 {
 	string msg;
 	TRMSG(msg, "Not implemented: %s\n", __PRETTY_FUNCTION__);
-	throw AsuraException(msg);
+	throw HatoholException(msg);
 	return ItemDataPtr();
 }
 
@@ -91,7 +91,7 @@ ItemDataPtr SQLUtils::createItemData(const ColumnDef *columnDef,
                                      string &value)
 {
 	if (columnDef->type >= NUM_SQL_COLUMN_TYPES) {
-		THROW_ASURA_EXCEPTION(
+		THROW_HATOHOL_EXCEPTION(
 		  "columnDef->type: illegal value: %d, table: %s, column: %s",
 		  columnDef->type, columnDef->tableName, columnDef->columnName);
 	}
@@ -180,7 +180,7 @@ ItemDataPtr SQLUtils::createFromString(const string &str, SQLColumnType type)
 	}
 	case NUM_SQL_COLUMN_TYPES:
 	default:
-		THROW_ASURA_EXCEPTION("Unknown column type: %d\n", type);
+		THROW_HATOHOL_EXCEPTION("Unknown column type: %d\n", type);
 	}
 	return itemData;
 }

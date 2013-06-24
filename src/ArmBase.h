@@ -1,4 +1,4 @@
-/* Asura
+/* Hatohol
    Copyright (C) 2013 MIRACLE LINUX CORPORATION
  
    This program is free software: you can redistribute it and/or modify
@@ -18,10 +18,10 @@
 #ifndef ArmBase_h
 #define ArmBase_h
 
-#include "AsuraThreadBase.h"
+#include "HatoholThreadBase.h"
 #include "DBClientConfig.h"
 
-class ArmBase : public AsuraThreadBase
+class ArmBase : public HatoholThreadBase
 {
 public:
 	ArmBase(const MonitoringServerInfo &serverInfo);
@@ -38,7 +38,7 @@ protected:
 	void sleepInterruptible(int sleepTime);
 
 	// virtual methods
-	gpointer mainThread(AsuraThreadArg *arg);
+	gpointer mainThread(HatoholThreadArg *arg);
 
 	// virtual methods defined in this class
 	virtual bool mainThreadOneProc(void) = 0;

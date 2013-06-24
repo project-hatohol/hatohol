@@ -1,4 +1,4 @@
-/* Asura
+/* Hatohol
    Copyright (C) 2013 MIRACLE LINUX CORPORATION
  
    This program is free software: you can redistribute it and/or modify
@@ -24,7 +24,7 @@
 #include "DBClientConfig.h"
 
 static const int DB_DOMAIN_ID_CONFIG = 0x0010;
-static const int DB_DOMAIN_ID_ASURA  = 0x0020;
+static const int DB_DOMAIN_ID_HATOHOL  = 0x0020;
 static const int DB_DOMAIN_ID_ZABBIX = 0x1000;
 static const size_t NUM_MAX_ZABBIX_SERVERS = 100;
 // DBClintZabbix uses the number of domains by NUM_MAX_ZABBIX_SERVERS 
@@ -34,7 +34,7 @@ static const size_t NUM_MAX_ZABBIX_SERVERS = 100;
 
 class ConfigManager {
 public:
-	static const char *ASURA_DB_DIR_ENV_VAR_NAME;
+	static const char *HATOHOL_DB_DIR_ENV_VAR_NAME;
 	static ConfigManager *getInstance(void);
 
 	void addTargetServer(MonitoringServerInfo *monitoringServerInfo);

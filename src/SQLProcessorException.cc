@@ -1,4 +1,4 @@
-/* Asura
+/* Hatohol
    Copyright (C) 2013 MIRACLE LINUX CORPORATION
  
    This program is free software: you can redistribute it and/or modify
@@ -20,10 +20,10 @@
 SQLProcessorException::SQLProcessorException(const string &brief,
                                              const char *sourceFileName,
                                              int lineNumber)
-: AsuraException(brief, sourceFileName, lineNumber)
+: HatoholException(brief, sourceFileName, lineNumber)
 {
 }
 
-SQLProcessorException::~SQLProcessorException() _ASURA_NOEXCEPT
+SQLProcessorException::~SQLProcessorException() _HATOHOL_NOEXCEPT
 {
 }

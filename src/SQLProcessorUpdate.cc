@@ -1,4 +1,4 @@
-/* Asura
+/* Hatohol
    Copyright (C) 2013 MIRACLE LINUX CORPORATION
  
    This program is free software: you can redistribute it and/or modify
@@ -21,7 +21,7 @@ using namespace mlpl;
 
 #include "SQLProcessorUpdate.h"
 #include "Utils.h"
-#include "AsuraException.h"
+#include "HatoholException.h"
 #include "SQLProcessorException.h"
 #include "SQLUtils.h"
 
@@ -122,7 +122,7 @@ void SQLProcessorUpdate::init(void)
 	size_t size = sizeof(SQLProcessorUpdate::m_updateSubParsers) /
 	                sizeof(UpdateSubParser);
 	if (size != NUM_UPDATE_PARSING_SECTION) {
-		THROW_ASURA_EXCEPTION(
+		THROW_HATOHOL_EXCEPTION(
 		  "sizeof(m_updateSubParsers) is invalid: "
 		  "(expcect/actual: %d/%d).",
 		  NUM_UPDATE_PARSING_SECTION, size);
@@ -179,7 +179,7 @@ void SQLProcessorUpdate::parseUpdateStatement(SQLUpdateInfo &updateInfo)
 		
 		// parse each component
 		if (m_ctx->section >= NUM_UPDATE_PARSING_SECTION) {
-			THROW_ASURA_EXCEPTION(
+			THROW_HATOHOL_EXCEPTION(
 			  "section(%d) >= NUM_UPDATE_PARSING_SECTION",
 			  m_ctx->section);
 		}

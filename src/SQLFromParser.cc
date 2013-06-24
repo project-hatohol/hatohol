@@ -1,4 +1,4 @@
-/* Asura
+/* Hatohol
    Copyright (C) 2013 MIRACLE LINUX CORPORATION
  
    This program is free software: you can redistribute it and/or modify
@@ -90,7 +90,7 @@ void SQLFromParser::init(void)
 {
 	int m_numSubParsers = sizeof(m_subParsers) /  sizeof(SubParser);
 	if (m_numSubParsers != NUM_PARSING_STAT) {
-		THROW_ASURA_EXCEPTION(
+		THROW_HATOHOL_EXCEPTION(
 		  "The number of m_numSubParsers is wrong: "
 		  "expected/acutual: %zd/%zd",
 		  NUM_PARSING_STAT, m_numSubParsers);
@@ -189,7 +189,7 @@ ItemTablePtr SQLFromParser::doJoin(FormulaElement *whereFormula)
 void SQLFromParser::add(const string &word, const string &wordLower)
 {
 	if (m_ctx->state >= NUM_PARSING_STAT)
-		THROW_ASURA_EXCEPTION( "Invalid state: %d", m_ctx->state);
+		THROW_HATOHOL_EXCEPTION( "Invalid state: %d", m_ctx->state);
 	SubParser subParser = m_subParsers[m_ctx->state];
 	(this->*subParser)(word, wordLower);
 }

@@ -1,4 +1,4 @@
-/* Asura
+/* Hatohol
    Copyright (C) 2013 MIRACLE LINUX CORPORATION
  
    This program is free software: you can redistribute it and/or modify
@@ -20,7 +20,7 @@ using namespace mlpl;
 
 #include "FaceRest.h"
 #include "JsonBuilderAgent.h"
-#include "AsuraException.h"
+#include "HatoholException.h"
 #include "ConfigManager.h"
 #include "VirtualDataStoreZabbix.h"
 
@@ -116,19 +116,19 @@ FaceRest::~FaceRest()
 
 void FaceRest::stop(void)
 {
-	ASURA_ASSERT(m_soupServer, "m_soupServer: NULL");
+	HATOHOL_ASSERT(m_soupServer, "m_soupServer: NULL");
 	soup_server_quit(m_soupServer);
 
-	AsuraThreadBase::stop();
+	HatoholThreadBase::stop();
 }
 
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
-gpointer FaceRest::mainThread(AsuraThreadArg *arg)
+gpointer FaceRest::mainThread(HatoholThreadArg *arg)
 {
 	m_soupServer = soup_server_new(SOUP_SERVER_PORT, m_port, NULL);
-	ASURA_ASSERT(m_soupServer, "failed: soup_server_new: %u\n", m_port);
+	HATOHOL_ASSERT(m_soupServer, "failed: soup_server_new: %u\n", m_port);
 	soup_server_add_handler(m_soupServer, NULL, handlerDefault, this, NULL);
 	soup_server_add_handler(m_soupServer, "/hello.html",
 	                        launchHandlerInTryBlock,
@@ -190,12 +190,12 @@ string FaceRest::getJsonpCallbackName(GHashTable *query, HandlerArg *arg)
 		return "";
 	gpointer value = g_hash_table_lookup(query, "callback");
 	if (!value)
-		THROW_ASURA_EXCEPTION("Not found parameter: callback");
+		THROW_HATOHOL_EXCEPTION("Not found parameter: callback");
 
 	const char *callbackName = (const char *)value;
 	string errMsg;
 	if (!Utils::validateJSMethodName(callbackName, errMsg)) {
-		THROW_ASURA_EXCEPTION(
+		THROW_HATOHOL_EXCEPTION(
 		  "Invalid callback name: %s", errMsg.c_str());
 	}
 	return callbackName;
@@ -256,14 +256,14 @@ void FaceRest::launchHandlerInTryBlock
 
 	// MIME
 	MimeTypeMapIterator mimeIt = g_mimeTypeMap.find(arg.formatType);
-	ASURA_ASSERT(
+	HATOHOL_ASSERT(
 	  mimeIt != g_mimeTypeMap.end(),
 	  "Invalid formatType: %d, %s", arg.formatType, extension.c_str());
 	arg.mimeType = mimeIt->second;
 
 	try {
 		(*handler)(server, msg, path, query, client, &arg);
-	} catch (const AsuraException &e) {
+	} catch (const HatoholException &e) {
 		MLPL_INFO("Got Exception: %s\n", e.getFancyMessage().c_str());
 		replyError(msg, e.getFancyMessage());
 	}
@@ -276,7 +276,7 @@ void FaceRest::handlerHelloPage
 	string response;
 	const char *pageTemplate =
 	  "<html>"
-	  "ASURA ver. %s"
+	  "HATOHOL Server ver. %s"
 	  "</html>";
 	response = StringUtils::sprintf(pageTemplate, PACKAGE_VERSION);
 	soup_message_body_append(msg->response_body, SOUP_MEMORY_COPY,
@@ -445,8 +445,8 @@ void FaceRest::handlerGetItems
 	string jsonpCallbackName = getJsonpCallbackName(query, arg);
 
 	ItemInfoList itemList;
-	DBClientAsura dbAsura;
-	dbAsura.getItemInfoList(itemList);
+	DBClientHatohol dbHatohol;
+	dbHatohol.getItemInfoList(itemList);
 
 	JsonBuilderAgent agent;
 	agent.startObject();

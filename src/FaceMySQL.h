@@ -1,4 +1,4 @@
-/* Asura
+/* Hatohol
    Copyright (C) 2013 MIRACLE LINUX CORPORATION
  
    This program is free software: you can redistribute it and/or modify
@@ -33,7 +33,7 @@ class FaceMySQL : public FaceBase {
 	size_t parseCmdArgPort(CommandLineArg &cmdArg, size_t idx);
 protected:
 	// virtual methods
-	gpointer mainThread(AsuraThreadArg *arg);
+	gpointer mainThread(HatoholThreadArg *arg);
 
 public:
 	FaceMySQL(CommandLineArg &cmdArg);

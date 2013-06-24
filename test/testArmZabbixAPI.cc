@@ -1,7 +1,7 @@
 #include <cppcutter.h>
 #include <sys/time.h>
 #include <errno.h>
-#include "Asura.h"
+#include "Hatohol.h"
 #include "ZabbixAPIEmulator.h"
 #include "ArmZabbixAPI.h"
 #include "ArmZabbixAPI-template.h"
@@ -182,7 +182,7 @@ protected:
 
 	bool defaultThreadOneProc(void)
 	{
-		THROW_ASURA_EXCEPTION("m_threadOneProc is not set.");
+		THROW_HATOHOL_EXCEPTION("m_threadOneProc is not set.");
 		return false;
 	}
 
@@ -316,7 +316,7 @@ void setup(void)
 	cppcut_assert_equal(false, g_sync.isLocked(),
 	                    cut_message("g_sync is locked."));
 
-	asuraInit();
+	hatoholInit();
 	if (!g_apiEmulator.isRunning())
 		g_apiEmulator.start(EMULATOR_PORT);
 	else

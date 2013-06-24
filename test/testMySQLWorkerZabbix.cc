@@ -27,7 +27,7 @@ gint     g_exitStatus;
 
 void setup()
 {
-	cut_pend("This test will be recreated to execute without the running asura process.");
+	cut_pend("This test will be recreated to execute without the running hatohol process.");
 }
 
 void teardown()
@@ -127,7 +127,7 @@ void test_atAtVersionComment(void)
 	const char *cmd = "select @@version_comment";
 	executeCommand(cmd);
 	NumberStringMap nsmap;
-	nsmap[1] = "ASURA";
+	nsmap[1] = "HATOHOL";
 	assertRecord(2, nsmap);
 }
 

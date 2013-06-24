@@ -5,8 +5,8 @@ using namespace mlpl;
 #include <stdarg.h>
 #include <cppcutter.h>
 #include "SQLFromParser.h"
-#include "Asura.h"
-#include "AsuraException.h"
+#include "Hatohol.h"
+#include "HatoholException.h"
 
 namespace testSQLFromParser {
 
@@ -69,7 +69,7 @@ static void _assertInputStatement(SQLFromParser &fromParser,
 			fromParser.add(word, lower);
 		}
 		fromParser.close();
-	} catch (const AsuraException &e) {
+	} catch (const HatoholException &e) {
 		cut_fail("Exception: <%s:%d> %s\n",
 		         e.getSourceFileName().c_str(), e.getLineNumber(),
 		         e.what());
@@ -103,7 +103,7 @@ void _assertTableList(const StringList &expectedNameList,
 
 void setup(void)
 {
-	asuraInit();
+	hatoholInit();
 }
 
 // ---------------------------------------------------------------------------

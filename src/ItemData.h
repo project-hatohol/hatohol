@@ -1,4 +1,4 @@
-/* Asura
+/* Hatohol
    Copyright (C) 2013 MIRACLE LINUX CORPORATION
  
    This program is free software: you can redistribute it and/or modify
@@ -32,7 +32,7 @@ using namespace mlpl;
 
 #include "UsedCountable.h"
 #include "ReadWriteLock.h"
-#include "AsuraException.h"
+#include "HatoholException.h"
 
 typedef uint64_t ItemId;
 #define PRIx_ITEM PRIx64
@@ -46,7 +46,7 @@ enum ItemDataExceptionType {
 };
 
 class ItemData;
-class ItemDataException : public AsuraException
+class ItemDataException : public HatoholException
 {
 public:
 	ItemDataException(ItemDataExceptionType type,

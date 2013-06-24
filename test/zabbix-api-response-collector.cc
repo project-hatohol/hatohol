@@ -1,7 +1,7 @@
 #include <cstdio>
 #include <cstdlib>
 
-#include "Asura.h"
+#include "Hatohol.h"
 #include "ArmZabbixAPI.h"
 
 static const int DEFAULT_PORT = 80;
@@ -167,7 +167,7 @@ int main(int argc, char *argv[])
 #ifndef GLIB_VERSION_2_36
 	g_type_init();
 #endif // GLIB_VERSION_2_36
-	asuraInit();
+	hatoholInit();
 	if (argc < 3) {
 		printUsage();
 		return EXIT_FAILURE;

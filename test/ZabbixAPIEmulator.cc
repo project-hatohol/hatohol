@@ -6,7 +6,7 @@
 #include "ZabbixAPIEmulator.h"
 #include "JsonParserAgent.h"
 #include "JsonBuilderAgent.h"
-#include "AsuraException.h"
+#include "HatoholException.h"
 #include "Helpers.h"
 
 using namespace mlpl;
@@ -155,7 +155,7 @@ void ZabbixAPIEmulator::startObject(JsonParserAgent &parser,
                                     const string &name)
 {
 	if (!parser.startObject(name)) {
-		THROW_ASURA_EXCEPTION(
+		THROW_HATOHOL_EXCEPTION(
 		  "Failed to read object: %s", name.c_str());
 	}
 }
@@ -195,14 +195,14 @@ bool ZabbixAPIEmulator::hasParameter
 	               arg.msg->request_body->length);
 	JsonParserAgent parser(request);
 	if (parser.hasError())
-		THROW_ASURA_EXCEPTION("Failed to parse: %s", request.c_str());
+		THROW_HATOHOL_EXCEPTION("Failed to parse: %s", request.c_str());
 	
 	if (!parser.startObject("params"))
 		return false;
 	string value;
-	ASURA_ASSERT(parser.read(paramName, value), "Failed to read: %s: %s",
+	HATOHOL_ASSERT(parser.read(paramName, value), "Failed to read: %s: %s",
 	             paramName.c_str(), parser.getErrorMessage());
-	ASURA_ASSERT(value == expectedValue,
+	HATOHOL_ASSERT(value == expectedValue,
 	             "value: %s: not supported (expected: %s)",
 	             value.c_str(), expectedValue.c_str());
 	return true;
@@ -225,44 +225,44 @@ void ZabbixAPIEmulator::handlerAPIDispatch(APIHandlerArg &arg)
 
 	JsonParserAgent parser(arg.msg->request_body->data);
 	if (parser.hasError()) {
-		THROW_ASURA_EXCEPTION("Error in parsing: %s",
+		THROW_HATOHOL_EXCEPTION("Error in parsing: %s",
 		                      parser.getErrorMessage());
 	}
 
 	// jsonrpc
 	string rpcVersion;
 	if (!parser.read("jsonrpc", rpcVersion))
-		THROW_ASURA_EXCEPTION("Not found: jsonrpc");
+		THROW_HATOHOL_EXCEPTION("Not found: jsonrpc");
 	if (rpcVersion != "2.0") {
-		THROW_ASURA_EXCEPTION("Invalid parameter: jsonrpc: %s",
+		THROW_HATOHOL_EXCEPTION("Invalid parameter: jsonrpc: %s",
 	                              rpcVersion.c_str());
 	}
 
 	// id
 	int64_t id;
 	if (!parser.read("id", id))
-		THROW_ASURA_EXCEPTION("Not found: id");
+		THROW_HATOHOL_EXCEPTION("Not found: id");
 	arg.id = id;
 
 	// method
 	string method;
 	if (!parser.read("method", method))
-		THROW_ASURA_EXCEPTION("Not found: method");
+		THROW_HATOHOL_EXCEPTION("Not found: method");
 
 	// auth
 	bool isNull;
 	if (!parser.isNull("auth", isNull))
-		THROW_ASURA_EXCEPTION("Not found: auth");
+		THROW_HATOHOL_EXCEPTION("Not found: auth");
 	if (isNull) {
 		if (method != "user.login")
-			THROW_ASURA_EXCEPTION("auth: empty");
+			THROW_HATOHOL_EXCEPTION("auth: empty");
 	} else {
 		string auth;
 		if (!parser.read("auth", auth))
-			THROW_ASURA_EXCEPTION("Not found: auth");
+			THROW_HATOHOL_EXCEPTION("Not found: auth");
 		set<string>::iterator it = m_ctx->authTokens.find(auth);
 		if (it == m_ctx->authTokens.end()) {
-			THROW_ASURA_EXCEPTION("Not found: auth token: %s",
+			THROW_HATOHOL_EXCEPTION("Not found: auth token: %s",
 			                      auth.c_str());
 		}
 	}
@@ -270,7 +270,7 @@ void ZabbixAPIEmulator::handlerAPIDispatch(APIHandlerArg &arg)
 	// dispatch
 	APIHandlerMapIterator it = m_ctx->apiHandlerMap.find(method);
 	if (it == m_ctx->apiHandlerMap.end())
-		THROW_ASURA_EXCEPTION("Unknown method: %s", method.c_str());
+		THROW_HATOHOL_EXCEPTION("Unknown method: %s", method.c_str());
 	APIHandler handler = it->second;
 	(this->*handler)(arg);
 }
@@ -284,7 +284,7 @@ void ZabbixAPIEmulator::APIHandlerGetWithFile
 	gboolean succeeded =
 	  g_file_get_contents(path.c_str(), &contents, &length, NULL);
 	if (!succeeded)
-		THROW_ASURA_EXCEPTION("Failed to read file: %s", path.c_str());
+		THROW_HATOHOL_EXCEPTION("Failed to read file: %s", path.c_str());
 	soup_message_body_append(arg.msg->response_body, SOUP_MEMORY_TAKE,
 	                         contents, length);
 	soup_message_set_status(arg.msg, SOUP_STATUS_OK);
@@ -319,13 +319,13 @@ void ZabbixAPIEmulator::APIHandlerItemGet(APIHandlerArg &arg)
 	               arg.msg->request_body->length);
 	JsonParserAgent parser(request);
 	if (parser.hasError())
-		THROW_ASURA_EXCEPTION("Failed to parse: %s", request.c_str());
+		THROW_HATOHOL_EXCEPTION("Failed to parse: %s", request.c_str());
 	
 	bool selectApplications = false;
 	if (parser.startObject("params")) {
 		string selectAppStr;
 		if (parser.read("selectApplications", selectAppStr)) {
-			ASURA_ASSERT(selectAppStr == "refer",
+			HATOHOL_ASSERT(selectAppStr == "refer",
 			             "selectApplications: %s: not supported",
 			             selectAppStr.c_str());
 			selectApplications = true;
@@ -344,7 +344,7 @@ void ZabbixAPIEmulator::APIHandlerItemGet(APIHandlerArg &arg)
 	gboolean succeeded =
 	  g_file_get_contents(path.c_str(), &contents, &length, NULL);
 	if (!succeeded)
-		THROW_ASURA_EXCEPTION("Failed to read file: %s", path.c_str());
+		THROW_HATOHOL_EXCEPTION("Failed to read file: %s", path.c_str());
 	soup_message_body_append(arg.msg->response_body, SOUP_MEMORY_TAKE,
 	                         contents, length);
 	soup_message_set_status(arg.msg, SOUP_STATUS_OK);
@@ -382,7 +382,7 @@ void ZabbixAPIEmulator::APIHandlerEventGet(APIHandlerArg &arg)
 		gboolean succeeded =
 		  g_file_get_contents(path.c_str(), &contents, &length, NULL);
 		if (!succeeded) {
-			THROW_ASURA_EXCEPTION(
+			THROW_HATOHOL_EXCEPTION(
 			  "Failed to read file: %s", path.c_str());
 		}
 	}
@@ -405,18 +405,18 @@ void ZabbixAPIEmulator::makeSlicedEvent(const string &path, size_t numSlices)
 	  "eventid", "source", "object", "objectid", "clock", "value",
 	  "acknowledged", "ns", "value_changed", NULL
 	};
-	ASURA_ASSERT(numSlices > 0, "numSlices: %zd", numSlices);
+	HATOHOL_ASSERT(numSlices > 0, "numSlices: %zd", numSlices);
 
 	gchar *contents;
-	ASURA_ASSERT(
+	HATOHOL_ASSERT(
 	  g_file_get_contents(path.c_str(), &contents, NULL, NULL),
 	  "Failed to read file: %s", path.c_str());
 
 	JsonParserAgent parser(contents);
 	g_free(contents);
-	ASURA_ASSERT(!parser.hasError(), "%s", parser.getErrorMessage());
+	HATOHOL_ASSERT(!parser.hasError(), "%s", parser.getErrorMessage());
 
-	ASURA_ASSERT(parser.startObject("result"),
+	HATOHOL_ASSERT(parser.startObject("result"),
 	  "%s", parser.getErrorMessage());
 	int numElements = parser.countElements();
 	size_t numAddedSlices = 0;
@@ -433,14 +433,14 @@ void ZabbixAPIEmulator::makeSlicedEvent(const string &path, size_t numSlices)
 		}
 		for (size_t j = 0; j < numData; j++, currSliceIndex++) {
 			string str;
-			ASURA_ASSERT(
+			HATOHOL_ASSERT(
 			  parser.startElement(currSliceIndex),
 			  "%s", parser.getErrorMessage());
 			JsonBuilderAgent builder;
 			builder.startObject();
 			const char **elementName = EVENT_ELEMENT_NAMES;
 			for (; *elementName; elementName++) {
-				ASURA_ASSERT(parser.read(*elementName, str),
+				HATOHOL_ASSERT(parser.read(*elementName, str),
 				  "elementName: %s", *elementName);
 				builder.add(*elementName, str);
 			}

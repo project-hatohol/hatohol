@@ -1,4 +1,4 @@
-/* Asura
+/* Hatohol
    Copyright (C) 2013 MIRACLE LINUX CORPORATION
  
    This program is free software: you can redistribute it and/or modify
@@ -24,7 +24,7 @@ using namespace std;
 #include "ItemDataPtr.h"
 #include "ItemGroupPtr.h"
 #include "ItemEnum.h"
-#include "AsuraException.h"
+#include "HatoholException.h"
 
 class ItemDataUtils {
 public:
@@ -32,9 +32,9 @@ public:
 	static ItemDataPtr createAsNumberOrString(const string &word);
 	template<typename NativeType, typename ItemDataType>
 	static const NativeType &get(const ItemData *itemData) {
-		ASURA_ASSERT(itemData, "itemData: NULL");
+		HATOHOL_ASSERT(itemData, "itemData: NULL");
 		const ItemDataType *casted = ItemDataType::cast(*itemData);
-		ASURA_ASSERT(casted, "Invalid cast: %s -> %s",
+		HATOHOL_ASSERT(casted, "Invalid cast: %s -> %s",
 		             DEMANGLED_TYPE_NAME(itemData),
 		             DEMANGLED_TYPE_NAME(ItemDataType));
 		return casted->get();
@@ -44,7 +44,7 @@ public:
 	static const NativeType &get(const ItemData *itemData) {
 		// Without bug, this is never called, because
 		//  the specilizations are is defined below.
-		THROW_ASURA_EXCEPTION("Unknown type: %d: %s",
+		THROW_HATOHOL_EXCEPTION("Unknown type: %d: %s",
 		                      itemData->getItemType(),
 		                      DEMANGLED_TYPE_NAME(itemData));
 		return *(new NativeType()); // never executed, just to build

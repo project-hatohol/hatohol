@@ -1,4 +1,4 @@
-/* Asura
+/* Hatohol
    Copyright (C) 2013 MIRACLE LINUX CORPORATION
  
    This program is free software: you can redistribute it and/or modify
@@ -20,7 +20,7 @@
 #include <MutexLock.h>
 using namespace mlpl;
 
-#include "Asura.h"
+#include "Hatohol.h"
 #include "Utils.h"
 #include "SQLUtils.h"
 #include "SQLProcessorZabbix.h"
@@ -30,10 +30,10 @@ using namespace mlpl;
 #include "SQLProcessorUpdate.h"
 #include "FaceMySQLWorker.h"
 #include "FaceRest.h"
-#include "AsuraException.h"
+#include "HatoholException.h"
 #include "DBAgentSQLite3.h"
 #include "DBClientConfig.h"
-#include "DBClientAsura.h"
+#include "DBClientHatohol.h"
 #include "DBClientZabbix.h"
 
 static MutexLock mutex;
@@ -42,10 +42,10 @@ static bool initDone = false;
 static void init(void)
 {
 	Utils::init();
-	AsuraException::init();
+	HatoholException::init();
 
 	DBAgentSQLite3::init();
-	DBClientAsura::init();
+	DBClientHatohol::init();
 	DBClientZabbix::init();
 
 	ItemData::init();
@@ -68,11 +68,11 @@ static void reset(void)
 {
 	DBAgentSQLite3::reset();
 	DBClientConfig::reset();
-	DBClientAsura::reset();
+	DBClientHatohol::reset();
 	DBClientZabbix::reset();
 }
 
-void asuraInit(void)
+void hatoholInit(void)
 {
 	mutex.lock();
 	if (!initDone) {

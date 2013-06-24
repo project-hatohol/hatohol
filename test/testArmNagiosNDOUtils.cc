@@ -1,5 +1,5 @@
 #include <cppcutter.h>
-#include "Asura.h"
+#include "Hatohol.h"
 #include "ArmNagiosNDOUtils.h"
 
 namespace testArmNagiosNDOUtils {
@@ -55,7 +55,7 @@ static void createGlobalInstance(void)
 
 void setup(void)
 {
-	asuraInit();
+	hatoholInit();
 }
 
 void teardown(void)

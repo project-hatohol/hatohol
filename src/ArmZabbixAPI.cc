@@ -1,4 +1,4 @@
-/* Asura
+/* Hatohol
    Copyright (C) 2013 MIRACLE LINUX CORPORATION
  
    This program is free software: you can redistribute it and/or modify
@@ -30,7 +30,7 @@ using namespace mlpl;
 #include "DataStoreException.h"
 #include "ItemEnum.h"
 #include "DBClientZabbix.h"
-#include "DBClientAsura.h"
+#include "DBClientHatohol.h"
 
 using namespace std;
 
@@ -49,7 +49,7 @@ struct ArmZabbixAPI::PrivateContext
 	uint64_t       triggerid;
 	VariableItemTablePtr functionsTablePtr;
 	DBClientZabbix dbClientZabbix;
-	DBClientAsura  dbClientAsura;
+	DBClientHatohol  dbClientHatohol;
 
 	// constructors
 	PrivateContext(const MonitoringServerInfo &serverInfo)
@@ -891,7 +891,7 @@ void ArmZabbixAPI::updateApplications(const ItemTable *items)
 //
 // virtual methods
 //
-gpointer ArmZabbixAPI::mainThread(AsuraThreadArg *arg)
+gpointer ArmZabbixAPI::mainThread(HatoholThreadArg *arg)
 {
 	const MonitoringServerInfo &svInfo = getServerInfo();
 	MLPL_INFO("started: ArmZabbixAPI (server: %s)\n",
@@ -899,28 +899,28 @@ gpointer ArmZabbixAPI::mainThread(AsuraThreadArg *arg)
 	return ArmBase::mainThread(arg);
 }
 
-void ArmZabbixAPI::makeAsuraTriggers(void)
+void ArmZabbixAPI::makeHatoholTriggers(void)
 {
 	TriggerInfoList triggerInfoList;
-	m_ctx->dbClientZabbix.getTriggersAsAsuraFormat(triggerInfoList);
-	m_ctx->dbClientAsura.setTriggerInfoList(triggerInfoList,
+	m_ctx->dbClientZabbix.getTriggersAsHatoholFormat(triggerInfoList);
+	m_ctx->dbClientHatohol.setTriggerInfoList(triggerInfoList,
 	                                        m_ctx->zabbixServerId);
 }
 
-void ArmZabbixAPI::makeAsuraEvents(ItemTablePtr events)
+void ArmZabbixAPI::makeHatoholEvents(ItemTablePtr events)
 {
 	EventInfoList eventInfoList;
-	DBClientZabbix::transformEventsToAsuraFormat(eventInfoList, events,
+	DBClientZabbix::transformEventsToHatoholFormat(eventInfoList, events,
 	                                             m_ctx->zabbixServerId);
-	m_ctx->dbClientAsura.addEventInfoList(eventInfoList);
+	m_ctx->dbClientHatohol.addEventInfoList(eventInfoList);
 }
 
-void ArmZabbixAPI::makeAsuraItems(ItemTablePtr items)
+void ArmZabbixAPI::makeHatoholItems(ItemTablePtr items)
 {
 	ItemInfoList itemInfoList;
-	DBClientZabbix::transformItemsToAsuraFormat(itemInfoList, items,
+	DBClientZabbix::transformItemsToHatoholFormat(itemInfoList, items,
 	                                            m_ctx->zabbixServerId);
-	m_ctx->dbClientAsura.addItemInfoList(itemInfoList);
+	m_ctx->dbClientHatohol.addItemInfoList(itemInfoList);
 }
 
 //
@@ -990,12 +990,12 @@ bool ArmZabbixAPI::mainThreadOneProc(void)
 	// update needed applications
 	updateApplications(items);
 
-	makeAsuraTriggers();
+	makeHatoholTriggers();
 
 	ItemTablePtr events = updateEvents();
-	makeAsuraEvents(events);
+	makeHatoholEvents(events);
 
-	makeAsuraItems(items);
+	makeHatoholItems(items);
 
 	return true;
 }

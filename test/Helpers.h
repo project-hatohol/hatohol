@@ -66,7 +66,7 @@ template<typename T> void _assertAddToDB(T *arg, void (*func)(T *))
 	bool gotException = false;
 	try {
 		(*func)(arg);
-	} catch (const AsuraException &e) {
+	} catch (const HatoholException &e) {
 		gotException = true;
 		cut_fail("%s", e.getFancyMessage().c_str());
 	} catch (...) {

@@ -1,4 +1,4 @@
-/* Asura
+/* Hatohol
    Copyright (C) 2013 MIRACLE LINUX CORPORATION
  
    This program is free software: you can redistribute it and/or modify
@@ -17,7 +17,7 @@
 
 #include <glib.h>
 #include "UsedCountable.h"
-#include "AsuraException.h"
+#include "HatoholException.h"
 
 // ---------------------------------------------------------------------------
 // Public methods
@@ -48,7 +48,7 @@ UsedCountable::UsedCountable(int initialUsedCount)
 
 UsedCountable::~UsedCountable()
 {
-	ASURA_ASSERT(m_usedCount == 0,
+	HATOHOL_ASSERT(m_usedCount == 0,
 	             "used count: %d.", m_usedCount);
 }
 

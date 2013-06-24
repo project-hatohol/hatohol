@@ -1,4 +1,4 @@
-/* Asura
+/* Hatohol
    Copyright (C) 2013 MIRACLE LINUX CORPORATION
  
    This program is free software: you can redistribute it and/or modify
@@ -26,7 +26,7 @@
 using namespace mlpl;
 
 #include "DBAgentSQLite3.h"
-#include "AsuraException.h"
+#include "HatoholException.h"
 #include "ConfigManager.h"
 
 const static int TRANSACTION_TIME_OUT_MSEC = 30 * 1000;
@@ -112,7 +112,7 @@ void DBAgentSQLite3::defineDBPath(DBDomainId domainId, const string &path)
 	    (pair<DBDomainId, string>(domainId, path));
 	PrivateContext::unlock();
 
-	ASURA_ASSERT(result.second,
+	HATOHOL_ASSERT(result.second,
 	  "Failed to insert. Probably domain id (%u) is duplicated", domainId);
 }
 
@@ -161,7 +161,7 @@ DBAgentSQLite3::~DBAgentSQLite3()
 
 bool DBAgentSQLite3::isTableExisting(const string &tableName)
 {
-	ASURA_ASSERT(m_ctx->db, "m_ctx->db is NULL");
+	HATOHOL_ASSERT(m_ctx->db, "m_ctx->db is NULL");
 	return isTableExisting(m_ctx->db, tableName);
 }
 
@@ -177,7 +177,7 @@ bool DBAgentSQLite3::isRecordExisting(const string &tableName,
 	                         &stmt, NULL);
 	if (result != SQLITE_OK) {
 		sqlite3_finalize(stmt);
-		THROW_ASURA_EXCEPTION(
+		THROW_HATOHOL_EXCEPTION(
 		  "Failed to call sqlite3_prepare(): %d: %s",
 		  result, query.c_str());
 	}
@@ -189,7 +189,7 @@ bool DBAgentSQLite3::isRecordExisting(const string &tableName,
 	}
 	sqlite3_finalize(stmt);
 	if (result != SQLITE_ROW && result != SQLITE_DONE) {
-		THROW_ASURA_EXCEPTION("Failed to call sqlite3_step(): %d",
+		THROW_HATOHOL_EXCEPTION("Failed to call sqlite3_step(): %d",
 		                      result);
 	}
 	return found;
@@ -197,55 +197,55 @@ bool DBAgentSQLite3::isRecordExisting(const string &tableName,
 
 void DBAgentSQLite3::begin(void)
 {
-	ASURA_ASSERT(m_ctx->db, "m_ctx->db is NULL");
+	HATOHOL_ASSERT(m_ctx->db, "m_ctx->db is NULL");
 	_execSql(m_ctx->db, "BEGIN IMMEDIATE");
 }
 
 void DBAgentSQLite3::commit(void)
 {
-	ASURA_ASSERT(m_ctx->db, "m_ctx->db is NULL");
+	HATOHOL_ASSERT(m_ctx->db, "m_ctx->db is NULL");
 	_execSql(m_ctx->db, "COMMIT");
 }
 
 void DBAgentSQLite3::rollback(void)
 {
-	ASURA_ASSERT(m_ctx->db, "m_ctx->db is NULL");
+	HATOHOL_ASSERT(m_ctx->db, "m_ctx->db is NULL");
 	_execSql(m_ctx->db, "ROLLBACK");
 }
 
 void DBAgentSQLite3::createTable(DBAgentTableCreationArg &tableCreationArg)
 {
-	ASURA_ASSERT(m_ctx->db, "m_ctx->db is NULL");
+	HATOHOL_ASSERT(m_ctx->db, "m_ctx->db is NULL");
 	createTable(m_ctx->db,tableCreationArg);
 }
 
 void DBAgentSQLite3::insert(DBAgentInsertArg &insertArg)
 {
-	ASURA_ASSERT(m_ctx->db, "m_ctx->db is NULL");
+	HATOHOL_ASSERT(m_ctx->db, "m_ctx->db is NULL");
 	insert(m_ctx->db, insertArg);
 }
 
 void DBAgentSQLite3::update(DBAgentUpdateArg &updateArg)
 {
-	ASURA_ASSERT(m_ctx->db, "m_ctx->db is NULL");
+	HATOHOL_ASSERT(m_ctx->db, "m_ctx->db is NULL");
 	update(m_ctx->db, updateArg);
 }
 
 void DBAgentSQLite3::select(DBAgentSelectArg &selectArg)
 {
-	ASURA_ASSERT(m_ctx->db, "m_ctx->db is NULL");
+	HATOHOL_ASSERT(m_ctx->db, "m_ctx->db is NULL");
 	select(m_ctx->db, selectArg);
 }
 
 void DBAgentSQLite3::select(DBAgentSelectExArg &selectExArg)
 {
-	ASURA_ASSERT(m_ctx->db, "m_ctx->db is NULL");
+	HATOHOL_ASSERT(m_ctx->db, "m_ctx->db is NULL");
 	select(m_ctx->db, selectExArg);
 }
 
 void DBAgentSQLite3::deleteRows(DBAgentDeleteArg &deleteArg)
 {
-	ASURA_ASSERT(m_ctx->db, "m_ctx->db is NULL");
+	HATOHOL_ASSERT(m_ctx->db, "m_ctx->db is NULL");
 	deleteRows(m_ctx->db, deleteArg);
 }
 
@@ -271,7 +271,7 @@ void DBAgentSQLite3::checkDBPath(const string &dbPath)
 	   g_file_query_file_type(gfile, G_FILE_QUERY_INFO_NONE, NULL);
 	if (type != G_FILE_TYPE_UNKNOWN && type != G_FILE_TYPE_DIRECTORY) {
 		g_object_unref(gfile);
-		THROW_ASURA_EXCEPTION("Specified dir is not directory:%s\n",
+		THROW_HATOHOL_EXCEPTION("Specified dir is not directory:%s\n",
 		                      dbPath.c_str());
 	}
 
@@ -284,7 +284,7 @@ void DBAgentSQLite3::checkDBPath(const string &dbPath)
 			string msg = error->message;
 			g_error_free(error);
 			g_object_unref(gfile);
-			THROW_ASURA_EXCEPTION(
+			THROW_HATOHOL_EXCEPTION(
 			  "Failed to create dir. for DB: %s: %s\n",
 			  dbPath.c_str(), msg.c_str());
 		}
@@ -302,7 +302,7 @@ sqlite3 *DBAgentSQLite3::openDatabase(const string &dbPath)
 	                             SQLITE_OPEN_READWRITE|SQLITE_OPEN_CREATE,
 	                             NULL);
 	if (result != SQLITE_OK) {
-		THROW_ASURA_EXCEPTION("Failed to open sqlite: %d, %s",
+		THROW_HATOHOL_EXCEPTION("Failed to open sqlite: %d, %s",
 		                      result, dbPath.c_str());
 	}
 	sqlite3_busy_timeout(db, TRANSACTION_TIME_OUT_MSEC);
@@ -316,7 +316,7 @@ void DBAgentSQLite3::_execSql(sqlite3 *db, const string &sql)
 	if (result != SQLITE_OK) {
 		string err = errmsg;
 		sqlite3_free(errmsg);
-		THROW_ASURA_EXCEPTION("Failed to exec: %d, %s, %s",
+		THROW_HATOHOL_EXCEPTION("Failed to exec: %d, %s, %s",
 		                      result, err.c_str(), sql.c_str());
 	}
 }
@@ -366,7 +366,7 @@ string DBAgentSQLite3::getColumnValueString(const ColumnDef *columnDef,
 		break;
 	}
 	default:
-		ASURA_ASSERT(true, "Unknown column type: %d (%s)",
+		HATOHOL_ASSERT(true, "Unknown column type: %d (%s)",
 		             columnDef->type, columnDef->columnName);
 	}
 	return valueStr;
@@ -382,7 +382,7 @@ bool DBAgentSQLite3::isTableExisting(sqlite3 *db,
 	result = sqlite3_prepare(db, query, strlen(query), &stmt, NULL);
 	if (result != SQLITE_OK) {
 		sqlite3_finalize(stmt);
-		THROW_ASURA_EXCEPTION("Failed to call sqlite3_prepare(): %d",
+		THROW_HATOHOL_EXCEPTION("Failed to call sqlite3_prepare(): %d",
 		                      result);
 	}
 
@@ -391,7 +391,7 @@ bool DBAgentSQLite3::isTableExisting(sqlite3 *db,
 	                           -1, SQLITE_STATIC);
 	if (result != SQLITE_OK) {
 		sqlite3_finalize(stmt);
-		THROW_ASURA_EXCEPTION("Failed to call sqlite3_bind(): %d",
+		THROW_HATOHOL_EXCEPTION("Failed to call sqlite3_bind(): %d",
 		                      result);
 	}
 	
@@ -401,7 +401,7 @@ bool DBAgentSQLite3::isTableExisting(sqlite3 *db,
 	}
 	if (result != SQLITE_DONE) {
 		sqlite3_finalize(stmt);
-		THROW_ASURA_EXCEPTION("Failed to call sqlite3_step(): %d",
+		THROW_HATOHOL_EXCEPTION("Failed to call sqlite3_step(): %d",
 		                      result);
 	}
 	sqlite3_finalize(stmt);
@@ -438,7 +438,7 @@ void DBAgentSQLite3::createTable(sqlite3 *db,
 			sql += "REAL";
 			break;
 		default:
-			ASURA_ASSERT(true, "Unknown column type: %d (%s)",
+			HATOHOL_ASSERT(true, "Unknown column type: %d (%s)",
 			             columnDef.type, columnDef.columnName);
 		}
 		sql += " ";
@@ -457,7 +457,7 @@ void DBAgentSQLite3::createTable(sqlite3 *db,
 		case SQL_KEY_NONE:
 			break;
 		default:
-			ASURA_ASSERT(true, "Unknown column type: %d (%s)",
+			HATOHOL_ASSERT(true, "Unknown column type: %d (%s)",
 			             columnDef.keyType, columnDef.columnName);
 		}
 
@@ -472,7 +472,7 @@ void DBAgentSQLite3::createTable(sqlite3 *db,
 	if (result != SQLITE_OK) {
 		string err = errmsg;
 		sqlite3_free(errmsg);
-		THROW_ASURA_EXCEPTION("Failed to exec: %d, %s, %s",
+		THROW_HATOHOL_EXCEPTION("Failed to exec: %d, %s, %s",
 		                      result, err.c_str(), sql.c_str());
 	}
 
@@ -497,7 +497,7 @@ void DBAgentSQLite3::createTable(sqlite3 *db,
 void DBAgentSQLite3::insert(sqlite3 *db, DBAgentInsertArg &insertArg)
 {
 	size_t numColumns = insertArg.row->getNumberOfItems();
-	ASURA_ASSERT(numColumns == insertArg.numColumns,
+	HATOHOL_ASSERT(numColumns == insertArg.numColumns,
 	             "Invalid number of colums: %zd, %zd",
 	             numColumns, insertArg.numColumns);
 
@@ -520,7 +520,7 @@ void DBAgentSQLite3::insert(sqlite3 *db, DBAgentInsertArg &insertArg)
 	if (result != SQLITE_OK) {
 		string err = errmsg;
 		sqlite3_free(errmsg);
-		THROW_ASURA_EXCEPTION("Failed to exec: %d, %s, %s",
+		THROW_HATOHOL_EXCEPTION("Failed to exec: %d, %s, %s",
 		                      result, err.c_str(), sql.c_str());
 	}
 }
@@ -528,7 +528,7 @@ void DBAgentSQLite3::insert(sqlite3 *db, DBAgentInsertArg &insertArg)
 void DBAgentSQLite3::update(sqlite3 *db, DBAgentUpdateArg &updateArg)
 {
 	size_t numColumns = updateArg.row->getNumberOfItems();
-	ASURA_ASSERT(numColumns == updateArg.columnIndexes.size(),
+	HATOHOL_ASSERT(numColumns == updateArg.columnIndexes.size(),
 	             "Invalid number of colums: %zd, %zd",
 	             numColumns, updateArg.columnIndexes.size());
 
@@ -561,7 +561,7 @@ void DBAgentSQLite3::update(sqlite3 *db, DBAgentUpdateArg &updateArg)
 	if (result != SQLITE_OK) {
 		string err = errmsg;
 		sqlite3_free(errmsg);
-		THROW_ASURA_EXCEPTION("Failed to exec: %d, %s, %s",
+		THROW_HATOHOL_EXCEPTION("Failed to exec: %d, %s, %s",
 		                      result, err.c_str(), sql.c_str());
 	}
 }
@@ -576,7 +576,7 @@ void DBAgentSQLite3::select(sqlite3 *db, DBAgentSelectArg &selectArg)
 	result = sqlite3_prepare(db, sql.c_str(), sql.size(), &stmt, NULL);
 	if (result != SQLITE_OK) {
 		sqlite3_finalize(stmt);
-		THROW_ASURA_EXCEPTION(
+		THROW_HATOHOL_EXCEPTION(
 		  "Failed to call sqlite3_prepare(): %d, %s",
 		  result, sql.c_str());
 	}
@@ -584,7 +584,7 @@ void DBAgentSQLite3::select(sqlite3 *db, DBAgentSelectArg &selectArg)
 	sqlite3_reset(stmt);
 	if (result != SQLITE_OK) {
 		sqlite3_finalize(stmt);
-		THROW_ASURA_EXCEPTION("Failed to call sqlite3_bind(): %d",
+		THROW_HATOHOL_EXCEPTION("Failed to call sqlite3_bind(): %d",
 		                      result);
 	}
 	
@@ -594,7 +594,7 @@ void DBAgentSQLite3::select(sqlite3 *db, DBAgentSelectArg &selectArg)
 	selectArg.dataTable = dataTable;
 	if (result != SQLITE_DONE) {
 		sqlite3_finalize(stmt);
-		THROW_ASURA_EXCEPTION("Failed to call sqlite3_step(): %d",
+		THROW_HATOHOL_EXCEPTION("Failed to call sqlite3_step(): %d",
 		                      result);
 	}
 	sqlite3_finalize(stmt);
@@ -610,7 +610,7 @@ void DBAgentSQLite3::select(sqlite3 *db, DBAgentSelectExArg &selectExArg)
 	result = sqlite3_prepare(db, sql.c_str(), sql.size(), &stmt, NULL);
 	if (result != SQLITE_OK) {
 		sqlite3_finalize(stmt);
-		THROW_ASURA_EXCEPTION(
+		THROW_HATOHOL_EXCEPTION(
 		  "Failed to call sqlite3_prepare(): %d, %s",
 		  result, sql.c_str());
 	}
@@ -618,7 +618,7 @@ void DBAgentSQLite3::select(sqlite3 *db, DBAgentSelectExArg &selectExArg)
 	sqlite3_reset(stmt);
 	if (result != SQLITE_OK) {
 		sqlite3_finalize(stmt);
-		THROW_ASURA_EXCEPTION("Failed to call sqlite3_bind(): %d",
+		THROW_HATOHOL_EXCEPTION("Failed to call sqlite3_bind(): %d",
 		                      result);
 	}
 	size_t numColumns = selectExArg.statements.size();
@@ -635,7 +635,7 @@ void DBAgentSQLite3::select(sqlite3 *db, DBAgentSelectExArg &selectExArg)
 	selectExArg.dataTable = dataTable;
 	if (result != SQLITE_DONE) {
 		sqlite3_finalize(stmt);
-		THROW_ASURA_EXCEPTION("Failed to call sqlite3_step(): %d",
+		THROW_HATOHOL_EXCEPTION("Failed to call sqlite3_step(): %d",
 		                      result);
 	}
 	sqlite3_finalize(stmt);
@@ -643,7 +643,7 @@ void DBAgentSQLite3::select(sqlite3 *db, DBAgentSelectExArg &selectExArg)
 	// check the result
 	size_t numTableRows = selectExArg.dataTable->getNumberOfRows();
 	size_t numTableColumns = selectExArg.dataTable->getNumberOfColumns();
-	ASURA_ASSERT((numTableRows == 0) ||
+	HATOHOL_ASSERT((numTableRows == 0) ||
 	             ((numTableRows > 0) && (numTableColumns == numColumns)),
 	             "Sanity check error: numTableRows: %zd, numTableColumns: "
 	             "%zd, numColumns: %zd",
@@ -652,7 +652,7 @@ void DBAgentSQLite3::select(sqlite3 *db, DBAgentSelectExArg &selectExArg)
 
 void DBAgentSQLite3::deleteRows(sqlite3 *db, DBAgentDeleteArg &deleteArg)
 {
-	ASURA_ASSERT(!deleteArg.tableName.empty(), "Table name: empty");
+	HATOHOL_ASSERT(!deleteArg.tableName.empty(), "Table name: empty");
 	string sql = "DELETE FROM ";
 	sql += deleteArg.tableName;
 	if (!deleteArg.condition.empty()) {
@@ -705,7 +705,7 @@ ItemDataPtr DBAgentSQLite3::getValue(sqlite3_stmt *stmt,
 		break;
 
 	default:
-		ASURA_ASSERT(false, "Unknown column type: %d", columnType);
+		HATOHOL_ASSERT(false, "Unknown column type: %d", columnType);
 	}
 
 	// check null
@@ -721,7 +721,7 @@ void DBAgentSQLite3::createIndex(sqlite3 *db, const string &tableName,
                                  const vector<size_t> &targetIndexes,
                                  bool isUniqueKey)
 {
-	ASURA_ASSERT(!targetIndexes.empty(), "target indexes vector is empty.");
+	HATOHOL_ASSERT(!targetIndexes.empty(), "target indexes vector is empty.");
 
 	// make an SQL statement
 	string sql = "CREATE ";
@@ -746,7 +746,7 @@ void DBAgentSQLite3::createIndex(sqlite3 *db, const string &tableName,
 	if (result != SQLITE_OK) {
 		string err = errmsg;
 		sqlite3_free(errmsg);
-		THROW_ASURA_EXCEPTION("Failed to exec: %d, %s, %s",
+		THROW_HATOHOL_EXCEPTION("Failed to exec: %d, %s, %s",
 		                      result, err.c_str(), sql.c_str());
 	}
 }
@@ -759,7 +759,7 @@ void DBAgentSQLite3::openDatabase(void)
 	if (m_ctx->db)
 		return;
 
-	ASURA_ASSERT(!m_ctx->dbPath.empty(), "dbPath is empty.");
+	HATOHOL_ASSERT(!m_ctx->dbPath.empty(), "dbPath is empty.");
 	m_ctx->db = openDatabase(m_ctx->dbPath);
 }
 

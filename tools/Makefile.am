@@ -1,13 +1,13 @@
-bin_PROGRAMS = asura-config-db-creator
-asura_config_db_creator_SOURCES = asura-config-db-creator.cc
+bin_PROGRAMS = hatohol-config-db-creator
+hatohol_config_db_creator_SOURCES = hatohol-config-db-creator.cc
 
 AM_CXXFLAGS = -Wall -g3 \
 	-D__STDC_FORMAT_MACROS \
 	-I ../src $(MLPL_CFLAGS) $(GLIB_CFLAGS)
 
-AM_LDFLAGS = ../src/libasura.la $(MLPL_LIBS) $(GLIB_LIBS)
+AM_LDFLAGS = ../src/libhatohol.la $(MLPL_LIBS) $(GLIB_LIBS)
 
-config_example_DATA = asura-config.dat.example
+config_example_DATA = hatohol-config.dat.example
 config_exampledir = $(pkgdatadir)
 
 EXTRA_DIST = $(config_example_DATA)

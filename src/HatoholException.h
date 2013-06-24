@@ -1,4 +1,4 @@
-/* Asura
+/* Hatohol
    Copyright (C) 2013 MIRACLE LINUX CORPORATION
  
    This program is free software: you can redistribute it and/or modify
@@ -15,8 +15,8 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef AsuraException_h
-#define AsuraException_h
+#ifndef HatoholException_h
+#define HatoholException_h
 
 #include <Logger.h>
 #include <StringUtils.h>
@@ -27,24 +27,24 @@ using namespace mlpl;
 using namespace std;
 
 #ifdef _GLIBCXX_USE_NOEXCEPT
-#define _ASURA_NOEXCEPT _GLIBCXX_USE_NOEXCEPT
+#define _HATOHOL_NOEXCEPT _GLIBCXX_USE_NOEXCEPT
 #else
-#define _ASURA_NOEXCEPT throw()
+#define _HATOHOL_NOEXCEPT throw()
 #endif
 
-#define ASURA_STACK_TRACE_SET_ENV "ASURA_EXCEPTION_STACK_TRACE"
+#define HATOHOL_STACK_TRACE_SET_ENV "HATOHOL_EXCEPTION_STACK_TRACE"
 
-class AsuraException : public exception
+class HatoholException : public exception
 {
 public:
 	static const int UNKNOWN_LINE_NUMBER = -1;
 	static void init(void);
 
-	explicit AsuraException(const string &brief,
+	explicit HatoholException(const string &brief,
 	                        const char *sourceFileName = "",
 	                        int lineNumber = UNKNOWN_LINE_NUMBER);
-	virtual ~AsuraException() _ASURA_NOEXCEPT;
-	virtual const char* what() const _ASURA_NOEXCEPT;
+	virtual ~HatoholException() _HATOHOL_NOEXCEPT;
+	virtual const char* what() const _HATOHOL_NOEXCEPT;
 	virtual const string getFancyMessage(void) const;
 
 	const string &getSourceFileName(void) const;
@@ -65,16 +65,16 @@ private:
 	string m_stackTrace;
 };
 
-#define THROW_ASURA_EXCEPTION(FMT, ...) \
+#define THROW_HATOHOL_EXCEPTION(FMT, ...) \
 do { \
 	string msg = StringUtils::sprintf(FMT, ##__VA_ARGS__); \
-	throw AsuraException(msg, __FILE__, __LINE__); \
+	throw HatoholException(msg, __FILE__, __LINE__); \
 } while (0)
 
-#define ASURA_ASSERT(COND, FMT, ...) \
+#define HATOHOL_ASSERT(COND, FMT, ...) \
 do { \
 	if (!(COND)) { \
-		THROW_ASURA_EXCEPTION("ASSERTION failed: [%s] : " FMT, #COND, ##__VA_ARGS__); \
+		THROW_HATOHOL_EXCEPTION("ASSERTION failed: [%s] : " FMT, #COND, ##__VA_ARGS__); \
 	} \
 } while (0)
-#endif // AsuraException_h
+#endif // HatoholException_h

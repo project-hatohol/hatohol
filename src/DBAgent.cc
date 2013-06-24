@@ -1,4 +1,4 @@
-/* Asura
+/* Hatohol
    Copyright (C) 2013 MIRACLE LINUX CORPORATION
  
    This program is free software: you can redistribute it and/or modify
@@ -139,8 +139,8 @@ string DBAgent::makeSelectStatement(DBAgentSelectArg &selectArg)
 string DBAgent::makeSelectStatement(DBAgentSelectExArg &selectExArg)
 {
 	size_t numColumns = selectExArg.statements.size();
-	ASURA_ASSERT(numColumns > 0, "Vector size must not be zero");
-	ASURA_ASSERT(numColumns == selectExArg.columnTypes.size(),
+	HATOHOL_ASSERT(numColumns > 0, "Vector size must not be zero");
+	HATOHOL_ASSERT(numColumns == selectExArg.columnTypes.size(),
 	             "Vector size mismatch: statements (%zd):columnTypes (%zd)",
 	             numColumns, selectExArg.columnTypes.size());
 

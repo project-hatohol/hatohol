@@ -1,4 +1,4 @@
-/* Asura
+/* Hatohol
    Copyright (C) 2013 MIRACLE LINUX CORPORATION
  
    This program is free software: you can redistribute it and/or modify
@@ -22,7 +22,7 @@
 using namespace std;
 
 #include "ItemTable.h"
-#include "AsuraException.h"
+#include "HatoholException.h"
 #include "Utils.h"
 
 class ItemTableUtils {
@@ -32,17 +32,17 @@ public:
 	                                  size_t columnIndex = 0)
 	{
 		const ItemGroupList &grpList = tablePtr->getItemGroupList();
-		ASURA_ASSERT(!grpList.empty(), "ItamTable: empty");
+		HATOHOL_ASSERT(!grpList.empty(), "ItamTable: empty");
 
 		const ItemGroup *itemGroup = *grpList.begin();
-		ASURA_ASSERT(itemGroup->getNumberOfItems() > columnIndex,
+		HATOHOL_ASSERT(itemGroup->getNumberOfItems() > columnIndex,
 		             "itemGroup:Items: %zd, columnIndex: %zd",
 		             itemGroup->getNumberOfItems() > columnIndex);
 
 		const ItemDataType *itemData =
 		   dynamic_cast<const ItemDataType *>
 		     (itemGroup->getItemAt(columnIndex));
-		ASURA_ASSERT(itemData,
+		HATOHOL_ASSERT(itemData,
 		   "Failed to dynamic_cast: required: %s, actual: %s",
 		   DEMANGLED_TYPE_NAME(ItemDataType),
 		   DEMANGLED_TYPE_NAME(itemData));

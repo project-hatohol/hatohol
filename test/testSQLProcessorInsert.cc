@@ -3,7 +3,7 @@
 using namespace mlpl;
 
 #include <cppcutter.h>
-#include "Asura.h"
+#include "Hatohol.h"
 #include "SQLProcessorInsert.h"
 #include "SQLProcessorException.h"
 #include "Helpers.h"
@@ -87,7 +87,7 @@ void setupDummyMap(void)
 
 void setup(void)
 {
-	asuraInit();
+	hatoholInit();
 	setupDummyMap();
 }
 

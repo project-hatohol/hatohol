@@ -1,4 +1,4 @@
-/* Asura
+/* Hatohol
    Copyright (C) 2013 MIRACLE LINUX CORPORATION
  
    This program is free software: you can redistribute it and/or modify
@@ -22,7 +22,7 @@
 
 #include "VirtualDataStore.h"
 #include "DataStoreManager.h"
-#include "DBClientAsura.h"
+#include "DBClientHatohol.h"
 #include "DBClientConfig.h"
 
 class VirtualDataStore : public DataStoreManager

@@ -1,18 +1,18 @@
 #include <cppcutter.h>
 #include <cutter.h>
 
-#include "Asura.h"
-#include "DBClientAsura.h"
+#include "Hatohol.h"
+#include "DBClientHatohol.h"
 #include "ConfigManager.h"
 #include "Helpers.h"
 #include "DBClientTest.h"
 
-namespace testDBClientAsura {
+namespace testDBClientHatohol {
 
 static void addTriggerInfo(TriggerInfo *triggerInfo)
 {
-	DBClientAsura dbAsura;
-	dbAsura.addTriggerInfo(triggerInfo);
+	DBClientHatohol dbHatohol;
+	dbHatohol.addTriggerInfo(triggerInfo);
 }
 #define assertAddTriggerToDB(X) \
 cut_trace(_assertAddToDB<TriggerInfo>(X, addTriggerInfo))
@@ -35,8 +35,8 @@ static string makeExpectedOutput(TriggerInfo *triggerInfo)
 static void _assertGetTriggers(void)
 {
 	TriggerInfoList triggerInfoList;
-	DBClientAsura dbAsura;
-	dbAsura.getTriggerInfoList(triggerInfoList);
+	DBClientHatohol dbHatohol;
+	dbHatohol.getTriggerInfoList(triggerInfoList);
 	cppcut_assert_equal(NumTestTriggerInfo, triggerInfoList.size());
 
 	string expectedText;
@@ -68,8 +68,8 @@ static string makeEventOutput(EventInfo &eventInfo)
 static void _assertGetEvents(void)
 {
 	EventInfoList eventInfoList;
-	DBClientAsura dbAsura;
-	dbAsura.getEventInfoList(eventInfoList);
+	DBClientHatohol dbHatohol;
+	dbHatohol.getEventInfoList(eventInfoList);
 	cppcut_assert_equal(NumTestEventInfo, eventInfoList.size());
 
 	string expectedText;
@@ -102,8 +102,8 @@ static string makeExpectedItemOutput(ItemInfo *itemInfo)
 static void _assertGetItems(void)
 {
 	ItemInfoList itemInfoList;
-	DBClientAsura dbAsura;
-	dbAsura.getItemInfoList(itemInfoList);
+	DBClientHatohol dbHatohol;
+	dbHatohol.getItemInfoList(itemInfoList);
 	cppcut_assert_equal(NumTestItemInfo, itemInfoList.size());
 
 	string expectedText;
@@ -119,7 +119,7 @@ static void _assertGetItems(void)
 
 void setup(void)
 {
-	asuraInit();
+	hatoholInit();
 }
 
 // ---------------------------------------------------------------------------
@@ -128,39 +128,39 @@ void setup(void)
 void test_createDB(void)
 {
 	// remove the DB that already exists
-	string dbPath = deleteDBClientDB(DB_DOMAIN_ID_ASURA);
+	string dbPath = deleteDBClientDB(DB_DOMAIN_ID_HATOHOL);
 
 	// create an instance (the database will be automatically created)
-	DBClientAsura dbAsura;
+	DBClientHatohol dbHatohol;
 	cut_assert_exist_path(dbPath.c_str());
 
 	// check the version
 	string statement = "select * from _dbclient";
-	string output = execSqlite3ForDBClient(DB_DOMAIN_ID_ASURA, statement);
+	string output = execSqlite3ForDBClient(DB_DOMAIN_ID_HATOHOL, statement);
 	string expectedOut = StringUtils::sprintf
 	                       ("%d|%d\n", DBClient::DBCLIENT_DB_VERSION,
-	                                   DBClientAsura::ASURA_DB_VERSION);
+	                                   DBClientHatohol::HATOHOL_DB_VERSION);
 	cppcut_assert_equal(expectedOut, output);
 }
 
 void test_createTableTrigger(void)
 {
 	const string tableName = "triggers";
-	string dbPath = deleteDBClientDB(DB_DOMAIN_ID_ASURA);
-	DBClientAsura dbAsura;
+	string dbPath = deleteDBClientDB(DB_DOMAIN_ID_HATOHOL);
+	DBClientHatohol dbHatohol;
 	string command = "sqlite3 " + dbPath + " \".table\"";
 	assertExist(tableName, executeCommand(command));
 
 	// check content
 	string statement = "select * from " + tableName;
-	string output = execSqlite3ForDBClient(DB_DOMAIN_ID_ASURA, statement);
+	string output = execSqlite3ForDBClient(DB_DOMAIN_ID_HATOHOL, statement);
 	string expectedOut = StringUtils::sprintf(""); // currently no data
 	cppcut_assert_equal(expectedOut, output);
 }
 
 void test_testAddTriggerInfo(void)
 {
-	string dbPath = deleteDBClientDB(DB_DOMAIN_ID_ASURA);
+	string dbPath = deleteDBClientDB(DB_DOMAIN_ID_HATOHOL);
 
 	// added a record
 	TriggerInfo *testInfo = testTriggerInfo;
@@ -183,37 +183,37 @@ void test_testGetTriggerInfoList(void)
 
 void test_setTriggerInfoList(void)
 {
-	deleteDBClientDB(DB_DOMAIN_ID_ASURA);
+	deleteDBClientDB(DB_DOMAIN_ID_HATOHOL);
 
-	DBClientAsura dbAsura;
+	DBClientHatohol dbHatohol;
 	TriggerInfoList triggerInfoList;
 	for (size_t i = 0; i < NumTestTriggerInfo; i++)
 		triggerInfoList.push_back(testTriggerInfo[i]);
 	uint32_t serverId = testTriggerInfo[0].serverId;
-	dbAsura.setTriggerInfoList(triggerInfoList, serverId);
+	dbHatohol.setTriggerInfoList(triggerInfoList, serverId);
 
 	assertGetTriggers();
 }
 
 void test_addTriggerInfoList(void)
 {
-	deleteDBClientDB(DB_DOMAIN_ID_ASURA);
+	deleteDBClientDB(DB_DOMAIN_ID_HATOHOL);
 
 	size_t i;
-	DBClientAsura dbAsura;
+	DBClientHatohol dbHatohol;
 
 	// First call
 	size_t numFirstAdd = NumTestTriggerInfo / 2;
 	TriggerInfoList triggerInfoList0;
 	for (i = 0; i < numFirstAdd; i++)
 		triggerInfoList0.push_back(testTriggerInfo[i]);
-	dbAsura.addTriggerInfoList(triggerInfoList0);
+	dbHatohol.addTriggerInfoList(triggerInfoList0);
 
 	// Second call
 	TriggerInfoList triggerInfoList1;
 	for (; i < NumTestTriggerInfo; i++)
 		triggerInfoList1.push_back(testTriggerInfo[i]);
-	dbAsura.addTriggerInfoList(triggerInfoList1);
+	dbHatohol.addTriggerInfoList(triggerInfoList1);
 
 	// Check
 	assertGetTriggers();
@@ -221,30 +221,30 @@ void test_addTriggerInfoList(void)
 
 void test_addItemInfoList(void)
 {
-	deleteDBClientDB(DB_DOMAIN_ID_ASURA);
+	deleteDBClientDB(DB_DOMAIN_ID_HATOHOL);
 
-	DBClientAsura dbAsura;
+	DBClientHatohol dbHatohol;
 	ItemInfoList itemInfoList;
 	for (size_t i = 0; i < NumTestItemInfo; i++)
 		itemInfoList.push_back(testItemInfo[i]);
-	dbAsura.addItemInfoList(itemInfoList);
+	dbHatohol.addItemInfoList(itemInfoList);
 
 	assertGetItems();
 }
 
 void test_addEventInfoList(void)
 {
-	// DBClientAsura internally joins the trigger table and the event table.
+	// DBClientHatohol internally joins the trigger table and the event table.
 	// So we also have to add trigger data.
 	// When the internal join is removed, the following line will not be
 	// needed.
 	test_setTriggerInfoList();
 
-	DBClientAsura dbAsura;
+	DBClientHatohol dbHatohol;
 	EventInfoList eventInfoList;
 	for (size_t i = 0; i < NumTestEventInfo; i++)
 		eventInfoList.push_back(testEventInfo[i]);
-	dbAsura.addEventInfoList(eventInfoList);
+	dbHatohol.addEventInfoList(eventInfoList);
 
 	assertGetEvents();
 }
@@ -252,10 +252,10 @@ void test_addEventInfoList(void)
 void test_getLastEventId(void)
 {
 	test_addEventInfoList();
-	DBClientAsura dbAsura;
+	DBClientHatohol dbHatohol;
 	const int serverid = 3;
 	cppcut_assert_equal(findLastEventId(serverid),
-	                    dbAsura.getLastEventId(serverid));
+	                    dbHatohol.getLastEventId(serverid));
 }
 
-} // namespace testDBClientAsura
+} // namespace testDBClientHatohol

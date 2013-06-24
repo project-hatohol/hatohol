@@ -1,4 +1,4 @@
-/* Asura
+/* Hatohol
    Copyright (C) 2013 MIRACLE LINUX CORPORATION
  
    This program is free software: you can redistribute it and/or modify
@@ -13,12 +13,12 @@
 
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
-#ifndef Asura_h
-#define Asura_h
+#ifndef Hatohol_h
+#define Hatohol_h
 
-void asuraInit(void);
+void hatoholInit(void);
 
-#endif // Asura_h
+#endif // Hatohol_h
 

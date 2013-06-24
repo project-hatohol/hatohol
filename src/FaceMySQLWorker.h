@@ -1,4 +1,4 @@
-/* Asura
+/* Hatohol
    Copyright (C) 2013 MIRACLE LINUX CORPORATION
  
    This program is free software: you can redistribute it and/or modify
@@ -29,7 +29,7 @@ using namespace std;
 using namespace mlpl;
 
 #include "Utils.h"
-#include "AsuraThreadBase.h"
+#include "HatoholThreadBase.h"
 #include "SQLProcessor.h"
 
 struct HandshakeResponse41
@@ -61,7 +61,7 @@ typedef bool (FaceMySQLWorker::*queryProcFunc)(ParsableString &query);
 typedef map<string, queryProcFunc> QueryProcFuncMap;
 typedef QueryProcFuncMap::iterator QueryProcFuncMapIterator;
 
-class FaceMySQLWorker : public AsuraThreadBase {
+class FaceMySQLWorker : public HatoholThreadBase {
 public:
 	static void init(void);
 	FaceMySQLWorker(GSocket *sock, uint32_t connId);
@@ -127,7 +127,7 @@ protected:
 
 
 	// virtual methods
-	gpointer mainThread(AsuraThreadArg *arg);
+	gpointer mainThread(HatoholThreadArg *arg);
 private:
 	typedef bool (FaceMySQLWorker::*SelectProcFunc)(ParsableString &);
 	static const size_t TYPE_CONVERT_TABLE_SIZE = 0x100;

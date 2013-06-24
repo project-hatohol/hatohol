@@ -1,4 +1,4 @@
-/* Asura
+/* Hatohol
    Copyright (C) 2013 MIRACLE LINUX CORPORATION
  
    This program is free software: you can redistribute it and/or modify
@@ -40,7 +40,7 @@ ItemDataException::ItemDataException(ItemDataExceptionType type,
                                      const char *sourceFileName, int lineNumber,
                                      const char *operatorName,
                                      const ItemData &lhs)
-: AsuraException("", sourceFileName, lineNumber)
+: HatoholException("", sourceFileName, lineNumber)
 {
 	string header = getMessageHeader(type);
 	string msg = StringUtils::sprintf(
@@ -52,7 +52,7 @@ ItemDataException::ItemDataException(ItemDataExceptionType type,
                                      const char *sourceFileName, int lineNumber,
                                      const char *operatorName,
                                      const ItemData &lhs, const ItemData &rhs)
-: AsuraException("", sourceFileName, lineNumber)
+: HatoholException("", sourceFileName, lineNumber)
 {
 	string header = getMessageHeader(type);
 	string msg = StringUtils::sprintf(
@@ -84,7 +84,7 @@ void ItemData::init(void)
 	size_t numTypeNames =
 	  sizeof(ItemData::m_nativeTypeNames) / sizeof(const char *);
 	if (numTypeNames != NUM_ITEM_TYPE) {
-		THROW_ASURA_EXCEPTION(
+		THROW_HATOHOL_EXCEPTION(
 		  "sizeof(m_nativeTypeNames) is invalid: "
 		  "(expcect/actual: %d/%d).",
 		  NUM_ITEM_TYPE, numTypeNames);
@@ -118,7 +118,7 @@ ItemData::~ItemData()
 const char *ItemData::getNativeTypeName(void) const
 {
 	if (m_itemType >= NUM_ITEM_TYPE) {
-		THROW_ASURA_EXCEPTION("m_itemType (%d) >= NUM_ITEM_TYPE (%d)",
+		THROW_HATOHOL_EXCEPTION("m_itemType (%d) >= NUM_ITEM_TYPE (%d)",
 		                      m_itemType, NUM_ITEM_TYPE);
 	}
 	return m_nativeTypeNames[m_itemType];

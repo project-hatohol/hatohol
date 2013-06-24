@@ -1,16 +1,16 @@
 #include <cppcutter.h>
-#include "AsuraThreadBase.h"
-#include "AsuraException.h"
+#include "HatoholThreadBase.h"
+#include "HatoholException.h"
 #include "Synchronizer.h"
 
-namespace testAsuraThreadBase {
+namespace testHatoholThreadBase {
 
 typedef gpointer (*TestFunc)(void *data);
 static Synchronizer sync;
 
-static gpointer throwAsuraExceptionFunc(void *data)
+static gpointer throwHatoholExceptionFunc(void *data)
 {
-	THROW_ASURA_EXCEPTION("Test Exception");
+	THROW_HATOHOL_EXCEPTION("Test Exception");
 	return NULL;
 }
 
@@ -24,9 +24,9 @@ void exitCallbackFunc(void *data)
 	sync.unlock();
 }
 
-class AsuraThreadTestImpl : public AsuraThreadBase {
+class HatoholThreadTestImpl : public HatoholThreadBase {
 public:
-	AsuraThreadTestImpl(void)
+	HatoholThreadTestImpl(void)
 	: m_testFunc(defaultTestFunc),
 	  m_testData(NULL)
 	{
@@ -46,7 +46,7 @@ public:
 	}
 
 protected:
-	virtual gpointer mainThread(AsuraThreadArg *arg)
+	virtual gpointer mainThread(HatoholThreadArg *arg)
 	{
 		return (*m_testFunc)(m_testData);
 	}
@@ -73,19 +73,19 @@ void setup(void)
 // ---------------------------------------------------------------------------
 void test_exceptionCallback(void)
 {
-	AsuraThreadTestImpl threadTestee;
-	threadTestee.setTestFunc(throwAsuraExceptionFunc, NULL);
+	HatoholThreadTestImpl threadTestee;
+	threadTestee.setTestFunc(throwHatoholExceptionFunc, NULL);
 	threadTestee.addExceptionCallback(exceptionCallbackFunc, NULL);
 	cppcut_assert_equal(true, threadTestee.doTest());
 }
 
 void test_exitCallback(void)
 {
-	AsuraThreadTestImpl threadTestee;
+	HatoholThreadTestImpl threadTestee;
 	threadTestee.addExitCallback(exitCallbackFunc, NULL);
 	cppcut_assert_equal(true, threadTestee.doTest());
 }
 
-} // namespace testAsuraThreadBase
+} // namespace testHatoholThreadBase
 
 

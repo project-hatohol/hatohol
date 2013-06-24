@@ -1,4 +1,4 @@
-/* Asura
+/* Hatohol
    Copyright (C) 2013 MIRACLE LINUX CORPORATION
  
    This program is free software: you can redistribute it and/or modify
@@ -67,14 +67,14 @@ void ItemTable::add(ItemGroup *group, bool doRef)
 		const ItemGroup *tail = m_groupList.back();
 		const ItemGroupType *groupType0 = tail->getItemGroupType();
 		const ItemGroupType *groupType1 = group->getItemGroupType();
-		ASURA_ASSERT(groupType0, "groupType0: NULL");
-		ASURA_ASSERT(groupType1, "groupType1: NULL");
-		ASURA_ASSERT(*groupType0 == *groupType1,
+		HATOHOL_ASSERT(groupType0, "groupType0: NULL");
+		HATOHOL_ASSERT(groupType1, "groupType1: NULL");
+		HATOHOL_ASSERT(*groupType0 == *groupType1,
 		             "ItemGroupTypes unmatched");
 	} else if (hasIndex()) {
 		size_t sizeOfGroup = group->getNumberOfItems();
 		if (m_indexVector.size() != sizeOfGroup) {
-			THROW_ASURA_EXCEPTION(
+			THROW_HATOHOL_EXCEPTION(
 			  "Index vector size (%zd) != group size (%zd)",
 			  m_indexVector.size(), sizeOfGroup);
 		}
@@ -91,20 +91,20 @@ void ItemTable::add(ItemGroup *group, bool doRef)
 void ItemTable::add(const ItemGroup *group)
 {
 	// TODO: extract common part from this function and add(ItemGroup*)
-	ASURA_ASSERT(group->isFreezed(), "Group not freezed.");
+	HATOHOL_ASSERT(group->isFreezed(), "Group not freezed.");
 
 	const ItemGroupType *groupType1 = group->getItemGroupType();
-	ASURA_ASSERT(groupType1, "ItemGroupType is NULL.");
+	HATOHOL_ASSERT(groupType1, "ItemGroupType is NULL.");
 
 	if (!m_groupList.empty()) {
 		const ItemGroup *tail = m_groupList.back();
 		const ItemGroupType *groupType0 = tail->getItemGroupType();
-		ASURA_ASSERT(*groupType0 == *groupType1,
+		HATOHOL_ASSERT(*groupType0 == *groupType1,
 		             "ItemGroupTypes unmatched");
 	} else if (hasIndex()) {
 		size_t sizeOfGroup = group->getNumberOfItems();
 		if (m_indexVector.size() != sizeOfGroup) {
-			THROW_ASURA_EXCEPTION(
+			THROW_HATOHOL_EXCEPTION(
 			  "Index vector size (%zd) != group size (%zd)",
 			  m_indexVector.size(), sizeOfGroup);
 		}
@@ -197,12 +197,12 @@ void ItemTable::defineIndex(const vector<ItemDataIndexType> &indexTypeVector)
 {
 	// pre check
 	if (hasIndex())
-		THROW_ASURA_EXCEPTION("m_indexVector is NOT empty.");
+		THROW_HATOHOL_EXCEPTION("m_indexVector is NOT empty.");
 
 	if (!m_groupList.empty()) {
 		const ItemGroup *firstGroup = *m_groupList.begin();
 		if (firstGroup->getNumberOfItems() != indexTypeVector.size()) {
-			THROW_ASURA_EXCEPTION(
+			THROW_HATOHOL_EXCEPTION(
 			  "m_groupList.size() [%zd] != "
 			  "indexTypeVector.size() [%zd]",
 			  m_groupList.size(), indexTypeVector.size());
@@ -304,7 +304,7 @@ void ItemTable::updateIndex(const ItemGroup *itemGroup)
 		ItemDataIndex *index = m_indexVector[columnIndex];
 		const ItemData *itemData = itemGroup->getItemAt(columnIndex);
 		if (!index->insert(itemData, itemGroup))
-			THROW_ASURA_EXCEPTION("Failed to make index.");
+			THROW_HATOHOL_EXCEPTION("Failed to make index.");
 	}
 }
 

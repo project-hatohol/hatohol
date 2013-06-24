@@ -2,7 +2,7 @@
 #include <cutter.h>
 #include <unistd.h>
 
-#include "Asura.h"
+#include "Hatohol.h"
 #include "DBClientZabbix.h"
 #include "ConfigManager.h"
 #include "Helpers.h"
@@ -129,7 +129,7 @@ static ItemTablePtr makeTestApplicationData(void)
 	return (ItemTablePtr)app;
 }
 
-static void _assertGetEventsAsAsuraFormat(bool noHostData = false)
+static void _assertGetEventsAsHatoholFormat(bool noHostData = false)
 {
 	DELETE_DB_AND_DEFINE_DBCLIENT_ZABBIX_STDID(dbZabbix);
 	
@@ -137,9 +137,9 @@ static void _assertGetEventsAsAsuraFormat(bool noHostData = false)
 	dbZabbix.addTriggersRaw2_0(makeTestTriggerData());
 	dbZabbix.addHostsRaw2_0(makeTestHostData(noHostData));
 
-	// get asura format data and check
+	// get hatohol format data and check
 	TriggerInfoList triggerInfoList;
-	dbZabbix.getTriggersAsAsuraFormat(triggerInfoList);
+	dbZabbix.getTriggersAsHatoholFormat(triggerInfoList);
 
 	TriggerInfoListIterator it = triggerInfoList.begin();
 	for (; it != triggerInfoList.end(); ++it) {
@@ -153,8 +153,8 @@ static void _assertGetEventsAsAsuraFormat(bool noHostData = false)
 		cppcut_assert_equal(expectedHostName, triggerInfo.hostName);
 	}
 }
-#define assertGetEventsAsAsuraFormat(...) \
-cut_trace(_assertGetEventsAsAsuraFormat(__VA_ARGS__))
+#define assertGetEventsAsHatoholFormat(...) \
+cut_trace(_assertGetEventsAsHatoholFormat(__VA_ARGS__))
 
 void _assertAddHostsRaw2_0(bool writeTwice = false)
 {
@@ -184,7 +184,7 @@ cut_trace(_assertAddApplicationsRaw2_0(__VA_ARGS__))
 
 void setup(void)
 {
-	asuraInit();
+	hatoholInit();
 }
 
 // ---------------------------------------------------------------------------
@@ -248,14 +248,14 @@ void test_createTableEventsRaw2_0(void)
 	assertCreateTableZBX(TEST_ZABBIX_SERVER_ID + 3, "events_raw_2_0");
 }
 
-void test_getEventsAsAsuraFormat(void)
+void test_getEventsAsHatoholFormat(void)
 {
-	assertGetEventsAsAsuraFormat();
+	assertGetEventsAsHatoholFormat();
 }
 
-void test_getEventsAsAsuraFormatWithMissingData(void)
+void test_getEventsAsHatoholFormatWithMissingData(void)
 {
-	assertGetEventsAsAsuraFormat(true);
+	assertGetEventsAsHatoholFormat(true);
 }
 
 void test_addHostsRaw2_0Insert(void)

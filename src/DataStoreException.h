@@ -1,4 +1,4 @@
-/* Asura
+/* Hatohol
    Copyright (C) 2013 MIRACLE LINUX CORPORATION
  
    This program is free software: you can redistribute it and/or modify
@@ -18,15 +18,15 @@
 #ifndef DataStoreException_h
 #define DataStoreException_h
 
-#include "AsuraException.h"
+#include "HatoholException.h"
 
-class DataStoreException : public AsuraException
+class DataStoreException : public HatoholException
 {
 public:
 	explicit DataStoreException(const string &brief,
 	                            const char *sourceFileName = "",
 	                            int lineNumber = UNKNOWN_LINE_NUMBER);
-	virtual ~DataStoreException() _ASURA_NOEXCEPT;
+	virtual ~DataStoreException() _HATOHOL_NOEXCEPT;
 private:
 };
 

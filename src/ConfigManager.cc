@@ -1,4 +1,4 @@
-/* Asura
+/* Hatohol
    Copyright (C) 2013 MIRACLE LINUX CORPORATION
  
    This program is free software: you can redistribute it and/or modify
@@ -21,7 +21,7 @@ using namespace mlpl;
 #include "ConfigManager.h"
 #include "DBClientConfig.h"
 
-const char *ConfigManager::ASURA_DB_DIR_ENV_VAR_NAME = "ASURA_DB_DIR";
+const char *ConfigManager::HATOHOL_DB_DIR_ENV_VAR_NAME = "HATOHOL_DB_DIR";
 static const char *DEFAULT_DATABASE_DIR = "/tmp";
 static const size_t DEFAULT_NUM_PRESERVED_REPLICA_GENERATION = 3;
 
@@ -91,7 +91,7 @@ ConfigManager::ConfigManager(void)
 : m_ctx(NULL)
 {
 	m_ctx = new PrivateContext();
-	const char *envDBDir = getenv(ASURA_DB_DIR_ENV_VAR_NAME);
+	const char *envDBDir = getenv(HATOHOL_DB_DIR_ENV_VAR_NAME);
 	if (envDBDir)
 		m_ctx->databaseDirectory = envDBDir;
 	else
