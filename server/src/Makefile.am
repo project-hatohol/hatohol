@@ -25,7 +25,34 @@ libhatohol_la_SOURCES = \
 	DataStore.cc DataStoreManager.cc DataStoreZabbix.cc \
 	DataStoreNagios.cc VirtualDataStoreNagios.cc \
 	JsonBuilderAgent.cc JsonParserAgent.cc \
-	ArmBase.cc ArmZabbixAPI.cc ArmNagiosNDOUtils.cc
+	ArmBase.cc ArmZabbixAPI.cc ArmNagiosNDOUtils.cc\
+	\
+	Hatohol.h HatoholThreadBase.h HatoholException.h \
+	ConfigManager.h DBAgent.h DBAgentFactory.h \
+	DBAgentSQLite3.h DBAgentMySQL.h \
+	DBClient.h DBClientConfig.h DBClientHatohol.h DBClientZabbix.h \
+	DBClientUtils.h \
+	Utils.h FaceBase.h FaceMySQL.h FaceMySQLWorker.h \
+	FaceRest.h \
+	SQLProcessorTypes.h SQLProcessorException.h SQLUtils.h \
+	SQLProcessorFactory.h SQLProcessor.h SQLProcessorZabbix.h \
+	SQLProcessorSelect.h SQLProcessorInsert.h SQLProcessorUpdate.h \
+	SQLFormulaParser.h SQLColumnParser.h SQLWhereParser.h \
+	SQLFromParser.h SQLTableFormula.h \
+	PrimaryCondition.h PrimaryConditionPicker.h \
+	FormulaElement.h FormulaOperator.h FormulaFunction.h \
+	UsedCountable.h \
+	ItemGroupType.h ItemData.h ItemGroup.h ItemTable.h \
+	ItemPtr.h ItemTablePtr.h ItemGroupPtr.h ItemDataUtils.h \
+	ItemDataPtr.h ItemEnum.h ItemTableUtils.h ItemGroupEnum.h \
+	VirtualDataStore.h VirtualDataStoreZabbix.h \
+	VirtualDataStoreZabbixMacro.h \
+	DataStoreException.h \
+	DataStore.h DataStoreManager.h DataStoreZabbix.h \
+	DataStoreNagios.h VirtualDataStoreNagios.h \
+	JsonBuilderAgent.h JsonParserAgent.h \
+	ArmBase.h ArmZabbixAPI.h ArmNagiosNDOUtils.h \
+	ArmZabbixAPI-template.h
 
 AM_CXXFLAGS = -Wall -g3 \
 	-D__STDC_FORMAT_MACROS \

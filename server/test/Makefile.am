@@ -47,9 +47,13 @@ testHatohol_la_LIBADD = libTest.la
 
 libTest_la_SOURCES = \
 	FormulaTestUtils.cc Helpers.cc DBAgentTest.cc DBClientTest.cc \
-	ZabbixAPIEmulator.cc Synchronizer.cc
+	ZabbixAPIEmulator.cc Synchronizer.cc \
+	FormulaTestUtils.h Helpers.h DBAgentTest.h DBClientTest.h \
+	ZabbixAPIEmulator.h Synchronizer.h \
+	ExceptionTestUtils.h AssertJoin.h
 libTest_la_LDFLAGS =
 
+zabbix_api_response_collector_SOURCES = zabbix-api-response-collector.cc
 zabbix_api_response_collector_LDFLAGS = -lstdc++
 zabbix_api_response_collector_LDADD = $(LIBS)
 
