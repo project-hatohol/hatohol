@@ -27,6 +27,9 @@ libhatohol_la_SOURCES = \
 	JsonBuilderAgent.cc JsonParserAgent.cc \
 	ArmBase.cc ArmZabbixAPI.cc ArmNagiosNDOUtils.cc
 
+MLPL_CFLAGS = -I ../mlpl/src
+MLPL_LIBS = ../mlpl/src/libmlpl.la
+
 AM_CXXFLAGS = -Wall -g3 \
 	-D__STDC_FORMAT_MACROS \
 	$(MLPL_CFLAGS) $(GLIB_CFLAGS) $(GTHREAD_CFLAGS) $(GIO_CFLAGS) \

@@ -10,6 +10,9 @@ noinst_LTLIBRARIES = libTest.la testHatohol.la
 noinst_PROGRAMS = zabbix-api-response-collector
 endif
 
+MLPL_CFLAGS = -I ../mlpl/src
+MLPL_LIBS = ../mlpl/src/libmlpl.la
+
 # default
 AM_CXXFLAGS = -g3 -Wall -D__STDC_FORMAT_MACROS
 AM_LDFLAGS = -module -rpath $(libdir) -avoid-version -no-undefined
