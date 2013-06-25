@@ -9,7 +9,7 @@ This feature enables to consolidate monitoring centers and the operators
 even when monitored devices are being used in different places or
 with different monitoring software.
 
-![Overview](misc/hatohol-overview.png)
+![Overview](doc/misc/hatohol-overview.png)
 
 Currently Hatohol provides the following information.
 
@@ -50,7 +50,7 @@ gathers monitoring information and integrate them. It provides the integrated
 data as a JSON format via HTTP (REST). A client internally communicates with
 the server and creates a response page when a user accesses.
 
-![BasicArchitecture](misc/hatohol-basic-architecture.png)
+![BasicArchitecture](doc/misc/hatohol-basic-architecture.png)
 
 This architectures makes to develop alternative clients easy. For example,
 android applications, iOS applications, Win32 native client,
