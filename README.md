@@ -60,6 +60,10 @@ Screenshots
 -----------
 Now preparing.
 
+Installation
+------------
+[Server installation](server/README.md)
+
 Plans
 -----
 We will add useful features. If you have requests or good ideas,
