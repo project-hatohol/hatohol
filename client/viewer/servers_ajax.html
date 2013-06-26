@@ -1,0 +1,85 @@
+{% extends "viewer/base_ajax.html" %}
+
+{% comment %}
+  Copyright (C) 2013 Hatohol Project
+
+  This file is part of Hatohol.
+
+  Hatohol is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 2 of the License, or
+  (at your option) any later version.
+
+  Hatohol is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+{% endcomment %}
+
+{% block navbar %}
+  <li><a href="ajax_dashboard">ダッシュボード</a></li>
+  <li><a href="ajax_overview_triggers">概要:トリガー</a></li>
+  <li><a href="ajax_overview_items">概要:アイテム</a></li>
+  <li><a href="ajax_latest">最新データ</a></li>
+  <li><a href="ajax_triggers">トリガー</a></li>
+  <li><a href="ajax_events">イベント</a></li>
+  <li class="active"><a>サーバ管理</a></li>
+{% endblock %}
+
+{% block main %}
+  <h2>Server Status</h2>
+
+  <table class="table table-condensed table-striped table-hover" id="table">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Type</th>
+        <th>Hostname</th>
+        <th>IP Address</th>
+        <th>Nickname</th>
+      </tr>
+    </thead>
+    <tbody>
+    </tbody>
+  </table>
+{% endblock %}
+
+{% block logic %}
+  <script type="text/javascript">
+
+    var rawData;
+
+    function drawTableBody(rd) {
+      var x;
+      var s;
+      var o;
+      var ip, anchor;
+
+      s = "";
+      for (x = 0; x < rd["servers"].length; ++x) {
+        o = rd["servers"][x];
+        ip = o["ipAddress"];
+        anchor = "http://" + ip + "/zabbix";
+        s += "<tr>";
+        s += "<td>" + o["id"] + "</td>";
+        s += "<td>" + o["type"]  + "</td>";
+        s += "<td><a href='" + anchor + "'>" + o["hostName"]  + "</td>";
+        s += "<td><a href='" + anchor + "'>" + ip + "</a></td>";
+        s += "<td>" + o["nickname"]  + "</td>";
+        s += "</tr>";
+      }
+
+      return s;
+    }
+
+    function updateCore() {
+      $("#table tbody").empty();
+      $("#table tbody").append(drawTableBody(rawData));
+    }
+
+    schedule(0000, "servers");
+  </script>
+{% endblock %}

@@ -1,6 +1,8 @@
 *.la
 *.lo
 *.swp
+*.pyc
+*.pyo
 .deps/
 .libs/
 AUTHORS

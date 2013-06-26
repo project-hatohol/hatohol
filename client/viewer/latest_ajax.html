@@ -1,0 +1,154 @@
+{% extends "viewer/base_ajax.html" %}
+
+{% comment %}
+  Copyright (C) 2013 Hatohol Project
+
+  This file is part of Hatohol.
+
+  Hatohol is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 2 of the License, or
+  (at your option) any later version.
+
+  Hatohol is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+{% endcomment %}
+
+{% block navbar %}
+  <li><a href="ajax_dashboard">ダッシュボード</a></li>
+  <li><a href="ajax_overview_triggers">概要:トリガー</a></li>
+  <li><a href="ajax_overview_items">概要:アイテム</a></li>
+  <li class="active"><a>最新データ</a></li>
+  <li><a href="ajax_triggers">トリガー</a></li>
+  <li><a href="ajax_events">イベント</a></li>
+  <li><a href="ajax_servers">サーバ管理</a></li>
+{% endblock %}
+
+{% block main %}
+  <h2>Latest</h2>
+
+  <form class="form-inline">
+    <label>Server:</label>
+    <select id="select-server">
+      <option>---------</option>
+    </select>
+
+    <label>Application:</label>
+    <select id="select-application">
+      <option>---------</option>
+      <option>_non_</option>
+    </select>
+  </form>
+
+  <table class="table table-condensed table-hover" id="table">
+    <thead>
+      <tr>
+        <th data-sort="string"> Server </th>
+        <th data-sort="string"> ホスト </th>
+        <th data-sort="string"> Application </th>
+        <th data-sort="string"> 名前 </th>
+        <th data-sort="int"> 最新のチェック </th>
+        <th> 最新の値 </th>
+        <th> 変更 </th>
+      </tr>
+    </thead>
+    <tbody>
+    </tbody>
+  </table>
+{% endblock %}
+
+{% block option %}
+  <script src="{{ STATIC_URL }}js/stupidtable.js"></script>
+{% endblock %}
+
+{% block logic %}
+  <script type="text/javascript">
+    $("#table").stupidtable();
+    $("#table").bind('aftertablesort', function(event, data) {
+      var th = $(this).find("th");
+      th.find("i.sort").remove();
+      var icon = data.direction === "asc" ? "up" : "down";
+      th.eq(data.column).append("<i class='sort icon-arrow-" + icon +"'></i>");
+    });
+
+    var rawData;
+    var parsedData;
+
+    $("#select-server").change(function() {
+      chooseRow();
+    });
+    $("#select-application").change(function() {
+      chooseRow();
+    });
+
+    function parseData(rd) {
+      var pd = new Object();
+      var x;
+      var o;
+      var ss, as;
+      var s;
+
+      ss = [];
+      as = [];
+      for (x = 0; x < rd["items"].length; ++x) {
+        o = rd["items"][x];
+        ss.push(rd["servers"][o["serverId"]]["name"]);
+        if ( 0 == o["itemGroupName"].length ) {
+          o["itemGroupName"] = "_non_";
+        }
+        else {
+          as.push(o["itemGroupName"]);
+        }
+      }
+      pd.servers = ss.uniq().sort();
+      pd.applis  = as.uniq().sort();
+
+      return pd;
+    }
+
+    function drawTableBody(rd) {
+      var x;
+      var s;
+      var o;
+      var klass, server, host, clock, appli;
+
+      s = "";
+      for (x = 0; x < rd["items"].length; ++x) {
+        o = rd["items"][x];
+        server = rd["servers"][o["serverId"]]["name"];
+        host   = o["hostId"]; // rd["servers"][o["serverId"]]["hosts"][o["hostId"]]["name"];  ITS NOT IMPLEMENTED YET
+        clock  = o["lastValueTime"];
+        appli  = o["itemGroupName"];
+        klass  = server + " " + appli;
+        s += "<tr class='" + klass + "'>";
+        s += "<td>" + server + "</td>";
+        s += "<td>" + host + "</td>";
+        s += "<td>" + appli + "</td>";
+        s += "<td>" + o["brief"] + "</td>";
+        s += "<td data-sort-value='" + clock + "'>" + formatDate(clock) + "</td>";
+        s += "<td>" + o["lastValue"] + "</td>";
+        s += "<td>" + o["prevValue"] + "</td>";
+        s += "</tr>";
+      }
+
+      return s;
+    }
+
+    function updateCore() {
+      parsedData = parseData(rawData);
+
+      setCandidate($("#select-server"),      parsedData.servers);
+      setCandidate($("#select-application"), parsedData.applis);
+
+      $("#table tbody").empty();
+      $("#table tbody").append(drawTableBody(rawData));
+    }
+
+    schedule(0000, "items");
+  </script>
+{% endblock %}

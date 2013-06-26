@@ -1,0 +1,47 @@
+/*
+ * Copyright (C) 2013 Hatohol Project
+ *
+ * This file is part of Hatohol.
+ *
+ * Hatohol is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * Hatohol is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+td.status1   { color: #AA0000; }
+td.status0   { color: #00AA00; }
+
+td.severity5 { background-color: #FF0000; }
+td.severity4 { background-color: #FF8888; }
+td.severity3 { background-color: #DDAAAA; }
+td.severity2 { background-color: #EFEFCC; }
+td.severity1 { background-color: #CCE2CC; }
+td.severity0 { background-color: #BCBCBC; }
+
+td.healthy   { background-color: #AAFFAA; }
+td.unknown   { background-color: #BCBCBC; }
+
+span.gray  { color: #AAAAAA; }
+span.red   { color: #AA0000; }
+span.green { color: #00AA00; }
+
+th[data-sort] { cursor: pointer; }
+
+
+.rotate-header {
+  position: relative;
+  left: 1em;
+  width: 1em;
+  transform: rotate(-90deg);
+  transform-origin: left bottom;
+  white-space: nowrap;
+}

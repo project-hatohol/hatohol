@@ -1,0 +1,50 @@
+{% comment %}
+  Copyright (C) 2013 Hatohol Project
+
+  This file is part of Hatohol.
+
+  Hatohol is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 2 of the License, or
+  (at your option) any later version.
+
+  Hatohol is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+{% endcomment %}
+
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"></meta>
+    <link href="{{ STATIC_URL }}css/bootstrap.css" rel="stylesheet" media="screen"></link>
+    <link href="{{ STATIC_URL }}css/zabbix.css" rel="stylesheet" media="screen"></link>
+    <title>
+{% block title %}
+{% endblock %}
+    </title>
+  </head>
+
+  <body style="padding-top: 60px">
+    <div class="navbar navbar-inverse navbar-fixed-top">
+      <div class="navbar-inner">
+        <a class="brand">&nbsp;<i>Hatohol</i>&nbsp;</a>
+        <ul class="nav">
+{% block navbar %}
+{% endblock %}
+        </ul>
+      </div>
+    </div>
+
+{% block main %}
+{% endblock %}
+
+    <div style="text-align: center;">Copyright &copy; 2013 Project Hatohol</div>
+
+    <script src="{{ STATIC_URL }}js/jquery.js"></script>
+    <script src="{{ STATIC_URL }}js/bootstrap.js"></script>
+  </body>
+</html>
