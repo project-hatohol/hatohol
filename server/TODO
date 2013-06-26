@@ -3,7 +3,7 @@
 * [S] reuse the auth key obtained once.
 * [S] added a mechanism to set user name and password for ZABBIX API.
 * [S] error response by the requested format.
-* [S] stop executing configure script when mysql-config is missing.
+* [S] daemonize
 * [M] update items by the request.
 * [M] add mechanism for graph.
 * [S] discus about config file.
