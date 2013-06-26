@@ -63,6 +63,7 @@ Now preparing.
 Installation
 ------------
 [Server installation](server/README.md)
+[Client (Web UI server) installation](client/README)
 
 Plans
 -----
