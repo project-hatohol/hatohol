@@ -49,7 +49,7 @@ Getting json-glib:
 
 You can build & install json-glib by following commands:
 
-    $ PKG_CONFIGURE_PATH=/usr/local/lib/pkgconfig ./configure
+    $ ./configure
     $ make all
     $ su
     # make install
@@ -60,7 +60,7 @@ First, you need to install required libraries.
 Then run the following commands to install Hatohol:
 
     $ ./autogen.sh
-    $ ./configure
+    $ PKG_CONFIG_PATH=/usr/local/lib/pkgconfig ./configure
     $ make
     $ su
     # make install
