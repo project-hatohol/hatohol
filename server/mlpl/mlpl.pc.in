@@ -1,0 +1,10 @@
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+libdir=@libdir@
+includedir=@includedir@
+
+Name: mlpl
+Description: Basic Library for Hatohol
+Version: @VERSION@
+Libs: -L${libdir} -lmlpl
+Cflags: -I${includedir}/mlpl

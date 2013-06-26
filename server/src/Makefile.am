@@ -54,6 +54,9 @@ libhatohol_la_SOURCES = \
 	ArmBase.h ArmZabbixAPI.h ArmNagiosNDOUtils.h \
 	ArmZabbixAPI-template.h
 
+MLPL_CFLAGS = -I ../mlpl/src
+MLPL_LIBS = ../mlpl/src/libmlpl.la
+
 AM_CXXFLAGS = -Wall -g3 \
 	-D__STDC_FORMAT_MACROS \
 	$(MLPL_CFLAGS) $(GLIB_CFLAGS) $(GTHREAD_CFLAGS) $(GIO_CFLAGS) \

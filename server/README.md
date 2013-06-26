@@ -26,8 +26,9 @@ Required libraries
 - libsoup >= 2.22 (https://live.gnome.org/LibSoup)
 - json-glib >= 0.12.0 (https://live.gnome.org/JsonGlib/)
   (CentOS and EPEL do not contain json-glib.)
-- MLPL (https://github.com/miraclelinux/mlpl)
-  (Currently no distribution contains it)
+- libc
+- librt
+- libstdc++
 
 ### Example to install required libraries on CentOS 6.4
 First, you need to install development tools to build Hatohol and some required
@@ -39,25 +40,19 @@ You can install sqlite3, MySQL and libsoup by following command:
 
     # yum install sqlite-devel mysql-devel libsoup-devel
 
-To install json-glib and MLPL, you need to get source packages and build them.
+To install json-glib, you need to get source packages and build them.
 
 Getting json-glib:
 
     $ wget http://ftp.gnome.org/pub/GNOME/sources/json-glib/0.12/json-glib-0.12.6.tar.bz2
     $ tar xvfj json-glib-0.12.6.tar.bz2
 
-Getting MLPL:
+You can build & install json-glib by following commands:
 
-    $ git clone https://github.com/miraclelinux/mlpl.git
-
-You can build & install json-glib and MLPL by following commands:
-
-    $ ./autogen.sh
-    $ ./configure
-    $ make
+    $ PKG_CONFIGURE_PATH=/usr/local/lib/pkgconfig ./configure
+    $ make all
     $ su
     # make install
-    # /sbin/ldconfig
 
 How to build Hatohol
 --------------------
@@ -69,6 +64,7 @@ Then run the following commands to install Hatohol:
     $ make
     $ su
     # make install
+    # /sbin/ldconfig
 
 How to start
 ------------

@@ -11,12 +11,6 @@ AC_CONFIG_MACRO_DIR([m4])
 AM_SILENT_RULES([yes])
 
 dnl **************************************************************
-dnl Checks for MLPL
-dnl **************************************************************
-MLPL_REQUIRED=0.0.16
-PKG_CHECK_MODULES(MLPL, mlpl >= $MLPL_REQUIRED)
-
-dnl **************************************************************
 dnl Checks for GLib
 dnl **************************************************************
 GLIB_REQUIRED=2.22
@@ -97,6 +91,10 @@ dnl **************************************************************
 
 AC_OUTPUT([
 Makefile
+mlpl/Makefile
+mlpl/src/Makefile
+mlpl/test/Makefile
+mlpl/mlpl.pc
 src/Makefile
 tools/Makefile
 test/Makefile

@@ -6,6 +6,9 @@ endif
 
 noinst_SCRIPTS = mkFooTable.sh
 
+MLPL_CFLAGS = -I ../../mlpl/src
+MLPL_LIBS = ../..//mlpl/src/libmlpl.la
+
 AM_CXXFLAGS = -g3 -Wall -I .. -I ../../src $(GLIB_CFLAGS) $(MLPL_CFLAGS)
 LIBS = ../../src/libhatohol.la ../libTest.la
 
