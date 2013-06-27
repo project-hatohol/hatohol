@@ -9,15 +9,10 @@ install:
   - curl https://raw.github.com/clear-code/cutter/master/data/travis/setup.sh | sh
   - sudo apt-get install -qq -y autotools-dev libglib2.0-dev libjson-glib-dev libsoup2.4-dev libmysqlclient-dev sqlite3
 before_script:
-  - pushd mlpl
+  - pushd server
   - ./autogen.sh
   - ./configure
-  - make
-  - sudo make install
-  - sudo /sbin/ldconfig
   - popd
-  - ./autogen.sh
-  - ./configure
 script:
-  - cd test
+  - pushd server/test
   - ./run-test.sh
