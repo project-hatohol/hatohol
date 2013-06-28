@@ -7,6 +7,7 @@
 * [S] init script (/etc/rc.d/...)
 * [S] add spec file to make RPM files
 * [S] add files to make deb files
+* [S] store logs to file (as a MLPL feature)
 * [M] update items by the request.
       => Stress test should be done for the improved version.
 * [M] consider and implement easy update mechanism
