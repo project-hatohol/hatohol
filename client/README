@@ -81,4 +81,4 @@ $ ./manage.py runserver
 If you want to serve to the outside of the host that this frontend run on, you need specifying the address.
 
 Ex.)
-$ ./manage.py runserver 0.0.0.0
+$ ./manage.py runserver 0.0.0.0:8000
