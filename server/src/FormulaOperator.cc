@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Hatohol Project
+ * Copyright (C) 2013 Project Hatohol
  *
  * This file is part of Hatohol.
  *
