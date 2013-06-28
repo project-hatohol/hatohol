@@ -434,7 +434,7 @@ string ArmZabbixAPI::getInitialJsonRequest(void)
 	agent.add("id", 1);
 
 	agent.startObject("params");
-	agent.add("user" , "admin");
+	agent.add("user" , "Admin");
 	agent.add("password", "zabbix");
 	agent.endObject();
 
