@@ -106,7 +106,8 @@ void test_itemChar(void)
 
 void test_createFromStringDatetime(void)
 {
-	time_t time = 1369797965; // 2013-05-29 12:26:05
+	time_t time_utc = 1369830365; // 2013-05-29 12:26:05 +000
+	time_t time_local = time_utc + timezone;
 	struct tm tm;
 	tm.tm_year = 2013;
 	tm.tm_mon  = 5;
@@ -119,7 +120,7 @@ void test_createFromStringDatetime(void)
 	                                  tm.tm_hour, tm.tm_min, tm.tm_sec);
 	ItemDataPtr dataPtr =
 	  SQLUtils::createFromString(str, SQL_COLUMN_TYPE_DATETIME);
-	cppcut_assert_equal((int)time, ItemDataUtils::getInt(dataPtr));
+	cppcut_assert_equal((int)time_local, ItemDataUtils::getInt(dataPtr));
 }
 
 } // namespace testSQLUtils
