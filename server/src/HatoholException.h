@@ -69,8 +69,9 @@ private:
 
 #define THROW_HATOHOL_EXCEPTION(FMT, ...) \
 do { \
-	string msg = StringUtils::sprintf(FMT, ##__VA_ARGS__); \
-	throw HatoholException(msg, __FILE__, __LINE__); \
+	throw HatoholException( \
+	  StringUtils::sprintf(FMT, ##__VA_ARGS__), \
+	  __FILE__, __LINE__); \
 } while (0)
 
 #define HATOHOL_ASSERT(COND, FMT, ...) \
