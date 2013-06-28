@@ -27,7 +27,7 @@ gint     g_exitStatus;
 
 void setup()
 {
-	cut_pend("This test will be recreated to execute without the running hatohol process.");
+	cut_omit("This test will be recreated to execute without the running hatohol process.");
 }
 
 void teardown()
