@@ -47,7 +47,7 @@ void Utils::init(void)
 		g_jsMethodValidCodeMap[i] = true;
 	for (size_t i = '0'; i <= '9'; i++)
 		g_jsMethodValidCodeMap[i] = true;
-	g_jsMethodValidCodeMap['_'] = true;
+	g_jsMethodValidCodeMap[static_cast<size_t>('_')] = true;
 }
 
 string Utils::makeDemangledStackTraceLines(void **trace, int num)
