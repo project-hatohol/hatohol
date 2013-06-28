@@ -4,9 +4,12 @@
 * [S] added a mechanism to set user name and password for ZABBIX API.
 * [S] error response by the requested format.
 * [S] daemonize
+* [S] init script (/etc/rc.d/...)
 * [S] add spec file to make RPM files
 * [S] add files to make deb files
 * [M] update items by the request.
+      => Stress test should be done for the improved version.
+* [M] consider and implement easy update mechanism
 * [M] add mechanism for graph.
 * [S] discus configuration mechanism (including redundant system)
 * [M] synchronize the deleted items, trigger, hosts, etc.
