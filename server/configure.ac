@@ -57,6 +57,15 @@ AC_SUBST(MYSQL_CFLAGS)
 AC_SUBST(MYSQL_LIBS)
 
 dnl **************************************************************
+dnl Flag setting for MLPL
+dnl **************************************************************
+MLPL_CFLAGS=-I`pwd`/mlpl/src
+MLPL_LIBS=`pwd`/mlpl/src/libmlpl.la
+
+AC_SUBST(MLPL_CFLAGS)
+AC_SUBST(MLPL_LIBS)
+
+dnl **************************************************************
 dnl Checks for Cutter
 dnl **************************************************************
 CUTTER_REQUIRED=1.2.2
