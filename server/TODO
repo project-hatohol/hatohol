@@ -4,9 +4,11 @@
 * [S] added a mechanism to set user name and password for ZABBIX API.
 * [S] error response by the requested format.
 * [S] daemonize
+* [S] add spec file to make RPM files
+* [S] add files to make deb files
 * [M] update items by the request.
 * [M] add mechanism for graph.
-* [S] discus about config file.
+* [S] discus configuration mechanism (including redundant system)
 * [M] synchronize the deleted items, trigger, hosts, etc.
 * [S] show queick internall status of hatohol by WEB Interface for debugging or detail investigation.
 * [S] add a way to specify database directory by setting file.
