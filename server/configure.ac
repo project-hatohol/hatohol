@@ -59,8 +59,8 @@ AC_SUBST(MYSQL_LIBS)
 dnl **************************************************************
 dnl Flag setting for MLPL
 dnl **************************************************************
-MLPL_CFLAGS=-I`pwd`/mlpl/src
-MLPL_LIBS=`pwd`/mlpl/src/libmlpl.la
+MLPL_CFLAGS=-I\${abs_top_srcdir}/mlpl/src
+MLPL_LIBS=\${abs_top_srcdir}/mlpl/src/libmlpl.la
 
 AC_SUBST(MLPL_CFLAGS)
 AC_SUBST(MLPL_LIBS)
