@@ -9,4 +9,4 @@
 # Port 0 means default port.
 faceRestPort: 0
 server: 1, 0, localhost, 127.0.0.1, My machine, 80, 30, 10, admin,    zabbix
-server: 2, 1, localhost, 127.0.0.1, NDOUtils,   0,  30, 10, udoutils, admin, udoutils
+server: 2, 1, localhost, 127.0.0.1, NDOUtils,   0,  30, 10, ndoutils, admin, ndoutils
