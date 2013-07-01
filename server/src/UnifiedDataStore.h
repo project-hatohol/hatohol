@@ -22,7 +22,7 @@
 
 #include "VirtualDataStore.h"
 
-class UnifiedDataStore : public UnifiedDataStore
+class UnifiedDataStore : public VirtualDataStore
 {
 public:
 	static UnifiedDataStore *getInstance(void);

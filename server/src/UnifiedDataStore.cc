@@ -29,8 +29,8 @@ struct UnifiedDataStore::PrivateContext
 	static MutexLock         mutex;
 };
 
-UnifiedDataStore *UnifieddataStore::PrivateContext::instance = NULL;
-MutexLock UnifieddataStore::PrivateContext::mutex;
+UnifiedDataStore *UnifiedDataStore::PrivateContext::instance = NULL;
+MutexLock UnifiedDataStore::PrivateContext::mutex;
 
 // ---------------------------------------------------------------------------
 // Public static methods
