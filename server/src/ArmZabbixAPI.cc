@@ -86,8 +86,8 @@ ArmZabbixAPI::ArmZabbixAPI(const MonitoringServerInfo &serverInfo)
 	m_ctx->uri += StringUtils::sprintf(":%d", serverInfo.port);
 	m_ctx->uri += "/zabbix/api_jsonrpc.php";
 
-	m_ctx->username=serverInfo.userName.c_str();
-	m_ctx->password=serverInfo.password.c_str();
+	m_ctx->username = serverInfo.userName.c_str();
+	m_ctx->password = serverInfo.password.c_str();
 }
 
 ArmZabbixAPI::~ArmZabbixAPI()
@@ -439,7 +439,7 @@ string ArmZabbixAPI::getInitialJsonRequest(void)
 	agent.add("id", 1);
 
 	agent.startObject("params");
-	agent.add("user" , m_ctx->username);
+	agent.add("user", m_ctx->username);
 	agent.add("password", m_ctx->password);
 	agent.endObject();
 
