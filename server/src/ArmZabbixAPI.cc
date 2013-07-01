@@ -36,9 +36,6 @@ using namespace mlpl;
 
 using namespace std;
 
-static const int DEFAULT_RETRY_INTERVAL = 10;
-static const int DEFAULT_REPEAT_INTERVAL = 30;
-
 static const char *MIME_JSON_RPC = "application/json-rpc";
 
 struct ArmZabbixAPI::PrivateContext
