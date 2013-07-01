@@ -1,7 +1,9 @@
 [S] Short-term, [M] Middle-term, [L] Long-term
 ====
-* [S] Convenient script to install external packages such as Django and bootstrap.
-* [S] Default soft order of Event
-* [S] Remove or show message when dashboard page is selected.
-* [S] support multi langes.
+* [S] Convenient script to install external packages such as Django and bootstrap. (#6)
+* [S] Default soft order of Event. (#7)
+* [S] automatically update of the content. (#8)
+* [S] Remove or show message when dashboard page is selected. (#9)
+* [S] support multi langes. (#10)
+* [S] configuration of target servers by Web Interface (#22)
 

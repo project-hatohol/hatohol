@@ -1,21 +1,22 @@
 [S] Short-term, [M] Middle-term, [L] Long-term
 ====
-* [S] reuse the auth key obtained once.
-* [S] added a mechanism to set user name and password for ZABBIX API.
-* [S] error response by the requested format.
-* [S] daemonize
-* [S] init script (/etc/rc.d/...)
-* [S] add spec file to make RPM files
-* [S] add files to make deb files
-* [S] store logs to file (as a MLPL feature)
-* [M] update items by the request.
+* [S] reuse the auth key obtained once. (#4)
+* [S] added a mechanism to set user name and password for ZABBIX API. (#3)
+* [S] error response by the requested format. (#11)
+* [S] daemonize (#12)
+* [S] init script (/etc/rc.d/...) (#13)
+* [S] add spec file to make RPM files (#14)
+* [S] add files to make deb files (#15)
+* [S] store logs to file (as a MLPL feature) (#16)
+* [M] update items by the request. (#17)
       => Stress test should be done for the improved version.
-* [M] consider and implement easy update mechanism
-* [M] add mechanism for graph.
-* [S] discus configuration mechanism (including redundant system)
-* [M] synchronize the deleted items, trigger, hosts, etc.
+* [M] consider for HA configuration(#18)
+      - including configuration and update mechanism
+      - a way to specify database directory.
+* [M] add mechanism for graph. (#19)
+* [M] synchronize the deleted items, trigger, hosts, etc. (#20)
+* [S] Notifications of server errors asynchronouslya (#21)
 * [S] show queick internall status of hatohol by WEB Interface for debugging or detail investigation.
-* [S] add a way to specify database directory by setting file.
 * [M] fix code that are marked with TODO comments.
 * [M] detect small memory leaks and fix it
 
