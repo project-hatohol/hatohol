@@ -3,56 +3,71 @@ hatohol_SOURCES = main.cc
 
 lib_LTLIBRARIES = libhatohol.la
 libhatohol_la_SOURCES = \
-	Hatohol.cc HatoholThreadBase.cc HatoholException.cc \
-	ConfigManager.cc DBAgent.cc DBAgentFactory.cc \
-	DBAgentSQLite3.cc DBAgentMySQL.cc \
-	DBClient.cc DBClientConfig.cc DBClientHatohol.cc DBClientZabbix.cc \
-	Utils.cc FaceBase.cc FaceMySQL.cc FaceMySQLWorker.cc \
-	FaceRest.cc \
-	SQLProcessorTypes.cc SQLProcessorException.cc SQLUtils.cc \
-	SQLProcessorFactory.cc SQLProcessor.cc SQLProcessorZabbix.cc \
-	SQLProcessorSelect.cc SQLProcessorInsert.cc SQLProcessorUpdate.cc \
-	SQLFormulaParser.cc SQLColumnParser.cc SQLWhereParser.cc \
-	SQLFromParser.cc SQLTableFormula.cc \
-	PrimaryCondition.cc PrimaryConditionPicker.cc \
-	FormulaElement.cc FormulaOperator.cc FormulaFunction.cc \
-	UsedCountable.cc \
-	ItemGroupType.cc ItemData.cc ItemGroup.cc ItemTable.cc \
-	ItemPtr.cc ItemTablePtr.cc ItemGroupPtr.cc ItemDataUtils.cc \
-	VirtualDataStore.cc VirtualDataStoreZabbix.cc \
-	VirtualDataStoreZabbixProfiles.cc \
-	DataStoreException.cc \
-	DataStore.cc DataStoreManager.cc DataStoreZabbix.cc \
-	DataStoreNagios.cc VirtualDataStoreNagios.cc \
-	JsonBuilderAgent.cc JsonParserAgent.cc \
-	ArmBase.cc ArmZabbixAPI.cc ArmNagiosNDOUtils.cc\
-	\
-	Hatohol.h HatoholThreadBase.h HatoholException.h \
-	ConfigManager.h DBAgent.h DBAgentFactory.h \
-	DBAgentSQLite3.h DBAgentMySQL.h \
-	DBClient.h DBClientConfig.h DBClientHatohol.h DBClientZabbix.h \
+	ArmBase.cc ArmBase.h \
+	ArmNagiosNDOUtils.cc ArmNagiosNDOUtils.h \
+	ArmZabbixAPI-template.h \
+	ArmZabbixAPI.cc ArmZabbixAPI.h \
+	ConfigManager.cc ConfigManager.h \
+	DBAgent.cc DBAgent.h \
+	DBAgentFactory.cc DBAgentFactory.h \
+	DBAgentMySQL.cc DBAgentMySQL.h \
+	DBAgentSQLite3.cc DBAgentSQLite3.h \
+	DBClient.cc DBClient.h \
+	DBClientConfig.cc DBClientConfig.h \
+	DBClientHatohol.cc DBClientHatohol.h \
 	DBClientUtils.h \
-	Utils.h FaceBase.h FaceMySQL.h FaceMySQLWorker.h \
-	FaceRest.h \
-	SQLProcessorTypes.h SQLProcessorException.h SQLUtils.h \
-	SQLProcessorFactory.h SQLProcessor.h SQLProcessorZabbix.h \
-	SQLProcessorSelect.h SQLProcessorInsert.h SQLProcessorUpdate.h \
-	SQLFormulaParser.h SQLColumnParser.h SQLWhereParser.h \
-	SQLFromParser.h SQLTableFormula.h \
-	PrimaryCondition.h PrimaryConditionPicker.h \
-	FormulaElement.h FormulaOperator.h FormulaFunction.h \
-	UsedCountable.h \
-	ItemGroupType.h ItemData.h ItemGroup.h ItemTable.h \
-	ItemPtr.h ItemTablePtr.h ItemGroupPtr.h ItemDataUtils.h \
-	ItemDataPtr.h ItemEnum.h ItemTableUtils.h ItemGroupEnum.h \
-	VirtualDataStore.h VirtualDataStoreZabbix.h \
-	VirtualDataStoreZabbixMacro.h \
-	DataStoreException.h \
-	DataStore.h DataStoreManager.h DataStoreZabbix.h \
-	DataStoreNagios.h VirtualDataStoreNagios.h \
-	JsonBuilderAgent.h JsonParserAgent.h \
-	ArmBase.h ArmZabbixAPI.h ArmNagiosNDOUtils.h \
-	ArmZabbixAPI-template.h
+	DBClientZabbix.cc DBClientZabbix.h \
+	DataStore.cc DataStore.h \
+	DataStoreException.cc DataStoreException.h \
+	DataStoreManager.cc DataStoreManager.h \
+	DataStoreNagios.cc DataStoreNagios.h \
+	DataStoreZabbix.cc DataStoreZabbix.h \
+	FaceBase.cc FaceBase.h \
+	FaceMySQL.cc FaceMySQL.h \
+	FaceMySQLWorker.cc FaceMySQLWorker.h \
+	FaceRest.cc FaceRest.h \
+	FormulaElement.cc FormulaElement.h \
+	FormulaFunction.cc FormulaFunction.h \
+	FormulaOperator.cc FormulaOperator.h \
+	Hatohol.cc Hatohol.h \
+	HatoholException.cc HatoholException.h \
+	HatoholThreadBase.cc HatoholThreadBase.h \
+	ItemData.cc ItemData.h \
+	ItemDataPtr.h \
+	ItemDataUtils.cc ItemDataUtils.h \
+	ItemEnum.h \
+	ItemGroup.cc ItemGroup.h \
+	ItemGroupEnum.h \
+	ItemGroupPtr.cc ItemGroupPtr.h \
+	ItemGroupType.cc ItemGroupType.h \
+	ItemPtr.cc ItemPtr.h \
+	ItemTable.cc ItemTable.h \
+	ItemTablePtr.cc ItemTablePtr.h \
+	ItemTableUtils.h \
+	JsonBuilderAgent.cc JsonBuilderAgent.h \
+	JsonParserAgent.cc JsonParserAgent.h \
+	PrimaryCondition.cc PrimaryCondition.h \
+	PrimaryConditionPicker.cc PrimaryConditionPicker.h \
+	SQLColumnParser.cc SQLColumnParser.h \
+	SQLFormulaParser.cc SQLFormulaParser.h \
+	SQLFromParser.cc SQLFromParser.h \
+	SQLProcessor.cc SQLProcessor.h \
+	SQLProcessorException.cc SQLProcessorException.h \
+	SQLProcessorFactory.cc SQLProcessorFactory.h \
+	SQLProcessorInsert.cc SQLProcessorInsert.h \
+	SQLProcessorSelect.cc SQLProcessorSelect.h \
+	SQLProcessorTypes.cc SQLProcessorTypes.h \
+	SQLProcessorUpdate.cc SQLProcessorUpdate.h \
+	SQLProcessorZabbix.cc SQLProcessorZabbix.h \
+	SQLTableFormula.cc SQLTableFormula.h \
+	SQLUtils.cc SQLUtils.h \
+	SQLWhereParser.cc SQLWhereParser.h \
+	UsedCountable.cc UsedCountable.h \
+	Utils.cc Utils.h \
+	VirtualDataStore.cc VirtualDataStore.h \
+	VirtualDataStoreNagios.cc VirtualDataStoreNagios.h \
+	VirtualDataStoreZabbix.cc VirtualDataStoreZabbix.h \
+	VirtualDataStoreZabbixProfiles.cc VirtualDataStoreZabbixMacro.h
 
 AM_CXXFLAGS = -Wall -g3 \
 	-D__STDC_FORMAT_MACROS \
