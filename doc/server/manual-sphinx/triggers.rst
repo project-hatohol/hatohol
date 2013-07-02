@@ -73,7 +73,7 @@ Repsponse structure
 .. note:: [Condition] Always: always, True: only when result is True, False: only when result is False.
 
 Trigger object
--------------
+--------------
 .. list-table::
    :header-rows: 1
 
