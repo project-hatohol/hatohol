@@ -20,9 +20,9 @@
 #ifndef UnifiedDataStore_h
 #define UnifiedDataStore_h
 
-#include "VirtualDataStore.h"
+#include "DBClientHatohol.h"
 
-class UnifiedDataStore : public VirtualDataStore
+class UnifiedDataStore
 {
 public:
 	static UnifiedDataStore *getInstance(void);
