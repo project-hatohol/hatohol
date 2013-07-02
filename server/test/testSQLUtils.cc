@@ -106,6 +106,7 @@ void test_itemChar(void)
 
 void test_createFromStringDatetime(void)
 {
+	tzset();
 	time_t time_utc = 1369830365; // 2013-05-29 12:26:05 +000
 	time_t time_local = time_utc + timezone;
 	struct tm tm;
