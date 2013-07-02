@@ -432,14 +432,11 @@ void test_checkUsernamePassword(void)
 	JsonParserAgent parser(armZbxApiTestee.startInitialJsonRequest());
 	string jsonUserName;
 	string jsonPassword;
-	
 	cppcut_assert_equal(false, parser.hasError());
+	cppcut_assert_equal(true, parser.startObject("params"));
 	cppcut_assert_equal(true, parser.read("user", jsonUserName));
 	cppcut_assert_equal(true, parser.read("password", jsonPassword));
-
-	parser.read("user", jsonUserName);
-	parser.read("password", jsonPassword);
-	cppcut_assert_equal(true, parser.read("user", jsonUserName));
+	cppcut_assert_equal(serverInfo.userName, jsonUserName);
 	cppcut_assert_equal(serverInfo.password, jsonPassword);
 }
 } // namespace testArmZabbixAPI
