@@ -28,6 +28,7 @@ static MonitoringServerInfo g_defaultServerInfo =
 	5,                        // retry_interval_sec
 };
 
+
 class ArmZabbixAPITestee :  public ArmZabbixAPI {
 
 typedef bool (ArmZabbixAPITestee::*ThreadOneProc)(void);
@@ -252,6 +253,14 @@ protected:
 			m_result = true;
 			requestExit();
 		}
+		return true;
+	}
+
+	bool startInitialJsonRequest(void)
+	{
+		m_ctx->username = admin;
+		m_ctx->password = zabbix;
+		getInitialJsonRequest();
 		return true;
 	}
 
