@@ -430,13 +430,16 @@ void test_checkUsernamePassword(void)
 	MonitoringServerInfo serverInfo = g_defaultServerInfo;
 	ArmZabbixAPITestee armZbxApiTestee(serverInfo);
 	JsonParserAgent parser(armZbxApiTestee.startInitialJsonRequest());
+	string jsonUserName;
+	string jsonPassword;
 	
-	string json_userName = "";
-	string json_password = "";
-	parser.read("user", json_userName);
-	parser.read("password", json_password);
+	cppcut_assert_equal(false, parser.hasError());
+	cppcut_assert_equal(true, parser.read("user", jsonUserName));
+	cppcut_assert_equal(true, parser.read("password", jsonPassword));
 
-	cppcut_assert_equal(serverInfo.userName, json_userName);
-	cppcut_assert_equal(serverInfo.password, json_password);
+	parser.read("user", jsonUserName);
+	parser.read("password", jsonPassword);
+	cppcut_assert_equal(true, parser.read("user", jsonUserName));
+	cppcut_assert_equal(serverInfo.password, jsonPassword);
 }
 } // namespace testArmZabbixAPI
