@@ -20,6 +20,8 @@
 #include <stdexcept>
 #include <MutexLock.h>
 #include "UnifiedDataStore.h"
+#include "VirtualDataStoreZabbix.h"
+#include "VirtualDataStoreNagios.h"
 
 using namespace mlpl;
 
@@ -27,6 +29,8 @@ struct UnifiedDataStore::PrivateContext
 {
 	static UnifiedDataStore *instance;
 	static MutexLock         mutex;
+	VirtualDataStoreZabbix *vdsZabbix;
+	VirtualDataStoreNagios *vdsNagios;
 };
 
 UnifiedDataStore *UnifiedDataStore::PrivateContext::instance = NULL;
@@ -54,6 +58,8 @@ UnifiedDataStore *UnifiedDataStore::getInstance(void)
 // ---------------------------------------------------------------------------
 void UnifiedDataStore::start(void)
 {
+	m_ctx->vdsZabbix->start();
+	m_ctx->vdsNagios->start();
 }
 
 void UnifiedDataStore::getTriggerList(TriggerInfoList &triggerList)
@@ -82,6 +88,12 @@ UnifiedDataStore::UnifiedDataStore(void)
 : m_ctx(NULL)
 {
 	m_ctx = new PrivateContext();
+
+	// start VirtualDataStoreZabbix
+	m_ctx->vdsZabbix = VirtualDataStoreZabbix::getInstance();
+
+	// start VirtualDataStoreNagios
+	m_ctx->vdsNagios = VirtualDataStoreNagios::getInstance();
 }
 
 UnifiedDataStore::~UnifiedDataStore()
