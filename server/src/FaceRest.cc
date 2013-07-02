@@ -24,7 +24,7 @@ using namespace mlpl;
 #include "JsonBuilderAgent.h"
 #include "HatoholException.h"
 #include "ConfigManager.h"
-#include "VirtualDataStoreZabbix.h"
+#include "UnifiedDataStore.h"
 
 int FaceRest::API_VERSION_SERVERS  = 1;
 int FaceRest::API_VERSION_TRIGGERS = 1;
@@ -364,11 +364,11 @@ void FaceRest::handlerGetTriggers
   (SoupServer *server, SoupMessage *msg, const char *path,
    GHashTable *query, SoupClientContext *client, HandlerArg *arg)
 {
-	VirtualDataStoreZabbix *vdsz = VirtualDataStoreZabbix::getInstance();
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	string jsonpCallbackName = getJsonpCallbackName(query, arg);
 
 	TriggerInfoList triggerList;
-	vdsz->getTriggerList(triggerList);
+	dataStore->getTriggerList(triggerList);
 
 	JsonBuilderAgent agent;
 	agent.startObject();
@@ -403,11 +403,11 @@ void FaceRest::handlerGetEvents
   (SoupServer *server, SoupMessage *msg, const char *path,
    GHashTable *query, SoupClientContext *client, HandlerArg *arg)
 {
-	VirtualDataStoreZabbix *vdsz = VirtualDataStoreZabbix::getInstance();
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	string jsonpCallbackName = getJsonpCallbackName(query, arg);
 
 	EventInfoList eventList;
-	vdsz->getEventList(eventList);
+	dataStore->getEventList(eventList);
 
 	JsonBuilderAgent agent;
 	agent.startObject();
