@@ -26,7 +26,8 @@ class UnifiedDataStore
 {
 public:
 	static UnifiedDataStore *getInstance(void);
-	void start(void);
+	virtual void start(void);
+	virtual void stop(void);
 
 	virtual void getTriggerList(TriggerInfoList &triggerList);
 	virtual void getEventList(EventInfoList &eventList);

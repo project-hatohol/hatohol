@@ -62,6 +62,12 @@ void UnifiedDataStore::start(void)
 	m_ctx->vdsNagios->start();
 }
 
+void UnifiedDataStore::stop(void)
+{
+	m_ctx->vdsZabbix->stop();
+	m_ctx->vdsNagios->stop();
+}
+
 void UnifiedDataStore::getTriggerList(TriggerInfoList &triggerList)
 {
 	DBClientHatohol dbHatohol;
