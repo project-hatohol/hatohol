@@ -256,12 +256,11 @@ protected:
 		return true;
 	}
 
-	bool startInitialJsonRequest(void)
+	void startInitialJsonRequest(void)
 	{
-		m_ctx->username = admin;
-		m_ctx->password = zabbix;
+		m_ctx->username = "admin";
+		m_ctx->password = "zabbix";
 		getInitialJsonRequest();
-		return true;
 	}
 
 private:
