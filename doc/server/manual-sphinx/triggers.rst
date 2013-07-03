@@ -135,6 +135,8 @@ Trigger status
    * - 1
      - TRIGGER_STATUS_PROBLEM
 
+.. _ref-trigger-severity:
+
 Trigger severity
 ----------------
 .. list-table::
