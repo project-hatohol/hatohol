@@ -4,6 +4,7 @@
 
 #include "DBAgentSQLite3.h"
 #include "UnifiedDataStore.h"
+#include "DBClientTest.h"
 #include <glib.h>
 
 namespace testUnifiedDataStore {
@@ -62,7 +63,7 @@ static const char *triggerSeverityToString(TriggerSeverityType type)
 
 }
 
-static string dumpTriggerInfo(TriggerInfo &info)
+static string dumpTriggerInfo(const TriggerInfo &info)
 {
 	return StringUtils::sprintf(
 		"%"PRIu32"|%"PRIu64"|%s|%s|%lu|%ld|%"PRIu64"|%s|%s\n",
@@ -79,14 +80,14 @@ static string dumpTriggerInfo(TriggerInfo &info)
 
 void test_getTriggerList(void)
 {
-	const string expected =
-		"1|1|OK|INFO|1362957197|0|235012|hostX1|TEST Trigger 1\n"
-		"3|2|PROBLEM|WARN|1362957200|0|10001|hostZ1|TEST Trigger 2\n"
-		"3|3|PROBLEM|INFO|1362951000|0|10002|hostZ2|TEST Trigger 3\n";
-	string actual;
+	string expected, actual;
+	for (size_t i = 0; i < NumTestTriggerInfo; i++)
+		expected += dumpTriggerInfo(testTriggerInfo[i]);
+
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	TriggerInfoList list;
 	dataStore->getTriggerList(list);
+
 	TriggerInfoListIterator it;
 	for (it = list.begin(); it != list.end(); it++)
 		actual += dumpTriggerInfo(*it);
