@@ -55,47 +55,55 @@ Repsponse structure
      - String
      - Error message. This key is reply only when result is False.
      - False
-   * - numberOfHosts
+   * - numberOfServers
      - Number
      - The number of hosts.
      - True
+   * - serverStatus
+     - Array
+     - The array of `ServerStatus object`_.
+     - True
+
+.. note:: [Condition] Always: always, True: only when result is True, False: only when result is False.
+
+ServerStatus object
+-------------------
+.. list-table::
+   :header-rows: 1
+
+   * - Key
+     - Value type
+     - Brief
+   * - numberOfHosts
+     - Number
+     - The number of hosts.
    * - numberOfItems
      - Number
      - The number of items.
-     - True
    * - numberOfTriggers
      - Number
      - The number of triggers.
-     - True
    * - numberOfUsers
      - Number
      - | The number of users.
        | **Currently not implemented ('0' is returned)**.
-     - True
    * - numberOfOnlineUsers
      - Number
      - | The number of online users.
        | **Currently not implemented ('0' is returned)**.
-     - True
    * - numberOfMonitoredItemsPerSecond
      - Number
      - | The number of monitored items per second.
        | **Currently not implemented ('0' is returned)**.
-     - True
    * - hostGroups
      - Array
      - The array of `HostGroup object`_.
-     - True
    * - systemStatus
      - Array
      - The array of `SystemStatus object`_.
-     - True
    * - hostStatus
      - Array
      - The array of `HostStatus object`_.
-     - True
-
-.. note:: [Condition] Always: always, True: only when result is True, False: only when result is False.
 
 HostGroup object
 -------------------
