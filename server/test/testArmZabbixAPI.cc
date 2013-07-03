@@ -119,7 +119,7 @@ public:
 		return ArmZabbixAPI::mainThreadOneProc();
 	}
 
-	string startInitialJsonRequest(void)
+	string testInitialJsonRequest(void)
 	{
 		return ArmZabbixAPI::getInitialJsonRequest();
 	}
@@ -429,7 +429,7 @@ void test_checkUsernamePassword(void)
 {
 	MonitoringServerInfo serverInfo = g_defaultServerInfo;
 	ArmZabbixAPITestee armZbxApiTestee(serverInfo);
-	JsonParserAgent parser(armZbxApiTestee.startInitialJsonRequest());
+	JsonParserAgent parser(armZbxApiTestee.testInitialJsonRequest());
 	string jsonUserName;
 	string jsonPassword;
 
