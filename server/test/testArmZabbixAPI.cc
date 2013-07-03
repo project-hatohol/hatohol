@@ -10,6 +10,7 @@
 #include "DBClientZabbix.h"
 #include "ConfigManager.h"
 #include "ItemTablePtr.h"
+#include "JsonParserAgent.h"
 
 namespace testArmZabbixAPI {
 static Synchronizer g_sync;
@@ -26,7 +27,10 @@ static MonitoringServerInfo g_defaultServerInfo =
 	0,                        // port
 	10,                       // polling_interval_sec
 	5,                        // retry_interval_sec
+	"userName",
+	"Password",
 };
+
 
 class ArmZabbixAPITestee :  public ArmZabbixAPI {
 
@@ -113,6 +117,11 @@ public:
 		// mutex in ArmZabbixAPI) is never called. So we explicitly
 		// call exitCallbackFunc() here to unlock the mutex;
 		return ArmZabbixAPI::mainThreadOneProc();
+	}
+
+	string startInitialJsonRequest(void)
+	{
+		return ArmZabbixAPI::getInitialJsonRequest();
 	}
 
 	void assertMakeItemVector(bool testNull = false)
@@ -416,4 +425,19 @@ void test_makeItemVecotrWithNullValue(void)
 	armZbxApiTestee.assertMakeItemVector(true);
 }
 
+void test_checkUsernamePassword(void)
+{
+	MonitoringServerInfo serverInfo = g_defaultServerInfo;
+	ArmZabbixAPITestee armZbxApiTestee(serverInfo);
+	JsonParserAgent parser(armZbxApiTestee.startInitialJsonRequest());
+	string jsonUserName;
+	string jsonPassword;
+
+	cppcut_assert_equal(false, parser.hasError());
+	cppcut_assert_equal(true, parser.startObject("params"));
+	cppcut_assert_equal(true, parser.read("user", jsonUserName));
+	cppcut_assert_equal(true, parser.read("password", jsonPassword));
+	cppcut_assert_equal(serverInfo.userName, jsonUserName);
+	cppcut_assert_equal(serverInfo.password, jsonPassword);
+}
 } // namespace testArmZabbixAPI
