@@ -428,6 +428,7 @@ void test_makeItemVecotrWithNullValue(void)
 void test_checkUsernamePassword(void)
 {
 	MonitoringServerInfo serverInfo = g_defaultServerInfo;
+	// Run the test in the field of non-default value of Zabbix
 	serverInfo.userName = "foofoo";
 	serverInfo.password = "barbar";
 	ArmZabbixAPITestee armZbxApiTestee(serverInfo);
