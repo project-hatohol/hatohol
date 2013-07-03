@@ -62,12 +62,18 @@ Repsponse structure
    * - serverStatus
      - Array
      - The array of `ServerStatus object`_.
+       Servers that Hatotal connot communicate with are not included in this array.
+       They are listed in the array: badServers.
+     - True
+   * - badServers
+     - Array
+     - An array of `BadServer object`_.
      - True
 
 .. note:: [Condition] Always: always, True: only when result is True, False: only when result is False.
 
 ServerStatus object
--------------------
+-----------------------------
 .. list-table::
    :header-rows: 1
 
@@ -157,3 +163,18 @@ HostStatus object
    * - numberOfBadHosts
      - Number
      - A number of bad hosts whose host group ID is hostGroupId in this object.
+
+BadServer object
+-----------------------------
+.. list-table::
+   :header-rows: 1
+
+   * - Key
+     - Value type
+     - Brief
+   * - serverId
+     - Number
+     - A server ID.
+   * - brief
+     - String
+     - A brief of the problem.
