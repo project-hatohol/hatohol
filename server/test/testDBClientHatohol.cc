@@ -158,7 +158,7 @@ void test_createTableTrigger(void)
 	cppcut_assert_equal(expectedOut, output);
 }
 
-void test_testAddTriggerInfo(void)
+void test_addTriggerInfo(void)
 {
 	string dbPath = deleteDBClientDB(DB_DOMAIN_ID_HATOHOL);
 
@@ -174,7 +174,7 @@ void test_testAddTriggerInfo(void)
 	cppcut_assert_equal(expectedOut, result);
 }
 
-void test_testGetTriggerInfoList(void)
+void test_getTriggerInfoList(void)
 {
 	for (size_t i = 0; i < NumTestTriggerInfo; i++)
 		assertAddTriggerToDB(&testTriggerInfo[i]);
