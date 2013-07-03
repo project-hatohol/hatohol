@@ -64,6 +64,9 @@ protected:
 	static void handlerHelloPage
 	  (SoupServer *server, SoupMessage *msg, const char *path,
 	   GHashTable *query, SoupClientContext *client, HandlerArg *arg);
+	static void handlerGetOverview
+	  (SoupServer *server, SoupMessage *msg, const char *path,
+	   GHashTable *query, SoupClientContext *client, HandlerArg *arg);
 	static void handlerGetServers
 	  (SoupServer *server, SoupMessage *msg, const char *path,
 	   GHashTable *query, SoupClientContext *client, HandlerArg *arg);
@@ -78,6 +81,7 @@ protected:
 	   GHashTable *query, SoupClientContext *client, HandlerArg *arg);
 
 private:
+	static const char *pathForGetOverview;
 	static const char *pathForGetServers;
 	static const char *pathForGetTriggers;
 	static const char *pathForGetEvents;

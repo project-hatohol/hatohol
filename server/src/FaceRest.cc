@@ -42,6 +42,7 @@ typedef map<ServerID, HostNameMap> HostNameMaps;
 
 static const guint DEFAULT_PORT = 33194;
 
+const char *FaceRest::pathForGetOverview = "/overview";
 const char *FaceRest::pathForGetServers = "/servers";
 const char *FaceRest::pathForGetTriggers = "/triggers";
 const char *FaceRest::pathForGetEvents   = "/events";
@@ -135,6 +136,9 @@ gpointer FaceRest::mainThread(HatoholThreadArg *arg)
 	soup_server_add_handler(m_soupServer, "/hello.html",
 	                        launchHandlerInTryBlock,
 	                        (gpointer)handlerHelloPage, NULL);
+	soup_server_add_handler(m_soupServer, pathForGetOverview,
+	                        launchHandlerInTryBlock,
+	                        (gpointer)handlerGetOverview, NULL);
 	soup_server_add_handler(m_soupServer, pathForGetServers,
 	                        launchHandlerInTryBlock,
 	                        (gpointer)handlerGetServers, NULL);
@@ -286,6 +290,79 @@ void FaceRest::handlerHelloPage
 	soup_message_set_status(msg, SOUP_STATUS_OK);
 }
 
+static void addOverviewEachServer(JsonBuilderAgent &agent,
+                                  MonitoringServerInfo &svInfo)
+{
+	agent.add("serverId", svInfo.id);
+	agent.add("serverHostName", svInfo.hostName);
+	agent.add("serverIpAddr", svInfo.ipAddress);
+	agent.add("serverNickname", svInfo.nickname);
+
+	agent.add("numberOfHosts", 0);
+	agent.add("numberOfItems", 0);
+	agent.add("numberOfTriggers", 0);
+
+	// TODO: These elements should be fixed
+	// after the funtion concerned is added
+	agent.add("numberOfUsers", 0);
+	agent.add("numberOfOnlineUsers", 0);
+	agent.add("numberOfMonitoredItemsPerSecond", 0);
+
+	// HostGroups
+	// TODO: We temtatively returns 'No group'. We should fix it
+	//       after host group is supported in Hatohol server.
+	agent.startArray("hostGroups");
+	for (int i = 0; i < 1; i++) {
+		agent.startObject();
+		agent.add("hostGroupId", 0);
+		agent.add("hostGroupName", "No group");
+		agent.endObject();
+	}
+	agent.endArray();
+
+	// SystemStatus
+	agent.startArray("systemStatus");
+	for (int severity = 0; severity < NUM_TRIGGER_SEVERITY; severity++) {
+		agent.startObject();
+		agent.add("hostGroupId", 0);
+		agent.add("severity", severity);
+		agent.add("numberOfHosts", 0);
+		agent.endObject();
+	}
+	agent.endArray();
+
+	// HostStatus
+	agent.startArray("hostStatus");
+	for (int i = 0; i < 1; i++) {
+		agent.startObject();
+		agent.add("hostGroupId", 0);
+		agent.add("numberOfGoodHosts", 0);
+		agent.add("numberOfBadHosts", 0);
+		agent.endObject();
+	}
+	agent.endArray();
+}
+
+static void addOverview(JsonBuilderAgent &agent)
+{
+	ConfigManager *configManager = ConfigManager::getInstance();
+	MonitoringServerInfoList monitoringServers;
+	configManager->getTargetServers(monitoringServers);
+	MonitoringServerInfoListIterator it = monitoringServers.begin();
+	agent.add("numberOfServers", monitoringServers.size());
+	agent.startArray("serverStatus");
+	for (; it != monitoringServers.end(); ++it) {
+		agent.startObject();
+		addOverviewEachServer(agent, *it);
+		agent.endObject();
+	}
+	agent.endArray();
+
+	agent.startArray("badServers");
+	// TODO: implemented
+	agent.endArray();
+}
+
 static void addServers(JsonBuilderAgent &agent)
 {
 	ConfigManager *configManager = ConfigManager::getInstance();
@@ -342,6 +419,22 @@ static void addServersIdNameHash(JsonBuilderAgent &agent,
 		agent.endObject();
 	}
 	agent.endObject();
+}
+
+void FaceRest::handlerGetOverview
+  (SoupServer *server, SoupMessage *msg, const char *path,
+   GHashTable *query, SoupClientContext *client, HandlerArg *arg)
+{
+	string jsonpCallbackName = getJsonpCallbackName(query, arg);
+
+	JsonBuilderAgent agent;
+	agent.startObject();
+	agent.add("apiVersion", API_VERSION_SERVERS);
+	agent.addTrue("result");
+	addOverview(agent);
+	agent.endObject();
+
+	replyJsonData(agent, msg, jsonpCallbackName, arg);
 }
 
 void FaceRest::handlerGetServers
