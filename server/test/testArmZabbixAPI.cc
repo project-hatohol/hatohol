@@ -428,6 +428,8 @@ void test_makeItemVecotrWithNullValue(void)
 void test_checkUsernamePassword(void)
 {
 	MonitoringServerInfo serverInfo = g_defaultServerInfo;
+	serverInfo.userName = "foofoo";
+	serverInfo.password = "barbar";
 	ArmZabbixAPITestee armZbxApiTestee(serverInfo);
 	JsonParserAgent parser(armZbxApiTestee.testInitialJsonRequest());
 	string jsonUserName;
