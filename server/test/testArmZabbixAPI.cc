@@ -27,8 +27,8 @@ static MonitoringServerInfo g_defaultServerInfo =
 	0,                        // port
 	10,                       // polling_interval_sec
 	5,                        // retry_interval_sec
-	"foo",                      // username
-	"bar",                      // password
+	"userName",
+	"Password",
 };
 
 
@@ -432,6 +432,7 @@ void test_checkUsernamePassword(void)
 	JsonParserAgent parser(armZbxApiTestee.startInitialJsonRequest());
 	string jsonUserName;
 	string jsonPassword;
+
 	cppcut_assert_equal(false, parser.hasError());
 	cppcut_assert_equal(true, parser.startObject("params"));
 	cppcut_assert_equal(true, parser.read("user", jsonUserName));
