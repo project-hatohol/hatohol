@@ -444,11 +444,11 @@ void FaceRest::handlerGetItems
   (SoupServer *server, SoupMessage *msg, const char *path,
    GHashTable *query, SoupClientContext *client, HandlerArg *arg)
 {
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	string jsonpCallbackName = getJsonpCallbackName(query, arg);
 
 	ItemInfoList itemList;
-	DBClientHatohol dbHatohol;
-	dbHatohol.getItemInfoList(itemList);
+	dataStore->getItemList(itemList);
 
 	JsonBuilderAgent agent;
 	agent.startObject();
