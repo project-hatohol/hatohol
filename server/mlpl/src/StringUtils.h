@@ -47,7 +47,7 @@ public:
 	static bool casecmp(string &str1, const char *str2);
 	static bool casecmp(const char *str1, string &str2);
 	static bool casecmp(string &str1, string &str2);
-	static string sprintf(const char *fmt, ...);
+	static string sprintf(const char *fmt, ...) __attribute__((__format__ (__printf__, 1, 2)));
 	static bool isNumber(const char *str, bool *isFloat = NULL);
 	static bool isNumber(const string &str, bool *isFloat = NULL);
 	static string toString(int number);
