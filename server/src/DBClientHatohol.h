@@ -36,6 +36,18 @@ enum TriggerSeverityType {
 	NUM_TRIGGER_SEVERITY,
 };
 
+struct HostInfo {
+	uint32_t            serverId;
+	uint64_t            id;
+	string              hostName;
+	string              ipAddr;
+	string              nickname;
+};
+
+typedef list<HostInfo>               HostInfoList;
+typedef HostInfoList::iterator       HostInfoListIterator;
+typedef HostInfoList::const_iterator HostInfoListConstIterator;
+
 struct TriggerInfo {
 	uint32_t            serverId;
 	uint64_t            id;
