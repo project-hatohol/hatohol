@@ -80,6 +80,18 @@ ServerStatus object
    * - Key
      - Value type
      - Brief
+   * - serverId
+     - Number
+     - A server ID.
+   * - serverHostName
+     - String
+     - A server host name.
+   * - serverIpAddr
+     - String
+     - An IP address of the server.
+   * - serverNickName
+     - String
+     - A nickname of the server.
    * - numberOfHosts
      - Number
      - The number of hosts.
