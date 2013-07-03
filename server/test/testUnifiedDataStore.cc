@@ -5,7 +5,6 @@
 #include "DBAgentSQLite3.h"
 #include "UnifiedDataStore.h"
 #include "DBClientTest.h"
-#include <glib.h>
 
 namespace testUnifiedDataStore {
 
