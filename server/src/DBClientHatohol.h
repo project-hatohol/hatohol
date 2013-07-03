@@ -114,6 +114,8 @@ public:
 	DBClientHatohol(void);
 	virtual ~DBClientHatohol();
 
+	void getHostInfoList(HostInfoList &hostInfoList);
+
 	void addTriggerInfo(TriggerInfo *triggerInfo);
 	void addTriggerInfoList(const TriggerInfoList &triggerInfoList);
 	void getTriggerInfoList(TriggerInfoList &triggerInfoList);

@@ -485,6 +485,52 @@ DBClientHatohol::~DBClientHatohol()
 		delete m_ctx;
 }
 
+void DBClientHatohol::getHostInfoList(HostInfoList &hostInfoList)
+{
+	// Now we don't have a DB table for hosts. So we get a host list from
+	// the trigger table. In the future, we will add the table for hosts
+	// and fix the following implementation to use it.
+	DBAgentSelectExArg arg;
+	arg.tableName = TABLE_NAME_TRIGGERS;
+
+	// server ID
+	string stmt = StringUtils::sprintf("distinct %s", 
+	    COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SERVER_ID].columnName);
+	arg.statements.push_back(stmt);
+	arg.columnTypes.push_back(
+	    COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SERVER_ID].type);
+
+	// host ID
+	arg.statements.push_back(
+	    COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_HOST_ID].columnName);
+	arg.columnTypes.push_back(
+	    COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_HOST_ID].type);
+
+	// host name
+	arg.statements.push_back(
+	    COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_HOSTNAME].columnName);
+	arg.columnTypes.push_back(
+	    COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_HOSTNAME].type);
+
+	DBCLIENT_TRANSACTION_BEGIN() {
+		select(arg);
+	} DBCLIENT_TRANSACTION_END();
+
+	// get the result
+	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
+	ItemGroupListConstIterator it = grpList.begin();
+	for (; it != grpList.end(); ++it) {
+		size_t idx = 0;
+		const ItemGroup *itemGroup = *it;
+		hostInfoList.push_back(HostInfo());
+		HostInfo &hostInfo = hostInfoList.back();
+
+		hostInfo.serverId  = GET_INT_FROM_GRP(itemGroup, idx++);
+		hostInfo.id        = GET_UINT64_FROM_GRP(itemGroup, idx++);
+		hostInfo.hostName  = GET_STRING_FROM_GRP(itemGroup, idx++);
+	}
+}
+
 void DBClientHatohol::addTriggerInfo(TriggerInfo *triggerInfo)
 {
 	DBCLIENT_TRANSACTION_BEGIN() {
