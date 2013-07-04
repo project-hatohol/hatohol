@@ -304,7 +304,11 @@ static void addOverviewEachServer(JsonBuilderAgent &agent,
 	HostInfoList hostInfoList;
 	dataStore->getHostList(hostInfoList, svInfo.id);
 	agent.add("numberOfHosts", hostInfoList.size());
-	agent.add("numberOfItems", 0);
+
+	ItemInfoList itemInfoList;
+	dataStore->getItemList(itemInfoList, svInfo.id);
+	agent.add("numberOfItems", itemInfoList.size());
+
 	agent.add("numberOfTriggers", 0);
 
 	// TODO: These elements should be fixed

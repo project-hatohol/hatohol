@@ -98,10 +98,11 @@ void UnifiedDataStore::getEventList(EventInfoList &eventList)
 	dbHatohol.getEventInfoList(eventList);
 }
 
-void UnifiedDataStore::getItemList(ItemInfoList &itemList)
+void UnifiedDataStore::getItemList(ItemInfoList &itemList,
+                                   uint32_t targetServerId)
 {
 	DBClientHatohol dbHatohol;
-	dbHatohol.getItemInfoList(itemList);
+	dbHatohol.getItemInfoList(itemList, targetServerId);
 }
 
 void UnifiedDataStore::getHostList(HostInfoList &hostInfoList,
