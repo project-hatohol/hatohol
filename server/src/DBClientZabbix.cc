@@ -1571,7 +1571,7 @@ DBClientZabbix::DBClientZabbix(size_t zabbixServerId)
 : m_ctx(NULL)
 {
 	HATOHOL_ASSERT(zabbixServerId < NUM_MAX_ZABBIX_SERVERS,
-	   "The specified zabbix server ID is larger than max: %d",
+	   "The specified zabbix server ID is larger than max: %zd",
 	   zabbixServerId); 
 	m_ctx = new PrivateContext(zabbixServerId);
 
