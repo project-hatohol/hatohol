@@ -39,6 +39,13 @@ public:
 	                         uint32_t targetServerId = ALL_SERVERS);
 	virtual void getHostList(HostInfoList &hostInfoList,
 	                         uint32_t targetServerId = ALL_SERVERS);
+	virtual int getNumberOfHosts(uint32_t serverId,
+	                             uint64_t hostGroupId,
+	                             TriggerSeverityType severity);
+	virtual int getNumberOfGoodHosts(uint32_t serverId,
+	                                 uint64_t hostGroupId);
+	virtual int getNumberOfBadHosts(uint32_t serverId,
+	                                uint64_t hostGroupId);
 
 private:
 	struct PrivateContext;

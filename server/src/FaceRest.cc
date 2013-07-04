@@ -323,9 +323,11 @@ static void addOverviewEachServer(JsonBuilderAgent &agent,
 	// TODO: We temtatively returns 'No group'. We should fix it
 	//       after host group is supported in Hatohol server.
 	agent.startArray("hostGroups");
-	for (int i = 0; i < 1; i++) {
+	size_t numHostGroup = 1;
+	uint64_t hostGroupIds[1] = {0};
+	for (size_t i = 0; i < numHostGroup; i++) {
 		agent.startObject();
-		agent.add("hostGroupId", 0);
+		agent.add("hostGroupId", hostGroupIds[i]);
 		agent.add("hostGroupName", "No group");
 		agent.endObject();
 	}
@@ -333,22 +335,34 @@ static void addOverviewEachServer(JsonBuilderAgent &agent,
 
 	// SystemStatus
 	agent.startArray("systemStatus");
-	for (int severity = 0; severity < NUM_TRIGGER_SEVERITY; severity++) {
-		agent.startObject();
-		agent.add("hostGroupId", 0);
-		agent.add("severity", severity);
-		agent.add("numberOfHosts", 0);
-		agent.endObject();
+	for (size_t i = 0; i < numHostGroup; i++) {
+		uint64_t hostGroupId = hostGroupIds[i];
+		for (int severity = 0;
+		     severity < NUM_TRIGGER_SEVERITY; severity++) {
+			agent.startObject();
+			agent.add("hostGroupId", hostGroupId);
+			agent.add("severity", severity);
+			agent.add(
+			  "numberOfHosts",
+			  dataStore->getNumberOfHosts
+			    (svInfo.id, hostGroupId,
+			     (TriggerSeverityType)severity));
+			agent.endObject();
+		}
 	}
 	agent.endArray();
 
 	// HostStatus
 	agent.startArray("hostStatus");
-	for (int i = 0; i < 1; i++) {
+	for (size_t i = 0; i < numHostGroup; i++) {
+		uint64_t hostGroupId = hostGroupIds[i];
+		uint32_t svid = svInfo.id;
 		agent.startObject();
-		agent.add("hostGroupId", 0);
-		agent.add("numberOfGoodHosts", 0);
-		agent.add("numberOfBadHosts", 0);
+		agent.add("hostGroupId", hostGroupId);
+		agent.add("numberOfGoodHosts",
+		          dataStore->getNumberOfGoodHosts(svid, hostGroupId));
+		agent.add("numberOfBadHosts",
+		          dataStore->getNumberOfBadHosts(svid, hostGroupId));
 		agent.endObject();
 	}
 	agent.endArray();

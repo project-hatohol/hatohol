@@ -131,6 +131,28 @@ void UnifiedDataStore::getHostList(HostInfoList &hostInfoList,
 	dbHatohol.getHostInfoList(hostInfoList, targetServerId);
 }
 
+int UnifiedDataStore::getNumberOfHosts(uint32_t serverId,
+                                       uint64_t hostGroupId,
+                                       TriggerSeverityType severity)
+{
+	DBClientHatohol dbHatohol;
+	return dbHatohol.getNumberOfHosts(serverId, hostGroupId, severity);
+}
+
+int UnifiedDataStore::getNumberOfGoodHosts(uint32_t serverId,
+                                           uint64_t hostGroupId)
+{
+	DBClientHatohol dbHatohol;
+	return dbHatohol.getNumberOfGoodHosts(serverId, hostGroupId);
+}
+
+int UnifiedDataStore::getNumberOfBadHosts(uint32_t serverId,
+                                          uint64_t hostGroupId)
+{
+	DBClientHatohol dbHatohol;
+	return dbHatohol.getNumberOfBadHosts(serverId, hostGroupId);
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
