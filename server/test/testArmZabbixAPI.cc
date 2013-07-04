@@ -27,8 +27,8 @@ static MonitoringServerInfo g_defaultServerInfo =
 	0,                        // port
 	10,                       // polling_interval_sec
 	5,                        // retry_interval_sec
-	"admin",                  // userName
-	"zabbix",                 // password
+	"foofoo",                  // userName
+	"barbar",                 // password
 };
 
 
@@ -427,11 +427,7 @@ void test_makeItemVecotrWithNullValue(void)
 
 void test_checkUsernamePassword(void)
 {
-	MonitoringServerInfo serverInfo = g_defaultServerInfo;
-	// Run the test in the field of non-default value of Zabbix
-	serverInfo.userName = "foofoo";
-	serverInfo.password = "barbar";
-	ArmZabbixAPITestee armZbxApiTestee(serverInfo);
+	ArmZabbixAPITestee armZbxApiTestee(g_defaultServerInfo);
 	JsonParserAgent parser(armZbxApiTestee.testInitialJsonRequest());
 	string jsonUserName;
 	string jsonPassword;
@@ -440,7 +436,7 @@ void test_checkUsernamePassword(void)
 	cppcut_assert_equal(true, parser.startObject("params"));
 	cppcut_assert_equal(true, parser.read("user", jsonUserName));
 	cppcut_assert_equal(true, parser.read("password", jsonPassword));
-	cppcut_assert_equal(serverInfo.userName, jsonUserName);
-	cppcut_assert_equal(serverInfo.password, jsonPassword);
+	cppcut_assert_equal(g_defaultServerInfo.userName, jsonUserName);
+	cppcut_assert_equal(g_defaultServerInfo.password, jsonPassword);
 }
 } // namespace testArmZabbixAPI
