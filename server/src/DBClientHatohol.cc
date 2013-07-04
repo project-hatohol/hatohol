@@ -485,7 +485,8 @@ DBClientHatohol::~DBClientHatohol()
 		delete m_ctx;
 }
 
-void DBClientHatohol::getHostInfoList(HostInfoList &hostInfoList)
+void DBClientHatohol::getHostInfoList(HostInfoList &hostInfoList,
+                                      uint32_t targetServerId)
 {
 	// Now we don't have a DB table for hosts. So we get a host list from
 	// the trigger table. In the future, we will add the table for hosts
@@ -511,6 +512,14 @@ void DBClientHatohol::getHostInfoList(HostInfoList &hostInfoList)
 	    COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_HOSTNAME].columnName);
 	arg.columnTypes.push_back(
 	    COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_HOSTNAME].type);
+
+	// condition
+	if (targetServerId != ALL_SERVERS) {
+		const char *colName = 
+		  COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SERVER_ID].columnName;
+		arg.condition = StringUtils::sprintf("%s=%"PRIu32, colName,
+		                                     targetServerId);
+	}
 
 	DBCLIENT_TRANSACTION_BEGIN() {
 		select(arg);

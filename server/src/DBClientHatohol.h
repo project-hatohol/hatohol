@@ -36,6 +36,8 @@ enum TriggerSeverityType {
 	NUM_TRIGGER_SEVERITY,
 };
 
+static const uint32_t ALL_SERVERS = -1;
+
 struct HostInfo {
 	uint32_t            serverId;
 	uint64_t            id;
@@ -114,7 +116,8 @@ public:
 	DBClientHatohol(void);
 	virtual ~DBClientHatohol();
 
-	void getHostInfoList(HostInfoList &hostInfoList);
+	void getHostInfoList(HostInfoList &hostInfoList,
+	                     uint32_t targetServerId = ALL_SERVERS);
 
 	void addTriggerInfo(TriggerInfo *triggerInfo);
 	void addTriggerInfoList(const TriggerInfoList &triggerInfoList);

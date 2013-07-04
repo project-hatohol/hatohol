@@ -23,6 +23,7 @@ extern ItemInfo testItemInfo[];
 extern size_t NumTestItemInfo;
 
 extern void getTestHostInfoList(HostInfoList &hostInfoList,
+                                uint32_t targetServerId,
                                 ServerIdHostIdMap *serverIdHostIdMap = NULL);
 
 const TriggerInfo &searchTestTriggerInfo(const EventInfo &eventInfo);

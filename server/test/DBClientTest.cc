@@ -187,6 +187,7 @@ static void addHostInfoToList(HostInfoList &hostInfoList,
 }
 
 void getTestHostInfoList(HostInfoList &hostInfoList,
+                         uint32_t targetServerId,
                          ServerIdHostIdMap *serverIdHostIdMap)
 {
 	size_t numHostInfo0 =  hostInfoList.size();
@@ -200,6 +201,11 @@ void getTestHostInfoList(HostInfoList &hostInfoList,
 	HostIdSetIterator         hostIdIt;
 	for (size_t i = 0; i < NumTestTriggerInfo; i++) {
 		TriggerInfo &trigInfo = testTriggerInfo[i];
+		if (targetServerId != ALL_SERVERS) {
+			if (trigInfo.serverId != targetServerId)
+				continue;
+		}
+
 		svIdIt = svIdHostIdMap->find(trigInfo.serverId);
 		if (svIdIt == svIdHostIdMap->end()) {
 			addHostInfoToList(hostInfoList, trigInfo);
