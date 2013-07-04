@@ -126,7 +126,7 @@ public:
 
 	string testAuthToken(void)
 	{
-		return ArmZabbixAPI::checkAuthToken();
+		return ArmZabbixAPI::updateAuthTokenIfNeeded();
 	}
 
 	void assertMakeItemVector(bool testNull = false)

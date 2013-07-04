@@ -294,7 +294,7 @@ bool ArmZabbixAPI::openSession(SoupMessage **msgPtr)
 	return true;
 }
 
-string ArmZabbixAPI::checkAuthToken(void)
+string ArmZabbixAPI::updateAuthTokenIfNeeded(void)
 {
 	openSession();
 	return m_ctx->authToken;
