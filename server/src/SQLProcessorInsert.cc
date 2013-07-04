@@ -105,7 +105,7 @@ void SQLProcessorInsert::init(void)
 	if (size != NUM_INSERT_PARSING_SECTION) {
 		string msg;
 		TRMSG(msg, "sizeof(m_insertSubParsers) is invalid: "
-		           "(expcect/actual: %d/%d).",
+		           "(expcect/actual: %d/%zd).",
 		      NUM_INSERT_PARSING_SECTION, size);
 		throw logic_error(msg);
 	}
