@@ -1,4 +1,5 @@
 #include <cutter.h>
+#include <cppcutter.h>
 #include "DBClientTest.h"
 
 MonitoringServerInfo serverInfo[] = 
@@ -173,4 +174,61 @@ uint64_t findLastEventId(uint32_t serverId)
 	if (!found)
 		return DBClientHatohol::EVENT_NOT_FOUND;
 	return maxId;
+}
+
+static void addHostInfoToList(HostInfoList &hostInfoList,
+                              const TriggerInfo &trigInfo)
+{
+	hostInfoList.push_back(HostInfo());
+	HostInfo &hostInfo = hostInfoList.back();
+	hostInfo.serverId = trigInfo.serverId;
+	hostInfo.id       = trigInfo.hostId;
+	hostInfo.hostName = trigInfo.hostName;
+}
+
+void getTestHostInfoList(HostInfoList &hostInfoList,
+                         ServerIdHostIdMap *serverIdHostIdMap)
+{
+	size_t numHostInfo0 =  hostInfoList.size();
+	ServerIdHostIdMap *svIdHostIdMap;
+	if (serverIdHostIdMap)
+		svIdHostIdMap = serverIdHostIdMap; // use given data
+	else
+		svIdHostIdMap = new ServerIdHostIdMap();
+
+	ServerIdHostIdMapIterator svIdIt;
+	HostIdSetIterator         hostIdIt;
+	for (size_t i = 0; i < NumTestTriggerInfo; i++) {
+		TriggerInfo &trigInfo = testTriggerInfo[i];
+		svIdIt = svIdHostIdMap->find(trigInfo.serverId);
+		if (svIdIt == svIdHostIdMap->end()) {
+			addHostInfoToList(hostInfoList, trigInfo);
+			HostIdSet newHostIdSet;
+			newHostIdSet.insert(trigInfo.hostId);
+			(*svIdHostIdMap)[trigInfo.serverId] = newHostIdSet;
+			continue;
+		}
+
+		HostIdSet &hostIdSet = svIdIt->second;
+		hostIdIt = hostIdSet.find(trigInfo.hostId);
+		if (hostIdIt == hostIdSet.end()) {
+			addHostInfoToList(hostInfoList, trigInfo);
+			hostIdSet.insert(trigInfo.hostId);
+		}
+	}
+
+	// consistency check:
+	// The number of hostInfoList elements we added and that of
+	// svIdHostIdMap shall be the same.
+	size_t numHostInfo = hostInfoList.size() - numHostInfo0;
+	size_t numTotalHostInfoSet = 0;
+	svIdIt = svIdHostIdMap->begin();
+	for (; svIdIt != svIdHostIdMap->end(); ++svIdIt) {
+		HostIdSet &hostIdSet = svIdIt->second;
+		numTotalHostInfoSet += hostIdSet.size();
+	}
+	cppcut_assert_equal(numHostInfo, numTotalHostInfoSet);
+
+	if (!serverIdHostIdMap)
+		delete svIdHostIdMap;
 }
