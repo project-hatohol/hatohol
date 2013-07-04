@@ -134,7 +134,7 @@ void SQLUtils::decomposeTableAndColumn(const string &fieldName,
 	}
 	if (dotPosition == 0 || dotPosition == fieldName.size() - 1) {
 		THROW_SQL_PROCESSOR_EXCEPTION(
-		  "The position of 'dot' is invalid: %s (%d)",
+		  "The position of 'dot' is invalid: %s (%zd)",
 		  fieldName.c_str(), dotPosition);
 	}
 	tableName = string(fieldName, 0, dotPosition);
