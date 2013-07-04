@@ -45,7 +45,7 @@ void SQLUtils::init(void)
 	if (m_numItemDataCreators != NUM_SQL_COLUMN_TYPES) {
 		THROW_HATOHOL_EXCEPTION(
 		  "The number of m_itemDataCreator is wrong: "
-		  "expected/acutual: %zd/%zd",
+		  "expected/acutual: %d/%zd",
 		  NUM_SQL_COLUMN_TYPES, m_numItemDataCreators);
 	}
 }
