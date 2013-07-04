@@ -211,8 +211,10 @@ bool ZabbixAPIEmulator::hasParameter
 string ZabbixAPIEmulator::generateAuthToken(void)
 {
 	string token;
-	for (int i = 0; i < 16; i++)
-		token += StringUtils::sprintf("%02x", (random() % 0x100));
+	for (int i = 0; i < 16; i++) {
+		unsigned int randVal = random() % 0x100;
+		token += StringUtils::sprintf("%02x", randVal);
+	}
 	return token;
 }
 
