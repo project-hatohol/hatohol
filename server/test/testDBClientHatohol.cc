@@ -19,16 +19,17 @@ cut_trace(_assertAddToDB<TriggerInfo>(X, addTriggerInfo))
 
 static string makeExpectedOutput(TriggerInfo *triggerInfo)
 {
-	string expectedOut = StringUtils::sprintf
-	                       ("%u|%llu|%d|%d|%d|%lu|%llu|%s|%s\n",
-	                        triggerInfo->serverId,
-	                        triggerInfo->id,
-	                        triggerInfo->status, triggerInfo->severity,
-	                        triggerInfo->lastChangeTime.tv_sec,
-	                        triggerInfo->lastChangeTime.tv_nsec,
-	                        triggerInfo->hostId,
-	                        triggerInfo->hostName.c_str(),
-	                        triggerInfo->brief.c_str());
+	string expectedOut =
+	  StringUtils::sprintf(
+	    "%"PRIu32"|%"PRIu64"|%d|%d|%ld|%lu|%"PRIu64"|%s|%s\n",
+	    triggerInfo->serverId,
+	    triggerInfo->id,
+	    triggerInfo->status, triggerInfo->severity,
+	    triggerInfo->lastChangeTime.tv_sec,
+	    triggerInfo->lastChangeTime.tv_nsec,
+	    triggerInfo->hostId,
+	    triggerInfo->hostName.c_str(),
+	    triggerInfo->brief.c_str());
 	return expectedOut;
 }
 
@@ -54,14 +55,15 @@ static void _assertGetTriggers(void)
 //       will be changed to be the similar of this function.
 static string makeEventOutput(EventInfo &eventInfo)
 {
-	string output = StringUtils::sprintf
-	                  ("%u|%llu|%ld|%ld|%d|%u|%llu|%s|%s\n",
-	                   eventInfo.serverId, eventInfo.id,
-	                   eventInfo.time.tv_sec, eventInfo.time.tv_nsec,
-	                   eventInfo.status, eventInfo.severity,
-	                   eventInfo.hostId,
-	                   eventInfo.hostName.c_str(),
-	                   eventInfo.brief.c_str());
+	string output =
+	  StringUtils::sprintf(
+	    "%"PRIu32"|%"PRIu64"|%ld|%ld|%d|%u|%"PRIu64"|%s|%s\n",
+	    eventInfo.serverId, eventInfo.id,
+	    eventInfo.time.tv_sec, eventInfo.time.tv_nsec,
+	    eventInfo.status, eventInfo.severity,
+	    eventInfo.hostId,
+	    eventInfo.hostName.c_str(),
+	    eventInfo.brief.c_str());
 	return output;
 }
 
@@ -85,17 +87,17 @@ static void _assertGetEvents(void)
 
 static string makeExpectedItemOutput(ItemInfo *itemInfo)
 {
-	string expectedOut = StringUtils::sprintf
-	                       ("%u|%llu|%llu|%s|%ld|%lu|%s|%s|%s\n",
-	                        itemInfo->serverId,
-	                        itemInfo->id,
-	                        itemInfo->hostId,
-	                        itemInfo->brief.c_str(),
-	                        itemInfo->lastValueTime.tv_sec,
-	                        itemInfo->lastValueTime.tv_nsec,
-	                        itemInfo->lastValue.c_str(),
-	                        itemInfo->prevValue.c_str(),
-	                        itemInfo->itemGroupName.c_str());
+	string expectedOut =
+	  StringUtils::sprintf(
+	    "%"PRIu32"|%"PRIu64"|%"PRIu64"|%s|%ld|%lu|%s|%s|%s\n",
+	    itemInfo->serverId, itemInfo->id,
+	    itemInfo->hostId,
+	    itemInfo->brief.c_str(),
+	    itemInfo->lastValueTime.tv_sec,
+	    itemInfo->lastValueTime.tv_nsec,
+	    itemInfo->lastValue.c_str(),
+	    itemInfo->prevValue.c_str(),
+	    itemInfo->itemGroupName.c_str());
 	return expectedOut;
 }
 
