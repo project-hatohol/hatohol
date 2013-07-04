@@ -62,6 +62,7 @@ libhatohol_la_SOURCES = \
 	SQLTableFormula.cc SQLTableFormula.h \
 	SQLUtils.cc SQLUtils.h \
 	SQLWhereParser.cc SQLWhereParser.h \
+	UnifiedDataStore.cc UnifiedDataStore.h \
 	UsedCountable.cc UsedCountable.h \
 	Utils.cc Utils.h \
 	VirtualDataStore.cc VirtualDataStore.h \

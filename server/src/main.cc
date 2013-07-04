@@ -34,15 +34,13 @@ using namespace mlpl;
 #include "Utils.h"
 #include "FaceMySQL.h"
 #include "FaceRest.h"
-#include "VirtualDataStoreZabbix.h"
-#include "VirtualDataStoreNagios.h"
+#include "UnifiedDataStore.h"
 #include "DBClientConfig.h"
 
 static int pipefd[2];
 
 struct ExecContext {
-	VirtualDataStoreZabbix *vdsZabbix;
-	VirtualDataStoreNagios *vdsNagios;
+	UnifiedDataStore *unifiedDataStore;
 	GMainLoop *loop;
 };
 
@@ -68,9 +66,7 @@ gboolean exitFunc(GIOChannel *source, GIOCondition condition, gpointer data)
 	MLPL_INFO("recieved stop request.\n");
 	ExecContext *ctx = static_cast<ExecContext *>(data);
 
-	// shoutdown servers
-	ctx->vdsZabbix->stop();
-	ctx->vdsNagios->stop();
+	ctx->unifiedDataStore->stop();
 
 	// Because this function is beeing called, ctx->loop must have valid
 	// value even if a signal is received before ctx->loop is created.
@@ -127,13 +123,7 @@ int mainRoutine(int argc, char *argv[])
 	FaceRest rest(cmdArg);
 	rest.start();
 
-	// start VirtualDataStoreZabbix
-	ctx.vdsZabbix = VirtualDataStoreZabbix::getInstance();
-	ctx.vdsZabbix->start();
-
-	// start VirtualDataStoreNagios
-	ctx.vdsNagios = VirtualDataStoreNagios::getInstance();
-	ctx.vdsNagios->start();
+	ctx.unifiedDataStore = UnifiedDataStore::getInstance();
 
 	// main loop of GLIB
 	ctx.loop = g_main_loop_new(NULL, FALSE);

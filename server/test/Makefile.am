@@ -41,7 +41,8 @@ testHatohol_la_SOURCES = \
 	testItemDataUtils.cc \
 	testFormulaOperator.cc \
 	testJsonParserAgent.cc testJsonBuilderAgent.cc testUtils.cc \
-	testArmZabbixAPI.cc testArmNagiosNDOUtils.cc
+	testArmZabbixAPI.cc testArmNagiosNDOUtils.cc \
+	testUnifiedDataStore.cc
 testHatohol_la_LDFLAGS = $(AM_LDFLAGS) $(LIBS)
 testHatohol_la_LIBADD = libTest.la
 
