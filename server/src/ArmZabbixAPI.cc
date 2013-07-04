@@ -294,6 +294,12 @@ bool ArmZabbixAPI::openSession(SoupMessage **msgPtr)
 	return true;
 }
 
+string ArmZabbixAPI::checkAuthToken(void)
+{
+	openSession();
+	return m_ctx->authToken;
+}
+
 SoupMessage *ArmZabbixAPI::queryCommon(JsonBuilderAgent &agent)
 {
 	string request_body = agent.generate();

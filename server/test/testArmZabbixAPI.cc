@@ -124,6 +124,11 @@ public:
 		return ArmZabbixAPI::getInitialJsonRequest();
 	}
 
+	string testAuthToken(void)
+	{
+		return ArmZabbixAPI::checkAuthToken();
+	}
+
 	void assertMakeItemVector(bool testNull = false)
 	{
 		// make test data and call the target method.
@@ -439,5 +444,18 @@ void test_checkUsernamePassword(void)
 	cppcut_assert_equal(true, parser.read("password", jsonPassword));
 	cppcut_assert_equal(serverInfo.userName, jsonUserName);
 	cppcut_assert_equal(serverInfo.password, jsonPassword);
+}
+
+void test_checkAuthToken(void)
+{
+	int svId = 0;
+	MonitoringServerInfo serverInfo = g_defaultServerInfo;
+	serverInfo.id = svId;
+	serverInfo.port = getTestPort();
+	ArmZabbixAPITestee armZbxApiTestee(serverInfo);
+
+	string firstToken;
+	firstToken = armZbxApiTestee.testAuthToken();
+	cppcut_assert_equal(firstToken, armZbxApiTestee.testAuthToken());
 }
 } // namespace testArmZabbixAPI
