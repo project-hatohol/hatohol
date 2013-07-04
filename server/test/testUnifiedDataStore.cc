@@ -2,24 +2,20 @@
 #include <cutter.h>
 #include <unistd.h>
 
+#include "ConfigManager.h"
 #include "DBAgentSQLite3.h"
 #include "UnifiedDataStore.h"
 #include "DBClientTest.h"
 
 namespace testUnifiedDataStore {
 
-static string g_dbPath = DBAgentSQLite3::getDBPath(DEFAULT_DB_DOMAIN_ID);
-
-static void deleteDB(void)
-{
-	unlink(g_dbPath.c_str());
-	cut_assert_not_exist_path(g_dbPath.c_str());
-}
-
 void setup(void)
 {
-	deleteDB();
-	DBAgentSQLite3::defineDBPath(DEFAULT_DB_DOMAIN_ID, g_dbPath);
+	const gchar *dbPath = cut_build_path(cut_get_test_directory(),
+					     "fixtures",
+					     "testDatabase-hatohol.db",
+					     NULL);
+ 	DBAgentSQLite3::defineDBPath(DB_DOMAIN_ID_HATOHOL, dbPath);
 }
 
 void test_singleton(void) {
