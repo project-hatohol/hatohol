@@ -137,4 +137,35 @@ void test_getEventList(void)
 	cppcut_assert_equal(expected, actual);
 }
 
+static string dumpItemInfo(const ItemInfo &info)
+{
+	return StringUtils::sprintf(
+		"%"PRIu32"|%"PRIu64"|%"PRIu64"|%s|%lu|%ld|%s|%s|%s\n",
+		info.serverId,
+		info.id,
+		info.hostId,
+		info.brief.c_str(),
+		info.lastValueTime.tv_sec,
+		info.lastValueTime.tv_nsec,
+		info.lastValue.c_str(),
+		info.prevValue.c_str(),
+		info.itemGroupName.c_str());
+}
+
+void test_getItemList(void)
+{
+	string expected, actual;
+	for (size_t i = 0; i < NumTestItemInfo; i++)
+		expected += dumpItemInfo(testItemInfo[i]);
+
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+	ItemInfoList list;
+	dataStore->getItemList(list);
+
+	ItemInfoListIterator it;
+	for (it = list.begin(); it != list.end(); it++)
+		actual += dumpItemInfo(*it);
+	cppcut_assert_equal(expected, actual);
+}
+
 } // testUnifiedDataStore
