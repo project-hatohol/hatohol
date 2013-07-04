@@ -88,7 +88,7 @@ void ItemData::init(void)
 	if (numTypeNames != NUM_ITEM_TYPE) {
 		THROW_HATOHOL_EXCEPTION(
 		  "sizeof(m_nativeTypeNames) is invalid: "
-		  "(expcect/actual: %d/%d).",
+		  "(expcect/actual: %d/%zd).",
 		  NUM_ITEM_TYPE, numTypeNames);
 	}
 }
