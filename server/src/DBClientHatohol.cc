@@ -811,20 +811,28 @@ void DBClientHatohol::addItemInfoList(const ItemInfoList &itemInfoList)
 	} DBCLIENT_TRANSACTION_END();
 }
 
-void DBClientHatohol::getItemInfoList(ItemInfoList &itemInfoList)
+void DBClientHatohol::getItemInfoList(ItemInfoList &itemInfoList,
+                                      uint32_t targetServerId)
 {
-	DBAgentSelectArg arg;
+	DBAgentSelectExArg arg;
 	arg.tableName = TABLE_NAME_ITEMS;
-	arg.columnDefs = COLUMN_DEF_ITEMS;
-	arg.columnIndexes.push_back(IDX_ITEMS_SERVER_ID);
-	arg.columnIndexes.push_back(IDX_ITEMS_ID);
-	arg.columnIndexes.push_back(IDX_ITEMS_HOST_ID);
-	arg.columnIndexes.push_back(IDX_ITEMS_BRIEF);
-	arg.columnIndexes.push_back(IDX_ITEMS_LAST_VALUE_TIME_SEC);
-	arg.columnIndexes.push_back(IDX_ITEMS_LAST_VALUE_TIME_NS);
-	arg.columnIndexes.push_back(IDX_ITEMS_LAST_VALUE);
-	arg.columnIndexes.push_back(IDX_ITEMS_PREV_VALUE);
-	arg.columnIndexes.push_back(IDX_ITEMS_ITEM_GROUP_NAME);
+	arg.pushColumn(COLUMN_DEF_ITEMS[IDX_ITEMS_SERVER_ID]);
+	arg.pushColumn(COLUMN_DEF_ITEMS[IDX_ITEMS_ID]);
+	arg.pushColumn(COLUMN_DEF_ITEMS[IDX_ITEMS_HOST_ID]);
+	arg.pushColumn(COLUMN_DEF_ITEMS[IDX_ITEMS_BRIEF]);
+	arg.pushColumn(COLUMN_DEF_ITEMS[IDX_ITEMS_LAST_VALUE_TIME_SEC]);
+	arg.pushColumn(COLUMN_DEF_ITEMS[IDX_ITEMS_LAST_VALUE_TIME_NS]);
+	arg.pushColumn(COLUMN_DEF_ITEMS[IDX_ITEMS_LAST_VALUE]);
+	arg.pushColumn(COLUMN_DEF_ITEMS[IDX_ITEMS_PREV_VALUE]);
+	arg.pushColumn(COLUMN_DEF_ITEMS[IDX_ITEMS_ITEM_GROUP_NAME]);
+
+	// condition
+	if (targetServerId != ALL_SERVERS) {
+		const char *colName = 
+		  COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SERVER_ID].columnName;
+		arg.condition = StringUtils::sprintf("%s=%"PRIu32, colName,
+		                                     targetServerId);
+	}
 
 	DBCLIENT_TRANSACTION_BEGIN() {
 		select(arg);

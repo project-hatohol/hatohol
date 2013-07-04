@@ -152,7 +152,8 @@ public:
 
 	void addItemInfo(ItemInfo *itemInfo);
 	void addItemInfoList(const ItemInfoList &itemInfoList);
-	void getItemInfoList(ItemInfoList &itemInfoList);
+	void getItemInfoList(ItemInfoList &itemInfoList,
+	                     uint32_t targetServerId = ALL_SERVERS);
 
 protected:
 	static void resetDBInitializedFlags(void);

@@ -101,23 +101,38 @@ static string makeExpectedItemOutput(ItemInfo *itemInfo)
 	return expectedOut;
 }
 
-static void _assertGetItems(void)
+static void _assertGetItems(uint32_t serverId)
 {
 	ItemInfoList itemInfoList;
 	DBClientHatohol dbHatohol;
-	dbHatohol.getItemInfoList(itemInfoList);
-	cppcut_assert_equal(NumTestItemInfo, itemInfoList.size());
+	dbHatohol.getItemInfoList(itemInfoList, serverId);
+	size_t numExpectedTestItems = getNumberOfTestItems(serverId);
+	cppcut_assert_equal(numExpectedTestItems, itemInfoList.size());
 
 	string expectedText;
 	string actualText;
 	ItemInfoListIterator it = itemInfoList.begin();
-	for (size_t i = 0; i < NumTestItemInfo; i++, ++it) {
+	for (size_t i = 0; i < numExpectedTestItems; i++, ++it) {
 		expectedText += makeExpectedItemOutput(&testItemInfo[i]);
 		actualText += makeExpectedItemOutput(&(*it));
 	}
 	cppcut_assert_equal(expectedText, actualText);
 }
-#define assertGetItems() cut_trace(_assertGetItems())
+#define assertGetItems(SERVER_ID) cut_trace(_assertGetItems(SERVER_ID))
+
+void _assertItemInfoList(uint32_t serverId)
+{
+	deleteDBClientDB(DB_DOMAIN_ID_HATOHOL);
+
+	DBClientHatohol dbHatohol;
+	ItemInfoList itemInfoList;
+	for (size_t i = 0; i < NumTestItemInfo; i++)
+		itemInfoList.push_back(testItemInfo[i]);
+	dbHatohol.addItemInfoList(itemInfoList);
+
+	assertGetItems(serverId);
+}
+#define assertItemInfoList(SERVER_ID) cut_trace(_assertItemInfoList(SERVER_ID))
 
 void test_addTriggerInfoList(void);
 static void _assertGetHostInfoList(uint32_t serverId)
@@ -265,17 +280,15 @@ void test_addTriggerInfoList(void)
 	assertGetTriggers();
 }
 
-void test_addItemInfoList(void)
+void test_itemInfoList(void)
 {
-	deleteDBClientDB(DB_DOMAIN_ID_HATOHOL);
+	assertItemInfoList(ALL_SERVERS);
+}
 
-	DBClientHatohol dbHatohol;
-	ItemInfoList itemInfoList;
-	for (size_t i = 0; i < NumTestItemInfo; i++)
-		itemInfoList.push_back(testItemInfo[i]);
-	dbHatohol.addItemInfoList(itemInfoList);
-
-	assertGetItems();
+void test_itemInfoListForOneServer(void)
+{
+	uint32_t targetServerId = testItemInfo[0].serverId;
+	assertItemInfoList(targetServerId);
 }
 
 void test_addEventInfoList(void)

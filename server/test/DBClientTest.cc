@@ -186,6 +186,19 @@ static void addHostInfoToList(HostInfoList &hostInfoList,
 	hostInfo.hostName = trigInfo.hostName;
 }
 
+size_t getNumberOfTestItems(uint32_t serverId)
+{
+	if (serverId == ALL_SERVERS)
+		return NumTestItemInfo;
+
+	size_t count = 0;
+	for (size_t i = 0; i < NumTestItemInfo; i++) {
+		if (testItemInfo[i].serverId == serverId)
+			count++;
+	}
+	return count;
+}
+
 void getTestHostInfoList(HostInfoList &hostInfoList,
                          uint32_t targetServerId,
                          ServerIdHostIdMap *serverIdHostIdMap)
