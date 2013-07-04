@@ -27,7 +27,7 @@ static MonitoringServerInfo g_defaultServerInfo =
 	0,                        // port
 	10,                       // polling_interval_sec
 	5,                        // retry_interval_sec
-	"foofoo",                  // userName
+	"foofoo",                 // userName
 	"barbar",                 // password
 };
 
