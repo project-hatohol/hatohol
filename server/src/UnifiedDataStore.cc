@@ -39,6 +39,24 @@ MutexLock UnifiedDataStore::PrivateContext::mutex;
 // ---------------------------------------------------------------------------
 // Public static methods
 // ---------------------------------------------------------------------------
+UnifiedDataStore::UnifiedDataStore(void)
+: m_ctx(NULL)
+{
+	m_ctx = new PrivateContext();
+
+	// start VirtualDataStoreZabbix
+	m_ctx->vdsZabbix = VirtualDataStoreZabbix::getInstance();
+
+	// start VirtualDataStoreNagios
+	m_ctx->vdsNagios = VirtualDataStoreNagios::getInstance();
+}
+
+UnifiedDataStore::~UnifiedDataStore()
+{
+	if (m_ctx)
+		delete m_ctx;
+}
+
 UnifiedDataStore *UnifiedDataStore::getInstance(void)
 {
 	if (PrivateContext::instance)
@@ -90,20 +108,3 @@ void UnifiedDataStore::getItemList(ItemInfoList &itemList)
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
-UnifiedDataStore::UnifiedDataStore(void)
-: m_ctx(NULL)
-{
-	m_ctx = new PrivateContext();
-
-	// start VirtualDataStoreZabbix
-	m_ctx->vdsZabbix = VirtualDataStoreZabbix::getInstance();
-
-	// start VirtualDataStoreNagios
-	m_ctx->vdsNagios = VirtualDataStoreNagios::getInstance();
-}
-
-UnifiedDataStore::~UnifiedDataStore()
-{
-	if (m_ctx)
-		delete m_ctx;
-}

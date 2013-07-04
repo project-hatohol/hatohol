@@ -25,6 +25,9 @@
 class UnifiedDataStore
 {
 public:
+	UnifiedDataStore(void);
+	virtual ~UnifiedDataStore(void);
+
 	static UnifiedDataStore *getInstance(void);
 	virtual void start(void);
 	virtual void stop(void);
@@ -32,10 +35,6 @@ public:
 	virtual void getTriggerList(TriggerInfoList &triggerList);
 	virtual void getEventList(EventInfoList &eventList);
 	virtual void getItemList(ItemInfoList &itemList);
-
-protected:
-	UnifiedDataStore(void);
-	~UnifiedDataStore();
 
 private:
 	struct PrivateContext;
