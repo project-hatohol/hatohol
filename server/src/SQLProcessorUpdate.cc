@@ -126,7 +126,7 @@ void SQLProcessorUpdate::init(void)
 	if (size != NUM_UPDATE_PARSING_SECTION) {
 		THROW_HATOHOL_EXCEPTION(
 		  "sizeof(m_updateSubParsers) is invalid: "
-		  "(expcect/actual: %d/%d).",
+		  "(expcect/actual: %d/%zd).",
 		  NUM_UPDATE_PARSING_SECTION, size);
 	}
 }
