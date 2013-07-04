@@ -104,10 +104,11 @@ void UnifiedDataStore::stop(void)
 	m_ctx->vdsNagios->stop();
 }
 
-void UnifiedDataStore::getTriggerList(TriggerInfoList &triggerList)
+void UnifiedDataStore::getTriggerList(TriggerInfoList &triggerList,
+                                      uint32_t targetServerId)
 {
 	DBClientHatohol dbHatohol;
-	dbHatohol.getTriggerInfoList(triggerList);
+	dbHatohol.getTriggerInfoList(triggerList, targetServerId);
 }
 
 void UnifiedDataStore::getEventList(EventInfoList &eventList)

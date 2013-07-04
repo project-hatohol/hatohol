@@ -309,7 +309,9 @@ static void addOverviewEachServer(JsonBuilderAgent &agent,
 	dataStore->getItemList(itemInfoList, svInfo.id);
 	agent.add("numberOfItems", itemInfoList.size());
 
-	agent.add("numberOfTriggers", 0);
+	TriggerInfoList triggerInfoList;
+	dataStore->getTriggerList(triggerInfoList, svInfo.id);
+	agent.add("numberOfTriggers", triggerInfoList.size());
 
 	// TODO: These elements should be fixed
 	// after the funtion concerned is added

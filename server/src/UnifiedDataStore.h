@@ -32,7 +32,8 @@ public:
 	virtual void start(void);
 	virtual void stop(void);
 
-	virtual void getTriggerList(TriggerInfoList &triggerList);
+	virtual void getTriggerList(TriggerInfoList &triggerList,
+	                            uint32_t targetServerId = ALL_SERVERS);
 	virtual void getEventList(EventInfoList &eventList);
 	virtual void getItemList(ItemInfoList &itemList,
 	                         uint32_t targetServerId = ALL_SERVERS);
