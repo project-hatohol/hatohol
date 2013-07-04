@@ -443,7 +443,7 @@ void dbAgentTestDelete(DBAgent &dbAgent, DBAgentChecker &checker)
 			continue;
 		cppcut_assert_equal(true, actualIds.size() > matchCount);
 		string &actualIdStr = actualIds[matchCount];
-		string expectedIdStr = StringUtils::sprintf("%d", ID[i]);
+		string expectedIdStr = StringUtils::sprintf("%"PRIu64, ID[i]);
 		cppcut_assert_equal(expectedIdStr, actualIdStr);
 		matchCount++;
 	}
