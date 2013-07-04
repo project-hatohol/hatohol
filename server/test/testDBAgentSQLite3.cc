@@ -32,7 +32,7 @@ void _assertExistRecord(uint64_t id, int age, const char *name, double height)
 	
 	// Here we also use PRId64 (not PRIu64) with the same
 	// reason of the above comment.
-	string fmt = StringUtils::sprintf("%%"PRId64"|%%d|%%s|%%.%dlf\n",
+	string fmt = StringUtils::sprintf("%%"PRId64"|%%d|%%s|%%.%zdlf\n",
 	                                  columnDefHeight.decFracLength);
 	string expectedOut = StringUtils::sprintf(fmt.c_str(),
 	                                          id, age, name, height);
