@@ -124,6 +124,7 @@ int mainRoutine(int argc, char *argv[])
 	rest.start();
 
 	ctx.unifiedDataStore = UnifiedDataStore::getInstance();
+	ctx.unifiedDataStore->start();
 
 	// main loop of GLIB
 	ctx.loop = g_main_loop_new(NULL, FALSE);
