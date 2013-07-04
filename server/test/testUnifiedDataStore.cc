@@ -89,4 +89,52 @@ void test_getTriggerList(void)
 	cppcut_assert_equal(expected, actual);
 }
 
+static const char *eventTypeToString(EventType type)
+{
+	switch(type) {
+	case EVENT_TYPE_ACTIVATED:
+		return "ACTIVATED";
+	case EVENT_TYPE_DEACTIVATED:
+		return "DEACTIVATED";
+	case EVENT_TYPE_UNKNOWN:
+		return "UNKNOWN";
+	default:
+		cut_fail("Unknown EventType: %d\n",
+			 static_cast<int>(type));
+		return "";
+	}
+}
+
+static string dumpEventInfo(const EventInfo &info)
+{
+	return StringUtils::sprintf(
+		"%"PRIu32"|%"PRIu64"|%lu|%ld|%s|%s\%s|%"PRIu64"|%s|%s\n",
+		info.serverId,
+		info.id,
+		info.time.tv_sec,
+		info.time.tv_nsec,
+		eventTypeToString(info.type),
+		triggerStatusToString(info.status),
+		triggerSeverityToString(info.severity),
+		info.hostId,
+		info.hostName.c_str(),
+		info.brief.c_str());
+}
+
+void test_getEventList(void)
+{
+	string expected, actual;
+	for (size_t i = 0; i < NumTestEventInfo; i++)
+		expected += dumpEventInfo(testEventInfo[i]);
+
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+	EventInfoList list;
+	dataStore->getEventList(list);
+
+	EventInfoListIterator it;
+	for (it = list.begin(); it != list.end(); it++)
+		actual += dumpEventInfo(*it);
+	cppcut_assert_equal(expected, actual);
+}
+
 } // testUnifiedDataStore
