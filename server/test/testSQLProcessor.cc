@@ -1301,7 +1301,8 @@ void test_whereIn(void) {
 	multiset<string> expectedOutputSet;
 	for (size_t i = 0; i < targetRowsIndexes.size(); i++) {
 		size_t index = targetRowsIndexes[i];
-		string text = StringUtils::sprintf("%d", testData0[index]);
+		string text = StringUtils::sprintf("%d",
+		                                   testData0[index].number);
 		expectedOutputSet.insert(text);
 	}
 	
