@@ -44,7 +44,7 @@ bool SQLTableRowIteratorColumnsEqual::isIndexed
 {
 	if (indexVector.size() < m_myIndex) {
 		THROW_HATOHOL_EXCEPTION(
-		  "indexVector.size (%zd) < m_myIndex (%d)",
+		  "indexVector.size (%zd) < m_myIndex (%zd)",
 		  indexVector.size(), m_myIndex);
 	}
 	ItemDataIndex *itemIndex = indexVector[m_myIndex];
