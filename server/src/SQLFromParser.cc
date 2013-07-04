@@ -94,7 +94,7 @@ void SQLFromParser::init(void)
 	if (m_numSubParsers != NUM_PARSING_STAT) {
 		THROW_HATOHOL_EXCEPTION(
 		  "The number of m_numSubParsers is wrong: "
-		  "expected/acutual: %zd/%zd",
+		  "expected/acutual: %d/%zd",
 		  NUM_PARSING_STAT, m_numSubParsers);
 	}
 }
