@@ -1260,7 +1260,7 @@ void test_groupByTwoColumns(void) {
 	for (size_t i = 0; i < distinctValues.size(); i++) {
 		CountableNumberStringPair &nsPair = distinctValues[i];
 		string text =
-		  StringUtils::sprintf("%d,%d,%s",
+		  StringUtils::sprintf("%zd,%d,%s",
 		                       nsPair.count, nsPair.num,
 		                       nsPair.str.c_str());
 		expectedOutputSet.insert(text);
