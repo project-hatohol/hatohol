@@ -499,7 +499,7 @@ void SQLProcessorSelect::init(void)
 	if (size != NUM_SELECT_PARSING_SECTION) {
 		THROW_HATOHOL_EXCEPTION(
 		  "sizeof(m_selectSubParsers) is invalid: "
-		  "(expcect/actual: %d/%d).",
+		  "(expcect/actual: %d/%zd).",
 		  NUM_SELECT_PARSING_SECTION, size);
 	}
 }
