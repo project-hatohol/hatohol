@@ -299,6 +299,8 @@ static void addOverviewEachServer(JsonBuilderAgent &agent,
 	agent.add("serverIpAddr", svInfo.ipAddress);
 	agent.add("serverNickname", svInfo.nickname);
 
+	// TODO: This implementeation is not effective.
+	//       We should add a function only to get the number of list.
 	HostInfoList hostInfoList;
 	dataStore->getHostList(hostInfoList, svInfo.id);
 	agent.add("numberOfHosts", hostInfoList.size());
