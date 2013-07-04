@@ -39,6 +39,23 @@ MutexLock UnifiedDataStore::PrivateContext::mutex;
 // ---------------------------------------------------------------------------
 // Public static methods
 // ---------------------------------------------------------------------------
+UnifiedDataStore *UnifiedDataStore::getInstance(void)
+{
+	if (PrivateContext::instance)
+		return PrivateContext::instance;
+
+	PrivateContext::mutex.lock();
+	if (!PrivateContext::instance)
+		PrivateContext::instance = new UnifiedDataStore();
+	PrivateContext::mutex.unlock();
+
+	return PrivateContext::instance;
+}
+
+
+// ---------------------------------------------------------------------------
+// Public methods
+// ---------------------------------------------------------------------------
 UnifiedDataStore::UnifiedDataStore(void)
 : m_ctx(NULL)
 {
@@ -57,23 +74,6 @@ UnifiedDataStore::~UnifiedDataStore()
 		delete m_ctx;
 }
 
-UnifiedDataStore *UnifiedDataStore::getInstance(void)
-{
-	if (PrivateContext::instance)
-		return PrivateContext::instance;
-
-	PrivateContext::mutex.lock();
-	if (!PrivateContext::instance)
-		PrivateContext::instance = new UnifiedDataStore();
-	PrivateContext::mutex.unlock();
-
-	return PrivateContext::instance;
-}
-
-
-// ---------------------------------------------------------------------------
-// Public methods
-// ---------------------------------------------------------------------------
 void UnifiedDataStore::start(void)
 {
 	m_ctx->vdsZabbix->start();
