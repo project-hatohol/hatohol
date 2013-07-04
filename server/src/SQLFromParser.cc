@@ -90,7 +90,7 @@ struct SQLFromParser::PrivateContext {
 // ---------------------------------------------------------------------------
 void SQLFromParser::init(void)
 {
-	int m_numSubParsers = sizeof(m_subParsers) / sizeof(SubParser);
+	size_t m_numSubParsers = sizeof(m_subParsers) / sizeof(SubParser);
 	if (m_numSubParsers != NUM_PARSING_STAT) {
 		THROW_HATOHOL_EXCEPTION(
 		  "The number of m_numSubParsers is wrong: "
