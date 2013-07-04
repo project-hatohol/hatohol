@@ -33,23 +33,34 @@ static string makeExpectedOutput(TriggerInfo *triggerInfo)
 	return expectedOut;
 }
 
-static void _assertGetTriggers(void)
+static void _assertGetTriggers(uint32_t serverId = ALL_SERVERS)
 {
 	TriggerInfoList triggerInfoList;
 	DBClientHatohol dbHatohol;
-	dbHatohol.getTriggerInfoList(triggerInfoList);
-	cppcut_assert_equal(NumTestTriggerInfo, triggerInfoList.size());
+	dbHatohol.getTriggerInfoList(triggerInfoList, serverId);
+	size_t numExpectedTestTriggers = getNumberOfTestTriggers(serverId);
+	cppcut_assert_equal(numExpectedTestTriggers, triggerInfoList.size());
 
 	string expectedText;
 	string actualText;
 	TriggerInfoListIterator it = triggerInfoList.begin();
-	for (size_t i = 0; i < NumTestTriggerInfo; i++, ++it) {
+	for (size_t i = 0; i < numExpectedTestTriggers; i++, ++it) {
 		expectedText += makeExpectedOutput(&testTriggerInfo[i]);
 		actualText += makeExpectedOutput(&(*it));
 	}
 	cppcut_assert_equal(expectedText, actualText);
 }
-#define assertGetTriggers() cut_trace(_assertGetTriggers())
+#define assertGetTriggers(...) cut_trace(_assertGetTriggers(__VA_ARGS__))
+
+static void _assertGetTriggerInfoList(uint32_t serverId)
+{
+	for (size_t i = 0; i < NumTestTriggerInfo; i++)
+		assertAddTriggerToDB(&testTriggerInfo[i]);
+	assertGetTriggers(serverId);
+}
+#define assertGetTriggerInfoList(SERVER_ID) \
+cut_trace(_assertGetTriggerInfoList(SERVER_ID))
+
 
 // TODO: The names of makeExpectedOutput() and makeExpectedItemOutput()
 //       will be changed to be the similar of this function.
@@ -237,9 +248,13 @@ void test_addTriggerInfo(void)
 
 void test_getTriggerInfoList(void)
 {
-	for (size_t i = 0; i < NumTestTriggerInfo; i++)
-		assertAddTriggerToDB(&testTriggerInfo[i]);
-	assertGetTriggers();
+	assertGetTriggerInfoList(ALL_SERVERS);
+}
+
+void test_getTriggerInfoListForOneServer(void)
+{
+	uint32_t targetServerId = testTriggerInfo[0].serverId;
+	assertGetTriggerInfoList(targetServerId);
 }
 
 void test_setTriggerInfoList(void)

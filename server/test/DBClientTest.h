@@ -21,6 +21,8 @@ extern uint64_t findLastEventId(uint32_t serverId);
 
 extern ItemInfo testItemInfo[];
 extern size_t NumTestItemInfo;
+
+extern size_t getNumberOfTestTriggers(uint32_t serverId);
 extern size_t getNumberOfTestItems(uint32_t serverId);
 
 extern void getTestHostInfoList(HostInfoList &hostInfoList,

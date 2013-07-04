@@ -556,20 +556,29 @@ void DBClientHatohol::addTriggerInfoList(const TriggerInfoList &triggerInfoList)
 	} DBCLIENT_TRANSACTION_END();
 }
 
-void DBClientHatohol::getTriggerInfoList(TriggerInfoList &triggerInfoList)
+void DBClientHatohol::getTriggerInfoList(TriggerInfoList &triggerInfoList,
+                                         uint32_t targetServerId)
 {
-	DBAgentSelectArg arg;
+	DBAgentSelectExArg arg;
 	arg.tableName = TABLE_NAME_TRIGGERS;
-	arg.columnDefs = COLUMN_DEF_TRIGGERS;
-	arg.columnIndexes.push_back(IDX_TRIGGERS_SERVER_ID);
-	arg.columnIndexes.push_back(IDX_TRIGGERS_ID);
-	arg.columnIndexes.push_back(IDX_TRIGGERS_STATUS);
-	arg.columnIndexes.push_back(IDX_TRIGGERS_SEVERITY);
-	arg.columnIndexes.push_back(IDX_TRIGGERS_LAST_CHANGE_TIME_SEC);
-	arg.columnIndexes.push_back(IDX_TRIGGERS_LAST_CHANGE_TIME_NS);
-	arg.columnIndexes.push_back(IDX_TRIGGERS_HOST_ID);
-	arg.columnIndexes.push_back(IDX_TRIGGERS_HOSTNAME);
-	arg.columnIndexes.push_back(IDX_TRIGGERS_BRIEF);
+	arg.pushColumn(COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SERVER_ID]);
+	arg.pushColumn(COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_ID]);
+	arg.pushColumn(COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_STATUS]);
+	arg.pushColumn(COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SEVERITY]);
+	arg.pushColumn(COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_LAST_CHANGE_TIME_SEC]);
+	arg.pushColumn(COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_LAST_CHANGE_TIME_NS]);
+	arg.pushColumn(COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_HOST_ID]);
+	arg.pushColumn(COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_HOSTNAME]);
+	arg.pushColumn(COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_BRIEF]);
+
+	// condition
+	if (targetServerId != ALL_SERVERS) {
+		const char *colName = 
+		  COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SERVER_ID].columnName;
+		arg.condition = StringUtils::sprintf("%s=%"PRIu32, colName,
+		                                     targetServerId);
+	}
+
 
 	DBCLIENT_TRANSACTION_BEGIN() {
 		select(arg);
