@@ -1130,7 +1130,7 @@ bool SQLProcessorSelect::makeTextRows(const ItemGroup *itemGroup,
 		const ItemDataPtr itemPtr = outputColumn.getItem(itemGroup);
 		if (!itemPtr.hasData()) {
 			THROW_HATOHOL_EXCEPTION(
-			  "Failed to get item data: index: %d\n", i);
+			  "Failed to get item data: index: %zd\n", i);
 		}
 		if (!doOutput)
 			continue;
