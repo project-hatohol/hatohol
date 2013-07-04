@@ -54,7 +54,6 @@ static void _assertGetTriggers(uint32_t serverId = ALL_SERVERS)
 
 static void _setupTestTriggerDB(void)
 {
-	deleteDBClientDB(DB_DOMAIN_ID_HATOHOL);
 	for (size_t i = 0; i < NumTestTriggerInfo; i++)
 		assertAddTriggerToDB(&testTriggerInfo[i]);
 }
@@ -140,8 +139,6 @@ static void _assertGetItems(uint32_t serverId)
 
 void _assertItemInfoList(uint32_t serverId)
 {
-	deleteDBClientDB(DB_DOMAIN_ID_HATOHOL);
-
 	DBClientHatohol dbHatohol;
 	ItemInfoList itemInfoList;
 	for (size_t i = 0; i < NumTestItemInfo; i++)
@@ -199,6 +196,7 @@ cut_trace(_assertGetHostInfoList(SERVER_ID))
 void setup(void)
 {
 	hatoholInit();
+	deleteDBClientDB(DB_DOMAIN_ID_HATOHOL);
 }
 
 // ---------------------------------------------------------------------------
@@ -207,7 +205,7 @@ void setup(void)
 void test_createDB(void)
 {
 	// remove the DB that already exists
-	string dbPath = deleteDBClientDB(DB_DOMAIN_ID_HATOHOL);
+	string dbPath = getDBClientDBPath(DB_DOMAIN_ID_HATOHOL);
 
 	// create an instance (the database will be automatically created)
 	DBClientHatohol dbHatohol;
@@ -225,7 +223,7 @@ void test_createDB(void)
 void test_createTableTrigger(void)
 {
 	const string tableName = "triggers";
-	string dbPath = deleteDBClientDB(DB_DOMAIN_ID_HATOHOL);
+	string dbPath = getDBClientDBPath(DB_DOMAIN_ID_HATOHOL);
 	DBClientHatohol dbHatohol;
 	string command = "sqlite3 " + dbPath + " \".table\"";
 	assertExist(tableName, executeCommand(command));
@@ -239,7 +237,7 @@ void test_createTableTrigger(void)
 
 void test_addTriggerInfo(void)
 {
-	string dbPath = deleteDBClientDB(DB_DOMAIN_ID_HATOHOL);
+	string dbPath = getDBClientDBPath(DB_DOMAIN_ID_HATOHOL);
 
 	// added a record
 	TriggerInfo *testInfo = testTriggerInfo;
@@ -266,8 +264,6 @@ void test_getTriggerInfoListForOneServer(void)
 
 void test_setTriggerInfoList(void)
 {
-	deleteDBClientDB(DB_DOMAIN_ID_HATOHOL);
-
 	DBClientHatohol dbHatohol;
 	TriggerInfoList triggerInfoList;
 	for (size_t i = 0; i < NumTestTriggerInfo; i++)
@@ -280,8 +276,6 @@ void test_setTriggerInfoList(void)
 
 void test_addTriggerInfoList(void)
 {
-	deleteDBClientDB(DB_DOMAIN_ID_HATOHOL);
-
 	size_t i;
 	DBClientHatohol dbHatohol;
 
