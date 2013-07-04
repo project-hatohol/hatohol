@@ -293,12 +293,15 @@ void FaceRest::handlerHelloPage
 static void addOverviewEachServer(JsonBuilderAgent &agent,
                                   MonitoringServerInfo &svInfo)
 {
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	agent.add("serverId", svInfo.id);
 	agent.add("serverHostName", svInfo.hostName);
 	agent.add("serverIpAddr", svInfo.ipAddress);
 	agent.add("serverNickname", svInfo.nickname);
 
-	agent.add("numberOfHosts", 0);
+	HostInfoList hostInfoList;
+	dataStore->getHostList(hostInfoList, svInfo.id);
+	agent.add("numberOfHosts", hostInfoList.size());
 	agent.add("numberOfItems", 0);
 	agent.add("numberOfTriggers", 0);
 

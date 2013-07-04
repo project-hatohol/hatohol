@@ -104,6 +104,12 @@ void UnifiedDataStore::getItemList(ItemInfoList &itemList)
 	dbHatohol.getItemInfoList(itemList);
 }
 
+void UnifiedDataStore::getHostList(HostInfoList &hostInfoList,
+                                   uint32_t targetServerId)
+{
+	DBClientHatohol dbHatohol;
+	dbHatohol.getHostInfoList(hostInfoList, targetServerId);
+}
 
 // ---------------------------------------------------------------------------
 // Protected methods
