@@ -835,7 +835,7 @@ void test_selectTestData(void)
 void test_whereAndLimit(void)
 {
 	string statement = 
-	  StringUtils::sprintf("%s from %s % where %s=%d limit 1",
+	  StringUtils::sprintf("%s from %s where %s=%d limit 1",
 	                       COLUMN_NAME_NAME, TABLE0_NAME,
 	                       COLUMN_NAME_NUMBER, testData0[0].number);
 	cut_notify("test of 'limit 1' is not performed. "
