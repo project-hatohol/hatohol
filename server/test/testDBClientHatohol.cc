@@ -156,7 +156,7 @@ void test_createTableTrigger(void)
 	// check content
 	string statement = "select * from " + tableName;
 	string output = execSqlite3ForDBClient(DB_DOMAIN_ID_HATOHOL, statement);
-	string expectedOut = StringUtils::sprintf(""); // currently no data
+	string expectedOut = ""; // currently no data
 	cppcut_assert_equal(expectedOut, output);
 }
 
