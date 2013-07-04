@@ -52,10 +52,17 @@ static void _assertGetTriggers(uint32_t serverId = ALL_SERVERS)
 }
 #define assertGetTriggers(...) cut_trace(_assertGetTriggers(__VA_ARGS__))
 
-static void _assertGetTriggerInfoList(uint32_t serverId)
+static void _setupTestTriggerDB(void)
 {
+	deleteDBClientDB(DB_DOMAIN_ID_HATOHOL);
 	for (size_t i = 0; i < NumTestTriggerInfo; i++)
 		assertAddTriggerToDB(&testTriggerInfo[i]);
+}
+#define setupTestTriggerDB() cut_trace(_setupTestTriggerDB())
+
+static void _assertGetTriggerInfoList(uint32_t serverId)
+{
+	setupTestTriggerDB();
 	assertGetTriggers(serverId);
 }
 #define assertGetTriggerInfoList(SERVER_ID) \
