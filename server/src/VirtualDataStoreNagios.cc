@@ -57,11 +57,6 @@ void VirtualDataStoreNagios::start(void)
 	VirtualDataStore::start<DataStoreNagios>(MONITORING_SYSTEM_NAGIOS);
 }
 
-void VirtualDataStoreNagios::update(void)
-{
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
-}
-
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------

@@ -28,7 +28,6 @@ public:
 	static VirtualDataStoreNagios *getInstance(void);
 
 	virtual void start(void);
-	virtual void update(void);
 
 protected:
 	VirtualDataStoreNagios(void);

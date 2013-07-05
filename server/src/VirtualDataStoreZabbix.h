@@ -40,7 +40,6 @@ public:
 	ItemTablePtr getItemTable(ItemGroupId groupId);
 
 	virtual void start(void);
-	virtual void update(void);
 
 protected:
 	ItemTable *createStaticItemTable(ItemGroupId groupId);
