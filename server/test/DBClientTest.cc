@@ -280,3 +280,66 @@ size_t getNumberOfTestTriggers(uint32_t serverId, uint64_t hostGroupId,
 	}
 	return count;
 }
+
+static bool isGoodStatus(const TriggerInfo &triggerInfo)
+{
+	return triggerInfo.status == TRIGGER_STATUS_OK;
+}
+
+size_t getNumberOfTestHostsWithStatus(uint32_t serverId, uint64_t hostGroupId,
+                                      bool status)
+{
+	ServerIdHostGroupHostIdMap svIdHostGrpIdMap;;
+	ServerIdHostGroupHostIdMapIterator svIt;
+	HostGroupHostIdMapIterator         hostIt;
+
+	for (size_t i = 0; i < NumTestTriggerInfo; i++) {
+		TriggerInfo &trigInfo = testTriggerInfo[i];
+		// TODO: use the correct hostGroupId after Hatohol support it.
+		uint64_t hostGrpIdForTrig = hostGroupId;
+
+		if (serverId != ALL_SERVERS && trigInfo.serverId != serverId)
+			continue;
+		if (isGoodStatus(trigInfo) != status)
+			continue;
+
+		svIt = svIdHostGrpIdMap.find(trigInfo.serverId);
+		if (svIt == svIdHostGrpIdMap.end()) {
+			// svIdHostGrpMap doesn't have value pair
+			// for this server
+			HostIdSet hostIdSet;
+			hostIdSet.insert(trigInfo.hostId);
+			HostGroupHostIdMap hostMap;
+			hostMap[hostGrpIdForTrig] = hostIdSet;
+			svIdHostGrpIdMap[trigInfo.serverId] = hostMap;
+			continue;
+		}
+
+		HostGroupHostIdMap &hostGrpIdMap = svIt->second;
+		hostIt = hostGrpIdMap.find(hostGrpIdForTrig);
+		if (hostIt == hostGrpIdMap.end()) {
+			// svIdHostGrpMap doesn't have value pair
+			// for this host group
+			HostIdSet hostIdSet;
+			hostIdSet.insert(trigInfo.hostId);
+			hostGrpIdMap[hostGrpIdForTrig] = hostIdSet;
+			continue;
+		}
+
+		HostIdSet &hostIdSet = hostIt->second;
+		// Even when hostIdSet already have trigInfo.hostId,
+		// the function just fails. So no problem. 
+		hostIdSet.insert(trigInfo.hostId);
+	}
+
+	// get the number of hosts that matches with the requested condition
+	svIt = svIdHostGrpIdMap.find(serverId);
+	if (svIt == svIdHostGrpIdMap.end())
+		return 0;
+	HostGroupHostIdMap &hostGrpIdMap = svIt->second;
+	hostIt = hostGrpIdMap.find(hostGroupId);
+	if (hostIt == hostGrpIdMap.end())
+		return 0;
+	HostIdSet &hostIdSet = hostIt->second;
+	return hostIdSet.size();
+}

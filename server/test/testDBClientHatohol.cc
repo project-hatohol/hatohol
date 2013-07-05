@@ -192,6 +192,26 @@ static void _assertGetHostInfoList(uint32_t serverId)
 #define assertGetHostInfoList(SERVER_ID) \
 cut_trace(_assertGetHostInfoList(SERVER_ID))
 
+void _assertGetNumberOfHostsWithStatus(bool status)
+{
+	uint32_t serverId = testTriggerInfo[0].serverId;
+	// TODO: should should give the appropriate host group ID after
+	//       Hatohol support it.
+	uint64_t hostGroupId = 0;
+
+	DBClientHatohol dbHatohol;
+	int expected = getNumberOfTestHostsWithStatus(serverId, hostGroupId,
+	                                              status);
+	int actual;
+	if (status)
+		actual  = dbHatohol.getNumberOfGoodHosts(serverId, hostGroupId);
+	else
+		actual  = dbHatohol.getNumberOfBadHosts(serverId, hostGroupId);
+	cppcut_assert_equal(expected, actual);
+}
+#define assertGetNumberOfHostsWithStatus(ST) \
+cut_trace(_assertGetNumberOfHostsWithStatus(ST))
+
 void setup(void)
 {
 	hatoholInit();
@@ -360,6 +380,16 @@ void test_getNumberOfTriggersBySeverity(void)
 		cppcut_assert_equal(expected, actual,
 		                    cut_message("severity: %d", i));
 	}
+}
+
+void test_getNumberOfGoodHosts(void)
+{
+	assertGetNumberOfHostsWithStatus(true);
+}
+
+void test_getNumberOfBadHosts(void)
+{
+	assertGetNumberOfHostsWithStatus(false);
 }
 
 } // namespace testDBClientHatohol

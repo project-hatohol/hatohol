@@ -9,6 +9,11 @@ typedef HostIdSet::iterator HostIdSetIterator;
 typedef map<uint32_t, HostIdSet>    ServerIdHostIdMap;
 typedef ServerIdHostIdMap::iterator ServerIdHostIdMapIterator;
 
+typedef map<uint64_t, HostIdSet>             HostGroupHostIdMap;
+typedef HostGroupHostIdMap::iterator         HostGroupHostIdMapIterator;
+typedef map<uint32_t, HostGroupHostIdMap>    ServerIdHostGroupHostIdMap;
+typedef ServerIdHostGroupHostIdMap::iterator ServerIdHostGroupHostIdMapIterator;
+
 extern MonitoringServerInfo serverInfo[];
 extern size_t NumServerInfo;
 
@@ -31,6 +36,9 @@ extern size_t getNumberOfTestItems(uint32_t serverId);
 extern void getTestHostInfoList(HostInfoList &hostInfoList,
                                 uint32_t targetServerId,
                                 ServerIdHostIdMap *serverIdHostIdMap = NULL);
+
+extern size_t getNumberOfTestHostsWithStatus(uint32_t serverId,
+                                          uint64_t hostGroupId, bool status);
 
 const TriggerInfo &searchTestTriggerInfo(const EventInfo &eventInfo);
 
