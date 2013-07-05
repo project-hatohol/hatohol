@@ -296,8 +296,11 @@ bool ArmZabbixAPI::openSession(SoupMessage **msgPtr)
 
 bool ArmZabbixAPI::updateAuthTokenIfNeeded(void)
 {
-	if (m_ctx->authToken.empty())
-		openSession();
+	if (m_ctx->authToken.empty()) {
+		if (!openSession())
+			return false;
+	}
+
 	return true;
 }
 
