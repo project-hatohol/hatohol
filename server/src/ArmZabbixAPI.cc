@@ -296,7 +296,7 @@ bool ArmZabbixAPI::openSession(SoupMessage **msgPtr)
 
 string ArmZabbixAPI::updateAuthTokenIfNeeded(void)
 {
-	if (m_ctx->authToken == string(""))
+	if (m_ctx->authToken.empty())
 		openSession();
 	return m_ctx->authToken;
 }
