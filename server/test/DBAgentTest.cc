@@ -270,7 +270,7 @@ void dbAgentTestSelectExWithCond(DBAgent &dbAgent)
 	arg.columnTypes.push_back(SQL_COLUMN_TYPE_BIGUINT);
 
 	arg.condition = StringUtils::sprintf
-	                  ("%s=%zd", columnDefId.columnName, ID[targetRow]);
+	                  ("%s=%"PRIu64, columnDefId.columnName, ID[targetRow]);
 	dbAgent.select(arg);
 
 	const ItemGroupList &itemList = arg.dataTable->getItemGroupList();
@@ -301,7 +301,7 @@ void dbAgentTestSelectExWithCondAllColumns(DBAgent &dbAgent)
 	}
 
 	arg.condition = StringUtils::sprintf
-	                  ("%s=%zd", columnDefId.columnName, ID[targetRow]);
+	                  ("%s=%"PRIu64, columnDefId.columnName, ID[targetRow]);
 	dbAgent.select(arg);
 
 	const ItemGroupList &itemList = arg.dataTable->getItemGroupList();
