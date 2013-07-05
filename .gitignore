@@ -6,7 +6,6 @@
 .deps/
 .libs/
 AUTHORS
-ChangeLog
 INSTALL
 Makefile
 Makefile.in

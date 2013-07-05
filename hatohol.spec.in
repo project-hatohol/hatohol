@@ -1,0 +1,42 @@
+Summary: Hatohol
+Name: hatohol
+Group: Applications/System
+Version: @VERSION@
+License: GPLv2+
+URL: http://https://github.com/project-hatohol/hatohol
+Release: 1%{?dist}
+Source0: %{name}-%{version}.tar.bz2
+BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
+
+Requires: glib2 >= 2.22
+BuildRequires: gcc-c++, pkgconfig
+BuildRequires: glib2-devel >= 2.22
+
+%description
+Hatohol collects monitoring information from running monitoring systems
+and shows their integrated data on one screen. This feature enables
+to consolidate monitoring centers and the operators even when monitored
+devices are being used in different places or with different monitoring
+software.
+
+%prep
+%setup -q -n %{name}-%{version}
+
+%build
+%configure
+make
+
+%install
+rm -rf %{buildroot}
+%make_install
+
+%clean
+rm -rf %{buildroot}
+
+%files
+%defattr(-,root,root,-)
+%{_sbindir}/hatohol
+
+%changelog
+* Sat Jul 06 2013 Kazuhiro Yamato <kyamato@mriaclelinux.com> 0.0.3
+- Fix to create RPM files.
