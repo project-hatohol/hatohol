@@ -70,28 +70,6 @@ UnifiedDataStore *UnifiedDataStore::getInstance(void)
 	return PrivateContext::instance;
 }
 
-
-// ---------------------------------------------------------------------------
-// Public methods
-// ---------------------------------------------------------------------------
-UnifiedDataStore::UnifiedDataStore(void)
-: m_ctx(NULL)
-{
-	m_ctx = new PrivateContext();
-
-	// start VirtualDataStoreZabbix
-	m_ctx->vdsZabbix = VirtualDataStoreZabbix::getInstance();
-
-	// start VirtualDataStoreNagios
-	m_ctx->vdsNagios = VirtualDataStoreNagios::getInstance();
-}
-
-UnifiedDataStore::~UnifiedDataStore()
-{
-	if (m_ctx)
-		delete m_ctx;
-}
-
 void UnifiedDataStore::start(void)
 {
 	m_ctx->vdsZabbix->start();

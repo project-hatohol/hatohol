@@ -436,11 +436,7 @@ string ArmZabbixAPI::getInitialJsonRequest(void)
 	agent.add("id", 1);
 
 	agent.startObject("params");
-<<<<<<< HEAD
 	agent.add("user", m_ctx->username);
-=======
-	agent.add("user" , m_ctx->username);
->>>>>>> Fix UserName and PassWord hard-coded
 	agent.add("password", m_ctx->password);
 	agent.endObject();
 
