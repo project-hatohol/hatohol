@@ -27,6 +27,7 @@ class DataStoreZabbix : public DataStore {
 public:
 	DataStoreZabbix(const MonitoringServerInfo &serverInfo);
 	virtual ~DataStoreZabbix();
+	virtual void update(void);
 	ItemTablePtr getTriggers(void);
 	ItemTablePtr getFunctions(void);
 	ItemTablePtr getItems(void);

@@ -47,6 +47,12 @@ DataStoreNagios::~DataStoreNagios()
 		delete m_ctx;
 }
 
+void DataStoreNagios::update(void)
+{
+	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	// m_ctx->m_armNDO.update();
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------

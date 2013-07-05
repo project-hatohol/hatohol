@@ -34,6 +34,12 @@ DataStoreZabbix::~DataStoreZabbix(void)
 {
 }
 
+void DataStoreZabbix::update(void)
+{
+	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	// m_armAPI.update();
+}
+
 ItemTablePtr DataStoreZabbix::getTriggers(void)
 {
 	return m_armApi.getTrigger();

@@ -27,6 +27,7 @@ class DataStoreNagios : public DataStore {
 public:
 	DataStoreNagios(const MonitoringServerInfo &serverInfo);
 	virtual ~DataStoreNagios();
+	virtual void update(void);
 private:
 	struct PrivateContext;
 	PrivateContext *m_ctx;
