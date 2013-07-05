@@ -301,6 +301,13 @@ bool ArmZabbixAPI::updateAuthTokenIfNeeded(void)
 	return true;
 }
 
+string ArmZabbixAPI::getAuthToken(void)
+{
+	// This function is used in the testing phase
+	updateAuthTokenIfNeeded();
+	return m_ctx->authToken;
+}
+
 SoupMessage *ArmZabbixAPI::queryCommon(JsonBuilderAgent &agent)
 {
 	string request_body = agent.generate();
