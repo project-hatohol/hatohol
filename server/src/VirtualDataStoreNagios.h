@@ -29,9 +29,6 @@ public:
 
 	virtual void start(void);
 
-	// overriden virtual methods
-	virtual void getTriggerList(TriggerInfoList &triggerList);
-
 protected:
 	VirtualDataStoreNagios(void);
 	~VirtualDataStoreNagios();

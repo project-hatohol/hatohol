@@ -36,8 +36,6 @@ public:
 	virtual void start(void);
 	virtual void stop(void);
 
-	virtual void getTriggerList(TriggerInfoList &triggerList) = 0;
-
 protected:
 	template<class T>
 	void start(MonitoringSystemType systemType)
