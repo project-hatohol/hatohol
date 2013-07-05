@@ -306,6 +306,24 @@ static bool isGoodStatus(const TriggerInfo &triggerInfo)
 	return triggerInfo.status == TRIGGER_STATUS_OK;
 }
 
+static void removeHostIdIfNeeded(ServerIdHostGroupHostIdMap &svIdHostGrpIdMap,
+                                 uint64_t hostGrpIdForTrig,
+                                 const TriggerInfo &trigInfo)
+{
+	ServerIdHostGroupHostIdMapIterator svIt;
+	HostGroupHostIdMapIterator         hostIt;
+	HostIdSetIterator                  idIt;
+	svIt = svIdHostGrpIdMap.find(trigInfo.serverId);
+	if (svIt == svIdHostGrpIdMap.end())
+		return;
+	HostGroupHostIdMap &hostGrpIdMap = svIt->second;
+	hostIt = hostGrpIdMap.find(hostGrpIdForTrig);
+	if (hostIt == hostGrpIdMap.end())
+		return;
+	HostIdSet &hostIdSet = hostIt->second;
+	hostIdSet.erase(trigInfo.hostId);
+}
+
 size_t getNumberOfTestHostsWithStatus(uint32_t serverId, uint64_t hostGroupId,
                                       bool status)
 {
@@ -320,8 +338,17 @@ size_t getNumberOfTestHostsWithStatus(uint32_t serverId, uint64_t hostGroupId,
 
 		if (serverId != ALL_SERVERS && trigInfo.serverId != serverId)
 			continue;
-		if (isGoodStatus(trigInfo) != status)
+		if (isGoodStatus(trigInfo) != status) {
+			if (status) {
+				// We have to remove inserted host ID.
+				// When a host has at least one bad triggeer,
+				// the host is not good.
+				removeHostIdIfNeeded(svIdHostGrpIdMap,
+				                     hostGrpIdForTrig,
+				                     trigInfo);
+			}
 			continue;
+		}
 
 		svIt = svIdHostGrpIdMap.find(trigInfo.serverId);
 		if (svIt == svIdHostGrpIdMap.end()) {
