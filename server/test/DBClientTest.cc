@@ -276,6 +276,8 @@ size_t getNumberOfTestTriggers(uint32_t serverId, uint64_t hostGroupId,
 			continue;
 		if (trigInfo.severity != severity)
 			continue;
+		if (trigInfo.status == TRIGGER_STATUS_OK)
+			continue;
 		count++;
 	}
 	return count;
