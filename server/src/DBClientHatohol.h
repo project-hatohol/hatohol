@@ -156,10 +156,10 @@ public:
 	void getItemInfoList(ItemInfoList &itemInfoList,
 	                     uint32_t targetServerId = ALL_SERVERS);
 
-	int getNumberOfTriggers(uint32_t serverId, uint64_t hostGroupId,
-	                        TriggerSeverityType severity);
-	int getNumberOfGoodHosts(uint32_t serverId, uint64_t hostGroupId);
-	int getNumberOfBadHosts(uint32_t serverId, uint64_t hostGroupId);
+	size_t getNumberOfTriggers(uint32_t serverId, uint64_t hostGroupId,
+	                           TriggerSeverityType severity);
+	size_t getNumberOfGoodHosts(uint32_t serverId, uint64_t hostGroupId);
+	size_t getNumberOfBadHosts(uint32_t serverId, uint64_t hostGroupId);
 
 protected:
 	static void resetDBInitializedFlags(void);

@@ -870,23 +870,23 @@ void DBClientHatohol::getItemInfoList(ItemInfoList &itemInfoList,
 	}
 }
 
-int DBClientHatohol::getNumberOfTriggers(uint32_t serverId,
-                                         uint64_t hostGroupId,
-                                         TriggerSeverityType severity)
+size_t DBClientHatohol::getNumberOfTriggers(uint32_t serverId,
+                                            uint64_t hostGroupId,
+                                            TriggerSeverityType severity)
 {
 	MLPL_BUG("Not implemneted: %s\n", __PRETTY_FUNCTION__);
 	return -1;
 }
 
-int DBClientHatohol::getNumberOfGoodHosts(uint32_t serverId,
-                                          uint64_t hostGroupId)
+size_t DBClientHatohol::getNumberOfGoodHosts(uint32_t serverId,
+                                             uint64_t hostGroupId)
 {
 	MLPL_BUG("Not implemneted: %s\n", __PRETTY_FUNCTION__);
 	return -1;
 }
 
-int DBClientHatohol::getNumberOfBadHosts(uint32_t serverId,
-                                         uint64_t hostGroupId)
+size_t DBClientHatohol::getNumberOfBadHosts(uint32_t serverId,
+                                            uint64_t hostGroupId)
 {
 	MLPL_BUG("Not implemneted: %s\n", __PRETTY_FUNCTION__);
 	return -1;
