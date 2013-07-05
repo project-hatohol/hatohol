@@ -300,6 +300,7 @@ bool ArmZabbixAPI::updateAuthTokenIfNeeded(void)
 		if (!openSession())
 			return false;
 	}
+	MLPL_DBG("auth token: %s\n", m_ctx->authToken.c_str());
 
 	return true;
 }
@@ -988,7 +989,7 @@ void ArmZabbixAPI::checkObtainedItems(const ItemTable *obtainedItemTable,
 
 bool ArmZabbixAPI::mainThreadOneProc(void)
 {
-	if (!openSession())
+	if (!updateAuthTokenIfNeeded())
 		return false;
 
 	// get triggers
