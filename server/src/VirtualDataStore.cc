@@ -30,6 +30,10 @@ VirtualDataStore::~VirtualDataStore(void)
 {
 }
 
+void VirtualDataStore::start(void)
+{
+}
+
 void VirtualDataStore::stop(void)
 {
 	MLPL_INFO("VirtualDataStore: stop process: started.\n");

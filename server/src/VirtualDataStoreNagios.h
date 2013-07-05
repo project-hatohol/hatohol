@@ -26,7 +26,8 @@ class VirtualDataStoreNagios : public VirtualDataStore
 {
 public:
 	static VirtualDataStoreNagios *getInstance(void);
-	void start(void);
+
+	virtual void start(void);
 
 	// overriden virtual methods
 	virtual void getTriggerList(TriggerInfoList &triggerList);
