@@ -265,8 +265,8 @@ void getTestHostInfoList(HostInfoList &hostInfoList,
 		delete svIdHostIdMap;
 }
 
-int getNumberOfTestHosts(uint32_t serverId, uint64_t hostGroupId, 
-                         TriggerSeverityType severity)
+size_t getNumberOfTestTriggers(uint32_t serverId, uint64_t hostGroupId, 
+                            TriggerSeverityType severity)
 {
 	// TODO: use hostGroupId after Hatohol support it.
 	int count = 0;

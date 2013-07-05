@@ -344,7 +344,7 @@ static void addOverviewEachServer(JsonBuilderAgent &agent,
 			agent.add("severity", severity);
 			agent.add(
 			  "numberOfHosts",
-			  dataStore->getNumberOfHosts
+			  dataStore->getNumberOfTriggers
 			    (svInfo.id, hostGroupId,
 			     (TriggerSeverityType)severity));
 			agent.endObject();

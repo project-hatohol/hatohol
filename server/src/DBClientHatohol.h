@@ -156,8 +156,8 @@ public:
 	void getItemInfoList(ItemInfoList &itemInfoList,
 	                     uint32_t targetServerId = ALL_SERVERS);
 
-	int getNumberOfHosts(uint32_t serverId, uint64_t hostGroupId,
-	                     TriggerSeverityType severity);
+	int getNumberOfTriggers(uint32_t serverId, uint64_t hostGroupId,
+	                        TriggerSeverityType severity);
 	int getNumberOfGoodHosts(uint32_t serverId, uint64_t hostGroupId);
 	int getNumberOfBadHosts(uint32_t serverId, uint64_t hostGroupId);
 

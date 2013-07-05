@@ -23,14 +23,14 @@ extern ItemInfo testItemInfo[];
 extern size_t NumTestItemInfo;
 
 extern size_t getNumberOfTestTriggers(uint32_t serverId);
+extern size_t getNumberOfTestTriggers(uint32_t serverId, uint64_t hostGroupId,
+                                      TriggerSeverityType severity);
+
 extern size_t getNumberOfTestItems(uint32_t serverId);
 
 extern void getTestHostInfoList(HostInfoList &hostInfoList,
                                 uint32_t targetServerId,
                                 ServerIdHostIdMap *serverIdHostIdMap = NULL);
-
-extern int getNumberOfTestHosts(uint32_t serverId, uint64_t hostGroupId, 
-                                TriggerSeverityType severity);
 
 const TriggerInfo &searchTestTriggerInfo(const EventInfo &eventInfo);
 

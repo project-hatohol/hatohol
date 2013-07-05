@@ -870,8 +870,9 @@ void DBClientHatohol::getItemInfoList(ItemInfoList &itemInfoList,
 	}
 }
 
-int DBClientHatohol::getNumberOfHosts(uint32_t serverId, uint64_t hostGroupId,
-                                      TriggerSeverityType severity)
+int DBClientHatohol::getNumberOfTriggers(uint32_t serverId,
+                                         uint64_t hostGroupId,
+                                         TriggerSeverityType severity)
 {
 	MLPL_BUG("Not implemneted: %s\n", __PRETTY_FUNCTION__);
 	return -1;

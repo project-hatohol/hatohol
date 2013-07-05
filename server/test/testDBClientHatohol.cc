@@ -343,7 +343,7 @@ void test_getHostInfoListForOneServer(void)
 	assertGetHostInfoList(targetServerId);
 }
 
-void test_getNumberOfHosts(void)
+void test_getNumberOfTriggersBySeverity(void)
 {
 	uint32_t targetServerId = testTriggerInfo[0].serverId;
 	// TODO: should should give the appropriate host group ID after
@@ -353,10 +353,10 @@ void test_getNumberOfHosts(void)
 	DBClientHatohol dbHatohol;
 	for (int i = 0; i < NUM_TRIGGER_SEVERITY; i++) {
 		TriggerSeverityType severity = (TriggerSeverityType)i;
-		int actual = dbHatohol.getNumberOfHosts(targetServerId,
-		                                        hostGroupId, severity);
-		int expected = getNumberOfTestHosts(targetServerId,
-		                                    hostGroupId, severity);
+		size_t actual = dbHatohol.getNumberOfTriggers
+		                  (targetServerId, hostGroupId, severity);
+		size_t expected = getNumberOfTestTriggers
+		                    (targetServerId, hostGroupId, severity);
 		cppcut_assert_equal(expected, actual,
 		                    cut_message("severity: %d", i));
 	}

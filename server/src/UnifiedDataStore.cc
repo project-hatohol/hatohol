@@ -131,12 +131,12 @@ void UnifiedDataStore::getHostList(HostInfoList &hostInfoList,
 	dbHatohol.getHostInfoList(hostInfoList, targetServerId);
 }
 
-int UnifiedDataStore::getNumberOfHosts(uint32_t serverId,
-                                       uint64_t hostGroupId,
-                                       TriggerSeverityType severity)
+size_t UnifiedDataStore::getNumberOfTriggers(uint32_t serverId,
+                                          uint64_t hostGroupId,
+                                          TriggerSeverityType severity)
 {
 	DBClientHatohol dbHatohol;
-	return dbHatohol.getNumberOfHosts(serverId, hostGroupId, severity);
+	return dbHatohol.getNumberOfTriggers(serverId, hostGroupId, severity);
 }
 
 int UnifiedDataStore::getNumberOfGoodHosts(uint32_t serverId,
