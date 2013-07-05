@@ -365,6 +365,8 @@ void test_getHostInfoListForOneServer(void)
 
 void test_getNumberOfTriggersBySeverity(void)
 {
+	setupTestTriggerDB();
+
 	uint32_t targetServerId = testTriggerInfo[0].serverId;
 	// TODO: should should give the appropriate host group ID after
 	//       Hatohol support it.
