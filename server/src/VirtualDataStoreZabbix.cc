@@ -75,6 +75,11 @@ void VirtualDataStoreZabbix::start(void)
 	VirtualDataStore::start<DataStoreZabbix>(MONITORING_SYSTEM_ZABBIX);
 }
 
+void VirtualDataStoreZabbix::update(void)
+{
+	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+}
+
 void VirtualDataStoreZabbix::getTriggerList(TriggerInfoList &triggerList)
 {
 	DBClientHatohol dbHatohol;

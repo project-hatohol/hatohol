@@ -40,6 +40,7 @@ public:
 	ItemTablePtr getItemTable(ItemGroupId groupId);
 
 	virtual void start(void);
+	virtual void update(void);
 
 	// Virtual functions
 	virtual void getTriggerList(TriggerInfoList &triggerList);

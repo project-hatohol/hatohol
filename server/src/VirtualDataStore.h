@@ -35,6 +35,7 @@ public:
 
 	virtual void start(void);
 	virtual void stop(void);
+	virtual void update(void);
 
 protected:
 	template<class T>

@@ -39,3 +39,7 @@ void VirtualDataStore::stop(void)
 	MLPL_INFO("VirtualDataStore: stop process: started.\n");
 	closeAllStores();
 }
+
+void VirtualDataStore::update(void)
+{
+}
