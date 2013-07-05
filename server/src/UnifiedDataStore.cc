@@ -139,15 +139,15 @@ size_t UnifiedDataStore::getNumberOfTriggers(uint32_t serverId,
 	return dbHatohol.getNumberOfTriggers(serverId, hostGroupId, severity);
 }
 
-int UnifiedDataStore::getNumberOfGoodHosts(uint32_t serverId,
-                                           uint64_t hostGroupId)
+size_t UnifiedDataStore::getNumberOfGoodHosts(uint32_t serverId,
+                                              uint64_t hostGroupId)
 {
 	DBClientHatohol dbHatohol;
 	return dbHatohol.getNumberOfGoodHosts(serverId, hostGroupId);
 }
 
-int UnifiedDataStore::getNumberOfBadHosts(uint32_t serverId,
-                                          uint64_t hostGroupId)
+size_t UnifiedDataStore::getNumberOfBadHosts(uint32_t serverId,
+                                             uint64_t hostGroupId)
 {
 	DBClientHatohol dbHatohol;
 	return dbHatohol.getNumberOfBadHosts(serverId, hostGroupId);

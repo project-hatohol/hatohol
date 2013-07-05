@@ -42,10 +42,10 @@ public:
 	virtual size_t getNumberOfTriggers
 	                 (uint32_t serverId, uint64_t hostGroupId,
 	                  TriggerSeverityType severity);
-	virtual int getNumberOfGoodHosts(uint32_t serverId,
-	                                 uint64_t hostGroupId);
-	virtual int getNumberOfBadHosts(uint32_t serverId,
-	                                uint64_t hostGroupId);
+	virtual size_t getNumberOfGoodHosts(uint32_t serverId,
+	                                    uint64_t hostGroupId);
+	virtual size_t getNumberOfBadHosts(uint32_t serverId,
+	                                   uint64_t hostGroupId);
 
 private:
 	struct PrivateContext;
