@@ -74,7 +74,7 @@ protected:
 	 * true if session is oppned successfully. Otherwise, false is returned.
 	 */
 	bool openSession(SoupMessage **msgPtr = NULL);
-	string updateAuthTokenIfNeeded(void);
+	bool updateAuthTokenIfNeeded(void);
 
 	SoupMessage *queryCommon(JsonBuilderAgent &agent);
 	SoupMessage *queryTrigger(int requestSince = 0);

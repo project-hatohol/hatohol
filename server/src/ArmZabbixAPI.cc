@@ -294,11 +294,11 @@ bool ArmZabbixAPI::openSession(SoupMessage **msgPtr)
 	return true;
 }
 
-string ArmZabbixAPI::updateAuthTokenIfNeeded(void)
+bool ArmZabbixAPI::updateAuthTokenIfNeeded(void)
 {
 	if (m_ctx->authToken.empty())
 		openSession();
-	return m_ctx->authToken;
+	return true;
 }
 
 SoupMessage *ArmZabbixAPI::queryCommon(JsonBuilderAgent &agent)
