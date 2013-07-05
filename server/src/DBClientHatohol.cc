@@ -906,8 +906,35 @@ size_t DBClientHatohol::getNumberOfTriggers(uint32_t serverId,
 size_t DBClientHatohol::getNumberOfGoodHosts(uint32_t serverId,
                                              uint64_t hostGroupId)
 {
-	MLPL_BUG("Not implemneted: %s\n", __PRETTY_FUNCTION__);
-	return -1;
+	// TODO: use hostGroupId after Hatohol supports it. 
+	DBAgentSelectExArg arg;
+	arg.tableName = TABLE_NAME_TRIGGERS;
+	string stmt =
+	  StringUtils::sprintf("count(distinct %s)",
+	    COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_HOST_ID].columnName);
+	arg.statements.push_back(stmt);
+	arg.columnTypes.push_back(SQL_COLUMN_TYPE_INT);
+
+	// condition
+	arg.condition =
+	  StringUtils::sprintf("%s=%d",
+	    COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_STATUS].columnName,
+	    TRIGGER_STATUS_PROBLEM);
+
+	if (serverId != ALL_SERVERS) {
+		const char *colName = 
+		  COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SERVER_ID].columnName;
+		arg.condition += StringUtils::sprintf(" and %s=%"PRIu32,
+		                                      colName, serverId);
+	}
+
+	DBCLIENT_TRANSACTION_BEGIN() {
+		select(arg);
+	} DBCLIENT_TRANSACTION_END();
+
+	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
+	const ItemData *count = (*grpList.begin())->getItemAt(0);
+	return ItemDataUtils::getInt(count);
 }
 
 size_t DBClientHatohol::getNumberOfBadHosts(uint32_t serverId,
