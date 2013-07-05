@@ -42,10 +42,6 @@ public:
 	virtual void start(void);
 	virtual void update(void);
 
-	// Virtual functions
-	virtual void getTriggerList(TriggerInfoList &triggerList);
-	virtual void getEventList(EventInfoList &eventList);
-
 protected:
 	ItemTable *createStaticItemTable(ItemGroupId groupId);
 	ItemTablePtr getTriggers(void);

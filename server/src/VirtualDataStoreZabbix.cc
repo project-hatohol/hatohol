@@ -80,18 +80,6 @@ void VirtualDataStoreZabbix::update(void)
 	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
 }
 
-void VirtualDataStoreZabbix::getTriggerList(TriggerInfoList &triggerList)
-{
-	DBClientHatohol dbHatohol;
-	dbHatohol.getTriggerInfoList(triggerList);
-}
-
-void VirtualDataStoreZabbix::getEventList(EventInfoList &eventList)
-{
-	DBClientHatohol dbHatohol;
-	dbHatohol.getEventInfoList(eventList);
-}
-
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
