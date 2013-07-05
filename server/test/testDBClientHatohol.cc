@@ -343,4 +343,23 @@ void test_getHostInfoListForOneServer(void)
 	assertGetHostInfoList(targetServerId);
 }
 
+void test_getNumberOfHosts(void)
+{
+	uint32_t targetServerId = testTriggerInfo[0].serverId;
+	// TODO: should should give the appropriate host group ID after
+	//       Hatohol support it.
+	uint64_t hostGroupId = 0;
+
+	DBClientHatohol dbHatohol;
+	for (int i = 0; i < NUM_TRIGGER_SEVERITY; i++) {
+		TriggerSeverityType severity = (TriggerSeverityType)i;
+		int actual = dbHatohol.getNumberOfHosts(targetServerId,
+		                                        hostGroupId, severity);
+		int expected = getNumberOfTestHosts(targetServerId,
+		                                    hostGroupId, severity);
+		cppcut_assert_equal(expected, actual,
+		                    cut_message("severity: %d", i));
+	}
+}
+
 } // namespace testDBClientHatohol

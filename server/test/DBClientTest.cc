@@ -264,3 +264,19 @@ void getTestHostInfoList(HostInfoList &hostInfoList,
 	if (!serverIdHostIdMap)
 		delete svIdHostIdMap;
 }
+
+int getNumberOfTestHosts(uint32_t serverId, uint64_t hostGroupId, 
+                         TriggerSeverityType severity)
+{
+	// TODO: use hostGroupId after Hatohol support it.
+	int count = 0;
+	for (size_t i = 0; i < NumTestTriggerInfo; i++) {
+		TriggerInfo &trigInfo = testTriggerInfo[i];
+		if (serverId != ALL_SERVERS && trigInfo.serverId != serverId)
+			continue;
+		if (trigInfo.severity != severity)
+			continue;
+		count++;
+	}
+	return count;
+}

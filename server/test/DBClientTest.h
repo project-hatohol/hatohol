@@ -29,6 +29,9 @@ extern void getTestHostInfoList(HostInfoList &hostInfoList,
                                 uint32_t targetServerId,
                                 ServerIdHostIdMap *serverIdHostIdMap = NULL);
 
+extern int getNumberOfTestHosts(uint32_t serverId, uint64_t hostGroupId, 
+                                TriggerSeverityType severity);
+
 const TriggerInfo &searchTestTriggerInfo(const EventInfo &eventInfo);
 
 #endif // DBClientTest_h
