@@ -29,6 +29,8 @@ public:
 	ArmBase(const MonitoringServerInfo &serverInfo);
 	virtual ~ArmBase();
 
+	virtual void forceUpdate(void);
+
 	void setPollingInterval(int sec);
 	int getPollingInterval(void) const;
 	int getRetryInterval(void) const;

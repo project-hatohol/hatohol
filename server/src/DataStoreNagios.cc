@@ -50,7 +50,7 @@ DataStoreNagios::~DataStoreNagios()
 void DataStoreNagios::update(void)
 {
 	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
-	// m_ctx->m_armNDO.update();
+	m_ctx->armNDO.forceUpdate();
 }
 
 // ---------------------------------------------------------------------------

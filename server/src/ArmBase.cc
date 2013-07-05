@@ -64,6 +64,12 @@ ArmBase::~ArmBase()
 		delete m_ctx;
 }
 
+void ArmBase::forceUpdate(void)
+{
+	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	// TODO: wake the sleeping thread and wait one proc.
+}
+
 void ArmBase::setPollingInterval(int sec)
 {
 	m_ctx->serverInfo.pollingIntervalSec = sec;
