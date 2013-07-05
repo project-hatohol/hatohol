@@ -42,4 +42,10 @@ void VirtualDataStore::stop(void)
 
 void VirtualDataStore::update(void)
 {
+	DataStoreVector &stores = getDataStoreVector();
+	DataStoreVectorIterator it = stores.begin();
+	for (; it != stores.end(); it++) {
+		DataStore *store = *it;
+		store->update();
+	}
 }

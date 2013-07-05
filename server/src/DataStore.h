@@ -28,6 +28,8 @@ class DataStore {
 public:
 	DataStore(void);
 	virtual ~DataStore();
+
+	virtual void update(void);
 };
 
 typedef vector<DataStore *>             DataStoreVector;
