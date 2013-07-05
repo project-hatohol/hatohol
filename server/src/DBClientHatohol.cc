@@ -882,8 +882,10 @@ size_t DBClientHatohol::getNumberOfTriggers(uint32_t serverId,
 
 	// condition
 	arg.condition =
-	  StringUtils::sprintf("%s=%d",
-	    COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SEVERITY].columnName, severity);
+	  StringUtils::sprintf("%s=%d and %s=%d",
+	    COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SEVERITY].columnName, severity,
+	    COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_STATUS].columnName,
+	    TRIGGER_STATUS_PROBLEM);
 
 	if (serverId != ALL_SERVERS) {
 		const char *colName = 
