@@ -156,6 +156,15 @@ public:
 	void getItemInfoList(ItemInfoList &itemInfoList,
 	                     uint32_t targetServerId = ALL_SERVERS);
 
+	/**
+	 * get the number of triggers with the given server ID, host group ID,
+	 * the severity. The triggers with status: TRIGGER_STATUS_OK is NOT
+	 * counted.
+	 * @serverId A target server Id.
+	 * @hostGroupId A target host group ID.
+	 * @severity    A target severity.
+	 * @return The number matched triggers.
+	 */
 	size_t getNumberOfTriggers(uint32_t serverId, uint64_t hostGroupId,
 	                           TriggerSeverityType severity);
 	size_t getNumberOfGoodHosts(uint32_t serverId, uint64_t hostGroupId);
