@@ -1024,6 +1024,7 @@ bool ArmZabbixAPI::mainThreadOneProc(void)
 		makeHatoholItems(items);
 
 	}
+	// TODO: Add the type of exception concrete.
 	catch ( ... )
 	{
 		MLPL_ERR("Error update\n");
