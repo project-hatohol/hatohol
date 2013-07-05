@@ -194,6 +194,8 @@ cut_trace(_assertGetHostInfoList(SERVER_ID))
 
 void _assertGetNumberOfHostsWithStatus(bool status)
 {
+	setupTestTriggerDB();
+
 	uint32_t serverId = testTriggerInfo[0].serverId;
 	// TODO: should should give the appropriate host group ID after
 	//       Hatohol support it.
