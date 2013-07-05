@@ -167,6 +167,7 @@ public:
 	 */
 	size_t getNumberOfTriggers(uint32_t serverId, uint64_t hostGroupId,
 	                           TriggerSeverityType severity);
+	size_t getNumberOfHosts(uint32_t serverId, uint64_t hostGroupId);
 	size_t getNumberOfGoodHosts(uint32_t serverId, uint64_t hostGroupId);
 	size_t getNumberOfBadHosts(uint32_t serverId, uint64_t hostGroupId);
 

@@ -903,8 +903,8 @@ size_t DBClientHatohol::getNumberOfTriggers(uint32_t serverId,
 	return ItemDataUtils::getInt(count);
 }
 
-size_t DBClientHatohol::getNumberOfGoodHosts(uint32_t serverId,
-                                             uint64_t hostGroupId)
+size_t DBClientHatohol::getNumberOfHosts(uint32_t serverId,
+                                         uint64_t hostGroupId)
 {
 	// TODO: use hostGroupId after Hatohol supports it. 
 	DBAgentSelectExArg arg;
@@ -916,15 +916,10 @@ size_t DBClientHatohol::getNumberOfGoodHosts(uint32_t serverId,
 	arg.columnTypes.push_back(SQL_COLUMN_TYPE_INT);
 
 	// condition
-	arg.condition =
-	  StringUtils::sprintf("%s=%d",
-	    COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_STATUS].columnName,
-	    TRIGGER_STATUS_PROBLEM);
-
 	if (serverId != ALL_SERVERS) {
 		const char *colName = 
 		  COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SERVER_ID].columnName;
-		arg.condition += StringUtils::sprintf(" and %s=%"PRIu32,
+		arg.condition += StringUtils::sprintf("%s=%"PRIu32,
 		                                      colName, serverId);
 	}
 
@@ -935,6 +930,17 @@ size_t DBClientHatohol::getNumberOfGoodHosts(uint32_t serverId,
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
 	const ItemData *count = (*grpList.begin())->getItemAt(0);
 	return ItemDataUtils::getInt(count);
+}
+
+size_t DBClientHatohol::getNumberOfGoodHosts(uint32_t serverId,
+                                             uint64_t hostGroupId)
+{
+	size_t numTotalHost = getNumberOfHosts(serverId, hostGroupId);
+	size_t numBadHosts = getNumberOfBadHosts(serverId, hostGroupId);
+	HATOHOL_ASSERT(numTotalHost >= numBadHosts,
+	               "numTotalHost: %zd, numBadHosts: %zd",
+	               numTotalHost, numBadHosts);
+	return numTotalHost - numBadHosts;
 }
 
 size_t DBClientHatohol::getNumberOfBadHosts(uint32_t serverId,
