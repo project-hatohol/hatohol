@@ -70,6 +70,8 @@ struct ArmZabbixAPI::PrivateContext
 	}
 };
 
+class connectionException : public HatoholException {};
+
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
