@@ -327,8 +327,11 @@ size_t getNumberOfTestHostsWithStatus(uint32_t serverId, uint64_t hostGroupId,
 		}
 
 		HostIdSet &hostIdSet = hostIt->second;
-		// Even when hostIdSet already have trigInfo.hostId,
-		// the function just fails. So no problem. 
+		// Even when hostIdSet already has an element with
+		// trigInfo.hostId, insert() just fails and doesn't
+		// cause side other effects.
+		// This behavior is no problem for this function and we
+		// can skip the check of the existence in the set.
 		hostIdSet.insert(trigInfo.hostId);
 	}
 
