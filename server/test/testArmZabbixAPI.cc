@@ -126,7 +126,7 @@ public:
 
 	string testAuthToken(void)
 	{
-		return ArmZabbixAPI::updateAuthTokenIfNeeded();
+		return ArmZabbixAPI::getAuthToken();
 	}
 
 	void assertMakeItemVector(bool testNull = false)
@@ -454,8 +454,9 @@ void test_checkAuthToken(void)
 	serverInfo.port = getTestPort();
 	ArmZabbixAPITestee armZbxApiTestee(serverInfo);
 
-	string firstToken;
+	string firstToken,secondToken;
 	firstToken = armZbxApiTestee.testAuthToken();
-	cppcut_assert_equal(firstToken, armZbxApiTestee.testAuthToken());
+	secondToken = armZbxApiTestee.testAuthToken();
+	cppcut_assert_equal(firstToken, secondToken);
 }
 } // namespace testArmZabbixAPI
