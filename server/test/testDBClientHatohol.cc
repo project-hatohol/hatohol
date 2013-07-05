@@ -149,7 +149,6 @@ void _assertItemInfoList(uint32_t serverId)
 }
 #define assertItemInfoList(SERVER_ID) cut_trace(_assertItemInfoList(SERVER_ID))
 
-void test_addTriggerInfoList(void);
 static void _assertGetHostInfoList(uint32_t serverId)
 {
 	// We have to insert test trigger data in DB first. Because current
@@ -157,7 +156,7 @@ static void _assertGetHostInfoList(uint32_t serverId)
 	// from trigger table.
 	// TODO: The implementation will be fixed in the future. The DB table
 	//       for host will be added. After that, we will fix this setup.
-	test_addTriggerInfoList();
+	setupTestTriggerDB();
 
 	HostInfoList actualHostList;
 	HostInfoList expectedHostList;
