@@ -994,32 +994,42 @@ bool ArmZabbixAPI::mainThreadOneProc(void)
 	if (!updateAuthTokenIfNeeded())
 		return false;
 
-	// get triggers
-	ItemTablePtr triggers = updateTriggers();
+	try
+	{
+		// get triggers
+		ItemTablePtr triggers = updateTriggers();
 
-	// update needed hosts
-	updateHosts(triggers);
+		// update needed hosts
+		updateHosts(triggers);
 
-	// Currently functions is no longer updated, because ZABBIX can
-	// return host ID diretory (If we use DBs as exactly the same as
-	// those in Zabbix Server, we have to join triggers, functions, and
-	// items to get the host ID). The related functions and structures
-	// main for the possiblity of future use again.
-	//
-	// updateFunctions();
+		// Currently functions is no longer updated, because ZABBIX can
+		// return host ID diretory (If we use DBs as exactly the same as
+		// those in Zabbix Server, we have to join triggers, functions, and
+		// items to get the host ID). The related functions and structures
+		// main for the possiblity of future use again.
+		//
+		// updateFunctions();
 
-	// get items
-	ItemTablePtr items = updateItems();
+		// get items
+		ItemTablePtr items = updateItems();
 
-	// update needed applications
-	updateApplications(items);
+		// update needed applications
+		updateApplications(items);
 
-	makeHatoholTriggers();
+		makeHatoholTriggers();
 
-	ItemTablePtr events = updateEvents();
-	makeHatoholEvents(events);
+		ItemTablePtr events = updateEvents();
+		makeHatoholEvents(events);
 
-	makeHatoholItems(items);
+		makeHatoholItems(items);
+
+	}
+	catch ( ... )
+	{
+		MLPL_ERR("Error update\n");
+		m_ctx->authToken = "";
+		return false;
+	}
 
 	return true;
 }
