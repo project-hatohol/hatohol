@@ -160,9 +160,9 @@ public:
 	 * get the number of triggers with the given server ID, host group ID,
 	 * the severity. The triggers with status: TRIGGER_STATUS_OK is NOT
 	 * counted.
-	 * @serverId A target server Id.
-	 * @hostGroupId A target host group ID.
-	 * @severity    A target severity.
+	 * @param serverId A target server Id.
+	 * @param hostGroupId A target host group ID.
+	 * @param severity    A target severity.
 	 * @return The number matched triggers.
 	 */
 	size_t getNumberOfTriggers(uint32_t serverId, uint64_t hostGroupId,
