@@ -17,6 +17,8 @@ AM_LDFLAGS = -module -rpath $(libdir) -avoid-version -no-undefined
 INCLUDES = $(CUTTER_CFLAGS) $(CPPCUTTER_CFLAGS) -I ../src
 LIBS = $(CUTTER_LIBS) $(CPPCUTTER_LIBS) -lstdc++ ../src/libmlpl.la
 
+loggerTestee_SOURCES = loggerTestee.cc
+
 # Test cases
 testMLPL_la_SOURCES = \
 	testMutexLock.cc testReadWriteLock.cc \
