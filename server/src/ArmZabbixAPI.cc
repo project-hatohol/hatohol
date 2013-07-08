@@ -1022,12 +1022,8 @@ bool ArmZabbixAPI::mainThreadOneProc(void)
 		makeHatoholEvents(events);
 
 		makeHatoholItems(items);
-
-	}
-	// TODO: Add the type of exception concrete.
-	catch ( ... )
-	{
-		MLPL_ERR("Error update\n");
+	} catch ( DataStoreException dse ){
+		MLPL_ERR("Error on update\n");
 		m_ctx->authToken = "";
 		return false;
 	}
