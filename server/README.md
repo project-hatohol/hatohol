@@ -15,7 +15,7 @@ Supported output method
 
 Supported platforms
 -------------------
-- CentOS 6.4 (x86_64)
+- CentOS 6.4 (x86\_64)
 - Ubuntu Server 12.04.2 LTS (64-bit)
 - Ubuntu 13.04 (64-bit) [supported until the next ubuntu release]
 
