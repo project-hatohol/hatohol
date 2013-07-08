@@ -75,7 +75,7 @@ protected:
 	 */
 	bool openSession(SoupMessage **msgPtr = NULL);
 	bool updateAuthTokenIfNeeded(void);
-	string getAuthToken(void);
+	string getAuthToken(bool);
 
 	SoupMessage *queryCommon(JsonBuilderAgent &agent);
 	SoupMessage *queryTrigger(int requestSince = 0);

@@ -308,10 +308,11 @@ bool ArmZabbixAPI::updateAuthTokenIfNeeded(void)
 	return true;
 }
 
-string ArmZabbixAPI::getAuthToken(void)
+string ArmZabbixAPI::getAuthToken(bool updateToken)
 {
 	// This function is used in the testing phase
-	updateAuthTokenIfNeeded();
+	if (updateToken) 
+		updateAuthTokenIfNeeded();
 	return m_ctx->authToken;
 }
 
