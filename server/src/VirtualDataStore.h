@@ -36,6 +36,7 @@ public:
 	virtual void start(void);
 	virtual void stop(void);
 	virtual void update(void);
+	virtual void collectArms(ArmBaseVector &arms);
 
 protected:
 	template<class T>

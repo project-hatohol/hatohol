@@ -22,6 +22,7 @@
 
 #include <map>
 #include <vector>
+#include <ArmBase.h>
 using namespace std;
 
 class DataStore {
@@ -30,6 +31,7 @@ public:
 	virtual ~DataStore();
 
 	virtual void update(void);
+	virtual void collectArms(ArmBaseVector &arms);
 };
 
 typedef vector<DataStore *>             DataStoreVector;
