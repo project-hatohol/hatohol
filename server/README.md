@@ -42,24 +42,24 @@ You can install sqlite3, MySQL and libsoup by following command:
 
 For json-glib, there are two ways to install.
 
-    * One is to use json-glib RPM package built by Project Hatohol.
+* One is to use json-glib RPM package built by Project Hatohol.
 
-        - https://github.com/project-hatohol/json-glib-for-distribution/blob/master/RPMS/x86\_64/json-glib-0.12.6-1PH.x86\_64.rpm?raw=true
-        - https://github.com/project-hatohol/json-glib-for-distribution/blob/master/RPMS/x86\_64/json-glib-devel-0.12.6-1PH.x86\_64.rpm?raw=true
+    - https://github.com/project-hatohol/json-glib-for-distribution/blob/master/RPMS/x86\_64/json-glib-0.12.6-1PH.x86\_64.rpm?raw=true
+    - https://github.com/project-hatohol/json-glib-for-distribution/blob/master/RPMS/x86\_64/json-glib-devel-0.12.6-1PH.x86\_64.rpm?raw=true
 
-    * The other is to install it from the source tar ball like below.
+* The other is to install it from the source tar ball like below.
 
-        Getting json-glib:
+    - Getting json-glib:
 
-            $ wget http://ftp.gnome.org/pub/GNOME/sources/json-glib/0.12/json-glib-0.12.6.tar.bz2
-            $ tar xvfj json-glib-0.12.6.tar.bz2
+        $ wget http://ftp.gnome.org/pub/GNOME/sources/json-glib/0.12/json-glib-0.12.6.tar.bz2
+        $ tar xvfj json-glib-0.12.6.tar.bz2
 
-        Building & installing by following commands:
+    - Building & installing by following commands:
 
-            $ ./configure
-            $ make all
-            $ su
-            # make install
+        $ ./configure
+        $ make all
+        $ su
+        # make install
 
 How to build Hatohol
 --------------------
