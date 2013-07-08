@@ -1023,7 +1023,7 @@ bool ArmZabbixAPI::mainThreadOneProc(void)
 		makeHatoholEvents(events);
 
 		makeHatoholItems(items);
-	} catch ( DataStoreException dse ){
+	} catch (const DataStoreException &dse ) {
 		MLPL_ERR("Error on update\n");
 		m_ctx->authToken = "";
 		return false;
