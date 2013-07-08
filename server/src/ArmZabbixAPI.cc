@@ -285,7 +285,7 @@ bool ArmZabbixAPI::openSession(SoupMessage **msgPtr)
 		g_object_unref(msg);
 		return false;
 	}
-	MLPL_DBG("auth token: %s\n", m_ctx->authToken.c_str());
+	MLPL_DBG("Get authToken: %s\n", m_ctx->authToken.c_str());
 
 	// copy the SoupMessage object if msgPtr is not NULL.
 	if (msgPtr)
@@ -303,7 +303,7 @@ bool ArmZabbixAPI::updateAuthTokenIfNeeded(void)
 		if (!openSession())
 			return false;
 	}
-	MLPL_DBG("auth token: %s\n", m_ctx->authToken.c_str());
+	MLPL_DBG("Use authToken: %s\n", m_ctx->authToken.c_str());
 
 	return true;
 }
