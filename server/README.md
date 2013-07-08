@@ -40,19 +40,26 @@ You can install sqlite3, MySQL and libsoup by following command:
 
     # yum install sqlite-devel mysql-devel libsoup-devel
 
-To install json-glib, you need to get source packages and build them.
+For json-glib, there are two ways to install.
 
-Getting json-glib:
+    * One is to use json-glib RPM package built by Project Hatohol.
 
-    $ wget http://ftp.gnome.org/pub/GNOME/sources/json-glib/0.12/json-glib-0.12.6.tar.bz2
-    $ tar xvfj json-glib-0.12.6.tar.bz2
+        - https://github.com/project-hatohol/json-glib-for-distribution/blob/master/RPMS/x86\_64/json-glib-0.12.6-1PH.x86\_64.rpm?raw=true
+        - https://github.com/project-hatohol/json-glib-for-distribution/blob/master/RPMS/x86\_64/json-glib-devel-0.12.6-1PH.x86\_64.rpm?raw=true
 
-You can build & install json-glib by following commands:
+    * The other is to install it from the source tar ball like below.
 
-    $ ./configure
-    $ make all
-    $ su
-    # make install
+        Getting json-glib:
+
+            $ wget http://ftp.gnome.org/pub/GNOME/sources/json-glib/0.12/json-glib-0.12.6.tar.bz2
+            $ tar xvfj json-glib-0.12.6.tar.bz2
+
+        Building & installing by following commands:
+
+            $ ./configure
+            $ make all
+            $ su
+            # make install
 
 How to build Hatohol
 --------------------
