@@ -110,6 +110,7 @@ server/src/Makefile
 server/tools/Makefile
 server/test/Makefile
 server/test/fixtures/Makefile
+client/Makefile
 ])
 
 echo

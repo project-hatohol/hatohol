@@ -1,4 +1,4 @@
-SUBDIRS = server
+SUBDIRS = server client
 ACLOCAL_AMFLAGS = -I m4
 
 EXTRA_DIST = autogen.sh README.md hatohol.spec
