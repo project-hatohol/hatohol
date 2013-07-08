@@ -44,8 +44,8 @@ You can install sqlite3, MySQL and libsoup by following command:
 
 ##### One is to use json-glib RPM package built by Project Hatohol.
 
-- https://github.com/project-hatohol/json-glib-for-distribution/blob/master/RPMS/x86\_64/json-glib-0.12.6-1PH.x86\_64.rpm?raw=true
-- https://github.com/project-hatohol/json-glib-for-distribution/blob/master/RPMS/x86\_64/json-glib-devel-0.12.6-1PH.x86\_64.rpm?raw=true
+- [json-glib library] (https://github.com/project-hatohol/json-glib-for-distribution/blob/master/RPMS/x86_64/json-glib-0.12.6-1PH.x86_64.rpm?raw=true)
+- [Header files (devel package)] (https://github.com/project-hatohol/json-glib-for-distribution/blob/master/RPMS/x86_64/json-glib-devel-0.12.6-1PH.x86_64.rpm?raw=true)
 
 ##### The other is to install it from the source tar ball like below.
 
