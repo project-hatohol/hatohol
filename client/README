@@ -64,8 +64,8 @@ You must configure if your prepared backend of THE VIEWER may runs on not a defa
 - edit mysite/urls.py to change the port
 
 Ex.)
--    url(r'^asura/(?P<path>.+)', jsonforward, kwargs={'server':'localhost:33194'})
-+    url(r'^asura/(?P<path>.+)', jsonforward, kwargs={'server':'localhost:30080'})
+-    url(r'^tunnel/(?P<path>.+)', jsonforward, kwargs={'server':'localhost:33194'})
++    url(r'^tunnel/(?P<path>.+)', jsonforward, kwargs={'server':'localhost:30080'})
 
 
 ========================================
