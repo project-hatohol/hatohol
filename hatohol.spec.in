@@ -33,7 +33,7 @@ Group: Application/System
 Requires: %{name} = %{version}-%{release}
 
 %description client
-A we UI client of Hatal provides a web UI.
+A web UI client of Hatohol provides a web UI.
 It internally communicates with the server and
 creates a response page when a user accesses.
 
