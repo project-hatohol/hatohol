@@ -299,6 +299,7 @@ bool ArmZabbixAPI::openSession(SoupMessage **msgPtr)
 bool ArmZabbixAPI::updateAuthTokenIfNeeded(void)
 {
 	if (m_ctx->authToken.empty()) {
+		MLPL_DBG("authToken is NULL\n");
 		if (!openSession())
 			return false;
 	}
