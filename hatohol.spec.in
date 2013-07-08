@@ -31,6 +31,7 @@ software.
 Summary: A web UI client of Hatohol.
 Group: Application/System
 Requires: %{name} = %{version}-%{release}
+Requires: bootstrap-for-hatohol >= 2.3
 
 %description client
 A web UI client of Hatohol provides a web UI.
