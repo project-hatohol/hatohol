@@ -62,6 +62,19 @@ Now preparing.
 
 Installation
 ------------
+### Installation by RPM files (only for CentOS 6.4)
+Install the following RPMs. (You also have to install packages that are
+needed by them)
+
+- [json-glib](https://github.com/project-hatohol/json-glib-for-distribution/blob/master/RPMS/x86_64/json-glib-0.12.6-1PH.x86_64.rpm?raw=true)
+- [bootstrap](https://github.com/project-hatohol/bootstrap-for-hatohol/blob/master/RPMS/x86_64/bootstrap-for-hatohol-2.3.2-1PH.x86_64.rpm?raw=true)
+- [Hatohol server 0.0.3-1](https://github.com/project-hatohol/hatohol-packages/blob/master/RPMS/hatohol-0.0.3-1.el6.x86_64.rpm?raw=true)
+- [Hatohol client 0.0.3-1](https://github.com/project-hatohol/hatohol-packages/blob/master/RPMS/hatohol-client-0.0.3-1.el6.x86_64.rpm?raw=true)
+
+The way to start Hatohol server and client is written in
+the follwoing build instructions.
+
+### Installation by building needed applications
 - [Server installation](server/README.md)
 - [Client (Web UI server) installation](client/README)
 
