@@ -27,6 +27,16 @@ to consolidate monitoring centers and the operators even when monitored
 devices are being used in different places or with different monitoring
 software.
 
+%package client
+Summary: A web UI client of Hatohol.
+Group: Application/System
+Requires: %{name} = %{version}-%{release}
+
+%description client
+A we UI client of Hatal provides a web UI.
+It internally communicates with the server and
+creates a response page when a user accesses.
+
 %package devel
 Summary: Header files for Hatohol library.
 Group: Development/Libraries
@@ -64,6 +74,10 @@ rm -rf %{buildroot}
 %{_sbindir}/*
 %{_libdir}/lib*.so.*
 %{_datadir}/hatohol/hatohol-config.dat.example
+
+%files client
+%defattr(-,root,root,-)
+%{_libexecdir}/hatohol/client/*
 
 %files devel
 %defattr(-,root,root,-)
