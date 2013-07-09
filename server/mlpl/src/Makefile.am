@@ -5,6 +5,7 @@ libmlpl_la_SOURCES = \
 	ParsableString.cc
  
 AM_CXXFLAGS = -Wall -g -O2
+AM_LDFLAGS = -lpthread
 
 includedir = $(prefix)/include/mlpl
 include_HEADERS = \
