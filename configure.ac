@@ -1,6 +1,6 @@
 AC_PREREQ(2.63)
 
-AC_INIT(hatohol, 0.0.2)
+AC_INIT(hatohol, 0.0.3)
 AM_INIT_AUTOMAKE([1.9 no-dist-gzip dist-bzip2 tar-pax])
 
 AC_DISABLE_STATIC
@@ -59,8 +59,8 @@ AC_SUBST(MYSQL_LIBS)
 dnl **************************************************************
 dnl Flag setting for MLPL
 dnl **************************************************************
-MLPL_CFLAGS=-I\${abs_top_srcdir}/mlpl/src
-MLPL_LIBS=\${abs_top_srcdir}/mlpl/src/libmlpl.la
+MLPL_CFLAGS=-I\${abs_top_srcdir}/server/mlpl/src
+MLPL_LIBS=\${abs_top_srcdir}/server/mlpl/src/libmlpl.la
 
 AC_SUBST(MLPL_CFLAGS)
 AC_SUBST(MLPL_LIBS)
@@ -100,14 +100,17 @@ dnl **************************************************************
 
 AC_OUTPUT([
 Makefile
-mlpl/Makefile
-mlpl/src/Makefile
-mlpl/test/Makefile
-mlpl/mlpl.pc
-src/Makefile
-tools/Makefile
-test/Makefile
-test/fixtures/Makefile
+hatohol.spec
+server/Makefile
+server/mlpl/Makefile
+server/mlpl/src/Makefile
+server/mlpl/test/Makefile
+server/mlpl/mlpl.pc
+server/src/Makefile
+server/tools/Makefile
+server/test/Makefile
+server/test/fixtures/Makefile
+client/Makefile
 ])
 
 echo

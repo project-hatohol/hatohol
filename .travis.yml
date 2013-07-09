@@ -10,10 +10,8 @@ install:
   - sudo apt-get install -qq -y autotools-dev libglib2.0-dev libjson-glib-dev libsoup2.4-dev libmysqlclient-dev sqlite3 ndoutils-nagios3-mysql
   - mysql -u root -e "GRANT all on ndoutils.* TO ndoutils@localhost IDENTIFIED BY 'admin';"
 before_script:
-  - pushd server
   - ./autogen.sh
   - ./configure
-  - popd
 script:
   - ./server/mlpl/test/run-test.sh
   - cd server/test && ./run-test.sh

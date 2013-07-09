@@ -1,0 +1,91 @@
+Summary: Hatohol
+Name: hatohol
+Group: Applications/System
+Version: @VERSION@
+License: GPLv2+
+URL: http://https://github.com/project-hatohol/hatohol
+Release: 1%{?dist}
+Source0: %{name}-%{version}.tar.bz2
+BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
+
+Requires: glib2 >= 2.22
+Requires: libsoup >= 2.22
+Requires: json-glib >= 0.12
+Requires: sqlite >= 3.6
+Requires: mysql >= 5.1
+BuildRequires: gcc-c++, pkgconfig
+BuildRequires: glib2-devel >= 2.22
+BuildRequires: libsoup-devel >= 2.22
+BuildRequires: json-glib-devel >= 0.12
+BuildRequires: sqlite-devel >= 3.6
+BuildRequires: mysql-devel >= 5.1
+
+%description
+Hatohol collects monitoring information from running monitoring systems
+and shows their integrated data on one screen. This feature enables
+to consolidate monitoring centers and the operators even when monitored
+devices are being used in different places or with different monitoring
+software.
+
+%package client
+Summary: A web UI client of Hatohol.
+Group: Application/System
+Requires: %{name} = %{version}-%{release}
+Requires: bootstrap-for-hatohol >= 2.3
+
+%description client
+A web UI client of Hatohol provides a web UI.
+It internally communicates with the server and
+creates a response page when a user accesses.
+
+%package devel
+Summary: Header files for Hatohol library.
+Group: Development/Libraries
+Requires: %{name} = %{version}-%{release}
+Requires: glib2 >= 2.22
+
+%description devel
+Header files for the Hatohol library.
+
+%prep
+%setup -q -n %{name}-%{version}
+
+%build
+%configure
+make
+
+%install
+rm -rf %{buildroot}
+%make_install
+
+rm -f %{buildroot}/%{_libdir}/*.la
+rm -f %{buildroot}/%{_libdir}/*.a
+
+%post -p /sbin/ldconfig
+
+%postun -p /sbin/ldconfig
+
+%clean
+rm -rf %{buildroot}
+
+%files
+%defattr(-,root,root,-)
+%doc README.md COPYING
+%{_bindir}/*
+%{_sbindir}/*
+%{_libdir}/lib*.so.*
+%{_datadir}/hatohol/hatohol-config.dat.example
+
+%files client
+%defattr(-,root,root,-)
+%{_libexecdir}/hatohol/client/*
+
+%files devel
+%defattr(-,root,root,-)
+%{_includedir}/*
+%{_libdir}/*.so
+%{_libdir}/pkgconfig/*.pc
+
+%changelog
+* Sat Jul 06 2013 Kazuhiro Yamato <kyamato@mriaclelinux.com> 0.0.3
+- Fix to create RPM files.

@@ -15,7 +15,7 @@ Supported output method
 
 Supported platforms
 -------------------
-- CentOS 6.4 (x86_64)
+- CentOS 6.4 (x86\_64)
 - Ubuntu Server 12.04.2 LTS (64-bit)
 - Ubuntu 13.04 (64-bit) [supported until the next ubuntu release]
 
@@ -40,14 +40,21 @@ You can install sqlite3, MySQL and libsoup by following command:
 
     # yum install sqlite-devel mysql-devel libsoup-devel
 
-To install json-glib, you need to get source packages and build them.
+#### For json-glib, there are two ways to install.
+
+##### One is to use json-glib RPM package built by Project Hatohol.
+
+- [json-glib library] (https://github.com/project-hatohol/json-glib-for-distribution/blob/master/RPMS/x86_64/json-glib-0.12.6-1PH.x86_64.rpm?raw=true)
+- [Header files (devel package)] (https://github.com/project-hatohol/json-glib-for-distribution/blob/master/RPMS/x86_64/json-glib-devel-0.12.6-1PH.x86_64.rpm?raw=true)
+
+##### The other is to install it from the source tar ball like below.
 
 Getting json-glib:
 
     $ wget http://ftp.gnome.org/pub/GNOME/sources/json-glib/0.12/json-glib-0.12.6.tar.bz2
     $ tar xvfj json-glib-0.12.6.tar.bz2
 
-You can build & install json-glib by following commands:
+Building & installing by following commands:
 
     $ ./configure
     $ make all
