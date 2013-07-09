@@ -8,6 +8,7 @@ TESTS_ENVIRONMENT = NO_MAKE=yes CUTTER="$(CUTTER)"
 
 noinst_LTLIBRARIES = testMLPL.la
 noinst_PROGRAMS = loggerTestee
+noinst_HEADERS = loggerTester.h
 
 endif
 
