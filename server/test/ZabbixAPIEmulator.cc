@@ -133,7 +133,11 @@ void ZabbixAPIEmulator::start(guint port)
 
 void ZabbixAPIEmulator::stop(void)
 {
-	soup_server_disconnect(m_ctx->soupServer);
+	soup_server_quit(m_ctx->soupServer);
+	g_thread_join(m_ctx->thread);
+	m_ctx->thread = NULL;
+	g_object_unref(m_ctx->soupServer);
+	m_ctx->soupServer = NULL;
 }
 
 void ZabbixAPIEmulator::setOperationMode(OperationMode mode)
