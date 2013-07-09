@@ -124,6 +124,11 @@ public:
 		return ArmZabbixAPI::getInitialJsonRequest();
 	}
 
+	string testAuthToken(void)
+	{
+		return ArmZabbixAPI::getAuthToken();
+	}
+
 	void assertMakeItemVector(bool testNull = false)
 	{
 		// make test data and call the target method.
@@ -438,5 +443,56 @@ void test_checkUsernamePassword(void)
 	cppcut_assert_equal(true, parser.read("password", jsonPassword));
 	cppcut_assert_equal(g_defaultServerInfo.userName, jsonUserName);
 	cppcut_assert_equal(g_defaultServerInfo.password, jsonPassword);
+}
+
+void test_checkAuthToken(void)
+{
+	int svId = 0;
+	MonitoringServerInfo serverInfo = g_defaultServerInfo;
+	serverInfo.id = svId;
+	serverInfo.port = getTestPort();
+	ArmZabbixAPITestee armZbxApiTestee(serverInfo);
+
+	string firstToken,secondToken;
+	firstToken = armZbxApiTestee.testAuthToken();
+	secondToken = armZbxApiTestee.testAuthToken();
+	cppcut_assert_equal(firstToken, secondToken);
+}
+
+void test_httpErrorAuthToken(void)
+{
+	int svId = 0;
+	MonitoringServerInfo serverInfo = g_defaultServerInfo;
+	serverInfo.id = svId;
+	serverInfo.port = getTestPort();
+	ArmZabbixAPITestee armZbxApiTestee(serverInfo);
+
+	string token;
+	token = armZbxApiTestee.testAuthToken();
+	cppcut_assert_equal(false, token.empty());
+	g_apiEmulator.setOperationMode(OPE_MODE_HTTP_NOT_FOUND);
+	armZbxApiTestee.testMainThreadOneProc();
+	token = armZbxApiTestee.testAuthToken();
+	cppcut_assert_equal(true, token.empty());
+}
+
+void test_sessionErrorAuthToken(void)
+{
+	int svId = 0;
+	MonitoringServerInfo serverInfo = g_defaultServerInfo;
+	serverInfo.id = svId;
+	serverInfo.port = getTestPort();
+	ArmZabbixAPITestee armZbxApiTestee(serverInfo);
+
+	string token;
+	token = armZbxApiTestee.testAuthToken();
+	cppcut_assert_equal(false, token.empty());
+	g_apiEmulator.stop();
+	cppcut_assert_equal(false, g_apiEmulator.isRunning());
+	
+	armZbxApiTestee.testMainThreadOneProc();
+	token = armZbxApiTestee.testAuthToken();
+	cppcut_assert_equal(true, token.empty());
+
 }
 } // namespace testArmZabbixAPI

@@ -70,6 +70,8 @@ struct ArmZabbixAPI::PrivateContext
 	}
 };
 
+class connectionException : public HatoholException {};
+
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
@@ -283,7 +285,7 @@ bool ArmZabbixAPI::openSession(SoupMessage **msgPtr)
 		g_object_unref(msg);
 		return false;
 	}
-	MLPL_DBG("auth token: %s\n", m_ctx->authToken.c_str());
+	MLPL_DBG("authToken: %s\n", m_ctx->authToken.c_str());
 
 	// copy the SoupMessage object if msgPtr is not NULL.
 	if (msgPtr)
@@ -292,6 +294,25 @@ bool ArmZabbixAPI::openSession(SoupMessage **msgPtr)
 		g_object_unref(msg);
 
 	return true;
+}
+
+bool ArmZabbixAPI::updateAuthTokenIfNeeded(void)
+{
+	if (m_ctx->authToken.empty()) {
+		MLPL_DBG("authToken is empty\n");
+		if (!openSession())
+			return false;
+	}
+	MLPL_DBG("authToken: %s\n", m_ctx->authToken.c_str());
+
+	return true;
+}
+
+string ArmZabbixAPI::getAuthToken(void)
+{
+	// This function is used in the testing phase
+	updateAuthTokenIfNeeded();
+	return m_ctx->authToken;
 }
 
 SoupMessage *ArmZabbixAPI::queryCommon(JsonBuilderAgent &agent)
@@ -971,35 +992,42 @@ void ArmZabbixAPI::checkObtainedItems(const ItemTable *obtainedItemTable,
 
 bool ArmZabbixAPI::mainThreadOneProc(void)
 {
-	if (!openSession())
+	if (!updateAuthTokenIfNeeded())
 		return false;
 
-	// get triggers
-	ItemTablePtr triggers = updateTriggers();
+	try
+	{
+		// get triggers
+		ItemTablePtr triggers = updateTriggers();
 
-	// update needed hosts
-	updateHosts(triggers);
+		// update needed hosts
+		updateHosts(triggers);
 
-	// Currently functions is no longer updated, because ZABBIX can
-	// return host ID diretory (If we use DBs as exactly the same as
-	// those in Zabbix Server, we have to join triggers, functions, and
-	// items to get the host ID). The related functions and structures
-	// main for the possiblity of future use again.
-	//
-	// updateFunctions();
+		// Currently functions is no longer updated, because ZABBIX can
+		// return host ID diretory (If we use DBs as exactly the same as
+		// those in Zabbix Server, we have to join triggers, functions, and
+		// items to get the host ID). The related functions and structures
+		// main for the possiblity of future use again.
+		//
+		// updateFunctions();
 
-	// get items
-	ItemTablePtr items = updateItems();
+		// get items
+		ItemTablePtr items = updateItems();
 
-	// update needed applications
-	updateApplications(items);
+		// update needed applications
+		updateApplications(items);
 
-	makeHatoholTriggers();
+		makeHatoholTriggers();
 
-	ItemTablePtr events = updateEvents();
-	makeHatoholEvents(events);
+		ItemTablePtr events = updateEvents();
+		makeHatoholEvents(events);
 
-	makeHatoholItems(items);
+		makeHatoholItems(items);
+	} catch (const DataStoreException &dse) {
+		MLPL_ERR("Error on update\n");
+		m_ctx->authToken = "";
+		return false;
+	}
 
 	return true;
 }

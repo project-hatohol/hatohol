@@ -22,6 +22,7 @@ public:
 
 	bool isRunning(void);
 	void start(guint port);
+	void stop(void);
 	void setOperationMode(OperationMode mode);
 
 protected:
