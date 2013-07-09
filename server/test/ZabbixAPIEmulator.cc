@@ -131,6 +131,11 @@ void ZabbixAPIEmulator::start(guint port)
 #endif // GLIB_VERSION_2_32
 }
 
+void ZabbixAPIEmulator::stop(void)
+{
+	soup_server_disconnect(m_ctx->soupServer);
+}
+
 void ZabbixAPIEmulator::setOperationMode(OperationMode mode)
 {
 	m_ctx->operationMode = mode;
