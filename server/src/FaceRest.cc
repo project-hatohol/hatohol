@@ -322,16 +322,15 @@ static void addOverviewEachServer(JsonBuilderAgent &agent,
 	// HostGroups
 	// TODO: We temtatively returns 'No group'. We should fix it
 	//       after host group is supported in Hatohol server.
-	agent.startArray("hostGroups");
+	agent.startObject("hostGroups");
 	size_t numHostGroup = 1;
 	uint64_t hostGroupIds[1] = {0};
 	for (size_t i = 0; i < numHostGroup; i++) {
-		agent.startObject();
-		agent.add("hostGroupId", hostGroupIds[i]);
-		agent.add("hostGroupName", "No group");
+		agent.startObject(StringUtils::toString(hostGroupIds[i]));
+		agent.add("name", "No group");
 		agent.endObject();
 	}
-	agent.endArray();
+	agent.endObject();
 
 	// SystemStatus
 	agent.startArray("systemStatus");

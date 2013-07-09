@@ -114,8 +114,8 @@ ServerStatus object
      - | The number of monitored items per second.
        | **Currently not implemented ('0' is returned)**.
    * - hostGroups
-     - Array
-     - The array of `HostGroup object`_.
+     - Object
+     - List of `HostGroup object`_. Keys for each `HostGroup object`_ are host group IDs. 
    * - systemStatus
      - Array
      - The array of `SystemStatus object`_.
@@ -131,10 +131,7 @@ HostGroup object
    * - Key
      - Value type
      - Brief
-   * - hostGroupId
-     - Number
-     - A host groud ID.
-   * - hostGroupName
+   * - name
      - String
      - A name of the host group.
 
