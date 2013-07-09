@@ -31,6 +31,7 @@ public:
 	static UnifiedDataStore *getInstance(void);
 	virtual void start(void);
 	virtual void stop(void);
+	virtual void update(void);
 
 	virtual void getTriggerList(TriggerInfoList &triggerList,
 	                            uint32_t targetServerId = ALL_SERVERS);

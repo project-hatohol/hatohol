@@ -22,6 +22,7 @@
 
 #include "HatoholThreadBase.h"
 #include "DBClientConfig.h"
+#include "Closure.h"
 
 class ArmBase : public HatoholThreadBase
 {
@@ -29,7 +30,7 @@ public:
 	ArmBase(const MonitoringServerInfo &serverInfo);
 	virtual ~ArmBase();
 
-	virtual void forceUpdate(void);
+	virtual void forceUpdate(ClosureBase *closure = NULL);
 
 	void setPollingInterval(int sec);
 	int getPollingInterval(void) const;

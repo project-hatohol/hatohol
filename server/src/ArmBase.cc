@@ -47,6 +47,7 @@ struct ArmBase::PrivateContext
 			MLPL_ERR("Failed to call sem_destroy(): %d\n", errno);
 	}
 
+	Signal updatedSignal;
 };
 
 // ---------------------------------------------------------------------------
@@ -64,10 +65,11 @@ ArmBase::~ArmBase()
 		delete m_ctx;
 }
 
-void ArmBase::forceUpdate(void)
+void ArmBase::forceUpdate(ClosureBase *closure)
 {
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
-	// TODO: wake the sleeping thread and wait one proc.
+	m_ctx->updatedSignal.connect(closure);
+	if (sem_post(&m_ctx->sleepSemaphore) == -1)
+		MLPL_ERR("Failed to call sem_post: %d\n", errno);
 }
 
 void ArmBase::setPollingInterval(int sec)
@@ -132,6 +134,10 @@ gpointer ArmBase::mainThread(HatoholThreadArg *arg)
 		int sleepTime = getPollingInterval();
 		if (!mainThreadOneProc())
 			sleepTime = getRetryInterval();
+
+		m_ctx->updatedSignal();
+		m_ctx->updatedSignal.clear();
+
 		if (hasExitRequest())
 			break;
 		sleepInterruptible(sleepTime);

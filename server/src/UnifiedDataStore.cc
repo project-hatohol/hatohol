@@ -17,6 +17,8 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <semaphore.h>
+#include <errno.h>
 #include <stdexcept>
 #include <MutexLock.h>
 #include "UnifiedDataStore.h"
@@ -29,8 +31,18 @@ struct UnifiedDataStore::PrivateContext
 {
 	static UnifiedDataStore *instance;
 	static MutexLock         mutex;
+
 	VirtualDataStoreZabbix *vdsZabbix;
 	VirtualDataStoreNagios *vdsNagios;
+	bool enableOnDemandCopy;
+	sem_t updatedSemaphore;
+	ReadWriteLock rwlock;
+	size_t runningArmsCount;
+
+	PrivateContext()
+	: enableOnDemandCopy(true), runningArmsCount(0)
+	{};
+	void updatedCallback(void);
 };
 
 UnifiedDataStore *UnifiedDataStore::PrivateContext::instance = NULL;
@@ -82,6 +94,55 @@ void UnifiedDataStore::stop(void)
 	m_ctx->vdsNagios->stop();
 }
 
+void
+UnifiedDataStore::PrivateContext::updatedCallback(void)
+{
+	rwlock.writeLock();
+	runningArmsCount--;
+	if (runningArmsCount == 0)
+		if (sem_post(&updatedSemaphore) == -1)
+			MLPL_ERR("Failed to call sem_post: %d\n", errno);
+	rwlock.unlock();
+}
+
+void UnifiedDataStore::update(void)
+{
+	if (!m_ctx->enableOnDemandCopy)
+		return;
+
+	ArmBaseVector arms;
+	m_ctx->vdsZabbix->collectArms(arms);
+	m_ctx->vdsNagios->collectArms(arms);
+	if (arms.empty())
+		return;
+
+	sem_init(&m_ctx->updatedSemaphore, 0, 0);
+
+	m_ctx->rwlock.writeLock();
+	m_ctx->runningArmsCount = arms.size();
+	m_ctx->rwlock.unlock();
+
+	ClosureBaseList closures;
+	ArmBaseVectorIterator arms_it = arms.begin();
+	for (; arms_it != arms.end(); arms_it++) {
+		ArmBase *arm = *arms_it;
+		Closure<UnifiedDataStore::PrivateContext> *closure =
+		  new Closure<UnifiedDataStore::PrivateContext>(
+		    m_ctx, &UnifiedDataStore::PrivateContext::updatedCallback);
+		arm->forceUpdate(closure);
+		closures.push_back(closure);
+	}
+
+	if (sem_wait(&m_ctx->updatedSemaphore) == -1)
+		MLPL_ERR("Failed to call sem_wait: %d\n", errno);
+
+	ClosureBaseIterator closure_it = closures.begin();
+	for (; closure_it != closures.end(); closure_it++) {
+		ClosureBase *closure = *closure_it;
+		delete closure;
+	}
+}
+
 void UnifiedDataStore::getTriggerList(TriggerInfoList &triggerList,
                                       uint32_t targetServerId)
 {
@@ -91,6 +152,7 @@ void UnifiedDataStore::getTriggerList(TriggerInfoList &triggerList,
 
 void UnifiedDataStore::getEventList(EventInfoList &eventList)
 {
+	update();
 	DBClientHatohol dbHatohol;
 	dbHatohol.getEventInfoList(eventList);
 }
