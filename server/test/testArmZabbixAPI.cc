@@ -459,4 +459,21 @@ void test_checkAuthToken(void)
 	secondToken = armZbxApiTestee.testAuthToken();
 	cppcut_assert_equal(firstToken, secondToken);
 }
+
+void test_httpErrorAuthToken(void)
+{
+	int svId = 0;
+	MonitoringServerInfo serverInfo = g_defaultServerInfo;
+	serverInfo.id = svId;
+	serverInfo.port = getTestPort();
+	ArmZabbixAPITestee armZbxApiTestee(serverInfo);
+
+	string token;
+	token = armZbxApiTestee.testAuthToken();
+	cppcut_assert_equal(false, token.empty());
+	g_apiEmulator.setOperationMode(OPE_MODE_HTTP_NOT_FOUND);
+	armZbxApiTestee.testMainThreadOneProc();
+	token = armZbxApiTestee.testAuthToken();
+	cppcut_assert_equal(true, token.empty());
+}
 } // namespace testArmZabbixAPI
