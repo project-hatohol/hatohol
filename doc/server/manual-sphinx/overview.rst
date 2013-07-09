@@ -89,7 +89,7 @@ ServerStatus object
    * - serverIpAddr
      - String
      - An IP address of the server.
-   * - serverNickName
+   * - serverNickname
      - String
      - A nickname of the server.
    * - numberOfHosts
