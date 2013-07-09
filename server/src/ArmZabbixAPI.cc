@@ -315,12 +315,6 @@ string ArmZabbixAPI::getAuthToken(void)
 	return m_ctx->authToken;
 }
 
-string ArmZabbixAPI::returnAuthToken(void)
-{
-	// This function is used in the testing phase
-	return m_ctx->authToken;
-}
-
 SoupMessage *ArmZabbixAPI::queryCommon(JsonBuilderAgent &agent)
 {
 	string request_body = agent.generate();
