@@ -101,16 +101,17 @@ void test_getHostAddressBothNotSet(void)
 
 void test_createDB(void)
 {
-	// create an instance (the database will be automatically created)
+	// create an instance
+	// Tables in the DB will be automatically created.
 	DBClientConfig dbConfig;
 
 	// check the version
 	string statement = "select * from _dbclient";
-	string output = execMySQLForDBClient(TEST_DB_NAME, statement);
-	string expectedOut = StringUtils::sprintf
-	                       ("%d\t%d\n", DBClient::DBCLIENT_DB_VERSION,
-	                                    DBClientConfig::CONFIG_DB_VERSION);
-	cppcut_assert_equal(expectedOut, output);
+	string expect =
+	  StringUtils::sprintf(
+	    "%d|%d\n", DBClient::DBCLIENT_DB_VERSION,
+	               DBClientConfig::CONFIG_DB_VERSION);
+	assertDBContent(dbConfig.getDBAgent(), statement, expect);
 }
 
 void test_createTableSystem(void)

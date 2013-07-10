@@ -33,6 +33,7 @@ public:
 	             unsigned int port = 0,     //   default port is used
 	             bool skipSetup = false);
 	virtual ~DBAgentMySQL();
+	string getDBName(void) const;
 
 	// virtual methods
 	virtual bool isTableExisting(const string &tableName);

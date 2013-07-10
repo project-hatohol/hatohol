@@ -48,6 +48,7 @@ public:
 
 	DBClient(void);
 	virtual ~DBClient();
+	DBAgent *getDBAgent(void) const;
 
 protected:
 	// static methods
@@ -63,7 +64,6 @@ protected:
 	// non-static methods
 	static void dbSetupFunc(DBDomainId domainId, void *data);
 	void setDBAgent(DBAgent *dbAgent);
-	DBAgent *getDBAgent(void) const;
 
 	void begin(void);
 	void rollback(void);

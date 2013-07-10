@@ -105,6 +105,11 @@ DBClient::~DBClient()
 		delete m_ctx;
 }
 
+DBAgent *DBClient::getDBAgent(void) const
+{
+	return m_ctx->dbAgent;
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
@@ -221,11 +226,6 @@ void DBClient::dbSetupFunc(DBDomainId domainId, void *data)
 void DBClient::setDBAgent(DBAgent *dbAgent)
 {
 	m_ctx->dbAgent = dbAgent;
-}
-
-DBAgent *DBClient::getDBAgent(void) const
-{
-	return m_ctx->dbAgent;
 }
 
 void DBClient::begin(void)

@@ -77,6 +77,10 @@ string deleteDBClientZabbixDB(int serverId);
 string execSqlite3ForDBClient(DBDomainId domainId, const string &statement);
 string execSqlite3ForDBClientZabbix(int serverId, const string &statement);
 string execMySQLForDBClient(const string &dbName, const string &statement);
+void _assertDBContent(DBAgent *dbAgent, const string &statement,
+                      const string &expect);
+#define assertDBContent(DB_AGENT, FMT, EXPECT) \
+cut_trace(_assertDBContent(DB_AGENT, FMT, EXPECT))
 
 void _assertCreateTable(DBDomainId domainId, const string &tableName);
 #define assertCreateTable(ID,TBL_NAME) \

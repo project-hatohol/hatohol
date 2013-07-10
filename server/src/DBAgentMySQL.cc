@@ -24,6 +24,7 @@
 struct DBAgentMySQL::PrivateContext {
 	MYSQL mysql;
 	bool  connected;
+	string dbName;
 
 	PrivateContext(void)
 	: connected(false)
@@ -50,6 +51,7 @@ DBAgentMySQL::DBAgentMySQL(const char *db, const char *user, const char *passwd,
 		                      db, mysql_error(&m_ctx->mysql));
 	}
 	m_ctx->connected = true;
+	m_ctx->dbName = db;
 }
 
 DBAgentMySQL::~DBAgentMySQL()
@@ -58,6 +60,11 @@ DBAgentMySQL::~DBAgentMySQL()
 		mysql_close(&m_ctx->mysql);
 		delete m_ctx;
 	}
+}
+
+string DBAgentMySQL::getDBName(void) const
+{
+	return m_ctx->dbName;
 }
 
 bool DBAgentMySQL::isTableExisting(const string &tableName)

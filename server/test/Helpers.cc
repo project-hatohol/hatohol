@@ -167,6 +167,21 @@ string execMySQLForDBClient(const string &dbName, const string &statement)
 	return result;
 }
 
+void _assertDBContent(DBAgent *dbAgent, const string &statement,
+                      const string &expect)
+{
+	string output;
+	const type_info& tid = typeid(*dbAgent);
+	if (tid == typeid(DBAgentMySQL)) {
+		DBAgentMySQL *dbMySQL = dynamic_cast<DBAgentMySQL *>(dbAgent);
+		output = execMySQLForDBClient(dbMySQL->getDBName(), statement);
+		output = StringUtils::replace(output, "\t", "|");
+	}
+	else
+		cut_fail("Unknown type_info");
+	cppcut_assert_equal(expect, output);
+}
+
 void _assertCreateTable(DBDomainId domainId, const string &tableName)
 {
 	string dbPath = DBAgentSQLite3::getDBPath(domainId);
