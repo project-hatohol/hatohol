@@ -66,9 +66,16 @@ static string makeExpectedOutput(MonitoringServerInfo *serverInfo)
 
 void setup(void)
 {
-	deleteDBClientDB(DB_DOMAIN_ID_CONFIG);
 	hatoholInit();
-	deleteDBClientDB(DB_DOMAIN_ID_CONFIG);
+
+	static const char *TEST_DB_NAME = "test_db_config";
+	static const char *TEST_DB_USER = "hatohol";
+	static const char *TEST_DB_PASSWORD = ""; // empty: No password is used
+	DBClientConfig::setDefaultDBParams(TEST_DB_NAME,
+	                                   TEST_DB_USER, TEST_DB_PASSWORD);
+
+	bool recreate = true;
+	makeTestMySQLDBIfNeeded(TEST_DB_NAME, recreate);
 }
 
 // ---------------------------------------------------------------------------

@@ -266,6 +266,7 @@ DBConnectInfo DBClientConfig::PrivateContext::connectInfo;
 void DBClientConfig::reset(void)
 {
 	resetDBInitializedFlags();
+	initDefaultDBConnectInfo();
 }
 
 void DBClientConfig::parseCommandLineArgument(CommandLineArg &cmdArg)
@@ -282,6 +283,16 @@ void DBClientConfig::parseCommandLineArgument(CommandLineArg &cmdArg)
 			                             dbPath);
 		}
 	}
+}
+
+void DBClientConfig::setDefaultDBParams(const string &name,
+                                        const string &user,
+                                        const string &password)
+{
+	DBConnectInfo &connInfo = PrivateContext::connectInfo;;
+	connInfo.dbName   = name;
+	connInfo.user     = user;
+	connInfo.password = password;
 }
 
 DBClientConfig::DBClientConfig(const DBConnectInfo *connectInfo)
@@ -541,10 +552,18 @@ void DBClientConfig::tableInitializerSystem(DBAgent *dbAgent, void *data)
 	dbAgent->insert(insArg);
 }
 
+void DBClientConfig::initDefaultDBConnectInfo(void)
+{
+	DBConnectInfo &connInfo = PrivateContext::connectInfo;;
+	connInfo.host     = "localhost";
+	connInfo.port     = 0; // default port
+	connInfo.user     = "hatohol";
+	connInfo.password = "hatohol";
+	connInfo.dbName   = DEFAULT_DB_NAME;
+}
+
 void DBClientConfig::prepareSetupFunction(void)
 {
-	initDefaultDBConnectInfo();
-
 	static const DBSetupTableInfo DB_TABLE_INFO[] = {
 	{
 		TABLE_NAME_SYSTEM,
@@ -568,16 +587,6 @@ void DBClientConfig::prepareSetupFunction(void)
 
 	DBAgent::addSetupFunction(DB_DOMAIN_ID_CONFIG,
 	                          dbSetupFunc, (void *)&DB_SETUP_FUNC_ARG);
-}
-
-void DBClientConfig::initDefaultDBConnectInfo(void)
-{
-	DBConnectInfo &connInfo = PrivateContext::connectInfo;;
-	connInfo.host     = "localhost";
-	connInfo.port     = 0; // default port
-	connInfo.user     = "hatohol";
-	connInfo.password = "hatohol";
-	connInfo.dbName   = DEFAULT_DB_NAME;
 }
 
 const DBConnectInfo *DBClientConfig::getDefaultConnectInfo(void)
