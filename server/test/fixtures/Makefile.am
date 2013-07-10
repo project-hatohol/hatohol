@@ -1,4 +1,4 @@
-TEST_DBS = testDatabase-config.db testDatabase-hatohol.db
+TEST_DBS = testDatabase-hatohol.db
 if WITH_CUTTER
 noinst_DATA = $(TEST_DBS) FooTable.db
 noinst_PROGRAMS = mkTestDB
@@ -12,10 +12,6 @@ LIBS = ../../src/libhatohol.la ../libTest.la
 mkTestDB_SOURCES = mkTestDB.cc
 
 $(TEST_DBS): mkTestDB ../../src/libhatohol.la ../libTest.la
-testDatabase-config.db:
-	rm -f $@
-	./mkTestDB config $@
-
 testDatabase-hatohol.db:
 	rm -f $@
 	./mkTestDB hatohol $@

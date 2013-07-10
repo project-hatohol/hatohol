@@ -9,16 +9,6 @@
 
 typedef void (*DBMaker)(const string &dbName);
 
-static void makeDBConfig(const string &dbName)
-{
-	DBAgentSQLite3::defineDBPath(DB_DOMAIN_ID_CONFIG, dbName);
-	for (size_t i = 0; i < NumServerInfo; i++) {
-		MonitoringServerInfo *svInfo = &serverInfo[i];
-		DBClientConfig dbConfig;
-		dbConfig.addTargetServer(svInfo);
-	} 
-}
-
 static void makeDBHatohol(const string &dbName)
 {
 	DBAgentSQLite3::defineDBPath(DB_DOMAIN_ID_HATOHOL, dbName);
@@ -61,9 +51,7 @@ int main(int argc, char *argv[])
 #endif // GLIB_VERSION_2_36
 	hatoholInit();
 	DBMaker dbMaker = NULL;
-	if (command == "config")
-		dbMaker = makeDBConfig;
-	else if (command == "hatohol")
+	if (command == "hatohol")
 		dbMaker = makeDBHatohol;
 
 	if (!dbMaker) {
