@@ -313,5 +313,11 @@ void test_selectExWithOrderByLimitOffsetOverData(void)
 	dbAgentTestSelectHeightOrder(*g_dbAgent, 1, NUM_TEST_DATA, 0);
 }
 
+void test_isTableExisting(void)
+{
+	createGlobalDBAgent();
+	dbAgentTestIsTableExisting(*g_dbAgent, dbAgentChecker);
+}
+
 } // testDBAgentMySQL
 

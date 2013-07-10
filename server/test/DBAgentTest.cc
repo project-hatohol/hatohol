@@ -468,3 +468,10 @@ void dbAgentTestDelete(DBAgent &dbAgent, DBAgentChecker &checker)
 	}
 	cppcut_assert_equal(matchCount, actualIds.size());
 }
+
+void dbAgentTestIsTableExisting(DBAgent &dbAgent, DBAgentChecker &checker)
+{
+	cppcut_assert_equal(false, dbAgent.isTableExisting(TABLE_NAME_TEST));
+	dbAgentTestCreateTable(dbAgent, checker);
+	cppcut_assert_equal(true, dbAgent.isTableExisting(TABLE_NAME_TEST));
+}

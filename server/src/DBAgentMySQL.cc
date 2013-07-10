@@ -69,8 +69,34 @@ string DBAgentMySQL::getDBName(void) const
 
 bool DBAgentMySQL::isTableExisting(const string &tableName)
 {
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
-	return false;
+	HATOHOL_ASSERT(m_ctx->connected, "Not connected.");
+	string query =
+	  StringUtils::sprintf(
+	    "SHOW TABLES FROM %s LIKE '%s'",
+	    getDBName().c_str(), tableName.c_str());
+
+	if (mysql_query(&m_ctx->mysql, query.c_str()) != 0) {
+		THROW_HATOHOL_EXCEPTION(
+		  "Failed to query: %s: %s\n",
+		  query.c_str(), mysql_error(&m_ctx->mysql));
+	}
+
+	MYSQL_RES *result = mysql_store_result(&m_ctx->mysql);
+	if (!result) {
+		THROW_HATOHOL_EXCEPTION(
+		  "Failed to call mysql_store_result: %s\n",
+		  mysql_error(&m_ctx->mysql));
+	}
+
+	MYSQL_ROW row;
+	bool found = false;
+	while ((row = mysql_fetch_row(result))) {
+		found = true;
+		break;
+	}
+	mysql_free_result(result);
+
+	return found;
 }
 
 bool DBAgentMySQL::isRecordExisting(const string &tableName, const string &condition)
