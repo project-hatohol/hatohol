@@ -158,6 +158,15 @@ string execSqlite3ForDBClientZabbix(int serverId, const string &statement)
 	return execSqlite3ForDBClient(domainId, statement);
 }
 
+string execMySQLForDBClient(const string &dbName, const string &statement)
+{
+	string commandLine =
+	  StringUtils::sprintf("mysql -B -N -D %s -e \"%s\"",
+	                       dbName.c_str(), statement.c_str());
+	string result = executeCommand(commandLine);
+	return result;
+}
+
 void _assertCreateTable(DBDomainId domainId, const string &tableName)
 {
 	string dbPath = DBAgentSQLite3::getDBPath(domainId);

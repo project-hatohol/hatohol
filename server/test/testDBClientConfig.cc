@@ -26,6 +26,8 @@
 #include "Helpers.h"
 #include "DBClientTest.h"
 
+static const char *TEST_DB_NAME = "test_db_config";
+
 namespace testDBClientConfig {
 
 void _assertGetHostAddress
@@ -68,7 +70,6 @@ void setup(void)
 {
 	hatoholInit();
 
-	static const char *TEST_DB_NAME = "test_db_config";
 	static const char *TEST_DB_USER = "hatohol";
 	static const char *TEST_DB_PASSWORD = ""; // empty: No password is used
 	DBClientConfig::setDefaultDBParams(TEST_DB_NAME,
@@ -100,19 +101,15 @@ void test_getHostAddressBothNotSet(void)
 
 void test_createDB(void)
 {
-	// remove the DB that already exists
-	string dbPath = deleteDBClientDB(DB_DOMAIN_ID_CONFIG);
-
 	// create an instance (the database will be automatically created)
 	DBClientConfig dbConfig;
-	cut_assert_exist_path(dbPath.c_str());
 
 	// check the version
 	string statement = "select * from _dbclient";
-	string output = execSqlite3ForDBClient(DB_DOMAIN_ID_CONFIG, statement);
+	string output = execMySQLForDBClient(TEST_DB_NAME, statement);
 	string expectedOut = StringUtils::sprintf
-	                       ("%d|%d\n", DBClient::DBCLIENT_DB_VERSION,
-	                                   DBClientConfig::CONFIG_DB_VERSION);
+	                       ("%d\t%d\n", DBClient::DBCLIENT_DB_VERSION,
+	                                    DBClientConfig::CONFIG_DB_VERSION);
 	cppcut_assert_equal(expectedOut, output);
 }
 
