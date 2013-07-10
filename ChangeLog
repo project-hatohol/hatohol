@@ -2,6 +2,14 @@
 
 	[Server] Fix the problem that causes a crash in the Hatohol's exit procedures.
 
+2013-07-09  Noriki Nakamura <noriki.nakamura@miraclelinux.com>
+
+	[Server] Auth Token is re-acquired each time in the connection
+
 2013-07-05  Kazuhiro Yamato <kazuhiro.yamato@miraclelinux.com>
 
 	[Server] Add overview REST API for dashboard.
+
+2013-07-03  Noriki Nakamura <noriki.nakamura@miraclelinux.com>
+
+	[Server] UserName and PassWord are hard-coded on server/src/ArmZabbixAPI.cc
