@@ -30,7 +30,8 @@ public:
 	             const char *user = NULL,   //   current user name is used
 	             const char *passwd = NULL, //   passwd is not checked
 	             const char *host = NULL,   //   localhost is used
-	             unsigned int port = 0);    //   default port is used
+	             unsigned int port = 0,     //   default port is used
+	             bool skipSetup = false);
 	virtual ~DBAgentMySQL();
 
 	// virtual methods

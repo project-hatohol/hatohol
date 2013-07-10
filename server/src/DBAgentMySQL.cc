@@ -19,6 +19,7 @@
 
 #include "DBAgentMySQL.h"
 #include "SQLUtils.h"
+#include "ConfigManager.h"
 
 struct DBAgentMySQL::PrivateContext {
 	MYSQL mysql;
@@ -34,8 +35,9 @@ struct DBAgentMySQL::PrivateContext {
 // Public methods
 // ---------------------------------------------------------------------------
 DBAgentMySQL::DBAgentMySQL(const char *db, const char *user, const char *passwd,
-                           const char *host, unsigned int port)
-: m_ctx(NULL)
+                           const char *host, unsigned int port, bool skipSetup)
+: DBAgent(DB_DOMAIN_ID_CONFIG, skipSetup),
+  m_ctx(NULL)
 {
 	const char *unixSocket = NULL;
 	unsigned long clientFlag = 0;

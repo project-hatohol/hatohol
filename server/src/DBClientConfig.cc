@@ -301,17 +301,17 @@ DBClientConfig::DBClientConfig(const DBConnectInfo *connectInfo)
 	m_ctx = new PrivateContext();
 
 	m_ctx->lock();
+	if (!connectInfo)
+		connectInfo = getDefaultConnectInfo();
 	if (!m_ctx->initialized) {
 		// The setup function: dbSetupFunc() is called from
 		// the creation of DBAgent instance below.
-		prepareSetupFunction();
+		prepareSetupFunction(connectInfo);
 	}
 	m_ctx->unlock();
-
-	if (!connectInfo)
-		connectInfo = getDefaultConnectInfo();
-	setDBAgent(
-	  DBAgentFactory::create(DB_DOMAIN_ID_CONFIG, false, connectInfo));
+	bool skipSetup = false;
+	setDBAgent(DBAgentFactory::create(DB_DOMAIN_ID_CONFIG, skipSetup,
+	                                  connectInfo));
 }
 
 DBClientConfig::~DBClientConfig()
@@ -562,7 +562,7 @@ void DBClientConfig::initDefaultDBConnectInfo(void)
 	connInfo.dbName   = DEFAULT_DB_NAME;
 }
 
-void DBClientConfig::prepareSetupFunction(void)
+void DBClientConfig::prepareSetupFunction(const DBConnectInfo *connectInfo)
 {
 	static const DBSetupTableInfo DB_TABLE_INFO[] = {
 	{
@@ -583,6 +583,9 @@ void DBClientConfig::prepareSetupFunction(void)
 		CONFIG_DB_VERSION,
 		NUM_TABLE_INFO,
 		DB_TABLE_INFO,
+		NULL, // dbUpdater
+		NULL, // dbUpdaterData
+		connectInfo,
 	};
 
 	DBAgent::addSetupFunction(DB_DOMAIN_ID_CONFIG,

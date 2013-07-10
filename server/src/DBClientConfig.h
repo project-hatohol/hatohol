@@ -107,7 +107,7 @@ protected:
 	static void resetDBInitializedFlags(void);
 	static void tableInitializerSystem(DBAgent *dbAgent, void *data);
 	static void initDefaultDBConnectInfo(void);
-	void prepareSetupFunction(void);
+	void prepareSetupFunction(const DBConnectInfo *connectInfo);
 	const DBConnectInfo *getDefaultConnectInfo(void);
 
 private:

@@ -191,8 +191,10 @@ void DBClient::dbSetupFunc(DBDomainId domainId, void *data)
 {
 	DBSetupFuncArg *setupFuncArg = static_cast<DBSetupFuncArg *>(data);
 	bool skipSetup = true;
+	const DBConnectInfo *connectInfo = setupFuncArg->connectInfo;
 	auto_ptr<DBAgent> rawDBAgent(DBAgentFactory::create(domainId,
-	                                                    skipSetup));
+	                                                    skipSetup,
+	                                                    connectInfo));
 	if (!rawDBAgent->isTableExisting(TABLE_NAME_DBCLIENT)) {
 		createTable(rawDBAgent.get(),
 		            TABLE_NAME_DBCLIENT, NUM_COLUMNS_DBCLIENT,
