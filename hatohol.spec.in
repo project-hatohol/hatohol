@@ -29,7 +29,7 @@ software.
 
 %package client
 Summary: A web UI client of Hatohol.
-Group: Application/System
+Group: Applications/System
 Requires: %{name} = %{version}-%{release}
 Requires: bootstrap-for-hatohol >= 2.3
 
