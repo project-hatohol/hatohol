@@ -22,6 +22,7 @@
 #include "Helpers.h"
 #include "DBClientZabbix.h"
 #include "DBAgentSQLite3.h"
+#include "DBAgentMySQL.h"
 
 void _assertStringVector(StringVector &expected, StringVector &actual)
 {
@@ -163,4 +164,79 @@ void _assertCreateTable(DBDomainId domainId, const string &tableName)
 	string command = "sqlite3 " + dbPath + " \".table\"";
 	string output = executeCommand(command);
 	assertExist(tableName, output);
+}
+
+static bool makeTestDB(MYSQL *mysql, const string &dbName)
+{
+	string query = "CREATE DATABASE ";
+	query += dbName;
+	return mysql_query(mysql, query.c_str()) == 0;
+}
+
+static bool dropTestDB(MYSQL *mysql, const string &dbName)
+{
+	string query = "DROP DATABASE ";
+	query += dbName;
+	return mysql_query(mysql, query.c_str()) == 0;
+}
+
+void makeTestMySQLDBIfNeeded(const string &dbName, bool recreate)
+{
+	// make a connection
+	const char *host = NULL; // localhost is used.
+	const char *user = NULL; // current user name is used.
+	const char *passwd = NULL; // passwd is not checked.
+	const char *db = NULL;
+	unsigned int port = 0; // default port is used.
+	const char *unixSocket = NULL;
+	unsigned long clientFlag = 0;
+	MYSQL mysql;
+	mysql_init(&mysql);
+	MYSQL *succeeded = mysql_real_connect(&mysql, host, user, passwd,
+	                                      db, port, unixSocket, clientFlag);
+	if (!succeeded) {
+		cut_fail("Failed to connect to MySQL: %s: %s\n",
+		          db, mysql_error(&mysql));
+	}
+
+	// try to find the test database
+	MYSQL_RES *result = mysql_list_dbs(&mysql, dbName.c_str());
+	if (!result) {
+		mysql_close(&mysql);
+		cut_fail("Failed to list table: %s: %s\n",
+		          db, mysql_error(&mysql));
+	}
+
+	MYSQL_ROW row;
+	bool found = false;
+	size_t lengthTestDBName = dbName.size();
+	while ((row = mysql_fetch_row(result))) {
+		if (dbName.compare(0, lengthTestDBName, row[0]) == 0) {
+			found = true;
+			break;
+		}
+	}
+	mysql_free_result(result);
+
+	// make DB if needed
+	bool noError = false;
+	if (!found) {
+		if (!makeTestDB(&mysql, dbName))
+			goto exit;
+	} else if (recreate) {
+		if (!dropTestDB(&mysql, dbName))
+			goto exit;
+		if (!makeTestDB(&mysql, dbName))
+			goto exit;
+	}
+	noError = true;
+
+exit:
+	// close the connection
+	string errmsg;
+	if (!noError)
+		errmsg = mysql_error(&mysql);
+	mysql_close(&mysql);
+	cppcut_assert_equal(true, noError,
+	   cut_message("Failed to query: %s", errmsg.c_str()));
 }

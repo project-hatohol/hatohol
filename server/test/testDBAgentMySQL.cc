@@ -209,81 +209,6 @@ public:
 
 static DBAgentCheckerMySQL dbAgentChecker;
 
-static bool dropTestDB(MYSQL *mysql)
-{
-	string query = "DROP DATABASE ";
-	query += TEST_DB_NAME;
-	return mysql_query(mysql, query.c_str()) == 0;
-}
-
-static bool makeTestDB(MYSQL *mysql)
-{
-	string query = "CREATE DATABASE ";
-	query += TEST_DB_NAME;
-	return mysql_query(mysql, query.c_str()) == 0;
-}
-
-static void makeTestDBIfNeeded(bool recreate = false)
-{
-	// make a connection
-	const char *host = NULL; // localhost is used.
-	const char *user = NULL; // current user name is used.
-	const char *passwd = NULL; // passwd is not checked.
-	const char *db = NULL;
-	unsigned int port = 0; // default port is used.
-	const char *unixSocket = NULL;
-	unsigned long clientFlag = 0;
-	MYSQL mysql;
-	mysql_init(&mysql);
-	MYSQL *succeeded = mysql_real_connect(&mysql, host, user, passwd,
-	                                      db, port, unixSocket, clientFlag);
-	if (!succeeded) {
-		cut_fail("Failed to connect to MySQL: %s: %s\n",
-		          db, mysql_error(&mysql));
-	}
-
-	// try to find the test database
-	MYSQL_RES *result = mysql_list_dbs(&mysql, TEST_DB_NAME);
-	if (!result) {
-		mysql_close(&mysql);
-		cut_fail("Failed to list table: %s: %s\n",
-		          db, mysql_error(&mysql));
-	}
-
-	MYSQL_ROW row;
-	bool found = false;
-	size_t lengthTestDBName = strlen(TEST_DB_NAME);
-	while ((row = mysql_fetch_row(result))) {
-		if (strncmp(TEST_DB_NAME, row[0], lengthTestDBName) == 0) {
-			found = true;
-			break;
-		}
-	}
-	mysql_free_result(result);
-
-	// make DB if needed
-	bool noError = false;
-	if (!found) {
-		if (!makeTestDB(&mysql))
-			goto exit;
-	} else if (recreate) {
-		if (!dropTestDB(&mysql))
-			goto exit;
-		if (!makeTestDB(&mysql))
-			goto exit;
-	}
-	noError = true;
-
-exit:
-	// close the connection
-	string errmsg;
-	if (!noError)
-		errmsg = mysql_error(&mysql);
-	mysql_close(&mysql);
-	cppcut_assert_equal(true, noError,
-	   cut_message("Failed to query: %s", errmsg.c_str()));
-}
-
 static void _createGlobalDBAgent(void)
 {
 	try {
@@ -297,7 +222,7 @@ static void _createGlobalDBAgent(void)
 void setup(void)
 {
 	bool recreate = true;
-	makeTestDBIfNeeded(recreate);
+	makeTestMySQLDBIfNeeded(TEST_DB_NAME, recreate);
 }
 
 void teardown(void)

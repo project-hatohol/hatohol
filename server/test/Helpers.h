@@ -95,4 +95,6 @@ template<typename T> void _assertAddToDB(T *arg, void (*func)(T *))
 	cppcut_assert_equal(false, gotException);
 }
 
+void makeTestMySQLDBIfNeeded(const string &dbName, bool recreate = false);
+
 #endif // Helpers_h
