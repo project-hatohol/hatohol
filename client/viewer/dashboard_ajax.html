@@ -1,0 +1,277 @@
+{% extends "viewer/base_ajax.html" %}
+
+{% comment %}
+  Copyright (C) 2013 Project Hatohol
+
+  This file is part of Hatohol.
+
+  Hatohol is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 2 of the License, or
+  (at your option) any later version.
+
+  Hatohol is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+{% endcomment %}
+
+{% block navbar %}
+  <li class="active"><a>ダッシュボード</a></li>
+  <li><a href="ajax_overview_triggers">概要:トリガー</a></li>
+  <li><a href="ajax_overview_items">概要:アイテム</a></li>
+  <li><a href="ajax_latest">最新データ</a></li>
+  <li><a href="ajax_triggers">トリガー</a></li>
+  <li><a href="ajax_events">イベント</a></li>
+  <li><a href="ajax_servers">サーバ管理</a></li>
+{% endblock %}
+
+{% block main %}
+  <h2>Dashboard</h2>
+
+  {# サーバ総数 #}
+  {# グッドサーバステータス #}
+  <table class="table table-condensed table-striped table-hover" id="tblServer">
+    <thead>
+      <tr>
+        <th colspan='2'>パラメータ</th>
+        <th>値</th>
+        <th>　　　　</th>
+      </tr>
+    </thead>
+    <tbody>
+    </tbody>
+  </table>
+
+  {# バッドサーバリーズン #}
+
+  <hr />
+
+  {# システムステータス #}
+  <table class="table table-condensed table-striped table-hover" id="tblTrigger">
+    <thead>
+      <tr>
+        <th>サーバ</th>
+        <th>グループ</th>
+        <th>致命的な障害</th>
+        <th>重度の障害</th>
+        <th>軽度の障害</th>
+        <th>警告</th>
+        <th>情報</th>
+        <th>未分類</th>
+      </tr>
+    </thead>
+    <tbody>
+    </tbody>
+  </table>
+
+  <hr />
+
+  {# ホストステータス #}
+  <table class="table table-condensed table-striped table-hover" id="tblHost">
+    <thead>
+      <tr>
+        <th>サーバ</th>
+        <th>グループ</th>
+        <th>障害なし</th>
+        <th>障害あり</th>
+        <th>合計</th>
+      </tr>
+    </thead>
+    <tbody>
+    </tbody>
+  </table>
+
+{% endblock %}
+
+{% block logic %}
+  <script type="text/javascript">
+
+    var rawData;
+    var parsedData;
+
+    function parseData(rd) {
+      var pd = new Object();
+      var o;
+      var x, y;
+      var server, group;
+
+      for (x = 0; x < rd["serverStatus"].length; ++x) {
+        o = rd["serverStatus"][x];
+        server = o["serverId"];
+        pd[server] = new Object();
+
+        pd[server]["goodHosts"] = 0;
+        pd[server]["badHosts"]  = 0;
+        for (y = 0; y < o["hostStatus"].length; ++y) {
+          pd[server]["goodHosts"] += o["hostStatus"][y]["numberOfGoodHosts"];
+          pd[server]["badHosts"]  += o["hostStatus"][y]["numberOfBadHosts"];
+        }
+
+        pd[server]["numberOfHostGroups"] = 0;
+        for ( y in o["hostGroups"] ) {
+          pd[server]["numberOfHostGroups"] += 1;
+        }
+
+        pd[server]["problem"] = 0;
+        for (y = 0; y < o["systemStatus"].length; ++y) {
+          group = o["systemStatus"][y]["hostGroupId"];
+          if ( !(group in pd[server]) ) {
+            pd[server][group] = new Object();
+          }
+          pd[server][group][o["systemStatus"][y]["severity"]] = o["systemStatus"][y]["numberOfHosts"];
+          pd[server]["problem"] += o["systemStatus"][y]["numberOfHosts"];
+        }
+      }
+
+      return pd;
+    }
+
+    function buildProgress(bad, total) {
+      var s = "";
+      var bad_ratio;
+
+      bad_ratio = (100 * bad / total) << 0;
+
+      s += "<div class='progress'>";
+      s += "<div class='bar bar-success' style='width:" + (100 - bad_ratio) + "%;'></div>";
+      s += "<div class='bar bar-danger'  style='width:" +        bad_ratio  + "%;'></div>";
+      s += "</div>";
+
+      return s;
+    }
+
+    function drawServerBody(rd, pd) {
+      var s = "";
+      var o;
+      var x;
+      var goods, bads;
+      var server;
+
+      s = "";
+
+      goods = rd["serverStatus"];
+      bads  = rd["badServers"];
+
+      s += "<tr>";
+      s += "<td colspan='2'>サーバ数 [障害あり]</td>";
+      s += "<td>" + bads.length + " / " + rd["numberOfServers"] + "</td>";
+      s += "<td>" + buildProgress(bads.length, rd["numberOfServers"]) + "</td>";
+      s += "</tr>";
+
+      for (x = 0; x < goods.length; ++x) {
+        o = goods[x];
+        server = o["serverId"];
+        s += "<tr>";
+        s += "<td rowspan='5'>" + o["serverNickname"] + "</td>";
+        s += "<td>ホスト数 [障害あり]</td>";
+        s += "<td>" + pd[server]["badHosts"] + " / " + o["numberOfHosts"] + "</td>";
+        s += "<td>" + buildProgress(pd[server]["badHosts"], o["numberOfHosts"]) + "</td>";
+        s += "</tr>";
+        s += "<tr>";
+        s += "<td>アイテム数</td>";
+        s += "<td>" + o["numberOfItems"] + "</td>";
+        s += "<td></td>";
+        s += "</tr>";
+        s += "<tr>";
+        s += "<td>トリガー数 [障害あり]</td>";
+        s += "<td>" + pd[server]["problem"] + " / " + o["numberOfTriggers"] + "</td>";
+        s += "<td>" + buildProgress(pd[server]["problem"], o["numberOfTriggers"]) + "</td>";
+        s += "</tr>";
+        s += "<tr>";
+        s += "<td>ユーザ数 [オンライン]</td>";
+        s += "<td>" + o["numberOfOnlineUsers"] + " / " + o["numberOfUsers"] + "</td>";
+        s += "<td>" + buildProgress(o["numberOfOnlineUsers"], o["numberOfUsers"]) + "</td>";
+        s += "</tr>";
+        s += "<tr>";
+        s += "<td>１秒あたりの監視項目数</td>";
+        s += "<td>" + o["numberOfMonitoredItemsPerSecond"] + "</td>";
+        s += "<td></td>";
+        s += "</tr>";
+      }
+
+      return s;
+    }
+
+    function drawTriggerBody(rd, pd) {
+      var s = "";
+      var o;
+      var x, y, z;
+      var server, group;
+
+      for (x = 0; x < rd["serverStatus"].length; ++x) {
+        server = rd["serverStatus"][x]["serverId"];
+        s += "<tr>";
+        y = 0;
+        for ( group in rd["serverStatus"][x]["hostGroups"] ) {
+          if ( 0 == y ) {
+            s += "<td rowspan='" + pd[server]["numberOfHostGroups"] + "'>";
+            s += rd["serverStatus"][x]["serverNickname"];
+            s += "</td>";
+          }
+          s += "<td>";
+          s += rd["serverStatus"][x]["hostGroups"][group]["name"];
+          s += "</td>";
+          for (z = 5; 0 <= z; --z) {
+            s += "<td>";
+            s += ((z in pd[server][group]) ? pd[server][group][z] : 0);
+            s += "</td>";
+          }
+          ++y;
+        }
+        s += "</tr>";
+      }
+
+      return s;
+    }
+
+    function drawHostBody(rd, pd) {
+      var s = "";
+      var o;
+      var x, y;
+
+      for (x = 0; x < rd["serverStatus"].length; ++x) {
+        o = rd["serverStatus"][x]["hostStatus"];
+        s += "<tr>";
+        for (y = 0; y < o.length; ++y) {
+          if ( 0 == y ) {
+            s += "<td rowspan='" + o.length + "'>";
+            s += rd["serverStatus"][x]["serverNickname"];
+            s += "</td>";
+          }
+          s += "<td>";
+          s += rd["serverStatus"][x]["hostGroups"][o[y]["hostGroupId"]]["name"];
+          s += "</td>";
+          s += "<td>";
+          s += o[y]["numberOfGoodHosts"];
+          s += "</td>";
+          s += "<td>";
+          s += o[y]["numberOfBadHosts"];
+          s += "</td>";
+          s += "<td>";
+          s += o[y]["numberOfGoodHosts"] + o[y]["numberOfBadHosts"];
+          s += "</td>";
+        }
+        s += "</tr>";
+      }
+
+      return s;
+    }
+
+    function updateCore() {
+      parsedData = parseData(rawData);
+
+      $("#tblServer tbody").empty();
+      $("#tblServer tbody").append(drawServerBody(rawData, parsedData));
+      $("#tblTrigger tbody").empty();
+      $("#tblTrigger tbody").append(drawTriggerBody(rawData, parsedData));
+      $("#tblHost tbody").empty();
+      $("#tblHost tbody").append(drawHostBody(rawData, parsedData));
+    }
+
+    schedule(0000, "overview");
+  </script>
+{% endblock %}
