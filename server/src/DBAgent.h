@@ -80,6 +80,17 @@ struct DBAgentDeleteArg {
 	string condition;
 };
 
+struct DBConnectInfo {
+	string host;
+	size_t port;
+	string user;
+	string password;
+	string dbName;
+
+	DBConnectInfo(void);
+	virtual ~DBConnectInfo();
+};
+
 typedef uint32_t DBDomainId;
 typedef void (*DBSetupFunc)(DBDomainId domainId, void *data);
 static const DBDomainId DEFAULT_DB_DOMAIN_ID = 0;

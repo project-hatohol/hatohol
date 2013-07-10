@@ -28,11 +28,12 @@ using namespace std;
 #include "DBClientUtils.h"
 #include "DBAgentSQLite3.h"
 
+
 static const char *TABLE_NAME_SYSTEM  = "system";
 static const char *TABLE_NAME_SERVERS = "servers";
 
 int DBClientConfig::CONFIG_DB_VERSION = 5;
-const char *DBClientConfig::DEFAULT_DB_NAME = "hatohol-config.db";
+const char *DBClientConfig::DEFAULT_DB_NAME = "hatohol";
 
 static const ColumnDef COLUMN_DEF_SYSTEM[] = {
 {
@@ -235,6 +236,7 @@ struct DBClientConfig::PrivateContext
 {
 	static MutexLock mutex;
 	static bool   initialized;
+	static DBConnectInfo connectInfo;
 
 	PrivateContext(void)
 	{
@@ -256,6 +258,7 @@ struct DBClientConfig::PrivateContext
 };
 MutexLock DBClientConfig::PrivateContext::mutex;
 bool   DBClientConfig::PrivateContext::initialized = false;
+DBConnectInfo DBClientConfig::PrivateContext::connectInfo;
 
 // ---------------------------------------------------------------------------
 // Public methods
@@ -281,7 +284,7 @@ void DBClientConfig::parseCommandLineArgument(CommandLineArg &cmdArg)
 	}
 }
 
-DBClientConfig::DBClientConfig(void)
+DBClientConfig::DBClientConfig(const DBConnectInfo *connectInfo)
 : m_ctx(NULL)
 {
 	m_ctx = new PrivateContext();
@@ -293,7 +296,11 @@ DBClientConfig::DBClientConfig(void)
 		prepareSetupFunction();
 	}
 	m_ctx->unlock();
-	setDBAgent(DBAgentFactory::create(DB_DOMAIN_ID_CONFIG));
+
+	if (!connectInfo)
+		connectInfo = getDefaultConnectInfo();
+	setDBAgent(
+	  DBAgentFactory::create(DB_DOMAIN_ID_CONFIG, false, connectInfo));
 }
 
 DBClientConfig::~DBClientConfig()
@@ -536,6 +543,8 @@ void DBClientConfig::tableInitializerSystem(DBAgent *dbAgent, void *data)
 
 void DBClientConfig::prepareSetupFunction(void)
 {
+	initDefaultDBConnectInfo();
+
 	static const DBSetupTableInfo DB_TABLE_INFO[] = {
 	{
 		TABLE_NAME_SYSTEM,
@@ -559,4 +568,19 @@ void DBClientConfig::prepareSetupFunction(void)
 
 	DBAgent::addSetupFunction(DB_DOMAIN_ID_CONFIG,
 	                          dbSetupFunc, (void *)&DB_SETUP_FUNC_ARG);
+}
+
+void DBClientConfig::initDefaultDBConnectInfo(void)
+{
+	DBConnectInfo &connInfo = PrivateContext::connectInfo;;
+	connInfo.host     = "localhost";
+	connInfo.port     = 0; // default port
+	connInfo.user     = "hatohol";
+	connInfo.password = "hatohol";
+	connInfo.dbName   = DEFAULT_DB_NAME;
+}
+
+const DBConnectInfo *DBClientConfig::getDefaultConnectInfo(void)
+{
+	return &m_ctx->connectInfo;
 }

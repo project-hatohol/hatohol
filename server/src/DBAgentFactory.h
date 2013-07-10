@@ -25,7 +25,8 @@
 class DBAgentFactory {
 public:
 	static DBAgent* create(DBDomainId domainId = DEFAULT_DB_DOMAIN_ID,
-	                       bool skipSetup = false);
+	                       bool skipSetup = false,
+	                       const DBConnectInfo *connectInfo = NULL);
 };
 
 #endif // DBAgentFactory_h

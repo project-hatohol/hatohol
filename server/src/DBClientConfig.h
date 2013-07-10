@@ -74,7 +74,7 @@ public:
 	static void reset(void);
 	static void parseCommandLineArgument(CommandLineArg &cmdArg);
 
-	DBClientConfig(void);
+	DBClientConfig(const DBConnectInfo *connectInfo = NULL);
 	virtual ~DBClientConfig();
 
 	string  getDatabaseDir(void);
@@ -89,6 +89,8 @@ protected:
 	static void resetDBInitializedFlags(void);
 	static void tableInitializerSystem(DBAgent *dbAgent, void *data);
 	void prepareSetupFunction(void);
+	const DBConnectInfo *getDefaultConnectInfo(void);
+	void initDefaultDBConnectInfo(void);
 
 private:
 	struct PrivateContext;

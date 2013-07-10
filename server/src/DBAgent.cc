@@ -49,6 +49,16 @@ void DBAgentSelectExArg::pushColumn
 	columnTypes.push_back(columnDef.type);
 }
 
+DBConnectInfo::DBConnectInfo(void)
+: host("localhost"),
+  port(0)
+{
+}
+
+DBConnectInfo::~DBConnectInfo()
+{
+}
+
 struct DBAgent::PrivateContext
 {
 	static MutexLock          mutex;
