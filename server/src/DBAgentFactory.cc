@@ -31,9 +31,9 @@ DBAgent* DBAgentFactory::create(DBDomainId domainId, bool skipSetup,
 	if (domainId == DB_DOMAIN_ID_CONFIG) {
 		HATOHOL_ASSERT(connectInfo, "connectInfo: NULL");
 		return new DBAgentMySQL(connectInfo->dbName.c_str(),
-		                        connectInfo->user.c_str(),
-		                        connectInfo->password.c_str(),
-		                        connectInfo->host.c_str(),
+		                        connectInfo->getUser(),
+		                        connectInfo->getPassword(),
+		                        connectInfo->getHost(),
 		                        connectInfo->port);
 	}
 	return new DBAgentSQLite3(domainId, skipSetup);

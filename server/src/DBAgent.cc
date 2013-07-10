@@ -59,6 +59,27 @@ DBConnectInfo::~DBConnectInfo()
 {
 }
 
+const char *DBConnectInfo::getHost(void) const
+{
+	if (host.empty())
+		return NULL;
+	return host.c_str();
+}
+
+const char *DBConnectInfo::getUser(void) const
+{
+	if (user.empty())
+		return NULL;
+	return user.c_str();
+}
+
+const char *DBConnectInfo::getPassword(void) const
+{
+	if (password.empty())
+		return NULL;
+	return password.c_str();
+}
+
 struct DBAgent::PrivateContext
 {
 	static MutexLock          mutex;
