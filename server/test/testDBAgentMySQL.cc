@@ -219,6 +219,27 @@ static void _createGlobalDBAgent(void)
 }
 #define createGlobalDBAgent() cut_trace(_createGlobalDBAgent())
 
+void _assertIsRecordExisting(bool skipInsert)
+{
+	static const char *tableName = "foo";
+	static const int  id = 1;
+	string statement = StringUtils::sprintf(
+	    "CREATE TABLE %s(id INT(11))", tableName);
+	execMySQLForDBClient(TEST_DB_NAME, statement);
+
+	if (!skipInsert) {
+		statement = StringUtils::sprintf(
+		    "INSERT INTO %s VALUES (%d)", tableName, id);
+		execMySQLForDBClient(TEST_DB_NAME, statement);
+	}
+
+	string condition = StringUtils::sprintf("id=%d", id);
+	createGlobalDBAgent();
+	cppcut_assert_equal
+	  (!skipInsert, g_dbAgent->isRecordExisting(tableName, condition));
+}
+#define assertIsRecordExisting(SI) cut_trace(_assertIsRecordExisting(SI))
+
 void setup(void)
 {
 	bool recreate = true;
@@ -239,6 +260,18 @@ void teardown(void)
 void test_create(void)
 {
 	createGlobalDBAgent();
+}
+
+void test_isRecordExisting(void)
+{
+	bool skipInsert = false;
+	assertIsRecordExisting(skipInsert);
+}
+
+void test_isRecordExistingNotIncluded(void)
+{
+	bool skipInsert = true;
+	assertIsRecordExisting(skipInsert);
 }
 
 void test_createTable(void)
