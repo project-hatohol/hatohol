@@ -87,5 +87,5 @@ rm -rf %{buildroot}
 %{_libdir}/pkgconfig/*.pc
 
 %changelog
-* Sat Jul 06 2013 Kazuhiro Yamato <kyamato@mriaclelinux.com> 0.0.3
+* Sat Jul 06 2013 Kazuhiro Yamato <kyamato@mriaclelinux.com> 0.0.3-1
 - Fix to create RPM files.
