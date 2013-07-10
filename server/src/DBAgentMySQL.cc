@@ -99,7 +99,8 @@ bool DBAgentMySQL::isTableExisting(const string &tableName)
 	return found;
 }
 
-bool DBAgentMySQL::isRecordExisting(const string &tableName, const string &condition)
+bool DBAgentMySQL::isRecordExisting(const string &tableName,
+                                    const string &condition)
 {
 	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
 	return false;
