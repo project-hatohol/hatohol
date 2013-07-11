@@ -34,12 +34,9 @@ public:
 	virtual void assertTable(const DBAgentTableCreationArg &arg)
 	{
 		// get the table information with mysql command.
-		string cmd = "mysql -D ";
-		cmd += TEST_DB_NAME;
-		cmd += " -B -e \"desc ";
-		cmd += TABLE_NAME_TEST;
-		cmd += "\"";
-		string result = executeCommand(cmd);
+		string sql = "desc ";
+		sql += TABLE_NAME_TEST;
+		string result = execMySQL(TEST_DB_NAME, sql, true);
 
 		// check the number of obtained lines
 		size_t linesIdx = 0;
@@ -149,13 +146,10 @@ public:
 	                                  const ColumnDef *columnDefs)
 	{
 		// get the table information with mysql command.
-		string cmd = "mysql -D ";
-		cmd += TEST_DB_NAME;
-		cmd += " -B -e \"select * from ";
-		cmd += TABLE_NAME_TEST;
-		cmd += StringUtils::sprintf(" where id=%"PRIu64, id);
-		cmd += "\"";
-		string result = executeCommand(cmd);
+		string sql =
+		   StringUtils::sprintf("select * from %s where id=%"PRIu64,
+		                        TABLE_NAME_TEST, id);
+		string result = execMySQL(TEST_DB_NAME, sql, true);
 
 		// check the number of obtained lines
 		size_t linesIdx = 0;
