@@ -253,7 +253,9 @@ void DBAgentMySQL::insert(DBAgentInsertArg &insertArg)
 
 void DBAgentMySQL::update(DBAgentUpdateArg &updateArg)
 {
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	HATOHOL_ASSERT(m_ctx->connected, "Not connected.");
+	string sql = makeUpdateStatement(updateArg);
+	execSql(sql);
 }
 
 void DBAgentMySQL::select(DBAgentSelectArg &selectArg)

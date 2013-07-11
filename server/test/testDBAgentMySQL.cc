@@ -305,6 +305,18 @@ void test_insertUint64_0xffffffffffffffff(void)
 	dbAgentTestInsertUint64(*g_dbAgent, dbAgentChecker, 0xffffffffffffffff);
 }
 
+void test_update(void)
+{
+	createGlobalDBAgent();
+	dbAgentTestUpdate(*g_dbAgent, dbAgentChecker);
+}
+
+void test_updateCondition(void)
+{
+	createGlobalDBAgent();
+	dbAgentTestUpdateCondition(*g_dbAgent, dbAgentChecker);
+}
+
 void test_select(void)
 {
 	createGlobalDBAgent();
