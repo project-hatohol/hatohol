@@ -148,18 +148,15 @@ void test_createTableServers(void)
 
 void test_addTargetServer(void)
 {
-	string dbPath = deleteDBClientDB(DB_DOMAIN_ID_CONFIG);
-
 	// added a record
 	MonitoringServerInfo *testInfo = serverInfo;
 	assertAddServerToDB(testInfo);
 
 	// confirm with the command line tool
-	string cmd = StringUtils::sprintf(
-	               "sqlite3 %s \"select * from servers\"", dbPath.c_str());
-	string result = executeCommand(cmd);
+	string statement = "select * from servers";
 	string expectedOut = makeExpectedOutput(testInfo);
-	cppcut_assert_equal(expectedOut, result);
+	DBClientConfig dbConfig;
+	assertDBContent(dbConfig.getDBAgent(), statement, expectedOut);
 }
 
 void test_getTargetServers(void)
