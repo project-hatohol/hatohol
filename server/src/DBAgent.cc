@@ -225,8 +225,10 @@ string DBAgent::getColumnValueString(const ColumnDef *columnDef,
 		if (item->isNull()) {
 			valueStr = "NULL";
 		} else {
-			valueStr = StringUtils::sprintf("'%s'",
-		                                        item->get().c_str());
+			string escaped =
+			   StringUtils::replace(item->get().c_str(), "'", "''");
+			valueStr =
+			   StringUtils::sprintf("'%s'", escaped.c_str());
 		}
 		break;
 	}
