@@ -160,11 +160,12 @@ string execSqlite3ForDBClientZabbix(int serverId, const string &statement)
 	return execSqlite3ForDBClient(domainId, statement);
 }
 
-string execMySQL(const string &dbName, const string &statement)
+string execMySQL(const string &dbName, const string &statement, bool showHeader)
 {
+	const char *headerOpt = showHeader ? "" : "-N";
 	string commandLine =
-	  StringUtils::sprintf("mysql -B -N -D %s -e \"%s\"",
-	                       dbName.c_str(), statement.c_str());
+	  StringUtils::sprintf("mysql -B %s -D %s -e \"%s\"",
+	                       headerOpt, dbName.c_str(), statement.c_str());
 	string result = executeCommand(commandLine);
 	return result;
 }

@@ -77,7 +77,8 @@ string getDBClientDBPath(DBDomainId domainId);
 string deleteDBClientZabbixDB(int serverId);
 string execSqlite3ForDBClient(DBDomainId domainId, const string &statement);
 string execSqlite3ForDBClientZabbix(int serverId, const string &statement);
-string execMySQL(const string &dbName, const string &statement);
+string execMySQL(const string &dbName, const string &statement,
+                 bool showHeader = false);
 void _assertDBContent(DBAgent *dbAgent, const string &statement,
                       const string &expect);
 #define assertDBContent(DB_AGENT, FMT, EXPECT) \
