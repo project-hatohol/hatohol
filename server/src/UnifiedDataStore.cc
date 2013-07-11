@@ -34,13 +34,12 @@ struct UnifiedDataStore::PrivateContext
 
 	VirtualDataStoreZabbix *vdsZabbix;
 	VirtualDataStoreNagios *vdsNagios;
-	bool enableOnDemandCopy;
 	sem_t updatedSemaphore;
 	ReadWriteLock rwlock;
 	size_t runningArmsCount;
 
 	PrivateContext()
-	: enableOnDemandCopy(true), runningArmsCount(0)
+	: runningArmsCount(0)
 	{};
 	void updatedCallback(void);
 };
@@ -107,7 +106,8 @@ UnifiedDataStore::PrivateContext::updatedCallback(void)
 
 void UnifiedDataStore::update(void)
 {
-	if (!m_ctx->enableOnDemandCopy)
+	DBClientConfig dbConfig;
+	if (!dbConfig.isCopyOnDemandEnabled())
 		return;
 
 	ArmBaseVector arms;
