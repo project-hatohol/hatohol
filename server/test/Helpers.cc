@@ -160,7 +160,7 @@ string execSqlite3ForDBClientZabbix(int serverId, const string &statement)
 	return execSqlite3ForDBClient(domainId, statement);
 }
 
-string execMySQLForDBClient(const string &dbName, const string &statement)
+string execMySQL(const string &dbName, const string &statement)
 {
 	string commandLine =
 	  StringUtils::sprintf("mysql -B -N -D %s -e \"%s\"",
@@ -176,7 +176,7 @@ void _assertDBContent(DBAgent *dbAgent, const string &statement,
 	const type_info& tid = typeid(*dbAgent);
 	if (tid == typeid(DBAgentMySQL)) {
 		DBAgentMySQL *dbMySQL = dynamic_cast<DBAgentMySQL *>(dbAgent);
-		output = execMySQLForDBClient(dbMySQL->getDBName(), statement);
+		output = execMySQL(dbMySQL->getDBName(), statement);
 		output = StringUtils::replace(output, "\t", "|");
 	}
 	else
@@ -193,7 +193,7 @@ void _assertCreateTable(DBAgent *dbAgent, const string &tableName)
 		string dbName = dba->getDBName();
 		const string statement = StringUtils::sprintf(
 		  "show tables like '%s'", tableName.c_str());
-		output = execMySQLForDBClient(dbName, statement);
+		output = execMySQL(dbName, statement);
 	} else if (tid == typeid(DBAgentSQLite3)) {
 		DBDomainId domainId = dbAgent->getDBDomainId();
 		string dbPath = DBAgentSQLite3::getDBPath(domainId);

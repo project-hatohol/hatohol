@@ -226,12 +226,12 @@ void _assertIsRecordExisting(bool skipInsert)
 	static const int  id = 1;
 	string statement = StringUtils::sprintf(
 	    "CREATE TABLE %s(id INT(11))", tableName);
-	execMySQLForDBClient(TEST_DB_NAME, statement);
+	execMySQL(TEST_DB_NAME, statement);
 
 	if (!skipInsert) {
 		statement = StringUtils::sprintf(
 		    "INSERT INTO %s VALUES (%d)", tableName, id);
-		execMySQLForDBClient(TEST_DB_NAME, statement);
+		execMySQL(TEST_DB_NAME, statement);
 	}
 
 	string condition = StringUtils::sprintf("id=%d", id);
