@@ -153,6 +153,7 @@ public:
 		cmd += TEST_DB_NAME;
 		cmd += " -B -e \"select * from ";
 		cmd += TABLE_NAME_TEST;
+		cmd += StringUtils::sprintf(" where id=%"PRIu64, id);
 		cmd += "\"";
 		string result = executeCommand(cmd);
 
