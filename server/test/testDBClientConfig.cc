@@ -69,6 +69,11 @@ static string makeExpectedOutput(MonitoringServerInfo *serverInfo)
 void setup(void)
 {
 	hatoholInit();
+	
+	// test_parseArgConfigDBServer() and test_parseArgConfigDBServerWithPort()
+	// changes the master data structure of DBClientConfig. The following call
+	// is needed to clear that information.
+	DBClientConfig::reset(true);
 
 	static const char *TEST_DB_USER = "hatohol";
 	static const char *TEST_DB_PASSWORD = ""; // empty: No password is used

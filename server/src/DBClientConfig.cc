@@ -269,9 +269,11 @@ bool DBClientConfig::PrivateContext::connectInfoMasterInitialized = false;
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
-void DBClientConfig::reset(void)
+void DBClientConfig::reset(bool deepReset)
 {
 	resetDBInitializedFlags();
+	if (deepReset)
+		initDefaultDBConnectInfoMaster();
 	initDefaultDBConnectInfo();
 }
 

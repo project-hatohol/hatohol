@@ -71,7 +71,7 @@ class DBClientConfig : public DBClient {
 public:
 	static int CONFIG_DB_VERSION;
 	static const char *DEFAULT_DB_NAME;
-	static void reset(void);
+	static void reset(bool deepReset = false);
 	static bool parseCommandLineArgument(CommandLineArg &cmdArg);
 	static const DBConnectInfo &getDBConnectInfo(void);
 
