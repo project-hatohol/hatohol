@@ -146,7 +146,7 @@ void test_createTableServers(void)
 	cppcut_assert_equal(expectedOut, output);
 }
 
-void test_testAddTargetServer(void)
+void test_addTargetServer(void)
 {
 	string dbPath = deleteDBClientDB(DB_DOMAIN_ID_CONFIG);
 
@@ -162,7 +162,7 @@ void test_testAddTargetServer(void)
 	cppcut_assert_equal(expectedOut, result);
 }
 
-void test_testGetTargetServers(void)
+void test_getTargetServers(void)
 {
 	for (size_t i = 0; i < NumServerInfo; i++)
 		assertAddServerToDB(&serverInfo[i]);
@@ -182,7 +182,7 @@ void test_testGetTargetServers(void)
 	cppcut_assert_equal(expectedText, actualText);
 }
 
-void test_testSetGetDatabaseDir(void)
+void test_setGetDatabaseDir(void)
 {
 	const string databaseDir = "/dir1/dir2";
 	DBClientConfig dbConfig;
@@ -190,7 +190,7 @@ void test_testSetGetDatabaseDir(void)
 	cppcut_assert_equal(databaseDir, dbConfig.getDatabaseDir());
 }
 
-void test_testSetGetFaceRestPort(void)
+void test_setGetFaceRestPort(void)
 {
 	const int portNumber = 501;
 	DBClientConfig dbConfig;
