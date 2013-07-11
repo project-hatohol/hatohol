@@ -123,6 +123,8 @@ public:
 protected:
 	static string makeSelectStatement(DBAgentSelectArg &selectArg);
 	static string makeSelectStatement(DBAgentSelectExArg &selectExArg);
+	static string getColumnValueString(const ColumnDef *columnDef,
+	                                   const ItemData *itemData);
 
 private:
 	struct PrivateContext;

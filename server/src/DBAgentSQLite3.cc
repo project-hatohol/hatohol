@@ -332,48 +332,6 @@ void DBAgentSQLite3::execSql(sqlite3 *db, const char *fmt, ...)
 	_execSql(db, sql);
 }
 
-string DBAgentSQLite3::getColumnValueString(const ColumnDef *columnDef,
-                                            const ItemData *itemData)
-{
-	string valueStr;
-	switch (columnDef->type) {
-	case SQL_COLUMN_TYPE_INT:
-	{
-		DEFINE_AND_ASSERT(itemData, ItemInt, item);
-		valueStr = StringUtils::sprintf("%d", item->get());
-		break;
-	}
-	case SQL_COLUMN_TYPE_BIGUINT:
-	{
-		DEFINE_AND_ASSERT(itemData, ItemUint64, item);
-		valueStr = StringUtils::sprintf("%"PRId64, item->get());
-		break;
-	}
-	case SQL_COLUMN_TYPE_VARCHAR:
-	case SQL_COLUMN_TYPE_CHAR:
-	case SQL_COLUMN_TYPE_TEXT:
-	{
-		DEFINE_AND_ASSERT(itemData, ItemString, item);
-		char *str = sqlite3_mprintf("%Q", item->get().c_str());
-		valueStr = str;
-		sqlite3_free(str);
-		break;
-	}
-	case SQL_COLUMN_TYPE_DOUBLE:
-	{
-		string fmt;
-		DEFINE_AND_ASSERT(itemData, ItemDouble, item);
-		fmt = StringUtils::sprintf("%%.%zdlf", columnDef->decFracLength);
-		valueStr = StringUtils::sprintf(fmt.c_str(), item->get());
-		break;
-	}
-	default:
-		HATOHOL_ASSERT(true, "Unknown column type: %d (%s)",
-		             columnDef->type, columnDef->columnName);
-	}
-	return valueStr;
-}
-
 bool DBAgentSQLite3::isTableExisting(sqlite3 *db,
                                      const string &tableName)
 {

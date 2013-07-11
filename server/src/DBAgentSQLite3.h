@@ -65,8 +65,6 @@ protected:
 	static sqlite3 *openDatabase(const string &dbPath);
 	static void execSql(sqlite3 *db, const char *fmt, ...);
 	static void _execSql(sqlite3 *db, const string &sql);
-	static string getColumnValueString(const ColumnDef *columnDef,
-	                                   const ItemData *itemData);
 	static bool isTableExisting(sqlite3 *db,
 	                            const string &tableName);
 	static void createTable(sqlite3 *db,
