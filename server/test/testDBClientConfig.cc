@@ -146,9 +146,8 @@ void test_createTableServers(void)
 
 	// check content
 	string statement = "select * from " + tableName;
-	string output = execSqlite3ForDBClient(DB_DOMAIN_ID_CONFIG, statement);
 	string expectedOut = ""; // currently no data
-	cppcut_assert_equal(expectedOut, output);
+	assertDBContent(dbConfig.getDBAgent(), statement, expectedOut);
 }
 
 void test_addTargetServer(void)
