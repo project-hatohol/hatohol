@@ -93,6 +93,14 @@ int mainRoutine(int argc, char *argv[])
 #ifndef GLIB_VERSION_2_32
 	g_thread_init(NULL);
 #endif // GLIB_VERSION_2_32 
+
+	// parse command line arguemnt
+	CommandLineArg cmdArg;
+	for (int i = 1; i < argc; i++)
+		cmdArg.push_back(argv[i]);
+	if (!DBClientConfig::parseCommandLineArgument(cmdArg))
+		return EXIT_FAILURE;
+
 	hatoholInit();
 	MLPL_INFO("started hatohol server: ver. %s\n", PACKAGE_VERSION);
 
@@ -104,13 +112,7 @@ int mainRoutine(int argc, char *argv[])
 	setupSignalHandlerForExit(SIGHUP);
 	setupSignalHandlerForExit(SIGUSR1);
 
-	// parse command line arguemnt
-	CommandLineArg cmdArg;
-	for (int i = 1; i < argc; i++)
-		cmdArg.push_back(argv[i]);
-
 	// setup configuration database
-	DBClientConfig::parseCommandLineArgument(cmdArg);
 	DBClientConfig dbConfig;
 	if (dbConfig.isFaceMySQLEnabled()) {
 		FaceMySQL face(cmdArg);

@@ -195,4 +195,28 @@ void test_setGetFaceRestPort(void)
 	cppcut_assert_equal(portNumber, dbConfig.getFaceRestPort());
 }
 
+void test_parseArgConfigDBServer(void)
+{
+	const string serverName = "cat.example.com";
+	CommandLineArg arg;
+	arg.push_back("--config-db-server");
+	arg.push_back(serverName);
+	DBClientConfig::parseCommandLineArgument(arg);
+	const DBConnectInfo connInfo = DBClientConfig::getDBConnectInfo();
+	cppcut_assert_equal(serverName, connInfo.host);
+}
+
+void test_parseArgConfigDBServerWithPort(void)
+{
+	const string serverName = "cat.example.com";
+	const size_t port = 1027;
+	CommandLineArg arg;
+	arg.push_back("--config-db-server");
+	arg.push_back(StringUtils::sprintf("%s:%zd", serverName.c_str(), port));
+	DBClientConfig::parseCommandLineArgument(arg);
+	const DBConnectInfo connInfo = DBClientConfig::getDBConnectInfo();
+	cppcut_assert_equal(serverName, connInfo.host);
+	cppcut_assert_equal(port, connInfo.port);
+}
+
 } // namespace testDBClientConfig

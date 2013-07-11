@@ -26,8 +26,6 @@ using namespace std;
 #include "DBClientConfig.h"
 #include "ConfigManager.h"
 #include "DBClientUtils.h"
-#include "DBAgentSQLite3.h"
-
 
 static const char *TABLE_NAME_SYSTEM  = "system";
 static const char *TABLE_NAME_SERVERS = "servers";
@@ -236,7 +234,13 @@ struct DBClientConfig::PrivateContext
 {
 	static MutexLock mutex;
 	static bool   initialized;
+
+	// Contents in connectInfo is set to those in connectInfoMaseter
+	// on reset(). However, connectInfoMaster is never changed after
+	// its contents are set in the initialization.
 	static DBConnectInfo connectInfo;
+	static DBConnectInfo connectInfoMaster;
+	static bool connectInfoMasterInitialized;
 
 	PrivateContext(void)
 	{
@@ -259,6 +263,8 @@ struct DBClientConfig::PrivateContext
 MutexLock DBClientConfig::PrivateContext::mutex;
 bool   DBClientConfig::PrivateContext::initialized = false;
 DBConnectInfo DBClientConfig::PrivateContext::connectInfo;
+DBConnectInfo DBClientConfig::PrivateContext::connectInfoMaster;
+bool DBClientConfig::PrivateContext::connectInfoMasterInitialized = false;
 
 // ---------------------------------------------------------------------------
 // Public methods
@@ -269,20 +275,47 @@ void DBClientConfig::reset(void)
 	initDefaultDBConnectInfo();
 }
 
-void DBClientConfig::parseCommandLineArgument(CommandLineArg &cmdArg)
+bool DBClientConfig::parseCommandLineArgument(CommandLineArg &cmdArg)
 {
+	initDefaultDBConnectInfoMaster();
+	DBConnectInfo &connMaster = PrivateContext::connectInfoMaster;
+
+	string dbServer;
 	for (size_t i = 0; i < cmdArg.size(); i++) {
 		string &arg = cmdArg[i];
-		if (arg == "--config-db") {
-			HATOHOL_ASSERT(i < cmdArg.size()-1,
-			             "--config-db needs database path.");
+		if (arg == "--config-db-server") {
+			if (i == cmdArg.size()-1) {
+				MLPL_ERR(
+				  "--config-db-server needs an argument.\n");
+				return false;
+			}
 			i++;
-			string dbPath = cmdArg[i];
-			MLPL_INFO("Configuration DB: %s\n", dbPath.c_str());
-			DBAgentSQLite3::defineDBPath(DB_DOMAIN_ID_CONFIG,
-			                             dbPath);
+			dbServer = cmdArg[i];
 		}
 	}
+
+	if (!dbServer.empty()) {
+		if (!parseDBServer(dbServer, connMaster.host, connMaster.port))
+			return false;
+	}
+
+	string portStr;
+	if (connMaster.port == 0)
+		portStr = "(default)";
+	else
+		portStr = StringUtils::sprintf("%zd", connMaster.port);
+	MLPL_INFO("Configuration DB Server: %s, port: %s, User: %s\n",
+	          connMaster.host.c_str(), portStr.c_str(),
+	          connMaster.user.c_str());
+
+	// copy the master data to connectInfo.
+	initDefaultDBConnectInfo();
+	return true;
+}
+
+const DBConnectInfo & DBClientConfig::getDBConnectInfo(void)
+{
+	return PrivateContext::connectInfo;
 }
 
 void DBClientConfig::setDefaultDBParams(const string &name,
@@ -552,14 +585,47 @@ void DBClientConfig::tableInitializerSystem(DBAgent *dbAgent, void *data)
 	dbAgent->insert(insArg);
 }
 
-void DBClientConfig::initDefaultDBConnectInfo(void)
+void DBClientConfig::initDefaultDBConnectInfoMaster(void)
 {
-	DBConnectInfo &connInfo = PrivateContext::connectInfo;
+	DBConnectInfo &connInfo = PrivateContext::connectInfoMaster;
 	connInfo.host     = "localhost";
 	connInfo.port     = 0; // default port
 	connInfo.user     = "hatohol";
 	connInfo.password = "hatohol";
 	connInfo.dbName   = DEFAULT_DB_NAME;
+	PrivateContext::connectInfoMasterInitialized = true;
+}
+
+void DBClientConfig::initDefaultDBConnectInfo(void)
+{
+	DBConnectInfo &connInfo = PrivateContext::connectInfo;
+	DBConnectInfo &master   = PrivateContext::connectInfoMaster;
+	if (!PrivateContext::connectInfoMasterInitialized)
+		initDefaultDBConnectInfoMaster();
+
+	connInfo.host     = master.host;
+	connInfo.port     = master.port;
+	connInfo.user     = master.user;
+	connInfo.password = master.password;
+	connInfo.dbName   = master.dbName;
+}
+
+bool DBClientConfig::parseDBServer(const string &dbServer,
+                                   string &host, size_t &port)
+{
+	size_t posColon = dbServer.find(":");
+	if (posColon == string::npos) {
+		host = dbServer;
+		return true;
+	}
+	if (posColon == dbServer.size() - 1) {
+		MLPL_ERR("A column must not be the tail: %s\n",
+		         dbServer.c_str());
+		return false;
+	}
+	host = string(dbServer, 0, posColon);
+	port = atoi(&dbServer.c_str()[posColon+1]);
+	return true;
 }
 
 void DBClientConfig::prepareSetupFunction(const DBConnectInfo *connectInfo)

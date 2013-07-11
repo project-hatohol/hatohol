@@ -72,7 +72,8 @@ public:
 	static int CONFIG_DB_VERSION;
 	static const char *DEFAULT_DB_NAME;
 	static void reset(void);
-	static void parseCommandLineArgument(CommandLineArg &cmdArg);
+	static bool parseCommandLineArgument(CommandLineArg &cmdArg);
+	static const DBConnectInfo &getDBConnectInfo(void);
 
 	/**
 	 * set the default parameters to connect the DB.
@@ -106,7 +107,10 @@ public:
 protected:
 	static void resetDBInitializedFlags(void);
 	static void tableInitializerSystem(DBAgent *dbAgent, void *data);
+	static void initDefaultDBConnectInfoMaster(void);
 	static void initDefaultDBConnectInfo(void);
+	static bool parseDBServer(const string &dbServer,
+	                          string &host, size_t &port);
 	void prepareSetupFunction(const DBConnectInfo *connectInfo);
 	const DBConnectInfo *getDefaultConnectInfo(void);
 
