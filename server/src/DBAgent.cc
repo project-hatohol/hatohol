@@ -245,3 +245,34 @@ string DBAgent::getColumnValueString(const ColumnDef *columnDef,
 	return valueStr;
 }
 
+string DBAgent::makeUpdateStatement(DBAgentUpdateArg &updateArg)
+{
+	size_t numColumns = updateArg.row->getNumberOfItems();
+	HATOHOL_ASSERT(numColumns == updateArg.columnIndexes.size(),
+	             "Invalid number of colums: %zd, %zd",
+	             numColumns, updateArg.columnIndexes.size());
+
+	// make a SQL statement
+	string statement = "UPDATE ";
+	statement += updateArg.tableName;
+	statement += " SET ";
+	for (size_t i = 0; i < numColumns; i++) {
+		size_t columnIdx = updateArg.columnIndexes[i];
+		const ColumnDef &columnDef = updateArg.columnDefs[columnIdx];
+		const ItemData *itemData = updateArg.row->getItemAt(i);
+		string valueStr = getColumnValueString(&columnDef, itemData);
+
+		statement += columnDef.columnName;
+		statement += "=";
+		statement += valueStr;
+		if (i < numColumns-1)
+			statement += ",";
+	}
+
+	// condition
+	if (!updateArg.condition.empty()) {
+		statement += " WHERE ";
+		statement += updateArg.condition;
+	}
+	return statement;
+}

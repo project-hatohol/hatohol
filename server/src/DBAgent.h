@@ -125,6 +125,7 @@ protected:
 	static string makeSelectStatement(DBAgentSelectExArg &selectExArg);
 	static string getColumnValueString(const ColumnDef *columnDef,
 	                                   const ItemData *itemData);
+	static string makeUpdateStatement(DBAgentUpdateArg &updateArg);
 
 private:
 	struct PrivateContext;

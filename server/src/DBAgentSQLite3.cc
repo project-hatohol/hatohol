@@ -487,33 +487,7 @@ void DBAgentSQLite3::insert(sqlite3 *db, DBAgentInsertArg &insertArg)
 
 void DBAgentSQLite3::update(sqlite3 *db, DBAgentUpdateArg &updateArg)
 {
-	size_t numColumns = updateArg.row->getNumberOfItems();
-	HATOHOL_ASSERT(numColumns == updateArg.columnIndexes.size(),
-	             "Invalid number of colums: %zd, %zd",
-	             numColumns, updateArg.columnIndexes.size());
-
-	// make a SQL statement
-	string sql = "UPDATE ";
-	sql += updateArg.tableName;
-	sql += " SET ";
-	for (size_t i = 0; i < numColumns; i++) {
-		size_t columnIdx = updateArg.columnIndexes[i];
-		const ColumnDef &columnDef = updateArg.columnDefs[columnIdx];
-		const ItemData *itemData = updateArg.row->getItemAt(i);
-		string valueStr = getColumnValueString(&columnDef, itemData);
-
-		sql += columnDef.columnName;
-		sql += "=";
-		sql += valueStr;
-		if (i < numColumns-1)
-			sql += ",";
-	}
-
-	// condition
-	if (!updateArg.condition.empty()) {
-		sql += " WHERE ";
-		sql += updateArg.condition;
-	}
+	string sql = makeUpdateStatement(updateArg);
 
 	// exectute the SQL statement
 	char *errmsg;
