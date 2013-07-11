@@ -21,6 +21,8 @@
 #include <unistd.h>
 #include "Helpers.h"
 #include "DBClientZabbix.h"
+#include "DBClientConfig.h"
+#include "DBClientTest.h"
 #include "DBAgentSQLite3.h"
 #include "DBAgentMySQL.h"
 
@@ -263,4 +265,24 @@ exit:
 	mysql_close(&mysql);
 	cppcut_assert_equal(true, noError,
 	   cut_message("Failed to query: %s", errmsg.c_str()));
+}
+
+void setupTestDBServers(void)
+{
+	static const char *TEST_DB_NAME = "test_servers_in_helper";
+	static const char *TEST_DB_USER = "hatohol";
+	static const char *TEST_DB_PASSWORD = ""; // empty: No password is used
+	DBClientConfig::setDefaultDBParams(TEST_DB_NAME,
+	                                   TEST_DB_USER, TEST_DB_PASSWORD);
+
+	static bool dbServerReady = false;
+	if (!dbServerReady) {
+		bool recreate = true;
+		makeTestMySQLDBIfNeeded(TEST_DB_NAME, recreate);
+
+		DBClientConfig dbConfig;
+		for (size_t i = 0; i < NumServerInfo; i++)
+			dbConfig.addTargetServer(&serverInfo[i]);
+		dbServerReady = true;
+	}
 }

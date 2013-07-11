@@ -309,23 +309,7 @@ static void _assertItems(const string &path, const string &callbackName = "")
 void setup(void)
 {
 	hatoholInit();
-
-	static const char *TEST_DB_USER = "hatohol";
-	static const char *TEST_DB_PASSWORD = ""; // empty: No password is used
-	DBClientConfig::setDefaultDBParams(TEST_DB_CONFIG_NAME,
-	                                   TEST_DB_USER, TEST_DB_PASSWORD);
-
-	// setup server info
-	static bool serverInfoReady = false;
-	if (!serverInfoReady) {
-		bool recreate = true;
-		makeTestMySQLDBIfNeeded(TEST_DB_CONFIG_NAME, recreate);
-
-		DBClientConfig dbConfig;
-		for (size_t i = 0; i < NumServerInfo; i++)
-			dbConfig.addTargetServer(&serverInfo[i]);
-		serverInfoReady = true;
-	}
+	setupTestDBServers();
 }
 
 void teardown(void)

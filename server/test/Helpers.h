@@ -101,5 +101,6 @@ template<typename T> void _assertAddToDB(T *arg, void (*func)(T *))
 }
 
 void makeTestMySQLDBIfNeeded(const string &dbName, bool recreate = false);
+void setupTestDBServers(void);
 
 #endif // Helpers_h
