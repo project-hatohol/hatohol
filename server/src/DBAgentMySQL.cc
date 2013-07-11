@@ -277,7 +277,8 @@ void DBAgentMySQL::select(DBAgentSelectArg &selectArg)
 	while ((row = mysql_fetch_row(result))) {
 		VariableItemGroupPtr itemGroup;
 		for (size_t i = 0; i < numColumns; i++) {
-			const ColumnDef &columnDef = selectArg.columnDefs[i];
+			size_t idx = selectArg.columnIndexes[i];
+			const ColumnDef &columnDef = selectArg.columnDefs[idx];
 			ItemDataPtr itemDataPtr =
 			  SQLUtils::createFromString(row[i], columnDef.type);
 			itemGroup->add(itemDataPtr);
