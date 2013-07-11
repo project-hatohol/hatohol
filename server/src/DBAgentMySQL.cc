@@ -74,12 +74,7 @@ bool DBAgentMySQL::isTableExisting(const string &tableName)
 	  StringUtils::sprintf(
 	    "SHOW TABLES FROM %s LIKE '%s'",
 	    getDBName().c_str(), tableName.c_str());
-
-	if (mysql_query(&m_ctx->mysql, query.c_str()) != 0) {
-		THROW_HATOHOL_EXCEPTION(
-		  "Failed to query: %s: %s\n",
-		  query.c_str(), mysql_error(&m_ctx->mysql));
-	}
+	execSql(query);
 
 	MYSQL_RES *result = mysql_store_result(&m_ctx->mysql);
 	if (!result) {
@@ -107,12 +102,7 @@ bool DBAgentMySQL::isRecordExisting(const string &tableName,
 	  StringUtils::sprintf(
 	    "SELECT * FROM %s WHERE %s",
 	    tableName.c_str(), condition.c_str());
-
-	if (mysql_query(&m_ctx->mysql, query.c_str()) != 0) {
-		THROW_HATOHOL_EXCEPTION(
-		  "Failed to query: %s: %s\n",
-		  query.c_str(), mysql_error(&m_ctx->mysql));
-	}
+	execSql(query);
 
 	MYSQL_RES *result = mysql_store_result(&m_ctx->mysql);
 	if (!result) {
@@ -207,11 +197,8 @@ void DBAgentMySQL::createTable(DBAgentTableCreationArg &tableCreationArg)
 			query += ",";
 	}
 	query += ")";
-	if (mysql_query(&m_ctx->mysql, query.c_str()) != 0) {
-		THROW_HATOHOL_EXCEPTION("Failed to query: %s: %s\n",
-		                      query.c_str(),
-		                      mysql_error(&m_ctx->mysql));
-	}
+
+	execSql(query);
 }
 
 void DBAgentMySQL::insert(DBAgentInsertArg &insertArg)
@@ -261,11 +248,7 @@ void DBAgentMySQL::insert(DBAgentInsertArg &insertArg)
 	}
 	query += ")";
 
-	if (mysql_query(&m_ctx->mysql, query.c_str()) != 0) {
-		THROW_HATOHOL_EXCEPTION("Failed to query: %s: %s\n",
-		                      query.c_str(),
-		                      mysql_error(&m_ctx->mysql));
-	}
+	execSql(query);
 }
 
 void DBAgentMySQL::update(DBAgentUpdateArg &updateArg)
@@ -278,11 +261,7 @@ void DBAgentMySQL::select(DBAgentSelectArg &selectArg)
 	HATOHOL_ASSERT(m_ctx->connected, "Not connected.");
 
 	string query = makeSelectStatement(selectArg);
-	if (mysql_query(&m_ctx->mysql, query.c_str()) != 0) {
-		THROW_HATOHOL_EXCEPTION("Failed to query: %s: %s\n",
-		                      query.c_str(),
-		                      mysql_error(&m_ctx->mysql));
-	}
+	execSql(query);
 
 	MYSQL_RES *result = mysql_store_result(&m_ctx->mysql);
 	if (!result) {
@@ -312,11 +291,7 @@ void DBAgentMySQL::select(DBAgentSelectExArg &selectExArg)
 	HATOHOL_ASSERT(m_ctx->connected, "Not connected.");
 
 	string query = makeSelectStatement(selectExArg);
-	if (mysql_query(&m_ctx->mysql, query.c_str()) != 0) {
-		THROW_HATOHOL_EXCEPTION("Failed to query: %s: %s\n",
-		                      query.c_str(),
-		                      mysql_error(&m_ctx->mysql));
-	}
+	execSql(query);
 
 	MYSQL_RES *result = mysql_store_result(&m_ctx->mysql);
 	if (!result) {
