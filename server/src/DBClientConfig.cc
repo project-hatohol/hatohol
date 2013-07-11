@@ -554,7 +554,7 @@ void DBClientConfig::tableInitializerSystem(DBAgent *dbAgent, void *data)
 
 void DBClientConfig::initDefaultDBConnectInfo(void)
 {
-	DBConnectInfo &connInfo = PrivateContext::connectInfo;;
+	DBConnectInfo &connInfo = PrivateContext::connectInfo;
 	connInfo.host     = "localhost";
 	connInfo.port     = 0; // default port
 	connInfo.user     = "hatohol";
