@@ -105,6 +105,7 @@ public:
 
 	DBAgent(DBDomainId = DEFAULT_DB_DOMAIN_ID, bool skipSetup = false);
 	virtual ~DBAgent();
+	DBDomainId getDBDomainId(void) const;
 
 	// virtual methods
 	virtual bool isTableExisting(const string &tableName) = 0;

@@ -184,11 +184,25 @@ void _assertDBContent(DBAgent *dbAgent, const string &statement,
 	cppcut_assert_equal(expect, output);
 }
 
-void _assertCreateTable(DBDomainId domainId, const string &tableName)
+void _assertCreateTable(DBAgent *dbAgent, const string &tableName)
 {
-	string dbPath = DBAgentSQLite3::getDBPath(domainId);
-	string command = "sqlite3 " + dbPath + " \".table\"";
-	string output = executeCommand(command);
+	string output;
+	const type_info &tid = typeid(*dbAgent);
+	if (tid == typeid(DBAgentMySQL)) {
+		DBAgentMySQL *dba = dynamic_cast<DBAgentMySQL *>(dbAgent);
+		string dbName = dba->getDBName();
+		const string statement = StringUtils::sprintf(
+		  "show tables like '%s'", tableName.c_str());
+		output = execMySQLForDBClient(dbName, statement);
+	} else if (tid == typeid(DBAgentSQLite3)) {
+		DBDomainId domainId = dbAgent->getDBDomainId();
+		string dbPath = DBAgentSQLite3::getDBPath(domainId);
+		string command = "sqlite3 " + dbPath + " \".table\"";
+		output = executeCommand(command);
+	} else {
+		cut_fail("Unkown type: %s", DEMANGLED_TYPE_NAME(*dbAgent));
+	}
+
 	assertExist(tableName, output);
 }
 

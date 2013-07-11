@@ -123,11 +123,10 @@ void test_createTableSystem(void)
 {
 	const string tableName = "system";
 	DBClientConfig dbConfig;
-	assertCreateTable(DB_DOMAIN_ID_CONFIG, tableName);
+	assertCreateTable(dbConfig.getDBAgent(), tableName);
 	
 	// check content
 	string statement = "select * from " + tableName;
-	string output = execSqlite3ForDBClient(DB_DOMAIN_ID_CONFIG, statement);
 	const char *expectedDatabasePath = "";
 	int expectedEnableFaceMySQL = 0;
 	int expectedFaceRestPort    = 0;
@@ -135,14 +134,14 @@ void test_createTableSystem(void)
 	   StringUtils::sprintf("%s|%d|%d\n",
 	                        expectedDatabasePath,
 	                        expectedEnableFaceMySQL, expectedFaceRestPort);
-	cppcut_assert_equal(expectedOut, output);
+	assertDBContent(dbConfig.getDBAgent(), statement, expectedOut);
 }
 
 void test_createTableServers(void)
 {
 	const string tableName = "servers";
 	DBClientConfig dbConfig;
-	assertCreateTable(DB_DOMAIN_ID_CONFIG, tableName);
+	assertCreateTable(dbConfig.getDBAgent(), tableName);
 
 	// check content
 	string statement = "select * from " + tableName;

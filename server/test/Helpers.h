@@ -26,6 +26,7 @@ using namespace mlpl;
 
 #include "ItemTable.h"
 #include "DBAgent.h"
+#include "DBClient.h"
 
 typedef pair<int,int>      IntIntPair;
 typedef vector<IntIntPair> IntIntPairVector;
@@ -82,9 +83,9 @@ void _assertDBContent(DBAgent *dbAgent, const string &statement,
 #define assertDBContent(DB_AGENT, FMT, EXPECT) \
 cut_trace(_assertDBContent(DB_AGENT, FMT, EXPECT))
 
-void _assertCreateTable(DBDomainId domainId, const string &tableName);
-#define assertCreateTable(ID,TBL_NAME) \
-cut_trace(_assertCreateTable(ID,TBL_NAME))
+void _assertCreateTable(DBAgent *dbAgent, const string &tableName);
+#define assertCreateTable(DBAGENT,TBL_NAME) \
+cut_trace(_assertCreateTable(DBAGENT,TBL_NAME))
 
 template<typename T> void _assertAddToDB(T *arg, void (*func)(T *))
 {

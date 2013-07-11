@@ -84,8 +84,14 @@ struct DBAgent::PrivateContext
 {
 	static MutexLock          mutex;
 	static DBSetupInfoMap     setupInfoMap;
+	DBDomainId dbDomainId;
 
 	// methods
+	PrivateContext(DBDomainId domainId)
+	: dbDomainId(domainId)
+	{
+	}
+
 	static void lock(void)
 	{
 		mutex.lock();
@@ -118,7 +124,7 @@ void DBAgent::addSetupFunction(DBDomainId domainId,
 DBAgent::DBAgent(DBDomainId domainId, bool skipSetup)
 : m_ctx(NULL)
 {
-	m_ctx = new PrivateContext();
+	m_ctx = new PrivateContext(domainId);
 	if (skipSetup)
 		return;
 
@@ -147,6 +153,11 @@ DBAgent::~DBAgent()
 {
 	if (m_ctx)
 		delete m_ctx;
+}
+
+DBDomainId DBAgent::getDBDomainId(void) const
+{
+	return m_ctx->dbDomainId;
 }
 
 // ---------------------------------------------------------------------------
