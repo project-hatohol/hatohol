@@ -184,10 +184,7 @@ void test_setGetDatabaseDir(void)
 	const string databaseDir = "/dir1/dir2";
 	DBClientConfig dbConfig;
 	dbConfig.setDatabaseDir(databaseDir);
-
-	// DBClientConfig uses DBAgentMySQL. In that case, getDatabaseDir()
-	// returns empty string.
-	cppcut_assert_equal(string(""), dbConfig.getDatabaseDir());
+	cppcut_assert_equal(databaseDir, dbConfig.getDatabaseDir());
 }
 
 void test_setGetFaceRestPort(void)
