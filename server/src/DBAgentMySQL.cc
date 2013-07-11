@@ -354,3 +354,16 @@ void DBAgentMySQL::deleteRows(DBAgentDeleteArg &deleteArg)
 {
 	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
 }
+
+// ---------------------------------------------------------------------------
+// Protected methods
+// ---------------------------------------------------------------------------
+void DBAgentMySQL::execSql(const string &statement)
+{
+	HATOHOL_ASSERT(m_ctx->connected, "Not connected.");
+	if (mysql_query(&m_ctx->mysql, statement.c_str()) != 0) {
+		THROW_HATOHOL_EXCEPTION("Failed to query: %s: %s\n",
+		                        statement.c_str(),
+		                        mysql_error(&m_ctx->mysql));
+	}
+}

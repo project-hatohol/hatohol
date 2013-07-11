@@ -49,6 +49,9 @@ public:
 	virtual void select(DBAgentSelectExArg &selectExArg);
 	virtual void deleteRows(DBAgentDeleteArg &deleteArg);
 
+protected:
+	void execSql(const string &statement);
+
 private:
 	struct PrivateContext;
 	PrivateContext *m_ctx;
