@@ -124,17 +124,17 @@ bool DBAgentMySQL::isRecordExisting(const string &tableName,
 
 void DBAgentMySQL::begin(void)
 {
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	execSql("START TRANSACTION");
 }
 
 void DBAgentMySQL::commit(void)
 {
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	execSql("COMMIT");
 }
 
 void DBAgentMySQL::rollback(void)
 {
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	execSql("ROLLBACK");
 }
 
 void DBAgentMySQL::createTable(DBAgentTableCreationArg &tableCreationArg)
