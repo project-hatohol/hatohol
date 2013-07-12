@@ -26,6 +26,8 @@
 #include "Helpers.h"
 #include "DBClientTest.h"
 
+static const char *TEST_DB_NAME = "test_db_config";
+
 namespace testDBClientConfig {
 
 void _assertGetHostAddress
@@ -66,9 +68,20 @@ static string makeExpectedOutput(MonitoringServerInfo *serverInfo)
 
 void setup(void)
 {
-	deleteDBClientDB(DB_DOMAIN_ID_CONFIG);
 	hatoholInit();
-	deleteDBClientDB(DB_DOMAIN_ID_CONFIG);
+	
+	// test_parseArgConfigDBServer() and test_parseArgConfigDBServerWithPort()
+	// changes the master data structure of DBClientConfig. The following call
+	// is needed to clear that information.
+	DBClientConfig::reset(true);
+
+	static const char *TEST_DB_USER = "hatohol_test_user";
+	static const char *TEST_DB_PASSWORD = ""; // empty: No password is used
+	DBClientConfig::setDefaultDBParams(TEST_DB_NAME,
+	                                   TEST_DB_USER, TEST_DB_PASSWORD);
+
+	bool recreate = true;
+	makeTestMySQLDBIfNeeded(TEST_DB_NAME, recreate);
 }
 
 // ---------------------------------------------------------------------------
@@ -93,31 +106,27 @@ void test_getHostAddressBothNotSet(void)
 
 void test_createDB(void)
 {
-	// remove the DB that already exists
-	string dbPath = deleteDBClientDB(DB_DOMAIN_ID_CONFIG);
-
-	// create an instance (the database will be automatically created)
+	// create an instance
+	// Tables in the DB will be automatically created.
 	DBClientConfig dbConfig;
-	cut_assert_exist_path(dbPath.c_str());
 
 	// check the version
 	string statement = "select * from _dbclient";
-	string output = execSqlite3ForDBClient(DB_DOMAIN_ID_CONFIG, statement);
-	string expectedOut = StringUtils::sprintf
-	                       ("%d|%d\n", DBClient::DBCLIENT_DB_VERSION,
-	                                   DBClientConfig::CONFIG_DB_VERSION);
-	cppcut_assert_equal(expectedOut, output);
+	string expect =
+	  StringUtils::sprintf(
+	    "%d|%d\n", DBClient::DBCLIENT_DB_VERSION,
+	               DBClientConfig::CONFIG_DB_VERSION);
+	assertDBContent(dbConfig.getDBAgent(), statement, expect);
 }
 
 void test_createTableSystem(void)
 {
 	const string tableName = "system";
 	DBClientConfig dbConfig;
-	assertCreateTable(DB_DOMAIN_ID_CONFIG, tableName);
+	assertCreateTable(dbConfig.getDBAgent(), tableName);
 	
 	// check content
 	string statement = "select * from " + tableName;
-	string output = execSqlite3ForDBClient(DB_DOMAIN_ID_CONFIG, statement);
 	const char *expectedDatabasePath = "";
 	int expectedEnableFaceMySQL = 0;
 	int expectedFaceRestPort    = 0;
@@ -125,39 +134,35 @@ void test_createTableSystem(void)
 	   StringUtils::sprintf("%s|%d|%d\n",
 	                        expectedDatabasePath,
 	                        expectedEnableFaceMySQL, expectedFaceRestPort);
-	cppcut_assert_equal(expectedOut, output);
+	assertDBContent(dbConfig.getDBAgent(), statement, expectedOut);
 }
 
 void test_createTableServers(void)
 {
 	const string tableName = "servers";
 	DBClientConfig dbConfig;
-	assertCreateTable(DB_DOMAIN_ID_CONFIG, tableName);
+	assertCreateTable(dbConfig.getDBAgent(), tableName);
 
 	// check content
 	string statement = "select * from " + tableName;
-	string output = execSqlite3ForDBClient(DB_DOMAIN_ID_CONFIG, statement);
 	string expectedOut = ""; // currently no data
-	cppcut_assert_equal(expectedOut, output);
+	assertDBContent(dbConfig.getDBAgent(), statement, expectedOut);
 }
 
-void test_testAddTargetServer(void)
+void test_addTargetServer(void)
 {
-	string dbPath = deleteDBClientDB(DB_DOMAIN_ID_CONFIG);
-
 	// added a record
 	MonitoringServerInfo *testInfo = serverInfo;
 	assertAddServerToDB(testInfo);
 
 	// confirm with the command line tool
-	string cmd = StringUtils::sprintf(
-	               "sqlite3 %s \"select * from servers\"", dbPath.c_str());
-	string result = executeCommand(cmd);
+	string statement = "select * from servers";
 	string expectedOut = makeExpectedOutput(testInfo);
-	cppcut_assert_equal(expectedOut, result);
+	DBClientConfig dbConfig;
+	assertDBContent(dbConfig.getDBAgent(), statement, expectedOut);
 }
 
-void test_testGetTargetServers(void)
+void test_getTargetServers(void)
 {
 	for (size_t i = 0; i < NumServerInfo; i++)
 		assertAddServerToDB(&serverInfo[i]);
@@ -177,7 +182,7 @@ void test_testGetTargetServers(void)
 	cppcut_assert_equal(expectedText, actualText);
 }
 
-void test_testSetGetDatabaseDir(void)
+void test_setGetDatabaseDir(void)
 {
 	const string databaseDir = "/dir1/dir2";
 	DBClientConfig dbConfig;
@@ -185,12 +190,36 @@ void test_testSetGetDatabaseDir(void)
 	cppcut_assert_equal(databaseDir, dbConfig.getDatabaseDir());
 }
 
-void test_testSetGetFaceRestPort(void)
+void test_setGetFaceRestPort(void)
 {
 	const int portNumber = 501;
 	DBClientConfig dbConfig;
 	dbConfig.setFaceRestPort(portNumber);
 	cppcut_assert_equal(portNumber, dbConfig.getFaceRestPort());
+}
+
+void test_parseArgConfigDBServer(void)
+{
+	const string serverName = "cat.example.com";
+	CommandLineArg arg;
+	arg.push_back("--config-db-server");
+	arg.push_back(serverName);
+	DBClientConfig::parseCommandLineArgument(arg);
+	const DBConnectInfo connInfo = DBClientConfig::getDBConnectInfo();
+	cppcut_assert_equal(serverName, connInfo.host);
+}
+
+void test_parseArgConfigDBServerWithPort(void)
+{
+	const string serverName = "cat.example.com";
+	const size_t port = 1027;
+	CommandLineArg arg;
+	arg.push_back("--config-db-server");
+	arg.push_back(StringUtils::sprintf("%s:%zd", serverName.c_str(), port));
+	DBClientConfig::parseCommandLineArgument(arg);
+	const DBConnectInfo connInfo = DBClientConfig::getDBConnectInfo();
+	cppcut_assert_equal(serverName, connInfo.host);
+	cppcut_assert_equal(port, connInfo.port);
 }
 
 } // namespace testDBClientConfig

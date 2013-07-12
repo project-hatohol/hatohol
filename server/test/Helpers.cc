@@ -21,7 +21,10 @@
 #include <unistd.h>
 #include "Helpers.h"
 #include "DBClientZabbix.h"
+#include "DBClientConfig.h"
+#include "DBClientTest.h"
 #include "DBAgentSQLite3.h"
+#include "DBAgentMySQL.h"
 
 void _assertStringVector(StringVector &expected, StringVector &actual)
 {
@@ -157,10 +160,144 @@ string execSqlite3ForDBClientZabbix(int serverId, const string &statement)
 	return execSqlite3ForDBClient(domainId, statement);
 }
 
-void _assertCreateTable(DBDomainId domainId, const string &tableName)
+string execMySQL(const string &dbName, const string &statement, bool showHeader)
 {
-	string dbPath = DBAgentSQLite3::getDBPath(domainId);
-	string command = "sqlite3 " + dbPath + " \".table\"";
-	string output = executeCommand(command);
+	const char *headerOpt = showHeader ? "" : "-N";
+	string commandLine =
+	  StringUtils::sprintf("mysql -B %s -D %s -e \"%s\"",
+	                       headerOpt, dbName.c_str(), statement.c_str());
+	string result = executeCommand(commandLine);
+	return result;
+}
+
+void _assertDBContent(DBAgent *dbAgent, const string &statement,
+                      const string &expect)
+{
+	string output;
+	const type_info& tid = typeid(*dbAgent);
+	if (tid == typeid(DBAgentMySQL)) {
+		DBAgentMySQL *dbMySQL = dynamic_cast<DBAgentMySQL *>(dbAgent);
+		output = execMySQL(dbMySQL->getDBName(), statement);
+		output = StringUtils::replace(output, "\t", "|");
+	}
+	else
+		cut_fail("Unknown type_info");
+	cppcut_assert_equal(expect, output);
+}
+
+void _assertCreateTable(DBAgent *dbAgent, const string &tableName)
+{
+	string output;
+	const type_info &tid = typeid(*dbAgent);
+	if (tid == typeid(DBAgentMySQL)) {
+		DBAgentMySQL *dba = dynamic_cast<DBAgentMySQL *>(dbAgent);
+		string dbName = dba->getDBName();
+		const string statement = StringUtils::sprintf(
+		  "show tables like '%s'", tableName.c_str());
+		output = execMySQL(dbName, statement);
+	} else if (tid == typeid(DBAgentSQLite3)) {
+		DBDomainId domainId = dbAgent->getDBDomainId();
+		string dbPath = DBAgentSQLite3::getDBPath(domainId);
+		string command = "sqlite3 " + dbPath + " \".table\"";
+		output = executeCommand(command);
+	} else {
+		cut_fail("Unkown type: %s", DEMANGLED_TYPE_NAME(*dbAgent));
+	}
+
 	assertExist(tableName, output);
+}
+
+static bool makeTestDB(MYSQL *mysql, const string &dbName)
+{
+	string query = "CREATE DATABASE ";
+	query += dbName;
+	return mysql_query(mysql, query.c_str()) == 0;
+}
+
+static bool dropTestDB(MYSQL *mysql, const string &dbName)
+{
+	string query = "DROP DATABASE ";
+	query += dbName;
+	return mysql_query(mysql, query.c_str()) == 0;
+}
+
+void makeTestMySQLDBIfNeeded(const string &dbName, bool recreate)
+{
+	// make a connection
+	const char *host = NULL; // localhost is used.
+	const char *user = NULL; // current user name is used.
+	const char *passwd = NULL; // passwd is not checked.
+	const char *db = NULL;
+	unsigned int port = 0; // default port is used.
+	const char *unixSocket = NULL;
+	unsigned long clientFlag = 0;
+	MYSQL mysql;
+	mysql_init(&mysql);
+	MYSQL *succeeded = mysql_real_connect(&mysql, host, user, passwd,
+	                                      db, port, unixSocket, clientFlag);
+	if (!succeeded) {
+		cut_fail("Failed to connect to MySQL: %s: %s\n",
+		          db, mysql_error(&mysql));
+	}
+
+	// try to find the test database
+	MYSQL_RES *result = mysql_list_dbs(&mysql, dbName.c_str());
+	if (!result) {
+		mysql_close(&mysql);
+		cut_fail("Failed to list table: %s: %s\n",
+		          db, mysql_error(&mysql));
+	}
+
+	MYSQL_ROW row;
+	bool found = false;
+	size_t lengthTestDBName = dbName.size();
+	while ((row = mysql_fetch_row(result))) {
+		if (dbName.compare(0, lengthTestDBName, row[0]) == 0) {
+			found = true;
+			break;
+		}
+	}
+	mysql_free_result(result);
+
+	// make DB if needed
+	bool noError = false;
+	if (!found) {
+		if (!makeTestDB(&mysql, dbName))
+			goto exit;
+	} else if (recreate) {
+		if (!dropTestDB(&mysql, dbName))
+			goto exit;
+		if (!makeTestDB(&mysql, dbName))
+			goto exit;
+	}
+	noError = true;
+
+exit:
+	// close the connection
+	string errmsg;
+	if (!noError)
+		errmsg = mysql_error(&mysql);
+	mysql_close(&mysql);
+	cppcut_assert_equal(true, noError,
+	   cut_message("Failed to query: %s", errmsg.c_str()));
+}
+
+void setupTestDBServers(void)
+{
+	static const char *TEST_DB_NAME = "test_servers_in_helper";
+	static const char *TEST_DB_USER = "hatohol_test_user";
+	static const char *TEST_DB_PASSWORD = ""; // empty: No password is used
+	DBClientConfig::setDefaultDBParams(TEST_DB_NAME,
+	                                   TEST_DB_USER, TEST_DB_PASSWORD);
+
+	static bool dbServerReady = false;
+	if (!dbServerReady) {
+		bool recreate = true;
+		makeTestMySQLDBIfNeeded(TEST_DB_NAME, recreate);
+
+		DBClientConfig dbConfig;
+		for (size_t i = 0; i < NumServerInfo; i++)
+			dbConfig.addTargetServer(&serverInfo[i]);
+		dbServerReady = true;
+	}
 }

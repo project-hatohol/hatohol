@@ -17,25 +17,41 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <iostream>
 #include <cstdio>
 #include <cstdlib>
 #include <fstream>
 #include <string>
+#include <unistd.h>
+#include <errno.h>
 #include <glib-object.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <termios.h>
 #include "Hatohol.h"
 #include "DBClientConfig.h"
 #include "ConfigManager.h"
-#include "DBAgentSQLite3.h"
+#include "DBAgentMySQL.h"
 
 using namespace std;
 
 struct ConfigValue {
+	string                   configDBServer;
+	int                      configDBServerPort;
+	string                   configDBName;
+	string                   configDBUser;
+	string                   configDBPassword;
 	int                      faceRestPort;
 	MonitoringServerInfoList serverInfoList;
 	
 	// constructor
 	ConfigValue(void)
-	: faceRestPort(0)
+	: configDBServerPort(0),
+	  configDBName("hatohol"),
+	  configDBUser("hatohol"),
+	  configDBPassword("hatohol"),
+	  faceRestPort(0)
 	{
 	}
 };
@@ -43,7 +59,7 @@ struct ConfigValue {
 static void printUsage(void)
 {
 	fprintf(stderr, "Usage:\n");
-	fprintf(stderr, "$ hatohol-config-db-creator config.dat dbfile.db\n");
+	fprintf(stderr, "$ hatohol-config-db-creator config.dat\n");
 	fprintf(stderr, "\n");
 }
 
@@ -176,7 +192,15 @@ static bool readConfigFile(const string &configFilePath, ConfigValue &confValue)
 
 		// dispatch
 		bool succeeded = true;
-		if (element == "faceRestPort") {
+		if (element == "configDBServer") {
+			succeeded = extractString(parsable,
+			                          confValue.configDBServer,
+			                          lineNo);
+		} else if (element == "configDBServerPort") {
+			succeeded = parseInt(parsable,
+			                     confValue.configDBServerPort,
+			                     lineNo);
+		} else if (element == "faceRestPort") {
 			succeeded =
 			   parseInt(parsable, confValue.faceRestPort, lineNo);
 		} else if (element == "server") {
@@ -249,6 +273,197 @@ static bool validateServerInfoList(ConfigValue &confValue)
 	return true;
 }
 
+static bool setEchoBack(bool enable)
+{
+	int fd = open("/dev/tty", O_RDWR);
+	if (fd == -1) {
+		fprintf(stderr, "Failed to open /dev/tty: %d\n", errno);
+		return false;
+	}
+
+	struct termios tmios;
+	if (tcgetattr(fd, &tmios) == -1) {
+		fprintf(stderr, "Failed to call tcgetattr: %d\n", errno);
+		close(fd);
+		return false;
+	}
+
+	if (enable)
+		tmios.c_lflag |= ECHO; 
+	else
+		tmios.c_lflag &= ~ECHO; 
+
+	if (tcsetattr(fd, TCSANOW, &tmios) == -1) {
+		fprintf(stderr, "Failed to call tcsetattr: %d\n", errno);
+		close(fd);
+		return false;
+	}
+
+	close(fd);
+	return true;
+}
+
+static bool execCommand(const string cmd, string &stdoutStr, string &stderrStr)
+{
+	gboolean ret;
+	gchar *standardOutput = NULL;
+	gchar *standardError = NULL;
+	gint exitStatus;
+	GError *error = NULL;
+	string errorStr;
+
+	ret = g_spawn_command_line_sync(cmd.c_str(),
+	                                &standardOutput, &standardError,
+	                                &exitStatus, &error);
+	if (standardOutput) {
+		stdoutStr = standardOutput;
+		g_free(standardOutput);
+	}
+	if (standardError) {
+		stderrStr = standardError;
+		g_free(standardError);
+	}
+	if (!ret)
+		return false;
+	if (exitStatus != 0)
+		return false;
+	return true;
+}
+
+static void showCommandError(const string &stdoutStr, const string &stderrStr)
+{
+	fprintf(stderr,
+	        "Failed to execute command:\n"
+	        "<<stdout>>\n"
+	        "%s\n"
+	        "<<stderr>>\n"
+	        "%s\n",
+	        stdoutStr.c_str(), stderrStr.c_str());
+}
+
+static bool execMySQL(const string &statement,
+                      const string &user, const string &passwd,
+                      string &stdoutStr)
+{
+	string passwdStr;
+	if (!passwd.empty())
+		passwdStr = "-p" + passwd;
+
+	string cmd = StringUtils::sprintf(
+	  "mysql -u %s %s -N -B -e \"%s\"", 
+	  user.c_str(), passwdStr.c_str(), statement.c_str());
+	string stderrStr;
+	if (!execCommand(cmd, stdoutStr, stderrStr)) {
+		showCommandError(stdoutStr, stderrStr);
+		return false;
+	}
+	return true;
+}
+
+static bool dropConfigDBIfExists(const ConfigValue &confValue,
+                                 const string &dbRootPasswd)
+{
+	string stdoutStr;
+	string sql;
+
+	// check if the DB exists
+	sql = StringUtils::sprintf(
+	  "SHOW DATABASES LIKE '%s'", confValue.configDBName.c_str());
+	if (!execMySQL(sql, "root", dbRootPasswd, stdoutStr))
+		return false;
+
+	StringVector strVect;
+	StringUtils::split(strVect, stdoutStr, '\n');
+	if (strVect.empty())
+		return true;
+
+	printf("The database: %s will be dropped. Are you OK? (yes/no)\n: ",
+	       confValue.configDBName.c_str());
+	string reply;
+	while (true) {
+		cin >> reply;
+		printf("\n");
+		if (reply == "yes")
+			break;
+		if (reply == "no") {
+			printf("*** The setup was canncelled ***\n");
+			return false;
+		}
+		printf("You should type yes or no : ");
+	}
+
+	// drop the DB
+	sql = StringUtils::sprintf(
+	  "DROP DATABASE %s", confValue.configDBName.c_str());
+	if (!execMySQL(sql, "root", dbRootPasswd, stdoutStr))
+		return false;
+
+	return true;
+}
+
+static bool createConfigDB(const ConfigValue &confValue,
+                           const string &dbRootPasswd)
+{
+	string stdoutStr;
+	string sql = StringUtils::sprintf(
+	  "CREATE DATABASE %s", confValue.configDBName.c_str());
+	if (!execMySQL(sql, "root", dbRootPasswd, stdoutStr))
+		return false;
+	return true;
+}
+
+static bool setGrant(const ConfigValue &confValue,
+                     const string &dbRootPasswd)
+{
+	string stdoutStr;
+	string sql = StringUtils::sprintf(
+	  "GRANT ALL ON %s.* TO %s@'%%' IDENTIFIED BY '%s'",
+	   confValue.configDBName.c_str(),
+	   confValue.configDBUser.c_str(),
+	   confValue.configDBPassword.c_str());
+	if (!execMySQL(sql, "root", dbRootPasswd, stdoutStr))
+		return false;
+
+	if (!execMySQL("FLUSH PRIVILEGES", "root", dbRootPasswd, stdoutStr))
+		return false;
+
+	return true;
+}
+
+static bool setupDBServer(const ConfigValue &confValue)
+{
+	string confDBPortStr =
+	   confValue.configDBServerPort == 0 ?
+	     "(default)" :
+	     StringUtils::sprintf("%d", confValue.configDBServerPort); 
+	printf("Configuration DB Server: '%s', port: %s\n",
+	       confValue.configDBServer.c_str(), confDBPortStr.c_str());
+	printf("\n"
+	       "Please input the root password for the above server.\""
+	       "(If you've not set the root password, just push enter)\n"
+	       ": ");
+	if (!setEchoBack(false))
+		return false;
+	string dbRootPasswd;
+	while (int ch = getchar()) {
+		if (ch == '\n')
+			break;
+		dbRootPasswd += ch;
+	}
+	if (!setEchoBack(true))
+		return false;
+	printf("\n");
+
+	if (!dropConfigDBIfExists(confValue, dbRootPasswd))
+		return false;
+	if (!createConfigDB(confValue, dbRootPasswd))
+		return false;
+	if (!setGrant(confValue, dbRootPasswd))
+		return false;
+
+	return true;
+}
+
 int main(int argc, char *argv[])
 {
 #ifndef GLIB_VERSION_2_36
@@ -256,13 +471,12 @@ int main(int argc, char *argv[])
 #endif // GLIB_VERSION_2_36
 	hatoholInit();
 
-	if (argc < 3) {
+	if (argc < 2) {
 		printUsage();
 		return EXIT_FAILURE;
 	}
 
 	const string configFilePath = argv[1];
-	const string configDBPath = argv[2];
 
 	// opening config.dat and read it
 	ConfigValue confValue;
@@ -270,15 +484,18 @@ int main(int argc, char *argv[])
 		return EXIT_FAILURE;
 
 	// validation
+	if (!validatePort(confValue.configDBServerPort))
+		return EXIT_FAILURE;
 	if (!validatePort(confValue.faceRestPort))
 		return EXIT_FAILURE;
 	if (!validateServerInfoList(confValue))
 		return EXIT_FAILURE;
 
 	//
-	// Save data to DB.
+	// Setup the DB.
 	//
-	DBAgentSQLite3::defineDBPath(DB_DOMAIN_ID_CONFIG, configDBPath);
+	if (!setupDBServer(confValue))
+		return EXIT_SUCCESS;
 	DBClientConfig dbConfig;
 
 	// FaceRest port

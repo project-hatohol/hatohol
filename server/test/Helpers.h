@@ -26,6 +26,7 @@ using namespace mlpl;
 
 #include "ItemTable.h"
 #include "DBAgent.h"
+#include "DBClient.h"
 
 typedef pair<int,int>      IntIntPair;
 typedef vector<IntIntPair> IntIntPairVector;
@@ -76,10 +77,16 @@ string getDBClientDBPath(DBDomainId domainId);
 string deleteDBClientZabbixDB(int serverId);
 string execSqlite3ForDBClient(DBDomainId domainId, const string &statement);
 string execSqlite3ForDBClientZabbix(int serverId, const string &statement);
+string execMySQL(const string &dbName, const string &statement,
+                 bool showHeader = false);
+void _assertDBContent(DBAgent *dbAgent, const string &statement,
+                      const string &expect);
+#define assertDBContent(DB_AGENT, FMT, EXPECT) \
+cut_trace(_assertDBContent(DB_AGENT, FMT, EXPECT))
 
-void _assertCreateTable(DBDomainId domainId, const string &tableName);
-#define assertCreateTable(ID,TBL_NAME) \
-cut_trace(_assertCreateTable(ID,TBL_NAME))
+void _assertCreateTable(DBAgent *dbAgent, const string &tableName);
+#define assertCreateTable(DBAGENT,TBL_NAME) \
+cut_trace(_assertCreateTable(DBAGENT,TBL_NAME))
 
 template<typename T> void _assertAddToDB(T *arg, void (*func)(T *))
 {
@@ -94,5 +101,8 @@ template<typename T> void _assertAddToDB(T *arg, void (*func)(T *))
 	}
 	cppcut_assert_equal(false, gotException);
 }
+
+void makeTestMySQLDBIfNeeded(const string &dbName, bool recreate = false);
+void setupTestDBServers(void);
 
 #endif // Helpers_h

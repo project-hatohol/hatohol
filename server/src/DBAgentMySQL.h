@@ -30,8 +30,10 @@ public:
 	             const char *user = NULL,   //   current user name is used
 	             const char *passwd = NULL, //   passwd is not checked
 	             const char *host = NULL,   //   localhost is used
-	             unsigned int port = 0);    //   default port is used
+	             unsigned int port = 0,     //   default port is used
+	             bool skipSetup = false);
 	virtual ~DBAgentMySQL();
+	string getDBName(void) const;
 
 	// virtual methods
 	virtual bool isTableExisting(const string &tableName);
@@ -46,6 +48,9 @@ public:
 	virtual void select(DBAgentSelectArg &selectArg);
 	virtual void select(DBAgentSelectExArg &selectExArg);
 	virtual void deleteRows(DBAgentDeleteArg &deleteArg);
+
+protected:
+	void execSql(const string &statement);
 
 private:
 	struct PrivateContext;

@@ -71,10 +71,29 @@ class DBClientConfig : public DBClient {
 public:
 	static int CONFIG_DB_VERSION;
 	static const char *DEFAULT_DB_NAME;
-	static void reset(void);
-	static void parseCommandLineArgument(CommandLineArg &cmdArg);
+	static void reset(bool deepReset = false);
+	static bool parseCommandLineArgument(CommandLineArg &cmdArg);
+	static const DBConnectInfo &getDBConnectInfo(void);
 
-	DBClientConfig(void);
+	/**
+	 * set the default parameters to connect the DB.
+	 * The parameters set by this function are used for the instance of
+	 * DBClientConfig created with NULL as the first argument.
+	 * The paramers are reset to the sysytem default when reset() is called.
+	 *
+	 * @param dbName A database name.
+	 * @param user
+	 * A user name. If this paramter is "" (empty string), the name of
+	 * the current user is used.
+	 * @param passowrd
+	 * A password. If this parameter is "" (empty string), no passowrd
+	 * is used.
+	 */
+	static void setDefaultDBParams(const string &dbName,
+	                               const string &user = "",
+	                               const string &password = "");
+
+	DBClientConfig(const DBConnectInfo *connectInfo = NULL);
 	virtual ~DBClientConfig();
 
 	string  getDatabaseDir(void);
@@ -88,7 +107,12 @@ public:
 protected:
 	static void resetDBInitializedFlags(void);
 	static void tableInitializerSystem(DBAgent *dbAgent, void *data);
-	void prepareSetupFunction(void);
+	static void initDefaultDBConnectInfoMaster(void);
+	static void initDefaultDBConnectInfo(void);
+	static bool parseDBServer(const string &dbServer,
+	                          string &host, size_t &port);
+	void prepareSetupFunction(const DBConnectInfo *connectInfo);
+	const DBConnectInfo *getDefaultConnectInfo(void);
 
 private:
 	struct PrivateContext;

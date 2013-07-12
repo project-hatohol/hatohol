@@ -49,12 +49,49 @@ void DBAgentSelectExArg::pushColumn
 	columnTypes.push_back(columnDef.type);
 }
 
+DBConnectInfo::DBConnectInfo(void)
+: host("localhost"),
+  port(0)
+{
+}
+
+DBConnectInfo::~DBConnectInfo()
+{
+}
+
+const char *DBConnectInfo::getHost(void) const
+{
+	if (host.empty())
+		return NULL;
+	return host.c_str();
+}
+
+const char *DBConnectInfo::getUser(void) const
+{
+	if (user.empty())
+		return NULL;
+	return user.c_str();
+}
+
+const char *DBConnectInfo::getPassword(void) const
+{
+	if (password.empty())
+		return NULL;
+	return password.c_str();
+}
+
 struct DBAgent::PrivateContext
 {
 	static MutexLock          mutex;
 	static DBSetupInfoMap     setupInfoMap;
+	DBDomainId dbDomainId;
 
 	// methods
+	PrivateContext(DBDomainId domainId)
+	: dbDomainId(domainId)
+	{
+	}
+
 	static void lock(void)
 	{
 		mutex.lock();
@@ -87,7 +124,7 @@ void DBAgent::addSetupFunction(DBDomainId domainId,
 DBAgent::DBAgent(DBDomainId domainId, bool skipSetup)
 : m_ctx(NULL)
 {
-	m_ctx = new PrivateContext();
+	m_ctx = new PrivateContext(domainId);
 	if (skipSetup)
 		return;
 
@@ -116,6 +153,11 @@ DBAgent::~DBAgent()
 {
 	if (m_ctx)
 		delete m_ctx;
+}
+
+DBDomainId DBAgent::getDBDomainId(void) const
+{
+	return m_ctx->dbDomainId;
 }
 
 // ---------------------------------------------------------------------------
@@ -167,4 +209,83 @@ string DBAgent::makeSelectStatement(DBAgentSelectExArg &selectExArg)
 	if (selectExArg.offset > 0)
 		sql += StringUtils::sprintf(" OFFSET %zd ", selectExArg.offset);
 	return sql;
+}
+
+string DBAgent::getColumnValueString(const ColumnDef *columnDef,
+                                     const ItemData *itemData)
+{
+	string valueStr;
+	switch (columnDef->type) {
+	case SQL_COLUMN_TYPE_INT:
+	{
+		DEFINE_AND_ASSERT(itemData, ItemInt, item);
+		valueStr = StringUtils::sprintf("%d", item->get());
+		break;
+	}
+	case SQL_COLUMN_TYPE_BIGUINT:
+	{
+		DEFINE_AND_ASSERT(itemData, ItemUint64, item);
+		valueStr = StringUtils::sprintf("%"PRId64, item->get());
+		break;
+	}
+	case SQL_COLUMN_TYPE_VARCHAR:
+	case SQL_COLUMN_TYPE_CHAR:
+	case SQL_COLUMN_TYPE_TEXT:
+	{
+		DEFINE_AND_ASSERT(itemData, ItemString, item);
+		if (item->isNull()) {
+			valueStr = "NULL";
+		} else {
+			string escaped =
+			   StringUtils::replace(item->get(), "'", "''");
+			valueStr =
+			   StringUtils::sprintf("'%s'", escaped.c_str());
+		}
+		break;
+	}
+	case SQL_COLUMN_TYPE_DOUBLE:
+	{
+		string fmt;
+		DEFINE_AND_ASSERT(itemData, ItemDouble, item);
+		fmt = StringUtils::sprintf("%%.%zdlf", columnDef->decFracLength);
+		valueStr = StringUtils::sprintf(fmt.c_str(), item->get());
+		break;
+	}
+	default:
+		HATOHOL_ASSERT(true, "Unknown column type: %d (%s)",
+		             columnDef->type, columnDef->columnName);
+	}
+	return valueStr;
+}
+
+string DBAgent::makeUpdateStatement(DBAgentUpdateArg &updateArg)
+{
+	size_t numColumns = updateArg.row->getNumberOfItems();
+	HATOHOL_ASSERT(numColumns == updateArg.columnIndexes.size(),
+	             "Invalid number of colums: %zd, %zd",
+	             numColumns, updateArg.columnIndexes.size());
+
+	// make a SQL statement
+	string statement = "UPDATE ";
+	statement += updateArg.tableName;
+	statement += " SET ";
+	for (size_t i = 0; i < numColumns; i++) {
+		size_t columnIdx = updateArg.columnIndexes[i];
+		const ColumnDef &columnDef = updateArg.columnDefs[columnIdx];
+		const ItemData *itemData = updateArg.row->getItemAt(i);
+		string valueStr = getColumnValueString(&columnDef, itemData);
+
+		statement += columnDef.columnName;
+		statement += "=";
+		statement += valueStr;
+		if (i < numColumns-1)
+			statement += ",";
+	}
+
+	// condition
+	if (!updateArg.condition.empty()) {
+		statement += " WHERE ";
+		statement += updateArg.condition;
+	}
+	return statement;
 }

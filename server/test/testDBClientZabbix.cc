@@ -68,7 +68,7 @@ public:
 static void _assertCreateTableZBX(int svId, const string &tableName)
 {
 	DELETE_DB_AND_DEFINE_DBCLIENT_ZABBIX(svId, dbClientZabbix, dbPath)
-	assertCreateTable(DBClientZabbix::getDBDomainId(svId),tableName);
+	assertCreateTable(dbClientZabbix.getDBAgent(), tableName);
 }
 #define assertCreateTableZBX(I,T) cut_trace(_assertCreateTableZBX(I,T))
 

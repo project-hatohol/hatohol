@@ -29,7 +29,7 @@
 namespace testFaceRest {
 
 static const unsigned int TEST_PORT = 53194;
-static const char *TEST_DB_CONFIG_NAME = "testDatabase-config.db";
+static const char *TEST_DB_CONFIG_NAME = "test_db_config";
 static const char *TEST_DB_HATOHOL_NAME = "testDatabase-hatohol.db";
 
 static FaceRest *g_faceRest = NULL;
@@ -309,6 +309,7 @@ static void _assertItems(const string &path, const string &callbackName = "")
 void setup(void)
 {
 	hatoholInit();
+	setupTestDBServers();
 }
 
 void teardown(void)

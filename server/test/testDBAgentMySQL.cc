@@ -34,12 +34,9 @@ public:
 	virtual void assertTable(const DBAgentTableCreationArg &arg)
 	{
 		// get the table information with mysql command.
-		string cmd = "mysql -D ";
-		cmd += TEST_DB_NAME;
-		cmd += " -B -e \"desc ";
-		cmd += TABLE_NAME_TEST;
-		cmd += "\"";
-		string result = executeCommand(cmd);
+		string sql = "desc ";
+		sql += TABLE_NAME_TEST;
+		string result = execMySQL(TEST_DB_NAME, sql, true);
 
 		// check the number of obtained lines
 		size_t linesIdx = 0;
@@ -149,12 +146,10 @@ public:
 	                                  const ColumnDef *columnDefs)
 	{
 		// get the table information with mysql command.
-		string cmd = "mysql -D ";
-		cmd += TEST_DB_NAME;
-		cmd += " -B -e \"select * from ";
-		cmd += TABLE_NAME_TEST;
-		cmd += "\"";
-		string result = executeCommand(cmd);
+		string sql =
+		   StringUtils::sprintf("select * from %s where id=%"PRIu64,
+		                        TABLE_NAME_TEST, id);
+		string result = execMySQL(TEST_DB_NAME, sql, true);
 
 		// check the number of obtained lines
 		size_t linesIdx = 0;
@@ -209,81 +204,6 @@ public:
 
 static DBAgentCheckerMySQL dbAgentChecker;
 
-static bool dropTestDB(MYSQL *mysql)
-{
-	string query = "DROP DATABASE ";
-	query += TEST_DB_NAME;
-	return mysql_query(mysql, query.c_str()) == 0;
-}
-
-static bool makeTestDB(MYSQL *mysql)
-{
-	string query = "CREATE DATABASE ";
-	query += TEST_DB_NAME;
-	return mysql_query(mysql, query.c_str()) == 0;
-}
-
-static void makeTestDBIfNeeded(bool recreate = false)
-{
-	// make a connection
-	const char *host = NULL; // localhost is used.
-	const char *user = NULL; // current user name is used.
-	const char *passwd = NULL; // passwd is not checked.
-	const char *db = NULL;
-	unsigned int port = 0; // default port is used.
-	const char *unixSocket = NULL;
-	unsigned long clientFlag = 0;
-	MYSQL mysql;
-	mysql_init(&mysql);
-	MYSQL *succeeded = mysql_real_connect(&mysql, host, user, passwd,
-	                                      db, port, unixSocket, clientFlag);
-	if (!succeeded) {
-		cut_fail("Failed to connect to MySQL: %s: %s\n",
-		          db, mysql_error(&mysql));
-	}
-
-	// try to find the test database
-	MYSQL_RES *result = mysql_list_dbs(&mysql, TEST_DB_NAME);
-	if (!result) {
-		mysql_close(&mysql);
-		cut_fail("Failed to list table: %s: %s\n",
-		          db, mysql_error(&mysql));
-	}
-
-	MYSQL_ROW row;
-	bool found = false;
-	size_t lengthTestDBName = strlen(TEST_DB_NAME);
-	while ((row = mysql_fetch_row(result))) {
-		if (strncmp(TEST_DB_NAME, row[0], lengthTestDBName) == 0) {
-			found = true;
-			break;
-		}
-	}
-	mysql_free_result(result);
-
-	// make DB if needed
-	bool noError = false;
-	if (!found) {
-		if (!makeTestDB(&mysql))
-			goto exit;
-	} else if (recreate) {
-		if (!dropTestDB(&mysql))
-			goto exit;
-		if (!makeTestDB(&mysql))
-			goto exit;
-	}
-	noError = true;
-
-exit:
-	// close the connection
-	string errmsg;
-	if (!noError)
-		errmsg = mysql_error(&mysql);
-	mysql_close(&mysql);
-	cppcut_assert_equal(true, noError,
-	   cut_message("Failed to query: %s", errmsg.c_str()));
-}
-
 static void _createGlobalDBAgent(void)
 {
 	try {
@@ -294,10 +214,31 @@ static void _createGlobalDBAgent(void)
 }
 #define createGlobalDBAgent() cut_trace(_createGlobalDBAgent())
 
+void _assertIsRecordExisting(bool skipInsert)
+{
+	static const char *tableName = "foo";
+	static const int  id = 1;
+	string statement = StringUtils::sprintf(
+	    "CREATE TABLE %s(id INT(11))", tableName);
+	execMySQL(TEST_DB_NAME, statement);
+
+	if (!skipInsert) {
+		statement = StringUtils::sprintf(
+		    "INSERT INTO %s VALUES (%d)", tableName, id);
+		execMySQL(TEST_DB_NAME, statement);
+	}
+
+	string condition = StringUtils::sprintf("id=%d", id);
+	createGlobalDBAgent();
+	cppcut_assert_equal
+	  (!skipInsert, g_dbAgent->isRecordExisting(tableName, condition));
+}
+#define assertIsRecordExisting(SI) cut_trace(_assertIsRecordExisting(SI))
+
 void setup(void)
 {
 	bool recreate = true;
-	makeTestDBIfNeeded(recreate);
+	makeTestMySQLDBIfNeeded(TEST_DB_NAME, recreate);
 }
 
 void teardown(void)
@@ -314,6 +255,18 @@ void teardown(void)
 void test_create(void)
 {
 	createGlobalDBAgent();
+}
+
+void test_isRecordExisting(void)
+{
+	bool skipInsert = false;
+	assertIsRecordExisting(skipInsert);
+}
+
+void test_isRecordExistingNotIncluded(void)
+{
+	bool skipInsert = true;
+	assertIsRecordExisting(skipInsert);
 }
 
 void test_createTable(void)
@@ -344,6 +297,18 @@ void test_insertUint64_0xffffffffffffffff(void)
 {
 	createGlobalDBAgent();
 	dbAgentTestInsertUint64(*g_dbAgent, dbAgentChecker, 0xffffffffffffffff);
+}
+
+void test_update(void)
+{
+	createGlobalDBAgent();
+	dbAgentTestUpdate(*g_dbAgent, dbAgentChecker);
+}
+
+void test_updateCondition(void)
+{
+	createGlobalDBAgent();
+	dbAgentTestUpdateCondition(*g_dbAgent, dbAgentChecker);
 }
 
 void test_select(void)
@@ -386,6 +351,12 @@ void test_selectExWithOrderByLimitOffsetOverData(void)
 {
 	createGlobalDBAgent();
 	dbAgentTestSelectHeightOrder(*g_dbAgent, 1, NUM_TEST_DATA, 0);
+}
+
+void test_isTableExisting(void)
+{
+	createGlobalDBAgent();
+	dbAgentTestIsTableExisting(*g_dbAgent, dbAgentChecker);
 }
 
 } // testDBAgentMySQL

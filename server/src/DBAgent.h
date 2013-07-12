@@ -80,6 +80,20 @@ struct DBAgentDeleteArg {
 	string condition;
 };
 
+struct DBConnectInfo {
+	string host;
+	size_t port;
+	string user;
+	string password;
+	string dbName;
+
+	DBConnectInfo(void);
+	virtual ~DBConnectInfo();
+	const char *getHost(void) const;
+	const char *getUser(void) const;
+	const char *getPassword(void) const;
+};
+
 typedef uint32_t DBDomainId;
 typedef void (*DBSetupFunc)(DBDomainId domainId, void *data);
 static const DBDomainId DEFAULT_DB_DOMAIN_ID = 0;
@@ -91,6 +105,7 @@ public:
 
 	DBAgent(DBDomainId = DEFAULT_DB_DOMAIN_ID, bool skipSetup = false);
 	virtual ~DBAgent();
+	DBDomainId getDBDomainId(void) const;
 
 	// virtual methods
 	virtual bool isTableExisting(const string &tableName) = 0;
@@ -109,6 +124,9 @@ public:
 protected:
 	static string makeSelectStatement(DBAgentSelectArg &selectArg);
 	static string makeSelectStatement(DBAgentSelectExArg &selectExArg);
+	static string getColumnValueString(const ColumnDef *columnDef,
+	                                   const ItemData *itemData);
+	static string makeUpdateStatement(DBAgentUpdateArg &updateArg);
 
 private:
 	struct PrivateContext;

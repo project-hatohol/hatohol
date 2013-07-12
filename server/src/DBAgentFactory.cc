@@ -19,12 +19,22 @@
 
 #include "DBAgentFactory.h"
 #include "DBAgentSQLite3.h"
+#include "DBAgentMySQL.h"
+#include "ConfigManager.h"
 
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
-DBAgent* DBAgentFactory::create(DBDomainId domainId, bool skipSetup)
+DBAgent* DBAgentFactory::create(DBDomainId domainId, bool skipSetup,
+                                const DBConnectInfo *connectInfo)
 {
-	// Currently we suport SQLite3 only. So we simply crate it here.
+	if (domainId == DB_DOMAIN_ID_CONFIG) {
+		HATOHOL_ASSERT(connectInfo, "connectInfo: NULL");
+		return new DBAgentMySQL(connectInfo->dbName.c_str(),
+		                        connectInfo->getUser(),
+		                        connectInfo->getPassword(),
+		                        connectInfo->getHost(),
+		                        connectInfo->port, skipSetup);
+	}
 	return new DBAgentSQLite3(domainId, skipSetup);
 }

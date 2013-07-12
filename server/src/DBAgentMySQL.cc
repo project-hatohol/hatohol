@@ -19,10 +19,12 @@
 
 #include "DBAgentMySQL.h"
 #include "SQLUtils.h"
+#include "ConfigManager.h"
 
 struct DBAgentMySQL::PrivateContext {
 	MYSQL mysql;
 	bool  connected;
+	string dbName;
 
 	PrivateContext(void)
 	: connected(false)
@@ -34,8 +36,9 @@ struct DBAgentMySQL::PrivateContext {
 // Public methods
 // ---------------------------------------------------------------------------
 DBAgentMySQL::DBAgentMySQL(const char *db, const char *user, const char *passwd,
-                           const char *host, unsigned int port)
-: m_ctx(NULL)
+                           const char *host, unsigned int port, bool skipSetup)
+: DBAgent(DB_DOMAIN_ID_CONFIG, skipSetup),
+  m_ctx(NULL)
 {
 	const char *unixSocket = NULL;
 	unsigned long clientFlag = 0;
@@ -48,6 +51,7 @@ DBAgentMySQL::DBAgentMySQL(const char *db, const char *user, const char *passwd,
 		                      db, mysql_error(&m_ctx->mysql));
 	}
 	m_ctx->connected = true;
+	m_ctx->dbName = db;
 }
 
 DBAgentMySQL::~DBAgentMySQL()
@@ -58,31 +62,79 @@ DBAgentMySQL::~DBAgentMySQL()
 	}
 }
 
-bool DBAgentMySQL::isTableExisting(const string &tableName)
+string DBAgentMySQL::getDBName(void) const
 {
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
-	return false;
+	return m_ctx->dbName;
 }
 
-bool DBAgentMySQL::isRecordExisting(const string &tableName, const string &condition)
+bool DBAgentMySQL::isTableExisting(const string &tableName)
 {
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
-	return false;
+	HATOHOL_ASSERT(m_ctx->connected, "Not connected.");
+	string query =
+	  StringUtils::sprintf(
+	    "SHOW TABLES FROM %s LIKE '%s'",
+	    getDBName().c_str(), tableName.c_str());
+	execSql(query);
+
+	MYSQL_RES *result = mysql_store_result(&m_ctx->mysql);
+	if (!result) {
+		THROW_HATOHOL_EXCEPTION(
+		  "Failed to call mysql_store_result: %s\n",
+		  mysql_error(&m_ctx->mysql));
+	}
+
+	MYSQL_ROW row;
+	bool found = false;
+	while ((row = mysql_fetch_row(result))) {
+		found = true;
+		break;
+	}
+	mysql_free_result(result);
+
+	return found;
+}
+
+bool DBAgentMySQL::isRecordExisting(const string &tableName,
+                                    const string &condition)
+{
+	HATOHOL_ASSERT(m_ctx->connected, "Not connected.");
+	string query =
+	  StringUtils::sprintf(
+	    "SELECT * FROM %s WHERE %s",
+	    tableName.c_str(), condition.c_str());
+	execSql(query);
+
+	MYSQL_RES *result = mysql_store_result(&m_ctx->mysql);
+	if (!result) {
+		THROW_HATOHOL_EXCEPTION(
+		  "Failed to call mysql_store_result: %s\n",
+		  mysql_error(&m_ctx->mysql));
+	}
+
+	MYSQL_ROW row;
+	bool found = false;
+	while ((row = mysql_fetch_row(result))) {
+		found = true;
+		break;
+	}
+	mysql_free_result(result);
+
+	return found;
 }
 
 void DBAgentMySQL::begin(void)
 {
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	execSql("START TRANSACTION");
 }
 
 void DBAgentMySQL::commit(void)
 {
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	execSql("COMMIT");
 }
 
 void DBAgentMySQL::rollback(void)
 {
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	execSql("ROLLBACK");
 }
 
 void DBAgentMySQL::createTable(DBAgentTableCreationArg &tableCreationArg)
@@ -145,11 +197,8 @@ void DBAgentMySQL::createTable(DBAgentTableCreationArg &tableCreationArg)
 			query += ",";
 	}
 	query += ")";
-	if (mysql_query(&m_ctx->mysql, query.c_str()) != 0) {
-		THROW_HATOHOL_EXCEPTION("Failed to query: %s: %s\n",
-		                      query.c_str(),
-		                      mysql_error(&m_ctx->mysql));
-	}
+
+	execSql(query);
 }
 
 void DBAgentMySQL::insert(DBAgentInsertArg &insertArg)
@@ -199,16 +248,14 @@ void DBAgentMySQL::insert(DBAgentInsertArg &insertArg)
 	}
 	query += ")";
 
-	if (mysql_query(&m_ctx->mysql, query.c_str()) != 0) {
-		THROW_HATOHOL_EXCEPTION("Failed to query: %s: %s\n",
-		                      query.c_str(),
-		                      mysql_error(&m_ctx->mysql));
-	}
+	execSql(query);
 }
 
 void DBAgentMySQL::update(DBAgentUpdateArg &updateArg)
 {
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	HATOHOL_ASSERT(m_ctx->connected, "Not connected.");
+	string sql = makeUpdateStatement(updateArg);
+	execSql(sql);
 }
 
 void DBAgentMySQL::select(DBAgentSelectArg &selectArg)
@@ -216,11 +263,7 @@ void DBAgentMySQL::select(DBAgentSelectArg &selectArg)
 	HATOHOL_ASSERT(m_ctx->connected, "Not connected.");
 
 	string query = makeSelectStatement(selectArg);
-	if (mysql_query(&m_ctx->mysql, query.c_str()) != 0) {
-		THROW_HATOHOL_EXCEPTION("Failed to query: %s: %s\n",
-		                      query.c_str(),
-		                      mysql_error(&m_ctx->mysql));
-	}
+	execSql(query);
 
 	MYSQL_RES *result = mysql_store_result(&m_ctx->mysql);
 	if (!result) {
@@ -234,7 +277,8 @@ void DBAgentMySQL::select(DBAgentSelectArg &selectArg)
 	while ((row = mysql_fetch_row(result))) {
 		VariableItemGroupPtr itemGroup;
 		for (size_t i = 0; i < numColumns; i++) {
-			const ColumnDef &columnDef = selectArg.columnDefs[i];
+			size_t idx = selectArg.columnIndexes[i];
+			const ColumnDef &columnDef = selectArg.columnDefs[idx];
 			ItemDataPtr itemDataPtr =
 			  SQLUtils::createFromString(row[i], columnDef.type);
 			itemGroup->add(itemDataPtr);
@@ -250,11 +294,7 @@ void DBAgentMySQL::select(DBAgentSelectExArg &selectExArg)
 	HATOHOL_ASSERT(m_ctx->connected, "Not connected.");
 
 	string query = makeSelectStatement(selectExArg);
-	if (mysql_query(&m_ctx->mysql, query.c_str()) != 0) {
-		THROW_HATOHOL_EXCEPTION("Failed to query: %s: %s\n",
-		                      query.c_str(),
-		                      mysql_error(&m_ctx->mysql));
-	}
+	execSql(query);
 
 	MYSQL_RES *result = mysql_store_result(&m_ctx->mysql);
 	if (!result) {
@@ -291,4 +331,17 @@ void DBAgentMySQL::select(DBAgentSelectExArg &selectExArg)
 void DBAgentMySQL::deleteRows(DBAgentDeleteArg &deleteArg)
 {
 	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+}
+
+// ---------------------------------------------------------------------------
+// Protected methods
+// ---------------------------------------------------------------------------
+void DBAgentMySQL::execSql(const string &statement)
+{
+	HATOHOL_ASSERT(m_ctx->connected, "Not connected.");
+	if (mysql_query(&m_ctx->mysql, statement.c_str()) != 0) {
+		THROW_HATOHOL_EXCEPTION("Failed to query: %s: %s\n",
+		                        statement.c_str(),
+		                        mysql_error(&m_ctx->mysql));
+	}
 }

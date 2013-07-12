@@ -328,5 +328,11 @@ void test_delete(void)
 	dbAgentTestDelete(dbAgent, dbAgentChecker);
 }
 
+void test_isTableExisting(void)
+{
+	DBAgentSQLite3 dbAgent;
+	dbAgentTestIsTableExisting(dbAgent, dbAgentChecker);
+}
+
 } // testDBAgentSQLite3
 

@@ -75,43 +75,43 @@ Then run the following commands to install Hatohol:
 
 How to start
 ------------
+(0) Run MySQL server for storing configuration.
+
 (1) Make configuration database
 
 [1-1] Prepare configuraiont data text file as a source of binary database.
 
 Tips:
 
-* There is a template file in <install path>/share/hatohol/hatohol-config.dat.example.   
+* There is a template file in <install path>/share/hatohol/hatohol-config.dat.example.
   Ex.) `cp /usr/local/share/hatohol/hatohol-config.dat.example hatohol-config.dat`
 
-[1-2] Add server information to hatohol-config.dat
+[1-2] Fix MySQL server information and Add server information in hatohol-config.dat
 
-[1-3] Create the binary database
+[1-3] Create the database
 
-    $ hatohol-config-db-creator hatohol-config.dat hatohol-config.db
+    $ hatohol-config-db-creator hatohol-config.dat
 
-where 'hatohol-config.db' is the binary database and its name is arbitrary.
+(2) Prepare the data base directory
 
-(2) Prepare the data base directory 
-
-Hatohol automatically creates databases for storing its data. You have to 
+Hatohol automatically creates databases for storing data cache. You have to
 decide the direcory for the DBs and make it if necessary.
 
 Ex.) `mkdir /var/lib/hatohol`
 
 (3) start hatohol process
 
-    $ HATOHOL_DB_DIR=<directory preapred in step (2)> hatohol --config-db <path>/hatohol-config.db
+    $ HATOHOL_DB_DIR=<directory preapred in step (2)> hatohol --config-db-server <Config DB Server:[port]>
 
-Ex.) `$ HATOHOL_DB_DIR=/var/lib/hatohol hatohol --config-db /var/lib/hatohol-config.db`
+Ex.) `$ HATOHOL_DB_DIR=/var/lib/hatohol hatohol --config-db-server localhost`
 
 Tips:
 
-* From the 2nd time, you can start only with the above step (3).  
+* From the 2nd time, you can start only with the above step (3).
 * If you omit the environment variable 'HATOHOL_DB_DIR', the databases are
-created in /tmp.  
+created in /tmp.
 * When the process successfully starts, hatohol reply the HTML message
-including HATOHOL version on http://[hostname]:[RestPort]/hello.html.  
+including HATOHOL version on http://[hostname]:[RestPort]/hello.html.
   Ex.) `http://localhost:33194/hello.html`
 
 How to stop
@@ -149,9 +149,6 @@ You can verify them by checking the result from http://localhost:33194/servers.j
 (In case you start Hatohol with default port number) For example, if value of "servers"
 is empty, no servers are registered in the database. If you can see other unexpected
 results, check it too.
-Even if no servers are registered in the database or you specify non existent sqlite
-database with --config-db parameter, Hatohol starts without any error messages. If the
-specified database doesn't exist, Hatohol automatically create it.
 
 Tips to configure Nagios NDOUtils
 ---------------------------------
