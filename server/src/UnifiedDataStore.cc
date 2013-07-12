@@ -144,6 +144,8 @@ UnifiedDataStore::PrivateContext::updatedCallback(void)
 	if (remainingArmsCount == 0) {
 		if (sem_post(&updatedSemaphore) == -1)
 			MLPL_ERR("Failed to call sem_post: %d\n", errno);
+		if (clock_gettime(CLOCK_REALTIME, &lastUpdateTime) == -1)
+			MLPL_ERR("Failed to call clock_gettime: %d\n", errno);
 	}
 
 	rwlock.unlock();
@@ -183,11 +185,6 @@ void UnifiedDataStore::update(void)
 
 	if (sem_wait(&m_ctx->updatedSemaphore) == -1)
 		MLPL_ERR("Failed to call sem_wait: %d\n", errno);
-
-	m_ctx->rwlock.writeLock();
-	if (clock_gettime(CLOCK_REALTIME, &m_ctx->lastUpdateTime) == -1)
-		MLPL_ERR("Failed to call clock_gettime: %d\n", errno);
-	m_ctx->rwlock.unlock();
 }
 
 void UnifiedDataStore::getTriggerList(TriggerInfoList &triggerList,
