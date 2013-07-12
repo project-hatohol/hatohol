@@ -61,10 +61,8 @@ You must configure if your prepared backend of THE VIEWER may runs on not a defa
 
 Ex.)
 
-'''
--    url(r'^tunnel/(?P<path>.+)', jsonforward, kwargs={'server':'localhost:33194'})
-+    url(r'^tunnel/(?P<path>.+)', jsonforward, kwargs={'server':'localhost:30080'})
-'''
+	- url(r'^tunnel/(?P<path>.+)', jsonforward, kwargs={'server':'localhost:33194'})
+	+ url(r'^tunnel/(?P<path>.+)', jsonforward, kwargs={'server':'localhost:30080'})
 
 How to run
 ----------------------------------------
