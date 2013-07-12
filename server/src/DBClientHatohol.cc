@@ -610,7 +610,7 @@ void DBClientHatohol::getTriggerInfoList(TriggerInfoList &triggerInfoList,
 }
 
 void DBClientHatohol::setTriggerInfoList(const TriggerInfoList &triggerInfoList,
-                                       uint32_t serverId)
+                                         uint32_t serverId)
 {
 	DBAgentDeleteArg deleteArg;
 	deleteArg.tableName = TABLE_NAME_TRIGGERS;
