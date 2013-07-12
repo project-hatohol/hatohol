@@ -36,11 +36,11 @@ struct UnifiedDataStore::PrivateContext
 
 	VirtualDataStoreZabbix *vdsZabbix;
 	VirtualDataStoreNagios *vdsNagios;
-	sem_t updatedSemaphore;
+	sem_t         updatedSemaphore;
 	ReadWriteLock rwlock;
-	size_t remainingArmsCount;
+	timespec      lastUpdateTime;
+	size_t        remainingArmsCount;
 	ArmBaseVector updateArmsQueue;
-	timespec lastUpdateTime;
 
 	PrivateContext()
 	: remainingArmsCount(0)
