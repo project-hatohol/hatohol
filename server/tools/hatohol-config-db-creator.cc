@@ -417,7 +417,7 @@ static bool setGrant(const ConfigValue &confValue,
 {
 	string stdoutStr;
 	string sql = StringUtils::sprintf(
-	  "GRANT ALL ON %s.* TO %s IDENTIFIED BY '%s'",
+	  "GRANT ALL ON %s.* TO %s@'%%' IDENTIFIED BY '%s'",
 	   confValue.configDBName.c_str(),
 	   confValue.configDBUser.c_str(),
 	   confValue.configDBPassword.c_str());
