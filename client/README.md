@@ -60,6 +60,7 @@ You must configure if your prepared backend of THE VIEWER may runs on not a defa
 - edit mysite/urls.py to change the port
 
 Ex.)
+
 '''
 -    url(r'^tunnel/(?P<path>.+)', jsonforward, kwargs={'server':'localhost:33194'})
 +    url(r'^tunnel/(?P<path>.+)', jsonforward, kwargs={'server':'localhost:30080'})
@@ -72,9 +73,11 @@ This is a standard Django project so you can run this on some WSGI compliant app
 Of course you can run with runserver subcommand of Django's manage.py.
 
 Ex.)
+
 	$ ./manage.py runserver
 
 If you want to serve to the outside of the host that this frontend run on, you need specifying the address.
 
 Ex.)
+
 	$ ./manage.py runserver 0.0.0.0:8000
