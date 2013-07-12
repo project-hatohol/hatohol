@@ -39,10 +39,12 @@ void Signal::disconnect (ClosureBase *closure)
 	ClosureBaseIterator it;
 	m_rwlock.writeLock();
 	for (it = m_closures.begin(); it != m_closures.end();) {
-		if (*closure == *(*it))
+		if (*closure == *(*it)) {
+			delete (*it);
 			it = m_closures.erase(it);
-		else
+		} else {
 			it++;
+		}
 	}
 	m_rwlock.unlock();
 }
@@ -50,6 +52,11 @@ void Signal::disconnect (ClosureBase *closure)
 void Signal::clear (void)
 {
 	m_rwlock.writeLock();
+	ClosureBaseIterator it = m_closures.begin();
+	for (; it != m_closures.end(); it++) {
+		ClosureBase *closure = *it;
+		delete closure;
+	}
 	m_closures.clear();
 	m_rwlock.unlock();
 }

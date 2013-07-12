@@ -40,7 +40,6 @@ struct UnifiedDataStore::PrivateContext
 	ReadWriteLock rwlock;
 	size_t remainingArmsCount;
 	ArmBaseVector remainingArms;
-	ClosureBaseList closures;
 	timespec lastUpdateTime;
 
 	PrivateContext()
@@ -109,7 +108,6 @@ UnifiedDataStore::PrivateContext::wakeArm(ArmBase *arm)
 	Closure<UnifiedDataStore::PrivateContext> *closure =
 	 new Closure<UnifiedDataStore::PrivateContext>(
 	   this, &UnifiedDataStore::PrivateContext::updatedCallback);
-	closures.push_back(closure);
 	arm->forceUpdate(closure);
 }
 
@@ -162,7 +160,6 @@ void UnifiedDataStore::update(void)
 	sem_init(&m_ctx->updatedSemaphore, 0, 0);
 
 	m_ctx->rwlock.writeLock();
-	m_ctx->closures.clear();
 	m_ctx->remainingArmsCount = arms.size();
 	ArmBaseVectorIterator arms_it = arms.begin();
 	for (size_t i = 0; arms_it != arms.end(); i++, arms_it++) {
@@ -179,12 +176,6 @@ void UnifiedDataStore::update(void)
 		MLPL_ERR("Failed to call sem_wait: %d\n", errno);
 
 	m_ctx->rwlock.writeLock();
-	ClosureBaseIterator closure_it = m_ctx->closures.begin();
-	for (; closure_it != m_ctx->closures.end(); closure_it++) {
-		ClosureBase *closure = *closure_it;
-		delete closure;
-	}
-	m_ctx->closures.clear();
 	if (clock_gettime(CLOCK_REALTIME, &m_ctx->lastUpdateTime) == -1)
 		MLPL_ERR("Failed to call clock_gettime: %d\n", errno);
 	m_ctx->rwlock.unlock();
