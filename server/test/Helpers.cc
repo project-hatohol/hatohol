@@ -285,7 +285,7 @@ exit:
 void setupTestDBServers(void)
 {
 	static const char *TEST_DB_NAME = "test_servers_in_helper";
-	static const char *TEST_DB_USER = "hatohol";
+	static const char *TEST_DB_USER = "hatohol_test_user";
 	static const char *TEST_DB_PASSWORD = ""; // empty: No password is used
 	DBClientConfig::setDefaultDBParams(TEST_DB_NAME,
 	                                   TEST_DB_USER, TEST_DB_PASSWORD);
