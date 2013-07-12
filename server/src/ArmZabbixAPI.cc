@@ -929,7 +929,7 @@ void ArmZabbixAPI::makeHatoholTriggers(void)
 	TriggerInfoList triggerInfoList;
 	m_ctx->dbClientZabbix.getTriggersAsHatoholFormat(triggerInfoList);
 	m_ctx->dbClientHatohol.setTriggerInfoList(triggerInfoList,
-	                                        m_ctx->zabbixServerId);
+	                                          m_ctx->zabbixServerId);
 }
 
 void ArmZabbixAPI::makeHatoholEvents(ItemTablePtr events)
