@@ -30,7 +30,6 @@ public:
 	DataStore(void);
 	virtual ~DataStore();
 
-	virtual void update(void);
 	virtual void collectArms(ArmBaseVector &arms);
 };
 

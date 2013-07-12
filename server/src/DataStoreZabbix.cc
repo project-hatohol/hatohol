@@ -34,12 +34,6 @@ DataStoreZabbix::~DataStoreZabbix(void)
 {
 }
 
-void DataStoreZabbix::update(void)
-{
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
-	m_armApi.forceUpdate();
-}
-
 void DataStoreZabbix::collectArms(ArmBaseVector &arms)
 {
 	arms.push_back(&m_armApi);

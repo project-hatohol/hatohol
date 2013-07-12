@@ -30,10 +30,6 @@ DataStore::~DataStore()
 {
 }
 
-void DataStore::update(void)
-{
-}
-
 void DataStore::collectArms(ArmBaseVector &arms)
 {
 }
