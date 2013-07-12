@@ -1,6 +1,6 @@
 2013-07-12  Kazuhiro Yamato <kazuhiro.yamato@miraclelinux.com>
 
-	[Server] Replace DBAgent in DBClientConfig with DBAgentMySQL from DBAgentSQLite3.
+	[Server] Replace DBAgent in DBClientConfig with DBAgentMySQL from DBAgentSQLite3. (#25)
 
 2013-07-09  Kazuhiro Yamato <kazuhiro.yamato@miraclelinux.com>
 
