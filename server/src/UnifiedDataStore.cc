@@ -114,13 +114,20 @@ UnifiedDataStore::PrivateContext::wakeArm(ArmBase *arm)
 bool
 UnifiedDataStore::PrivateContext::updateIsNeeded(void)
 {
+	bool shouldUpdate = true;
+
+	rwlock.readLock();
+
 	timespec ts;
 	if (clock_gettime(CLOCK_REALTIME, &ts) == -1) {
 		MLPL_ERR("Failed to call clock_gettime: %d\n", errno);
 	} else if (ts.tv_sec < lastUpdateTime.tv_sec + minUpdateInterval) {
-		return false;
+		shouldUpdate = false;
 	}
-	return true;
+
+	rwlock.unlock();
+
+	return shouldUpdate;
 }
 
 void
@@ -152,8 +159,10 @@ void UnifiedDataStore::update(void)
 		return;
 
 	ArmBaseVector arms;
+	m_ctx->rwlock.readLock();
 	m_ctx->vdsZabbix->collectArms(arms);
 	m_ctx->vdsNagios->collectArms(arms);
+	m_ctx->rwlock.unlock();
 	if (arms.empty())
 		return;
 
