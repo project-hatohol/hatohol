@@ -1,3 +1,7 @@
+2013-07-12  Kazuhiro Yamato <kazuhiro.yamato@miraclelinux.com>
+
+	[Server] Replace DBAgent in DBClientConfig with DBAgentMySQL from DBAgentSQLite3.
+
 2013-07-09  Kazuhiro Yamato <kazuhiro.yamato@miraclelinux.com>
 
 	[Server] Fix the problem that causes a crash in the Hatohol's exit procedures.
