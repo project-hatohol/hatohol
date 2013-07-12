@@ -118,11 +118,15 @@ UnifiedDataStore::PrivateContext::updateIsNeeded(void)
 
 	rwlock.readLock();
 
-	timespec ts;
-	if (clock_gettime(CLOCK_REALTIME, &ts) == -1) {
-		MLPL_ERR("Failed to call clock_gettime: %d\n", errno);
-	} else if (ts.tv_sec < lastUpdateTime.tv_sec + minUpdateInterval) {
+	if (remainingArmsCount > 0) {
 		shouldUpdate = false;
+	} else {
+		timespec ts;
+		if (clock_gettime(CLOCK_REALTIME, &ts) == -1) {
+			MLPL_ERR("Failed to call clock_gettime: %d\n", errno);
+		} else if (ts.tv_sec < lastUpdateTime.tv_sec + minUpdateInterval) {
+			shouldUpdate = false;
+		}
 	}
 
 	rwlock.unlock();
