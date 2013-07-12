@@ -30,6 +30,7 @@ using namespace mlpl;
 struct UnifiedDataStore::PrivateContext
 {
 	const static size_t maxRunningArms = 8;
+	const static time_t minUpdateInterval = 10;
 	static UnifiedDataStore *instance;
 	static MutexLock         mutex;
 
@@ -40,12 +41,17 @@ struct UnifiedDataStore::PrivateContext
 	size_t remainingArmsCount;
 	ArmBaseVector remainingArms;
 	ClosureBaseList closures;
+	timespec lastUpdateTime;
 
 	PrivateContext()
 	: remainingArmsCount(0)
-	{};
+	{
+		lastUpdateTime.tv_sec = 0;
+		lastUpdateTime.tv_nsec = 0;
+	};
 	void updatedCallback(void);
 	void wakeArm(ArmBase *arm);
+	bool updateIsNeeded(void);
 };
 
 UnifiedDataStore *UnifiedDataStore::PrivateContext::instance = NULL;
@@ -107,6 +113,18 @@ UnifiedDataStore::PrivateContext::wakeArm(ArmBase *arm)
 	arm->forceUpdate(closure);
 }
 
+bool
+UnifiedDataStore::PrivateContext::updateIsNeeded(void)
+{
+	timespec ts;
+	if (clock_gettime(CLOCK_REALTIME, &ts) == -1) {
+		MLPL_ERR("Failed to call clock_gettime: %d\n", errno);
+	} else if (ts.tv_sec < lastUpdateTime.tv_sec + minUpdateInterval) {
+		return false;
+	}
+	return true;
+}
+
 void
 UnifiedDataStore::PrivateContext::updatedCallback(void)
 {
@@ -130,6 +148,9 @@ void UnifiedDataStore::update(void)
 {
 	DBClientConfig dbConfig;
 	if (!dbConfig.isCopyOnDemandEnabled())
+		return;
+
+	if (!m_ctx->updateIsNeeded())
 		return;
 
 	ArmBaseVector arms;
@@ -164,6 +185,8 @@ void UnifiedDataStore::update(void)
 		delete closure;
 	}
 	m_ctx->closures.clear();
+	if (clock_gettime(CLOCK_REALTIME, &m_ctx->lastUpdateTime) == -1)
+		MLPL_ERR("Failed to call clock_gettime: %d\n", errno);
 	m_ctx->rwlock.unlock();
 }
 
