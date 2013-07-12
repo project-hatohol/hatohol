@@ -17,22 +17,6 @@ This is a Django application.
 This application does not use models and DBs.
 This repository does not contain a copy of Bootstrap.
 
-### An example to intall Django on CentOS 6.4
-
-    # yum install python-setuptools
-    # easy_install pip
-    # pip install django
-
-### An example to intall bootstrap on CentOS 6.4
-
-    $ mkdir -p ~/tmp-bs
-    $ cd ~/tmp-bs
-    $ wget http://twitter.github.io/bootstrap/assets/bootstrap.zip
-    $ unzip bootstrap.zip
-    $ cp -ar bootstrap/* <Hatohol client directory>/static/
-
-    At this point you can remove working dir: tmp-bs.
-
 Containing modules
 ----------------------------------------
 This application contains following foreign modules.
@@ -51,6 +35,22 @@ This Django project was written as PATH FREE so you can place this anyware witho
 
 - just copy the project directory onto where you want
 - get Bootstrap then put them onto static/js or static/css
+
+### An example to intall Django on CentOS 6.4
+
+    # yum install python-setuptools
+    # easy_install pip
+    # pip install django
+
+### An example to intall bootstrap on CentOS 6.4
+
+    $ mkdir -p ~/tmp-bs
+    $ cd ~/tmp-bs
+    $ wget http://twitter.github.io/bootstrap/assets/bootstrap.zip
+    $ unzip bootstrap.zip
+    $ cp -ar bootstrap/* <Hatohol client directory>/static/
+
+    At this point you can remove working dir: tmp-bs.
 
 
 How to configure
