@@ -412,18 +412,30 @@ static bool createConfigDB(const ConfigValue &confValue,
 	return true;
 }
 
-static bool setGrant(const ConfigValue &confValue,
-                     const string &dbRootPasswd)
+static bool grantAllToHatohol(const ConfigValue &confValue,
+                            const string &dbRootPasswd,
+                            const string &host)
 {
 	string stdoutStr;
 	string sql = StringUtils::sprintf(
-	  "GRANT ALL ON %s.* TO %s@'%%' IDENTIFIED BY '%s'",
+	  "GRANT ALL ON %s.* TO %s@'%s' IDENTIFIED BY '%s'",
 	   confValue.configDBName.c_str(),
 	   confValue.configDBUser.c_str(),
+	   host.c_str(),
 	   confValue.configDBPassword.c_str());
 	if (!execMySQL(sql, "root", dbRootPasswd, stdoutStr))
 		return false;
+	return true;
+}
 
+static bool setGrant(const ConfigValue &confValue,
+                     const string &dbRootPasswd)
+{
+	if (!grantAllToHatohol(confValue, dbRootPasswd, "%"))
+		return false;
+	if (!grantAllToHatohol(confValue, dbRootPasswd, "localhost"))
+		return false;
+	string stdoutStr;
 	if (!execMySQL("FLUSH PRIVILEGES", "root", dbRootPasswd, stdoutStr))
 		return false;
 
