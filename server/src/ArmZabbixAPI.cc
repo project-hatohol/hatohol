@@ -936,7 +936,7 @@ void ArmZabbixAPI::makeHatoholEvents(ItemTablePtr events)
 {
 	EventInfoList eventInfoList;
 	DBClientZabbix::transformEventsToHatoholFormat(eventInfoList, events,
-	                                             m_ctx->zabbixServerId);
+	                                               m_ctx->zabbixServerId);
 	m_ctx->dbClientHatohol.addEventInfoList(eventInfoList);
 }
 
@@ -944,7 +944,7 @@ void ArmZabbixAPI::makeHatoholItems(ItemTablePtr items)
 {
 	ItemInfoList itemInfoList;
 	DBClientZabbix::transformItemsToHatoholFormat(itemInfoList, items,
-	                                            m_ctx->zabbixServerId);
+	                                              m_ctx->zabbixServerId);
 	m_ctx->dbClientHatohol.addItemInfoList(itemInfoList);
 }
 
