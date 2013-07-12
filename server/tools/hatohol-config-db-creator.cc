@@ -377,7 +377,7 @@ static bool dropConfigDBIfExists(const ConfigValue &confValue,
 	if (strVect.empty())
 		return true;
 
-	printf("The database: %s will be dropped. Are you OK? (yes/no)\n:",
+	printf("The database: %s will be dropped. Are you OK? (yes/no)\n: ",
 	       confValue.configDBName.c_str());
 	string reply;
 	while (true) {
@@ -389,7 +389,7 @@ static bool dropConfigDBIfExists(const ConfigValue &confValue,
 			printf("*** The setup was canncelled ***\n");
 			return false;
 		}
-		printf("You should type yes or no :");
+		printf("You should type yes or no : ");
 	}
 
 	// drop the DB
@@ -441,7 +441,7 @@ static bool setupDBServer(const ConfigValue &confValue)
 	printf("\n"
 	       "Please input the root password for the above server.\""
 	       "(If you've not set the root password, just push enter)\n"
-	       ":");
+	       ": ");
 	if (!setEchoBack(false))
 		return false;
 	string dbRootPasswd;
