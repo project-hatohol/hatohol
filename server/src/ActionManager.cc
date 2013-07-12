@@ -18,18 +18,88 @@
  */
 
 #include "ActionManager.h"
+#include "DBClientAction.h"
+
+struct ActionManager::PrivateContext {
+	DBClientAction dbAction;
+};
 
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
 ActionManager::ActionManager(void)
+: m_ctx(NULL)
 {
+	m_ctx = new PrivateContext();
 }
 
 ActionManager::~ActionManager()
 {
+	if (m_ctx)
+		delete m_ctx;
 }
 
 void ActionManager::checkEvents(const EventInfoList &eventList)
 {
+	EventInfoListConstIterator it = eventList.begin();
+	for (; it != eventList.end(); ++it) {
+		ActionDefList actionDefList;
+		m_ctx->dbAction.getActionList(*it, actionDefList);
+		ActionDefListIterator actIt = actionDefList.begin();
+		for (; actIt != actionDefList.end(); ++actIt)
+			runAction(*actIt);
+	}
+}
+
+// ---------------------------------------------------------------------------
+// Protected methods
+// ---------------------------------------------------------------------------
+void ActionManager::runAction(const ActionDef &actionDef)
+{
+	if (actionDef.type == ACTION_COMMAND) {
+		execCommandAction(actionDef);
+	} else if (actionDef.type == ACTION_RESIDENT) {
+		MLPL_BUG("Not implemented: runAction: ACTION_RESIDENT\n");
+	} else {
+		HATOHOL_ASSERT(true, "Unknown type: %d\n", actionDef.type);
+	}
+}
+
+void ActionManager::makeExecArg(StringVector &argVect, const string &cmd)
+{
+	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+}
+
+void ActionManager::execCommandAction(const ActionDef &actionDef)
+{
+	HATOHOL_ASSERT(actionDef.type == ACTION_COMMAND,
+	               "Invalid type: %d\n", actionDef.type);
+
+	const gchar *workingDirectory = NULL;
+	if (!actionDef.workingDir.empty())
+		workingDirectory = actionDef.workingDir.c_str();
+
+	StringVector argVect;
+	makeExecArg(argVect, actionDef.command);
+	const gchar *argv[argVect.size()+1];
+	for (size_t i = 0; i < argVect.size(); i++)
+		argv[i] = argVect[i].c_str();
+	argv[argVect.size()] = NULL;
+
+	GSpawnFlags flags = G_SPAWN_DO_NOT_REAP_CHILD;
+	GSpawnChildSetupFunc childSetup = NULL;
+	gpointer userData = NULL;
+	GPid childPid;
+	GError *error = NULL;
+	gboolean succeeded =
+	  g_spawn_async(workingDirectory, (gchar **)&argv, NULL,
+	                flags, childSetup, userData, &childPid, &error);
+	if (!succeeded) {
+		string msg = StringUtils::sprintf(
+		  "Failed to execute command: %s", error->message);
+		g_error_free(error);
+		m_ctx->dbAction.logErrExecAction(actionDef, msg);
+		return;
+	}
+	m_ctx->dbAction.logStartExecAction(actionDef);
 }

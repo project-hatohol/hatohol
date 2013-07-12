@@ -29,3 +29,25 @@ DBClientAction::DBClientAction(void)
 DBClientAction::~DBClientAction()
 {
 }
+
+void DBClientAction::getActionList(const EventInfo &eventInfo,
+                                   ActionDefList &actionDefList)
+{
+	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+}
+
+void DBClientAction::logStartExecAction(const ActionDef &actionDef)
+{
+	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+}
+
+void DBClientAction::logEndExecAction(const ActionDef &actionDef)
+{
+	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+}
+
+void DBClientAction::logErrExecAction(const ActionDef &actionDef,
+                                      const string &msg)
+{
+	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+}

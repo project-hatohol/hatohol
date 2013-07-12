@@ -20,13 +20,34 @@
 #ifndef DBClientAction_h
 #define DBClientAction_h
 
+#include <string>
 #include "DBClientHatohol.h"
+
+enum ActionType {
+	ACTION_COMMAND,
+	ACTION_RESIDENT,
+};
+
+struct ActionDef {
+	ActionType  type;
+	std::string workingDir;
+	std::string command;
+};
+
+typedef list<ActionDef>               ActionDefList;
+typedef ActionDefList::iterator       ActionDefListIterator;
+typedef ActionDefList::const_iterator ActionDefListConstIterator;
 
 class DBClientAction
 {
 public:
 	DBClientAction(void);
 	virtual ~DBClientAction();
+	void getActionList(const EventInfo &eventInfo,
+	                   ActionDefList &actionDefList);
+	void logStartExecAction(const ActionDef &actionDef);
+	void logEndExecAction(const ActionDef &actionDef);
+	void logErrExecAction(const ActionDef &actionDef, const string &msg);
 };
 
 #endif // DBClientAction_h

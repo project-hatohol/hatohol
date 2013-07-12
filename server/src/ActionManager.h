@@ -20,7 +20,7 @@
 #ifndef ActionManager_h
 #define ActionManager_h
 
-#include "DBClientHatohol.h"
+#include "DBClientAction.h"
 
 class ActionManager
 {
@@ -28,6 +28,15 @@ public:
 	ActionManager(void);
 	virtual ~ActionManager();
 	void checkEvents(const EventInfoList &eventList);
+
+protected:
+	void runAction(const ActionDef &actionDef);
+	void makeExecArg(StringVector &argVect, const string &cmd);
+	void execCommandAction(const ActionDef &actionDef);
+
+private:
+	struct PrivateContext;
+	PrivateContext *m_ctx;
 };
 
 #endif // ActionManager_h
