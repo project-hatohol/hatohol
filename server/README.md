@@ -142,8 +142,6 @@ Ex.)
 Trouble Shooting
 ----------------
 ### Hatohol shows "Failed to get" and doesn't acquire information
-- Do not change or remove user "Admin" and its password (zabbix)
-Currently Hatohol tries to login as "Admin" to get information from zabbix server.
 - Check if your servers are correctly registered to Hatohol's database.
 You can verify them by checking the result from http://localhost:33194/servers.json.
 (In case you start Hatohol with default port number) For example, if value of "servers"
