@@ -29,6 +29,7 @@ using namespace mlpl;
 
 struct UnifiedDataStore::PrivateContext
 {
+	const static size_t maxRunningArms = 8;
 	static UnifiedDataStore *instance;
 	static MutexLock         mutex;
 
@@ -36,12 +37,15 @@ struct UnifiedDataStore::PrivateContext
 	VirtualDataStoreNagios *vdsNagios;
 	sem_t updatedSemaphore;
 	ReadWriteLock rwlock;
-	size_t runningArmsCount;
+	size_t remainingArmsCount;
+	ArmBaseVector remainingArms;
+	ClosureBaseList closures;
 
 	PrivateContext()
-	: runningArmsCount(0)
+	: remainingArmsCount(0)
 	{};
 	void updatedCallback(void);
+	void wakeArm(ArmBase *arm);
 };
 
 UnifiedDataStore *UnifiedDataStore::PrivateContext::instance = NULL;
@@ -94,13 +98,31 @@ void UnifiedDataStore::stop(void)
 }
 
 void
+UnifiedDataStore::PrivateContext::wakeArm(ArmBase *arm)
+{
+	Closure<UnifiedDataStore::PrivateContext> *closure =
+	 new Closure<UnifiedDataStore::PrivateContext>(
+	   this, &UnifiedDataStore::PrivateContext::updatedCallback);
+	closures.push_back(closure);
+	arm->forceUpdate(closure);
+}
+
+void
 UnifiedDataStore::PrivateContext::updatedCallback(void)
 {
 	rwlock.writeLock();
-	runningArmsCount--;
-	if (runningArmsCount == 0)
+
+	if (!remainingArms.empty()) {
+		wakeArm(remainingArms.front());
+		remainingArms.erase(remainingArms.begin());
+	}
+
+	remainingArmsCount--;
+	if (remainingArmsCount == 0) {
 		if (sem_post(&updatedSemaphore) == -1)
 			MLPL_ERR("Failed to call sem_post: %d\n", errno);
+	}
+
 	rwlock.unlock();
 }
 
@@ -119,28 +141,30 @@ void UnifiedDataStore::update(void)
 	sem_init(&m_ctx->updatedSemaphore, 0, 0);
 
 	m_ctx->rwlock.writeLock();
-	m_ctx->runningArmsCount = arms.size();
-	m_ctx->rwlock.unlock();
-
-	ClosureBaseList closures;
+	m_ctx->closures.clear();
+	m_ctx->remainingArmsCount = arms.size();
 	ArmBaseVectorIterator arms_it = arms.begin();
-	for (; arms_it != arms.end(); arms_it++) {
+	for (size_t i = 0; arms_it != arms.end(); i++, arms_it++) {
 		ArmBase *arm = *arms_it;
-		Closure<UnifiedDataStore::PrivateContext> *closure =
-		  new Closure<UnifiedDataStore::PrivateContext>(
-		    m_ctx, &UnifiedDataStore::PrivateContext::updatedCallback);
-		arm->forceUpdate(closure);
-		closures.push_back(closure);
+		if (i < PrivateContext::maxRunningArms) {
+			m_ctx->wakeArm(arm);
+		} else {
+			m_ctx->remainingArms.push_back(arm);
+		}
 	}
+	m_ctx->rwlock.unlock();
 
 	if (sem_wait(&m_ctx->updatedSemaphore) == -1)
 		MLPL_ERR("Failed to call sem_wait: %d\n", errno);
 
-	ClosureBaseIterator closure_it = closures.begin();
-	for (; closure_it != closures.end(); closure_it++) {
+	m_ctx->rwlock.writeLock();
+	ClosureBaseIterator closure_it = m_ctx->closures.begin();
+	for (; closure_it != m_ctx->closures.end(); closure_it++) {
 		ClosureBase *closure = *closure_it;
 		delete closure;
 	}
+	m_ctx->closures.clear();
+	m_ctx->rwlock.unlock();
 }
 
 void UnifiedDataStore::getTriggerList(TriggerInfoList &triggerList,
