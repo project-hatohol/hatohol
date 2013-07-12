@@ -33,6 +33,7 @@ using namespace mlpl;
 #include "ItemEnum.h"
 #include "DBClientZabbix.h"
 #include "DBClientHatohol.h"
+#include "ActionManager.h"
 
 using namespace std;
 
@@ -51,6 +52,7 @@ struct ArmZabbixAPI::PrivateContext
 	VariableItemTablePtr functionsTablePtr;
 	DBClientZabbix dbClientZabbix;
 	DBClientHatohol  dbClientHatohol;
+	ActionManager    actionManager;
 
 	// constructors
 	PrivateContext(const MonitoringServerInfo &serverInfo)
@@ -938,6 +940,7 @@ void ArmZabbixAPI::makeHatoholEvents(ItemTablePtr events)
 	DBClientZabbix::transformEventsToHatoholFormat(eventInfoList, events,
 	                                               m_ctx->zabbixServerId);
 	m_ctx->dbClientHatohol.addEventInfoList(eventInfoList);
+	m_ctx->actionManager.checkEvents(eventInfoList);
 }
 
 void ArmZabbixAPI::makeHatoholItems(ItemTablePtr items)

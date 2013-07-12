@@ -3,6 +3,7 @@ hatohol_SOURCES = main.cc
 
 lib_LTLIBRARIES = libhatohol.la
 libhatohol_la_SOURCES = \
+	ActionManager.cc ActionManager.h \
 	ArmBase.cc ArmBase.h \
 	ArmNagiosNDOUtils.cc ArmNagiosNDOUtils.h \
 	ArmZabbixAPI-template.h \
@@ -13,6 +14,7 @@ libhatohol_la_SOURCES = \
 	DBAgentMySQL.cc DBAgentMySQL.h \
 	DBAgentSQLite3.cc DBAgentSQLite3.h \
 	DBClient.cc DBClient.h \
+	DBClientAction.cc DBClientAction.h \
 	DBClientConfig.cc DBClientConfig.h \
 	DBClientHatohol.cc DBClientHatohol.h \
 	DBClientUtils.h \
