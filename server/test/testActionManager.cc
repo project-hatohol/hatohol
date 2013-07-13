@@ -61,6 +61,18 @@ void test_makeExecArg(void)
 	cppcut_assert_equal(cmd, argVect[0]);
 }
 
+void test_makeExecArgTwo(void)
+{
+	const char *args[] = {"ls", "-l"};
+	const size_t numArgs = sizeof(args) / sizeof(const char *);
+	TestActionManager actMgr;
+	StringVector argVect;
+	actMgr.callMakeExecArg(argVect, "ls");
+	cppcut_assert_equal(numArgs, argVect.size());
+	for (size_t i = 0; i < numArgs; i++)
+		cppcut_assert_equal(string(args[i]), argVect[i]);
+}
+
 void test_execCommandAction(void)
 {
 	PipeUtils readPipe, writePipe;
