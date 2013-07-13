@@ -46,13 +46,16 @@ static void _assertMakeExecArgs(const char *firstArg, ...)
 	va_start(ap, firstArg);
 	StringVector inArgVect;
 	inArgVect.push_back(firstArg);
-	string testCmd;
 	while (true) {
 		const char *word = va_arg(ap, const char *);
 		if (!word)
 			break;
 		inArgVect.push_back(word);
-		testCmd += word;
+	}
+
+	string testCmd;
+	for (size_t i = 0; i < inArgVect.size(); i++) {
+		testCmd += inArgVect[i];
 		testCmd += " ";
 	}
 

@@ -72,6 +72,8 @@ void ActionManager::makeExecArg(StringVector &argVect, const string &cmd)
 	while (!parsable.finished()) {
 		string word =
 		  parsable.readWord(ParsableString::SEPARATOR_SPACE);
+		if (word.empty())
+			continue;
 		argVect.push_back(word);
 	}
 }
