@@ -28,6 +28,11 @@ namespace testActionManagern {
 class TestActionManager : public ActionManager
 {
 public:
+	void callMakeExecArg(StringVector &vect, const string &command)
+	{
+		makeExecArg(vect, command);
+	}
+
 	void callExecCommandAction(const ActionDef &actionDef)
 	{
 		execCommandAction(actionDef);
@@ -46,6 +51,16 @@ void teardown(void)
 // ---------------------------------------------------------------------------
 // Test cases
 // ---------------------------------------------------------------------------
+void test_makeExecArg(void)
+{
+	string cmd = "ls";
+	TestActionManager actMgr;
+	StringVector argVect;
+	actMgr.callMakeExecArg(argVect, "ls");
+	cppcut_assert_equal((size_t)1, argVect.size());
+	cppcut_assert_equal(cmd, argVect[0]);
+}
+
 void test_execCommandAction(void)
 {
 	PipeUtils readPipe, writePipe;
