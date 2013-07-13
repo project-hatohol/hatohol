@@ -67,7 +67,13 @@ void ActionManager::runAction(const ActionDef &actionDef)
 
 void ActionManager::makeExecArg(StringVector &argVect, const string &cmd)
 {
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	MLPL_WARN("Not fully implemented: %s\n", __PRETTY_FUNCTION__);
+	ParsableString parsable(cmd);
+	while (!parsable.finished()) {
+		string word =
+		  parsable.readWord(ParsableString::SEPARATOR_SPACE);
+		argVect.push_back(word);
+	}
 }
 
 void ActionManager::execCommandAction(const ActionDef &actionDef)
@@ -81,6 +87,8 @@ void ActionManager::execCommandAction(const ActionDef &actionDef)
 
 	StringVector argVect;
 	makeExecArg(argVect, actionDef.command);
+	// TODO: check the result of the parse
+
 	const gchar *argv[argVect.size()+1];
 	for (size_t i = 0; i < argVect.size(); i++)
 		argv[i] = argVect[i].c_str();
@@ -98,6 +106,7 @@ void ActionManager::execCommandAction(const ActionDef &actionDef)
 		string msg = StringUtils::sprintf(
 		  "Failed to execute command: %s", error->message);
 		g_error_free(error);
+		MLPL_ERR("%s\n", msg.c_str());
 		m_ctx->dbAction.logErrExecAction(actionDef, msg);
 		return;
 	}

@@ -7,7 +7,7 @@ TESTS = run-test.sh
 TESTS_ENVIRONMENT = NO_MAKE=yes CUTTER="$(CUTTER)"
 
 noinst_LTLIBRARIES = libTest.la testHatohol.la
-noinst_PROGRAMS = zabbix-api-response-collector
+noinst_PROGRAMS = action-tp zabbix-api-response-collector
 endif
 
 # default
@@ -25,6 +25,7 @@ LIBS = \
 
 # Test cases
 testHatohol_la_SOURCES = \
+	testActionManager.cc \
 	testHatoholException.cc testSQLProcessorException.cc \
 	testHatoholThreadBase.cc \
 	testDBAgentSQLite3.cc testDBAgentMySQL.cc \
@@ -51,8 +52,11 @@ libTest_la_SOURCES = \
 	ZabbixAPIEmulator.cc Synchronizer.cc \
 	FormulaTestUtils.h Helpers.h DBAgentTest.h DBClientTest.h \
 	ZabbixAPIEmulator.h Synchronizer.h \
-	ExceptionTestUtils.h AssertJoin.h
+	ExceptionTestUtils.h AssertJoin.h \
+	PipeUtils.cc PipeUtils.h
 libTest_la_LDFLAGS =
+
+action_tp_LDADD = -lTest -lstdc++
 
 zabbix_api_response_collector_SOURCES = zabbix-api-response-collector.cc
 zabbix_api_response_collector_LDFLAGS = -lstdc++

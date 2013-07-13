@@ -38,7 +38,7 @@ typedef list<ActionDef>               ActionDefList;
 typedef ActionDefList::iterator       ActionDefListIterator;
 typedef ActionDefList::const_iterator ActionDefListConstIterator;
 
-class DBClientAction
+class DBClientAction : public DBClient
 {
 public:
 	DBClientAction(void);
