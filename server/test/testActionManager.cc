@@ -19,6 +19,7 @@
 
 #include <cppcutter.h>
 #include <sys/types.h> 
+#include <stdarg.h>
 #include "Hatohol.h"
 #include "ActionManager.h"
 #include "PipeUtils.h"
@@ -39,6 +40,35 @@ public:
 	}
 };
 
+static void _assertMakeExecArgs(const char *firstArg, ...)
+{
+	va_list ap;
+	va_start(ap, firstArg);
+	StringVector inArgVect;
+	inArgVect.push_back(firstArg);
+	string testCmd;
+	while (true) {
+		const char *word = va_arg(ap, const char *);
+		if (!word)
+			break;
+		inArgVect.push_back(word);
+		testCmd += word;
+		testCmd += " ";
+	}
+
+	TestActionManager actMgr;
+	StringVector argVect;
+	actMgr.callMakeExecArg(argVect, testCmd);
+	cppcut_assert_equal(inArgVect.size(), argVect.size());
+	for (size_t i = 0; i < inArgVect.size(); i++) {
+		cppcut_assert_equal(inArgVect[i], argVect[i],
+		                    cut_message("index: %zd", i));
+	}
+	va_end(ap);
+}
+#define assertMakeExecArgs(FIRST, ...) \
+cut_trace(_assertMakeExecArgs(FIRST, ##__VA_ARGS__))
+
 void setup(void)
 {
 	hatoholInit();
@@ -53,24 +83,12 @@ void teardown(void)
 // ---------------------------------------------------------------------------
 void test_makeExecArg(void)
 {
-	string cmd = "ls";
-	TestActionManager actMgr;
-	StringVector argVect;
-	actMgr.callMakeExecArg(argVect, "ls");
-	cppcut_assert_equal((size_t)1, argVect.size());
-	cppcut_assert_equal(cmd, argVect[0]);
+	assertMakeExecArgs("ls", NULL);
 }
 
 void test_makeExecArgTwo(void)
 {
-	const char *args[] = {"ls", "-l"};
-	const size_t numArgs = sizeof(args) / sizeof(const char *);
-	TestActionManager actMgr;
-	StringVector argVect;
-	actMgr.callMakeExecArg(argVect, "ls");
-	cppcut_assert_equal(numArgs, argVect.size());
-	for (size_t i = 0; i < numArgs; i++)
-		cppcut_assert_equal(string(args[i]), argVect[i]);
+	assertMakeExecArgs("ls", "-l", NULL);
 }
 
 void test_execCommandAction(void)
