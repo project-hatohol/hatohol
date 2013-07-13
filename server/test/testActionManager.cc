@@ -97,8 +97,8 @@ void test_makeExecArgTwo(void)
 void test_execCommandAction(void)
 {
 	PipeUtils readPipe, writePipe;
-	readPipe.makeFileInTmpAndOpenForRead();
-	writePipe.makeFileInTmpAndOpenForWrite();
+	cppcut_assert_equal(true, readPipe.makeFileInTmpAndOpenForRead());
+	cppcut_assert_equal(true, writePipe.makeFileInTmpAndOpenForWrite());
 
 	ActionDef actDef;
 	actDef.type = ACTION_COMMAND;
