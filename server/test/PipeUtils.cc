@@ -84,7 +84,8 @@ string PipeUtils::makePipeFileInTmpDir(int id)
 	  = StringUtils::sprintf("/tmp/hatohol-test-pipeinfo-%d-%d",
 	                         getpid(), id);
 	if (mkfifo(tmpPipeName.c_str(), 0666) == -1) {
-		MLPL_ERR("Failed to make FIFO: errno: %d", errno);
+		MLPL_ERR("Failed to make FIFO: %s, errno: %d\n",
+		         tmpPipeName.c_str(), errno);
 		return "";
 	}
 	return tmpPipeName;
