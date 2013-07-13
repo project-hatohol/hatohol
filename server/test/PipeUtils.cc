@@ -55,7 +55,7 @@ bool PipeUtils::makeFileInTmpAndOpenForWrite(void)
 	// We use O_RDWR to avoid blocking. Using O_WRONLY|O_NONBLOCK without
 	// a reader process will fail. This mode is not defined in POSIX
 	// and can be used only for Linux. (see man 7 FIFO)
-	return makeFileInTmpAndOpen(O_RDWR, 0);
+	return makeFileInTmpAndOpen(O_RDWR, 1);
 }
 
 const string PipeUtils::getPath(void) const
