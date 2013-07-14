@@ -46,6 +46,10 @@ public:
 	void ensureRemainingSize(size_t size);
 
 	void resetIndex(void);
+
+	// 'add' families write data at the current index without the boundary
+	// check. You must allocate enough buffer before you use these
+	// functions.
 	void add8(uint8_t val);
 	void add16(uint16_t val);
 	void add32(uint32_t val);
@@ -53,6 +57,10 @@ public:
 	void add(const void *src, size_t len);
 	void addZero(size_t size);
 
+	// 'addEx' families extend buffer if needed. They are useful when
+	// the total size of the buffer is unknown. Of course, because
+	// the reallocation might be called, performance is less than that of
+	// 'add' families.
 	void addEx8(uint8_t val);
 	void addEx16(uint16_t val);
 	void addEx32(uint32_t val);
