@@ -18,25 +18,27 @@
  */
 
 #include "ActionManager.h"
+#include "ActorCollector.h"
 #include "DBClientAction.h"
 
 struct ActionManager::PrivateContext {
+	static ActorCollector collector;
 	DBClientAction dbAction;
 };
+
+ActorCollector ActionManager::PrivateContext::collector;
 
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
 void ActionManager::init(void)
 {
-	MLPL_WARN("Not implemented: %s\n", __PRETTY_FUNCTION__);
-	// TODO: start a thread to collect the finished child procss
+	PrivateContext::collector.start();
 }
 
 void ActionManager::stop(void)
 {
-	MLPL_WARN("Not implemented: %s\n", __PRETTY_FUNCTION__);
-	// TODO: stop the thread
+	PrivateContext::collector.stop();
 }
 
 ActionManager::ActionManager(void)
