@@ -22,16 +22,20 @@
 
 #include "HatoholThreadBase.h"
 
-class ActorCollector : public HatoholThreadBase
+class ActorCollector
 {
 public:
+	static void init(void);
+	static void stop(void);
+
 	ActorCollector(void);
 	virtual ~ActorCollector();
 
-	// overridden virtual methods
-	virtual gpointer mainThread(HatoholThreadArg *arg);
-
 protected:
+	static void setupHandlerForSIGCHLD(void);
+	static void signalHandlerChild(int signo, siginfo_t *info, void *arg);
+	static gboolean checkExitProcess
+	  (GIOChannel *source, GIOCondition condition, gpointer data);
 
 private:
 	struct PrivateContext;

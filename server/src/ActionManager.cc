@@ -31,16 +31,6 @@ ActorCollector ActionManager::PrivateContext::collector;
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
-void ActionManager::init(void)
-{
-	PrivateContext::collector.start();
-}
-
-void ActionManager::stop(void)
-{
-	PrivateContext::collector.stop();
-}
-
 ActionManager::ActionManager(void)
 : m_ctx(NULL)
 {

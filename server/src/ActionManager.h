@@ -25,9 +25,6 @@
 class ActionManager
 {
 public:
-	static void init(void);
-	static void stop(void);
-
 	ActionManager(void);
 	virtual ~ActionManager();
 	void checkEvents(const EventInfoList &eventList);

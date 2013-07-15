@@ -36,7 +36,7 @@ using namespace mlpl;
 #include "FaceRest.h"
 #include "UnifiedDataStore.h"
 #include "DBClientConfig.h"
-#include "ActionManager.h"
+#include "ActorCollector.h"
 
 static int pipefd[2];
 
@@ -68,7 +68,7 @@ gboolean exitFunc(GIOChannel *source, GIOCondition condition, gpointer data)
 	ExecContext *ctx = static_cast<ExecContext *>(data);
 
 	ctx->unifiedDataStore->stop();
-	ActionManager::stop();
+	ActorCollector::stop();
 
 	// Because this function is beeing called, ctx->loop must have valid
 	// value even if a signal is received before ctx->loop is created.
