@@ -7,7 +7,7 @@ TESTS = run-test.sh
 TESTS_ENVIRONMENT = NO_MAKE=yes CUTTER="$(CUTTER)"
 
 noinst_LTLIBRARIES = libTest.la testHatohol.la
-noinst_PROGRAMS = action-tp zabbix-api-response-collector
+noinst_PROGRAMS = ActionTp zabbix-api-response-collector
 endif
 
 # default
@@ -56,7 +56,7 @@ libTest_la_SOURCES = \
 	PipeUtils.cc PipeUtils.h
 libTest_la_LDFLAGS =
 
-action_tp_LDADD = -lTest -lstdc++
+ActionTp_LDADD = -lTest -lstdc++
 
 zabbix_api_response_collector_SOURCES = zabbix-api-response-collector.cc
 zabbix_api_response_collector_LDFLAGS = -lstdc++

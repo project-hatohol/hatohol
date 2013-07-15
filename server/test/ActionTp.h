@@ -17,36 +17,27 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <cstdio>
-#include <cstdlib>
-#include <string>
-#include "PipeUtils.h"
+#ifndef ActionTp_h
+#define ActionTp_h
 
-using namespace std;
+#include <stdint.h>
 
-static void printUsage(void)
-{
-	printf("Usage:\n");
-	printf("\n");
-	printf("  $ action-tp pipeFileForRead pipeFileForWrite\n");
-	printf("\n");
-}
+enum {
+	ACTTP_CODE_BEGIN,
+	ACTTP_CODE_QUIT,
+	ACTTP_CODE_GET_ARG_LIST,
+};
 
-int main(int argc, char *argv[])
-{
-	PipeUtils readPipe, writePipe;
-	if (argc < 3) {
-		printUsage();
-		return EXIT_FAILURE;
-	}
+enum {
+	ACTTP_FLAGS_REQ = (1 << 0),
+	ACTTP_FLAGS_RES = (1 << 1),
+};
 
-	string readPipePath = argv[1];
-	if (!readPipe.openForRead(readPipePath))
-		return EXIT_FAILURE;
+struct ActionTpCommHeader {
+	uint32_t length; // includes this member.
+	uint32_t code;   // command code;
+	uint32_t flags;
+};
 
-	string writePipePath = argv[2];
-	if (!writePipe.openForWrite(writePipePath))
-		return EXIT_FAILURE;
+#endif // ActionTp_h
 
-	return EXIT_SUCCESS;
-}

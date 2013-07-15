@@ -20,9 +20,12 @@
 #include <cppcutter.h>
 #include <sys/types.h> 
 #include <stdarg.h>
+#include <unistd.h>
 #include "Hatohol.h"
 #include "ActionManager.h"
 #include "PipeUtils.h"
+#include "SmartBuffer.h"
+#include "ActionTp.h"
 
 namespace testActionManagern {
 
@@ -72,6 +75,69 @@ static void _assertMakeExecArgs(const char *firstArg, ...)
 #define assertMakeExecArgs(FIRST, ...) \
 cut_trace(_assertMakeExecArgs(FIRST, ##__VA_ARGS__))
 
+static void waitConnect(PipeUtils &readPipe, size_t timeout)
+{
+	// read data
+	ActionTpCommHeader header;
+	cppcut_assert_equal(
+	  true, readPipe.recv(sizeof(header), &header, timeout));
+	cppcut_assert_equal((uint32_t)ACTTP_CODE_BEGIN, header.code);
+	cppcut_assert_equal((uint32_t)ACTTP_FLAGS_RES,
+	                    ACTTP_FLAGS_RES & header.flags);
+}
+
+static void getArguments(PipeUtils &readPipe, PipeUtils &writePipe,
+                         size_t timeout, StringVector &argVect)
+{
+	// write command
+	ActionTpCommHeader header;
+	header.length = sizeof(header);
+	header.code = ACTTP_CODE_GET_ARG_LIST;
+	header.flags = ACTTP_FLAGS_REQ;
+	writePipe.send(header.length, &header);
+
+	// read response
+	ActionTpCommHeader response;
+	cppcut_assert_equal(
+	  true, readPipe.recv(sizeof(response), &response, timeout));
+	cppcut_assert_equal((uint32_t)ACTTP_CODE_GET_ARG_LIST, response.code);
+	cppcut_assert_equal((uint32_t)ACTTP_FLAGS_RES,
+	                    ACTTP_FLAGS_RES & response.flags);
+
+	// check the response
+	size_t bodySize = response.length - sizeof(ActionTpCommHeader);
+	SmartBuffer pktBody(bodySize);
+	cppcut_assert_equal(
+	  true, readPipe.recv(bodySize, (uint8_t *)pktBody, timeout));
+
+	size_t numArg = pktBody.getValueAndIncIndex<uint16_t>();
+	cppcut_assert_equal(argVect.size(), numArg);
+	for (size_t i = 0; i < numArg; i++) {
+		size_t actualLen = pktBody.getValueAndIncIndex<uint16_t>();
+		string actualArg(pktBody.getPointer<const char>(), actualLen);
+		pktBody.incIndex(actualLen);
+		cppcut_assert_equal(argVect[i], actualArg);
+	}
+}
+
+static void sendQuit(PipeUtils &readPipe, PipeUtils &writePipe, size_t timeout)
+{
+	// write command
+	ActionTpCommHeader header;
+	header.length = sizeof(header);
+	header.code = ACTTP_CODE_QUIT;
+	header.flags = ACTTP_FLAGS_REQ;
+	writePipe.send(header.length, &header);
+
+	// read response
+	ActionTpCommHeader response;
+	cppcut_assert_equal(
+	  true, readPipe.recv(sizeof(response), &response, timeout));
+	cppcut_assert_equal((uint32_t)ACTTP_CODE_QUIT, response.code);
+	cppcut_assert_equal((uint32_t)ACTTP_FLAGS_RES,
+	                    ACTTP_FLAGS_RES & response.flags);
+}
+
 void setup(void)
 {
 	hatoholInit();
@@ -103,13 +169,20 @@ void test_execCommandAction(void)
 	ActionDef actDef;
 	actDef.type = ACTION_COMMAND;
 	actDef.command = StringUtils::sprintf(
-	  "%s %s %s", cut_build_path("action-tp", NULL),
+	  "%s %s %s", cut_build_path("ActionTp", NULL),
 	  writePipe.getPath().c_str(), readPipe.getPath().c_str());
 
 	TestActionManager actMgr;
 	actMgr.callExecCommandAction(actDef);
 
 	// connect to action-tp
+	size_t timeout = 5 * 1000;
+	waitConnect(readPipe, timeout);
+	StringVector argVect;
+	argVect.push_back(writePipe.getPath());
+	argVect.push_back(readPipe.getPath());
+	getArguments(readPipe, writePipe, timeout, argVect);
+	sendQuit(readPipe, writePipe, timeout);
 
 	// check if the command is successfully executed
 	DBClientAction dbAction;
