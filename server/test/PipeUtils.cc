@@ -19,12 +19,15 @@
 
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/time.h>
 #include <fcntl.h>
+#include <poll.h>
 #include <unistd.h>
 #include <errno.h>
 #include "PipeUtils.h"
 #include "Logger.h"
 #include "StringUtils.h"
+#include "TimeCounter.h"
 
 using namespace std;
 using namespace mlpl;
@@ -75,6 +78,41 @@ bool PipeUtils::openForWrite(const string &path)
 	return openPipe(O_WRONLY);
 }
 
+bool PipeUtils::send(size_t size, void *data)
+{
+	if (write(m_fd, data, size) == -1) {
+		MLPL_ERR("Failed to write: size: %zd, errno: %d\n",
+		         size, errno);
+		return false;
+	}
+	return true;
+}
+
+bool PipeUtils::recv(size_t size, void *buf, size_t timeout)
+{
+	size_t index = 0;
+	TimeCounter startTime(TimeCounter::INIT_CURR_TIME);
+	while (true) {
+		if (timeout > 0) {
+			TimeCounter elapsed(TimeCounter::INIT_CURR_TIME);
+			elapsed -= startTime;
+			timeout -= elapsed.getAsMSec();
+			if (timeout <= 0) {
+				MLPL_ERR("readWithTimeout: timeouted\n");
+				return false;
+			}
+		}
+		if (!waitForRead(timeout))
+			return false;
+
+		if (!readWithErrorCheck(size, (uint8_t *)buf, index))
+			return false;
+		if (index >= size)
+			break;
+	}
+	return true;
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
@@ -112,6 +150,51 @@ bool PipeUtils::openPipe(int flags)
 		MLPL_ERR("Failed to open: path: %s, flags: %x, errno: %d\n",
 		         m_path.c_str(), flags, errno);
 		return false;
+	}
+	return true;
+}
+
+bool PipeUtils::waitForRead(size_t timeout)
+{
+	pollfd fds;
+	fds.fd = m_fd;
+	fds.events = POLLIN;
+	int pollTimeout = (timeout == 0) ? -1 : timeout;
+	int ret;
+	while (true) {
+		ret = poll(&fds, 1, pollTimeout);
+		if (ret == -1 && errno == EINTR)
+			continue;
+		break;
+	}
+	if (ret == -1) {
+		MLPL_ERR("Failed to poll, errno: %d\n", errno);
+		return false;
+	}
+	if (!(fds.revents & POLLIN)) {
+		MLPL_ERR("Timeouted: poll\n");
+		return false;
+	}
+	return true;
+}
+
+bool PipeUtils::readWithErrorCheck(size_t size, uint8_t *buf, size_t &index)
+{
+	while (true) {
+		size_t requestSize = size - index;
+		ssize_t readSize = read(m_fd, &buf[index], requestSize);
+		if (readSize == 0) {
+			MLPL_INFO("read size: 0\n");
+			return false;
+		} else if (readSize == -1 && errno == EINTR) {
+			continue;
+		} else if (readSize == -1) {
+			MLPL_ERR("Failed to read: size: %zd, errno: %d\n",
+			         size, errno);
+			return false;
+		}
+		index += readSize;
+		break;
 	}
 	return true;
 }

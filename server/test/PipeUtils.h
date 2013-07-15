@@ -21,6 +21,7 @@
 #define PipeUtils_h
 
 #include <string>
+#include <stdint.h>
 
 class PipeUtils {
 public:
@@ -32,11 +33,29 @@ public:
 	const std::string getPath(void) const;
 	bool openForRead(const std::string &path);
 	bool openForWrite(const std::string &path);
+	bool send(size_t size, void *buf);
+
+	/**
+	 * receive data from pipe.
+	 *
+	 * @param size A received data size.
+	 * @param buf  A buffer to store the received data.
+	 * @param timeout
+	 * A timeout in msec. If this parameter is zero, this function
+	 * waits forever until the reques size of data is received.
+	 *
+	 * @return
+	 * If any error happens or timeout occurs, false is returned.
+	 * Otherwise true.
+	 */
+	bool recv(size_t size, void *buf, size_t timeout = 0);
 
 protected:
 	std::string makePipeFileInTmpDir(int id);
 	bool makeFileInTmpAndOpen(int flags, int id);
 	bool openPipe(int flags);
+	bool waitForRead(size_t timeout);
+	bool readWithErrorCheck(size_t size, uint8_t *buf, size_t &index);
 
 private:
 	int         m_fd;
