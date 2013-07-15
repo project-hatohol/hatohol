@@ -37,6 +37,7 @@ using namespace mlpl;
 #include "DBClientConfig.h"
 #include "DBClientHatohol.h"
 #include "DBClientZabbix.h"
+#include "ActionManager.h"
 
 static MutexLock mutex;
 static bool initDone = false; 
@@ -63,6 +64,7 @@ static void init(void)
 	SQLProcessorZabbix::init();
 	SQLProcessorFactory::init();
 
+	ActionManager::init();
 	FaceRest::init();
 }
 

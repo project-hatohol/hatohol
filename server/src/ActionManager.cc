@@ -27,6 +27,18 @@ struct ActionManager::PrivateContext {
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
+void ActionManager::init(void)
+{
+	MLPL_WARN("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	// TODO: start a thread to collect the finished child procss
+}
+
+void ActionManager::stop(void)
+{
+	MLPL_WARN("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	// TODO: stop the thread
+}
+
 ActionManager::ActionManager(void)
 : m_ctx(NULL)
 {
