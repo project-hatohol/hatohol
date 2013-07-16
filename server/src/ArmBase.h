@@ -36,7 +36,7 @@ public:
 	ArmBase(const MonitoringServerInfo &serverInfo);
 	virtual ~ArmBase();
 
-	virtual void updateItems(ClosureBase *closure = NULL);
+	virtual void fetchItems(ClosureBase *closure = NULL);
 
 	void setPollingInterval(int sec);
 	int getPollingInterval(void) const;

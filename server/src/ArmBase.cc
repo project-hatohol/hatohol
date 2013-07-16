@@ -68,7 +68,7 @@ ArmBase::~ArmBase()
 		delete m_ctx;
 }
 
-void ArmBase::updateItems(ClosureBase *closure)
+void ArmBase::fetchItems(ClosureBase *closure)
 {
 	setUpdateType(UPDATE_ITEM_REQUEST);
 	m_ctx->updatedSignal.connect(closure);

@@ -109,7 +109,7 @@ UnifiedDataStore::PrivateContext::wakeArm(ArmBase *arm)
 	Closure<UnifiedDataStore::PrivateContext> *closure =
 	  new Closure<UnifiedDataStore::PrivateContext>(
 	    this, &UnifiedDataStore::PrivateContext::updatedCallback);
-	arm->updateItems(closure);
+	arm->fetchItems(closure);
 }
 
 bool
@@ -156,7 +156,7 @@ UnifiedDataStore::PrivateContext::updatedCallback(void)
 	rwlock.unlock();
 }
 
-void UnifiedDataStore::updateItems(void)
+void UnifiedDataStore::fetchItems(void)
 {
 	DBClientConfig dbConfig;
 	if (!dbConfig.isCopyOnDemandEnabled())
@@ -215,7 +215,7 @@ void UnifiedDataStore::getItemList(ItemInfoList &itemList,
 void UnifiedDataStore::getHostList(HostInfoList &hostInfoList,
                                    uint32_t targetServerId)
 {
-	updateItems();
+	fetchItems();
 	DBClientHatohol dbHatohol;
 	dbHatohol.getHostInfoList(hostInfoList, targetServerId);
 }
