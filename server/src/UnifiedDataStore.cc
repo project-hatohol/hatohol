@@ -29,13 +29,14 @@ using namespace mlpl;
 
 struct UnifiedDataStore::PrivateContext
 {
-	const static size_t maxRunningArms = 8;
-	const static time_t minUpdateInterval = 10;
+	const static size_t      maxRunningArms    = 8;
+	const static time_t      minUpdateInterval = 10;
 	static UnifiedDataStore *instance;
 	static MutexLock         mutex;
 
 	VirtualDataStoreZabbix *vdsZabbix;
 	VirtualDataStoreNagios *vdsNagios;
+
 	sem_t         updatedSemaphore;
 	ReadWriteLock rwlock;
 	timespec      lastUpdateTime;
@@ -45,7 +46,7 @@ struct UnifiedDataStore::PrivateContext
 	PrivateContext()
 	: remainingArmsCount(0)
 	{
-		lastUpdateTime.tv_sec = 0;
+		lastUpdateTime.tv_sec  = 0;
 		lastUpdateTime.tv_nsec = 0;
 	};
 	void updatedCallback(void);
