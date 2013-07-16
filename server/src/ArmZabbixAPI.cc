@@ -997,6 +997,13 @@ bool ArmZabbixAPI::mainThreadOneProc(void)
 
 	try
 	{
+		if (getUpdateType() == UPDATE_ITEM_REQUEST) {
+			ItemTablePtr items = updateItems();
+			makeHatoholItems(items);
+			updateApplications(items);
+			return true;
+		}
+
 		// get triggers
 		ItemTablePtr triggers = updateTriggers();
 
@@ -1011,18 +1018,17 @@ bool ArmZabbixAPI::mainThreadOneProc(void)
 		//
 		// updateFunctions();
 
-		// get items
-		ItemTablePtr items = updateItems();
-
-		// update needed applications
-		updateApplications(items);
-
 		makeHatoholTriggers();
 
 		ItemTablePtr events = updateEvents();
 		makeHatoholEvents(events);
 
-		makeHatoholItems(items);
+		DBClientConfig dbConfig;
+		if (!dbConfig.isCopyOnDemandEnabled()) {
+			ItemTablePtr items = updateItems();
+			makeHatoholItems(items);
+			updateApplications(items);
+		}
 	} catch (const DataStoreException &dse) {
 		MLPL_ERR("Error on update\n");
 		m_ctx->authToken = "";

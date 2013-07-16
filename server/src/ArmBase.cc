@@ -29,12 +29,15 @@ using namespace mlpl;
 struct ArmBase::PrivateContext
 {
 	MonitoringServerInfo serverInfo; // we have the copy.
-	sem_t          sleepSemaphore;
-	volatile int   exitRequest;
+	sem_t                sleepSemaphore;
+	volatile int         exitRequest;
+	ArmBase::UpdateType  updateType;
+	ReadWriteLock        rwlock;
 
 	PrivateContext(const MonitoringServerInfo &_serverInfo)
 	: serverInfo(_serverInfo),
-	  exitRequest(0)
+	  exitRequest(0),
+	  updateType(UPDATE_POLLING)
 	{
 		static const int PSHARED = 1;
 		HATOHOL_ASSERT(sem_init(&sleepSemaphore, PSHARED, 0) == 0,
@@ -65,8 +68,9 @@ ArmBase::~ArmBase()
 		delete m_ctx;
 }
 
-void ArmBase::forceUpdate(ClosureBase *closure)
+void ArmBase::updateItems(ClosureBase *closure)
 {
+	setUpdateType(UPDATE_ITEM_REQUEST);
 	m_ctx->updatedSignal.connect(closure);
 	if (sem_post(&m_ctx->sleepSemaphore) == -1)
 		MLPL_ERR("Failed to call sem_post: %d\n", errno);
@@ -128,6 +132,21 @@ void ArmBase::sleepInterruptible(int sleepTime)
 	// The up of the semaphore is done only from the destructor.
 }
 
+ArmBase::UpdateType ArmBase::getUpdateType(void)
+{
+	m_ctx->rwlock.readLock();
+	ArmBase::UpdateType updateType = m_ctx->updateType;
+	m_ctx->rwlock.unlock();
+	return updateType;
+}
+
+void ArmBase::setUpdateType(UpdateType updateType)
+{
+	m_ctx->rwlock.writeLock();
+	m_ctx->updateType = updateType;
+	m_ctx->rwlock.unlock();
+}
+
 gpointer ArmBase::mainThread(HatoholThreadArg *arg)
 {
 	while (!hasExitRequest()) {
@@ -137,6 +156,8 @@ gpointer ArmBase::mainThread(HatoholThreadArg *arg)
 
 		m_ctx->updatedSignal();
 		m_ctx->updatedSignal.clear();
+
+		setUpdateType(UPDATE_POLLING);
 
 		if (hasExitRequest())
 			break;

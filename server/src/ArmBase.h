@@ -27,10 +27,16 @@
 class ArmBase : public HatoholThreadBase
 {
 public:
+	typedef enum {
+		UPDATE_POLLING,
+		UPDATE_ITEM_REQUEST,
+	} UpdateType;
+
+public:
 	ArmBase(const MonitoringServerInfo &serverInfo);
 	virtual ~ArmBase();
 
-	virtual void forceUpdate(ClosureBase *closure = NULL);
+	virtual void updateItems(ClosureBase *closure = NULL);
 
 	void setPollingInterval(int sec);
 	int getPollingInterval(void) const;
@@ -47,6 +53,9 @@ protected:
 
 	// virtual methods defined in this class
 	virtual bool mainThreadOneProc(void) = 0;
+
+	UpdateType getUpdateType(void);
+	void       setUpdateType(UpdateType updateType);
 
 private:
 	struct PrivateContext;
