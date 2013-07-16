@@ -96,9 +96,8 @@ bool PipeUtils::recv(size_t size, void *buf, size_t timeout)
 		if (timeout > 0) {
 			TimeCounter elapsed(TimeCounter::INIT_CURR_TIME);
 			elapsed -= startTime;
-			timeout -= elapsed.getAsMSec();
-			if (timeout <= 0) {
-				MLPL_ERR("readWithTimeout: timeouted\n");
+			if (elapsed.getAsMSec() >= timeout) {
+				MLPL_ERR("timeouted\n");
 				return false;
 			}
 		}
