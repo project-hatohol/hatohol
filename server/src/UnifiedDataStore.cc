@@ -107,8 +107,8 @@ void
 UnifiedDataStore::PrivateContext::wakeArm(ArmBase *arm)
 {
 	Closure<UnifiedDataStore::PrivateContext> *closure =
-	 new Closure<UnifiedDataStore::PrivateContext>(
-	   this, &UnifiedDataStore::PrivateContext::updatedCallback);
+	  new Closure<UnifiedDataStore::PrivateContext>(
+	    this, &UnifiedDataStore::PrivateContext::updatedCallback);
 	arm->forceUpdate(closure);
 }
 
