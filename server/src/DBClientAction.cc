@@ -41,7 +41,7 @@ void DBClientAction::logStartExecAction(const ActionDef &actionDef)
 	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
 }
 
-void DBClientAction::logEndExecAction(const ActionDef &actionDef)
+void DBClientAction::logEndExecAction(const ExitChildInfo &exitChildInfo)
 {
 	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
 }

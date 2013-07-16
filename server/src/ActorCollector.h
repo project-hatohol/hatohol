@@ -27,6 +27,13 @@ class ActorCollector
 public:
 	static void init(void);
 	static void stop(void);
+	static void lock(void);
+	static void unlock(void);
+
+	/**
+	 * lock() has to be called before this function is used.
+	 */
+	static void addActor(pid_t pid);
 
 	ActorCollector(void);
 	virtual ~ActorCollector();

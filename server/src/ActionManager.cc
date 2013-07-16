@@ -105,10 +105,18 @@ void ActionManager::execCommandAction(const ActionDef &actionDef)
 	gpointer userData = NULL;
 	GPid childPid;
 	GError *error = NULL;
+
+	// We take the lock here to avoid the child spanwed below from
+	// not being collected. If the child immediately exits
+	// before the following 'm_ctx->collector.addActor(&childPid)' is
+	// called, ActorCollector::checkExitProcess() possibly ignores it,
+	// because the pid of the child isn't in the wait child set.
+	m_ctx->collector.lock();
 	gboolean succeeded =
 	  g_spawn_async(workingDirectory, (gchar **)&argv, NULL,
 	                flags, childSetup, userData, &childPid, &error);
 	if (!succeeded) {
+		m_ctx->collector.unlock();
 		string msg = StringUtils::sprintf(
 		  "Failed to execute command: %s", error->message);
 		g_error_free(error);
@@ -116,5 +124,7 @@ void ActionManager::execCommandAction(const ActionDef &actionDef)
 		m_ctx->dbAction.logErrExecAction(actionDef, msg);
 		return;
 	}
+	m_ctx->collector.addActor(childPid);
 	m_ctx->dbAction.logStartExecAction(actionDef);
+	m_ctx->collector.unlock();
 }

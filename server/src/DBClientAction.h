@@ -38,6 +38,12 @@ typedef list<ActionDef>               ActionDefList;
 typedef ActionDefList::iterator       ActionDefListIterator;
 typedef ActionDefList::const_iterator ActionDefListConstIterator;
 
+struct ExitChildInfo {
+	pid_t pid;
+	int   status;
+	int   exitCode;
+};
+
 class DBClientAction : public DBClient
 {
 public:
@@ -46,7 +52,7 @@ public:
 	void getActionList(const EventInfo &eventInfo,
 	                   ActionDefList &actionDefList);
 	void logStartExecAction(const ActionDef &actionDef);
-	void logEndExecAction(const ActionDef &actionDef);
+	void logEndExecAction(const ExitChildInfo &exitChildInfo);
 	void logErrExecAction(const ActionDef &actionDef, const string &msg);
 };
 

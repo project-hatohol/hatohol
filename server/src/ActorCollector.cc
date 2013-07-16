@@ -25,23 +25,25 @@
 #include "ActorCollector.h"
 #include "DBClientAction.h"
 #include "Logger.h"
+#include "MutexLock.h"
 
 using namespace mlpl;
 
-struct ExitChildInfo {
-	pid_t pid;
-	int   status;
-	int   exitCode;
-};
+typedef set<pid_t>                   WaitChildSet;
+typedef WaitChildSet::iterator       WaitChildSetIterator;
+typedef WaitChildSet::const_iterator WaitChildSetConstIterator;
 
 struct ActorCollector::PrivateContext {
 	static bool    initialized;
 	static int     pipefd[2];
-	DBClientAction dbAction;
+	static MutexLock lock;
+	static WaitChildSet waitChildSet;
 };
 
 bool ActorCollector::PrivateContext::initialized = false;
 int ActorCollector::PrivateContext::pipefd[2];
+MutexLock ActorCollector::PrivateContext::lock;
+WaitChildSet ActorCollector::PrivateContext::waitChildSet;
 
 // ---------------------------------------------------------------------------
 // Public methods
@@ -54,6 +56,21 @@ void ActorCollector::init(void)
 void ActorCollector::stop(void)
 {
 	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+}
+
+void ActorCollector::lock(void)
+{
+	PrivateContext::lock.lock();
+}
+
+void ActorCollector::unlock(void)
+{
+	PrivateContext::lock.unlock();
+}
+
+void ActorCollector::addActor(pid_t pid)
+{
+	PrivateContext::waitChildSet.insert(pid);
 }
 
 ActorCollector::ActorCollector(void)
@@ -161,6 +178,21 @@ gboolean ActorCollector::checkExitProcess
 		buf += bytesRead;
 	}
 
-	MLPL_BUG("Not fully implemented: %s\n", __PRETTY_FUNCTION__);
+	bool found = false;
+	lock();
+	WaitChildSetIterator it =
+	   PrivateContext::waitChildSet.find(exitChildInfo.pid);
+	if (it != PrivateContext::waitChildSet.end()) {
+		found = true;
+	   	PrivateContext::waitChildSet.erase(it);
+	}
+	unlock();
+
+	if (!found)
+		return TRUE;
+
+	DBClientAction dbAction;
+	dbAction.logEndExecAction(exitChildInfo);
+
 	return TRUE;
 }
