@@ -35,10 +35,12 @@ struct ExitChildInfo {
 };
 
 struct ActorCollector::PrivateContext {
+	static bool    initialized;
 	static int     pipefd[2];
 	DBClientAction dbAction;
 };
 
+bool ActorCollector::PrivateContext::initialized = false;
 int ActorCollector::PrivateContext::pipefd[2];
 
 // ---------------------------------------------------------------------------
@@ -71,6 +73,11 @@ ActorCollector::~ActorCollector()
 // ---------------------------------------------------------------------------
 void ActorCollector::setupHandlerForSIGCHLD(void)
 {
+	// We assume that this function (implictly ActorCollector::init) is
+	// never called concurrently.
+	if (PrivateContext::initialized)
+		return;
+
 	// open pipe
 	HATOHOL_ASSERT(pipe(PrivateContext::pipefd) == 0,
 	               "Failed to open pipe: errno: %d", errno);
@@ -85,9 +92,19 @@ void ActorCollector::setupHandlerForSIGCHLD(void)
 	
 	// set glib callback handler for the pipe
 	GIOChannel *ioch = g_io_channel_unix_new(PrivateContext::pipefd[0]);
+	GError *error = NULL;
+	GIOStatus status = g_io_channel_set_encoding(ioch, NULL, &error);
+	if (status == G_IO_STATUS_ERROR) {
+		THROW_HATOHOL_EXCEPTION("status: G_IO_STATUS_ERROR: %s",
+		                        error->message);
+		g_error_free(error);
+	} else if (status != G_IO_STATUS_NORMAL) {
+		THROW_HATOHOL_EXCEPTION("Illegal status: %d", status);
+	}
 	g_io_add_watch(ioch,
 	               (GIOCondition)(G_IO_IN|G_IO_PRI|G_IO_ERR|G_IO_HUP),
 	               ActorCollector::checkExitProcess, NULL);
+	PrivateContext::initialized = true;
 }
 
 void ActorCollector::signalHandlerChild(int signo, siginfo_t *info, void *arg)
@@ -111,6 +128,39 @@ void ActorCollector::signalHandlerChild(int signo, siginfo_t *info, void *arg)
 gboolean ActorCollector::checkExitProcess
   (GIOChannel *source, GIOCondition condition, gpointer data)
 {
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	if (condition & G_IO_ERR) {
+		THROW_HATOHOL_EXCEPTION("GIO watch: Error\n");
+	} else if (condition & G_IO_HUP) {
+		THROW_HATOHOL_EXCEPTION("GIO watch: HUP\n");
+	}
+
+	GError *error = NULL;
+	ExitChildInfo exitChildInfo;
+	GIOStatus stat;
+	gsize bytesRead;
+	gsize requestSize = sizeof(exitChildInfo);
+	gchar *buf = reinterpret_cast<gchar *>(&exitChildInfo);
+	while (true) {
+		stat = g_io_channel_read_chars(source, buf, requestSize,
+		                               &bytesRead, &error);
+		if (stat == G_IO_STATUS_AGAIN) {
+			continue;
+		} else if (stat == G_IO_STATUS_EOF) {
+			THROW_HATOHOL_EXCEPTION("Unexcepted EOF\n");
+		} else if (stat == G_IO_STATUS_ERROR) {
+			THROW_HATOHOL_EXCEPTION("ERROR: %s\n",
+			                        error->message);
+			g_error_free(error);
+		} else if (stat != G_IO_STATUS_NORMAL) {
+			THROW_HATOHOL_EXCEPTION("Unknown stat: %d\n", stat);
+		}
+
+		if (bytesRead >= requestSize)
+			break;
+		requestSize -= bytesRead;
+		buf += bytesRead;
+	}
+
+	MLPL_BUG("Not fully implemented: %s\n", __PRETTY_FUNCTION__);
 	return TRUE;
 }
