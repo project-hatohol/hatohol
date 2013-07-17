@@ -30,4 +30,4 @@ case "$1" in
 		exit 1
 		;;
 esac
-exit0
+exit 0
