@@ -47,6 +47,10 @@ struct ExitChildInfo {
 class DBClientAction : public DBClient
 {
 public:
+	static int ACTION_DB_VERSION;
+	static const char *DEFAULT_DB_NAME;
+
+	static void init(void);
 	DBClientAction(void);
 	virtual ~DBClientAction();
 	void getActionList(const EventInfo &eventInfo,
@@ -54,6 +58,14 @@ public:
 	void logStartExecAction(const ActionDef &actionDef);
 	void logEndExecAction(const ExitChildInfo &exitChildInfo);
 	void logErrExecAction(const ActionDef &actionDef, const string &msg);
+
+protected:
+	void prepareSetupFunction(void);
+
+private:
+	struct PrivateContext;
+	PrivateContext *m_ctx;
+
 };
 
 #endif // DBClientAction_h

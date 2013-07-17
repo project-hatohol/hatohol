@@ -38,6 +38,7 @@ using namespace mlpl;
 #include "DBClientHatohol.h"
 #include "DBClientZabbix.h"
 #include "ActorCollector.h"
+#include "DBClientAction.h"
 
 static MutexLock mutex;
 static bool initDone = false; 
@@ -50,6 +51,7 @@ static void init(void)
 	DBAgentSQLite3::init();
 	DBClientHatohol::init();
 	DBClientZabbix::init();
+	DBClientAction::init();
 
 	ItemData::init();
 	SQLUtils::init();

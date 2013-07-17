@@ -28,7 +28,8 @@
 DBAgent* DBAgentFactory::create(DBDomainId domainId, bool skipSetup,
                                 const DBConnectInfo *connectInfo)
 {
-	if (domainId == DB_DOMAIN_ID_CONFIG) {
+	if (domainId == DB_DOMAIN_ID_CONFIG ||
+	    domainId == DB_DOMAIN_ID_ACTION) {
 		HATOHOL_ASSERT(connectInfo, "connectInfo: NULL");
 		return new DBAgentMySQL(connectInfo->dbName.c_str(),
 		                        connectInfo->getUser(),
