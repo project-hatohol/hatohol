@@ -22,6 +22,7 @@
 #include "Helpers.h"
 #include "DBClientZabbix.h"
 #include "DBClientConfig.h"
+#include "DBClientAction.h"
 #include "DBClientTest.h"
 #include "DBAgentSQLite3.h"
 #include "DBAgentMySQL.h"
@@ -300,4 +301,15 @@ void setupTestDBServers(void)
 			dbConfig.addTargetServer(&serverInfo[i]);
 		dbServerReady = true;
 	}
+}
+
+void setupTestDBAction(bool dbRecreate)
+{
+	static const char *TEST_DB_NAME = "test_action";
+	static const char *TEST_DB_USER = "hatohol_test_user";
+	static const char *TEST_DB_PASSWORD = ""; // empty: No password is used
+	DBClientAction::setDefaultDBParams(TEST_DB_NAME,
+	                                   TEST_DB_USER, TEST_DB_PASSWORD);
+
+	makeTestMySQLDBIfNeeded(TEST_DB_NAME, dbRecreate);
 }
