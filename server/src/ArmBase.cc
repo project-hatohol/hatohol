@@ -55,7 +55,7 @@ struct ArmBase::PrivateContext
 
 	void stampLastPollingTime(void)
 	{
-		if (updateType != UPDATE_POLLING)
+		if (getUpdateType() != UPDATE_POLLING)
 			return;
 
 		int result = clock_gettime(CLOCK_REALTIME,
@@ -66,6 +66,21 @@ struct ArmBase::PrivateContext
 			lastPollingTime.tv_sec = 0;
 			lastPollingTime.tv_nsec = 0;
 		}
+	}
+
+	UpdateType getUpdateType(void)
+	{
+		rwlock.readLock();
+		ArmBase::UpdateType type = updateType;
+		rwlock.unlock();
+		return type;
+	}
+
+	void setUpdateType(ArmBase::UpdateType type)
+	{
+		rwlock.writeLock();
+		updateType = type;
+		rwlock.unlock();
 	}
 
 	Signal updatedSignal;
@@ -152,17 +167,12 @@ void ArmBase::sleepInterruptible(int sleepTime)
 
 ArmBase::UpdateType ArmBase::getUpdateType(void)
 {
-	m_ctx->rwlock.readLock();
-	ArmBase::UpdateType updateType = m_ctx->updateType;
-	m_ctx->rwlock.unlock();
-	return updateType;
+	return m_ctx->getUpdateType();
 }
 
 void ArmBase::setUpdateType(UpdateType updateType)
 {
-	m_ctx->rwlock.writeLock();
-	m_ctx->updateType = updateType;
-	m_ctx->rwlock.unlock();
+	m_ctx->setUpdateType(updateType);
 }
 
 gpointer ArmBase::mainThread(HatoholThreadArg *arg)
