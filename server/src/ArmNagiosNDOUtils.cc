@@ -806,8 +806,7 @@ bool ArmNagiosNDOUtils::mainThreadOneProc(void)
 		} else {
 			getTrigger();
 			getEvent();
-			DBClientConfig dbConfig;
-			if (!dbConfig.isCopyOnDemandEnabled())
+			if (!isCopyOnDemandEnabled())
 				getItem();
 		}
 	} catch (const exception &e) {

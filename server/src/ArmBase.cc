@@ -33,6 +33,7 @@ struct ArmBase::PrivateContext
 	sem_t                sleepSemaphore;
 	volatile int         exitRequest;
 	ArmBase::UpdateType  updateType;
+	bool                 isCopyOnDemandEnabled;
 	ReadWriteLock        rwlock;
 
 	PrivateContext(const MonitoringServerInfo &_serverInfo)
@@ -45,6 +46,8 @@ struct ArmBase::PrivateContext
 		             "Failed to sem_init(): %d\n", errno);
 		lastPollingTime.tv_sec = 0;
 		lastPollingTime.tv_nsec = 0;
+		DBClientConfig dbConfig;
+		isCopyOnDemandEnabled = dbConfig.isCopyOnDemandEnabled();
 	}
 
 	virtual ~PrivateContext()
@@ -195,6 +198,11 @@ ArmBase::UpdateType ArmBase::getUpdateType(void) const
 void ArmBase::setUpdateType(UpdateType updateType)
 {
 	m_ctx->setUpdateType(updateType);
+}
+
+bool ArmBase::isCopyOnDemandEnabled(void) const
+{
+	return m_ctx->isCopyOnDemandEnabled;
 }
 
 gpointer ArmBase::mainThread(HatoholThreadArg *arg)

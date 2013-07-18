@@ -1023,8 +1023,7 @@ bool ArmZabbixAPI::mainThreadOneProc(void)
 		ItemTablePtr events = updateEvents();
 		makeHatoholEvents(events);
 
-		DBClientConfig dbConfig;
-		if (!dbConfig.isCopyOnDemandEnabled()) {
+		if (!isCopyOnDemandEnabled()) {
 			ItemTablePtr items = updateItems();
 			makeHatoholItems(items);
 			updateApplications(items);
