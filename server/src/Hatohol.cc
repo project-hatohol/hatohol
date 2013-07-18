@@ -49,6 +49,7 @@ static void init(void)
 	HatoholException::init();
 
 	DBAgentSQLite3::init();
+	DBClientConfig::init();
 	DBClientHatohol::init();
 	DBClientZabbix::init();
 	DBClientAction::init();

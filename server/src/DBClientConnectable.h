@@ -23,7 +23,6 @@
 #include <list>
 #include "DBClient.h"
 #include "DBAgentFactory.h"
-#include "ConfigManager.h"
 #include "MutexLock.h"
 
 // The reason why this is a template class is that we want to make
@@ -102,6 +101,11 @@ protected:
 	};
 	typedef map<DBDomainId, DefaultDBInfo>      DefaultDBInfoMap;
 	typedef typename DefaultDBInfoMap::iterator DefaultDBInfoMapIterator;
+
+	static DBConnectInfo &getDBConnectInfoMaster(void)
+	{
+		return m_connectInfoMaster;
+	}
 
 	static void addDefaultDBInfo(DBDomainId domainId,
 	                             const char *defaultDBName,
