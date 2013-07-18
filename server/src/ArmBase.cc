@@ -187,7 +187,7 @@ void ArmBase::sleepInterruptible(int sleepTime)
 	// The up of the semaphore is done only from the destructor.
 }
 
-ArmBase::UpdateType ArmBase::getUpdateType(void)
+ArmBase::UpdateType ArmBase::getUpdateType(void) const
 {
 	return m_ctx->getUpdateType();
 }

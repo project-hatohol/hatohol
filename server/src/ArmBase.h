@@ -54,7 +54,7 @@ protected:
 	// virtual methods defined in this class
 	virtual bool mainThreadOneProc(void) = 0;
 
-	UpdateType getUpdateType(void);
+	UpdateType getUpdateType(void) const;
 	void       setUpdateType(UpdateType updateType);
 
 private:
