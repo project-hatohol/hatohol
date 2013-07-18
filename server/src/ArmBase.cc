@@ -84,9 +84,6 @@ struct ArmBase::PrivateContext
 				interval -= elapsed;
 		}
 
-		if (interval < 0)
-			interval = 1;
-
 		return interval;
 	}
 
