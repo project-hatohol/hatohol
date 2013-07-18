@@ -46,9 +46,16 @@ struct UnifiedDataStore::PrivateContext
 	PrivateContext()
 	: remainingArmsCount(0)
 	{
+		sem_init(&updatedSemaphore, 0, 0);
 		lastUpdateTime.tv_sec  = 0;
 		lastUpdateTime.tv_nsec = 0;
 	};
+
+	virtual ~PrivateContext()
+	{
+		sem_destroy(&updatedSemaphore);
+	};
+
 	void updatedCallback(void);
 	void wakeArm(ArmBase *arm);
 	bool updateIsNeeded(void);
@@ -172,8 +179,6 @@ void UnifiedDataStore::fetchItems(void)
 	m_ctx->rwlock.unlock();
 	if (arms.empty())
 		return;
-
-	sem_init(&m_ctx->updatedSemaphore, 0, 0);
 
 	m_ctx->rwlock.writeLock();
 	m_ctx->remainingArmsCount = arms.size();
