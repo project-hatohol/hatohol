@@ -92,7 +92,7 @@ void ActionManager::execCommandAction(const ActionDef &actionDef)
 		workingDirectory = actionDef.workingDir.c_str();
 
 	StringVector argVect;
-	makeExecArg(argVect, actionDef.command);
+	makeExecArg(argVect, actionDef.path);
 	// TODO: check the result of the parse
 
 	const gchar *argv[argVect.size()+1];

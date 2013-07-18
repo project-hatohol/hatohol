@@ -33,7 +33,7 @@ enum ActionType {
 struct ActionDef {
 	ActionType  type;
 	std::string workingDir;
-	std::string command;
+	std::string path;
 };
 
 typedef list<ActionDef>               ActionDefList;

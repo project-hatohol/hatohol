@@ -168,7 +168,7 @@ void test_execCommandAction(void)
 
 	ActionDef actDef;
 	actDef.type = ACTION_COMMAND;
-	actDef.command = StringUtils::sprintf(
+	actDef.path = StringUtils::sprintf(
 	  "%s %s %s", cut_build_path("ActionTp", NULL),
 	  writePipe.getPath().c_str(), readPipe.getPath().c_str());
 
