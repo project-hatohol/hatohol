@@ -58,7 +58,16 @@ or Web applications with other frameworks can be added.
 
 Screenshots
 -----------
-Now preparing.
+- dashboard
+![dashboard](doc/misc/screenshot-dashboard.png)
+
+- events
+![events](doc/misc/screenshot-events.png)
+
+- servers
+![servers](doc/misc/screenshot-servers.png)
+
+Other pages are now preparing.
 
 Installation
 ------------
