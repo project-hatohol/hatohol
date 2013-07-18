@@ -55,15 +55,16 @@ struct ArmBase::PrivateContext
 
 	void stampLastPollingTime(void)
 	{
-		if (updateType == UPDATE_POLLING) {
-			int result = clock_gettime(CLOCK_REALTIME,
-						   &lastPollingTime);
-			if (result == -1) {
-				MLPL_ERR("Failed to call clock_gettime: %d\n",
-					 errno);
-				lastPollingTime.tv_sec = 0;
-				lastPollingTime.tv_nsec = 0;
-			}
+		if (updateType != UPDATE_POLLING)
+			return;
+
+		int result = clock_gettime(CLOCK_REALTIME,
+					   &lastPollingTime);
+		if (result == -1) {
+			MLPL_ERR("Failed to call clock_gettime: %d\n",
+				 errno);
+			lastPollingTime.tv_sec = 0;
+			lastPollingTime.tv_nsec = 0;
 		}
 	}
 
