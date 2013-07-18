@@ -84,6 +84,9 @@ struct ArmBase::PrivateContext
 				interval -= elapsed;
 		}
 
+		if (interval <= 0 || interval > serverInfo.pollingIntervalSec)
+			interval = serverInfo.pollingIntervalSec;
+
 		return interval;
 	}
 
