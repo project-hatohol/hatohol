@@ -136,11 +136,11 @@ protected:
 	static void initDefaultDBConnectInfoMaster(void)
 	{
 		DefaultDBInfo &dbInfo = getDefaultDBInfo();
-		m_connectInfo.host     = "localhost";
-		m_connectInfo.port     = 0; // default port
-		m_connectInfo.user     = "hatohol";
-		m_connectInfo.password = "hatohol";
-		m_connectInfo.dbName   = dbInfo.dbName;
+		m_connectInfoMaster.host     = "localhost";
+		m_connectInfoMaster.port     = 0; // default port
+		m_connectInfoMaster.user     = "hatohol";
+		m_connectInfoMaster.password = "hatohol";
+		m_connectInfoMaster.dbName   = dbInfo.dbName;
 		m_connectInfoMasterInitialized = true;
 	}
 
