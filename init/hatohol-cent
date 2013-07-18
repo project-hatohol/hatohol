@@ -26,7 +26,7 @@ case "$1" in
 		status $PROGNAME
 		;;
 	*)
-		echo $"Usage: $PROGNAME {start|stop|stop}" >&2
+		echo $"Usage: $PROGNAME {start|stop|status}" >&2
 		exit 1
 		;;
 esac
