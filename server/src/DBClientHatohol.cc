@@ -24,8 +24,8 @@ using namespace mlpl;
 
 #include "DBAgentFactory.h"
 #include "DBClientHatohol.h"
-#include "ConfigManager.h"
 #include "DBClientUtils.h"
+#include "Params.h"
 
 static const char *TABLE_NAME_TRIGGERS = "triggers";
 static const char *TABLE_NAME_EVENTS   = "events";

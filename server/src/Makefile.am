@@ -50,6 +50,7 @@ libhatohol_la_SOURCES = \
 	ItemTableUtils.h \
 	JsonBuilderAgent.cc JsonBuilderAgent.h \
 	JsonParserAgent.cc JsonParserAgent.h \
+	Params.h \
 	PrimaryCondition.cc PrimaryCondition.h \
 	PrimaryConditionPicker.cc PrimaryConditionPicker.h \
 	SQLColumnParser.cc SQLColumnParser.h \

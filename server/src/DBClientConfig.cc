@@ -24,8 +24,8 @@ using namespace std;
 
 #include "DBAgentFactory.h"
 #include "DBClientConfig.h"
-#include "ConfigManager.h"
 #include "DBClientUtils.h"
+#include "Params.h"
 
 static const char *TABLE_NAME_SYSTEM  = "system";
 static const char *TABLE_NAME_SERVERS = "servers";

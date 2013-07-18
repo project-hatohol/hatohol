@@ -22,7 +22,7 @@ using namespace mlpl;
 
 #include "DBClientZabbix.h"
 #include "ItemEnum.h"
-#include "ConfigManager.h"
+#include "Params.h"
 #include "HatoholException.h"
 #include "ItemTableUtils.h"
 #include "DBAgentFactory.h"

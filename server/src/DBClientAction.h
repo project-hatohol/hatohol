@@ -23,7 +23,7 @@
 #include <string>
 #include "DBClientHatohol.h"
 #include "DBClientConnectable.h"
-#include "ConfigManager.h"
+#include "Params.h"
 
 enum ActionType {
 	ACTION_COMMAND,

@@ -22,9 +22,9 @@
 
 #include "Hatohol.h"
 #include "DBClientHatohol.h"
-#include "ConfigManager.h"
 #include "Helpers.h"
 #include "DBClientTest.h"
+#include "Params.h"
 
 namespace testDBClientHatohol {
 

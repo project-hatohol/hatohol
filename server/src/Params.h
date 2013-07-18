@@ -17,31 +17,21 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef ConfigManager_h
-#define ConfigManager_h
+#ifndef Params_h
+#define Params_h
 
-#include <glib.h>
-#include <stdint.h>
+typedef uint32_t DBDomainId;
 
-#include "DBClientConfig.h"
+static const DBDomainId DB_DOMAIN_ID_CONFIG  = 0x0010;
+static const DBDomainId DB_DOMAIN_ID_ACTION  = 0x0018;
+static const DBDomainId DB_DOMAIN_ID_HATOHOL = 0x0020;
+static const DBDomainId DB_DOMAIN_ID_ZABBIX  = 0x1000;
+static const size_t NUM_MAX_ZABBIX_SERVERS = 100;
+// DBClintZabbix uses the number of domains by NUM_MAX_ZABBIX_SERVERS 
+// So the domain ID is occupied
+//   from DB_DOMAIN_ID_ZABBIX
+//   to   DB_DOMAIN_ID_ZABBIX + NUM_MAX_ZABBIX_SERVERS - 1
 
-class ConfigManager {
-public:
-	static const char *HATOHOL_DB_DIR_ENV_VAR_NAME;
-	static ConfigManager *getInstance(void);
+#endif // Params_h
 
-	void addTargetServer(MonitoringServerInfo *monitoringServerInfo);
-	void getTargetServers(MonitoringServerInfoList &monitoringServers);
-	const string &getDatabaseDirectory(void) const;
-	size_t getNumberOfPreservedReplicaGeneration(void) const;
 
-private:
-	struct PrivateContext;
-	PrivateContext *m_ctx;
-
-	// Constructor and destructor
-	ConfigManager(void);
-	virtual ~ConfigManager();
-};
-
-#endif // ConfigManager_h

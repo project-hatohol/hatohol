@@ -24,7 +24,7 @@
 #include "JsonParserAgent.h"
 #include "DBAgentSQLite3.h"
 #include "DBClientTest.h"
-#include "ConfigManager.h"
+#include "Params.h"
 
 namespace testFaceRest {
 

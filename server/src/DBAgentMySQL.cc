@@ -19,7 +19,7 @@
 
 #include "DBAgentMySQL.h"
 #include "SQLUtils.h"
-#include "ConfigManager.h"
+#include "Params.h"
 
 struct DBAgentMySQL::PrivateContext {
 	MYSQL mysql;

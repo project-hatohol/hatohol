@@ -20,7 +20,7 @@
 #include "DBAgentFactory.h"
 #include "DBAgentSQLite3.h"
 #include "DBAgentMySQL.h"
-#include "ConfigManager.h"
+#include "Params.h"
 
 // ---------------------------------------------------------------------------
 // Public methods

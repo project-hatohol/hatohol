@@ -26,6 +26,7 @@ using namespace std;
 #include <glib.h>
 #include <stdint.h>
 
+#include "Params.h"
 #include "SQLProcessorTypes.h"
 
 struct DBAgentTableCreationArg {
@@ -94,7 +95,6 @@ struct DBConnectInfo {
 	const char *getPassword(void) const;
 };
 
-typedef uint32_t DBDomainId;
 typedef void (*DBSetupFunc)(DBDomainId domainId, void *data);
 static const DBDomainId DEFAULT_DB_DOMAIN_ID = 0;
 
