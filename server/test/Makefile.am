@@ -56,7 +56,8 @@ libTest_la_SOURCES = \
 	PipeUtils.cc PipeUtils.h
 libTest_la_LDFLAGS =
 
-ActionTp_LDADD = -lTest -lstdc++
+ActionTp_SOURCES = ActionTp.cc
+ActionTp_LDADD = -lTest
 
 zabbix_api_response_collector_SOURCES = zabbix-api-response-collector.cc
 zabbix_api_response_collector_LDFLAGS = -lstdc++
