@@ -56,9 +56,60 @@ struct UnifiedDataStore::PrivateContext
 		sem_destroy(&updatedSemaphore);
 	};
 
-	void updatedCallback(void);
-	void wakeArm(ArmBase *arm);
-	bool updateIsNeeded(void);
+	void wakeArm(ArmBase *arm)
+	{
+		Closure<UnifiedDataStore::PrivateContext> *closure =
+		  new Closure<UnifiedDataStore::PrivateContext>(
+		    this, &UnifiedDataStore::PrivateContext::updatedCallback);
+		arm->fetchItems(closure);
+	}
+
+	bool updateIsNeeded(void)
+	{
+		bool shouldUpdate = true;
+
+		rwlock.readLock();
+
+		if (remainingArmsCount > 0) {
+			shouldUpdate = false;
+		} else {
+			timespec ts;
+			time_t banLiftTime
+			  = lastUpdateTime.tv_sec + minUpdateInterval;
+			if (clock_gettime(CLOCK_REALTIME, &ts) == -1) {
+				MLPL_ERR("Failed to call clock_gettime: %d\n",
+					 errno);
+			} else if (ts.tv_sec < banLiftTime) {
+				shouldUpdate = false;
+			}
+		}
+
+		rwlock.unlock();
+
+		return shouldUpdate;
+	}
+
+	void updatedCallback(void)
+	{
+		rwlock.writeLock();
+
+		if (!updateArmsQueue.empty()) {
+			wakeArm(updateArmsQueue.front());
+			updateArmsQueue.erase(updateArmsQueue.begin());
+		}
+
+		remainingArmsCount--;
+		if (remainingArmsCount == 0) {
+			if (sem_post(&updatedSemaphore) == -1)
+				MLPL_ERR("Failed to call sem_post: %d\n",
+					 errno);
+			if (clock_gettime(CLOCK_REALTIME, &lastUpdateTime) == -1)
+				MLPL_ERR("Failed to call clock_gettime: %d\n",
+					 errno);
+		}
+
+		rwlock.unlock();
+	}
 };
 
 UnifiedDataStore *UnifiedDataStore::PrivateContext::instance = NULL;
@@ -108,59 +159,6 @@ void UnifiedDataStore::stop(void)
 {
 	m_ctx->vdsZabbix->stop();
 	m_ctx->vdsNagios->stop();
-}
-
-void
-UnifiedDataStore::PrivateContext::wakeArm(ArmBase *arm)
-{
-	Closure<UnifiedDataStore::PrivateContext> *closure =
-	  new Closure<UnifiedDataStore::PrivateContext>(
-	    this, &UnifiedDataStore::PrivateContext::updatedCallback);
-	arm->fetchItems(closure);
-}
-
-bool
-UnifiedDataStore::PrivateContext::updateIsNeeded(void)
-{
-	bool shouldUpdate = true;
-
-	rwlock.readLock();
-
-	if (remainingArmsCount > 0) {
-		shouldUpdate = false;
-	} else {
-		timespec ts;
-		if (clock_gettime(CLOCK_REALTIME, &ts) == -1) {
-			MLPL_ERR("Failed to call clock_gettime: %d\n", errno);
-		} else if (ts.tv_sec < lastUpdateTime.tv_sec + minUpdateInterval) {
-			shouldUpdate = false;
-		}
-	}
-
-	rwlock.unlock();
-
-	return shouldUpdate;
-}
-
-void
-UnifiedDataStore::PrivateContext::updatedCallback(void)
-{
-	rwlock.writeLock();
-
-	if (!updateArmsQueue.empty()) {
-		wakeArm(updateArmsQueue.front());
-		updateArmsQueue.erase(updateArmsQueue.begin());
-	}
-
-	remainingArmsCount--;
-	if (remainingArmsCount == 0) {
-		if (sem_post(&updatedSemaphore) == -1)
-			MLPL_ERR("Failed to call sem_post: %d\n", errno);
-		if (clock_gettime(CLOCK_REALTIME, &lastUpdateTime) == -1)
-			MLPL_ERR("Failed to call clock_gettime: %d\n", errno);
-	}
-
-	rwlock.unlock();
 }
 
 void UnifiedDataStore::fetchItems(void)
