@@ -284,6 +284,14 @@ bool DBClientConfig::parseCommandLineArgument(CommandLineArg &cmdArg)
 
 void DBClientConfig::init(void)
 {
+	HATOHOL_ASSERT(NUM_COLUMNS_SYSTEM == NUM_IDX_SYSTEM,
+	  "NUM_COLUMNS_SYSTEM: %zd, NUM_IDX_SYSTEM: %d",
+	  NUM_COLUMNS_SYSTEM, NUM_IDX_SYSTEM);
+
+	HATOHOL_ASSERT(NUM_COLUMNS_SERVERS == NUM_IDX_SERVERS,
+	  "NUM_COLUMNS_SERVERS: %zd, NUM_IDX_SERVERS: %d",
+	  NUM_COLUMNS_SERVERS, NUM_IDX_SERVERS);
+
 	//
 	// set database info
 	//
