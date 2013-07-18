@@ -58,9 +58,9 @@ struct UnifiedDataStore::PrivateContext
 
 	void wakeArm(ArmBase *arm)
 	{
-		Closure<UnifiedDataStore::PrivateContext> *closure =
-		  new Closure<UnifiedDataStore::PrivateContext>(
-		    this, &UnifiedDataStore::PrivateContext::updatedCallback);
+		Closure<PrivateContext> *closure =
+		  new Closure<PrivateContext>(
+		    this, &PrivateContext::updatedCallback);
 		arm->fetchItems(closure);
 	}
 
