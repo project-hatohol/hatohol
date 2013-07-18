@@ -10,4 +10,5 @@ AM_LDFLAGS = -lpthread
 includedir = $(prefix)/include/mlpl
 include_HEADERS = \
 	MutexLock.h ReadWriteLock.h \
-	SmartBuffer.h Logger.h StringUtils.h SmartQueue.h ParsableString.h
+	SmartBuffer.h Logger.h StringUtils.h SmartQueue.h ParsableString.h \
+	TimeCounter.h
