@@ -23,6 +23,7 @@
 #include <list>
 #include "DBClient.h"
 #include "DBAgentFactory.h"
+#include "ConfigManager.h"
 #include "MutexLock.h"
 
 // The reason why this is a template class is that we want to make
@@ -31,9 +32,7 @@
 // among all derived classes. Connected server might be different by
 // a drived class. Such behavior is undesirable.
 
-template<DBDomainId DB_DOMAIN_ID,
-         const struct DBSetupFuncArg *DB_SETUP_FUNC_ARG,
-         const char *DEFAULT_DB_NAME>
+template<DBDomainId DB_DOMAIN_ID>
 class DBClientConnectable : public DBClient {
 public:
 	static void reset(bool deepReset = false)
@@ -80,8 +79,10 @@ public:
 		if (!m_initialized) {
 			// The setup function: dbSetupFunc() is called from
 			// the creation of DBAgent instance below.
+			DefaultDBInfo &dbInfo = getDefaultDBInfo();
 			DBAgent::addSetupFunction(
-			  DB_DOMAIN_ID, dbSetupFunc, (void *)DB_SETUP_FUNC_ARG);
+			  DB_DOMAIN_ID, dbSetupFunc,
+			  (void *)dbInfo.dbSetupFuncArg);
 		}
 		m_mutex.unlock();
 		bool skipSetup = false;
@@ -94,6 +95,38 @@ public:
 	}
 
 protected:
+	struct DefaultDBInfo {
+		const char           *dbName;
+		const DBSetupFuncArg *dbSetupFuncArg;
+	};
+	typedef map<DBDomainId, DefaultDBInfo>      DefaultDBInfoMap;
+	typedef typename DefaultDBInfoMap::iterator DefaultDBInfoMapIterator;
+
+	static void addDefaultDBInfo(DBDomainId domainId,
+	                             const char *defaultDBName,
+	                             const DBSetupFuncArg *dbSetupFuncArg)
+	{
+		pair<DefaultDBInfoMapIterator, bool> result;
+		DefaultDBInfo dbInfo = {defaultDBName, dbSetupFuncArg};
+		m_dbInfoLock.writeLock();
+		result = m_defaultDBInfoMap.insert(
+		  pair<DBDomainId, DefaultDBInfo>(domainId, dbInfo));
+		m_dbInfoLock.unlock();
+		HATOHOL_ASSERT(result.second,
+		               "Failed to insert: Domain ID: %d", domainId);
+	}
+
+	static DefaultDBInfo &getDefaultDBInfo(void)
+	{
+		DBDomainId domainId = DB_DOMAIN_ID;
+		m_dbInfoLock.readLock();
+		DefaultDBInfoMapIterator it = m_defaultDBInfoMap.find(domainId);
+		m_dbInfoLock.unlock();
+		HATOHOL_ASSERT(it != m_defaultDBInfoMap.end(),
+		               "Not found default DB info: %d", domainId);
+		return it->second;
+	}
+
 	static void resetDBInitializedFlags(void)
 	{
 		m_initialized = false;
@@ -101,11 +134,12 @@ protected:
 
 	static void initDefaultDBConnectInfoMaster(void)
 	{
+		DefaultDBInfo &dbInfo = getDefaultDBInfo();
 		m_connectInfo.host     = "localhost";
 		m_connectInfo.port     = 0; // default port
 		m_connectInfo.user     = "hatohol";
 		m_connectInfo.password = "hatohol";
-		m_connectInfo.dbName   = DEFAULT_DB_NAME;
+		m_connectInfo.dbName   = dbInfo.dbName;
 		m_connectInfoMasterInitialized = true;
 	}
 
@@ -123,7 +157,9 @@ protected:
 
 private:
 	static bool m_initialized;
+	static DefaultDBInfoMap m_defaultDBInfoMap;
 	static mlpl::MutexLock m_mutex;
+	static mlpl::ReadWriteLock m_dbInfoLock;
 
 	// Contents in connectInfo is set to those in connectInfoMaseter
 	// on reset(). However, connectInfoMaster is never changed after
@@ -133,20 +169,17 @@ private:
 	static bool m_connectInfoMasterInitialized;
 };
 
-template<DBDomainId DID, const struct DBSetupFuncArg *ARG, const char *DB_NAME>
-  mlpl::MutexLock DBClientConnectable<DID,ARG,DB_NAME>::m_mutex;
-
-template<DBDomainId DID, const struct DBSetupFuncArg *ARG, const char *DB_NAME>
-  bool DBClientConnectable<DID,ARG,DB_NAME>::m_initialized = false;
-
-template<DBDomainId DID, const struct DBSetupFuncArg *ARG, const char *DB_NAME>
-  DBConnectInfo DBClientConnectable<DID,ARG,DB_NAME>::m_connectInfo;
-
-template<DBDomainId DID, const struct DBSetupFuncArg *ARG, const char *DB_NAME>
-  DBConnectInfo DBClientConnectable<DID,ARG,DB_NAME>::m_connectInfoMaster;
-
-template<DBDomainId DID, const struct DBSetupFuncArg *ARG, const char *DB_NAME>
-  bool DBClientConnectable<DID,ARG,DB_NAME>::m_connectInfoMasterInitialized
-    = false;
+template<DBDomainId DID> mlpl::MutexLock DBClientConnectable<DID>::m_mutex;
+template<DBDomainId DID> mlpl::ReadWriteLock
+   DBClientConnectable<DID>::m_dbInfoLock;
+template<DBDomainId DID>
+  typename DBClientConnectable<DID>::DefaultDBInfoMap
+    DBClientConnectable<DID>::m_defaultDBInfoMap;
+template<DBDomainId DID> bool DBClientConnectable<DID>::m_initialized = false;
+template<DBDomainId DID> DBConnectInfo DBClientConnectable<DID>::m_connectInfo;
+template<DBDomainId DID>
+  DBConnectInfo DBClientConnectable<DID>::m_connectInfoMaster;
+template<DBDomainId DID>
+  bool DBClientConnectable<DID>::m_connectInfoMasterInitialized = false;
 
 #endif // DBClientConnectable_h
