@@ -70,9 +70,9 @@ void setup(void)
 {
 	hatoholInit();
 	
-	// test_parseArgConfigDBServer() and test_parseArgConfigDBServerWithPort()
-	// changes the master data structure of DBClientConfig. The following call
-	// is needed to clear that information.
+	// test_parseArgConfigDBServer() & test_parseArgConfigDBServerWithPort()
+	// changes the master data structure of DBClientConfig.
+	// The following call is needed to clear that information.
 	DBClientConfig::reset(true);
 
 	static const char *TEST_DB_USER = "hatohol_test_user";
