@@ -20,6 +20,7 @@
 #include "ConfigManager.h"
 #include "DBAgentFactory.h"
 #include "DBClientAction.h"
+#include "DBClientUtils.h"
 #include "MutexLock.h"
 
 using namespace mlpl;
@@ -355,6 +356,34 @@ void DBClientAction::getActionList(const EventInfo &eventInfo,
                                    ActionDefList &actionDefList)
 {
 	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	DBAgentSelectExArg arg;
+	arg.tableName = TABLE_NAME_ACTIONS;
+	arg.pushColumn(COLUMN_DEF_ACTIONS[IDX_ACTIONS_ACTION_ID]);
+	arg.pushColumn(COLUMN_DEF_ACTIONS[IDX_ACTIONS_ACTION_TYPE]);
+	arg.pushColumn(COLUMN_DEF_ACTIONS[IDX_ACTIONS_PATH]);
+	arg.pushColumn(COLUMN_DEF_ACTIONS[IDX_ACTIONS_TIMEOUT]);
+
+	DBCLIENT_TRANSACTION_BEGIN() {
+		select(arg);
+	} DBCLIENT_TRANSACTION_END();
+
+	// get the result
+	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
+	ItemGroupListConstIterator it = grpList.begin();
+	for (; it != grpList.end(); ++it) {
+		size_t idx = 0;
+		const ItemGroup *itemGroup = *it;
+		actionDefList.push_back(ActionDef());
+		ActionDef &actionDef = actionDefList.back();
+
+		// TODO: Check the NULL value
+		// TODO: support working dir.
+		actionDef.id      = GET_INT_FROM_GRP(itemGroup, idx++);
+		actionDef.type    =
+		   static_cast<ActionType>(GET_INT_FROM_GRP(itemGroup, idx++));
+		actionDef.path    = GET_STRING_FROM_GRP(itemGroup, idx++);
+		actionDef.timeout = GET_INT_FROM_GRP(itemGroup, idx++);
+	}
 }
 
 void DBClientAction::logStartExecAction(const ActionDef &actionDef)

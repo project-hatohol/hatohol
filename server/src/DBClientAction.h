@@ -31,9 +31,11 @@ enum ActionType {
 };
 
 struct ActionDef {
+	int         id;
 	ActionType  type;
 	std::string workingDir;
 	std::string path;
+	int         timeout; // in sec
 };
 
 typedef list<ActionDef>               ActionDefList;
