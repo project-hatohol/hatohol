@@ -60,12 +60,34 @@ struct ArmBase::PrivateContext
 
 		int result = clock_gettime(CLOCK_REALTIME,
 					   &lastPollingTime);
-		if (result == -1) {
+		if (result == 0) {
+			MLPL_DBG("lastPollingTime: %d\n",
+				 lastPollingTime.tv_sec);
+		} else {
 			MLPL_ERR("Failed to call clock_gettime: %d\n",
 				 errno);
 			lastPollingTime.tv_sec = 0;
 			lastPollingTime.tv_nsec = 0;
 		}
+	}
+
+	int getSecondsToNextPolling(void)
+	{
+		time_t interval = serverInfo.pollingIntervalSec;
+		timespec currentTime;
+
+		int result = clock_gettime(CLOCK_REALTIME, &currentTime);
+		if (result == 0 && lastPollingTime.tv_sec != 0) {
+			time_t elapsed
+			  = currentTime.tv_sec - lastPollingTime.tv_sec;
+			if (elapsed < interval)
+				interval -= elapsed;
+		}
+
+		if (interval < 0)
+			interval = 1;
+
+		return interval;
 	}
 
 	UpdateType getUpdateType(void)
@@ -178,7 +200,7 @@ void ArmBase::setUpdateType(UpdateType updateType)
 gpointer ArmBase::mainThread(HatoholThreadArg *arg)
 {
 	while (!hasExitRequest()) {
-		int sleepTime = getPollingInterval();
+		int sleepTime = m_ctx->getSecondsToNextPolling();
 		if (!mainThreadOneProc())
 			sleepTime = getRetryInterval();
 
