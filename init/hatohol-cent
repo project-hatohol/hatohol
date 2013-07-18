@@ -7,6 +7,7 @@
 
 PATH=/sbin:/bin:/usr/sbin:/usr/bin:/usr/local/sbin
 PROG=/usr/local/sbin/hatohol
+OPTIONS="--config-db-server localhost &"
 PROGNAME=`basename $PROG`
 
 [ -f $PROG ]|| exit 0
@@ -14,7 +15,7 @@ PROGNAME=`basename $PROG`
 case "$1" in
 	start)
 		echo -n $"Starting $PROGNAME: "
-		daemon $PROG
+		daemon $PROG $OPTIONS
 		echo
 		;;
 	stop)
