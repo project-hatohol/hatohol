@@ -29,6 +29,7 @@ using namespace mlpl;
 struct ArmBase::PrivateContext
 {
 	MonitoringServerInfo serverInfo; // we have the copy.
+	timespec             lastPollingTime;
 	sem_t                sleepSemaphore;
 	volatile int         exitRequest;
 	ArmBase::UpdateType  updateType;
@@ -42,12 +43,28 @@ struct ArmBase::PrivateContext
 		static const int PSHARED = 1;
 		HATOHOL_ASSERT(sem_init(&sleepSemaphore, PSHARED, 0) == 0,
 		             "Failed to sem_init(): %d\n", errno);
+		lastPollingTime.tv_sec = 0;
+		lastPollingTime.tv_nsec = 0;
 	}
 
 	virtual ~PrivateContext()
 	{
 		if (sem_destroy(&sleepSemaphore) != 0)
 			MLPL_ERR("Failed to call sem_destroy(): %d\n", errno);
+	}
+
+	void stampLastPollingTime(void)
+	{
+		if (updateType == UPDATE_POLLING) {
+			int result = clock_gettime(CLOCK_REALTIME,
+						   &lastPollingTime);
+			if (result == -1) {
+				MLPL_ERR("Failed to call clock_gettime: %d\n",
+					 errno);
+				lastPollingTime.tv_sec = 0;
+				lastPollingTime.tv_nsec = 0;
+			}
+		}
 	}
 
 	Signal updatedSignal;
@@ -154,6 +171,7 @@ gpointer ArmBase::mainThread(HatoholThreadArg *arg)
 		if (!mainThreadOneProc())
 			sleepTime = getRetryInterval();
 
+		m_ctx->stampLastPollingTime();
 		m_ctx->updatedSignal();
 		m_ctx->updatedSignal.clear();
 
