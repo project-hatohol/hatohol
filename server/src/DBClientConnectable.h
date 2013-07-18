@@ -80,6 +80,7 @@ public:
 			// The setup function: dbSetupFunc() is called from
 			// the creation of DBAgent instance below.
 			DefaultDBInfo &dbInfo = getDefaultDBInfo();
+			dbInfo.dbSetupFuncArg->connectInfo = connectInfo;
 			DBAgent::addSetupFunction(
 			  DB_DOMAIN_ID, dbSetupFunc,
 			  (void *)dbInfo.dbSetupFuncArg);
@@ -96,15 +97,15 @@ public:
 
 protected:
 	struct DefaultDBInfo {
-		const char           *dbName;
-		const DBSetupFuncArg *dbSetupFuncArg;
+		const char     *dbName;
+		DBSetupFuncArg *dbSetupFuncArg;
 	};
 	typedef map<DBDomainId, DefaultDBInfo>      DefaultDBInfoMap;
 	typedef typename DefaultDBInfoMap::iterator DefaultDBInfoMapIterator;
 
 	static void addDefaultDBInfo(DBDomainId domainId,
 	                             const char *defaultDBName,
-	                             const DBSetupFuncArg *dbSetupFuncArg)
+	                             DBSetupFuncArg *dbSetupFuncArg)
 	{
 		pair<DefaultDBInfoMapIterator, bool> result;
 		DefaultDBInfo dbInfo = {defaultDBName, dbSetupFuncArg};
