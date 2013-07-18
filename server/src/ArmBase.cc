@@ -183,10 +183,9 @@ gpointer ArmBase::mainThread(HatoholThreadArg *arg)
 			sleepTime = getRetryInterval();
 
 		m_ctx->stampLastPollingTime();
+		m_ctx->setUpdateType(UPDATE_POLLING);
 		m_ctx->updatedSignal();
 		m_ctx->updatedSignal.clear();
-
-		setUpdateType(UPDATE_POLLING);
 
 		if (hasExitRequest())
 			break;
