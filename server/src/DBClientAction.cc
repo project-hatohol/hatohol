@@ -294,11 +294,28 @@ enum {
 	NUM_IDX_ACTION_LOGS,
 };
 
+static const DBClient::DBSetupTableInfo DB_TABLE_INFO[] = {
+{
+	TABLE_NAME_ACTIONS,
+	NUM_COLUMNS_ACTIONS,
+	COLUMN_DEF_ACTIONS,
+}, {
+	TABLE_NAME_ACTION_LOGS,
+	NUM_COLUMNS_ACTION_LOGS,
+	COLUMN_DEF_ACTION_LOGS,
+}
+};
+static const size_t NUM_TABLE_INFO =
+sizeof(DB_TABLE_INFO) / sizeof(DBClient::DBSetupTableInfo);
+
+static const DBClient::DBSetupFuncArg DB_ACTION_SETUP_FUNC_ARG = {
+	DBClientAction::ACTION_DB_VERSION,
+	NUM_TABLE_INFO,
+	DB_TABLE_INFO,
+};
+
 struct DBClientAction::PrivateContext
 {
-	static MutexLock mutex;
-	static bool      initialized;
-
 	PrivateContext(void)
 	{
 	}
@@ -306,19 +323,7 @@ struct DBClientAction::PrivateContext
 	virtual ~PrivateContext()
 	{
 	}
-
-	static void lock(void)
-	{
-		mutex.lock();
-	}
-
-	static void unlock(void)
-	{
-		mutex.unlock();
-	}
 };
-MutexLock DBClientAction::PrivateContext::mutex;
-bool DBClientAction::PrivateContext::initialized = false;
 
 // ---------------------------------------------------------------------------
 // Public methods
@@ -332,21 +337,14 @@ void DBClientAction::init(void)
 	HATOHOL_ASSERT(NUM_COLUMNS_ACTION_LOGS == NUM_IDX_ACTION_LOGS,
 	  "NUM_COLUMNS_ACTION_LOGS: %zd, NUM_IDX_ACTION_LOGS: %d",
 	  NUM_COLUMNS_ACTION_LOGS, NUM_IDX_ACTION_LOGS);
+
+	addDefaultDBInfo(
+	  DB_DOMAIN_ID_ACTION, DEFAULT_DB_NAME, &DB_ACTION_SETUP_FUNC_ARG);
 }
 
 DBClientAction::DBClientAction(void)
 : m_ctx(NULL)
 {
-	m_ctx = new PrivateContext();
-
-	m_ctx->lock();
-	if (!m_ctx->initialized) {
-		// The setup function: dbSetupFunc() is called from
-		// the creation of DBAgent instance below.
-		prepareSetupFunction();
-	}
-	m_ctx->unlock();
-	setDBAgent(DBAgentFactory::create(DB_DOMAIN_ID_ACTION));
 }
 
 DBClientAction::~DBClientAction()
@@ -378,29 +376,3 @@ void DBClientAction::logErrExecAction(const ActionDef &actionDef,
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
-void DBClientAction::prepareSetupFunction(void)
-{
-	static const DBSetupTableInfo DB_TABLE_INFO[] = {
-	{
-		TABLE_NAME_ACTIONS,
-		NUM_COLUMNS_ACTIONS,
-		COLUMN_DEF_ACTIONS,
-	}, {
-		TABLE_NAME_ACTION_LOGS,
-		NUM_COLUMNS_ACTION_LOGS,
-		COLUMN_DEF_ACTION_LOGS,
-	}
-	};
-	static const size_t NUM_TABLE_INFO =
-	sizeof(DB_TABLE_INFO) / sizeof(DBSetupTableInfo);
-
-	static const DBSetupFuncArg DB_SETUP_FUNC_ARG = {
-		ACTION_DB_VERSION,
-		NUM_TABLE_INFO,
-		DB_TABLE_INFO,
-	};
-
-	DBAgent::addSetupFunction(DB_DOMAIN_ID_ACTION,
-	                          dbSetupFunc, (void *)&DB_SETUP_FUNC_ARG);
-}
-

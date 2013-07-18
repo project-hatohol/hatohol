@@ -22,6 +22,8 @@
 
 #include <string>
 #include "DBClientHatohol.h"
+#include "DBClientConnectable.h"
+#include "ConfigManager.h"
 
 enum ActionType {
 	ACTION_COMMAND,
@@ -44,7 +46,8 @@ struct ExitChildInfo {
 	int   exitCode;
 };
 
-class DBClientAction : public DBClient
+class DBClientAction :
+   public DBClientConnectable<DB_DOMAIN_ID_ACTION>
 {
 public:
 	static int ACTION_DB_VERSION;
@@ -60,7 +63,6 @@ public:
 	void logErrExecAction(const ActionDef &actionDef, const string &msg);
 
 protected:
-	void prepareSetupFunction(void);
 
 private:
 	struct PrivateContext;
