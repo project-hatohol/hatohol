@@ -444,11 +444,7 @@ void test_mainThreadOneProc()
 
 void test_updateTypeShouldBeChangedOnFetchItems()
 {
-	int svId = 0;
 	MonitoringServerInfo serverInfo = g_defaultServerInfo;
-	serverInfo.id = svId;
-	serverInfo.port = getTestPort();
-	deleteDBClientZabbixDB(svId);
 	ArmZabbixAPITestee armZbxApiTestee(serverInfo);
 	cppcut_assert_equal(ArmBase::UPDATE_POLLING,
 			    armZbxApiTestee.testGetUpdateType());
