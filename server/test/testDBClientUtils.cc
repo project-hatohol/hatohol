@@ -24,7 +24,16 @@
 
 namespace testDBClientUtils {
 
-
+template <class NativeType, class ItemDataType>
+static ItemGroupPtr makeItemGroup(const NativeType *DATA, const size_t NUM_DATA)
+{
+	VariableItemGroupPtr itemGrp;
+	for (size_t i = 0; i < NUM_DATA; i++) {
+		VariableItemDataPtr item = new ItemDataType(DATA[i]);
+		itemGrp->add(item);
+	}
+	return (ItemGroup *)itemGrp;
+}
 
 void setup(void)
 {
@@ -38,11 +47,8 @@ void test_getUint64FromGrp(void)
 	static const uint64_t DATA[] = {
 	  0xfedcba9876543210, 0x8000000000000000, 0x7fffffffffffffff, 0x5};
 	static const size_t NUM_DATA = sizeof(DATA) / sizeof(const uint64_t);
-	VariableItemGroupPtr itemGrp;
-	for (size_t i = 0; i < NUM_DATA; i++) {
-		VariableItemDataPtr item = new ItemUint64(DATA[i]);
-		itemGrp->add(item);
-	}
+	ItemGroupPtr itemGrp
+	 = makeItemGroup<uint64_t, ItemUint64>(DATA, NUM_DATA);
 
 	// check
 	for (size_t i = 0; i < NUM_DATA; i++) {
@@ -55,12 +61,7 @@ void test_getIntFromGrp(void)
 {
 	static const int DATA[] = {-2984322, 3285, 0};
 	static const size_t NUM_DATA = sizeof(DATA) / sizeof(int);
-	VariableItemGroupPtr itemGrp;
-	for (size_t i = 0; i < NUM_DATA; i++) {
-		VariableItemDataPtr item = new ItemInt(DATA[i]);
-		itemGrp->add(item);
-	}
-
+	ItemGroupPtr itemGrp = makeItemGroup<int, ItemInt>(DATA, NUM_DATA);
 	// check
 	for (size_t i = 0; i < NUM_DATA; i++) {
 		int data = GET_INT_FROM_GRP(itemGrp, i);
@@ -72,11 +73,8 @@ void test_getStringFromGrp(void)
 {
 	static const string DATA[] = {"ABCE", "", " - ! - #\"'\\"};
 	static const size_t NUM_DATA = sizeof(DATA) / sizeof(string);
-	VariableItemGroupPtr itemGrp;
-	for (size_t i = 0; i < NUM_DATA; i++) {
-		VariableItemDataPtr item = new ItemString(DATA[i]);
-		itemGrp->add(item);
-	}
+	ItemGroupPtr itemGrp =
+	   makeItemGroup<string, ItemString>(DATA, NUM_DATA);
 
 	// check
 	for (size_t i = 0; i < NUM_DATA; i++) {
