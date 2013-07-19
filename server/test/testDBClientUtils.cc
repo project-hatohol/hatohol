@@ -49,4 +49,21 @@ void test_getUint64FromGrp(void)
 	}
 }
 
+void test_getIntFromGrp(void)
+{
+	static const int DATA[] = {-2984322, 3285, 0};
+	static const size_t NUM_DATA = sizeof(DATA) / sizeof(int);
+	VariableItemGroupPtr itemGrp;
+	for (size_t i = 0; i < NUM_DATA; i++) {
+		VariableItemDataPtr item = new ItemInt(DATA[i]);
+		itemGrp->add(item);
+	}
+
+	// check
+	for (size_t i = 0; i < NUM_DATA; i++) {
+		int data = GET_INT_FROM_GRP(itemGrp, i);
+		cppcut_assert_equal(DATA[i], data);
+	}
+}
+
 } // namespace testActionManager
