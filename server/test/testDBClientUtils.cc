@@ -24,6 +24,8 @@
 
 namespace testDBClientUtils {
 
+
+
 void setup(void)
 {
 }
@@ -62,6 +64,23 @@ void test_getIntFromGrp(void)
 	// check
 	for (size_t i = 0; i < NUM_DATA; i++) {
 		int data = GET_INT_FROM_GRP(itemGrp, i);
+		cppcut_assert_equal(DATA[i], data);
+	}
+}
+
+void test_getStringFromGrp(void)
+{
+	static const string DATA[] = {"ABCE", "", " - ! - #\"'\\"};
+	static const size_t NUM_DATA = sizeof(DATA) / sizeof(string);
+	VariableItemGroupPtr itemGrp;
+	for (size_t i = 0; i < NUM_DATA; i++) {
+		VariableItemDataPtr item = new ItemString(DATA[i]);
+		itemGrp->add(item);
+	}
+
+	// check
+	for (size_t i = 0; i < NUM_DATA; i++) {
+		string data = GET_STRING_FROM_GRP(itemGrp, i);
 		cppcut_assert_equal(DATA[i], data);
 	}
 }
