@@ -25,11 +25,14 @@
 namespace testDBClientUtils {
 
 template <class NativeType, class ItemDataType>
-static ItemGroupPtr makeItemGroup(const NativeType *DATA, const size_t NUM_DATA)
+static ItemGroupPtr makeItemGroup(const NativeType *DATA, const size_t NUM_DATA,
+                                  const bool *NULL_VECT = NULL)
 {
 	VariableItemGroupPtr itemGrp;
 	for (size_t i = 0; i < NUM_DATA; i++) {
 		VariableItemDataPtr item = new ItemDataType(DATA[i]);
+		if (NULL_VECT && NULL_VECT[i])
+			item->setNull();
 		itemGrp->add(item);
 	}
 	return (ItemGroup *)itemGrp;
@@ -57,6 +60,23 @@ void test_getUint64FromGrp(void)
 	}
 }
 
+void test_getUint64FromGrpWithNull(void)
+{
+	static const uint64_t DATA[] = {1, 2, 5};
+	static const size_t NUM_DATA = sizeof(DATA) / sizeof(const uint64_t);
+	static const bool NULL_VECT[NUM_DATA] = {true, false, true};
+	ItemGroupPtr itemGrp
+	 = makeItemGroup<uint64_t, ItemUint64>(DATA, NUM_DATA, NULL_VECT);
+
+	// check
+	for (size_t i = 0; i < NUM_DATA; i++) {
+		bool isNull;
+		uint64_t data = GET_UINT64_FROM_GRP(itemGrp, i, &isNull);
+		cppcut_assert_equal(DATA[i], data);
+		cppcut_assert_equal(NULL_VECT[i], isNull);
+	}
+}
+
 void test_getIntFromGrp(void)
 {
 	static const int DATA[] = {-2984322, 3285, 0};
@@ -66,6 +86,22 @@ void test_getIntFromGrp(void)
 	for (size_t i = 0; i < NUM_DATA; i++) {
 		int data = GET_INT_FROM_GRP(itemGrp, i);
 		cppcut_assert_equal(DATA[i], data);
+	}
+}
+
+void test_getIntFromGrpWithNull(void)
+{
+	static const int DATA[] = {-2984322, 3285, 0};
+	static const size_t NUM_DATA = sizeof(DATA) / sizeof(int);
+	static const bool NULL_VECT[NUM_DATA] = {true, false, true};
+	ItemGroupPtr itemGrp =
+	   makeItemGroup<int, ItemInt>(DATA, NUM_DATA, NULL_VECT);
+	// check
+	for (size_t i = 0; i < NUM_DATA; i++) {
+		bool isNull;
+		int data = GET_INT_FROM_GRP(itemGrp, i, &isNull);
+		cppcut_assert_equal(DATA[i], data);
+		cppcut_assert_equal(NULL_VECT[i], isNull);
 	}
 }
 
@@ -80,6 +116,23 @@ void test_getStringFromGrp(void)
 	for (size_t i = 0; i < NUM_DATA; i++) {
 		string data = GET_STRING_FROM_GRP(itemGrp, i);
 		cppcut_assert_equal(DATA[i], data);
+	}
+}
+
+void test_getStringFromGrpWithNull(void)
+{
+	static const string DATA[] = {"ABCE", "", " - ! - #\"'\\"};
+	static const size_t NUM_DATA = sizeof(DATA) / sizeof(string);
+	static const bool NULL_VECT[NUM_DATA] = {true, false, true};
+	ItemGroupPtr itemGrp =
+	   makeItemGroup<string, ItemString>(DATA, NUM_DATA, NULL_VECT);
+
+	// check
+	for (size_t i = 0; i < NUM_DATA; i++) {
+		bool isNull;
+		string data = GET_STRING_FROM_GRP(itemGrp, i, &isNull);
+		cppcut_assert_equal(DATA[i], data);
+		cppcut_assert_equal(NULL_VECT[i], isNull);
 	}
 }
 
