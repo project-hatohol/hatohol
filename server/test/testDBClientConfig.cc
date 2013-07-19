@@ -87,6 +87,13 @@ void setup(void)
 // ---------------------------------------------------------------------------
 // Test cases
 // ---------------------------------------------------------------------------
+void test_dbDomainId(void)
+{
+	DBClientConfig dbConfig;
+	cppcut_assert_equal(DB_DOMAIN_ID_CONFIG,
+	                    dbConfig.getDBAgent()->getDBDomainId());
+}
+
 void test_getHostAddressIP(void)
 {
 	const char *ipAddr = "192.168.1.1";

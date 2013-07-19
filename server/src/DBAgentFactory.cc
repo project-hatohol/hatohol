@@ -35,7 +35,8 @@ DBAgent* DBAgentFactory::create(DBDomainId domainId, bool skipSetup,
 		                        connectInfo->getUser(),
 		                        connectInfo->getPassword(),
 		                        connectInfo->getHost(),
-		                        connectInfo->port, skipSetup);
+		                        connectInfo->port,
+		                        domainId, skipSetup);
 	}
 	return new DBAgentSQLite3(domainId, skipSetup);
 }

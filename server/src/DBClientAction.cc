@@ -346,10 +346,13 @@ void DBClientAction::init(void)
 DBClientAction::DBClientAction(void)
 : m_ctx(NULL)
 {
+	m_ctx = new PrivateContext();
 }
 
 DBClientAction::~DBClientAction()
 {
+	if (m_ctx)
+		delete m_ctx;
 }
 
 void DBClientAction::getActionList(const EventInfo &eventInfo,

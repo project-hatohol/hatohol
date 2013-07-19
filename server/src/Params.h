@@ -31,6 +31,7 @@ static const size_t NUM_MAX_ZABBIX_SERVERS = 100;
 // So the domain ID is occupied
 //   from DB_DOMAIN_ID_ZABBIX
 //   to   DB_DOMAIN_ID_ZABBIX + NUM_MAX_ZABBIX_SERVERS - 1
+static const DBDomainId DB_DOMAIN_ID_NONE    = -1;
 
 #endif // Params_h
 

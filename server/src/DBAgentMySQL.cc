@@ -36,8 +36,9 @@ struct DBAgentMySQL::PrivateContext {
 // Public methods
 // ---------------------------------------------------------------------------
 DBAgentMySQL::DBAgentMySQL(const char *db, const char *user, const char *passwd,
-                           const char *host, unsigned int port, bool skipSetup)
-: DBAgent(DB_DOMAIN_ID_CONFIG, skipSetup),
+                           const char *host, unsigned int port,
+                           DBDomainId domainId, bool skipSetup)
+: DBAgent(domainId, skipSetup),
   m_ctx(NULL)
 {
 	const char *unixSocket = NULL;
