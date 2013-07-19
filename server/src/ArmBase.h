@@ -57,7 +57,7 @@ protected:
 	UpdateType getUpdateType(void) const;
 	void       setUpdateType(UpdateType updateType);
 	bool	   getCopyOnDemandEnabled(void) const;
-	bool	   setCopyOnDemandEnabled(bool enable);
+	void	   setCopyOnDemandEnabled(bool enable);
 
 private:
 	struct PrivateContext;
