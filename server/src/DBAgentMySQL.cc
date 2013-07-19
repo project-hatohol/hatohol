@@ -172,6 +172,9 @@ void DBAgentMySQL::createTable(DBAgentTableCreationArg &tableCreationArg)
 			                              columnDef.columnLength,
 			                              columnDef.decFracLength);
 			break;
+		case SQL_COLUMN_TYPE_DATETIME:
+			query += StringUtils::sprintf(" DATETIME");
+			break;
 		default:
 			HATOHOL_ASSERT(false, "Unknown type: %d", columnDef.type);
 		}
