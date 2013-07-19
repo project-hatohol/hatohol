@@ -25,11 +25,6 @@
 
 using namespace mlpl;
 
-enum ComparisonType {
-	CMP_EQ,
-	CMP_EQ_GT,
-};
-
 enum ActionLogExecFailureCode {
 	ACTLOG_EXECFAIL_EXEC_FAILURE,
 	ACTLOG_EXECFAIL_ENTRY_NOT_FOUND,
@@ -353,6 +348,11 @@ DBClientAction::~DBClientAction()
 {
 	if (m_ctx)
 		delete m_ctx;
+}
+
+void DBClientAction::addAction(const ActionDef &actionDef)
+{
+	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
 }
 
 void DBClientAction::getActionList(const EventInfo &eventInfo,

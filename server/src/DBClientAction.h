@@ -30,8 +30,43 @@ enum ActionType {
 	ACTION_RESIDENT,
 };
 
+enum ComparisonType {
+	CMP_INVALID,
+	CMP_EQ,
+	CMP_EQ_GT,
+};
+
+enum ActionConditionEnableFlag {
+	ACTCOND_SERVER_ID        = (1 << 0),
+	ACTCOND_HOST_ID          = (1 << 1),
+	ACTCOND_HOST_GROUPD_ID   = (1 << 2),
+	ACTCOND_TRIGGER_ID       = (1 << 3),
+	ACTCOND_TRIGGER_STATUS   = (1 << 4),
+	ACTCOND_TRIGGER_SEVERITY = (1 << 5),
+};
+
+struct ActionCondition {
+	uint32_t enableBits;
+
+	int      serverId;
+	uint64_t hostId;
+	uint64_t hostGroupId;
+	uint64_t triggerId;
+	int      triggerStatus;
+	int      triggerSeverity;
+	ComparisonType triggerSeverityCompType;
+
+	// constructor
+	ActionCondition(void)
+	: enableBits(0),
+	  triggerSeverityCompType(CMP_INVALID)
+	{
+	}
+};
+
 struct ActionDef {
 	int         id;
+	ActionCondition condition;
 	ActionType  type;
 	std::string workingDir;
 	std::string path;
@@ -58,6 +93,7 @@ public:
 	static void init(void);
 	DBClientAction(void);
 	virtual ~DBClientAction();
+	void addAction(const ActionDef &actionDef);
 	void getActionList(const EventInfo &eventInfo,
 	                   ActionDefList &actionDefList);
 	void logStartExecAction(const ActionDef &actionDef);
