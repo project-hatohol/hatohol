@@ -238,7 +238,7 @@ static const ColumnDef COLUMN_DEF_ACTION_LOGS[] = {
 	TABLE_NAME_ACTION_LOGS,            // tableName
 	"start_time",                      // columnName
 	SQL_COLUMN_TYPE_DATETIME,          // type
-	11,                                // columnLength
+	0,                                 // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
 	SQL_KEY_NONE,                      // keyType
@@ -249,7 +249,7 @@ static const ColumnDef COLUMN_DEF_ACTION_LOGS[] = {
 	TABLE_NAME_ACTION_LOGS,            // tableName
 	"end_time",                        // columnName
 	SQL_COLUMN_TYPE_DATETIME,          // type
-	11,                                // columnLength
+	0,                                 // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
 	SQL_KEY_NONE,                      // keyType
