@@ -200,9 +200,14 @@ void ArmBase::setUpdateType(UpdateType updateType)
 	m_ctx->setUpdateType(updateType);
 }
 
-bool ArmBase::isCopyOnDemandEnabled(void) const
+bool ArmBase::getCopyOnDemandEnabled(void) const
 {
 	return m_ctx->isCopyOnDemandEnabled;
+}
+
+bool ArmBase::setCopyOnDemandEnabled(bool enable)
+{
+	m_ctx->isCopyOnDemandEnabled = enable;
 }
 
 gpointer ArmBase::mainThread(HatoholThreadArg *arg)

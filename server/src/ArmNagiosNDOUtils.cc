@@ -806,7 +806,7 @@ bool ArmNagiosNDOUtils::mainThreadOneProc(void)
 		} else {
 			getTrigger();
 			getEvent();
-			if (!isCopyOnDemandEnabled())
+			if (!getCopyOnDemandEnabled())
 				getItem();
 		}
 	} catch (const exception &e) {

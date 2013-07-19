@@ -148,6 +148,16 @@ public:
 		ArmZabbixAPI::setUpdateType(type);
 	}
 
+	bool testGetCopyOnDemandEnabled(void)
+	{
+		return ArmZabbixAPI::getCopyOnDemandEnabled();
+	}
+
+	void testSetCopyOnDemandEnabled(bool enable)
+	{
+		ArmZabbixAPI::setCopyOnDemandEnabled(enable);
+	}
+
 	string testInitialJsonRequest(void)
 	{
 		return ArmZabbixAPI::getInitialJsonRequest();
@@ -467,6 +477,17 @@ void test_setUpdateType()
 	armZbxApiTestee.testSetUpdateType(ArmBase::UPDATE_ITEM_REQUEST);
 	cppcut_assert_equal(ArmBase::UPDATE_ITEM_REQUEST,
 			    armZbxApiTestee.testGetUpdateType());
+}
+
+void test_setCopyOnDemandEnabled()
+{
+	MonitoringServerInfo serverInfo = g_defaultServerInfo;
+	ArmZabbixAPITestee armZbxApiTestee(serverInfo);
+	cppcut_assert_equal(false,
+			    armZbxApiTestee.testGetCopyOnDemandEnabled());
+	armZbxApiTestee.testSetCopyOnDemandEnabled(true);
+	cppcut_assert_equal(true,
+			    armZbxApiTestee.testGetCopyOnDemandEnabled());
 }
 
 void test_oneProcWithoutFetchItems()
