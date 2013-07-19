@@ -27,7 +27,7 @@
 #include "SmartBuffer.h"
 #include "ActionTp.h"
 
-namespace testActionManagern {
+namespace testActionManager {
 
 class TestActionManager : public ActionManager
 {
