@@ -67,6 +67,11 @@ struct ActionCondition {
 	{
 		enableBits |= bit;
 	}
+
+	bool isEnable(int bit) const
+	{
+		return (enableBits & bit);
+	}
 };
 
 struct ActionDef {
@@ -106,6 +111,7 @@ public:
 	void logErrExecAction(const ActionDef &actionDef, const string &msg);
 
 protected:
+	int getNewActionId(void);
 
 private:
 	struct PrivateContext;

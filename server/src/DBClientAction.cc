@@ -159,7 +159,7 @@ static const ColumnDef COLUMN_DEF_ACTIONS[] = {
 	SQL_COLUMN_TYPE_VARCHAR,           // type
 	255,                               // columnLength
 	0,                                 // decFracLength
-	true,                              // canBeNull
+	false,                             // canBeNull
 	SQL_KEY_NONE,                      // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
@@ -170,7 +170,7 @@ static const ColumnDef COLUMN_DEF_ACTIONS[] = {
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
 	0,                                 // decFracLength
-	true,                              // canBeNull
+	false,                             // canBeNull
 	SQL_KEY_NONE,                      // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
@@ -364,7 +364,72 @@ DBClientAction::~DBClientAction()
 
 void DBClientAction::addAction(const ActionDef &actionDef)
 {
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	VariableItemDataPtr item;
+	VariableItemGroupPtr row;
+	DBAgentInsertArg arg;
+	arg.tableName = TABLE_NAME_ACTIONS;
+	arg.numColumns = NUM_COLUMNS_ACTIONS;
+	arg.columnDefs = COLUMN_DEF_ACTIONS;
+
+	row->ADD_NEW_ITEM(Int, 0); // We set 0 temporarily.
+
+	// After item = new Item..() line, the reference count of ItemData is 2,
+	// because substitution to 'item' increases the reference counter.
+	// Instead, we use 'false' as the second argment of row->add() not to
+	// increase the reference counter.
+	// The reference count decreases when the other ItemData object is
+	// substitute to 'item' and 'row' is destroyed. As a result,
+	// newly create ItemData instances in this function will be destroyed
+	// on the exit of this function.
+	item = new ItemUint64(actionDef.condition.serverId);
+	if (!actionDef.condition.isEnable(ACTCOND_SERVER_ID))
+		item->setNull();
+	row->add(item, false);
+
+	item = new ItemUint64(actionDef.condition.hostId);
+	if (!actionDef.condition.isEnable(ACTCOND_HOST_ID))
+		item->setNull();
+	row->add(item, false);
+
+	item = new ItemUint64(actionDef.condition.hostGroupId);
+	if (!actionDef.condition.isEnable(ACTCOND_HOST_GROUP_ID))
+		item->setNull();
+	row->add(item, false);
+
+	item = new ItemUint64(actionDef.condition.triggerId);
+	if (!actionDef.condition.isEnable(ACTCOND_TRIGGER_ID))
+		item->setNull();
+	row->add(item, false);
+
+	item = new ItemInt(actionDef.condition.triggerStatus);
+	if (!actionDef.condition.isEnable(ACTCOND_TRIGGER_STATUS))
+		item->setNull();
+	row->add(item, false);
+
+	item = new ItemInt(actionDef.condition.triggerSeverity);
+	if (!actionDef.condition.isEnable(ACTCOND_TRIGGER_SEVERITY))
+		item->setNull();
+	row->add(item, false);
+
+	row->ADD_NEW_ITEM(Int, actionDef.condition.triggerSeverityCompType);
+	row->ADD_NEW_ITEM(Int, actionDef.type);
+	row->ADD_NEW_ITEM(String, actionDef.path);
+	row->ADD_NEW_ITEM(String, actionDef.workingDir);
+	row->ADD_NEW_ITEM(Int, actionDef.timeout);
+
+	arg.row = row;
+
+	DBCLIENT_TRANSACTION_BEGIN() {
+		// Here we replace the value in ItemData object for Action ID
+		// with the newly obtained value. It is generally
+		// forbidden in Hatohol framework (such method is not prepared)
+		// The following code uses 'const_cast'. In this context,
+		// this is safe, because nobody uses it.
+		const ItemData *itemActionId = row->getItemAt(0);
+		*(const_cast<ItemData *>(itemActionId))
+		  = *(new ItemInt(getNewActionId()));
+		insert(arg);
+	} DBCLIENT_TRANSACTION_END();
 }
 
 void DBClientAction::getActionList(const EventInfo &eventInfo,
@@ -468,3 +533,19 @@ void DBClientAction::logErrExecAction(const ActionDef &actionDef,
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
+int DBClientAction::getNewActionId(void)
+{
+	DBAgentSelectExArg arg;
+	arg.tableName = TABLE_NAME_ACTIONS;
+	arg.pushColumn(COLUMN_DEF_ACTIONS[IDX_ACTIONS_ACTION_ID]);
+	arg.orderBy = "DESC";
+	arg.limit = 1;
+
+	// This function doesn't work without transaction.
+	select(arg);
+
+	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
+	if (grpList.empty())
+		return 1;
+	return ItemDataUtils::getInt((*grpList.begin())->getItemAt(0));
+}
