@@ -155,6 +155,17 @@ static const ColumnDef COLUMN_DEF_ACTIONS[] = {
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
 	TABLE_NAME_ACTIONS,                // tableName
+	"working_dir",                     // columnName
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	255,                               // columnLength
+	0,                                 // decFracLength
+	true,                              // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}, {
+	ITEM_ID_NOT_SET,                   // itemId
+	TABLE_NAME_ACTIONS,                // tableName
 	"timeout",                         // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -176,9 +187,10 @@ enum {
 	IDX_ACTIONS_TRIGGER_ID,
 	IDX_ACTIONS_TRIGGER_STATUS,
 	IDX_ACTIONS_TRIGGER_SEVERITY,
-	IDX_ACTIONS_SEVERITY_COMP_TYPE,
+	IDX_ACTIONS_TRIGGER_SEVERITY_COMP_TYPE,
 	IDX_ACTIONS_ACTION_TYPE,
 	IDX_ACTIONS_PATH,
+	IDX_ACTIONS_WORKING_DIR,
 	IDX_ACTIONS_TIMEOUT,
 	NUM_IDX_ACTIONS,
 };
@@ -362,9 +374,21 @@ void DBClientAction::getActionList(const EventInfo &eventInfo,
 	DBAgentSelectExArg arg;
 	arg.tableName = TABLE_NAME_ACTIONS;
 	arg.pushColumn(COLUMN_DEF_ACTIONS[IDX_ACTIONS_ACTION_ID]);
+
+	arg.pushColumn(COLUMN_DEF_ACTIONS[IDX_ACTIONS_SERVER_ID]);
+	arg.pushColumn(COLUMN_DEF_ACTIONS[IDX_ACTIONS_HOST_ID]);
+	arg.pushColumn(COLUMN_DEF_ACTIONS[IDX_ACTIONS_HOST_GROUP_ID]);
+	arg.pushColumn(COLUMN_DEF_ACTIONS[IDX_ACTIONS_TRIGGER_ID]);
+	arg.pushColumn(COLUMN_DEF_ACTIONS[IDX_ACTIONS_TRIGGER_SEVERITY]);
+	arg.pushColumn(
+	  COLUMN_DEF_ACTIONS[IDX_ACTIONS_TRIGGER_SEVERITY_COMP_TYPE]);
+
 	arg.pushColumn(COLUMN_DEF_ACTIONS[IDX_ACTIONS_ACTION_TYPE]);
 	arg.pushColumn(COLUMN_DEF_ACTIONS[IDX_ACTIONS_PATH]);
+	arg.pushColumn(COLUMN_DEF_ACTIONS[IDX_ACTIONS_WORKING_DIR]);
 	arg.pushColumn(COLUMN_DEF_ACTIONS[IDX_ACTIONS_TIMEOUT]);
+
+	// TODO: append where section
 
 	DBCLIENT_TRANSACTION_BEGIN() {
 		select(arg);
@@ -380,12 +404,29 @@ void DBClientAction::getActionList(const EventInfo &eventInfo,
 		ActionDef &actionDef = actionDefList.back();
 
 		// TODO: Check the NULL value
-		// TODO: support working dir.
-		actionDef.id      = GET_INT_FROM_GRP(itemGroup, idx++);
-		actionDef.type    =
+		actionDef.id = GET_INT_FROM_GRP(itemGroup, idx++);
+
+		actionDef.condition.serverId =
+		   GET_INT_FROM_GRP(itemGroup, idx++);
+		actionDef.condition.hostId =
+		   GET_UINT64_FROM_GRP(itemGroup, idx++);
+		actionDef.condition.hostGroupId =
+		   GET_UINT64_FROM_GRP(itemGroup, idx++);
+		actionDef.condition.triggerId =
+		   GET_UINT64_FROM_GRP(itemGroup, idx++);
+		actionDef.condition.triggerStatus =
+		   GET_INT_FROM_GRP(itemGroup, idx++);
+		actionDef.condition.triggerSeverity =
+		   GET_INT_FROM_GRP(itemGroup, idx++);
+		actionDef.condition.triggerSeverityCompType =
+		  static_cast<ComparisonType>
+		    (GET_INT_FROM_GRP(itemGroup, idx++));
+
+		actionDef.type =
 		   static_cast<ActionType>(GET_INT_FROM_GRP(itemGroup, idx++));
-		actionDef.path    = GET_STRING_FROM_GRP(itemGroup, idx++);
-		actionDef.timeout = GET_INT_FROM_GRP(itemGroup, idx++);
+		actionDef.path       = GET_STRING_FROM_GRP(itemGroup, idx++);
+		actionDef.workingDir = GET_STRING_FROM_GRP(itemGroup, idx++);
+		actionDef.timeout    = GET_INT_FROM_GRP(itemGroup, idx++);
 	}
 }
 
