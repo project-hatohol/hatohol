@@ -512,6 +512,29 @@ void test_oneProcWithoutFetchItems()
 	cppcut_assert_equal(false, itemInfoList.empty());
 }
 
+void test_oneProcWithCopyOnDemandEnabled()
+{
+	int svId = 0;
+	MonitoringServerInfo serverInfo = g_defaultServerInfo;
+	serverInfo.id = svId;
+	serverInfo.port = getTestPort();
+	deleteDBClientDB(DB_DOMAIN_ID_HATOHOL);
+	deleteDBClientZabbixDB(svId);
+	ArmZabbixAPITestee armZbxApiTestee(serverInfo);
+	armZbxApiTestee.testSetCopyOnDemandEnabled(true);
+	armZbxApiTestee.testMainThreadOneProc();
+
+	DBClientHatohol db;
+	EventInfoList eventInfoList;
+	ItemInfoList itemInfoList;
+	db.getEventInfoList(eventInfoList);
+	db.getItemInfoList(itemInfoList);
+
+	// FIXME: should check contents
+	cppcut_assert_equal(false, eventInfoList.empty());
+	cppcut_assert_equal(true, itemInfoList.empty());
+}
+
 void test_oneProcWithFetchItems()
 {
 	int svId = 0;
