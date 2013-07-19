@@ -403,21 +403,40 @@ void DBClientAction::getActionList(const EventInfo &eventInfo,
 		actionDefList.push_back(ActionDef());
 		ActionDef &actionDef = actionDefList.back();
 
-		// TODO: Check the NULL value
 		actionDef.id = GET_INT_FROM_GRP(itemGroup, idx++);
 
+		// conditions
+		bool isNull;
 		actionDef.condition.serverId =
-		   GET_INT_FROM_GRP(itemGroup, idx++);
+		   GET_INT_FROM_GRP(itemGroup, idx++, &isNull);
+		if (!isNull)
+			actionDef.condition.enable(ACTCOND_SERVER_ID);
+
 		actionDef.condition.hostId =
 		   GET_UINT64_FROM_GRP(itemGroup, idx++);
+		if (!isNull)
+			actionDef.condition.enable(ACTCOND_HOST_ID);
+
 		actionDef.condition.hostGroupId =
 		   GET_UINT64_FROM_GRP(itemGroup, idx++);
+		if (!isNull)
+			actionDef.condition.enable(ACTCOND_HOST_GROUP_ID);
+
 		actionDef.condition.triggerId =
 		   GET_UINT64_FROM_GRP(itemGroup, idx++);
+		if (!isNull)
+			actionDef.condition.enable(ACTCOND_TRIGGER_ID);
+
 		actionDef.condition.triggerStatus =
 		   GET_INT_FROM_GRP(itemGroup, idx++);
+		if (!isNull)
+			actionDef.condition.enable(ACTCOND_TRIGGER_STATUS);
+
 		actionDef.condition.triggerSeverity =
 		   GET_INT_FROM_GRP(itemGroup, idx++);
+		if (!isNull)
+			actionDef.condition.enable(ACTCOND_TRIGGER_SEVERITY);
+
 		actionDef.condition.triggerSeverityCompType =
 		  static_cast<ComparisonType>
 		    (GET_INT_FROM_GRP(itemGroup, idx++));

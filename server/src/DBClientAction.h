@@ -39,7 +39,7 @@ enum ComparisonType {
 enum ActionConditionEnableFlag {
 	ACTCOND_SERVER_ID        = (1 << 0),
 	ACTCOND_HOST_ID          = (1 << 1),
-	ACTCOND_HOST_GROUPD_ID   = (1 << 2),
+	ACTCOND_HOST_GROUP_ID    = (1 << 2),
 	ACTCOND_TRIGGER_ID       = (1 << 3),
 	ACTCOND_TRIGGER_STATUS   = (1 << 4),
 	ACTCOND_TRIGGER_SEVERITY = (1 << 5),
@@ -56,11 +56,16 @@ struct ActionCondition {
 	int      triggerSeverity;
 	ComparisonType triggerSeverityCompType;
 
-	// constructor
+	// methods
 	ActionCondition(void)
 	: enableBits(0),
 	  triggerSeverityCompType(CMP_INVALID)
 	{
+	}
+
+	void enable(int bit)
+	{
+		enableBits |= bit;
 	}
 };
 
