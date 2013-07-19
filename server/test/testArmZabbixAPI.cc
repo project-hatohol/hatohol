@@ -143,6 +143,11 @@ public:
 		return ArmZabbixAPI::getUpdateType();
 	}
 
+	void testSetUpdateType(UpdateType type)
+	{
+		ArmZabbixAPI::setUpdateType(type);
+	}
+
 	string testInitialJsonRequest(void)
 	{
 		return ArmZabbixAPI::getInitialJsonRequest();
@@ -449,6 +454,17 @@ void test_updateTypeShouldBeChangedOnFetchItems()
 	cppcut_assert_equal(ArmBase::UPDATE_POLLING,
 			    armZbxApiTestee.testGetUpdateType());
 	armZbxApiTestee.fetchItems();
+	cppcut_assert_equal(ArmBase::UPDATE_ITEM_REQUEST,
+			    armZbxApiTestee.testGetUpdateType());
+}
+
+void test_setUpdateType()
+{
+	MonitoringServerInfo serverInfo = g_defaultServerInfo;
+	ArmZabbixAPITestee armZbxApiTestee(serverInfo);
+	cppcut_assert_equal(ArmBase::UPDATE_POLLING,
+			    armZbxApiTestee.testGetUpdateType());
+	armZbxApiTestee.testSetUpdateType(ArmBase::UPDATE_ITEM_REQUEST);
 	cppcut_assert_equal(ArmBase::UPDATE_ITEM_REQUEST,
 			    armZbxApiTestee.testGetUpdateType());
 }
