@@ -39,7 +39,7 @@ public:
 		int                     version;
 		size_t                  numTableInfo;
 		const DBSetupTableInfo *tableInfoArray;
-		DBUpdater              *dbUpdater;
+		DBUpdater               dbUpdater;
 		void                   *dbUpdaterData;
 		const DBConnectInfo    *connectInfo;
 	};
