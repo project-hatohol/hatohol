@@ -37,6 +37,7 @@ struct UnifiedDataStore::PrivateContext
 	VirtualDataStoreZabbix *vdsZabbix;
 	VirtualDataStoreNagios *vdsNagios;
 
+	bool          isCopyOnDemandEnabled;
 	sem_t         updatedSemaphore;
 	ReadWriteLock rwlock;
 	timespec      lastUpdateTime;
@@ -44,7 +45,7 @@ struct UnifiedDataStore::PrivateContext
 	ArmBaseVector updateArmsQueue;
 
 	PrivateContext()
-	: remainingArmsCount(0)
+	: isCopyOnDemandEnabled(false), remainingArmsCount(0)
 	{
 		sem_init(&updatedSemaphore, 0, 0);
 		lastUpdateTime.tv_sec  = 0;
@@ -239,6 +240,26 @@ size_t UnifiedDataStore::getNumberOfBadHosts(uint32_t serverId,
 {
 	DBClientHatohol dbHatohol;
 	return dbHatohol.getNumberOfBadHosts(serverId, hostGroupId);
+}
+
+bool UnifiedDataStore::getCopyOnDemandEnabled(void) const
+{
+	return m_ctx->isCopyOnDemandEnabled;
+}
+
+void UnifiedDataStore::setCopyOnDemandEnabled(bool enable)
+{
+	m_ctx->isCopyOnDemandEnabled = enable;
+
+	ArmBaseVector arms;
+	m_ctx->vdsZabbix->collectArms(arms);
+	m_ctx->vdsNagios->collectArms(arms);
+
+	ArmBaseVectorIterator it = arms.begin();
+	for (; it != arms.end(); it++) {
+		ArmBase *arm = *it;
+		arm->setCopyOnDemandEnabled(enable);
+	}
 }
 
 // ---------------------------------------------------------------------------

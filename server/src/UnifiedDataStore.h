@@ -49,6 +49,9 @@ public:
 	virtual size_t getNumberOfBadHosts(uint32_t serverId,
 	                                   uint64_t hostGroupId);
 
+	virtual bool getCopyOnDemandEnabled(void) const;
+	virtual void setCopyOnDemandEnabled(bool enable);
+
 private:
 	struct PrivateContext;
 	PrivateContext *m_ctx;
