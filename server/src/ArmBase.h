@@ -42,6 +42,9 @@ public:
 	int getPollingInterval(void) const;
 	int getRetryInterval(void) const;
 
+	bool getCopyOnDemandEnabled(void) const;
+	void setCopyOnDemandEnabled(bool enable);
+
 protected:
 	bool hasExitRequest(void) const;
 	void requestExit(void);
@@ -56,8 +59,6 @@ protected:
 
 	UpdateType getUpdateType(void) const;
 	void       setUpdateType(UpdateType updateType);
-	bool	   getCopyOnDemandEnabled(void) const;
-	void	   setCopyOnDemandEnabled(bool enable);
 
 private:
 	struct PrivateContext;
