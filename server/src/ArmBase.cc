@@ -39,15 +39,14 @@ struct ArmBase::PrivateContext
 	PrivateContext(const MonitoringServerInfo &_serverInfo)
 	: serverInfo(_serverInfo),
 	  exitRequest(0),
-	  updateType(UPDATE_POLLING)
+	  updateType(UPDATE_POLLING),
+	  isCopyOnDemandEnabled(false)
 	{
 		static const int PSHARED = 1;
 		HATOHOL_ASSERT(sem_init(&sleepSemaphore, PSHARED, 0) == 0,
 		             "Failed to sem_init(): %d\n", errno);
 		lastPollingTime.tv_sec = 0;
 		lastPollingTime.tv_nsec = 0;
-		DBClientConfig dbConfig;
-		isCopyOnDemandEnabled = dbConfig.isCopyOnDemandEnabled();
 	}
 
 	virtual ~PrivateContext()

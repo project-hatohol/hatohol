@@ -160,8 +160,7 @@ void UnifiedDataStore::stop(void)
 
 void UnifiedDataStore::fetchItems(void)
 {
-	DBClientConfig dbConfig;
-	if (!dbConfig.isCopyOnDemandEnabled())
+	if (!getCopyOnDemandEnabled())
 		return;
 
 	if (!m_ctx->updateIsNeeded())
