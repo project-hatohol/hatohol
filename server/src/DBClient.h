@@ -60,6 +60,8 @@ protected:
 	static void updateDBIfNeeded(DBAgent *dbAgent,
 	                             DBSetupFuncArg *setupFuncArg);
 	static int getDBVersion(DBAgent *dbAgent, const ColumnDef *columnDef);
+	static void setDBVersion(DBAgent *dbAgent, const ColumnDef *columnDef,
+	                         int version);
 
 	// non-static methods
 	static void dbSetupFunc(DBDomainId domainId, void *data);

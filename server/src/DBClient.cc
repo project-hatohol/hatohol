@@ -164,6 +164,7 @@ void DBClient::updateDBIfNeeded(DBAgent *dbAgent, DBSetupFuncArg *setupFuncArg)
 		             "Updater: NULL, expect/actual ver. %d/%d",
 		             setupFuncArg->version, dbVersion);
 		(*setupFuncArg->dbUpdater)(dbAgent, dbVersion, data);
+		setDBVersion(dbAgent, columnDef, setupFuncArg->version);
 	}
 }
 
@@ -189,6 +190,18 @@ int DBClient::getDBVersion(DBAgent *dbAgent, const ColumnDef *columnDef)
 	HATOHOL_ASSERT(itemVersion != NULL, "type: itemVersion: %s\n",
 	             DEMANGLED_TYPE_NAME(*itemVersion));
 	return itemVersion->get();
+}
+
+void DBClient::setDBVersion(DBAgent *dbAgent, const ColumnDef *columnDef, int version)
+{
+	DBAgentUpdateArg arg;
+	arg.tableName = columnDef->tableName;
+	arg.columnDefs = columnDef;
+	arg.columnIndexes.push_back(0);
+	VariableItemGroupPtr row;
+	row->ADD_NEW_ITEM(Int, version);
+	arg.row = row;
+	dbAgent->update(arg);
 }
 
 // non-static methods
