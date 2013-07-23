@@ -85,7 +85,7 @@ the follwoing build instructions.
 
 ### Installation by building needed applications
 - [Server installation](server/README.md)
-- [Client (Web UI server) installation](client/README)
+- [Client (Web UI server) installation](client/README.md)
 
 Plans
 -----
