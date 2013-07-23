@@ -693,7 +693,7 @@ void DBClientConfig::prepareSetupFunction(const DBConnectInfo *connectInfo)
 		NUM_TABLE_INFO,
 		DB_TABLE_INFO,
 		&updateDB,
-		this, // dbUpdaterData
+		this,
 		connectInfo,
 	};
 
