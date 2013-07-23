@@ -48,6 +48,7 @@ public:
 	virtual void select(DBAgentSelectArg &selectArg);
 	virtual void select(DBAgentSelectExArg &selectExArg);
 	virtual void deleteRows(DBAgentDeleteArg &deleteArg);
+	virtual void addColumns(DBAgentAddColumnsArg &addColumnsArg);
 
 protected:
 	void execSql(const string &statement);
