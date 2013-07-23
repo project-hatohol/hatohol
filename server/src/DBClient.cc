@@ -30,6 +30,7 @@ static const char *TABLE_NAME_DBCLIENT = "_dbclient";
 
 static const ColumnDef COLUMN_DEF_DBCLIENT[] = {
 {
+	// This column has the schema version for '_dbclient' table.
 	ITEM_ID_NOT_SET,                   // itemId
 	TABLE_NAME_DBCLIENT,               // tableName
 	"self_db_version",                 // columnName
@@ -41,6 +42,7 @@ static const ColumnDef COLUMN_DEF_DBCLIENT[] = {
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
+	// This column has the schema version for the sub class's table.
 	ITEM_ID_NOT_SET,                   // itemId
 	TABLE_NAME_DBCLIENT,               // tableName
 	"version",                         // columnName
@@ -155,7 +157,7 @@ void DBClient::updateDBIfNeeded(DBAgent *dbAgent, DBSetupFuncArg *setupFuncArg)
 		                      __PRETTY_FUNCTION__);
 	}
 
-	// check the version for this class's database
+	// check the version for the sub class's database
 	columnDef = &COLUMN_DEF_DBCLIENT[IDX_DBCLIENT_VERSION];
 	dbVersion = getDBVersion(dbAgent, columnDef);
 	if (dbVersion != setupFuncArg->version) {
