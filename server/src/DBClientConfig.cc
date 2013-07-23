@@ -668,15 +668,6 @@ static void updateDB(DBAgent *dbAgent, int oldVer, void *data)
 		addColumnsArg.columnIndexes.push_back(
 		  IDX_SYSTEM_ENABLE_COPY_ON_DEMAND);
 		dbAgent->addColumns(addColumnsArg);
-
-		DBAgentUpdateArg updateArg;
-		updateArg.tableName = TABLE_NAME_SYSTEM;
-		updateArg.columnDefs = COLUMN_DEF_SYSTEM;
-		updateArg.columnIndexes.push_back(IDX_SYSTEM_ENABLE_COPY_ON_DEMAND);
-		VariableItemGroupPtr row;
-		row->ADD_NEW_ITEM(Int, 0);
-		updateArg.row = row;
-		dbAgent->update(updateArg);
 	}
 }
 
