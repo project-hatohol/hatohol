@@ -281,6 +281,11 @@ void DBClient::deleteRows(DBAgentDeleteArg &deleteArg)
 	getDBAgent()->deleteRows(deleteArg);
 }
 
+void DBClient::addColumns(DBAgentAddColumnsArg &addColumnsArg)
+{
+	getDBAgent()->addColumns(addColumnsArg);
+}
+
 bool DBClient::isRecordExisting(const string &tableName,
                                 const string &condition)
 {
