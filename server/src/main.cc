@@ -22,6 +22,7 @@
 #include <cstring>
 #include <glib.h>
 #include <errno.h>
+#include <unistd.h>
 
 #include <string>
 #include <vector>
@@ -138,12 +139,16 @@ int mainRoutine(int argc, char *argv[])
 int main(int argc, char *argv[])
 {
 	int ret = EXIT_FAILURE;
-	try {
-		ret = mainRoutine(argc, argv);
-	} catch (const HatoholException &e){
-		MLPL_ERR("Got exception: %s", e.getFancyMessage().c_str());
-	} catch (const exception &e) {
-		MLPL_ERR("Got exception: %s", e.what());
+	if (daemon(0,0) == 0){
+		try {
+			ret = mainRoutine(argc, argv);
+		} catch (const HatoholException &e){
+			MLPL_ERR("Got exception: %s", e.getFancyMessage().c_str());
+		} catch (const exception &e) {
+			MLPL_ERR("Got exception: %s", e.what());
+		}
+	} else {
+		MLPL_ERR("Can't start daemon");
 	}
 	return ret;
 }
