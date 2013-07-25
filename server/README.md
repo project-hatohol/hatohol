@@ -70,13 +70,13 @@ You should install these package to build Hatohol and required libraries.
 - libtool
 - libsoup2.4-dev
 - libjson-glib-dev
-- libghc-hdbc-sqlite3-dev
+- libsqlite3-dev
 - libmysqlclient-dev
 - mysql-server
 
 installing by following commands:
 
-    $ sudo apt-get install automake g++ libtool libsoup2.4-dev libjson-glib-dev libghc-hdbc-sqlite3-dev libmysqlclient-dev mysql-server
+    $ sudo apt-get install automake g++ libtool libsoup2.4-dev libjson-glib-dev libsqlite3-dev libmysqlclient-dev mysql-server
 
 How to build Hatohol
 --------------------
