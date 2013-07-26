@@ -22,6 +22,7 @@
 
 #include "ArmBase.h"
 #include "DBClientHatohol.h"
+#include "Utils.h"
 
 class UnifiedDataStore
 {
@@ -30,6 +31,7 @@ public:
 	virtual ~UnifiedDataStore(void);
 
 	static UnifiedDataStore *getInstance(void);
+	virtual void parseCommandLineArgument(CommandLineArg &cmdArg);
 	virtual void start(void);
 	virtual void stop(void);
 	virtual void fetchItems(void);

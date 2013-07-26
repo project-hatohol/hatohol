@@ -128,6 +128,7 @@ int mainRoutine(int argc, char *argv[])
 	ctx.unifiedDataStore = UnifiedDataStore::getInstance();
 	ctx.unifiedDataStore->setCopyOnDemandEnabled(
 	  dbConfig.isCopyOnDemandEnabled());
+	ctx.unifiedDataStore->parseCommandLineArgument(cmdArg);
 	ctx.unifiedDataStore->start();
 
 	// main loop of GLIB
