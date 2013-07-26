@@ -86,6 +86,17 @@ static void setupGizmoForExit(gpointer data)
 	g_io_add_watch(ioch, G_IO_HUP, exitFunc, data);
 }
 
+bool parseForegroundCommandLineArgument(CommandLineArg &cmdArg)
+{
+	for (size_t i = 0; i < cmdArg.size(); i++) {
+		string &arg = cmdArg[i];
+		if (arg == "--foreground")
+			return true;
+	}
+
+	return false;
+}
+
 int mainRoutine(int argc, char *argv[])
 {
 #ifndef GLIB_VERSION_2_36
@@ -101,6 +112,8 @@ int mainRoutine(int argc, char *argv[])
 		cmdArg.push_back(argv[i]);
 	if (!DBClientConfig::parseCommandLineArgument(cmdArg))
 		return EXIT_FAILURE;
+	if (!parseForegroundCommandLineArgument(cmdArg))
+		switchDaemon();
 
 	hatoholInit();
 	MLPL_INFO("started hatohol server: ver. %s\n", PACKAGE_VERSION);
