@@ -118,14 +118,14 @@ int mainRoutine(int argc, char *argv[])
 	CommandLineArg cmdArg;
 	for (int i = 1; i < argc; i++)
 		cmdArg.push_back(argv[i]);
-	if (!DBClientConfig::parseCommandLineArgument(cmdArg))
-		return EXIT_FAILURE;
 	if (!parseForegroundCommandLineArgument(cmdArg)){
 		if (!switchDaemon()) {
 			MLPL_ERR("Can't start daemon process");
 			return EXIT_FAILURE;
 		}
 	}
+	if (!DBClientConfig::parseCommandLineArgument(cmdArg))
+		return EXIT_FAILURE;
 
 	hatoholInit();
 	MLPL_INFO("started hatohol server: ver. %s\n", PACKAGE_VERSION);
