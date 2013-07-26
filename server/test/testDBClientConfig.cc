@@ -224,4 +224,10 @@ void test_parseArgConfigDBServerWithPort(void)
 	cppcut_assert_equal(port, connInfo.port);
 }
 
+void test_isCopyOnDemandEnabledDefault(void)
+{
+	DBClientConfig dbConfig;
+	cppcut_assert_equal(false, dbConfig.isCopyOnDemandEnabled());
+}
+
 } // namespace testDBClientConfig
