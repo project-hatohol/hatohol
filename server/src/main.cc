@@ -86,7 +86,7 @@ static void setupGizmoForExit(gpointer data)
 	g_io_add_watch(ioch, G_IO_HUP, exitFunc, data);
 }
 
-bool parseForegroundCommandLineArgument(CommandLineArg &cmdArg)
+static bool parseForegroundCommandLineArgument(CommandLineArg &cmdArg)
 {
 	for (size_t i = 0; i < cmdArg.size(); i++) {
 		string &arg = cmdArg[i];
@@ -97,7 +97,7 @@ bool parseForegroundCommandLineArgument(CommandLineArg &cmdArg)
 	return false;
 }
 
-bool switchDaemon(void)
+static bool switchDaemon(void)
 {
 	if (daemon(0, 0) == 0)
 		return true;
