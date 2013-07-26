@@ -204,6 +204,8 @@ In ubuntsu 13.04, edit of ENABLE_NDOUTILS variable in /etc/default/ndoutils
 
     ENABLE_NDOUTILS=1
 
+See also [this install document](../doc/misc/nagios-setup-cent6.md) if you use CentOS.
+
 API Reference Manual for REST service
 -------------------------------------
 The API reference manual can be created as below.
