@@ -56,6 +56,10 @@ Ex.)
     mysql> GRANT all on ndoutils.* TO ndoutils@localhost IDENTIFIED BY 'admin';
     mysql> FLUSH PRIVILEGES;
 
+When you want to allow external hosts to access the DB, do like this.
+
+    mysql> GRANT all on ndoutils.* TO ndoutils@'%' IDENTIFIED BY 'admin';
+
 (5) Make tables. The command is prepared. The following is for ubuntu 13.04
 
     # cd /usr/share/doc/ndoutils-mysql-1.4/db
