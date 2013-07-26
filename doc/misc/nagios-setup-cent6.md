@@ -35,7 +35,7 @@ NDOUtils
 (2) Edit /etc/nagios/nagios.cfg to use an ndoutils broker module
 The line like below is needed.
 
-    broker_module=/usr/lib64/nagios/brokers/ndomod.so config_file=/etc/nagios3/ndomod.cfg
+    broker_module=/usr/lib64/nagios/brokers/ndomod.so config_file=/etc/nagios/ndomod.cfg
 
 (3) Edit /etc/nagios/ndo2db.cfg to set database information.
 The example of major target parameters are
