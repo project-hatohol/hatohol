@@ -120,9 +120,12 @@ int mainRoutine(int argc, char *argv[])
 		cmdArg.push_back(argv[i]);
 	if (!DBClientConfig::parseCommandLineArgument(cmdArg))
 		return EXIT_FAILURE;
-	if (!parseForegroundCommandLineArgument(cmdArg))
-		if (!switchDaemon())
+	if (!parseForegroundCommandLineArgument(cmdArg)){
+		if (!switchDaemon()) {
+			MLPL_ERR("Can't start daemon process");
 			return EXIT_FAILURE;
+		}
+	}
 
 	hatoholInit();
 	MLPL_INFO("started hatohol server: ver. %s\n", PACKAGE_VERSION);
@@ -161,16 +164,12 @@ int mainRoutine(int argc, char *argv[])
 int main(int argc, char *argv[])
 {
 	int ret = EXIT_FAILURE;
-	if (daemon(0,0) == 0){
-		try {
-			ret = mainRoutine(argc, argv);
-		} catch (const HatoholException &e){
-			MLPL_ERR("Got exception: %s", e.getFancyMessage().c_str());
-		} catch (const exception &e) {
-			MLPL_ERR("Got exception: %s", e.what());
-		}
-	} else {
-		MLPL_ERR("Can't start daemon");
+	try {
+		ret = mainRoutine(argc, argv);
+	} catch (const HatoholException &e){
+		MLPL_ERR("Got exception: %s", e.getFancyMessage().c_str());
+	} catch (const exception &e) {
+		MLPL_ERR("Got exception: %s", e.what());
 	}
 	return ret;
 }
