@@ -97,6 +97,14 @@ bool parseForegroundCommandLineArgument(CommandLineArg &cmdArg)
 	return false;
 }
 
+bool switchDaemon(void)
+{
+	if (daemon(0, 0) == 0)
+		return true;
+	else
+		return false;
+}
+
 int mainRoutine(int argc, char *argv[])
 {
 #ifndef GLIB_VERSION_2_36
@@ -113,7 +121,8 @@ int mainRoutine(int argc, char *argv[])
 	if (!DBClientConfig::parseCommandLineArgument(cmdArg))
 		return EXIT_FAILURE;
 	if (!parseForegroundCommandLineArgument(cmdArg))
-		switchDaemon();
+		if (!switchDaemon())
+			return EXIT_FAILURE;
 
 	hatoholInit();
 	MLPL_INFO("started hatohol server: ver. %s\n", PACKAGE_VERSION);
