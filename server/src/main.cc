@@ -97,7 +97,7 @@ static bool isForegroundOptionIncluded(CommandLineArg &cmdArg)
 	return false;
 }
 
-static bool Daemonize(void)
+static bool daemonize(void)
 {
 	if (daemon(0, 0) == 0)
 		return true;
@@ -119,7 +119,7 @@ int mainRoutine(int argc, char *argv[])
 	for (int i = 1; i < argc; i++)
 		cmdArg.push_back(argv[i]);
 	if (!isForegroundOptionIncluded(cmdArg)){
-		if (!Daemonize()) {
+		if (!daemonize()) {
 			MLPL_ERR("Can't start daemon process");
 			return EXIT_FAILURE;
 		}
