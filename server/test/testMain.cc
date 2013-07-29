@@ -19,7 +19,7 @@
 
 #include <cutter.h>
 #include <cppcutter.h>
-#include <errorno.h>
+#include <errno.h>
 
 #include "Hatohol.h"
 #include "Utils.h"
