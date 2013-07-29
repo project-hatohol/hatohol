@@ -86,7 +86,7 @@ static void setupGizmoForExit(gpointer data)
 	g_io_add_watch(ioch, G_IO_HUP, exitFunc, data);
 }
 
-static bool parseForegroundCommandLineArgument(CommandLineArg &cmdArg)
+static bool isForegroundOptionIncluded(CommandLineArg &cmdArg)
 {
 	for (size_t i = 0; i < cmdArg.size(); i++) {
 		string &arg = cmdArg[i];
@@ -97,7 +97,7 @@ static bool parseForegroundCommandLineArgument(CommandLineArg &cmdArg)
 	return false;
 }
 
-static bool switchDaemon(void)
+static bool Daemonize(void)
 {
 	if (daemon(0, 0) == 0)
 		return true;
@@ -118,8 +118,8 @@ int mainRoutine(int argc, char *argv[])
 	CommandLineArg cmdArg;
 	for (int i = 1; i < argc; i++)
 		cmdArg.push_back(argv[i]);
-	if (!parseForegroundCommandLineArgument(cmdArg)){
-		if (!switchDaemon()) {
+	if (!isForegroundOptionIncluded(cmdArg)){
+		if (!Daemonize()) {
 			MLPL_ERR("Can't start daemon process");
 			return EXIT_FAILURE;
 		}
