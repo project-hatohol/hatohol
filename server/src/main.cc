@@ -106,8 +106,8 @@ static bool daemonize(void)
 	if (daemon(0, 0) == 0) {
 		pid = getpid();
 		pid_file = fopen(pid_file_path, "w+");
-		
-		if(pid_file != NULL) {
+
+		if (pid_file != NULL) {
 			fprintf(pid_file, "%d\n", pid);
 			fclose(pid_file);
 		} else {
