@@ -15,7 +15,7 @@ PROGNAME=`basename $PROG`
 case "$1" in
 	start)
 		echo -n $"Starting $PROGNAME: "
-		daemon $PROG $OPTIONS &
+		daemon $PROG $OPTIONS
 		echo
 		;;
 	stop)
