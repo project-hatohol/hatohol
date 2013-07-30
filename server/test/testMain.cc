@@ -20,6 +20,7 @@
 #include <cutter.h>
 #include <cppcutter.h>
 #include <errno.h>
+#include <glib.h>
 
 #include "Hatohol.h"
 #include "Utils.h"
