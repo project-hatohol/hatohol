@@ -136,7 +136,7 @@ int mainRoutine(int argc, char *argv[])
 		cmdArg.push_back(argv[i]);
 	if (!isForegroundOptionIncluded(cmdArg)){
 		if (!daemonize()) {
-			MLPL_ERR("Can't start daemon process");
+			MLPL_ERR("Can't start daemon process\n");
 			return EXIT_FAILURE;
 		}
 	}
