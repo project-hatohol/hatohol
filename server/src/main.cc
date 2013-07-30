@@ -99,10 +99,26 @@ static bool isForegroundOptionIncluded(CommandLineArg &cmdArg)
 
 static bool daemonize(void)
 {
-	if (daemon(0, 0) == 0)
+	pid_t pid;
+	const char *pid_file_path = "/var/run/hatohol.pid";
+	FILE *pid_file;
+
+	if (daemon(0, 0) == 0) {
+		pid = getpid();
+		pid_file = fopen(pid_file_path, "w+");
+		
+		if(pid_file != NULL) {
+			fprintf(pid_file, "%d\n", pid);
+			fclose(pid_file);
+		} else {
+			MLPL_ERR("Faild to record pid file\n");
+			return false;
+		}
+
 		return true;
-	else
+	} else {
 		return false;
+	}
 }
 
 int mainRoutine(int argc, char *argv[])
