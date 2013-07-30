@@ -102,18 +102,17 @@ static bool daemonize(void)
 	pid_t pid;
 	const char *pid_file_path = "/var/run/hatohol.pid";
 	FILE *pid_file;
+	pid_file = fopen(pid_file_path, "w+");
+
+	if (pid_file == NULL) {
+		MLPL_ERR("Faild to record pid file\n");
+		return false;
+	}
 
 	if (daemon(0, 0) == 0) {
 		pid = getpid();
-		pid_file = fopen(pid_file_path, "w+");
-
-		if (pid_file != NULL) {
-			fprintf(pid_file, "%d\n", pid);
-			fclose(pid_file);
-		} else {
-			MLPL_ERR("Faild to record pid file\n");
-			return false;
-		}
+		fprintf(pid_file, "%d\n", pid);
+		fclose(pid_file);
 
 		return true;
 	} else {
