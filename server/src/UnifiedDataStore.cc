@@ -17,6 +17,8 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <semaphore.h>
+#include <errno.h>
 #include <stdexcept>
 #include <MutexLock.h>
 #include "UnifiedDataStore.h"
@@ -27,10 +29,88 @@ using namespace mlpl;
 
 struct UnifiedDataStore::PrivateContext
 {
+	const static size_t      maxRunningArms    = 8;
+	const static time_t      minUpdateInterval = 10;
 	static UnifiedDataStore *instance;
 	static MutexLock         mutex;
+
 	VirtualDataStoreZabbix *vdsZabbix;
 	VirtualDataStoreNagios *vdsNagios;
+
+	bool          isCopyOnDemandEnabled;
+	sem_t         updatedSemaphore;
+	ReadWriteLock rwlock;
+	timespec      lastUpdateTime;
+	size_t        remainingArmsCount;
+	ArmBaseVector updateArmsQueue;
+
+	PrivateContext()
+	: isCopyOnDemandEnabled(false), remainingArmsCount(0)
+	{
+		sem_init(&updatedSemaphore, 0, 0);
+		lastUpdateTime.tv_sec  = 0;
+		lastUpdateTime.tv_nsec = 0;
+	};
+
+	virtual ~PrivateContext()
+	{
+		sem_destroy(&updatedSemaphore);
+	};
+
+	void wakeArm(ArmBase *arm)
+	{
+		Closure<PrivateContext> *closure =
+		  new Closure<PrivateContext>(
+		    this, &PrivateContext::updatedCallback);
+		arm->fetchItems(closure);
+	}
+
+	bool updateIsNeeded(void)
+	{
+		bool shouldUpdate = true;
+
+		rwlock.readLock();
+
+		if (remainingArmsCount > 0) {
+			shouldUpdate = false;
+		} else {
+			timespec ts;
+			time_t banLiftTime
+			  = lastUpdateTime.tv_sec + minUpdateInterval;
+			if (clock_gettime(CLOCK_REALTIME, &ts) == -1) {
+				MLPL_ERR("Failed to call clock_gettime: %d\n",
+					 errno);
+			} else if (ts.tv_sec < banLiftTime) {
+				shouldUpdate = false;
+			}
+		}
+
+		rwlock.unlock();
+
+		return shouldUpdate;
+	}
+
+	void updatedCallback(void)
+	{
+		rwlock.writeLock();
+
+		if (!updateArmsQueue.empty()) {
+			wakeArm(updateArmsQueue.front());
+			updateArmsQueue.erase(updateArmsQueue.begin());
+		}
+
+		remainingArmsCount--;
+		if (remainingArmsCount == 0) {
+			if (sem_post(&updatedSemaphore) == -1)
+				MLPL_ERR("Failed to call sem_post: %d\n",
+					 errno);
+			if (clock_gettime(CLOCK_REALTIME, &lastUpdateTime) == -1)
+				MLPL_ERR("Failed to call clock_gettime: %d\n",
+					 errno);
+		}
+
+		rwlock.unlock();
+	}
 };
 
 UnifiedDataStore *UnifiedDataStore::PrivateContext::instance = NULL;
@@ -43,11 +123,7 @@ UnifiedDataStore::UnifiedDataStore(void)
 : m_ctx(NULL)
 {
 	m_ctx = new PrivateContext();
-
-	// start VirtualDataStoreZabbix
 	m_ctx->vdsZabbix = VirtualDataStoreZabbix::getInstance();
-
-	// start VirtualDataStoreNagios
 	m_ctx->vdsNagios = VirtualDataStoreNagios::getInstance();
 }
 
@@ -55,6 +131,15 @@ UnifiedDataStore::~UnifiedDataStore()
 {
 	if (m_ctx)
 		delete m_ctx;
+}
+
+void UnifiedDataStore::parseCommandLineArgument(CommandLineArg &cmdArg)
+{
+	for (size_t i = 0; i < cmdArg.size(); i++) {
+		string &cmd = cmdArg[i];
+		if (cmd == "--enable-copy-on-demand")
+			setCopyOnDemandEnabled(true);
+	}
 }
 
 UnifiedDataStore *UnifiedDataStore::getInstance(void)
@@ -82,6 +167,39 @@ void UnifiedDataStore::stop(void)
 	m_ctx->vdsNagios->stop();
 }
 
+void UnifiedDataStore::fetchItems(void)
+{
+	if (!getCopyOnDemandEnabled())
+		return;
+
+	if (!m_ctx->updateIsNeeded())
+		return;
+
+	ArmBaseVector arms;
+	m_ctx->rwlock.readLock();
+	m_ctx->vdsZabbix->collectArms(arms);
+	m_ctx->vdsNagios->collectArms(arms);
+	m_ctx->rwlock.unlock();
+	if (arms.empty())
+		return;
+
+	m_ctx->rwlock.writeLock();
+	m_ctx->remainingArmsCount = arms.size();
+	ArmBaseVectorIterator arms_it = arms.begin();
+	for (size_t i = 0; arms_it != arms.end(); i++, arms_it++) {
+		ArmBase *arm = *arms_it;
+		if (i < PrivateContext::maxRunningArms) {
+			m_ctx->wakeArm(arm);
+		} else {
+			m_ctx->updateArmsQueue.push_back(arm);
+		}
+	}
+	m_ctx->rwlock.unlock();
+
+	if (sem_wait(&m_ctx->updatedSemaphore) == -1)
+		MLPL_ERR("Failed to call sem_wait: %d\n", errno);
+}
+
 void UnifiedDataStore::getTriggerList(TriggerInfoList &triggerList,
                                       uint32_t targetServerId)
 {
@@ -105,6 +223,7 @@ void UnifiedDataStore::getItemList(ItemInfoList &itemList,
 void UnifiedDataStore::getHostList(HostInfoList &hostInfoList,
                                    uint32_t targetServerId)
 {
+	fetchItems();
 	DBClientHatohol dbHatohol;
 	dbHatohol.getHostInfoList(hostInfoList, targetServerId);
 }
@@ -129,6 +248,26 @@ size_t UnifiedDataStore::getNumberOfBadHosts(uint32_t serverId,
 {
 	DBClientHatohol dbHatohol;
 	return dbHatohol.getNumberOfBadHosts(serverId, hostGroupId);
+}
+
+bool UnifiedDataStore::getCopyOnDemandEnabled(void) const
+{
+	return m_ctx->isCopyOnDemandEnabled;
+}
+
+void UnifiedDataStore::setCopyOnDemandEnabled(bool enable)
+{
+	m_ctx->isCopyOnDemandEnabled = enable;
+
+	ArmBaseVector arms;
+	m_ctx->vdsZabbix->collectArms(arms);
+	m_ctx->vdsNagios->collectArms(arms);
+
+	ArmBaseVectorIterator it = arms.begin();
+	for (; it != arms.end(); it++) {
+		ArmBase *arm = *it;
+		arm->setCopyOnDemandEnabled(enable);
+	}
 }
 
 // ---------------------------------------------------------------------------

@@ -30,7 +30,7 @@ using namespace std;
 static const char *TABLE_NAME_SYSTEM  = "system";
 static const char *TABLE_NAME_SERVERS = "servers";
 
-int DBClientConfig::CONFIG_DB_VERSION = 5;
+int DBClientConfig::CONFIG_DB_VERSION = 6;
 const char *DBClientConfig::DEFAULT_DB_NAME = "hatohol";
 
 static const ColumnDef COLUMN_DEF_SYSTEM[] = {
@@ -67,6 +67,17 @@ static const ColumnDef COLUMN_DEF_SYSTEM[] = {
 	SQL_KEY_NONE,                      // keyType
 	0,                                 // flags
 	"0",                               // defaultValue
+}, {
+	ITEM_ID_NOT_SET,                   // itemId
+	TABLE_NAME_SYSTEM,                 // tableName
+	"enable_copy_on_demand",           // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	11,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
 },
 };
 static const size_t NUM_COLUMNS_SYSTEM =
@@ -76,6 +87,7 @@ enum {
 	IDX_SYSTEM_DATABASE_DIR,
 	IDX_SYSTEM_ENABLE_FACE_MYSQL,
 	IDX_SYSTEM_FACE_REST_PORT,
+	IDX_SYSTEM_ENABLE_COPY_ON_DEMAND,
 	NUM_IDX_SYSTEM,
 };
 
@@ -425,6 +437,20 @@ void DBClientConfig::setFaceRestPort(int port)
 	} DBCLIENT_TRANSACTION_END();
 }
 
+bool DBClientConfig::isCopyOnDemandEnabled(void)
+{
+	DBAgentSelectArg arg;
+	arg.tableName = TABLE_NAME_SYSTEM;
+	arg.columnDefs = COLUMN_DEF_SYSTEM;
+	arg.columnIndexes.push_back(IDX_SYSTEM_ENABLE_COPY_ON_DEMAND);
+	DBCLIENT_TRANSACTION_BEGIN() {
+		select(arg);
+	} DBCLIENT_TRANSACTION_END();
+	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
+	HATOHOL_ASSERT(!grpList.empty(), "Obtained Table: empty");
+	return ItemDataUtils::getInt((*grpList.begin())->getItemAt(0));
+}
+
 void DBClientConfig::addTargetServer(MonitoringServerInfo *monitoringServerInfo)
 {
 	string condition = StringUtils::sprintf("id=%u",
@@ -583,6 +609,9 @@ void DBClientConfig::tableInitializerSystem(DBAgent *dbAgent, void *data)
 	// face_reset_port
 	row->ADD_NEW_ITEM(Int, atoi(columnDefFaceRestPort.defaultValue));
 
+	// enable_copy_on_demand
+	row->ADD_NEW_ITEM(Int, 0);
+
 	insArg.row = row;
 	dbAgent->insert(insArg);
 }
@@ -630,6 +659,18 @@ bool DBClientConfig::parseDBServer(const string &dbServer,
 	return true;
 }
 
+static void updateDB(DBAgent *dbAgent, int oldVer, void *data)
+{
+	if (oldVer <= 5) {
+		DBAgentAddColumnsArg addColumnsArg;
+		addColumnsArg.tableName = TABLE_NAME_SYSTEM;
+		addColumnsArg.columnDefs =COLUMN_DEF_SYSTEM;
+		addColumnsArg.columnIndexes.push_back(
+		  IDX_SYSTEM_ENABLE_COPY_ON_DEMAND);
+		dbAgent->addColumns(addColumnsArg);
+	}
+}
+
 void DBClientConfig::prepareSetupFunction(const DBConnectInfo *connectInfo)
 {
 	static const DBSetupTableInfo DB_TABLE_INFO[] = {
@@ -651,8 +692,8 @@ void DBClientConfig::prepareSetupFunction(const DBConnectInfo *connectInfo)
 		CONFIG_DB_VERSION,
 		NUM_TABLE_INFO,
 		DB_TABLE_INFO,
-		NULL, // dbUpdater
-		NULL, // dbUpdaterData
+		&updateDB,
+		this,
 		connectInfo,
 	};
 

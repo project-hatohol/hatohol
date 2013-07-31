@@ -22,12 +22,15 @@
 
 #include <map>
 #include <vector>
+#include <ArmBase.h>
 using namespace std;
 
 class DataStore {
 public:
 	DataStore(void);
 	virtual ~DataStore();
+
+	virtual void collectArms(ArmBaseVector &arms);
 };
 
 typedef vector<DataStore *>             DataStoreVector;

@@ -138,6 +138,26 @@ public:
 		return ArmZabbixAPI::mainThreadOneProc();
 	}
 
+	UpdateType testGetUpdateType(void)
+	{
+		return ArmZabbixAPI::getUpdateType();
+	}
+
+	void testSetUpdateType(UpdateType type)
+	{
+		ArmZabbixAPI::setUpdateType(type);
+	}
+
+	bool testGetCopyOnDemandEnabled(void)
+	{
+		return ArmZabbixAPI::getCopyOnDemandEnabled();
+	}
+
+	void testSetCopyOnDemandEnabled(bool enable)
+	{
+		ArmZabbixAPI::setCopyOnDemandEnabled(enable);
+	}
+
 	string testInitialJsonRequest(void)
 	{
 		return ArmZabbixAPI::getInitialJsonRequest();
@@ -354,12 +374,15 @@ void setup(void)
 		g_apiEmulator.start(EMULATOR_PORT);
 	else
 		g_apiEmulator.setOperationMode(OPE_MODE_NORMAL);
+
+	deleteDBClientDB(DB_DOMAIN_ID_HATOHOL);
 }
 
 void teardown(void)
 {
 	g_sync.reset();
 	g_apiEmulator.reset();
+	deleteDBClientDB(DB_DOMAIN_ID_HATOHOL);
 }
 
 // ---------------------------------------------------------------------------
@@ -435,6 +458,108 @@ void test_mainThreadOneProc()
 	deleteDBClientZabbixDB(svId);
 	ArmZabbixAPITestee armZbxApiTestee(serverInfo);
 	cppcut_assert_equal(true, armZbxApiTestee.testMainThreadOneProc());
+}
+
+void test_updateTypeShouldBeChangedOnFetchItems()
+{
+	MonitoringServerInfo serverInfo = g_defaultServerInfo;
+	ArmZabbixAPITestee armZbxApiTestee(serverInfo);
+	cppcut_assert_equal(ArmBase::UPDATE_POLLING,
+			    armZbxApiTestee.testGetUpdateType());
+	armZbxApiTestee.fetchItems();
+	cppcut_assert_equal(ArmBase::UPDATE_ITEM_REQUEST,
+			    armZbxApiTestee.testGetUpdateType());
+}
+
+void test_setUpdateType()
+{
+	MonitoringServerInfo serverInfo = g_defaultServerInfo;
+	ArmZabbixAPITestee armZbxApiTestee(serverInfo);
+	cppcut_assert_equal(ArmBase::UPDATE_POLLING,
+			    armZbxApiTestee.testGetUpdateType());
+	armZbxApiTestee.testSetUpdateType(ArmBase::UPDATE_ITEM_REQUEST);
+	cppcut_assert_equal(ArmBase::UPDATE_ITEM_REQUEST,
+			    armZbxApiTestee.testGetUpdateType());
+}
+
+void test_setCopyOnDemandEnabled()
+{
+	MonitoringServerInfo serverInfo = g_defaultServerInfo;
+	ArmZabbixAPITestee armZbxApiTestee(serverInfo);
+	cppcut_assert_equal(false,
+			    armZbxApiTestee.testGetCopyOnDemandEnabled());
+	armZbxApiTestee.testSetCopyOnDemandEnabled(true);
+	cppcut_assert_equal(true,
+			    armZbxApiTestee.testGetCopyOnDemandEnabled());
+}
+
+MonitoringServerInfo setupServer(void)
+{
+	int svId = 0;
+	deleteDBClientZabbixDB(svId);
+	MonitoringServerInfo serverInfo = g_defaultServerInfo;
+	serverInfo.id = svId;
+	serverInfo.port = getTestPort();
+	return serverInfo;
+}
+
+void test_oneProcWithoutFetchItems()
+{
+	ArmZabbixAPITestee armZbxApiTestee(setupServer());
+	armZbxApiTestee.testMainThreadOneProc();
+
+	DBClientHatohol db;
+	EventInfoList eventInfoList;
+	TriggerInfoList triggerInfoList;
+	ItemInfoList itemInfoList;
+	db.getEventInfoList(eventInfoList);
+	db.getTriggerInfoList(triggerInfoList);
+	db.getItemInfoList(itemInfoList);
+
+	// FIXME: should check contents
+	cppcut_assert_equal(false, eventInfoList.empty());
+	cppcut_assert_equal(false, triggerInfoList.empty());
+	cppcut_assert_equal(false, itemInfoList.empty());
+}
+
+void test_oneProcWithCopyOnDemandEnabled()
+{
+	ArmZabbixAPITestee armZbxApiTestee(setupServer());
+	armZbxApiTestee.testSetCopyOnDemandEnabled(true);
+	armZbxApiTestee.testMainThreadOneProc();
+
+	DBClientHatohol db;
+	EventInfoList eventInfoList;
+	TriggerInfoList triggerInfoList;
+	ItemInfoList itemInfoList;
+	db.getEventInfoList(eventInfoList);
+	db.getTriggerInfoList(triggerInfoList);
+	db.getItemInfoList(itemInfoList);
+
+	// FIXME: should check contents
+	cppcut_assert_equal(false, eventInfoList.empty());
+	cppcut_assert_equal(false, triggerInfoList.empty());
+	cppcut_assert_equal(true, itemInfoList.empty());
+}
+
+void test_oneProcWithFetchItems()
+{
+	ArmZabbixAPITestee armZbxApiTestee(setupServer());
+	armZbxApiTestee.fetchItems();
+	armZbxApiTestee.testMainThreadOneProc();
+
+	DBClientHatohol db;
+	EventInfoList eventInfoList;
+	TriggerInfoList triggerInfoList;
+	ItemInfoList itemInfoList;
+	db.getEventInfoList(eventInfoList);
+	db.getTriggerInfoList(triggerInfoList);
+	db.getItemInfoList(itemInfoList);
+
+	// FIXME: should check contents
+	cppcut_assert_equal(true, eventInfoList.empty());
+	cppcut_assert_equal(true, triggerInfoList.empty());
+	cppcut_assert_equal(false, itemInfoList.empty());
 }
 
 void test_makeItemVecotr(void)
