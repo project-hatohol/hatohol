@@ -21,9 +21,11 @@
 #include <cstdlib>
 #include <stdarg.h>
 #include <string>
+#include <syslog.h>
 using namespace std;
 #include "Logger.h"
 using namespace mlpl;
+#include <string.h>
 
 static const char* LogHeaders [MLPL_NUM_LOG_LEVEL] = {
 	"BUG", "CRIT", "ERR", "WARN", "INFO", "DBG",
@@ -31,7 +33,10 @@ static const char* LogHeaders [MLPL_NUM_LOG_LEVEL] = {
 
 LogLevel Logger::m_currLogLevel = MLPL_LOG_LEVEL_NOT_SET;
 pthread_rwlock_t Logger::m_rwlock = PTHREAD_RWLOCK_INITIALIZER;
+bool Logger::syslogoutput_flag = true;
+ReadWriteLock Logger::lock;
 const char *Logger::LEVEL_ENV_VAR_NAME = "MLPL_LOGGER_LEVEL";
+
 
 // ----------------------------------------------------------------------------
 // Public methods
@@ -39,13 +44,35 @@ const char *Logger::LEVEL_ENV_VAR_NAME = "MLPL_LOGGER_LEVEL";
 void Logger::log(LogLevel level, const char *fileName, int lineNumber,
                  const char *fmt, ...)
 {
+	
 	fprintf(stderr, "[%s] <%s:%d> ", LogHeaders[level], fileName,
 	        lineNumber);
-
+	
 	va_list ap;
 	va_start(ap, fmt);
 	vfprintf(stderr, fmt, ap);
 	va_end(ap);
+
+	lock.readLock();
+	if (syslogoutput_flag) {
+		char Logmessage[256];
+		memset(Logmessage, '\0', sizeof(Logmessage));
+		sprintf(Logmessage, "[%s] <%s:%d> ", LogHeaders[level], 
+			fileName, lineNumber);
+
+		char tmp[256];
+		memset(tmp, '\0', sizeof(tmp));
+		va_start(ap, fmt);
+		vsprintf(tmp, fmt, ap);
+		strcat(Logmessage, tmp);
+
+		openlog(fileName, LOG_CONS | LOG_PID, LOG_USER);
+		syslog(LOG_INFO, "%s", Logmessage);
+		closelog();
+
+	}
+	lock.unlock();
+	
 }
 
 // ----------------------------------------------------------------------------
@@ -64,6 +91,20 @@ bool Logger::shouldLog(LogLevel level)
 		ret = true;
 	pthread_rwlock_unlock(&m_rwlock);
 	return ret;
+}
+
+void Logger::enableSyslogOutput(void)
+{
+	lock.writeLock();
+	syslogoutput_flag = true;
+	lock.unlock();
+}
+
+void Logger::disableSyslogOuputput(void)
+{
+	lock.writeLock();
+	syslogoutput_flag = false;
+	lock.unlock();
 }
 
 void Logger::setCurrLogLevel(void)
