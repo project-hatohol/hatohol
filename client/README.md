@@ -55,7 +55,7 @@ This Django project was written as PATH FREE so you can place this anyware witho
 
 How to configure
 ----------------------------------------
-You must configure if your prepared backend of THE VIEWER may runs on not a default port.
+You must configure if your prepared Hatohol server may runs on not a default port.
 
 - edit mysite/urls.py to change the port
 
