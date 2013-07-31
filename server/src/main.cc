@@ -113,9 +113,9 @@ static bool daemonize(void)
 		pid = getpid();
 		fprintf(pid_file, "%d\n", pid);
 		fclose(pid_file);
-
 		return true;
 	} else {
+		fclose(pid_file);
 		return false;
 	}
 }
