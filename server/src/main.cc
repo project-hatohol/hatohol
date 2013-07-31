@@ -105,7 +105,7 @@ static bool daemonize(void)
 	pid_file = fopen(pid_file_path, "w+");
 
 	if (pid_file == NULL) {
-		MLPL_ERR("Faild to record pid file\n");
+		MLPL_ERR("Failed to record pid file\n");
 		return false;
 	}
 
