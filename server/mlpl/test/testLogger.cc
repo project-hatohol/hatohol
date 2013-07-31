@@ -32,6 +32,18 @@ using namespace mlpl;
 
 #include "loggerTester.h"
 
+
+#include <stdio.h>
+#include <stdarg.h>
+#include <string.h>
+#include <time.h>
+#include <syslog.h>
+#include <sys/inotify.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <poll.h>
+
+
 namespace testLogger {
 
 static gchar *g_standardOutput = NULL;
@@ -177,6 +189,92 @@ void test_envLevelBUG(void)
 	assertLogOutput("BUG", "ERR",  false);
 	assertLogOutput("BUG", "CRIT", false);
 	assertLogOutput("BUG", "BUG",  true);
+}
+
+
+static const char* LogHeaders [MLPL_NUM_LOG_LEVEL] = {
+	"BUG", "CRIT", "ERR", "WARN", "INFO", "DBG",
+};
+
+#define DEF 1024
+#define TIMEOUT 10
+#define syslogPlacePattern 3
+void test_syslogoutput(void)
+{
+	LogLevel level = MLPL_LOG_INFO;
+	const char *fileName = "test file";
+	int lineNumber = 1;
+	
+	char consoleMessage[DEF];
+	memset(consoleMessage, '\0', sizeof(consoleMessage));
+	sprintf(consoleMessage, "[%s] <%s:%d> ", LogHeaders[level], fileName,
+	        lineNumber);
+	char tmp[DEF];
+	memset(tmp, '\0', sizeof(tmp));
+	sprintf(tmp,"this message is test");
+	strcat(consoleMessage, tmp);
+
+	char syslogPlace[syslogPlacePattern][32] = {
+		"/var/log/messages",    //CentOS
+		"/var/log/syslog",      //ubuntu
+		"/var/adm/messages"};   //Slackware
+	
+	int kindOfOS = 0;
+	int fp;
+	for (int i = 0; i < syslogPlacePattern; i++){
+		if ((fp = open(syslogPlace[i], O_RDONLY)) != -1){
+			kindOfOS = i;
+			break;
+		}
+	}
+
+	if (fp == -1){
+		cut_fail("error occur in test_syslogoutput\n");
+	}
+
+	char hoge[DEF];
+        while (read(fp, hoge, DEF));
+	
+	
+	int fd = inotify_init();
+	inotify_add_watch(fd, syslogPlace[kindOfOS], 
+				   IN_MODIFY|IN_ATTRIB|IN_DELETE_SELF|IN_MOVE_SELF);
+
+	Logger::enableSyslogOutput();
+	Logger::log(level, fileName, lineNumber, "this message is test");
+
+	time_t start = time(NULL);
+	for (;;) {
+		if (time(NULL) - start >= TIMEOUT){
+			cut_fail("error occur in test_syslogoutput");
+			break;
+		}
+		
+		struct pollfd fds[1];
+		fds[0].fd = fd;
+		fds[0].events = POLLIN;
+		fds[0].revents = 0;
+		if (poll(fds, 1 ,(TIMEOUT - time(NULL) + start)*1000) > 0){
+			char buf[DEF];
+		        if (!read(fd, buf, sizeof(buf))){
+				cut_fail("error occur in test_syslogoutput");
+			}
+		}
+
+		char syslogMessage[DEF];
+		memset(syslogMessage, 0, sizeof(syslogMessage));
+
+		if (!read(fp, syslogMessage, DEF)){
+			cut_fail("error occur in test_syslogoutput");
+		}
+		
+		if (strstr(syslogMessage, consoleMessage) != NULL) {
+			break;
+		}
+	}
+	close(fp);
+	close(fd);
+	
 }
 
 } // namespace testLogger
