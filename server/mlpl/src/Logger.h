@@ -21,7 +21,7 @@
 #define Logger_h
 
 #include <pthread.h>
-
+#include "ReadWriteLock.h"
 namespace mlpl {
 
 enum LogLevel {
@@ -43,11 +43,15 @@ public:
 	                const char *fileName, int lineNumber,
 	                const char *fmt, ...);
 	static bool shouldLog(LogLevel level);
+	static void enableSyslogOutput(void);
+	static void disableSyslogOuputput(void);
 protected:
 	static void setCurrLogLevel(void);
 private:
 	static LogLevel m_currLogLevel;
 	static pthread_rwlock_t m_rwlock;
+	static bool syslogoutput_flag;
+	static ReadWriteLock lock;
 };
 
 #define MLPL_P(LOG_LV, FMT, ...) \
