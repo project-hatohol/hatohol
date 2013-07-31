@@ -17,10 +17,35 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <cutter.h>
 #include <cppcutter.h>
-#include <errno.h>
 #include <glib.h>
 
 #include "Hatohol.h"
 #include "Utils.h"
+
+namespace testMain {
+gchar **argv = NULL;
+GPid pid;
+GError error;
+
+void teardown(void)
+{
+	g_spawn_close_pid(pid);
+}
+void test_Daemonize(void)
+{
+	g_spawn_async_with_pipes(NULL,
+			argv,
+			NULL,
+			G_SPAWN_DO_NOT_REAP_CHILD,
+			NULL,
+			NULL,
+			&pid,
+			NULL,
+			NULL,
+			NULL,
+			NULL);
+	cppcut_assert_not_null(pid);
+}
+}
+
