@@ -31,7 +31,7 @@ void teardown(void)
 {
 	g_spawn_close_pid(pid);
 }
-void test_Daemonize(void)
+void test_daemonize(void)
 {
 	gboolean ret;
 	ret = g_spawn_async_with_pipes(NULL,
