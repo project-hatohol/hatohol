@@ -3,7 +3,7 @@
  *
  * This file is part of Hatohol.
  *
- * Hatohol is free software: you can redistribute it and/or modify
+ * Hatohol is free software: you assertSpawnResultcan redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 2 of the License, or
  * (at your option) any later version.
@@ -192,15 +192,21 @@ void test_envLevelBUG(void)
 }
 
 
+
+
+
 static const char* LogHeaders [MLPL_NUM_LOG_LEVEL] = {
 	"BUG", "CRIT", "ERR", "WARN", "INFO", "DBG",
 };
 
 #define DEF 1024
-#define TIMEOUT 10
+#define TIMEOUT 1
 #define syslogPlacePattern 3
-void test_syslogoutput(void)
+
+static void _assertSyslogOutput(const char *envMessage, const char *outMessage,
+                             bool expectOut)
 {
+
 	LogLevel level = MLPL_LOG_INFO;
 	const char *fileName = "test file";
 	int lineNumber = 1;
@@ -209,10 +215,7 @@ void test_syslogoutput(void)
 	memset(consoleMessage, '\0', sizeof(consoleMessage));
 	sprintf(consoleMessage, "[%s] <%s:%d> ", LogHeaders[level], fileName,
 	        lineNumber);
-	char tmp[DEF];
-	memset(tmp, '\0', sizeof(tmp));
-	sprintf(tmp,"this message is test");
-	strcat(consoleMessage, tmp);
+	strcat(consoleMessage, envMessage);
 
 	char syslogPlace[syslogPlacePattern][32] = {
 		"/var/log/messages",    //CentOS
@@ -240,16 +243,15 @@ void test_syslogoutput(void)
 	inotify_add_watch(fd, syslogPlace[kindOfOS], 
 				   IN_MODIFY|IN_ATTRIB|IN_DELETE_SELF|IN_MOVE_SELF);
 
+
 	Logger::enableSyslogOutput();
-	Logger::log(level, fileName, lineNumber, "this message is test");
+	
+
+	Logger::log(level, fileName, lineNumber,outMessage);
 
 	time_t start = time(NULL);
+	bool output = false;
 	for (;;) {
-		if (time(NULL) - start >= TIMEOUT){
-			cut_fail("error occur in test_syslogoutput");
-			break;
-		}
-		
 		struct pollfd fds[1];
 		fds[0].fd = fd;
 		fds[0].events = POLLIN;
@@ -259,8 +261,10 @@ void test_syslogoutput(void)
 		        if (!read(fd, buf, sizeof(buf))){
 				cut_fail("error occur in test_syslogoutput");
 			}
+		} else {
+			break;
 		}
-
+		
 		char syslogMessage[DEF];
 		memset(syslogMessage, 0, sizeof(syslogMessage));
 
@@ -269,12 +273,27 @@ void test_syslogoutput(void)
 		}
 		
 		if (strstr(syslogMessage, consoleMessage) != NULL) {
+			output = true;
 			break;
 		}
 	}
+	
 	close(fp);
 	close(fd);
+ 
+	if (output != expectOut){
+		cut_fail("error occur in test_syslogoutput");
+	}
 	
+}
+#define assertSyslogOutput(EM,OM,EXP) cut_trace(_assertSyslogOutput(EM,OM,EXP))
+
+
+
+void test_syslogoutput(void)
+{
+	assertSyslogOutput("Test message", "Test message",  true);
+	assertSyslogOutput("Test message", "Message of test",  false);
 }
 
 } // namespace testLogger
