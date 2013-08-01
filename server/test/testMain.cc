@@ -33,13 +33,12 @@ void teardown(void)
 void test_daemonize(void)
 {
 	const gchar *argv[] = {"/usr/local/sbin/hatohol", "--config-db-server", "localhost", NULL};
-	gint sout,serr;
+	gint sout, serr;
 	GError *err;
 	gboolean ret;
 	ret = g_spawn_async_with_pipes(NULL, const_cast<gchar**>(argv), NULL,
 			G_SPAWN_DO_NOT_REAP_CHILD, NULL, NULL, &pid, NULL, &sout, &serr, &err);
-	if(!ret)
-		cut_fail("Can't start g_spawn_async_with_pipes. Error Message %s\n", err->message);
+	cppcut_assert_equal(true, (bool)ret);
 }
 }
 
