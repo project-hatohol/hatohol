@@ -24,7 +24,6 @@
 #include "Utils.h"
 
 namespace testMain {
-gchar *argv[] = {"hatohol", "--config-db-server localhost", NULL};
 GPid pid;
 
 void teardown(void)
@@ -33,6 +32,8 @@ void teardown(void)
 }
 void test_daemonize(void)
 {
+	gchar *argv[] = {"hatohol", "--config-db-server localhost", NULL};
+	gint in,out,err;
 	gboolean ret;
 	ret = g_spawn_async_with_pipes(NULL,
 			argv,
