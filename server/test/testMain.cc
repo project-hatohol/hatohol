@@ -24,9 +24,8 @@
 #include "Utils.h"
 
 namespace testMain {
-gchar **argv = NULL;
+gchar *argv[] = {"hatohol", "--config-db-server localhost", NULL};
 GPid pid;
-GError error;
 
 void teardown(void)
 {
@@ -34,7 +33,8 @@ void teardown(void)
 }
 void test_Daemonize(void)
 {
-	g_spawn_async_with_pipes(NULL,
+	gboolean ret;
+	ret = g_spawn_async_with_pipes(NULL,
 			argv,
 			NULL,
 			G_SPAWN_DO_NOT_REAP_CHILD,
@@ -45,7 +45,8 @@ void test_Daemonize(void)
 			NULL,
 			NULL,
 			NULL);
-	cppcut_assert_not_null(pid);
+	if(!ret)
+		cut_fail("Can't start g_spawn_async_with_pipes");
 }
 }
 
