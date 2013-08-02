@@ -232,7 +232,7 @@ static void _assertSyslogOutput(const char *envMessage, const char *outMessage,
 	}
 
 	if (fp == -1){
-		cut_fail("error occur in test_syslogoutput\n");
+		cut_fail("Error occur in test_syslogoutput. Failed to open syslog.");
 	}
 
 	char hoge[DEF];
@@ -259,7 +259,7 @@ static void _assertSyslogOutput(const char *envMessage, const char *outMessage,
 		if (poll(fds, 1 ,(TIMEOUT - time(NULL) + start)*1000) > 0){
 			char buf[DEF];
 		        if (!read(fd, buf, sizeof(buf))){
-				cut_fail("error occur in test_syslogoutput");
+				cut_fail("Error occur in test_syslogoutput. Failed to read buf.");
 			}
 		} else {
 			break;
@@ -269,7 +269,7 @@ static void _assertSyslogOutput(const char *envMessage, const char *outMessage,
 		memset(syslogMessage, 0, sizeof(syslogMessage));
 
 		if (!read(fp, syslogMessage, DEF)){
-			cut_fail("error occur in test_syslogoutput");
+			cut_fail("Error occur in test_syslogoutput. Failed to read syslog.");
 		}
 		
 		if (strstr(syslogMessage, consoleMessage) != NULL) {
@@ -282,7 +282,7 @@ static void _assertSyslogOutput(const char *envMessage, const char *outMessage,
 	close(fd);
  
 	if (output != expectOut){
-		cut_fail("error occur in test_syslogoutput");
+		cut_fail("Error occur in test_syslogoutput. Don't output expect message in syslog.");
 	}
 	
 }
