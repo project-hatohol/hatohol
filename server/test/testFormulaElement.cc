@@ -79,7 +79,7 @@ public:
 	}
 };
 
-void teardown()
+void cut_teardown()
 {
 	for (int i = 0; i < NUM_ELEM_POOL; i++) {
 		if (g_elem[i]) {
@@ -161,7 +161,7 @@ void test_findInsertPoint(void)
 	TestFormulaElement      *elemPrioH = new TestFormulaElement();
 	TestFormulaElementPrio0 *elemPrioM = new TestFormulaElementPrio0();
 	TestFormulaElementPrio1 *elemPrioL = new TestFormulaElementPrio1();
-	x_elem = elemPrioL; // to free the tree in teardown()
+	x_elem = elemPrioL; // to free the tree in cut_teardown()
 
 	elemPrioL->setLeftHand(elemPrioM);
 	elemPrioM->setRightHand(elemPrioH);
@@ -194,8 +194,8 @@ void test_findInsertPointInsertMid(void)
 	TestFormulaElement      *elemPrioH  = new TestFormulaElement();
 	TestFormulaElementPrio0 *elemPrioM  = new TestFormulaElementPrio0();
 	TestFormulaElementPrio1 *elemPrioL  = new TestFormulaElementPrio1();
-	x_elem = elemPrioL; // to free the tree in teardown()
-	y_elem = elemPrioM; // to free the tree in teardown()
+	x_elem = elemPrioL; // to free the tree in cut_teardown()
+	y_elem = elemPrioM; // to free the tree in cut_teardown()
 
 	elemPrioL->setLeftHand(elemPrioH);
 	elemPrioH->setLeftHand(elemPrioH2);

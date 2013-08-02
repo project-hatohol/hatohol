@@ -115,7 +115,7 @@ void assertOperatorPlus(T &v0, T &v1)
 	cppcut_assert_equal(v0 + v1, item->get());
 }
 
-void teardown(void)
+void cut_teardown(void)
 {
 	for (int i = 0; i < NUM_ITEM_POOL; i++) {
 		if (g_item[i]) {

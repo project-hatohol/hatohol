@@ -44,12 +44,12 @@ GError *g_error = NULL;
 gboolean g_spawnRet;
 gint     g_exitStatus;
 
-void setup()
+void cut_setup()
 {
 	cut_omit("This test will be recreated to execute without the running hatohol process.");
 }
 
-void teardown()
+void cut_teardown()
 {
 	if (g_standardOutput) {
 		g_free(g_standardOutput);

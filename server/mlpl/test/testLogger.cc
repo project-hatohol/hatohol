@@ -100,7 +100,7 @@ static void _assertLogOutput(const char *envLevel, const char *outLevel,
 }
 #define assertLogOutput(EL,OL,EXP) cut_trace(_assertLogOutput(EL,OL,EXP))
 
-void teardown(void)
+void cut_teardown(void)
 {
 	if (g_standardOutput) {
 		g_free(g_standardOutput);

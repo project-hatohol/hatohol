@@ -80,7 +80,7 @@ private:
 	void    *m_testData;
 };
 
-void setup(void)
+void cut_setup(void)
 {
 	if (!sync.trylock())
 		cut_fail("lock is not unlocked.");

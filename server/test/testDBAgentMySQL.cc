@@ -235,13 +235,13 @@ void _assertIsRecordExisting(bool skipInsert)
 }
 #define assertIsRecordExisting(SI) cut_trace(_assertIsRecordExisting(SI))
 
-void setup(void)
+void cut_setup(void)
 {
 	bool recreate = true;
 	makeTestMySQLDBIfNeeded(TEST_DB_NAME, recreate);
 }
 
-void teardown(void)
+void cut_teardown(void)
 {
 	if (g_dbAgent) {
 		delete g_dbAgent;

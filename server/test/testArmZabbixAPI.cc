@@ -364,7 +364,7 @@ static void _assertTestGet(ArmZabbixAPITestee::GetTestType testType)
 }
 #define assertTestGet(TYPE) cut_trace(_assertTestGet(TYPE))
 
-void setup(void)
+void cut_setup(void)
 {
 	cppcut_assert_equal(false, g_sync.isLocked(),
 	                    cut_message("g_sync is locked."));
@@ -378,7 +378,7 @@ void setup(void)
 	deleteDBClientDB(DB_DOMAIN_ID_HATOHOL);
 }
 
-void teardown(void)
+void cut_teardown(void)
 {
 	g_sync.reset();
 	g_apiEmulator.reset();

@@ -201,7 +201,7 @@ void _assertAddApplicationsRaw2_0(bool writeTwice = false)
 #define assertAddApplicationsRaw2_0(...) \
 cut_trace(_assertAddApplicationsRaw2_0(__VA_ARGS__))
 
-void setup(void)
+void cut_setup(void)
 {
 	hatoholInit();
 }

@@ -48,7 +48,7 @@ static ItemDataVector g_itemVec[NUM_ITEM_VEC_POOL];
 static ItemDataVector &x_itemVec = g_itemVec[0];
 static ItemDataVector &y_itemVec = g_itemVec[1];
 
-void teardown()
+void cut_teardown()
 {
 	for (int i = 0; i < NUM_ITEM_VEC_POOL; i++) {
 		if (!g_itemVec[i].empty()) {

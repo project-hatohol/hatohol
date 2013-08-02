@@ -28,7 +28,7 @@
 
 namespace testUnifiedDataStore {
 
-void setup(void)
+void cut_setup(void)
 {
 	const gchar *dbPath = cut_build_path(cut_get_test_directory(),
 					     "fixtures",

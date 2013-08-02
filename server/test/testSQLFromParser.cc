@@ -120,7 +120,7 @@ void _assertTableList(const StringList &expectedNameList,
 }
 #define assertTableList(E,T) cut_trace(_assertTableList(E,T))
 
-void setup(void)
+void cut_setup(void)
 {
 	hatoholInit();
 }

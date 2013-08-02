@@ -131,7 +131,7 @@ static void _assertPrimaryConditionColumnsEqual
 #define assertPrimaryConditionColumnsEqual(CCI, LT, LC, RT, RC) \
 cut_trace((_assertPrimaryConditionColumnsEqual(CCI, LT, LC, RT, RC)))
 
-void setup(void)
+void cut_setup(void)
 {
 	hatoholInit();
 }
