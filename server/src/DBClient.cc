@@ -30,6 +30,7 @@ static const char *TABLE_NAME_DBCLIENT = "_dbclient";
 
 static const ColumnDef COLUMN_DEF_DBCLIENT[] = {
 {
+	// This column has the schema version for '_dbclient' table.
 	ITEM_ID_NOT_SET,                   // itemId
 	TABLE_NAME_DBCLIENT,               // tableName
 	"self_db_version",                 // columnName
@@ -41,6 +42,7 @@ static const ColumnDef COLUMN_DEF_DBCLIENT[] = {
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
+	// This column has the schema version for the sub class's table.
 	ITEM_ID_NOT_SET,                   // itemId
 	TABLE_NAME_DBCLIENT,               // tableName
 	"version",                         // columnName
@@ -155,7 +157,7 @@ void DBClient::updateDBIfNeeded(DBAgent *dbAgent, DBSetupFuncArg *setupFuncArg)
 		                      __PRETTY_FUNCTION__);
 	}
 
-	// check the version for this class's database
+	// check the version for the sub class's database
 	columnDef = &COLUMN_DEF_DBCLIENT[IDX_DBCLIENT_VERSION];
 	dbVersion = getDBVersion(dbAgent, columnDef);
 	if (dbVersion != setupFuncArg->version) {
@@ -164,6 +166,7 @@ void DBClient::updateDBIfNeeded(DBAgent *dbAgent, DBSetupFuncArg *setupFuncArg)
 		             "Updater: NULL, expect/actual ver. %d/%d",
 		             setupFuncArg->version, dbVersion);
 		(*setupFuncArg->dbUpdater)(dbAgent, dbVersion, data);
+		setDBVersion(dbAgent, columnDef, setupFuncArg->version);
 	}
 }
 
@@ -189,6 +192,18 @@ int DBClient::getDBVersion(DBAgent *dbAgent, const ColumnDef *columnDef)
 	HATOHOL_ASSERT(itemVersion != NULL, "type: itemVersion: %s\n",
 	             DEMANGLED_TYPE_NAME(*itemVersion));
 	return itemVersion->get();
+}
+
+void DBClient::setDBVersion(DBAgent *dbAgent, const ColumnDef *columnDef, int version)
+{
+	DBAgentUpdateArg arg;
+	arg.tableName = columnDef->tableName;
+	arg.columnDefs = columnDef;
+	arg.columnIndexes.push_back(0);
+	VariableItemGroupPtr row;
+	row->ADD_NEW_ITEM(Int, version);
+	arg.row = row;
+	dbAgent->update(arg);
 }
 
 // non-static methods
@@ -266,6 +281,11 @@ void DBClient::select(DBAgentSelectExArg &selectExArg)
 void DBClient::deleteRows(DBAgentDeleteArg &deleteArg)
 {
 	getDBAgent()->deleteRows(deleteArg);
+}
+
+void DBClient::addColumns(DBAgentAddColumnsArg &addColumnsArg)
+{
+	getDBAgent()->addColumns(addColumnsArg);
 }
 
 bool DBClient::isRecordExisting(const string &tableName,

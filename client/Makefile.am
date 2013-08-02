@@ -26,4 +26,5 @@ nobase_dist_libexec_SCRIPTS = \
 	viewer/events_ajax.html \
 	viewer/base_ajax.html \
 	viewer/overview_items_ajax.html \
+	viewer/dashboard_ajax.html \
 	viewer/tests.py

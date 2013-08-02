@@ -80,6 +80,12 @@ struct DBAgentDeleteArg {
 	string condition;
 };
 
+struct DBAgentAddColumnsArg {
+	string              tableName;
+	const ColumnDef    *columnDefs;
+	vector<size_t>      columnIndexes;
+};
+
 struct DBConnectInfo {
 	string host;
 	size_t port;
@@ -120,6 +126,7 @@ public:
 	virtual void select(DBAgentSelectArg &selectArg) = 0;
 	virtual void select(DBAgentSelectExArg &selectExArg) = 0;
 	virtual void deleteRows(DBAgentDeleteArg &deleteArg) = 0;
+	virtual void addColumns(DBAgentAddColumnsArg &addColumnsArg) = 0;
 
 protected:
 	static string makeSelectStatement(DBAgentSelectArg &selectArg);

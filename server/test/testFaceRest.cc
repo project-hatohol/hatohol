@@ -306,13 +306,13 @@ static void _assertItems(const string &path, const string &callbackName = "")
 }
 #define assertItems(P,...) cut_trace(_assertItems(P,##__VA_ARGS__))
 
-void setup(void)
+void cut_setup(void)
 {
 	hatoholInit();
 	setupTestDBServers();
 }
 
-void teardown(void)
+void cut_teardown(void)
 {
 	if (g_faceRest) {
 		try {

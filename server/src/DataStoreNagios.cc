@@ -47,6 +47,11 @@ DataStoreNagios::~DataStoreNagios()
 		delete m_ctx;
 }
 
+void DataStoreNagios::collectArms(ArmBaseVector &arms)
+{
+	arms.push_back(&m_ctx->armNDO);
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------

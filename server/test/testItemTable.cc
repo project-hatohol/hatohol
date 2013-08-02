@@ -170,7 +170,7 @@ static void _assertIndexMulti(void)
 }
 #define assertIndexMulti() cut_trace(_assertIndexMulti())
 
-void teardown(void)
+void cut_teardown(void)
 {
 	for (int i = 0; i < NUM_TABLE_POOL; i++) {
 		if (g_table[i]) {

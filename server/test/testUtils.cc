@@ -43,7 +43,7 @@ static void _assertGetExtension(const string &path, const string &expected)
 }
 #define assertGetExtension(P, E) cut_trace(_assertGetExtension(P, E))
 
-void setup(void)
+void cut_setup(void)
 {
 	hatoholInit();
 }

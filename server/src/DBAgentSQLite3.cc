@@ -596,6 +596,11 @@ void DBAgentSQLite3::deleteRows(sqlite3 *db, DBAgentDeleteArg &deleteArg)
 	_execSql(db, sql.c_str());
 }
 
+void DBAgentSQLite3::addColumns(DBAgentAddColumnsArg &addColumnsArg)
+{
+	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+}
+
 void DBAgentSQLite3::selectGetValuesIteration(DBAgentSelectArg &selectArg,
                                               sqlite3_stmt *stmt,
                                               VariableItemTablePtr &dataTable)

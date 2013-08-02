@@ -30,3 +30,6 @@ DataStore::~DataStore()
 {
 }
 
+void DataStore::collectArms(ArmBaseVector &arms)
+{
+}

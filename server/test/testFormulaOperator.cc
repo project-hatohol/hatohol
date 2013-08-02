@@ -84,7 +84,7 @@ void _assertFormulaComparatorEqualVal(int v0, int v1)
 #define assertFormulaComparatorEqualVal(V0, V1) \
 cut_trace(_assertFormulaComparatorEqualVal(V0, V1))
 
-void teardown()
+void cut_teardown()
 {
 	for (int i = 0; i < NUM_ELEM_POOL; i++) {
 		if (g_elem[i]) {

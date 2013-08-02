@@ -75,18 +75,6 @@ void VirtualDataStoreZabbix::start(void)
 	VirtualDataStore::start<DataStoreZabbix>(MONITORING_SYSTEM_ZABBIX);
 }
 
-void VirtualDataStoreZabbix::getTriggerList(TriggerInfoList &triggerList)
-{
-	DBClientHatohol dbHatohol;
-	dbHatohol.getTriggerInfoList(triggerList);
-}
-
-void VirtualDataStoreZabbix::getEventList(EventInfoList &eventList)
-{
-	DBClientHatohol dbHatohol;
-	dbHatohol.getEventInfoList(eventList);
-}
-
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------

@@ -128,7 +128,7 @@ void _assertSum(ParsableString &statement, const char *columnName)
 }
 #define assertSum(S,C) cut_trace(_assertSum(S,C))
 
-void setup(void)
+void cut_setup(void)
 {
 	hatoholInit();
 }

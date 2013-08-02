@@ -32,9 +32,10 @@ class VirtualDataStore : public DataStoreManager
 public:
 	VirtualDataStore(void);
 	virtual ~VirtualDataStore(void);
-	void stop(void);
 
-	virtual void getTriggerList(TriggerInfoList &triggerList) = 0;
+	virtual void start(void);
+	virtual void stop(void);
+	virtual void collectArms(ArmBaseVector &arms);
 
 protected:
 	template<class T>

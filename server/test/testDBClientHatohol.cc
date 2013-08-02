@@ -233,7 +233,7 @@ void _assertGetNumberOfHostsWithStatus(bool status)
 #define assertGetNumberOfHostsWithStatus(ST) \
 cut_trace(_assertGetNumberOfHostsWithStatus(ST))
 
-void setup(void)
+void cut_setup(void)
 {
 	hatoholInit();
 	deleteDBClientDB(DB_DOMAIN_ID_HATOHOL);

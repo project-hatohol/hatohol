@@ -46,7 +46,7 @@ static ItemGroup *g_grp[NUM_GROUP_POOL];
 static ItemGroup *&x_grp = g_grp[0];
 static ItemGroup *&y_grp = g_grp[1];
 
-void teardown()
+void cut_teardown()
 {
 	for (int i = 0; i < NUM_GROUP_POOL; i++) {
 		if (g_grp[i]) {

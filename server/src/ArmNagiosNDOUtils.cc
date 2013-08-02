@@ -801,9 +801,14 @@ gpointer ArmNagiosNDOUtils::mainThread(HatoholThreadArg *arg)
 bool ArmNagiosNDOUtils::mainThreadOneProc(void)
 {
 	try {
-		getTrigger();
-		getEvent();
-		getItem();
+		if (getUpdateType() == UPDATE_ITEM_REQUEST) {
+			getItem();
+		} else {
+			getTrigger();
+			getEvent();
+			if (!getCopyOnDemandEnabled())
+				getItem();
+		}
 	} catch (const exception &e) {
 		MLPL_ERR("Got exception: %s\n", e.what());
 		return false;

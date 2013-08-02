@@ -100,3 +100,20 @@ please tell us them. The following lists are our recent plans.
 - Configuration of target hosts
 - Communication with monitoring system with private IP address
 - More monitoring software support
+
+Mailing Lists
+-------------
+There are some mailing lists to discuss about Hatohol.
+
+* hatohol-users@lists.sourceforge.jp
+  * Discuss anything about how to install and use Hatohol (for Japanese users).
+  * How to subscribe: http://lists.sourceforge.jp/mailman/listinfo/hatohol-users
+* hatohol-users@lists.sourceforge.net
+  * Discuss anything about how to install and use Hatohol (English).
+  * How to subscribe: https://lists.sourceforge.net/lists/listinfo/hatohol-users
+* hatohol-commit@lists.sourceforge.net
+  * Receive commit notifications & discuss about each commits.
+  * How to subscribe: https://lists.sourceforge.net/lists/listinfo/hatohol-commit
+* For Hatohol developers
+  * Currently no mailing list exists to discuss about developing Hatohol.
+  * Please use github issue instead: https://github.com/project-hatohol/hatohol/issues

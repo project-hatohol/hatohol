@@ -7,6 +7,7 @@ libhatohol_la_SOURCES = \
 	ArmNagiosNDOUtils.cc ArmNagiosNDOUtils.h \
 	ArmZabbixAPI-template.h \
 	ArmZabbixAPI.cc ArmZabbixAPI.h \
+	Closure.cc Closure.h \
 	ConfigManager.cc ConfigManager.h \
 	DBAgent.cc DBAgent.h \
 	DBAgentFactory.cc DBAgentFactory.h \

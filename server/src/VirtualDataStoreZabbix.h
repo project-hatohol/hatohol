@@ -38,11 +38,8 @@ public:
 	static VirtualDataStoreZabbix *getInstance(void);
 	// TODO: a consider const qualifier should be added again
 	ItemTablePtr getItemTable(ItemGroupId groupId);
-	void start(void);
 
-	// Virtual functions
-	virtual void getTriggerList(TriggerInfoList &triggerList);
-	virtual void getEventList(EventInfoList &eventList);
+	virtual void start(void);
 
 protected:
 	ItemTable *createStaticItemTable(ItemGroupId groupId);

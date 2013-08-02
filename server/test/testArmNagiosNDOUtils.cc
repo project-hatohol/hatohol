@@ -72,12 +72,12 @@ static void createGlobalInstance(void)
 	g_armNagiTestee = dynamic_cast<ArmNagiosNDOUtilsTestee *>(g_armNagi);
 }
 
-void setup(void)
+void cut_setup(void)
 {
 	hatoholInit();
 }
 
-void teardown(void)
+void cut_teardown(void)
 {
 	if (g_armNagi) {
 		delete g_armNagi;

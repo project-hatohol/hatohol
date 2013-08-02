@@ -20,7 +20,9 @@
 #ifndef UnifiedDataStore_h
 #define UnifiedDataStore_h
 
+#include "ArmBase.h"
 #include "DBClientHatohol.h"
+#include "Utils.h"
 
 class UnifiedDataStore
 {
@@ -29,8 +31,10 @@ public:
 	virtual ~UnifiedDataStore(void);
 
 	static UnifiedDataStore *getInstance(void);
+	virtual void parseCommandLineArgument(CommandLineArg &cmdArg);
 	virtual void start(void);
 	virtual void stop(void);
+	virtual void fetchItems(void);
 
 	virtual void getTriggerList(TriggerInfoList &triggerList,
 	                            uint32_t targetServerId = ALL_SERVERS);
@@ -46,6 +50,9 @@ public:
 	                                    uint64_t hostGroupId);
 	virtual size_t getNumberOfBadHosts(uint32_t serverId,
 	                                   uint64_t hostGroupId);
+
+	virtual bool getCopyOnDemandEnabled(void) const;
+	virtual void setCopyOnDemandEnabled(bool enable);
 
 private:
 	struct PrivateContext;

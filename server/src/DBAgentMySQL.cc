@@ -137,6 +137,62 @@ void DBAgentMySQL::rollback(void)
 	execSql("ROLLBACK");
 }
 
+static string getColumnTypeQuery(const ColumnDef &columnDef)
+{
+	switch (columnDef.type) {
+	case SQL_COLUMN_TYPE_INT:
+		return StringUtils::sprintf("INT(%zd)",
+					    columnDef.columnLength);
+	case SQL_COLUMN_TYPE_BIGUINT:
+		return StringUtils::sprintf("BIGINT(%zd) UNSIGNED",
+					    columnDef.columnLength);
+	case SQL_COLUMN_TYPE_VARCHAR:
+		return StringUtils::sprintf("VARCHAR(%zd)",
+					    columnDef.columnLength);
+	case SQL_COLUMN_TYPE_CHAR:
+		return StringUtils::sprintf("CHAR(%zd)",
+					    columnDef.columnLength);
+	case SQL_COLUMN_TYPE_TEXT:
+		return "TEXT";
+	case SQL_COLUMN_TYPE_DOUBLE:
+		return StringUtils::sprintf("DOUBLE(%zd,%zd)",
+					    columnDef.columnLength,
+					    columnDef.decFracLength);
+	default:
+		HATOHOL_ASSERT(false, "Unknown type: %d", columnDef.type);
+	}
+	return string();
+}
+
+static string getColumnDefinitionQuery(const ColumnDef &columnDef)
+{
+	string query;
+
+	query += columnDef.columnName;
+	query += " ";
+	query += getColumnTypeQuery(columnDef);
+
+	// nullable
+	if (!columnDef.canBeNull)
+		query += " NOT NULL";
+
+	// key type
+	switch (columnDef.keyType) {
+	case SQL_KEY_PRI:
+		query += " PRIMARY KEY";
+	case SQL_KEY_UNI:
+		query += " UNIQUE";
+	case SQL_KEY_MUL:
+	case SQL_KEY_NONE:
+		break;
+	default:
+		HATOHOL_ASSERT(false,
+		  "Unknown key type: %d", columnDef.keyType);
+	}
+
+	return query;
+}
+
 void DBAgentMySQL::createTable(DBAgentTableCreationArg &tableCreationArg)
 {
 	HATOHOL_ASSERT(m_ctx->connected, "Not connected.");
@@ -145,54 +201,7 @@ void DBAgentMySQL::createTable(DBAgentTableCreationArg &tableCreationArg)
 	
 	for (size_t i = 0; i < tableCreationArg.numColumns; i++) {
 		const ColumnDef &columnDef = tableCreationArg.columnDefs[i];
-		query += columnDef.columnName;
-		switch (columnDef.type) {
-		case SQL_COLUMN_TYPE_INT:
-			query += StringUtils::sprintf(" INT(%zd)",
-			                              columnDef.columnLength);
-			break;
-		case SQL_COLUMN_TYPE_BIGUINT:
-			query += StringUtils::sprintf(" BIGINT(%zd) UNSIGNED",
-			                              columnDef.columnLength);
-			break;
-		case SQL_COLUMN_TYPE_VARCHAR:
-			query += StringUtils::sprintf(" VARCHAR(%zd)",
-			                              columnDef.columnLength);
-			break;
-		case SQL_COLUMN_TYPE_CHAR:
-			query += StringUtils::sprintf(" CHAR(%zd)",
-			                              columnDef.columnLength);
-			break;
-		case SQL_COLUMN_TYPE_TEXT:
-			query += " TEXT";
-			break;
-		case SQL_COLUMN_TYPE_DOUBLE:
-			query += StringUtils::sprintf(" DOUBLE(%zd,%zd)",
-			                              columnDef.columnLength,
-			                              columnDef.decFracLength);
-			break;
-		default:
-			HATOHOL_ASSERT(false, "Unknown type: %d", columnDef.type);
-		}
-
-		// nullable
-		if (!columnDef.canBeNull)
-			query += " NOT NULL";
-
-		// key type
-		switch (columnDef.keyType) {
-		case SQL_KEY_PRI:
-			query += " PRIMARY KEY";
-		case SQL_KEY_UNI:
-			query += " UNIQUE";
-		case SQL_KEY_MUL:
-		case SQL_KEY_NONE:
-			break;
-		default:
-			HATOHOL_ASSERT(false,
-			  "Unknown key type: %d", columnDef.keyType);
-		}
-
+		query += getColumnDefinitionQuery(columnDef);
 		if (i < tableCreationArg.numColumns -1)
 			query += ",";
 	}
@@ -331,6 +340,22 @@ void DBAgentMySQL::select(DBAgentSelectExArg &selectExArg)
 void DBAgentMySQL::deleteRows(DBAgentDeleteArg &deleteArg)
 {
 	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+}
+
+void DBAgentMySQL::addColumns(DBAgentAddColumnsArg &addColumnsArg)
+{
+	string query = "ALTER TABLE ";
+	query += addColumnsArg.tableName;
+	vector<size_t>::iterator it = addColumnsArg.columnIndexes.begin();
+	for (; it != addColumnsArg.columnIndexes.end(); it++) {
+		size_t index = *it;
+		const ColumnDef &columnDef = addColumnsArg.columnDefs[index];
+		query += " ADD COLUMN ";
+		query += getColumnDefinitionQuery(columnDef);
+		if (index < addColumnsArg.columnIndexes.size() - 1)
+			query += ",";
+	}
+	execSql(query);
 }
 
 // ---------------------------------------------------------------------------

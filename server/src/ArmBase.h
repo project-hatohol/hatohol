@@ -22,16 +22,28 @@
 
 #include "HatoholThreadBase.h"
 #include "DBClientConfig.h"
+#include "Closure.h"
 
 class ArmBase : public HatoholThreadBase
 {
 public:
+	typedef enum {
+		UPDATE_POLLING,
+		UPDATE_ITEM_REQUEST,
+	} UpdateType;
+
+public:
 	ArmBase(const MonitoringServerInfo &serverInfo);
 	virtual ~ArmBase();
+
+	virtual void fetchItems(ClosureBase *closure = NULL);
 
 	void setPollingInterval(int sec);
 	int getPollingInterval(void) const;
 	int getRetryInterval(void) const;
+
+	bool getCopyOnDemandEnabled(void) const;
+	void setCopyOnDemandEnabled(bool enable);
 
 protected:
 	bool hasExitRequest(void) const;
@@ -45,9 +57,16 @@ protected:
 	// virtual methods defined in this class
 	virtual bool mainThreadOneProc(void) = 0;
 
+	UpdateType getUpdateType(void) const;
+	void       setUpdateType(UpdateType updateType);
+
 private:
 	struct PrivateContext;
 	PrivateContext *m_ctx;
 };
+
+typedef vector<ArmBase *>             ArmBaseVector;
+typedef ArmBaseVector::iterator       ArmBaseVectorIterator;
+typedef ArmBaseVector::const_iterator ArmBaseVectorConstIterator;
 
 #endif // ArmBase_h

@@ -683,7 +683,7 @@ static void resetTestData(void)
 	resetTestDataZ();
 }
 
-void setup(void)
+void cut_setup(void)
 {
 	hatoholInit();
 	resetTestData();

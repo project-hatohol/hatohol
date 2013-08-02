@@ -179,7 +179,7 @@ string _path = getFixturesDir() + DB_NAME; \
 DBAgentSQLite3::defineDBPath(DEFAULT_DB_DOMAIN_ID, _path); \
 DBAgentSQLite3 OBJ_NAME; \
 
-void setup(void)
+void cut_setup(void)
 {
 	deleteDB();
 	DBAgentSQLite3::defineDBPath(DEFAULT_DB_DOMAIN_ID, g_dbPath);

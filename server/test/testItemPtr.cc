@@ -46,7 +46,7 @@ static ItemData *g_item[NUM_ITEM_POOL];
 static ItemData *&x_item = g_item[0];
 static ItemData *&y_item = g_item[1];
 
-void teardown(void)
+void cut_teardown(void)
 {
 	for (int i = 0; i < NUM_ITEM_POOL; i++) {
 		if (g_item[i]) {
