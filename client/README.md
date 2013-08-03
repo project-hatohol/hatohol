@@ -36,7 +36,8 @@ This Django project was written as PATH FREE so you can place this anyware witho
 - just copy the project directory onto where you want
 - get Bootstrap then put them onto static/js or static/css
 
-### An example to intall Django on CentOS 6.4
+## An example to install Django
+### On CentOS 6.4
 
     # yum install python-setuptools
     # easy_install pip
