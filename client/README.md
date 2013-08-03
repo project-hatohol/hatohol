@@ -43,6 +43,10 @@ This Django project was written as PATH FREE so you can place this anyware witho
     # easy_install pip
     # pip install django
 
+### On Ubuntu 13.04
+
+	sudo apt-get install libapache2-mod-wsgi python-django
+
 ### An example to intall bootstrap on CentOS 6.4
 
     $ mkdir -p ~/tmp-bs
