@@ -112,7 +112,7 @@ There are some mailing lists to discuss Hatohol.
   * Discuss anything about how to install and use Hatohol (English).
   * How to subscribe: https://lists.sourceforge.net/lists/listinfo/hatohol-users
 * hatohol-commit@lists.sourceforge.net
-  * Receive commit notifications & discuss each commits.
+  * Receive commit notifications & discuss each commit.
   * How to subscribe: https://lists.sourceforge.net/lists/listinfo/hatohol-commit
 * For Hatohol developers
   * Currently no mailing list exists to discuss developing Hatohol.
