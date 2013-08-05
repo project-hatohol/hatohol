@@ -47,7 +47,7 @@ void teardown(void)
 }
 void test_daemonize(void)
 {
-	const gchar *argv[] = {"/usr/local/sbin/hatohol", "--config-db-server", "localhost", NULL};
+	const gchar *argv[] = {"../src/hatohol", "--config-db-server", "localhost", NULL};
 	gint stdOut, stdErr;
 	GError *error;
 	gboolean succeeded;
