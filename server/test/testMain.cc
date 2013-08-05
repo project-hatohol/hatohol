@@ -25,6 +25,21 @@
 
 namespace testMain {
 GPid pid;
+GMainLoop *loop;
+static void testEndChildProcess(GPid child_pid, gint status, gpointer data)
+{
+	cut_fail("When this call, child process of hatohol is die.");
+	g_main_loop_quit(loop);
+}
+
+bool testMainLoop(void)
+{
+	loop = g_main_loop_new(NULL, TRUE);
+	g_child_watch_add(pid, (GChildWatchFunc)testEndChildProcess, loop);
+	g_main_loop_run(loop);
+
+	return true;
+}
 
 void teardown(void)
 {
@@ -49,6 +64,7 @@ void test_daemonize(void)
 			&stdErr,
 			&error);
 	cppcut_assert_equal(expected, succeeded);
+	testMainLoop();
 }
 }
 
