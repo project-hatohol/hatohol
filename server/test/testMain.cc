@@ -36,6 +36,7 @@ void test_daemonize(void)
 	gint stdOut, stdErr;
 	GError *error;
 	gboolean succeeded;
+	gboolean expected = TRUE;
 	succeeded = g_spawn_async_with_pipes(NULL,
 			const_cast<gchar**>(argv),
 			NULL,
@@ -47,7 +48,7 @@ void test_daemonize(void)
 			&stdOut,
 			&stdErr,
 			&error);
-	cppcut_assert_equal(true, (bool)succeeded);
+	cppcut_assert_equal(expected, succeeded);
 }
 }
 
