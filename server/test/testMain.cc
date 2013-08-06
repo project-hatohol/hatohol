@@ -26,7 +26,8 @@
 namespace testMain {
 GPid pid;
 GMainLoop *loop;
-static void testEndChildProcess(GPid child_pid, gint status, gpointer data)
+
+void testEndChildProcess(GPid child_pid, gint status, gpointer data)
 {
 	cut_fail("When this call, child process of hatohol is die.");
 	g_main_loop_quit(loop);
