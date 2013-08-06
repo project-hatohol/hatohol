@@ -46,16 +46,18 @@ void teardown(void)
 {
 	g_spawn_close_pid(pid);
 }
+
 void test_daemonize(void)
 {
 	const gchar *argv[] = {"../src/hatohol", "--config-db-server", "localhost", NULL};
+	const gchar *envp[] = {"LD_LIBRARY_PATH=../src/.libs/", NULL};
 	gint stdOut, stdErr;
 	GError *error;
 	gboolean succeeded;
 	gboolean expected = TRUE;
 	succeeded = g_spawn_async_with_pipes(NULL,
 			const_cast<gchar**>(argv),
-			NULL,
+			const_cast<gchar**>(envp),
 			G_SPAWN_DO_NOT_REAP_CHILD,
 			NULL,
 			NULL,
