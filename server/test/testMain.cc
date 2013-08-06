@@ -30,10 +30,14 @@ GMainLoop *loop;
 
 void testEndChildProcess(GPid child_pid, gint status, gpointer data)
 {
-	const char *pid_file_path = "/var/run/hatohol.pid";
-	FILE *pid_file;
-	pid_file = fopen(pid_file_path, "r");
-	cppcut_assert_not_null(pid_file);
+	int grandchild_pid;
+	cut_assert_exist_path("/var/run/hatohol.pid");
+	const char *grandchild_pid_file_path = "/var/run/hatohol.pid";
+	FILE *grandchild_pid_file;
+	grandchild_pid_file = fopen(grandchild_pid_file_path, "r");
+	cppcut_assert_not_null(grandchild_pid_file);
+	cppcut_assert_not_equal(EOF, fscanf(grandchild_pid_file, "%d", &grandchild_pid));
+
 	g_main_loop_quit(loop);
 }
 
