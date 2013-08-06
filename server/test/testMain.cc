@@ -19,6 +19,7 @@
 
 #include <cppcutter.h>
 #include <glib.h>
+#include <stdio.h>
 
 #include "Hatohol.h"
 #include "Utils.h"
@@ -29,7 +30,10 @@ GMainLoop *loop;
 
 void testEndChildProcess(GPid child_pid, gint status, gpointer data)
 {
-	cut_fail("When this call, child process of hatohol is die.");
+	const char *pid_file_path = "/var/run/hatohol.pid";
+	FILE *pid_file;
+	pid_file = fopen(pid_file_path, "r");
+	cppcut_assert_not_null(pid_file);
 	g_main_loop_quit(loop);
 }
 
