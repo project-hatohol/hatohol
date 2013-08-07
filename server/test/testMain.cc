@@ -20,9 +20,12 @@
 #include <cppcutter.h>
 #include <glib.h>
 #include <stdio.h>
+#include <string>
+#include <sstream>
 
 #include "Hatohol.h"
 #include "Utils.h"
+using namespace std;
 
 namespace testMain {
 GPid pid;
@@ -38,6 +41,10 @@ void endChildProcess(GPid child_pid, gint status, gpointer data)
 	cppcut_assert_not_null(grandchild_pid_file);
 	cppcut_assert_not_equal(EOF, fscanf(grandchild_pid_file, "%d", &grandchild_pid));
 
+	stringstream ss;
+	ss << "/proc/" << grandchild_pid;
+	string grandchild_proc_file_path = ss.str();
+	cut_assert_exist_path(grandchild_proc_file_path.c_str());
 	g_main_loop_quit(loop);
 }
 
