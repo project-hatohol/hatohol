@@ -28,7 +28,7 @@ namespace testMain {
 GPid pid;
 GMainLoop *loop;
 
-void testEndChildProcess(GPid child_pid, gint status, gpointer data)
+void endChildProcess(GPid child_pid, gint status, gpointer data)
 {
 	int grandchild_pid;
 	cut_assert_exist_path("/var/run/hatohol.pid");
@@ -50,7 +50,7 @@ gboolean testTimeOutChildProcess(gpointer data)
 bool childProcessLoop(void)
 {
 	loop = g_main_loop_new(NULL, TRUE);
-	g_child_watch_add(pid, (GChildWatchFunc)testEndChildProcess, loop);
+	g_child_watch_add(pid, (GChildWatchFunc)endChildProcess, loop);
 	g_timeout_add(100, (GSourceFunc)testTimeOutChildProcess, NULL);
 	g_main_loop_run(loop);
 
