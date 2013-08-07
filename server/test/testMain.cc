@@ -41,7 +41,7 @@ void endChildProcess(GPid child_pid, gint status, gpointer data)
 	g_main_loop_quit(loop);
 }
 
-gboolean testTimeOutChildProcess(gpointer data)
+gboolean timeOutChildProcess(gpointer data)
 {
 	cut_fail("Timeout to be daemon.");
 	return FALSE;
@@ -51,7 +51,7 @@ bool childProcessLoop(void)
 {
 	loop = g_main_loop_new(NULL, TRUE);
 	g_child_watch_add(pid, (GChildWatchFunc)endChildProcess, loop);
-	g_timeout_add(100, (GSourceFunc)testTimeOutChildProcess, NULL);
+	g_timeout_add(100, (GSourceFunc)timeOutChildProcess, NULL);
 	g_main_loop_run(loop);
 
 	return true;
