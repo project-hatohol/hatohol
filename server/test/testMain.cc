@@ -31,8 +31,8 @@ GMainLoop *loop;
 void endChildProcess(GPid child_pid, gint status, gpointer data)
 {
 	int grandchild_pid;
-	cut_assert_exist_path("/var/run/hatohol.pid");
 	const char *grandchild_pid_file_path = "/var/run/hatohol.pid";
+	cut_assert_exist_path(grandchild_pid_file_path);
 	FILE *grandchild_pid_file;
 	grandchild_pid_file = fopen(grandchild_pid_file_path, "r");
 	cppcut_assert_not_null(grandchild_pid_file);
