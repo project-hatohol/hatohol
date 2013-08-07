@@ -47,7 +47,7 @@ gboolean testTimeOutChildProcess(gpointer data)
 	return FALSE;
 }
 
-bool testMainLoop(void)
+bool childProcessLoop(void)
 {
 	loop = g_main_loop_new(NULL, TRUE);
 	g_child_watch_add(pid, (GChildWatchFunc)testEndChildProcess, loop);
@@ -82,7 +82,7 @@ void test_daemonize(void)
 			&stdErr,
 			&error);
 	cppcut_assert_equal(expected, succeeded);
-	testMainLoop();
+	childProcessLoop();
 }
 }
 
