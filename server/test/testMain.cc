@@ -51,7 +51,7 @@ bool childProcessLoop(void)
 {
 	loop = g_main_loop_new(NULL, TRUE);
 	g_child_watch_add(pid, endChildProcess, loop);
-	g_timeout_add(100, (GSourceFunc)timeOutChildProcess, NULL);
+	g_timeout_add(100, timeOutChildProcess, NULL);
 	g_main_loop_run(loop);
 
 	return true;
