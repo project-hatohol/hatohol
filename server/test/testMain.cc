@@ -87,7 +87,8 @@ void setupSignalHandlerForSIGCHILD(void)
 	cppcut_assert_equal(G_IO_STATUS_NORMAL, status);
 	g_io_add_watch(ioch,
 			(GIOCondition)(G_IO_IN|G_IO_PRI|G_IO_ERR|G_IO_HUP),
-			endChildProcess);
+			endChildProcess,
+			NULL);
 }
 
 bool childProcessLoop(void)
