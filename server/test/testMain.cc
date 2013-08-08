@@ -103,8 +103,8 @@ void setupSignalHandlerForSIGCHILD(void)
 bool childProcessLoop(void)
 {
 	loop = g_main_loop_new(NULL, TRUE);
-	g_timeout_add(100, timeOutChildProcess, NULL);
 	setupSignalHandlerForSIGCHILD();
+	g_timeout_add(1000, timeOutChildProcess, NULL);
 	g_main_loop_run(loop);
 
 	return true;
