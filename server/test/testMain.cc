@@ -70,7 +70,7 @@ bool setupSignalHandlerForSIGCHILD(GPid pid)
 {
 	cppcut_assert_equal(0, pipe(pipefd));
 
-	struct sgiaction sa;
+	struct sigaction sa;
 	memset(&sa, 0, sizeof(struct sigaction));
 	sa.sa_sigaction = signalHandlerChild;
 	sa.sa_flags |= (SA_RESTART|SA_SIGINFO);
