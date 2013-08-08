@@ -85,6 +85,7 @@ bool setupSignalHandlerForSIGCHILD(GPid pid)
 			(GIOCondition)(G_IO_IN|G_IO_PRI|G_IO_ERR|G_IO_HUP),
 			endChildProcess);
 
+	return TRUE;
 }
 
 bool childProcessLoop(void)
