@@ -57,6 +57,7 @@ gboolean endChildProcess(GIOChannel *source, GIOCondition condition, gpointer da
 	cppcut_assert_equal(1, grandchild_proc_ppid);
 
 	g_main_loop_quit(loop);
+	return TRUE;
 }
 
 gboolean timeOutChildProcess(gpointer data)
