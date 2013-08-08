@@ -74,11 +74,11 @@ bool setupSignalHandlerForSIGCHILD(GPid pid)
 	memset(&sa, 0, sizeof(struct sigaction));
 	sa.sa_sigaction = signalHandlerChild;
 	sa.sa_flags |= (SA_RESTART|SA_SIGINFO);
-	cppcut_assert_equal(0, sigaction(SIGCHILD, &sa, NULL));
+	cppcut_assert_equal(0, sigaction(SIGCHLD, &sa, NULL));
 
 	GIOChannel *ioch = g_io_channel_unix_new(pipefd[0]);
 	GError *error = NULL;
-	GIOStatus status = g_io_channnel_set_encoding(ioch, NULL, &error);
+	GIOStatus status = g_io_channel_set_encoding(ioch, NULL, &error);
 	cppcut_assert_not_equal(G_IO_STATUS_ERROR, status);
 	cppcut_assert_equal(G_IO_STATUS_NORMAL, status);
 	g_io_add_watch(ioch,
