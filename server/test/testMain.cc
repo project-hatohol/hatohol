@@ -22,6 +22,7 @@
 #include <stdio.h>
 #include <string>
 #include <sstream>
+#include <unistd.h>
 
 #include "Hatohol.h"
 #include "Utils.h"
@@ -30,8 +31,9 @@ using namespace std;
 namespace testMain {
 GPid pid;
 GMainLoop *loop;
+static int pipefd[2];
 
-void endChildProcess(GPid child_pid, gint status, gpointer data)
+gboolean endChildProcess(GIOChannel *source, GIOCondition condition, gpointer data)
 {
 	int grandchild_pid;
 	const char *grandchild_pid_file_path = "/var/run/hatohol.pid";
@@ -61,6 +63,27 @@ gboolean timeOutChildProcess(gpointer data)
 {
 	cut_fail("Timeout to be daemon.");
 	return FALSE;
+}
+
+bool setupSignalHandlerForSIGCHILD(GPid pid)
+{
+	cppcut_assert_equal(0, pipe(pipefd));
+
+	struct sgiaction sa;
+	memset(&sa, 0, sizeof(struct sigaction));
+	sa.sa_sigaction = signalHandlerChild;
+	sa.sa_flags |= (SA_RESTART|SA_SIGINFO);
+	cppcut_assert_equal(0, sigaction(SIGCHILD, &sa, NULL));
+
+	GIOChannel *ioch = g_io_channel_unix_new(pipefd[0]);
+	GError *error = NULL;
+	GIOStatus status = g_io_channnel_set_encoding(ioch, NULL, &error);
+	cppcut_assert_not_equal(G_IO_STATUS_ERROR, status);
+	cppcut_assert_equal(G_IO_STATUS_NORMAL, status);
+	g_io_add_watch(ioch,
+			(GIOCondition)(G_IO_IN|G_IO_PRI|G_IO_ERR|G_IO_HUP),
+			endChildProcess);
+
 }
 
 bool childProcessLoop(void)
