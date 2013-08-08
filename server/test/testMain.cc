@@ -31,10 +31,14 @@ using namespace std;
 namespace testMain {
 GPid pid;
 GMainLoop *loop;
+pid_t child_pid;
 static int pipefd[2];
+ssize_t returnWrite;
 
 gboolean endChildProcess(GIOChannel *source, GIOCondition condition, gpointer data)
 {
+	cppcut_assert_equal(pid, child_pid);
+
 	int grandchild_pid;
 	const char *grandchild_pid_file_path = "/var/run/hatohol.pid";
 	cut_assert_exist_path(grandchild_pid_file_path);
@@ -66,7 +70,7 @@ gboolean timeOutChildProcess(gpointer data)
 	return FALSE;
 }
 
-bool setupSignalHandlerForSIGCHILD(GPid pid)
+void setupSignalHandlerForSIGCHILD(void)
 {
 	cppcut_assert_equal(0, pipe(pipefd));
 
@@ -84,8 +88,6 @@ bool setupSignalHandlerForSIGCHILD(GPid pid)
 	g_io_add_watch(ioch,
 			(GIOCondition)(G_IO_IN|G_IO_PRI|G_IO_ERR|G_IO_HUP),
 			endChildProcess);
-
-	return TRUE;
 }
 
 bool childProcessLoop(void)
