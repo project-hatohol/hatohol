@@ -50,8 +50,8 @@ void endChildProcess(GPid child_pid, gint status, gpointer data)
 	cppcut_assert_not_null(grandchild_proc_file);
 	int grandchild_proc_pid,grandchild_proc_ppid;
 	char comm[11];
-	char state[2];
-	cppcut_assert_equal(4, fscanf(grandchild_proc_file, "%d (%10s) %c %d ", &grandchild_proc_pid, comm, state, &grandchild_proc_ppid));
+	char state;
+	cppcut_assert_equal(4, fscanf(grandchild_proc_file, "%d (%10s) %c %d ", &grandchild_proc_pid, comm, &state, &grandchild_proc_ppid));
 	cppcut_assert_equal(1, grandchild_proc_ppid);
 
 	g_main_loop_quit(loop);
