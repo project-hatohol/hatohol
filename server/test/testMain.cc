@@ -70,6 +70,15 @@ gboolean timeOutChildProcess(gpointer data)
 	return FALSE;
 }
 
+void signalHandlerChild(int signo, siginfo_t *info, void *arg)
+{
+	if(info->si_code != CLD_EXITED)
+		return;
+
+	child_pid = info->si_pid;
+	ssize_t returnWrite = write(pipefd[1], &child_pid, sizeof(child_pid));
+}
+
 void setupSignalHandlerForSIGCHILD(void)
 {
 	cppcut_assert_equal(0, pipe(pipefd));
@@ -94,8 +103,8 @@ void setupSignalHandlerForSIGCHILD(void)
 bool childProcessLoop(void)
 {
 	loop = g_main_loop_new(NULL, TRUE);
-	g_child_watch_add(pid, endChildProcess, loop);
 	g_timeout_add(100, timeOutChildProcess, NULL);
+	setupSignalHandlerForSIGCHILD();
 	g_main_loop_run(loop);
 
 	return true;
