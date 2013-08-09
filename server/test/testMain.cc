@@ -22,7 +22,6 @@
 #include <stdio.h>
 #include <string>
 #include <sstream>
-#include <unistd.h>
 
 #include "Hatohol.h"
 #include "Utils.h"
@@ -31,14 +30,9 @@ using namespace std;
 namespace testMain {
 GPid pid;
 GMainLoop *loop;
-pid_t child_pid;
-static int pipefd[2];
-ssize_t returnWrite;
 
-gboolean endChildProcess(GIOChannel *source, GIOCondition condition, gpointer data)
+void endChildProcess(GPid child_pid, gint status, gpointer data)
 {
-	cppcut_assert_equal(pid, child_pid);
-
 	int grandchild_pid;
 	const char *grandchild_pid_file_path = "/var/run/hatohol.pid";
 	cut_assert_exist_path(grandchild_pid_file_path);
@@ -58,10 +52,9 @@ gboolean endChildProcess(GIOChannel *source, GIOCondition condition, gpointer da
 	char comm[11];
 	char state;
 	cppcut_assert_equal(4, fscanf(grandchild_proc_file, "%d (%10s) %c %d ", &grandchild_proc_pid, comm, &state, &grandchild_proc_ppid));
-	cppcut_assert_equal(pid, grandchild_proc_ppid);
+	cppcut_assert_equal(1, grandchild_proc_ppid);
 
 	g_main_loop_quit(loop);
-	return TRUE;
 }
 
 gboolean timeOutChildProcess(gpointer data)
@@ -70,41 +63,11 @@ gboolean timeOutChildProcess(gpointer data)
 	return FALSE;
 }
 
-void signalHandlerChild(int signo, siginfo_t *info, void *arg)
-{
-	if(info->si_code != CLD_EXITED)
-		return;
-
-	child_pid = info->si_pid;
-	ssize_t returnWrite = write(pipefd[1], &child_pid, sizeof(child_pid));
-}
-
-void setupSignalHandlerForSIGCHILD(void)
-{
-	cppcut_assert_equal(0, pipe(pipefd));
-
-	struct sigaction sa;
-	memset(&sa, 0, sizeof(struct sigaction));
-	sa.sa_sigaction = signalHandlerChild;
-	sa.sa_flags |= (SA_RESTART|SA_SIGINFO);
-	cppcut_assert_equal(0, sigaction(SIGCHLD, &sa, NULL));
-
-	GIOChannel *ioch = g_io_channel_unix_new(pipefd[0]);
-	GError *error = NULL;
-	GIOStatus status = g_io_channel_set_encoding(ioch, NULL, &error);
-	cppcut_assert_not_equal(G_IO_STATUS_ERROR, status);
-	cppcut_assert_equal(G_IO_STATUS_NORMAL, status);
-	g_io_add_watch(ioch,
-			(GIOCondition)(G_IO_IN|G_IO_PRI|G_IO_ERR|G_IO_HUP),
-			endChildProcess,
-			NULL);
-}
-
 bool childProcessLoop(void)
 {
 	loop = g_main_loop_new(NULL, TRUE);
-	setupSignalHandlerForSIGCHILD();
-	g_timeout_add(1000, timeOutChildProcess, NULL);
+	g_child_watch_add(pid, endChildProcess, loop);
+	g_timeout_add(100, timeOutChildProcess, NULL);
 	g_main_loop_run(loop);
 
 	return true;
