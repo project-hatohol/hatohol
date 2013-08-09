@@ -20,6 +20,8 @@
 #include <cppcutter.h>
 #include <glib.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
 #include <string>
 #include <sstream>
 
@@ -30,6 +32,7 @@ using namespace std;
 namespace testMain {
 GPid pid;
 GMainLoop *loop;
+int randomNumber;
 
 void endChildProcess(GPid child_pid, gint status, gpointer data)
 {
@@ -73,6 +76,11 @@ bool childProcessLoop(void)
 	return true;
 }
 
+void setup(void)
+{
+	srand((unsigned int)time(NULL));
+	randomNumber = rand();
+}
 void teardown(void)
 {
 	g_spawn_close_pid(pid);
@@ -80,8 +88,11 @@ void teardown(void)
 
 void test_daemonize(void)
 {
+	stringstream ss;
+	ss << "MAGICNUMBER=" << randomNumber;
+	string magicNumber = ss.str();
 	const gchar *argv[] = {"../src/hatohol", "--config-db-server", "localhost", NULL};
-	const gchar *envp[] = {"LD_LIBRARY_PATH=../src/.libs/", NULL};
+	const gchar *envp[] = {"LD_LIBRARY_PATH=../src/.libs/", magicNumber.c_str(), NULL};
 	gint stdOut, stdErr;
 	GError *error;
 	gboolean succeeded;
