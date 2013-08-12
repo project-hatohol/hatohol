@@ -34,6 +34,15 @@ GPid pid;
 GMainLoop *loop;
 int randomNumber;
 
+void resetStringStream(stringstream& ss)
+{
+	static const string emptyString;
+
+	ss.str(emptyString);
+	ss.clear();
+	ss << dec;
+}
+
 void endChildProcess(GPid child_pid, gint status, gpointer data)
 {
 	int grandchild_pid;
