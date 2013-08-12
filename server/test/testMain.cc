@@ -92,7 +92,7 @@ void endChildProcess(GPid child_pid, gint status, gpointer data)
 	bool isMagicNumber = false;
 	while(!ifs.eof()) {
 		ifs.read(&proc_environ, sizeof(char));
-		if(strcmp((const char *) &proc_environ, "\0")) {
+		if(proc_environ ==  '\0') {
 			ssCharEnviron << proc_environ;
 		} else {
 			charEnviron = ssCharEnviron.str();
