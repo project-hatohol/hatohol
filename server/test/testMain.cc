@@ -36,7 +36,7 @@ GPid pid;
 GMainLoop *loop;
 int randomNumber;
 
-void resetStringStream(stringstream& ss)
+void resetStringStream(stringstream &ss)
 {
 	static const string emptyString;
 
@@ -45,7 +45,7 @@ void resetStringStream(stringstream& ss)
 	ss << dec;
 }
 
-bool checkMagicNumber(string& actualEnvironment)
+bool checkMagicNumber(string &actualEnvironment)
 {
 	stringstream ssMagicNumberString;
 	ssMagicNumberString << "MAGICNUMBER=" << randomNumber;
