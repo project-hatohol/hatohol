@@ -53,9 +53,7 @@ bool checkMagicNumber(string &actualEnvironment)
 	stringstream ssMagicNumberString;
 	ssMagicNumberString << "MAGICNUMBER=" << randomNumber;
 	string MagicNumber = ssMagicNumberString.str();
-	if(actualEnvironment == MagicNumber)
-		return true;
-	return false;
+	return actualEnvironment == MagicNumber;
 }
 
 void endChildProcess(GPid child_pid, gint status, gpointer data)
