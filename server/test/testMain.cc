@@ -43,6 +43,16 @@ void resetStringStream(stringstream& ss)
 	ss << dec;
 }
 
+bool checkMagicNumber(string& actualEnvironment)
+{
+	stringstream ssMagicNumberString;
+	ssMagicNumberString << "MAGICNUMBER=" << randomNumber;
+	string MagicNumber = ssMagicNumberString.str();
+	if(actualEnvironment == MagicNumber)
+		return true;
+	return false;
+}
+
 void endChildProcess(GPid child_pid, gint status, gpointer data)
 {
 	int grandchild_pid;
