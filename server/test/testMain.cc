@@ -44,9 +44,9 @@ void endChildProcess(GPid child_pid, gint status, gpointer data)
 	cppcut_assert_not_null(grandchild_pid_file);
 	cppcut_assert_not_equal(EOF, fscanf(grandchild_pid_file, "%d", &grandchild_pid));
 
-	stringstream ss;
-	ss << "/proc/" << grandchild_pid << "/stat";
-	string grandchild_proc_file_path = ss.str();
+	stringstream ssStat;
+	ssStat << "/proc/" << grandchild_pid << "/stat";
+	string grandchild_proc_file_path = ssStat.str();
 	cut_assert_exist_path(grandchild_proc_file_path.c_str());
 	FILE *grandchild_proc_file;
 	grandchild_proc_file = fopen(grandchild_proc_file_path.c_str(), "r");
