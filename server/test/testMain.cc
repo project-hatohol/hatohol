@@ -26,6 +26,8 @@
 #include <sstream>
 #include <iostream>
 #include <fstream>
+#include <signal.h>
+#include <sys/types.h>
 
 #include "Hatohol.h"
 #include "Utils.h"
@@ -33,6 +35,7 @@ using namespace std;
 
 namespace testMain {
 GPid pid;
+pid_t grandchild_pid;
 GMainLoop *loop;
 int randomNumber;
 
@@ -57,7 +60,6 @@ bool checkMagicNumber(string &actualEnvironment)
 
 void endChildProcess(GPid child_pid, gint status, gpointer data)
 {
-	int grandchild_pid;
 	const char *grandchild_pid_file_path = "/var/run/hatohol.pid";
 	cut_assert_exist_path(grandchild_pid_file_path);
 	FILE *grandchild_pid_file;
@@ -130,6 +132,8 @@ void setup(void)
 void teardown(void)
 {
 	g_spawn_close_pid(pid);
+	if(grandchild_pid > 0)
+		kill(grandchild_pid,SIGINT);
 }
 
 void test_daemonize(void)
