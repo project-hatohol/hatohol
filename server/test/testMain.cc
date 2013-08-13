@@ -34,7 +34,7 @@
 using namespace std;
 
 namespace testMain {
-GPid pid;
+GPid childPid;
 pid_t grandchildPid = 0;
 GMainLoop *loop;
 guint eventTimeout = 0;
@@ -96,7 +96,7 @@ gboolean timeOutChildProcess(gpointer data)
 bool childProcessLoop(void)
 {
 	loop = g_main_loop_new(NULL, TRUE);
-	g_child_watch_add(pid, endChildProcess, loop);
+	g_child_watch_add(childPid, endChildProcess, loop);
 	eventTimeout = g_timeout_add(100, timeOutChildProcess, NULL);
 	g_main_loop_run(loop);
 
@@ -111,7 +111,7 @@ void setup(void)
 
 void teardown(void)
 {
-	g_spawn_close_pid(pid);
+	g_spawn_close_pid(childPid);
 	if (grandchildPid > 1) {
 		kill(grandchildPid, SIGTERM);
 		grandchildPid = 0;
@@ -139,7 +139,7 @@ void test_daemonize(void)
 			G_SPAWN_DO_NOT_REAP_CHILD,
 			NULL,
 			NULL,
-			&pid,
+			&childPid,
 			NULL,
 			&stdOut,
 			&stdErr,
