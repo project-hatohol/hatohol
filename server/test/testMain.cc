@@ -37,6 +37,7 @@ namespace testMain {
 GPid pid;
 pid_t grandchildPid = 0;
 GMainLoop *loop;
+guint eventTimeout = 0;
 int randomNumber;
 
 bool checkMagicNumber(string &actualEnvironment)
@@ -95,7 +96,7 @@ bool childProcessLoop(void)
 {
 	loop = g_main_loop_new(NULL, TRUE);
 	g_child_watch_add(pid, endChildProcess, loop);
-	g_timeout_add(100, timeOutChildProcess, NULL);
+	eventTimeout = g_timeout_add(100, timeOutChildProcess, NULL);
 	g_main_loop_run(loop);
 
 	return true;
@@ -112,6 +113,10 @@ void teardown(void)
 	if(grandchildPid > 1) {
 		kill(grandchildPid, SIGTERM);
 		grandchildPid = 0;
+	}
+	if(eventTimeout != 0) {
+		gboolean expected = TRUE;
+		cppcut_assert_equal(expected, g_source_remove(eventTimeout));
 	}
 }
 
