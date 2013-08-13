@@ -108,6 +108,7 @@ void setup(void)
 	srand((unsigned int)time(NULL));
 	randomNumber = rand();
 }
+
 void teardown(void)
 {
 	g_spawn_close_pid(pid);
