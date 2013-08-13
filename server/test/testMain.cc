@@ -136,7 +136,8 @@ void test_daemonize(void)
 			&stdErr,
 			&error);
 	cppcut_assert_equal(expected, succeeded);
-	childProcessLoop();
+	cppcut_assert_equal(true, childProcessLoop());
+
 }
 }
 
