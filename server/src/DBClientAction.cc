@@ -589,7 +589,7 @@ int DBClientAction::getNewActionId(void)
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
 	if (grpList.empty())
 		return 1;
-	return ItemDataUtils::getInt((*grpList.begin())->getItemAt(0));
+	return ItemDataUtils::getInt((*grpList.begin())->getItemAt(0)) + 1;
 }
 
 uint64_t DBClientAction::getNewActionLogId(void)
