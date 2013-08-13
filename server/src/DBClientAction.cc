@@ -597,7 +597,9 @@ uint64_t DBClientAction::getNewActionLogId(void)
 	DBAgentSelectExArg arg;
 	arg.tableName = TABLE_NAME_ACTION_LOGS;
 	arg.pushColumn(COLUMN_DEF_ACTION_LOGS[IDX_ACTION_LOGS_ACTION_LOG_ID]);
-	arg.orderBy = "DESC";
+	arg.orderBy =
+	  COLUMN_DEF_ACTION_LOGS[IDX_ACTION_LOGS_ACTION_LOG_ID].columnName;
+	arg.orderBy += "DESC";
 	arg.limit = 1;
 
 	// This function doesn't work without transaction.
