@@ -76,9 +76,9 @@ void endChildProcess(GPid child_pid, gint status, gpointer data)
 	bool isMagicNumber;
 	grandchildProcEnvironPath << "/proc/" << grandchildPid << "/environ";
 	grandchildEnvironFile.open(grandchildProcEnvironPath.str().c_str());
-	while(getline(grandchildEnvironFile, env, '\0')) {
+	while (getline(grandchildEnvironFile, env, '\0')) {
 		isMagicNumber = checkMagicNumber(env);
-		if(isMagicNumber)
+		if (isMagicNumber)
 			break;
 	}
 	cppcut_assert_equal(true, isMagicNumber);
@@ -111,11 +111,11 @@ void setup(void)
 void teardown(void)
 {
 	g_spawn_close_pid(pid);
-	if(grandchildPid > 1) {
+	if (grandchildPid > 1) {
 		kill(grandchildPid, SIGTERM);
 		grandchildPid = 0;
 	}
-	if(eventTimeout != 0) {
+	if (eventTimeout != 0) {
 		gboolean expected = TRUE;
 		cppcut_assert_equal(expected, g_source_remove(eventTimeout));
 	}
