@@ -35,7 +35,7 @@ using namespace std;
 
 namespace testMain {
 GPid pid;
-pid_t grandchildPid;
+pid_t grandchildPid = 0;
 GMainLoop *loop;
 int randomNumber;
 
@@ -109,8 +109,10 @@ void setup(void)
 void teardown(void)
 {
 	g_spawn_close_pid(pid);
-	if(grandchildPid > 0)
-		kill(grandchildPid,SIGINT);
+	if(grandchildPid > 1) {
+		kill(grandchildPid, SIGTERM);
+		grandchildPid = 0;
+	}
 }
 
 void test_daemonize(void)
