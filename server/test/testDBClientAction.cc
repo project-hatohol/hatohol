@@ -54,7 +54,7 @@ void test_dbDomainId(void)
 void test_getNewActionId(void)
 {
 	TestDBClientAction dbAction;
-	cppcut_assert_equal(0, dbAction.callGetNewActionId());
+	cppcut_assert_equal(1, dbAction.callGetNewActionId());
 }
 
 } // namespace testDBClientAction
