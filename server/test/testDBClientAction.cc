@@ -53,8 +53,44 @@ static ActionDef testActionDef[] = {
 	"",                // working dir
 	"/bin/hoge",       //path
 	300,               // timeout
+}, {
+	0,                 // id (this filed is ignored)
+	ActionCondition(
+	  ACTCOND_TRIGGER_STATUS,   // enableBits
+	  0,                        // serverId
+	  0,                        // hostId
+	  0,                        // hostGroupId
+	  0x12345,                  // triggerId
+	  TRIGGER_STATUS_PROBLEM,   // triggerStatus
+	  TRIGGER_SEVERITY_INFO,    // triggerSeverity
+	  CMP_EQ_GT                 // triggerSeverityCompType;
+	), // condition
+	ACTION_COMMAND,    // type
+	"/home/%%\"'@#!()+-~<>?:;",  // working dir
+	"/usr/libexec/w",  //path
+	30,                // timeout
+}, {
+	0,                 // id (this filed is ignored)
+	ActionCondition(
+	  ACTCOND_SERVER_ID | ACTCOND_HOST_ID | ACTCOND_HOST_GROUP_ID |
+	  ACTCOND_TRIGGER_ID | ACTCOND_TRIGGER_STATUS,   // enableBits
+	  100,                      // serverId
+	  0x7fffffffffffffff,       // hostId
+	  0x8000000000000000,       // hostGroupId
+	  0xfedcba9876543210,       // triggerId
+	  TRIGGER_STATUS_PROBLEM,   // triggerStatus
+	  TRIGGER_SEVERITY_WARN,    // triggerSeverity
+	  CMP_EQ                    // triggerSeverityCompType;
+	), // condition
+	ACTION_RESIDENT,   // type
+	"/tmp",            // working dir
+	"/usr/lib/liba.so",//path
+	60,                // timeout
 },
 };
+
+const static size_t NUM_TEST_ACTION_DEF = 
+  sizeof(testActionDef) / sizeof(ActionDef);
 
 static string makeExpectedString(const ActionDef &actDef, int expectedId)
 {
@@ -90,6 +126,15 @@ void test_getNewActionId(void)
 {
 	TestDBClientAction dbAction;
 	cppcut_assert_equal(1, dbAction.callGetNewActionId());
+}
+
+void test_getNewActionIdWhenActionsNotEmpty(void)
+{
+	TestDBClientAction dbAction;
+	for (size_t i = 0; i < NUM_TEST_ACTION_DEF; i++) {
+		dbAction.addAction(testActionDef[i]);
+		cppcut_assert_equal((int)(i+2), dbAction.callGetNewActionId());
+	}
 }
 
 void test_addAction(void)
