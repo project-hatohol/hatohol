@@ -56,6 +56,20 @@ static ActionDef testActionDef[] = {
 },
 };
 
+static string makeExpectedString(const ActionDef &actDef, int expectedId)
+{
+	const ActionCondition &cond = actDef.condition;
+	string expect =
+	  StringUtils::sprintf(
+	    "%d|%d|%"PRIu64"|%"PRIu64"|%"PRIu64"|%d|%d|%d|%d|%s|%s|%d\n",
+	    expectedId, cond.serverId,
+	    cond.hostId, cond.hostGroupId, cond.triggerId,
+	    cond.triggerStatus, cond.triggerSeverity,
+	    cond.triggerSeverityCompType, actDef.type,
+	    actDef.path.c_str(), actDef.workingDir.c_str(), actDef.timeout);
+	return expect;
+}
+
 void setup(void)
 {
 	hatoholInit();
@@ -85,17 +99,9 @@ void test_addAction(void)
 	dbAction.addAction(actDef);
 
 	// validation
-	const ActionCondition &cond = actDef.condition;
-	string statement = "select * from actions";
 	const int expectedId = 1;
-	string expect =
-	  StringUtils::sprintf(
-	    "%d|%d|%"PRIu64"|%"PRIu64"|%"PRIu64"|%d|%d|%d|%d|%s|%s|%d\n",
-	    expectedId, cond.serverId,
-	    cond.hostId, cond.hostGroupId, cond.triggerId,
-	    cond.triggerStatus, cond.triggerSeverity,
-	    cond.triggerSeverityCompType, actDef.type,
-	    actDef.path.c_str(), actDef.workingDir.c_str(), actDef.timeout);
+	string statement = "select * from actions";
+	string expect = makeExpectedString(actDef, expectedId);
 	assertDBContent(dbAction.getDBAgent(), statement, expect);
 }
 
