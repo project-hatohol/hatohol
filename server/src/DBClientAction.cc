@@ -599,7 +599,7 @@ uint64_t DBClientAction::getNewActionLogId(void)
 	arg.pushColumn(COLUMN_DEF_ACTION_LOGS[IDX_ACTION_LOGS_ACTION_LOG_ID]);
 	arg.orderBy =
 	  COLUMN_DEF_ACTION_LOGS[IDX_ACTION_LOGS_ACTION_LOG_ID].columnName;
-	arg.orderBy += "DESC";
+	arg.orderBy += " DESC";
 	arg.limit = 1;
 
 	// This function doesn't work without transaction.
