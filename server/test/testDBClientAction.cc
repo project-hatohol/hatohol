@@ -26,6 +26,15 @@
 
 namespace testDBClientAction {
 
+class TestDBClientAction : public DBClientAction
+{
+public:
+	int callGetNewActionId(void)
+	{
+		return getNewActionId();
+	}
+};
+
 void setup(void)
 {
 	hatoholInit();
@@ -40,6 +49,12 @@ void test_dbDomainId(void)
 	DBClientAction dbAction;
 	cppcut_assert_equal(DB_DOMAIN_ID_ACTION,
 	                    dbAction.getDBAgent()->getDBDomainId());
+}
+
+void test_getNewActionId(void)
+{
+	TestDBClientAction dbAction;
+	cppcut_assert_equal(0, dbAction.callGetNewActionId());
 }
 
 } // namespace testDBClientAction
