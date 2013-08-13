@@ -39,15 +39,6 @@ pid_t grandchild_pid;
 GMainLoop *loop;
 int randomNumber;
 
-void resetStringStream(stringstream &ss)
-{
-	static const string emptyString;
-
-	ss.str(emptyString);
-	ss.clear();
-	ss << dec;
-}
-
 bool checkMagicNumber(string &actualEnvironment)
 {
 	stringstream ssMagicNumberString;
