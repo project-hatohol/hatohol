@@ -35,6 +35,27 @@ public:
 	}
 };
 
+static ActionDef testActionDef[] = {
+{
+	0,                 // id (this filed is ignored)
+	ActionCondition(
+	  ACTCOND_SERVER_ID |
+	  ACTCOND_TRIGGER_STATUS,   // enableBits
+	  1,                        // serverId
+	  10,                       // hostId
+	  5,                        // hostGroupId
+	  3,                        // triggerId
+	  TRIGGER_STATUS_PROBLEM,   // triggerStatus
+	  TRIGGER_SEVERITY_INFO,    // triggerSeverity
+	  CMP_INVALID               // triggerSeverityCompType;
+	), // condition
+	ACTION_COMMAND,    // type
+	"",                // working dir
+	"/bin/hoge",       //path
+	300,               // timeout
+},
+};
+
 void setup(void)
 {
 	hatoholInit();
@@ -55,6 +76,27 @@ void test_getNewActionId(void)
 {
 	TestDBClientAction dbAction;
 	cppcut_assert_equal(1, dbAction.callGetNewActionId());
+}
+
+void test_addAction(void)
+{
+	DBClientAction dbAction;
+	const ActionDef &actDef = testActionDef[0];
+	dbAction.addAction(actDef);
+
+	// validation
+	const ActionCondition &cond = actDef.condition;
+	string statement = "select * from actions";
+	const int expectedId = 1;
+	string expect =
+	  StringUtils::sprintf(
+	    "%d|%d|%"PRIu64"|%"PRIu64"|%"PRIu64"|%d|%d|%d|%d|%s|%s|%d\n",
+	    expectedId, cond.serverId,
+	    cond.hostId, cond.hostGroupId, cond.triggerId,
+	    cond.triggerStatus, cond.triggerSeverity,
+	    cond.triggerSeverityCompType, actDef.type,
+	    actDef.path.c_str(), actDef.workingDir.c_str(), actDef.timeout);
+	assertDBContent(dbAction.getDBAgent(), statement, expect);
 }
 
 } // namespace testDBClientAction
