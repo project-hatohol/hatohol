@@ -88,8 +88,8 @@ void endChildProcess(GPid child_pid, gint status, gpointer data)
 
 gboolean timeOutChildProcess(gpointer data)
 {
-	cut_fail("Timeout to be daemon.");
 	g_main_loop_quit(loop);
+	cut_fail("Timeout to be daemon.");
 	return FALSE;
 }
 
