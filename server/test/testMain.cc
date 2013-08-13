@@ -35,7 +35,7 @@ using namespace std;
 
 namespace testMain {
 GPid pid;
-pid_t grandchild_pid;
+pid_t grandchildPid;
 GMainLoop *loop;
 int randomNumber;
 
@@ -49,31 +49,31 @@ bool checkMagicNumber(string &actualEnvironment)
 
 void endChildProcess(GPid child_pid, gint status, gpointer data)
 {
-	const char *grandchild_pid_file_path = "/var/run/hatohol.pid";
-	cut_assert_exist_path(grandchild_pid_file_path);
-	FILE *grandchild_pid_file;
-	grandchild_pid_file = fopen(grandchild_pid_file_path, "r");
-	cppcut_assert_not_null(grandchild_pid_file);
-	cppcut_assert_not_equal(EOF, fscanf(grandchild_pid_file, "%d", &grandchild_pid));
+	const char *grandchildPidFilePath = "/var/run/hatohol.pid";
+	cut_assert_exist_path(grandchildPidFilePath);
+	FILE *grandchildPidFile;
+	grandchildPidFile = fopen(grandchildPidFilePath, "r");
+	cppcut_assert_not_null(grandchildPidFile);
+	cppcut_assert_not_equal(EOF, fscanf(grandchildPidFile, "%d", &grandchildPid));
 
 	stringstream ssStat;
-	ssStat << "/proc/" << grandchild_pid << "/stat";
-	string grandchild_proc_file_path = ssStat.str();
-	cut_assert_exist_path(grandchild_proc_file_path.c_str());
-	FILE *grandchild_proc_file;
-	grandchild_proc_file = fopen(grandchild_proc_file_path.c_str(), "r");
-	cppcut_assert_not_null(grandchild_proc_file);
-	int grandchild_proc_pid,grandchild_proc_ppid;
+	ssStat << "/proc/" << grandchildPid << "/stat";
+	string grandchildProcFilePath = ssStat.str();
+	cut_assert_exist_path(grandchildProcFilePath.c_str());
+	FILE *grandchildProcFile;
+	grandchildProcFile = fopen(grandchildProcFilePath.c_str(), "r");
+	cppcut_assert_not_null(grandchildProcFile);
+	int grandchildProcPid, grandchildProcPpid;
 	char comm[11];
 	char state;
-	cppcut_assert_equal(4, fscanf(grandchild_proc_file, "%d (%10s) %c %d ", &grandchild_proc_pid, comm, &state, &grandchild_proc_ppid));
-	cppcut_assert_equal(1, grandchild_proc_ppid);
+	cppcut_assert_equal(4, fscanf(grandchildProcFile, "%d (%10s) %c %d ", &grandchildProcPid, comm, &state, &grandchildProcPpid));
+	cppcut_assert_equal(1, grandchildProcPpid);
 
 	stringstream grandchildProcEnvironPath;
 	ifstream grandchildEnvironFile;
 	string env;
 	bool isMagicNumber;
-	grandchildProcEnvironPath << "/proc/" << grandchild_pid << "/environ";
+	grandchildProcEnvironPath << "/proc/" << grandchildPid << "/environ";
 	grandchildEnvironFile.open(grandchildProcEnvironPath.str().c_str());
 	while(getline(grandchildEnvironFile, env, '\0')) {
 		isMagicNumber = checkMagicNumber(env);
@@ -109,8 +109,8 @@ void setup(void)
 void teardown(void)
 {
 	g_spawn_close_pid(pid);
-	if(grandchild_pid > 0)
-		kill(grandchild_pid,SIGINT);
+	if(grandchildPid > 0)
+		kill(grandchildPid,SIGINT);
 }
 
 void test_daemonize(void)
