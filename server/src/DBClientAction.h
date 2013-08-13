@@ -112,6 +112,7 @@ public:
 
 protected:
 	int getNewActionId(void);
+	uint64_t getNewActionLogId(void);
 
 private:
 	struct PrivateContext;

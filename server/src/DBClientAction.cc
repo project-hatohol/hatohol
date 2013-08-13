@@ -25,7 +25,14 @@
 
 using namespace mlpl;
 
+enum ActionLogStatus {
+	ACTLOG_STAT_STARTED,
+	ACTLOG_STAT_SUCCEEDED,
+	ACTLOG_STAT_FAILED,
+};
+
 enum ActionLogExecFailureCode {
+	ACTLOG_EXECFAIL_NONE,
 	ACTLOG_EXECFAIL_EXEC_FAILURE,
 	ACTLOG_EXECFAIL_ENTRY_NOT_FOUND,
 	ACTLOG_EXECFAIL_KILLED_TIMEOUT,
@@ -258,7 +265,7 @@ static const ColumnDef COLUMN_DEF_ACTION_LOGS[] = {
 	SQL_COLUMN_TYPE_DATETIME,          // type
 	0,                                 // columnLength
 	0,                                 // decFracLength
-	false,                             // canBeNull
+	true,                              // canBeNull
 	SQL_KEY_NONE,                      // keyType
 	0,                                 // flags
 	"0",                               // defaultValue
@@ -516,7 +523,41 @@ void DBClientAction::getActionList(const EventInfo &eventInfo,
 
 void DBClientAction::logStartExecAction(const ActionDef &actionDef)
 {
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	VariableItemDataPtr item;
+	VariableItemGroupPtr row;
+	DBAgentInsertArg arg;
+	arg.tableName = TABLE_NAME_ACTION_LOGS;
+	arg.numColumns = NUM_COLUMNS_ACTION_LOGS;
+	arg.columnDefs = COLUMN_DEF_ACTION_LOGS;
+
+	// We set 0 as an action log ID temporarily.
+	row->ADD_NEW_ITEM(Uint64, 0); // action_log_id
+	row->ADD_NEW_ITEM(Int, actionDef.id);
+	row->ADD_NEW_ITEM(Int, ACTLOG_STAT_STARTED);
+ 	// TODO: set the appropriate the following starter ID.
+	row->ADD_NEW_ITEM(Int, 0);  // status
+	row->ADD_NEW_ITEM(Int, -1); // start_time: -1 means current time.
+
+	// end_time
+	item = new ItemInt(0);
+	item->setNull();
+	row->add(item, false);
+
+	row->ADD_NEW_ITEM(Int, ACTLOG_EXECFAIL_NONE);
+
+	// exit_code;
+	item = new ItemInt(0);
+	item->setNull();
+	row->add(item, false);
+
+	arg.row = row;
+	DBCLIENT_TRANSACTION_BEGIN() {
+		// See also the comment in addAction about the const cast.
+		const ItemData *itemActionId = row->getItemAt(0);
+		*(const_cast<ItemData *>(itemActionId))
+		  = *(new ItemUint64(getNewActionLogId()));
+		insert(arg);
+	} DBCLIENT_TRANSACTION_END();
 }
 
 void DBClientAction::logEndExecAction(const ExitChildInfo &exitChildInfo)
@@ -548,4 +589,21 @@ int DBClientAction::getNewActionId(void)
 	if (grpList.empty())
 		return 1;
 	return ItemDataUtils::getInt((*grpList.begin())->getItemAt(0));
+}
+
+uint64_t DBClientAction::getNewActionLogId(void)
+{
+	DBAgentSelectExArg arg;
+	arg.tableName = TABLE_NAME_ACTION_LOGS;
+	arg.pushColumn(COLUMN_DEF_ACTION_LOGS[IDX_ACTION_LOGS_ACTION_LOG_ID]);
+	arg.orderBy = "DESC";
+	arg.limit = 1;
+
+	// This function doesn't work without transaction.
+	select(arg);
+
+	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
+	if (grpList.empty())
+		return 1;
+	return ItemDataUtils::getUint64((*grpList.begin())->getItemAt(0));
 }
