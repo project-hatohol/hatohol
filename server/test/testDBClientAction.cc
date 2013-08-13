@@ -33,6 +33,11 @@ public:
 	{
 		return getNewActionId();
 	}
+
+	uint64_t callGetNewActionLogId(void)
+	{
+		return getNewActionLogId();
+	}
 };
 
 static ActionDef testActionDef[] = {
@@ -151,6 +156,13 @@ void test_addAction(void)
 		expect += makeExpectedString(actDef, expectedId);
 		assertDBContent(dbAction.getDBAgent(), statement, expect);
 	}
+}
+
+void test_getNewActionLogId(void)
+{
+	TestDBClientAction dbAction;
+	uint64_t expect = 1;
+	cppcut_assert_equal(expect, dbAction.callGetNewActionLogId());
 }
 
 } // namespace testDBClientAction
