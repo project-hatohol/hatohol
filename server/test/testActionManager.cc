@@ -22,6 +22,7 @@
 #include <stdarg.h>
 #include <unistd.h>
 #include "Hatohol.h"
+#include "Helpers.h"
 #include "ActionManager.h"
 #include "PipeUtils.h"
 #include "SmartBuffer.h"
@@ -141,6 +142,7 @@ static void sendQuit(PipeUtils &readPipe, PipeUtils &writePipe, size_t timeout)
 void setup(void)
 {
 	hatoholInit();
+	setupTestDBAction();
 }
 
 void teardown(void)
