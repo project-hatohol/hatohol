@@ -78,28 +78,16 @@ void endChildProcess(GPid child_pid, gint status, gpointer data)
 	cppcut_assert_equal(4, fscanf(grandchild_proc_file, "%d (%10s) %c %d ", &grandchild_proc_pid, comm, &state, &grandchild_proc_ppid));
 	cppcut_assert_equal(1, grandchild_proc_ppid);
 
-	stringstream ssEnviron;
-	ssEnviron << "/proc/" << grandchild_pid << "/environ";
-	string grandchild_proc_environ_path = ssEnviron.str();
-	cut_assert_exist_path(grandchild_proc_environ_path.c_str());
-	ifstream ifs;
-	ifs.open(grandchild_proc_environ_path.c_str(), ios::binary);
-	char proc_environ;
-	stringstream ssCharEnviron;
-	string charEnviron;
-	bool isMagicNumber = false;
-	while(!ifs.eof()) {
-		ifs.read(&proc_environ, sizeof(char));
-		if(proc_environ ==  '\0') {
-			ssCharEnviron << proc_environ;
-		} else {
-			charEnviron = ssCharEnviron.str();
-			isMagicNumber = checkMagicNumber(charEnviron);
-			resetStringStream(ssCharEnviron);
-			charEnviron = "";
-			if(isMagicNumber)
-				break;
-		}
+	stringstream grandchildProcEnvironPath;
+	ifstream grandchildEnvironFile;
+	string env;
+	bool isMagicNumber;
+	grandchildProcEnvironPath << "/proc/" << grandchild_pid << "/environ";
+	grandchildEnvironFile.open(grandchildProcEnvironPath.str().c_str());
+	while(getline(grandchildEnvironFile, env, '\0')) {
+		isMagicNumber = checkMagicNumber(env);
+		if(isMagicNumber)
+			break;
 	}
 	cppcut_assert_equal(true, isMagicNumber);
 
