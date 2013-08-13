@@ -579,7 +579,8 @@ int DBClientAction::getNewActionId(void)
 	DBAgentSelectExArg arg;
 	arg.tableName = TABLE_NAME_ACTIONS;
 	arg.pushColumn(COLUMN_DEF_ACTIONS[IDX_ACTIONS_ACTION_ID]);
-	arg.orderBy = "DESC";
+	arg.orderBy = COLUMN_DEF_ACTIONS[IDX_ACTIONS_ACTION_ID].columnName;
+	arg.orderBy += " DESC";
 	arg.limit = 1;
 
 	// This function doesn't work without transaction.
