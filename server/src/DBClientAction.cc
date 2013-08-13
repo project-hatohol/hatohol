@@ -534,7 +534,7 @@ void DBClientAction::logStartExecAction(const ActionDef &actionDef)
 	row->ADD_NEW_ITEM(Uint64, 0); // action_log_id
 	row->ADD_NEW_ITEM(Int, actionDef.id);
 	row->ADD_NEW_ITEM(Int, ACTLOG_STAT_STARTED);
- 	// TODO: set the appropriate the following starter ID.
+	// TODO: set the appropriate the following starter ID.
 	row->ADD_NEW_ITEM(Int, 0);  // status
 	row->ADD_NEW_ITEM(Int, -1); // start_time: -1 means current time.
 
