@@ -140,14 +140,17 @@ void test_getNewActionIdWhenActionsNotEmpty(void)
 void test_addAction(void)
 {
 	DBClientAction dbAction;
-	const ActionDef &actDef = testActionDef[0];
-	dbAction.addAction(actDef);
+	string expect;
+	for (size_t i = 0; i < NUM_TEST_ACTION_DEF; i++) {
+		const ActionDef &actDef = testActionDef[i];
+		dbAction.addAction(actDef);
 
-	// validation
-	const int expectedId = 1;
-	string statement = "select * from actions";
-	string expect = makeExpectedString(actDef, expectedId);
-	assertDBContent(dbAction.getDBAgent(), statement, expect);
+		// validation
+		const int expectedId = i + 1;
+		string statement = "select * from actions";
+		expect += makeExpectedString(actDef, expectedId);
+		assertDBContent(dbAction.getDBAgent(), statement, expect);
+	}
 }
 
 } // namespace testDBClientAction
