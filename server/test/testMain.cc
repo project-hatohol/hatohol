@@ -34,21 +34,47 @@
 using namespace std;
 
 namespace testMain {
-GPid childPid;
-pid_t grandchildPid = 0;
-GMainLoop *loop;
-guint eventTimeout = 0;
-int randomNumber;
+static GPid childPid;
+static pid_t grandchildPid = 0;
+static GMainLoop *loop;
+static guint eventTimeout = 0;
 
-bool checkMagicNumber(string &actualEnvironment)
+bool checkMagicNumber(string &actualEnvironment, string makedMagicNumber)
 {
-	stringstream ssMagicNumberString;
-	ssMagicNumberString << "MAGICNUMBER=" << randomNumber;
-	string MagicNumber = ssMagicNumberString.str();
-	return actualEnvironment == MagicNumber;
+	return actualEnvironment == makedMagicNumber;
 }
 
 void endChildProcess(GPid child_pid, gint status, gpointer data)
+{
+	bool *isEndChildProcess = (bool *) data;
+	*isEndChildProcess = true;
+	g_main_loop_quit(loop);
+}
+
+gboolean timeOutChildProcess(gpointer data)
+{
+	bool *timedOut = (bool *) data;
+	*timedOut = true;
+	g_main_loop_quit(loop);
+	return FALSE;
+}
+
+bool childProcessLoop(void)
+{
+	bool timedOut = false;
+	bool isEndChildProcess = false;
+
+	loop = g_main_loop_new(NULL, TRUE);
+	g_child_watch_add(childPid, endChildProcess, &isEndChildProcess);
+	eventTimeout = g_timeout_add(100, timeOutChildProcess, &timedOut);
+	g_main_loop_run(loop);
+
+	cppcut_assert_equal(false, timedOut);
+	cppcut_assert_equal(true, isEndChildProcess);
+	return true;
+}
+
+bool parsePIDFile(void)
 {
 	const char *grandchildPidFilePath = "/var/run/hatohol.pid";
 	cut_assert_exist_path(grandchildPidFilePath);
@@ -58,6 +84,11 @@ void endChildProcess(GPid child_pid, gint status, gpointer data)
 	cppcut_assert_not_equal(EOF, fscanf(grandchildPidFile, "%d", &grandchildPid));
 	cppcut_assert_equal(0, fclose(grandchildPidFile));
 
+	return true;
+}
+
+bool parseStatFile(int &parentPid)
+{
 	stringstream ssStat;
 	ssStat << "/proc/" << grandchildPid << "/stat";
 	string grandchildProcFilePath = ssStat.str();
@@ -65,76 +96,51 @@ void endChildProcess(GPid child_pid, gint status, gpointer data)
 	FILE *grandchildProcFile;
 	grandchildProcFile = fopen(grandchildProcFilePath.c_str(), "r");
 	cppcut_assert_not_null(grandchildProcFile);
-	int grandchildProcPid, grandchildProcPpid;
+	int grandchildProcPid;
 	char comm[11];
 	char state;
-	cppcut_assert_equal(4, fscanf(grandchildProcFile, "%d (%10s) %c %d ", &grandchildProcPid, comm, &state, &grandchildProcPpid));
-	cppcut_assert_equal(1, grandchildProcPpid);
+	cppcut_assert_equal(4, fscanf(grandchildProcFile, "%d (%10s) %c %d ", &grandchildProcPid, comm, &state, &parentPid));
 	cppcut_assert_equal(0, fclose(grandchildProcFile));
 
+	return true;
+}
+
+bool parseEnvironFile(bool &isMagicNumber, string makedMagicNumber)
+{
 	stringstream grandchildProcEnvironPath;
 	ifstream grandchildEnvironFile;
 	string env;
-	bool isMagicNumber;
 	grandchildProcEnvironPath << "/proc/" << grandchildPid << "/environ";
 	grandchildEnvironFile.open(grandchildProcEnvironPath.str().c_str());
 	while (getline(grandchildEnvironFile, env, '\0')) {
-		isMagicNumber = checkMagicNumber(env);
+		isMagicNumber = checkMagicNumber(env, makedMagicNumber);
 		if (isMagicNumber)
 			break;
 	}
 	cppcut_assert_equal(true, isMagicNumber);
 
-	g_main_loop_quit(loop);
+	return true;
 }
 
-gboolean timeOutChildProcess(gpointer data)
+bool makeRandomNumber(string &magicNumber)
 {
-	g_main_loop_quit(loop);
-	cut_fail("Timeout to be daemon.");
-	return FALSE;
-}
-
-bool childProcessLoop(void)
-{
-	loop = g_main_loop_new(NULL, TRUE);
-	g_child_watch_add(childPid, endChildProcess, loop);
-	eventTimeout = g_timeout_add(100, timeOutChildProcess, NULL);
-	g_main_loop_run(loop);
+	srand((unsigned int)time(NULL));
+	int randomNumber = rand();
+	stringstream ss;
+	ss << "MAGICNUMBER=" << randomNumber;
+	magicNumber = ss.str();
 
 	return true;
 }
 
-void setup(void)
+gboolean spawnChildProcess(string magicNumber)
 {
-	srand((unsigned int)time(NULL));
-	randomNumber = rand();
-}
-
-void teardown(void)
-{
-	g_spawn_close_pid(childPid);
-	if (grandchildPid > 1) {
-		kill(grandchildPid, SIGTERM);
-		grandchildPid = 0;
-	}
-	if (eventTimeout != 0) {
-		gboolean expected = TRUE;
-		cppcut_assert_equal(expected, g_source_remove(eventTimeout));
-	}
-}
-
-void test_daemonize(void)
-{
-	stringstream ss;
-	ss << "MAGICNUMBER=" << randomNumber;
-	string magicNumber = ss.str();
 	const gchar *argv[] = {"../src/hatohol", "--config-db-server", "localhost", NULL};
 	const gchar *envp[] = {"LD_LIBRARY_PATH=../src/.libs/", magicNumber.c_str(), NULL};
 	gint stdOut, stdErr;
 	GError *error;
 	gboolean succeeded;
-	gboolean expected = TRUE;
+
 	succeeded = g_spawn_async_with_pipes(NULL,
 			const_cast<gchar**>(argv),
 			const_cast<gchar**>(envp),
@@ -146,9 +152,41 @@ void test_daemonize(void)
 			&stdOut,
 			&stdErr,
 			&error);
-	cppcut_assert_equal(expected, succeeded);
-	cppcut_assert_equal(true, childProcessLoop());
 
+	return succeeded;
+}
+
+void teardown(void)
+{
+	g_spawn_close_pid(childPid);
+
+	if (grandchildPid > 1) {
+		kill(grandchildPid, SIGTERM);
+		grandchildPid = 0;
+	}
+
+	if (eventTimeout != 0) {
+		gboolean expected = TRUE;
+		cppcut_assert_equal(expected, g_source_remove(eventTimeout));
+	}
+}
+
+void test_daemonize(void)
+{
+	int grandchildPpid;
+	bool isMagicNumber;
+	string magicNumber;
+
+	gboolean expectedTrue = TRUE;
+
+	cppcut_assert_equal(true, makeRandomNumber(magicNumber));
+	cppcut_assert_equal(expectedTrue, spawnChildProcess(magicNumber));
+	cppcut_assert_equal(true, childProcessLoop());
+	cppcut_assert_equal(true, parsePIDFile());
+	cppcut_assert_equal(true, parseStatFile(grandchildPpid));
+	cppcut_assert_equal(1, grandchildPpid);
+	cppcut_assert_equal(true, parseEnvironFile(isMagicNumber, magicNumber));
+	cppcut_assert_equal(true, isMagicNumber);
 }
 }
 
