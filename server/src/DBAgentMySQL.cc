@@ -197,6 +197,10 @@ void DBAgentMySQL::createTable(DBAgentTableCreationArg &tableCreationArg)
 			  "Unknown key type: %d", columnDef.keyType);
 		}
 
+		// auto increment
+		if (columnDef.flags & SQL_COLUMN_FLAG_AUTO_INC)
+			query += " AUTO_INCREMENT";
+
 		if (i < tableCreationArg.numColumns -1)
 			query += ",";
 	}

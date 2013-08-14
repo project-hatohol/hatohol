@@ -74,5 +74,6 @@ void dbAgentTestSelectHeightOrder
   size_t forceExpectedRows = (size_t)-1);
 void dbAgentTestDelete(DBAgent &dbAgent, DBAgentChecker &checker);
 void dbAgentTestIsTableExisting(DBAgent &dbAgent, DBAgentChecker &checker);
+void dbAgentTestAutoIncrement(DBAgent &dbAgent, DBAgentChecker &checker);
 
 #endif // DBAgentTestCommon_h

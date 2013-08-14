@@ -135,7 +135,10 @@ public:
 			cppcut_assert_equal(expected, words[idx++]);
 
 			// extra
-			expected = "";
+			if (columnDef.flags & SQL_COLUMN_FLAG_AUTO_INC)
+				expected = "auto_increment";
+			else
+				expected = "";
 			cppcut_assert_equal(expected, words[idx++]);
 		}
 	}
@@ -357,6 +360,12 @@ void test_isTableExisting(void)
 {
 	createGlobalDBAgent();
 	dbAgentTestIsTableExisting(*g_dbAgent, dbAgentChecker);
+}
+
+void test_autoIncrement(void)
+{
+	createGlobalDBAgent();
+	dbAgentTestAutoIncrement(*g_dbAgent, dbAgentChecker);
 }
 
 } // testDBAgentMySQL

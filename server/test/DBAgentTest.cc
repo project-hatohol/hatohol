@@ -76,6 +76,36 @@ const int AGE[NUM_TEST_DATA]       = {14, 17, 180};
 const char *NAME[NUM_TEST_DATA]    = {"rei", "aoi", "giraffe"};
 const double HEIGHT[NUM_TEST_DATA] = {158.2, 203.9, -23593.2};
 
+// table for auto increment test
+const char *TABLE_NAME_TEST_AUTO_INC = "test_table_auto_inc";
+static const ColumnDef COLUMN_DEF_TEST_AUTO_INC[] = {
+{
+	ITEM_ID_NOT_SET,                   // itemId
+	TABLE_NAME_TEST_AUTO_INC,          // tableName
+	"auto_inc_column",                 // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	11,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_PRI,                       // keyType
+	SQL_COLUMN_FLAG_AUTO_INC,          // flags
+	NULL,                              // defaultValue
+},{
+	ITEM_ID_NOT_SET,                   // itemId
+	TABLE_NAME_TEST_AUTO_INC,          // tableName
+	"no_auto_inc_column",              // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	11,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}
+};
+const size_t NUM_COLUMNS_TEST_AUTO_INC =
+   sizeof(COLUMN_DEF_TEST_AUTO_INC) / sizeof(ColumnDef);
+
 static void checkInsert(DBAgent &dbAgent, DBAgentChecker &checker,
                         uint64_t id, int age, const char *name, double height)
 {
@@ -474,4 +504,37 @@ void dbAgentTestIsTableExisting(DBAgent &dbAgent, DBAgentChecker &checker)
 	cppcut_assert_equal(false, dbAgent.isTableExisting(TABLE_NAME_TEST));
 	dbAgentTestCreateTable(dbAgent, checker);
 	cppcut_assert_equal(true, dbAgent.isTableExisting(TABLE_NAME_TEST));
+}
+
+static void createTestTableAutoInc(DBAgent &dbAgent, DBAgentChecker &checker)
+{
+	DBAgentTableCreationArg arg;
+	arg.tableName = TABLE_NAME_TEST_AUTO_INC;
+	arg.numColumns = NUM_COLUMNS_TEST_AUTO_INC;
+	arg.columnDefs = COLUMN_DEF_TEST_AUTO_INC;
+	dbAgent.createTable(arg);
+
+	checker.assertTable(arg);
+}
+
+static void insertRowToTestTableAutoInc(DBAgent &dbAgent,
+                                        DBAgentChecker &checker, int val)
+{
+	DBAgentInsertArg arg;
+	arg.tableName = TABLE_NAME_TEST_AUTO_INC;
+	arg.numColumns = NUM_COLUMNS_TEST_AUTO_INC;
+	arg.columnDefs = COLUMN_DEF_TEST_AUTO_INC;
+	VariableItemGroupPtr row;
+	row->ADD_NEW_ITEM(Int, 0);
+	row->ADD_NEW_ITEM(Int, val);
+	arg.row = row;
+	dbAgent.insert(arg);
+}
+
+void dbAgentTestAutoIncrement(DBAgent &dbAgent, DBAgentChecker &checker)
+{
+	createTestTableAutoInc(dbAgent, checker);
+	insertRowToTestTableAutoInc(dbAgent, checker, 0);
+	uint64_t expectedId = 1;
+	cppcut_assert_equal(expectedId, dbAgent.getLastInsertId());
 }

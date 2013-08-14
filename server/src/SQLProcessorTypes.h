@@ -61,6 +61,10 @@ enum SQLSubQueryMode {
 	SQL_SUB_QUERY_NOT_EXISTS,
 };
 
+enum SQLColumnFlags {
+	SQL_COLUMN_FLAG_AUTO_INC = (1 << 0),
+};
+
 struct SQLProcessorInfo {
 	// input statement
 	ParsableString   statement;
