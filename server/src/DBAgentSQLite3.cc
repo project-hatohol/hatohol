@@ -251,6 +251,12 @@ void DBAgentSQLite3::deleteRows(DBAgentDeleteArg &deleteArg)
 	deleteRows(m_ctx->db, deleteArg);
 }
 
+uint64_t DBAgentSQLite3::getLastInsertId(void)
+{
+	HATOHOL_ASSERT(m_ctx->db, "m_ctx->db is NULL");
+	return getLastInsertId(m_ctx->db);
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
@@ -607,6 +613,12 @@ void DBAgentSQLite3::selectGetValuesIteration(DBAgentSelectArg &selectArg,
 		itemGroup->add(getValue(stmt, i, columnDef.type));
 	}
 	dataTable->add(itemGroup);
+}
+
+uint64_t DBAgentSQLite3::getLastInsertId(sqlite3 *db)
+{
+	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	return 0;
 }
 
 ItemDataPtr DBAgentSQLite3::getValue(sqlite3_stmt *stmt,

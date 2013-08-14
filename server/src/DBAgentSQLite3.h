@@ -58,6 +58,7 @@ public:
 	virtual void select(DBAgentSelectArg &selectArg);
 	virtual void select(DBAgentSelectExArg &selectExArg);
 	virtual void deleteRows(DBAgentDeleteArg &deleteArg);
+	virtual uint64_t getLastInsertId(void);
 
 protected:
 	static string getDefaultDBPath(DBDomainId domainId);
@@ -77,6 +78,7 @@ protected:
 	static void selectGetValuesIteration(DBAgentSelectArg &selectArg,
 	                                     sqlite3_stmt *stmt,
 	                                     VariableItemTablePtr &dataTable);
+	static uint64_t getLastInsertId(sqlite3 *db);
 	static ItemDataPtr getValue(sqlite3_stmt *stmt, size_t index,
 	                            SQLColumnType columnType);
 	static void createIndex(sqlite3 *db,

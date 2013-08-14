@@ -120,6 +120,7 @@ public:
 	virtual void select(DBAgentSelectArg &selectArg) = 0;
 	virtual void select(DBAgentSelectExArg &selectExArg) = 0;
 	virtual void deleteRows(DBAgentDeleteArg &deleteArg) = 0;
+	virtual uint64_t getLastInsertId(void) = 0;
 
 protected:
 	static string makeSelectStatement(DBAgentSelectArg &selectArg);

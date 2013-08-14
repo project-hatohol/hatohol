@@ -337,6 +337,24 @@ void DBAgentMySQL::deleteRows(DBAgentDeleteArg &deleteArg)
 	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
 }
 
+uint64_t DBAgentMySQL::getLastInsertId(void)
+{
+	HATOHOL_ASSERT(m_ctx->connected, "Not connected.");
+	execSql("select SELECT LAST_INSERT_ID()");
+	MYSQL_RES *result = mysql_store_result(&m_ctx->mysql);
+	if (!result) {
+		THROW_HATOHOL_EXCEPTION(
+		  "Failed to call mysql_store_result: %s\n",
+		  mysql_error(&m_ctx->mysql));
+	}
+	MYSQL_ROW row = mysql_fetch_row(result);
+	HATOHOL_ASSERT(row, "Failed to call mysql_fetch_row.");
+	uint64_t id;
+	int numScan = sscanf(row[0], "%"PRIu64, &id);
+	HATOHOL_ASSERT(numScan == 1, "numScan: %d, %s", numScan, row[0]);
+	return id;
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------

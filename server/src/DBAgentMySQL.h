@@ -49,6 +49,7 @@ public:
 	virtual void select(DBAgentSelectArg &selectArg);
 	virtual void select(DBAgentSelectExArg &selectExArg);
 	virtual void deleteRows(DBAgentDeleteArg &deleteArg);
+	virtual uint64_t getLastInsertId(void);
 
 protected:
 	void execSql(const string &statement);
