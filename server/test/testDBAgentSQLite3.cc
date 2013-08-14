@@ -145,13 +145,6 @@ public:
 		assertExistRecord(id, age, name,height);
 	}
 
-	virtual void assertUpdate(uint64_t id, int age,
-	                          const char *name, double height,
-	                          const string &condition)
-	{
-		assertExistRecord(id, age, name,height);
-	}
-
 	virtual void getIDStringVector(const ColumnDef &columnDefId,
 	                               vector<string> &actualIds)
 	{
