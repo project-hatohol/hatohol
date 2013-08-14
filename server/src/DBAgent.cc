@@ -289,3 +289,14 @@ string DBAgent::makeUpdateStatement(DBAgentUpdateArg &updateArg)
 	}
 	return statement;
 }
+
+string DBAgent::makeDeleteStatement(DBAgentDeleteArg &deleteArg)
+{
+	string statement = "DELETE FROM ";
+	statement += deleteArg.tableName;
+	if (!deleteArg.condition.empty()) {
+		statement += " WHERE ";
+		statement += deleteArg.condition;
+	}
+	return statement;
+}

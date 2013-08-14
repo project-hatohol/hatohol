@@ -592,13 +592,7 @@ void DBAgentSQLite3::select(sqlite3 *db, DBAgentSelectExArg &selectExArg)
 
 void DBAgentSQLite3::deleteRows(sqlite3 *db, DBAgentDeleteArg &deleteArg)
 {
-	HATOHOL_ASSERT(!deleteArg.tableName.empty(), "Table name: empty");
-	string sql = "DELETE FROM ";
-	sql += deleteArg.tableName;
-	if (!deleteArg.condition.empty()) {
-		sql += " WHERE ";
-		sql += deleteArg.condition;
-	}
+	string sql = makeDeleteStatement(deleteArg);
 	_execSql(db, sql.c_str());
 }
 

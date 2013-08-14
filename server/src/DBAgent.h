@@ -128,6 +128,7 @@ protected:
 	static string getColumnValueString(const ColumnDef *columnDef,
 	                                   const ItemData *itemData);
 	static string makeUpdateStatement(DBAgentUpdateArg &updateArg);
+	static string makeDeleteStatement(DBAgentDeleteArg &deleteArg);
 
 private:
 	struct PrivateContext;
