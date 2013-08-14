@@ -35,14 +35,14 @@ public:
 	{
 		// get the table information with mysql command.
 		string sql = "desc ";
-		sql += TABLE_NAME_TEST;
+		sql += arg.tableName;
 		string result = execMySQL(TEST_DB_NAME, sql, true);
 
 		// check the number of obtained lines
 		size_t linesIdx = 0;
 		StringVector lines;
 		StringUtils::split(lines, result, '\n');
-		cppcut_assert_equal(NUM_COLUMNS_TEST+1, lines.size());
+		cppcut_assert_equal(arg.numColumns+1, lines.size());
 
 		// assert header output
 		const char *headers[] = {
@@ -59,14 +59,14 @@ public:
 
 		// assert tables
 		string expected;
-		for (size_t  i = 0; i < NUM_COLUMNS_TEST; i++) {
+		for (size_t  i = 0; i < arg.numColumns; i++) {
 			size_t idx = 0;
 			StringVector words;
 			const bool doMerge = false;
 			StringUtils::split(words, lines[linesIdx++], '\t',
 			                   doMerge);
 			cppcut_assert_equal(numHeaders, words.size());
-			const ColumnDef &columnDef = COLUMN_DEF_TEST[i];
+			const ColumnDef &columnDef = arg.columnDefs[i];
 
 			// column name
 			expected = columnDef.columnName;
