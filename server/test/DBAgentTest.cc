@@ -82,7 +82,7 @@ static const ColumnDef COLUMN_DEF_TEST_AUTO_INC[] = {
 {
 	ITEM_ID_NOT_SET,                   // itemId
 	TABLE_NAME_TEST_AUTO_INC,          // tableName
-	"auto_inc_column",                 // columnName
+	"id",                              // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
 	0,                                 // decFracLength
@@ -93,7 +93,7 @@ static const ColumnDef COLUMN_DEF_TEST_AUTO_INC[] = {
 },{
 	ITEM_ID_NOT_SET,                   // itemId
 	TABLE_NAME_TEST_AUTO_INC,          // tableName
-	"no_auto_inc_column",              // columnName
+	"val",                             // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
 	0,                                 // decFracLength
