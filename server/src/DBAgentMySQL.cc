@@ -338,7 +338,9 @@ void DBAgentMySQL::select(DBAgentSelectExArg &selectExArg)
 
 void DBAgentMySQL::deleteRows(DBAgentDeleteArg &deleteArg)
 {
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	HATOHOL_ASSERT(m_ctx->connected, "Not connected.");
+	string query = makeDeleteStatement(deleteArg);
+	execSql(query);
 }
 
 uint64_t DBAgentMySQL::getLastInsertId(void)

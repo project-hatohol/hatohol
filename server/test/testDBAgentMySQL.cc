@@ -201,7 +201,13 @@ public:
 	virtual void getIDStringVector(const ColumnDef &columnDefId,
 	                               vector<string> &actualIds)
 	{
-		cut_fail("Not implemented: %s", __PRETTY_FUNCTION__);
+		string sql =
+		  StringUtils::sprintf(
+		    "SELECT %s FROM %s ORDER BY %s ASC",
+		    columnDefId.columnName, columnDefId.tableName, 
+		    columnDefId.columnName);
+		string output = execMySQL(TEST_DB_NAME, sql, false);
+		StringUtils::split(actualIds, output, '\n');
 	}
 };
 
@@ -354,6 +360,12 @@ void test_selectExWithOrderByLimitOffsetOverData(void)
 {
 	createGlobalDBAgent();
 	dbAgentTestSelectHeightOrder(*g_dbAgent, 1, NUM_TEST_DATA, 0);
+}
+
+void test_delete(void)
+{
+	createGlobalDBAgent();
+	dbAgentTestDelete(*g_dbAgent, dbAgentChecker);
 }
 
 void test_isTableExisting(void)
