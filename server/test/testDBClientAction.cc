@@ -56,7 +56,7 @@ static ActionDef testActionDef[] = {
 	), // condition
 	ACTION_COMMAND,    // type
 	"",                // working dir
-	"/bin/hoge",       //path
+	"/bin/hoge",       // path
 	300,               // timeout
 }, {
 	0,                 // id (this filed is ignored)
@@ -72,7 +72,7 @@ static ActionDef testActionDef[] = {
 	), // condition
 	ACTION_COMMAND,    // type
 	"/home/%%\"'@#!()+-~<>?:;",  // working dir
-	"/usr/libexec/w",  //path
+	"/usr/libexec/w",  // path
 	30,                // timeout
 }, {
 	0,                 // id (this filed is ignored)
@@ -89,7 +89,7 @@ static ActionDef testActionDef[] = {
 	), // condition
 	ACTION_RESIDENT,   // type
 	"/tmp",            // working dir
-	"/usr/lib/liba.so",//path
+	"/usr/lib/liba.so",// path
 	60,                // timeout
 },
 };
