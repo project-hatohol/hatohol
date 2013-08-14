@@ -94,7 +94,7 @@ static ActionDef testActionDef[] = {
 },
 };
 
-const static size_t NUM_TEST_ACTION_DEF = 
+const static size_t NUM_TEST_ACTION_DEF =
   sizeof(testActionDef) / sizeof(ActionDef);
 
 static string makeExpectedString(const ActionDef &actDef, int expectedId)
