@@ -174,9 +174,6 @@ string execMySQL(const string &dbName, const string &statement, bool showHeader)
 
 void _assertCurrDatetime(const string &datetime)
 {
-	// TODO: This code is copied from
-	// DBAgentTest::DBAgentChecker::assertExistingRecordEachWord.
-	// That should be replaced with a call of this function.
 	const int MAX_ALLOWD_CURR_TIME_ERROR = 5;
 	ItemDataPtr item = SQLUtils::createFromString(datetime,
 	                                              SQL_COLUMN_TYPE_DATETIME);

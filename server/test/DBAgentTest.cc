@@ -89,8 +89,6 @@ const char *NAME[NUM_TEST_DATA]    = {"rei", "aoi", "giraffe"};
 const double HEIGHT[NUM_TEST_DATA] = {158.2, 203.9, -23593.2};
 const int TIME[NUM_TEST_DATA]   = {1376462763, CURR_DATETIME, 0};
 
-const int MAX_ALLOWD_CURR_TIME_ERROR = 5;
-
 // table for auto increment test
 const char *TABLE_NAME_TEST_AUTO_INC = "test_table_auto_inc";
 static const ColumnDef COLUMN_DEF_TEST_AUTO_INC[] = {
@@ -627,17 +625,7 @@ void DBAgentChecker::assertExistingRecordEachWord
 
 	// time
 	if (datetime == CURR_DATETIME) {
-		ItemDataPtr item =
-		  SQLUtils::createFromString(
-		    words[idx++], SQL_COLUMN_TYPE_DATETIME);
-		int clock = ItemDataUtils::getInt(item);
-		int curr_clock = (int)time(NULL);
-		cppcut_assert_equal(
-		  true, curr_clock >= clock,
-		  cut_message("curr_clock: %d, clock: %d", curr_clock, clock));
-		cppcut_assert_equal(
-		  true, curr_clock - clock < MAX_ALLOWD_CURR_TIME_ERROR,
-		  cut_message( "curr_clock: %d, clock: %d", curr_clock, clock));
+		assertCurrDatetime(words[idx++]);
 	} else {
 		cut_fail("Not implemented");
 		cppcut_assert_equal(expected, words[idx++]);
