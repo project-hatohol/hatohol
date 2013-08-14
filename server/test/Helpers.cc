@@ -26,6 +26,7 @@
 #include "DBClientTest.h"
 #include "DBAgentSQLite3.h"
 #include "DBAgentMySQL.h"
+#include "SQLUtils.h"
 
 void _assertStringVector(StringVector &expected, StringVector &actual)
 {
@@ -171,6 +172,43 @@ string execMySQL(const string &dbName, const string &statement, bool showHeader)
 	return result;
 }
 
+void _assertCurrDatetime(const string &datetime)
+{
+	// TODO: This code is copied from
+	// DBAgentTest::DBAgentChecker::assertExistingRecordEachWord.
+	// That should be replaced with a call of this function.
+	const int MAX_ALLOWD_CURR_TIME_ERROR = 5;
+	ItemDataPtr item = SQLUtils::createFromString(datetime,
+	                                              SQL_COLUMN_TYPE_DATETIME);
+	int clock = ItemDataUtils::getInt(item);
+	int currClock = (int)time(NULL);
+	cppcut_assert_equal(
+	  true, currClock >= clock,
+	  cut_message("currClock: %d, clock: %d", currClock, clock));
+	cppcut_assert_equal(
+	  true, currClock - clock < MAX_ALLOWD_CURR_TIME_ERROR,
+	  cut_message( "currClock: %d, clock: %d", currClock, clock));
+}
+
+static void assertDBContentForComponets(const string &expect,
+                                        const string &actual)
+{
+	StringVector wordsExpect;
+	StringVector wordsActual;
+	bool doMerge = false;
+	StringUtils::split(wordsExpect, expect, '|', doMerge);
+	StringUtils::split(wordsActual, actual, '|', doMerge);
+	cppcut_assert_equal(wordsExpect.size(), wordsActual.size(),
+	                    cut_message("<<expect>>: %s\n<<actual>>: %s\n",
+	                                expect.c_str(), actual.c_str()));
+	for (size_t i = 0; i < wordsExpect.size(); i++) {
+		if (wordsExpect[i] == DBCONTENT_MAGIC_CURR_DATETIME)
+			assertCurrDatetime(wordsActual[i]);
+		else
+			cppcut_assert_equal(wordsExpect[i], wordsActual[i]);
+	}
+}
+
 void _assertDBContent(DBAgent *dbAgent, const string &statement,
                       const string &expect)
 {
@@ -183,7 +221,19 @@ void _assertDBContent(DBAgent *dbAgent, const string &statement,
 	}
 	else
 		cut_fail("Unknown type_info");
-	cppcut_assert_equal(expect, output);
+
+	const string &actual = output;
+	StringVector linesExpect;
+	StringVector linesActual;
+	StringUtils::split(linesExpect, expect, '\n');
+	StringUtils::split(linesActual, actual, '\n');
+	cppcut_assert_equal(linesExpect.size(), linesActual.size(),
+	  cut_message("<<expect>>\n%s\n\n<<actual>>%s\n",
+	              expect.c_str(), actual.c_str()));
+	for (size_t i = 0; i < linesExpect.size(); i++) {
+		cut_trace(
+		  assertDBContentForComponets(linesExpect[i], linesActual[i]));
+	}
 }
 
 void _assertCreateTable(DBAgent *dbAgent, const string &tableName)

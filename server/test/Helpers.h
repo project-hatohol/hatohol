@@ -28,6 +28,8 @@ using namespace mlpl;
 #include "DBAgent.h"
 #include "DBClient.h"
 
+#define DBCONTENT_MAGIC_CURR_DATETIME "#CURR_DATETIME#"
+
 typedef pair<int,int>      IntIntPair;
 typedef vector<IntIntPair> IntIntPairVector;
 
@@ -79,6 +81,10 @@ string execSqlite3ForDBClient(DBDomainId domainId, const string &statement);
 string execSqlite3ForDBClientZabbix(int serverId, const string &statement);
 string execMySQL(const string &dbName, const string &statement,
                  bool showHeader = false);
+
+void _assertCurrDatetime(const string &datetime);
+#define assertCurrDatetime(D) cut_trace(_assertCurrDatetime(D))
+
 void _assertDBContent(DBAgent *dbAgent, const string &statement,
                       const string &expect);
 #define assertDBContent(DB_AGENT, FMT, EXPECT) \
