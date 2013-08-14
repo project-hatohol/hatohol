@@ -340,7 +340,7 @@ void DBAgentMySQL::deleteRows(DBAgentDeleteArg &deleteArg)
 uint64_t DBAgentMySQL::getLastInsertId(void)
 {
 	HATOHOL_ASSERT(m_ctx->connected, "Not connected.");
-	execSql("select SELECT LAST_INSERT_ID()");
+	execSql("SELECT LAST_INSERT_ID()");
 	MYSQL_RES *result = mysql_store_result(&m_ctx->mysql);
 	if (!result) {
 		THROW_HATOHOL_EXCEPTION(
