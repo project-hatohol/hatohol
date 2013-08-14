@@ -262,7 +262,7 @@ SoupSession *ArmZabbixAPI::getSession(void)
 
 bool ArmZabbixAPI::openSession(SoupMessage **msgPtr)
 {
-	SoupMessage *msg = soup_message_new(SOUP_METHOD_GET, m_ctx->uri.c_str());
+	SoupMessage *msg = soup_message_new(SOUP_METHOD_POST, m_ctx->uri.c_str());
 
 	soup_message_headers_set_content_type(msg->request_headers,
 	                                      MIME_JSON_RPC, NULL);
@@ -318,7 +318,7 @@ string ArmZabbixAPI::getAuthToken(void)
 SoupMessage *ArmZabbixAPI::queryCommon(JsonBuilderAgent &agent)
 {
 	string request_body = agent.generate();
-	SoupMessage *msg = soup_message_new(SOUP_METHOD_GET, m_ctx->uri.c_str());
+	SoupMessage *msg = soup_message_new(SOUP_METHOD_POST, m_ctx->uri.c_str());
 	soup_message_headers_set_content_type(msg->request_headers,
 	                                      MIME_JSON_RPC, NULL);
 	soup_message_body_append(msg->request_body, SOUP_MEMORY_TEMPORARY,
