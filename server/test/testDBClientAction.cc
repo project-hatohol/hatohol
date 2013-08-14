@@ -26,15 +26,6 @@
 
 namespace testDBClientAction {
 
-class TestDBClientAction : public DBClientAction
-{
-public:
-	uint64_t callGetNewActionLogId(void)
-	{
-		return getNewActionLogId();
-	}
-};
-
 static ActionDef testActionDef[] = {
 {
 	0,                 // id (this filed is ignored)
@@ -106,6 +97,17 @@ static string makeExpectedString(const ActionDef &actDef, int expectedId)
 	return expect;
 }
 
+static string makeExpectedLogString(const ActionDef &actDef, uint64_t expectedId)
+{
+	int expectedStarterId = 0;
+	string expect =
+	  StringUtils::sprintf(
+	    "%"PRIu64"|%d|%d|%d|#CURR_DATETIME#||%d|\n",
+	    expectedId, actDef.id, DBClientAction::ACTLOG_STAT_STARTED,
+	    expectedStarterId, DBClientAction::ACTLOG_EXECFAIL_NONE);
+	return expect;
+}
+
 void setup(void)
 {
 	hatoholInit();
@@ -139,11 +141,19 @@ void test_addAction(void)
 	}
 }
 
-void test_getNewActionLogId(void)
+void test_startExecAction(void)
 {
-	TestDBClientAction dbAction;
-	uint64_t expect = 1;
-	cppcut_assert_equal(expect, dbAction.callGetNewActionLogId());
+	string expect;
+	DBClientAction dbAction;
+	for (size_t i = 0; i < NUM_TEST_ACTION_DEF; i++) {
+		const ActionDef &actDef = testActionDef[i];
+		uint64_t logId = dbAction.logStartExecAction(actDef);
+		const uint64_t expectedId = i + 1;
+		cppcut_assert_equal(expectedId, logId);
+		string statement = "select * from action_logs";
+		expect += makeExpectedLogString(actDef, expectedId);
+		assertDBContent(dbAction.getDBAgent(), statement, expect);
+	}
 }
 
 } // namespace testDBClientAction

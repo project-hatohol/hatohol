@@ -112,6 +112,23 @@ class DBClientAction :
    public DBClientConnectable<DB_DOMAIN_ID_ACTION>
 {
 public:
+	enum ActionLogStatus {
+		ACTLOG_STAT_STARTED,
+		ACTLOG_STAT_SUCCEEDED,
+		ACTLOG_STAT_FAILED,
+	};
+
+	enum ActionLogExecFailureCode {
+		ACTLOG_EXECFAIL_NONE,
+		ACTLOG_EXECFAIL_EXEC_FAILURE,
+		ACTLOG_EXECFAIL_ENTRY_NOT_FOUND,
+		ACTLOG_EXECFAIL_KILLED_TIMEOUT,
+		ACTLOG_EXECFAIL_PIPE_READ_HUP,
+		ACTLOG_EXECFAIL_PIPE_READ_ERR,
+		ACTLOG_EXECFAIL_PIPE_WRITE_ERR,
+		ACTLOG_EXECFAIL_UNEXPECTED_EXIT,
+	};
+
 	static int ACTION_DB_VERSION;
 	static const char *DEFAULT_DB_NAME;
 
@@ -121,12 +138,11 @@ public:
 	void addAction(ActionDef &actionDef);
 	void getActionList(const EventInfo &eventInfo,
 	                   ActionDefList &actionDefList);
-	void logStartExecAction(const ActionDef &actionDef);
+	uint64_t logStartExecAction(const ActionDef &actionDef);
 	void logEndExecAction(const ExitChildInfo &exitChildInfo);
 	void logErrExecAction(const ActionDef &actionDef, const string &msg);
 
 protected:
-	uint64_t getNewActionLogId(void);
 
 private:
 	struct PrivateContext;

@@ -212,7 +212,7 @@ static const ColumnDef COLUMN_DEF_ACTION_LOGS[] = {
 	0,                                 // decFracLength
 	false,                             // canBeNull
 	SQL_KEY_PRI,                       // keyType
-	0,                                 // flags
+	SQL_COLUMN_FLAG_AUTO_INC,          // flags
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
@@ -514,7 +514,7 @@ void DBClientAction::getActionList(const EventInfo &eventInfo,
 	}
 }
 
-void DBClientAction::logStartExecAction(const ActionDef &actionDef)
+uint64_t DBClientAction::logStartExecAction(const ActionDef &actionDef)
 {
 	VariableItemDataPtr item;
 	VariableItemGroupPtr row;
@@ -523,13 +523,12 @@ void DBClientAction::logStartExecAction(const ActionDef &actionDef)
 	arg.numColumns = NUM_COLUMNS_ACTION_LOGS;
 	arg.columnDefs = COLUMN_DEF_ACTION_LOGS;
 
-	// We set 0 as an action log ID temporarily.
-	row->ADD_NEW_ITEM(Uint64, 0); // action_log_id
+	row->ADD_NEW_ITEM(Uint64, 0); // action_log_id (automatically set)
 	row->ADD_NEW_ITEM(Int, actionDef.id);
 	row->ADD_NEW_ITEM(Int, ACTLOG_STAT_STARTED);
 	// TODO: set the appropriate the following starter ID.
 	row->ADD_NEW_ITEM(Int, 0);  // status
-	row->ADD_NEW_ITEM(Int, -1); // start_time: -1 means current time.
+	row->ADD_NEW_ITEM(Int, CURR_DATETIME); // start_time
 
 	// end_time
 	item = new ItemInt(0);
@@ -544,13 +543,12 @@ void DBClientAction::logStartExecAction(const ActionDef &actionDef)
 	row->add(item, false);
 
 	arg.row = row;
+	uint64_t logId;
 	DBCLIENT_TRANSACTION_BEGIN() {
-		// See also the comment in addAction about the const cast.
-		const ItemData *itemActionId = row->getItemAt(0);
-		*(const_cast<ItemData *>(itemActionId))
-		  = *(new ItemUint64(getNewActionLogId()));
 		insert(arg);
+		logId = getLastInsertId();
 	} DBCLIENT_TRANSACTION_END();
+	return logId;
 }
 
 void DBClientAction::logEndExecAction(const ExitChildInfo &exitChildInfo)
@@ -567,21 +565,3 @@ void DBClientAction::logErrExecAction(const ActionDef &actionDef,
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
-uint64_t DBClientAction::getNewActionLogId(void)
-{
-	DBAgentSelectExArg arg;
-	arg.tableName = TABLE_NAME_ACTION_LOGS;
-	arg.pushColumn(COLUMN_DEF_ACTION_LOGS[IDX_ACTION_LOGS_ACTION_LOG_ID]);
-	arg.orderBy =
-	  COLUMN_DEF_ACTION_LOGS[IDX_ACTION_LOGS_ACTION_LOG_ID].columnName;
-	arg.orderBy += " DESC";
-	arg.limit = 1;
-
-	// This function doesn't work without transaction.
-	select(arg);
-
-	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
-	if (grpList.empty())
-		return 1;
-	return ItemDataUtils::getUint64((*grpList.begin())->getItemAt(0)) + 1;
-}
