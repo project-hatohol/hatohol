@@ -106,6 +106,11 @@ static const ColumnDef COLUMN_DEF_TEST_AUTO_INC[] = {
 const size_t NUM_COLUMNS_TEST_AUTO_INC =
    sizeof(COLUMN_DEF_TEST_AUTO_INC) / sizeof(ColumnDef);
 
+enum {
+	IDX_TEST_TABLE_AUTO_INC_ID,
+	IDX_TEST_TABLE_AUTO_INC_VAL,
+};
+
 static void checkInsert(DBAgent &dbAgent, DBAgentChecker &checker,
                         uint64_t id, int age, const char *name, double height)
 {
@@ -531,10 +536,41 @@ static void insertRowToTestTableAutoInc(DBAgent &dbAgent,
 	dbAgent.insert(arg);
 }
 
+static void deleteRowFromTestTableAutoInc(DBAgent &dbAgent,
+                                          DBAgentChecker &checker, int id)
+{
+	DBAgentDeleteArg arg;
+	arg.tableName = TABLE_NAME_TEST_AUTO_INC;
+	const ColumnDef &columnDefId =
+	   COLUMN_DEF_TEST_AUTO_INC[IDX_TEST_TABLE_AUTO_INC_ID];
+	arg.condition = StringUtils::sprintf
+	                  ("%s=%d", columnDefId.columnName, id);
+	dbAgent.deleteRows(arg);
+}
+
 void dbAgentTestAutoIncrement(DBAgent &dbAgent, DBAgentChecker &checker)
 {
 	createTestTableAutoInc(dbAgent, checker);
 	insertRowToTestTableAutoInc(dbAgent, checker, 0);
 	uint64_t expectedId = 1;
 	cppcut_assert_equal(expectedId, dbAgent.getLastInsertId());
+}
+
+void dbAgentTestAutoIncrementWithDel(DBAgent &dbAgent, DBAgentChecker &checker)
+{
+	dbAgentTestAutoIncrement(dbAgent, checker);
+
+	// add a new record
+	insertRowToTestTableAutoInc(dbAgent, checker, 10);
+	uint64_t expectedId = 2;
+	cppcut_assert_equal(expectedId, dbAgent.getLastInsertId());
+
+	// delete the last record
+	deleteRowFromTestTableAutoInc(dbAgent, checker, expectedId);
+
+	// we expected the incremented ID 
+	insertRowToTestTableAutoInc(dbAgent, checker, 20);
+	expectedId++;
+	cppcut_assert_equal(expectedId, dbAgent.getLastInsertId());
+
 }

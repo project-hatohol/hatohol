@@ -380,5 +380,11 @@ void test_autoIncrement(void)
 	dbAgentTestAutoIncrement(*g_dbAgent, dbAgentChecker);
 }
 
+void test_autoIncrementWithDel(void)
+{
+	createGlobalDBAgent();
+	dbAgentTestAutoIncrementWithDel(*g_dbAgent, dbAgentChecker);
+}
+
 } // testDBAgentMySQL
 
