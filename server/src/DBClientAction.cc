@@ -369,7 +369,7 @@ DBClientAction::~DBClientAction()
 		delete m_ctx;
 }
 
-int DBClientAction::addAction(const ActionDef &actionDef)
+void DBClientAction::addAction(ActionDef &actionDef)
 {
 	VariableItemDataPtr item;
 	VariableItemGroupPtr row;
@@ -426,12 +426,10 @@ int DBClientAction::addAction(const ActionDef &actionDef)
 
 	arg.row = row;
 
-	int id;
 	DBCLIENT_TRANSACTION_BEGIN() {
 		insert(arg);
-		id = getLastInsertId();
+		actionDef.id = getLastInsertId();
 	} DBCLIENT_TRANSACTION_END();
-	return id;
 }
 
 void DBClientAction::getActionList(const EventInfo &eventInfo,

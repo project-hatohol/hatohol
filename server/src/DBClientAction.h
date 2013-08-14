@@ -118,7 +118,7 @@ public:
 	static void init(void);
 	DBClientAction(void);
 	virtual ~DBClientAction();
-	int addAction(const ActionDef &actionDef);
+	void addAction(ActionDef &actionDef);
 	void getActionList(const EventInfo &eventInfo,
 	                   ActionDefList &actionDefList);
 	void logStartExecAction(const ActionDef &actionDef);

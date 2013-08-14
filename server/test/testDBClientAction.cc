@@ -127,12 +127,12 @@ void test_addAction(void)
 	DBClientAction dbAction;
 	string expect;
 	for (size_t i = 0; i < NUM_TEST_ACTION_DEF; i++) {
-		const ActionDef &actDef = testActionDef[i];
-		int id = dbAction.addAction(actDef);
+		ActionDef &actDef = testActionDef[i];
+		dbAction.addAction(actDef);
 
 		// validation
 		const int expectedId = i + 1;
-		cppcut_assert_equal(expectedId, id);
+		cppcut_assert_equal(expectedId, actDef.id);
 		string statement = "select * from actions";
 		expect += makeExpectedString(actDef, expectedId);
 		assertDBContent(dbAction.getDBAgent(), statement, expect);
