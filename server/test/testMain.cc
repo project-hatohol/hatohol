@@ -39,11 +39,6 @@ static pid_t grandchildPid = 0;
 static GMainLoop *loop;
 static guint eventTimeout = 0;
 
-bool checkMagicNumber(string &actualEnvironment, string makedMagicNumber)
-{
-	return actualEnvironment == makedMagicNumber;
-}
-
 void endChildProcess(GPid child_pid, gint status, gpointer data)
 {
 	bool *isEndChildProcess = (bool *) data;
@@ -113,7 +108,7 @@ bool parseEnvironFile(bool &isMagicNumber, string makedMagicNumber)
 	grandchildProcEnvironPath << "/proc/" << grandchildPid << "/environ";
 	grandchildEnvironFile.open(grandchildProcEnvironPath.str().c_str());
 	while (getline(grandchildEnvironFile, env, '\0')) {
-		isMagicNumber = checkMagicNumber(env, makedMagicNumber);
+		isMagicNumber = env == makedMagicNumber;
 		if (isMagicNumber)
 			break;
 	}
