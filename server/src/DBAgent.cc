@@ -251,6 +251,12 @@ string DBAgent::getColumnValueString(const ColumnDef *columnDef,
 		valueStr = StringUtils::sprintf(fmt.c_str(), item->get());
 		break;
 	}
+	case SQL_COLUMN_TYPE_DATETIME:
+	{
+		DEFINE_AND_ASSERT(itemData, ItemInt, item);
+		valueStr = makeDatetimeString(item->get());
+		break;
+	}
 	default:
 		HATOHOL_ASSERT(true, "Unknown column type: %d (%s)",
 		             columnDef->type, columnDef->columnName);
@@ -300,3 +306,20 @@ string DBAgent::makeDeleteStatement(DBAgentDeleteArg &deleteArg)
 	}
 	return statement;
 }
+
+string DBAgent::makeDatetimeString(int datetime)
+{
+	time_t clock;
+	if (datetime == CURR_DATETIME)
+		time(&clock);
+	else
+		clock = (time_t)datetime;
+	struct tm tm;
+	localtime_r(&clock, &tm);
+	string str = StringUtils::sprintf(
+	               "'%04d-%02d-%02d %02d:%02d:%02d'",
+	               tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday,
+	               tm.tm_hour, tm.tm_min, tm.tm_sec);
+	return str;
+}
+

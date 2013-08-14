@@ -29,6 +29,8 @@ using namespace std;
 #include "Params.h"
 #include "SQLProcessorTypes.h"
 
+#define CURR_DATETIME -1
+
 struct DBAgentTableCreationArg {
 	string              tableName;
 	size_t              numColumns;
@@ -129,6 +131,7 @@ protected:
 	                                   const ItemData *itemData);
 	static string makeUpdateStatement(DBAgentUpdateArg &updateArg);
 	static string makeDeleteStatement(DBAgentDeleteArg &deleteArg);
+	static string makeDatetimeString(int datetime);
 
 private:
 	struct PrivateContext;

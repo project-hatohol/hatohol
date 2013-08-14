@@ -248,6 +248,12 @@ void DBAgentMySQL::insert(DBAgentInsertArg &insertArg)
 			delete escaped;
 			break;
 		}
+		case SQL_COLUMN_TYPE_DATETIME:
+		{ // bracket is used to avoid an error: jump to case label
+			DEFINE_AND_ASSERT(itemData, ItemInt, item);
+			query += makeDatetimeString(item->get());
+			break;
+		}
 		default:
 			HATOHOL_ASSERT(false, "Unknown type: %d", columnDef.type);
 		}

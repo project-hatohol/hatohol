@@ -33,6 +33,7 @@ enum {
 	IDX_TEST_TABLE_AGE,
 	IDX_TEST_TABLE_NAME,
 	IDX_TEST_TABLE_HEIGHT,
+	IDX_TEST_TABLE_TIME,
 };
 
 extern const size_t NUM_TEST_DATA;
@@ -40,12 +41,16 @@ extern const uint64_t ID[];
 extern const int AGE[];
 extern const char *NAME[];
 extern const double HEIGHT[];
+extern const int    TIME[];
+
+extern const int MAX_ALLOWD_CURR_TIME_ERROR;
 
 class DBAgentChecker {
 public:
 	virtual void assertTable(const DBAgentTableCreationArg &arg) = 0;
 	virtual void assertExistingRecord(uint64_t id, int age,
 	                                  const char *name, double height,
+	                                  int datetime,
 	                                  size_t numColumns,
 	                                  const ColumnDef *columnDefs) = 0;
 	virtual void getIDStringVector(const ColumnDef &columnDefId,
@@ -53,10 +58,17 @@ public:
 
 	static void createTable(DBAgent &dbAgent);
 	static void insert(DBAgent &dbAgent, uint64_t id, int age,
-	                   const char *name, double height);
+	                   const char *name, double height, int time);
 	static void makeTestData(DBAgent &dbAgent);
 	static void makeTestData(DBAgent &dbAgent,
 	                         map<uint64_t, size_t> &testDataIdIndexMap);
+protected:
+	static void assertExistingRecordEachWord
+	              (uint64_t id, int age, const char *name, double height,
+	               int datetime, size_t numColumns,
+	               const ColumnDef *columnDefs, const string &line,
+	               const char splitChar,
+	               const char *U64fmt = "%"PRIu64);
 };
 
 void dbAgentTestCreateTable(DBAgent &dbAgent, DBAgentChecker &checker);

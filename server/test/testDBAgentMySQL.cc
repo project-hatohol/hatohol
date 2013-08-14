@@ -19,6 +19,7 @@
 
 #include <cppcutter.h>
 #include "DBAgentMySQL.h"
+#include "SQLUtils.h"
 #include "DBAgentTest.h"
 #include "Helpers.h"
 
@@ -100,6 +101,9 @@ public:
 				             columnDef.columnLength,
 				             columnDef.decFracLength);
 				break;
+			case SQL_COLUMN_TYPE_DATETIME:
+				expected = "datetime";
+				break;
 			case NUM_SQL_COLUMN_TYPES:
 			default:
 				cut_fail("Unknwon type: %d\n", columnDef.type);
@@ -145,6 +149,7 @@ public:
 
 	virtual void assertExistingRecord(uint64_t id, int age,
 	                                  const char *name, double height,
+	                                  int datetime,
 	                                  size_t numColumns,
 	                                  const ColumnDef *columnDefs)
 	{
@@ -191,11 +196,31 @@ public:
 		cppcut_assert_equal(expected, words[idx++]);
 
 		// height
-		const ColumnDef &columnDef = columnDefs[idx];
+		const ColumnDef &columnDef = columnDefs[idx++];
 		string fmt = StringUtils::sprintf("%%.%zdlf",
 		               columnDef.decFracLength);
 		expected = StringUtils::sprintf(fmt.c_str(), height);
-		cppcut_assert_equal(expected, words[idx++]);
+
+		// time
+		if (datetime == CURR_DATETIME) {
+			ItemDataPtr item =
+			  SQLUtils::createFromString(
+			    words[idx++], SQL_COLUMN_TYPE_DATETIME);
+			int clock = ItemDataUtils::getInt(item);
+			int curr_clock = (int)time(NULL);
+			cppcut_assert_equal(
+			  true, curr_clock >= clock,
+			  cut_message("curr_clock: %d, clock: %d",
+			              curr_clock, clock));
+			cppcut_assert_equal(
+			  true,
+			  curr_clock - clock < MAX_ALLOWD_CURR_TIME_ERROR,
+			  cut_message(
+			    "curr_clock: %d, clock: %d", curr_clock, clock));
+		} else {
+			cut_fail("Not implemented");
+			cppcut_assert_equal(expected, words[idx++]);
+		}
 	}
 
 	virtual void getIDStringVector(const ColumnDef &columnDefId,

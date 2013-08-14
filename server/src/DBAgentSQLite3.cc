@@ -644,6 +644,10 @@ ItemDataPtr DBAgentSQLite3::getValue(sqlite3_stmt *stmt,
 		itemData = new ItemDouble(sqlite3_column_double(stmt, index));
 		break;
 
+	case SQL_COLUMN_TYPE_DATETIME:
+		itemData = new ItemInt(sqlite3_column_int(stmt, index));
+		break;
+
 	default:
 		HATOHOL_ASSERT(false, "Unknown column type: %d", columnType);
 	}
