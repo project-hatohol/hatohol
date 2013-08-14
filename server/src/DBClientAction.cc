@@ -58,7 +58,7 @@ static const ColumnDef COLUMN_DEF_ACTIONS[] = {
 	0,                                 // decFracLength
 	false,                             // canBeNull
 	SQL_KEY_PRI,                       // keyType
-	0,                                 // flags
+	SQL_COLUMN_FLAG_AUTO_INC,          // flags
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
@@ -369,7 +369,7 @@ DBClientAction::~DBClientAction()
 		delete m_ctx;
 }
 
-void DBClientAction::addAction(const ActionDef &actionDef)
+int DBClientAction::addAction(const ActionDef &actionDef)
 {
 	VariableItemDataPtr item;
 	VariableItemGroupPtr row;
@@ -378,7 +378,7 @@ void DBClientAction::addAction(const ActionDef &actionDef)
 	arg.numColumns = NUM_COLUMNS_ACTIONS;
 	arg.columnDefs = COLUMN_DEF_ACTIONS;
 
-	row->ADD_NEW_ITEM(Int, 0); // We set 0 temporarily.
+	row->ADD_NEW_ITEM(Int, 0); // This is automaticall set (0 is dummy)
 
 	// After item = new Item..() line, the reference count of ItemData is 2,
 	// because substitution to 'item' increases the reference counter.
@@ -426,17 +426,12 @@ void DBClientAction::addAction(const ActionDef &actionDef)
 
 	arg.row = row;
 
+	int id;
 	DBCLIENT_TRANSACTION_BEGIN() {
-		// Here we replace the value in ItemData object for Action ID
-		// with the newly obtained value. It is generally
-		// forbidden in Hatohol framework (such method is not prepared)
-		// The following code uses 'const_cast'. In this context,
-		// this is safe, because nobody uses it.
-		const ItemData *itemActionId = row->getItemAt(0);
-		*(const_cast<ItemData *>(itemActionId))
-		  = *(new ItemInt(getNewActionId()));
 		insert(arg);
+		id = getLastInsertId();
 	} DBCLIENT_TRANSACTION_END();
+	return id;
 }
 
 void DBClientAction::getActionList(const EventInfo &eventInfo,
@@ -574,24 +569,6 @@ void DBClientAction::logErrExecAction(const ActionDef &actionDef,
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
-int DBClientAction::getNewActionId(void)
-{
-	DBAgentSelectExArg arg;
-	arg.tableName = TABLE_NAME_ACTIONS;
-	arg.pushColumn(COLUMN_DEF_ACTIONS[IDX_ACTIONS_ACTION_ID]);
-	arg.orderBy = COLUMN_DEF_ACTIONS[IDX_ACTIONS_ACTION_ID].columnName;
-	arg.orderBy += " DESC";
-	arg.limit = 1;
-
-	// This function doesn't work without transaction.
-	select(arg);
-
-	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
-	if (grpList.empty())
-		return 1;
-	return ItemDataUtils::getInt((*grpList.begin())->getItemAt(0)) + 1;
-}
-
 uint64_t DBClientAction::getNewActionLogId(void)
 {
 	DBAgentSelectExArg arg;

@@ -118,7 +118,7 @@ public:
 	static void init(void);
 	DBClientAction(void);
 	virtual ~DBClientAction();
-	void addAction(const ActionDef &actionDef);
+	int addAction(const ActionDef &actionDef);
 	void getActionList(const EventInfo &eventInfo,
 	                   ActionDefList &actionDefList);
 	void logStartExecAction(const ActionDef &actionDef);
@@ -126,7 +126,6 @@ public:
 	void logErrExecAction(const ActionDef &actionDef, const string &msg);
 
 protected:
-	int getNewActionId(void);
 	uint64_t getNewActionLogId(void);
 
 private:

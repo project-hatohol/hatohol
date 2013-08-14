@@ -29,11 +29,6 @@ namespace testDBClientAction {
 class TestDBClientAction : public DBClientAction
 {
 public:
-	int callGetNewActionId(void)
-	{
-		return getNewActionId();
-	}
-
 	uint64_t callGetNewActionLogId(void)
 	{
 		return getNewActionLogId();
@@ -127,31 +122,17 @@ void test_dbDomainId(void)
 	                    dbAction.getDBAgent()->getDBDomainId());
 }
 
-void test_getNewActionId(void)
-{
-	TestDBClientAction dbAction;
-	cppcut_assert_equal(1, dbAction.callGetNewActionId());
-}
-
-void test_getNewActionIdWhenActionsNotEmpty(void)
-{
-	TestDBClientAction dbAction;
-	for (size_t i = 0; i < NUM_TEST_ACTION_DEF; i++) {
-		dbAction.addAction(testActionDef[i]);
-		cppcut_assert_equal((int)(i+2), dbAction.callGetNewActionId());
-	}
-}
-
 void test_addAction(void)
 {
 	DBClientAction dbAction;
 	string expect;
 	for (size_t i = 0; i < NUM_TEST_ACTION_DEF; i++) {
 		const ActionDef &actDef = testActionDef[i];
-		dbAction.addAction(actDef);
+		int id = dbAction.addAction(actDef);
 
 		// validation
 		const int expectedId = i + 1;
+		cppcut_assert_equal(expectedId, id);
 		string statement = "select * from actions";
 		expect += makeExpectedString(actDef, expectedId);
 		assertDBContent(dbAction.getDBAgent(), statement, expect);
