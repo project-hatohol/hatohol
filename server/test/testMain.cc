@@ -133,7 +133,7 @@ bool makeRandomNumber(string &magicNumber)
 	return true;
 }
 
-gboolean spawnChildProcess(string magicNumber)
+bool spawnChildProcess(string magicNumber)
 {
 	const gchar *argv[] = {"../src/hatohol", "--config-db-server", "localhost", NULL};
 	const gchar *envp[] = {"LD_LIBRARY_PATH=../src/.libs/", magicNumber.c_str(), NULL};
@@ -153,7 +153,7 @@ gboolean spawnChildProcess(string magicNumber)
 			&stdErr,
 			&error);
 
-	return succeeded;
+	return succeeded == TRUE;
 }
 
 void teardown(void)
@@ -177,10 +177,8 @@ void test_daemonize(void)
 	bool isMagicNumber;
 	string magicNumber;
 
-	gboolean expectedTrue = TRUE;
-
 	cppcut_assert_equal(true, makeRandomNumber(magicNumber));
-	cppcut_assert_equal(expectedTrue, spawnChildProcess(magicNumber));
+	cppcut_assert_equal(true, spawnChildProcess(magicNumber));
 	cppcut_assert_equal(true, childProcessLoop());
 	cppcut_assert_equal(true, parsePIDFile());
 	cppcut_assert_equal(true, parseStatFile(grandchildPpid));
