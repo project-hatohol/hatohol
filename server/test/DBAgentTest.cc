@@ -437,100 +437,6 @@ void dbAgentTestSelectHeightOrder
 	}
 }
 
-// --------------------------------------------------------------------------
-// DBAgentChecker
-// --------------------------------------------------------------------------
-void DBAgentChecker::createTable(DBAgent &dbAgent)
-{
-	DBAgentTableCreationArg arg;
-	arg.tableName = TABLE_NAME_TEST;
-	arg.numColumns = NUM_COLUMNS_TEST;
-	arg.columnDefs = COLUMN_DEF_TEST;
-	dbAgent.createTable(arg);
-}
-
-void DBAgentChecker::insert
-  (DBAgent &dbAgent, uint64_t id, int age, const char *name, double height,
-   int time)
-{
-	DBAgentInsertArg arg;
-	arg.tableName = TABLE_NAME_TEST;
-	arg.numColumns = NUM_COLUMNS_TEST;
-	arg.columnDefs = COLUMN_DEF_TEST;
-	VariableItemGroupPtr row;
-	row->ADD_NEW_ITEM(Uint64, id);
-	row->ADD_NEW_ITEM(Int, age);
-	row->ADD_NEW_ITEM(String, name);
-	row->ADD_NEW_ITEM(Double, height);
-	row->ADD_NEW_ITEM(Int, time);
-	arg.row = row;
-	dbAgent.insert(arg);
-}
-
-void DBAgentChecker::makeTestData(DBAgent &dbAgent)
-{
-	for (size_t i = 0; i < NUM_TEST_DATA; i++)
-		insert(dbAgent, ID[i], AGE[i], NAME[i], HEIGHT[i], TIME[i]);
-}
-
-void DBAgentChecker::makeTestData
-  (DBAgent &dbAgent, map<uint64_t, size_t> &testDataIdIndexMap)
-{
-	makeTestData(dbAgent);
-	for (size_t i = 0; i < NUM_TEST_DATA; i++)
-		testDataIdIndexMap[ID[i]] = i;
-	cppcut_assert_equal(NUM_TEST_DATA, testDataIdIndexMap.size());
-}
-
-void DBAgentChecker::assertExistingRecordEachWord
-  (uint64_t id, int age, const char *name, double height, int datetime,
-   size_t numColumns, const ColumnDef *columnDefs, const string &line,
-   const char splitChar, const char *U64fmt)
-{
-	// value
-	size_t idx = 0;
-	string expected;
-	StringVector words;
-	StringUtils::split(words, line, splitChar);
-	cppcut_assert_equal(numColumns, words.size(),
-	                    cut_message("line: %s\n", line.c_str()));
-
-	// id
-	expected = StringUtils::sprintf(U64fmt, id);
-	cppcut_assert_equal(expected, words[idx++]);
-
-	// age
-	expected = StringUtils::sprintf("%d", age);
-	cppcut_assert_equal(expected, words[idx++]);
-
-	// name
-	expected = name;
-	cppcut_assert_equal(expected, words[idx++]);
-
-	// height
-	const ColumnDef &columnDef = columnDefs[idx++];
-	string fmt = StringUtils::sprintf("%%.%zdlf", columnDef.decFracLength);
-	expected = StringUtils::sprintf(fmt.c_str(), height);
-
-	// time
-	if (datetime == CURR_DATETIME) {
-		ItemDataPtr item =
-		  SQLUtils::createFromString(
-		    words[idx++], SQL_COLUMN_TYPE_DATETIME);
-		int clock = ItemDataUtils::getInt(item);
-		int curr_clock = (int)time(NULL);
-		cppcut_assert_equal(
-		  true, curr_clock >= clock,
-		  cut_message("curr_clock: %d, clock: %d", curr_clock, clock));
-		cppcut_assert_equal(
-		  true, curr_clock - clock < MAX_ALLOWD_CURR_TIME_ERROR,
-		  cut_message( "curr_clock: %d, clock: %d", curr_clock, clock));
-	} else {
-		cut_fail("Not implemented");
-		cppcut_assert_equal(expected, words[idx++]);
-	}
-}
-
 void dbAgentTestDelete(DBAgent &dbAgent, DBAgentChecker &checker)
 {
 	// create table
@@ -643,3 +549,98 @@ void dbAgentTestAutoIncrementWithDel(DBAgent &dbAgent, DBAgentChecker &checker)
 	cppcut_assert_equal(expectedId, dbAgent.getLastInsertId());
 
 }
+
+// --------------------------------------------------------------------------
+// DBAgentChecker
+// --------------------------------------------------------------------------
+void DBAgentChecker::createTable(DBAgent &dbAgent)
+{
+	DBAgentTableCreationArg arg;
+	arg.tableName = TABLE_NAME_TEST;
+	arg.numColumns = NUM_COLUMNS_TEST;
+	arg.columnDefs = COLUMN_DEF_TEST;
+	dbAgent.createTable(arg);
+}
+
+void DBAgentChecker::insert
+  (DBAgent &dbAgent, uint64_t id, int age, const char *name, double height,
+   int time)
+{
+	DBAgentInsertArg arg;
+	arg.tableName = TABLE_NAME_TEST;
+	arg.numColumns = NUM_COLUMNS_TEST;
+	arg.columnDefs = COLUMN_DEF_TEST;
+	VariableItemGroupPtr row;
+	row->ADD_NEW_ITEM(Uint64, id);
+	row->ADD_NEW_ITEM(Int, age);
+	row->ADD_NEW_ITEM(String, name);
+	row->ADD_NEW_ITEM(Double, height);
+	row->ADD_NEW_ITEM(Int, time);
+	arg.row = row;
+	dbAgent.insert(arg);
+}
+
+void DBAgentChecker::makeTestData(DBAgent &dbAgent)
+{
+	for (size_t i = 0; i < NUM_TEST_DATA; i++)
+		insert(dbAgent, ID[i], AGE[i], NAME[i], HEIGHT[i], TIME[i]);
+}
+
+void DBAgentChecker::makeTestData
+  (DBAgent &dbAgent, map<uint64_t, size_t> &testDataIdIndexMap)
+{
+	makeTestData(dbAgent);
+	for (size_t i = 0; i < NUM_TEST_DATA; i++)
+		testDataIdIndexMap[ID[i]] = i;
+	cppcut_assert_equal(NUM_TEST_DATA, testDataIdIndexMap.size());
+}
+
+void DBAgentChecker::assertExistingRecordEachWord
+  (uint64_t id, int age, const char *name, double height, int datetime,
+   size_t numColumns, const ColumnDef *columnDefs, const string &line,
+   const char splitChar, const char *U64fmt)
+{
+	// value
+	size_t idx = 0;
+	string expected;
+	StringVector words;
+	StringUtils::split(words, line, splitChar);
+	cppcut_assert_equal(numColumns, words.size(),
+	                    cut_message("line: %s\n", line.c_str()));
+
+	// id
+	expected = StringUtils::sprintf(U64fmt, id);
+	cppcut_assert_equal(expected, words[idx++]);
+
+	// age
+	expected = StringUtils::sprintf("%d", age);
+	cppcut_assert_equal(expected, words[idx++]);
+
+	// name
+	expected = name;
+	cppcut_assert_equal(expected, words[idx++]);
+
+	// height
+	const ColumnDef &columnDef = columnDefs[idx++];
+	string fmt = StringUtils::sprintf("%%.%zdlf", columnDef.decFracLength);
+	expected = StringUtils::sprintf(fmt.c_str(), height);
+
+	// time
+	if (datetime == CURR_DATETIME) {
+		ItemDataPtr item =
+		  SQLUtils::createFromString(
+		    words[idx++], SQL_COLUMN_TYPE_DATETIME);
+		int clock = ItemDataUtils::getInt(item);
+		int curr_clock = (int)time(NULL);
+		cppcut_assert_equal(
+		  true, curr_clock >= clock,
+		  cut_message("curr_clock: %d, clock: %d", curr_clock, clock));
+		cppcut_assert_equal(
+		  true, curr_clock - clock < MAX_ALLOWD_CURR_TIME_ERROR,
+		  cut_message( "curr_clock: %d, clock: %d", curr_clock, clock));
+	} else {
+		cut_fail("Not implemented");
+		cppcut_assert_equal(expected, words[idx++]);
+	}
+}
+
