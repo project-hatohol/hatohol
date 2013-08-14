@@ -176,51 +176,9 @@ public:
 			                    actualHeaders[i]);
 		}
 
-		// value
-		size_t idx = 0;
-		string expected;
-		StringVector words;
-		StringUtils::split(words, lines[linesIdx++], '\t');
-		cppcut_assert_equal(numColumns, words.size());
-
-		// id
-		expected = StringUtils::sprintf("%"PRIu64, id);
-		cppcut_assert_equal(expected, words[idx++]);
-
-		// age
-		expected = StringUtils::sprintf("%d", age);
-		cppcut_assert_equal(expected, words[idx++]);
-
-		// name
-		expected = name;
-		cppcut_assert_equal(expected, words[idx++]);
-
-		// height
-		const ColumnDef &columnDef = columnDefs[idx++];
-		string fmt = StringUtils::sprintf("%%.%zdlf",
-		               columnDef.decFracLength);
-		expected = StringUtils::sprintf(fmt.c_str(), height);
-
-		// time
-		if (datetime == CURR_DATETIME) {
-			ItemDataPtr item =
-			  SQLUtils::createFromString(
-			    words[idx++], SQL_COLUMN_TYPE_DATETIME);
-			int clock = ItemDataUtils::getInt(item);
-			int curr_clock = (int)time(NULL);
-			cppcut_assert_equal(
-			  true, curr_clock >= clock,
-			  cut_message("curr_clock: %d, clock: %d",
-			              curr_clock, clock));
-			cppcut_assert_equal(
-			  true,
-			  curr_clock - clock < MAX_ALLOWD_CURR_TIME_ERROR,
-			  cut_message(
-			    "curr_clock: %d, clock: %d", curr_clock, clock));
-		} else {
-			cut_fail("Not implemented");
-			cppcut_assert_equal(expected, words[idx++]);
-		}
+		assertExistingRecordEachWord(id, age, name, height, datetime,
+		                             numColumns, columnDefs,
+		                             lines[linesIdx++], '\t');
 	}
 
 	virtual void getIDStringVector(const ColumnDef &columnDefId,
