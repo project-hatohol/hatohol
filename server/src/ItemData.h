@@ -47,6 +47,11 @@ enum ItemDataExceptionType {
 	ITEM_DATA_EXCEPTION_INVALID_OPERATION,
 };
 
+enum ItemDataNullFlagType {
+	ITEM_DATA_NOT_NULL,
+	ITEM_DATA_NULL,
+};
+
 class ItemData;
 class ItemDataException : public HatoholException
 {
@@ -133,14 +138,20 @@ ostream &operator<<(ostream &os, const ItemData &itemData);
 template <typename T, ItemDataType ITEM_TYPE>
 class ItemGeneric : public ItemData {
 public:
-	ItemGeneric(ItemId id, T data)
+	ItemGeneric(ItemId id, T data,
+	            ItemDataNullFlagType nullFlag = ITEM_DATA_NOT_NULL)
 	: ItemData(id, ITEM_TYPE),
 	  m_data(data) {
+		if (nullFlag == ITEM_DATA_NULL)
+			setNull();
 	}
 
-	ItemGeneric(T data)
+	ItemGeneric(T data,
+	            ItemDataNullFlagType nullFlag = ITEM_DATA_NOT_NULL)
 	: ItemData(SYSTEM_ITEM_ID_ANONYMOUS, ITEM_TYPE),
 	  m_data(data) {
+		if (nullFlag == ITEM_DATA_NULL)
+			setNull();
 	}
 
 	static const ItemGeneric<T, ITEM_TYPE> *cast(const ItemData &itemData)
