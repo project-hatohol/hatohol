@@ -42,6 +42,13 @@ struct functionArg {
 	bool timedOut;
 	bool isEndChildProcess;
 	GMainLoop *loop;
+
+	functionArg(void)
+	: timedOut(false),
+	  isEndChildProcess(false),
+	  loop(NULL)
+	{
+	}
 };
 
 void endChildProcess(GPid child_pid, gint status, gpointer data)
@@ -62,8 +69,6 @@ gboolean timeOutChildProcess(gpointer data)
 bool childProcessLoop(void)
 {
 	functionArg arg;
-	arg.timedOut = false;
-	arg.isEndChildProcess = false;
 
 	arg.loop = g_main_loop_new(NULL, TRUE);
 	g_child_watch_add(childPid, endChildProcess, &arg);
