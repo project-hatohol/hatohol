@@ -48,11 +48,11 @@ extern const int MAX_ALLOWD_CURR_TIME_ERROR;
 class DBAgentChecker {
 public:
 	virtual void assertTable(const DBAgentTableCreationArg &arg) = 0;
-	virtual void assertExistingRecord(uint64_t id, int age,
-	                                  const char *name, double height,
-	                                  int datetime,
-	                                  size_t numColumns,
-	                                  const ColumnDef *columnDefs) = 0;
+	virtual void assertExistingRecord(
+	               uint64_t id, int age, const char *name, double height,
+	               int datetime, size_t numColumns,
+	               const ColumnDef *columnDefs,
+	               const set<size_t> *nullIndexes = NULL) = 0;
 	virtual void getIDStringVector(const ColumnDef &columnDefId,
 	                               vector<string> &actualIds) = 0;
 
@@ -68,6 +68,7 @@ protected:
 	               int datetime, size_t numColumns,
 	               const ColumnDef *columnDefs, const string &line,
 	               const char splitChar,
+	               const set<size_t> *nullIndexes,
 	               const char *U64fmt = "%"PRIu64);
 };
 
@@ -75,6 +76,7 @@ void dbAgentTestCreateTable(DBAgent &dbAgent, DBAgentChecker &checker);
 void dbAgentTestInsert(DBAgent &dbAgent, DBAgentChecker &checker);
 void dbAgentTestInsertUint64
   (DBAgent &dbAgent, DBAgentChecker &checker, uint64_t id);
+void dbAgentTestInsertNull(DBAgent &dbAgent, DBAgentChecker &checker);
 void dbAgentTestUpdate(DBAgent &dbAgent, DBAgentChecker &checker);
 void dbAgentTestUpdateCondition(DBAgent &dbAgent, DBAgentChecker &checker);
 void dbAgentTestSelect(DBAgent &dbAgent);

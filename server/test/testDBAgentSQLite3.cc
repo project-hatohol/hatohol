@@ -118,7 +118,8 @@ public:
 	                                  const char *name, double height,
 	                                  int datetime,
 	                                  size_t numColumns,
-	                                  const ColumnDef *columnDefs)
+	                                  const ColumnDef *columnDefs,
+	                                  const set<size_t> *nullIndexes)
 	{
 		// INFO: We use the trick that unsigned interger is stored as
 		// signed interger. So large integers (MSB bit is one) are
@@ -137,7 +138,8 @@ public:
 		cppcut_assert_equal(numExpectedLines, lines.size());
 		assertExistingRecordEachWord
 		  (id, age, name, height, datetime,
-		   numColumns, columnDefs, lines[0], '|', "%"PRId64);
+		   numColumns, columnDefs, lines[0], '|', nullIndexes,
+		   "%"PRId64);
 	}
 
 	virtual void getIDStringVector(const ColumnDef &columnDefId,
@@ -245,6 +247,12 @@ void test_insertUint64_0xffffffffffffffff(void)
 {
 	DBAgentSQLite3 dbAgent;
 	dbAgentTestInsertUint64(dbAgent, dbAgentChecker, 0xffffffffffffffff);
+}
+
+void test_insertNull(void)
+{
+	DBAgentSQLite3 dbAgent;
+	dbAgentTestInsertNull(dbAgent, dbAgentChecker);
 }
 
 void test_update(void)

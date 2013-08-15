@@ -151,7 +151,8 @@ public:
 	                                  const char *name, double height,
 	                                  int datetime,
 	                                  size_t numColumns,
-	                                  const ColumnDef *columnDefs)
+	                                  const ColumnDef *columnDefs,
+	                                  const set<size_t> *nullIndexes)
 	{
 		// get the table information with mysql command.
 		string sql =
@@ -178,7 +179,8 @@ public:
 
 		assertExistingRecordEachWord(id, age, name, height, datetime,
 		                             numColumns, columnDefs,
-		                             lines[linesIdx++], '\t');
+		                             lines[linesIdx++], '\t',
+		                             nullIndexes);
 	}
 
 	virtual void getIDStringVector(const ColumnDef &columnDefId,
@@ -292,6 +294,12 @@ void test_insertUint64_0xffffffffffffffff(void)
 {
 	createGlobalDBAgent();
 	dbAgentTestInsertUint64(*g_dbAgent, dbAgentChecker, 0xffffffffffffffff);
+}
+
+void test_insertNull(void)
+{
+	createGlobalDBAgent();
+	dbAgentTestInsertNull(*g_dbAgent, dbAgentChecker);
 }
 
 void test_update(void)

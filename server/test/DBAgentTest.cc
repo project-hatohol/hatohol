@@ -41,7 +41,7 @@ const ColumnDef COLUMN_DEF_TEST[] = {
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
 	0,                                 // decFracLength
-	false,                             // canBeNull
+	true,                              // canBeNull
 	SQL_KEY_NONE,                      // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
@@ -63,7 +63,7 @@ const ColumnDef COLUMN_DEF_TEST[] = {
 	SQL_COLUMN_TYPE_DOUBLE,            // type
 	15,                                // columnLength
 	1,                                 // decFracLength
-	false,                             // canBeNull
+	true,                              // canBeNull
 	SQL_KEY_NONE,                      // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
@@ -124,24 +124,36 @@ enum {
 	IDX_TEST_TABLE_AUTO_INC_VAL,
 };
 
+static ItemDataNullFlagType calcNullFlag(set<size_t> *nullIndexes, size_t idx)
+{
+	if (!nullIndexes)
+		return ITEM_DATA_NOT_NULL;
+	if (nullIndexes->count(idx) == 0)
+		return ITEM_DATA_NOT_NULL;
+	return ITEM_DATA_NULL;
+}
+
 static void checkInsert(DBAgent &dbAgent, DBAgentChecker &checker,
-                        uint64_t id, int age, const char *name, double height)
+                        uint64_t id, int age, const char *name, double height,
+                        set<size_t> *nullIndexes = NULL)
 {
 	DBAgentInsertArg arg;
 	arg.tableName = TABLE_NAME_TEST;
 	arg.numColumns = NUM_COLUMNS_TEST;
 	arg.columnDefs = COLUMN_DEF_TEST;
 	VariableItemGroupPtr row;
-	row->ADD_NEW_ITEM(Uint64, id);
-	row->ADD_NEW_ITEM(Int, age);
-	row->ADD_NEW_ITEM(String, name);
-	row->ADD_NEW_ITEM(Double, height);
-	row->ADD_NEW_ITEM(Int, CURR_DATETIME);
+	size_t idx = 0;
+	row->ADD_NEW_ITEM(Uint64, id, calcNullFlag(nullIndexes, idx++));
+	row->ADD_NEW_ITEM(Int, age, calcNullFlag(nullIndexes, idx++));
+	row->ADD_NEW_ITEM(String, name, calcNullFlag(nullIndexes, idx++));
+	row->ADD_NEW_ITEM(Double, height, calcNullFlag(nullIndexes, idx++));
+	row->ADD_NEW_ITEM(Int, CURR_DATETIME, calcNullFlag(nullIndexes, idx++));
 	arg.row = row;
 	dbAgent.insert(arg);
 
 	checker.assertExistingRecord(id, age, name, height, CURR_DATETIME,
-	                             NUM_COLUMNS_TEST, COLUMN_DEF_TEST);
+	                             NUM_COLUMNS_TEST, COLUMN_DEF_TEST,
+	                             nullIndexes);
 }
 
 static void checkUpdate(DBAgent &dbAgent, DBAgentChecker &checker,
@@ -204,6 +216,22 @@ void dbAgentTestInsertUint64
 	const double HEIGHT = 158.2;
 
 	checkInsert(dbAgent, checker, id, AGE, NAME, HEIGHT);
+}
+
+void dbAgentTestInsertNull(DBAgent &dbAgent, DBAgentChecker &checker)
+{
+	// create table
+	dbAgentTestCreateTable(dbAgent, checker);
+
+	// insert a row
+	const uint64_t ID = 999;
+	const int AGE = 0;       // we set NULL for this column
+	const char *NAME = "taro";
+	const double HEIGHT = 0; // we set NULL for this column
+	set<size_t> nullIndexes;
+	nullIndexes.insert(IDX_TEST_TABLE_AGE);
+	nullIndexes.insert(IDX_TEST_TABLE_HEIGHT);
+	checkInsert(dbAgent, checker, ID, AGE, NAME, HEIGHT, &nullIndexes);
 }
 
 void dbAgentTestUpdate(DBAgent &dbAgent, DBAgentChecker &checker)
@@ -596,7 +624,7 @@ void DBAgentChecker::makeTestData
 void DBAgentChecker::assertExistingRecordEachWord
   (uint64_t id, int age, const char *name, double height, int datetime,
    size_t numColumns, const ColumnDef *columnDefs, const string &line,
-   const char splitChar, const char *U64fmt)
+   const char splitChar, const set<size_t> *nullIndexes, const char *U64fmt)
 {
 	// value
 	size_t idx = 0;
@@ -607,24 +635,35 @@ void DBAgentChecker::assertExistingRecordEachWord
 	                    cut_message("line: %s\n", line.c_str()));
 
 	// id
-	expected = StringUtils::sprintf(U64fmt, id);
+	expected = (nullIndexes && nullIndexes->count(idx)) ?
+	             "NULL" : StringUtils::sprintf(U64fmt, id);
 	cppcut_assert_equal(expected, words[idx++]);
 
 	// age
-	expected = StringUtils::sprintf("%d", age);
+	expected = (nullIndexes && nullIndexes->count(idx)) ?
+	             "NULL" : StringUtils::sprintf("%d", age);
 	cppcut_assert_equal(expected, words[idx++]);
 
 	// name
-	expected = name;
+	expected = (nullIndexes && nullIndexes->count(idx)) ?
+	             "NULL" : name;
 	cppcut_assert_equal(expected, words[idx++]);
 
 	// height
-	const ColumnDef &columnDef = columnDefs[idx++];
-	string fmt = StringUtils::sprintf("%%.%zdlf", columnDef.decFracLength);
-	expected = StringUtils::sprintf(fmt.c_str(), height);
+	if (nullIndexes && nullIndexes->count(idx)) {
+		expected = "NULL";
+	} else {
+		const ColumnDef &columnDef = columnDefs[idx];
+		string fmt =
+		   StringUtils::sprintf("%%.%zdlf", columnDef.decFracLength);
+		expected = StringUtils::sprintf(fmt.c_str(), height);
+	}
+	cppcut_assert_equal(expected, words[idx++]);
 
 	// time
-	if (datetime == CURR_DATETIME) {
+	if (nullIndexes && nullIndexes->count(idx)) {
+		cppcut_assert_equal(string("NULL"), words[idx++]);
+	} else if (datetime == CURR_DATETIME) {
 		assertCurrDatetime(words[idx++]);
 	} else {
 		cut_fail("Not implemented");
