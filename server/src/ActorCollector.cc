@@ -70,11 +70,9 @@ void ActorCollector::unlock(void)
 
 void ActorCollector::addActor(const ActorInfo &actorInfo)
 {
-	lock();
 	pair<WaitChildSetIterator, bool> result =
 	  PrivateContext::waitChildSet.insert
 	    (pair<pid_t, uint64_t>(actorInfo.pid, actorInfo.logId));
-	unlock();
 	if (!result.second) {
 		MLPL_BUG("pid: %d (logId: %"PRIu64 ") is already regstered.\n",
 		         actorInfo.pid, actorInfo.logId);
