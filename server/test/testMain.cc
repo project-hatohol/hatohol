@@ -61,9 +61,13 @@ gboolean timeOutChildProcess(gpointer data)
 
 bool childProcessLoop(void)
 {
+	functionArg arg;
 	bool timedOut = false;
 	bool isEndChildProcess = false;
 	GMainLoop *loop;
+	arg.timedOut = &timeOut;
+	arg.isEndChildProcess = &isEndChildProcess;
+	arg.loop = loop;
 
 	loop = g_main_loop_new(NULL, TRUE);
 	g_child_watch_add(childPid, endChildProcess, &isEndChildProcess);
