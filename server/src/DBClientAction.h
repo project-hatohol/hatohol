@@ -146,6 +146,9 @@ public:
 	static const char *DEFAULT_DB_NAME;
 
 	static void init(void);
+	static const char *getTableNameActions(void);
+	static const char *getTableNameActionLogs(void);
+
 	DBClientAction(void);
 	virtual ~DBClientAction();
 	void addAction(ActionDef &actionDef);

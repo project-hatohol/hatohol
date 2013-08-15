@@ -173,7 +173,8 @@ void test_addAction(void)
 		// validation
 		const int expectedId = i + 1;
 		cppcut_assert_equal(expectedId, actDef.id);
-		string statement = "select * from actions";
+		string statement = "select * from ";
+		statement += DBClientAction::getTableNameActions();
 		expect += makeExpectedString(actDef, expectedId);
 		assertDBContent(dbAction.getDBAgent(), statement, expect);
 	}
@@ -188,7 +189,8 @@ void test_startExecAction(void)
 		uint64_t logId = dbAction.logStartExecAction(actDef);
 		const uint64_t expectedId = i + 1;
 		cppcut_assert_equal(expectedId, logId);
-		string statement = "select * from action_logs";
+		string statement = "select * from ";
+		statement += DBClientAction::getTableNameActionLogs();
 		expect += makeExpectedLogString(actDef, expectedId);
 		assertDBContent(dbAction.getDBAgent(), statement, expect);
 	}

@@ -25,8 +25,8 @@
 
 using namespace mlpl;
 
-static const char *TABLE_NAME_ACTIONS     = "actions";
-static const char *TABLE_NAME_ACTION_LOGS = "action_logs";
+const char *TABLE_NAME_ACTIONS     = "actions";
+const char *TABLE_NAME_ACTION_LOGS = "action_logs";
 
 int DBClientAction::ACTION_DB_VERSION = 1;
 const char *DBClientAction::DEFAULT_DB_NAME = "action";
@@ -326,6 +326,16 @@ void DBClientAction::init(void)
 
 	addDefaultDBInfo(
 	  DB_DOMAIN_ID_ACTION, DEFAULT_DB_NAME, &DB_ACTION_SETUP_FUNC_ARG);
+}
+
+const char *DBClientAction::getTableNameActions(void)
+{
+	return TABLE_NAME_ACTIONS;
+}
+
+const char *DBClientAction::getTableNameActionLogs(void)
+{
+	return TABLE_NAME_ACTION_LOGS;
 }
 
 DBClientAction::DBClientAction(void)
