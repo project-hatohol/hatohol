@@ -44,37 +44,32 @@ public:
 	}
 };
 
-static void _assertMakeExecArgs(const char *firstArg, ...)
+static void _assertMakeExecArgs(const string &cmdLine,
+                                const char *firstExpect, ...)
 {
 	va_list ap;
-	va_start(ap, firstArg);
+	va_start(ap, firstExpect);
 	StringVector inArgVect;
-	inArgVect.push_back(firstArg);
+	inArgVect.push_back(firstExpect);
 	while (true) {
 		const char *word = va_arg(ap, const char *);
 		if (!word)
 			break;
 		inArgVect.push_back(word);
 	}
-
-	string testCmd;
-	for (size_t i = 0; i < inArgVect.size(); i++) {
-		testCmd += inArgVect[i];
-		testCmd += " ";
-	}
+	va_end(ap);
 
 	TestActionManager actMgr;
 	StringVector argVect;
-	actMgr.callMakeExecArg(argVect, testCmd);
+	actMgr.callMakeExecArg(argVect, cmdLine);
 	cppcut_assert_equal(inArgVect.size(), argVect.size());
 	for (size_t i = 0; i < inArgVect.size(); i++) {
 		cppcut_assert_equal(inArgVect[i], argVect[i],
 		                    cut_message("index: %zd", i));
 	}
-	va_end(ap);
 }
-#define assertMakeExecArgs(FIRST, ...) \
-cut_trace(_assertMakeExecArgs(FIRST, ##__VA_ARGS__))
+#define assertMakeExecArgs(CMD_LINE, FIRST, ...) \
+cut_trace(_assertMakeExecArgs(CMD_LINE, FIRST, ##__VA_ARGS__))
 
 static void waitConnect(PipeUtils &readPipe, size_t timeout)
 {
@@ -154,12 +149,12 @@ void teardown(void)
 // ---------------------------------------------------------------------------
 void test_makeExecArg(void)
 {
-	assertMakeExecArgs("ls", NULL);
+	assertMakeExecArgs("ls", "ls", NULL);
 }
 
 void test_makeExecArgTwo(void)
 {
-	assertMakeExecArgs("ls", "-l", NULL);
+	assertMakeExecArgs("ls -l", "ls", "-l", NULL);
 }
 
 void test_execCommandAction(void)
