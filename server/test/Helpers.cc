@@ -219,7 +219,10 @@ static void assertDBContentForComponets(const string &expect,
 			cppcut_assert_equal(getExpectedNullNotation(*dbAgent),
 			                    wordsActual[i]);
 		} else {
-			cppcut_assert_equal(wordsExpect[i], wordsActual[i]);
+			cppcut_assert_equal(wordsExpect[i], wordsActual[i],
+			  cut_message(
+			    "line no: %zd\n<<expect>>: %s\n<<actual>>: %s\n",
+	                    i, expect.c_str(), actual.c_str()));
 		}
 	}
 }
@@ -378,4 +381,34 @@ void setupTestDBAction(bool dbRecreate)
 	                                   TEST_DB_USER, TEST_DB_PASSWORD);
 
 	makeTestMySQLDBIfNeeded(TEST_DB_NAME, dbRecreate);
+}
+
+string execSQL(DBAgent *dbAgent, const string &statement, bool showHeader)
+{
+	string output;
+	const type_info& tid = typeid(*dbAgent);
+	if (tid == typeid(DBAgentMySQL)) {
+		DBAgentMySQL *dbMySQL = dynamic_cast<DBAgentMySQL *>(dbAgent);
+		output = execMySQL(dbMySQL->getDBName(), statement, showHeader);
+		output = StringUtils::replace(output, "\t", "|");
+	}
+	else
+		cut_fail("Unknown type_info");
+	return output;
+}
+
+string joinStringVector(const StringVector &strVect, const string &pad,
+                        bool isPaddingTail)
+{
+	string output;
+	size_t numElem = strVect.size();
+	size_t lastIndex = numElem - 1;
+	for (size_t i = 0; i < numElem; i++) {
+		output += strVect[i];
+		if (i < lastIndex)
+			output += pad;
+		else if (i == lastIndex && isPaddingTail)
+			output += pad;
+	}
+	return output;
 }

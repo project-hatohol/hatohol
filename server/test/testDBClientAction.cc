@@ -130,6 +130,22 @@ static string makeExpectedLogString(const ActionDef &actDef, uint64_t logId)
 	return expect;
 }
 
+static string makeExpectedEndLogString(const string &logAtStart,
+                                       const ExitChildInfo exitChildInfo)
+{
+	StringVector words;
+	StringUtils::split(words, logAtStart, '|');
+	cppcut_assert_equal((size_t)NUM_IDX_ACTION_LOGS, words.size(),
+	                    cut_message("logAtStart: %s", logAtStart.c_str()));
+	words[IDX_ACTION_LOGS_STATUS] =
+	   StringUtils::sprintf("%d", DBClientAction::ACTLOG_STAT_SUCCEEDED);
+	words[IDX_ACTION_LOGS_END_TIME] = DBCONTENT_MAGIC_CURR_DATETIME;
+	words[IDX_ACTION_LOGS_EXIT_CODE] = 
+	   StringUtils::sprintf("%d", exitChildInfo.exitCode);
+
+	return joinStringVector(words, "|", false);
+}
+
 void setup(void)
 {
 	hatoholInit();
@@ -176,6 +192,36 @@ void test_startExecAction(void)
 		expect += makeExpectedLogString(actDef, expectedId);
 		assertDBContent(dbAction.getDBAgent(), statement, expect);
 	}
+}
+
+void test_endExecAction(void)
+{
+	size_t targetIdx = 1;
+	int    exitCode = 21;
+	DBClientAction dbAction;
+
+	ExitChildInfo exitChildInfo;
+	memset(&exitChildInfo, 0, sizeof(exitChildInfo));
+	exitChildInfo.exitCode = exitCode;
+	exitChildInfo.logId = targetIdx + 1;
+
+	// make action logs
+	string statement = "select * from action_logs";
+	test_startExecAction();
+	string rows = execSQL(dbAction.getDBAgent(), statement);
+	StringVector rowVector;
+	StringUtils::split(rowVector, rows, '\n');
+	cppcut_assert_equal(NUM_TEST_ACTION_DEF, rowVector.size());
+
+	// update one log
+	dbAction.logEndExecAction(exitChildInfo);
+
+	// validate
+	string expectedLine =
+	   makeExpectedEndLogString(rowVector[targetIdx], exitChildInfo);
+	rowVector[targetIdx] = expectedLine;
+	string expect = joinStringVector(rowVector, "\n");
+	assertDBContent(dbAction.getDBAgent(), statement, expect);
 }
 
 } // namespace testDBClientAction
