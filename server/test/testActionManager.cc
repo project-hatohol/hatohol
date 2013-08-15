@@ -28,8 +28,6 @@
 #include "SmartBuffer.h"
 #include "ActionTp.h"
 
-namespace testActionManager {
-
 class TestActionManager : public ActionManager
 {
 public:
@@ -44,32 +42,7 @@ public:
 	}
 };
 
-static void _assertMakeExecArgs(const string &cmdLine,
-                                const char *firstExpect, ...)
-{
-	va_list ap;
-	va_start(ap, firstExpect);
-	StringVector inArgVect;
-	inArgVect.push_back(firstExpect);
-	while (true) {
-		const char *word = va_arg(ap, const char *);
-		if (!word)
-			break;
-		inArgVect.push_back(word);
-	}
-	va_end(ap);
-
-	TestActionManager actMgr;
-	StringVector argVect;
-	actMgr.callMakeExecArg(argVect, cmdLine);
-	cppcut_assert_equal(inArgVect.size(), argVect.size());
-	for (size_t i = 0; i < inArgVect.size(); i++) {
-		cppcut_assert_equal(inArgVect[i], argVect[i],
-		                    cut_message("index: %zd", i));
-	}
-}
-#define assertMakeExecArgs(CMD_LINE, FIRST, ...) \
-cut_trace(_assertMakeExecArgs(CMD_LINE, FIRST, ##__VA_ARGS__))
+namespace testActionManager {
 
 static void waitConnect(PipeUtils &readPipe, size_t timeout)
 {
@@ -147,6 +120,68 @@ void teardown(void)
 // ---------------------------------------------------------------------------
 // Test cases
 // ---------------------------------------------------------------------------
+void test_execCommandAction(void)
+{
+	PipeUtils readPipe, writePipe;
+	cppcut_assert_equal(true, readPipe.makeFileInTmpAndOpenForRead());
+	cppcut_assert_equal(true, writePipe.makeFileInTmpAndOpenForWrite());
+
+	ActionDef actDef;
+	actDef.type = ACTION_COMMAND;
+	actDef.path = StringUtils::sprintf(
+	  "%s %s %s", cut_build_path("ActionTp", NULL),
+	  writePipe.getPath().c_str(), readPipe.getPath().c_str());
+
+	TestActionManager actMgr;
+	actMgr.callExecCommandAction(actDef);
+
+	// connect to action-tp
+	size_t timeout = 5 * 1000;
+	waitConnect(readPipe, timeout);
+	StringVector argVect;
+	argVect.push_back(writePipe.getPath());
+	argVect.push_back(readPipe.getPath());
+	getArguments(readPipe, writePipe, timeout, argVect);
+	sendQuit(readPipe, writePipe, timeout);
+
+	// check if the command is successfully executed
+	DBClientAction dbAction;
+}
+
+} // namespace testActionManager
+
+namespace testActionManagerWithoutDB {
+
+static void _assertMakeExecArgs(const string &cmdLine,
+                                const char *firstExpect, ...)
+{
+	va_list ap;
+	va_start(ap, firstExpect);
+	StringVector inArgVect;
+	inArgVect.push_back(firstExpect);
+	while (true) {
+		const char *word = va_arg(ap, const char *);
+		if (!word)
+			break;
+		inArgVect.push_back(word);
+	}
+	va_end(ap);
+
+	TestActionManager actMgr;
+	StringVector argVect;
+	actMgr.callMakeExecArg(argVect, cmdLine);
+	cppcut_assert_equal(inArgVect.size(), argVect.size());
+	for (size_t i = 0; i < inArgVect.size(); i++) {
+		cppcut_assert_equal(inArgVect[i], argVect[i],
+		                    cut_message("index: %zd", i));
+	}
+}
+#define assertMakeExecArgs(CMD_LINE, FIRST, ...) \
+cut_trace(_assertMakeExecArgs(CMD_LINE, FIRST, ##__VA_ARGS__))
+
+// ---------------------------------------------------------------------------
+// Test cases
+// ---------------------------------------------------------------------------
 void test_makeExecArg(void)
 {
 	assertMakeExecArgs("ls", "ls", NULL);
@@ -187,32 +222,4 @@ void test_makeExecArgSimpleBackslashInQuot(void)
 	assertMakeExecArgs("'\\ABC'", "ABC", NULL);
 }
 
-void test_execCommandAction(void)
-{
-	PipeUtils readPipe, writePipe;
-	cppcut_assert_equal(true, readPipe.makeFileInTmpAndOpenForRead());
-	cppcut_assert_equal(true, writePipe.makeFileInTmpAndOpenForWrite());
-
-	ActionDef actDef;
-	actDef.type = ACTION_COMMAND;
-	actDef.path = StringUtils::sprintf(
-	  "%s %s %s", cut_build_path("ActionTp", NULL),
-	  writePipe.getPath().c_str(), readPipe.getPath().c_str());
-
-	TestActionManager actMgr;
-	actMgr.callExecCommandAction(actDef);
-
-	// connect to action-tp
-	size_t timeout = 5 * 1000;
-	waitConnect(readPipe, timeout);
-	StringVector argVect;
-	argVect.push_back(writePipe.getPath());
-	argVect.push_back(readPipe.getPath());
-	getArguments(readPipe, writePipe, timeout, argVect);
-	sendQuit(readPipe, writePipe, timeout);
-
-	// check if the command is successfully executed
-	DBClientAction dbAction;
-}
-
-} // namespace testActionManager
+} // namespace testActionManagerWithoutDB
