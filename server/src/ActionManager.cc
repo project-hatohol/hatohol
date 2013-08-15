@@ -26,7 +26,6 @@ struct ActionManager::PrivateContext {
 	DBClientAction dbAction;
 	SeparatorCheckerWithCallback separator;
 	bool inQuot;
-	bool quotFinished;
 	bool byBackSlash;
 	string currWord;
 	StringVector *argVect;
@@ -34,7 +33,6 @@ struct ActionManager::PrivateContext {
 	PrivateContext(void)
 	: separator(" '\\"),
 	  inQuot(false),
-	  quotFinished(false),
 	  byBackSlash(false),
 	  argVect(NULL)
 	{
@@ -43,7 +41,6 @@ struct ActionManager::PrivateContext {
 	void resetParser(void)
 	{
 		inQuot = false;
-		quotFinished = false;
 		byBackSlash = false;
 		currWord.clear();
 		argVect = NULL;
@@ -105,13 +102,10 @@ void ActionManager::separatorCallback(const char sep, PrivateContext *ctx)
 			ctx->pushbackCurrWord();
 		ctx->byBackSlash = false;
 	} else if (sep == '\'') {
-		if (ctx->byBackSlash) {
+		if (ctx->byBackSlash)
 			ctx->currWord += "'";
-		} else {
-			if (ctx->inQuot)
-				ctx->quotFinished = true;
+		else
 			ctx->inQuot = !ctx->inQuot;
-		}
 		ctx->byBackSlash = false;
 	} else if (sep == '\\') {
 		if (ctx->byBackSlash)
