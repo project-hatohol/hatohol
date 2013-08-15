@@ -29,12 +29,14 @@ struct ActionManager::PrivateContext {
 	bool quotFinished;
 	bool byBackSlash;
 	string currWord;
+	StringVector *argVect;
 
 	PrivateContext(void)
 	: separator(" '\\"),
 	  inQuot(false),
 	  quotFinished(false),
-	  byBackSlash(false)
+	  byBackSlash(false),
+	  argVect(NULL)
 	{
 	}
 
@@ -43,6 +45,15 @@ struct ActionManager::PrivateContext {
 		inQuot = false;
 		quotFinished = false;
 		byBackSlash = false;
+		currWord.clear();
+		argVect = NULL;
+	}
+
+	void pushbackCurrWord(void)
+	{
+		if (currWord.empty())
+			return;
+		argVect->push_back(currWord);
 		currWord.clear();
 	}
 };
@@ -90,12 +101,14 @@ void ActionManager::separatorCallback(const char sep, PrivateContext *ctx)
 	if (sep == ' ') {
 		if (ctx->inQuot)
 			ctx->currWord += ' ';
+		else
+			ctx->pushbackCurrWord();
 		ctx->byBackSlash = false;
 	} else if (sep == '\'') {
-		if (!ctx->inQuot) {
-			ctx->inQuot = true;
-		} else if (ctx->byBackSlash) {
+		if (ctx->byBackSlash) {
 			ctx->currWord += "'";
+		} else if (!ctx->inQuot) {
+			ctx->inQuot = true;
 		} else {
 			ctx->inQuot = false;
 			ctx->quotFinished = true;
@@ -123,24 +136,14 @@ void ActionManager::runAction(const ActionDef &actionDef)
 
 void ActionManager::makeExecArg(StringVector &argVect, const string &cmd)
 {
-	MLPL_WARN("Not fully implemented: %s\n", __PRETTY_FUNCTION__);
 	m_ctx->resetParser();
+	m_ctx->argVect = &argVect;
 	ParsableString parsable(cmd);
 	while (!parsable.finished()) {
 		string word = parsable.readWord(m_ctx->separator);
-		m_ctx->byBackSlash = false;
-		if (m_ctx->quotFinished) {
-			argVect.push_back(m_ctx->currWord);
-			m_ctx->currWord.clear();
-			m_ctx->quotFinished = false;
-		}
-		if (word.empty())
-			continue;
-		if (!m_ctx->inQuot)
-			argVect.push_back(word);
-		else
-			m_ctx->currWord += word;
+		m_ctx->currWord += word;
 	}
+	m_ctx->pushbackCurrWord();
 }
 
 void ActionManager::execCommandAction(const ActionDef &actionDef)
