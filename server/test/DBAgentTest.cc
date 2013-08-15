@@ -624,34 +624,35 @@ void DBAgentChecker::makeTestData
 void DBAgentChecker::assertExistingRecordEachWord
   (uint64_t id, int age, const char *name, double height, int datetime,
    size_t numColumns, const ColumnDef *columnDefs, const string &line,
-   const char splitChar, const set<size_t> *nullIndexes, const char *U64fmt)
+   const char splitChar, const set<size_t> *nullIndexes,
+   const string &expectedNullNotation, const char *U64fmt)
 {
 	// value
 	size_t idx = 0;
 	string expected;
 	StringVector words;
-	StringUtils::split(words, line, splitChar);
+	StringUtils::split(words, line, splitChar, false);
 	cppcut_assert_equal(numColumns, words.size(),
 	                    cut_message("line: %s\n", line.c_str()));
 
 	// id
 	expected = (nullIndexes && nullIndexes->count(idx)) ?
-	             "NULL" : StringUtils::sprintf(U64fmt, id);
+	             expectedNullNotation: StringUtils::sprintf(U64fmt, id);
 	cppcut_assert_equal(expected, words[idx++]);
 
 	// age
 	expected = (nullIndexes && nullIndexes->count(idx)) ?
-	             "NULL" : StringUtils::sprintf("%d", age);
+	             expectedNullNotation : StringUtils::sprintf("%d", age);
 	cppcut_assert_equal(expected, words[idx++]);
 
 	// name
 	expected = (nullIndexes && nullIndexes->count(idx)) ?
-	             "NULL" : name;
+	             expectedNullNotation : name;
 	cppcut_assert_equal(expected, words[idx++]);
 
 	// height
 	if (nullIndexes && nullIndexes->count(idx)) {
-		expected = "NULL";
+		expected = expectedNullNotation;
 	} else {
 		const ColumnDef &columnDef = columnDefs[idx];
 		string fmt =
@@ -662,7 +663,7 @@ void DBAgentChecker::assertExistingRecordEachWord
 
 	// time
 	if (nullIndexes && nullIndexes->count(idx)) {
-		cppcut_assert_equal(string("NULL"), words[idx++]);
+		cppcut_assert_equal(string(expectedNullNotation), words[idx++]);
 	} else if (datetime == CURR_DATETIME) {
 		assertCurrDatetime(words[idx++]);
 	} else {

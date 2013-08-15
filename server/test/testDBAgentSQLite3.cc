@@ -138,7 +138,7 @@ public:
 		cppcut_assert_equal(numExpectedLines, lines.size());
 		assertExistingRecordEachWord
 		  (id, age, name, height, datetime,
-		   numColumns, columnDefs, lines[0], '|', nullIndexes,
+		   numColumns, columnDefs, lines[0], '|', nullIndexes, "",
 		   "%"PRId64);
 	}
 

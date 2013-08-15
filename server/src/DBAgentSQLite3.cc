@@ -472,11 +472,14 @@ void DBAgentSQLite3::insert(sqlite3 *db, DBAgentInsertArg &insertArg)
 	sql += insertArg.tableName;
 	sql += " VALUES (";
 	for (size_t i = 0; i < numColumns; i++) {
+		if (i > 0)
+			sql += ",";
 		const ColumnDef &columnDef = insertArg.columnDefs[i];
 		const ItemData *itemData = insertArg.row->getItemAt(i);
-		sql += getColumnValueString(&columnDef, itemData);
-		if (i < numColumns-1)
-			sql += ",";
+		if (itemData->isNull())
+			sql += "NULL";
+		else
+			sql += getColumnValueString(&columnDef, itemData);
 	}
 	sql += ")";
 

@@ -69,6 +69,7 @@ protected:
 	               const ColumnDef *columnDefs, const string &line,
 	               const char splitChar,
 	               const set<size_t> *nullIndexes,
+	               const string &expectedNullNotation,
 	               const char *U64fmt = "%"PRIu64);
 };
 

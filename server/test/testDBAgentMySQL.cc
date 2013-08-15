@@ -180,7 +180,7 @@ public:
 		assertExistingRecordEachWord(id, age, name, height, datetime,
 		                             numColumns, columnDefs,
 		                             lines[linesIdx++], '\t',
-		                             nullIndexes);
+		                             nullIndexes, "NULL");
 	}
 
 	virtual void getIDStringVector(const ColumnDef &columnDefId,
