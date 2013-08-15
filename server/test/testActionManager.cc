@@ -167,6 +167,11 @@ void test_makeExecArgQuotEsc(void)
 	assertMakeExecArgs("abc 'I\\'m a dog'", "abc", "I'm a dog", NULL);
 }
 
+void test_makeExecArgQuotEscDouble(void)
+{
+	assertMakeExecArgs("abc '\\'\\'dog'", "abc", "''dog", NULL);
+}
+
 void test_execCommandAction(void)
 {
 	PipeUtils readPipe, writePipe;
