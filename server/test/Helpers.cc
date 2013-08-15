@@ -230,17 +230,7 @@ static void assertDBContentForComponets(const string &expect,
 void _assertDBContent(DBAgent *dbAgent, const string &statement,
                       const string &expect)
 {
-	string output;
-	const type_info& tid = typeid(*dbAgent);
-	if (tid == typeid(DBAgentMySQL)) {
-		DBAgentMySQL *dbMySQL = dynamic_cast<DBAgentMySQL *>(dbAgent);
-		output = execMySQL(dbMySQL->getDBName(), statement);
-		output = StringUtils::replace(output, "\t", "|");
-	}
-	else
-		cut_fail("Unknown type_info");
-
-	const string &actual = output;
+	const string actual = execSQL(dbAgent, statement);
 	StringVector linesExpect;
 	StringVector linesActual;
 	StringUtils::split(linesExpect, expect, '\n');
