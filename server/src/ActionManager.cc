@@ -142,6 +142,7 @@ void ActionManager::makeExecArg(StringVector &argVect, const string &cmd)
 	while (!parsable.finished()) {
 		string word = parsable.readWord(m_ctx->separator);
 		m_ctx->currWord += word;
+		m_ctx->byBackSlash = false;
 	}
 	m_ctx->pushbackCurrWord();
 }

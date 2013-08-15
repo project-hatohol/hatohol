@@ -182,6 +182,11 @@ void test_makeExecArgSimpleQuot(void)
 	assertMakeExecArgs("I\\'m \\'p_q\\'", "I'm", "'p_q'", NULL);
 }
 
+void test_makeExecArgSimpleBackslashInQuot(void)
+{
+	assertMakeExecArgs("'\\ABC'", "ABC", NULL);
+}
+
 void test_execCommandAction(void)
 {
 	PipeUtils readPipe, writePipe;
