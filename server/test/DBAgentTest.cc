@@ -637,7 +637,7 @@ void DBAgentChecker::assertExistingRecordEachWord
 
 	// id
 	expected = (nullIndexes && nullIndexes->count(idx)) ?
-	             expectedNullNotation: StringUtils::sprintf(U64fmt, id);
+	             expectedNullNotation : StringUtils::sprintf(U64fmt, id);
 	cppcut_assert_equal(expected, words[idx++]);
 
 	// age
