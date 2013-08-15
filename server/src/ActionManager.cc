@@ -107,19 +107,16 @@ void ActionManager::separatorCallback(const char sep, PrivateContext *ctx)
 	} else if (sep == '\'') {
 		if (ctx->byBackSlash) {
 			ctx->currWord += "'";
-		} else if (!ctx->inQuot) {
-			ctx->inQuot = true;
 		} else {
-			ctx->inQuot = false;
-			ctx->quotFinished = true;
+			if (ctx->inQuot)
+				ctx->quotFinished = true;
+			ctx->inQuot = !ctx->inQuot;
 		}
 		ctx->byBackSlash = false;
 	} else if (sep == '\\') {
-		if (ctx->byBackSlash) {
+		if (ctx->byBackSlash)
 			ctx->currWord += '\\';
-			ctx->byBackSlash = false;
-		} else
-			ctx->byBackSlash = true;
+		ctx->byBackSlash = !ctx->byBackSlash;
 	}
 }
 
