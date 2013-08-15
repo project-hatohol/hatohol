@@ -90,6 +90,7 @@ void ActionManager::separatorCallback(const char sep, PrivateContext *ctx)
 	if (sep == ' ') {
 		if (ctx->inQuot)
 			ctx->currWord += ' ';
+		ctx->byBackSlash = false;
 	} else if (sep == '\'') {
 		if (!ctx->inQuot) {
 			ctx->inQuot = true;
@@ -99,8 +100,13 @@ void ActionManager::separatorCallback(const char sep, PrivateContext *ctx)
 			ctx->inQuot = false;
 			ctx->quotFinished = true;
 		}
+		ctx->byBackSlash = false;
 	} else if (sep == '\\') {
-		ctx->byBackSlash = true;
+		if (ctx->byBackSlash) {
+			ctx->currWord += '\\';
+			ctx->byBackSlash = false;
+		} else
+			ctx->byBackSlash = true;
 	}
 }
 

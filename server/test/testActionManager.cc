@@ -172,6 +172,11 @@ void test_makeExecArgQuotEscDouble(void)
 	assertMakeExecArgs("abc '\\'\\'dog'", "abc", "''dog", NULL);
 }
 
+void test_makeExecArgBackslashEscDouble(void)
+{
+	assertMakeExecArgs("abc '\\\\dog'", "abc", "\\dog", NULL);
+}
+
 void test_execCommandAction(void)
 {
 	PipeUtils readPipe, writePipe;
