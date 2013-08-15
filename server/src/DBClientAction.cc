@@ -489,7 +489,6 @@ void DBClientAction::getActionList(const EventInfo &eventInfo,
 
 uint64_t DBClientAction::logStartExecAction(const ActionDef &actionDef)
 {
-	VariableItemDataPtr item;
 	VariableItemGroupPtr row;
 	DBAgentInsertArg arg;
 	arg.tableName = TABLE_NAME_ACTION_LOGS;
@@ -502,18 +501,9 @@ uint64_t DBClientAction::logStartExecAction(const ActionDef &actionDef)
 	// TODO: set the appropriate the following starter ID.
 	row->ADD_NEW_ITEM(Int, 0);  // status
 	row->ADD_NEW_ITEM(Int, CURR_DATETIME); // start_time
-
-	// end_time
-	item = new ItemInt(0);
-	item->setNull();
-	row->add(item, false);
-
+	row->ADD_NEW_ITEM(Int, 0, ITEM_DATA_NULL); // end_time
 	row->ADD_NEW_ITEM(Int, ACTLOG_EXECFAIL_NONE);
-
-	// exit_code;
-	item = new ItemInt(0);
-	item->setNull();
-	row->add(item, false);
+	row->ADD_NEW_ITEM(Int, 0, ITEM_DATA_NULL); // exit_code
 
 	arg.row = row;
 	uint64_t logId;
