@@ -36,7 +36,6 @@ using namespace std;
 namespace testMain {
 static GPid childPid;
 static pid_t grandchildPid = 0;
-static GMainLoop *loop;
 static guint eventTimeout = 0;
 
 struct functionArg {
@@ -64,6 +63,7 @@ bool childProcessLoop(void)
 {
 	bool timedOut = false;
 	bool isEndChildProcess = false;
+	GMainLoop *loop;
 
 	loop = g_main_loop_new(NULL, TRUE);
 	g_child_watch_add(childPid, endChildProcess, &isEndChildProcess);
