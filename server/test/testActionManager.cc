@@ -157,6 +157,11 @@ void test_makeExecArgTwo(void)
 	assertMakeExecArgs("ls -l", "ls", "-l", NULL);
 }
 
+void test_makeExecArgQuot(void)
+{
+	assertMakeExecArgs("abc -n 'big bang'", "abc", "-n", "big bang", NULL);
+}
+
 void test_execCommandAction(void)
 {
 	PipeUtils readPipe, writePipe;

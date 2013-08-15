@@ -24,18 +24,21 @@
 
 class ActionManager
 {
+private:
+	struct PrivateContext;
+
 public:
 	ActionManager(void);
 	virtual ~ActionManager();
 	void checkEvents(const EventInfoList &eventList);
 
 protected:
+	static void separatorCallback(const char sep, PrivateContext *ctx);
 	void runAction(const ActionDef &actionDef);
 	void makeExecArg(StringVector &argVect, const string &cmd);
 	void execCommandAction(const ActionDef &actionDef);
 
 private:
-	struct PrivateContext;
 	PrivateContext *m_ctx;
 };
 

@@ -24,6 +24,24 @@
 struct ActionManager::PrivateContext {
 	static ActorCollector collector;
 	DBClientAction dbAction;
+	SeparatorCheckerWithCallback separator;
+	bool inQuot;
+	bool quotFinished;
+	string currWord;
+
+	PrivateContext(void)
+	: separator(" '\\"),
+	  inQuot(false),
+	  quotFinished(false)
+	{
+	}
+
+	void resetParser(void)
+	{
+		inQuot = false;
+		quotFinished = false;
+		currWord.clear();
+	}
 };
 
 ActorCollector ActionManager::PrivateContext::collector;
@@ -35,6 +53,12 @@ ActionManager::ActionManager(void)
 : m_ctx(NULL)
 {
 	m_ctx = new PrivateContext();
+	m_ctx->separator.setCallbackTempl<PrivateContext>
+	  (' ', separatorCallback, m_ctx);
+	m_ctx->separator.setCallbackTempl<PrivateContext>
+	  ('\'', separatorCallback, m_ctx);
+	m_ctx->separator.setCallbackTempl<PrivateContext>
+	  ('\\', separatorCallback, m_ctx);
 }
 
 ActionManager::~ActionManager()
@@ -58,6 +82,22 @@ void ActionManager::checkEvents(const EventInfoList &eventList)
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
+void ActionManager::separatorCallback(const char sep, PrivateContext *ctx)
+{
+	if (sep == ' ') {
+		if (ctx->inQuot)
+			ctx->currWord += ' ';
+	} else if (sep == '\'') {
+		if (!ctx->inQuot)
+			ctx->inQuot = true;
+		else {
+			ctx->inQuot = false;
+			ctx->quotFinished = true;
+		}
+	}
+
+}
+
 void ActionManager::runAction(const ActionDef &actionDef)
 {
 	if (actionDef.type == ACTION_COMMAND) {
@@ -72,13 +112,21 @@ void ActionManager::runAction(const ActionDef &actionDef)
 void ActionManager::makeExecArg(StringVector &argVect, const string &cmd)
 {
 	MLPL_WARN("Not fully implemented: %s\n", __PRETTY_FUNCTION__);
+	m_ctx->resetParser();
 	ParsableString parsable(cmd);
 	while (!parsable.finished()) {
-		string word =
-		  parsable.readWord(ParsableString::SEPARATOR_SPACE);
+		string word = parsable.readWord(m_ctx->separator);
+		if (m_ctx->quotFinished) {
+			argVect.push_back(m_ctx->currWord);
+			m_ctx->currWord.clear();
+			m_ctx->quotFinished = false;
+		}
 		if (word.empty())
 			continue;
-		argVect.push_back(word);
+		if (!m_ctx->inQuot)
+			argVect.push_back(word);
+		else
+			m_ctx->currWord += word;
 	}
 }
 
