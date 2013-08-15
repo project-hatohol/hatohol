@@ -42,7 +42,7 @@ struct functionArg {
 	bool *timedOut;
 	bool *isEndChildProcess;
 	GMainLoop *loop;
-}
+};
 
 void endChildProcess(GPid child_pid, gint status, gpointer data)
 {
