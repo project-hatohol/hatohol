@@ -65,7 +65,7 @@ bool childProcessLoop(void)
 	bool timedOut = false;
 	bool isEndChildProcess = false;
 	GMainLoop *loop;
-	arg.timedOut = &timeOut;
+	arg.timedOut = &timedOut;
 	arg.isEndChildProcess = &isEndChildProcess;
 	arg.loop = loop;
 
