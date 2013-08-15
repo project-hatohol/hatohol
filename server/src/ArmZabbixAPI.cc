@@ -605,9 +605,7 @@ void ArmZabbixAPI::pushApplicationid(JsonParserAgent &parser,
 	startObject(parser, "applications");
 	int numElem = parser.countElements();
 	if (numElem == 0) {
-		ItemData *data = new ItemUint64(itemId, 0);
-		data->setNull();
-		itemGroup->add(data, false);
+		itemGroup->ADD_NEW_ITEM(Uint64, itemId, 0, ITEM_DATA_NULL);
 	} else  {
 		for (int i = 0; i < numElem; i++) {
 			startElement(parser, i);
@@ -626,9 +624,7 @@ void ArmZabbixAPI::pushTriggersHostid(JsonParserAgent &parser,
 	startObject(parser, "hosts");
 	int numElem = parser.countElements();
 	if (numElem == 0) {
-		ItemData *data = new ItemUint64(itemId, 0);
-		data->setNull();
-		itemGroup->add(data, false);
+		itemGroup->ADD_NEW_ITEM(Uint64, itemId, 0, ITEM_DATA_NULL);
 	} else  {
 		for (int i = 0; i < numElem; i++) {
 			startElement(parser, i);
