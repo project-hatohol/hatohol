@@ -67,11 +67,11 @@ bool childProcessLoop(void)
 	GMainLoop *loop;
 	arg.timedOut = &timedOut;
 	arg.isEndChildProcess = &isEndChildProcess;
-	arg.loop = loop;
 
 	loop = g_main_loop_new(NULL, TRUE);
 	g_child_watch_add(childPid, endChildProcess, &isEndChildProcess);
 	eventTimeout = g_timeout_add(100, timeOutChildProcess, &timedOut);
+	arg.loop = loop;
 	g_main_loop_run(loop);
 
 	cppcut_assert_equal(false, timedOut);
