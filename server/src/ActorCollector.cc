@@ -193,7 +193,7 @@ gboolean ActorCollector::checkExitProcess
 	   PrivateContext::waitChildSet.find(exitChildInfo.pid);
 	if (it != PrivateContext::waitChildSet.end()) {
 		found = true;
-	   	PrivateContext::waitChildSet.erase(it);
+		PrivateContext::waitChildSet.erase(it);
 	}
 	unlock();
 
