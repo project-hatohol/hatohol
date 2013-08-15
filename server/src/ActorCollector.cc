@@ -29,7 +29,7 @@
 
 using namespace mlpl;
 
-typedef set<pid_t>                   WaitChildSet;
+typedef map<pid_t, uint64_t>         WaitChildSet;
 typedef WaitChildSet::iterator       WaitChildSetIterator;
 typedef WaitChildSet::const_iterator WaitChildSetConstIterator;
 
@@ -68,9 +68,18 @@ void ActorCollector::unlock(void)
 	PrivateContext::lock.unlock();
 }
 
-void ActorCollector::addActor(pid_t pid)
+void ActorCollector::addActor(const ActorInfo &actorInfo)
 {
-	PrivateContext::waitChildSet.insert(pid);
+	lock();
+	pair<WaitChildSetIterator, bool> result =
+	  PrivateContext::waitChildSet.insert
+	    (pair<pid_t, uint64_t>(actorInfo.pid, actorInfo.logId));
+	unlock();
+	if (!result.second) {
+		MLPL_BUG("pid: %d (logId: %"PRIu64 ") is already regstered.\n",
+		         actorInfo.pid, actorInfo.logId);
+		return;
+	}
 }
 
 ActorCollector::ActorCollector(void)
@@ -192,6 +201,7 @@ gboolean ActorCollector::checkExitProcess
 		return TRUE;
 
 	DBClientAction dbAction;
+	exitChildInfo.logId = it->second;
 	dbAction.logEndExecAction(exitChildInfo);
 
 	return TRUE;

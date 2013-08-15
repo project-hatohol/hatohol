@@ -106,6 +106,7 @@ struct ExitChildInfo {
 	pid_t pid;
 	int   status;
 	int   exitCode;
+	uint64_t logId;
 };
 
 class DBClientAction :

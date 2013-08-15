@@ -103,8 +103,8 @@ void ActionManager::execCommandAction(const ActionDef &actionDef)
 	GSpawnFlags flags = G_SPAWN_DO_NOT_REAP_CHILD;
 	GSpawnChildSetupFunc childSetup = NULL;
 	gpointer userData = NULL;
-	GPid childPid;
 	GError *error = NULL;
+	ActorInfo actorInfo;
 
 	// We take the lock here to avoid the child spanwed below from
 	// not being collected. If the child immediately exits
@@ -114,7 +114,7 @@ void ActionManager::execCommandAction(const ActionDef &actionDef)
 	m_ctx->collector.lock();
 	gboolean succeeded =
 	  g_spawn_async(workingDirectory, (gchar **)&argv, NULL,
-	                flags, childSetup, userData, &childPid, &error);
+	                flags, childSetup, userData, &actorInfo.pid, &error);
 	if (!succeeded) {
 		m_ctx->collector.unlock();
 		string msg = StringUtils::sprintf(
@@ -124,7 +124,7 @@ void ActionManager::execCommandAction(const ActionDef &actionDef)
 		m_ctx->dbAction.logErrExecAction(actionDef, msg);
 		return;
 	}
-	m_ctx->collector.addActor(childPid);
-	m_ctx->dbAction.logStartExecAction(actionDef);
+	actorInfo.logId = m_ctx->dbAction.logStartExecAction(actionDef);
+	m_ctx->collector.addActor(actorInfo);
 	m_ctx->collector.unlock();
 }

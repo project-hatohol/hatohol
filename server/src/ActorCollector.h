@@ -22,6 +22,11 @@
 
 #include "HatoholThreadBase.h"
 
+struct ActorInfo {
+	pid_t    pid;
+	uint64_t logId;
+};
+
 class ActorCollector
 {
 public:
@@ -33,7 +38,7 @@ public:
 	/**
 	 * lock() has to be called before this function is used.
 	 */
-	static void addActor(pid_t pid);
+	static void addActor(const ActorInfo &actorInfo);
 
 	ActorCollector(void);
 	virtual ~ActorCollector();
