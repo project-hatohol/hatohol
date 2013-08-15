@@ -29,6 +29,7 @@ using namespace mlpl;
 #include "DBClient.h"
 
 #define DBCONTENT_MAGIC_CURR_DATETIME "#CURR_DATETIME#"
+#define DBCONTENT_MAGIC_NULL          "#NULL#"
 
 typedef pair<int,int>      IntIntPair;
 typedef vector<IntIntPair> IntIntPairVector;

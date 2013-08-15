@@ -143,6 +143,8 @@ public:
 	void logErrExecAction(const ActionDef &actionDef, const string &msg);
 
 protected:
+	ItemDataNullFlagType getNullFlag(const ActionDef &actionDef,
+	                                 ActionConditionEnableFlag enableFlag);
 
 private:
 	struct PrivateContext;

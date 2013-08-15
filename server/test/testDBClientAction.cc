@@ -86,14 +86,32 @@ const static size_t NUM_TEST_ACTION_DEF =
 static string makeExpectedString(const ActionDef &actDef, int expectedId)
 {
 	const ActionCondition &cond = actDef.condition;
-	string expect =
-	  StringUtils::sprintf(
-	    "%d|%d|%"PRIu64"|%"PRIu64"|%"PRIu64"|%d|%d|%d|%d|%s|%s|%d\n",
-	    expectedId, cond.serverId,
-	    cond.hostId, cond.hostGroupId, cond.triggerId,
-	    cond.triggerStatus, cond.triggerSeverity,
-	    cond.triggerSeverityCompType, actDef.type,
-	    actDef.path.c_str(), actDef.workingDir.c_str(), actDef.timeout);
+	string expect = StringUtils::sprintf("%d|", expectedId);
+	expect += cond.isEnable(ACTCOND_SERVER_ID) ?
+	            StringUtils::sprintf("%d|", cond.serverId) :
+	            DBCONTENT_MAGIC_NULL "|";
+	expect += cond.isEnable(ACTCOND_HOST_ID) ?
+	            StringUtils::sprintf("%"PRIu64"|", cond.hostId) :
+	            DBCONTENT_MAGIC_NULL "|";
+	expect += cond.isEnable(ACTCOND_HOST_GROUP_ID) ?
+	            StringUtils::sprintf("%"PRIu64"|", cond.hostGroupId) :
+	            DBCONTENT_MAGIC_NULL "|";
+	expect += cond.isEnable(ACTCOND_TRIGGER_ID) ?
+	             StringUtils::sprintf("%"PRIu64"|", cond.triggerId) :
+	            DBCONTENT_MAGIC_NULL "|";
+	expect += cond.isEnable(ACTCOND_TRIGGER_STATUS) ?
+	            StringUtils::sprintf("%d|", cond.triggerStatus) :
+	            DBCONTENT_MAGIC_NULL "|";
+	expect += cond.isEnable(ACTCOND_TRIGGER_SEVERITY) ?
+	            StringUtils::sprintf("%d|", cond.triggerSeverity) :
+	            DBCONTENT_MAGIC_NULL "|";
+	expect += cond.isEnable(ACTCOND_TRIGGER_SEVERITY) ?
+	            StringUtils::sprintf("%d|", cond.triggerSeverityCompType) :
+	            DBCONTENT_MAGIC_NULL "|";
+	expect += StringUtils::sprintf("%d|%s|%s|%d\n",
+	                               actDef.type, actDef.path.c_str(),
+	                               actDef.workingDir.c_str(),
+	                               actDef.timeout);
 	return expect;
 }
 
@@ -102,10 +120,11 @@ static string makeExpectedLogString(const ActionDef &actDef, uint64_t logId)
 	int expectedStarterId = 0; // This is currently not used.
 	string expect =
 	  StringUtils::sprintf(
-	    "%"PRIu64"|%d|%d|%d|%s||%d|\n",
+	    "%"PRIu64"|%d|%d|%d|%s|%s|%d|\n",
 	    logId, actDef.id, DBClientAction::ACTLOG_STAT_STARTED,
 	    expectedStarterId,
 	    DBCONTENT_MAGIC_CURR_DATETIME,
+	    DBCONTENT_MAGIC_NULL,
 	    DBClientAction::ACTLOG_EXECFAIL_NONE);
 	return expect;
 }

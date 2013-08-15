@@ -19,6 +19,7 @@
 
 #include <cppcutter.h>
 #include <unistd.h>
+#include <typeinfo>
 #include "Helpers.h"
 #include "DBClientZabbix.h"
 #include "DBClientConfig.h"
@@ -187,8 +188,21 @@ void _assertCurrDatetime(const string &datetime)
 	  cut_message( "currClock: %d, clock: %d", currClock, clock));
 }
 
+string getExpectedNullNotation(DBAgent &dbAgent)
+{
+	const type_info &tid = typeid(dbAgent);
+	if (tid == typeid(DBAgentMySQL))
+		return "NULL";
+	else if (tid == typeid(DBAgentSQLite3))
+		return "";
+	else
+		cut_fail("Unknown type: %s", DEMANGLED_TYPE_NAME(dbAgent));
+	return "";
+}
+
 static void assertDBContentForComponets(const string &expect,
-                                        const string &actual)
+                                        const string &actual,
+                                        DBAgent *dbAgent)
 {
 	StringVector wordsExpect;
 	StringVector wordsActual;
@@ -199,10 +213,14 @@ static void assertDBContentForComponets(const string &expect,
 	                    cut_message("<<expect>>: %s\n<<actual>>: %s\n",
 	                                expect.c_str(), actual.c_str()));
 	for (size_t i = 0; i < wordsExpect.size(); i++) {
-		if (wordsExpect[i] == DBCONTENT_MAGIC_CURR_DATETIME)
+		if (wordsExpect[i] == DBCONTENT_MAGIC_CURR_DATETIME) {
 			assertCurrDatetime(wordsActual[i]);
-		else
+		} else if(wordsExpect[i] == DBCONTENT_MAGIC_NULL) {
+			cppcut_assert_equal(getExpectedNullNotation(*dbAgent),
+			                    wordsActual[i]);
+		} else {
 			cppcut_assert_equal(wordsExpect[i], wordsActual[i]);
+		}
 	}
 }
 
@@ -229,7 +247,8 @@ void _assertDBContent(DBAgent *dbAgent, const string &statement,
 	              expect.c_str(), actual.c_str()));
 	for (size_t i = 0; i < linesExpect.size(); i++) {
 		cut_trace(
-		  assertDBContentForComponets(linesExpect[i], linesActual[i]));
+		  assertDBContentForComponets(linesExpect[i], linesActual[i],
+		                              dbAgent));
 	}
 }
 

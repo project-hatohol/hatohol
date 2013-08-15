@@ -418,7 +418,8 @@ void DBClientAction::addAction(ActionDef &actionDef)
 		item->setNull();
 	row->add(item, false);
 
-	row->ADD_NEW_ITEM(Int, actionDef.condition.triggerSeverityCompType);
+	row->ADD_NEW_ITEM(Int, actionDef.condition.triggerSeverityCompType,
+	                  getNullFlag(actionDef, ACTCOND_TRIGGER_SEVERITY));
 	row->ADD_NEW_ITEM(Int, actionDef.type);
 	row->ADD_NEW_ITEM(String, actionDef.path);
 	row->ADD_NEW_ITEM(String, actionDef.workingDir);
@@ -565,3 +566,11 @@ void DBClientAction::logErrExecAction(const ActionDef &actionDef,
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
+ItemDataNullFlagType DBClientAction::getNullFlag
+  (const ActionDef &actionDef, ActionConditionEnableFlag enableFlag)
+{
+	if (actionDef.condition.isEnable(enableFlag))
+		return ITEM_DATA_NOT_NULL;
+	else
+		return ITEM_DATA_NULL;
+}
