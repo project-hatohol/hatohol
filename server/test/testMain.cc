@@ -100,8 +100,9 @@ bool parseStatFile(int &parentPid)
 	return true;
 }
 
-bool parseEnvironFile(bool &isMagicNumber, string makedMagicNumber)
+bool parseEnvironFile(string makedMagicNumber)
 {
+	bool isMagicNumber;
 	stringstream grandchildProcEnvironPath;
 	ifstream grandchildEnvironFile;
 	string env;
@@ -178,7 +179,7 @@ void test_daemonize(void)
 	cppcut_assert_equal(true, parsePIDFile());
 	cppcut_assert_equal(true, parseStatFile(grandchildPpid));
 	cppcut_assert_equal(1, grandchildPpid);
-	cppcut_assert_equal(true, parseEnvironFile(isMagicNumber, magicNumber));
+	cppcut_assert_equal(true, parseEnvironFile(magicNumber));
 }
 }
 
