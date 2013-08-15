@@ -27,12 +27,14 @@ struct ActionManager::PrivateContext {
 	SeparatorCheckerWithCallback separator;
 	bool inQuot;
 	bool quotFinished;
+	bool byBackSlash;
 	string currWord;
 
 	PrivateContext(void)
 	: separator(" '\\"),
 	  inQuot(false),
-	  quotFinished(false)
+	  quotFinished(false),
+	  byBackSlash(false)
 	{
 	}
 
@@ -40,6 +42,7 @@ struct ActionManager::PrivateContext {
 	{
 		inQuot = false;
 		quotFinished = false;
+		byBackSlash = false;
 		currWord.clear();
 	}
 };
@@ -88,14 +91,17 @@ void ActionManager::separatorCallback(const char sep, PrivateContext *ctx)
 		if (ctx->inQuot)
 			ctx->currWord += ' ';
 	} else if (sep == '\'') {
-		if (!ctx->inQuot)
+		if (!ctx->inQuot) {
 			ctx->inQuot = true;
-		else {
+		} else if (ctx->byBackSlash) {
+			ctx->currWord += "'";
+		} else {
 			ctx->inQuot = false;
 			ctx->quotFinished = true;
 		}
+	} else if (sep == '\\') {
+		ctx->byBackSlash = true;
 	}
-
 }
 
 void ActionManager::runAction(const ActionDef &actionDef)
@@ -116,6 +122,7 @@ void ActionManager::makeExecArg(StringVector &argVect, const string &cmd)
 	ParsableString parsable(cmd);
 	while (!parsable.finished()) {
 		string word = parsable.readWord(m_ctx->separator);
+		m_ctx->byBackSlash = false;
 		if (m_ctx->quotFinished) {
 			argVect.push_back(m_ctx->currWord);
 			m_ctx->currWord.clear();
