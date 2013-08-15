@@ -226,8 +226,16 @@ void DBAgentMySQL::insert(DBAgentInsertArg &insertArg)
 	}
 	query += ") VALUES (";
 	for (size_t i = 0; i < insertArg.numColumns; i++) {
+		if (i > 0)
+			query += ",";
+
 		const ColumnDef &columnDef = insertArg.columnDefs[i];
 		const ItemData *itemData = insertArg.row->getItemAt(i);
+		if (itemData->isNull()) {
+			query += "NULL";
+			continue;
+		}
+
 		switch (columnDef.type) {
 		case SQL_COLUMN_TYPE_INT:
 		case SQL_COLUMN_TYPE_BIGUINT:
@@ -257,8 +265,6 @@ void DBAgentMySQL::insert(DBAgentInsertArg &insertArg)
 		default:
 			HATOHOL_ASSERT(false, "Unknown type: %d", columnDef.type);
 		}
-		if (i < insertArg.numColumns -1)
-			query += ",";
 	}
 	query += ")";
 
