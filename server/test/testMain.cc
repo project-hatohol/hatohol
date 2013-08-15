@@ -46,16 +46,16 @@ struct functionArg {
 
 void endChildProcess(GPid child_pid, gint status, gpointer data)
 {
-	bool *isEndChildProcess = (bool *) data;
-	*isEndChildProcess = true;
-	g_main_loop_quit(loop);
+	functionArg *arg = (functionArg *) data;
+	*arg->isEndChildProcess = true;
+	g_main_loop_quit(arg->loop);
 }
 
 gboolean timeOutChildProcess(gpointer data)
 {
-	bool *timedOut = (bool *) data;
-	*timedOut = true;
-	g_main_loop_quit(loop);
+	functionArg *arg = (functionArg *) data;
+	*arg->timedOut = true;
+	g_main_loop_quit(arg->loop);
 	return FALSE;
 }
 
@@ -69,9 +69,9 @@ bool childProcessLoop(void)
 	arg.isEndChildProcess = &isEndChildProcess;
 
 	loop = g_main_loop_new(NULL, TRUE);
-	g_child_watch_add(childPid, endChildProcess, &isEndChildProcess);
-	eventTimeout = g_timeout_add(100, timeOutChildProcess, &timedOut);
 	arg.loop = loop;
+	g_child_watch_add(childPid, endChildProcess, &arg);
+	eventTimeout = g_timeout_add(100, timeOutChildProcess, &arg);
 	g_main_loop_run(loop);
 
 	cppcut_assert_equal(false, timedOut);
