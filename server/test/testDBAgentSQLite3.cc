@@ -214,6 +214,9 @@ void test_testIsRecordExistingNotIncluded(void)
 	  (false, dbAgent.isRecordExisting("foo", expectFalseCondition));
 }
 
+//
+// The following tests are using DBAgentTest functions.
+//
 void test_createTable(void)
 {
 	DBAgentSQLite3 dbAgent;
@@ -320,6 +323,18 @@ void test_isTableExisting(void)
 {
 	DBAgentSQLite3 dbAgent;
 	dbAgentTestIsTableExisting(dbAgent, dbAgentChecker);
+}
+
+void test_autoIncrement(void)
+{
+	// TODO: implementation of DBAgentSQLite3
+	cut_omit("Not implemented yet");
+}
+
+void test_autoIncrementWithDel(void)
+{
+	// TODO: implementation of DBAgentSQLite3
+	cut_omit("Not implemented yet");
 }
 
 } // testDBAgentSQLite3

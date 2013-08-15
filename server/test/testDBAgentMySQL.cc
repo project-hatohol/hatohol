@@ -261,6 +261,9 @@ void test_isRecordExistingNotIncluded(void)
 	assertIsRecordExisting(skipInsert);
 }
 
+//
+// The following tests are using DBAgentTest functions.
+//
 void test_createTable(void)
 {
 	createGlobalDBAgent();
@@ -325,6 +328,18 @@ void test_selectExWithCondAllColumns(void)
 {
 	createGlobalDBAgent();
 	dbAgentTestSelectExWithCondAllColumns(*g_dbAgent);
+}
+
+void test_selectExWithOrderBy(void)
+{
+	createGlobalDBAgent();
+	dbAgentTestSelectHeightOrder(*g_dbAgent);
+}
+
+void test_selectExWithOrderByLimit(void)
+{
+	createGlobalDBAgent();
+	dbAgentTestSelectHeightOrder(*g_dbAgent, 1);
 }
 
 void test_selectExWithOrderByLimitTwo(void)
