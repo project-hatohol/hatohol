@@ -145,7 +145,9 @@ void ActorCollector::signalHandlerChild(int signo, siginfo_t *info, void *arg)
 	ssize_t ret = write(PrivateContext::pipefd[1],
 	                    &exitChildInfo, sizeof(ExitChildInfo));
 	if (ret == -1) {
-		// TODO: What should we do ?
+		// We cannot call printf() and other
+		// signal unsafe output function.
+		abort();
 	}
 }
 
