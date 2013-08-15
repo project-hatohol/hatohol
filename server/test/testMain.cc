@@ -170,7 +170,6 @@ void teardown(void)
 void test_daemonize(void)
 {
 	int grandchildPpid;
-	bool isMagicNumber;
 	string magicNumber;
 
 	cppcut_assert_equal(true, makeRandomNumber(magicNumber));
