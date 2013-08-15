@@ -371,7 +371,6 @@ DBClientAction::~DBClientAction()
 
 void DBClientAction::addAction(ActionDef &actionDef)
 {
-	VariableItemDataPtr item;
 	VariableItemGroupPtr row;
 	DBAgentInsertArg arg;
 	arg.tableName = TABLE_NAME_ACTIONS;
@@ -379,45 +378,18 @@ void DBClientAction::addAction(ActionDef &actionDef)
 	arg.columnDefs = COLUMN_DEF_ACTIONS;
 
 	row->ADD_NEW_ITEM(Int, 0); // This is automaticall set (0 is dummy)
-
-	// After item = new Item..() line, the reference count of ItemData is 2,
-	// because substitution to 'item' increases the reference counter.
-	// Instead, we use 'false' as the second argment of row->add() not to
-	// increase the reference counter.
-	// The reference count decreases when the other ItemData object is
-	// substitute to 'item' and 'row' is destroyed. As a result,
-	// newly create ItemData instances in this function will be destroyed
-	// on the exit of this function.
-	item = new ItemUint64(actionDef.condition.serverId);
-	if (!actionDef.condition.isEnable(ACTCOND_SERVER_ID))
-		item->setNull();
-	row->add(item, false);
-
-	item = new ItemUint64(actionDef.condition.hostId);
-	if (!actionDef.condition.isEnable(ACTCOND_HOST_ID))
-		item->setNull();
-	row->add(item, false);
-
-	item = new ItemUint64(actionDef.condition.hostGroupId);
-	if (!actionDef.condition.isEnable(ACTCOND_HOST_GROUP_ID))
-		item->setNull();
-	row->add(item, false);
-
-	item = new ItemUint64(actionDef.condition.triggerId);
-	if (!actionDef.condition.isEnable(ACTCOND_TRIGGER_ID))
-		item->setNull();
-	row->add(item, false);
-
-	item = new ItemInt(actionDef.condition.triggerStatus);
-	if (!actionDef.condition.isEnable(ACTCOND_TRIGGER_STATUS))
-		item->setNull();
-	row->add(item, false);
-
-	item = new ItemInt(actionDef.condition.triggerSeverity);
-	if (!actionDef.condition.isEnable(ACTCOND_TRIGGER_SEVERITY))
-		item->setNull();
-	row->add(item, false);
-
+	row->ADD_NEW_ITEM(Uint64, actionDef.condition.serverId,
+	                  getNullFlag(actionDef, ACTCOND_SERVER_ID));
+	row->ADD_NEW_ITEM(Uint64, actionDef.condition.hostId,
+	                  getNullFlag(actionDef, ACTCOND_HOST_ID));
+	row->ADD_NEW_ITEM(Uint64, actionDef.condition.hostGroupId,
+	                  getNullFlag(actionDef, ACTCOND_HOST_GROUP_ID));
+	row->ADD_NEW_ITEM(Uint64, actionDef.condition.triggerId,
+	                  getNullFlag(actionDef, ACTCOND_TRIGGER_ID));
+	row->ADD_NEW_ITEM(Int, actionDef.condition.triggerStatus,
+	                  getNullFlag(actionDef, ACTCOND_TRIGGER_STATUS));
+	row->ADD_NEW_ITEM(Int, actionDef.condition.triggerSeverity,
+	                  getNullFlag(actionDef, ACTCOND_TRIGGER_SEVERITY));
 	row->ADD_NEW_ITEM(Int, actionDef.condition.triggerSeverityCompType,
 	                  getNullFlag(actionDef, ACTCOND_TRIGGER_SEVERITY));
 	row->ADD_NEW_ITEM(Int, actionDef.type);
