@@ -39,11 +39,13 @@ static pid_t grandchildPid = 0;
 struct functionArg {
 	bool timedOut;
 	bool isEndChildProcess;
+	GPid childPid;
 	GMainLoop *loop;
 
 	functionArg(void)
 	: timedOut(false),
 	  isEndChildProcess(false),
+	  childPid(0),
 	  loop(NULL)
 	{
 	}
