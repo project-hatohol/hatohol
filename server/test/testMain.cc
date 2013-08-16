@@ -78,6 +78,7 @@ bool childProcessLoop(void)
 		gboolean expected = TRUE;
 		cppcut_assert_equal(expected, g_source_remove(eventTimeout));
 	}
+	g_main_loop_unref(arg.loop);
 
 	cppcut_assert_equal(true, arg.isEndChildProcess);
 	cppcut_assert_equal(false, arg.timedOut);
