@@ -75,8 +75,8 @@ bool childProcessLoop(void)
 	eventTimeout = g_timeout_add(100, timeOutChildProcess, &arg);
 	g_main_loop_run(arg.loop);
 
-	cppcut_assert_equal(false, arg.timedOut);
 	cppcut_assert_equal(true, arg.isEndChildProcess);
+	cppcut_assert_equal(false, arg.timedOut);
 	return true;
 }
 
