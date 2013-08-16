@@ -83,7 +83,7 @@ bool childProcessLoop(GPid &childPid)
 
 	arg.loop = g_main_loop_new(NULL, TRUE);
 	g_child_watch_add(childPid, endChildProcess, &arg);
-	eventTimeout = g_timeout_add(100, timeOutChildProcess, &arg);
+	eventTimeout = g_timeout_add_seconds(5, timeOutChildProcess, &arg);
 	g_main_loop_run(arg.loop);
 	g_main_loop_unref(arg.loop);
 	if (!arg.timedOut) {
