@@ -34,7 +34,6 @@
 using namespace std;
 
 namespace testMain {
-static GPid childPid;
 static pid_t grandchildPid = 0;
 
 struct functionArg {
@@ -65,7 +64,7 @@ gboolean timeOutChildProcess(gpointer data)
 	return FALSE;
 }
 
-bool childProcessLoop(void)
+bool childProcessLoop(GPid &childPid)
 {
 	functionArg arg;
 	guint eventTimeout = 0;
@@ -74,6 +73,7 @@ bool childProcessLoop(void)
 	g_child_watch_add(childPid, endChildProcess, &arg);
 	eventTimeout = g_timeout_add(100, timeOutChildProcess, &arg);
 	g_main_loop_run(arg.loop);
+	g_spawn_close_pid(childPid);
 	if (eventTimeout != 0) {
 		gboolean expected = TRUE;
 		cppcut_assert_equal(expected, g_source_remove(eventTimeout));
@@ -145,7 +145,7 @@ bool makeRandomNumber(string &magicNumber)
 	return true;
 }
 
-bool spawnChildProcess(string magicNumber)
+bool spawnChildProcess(string magicNumber, GPid &childPid)
 {
 	const gchar *argv[] = {"../src/hatohol", "--config-db-server", "localhost", NULL};
 	const gchar *envp[] = {"LD_LIBRARY_PATH=../src/.libs/", magicNumber.c_str(), NULL};
@@ -170,8 +170,6 @@ bool spawnChildProcess(string magicNumber)
 
 void teardown(void)
 {
-	g_spawn_close_pid(childPid);
-
 	if (grandchildPid > 1) {
 		kill(grandchildPid, SIGTERM);
 		grandchildPid = 0;
@@ -183,10 +181,11 @@ void test_daemonize(void)
 {
 	int grandchildPpid;
 	string magicNumber;
+	GPid childPid;
 
 	cppcut_assert_equal(true, makeRandomNumber(magicNumber));
-	cppcut_assert_equal(true, spawnChildProcess(magicNumber));
-	cppcut_assert_equal(true, childProcessLoop());
+	cppcut_assert_equal(true, spawnChildProcess(magicNumber, childPid));
+	cppcut_assert_equal(true, childProcessLoop(childPid));
 	cppcut_assert_equal(true, parsePIDFile());
 	cppcut_assert_equal(true, parseStatFile(grandchildPpid));
 	cppcut_assert_equal(1, grandchildPpid);
