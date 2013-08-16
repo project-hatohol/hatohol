@@ -66,10 +66,19 @@ gboolean timeOutChildProcess(gpointer data)
 	return FALSE;
 }
 
+gboolean closeChildProcess(gpointer data)
+{
+	functionArg *arg = (functionArg *) data;
+	g_spawn_close_pid(arg->childPid);
+	g_main_loop_quit(arg->loop);
+	return FALSE;
+}
+
 bool childProcessLoop(GPid &childPid)
 {
 	gboolean expected = TRUE;
 	functionArg arg;
+	arg.childPid = childPid;
 	guint eventTimeout = 0;
 
 	arg.loop = g_main_loop_new(NULL, TRUE);
@@ -80,6 +89,12 @@ bool childProcessLoop(GPid &childPid)
 	if (!arg.timedOut) {
 		g_spawn_close_pid(childPid);
 		cppcut_assert_equal(expected, g_source_remove(eventTimeout));
+	} else {
+		kill(childPid, SIGTERM);
+		arg.loop = g_main_loop_new(NULL, TRUE);
+		g_timeout_add(500, closeChildProcess, &arg);
+		g_main_loop_run(arg.loop);
+		g_main_loop_unref(arg.loop);
 	}
 
 	cppcut_assert_equal(true, arg.isEndChildProcess);
