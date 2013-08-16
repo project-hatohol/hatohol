@@ -36,7 +36,6 @@ using namespace std;
 namespace testMain {
 static GPid childPid;
 static pid_t grandchildPid = 0;
-static guint eventTimeout = 0;
 
 struct functionArg {
 	bool timedOut;
@@ -69,11 +68,16 @@ gboolean timeOutChildProcess(gpointer data)
 bool childProcessLoop(void)
 {
 	functionArg arg;
+	guint eventTimeout = 0;
 
 	arg.loop = g_main_loop_new(NULL, TRUE);
 	g_child_watch_add(childPid, endChildProcess, &arg);
 	eventTimeout = g_timeout_add(100, timeOutChildProcess, &arg);
 	g_main_loop_run(arg.loop);
+	if (eventTimeout != 0) {
+		gboolean expected = TRUE;
+		cppcut_assert_equal(expected, g_source_remove(eventTimeout));
+	}
 
 	cppcut_assert_equal(true, arg.isEndChildProcess);
 	cppcut_assert_equal(false, arg.timedOut);
@@ -172,10 +176,6 @@ void teardown(void)
 		grandchildPid = 0;
 	}
 
-	if (eventTimeout != 0) {
-		gboolean expected = TRUE;
-		cppcut_assert_equal(expected, g_source_remove(eventTimeout));
-	}
 }
 
 void test_daemonize(void)
