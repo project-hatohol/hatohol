@@ -233,7 +233,7 @@ static const ColumnDef COLUMN_DEF_ACTION_LOGS[] = {
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
 	TABLE_NAME_ACTION_LOGS,            // tableName
-	"queuing_ime",                     // columnName
+	"queuing_time",                    // columnName
 	SQL_COLUMN_TYPE_DATETIME,          // type
 	0,                                 // columnLength
 	0,                                 // decFracLength
