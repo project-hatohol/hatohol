@@ -36,13 +36,13 @@ using namespace std;
 namespace testMain {
 static pid_t grandchildPid = 0;
 
-struct functionArg {
+struct FunctionArg {
 	bool timedOut;
 	bool isEndChildProcess;
 	GPid childPid;
 	GMainLoop *loop;
 
-	functionArg(void)
+	FunctionArg(void)
 	: timedOut(false),
 	  isEndChildProcess(false),
 	  childPid(0),
@@ -53,14 +53,14 @@ struct functionArg {
 
 void endChildProcess(GPid child_pid, gint status, gpointer data)
 {
-	functionArg *arg = (functionArg *) data;
+	FunctionArg *arg = (FunctionArg *) data;
 	arg->isEndChildProcess = true;
 	g_main_loop_quit(arg->loop);
 }
 
 gboolean timeOutChildProcess(gpointer data)
 {
-	functionArg *arg = (functionArg *) data;
+	FunctionArg *arg = (FunctionArg *) data;
 	arg->timedOut = true;
 	g_main_loop_quit(arg->loop);
 	return FALSE;
@@ -68,7 +68,7 @@ gboolean timeOutChildProcess(gpointer data)
 
 gboolean closeChildProcess(gpointer data)
 {
-	functionArg *arg = (functionArg *) data;
+	FunctionArg *arg = (FunctionArg *) data;
 	g_spawn_close_pid(arg->childPid);
 	g_main_loop_quit(arg->loop);
 	return FALSE;
@@ -76,8 +76,8 @@ gboolean closeChildProcess(gpointer data)
 
 bool childProcessLoop(GPid &childPid)
 {
-	gboolean expected = TRUE;
-	functionArg arg;
+	const gboolean expected = TRUE;
+	FunctionArg arg;
 	arg.childPid = childPid;
 	guint eventTimeout = 0;
 
