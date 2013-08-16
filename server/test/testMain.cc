@@ -68,6 +68,7 @@ gboolean timeOutChildProcess(gpointer data)
 
 bool childProcessLoop(GPid &childPid)
 {
+	gboolean expected = TRUE;
 	functionArg arg;
 	guint eventTimeout = 0;
 
@@ -77,7 +78,6 @@ bool childProcessLoop(GPid &childPid)
 	g_main_loop_run(arg.loop);
 	g_main_loop_unref(arg.loop);
 	if (!arg.timedOut) {
-		gboolean expected = TRUE;
 		g_spawn_close_pid(childPid);
 		cppcut_assert_equal(expected, g_source_remove(eventTimeout));
 	}
