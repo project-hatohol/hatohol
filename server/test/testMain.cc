@@ -90,11 +90,12 @@ bool childProcessLoop(GPid &childPid)
 		g_spawn_close_pid(childPid);
 		cppcut_assert_equal(expected, g_source_remove(eventTimeout));
 	} else {
+		FunctionArg argForForceTerm;
 		kill(childPid, SIGTERM);
-		arg.loop = g_main_loop_new(NULL, TRUE);
-		g_timeout_add(500, closeChildProcess, &arg);
-		g_main_loop_run(arg.loop);
-		g_main_loop_unref(arg.loop);
+		argForForceTerm.loop = g_main_loop_new(NULL, TRUE);
+		g_timeout_add(500, closeChildProcess, &argForForceTerm);
+		g_main_loop_run(argForForceTerm.loop);
+		g_main_loop_unref(argForForceTerm.loop);
 	}
 
 	cppcut_assert_equal(true, arg.isEndChildProcess);
