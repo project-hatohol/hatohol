@@ -39,12 +39,12 @@ struct ActionManager::PrivateContext {
 	{
 	}
 
-	void resetParser(void)
+	void resetParser(StringVector *_argVect)
 	{
 		inQuot = false;
 		byBackSlash = false;
 		currWord.clear();
-		argVect = NULL;
+		argVect = _argVect;
 	}
 
 	void pushbackCurrWord(void)
@@ -128,8 +128,7 @@ void ActionManager::runAction(const ActionDef &actionDef)
 
 void ActionManager::makeExecArg(StringVector &argVect, const string &cmd)
 {
-	m_ctx->resetParser();
-	m_ctx->argVect = &argVect;
+	m_ctx->resetParser(&argVect);
 	ParsableString parsable(cmd);
 	while (!parsable.finished()) {
 		string word = parsable.readWord(m_ctx->separator);
