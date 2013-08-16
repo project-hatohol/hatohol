@@ -102,6 +102,9 @@ typedef list<ActionDef>               ActionDefList;
 typedef ActionDefList::iterator       ActionDefListIterator;
 typedef ActionDefList::const_iterator ActionDefListConstIterator;
 
+struct ActionLog {
+};
+
 struct ExitChildInfo {
 	pid_t pid;
 	int   status;
@@ -164,6 +167,17 @@ public:
 	  (const ActionDef &actionDef,
 	   ActionLogExecFailureCode failureCode = ACTLOG_EXECFAIL_NONE);
 	void logEndExecAction(const ExitChildInfo &exitChildInfo);
+
+	/**
+	 * Get the action log.
+	 * @param actionLog
+	 * The returned values are filled in this instance.
+	 * @param logId
+	 * The log ID to be searched.
+	 *
+	 * @return true if the log is found. Otherwise false.
+	 */
+	bool getLog(ActionLog &actionLog, uint64_t logId);
 
 protected:
 	ItemDataNullFlagType getNullFlag(const ActionDef &actionDef,

@@ -144,10 +144,14 @@ void test_execCommandAction(void)
 	argVect.push_back(writePipe.getPath());
 	argVect.push_back(readPipe.getPath());
 	getArguments(readPipe, writePipe, timeout, argVect);
-	sendQuit(readPipe, writePipe, timeout);
 
-	// check if the command is successfully executed
+	// check the action log
+	ActionLog actionLog;
 	DBClientAction dbAction;
+	cppcut_assert_equal(true, dbAction.getLog(actionLog, actorInfo.logId));
+
+	// exit
+	sendQuit(readPipe, writePipe, timeout);
 }
 
 } // namespace testActionManager

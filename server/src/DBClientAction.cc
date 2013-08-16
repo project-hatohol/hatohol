@@ -553,6 +553,12 @@ void DBClientAction::logEndExecAction(const ExitChildInfo &exitChildInfo)
 	} DBCLIENT_TRANSACTION_END();
 }
 
+bool DBClientAction::getLog(ActionLog &actionLog, uint64_t logId)
+{
+	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	return false;
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
