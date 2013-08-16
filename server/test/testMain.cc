@@ -76,9 +76,9 @@ bool childProcessLoop(GPid &childPid)
 	g_main_loop_unref(arg.loop);
 	if (!arg.timedOut) {
 		gboolean expected = TRUE;
+		g_spawn_close_pid(childPid);
 		cppcut_assert_equal(expected, g_source_remove(eventTimeout));
 	}
-	g_spawn_close_pid(childPid);
 
 	cppcut_assert_equal(true, arg.isEndChildProcess);
 	cppcut_assert_equal(false, arg.timedOut);
