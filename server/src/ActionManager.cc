@@ -17,6 +17,7 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <cstring>
 #include "ActionManager.h"
 #include "ActorCollector.h"
 #include "DBClientAction.h"
@@ -138,7 +139,8 @@ void ActionManager::makeExecArg(StringVector &argVect, const string &cmd)
 	m_ctx->pushbackCurrWord();
 }
 
-void ActionManager::execCommandAction(const ActionDef &actionDef)
+void ActionManager::execCommandAction(const ActionDef &actionDef,
+                                      ActorInfo *_actorInfo)
 {
 	HATOHOL_ASSERT(actionDef.type == ACTION_COMMAND,
 	               "Invalid type: %d\n", actionDef.type);
@@ -180,8 +182,11 @@ void ActionManager::execCommandAction(const ActionDef &actionDef)
 		m_ctx->dbAction.logStartExecAction
 		  (actionDef, DBClientAction::ACTLOG_EXECFAIL_EXEC_FAILURE);
 		return;
+	} else {
+		actorInfo.logId = m_ctx->dbAction.logStartExecAction(actionDef);
+		m_ctx->collector.addActor(actorInfo);
+		m_ctx->collector.unlock();
 	}
-	actorInfo.logId = m_ctx->dbAction.logStartExecAction(actionDef);
-	m_ctx->collector.addActor(actorInfo);
-	m_ctx->collector.unlock();
+	if (_actorInfo)
+		memcpy(_actorInfo, &actorInfo, sizeof(ActorInfo));
 }

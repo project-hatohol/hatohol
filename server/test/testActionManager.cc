@@ -36,9 +36,10 @@ public:
 		makeExecArg(vect, command);
 	}
 
-	void callExecCommandAction(const ActionDef &actionDef)
+	void callExecCommandAction(const ActionDef &actionDef,
+	                           ActorInfo *actorInfo = NULL)
 	{
-		execCommandAction(actionDef);
+		execCommandAction(actionDef, actorInfo);
 	}
 };
 
@@ -133,7 +134,8 @@ void test_execCommandAction(void)
 	  writePipe.getPath().c_str(), readPipe.getPath().c_str());
 
 	TestActionManager actMgr;
-	actMgr.callExecCommandAction(actDef);
+	ActorInfo actorInfo;
+	actMgr.callExecCommandAction(actDef, &actorInfo);
 
 	// connect to action-tp
 	size_t timeout = 5 * 1000;

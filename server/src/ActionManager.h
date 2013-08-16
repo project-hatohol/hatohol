@@ -21,6 +21,7 @@
 #define ActionManager_h
 
 #include "DBClientAction.h"
+#include "ActorCollector.h"
 
 class ActionManager
 {
@@ -36,7 +37,8 @@ protected:
 	static void separatorCallback(const char sep, PrivateContext *ctx);
 	void runAction(const ActionDef &actionDef);
 	void makeExecArg(StringVector &argVect, const string &cmd);
-	void execCommandAction(const ActionDef &actionDef);
+	void execCommandAction(const ActionDef &actionDef,
+	                       ActorInfo *actorInfo = NULL);
 
 private:
 	PrivateContext *m_ctx;
