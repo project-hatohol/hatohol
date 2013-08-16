@@ -233,11 +233,22 @@ static const ColumnDef COLUMN_DEF_ACTION_LOGS[] = {
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
 	TABLE_NAME_ACTION_LOGS,            // tableName
+	"queuing_ime",                     // columnName
+	SQL_COLUMN_TYPE_DATETIME,          // type
+	0,                                 // columnLength
+	0,                                 // decFracLength
+	true,                              // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}, {
+	ITEM_ID_NOT_SET,                   // itemId
+	TABLE_NAME_ACTION_LOGS,            // tableName
 	"start_time",                      // columnName
 	SQL_COLUMN_TYPE_DATETIME,          // type
 	0,                                 // columnLength
 	0,                                 // decFracLength
-	false,                             // canBeNull
+	true,                              // canBeNull
 	SQL_KEY_NONE,                      // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
@@ -481,7 +492,8 @@ uint64_t DBClientAction::logStartExecAction(const ActionDef &actionDef)
 	row->ADD_NEW_ITEM(Int, ACTLOG_STAT_STARTED);
 	// TODO: set the appropriate the following starter ID.
 	row->ADD_NEW_ITEM(Int, 0);  // status
-	row->ADD_NEW_ITEM(Int, CURR_DATETIME); // start_time
+	row->ADD_NEW_ITEM(Int, 0, ITEM_DATA_NULL); // queuing_time
+	row->ADD_NEW_ITEM(Int, CURR_DATETIME);     // start_time
 	row->ADD_NEW_ITEM(Int, 0, ITEM_DATA_NULL); // end_time
 	row->ADD_NEW_ITEM(Int, ACTLOG_EXECFAIL_NONE);
 	row->ADD_NEW_ITEM(Int, 0, ITEM_DATA_NULL); // exit_code

@@ -120,9 +120,10 @@ static string makeExpectedLogString(const ActionDef &actDef, uint64_t logId)
 	int expectedStarterId = 0; // This is currently not used.
 	string expect =
 	  StringUtils::sprintf(
-	    "%"PRIu64"|%d|%d|%d|%s|%s|%d|%s\n",
+	    "%"PRIu64"|%d|%d|%d|%s|%s|%s|%d|%s\n",
 	    logId, actDef.id, DBClientAction::ACTLOG_STAT_STARTED,
 	    expectedStarterId,
+	    DBCONTENT_MAGIC_NULL,
 	    DBCONTENT_MAGIC_CURR_DATETIME,
 	    DBCONTENT_MAGIC_NULL,
 	    DBClientAction::ACTLOG_EXECFAIL_NONE,

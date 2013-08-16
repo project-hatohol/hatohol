@@ -114,6 +114,7 @@ enum {
 	IDX_ACTION_LOGS_ACTION_ID,
 	IDX_ACTION_LOGS_STATUS, 
 	IDX_ACTION_LOGS_STARTER_ID,
+	IDX_ACTION_LOGS_QUEUING_TIME,
 	IDX_ACTION_LOGS_START_TIME,
 	IDX_ACTION_LOGS_END_TIME,
 	IDX_ACTION_LOGS_EXEC_FAILURE_CODE,
@@ -126,6 +127,11 @@ class DBClientAction :
 {
 public:
 	enum ActionLogStatus {
+		// Hatohol limits the number of actions running
+		// at the same time. If it excceds the limit,
+		// a new action is registered as ACTLOG_STAT_QUEUING.
+		ACTLOG_STAT_QUEUING,
+
 		ACTLOG_STAT_STARTED,
 		ACTLOG_STAT_SUCCEEDED,
 		ACTLOG_STAT_FAILED,
