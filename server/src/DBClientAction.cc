@@ -479,7 +479,8 @@ void DBClientAction::getActionList(const EventInfo &eventInfo,
 	}
 }
 
-uint64_t DBClientAction::logStartExecAction(const ActionDef &actionDef)
+uint64_t DBClientAction::logStartExecAction
+  (const ActionDef &actionDef, ActionLogExecFailureCode failureCode)
 {
 	VariableItemGroupPtr row;
 	DBAgentInsertArg arg;
@@ -489,13 +490,28 @@ uint64_t DBClientAction::logStartExecAction(const ActionDef &actionDef)
 
 	row->ADD_NEW_ITEM(Uint64, 0); // action_log_id (automatically set)
 	row->ADD_NEW_ITEM(Int, actionDef.id);
-	row->ADD_NEW_ITEM(Int, ACTLOG_STAT_STARTED);
+
+	// status
+	ActionLogStatus status;
+	if (failureCode == ACTLOG_EXECFAIL_NONE)
+		status = ACTLOG_STAT_STARTED;
+	else
+		status = ACTLOG_STAT_FAILED;
+	row->ADD_NEW_ITEM(Int, status);
+
 	// TODO: set the appropriate the following starter ID.
-	row->ADD_NEW_ITEM(Int, 0);  // status
+	row->ADD_NEW_ITEM(Int, 0); // starter_id
+
 	row->ADD_NEW_ITEM(Int, 0, ITEM_DATA_NULL); // queuing_time
 	row->ADD_NEW_ITEM(Int, CURR_DATETIME);     // start_time
-	row->ADD_NEW_ITEM(Int, 0, ITEM_DATA_NULL); // end_time
-	row->ADD_NEW_ITEM(Int, ACTLOG_EXECFAIL_NONE);
+
+	// end_time
+	if (failureCode == ACTLOG_EXECFAIL_NONE)
+		row->ADD_NEW_ITEM(Int, 0, ITEM_DATA_NULL);
+	else
+		row->ADD_NEW_ITEM(Int, CURR_DATETIME);
+
+	row->ADD_NEW_ITEM(Int, failureCode);
 	row->ADD_NEW_ITEM(Int, 0, ITEM_DATA_NULL); // exit_code
 
 	arg.row = row;
@@ -535,12 +551,6 @@ void DBClientAction::logEndExecAction(const ExitChildInfo &exitChildInfo)
 	DBCLIENT_TRANSACTION_BEGIN() {
 		update(arg);
 	} DBCLIENT_TRANSACTION_END();
-}
-
-void DBClientAction::logErrExecAction(const ActionDef &actionDef,
-                                      const string &msg)
-{
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
 }
 
 // ---------------------------------------------------------------------------

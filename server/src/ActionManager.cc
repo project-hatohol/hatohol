@@ -177,7 +177,8 @@ void ActionManager::execCommandAction(const ActionDef &actionDef)
 		  "Failed to execute command: %s", error->message);
 		g_error_free(error);
 		MLPL_ERR("%s\n", msg.c_str());
-		m_ctx->dbAction.logErrExecAction(actionDef, msg);
+		m_ctx->dbAction.logStartExecAction
+		  (actionDef, DBClientAction::ACTLOG_EXECFAIL_EXEC_FAILURE);
 		return;
 	}
 	actorInfo.logId = m_ctx->dbAction.logStartExecAction(actionDef);

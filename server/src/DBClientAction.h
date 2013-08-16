@@ -160,9 +160,10 @@ public:
 	void addAction(ActionDef &actionDef);
 	void getActionList(const EventInfo &eventInfo,
 	                   ActionDefList &actionDefList);
-	uint64_t logStartExecAction(const ActionDef &actionDef);
+	uint64_t logStartExecAction
+	  (const ActionDef &actionDef,
+	   ActionLogExecFailureCode failureCode = ACTLOG_EXECFAIL_NONE);
 	void logEndExecAction(const ExitChildInfo &exitChildInfo);
-	void logErrExecAction(const ActionDef &actionDef, const string &msg);
 
 protected:
 	ItemDataNullFlagType getNullFlag(const ActionDef &actionDef,

@@ -115,18 +115,24 @@ static string makeExpectedString(const ActionDef &actDef, int expectedId)
 	return expect;
 }
 
-static string makeExpectedLogString(const ActionDef &actDef, uint64_t logId)
+static string makeExpectedLogString(
+  const ActionDef &actDef, uint64_t logId,
+  DBClientAction::ActionLogStatus status = DBClientAction::ACTLOG_STAT_STARTED,
+  DBClientAction::ActionLogExecFailureCode failureCode
+    = DBClientAction::ACTLOG_EXECFAIL_NONE)
 {
 	int expectedStarterId = 0; // This is currently not used.
+	const char *expectedExitTime =
+	  status == DBClientAction::ACTLOG_STAT_STARTED ?
+	    DBCONTENT_MAGIC_NULL : DBCONTENT_MAGIC_CURR_DATETIME;
+
 	string expect =
 	  StringUtils::sprintf(
 	    "%"PRIu64"|%d|%d|%d|%s|%s|%s|%d|%s\n",
-	    logId, actDef.id, DBClientAction::ACTLOG_STAT_STARTED,
-	    expectedStarterId,
+	    logId, actDef.id, status, expectedStarterId,
 	    DBCONTENT_MAGIC_NULL,
 	    DBCONTENT_MAGIC_CURR_DATETIME,
-	    DBCONTENT_MAGIC_NULL,
-	    DBClientAction::ACTLOG_EXECFAIL_NONE,
+	    expectedExitTime, failureCode,
 	    DBCONTENT_MAGIC_NULL);
 	return expect;
 }
@@ -195,6 +201,26 @@ void test_startExecAction(void)
 		expect += makeExpectedLogString(actDef, expectedId);
 		assertDBContent(dbAction.getDBAgent(), statement, expect);
 	}
+}
+
+void test_startExecActionWithExecFailure(void)
+{
+	string expect;
+	DBClientAction dbAction;
+	size_t targetIdx = 1;
+	const ActionDef &actDef = testActionDef[targetIdx];
+	uint64_t logId =
+	   dbAction.logStartExecAction(actDef,
+	     DBClientAction::ACTLOG_EXECFAIL_EXEC_FAILURE);
+	const uint64_t expectedId = 1;
+	cppcut_assert_equal(expectedId, logId);
+	string statement = "select * from ";
+	statement += DBClientAction::getTableNameActionLogs();
+	expect +=
+	  makeExpectedLogString
+	    (actDef, expectedId, DBClientAction::ACTLOG_STAT_FAILED,
+	     DBClientAction::ACTLOG_EXECFAIL_EXEC_FAILURE);
+	assertDBContent(dbAction.getDBAgent(), statement, expect);
 }
 
 void test_endExecAction(void)
