@@ -137,6 +137,7 @@ void test_createFromStringIntWithNull(void)
 	ItemDataPtr dataPtr =
 	  SQLUtils::createFromString(NULL, SQL_COLUMN_TYPE_INT);
 	cppcut_assert_equal(true, dataPtr->isNull());
+	cppcut_assert_equal(ITEM_TYPE_INT, dataPtr->getItemType());
 }
 
 void test_createFromStringBiguint(void)
@@ -154,6 +155,7 @@ void test_createFromStringBiguintWithNull(void)
 	ItemDataPtr dataPtr =
 	  SQLUtils::createFromString(NULL, SQL_COLUMN_TYPE_BIGUINT);
 	cppcut_assert_equal(true, dataPtr->isNull());
+	cppcut_assert_equal(ITEM_TYPE_UINT64, dataPtr->getItemType());
 }
 
 void test_createFromStringVarchar(void)
@@ -169,6 +171,7 @@ void test_createFromStringVarcharWithNull(void)
 	ItemDataPtr dataPtr =
 	  SQLUtils::createFromString(NULL, SQL_COLUMN_TYPE_VARCHAR);
 	cppcut_assert_equal(true, dataPtr->isNull());
+	cppcut_assert_equal(ITEM_TYPE_STRING, dataPtr->getItemType());
 }
 
 void test_createFromStringDouble(void)
@@ -185,6 +188,7 @@ void test_createFromStringDoubleWithNull(void)
 	ItemDataPtr dataPtr =
 	  SQLUtils::createFromString(NULL, SQL_COLUMN_TYPE_DOUBLE);
 	cppcut_assert_equal(true, dataPtr->isNull());
+	cppcut_assert_equal(ITEM_TYPE_DOUBLE, dataPtr->getItemType());
 }
 
 void test_createFromStringDatetime(void)
@@ -212,6 +216,7 @@ void test_createFromStringDatetimeWithNull(void)
 	ItemDataPtr dataPtr =
 	  SQLUtils::createFromString(NULL, SQL_COLUMN_TYPE_DATETIME);
 	cppcut_assert_equal(true, dataPtr->isNull());
+	cppcut_assert_equal(ITEM_TYPE_INT, dataPtr->getItemType());
 }
 
 } // namespace testSQLUtils
