@@ -35,7 +35,7 @@ using namespace std;
 
 namespace testMain {
 static pid_t grandchildPid = 0;
-static string flagABNormalEndMagicNumber;
+static string flagAbnormalEnd;
 
 struct FunctionArg {
 	bool timedOut;
@@ -161,7 +161,7 @@ bool checkEnvironAndKillProcess(pid_t pid)
 	grandchildProcEnvironPath << "/proc/" << pid << "/environ";
 	grandchildEnvironFile.open(grandchildProcEnvironPath.str().c_str());
 	while (getline(grandchildEnvironFile, env, '\0')) {
-		if (env == flagABNormalEndMagicNumber){
+		if (env == flagAbnormalEnd){
 			kill(pid, SIGTERM);
 			return true;
 		}
