@@ -301,78 +301,10 @@ void test_execCommandAction(void)
 	g_execCommandCtx = new ExecCommandContext();
 	ExecCommandContext *ctx = g_execCommandCtx; // just an alias
 
-	// preparation
-	cppcut_assert_equal(true, ctx->readPipe.makeFileInTmpAndOpenForRead());
-	cppcut_assert_equal(true, ctx->writePipe.makeFileInTmpAndOpenForWrite());
-
-	ActionDef actDef;
-	actDef.id = 2343242;
-	actDef.type = ACTION_COMMAND;
-	actDef.path = StringUtils::sprintf(
-	  "%s %s %s", cut_build_path("ActionTp", NULL),
-	  ctx->writePipe.getPath().c_str(), ctx->readPipe.getPath().c_str());
-
-	// launch ActionTp (the actor)
-	TestActionManager actMgr;
-	ActorInfo actorInfo;
-	actorInfo.pid = 0;
-	actMgr.callExecCommandAction(actDef, &actorInfo);
-	ctx->actionTpPid = actorInfo.pid;
-
-	// check the action log
-	ActionLog actionLog;
-	DBClientAction dbAction;
-	uint32_t expectedNullFlags = 
-	  ACTLOG_FLAG_QUEUING_TIME | ACTLOG_FLAG_END_TIME |
-	  ACTLOG_FLAG_EXIT_CODE;
-	cppcut_assert_equal(true, dbAction.getLog(actionLog, actorInfo.logId));
-	assertActionLog(
-	  actionLog, actorInfo.logId,
-	  actDef.id, DBClientAction::ACTLOG_STAT_STARTED,
-	  0, /* starterId */
-	  0, /* queuingTime */
-	  CURR_DATETIME, /* startTime */
-	  0, /* endTime */
-	  DBClientAction::ACTLOG_EXECFAIL_NONE, /* failureCode */
-	  0,  /* exitCode */
-	  expectedNullFlags);
-
-	// connect to ActionTp
-	size_t timeout = 5 * 1000;
-	waitConnect(ctx->readPipe, timeout);
-	StringVector argVect;
-	argVect.push_back(ctx->writePipe.getPath());
-	argVect.push_back(ctx->readPipe.getPath());
-	getArguments(ctx->readPipe, ctx->writePipe, timeout, argVect);
-
-	// send a quit request
-	sendQuit(ctx->readPipe, ctx->writePipe, timeout);
-
-	// check the action log after the actor is terminated
-	ctx->timerTag = g_timeout_add(timeout, timeoutHandler, ctx);
-	ctx->loop = g_main_loop_new(NULL, TRUE);
-	while (true) {
-		// ActionCollector updates the aciton log in the wake of GLIB's
-		// events. So we can wait for the log update with
-		// iterations of the loop.
-		while (g_main_iteration(TRUE))
-			cppcut_assert_equal(false, ctx->timedOut);
-		cppcut_assert_equal(
-		  true, dbAction.getLog(actionLog, actorInfo.logId));
-		if (actionLog.status == DBClientAction::ACTLOG_STAT_STARTED)
-			continue;
-		assertActionLog(
-		  actionLog, actorInfo.logId,
-		  actDef.id, DBClientAction::ACTLOG_STAT_SUCCEEDED,
-		  0, /* starterId */
-		  0, /* queuingTime */
-		  CURR_DATETIME, /* startTime */
-		  CURR_DATETIME, /* endTime */
-		  DBClientAction::ACTLOG_EXECFAIL_NONE, /* failureCode */
-		  EXIT_SUCCESS, /* exitCode */
-		  ACTLOG_FLAG_QUEUING_TIME /* nullFlags */);
-		break;
-	}
+	assertExecAction(ctx, 2343242, ACTION_COMMAND);
+	assertActionLogJustAfterExec(ctx);
+	sendQuit(ctx->readPipe, ctx->writePipe, ctx->timeout);
+	assertActionLogAfterEnding(ctx);
 }
 
 void test_execResidenAction(void)
