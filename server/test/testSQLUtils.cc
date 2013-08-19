@@ -139,6 +139,23 @@ void test_createFromStringIntWithNull(void)
 	cppcut_assert_equal(true, dataPtr->isNull());
 }
 
+void test_createFromStringBiguint(void)
+{
+	uint64_t val = 0x89abcdef01234567;
+	ItemDataPtr dataPtr =
+	  SQLUtils::createFromString(
+	    StringUtils::sprintf("%"PRIu64, val).c_str(),
+	                         SQL_COLUMN_TYPE_BIGUINT);
+	cppcut_assert_equal(val, ItemDataUtils::getUint64(dataPtr));
+}
+
+void test_createFromStringBiguintWithNull(void)
+{
+	ItemDataPtr dataPtr =
+	  SQLUtils::createFromString(NULL, SQL_COLUMN_TYPE_BIGUINT);
+	cppcut_assert_equal(true, dataPtr->isNull());
+}
+
 void test_createFromStringDatetime(void)
 {
 	tzset();
