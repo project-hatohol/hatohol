@@ -101,7 +101,7 @@ static void printUsage(void)
 {
 	printf("Usage:\n");
 	printf("\n");
-	printf("  $ action-tp pipeFileForRead pipeFileForWrite\n");
+	printf("  $ ActionTp pipeFileForRead pipeFileForWrite\n");
 	printf("\n");
 }
 
