@@ -18,9 +18,29 @@
  */
 
 #include <cstring>
+#include <deque>
 #include "ActionManager.h"
 #include "ActorCollector.h"
 #include "DBClientAction.h"
+
+using namespace std;
+
+struct ResidentQueueInfo {
+	// To be added
+};
+
+typedef deque<ResidentQueueInfo> ResidentQueue;
+
+struct ResidentInfo {
+	ResidentQueue queue;
+
+	ResidentInfo(void)
+	{
+	}
+};
+
+typedef map<int, ResidentInfo *>     RunningResidentMap;
+typedef RunningResidentMap::iterator RunningResidentMapIterator;
 
 struct ActionManager::PrivateContext {
 	static ActorCollector collector;
@@ -30,6 +50,9 @@ struct ActionManager::PrivateContext {
 	bool byBackSlash;
 	string currWord;
 	StringVector *argVect;
+
+	MutexLock residentLock;
+	RunningResidentMap runningResidentMap;
 
 	PrivateContext(void)
 	: separator(" '\\"),
@@ -195,5 +218,45 @@ void ActionManager::execResidentAction(const ActionDef &actionDef,
 {
 	HATOHOL_ASSERT(actionDef.type == ACTION_RESIDENT,
 	               "Invalid type: %d\n", actionDef.type);
+	m_ctx->residentLock.lock();
+	RunningResidentMapIterator it =
+	   m_ctx->runningResidentMap.find(actionDef.id);
+	if (it == m_ctx->runningResidentMap.end()) {
+		ResidentInfo *residentInfo =
+		  launchResidentActionYard(actionDef, _actorInfo);
+		if (residentInfo)
+			m_ctx->runningResidentMap[actionDef.id] = residentInfo;
+	} else {
+		goToResidentYardEntrance(it->second, actionDef, _actorInfo);
+	}
+	m_ctx->residentLock.unlock();
+}
+
+//
+// The folloing functions shall be called with the lock of m_ctx->residentLock
+//
+ResidentInfo *ActionManager::launchResidentActionYard
+  (const ActionDef &actionDef, ActorInfo *actorInfo)
+{
+	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	return NULL;
+}
+
+void ActionManager::goToResidentYardEntrance(
+  ResidentInfo *residentInfo, const ActionDef &actionDef, ActorInfo *actorInfo)
+{
+	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	ResidentQueueInfo residentQueueInfo;
+	residentInfo->queue.push_back(residentQueueInfo);
+	if (residentInfo->queue.empty())
+		notifyEvent(residentInfo, actionDef, actorInfo);
+
+	// When the queue is not empty, the queued action will be started.
+	// The trigger is the end notification of the current resident action.
+}
+
+void ActionManager::notifyEvent(
+  ResidentInfo *residentInfo, const ActionDef &actionDef, ActorInfo *actorInfo)
+{
 	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
 }

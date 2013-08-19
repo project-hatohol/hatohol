@@ -23,6 +23,8 @@
 #include "DBClientAction.h"
 #include "ActorCollector.h"
 
+struct ResidentInfo;
+
 class ActionManager
 {
 private:
@@ -41,6 +43,13 @@ protected:
 	                       ActorInfo *actorInfo = NULL);
 	void execResidentAction(const ActionDef &actionDef,
 	                        ActorInfo *actorInfo = NULL);
+	ResidentInfo *launchResidentActionYard(const ActionDef &actionDef,
+	                                       ActorInfo *actorInfo);
+	void goToResidentYardEntrance(ResidentInfo *residentInfo,
+	                              const ActionDef &actionDef,
+	                              ActorInfo *actorInfo);
+	void notifyEvent(ResidentInfo *residentInfo,
+	                 const ActionDef &actionDef, ActorInfo *actorInfo);
 
 private:
 	PrivateContext *m_ctx;
