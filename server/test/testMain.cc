@@ -104,7 +104,7 @@ bool childProcessLoop(GPid &childPid)
 	return true;
 }
 
-bool parsePIDFile(void)
+bool parsePIDFile(int &grandchildPid)
 {
 	const char *grandchildPidFilePath = "/var/run/hatohol.pid";
 	cut_assert_exist_path(grandchildPidFilePath);
@@ -117,7 +117,7 @@ bool parsePIDFile(void)
 	return true;
 }
 
-bool parseStatFile(int &parentPid)
+bool parseStatFile(int &parentPid, int grandchildPid)
 {
 	stringstream ssStat;
 	ssStat << "/proc/" << grandchildPid << "/stat";
@@ -135,7 +135,7 @@ bool parseStatFile(int &parentPid)
 	return true;
 }
 
-bool parseEnvironFile(string makedMagicNumber)
+bool parseEnvironFile(string makedMagicNumber, int grandchildPid)
 {
 	bool isMagicNumber;
 	stringstream grandchildProcEnvironPath;
