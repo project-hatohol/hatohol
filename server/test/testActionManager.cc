@@ -194,6 +194,7 @@ void test_execCommandAction(void)
 {
 	execCommandActionContext ctx;
 
+	// preparation
 	PipeUtils readPipe, writePipe;
 	cppcut_assert_equal(true, readPipe.makeFileInTmpAndOpenForRead());
 	cppcut_assert_equal(true, writePipe.makeFileInTmpAndOpenForWrite());
@@ -205,6 +206,7 @@ void test_execCommandAction(void)
 	  "%s %s %s", cut_build_path("ActionTp", NULL),
 	  writePipe.getPath().c_str(), readPipe.getPath().c_str());
 
+	// launch action-tp (the actor)
 	TestActionManager actMgr;
 	ActorInfo actorInfo;
 	actorInfo.pid = 0;
@@ -237,7 +239,7 @@ void test_execCommandAction(void)
 	argVect.push_back(readPipe.getPath());
 	getArguments(readPipe, writePipe, timeout, argVect);
 
-	// exit
+	// send a quit request
 	sendQuit(readPipe, writePipe, timeout);
 
 	// check the action log after the actor is terminated
