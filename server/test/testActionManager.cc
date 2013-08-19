@@ -46,13 +46,14 @@ public:
 
 namespace testActionManager {
 
-struct execCommandActionContext {
+struct ExecCommandContext {
 	pid_t actionTpPid;
 	GMainLoop *loop;
 	bool timedOut;
 	guint timerTag;
+	PipeUtils readPipe, writePipe;
 
-	execCommandActionContext(void)
+	ExecCommandContext(void)
 	: actionTpPid(0),
 	  loop(NULL),
 	  timedOut(false),
@@ -60,7 +61,7 @@ struct execCommandActionContext {
 	{
 	}
 
-	virtual ~execCommandActionContext()
+	virtual ~ExecCommandContext()
 	{
 		if (actionTpPid) {
 			int signo = SIGKILL;
@@ -81,10 +82,11 @@ struct execCommandActionContext {
 			g_source_remove(timerTag);
 	}
 };
+static ExecCommandContext *g_execCommandCtx = NULL;
 
 static gboolean timeoutHandler(gpointer data)
 {
-	execCommandActionContext *ctx = (execCommandActionContext *)data;
+	ExecCommandContext *ctx = (ExecCommandContext *)data;
 	ctx->timedOut = true;
 	ctx->timerTag = 0;
 	return FALSE;
@@ -185,6 +187,10 @@ void setup(void)
 
 void teardown(void)
 {
+	if (g_execCommandCtx) {
+		delete g_execCommandCtx;
+		g_execCommandCtx = NULL;
+	}
 }
 
 // ---------------------------------------------------------------------------
@@ -192,26 +198,26 @@ void teardown(void)
 // ---------------------------------------------------------------------------
 void test_execCommandAction(void)
 {
-	execCommandActionContext ctx;
+	g_execCommandCtx = new ExecCommandContext();
+	ExecCommandContext *ctx = g_execCommandCtx; // just an alias
 
 	// preparation
-	PipeUtils readPipe, writePipe;
-	cppcut_assert_equal(true, readPipe.makeFileInTmpAndOpenForRead());
-	cppcut_assert_equal(true, writePipe.makeFileInTmpAndOpenForWrite());
+	cppcut_assert_equal(true, ctx->readPipe.makeFileInTmpAndOpenForRead());
+	cppcut_assert_equal(true, ctx->writePipe.makeFileInTmpAndOpenForWrite());
 
 	ActionDef actDef;
 	actDef.id = 2343242;
 	actDef.type = ACTION_COMMAND;
 	actDef.path = StringUtils::sprintf(
 	  "%s %s %s", cut_build_path("ActionTp", NULL),
-	  writePipe.getPath().c_str(), readPipe.getPath().c_str());
+	  ctx->writePipe.getPath().c_str(), ctx->readPipe.getPath().c_str());
 
 	// launch ActionTp (the actor)
 	TestActionManager actMgr;
 	ActorInfo actorInfo;
 	actorInfo.pid = 0;
 	actMgr.callExecCommandAction(actDef, &actorInfo);
-	ctx.actionTpPid = actorInfo.pid;
+	ctx->actionTpPid = actorInfo.pid;
 
 	// check the action log
 	ActionLog actionLog;
@@ -233,24 +239,24 @@ void test_execCommandAction(void)
 
 	// connect to ActionTp
 	size_t timeout = 5 * 1000;
-	waitConnect(readPipe, timeout);
+	waitConnect(ctx->readPipe, timeout);
 	StringVector argVect;
-	argVect.push_back(writePipe.getPath());
-	argVect.push_back(readPipe.getPath());
-	getArguments(readPipe, writePipe, timeout, argVect);
+	argVect.push_back(ctx->writePipe.getPath());
+	argVect.push_back(ctx->readPipe.getPath());
+	getArguments(ctx->readPipe, ctx->writePipe, timeout, argVect);
 
 	// send a quit request
-	sendQuit(readPipe, writePipe, timeout);
+	sendQuit(ctx->readPipe, ctx->writePipe, timeout);
 
 	// check the action log after the actor is terminated
-	ctx.timerTag = g_timeout_add(timeout, timeoutHandler, &ctx);
-	ctx.loop = g_main_loop_new(NULL, TRUE);
+	ctx->timerTag = g_timeout_add(timeout, timeoutHandler, ctx);
+	ctx->loop = g_main_loop_new(NULL, TRUE);
 	while (true) {
 		// ActionCollector updates the aciton log in the wake of GLIB's
 		// events. So we can wait for the log update with
 		// iterations of the loop.
 		while (g_main_iteration(TRUE))
-			cppcut_assert_equal(false, ctx.timedOut);
+			cppcut_assert_equal(false, ctx->timedOut);
 		cppcut_assert_equal(
 		  true, dbAction.getLog(actionLog, actorInfo.logId));
 		if (actionLog.status == DBClientAction::ACTLOG_STAT_STARTED)
