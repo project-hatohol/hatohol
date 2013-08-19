@@ -141,30 +141,52 @@ void SQLUtils::decomposeTableAndColumn(const string &fieldName,
 	columnName = string(fieldName, dotPosition + 1);
 }
 
-ItemDataPtr SQLUtils::createFromString(const string &str, SQLColumnType type)
+ItemDataPtr SQLUtils::createFromString(const char *str, SQLColumnType type)
 {
 	ItemData *itemData = NULL;
+	bool strIsNull = false;
+	if (!str)
+		strIsNull = true;
+
 	switch(type) {
 	case SQL_COLUMN_TYPE_INT:
-		itemData = new ItemInt(atoi(str.c_str()));
+		if (strIsNull)
+			itemData = new ItemInt(0, ITEM_DATA_NULL);
+		else
+			itemData = new ItemInt(atoi(str));
 		break;
 	case SQL_COLUMN_TYPE_BIGUINT:
-		uint64_t val;
-		sscanf(str.c_str(), "%"PRIu64, &val);
-		itemData = new ItemUint64(val);
+		if (strIsNull) {
+			itemData = new ItemUint64(0, ITEM_DATA_NULL);
+		} else {
+			uint64_t val;
+			sscanf(str, "%"PRIu64, &val);
+			itemData = new ItemUint64(val);
+		}
 		break;
 	case SQL_COLUMN_TYPE_VARCHAR:
 	case SQL_COLUMN_TYPE_CHAR:
 	case SQL_COLUMN_TYPE_TEXT:
-		itemData = new ItemString(str);
+		if (strIsNull)
+			itemData = new ItemString("", ITEM_DATA_NULL);
+		else
+			itemData = new ItemString(str);
 		break;
 	case SQL_COLUMN_TYPE_DOUBLE:
-		itemData = new ItemDouble(atof(str.c_str()));
+		if (strIsNull)
+			itemData = new ItemDouble(0, ITEM_DATA_NULL);
+		else
+			itemData = new ItemDouble(atof(str));
 		break;
 	case SQL_COLUMN_TYPE_DATETIME:
 	{ // brace is needed to avoid the error: jump to case label
+		if (strIsNull) {
+			itemData = new ItemInt(0, ITEM_DATA_NULL);
+			break;
+		}
+
 		struct tm tm;
-		int numVal = sscanf(str.c_str(),
+		int numVal = sscanf(str,
 		                    "%04d-%02d-%02d %02d:%02d:%02d",
 		                    &tm.tm_year, &tm.tm_mon, &tm.tm_mday,
 		                    &tm.tm_hour, &tm.tm_min, &tm.tm_sec);
@@ -172,7 +194,7 @@ ItemDataPtr SQLUtils::createFromString(const string &str, SQLColumnType type)
 		if (numVal != EXPECT_NUM_VAL) {
 			MLPL_WARN(
 			  "Probably, parse of the time failed: %d, %s\n",
-			  numVal, str.c_str());
+			  numVal, str);
 		}
 		tm.tm_year -= 1900;
 		tm.tm_mon--; // tm_mon is counted from 0 in POSIX time APIs.

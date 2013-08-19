@@ -176,7 +176,7 @@ string execMySQL(const string &dbName, const string &statement, bool showHeader)
 void _assertCurrDatetime(const string &datetime)
 {
 	const int MAX_ALLOWD_CURR_TIME_ERROR = 5;
-	ItemDataPtr item = SQLUtils::createFromString(datetime,
+	ItemDataPtr item = SQLUtils::createFromString(datetime.c_str(),
 	                                              SQL_COLUMN_TYPE_DATETIME);
 	int clock = ItemDataUtils::getInt(item);
 	int currClock = (int)time(NULL);

@@ -102,7 +102,7 @@ public:
 	                                    string &tableName,
 	                                    string &columnName,
 	                                    bool allowNoTableName = false);
-	static ItemDataPtr createFromString(const string &str,
+	static ItemDataPtr createFromString(const char *str,
 	                                    SQLColumnType type);
 
 protected:
