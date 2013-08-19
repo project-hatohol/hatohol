@@ -78,7 +78,6 @@ bool childProcessLoop(GPid &childPid)
 {
 	const gboolean expected = TRUE;
 	FunctionArg arg;
-	arg.childPid = childPid;
 	guint eventTimeout = 0;
 
 	arg.loop = g_main_loop_new(NULL, TRUE);
@@ -91,6 +90,7 @@ bool childProcessLoop(GPid &childPid)
 		cppcut_assert_equal(expected, g_source_remove(eventTimeout));
 	} else {
 		FunctionArg argForForceTerm;
+		argForForceTerm.childPid = childPid;
 		kill(childPid, SIGTERM);
 		argForForceTerm.loop = g_main_loop_new(NULL, TRUE);
 		g_timeout_add(500, closeChildProcess, &argForForceTerm);
