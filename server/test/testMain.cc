@@ -35,6 +35,7 @@ using namespace std;
 
 namespace testMain {
 static pid_t grandchildPid = 0;
+static string flagABNormalEndMagicNumber;
 
 struct FunctionArg {
 	bool timedOut;
