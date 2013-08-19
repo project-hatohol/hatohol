@@ -153,6 +153,23 @@ bool parseEnvironFile(string makedMagicNumber)
 	return true;
 }
 
+bool checkEnvironAndKillProcess(int killPid)
+{
+	stringstream grandchildProcEnvironPath;
+	ifstream grandchildEnvironFile;
+	string env;
+	grandchildProcEnvironPath << "/proc/" << killPid << "/environ";
+	grandchildEnvironFile.open(grandchildProcEnvironPath.str().c_str());
+	while (getline(grandchildEnvironFile, env, '\0')) {
+		if (env == flagABNormalEndMagicNumber){
+			kill((pid_t)killPid, SIGTERM);
+			return true;
+		}
+	}
+
+	return false;
+}
+
 bool makeRandomNumber(string &magicNumber)
 {
 	srand((unsigned int)time(NULL));
