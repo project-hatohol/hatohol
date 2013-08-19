@@ -206,7 +206,7 @@ void test_execCommandAction(void)
 	  "%s %s %s", cut_build_path("ActionTp", NULL),
 	  writePipe.getPath().c_str(), readPipe.getPath().c_str());
 
-	// launch action-tp (the actor)
+	// launch ActionTp (the actor)
 	TestActionManager actMgr;
 	ActorInfo actorInfo;
 	actorInfo.pid = 0;
@@ -231,7 +231,7 @@ void test_execCommandAction(void)
 	  0,  /* exitCode */
 	  expectedNullFlags);
 
-	// connect to action-tp
+	// connect to ActionTp
 	size_t timeout = 5 * 1000;
 	waitConnect(readPipe, timeout);
 	StringVector argVect;
