@@ -306,6 +306,16 @@ static void _assertMakeExecArgs(const string &cmdLine,
 #define assertMakeExecArgs(CMD_LINE, FIRST, ...) \
 cut_trace(_assertMakeExecArgs(CMD_LINE, FIRST, ##__VA_ARGS__))
 
+void setup(void)
+{
+	static bool initDone = false;
+	if (!initDone) {
+		hatoholInit();
+		setupTestDBAction();
+		initDone = true;
+	}
+}
+
 // ---------------------------------------------------------------------------
 // Test cases
 // ---------------------------------------------------------------------------
