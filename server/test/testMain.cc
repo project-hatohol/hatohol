@@ -28,6 +28,7 @@
 #include <fstream>
 #include <signal.h>
 #include <sys/types.h>
+#include <dirent.h>
 
 #include "Hatohol.h"
 #include "Utils.h"
@@ -170,6 +171,24 @@ bool checkEnvironAndKillProcess(pid_t pid)
 	return false;
 }
 
+bool checkAllProcessID(void)
+{
+	int result;
+	struct dirent **nameList;
+
+	result = scandir("/proc/", &nameList, NULL, NULL);
+	// TODO: Write error message (or process)
+	for (int i = 0; i < result ; ++i) {
+		int procPid = atoi(nameList[i]->d_name);
+		if (procPid > 0)
+			checkEnvironAndKillProcess(procPid);
+		free(nameList[i]);
+	}
+	free(nameList);
+
+	return true;
+}
+
 bool makeRandomNumber(string &magicNumber)
 {
 	srand((unsigned int)time(NULL));
@@ -210,7 +229,8 @@ void teardown(void)
 		kill(grandchildPid, SIGTERM);
 		grandchildPid = 0;
 	}
-
+	if (!flagAbnormalEnd.empty())
+		checkAllProcessID();
 }
 
 void test_daemonize(void)
