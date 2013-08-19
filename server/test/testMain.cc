@@ -224,9 +224,9 @@ void teardown(void)
 	if (grandchildPid > 1) {
 		kill(grandchildPid, SIGTERM);
 		grandchildPid = 0;
-	}
-	if (!flagAbnormalEnd.empty())
+	} else {
 		checkAllProcessID();
+	}
 }
 
 void test_daemonize(void)
