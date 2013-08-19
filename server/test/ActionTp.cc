@@ -101,7 +101,7 @@ static void printUsage(void)
 {
 	printf("Usage:\n");
 	printf("\n");
-	printf("  $ ActionTp pipeFileForRead pipeFileForWrite\n");
+	printf("  $ ActionTp [--resident] pipeFileForRead pipeFileForWrite\n");
 	printf("\n");
 }
 
@@ -123,19 +123,27 @@ static bool dispatch(PipeUtils &readPipe, PipeUtils &writePipe, int &retCode)
 
 int main(int argc, char *argv[])
 {
+	bool residentMode = false;
 	PipeUtils readPipe, writePipe;
 	if (argc < 3) {
 		printUsage();
 		return EXIT_FAILURE;
 	}
-	for (int i = 1; i < argc; i++)
+	int pipePathIdx = 1;
+	for (int i = 1; i < argc; i++) {
+		if (string("--resident") == argv[i]) {
+			residentMode = true;
+			pipePathIdx++;
+			continue;
+		}
 		g_argList.push_back(argv[i]);
+	}
 
-	string readPipePath = argv[1];
+	string readPipePath = argv[pipePathIdx++];
 	if (!readPipe.openForRead(readPipePath))
 		return EXIT_FAILURE;
 
-	string writePipePath = argv[2];
+	string writePipePath = argv[pipePathIdx];
 	if (!writePipe.openForWrite(writePipePath))
 		return EXIT_FAILURE;
 

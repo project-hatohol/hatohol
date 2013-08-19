@@ -39,6 +39,8 @@ protected:
 	void makeExecArg(StringVector &argVect, const string &cmd);
 	void execCommandAction(const ActionDef &actionDef,
 	                       ActorInfo *actorInfo = NULL);
+	void execResidentAction(const ActionDef &actionDef,
+	                        ActorInfo *actorInfo = NULL);
 
 private:
 	PrivateContext *m_ctx;

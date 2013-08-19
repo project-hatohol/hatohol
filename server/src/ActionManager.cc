@@ -120,7 +120,7 @@ void ActionManager::runAction(const ActionDef &actionDef)
 	if (actionDef.type == ACTION_COMMAND) {
 		execCommandAction(actionDef);
 	} else if (actionDef.type == ACTION_RESIDENT) {
-		MLPL_BUG("Not implemented: runAction: ACTION_RESIDENT\n");
+		execResidentAction(actionDef);
 	} else {
 		HATOHOL_ASSERT(true, "Unknown type: %d\n", actionDef.type);
 	}
@@ -188,4 +188,12 @@ void ActionManager::execCommandAction(const ActionDef &actionDef,
 	}
 	if (_actorInfo)
 		memcpy(_actorInfo, &actorInfo, sizeof(ActorInfo));
+}
+
+void ActionManager::execResidentAction(const ActionDef &actionDef,
+                                       ActorInfo *_actorInfo)
+{
+	HATOHOL_ASSERT(actionDef.type == ACTION_RESIDENT,
+	               "Invalid type: %d\n", actionDef.type);
+	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
 }
