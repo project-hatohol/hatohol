@@ -207,4 +207,11 @@ void test_createFromStringDatetime(void)
 	cppcut_assert_equal((int)time_local, ItemDataUtils::getInt(dataPtr));
 }
 
+void test_createFromStringDatetimeWithNull(void)
+{
+	ItemDataPtr dataPtr =
+	  SQLUtils::createFromString(NULL, SQL_COLUMN_TYPE_DATETIME);
+	cppcut_assert_equal(true, dataPtr->isNull());
+}
+
 } // namespace testSQLUtils
