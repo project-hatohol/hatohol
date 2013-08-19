@@ -35,7 +35,6 @@
 using namespace std;
 
 namespace testMain {
-static pid_t grandchildPid = 0;
 static string flagAbnormalEnd;
 
 struct FunctionArg {
@@ -219,29 +218,49 @@ bool spawnChildProcess(string magicNumber, GPid &childPid)
 	return succeeded == TRUE;
 }
 
-void teardown(void)
-{
-	if (grandchildPid > 1) {
-		kill(grandchildPid, SIGTERM);
-		grandchildPid = 0;
-	} else {
-		checkAllProcessID();
+struct daemonizeVariable {
+	int grandchildPpid;
+	string magicNumber;
+	GPid childPid;
+	pid_t grandchildPid;
+
+	daemonizeVariable(void)
+	: grandchildPpid(0),
+	  childPid(0),
+	  grandchildPid(0)
+	{
 	}
+
+	~daemonizeVariable(void)
+	{
+		if (grandchildPid > 1) {
+			kill(grandchildPid, SIGTERM);
+			grandchildPid = 0;
+		} else {
+			checkAllProcessID();
+		}
+	}
+};
+daemonizeVariable *daemonizeValue;
+
+void cut_teardown(void)
+{
+	if (daemonizeValue != NULL)
+		delete daemonizeValue;
 }
 
 void test_daemonize(void)
 {
-	int grandchildPpid;
-	string magicNumber;
-	GPid childPid;
+	daemonizeVariable *value = new daemonizeVariable();
+	daemonizeValue = value;
 
-	cppcut_assert_equal(true, makeRandomNumber(magicNumber));
-	cppcut_assert_equal(true, spawnChildProcess(magicNumber, childPid));
-	cppcut_assert_equal(true, childProcessLoop(childPid));
-	cppcut_assert_equal(true, parsePIDFile());
-	cppcut_assert_equal(true, parseStatFile(grandchildPpid));
-	cppcut_assert_equal(1, grandchildPpid);
-	cppcut_assert_equal(true, parseEnvironFile(magicNumber));
+	cppcut_assert_equal(true, makeRandomNumber(value->magicNumber));
+	cppcut_assert_equal(true, spawnChildProcess(value->magicNumber, value->childPid));
+	cppcut_assert_equal(true, childProcessLoop(value->childPid));
+	cppcut_assert_equal(true, parsePIDFile(value->grandchildPid));
+	cppcut_assert_equal(true, parseStatFile(value->grandchildPpid, value->grandchildPid));
+	cppcut_assert_equal(1, value->grandchildPpid);
+	cppcut_assert_equal(true, parseEnvironFile(value->magicNumber, value->grandchildPid));
 }
 }
 
