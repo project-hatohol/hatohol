@@ -173,8 +173,21 @@ string execMySQL(const string &dbName, const string &statement, bool showHeader)
 	return result;
 }
 
+void _assertCurrDatetime(int clock)
+{
+	const int MAX_ALLOWD_CURR_TIME_ERROR = 5;
+	int currClock = (int)time(NULL);
+	cppcut_assert_equal(
+	  true, currClock >= clock,
+	  cut_message("currClock: %d, clock: %d", currClock, clock));
+	cppcut_assert_equal(
+	  true, currClock - clock < MAX_ALLOWD_CURR_TIME_ERROR,
+	  cut_message( "currClock: %d, clock: %d", currClock, clock));
+}
+
 void _assertCurrDatetime(const string &datetime)
 {
+	// TODO: use _assertCurrDatetime(int)
 	const int MAX_ALLOWD_CURR_TIME_ERROR = 5;
 	ItemDataPtr item = SQLUtils::createFromString(datetime.c_str(),
 	                                              SQL_COLUMN_TYPE_DATETIME);

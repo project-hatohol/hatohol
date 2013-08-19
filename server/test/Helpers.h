@@ -84,6 +84,7 @@ string execMySQL(const string &dbName, const string &statement,
                  bool showHeader = false);
 
 void _assertCurrDatetime(const string &datetime);
+void _assertCurrDatetime(int datetime);
 #define assertCurrDatetime(D) cut_trace(_assertCurrDatetime(D))
 
 void _assertDBContent(DBAgent *dbAgent, const string &statement,

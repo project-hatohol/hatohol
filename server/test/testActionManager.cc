@@ -45,6 +45,8 @@ public:
 
 namespace testActionManager {
 
+static pid_t g_testeePid = 0;
+
 static void waitConnect(PipeUtils &readPipe, size_t timeout)
 {
 	// read data
@@ -108,6 +110,24 @@ static void sendQuit(PipeUtils &readPipe, PipeUtils &writePipe, size_t timeout)
 	                    ACTTP_FLAGS_RES & response.flags);
 }
 
+static void _assertActionLog(
+  ActionLog &actionLog,
+ uint64_t id, int actionId, int status, int starterId, int queueintTime,
+ int startTime, int endTime, int failureCode, int exitCode)
+{
+	cppcut_assert_equal(id,           actionLog.id);
+	cppcut_assert_equal(actionId,     actionLog.actionId);
+	cppcut_assert_equal(status,       actionLog.status);
+	cppcut_assert_equal(starterId,    actionLog.starterId);
+	cppcut_assert_equal(queueintTime, actionLog.queuingTime);
+	assertCurrDatetime(actionLog.startTime);
+	cppcut_assert_equal(endTime,      actionLog.endTime);
+	cppcut_assert_equal(failureCode,  actionLog.failureCode);
+	cppcut_assert_equal(exitCode,     actionLog.exitCode);
+}
+#define assertActionLog(LOG, ID, ACT_ID, STAT, STID, QTIME, STIME, ETIME, FAIL_CODE, EXIT_CODE) \
+cut_trace(_assertActionLog(LOG, ID, ACT_ID, STAT, STID, QTIME, STIME, ETIME, FAIL_CODE, EXIT_CODE))
+
 void setup(void)
 {
 	hatoholInit();
@@ -116,6 +136,10 @@ void setup(void)
 
 void teardown(void)
 {
+	if (g_testeePid) {
+		kill(g_testeePid, SIGKILL);
+		g_testeePid = 0;
+	}
 }
 
 // ---------------------------------------------------------------------------
@@ -128,6 +152,7 @@ void test_execCommandAction(void)
 	cppcut_assert_equal(true, writePipe.makeFileInTmpAndOpenForWrite());
 
 	ActionDef actDef;
+	actDef.id = 2343242;
 	actDef.type = ACTION_COMMAND;
 	actDef.path = StringUtils::sprintf(
 	  "%s %s %s", cut_build_path("ActionTp", NULL),
@@ -135,7 +160,23 @@ void test_execCommandAction(void)
 
 	TestActionManager actMgr;
 	ActorInfo actorInfo;
+	actorInfo.pid = 0;
 	actMgr.callExecCommandAction(actDef, &actorInfo);
+	g_testeePid = actorInfo.pid; // To kill the process if this test fails.
+
+	// check the action log
+	ActionLog actionLog;
+	DBClientAction dbAction;
+	cppcut_assert_equal(true, dbAction.getLog(actionLog, actorInfo.logId));
+	assertActionLog(
+	  actionLog, actorInfo.logId,
+	  actDef.id, DBClientAction::ACTLOG_STAT_STARTED,
+	  0, /* starterId */
+	  0, /* queuingTime */
+	  CURR_DATETIME, /* startTime */
+	  0, /* endTime */
+	  0, /* failureCode */
+	  0  /* exitCode */);
 
 	// connect to action-tp
 	size_t timeout = 5 * 1000;
@@ -144,11 +185,6 @@ void test_execCommandAction(void)
 	argVect.push_back(writePipe.getPath());
 	argVect.push_back(readPipe.getPath());
 	getArguments(readPipe, writePipe, timeout, argVect);
-
-	// check the action log
-	ActionLog actionLog;
-	DBClientAction dbAction;
-	cppcut_assert_equal(true, dbAction.getLog(actionLog, actorInfo.logId));
 
 	// exit
 	sendQuit(readPipe, writePipe, timeout);
