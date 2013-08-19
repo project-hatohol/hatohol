@@ -154,7 +154,7 @@ bool parseEnvironFile(string makedMagicNumber)
 	return true;
 }
 
-bool checkEnvironAndKillProcess(pid_t pid)
+void checkEnvironAndKillProcess(pid_t pid)
 {
 	stringstream grandchildProcEnvironPath;
 	ifstream grandchildEnvironFile;
@@ -162,13 +162,9 @@ bool checkEnvironAndKillProcess(pid_t pid)
 	grandchildProcEnvironPath << "/proc/" << pid << "/environ";
 	grandchildEnvironFile.open(grandchildProcEnvironPath.str().c_str());
 	while (getline(grandchildEnvironFile, env, '\0')) {
-		if (env == flagAbnormalEnd){
+		if (env == flagAbnormalEnd)
 			kill(pid, SIGTERM);
-			return true;
-		}
 	}
-
-	return false;
 }
 
 bool checkAllProcessID(void)
