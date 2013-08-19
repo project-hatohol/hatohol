@@ -193,6 +193,7 @@ gboolean ActorCollector::checkExitProcess
 	   PrivateContext::waitChildSet.find(exitChildInfo.pid);
 	if (it != PrivateContext::waitChildSet.end()) {
 		found = true;
+		exitChildInfo.logId = it->second;
 		PrivateContext::waitChildSet.erase(it);
 	}
 	unlock();
@@ -201,7 +202,6 @@ gboolean ActorCollector::checkExitProcess
 		return TRUE;
 
 	DBClientAction dbAction;
-	exitChildInfo.logId = it->second;
 	dbAction.logEndExecAction(exitChildInfo);
 
 	return TRUE;
