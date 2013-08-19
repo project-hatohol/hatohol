@@ -156,6 +156,21 @@ void test_createFromStringBiguintWithNull(void)
 	cppcut_assert_equal(true, dataPtr->isNull());
 }
 
+void test_createFromStringVarchar(void)
+{
+	string val = "I like a soft-serve ice cream.";
+	ItemDataPtr dataPtr =
+	  SQLUtils::createFromString(val.c_str(), SQL_COLUMN_TYPE_VARCHAR);
+	cppcut_assert_equal(val, ItemDataUtils::getString(dataPtr));
+}
+
+void test_createFromStringVarcharWithNull(void)
+{
+	ItemDataPtr dataPtr =
+	  SQLUtils::createFromString(NULL, SQL_COLUMN_TYPE_VARCHAR);
+	cppcut_assert_equal(true, dataPtr->isNull());
+}
+
 void test_createFromStringDatetime(void)
 {
 	tzset();
