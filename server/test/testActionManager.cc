@@ -21,6 +21,7 @@
 #include <sys/types.h> 
 #include <stdarg.h>
 #include <unistd.h>
+#include <errno.h>
 #include "Hatohol.h"
 #include "Helpers.h"
 #include "ActionManager.h"
@@ -45,7 +46,49 @@ public:
 
 namespace testActionManager {
 
-static pid_t g_testeePid = 0;
+struct execCommandActionContext {
+	pid_t actionTpPid;
+	GMainLoop *loop;
+	bool timedOut;
+	guint timerTag;
+
+	execCommandActionContext(void)
+	: actionTpPid(0),
+	  loop(NULL),
+	  timedOut(false),
+	  timerTag(0)
+	{
+	}
+
+	virtual ~execCommandActionContext()
+	{
+		if (actionTpPid) {
+			int signo = SIGKILL;
+			if (kill(actionTpPid, signo) == -1) {
+				// We cannot stop the clean up.
+				// So we don't use cut_assert_...() here
+				cut_notify(
+				  "Failed to call kill: "
+				  "pid: %d, signo: %d, %s\n",
+				  actionTpPid, signo, strerror(errno));
+			}
+		}
+
+		if (loop)
+			g_main_loop_unref(loop);
+
+		if (timerTag)
+			g_source_remove(timerTag);
+	}
+};
+
+static gboolean timeoutHandler(gpointer data)
+{
+	execCommandActionContext *ctx = (execCommandActionContext *)data;
+	ctx->timedOut = true;
+	ctx->timerTag = 0;
+	return FALSE;
+}
 
 static void waitConnect(PipeUtils &readPipe, size_t timeout)
 {
@@ -126,7 +169,7 @@ static void _assertActionLog(
 	if (!(nullFlags & ACTLOG_FLAG_START_TIME))
 		assertCurrDatetime(actionLog.startTime);
 	if (!(nullFlags & ACTLOG_FLAG_END_TIME))
-		cppcut_assert_equal(endTime,      actionLog.endTime);
+		assertCurrDatetime(actionLog.endTime);
 	cppcut_assert_equal(failureCode,  actionLog.failureCode);
 	if (!(nullFlags & ACTLOG_FLAG_EXIT_CODE))
 		cppcut_assert_equal(exitCode,     actionLog.exitCode);
@@ -142,10 +185,6 @@ void setup(void)
 
 void teardown(void)
 {
-	if (g_testeePid) {
-		kill(g_testeePid, SIGKILL);
-		g_testeePid = 0;
-	}
 }
 
 // ---------------------------------------------------------------------------
@@ -153,6 +192,8 @@ void teardown(void)
 // ---------------------------------------------------------------------------
 void test_execCommandAction(void)
 {
+	execCommandActionContext ctx;
+
 	PipeUtils readPipe, writePipe;
 	cppcut_assert_equal(true, readPipe.makeFileInTmpAndOpenForRead());
 	cppcut_assert_equal(true, writePipe.makeFileInTmpAndOpenForWrite());
@@ -168,7 +209,7 @@ void test_execCommandAction(void)
 	ActorInfo actorInfo;
 	actorInfo.pid = 0;
 	actMgr.callExecCommandAction(actDef, &actorInfo);
-	g_testeePid = actorInfo.pid; // To kill the process if this test fails.
+	ctx.actionTpPid = actorInfo.pid;
 
 	// check the action log
 	ActionLog actionLog;
@@ -185,7 +226,7 @@ void test_execCommandAction(void)
 	  CURR_DATETIME, /* startTime */
 	  0, /* endTime */
 	  DBClientAction::ACTLOG_EXECFAIL_NONE, /* failureCode */
-	  0  /* exitCode */,
+	  0,  /* exitCode */
 	  expectedNullFlags);
 
 	// connect to action-tp
@@ -198,6 +239,32 @@ void test_execCommandAction(void)
 
 	// exit
 	sendQuit(readPipe, writePipe, timeout);
+
+	// check the action log after the actor is terminated
+	ctx.timerTag = g_timeout_add(timeout, timeoutHandler, &ctx);
+	ctx.loop = g_main_loop_new(NULL, TRUE);
+	while (true) {
+		// ActionCollector updates the aciton log in the wake of GLIB's
+		// events. So we can wait for the log update with
+		// iterations of the loop.
+		while (g_main_iteration(TRUE))
+			cppcut_assert_equal(false, ctx.timedOut);
+		cppcut_assert_equal(
+		  true, dbAction.getLog(actionLog, actorInfo.logId));
+		if (actionLog.status == DBClientAction::ACTLOG_STAT_STARTED)
+			continue;
+		assertActionLog(
+		  actionLog, actorInfo.logId,
+		  actDef.id, DBClientAction::ACTLOG_STAT_SUCCEEDED,
+		  0, /* starterId */
+		  0, /* queuingTime */
+		  CURR_DATETIME, /* startTime */
+		  CURR_DATETIME, /* endTime */
+		  DBClientAction::ACTLOG_EXECFAIL_NONE, /* failureCode */
+		  EXIT_SUCCESS, /* exitCode */
+		  ACTLOG_FLAG_QUEUING_TIME /* nullFlags */);
+		break;
+	}
 }
 
 } // namespace testActionManager
