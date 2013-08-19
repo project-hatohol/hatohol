@@ -175,7 +175,7 @@ void test_execCommandAction(void)
 	  0, /* queuingTime */
 	  CURR_DATETIME, /* startTime */
 	  0, /* endTime */
-	  0, /* failureCode */
+	  DBClientAction::ACTLOG_EXECFAIL_NONE, /* failureCode */
 	  0  /* exitCode */);
 
 	// connect to action-tp
