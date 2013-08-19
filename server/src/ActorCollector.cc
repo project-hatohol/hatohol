@@ -72,7 +72,7 @@ void ActorCollector::addActor(const ActorInfo &actorInfo)
 {
 	// This function is currently called only from
 	// ActionManager::execCommandAction(). Because lock() and unlock() are
-	// called in it, so lock() and unlock aren't called here.
+	// called in it, so they aren't called here.
 	pair<WaitChildSetIterator, bool> result =
 	  PrivateContext::waitChildSet.insert
 	    (pair<pid_t, uint64_t>(actorInfo.pid, actorInfo.logId));
