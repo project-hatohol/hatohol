@@ -17,6 +17,7 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <cstring>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/time.h>
@@ -121,8 +122,8 @@ string PipeUtils::makePipeFileInTmpDir(int id)
 	  = StringUtils::sprintf("/tmp/hatohol-test-pipeinfo-%d-%d",
 	                         getpid(), id);
 	if (mkfifo(tmpPipeName.c_str(), 0666) == -1) {
-		MLPL_ERR("Failed to make FIFO: %s, errno: %d\n",
-		         tmpPipeName.c_str(), errno);
+		MLPL_ERR("Failed to make FIFO: %s, %s\n",
+		         tmpPipeName.c_str(), strerror(errno));
 		return "";
 	}
 	return tmpPipeName;
