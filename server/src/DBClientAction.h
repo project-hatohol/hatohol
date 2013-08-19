@@ -102,6 +102,13 @@ typedef list<ActionDef>               ActionDefList;
 typedef ActionDefList::iterator       ActionDefListIterator;
 typedef ActionDefList::const_iterator ActionDefListConstIterator;
 
+enum {
+	ACTLOG_FLAG_QUEUING_TIME = (1 << 0),
+	ACTLOG_FLAG_START_TIME   = (1 << 1),
+	ACTLOG_FLAG_END_TIME     = (1 << 2),
+	ACTLOG_FLAG_EXIT_CODE    = (1 << 3),
+};
+
 struct ActionLog {
 	uint64_t id;
 	int      actionId;
@@ -112,6 +119,7 @@ struct ActionLog {
 	int      endTime;
 	int      failureCode;
 	int      exitCode;
+	uint32_t nullFlags;
 };
 
 struct ExitChildInfo {

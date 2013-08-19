@@ -113,20 +113,26 @@ static void sendQuit(PipeUtils &readPipe, PipeUtils &writePipe, size_t timeout)
 static void _assertActionLog(
   ActionLog &actionLog,
  uint64_t id, int actionId, int status, int starterId, int queueintTime,
- int startTime, int endTime, int failureCode, int exitCode)
+ int startTime, int endTime, int failureCode, int exitCode, uint32_t nullFlags)
 {
+	cppcut_assert_equal(nullFlags,    actionLog.nullFlags);
+
 	cppcut_assert_equal(id,           actionLog.id);
 	cppcut_assert_equal(actionId,     actionLog.actionId);
 	cppcut_assert_equal(status,       actionLog.status);
 	cppcut_assert_equal(starterId,    actionLog.starterId);
-	cppcut_assert_equal(queueintTime, actionLog.queuingTime);
-	assertCurrDatetime(actionLog.startTime);
-	cppcut_assert_equal(endTime,      actionLog.endTime);
+	if (!(nullFlags & ACTLOG_FLAG_QUEUING_TIME))
+		cppcut_assert_equal(queueintTime, actionLog.queuingTime);
+	if (!(nullFlags & ACTLOG_FLAG_START_TIME))
+		assertCurrDatetime(actionLog.startTime);
+	if (!(nullFlags & ACTLOG_FLAG_END_TIME))
+		cppcut_assert_equal(endTime,      actionLog.endTime);
 	cppcut_assert_equal(failureCode,  actionLog.failureCode);
-	cppcut_assert_equal(exitCode,     actionLog.exitCode);
+	if (!(nullFlags & ACTLOG_FLAG_EXIT_CODE))
+		cppcut_assert_equal(exitCode,     actionLog.exitCode);
 }
-#define assertActionLog(LOG, ID, ACT_ID, STAT, STID, QTIME, STIME, ETIME, FAIL_CODE, EXIT_CODE) \
-cut_trace(_assertActionLog(LOG, ID, ACT_ID, STAT, STID, QTIME, STIME, ETIME, FAIL_CODE, EXIT_CODE))
+#define assertActionLog(LOG, ID, ACT_ID, STAT, STID, QTIME, STIME, ETIME, FAIL_CODE, EXIT_CODE, NULL_FLAGS) \
+cut_trace(_assertActionLog(LOG, ID, ACT_ID, STAT, STID, QTIME, STIME, ETIME, FAIL_CODE, EXIT_CODE, NULL_FLAGS))
 
 void setup(void)
 {
@@ -167,6 +173,9 @@ void test_execCommandAction(void)
 	// check the action log
 	ActionLog actionLog;
 	DBClientAction dbAction;
+	uint32_t expectedNullFlags = 
+	  ACTLOG_FLAG_QUEUING_TIME | ACTLOG_FLAG_END_TIME |
+	  ACTLOG_FLAG_EXIT_CODE;
 	cppcut_assert_equal(true, dbAction.getLog(actionLog, actorInfo.logId));
 	assertActionLog(
 	  actionLog, actorInfo.logId,
@@ -176,7 +185,8 @@ void test_execCommandAction(void)
 	  CURR_DATETIME, /* startTime */
 	  0, /* endTime */
 	  DBClientAction::ACTLOG_EXECFAIL_NONE, /* failureCode */
-	  0  /* exitCode */);
+	  0  /* exitCode */,
+	  expectedNullFlags);
 
 	// connect to action-tp
 	size_t timeout = 5 * 1000;

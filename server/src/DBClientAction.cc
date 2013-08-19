@@ -585,6 +585,7 @@ bool DBClientAction::getLog(ActionLog &actionLog, uint64_t logId)
 	ItemGroupListConstIterator it = grpList.begin();
 	const ItemGroup *itemGroup = *it;
 	int idx = 0;
+	actionLog.nullFlags = 0;
 
 	// action log ID
 	DEFINE_AND_ASSERT(itemGroup->getItemAt(idx++), ItemUint64, itemLogId);
@@ -606,14 +607,20 @@ bool DBClientAction::getLog(ActionLog &actionLog, uint64_t logId)
 	DEFINE_AND_ASSERT(itemGroup->getItemAt(idx++),
 	                  ItemInt, itemQueuingTime);
 	actionLog.queuingTime = itemQueuingTime->get();
+	if (itemQueuingTime->isNull())
+		actionLog.nullFlags |= ACTLOG_FLAG_QUEUING_TIME;
 
 	// start time
 	DEFINE_AND_ASSERT(itemGroup->getItemAt(idx++), ItemInt, itemStartTime);
 	actionLog.startTime = itemStartTime->get();
+	if (itemStartTime->isNull())
+		actionLog.nullFlags |= ACTLOG_FLAG_START_TIME;
 
 	// end time
 	DEFINE_AND_ASSERT(itemGroup->getItemAt(idx++), ItemInt, itemEndTime);
 	actionLog.endTime = itemEndTime->get();
+	if (itemEndTime->isNull())
+		actionLog.nullFlags |= ACTLOG_FLAG_END_TIME;
 
 	// failure code
 	DEFINE_AND_ASSERT(itemGroup->getItemAt(idx++),
@@ -623,6 +630,8 @@ bool DBClientAction::getLog(ActionLog &actionLog, uint64_t logId)
 	// exit code
 	DEFINE_AND_ASSERT(itemGroup->getItemAt(idx++), ItemInt, itemExitCode);
 	actionLog.exitCode = itemExitCode->get();
+	if (itemExitCode->isNull())
+		actionLog.nullFlags |= ACTLOG_FLAG_EXIT_CODE;
 
 	return true;
 }
