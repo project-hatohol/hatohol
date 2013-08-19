@@ -171,6 +171,22 @@ void test_createFromStringVarcharWithNull(void)
 	cppcut_assert_equal(true, dataPtr->isNull());
 }
 
+void test_createFromStringDouble(void)
+{
+	double val = 0.123456789012345;
+	string val_str = StringUtils::sprintf("%.15lf", val);
+	ItemDataPtr dataPtr =
+	  SQLUtils::createFromString(val_str.c_str(), SQL_COLUMN_TYPE_DOUBLE);
+	cppcut_assert_equal(val, ItemDataUtils::getDouble(dataPtr));
+}
+
+void test_createFromStringDoubleWithNull(void)
+{
+	ItemDataPtr dataPtr =
+	  SQLUtils::createFromString(NULL, SQL_COLUMN_TYPE_DOUBLE);
+	cppcut_assert_equal(true, dataPtr->isNull());
+}
+
 void test_createFromStringDatetime(void)
 {
 	tzset();
