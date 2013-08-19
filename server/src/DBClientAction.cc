@@ -555,8 +555,76 @@ void DBClientAction::logEndExecAction(const ExitChildInfo &exitChildInfo)
 
 bool DBClientAction::getLog(ActionLog &actionLog, uint64_t logId)
 {
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
-	return false;
+	DBAgentSelectExArg arg;
+	arg.tableName = TABLE_NAME_ACTION_LOGS;
+	const ColumnDef *def = COLUMN_DEF_ACTION_LOGS;
+	const char *idColName = def[IDX_ACTION_LOGS_ACTION_LOG_ID].columnName;
+	arg.condition = StringUtils::sprintf("%s=%"PRIu64, idColName, logId);
+	arg.pushColumn(def[IDX_ACTION_LOGS_ACTION_LOG_ID]);
+	arg.pushColumn(def[IDX_ACTION_LOGS_ACTION_ID]);
+	arg.pushColumn(def[IDX_ACTION_LOGS_STATUS]); 
+	arg.pushColumn(def[IDX_ACTION_LOGS_STARTER_ID]);
+	arg.pushColumn(def[IDX_ACTION_LOGS_QUEUING_TIME]);
+	arg.pushColumn(def[IDX_ACTION_LOGS_START_TIME]);
+	arg.pushColumn(def[IDX_ACTION_LOGS_END_TIME]);
+	arg.pushColumn(def[IDX_ACTION_LOGS_EXEC_FAILURE_CODE]);
+	arg.pushColumn(def[IDX_ACTION_LOGS_EXIT_CODE]);
+
+	DBCLIENT_TRANSACTION_BEGIN() {
+		select(arg);
+	} DBCLIENT_TRANSACTION_END();
+
+	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
+	size_t numGrpList = grpList.size();
+	HATOHOL_ASSERT(numGrpList <= 1, "numGrpList: %zd, logId: %"PRIu64,
+	               numGrpList, logId);
+	// Not found
+	if (numGrpList == 0)
+		return false;
+
+	ItemGroupListConstIterator it = grpList.begin();
+	const ItemGroup *itemGroup = *it;
+	int idx = 0;
+
+	// action log ID
+	DEFINE_AND_ASSERT(itemGroup->getItemAt(idx++), ItemUint64, itemLogId);
+	actionLog.id = itemLogId->get();
+
+	// action ID
+	DEFINE_AND_ASSERT(itemGroup->getItemAt(idx++), ItemInt, itemActionId);
+	actionLog.actionId = itemActionId->get();
+
+	// status
+	DEFINE_AND_ASSERT(itemGroup->getItemAt(idx++), ItemInt, itemStatus);
+	actionLog.status = itemStatus->get();
+
+	// starter ID
+	DEFINE_AND_ASSERT(itemGroup->getItemAt(idx++), ItemInt, itemStarterId);
+	actionLog.starterId = itemStarterId->get();
+
+	// queuing time
+	DEFINE_AND_ASSERT(itemGroup->getItemAt(idx++),
+	                  ItemInt, itemQueuingTime);
+	actionLog.queuingTime = itemQueuingTime->get();
+
+	// start time
+	DEFINE_AND_ASSERT(itemGroup->getItemAt(idx++), ItemInt, itemStartTime);
+	actionLog.startTime = itemStartTime->get();
+
+	// end time
+	DEFINE_AND_ASSERT(itemGroup->getItemAt(idx++), ItemInt, itemEndTime);
+	actionLog.endTime = itemEndTime->get();
+
+	// failure code
+	DEFINE_AND_ASSERT(itemGroup->getItemAt(idx++),
+	                  ItemInt, itemFailureCode);
+	actionLog.failureCode = itemFailureCode->get();
+
+	// exit code
+	DEFINE_AND_ASSERT(itemGroup->getItemAt(idx++), ItemInt, itemExitCode);
+	actionLog.exitCode = itemExitCode->get();
+
+	return true;
 }
 
 // ---------------------------------------------------------------------------

@@ -103,6 +103,15 @@ typedef ActionDefList::iterator       ActionDefListIterator;
 typedef ActionDefList::const_iterator ActionDefListConstIterator;
 
 struct ActionLog {
+	uint64_t id;
+	int      actionId;
+	int      status;
+	int      starterId;
+	int      queuingTime;
+	int      startTime;
+	int      endTime;
+	int      failureCode;
+	int      exitCode;
 };
 
 struct ExitChildInfo {
