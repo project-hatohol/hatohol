@@ -51,7 +51,7 @@ struct FunctionArg {
 };
 
 struct daemonizeVariable {
-	int grandchildParentPid;
+	pid_t grandchildParentPid;
 	string magicNumber;
 	GPid childPid;
 	pid_t grandchildPid;
