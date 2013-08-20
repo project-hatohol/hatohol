@@ -83,7 +83,7 @@ struct daemonizeVariable {
 		int result;
 		struct dirent **nameList;
 
-		result = scandir("/proc/", &nameList, NULL, NULL);
+		result = scandir("/proc/", &nameList, NULL, alphasort);
 		// TODO: Write error message (or process)
 		for (int i = 0; i < result ; ++i) {
 			int procPid = atoi(nameList[i]->d_name);
