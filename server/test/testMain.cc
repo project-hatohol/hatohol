@@ -89,7 +89,7 @@ struct daemonizeVariable {
 			int procPid = atoi(nameList[i]->d_name);
 			if (procPid > 0)
 				checkEnvironAndKillProcess(procPid, magicNumber);
-					free(nameList[i]);
+			free(nameList[i]);
 		}
 		free(nameList);
 
