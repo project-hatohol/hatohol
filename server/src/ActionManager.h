@@ -39,6 +39,8 @@ protected:
 	static void separatorCallback(const char sep, PrivateContext *ctx);
 	void runAction(const ActionDef &actionDef);
 	void makeExecArg(StringVector &argVect, const string &cmd);
+	bool spawn(const ActionDef &actionDef, ActorInfo *actorInfo,
+	           const gchar **argv);
 	void execCommandAction(const ActionDef &actionDef,
 	                       ActorInfo *actorInfo = NULL);
 	void execResidentAction(const ActionDef &actionDef,

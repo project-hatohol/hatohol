@@ -175,6 +175,46 @@ void ActionManager::makeExecArg(StringVector &argVect, const string &cmd)
 	m_ctx->pushbackCurrWord();
 }
 
+bool ActionManager::spawn(const ActionDef &actionDef, ActorInfo *actorInfo,
+                          const gchar **argv)
+{
+	const gchar *workingDirectory = NULL;
+	if (!actionDef.workingDir.empty())
+		workingDirectory = actionDef.workingDir.c_str();
+
+	GSpawnFlags flags =
+	  (GSpawnFlags)(G_SPAWN_DO_NOT_REAP_CHILD | G_SPAWN_SEARCH_PATH);
+	GSpawnChildSetupFunc childSetup = NULL;
+	gpointer userData = NULL;
+	GError *error = NULL;
+
+	// We take the lock here to avoid the child spanwed below from
+	// not being collected. If the child immediately exits
+	// before the following 'm_ctx->collector.addActor(&childPid)' is
+	// called, ActorCollector::checkExitProcess() possibly ignores it,
+	// because the pid of the child isn't in the wait child set.
+	m_ctx->collector.lock();
+	gboolean succeeded =
+	  g_spawn_async(workingDirectory, (gchar **)argv, NULL,
+	                flags, childSetup, userData, &actorInfo->pid, &error);
+	if (!succeeded) {
+		m_ctx->collector.unlock();
+		string msg = StringUtils::sprintf(
+		  "Failed to execute command: %s, action ID: %d",
+		  error->message, actionDef.id);
+		g_error_free(error);
+		MLPL_ERR("%s\n", msg.c_str());
+		m_ctx->dbAction.logStartExecAction
+		  (actionDef, DBClientAction::ACTLOG_EXECFAIL_EXEC_FAILURE);
+		return false;
+	}
+	actorInfo->logId = m_ctx->dbAction.logStartExecAction(actionDef);
+	m_ctx->collector.addActor(*actorInfo);
+	m_ctx->collector.unlock();
+
+	return true;
+}
+
 void ActionManager::execCommandAction(const ActionDef &actionDef,
                                       ActorInfo *_actorInfo)
 {
@@ -259,40 +299,11 @@ ResidentInfo *ActionManager::launchResidentActionYard
 		return NULL;
 	}
 
-	// execute hatohol-action-yard
-	const gchar *workingDirectory = NULL;
-	if (!actionDef.workingDir.empty())
-		workingDirectory = actionDef.workingDir.c_str();
-
 	const gchar *argv[2] = {"hatohol-resident-yard", NULL};
-	GSpawnFlags flags =
-	  (GSpawnFlags)(G_SPAWN_DO_NOT_REAP_CHILD | G_SPAWN_SEARCH_PATH);
-	GSpawnChildSetupFunc childSetup = NULL;
-	gpointer userData = NULL;
-	GError *error = NULL;
-
-	// We take lock here. The reason is the same as the comment written
-	// in execCommandAction().
-	m_ctx->collector.lock();
-	gboolean succeeded =
-	  g_spawn_async(workingDirectory, (gchar **)&argv, NULL,
-	                flags, childSetup, userData, &actorInfo->pid, &error);
-	if (!succeeded) {
-		m_ctx->collector.unlock();
-		string msg = StringUtils::sprintf(
-		  "Failed to execute command: %s, action ID: %d",
-		  error->message, actionDef.id);
-		g_error_free(error);
-		MLPL_ERR("%s\n", msg.c_str());
-		m_ctx->dbAction.logStartExecAction
-		  (actionDef, DBClientAction::ACTLOG_EXECFAIL_EXEC_FAILURE);
+	if (!spawn(actionDef, actorInfo, argv)) {
 		delete residentInfo;
 		return NULL;
 	}
-	actorInfo->logId = m_ctx->dbAction.logStartExecAction(actionDef);
-	// TODO: consider that we really handle the resident with collector.
-	m_ctx->collector.addActor(*actorInfo);
-	m_ctx->collector.unlock();
 
 	return residentInfo;
 }
