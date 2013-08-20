@@ -1,5 +1,6 @@
-sbin_PROGRAMS = hatohol
+sbin_PROGRAMS = hatohol hatohol-resident-yard
 hatohol_SOURCES = main.cc
+hatohol_resident_yard_SOURCES = hatoholResidentYard.cc
 
 lib_LTLIBRARIES = libhatohol.la
 libhatohol_la_SOURCES = \
@@ -85,3 +86,4 @@ AM_LDFLAGS = -lrt \
 	$(LIBSOUP_LIBS) $(JSON_GLIB_LIBS) $(SQLITE3_LIBS) $(MYSQL_LIBS)
 
 hatohol_LDADD = libhatohol.la
+hatohol_resident_yard_LDADD = libhatohol.la
