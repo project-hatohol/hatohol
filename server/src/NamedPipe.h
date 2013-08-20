@@ -38,7 +38,8 @@ public:
 	bool open(const std::string &name);
 
 protected:
-	bool makeBasedirIfNeeded(void);
+	bool isExistingDir(const string &dirname, bool &hasError);
+	bool makeBasedirIfNeeded(const string &baseDir);
 	bool deleteFileIfExists(const std::string &path);
 
 private:

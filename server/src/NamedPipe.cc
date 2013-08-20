@@ -32,6 +32,8 @@ using namespace std;
 
 
 const char *NamedPipe::BASE_DIR = "/tmp/hatohol";
+unsigned BASE_DIR_MODE =
+   S_IRUSR | S_IWUSR | S_IXUSR | S_IRGRP | S_IWGRP | S_IXGRP;
 
 struct NamedPipe::PrivateContext {
 	int fd;
@@ -75,7 +77,7 @@ bool NamedPipe::open(const string &name)
 	HATOHOL_ASSERT(m_ctx->fd == -1,
 	               "FD must be -1 (%d). NamedPipe::open() is possibly "
 	               "called multiple times.\n", m_ctx->fd);
-	if (!makeBasedirIfNeeded())
+	if (!makeBasedirIfNeeded(BASE_DIR))
 		return false;
 
 	int suffix = (m_ctx->endType == END_TYPE_MASTER_READ) ? 0 : 1;
@@ -98,10 +100,57 @@ bool NamedPipe::open(const string &name)
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
-bool NamedPipe::makeBasedirIfNeeded(void)
+bool NamedPipe::isExistingDir(const string &dirname, bool &hasError)
 {
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
-	return false;
+	errno = 0;
+	hasError = true;
+	struct stat buf;
+	if (stat(dirname.c_str(), &buf) == -1 && errno != ENOENT) {
+		MLPL_ERR("Failed to stat: %s, %s\n",
+		         dirname.c_str(), strerror(errno));
+		return false;
+	}
+	if (errno == ENOENT) {
+		hasError = false;
+		return false;
+	}
+
+	// chekc the the path is directory
+	if (!S_ISDIR(buf.st_mode)) {
+		MLPL_ERR("Already exist: but not directory: %s, mode: %x\n",
+		         dirname.c_str(), buf.st_mode);
+		return false;
+	}
+	if (((buf.st_mode & 0777) & BASE_DIR_MODE) != BASE_DIR_MODE) {
+		MLPL_ERR("Invalid directory mode: %s, 0%o\n",
+		         dirname.c_str(), buf.st_mode);
+		return false;
+	}
+
+	hasError = false;
+	return true;
+}
+
+bool NamedPipe::makeBasedirIfNeeded(const string &baseDir)
+{
+	bool hasError = false;
+	if (isExistingDir(baseDir, hasError))
+		return true;
+	if (hasError)
+		return false;
+
+	// make a directory
+	if (mkdir(BASE_DIR, BASE_DIR_MODE) == -1) {
+		if (errno != EEXIST) {
+			MLPL_ERR("Failed to make dir: %s, %s\n",
+			         BASE_DIR, strerror(errno));
+			return false;
+		}
+		// The other process or thread may create the directory
+		// after we checked it.
+		return isExistingDir(baseDir, hasError);
+	}
+	return true;
 }
 
 bool NamedPipe::deleteFileIfExists(const string &path)
