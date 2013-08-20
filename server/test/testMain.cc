@@ -151,39 +151,6 @@ bool parseEnvironFile(string makedMagicNumber, int grandchildPid)
 	return true;
 }
 
-void checkEnvironAndKillProcess(pid_t pid)
-{
-	stringstream grandchildProcEnvironPath;
-	ifstream grandchildEnvironFile;
-	string env;
-	grandchildProcEnvironPath << "/proc/" << pid << "/environ";
-	grandchildEnvironFile.open(grandchildProcEnvironPath.str().c_str());
-	while (getline(grandchildEnvironFile, env, '\0')) {
-		if (env == daemonizeValue->magicNumber) {
-			kill(pid, SIGTERM);
-			return;
-		}
-	}
-}
-
-bool checkAllProcessID(void)
-{
-	int result;
-	struct dirent **nameList;
-
-	result = scandir("/proc/", &nameList, NULL, NULL);
-	// TODO: Write error message (or process)
-	for (int i = 0; i < result ; ++i) {
-		int procPid = atoi(nameList[i]->d_name);
-		if (procPid > 0)
-			checkEnvironAndKillProcess(procPid);
-		free(nameList[i]);
-	}
-	free(nameList);
-
-	return true;
-}
-
 bool makeRandomNumber(string &magicNumber)
 {
 	srand((unsigned int)time(NULL));
@@ -229,6 +196,39 @@ struct daemonizeVariable {
 	  childPid(0),
 	  grandchildPid(0)
 	{
+	}
+
+	void checkEnvironAndKillProcess(pid_t pid, string magicNumber)
+	{
+		stringstream grandchildProcEnvironPath;
+		ifstream grandchildEnvironFile;
+		string env;
+		grandchildProcEnvironPath << "/proc/" << pid << "/environ";
+		grandchildEnvironFile.open(grandchildProcEnvironPath.str().c_str());
+		while (getline(grandchildEnvironFile, env, '\0')) {
+			if (env == magicNumber) {
+				kill(pid, SIGTERM);
+				return;
+			}
+		}
+	}
+
+	bool checkAllProcessID(void)
+	{
+		int result;
+		struct dirent **nameList;
+
+		result = scandir("/proc/", &nameList, NULL, NULL);
+		// TODO: Write error message (or process)
+		for (int i = 0; i < result ; ++i) {
+			int procPid = atoi(nameList[i]->d_name);
+			if (procPid > 0)
+				checkEnvironAndKillProcess(procPid, magicNumber);
+					free(nameList[i]);
+		}
+		free(nameList);
+
+		return true;
 	}
 
 	~daemonizeVariable(void)
