@@ -33,11 +33,13 @@ struct ResidentQueueInfo {
 typedef deque<ResidentQueueInfo> ResidentQueue;
 
 struct ResidentInfo {
+	ActionManager *actionManager;
 	ResidentQueue queue;
 	NamedPipe pipeRd, pipeWr;
 
-	ResidentInfo(void)
-	: pipeRd(NamedPipe::END_TYPE_MASTER_READ),
+	ResidentInfo(ActionManager *actMgr)
+	: actionManager(actMgr),
+	  pipeRd(NamedPipe::END_TYPE_MASTER_READ),
 	  pipeWr(NamedPipe::END_TYPE_MASTER_WRITE)
 	{
 	}
@@ -48,6 +50,19 @@ struct ResidentInfo {
 		if (!pipeRd.openPipe(name))
 			return false;
 		if (!pipeWr.openPipe(name))
+			return false;
+		return true;
+	}
+
+	bool openIOChannel(GIOFunc funcRd)
+	{
+		GIOCondition cond = (GIOCondition)
+		  (G_IO_IN|G_IO_PRI|G_IO_ERR|G_IO_HUP|G_IO_NVAL);
+		if(!pipeRd.createGIOChannel(cond, funcRd, this))
+			return false;
+
+		cond = (GIOCondition)(G_IO_OUT|G_IO_ERR|G_IO_HUP|G_IO_NVAL);
+		if (!pipeWr.createGIOChannel(cond))
 			return false;
 		return true;
 	}
@@ -255,6 +270,13 @@ void ActionManager::execResidentAction(const ActionDef &actionDef,
 	m_ctx->residentLock.unlock();
 }
 
+gboolean ActionManager::residentReadCb(
+  GIOChannel *source, GIOCondition condition, gpointer data)
+{
+	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	return TRUE;
+}
+
 //
 // The folloing functions shall be called with the lock of m_ctx->residentLock
 //
@@ -262,7 +284,7 @@ ResidentInfo *ActionManager::launchResidentActionYard
   (const ActionDef &actionDef, ActorInfo *actorInfo)
 {
 	// make a ResidentInfo instance.
-	ResidentInfo *residentInfo = new ResidentInfo();
+	ResidentInfo *residentInfo = new ResidentInfo(this);
 	if (!residentInfo->openPipe(actionDef.id)) {
 		delete residentInfo;
 		return NULL;
@@ -270,6 +292,11 @@ ResidentInfo *ActionManager::launchResidentActionYard
 
 	const gchar *argv[2] = {"hatohol-resident-yard", NULL};
 	if (!spawn(actionDef, actorInfo, argv)) {
+		delete residentInfo;
+		return NULL;
+	}
+
+	if (!residentInfo->openIOChannel(residentReadCb)) {
 		delete residentInfo;
 		return NULL;
 	}

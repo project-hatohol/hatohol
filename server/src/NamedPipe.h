@@ -21,6 +21,7 @@
 #define NamedPipe_h
 
 #include <string>
+#include <glib.h>
 
 class NamedPipe {
 public:
@@ -36,8 +37,13 @@ public:
 	NamedPipe(EndType endType);
 	virtual ~NamedPipe();
 	bool openPipe(const std::string &name);
+	bool createGIOChannel(GIOCondition cond, GIOFunc iochCb = NULL,
+	                      gpointer data = NULL);
+	int getFd(void) const;
 
 protected:
+	static gboolean writeCb(GIOChannel *source, GIOCondition condition,
+	                        gpointer data);
 	bool isExistingDir(const string &dirname, bool &hasError);
 	bool makeBasedirIfNeeded(const string &baseDir);
 	bool deleteFileIfExists(const std::string &path);

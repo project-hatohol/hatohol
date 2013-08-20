@@ -37,6 +37,8 @@ public:
 
 protected:
 	static void separatorCallback(const char sep, PrivateContext *ctx);
+	static gboolean residentReadCb(GIOChannel *source,
+	                               GIOCondition condition, gpointer data);
 	void runAction(const ActionDef &actionDef);
 	void makeExecArg(StringVector &argVect, const string &cmd);
 	bool spawn(const ActionDef &actionDef, ActorInfo *actorInfo,

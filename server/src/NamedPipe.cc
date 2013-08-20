@@ -24,6 +24,7 @@
 #include <errno.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <glib-object.h>
 
 #include <string>
 using namespace std;
@@ -41,15 +42,21 @@ struct NamedPipe::PrivateContext {
 	int fd;
 	string path;
 	EndType endType;
+	GIOChannel *ioch;
+	gint iochEvtId;
 
 	PrivateContext(EndType _endType)
-	: endType(_endType)
+	: fd(-1),
+	  endType(_endType),
+	  ioch(NULL),
+	  iochEvtId(-1)
 	{
-		fd = -1;
 	}
 
 	virtual ~PrivateContext()
 	{
+		if (ioch)
+			g_object_unref(ioch);
 		if (fd >= 0)
 			close(fd);
 	}
@@ -132,9 +139,54 @@ retry:
 	return true;
 }
 
+bool NamedPipe::createGIOChannel
+  (GIOCondition cond, GIOFunc iochCb, gpointer data)
+{
+	HATOHOL_ASSERT(m_ctx->fd > 0, "Invalid FD\n");
+	m_ctx->ioch = g_io_channel_unix_new(m_ctx->fd);
+	if (!m_ctx->ioch) {
+		MLPL_ERR("Failed to call g_io_channel_unix_new: %d\n",
+		         m_ctx->fd);
+		return false;
+	}
+	GError *error = NULL;
+	GIOStatus stat = g_io_channel_set_encoding(m_ctx->ioch, NULL, &error);
+	if (stat != G_IO_STATUS_NORMAL) {
+		MLPL_ERR("Failed to call g_io_channel_set_encoding: "
+		         "%d, %s\n", stat,
+		         error ? error->message : "(unknown reason)");
+		return false;
+	}
+
+	if (m_ctx->endType == END_TYPE_MASTER_WRITE
+	    || m_ctx->endType == END_TYPE_SLAVE_WRITE) {
+		HATOHOL_ASSERT(!iochCb,
+		               "iochCB cannot be specified in slave mode.\n");
+		iochCb = writeCb;
+		data = this;
+	}
+	if (iochCb) {
+		m_ctx->iochEvtId =
+		  g_io_add_watch(m_ctx->ioch, cond, iochCb, data);
+	}
+	return true;
+}
+
+int NamedPipe::getFd(void) const
+{
+	return m_ctx->fd;
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
+gboolean NamedPipe::writeCb(GIOChannel *source, GIOCondition condition,
+                            gpointer data)
+{
+	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	return TRUE;
+}
+
 bool NamedPipe::isExistingDir(const string &dirname, bool &hasError)
 {
 	errno = 0;
