@@ -29,15 +29,19 @@
 #include <string>
 using namespace std;
 
+#include <SmartBuffer.h>
+using namespace mlpl;
+
 #include "HatoholException.h"
 #include "NamedPipe.h"
-
-using namespace mlpl;
 
 const char *NamedPipe::BASE_DIR = "/tmp/hatohol";
 unsigned BASE_DIR_MODE =
    S_IRUSR | S_IWUSR | S_IXUSR | S_IRGRP | S_IWGRP | S_IXGRP;
 unsigned FIFO_MODE = S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP;
+
+typedef list<SmartBuffer>         SmartBufferList;
+typedef SmartBufferList::iterator SmartBufferListIterator;;
 
 struct NamedPipe::PrivateContext {
 	int fd;
@@ -46,6 +50,7 @@ struct NamedPipe::PrivateContext {
 	GIOChannel *ioch;
 	gint iochEvtId;
 	bool writeReady;
+	list<SmartBuffer> *writeBufList;
 
 	PrivateContext(EndType _endType)
 	: fd(-1),
@@ -192,7 +197,33 @@ const string &NamedPipe::getPath(void) const
 
 void NamedPipe::push(SmartBuffer &buf)
 {
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	HATOHOL_ASSERT(m_ctx->endType == END_TYPE_MASTER_WRITE
+	               || m_ctx->endType == END_TYPE_SLAVE_WRITE,
+	               "push() can be called only by writers: %d\n",
+	               m_ctx->endType);
+	buf.resetIndex();
+	if (m_ctx->writeReady) {
+		gchar *dataPtr = buf.getPointer<gchar>();
+		gssize count = buf.size();
+		gsize bytesWritten;
+		GError *error = NULL;
+		GIOStatus stat =
+		  g_io_channel_write_chars(m_ctx->ioch, dataPtr, count,
+		                           &bytesWritten, &error);
+		if (stat == G_IO_STATUS_ERROR || stat == G_IO_STATUS_EOF) {
+			// TODO: add error sequence
+		}
+		if (stat == G_IO_STATUS_AGAIN) {
+			// TODO: add retry sequence
+		}
+		if (bytesWritten != (gsize)count) {
+			buf.incIndex(bytesWritten);
+			//m_ctx->writeBufList.push_back(buf);
+			// TODO: trun on write callback.
+		}
+		return;
+	}
+	// TODO: add code to append the buffer to the list.
 }
 
 // ---------------------------------------------------------------------------
@@ -203,6 +234,7 @@ gboolean NamedPipe::writeCb(GIOChannel *source, GIOCondition condition,
 {
 	NamedPipe *obj = static_cast<NamedPipe *>(data);
 	obj->m_ctx->writeReady = true;
+	// TODO: add code to write buffer m_ctx->writeBufList is not empty;
 	return FALSE;
 }
 
