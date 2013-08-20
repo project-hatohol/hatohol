@@ -32,6 +32,7 @@ using namespace std;
 #include "HatoholException.h"
 #include "NamedPipe.h"
 
+using namespace mlpl;
 
 const char *NamedPipe::BASE_DIR = "/tmp/hatohol";
 unsigned BASE_DIR_MODE =
@@ -87,6 +88,7 @@ bool NamedPipe::openPipe(const string &name)
 
 	int suffix;
 	int openFlag;
+	bool recreate = false;
 	// We assume that this class is used as a master-slave model.
 	// The master first makes and open pipes. Then the slave opens them.
 	// We use O_NONBLOCK and O_RDWR to avoid the open by the master
@@ -99,10 +101,12 @@ bool NamedPipe::openPipe(const string &name)
 	case END_TYPE_MASTER_READ:
 		suffix = 0;
 		openFlag = O_RDONLY|O_NONBLOCK;
+		recreate = true;
 		break;
 	case END_TYPE_MASTER_WRITE:
 		suffix = 1;
 		openFlag = O_RDWR;
+		recreate = true;
 		break;
 	case END_TYPE_SLAVE_READ:
 		suffix = 1;
@@ -117,12 +121,14 @@ bool NamedPipe::openPipe(const string &name)
 	}
 	m_ctx->path = StringUtils::sprintf("%s/%s-%d",
 	                                   BASE_DIR, name.c_str(), suffix);
-	if (!deleteFileIfExists(m_ctx->path))
-		return false;
-	if (mkfifo(m_ctx->path.c_str(), FIFO_MODE) == -1) { 
-		MLPL_ERR("Failed to make FIFO: %s, %s\n",
-		         m_ctx->path.c_str(), strerror(errno));
-		return false;
+	if (recreate) {
+		if (!deleteFileIfExists(m_ctx->path))
+			return false;
+		if (mkfifo(m_ctx->path.c_str(), FIFO_MODE) == -1) { 
+			MLPL_ERR("Failed to make FIFO: %s, %s\n",
+			         m_ctx->path.c_str(), strerror(errno));
+			return false;
+		}
 	}
 
 	// open the fifo
