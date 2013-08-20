@@ -22,6 +22,7 @@
 
 #include <string>
 #include <glib.h>
+#include <SmartBuffer.h>
 
 class NamedPipe {
 public:
@@ -41,6 +42,7 @@ public:
 	                      gpointer data = NULL);
 	int getFd(void) const;
 	const string &getPath(void) const;
+	void push(mlpl::SmartBuffer &buf);
 
 protected:
 	static gboolean writeCb(GIOChannel *source, GIOCondition condition,

@@ -1,12 +1,15 @@
+#include <cstdio>
 #include <cstdlib>
 #include <glib.h>
 
 #include <Logger.h>
+#include <SmartBuffer.h>
 using namespace mlpl;
 
 #include "Hatohol.h"
 #include "HatoholException.h"
 #include "NamedPipe.h"
+#include "ResidentProtocol.h"
 
 struct PrivateContext {
 	GMainLoop *loop;
@@ -32,6 +35,14 @@ gboolean readPipeCb(GIOChannel *source, GIOCondition condition, gpointer data)
 	PrivateContext *ctx = static_cast<PrivateContext *>(data);
 	MLPL_BUG("Not implemented: %s (%p)\n", __PRETTY_FUNCTION__, ctx);
 	return TRUE;
+}
+
+static void sendLaunched(PrivateContext *ctx)
+{
+	SmartBuffer buf(RESIDENT_PROTO_HEADER_LEN);
+	buf.add32(RESIDENT_PROTO_HEADER_LEN - RESIDENT_PROTO_HEADE_SIZE_LEN);
+	buf.add16(RESIDENT_PROTO_PKT_TYPE_LAUNCHED);
+	ctx->pipeWr.push(buf);
 }
 
 int mainRoutine(int argc, char *argv[])
@@ -68,6 +79,8 @@ int mainRoutine(int argc, char *argv[])
 	cond = (GIOCondition)(G_IO_OUT|G_IO_ERR|G_IO_HUP|G_IO_NVAL);
 	if (!ctx.pipeWr.createGIOChannel(cond))
 		return false;
+
+	sendLaunched(&ctx);
 
 	// main loop of GLIB
 	ctx.loop = g_main_loop_new(NULL, FALSE);

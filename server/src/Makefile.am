@@ -55,6 +55,7 @@ libhatohol_la_SOURCES = \
 	Params.h \
 	PrimaryCondition.cc PrimaryCondition.h \
 	PrimaryConditionPicker.cc PrimaryConditionPicker.h \
+	ResidentProtocol.h \
 	SQLColumnParser.cc SQLColumnParser.h \
 	SQLFormulaParser.cc SQLFormulaParser.h \
 	SQLFromParser.cc SQLFromParser.h \

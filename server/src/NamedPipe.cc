@@ -45,12 +45,14 @@ struct NamedPipe::PrivateContext {
 	EndType endType;
 	GIOChannel *ioch;
 	gint iochEvtId;
+	bool writeReady;
 
 	PrivateContext(EndType _endType)
 	: fd(-1),
 	  endType(_endType),
 	  ioch(NULL),
-	  iochEvtId(-1)
+	  iochEvtId(-1),
+	  writeReady(false)
 	{
 	}
 
@@ -188,14 +190,20 @@ const string &NamedPipe::getPath(void) const
 	return m_ctx->path;
 }
 
+void NamedPipe::push(SmartBuffer &buf)
+{
+	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
 gboolean NamedPipe::writeCb(GIOChannel *source, GIOCondition condition,
                             gpointer data)
 {
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
-	return TRUE;
+	NamedPipe *obj = static_cast<NamedPipe *>(data);
+	obj->m_ctx->writeReady = true;
+	return FALSE;
 }
 
 bool NamedPipe::isExistingDir(const string &dirname, bool &hasError)
