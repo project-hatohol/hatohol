@@ -155,6 +155,20 @@ bool NamedPipe::makeBasedirIfNeeded(const string &baseDir)
 
 bool NamedPipe::deleteFileIfExists(const string &path)
 {
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
-	return false;
+	struct stat buf;
+	if (stat(path.c_str(), &buf) == -1 && errno != ENOENT) {
+		MLPL_ERR("Failed to stat: %s, %s\n",
+		         path.c_str(), strerror(errno));
+		return false;
+	}
+	if (errno == ENOENT)
+		return true;
+
+	if (unlink(path.c_str()) == -1) {
+		MLPL_ERR("Failed to unlink: %s, %s\n",
+		         path.c_str(), strerror(errno));
+		return false;
+	}
+
+	return true;
 }
