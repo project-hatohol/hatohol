@@ -22,6 +22,7 @@
 #include "ActionManager.h"
 #include "ActorCollector.h"
 #include "DBClientAction.h"
+#include "NamedPipe.h"
 
 using namespace std;
 
@@ -33,6 +34,7 @@ typedef deque<ResidentQueueInfo> ResidentQueue;
 
 struct ResidentInfo {
 	ResidentQueue queue;
+	NamedPipe pipe;
 
 	ResidentInfo(void)
 	{

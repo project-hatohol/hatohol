@@ -42,7 +42,6 @@ int mainRoutine(int argc, char *argv[])
 	return EXIT_SUCCESS;
 }
 
-
 int main(int argc, char *argv[])
 {
 	int ret = EXIT_FAILURE;
