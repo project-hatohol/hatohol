@@ -45,9 +45,9 @@ struct ResidentInfo {
 	bool openPipe(int actionId)
 	{
 		string name = StringUtils::sprintf("resident-%d", actionId);
-		if (!pipeRd.open(name))
+		if (!pipeRd.openPipe(name))
 			return false;
-		if (!pipeWr.open(name))
+		if (!pipeWr.openPipe(name))
 			return false;
 		return true;
 	}

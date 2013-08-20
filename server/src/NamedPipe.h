@@ -35,7 +35,7 @@ public:
 
 	NamedPipe(EndType endType);
 	virtual ~NamedPipe();
-	bool open(const std::string &name);
+	bool openPipe(const std::string &name);
 
 protected:
 	bool isExistingDir(const string &dirname, bool &hasError);
