@@ -27,6 +27,13 @@ struct PrivateContext {
 	}
 };
 
+gboolean readPipeCb(GIOChannel *source, GIOCondition condition, gpointer data)
+{
+	PrivateContext *ctx = static_cast<PrivateContext *>(data);
+	MLPL_BUG("Not implemented: %s (%p)\n", __PRETTY_FUNCTION__, ctx);
+	return TRUE;
+}
+
 int mainRoutine(int argc, char *argv[])
 {
 #ifndef GLIB_VERSION_2_36
@@ -51,6 +58,16 @@ int mainRoutine(int argc, char *argv[])
 		return EXIT_FAILURE;
 	if (!ctx.pipeWr.openPipe(pipeName))
 		return EXIT_FAILURE;
+
+	// make GIOChannels for the pipe
+	GIOCondition cond = (GIOCondition)
+	  (G_IO_IN|G_IO_PRI|G_IO_ERR|G_IO_HUP|G_IO_NVAL);
+	if (!ctx.pipeRd.createGIOChannel(cond, readPipeCb, &ctx))
+		return EXIT_FAILURE;
+
+	cond = (GIOCondition)(G_IO_OUT|G_IO_ERR|G_IO_HUP|G_IO_NVAL);
+	if (!ctx.pipeWr.createGIOChannel(cond))
+		return false;
 
 	// main loop of GLIB
 	ctx.loop = g_main_loop_new(NULL, FALSE);
