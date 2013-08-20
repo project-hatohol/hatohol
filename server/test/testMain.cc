@@ -86,7 +86,8 @@ struct daemonizeVariable {
 		struct dirent **nameList;
 
 		result = scandir("/proc/", &nameList, NULL, alphasort);
-		// TODO: Write error message (or process)
+		if (result == -1)
+			cut_notify("Can't load /proc/ directory.");
 		for (int i = 0; i < result ; ++i) {
 			int procPid = atoi(nameList[i]->d_name);
 			if (procPid > 0)
