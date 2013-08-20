@@ -55,11 +55,13 @@ struct daemonizeVariable {
 	string magicNumber;
 	GPid childPid;
 	pid_t grandchildPid;
+	bool finishTest;
 
 	daemonizeVariable(void)
 	: grandchildParentPid(0),
 	  childPid(0),
-	  grandchildPid(0)
+	  grandchildPid(0),
+	  finishTest(false)
 	{
 	}
 
@@ -98,7 +100,7 @@ struct daemonizeVariable {
 
 	~daemonizeVariable(void)
 	{
-		if (grandchildPid > 1) {
+		if (finishTest) {
 			kill(grandchildPid, SIGTERM);
 			grandchildPid = 0;
 		} else {
@@ -261,6 +263,8 @@ void test_daemonize(void)
 	cppcut_assert_equal(true, parseStatFile(value->grandchildParentPid, value->grandchildPid));
 	cppcut_assert_equal(1, value->grandchildParentPid);
 	cppcut_assert_equal(true, parseEnvironFile(value->magicNumber, value->grandchildPid));
+
+	value->finishTest = true;
 }
 }
 
