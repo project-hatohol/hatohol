@@ -51,6 +51,7 @@ public:
 	static string getExtension(const string &path);
 	static bool validateJSMethodName(const string &name,
 	                                 string &errorMessage);
+	static string getSelfExeDir(void);
 
 protected:
 	static string makeDemangledStackTraceString(string &stackTraceLine);

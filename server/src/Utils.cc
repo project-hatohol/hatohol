@@ -22,11 +22,14 @@
 using namespace mlpl;
 
 #include <cstdio>
+#include <cstdlib>
+#include <cstring>
 #include <cxxabi.h>
 #include <stdexcept>
 #include <unistd.h>
 #include <errno.h>
 #include <sys/time.h>
+#include <limits.h>
 #include "Utils.h"
 #include "FormulaElement.h"
 
@@ -188,6 +191,26 @@ string Utils::getExtension(const string &path)
 		break;
 	}
 	return ext;
+}
+
+string Utils::getSelfExeDir(void)
+{
+	char buf[PATH_MAX];
+	ssize_t bytesRead = readlink("/proc/self/exe", buf, PATH_MAX);
+	if (bytesRead == -1) {
+		THROW_HATOHOL_EXCEPTION(
+		  "Failed to readlink(\"/proc/self/exe\"): %s",
+		  strerror(errno));
+	}
+
+	int i;
+	for (i = bytesRead - 2; i > 0; i--) {
+		if (buf[i] == '/')
+			break;
+	}
+	if (i < 1)
+		return "/";
+	return string(buf, 0, i);
 }
 
 // ---------------------------------------------------------------------------
