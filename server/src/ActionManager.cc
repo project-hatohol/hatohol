@@ -220,11 +220,6 @@ void ActionManager::execCommandAction(const ActionDef &actionDef,
 {
 	HATOHOL_ASSERT(actionDef.type == ACTION_COMMAND,
 	               "Invalid type: %d\n", actionDef.type);
-
-	const gchar *workingDirectory = NULL;
-	if (!actionDef.workingDir.empty())
-		workingDirectory = actionDef.workingDir.c_str();
-
 	StringVector argVect;
 	makeExecArg(argVect, actionDef.path);
 	// TODO: check the result of the parse
@@ -234,35 +229,9 @@ void ActionManager::execCommandAction(const ActionDef &actionDef,
 		argv[i] = argVect[i].c_str();
 	argv[argVect.size()] = NULL;
 
-	GSpawnFlags flags = G_SPAWN_DO_NOT_REAP_CHILD;
-	GSpawnChildSetupFunc childSetup = NULL;
-	gpointer userData = NULL;
-	GError *error = NULL;
 	ActorInfo actorInfo;
-
-	// We take the lock here to avoid the child spanwed below from
-	// not being collected. If the child immediately exits
-	// before the following 'm_ctx->collector.addActor(&childPid)' is
-	// called, ActorCollector::checkExitProcess() possibly ignores it,
-	// because the pid of the child isn't in the wait child set.
-	m_ctx->collector.lock();
-	gboolean succeeded =
-	  g_spawn_async(workingDirectory, (gchar **)&argv, NULL,
-	                flags, childSetup, userData, &actorInfo.pid, &error);
-	if (!succeeded) {
-		m_ctx->collector.unlock();
-		string msg = StringUtils::sprintf(
-		  "Failed to execute command: %s", error->message);
-		g_error_free(error);
-		MLPL_ERR("%s\n", msg.c_str());
-		m_ctx->dbAction.logStartExecAction
-		  (actionDef, DBClientAction::ACTLOG_EXECFAIL_EXEC_FAILURE);
+	if (!spawn(actionDef, &actorInfo, argv))
 		return;
-	} else {
-		actorInfo.logId = m_ctx->dbAction.logStartExecAction(actionDef);
-		m_ctx->collector.addActor(actorInfo);
-		m_ctx->collector.unlock();
-	}
 	if (_actorInfo)
 		memcpy(_actorInfo, &actorInfo, sizeof(ActorInfo));
 }
