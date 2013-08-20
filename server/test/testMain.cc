@@ -90,7 +90,7 @@ struct daemonizeVariable {
 			cut_notify("Can't load /proc/ directory.");
 		for (int i = 0; i < result ; ++i) {
 			int procPid = atoi(nameList[i]->d_name);
-			if (procPid > 0)
+			if (procPid > 1)
 				checkEnvironAndKillProcess(procPid, magicNumber);
 			free(nameList[i]);
 		}
