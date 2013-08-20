@@ -252,13 +252,49 @@ void ActionManager::execResidentAction(const ActionDef &actionDef,
 ResidentInfo *ActionManager::launchResidentActionYard
   (const ActionDef &actionDef, ActorInfo *actorInfo)
 {
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	// make a ResidentInfo instance.
 	ResidentInfo *residentInfo = new ResidentInfo();
-	if (residentInfo->openPipe(actionDef.id)) {
+	if (!residentInfo->openPipe(actionDef.id)) {
 		delete residentInfo;
 		return NULL;
 	}
-	return NULL;
+
+	// execute hatohol-action-yard
+	const gchar *workingDirectory = NULL;
+	if (!actionDef.workingDir.empty())
+		workingDirectory = actionDef.workingDir.c_str();
+
+	const gchar *argv[2] = {"hatohol-resident-yard", NULL};
+	GSpawnFlags flags =
+	  (GSpawnFlags)(G_SPAWN_DO_NOT_REAP_CHILD | G_SPAWN_SEARCH_PATH);
+	GSpawnChildSetupFunc childSetup = NULL;
+	gpointer userData = NULL;
+	GError *error = NULL;
+
+	// We take lock here. The reason is the same as the comment written
+	// in execCommandAction().
+	m_ctx->collector.lock();
+	gboolean succeeded =
+	  g_spawn_async(workingDirectory, (gchar **)&argv, NULL,
+	                flags, childSetup, userData, &actorInfo->pid, &error);
+	if (!succeeded) {
+		m_ctx->collector.unlock();
+		string msg = StringUtils::sprintf(
+		  "Failed to execute command: %s, action ID: %d",
+		  error->message, actionDef.id);
+		g_error_free(error);
+		MLPL_ERR("%s\n", msg.c_str());
+		m_ctx->dbAction.logStartExecAction
+		  (actionDef, DBClientAction::ACTLOG_EXECFAIL_EXEC_FAILURE);
+		delete residentInfo;
+		return NULL;
+	}
+	actorInfo->logId = m_ctx->dbAction.logStartExecAction(actionDef);
+	// TODO: consider that we really handle the resident with collector.
+	m_ctx->collector.addActor(*actorInfo);
+	m_ctx->collector.unlock();
+
+	return residentInfo;
 }
 
 void ActionManager::goToResidentYardEntrance(
