@@ -50,6 +50,64 @@ struct FunctionArg {
 	}
 };
 
+struct daemonizeVariable {
+	int grandchildPpid;
+	string magicNumber;
+	GPid childPid;
+	pid_t grandchildPid;
+
+	daemonizeVariable(void)
+	: grandchildPpid(0),
+	  childPid(0),
+	  grandchildPid(0)
+	{
+	}
+
+	void checkEnvironAndKillProcess(pid_t pid, string magicNumber)
+	{
+		stringstream grandchildProcEnvironPath;
+		ifstream grandchildEnvironFile;
+		string env;
+		grandchildProcEnvironPath << "/proc/" << pid << "/environ";
+		grandchildEnvironFile.open(grandchildProcEnvironPath.str().c_str());
+		while (getline(grandchildEnvironFile, env, '\0')) {
+			if (env == magicNumber) {
+				kill(pid, SIGTERM);
+				return;
+			}
+		}
+	}
+
+	bool checkAllProcessID(void)
+	{
+		int result;
+		struct dirent **nameList;
+
+		result = scandir("/proc/", &nameList, NULL, NULL);
+		// TODO: Write error message (or process)
+		for (int i = 0; i < result ; ++i) {
+			int procPid = atoi(nameList[i]->d_name);
+			if (procPid > 0)
+				checkEnvironAndKillProcess(procPid, magicNumber);
+					free(nameList[i]);
+		}
+		free(nameList);
+
+		return true;
+	}
+
+	~daemonizeVariable(void)
+	{
+		if (grandchildPid > 1) {
+			kill(grandchildPid, SIGTERM);
+			grandchildPid = 0;
+		} else {
+			checkAllProcessID();
+		}
+	}
+};
+daemonizeVariable *daemonizeValue;
+
 void endChildProcess(GPid child_pid, gint status, gpointer data)
 {
 	FunctionArg *arg = (FunctionArg *) data;
@@ -184,64 +242,6 @@ bool spawnChildProcess(string magicNumber, GPid &childPid)
 
 	return succeeded == TRUE;
 }
-
-struct daemonizeVariable {
-	int grandchildPpid;
-	string magicNumber;
-	GPid childPid;
-	pid_t grandchildPid;
-
-	daemonizeVariable(void)
-	: grandchildPpid(0),
-	  childPid(0),
-	  grandchildPid(0)
-	{
-	}
-
-	void checkEnvironAndKillProcess(pid_t pid, string magicNumber)
-	{
-		stringstream grandchildProcEnvironPath;
-		ifstream grandchildEnvironFile;
-		string env;
-		grandchildProcEnvironPath << "/proc/" << pid << "/environ";
-		grandchildEnvironFile.open(grandchildProcEnvironPath.str().c_str());
-		while (getline(grandchildEnvironFile, env, '\0')) {
-			if (env == magicNumber) {
-				kill(pid, SIGTERM);
-				return;
-			}
-		}
-	}
-
-	bool checkAllProcessID(void)
-	{
-		int result;
-		struct dirent **nameList;
-
-		result = scandir("/proc/", &nameList, NULL, NULL);
-		// TODO: Write error message (or process)
-		for (int i = 0; i < result ; ++i) {
-			int procPid = atoi(nameList[i]->d_name);
-			if (procPid > 0)
-				checkEnvironAndKillProcess(procPid, magicNumber);
-					free(nameList[i]);
-		}
-		free(nameList);
-
-		return true;
-	}
-
-	~daemonizeVariable(void)
-	{
-		if (grandchildPid > 1) {
-			kill(grandchildPid, SIGTERM);
-			grandchildPid = 0;
-		} else {
-			checkAllProcessID();
-		}
-	}
-};
-daemonizeVariable *daemonizeValue;
 
 void cut_teardown(void)
 {
