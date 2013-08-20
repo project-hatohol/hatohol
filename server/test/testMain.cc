@@ -51,13 +51,13 @@ struct FunctionArg {
 };
 
 struct daemonizeVariable {
-	int grandchildPpid;
+	int grandchildParentPid;
 	string magicNumber;
 	GPid childPid;
 	pid_t grandchildPid;
 
 	daemonizeVariable(void)
-	: grandchildPpid(0),
+	: grandchildParentPid(0),
 	  childPid(0),
 	  grandchildPid(0)
 	{
@@ -258,8 +258,8 @@ void test_daemonize(void)
 	cppcut_assert_equal(true, spawnChildProcess(value->magicNumber, value->childPid));
 	cppcut_assert_equal(true, childProcessLoop(value->childPid));
 	cppcut_assert_equal(true, parsePIDFile(value->grandchildPid));
-	cppcut_assert_equal(true, parseStatFile(value->grandchildPpid, value->grandchildPid));
-	cppcut_assert_equal(1, value->grandchildPpid);
+	cppcut_assert_equal(true, parseStatFile(value->grandchildParentPid, value->grandchildPid));
+	cppcut_assert_equal(1, value->grandchildParentPid);
 	cppcut_assert_equal(true, parseEnvironFile(value->magicNumber, value->grandchildPid));
 }
 }
