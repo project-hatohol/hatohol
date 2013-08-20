@@ -33,6 +33,7 @@
 #include "Hatohol.h"
 #include "Utils.h"
 using namespace std;
+using namespace mlpl;
 
 namespace testMain {
 struct FunctionArg {
@@ -89,10 +90,12 @@ struct daemonizeVariable {
 		if (result == -1)
 			cut_notify("Can't load /proc/ directory.");
 		for (int i = 0; i < result ; ++i) {
-			int procPid = atoi(nameList[i]->d_name);
-			if (procPid > 1)
-				checkEnvironAndKillProcess(procPid, magicNumber);
-			free(nameList[i]);
+			if (StringUtils::isNumber(nameList[i]->d_name)){
+				int procPid = atoi(nameList[i]->d_name);
+				if (procPid > 1)
+					checkEnvironAndKillProcess(procPid, magicNumber);
+				free(nameList[i]);
+			}
 		}
 		free(nameList);
 
