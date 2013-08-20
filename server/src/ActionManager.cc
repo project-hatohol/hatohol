@@ -34,10 +34,22 @@ typedef deque<ResidentQueueInfo> ResidentQueue;
 
 struct ResidentInfo {
 	ResidentQueue queue;
-	NamedPipe pipe;
+	NamedPipe pipeRd, pipeWr;
 
 	ResidentInfo(void)
+	: pipeRd(NamedPipe::END_TYPE_MASTER_READ),
+	  pipeWr(NamedPipe::END_TYPE_MASTER_WRITE)
 	{
+	}
+
+	bool openPipe(int actionId)
+	{
+		string name = StringUtils::sprintf("resident-%d", actionId);
+		if (!pipeRd.open(name))
+			return false;
+		if (!pipeWr.open(name))
+			return false;
+		return true;
 	}
 };
 
@@ -241,6 +253,11 @@ ResidentInfo *ActionManager::launchResidentActionYard
   (const ActionDef &actionDef, ActorInfo *actorInfo)
 {
 	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	ResidentInfo *residentInfo = new ResidentInfo();
+	if (residentInfo->openPipe(actionDef.id)) {
+		delete residentInfo;
+		return NULL;
+	}
 	return NULL;
 }
 

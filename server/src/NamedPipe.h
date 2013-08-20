@@ -20,10 +20,27 @@
 #ifndef NamedPipe_h
 #define NamedPipe_h
 
+#include <string>
+
 class NamedPipe {
 public:
-	NamedPipe(void);
+	enum EndType {
+		END_TYPE_MASTER_READ,
+		END_TYPE_MASTER_WRITE,
+		END_TYPE_SLAVE_READ,
+		END_TYPE_SLAVE_WRITE,
+	};
+
+	static const char *BASE_DIR;
+
+	NamedPipe(EndType endType);
 	virtual ~NamedPipe();
+	bool open(const std::string &name);
+
+protected:
+	bool makeBasedirIfNeeded(void);
+	bool deleteFileIfExists(const std::string &path);
+
 private:
 	struct PrivateContext;
 	PrivateContext *m_ctx;
