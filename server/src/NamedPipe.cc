@@ -177,6 +177,11 @@ int NamedPipe::getFd(void) const
 	return m_ctx->fd;
 }
 
+const string &NamedPipe::getPath(void) const
+{
+	return m_ctx->path;
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------

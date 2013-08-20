@@ -40,6 +40,7 @@ public:
 	bool createGIOChannel(GIOCondition cond, GIOFunc iochCb = NULL,
 	                      gpointer data = NULL);
 	int getFd(void) const;
+	const string &getPath(void) const;
 
 protected:
 	static gboolean writeCb(GIOChannel *source, GIOCondition condition,

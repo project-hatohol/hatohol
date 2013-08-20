@@ -36,6 +36,7 @@ struct ResidentInfo {
 	ActionManager *actionManager;
 	ResidentQueue queue;
 	NamedPipe pipeRd, pipeWr;
+	string pipeName;
 
 	ResidentInfo(ActionManager *actMgr)
 	: actionManager(actMgr),
@@ -46,10 +47,10 @@ struct ResidentInfo {
 
 	bool openPipe(int actionId)
 	{
-		string name = StringUtils::sprintf("resident-%d", actionId);
-		if (!pipeRd.openPipe(name))
+		pipeName = StringUtils::sprintf("resident-%d", actionId);
+		if (!pipeRd.openPipe(pipeName))
 			return false;
-		if (!pipeWr.openPipe(name))
+		if (!pipeWr.openPipe(pipeName))
 			return false;
 		return true;
 	}
@@ -290,7 +291,10 @@ ResidentInfo *ActionManager::launchResidentActionYard
 		return NULL;
 	}
 
-	const gchar *argv[2] = {"hatohol-resident-yard", NULL};
+	const gchar *argv[] = {
+	  "hatohol-resident-yard",
+	  residentInfo->pipeName.c_str(),
+	  NULL};
 	if (!spawn(actionDef, actorInfo, argv)) {
 		delete residentInfo;
 		return NULL;
