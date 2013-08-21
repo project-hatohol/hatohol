@@ -203,7 +203,6 @@ bool NamedPipe::createGIOChannel(GIOFunc iochCb, gpointer data)
 	}
 	else if (m_ctx->endType == END_TYPE_MASTER_WRITE
 	         || m_ctx->endType == END_TYPE_SLAVE_WRITE) {
-		enableWriteCbIfNeeded(); // This is only for G_IO_OUT
 		cond = (GIOCondition)(G_IO_ERR|G_IO_HUP|G_IO_NVAL);
 	}
 	m_ctx->iochEvtId = g_io_add_watch(m_ctx->ioch, cond, iochCb, data);
