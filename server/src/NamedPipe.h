@@ -38,8 +38,28 @@ public:
 	NamedPipe(EndType endType);
 	virtual ~NamedPipe();
 	bool openPipe(const std::string &name);
-	bool createGIOChannel(GIOCondition cond, GIOFunc iochCb = NULL,
-	                      gpointer data = NULL);
+
+	/**
+	 * Create a GIOChannel object and register an event callback.
+	 * openPipe() must be called before the call of this function.
+	 *
+	 * @parameter iochCb
+	 * A callback handler on the pipe's event.
+	 * If the instance type is END_TYPE_MASTER_READ or 
+	 * END_TYPE_SLAVE_READ, it is called on one of the events:
+	 * G_IO_IN, G_IO_PRI, G_IO_ERR, G_IO_HUP, and G_IO_NVAL.
+	 * If the instance type is END_TYPE_MASTER_WRITE or 
+	 * END_TYPE_SLAVE_WRITE, it is call on one of the events:
+	 * G_IO_ERR, G_IO_HUP, and G_IO_NVAL.
+	 *
+	 * @parameter data
+	 * An arbitray user data that is passed as an argument of the callback.
+	 *
+	 * @return
+	 * If no error occurs, true is returned. Otherwise false.
+	 */
+	bool createGIOChannel(GIOFunc iochCb, gpointer data);
+
 	int getFd(void) const;
 	const string &getPath(void) const;
 

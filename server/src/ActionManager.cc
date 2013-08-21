@@ -55,15 +55,11 @@ struct ResidentInfo {
 		return true;
 	}
 
-	bool openIOChannel(GIOFunc funcRd)
+	bool openIOChannel(GIOFunc funcRd, GIOFunc funcWr)
 	{
-		GIOCondition cond = (GIOCondition)
-		  (G_IO_IN|G_IO_PRI|G_IO_ERR|G_IO_HUP|G_IO_NVAL);
-		if(!pipeRd.createGIOChannel(cond, funcRd, this))
+		if(!pipeRd.createGIOChannel(funcRd, this))
 			return false;
-
-		cond = (GIOCondition)(G_IO_OUT|G_IO_ERR|G_IO_HUP|G_IO_NVAL);
-		if (!pipeWr.createGIOChannel(cond))
+		if (!pipeWr.createGIOChannel(funcWr, this))
 			return false;
 		return true;
 	}
@@ -274,7 +270,20 @@ void ActionManager::execResidentAction(const ActionDef &actionDef,
 gboolean ActionManager::residentReadCb(
   GIOChannel *source, GIOCondition condition, gpointer data)
 {
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	ResidentInfo *residentInfo = static_cast<ResidentInfo *>(data);
+	MLPL_BUG("Not implemented: %s (%p)\n",
+	         __PRETTY_FUNCTION__, residentInfo);
+	return TRUE;
+}
+
+gboolean ActionManager::residentWriteCb(
+  GIOChannel *source, GIOCondition condition, gpointer data)
+{
+	// This function is never called by the event: G_IO_OUT.
+	// For Error, HUP, and so on.
+	ResidentInfo *residentInfo = static_cast<ResidentInfo *>(data);
+	MLPL_BUG("Not implemented: %s (%p)\n",
+	         __PRETTY_FUNCTION__, residentInfo);
 	return TRUE;
 }
 
@@ -300,7 +309,7 @@ ResidentInfo *ActionManager::launchResidentActionYard
 		return NULL;
 	}
 
-	if (!residentInfo->openIOChannel(residentReadCb)) {
+	if (!residentInfo->openIOChannel(residentReadCb, residentWriteCb)) {
 		delete residentInfo;
 		return NULL;
 	}

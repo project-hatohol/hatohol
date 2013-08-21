@@ -52,6 +52,7 @@ struct NamedPipe::PrivateContext {
 	EndType endType;
 	GIOChannel *ioch;
 	gint iochEvtId;
+	gint iochOutEvtId; // only for write
 	bool writeCbSet;
 	SmartBufferList writeBufList;
 	MutexLock writeBufListLock;
@@ -60,7 +61,8 @@ struct NamedPipe::PrivateContext {
 	: fd(-1),
 	  endType(_endType),
 	  ioch(NULL),
-	  iochEvtId(INVALID_EVENT_ID)
+	  iochEvtId(INVALID_EVENT_ID),
+	  iochOutEvtId(INVALID_EVENT_ID)
 	{
 	}
 
@@ -175,8 +177,7 @@ retry:
 	return true;
 }
 
-bool NamedPipe::createGIOChannel
-  (GIOCondition cond, GIOFunc iochCb, gpointer data)
+bool NamedPipe::createGIOChannel(GIOFunc iochCb, gpointer data)
 {
 	HATOHOL_ASSERT(m_ctx->fd > 0, "Invalid FD\n");
 	m_ctx->ioch = g_io_channel_unix_new(m_ctx->fd);
@@ -194,17 +195,18 @@ bool NamedPipe::createGIOChannel
 		return false;
 	}
 
-	if (m_ctx->endType == END_TYPE_MASTER_WRITE
-	    || m_ctx->endType == END_TYPE_SLAVE_WRITE) {
-		HATOHOL_ASSERT(!iochCb,
-		               "iochCB cannot be specified in slave mode.\n");
-		enableWriteCbIfNeeded();
-		return true;
+	GIOCondition cond = (GIOCondition)0;
+	if (m_ctx->endType == END_TYPE_MASTER_READ
+	    || m_ctx->endType == END_TYPE_SLAVE_READ) {
+		cond =
+		  (GIOCondition)(G_IO_IN|G_IO_PRI|G_IO_ERR|G_IO_HUP|G_IO_NVAL);
 	}
-	if (iochCb) {
-		m_ctx->iochEvtId =
-		  g_io_add_watch(m_ctx->ioch, cond, iochCb, data);
+	else if (m_ctx->endType == END_TYPE_MASTER_WRITE
+	         || m_ctx->endType == END_TYPE_SLAVE_WRITE) {
+		enableWriteCbIfNeeded(); // This is only for G_IO_OUT
+		cond = (GIOCondition)(G_IO_ERR|G_IO_HUP|G_IO_NVAL);
 	}
+	m_ctx->iochEvtId = g_io_add_watch(m_ctx->ioch, cond, iochCb, data);
 	return true;
 }
 
@@ -245,8 +247,8 @@ gboolean NamedPipe::writeCb(GIOChannel *source, GIOCondition condition,
 	gboolean continueEventCb = FALSE;
 
 	ctx->writeBufListLock.lock();
-	gint currEvtId = ctx->iochEvtId;
-	ctx->iochEvtId = INVALID_EVENT_ID;
+	gint currOutEvtId = ctx->iochOutEvtId;
+	ctx->iochOutEvtId = INVALID_EVENT_ID;
 	if (ctx->writeBufList.empty()) {
 		MLPL_BUG("writeCB was called. "
 		         "However, write buffer list is empty.\n");
@@ -261,7 +263,7 @@ gboolean NamedPipe::writeCb(GIOChannel *source, GIOCondition condition,
 		} else {
 			// This function will be called back again
 			// when the pipe is available.
-			ctx->iochEvtId = currEvtId;
+			ctx->iochOutEvtId = currOutEvtId;
 			continueEventCb = TRUE;
 			break;
 		}
@@ -303,11 +305,10 @@ void NamedPipe::enableWriteCbIfNeeded(void)
 {
 	// We assume that this function is called
 	// with the lock of m_ctx->writeBufListLock.
-	if (m_ctx->iochEvtId != INVALID_EVENT_ID)
+	if (m_ctx->iochOutEvtId != INVALID_EVENT_ID)
 		return;
-	GIOCondition cond
-	  = (GIOCondition)(G_IO_OUT|G_IO_ERR|G_IO_HUP|G_IO_NVAL);
-	m_ctx->iochEvtId = g_io_add_watch(m_ctx->ioch, cond, writeCb, this);
+	GIOCondition cond = G_IO_OUT;
+	m_ctx->iochOutEvtId = g_io_add_watch(m_ctx->ioch, cond, writeCb, this);
 }
 
 bool NamedPipe::isExistingDir(const string &dirname, bool &hasError)

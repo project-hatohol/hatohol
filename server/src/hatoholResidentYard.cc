@@ -37,6 +37,13 @@ gboolean readPipeCb(GIOChannel *source, GIOCondition condition, gpointer data)
 	return TRUE;
 }
 
+gboolean writePipeCb(GIOChannel *source, GIOCondition condition, gpointer data)
+{
+	PrivateContext *ctx = static_cast<PrivateContext *>(data);
+	MLPL_BUG("Not implemented: %s (%p)\n", __PRETTY_FUNCTION__, ctx);
+	return TRUE;
+}
+
 static void sendLaunched(PrivateContext *ctx)
 {
 	SmartBuffer buf(RESIDENT_PROTO_HEADER_LEN);
@@ -71,13 +78,9 @@ int mainRoutine(int argc, char *argv[])
 		return EXIT_FAILURE;
 
 	// make GIOChannels for the pipe
-	GIOCondition cond = (GIOCondition)
-	  (G_IO_IN|G_IO_PRI|G_IO_ERR|G_IO_HUP|G_IO_NVAL);
-	if (!ctx.pipeRd.createGIOChannel(cond, readPipeCb, &ctx))
+	if (!ctx.pipeRd.createGIOChannel(readPipeCb, &ctx))
 		return EXIT_FAILURE;
-
-	cond = (GIOCondition)(G_IO_OUT|G_IO_ERR|G_IO_HUP|G_IO_NVAL);
-	if (!ctx.pipeWr.createGIOChannel(cond))
+	if (!ctx.pipeWr.createGIOChannel(writePipeCb, &ctx))
 		return false;
 
 	sendLaunched(&ctx);
