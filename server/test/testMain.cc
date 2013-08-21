@@ -161,7 +161,7 @@ bool childProcessLoop(GPid &childPid)
 		kill(childPid, SIGTERM);
 		argForForceTerm.loop = g_main_loop_new(NULL, TRUE);
 		argForForceTerm.eventChildWatch = g_child_watch_add(childPid, endChildProcess, &argForForceTerm);
-		argForForceTerm.eventTimeout = g_timeout_add(500, closeChildProcess, &argForForceTerm);
+		argForForceTerm.eventTimeout = g_timeout_add_seconds(5, closeChildProcess, &argForForceTerm);
 		g_main_loop_run(argForForceTerm.loop);
 		g_main_loop_unref(argForForceTerm.loop);
 		if (!argForForceTerm.timedOut) {
