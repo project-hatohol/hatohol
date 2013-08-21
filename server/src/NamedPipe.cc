@@ -283,7 +283,8 @@ bool NamedPipe::writeBuf(SmartBuffer &buf, bool &fullyWritten)
 	  g_io_channel_write_chars(m_ctx->ioch, dataPtr, count,
 	                           &bytesWritten, &error);
 	if (stat == G_IO_STATUS_ERROR || stat == G_IO_STATUS_EOF) {
-		// TODO: error callback 
+		// The error calball back will be called.
+		// So we do nothing here.
 		return false;
 	}
 	HATOHOL_ASSERT(stat != G_IO_STATUS_AGAIN,
