@@ -312,12 +312,14 @@ gboolean NamedPipe::readCb(GIOChannel *source, GIOCondition condition,
 	                                         &bytesRead, &error);
 	if (!obj->checkGIOStatus(stat, error)) {
 		ctx->callPullCb(stat);
+		ctx->iochInEvtId = INVALID_EVENT_ID;
 		return FALSE;
 	}
 	
 	ctx->pullRemainingSize -= bytesRead;
 	if (ctx->pullRemainingSize == 0) {
 		ctx->callPullCb(stat);
+		ctx->iochInEvtId = INVALID_EVENT_ID;
 		return FALSE;
 	}
 
