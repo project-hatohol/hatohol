@@ -66,7 +66,7 @@ struct daemonizeVariable {
 	{
 	}
 
-	void checkEnvironAndKillProcess(pid_t pid, string magicNumber)
+	void checkEnvironAndKillProcess(pid_t pid)
 	{
 		stringstream grandchildProcEnvironPath;
 		ifstream grandchildEnvironFile;
@@ -93,7 +93,7 @@ struct daemonizeVariable {
 			if (StringUtils::isNumber(nameList[i]->d_name)){
 				int procPid = atoi(nameList[i]->d_name);
 				if (procPid > 1)
-					checkEnvironAndKillProcess(procPid, magicNumber);
+					checkEnvironAndKillProcess(procPid);
 				free(nameList[i]);
 			}
 		}
