@@ -69,7 +69,7 @@ struct NamedPipe::PrivateContext {
 	virtual ~PrivateContext()
 	{
 		if (ioch)
-			g_object_unref(ioch);
+			g_io_channel_unref(ioch);
 		if (fd >= 0)
 			close(fd);
 		SmartBufferListIterator it = writeBufList.begin();
