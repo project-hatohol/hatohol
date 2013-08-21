@@ -164,10 +164,11 @@ bool childProcessLoop(GPid &childPid)
 		argForForceTerm.eventTimeout = g_timeout_add(500, closeChildProcess, &argForForceTerm);
 		g_main_loop_run(argForForceTerm.loop);
 		g_main_loop_unref(argForForceTerm.loop);
-		if (!argForForceTerm.timeOut) {
+		if (!argForForceTerm.timedOut) {
 			g_spawn_close_pid(childPid);
 			cppcut_assert_equal(expected, g_source_remove(argForForceTerm.eventChildWatch));
 			cppcut_assert_equal(expected, g_source_remove(argForForceTerm.eventTimeout));
+		}
 	}
 
 	cppcut_assert_equal(true, arg.isEndChildProcess);
