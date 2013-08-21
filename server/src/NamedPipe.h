@@ -64,9 +64,12 @@ public:
 	const string &getPath(void) const;
 
 	/**
-	 * Push the buffer to the pipe. After the call, the content of
-	 * the buffer is taken over (i.e. the buffer in 'buf' is moved).
+	 * Push the buffer to the internal queue. After the call,
+	 * the content of the buffer is taken over (i.e. the buffer in
+	 * 'buf' is moved).
 	 * The function is asynchronus and returns without blocking.
+	 *
+	 * @param buf A SmartBuffer instance that has data to be written.
 	 */
 	void push(mlpl::SmartBuffer &buf);
 
