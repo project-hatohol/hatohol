@@ -68,6 +68,15 @@ struct NamedPipe::PrivateContext {
 		if (fd >= 0)
 			close(fd);
 	}
+
+	void closeFd(void)
+	{
+		if (fd < 0) {
+			MLPL_WARN("closeFd() is called when fd = %d\n", fd);
+		}
+		close(fd);
+		fd = -1;
+	}
 };
 
 // ---------------------------------------------------------------------------
@@ -214,7 +223,10 @@ void NamedPipe::push(SmartBuffer &buf)
 			// TODO: add error sequence
 		}
 		if (stat == G_IO_STATUS_AGAIN) {
-			// TODO: add retry sequence
+			MLPL_BUG(
+			  "received G_IO_STATUS_AGAIN. However, the pipe was "
+			  "opened without O_NONBLOCK. Something is wrong.");
+			m_ctx->closeFd(); // This will cause the HUP event.
 		}
 		if (bytesWritten != (gsize)count) {
 			buf.incIndex(bytesWritten);
