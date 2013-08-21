@@ -29,16 +29,27 @@ namespace testNamedPipe {
 
 static const gint INVALID_RESOURCE_ID = -1;
 
+static gboolean
+pushMasterRdCb(GIOChannel *source, GIOCondition condition, gpointer data);
+static gboolean
+pushMasterWrCb(GIOChannel *source, GIOCondition condition, gpointer data);
+static gboolean
+pushSlaveRdCb(GIOChannel *source, GIOCondition condition, gpointer data);
+static gboolean
+pushSlaveWrCb(GIOChannel *source, GIOCondition condition, gpointer data);
+
 struct TestPushContext {
 
+	string name;
 	NamedPipe pmrd, pmwr, psrd, pswr;
 	GMainLoop *loop;
 	gint timerId;
 	size_t bufLen;
 	bool hasError;
 
-	TestPushContext(void)
-	: pmrd(NamedPipe::END_TYPE_MASTER_READ),
+	TestPushContext(const string &_name)
+	: name(_name),
+	  pmrd(NamedPipe::END_TYPE_MASTER_READ),
 	  pmwr(NamedPipe::END_TYPE_MASTER_WRITE),
 	  psrd(NamedPipe::END_TYPE_SLAVE_READ),
 	  pswr(NamedPipe::END_TYPE_SLAVE_WRITE),
@@ -47,7 +58,7 @@ struct TestPushContext {
 	  bufLen(0),
 	  hasError(false)
 	{
-		loop = g_main_loop_new(NULL, TRUE);
+
 	}
 
 	virtual ~TestPushContext()
@@ -57,6 +68,25 @@ struct TestPushContext {
 		if (timerId != INVALID_RESOURCE_ID)
 			g_source_remove(timerId);
 	}
+
+	void init(void)
+	{
+		loop = g_main_loop_new(NULL, TRUE);
+		cppcut_assert_not_null(loop);
+		cppcut_assert_equal(true, pmrd.openPipe(name));
+		cppcut_assert_equal(true, pmwr.openPipe(name));
+		cppcut_assert_equal(true, psrd.openPipe(name));
+		cppcut_assert_equal(true, pswr.openPipe(name));
+
+		cppcut_assert_equal(
+		  true, pmrd.createGIOChannel(pushMasterRdCb, this));
+		cppcut_assert_equal(
+		  true, pmwr.createGIOChannel(pushMasterWrCb, this));
+		cppcut_assert_equal(
+		  true, psrd.createGIOChannel(pushSlaveRdCb, this));
+		cppcut_assert_equal(
+		  true, pswr.createGIOChannel(pushSlaveWrCb, this));
+	}
 };
 static TestPushContext *g_testPushCtx = NULL;
 
@@ -64,11 +94,9 @@ static gboolean
 pushMasterRdCb(GIOChannel *source, GIOCondition condition, gpointer data)
 {
 	TestPushContext *ctx = static_cast<TestPushContext *>(data);
-	cppcut_assert_equal(condition, G_IO_IN);
-	MLPL_BUG("TODO: assert data content: %s (%p)\n",
-	         __PRETTY_FUNCTION__, ctx);
-	ctx->hasError = true;
+	cut_notify("Unexpectedly called: %s (%p)\n", __PRETTY_FUNCTION__, ctx);
 	g_main_loop_quit(ctx->loop);
+	ctx->hasError = true;
 	return FALSE;
 }
 
@@ -110,6 +138,18 @@ static gboolean timerHandler(gpointer data)
 	return FALSE;
 }
 
+static void pullCb(GIOStatus stat, SmartBuffer &buf, size_t size, void *priv)
+{
+	TestPushContext *ctx = static_cast<TestPushContext *>(priv);
+	cppcut_assert_equal(G_IO_STATUS_NORMAL, stat);
+	cppcut_assert_equal(ctx->bufLen, size);
+	buf.resetIndex();
+	uint8_t *ptr = buf.getPointer<uint8_t>();
+	for (size_t i = 0; i < size; i++)
+		cppcut_assert_equal((uint8_t)i, ptr[i]);
+	g_main_loop_quit(ctx->loop);
+}
+
 void cut_teardown(void)
 {
 	if (g_testPushCtx) {
@@ -123,31 +163,26 @@ void cut_teardown(void)
 // ---------------------------------------------------------------------------
 void test_push(void)
 {
-	g_testPushCtx = new TestPushContext();
-	TestPushContext *ctx = g_testPushCtx;
-
 	string name = "test_push";
-	cppcut_assert_equal(true, ctx->pmrd.openPipe(name));
-	cppcut_assert_equal(true, ctx->pmwr.openPipe(name));
-	cppcut_assert_equal(true, ctx->psrd.openPipe(name));
-	cppcut_assert_equal(true, ctx->pswr.openPipe(name));
+	g_testPushCtx = new TestPushContext(name);
+	TestPushContext *ctx = g_testPushCtx;
+	ctx->init();
 
-	cppcut_assert_equal(
-	  true, ctx->pmrd.createGIOChannel(pushMasterRdCb, ctx));
-	cppcut_assert_equal(
-	  true, ctx->pmwr.createGIOChannel(pushMasterWrCb, ctx));
-	cppcut_assert_equal(
-	  true, ctx->psrd.createGIOChannel(pushSlaveRdCb, ctx));
-	cppcut_assert_equal(
-	  true, ctx->pswr.createGIOChannel(pushSlaveWrCb, ctx));
-
-	static const guint timeout = 5 * 1000; // ms
+	// register read callback
 	ctx->bufLen = 10;
+	ctx->pmrd.pull(ctx->bufLen, pullCb, ctx);
+
+	// send data
 	SmartBuffer smbuf(ctx->bufLen);
 	for (size_t i = 0; i < ctx->bufLen; i++)
 		smbuf.add8(i);
 	ctx->pswr.push(smbuf);
+
+	// set timeout
+	static const guint timeout = 5 * 1000; // ms
 	ctx->timerId = g_timeout_add(timeout, timerHandler, ctx);
+
+	// run the event loop
 	g_main_loop_run(ctx->loop);
 	cppcut_assert_not_equal(INVALID_RESOURCE_ID, ctx->timerId,
 	                        cut_message("Timed out."));

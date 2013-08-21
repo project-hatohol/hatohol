@@ -53,16 +53,27 @@ struct NamedPipe::PrivateContext {
 	GIOChannel *ioch;
 	gint iochEvtId;
 	gint iochOutEvtId; // only for write
+	gint iochInEvtId;  // only for read
 	bool writeCbSet;
 	SmartBufferList writeBufList;
 	MutexLock writeBufListLock;
+	PullCallback  pullCb;
+	void         *pullCbPriv;
+	SmartBuffer   pullBuf;
+	size_t        pullRequestSize;
+	size_t        pullRemainingSize;
 
 	PrivateContext(EndType _endType)
 	: fd(-1),
 	  endType(_endType),
 	  ioch(NULL),
 	  iochEvtId(INVALID_EVENT_ID),
-	  iochOutEvtId(INVALID_EVENT_ID)
+	  iochOutEvtId(INVALID_EVENT_ID),
+	  iochInEvtId(INVALID_EVENT_ID),
+	  pullCb(NULL),
+	  pullCbPriv(NULL),
+	  pullRequestSize(0),
+	  pullRemainingSize(0)
 	{
 	}
 
@@ -92,6 +103,11 @@ struct NamedPipe::PrivateContext {
 		HATOHOL_ASSERT(!writeBufList.empty(), "Buffer is empty.");
 		delete writeBufList.front();
 		writeBufList.pop_front();
+	}
+
+	void callPullCb(GIOStatus stat)
+	{
+		(*pullCb)(stat, pullBuf, pullRequestSize, pullCbPriv);
 	}
 };
 
@@ -198,8 +214,7 @@ bool NamedPipe::createGIOChannel(GIOFunc iochCb, gpointer data)
 	GIOCondition cond = (GIOCondition)0;
 	if (m_ctx->endType == END_TYPE_MASTER_READ
 	    || m_ctx->endType == END_TYPE_SLAVE_READ) {
-		cond =
-		  (GIOCondition)(G_IO_IN|G_IO_PRI|G_IO_ERR|G_IO_HUP|G_IO_NVAL);
+		cond = (GIOCondition)(G_IO_PRI|G_IO_ERR|G_IO_HUP|G_IO_NVAL);
 	}
 	else if (m_ctx->endType == END_TYPE_MASTER_WRITE
 	         || m_ctx->endType == END_TYPE_SLAVE_WRITE) {
@@ -233,6 +248,17 @@ void NamedPipe::push(SmartBuffer &buf)
 	m_ctx->writeBufList.push_back(buf.takeOver());
 	enableWriteCbIfNeeded();
 	m_ctx->writeBufListLock.unlock();
+}
+
+void NamedPipe::pull(size_t size, PullCallback callback, void *priv)
+{
+	HATOHOL_ASSERT(!m_ctx->pullCb, "Pull callback is not NULL.");
+	m_ctx->pullRequestSize = size;
+	m_ctx->pullRemainingSize = size;
+	m_ctx->pullCb = callback;
+	m_ctx->pullCbPriv = priv;
+	m_ctx->pullBuf.ensureRemainingSize(size);
+	enableReadCb();
 }
 
 // ---------------------------------------------------------------------------
@@ -271,6 +297,33 @@ gboolean NamedPipe::writeCb(GIOChannel *source, GIOCondition condition,
 	return continueEventCb;
 }
 
+gboolean NamedPipe::readCb(GIOChannel *source, GIOCondition condition,
+                           gpointer data)
+{
+	NamedPipe *obj = static_cast<NamedPipe *>(data);
+	PrivateContext *ctx = obj->m_ctx;
+	HATOHOL_ASSERT(ctx->pullCb, "Pull callback is not registered.");
+
+	gsize bytesRead;
+	GError *error = NULL;
+	gchar *buf = ctx->pullBuf.getPointer<gchar>();
+	GIOStatus stat = g_io_channel_read_chars(source, buf,
+	                                         ctx->pullRemainingSize,
+	                                         &bytesRead, &error);
+	if (!obj->checkGIOStatus(stat, error)) {
+		ctx->callPullCb(stat);
+		return FALSE;
+	}
+	
+	ctx->pullRemainingSize -= bytesRead;
+	if (ctx->pullRemainingSize == 0) {
+		ctx->callPullCb(stat);
+		return FALSE;
+	}
+
+	return TRUE;
+}
+
 bool NamedPipe::writeBuf(SmartBuffer &buf, bool &fullyWritten, bool flush)
 {
 	fullyWritten = false;
@@ -302,6 +355,12 @@ void NamedPipe::enableWriteCbIfNeeded(void)
 		return;
 	GIOCondition cond = G_IO_OUT;
 	m_ctx->iochOutEvtId = g_io_add_watch(m_ctx->ioch, cond, writeCb, this);
+}
+
+void NamedPipe::enableReadCb(void)
+{
+	GIOCondition cond = G_IO_IN;
+	m_ctx->iochInEvtId = g_io_add_watch(m_ctx->ioch, cond, readCb, this);
 }
 
 bool NamedPipe::isExistingDir(const string &dirname, bool &hasError)
