@@ -161,7 +161,7 @@ void cut_teardown(void)
 // ---------------------------------------------------------------------------
 // Test cases
 // ---------------------------------------------------------------------------
-void test_push(void)
+void test_pushPull(void)
 {
 	string name = "test_push";
 	g_testPushCtx = new TestPushContext(name);
