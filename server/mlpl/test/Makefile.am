@@ -23,7 +23,8 @@ loggerTestee_SOURCES = loggerTestee.cc
 # Test cases
 testMLPL_la_SOURCES = \
 	testMutexLock.cc testReadWriteLock.cc \
-	testLogger.cc testStringUtils.cc testParsableString.cc
+	testLogger.cc testStringUtils.cc testParsableString.cc \
+	testSmartBuffer.cc
 
 echo-cutter:
 	@echo $(CUTTER)

@@ -192,6 +192,18 @@ void SmartBuffer::printBuffer(void)
 	MLPL_INFO(msg.c_str());
 }
 
+SmartBuffer *SmartBuffer::takeOver(void)
+{
+	SmartBuffer *sbuf = new SmartBuffer();
+	sbuf->m_index = m_index;
+	sbuf->m_buf = m_buf;
+	sbuf->m_size = m_size;
+	m_index = 0;
+	m_buf = NULL;
+	m_size = 0;
+	return sbuf;
+}
+
 // ---------------------------------------------------------------------------
 // Private methods
 // ---------------------------------------------------------------------------

@@ -32,9 +32,11 @@ class SmartBuffer {
 	size_t   m_index;
 	uint8_t *m_buf;
 	size_t   m_size;
+	size_t   m_usedCount;
 public:
 	SmartBuffer(void);
 	SmartBuffer(size_t size);
+	SmartBuffer(const SmartBuffer &smartBuffer);
 	virtual ~SmartBuffer();
 	operator const char *() const;
 	operator char *() const;
@@ -88,6 +90,18 @@ public:
 	template <typename T> T getValueAndIncIndex(void) {
 		return *getPointerAndIncIndex<T>();
 	}
+
+	/**
+	 * Make a new SmartBuffer instance on the heap and the created instance
+	 * takes over the content of this buffer. After the call of this
+	 * function, the buffer is cleared.
+	 *
+	 * @return
+	 * A newly created SmartBuffer instance. It must be freed with 'delete',
+	 * when it's no longer used.
+	 *
+	 */
+	SmartBuffer *takeOver(void);
 
 protected:
 	template <typename T> void addTemplate(T val) {
