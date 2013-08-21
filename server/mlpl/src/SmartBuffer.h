@@ -32,7 +32,6 @@ class SmartBuffer {
 	size_t   m_index;
 	uint8_t *m_buf;
 	size_t   m_size;
-	size_t   m_usedCount;
 public:
 	SmartBuffer(void);
 	SmartBuffer(size_t size);
