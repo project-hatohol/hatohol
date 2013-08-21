@@ -145,16 +145,15 @@ bool childProcessLoop(GPid &childPid)
 {
 	const gboolean expected = TRUE;
 	FunctionArg arg;
-	guint eventTimeout = 0;
 
 	arg.loop = g_main_loop_new(NULL, TRUE);
 	g_child_watch_add(childPid, endChildProcess, &arg);
-	eventTimeout = g_timeout_add_seconds(5, timeOutChildProcess, &arg);
+	arg.eventTimeout = g_timeout_add_seconds(5, timeOutChildProcess, &arg);
 	g_main_loop_run(arg.loop);
 	g_main_loop_unref(arg.loop);
 	if (!arg.timedOut) {
 		g_spawn_close_pid(childPid);
-		cppcut_assert_equal(expected, g_source_remove(eventTimeout));
+		cppcut_assert_equal(expected, g_source_remove(arg.eventTimeout));
 	} else {
 		FunctionArg argForForceTerm;
 		argForForceTerm.childPid = childPid;
