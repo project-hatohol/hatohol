@@ -42,11 +42,18 @@ public:
 	                      gpointer data = NULL);
 	int getFd(void) const;
 	const string &getPath(void) const;
+
+	/**
+	 * Push the buffer to the pipe. After the call, the content of
+	 * the buffer is taken over (i.e. the buffer in 'buf' is moved).
+	 * The function is asynchronus and returns without blocking.
+	 */
 	void push(mlpl::SmartBuffer &buf);
 
 protected:
 	static gboolean writeCb(GIOChannel *source, GIOCondition condition,
 	                        gpointer data);
+	void enableWriteCbIfNeeded(void);
 	bool isExistingDir(const string &dirname, bool &hasError);
 	bool makeBasedirIfNeeded(const string &baseDir);
 	bool deleteFileIfExists(const std::string &path);

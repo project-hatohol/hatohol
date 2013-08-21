@@ -40,8 +40,10 @@ unsigned BASE_DIR_MODE =
    S_IRUSR | S_IWUSR | S_IXUSR | S_IRGRP | S_IWGRP | S_IXGRP;
 unsigned FIFO_MODE = S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP;
 
-typedef list<SmartBuffer>         SmartBufferList;
-typedef SmartBufferList::iterator SmartBufferListIterator;;
+typedef list<SmartBuffer *>       SmartBufferList;
+typedef SmartBufferList::iterator SmartBufferListIterator;
+
+static const gint INVALID_EVENT_ID = -1;
 
 struct NamedPipe::PrivateContext {
 	int fd;
@@ -49,14 +51,15 @@ struct NamedPipe::PrivateContext {
 	EndType endType;
 	GIOChannel *ioch;
 	gint iochEvtId;
+	bool writeCbSet;
 	bool writeReady;
-	list<SmartBuffer> *writeBufList;
+	SmartBufferList writeBufList;
 
 	PrivateContext(EndType _endType)
 	: fd(-1),
 	  endType(_endType),
 	  ioch(NULL),
-	  iochEvtId(-1),
+	  iochEvtId(INVALID_EVENT_ID),
 	  writeReady(false)
 	{
 	}
@@ -67,6 +70,9 @@ struct NamedPipe::PrivateContext {
 			g_object_unref(ioch);
 		if (fd >= 0)
 			close(fd);
+		SmartBufferListIterator it = writeBufList.begin();
+		for (; it != writeBufList.end(); ++it)
+			delete *it;
 	}
 
 	void closeFd(void)
@@ -185,8 +191,8 @@ bool NamedPipe::createGIOChannel
 	    || m_ctx->endType == END_TYPE_SLAVE_WRITE) {
 		HATOHOL_ASSERT(!iochCb,
 		               "iochCB cannot be specified in slave mode.\n");
-		iochCb = writeCb;
-		data = this;
+		enableWriteCbIfNeeded();
+		return true;
 	}
 	if (iochCb) {
 		m_ctx->iochEvtId =
@@ -229,14 +235,12 @@ void NamedPipe::push(SmartBuffer &buf)
 			  "opened without O_NONBLOCK. Something is wrong.");
 			m_ctx->closeFd(); // This will cause the HUP event.
 		}
-		if (bytesWritten != (gsize)count) {
-			buf.incIndex(bytesWritten);
-			//m_ctx->writeBufList.push_back(buf);
-			// TODO: trun on write callback.
-		}
-		return;
+		if (bytesWritten == (gsize)count)
+			return;
+		buf.incIndex(bytesWritten);
 	}
-	// TODO: add code to append the buffer to the list.
+	enableWriteCbIfNeeded();
+	m_ctx->writeBufList.push_back(buf.takeOver());
 }
 
 // ---------------------------------------------------------------------------
@@ -246,9 +250,27 @@ gboolean NamedPipe::writeCb(GIOChannel *source, GIOCondition condition,
                             gpointer data)
 {
 	NamedPipe *obj = static_cast<NamedPipe *>(data);
-	obj->m_ctx->writeReady = true;
+	PrivateContext *ctx = obj->m_ctx;
+	ctx->writeReady = true;
+	ctx->iochEvtId = INVALID_EVENT_ID;
+	if (ctx->writeBufList.empty()) {
+		MLPL_BUG("writeCB was called. "
+		         "However, write buffer list is empty.\n");
+		return FALSE;
+	}
 	// TODO: add code to write buffer m_ctx->writeBufList is not empty;
+	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+
 	return FALSE;
+}
+
+void NamedPipe::enableWriteCbIfNeeded(void)
+{
+	if (m_ctx->iochEvtId != INVALID_EVENT_ID)
+		return;
+	GIOCondition cond
+	  = (GIOCondition)(G_IO_OUT|G_IO_ERR|G_IO_HUP|G_IO_NVAL);
+	m_ctx->iochEvtId = g_io_add_watch(m_ctx->ioch, cond, writeCb, this);
 }
 
 bool NamedPipe::isExistingDir(const string &dirname, bool &hasError)
