@@ -44,6 +44,7 @@ testHatohol_la_SOURCES = \
 	testItemDataUtils.cc \
 	testFormulaOperator.cc \
 	testJsonParserAgent.cc testJsonBuilderAgent.cc testUtils.cc \
+	testNamedPipe.cc \
 	testArmZabbixAPI.cc testArmNagiosNDOUtils.cc \
 	testUnifiedDataStore.cc
 testHatohol_la_LDFLAGS = $(AM_LDFLAGS) $(LIBS)
