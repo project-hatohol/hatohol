@@ -41,7 +41,7 @@ pushSlaveWrCb(GIOChannel *source, GIOCondition condition, gpointer data);
 struct TestPushContext {
 
 	string name;
-	NamedPipe pmrd, pmwr, psrd, pswr;
+	NamedPipe pipeMasterRd, pipeMasterWr, pipeSlaveRd, pipeSlaveWr;
 	GMainLoop *loop;
 	gint timerId;
 	size_t bufLen;
@@ -49,10 +49,10 @@ struct TestPushContext {
 
 	TestPushContext(const string &_name)
 	: name(_name),
-	  pmrd(NamedPipe::END_TYPE_MASTER_READ),
-	  pmwr(NamedPipe::END_TYPE_MASTER_WRITE),
-	  psrd(NamedPipe::END_TYPE_SLAVE_READ),
-	  pswr(NamedPipe::END_TYPE_SLAVE_WRITE),
+	  pipeMasterRd(NamedPipe::END_TYPE_MASTER_READ),
+	  pipeMasterWr(NamedPipe::END_TYPE_MASTER_WRITE),
+	  pipeSlaveRd(NamedPipe::END_TYPE_SLAVE_READ),
+	  pipeSlaveWr(NamedPipe::END_TYPE_SLAVE_WRITE),
 	  loop(NULL),
 	  timerId(INVALID_RESOURCE_ID),
 	  bufLen(0),
@@ -73,19 +73,19 @@ struct TestPushContext {
 	{
 		loop = g_main_loop_new(NULL, TRUE);
 		cppcut_assert_not_null(loop);
-		cppcut_assert_equal(true, pmrd.openPipe(name));
-		cppcut_assert_equal(true, pmwr.openPipe(name));
-		cppcut_assert_equal(true, psrd.openPipe(name));
-		cppcut_assert_equal(true, pswr.openPipe(name));
+		cppcut_assert_equal(true, pipeMasterRd.openPipe(name));
+		cppcut_assert_equal(true, pipeMasterWr.openPipe(name));
+		cppcut_assert_equal(true, pipeSlaveRd.openPipe(name));
+		cppcut_assert_equal(true, pipeSlaveWr.openPipe(name));
 
 		cppcut_assert_equal(
-		  true, pmrd.createGIOChannel(pushMasterRdCb, this));
+		  true, pipeMasterRd.createGIOChannel(pushMasterRdCb, this));
 		cppcut_assert_equal(
-		  true, pmwr.createGIOChannel(pushMasterWrCb, this));
+		  true, pipeMasterWr.createGIOChannel(pushMasterWrCb, this));
 		cppcut_assert_equal(
-		  true, psrd.createGIOChannel(pushSlaveRdCb, this));
+		  true, pipeSlaveRd.createGIOChannel(pushSlaveRdCb, this));
 		cppcut_assert_equal(
-		  true, pswr.createGIOChannel(pushSlaveWrCb, this));
+		  true, pipeSlaveWr.createGIOChannel(pushSlaveWrCb, this));
 	}
 };
 static TestPushContext *g_testPushCtx = NULL;
@@ -170,13 +170,13 @@ void test_push(void)
 
 	// register read callback
 	ctx->bufLen = 10;
-	ctx->pmrd.pull(ctx->bufLen, pullCb, ctx);
+	ctx->pipeMasterRd.pull(ctx->bufLen, pullCb, ctx);
 
 	// send data
 	SmartBuffer smbuf(ctx->bufLen);
 	for (size_t i = 0; i < ctx->bufLen; i++)
 		smbuf.add8(i);
-	ctx->pswr.push(smbuf);
+	ctx->pipeSlaveWr.push(smbuf);
 
 	// set timeout
 	static const guint timeout = 5 * 1000; // ms
