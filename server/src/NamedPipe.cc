@@ -286,13 +286,9 @@ bool NamedPipe::writeBuf(SmartBuffer &buf, bool &fullyWritten)
 		// TODO: error callback 
 		return false;
 	}
-	if (stat == G_IO_STATUS_AGAIN) {
-		MLPL_BUG(
-		  "received G_IO_STATUS_AGAIN. However, the pipe was "
-		  "opened without O_NONBLOCK. Something is wrong.\n");
-		// TODO: error callback 
-		return false;
-	}
+	HATOHOL_ASSERT(stat != G_IO_STATUS_AGAIN,
+	               "received G_IO_STATUS_AGAIN. However, the pipe was "
+	               "opened without O_NONBLOCK. Something is wrong.");
 	buf.incIndex(bytesWritten);
 	if (bytesWritten == (gsize)count) {
 		fullyWritten = true;
