@@ -73,6 +73,7 @@ struct NamedPipe::PrivateContext {
 	{
 		if (fd < 0) {
 			MLPL_WARN("closeFd() is called when fd = %d\n", fd);
+			return;
 		}
 		close(fd);
 		fd = -1;
