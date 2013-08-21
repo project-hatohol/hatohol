@@ -53,6 +53,21 @@ public:
 protected:
 	static gboolean writeCb(GIOChannel *source, GIOCondition condition,
 	                        gpointer data);
+	/**
+	 * Write data to the pipe.
+	 *
+	 * @parameter buf
+	 * A SmartBuffer instance that has data to be written.
+	 *
+	 * @parameter fullyWritten
+	 * When the all data in \buf was written, this function set
+	 * true to the parameter. Otherwise it sets false.
+ 	 *
+	 * @return
+	 * If no error occurs, true is returned. Otherwise false.
+	 */
+	bool writeBuf(SmartBuffer &buf, bool &fullyWritten);
+
 	void enableWriteCbIfNeeded(void);
 	bool isExistingDir(const string &dirname, bool &hasError);
 	bool makeBasedirIfNeeded(const string &baseDir);

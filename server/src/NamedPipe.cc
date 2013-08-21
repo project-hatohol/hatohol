@@ -30,6 +30,7 @@
 using namespace std;
 
 #include <SmartBuffer.h>
+#include <MutexLock.h>
 using namespace mlpl;
 
 #include "HatoholException.h"
@@ -52,15 +53,14 @@ struct NamedPipe::PrivateContext {
 	GIOChannel *ioch;
 	gint iochEvtId;
 	bool writeCbSet;
-	bool writeReady;
 	SmartBufferList writeBufList;
+	MutexLock writeBufListLock;
 
 	PrivateContext(EndType _endType)
 	: fd(-1),
 	  endType(_endType),
 	  ioch(NULL),
-	  iochEvtId(INVALID_EVENT_ID),
-	  writeReady(false)
+	  iochEvtId(INVALID_EVENT_ID)
 	{
 	}
 
@@ -83,6 +83,13 @@ struct NamedPipe::PrivateContext {
 		}
 		close(fd);
 		fd = -1;
+	}
+
+	void deleteWriteBufHead(void)
+	{
+		HATOHOL_ASSERT(!writeBufList.empty(), "Buffer is empty.");
+		delete writeBufList.front();
+		writeBufList.pop_front();
 	}
 };
 
@@ -213,34 +220,18 @@ const string &NamedPipe::getPath(void) const
 
 void NamedPipe::push(SmartBuffer &buf)
 {
+	// <<Note>>
+	// This function is possibly called from threads other than
+	// the main thread (that is executing the GLIB's event loop).
 	HATOHOL_ASSERT(m_ctx->endType == END_TYPE_MASTER_WRITE
 	               || m_ctx->endType == END_TYPE_SLAVE_WRITE,
 	               "push() can be called only by writers: %d\n",
 	               m_ctx->endType);
 	buf.resetIndex();
-	if (m_ctx->writeReady) {
-		gchar *dataPtr = buf.getPointer<gchar>();
-		gssize count = buf.size();
-		gsize bytesWritten;
-		GError *error = NULL;
-		GIOStatus stat =
-		  g_io_channel_write_chars(m_ctx->ioch, dataPtr, count,
-		                           &bytesWritten, &error);
-		if (stat == G_IO_STATUS_ERROR || stat == G_IO_STATUS_EOF) {
-			// TODO: add error sequence
-		}
-		if (stat == G_IO_STATUS_AGAIN) {
-			MLPL_BUG(
-			  "received G_IO_STATUS_AGAIN. However, the pipe was "
-			  "opened without O_NONBLOCK. Something is wrong.");
-			m_ctx->closeFd(); // This will cause the HUP event.
-		}
-		if (bytesWritten == (gsize)count)
-			return;
-		buf.incIndex(bytesWritten);
-	}
-	enableWriteCbIfNeeded();
+	m_ctx->writeBufListLock.lock();
 	m_ctx->writeBufList.push_back(buf.takeOver());
+	enableWriteCbIfNeeded();
+	m_ctx->writeBufListLock.unlock();
 }
 
 // ---------------------------------------------------------------------------
@@ -251,21 +242,67 @@ gboolean NamedPipe::writeCb(GIOChannel *source, GIOCondition condition,
 {
 	NamedPipe *obj = static_cast<NamedPipe *>(data);
 	PrivateContext *ctx = obj->m_ctx;
-	ctx->writeReady = true;
+	gboolean continueEventCb = FALSE;
+
+	ctx->writeBufListLock.lock();
+	gint currEvtId = ctx->iochEvtId;
 	ctx->iochEvtId = INVALID_EVENT_ID;
 	if (ctx->writeBufList.empty()) {
 		MLPL_BUG("writeCB was called. "
 		         "However, write buffer list is empty.\n");
-		return FALSE;
 	}
-	// TODO: add code to write buffer m_ctx->writeBufList is not empty;
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	while (!ctx->writeBufList.empty()) {
+		SmartBufferListIterator it = ctx->writeBufList.begin();
+		bool fullyWritten = false;
+		if (!obj->writeBuf(**it, fullyWritten))
+			break;
+		if (fullyWritten) {
+			ctx->deleteWriteBufHead();
+		} else {
+			// This function will be called back again
+			// when the pipe is available.
+			ctx->iochEvtId = currEvtId;
+			continueEventCb = TRUE;
+			break;
+		}
+	}
+	ctx->writeBufListLock.unlock();
+	return continueEventCb;
+}
 
-	return FALSE;
+bool NamedPipe::writeBuf(SmartBuffer &buf, bool &fullyWritten)
+{
+	fullyWritten = false;
+	gchar *dataPtr = buf.getPointer<gchar>();
+	gssize count = buf.remainingSize();
+	gsize bytesWritten;
+	GError *error = NULL;
+	GIOStatus stat =
+	  g_io_channel_write_chars(m_ctx->ioch, dataPtr, count,
+	                           &bytesWritten, &error);
+	if (stat == G_IO_STATUS_ERROR || stat == G_IO_STATUS_EOF) {
+		// TODO: error callback 
+		return false;
+	}
+	if (stat == G_IO_STATUS_AGAIN) {
+		MLPL_BUG(
+		  "received G_IO_STATUS_AGAIN. However, the pipe was "
+		  "opened without O_NONBLOCK. Something is wrong.\n");
+		// TODO: error callback 
+		return false;
+	}
+	buf.incIndex(bytesWritten);
+	if (bytesWritten == (gsize)count) {
+		fullyWritten = true;
+		return true;
+	}
+	return true;
 }
 
 void NamedPipe::enableWriteCbIfNeeded(void)
 {
+	// We assume that this function is called
+	// with the lock of m_ctx->writeBufListLock.
 	if (m_ctx->iochEvtId != INVALID_EVENT_ID)
 		return;
 	GIOCondition cond
