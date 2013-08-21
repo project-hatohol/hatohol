@@ -184,8 +184,7 @@ void cut_teardown(void)
 // ---------------------------------------------------------------------------
 void test_pushPull(void)
 {
-	string name = "test_push";
-	g_testPushCtx = new TestPushContext(name);
+	g_testPushCtx = new TestPushContext("test_push");
 	TestPushContext *ctx = g_testPushCtx;
 	ctx->init();
 
