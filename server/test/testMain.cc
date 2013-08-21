@@ -160,7 +160,7 @@ bool childProcessLoop(GPid &childPid)
 		argForForceTerm.childPid = childPid;
 		kill(childPid, SIGTERM);
 		argForForceTerm.loop = g_main_loop_new(NULL, TRUE);
-		g_timeout_add(500, closeChildProcess, &argForForceTerm);
+		argForForceTerm.eventTimeout = g_timeout_add(500, closeChildProcess, &argForForceTerm);
 		g_main_loop_run(argForForceTerm.loop);
 		g_main_loop_unref(argForForceTerm.loop);
 	}
