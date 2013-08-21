@@ -153,9 +153,10 @@ bool childProcessLoop(GPid &childPid)
 	g_main_loop_unref(arg.loop);
 	if (!arg.timedOut) {
 		g_spawn_close_pid(childPid);
-		cppcut_assert_equal(expected, g_source_remove(arg.eventChildWatch));
 		cppcut_assert_equal(expected, g_source_remove(arg.eventTimeout));
 	} else {
+		cppcut_assert_equal(expected, g_source_remove(arg.eventChildWatch));
+
 		FunctionArg argForForceTerm;
 		argForForceTerm.childPid = childPid;
 		kill(childPid, SIGTERM);
@@ -166,8 +167,9 @@ bool childProcessLoop(GPid &childPid)
 		g_main_loop_unref(argForForceTerm.loop);
 		if (!argForForceTerm.timedOut) {
 			g_spawn_close_pid(childPid);
-			cppcut_assert_equal(expected, g_source_remove(argForForceTerm.eventChildWatch));
 			cppcut_assert_equal(expected, g_source_remove(argForForceTerm.eventTimeout));
+		} else {
+			cppcut_assert_equal(expected, g_source_remove(argForForceTerm.eventChildWatch));
 		}
 	}
 
