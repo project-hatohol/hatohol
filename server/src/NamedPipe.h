@@ -22,7 +22,7 @@
 
 #include <string>
 #include <glib.h>
-#include <SmartBuffer.h>
+#include "SmartBuffer.h"
 
 class NamedPipe {
 public:
@@ -61,7 +61,7 @@ public:
 	bool createGIOChannel(GIOFunc iochCb, gpointer data);
 
 	int getFd(void) const;
-	const string &getPath(void) const;
+	const std::string &getPath(void) const;
 
 	/**
 	 * Push the buffer to the internal queue. After the call,
@@ -89,11 +89,11 @@ protected:
 	 * @return
 	 * If no error occurs, true is returned. Otherwise false.
 	 */
-	bool writeBuf(SmartBuffer &buf, bool &fullyWritten);
+	bool writeBuf(mlpl::SmartBuffer &buf, bool &fullyWritten);
 
 	void enableWriteCbIfNeeded(void);
-	bool isExistingDir(const string &dirname, bool &hasError);
-	bool makeBasedirIfNeeded(const string &baseDir);
+	bool isExistingDir(const std::string &dirname, bool &hasError);
+	bool makeBasedirIfNeeded(const std::string &baseDir);
 	bool deleteFileIfExists(const std::string &path);
 
 private:
