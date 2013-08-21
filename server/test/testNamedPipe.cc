@@ -85,6 +85,10 @@ struct TestPushContext {
 		  true, pipeSlaveRd.createGIOChannel(defaultSlaveRdCb, this));
 		cppcut_assert_equal(
 		  true, pipeSlaveWr.createGIOChannel(defaultSlaveWrCb, this));
+
+		// set timeout
+		static const guint timeout = 5 * 1000; // ms
+		timerId = g_timeout_add(timeout, timerHandler, this);
 	}
 
 	static gboolean defaultCb
@@ -145,16 +149,15 @@ struct TestPushContext {
 		return FALSE;
 	}
 
+	static gboolean timerHandler(gpointer data)
+	{
+		TestPushContext *ctx = static_cast<TestPushContext *>(data);
+		ctx->timerId = INVALID_RESOURCE_ID;
+		g_main_loop_quit(ctx->loop);
+		return FALSE;
+	}
 };
 static TestPushContext *g_testPushCtx = NULL;
-
-static gboolean timerHandler(gpointer data)
-{
-	TestPushContext *ctx = static_cast<TestPushContext *>(data);
-	ctx->timerId = INVALID_RESOURCE_ID;
-	g_main_loop_quit(ctx->loop);
-	return FALSE;
-}
 
 static void pullCb(GIOStatus stat, SmartBuffer &buf, size_t size, void *priv)
 {
@@ -196,10 +199,6 @@ void test_pushPull(void)
 		smbuf.add8(i);
 	ctx->pipeSlaveWr.push(smbuf);
 
-	// set timeout
-	static const guint timeout = 5 * 1000; // ms
-	ctx->timerId = g_timeout_add(timeout, timerHandler, ctx);
-
 	// run the event loop
 	g_main_loop_run(ctx->loop);
 	cppcut_assert_not_equal(INVALID_RESOURCE_ID, ctx->timerId,
@@ -213,10 +212,7 @@ void test_closeUnexpectedly(void)
 	TestPushContext *ctx = g_testPushCtx;
 	ctx->init();
 
-	// set timeout
-	static const guint timeout = 5 * 1000; // ms
-	ctx->timerId = g_timeout_add(timeout, timerHandler, ctx);
-
+	// set callback handlers
 	ctx->masterRdCb = TestPushContext::expectedCb;
 	ctx->slaveWrCb = TestPushContext::expectedCb;
 
