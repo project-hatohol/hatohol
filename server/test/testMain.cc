@@ -39,12 +39,14 @@ namespace testMain {
 struct FunctionArg {
 	bool timedOut;
 	bool isEndChildProcess;
+	guint eventTimeout;
 	GPid childPid;
 	GMainLoop *loop;
 
 	FunctionArg(void)
 	: timedOut(false),
 	  isEndChildProcess(false),
+	  eventTimeout(0),
 	  childPid(0),
 	  loop(NULL)
 	{
