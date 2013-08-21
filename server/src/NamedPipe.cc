@@ -271,7 +271,7 @@ gboolean NamedPipe::writeCb(GIOChannel *source, GIOCondition condition,
 	return continueEventCb;
 }
 
-bool NamedPipe::writeBuf(SmartBuffer &buf, bool &fullyWritten)
+bool NamedPipe::writeBuf(SmartBuffer &buf, bool &fullyWritten, bool flush)
 {
 	fullyWritten = false;
 	gchar *dataPtr = buf.getPointer<gchar>();
@@ -281,19 +281,16 @@ bool NamedPipe::writeBuf(SmartBuffer &buf, bool &fullyWritten)
 	GIOStatus stat =
 	  g_io_channel_write_chars(m_ctx->ioch, dataPtr, count,
 	                           &bytesWritten, &error);
-	if (stat == G_IO_STATUS_ERROR || stat == G_IO_STATUS_EOF) {
-		// The error calball back will be called.
-		// So we do nothing here.
+	if (!checkGIOStatus(stat, error))
 		return false;
+	if (flush) {
+		stat = g_io_channel_flush(m_ctx->ioch, &error);
+		if (!checkGIOStatus(stat, error))
+			return false;
 	}
-	HATOHOL_ASSERT(stat != G_IO_STATUS_AGAIN,
-	               "received G_IO_STATUS_AGAIN. However, the pipe was "
-	               "opened without O_NONBLOCK. Something is wrong.");
 	buf.incIndex(bytesWritten);
-	if (bytesWritten == (gsize)count) {
+	if (bytesWritten == (gsize)count)
 		fullyWritten = true;
-		return true;
-	}
 	return true;
 }
 
@@ -377,5 +374,19 @@ bool NamedPipe::deleteFileIfExists(const string &path)
 		return false;
 	}
 
+	return true;
+}
+
+bool NamedPipe::checkGIOStatus(GIOStatus stat, GError *error)
+{
+	if (stat == G_IO_STATUS_ERROR || stat == G_IO_STATUS_EOF) {
+		// The error calball back will be called.
+		MLPL_ERR("GIOStatus: %d, %s\n", stat,
+		         error ? error->message : "reason: unknown");
+		return false;
+	}
+	HATOHOL_ASSERT(stat != G_IO_STATUS_AGAIN,
+	               "received G_IO_STATUS_AGAIN. However, the pipe was "
+	               "opened without O_NONBLOCK. Something is wrong.");
 	return true;
 }

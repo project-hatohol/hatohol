@@ -85,16 +85,21 @@ protected:
 	 * @parameter fullyWritten
 	 * When the all data in \buf was written, this function set
 	 * true to the parameter. Otherwise it sets false.
- 	 *
+	 *
+	 * @parameter flush
+	 * When this parameter is true, the written data is flushed.
+	 *
 	 * @return
 	 * If no error occurs, true is returned. Otherwise false.
 	 */
-	bool writeBuf(mlpl::SmartBuffer &buf, bool &fullyWritten);
+	bool writeBuf(mlpl::SmartBuffer &buf, bool &fullyWritten,
+	              bool flush = true);
 
 	void enableWriteCbIfNeeded(void);
 	bool isExistingDir(const std::string &dirname, bool &hasError);
 	bool makeBasedirIfNeeded(const std::string &baseDir);
 	bool deleteFileIfExists(const std::string &path);
+	bool checkGIOStatus(GIOStatus stat, GError *error);
 
 private:
 	struct PrivateContext;
