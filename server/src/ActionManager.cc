@@ -305,11 +305,10 @@ void ActionManager::launchedCb(GIOStatus stat, mlpl::SmartBuffer &sbuf,
 
 	// check the packet type
 	sbuf.resetIndex();
-	uint32_t pktLen = *sbuf.getPointerAndIncIndex<uint32_t>();
-	uint32_t expectedPktLen = RESIDENT_PROTO_HEADER_PKT_TYPE_LEN;
-	if (pktLen != expectedPktLen) {
-		MLPL_ERR("Invalid packet length: %"PRIu32", "
-		         "expect: %"PRIu32"\n", pktLen, expectedPktLen);
+	uint32_t bodyLen = *sbuf.getPointerAndIncIndex<uint32_t>();
+	if (bodyLen != 0) {
+		MLPL_ERR("Invalid body length: %"PRIu32", "
+		         "expect: 0\n", bodyLen);
 		obj->closeResident(residentInfo);
 		return;
 	}
@@ -329,12 +328,12 @@ void ActionManager::launchedCb(GIOStatus stat, mlpl::SmartBuffer &sbuf,
 
 void ActionManager::sendParameters(ResidentInfo *residentInfo)
 {
-	size_t pktLen = RESIDENT_PROTO_HEADER_PKT_SIZE_LEN;
-	pktLen += RESIDENT_PROTO_PARAM_MODULE_PATH_LEN;
-	pktLen += residentInfo->modulePath.size();
+	size_t bodyLen = RESIDENT_PROTO_PARAM_MODULE_PATH_LEN
+	                 + residentInfo->modulePath.size();
+	size_t pktLen = RESIDENT_PROTO_HEADER_LEN + bodyLen;
 
 	SmartBuffer sbuf(pktLen);
-	sbuf.add32(pktLen - RESIDENT_PROTO_HEADER_PKT_SIZE_LEN);
+	sbuf.add32(bodyLen);
 	sbuf.add16(RESIDENT_PROTO_PKT_TYPE_PARAMETERS);
 	sbuf.add16(residentInfo->modulePath.size());
 	memcpy(sbuf.getPointer<void>(), residentInfo->modulePath.c_str(),

@@ -58,8 +58,7 @@ gboolean writePipeCb(GIOChannel *source, GIOCondition condition, gpointer data)
 static void sendLaunched(PrivateContext *ctx)
 {
 	SmartBuffer buf(RESIDENT_PROTO_HEADER_LEN);
-	buf.add32(
-	  RESIDENT_PROTO_HEADER_LEN - RESIDENT_PROTO_HEADER_PKT_SIZE_LEN);
+	buf.add32(0);
 	buf.add16(RESIDENT_PROTO_PKT_TYPE_LAUNCHED);
 	ctx->pipeWr.push(buf);
 }
@@ -84,7 +83,7 @@ static void getParametersCb(GIOStatus stat, mlpl::SmartBuffer &sbuf,
 
 	// check the packet
 	sbuf.resetIndex();
-	uint32_t pktLen = *sbuf.getPointerAndIncIndex<uint32_t>();
+	uint32_t bodyLen = *sbuf.getPointerAndIncIndex<uint32_t>();
 
 	// packet type
 	uint16_t pktType = *sbuf.getPointerAndIncIndex<uint16_t>();
@@ -96,7 +95,6 @@ static void getParametersCb(GIOStatus stat, mlpl::SmartBuffer &sbuf,
 	}
 
 	// request the remaining part
-	size_t bodyLen = pktLen - RESIDENT_PROTO_HEADER_PKT_TYPE_LEN;
 	ctx->pipeRd.pull(bodyLen, getParametersBodyCb, ctx);
 }
 

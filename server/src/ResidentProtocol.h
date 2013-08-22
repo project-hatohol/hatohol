@@ -35,7 +35,7 @@ enum
 // All packets have a header with the following structure.
 //
 // Bytes: Description
-//     4: Packet size (not including this field).
+//     4: Packet body size (not including the header size)
 //     2: packet type defined the above
 
 static const size_t RESIDENT_PROTO_HEADER_PKT_SIZE_LEN = 4;
