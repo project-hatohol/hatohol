@@ -34,6 +34,10 @@ struct PrivateContext {
 	{
 		if (loop)
 			g_main_loop_unref(loop);
+		if (moduleHandle) {
+			if (dlclose(moduleHandle) != 0)
+				MLPL_ERR("Failed to close module.");
+		}
 	}
 };
 
