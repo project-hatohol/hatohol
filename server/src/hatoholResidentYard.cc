@@ -43,7 +43,8 @@ static void requestQuit(PrivateContext *ctx, int exitCode = EXIT_FAILURE)
 	g_main_loop_quit(ctx->loop);
 }
 
-gboolean readPipeCb(GIOChannel *source, GIOCondition condition, gpointer data)
+static gboolean readPipeCb
+  (GIOChannel *source, GIOCondition condition, gpointer data)
 {
 	PrivateContext *ctx = static_cast<PrivateContext *>(data);
 	MLPL_ERR("Error: condition: %x\n", condition);
@@ -51,7 +52,8 @@ gboolean readPipeCb(GIOChannel *source, GIOCondition condition, gpointer data)
 	return TRUE;
 }
 
-gboolean writePipeCb(GIOChannel *source, GIOCondition condition, gpointer data)
+static gboolean writePipeCb
+  (GIOChannel *source, GIOCondition condition, gpointer data)
 {
 	PrivateContext *ctx = static_cast<PrivateContext *>(data);
 	MLPL_ERR("Error: condition: %x\n", condition);
