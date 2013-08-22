@@ -217,6 +217,39 @@ static void _assertRun(TestContext *ctx)
 }
 #define assertRun(CTX) cut_trace(_assertRun(CTX))
 
+static void _assertCloseUnexpectedly(const string &name, bool doPull)
+{
+	g_testPushCtx = new TestContext("test_close_in_pull");
+	TestContext *ctx = g_testPushCtx;
+	ctx->init();
+
+	// set callback handlers
+	ExpectedCbArg masterRdCbArg(ctx);
+	ExpectedCbArg slaveWrCbArg(ctx);
+	ctx->masterRdCb.setCb(TestContext::expectedCb, &masterRdCbArg);
+	ctx->slaveWrCb.setCb(TestContext::expectedCb, &slaveWrCbArg);
+
+	if (doPull) {
+		// register read callback
+		ctx->bufLen = 10;
+		ctx->pipeMasterRd.pull(ctx->bufLen, pullCb, ctx);
+	}
+
+	// close the write pipe
+	int fd = ctx->pipeSlaveWr.getFd();
+	close(fd);
+
+	// run the event loop 2 times
+	while (ctx->numExpectedCbCalled < 2)
+		assertRun(ctx);
+
+	// check the reason of the callback
+	cppcut_assert_equal(G_IO_HUP, masterRdCbArg.condition);
+	cppcut_assert_equal(G_IO_NVAL, slaveWrCbArg.condition);
+}
+#define assertCloseUnexpectedly(NAME, DO_PULL) \
+cut_trace(_assertCloseUnexpectedly(NAME, DO_PULL))
+
 void cut_teardown(void)
 {
 	if (g_testPushCtx) {
@@ -250,56 +283,14 @@ void test_pushPull(void)
 
 void test_closeUnexpectedly(void)
 {
-	g_testPushCtx = new TestContext("test_close");
-	TestContext *ctx = g_testPushCtx;
-	ctx->init();
-
-	// set callback handlers
-	ExpectedCbArg masterRdCbArg(ctx);
-	ExpectedCbArg slaveWrCbArg(ctx);
-	ctx->masterRdCb.setCb(TestContext::expectedCb, &masterRdCbArg);
-	ctx->slaveWrCb.setCb(TestContext::expectedCb, &slaveWrCbArg);
-
-	// close the write pipe
-	int fd = ctx->pipeSlaveWr.getFd();
-	close(fd);
-
-	// run the event loop 2 times
-	while (ctx->numExpectedCbCalled < 2)
-		assertRun(ctx);
-
-	// check the reason of the callback
-	cppcut_assert_equal(G_IO_HUP, masterRdCbArg.condition);
-	cppcut_assert_equal(G_IO_NVAL, slaveWrCbArg.condition);
+	bool doPull = false;
+	assertCloseUnexpectedly("test_close", doPull);
 }
 
 void test_closeUnexpectedlyInPull(void)
 {
-	g_testPushCtx = new TestContext("test_close_in_pull");
-	TestContext *ctx = g_testPushCtx;
-	ctx->init();
-
-	// set callback handlers
-	ExpectedCbArg masterRdCbArg(ctx);
-	ExpectedCbArg slaveWrCbArg(ctx);
-	ctx->masterRdCb.setCb(TestContext::expectedCb, &masterRdCbArg);
-	ctx->slaveWrCb.setCb(TestContext::expectedCb, &slaveWrCbArg);
-
-	// register read callback
-	ctx->bufLen = 10;
-	ctx->pipeMasterRd.pull(ctx->bufLen, pullCb, ctx);
-
-	// close the write pipe
-	int fd = ctx->pipeSlaveWr.getFd();
-	close(fd);
-
-	// run the event loop 2 times
-	while (ctx->numExpectedCbCalled < 2)
-		assertRun(ctx);
-
-	// check the reason of the callback
-	cppcut_assert_equal(G_IO_HUP, masterRdCbArg.condition);
-	cppcut_assert_equal(G_IO_NVAL, slaveWrCbArg.condition);
+	bool doPull = true;
+	assertCloseUnexpectedly("test_close_in_pull", doPull);
 }
 
 } // namespace testNamedPipe
