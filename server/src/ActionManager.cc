@@ -23,6 +23,7 @@
 #include "ActorCollector.h"
 #include "DBClientAction.h"
 #include "NamedPipe.h"
+#include "ResidentProtocol.h"
 
 using namespace std;
 
@@ -32,16 +33,24 @@ struct ResidentQueueInfo {
 
 typedef deque<ResidentQueueInfo> ResidentQueue;
 
+enum ResidentStatus {
+	RESIDENT_STAT_INIT,
+	RESIDENT_STAT_WAIT_LAUNCHED,
+	RESIDENT_STAT_LAUNCHED,
+};
+
 struct ResidentInfo {
 	ActionManager *actionManager;
 	ResidentQueue queue;
 	NamedPipe pipeRd, pipeWr;
 	string pipeName;
+	ResidentStatus status;
 
 	ResidentInfo(ActionManager *actMgr, int actionId)
 	: actionManager(actMgr),
 	  pipeRd(NamedPipe::END_TYPE_MASTER_READ),
-	  pipeWr(NamedPipe::END_TYPE_MASTER_WRITE)
+	  pipeWr(NamedPipe::END_TYPE_MASTER_WRITE),
+	  status(RESIDENT_STAT_INIT)
 	{
 		pipeName = StringUtils::sprintf("resident-%d", actionId);
 	}
@@ -258,24 +267,37 @@ void ActionManager::execResidentAction(const ActionDef &actionDef,
 	m_ctx->residentLock.unlock();
 }
 
-gboolean ActionManager::residentReadCb(
+gboolean ActionManager::residentReadErrCb(
   GIOChannel *source, GIOCondition condition, gpointer data)
 {
 	ResidentInfo *residentInfo = static_cast<ResidentInfo *>(data);
-	MLPL_BUG("Not implemented: %s (%p)\n",
-	         __PRETTY_FUNCTION__, residentInfo);
+	ActionManager *obj = residentInfo->actionManager;
+	MLPL_ERR("Error: condition: %x\n", condition);
+	obj->closeResident(residentInfo);
 	return TRUE;
 }
 
-gboolean ActionManager::residentWriteCb(
+gboolean ActionManager::residentWriteErrCb(
   GIOChannel *source, GIOCondition condition, gpointer data)
 {
-	// This function is never called by the event: G_IO_OUT.
-	// For Error, HUP, and so on.
 	ResidentInfo *residentInfo = static_cast<ResidentInfo *>(data);
-	MLPL_BUG("Not implemented: %s (%p)\n",
-	         __PRETTY_FUNCTION__, residentInfo);
+	ActionManager *obj = residentInfo->actionManager;
+	MLPL_ERR("Error: condition: %x\n", condition);
+	obj->closeResident(residentInfo);
 	return TRUE;
+}
+
+void ActionManager::launchedCb(GIOStatus stat, mlpl::SmartBuffer &buf,
+                               size_t size, void *priv)
+{
+	ResidentInfo *residentInfo = static_cast<ResidentInfo *>(priv);
+	ActionManager *obj = residentInfo->actionManager;
+	if (stat != G_IO_STATUS_NORMAL) {
+		MLPL_ERR("Error: status: %x\n", stat);
+		obj->closeResident(residentInfo);
+		return;
+	}
+	residentInfo->status = RESIDENT_STAT_LAUNCHED;
 }
 
 //
@@ -296,11 +318,13 @@ ResidentInfo *ActionManager::launchResidentActionYard
 		return NULL;
 	}
 
-	if (!residentInfo->init(residentReadCb, residentWriteCb)) {
+	if (!residentInfo->init(residentReadErrCb, residentWriteErrCb)) {
 		delete residentInfo;
 		return NULL;
 	}
-
+	residentInfo->status = RESIDENT_STAT_WAIT_LAUNCHED;
+	residentInfo->pipeRd.pull(RESIDENT_PROTO_HEADER_LEN,
+	                          launchedCb, residentInfo);
 	return residentInfo;
 }
 
@@ -321,4 +345,10 @@ void ActionManager::notifyEvent(
   ResidentInfo *residentInfo, const ActionDef &actionDef, ActorInfo *actorInfo)
 {
 	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+}
+
+void ActionManager::closeResident(ResidentInfo *residentInfo)
+{
+	MLPL_BUG("Not implemented: %s (%p)\n",
+	         __PRETTY_FUNCTION__, residentInfo);
 }

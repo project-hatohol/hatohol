@@ -20,6 +20,7 @@
 #ifndef ActionManager_h
 #define ActionManager_h
 
+#include "SmartBuffer.h"
 #include "DBClientAction.h"
 #include "ActorCollector.h"
 
@@ -37,10 +38,14 @@ public:
 
 protected:
 	static void separatorCallback(const char sep, PrivateContext *ctx);
-	static gboolean residentReadCb(GIOChannel *source,
-	                               GIOCondition condition, gpointer data);
-	static gboolean residentWriteCb(GIOChannel *source,
-	                                GIOCondition condition, gpointer data);
+	static gboolean residentReadErrCb(GIOChannel *source,
+	                                  GIOCondition condition,
+	                                  gpointer data);
+	static gboolean residentWriteErrCb(GIOChannel *source,
+	                                   GIOCondition condition,
+	                                   gpointer data);
+	static void launchedCb(GIOStatus stat, mlpl::SmartBuffer &buf,
+	                       size_t size, void *priv);
 	void runAction(const ActionDef &actionDef);
 	void makeExecArg(StringVector &argVect, const string &cmd);
 	bool spawn(const ActionDef &actionDef, ActorInfo *actorInfo,
@@ -56,6 +61,7 @@ protected:
 	                              ActorInfo *actorInfo);
 	void notifyEvent(ResidentInfo *residentInfo,
 	                 const ActionDef &actionDef, ActorInfo *actorInfo);
+	void closeResident(ResidentInfo *residentInfo);
 
 private:
 	PrivateContext *m_ctx;
