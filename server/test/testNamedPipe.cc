@@ -30,15 +30,15 @@ namespace testNamedPipe {
 
 static const gint INVALID_RESOURCE_ID = -1;
 
-struct TestPushContext;
+struct TestContext;
 struct ExpectedCbArg {
 	// set by a caller
-	TestPushContext *ctx;
+	TestContext *ctx;
 
 	// set by a callback handler
 	GIOCondition condition;
 
-	ExpectedCbArg(TestPushContext *_ctx)
+	ExpectedCbArg(TestContext *_ctx)
 	: ctx(_ctx)
 	{
 	}
@@ -46,13 +46,13 @@ struct ExpectedCbArg {
 
 struct TestCallback {
 	string name;
-	TestPushContext *ctx;
+	TestContext *ctx;
 
 	GIOFunc cb; // custom
 	void   *cbArg;
 
 	// methods;
-	TestCallback(const string &_name, TestPushContext *_ctx);
+	TestCallback(const string &_name, TestContext *_ctx);
 	void init(NamedPipe &namedPipe);
 	void setCb(GIOFunc _cb, void *_cbArg);
 	gboolean defaultCb(GIOChannel *source, GIOCondition condition);
@@ -60,7 +60,7 @@ struct TestCallback {
 	  (GIOChannel *source, GIOCondition condition, gpointer data);
 };
 
-struct TestPushContext {
+struct TestContext {
 
 	string name;
 	NamedPipe pipeMasterRd, pipeMasterWr, pipeSlaveRd, pipeSlaveWr;
@@ -73,8 +73,8 @@ struct TestPushContext {
 	size_t numExpectedCbCalled;
 
 	// methods;
-	TestPushContext(const string &_name);
-	virtual ~TestPushContext();
+	TestContext(const string &_name);
+	virtual ~TestContext();
 	void init(void);
 
 	static gboolean expectedCb
@@ -85,7 +85,7 @@ struct TestPushContext {
 //
 // Methods of TestCallback
 //
-TestCallback::TestCallback(const string &_name, TestPushContext *_ctx)
+TestCallback::TestCallback(const string &_name, TestContext *_ctx)
 : name(_name),
   ctx(_ctx),
   cb(NULL),
@@ -125,9 +125,9 @@ gboolean TestCallback::callbackGate
 
 
 //
-// Methods of TestPushContext
+// Methods of TestContext
 //
-TestPushContext::TestPushContext(const string &_name)
+TestContext::TestContext(const string &_name)
 : name(_name),
   pipeMasterRd(NamedPipe::END_TYPE_MASTER_READ),
   pipeMasterWr(NamedPipe::END_TYPE_MASTER_WRITE),
@@ -145,7 +145,7 @@ TestPushContext::TestPushContext(const string &_name)
 {
 }
 
-TestPushContext::~TestPushContext()
+TestContext::~TestContext()
 {
 	if (loop)
 		g_main_loop_unref(loop);
@@ -153,7 +153,7 @@ TestPushContext::~TestPushContext()
 		g_source_remove(timerId);
 }
 
-void TestPushContext::init(void)
+void TestContext::init(void)
 {
 	loop = g_main_loop_new(NULL, TRUE);
 	cppcut_assert_not_null(loop);
@@ -172,20 +172,20 @@ void TestPushContext::init(void)
 	timerId = g_timeout_add(timeout, timerHandler, this);
 }
 
-gboolean TestPushContext::expectedCb
+gboolean TestContext::expectedCb
   (GIOChannel *source, GIOCondition condition, gpointer data)
 {
 	ExpectedCbArg *arg = static_cast<ExpectedCbArg *>(data);
-	TestPushContext *ctx = arg->ctx;
+	TestContext *ctx = arg->ctx;
 	ctx->numExpectedCbCalled++;
 	arg->condition = condition;
 	g_main_loop_quit(ctx->loop);
 	return FALSE;
 }
 
-gboolean TestPushContext::timerHandler(gpointer data)
+gboolean TestContext::timerHandler(gpointer data)
 {
-	TestPushContext *ctx = static_cast<TestPushContext *>(data);
+	TestContext *ctx = static_cast<TestContext *>(data);
 	ctx->timerId = INVALID_RESOURCE_ID;
 	g_main_loop_quit(ctx->loop);
 	return FALSE;
@@ -194,11 +194,11 @@ gboolean TestPushContext::timerHandler(gpointer data)
 //
 // General variables and methods
 //
-static TestPushContext *g_testPushCtx = NULL;
+static TestContext *g_testPushCtx = NULL;
 
 static void pullCb(GIOStatus stat, SmartBuffer &buf, size_t size, void *priv)
 {
-	TestPushContext *ctx = static_cast<TestPushContext *>(priv);
+	TestContext *ctx = static_cast<TestContext *>(priv);
 	cppcut_assert_equal(G_IO_STATUS_NORMAL, stat);
 	cppcut_assert_equal(ctx->bufLen, size);
 	buf.resetIndex();
@@ -221,8 +221,8 @@ void cut_teardown(void)
 // ---------------------------------------------------------------------------
 void test_pushPull(void)
 {
-	g_testPushCtx = new TestPushContext("test_push");
-	TestPushContext *ctx = g_testPushCtx;
+	g_testPushCtx = new TestContext("test_push");
+	TestContext *ctx = g_testPushCtx;
 	ctx->init();
 
 	// register read callback
@@ -244,15 +244,15 @@ void test_pushPull(void)
 
 void test_closeUnexpectedly(void)
 {
-	g_testPushCtx = new TestPushContext("test_close");
-	TestPushContext *ctx = g_testPushCtx;
+	g_testPushCtx = new TestContext("test_close");
+	TestContext *ctx = g_testPushCtx;
 	ctx->init();
 
 	// set callback handlers
 	ExpectedCbArg masterRdCbArg(ctx);
 	ExpectedCbArg slaveWrCbArg(ctx);
-	ctx->masterRdCb.setCb(TestPushContext::expectedCb, &masterRdCbArg);
-	ctx->slaveWrCb.setCb(TestPushContext::expectedCb, &slaveWrCbArg);
+	ctx->masterRdCb.setCb(TestContext::expectedCb, &masterRdCbArg);
+	ctx->slaveWrCb.setCb(TestContext::expectedCb, &slaveWrCbArg);
 
 	// close the write pipe
 	int fd = ctx->pipeSlaveWr.getFd();
