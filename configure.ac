@@ -93,6 +93,11 @@ if test "$ac_cv_use_cutter" != "no"; then
   have_cutter=yes
 fi
 
+dnl **************************************************************
+dnl Setting for install directory
+dnl **************************************************************
+PREFIX=/usr/local/sbin
+AC_SUBST(PREFIX)
 
 dnl **************************************************************
 dnl Results
