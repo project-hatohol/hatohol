@@ -199,20 +199,23 @@ static void _assertExecAction(ExecCommandContext *ctx, int id, ActionType type)
 	// execute 
 	ctx->actDef.id = id;
 	ctx->actDef.type = type;
-	ctx->actDef.path = StringUtils::sprintf(
-	  "%s %s %s %s", cut_build_path("ActionTp", NULL),
-	  type == ACTION_RESIDENT ? "--resident" : "",
-	  ctx->writePipe.getPath().c_str(), ctx->readPipe.getPath().c_str());
 
 	// launch ActionTp (the actor)
 	TestActionManager actMgr;
 	ctx->actorInfo.pid = 0;
-	if (type == ACTION_COMMAND)
+	if (type == ACTION_COMMAND) {
+		ctx->actDef.path = StringUtils::sprintf(
+		  "%s %s %s", cut_build_path("ActionTp", NULL),
+		  ctx->writePipe.getPath().c_str(),
+		  ctx->readPipe.getPath().c_str());
 		actMgr.callExecCommandAction(ctx->actDef, &ctx->actorInfo);
-	else if (type == ACTION_RESIDENT)
+	} else if (type == ACTION_RESIDENT) {
+		ctx->actDef.path =
+		  cut_build_path(".libs", "residentTest.so", NULL);
 		actMgr.callExecResidentAction(ctx->actDef, &ctx->actorInfo);
-	else
+	} else {
 		cut_fail("Unknown type: %d\n", type);
+	}
 	ctx->actionTpPid = ctx->actorInfo.pid;
 }
 #define assertExecAction(CTX, ID, TYPE) \
