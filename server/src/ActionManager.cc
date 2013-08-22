@@ -279,7 +279,7 @@ gboolean ActionManager::residentReadErrCb(
 	ActionManager *obj = residentInfo->actionManager;
 	MLPL_ERR("Error: condition: %x\n", condition);
 	obj->closeResident(residentInfo);
-	return TRUE;
+	return FALSE;
 }
 
 gboolean ActionManager::residentWriteErrCb(
@@ -289,7 +289,7 @@ gboolean ActionManager::residentWriteErrCb(
 	ActionManager *obj = residentInfo->actionManager;
 	MLPL_ERR("Error: condition: %x\n", condition);
 	obj->closeResident(residentInfo);
-	return TRUE;
+	return FALSE;
 }
 
 void ActionManager::launchedCb(GIOStatus stat, mlpl::SmartBuffer &sbuf,
