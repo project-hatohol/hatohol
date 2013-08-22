@@ -53,7 +53,7 @@ struct TestCallback {
 
 	// methods;
 	TestCallback(const string &_name, TestContext *_ctx);
-	void init(NamedPipe &namedPipe);
+	void init(NamedPipe &namedPipe, const string &pipeName);
 	void setCb(GIOFunc _cb, void *_cbArg);
 	gboolean defaultCb(GIOChannel *source, GIOCondition condition);
 	static gboolean callbackGate
@@ -93,10 +93,9 @@ TestCallback::TestCallback(const string &_name, TestContext *_ctx)
 {
 }
 
-void TestCallback::init(NamedPipe &namedPipe)
+void TestCallback::init(NamedPipe &namedPipe, const string &pipeName)
 {
-	cppcut_assert_equal(
-	  true, namedPipe.createGIOChannel(callbackGate, this));
+	cppcut_assert_equal(true, namedPipe.init(pipeName, callbackGate, this));
 }
 
 void TestCallback::setCb(GIOFunc _cb, void *_cbArg)
@@ -157,15 +156,11 @@ void TestContext::init(void)
 {
 	loop = g_main_loop_new(NULL, TRUE);
 	cppcut_assert_not_null(loop);
-	cppcut_assert_equal(true, pipeMasterRd.openPipe(name));
-	cppcut_assert_equal(true, pipeMasterWr.openPipe(name));
-	cppcut_assert_equal(true, pipeSlaveRd.openPipe(name));
-	cppcut_assert_equal(true, pipeSlaveWr.openPipe(name));
 
-	masterRdCb.init(pipeMasterRd);
-	masterWrCb.init(pipeMasterWr);
-	slaveRdCb.init(pipeSlaveRd);
-	slaveWrCb.init(pipeSlaveWr);
+	masterRdCb.init(pipeMasterRd, name);
+	masterWrCb.init(pipeMasterWr, name);
+	slaveRdCb.init(pipeSlaveRd, name);
+	slaveWrCb.init(pipeSlaveWr, name);
 
 	// set timeout
 	static const guint timeout = 5 * 1000; // ms

@@ -64,7 +64,7 @@ public:
 	bool openPipe(const std::string &name);
 
 	/**
-	 * Create a GIOChannel object and register an event callback.
+	 * Open the pipe and register an event callback.
 	 * openPipe() must be called before the call of this function.
 	 *
 	 * @parameter iochCb
@@ -82,7 +82,7 @@ public:
 	 * @return
 	 * If no error occurs, true is returned. Otherwise false.
 	 */
-	bool createGIOChannel(GIOFunc iochCb, gpointer data);
+	bool init(const std::string &name, GIOFunc iochCb, gpointer data);
 
 	int getFd(void) const;
 	const std::string &getPath(void) const;
@@ -118,8 +118,13 @@ public:
 protected:
 	static gboolean writeCb(GIOChannel *source, GIOCondition condition,
 	                        gpointer data);
+	static gboolean writeErrorCb(GIOChannel *source, GIOCondition condition,
+	                             gpointer data);
 	static gboolean readCb(GIOChannel *source, GIOCondition condition,
 	                        gpointer data);
+	static gboolean readErrorCb(GIOChannel *source, GIOCondition condition,
+	                            gpointer data);
+
 	/**
 	 * Write data to the pipe.
 	 *

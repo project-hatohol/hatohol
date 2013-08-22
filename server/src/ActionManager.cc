@@ -38,28 +38,19 @@ struct ResidentInfo {
 	NamedPipe pipeRd, pipeWr;
 	string pipeName;
 
-	ResidentInfo(ActionManager *actMgr)
+	ResidentInfo(ActionManager *actMgr, int actionId)
 	: actionManager(actMgr),
 	  pipeRd(NamedPipe::END_TYPE_MASTER_READ),
 	  pipeWr(NamedPipe::END_TYPE_MASTER_WRITE)
 	{
-	}
-
-	bool openPipe(int actionId)
-	{
 		pipeName = StringUtils::sprintf("resident-%d", actionId);
-		if (!pipeRd.openPipe(pipeName))
-			return false;
-		if (!pipeWr.openPipe(pipeName))
-			return false;
-		return true;
 	}
 
-	bool openIOChannel(GIOFunc funcRd, GIOFunc funcWr)
+	bool init(GIOFunc funcRd, GIOFunc funcWr)
 	{
-		if(!pipeRd.createGIOChannel(funcRd, this))
+		if(!pipeRd.init(pipeName, funcRd, this))
 			return false;
-		if (!pipeWr.createGIOChannel(funcWr, this))
+		if (!pipeWr.init(pipeName, funcWr, this))
 			return false;
 		return true;
 	}
@@ -294,11 +285,7 @@ ResidentInfo *ActionManager::launchResidentActionYard
   (const ActionDef &actionDef, ActorInfo *actorInfo)
 {
 	// make a ResidentInfo instance.
-	ResidentInfo *residentInfo = new ResidentInfo(this);
-	if (!residentInfo->openPipe(actionDef.id)) {
-		delete residentInfo;
-		return NULL;
-	}
+	ResidentInfo *residentInfo = new ResidentInfo(this, actionDef.id);
 
 	const gchar *argv[] = {
 	  "hatohol-resident-yard",
@@ -309,7 +296,7 @@ ResidentInfo *ActionManager::launchResidentActionYard
 		return NULL;
 	}
 
-	if (!residentInfo->openIOChannel(residentReadCb, residentWriteCb)) {
+	if (!residentInfo->init(residentReadCb, residentWriteCb)) {
 		delete residentInfo;
 		return NULL;
 	}

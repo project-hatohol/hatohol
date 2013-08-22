@@ -72,16 +72,10 @@ int mainRoutine(int argc, char *argv[])
 	}
 	const char *pipeName = argv[1];
 	MLPL_INFO("PIPE name: %s\n", pipeName);
-	if (!ctx.pipeRd.openPipe(pipeName))
+	if (!ctx.pipeRd.init(pipeName,readPipeCb, &ctx))
 		return EXIT_FAILURE;
-	if (!ctx.pipeWr.openPipe(pipeName))
+	if (!ctx.pipeWr.init(pipeName, writePipeCb, &ctx))
 		return EXIT_FAILURE;
-
-	// make GIOChannels for the pipe
-	if (!ctx.pipeRd.createGIOChannel(readPipeCb, &ctx))
-		return EXIT_FAILURE;
-	if (!ctx.pipeWr.createGIOChannel(writePipeCb, &ctx))
-		return false;
 
 	sendLaunched(&ctx);
 

@@ -54,6 +54,8 @@ struct NamedPipe::PrivateContext {
 	guint iochEvtId;
 	guint iochOutEvtId; // only for write
 	guint iochInEvtId;  // only for read
+	GIOFunc  userCb;
+	gpointer userCbData;
 	bool writeCbSet;
 	SmartBufferList writeBufList;
 	MutexLock writeBufListLock;
@@ -70,6 +72,8 @@ struct NamedPipe::PrivateContext {
 	  iochEvtId(INVALID_EVENT_ID),
 	  iochOutEvtId(INVALID_EVENT_ID),
 	  iochInEvtId(INVALID_EVENT_ID),
+	  userCb(NULL),
+	  userCbData(NULL),
 	  pullCb(NULL),
 	  pullCbPriv(NULL),
 	  pullRequestSize(0),
@@ -204,9 +208,11 @@ retry:
 	return true;
 }
 
-bool NamedPipe::createGIOChannel(GIOFunc iochCb, gpointer data)
+bool NamedPipe::init(const string &name, GIOFunc iochCb, gpointer data)
 {
-	HATOHOL_ASSERT(m_ctx->fd > 0, "Invalid FD\n");
+	if (!openPipe(name))
+		return false;
+
 	m_ctx->ioch = g_io_channel_unix_new(m_ctx->fd);
 	if (!m_ctx->ioch) {
 		MLPL_ERR("Failed to call g_io_channel_unix_new: %d\n",
@@ -222,16 +228,23 @@ bool NamedPipe::createGIOChannel(GIOFunc iochCb, gpointer data)
 		return false;
 	}
 
+	GIOFunc cbFunc = NULL;
 	GIOCondition cond = (GIOCondition)0;
 	if (m_ctx->endType == END_TYPE_MASTER_READ
 	    || m_ctx->endType == END_TYPE_SLAVE_READ) {
+		cbFunc = readErrorCb;
 		cond = (GIOCondition)(G_IO_PRI|G_IO_ERR|G_IO_HUP|G_IO_NVAL);
 	}
 	else if (m_ctx->endType == END_TYPE_MASTER_WRITE
 	         || m_ctx->endType == END_TYPE_SLAVE_WRITE) {
+		cbFunc = writeErrorCb;
 		cond = (GIOCondition)(G_IO_ERR|G_IO_HUP|G_IO_NVAL);
 	}
-	m_ctx->iochEvtId = g_io_add_watch(m_ctx->ioch, cond, iochCb, data);
+	m_ctx->iochEvtId = g_io_add_watch(m_ctx->ioch, cond, cbFunc, this);
+
+	m_ctx->userCb = iochCb;
+	m_ctx->userCbData = data;
+
 	return true;
 }
 
@@ -308,6 +321,18 @@ gboolean NamedPipe::writeCb(GIOChannel *source, GIOCondition condition,
 	return continueEventCb;
 }
 
+gboolean NamedPipe::writeErrorCb(GIOChannel *source, GIOCondition condition,
+                                 gpointer data)
+{
+	NamedPipe *obj = static_cast<NamedPipe *>(data);
+	PrivateContext *ctx = obj->m_ctx;
+	HATOHOL_ASSERT(ctx->userCb,
+	               "Pull callback is not registered. cond: %x, ctx: %p",
+	               condition, ctx);
+	(*ctx->userCb)(source, condition, ctx->userCbData);
+	return TRUE;
+}
+
 gboolean NamedPipe::readCb(GIOChannel *source, GIOCondition condition,
                            gpointer data)
 {
@@ -336,6 +361,18 @@ gboolean NamedPipe::readCb(GIOChannel *source, GIOCondition condition,
 		return FALSE;
 	}
 
+	return TRUE;
+}
+
+gboolean NamedPipe::readErrorCb(GIOChannel *source, GIOCondition condition,
+                                gpointer data)
+{
+	NamedPipe *obj = static_cast<NamedPipe *>(data);
+	PrivateContext *ctx = obj->m_ctx;
+	HATOHOL_ASSERT(ctx->userCb,
+	               "Pull callback is not registered. cond: %x, ctx: %p",
+	               condition, ctx);
+	(*ctx->userCb)(source, condition, ctx->userCbData);
 	return TRUE;
 }
 
