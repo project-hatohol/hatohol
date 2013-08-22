@@ -61,7 +61,6 @@ public:
 
 	NamedPipe(EndType endType);
 	virtual ~NamedPipe();
-	bool openPipe(const std::string &name);
 
 	/**
 	 * Open the pipe and register an event callback.
@@ -124,6 +123,8 @@ protected:
 	                        gpointer data);
 	static gboolean readErrorCb(GIOChannel *source, GIOCondition condition,
 	                            gpointer data);
+
+	bool openPipe(const std::string &name);
 
 	/**
 	 * Write data to the pipe.
