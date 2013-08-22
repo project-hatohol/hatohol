@@ -30,6 +30,36 @@ namespace testNamedPipe {
 
 static const gint INVALID_RESOURCE_ID = -1;
 
+struct TestPushContext;
+struct ExpectedCbArg {
+	// set by a caller
+	TestPushContext *ctx;
+
+	// set by a callback handler
+	GIOCondition condition;
+
+	ExpectedCbArg(TestPushContext *_ctx)
+	: ctx(_ctx)
+	{
+	}
+};
+
+struct TestCallback {
+	string name;
+	TestPushContext *ctx;
+
+	GIOFunc cb; // custom
+	void   *cbArg;
+
+	// methods;
+	TestCallback(const string &_name, TestPushContext *_ctx);
+	void init(NamedPipe &namedPipe);
+	void setCb(GIOFunc _cb, void *_cbArg);
+	gboolean defaultCb(GIOChannel *source, GIOCondition condition);
+	static gboolean callbackGate
+	  (GIOChannel *source, GIOCondition condition, gpointer data);
+};
+
 struct TestPushContext {
 
 	string name;
@@ -38,125 +68,132 @@ struct TestPushContext {
 	gint timerId;
 	size_t bufLen;
 	bool hasError;
-	GIOFunc masterRdCb, masterWrCb, slaveRdCb, slaveWrCb;
+	
+	TestCallback masterRdCb, masterWrCb, slaveRdCb, slaveWrCb;
 	size_t numExpectedCbCalled;
 
-	TestPushContext(const string &_name)
-	: name(_name),
-	  pipeMasterRd(NamedPipe::END_TYPE_MASTER_READ),
-	  pipeMasterWr(NamedPipe::END_TYPE_MASTER_WRITE),
-	  pipeSlaveRd(NamedPipe::END_TYPE_SLAVE_READ),
-	  pipeSlaveWr(NamedPipe::END_TYPE_SLAVE_WRITE),
-	  loop(NULL),
-	  timerId(INVALID_RESOURCE_ID),
-	  bufLen(0),
-	  hasError(false),
-	  masterRdCb(NULL),
-	  masterWrCb(NULL),
-	  slaveRdCb(NULL),
-	  slaveWrCb(NULL),
-	  numExpectedCbCalled(0)
-	{
+	// methods;
+	TestPushContext(const string &_name);
+	virtual ~TestPushContext();
+	void init(void);
 
-	}
-
-	virtual ~TestPushContext()
-	{
-		if (loop)
-			g_main_loop_unref(loop);
-		if (timerId != INVALID_RESOURCE_ID)
-			g_source_remove(timerId);
-	}
-
-	void init(void)
-	{
-		loop = g_main_loop_new(NULL, TRUE);
-		cppcut_assert_not_null(loop);
-		cppcut_assert_equal(true, pipeMasterRd.openPipe(name));
-		cppcut_assert_equal(true, pipeMasterWr.openPipe(name));
-		cppcut_assert_equal(true, pipeSlaveRd.openPipe(name));
-		cppcut_assert_equal(true, pipeSlaveWr.openPipe(name));
-
-		cppcut_assert_equal(
-		  true, pipeMasterRd.createGIOChannel(defaultMasterRdCb, this));
-		cppcut_assert_equal(
-		  true, pipeMasterWr.createGIOChannel(defaultMasterWrCb, this));
-		cppcut_assert_equal(
-		  true, pipeSlaveRd.createGIOChannel(defaultSlaveRdCb, this));
-		cppcut_assert_equal(
-		  true, pipeSlaveWr.createGIOChannel(defaultSlaveWrCb, this));
-
-		// set timeout
-		static const guint timeout = 5 * 1000; // ms
-		timerId = g_timeout_add(timeout, timerHandler, this);
-	}
-
-	static gboolean defaultCb
-	  (GIOChannel *source, GIOCondition condition, gpointer data)
-	{
-		TestPushContext *ctx = static_cast<TestPushContext *>(data);
-		g_main_loop_quit(ctx->loop);
-		ctx->hasError = true;
-		return FALSE;
-	}
-
-	static gboolean defaultMasterRdCb
-	  (GIOChannel *source, GIOCondition condition, gpointer data)
-	{
-		TestPushContext *ctx = static_cast<TestPushContext *>(data);
-		if (ctx->masterRdCb)
-			return (*ctx->masterRdCb)(source, condition, data);
-		cut_notify("Unexpectedly called: %s\n", __PRETTY_FUNCTION__);
-		return defaultCb(source, condition, data);
-	}
-
-	static gboolean defaultMasterWrCb
-	  (GIOChannel *source, GIOCondition condition, gpointer data)
-	{
-		TestPushContext *ctx = static_cast<TestPushContext *>(data);
-		if (ctx->masterWrCb)
-			return (*ctx->masterWrCb)(source, condition, data);
-		cut_notify("Unexpectedly called: %s\n", __PRETTY_FUNCTION__);
-		return defaultCb(source, condition, data);
-	}
-
-	static gboolean defaultSlaveRdCb
-	  (GIOChannel *source, GIOCondition condition, gpointer data)
-	{
-		TestPushContext *ctx = static_cast<TestPushContext *>(data);
-		if (ctx->slaveRdCb)
-			return (*ctx->slaveRdCb)(source, condition, data);
-		cut_notify("Unexpectedly called: %s\n", __PRETTY_FUNCTION__);
-		return defaultCb(source, condition, data);
-	}
-
-	static gboolean defaultSlaveWrCb
-	  (GIOChannel *source, GIOCondition condition, gpointer data)
-	{
-		TestPushContext *ctx = static_cast<TestPushContext *>(data);
-		if (ctx->slaveWrCb)
-			return (*ctx->slaveWrCb)(source, condition, data);
-		cut_notify("Unexpectedly called: %s\n", __PRETTY_FUNCTION__);
-		return defaultCb(source, condition, data);
-	}
-
-	static gboolean
-	expectedCb(GIOChannel *source, GIOCondition condition, gpointer data)
-	{
-		TestPushContext *ctx = static_cast<TestPushContext *>(data);
-		ctx->numExpectedCbCalled++;
-		g_main_loop_quit(ctx->loop);
-		return FALSE;
-	}
-
-	static gboolean timerHandler(gpointer data)
-	{
-		TestPushContext *ctx = static_cast<TestPushContext *>(data);
-		ctx->timerId = INVALID_RESOURCE_ID;
-		g_main_loop_quit(ctx->loop);
-		return FALSE;
-	}
+	static gboolean expectedCb
+	  (GIOChannel *source, GIOCondition condition, gpointer data);
+	static gboolean timerHandler(gpointer data);
 };
+
+//
+// Methods of TestCallback
+//
+TestCallback::TestCallback(const string &_name, TestPushContext *_ctx)
+: name(_name),
+  ctx(_ctx),
+  cb(NULL),
+  cbArg(NULL)
+{
+}
+
+void TestCallback::init(NamedPipe &namedPipe)
+{
+	cppcut_assert_equal(
+	  true, namedPipe.createGIOChannel(callbackGate, this));
+}
+
+void TestCallback::setCb(GIOFunc _cb, void *_cbArg)
+{
+	cb = _cb;
+	cbArg = _cbArg;
+}
+
+gboolean TestCallback::defaultCb(GIOChannel *source, GIOCondition condition)
+{
+	cut_notify("Unexpectedly called: %s\n", name.c_str());
+	g_main_loop_quit(ctx->loop);
+	ctx->hasError = true;
+	return FALSE;
+}
+
+gboolean TestCallback::callbackGate
+  (GIOChannel *source, GIOCondition condition, gpointer data)
+{
+	TestCallback *obj = static_cast<TestCallback *>(data);
+	if (obj->cb)
+		return (*obj->cb)(source, condition, obj->cbArg);
+	cut_notify("Unexpectedly called: %s\n", __PRETTY_FUNCTION__);
+	return obj->defaultCb(source, condition);
+}
+
+
+//
+// Methods of TestPushContext
+//
+TestPushContext::TestPushContext(const string &_name)
+: name(_name),
+  pipeMasterRd(NamedPipe::END_TYPE_MASTER_READ),
+  pipeMasterWr(NamedPipe::END_TYPE_MASTER_WRITE),
+  pipeSlaveRd(NamedPipe::END_TYPE_SLAVE_READ),
+  pipeSlaveWr(NamedPipe::END_TYPE_SLAVE_WRITE),
+  loop(NULL),
+  timerId(INVALID_RESOURCE_ID),
+  bufLen(0),
+  hasError(false),
+  masterRdCb("MasterRD", this),
+  masterWrCb("MasterWR", this),
+  slaveRdCb("SlaveRD", this),
+  slaveWrCb("SlaveWR", this),
+  numExpectedCbCalled(0)
+{
+}
+
+TestPushContext::~TestPushContext()
+{
+	if (loop)
+		g_main_loop_unref(loop);
+	if (timerId != INVALID_RESOURCE_ID)
+		g_source_remove(timerId);
+}
+
+void TestPushContext::init(void)
+{
+	loop = g_main_loop_new(NULL, TRUE);
+	cppcut_assert_not_null(loop);
+	cppcut_assert_equal(true, pipeMasterRd.openPipe(name));
+	cppcut_assert_equal(true, pipeMasterWr.openPipe(name));
+	cppcut_assert_equal(true, pipeSlaveRd.openPipe(name));
+	cppcut_assert_equal(true, pipeSlaveWr.openPipe(name));
+
+	masterRdCb.init(pipeMasterRd);
+	masterWrCb.init(pipeMasterWr);
+	slaveRdCb.init(pipeSlaveRd);
+	slaveWrCb.init(pipeSlaveWr);
+
+	// set timeout
+	static const guint timeout = 5 * 1000; // ms
+	timerId = g_timeout_add(timeout, timerHandler, this);
+}
+
+gboolean TestPushContext::expectedCb
+  (GIOChannel *source, GIOCondition condition, gpointer data)
+{
+	ExpectedCbArg *arg = static_cast<ExpectedCbArg *>(data);
+	TestPushContext *ctx = arg->ctx;
+	ctx->numExpectedCbCalled++;
+	arg->condition = condition;
+	g_main_loop_quit(ctx->loop);
+	return FALSE;
+}
+
+gboolean TestPushContext::timerHandler(gpointer data)
+{
+	TestPushContext *ctx = static_cast<TestPushContext *>(data);
+	ctx->timerId = INVALID_RESOURCE_ID;
+	g_main_loop_quit(ctx->loop);
+	return FALSE;
+}
+
+//
+// General variables and methods
+//
 static TestPushContext *g_testPushCtx = NULL;
 
 static void pullCb(GIOStatus stat, SmartBuffer &buf, size_t size, void *priv)
@@ -212,8 +249,10 @@ void test_closeUnexpectedly(void)
 	ctx->init();
 
 	// set callback handlers
-	ctx->masterRdCb = TestPushContext::expectedCb;
-	ctx->slaveWrCb = TestPushContext::expectedCb;
+	ExpectedCbArg masterRdCbArg(ctx);
+	ExpectedCbArg slaveWrCbArg(ctx);
+	ctx->masterRdCb.setCb(TestPushContext::expectedCb, &masterRdCbArg);
+	ctx->slaveWrCb.setCb(TestPushContext::expectedCb, &slaveWrCbArg);
 
 	// close the write pipe
 	int fd = ctx->pipeSlaveWr.getFd();
@@ -227,7 +266,9 @@ void test_closeUnexpectedly(void)
 		cppcut_assert_equal(false, ctx->hasError);
 	}
 
-	// TODO: check the error type.
+	// check the reason of the callback
+	cppcut_assert_equal(G_IO_HUP, masterRdCbArg.condition);
+	cppcut_assert_equal(G_IO_NVAL, slaveWrCbArg.condition);
 }
 
 } // namespace testNamedPipe
