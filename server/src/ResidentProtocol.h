@@ -50,8 +50,8 @@ static const size_t RESIDENT_PROTO_HEADER_LEN =
 // <Body> None
 
 // [Parameters]
-// Directtion: Master -> Slave
-// packet type: lESIDENT_PROTO_PKT_TYPE_PARAMETERS
+// Direction: Master -> Slave
+// packet type: RESIDENT_PROTO_PKT_TYPE_PARAMETERS
 // <Body>
 // Bytes: Description
 //     2: Length of module path.
