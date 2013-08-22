@@ -52,8 +52,7 @@ struct NamedPipe::PrivateContext {
 	EndType endType;
 	GIOChannel *ioch;
 	guint iochEvtId;
-	guint iochOutEvtId; // only for write
-	guint iochInEvtId;  // only for read
+	guint iochDataEvtId;
 	GIOFunc  userCb;
 	gpointer userCbData;
 	bool writeCbSet;
@@ -70,8 +69,7 @@ struct NamedPipe::PrivateContext {
 	  endType(_endType),
 	  ioch(NULL),
 	  iochEvtId(INVALID_EVENT_ID),
-	  iochOutEvtId(INVALID_EVENT_ID),
-	  iochInEvtId(INVALID_EVENT_ID),
+	  iochDataEvtId(INVALID_EVENT_ID),
 	  userCb(NULL),
 	  userCbData(NULL),
 	  pullCb(NULL),
@@ -84,8 +82,7 @@ struct NamedPipe::PrivateContext {
 	virtual ~PrivateContext()
 	{
 		removeEventSourceIfNeeded(iochEvtId);
-		removeEventSourceIfNeeded(iochOutEvtId);
-		removeEventSourceIfNeeded(iochInEvtId);
+		removeEventSourceIfNeeded(iochDataEvtId);
 		if (ioch)
 			g_io_channel_unref(ioch);
 		if (fd >= 0)
@@ -229,8 +226,8 @@ gboolean NamedPipe::writeCb(GIOChannel *source, GIOCondition condition,
 	gboolean continueEventCb = FALSE;
 
 	ctx->writeBufListLock.lock();
-	gint currOutEvtId = ctx->iochOutEvtId;
-	ctx->iochOutEvtId = INVALID_EVENT_ID;
+	gint currOutEvtId = ctx->iochDataEvtId;
+	ctx->iochDataEvtId = INVALID_EVENT_ID;
 	if (ctx->writeBufList.empty()) {
 		MLPL_BUG("writeCB was called. "
 		         "However, write buffer list is empty.\n");
@@ -245,7 +242,7 @@ gboolean NamedPipe::writeCb(GIOChannel *source, GIOCondition condition,
 		} else {
 			// This function will be called back again
 			// when the pipe is available.
-			ctx->iochOutEvtId = currOutEvtId;
+			ctx->iochDataEvtId = currOutEvtId;
 			continueEventCb = TRUE;
 			break;
 		}
@@ -283,14 +280,14 @@ gboolean NamedPipe::readCb(GIOChannel *source, GIOCondition condition,
 	                                         &bytesRead, &error);
 	if (!obj->checkGIOStatus(stat, error)) {
 		ctx->callPullCb(stat);
-		ctx->iochInEvtId = INVALID_EVENT_ID;
+		ctx->iochDataEvtId = INVALID_EVENT_ID;
 		return FALSE;
 	}
 	
 	ctx->pullRemainingSize -= bytesRead;
 	if (ctx->pullRemainingSize == 0) {
 		ctx->callPullCb(stat);
-		ctx->iochInEvtId = INVALID_EVENT_ID;
+		ctx->iochDataEvtId = INVALID_EVENT_ID;
 		return FALSE;
 	}
 
@@ -403,16 +400,16 @@ void NamedPipe::enableWriteCbIfNeeded(void)
 {
 	// We assume that this function is called
 	// with the lock of m_ctx->writeBufListLock.
-	if (m_ctx->iochOutEvtId != INVALID_EVENT_ID)
+	if (m_ctx->iochDataEvtId != INVALID_EVENT_ID)
 		return;
 	GIOCondition cond = G_IO_OUT;
-	m_ctx->iochOutEvtId = g_io_add_watch(m_ctx->ioch, cond, writeCb, this);
+	m_ctx->iochDataEvtId = g_io_add_watch(m_ctx->ioch, cond, writeCb, this);
 }
 
 void NamedPipe::enableReadCb(void)
 {
 	GIOCondition cond = G_IO_IN;
-	m_ctx->iochInEvtId = g_io_add_watch(m_ctx->ioch, cond, readCb, this);
+	m_ctx->iochDataEvtId = g_io_add_watch(m_ctx->ioch, cond, readCb, this);
 }
 
 bool NamedPipe::isExistingDir(const string &dirname, bool &hasError)
