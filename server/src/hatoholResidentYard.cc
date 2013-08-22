@@ -116,7 +116,7 @@ static void getParametersBodyCb(GIOStatus stat, mlpl::SmartBuffer &sbuf,
 	char *error;
 	if ((error = dlerror()) != NULL) {
 		MLPL_ERR("Failed to load symbol: %s, %s\n",
-		         RESIDENT_MODULE_SYMBOL_STR, dlerror());
+		         RESIDENT_MODULE_SYMBOL_STR, error);
 		requestQuit(ctx);
 		return;
 	}
