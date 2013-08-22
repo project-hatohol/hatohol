@@ -109,9 +109,10 @@ struct NamedPipe::PrivateContext {
 		writeBufList.pop_front();
 	}
 
-	void callPullCb(GIOStatus stat)
+	void callPullCb(GIOStatus stat, PullCallback altCb = NULL)
 	{
-		(*pullCb)(stat, pullBuf, pullRequestSize, pullCbPriv);
+		PullCallback cbFunc = altCb ? altCb : pullCb;;
+		(*cbFunc)(stat, pullBuf, pullRequestSize, pullCbPriv);
 	}
 
 	void removeEventSourceIfNeeded(guint tag)
@@ -285,8 +286,15 @@ gboolean NamedPipe::readCb(GIOChannel *source, GIOCondition condition,
 	
 	ctx->pullRemainingSize -= bytesRead;
 	if (ctx->pullRemainingSize == 0) {
-		ctx->callPullCb(stat);
 		ctx->iochDataEvtId = INVALID_EVENT_ID;
+
+		// backup the current callback function
+		PullCallback callback = ctx->pullCb;
+
+		// We set NULL to avoid HATOHOL_ASSERTION in pull() from
+		// invoking when the pull() is called in the callback.
+		ctx->pullCb = NULL;
+		ctx->callPullCb(stat, callback);
 		return FALSE;
 	}
 
