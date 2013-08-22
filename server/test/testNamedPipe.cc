@@ -208,6 +208,15 @@ static void pullCb(GIOStatus stat, SmartBuffer &buf, size_t size, void *priv)
 	g_main_loop_quit(ctx->loop);
 }
 
+static void _assertRun(TestContext *ctx)
+{
+	g_main_loop_run(ctx->loop);
+	cppcut_assert_not_equal(INVALID_RESOURCE_ID, ctx->timerId,
+	                        cut_message("Timed out."));
+	cppcut_assert_equal(false, ctx->hasError);
+}
+#define assertRun(CTX) cut_trace(_assertRun(CTX))
+
 void cut_teardown(void)
 {
 	if (g_testPushCtx) {
@@ -236,10 +245,7 @@ void test_pushPull(void)
 	ctx->pipeSlaveWr.push(smbuf);
 
 	// run the event loop
-	g_main_loop_run(ctx->loop);
-	cppcut_assert_not_equal(INVALID_RESOURCE_ID, ctx->timerId,
-	                        cut_message("Timed out."));
-	cppcut_assert_equal(false, ctx->hasError);
+	assertRun(ctx);
 }
 
 void test_closeUnexpectedly(void)
@@ -259,12 +265,8 @@ void test_closeUnexpectedly(void)
 	close(fd);
 
 	// run the event loop 2 times
-	while (ctx->numExpectedCbCalled < 2) {
-		g_main_loop_run(ctx->loop);
-		cppcut_assert_not_equal(INVALID_RESOURCE_ID, ctx->timerId,
-		                        cut_message("Timed out."));
-		cppcut_assert_equal(false, ctx->hasError);
-	}
+	while (ctx->numExpectedCbCalled < 2)
+		assertRun(ctx);
 
 	// check the reason of the callback
 	cppcut_assert_equal(G_IO_HUP, masterRdCbArg.condition);
