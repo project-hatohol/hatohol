@@ -316,7 +316,7 @@ void ActionManager::launchedCb(GIOStatus stat, mlpl::SmartBuffer &sbuf,
 
 	uint16_t pktType = *sbuf.getPointerAndIncIndex<uint16_t>();
 	if (pktType != RESIDENT_PROTO_PKT_TYPE_LAUNCHED) {
-		MLPL_ERR("Invalid packet length: %"PRIu16", "
+		MLPL_ERR("Invalid packet type: %"PRIu16", "
 		         "expect: %"PRIu16"\n", pktType,
 		         RESIDENT_PROTO_PKT_TYPE_LAUNCHED);
 		obj->closeResident(residentInfo);
