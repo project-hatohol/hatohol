@@ -47,7 +47,7 @@ gboolean writePipeCb(GIOChannel *source, GIOCondition condition, gpointer data)
 static void sendLaunched(PrivateContext *ctx)
 {
 	SmartBuffer buf(RESIDENT_PROTO_HEADER_LEN);
-	buf.add32(RESIDENT_PROTO_HEADER_LEN - RESIDENT_PROTO_HEADE_SIZE_LEN);
+	buf.add32(RESIDENT_PROTO_HEADER_LEN - RESIDENT_PROTO_HEADER_SIZE_LEN);
 	buf.add16(RESIDENT_PROTO_PKT_TYPE_LAUNCHED);
 	ctx->pipeWr.push(buf);
 }

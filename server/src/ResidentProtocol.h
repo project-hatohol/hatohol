@@ -32,7 +32,7 @@ struct ResidentProtocolHeader {
 	uint16_t packetType;
 };
 
-static const size_t RESIDENT_PROTO_HEADE_SIZE_LEN =
+static const size_t RESIDENT_PROTO_HEADER_SIZE_LEN =
   sizeof(ResidentProtocolHeader::headerSize);
 static const size_t RESIDENT_PROTO_HEADER_LEN = sizeof(ResidentProtocolHeader);
 
