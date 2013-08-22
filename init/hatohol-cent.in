@@ -7,7 +7,7 @@
 
 PATH=/sbin:/bin:/usr/sbin:/usr/bin:/usr/local/sbin
 NAME=hatohol
-PROG=/usr/local/sbin/$NAME
+PROG=@PREFIX@/$NAME
 OPTIONS="--config-db-server localhost"
 PROGNAME=`basename $PROG`
 
