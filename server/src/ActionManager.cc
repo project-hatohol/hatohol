@@ -308,6 +308,10 @@ ResidentInfo *ActionManager::launchResidentActionYard
 {
 	// make a ResidentInfo instance.
 	ResidentInfo *residentInfo = new ResidentInfo(this, actionDef.id);
+	if (!residentInfo->init(residentReadErrCb, residentWriteErrCb)) {
+		delete residentInfo;
+		return NULL;
+	}
 
 	const gchar *argv[] = {
 	  "hatohol-resident-yard",
@@ -318,10 +322,6 @@ ResidentInfo *ActionManager::launchResidentActionYard
 		return NULL;
 	}
 
-	if (!residentInfo->init(residentReadErrCb, residentWriteErrCb)) {
-		delete residentInfo;
-		return NULL;
-	}
 	residentInfo->status = RESIDENT_STAT_WAIT_LAUNCHED;
 	residentInfo->pipeRd.pull(RESIDENT_PROTO_HEADER_LEN,
 	                          launchedCb, residentInfo);
