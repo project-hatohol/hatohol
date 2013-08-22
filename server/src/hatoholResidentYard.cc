@@ -1,6 +1,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <glib.h>
+#include <inttypes.h>
 
 #include <Logger.h>
 #include <SmartBuffer.h>
@@ -15,11 +16,13 @@ struct PrivateContext {
 	GMainLoop *loop;
 	NamedPipe pipeRd;
 	NamedPipe pipeWr;
+	int exitCode;
 
 	PrivateContext(void)
 	: loop(NULL),
 	  pipeRd(NamedPipe::END_TYPE_SLAVE_READ),
-	  pipeWr(NamedPipe::END_TYPE_SLAVE_WRITE)
+	  pipeWr(NamedPipe::END_TYPE_SLAVE_WRITE),
+	  exitCode(EXIT_SUCCESS)
 	{
 	}
 
@@ -30,17 +33,25 @@ struct PrivateContext {
 	}
 };
 
+static void requestQuit(PrivateContext *ctx, int exitCode = EXIT_FAILURE)
+{
+	ctx->exitCode = exitCode;
+	g_main_loop_quit(ctx->loop);
+}
+
 gboolean readPipeCb(GIOChannel *source, GIOCondition condition, gpointer data)
 {
 	PrivateContext *ctx = static_cast<PrivateContext *>(data);
-	MLPL_BUG("Not implemented: %s (%p)\n", __PRETTY_FUNCTION__, ctx);
+	MLPL_ERR("Error: condition: %x\n", condition);
+	requestQuit(ctx);
 	return TRUE;
 }
 
 gboolean writePipeCb(GIOChannel *source, GIOCondition condition, gpointer data)
 {
 	PrivateContext *ctx = static_cast<PrivateContext *>(data);
-	MLPL_BUG("Not implemented: %s (%p)\n", __PRETTY_FUNCTION__, ctx);
+	MLPL_ERR("Error: condition: %x\n", condition);
+	requestQuit(ctx);
 	return TRUE;
 }
 
@@ -53,11 +64,40 @@ static void sendLaunched(PrivateContext *ctx)
 	ctx->pipeWr.push(buf);
 }
 
-void getParametersCb(GIOStatus stat, mlpl::SmartBuffer &buf,
+static void getParametersBodyCb(GIOStatus stat, mlpl::SmartBuffer &sbuf,
                      size_t size, void *priv)
 {
+	// length of the module path
+	sbuf.resetIndex();
+	uint16_t modulePathLen = *sbuf.getPointerAndIncIndex<uint16_t>();
+	string modulePath(sbuf.getPointer<char>(), modulePathLen);
+	sbuf.incIndex(modulePathLen);
+	MLPL_BUG("Not implemented: %s, %s\n", __PRETTY_FUNCTION__,
+	         modulePath.c_str());
+	// TODO: load the module and notify the result
+}
+
+static void getParametersCb(GIOStatus stat, mlpl::SmartBuffer &sbuf,
+                            size_t size, void *priv)
+{
 	PrivateContext *ctx = static_cast<PrivateContext *>(priv);
-	MLPL_BUG("Not implemented: %s, %p\n", __PRETTY_FUNCTION__, ctx);
+
+	// check the packet
+	sbuf.resetIndex();
+	uint32_t pktLen = *sbuf.getPointerAndIncIndex<uint32_t>();
+
+	// packet type
+	uint16_t pktType = *sbuf.getPointerAndIncIndex<uint16_t>();
+	if (pktType != RESIDENT_PROTO_PKT_TYPE_PARAMETERS) {
+		MLPL_ERR("Invalid packet type: %"PRIu16", "
+		         "expect: %"PRIu16"\n", pktType,
+		         RESIDENT_PROTO_PKT_TYPE_LAUNCHED);
+		requestQuit(ctx);
+	}
+
+	// request the remaining part
+	size_t bodyLen = pktLen - RESIDENT_PROTO_HEADER_PKT_TYPE_LEN;
+	ctx->pipeRd.pull(bodyLen, getParametersBodyCb, ctx);
 }
 
 static void setupGetParametersCb(PrivateContext *ctx)
@@ -97,7 +137,7 @@ int mainRoutine(int argc, char *argv[])
 	ctx.loop = g_main_loop_new(NULL, FALSE);
 	g_main_loop_run(ctx.loop);
 
-	return EXIT_SUCCESS;
+	return ctx.exitCode;
 }
 
 int main(int argc, char *argv[])
