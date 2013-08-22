@@ -276,6 +276,26 @@ void test_pullPush(void)
 	assertRun(ctx);
 }
 
+void test_pushPull(void)
+{
+	g_testPushCtx = new TestContext("test_push");
+	TestContext *ctx = g_testPushCtx;
+	ctx->init();
+
+	// send data
+	SmartBuffer smbuf(ctx->bufLen);
+	for (size_t i = 0; i < ctx->bufLen; i++)
+		smbuf.add8(i);
+	ctx->pipeSlaveWr.push(smbuf);
+
+	// register read callback
+	ctx->bufLen = 10;
+	ctx->pipeMasterRd.pull(ctx->bufLen, pullCb, ctx);
+
+	// run the event loop
+	assertRun(ctx);
+}
+
 void test_closeUnexpectedly(void)
 {
 	bool doPull = false;
