@@ -6,7 +6,8 @@
 . /etc/rc.d/init.d/functions
 
 PATH=/sbin:/bin:/usr/sbin:/usr/bin:/usr/local/sbin
-PROG=/usr/local/sbin/hatohol
+NAME=hatohol
+PROG=/usr/local/sbin/$NAME
 OPTIONS="--config-db-server localhost"
 PROGNAME=`basename $PROG`
 
