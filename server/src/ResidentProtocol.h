@@ -70,8 +70,7 @@ static const size_t RESIDENT_PROTO_PARAM_MODULE_PATH_LEN = 2;
 // Module information
 //
 #define RESIDENT_MODULE_SYMBOL hatohol_resident_module
-#define TO_STR(x) #x
-#define RESIDENT_MODULE_SYMBOL_STR TO_STR(RESIDENT_MODULE_SYMBOL)
+#define RESIDENT_MODULE_SYMBOL_STR "hatohol_resident_module"
 
 static const uint16_t RESIDENT_MODULE_VERSION = 1;
 
