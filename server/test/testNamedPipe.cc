@@ -71,6 +71,7 @@ struct TestContext {
 	
 	TestCallback masterRdCb, masterWrCb, slaveRdCb, slaveWrCb;
 	size_t numExpectedCbCalled;
+	size_t pullOnPullTimes;
 
 	// methods;
 	TestContext(const string &_name);
@@ -140,7 +141,8 @@ TestContext::TestContext(const string &_name)
   masterWrCb("MasterWR", this),
   slaveRdCb("SlaveRD", this),
   slaveWrCb("SlaveWR", this),
-  numExpectedCbCalled(0)
+  numExpectedCbCalled(0),
+  pullOnPullTimes(0)
 {
 }
 
@@ -201,6 +203,22 @@ static void pullCb(GIOStatus stat, SmartBuffer &buf, size_t size, void *priv)
 	for (size_t i = 0; i < size; i++)
 		cppcut_assert_equal((uint8_t)i, ptr[i]);
 	g_main_loop_quit(ctx->loop);
+}
+
+static void pullOnPullCb
+  (GIOStatus stat, SmartBuffer &buf, size_t size, void *priv)
+{
+	TestContext *ctx = static_cast<TestContext *>(priv);
+	cppcut_assert_equal(G_IO_STATUS_NORMAL, stat);
+	cppcut_assert_equal((size_t)1, size);
+	buf.resetIndex();
+	uint8_t val = buf.getValue<uint8_t>();
+	cppcut_assert_equal((uint8_t)ctx->pullOnPullTimes, val);
+	ctx->pullOnPullTimes++;
+	if (ctx->pullOnPullTimes < ctx->bufLen)
+		ctx->pipeMasterRd.pull(1, pullOnPullCb, ctx);
+	else
+		g_main_loop_quit(ctx->loop);
 }
 
 static void _assertRun(TestContext *ctx)
@@ -292,6 +310,20 @@ void test_pushPull(void)
 	ctx->bufLen = 10;
 	pushData(ctx);
 	pullData(ctx);
+
+	// run the event loop
+	assertRun(ctx);
+}
+
+void test_pushPullOnPull(void)
+{
+	g_testPushCtx = new TestContext("test_pushPullOnPull");
+	TestContext *ctx = g_testPushCtx;
+	ctx->init();
+
+	ctx->bufLen = 10;
+	pushData(ctx);
+	ctx->pipeMasterRd.pull(1, pullOnPullCb, ctx);
 
 	// run the event loop
 	assertRun(ctx);
