@@ -22,18 +22,41 @@
 
 #include <stdint.h>
 
+// definitions of packet types
 enum
 {
 	RESIDENT_PROTO_PKT_TYPE_LAUNCHED,
+	RESIDENT_PROTO_PKT_TYPE_PARAMETERS,
 };
 
-struct ResidentProtocolHeader {
-	uint32_t headerSize; // not including this field.
-	uint16_t packetType;
-};
+// NOTE: 'V' in Bytes column in this file means variable length.
 
-static const size_t RESIDENT_PROTO_HEADER_SIZE_LEN =
-  sizeof(ResidentProtocolHeader::headerSize);
-static const size_t RESIDENT_PROTO_HEADER_LEN = sizeof(ResidentProtocolHeader);
+// [Header]
+// All packets have a header with the following structure.
+//
+// Bytes: Description
+//     4: Packet size (not including this field).
+//     2: packet type defined the above
+
+static const size_t RESIDENT_PROTO_HEADER_PKT_SIZE_LEN = 4;
+static const size_t RESIDENT_PROTO_HEADER_PKT_TYPE_LEN = 2;
+
+static const size_t RESIDENT_PROTO_HEADER_LEN =
+  RESIDENT_PROTO_HEADER_PKT_SIZE_LEN + RESIDENT_PROTO_HEADER_PKT_TYPE_LEN;
+
+// [Launched notify]
+// Direction: Slave -> Master
+// packet type: RESIDENT_PROTO_PKT_TYPE_LAUNCHED
+// <Body> None
+
+// [Parameters]
+// Directtion: Master -> Slave
+// packet type: lESIDENT_PROTO_PKT_TYPE_PARAMETERS
+// <Body>
+// Bytes: Description
+//     2: Length of module path.
+//     V: packet type defined in the above. (Not include a NULL terminator)
+
+static const size_t RESIDENT_PROTO_PARAM_MODULE_PATH_LEN = 2;
 
 #endif // ResidentProtocol_h

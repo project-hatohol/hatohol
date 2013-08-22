@@ -46,6 +46,7 @@ protected:
 	                                   gpointer data);
 	static void launchedCb(GIOStatus stat, mlpl::SmartBuffer &buf,
 	                       size_t size, void *priv);
+	static void sendParameters(ResidentInfo *residentInfo);
 	void runAction(const ActionDef &actionDef);
 	void makeExecArg(StringVector &argVect, const string &cmd);
 	bool spawn(const ActionDef &actionDef, ActorInfo *actorInfo,

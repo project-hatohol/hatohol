@@ -47,9 +47,22 @@ gboolean writePipeCb(GIOChannel *source, GIOCondition condition, gpointer data)
 static void sendLaunched(PrivateContext *ctx)
 {
 	SmartBuffer buf(RESIDENT_PROTO_HEADER_LEN);
-	buf.add32(RESIDENT_PROTO_HEADER_LEN - RESIDENT_PROTO_HEADER_SIZE_LEN);
+	buf.add32(
+	  RESIDENT_PROTO_HEADER_LEN - RESIDENT_PROTO_HEADER_PKT_SIZE_LEN);
 	buf.add16(RESIDENT_PROTO_PKT_TYPE_LAUNCHED);
 	ctx->pipeWr.push(buf);
+}
+
+void getParametersCb(GIOStatus stat, mlpl::SmartBuffer &buf,
+                     size_t size, void *priv)
+{
+	PrivateContext *ctx = static_cast<PrivateContext *>(priv);
+	MLPL_BUG("Not implemented: %s, %p\n", __PRETTY_FUNCTION__, ctx);
+}
+
+static void setupGetParametersCb(PrivateContext *ctx)
+{
+	ctx->pipeRd.pull(RESIDENT_PROTO_HEADER_LEN, getParametersCb, ctx);
 }
 
 int mainRoutine(int argc, char *argv[])
@@ -78,6 +91,7 @@ int mainRoutine(int argc, char *argv[])
 		return EXIT_FAILURE;
 
 	sendLaunched(&ctx);
+	setupGetParametersCb(&ctx);
 
 	// main loop of GLIB
 	ctx.loop = g_main_loop_new(NULL, FALSE);

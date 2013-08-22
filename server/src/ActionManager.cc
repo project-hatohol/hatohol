@@ -36,7 +36,7 @@ typedef deque<ResidentQueueInfo> ResidentQueue;
 enum ResidentStatus {
 	RESIDENT_STAT_INIT,
 	RESIDENT_STAT_WAIT_LAUNCHED,
-	RESIDENT_STAT_LAUNCHED,
+	RESIDENT_STAT_WAIT_PARAM_ACK,
 };
 
 struct ResidentInfo {
@@ -45,14 +45,19 @@ struct ResidentInfo {
 	NamedPipe pipeRd, pipeWr;
 	string pipeName;
 	ResidentStatus status;
+	string modulePath;
 
-	ResidentInfo(ActionManager *actMgr, int actionId)
+	ResidentInfo(ActionManager *actMgr, const ActionDef &actionDef)
 	: actionManager(actMgr),
 	  pipeRd(NamedPipe::END_TYPE_MASTER_READ),
 	  pipeWr(NamedPipe::END_TYPE_MASTER_WRITE),
 	  status(RESIDENT_STAT_INIT)
 	{
-		pipeName = StringUtils::sprintf("resident-%d", actionId);
+		pipeName = StringUtils::sprintf("resident-%d", actionDef.id);
+		modulePath = actionDef.path;
+		HATOHOL_ASSERT(modulePath.size() < PATH_MAX,
+		               "moudlePath: %zd, PATH_MAX: %u\n",
+		               modulePath.size(), PATH_MAX);
 	}
 
 	bool init(GIOFunc funcRd, GIOFunc funcWr)
@@ -287,7 +292,7 @@ gboolean ActionManager::residentWriteErrCb(
 	return TRUE;
 }
 
-void ActionManager::launchedCb(GIOStatus stat, mlpl::SmartBuffer &buf,
+void ActionManager::launchedCb(GIOStatus stat, mlpl::SmartBuffer &sbuf,
                                size_t size, void *priv)
 {
 	ResidentInfo *residentInfo = static_cast<ResidentInfo *>(priv);
@@ -297,7 +302,44 @@ void ActionManager::launchedCb(GIOStatus stat, mlpl::SmartBuffer &buf,
 		obj->closeResident(residentInfo);
 		return;
 	}
-	residentInfo->status = RESIDENT_STAT_LAUNCHED;
+
+	// check the packet type
+	sbuf.resetIndex();
+	uint32_t pktLen = *sbuf.getPointerAndIncIndex<uint32_t>();
+	uint32_t expectedPktLen = RESIDENT_PROTO_HEADER_PKT_TYPE_LEN;
+	if (pktLen != expectedPktLen) {
+		MLPL_ERR("Invalid packet length: %"PRIu32", "
+		         "expect: %"PRIu32"\n", pktLen, expectedPktLen);
+		obj->closeResident(residentInfo);
+		return;
+	}
+
+	uint16_t pktType = *sbuf.getPointerAndIncIndex<uint16_t>();
+	if (pktType != RESIDENT_PROTO_PKT_TYPE_LAUNCHED) {
+		MLPL_ERR("Invalid packet length: %"PRIu16", "
+		         "expect: %"PRIu16"\n", pktType,
+		         RESIDENT_PROTO_PKT_TYPE_LAUNCHED);
+		obj->closeResident(residentInfo);
+	}
+
+	// send module parameters
+	sendParameters(residentInfo);
+	residentInfo->status = RESIDENT_STAT_WAIT_PARAM_ACK;
+}
+
+void ActionManager::sendParameters(ResidentInfo *residentInfo)
+{
+	size_t pktLen = RESIDENT_PROTO_HEADER_PKT_SIZE_LEN;
+	pktLen += RESIDENT_PROTO_PARAM_MODULE_PATH_LEN;
+	pktLen += residentInfo->modulePath.size();
+
+	SmartBuffer sbuf(pktLen);
+	sbuf.add32(pktLen - RESIDENT_PROTO_HEADER_PKT_SIZE_LEN);
+	sbuf.add16(RESIDENT_PROTO_PKT_TYPE_PARAMETERS);
+	sbuf.add16(residentInfo->modulePath.size());
+	memcpy(sbuf.getPointer<void>(), residentInfo->modulePath.c_str(),
+	       residentInfo->modulePath.size());
+	residentInfo->pipeWr.push(sbuf);
 }
 
 //
@@ -307,7 +349,7 @@ ResidentInfo *ActionManager::launchResidentActionYard
   (const ActionDef &actionDef, ActorInfo *actorInfo)
 {
 	// make a ResidentInfo instance.
-	ResidentInfo *residentInfo = new ResidentInfo(this, actionDef.id);
+	ResidentInfo *residentInfo = new ResidentInfo(this, actionDef);
 	if (!residentInfo->init(residentReadErrCb, residentWriteErrCb)) {
 		delete residentInfo;
 		return NULL;
