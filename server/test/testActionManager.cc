@@ -279,6 +279,43 @@ void _assertActionLogAfterEnding(ExecCommandContext *ctx)
 #define assertActionLogAfterEnding(CTX) \
 cut_trace(_assertActionLogAfterEnding(CTX))
 
+void _assertActionLogJustAfterExecResident(ExecCommandContext *ctx)
+{
+	uint32_t expectedNullFlags = 
+	  ACTLOG_FLAG_QUEUING_TIME | ACTLOG_FLAG_END_TIME |
+	  ACTLOG_FLAG_EXIT_CODE;
+
+	// check the action log after the actor is terminated
+	ctx->timerTag = g_timeout_add(ctx->timeout, timeoutHandler, ctx);
+	ctx->loop = g_main_loop_new(NULL, TRUE);
+	while (true) {
+		// ActionManager updates the aciton log in the wake of GLIB's
+		// events. So we can wait for the log update with
+		// iterations of the loop.
+		while (g_main_iteration(TRUE))
+			cppcut_assert_equal(false, ctx->timedOut);
+		cppcut_assert_equal(
+		  true, ctx->dbAction.getLog(ctx->actionLog,
+		                             ctx->actorInfo.logId));
+		if (ctx->actionLog.status ==
+		    DBClientAction::ACTLOG_STAT_STARTED)
+			continue;
+		assertActionLog(
+		  ctx->actionLog, ctx->actorInfo.logId,
+		  ctx->actDef.id, DBClientAction::ACTLOG_STAT_SUCCEEDED,
+		  0, /* starterId */
+		  0, /* queuingTime */
+		  CURR_DATETIME, /* startTime */
+		  0, /* endTime */
+		  DBClientAction::ACTLOG_EXECFAIL_NONE, /* failureCode */
+		  0, /* exitCode */
+		  expectedNullFlags /* nullFlags */);
+		break;
+	}
+}
+#define assertActionLogJustAfterExecResident(CTX) \
+cut_trace(_assertActionLogJustAfterExecResident(CTX))
+
 void setup(void)
 {
 	hatoholInit();
@@ -313,6 +350,7 @@ void test_execResidenAction(void)
 	ExecCommandContext *ctx = g_execCommandCtx; // just an alias
 
 	assertExecAction(ctx, 0x4ab3fd32, ACTION_RESIDENT);
+	assertActionLogJustAfterExecResident(ctx);
 	// TODO: add assertion to check action log and communicate with
 	//       a test module.
 }
