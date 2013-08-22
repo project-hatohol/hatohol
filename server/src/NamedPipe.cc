@@ -313,7 +313,9 @@ gboolean NamedPipe::readCb(GIOChannel *source, GIOCondition condition,
 {
 	NamedPipe *obj = static_cast<NamedPipe *>(data);
 	PrivateContext *ctx = obj->m_ctx;
-	HATOHOL_ASSERT(ctx->pullCb, "Pull callback is not registered.");
+	HATOHOL_ASSERT(ctx->pullCb,
+	               "Pull callback is not registered. cond: %x, ctx: %p",
+	               condition, ctx);
 
 	gsize bytesRead;
 	GError *error = NULL;
