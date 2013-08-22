@@ -313,9 +313,8 @@ void test_execResidenAction(void)
 	ExecCommandContext *ctx = g_execCommandCtx; // just an alias
 
 	assertExecAction(ctx, 0x4ab3fd32, ACTION_RESIDENT);
-	assertActionLogJustAfterExec(ctx);
-	sendQuit(ctx->readPipe, ctx->writePipe, ctx->timeout);
-	assertActionLogAfterEnding(ctx);
+	// TODO: add assertion to check action log and communicate with
+	//       a test module.
 }
 
 // TODO: make tests for the following error cases.
