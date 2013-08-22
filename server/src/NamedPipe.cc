@@ -213,6 +213,7 @@ void NamedPipe::pull(size_t size, PullCallback callback, void *priv)
 	m_ctx->pullCb = callback;
 	m_ctx->pullCbPriv = priv;
 	m_ctx->pullBuf.ensureRemainingSize(size);
+	m_ctx->pullBuf.resetIndex();
 	enableReadCb();
 }
 
