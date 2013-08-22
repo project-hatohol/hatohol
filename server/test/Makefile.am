@@ -6,7 +6,7 @@ if WITH_CUTTER
 TESTS = run-test.sh
 TESTS_ENVIRONMENT = NO_MAKE=yes CUTTER="$(CUTTER)"
 
-noinst_LTLIBRARIES = libTest.la testHatohol.la
+noinst_LTLIBRARIES = libTest.la testHatohol.la residentTest.la
 noinst_PROGRAMS = ActionTp zabbix-api-response-collector
 endif
 
@@ -49,6 +49,9 @@ testHatohol_la_SOURCES = \
 	testUnifiedDataStore.cc
 testHatohol_la_LDFLAGS = $(AM_LDFLAGS) $(LIBS)
 testHatohol_la_LIBADD = libTest.la
+
+residentTest_la_SOURCES = residentTest.cc
+residentTest_la_LDFLAGS = $(AM_LDFLAGS) $(LIBS)
 
 libTest_la_SOURCES = \
 	FormulaTestUtils.cc Helpers.cc DBAgentTest.cc DBClientTest.cc \

@@ -111,12 +111,12 @@ static void getParametersBodyCb(GIOStatus stat, mlpl::SmartBuffer &sbuf,
 
 	// get the address of the information structure
 	dlerror(); // Clear any existing error
-	ctx->module =
-	  (ResidentModule *)dlsym(ctx->moduleHandle, RESIDENT_MODULE_SYMBOL);
+	ctx->module = (ResidentModule *)
+	  dlsym(ctx->moduleHandle, RESIDENT_MODULE_SYMBOL_STR);
 	char *error;
 	if ((error = dlerror()) != NULL) {
 		MLPL_ERR("Failed to load symbol: %s, %s\n",
-		         RESIDENT_MODULE_SYMBOL, dlerror());
+		         RESIDENT_MODULE_SYMBOL_STR, dlerror());
 		requestQuit(ctx);
 		return;
 	}
