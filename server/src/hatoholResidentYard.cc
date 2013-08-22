@@ -2,6 +2,7 @@
 #include <cstdlib>
 #include <glib.h>
 #include <inttypes.h>
+#include <dlfcn.h>
 
 #include <Logger.h>
 #include <SmartBuffer.h>
@@ -17,12 +18,15 @@ struct PrivateContext {
 	NamedPipe pipeRd;
 	NamedPipe pipeWr;
 	int exitCode;
+	void *moduleHandle;
+	ResidentModule *module;
 
 	PrivateContext(void)
 	: loop(NULL),
 	  pipeRd(NamedPipe::END_TYPE_SLAVE_READ),
 	  pipeWr(NamedPipe::END_TYPE_SLAVE_WRITE),
-	  exitCode(EXIT_SUCCESS)
+	  exitCode(EXIT_SUCCESS),
+	  moduleHandle(NULL)
 	{
 	}
 
@@ -55,6 +59,17 @@ gboolean writePipeCb(GIOChannel *source, GIOCondition condition, gpointer data)
 	return TRUE;
 }
 
+static void eventCb(GIOStatus stat, SmartBuffer &sbuf, size_t size, void *priv)
+{
+	PrivateContext *ctx = static_cast<PrivateContext *>(priv);
+	if (stat != G_IO_STATUS_NORMAL) {
+		MLPL_ERR("Error: status: %x\n", stat);
+		return;
+	}
+
+	MLPL_BUG("Not implemented: %s, %p\n", __PRETTY_FUNCTION__, ctx);
+}
+
 static void sendLaunched(PrivateContext *ctx)
 {
 	SmartBuffer buf(RESIDENT_PROTO_HEADER_LEN);
@@ -63,22 +78,73 @@ static void sendLaunched(PrivateContext *ctx)
 	ctx->pipeWr.push(buf);
 }
 
-static void getParametersBodyCb(GIOStatus stat, mlpl::SmartBuffer &sbuf,
-                     size_t size, void *priv)
+static void sendModuleLoaded(PrivateContext *ctx)
 {
+	SmartBuffer buf(RESIDENT_PROTO_HEADER_LEN);
+	buf.add32(0);
+	buf.add16(RESIDENT_PROTO_PKT_TYPE_MODULE_LOADED);
+	ctx->pipeWr.push(buf);
+}
+
+static void getParametersBodyCb(GIOStatus stat, mlpl::SmartBuffer &sbuf,
+                                size_t size, void *priv)
+{
+	PrivateContext *ctx = static_cast<PrivateContext *>(priv);
+	if (stat != G_IO_STATUS_NORMAL) {
+		MLPL_ERR("Error: status: %x\n", stat);
+		return;
+	}
+
 	// length of the module path
 	uint16_t modulePathLen = *sbuf.getPointerAndIncIndex<uint16_t>();
 	string modulePath(sbuf.getPointer<char>(), modulePathLen);
 	sbuf.incIndex(modulePathLen);
-	MLPL_BUG("Not implemented: %s, %s\n", __PRETTY_FUNCTION__,
-	         modulePath.c_str());
-	// TODO: load the module and notify the result
+
+	// open the module
+	void *handle = dlopen(modulePath.c_str(), RTLD_LAZY);
+	if (!handle) {
+		MLPL_ERR("Failed to load module: %p, %s\n",
+		         modulePath.c_str(), dlerror());
+		requestQuit(ctx);
+		return;
+	}
+
+	// get the address of the information structure
+	dlerror(); // Clear any existing error
+	ctx->module =
+	  (ResidentModule *)dlsym(ctx->moduleHandle, RESIDENT_MODULE_SYMBOL);
+	char *error;
+	if ((error = dlerror()) != NULL) {
+		MLPL_ERR("Failed to load symbol: %s, %s\n",
+		         RESIDENT_MODULE_SYMBOL, dlerror());
+		requestQuit(ctx);
+		return;
+	}
+
+	// check the module version
+	if (ctx->module->moduleVersion != RESIDENT_MODULE_VERSION) {
+		MLPL_ERR("Module version unmatched: %"PRIu16", "
+		         "expected: %"PRIu16"\n",
+		         ctx->module->moduleVersion, RESIDENT_MODULE_VERSION);
+		requestQuit(ctx);
+		return;
+	}
+
+	// send a completion notify
+	sendModuleLoaded(ctx);
+
+	// request to get the envet
+	ctx->pipeRd.pull(RESIDENT_PROTO_HEADER_LEN, eventCb, ctx);
 }
 
 static void getParametersCb(GIOStatus stat, mlpl::SmartBuffer &sbuf,
                             size_t size, void *priv)
 {
 	PrivateContext *ctx = static_cast<PrivateContext *>(priv);
+	if (stat != G_IO_STATUS_NORMAL) {
+		MLPL_ERR("Error: status: %x\n", stat);
+		return;
+	}
 
 	// check the packet
 	uint32_t bodyLen = *sbuf.getPointerAndIncIndex<uint32_t>();
@@ -90,9 +156,10 @@ static void getParametersCb(GIOStatus stat, mlpl::SmartBuffer &sbuf,
 		         "expect: %"PRIu16"\n", pktType,
 		         RESIDENT_PROTO_PKT_TYPE_LAUNCHED);
 		requestQuit(ctx);
+		return;
 	}
 
-	// request the remaining part
+	// request to get the body
 	ctx->pipeRd.pull(bodyLen, getParametersBodyCb, ctx);
 }
 

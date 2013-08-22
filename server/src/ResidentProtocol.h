@@ -26,6 +26,7 @@
 enum
 {
 	RESIDENT_PROTO_PKT_TYPE_LAUNCHED,
+	RESIDENT_PROTO_PKT_TYPE_MODULE_LOADED,
 	RESIDENT_PROTO_PKT_TYPE_PARAMETERS,
 };
 
@@ -58,5 +59,21 @@ static const size_t RESIDENT_PROTO_HEADER_LEN =
 //     V: packet type defined in the above. (Not include a NULL terminator)
 
 static const size_t RESIDENT_PROTO_PARAM_MODULE_PATH_LEN = 2;
+
+// [Module loaded notify]
+// Direction: Slave -> Master
+// packet type: RESIDENT_PROTO_PKT_TYPE_MODULE_LOADED
+// <Body> None
+
+//
+// Module information
+//
+#define RESIDENT_MODULE_SYMBOL "hatohol_resident_module"
+
+static const uint16_t RESIDENT_MODULE_VERSION = 1;
+
+struct ResidentModule {
+	uint16_t moduleVersion;
+};
 
 #endif // ResidentProtocol_h
