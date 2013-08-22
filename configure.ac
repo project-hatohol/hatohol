@@ -101,6 +101,9 @@ dnl **************************************************************
 AC_OUTPUT([
 Makefile
 hatohol.spec
+hatohol
+init/hatohol-debian
+init/hatohol-cent
 server/Makefile
 server/mlpl/Makefile
 server/mlpl/src/Makefile
