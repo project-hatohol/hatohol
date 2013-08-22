@@ -44,16 +44,16 @@ unsigned FIFO_MODE = S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP;
 typedef list<SmartBuffer *>       SmartBufferList;
 typedef SmartBufferList::iterator SmartBufferListIterator;
 
-static const gint INVALID_EVENT_ID = -1;
+static const guint INVALID_EVENT_ID = -1;
 
 struct NamedPipe::PrivateContext {
 	int fd;
 	string path;
 	EndType endType;
 	GIOChannel *ioch;
-	gint iochEvtId;
-	gint iochOutEvtId; // only for write
-	gint iochInEvtId;  // only for read
+	guint iochEvtId;
+	guint iochOutEvtId; // only for write
+	guint iochInEvtId;  // only for read
 	bool writeCbSet;
 	SmartBufferList writeBufList;
 	MutexLock writeBufListLock;
@@ -79,6 +79,9 @@ struct NamedPipe::PrivateContext {
 
 	virtual ~PrivateContext()
 	{
+		removeEventSourceIfNeeded(iochEvtId);
+		removeEventSourceIfNeeded(iochOutEvtId);
+		removeEventSourceIfNeeded(iochInEvtId);
 		if (ioch)
 			g_io_channel_unref(ioch);
 		if (fd >= 0)
@@ -108,6 +111,14 @@ struct NamedPipe::PrivateContext {
 	void callPullCb(GIOStatus stat)
 	{
 		(*pullCb)(stat, pullBuf, pullRequestSize, pullCbPriv);
+	}
+
+	void removeEventSourceIfNeeded(guint tag)
+	{
+		if (tag == INVALID_EVENT_ID)
+			return;
+		if (!g_source_remove(tag))
+			MLPL_ERR("Failed to remove source: %d\n", tag);
 	}
 };
 
