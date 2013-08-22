@@ -198,7 +198,7 @@ static void pullCb(GIOStatus stat, SmartBuffer &buf, size_t size, void *priv)
 	TestContext *ctx = static_cast<TestContext *>(priv);
 	cppcut_assert_equal(G_IO_STATUS_NORMAL, stat);
 	cppcut_assert_equal(ctx->bufLen, size);
-	buf.resetIndex();
+	cppcut_assert_equal((size_t)0, buf.index());
 	uint8_t *ptr = buf.getPointer<uint8_t>();
 	for (size_t i = 0; i < size; i++)
 		cppcut_assert_equal((uint8_t)i, ptr[i]);
@@ -211,7 +211,7 @@ static void pullOnPullCb
 	TestContext *ctx = static_cast<TestContext *>(priv);
 	cppcut_assert_equal(G_IO_STATUS_NORMAL, stat);
 	cppcut_assert_equal((size_t)1, size);
-	buf.resetIndex();
+	cppcut_assert_equal((size_t)0, buf.index());
 	uint8_t val = buf.getValue<uint8_t>();
 	cppcut_assert_equal((uint8_t)ctx->pullOnPullTimes, val);
 	ctx->pullOnPullTimes++;

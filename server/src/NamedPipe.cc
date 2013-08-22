@@ -112,6 +112,7 @@ struct NamedPipe::PrivateContext {
 	void callPullCb(GIOStatus stat, PullCallback altCb = NULL)
 	{
 		PullCallback cbFunc = altCb ? altCb : pullCb;;
+		pullBuf.resetIndex();
 		(*cbFunc)(stat, pullBuf, pullRequestSize, pullCbPriv);
 	}
 

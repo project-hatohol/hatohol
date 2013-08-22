@@ -67,7 +67,6 @@ static void getParametersBodyCb(GIOStatus stat, mlpl::SmartBuffer &sbuf,
                      size_t size, void *priv)
 {
 	// length of the module path
-	sbuf.resetIndex();
 	uint16_t modulePathLen = *sbuf.getPointerAndIncIndex<uint16_t>();
 	string modulePath(sbuf.getPointer<char>(), modulePathLen);
 	sbuf.incIndex(modulePathLen);
@@ -82,7 +81,6 @@ static void getParametersCb(GIOStatus stat, mlpl::SmartBuffer &sbuf,
 	PrivateContext *ctx = static_cast<PrivateContext *>(priv);
 
 	// check the packet
-	sbuf.resetIndex();
 	uint32_t bodyLen = *sbuf.getPointerAndIncIndex<uint32_t>();
 
 	// packet type

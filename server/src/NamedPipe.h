@@ -44,7 +44,7 @@ public:
 	 * A SmartBuffer instance that has the obtained data. If you need
 	 * to use the data after the callback function returns, you have to
 	 * get buffer by calling buf->takeOver() or copy it with any way such
-	 * as memcpy().
+	 * as memcpy(). The index points the top of it (i.e. 0).
 	 *
 	 * @parameter size
 	 * The size of the obtained data. This is the same as the requested
