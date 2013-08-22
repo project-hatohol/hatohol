@@ -277,7 +277,9 @@ gboolean ActionManager::residentReadErrCb(
 {
 	ResidentInfo *residentInfo = static_cast<ResidentInfo *>(data);
 	ActionManager *obj = residentInfo->actionManager;
-	MLPL_ERR("Error: condition: %x\n", condition);
+	MLPL_ERR("Read error: condition: %s (%x)\n",
+	         Utils::getStringFromGIOCondition(condition).c_str(),
+	         condition);
 	obj->closeResident(residentInfo);
 	return FALSE;
 }
@@ -287,7 +289,9 @@ gboolean ActionManager::residentWriteErrCb(
 {
 	ResidentInfo *residentInfo = static_cast<ResidentInfo *>(data);
 	ActionManager *obj = residentInfo->actionManager;
-	MLPL_ERR("Error: condition: %x\n", condition);
+	MLPL_ERR("Write error: condition: %s (%x)\n",
+	         Utils::getStringFromGIOCondition(condition).c_str(),
+	         condition);
 	obj->closeResident(residentInfo);
 	return FALSE;
 }

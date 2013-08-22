@@ -25,6 +25,7 @@
 #include <string>
 #include <typeinfo>
 #include <inttypes.h>
+#include <glib.h>
 using namespace std;
 
 #include <StringUtils.h>
@@ -52,6 +53,7 @@ public:
 	static bool validateJSMethodName(const string &name,
 	                                 string &errorMessage);
 	static string getSelfExeDir(void);
+	static string getStringFromGIOCondition(GIOCondition condition);
 
 protected:
 	static string makeDemangledStackTraceString(string &stackTraceLine);

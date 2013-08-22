@@ -213,6 +213,34 @@ string Utils::getSelfExeDir(void)
 	return string(buf, 0, i);
 }
 
+string Utils::getStringFromGIOCondition(GIOCondition condition)
+{
+	struct CondStruct {
+		GIOCondition condition;
+		const char *word;
+	};
+	const CondStruct condStruct[] = {
+	   {G_IO_IN, "G_IO_IN"},
+	   {G_IO_OUT, "G_IO_OUT"},
+	   {G_IO_PRI, "G_IO_PRI"},
+	   {G_IO_ERR, "G_IO_ERR"},
+	   {G_IO_HUP, "G_IO_HUP"},
+	   {G_IO_NVAL, "G_IO_NVAL"},
+	};
+	const size_t numCondStruct = sizeof(condStruct) / sizeof(CondStruct);
+
+	string str;
+	for (size_t i = 0; i < numCondStruct; i++) {
+		const CondStruct &cs = condStruct[i];
+		if (!(condition & cs.condition))
+			continue;
+		if (!str.empty())
+			str += " ";
+		str += cs.word;
+	}
+	return str;
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
