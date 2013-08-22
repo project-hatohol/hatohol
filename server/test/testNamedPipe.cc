@@ -245,6 +245,19 @@ static void _assertCloseUnexpectedly(const string &name, bool doPull)
 #define assertCloseUnexpectedly(NAME, DO_PULL) \
 cut_trace(_assertCloseUnexpectedly(NAME, DO_PULL))
 
+static void pushData(TestContext *ctx)
+{
+	SmartBuffer smbuf(ctx->bufLen);
+	for (size_t i = 0; i < ctx->bufLen; i++)
+		smbuf.add8(i);
+	ctx->pipeSlaveWr.push(smbuf);
+}
+
+static void pullData(TestContext *ctx)
+{
+	ctx->pipeMasterRd.pull(ctx->bufLen, pullCb, ctx);
+}
+
 void cut_teardown(void)
 {
 	if (g_testPushCtx) {
@@ -262,15 +275,9 @@ void test_pullPush(void)
 	TestContext *ctx = g_testPushCtx;
 	ctx->init();
 
-	// register read callback
 	ctx->bufLen = 10;
-	ctx->pipeMasterRd.pull(ctx->bufLen, pullCb, ctx);
-
-	// send data
-	SmartBuffer smbuf(ctx->bufLen);
-	for (size_t i = 0; i < ctx->bufLen; i++)
-		smbuf.add8(i);
-	ctx->pipeSlaveWr.push(smbuf);
+	pullData(ctx);
+	pushData(ctx);
 
 	// run the event loop
 	assertRun(ctx);
@@ -282,15 +289,9 @@ void test_pushPull(void)
 	TestContext *ctx = g_testPushCtx;
 	ctx->init();
 
-	// send data
-	SmartBuffer smbuf(ctx->bufLen);
-	for (size_t i = 0; i < ctx->bufLen; i++)
-		smbuf.add8(i);
-	ctx->pipeSlaveWr.push(smbuf);
-
-	// register read callback
 	ctx->bufLen = 10;
-	ctx->pipeMasterRd.pull(ctx->bufLen, pullCb, ctx);
+	pushData(ctx);
+	pullData(ctx);
 
 	// run the event loop
 	assertRun(ctx);
