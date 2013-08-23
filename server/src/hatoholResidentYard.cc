@@ -136,6 +136,8 @@ static void getParametersBodyCb(GIOStatus stat, mlpl::SmartBuffer &sbuf,
 		return;
 	}
 
+	MLPL_INFO("Loaded a resident module: %s\n", modulePath.c_str());
+
 	// send a completion notify
 	sendModuleLoaded(ctx);
 
