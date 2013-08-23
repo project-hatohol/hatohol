@@ -107,8 +107,8 @@ static void getParametersBodyCb(GIOStatus stat, mlpl::SmartBuffer &sbuf,
 	sbuf.incIndex(modulePathLen);
 
 	// open the module
-	void *handle = dlopen(modulePath.c_str(), RTLD_LAZY);
-	if (!handle) {
+	ctx->moduleHandle = dlopen(modulePath.c_str(), RTLD_LAZY);
+	if (!ctx->moduleHandle) {
 		MLPL_ERR("Failed to load module: %p, %s\n",
 		         modulePath.c_str(), dlerror());
 		requestQuit(ctx);
