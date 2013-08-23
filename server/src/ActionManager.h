@@ -45,7 +45,7 @@ protected:
 	                                   GIOCondition condition,
 	                                   gpointer data);
 	static void launchedCb(GIOStatus stat, mlpl::SmartBuffer &buf,
-	                       size_t size, void *priv);
+	                       size_t size, ResidentInfo *residentInfo);
 	static void moduleLoadedCb(GIOStatus stat, mlpl::SmartBuffer &sbuf,
 	                           size_t size, ResidentInfo *residentInfo);
 	static void sendParameters(ResidentInfo *residentInfo);

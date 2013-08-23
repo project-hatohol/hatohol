@@ -331,9 +331,8 @@ void ActionManager::moduleLoadedCb
 }
 
 void ActionManager::launchedCb(GIOStatus stat, mlpl::SmartBuffer &sbuf,
-                               size_t size, void *priv)
+                               size_t size, ResidentInfo *residentInfo)
 {
-	ResidentInfo *residentInfo = static_cast<ResidentInfo *>(priv);
 	ActionManager *obj = residentInfo->actionManager;
 	if (stat != G_IO_STATUS_NORMAL) {
 		MLPL_ERR("Error: status: %x\n", stat);
@@ -402,8 +401,7 @@ ResidentInfo *ActionManager::launchResidentActionYard
 	}
 
 	residentInfo->status = RESIDENT_STAT_WAIT_LAUNCHED;
-	residentInfo->pipeRd.pull(RESIDENT_PROTO_HEADER_LEN,
-	                          launchedCb, residentInfo);
+	residentInfo->pullHeader(launchedCb);
 	return residentInfo;
 }
 
