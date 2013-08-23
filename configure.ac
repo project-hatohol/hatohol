@@ -93,6 +93,9 @@ if test "$ac_cv_use_cutter" != "no"; then
   have_cutter=yes
 fi
 
+AM_CONDITIONAL([REDHAT_PLATFORM], [test -f /etc/redhat-release])
+AM_CONDITIONAL([DEBIAN_PLATFORM], [test ! -f /etc/redhat-release])
+
 dnl **************************************************************
 dnl Results
 dnl **************************************************************
@@ -100,8 +103,11 @@ dnl **************************************************************
 AC_OUTPUT([
 Makefile
 hatohol.spec
-init/hatohol-debian
-init/hatohol-cent
+data/init.d/Makefile
+data/init.d/debian/hatohol
+data/init.d/debian/Makefile
+data/init.d/centos/hatohol
+data/init.d/centos/Makefile
 server/Makefile
 server/mlpl/Makefile
 server/mlpl/src/Makefile
