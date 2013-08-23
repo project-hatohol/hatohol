@@ -46,6 +46,8 @@ protected:
 	                                   gpointer data);
 	static void launchedCb(GIOStatus stat, mlpl::SmartBuffer &buf,
 	                       size_t size, void *priv);
+	static void moduleLoadedCb(GIOStatus stat, mlpl::SmartBuffer &sbuf,
+	                           size_t size, ResidentInfo *residentInfo);
 	static void sendParameters(ResidentInfo *residentInfo);
 	void runAction(const ActionDef &actionDef);
 	void makeExecArg(StringVector &argVect, const string &cmd);

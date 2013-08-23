@@ -39,6 +39,15 @@ enum ResidentStatus {
 	RESIDENT_STAT_WAIT_PARAM_ACK,
 };
 
+struct ResidentInfo;
+
+/**
+ * This is type-safe version of NamedPipe::PullCallback whose last argument
+ * type is void *, which can be casted to any pointer.
+ */
+typedef void (*ResidentPullCallback)
+  (GIOStatus stat, SmartBuffer &sbuf, size_t size, ResidentInfo *residentInfo);
+
 struct ResidentInfo {
 	ActionManager *actionManager;
 	ResidentQueue queue;
@@ -46,12 +55,14 @@ struct ResidentInfo {
 	string pipeName;
 	ResidentStatus status;
 	string modulePath;
+	ResidentPullCallback pullCallback;
 
 	ResidentInfo(ActionManager *actMgr, const ActionDef &actionDef)
 	: actionManager(actMgr),
 	  pipeRd(NamedPipe::END_TYPE_MASTER_READ),
 	  pipeWr(NamedPipe::END_TYPE_MASTER_WRITE),
-	  status(RESIDENT_STAT_INIT)
+	  status(RESIDENT_STAT_INIT),
+	  pullCallback(NULL)
 	{
 		pipeName = StringUtils::sprintf("resident-%d", actionDef.id);
 		modulePath = actionDef.path;
@@ -67,6 +78,23 @@ struct ResidentInfo {
 		if (!pipeWr.init(pipeName, funcWr, this))
 			return false;
 		return true;
+	}
+
+	static void pullCallbackGate
+	  (GIOStatus stat, SmartBuffer &sbuf, size_t size, void *priv)
+	{
+		ResidentInfo *residentInfo = static_cast<ResidentInfo *>(priv);
+		ResidentPullCallback cbFunc = residentInfo->pullCallback;
+		HATOHOL_ASSERT(cbFunc, "pullCallback is NULL.");
+		residentInfo->pullCallback = NULL;
+		(*cbFunc)(stat, sbuf, size, residentInfo);
+	}
+
+	void pullHeader(ResidentPullCallback cbFunc)
+	{
+		HATOHOL_ASSERT(!pullCallback, "pullCallback is not NULL.");
+		pullCallback = cbFunc;
+		pipeRd.pull(RESIDENT_PROTO_HEADER_LEN, pullCallbackGate, this);
 	}
 };
 
@@ -296,6 +324,12 @@ gboolean ActionManager::residentWriteErrCb(
 	return FALSE;
 }
 
+void ActionManager::moduleLoadedCb
+  (GIOStatus stat, SmartBuffer &sbuf, size_t size, ResidentInfo *residentInfo)
+{
+	MLPL_BUG("Not implemented: %s, %p\n", __PRETTY_FUNCTION__, residentInfo);
+}
+
 void ActionManager::launchedCb(GIOStatus stat, mlpl::SmartBuffer &sbuf,
                                size_t size, void *priv)
 {
@@ -325,8 +359,8 @@ void ActionManager::launchedCb(GIOStatus stat, mlpl::SmartBuffer &sbuf,
 		obj->closeResident(residentInfo);
 	}
 
-	// send module parameters
 	sendParameters(residentInfo);
+	residentInfo->pullHeader(moduleLoadedCb);
 	residentInfo->status = RESIDENT_STAT_WAIT_PARAM_ACK;
 }
 
