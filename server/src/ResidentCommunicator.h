@@ -20,6 +20,8 @@
 #ifndef ResidentCommunicator_h
 #define ResidentCommunicator_h
 
+#include <string>
+
 #include "ResidentProtocol.h"
 #include "NamedPipe.h"
 
@@ -29,6 +31,7 @@ public:
 	virtual ~ResidentCommunicator();
 	void setHeader(uint32_t bodySize, uint16_t type);
 	void push(NamedPipe &namedPipe);
+	void addModulePath(const std::string &modulePath);
 
 private:
 	struct PrivateContext;

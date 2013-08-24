@@ -16,6 +16,10 @@
  * You should have received a copy of the GNU General Public License
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
+ 
+#include <cstring>
+#include <string>
+using namespace std;
 
 #include "SmartBuffer.h"
 using namespace mlpl;
@@ -53,4 +57,12 @@ void ResidentCommunicator::setHeader(uint32_t bodySize, uint16_t type)
 void ResidentCommunicator::push(NamedPipe &namedPipe)
 {
 	namedPipe.push(m_ctx->sbuf);
+}
+
+void ResidentCommunicator::addModulePath(const string &modulePath)
+{
+	size_t len = modulePath.size();
+	m_ctx->sbuf.add16(len);
+	memcpy(m_ctx->sbuf.getPointer<void>(), modulePath.c_str(), len);
+	m_ctx->sbuf.incIndex(len);
 }
