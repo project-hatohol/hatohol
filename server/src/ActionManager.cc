@@ -87,6 +87,9 @@ struct ResidentInfo {
 		ResidentInfo *residentInfo = static_cast<ResidentInfo *>(priv);
 		ResidentPullCallback cbFunc = residentInfo->pullCallback;
 		HATOHOL_ASSERT(cbFunc, "pullCallback is NULL.");
+
+		// To avoid the assertion from being called when 
+		// pullHeader() is called in the following callback.
 		residentInfo->pullCallback = NULL;
 		(*cbFunc)(stat, sbuf, size, residentInfo);
 	}
