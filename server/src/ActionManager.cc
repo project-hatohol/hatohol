@@ -24,6 +24,7 @@
 #include "DBClientAction.h"
 #include "NamedPipe.h"
 #include "ResidentProtocol.h"
+#include "ResidentCommunicator.h"
 
 using namespace std;
 
@@ -367,15 +368,10 @@ void ActionManager::sendParameters(ResidentInfo *residentInfo)
 {
 	size_t bodyLen = RESIDENT_PROTO_PARAM_MODULE_PATH_LEN
 	                 + residentInfo->modulePath.size();
-	size_t pktLen = RESIDENT_PROTO_HEADER_LEN + bodyLen;
-
-	SmartBuffer sbuf(pktLen);
-	sbuf.add32(bodyLen);
-	sbuf.add16(RESIDENT_PROTO_PKT_TYPE_PARAMETERS);
-	sbuf.add16(residentInfo->modulePath.size());
-	memcpy(sbuf.getPointer<void>(), residentInfo->modulePath.c_str(),
-	       residentInfo->modulePath.size());
-	residentInfo->pipeWr.push(sbuf);
+	ResidentCommunicator comm;
+	comm.setHeader(bodyLen, RESIDENT_PROTO_PKT_TYPE_PARAMETERS);
+	comm.addModulePath(residentInfo->modulePath);
+	comm.push(residentInfo->pipeWr);
 }
 
 //

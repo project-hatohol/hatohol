@@ -12,6 +12,7 @@ using namespace mlpl;
 #include "HatoholException.h"
 #include "NamedPipe.h"
 #include "ResidentProtocol.h"
+#include "ResidentCommunicator.h"
 
 struct PrivateContext {
 	GMainLoop *loop;
@@ -78,18 +79,16 @@ static void eventCb(GIOStatus stat, SmartBuffer &sbuf, size_t size, void *priv)
 
 static void sendLaunched(PrivateContext *ctx)
 {
-	SmartBuffer buf(RESIDENT_PROTO_HEADER_LEN);
-	buf.add32(0);
-	buf.add16(RESIDENT_PROTO_PKT_TYPE_LAUNCHED);
-	ctx->pipeWr.push(buf);
+	ResidentCommunicator comm;
+	comm.setHeader(0, RESIDENT_PROTO_PKT_TYPE_LAUNCHED);
+	comm.push(ctx->pipeWr);
 }
 
 static void sendModuleLoaded(PrivateContext *ctx)
 {
-	SmartBuffer buf(RESIDENT_PROTO_HEADER_LEN);
-	buf.add32(0);
-	buf.add16(RESIDENT_PROTO_PKT_TYPE_MODULE_LOADED);
-	ctx->pipeWr.push(buf);
+	ResidentCommunicator comm;
+	comm.setHeader(0, RESIDENT_PROTO_PKT_TYPE_MODULE_LOADED);
+	comm.push(ctx->pipeWr);
 }
 
 static void getParametersBodyCb(GIOStatus stat, mlpl::SmartBuffer &sbuf,
