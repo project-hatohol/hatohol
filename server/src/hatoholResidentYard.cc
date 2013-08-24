@@ -65,11 +65,16 @@ struct PrivateContext {
 		(*cbFunc)(stat, sbuf, size, ctx);
 	}
 
-	void pullHeader(PrivateCtxPullCallback cbFunc)
+	void pullData(uint32_t size, PrivateCtxPullCallback cbFunc)
 	{
 		HATOHOL_ASSERT(!pullCallback, "pullCallback is not NULL.");
 		pullCallback = cbFunc;
-		pipeRd.pull(RESIDENT_PROTO_HEADER_LEN, pullCallbackGate, this);
+		pipeRd.pull(size, pullCallbackGate, this);
+	}
+
+	void pullHeader(PrivateCtxPullCallback cbFunc)
+	{
+		pullData(RESIDENT_PROTO_HEADER_LEN, cbFunc);
 	}
 };
 
@@ -123,9 +128,8 @@ static void sendModuleLoaded(PrivateContext *ctx)
 }
 
 static void getParametersBodyCb(GIOStatus stat, mlpl::SmartBuffer &sbuf,
-                                size_t size, void *priv)
+                                size_t size, PrivateContext *ctx)
 {
-	PrivateContext *ctx = static_cast<PrivateContext *>(priv);
 	if (stat != G_IO_STATUS_NORMAL) {
 		MLPL_ERR("Error: status: %x\n", stat);
 		return;
@@ -197,7 +201,7 @@ static void getParametersCb(GIOStatus stat, mlpl::SmartBuffer &sbuf,
 	}
 
 	// request to get the body
-	ctx->pipeRd.pull(bodyLen, getParametersBodyCb, ctx);
+	ctx->pullData(bodyLen, getParametersBodyCb);
 }
 
 static void setupGetParametersCb(PrivateContext *ctx)
