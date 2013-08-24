@@ -14,6 +14,15 @@ using namespace mlpl;
 #include "ResidentProtocol.h"
 #include "ResidentCommunicator.h"
 
+struct PrivateContext;
+
+/**
+ * This is type-safe version of NamedPipe::PullCallback whose last argument
+ * type is void *, which can be casted to any pointer.
+ */
+typedef void (*PrivateCtxPullCallback)
+  (GIOStatus stat, SmartBuffer &sbuf, size_t size, PrivateContext *ctx);
+
 struct PrivateContext {
 	GMainLoop *loop;
 	NamedPipe pipeRd;
@@ -21,13 +30,15 @@ struct PrivateContext {
 	int exitCode;
 	void *moduleHandle;
 	ResidentModule *module;
+	PrivateCtxPullCallback pullCallback;
 
 	PrivateContext(void)
 	: loop(NULL),
 	  pipeRd(NamedPipe::END_TYPE_SLAVE_READ),
 	  pipeWr(NamedPipe::END_TYPE_SLAVE_WRITE),
 	  exitCode(EXIT_SUCCESS),
-	  moduleHandle(NULL)
+	  moduleHandle(NULL),
+	  pullCallback(NULL)
 	{
 	}
 
@@ -39,6 +50,26 @@ struct PrivateContext {
 			if (dlclose(moduleHandle) != 0)
 				MLPL_ERR("Failed to close module.");
 		}
+	}
+
+	static void pullCallbackGate
+	  (GIOStatus stat, SmartBuffer &sbuf, size_t size, void *priv)
+	{
+		PrivateContext *ctx = static_cast<PrivateContext *>(priv);
+		PrivateCtxPullCallback cbFunc = ctx->pullCallback;
+		HATOHOL_ASSERT(cbFunc, "pullCallback is NULL.");
+
+		// To avoid the assertion from being called when 
+		// pullHeader() is called in the following callback.
+		ctx->pullCallback = NULL;
+		(*cbFunc)(stat, sbuf, size, ctx);
+	}
+
+	void pullHeader(PrivateCtxPullCallback cbFunc)
+	{
+		HATOHOL_ASSERT(!pullCallback, "pullCallback is not NULL.");
+		pullCallback = cbFunc;
+		pipeRd.pull(RESIDENT_PROTO_HEADER_LEN, pullCallbackGate, this);
 	}
 };
 
@@ -66,9 +97,9 @@ static gboolean writePipeCb
 	return TRUE;
 }
 
-static void eventCb(GIOStatus stat, SmartBuffer &sbuf, size_t size, void *priv)
+static void eventCb(GIOStatus stat, SmartBuffer &sbuf, size_t size,
+                    PrivateContext *ctx)
 {
-	PrivateContext *ctx = static_cast<PrivateContext *>(priv);
 	if (stat != G_IO_STATUS_NORMAL) {
 		MLPL_ERR("Error: status: %x\n", stat);
 		return;
@@ -141,13 +172,12 @@ static void getParametersBodyCb(GIOStatus stat, mlpl::SmartBuffer &sbuf,
 	sendModuleLoaded(ctx);
 
 	// request to get the envet
-	ctx->pipeRd.pull(RESIDENT_PROTO_HEADER_LEN, eventCb, ctx);
+	ctx->pullHeader(eventCb);
 }
 
 static void getParametersCb(GIOStatus stat, mlpl::SmartBuffer &sbuf,
-                            size_t size, void *priv)
+                            size_t size, PrivateContext *ctx)
 {
-	PrivateContext *ctx = static_cast<PrivateContext *>(priv);
 	if (stat != G_IO_STATUS_NORMAL) {
 		MLPL_ERR("Error: status: %x\n", stat);
 		return;
@@ -172,7 +202,7 @@ static void getParametersCb(GIOStatus stat, mlpl::SmartBuffer &sbuf,
 
 static void setupGetParametersCb(PrivateContext *ctx)
 {
-	ctx->pipeRd.pull(RESIDENT_PROTO_HEADER_LEN, getParametersCb, ctx);
+	ctx->pullHeader(getParametersCb);
 }
 
 int mainRoutine(int argc, char *argv[])
