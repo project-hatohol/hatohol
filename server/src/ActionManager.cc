@@ -24,6 +24,7 @@
 #include "DBClientAction.h"
 #include "NamedPipe.h"
 #include "ResidentProtocol.h"
+#include "ResidentCommunicator.h"
 
 using namespace std;
 
@@ -39,36 +40,26 @@ enum ResidentStatus {
 	RESIDENT_STAT_WAIT_PARAM_ACK,
 };
 
-struct ResidentInfo;
-
-/**
- * This is type-safe version of NamedPipe::PullCallback whose last argument
- * type is void *, which can be casted to any pointer.
- */
-typedef void (*ResidentPullCallback)
-  (GIOStatus stat, SmartBuffer &sbuf, size_t size, ResidentInfo *residentInfo);
-
-struct ResidentInfo {
+struct ResidentInfo : public ResidentPullHelper<ResidentInfo> {
 	ActionManager *actionManager;
 	ResidentQueue queue;
 	NamedPipe pipeRd, pipeWr;
 	string pipeName;
 	ResidentStatus status;
 	string modulePath;
-	ResidentPullCallback pullCallback;
 
 	ResidentInfo(ActionManager *actMgr, const ActionDef &actionDef)
 	: actionManager(actMgr),
 	  pipeRd(NamedPipe::END_TYPE_MASTER_READ),
 	  pipeWr(NamedPipe::END_TYPE_MASTER_WRITE),
-	  status(RESIDENT_STAT_INIT),
-	  pullCallback(NULL)
+	  status(RESIDENT_STAT_INIT)
 	{
 		pipeName = StringUtils::sprintf("resident-%d", actionDef.id);
 		modulePath = actionDef.path;
 		HATOHOL_ASSERT(modulePath.size() < PATH_MAX,
 		               "moudlePath: %zd, PATH_MAX: %u\n",
 		               modulePath.size(), PATH_MAX);
+		initResidentPullHelper(&pipeRd, this);
 	}
 
 	bool init(GIOFunc funcRd, GIOFunc funcWr)
@@ -78,23 +69,6 @@ struct ResidentInfo {
 		if (!pipeWr.init(pipeName, funcWr, this))
 			return false;
 		return true;
-	}
-
-	static void pullCallbackGate
-	  (GIOStatus stat, SmartBuffer &sbuf, size_t size, void *priv)
-	{
-		ResidentInfo *residentInfo = static_cast<ResidentInfo *>(priv);
-		ResidentPullCallback cbFunc = residentInfo->pullCallback;
-		HATOHOL_ASSERT(cbFunc, "pullCallback is NULL.");
-		residentInfo->pullCallback = NULL;
-		(*cbFunc)(stat, sbuf, size, residentInfo);
-	}
-
-	void pullHeader(ResidentPullCallback cbFunc)
-	{
-		HATOHOL_ASSERT(!pullCallback, "pullCallback is not NULL.");
-		pullCallback = cbFunc;
-		pipeRd.pull(RESIDENT_PROTO_HEADER_LEN, pullCallbackGate, this);
 	}
 };
 
