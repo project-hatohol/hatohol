@@ -14,8 +14,7 @@ using namespace mlpl;
 #include "ResidentProtocol.h"
 #include "ResidentCommunicator.h"
 
-struct PrivateContext :
-  public ResidentPullHelper<PrivateContext> {
+struct PrivateContext : public ResidentPullHelper<PrivateContext> {
 	GMainLoop *loop;
 	NamedPipe pipeRd;
 	NamedPipe pipeWr;
