@@ -16,15 +16,8 @@ using namespace mlpl;
 
 struct PrivateContext;
 
-/**
- * This is type-safe version of NamedPipe::PullCallback whose last argument
- * type is void *, which can be casted to any pointer.
- */
-typedef void (*PrivateCtxPullCallback)
-  (GIOStatus stat, SmartBuffer &sbuf, size_t size, PrivateContext *ctx);
-
 struct PrivateContext :
-  public ResidentPullHelper<PrivateContext, PrivateCtxPullCallback> {
+  public ResidentPullHelper<PrivateContext> {
 	GMainLoop *loop;
 	NamedPipe pipeRd;
 	NamedPipe pipeWr;

@@ -40,8 +40,12 @@ private:
 	PrivateContext *m_ctx;
 };
 
-template<typename ArgType, typename PullCBType>
+template<typename ArgType>
 class ResidentPullHelper {
+
+	typedef void (*PullCBType)
+	  (GIOStatus stat, SmartBuffer &sbuf, size_t size, ArgType *ctx);
+
 public:
 	ResidentPullHelper(void)
 	: m_pullCallback(NULL),
@@ -57,8 +61,8 @@ public:
 	static void pullCallbackGate
 	  (GIOStatus stat, SmartBuffer &sbuf, size_t size, void *_this)
 	{
-		ResidentPullHelper<ArgType, PullCBType> *obj =
-		  static_cast<ResidentPullHelper<ArgType, PullCBType> *>(_this);
+		ResidentPullHelper<ArgType> *obj =
+		  static_cast<ResidentPullHelper<ArgType> *>(_this);
 		PullCBType cbFunc = obj->m_pullCallback;
 		HATOHOL_ASSERT(cbFunc, "pullCallback is NULL.");
 
