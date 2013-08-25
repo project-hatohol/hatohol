@@ -40,13 +40,15 @@ public:
 	void callExecCommandAction(const ActionDef &actionDef,
 	                           ActorInfo *actorInfo = NULL)
 	{
-		execCommandAction(actionDef, actorInfo);
+		EventInfo eventInfo;
+		execCommandAction(actionDef, eventInfo, actorInfo);
 	}
 
 	void callExecResidentAction(const ActionDef &actionDef,
 	                            ActorInfo *actorInfo = NULL)
 	{
-		execResidentAction(actionDef, actorInfo);
+		EventInfo eventInfo;
+		execResidentAction(actionDef, eventInfo, actorInfo);
 	}
 };
 

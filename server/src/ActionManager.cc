@@ -143,7 +143,7 @@ void ActionManager::checkEvents(const EventInfoList &eventList)
 		m_ctx->dbAction.getActionList(*it, actionDefList);
 		ActionDefListIterator actIt = actionDefList.begin();
 		for (; actIt != actionDefList.end(); ++actIt)
-			runAction(*actIt);
+			runAction(*actIt, *it);
 	}
 }
 
@@ -171,12 +171,13 @@ void ActionManager::separatorCallback(const char sep, PrivateContext *ctx)
 	}
 }
 
-void ActionManager::runAction(const ActionDef &actionDef)
+void ActionManager::runAction(const ActionDef &actionDef,
+                              const EventInfo &eventInfo)
 {
 	if (actionDef.type == ACTION_COMMAND) {
-		execCommandAction(actionDef);
+		execCommandAction(actionDef, eventInfo);
 	} else if (actionDef.type == ACTION_RESIDENT) {
-		execResidentAction(actionDef);
+		execResidentAction(actionDef, eventInfo);
 	} else {
 		HATOHOL_ASSERT(true, "Unknown type: %d\n", actionDef.type);
 	}
@@ -235,6 +236,7 @@ bool ActionManager::spawn(const ActionDef &actionDef, ActorInfo *actorInfo,
 }
 
 void ActionManager::execCommandAction(const ActionDef &actionDef,
+                                      const EventInfo &eventInfo,
                                       ActorInfo *_actorInfo)
 {
 	HATOHOL_ASSERT(actionDef.type == ACTION_COMMAND,
@@ -256,6 +258,7 @@ void ActionManager::execCommandAction(const ActionDef &actionDef,
 }
 
 void ActionManager::execResidentAction(const ActionDef &actionDef,
+                                       const EventInfo &eventInfo,
                                        ActorInfo *_actorInfo)
 {
 	HATOHOL_ASSERT(actionDef.type == ACTION_RESIDENT,

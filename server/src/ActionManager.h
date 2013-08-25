@@ -49,13 +49,15 @@ protected:
 	static void moduleLoadedCb(GIOStatus stat, mlpl::SmartBuffer &sbuf,
 	                           size_t size, ResidentInfo *residentInfo);
 	static void sendParameters(ResidentInfo *residentInfo);
-	void runAction(const ActionDef &actionDef);
+	void runAction(const ActionDef &actionDef, const EventInfo &eventInfo);
 	void makeExecArg(StringVector &argVect, const string &cmd);
 	bool spawn(const ActionDef &actionDef, ActorInfo *actorInfo,
 	           const gchar **argv);
 	void execCommandAction(const ActionDef &actionDef,
+	                       const EventInfo &eventInfo,
 	                       ActorInfo *actorInfo = NULL);
 	void execResidentAction(const ActionDef &actionDef,
+	                        const EventInfo &eventInfo,
 	                        ActorInfo *actorInfo = NULL);
 	ResidentInfo *launchResidentActionYard(const ActionDef &actionDef,
 	                                       ActorInfo *actorInfo);
