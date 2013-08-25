@@ -53,12 +53,41 @@ protected:
 	void makeExecArg(StringVector &argVect, const string &cmd);
 	bool spawn(const ActionDef &actionDef, ActorInfo *actorInfo,
 	           const gchar **argv);
+
+	/**
+	 * execute a command-type action.
+	 *
+	 * @param actionDef
+	 * An ActionDef instance concerned with the action.
+	 *
+	 * @param eventInfo
+	 * An EventInfo instance concerned with the action.
+	 *
+	 * @param actorInfo
+	 * If this parameter is not NULL, information about the executed
+	 * actor such as a PID and a log ID is returned in it.
+	 */
 	void execCommandAction(const ActionDef &actionDef,
 	                       const EventInfo &eventInfo,
 	                       ActorInfo *actorInfo = NULL);
+
+	/**
+	 * execute a resident-type action.
+	 *
+	 * @param actionDef
+	 * An ActionDef instance concerned with the action.
+	 *
+	 * @param eventInfo
+	 * An EventInfo instance concerned with the action.
+	 *
+	 * @param actorInfo
+	 * If this parameter is not NULL, information about the executed
+	 * actor such as a PID and a log ID is returned in it.
+	 */
 	void execResidentAction(const ActionDef &actionDef,
 	                        const EventInfo &eventInfo,
 	                        ActorInfo *actorInfo = NULL);
+
 	ResidentInfo *launchResidentActionYard(const ActionDef &actionDef,
 	                                       ActorInfo *actorInfo);
 	void goToResidentYardEntrance(ResidentInfo *residentInfo,
