@@ -20,10 +20,12 @@
 #ifndef ResidentCommunicator_h
 #define ResidentCommunicator_h
 
+#include <cstdio>
 #include <string>
 
 #include "ResidentProtocol.h"
 #include "NamedPipe.h"
+#include "HatoholException.h"
 
 class ResidentCommunicator {
 public:
@@ -36,6 +38,61 @@ public:
 private:
 	struct PrivateContext;
 	PrivateContext *m_ctx;
+};
+
+template<typename ArgType, typename PullCBType>
+class ResidentPullHelper {
+public:
+	ResidentPullHelper(void)
+	: m_pullCallback(NULL),
+	  m_pullCallbackArg(NULL),
+	  m_pipe(NULL)
+	{
+	}
+
+	virtual ~ResidentPullHelper()
+	{
+	}
+
+	static void pullCallbackGate
+	  (GIOStatus stat, SmartBuffer &sbuf, size_t size, void *_this)
+	{
+		ResidentPullHelper<ArgType, PullCBType> *obj =
+		  static_cast<ResidentPullHelper<ArgType, PullCBType> *>(_this);
+		PullCBType cbFunc = obj->m_pullCallback;
+		HATOHOL_ASSERT(cbFunc, "pullCallback is NULL.");
+
+		// To avoid the assertion from being called when 
+		// pullHeader() is called in the following callback.
+		obj->m_pullCallback = NULL;
+		(*cbFunc)(stat, sbuf, size, obj->m_pullCallbackArg);
+	}
+
+	void pullData(uint32_t size, PullCBType cbFunc)
+	{
+		HATOHOL_ASSERT(!m_pullCallback,
+		   "The previous pull callback may be still alive.");
+		HATOHOL_ASSERT(m_pipe, "m_pipe is NULL.");
+		m_pullCallback = cbFunc;
+		m_pipe->pull(size, pullCallbackGate, this);
+	}
+
+	void pullHeader(PullCBType cbFunc)
+	{
+		pullData(RESIDENT_PROTO_HEADER_LEN, cbFunc);
+	}
+
+protected:
+	void initResidentPullHelper(NamedPipe *pipe, ArgType *arg)
+	{
+		m_pipe = pipe;
+		m_pullCallbackArg = arg;
+	}
+
+private:
+	PullCBType  m_pullCallback;
+	ArgType    *m_pullCallbackArg;
+	NamedPipe  *m_pipe;
 };
 
 #endif // ResidentCommunicator_h

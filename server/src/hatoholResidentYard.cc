@@ -23,23 +23,23 @@ struct PrivateContext;
 typedef void (*PrivateCtxPullCallback)
   (GIOStatus stat, SmartBuffer &sbuf, size_t size, PrivateContext *ctx);
 
-struct PrivateContext {
+struct PrivateContext :
+  public ResidentPullHelper<PrivateContext, PrivateCtxPullCallback> {
 	GMainLoop *loop;
 	NamedPipe pipeRd;
 	NamedPipe pipeWr;
 	int exitCode;
 	void *moduleHandle;
 	ResidentModule *module;
-	PrivateCtxPullCallback pullCallback;
 
 	PrivateContext(void)
 	: loop(NULL),
 	  pipeRd(NamedPipe::END_TYPE_SLAVE_READ),
 	  pipeWr(NamedPipe::END_TYPE_SLAVE_WRITE),
 	  exitCode(EXIT_SUCCESS),
-	  moduleHandle(NULL),
-	  pullCallback(NULL)
+	  moduleHandle(NULL)
 	{
+		initResidentPullHelper(&pipeRd, this);
 	}
 
 	virtual ~PrivateContext()
@@ -50,31 +50,6 @@ struct PrivateContext {
 			if (dlclose(moduleHandle) != 0)
 				MLPL_ERR("Failed to close module.");
 		}
-	}
-
-	static void pullCallbackGate
-	  (GIOStatus stat, SmartBuffer &sbuf, size_t size, void *priv)
-	{
-		PrivateContext *ctx = static_cast<PrivateContext *>(priv);
-		PrivateCtxPullCallback cbFunc = ctx->pullCallback;
-		HATOHOL_ASSERT(cbFunc, "pullCallback is NULL.");
-
-		// To avoid the assertion from being called when 
-		// pullHeader() is called in the following callback.
-		ctx->pullCallback = NULL;
-		(*cbFunc)(stat, sbuf, size, ctx);
-	}
-
-	void pullData(uint32_t size, PrivateCtxPullCallback cbFunc)
-	{
-		HATOHOL_ASSERT(!pullCallback, "pullCallback is not NULL.");
-		pullCallback = cbFunc;
-		pipeRd.pull(size, pullCallbackGate, this);
-	}
-
-	void pullHeader(PrivateCtxPullCallback cbFunc)
-	{
-		pullData(RESIDENT_PROTO_HEADER_LEN, cbFunc);
 	}
 };
 
