@@ -26,14 +26,25 @@
 #include "ResidentProtocol.h"
 #include "NamedPipe.h"
 #include "HatoholException.h"
+#include "DBClientAction.h"
 
 class ResidentCommunicator {
 public:
 	ResidentCommunicator(void);
 	virtual ~ResidentCommunicator();
+
+	/**
+	 * Get the packet type.
+	 *
+	 * After calling this function, the index of sbuf is changed.
+	 */
+	static int getPacketType(SmartBuffer &sbuf);
+
 	void setHeader(uint32_t bodySize, uint16_t type);
 	void push(NamedPipe &namedPipe);
 	void addModulePath(const std::string &modulePath);
+	void setNotifyEventBody(int actionId, const EventInfo &eventInfo);
+	void setNotifyEventAck(uint32_t resuletCode);
 
 private:
 	struct PrivateContext;

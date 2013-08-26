@@ -48,6 +48,7 @@ struct ResidentInfo : public ResidentPullHelper<ResidentInfo> {
 	ResidentStatus status;
 	string modulePath;
 	EventInfo      eventInfo; // This class has a replica
+	int            actionId;
 
 	ResidentInfo(ActionManager *actMgr, const ActionDef &actionDef)
 	: actionManager(actMgr),
@@ -305,7 +306,14 @@ gboolean ActionManager::residentWriteErrCb(
 void ActionManager::moduleLoadedCb
   (GIOStatus stat, SmartBuffer &sbuf, size_t size, ResidentInfo *residentInfo)
 {
-	MLPL_BUG("Not implemented: %s, %p\n", __PRETTY_FUNCTION__, residentInfo);
+	ActionManager *obj = residentInfo->actionManager;
+	int pktType = ResidentCommunicator::getPacketType(sbuf);
+	if (pktType != RESIDENT_PROTO_PKT_TYPE_MODULE_LOADED) {
+		MLPL_ERR("Unexpected packet: %d\n", pktType);
+		obj->closeResident(residentInfo);
+		return;
+	}
+	obj->notifyEvent(residentInfo);
 }
 
 void ActionManager::launchedCb(GIOStatus stat, mlpl::SmartBuffer &sbuf,
@@ -341,6 +349,20 @@ void ActionManager::launchedCb(GIOStatus stat, mlpl::SmartBuffer &sbuf,
 	residentInfo->status = RESIDENT_STAT_WAIT_PARAM_ACK;
 }
 
+void ActionManager::gotNotifyEventAckCb(GIOStatus stat, SmartBuffer &sbuf,
+                                        size_t size, ResidentInfo *residentInfo)
+{
+	ActionManager *obj = residentInfo->actionManager;
+	int pktType = ResidentCommunicator::getPacketType(sbuf);
+	if (pktType != RESIDENT_PROTO_PKT_TYPE_NOTIFY_EVENT_ACK) {
+		MLPL_ERR("Unexpected packet: %d\n", pktType);
+		obj->closeResident(residentInfo);
+		return;
+	}
+	// To be logged.
+	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+}
+
 void ActionManager::sendParameters(ResidentInfo *residentInfo)
 {
 	size_t bodyLen = RESIDENT_PROTO_PARAM_MODULE_PATH_LEN
@@ -374,6 +396,7 @@ ResidentInfo *ActionManager::launchResidentActionYard
 	}
 
 	residentInfo->eventInfo = eventInfo;
+	residentInfo->actionId  = actionDef.id;
 	residentInfo->status = RESIDENT_STAT_WAIT_LAUNCHED;
 	residentInfo->pullHeader(launchedCb);
 	return residentInfo;
@@ -386,16 +409,23 @@ void ActionManager::goToResidentYardEntrance(
 	ResidentQueueInfo residentQueueInfo;
 	residentInfo->queue.push_back(residentQueueInfo);
 	if (residentInfo->queue.empty())
-		notifyEvent(residentInfo, actionDef, actorInfo);
+		notifyEvent(residentInfo);
 
 	// When the queue is not empty, the queued action will be started.
 	// The trigger is the end notification of the current resident action.
 }
 
-void ActionManager::notifyEvent(
-  ResidentInfo *residentInfo, const ActionDef &actionDef, ActorInfo *actorInfo)
+void ActionManager::notifyEvent(ResidentInfo *residentInfo)
 {
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	ResidentCommunicator comm;
+	comm.setNotifyEventBody(residentInfo->actionId,
+	                        residentInfo->eventInfo);
+	comm.push(residentInfo->pipeWr);
+
+	// wait for result code
+	residentInfo->pullData(RESIDENT_PROTO_HEADER_LEN +
+	                       RESIDENT_PROTO_EVENT_ACK_CODE_LEN,
+	                       gotNotifyEventAckCb);
 }
 
 void ActionManager::closeResident(ResidentInfo *residentInfo)

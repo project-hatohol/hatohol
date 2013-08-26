@@ -48,6 +48,9 @@ protected:
 	                       size_t size, ResidentInfo *residentInfo);
 	static void moduleLoadedCb(GIOStatus stat, mlpl::SmartBuffer &sbuf,
 	                           size_t size, ResidentInfo *residentInfo);
+	static void gotNotifyEventAckCb(GIOStatus stat, mlpl::SmartBuffer &sbuf,
+	                                size_t size,
+	                                ResidentInfo *residentInfo);
 	static void sendParameters(ResidentInfo *residentInfo);
 	void runAction(const ActionDef &actionDef, const EventInfo &eventInfo);
 	void makeExecArg(StringVector &argVect, const string &cmd);
@@ -94,8 +97,7 @@ protected:
 	void goToResidentYardEntrance(ResidentInfo *residentInfo,
 	                              const ActionDef &actionDef,
 	                              ActorInfo *actorInfo);
-	void notifyEvent(ResidentInfo *residentInfo,
-	                 const ActionDef &actionDef, ActorInfo *actorInfo);
+	void notifyEvent(ResidentInfo *residentInfo);
 	void closeResident(ResidentInfo *residentInfo);
 
 private:

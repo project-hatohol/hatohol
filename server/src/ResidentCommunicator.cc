@@ -45,11 +45,20 @@ ResidentCommunicator::~ResidentCommunicator()
 		delete m_ctx;
 }
 
+int ResidentCommunicator::getPacketType(SmartBuffer &sbuf)
+{
+	HATOHOL_ASSERT(sbuf.size() >= RESIDENT_PROTO_HEADER_LEN,
+	               "Too small: sbuf.size(): %zd\n", sbuf.size());
+	sbuf.resetIndex();
+	sbuf.incIndex(RESIDENT_PROTO_HEADER_PKT_SIZE_LEN);
+	return *sbuf.getPointer<uint16_t>();
+}
+
 void ResidentCommunicator::setHeader(uint32_t bodySize, uint16_t type)
 {
 	size_t bufSize = RESIDENT_PROTO_HEADER_LEN + bodySize;
 	m_ctx->sbuf.ensureRemainingSize(bufSize);
-	m_ctx->sbuf.resetIndex();
+	m_ctx->sbuf.resetIndexDeep();
 	m_ctx->sbuf.add32(bodySize);
 	m_ctx->sbuf.add16(type);
 }
@@ -65,4 +74,28 @@ void ResidentCommunicator::addModulePath(const string &modulePath)
 	m_ctx->sbuf.add16(len);
 	memcpy(m_ctx->sbuf.getPointer<void>(), modulePath.c_str(), len);
 	m_ctx->sbuf.incIndex(len);
+}
+
+void ResidentCommunicator::setNotifyEventBody(
+  int actionId, const EventInfo &eventInfo)
+{
+	setHeader(RESIDENT_PROTO_EVENT_BODY_LEN,
+	          RESIDENT_PROTO_PKT_TYPE_NOTIFY_EVENT);
+	m_ctx->sbuf.add32(actionId);
+	m_ctx->sbuf.add32(eventInfo.serverId);
+	m_ctx->sbuf.add64(eventInfo.hostId);
+	m_ctx->sbuf.add64(eventInfo.time.tv_sec);
+	m_ctx->sbuf.add32(eventInfo.time.tv_nsec);
+	m_ctx->sbuf.add64(eventInfo.id); // Event ID
+	m_ctx->sbuf.add16(eventInfo.type);
+	m_ctx->sbuf.add64(eventInfo.triggerId);
+	m_ctx->sbuf.add16(eventInfo.status);
+	m_ctx->sbuf.add16(eventInfo.severity);
+}
+
+void ResidentCommunicator::setNotifyEventAck(uint32_t resultCode)
+{
+	setHeader(RESIDENT_PROTO_EVENT_ACK_CODE_LEN,
+	          RESIDENT_PROTO_PKT_TYPE_NOTIFY_EVENT_ACK);
+	m_ctx->sbuf.add32(resultCode);
 }

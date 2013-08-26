@@ -67,15 +67,47 @@ static gboolean writePipeCb
 	return TRUE;
 }
 
+static void gotNotifyEventBodyCb(GIOStatus stat, mlpl::SmartBuffer &sbuf,
+                                 size_t size, PrivateContext *ctx)
+{
+	ResidentNotifyEventArg arg;
+	arg.actionId        = *sbuf.getPointerAndIncIndex<uint32_t>();
+	arg.serverId        = *sbuf.getPointerAndIncIndex<uint32_t>();
+	arg.hostId          = *sbuf.getPointerAndIncIndex<uint64_t>();
+	arg.time.tv_sec     = *sbuf.getPointerAndIncIndex<uint64_t>();
+	arg.time.tv_nsec    = *sbuf.getPointerAndIncIndex<uint32_t>();
+	arg.eventId         = *sbuf.getPointerAndIncIndex<uint64_t>();
+	arg.eventType       = *sbuf.getPointerAndIncIndex<uint16_t>();
+	arg.triggerId       = *sbuf.getPointerAndIncIndex<uint64_t>();
+	arg.triggerStatus   = *sbuf.getPointerAndIncIndex<uint16_t>();
+	arg.triggerSeverity = *sbuf.getPointerAndIncIndex<uint16_t>();
+
+	// call a user action
+	uint32_t resultCode = (*ctx->module->notifyEvent)(&arg);
+	ResidentCommunicator comm;
+	comm.setNotifyEventAck(resultCode);
+	comm.push(ctx->pipeWr);
+}
+
 static void eventCb(GIOStatus stat, SmartBuffer &sbuf, size_t size,
                     PrivateContext *ctx)
 {
 	if (stat != G_IO_STATUS_NORMAL) {
 		MLPL_ERR("Error: status: %x\n", stat);
+		requestQuit(ctx);
 		return;
 	}
 
-	MLPL_BUG("Not implemented: %s, %p\n", __PRETTY_FUNCTION__, ctx);
+	int pktType = ResidentCommunicator::getPacketType(sbuf);
+	if (pktType == RESIDENT_PROTO_PKT_TYPE_NOTIFY_EVENT) {
+		// request to get the body
+		ctx->pullData(RESIDENT_PROTO_EVENT_BODY_LEN,
+		              gotNotifyEventBodyCb);
+	} else {
+		MLPL_ERR("Unexpected packet: %d\n", pktType);
+		requestQuit(ctx);
+		return;
+	}
 }
 
 static void sendLaunched(PrivateContext *ctx)
@@ -131,6 +163,13 @@ static void getParametersBodyCb(GIOStatus stat, mlpl::SmartBuffer &sbuf,
 		MLPL_ERR("Module version unmatched: %"PRIu16", "
 		         "expected: %"PRIu16"\n",
 		         ctx->module->moduleVersion, RESIDENT_MODULE_VERSION);
+		requestQuit(ctx);
+		return;
+	}
+
+	// check functions
+	if (!ctx->module->notifyEvent) {
+		MLPL_ERR("notify Event handler is NULL\n");
 		requestQuit(ctx);
 		return;
 	}

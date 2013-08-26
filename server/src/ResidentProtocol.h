@@ -29,6 +29,8 @@ enum
 	RESIDENT_PROTO_PKT_TYPE_LAUNCHED,
 	RESIDENT_PROTO_PKT_TYPE_MODULE_LOADED,
 	RESIDENT_PROTO_PKT_TYPE_PARAMETERS,
+	RESIDENT_PROTO_PKT_TYPE_NOTIFY_EVENT,
+	RESIDENT_PROTO_PKT_TYPE_NOTIFY_EVENT_ACK,
 };
 
 // NOTE: Characters in Bytes column in this file means the following.
@@ -70,6 +72,54 @@ static const size_t RESIDENT_PROTO_PARAM_MODULE_PATH_LEN = 2;
 // packet type: RESIDENT_PROTO_PKT_TYPE_MODULE_LOADED
 // <Body> None
 
+// [Notify Event]
+// Direction: Master -> Slave
+// packet type: RESIDENT_PROTO_PKT_TYPE_NOTIFY_EVENT
+// <Body>
+// Bytes: Description
+//    4U: Action ID.
+//    4U: Server ID.
+//    8U: Host ID.
+//    8U: Time (Unix time).
+//    4U: time (nanosecond part).
+//    8U: Event  ID.
+//    2U: Event type.
+//    8U: Trigger ID.
+//    2U: Trigger status.
+//    2U: Trigger severity.
+
+static const size_t RESIDENT_PROTO_EVENT_ACTION_ID_LEN        = 4;
+static const size_t RESIDENT_PROTO_EVENT_SERVER_ID_LEN        = 4;
+static const size_t RESIDENT_PROTO_EVENT_HOST_ID              = 8;
+static const size_t RESIDENT_PROTO_EVENT_EVENT_TIME_SEC_LEN   = 8;
+static const size_t RESIDENT_PROTO_EVENT_EVENT_TIME_NSEC_LEN  = 4;
+static const size_t RESIDENT_PROTO_EVENT_EVENT_ID_LEN         = 8;
+static const size_t RESIDENT_PROTO_EVENT_EVENT_TYPE_LEN       = 2;
+static const size_t RESIDENT_PROTO_EVENT_TRIGGER_ID_LEN       = 8;
+static const size_t RESIDENT_PROTO_EVENT_TRIGGER_STATUS_LEN   = 2;
+static const size_t RESIDENT_PROTO_EVENT_TRIGGER_SEVERITY_LEN = 2;
+
+static const size_t RESIDENT_PROTO_EVENT_BODY_LEN =
+ RESIDENT_PROTO_EVENT_ACTION_ID_LEN +
+ RESIDENT_PROTO_EVENT_SERVER_ID_LEN +
+ RESIDENT_PROTO_EVENT_HOST_ID +
+ RESIDENT_PROTO_EVENT_EVENT_TIME_SEC_LEN +
+ RESIDENT_PROTO_EVENT_EVENT_TIME_NSEC_LEN +
+ RESIDENT_PROTO_EVENT_EVENT_ID_LEN  +
+ RESIDENT_PROTO_EVENT_EVENT_TYPE_LEN      +
+ RESIDENT_PROTO_EVENT_TRIGGER_ID_LEN      +
+ RESIDENT_PROTO_EVENT_TRIGGER_STATUS_LEN  +
+ RESIDENT_PROTO_EVENT_TRIGGER_SEVERITY_LEN;
+
+// [Notify Event Ack]
+// Direction: Slave -> Master
+// packet type: RESIDENT_PROTO_PKT_TYPE_NOTIFY_EVENT
+// <Body>
+// Bytes: Description
+//    4U: result code.
+
+static const size_t RESIDENT_PROTO_EVENT_ACK_CODE_LEN = 4;
+
 //
 // Module information
 //
@@ -78,8 +128,25 @@ static const size_t RESIDENT_PROTO_PARAM_MODULE_PATH_LEN = 2;
 
 static const uint16_t RESIDENT_MODULE_VERSION = 1;
 
+struct ResidentNotifyEventArg {
+	uint32_t actionId;
+	uint32_t serverId;
+	uint64_t hostId;
+	timespec time;
+	uint64_t eventId;
+	uint16_t eventType;
+	uint64_t triggerId;
+	uint16_t triggerStatus;
+	uint16_t triggerSeverity;
+};
+
 struct ResidentModule {
 	uint16_t moduleVersion;
+	uint32_t (*notifyEvent)(ResidentNotifyEventArg *arg);
+};
+
+enum {
+	NOTIFY_EVENT_ACK_OK,
 };
 
 #endif // ResidentProtocol_h

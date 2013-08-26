@@ -19,6 +19,13 @@
 
 #include "ResidentProtocol.h"
 
+static uint32_t notifyEvent(ResidentNotifyEventArg *arg)
+{
+	return NOTIFY_EVENT_ACK_OK;
+}
+
 struct ResidentModule RESIDENT_MODULE_SYMBOL = {
 	RESIDENT_MODULE_VERSION, /* moduleVersion */
+	notifyEvent,
 };
+
