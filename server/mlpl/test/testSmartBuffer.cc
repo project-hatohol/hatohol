@@ -74,6 +74,26 @@ void test_watermarkResetIndexDeep(void)
 	cppcut_assert_equal((size_t)4, sbuf.watermark());
 }
 
+void test_watermarkAlloc(void)
+{
+	SmartBuffer sbuf;
+	sbuf.alloc(100);
+	sbuf.add8(3);
+	cppcut_assert_equal((size_t)1, sbuf.watermark());
+	sbuf.alloc(20, true);
+	cppcut_assert_equal((size_t)0, sbuf.watermark());
+}
+
+void test_watermarkAllocNotDeep(void)
+{
+	SmartBuffer sbuf;
+	sbuf.alloc(100);
+	sbuf.add8(3);
+	cppcut_assert_equal((size_t)1, sbuf.watermark());
+	sbuf.alloc(20, false);
+	cppcut_assert_equal((size_t)1, sbuf.watermark());
+}
+
 void test_watermarkSetAt(void)
 {
 	SmartBuffer sbuf;
