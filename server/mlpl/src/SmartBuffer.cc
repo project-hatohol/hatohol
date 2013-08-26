@@ -138,13 +138,13 @@ void SmartBuffer::add64(uint64_t val)
 void SmartBuffer::add(const void *src, size_t len)
 {
 	memcpy(&m_buf[m_index], src, len);
-	m_index += len;
+	incIndex(len);
 }
 
 void SmartBuffer::addZero(size_t size)
 {
 	memset(&m_buf[m_index], 0, size);
-	m_index += size;
+	incIndex(size);
 }
 
 void SmartBuffer::addEx8(uint8_t val)
@@ -177,6 +177,7 @@ void SmartBuffer::addEx(const void *src, size_t len)
 void SmartBuffer::incIndex(size_t size)
 {
 	m_index += size;
+	setWatermarkIfNeeded();
 }
 
 void SmartBuffer::setAt(size_t index, uint32_t val)
