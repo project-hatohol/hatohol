@@ -89,6 +89,7 @@ protected:
 	                        ActorInfo *actorInfo = NULL);
 
 	ResidentInfo *launchResidentActionYard(const ActionDef &actionDef,
+	                                       const EventInfo &eventInfo,
 	                                       ActorInfo *actorInfo);
 	void goToResidentYardEntrance(ResidentInfo *residentInfo,
 	                              const ActionDef &actionDef,

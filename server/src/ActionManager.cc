@@ -47,6 +47,7 @@ struct ResidentInfo : public ResidentPullHelper<ResidentInfo> {
 	string pipeName;
 	ResidentStatus status;
 	string modulePath;
+	EventInfo      eventInfo; // This class has a replica
 
 	ResidentInfo(ActionManager *actMgr, const ActionDef &actionDef)
 	: actionManager(actMgr),
@@ -268,7 +269,7 @@ void ActionManager::execResidentAction(const ActionDef &actionDef,
 	   m_ctx->runningResidentMap.find(actionDef.id);
 	if (it == m_ctx->runningResidentMap.end()) {
 		ResidentInfo *residentInfo =
-		  launchResidentActionYard(actionDef, _actorInfo);
+		  launchResidentActionYard(actionDef, eventInfo, _actorInfo);
 		if (residentInfo)
 			m_ctx->runningResidentMap[actionDef.id] = residentInfo;
 	} else {
@@ -359,7 +360,7 @@ void ActionManager::sendParameters(ResidentInfo *residentInfo)
 // The folloing functions shall be called with the lock of m_ctx->residentLock
 //
 ResidentInfo *ActionManager::launchResidentActionYard
-  (const ActionDef &actionDef, ActorInfo *actorInfo)
+  (const ActionDef &actionDef, const EventInfo &eventInfo, ActorInfo *actorInfo)
 {
 	// make a ResidentInfo instance.
 	ResidentInfo *residentInfo = new ResidentInfo(this, actionDef);
@@ -377,6 +378,7 @@ ResidentInfo *ActionManager::launchResidentActionYard
 		return NULL;
 	}
 
+	residentInfo->eventInfo = eventInfo;
 	residentInfo->status = RESIDENT_STAT_WAIT_LAUNCHED;
 	residentInfo->pullHeader(launchedCb);
 	return residentInfo;
