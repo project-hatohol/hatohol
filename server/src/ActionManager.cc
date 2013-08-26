@@ -314,7 +314,6 @@ void ActionManager::launchedCb(GIOStatus stat, mlpl::SmartBuffer &sbuf,
 	}
 
 	// check the packet type
-	sbuf.resetIndex();
 	uint32_t bodyLen = *sbuf.getPointerAndIncIndex<uint32_t>();
 	if (bodyLen != 0) {
 		MLPL_ERR("Invalid body length: %"PRIu32", "
