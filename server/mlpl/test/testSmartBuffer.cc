@@ -80,15 +80,18 @@ void test_takeOver(void)
 	const char *ptr = sbuf;
 	size_t size  = sbuf.size();
 	size_t index = sbuf.index();
+	size_t watermark = sbuf.watermark();
 
 	g_sbuf = sbuf.takeOver();
 	cppcut_assert_equal(ptr, (const char *)(*g_sbuf));
 	cppcut_assert_equal(size, g_sbuf->size());
 	cppcut_assert_equal(index, g_sbuf->index());
+	cppcut_assert_equal(watermark, g_sbuf->watermark());
 
 	cppcut_assert_equal(NULL, (const char *)sbuf);
 	cppcut_assert_equal((size_t)0, sbuf.size());
 	cppcut_assert_equal((size_t)0, sbuf.index());
+	cppcut_assert_equal((size_t)0, sbuf.watermark());
 }
 
 } // namespace testSmartBuffer

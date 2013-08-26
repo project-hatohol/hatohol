@@ -206,7 +206,8 @@ SmartBuffer *SmartBuffer::takeOver(void)
 	sbuf->m_index = m_index;
 	sbuf->m_buf = m_buf;
 	sbuf->m_size = m_size;
-	m_index = 0;
+	sbuf->m_watermark = m_watermark;
+	resetIndex();
 	m_buf = NULL;
 	m_size = 0;
 	return sbuf;
