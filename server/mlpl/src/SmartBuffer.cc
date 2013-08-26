@@ -87,13 +87,13 @@ size_t SmartBuffer::watermark(void) const
 	return m_watermark;
 }
 
-void SmartBuffer::alloc(size_t size, bool resetIndex)
+void SmartBuffer::alloc(size_t size, bool _resetIndex)
 {
 	m_buf = static_cast<uint8_t *>(realloc(m_buf, size));
 	if (m_buf == NULL)
 		throw SmartBufferException();
-	if (resetIndex)
-		m_index = 0;
+	if (_resetIndex)
+		resetIndex();
 	m_size = size;
 }
 
@@ -107,6 +107,7 @@ void SmartBuffer::ensureRemainingSize(size_t size)
 void SmartBuffer::resetIndex(void)
 {
 	m_index = 0;
+	m_watermark = 0;
 }
 
 void SmartBuffer::add8(uint8_t val)
