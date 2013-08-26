@@ -155,6 +155,11 @@ public:
 		ACTLOG_STAT_STARTED,
 		ACTLOG_STAT_SUCCEEDED,
 		ACTLOG_STAT_FAILED,
+
+		// For resident mode action, following staus is logged
+		// until the launching and setup of hatohol-resident-yard
+		// is completed.
+		ACTLOG_STAT_LAUNCHING_RESIDENT,
 	};
 
 	enum ActionLogExecFailureCode {
