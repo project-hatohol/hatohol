@@ -191,12 +191,15 @@ gboolean ActorCollector::checkExitProcess
 	}
 
 	bool found = false;
+	DBClientAction::LogEndExecActionArg logArg;
+	logArg.status = DBClientAction::ACTLOG_STAT_SUCCEEDED;
+	logArg.exitCode = exitChildInfo.exitCode;
 	lock();
 	WaitChildSetIterator it =
 	   PrivateContext::waitChildSet.find(exitChildInfo.pid);
 	if (it != PrivateContext::waitChildSet.end()) {
 		found = true;
-		exitChildInfo.logId = it->second;
+		logArg.logId = it->second;
 		PrivateContext::waitChildSet.erase(it);
 	}
 	unlock();
@@ -205,7 +208,7 @@ gboolean ActorCollector::checkExitProcess
 		return TRUE;
 
 	DBClientAction dbAction;
-	dbAction.logEndExecAction(exitChildInfo);
+	dbAction.logEndExecAction(logArg);
 
 	return TRUE;
 }

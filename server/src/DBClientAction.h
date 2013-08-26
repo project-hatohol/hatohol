@@ -126,7 +126,6 @@ struct ExitChildInfo {
 	pid_t pid;
 	int   status;
 	int   exitCode;
-	uint64_t logId;
 };
 
 enum {
@@ -173,6 +172,12 @@ public:
 		ACTLOG_EXECFAIL_UNEXPECTED_EXIT,
 	};
 
+	struct LogEndExecActionArg {
+		uint64_t logId;
+		ActionLogStatus status;
+		int   exitCode;
+	};
+
 	static int ACTION_DB_VERSION;
 	static const char *DEFAULT_DB_NAME;
 
@@ -188,7 +193,7 @@ public:
 	uint64_t logStartExecAction
 	  (const ActionDef &actionDef,
 	   ActionLogExecFailureCode failureCode = ACTLOG_EXECFAIL_NONE);
-	void logEndExecAction(const ExitChildInfo &exitChildInfo);
+	void logEndExecAction(const LogEndExecActionArg &logArg);
 
 	/**
 	 * Get the action log.

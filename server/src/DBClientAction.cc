@@ -523,7 +523,7 @@ uint64_t DBClientAction::logStartExecAction
 	return logId;
 }
 
-void DBClientAction::logEndExecAction(const ExitChildInfo &exitChildInfo)
+void DBClientAction::logEndExecAction(const LogEndExecActionArg &logArg)
 {
 	VariableItemGroupPtr row;
 	DBAgentUpdateArg arg;
@@ -534,9 +534,9 @@ void DBClientAction::logEndExecAction(const ExitChildInfo &exitChildInfo)
 	  COLUMN_DEF_ACTION_LOGS[IDX_ACTION_LOGS_ACTION_LOG_ID].columnName;
 	arg.condition = StringUtils::sprintf("%s=%"PRIu64,
 	                                     actionLogIdColumnName,
-	                                     exitChildInfo.logId);
+	                                     logArg.logId);
 	// status
-	row->ADD_NEW_ITEM(Int, ACTLOG_STAT_SUCCEEDED);
+	row->ADD_NEW_ITEM(Int, logArg.status);
 	arg.columnIndexes.push_back(IDX_ACTION_LOGS_STATUS);
 
 	// end_time
@@ -544,7 +544,7 @@ void DBClientAction::logEndExecAction(const ExitChildInfo &exitChildInfo)
 	arg.columnIndexes.push_back(IDX_ACTION_LOGS_END_TIME);
 
 	// exit_code
-	row->ADD_NEW_ITEM(Int, exitChildInfo.exitCode);
+	row->ADD_NEW_ITEM(Int, logArg.exitCode);
 	arg.columnIndexes.push_back(IDX_ACTION_LOGS_EXIT_CODE);
 
 	arg.row = row;
