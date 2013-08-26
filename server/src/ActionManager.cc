@@ -303,19 +303,6 @@ gboolean ActionManager::residentWriteErrCb(
 	return FALSE;
 }
 
-void ActionManager::moduleLoadedCb
-  (GIOStatus stat, SmartBuffer &sbuf, size_t size, ResidentInfo *residentInfo)
-{
-	ActionManager *obj = residentInfo->actionManager;
-	int pktType = ResidentCommunicator::getPacketType(sbuf);
-	if (pktType != RESIDENT_PROTO_PKT_TYPE_MODULE_LOADED) {
-		MLPL_ERR("Unexpected packet: %d\n", pktType);
-		obj->closeResident(residentInfo);
-		return;
-	}
-	obj->notifyEvent(residentInfo);
-}
-
 void ActionManager::launchedCb(GIOStatus stat, mlpl::SmartBuffer &sbuf,
                                size_t size, ResidentInfo *residentInfo)
 {
@@ -347,6 +334,19 @@ void ActionManager::launchedCb(GIOStatus stat, mlpl::SmartBuffer &sbuf,
 	sendParameters(residentInfo);
 	residentInfo->pullHeader(moduleLoadedCb);
 	residentInfo->status = RESIDENT_STAT_WAIT_PARAM_ACK;
+}
+
+void ActionManager::moduleLoadedCb
+  (GIOStatus stat, SmartBuffer &sbuf, size_t size, ResidentInfo *residentInfo)
+{
+	ActionManager *obj = residentInfo->actionManager;
+	int pktType = ResidentCommunicator::getPacketType(sbuf);
+	if (pktType != RESIDENT_PROTO_PKT_TYPE_MODULE_LOADED) {
+		MLPL_ERR("Unexpected packet: %d\n", pktType);
+		obj->closeResident(residentInfo);
+		return;
+	}
+	obj->notifyEvent(residentInfo);
 }
 
 void ActionManager::gotNotifyEventAckCb(GIOStatus stat, SmartBuffer &sbuf,
