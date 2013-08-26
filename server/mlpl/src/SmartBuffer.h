@@ -48,7 +48,8 @@ public:
 	/**
 	 * Get the watermark.
 	 * Watermark is a position at which data is stored.
-	 * If resetIndex() is called, the watermakr is set to 0.
+	 * If resetIndexDeep() or alloc() with resetIndexDeep = true is
+	 * called, the watermakr is set to 0.
 	 * setAt() methods doesn't affects the watermark. 
 	 *
 	 * For example,
@@ -58,7 +59,7 @@ public:
 	 * sbuf.add32(3);
 	 * size_t a = sbuf.watermark(); // 'a' is 5;
 	 *
-	 * sbuf.resetIndex();
+	 * sbuf.resetDeepIndex();
 	 * size_t b = sbuf.watermark(); // 'b' is 0;
 	 * sbuf.add16(3);
 	 * size_t c = sbuf.watermark(); // 'c' is 2;
@@ -69,10 +70,15 @@ public:
 	 * @return A position of watermark.
 	 */
 	size_t watermark(void) const;
-	void alloc(size_t size, bool resetIndex = true);
+	void alloc(size_t size, bool resetIndexDeep = true);
 	void ensureRemainingSize(size_t size);
 
 	void resetIndex(void);
+
+	/**
+	 * reset both the index and the watermark.
+	 */
+	void resetIndexDeep(void);
 
 	// 'add' families write data at the current index without the boundary
 	// check. You must allocate enough buffer before you use these

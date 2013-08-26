@@ -56,8 +56,9 @@ void test_watermarkResetIndex(void)
 	SmartBuffer sbuf;
 	sbuf.alloc(100);
 	sbuf.add8(3);
+	// resetIndex() doesn't reset the watermark
 	sbuf.resetIndex();
-	cppcut_assert_equal((size_t)0, sbuf.watermark());
+	cppcut_assert_equal((size_t)1, sbuf.watermark());
 	sbuf.add32(3);
 	cppcut_assert_equal((size_t)4, sbuf.watermark());
 }
