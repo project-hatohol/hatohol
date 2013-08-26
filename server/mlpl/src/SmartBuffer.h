@@ -47,7 +47,7 @@ public:
 
 	/**
 	 * Get the watermark.
-	 * Watermark is the highest offset at which the data has been written.
+	 * Watermark is a position at which data is stored.
 	 * If resetIndex() is called, the watermakr is set to 0.
 	 *
 	 * For example,
@@ -56,10 +56,14 @@ public:
 	 * sbuf.add8(3);
 	 * sbuf.add32(3);
 	 * size_t a = sbuf.watermark(); // 'a' is 5;
+	 *
 	 * sbuf.resetIndex();
 	 * size_t b = sbuf.watermark(); // 'b' is 0;
 	 * sbuf.add16(3);
 	 * size_t c = sbuf.watermark(); // 'c' is 2;
+	 *
+	 * sbuf.atSet(10, 3);
+	 * size_t d = sbuf.watermark(); // 'c' is 14;
 	 *
 	 * @return A position of watermark.
 	 */
@@ -124,9 +128,15 @@ public:
 	SmartBuffer *takeOver(void);
 
 protected:
+	void setWatermarkIfNeeded(void) {
+		if (m_index > m_watermark)
+			m_watermark = m_index;
+	}
+
 	template <typename T> void addTemplate(T val) {
 		*reinterpret_cast<T *>(&m_buf[m_index]) = val;
 		m_index += sizeof(T);
+		setWatermarkIfNeeded();
 	}
 
 	template <typename T> void addExTemplate(T val) {
