@@ -49,6 +49,7 @@ public:
 	 * Get the watermark.
 	 * Watermark is a position at which data is stored.
 	 * If resetIndex() is called, the watermakr is set to 0.
+	 * setAt() methods doesn't affects the watermark. 
 	 *
 	 * For example,
 	 *

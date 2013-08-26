@@ -62,6 +62,15 @@ void test_watermarkResetIndex(void)
 	cppcut_assert_equal((size_t)4, sbuf.watermark());
 }
 
+void test_watermarkSetAt(void)
+{
+	SmartBuffer sbuf;
+	sbuf.alloc(100);
+	sbuf.add32(3);
+	sbuf.setAt(50, 3);
+	cppcut_assert_equal((size_t)4, sbuf.watermark());
+}
+
 void test_takeOver(void)
 {
 	static const size_t buflen = 5;
