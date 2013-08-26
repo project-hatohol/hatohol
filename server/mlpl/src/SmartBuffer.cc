@@ -32,14 +32,16 @@ using namespace mlpl;
 SmartBuffer::SmartBuffer(void)
 : m_index(0),
   m_buf(NULL),
-  m_size(0)
+  m_size(0),
+  m_watermark(0)
 {
 }
 
 SmartBuffer::SmartBuffer(size_t size)
 : m_index(0),
   m_buf(NULL),
-  m_size(0)
+  m_size(0),
+  m_watermark(0)
 {
 	alloc(size);
 }
@@ -78,6 +80,11 @@ size_t SmartBuffer::size(void) const
 size_t SmartBuffer::remainingSize(void) const
 {
 	return m_size - m_index;
+}
+
+size_t SmartBuffer::watermark(void) const
+{
+	return m_watermark;
 }
 
 void SmartBuffer::alloc(size_t size, bool resetIndex)

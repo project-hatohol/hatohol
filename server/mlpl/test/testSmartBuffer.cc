@@ -36,6 +36,12 @@ void cut_teardown(void)
 // ----------------------------------------------------------------------------
 // test cases
 // ----------------------------------------------------------------------------
+void test_watermarkInit(void)
+{
+	SmartBuffer sbuf;
+	cppcut_assert_equal((size_t)0, sbuf.watermark());
+}
+
 void test_takeOver(void)
 {
 	static const size_t buflen = 5;

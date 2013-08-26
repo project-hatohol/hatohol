@@ -32,6 +32,7 @@ class SmartBuffer {
 	size_t   m_index;
 	uint8_t *m_buf;
 	size_t   m_size;
+	size_t   m_watermark;
 public:
 	SmartBuffer(void);
 	SmartBuffer(size_t size);
@@ -43,6 +44,26 @@ public:
 	size_t index(void) const;
 	size_t size(void) const;
 	size_t remainingSize(void) const;
+
+	/**
+	 * Get the watermark.
+	 * Watermark is the highest offset at which the data has been written.
+	 * If resetIndex() is called, the watermakr is set to 0.
+	 *
+	 * For example,
+	 *
+	 * SmartBuffer sbuf;
+	 * sbuf.add8(3);
+	 * sbuf.add32(3);
+	 * size_t a = sbuf.watermark(); // 'a' is 5;
+	 * sbuf.resetIndex();
+	 * size_t b = sbuf.watermark(); // 'b' is 0;
+	 * sbuf.add16(3);
+	 * size_t c = sbuf.watermark(); // 'c' is 2;
+	 *
+	 * @return A position of watermark.
+	 */
+	size_t watermark(void) const;
 	void alloc(size_t size, bool resetIndex = true);
 	void ensureRemainingSize(size_t size);
 
