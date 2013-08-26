@@ -386,7 +386,7 @@ bool NamedPipe::writeBuf(SmartBuffer &buf, bool &fullyWritten, bool flush)
 {
 	fullyWritten = false;
 	gchar *dataPtr = buf.getPointer<gchar>();
-	gssize count = buf.remainingSize();
+	gssize count = buf.watermark() - buf.index();
 	gsize bytesWritten;
 	GError *error = NULL;
 	GIOStatus stat =
