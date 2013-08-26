@@ -339,6 +339,12 @@ void ActionManager::moduleLoadedCb
   (GIOStatus stat, SmartBuffer &sbuf, size_t size, ResidentInfo *residentInfo)
 {
 	ActionManager *obj = residentInfo->actionManager;
+	if (stat != G_IO_STATUS_NORMAL) {
+		MLPL_ERR("Error: status: %x\n", stat);
+		obj->closeResident(residentInfo);
+		return;
+	}
+
 	int pktType = ResidentCommunicator::getPacketType(sbuf);
 	if (pktType != RESIDENT_PROTO_PKT_TYPE_MODULE_LOADED) {
 		MLPL_ERR("Unexpected packet: %d\n", pktType);
@@ -352,6 +358,12 @@ void ActionManager::gotNotifyEventAckCb(GIOStatus stat, SmartBuffer &sbuf,
                                         size_t size, ResidentInfo *residentInfo)
 {
 	ActionManager *obj = residentInfo->actionManager;
+	if (stat != G_IO_STATUS_NORMAL) {
+		MLPL_ERR("Error: status: %x\n", stat);
+		obj->closeResident(residentInfo);
+		return;
+	}
+
 	int pktType = ResidentCommunicator::getPacketType(sbuf);
 	if (pktType != RESIDENT_PROTO_PKT_TYPE_NOTIFY_EVENT_ACK) {
 		MLPL_ERR("Unexpected packet: %d\n", pktType);
