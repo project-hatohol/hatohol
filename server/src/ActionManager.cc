@@ -54,7 +54,8 @@ struct ResidentInfo : public ResidentPullHelper<ResidentInfo> {
 	: actionManager(actMgr),
 	  pipeRd(NamedPipe::END_TYPE_MASTER_READ),
 	  pipeWr(NamedPipe::END_TYPE_MASTER_WRITE),
-	  status(RESIDENT_STAT_INIT)
+	  status(RESIDENT_STAT_INIT),
+	  actionId(-1)
 	{
 		pipeName = StringUtils::sprintf("resident-%d", actionDef.id);
 		modulePath = actionDef.path;
