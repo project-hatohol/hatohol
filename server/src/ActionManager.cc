@@ -78,8 +78,11 @@ struct ResidentInfo : public ResidentPullHelper<ResidentInfo> {
 		while (!notifyQueue.empty()) {
 			ActionManager::ResidentNotifyInfo *notifyInfo
 			  = notifyQueue.front();
-			delete notifyInfo;
 			// TODO: log the fact that the notification is deleted
+			MLPL_BUG("ResidentNotifyInfo is deleted, "
+			         "but not logged: logId: %"PRIu64"\n",
+			         notifyInfo->logId);
+			delete notifyInfo;
 		}
 		queueLock.unlock();
 	}
