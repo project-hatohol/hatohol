@@ -303,7 +303,7 @@ void _assertActionLogJustAfterExecResident(ExecCommandContext *ctx)
 		  true, ctx->dbAction.getLog(ctx->actionLog,
 		                             ctx->actorInfo.logId));
 		if (ctx->actionLog.status ==
-		    DBClientAction::ACTLOG_STAT_LAUNCHING_RESIDENT);
+		    DBClientAction::ACTLOG_STAT_LAUNCHING_RESIDENT)
 			continue;
 		assertActionLog(
 		  ctx->actionLog, ctx->actorInfo.logId,

@@ -49,13 +49,16 @@ struct ResidentInfo : public ResidentPullHelper<ResidentInfo> {
 	string modulePath;
 	EventInfo      eventInfo; // This class has a replica
 	int            actionId;
+	uint64_t       currLogId;
+	
 
 	ResidentInfo(ActionManager *actMgr, const ActionDef &actionDef)
 	: actionManager(actMgr),
 	  pipeRd(NamedPipe::END_TYPE_MASTER_READ),
 	  pipeWr(NamedPipe::END_TYPE_MASTER_WRITE),
 	  status(RESIDENT_STAT_INIT),
-	  actionId(-1)
+	  actionId(-1),
+	  currLogId(INVALID_ACTION_LOG_ID)
 	{
 		pipeName = StringUtils::sprintf("resident-%d", actionDef.id);
 		modulePath = actionDef.path;
@@ -371,8 +374,22 @@ void ActionManager::gotNotifyEventAckCb(GIOStatus stat, SmartBuffer &sbuf,
 		obj->closeResident(residentInfo);
 		return;
 	}
-	// To be logged.
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+
+	// get the result code
+	sbuf.resetIndex();
+	sbuf.incIndex(RESIDENT_PROTO_HEADER_LEN);
+	uint32_t resultCode = *sbuf.getPointer<uint32_t>();
+
+	// log the end of action
+	HATOHOL_ASSERT(residentInfo->currLogId != INVALID_ACTION_LOG_ID,
+	               "log ID: %"PRIx64, residentInfo->currLogId);
+	DBClientAction::LogEndExecActionArg logArg;
+	logArg.logId = residentInfo->currLogId;
+	logArg.status = DBClientAction::ACTLOG_STAT_SUCCEEDED,
+	logArg.exitCode = resultCode;
+
+	DBClientAction dbAction;
+	dbAction.logEndExecAction(logArg);
 }
 
 void ActionManager::sendParameters(ResidentInfo *residentInfo)
@@ -409,6 +426,7 @@ ResidentInfo *ActionManager::launchResidentActionYard
 
 	residentInfo->eventInfo = eventInfo;
 	residentInfo->actionId  = actionDef.id;
+	residentInfo->currLogId = actorInfo->logId;
 	residentInfo->status = RESIDENT_STAT_WAIT_LAUNCHED;
 	residentInfo->pullHeader(launchedCb);
 	return residentInfo;

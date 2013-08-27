@@ -25,6 +25,8 @@
 #include "DBClientConnectable.h"
 #include "Params.h"
 
+const static uint64_t INVALID_ACTION_LOG_ID = -1;
+
 enum ActionType {
 	ACTION_COMMAND,
 	ACTION_RESIDENT,
