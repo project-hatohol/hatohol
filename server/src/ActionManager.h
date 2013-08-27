@@ -97,7 +97,21 @@ protected:
 	void goToResidentYardEntrance(ResidentInfo *residentInfo,
 	                              const ActionDef &actionDef,
 	                              ActorInfo *actorInfo);
-	void notifyEvent(ResidentInfo *residentInfo);
+
+	/**
+	 * notify event to the resident.
+	 *
+	 * @param residentInfo.
+	 * A residentInfo instance. The members: 'actionId' and 'eventInfo'
+	 * have to be set correctly.
+	 *
+	 * @param logId.
+	 * If this parameter is INVALID_ACTION_LOG_ID, the new log record
+	 * is created. Otherwise the record with it will be updated.
+	 *
+	 */
+	void notifyEvent(ResidentInfo *residentInfo,
+	                 uint64_t logId = INVALID_ACTION_LOG_ID);
 	void closeResident(ResidentInfo *residentInfo);
 
 private:

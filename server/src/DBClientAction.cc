@@ -563,6 +563,31 @@ void DBClientAction::logEndExecAction(const LogEndExecActionArg &logArg)
 	} DBCLIENT_TRANSACTION_END();
 }
 
+void DBClientAction::updateLogStatusToStart(uint64_t logId)
+{
+	VariableItemGroupPtr row;
+	DBAgentUpdateArg arg;
+	arg.tableName = TABLE_NAME_ACTION_LOGS;
+	arg.columnDefs = COLUMN_DEF_ACTION_LOGS;
+
+	const char *actionLogIdColumnName = 
+	  COLUMN_DEF_ACTION_LOGS[IDX_ACTION_LOGS_ACTION_LOG_ID].columnName;
+	arg.condition = StringUtils::sprintf("%s=%"PRIu64,
+	                                     actionLogIdColumnName, logId);
+	// status
+	row->ADD_NEW_ITEM(Int, ACTLOG_STAT_STARTED);
+	arg.columnIndexes.push_back(IDX_ACTION_LOGS_STATUS);
+
+	// start_time
+	row->ADD_NEW_ITEM(Int, CURR_DATETIME);
+	arg.columnIndexes.push_back(IDX_ACTION_LOGS_START_TIME);
+
+	arg.row = row;
+	DBCLIENT_TRANSACTION_BEGIN() {
+		update(arg);
+	} DBCLIENT_TRANSACTION_END();
+}
+
 bool DBClientAction::getLog(ActionLog &actionLog, uint64_t logId)
 {
 	DBAgentSelectExArg arg;

@@ -83,7 +83,12 @@ typedef RunningResidentMap::iterator RunningResidentMapIterator;
 
 struct ActionManager::PrivateContext {
 	static ActorCollector collector;
+
+	// This can only be used on the owner's context (thread),
+	// It's danger to use from a GLIB's event callback context or
+	// other thread, becuase DBClientAction is MT-thread unsafe.
 	DBClientAction dbAction;
+
 	SeparatorCheckerWithCallback separator;
 	bool inQuot;
 	bool byBackSlash;
@@ -355,7 +360,8 @@ void ActionManager::moduleLoadedCb
 		obj->closeResident(residentInfo);
 		return;
 	}
-	obj->notifyEvent(residentInfo);
+
+	obj->notifyEvent(residentInfo, residentInfo->currLogId);
 }
 
 void ActionManager::gotNotifyEventAckCb(GIOStatus stat, SmartBuffer &sbuf,
@@ -445,7 +451,7 @@ void ActionManager::goToResidentYardEntrance(
 	// The trigger is the end notification of the current resident action.
 }
 
-void ActionManager::notifyEvent(ResidentInfo *residentInfo)
+void ActionManager::notifyEvent(ResidentInfo *residentInfo, uint64_t logId)
 {
 	ResidentCommunicator comm;
 	comm.setNotifyEventBody(residentInfo->actionId,
@@ -456,6 +462,15 @@ void ActionManager::notifyEvent(ResidentInfo *residentInfo)
 	residentInfo->pullData(RESIDENT_PROTO_HEADER_LEN +
 	                       RESIDENT_PROTO_EVENT_ACK_CODE_LEN,
 	                       gotNotifyEventAckCb);
+
+	// create or update an action log
+	DBClientAction dbAction;
+	if (logId != INVALID_ACTION_LOG_ID) {
+		// This condition happens only when the first notification.
+		dbAction.updateLogStatusToStart(logId);
+	} else {
+		MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	}
 }
 
 void ActionManager::closeResident(ResidentInfo *residentInfo)

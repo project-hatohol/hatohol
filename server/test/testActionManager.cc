@@ -284,7 +284,7 @@ void _assertActionLogAfterEnding(ExecCommandContext *ctx)
 #define assertActionLogAfterEnding(CTX) \
 cut_trace(_assertActionLogAfterEnding(CTX))
 
-void _assertActionLogJustAfterExecResident(ExecCommandContext *ctx)
+void _assertActionLogAfterExecResident(ExecCommandContext *ctx)
 {
 	uint32_t expectedNullFlags = 
 	  ACTLOG_FLAG_QUEUING_TIME | ACTLOG_FLAG_END_TIME |
@@ -307,7 +307,7 @@ void _assertActionLogJustAfterExecResident(ExecCommandContext *ctx)
 			continue;
 		assertActionLog(
 		  ctx->actionLog, ctx->actorInfo.logId,
-		  ctx->actDef.id, DBClientAction::ACTLOG_STAT_SUCCEEDED,
+		  ctx->actDef.id, DBClientAction::ACTLOG_STAT_STARTED,
 		  0, /* starterId */
 		  0, /* queuingTime */
 		  CURR_DATETIME, /* startTime */
@@ -317,9 +317,10 @@ void _assertActionLogJustAfterExecResident(ExecCommandContext *ctx)
 		  expectedNullFlags /* nullFlags */);
 		break;
 	}
+	MLPL_BUG("Check the status when the result code of the notification\n");
 }
-#define assertActionLogJustAfterExecResident(CTX) \
-cut_trace(_assertActionLogJustAfterExecResident(CTX))
+#define assertActionLogAfterExecResident(CTX) \
+cut_trace(_assertActionLogAfterExecResident(CTX))
 
 void setup(void)
 {
@@ -355,9 +356,7 @@ void test_execResidenAction(void)
 	ExecCommandContext *ctx = g_execCommandCtx; // just an alias
 
 	assertExecAction(ctx, 0x4ab3fd32, ACTION_RESIDENT);
-	assertActionLogJustAfterExecResident(ctx);
-	// TODO: add assertion to check action log and communicate with
-	//       a test module.
+	assertActionLogAfterExecResident(ctx);
 }
 
 // TODO: make tests for the following error cases.

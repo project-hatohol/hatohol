@@ -198,6 +198,14 @@ public:
 	void logEndExecAction(const LogEndExecActionArg &logArg);
 
 	/**
+	 * Update the status in action log to ACTLOG_STAT_STARTED.
+	 * The column: start_time is also updated to the current time.
+	 *
+	 * @param logId A logID to be updated.
+	 */
+	void updateLogStatusToStart(uint64_t logId);
+
+	/**
 	 * Get the action log.
 	 * @param actionLog
 	 * The returned values are filled in this instance.
