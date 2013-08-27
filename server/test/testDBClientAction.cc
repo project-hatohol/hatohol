@@ -198,7 +198,17 @@ void test_startExecAction(void)
 		cppcut_assert_equal(expectedId, logId);
 		string statement = "select * from ";
 		statement += DBClientAction::getTableNameActionLogs();
-		expect += makeExpectedLogString(actDef, expectedId);
+		DBClientAction::ActionLogStatus status;
+		if (actDef.type == ACTION_COMMAND)
+			status = DBClientAction::ACTLOG_STAT_STARTED;
+		else if (actDef.type == ACTION_RESIDENT)
+			status = DBClientAction::ACTLOG_STAT_LAUNCHING_RESIDENT;
+		else {
+			// Set any value to avoid a compiler warning.
+			status = DBClientAction::ACTLOG_STAT_STARTED;
+			cut_fail("Unknown action type: %d\n", actDef.type);
+		}
+		expect += makeExpectedLogString(actDef, expectedId, status);
 		assertDBContent(dbAction.getDBAgent(), statement, expect);
 	}
 }
