@@ -148,6 +148,8 @@ class DBClientAction :
 {
 public:
 	enum ActionLogStatus {
+		ACTLOG_STAT_INVALID,
+
 		// Hatohol limits the number of actions running
 		// at the same time. If it excceds the limit,
 		// a new action is registered as ACTLOG_STAT_QUEUING.
@@ -178,6 +180,9 @@ public:
 		uint64_t logId;
 		ActionLogStatus status;
 		int   exitCode;
+
+		// constructor: just for initialization
+		LogEndExecActionArg(void);
 	};
 
 	static int ACTION_DB_VERSION;

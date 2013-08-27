@@ -322,6 +322,14 @@ struct DBClientAction::PrivateContext
 	}
 };
 
+
+DBClientAction::LogEndExecActionArg::LogEndExecActionArg(void)
+: logId(INVALID_ACTION_LOG_ID),
+  status(ACTLOG_STAT_INVALID),
+  exitCode(0)
+{
+}
+
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
