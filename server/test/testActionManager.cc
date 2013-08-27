@@ -28,6 +28,7 @@
 #include "PipeUtils.h"
 #include "SmartBuffer.h"
 #include "ActionTp.h"
+#include "ResidentProtocol.h"
 
 class TestActionManager : public ActionManager
 {
@@ -293,6 +294,11 @@ void _assertActionLogAfterExecResident(ExecCommandContext *ctx)
 	// check the action log after the actor is terminated
 	ctx->timerTag = g_timeout_add(ctx->timeout, timeoutHandler, ctx);
 	ctx->loop = g_main_loop_new(NULL, TRUE);
+
+	DBClientAction::ActionLogStatus currStatus =
+	    DBClientAction::ACTLOG_STAT_LAUNCHING_RESIDENT;
+	DBClientAction::ActionLogStatus newStatus =
+	    DBClientAction::ACTLOG_STAT_STARTED;
 	while (true) {
 		// ActionManager updates the aciton log in the wake of GLIB's
 		// events. So we can wait for the log update with
@@ -302,22 +308,25 @@ void _assertActionLogAfterExecResident(ExecCommandContext *ctx)
 		cppcut_assert_equal(
 		  true, ctx->dbAction.getLog(ctx->actionLog,
 		                             ctx->actorInfo.logId));
-		if (ctx->actionLog.status ==
-		    DBClientAction::ACTLOG_STAT_LAUNCHING_RESIDENT)
+		if (ctx->actionLog.status == currStatus)
 			continue;
 		assertActionLog(
 		  ctx->actionLog, ctx->actorInfo.logId,
-		  ctx->actDef.id, DBClientAction::ACTLOG_STAT_STARTED,
+		  ctx->actDef.id, newStatus,
 		  0, /* starterId */
 		  0, /* queuingTime */
 		  CURR_DATETIME, /* startTime */
-		  0, /* endTime */
+		  CURR_DATETIME, /* endTime */
 		  DBClientAction::ACTLOG_EXECFAIL_NONE, /* failureCode */
-		  0, /* exitCode */
+		  NOTIFY_EVENT_ACK_OK, /* exitCode */
 		  expectedNullFlags /* nullFlags */);
-		break;
+
+		if (currStatus == DBClientAction::ACTLOG_STAT_STARTED)
+			break;
+		currStatus = DBClientAction::ACTLOG_STAT_STARTED;
+		newStatus = DBClientAction::ACTLOG_STAT_SUCCEEDED;
+		expectedNullFlags = ACTLOG_FLAG_QUEUING_TIME;
 	}
-	MLPL_BUG("Check the status when the result code of the notification\n");
 }
 #define assertActionLogAfterExecResident(CTX) \
 cut_trace(_assertActionLogAfterExecResident(CTX))
