@@ -368,6 +368,17 @@ void test_execResidenAction(void)
 	assertActionLogAfterExecResident(ctx);
 }
 
+void test_execResidenActionManyEvents(void)
+{
+	g_execCommandCtx = new ExecCommandContext();
+	ExecCommandContext *ctx = g_execCommandCtx; // just an alias
+
+	for (size_t i = 0; i < 3; i++) {
+		assertExecAction(ctx, 0x4ab3fd32, ACTION_RESIDENT);
+		assertActionLogAfterExecResident(ctx);
+	}
+}
+
 // TODO: make tests for the following error cases.
 // - The path of the actor is wrong (failed to launch)
 // - An actor is killed by the timed out.
