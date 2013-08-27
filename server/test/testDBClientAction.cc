@@ -122,9 +122,15 @@ static string makeExpectedLogString(
     = DBClientAction::ACTLOG_EXECFAIL_NONE)
 {
 	int expectedStarterId = 0; // This is currently not used.
-	const char *expectedExitTime =
-	  status == DBClientAction::ACTLOG_STAT_STARTED ?
-	    DBCONTENT_MAGIC_NULL : DBCONTENT_MAGIC_CURR_DATETIME;
+	bool shouldHaveExitTime = true;
+	if (status == DBClientAction::ACTLOG_STAT_STARTED ||
+	    status == DBClientAction::ACTLOG_STAT_LAUNCHING_RESIDENT ||
+	    status == DBClientAction::ACTLOG_STAT_LAUNCHING_RESIDENT) {
+		shouldHaveExitTime = false;
+	}
+
+	const char *expectedExitTime = shouldHaveExitTime ?
+	  DBCONTENT_MAGIC_CURR_DATETIME: DBCONTENT_MAGIC_NULL;
 
 	string expect =
 	  StringUtils::sprintf(
