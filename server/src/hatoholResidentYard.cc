@@ -1,6 +1,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <glib.h>
+#include <glib-object.h>
 #include <inttypes.h>
 #include <dlfcn.h>
 
