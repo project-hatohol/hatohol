@@ -285,7 +285,8 @@ void _assertActionLogAfterEnding(ExecCommandContext *ctx)
 #define assertActionLogAfterEnding(CTX) \
 cut_trace(_assertActionLogAfterEnding(CTX))
 
-void _assertActionLogAfterExecResident(ExecCommandContext *ctx)
+void _assertActionLogAfterExecResident(ExecCommandContext *ctx,
+                                       bool firstTime = true)
 {
 	uint32_t expectedNullFlags = 
 	  ACTLOG_FLAG_QUEUING_TIME | ACTLOG_FLAG_END_TIME |
@@ -295,10 +296,13 @@ void _assertActionLogAfterExecResident(ExecCommandContext *ctx)
 	ctx->timerTag = g_timeout_add(ctx->timeout, timeoutHandler, ctx);
 	ctx->loop = g_main_loop_new(NULL, TRUE);
 
-	DBClientAction::ActionLogStatus currStatus =
-	    DBClientAction::ACTLOG_STAT_LAUNCHING_RESIDENT;
-	DBClientAction::ActionLogStatus newStatus =
+	DBClientAction::ActionLogStatus currStatus = firstTime ?
+	    DBClientAction::ACTLOG_STAT_LAUNCHING_RESIDENT :
 	    DBClientAction::ACTLOG_STAT_STARTED;
+	DBClientAction::ActionLogStatus newStatus = firstTime ?
+	    DBClientAction::ACTLOG_STAT_STARTED :
+	    DBClientAction::ACTLOG_STAT_SUCCEEDED;
+
 	while (true) {
 		// ActionManager updates the aciton log in the wake of GLIB's
 		// events. So we can wait for the log update with
@@ -321,6 +325,9 @@ void _assertActionLogAfterExecResident(ExecCommandContext *ctx)
 		  NOTIFY_EVENT_ACK_OK, /* exitCode */
 		  expectedNullFlags /* nullFlags */);
 
+		if (!firstTime)
+			break;
+
 		if (currStatus == DBClientAction::ACTLOG_STAT_STARTED)
 			break;
 		currStatus = DBClientAction::ACTLOG_STAT_STARTED;
@@ -328,8 +335,8 @@ void _assertActionLogAfterExecResident(ExecCommandContext *ctx)
 		expectedNullFlags = ACTLOG_FLAG_QUEUING_TIME;
 	}
 }
-#define assertActionLogAfterExecResident(CTX) \
-cut_trace(_assertActionLogAfterExecResident(CTX))
+#define assertActionLogAfterExecResident(CTX, ...) \
+cut_trace(_assertActionLogAfterExecResident(CTX, ##__VA_ARGS__))
 
 void setup(void)
 {
@@ -374,8 +381,9 @@ void test_execResidenActionManyEvents(void)
 	ExecCommandContext *ctx = g_execCommandCtx; // just an alias
 
 	for (size_t i = 0; i < 3; i++) {
+		bool firstTime = i == 0;
 		assertExecAction(ctx, 0x4ab3fd32, ACTION_RESIDENT);
-		assertActionLogAfterExecResident(ctx);
+		assertActionLogAfterExecResident(ctx, firstTime);
 	}
 }
 
