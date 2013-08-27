@@ -173,6 +173,14 @@ string execMySQL(const string &dbName, const string &statement, bool showHeader)
 	return result;
 }
 
+void _assertDatetime(int expectedClock, int actualClock)
+{
+	if (expectedClock == CURR_DATETIME)
+		assertCurrDatetime(actualClock);
+	else
+		cppcut_assert_equal(expectedClock, actualClock);
+}
+
 void _assertCurrDatetime(int clock)
 {
 	const int MAX_ALLOWD_CURR_TIME_ERROR = 5;

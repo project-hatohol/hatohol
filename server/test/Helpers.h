@@ -83,6 +83,9 @@ string execSqlite3ForDBClientZabbix(int serverId, const string &statement);
 string execMySQL(const string &dbName, const string &statement,
                  bool showHeader = false);
 
+void _assertDatetime(int expectedClock, int actualClock);
+#define assertDatetime(E,A) cut_trace(_assertDatetime(E,A))
+
 void _assertCurrDatetime(const string &datetime);
 void _assertCurrDatetime(int datetime);
 #define assertCurrDatetime(D) cut_trace(_assertCurrDatetime(D))

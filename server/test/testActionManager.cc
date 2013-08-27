@@ -184,9 +184,9 @@ static void _assertActionLog(
 	if (!(nullFlags & ACTLOG_FLAG_QUEUING_TIME))
 		cppcut_assert_equal(queueintTime, actionLog.queuingTime);
 	if (!(nullFlags & ACTLOG_FLAG_START_TIME))
-		assertCurrDatetime(actionLog.startTime);
+		assertDatetime(startTime, actionLog.startTime);
 	if (!(nullFlags & ACTLOG_FLAG_END_TIME))
-		assertCurrDatetime(actionLog.endTime);
+		assertDatetime(endTime, actionLog.endTime);
 	cppcut_assert_equal(failureCode,  actionLog.failureCode);
 	if (!(nullFlags & ACTLOG_FLAG_EXIT_CODE))
 		cppcut_assert_equal(exitCode,     actionLog.exitCode);
