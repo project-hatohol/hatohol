@@ -28,11 +28,17 @@
 
 using namespace std;
 
-struct ResidentQueueInfo {
-	// To be added
+struct ActionManager::ResidentNotifyInfo {
+	uint64_t  logId;
+	EventInfo eventInfo; // a replica
+
+	ResidentNotifyInfo(void)
+	: logId(INVALID_ACTION_LOG_ID)
+	{
+	}
 };
 
-typedef deque<ResidentQueueInfo> ResidentQueue;
+typedef deque<ActionManager::ResidentNotifyInfo *> ResidentNotifyQueue;
 
 enum ResidentStatus {
 	RESIDENT_STAT_INIT,
@@ -42,14 +48,13 @@ enum ResidentStatus {
 
 struct ResidentInfo : public ResidentPullHelper<ResidentInfo> {
 	ActionManager *actionManager;
-	ResidentQueue queue;
+	MutexLock      queueLock;
+	ResidentNotifyQueue notifyQueue; // should be used with queueLock.
 	NamedPipe pipeRd, pipeWr;
 	string pipeName;
 	ResidentStatus status;
 	string modulePath;
-	EventInfo      eventInfo; // This class has a replica
 	int            actionId;
-	uint64_t       currLogId;
 	
 
 	ResidentInfo(ActionManager *actMgr, const ActionDef &actionDef)
@@ -57,8 +62,7 @@ struct ResidentInfo : public ResidentPullHelper<ResidentInfo> {
 	  pipeRd(NamedPipe::END_TYPE_MASTER_READ),
 	  pipeWr(NamedPipe::END_TYPE_MASTER_WRITE),
 	  status(RESIDENT_STAT_INIT),
-	  actionId(-1),
-	  currLogId(INVALID_ACTION_LOG_ID)
+	  actionId(-1)
 	{
 		pipeName = StringUtils::sprintf("resident-%d", actionDef.id);
 		modulePath = actionDef.path;
@@ -66,6 +70,18 @@ struct ResidentInfo : public ResidentPullHelper<ResidentInfo> {
 		               "moudlePath: %zd, PATH_MAX: %u\n",
 		               modulePath.size(), PATH_MAX);
 		initResidentPullHelper(&pipeRd, this);
+	}
+
+	virtual ~ResidentInfo(void)
+	{
+		queueLock.lock();
+		while (!notifyQueue.empty()) {
+			ActionManager::ResidentNotifyInfo *notifyInfo
+			  = notifyQueue.front();
+			delete notifyInfo;
+			// TODO: log the fact that the notification is deleted
+		}
+		queueLock.unlock();
 	}
 
 	bool init(GIOFunc funcRd, GIOFunc funcWr)
@@ -83,20 +99,20 @@ typedef RunningResidentMap::iterator RunningResidentMapIterator;
 
 struct ActionManager::PrivateContext {
 	static ActorCollector collector;
+	static MutexLock residentMapLock;
+	static RunningResidentMap runningResidentMap;
 
 	// This can only be used on the owner's context (thread),
 	// It's danger to use from a GLIB's event callback context or
 	// other thread, becuase DBClientAction is MT-thread unsafe.
 	DBClientAction dbAction;
 
+	// member for a command line parsing
 	SeparatorCheckerWithCallback separator;
 	bool inQuot;
 	bool byBackSlash;
 	string currWord;
 	StringVector *argVect;
-
-	MutexLock residentLock;
-	RunningResidentMap runningResidentMap;
 
 	PrivateContext(void)
 	: separator(" '\\"),
@@ -124,6 +140,8 @@ struct ActionManager::PrivateContext {
 };
 
 ActorCollector ActionManager::PrivateContext::collector;
+MutexLock          ActionManager::PrivateContext::residentMapLock;
+RunningResidentMap ActionManager::PrivateContext::runningResidentMap;
 
 // ---------------------------------------------------------------------------
 // Public methods
@@ -274,18 +292,31 @@ void ActionManager::execResidentAction(const ActionDef &actionDef,
 {
 	HATOHOL_ASSERT(actionDef.type == ACTION_RESIDENT,
 	               "Invalid type: %d\n", actionDef.type);
-	m_ctx->residentLock.lock();
+	m_ctx->residentMapLock.lock();
 	RunningResidentMapIterator it =
 	   m_ctx->runningResidentMap.find(actionDef.id);
-	if (it == m_ctx->runningResidentMap.end()) {
-		ResidentInfo *residentInfo =
-		  launchResidentActionYard(actionDef, eventInfo, _actorInfo);
-		if (residentInfo)
-			m_ctx->runningResidentMap[actionDef.id] = residentInfo;
-	} else {
-		goToResidentYardEntrance(it->second, actionDef, _actorInfo);
+	if (it != m_ctx->runningResidentMap.end()) {
+		ResidentInfo *residentInfo = it->second;
+		residentInfo->queueLock.lock();
+		m_ctx->residentMapLock.unlock();
+
+		// queue ResidentNotifyInfo and try to notify
+		ResidentNotifyInfo *notifyInfo = new ResidentNotifyInfo();
+		notifyInfo->eventInfo = eventInfo; // just copy
+		residentInfo->notifyQueue.push_back(notifyInfo);
+		residentInfo->queueLock.unlock();
+		tryNotifyEvent(residentInfo);
+
+		// TODO: fill _actorInfo
+		return;
 	}
-	m_ctx->residentLock.unlock();
+
+	// make a new resident instance
+	ResidentInfo *residentInfo =
+	  launchResidentActionYard(actionDef, eventInfo, _actorInfo);
+	if (residentInfo)
+		m_ctx->runningResidentMap[actionDef.id] = residentInfo;
+	m_ctx->residentMapLock.unlock();
 }
 
 gboolean ActionManager::residentReadErrCb(
@@ -361,7 +392,7 @@ void ActionManager::moduleLoadedCb
 		return;
 	}
 
-	obj->notifyEvent(residentInfo, residentInfo->currLogId);
+	obj->tryNotifyEvent(residentInfo);
 }
 
 void ActionManager::gotNotifyEventAckCb(GIOStatus stat, SmartBuffer &sbuf,
@@ -387,10 +418,13 @@ void ActionManager::gotNotifyEventAckCb(GIOStatus stat, SmartBuffer &sbuf,
 	uint32_t resultCode = *sbuf.getPointer<uint32_t>();
 
 	// log the end of action
-	HATOHOL_ASSERT(residentInfo->currLogId != INVALID_ACTION_LOG_ID,
-	               "log ID: %"PRIx64, residentInfo->currLogId);
+	// TODO: A ResidentNotifyInfo instance should be the argument
+	//       of this function.
+	ResidentNotifyInfo *notifyInfo = residentInfo->notifyQueue.front();
+	HATOHOL_ASSERT(notifyInfo->logId != INVALID_ACTION_LOG_ID,
+	               "log ID: %"PRIx64, notifyInfo->logId);
 	DBClientAction::LogEndExecActionArg logArg;
-	logArg.logId = residentInfo->currLogId;
+	logArg.logId = notifyInfo->logId;
 	logArg.status = DBClientAction::ACTLOG_STAT_SUCCEEDED,
 	logArg.exitCode = resultCode;
 
@@ -408,9 +442,6 @@ void ActionManager::sendParameters(ResidentInfo *residentInfo)
 	comm.push(residentInfo->pipeWr);
 }
 
-//
-// The folloing functions shall be called with the lock of m_ctx->residentLock
-//
 ResidentInfo *ActionManager::launchResidentActionYard
   (const ActionDef &actionDef, const EventInfo &eventInfo, ActorInfo *actorInfo)
 {
@@ -430,32 +461,36 @@ ResidentInfo *ActionManager::launchResidentActionYard
 		return NULL;
 	}
 
-	residentInfo->eventInfo = eventInfo;
-	residentInfo->actionId  = actionDef.id;
-	residentInfo->currLogId = actorInfo->logId;
+	// We can push the notifyInfo to the queue without locking,
+	// because no other users of this instance at this point.
+	ResidentNotifyInfo *notifyInfo = new ResidentNotifyInfo();
+	notifyInfo->logId = actorInfo->logId;
+	notifyInfo->eventInfo = eventInfo;
+	residentInfo->notifyQueue.push_back(notifyInfo);
+
+	residentInfo->actionId = actionDef.id;
 	residentInfo->status = RESIDENT_STAT_WAIT_LAUNCHED;
 	residentInfo->pullHeader(launchedCb);
 	return residentInfo;
 }
 
-void ActionManager::goToResidentYardEntrance(
-  ResidentInfo *residentInfo, const ActionDef &actionDef, ActorInfo *actorInfo)
+void ActionManager::tryNotifyEvent(ResidentInfo *residentInfo)
 {
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
-	ResidentQueueInfo residentQueueInfo;
-	residentInfo->queue.push_back(residentQueueInfo);
-	if (residentInfo->queue.empty())
-		notifyEvent(residentInfo);
-
-	// When the queue is not empty, the queued action will be started.
-	// The trigger is the end notification of the current resident action.
+	residentInfo->queueLock.lock();
+	ResidentNotifyInfo *notifyInfo = NULL;
+	if (!residentInfo->notifyQueue.empty())
+		notifyInfo = residentInfo->notifyQueue.front();
+	residentInfo->queueLock.unlock();
+	if (notifyInfo)
+		notifyEvent(residentInfo, notifyInfo);
 }
 
-void ActionManager::notifyEvent(ResidentInfo *residentInfo, uint64_t logId)
+void ActionManager::notifyEvent(ResidentInfo *residentInfo,
+                                ResidentNotifyInfo *notifyInfo)
 {
 	ResidentCommunicator comm;
 	comm.setNotifyEventBody(residentInfo->actionId,
-	                        residentInfo->eventInfo);
+	                        notifyInfo->eventInfo);
 	comm.push(residentInfo->pipeWr);
 
 	// wait for result code
@@ -465,9 +500,9 @@ void ActionManager::notifyEvent(ResidentInfo *residentInfo, uint64_t logId)
 
 	// create or update an action log
 	DBClientAction dbAction;
-	if (logId != INVALID_ACTION_LOG_ID) {
+	if (notifyInfo->logId != INVALID_ACTION_LOG_ID) {
 		// This condition happens only when the first notification.
-		dbAction.updateLogStatusToStart(logId);
+		dbAction.updateLogStatusToStart(notifyInfo->logId);
 	} else {
 		MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
 	}

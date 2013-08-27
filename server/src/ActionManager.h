@@ -32,6 +32,8 @@ private:
 	struct PrivateContext;
 
 public:
+	struct ResidentNotifyInfo;
+
 	ActionManager(void);
 	virtual ~ActionManager();
 	void checkEvents(const EventInfoList &eventList);
@@ -94,24 +96,30 @@ protected:
 	ResidentInfo *launchResidentActionYard(const ActionDef &actionDef,
 	                                       const EventInfo &eventInfo,
 	                                       ActorInfo *actorInfo);
-	void goToResidentYardEntrance(ResidentInfo *residentInfo,
-	                              const ActionDef &actionDef,
-	                              ActorInfo *actorInfo);
+	/**
+	 * notify hatohol-resident-yard of a event only when it is idle and
+	 * there is at least one element in residentInfo->notifyQueue.
+	 * Othewise the request is processed later.
+	 *
+	 * @param residentInfo A residentInfo instance.
+	 */
+	void tryNotifyEvent(ResidentInfo *residentInfo);
 
 	/**
-	 * notify event to the resident.
+	 * notify hatohol-resident-yaevent of a event at the top of notifyQueue.
+	 * NOTE: This function is assumed to be called only from
+	 * tryNotifyEvent().
 	 *
-	 * @param residentInfo.
-	 * A residentInfo instance. The members: 'actionId' and 'eventInfo'
-	 * have to be set correctly.
+	 * @param residentInfo A residentInfo instance.
 	 *
-	 * @param logId.
-	 * If this parameter is INVALID_ACTION_LOG_ID, the new log record
-	 * is created. Otherwise the record with it will be updated.
-	 *
+	 * @param notifyInfo.
+	 * A ResidentNotifyInfo instance. If the member: logId is
+	 * INVALID_ACTION_LOG_ID, the new log record is created.
+	 * Otherwise the record with it will be updated.
 	 */
 	void notifyEvent(ResidentInfo *residentInfo,
-	                 uint64_t logId = INVALID_ACTION_LOG_ID);
+	                 ResidentNotifyInfo *notifyInfo);
+
 	void closeResident(ResidentInfo *residentInfo);
 
 private:
