@@ -197,9 +197,23 @@ public:
 	void addAction(ActionDef &actionDef);
 	void getActionList(const EventInfo &eventInfo,
 	                   ActionDefList &actionDefList);
+	/**
+	 * make an action log record.
+	 *
+	 * @param actionDef
+	 * A reference of ActionDef.
+	 *
+	 * @param failureCode
+	 * A failure code. This is typically set when the execution of 
+	 * action fails. In the normal case in which the action is still
+	 * running, ACTLOG_EXECFAIL_NONE should be set.
+	 *
+	 * @return a created action log ID.
+	 */
 	uint64_t logStartExecAction
 	  (const ActionDef &actionDef,
 	   ActionLogExecFailureCode failureCode = ACTLOG_EXECFAIL_NONE);
+
 	void logEndExecAction(const LogEndExecActionArg &logArg);
 
 	/**
