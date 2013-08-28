@@ -97,6 +97,8 @@ struct ResidentInfo :
 			delete notifyInfo;
 		}
 		queueLock.unlock();
+
+		// TODO: kill the hatohol-resident-yard
 	}
 
 	bool init(GIOFunc funcRd, GIOFunc funcWr)
