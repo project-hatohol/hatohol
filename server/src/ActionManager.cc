@@ -55,21 +55,20 @@ enum ResidentStatus {
 struct ResidentInfo :
    public ResidentPullHelper<ActionManager::ResidentNotifyInfo> {
 	ActionManager *actionManager;
+	const int      actionId;
 	MutexLock      queueLock;
 	ResidentNotifyQueue notifyQueue; // should be used with queueLock.
 	NamedPipe pipeRd, pipeWr;
 	string pipeName;
 	ResidentStatus status;
 	string modulePath;
-	int            actionId;
-	
 
 	ResidentInfo(ActionManager *actMgr, const ActionDef &actionDef)
 	: actionManager(actMgr),
+	  actionId(actionDef.id),
 	  pipeRd(NamedPipe::END_TYPE_MASTER_READ),
 	  pipeWr(NamedPipe::END_TYPE_MASTER_WRITE),
-	  status(RESIDENT_STAT_INIT),
-	  actionId(-1)
+	  status(RESIDENT_STAT_INIT)
 	{
 		pipeName = StringUtils::sprintf("resident-%d", actionDef.id);
 		modulePath = actionDef.path;
@@ -480,7 +479,6 @@ ResidentInfo *ActionManager::launchResidentActionYard
 	notifyInfo->eventInfo = eventInfo;
 	residentInfo->notifyQueue.push_back(notifyInfo);
 
-	residentInfo->actionId = actionDef.id;
 	residentInfo->status = RESIDENT_STAT_WAIT_LAUNCHED;
 	residentInfo->setPullCallbackArg(notifyInfo);
 	residentInfo->pullHeader(launchedCb);
