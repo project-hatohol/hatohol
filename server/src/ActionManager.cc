@@ -28,12 +28,15 @@
 
 using namespace std;
 
+struct ResidentInfo;
 struct ActionManager::ResidentNotifyInfo {
+	ResidentInfo *residentInfo;
 	uint64_t  logId;
 	EventInfo eventInfo; // a replica
 
-	ResidentNotifyInfo(void)
-	: logId(INVALID_ACTION_LOG_ID)
+	ResidentNotifyInfo(ResidentInfo *_residentInfo)
+	: residentInfo(_residentInfo),
+	  logId(INVALID_ACTION_LOG_ID)
 	{
 	}
 };
@@ -46,7 +49,8 @@ enum ResidentStatus {
 	RESIDENT_STAT_WAIT_PARAM_ACK,
 };
 
-struct ResidentInfo : public ResidentPullHelper<ResidentInfo> {
+struct ResidentInfo :
+   public ResidentPullHelper<ActionManager::ResidentNotifyInfo> {
 	ActionManager *actionManager;
 	MutexLock      queueLock;
 	ResidentNotifyQueue notifyQueue; // should be used with queueLock.
@@ -69,7 +73,7 @@ struct ResidentInfo : public ResidentPullHelper<ResidentInfo> {
 		HATOHOL_ASSERT(modulePath.size() < PATH_MAX,
 		               "moudlePath: %zd, PATH_MAX: %u\n",
 		               modulePath.size(), PATH_MAX);
-		initResidentPullHelper(&pipeRd, this);
+		initResidentPullHelper(&pipeRd, NULL);
 	}
 
 	virtual ~ResidentInfo(void)
@@ -304,7 +308,8 @@ void ActionManager::execResidentAction(const ActionDef &actionDef,
 		m_ctx->residentMapLock.unlock();
 
 		// queue ResidentNotifyInfo and try to notify
-		ResidentNotifyInfo *notifyInfo = new ResidentNotifyInfo();
+		ResidentNotifyInfo *notifyInfo =
+		   new ResidentNotifyInfo(residentInfo);
 		notifyInfo->eventInfo = eventInfo; // just copy
 		residentInfo->notifyQueue.push_back(notifyInfo);
 		residentInfo->queueLock.unlock();
@@ -347,8 +352,9 @@ gboolean ActionManager::residentWriteErrCb(
 }
 
 void ActionManager::launchedCb(GIOStatus stat, mlpl::SmartBuffer &sbuf,
-                               size_t size, ResidentInfo *residentInfo)
+                               size_t size, ResidentNotifyInfo *notifyInfo)
 {
+	ResidentInfo *residentInfo = notifyInfo->residentInfo;
 	ActionManager *obj = residentInfo->actionManager;
 	if (stat != G_IO_STATUS_NORMAL) {
 		MLPL_ERR("Error: status: %x\n", stat);
@@ -378,9 +384,10 @@ void ActionManager::launchedCb(GIOStatus stat, mlpl::SmartBuffer &sbuf,
 	residentInfo->status = RESIDENT_STAT_WAIT_PARAM_ACK;
 }
 
-void ActionManager::moduleLoadedCb
-  (GIOStatus stat, SmartBuffer &sbuf, size_t size, ResidentInfo *residentInfo)
+void ActionManager::moduleLoadedCb(GIOStatus stat, SmartBuffer &sbuf,
+                                   size_t size, ResidentNotifyInfo *notifyInfo)
 {
+	ResidentInfo *residentInfo = notifyInfo->residentInfo;
 	ActionManager *obj = residentInfo->actionManager;
 	if (stat != G_IO_STATUS_NORMAL) {
 		MLPL_ERR("Error: status: %x\n", stat);
@@ -399,8 +406,10 @@ void ActionManager::moduleLoadedCb
 }
 
 void ActionManager::gotNotifyEventAckCb(GIOStatus stat, SmartBuffer &sbuf,
-                                        size_t size, ResidentInfo *residentInfo)
+                                        size_t size,
+                                        ResidentNotifyInfo *notifyInfo)
 {
+	ResidentInfo *residentInfo = notifyInfo->residentInfo;
 	ActionManager *obj = residentInfo->actionManager;
 	if (stat != G_IO_STATUS_NORMAL) {
 		MLPL_ERR("Error: status: %x\n", stat);
@@ -421,9 +430,6 @@ void ActionManager::gotNotifyEventAckCb(GIOStatus stat, SmartBuffer &sbuf,
 	uint32_t resultCode = *sbuf.getPointer<uint32_t>();
 
 	// log the end of action
-	// TODO: A ResidentNotifyInfo instance should be the argument
-	//       of this function.
-	ResidentNotifyInfo *notifyInfo = residentInfo->notifyQueue.front();
 	HATOHOL_ASSERT(notifyInfo->logId != INVALID_ACTION_LOG_ID,
 	               "log ID: %"PRIx64, notifyInfo->logId);
 	DBClientAction::LogEndExecActionArg logArg;
@@ -466,13 +472,14 @@ ResidentInfo *ActionManager::launchResidentActionYard
 
 	// We can push the notifyInfo to the queue without locking,
 	// because no other users of this instance at this point.
-	ResidentNotifyInfo *notifyInfo = new ResidentNotifyInfo();
+	ResidentNotifyInfo *notifyInfo = new ResidentNotifyInfo(residentInfo);
 	notifyInfo->logId = actorInfo->logId;
 	notifyInfo->eventInfo = eventInfo;
 	residentInfo->notifyQueue.push_back(notifyInfo);
 
 	residentInfo->actionId = actionDef.id;
 	residentInfo->status = RESIDENT_STAT_WAIT_LAUNCHED;
+	residentInfo->setPullCallbackArg(notifyInfo);
 	residentInfo->pullHeader(launchedCb);
 	return residentInfo;
 }
@@ -497,6 +504,7 @@ void ActionManager::notifyEvent(ResidentInfo *residentInfo,
 	comm.push(residentInfo->pipeWr);
 
 	// wait for result code
+	residentInfo->setPullCallbackArg(notifyInfo);
 	residentInfo->pullData(RESIDENT_PROTO_HEADER_LEN +
 	                       RESIDENT_PROTO_EVENT_ACK_CODE_LEN,
 	                       gotNotifyEventAckCb);

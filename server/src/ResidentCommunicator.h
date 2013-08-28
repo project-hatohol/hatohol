@@ -97,6 +97,11 @@ public:
 		pullData(RESIDENT_PROTO_HEADER_LEN, cbFunc);
 	}
 
+	void setPullCallbackArg(ArgType *arg)
+	{
+		m_pullCallbackArg = arg;
+	}
+
 protected:
 	void initResidentPullHelper(NamedPipe *pipe, ArgType *arg)
 	{

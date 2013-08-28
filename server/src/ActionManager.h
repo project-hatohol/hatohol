@@ -47,12 +47,12 @@ protected:
 	                                   GIOCondition condition,
 	                                   gpointer data);
 	static void launchedCb(GIOStatus stat, mlpl::SmartBuffer &buf,
-	                       size_t size, ResidentInfo *residentInfo);
+	                       size_t size, ResidentNotifyInfo *notifyInfo);
 	static void moduleLoadedCb(GIOStatus stat, mlpl::SmartBuffer &sbuf,
-	                           size_t size, ResidentInfo *residentInfo);
+	                           size_t size, ResidentNotifyInfo *notifyInfo);
 	static void gotNotifyEventAckCb(GIOStatus stat, mlpl::SmartBuffer &sbuf,
 	                                size_t size,
-	                                ResidentInfo *residentInfo);
+	                                ResidentNotifyInfo *residentInfo);
 	static void sendParameters(ResidentInfo *residentInfo);
 	void runAction(const ActionDef &actionDef, const EventInfo &eventInfo);
 	void makeExecArg(StringVector &argVect, const string &cmd);
