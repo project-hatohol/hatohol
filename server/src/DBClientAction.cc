@@ -488,7 +488,8 @@ void DBClientAction::getActionList(const EventInfo &eventInfo,
 }
 
 uint64_t DBClientAction::logStartExecAction
-  (const ActionDef &actionDef, ActionLogExecFailureCode failureCode)
+  (const ActionDef &actionDef, ActionLogExecFailureCode failureCode,
+   ActionLogStatus initialStatus)
 {
 	VariableItemGroupPtr row;
 	DBAgentInsertArg arg;
@@ -501,19 +502,9 @@ uint64_t DBClientAction::logStartExecAction
 
 	// status
 	ActionLogStatus status;
-	if (failureCode == ACTLOG_EXECFAIL_NONE) {
-		switch (actionDef.type) {
-		case ACTION_COMMAND:
-			status = ACTLOG_STAT_STARTED;
-			break;
-		case ACTION_RESIDENT:
-			status = ACTLOG_STAT_LAUNCHING_RESIDENT;
-			break;
-		default:
-			HATOHOL_ASSERT(false, "Unknown action type: %d\n",
-			               actionDef.type);
-		}
-	} else
+	if (failureCode == ACTLOG_EXECFAIL_NONE)
+		status = initialStatus;
+	else
 		status = ACTLOG_STAT_FAILED;
 	row->ADD_NEW_ITEM(Int, status);
 

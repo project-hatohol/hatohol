@@ -203,16 +203,24 @@ public:
 	 * @param actionDef
 	 * A reference of ActionDef.
 	 *
+	 * @param actionDef
+	 * A reference of ActionDef.
+	 *
 	 * @param failureCode
 	 * A failure code. This is typically set when the execution of 
 	 * action fails. In the normal case in which the action is still
 	 * running, ACTLOG_EXECFAIL_NONE should be set.
 	 *
+	 * @param initialStatus
+	 * A status logged as a initial status. This parameter is valid 
+	 * only when failureCOde is ACTLOG_EXECFAIL_NONE.
+	 *
 	 * @return a created action log ID.
 	 */
 	uint64_t logStartExecAction
 	  (const ActionDef &actionDef,
-	   ActionLogExecFailureCode failureCode = ACTLOG_EXECFAIL_NONE);
+	   ActionLogExecFailureCode failureCode = ACTLOG_EXECFAIL_NONE,
+	   ActionLogStatus initialStatus = ACTLOG_STAT_STARTED);
 
 	void logEndExecAction(const LogEndExecActionArg &logArg);
 

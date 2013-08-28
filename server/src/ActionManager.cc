@@ -291,7 +291,13 @@ bool ActionManager::spawn(const ActionDef &actionDef, ActorInfo *actorInfo,
 		  (actionDef, DBClientAction::ACTLOG_EXECFAIL_EXEC_FAILURE);
 		return false;
 	}
-	actorInfo->logId = m_ctx->dbAction.logStartExecAction(actionDef);
+	DBClientAction::ActionLogStatus initialStatus =
+	  (actionDef.type == ACTION_COMMAND) ?
+	    DBClientAction::ACTLOG_STAT_STARTED :
+	    DBClientAction::ACTLOG_STAT_LAUNCHING_RESIDENT;
+	actorInfo->logId =
+	   m_ctx->dbAction.logStartExecAction(
+	     actionDef, DBClientAction::ACTLOG_EXECFAIL_NONE, initialStatus);
 	m_ctx->collector.addActor(*actorInfo);
 	m_ctx->collector.unlock();
 

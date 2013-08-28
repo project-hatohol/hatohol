@@ -199,11 +199,6 @@ void test_startExecAction(void)
 	DBClientAction dbAction;
 	for (size_t i = 0; i < NUM_TEST_ACTION_DEF; i++) {
 		const ActionDef &actDef = testActionDef[i];
-		uint64_t logId = dbAction.logStartExecAction(actDef);
-		const uint64_t expectedId = i + 1;
-		cppcut_assert_equal(expectedId, logId);
-		string statement = "select * from ";
-		statement += DBClientAction::getTableNameActionLogs();
 		DBClientAction::ActionLogStatus status;
 		if (actDef.type == ACTION_COMMAND)
 			status = DBClientAction::ACTLOG_STAT_STARTED;
@@ -214,6 +209,12 @@ void test_startExecAction(void)
 			status = DBClientAction::ACTLOG_STAT_STARTED;
 			cut_fail("Unknown action type: %d\n", actDef.type);
 		}
+		uint64_t logId = dbAction.logStartExecAction(
+		  actDef, DBClientAction::ACTLOG_EXECFAIL_NONE, status);
+		const uint64_t expectedId = i + 1;
+		cppcut_assert_equal(expectedId, logId);
+		string statement = "select * from ";
+		statement += DBClientAction::getTableNameActionLogs();
 		expect += makeExpectedLogString(actDef, expectedId, status);
 		assertDBContent(dbAction.getDBAgent(), statement, expect);
 	}
