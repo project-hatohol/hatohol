@@ -202,7 +202,7 @@ public:
 	void getActionList(const EventInfo &eventInfo,
 	                   ActionDefList &actionDefList);
 	/**
-	 * make an action log record.
+	 * make an action log.
 	 *
 	 * @param actionDef
 	 * A reference of ActionDef.
