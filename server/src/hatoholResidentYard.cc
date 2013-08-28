@@ -68,6 +68,9 @@ static gboolean writePipeCb
 	return TRUE;
 }
 
+static void eventCb(GIOStatus stat, SmartBuffer &sbuf, size_t size,
+                    PrivateContext *ctx);
+
 static void gotNotifyEventBodyCb(GIOStatus stat, mlpl::SmartBuffer &sbuf,
                                  size_t size, PrivateContext *ctx)
 {
@@ -88,6 +91,9 @@ static void gotNotifyEventBodyCb(GIOStatus stat, mlpl::SmartBuffer &sbuf,
 	ResidentCommunicator comm;
 	comm.setNotifyEventAck(resultCode);
 	comm.push(ctx->pipeWr);
+
+	// request to get the envet
+	ctx->pullHeader(eventCb);
 }
 
 static void eventCb(GIOStatus stat, SmartBuffer &sbuf, size_t size,

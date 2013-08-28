@@ -50,25 +50,29 @@ enum ResidentStatus {
 	RESIDENT_STAT_INIT,
 	RESIDENT_STAT_WAIT_LAUNCHED,
 	RESIDENT_STAT_WAIT_PARAM_ACK,
+	RESIDENT_STAT_WAIT_NOTIFY_ACK,
+	RESIDENT_STAT_IDLE,
 };
 
 struct ResidentInfo :
    public ResidentPullHelper<ActionManager::ResidentNotifyInfo> {
 	ActionManager *actionManager;
 	const int      actionId;
-	MutexLock      queueLock;
+
+	MutexLock           queueLock;
 	ResidentNotifyQueue notifyQueue; // should be used with queueLock.
+	ResidentStatus      status;      // should be used with queueLock.
+
 	NamedPipe pipeRd, pipeWr;
 	string pipeName;
-	ResidentStatus status;
 	string modulePath;
 
 	ResidentInfo(ActionManager *actMgr, const ActionDef &actionDef)
 	: actionManager(actMgr),
 	  actionId(actionDef.id),
+	  status(RESIDENT_STAT_INIT),
 	  pipeRd(NamedPipe::END_TYPE_MASTER_READ),
-	  pipeWr(NamedPipe::END_TYPE_MASTER_WRITE),
-	  status(RESIDENT_STAT_INIT)
+	  pipeWr(NamedPipe::END_TYPE_MASTER_WRITE)
 	{
 		pipeName = StringUtils::sprintf("resident-%d", actionDef.id);
 		modulePath = actionDef.path;
@@ -102,6 +106,13 @@ struct ResidentInfo :
 		return true;
 	}
 
+	void setStatus(ResidentStatus stat)
+	{
+		queueLock.lock();
+		status = stat;
+		queueLock.unlock();
+	}
+
 	void deleteFrontNotifyInfo(void)
 	{
 		queueLock.lock();
@@ -109,6 +120,8 @@ struct ResidentInfo :
 		ActionManager::ResidentNotifyInfo *notifyInfo
 		   = notifyQueue.front();
 		notifyQueue.pop_front();
+		if (notifyQueue.empty())
+			status = RESIDENT_STAT_IDLE;
 		queueLock.unlock();
 
 		delete notifyInfo;
@@ -395,7 +408,7 @@ void ActionManager::launchedCb(GIOStatus stat, mlpl::SmartBuffer &sbuf,
 
 	sendParameters(residentInfo);
 	residentInfo->pullHeader(moduleLoadedCb);
-	residentInfo->status = RESIDENT_STAT_WAIT_PARAM_ACK;
+	residentInfo->setStatus(RESIDENT_STAT_WAIT_PARAM_ACK);
 }
 
 void ActionManager::moduleLoadedCb(GIOStatus stat, SmartBuffer &sbuf,
@@ -416,6 +429,7 @@ void ActionManager::moduleLoadedCb(GIOStatus stat, SmartBuffer &sbuf,
 		return;
 	}
 
+	residentInfo->setStatus(RESIDENT_STAT_IDLE);
 	obj->tryNotifyEvent(residentInfo);
 }
 
@@ -497,7 +511,10 @@ ResidentInfo *ActionManager::launchResidentActionYard
 	notifyInfo->eventInfo = eventInfo;
 	residentInfo->notifyQueue.push_back(notifyInfo);
 
+	// We don't use setStatus() because this fucntion is called with
+	// taking queueLock. Using it causes a deadlock.
 	residentInfo->status = RESIDENT_STAT_WAIT_LAUNCHED;
+
 	residentInfo->setPullCallbackArg(notifyInfo);
 	residentInfo->pullHeader(launchedCb);
 	return residentInfo;
@@ -507,8 +524,14 @@ void ActionManager::tryNotifyEvent(ResidentInfo *residentInfo)
 {
 	residentInfo->queueLock.lock();
 	ResidentNotifyInfo *notifyInfo = NULL;
-	if (!residentInfo->notifyQueue.empty())
+	if (residentInfo->status != RESIDENT_STAT_IDLE) {
+		residentInfo->queueLock.unlock();
+		return;
+	}
+	if (!residentInfo->notifyQueue.empty()) {
 		notifyInfo = residentInfo->notifyQueue.front();
+		residentInfo->status = RESIDENT_STAT_WAIT_NOTIFY_ACK;
+	}
 	residentInfo->queueLock.unlock();
 	if (notifyInfo)
 		notifyEvent(residentInfo, notifyInfo);
