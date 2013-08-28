@@ -325,7 +325,7 @@ void ActionManager::execCommandAction(const ActionDef &actionDef,
 	if (!spawn(actionDef, &actorInfo, argv))
 		return;
 	if (_actorInfo)
-		memcpy(_actorInfo, &actorInfo, sizeof(ActorInfo));
+		*_actorInfo = actorInfo;
 }
 
 void ActionManager::execResidentAction(const ActionDef &actionDef,
@@ -371,7 +371,7 @@ void ActionManager::execResidentAction(const ActionDef &actionDef,
 		m_ctx->runningResidentMap[actionDef.id] = residentInfo;
 	m_ctx->residentMapLock.unlock();
 	if (_actorInfo)
-		memcpy(_actorInfo, &actorInfo, sizeof(ActorInfo));
+		*_actorInfo = actorInfo;
 }
 
 gboolean ActionManager::residentReadErrCb(
