@@ -300,25 +300,14 @@ void _assertActionLogAfterEnding(ExecCommandContext *ctx)
 #define assertActionLogAfterEnding(CTX) \
 cut_trace(_assertActionLogAfterEnding(CTX))
 
-void _assertActionLogAfterExecResident(ExecCommandContext *ctx,
-                                       bool firstTime = true)
+void _assertActionLogAfterExecResident(
+  ExecCommandContext *ctx, uint32_t expectedNullFlags,
+  DBClientAction::ActionLogStatus currStatus,
+  DBClientAction::ActionLogStatus newStatus)
 {
-	uint32_t expectedNullFlags = ACTLOG_FLAG_QUEUING_TIME;
-	if (firstTime) {
-		expectedNullFlags |=
-		  (ACTLOG_FLAG_END_TIME | ACTLOG_FLAG_EXIT_CODE);
-	}
-
 	// check the action log after the actor is terminated
 	ctx->timerTag = g_timeout_add(ctx->timeout, timeoutHandler, ctx);
 	ctx->loop = g_main_loop_new(NULL, TRUE);
-
-	DBClientAction::ActionLogStatus currStatus = firstTime ?
-	    DBClientAction::ACTLOG_STAT_LAUNCHING_RESIDENT :
-	    DBClientAction::ACTLOG_STAT_STARTED;
-	DBClientAction::ActionLogStatus newStatus = firstTime ?
-	    DBClientAction::ACTLOG_STAT_STARTED :
-	    DBClientAction::ACTLOG_STAT_SUCCEEDED;
 
 	while (true) {
 		// ActionManager updates the aciton log in the wake of GLIB's
@@ -342,7 +331,7 @@ void _assertActionLogAfterExecResident(ExecCommandContext *ctx,
 		  NOTIFY_EVENT_ACK_OK, /* exitCode */
 		  expectedNullFlags /* nullFlags */);
 
-		if (!firstTime)
+		if (newStatus == DBClientAction::ACTLOG_STAT_SUCCEEDED)
 			break;
 
 		if (currStatus == DBClientAction::ACTLOG_STAT_STARTED)
@@ -389,7 +378,13 @@ void test_execResidentAction(void)
 	ExecCommandContext *ctx = g_execCommandCtx; // just an alias
 
 	assertExecAction(ctx, 0x4ab3fd32, ACTION_RESIDENT);
-	assertActionLogAfterExecResident(ctx);
+
+	uint32_t expectedNullFlags =
+	  ACTLOG_FLAG_QUEUING_TIME|ACTLOG_FLAG_END_TIME|ACTLOG_FLAG_EXIT_CODE;
+	assertActionLogAfterExecResident(
+	  ctx, expectedNullFlags,
+	  DBClientAction::ACTLOG_STAT_LAUNCHING_RESIDENT,
+	  DBClientAction::ACTLOG_STAT_STARTED);
 }
 
 void test_execResidentActionManyEvents(void)
@@ -397,10 +392,28 @@ void test_execResidentActionManyEvents(void)
 	g_execCommandCtx = new ExecCommandContext();
 	ExecCommandContext *ctx = g_execCommandCtx; // just an alias
 
+	uint32_t expectedNullFlags;
+	DBClientAction::ActionLogStatus currStatus;
+	DBClientAction::ActionLogStatus newStatus;
 	for (size_t i = 0; i < 3; i++) {
-		bool firstTime = i == 0;
+		if (i == 0) {
+			expectedNullFlags =
+			  ACTLOG_FLAG_QUEUING_TIME|ACTLOG_FLAG_END_TIME|
+			  ACTLOG_FLAG_EXIT_CODE;
+			currStatus =
+			  DBClientAction::ACTLOG_STAT_LAUNCHING_RESIDENT;
+			newStatus =
+			  DBClientAction::ACTLOG_STAT_STARTED;
+		} else {
+			expectedNullFlags = ACTLOG_FLAG_QUEUING_TIME;
+			currStatus =
+			  DBClientAction::ACTLOG_STAT_STARTED;
+			newStatus =
+			  DBClientAction::ACTLOG_STAT_SUCCEEDED;
+		}
 		assertExecAction(ctx, 0x4ab3fd32, ACTION_RESIDENT);
-		assertActionLogAfterExecResident(ctx, firstTime);
+		assertActionLogAfterExecResident(ctx, expectedNullFlags,
+		                                 currStatus, newStatus);
 	}
 }
 
