@@ -364,11 +364,14 @@ void ActionManager::execResidentAction(const ActionDef &actionDef,
 	}
 
 	// make a new resident instance
+	ActorInfo actorInfo;
 	ResidentInfo *residentInfo =
-	  launchResidentActionYard(actionDef, eventInfo, _actorInfo);
+	  launchResidentActionYard(actionDef, eventInfo, &actorInfo);
 	if (residentInfo)
 		m_ctx->runningResidentMap[actionDef.id] = residentInfo;
 	m_ctx->residentMapLock.unlock();
+	if (_actorInfo)
+		memcpy(_actorInfo, &actorInfo, sizeof(ActorInfo));
 }
 
 gboolean ActionManager::residentReadErrCb(
