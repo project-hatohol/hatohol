@@ -209,7 +209,7 @@ void test_startExecAction(void)
 			status = DBClientAction::ACTLOG_STAT_STARTED;
 			cut_fail("Unknown action type: %d\n", actDef.type);
 		}
-		uint64_t logId = dbAction.logStartExecAction(
+		uint64_t logId = dbAction.createActionLog(
 		  actDef, DBClientAction::ACTLOG_EXECFAIL_NONE, status);
 		const uint64_t expectedId = i + 1;
 		cppcut_assert_equal(expectedId, logId);
@@ -227,7 +227,7 @@ void test_startExecActionWithExecFailure(void)
 	size_t targetIdx = 1;
 	const ActionDef &actDef = testActionDef[targetIdx];
 	uint64_t logId =
-	   dbAction.logStartExecAction(actDef,
+	   dbAction.createActionLog(actDef,
 	     DBClientAction::ACTLOG_EXECFAIL_EXEC_FAILURE);
 	const uint64_t expectedId = 1;
 	cppcut_assert_equal(expectedId, logId);

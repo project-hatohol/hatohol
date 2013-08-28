@@ -487,7 +487,7 @@ void DBClientAction::getActionList(const EventInfo &eventInfo,
 	}
 }
 
-uint64_t DBClientAction::logStartExecAction
+uint64_t DBClientAction::createActionLog
   (const ActionDef &actionDef, ActionLogExecFailureCode failureCode,
    ActionLogStatus initialStatus)
 {

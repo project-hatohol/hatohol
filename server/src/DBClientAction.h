@@ -221,7 +221,7 @@ public:
 	 *
 	 * @return a created action log ID.
 	 */
-	uint64_t logStartExecAction
+	uint64_t createActionLog
 	  (const ActionDef &actionDef,
 	   ActionLogExecFailureCode failureCode = ACTLOG_EXECFAIL_NONE,
 	   ActionLogStatus initialStatus = ACTLOG_STAT_STARTED);

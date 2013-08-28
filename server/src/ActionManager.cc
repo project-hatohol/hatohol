@@ -289,7 +289,7 @@ bool ActionManager::spawn(const ActionDef &actionDef, ActorInfo *actorInfo,
 		  error->message, actionDef.id);
 		g_error_free(error);
 		MLPL_ERR("%s\n", msg.c_str());
-		m_ctx->dbAction.logStartExecAction
+		m_ctx->dbAction.createActionLog
 		  (actionDef, DBClientAction::ACTLOG_EXECFAIL_EXEC_FAILURE);
 		return false;
 	}
@@ -298,7 +298,7 @@ bool ActionManager::spawn(const ActionDef &actionDef, ActorInfo *actorInfo,
 	    DBClientAction::ACTLOG_STAT_STARTED :
 	    DBClientAction::ACTLOG_STAT_LAUNCHING_RESIDENT;
 	actorInfo->logId =
-	   m_ctx->dbAction.logStartExecAction(
+	   m_ctx->dbAction.createActionLog(
 	     actionDef, DBClientAction::ACTLOG_EXECFAIL_NONE, initialStatus);
 	m_ctx->collector.addActor(*actorInfo);
 	m_ctx->collector.unlock();
@@ -348,7 +348,7 @@ void ActionManager::execResidentAction(const ActionDef &actionDef,
 		   new ResidentNotifyInfo(residentInfo);
 		notifyInfo->eventInfo = eventInfo; // just copy
 		notifyInfo->logId =
-		   m_ctx->dbAction.logStartExecAction(
+		   m_ctx->dbAction.createActionLog(
 		     actionDef, DBClientAction::ACTLOG_EXECFAIL_NONE,
 		     DBClientAction::ACTLOG_STAT_RESIDENT_QUEUING);
 
