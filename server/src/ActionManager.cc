@@ -57,7 +57,7 @@ enum ResidentStatus {
 struct ResidentInfo :
    public ResidentPullHelper<ActionManager::ResidentNotifyInfo> {
 	ActionManager *actionManager;
-	const int      actionId;
+	const ActionDef actionDef;
 
 	MutexLock           queueLock;
 	ResidentNotifyQueue notifyQueue; // should be used with queueLock.
@@ -67,9 +67,9 @@ struct ResidentInfo :
 	string pipeName;
 	string modulePath;
 
-	ResidentInfo(ActionManager *actMgr, const ActionDef &actionDef)
+	ResidentInfo(ActionManager *actMgr, const ActionDef &_actionDef)
 	: actionManager(actMgr),
-	  actionId(actionDef.id),
+	  actionDef(_actionDef),
 	  status(RESIDENT_STAT_INIT),
 	  pipeRd(NamedPipe::END_TYPE_MASTER_READ),
 	  pipeWr(NamedPipe::END_TYPE_MASTER_WRITE)
@@ -541,7 +541,7 @@ void ActionManager::notifyEvent(ResidentInfo *residentInfo,
                                 ResidentNotifyInfo *notifyInfo)
 {
 	ResidentCommunicator comm;
-	comm.setNotifyEventBody(residentInfo->actionId,
+	comm.setNotifyEventBody(residentInfo->actionDef.id,
 	                        notifyInfo->eventInfo);
 	comm.push(residentInfo->pipeWr);
 
@@ -557,7 +557,8 @@ void ActionManager::notifyEvent(ResidentInfo *residentInfo,
 		// This condition happens only when the first notification.
 		dbAction.updateLogStatusToStart(notifyInfo->logId);
 	} else {
-		MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+		notifyInfo->logId =
+		  dbAction.logStartExecAction(residentInfo->actionDef);
 	}
 }
 
