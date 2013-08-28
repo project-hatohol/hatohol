@@ -410,7 +410,8 @@ void test_execResidentActionManyEvents(void)
 	uint32_t expectedNullFlags;
 	DBClientAction::ActionLogStatus currStatus;
 	DBClientAction::ActionLogStatus newStatus;
-	for (size_t i = 0; i < 3; i++) {
+	size_t numEvents = 10;
+	for (size_t i = 0; i < numEvents; i++) {
 		setExpectedValueForResidentManyEvents(i, expectedNullFlags,
 		                                      currStatus, newStatus);
 		assertExecAction(ctx, 0x4ab3fd32, ACTION_RESIDENT);
@@ -425,7 +426,7 @@ void test_execResidentActionManyEventsGenThenCheckLog(void)
 	ExecCommandContext *ctx = g_execCommandCtx; // just an alias
 
 	vector<ActorInfo> actorVect;
-	size_t numEvents = 3;
+	size_t numEvents = 10;
 	for (size_t i = 0; i < numEvents; i++) {
 		assertExecAction(ctx, 0x4ab3fd32, ACTION_RESIDENT);
 		actorVect.push_back(ctx->actorInfo);
