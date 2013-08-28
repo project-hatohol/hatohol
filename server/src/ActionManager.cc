@@ -124,8 +124,6 @@ struct ResidentInfo :
 		ActionManager::ResidentNotifyInfo *notifyInfo
 		   = notifyQueue.front();
 		notifyQueue.pop_front();
-		//if (notifyQueue.empty())
-		//	status = RESIDENT_STAT_IDLE;
 		queueLock.unlock();
 
 		delete notifyInfo;
