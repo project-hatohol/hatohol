@@ -368,7 +368,7 @@ void test_execCommandAction(void)
 	assertActionLogAfterEnding(ctx);
 }
 
-void test_execResidenAction(void)
+void test_execResidentAction(void)
 {
 	g_execCommandCtx = new ExecCommandContext();
 	ExecCommandContext *ctx = g_execCommandCtx; // just an alias
@@ -377,7 +377,7 @@ void test_execResidenAction(void)
 	assertActionLogAfterExecResident(ctx);
 }
 
-void test_execResidenActionManyEvents(void)
+void test_execResidentActionManyEvents(void)
 {
 	g_execCommandCtx = new ExecCommandContext();
 	ExecCommandContext *ctx = g_execCommandCtx; // just an alias
