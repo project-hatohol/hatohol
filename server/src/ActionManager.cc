@@ -101,6 +101,18 @@ struct ResidentInfo :
 			return false;
 		return true;
 	}
+
+	void deleteFrontNotifyInfo(void)
+	{
+		queueLock.lock();
+		HATOHOL_ASSERT(!notifyQueue.empty(), "Queue is empty.");
+		ActionManager::ResidentNotifyInfo *notifyInfo
+		   = notifyQueue.front();
+		notifyQueue.pop_front();
+		queueLock.unlock();
+
+		delete notifyInfo;
+	}
 };
 
 typedef map<int, ResidentInfo *>     RunningResidentMap;
@@ -441,6 +453,12 @@ void ActionManager::gotNotifyEventAckCb(GIOStatus stat, SmartBuffer &sbuf,
 
 	DBClientAction dbAction;
 	dbAction.logEndExecAction(logArg);
+
+	// remove the notifyInfo 
+	residentInfo->deleteFrontNotifyInfo();
+
+	// send the next notificaiton if it exists
+	obj->tryNotifyEvent(residentInfo);
 }
 
 void ActionManager::sendParameters(ResidentInfo *residentInfo)
