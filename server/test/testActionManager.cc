@@ -208,7 +208,7 @@ static void _assertExecAction(ExecCommandContext *ctx, int id, ActionType type)
 	ctx->actorInfo.pid = 0;
 	if (type == ACTION_COMMAND) {
 		ctx->actDef.path = StringUtils::sprintf(
-		  "%s %s %s", cut_build_path("ActionTp", NULL),
+		  "%s %s %s", cut_build_path(".libs", "ActionTp", NULL),
 		  ctx->writePipe.getPath().c_str(),
 		  ctx->readPipe.getPath().c_str());
 		actMgr.callExecCommandAction(ctx->actDef, &ctx->actorInfo);
