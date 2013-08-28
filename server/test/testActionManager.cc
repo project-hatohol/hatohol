@@ -288,9 +288,11 @@ cut_trace(_assertActionLogAfterEnding(CTX))
 void _assertActionLogAfterExecResident(ExecCommandContext *ctx,
                                        bool firstTime = true)
 {
-	uint32_t expectedNullFlags = 
-	  ACTLOG_FLAG_QUEUING_TIME | ACTLOG_FLAG_END_TIME |
-	  ACTLOG_FLAG_EXIT_CODE;
+	uint32_t expectedNullFlags = ACTLOG_FLAG_QUEUING_TIME;
+	if (firstTime) {
+		expectedNullFlags |=
+		  (ACTLOG_FLAG_END_TIME | ACTLOG_FLAG_EXIT_CODE);
+	}
 
 	// check the action log after the actor is terminated
 	ctx->timerTag = g_timeout_add(ctx->timeout, timeoutHandler, ctx);
