@@ -39,6 +39,9 @@ struct ActionManager::ResidentNotifyInfo {
 	  logId(INVALID_ACTION_LOG_ID)
 	{
 	}
+
+	// TODO: we should add a mechanism to prevent this object from
+	//       being deleted if it is being used.
 };
 
 typedef deque<ActionManager::ResidentNotifyInfo *> ResidentNotifyQueue;
