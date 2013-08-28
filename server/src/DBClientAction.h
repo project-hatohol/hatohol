@@ -163,6 +163,10 @@ public:
 		// until the launching and setup of hatohol-resident-yard
 		// is completed.
 		ACTLOG_STAT_LAUNCHING_RESIDENT,
+
+		// Resident acitons for an actio ID are executed in series
+		// This status is used for waiting actions.
+		ACTLOG_STAT_RESIDENT_QUEUING,
 	};
 
 	enum ActionLogExecFailureCode {

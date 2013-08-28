@@ -58,6 +58,7 @@ struct ResidentInfo :
    public ResidentPullHelper<ActionManager::ResidentNotifyInfo> {
 	ActionManager *actionManager;
 	const ActionDef actionDef;
+	pid_t           pid;
 
 	MutexLock           queueLock;
 	ResidentNotifyQueue notifyQueue; // should be used with queueLock.
@@ -70,6 +71,7 @@ struct ResidentInfo :
 	ResidentInfo(ActionManager *actMgr, const ActionDef &_actionDef)
 	: actionManager(actMgr),
 	  actionDef(_actionDef),
+	  pid(0),
 	  status(RESIDENT_STAT_INIT),
 	  pipeRd(NamedPipe::END_TYPE_MASTER_READ),
 	  pipeWr(NamedPipe::END_TYPE_MASTER_WRITE)
@@ -341,14 +343,23 @@ void ActionManager::execResidentAction(const ActionDef &actionDef,
 		m_ctx->residentMapLock.unlock();
 
 		// queue ResidentNotifyInfo and try to notify
+		DBClientAction dbAction;
 		ResidentNotifyInfo *notifyInfo =
 		   new ResidentNotifyInfo(residentInfo);
 		notifyInfo->eventInfo = eventInfo; // just copy
+		notifyInfo->logId =
+		   m_ctx->dbAction.logStartExecAction(
+		     actionDef, DBClientAction::ACTLOG_EXECFAIL_NONE,
+		     DBClientAction::ACTLOG_STAT_RESIDENT_QUEUING);
+
 		residentInfo->notifyQueue.push_back(notifyInfo);
 		residentInfo->queueLock.unlock();
 		tryNotifyEvent(residentInfo);
 
-		// TODO: fill _actorInfo
+		if (_actorInfo) {
+			_actorInfo->pid = residentInfo->pid;
+			_actorInfo->logId = notifyInfo->logId;
+		}
 		return;
 	}
 
@@ -509,6 +520,7 @@ ResidentInfo *ActionManager::launchResidentActionYard
 		delete residentInfo;
 		return NULL;
 	}
+	residentInfo->pid = actorInfo->pid;
 
 	// We can push the notifyInfo to the queue without locking,
 	// because no other users of this instance at this point.
@@ -559,13 +571,9 @@ void ActionManager::notifyEvent(ResidentInfo *residentInfo,
 
 	// create or update an action log
 	DBClientAction dbAction;
-	if (notifyInfo->logId != INVALID_ACTION_LOG_ID) {
-		// This condition happens only when the first notification.
-		dbAction.updateLogStatusToStart(notifyInfo->logId);
-	} else {
-		notifyInfo->logId =
-		  dbAction.logStartExecAction(residentInfo->actionDef);
-	}
+	HATOHOL_ASSERT(notifyInfo->logId != INVALID_ACTION_LOG_ID,
+	               "An action log ID is not set.");
+	dbAction.updateLogStatusToStart(notifyInfo->logId);
 }
 
 void ActionManager::closeResident(ResidentInfo *residentInfo)
