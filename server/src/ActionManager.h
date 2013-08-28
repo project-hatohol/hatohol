@@ -33,6 +33,7 @@ private:
 
 public:
 	struct ResidentNotifyInfo;
+	static void reset(void);
 
 	ActionManager(void);
 	virtual ~ActionManager();

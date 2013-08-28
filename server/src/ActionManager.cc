@@ -182,6 +182,22 @@ RunningResidentMap ActionManager::PrivateContext::runningResidentMap;
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
+void ActionManager::reset(void)
+{
+	// The following deletion is naturally no effect at the start of
+	// Hatohol. This is mainly for the test in which this function is 
+	// calls many times.
+	PrivateContext::residentMapLock.lock();
+	RunningResidentMapIterator it =
+	   PrivateContext::runningResidentMap.begin();
+	for (; it != PrivateContext::runningResidentMap.end(); ++it) {
+		ResidentInfo *residentInfo = it->second;
+		delete residentInfo;
+	}
+	PrivateContext::runningResidentMap.clear();
+	PrivateContext::residentMapLock.unlock();
+}
+
 ActionManager::ActionManager(void)
 : m_ctx(NULL)
 {

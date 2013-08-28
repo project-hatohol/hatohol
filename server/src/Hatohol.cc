@@ -37,6 +37,7 @@ using namespace mlpl;
 #include "DBClientConfig.h"
 #include "DBClientHatohol.h"
 #include "DBClientZabbix.h"
+#include "ActionManager.h"
 #include "ActorCollector.h"
 #include "DBClientAction.h"
 
@@ -77,6 +78,8 @@ static void reset(void)
 	DBClientConfig::reset();
 	DBClientHatohol::reset();
 	DBClientZabbix::reset();
+
+	ActionManager::reset();
 }
 
 void hatoholInit(void)
