@@ -170,12 +170,27 @@ static void sendQuit(PipeUtils &readPipe, PipeUtils &writePipe, size_t timeout)
 	                    ACTTP_FLAGS_RES & response.flags);
 }
 
+static string getActionLogContent(const ActionLog &actionLog)
+{
+	string str = StringUtils::sprintf(
+	  "ID: %"PRIu64", actionID: %d, status: %d, ",
+	  actionLog.id, actionLog.actionId, actionLog.status);
+	str += StringUtils::sprintf(
+	  "queuingTime: %d, startTime: %d, endTime: %d,",
+	  actionLog.queuingTime, actionLog.startTime, actionLog.endTime);
+	str += StringUtils::sprintf(
+	  "failureCode: %d, exitCode: %d",
+	  actionLog.failureCode, actionLog.exitCode);
+	return str;
+}
+
 static void _assertActionLog(
   ActionLog &actionLog,
  uint64_t id, int actionId, int status, int starterId, int queueintTime,
  int startTime, int endTime, int failureCode, int exitCode, uint32_t nullFlags)
 {
-	cppcut_assert_equal(nullFlags,    actionLog.nullFlags);
+	cppcut_assert_equal(nullFlags,    actionLog.nullFlags,
+	  cut_message("%s", getActionLogContent(actionLog).c_str()));
 
 	cppcut_assert_equal(id,           actionLog.id);
 	cppcut_assert_equal(actionId,     actionLog.actionId);
