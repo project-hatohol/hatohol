@@ -341,6 +341,24 @@ void _assertActionLogAfterExecResident(
 #define assertActionLogAfterExecResident(CTX, ...) \
 cut_trace(_assertActionLogAfterExecResident(CTX, ##__VA_ARGS__))
 
+static void setExpectedValueForResidentManyEvents(
+  size_t idx, uint32_t &expectedNullFlags,
+  DBClientAction::ActionLogStatus &currStatus,
+  DBClientAction::ActionLogStatus &newStatus)
+{
+	if (idx == 0) {
+		expectedNullFlags = ACTLOG_FLAG_QUEUING_TIME |
+		                    ACTLOG_FLAG_END_TIME |
+		                    ACTLOG_FLAG_EXIT_CODE;
+		currStatus = DBClientAction::ACTLOG_STAT_LAUNCHING_RESIDENT;
+		newStatus = DBClientAction::ACTLOG_STAT_STARTED;
+	} else {
+		expectedNullFlags = ACTLOG_FLAG_QUEUING_TIME;
+		currStatus = DBClientAction::ACTLOG_STAT_STARTED;
+		newStatus = DBClientAction::ACTLOG_STAT_SUCCEEDED;
+	}
+}
+
 void setup(void)
 {
 	hatoholInit();
@@ -393,21 +411,8 @@ void test_execResidentActionManyEvents(void)
 	DBClientAction::ActionLogStatus currStatus;
 	DBClientAction::ActionLogStatus newStatus;
 	for (size_t i = 0; i < 3; i++) {
-		if (i == 0) {
-			expectedNullFlags =
-			  ACTLOG_FLAG_QUEUING_TIME|ACTLOG_FLAG_END_TIME|
-			  ACTLOG_FLAG_EXIT_CODE;
-			currStatus =
-			  DBClientAction::ACTLOG_STAT_LAUNCHING_RESIDENT;
-			newStatus =
-			  DBClientAction::ACTLOG_STAT_STARTED;
-		} else {
-			expectedNullFlags = ACTLOG_FLAG_QUEUING_TIME;
-			currStatus =
-			  DBClientAction::ACTLOG_STAT_STARTED;
-			newStatus =
-			  DBClientAction::ACTLOG_STAT_SUCCEEDED;
-		}
+		setExpectedValueForResidentManyEvents(i, expectedNullFlags,
+		                                      currStatus, newStatus);
 		assertExecAction(ctx, 0x4ab3fd32, ACTION_RESIDENT);
 		assertActionLogAfterExecResident(ctx, expectedNullFlags,
 		                                 currStatus, newStatus);
@@ -430,21 +435,8 @@ void test_execResidentActionManyEventsGenThenCheckLog(void)
 	DBClientAction::ActionLogStatus currStatus;
 	DBClientAction::ActionLogStatus newStatus;
 	for (size_t i = 0; i < numEvents; i++) {
-		if (i == 0) {
-			expectedNullFlags =
-			  ACTLOG_FLAG_QUEUING_TIME|ACTLOG_FLAG_END_TIME|
-			  ACTLOG_FLAG_EXIT_CODE;
-			currStatus =
-			  DBClientAction::ACTLOG_STAT_LAUNCHING_RESIDENT;
-			newStatus =
-			  DBClientAction::ACTLOG_STAT_STARTED;
-		} else {
-			expectedNullFlags = ACTLOG_FLAG_QUEUING_TIME;
-			currStatus =
-			  DBClientAction::ACTLOG_STAT_STARTED;
-			newStatus =
-			  DBClientAction::ACTLOG_STAT_SUCCEEDED;
-		}
+		setExpectedValueForResidentManyEvents(i, expectedNullFlags,
+		                                      currStatus, newStatus);
 		ctx->actorInfo = actorVect[i];
 		assertActionLogAfterExecResident(ctx, expectedNullFlags,
 		                                 currStatus, newStatus);
