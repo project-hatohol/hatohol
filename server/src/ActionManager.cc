@@ -124,8 +124,8 @@ struct ResidentInfo :
 		ActionManager::ResidentNotifyInfo *notifyInfo
 		   = notifyQueue.front();
 		notifyQueue.pop_front();
-		if (notifyQueue.empty())
-			status = RESIDENT_STAT_IDLE;
+		//if (notifyQueue.empty())
+		//	status = RESIDENT_STAT_IDLE;
 		queueLock.unlock();
 
 		delete notifyInfo;
@@ -510,6 +510,7 @@ void ActionManager::gotNotifyEventAckCb(GIOStatus stat, SmartBuffer &sbuf,
 	residentInfo->deleteFrontNotifyInfo();
 
 	// send the next notificaiton if it exists
+	residentInfo->setStatus(RESIDENT_STAT_IDLE);
 	obj->tryNotifyEvent(residentInfo);
 }
 

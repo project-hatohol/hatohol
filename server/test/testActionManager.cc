@@ -333,9 +333,6 @@ void _assertActionLogAfterExecResident(
 
 		if (newStatus == DBClientAction::ACTLOG_STAT_SUCCEEDED)
 			break;
-
-		if (currStatus == DBClientAction::ACTLOG_STAT_STARTED)
-			break;
 		currStatus = DBClientAction::ACTLOG_STAT_STARTED;
 		newStatus = DBClientAction::ACTLOG_STAT_SUCCEEDED;
 		expectedNullFlags = ACTLOG_FLAG_QUEUING_TIME;
@@ -412,6 +409,43 @@ void test_execResidentActionManyEvents(void)
 			  DBClientAction::ACTLOG_STAT_SUCCEEDED;
 		}
 		assertExecAction(ctx, 0x4ab3fd32, ACTION_RESIDENT);
+		assertActionLogAfterExecResident(ctx, expectedNullFlags,
+		                                 currStatus, newStatus);
+	}
+}
+
+void test_execResidentActionManyEventsGenThenCheckLog(void)
+{
+	g_execCommandCtx = new ExecCommandContext();
+	ExecCommandContext *ctx = g_execCommandCtx; // just an alias
+
+	vector<ActorInfo> actorVect;
+	size_t numEvents = 3;
+	for (size_t i = 0; i < numEvents; i++) {
+		assertExecAction(ctx, 0x4ab3fd32, ACTION_RESIDENT);
+		actorVect.push_back(ctx->actorInfo);
+	}
+
+	uint32_t expectedNullFlags;
+	DBClientAction::ActionLogStatus currStatus;
+	DBClientAction::ActionLogStatus newStatus;
+	for (size_t i = 0; i < numEvents; i++) {
+		if (i == 0) {
+			expectedNullFlags =
+			  ACTLOG_FLAG_QUEUING_TIME|ACTLOG_FLAG_END_TIME|
+			  ACTLOG_FLAG_EXIT_CODE;
+			currStatus =
+			  DBClientAction::ACTLOG_STAT_LAUNCHING_RESIDENT;
+			newStatus =
+			  DBClientAction::ACTLOG_STAT_STARTED;
+		} else {
+			expectedNullFlags = ACTLOG_FLAG_QUEUING_TIME;
+			currStatus =
+			  DBClientAction::ACTLOG_STAT_STARTED;
+			newStatus =
+			  DBClientAction::ACTLOG_STAT_SUCCEEDED;
+		}
+		ctx->actorInfo = actorVect[i];
 		assertActionLogAfterExecResident(ctx, expectedNullFlags,
 		                                 currStatus, newStatus);
 	}
