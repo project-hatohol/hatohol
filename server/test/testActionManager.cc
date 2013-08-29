@@ -267,6 +267,20 @@ void _assertActionLogJustAfterExec(ExecCommandContext *ctx)
 #define assertActionLogJustAfterExec(CTX) \
 cut_trace(_assertActionLogJustAfterExec(CTX))
 
+void _assertWaitForChangeActionLogStatus(
+  ExecCommandContext *ctx, DBClientAction::ActionLogStatus currStatus)
+{
+	do {
+		g_main_iteration(TRUE);
+		cppcut_assert_equal(false, ctx->timedOut);
+		cppcut_assert_equal(
+		  true, ctx->dbAction.getLog(ctx->actionLog,
+		                             ctx->actorInfo.logId));
+	} while (ctx->actionLog.status == currStatus);
+}
+#define assertWaitForChangeActionLogStatus(CTX,STAT) \
+cut_trace(_assertWaitForChangeActionLogStatus(CTX,STAT))
+
 void _assertActionLogAfterEnding(ExecCommandContext *ctx)
 {
 	// check the action log after the actor is terminated
@@ -313,13 +327,7 @@ void _assertActionLogAfterExecResident(
 		// ActionManager updates the aciton log in the wake of GLIB's
 		// events. So we can wait for the log update with
 		// iterations of the loop.
-		while (g_main_iteration(TRUE))
-			cppcut_assert_equal(false, ctx->timedOut);
-		cppcut_assert_equal(
-		  true, ctx->dbAction.getLog(ctx->actionLog,
-		                             ctx->actorInfo.logId));
-		if (ctx->actionLog.status == currStatus)
-			continue;
+		assertWaitForChangeActionLogStatus(ctx, currStatus);
 		assertActionLog(
 		  ctx->actionLog, ctx->actorInfo.logId,
 		  ctx->actDef.id, newStatus,
