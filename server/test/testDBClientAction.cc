@@ -42,7 +42,7 @@ static ActionDef testActionDef[] = {
 	), // condition
 	ACTION_COMMAND,    // type
 	"",                // working dir
-	"/bin/hoge",       // path
+	"/bin/hoge",       // command
 	300,               // timeout
 }, {
 	0,                 // id (this filed is ignored)
@@ -58,7 +58,7 @@ static ActionDef testActionDef[] = {
 	), // condition
 	ACTION_COMMAND,    // type
 	"/home/%%\"'@#!()+-~<>?:;",  // working dir
-	"/usr/libexec/w",  // path
+	"/usr/libexec/w",  // command
 	30,                // timeout
 }, {
 	0,                 // id (this filed is ignored)
@@ -75,7 +75,7 @@ static ActionDef testActionDef[] = {
 	), // condition
 	ACTION_RESIDENT,   // type
 	"/tmp",            // working dir
-	"/usr/lib/liba.so",// path
+	"/usr/lib/liba.so",// command
 	60,                // timeout
 },
 };
@@ -109,7 +109,7 @@ static string makeExpectedString(const ActionDef &actDef, int expectedId)
 	            StringUtils::sprintf("%d|", cond.triggerSeverityCompType) :
 	            DBCONTENT_MAGIC_NULL "|";
 	expect += StringUtils::sprintf("%d|%s|%s|%d\n",
-	                               actDef.type, actDef.path.c_str(),
+	                               actDef.type, actDef.command.c_str(),
 	                               actDef.workingDir.c_str(),
 	                               actDef.timeout);
 	return expect;

@@ -344,7 +344,7 @@ void ActionManager::execCommandAction(const ActionDef &actionDef,
 	HATOHOL_ASSERT(actionDef.type == ACTION_COMMAND,
 	               "Invalid type: %d\n", actionDef.type);
 	StringVector argVect;
-	makeExecArg(argVect, actionDef.path);
+	makeExecArg(argVect, actionDef.command);
 	// TODO: check the result of the parse
 
 	const gchar *argv[argVect.size()+1];
@@ -529,7 +529,7 @@ void ActionManager::gotNotifyEventAckCb(GIOStatus stat, SmartBuffer &sbuf,
 
 void ActionManager::sendParameters(ResidentInfo *residentInfo)
 {
-	parseResidentCommand(residentInfo->actionDef.path,
+	parseResidentCommand(residentInfo->actionDef.command,
 	                     residentInfo->modulePath,
 	                     residentInfo->moduleOption);
 	size_t bodyLen = RESIDENT_PROTO_PARAM_MODULE_PATH_LEN

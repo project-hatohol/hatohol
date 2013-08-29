@@ -96,7 +96,20 @@ struct ActionDef {
 	ActionCondition condition;
 	ActionType  type;
 	std::string workingDir;
-	std::string path;
+
+	//
+	// [Command type action]
+	// path and command line options:
+	// Ex.) /usr/bin/foo -l -o 'IYH... oooo' ABC
+	//
+	// [Resident type action]
+	// module path and options.
+	// Ex.) /usr/lib/foo.so -l -o 'IYH... oooo' ABC
+	//
+	// Note: A string: "-l -o 'IYH... oooo' ABC" is passed as an
+	// argument of module's init() function.
+	//
+	std::string command;
 	int         timeout; // in sec
 };
 

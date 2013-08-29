@@ -228,13 +228,13 @@ static void _assertExecAction(ExecCommandContext *ctx, int id, ActionType type)
 	TestActionManager actMgr;
 	ctx->actorInfo.pid = 0;
 	if (type == ACTION_COMMAND) {
-		ctx->actDef.path = StringUtils::sprintf(
+		ctx->actDef.command = StringUtils::sprintf(
 		  "%s %s %s", cut_build_path(".libs", "ActionTp", NULL),
 		  ctx->writePipe.getPath().c_str(),
 		  ctx->readPipe.getPath().c_str());
 		actMgr.callExecCommandAction(ctx->actDef, &ctx->actorInfo);
 	} else if (type == ACTION_RESIDENT) {
-		ctx->actDef.path =
+		ctx->actDef.command =
 		  cut_build_path(".libs", "residentTest.so", NULL);
 		actMgr.callExecResidentAction(ctx->actDef, &ctx->actorInfo);
 	} else {

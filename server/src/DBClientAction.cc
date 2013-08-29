@@ -134,7 +134,7 @@ static const ColumnDef COLUMN_DEF_ACTIONS[] = {
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
 	TABLE_NAME_ACTIONS,                // tableName
-	"path",                            // columnName
+	"command",                         // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
 	255,                               // columnLength
 	0,                                 // decFracLength
@@ -179,7 +179,7 @@ enum {
 	IDX_ACTIONS_TRIGGER_SEVERITY,
 	IDX_ACTIONS_TRIGGER_SEVERITY_COMP_TYPE,
 	IDX_ACTIONS_ACTION_TYPE,
-	IDX_ACTIONS_PATH,
+	IDX_ACTIONS_COMMAND,
 	IDX_ACTIONS_WORKING_DIR,
 	IDX_ACTIONS_TIMEOUT,
 	NUM_IDX_ACTIONS,
@@ -393,7 +393,7 @@ void DBClientAction::addAction(ActionDef &actionDef)
 	row->ADD_NEW_ITEM(Int, actionDef.condition.triggerSeverityCompType,
 	                  getNullFlag(actionDef, ACTCOND_TRIGGER_SEVERITY));
 	row->ADD_NEW_ITEM(Int, actionDef.type);
-	row->ADD_NEW_ITEM(String, actionDef.path);
+	row->ADD_NEW_ITEM(String, actionDef.command);
 	row->ADD_NEW_ITEM(String, actionDef.workingDir);
 	row->ADD_NEW_ITEM(Int, actionDef.timeout);
 
@@ -422,7 +422,7 @@ void DBClientAction::getActionList(const EventInfo &eventInfo,
 	  COLUMN_DEF_ACTIONS[IDX_ACTIONS_TRIGGER_SEVERITY_COMP_TYPE]);
 
 	arg.pushColumn(COLUMN_DEF_ACTIONS[IDX_ACTIONS_ACTION_TYPE]);
-	arg.pushColumn(COLUMN_DEF_ACTIONS[IDX_ACTIONS_PATH]);
+	arg.pushColumn(COLUMN_DEF_ACTIONS[IDX_ACTIONS_COMMAND]);
 	arg.pushColumn(COLUMN_DEF_ACTIONS[IDX_ACTIONS_WORKING_DIR]);
 	arg.pushColumn(COLUMN_DEF_ACTIONS[IDX_ACTIONS_TIMEOUT]);
 
@@ -481,7 +481,7 @@ void DBClientAction::getActionList(const EventInfo &eventInfo,
 
 		actionDef.type =
 		   static_cast<ActionType>(GET_INT_FROM_GRP(itemGroup, idx++));
-		actionDef.path       = GET_STRING_FROM_GRP(itemGroup, idx++);
+		actionDef.command    = GET_STRING_FROM_GRP(itemGroup, idx++);
 		actionDef.workingDir = GET_STRING_FROM_GRP(itemGroup, idx++);
 		actionDef.timeout    = GET_INT_FROM_GRP(itemGroup, idx++);
 	}
