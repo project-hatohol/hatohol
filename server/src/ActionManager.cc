@@ -306,8 +306,8 @@ bool ActionManager::spawn(const ActionDef &actionDef, ActorInfo *actorInfo,
 		  error->message, actionDef.id);
 		g_error_free(error);
 		MLPL_ERR("%s\n", msg.c_str());
-		m_ctx->dbAction.createActionLog
-		  (actionDef, DBClientAction::ACTLOG_EXECFAIL_EXEC_FAILURE);
+		m_ctx->dbAction.createActionLog(
+		  actionDef, DBClientAction::ACTLOG_EXECFAIL_EXEC_FAILURE);
 		return false;
 	}
 	DBClientAction::ActionLogStatus initialStatus =
