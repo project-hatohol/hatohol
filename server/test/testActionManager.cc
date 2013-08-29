@@ -290,14 +290,8 @@ void _assertActionLogAfterEnding(ExecCommandContext *ctx)
 		// ActionCollector updates the aciton log in the wake of GLIB's
 		// events. So we can wait for the log update with
 		// iterations of the loop.
-		while (g_main_iteration(TRUE))
-			cppcut_assert_equal(false, ctx->timedOut);
-		cppcut_assert_equal(
-		  true, ctx->dbAction.getLog(ctx->actionLog,
-		                             ctx->actorInfo.logId));
-		if (ctx->actionLog.status ==
-		    DBClientAction::ACTLOG_STAT_STARTED)
-			continue;
+		assertWaitForChangeActionLogStatus(
+		  ctx, DBClientAction::ACTLOG_STAT_STARTED);
 		assertActionLog(
 		  ctx->actionLog, ctx->actorInfo.logId,
 		  ctx->actDef.id, DBClientAction::ACTLOG_STAT_SUCCEEDED,
