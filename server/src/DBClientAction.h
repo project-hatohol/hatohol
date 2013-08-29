@@ -108,6 +108,7 @@ struct ActionDef {
 	//
 	// Note: A string: "-l -o 'IYH... oooo' ABC" is passed as an
 	// argument of module's init() function.
+	// Ref: struct ResidentModule in ResidentProtocol.h
 	//
 	std::string command;
 	int         timeout; // in sec
