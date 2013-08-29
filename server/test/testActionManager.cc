@@ -489,6 +489,21 @@ static void _assertMakeExecArgs(const string &cmdLine,
 #define assertMakeExecArgs(CMD_LINE, FIRST, ...) \
 cut_trace(_assertMakeExecArgs(CMD_LINE, FIRST, ##__VA_ARGS__))
 
+static void _assertResidentCommand(const string &expectedPath,
+                                   const string &expectedOption,
+                                   const char *format)
+{
+	TestActionManager actMgr;
+	string path, option;
+	string command = StringUtils::sprintf(
+	  format, expectedPath.c_str(), expectedOption.c_str());
+	actMgr.callParseResidentCommand(command, path, option);
+	cppcut_assert_equal(expectedPath, path);
+	cppcut_assert_equal(expectedOption, option);
+}
+#define assertResidentCommand(PATH, OPT, FMT) \
+cut_trace(_assertResidentCommand(PATH, OPT, FMT))
+
 void setup(void)
 {
 	static bool initDone = false;
@@ -544,15 +559,7 @@ void test_makeExecArgSimpleBackslashInQuot(void)
 
 void test_parseResidentCommand(void)
 {
-	TestActionManager actMgr;
-	string path, option;
-	string expectedPath = "/usr/lib/foo.so.1";
-	string expectedOption = "foo goo";
-	string command = StringUtils::sprintf(
-	  "%s %s", expectedPath.c_str(), expectedOption.c_str());
-	actMgr.callParseResidentCommand(command, path, option);
-	cppcut_assert_equal(expectedPath, path);
-	cppcut_assert_equal(expectedOption, option);
+	assertResidentCommand("/usr/lib/foo.so.1", "foo goo", "%s %s");
 }
 
 } // namespace testActionManagerWithoutDB
