@@ -562,4 +562,14 @@ void test_parseResidentCommand(void)
 	assertResidentCommand("/usr/lib/foo.so.1", "foo goo", "%s %s");
 }
 
+void test_parseResidentCommandNoOption(void)
+{
+	assertResidentCommand("/usr/lib/foo.so.1", "", "%s %s");
+}
+
+void test_parseResidentCommandSpaces(void)
+{
+	assertResidentCommand("/usr/lib/foo.so.1", "foo  goo", "%s   %s  ");
+}
+
 } // namespace testActionManagerWithoutDB
