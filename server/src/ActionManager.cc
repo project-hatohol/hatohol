@@ -78,7 +78,6 @@ struct ResidentInfo :
 	  pipeWr(NamedPipe::END_TYPE_MASTER_WRITE)
 	{
 		pipeName = StringUtils::sprintf("resident-%d", actionDef.id);
-		modulePath = actionDef.path;
 		HATOHOL_ASSERT(modulePath.size() < PATH_MAX,
 		               "moudlePath: %zd, PATH_MAX: %u\n",
 		               modulePath.size(), PATH_MAX);
@@ -275,6 +274,21 @@ void ActionManager::makeExecArg(StringVector &argVect, const string &cmd)
 		m_ctx->byBackSlash = false;
 	}
 	m_ctx->pushbackCurrWord();
+}
+
+void ActionManager::parseResidentCommand(
+  const string &command, string &path, string &option)
+{
+	size_t posSpace = command.find(' ');
+	if (posSpace == string::npos) {
+		path = command;
+		option.clear();
+		return;
+	}
+	
+	path = string(command, 0, posSpace);
+	string optionRaw = string(command, posSpace);
+	option = StringUtils::stripBothEndsSpaces(optionRaw);
 }
 
 bool ActionManager::spawn(const ActionDef &actionDef, ActorInfo *actorInfo,
@@ -515,6 +529,9 @@ void ActionManager::gotNotifyEventAckCb(GIOStatus stat, SmartBuffer &sbuf,
 
 void ActionManager::sendParameters(ResidentInfo *residentInfo)
 {
+	parseResidentCommand(residentInfo->actionDef.path,
+	                     residentInfo->modulePath,
+	                     residentInfo->moduleOption);
 	size_t bodyLen = RESIDENT_PROTO_PARAM_MODULE_PATH_LEN
 	                 + residentInfo->modulePath.size()
 	                 + RESIDENT_PROTO_PARAM_MODULE_OPTION_LEN

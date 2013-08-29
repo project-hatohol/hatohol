@@ -57,6 +57,8 @@ protected:
 	static void sendParameters(ResidentInfo *residentInfo);
 	void runAction(const ActionDef &actionDef, const EventInfo &eventInfo);
 	void makeExecArg(StringVector &argVect, const string &cmd);
+	static void parseResidentCommand(
+	  const string &command, string &path, string &option);
 	bool spawn(const ActionDef &actionDef, ActorInfo *actorInfo,
 	           const gchar **argv);
 

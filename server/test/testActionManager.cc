@@ -38,6 +38,12 @@ public:
 		makeExecArg(vect, command);
 	}
 
+	void callParseResidentCommand(const string &command,
+	                               string &path, string &option)
+	{
+		parseResidentCommand(command, path, option);
+	}
+
 	void callExecCommandAction(const ActionDef &actionDef,
 	                           ActorInfo *actorInfo = NULL)
 	{
@@ -534,6 +540,19 @@ void test_makeExecArgSimpleQuot(void)
 void test_makeExecArgSimpleBackslashInQuot(void)
 {
 	assertMakeExecArgs("'\\ABC'", "ABC", NULL);
+}
+
+void test_parseResidentCommand(void)
+{
+	TestActionManager actMgr;
+	string path, option;
+	string expectedPath = "/usr/lib/foo.so.1";
+	string expectedOption = "foo goo";
+	string command = StringUtils::sprintf(
+	  "%s %s", expectedPath.c_str(), expectedOption.c_str());
+	actMgr.callParseResidentCommand(command, path, option);
+	cppcut_assert_equal(expectedPath, path);
+	cppcut_assert_equal(expectedOption, option);
 }
 
 } // namespace testActionManagerWithoutDB
