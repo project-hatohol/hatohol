@@ -76,6 +76,14 @@ void ResidentCommunicator::addModulePath(const string &modulePath)
 	m_ctx->sbuf.incIndex(len);
 }
 
+void ResidentCommunicator::addModuleOption(const std::string &moduleOption)
+{
+	size_t len = moduleOption.size();
+	m_ctx->sbuf.add16(len);
+	memcpy(m_ctx->sbuf.getPointer<void>(), moduleOption.c_str(), len);
+	m_ctx->sbuf.incIndex(len);
+}
+
 void ResidentCommunicator::setNotifyEventBody(
   int actionId, const EventInfo &eventInfo)
 {

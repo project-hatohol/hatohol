@@ -139,10 +139,14 @@ static void getParametersBodyCb(GIOStatus stat, mlpl::SmartBuffer &sbuf,
 		return;
 	}
 
-	// length of the module path
+	// Get the module path and the option
 	uint16_t modulePathLen = *sbuf.getPointerAndIncIndex<uint16_t>();
 	string modulePath(sbuf.getPointer<char>(), modulePathLen);
 	sbuf.incIndex(modulePathLen);
+
+	uint16_t moduleOptionLen = *sbuf.getPointerAndIncIndex<uint16_t>();
+	string moduleOption(sbuf.getPointer<char>(), moduleOptionLen);
+	sbuf.incIndex(moduleOptionLen);
 
 	// open the module
 	ctx->moduleHandle = dlopen(modulePath.c_str(), RTLD_LAZY);
@@ -172,6 +176,19 @@ static void getParametersBodyCb(GIOStatus stat, mlpl::SmartBuffer &sbuf,
 		         ctx->module->moduleVersion, RESIDENT_MODULE_VERSION);
 		requestQuit(ctx);
 		return;
+	}
+
+	// check init
+	if (ctx->module->init) {
+		uint32_t result = (*ctx->module->init)(moduleOption.c_str());
+		if (result != INIT_OK) {
+			MLPL_ERR("Failed to initialize: %"PRIu32"\n", result);
+			requestQuit(ctx);
+			return;
+		}
+	} else if (!moduleOption.empty()) {
+		MLPL_WARN("Init. handler is NULL, but module option is "
+		          "specified: %s\n", moduleOption.c_str());
 	}
 
 	// check functions

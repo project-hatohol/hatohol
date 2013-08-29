@@ -43,6 +43,7 @@ public:
 	void setHeader(uint32_t bodySize, uint16_t type);
 	void push(NamedPipe &namedPipe);
 	void addModulePath(const std::string &modulePath);
+	void addModuleOption(const std::string &moduleOption);
 	void setNotifyEventBody(int actionId, const EventInfo &eventInfo);
 	void setNotifyEventAck(uint32_t resuletCode);
 

@@ -26,6 +26,7 @@ static uint32_t notifyEvent(ResidentNotifyEventArg *arg)
 
 struct ResidentModule RESIDENT_MODULE_SYMBOL = {
 	RESIDENT_MODULE_VERSION, /* moduleVersion */
-	notifyEvent,
+	NULL,                    // init
+	notifyEvent,             // notifyEvent 
 };
 

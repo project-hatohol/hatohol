@@ -67,6 +67,7 @@ struct ResidentInfo :
 	NamedPipe pipeRd, pipeWr;
 	string pipeName;
 	string modulePath;
+	string moduleOption;
 
 	ResidentInfo(ActionManager *actMgr, const ActionDef &_actionDef)
 	: actionManager(actMgr),
@@ -515,10 +516,13 @@ void ActionManager::gotNotifyEventAckCb(GIOStatus stat, SmartBuffer &sbuf,
 void ActionManager::sendParameters(ResidentInfo *residentInfo)
 {
 	size_t bodyLen = RESIDENT_PROTO_PARAM_MODULE_PATH_LEN
-	                 + residentInfo->modulePath.size();
+	                 + residentInfo->modulePath.size()
+	                 + RESIDENT_PROTO_PARAM_MODULE_OPTION_LEN
+	                 + residentInfo->moduleOption.size();
 	ResidentCommunicator comm;
 	comm.setHeader(bodyLen, RESIDENT_PROTO_PKT_TYPE_PARAMETERS);
 	comm.addModulePath(residentInfo->modulePath);
+	comm.addModuleOption(residentInfo->moduleOption);
 	comm.push(residentInfo->pipeWr);
 }
 

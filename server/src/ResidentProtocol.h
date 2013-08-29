@@ -64,8 +64,12 @@ static const size_t RESIDENT_PROTO_HEADER_LEN =
 // Bytes: Description
 //    2U: Length of module path.
 //     V: packet type defined in the above. (Not include a NULL terminator)
+//    2U: Module option.
+//     V: A option string. (Not include a NULL terminator)
+//        This is passed as a 'arg' of init() of the module.
 
 static const size_t RESIDENT_PROTO_PARAM_MODULE_PATH_LEN = 2;
+static const size_t RESIDENT_PROTO_PARAM_MODULE_OPTION_LEN = 2;
 
 // [Module loaded notify]
 // Direction: Slave -> Master
@@ -142,10 +146,13 @@ struct ResidentNotifyEventArg {
 
 struct ResidentModule {
 	uint16_t moduleVersion;
+	uint32_t (*init)(const char *arg);
 	uint32_t (*notifyEvent)(ResidentNotifyEventArg *arg);
 };
 
 enum {
+	INIT_OK,
+	INIT_ERROR,
 	NOTIFY_EVENT_ACK_OK,
 };
 
