@@ -123,7 +123,6 @@ static bool dispatch(PipeUtils &readPipe, PipeUtils &writePipe, int &retCode)
 
 int main(int argc, char *argv[])
 {
-	bool residentMode = false;
 	PipeUtils readPipe, writePipe;
 	if (argc < 3) {
 		printUsage();
@@ -131,11 +130,6 @@ int main(int argc, char *argv[])
 	}
 	int pipePathIdx = 1;
 	for (int i = 1; i < argc; i++) {
-		if (string("--resident") == argv[i]) {
-			residentMode = true;
-			pipePathIdx++;
-			continue;
-		}
 		g_argList.push_back(argv[i]);
 	}
 
