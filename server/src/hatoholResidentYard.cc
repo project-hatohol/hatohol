@@ -181,7 +181,7 @@ static void getParametersBodyCb(GIOStatus stat, mlpl::SmartBuffer &sbuf,
 	// check init
 	if (ctx->module->init) {
 		uint32_t result = (*ctx->module->init)(moduleOption.c_str());
-		if (result != INIT_OK) {
+		if (result != RESIDENT_MOD_INIT_OK) {
 			MLPL_ERR("Failed to initialize: %"PRIu32"\n", result);
 			requestQuit(ctx);
 			return;

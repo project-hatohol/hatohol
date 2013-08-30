@@ -336,7 +336,7 @@ void _assertActionLogAfterExecResident(
 		  CURR_DATETIME, /* startTime */
 		  CURR_DATETIME, /* endTime */
 		  DBClientAction::ACTLOG_EXECFAIL_NONE, /* failureCode */
-		  NOTIFY_EVENT_ACK_OK, /* exitCode */
+		  RESIDENT_MOD_NOTIFY_EVENT_ACK_OK, /* exitCode */
 		  expectedNullFlags /* nullFlags */);
 
 		if (newStatus == DBClientAction::ACTLOG_STAT_SUCCEEDED)

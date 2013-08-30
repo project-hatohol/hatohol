@@ -21,7 +21,7 @@
 
 static uint32_t notifyEvent(ResidentNotifyEventArg *arg)
 {
-	return NOTIFY_EVENT_ACK_OK;
+	return RESIDENT_MOD_NOTIFY_EVENT_ACK_OK;
 }
 
 struct ResidentModule RESIDENT_MODULE_SYMBOL = {

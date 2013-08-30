@@ -151,9 +151,9 @@ struct ResidentModule {
 };
 
 enum {
-	INIT_OK,
-	INIT_ERROR,
-	NOTIFY_EVENT_ACK_OK,
+	RESIDENT_MOD_INIT_OK,
+	RESIDENT_MOD_INIT_ERROR,
+	RESIDENT_MOD_NOTIFY_EVENT_ACK_OK,
 };
 
 #endif // ResidentProtocol_h
