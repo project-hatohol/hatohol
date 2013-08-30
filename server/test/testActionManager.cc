@@ -29,6 +29,10 @@
 #include "SmartBuffer.h"
 #include "ActionTp.h"
 #include "ResidentProtocol.h"
+#include "ResidentCommunicator.h"
+#include "NamedPipe.h"
+#include "residentTest.h"
+#include "DBClientTest.h"
 
 class TestActionManager : public ActionManager
 {
@@ -52,16 +56,16 @@ public:
 	}
 
 	void callExecResidentAction(const ActionDef &actionDef,
+	                            const EventInfo &eventInfo,
 	                            ActorInfo *actorInfo = NULL)
 	{
-		EventInfo eventInfo;
 		execResidentAction(actionDef, eventInfo, actorInfo);
 	}
 };
 
 namespace testActionManager {
 
-struct ExecCommandContext {
+struct ExecCommandContext : public ResidentPullHelper<ExecCommandContext> {
 	pid_t actionTpPid;
 	GMainLoop *loop;
 	bool timedOut;
@@ -72,13 +76,21 @@ struct ExecCommandContext {
 	ActionLog actionLog;
 	DBClientAction dbAction;
 	size_t timeout;
+	NamedPipe pipeRd, pipeWr;
+	bool requestedEventInfo;
+	bool receivedEventInfo;
+	EventInfo eventInfo;
 
 	ExecCommandContext(void)
 	: actionTpPid(0),
 	  loop(NULL),
 	  timedOut(false),
 	  timerTag(0),
-	  timeout(5 * 1000)
+	  timeout(5 * 1000),
+	  pipeRd(NamedPipe::END_TYPE_MASTER_READ),
+	  pipeWr(NamedPipe::END_TYPE_MASTER_WRITE),
+	  requestedEventInfo(false),
+	  receivedEventInfo(false)
 	{
 	}
 
@@ -101,6 +113,21 @@ struct ExecCommandContext {
 
 		if (timerTag)
 			g_source_remove(timerTag);
+	}
+	
+	static gboolean pipeErrCb(GIOChannel *source,
+	                          GIOCondition condition, gpointer data)
+	{
+		cut_fail("pipeError: %s\n",
+		         Utils::getStringFromGIOCondition(condition).c_str());
+		return FALSE;
+	}
+
+	void initPipes(const string &name)
+	{
+		cppcut_assert_equal(true, pipeRd.init(name, pipeErrCb, this));
+		cppcut_assert_equal(true, pipeWr.init(name, pipeErrCb, this));
+		initResidentPullHelper(&pipeRd, this);
 	}
 };
 static ExecCommandContext *g_execCommandCtx = NULL;
@@ -215,7 +242,8 @@ static void _assertActionLog(
 #define assertActionLog(LOG, ID, ACT_ID, STAT, STID, QTIME, STIME, ETIME, FAIL_CODE, EXIT_CODE, NULL_FLAGS) \
 cut_trace(_assertActionLog(LOG, ID, ACT_ID, STAT, STID, QTIME, STIME, ETIME, FAIL_CODE, EXIT_CODE, NULL_FLAGS))
 
-static void _assertExecAction(ExecCommandContext *ctx, int id, ActionType type)
+static void _assertExecAction(ExecCommandContext *ctx, int id, ActionType type,
+                              const string &residentOption = "")
 {
 	// make PIPEs
 	cppcut_assert_equal(true, ctx->readPipe.makeFileInTmpAndOpenForRead());
@@ -236,14 +264,19 @@ static void _assertExecAction(ExecCommandContext *ctx, int id, ActionType type)
 	} else if (type == ACTION_RESIDENT) {
 		ctx->actDef.command =
 		  cut_build_path(".libs", "residentTest.so", NULL);
-		actMgr.callExecResidentAction(ctx->actDef, &ctx->actorInfo);
+		if (!residentOption.empty()) {
+			ctx->actDef.command += " ";
+			ctx->actDef.command += residentOption;
+		}
+		actMgr.callExecResidentAction(ctx->actDef,
+		                              ctx->eventInfo, &ctx->actorInfo);
 	} else {
 		cut_fail("Unknown type: %d\n", type);
 	}
 	ctx->actionTpPid = ctx->actorInfo.pid;
 }
-#define assertExecAction(CTX, ID, TYPE) \
-cut_trace(_assertExecAction(CTX, ID, TYPE))
+#define assertExecAction(CTX, ID, TYPE, ...) \
+cut_trace(_assertExecAction(CTX, ID, TYPE, ##__VA_ARGS__))
 
 void _assertActionLogJustAfterExec(ExecCommandContext *ctx)
 {
@@ -314,10 +347,16 @@ void _assertActionLogAfterEnding(ExecCommandContext *ctx)
 #define assertActionLogAfterEnding(CTX) \
 cut_trace(_assertActionLogAfterEnding(CTX))
 
+typedef void (*ResidentLogStatusChangedCB)(
+  DBClientAction::ActionLogStatus currStatus,
+  DBClientAction::ActionLogStatus newStatus,
+  ExecCommandContext *ctx);
+
 void _assertActionLogAfterExecResident(
   ExecCommandContext *ctx, uint32_t expectedNullFlags,
   DBClientAction::ActionLogStatus currStatus,
-  DBClientAction::ActionLogStatus newStatus)
+  DBClientAction::ActionLogStatus newStatus,
+  ResidentLogStatusChangedCB statusChangedCb = NULL)
 {
 	// check the action log after the actor is terminated
 	ctx->timerTag = g_timeout_add(ctx->timeout, timeoutHandler, ctx);
@@ -338,6 +377,9 @@ void _assertActionLogAfterExecResident(
 		  DBClientAction::ACTLOG_EXECFAIL_NONE, /* failureCode */
 		  RESIDENT_MOD_NOTIFY_EVENT_ACK_OK, /* exitCode */
 		  expectedNullFlags /* nullFlags */);
+
+		if (statusChangedCb)
+			(*statusChangedCb)(currStatus, newStatus, ctx);
 
 		if (newStatus == DBClientAction::ACTLOG_STAT_SUCCEEDED)
 			break;
@@ -366,6 +408,66 @@ static void setExpectedValueForResidentManyEvents(
 		newStatus = DBClientAction::ACTLOG_STAT_SUCCEEDED;
 	}
 }
+
+static void statusChangedCbForArgCheck(
+  DBClientAction::ActionLogStatus currStatus,
+  DBClientAction::ActionLogStatus newStatus,
+  ExecCommandContext *ctx)
+{
+	if (currStatus != DBClientAction::ACTLOG_STAT_STARTED)
+		return;
+	if (ctx->requestedEventInfo)
+		return;
+	
+	ResidentCommunicator comm;
+	comm.setHeader(0, RESIDENT_TEST_CMD_GET_EVENT_INFO);
+	comm.push(ctx->pipeWr); 
+	ctx->requestedEventInfo = true;
+}
+
+static void replyEventInfoCb(GIOStatus stat, mlpl::SmartBuffer &sbuf,
+                             size_t size, ExecCommandContext *ctx)
+{
+	// status
+	cppcut_assert_equal(G_IO_STATUS_NORMAL, stat);
+
+	// packet type
+	static int pktType = ResidentCommunicator::getPacketType(sbuf);
+	cppcut_assert_equal((int)RESIDENT_TEST_REPLY_GET_EVENT_INFO, pktType);
+
+	// get event information
+	sbuf.resetIndex();
+	sbuf.incIndex(RESIDENT_PROTO_HEADER_LEN);
+	ResidentNotifyEventArg *eventArg = 
+	  sbuf.getPointer<ResidentNotifyEventArg>();
+	cppcut_assert_equal(ctx->actDef.id, (int)eventArg->actionId);
+
+	// check each component
+	const EventInfo &expected = ctx->eventInfo;
+	cppcut_assert_equal(expected.serverId, eventArg->serverId);
+	cppcut_assert_equal(expected.hostId, eventArg->hostId);
+	cppcut_assert_equal(expected.time.tv_sec, eventArg->time.tv_sec);
+	cppcut_assert_equal(expected.time.tv_nsec, eventArg->time.tv_nsec);
+	cppcut_assert_equal(expected.id, eventArg->eventId);
+	cppcut_assert_equal(expected.type, (EventType)eventArg->eventType);
+	cppcut_assert_equal(expected.triggerId, eventArg->triggerId);
+	cppcut_assert_equal(expected.status,
+	                    (TriggerStatusType)eventArg->triggerStatus);
+	cppcut_assert_equal(expected.severity,
+	                    (TriggerSeverityType)eventArg->triggerSeverity);
+
+	// set a flag to exit the loop in _assertWaitEventBody()
+	ctx->receivedEventInfo = true;
+}
+
+static void _assertWaitEventBody(ExecCommandContext *ctx)
+{
+	while (!ctx->receivedEventInfo) {
+		g_main_iteration(TRUE);
+		cppcut_assert_equal(false, ctx->timedOut);
+	}
+}
+#define assertWaitEventBody(CTX) cut_trace(_assertWaitEventBody(CTX))
 
 void setup(void)
 {
@@ -450,6 +552,31 @@ void test_execResidentActionManyEventsGenThenCheckLog(void)
 		assertActionLogAfterExecResident(ctx, expectedNullFlags,
 		                                 currStatus, newStatus);
 	}
+}
+
+void test_execResidentActionCheckArg(void)
+{
+	g_execCommandCtx = new ExecCommandContext();
+	ExecCommandContext *ctx = g_execCommandCtx; // just an alias
+
+	string pipeName = "test-resident-action";
+	string option = "--pipename " + pipeName;
+	ctx->initPipes(pipeName);
+	ctx->pullData(RESIDENT_PROTO_HEADER_LEN +
+	              RESIDENT_TEST_REPLY_GET_EVENT_INFO_BODY_LEN,
+	              replyEventInfoCb);
+	ctx->eventInfo = testEventInfo[0];
+	assertExecAction(ctx, 0x4ab3fd32, ACTION_RESIDENT, option);
+
+	uint32_t expectedNullFlags =
+	  ACTLOG_FLAG_QUEUING_TIME|ACTLOG_FLAG_END_TIME|ACTLOG_FLAG_EXIT_CODE;
+	assertActionLogAfterExecResident(
+	  ctx, expectedNullFlags,
+	  DBClientAction::ACTLOG_STAT_LAUNCHING_RESIDENT,
+	  DBClientAction::ACTLOG_STAT_STARTED,
+	  statusChangedCbForArgCheck);
+
+	assertWaitEventBody(ctx);
 }
 
 // TODO: make tests for the following error cases.

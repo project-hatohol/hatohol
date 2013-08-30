@@ -40,6 +40,7 @@ public:
 	 */
 	static int getPacketType(SmartBuffer &sbuf);
 
+	SmartBuffer &getBuffer(void);
 	void setHeader(uint32_t bodySize, uint16_t type);
 	void push(NamedPipe &namedPipe);
 	void addModulePath(const std::string &modulePath);

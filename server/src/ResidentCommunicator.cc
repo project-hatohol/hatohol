@@ -54,6 +54,11 @@ int ResidentCommunicator::getPacketType(SmartBuffer &sbuf)
 	return *sbuf.getPointer<uint16_t>();
 }
 
+SmartBuffer &ResidentCommunicator::getBuffer(void)
+{
+	return m_ctx->sbuf;
+}
+
 void ResidentCommunicator::setHeader(uint32_t bodySize, uint16_t type)
 {
 	size_t bufSize = RESIDENT_PROTO_HEADER_LEN + bodySize;
