@@ -141,7 +141,6 @@ struct ActionLog {
 struct ExitChildInfo {
 	pid_t pid;
 	int   status;
-	int   exitCode;
 };
 
 enum {

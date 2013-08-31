@@ -144,7 +144,6 @@ void ActorCollector::signalHandlerChild(int signo, siginfo_t *info, void *arg)
 	ExitChildInfo exitChildInfo;
 	exitChildInfo.pid      = info->si_pid;
 	exitChildInfo.status   = info->si_status;
-	exitChildInfo.exitCode = info->si_status;
 	ssize_t ret = write(PrivateContext::pipefd[1],
 	                    &exitChildInfo, sizeof(ExitChildInfo));
 	if (ret == -1) {
@@ -193,7 +192,7 @@ gboolean ActorCollector::checkExitProcess
 	bool found = false;
 	DBClientAction::LogEndExecActionArg logArg;
 	logArg.status = DBClientAction::ACTLOG_STAT_SUCCEEDED;
-	logArg.exitCode = exitChildInfo.exitCode;
+	logArg.exitCode = exitChildInfo.status;
 	lock();
 	WaitChildSetIterator it =
 	   PrivateContext::waitChildSet.find(exitChildInfo.pid);
