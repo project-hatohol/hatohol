@@ -138,12 +138,12 @@ void ActorCollector::signalHandlerChild(int signo, siginfo_t *info, void *arg)
 {
 	// We use write() to notify the reception of SIGCHLD.
 	// because write() is one of the asynchronus SIGNAL safe functions.
-	ChildSigInfo exitChildInfo;
-	exitChildInfo.pid      = info->si_pid;
-	exitChildInfo.code     = info->si_code;
-	exitChildInfo.status   = info->si_status;
+	ChildSigInfo childSigInfo;
+	childSigInfo.pid      = info->si_pid;
+	childSigInfo.code     = info->si_code;
+	childSigInfo.status   = info->si_status;
 	ssize_t ret = write(PrivateContext::pipefd[1],
-	                    &exitChildInfo, sizeof(ChildSigInfo));
+	                    &childSigInfo, sizeof(ChildSigInfo));
 	if (ret == -1) {
 		// We cannot call printf() and other
 		// signal unsafe output function.
@@ -161,11 +161,11 @@ gboolean ActorCollector::checkExitProcess
 	}
 
 	GError *error = NULL;
-	ChildSigInfo exitChildInfo;
+	ChildSigInfo childSigInfo;
 	GIOStatus stat;
 	gsize bytesRead;
-	gsize requestSize = sizeof(exitChildInfo);
-	gchar *buf = reinterpret_cast<gchar *>(&exitChildInfo);
+	gsize requestSize = sizeof(childSigInfo);
+	gchar *buf = reinterpret_cast<gchar *>(&childSigInfo);
 	while (true) {
 		stat = g_io_channel_read_chars(source, buf, requestSize,
 		                               &bytesRead, &error);
@@ -188,17 +188,17 @@ gboolean ActorCollector::checkExitProcess
 	}
 
 	// check the reason of the signal.
-	if (exitChildInfo.code != CLD_EXITED)
+	if (childSigInfo.code != CLD_EXITED)
 		return TRUE;
 
 	// update the action log.
 	bool found = false;
 	DBClientAction::LogEndExecActionArg logArg;
 	logArg.status = DBClientAction::ACTLOG_STAT_SUCCEEDED;
-	logArg.exitCode = exitChildInfo.status;
+	logArg.exitCode = childSigInfo.status;
 	lock();
 	WaitChildSetIterator it =
-	   PrivateContext::waitChildSet.find(exitChildInfo.pid);
+	   PrivateContext::waitChildSet.find(childSigInfo.pid);
 	if (it != PrivateContext::waitChildSet.end()) {
 		found = true;
 		logArg.logId = it->second;
