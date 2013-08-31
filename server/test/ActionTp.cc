@@ -22,9 +22,10 @@
 #include <string>
 #include <vector>
 #include "ActionTp.h"
-#include "PipeUtils.h"
+#include "NamedPipe.h"
 #include "Logger.h"
 #include "SmartBuffer.h"
+#include "ResidentCommunicator.h"
 
 using namespace std;
 using namespace mlpl;
@@ -32,41 +33,63 @@ using namespace mlpl;
 static const int TIMEOUT_MSEC = 5 * 1000;
 static vector<string> g_argList;
 
-typedef bool (*CommandRunner)
-  (PipeUtils &readPipe, PipeUtils &writePipe, int &retCode);
+struct Context : public ResidentPullHelper<Context> {
+	bool exitFlag;
+	int  exitCode;
+	NamedPipe pipeRd, pipeWr;
 
-bool cmdBegin(PipeUtils &readPipe, PipeUtils &writePipe, int &retCode)
+	Context(void)
+	: exitFlag(false),
+	  exitCode(EXIT_FAILURE),
+	  pipeRd(NamedPipe::END_TYPE_SLAVE_READ),
+	  pipeWr(NamedPipe::END_TYPE_SLAVE_WRITE)
+	{
+	}
+
+	static gboolean pipeErrCb(GIOChannel *source,
+	                          GIOCondition condition, gpointer data)
+	{
+		Context *ctx = static_cast<Context *>(data);
+		MLPL_ERR("pipeError: %s\n",
+		         Utils::getStringFromGIOCondition(condition).c_str());
+		ctx->exitFlag = true;
+		return FALSE;
+	}
+
+
+	void initPipes(const string &name)
+	{
+		if (!pipeRd.init(name, pipeErrCb, this)) {
+			exitFlag = true;
+			return;
+		}
+		if (!pipeWr.init(name, pipeErrCb, this)) {
+			exitFlag = true;
+			return;
+		}
+		initResidentPullHelper(&pipeRd, this);
+	}
+};
+
+static bool cmdQuit(SmartBuffer &sbuf, size_t size, Context *ctx)
 {
-	MLPL_ERR("This function must not be called: %s\n", __PRETTY_FUNCTION__);
+	MLPL_INFO("Quit\n");
+	ResidentCommunicator comm;
+	comm.setHeader(0, ACTTP_REPLAY_QUIT);
+	comm.push(ctx->pipeWr); 
+	ctx->exitFlag = true;
+	ctx->exitCode = EXIT_SUCCESS;
 	return false;
 }
 
-bool cmdQuit(PipeUtils &readPipe, PipeUtils &writePipe, int &retCode)
+static bool cmdGetArgList(SmartBuffer &sbuf, size_t size, Context *ctx)
 {
-	MLPL_INFO("Quit\n");
-	ActionTpCommHeader header;
-	header.length = sizeof(header);
-	header.code   = ACTTP_CODE_QUIT;
-	header.flags  = ACTTP_FLAGS_RES;
-	writePipe.send(header.length, &header);
-	retCode = EXIT_SUCCESS;
-	return false; // return false to exit program.
-}
-
-bool cmdGetArgList(PipeUtils &readPipe, PipeUtils &writePipe, int &retCode)
-{
-	SmartBuffer pkt;
-
-	// header
-	ActionTpCommHeader header;
-	// header.length is set later
-	header.code  = ACTTP_CODE_GET_ARG_LIST;
-	header.flags = ACTTP_FLAGS_RES;
-	pkt.addEx(&header, sizeof(header));
+	// make a temporary buffer to store arguemnts
+	SmartBuffer buf;
 
 	// number of args
 	uint16_t numArgs = g_argList.size();
-	pkt.addEx16(numArgs);
+	buf.addEx16(numArgs);
 
 	// add argument strings
 	for (size_t i = 0; i < numArgs; i++) {
@@ -74,57 +97,61 @@ bool cmdGetArgList(PipeUtils &readPipe, PipeUtils &writePipe, int &retCode)
 
 		// length of an argument (not including NULL terminator)
 		uint16_t length = arg.size();
-		pkt.addEx16(length);
+		buf.addEx16(length);
 
 		// add string itself.
-		pkt.addEx(arg.c_str(), length);
+		buf.addEx(arg.c_str(), length);
 	}
+	size_t bufLength = buf.index();
+	size_t bodyLength = ACTTP_ARG_LIST_SIZE_LEN + buf.index();
 
-	// set the length in the header
-	size_t totalLength = pkt.index();
+	// make packet
+	ResidentCommunicator comm;
+	comm.setHeader(bodyLength, ACTTP_REPLY_GET_ARG_LIST);
+	SmartBuffer &pkt = comm.getBuffer();
 	pkt.resetIndex();
-	ActionTpCommHeader *headerPtr = pkt.getPointer<ActionTpCommHeader>();
-	headerPtr->length = totalLength;
+	pkt.incIndex(RESIDENT_PROTO_HEADER_LEN);
+
+	// write body
+	pkt.add16(bufLength);
+	buf.resetIndex();
+	pkt.add(buf.getPointer<void>(), bufLength);
 
 	// send packet
-	return writePipe.send(totalLength, headerPtr);
-}
+	comm.push(ctx->pipeWr); 
 
-static CommandRunner commands[] = {
-	cmdBegin,
-	cmdQuit,
-	cmdGetArgList,
-};
-static const size_t NUM_COMMANDS = sizeof(commands) / sizeof(CommandRunner);
+	return true; // continue
+}
 
 static void printUsage(void)
 {
 	printf("Usage:\n");
 	printf("\n");
-	printf("  $ ActionTp [--resident] pipeFileForRead pipeFileForWrite\n");
+	printf("  $ ActionTp pipeName\n");
 	printf("\n");
 }
 
-static bool dispatch(PipeUtils &readPipe, PipeUtils &writePipe, int &retCode)
+static void dispatch(GIOStatus stat, SmartBuffer &sbuf,
+                     size_t size, Context *ctx)
 {
-	// get command
-	ActionTpCommHeader header;
-	if (!readPipe.recv(sizeof(header), &header, TIMEOUT_MSEC)) {
-		return false;
+	bool continueFlag = false;
+	int pktType = ResidentCommunicator::getPacketType(sbuf);
+	if (pktType == ACTTP_CODE_GET_ARG_LIST) {
+		continueFlag = cmdGetArgList(sbuf, size, ctx);
+	} else if (pktType == ACTTP_CODE_QUIT) {
+		continueFlag = cmdQuit(sbuf, size, ctx);
+	} else  {
+		MLPL_ERR("Unexpected code: %d\n", pktType);
+		ctx->exitFlag = true;
 	}
-
-	if (header.code >= NUM_COMMANDS) {
-		MLPL_ERR("Unexpected code: %d\n", header.code);
-		return false;
-	}
-
-	return (*commands[header.code])(readPipe, writePipe, retCode);
+	if (continueFlag)
+		ctx->pullHeader(dispatch);
 }
 
 int main(int argc, char *argv[])
 {
-	PipeUtils readPipe, writePipe;
-	if (argc < 3) {
+	Context ctx;
+	if (argc < 2) {
 		printUsage();
 		return EXIT_FAILURE;
 	}
@@ -133,27 +160,25 @@ int main(int argc, char *argv[])
 		g_argList.push_back(argv[i]);
 	}
 
-	string readPipePath = argv[pipePathIdx++];
-	if (!readPipe.openForRead(readPipePath))
-		return EXIT_FAILURE;
-
-	string writePipePath = argv[pipePathIdx];
-	if (!writePipe.openForWrite(writePipePath))
-		return EXIT_FAILURE;
+	string pipeName = argv[pipePathIdx++];
+	ctx.initPipes(pipeName);
 
 	// send BEGIN PACKET
 	// NOTE: Exceptionally this command is sent from here as response.
-	ActionTpCommHeader header;
-	header.length = sizeof(header);
-	header.code = ACTTP_CODE_BEGIN;
-	header.flags = ACTTP_FLAGS_RES;
-	if (!writePipe.send(header.length, &header))
-		return EXIT_FAILURE;
+	ResidentCommunicator comm;
+	comm.setHeader(0, ACTTP_CODE_BEGIN);
+	comm.push(ctx.pipeWr); 
+
+	// set callback
+	ctx.pullHeader(dispatch);
 
 	// wait and execute commands
-	int retCode = EXIT_FAILURE;
-	while (dispatch(readPipe, writePipe, retCode))
+	while (!ctx.exitFlag)
+		g_main_iteration(TRUE);
+
+	// handle remaining events
+	while (g_main_iteration(TRUE))
 		;
 
-	return retCode;
+	return ctx.exitCode;
 }

@@ -25,19 +25,12 @@
 enum {
 	ACTTP_CODE_BEGIN,
 	ACTTP_CODE_QUIT,
+	ACTTP_REPLAY_QUIT,
 	ACTTP_CODE_GET_ARG_LIST,
+	ACTTP_REPLY_GET_ARG_LIST,
 };
 
-enum {
-	ACTTP_FLAGS_REQ = (1 << 0),
-	ACTTP_FLAGS_RES = (1 << 1),
-};
-
-struct ActionTpCommHeader {
-	uint32_t length; // includes this member.
-	uint32_t code;   // command code;
-	uint32_t flags;
-};
+static const size_t ACTTP_ARG_LIST_SIZE_LEN = 2;
 
 #endif // ActionTp_h
 

@@ -25,7 +25,6 @@
 #include "Hatohol.h"
 #include "Helpers.h"
 #include "ActionManager.h"
-#include "PipeUtils.h"
 #include "SmartBuffer.h"
 #include "ActionTp.h"
 #include "ResidentProtocol.h"
@@ -70,16 +69,21 @@ struct ExecCommandContext : public ResidentPullHelper<ExecCommandContext> {
 	GMainLoop *loop;
 	bool timedOut;
 	guint timerTag;
-	PipeUtils readPipe, writePipe;
 	ActorInfo actorInfo;
 	ActionDef actDef;
 	ActionLog actionLog;
 	DBClientAction dbAction;
 	size_t timeout;
+	string pipeName;
 	NamedPipe pipeRd, pipeWr;
+	bool expectHup;
 	bool requestedEventInfo;
 	bool receivedEventInfo;
 	EventInfo eventInfo;
+	bool receivedActTpBegin;
+	bool receivedActTpArgList;
+	SmartBuffer argListBuf;
+	bool receivedActTpQuit;
 
 	ExecCommandContext(void)
 	: actionTpPid(0),
@@ -89,8 +93,12 @@ struct ExecCommandContext : public ResidentPullHelper<ExecCommandContext> {
 	  timeout(5 * 1000),
 	  pipeRd(NamedPipe::END_TYPE_MASTER_READ),
 	  pipeWr(NamedPipe::END_TYPE_MASTER_WRITE),
+	  expectHup(false),
 	  requestedEventInfo(false),
-	  receivedEventInfo(false)
+	  receivedEventInfo(false),
+	  receivedActTpBegin(false),
+	  receivedActTpArgList(false),
+	  receivedActTpQuit(false)
 	{
 	}
 
@@ -118,6 +126,14 @@ struct ExecCommandContext : public ResidentPullHelper<ExecCommandContext> {
 	static gboolean pipeErrCb(GIOChannel *source,
 	                          GIOCondition condition, gpointer data)
 	{
+		ExecCommandContext *ctx =
+		  static_cast<ExecCommandContext *>(data);
+		if (ctx->expectHup && condition == G_IO_HUP) {
+			// When FLASE is returned, the error message is
+			// shown on the destructor of NamedPipe due to
+			// a failure of removing event source.
+			return TRUE;
+		}
 		cut_fail("pipeError: %s\n",
 		         Utils::getStringFromGIOCondition(condition).c_str());
 		return FALSE;
@@ -125,6 +141,7 @@ struct ExecCommandContext : public ResidentPullHelper<ExecCommandContext> {
 
 	void initPipes(const string &name)
 	{
+		pipeName = name;
 		cppcut_assert_equal(true, pipeRd.init(name, pipeErrCb, this));
 		cppcut_assert_equal(true, pipeWr.init(name, pipeErrCb, this));
 		initResidentPullHelper(&pipeRd, this);
@@ -140,67 +157,102 @@ static gboolean timeoutHandler(gpointer data)
 	return FALSE;
 }
 
-static void waitConnect(PipeUtils &readPipe, size_t timeout)
+static void waitConnectCb(GIOStatus stat, mlpl::SmartBuffer &sbuf,
+                          size_t size, ExecCommandContext *ctx)
 {
-	// read data
-	ActionTpCommHeader header;
-	cppcut_assert_equal(
-	  true, readPipe.recv(sizeof(header), &header, timeout));
-	cppcut_assert_equal((uint32_t)ACTTP_CODE_BEGIN, header.code);
-	cppcut_assert_equal((uint32_t)ACTTP_FLAGS_RES,
-	                    ACTTP_FLAGS_RES & header.flags);
+	cppcut_assert_equal(G_IO_STATUS_NORMAL, stat);
+	int pktType = ResidentCommunicator::getPacketType(sbuf);
+	cppcut_assert_equal((int)ACTTP_CODE_BEGIN, pktType);
+	ctx->receivedActTpBegin = true;
 }
 
-static void getArguments(PipeUtils &readPipe, PipeUtils &writePipe,
-                         size_t timeout, StringVector &argVect)
+static void waitConnect(ExecCommandContext *ctx)
 {
-	// write command
-	ActionTpCommHeader header;
-	header.length = sizeof(header);
-	header.code = ACTTP_CODE_GET_ARG_LIST;
-	header.flags = ACTTP_FLAGS_REQ;
-	writePipe.send(header.length, &header);
+	ctx->pullHeader(waitConnectCb);
 
-	// read response
-	ActionTpCommHeader response;
-	cppcut_assert_equal(
-	  true, readPipe.recv(sizeof(response), &response, timeout));
-	cppcut_assert_equal((uint32_t)ACTTP_CODE_GET_ARG_LIST, response.code);
-	cppcut_assert_equal((uint32_t)ACTTP_FLAGS_RES,
-	                    ACTTP_FLAGS_RES & response.flags);
-
-	// check the response
-	size_t bodySize = response.length - sizeof(ActionTpCommHeader);
-	SmartBuffer pktBody(bodySize);
-	cppcut_assert_equal(
-	  true, readPipe.recv(bodySize, (uint8_t *)pktBody, timeout));
-
-	size_t numArg = pktBody.getValueAndIncIndex<uint16_t>();
-	cppcut_assert_equal(argVect.size(), numArg);
-	for (size_t i = 0; i < numArg; i++) {
-		size_t actualLen = pktBody.getValueAndIncIndex<uint16_t>();
-		string actualArg(pktBody.getPointer<const char>(), actualLen);
-		pktBody.incIndex(actualLen);
-		cppcut_assert_equal(argVect[i], actualArg);
+	while (!ctx->receivedActTpBegin) {
+		g_main_iteration(TRUE);
+		cppcut_assert_equal(false, ctx->timedOut);
 	}
 }
 
-static void sendQuit(PipeUtils &readPipe, PipeUtils &writePipe, size_t timeout)
+static void getArgumentsBottomHalfCb(GIOStatus stat, mlpl::SmartBuffer &sbuf,
+                                     size_t size, ExecCommandContext *ctx)
 {
-	// write command
-	ActionTpCommHeader header;
-	header.length = sizeof(header);
-	header.code = ACTTP_CODE_QUIT;
-	header.flags = ACTTP_FLAGS_REQ;
-	writePipe.send(header.length, &header);
+	cppcut_assert_equal(G_IO_STATUS_NORMAL, stat);
+	ctx->argListBuf.addEx(sbuf.getPointer<void>(), size);
+	ctx->receivedActTpArgList = true;
+}
+
+static void getArgumentsTopHalfCb(GIOStatus stat, mlpl::SmartBuffer &sbuf,
+                                  size_t size, ExecCommandContext *ctx)
+{
+	cppcut_assert_equal(G_IO_STATUS_NORMAL, stat);
+
+	// request to get the remaining data
+	int pktType = ResidentCommunicator::getPacketType(sbuf);
+	cppcut_assert_equal((int)ACTTP_REPLY_GET_ARG_LIST, pktType);
+
+	sbuf.resetIndex();
+	sbuf.incIndex(RESIDENT_PROTO_HEADER_LEN);
+	size_t requestLen = sbuf.getValueAndIncIndex<uint16_t>();
+	ctx->pullData(requestLen, getArgumentsBottomHalfCb);
+}
+
+static void getArguments(ExecCommandContext *ctx,
+                         const StringVector &expectedArgs)
+{
+	// send command
+	ResidentCommunicator comm;
+	comm.setHeader(0, ACTTP_CODE_GET_ARG_LIST);
+	comm.push(ctx->pipeWr); 
+
+	// wait the replay
+	ctx->pullData(RESIDENT_PROTO_HEADER_LEN + ACTTP_ARG_LIST_SIZE_LEN,
+                      getArgumentsTopHalfCb);
+	while (!ctx->receivedActTpArgList) {
+		g_main_iteration(TRUE);
+		cppcut_assert_equal(false, ctx->timedOut);
+	}
+
+	// check the response
+	ctx->argListBuf.resetIndex();
+	//ctx->argListBuf.incIndex(ACTTP_ARG_LIST_SIZE_LEN);
+	size_t numArg = ctx->argListBuf.getValueAndIncIndex<uint16_t>();
+	cppcut_assert_equal(expectedArgs.size(), numArg);
+	for (size_t i = 0; i < numArg; i++) {
+		size_t actualLen =
+		   ctx->argListBuf.getValueAndIncIndex<uint16_t>();
+		string actualArg(
+		  ctx->argListBuf.getPointer<const char>(), actualLen);
+		ctx->argListBuf.incIndex(actualLen);
+		cppcut_assert_equal(expectedArgs[i], actualArg);
+	}
+}
+
+static void waitActTpQuitCb(GIOStatus stat, SmartBuffer &sbuf,
+                            size_t size, ExecCommandContext *ctx)
+{
+	cppcut_assert_equal(G_IO_STATUS_NORMAL, stat);
+	int pktType = ResidentCommunicator::getPacketType(sbuf);
+	cppcut_assert_equal((int)ACTTP_REPLAY_QUIT, pktType);
+	ctx->receivedActTpQuit = true;
+}
+
+static void sendQuit(ExecCommandContext *ctx)
+{
+	ResidentCommunicator comm;
+	comm.setHeader(0, ACTTP_CODE_QUIT);
+	comm.push(ctx->pipeWr); 
 
 	// read response
-	ActionTpCommHeader response;
-	cppcut_assert_equal(
-	  true, readPipe.recv(sizeof(response), &response, timeout));
-	cppcut_assert_equal((uint32_t)ACTTP_CODE_QUIT, response.code);
-	cppcut_assert_equal((uint32_t)ACTTP_FLAGS_RES,
-	                    ACTTP_FLAGS_RES & response.flags);
+	ctx->pullHeader(waitActTpQuitCb);
+
+	ctx->expectHup = true;
+	while (!ctx->receivedActTpQuit) {
+		g_main_iteration(TRUE);
+		cppcut_assert_equal(false, ctx->timedOut);
+	}
 }
 
 static string getActionLogContent(const ActionLog &actionLog)
@@ -245,9 +297,6 @@ cut_trace(_assertActionLog(LOG, ID, ACT_ID, STAT, STID, QTIME, STIME, ETIME, FAI
 static void _assertExecAction(ExecCommandContext *ctx, int id, ActionType type,
                               const string &residentOption = "")
 {
-	// make PIPEs
-	cppcut_assert_equal(true, ctx->readPipe.makeFileInTmpAndOpenForRead());
-	cppcut_assert_equal(true, ctx->writePipe.makeFileInTmpAndOpenForWrite());
 	// execute 
 	ctx->actDef.id = id;
 	ctx->actDef.type = type;
@@ -256,10 +305,10 @@ static void _assertExecAction(ExecCommandContext *ctx, int id, ActionType type,
 	TestActionManager actMgr;
 	ctx->actorInfo.pid = 0;
 	if (type == ACTION_COMMAND) {
+		cppcut_assert_equal(false, ctx->pipeName.empty());
 		ctx->actDef.command = StringUtils::sprintf(
-		  "%s %s %s", cut_build_path(".libs", "ActionTp", NULL),
-		  ctx->writePipe.getPath().c_str(),
-		  ctx->readPipe.getPath().c_str());
+		  "%s %s", cut_build_path(".libs", "ActionTp", NULL),
+		  ctx->pipeName.c_str());
 		actMgr.callExecCommandAction(ctx->actDef, &ctx->actorInfo);
 	} else if (type == ACTION_RESIDENT) {
 		ctx->actDef.command =
@@ -297,11 +346,10 @@ void _assertActionLogJustAfterExec(ExecCommandContext *ctx)
 	  expectedNullFlags);
 
 	// connect to ActionTp
-	waitConnect(ctx->readPipe, ctx->timeout);
-	StringVector argVect;
-	argVect.push_back(ctx->writePipe.getPath());
-	argVect.push_back(ctx->readPipe.getPath());
-	getArguments(ctx->readPipe, ctx->writePipe, ctx->timeout, argVect);
+	waitConnect(ctx);
+	StringVector expectedArgs;
+	expectedArgs.push_back(ctx->pipeName);
+	getArguments(ctx, expectedArgs);
 }
 #define assertActionLogJustAfterExec(CTX) \
 cut_trace(_assertActionLogJustAfterExec(CTX))
@@ -323,12 +371,10 @@ cut_trace(_assertWaitForChangeActionLogStatus(CTX,STAT))
 void _assertActionLogAfterEnding(ExecCommandContext *ctx)
 {
 	// check the action log after the actor is terminated
-	ctx->timerTag = g_timeout_add(ctx->timeout, timeoutHandler, ctx);
-	ctx->loop = g_main_loop_new(NULL, TRUE);
 	while (true) {
 		// ActionCollector updates the aciton log in the wake of GLIB's
 		// events. So we can wait for the log update with
-		// iterations of the loop.
+		// iterations.
 		assertWaitForChangeActionLogStatus(
 		  ctx, DBClientAction::ACTLOG_STAT_STARTED);
 		assertActionLog(
@@ -432,7 +478,7 @@ static void replyEventInfoCb(GIOStatus stat, mlpl::SmartBuffer &sbuf,
 	cppcut_assert_equal(G_IO_STATUS_NORMAL, stat);
 
 	// packet type
-	static int pktType = ResidentCommunicator::getPacketType(sbuf);
+	int pktType = ResidentCommunicator::getPacketType(sbuf);
 	cppcut_assert_equal((int)RESIDENT_TEST_REPLY_GET_EVENT_INFO, pktType);
 
 	// get event information
@@ -491,9 +537,13 @@ void test_execCommandAction(void)
 	g_execCommandCtx = new ExecCommandContext();
 	ExecCommandContext *ctx = g_execCommandCtx; // just an alias
 
+	string pipeName = "test-command-action";
+	ctx->initPipes(pipeName);
+	ctx->timerTag = g_timeout_add(ctx->timeout, timeoutHandler, ctx);
+
 	assertExecAction(ctx, 2343242, ACTION_COMMAND);
 	assertActionLogJustAfterExec(ctx);
-	sendQuit(ctx->readPipe, ctx->writePipe, ctx->timeout);
+	sendQuit(ctx);
 	assertActionLogAfterEnding(ctx);
 }
 
