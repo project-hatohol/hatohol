@@ -136,16 +136,14 @@ void ActorCollector::setupHandlerForSIGCHLD(void)
 
 void ActorCollector::signalHandlerChild(int signo, siginfo_t *info, void *arg)
 {
-	if (info->si_code != CLD_EXITED)
-		return;
-
 	// We use write() to notify the reception of SIGCHLD.
 	// because write() is one of the asynchronus SIGNAL safe functions.
-	ExitChildInfo exitChildInfo;
+	ChildSigInfo exitChildInfo;
 	exitChildInfo.pid      = info->si_pid;
+	exitChildInfo.code     = info->si_code;
 	exitChildInfo.status   = info->si_status;
 	ssize_t ret = write(PrivateContext::pipefd[1],
-	                    &exitChildInfo, sizeof(ExitChildInfo));
+	                    &exitChildInfo, sizeof(ChildSigInfo));
 	if (ret == -1) {
 		// We cannot call printf() and other
 		// signal unsafe output function.
@@ -163,7 +161,7 @@ gboolean ActorCollector::checkExitProcess
 	}
 
 	GError *error = NULL;
-	ExitChildInfo exitChildInfo;
+	ChildSigInfo exitChildInfo;
 	GIOStatus stat;
 	gsize bytesRead;
 	gsize requestSize = sizeof(exitChildInfo);
@@ -189,6 +187,11 @@ gboolean ActorCollector::checkExitProcess
 		buf += bytesRead;
 	}
 
+	// check the reason of the signal.
+	if (exitChildInfo.code != CLD_EXITED)
+		return TRUE;
+
+	// update the action log.
 	bool found = false;
 	DBClientAction::LogEndExecActionArg logArg;
 	logArg.status = DBClientAction::ACTLOG_STAT_SUCCEEDED;

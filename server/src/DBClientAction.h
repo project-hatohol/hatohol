@@ -138,8 +138,9 @@ struct ActionLog {
 	uint32_t nullFlags;
 };
 
-struct ExitChildInfo {
+struct ChildSigInfo {
 	pid_t pid;
+	int   code;
 	int   status;
 };
 
