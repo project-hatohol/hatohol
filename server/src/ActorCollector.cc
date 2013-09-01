@@ -198,17 +198,14 @@ gboolean ActorCollector::checkExitProcess
 	// check the reason of the signal.
 	DBClientAction::LogEndExecActionArg logArg;
 	if (childSigInfo.code == CLD_EXITED) {
-		printf("R1\n");
 		logArg.status = DBClientAction::ACTLOG_STAT_SUCCEEDED;
 		// failureCode is set to ACTLOG_EXECFAIL_NONE in the
 		// LogEndExecActionArg's constructor.
 	} else if (childSigInfo.code == CLD_KILLED) {
-		printf("R2: pid, %d\n", childSigInfo.pid);
 		logArg.status = DBClientAction::ACTLOG_STAT_FAILED;
 		logArg.failureCode =
 		  DBClientAction::ACTLOG_EXECFAIL_KILLED_SIGNAL;
 	} else if (childSigInfo.code == CLD_DUMPED) {
-		printf("R3\n");
 		logArg.status = DBClientAction::ACTLOG_STAT_FAILED;
 		logArg.failureCode =
 		  DBClientAction::ACTLOG_EXECFAIL_DUMPED_SIGNAL;
