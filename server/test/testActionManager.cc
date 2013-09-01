@@ -146,16 +146,23 @@ struct ExecCommandContext : public ResidentPullHelper<ExecCommandContext> {
 		cppcut_assert_equal(true, pipeWr.init(name, pipeErrCb, this));
 		initResidentPullHelper(&pipeRd, this);
 	}
+
+	static gboolean timeoutHandler(gpointer data)
+	{
+		ExecCommandContext *ctx = (ExecCommandContext *)data;
+		ctx->timedOut = true;
+		ctx->timerTag = 0;
+		return FALSE;
+	}
+
+	void setTimeoutIfNeeded(void)
+	{
+		if (timerTag)
+			return;
+		timerTag = g_timeout_add(timeout, timeoutHandler, this);
+	}
 };
 static ExecCommandContext *g_execCommandCtx = NULL;
-
-static gboolean timeoutHandler(gpointer data)
-{
-	ExecCommandContext *ctx = (ExecCommandContext *)data;
-	ctx->timedOut = true;
-	ctx->timerTag = 0;
-	return FALSE;
-}
 
 static void waitConnectCb(GIOStatus stat, mlpl::SmartBuffer &sbuf,
                           size_t size, ExecCommandContext *ctx)
@@ -405,7 +412,7 @@ void _assertActionLogAfterExecResident(
   ResidentLogStatusChangedCB statusChangedCb = NULL)
 {
 	// check the action log after the actor is terminated
-	ctx->timerTag = g_timeout_add(ctx->timeout, timeoutHandler, ctx);
+	ctx->setTimeoutIfNeeded();
 	ctx->loop = g_main_loop_new(NULL, TRUE);
 
 	while (true) {
@@ -539,7 +546,7 @@ void test_execCommandAction(void)
 
 	string pipeName = "test-command-action";
 	ctx->initPipes(pipeName);
-	ctx->timerTag = g_timeout_add(ctx->timeout, timeoutHandler, ctx);
+	ctx->setTimeoutIfNeeded();
 
 	assertExecAction(ctx, 2343242, ACTION_COMMAND);
 	assertActionLogJustAfterExec(ctx);
