@@ -80,6 +80,7 @@ static void reset(void)
 	DBClientZabbix::reset();
 
 	ActionManager::reset();
+	ActorCollector::reset();
 }
 
 void hatoholInit(void)

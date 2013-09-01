@@ -53,6 +53,14 @@ void ActorCollector::init(void)
 	setupHandlerForSIGCHLD();
 }
 
+void ActorCollector::reset(void)
+{
+	// This function is mainly for the test. In the normal use,
+	// waitChildSet is of course empty when this function is called
+	// at the start-up.
+	PrivateContext::waitChildSet.clear();
+}
+
 void ActorCollector::stop(void)
 {
 	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);

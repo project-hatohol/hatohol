@@ -31,6 +31,7 @@ class ActorCollector
 {
 public:
 	static void init(void);
+	static void reset(void);
 	static void stop(void);
 	static void lock(void);
 	static void unlock(void);
