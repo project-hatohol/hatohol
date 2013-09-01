@@ -243,6 +243,16 @@ public:
 	   ActionLogExecFailureCode failureCode = ACTLOG_EXECFAIL_NONE,
 	   ActionLogStatus initialStatus = ACTLOG_STAT_STARTED);
 
+	/**
+	 * update an action log.
+	 *
+	 * @param logArg
+	 * A reference of LogEndExecActionArg. The record with the ID:
+	 * logArg.logId is updated. The updated columns are status, end_time,
+	 * exec_failure_code, and exit_code. Note that other members in
+	 * logArg are ignored.
+	 *
+	 */
 	void logEndExecAction(const LogEndExecActionArg &logArg);
 
 	/**

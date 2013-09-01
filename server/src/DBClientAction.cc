@@ -553,6 +553,10 @@ void DBClientAction::logEndExecAction(const LogEndExecActionArg &logArg)
 	row->ADD_NEW_ITEM(Int, CURR_DATETIME);
 	arg.columnIndexes.push_back(IDX_ACTION_LOGS_END_TIME);
 
+	// exec_failure_code
+	row->ADD_NEW_ITEM(Int, logArg.failureCode);
+	arg.columnIndexes.push_back(IDX_ACTION_LOGS_EXEC_FAILURE_CODE);
+
 	// exit_code
 	row->ADD_NEW_ITEM(Int, logArg.exitCode);
 	arg.columnIndexes.push_back(IDX_ACTION_LOGS_EXIT_CODE);
