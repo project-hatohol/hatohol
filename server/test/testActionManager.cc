@@ -261,7 +261,7 @@ static string getActionLogContent(const ActionLog &actionLog)
 	  "ID: %"PRIu64", actionID: %d, status: %d, ",
 	  actionLog.id, actionLog.actionId, actionLog.status);
 	str += StringUtils::sprintf(
-	  "queuingTime: %d, startTime: %d, endTime: %d,",
+	  "queuingTime: %d, startTime: %d, endTime: %d, ",
 	  actionLog.queuingTime, actionLog.startTime, actionLog.endTime);
 	str += StringUtils::sprintf(
 	  "failureCode: %d, exitCode: %d",
