@@ -319,10 +319,15 @@ bool ActionManager::spawn(const ActionDef &actionDef, ActorInfo *actorInfo,
 		string msg = StringUtils::sprintf(
 		  "Failed to execute command: %s, action ID: %d",
 		  error->message, actionDef.id);
+		DBClientAction::ActionLogExecFailureCode failureCode =
+		  error->code == G_SPAWN_ERROR_NOENT ?
+		    DBClientAction::ACTLOG_EXECFAIL_ENTRY_NOT_FOUND :
+		    DBClientAction::ACTLOG_EXECFAIL_EXEC_FAILURE;
 		g_error_free(error);
-		MLPL_ERR("%s\n", msg.c_str());
-		m_ctx->dbAction.createActionLog(
-		  actionDef, DBClientAction::ACTLOG_EXECFAIL_EXEC_FAILURE);
+		actorInfo->logId =
+		  m_ctx->dbAction.createActionLog(actionDef, failureCode);
+		MLPL_ERR("%s, logID: %"PRIu64"\n",
+		         msg.c_str(), actorInfo->logId);
 		return false;
 	}
 	DBClientAction::ActionLogStatus initialStatus =
@@ -346,7 +351,6 @@ void ActionManager::execCommandAction(const ActionDef &actionDef,
 	               "Invalid type: %d\n", actionDef.type);
 	StringVector argVect;
 	makeExecArg(argVect, actionDef.command);
-	// TODO: check the result of the parse
 
 	const gchar *argv[argVect.size()+1];
 	for (size_t i = 0; i < argVect.size(); i++)
@@ -354,8 +358,7 @@ void ActionManager::execCommandAction(const ActionDef &actionDef,
 	argv[argVect.size()] = NULL;
 
 	ActorInfo actorInfo;
-	if (!spawn(actionDef, &actorInfo, argv))
-		return;
+	spawn(actionDef, &actorInfo, argv);
 	if (_actorInfo)
 		*_actorInfo = actorInfo;
 }

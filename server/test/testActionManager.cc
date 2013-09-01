@@ -400,6 +400,26 @@ void _assertActionLogAfterEnding(ExecCommandContext *ctx)
 #define assertActionLogAfterEnding(CTX) \
 cut_trace(_assertActionLogAfterEnding(CTX))
 
+void _assertActionLogForFailure(ExecCommandContext *ctx, int failureCode)
+{
+	cppcut_assert_equal(
+	  true, ctx->dbAction.getLog(ctx->actionLog, ctx->actorInfo.logId));
+	assertActionLog(
+	  ctx->actionLog,
+	  ctx->actorInfo.logId,
+	  ctx->actDef.id,
+	  DBClientAction::ACTLOG_STAT_FAILED,
+	  0, /* starterId */
+	  0, /* queuingTime */
+	  CURR_DATETIME, /* startTime */
+	  CURR_DATETIME, /* endTime */
+	  failureCode,
+	  0, /* exitCode */
+	  ACTLOG_FLAG_QUEUING_TIME|ACTLOG_FLAG_EXIT_CODE /* nullFlags */);
+}
+#define assertActionLogForFailure(CTX,FC) \
+cut_trace(_assertActionLogForFailure(CTX,FC))
+
 typedef void (*ResidentLogStatusChangedCB)(
   DBClientAction::ActionLogStatus currStatus,
   DBClientAction::ActionLogStatus newStatus,
@@ -552,6 +572,23 @@ void test_execCommandAction(void)
 	assertActionLogJustAfterExec(ctx);
 	sendQuit(ctx);
 	assertActionLogAfterEnding(ctx);
+}
+
+void test_execCommandActionWithWrongPath(void)
+{
+	g_execCommandCtx = new ExecCommandContext();
+	ExecCommandContext *ctx = g_execCommandCtx; // just an alias
+
+	ctx->setTimeoutIfNeeded();
+
+	ctx->actDef.id = 7869;
+	ctx->actDef.type = ACTION_COMMAND;
+	ctx->actDef.command = "wrong-command-dayo";
+	ctx->actorInfo.logId = 0;
+	TestActionManager actMgr;
+	actMgr.callExecCommandAction(ctx->actDef, &ctx->actorInfo);
+	assertActionLogForFailure(
+	  ctx, DBClientAction::ACTLOG_EXECFAIL_ENTRY_NOT_FOUND);
 }
 
 void test_execResidentAction(void)
