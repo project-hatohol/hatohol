@@ -196,14 +196,33 @@ gboolean ActorCollector::checkExitProcess
 	}
 
 	// check the reason of the signal.
-	if (childSigInfo.code != CLD_EXITED)
+	DBClientAction::LogEndExecActionArg logArg;
+	if (childSigInfo.code == CLD_EXITED) {
+		printf("R1\n");
+		logArg.status = DBClientAction::ACTLOG_STAT_SUCCEEDED;
+		// failureCode is set to ACTLOG_EXECFAIL_NONE in the
+		// LogEndExecActionArg's constructor.
+	} else if (childSigInfo.code == CLD_KILLED) {
+		printf("R2: pid, %d\n", childSigInfo.pid);
+		logArg.status = DBClientAction::ACTLOG_STAT_FAILED;
+		logArg.failureCode =
+		  DBClientAction::ACTLOG_EXECFAIL_KILLED_SIGNAL;
+	} else if (childSigInfo.code == CLD_DUMPED) {
+		printf("R3\n");
+		logArg.status = DBClientAction::ACTLOG_STAT_FAILED;
+		logArg.failureCode =
+		  DBClientAction::ACTLOG_EXECFAIL_DUMPED_SIGNAL;
+	} else {
+		// The received-signal candidates are
+		// CLD_TRAPPED, CLD_STOPPED, and CLD_CONTINUED.
+		MLPL_INFO("Actor (%d) received a signal: %d\n",
+		          childSigInfo.pid, childSigInfo.status);
 		return TRUE;
+	}
+	logArg.exitCode = childSigInfo.status;
 
 	// update the action log.
 	bool found = false;
-	DBClientAction::LogEndExecActionArg logArg;
-	logArg.status = DBClientAction::ACTLOG_STAT_SUCCEEDED;
-	logArg.exitCode = childSigInfo.status;
 	lock();
 	WaitChildSetIterator it =
 	   PrivateContext::waitChildSet.find(childSigInfo.pid);

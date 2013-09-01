@@ -191,6 +191,8 @@ public:
 		ACTLOG_EXECFAIL_PIPE_READ_HUP,
 		ACTLOG_EXECFAIL_PIPE_READ_ERR,
 		ACTLOG_EXECFAIL_PIPE_WRITE_ERR,
+		ACTLOG_EXECFAIL_KILLED_SIGNAL,
+		ACTLOG_EXECFAIL_DUMPED_SIGNAL,
 		ACTLOG_EXECFAIL_UNEXPECTED_EXIT,
 	};
 
@@ -198,6 +200,7 @@ public:
 		uint64_t logId;
 		ActionLogStatus status;
 		int   exitCode;
+		ActionLogExecFailureCode failureCode;
 
 		// constructor: just for initialization
 		LogEndExecActionArg(void);
