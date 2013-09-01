@@ -95,6 +95,7 @@ struct ResidentInfo :
 			         "but not logged: logId: %"PRIu64"\n",
 			         notifyInfo->logId);
 			delete notifyInfo;
+			notifyQueue.pop_front();
 		}
 		queueLock.unlock();
 
