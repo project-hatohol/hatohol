@@ -64,7 +64,6 @@ static void cmdCbGetEventInfo(SmartBuffer &sbuf, size_t size, Context *ctx)
 	comm.setHeader(RESIDENT_TEST_REPLY_GET_EVENT_INFO_BODY_LEN,
 	               RESIDENT_TEST_REPLY_GET_EVENT_INFO);
 	SmartBuffer &wrBuf = comm.getBuffer();
-	printf("cmbCbGetEventInfo: %u\n", ctx->notifyEvent.actionId);
 	memcpy(wrBuf.getPointer<void>(), &ctx->notifyEvent,
 	       RESIDENT_TEST_REPLY_GET_EVENT_INFO_BODY_LEN);
 	wrBuf.incIndex(RESIDENT_TEST_REPLY_GET_EVENT_INFO_BODY_LEN);
