@@ -238,3 +238,14 @@ gboolean ActorCollector::checkExitProcess
 
 	return TRUE;
 }
+
+bool ActorCollector::isWatching(pid_t pid)
+{
+	bool found = false;
+	lock();
+	WaitChildSetIterator it = PrivateContext::waitChildSet.find(pid);
+	if (it != PrivateContext::waitChildSet.end())
+		found = true;
+	unlock();
+	return found;
+}

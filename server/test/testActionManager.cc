@@ -556,6 +556,15 @@ static void _assertWaitEventBody(ExecCommandContext *ctx)
 }
 #define assertWaitEventBody(CTX) cut_trace(_assertWaitEventBody(CTX))
 
+static void _assertWaitRemoveWatching(ExecCommandContext *ctx)
+{
+	while (ActorCollector::isWatching(ctx->actionTpPid)) {
+		g_main_context_iteration(NULL, TRUE);
+		cppcut_assert_equal(false, ctx->timedOut);
+	}
+}
+#define assertWaitRemoveWatching(CTX) cut_trace(_assertWaitRemoveWatching(CTX))
+
 void setup(void)
 {
 	hatoholInit();
@@ -633,6 +642,22 @@ void test_execResidentActionWithWrongPath(void)
 	  DBClientAction::ACTLOG_EXECFAIL_ENTRY_NOT_FOUND,
 	  0     // expectedExitCode
 	);
+	assertWaitRemoveWatching(ctx);
+
+	// reconfirm the action log. This confirms that the log is not
+	// updated in ActorCollector::checkExitProcess().
+	cppcut_assert_equal(
+	  true, ctx->dbAction.getLog(ctx->actionLog, ctx->actorInfo.logId));
+	assertActionLog(
+	  ctx->actionLog, ctx->actorInfo.logId,
+	  ctx->actDef.id, DBClientAction::ACTLOG_STAT_FAILED,
+	  0, /* starterId */
+	  0, /* queuingTime */
+	  CURR_DATETIME, /* startTime */
+	  CURR_DATETIME, /* endTime */
+	  DBClientAction::ACTLOG_EXECFAIL_ENTRY_NOT_FOUND,
+	  0, // exitCode
+	  ACTLOG_FLAG_QUEUING_TIME);
 }
 
 void test_execResidentActionManyEvents(void)
