@@ -41,8 +41,11 @@ struct ActionManager::ResidentNotifyInfo {
 	{
 	}
 
-	// TODO: we should add a mechanism to prevent this object from
-	//       being deleted if it is being used.
+	// NOTE: Currently this instance is handled only on GLIB event
+	// callbacks. This ensures that the deletion of the instance does
+	// not happen during the callback.
+	// If we use this instance from multiple threads, something MT-safe
+	// mechanism have to be implemented.
 };
 
 typedef deque<ActionManager::ResidentNotifyInfo *> ResidentNotifyQueue;
