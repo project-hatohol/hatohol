@@ -305,13 +305,15 @@ struct ExecActionArg {
 
 	int        actionId;
 	ActionType type;
+	bool       usePipe;
 	string     command;
 	string     residentOption;
 
 	// methods
 	ExecActionArg(int _actionId, ActionType _type)
 	: actionId(_actionId),
-	  type(_type)
+	  type(_type),
+	  usePipe(false)
 	{
 	}
 };
@@ -322,14 +324,13 @@ static void _assertExecAction(ExecCommandContext *ctx, ExecActionArg &arg)
 	ctx->actDef.id = arg.actionId;
 	ctx->actDef.type = arg.type;
 
-	// launch ActionTp (the actor)
-	TestActionManager actMgr;
-	if (arg.type == ACTION_COMMAND) {
-		cppcut_assert_equal(false, ctx->pipeName.empty());
+	// make a command line
+	if (!arg.command.empty())
+		ctx->actDef.command = arg.command;
+	else if (arg.type == ACTION_COMMAND) {
 		ctx->actDef.command = StringUtils::sprintf(
 		  "%s %s", cut_build_path(".libs", "ActionTp", NULL),
 		  ctx->pipeName.c_str());
-		actMgr.callExecCommandAction(ctx->actDef, &ctx->actorInfo);
 	} else if (arg.type == ACTION_RESIDENT) {
 		ctx->actDef.command =
 		  cut_build_path(".libs", "residentTest.so", NULL);
@@ -337,10 +338,21 @@ static void _assertExecAction(ExecCommandContext *ctx, ExecActionArg &arg)
 			ctx->actDef.command += " ";
 			ctx->actDef.command += arg.residentOption;
 		}
-		actMgr.callExecResidentAction(ctx->actDef,
-		                              ctx->eventInfo, &ctx->actorInfo);
 	} else {
 		cut_fail("Unknown type: %d\n", arg.type);
+	}
+
+	// launch ActionTp (the actor)
+	TestActionManager actMgr;
+	ctx->actorInfo.pid = 0;
+	ctx->actorInfo.logId = 0;
+	if (arg.type == ACTION_COMMAND) {
+		if (arg.usePipe)
+			cppcut_assert_equal(false, ctx->pipeName.empty());
+		actMgr.callExecCommandAction(ctx->actDef, &ctx->actorInfo);
+	} else if (arg.type == ACTION_RESIDENT) {
+		actMgr.callExecResidentAction(ctx->actDef,
+		                              ctx->eventInfo, &ctx->actorInfo);
 	}
 	ctx->actionTpPid = ctx->actorInfo.pid;
 }
@@ -594,11 +606,10 @@ void test_execCommandActionWithWrongPath(void)
 
 	ctx->setTimeoutIfNeeded();
 
-	ctx->actDef.id = 7869;
-	ctx->actDef.type = ACTION_COMMAND;
-	ctx->actDef.command = "wrong-command-dayo";
-	TestActionManager actMgr;
-	actMgr.callExecCommandAction(ctx->actDef, &ctx->actorInfo);
+	ExecActionArg arg(7869, ACTION_COMMAND);
+	arg.usePipe = false;
+	arg.command = "wrong-command-dayo";
+	assertExecAction(ctx, arg);
 	assertActionLogForFailure(
 	  ctx, DBClientAction::ACTLOG_EXECFAIL_ENTRY_NOT_FOUND);
 }
