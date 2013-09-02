@@ -695,8 +695,14 @@ void ActionManager::notifyEvent(ResidentInfo *residentInfo,
 
 void ActionManager::closeResident(ResidentInfo *residentInfo)
 {
-	MLPL_BUG("Not implemented: %s (%p)\n",
-	         __PRETTY_FUNCTION__, residentInfo);
+	// kill hatohol-resident-yard.
+	// After hatohol-resident-yard is killed, the HUP handler of
+	// the pipe will be called. Then the handler calls
+	// closeResident(ResidentInfo *) and
+	// residentInfo instance will be deleted.
+	pid_t pid = residentInfo->pid;
+	if (pid && kill(pid, SIGKILL))
+		MLPL_ERR("Failed to kill. pid: %d, %s\n", pid, strerror(errno));
 }
 
 void ActionManager::closeResident(
@@ -712,17 +718,12 @@ void ActionManager::closeResident(
 	dbAction.logEndExecAction(logArg);
 
 	// remove this notifyInfo from the queue in the parent ResidentInfo
-	pid_t pid = notifyInfo->residentInfo->pid;
+	ResidentInfo *residentInfo = notifyInfo->residentInfo;
+	pid_t pid = residentInfo->pid;
 	ActorCollector::setDontLog(pid);
-	notifyInfo->residentInfo->deleteNotifyInfo(notifyInfo);
+	residentInfo->deleteNotifyInfo(notifyInfo);
 	// NOTE: Hereafter we cannot access 'notifyInfo', because it is
 	//       deleted in the above function.
 
-	// kill hatohol-resident-yard.
-	// After hatohol-resident-yard is killed, the HUP handler of
-	// the pipe will be called. Then the handler calls
-	// closeResident(ResidentInfo *) and
-	// residentInfo instance will be deleted.
-	if (pid && kill(pid, SIGKILL))
-		MLPL_ERR("Failed to kill. pid: %d, %s\n", pid, strerror(errno));
+	closeResident(residentInfo);
 }
