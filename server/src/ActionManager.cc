@@ -43,7 +43,8 @@ struct ActionManager::ResidentNotifyInfo {
 
 	// NOTE: Currently this instance is handled only on GLIB event
 	// callbacks. This ensures that the deletion of the instance does
-	// not happen during the callback.
+	// not happen during the callback, because it is also invoked on
+	// a GLIB event callback.
 	// If we use this instance from multiple threads, something MT-safe
 	// mechanism have to be implemented.
 };
