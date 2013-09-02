@@ -213,7 +213,6 @@ static void getArguments(ExecCommandContext *ctx,
 
 	// check the response
 	ctx->argListBuf.resetIndex();
-	//ctx->argListBuf.incIndex(ACTTP_ARG_LIST_SIZE_LEN);
 	size_t numArg = ctx->argListBuf.getValueAndIncIndex<uint16_t>();
 	cppcut_assert_equal(expectedArgs.size(), numArg);
 	for (size_t i = 0; i < numArg; i++) {
