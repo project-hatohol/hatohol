@@ -301,38 +301,51 @@ static void _assertActionLog(
 #define assertActionLog(LOG, ID, ACT_ID, STAT, STID, QTIME, STIME, ETIME, FAIL_CODE, EXIT_CODE, NULL_FLAGS) \
 cut_trace(_assertActionLog(LOG, ID, ACT_ID, STAT, STID, QTIME, STIME, ETIME, FAIL_CODE, EXIT_CODE, NULL_FLAGS))
 
-static void _assertExecAction(ExecCommandContext *ctx, int id, ActionType type,
-                              const string &residentOption = "")
+struct ExecActionArg {
+
+	int        actionId;
+	ActionType type;
+	string     command;
+	string     residentOption;
+
+	// methods
+	ExecActionArg(int _actionId, ActionType _type)
+	: actionId(_actionId),
+	  type(_type)
+	{
+	}
+};
+
+static void _assertExecAction(ExecCommandContext *ctx, ExecActionArg &arg)
 {
 	// execute 
-	ctx->actDef.id = id;
-	ctx->actDef.type = type;
+	ctx->actDef.id = arg.actionId;
+	ctx->actDef.type = arg.type;
 
 	// launch ActionTp (the actor)
 	TestActionManager actMgr;
 	ctx->actorInfo.pid = 0;
-	if (type == ACTION_COMMAND) {
+	if (arg.type == ACTION_COMMAND) {
 		cppcut_assert_equal(false, ctx->pipeName.empty());
 		ctx->actDef.command = StringUtils::sprintf(
 		  "%s %s", cut_build_path(".libs", "ActionTp", NULL),
 		  ctx->pipeName.c_str());
 		actMgr.callExecCommandAction(ctx->actDef, &ctx->actorInfo);
-	} else if (type == ACTION_RESIDENT) {
+	} else if (arg.type == ACTION_RESIDENT) {
 		ctx->actDef.command =
 		  cut_build_path(".libs", "residentTest.so", NULL);
-		if (!residentOption.empty()) {
+		if (!arg.residentOption.empty()) {
 			ctx->actDef.command += " ";
-			ctx->actDef.command += residentOption;
+			ctx->actDef.command += arg.residentOption;
 		}
 		actMgr.callExecResidentAction(ctx->actDef,
 		                              ctx->eventInfo, &ctx->actorInfo);
 	} else {
-		cut_fail("Unknown type: %d\n", type);
+		cut_fail("Unknown type: %d\n", arg.type);
 	}
 	ctx->actionTpPid = ctx->actorInfo.pid;
 }
-#define assertExecAction(CTX, ID, TYPE, ...) \
-cut_trace(_assertExecAction(CTX, ID, TYPE, ##__VA_ARGS__))
+#define assertExecAction(CTX, ARG) cut_trace(_assertExecAction(CTX, ARG))
 
 void _assertActionLogJustAfterExec(ExecCommandContext *ctx)
 {
@@ -568,7 +581,8 @@ void test_execCommandAction(void)
 	ctx->initPipes(pipeName);
 	ctx->setTimeoutIfNeeded();
 
-	assertExecAction(ctx, 2343242, ACTION_COMMAND);
+	ExecActionArg arg(2343242, ACTION_COMMAND);
+	assertExecAction(ctx, arg);
 	assertActionLogJustAfterExec(ctx);
 	sendQuit(ctx);
 	assertActionLogAfterEnding(ctx);
@@ -596,7 +610,8 @@ void test_execResidentAction(void)
 	g_execCommandCtx = new ExecCommandContext();
 	ExecCommandContext *ctx = g_execCommandCtx; // just an alias
 
-	assertExecAction(ctx, 0x4ab3fd32, ACTION_RESIDENT);
+	ExecActionArg arg(0x4ab3fd32, ACTION_RESIDENT);
+	assertExecAction(ctx, arg);
 
 	uint32_t expectedNullFlags =
 	  ACTLOG_FLAG_QUEUING_TIME|ACTLOG_FLAG_END_TIME|ACTLOG_FLAG_EXIT_CODE;
@@ -618,7 +633,8 @@ void test_execResidentActionManyEvents(void)
 	for (size_t i = 0; i < numEvents; i++) {
 		setExpectedValueForResidentManyEvents(i, expectedNullFlags,
 		                                      currStatus, newStatus);
-		assertExecAction(ctx, 0x4ab3fd32, ACTION_RESIDENT);
+		ExecActionArg arg(0x4ab3fd32, ACTION_RESIDENT);
+		assertExecAction(ctx, arg);
 		assertActionLogAfterExecResident(ctx, expectedNullFlags,
 		                                 currStatus, newStatus);
 	}
@@ -632,7 +648,8 @@ void test_execResidentActionManyEventsGenThenCheckLog(void)
 	vector<ActorInfo> actorVect;
 	size_t numEvents = 10;
 	for (size_t i = 0; i < numEvents; i++) {
-		assertExecAction(ctx, 0x4ab3fd32, ACTION_RESIDENT);
+		ExecActionArg arg(0x4ab3fd32, ACTION_RESIDENT);
+		assertExecAction(ctx, arg);
 		actorVect.push_back(ctx->actorInfo);
 	}
 
@@ -660,7 +677,9 @@ void test_execResidentActionCheckArg(void)
 	              RESIDENT_TEST_REPLY_GET_EVENT_INFO_BODY_LEN,
 	              replyEventInfoCb);
 	ctx->eventInfo = testEventInfo[0];
-	assertExecAction(ctx, 0x4ab3fd32, ACTION_RESIDENT, option);
+	ExecActionArg arg(0x4ab3fd32, ACTION_RESIDENT);
+	arg.residentOption = option;
+	assertExecAction(ctx, arg);
 
 	uint32_t expectedNullFlags =
 	  ACTLOG_FLAG_QUEUING_TIME|ACTLOG_FLAG_END_TIME|ACTLOG_FLAG_EXIT_CODE;
