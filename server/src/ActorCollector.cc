@@ -198,17 +198,15 @@ gboolean ActorCollector::checkExitProcess
 	// check the reason of the signal.
 	DBClientAction::LogEndExecActionArg logArg;
 	if (childSigInfo.code == CLD_EXITED) {
-		logArg.status = DBClientAction::ACTLOG_STAT_SUCCEEDED;
+		logArg.status = ACTLOG_STAT_SUCCEEDED;
 		// failureCode is set to ACTLOG_EXECFAIL_NONE in the
 		// LogEndExecActionArg's constructor.
 	} else if (childSigInfo.code == CLD_KILLED) {
-		logArg.status = DBClientAction::ACTLOG_STAT_FAILED;
-		logArg.failureCode =
-		  DBClientAction::ACTLOG_EXECFAIL_KILLED_SIGNAL;
+		logArg.status = ACTLOG_STAT_FAILED;
+		logArg.failureCode = ACTLOG_EXECFAIL_KILLED_SIGNAL;
 	} else if (childSigInfo.code == CLD_DUMPED) {
-		logArg.status = DBClientAction::ACTLOG_STAT_FAILED;
-		logArg.failureCode =
-		  DBClientAction::ACTLOG_EXECFAIL_DUMPED_SIGNAL;
+		logArg.status = ACTLOG_STAT_FAILED;
+		logArg.failureCode = ACTLOG_EXECFAIL_DUMPED_SIGNAL;
 	} else {
 		// The received-signal candidates are
 		// CLD_TRAPPED, CLD_STOPPED, and CLD_CONTINUED.

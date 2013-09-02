@@ -356,12 +356,12 @@ void _assertActionLogJustAfterExec(ExecCommandContext *ctx)
 	  true, ctx->dbAction.getLog(ctx->actionLog, ctx->actorInfo.logId));
 	assertActionLog(
 	  ctx->actionLog, ctx->actorInfo.logId,
-	  ctx->actDef.id, DBClientAction::ACTLOG_STAT_STARTED,
+	  ctx->actDef.id, ACTLOG_STAT_STARTED,
 	  0, /* starterId */
 	  0, /* queuingTime */
 	  CURR_DATETIME, /* startTime */
 	  0, /* endTime */
-	  DBClientAction::ACTLOG_EXECFAIL_NONE, /* failureCode */
+	  ACTLOG_EXECFAIL_NONE, /* failureCode */
 	  0,  /* exitCode */
 	  expectedNullFlags);
 
@@ -388,8 +388,8 @@ void _assertActionLogJustAfterExec(ExecCommandContext *ctx)
 #define assertActionLogJustAfterExec(CTX) \
 cut_trace(_assertActionLogJustAfterExec(CTX))
 
-void _assertWaitForChangeActionLogStatus(
-  ExecCommandContext *ctx, DBClientAction::ActionLogStatus currStatus)
+void _assertWaitForChangeActionLogStatus(ExecCommandContext *ctx,
+                                         ActionLogStatus currStatus)
 {
 	do {
 		g_main_context_iteration(NULL, TRUE);
@@ -409,16 +409,15 @@ void _assertActionLogAfterEnding(ExecCommandContext *ctx)
 		// ActionCollector updates the aciton log in the wake of GLIB's
 		// events. So we can wait for the log update with
 		// iterations.
-		assertWaitForChangeActionLogStatus(
-		  ctx, DBClientAction::ACTLOG_STAT_STARTED);
+		assertWaitForChangeActionLogStatus(ctx, ACTLOG_STAT_STARTED);
 		assertActionLog(
 		  ctx->actionLog, ctx->actorInfo.logId,
-		  ctx->actDef.id, DBClientAction::ACTLOG_STAT_SUCCEEDED,
+		  ctx->actDef.id, ACTLOG_STAT_SUCCEEDED,
 		  0, /* starterId */
 		  0, /* queuingTime */
 		  CURR_DATETIME, /* startTime */
 		  CURR_DATETIME, /* endTime */
-		  DBClientAction::ACTLOG_EXECFAIL_NONE, /* failureCode */
+		  ACTLOG_EXECFAIL_NONE, /* failureCode */
 		  EXIT_SUCCESS, /* exitCode */
 		  ACTLOG_FLAG_QUEUING_TIME /* nullFlags */);
 		break;
@@ -435,7 +434,7 @@ void _assertActionLogForFailure(ExecCommandContext *ctx, int failureCode)
 	  ctx->actionLog,
 	  ctx->actorInfo.logId,
 	  ctx->actDef.id,
-	  DBClientAction::ACTLOG_STAT_FAILED,
+	  ACTLOG_STAT_FAILED,
 	  0, /* starterId */
 	  0, /* queuingTime */
 	  CURR_DATETIME, /* startTime */
@@ -448,17 +447,14 @@ void _assertActionLogForFailure(ExecCommandContext *ctx, int failureCode)
 cut_trace(_assertActionLogForFailure(CTX,FC))
 
 typedef void (*ResidentLogStatusChangedCB)(
-  DBClientAction::ActionLogStatus currStatus,
-  DBClientAction::ActionLogStatus newStatus,
+  ActionLogStatus currStatus, ActionLogStatus newStatus,
   ExecCommandContext *ctx);
 
 void _assertActionLogAfterExecResident(
   ExecCommandContext *ctx, uint32_t expectedNullFlags,
-  DBClientAction::ActionLogStatus currStatus,
-  DBClientAction::ActionLogStatus newStatus,
+  ActionLogStatus currStatus, ActionLogStatus newStatus,
   ResidentLogStatusChangedCB statusChangedCb = NULL,
-  DBClientAction::ActionLogExecFailureCode expectedFailureCode =
-    DBClientAction::ACTLOG_EXECFAIL_NONE,
+  ActionLogExecFailureCode expectedFailureCode = ACTLOG_EXECFAIL_NONE,
   int expectedExitCode = RESIDENT_MOD_NOTIFY_EVENT_ACK_OK)
 {
 	while (true) {
@@ -480,12 +476,12 @@ void _assertActionLogAfterExecResident(
 		if (statusChangedCb)
 			(*statusChangedCb)(currStatus, newStatus, ctx);
 
-		if (newStatus == DBClientAction::ACTLOG_STAT_SUCCEEDED)
+		if (newStatus == ACTLOG_STAT_SUCCEEDED)
 			break;
-		if (newStatus == DBClientAction::ACTLOG_STAT_FAILED)
+		if (newStatus == ACTLOG_STAT_FAILED)
 			break;
-		currStatus = DBClientAction::ACTLOG_STAT_STARTED;
-		newStatus = DBClientAction::ACTLOG_STAT_SUCCEEDED;
+		currStatus = ACTLOG_STAT_STARTED;
+		newStatus = ACTLOG_STAT_SUCCEEDED;
 		expectedNullFlags = ACTLOG_FLAG_QUEUING_TIME;
 	}
 }
@@ -494,28 +490,26 @@ cut_trace(_assertActionLogAfterExecResident(CTX, ##__VA_ARGS__))
 
 static void setExpectedValueForResidentManyEvents(
   size_t idx, uint32_t &expectedNullFlags,
-  DBClientAction::ActionLogStatus &currStatus,
-  DBClientAction::ActionLogStatus &newStatus)
+  ActionLogStatus &currStatus, ActionLogStatus &newStatus)
 {
 	if (idx == 0) {
 		expectedNullFlags = ACTLOG_FLAG_QUEUING_TIME |
 		                    ACTLOG_FLAG_END_TIME |
 		                    ACTLOG_FLAG_EXIT_CODE;
-		currStatus = DBClientAction::ACTLOG_STAT_LAUNCHING_RESIDENT;
-		newStatus = DBClientAction::ACTLOG_STAT_STARTED;
+		currStatus = ACTLOG_STAT_LAUNCHING_RESIDENT;
+		newStatus = ACTLOG_STAT_STARTED;
 	} else {
 		expectedNullFlags = ACTLOG_FLAG_QUEUING_TIME;
-		currStatus = DBClientAction::ACTLOG_STAT_STARTED;
-		newStatus = DBClientAction::ACTLOG_STAT_SUCCEEDED;
+		currStatus = ACTLOG_STAT_STARTED;
+		newStatus = ACTLOG_STAT_SUCCEEDED;
 	}
 }
 
 static void statusChangedCbForArgCheck(
-  DBClientAction::ActionLogStatus currStatus,
-  DBClientAction::ActionLogStatus newStatus,
+  ActionLogStatus currStatus, ActionLogStatus newStatus,
   ExecCommandContext *ctx)
 {
-	if (currStatus != DBClientAction::ACTLOG_STAT_STARTED)
+	if (currStatus != ACTLOG_STAT_STARTED)
 		return;
 	if (ctx->requestedEventInfo)
 		return;
@@ -621,8 +615,7 @@ void test_execCommandActionWithWrongPath(void)
 	arg.usePipe = false;
 	arg.command = "wrong-command-dayo";
 	assertExecAction(ctx, arg);
-	assertActionLogForFailure(
-	  ctx, DBClientAction::ACTLOG_EXECFAIL_ENTRY_NOT_FOUND);
+	assertActionLogForFailure(ctx, ACTLOG_EXECFAIL_ENTRY_NOT_FOUND);
 }
 
 void test_execResidentAction(void)
@@ -635,10 +628,9 @@ void test_execResidentAction(void)
 
 	uint32_t expectedNullFlags =
 	  ACTLOG_FLAG_QUEUING_TIME|ACTLOG_FLAG_END_TIME|ACTLOG_FLAG_EXIT_CODE;
-	assertActionLogAfterExecResident(
-	  ctx, expectedNullFlags,
-	  DBClientAction::ACTLOG_STAT_LAUNCHING_RESIDENT,
-	  DBClientAction::ACTLOG_STAT_STARTED);
+	assertActionLogAfterExecResident(ctx, expectedNullFlags,
+	                                 ACTLOG_STAT_LAUNCHING_RESIDENT,
+	                                 ACTLOG_STAT_STARTED);
 }
 
 void test_execResidentActionWithWrongPath(void)
@@ -651,10 +643,9 @@ void test_execResidentActionWithWrongPath(void)
 	assertExecAction(ctx, arg);
 	assertActionLogAfterExecResident(
 	  ctx, ACTLOG_FLAG_QUEUING_TIME,
-	  DBClientAction::ACTLOG_STAT_LAUNCHING_RESIDENT,
-	  DBClientAction::ACTLOG_STAT_FAILED,
+	  ACTLOG_STAT_LAUNCHING_RESIDENT, ACTLOG_STAT_FAILED,
 	  NULL, // statusChangedCb
-	  DBClientAction::ACTLOG_EXECFAIL_ENTRY_NOT_FOUND,
+	  ACTLOG_EXECFAIL_ENTRY_NOT_FOUND,
 	  0     // expectedExitCode
 	);
 	assertWaitRemoveWatching(ctx);
@@ -665,12 +656,12 @@ void test_execResidentActionWithWrongPath(void)
 	  true, ctx->dbAction.getLog(ctx->actionLog, ctx->actorInfo.logId));
 	assertActionLog(
 	  ctx->actionLog, ctx->actorInfo.logId,
-	  ctx->actDef.id, DBClientAction::ACTLOG_STAT_FAILED,
+	  ctx->actDef.id, ACTLOG_STAT_FAILED,
 	  0, /* starterId */
 	  0, /* queuingTime */
 	  CURR_DATETIME, /* startTime */
 	  CURR_DATETIME, /* endTime */
-	  DBClientAction::ACTLOG_EXECFAIL_ENTRY_NOT_FOUND,
+	  ACTLOG_EXECFAIL_ENTRY_NOT_FOUND,
 	  0, // exitCode
 	  ACTLOG_FLAG_QUEUING_TIME);
 }
@@ -681,8 +672,8 @@ void test_execResidentActionManyEvents(void)
 	ExecCommandContext *ctx = g_execCommandCtx; // just an alias
 
 	uint32_t expectedNullFlags;
-	DBClientAction::ActionLogStatus currStatus;
-	DBClientAction::ActionLogStatus newStatus;
+	ActionLogStatus currStatus;
+	ActionLogStatus newStatus;
 	size_t numEvents = 10;
 	for (size_t i = 0; i < numEvents; i++) {
 		setExpectedValueForResidentManyEvents(i, expectedNullFlags,
@@ -708,8 +699,8 @@ void test_execResidentActionManyEventsGenThenCheckLog(void)
 	}
 
 	uint32_t expectedNullFlags;
-	DBClientAction::ActionLogStatus currStatus;
-	DBClientAction::ActionLogStatus newStatus;
+	ActionLogStatus currStatus;
+	ActionLogStatus newStatus;
 	for (size_t i = 0; i < numEvents; i++) {
 		setExpectedValueForResidentManyEvents(i, expectedNullFlags,
 		                                      currStatus, newStatus);
@@ -739,8 +730,8 @@ void test_execResidentActionCheckArg(void)
 	  ACTLOG_FLAG_QUEUING_TIME|ACTLOG_FLAG_END_TIME|ACTLOG_FLAG_EXIT_CODE;
 	assertActionLogAfterExecResident(
 	  ctx, expectedNullFlags,
-	  DBClientAction::ACTLOG_STAT_LAUNCHING_RESIDENT,
-	  DBClientAction::ACTLOG_STAT_STARTED,
+	  ACTLOG_STAT_LAUNCHING_RESIDENT,
+	  ACTLOG_STAT_STARTED,
 	  statusChangedCbForArgCheck);
 
 	assertWaitEventBody(ctx);

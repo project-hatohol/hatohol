@@ -377,10 +377,10 @@ bool ActionManager::spawn(const ActionDef &actionDef, ActorInfo *actorInfo,
 		string msg = StringUtils::sprintf(
 		  "Failed to execute command: %s, action ID: %d",
 		  error->message, actionDef.id);
-		DBClientAction::ActionLogExecFailureCode failureCode =
+		ActionLogExecFailureCode failureCode =
 		  error->code == G_SPAWN_ERROR_NOENT ?
-		    DBClientAction::ACTLOG_EXECFAIL_ENTRY_NOT_FOUND :
-		    DBClientAction::ACTLOG_EXECFAIL_EXEC_FAILURE;
+		    ACTLOG_EXECFAIL_ENTRY_NOT_FOUND :
+		    ACTLOG_EXECFAIL_EXEC_FAILURE;
 		g_error_free(error);
 		actorInfo->logId =
 		  m_ctx->dbAction.createActionLog(actionDef, failureCode);
@@ -388,13 +388,12 @@ bool ActionManager::spawn(const ActionDef &actionDef, ActorInfo *actorInfo,
 		         msg.c_str(), actorInfo->logId);
 		return false;
 	}
-	DBClientAction::ActionLogStatus initialStatus =
+	ActionLogStatus initialStatus =
 	  (actionDef.type == ACTION_COMMAND) ?
-	    DBClientAction::ACTLOG_STAT_STARTED :
-	    DBClientAction::ACTLOG_STAT_LAUNCHING_RESIDENT;
+	    ACTLOG_STAT_STARTED : ACTLOG_STAT_LAUNCHING_RESIDENT;
 	actorInfo->logId =
-	   m_ctx->dbAction.createActionLog(
-	     actionDef, DBClientAction::ACTLOG_EXECFAIL_NONE, initialStatus);
+	  m_ctx->dbAction.createActionLog(actionDef,
+	                                  ACTLOG_EXECFAIL_NONE, initialStatus);
 	m_ctx->collector.addActor(*actorInfo);
 	m_ctx->collector.unlock();
 
@@ -453,8 +452,8 @@ void ActionManager::execResidentAction(const ActionDef &actionDef,
 		notifyInfo->eventInfo = eventInfo; // just copy
 		notifyInfo->logId =
 		   m_ctx->dbAction.createActionLog(
-		     actionDef, DBClientAction::ACTLOG_EXECFAIL_NONE,
-		     DBClientAction::ACTLOG_STAT_RESIDENT_QUEUING);
+		     actionDef, ACTLOG_EXECFAIL_NONE,
+		     ACTLOG_STAT_RESIDENT_QUEUING);
 
 		residentInfo->notifyQueue.push_back(notifyInfo);
 		residentInfo->queueLock.unlock();
@@ -511,9 +510,8 @@ void ActionManager::launchedCb(GIOStatus stat, mlpl::SmartBuffer &sbuf,
 	ActionManager *obj = residentInfo->actionManager;
 	if (stat != G_IO_STATUS_NORMAL) {
 		MLPL_ERR("Error: status: %x\n", stat);
-		obj->closeResident(
-		  notifyInfo,
-		  DBClientAction:: ACTLOG_EXECFAIL_PIPE_READ_ERR);
+		obj->closeResident(notifyInfo,
+		                   ACTLOG_EXECFAIL_PIPE_READ_ERR);
 		return;
 	}
 
@@ -522,9 +520,8 @@ void ActionManager::launchedCb(GIOStatus stat, mlpl::SmartBuffer &sbuf,
 	if (bodyLen != 0) {
 		MLPL_ERR("Invalid body length: %"PRIu32", "
 		         "expect: 0\n", bodyLen);
-		obj->closeResident(
-		  notifyInfo,
-		  DBClientAction::ACTLOG_EXECFAIL_PIPE_READ_DATA_UNEXPECTED);
+		obj->closeResident(notifyInfo,
+		                   ACTLOG_EXECFAIL_PIPE_READ_DATA_UNEXPECTED);
 		return;
 	}
 
@@ -533,9 +530,8 @@ void ActionManager::launchedCb(GIOStatus stat, mlpl::SmartBuffer &sbuf,
 		MLPL_ERR("Invalid packet type: %"PRIu16", "
 		         "expect: %d\n", pktType,
 		         RESIDENT_PROTO_PKT_TYPE_LAUNCHED);
-		obj->closeResident(
-		  notifyInfo,
-		  DBClientAction::ACTLOG_EXECFAIL_PIPE_READ_DATA_UNEXPECTED);
+		obj->closeResident(notifyInfo,
+		                   ACTLOG_EXECFAIL_PIPE_READ_DATA_UNEXPECTED);
 	}
 
 	sendParameters(residentInfo);
@@ -552,18 +548,15 @@ void ActionManager::moduleLoadedCb(GIOStatus stat, SmartBuffer &sbuf,
 	ActionManager *obj = residentInfo->actionManager;
 	if (stat != G_IO_STATUS_NORMAL) {
 		MLPL_ERR("Error: status: %x\n", stat);
-		obj->closeResident(
-		  notifyInfo,
-		  DBClientAction:: ACTLOG_EXECFAIL_PIPE_READ_ERR);
+		obj->closeResident(notifyInfo, ACTLOG_EXECFAIL_PIPE_READ_ERR);
 		return;
 	}
 
 	int pktType = ResidentCommunicator::getPacketType(sbuf);
 	if (pktType != RESIDENT_PROTO_PKT_TYPE_MODULE_LOADED) {
 		MLPL_ERR("Unexpected packet: %d\n", pktType);
-		obj->closeResident(
-		  notifyInfo,
-		  DBClientAction::ACTLOG_EXECFAIL_PIPE_READ_DATA_UNEXPECTED);
+		obj->closeResident(notifyInfo,
+		                   ACTLOG_EXECFAIL_PIPE_READ_DATA_UNEXPECTED);
 		return;
 	}
 
@@ -572,27 +565,27 @@ void ActionManager::moduleLoadedCb(GIOStatus stat, SmartBuffer &sbuf,
 	sbuf.incIndex(RESIDENT_PROTO_HEADER_LEN);
 	uint32_t resultCode = sbuf.getValueAndIncIndex<uint32_t>();
 	if (resultCode != RESIDENT_PROTO_MODULE_LOADED_CODE_SUCCESS) {
-		DBClientAction::ActionLogExecFailureCode code;
+		ActionLogExecFailureCode code;
 		MLPL_ERR("Failed to load module. "
 		         "code: %"PRIu32"\n", resultCode);
 		switch (resultCode) {
 		case RESIDENT_PROTO_MODULE_LOADED_CODE_FAIL_DLOPEN:
-			code = DBClientAction::ACTLOG_EXECFAIL_ENTRY_NOT_FOUND;
+			code = ACTLOG_EXECFAIL_ENTRY_NOT_FOUND;
 			break;
 		case RESIDENT_PROTO_MODULE_LOADED_CODE_NOT_FOUND_MOD_SYMBOL:
-			code = DBClientAction::ACTLOG_EXECFAIL_MOD_NOT_FOUND_SYMBOL;
+			code = ACTLOG_EXECFAIL_MOD_NOT_FOUND_SYMBOL;
 			break;
 		case RESIDENT_PROTO_MODULE_LOADED_CODE_MOD_VER_INVALID:
-			code = DBClientAction::ACTLOG_EXECFAIL_MOD_VER_INVALID;
+			code = ACTLOG_EXECFAIL_MOD_VER_INVALID;
 			break;
 		case RESIDENT_PROTO_MODULE_LOADED_CODE_INIT_FAILURE:
-			code = DBClientAction::ACTLOG_EXECFAIL_MOD_INIT_FAILURE;
+			code = ACTLOG_EXECFAIL_MOD_INIT_FAILURE;
 			break;
 		case RESIDENT_PROTO_MODULE_LOADED_CODE_NOT_FOUND_NOTIFY_EVENT:
-			code = DBClientAction::ACTLOG_EXECFAIL_MOD_NOT_FOUND_NOTIFY_EVENT;
+			code = ACTLOG_EXECFAIL_MOD_NOT_FOUND_NOTIFY_EVENT;
 			break;
 		default:
-			code = DBClientAction::ACTLOG_EXECFAIL_MOD_UNKNOWN_REASON;
+			code = ACTLOG_EXECFAIL_MOD_UNKNOWN_REASON;
 			break;
 		}
 		obj->closeResident(notifyInfo, code);
@@ -611,18 +604,15 @@ void ActionManager::gotNotifyEventAckCb(GIOStatus stat, SmartBuffer &sbuf,
 	ActionManager *obj = residentInfo->actionManager;
 	if (stat != G_IO_STATUS_NORMAL) {
 		MLPL_ERR("Error: status: %x\n", stat);
-		obj->closeResident(
-		  notifyInfo,
-		  DBClientAction::ACTLOG_EXECFAIL_PIPE_READ_ERR);
+		obj->closeResident(notifyInfo, ACTLOG_EXECFAIL_PIPE_READ_ERR);
 		return;
 	}
 
 	int pktType = ResidentCommunicator::getPacketType(sbuf);
 	if (pktType != RESIDENT_PROTO_PKT_TYPE_NOTIFY_EVENT_ACK) {
 		MLPL_ERR("Unexpected packet: %d\n", pktType);
-		obj->closeResident(
-		  notifyInfo,
-		  DBClientAction::ACTLOG_EXECFAIL_PIPE_READ_DATA_UNEXPECTED);
+		obj->closeResident(notifyInfo,
+		                   ACTLOG_EXECFAIL_PIPE_READ_DATA_UNEXPECTED);
 		return;
 	}
 
@@ -636,7 +626,7 @@ void ActionManager::gotNotifyEventAckCb(GIOStatus stat, SmartBuffer &sbuf,
 	               "log ID: %"PRIx64, notifyInfo->logId);
 	DBClientAction::LogEndExecActionArg logArg;
 	logArg.logId = notifyInfo->logId;
-	logArg.status = DBClientAction::ACTLOG_STAT_SUCCEEDED,
+	logArg.status = ACTLOG_STAT_SUCCEEDED,
 	logArg.exitCode = resultCode;
 
 	DBClientAction dbAction;
@@ -759,13 +749,12 @@ void ActionManager::closeResident(ResidentInfo *residentInfo)
 		MLPL_ERR("Failed to kill. pid: %d, %s\n", pid, strerror(errno));
 }
 
-void ActionManager::closeResident(
-  ResidentNotifyInfo *notifyInfo,
-  DBClientAction::ActionLogExecFailureCode failureCode)
+void ActionManager::closeResident(ResidentNotifyInfo *notifyInfo,
+                                  ActionLogExecFailureCode failureCode)
 {
 	DBClientAction::LogEndExecActionArg logArg;
 	logArg.logId = notifyInfo->logId;
-	logArg.status = DBClientAction::ACTLOG_STAT_FAILED;
+	logArg.status = ACTLOG_STAT_FAILED;
 	logArg.failureCode = failureCode;
 	logArg.exitCode = 0;
 	DBClientAction dbAction;

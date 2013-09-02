@@ -117,15 +117,14 @@ static string makeExpectedString(const ActionDef &actDef, int expectedId)
 
 static string makeExpectedLogString(
   const ActionDef &actDef, uint64_t logId,
-  DBClientAction::ActionLogStatus status = DBClientAction::ACTLOG_STAT_STARTED,
-  DBClientAction::ActionLogExecFailureCode failureCode
-    = DBClientAction::ACTLOG_EXECFAIL_NONE)
+  ActionLogStatus status = ACTLOG_STAT_STARTED,
+  ActionLogExecFailureCode failureCode = ACTLOG_EXECFAIL_NONE)
 {
 	int expectedStarterId = 0; // This is currently not used.
 	bool shouldHaveExitTime = true;
-	if (status == DBClientAction::ACTLOG_STAT_STARTED ||
-	    status == DBClientAction::ACTLOG_STAT_LAUNCHING_RESIDENT ||
-	    status == DBClientAction::ACTLOG_STAT_LAUNCHING_RESIDENT) {
+	if (status == ACTLOG_STAT_STARTED ||
+	    status == ACTLOG_STAT_LAUNCHING_RESIDENT ||
+	    status == ACTLOG_STAT_LAUNCHING_RESIDENT) {
 		shouldHaveExitTime = false;
 	}
 
@@ -151,7 +150,7 @@ static string makeExpectedEndLogString(
 	cppcut_assert_equal((size_t)NUM_IDX_ACTION_LOGS, words.size(),
 	                    cut_message("logAtStart: %s", logAtStart.c_str()));
 	words[IDX_ACTION_LOGS_STATUS] =
-	   StringUtils::sprintf("%d", DBClientAction::ACTLOG_STAT_SUCCEEDED);
+	   StringUtils::sprintf("%d", ACTLOG_STAT_SUCCEEDED);
 	words[IDX_ACTION_LOGS_END_TIME] = DBCONTENT_MAGIC_CURR_DATETIME;
 	words[IDX_ACTION_LOGS_EXIT_CODE] = 
 	   StringUtils::sprintf("%d", logArg.exitCode);
@@ -199,18 +198,18 @@ void test_startExecAction(void)
 	DBClientAction dbAction;
 	for (size_t i = 0; i < NUM_TEST_ACTION_DEF; i++) {
 		const ActionDef &actDef = testActionDef[i];
-		DBClientAction::ActionLogStatus status;
+		ActionLogStatus status;
 		if (actDef.type == ACTION_COMMAND)
-			status = DBClientAction::ACTLOG_STAT_STARTED;
+			status = ACTLOG_STAT_STARTED;
 		else if (actDef.type == ACTION_RESIDENT)
-			status = DBClientAction::ACTLOG_STAT_LAUNCHING_RESIDENT;
+			status = ACTLOG_STAT_LAUNCHING_RESIDENT;
 		else {
 			// Set any value to avoid a compiler warning.
-			status = DBClientAction::ACTLOG_STAT_STARTED;
+			status = ACTLOG_STAT_STARTED;
 			cut_fail("Unknown action type: %d\n", actDef.type);
 		}
-		uint64_t logId = dbAction.createActionLog(
-		  actDef, DBClientAction::ACTLOG_EXECFAIL_NONE, status);
+		uint64_t logId =
+		  dbAction.createActionLog(actDef, ACTLOG_EXECFAIL_NONE, status);
 		const uint64_t expectedId = i + 1;
 		cppcut_assert_equal(expectedId, logId);
 		string statement = "select * from ";
@@ -226,17 +225,15 @@ void test_startExecActionWithExecFailure(void)
 	DBClientAction dbAction;
 	size_t targetIdx = 1;
 	const ActionDef &actDef = testActionDef[targetIdx];
-	uint64_t logId =
-	   dbAction.createActionLog(actDef,
-	     DBClientAction::ACTLOG_EXECFAIL_EXEC_FAILURE);
+	uint64_t logId = dbAction.createActionLog(actDef,
+	                                          ACTLOG_EXECFAIL_EXEC_FAILURE);
 	const uint64_t expectedId = 1;
 	cppcut_assert_equal(expectedId, logId);
 	string statement = "select * from ";
 	statement += DBClientAction::getTableNameActionLogs();
 	expect +=
-	  makeExpectedLogString
-	    (actDef, expectedId, DBClientAction::ACTLOG_STAT_FAILED,
-	     DBClientAction::ACTLOG_EXECFAIL_EXEC_FAILURE);
+	  makeExpectedLogString(actDef, expectedId, ACTLOG_STAT_FAILED,
+	                        ACTLOG_EXECFAIL_EXEC_FAILURE);
 	assertDBContent(dbAction.getDBAgent(), statement, expect);
 }
 
@@ -248,7 +245,7 @@ void test_endExecAction(void)
 
 	DBClientAction::LogEndExecActionArg logArg;
 	logArg.logId = targetIdx + 1;
-	logArg.status = DBClientAction::ACTLOG_STAT_SUCCEEDED;
+	logArg.status = ACTLOG_STAT_SUCCEEDED;
 	logArg.exitCode = exitCode;
 
 	// make action logs

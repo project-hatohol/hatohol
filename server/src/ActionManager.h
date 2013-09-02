@@ -138,9 +138,8 @@ protected:
 
 	static void actorCollectedCb(void *priv);
 	void closeResident(ResidentInfo *residentInfo);
-	void closeResident(
-	  ResidentNotifyInfo *notifyInfo,
-	  DBClientAction::ActionLogExecFailureCode failureCode);
+	void closeResident(ResidentNotifyInfo *notifyInfo,
+	                   ActionLogExecFailureCode failureCode);
 
 private:
 	PrivateContext *m_ctx;

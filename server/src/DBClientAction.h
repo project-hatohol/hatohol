@@ -157,51 +157,51 @@ enum {
 	NUM_IDX_ACTION_LOGS,
 };
 
+enum ActionLogStatus {
+	ACTLOG_STAT_INVALID,
+
+	// Hatohol limits the number of actions running
+	// at the same time. If it excceds the limit,
+	// a new action is registered as ACTLOG_STAT_QUEUING.
+	ACTLOG_STAT_QUEUING,
+
+	ACTLOG_STAT_STARTED,
+	ACTLOG_STAT_SUCCEEDED,
+	ACTLOG_STAT_FAILED,
+
+	// For resident mode action, following staus is logged
+	// until the launching and setup of hatohol-resident-yard
+	// is completed.
+	ACTLOG_STAT_LAUNCHING_RESIDENT,
+
+	// Resident acitons for an actio ID are executed in series
+	// This status is used for waiting actions.
+	ACTLOG_STAT_RESIDENT_QUEUING,
+};
+
+enum ActionLogExecFailureCode {
+	ACTLOG_EXECFAIL_NONE,
+	ACTLOG_EXECFAIL_EXEC_FAILURE,
+	ACTLOG_EXECFAIL_ENTRY_NOT_FOUND,
+	ACTLOG_EXECFAIL_MOD_FAIL_DLOPEN,
+	ACTLOG_EXECFAIL_MOD_NOT_FOUND_SYMBOL,
+	ACTLOG_EXECFAIL_MOD_VER_INVALID,
+	ACTLOG_EXECFAIL_MOD_INIT_FAILURE,
+	ACTLOG_EXECFAIL_MOD_NOT_FOUND_NOTIFY_EVENT,
+	ACTLOG_EXECFAIL_MOD_UNKNOWN_REASON,
+	ACTLOG_EXECFAIL_KILLED_TIMEOUT,
+	ACTLOG_EXECFAIL_PIPE_READ_DATA_UNEXPECTED,
+	ACTLOG_EXECFAIL_PIPE_READ_ERR,
+	ACTLOG_EXECFAIL_PIPE_WRITE_ERR,
+	ACTLOG_EXECFAIL_KILLED_SIGNAL,
+	ACTLOG_EXECFAIL_DUMPED_SIGNAL,
+	ACTLOG_EXECFAIL_UNEXPECTED_EXIT,
+};
+
 class DBClientAction :
    public DBClientConnectable<DB_DOMAIN_ID_ACTION>
 {
 public:
-	enum ActionLogStatus {
-		ACTLOG_STAT_INVALID,
-
-		// Hatohol limits the number of actions running
-		// at the same time. If it excceds the limit,
-		// a new action is registered as ACTLOG_STAT_QUEUING.
-		ACTLOG_STAT_QUEUING,
-
-		ACTLOG_STAT_STARTED,
-		ACTLOG_STAT_SUCCEEDED,
-		ACTLOG_STAT_FAILED,
-
-		// For resident mode action, following staus is logged
-		// until the launching and setup of hatohol-resident-yard
-		// is completed.
-		ACTLOG_STAT_LAUNCHING_RESIDENT,
-
-		// Resident acitons for an actio ID are executed in series
-		// This status is used for waiting actions.
-		ACTLOG_STAT_RESIDENT_QUEUING,
-	};
-
-	enum ActionLogExecFailureCode {
-		ACTLOG_EXECFAIL_NONE,
-		ACTLOG_EXECFAIL_EXEC_FAILURE,
-		ACTLOG_EXECFAIL_ENTRY_NOT_FOUND,
-		ACTLOG_EXECFAIL_MOD_FAIL_DLOPEN,
-		ACTLOG_EXECFAIL_MOD_NOT_FOUND_SYMBOL,
-		ACTLOG_EXECFAIL_MOD_VER_INVALID,
-		ACTLOG_EXECFAIL_MOD_INIT_FAILURE,
-		ACTLOG_EXECFAIL_MOD_NOT_FOUND_NOTIFY_EVENT,
-		ACTLOG_EXECFAIL_MOD_UNKNOWN_REASON,
-		ACTLOG_EXECFAIL_KILLED_TIMEOUT,
-		ACTLOG_EXECFAIL_PIPE_READ_DATA_UNEXPECTED,
-		ACTLOG_EXECFAIL_PIPE_READ_ERR,
-		ACTLOG_EXECFAIL_PIPE_WRITE_ERR,
-		ACTLOG_EXECFAIL_KILLED_SIGNAL,
-		ACTLOG_EXECFAIL_DUMPED_SIGNAL,
-		ACTLOG_EXECFAIL_UNEXPECTED_EXIT,
-	};
-
 	struct LogEndExecActionArg {
 		uint64_t logId;
 		ActionLogStatus status;
