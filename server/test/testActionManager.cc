@@ -324,7 +324,6 @@ static void _assertExecAction(ExecCommandContext *ctx, ExecActionArg &arg)
 
 	// launch ActionTp (the actor)
 	TestActionManager actMgr;
-	ctx->actorInfo.pid = 0;
 	if (arg.type == ACTION_COMMAND) {
 		cppcut_assert_equal(false, ctx->pipeName.empty());
 		ctx->actDef.command = StringUtils::sprintf(
@@ -598,7 +597,6 @@ void test_execCommandActionWithWrongPath(void)
 	ctx->actDef.id = 7869;
 	ctx->actDef.type = ACTION_COMMAND;
 	ctx->actDef.command = "wrong-command-dayo";
-	ctx->actorInfo.logId = 0;
 	TestActionManager actMgr;
 	actMgr.callExecCommandAction(ctx->actDef, &ctx->actorInfo);
 	assertActionLogForFailure(

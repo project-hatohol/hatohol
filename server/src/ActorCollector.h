@@ -25,6 +25,13 @@
 struct ActorInfo {
 	pid_t    pid;
 	uint64_t logId;
+	
+	// constructor
+	ActorInfo (void)
+	: pid(0),
+	  logId(-1)
+	{
+	}
 };
 
 class ActorCollector
