@@ -66,7 +66,6 @@ namespace testActionManager {
 
 struct ExecCommandContext : public ResidentPullHelper<ExecCommandContext> {
 	pid_t actionTpPid;
-	GMainLoop *loop;
 	bool timedOut;
 	guint timerTag;
 	ActorInfo actorInfo;
@@ -87,7 +86,6 @@ struct ExecCommandContext : public ResidentPullHelper<ExecCommandContext> {
 
 	ExecCommandContext(void)
 	: actionTpPid(0),
-	  loop(NULL),
 	  timedOut(false),
 	  timerTag(0),
 	  timeout(5 * 1000),
@@ -116,9 +114,6 @@ struct ExecCommandContext : public ResidentPullHelper<ExecCommandContext> {
 				  actionTpPid, signo, strerror(errno));
 			}
 		}
-
-		if (loop)
-			g_main_loop_unref(loop);
 
 		if (timerTag)
 			g_source_remove(timerTag);
@@ -449,9 +444,6 @@ void _assertActionLogAfterExecResident(
   DBClientAction::ActionLogStatus newStatus,
   ResidentLogStatusChangedCB statusChangedCb = NULL)
 {
-	// check the action log after the actor is terminated
-	ctx->loop = g_main_loop_new(NULL, TRUE);
-
 	while (true) {
 		// ActionManager updates the aciton log in the wake of GLIB's
 		// events. So we can wait for the log update with
