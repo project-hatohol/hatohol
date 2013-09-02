@@ -172,7 +172,7 @@ static void waitConnect(ExecCommandContext *ctx)
 	ctx->pullHeader(waitConnectCb);
 
 	while (!ctx->receivedActTpBegin) {
-		g_main_iteration(TRUE);
+		g_main_context_iteration(NULL, TRUE);
 		cppcut_assert_equal(false, ctx->timedOut);
 	}
 }
@@ -212,7 +212,7 @@ static void getArguments(ExecCommandContext *ctx,
 	ctx->pullData(RESIDENT_PROTO_HEADER_LEN + ACTTP_ARG_LIST_SIZE_LEN,
                       getArgumentsTopHalfCb);
 	while (!ctx->receivedActTpArgList) {
-		g_main_iteration(TRUE);
+		g_main_context_iteration(NULL, TRUE);
 		cppcut_assert_equal(false, ctx->timedOut);
 	}
 
@@ -251,7 +251,7 @@ static void sendQuit(ExecCommandContext *ctx)
 
 	ctx->expectHup = true;
 	while (!ctx->receivedActTpQuit) {
-		g_main_iteration(TRUE);
+		g_main_context_iteration(NULL, TRUE);
 		cppcut_assert_equal(false, ctx->timedOut);
 	}
 }
@@ -383,7 +383,7 @@ void _assertWaitForChangeActionLogStatus(
   ExecCommandContext *ctx, DBClientAction::ActionLogStatus currStatus)
 {
 	do {
-		g_main_iteration(TRUE);
+		g_main_context_iteration(NULL, TRUE);
 		cppcut_assert_equal(false, ctx->timedOut);
 		cppcut_assert_equal(
 		  true, ctx->dbAction.getLog(ctx->actionLog,
@@ -553,7 +553,7 @@ static void replyEventInfoCb(GIOStatus stat, mlpl::SmartBuffer &sbuf,
 static void _assertWaitEventBody(ExecCommandContext *ctx)
 {
 	while (!ctx->receivedEventInfo) {
-		g_main_iteration(TRUE);
+		g_main_context_iteration(NULL, TRUE);
 		cppcut_assert_equal(false, ctx->timedOut);
 	}
 }
