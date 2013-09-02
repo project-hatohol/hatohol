@@ -19,6 +19,7 @@
 
 #include <cstring>
 #include <deque>
+#include <errno.h>
 #include "ActionManager.h"
 #include "ActorCollector.h"
 #include "DBClientAction.h"
@@ -45,6 +46,7 @@ struct ActionManager::ResidentNotifyInfo {
 };
 
 typedef deque<ActionManager::ResidentNotifyInfo *> ResidentNotifyQueue;
+typedef ResidentNotifyQueue::iterator              ResidentNotifyQueueIterator;
 
 enum ResidentStatus {
 	RESIDENT_STAT_INIT,
@@ -127,6 +129,28 @@ struct ResidentInfo :
 		notifyQueue.pop_front();
 		queueLock.unlock();
 
+		delete notifyInfo;
+	}
+
+	void deleteNotifyInfo(ActionManager::ResidentNotifyInfo *notifyInfo)
+	{
+		bool found = false;
+		ResidentNotifyQueueIterator it;
+		queueLock.lock();
+		it = notifyQueue.begin();
+		for (; it != notifyQueue.end(); ++it) {
+			if (*it == notifyInfo) {
+				found = true;
+				notifyQueue.erase(it);
+				break;
+			}
+		}
+		queueLock.unlock();
+
+		if (!found) {
+			MLPL_BUG("Not found: notifyInfo: %p, "
+			         "logId: %"PRIu64"\n", notifyInfo->logId);
+		}
 		delete notifyInfo;
 	}
 };
@@ -440,7 +464,9 @@ void ActionManager::launchedCb(GIOStatus stat, mlpl::SmartBuffer &sbuf,
 	ActionManager *obj = residentInfo->actionManager;
 	if (stat != G_IO_STATUS_NORMAL) {
 		MLPL_ERR("Error: status: %x\n", stat);
-		obj->closeResident(residentInfo);
+		obj->closeResident(
+		  notifyInfo,
+		  DBClientAction:: ACTLOG_EXECFAIL_PIPE_READ_ERR);
 		return;
 	}
 
@@ -449,7 +475,9 @@ void ActionManager::launchedCb(GIOStatus stat, mlpl::SmartBuffer &sbuf,
 	if (bodyLen != 0) {
 		MLPL_ERR("Invalid body length: %"PRIu32", "
 		         "expect: 0\n", bodyLen);
-		obj->closeResident(residentInfo);
+		obj->closeResident(
+		  notifyInfo,
+		  DBClientAction::ACTLOG_EXECFAIL_PIPE_READ_DATA_UNEXPECTED);
 		return;
 	}
 
@@ -458,11 +486,15 @@ void ActionManager::launchedCb(GIOStatus stat, mlpl::SmartBuffer &sbuf,
 		MLPL_ERR("Invalid packet type: %"PRIu16", "
 		         "expect: %d\n", pktType,
 		         RESIDENT_PROTO_PKT_TYPE_LAUNCHED);
-		obj->closeResident(residentInfo);
+		obj->closeResident(
+		  notifyInfo,
+		  DBClientAction::ACTLOG_EXECFAIL_PIPE_READ_DATA_UNEXPECTED);
 	}
 
 	sendParameters(residentInfo);
-	residentInfo->pullHeader(moduleLoadedCb);
+	residentInfo->pullData(RESIDENT_PROTO_HEADER_LEN +
+	                       RESIDENT_PROTO_MODULE_LOADED_CODE_LEN,
+	                       moduleLoadedCb);
 	residentInfo->setStatus(RESIDENT_STAT_WAIT_PARAM_ACK);
 }
 
@@ -473,14 +505,50 @@ void ActionManager::moduleLoadedCb(GIOStatus stat, SmartBuffer &sbuf,
 	ActionManager *obj = residentInfo->actionManager;
 	if (stat != G_IO_STATUS_NORMAL) {
 		MLPL_ERR("Error: status: %x\n", stat);
-		obj->closeResident(residentInfo);
+		obj->closeResident(
+		  notifyInfo,
+		  DBClientAction:: ACTLOG_EXECFAIL_PIPE_READ_ERR);
 		return;
 	}
 
 	int pktType = ResidentCommunicator::getPacketType(sbuf);
 	if (pktType != RESIDENT_PROTO_PKT_TYPE_MODULE_LOADED) {
 		MLPL_ERR("Unexpected packet: %d\n", pktType);
-		obj->closeResident(residentInfo);
+		obj->closeResident(
+		  notifyInfo,
+		  DBClientAction::ACTLOG_EXECFAIL_PIPE_READ_DATA_UNEXPECTED);
+		return;
+	}
+
+	// check the result
+	sbuf.resetIndex();
+	sbuf.incIndex(RESIDENT_PROTO_HEADER_LEN);
+	uint32_t resultCode = sbuf.getValueAndIncIndex<uint32_t>();
+	if (resultCode != RESIDENT_PROTO_MODULE_LOADED_CODE_SUCCESS) {
+		DBClientAction::ActionLogExecFailureCode code;
+		MLPL_ERR("Failed to load module. "
+		         "code: %"PRIu32"\n", resultCode);
+		switch (resultCode) {
+		case RESIDENT_PROTO_MODULE_LOADED_CODE_FAIL_DLOPEN:
+			code = DBClientAction::ACTLOG_EXECFAIL_ENTRY_NOT_FOUND;
+			break;
+		case RESIDENT_PROTO_MODULE_LOADED_CODE_NOT_FOUND_MOD_SYMBOL:
+			code = DBClientAction::ACTLOG_EXECFAIL_MOD_NOT_FOUND_SYMBOL;
+			break;
+		case RESIDENT_PROTO_MODULE_LOADED_CODE_MOD_VER_INVALID:
+			code = DBClientAction::ACTLOG_EXECFAIL_MOD_VER_INVALID;
+			break;
+		case RESIDENT_PROTO_MODULE_LOADED_CODE_INIT_FAILURE:
+			code = DBClientAction::ACTLOG_EXECFAIL_MOD_INIT_FAILURE;
+			break;
+		case RESIDENT_PROTO_MODULE_LOADED_CODE_NOT_FOUND_NOTIFY_EVENT:
+			code = DBClientAction::ACTLOG_EXECFAIL_MOD_NOT_FOUND_NOTIFY_EVENT;
+			break;
+		default:
+			code = DBClientAction::ACTLOG_EXECFAIL_MOD_UNKNOWN_REASON;
+			break;
+		}
+		obj->closeResident(notifyInfo, code);
 		return;
 	}
 
@@ -496,14 +564,18 @@ void ActionManager::gotNotifyEventAckCb(GIOStatus stat, SmartBuffer &sbuf,
 	ActionManager *obj = residentInfo->actionManager;
 	if (stat != G_IO_STATUS_NORMAL) {
 		MLPL_ERR("Error: status: %x\n", stat);
-		obj->closeResident(residentInfo);
+		obj->closeResident(
+		  notifyInfo,
+		  DBClientAction::ACTLOG_EXECFAIL_PIPE_READ_ERR);
 		return;
 	}
 
 	int pktType = ResidentCommunicator::getPacketType(sbuf);
 	if (pktType != RESIDENT_PROTO_PKT_TYPE_NOTIFY_EVENT_ACK) {
 		MLPL_ERR("Unexpected packet: %d\n", pktType);
-		obj->closeResident(residentInfo);
+		obj->closeResident(
+		  notifyInfo,
+		  DBClientAction::ACTLOG_EXECFAIL_PIPE_READ_DATA_UNEXPECTED);
 		return;
 	}
 
@@ -625,4 +697,31 @@ void ActionManager::closeResident(ResidentInfo *residentInfo)
 {
 	MLPL_BUG("Not implemented: %s (%p)\n",
 	         __PRETTY_FUNCTION__, residentInfo);
+}
+
+void ActionManager::closeResident(
+  ResidentNotifyInfo *notifyInfo,
+  DBClientAction::ActionLogExecFailureCode failureCode)
+{
+	DBClientAction::LogEndExecActionArg logArg;
+	logArg.logId = notifyInfo->logId;
+	logArg.status = DBClientAction::ACTLOG_STAT_FAILED;
+	logArg.failureCode = failureCode;
+	logArg.exitCode = 0;
+	DBClientAction dbAction;
+	dbAction.logEndExecAction(logArg);
+
+	// remove this notifyInfo from the queue in the parent ResidentInfo
+	pid_t pid = notifyInfo->residentInfo->pid;
+	notifyInfo->residentInfo->deleteNotifyInfo(notifyInfo);
+	// NOTE: Hereafter we cannot access 'notifyInfo', because it is
+	//       deleted in the above function.
+
+	// kill hatohol-resident-yard.
+	// After hatohol-resident-yard is killed, the HUP handler of
+	// the pipe will be called. Then the handler calls
+	// closeResident(ResidentInfo *) and
+	// residentInfo instance will be deleted.
+	if (pid && kill(pid, SIGKILL))
+		MLPL_ERR("Failed to kill. pid: %d, %s\n", pid, strerror(errno));
 }

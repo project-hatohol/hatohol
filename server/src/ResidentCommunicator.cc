@@ -89,6 +89,13 @@ void ResidentCommunicator::addModuleOption(const std::string &moduleOption)
 	m_ctx->sbuf.incIndex(len);
 }
 
+void ResidentCommunicator::setModuleLoaded(uint32_t code)
+{
+	setHeader(RESIDENT_PROTO_MODULE_LOADED_CODE_LEN,
+	          RESIDENT_PROTO_PKT_TYPE_MODULE_LOADED);
+	m_ctx->sbuf.add32(code);
+}
+
 void ResidentCommunicator::setNotifyEventBody(
   int actionId, const EventInfo &eventInfo)
 {

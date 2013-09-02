@@ -442,7 +442,10 @@ void _assertActionLogAfterExecResident(
   ExecCommandContext *ctx, uint32_t expectedNullFlags,
   DBClientAction::ActionLogStatus currStatus,
   DBClientAction::ActionLogStatus newStatus,
-  ResidentLogStatusChangedCB statusChangedCb = NULL)
+  ResidentLogStatusChangedCB statusChangedCb = NULL,
+  DBClientAction::ActionLogExecFailureCode expectedFailureCode =
+    DBClientAction::ACTLOG_EXECFAIL_NONE,
+  int expectedExitCode = RESIDENT_MOD_NOTIFY_EVENT_ACK_OK)
 {
 	while (true) {
 		// ActionManager updates the aciton log in the wake of GLIB's
@@ -456,14 +459,16 @@ void _assertActionLogAfterExecResident(
 		  0, /* queuingTime */
 		  CURR_DATETIME, /* startTime */
 		  CURR_DATETIME, /* endTime */
-		  DBClientAction::ACTLOG_EXECFAIL_NONE, /* failureCode */
-		  RESIDENT_MOD_NOTIFY_EVENT_ACK_OK, /* exitCode */
+		  expectedFailureCode,
+		  expectedExitCode,
 		  expectedNullFlags /* nullFlags */);
 
 		if (statusChangedCb)
 			(*statusChangedCb)(currStatus, newStatus, ctx);
 
 		if (newStatus == DBClientAction::ACTLOG_STAT_SUCCEEDED)
+			break;
+		if (newStatus == DBClientAction::ACTLOG_STAT_FAILED)
 			break;
 		currStatus = DBClientAction::ACTLOG_STAT_STARTED;
 		newStatus = DBClientAction::ACTLOG_STAT_SUCCEEDED;
@@ -610,6 +615,24 @@ void test_execResidentAction(void)
 	  ctx, expectedNullFlags,
 	  DBClientAction::ACTLOG_STAT_LAUNCHING_RESIDENT,
 	  DBClientAction::ACTLOG_STAT_STARTED);
+}
+
+void test_execResidentActionWithWrongPath(void)
+{
+	g_execCommandCtx = new ExecCommandContext();
+	ExecCommandContext *ctx = g_execCommandCtx; // just an alias
+
+	ExecActionArg arg(0x4ab3fd32, ACTION_RESIDENT);
+	arg.command = "wrong-command-dayo.so";
+	assertExecAction(ctx, arg);
+	assertActionLogAfterExecResident(
+	  ctx, ACTLOG_FLAG_QUEUING_TIME,
+	  DBClientAction::ACTLOG_STAT_LAUNCHING_RESIDENT,
+	  DBClientAction::ACTLOG_STAT_FAILED,
+	  NULL, // statusChangedCb
+	  DBClientAction::ACTLOG_EXECFAIL_ENTRY_NOT_FOUND,
+	  0     // expectedExitCode
+	);
 }
 
 void test_execResidentActionManyEvents(void)

@@ -45,6 +45,7 @@ public:
 	void push(NamedPipe &namedPipe);
 	void addModulePath(const std::string &modulePath);
 	void addModuleOption(const std::string &moduleOption);
+	void setModuleLoaded(uint32_t code);
 	void setNotifyEventBody(int actionId, const EventInfo &eventInfo);
 	void setNotifyEventAck(uint32_t resuletCode);
 

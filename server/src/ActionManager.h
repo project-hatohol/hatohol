@@ -124,6 +124,9 @@ protected:
 	                 ResidentNotifyInfo *notifyInfo);
 
 	void closeResident(ResidentInfo *residentInfo);
+	void closeResident(
+	  ResidentNotifyInfo *notifyInfo,
+	  DBClientAction::ActionLogExecFailureCode failureCode);
 
 private:
 	PrivateContext *m_ctx;

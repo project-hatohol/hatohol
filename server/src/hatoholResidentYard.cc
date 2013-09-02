@@ -124,10 +124,10 @@ static void sendLaunched(PrivateContext *ctx)
 	comm.push(ctx->pipeWr);
 }
 
-static void sendModuleLoaded(PrivateContext *ctx)
+static void sendModuleLoaded(PrivateContext *ctx, uint32_t code)
 {
 	ResidentCommunicator comm;
-	comm.setHeader(0, RESIDENT_PROTO_PKT_TYPE_MODULE_LOADED);
+	comm.setModuleLoaded(code);
 	comm.push(ctx->pipeWr);
 }
 
@@ -153,7 +153,8 @@ static void getParametersBodyCb(GIOStatus stat, mlpl::SmartBuffer &sbuf,
 	if (!ctx->moduleHandle) {
 		MLPL_ERR("Failed to load module: %p, %s\n",
 		         modulePath.c_str(), dlerror());
-		requestQuit(ctx);
+		sendModuleLoaded(
+		  ctx, RESIDENT_PROTO_MODULE_LOADED_CODE_FAIL_DLOPEN);
 		return;
 	}
 
@@ -162,10 +163,10 @@ static void getParametersBodyCb(GIOStatus stat, mlpl::SmartBuffer &sbuf,
 	ctx->module = (ResidentModule *)
 	  dlsym(ctx->moduleHandle, RESIDENT_MODULE_SYMBOL_STR);
 	char *error;
-	if ((error = dlerror()) != NULL) {
-		MLPL_ERR("Failed to load symbol: %s, %s\n",
+	if ((error = dlerror()) != NULL) { MLPL_ERR("Failed to load symbol: %s, %s\n",
 		         RESIDENT_MODULE_SYMBOL_STR, error);
-		requestQuit(ctx);
+		sendModuleLoaded(
+		  ctx, RESIDENT_PROTO_MODULE_LOADED_CODE_NOT_FOUND_MOD_SYMBOL);
 		return;
 	}
 
@@ -174,7 +175,8 @@ static void getParametersBodyCb(GIOStatus stat, mlpl::SmartBuffer &sbuf,
 		MLPL_ERR("Module version unmatched: %"PRIu16", "
 		         "expected: %"PRIu16"\n",
 		         ctx->module->moduleVersion, RESIDENT_MODULE_VERSION);
-		requestQuit(ctx);
+		sendModuleLoaded(
+		  ctx, RESIDENT_PROTO_MODULE_LOADED_CODE_MOD_VER_INVALID);
 		return;
 	}
 
@@ -183,7 +185,8 @@ static void getParametersBodyCb(GIOStatus stat, mlpl::SmartBuffer &sbuf,
 		uint32_t result = (*ctx->module->init)(moduleOption.c_str());
 		if (result != RESIDENT_MOD_INIT_OK) {
 			MLPL_ERR("Failed to initialize: %"PRIu32"\n", result);
-			requestQuit(ctx);
+			sendModuleLoaded(
+			  ctx, RESIDENT_PROTO_MODULE_LOADED_CODE_INIT_FAILURE);
 			return;
 		}
 	} else if (!moduleOption.empty()) {
@@ -194,14 +197,16 @@ static void getParametersBodyCb(GIOStatus stat, mlpl::SmartBuffer &sbuf,
 	// check functions
 	if (!ctx->module->notifyEvent) {
 		MLPL_ERR("notify Event handler is NULL\n");
-		requestQuit(ctx);
+		sendModuleLoaded(
+		  ctx,
+		  RESIDENT_PROTO_MODULE_LOADED_CODE_NOT_FOUND_NOTIFY_EVENT);
 		return;
 	}
 
 	MLPL_INFO("Loaded a resident module: %s\n", modulePath.c_str());
 
 	// send a completion notify
-	sendModuleLoaded(ctx);
+	sendModuleLoaded(ctx, RESIDENT_PROTO_MODULE_LOADED_CODE_SUCCESS);
 
 	// request to get the envet
 	ctx->pullHeader(eventCb);
