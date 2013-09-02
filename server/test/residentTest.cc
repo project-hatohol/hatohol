@@ -83,6 +83,12 @@ static void testCmdCb(GIOStatus stat, SmartBuffer &sbuf,
 	}
 }
 
+static void crash(void)
+{
+	char *p = NULL;
+	*p = 'a';
+}
+
 // --------------------------------------------------------------------------
 // Module handlers
 // --------------------------------------------------------------------------
@@ -102,6 +108,8 @@ static uint32_t init(const char *arg)
 			}
 			i++;
 			ctx.pipename = argVect[i];
+		} else if (str == "--crash-init") {
+			crash();
 		}
 	}
 

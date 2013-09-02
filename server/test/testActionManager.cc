@@ -651,6 +651,22 @@ void test_execResidentAction(void)
 	                                 ACTLOG_STAT_STARTED);
 }
 
+void test_execResidentActionCrashInInit(void)
+{
+	g_execCommandCtx = new ExecCommandContext();
+	ExecCommandContext *ctx = g_execCommandCtx; // just an alias
+
+	ExecActionArg arg(0x4ab3fd32, ACTION_RESIDENT);
+	arg.option = "--crash-init";
+	assertExecAction(ctx, arg);
+
+	assertActionLogAfterExecResident(
+	  ctx, ACTLOG_FLAG_QUEUING_TIME,
+	  ACTLOG_STAT_LAUNCHING_RESIDENT, ACTLOG_STAT_FAILED,
+	  NULL, /* statusChangedCb */
+	  ACTLOG_EXECFAIL_KILLED_SIGNAL, SIGSEGV);
+}
+
 void test_execResidentActionWithWrongPath(void)
 {
 	g_execCommandCtx = new ExecCommandContext();
