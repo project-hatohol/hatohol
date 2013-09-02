@@ -295,7 +295,7 @@ struct ExecActionArg {
 	ActionType type;
 	bool       usePipe;
 	string     command;
-	string     residentOption;
+	string     option;
 
 	// methods
 	ExecActionArg(int _actionId, ActionType _type)
@@ -322,12 +322,12 @@ static void _assertExecAction(ExecCommandContext *ctx, ExecActionArg &arg)
 	} else if (arg.type == ACTION_RESIDENT) {
 		ctx->actDef.command =
 		  cut_build_path(".libs", "residentTest.so", NULL);
-		if (!arg.residentOption.empty()) {
-			ctx->actDef.command += " ";
-			ctx->actDef.command += arg.residentOption;
-		}
 	} else {
 		cut_fail("Unknown type: %d\n", arg.type);
+	}
+	if (!arg.option.empty()) {
+		ctx->actDef.command += " ";
+		ctx->actDef.command += arg.option;
 	}
 
 	// launch ActionTp (the actor)
@@ -723,7 +723,7 @@ void test_execResidentActionCheckArg(void)
 	              replyEventInfoCb);
 	ctx->eventInfo = testEventInfo[0];
 	ExecActionArg arg(0x4ab3fd32, ACTION_RESIDENT);
-	arg.residentOption = option;
+	arg.option = option;
 	assertExecAction(ctx, arg);
 
 	uint32_t expectedNullFlags =
