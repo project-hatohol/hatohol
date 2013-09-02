@@ -100,6 +100,7 @@ struct ExecCommandContext : public ResidentPullHelper<ExecCommandContext> {
 	  receivedActTpArgList(false),
 	  receivedActTpQuit(false)
 	{
+		timerTag = g_timeout_add(timeout, timeoutHandler, this);
 	}
 
 	virtual ~ExecCommandContext()
@@ -153,13 +154,6 @@ struct ExecCommandContext : public ResidentPullHelper<ExecCommandContext> {
 		ctx->timedOut = true;
 		ctx->timerTag = 0;
 		return FALSE;
-	}
-
-	void setTimeoutIfNeeded(void)
-	{
-		if (timerTag)
-			return;
-		timerTag = g_timeout_add(timeout, timeoutHandler, this);
 	}
 };
 static ExecCommandContext *g_execCommandCtx = NULL;
@@ -456,7 +450,6 @@ void _assertActionLogAfterExecResident(
   ResidentLogStatusChangedCB statusChangedCb = NULL)
 {
 	// check the action log after the actor is terminated
-	ctx->setTimeoutIfNeeded();
 	ctx->loop = g_main_loop_new(NULL, TRUE);
 
 	while (true) {
@@ -590,7 +583,6 @@ void test_execCommandAction(void)
 
 	string pipeName = "test-command-action";
 	ctx->initPipes(pipeName);
-	ctx->setTimeoutIfNeeded();
 
 	ExecActionArg arg(2343242, ACTION_COMMAND);
 	assertExecAction(ctx, arg);
@@ -603,8 +595,6 @@ void test_execCommandActionWithWrongPath(void)
 {
 	g_execCommandCtx = new ExecCommandContext();
 	ExecCommandContext *ctx = g_execCommandCtx; // just an alias
-
-	ctx->setTimeoutIfNeeded();
 
 	ExecActionArg arg(7869, ACTION_COMMAND);
 	arg.usePipe = false;
