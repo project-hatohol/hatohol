@@ -123,6 +123,7 @@ protected:
 	void notifyEvent(ResidentInfo *residentInfo,
 	                 ResidentNotifyInfo *notifyInfo);
 
+	static void actorCollectedCb(void *priv);
 	void closeResident(ResidentInfo *residentInfo);
 	void closeResident(
 	  ResidentNotifyInfo *notifyInfo,

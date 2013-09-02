@@ -229,6 +229,8 @@ gboolean ActorCollector::checkExitProcess
 		const ActorInfo &actorInfo = it->second;
 		logArg.logId = actorInfo.logId;
 		dontLog = actorInfo.dontLog;
+		if (actorInfo.collectedCb)
+			(*actorInfo.collectedCb)(actorInfo.collectedCbPriv);
 		PrivateContext::waitChildSet.erase(it);
 	}
 	unlock();

@@ -22,16 +22,22 @@
 
 #include "HatoholThreadBase.h"
 
+typedef void (*ActorCollectedFunc)(void *priv);
+
 struct ActorInfo {
 	pid_t    pid;
 	uint64_t logId;
 	bool     dontLog;
+	ActorCollectedFunc collectedCb;
+	void              *collectedCbPriv;
 	
 	// constructor
 	ActorInfo (void)
 	: pid(0),
 	  logId(-1),
-	  dontLog(false)
+	  dontLog(false),
+	  collectedCb(NULL),
+	  collectedCbPriv(NULL)
 	{
 	}
 };

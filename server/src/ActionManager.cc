@@ -48,6 +48,9 @@ struct ActionManager::ResidentNotifyInfo {
 typedef deque<ActionManager::ResidentNotifyInfo *> ResidentNotifyQueue;
 typedef ResidentNotifyQueue::iterator              ResidentNotifyQueueIterator;
 
+typedef map<int, ResidentInfo *>     RunningResidentMap;
+typedef RunningResidentMap::iterator RunningResidentMapIterator;
+
 enum ResidentStatus {
 	RESIDENT_STAT_INIT,
 	RESIDENT_STAT_WAIT_LAUNCHED,
@@ -58,9 +61,12 @@ enum ResidentStatus {
 
 struct ResidentInfo :
    public ResidentPullHelper<ActionManager::ResidentNotifyInfo> {
+	static MutexLock residentMapLock;
+	static RunningResidentMap runningResidentMap;
 	ActionManager *actionManager;
 	const ActionDef actionDef;
 	pid_t           pid;
+	bool            inRunningResidentMap;
 
 	MutexLock           queueLock;
 	ResidentNotifyQueue notifyQueue; // should be used with queueLock.
@@ -75,6 +81,7 @@ struct ResidentInfo :
 	: actionManager(actMgr),
 	  actionDef(_actionDef),
 	  pid(0),
+	  inRunningResidentMap(false),
 	  status(RESIDENT_STAT_INIT),
 	  pipeRd(NamedPipe::END_TYPE_MASTER_READ),
 	  pipeWr(NamedPipe::END_TYPE_MASTER_WRITE)
@@ -101,7 +108,30 @@ struct ResidentInfo :
 		}
 		queueLock.unlock();
 
-		// TODO: kill the hatohol-resident-yard
+		// delete this element from the map.
+		if (!inRunningResidentMap)
+			return;
+		bool found = false;
+		int actionId = actionDef.id;
+		ResidentInfo::residentMapLock.lock();
+		RunningResidentMapIterator it =
+		  runningResidentMap.find(actionId);
+		if (it != runningResidentMap.end()) {
+			found = true;
+			runningResidentMap.erase(it);
+		}
+		ResidentInfo::residentMapLock.unlock();
+		if (!found) {
+			MLPL_BUG("Not found residentInfo in the map: %d\n",
+			         actionId);
+		}
+
+		// Currently the caller of destructor (i.e. delete statement)
+		// is only the callback from ActorCollector. This means that
+		// this function is called only after hatohol-resident-yard 
+		// is dead.
+		// NOTE: Exceptionally ActionManger::reset() calls delete
+		//       explicitly. However, this should be used in the test.
 	}
 
 	bool init(GIOFunc funcRd, GIOFunc funcWr)
@@ -155,13 +185,11 @@ struct ResidentInfo :
 	}
 };
 
-typedef map<int, ResidentInfo *>     RunningResidentMap;
-typedef RunningResidentMap::iterator RunningResidentMapIterator;
+MutexLock          ResidentInfo::residentMapLock;
+RunningResidentMap ResidentInfo::runningResidentMap;
 
 struct ActionManager::PrivateContext {
 	static ActorCollector collector;
-	static MutexLock residentMapLock;
-	static RunningResidentMap runningResidentMap;
 
 	// This can only be used on the owner's context (thread),
 	// It's danger to use from a GLIB's event callback context or
@@ -201,8 +229,6 @@ struct ActionManager::PrivateContext {
 };
 
 ActorCollector ActionManager::PrivateContext::collector;
-MutexLock          ActionManager::PrivateContext::residentMapLock;
-RunningResidentMap ActionManager::PrivateContext::runningResidentMap;
 
 // ---------------------------------------------------------------------------
 // Public methods
@@ -212,15 +238,16 @@ void ActionManager::reset(void)
 	// The following deletion is naturally no effect at the start of
 	// Hatohol. This is mainly for the test in which this function is 
 	// calls many times.
-	PrivateContext::residentMapLock.lock();
+	// NOTE: This is a special case for test, so we don't take
+	// ResidentInfo::residentMapLock. Or the deadlock will happen
+	// in the desctoructor of ResidentInfo.
 	RunningResidentMapIterator it =
-	   PrivateContext::runningResidentMap.begin();
-	for (; it != PrivateContext::runningResidentMap.end(); ++it) {
+	   ResidentInfo::runningResidentMap.begin();
+	for (; it != ResidentInfo::runningResidentMap.end(); ++it) {
 		ResidentInfo *residentInfo = it->second;
 		delete residentInfo;
 	}
-	PrivateContext::runningResidentMap.clear();
-	PrivateContext::residentMapLock.unlock();
+	ResidentInfo::runningResidentMap.clear();
 }
 
 ActionManager::ActionManager(void)
@@ -393,13 +420,13 @@ void ActionManager::execResidentAction(const ActionDef &actionDef,
 {
 	HATOHOL_ASSERT(actionDef.type == ACTION_RESIDENT,
 	               "Invalid type: %d\n", actionDef.type);
-	m_ctx->residentMapLock.lock();
+	ResidentInfo::residentMapLock.lock();
 	RunningResidentMapIterator it =
-	   m_ctx->runningResidentMap.find(actionDef.id);
-	if (it != m_ctx->runningResidentMap.end()) {
+	   ResidentInfo::runningResidentMap.find(actionDef.id);
+	if (it != ResidentInfo::runningResidentMap.end()) {
 		ResidentInfo *residentInfo = it->second;
 		residentInfo->queueLock.lock();
-		m_ctx->residentMapLock.unlock();
+		ResidentInfo::residentMapLock.unlock();
 
 		// queue ResidentNotifyInfo and try to notify
 		DBClientAction dbAction;
@@ -426,9 +453,11 @@ void ActionManager::execResidentAction(const ActionDef &actionDef,
 	ActorInfo actorInfo;
 	ResidentInfo *residentInfo =
 	  launchResidentActionYard(actionDef, eventInfo, &actorInfo);
-	if (residentInfo)
-		m_ctx->runningResidentMap[actionDef.id] = residentInfo;
-	m_ctx->residentMapLock.unlock();
+	if (residentInfo) {
+		ResidentInfo::runningResidentMap[actionDef.id] = residentInfo;
+		residentInfo->inRunningResidentMap = true;
+	}
+	ResidentInfo::residentMapLock.unlock();
 	if (_actorInfo)
 		*_actorInfo = actorInfo;
 }
@@ -633,6 +662,8 @@ ResidentInfo *ActionManager::launchResidentActionYard
 	  "hatohol-resident-yard",
 	  residentInfo->pipeName.c_str(),
 	  NULL};
+	actorInfo->collectedCb = actorCollectedCb;
+	actorInfo->collectedCbPriv = residentInfo;
 	if (!spawn(actionDef, actorInfo, argv)) {
 		delete residentInfo;
 		return NULL;
@@ -693,13 +724,18 @@ void ActionManager::notifyEvent(ResidentInfo *residentInfo,
 	dbAction.updateLogStatusToStart(notifyInfo->logId);
 }
 
+void ActionManager::actorCollectedCb(void *priv)
+{
+	ResidentInfo *residentInfo = static_cast<ResidentInfo *>(priv);
+	// Pending notifyInfo instancess will be deleted in the destructor.
+	delete residentInfo;
+}
+
 void ActionManager::closeResident(ResidentInfo *residentInfo)
 {
 	// kill hatohol-resident-yard.
-	// After hatohol-resident-yard is killed, the HUP handler of
-	// the pipe will be called. Then the handler calls
-	// closeResident(ResidentInfo *) and
-	// residentInfo instance will be deleted.
+	// After hatohol-resident-yard is killed, actorCollectedCb()
+	// will be called form ActorCollector::checkExitProcess().
 	pid_t pid = residentInfo->pid;
 	if (pid && kill(pid, SIGKILL))
 		MLPL_ERR("Failed to kill. pid: %d, %s\n", pid, strerror(errno));
