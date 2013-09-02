@@ -713,6 +713,7 @@ void ActionManager::closeResident(
 
 	// remove this notifyInfo from the queue in the parent ResidentInfo
 	pid_t pid = notifyInfo->residentInfo->pid;
+	ActorCollector::setDontLog(pid);
 	notifyInfo->residentInfo->deleteNotifyInfo(notifyInfo);
 	// NOTE: Hereafter we cannot access 'notifyInfo', because it is
 	//       deleted in the above function.

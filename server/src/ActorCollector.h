@@ -25,11 +25,13 @@
 struct ActorInfo {
 	pid_t    pid;
 	uint64_t logId;
+	bool     dontLog;
 	
 	// constructor
 	ActorInfo (void)
 	: pid(0),
-	  logId(-1)
+	  logId(-1),
+	  dontLog(false)
 	{
 	}
 };
@@ -57,6 +59,8 @@ public:
 	 * @param pid A process ID of a checked process.
 	 */
 	static bool isWatching(pid_t pid);
+
+	static void setDontLog(pid_t pid);
 
 protected:
 	static void setupHandlerForSIGCHLD(void);

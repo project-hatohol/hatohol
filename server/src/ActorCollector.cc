@@ -29,7 +29,7 @@
 
 using namespace mlpl;
 
-typedef map<pid_t, uint64_t>         WaitChildSet;
+typedef map<pid_t, ActorInfo>        WaitChildSet;
 typedef WaitChildSet::iterator       WaitChildSetIterator;
 typedef WaitChildSet::const_iterator WaitChildSetConstIterator;
 
@@ -83,7 +83,7 @@ void ActorCollector::addActor(const ActorInfo &actorInfo)
 	// called in it, so they aren't called here.
 	pair<WaitChildSetIterator, bool> result =
 	  PrivateContext::waitChildSet.insert
-	    (pair<pid_t, uint64_t>(actorInfo.pid, actorInfo.logId));
+	    (pair<pid_t, ActorInfo>(actorInfo.pid, actorInfo));
 	if (!result.second) {
 		MLPL_BUG("pid: %d (logId: %"PRIu64 ") is already regstered.\n",
 		         actorInfo.pid, actorInfo.logId);
@@ -220,17 +220,22 @@ gboolean ActorCollector::checkExitProcess
 
 	// update the action log.
 	bool found = false;
+	bool dontLog = false;
 	lock();
 	WaitChildSetIterator it =
 	   PrivateContext::waitChildSet.find(childSigInfo.pid);
 	if (it != PrivateContext::waitChildSet.end()) {
 		found = true;
-		logArg.logId = it->second;
+		const ActorInfo &actorInfo = it->second;
+		logArg.logId = actorInfo.logId;
+		dontLog = actorInfo.dontLog;
 		PrivateContext::waitChildSet.erase(it);
 	}
 	unlock();
 
 	if (!found)
+		return TRUE;
+	if (dontLog)
 		return TRUE;
 
 	DBClientAction dbAction;
@@ -248,4 +253,18 @@ bool ActorCollector::isWatching(pid_t pid)
 		found = true;
 	unlock();
 	return found;
+}
+
+void ActorCollector::setDontLog(pid_t pid)
+{
+	bool found = false;
+	lock();
+	WaitChildSetIterator it = PrivateContext::waitChildSet.find(pid);
+	if (it != PrivateContext::waitChildSet.end()) {
+		it->second.dontLog = true;
+		found = true;
+	}
+	unlock();
+	if (!found)
+		MLPL_WARN("Not found pid: %d for setDontLog().", pid);
 }
