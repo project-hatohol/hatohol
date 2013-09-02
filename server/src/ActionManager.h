@@ -32,6 +32,19 @@ private:
 	struct PrivateContext;
 
 public:
+	static const char *NUM_COMMNAD_ACTION_EVENT_ARG_MAGIC;
+	static const size_t NUM_COMMNAD_ACTION_EVENT_ARG = 10;
+	// 1: arg. magic (version)
+	// 2: ActionId
+	// 3: serverId
+	// 4: hostId
+	// 5: time: ex) 1378124964.8592
+	// 6: eventId
+	// 7: eventType
+	// 8: triggerId
+	// 9: triggerStatus
+	// 10: triggerSeverity
+
 	struct ResidentNotifyInfo;
 	static void reset(void);
 

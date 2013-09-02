@@ -237,6 +237,9 @@ ActorCollector ActionManager::PrivateContext::collector;
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
+const char *ActionManager::NUM_COMMNAD_ACTION_EVENT_ARG_MAGIC
+  = "--hatohol-action-v1";
+
 void ActionManager::reset(void)
 {
 	// The following deletion is naturally no effect at the start of
@@ -406,6 +409,17 @@ void ActionManager::execCommandAction(const ActionDef &actionDef,
 	               "Invalid type: %d\n", actionDef.type);
 	StringVector argVect;
 	makeExecArg(argVect, actionDef.command);
+	argVect.push_back(NUM_COMMNAD_ACTION_EVENT_ARG_MAGIC);
+	argVect.push_back(StringUtils::sprintf("%d", actionDef.id));
+	argVect.push_back(StringUtils::sprintf("%"PRIu32, eventInfo.serverId));
+	argVect.push_back(StringUtils::sprintf("%"PRIu64, eventInfo.hostId));
+	argVect.push_back(StringUtils::sprintf("%ld.%ld",
+	  eventInfo.time.tv_sec, eventInfo.time.tv_nsec));
+	argVect.push_back(StringUtils::sprintf("%"PRIu64, eventInfo.id));
+	argVect.push_back(StringUtils::sprintf("%d", eventInfo.type));
+	argVect.push_back(StringUtils::sprintf("%"PRIu64, eventInfo.triggerId));
+	argVect.push_back(StringUtils::sprintf("%d", eventInfo.status));
+	argVect.push_back(StringUtils::sprintf("%d", eventInfo.severity));
 
 	const gchar *argv[argVect.size()+1];
 	for (size_t i = 0; i < argVect.size(); i++)

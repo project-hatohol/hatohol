@@ -48,9 +48,9 @@ public:
 	}
 
 	void callExecCommandAction(const ActionDef &actionDef,
+	                            const EventInfo &eventInfo,
 	                           ActorInfo *actorInfo = NULL)
 	{
-		EventInfo eventInfo;
 		execCommandAction(actionDef, eventInfo, actorInfo);
 	}
 
@@ -337,7 +337,8 @@ static void _assertExecAction(ExecCommandContext *ctx, ExecActionArg &arg)
 	if (arg.type == ACTION_COMMAND) {
 		if (arg.usePipe)
 			cppcut_assert_equal(false, ctx->pipeName.empty());
-		actMgr.callExecCommandAction(ctx->actDef, &ctx->actorInfo);
+		actMgr.callExecCommandAction(ctx->actDef, ctx->eventInfo,
+		                             &ctx->actorInfo);
 	} else if (arg.type == ACTION_RESIDENT) {
 		actMgr.callExecResidentAction(ctx->actDef,
 		                              ctx->eventInfo, &ctx->actorInfo);
@@ -364,10 +365,24 @@ void _assertActionLogJustAfterExec(ExecCommandContext *ctx)
 	  0,  /* exitCode */
 	  expectedNullFlags);
 
-	// connect to ActionTp
+	// connect to ActionTp and check the command line options
 	waitConnect(ctx);
+	const EventInfo &evInf = ctx->eventInfo;
 	StringVector expectedArgs;
 	expectedArgs.push_back(ctx->pipeName);
+	expectedArgs.push_back(
+	  ActionManager::NUM_COMMNAD_ACTION_EVENT_ARG_MAGIC);
+	expectedArgs.push_back(StringUtils::sprintf("%d", ctx->actDef.id));
+	expectedArgs.push_back(StringUtils::sprintf("%"PRIu32, evInf.serverId));
+	expectedArgs.push_back(StringUtils::sprintf("%"PRIu64, evInf.hostId));
+	expectedArgs.push_back(StringUtils::sprintf("%ld.%ld",
+	  evInf.time.tv_sec, evInf.time.tv_nsec));
+	expectedArgs.push_back(StringUtils::sprintf("%"PRIu64, evInf.id));
+	expectedArgs.push_back(StringUtils::sprintf("%d", evInf.type));
+	expectedArgs.push_back(
+	  StringUtils::sprintf("%"PRIu64, evInf.triggerId));
+	expectedArgs.push_back(StringUtils::sprintf("%d", evInf.status));
+	expectedArgs.push_back(StringUtils::sprintf("%d", evInf.severity));
 	getArguments(ctx, expectedArgs);
 }
 #define assertActionLogJustAfterExec(CTX) \
@@ -589,6 +604,7 @@ void test_execCommandAction(void)
 	string pipeName = "test-command-action";
 	ctx->initPipes(pipeName);
 
+	ctx->eventInfo = testEventInfo[0];
 	ExecActionArg arg(2343242, ACTION_COMMAND);
 	assertExecAction(ctx, arg);
 	assertActionLogJustAfterExec(ctx);
