@@ -148,6 +148,12 @@ static void dispatch(GIOStatus stat, SmartBuffer &sbuf,
 		ctx->pullHeader(dispatch);
 }
 
+static void crash(void)
+{
+	char *p = NULL;
+	*p = 'a';
+}
+
 int main(int argc, char *argv[])
 {
 	Context ctx;
@@ -157,6 +163,8 @@ int main(int argc, char *argv[])
 	}
 	int pipePathIdx = 1;
 	for (int i = 1; i < argc; i++) {
+		if (string(argv[i]) == OPTION_CRASH_SOON)
+			crash();
 		g_argList.push_back(argv[i]);
 	}
 

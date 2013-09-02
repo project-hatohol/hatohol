@@ -426,7 +426,9 @@ void _assertActionLogAfterEnding(ExecCommandContext *ctx)
 #define assertActionLogAfterEnding(CTX) \
 cut_trace(_assertActionLogAfterEnding(CTX))
 
-void _assertActionLogForFailure(ExecCommandContext *ctx, int failureCode)
+void _assertActionLogForFailure(ExecCommandContext *ctx, int failureCode,
+  int expectedNullFlags = ACTLOG_FLAG_QUEUING_TIME|ACTLOG_FLAG_EXIT_CODE,
+  int expectedExitCode = 0)
 {
 	cppcut_assert_equal(
 	  true, ctx->dbAction.getLog(ctx->actionLog, ctx->actorInfo.logId));
@@ -440,11 +442,11 @@ void _assertActionLogForFailure(ExecCommandContext *ctx, int failureCode)
 	  CURR_DATETIME, /* startTime */
 	  CURR_DATETIME, /* endTime */
 	  failureCode,
-	  0, /* exitCode */
-	  ACTLOG_FLAG_QUEUING_TIME|ACTLOG_FLAG_EXIT_CODE /* nullFlags */);
+	  expectedExitCode, /* exitCode */
+	  expectedNullFlags);
 }
-#define assertActionLogForFailure(CTX,FC) \
-cut_trace(_assertActionLogForFailure(CTX,FC))
+#define assertActionLogForFailure(CTX, FC, ...) \
+cut_trace(_assertActionLogForFailure(CTX, FC, ##__VA_ARGS__))
 
 typedef void (*ResidentLogStatusChangedCB)(
   ActionLogStatus currStatus, ActionLogStatus newStatus,
@@ -616,6 +618,22 @@ void test_execCommandActionWithWrongPath(void)
 	arg.command = "wrong-command-dayo";
 	assertExecAction(ctx, arg);
 	assertActionLogForFailure(ctx, ACTLOG_EXECFAIL_ENTRY_NOT_FOUND);
+}
+
+void test_execCommandActionCrashSoon(void)
+{
+	g_execCommandCtx = new ExecCommandContext();
+	ExecCommandContext *ctx = g_execCommandCtx; // just an alias
+
+	string pipeName = "test-command-action";
+	ctx->initPipes(pipeName);
+
+	ExecActionArg arg(2343242, ACTION_COMMAND);
+	arg.option = OPTION_CRASH_SOON;
+	assertExecAction(ctx, arg);
+	assertWaitForChangeActionLogStatus(ctx, ACTLOG_STAT_STARTED);
+	assertActionLogForFailure(ctx, ACTLOG_EXECFAIL_KILLED_SIGNAL,
+	                          ACTLOG_FLAG_QUEUING_TIME, SIGSEGV);
 }
 
 void test_execResidentAction(void)
