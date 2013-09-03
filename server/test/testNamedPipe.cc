@@ -363,4 +363,17 @@ void test_timeoutPull(void)
 	cppcut_assert_equal(true, ctx->timeoutTestPass);
 }
 
+void test_timeoutPullNotFire(void)
+{
+	g_testPushCtx = new TestContext("test_timeout");
+	TestContext *ctx = g_testPushCtx;
+	ctx->init();
+	ctx->bufLen = 10;
+	ctx->pipeMasterRd.setTimeout(1000, timeoutTestCb, ctx);
+	pullData(ctx);
+	pushData(ctx);
+	assertRun(ctx);
+	cppcut_assert_equal(false, ctx->timeoutTestPass);
+}
+
 } // namespace testNamedPipe
