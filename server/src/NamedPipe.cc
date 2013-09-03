@@ -376,6 +376,7 @@ gboolean NamedPipe::readCb(GIOChannel *source, GIOCondition condition,
 	                                         ctx->pullRemainingSize,
 	                                         &bytesRead, &error);
 	if (!obj->checkGIOStatus(stat, error)) {
+		ctx->pullTimeoutInfo.removeTimeout();
 		ctx->callPullCb(stat);
 		ctx->iochDataEvtId = INVALID_EVENT_ID;
 		return FALSE;
