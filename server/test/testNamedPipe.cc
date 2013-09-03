@@ -376,4 +376,18 @@ void test_timeoutPullNotFire(void)
 	cppcut_assert_equal(false, ctx->timeoutTestPass);
 }
 
+void test_timeoutPush(void)
+{
+	g_testPushCtx = new TestContext("test_timeout");
+	TestContext *ctx = g_testPushCtx;
+	ctx->init();
+	// We have to write data with a size that blocks the write operation.
+	// Ref. Approx. 64kB is written (buffered) on Ubuntu 13.04 (64bit).
+	ctx->bufLen = 1024 * 1024;
+	ctx->pipeSlaveWr.setPushTimeout(100, timeoutTestCb, ctx);
+	pushData(ctx);
+	assertRun(ctx);
+	cppcut_assert_equal(true, ctx->timeoutTestPass);
+}
+
 } // namespace testNamedPipe

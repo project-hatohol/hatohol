@@ -87,8 +87,16 @@ struct TimeoutInfo {
 	void setTimeoutIfNeeded(NamedPipe *_namedPipe) {
 		if (!cbFunc)
 			return;
+		if (tag != INVALID_EVENT_ID)
+			return;
 		namedPipe = _namedPipe;
 		tag = g_timeout_add(value, timeoutHandler, this);
+	}
+
+	void removeTimeout(void)
+	{
+		removeEventSourceIfNeeded(tag);
+		tag = INVALID_EVENT_ID;
 	}
 };
 
@@ -110,6 +118,7 @@ struct NamedPipe::PrivateContext {
 	size_t        pullRequestSize;
 	size_t        pullRemainingSize;
 	TimeoutInfo   pullTimeoutInfo;
+	TimeoutInfo   pushTimeoutInfo;
 
 	PrivateContext(EndType _endType)
 	: fd(-1),
@@ -130,8 +139,14 @@ struct NamedPipe::PrivateContext {
 	{
 		removeEventSourceIfNeeded(iochEvtId);
 		removeEventSourceIfNeeded(iochDataEvtId);
-		if (ioch)
+		if (ioch) {
+			const gboolean flush = FALSE;
+			GIOStatus stat
+			  = g_io_channel_shutdown(ioch, flush, NULL);
+			if (stat != G_IO_STATUS_NORMAL)
+				MLPL_ERR("shutdown failed: %d\n", stat);
 			g_io_channel_unref(ioch);
+		}
 		if (fd >= 0)
 			close(fd);
 		SmartBufferListIterator it = writeBufList.begin();
@@ -169,6 +184,7 @@ struct NamedPipe::PrivateContext {
 		removeEventSourceIfNeeded(timeoutInfo.tag);
 		if (timeout == 0)
 			return;
+		removeEventSourceIfNeeded(timeoutInfo.tag);
 		if (!timeoutCb) {
 			MLPL_ERR("Timeout callback is NULL\n");
 			return;
@@ -257,6 +273,7 @@ void NamedPipe::push(SmartBuffer &buf)
 	m_ctx->writeBufListLock.lock();
 	m_ctx->writeBufList.push_back(buf.takeOver());
 	enableWriteCbIfNeeded();
+	m_ctx->pushTimeoutInfo.setTimeoutIfNeeded(this);
 	m_ctx->writeBufListLock.unlock();
 }
 
@@ -277,6 +294,15 @@ void NamedPipe::setPullTimeout(unsigned int timeout,
                                TimeoutCallback timeoutCb, void *priv)
 {
 	m_ctx->setTimeout(m_ctx->pullTimeoutInfo, timeout, timeoutCb, priv);
+}
+
+void NamedPipe::setPushTimeout(unsigned int timeout,
+                               TimeoutCallback timeoutCb, void *priv)
+{
+	HATOHOL_ASSERT(m_ctx->endType == END_TYPE_MASTER_WRITE ||
+	               m_ctx->endType == END_TYPE_SLAVE_WRITE,
+	               "Invalid end type: %d\n", m_ctx->endType);
+	m_ctx->setTimeout(m_ctx->pushTimeoutInfo, timeout, timeoutCb, priv);
 }
 
 // ---------------------------------------------------------------------------
@@ -303,11 +329,19 @@ gboolean NamedPipe::writeCb(GIOChannel *source, GIOCondition condition,
 			break;
 		if (fullyWritten) {
 			ctx->deleteWriteBufHead();
+			ctx->pushTimeoutInfo.removeTimeout();
 		} else {
 			// This function will be called back again
 			// when the pipe is available.
 			ctx->iochDataEvtId = currOutEvtId;
 			continueEventCb = TRUE;
+
+			// If this is the first chunk for each push request,
+			// the timeout will be enabled in the following
+			// function. Otherwise, the timeout is expected to
+			// be already set. In that case, the following function
+			// won't update the timer,
+			ctx->pushTimeoutInfo.setTimeoutIfNeeded(obj);
 			break;
 		}
 	}
