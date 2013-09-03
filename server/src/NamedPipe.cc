@@ -416,7 +416,6 @@ gboolean NamedPipe::readErrorCb(GIOChannel *source, GIOCondition condition,
 	               condition, ctx);
 	ctx->iochEvtId = INVALID_EVENT_ID;
 	return (*ctx->userCb)(source, condition, ctx->userCbData);
-	return TRUE;
 }
 
 bool NamedPipe::openPipe(const string &name)
