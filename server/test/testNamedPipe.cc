@@ -73,6 +73,8 @@ struct TestContext {
 	size_t numExpectedCbCalled;
 	size_t pullOnPullTimes;
 
+	bool timeoutTestPass;
+
 	// methods;
 	TestContext(const string &_name);
 	virtual ~TestContext();
@@ -142,7 +144,8 @@ TestContext::TestContext(const string &_name)
   slaveRdCb("SlaveRD", this),
   slaveWrCb("SlaveWR", this),
   numExpectedCbCalled(0),
-  pullOnPullTimes(0)
+  pullOnPullTimes(0),
+  timeoutTestPass(false)
 {
 }
 
@@ -276,6 +279,13 @@ static void pullData(TestContext *ctx)
 	ctx->pipeMasterRd.pull(ctx->bufLen, pullCb, ctx);
 }
 
+static void timeoutTestCb(NamedPipe *namedPipe, void *data)
+{
+	TestContext *ctx = static_cast<TestContext *>(data);
+	ctx->timeoutTestPass = true;
+	g_main_loop_quit(ctx->loop);
+}
+
 void cut_teardown(void)
 {
 	if (g_testPushCtx) {
@@ -339,6 +349,18 @@ void test_closeUnexpectedlyInPull(void)
 {
 	bool doPull = true;
 	assertCloseUnexpectedly("test_close_in_pull", doPull);
+}
+
+void test_timeoutPull(void)
+{
+	g_testPushCtx = new TestContext("test_timeout");
+	TestContext *ctx = g_testPushCtx;
+	ctx->init();
+	ctx->bufLen = 10;
+	ctx->pipeMasterRd.setTimeout(100, timeoutTestCb, ctx);
+	pullData(ctx);
+	assertRun(ctx);
+	cppcut_assert_equal(true, ctx->timeoutTestPass);
 }
 
 } // namespace testNamedPipe

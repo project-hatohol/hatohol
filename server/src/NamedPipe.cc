@@ -63,6 +63,10 @@ struct NamedPipe::PrivateContext {
 	SmartBuffer   pullBuf;
 	size_t        pullRequestSize;
 	size_t        pullRemainingSize;
+	guint           timerTag;
+	unsigned long   timeoutValue; // millisecond
+	TimeoutCallback timeoutCb;
+	void            *timeoutCbPriv;
 
 	PrivateContext(EndType _endType)
 	: fd(-1),
@@ -75,7 +79,11 @@ struct NamedPipe::PrivateContext {
 	  pullCb(NULL),
 	  pullCbPriv(NULL),
 	  pullRequestSize(0),
-	  pullRemainingSize(0)
+	  pullRemainingSize(0),
+	  timerTag(INVALID_EVENT_ID),
+	  timeoutValue(0),
+	  timeoutCb(NULL),
+	  timeoutCbPriv(NULL)
 	{
 	}
 
@@ -83,6 +91,7 @@ struct NamedPipe::PrivateContext {
 	{
 		removeEventSourceIfNeeded(iochEvtId);
 		removeEventSourceIfNeeded(iochDataEvtId);
+		removeEventSourceIfNeeded(timerTag);
 		if (ioch)
 			g_io_channel_unref(ioch);
 		if (fd >= 0)
@@ -216,6 +225,26 @@ void NamedPipe::pull(size_t size, PullCallback callback, void *priv)
 	m_ctx->pullBuf.ensureRemainingSize(size);
 	m_ctx->pullBuf.resetIndex();
 	enableReadCb();
+
+	if (m_ctx->timeoutCb) {
+		m_ctx->timerTag = g_timeout_add(m_ctx->timeoutValue,
+		                                timeoutHandler, this);
+	}
+}
+
+void NamedPipe::setTimeout(unsigned int timeout,
+                           TimeoutCallback timeoutCb, void *priv)
+{
+	m_ctx->removeEventSourceIfNeeded(m_ctx->timerTag);
+	if (timeout == 0)
+		return;
+	if (!timeoutCb) {
+		MLPL_ERR("Timeout callback is NULL\n");
+		return;
+	}
+	m_ctx->timeoutValue = timeout;
+	m_ctx->timeoutCb = timeoutCb;
+	m_ctx->timeoutCbPriv = priv;
 }
 
 // ---------------------------------------------------------------------------
@@ -313,6 +342,15 @@ gboolean NamedPipe::readErrorCb(GIOChannel *source, GIOCondition condition,
 	               condition, ctx);
 	return (*ctx->userCb)(source, condition, ctx->userCbData);
 	return TRUE;
+}
+
+gboolean NamedPipe::timeoutHandler(gpointer data)
+{
+	NamedPipe *obj = static_cast<NamedPipe *>(data);
+	PrivateContext *ctx = obj->m_ctx;
+	(*ctx->timeoutCb)(obj, ctx->timeoutCbPriv);
+	ctx->timerTag = INVALID_EVENT_ID;
+	return FALSE;
 }
 
 bool NamedPipe::openPipe(const string &name)

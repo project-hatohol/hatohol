@@ -57,6 +57,8 @@ public:
 	typedef void (*PullCallback)(GIOStatus stat, mlpl::SmartBuffer &buf,
 	                             size_t size, void *priv);
 
+	typedef void (*TimeoutCallback)(NamedPipe *namedPipe, void *priv);
+
 	static const char *BASE_DIR;
 
 	NamedPipe(EndType endType);
@@ -114,6 +116,27 @@ public:
 	 */
 	void pull(size_t size, PullCallback callback, void *priv);
 
+	/**
+	 * Set a read time-out callback function. If the callback for pull()
+	 * does not happen within the time-out value, the specified function
+	 * is called.
+	 * If the time-out value and the callback are already set, they
+	 * are canncelled.
+	 *
+	 * @param timeout
+	 * A timeout value in millisecond. If this parameter is 0, the current
+         * time-out callback is cancelled.
+	 *
+	 * @param timeoutCb
+	 * A callback function.
+	 *
+	 * @param priv
+	 * A pointer passed to the callback function.
+	 *
+	 */
+	void setTimeout(unsigned int timeout,
+	                TimeoutCallback timeoutCb, void *priv);
+
 protected:
 	static gboolean writeCb(GIOChannel *source, GIOCondition condition,
 	                        gpointer data);
@@ -123,6 +146,7 @@ protected:
 	                        gpointer data);
 	static gboolean readErrorCb(GIOChannel *source, GIOCondition condition,
 	                            gpointer data);
+	static gboolean timeoutHandler(gpointer data);
 
 	bool openPipe(const std::string &name);
 
