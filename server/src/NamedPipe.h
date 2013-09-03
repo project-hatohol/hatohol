@@ -122,7 +122,7 @@ public:
 	 * function is called back.
 	 * If the time-out value and the callback function are already set,
 	 * they are canncelled and will be activated at
-	 * the next pull() or push().
+	 * the next pull().
 	 *
 	 * @param timeout
 	 * A timeout value in millisecond. If this parameter is 0, the current
