@@ -37,6 +37,8 @@ class FormulaElement;
 
 typedef vector<string> CommandLineArg;
 
+static const guint INVALID_EVENT_ID = -1;
+
 class Utils {
 public:
 	static void init(void);
@@ -54,6 +56,14 @@ public:
 	                                 string &errorMessage);
 	static string getSelfExeDir(void);
 	static string getStringFromGIOCondition(GIOCondition condition);
+
+	/**
+	 * remove a GLIB's event.
+	 *
+	 * @param tag A event tag.
+	 * @return true if the event was successfuly removed. Otherwise false.
+	 */
+	static bool removeEventSourceIfNeeded(guint tag);
 
 protected:
 	static string makeDemangledStackTraceString(string &stackTraceLine);

@@ -35,6 +35,7 @@ using namespace mlpl;
 
 #include "HatoholException.h"
 #include "NamedPipe.h"
+#include "Utils.h"
 
 const char *NamedPipe::BASE_DIR = "/tmp/hatohol";
 unsigned BASE_DIR_MODE =
@@ -43,16 +44,6 @@ unsigned FIFO_MODE = S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP;
 
 typedef list<SmartBuffer *>       SmartBufferList;
 typedef SmartBufferList::iterator SmartBufferListIterator;
-
-static const guint INVALID_EVENT_ID = -1;
-
-static void removeEventSourceIfNeeded(guint tag)
-{
-	if (tag == INVALID_EVENT_ID)
-		return;
-	if (!g_source_remove(tag))
-		MLPL_ERR("Failed to remove source: %d\n", tag);
-}
 
 struct TimeoutInfo {
 	guint                      tag;
@@ -72,7 +63,7 @@ struct TimeoutInfo {
 
 	virtual ~TimeoutInfo()
 	{
-		removeEventSourceIfNeeded(tag);
+		Utils::removeEventSourceIfNeeded(tag);
 	}
 
 	static gboolean timeoutHandler(gpointer data)
@@ -95,7 +86,7 @@ struct TimeoutInfo {
 
 	void removeTimeout(void)
 	{
-		removeEventSourceIfNeeded(tag);
+		Utils::removeEventSourceIfNeeded(tag);
 		tag = INVALID_EVENT_ID;
 	}
 };
@@ -136,8 +127,8 @@ struct NamedPipe::PrivateContext {
 
 	virtual ~PrivateContext()
 	{
-		removeEventSourceIfNeeded(iochEvtId);
-		removeEventSourceIfNeeded(iochDataEvtId);
+		Utils::removeEventSourceIfNeeded(iochEvtId);
+		Utils::removeEventSourceIfNeeded(iochDataEvtId);
 
 		// After an error occurred, g_io_channel_shutdown() fails.
 		// So we check iochEvtId to know if an error occurred.
@@ -286,7 +277,7 @@ void NamedPipe::pull(size_t size, PullCallback callback, void *priv)
 void NamedPipe::setTimeout(unsigned int timeout,
                            TimeoutCallback timeoutCb, void *priv)
 {
-	removeEventSourceIfNeeded(m_ctx->timeoutInfo.tag);
+	Utils::removeEventSourceIfNeeded(m_ctx->timeoutInfo.tag);
 	if (timeout == 0)
 		return;
 	if (!timeoutCb) {

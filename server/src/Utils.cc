@@ -241,6 +241,17 @@ string Utils::getStringFromGIOCondition(GIOCondition condition)
 	return str;
 }
 
+bool Utils::removeEventSourceIfNeeded(guint tag)
+{
+	if (tag == INVALID_EVENT_ID)
+		return true;
+	if (!g_source_remove(tag)) {
+		MLPL_ERR("Failed to remove source: %d\n", tag);
+		return false;
+	}
+	return true;
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
