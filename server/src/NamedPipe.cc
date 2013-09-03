@@ -139,6 +139,9 @@ struct NamedPipe::PrivateContext {
 	{
 		removeEventSourceIfNeeded(iochEvtId);
 		removeEventSourceIfNeeded(iochDataEvtId);
+
+		// After an error occurred, g_io_channel_shutdown() fails.
+		// So we check iochEvtId to know if an error occurred.
 		if (ioch && (iochEvtId != INVALID_EVENT_ID)) {
 			const gboolean flush = FALSE;
 			GError *error = NULL;
