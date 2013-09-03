@@ -139,7 +139,7 @@ struct NamedPipe::PrivateContext {
 	{
 		removeEventSourceIfNeeded(iochEvtId);
 		removeEventSourceIfNeeded(iochDataEvtId);
-		if (ioch) {
+		if (ioch && (iochEvtId != INVALID_EVENT_ID)) {
 			const gboolean flush = FALSE;
 			GError *error = NULL;
 			GIOStatus stat
