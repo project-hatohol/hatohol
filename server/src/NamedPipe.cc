@@ -141,10 +141,16 @@ struct NamedPipe::PrivateContext {
 		removeEventSourceIfNeeded(iochDataEvtId);
 		if (ioch) {
 			const gboolean flush = FALSE;
+			GError *error = NULL;
 			GIOStatus stat
-			  = g_io_channel_shutdown(ioch, flush, NULL);
-			if (stat != G_IO_STATUS_NORMAL)
-				MLPL_ERR("shutdown failed: %d\n", stat);
+			  = g_io_channel_shutdown(ioch, flush, &error);
+			if (stat != G_IO_STATUS_NORMAL) {
+				MLPL_ERR("Failed to shutdown. status: %d, %s\n",
+				         stat, error ?
+				         error->message : "unknown reason");
+				if (error)
+					g_error_free(error);
+			}
 			g_io_channel_unref(ioch);
 		}
 		if (fd >= 0)
