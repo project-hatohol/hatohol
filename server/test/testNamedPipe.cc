@@ -357,7 +357,7 @@ void test_timeoutPull(void)
 	TestContext *ctx = g_testPushCtx;
 	ctx->init();
 	ctx->bufLen = 10;
-	ctx->pipeMasterRd.setTimeout(100, timeoutTestCb, ctx);
+	ctx->pipeMasterRd.setPullTimeout(100, timeoutTestCb, ctx);
 	pullData(ctx);
 	assertRun(ctx);
 	cppcut_assert_equal(true, ctx->timeoutTestPass);
@@ -369,7 +369,7 @@ void test_timeoutPullNotFire(void)
 	TestContext *ctx = g_testPushCtx;
 	ctx->init();
 	ctx->bufLen = 10;
-	ctx->pipeMasterRd.setTimeout(1000, timeoutTestCb, ctx);
+	ctx->pipeMasterRd.setPullTimeout(1000, timeoutTestCb, ctx);
 	pullData(ctx);
 	pushData(ctx);
 	assertRun(ctx);

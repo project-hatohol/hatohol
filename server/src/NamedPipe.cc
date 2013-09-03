@@ -46,6 +46,52 @@ typedef SmartBufferList::iterator SmartBufferListIterator;
 
 static const guint INVALID_EVENT_ID = -1;
 
+static void removeEventSourceIfNeeded(guint tag)
+{
+	if (tag == INVALID_EVENT_ID)
+		return;
+	if (!g_source_remove(tag))
+		MLPL_ERR("Failed to remove source: %d\n", tag);
+}
+
+struct TimeoutInfo {
+	guint                      tag;
+	unsigned long              value; // millisecond
+	NamedPipe::TimeoutCallback cbFunc;
+	void                      *priv;
+	NamedPipe                 *namedPipe;
+
+	TimeoutInfo(void)
+	: tag(INVALID_EVENT_ID),
+	  value(0),
+	  cbFunc(NULL),
+	  priv(NULL),
+	  namedPipe(NULL)
+	{
+	}
+
+	virtual ~TimeoutInfo()
+	{
+		removeEventSourceIfNeeded(tag);
+	}
+
+	static gboolean timeoutHandler(gpointer data)
+	{
+		TimeoutInfo *obj = static_cast<TimeoutInfo *>(data);
+		NamedPipe *namedPipe = obj->namedPipe;
+		(*obj->cbFunc)(namedPipe, obj->priv);
+		obj->tag = INVALID_EVENT_ID;
+		return FALSE;
+	}
+
+	void setTimeoutIfNeeded(NamedPipe *_namedPipe) {
+		if (!cbFunc)
+			return;
+		namedPipe = _namedPipe;
+		tag = g_timeout_add(value, timeoutHandler, this);
+	}
+};
+
 struct NamedPipe::PrivateContext {
 	int fd;
 	string path;
@@ -63,10 +109,7 @@ struct NamedPipe::PrivateContext {
 	SmartBuffer   pullBuf;
 	size_t        pullRequestSize;
 	size_t        pullRemainingSize;
-	guint           timerTag;
-	unsigned long   timeoutValue; // millisecond
-	TimeoutCallback timeoutCb;
-	void            *timeoutCbPriv;
+	TimeoutInfo   pullTimeoutInfo;
 
 	PrivateContext(EndType _endType)
 	: fd(-1),
@@ -79,11 +122,7 @@ struct NamedPipe::PrivateContext {
 	  pullCb(NULL),
 	  pullCbPriv(NULL),
 	  pullRequestSize(0),
-	  pullRemainingSize(0),
-	  timerTag(INVALID_EVENT_ID),
-	  timeoutValue(0),
-	  timeoutCb(NULL),
-	  timeoutCbPriv(NULL)
+	  pullRemainingSize(0)
 	{
 	}
 
@@ -91,7 +130,6 @@ struct NamedPipe::PrivateContext {
 	{
 		removeEventSourceIfNeeded(iochEvtId);
 		removeEventSourceIfNeeded(iochDataEvtId);
-		removeEventSourceIfNeeded(timerTag);
 		if (ioch)
 			g_io_channel_unref(ioch);
 		if (fd >= 0)
@@ -125,12 +163,19 @@ struct NamedPipe::PrivateContext {
 		(*cbFunc)(stat, pullBuf, pullRequestSize, pullCbPriv);
 	}
 
-	void removeEventSourceIfNeeded(guint tag)
+	void setTimeout(TimeoutInfo &timeoutInfo, unsigned int timeout, 
+	                TimeoutCallback timeoutCb, void *priv)
 	{
-		if (tag == INVALID_EVENT_ID)
+		removeEventSourceIfNeeded(timeoutInfo.tag);
+		if (timeout == 0)
 			return;
-		if (!g_source_remove(tag))
-			MLPL_ERR("Failed to remove source: %d\n", tag);
+		if (!timeoutCb) {
+			MLPL_ERR("Timeout callback is NULL\n");
+			return;
+		}
+		timeoutInfo.value  = timeout;
+		timeoutInfo.cbFunc = timeoutCb;
+		timeoutInfo.priv   = priv;
 	}
 };
 
@@ -225,26 +270,13 @@ void NamedPipe::pull(size_t size, PullCallback callback, void *priv)
 	m_ctx->pullBuf.ensureRemainingSize(size);
 	m_ctx->pullBuf.resetIndex();
 	enableReadCb();
-
-	if (m_ctx->timeoutCb) {
-		m_ctx->timerTag = g_timeout_add(m_ctx->timeoutValue,
-		                                timeoutHandler, this);
-	}
+	m_ctx->pullTimeoutInfo.setTimeoutIfNeeded(this);
 }
 
-void NamedPipe::setTimeout(unsigned int timeout,
-                           TimeoutCallback timeoutCb, void *priv)
+void NamedPipe::setPullTimeout(unsigned int timeout,
+                               TimeoutCallback timeoutCb, void *priv)
 {
-	m_ctx->removeEventSourceIfNeeded(m_ctx->timerTag);
-	if (timeout == 0)
-		return;
-	if (!timeoutCb) {
-		MLPL_ERR("Timeout callback is NULL\n");
-		return;
-	}
-	m_ctx->timeoutValue = timeout;
-	m_ctx->timeoutCb = timeoutCb;
-	m_ctx->timeoutCbPriv = priv;
+	m_ctx->setTimeout(m_ctx->pullTimeoutInfo, timeout, timeoutCb, priv);
 }
 
 // ---------------------------------------------------------------------------
@@ -342,15 +374,6 @@ gboolean NamedPipe::readErrorCb(GIOChannel *source, GIOCondition condition,
 	               condition, ctx);
 	return (*ctx->userCb)(source, condition, ctx->userCbData);
 	return TRUE;
-}
-
-gboolean NamedPipe::timeoutHandler(gpointer data)
-{
-	NamedPipe *obj = static_cast<NamedPipe *>(data);
-	PrivateContext *ctx = obj->m_ctx;
-	(*ctx->timeoutCb)(obj, ctx->timeoutCbPriv);
-	ctx->timerTag = INVALID_EVENT_ID;
-	return FALSE;
 }
 
 bool NamedPipe::openPipe(const string &name)

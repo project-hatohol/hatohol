@@ -117,11 +117,12 @@ public:
 	void pull(size_t size, PullCallback callback, void *priv);
 
 	/**
-	 * Set a read time-out callback function. If the callback for pull()
-	 * does not happen within the time-out value, the specified function
-	 * is called.
-	 * If the time-out value and the callback are already set, they
-	 * are canncelled.
+	 * Set a pull time-out callback function. If the callback for pull()
+	 * does not happen within the time-out value, the specified
+	 * function is called back.
+	 * If the time-out value and the callback function are already set,
+	 * they are canncelled and will be activated at
+	 * the next pull() or push().
 	 *
 	 * @param timeout
 	 * A timeout value in millisecond. If this parameter is 0, the current
@@ -134,8 +135,8 @@ public:
 	 * A pointer passed to the callback function.
 	 *
 	 */
-	void setTimeout(unsigned int timeout,
-	                TimeoutCallback timeoutCb, void *priv);
+	void setPullTimeout(unsigned int timeout,
+	                    TimeoutCallback timeoutCb, void *priv);
 
 protected:
 	static gboolean writeCb(GIOChannel *source, GIOCondition condition,
@@ -146,7 +147,6 @@ protected:
 	                        gpointer data);
 	static gboolean readErrorCb(GIOChannel *source, GIOCondition condition,
 	                            gpointer data);
-	static gboolean timeoutHandler(gpointer data);
 
 	bool openPipe(const std::string &name);
 
