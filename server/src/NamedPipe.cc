@@ -403,7 +403,7 @@ bool NamedPipe::openPipe(const string &name)
 		break;
 	case END_TYPE_MASTER_WRITE:
 		suffix = 1;
-		openFlag = O_RDWR;
+		openFlag = O_RDWR|O_NONBLOCK;
 		recreate = true;
 		break;
 	case END_TYPE_SLAVE_READ:
@@ -412,7 +412,7 @@ bool NamedPipe::openPipe(const string &name)
 		break;
 	case END_TYPE_SLAVE_WRITE:
 		suffix = 0;
-		openFlag = O_WRONLY;
+		openFlag = O_WRONLY|O_NONBLOCK;
 		break;
 	default:
 		HATOHOL_ASSERT(false, "Invalid endType: %d\n", m_ctx->endType);
@@ -563,8 +563,5 @@ bool NamedPipe::checkGIOStatus(GIOStatus stat, GError *error)
 		         error ? error->message : "reason: unknown");
 		return false;
 	}
-	HATOHOL_ASSERT(stat != G_IO_STATUS_AGAIN,
-	               "received G_IO_STATUS_AGAIN. However, the pipe was "
-	               "opened without O_NONBLOCK. Something is wrong.");
 	return true;
 }
