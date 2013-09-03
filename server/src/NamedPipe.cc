@@ -363,6 +363,7 @@ gboolean NamedPipe::writeErrorCb(GIOChannel *source, GIOCondition condition,
 	HATOHOL_ASSERT(ctx->userCb,
 	               "Pull callback is not registered. cond: %x, ctx: %p",
 	               condition, ctx);
+	ctx->iochEvtId = INVALID_EVENT_ID;
 	return (*ctx->userCb)(source, condition, ctx->userCbData);
 }
 
@@ -413,6 +414,7 @@ gboolean NamedPipe::readErrorCb(GIOChannel *source, GIOCondition condition,
 	HATOHOL_ASSERT(ctx->userCb,
 	               "Pull callback is not registered. cond: %x, ctx: %p",
 	               condition, ctx);
+	ctx->iochEvtId = INVALID_EVENT_ID;
 	return (*ctx->userCb)(source, condition, ctx->userCbData);
 	return TRUE;
 }
