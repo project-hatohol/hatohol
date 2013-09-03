@@ -151,8 +151,9 @@ struct NamedPipe::PrivateContext {
 				if (error)
 					g_error_free(error);
 			}
-			g_io_channel_unref(ioch);
 		}
+		if (ioch)
+			g_io_channel_unref(ioch);
 		if (fd >= 0)
 			close(fd);
 		SmartBufferListIterator it = writeBufList.begin();
