@@ -636,6 +636,22 @@ void test_execCommandActionCrashSoon(void)
 	                          ACTLOG_FLAG_QUEUING_TIME, SIGSEGV);
 }
 
+void test_execCommandActionTimeout(void)
+{
+	g_execCommandCtx = new ExecCommandContext();
+	ExecCommandContext *ctx = g_execCommandCtx; // just an alias
+
+	string pipeName = "test-command-action";
+	ctx->initPipes(pipeName);
+
+	ExecActionArg arg(2343242, ACTION_COMMAND);
+	arg.option = OPTION_STALL;
+	assertExecAction(ctx, arg);
+	assertWaitForChangeActionLogStatus(ctx, ACTLOG_STAT_STARTED);
+	assertActionLogForFailure(ctx, ACTLOG_EXECFAIL_KILLED_TIMEOUT,
+	                          ACTLOG_FLAG_QUEUING_TIME);
+}
+
 void test_execResidentAction(void)
 {
 	g_execCommandCtx = new ExecCommandContext();

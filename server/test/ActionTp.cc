@@ -21,6 +21,7 @@
 #include <cstdlib>
 #include <string>
 #include <vector>
+#include <unistd.h>
 #include "ActionTp.h"
 #include "NamedPipe.h"
 #include "Logger.h"
@@ -37,12 +38,14 @@ struct Context : public ResidentPullHelper<Context> {
 	bool exitFlag;
 	int  exitCode;
 	NamedPipe pipeRd, pipeWr;
+	bool stall;
 
 	Context(void)
 	: exitFlag(false),
 	  exitCode(EXIT_FAILURE),
 	  pipeRd(NamedPipe::END_TYPE_SLAVE_READ),
-	  pipeWr(NamedPipe::END_TYPE_SLAVE_WRITE)
+	  pipeWr(NamedPipe::END_TYPE_SLAVE_WRITE),
+	  stall(false)
 	{
 	}
 
@@ -165,6 +168,8 @@ int main(int argc, char *argv[])
 	for (int i = 1; i < argc; i++) {
 		if (string(argv[i]) == OPTION_CRASH_SOON)
 			crash();
+		else if (string(argv[i]) == OPTION_STALL)
+			ctx.stall = true;
 		g_argList.push_back(argv[i]);
 	}
 
@@ -179,6 +184,12 @@ int main(int argc, char *argv[])
 
 	// set callback
 	ctx.pullHeader(dispatch);
+
+	// pseudo stall
+	if (ctx.stall) {
+		while (true)
+			sleep(1);
+	}
 
 	// wait and execute commands
 	while (!ctx.exitFlag)

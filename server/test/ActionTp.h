@@ -33,6 +33,7 @@ enum {
 static const size_t ACTTP_ARG_LIST_SIZE_LEN = 2;
 
 #define OPTION_CRASH_SOON "--crash-soon"
+#define OPTION_STALL      "--stall"
 
 #endif // ActionTp_h
 
