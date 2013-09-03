@@ -117,34 +117,12 @@ public:
 	void pull(size_t size, PullCallback callback, void *priv);
 
 	/**
-	 * Set a pull time-out callback function. If the callback for pull()
-	 * does not happen within the time-out value, the specified
-	 * function is called back.
-	 * If the time-out value and the callback function are already set,
-	 * they are canncelled and will be activated at
-	 * the next pull().
-	 *
-	 * @param timeout
-	 * A timeout value in millisecond. If this parameter is 0, the current
-         * time-out callback is cancelled.
-	 *
-	 * @param timeoutCb
-	 * A callback function.
-	 *
-	 * @param priv
-	 * A pointer passed to the callback function.
-	 *
-	 */
-	void setPullTimeout(unsigned int timeout,
-	                    TimeoutCallback timeoutCb, void *priv);
-
-	/**
-	 * Set a push time-out callback function. If the asynchronus push
+	 * Set a pull or push time-out callback function. If a pull or push
 	 * operation is not completed within the time-out value, the specified
 	 * function is called back.
 	 * If the time-out value and the callback function are already set,
 	 * they are canncelled and will be activated at
-	 * the next pull().
+	 * the next pull(), push(), or an internal start of sending next buffer.
 	 *
 	 * @param timeout
 	 * A timeout value in millisecond. If this parameter is 0, the current
@@ -157,8 +135,8 @@ public:
 	 * A pointer passed to the callback function.
 	 *
 	 */
-	void setPushTimeout(unsigned int timeout,
-	                    TimeoutCallback timeoutCb, void *priv);
+	void setTimeout(unsigned int timeout,
+	                TimeoutCallback timeoutCb, void *priv);
 
 protected:
 	static gboolean writeCb(GIOChannel *source, GIOCondition condition,

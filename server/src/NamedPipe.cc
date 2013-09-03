@@ -117,8 +117,7 @@ struct NamedPipe::PrivateContext {
 	SmartBuffer   pullBuf;
 	size_t        pullRequestSize;
 	size_t        pullRemainingSize;
-	TimeoutInfo   pullTimeoutInfo;
-	TimeoutInfo   pushTimeoutInfo;
+	TimeoutInfo   timeoutInfo;
 
 	PrivateContext(EndType _endType)
 	: fd(-1),
@@ -186,22 +185,6 @@ struct NamedPipe::PrivateContext {
 		PullCallback cbFunc = altCb ? altCb : pullCb;;
 		pullBuf.resetIndex();
 		(*cbFunc)(stat, pullBuf, pullRequestSize, pullCbPriv);
-	}
-
-	void setTimeout(TimeoutInfo &timeoutInfo, unsigned int timeout, 
-	                TimeoutCallback timeoutCb, void *priv)
-	{
-		removeEventSourceIfNeeded(timeoutInfo.tag);
-		if (timeout == 0)
-			return;
-		removeEventSourceIfNeeded(timeoutInfo.tag);
-		if (!timeoutCb) {
-			MLPL_ERR("Timeout callback is NULL\n");
-			return;
-		}
-		timeoutInfo.value  = timeout;
-		timeoutInfo.cbFunc = timeoutCb;
-		timeoutInfo.priv   = priv;
 	}
 };
 
@@ -283,7 +266,7 @@ void NamedPipe::push(SmartBuffer &buf)
 	m_ctx->writeBufListLock.lock();
 	m_ctx->writeBufList.push_back(buf.takeOver());
 	enableWriteCbIfNeeded();
-	m_ctx->pushTimeoutInfo.setTimeoutIfNeeded(this);
+	m_ctx->timeoutInfo.setTimeoutIfNeeded(this);
 	m_ctx->writeBufListLock.unlock();
 }
 
@@ -297,22 +280,22 @@ void NamedPipe::pull(size_t size, PullCallback callback, void *priv)
 	m_ctx->pullBuf.ensureRemainingSize(size);
 	m_ctx->pullBuf.resetIndex();
 	enableReadCb();
-	m_ctx->pullTimeoutInfo.setTimeoutIfNeeded(this);
+	m_ctx->timeoutInfo.setTimeoutIfNeeded(this);
 }
 
-void NamedPipe::setPullTimeout(unsigned int timeout,
-                               TimeoutCallback timeoutCb, void *priv)
+void NamedPipe::setTimeout(unsigned int timeout,
+                           TimeoutCallback timeoutCb, void *priv)
 {
-	m_ctx->setTimeout(m_ctx->pullTimeoutInfo, timeout, timeoutCb, priv);
-}
-
-void NamedPipe::setPushTimeout(unsigned int timeout,
-                               TimeoutCallback timeoutCb, void *priv)
-{
-	HATOHOL_ASSERT(m_ctx->endType == END_TYPE_MASTER_WRITE ||
-	               m_ctx->endType == END_TYPE_SLAVE_WRITE,
-	               "Invalid end type: %d\n", m_ctx->endType);
-	m_ctx->setTimeout(m_ctx->pushTimeoutInfo, timeout, timeoutCb, priv);
+	removeEventSourceIfNeeded(m_ctx->timeoutInfo.tag);
+	if (timeout == 0)
+		return;
+	if (!timeoutCb) {
+		MLPL_ERR("Timeout callback is NULL\n");
+		return;
+	}
+	m_ctx->timeoutInfo.value  = timeout;
+	m_ctx->timeoutInfo.cbFunc = timeoutCb;
+	m_ctx->timeoutInfo.priv   = priv;
 }
 
 // ---------------------------------------------------------------------------
@@ -339,7 +322,7 @@ gboolean NamedPipe::writeCb(GIOChannel *source, GIOCondition condition,
 			break;
 		if (fullyWritten) {
 			ctx->deleteWriteBufHead();
-			ctx->pushTimeoutInfo.removeTimeout();
+			ctx->timeoutInfo.removeTimeout();
 		} else {
 			// This function will be called back again
 			// when the pipe is available.
@@ -351,7 +334,7 @@ gboolean NamedPipe::writeCb(GIOChannel *source, GIOCondition condition,
 			// function. Otherwise, the timeout is expected to
 			// be already set. In that case, the following function
 			// won't update the timer,
-			ctx->pushTimeoutInfo.setTimeoutIfNeeded(obj);
+			ctx->timeoutInfo.setTimeoutIfNeeded(obj);
 			break;
 		}
 	}
@@ -387,7 +370,7 @@ gboolean NamedPipe::readCb(GIOChannel *source, GIOCondition condition,
 	                                         ctx->pullRemainingSize,
 	                                         &bytesRead, &error);
 	if (!obj->checkGIOStatus(stat, error)) {
-		ctx->pullTimeoutInfo.removeTimeout();
+		ctx->timeoutInfo.removeTimeout();
 		ctx->callPullCb(stat);
 		ctx->iochDataEvtId = INVALID_EVENT_ID;
 		return FALSE;

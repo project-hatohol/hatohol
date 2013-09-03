@@ -357,7 +357,7 @@ void test_timeoutPull(void)
 	TestContext *ctx = g_testPushCtx;
 	ctx->init();
 	ctx->bufLen = 10;
-	ctx->pipeMasterRd.setPullTimeout(100, timeoutTestCb, ctx);
+	ctx->pipeMasterRd.setTimeout(100, timeoutTestCb, ctx);
 	pullData(ctx);
 	assertRun(ctx);
 	cppcut_assert_equal(true, ctx->timeoutTestPass);
@@ -369,7 +369,7 @@ void test_timeoutPullNotFire(void)
 	TestContext *ctx = g_testPushCtx;
 	ctx->init();
 	ctx->bufLen = 10;
-	ctx->pipeMasterRd.setPullTimeout(1000, timeoutTestCb, ctx);
+	ctx->pipeMasterRd.setTimeout(1000, timeoutTestCb, ctx);
 	pullData(ctx);
 	pushData(ctx);
 	assertRun(ctx);
@@ -384,7 +384,7 @@ void test_timeoutPush(void)
 	// We have to write data with a size that blocks the write operation.
 	// Ref. Approx. 64kB is written (buffered) on Ubuntu 13.04 (64bit).
 	ctx->bufLen = 1024 * 1024;
-	ctx->pipeSlaveWr.setPushTimeout(100, timeoutTestCb, ctx);
+	ctx->pipeSlaveWr.setTimeout(100, timeoutTestCb, ctx);
 	pushData(ctx);
 	assertRun(ctx);
 	cppcut_assert_equal(true, ctx->timeoutTestPass);
