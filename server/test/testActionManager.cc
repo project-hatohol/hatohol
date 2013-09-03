@@ -667,6 +667,32 @@ void test_execResidentActionCrashInInit(void)
 	  ACTLOG_EXECFAIL_KILLED_SIGNAL, SIGSEGV);
 }
 
+void test_execResidentActionCrashInNotifyEvent(void)
+{
+	g_execCommandCtx = new ExecCommandContext();
+	ExecCommandContext *ctx = g_execCommandCtx; // just an alias
+
+	ExecActionArg arg(0x4ab3fd32, ACTION_RESIDENT);
+	arg.option = "--crash-notify-event";
+	assertExecAction(ctx, arg);
+
+	// wait for FAILED
+	assertWaitForChangeActionLogStatus(ctx, ACTLOG_STAT_LAUNCHING_RESIDENT);
+	assertWaitForChangeActionLogStatus(ctx, ACTLOG_STAT_STARTED);
+
+	// check the log
+	assertActionLog(
+	  ctx->actionLog, ctx->actorInfo.logId,
+	  ctx->actDef.id, ACTLOG_STAT_FAILED,
+	  0, /* starterId */
+	  0, /* queuingTime */
+	  CURR_DATETIME, /* startTime */
+	  CURR_DATETIME, /* endTime */
+	  ACTLOG_EXECFAIL_KILLED_SIGNAL,
+	  SIGSEGV,
+	  ACTLOG_FLAG_QUEUING_TIME);
+}
+
 void test_execResidentActionWithWrongPath(void)
 {
 	g_execCommandCtx = new ExecCommandContext();

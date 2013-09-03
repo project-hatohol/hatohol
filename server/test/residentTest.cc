@@ -31,10 +31,12 @@ struct Context : public ResidentPullHelper<Context> {
 	string pipename;
 	NamedPipe pipeRd, pipeWr;
 	ResidentNotifyEventArg notifyEvent;
+	bool crashNotifyEvent;
 
 	Context(void)
 	: pipeRd(NamedPipe::END_TYPE_SLAVE_READ),
-	  pipeWr(NamedPipe::END_TYPE_SLAVE_WRITE)
+	  pipeWr(NamedPipe::END_TYPE_SLAVE_WRITE),
+	  crashNotifyEvent(false)
 	{
 		memset(&notifyEvent, 0, sizeof(notifyEvent));
 	}
@@ -110,6 +112,8 @@ static uint32_t init(const char *arg)
 			ctx.pipename = argVect[i];
 		} else if (str == "--crash-init") {
 			crash();
+		} else if (str == "--crash-notify-event") {
+			ctx.crashNotifyEvent = true;
 		}
 	}
 
@@ -125,6 +129,8 @@ static uint32_t init(const char *arg)
 
 static uint32_t notifyEvent(ResidentNotifyEventArg *arg)
 {
+	if (ctx.crashNotifyEvent)
+		crash();
 	ctx.notifyEvent = *arg;
 	return RESIDENT_MOD_NOTIFY_EVENT_ACK_OK;
 }
