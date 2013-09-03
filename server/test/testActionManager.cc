@@ -124,12 +124,8 @@ struct ExecCommandContext : public ResidentPullHelper<ExecCommandContext> {
 	{
 		ExecCommandContext *ctx =
 		  static_cast<ExecCommandContext *>(data);
-		if (ctx->expectHup && condition == G_IO_HUP) {
-			// When FLASE is returned, the error message is
-			// shown on the destructor of NamedPipe due to
-			// a failure of removing event source.
-			return TRUE;
-		}
+		if (ctx->expectHup && condition == G_IO_HUP)
+			return FALSE;
 		cut_fail("pipeError: %s\n",
 		         Utils::getStringFromGIOCondition(condition).c_str());
 		return FALSE;
