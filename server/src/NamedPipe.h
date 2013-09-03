@@ -92,14 +92,14 @@ public:
 	 * Push the buffer to the internal queue. After the call,
 	 * the content of the buffer is taken over (i.e. the buffer in
 	 * 'buf' is moved).
-	 * The function is asynchronus and returns without blocking.
+	 * The function is asynchronous and returns without blocking.
 	 *
 	 * @param buf A SmartBuffer instance that has data to be written.
 	 */
 	void push(mlpl::SmartBuffer &buf);
 
 	/**
-	 * Read data asynchronusly from the pipe. This function cannot be
+	 * Read data asynchronously from the pipe. This function cannot be
 	 * called before the previous call is completed. (i.e. the callback
 	 * of the previous call is happened)
 	 *
@@ -121,7 +121,7 @@ public:
 	 * operation is not completed within the time-out value, the specified
 	 * function is called back.
 	 * If the time-out value and the callback function are already set,
-	 * they are canncelled and will be activated at
+	 * they are cancelled and will be activated at
 	 * the next pull(), push(), or an internal start of sending next buffer.
 	 *
 	 * @param timeout
