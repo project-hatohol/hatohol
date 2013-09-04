@@ -91,7 +91,7 @@ struct SpawnSyncContext {
 
 		// error callback
 		cond = (GIOCondition)(G_IO_PRI|G_IO_ERR|G_IO_HUP|G_IO_NVAL);
-		dataCbId = g_io_add_watch(ioch, cond, cbErr, this);
+		errCbId = g_io_add_watch(ioch, cond, cbErr, this);
 	}
 
 	virtual ~SpawnSyncContext()
