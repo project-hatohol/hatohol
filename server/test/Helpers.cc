@@ -85,6 +85,15 @@ struct SpawnSyncContext {
 		  cut_message("Failed to call g_io_channel_set_encoding: "
 		              "%d, %s\n", stat,
 		              error ? error->message : "(unknown reason)"));
+
+		// non blocking
+		GIOFlags flags = G_IO_FLAG_NONBLOCK;
+		stat = g_io_channel_set_flags(ioch, flags, &error);
+		cppcut_assert_equal(G_IO_STATUS_NORMAL, stat,
+		  cut_message("Failed to call g_io_channel_set_flags: "
+		              "%d, %s\n", stat,
+		              error ? error->message : "(unknown reason)"));
+
 		// data callback
 		GIOCondition cond = G_IO_IN;
 		dataCbId = g_io_add_watch(ioch, cond, cbData, this);
