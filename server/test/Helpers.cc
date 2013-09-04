@@ -96,11 +96,9 @@ struct SpawnSyncContext {
 
 	virtual ~SpawnSyncContext()
 	{
+		Utils::removeEventSourceIfNeeded(dataCbId);
+		Utils::removeEventSourceIfNeeded(errCbId);
 		g_io_channel_unref(ioch);
-		if (dataCbId != INVALID_EVENT_ID)
-			g_source_remove(dataCbId);
-		if (errCbId != INVALID_EVENT_ID)
-			g_source_remove(errCbId);
 	}
 
 	static gboolean cbData(GIOChannel *source, GIOCondition condition,
