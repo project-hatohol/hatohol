@@ -46,18 +46,18 @@ typedef list<SmartBuffer *>       SmartBufferList;
 typedef SmartBufferList::iterator SmartBufferListIterator;
 
 struct TimeoutInfo {
+	NamedPipe                 *namedPipe;
 	guint                      tag;
 	unsigned long              value; // millisecond
 	NamedPipe::TimeoutCallback cbFunc;
 	void                      *priv;
-	NamedPipe                 *namedPipe;
 
-	TimeoutInfo(void)
-	: tag(INVALID_EVENT_ID),
+	TimeoutInfo(NamedPipe *pipe)
+	: namedPipe(pipe),
+	  tag(INVALID_EVENT_ID),
 	  value(0),
 	  cbFunc(NULL),
-	  priv(NULL),
-	  namedPipe(NULL)
+	  priv(NULL)
 	{
 	}
 
@@ -75,12 +75,12 @@ struct TimeoutInfo {
 		return FALSE;
 	}
 
-	void setTimeoutIfNeeded(NamedPipe *_namedPipe) {
+	void setTimeoutIfNeeded(void)
+	{
 		if (!cbFunc)
 			return;
 		if (tag != INVALID_EVENT_ID)
 			return;
-		namedPipe = _namedPipe;
 		tag = g_timeout_add(value, timeoutHandler, this);
 	}
 
@@ -110,7 +110,7 @@ struct NamedPipe::PrivateContext {
 	size_t        pullRemainingSize;
 	TimeoutInfo   timeoutInfo;
 
-	PrivateContext(EndType _endType)
+	PrivateContext(EndType _endType, NamedPipe *namedPipe)
 	: fd(-1),
 	  endType(_endType),
 	  ioch(NULL),
@@ -121,7 +121,8 @@ struct NamedPipe::PrivateContext {
 	  pullCb(NULL),
 	  pullCbPriv(NULL),
 	  pullRequestSize(0),
-	  pullRemainingSize(0)
+	  pullRemainingSize(0),
+	  timeoutInfo(namedPipe)
 	{
 	}
 
@@ -185,7 +186,7 @@ struct NamedPipe::PrivateContext {
 NamedPipe::NamedPipe(EndType endType)
 : m_ctx(NULL)
 {
-	m_ctx = new PrivateContext(endType);
+	m_ctx = new PrivateContext(endType, this);
 }
 
 NamedPipe::~NamedPipe()
@@ -257,7 +258,7 @@ void NamedPipe::push(SmartBuffer &buf)
 	m_ctx->writeBufListLock.lock();
 	m_ctx->writeBufList.push_back(buf.takeOver());
 	enableWriteCbIfNeeded();
-	m_ctx->timeoutInfo.setTimeoutIfNeeded(this);
+	m_ctx->timeoutInfo.setTimeoutIfNeeded();
 	m_ctx->writeBufListLock.unlock();
 }
 
@@ -271,7 +272,7 @@ void NamedPipe::pull(size_t size, PullCallback callback, void *priv)
 	m_ctx->pullBuf.ensureRemainingSize(size);
 	m_ctx->pullBuf.resetIndex();
 	enableReadCb();
-	m_ctx->timeoutInfo.setTimeoutIfNeeded(this);
+	m_ctx->timeoutInfo.setTimeoutIfNeeded();
 }
 
 void NamedPipe::setTimeout(unsigned int timeout,
@@ -325,7 +326,7 @@ gboolean NamedPipe::writeCb(GIOChannel *source, GIOCondition condition,
 			// function. Otherwise, the timeout is expected to
 			// be already set. In that case, the following function
 			// won't update the timer,
-			ctx->timeoutInfo.setTimeoutIfNeeded(obj);
+			ctx->timeoutInfo.setTimeoutIfNeeded();
 			break;
 		}
 	}
