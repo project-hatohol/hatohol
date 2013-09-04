@@ -103,7 +103,6 @@ struct ResidentInfo :
 		while (!notifyQueue.empty()) {
 			ActionManager::ResidentNotifyInfo *notifyInfo
 			  = notifyQueue.front();
-			// TODO: log the fact that the notification is deleted
 			MLPL_BUG("ResidentNotifyInfo is deleted, "
 			         "but not logged: logId: %"PRIu64"\n",
 			         notifyInfo->logId);
@@ -776,6 +775,17 @@ void ActionManager::notifyEvent(ResidentInfo *residentInfo,
 void ActionManager::actorCollectedCb(void *priv)
 {
 	ResidentInfo *residentInfo = static_cast<ResidentInfo *>(priv);
+	residentInfo->queueLock.lock();
+	bool isQueueEmpty = residentInfo->notifyQueue.empty();
+	residentInfo->queueLock.unlock();
+
+	if (!isQueueEmpty) {
+		// TODO: Add a mechanism to re-launch hatohol-resident-yard.
+		MLPL_WARN(
+		  "ResidentInfo instance will be removed. However, "
+		  "notifyQueue is not empty.\n");
+	}
+
 	// Pending notifyInfo instancess will be deleted in the destructor.
 	delete residentInfo;
 }
