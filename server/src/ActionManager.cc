@@ -165,28 +165,6 @@ struct ResidentInfo :
 
 		delete notifyInfo;
 	}
-
-	void deleteNotifyInfo(ActionManager::ResidentNotifyInfo *notifyInfo)
-	{
-		bool found = false;
-		ResidentNotifyQueueIterator it;
-		queueLock.lock();
-		it = notifyQueue.begin();
-		for (; it != notifyQueue.end(); ++it) {
-			if (*it == notifyInfo) {
-				found = true;
-				notifyQueue.erase(it);
-				break;
-			}
-		}
-		queueLock.unlock();
-
-		if (!found) {
-			MLPL_BUG("Not found: notifyInfo: %p, "
-			         "logId: %"PRIu64"\n", notifyInfo->logId);
-		}
-		delete notifyInfo;
-	}
 };
 
 MutexLock          ResidentInfo::residentMapLock;
@@ -827,7 +805,6 @@ void ActionManager::closeResident(ResidentNotifyInfo *notifyInfo,
 	ResidentInfo *residentInfo = notifyInfo->residentInfo;
 	pid_t pid = residentInfo->pid;
 	ActorCollector::setDontLog(pid);
-	residentInfo->deleteNotifyInfo(notifyInfo);
 	// NOTE: Hereafter we cannot access 'notifyInfo', because it is
 	//       deleted in the above function.
 
