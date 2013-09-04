@@ -569,7 +569,7 @@ void FaceRest::handlerGetItems
 
 	JsonBuilderAgent agent;
 	agent.startObject();
-	agent.add("apiVersion", API_VERSION_EVENTS);
+	agent.add("apiVersion", API_VERSION_ITEMS);
 	agent.addTrue("result");
 	agent.add("numberOfItems", itemList.size());
 	agent.startArray("items");
