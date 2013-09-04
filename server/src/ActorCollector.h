@@ -30,6 +30,7 @@ struct ActorInfo {
 	bool     dontLog;
 	ActorCollectedFunc collectedCb;
 	void              *collectedCbPriv;
+	gint     timerTag;
 	
 	// constructor
 	ActorInfo (void)
@@ -37,7 +38,8 @@ struct ActorInfo {
 	  logId(-1),
 	  dontLog(false),
 	  collectedCb(NULL),
-	  collectedCbPriv(NULL)
+	  collectedCbPriv(NULL),
+	  timerTag(INVALID_EVENT_ID)
 	{
 	}
 };

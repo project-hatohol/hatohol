@@ -436,6 +436,11 @@ void ActionManager::execCommandAction(const ActionDef &actionDef,
 	uint64_t logId;
 	ActorInfo *actorInfo = spawn(actionDef, argv, &logId);
 	copyActorInfoForExecResult(_actorInfo, actorInfo, logId);
+	if (actorInfo && actionDef.timeout > 0) {
+		actorInfo->timerTag =
+		  g_timeout_add(actionDef.timeout, commandActionTimeoutCb,
+		                actorInfo);
+	}
 }
 
 void ActionManager::execResidentAction(const ActionDef &actionDef,
@@ -661,6 +666,23 @@ void ActionManager::sendParameters(ResidentInfo *residentInfo)
 	comm.addModulePath(residentInfo->modulePath);
 	comm.addModuleOption(residentInfo->moduleOption);
 	comm.push(residentInfo->pipeWr);
+}
+
+gboolean ActionManager::commandActionTimeoutCb(gpointer data)
+{
+	DBClientAction dbAction;
+	DBClientAction::LogEndExecActionArg logArg;
+	ActorInfo *actorInfo = static_cast<ActorInfo *>(data);
+
+	// update an action log
+	logArg.logId = actorInfo->logId;
+	logArg.status = ACTLOG_STAT_FAILED;
+	logArg.failureCode = ACTLOG_EXECFAIL_KILLED_TIMEOUT;
+	logArg.exitCode = 0;
+	dbAction.logEndExecAction(logArg);
+	ActorCollector::setDontLog(actorInfo->pid);
+	kill(actorInfo->pid, SIGKILL);
+	return FALSE;
 }
 
 ResidentInfo *ActionManager::launchResidentActionYard

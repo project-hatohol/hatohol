@@ -68,6 +68,7 @@ protected:
 	                                size_t size,
 	                                ResidentNotifyInfo *residentInfo);
 	static void sendParameters(ResidentInfo *residentInfo);
+	static gboolean commandActionTimeoutCb(gpointer data);
 	void runAction(const ActionDef &actionDef, const EventInfo &eventInfo);
 	void makeExecArg(StringVector &argVect, const string &cmd);
 	static void parseResidentCommand(

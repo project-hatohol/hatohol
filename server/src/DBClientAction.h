@@ -111,7 +111,10 @@ struct ActionDef {
 	// Ref: struct ResidentModule in ResidentProtocol.h
 	//
 	std::string command;
-	int         timeout; // in sec
+
+	// Timeout value in millisecond. If this value is 0,
+	// the action is executed without timeout.
+	int         timeout;
 };
 
 typedef list<ActionDef>               ActionDefList;

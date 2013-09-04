@@ -118,7 +118,7 @@ struct ExecCommandContext : public ResidentPullHelper<ExecCommandContext> {
 		if (timerTag)
 			g_source_remove(timerTag);
 	}
-	
+
 	static gboolean pipeErrCb(GIOChannel *source,
 	                          GIOCondition condition, gpointer data)
 	{
@@ -292,12 +292,14 @@ struct ExecActionArg {
 	bool       usePipe;
 	string     command;
 	string     option;
+	int        timeout;
 
 	// methods
 	ExecActionArg(int _actionId, ActionType _type)
 	: actionId(_actionId),
 	  type(_type),
-	  usePipe(false)
+	  usePipe(false),
+	  timeout(0)
 	{
 	}
 };
@@ -307,6 +309,7 @@ static void _assertExecAction(ExecCommandContext *ctx, ExecActionArg &arg)
 	// execute 
 	ctx->actDef.id = arg.actionId;
 	ctx->actDef.type = arg.type;
+	ctx->actDef.timeout = arg.timeout;
 
 	// make a command line
 	if (!arg.command.empty())
@@ -642,6 +645,7 @@ void test_execCommandActionTimeout(void)
 
 	ExecActionArg arg(2343242, ACTION_COMMAND);
 	arg.option = OPTION_STALL;
+	arg.timeout = 10;
 	assertExecAction(ctx, arg);
 	assertWaitForChangeActionLogStatus(ctx, ACTLOG_STAT_STARTED);
 	assertActionLogForFailure(ctx, ACTLOG_EXECFAIL_KILLED_TIMEOUT,
