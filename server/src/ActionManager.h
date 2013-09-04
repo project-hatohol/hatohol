@@ -72,8 +72,23 @@ protected:
 	void makeExecArg(StringVector &argVect, const string &cmd);
 	static void parseResidentCommand(
 	  const string &command, string &path, string &option);
-	bool spawn(const ActionDef &actionDef, ActorInfo *actorInfo,
-	           const gchar **argv);
+
+	/**
+	 * Spawn an actor.
+	 *
+	 * @param actionDef An ActionDef instance.
+	 * @param argv
+	 * An argument array for the command to be spawned. The first element
+	 * is the command path itself. The last element should be NULL.
+	 *
+	 * @param logId
+	 * If this parameter is not NULL, the action log ID is set.
+	 *
+	 * @return An actorInfo instance if the spawn was successful.
+	 * Otherwise NULL.
+	 */
+	ActorInfo *spawn(const ActionDef &actionDef, const gchar **argv,
+	                 uint64_t *logId = NULL);
 
 	/**
 	 * execute a command-type action.
@@ -87,6 +102,7 @@ protected:
 	 * @param actorInfo
 	 * If this parameter is not NULL, information about the executed
 	 * actor such as a PID and a log ID is returned in it.
+	 * If the execution failed, PID is set to 0.
 	 */
 	void execCommandAction(const ActionDef &actionDef,
 	                       const EventInfo &eventInfo,
@@ -104,6 +120,7 @@ protected:
 	 * @param actorInfo
 	 * If this parameter is not NULL, information about the executed
 	 * actor such as a PID and a log ID is returned in it.
+	 * If the execution failed, PID is set to 0.
 	 */
 	void execResidentAction(const ActionDef &actionDef,
 	                        const EventInfo &eventInfo,
@@ -111,7 +128,8 @@ protected:
 
 	ResidentInfo *launchResidentActionYard(const ActionDef &actionDef,
 	                                       const EventInfo &eventInfo,
-	                                       ActorInfo *actorInfo);
+	                                       ActorInfo **actorInfoPtr,
+	                                       uint64_t *logId);
 	/**
 	 * notify hatohol-resident-yard of a event only when it is idle and
 	 * there is at least one element in residentInfo->notifyQueue.
@@ -140,6 +158,9 @@ protected:
 	void closeResident(ResidentInfo *residentInfo);
 	void closeResident(ResidentNotifyInfo *notifyInfo,
 	                   ActionLogExecFailureCode failureCode);
+	static void copyActorInfoForExecResult(
+	  ActorInfo *actorInfoDest, const ActorInfo *actorInfoSrc,
+	  uint64_t logId);
 
 private:
 	PrivateContext *m_ctx;

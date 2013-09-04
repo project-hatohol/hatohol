@@ -350,8 +350,8 @@ void ActionManager::parseResidentCommand(
 	option = StringUtils::stripBothEndsSpaces(optionRaw);
 }
 
-bool ActionManager::spawn(const ActionDef &actionDef, ActorInfo *actorInfo,
-                          const gchar **argv)
+ActorInfo *ActionManager::spawn(const ActionDef &actionDef, const gchar **argv,
+                                uint64_t *logId)
 {
 	const gchar *workingDirectory = NULL;
 	if (!actionDef.workingDir.empty())
@@ -362,6 +362,9 @@ bool ActionManager::spawn(const ActionDef &actionDef, ActorInfo *actorInfo,
 	GSpawnChildSetupFunc childSetup = NULL;
 	gpointer userData = NULL;
 	GError *error = NULL;
+
+	// create an ActorInfo instance.
+	ActorInfo *actorInfo = new ActorInfo();
 
 	// We take the lock here to avoid the child spanwed below from
 	// not being collected. If the child immediately exits
@@ -386,18 +389,23 @@ bool ActionManager::spawn(const ActionDef &actionDef, ActorInfo *actorInfo,
 		  m_ctx->dbAction.createActionLog(actionDef, failureCode);
 		MLPL_ERR("%s, logID: %"PRIu64"\n",
 		         msg.c_str(), actorInfo->logId);
-		return false;
+		if (logId)
+			*logId = actorInfo->logId;
+		delete actorInfo;
+		return NULL;
 	}
+
 	ActionLogStatus initialStatus =
 	  (actionDef.type == ACTION_COMMAND) ?
 	    ACTLOG_STAT_STARTED : ACTLOG_STAT_LAUNCHING_RESIDENT;
 	actorInfo->logId =
 	  m_ctx->dbAction.createActionLog(actionDef,
 	                                  ACTLOG_EXECFAIL_NONE, initialStatus);
-	m_ctx->collector.addActor(*actorInfo);
+	m_ctx->collector.addActor(actorInfo);
 	m_ctx->collector.unlock();
-
-	return true;
+	if (logId)
+		*logId = actorInfo->logId;
+	return actorInfo;
 }
 
 void ActionManager::execCommandAction(const ActionDef &actionDef,
@@ -425,10 +433,9 @@ void ActionManager::execCommandAction(const ActionDef &actionDef,
 		argv[i] = argVect[i].c_str();
 	argv[argVect.size()] = NULL;
 
-	ActorInfo actorInfo;
-	spawn(actionDef, &actorInfo, argv);
-	if (_actorInfo)
-		*_actorInfo = actorInfo;
+	uint64_t logId;
+	ActorInfo *actorInfo = spawn(actionDef, argv, &logId);
+	copyActorInfoForExecResult(_actorInfo, actorInfo, logId);
 }
 
 void ActionManager::execResidentAction(const ActionDef &actionDef,
@@ -467,16 +474,16 @@ void ActionManager::execResidentAction(const ActionDef &actionDef,
 	}
 
 	// make a new resident instance
-	ActorInfo actorInfo;
+	uint64_t logId;
+	ActorInfo *actorInfo = NULL;
 	ResidentInfo *residentInfo =
-	  launchResidentActionYard(actionDef, eventInfo, &actorInfo);
+	  launchResidentActionYard(actionDef, eventInfo, &actorInfo, &logId);
 	if (residentInfo) {
 		ResidentInfo::runningResidentMap[actionDef.id] = residentInfo;
 		residentInfo->inRunningResidentMap = true;
 	}
 	ResidentInfo::residentMapLock.unlock();
-	if (_actorInfo)
-		*_actorInfo = actorInfo;
+	copyActorInfoForExecResult(_actorInfo, actorInfo, logId);
 }
 
 gboolean ActionManager::residentReadErrCb(
@@ -657,7 +664,8 @@ void ActionManager::sendParameters(ResidentInfo *residentInfo)
 }
 
 ResidentInfo *ActionManager::launchResidentActionYard
-  (const ActionDef &actionDef, const EventInfo &eventInfo, ActorInfo *actorInfo)
+  (const ActionDef &actionDef, const EventInfo &eventInfo,
+   ActorInfo **actorInfoPtr, uint64_t *logId)
 {
 	// make a ResidentInfo instance.
 	ResidentInfo *residentInfo = new ResidentInfo(this, actionDef);
@@ -670,12 +678,15 @@ ResidentInfo *ActionManager::launchResidentActionYard
 	  "hatohol-resident-yard",
 	  residentInfo->pipeName.c_str(),
 	  NULL};
-	actorInfo->collectedCb = actorCollectedCb;
-	actorInfo->collectedCbPriv = residentInfo;
-	if (!spawn(actionDef, actorInfo, argv)) {
+	
+	ActorInfo *actorInfo = spawn(actionDef, argv, logId);
+	*actorInfoPtr = actorInfo;
+	if (!actorInfo) {
 		delete residentInfo;
 		return NULL;
 	}
+	actorInfo->collectedCb = actorCollectedCb;
+	actorInfo->collectedCbPriv = residentInfo;
 	residentInfo->pid = actorInfo->pid;
 
 	// We can push the notifyInfo to the queue without locking,
@@ -770,3 +781,16 @@ void ActionManager::closeResident(ResidentNotifyInfo *notifyInfo,
 
 	closeResident(residentInfo);
 }
+
+void ActionManager::copyActorInfoForExecResult
+  (ActorInfo *actorInfoDest, const ActorInfo *actorInfoSrc, uint64_t logId)
+{
+	if (!actorInfoDest)
+		return;
+
+	if (actorInfoSrc)
+		*actorInfoDest = *actorInfoSrc;
+	else
+		actorInfoDest->logId = logId;
+}
+

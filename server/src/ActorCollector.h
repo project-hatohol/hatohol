@@ -54,7 +54,7 @@ public:
 	/**
 	 * lock() has to be called before this function is used.
 	 */
-	static void addActor(const ActorInfo &actorInfo);
+	static void addActor(ActorInfo *actorInfo);
 
 	ActorCollector(void);
 	virtual ~ActorCollector();

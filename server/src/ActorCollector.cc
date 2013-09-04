@@ -29,7 +29,7 @@
 
 using namespace mlpl;
 
-typedef map<pid_t, ActorInfo>        WaitChildSet;
+typedef map<pid_t, ActorInfo *>      WaitChildSet;
 typedef WaitChildSet::iterator       WaitChildSetIterator;
 typedef WaitChildSet::const_iterator WaitChildSetConstIterator;
 
@@ -76,17 +76,17 @@ void ActorCollector::unlock(void)
 	PrivateContext::lock.unlock();
 }
 
-void ActorCollector::addActor(const ActorInfo &actorInfo)
+void ActorCollector::addActor(ActorInfo *actorInfo)
 {
 	// This function is currently called only from
 	// ActionManager::execCommandAction(). Because lock() and unlock() are
 	// called in it, so they aren't called here.
 	pair<WaitChildSetIterator, bool> result =
 	  PrivateContext::waitChildSet.insert
-	    (pair<pid_t, ActorInfo>(actorInfo.pid, actorInfo));
+	    (pair<pid_t, ActorInfo *>(actorInfo->pid, actorInfo));
 	if (!result.second) {
 		MLPL_BUG("pid: %d (logId: %"PRIu64 ") is already regstered.\n",
-		         actorInfo.pid, actorInfo.logId);
+		         actorInfo->pid, actorInfo->logId);
 		return;
 	}
 }
@@ -216,31 +216,33 @@ gboolean ActorCollector::checkExitProcess
 	}
 	logArg.exitCode = childSigInfo.status;
 
-	// update the action log.
-	bool found = false;
-	bool dontLog = false;
+	// try to find the action log.
+	const ActorInfo *actorInfo = NULL;
 	lock();
 	WaitChildSetIterator it =
 	   PrivateContext::waitChildSet.find(childSigInfo.pid);
 	if (it != PrivateContext::waitChildSet.end()) {
-		found = true;
-		const ActorInfo &actorInfo = it->second;
-		logArg.logId = actorInfo.logId;
-		dontLog = actorInfo.dontLog;
-		if (actorInfo.collectedCb)
-			(*actorInfo.collectedCb)(actorInfo.collectedCbPriv);
+		actorInfo = it->second;
 		PrivateContext::waitChildSet.erase(it);
 	}
 	unlock();
 
-	if (!found)
-		return TRUE;
-	if (dontLog)
+	// return if the actorInfo instance was not found
+	if (!actorInfo)
 		return TRUE;
 
-	DBClientAction dbAction;
-	dbAction.logEndExecAction(logArg);
+	// execute the callback function
+	if (actorInfo->collectedCb)
+		(*actorInfo->collectedCb)(actorInfo->collectedCbPriv);
 
+	// log the action result if needed
+	if (!actorInfo->dontLog) {
+		DBClientAction dbAction;
+		logArg.logId = actorInfo->logId;
+		dbAction.logEndExecAction(logArg);
+	}
+
+	delete actorInfo;
 	return TRUE;
 }
 
@@ -261,7 +263,7 @@ void ActorCollector::setDontLog(pid_t pid)
 	lock();
 	WaitChildSetIterator it = PrivateContext::waitChildSet.find(pid);
 	if (it != PrivateContext::waitChildSet.end()) {
-		it->second.dontLog = true;
+		it->second->dontLog = true;
 		found = true;
 	}
 	unlock();
