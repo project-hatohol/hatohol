@@ -830,12 +830,6 @@ void test_execResidentActionCheckArg(void)
 	assertWaitEventBody(ctx);
 }
 
-// TODO: make tests for the following error cases.
-// - The path of the actor is wrong (failed to launch)
-// - An actor is killed by the timed out.
-// - The pipe of actor connected to hatohol unexpectedly is closed.
-// - Unexpected exit of the actor.
-
 } // namespace testActionManager
 
 namespace testActionManagerWithoutDB {
