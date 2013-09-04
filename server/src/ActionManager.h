@@ -23,6 +23,7 @@
 #include "SmartBuffer.h"
 #include "DBClientAction.h"
 #include "ActorCollector.h"
+#include "NamedPipe.h"
 
 struct ResidentInfo;
 
@@ -69,6 +70,8 @@ protected:
 	                                ResidentNotifyInfo *residentInfo);
 	static void sendParameters(ResidentInfo *residentInfo);
 	static gboolean commandActionTimeoutCb(gpointer data);
+	static void residentActionTimeoutCb(NamedPipe *namedPipe,
+	                                    gpointer data);
 	void runAction(const ActionDef &actionDef, const EventInfo &eventInfo);
 	void makeExecArg(StringVector &argVect, const string &cmd);
 	static void parseResidentCommand(

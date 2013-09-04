@@ -18,6 +18,7 @@
  */
 
 #include <cstring>
+#include <unistd.h>
 #include "residentTest.h"
 #include "ResidentProtocol.h"
 #include "ResidentCommunicator.h"
@@ -91,6 +92,12 @@ static void crash(void)
 	*p = 'a';
 }
 
+static void stall(void)
+{
+	while (true)
+		sleep(1);
+}
+
 // --------------------------------------------------------------------------
 // Module handlers
 // --------------------------------------------------------------------------
@@ -114,6 +121,8 @@ static uint32_t init(const char *arg)
 			crash();
 		} else if (str == "--crash-notify-event") {
 			ctx.crashNotifyEvent = true;
+		} else if (str == "--stall-init") {
+			stall();
 		}
 	}
 

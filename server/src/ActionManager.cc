@@ -685,6 +685,28 @@ gboolean ActionManager::commandActionTimeoutCb(gpointer data)
 	return FALSE;
 }
 
+void ActionManager::residentActionTimeoutCb(NamedPipe *namedPipe, gpointer data)
+{
+	ResidentInfo *residentInfo = static_cast<ResidentInfo *>(data);
+	ActionManager *obj = residentInfo->actionManager;
+
+	ResidentNotifyInfo *notifyInfo = NULL;
+	residentInfo->queueLock.lock();
+	if (!residentInfo->notifyQueue.empty())
+		notifyInfo = residentInfo->notifyQueue.front();
+	residentInfo->queueLock.unlock();
+
+	// Check if the queue is empty
+	if (!notifyInfo) {
+		MLPL_BUG("notifyQueue is empty\n");
+		obj->closeResident(residentInfo);
+		return;
+	}
+
+	// log the incident and kill the resident.
+	obj->closeResident(notifyInfo, ACTLOG_EXECFAIL_KILLED_TIMEOUT);
+}
+
 ResidentInfo *ActionManager::launchResidentActionYard
   (const ActionDef &actionDef, const EventInfo &eventInfo,
    ActorInfo **actorInfoPtr, uint64_t *logId)
@@ -710,6 +732,14 @@ ResidentInfo *ActionManager::launchResidentActionYard
 	actorInfo->collectedCb = actorCollectedCb;
 	actorInfo->collectedCbPriv = residentInfo;
 	residentInfo->pid = actorInfo->pid;
+	if (actionDef.timeout > 0) {
+		residentInfo->pipeRd.setTimeout(actionDef.timeout,
+		                                residentActionTimeoutCb,
+		                                residentInfo);
+		residentInfo->pipeWr.setTimeout(actionDef.timeout,
+		                                residentActionTimeoutCb,
+		                                residentInfo);
+	}
 
 	// We can push the notifyInfo to the queue without locking,
 	// because no other users of this instance at this point.
