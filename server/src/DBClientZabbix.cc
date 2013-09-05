@@ -1575,16 +1575,22 @@ DBClientZabbix::DBClientZabbix(size_t zabbixServerId)
 	   zabbixServerId); 
 	m_ctx = new PrivateContext(zabbixServerId);
 
+	DBDomainId domainId = DB_DOMAIN_ID_ZABBIX + zabbixServerId;
 	m_ctx->lock();
 	if (!m_ctx->dbInitializedFlags[zabbixServerId]) {
-		// The setup function: dbSetupFunc() is called from
-		// the creation of DBAgent instance below.
+		// prepareSetupFuncCallack() just registers a setup function.
+		// The actual setup is performed in the first creation of 
+		// an instance in the following DBAgentFactory::create().
 		prepareSetupFuncCallback(zabbixServerId);
+		bool skipSetup = false;
+		setDBAgent(DBAgentFactory::create(domainId, skipSetup));
 		m_ctx->dbInitializedFlags[zabbixServerId] = true;
+		m_ctx->unlock();
+	} else {
+		m_ctx->unlock();
+		bool skipSetup = true;
+		setDBAgent(DBAgentFactory::create(domainId, skipSetup));
 	}
-	DBDomainId domainId = DB_DOMAIN_ID_ZABBIX + zabbixServerId;
-	setDBAgent(DBAgentFactory::create(domainId));
-	m_ctx->unlock();
 }
 
 DBClientZabbix::~DBClientZabbix()
