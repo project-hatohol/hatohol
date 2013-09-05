@@ -284,7 +284,7 @@ static void _assertItems(const string &path, const string &callbackName = "")
 	startFaceRest();
 	g_parser = getResponseAsJsonParser(path, callbackName);
 	assertValueInParser(g_parser, "apiVersion",
-	                    (uint32_t)FaceRest::API_VERSION_EVENTS);
+	                    (uint32_t)FaceRest::API_VERSION_ITEMS);
 	assertValueInParser(g_parser, "result", true);
 	assertValueInParser(g_parser, "numberOfItems",
 	                    (uint32_t)NumTestItemInfo);
