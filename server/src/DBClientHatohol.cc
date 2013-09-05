@@ -34,6 +34,11 @@ static const char *TABLE_NAME_ITEMS    = "items";
 uint64_t DBClientHatohol::EVENT_NOT_FOUND = -1;
 int DBClientHatohol::HATOHOL_DB_VERSION = 3;
 
+// Currently DBClientHatohol uses DBAgentSQLite3. In that case,
+// DEFAULT_DB_NAME passed addDefaultDBInfo() is ignored. However,
+// We define and pass it for the future replacement of the DBAgent.
+const char *DBClientHatohol::DEFAULT_DB_NAME = "hotohol";
+
 static const ColumnDef COLUMN_DEF_TRIGGERS[] = {
 {
 	ITEM_ID_NOT_SET,                   // itemId
@@ -415,11 +420,33 @@ enum {
 	NUM_IDX_ITEMS,
 };
 
+static const DBClient::DBSetupTableInfo DB_TABLE_INFO[] = {
+{
+	TABLE_NAME_TRIGGERS,
+	NUM_COLUMNS_TRIGGERS,
+	COLUMN_DEF_TRIGGERS,
+}, {
+	TABLE_NAME_EVENTS,
+	NUM_COLUMNS_EVENTS,
+	COLUMN_DEF_EVENTS,
+}, {
+	TABLE_NAME_ITEMS,
+	NUM_COLUMNS_ITEMS,
+	COLUMN_DEF_ITEMS,
+}
+};
+
+static const size_t NUM_TABLE_INFO =
+sizeof(DB_TABLE_INFO) / sizeof(DBClient::DBSetupTableInfo);
+
+static DBClient::DBSetupFuncArg DB_SETUP_FUNC_ARG = {
+	DBClientHatohol::HATOHOL_DB_VERSION,
+	NUM_TABLE_INFO,
+	DB_TABLE_INFO,
+};
+
 struct DBClientHatohol::PrivateContext
 {
-	static MutexLock mutex;
-	static bool   initialized;
-
 	PrivateContext(void)
 	{
 	}
@@ -427,19 +454,7 @@ struct DBClientHatohol::PrivateContext
 	virtual ~PrivateContext()
 	{
 	}
-
-	static void lock(void)
-	{
-		mutex.lock();
-	}
-
-	static void unlock(void)
-	{
-		mutex.unlock();
-	}
 };
-MutexLock DBClientHatohol::PrivateContext::mutex;
-bool   DBClientHatohol::PrivateContext::initialized = false;
 
 // ---------------------------------------------------------------------------
 // Public methods
@@ -457,26 +472,15 @@ void DBClientHatohol::init(void)
 	HATOHOL_ASSERT(NUM_COLUMNS_ITEMS == NUM_IDX_ITEMS,
 	  "NUM_COLUMNS_ITEMS: %zd, NUM_IDX_ITEMS: %d",
 	  NUM_COLUMNS_ITEMS, NUM_IDX_ITEMS);
-}
 
-void DBClientHatohol::reset(void)
-{
-	resetDBInitializedFlags();
+	addDefaultDBInfo(
+	  DB_DOMAIN_ID_HATOHOL, DEFAULT_DB_NAME, &DB_SETUP_FUNC_ARG);
 }
 
 DBClientHatohol::DBClientHatohol(void)
 : m_ctx(NULL)
 {
 	m_ctx = new PrivateContext();
-
-	m_ctx->lock();
-	if (!m_ctx->initialized) {
-		// The setup function: dbSetupFunc() is called from
-		// the creation of DBAgent instance below.
-		prepareSetupFunction();
-	}
-	m_ctx->unlock();
-	setDBAgent(DBAgentFactory::create(DB_DOMAIN_ID_HATOHOL));
 }
 
 DBClientHatohol::~DBClientHatohol()
@@ -980,41 +984,6 @@ size_t DBClientHatohol::getNumberOfBadHosts(uint32_t serverId,
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
-void DBClientHatohol::resetDBInitializedFlags(void)
-{
-	PrivateContext::initialized = false;
-}
-
-void DBClientHatohol::prepareSetupFunction(void)
-{
-	static const DBSetupTableInfo DB_TABLE_INFO[] = {
-	{
-		TABLE_NAME_TRIGGERS,
-		NUM_COLUMNS_TRIGGERS,
-		COLUMN_DEF_TRIGGERS,
-	}, {
-		TABLE_NAME_EVENTS,
-		NUM_COLUMNS_EVENTS,
-		COLUMN_DEF_EVENTS,
-	}, {
-		TABLE_NAME_ITEMS,
-		NUM_COLUMNS_ITEMS,
-		COLUMN_DEF_ITEMS,
-	}
-	};
-	static const size_t NUM_TABLE_INFO =
-	sizeof(DB_TABLE_INFO) / sizeof(DBSetupTableInfo);
-
-	static const DBSetupFuncArg DB_SETUP_FUNC_ARG = {
-		HATOHOL_DB_VERSION,
-		NUM_TABLE_INFO,
-		DB_TABLE_INFO,
-	};
-
-	DBAgent::addSetupFunction(DB_DOMAIN_ID_HATOHOL,
-	                          dbSetupFunc, (void *)&DB_SETUP_FUNC_ARG);
-}
-
 void DBClientHatohol::addTriggerInfoBare(const TriggerInfo &triggerInfo)
 {
 	string condition = StringUtils::sprintf

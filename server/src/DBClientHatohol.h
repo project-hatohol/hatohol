@@ -22,6 +22,7 @@
 
 #include <list>
 #include "DBClient.h"
+#include "DBClientConnectable.h"
 
 enum TriggerStatusType {
 	TRIGGER_STATUS_OK,
@@ -106,12 +107,13 @@ typedef list<ItemInfo>               ItemInfoList;
 typedef ItemInfoList::iterator       ItemInfoListIterator;
 typedef ItemInfoList::const_iterator ItemInfoListConstIterator;
 
-class DBClientHatohol : public DBClient {
+class DBClientHatohol :
+   public DBClientConnectable<DB_DOMAIN_ID_HATOHOL> {
 public:
 	static uint64_t EVENT_NOT_FOUND;
 	static int HATOHOL_DB_VERSION;
+	static const char *DEFAULT_DB_NAME;
 	static void init(void);
-	static void reset(void);
 
 	DBClientHatohol(void);
 	virtual ~DBClientHatohol();
@@ -172,8 +174,6 @@ public:
 	size_t getNumberOfBadHosts(uint32_t serverId, uint64_t hostGroupId);
 
 protected:
-	static void resetDBInitializedFlags(void);
-	void prepareSetupFunction(void);
 	void addTriggerInfoBare(const TriggerInfo &triggerInfo);
 	void addEventInfoBare(const EventInfo &eventInfo);
 	void addItemInfoBare(const ItemInfo &itemInfo);
