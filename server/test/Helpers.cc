@@ -18,6 +18,7 @@
  */
 
 #include <cppcutter.h>
+#include <gcutter.h>
 #include <unistd.h>
 #include <typeinfo>
 #include "Helpers.h"
@@ -80,19 +81,13 @@ struct SpawnSyncContext {
 		cppcut_assert_not_null(ioch);
 
 		GError *error = NULL;
-		GIOStatus stat = g_io_channel_set_encoding(ioch, NULL, &error);
-		cppcut_assert_equal(G_IO_STATUS_NORMAL, stat,
-		  cut_message("Failed to call g_io_channel_set_encoding: "
-		              "%d, %s\n", stat,
-		              error ? error->message : "(unknown reason)"));
+		g_io_channel_set_encoding(ioch, NULL, &error);
+		gcut_assert_error(error);
 
 		// non blocking
 		GIOFlags flags = G_IO_FLAG_NONBLOCK;
-		stat = g_io_channel_set_flags(ioch, flags, &error);
-		cppcut_assert_equal(G_IO_STATUS_NORMAL, stat,
-		  cut_message("Failed to call g_io_channel_set_flags: "
-		              "%d, %s\n", stat,
-		              error ? error->message : "(unknown reason)"));
+		g_io_channel_set_flags(ioch, flags, &error);
+		gcut_assert_error(error);
 
 		// data callback
 		GIOCondition cond = G_IO_IN;
