@@ -77,6 +77,24 @@ static ActionDef testActionDef[] = {
 	"/tmp",            // working dir
 	"/usr/lib/liba.so",// command
 	60,                // timeout
+}, {
+	0,                 // id (this filed is ignored)
+	ActionCondition(
+	  ACTCOND_SERVER_ID | ACTCOND_HOST_ID | ACTCOND_HOST_GROUP_ID |
+	  ACTCOND_TRIGGER_ID | ACTCOND_TRIGGER_STATUS |
+	   ACTCOND_TRIGGER_SEVERITY,   // enableBits
+	  2,                        // serverId
+	  0x89abcdefffffffff,       // hostId
+	  0x8000000000000000,       // hostGroupId
+	  0xfedcba9876543210,       // triggerId
+	  TRIGGER_STATUS_OK,        // triggerStatus
+	  TRIGGER_SEVERITY_WARN,    // triggerSeverity
+	  CMP_EQ_GT                 // triggerSeverityCompType;
+	), // condition
+	ACTION_RESIDENT,   // type
+	"/home/hatohol",   // working dir
+	"/usr/lib/liba.so",// command
+	0,                 // timeout
 },
 };
 
@@ -327,6 +345,37 @@ void test_getTriggerActionList(void)
 	eventInfo.status    = (TriggerStatusType) condTarget.triggerStatus;
 	eventInfo.severity  = (TriggerSeverityType) condTarget.triggerSeverity;
 	eventInfo.hostId    = condDummy2.hostId;
+	eventInfo.hostName  = "foo";
+	eventInfo.brief     = "foo foo foo";
+
+	// get the list and check the number
+	DBClientAction dbAction;
+	ActionDefList actionDefList;
+	dbAction.getActionList(eventInfo, actionDefList);
+	cppcut_assert_equal((size_t)1, actionDefList.size());
+
+	// check the content
+	const ActionDef &actual = *actionDefList.begin();
+	assertEqual(testActionDef[idxTarget], actual);
+}
+
+void test_getTriggerActionListWithAllCondition(void)
+{
+	test_addAction(); // save test data into DB.
+
+	// make an EventInfo instance for the test
+	int idxTarget = 3;
+	const ActionCondition condTarget = testActionDef[idxTarget].condition;
+	EventInfo eventInfo;
+	eventInfo.serverId  = condTarget.serverId;
+	eventInfo.id        = 0;
+	eventInfo.time.tv_sec  = 1378339653;
+	eventInfo.time.tv_nsec = 6889;
+	eventInfo.type      = EVENT_TYPE_ACTIVATED;
+	eventInfo.triggerId = condTarget.triggerId;
+	eventInfo.status    = (TriggerStatusType) condTarget.triggerStatus;
+	eventInfo.severity  = (TriggerSeverityType) condTarget.triggerSeverity;
+	eventInfo.hostId    = condTarget.hostId;
 	eventInfo.hostName  = "foo";
 	eventInfo.brief     = "foo foo foo";
 
