@@ -44,6 +44,7 @@ struct ConfigValue {
 	string                   configDBPassword;
 	int                      faceRestPort;
 	MonitoringServerInfoList serverInfoList;
+	string                   actionDBName;
 	
 	// constructor
 	ConfigValue(void)
@@ -51,7 +52,8 @@ struct ConfigValue {
 	  configDBName("hatohol"),
 	  configDBUser("hatohol"),
 	  configDBPassword("hatohol"),
-	  faceRestPort(0)
+	  faceRestPort(0),
+	  actionDBName("action")
 	{
 	}
 };
@@ -361,6 +363,7 @@ static bool execMySQL(const string &statement,
 }
 
 static bool dropConfigDBIfExists(const ConfigValue &confValue,
+                                 const string &dbName,
                                  const string &dbRootPasswd)
 {
 	string stdoutStr;
@@ -404,11 +407,19 @@ static bool dropConfigDBIfExists(const ConfigValue &confValue,
 static bool createConfigDB(const ConfigValue &confValue,
                            const string &dbRootPasswd)
 {
+	// config
 	string stdoutStr;
 	string sql = StringUtils::sprintf(
 	  "CREATE DATABASE %s", confValue.configDBName.c_str());
 	if (!execMySQL(sql, "root", dbRootPasswd, stdoutStr))
 		return false;
+
+	// action
+	sql = StringUtils::sprintf(
+	  "CREATE DATABASE %s", confValue.actionDBName.c_str());
+	if (!execMySQL(sql, "root", dbRootPasswd, stdoutStr))
+		return false;
+
 	return true;
 }
 
@@ -417,6 +428,8 @@ static bool grantAllToHatohol(const ConfigValue &confValue,
                             const string &host)
 {
 	string stdoutStr;
+
+	// config
 	string sql = StringUtils::sprintf(
 	  "GRANT ALL ON %s.* TO %s@'%s' IDENTIFIED BY '%s'",
 	   confValue.configDBName.c_str(),
@@ -425,6 +438,17 @@ static bool grantAllToHatohol(const ConfigValue &confValue,
 	   confValue.configDBPassword.c_str());
 	if (!execMySQL(sql, "root", dbRootPasswd, stdoutStr))
 		return false;
+
+	// action
+	sql = StringUtils::sprintf(
+	  "GRANT ALL ON %s.* TO %s@'%s' IDENTIFIED BY '%s'",
+	   confValue.actionDBName.c_str(),
+	   confValue.configDBUser.c_str(),
+	   host.c_str(),
+	   confValue.configDBPassword.c_str());
+	if (!execMySQL(sql, "root", dbRootPasswd, stdoutStr))
+		return false;
+
 	return true;
 }
 
@@ -466,7 +490,11 @@ static bool setupDBServer(const ConfigValue &confValue)
 		return false;
 	printf("\n");
 
-	if (!dropConfigDBIfExists(confValue, dbRootPasswd))
+	if (!dropConfigDBIfExists(confValue,
+	                          confValue.configDBName, dbRootPasswd))
+		return false;
+	if (!dropConfigDBIfExists(confValue,
+	                          confValue.actionDBName, dbRootPasswd))
 		return false;
 	if (!createConfigDB(confValue, dbRootPasswd))
 		return false;
