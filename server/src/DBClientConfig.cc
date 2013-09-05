@@ -273,6 +273,7 @@ static void updateDB(DBAgent *dbAgent, int oldVer, void *data)
 // ---------------------------------------------------------------------------
 bool DBClientConfig::parseCommandLineArgument(CommandLineArg &cmdArg)
 {
+	DBClientConfig::init();
 	initDefaultDBConnectInfoMaster();
 	DBConnectInfo &connMaster = getDBConnectInfoMaster();
 

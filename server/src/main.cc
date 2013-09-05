@@ -100,7 +100,6 @@ int mainRoutine(int argc, char *argv[])
 	CommandLineArg cmdArg;
 	for (int i = 1; i < argc; i++)
 		cmdArg.push_back(argv[i]);
-	DBClientConfig::init();
 	if (!DBClientConfig::parseCommandLineArgument(cmdArg))
 		return EXIT_FAILURE;
 
