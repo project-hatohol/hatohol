@@ -512,14 +512,16 @@ string joinStringVector(const StringVector &strVect, const string &pad,
 
 void crash(void)
 {
-	// The following code causes SIGILL when the test is executed with
-	// the compiler: clang, although we expect SIGSEGV.
-	// So we send the signal directly.
-	/*
-	char *p = NULL;
-	*p = 'a';
-	*/
+	// Accessing the invalid address (NULL) finally causes SIGILL
+	// when the compiler is clang, although we expect SIGSEGV.
+	// So we send the signal directly when using clang.
+	// Now hatohol is built with clang as a trial.
+#ifdef __clang__
 	kill(getpid(), SIGSEGV);
 	while (true)
 		sleep(1);
+#else
+	char *p = NULL;
+	*p = 'a';
+#endif
 }
