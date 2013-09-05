@@ -244,6 +244,8 @@ const char *MonitoringServerInfo::getHostAddress(void) const
 
 struct DBClientConfig::PrivateContext
 {
+	static bool initCalled;
+
 	PrivateContext(void)
 	{
 	}
@@ -252,6 +254,7 @@ struct DBClientConfig::PrivateContext
 	{
 	}
 };
+bool DBClientConfig::PrivateContext::initCalled = false;;
 
 static void updateDB(DBAgent *dbAgent, int oldVer, void *data)
 {
@@ -308,6 +311,9 @@ bool DBClientConfig::parseCommandLineArgument(CommandLineArg &cmdArg)
 
 void DBClientConfig::init(void)
 {
+	if (PrivateContext::initCalled)
+		return;
+
 	HATOHOL_ASSERT(NUM_COLUMNS_SYSTEM == NUM_IDX_SYSTEM,
 	  "NUM_COLUMNS_SYSTEM: %zd, NUM_IDX_SYSTEM: %d",
 	  NUM_COLUMNS_SYSTEM, NUM_IDX_SYSTEM);
@@ -343,6 +349,8 @@ void DBClientConfig::init(void)
 
 	addDefaultDBInfo(
 	  DB_DOMAIN_ID_CONFIG, DEFAULT_DB_NAME, &DB_SETUP_FUNC_ARG);
+
+	PrivateContext::initCalled = true;
 }
 
 DBClientConfig::DBClientConfig(const DBConnectInfo *connectInfo)
