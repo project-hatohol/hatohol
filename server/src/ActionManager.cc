@@ -257,7 +257,7 @@ void ActionManager::checkEvents(const EventInfoList &eventList)
 	EventInfoListConstIterator it = eventList.begin();
 	for (; it != eventList.end(); ++it) {
 		ActionDefList actionDefList;
-		m_ctx->dbAction.getActionList(*it, actionDefList);
+		m_ctx->dbAction.getActionList(actionDefList, &*it);
 		ActionDefListIterator actIt = actionDefList.begin();
 		for (; actIt != actionDefList.end(); ++actIt)
 			runAction(*actIt, *it);

@@ -475,8 +475,8 @@ void DBClientAction::addAction(ActionDef &actionDef)
 	} DBCLIENT_TRANSACTION_END();
 }
 
-void DBClientAction::getActionList(const EventInfo &eventInfo,
-                                   ActionDefList &actionDefList)
+void DBClientAction::getActionList(ActionDefList &actionDefList,
+                                   const EventInfo *eventInfo)
 {
 	DBAgentSelectExArg arg;
 	arg.tableName = TABLE_NAME_ACTIONS;
@@ -496,7 +496,8 @@ void DBClientAction::getActionList(const EventInfo &eventInfo,
 	arg.pushColumn(COLUMN_DEF_ACTIONS[IDX_ACTIONS_WORKING_DIR]);
 	arg.pushColumn(COLUMN_DEF_ACTIONS[IDX_ACTIONS_TIMEOUT]);
 
-	arg.condition = makeActionDefCondition(eventInfo);
+	if (eventInfo)
+		arg.condition = makeActionDefCondition(*eventInfo);
 
 	DBCLIENT_TRANSACTION_BEGIN() {
 		select(arg);

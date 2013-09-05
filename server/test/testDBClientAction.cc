@@ -351,7 +351,7 @@ void test_getTriggerActionList(void)
 	// get the list and check the number
 	DBClientAction dbAction;
 	ActionDefList actionDefList;
-	dbAction.getActionList(eventInfo, actionDefList);
+	dbAction.getActionList(actionDefList, &eventInfo);
 	cppcut_assert_equal((size_t)1, actionDefList.size());
 
 	// check the content
@@ -382,7 +382,7 @@ void test_getTriggerActionListWithAllCondition(void)
 	// get the list and check the number
 	DBClientAction dbAction;
 	ActionDefList actionDefList;
-	dbAction.getActionList(eventInfo, actionDefList);
+	dbAction.getActionList(actionDefList, &eventInfo);
 	cppcut_assert_equal((size_t)1, actionDefList.size());
 
 	// check the content
