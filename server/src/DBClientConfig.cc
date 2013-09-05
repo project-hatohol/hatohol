@@ -349,8 +349,6 @@ DBClientConfig::DBClientConfig(const DBConnectInfo *connectInfo)
 : m_ctx(NULL)
 {
 	m_ctx = new PrivateContext();
-
-
 }
 
 DBClientConfig::~DBClientConfig()
