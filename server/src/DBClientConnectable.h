@@ -72,9 +72,11 @@ public:
 
 	DBClientConnectable(const DBConnectInfo *connectInfo = NULL)
 	{
-		m_mutex.lock();
+		// m_connectInfo is initizalied in reset(). It isn't updated
+		// after reset. So we can refere it without a lock.
 		if (!connectInfo)
 			connectInfo = &m_connectInfo;
+		m_mutex.lock();
 		if (!m_initialized) {
 			// The setup function: dbSetupFunc() is called from
 			// the creation of DBAgent instance below.
@@ -83,11 +85,17 @@ public:
 			DBAgent::addSetupFunction(
 			  DB_DOMAIN_ID, dbSetupFunc,
 			  (void *)dbInfo.dbSetupFuncArg);
+			bool skipSetup = false;
+			setDBAgent(DBAgentFactory::create(
+			  DB_DOMAIN_ID, skipSetup, connectInfo));
+			m_initialized = true;
+			m_mutex.unlock();
+		} else {
+			m_mutex.unlock();
+			bool skipSetup = true;
+			setDBAgent(DBAgentFactory::create(
+			  DB_DOMAIN_ID, skipSetup, connectInfo));
 		}
-		m_mutex.unlock();
-		bool skipSetup = false;
-		setDBAgent(DBAgentFactory::create(DB_DOMAIN_ID, skipSetup,
-		                                  connectInfo));
 	}
 
 	virtual ~DBClientConnectable()

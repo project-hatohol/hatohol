@@ -76,6 +76,7 @@ static void reset(void)
 {
 	DBAgentSQLite3::reset();
 	DBClientConfig::reset();
+	DBClientAction::reset();
 	DBClientHatohol::reset();
 	DBClientZabbix::reset();
 
