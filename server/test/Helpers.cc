@@ -520,4 +520,6 @@ void crash(void)
 	*p = 'a';
 	*/
 	kill(getpid(), SIGSEGV);
+	while (true)
+		sleep(1);
 }
