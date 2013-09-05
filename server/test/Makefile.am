@@ -52,6 +52,7 @@ testHatohol_la_LIBADD = libTest.la
 
 residentTest_la_SOURCES = residentTest.cc
 residentTest_la_LDFLAGS = $(AM_LDFLAGS) $(LIBS)
+residentTest_la_LIBADD  = libTest.la
 
 libTest_la_SOURCES = \
 	FormulaTestUtils.cc Helpers.cc DBAgentTest.cc DBClientTest.cc \
