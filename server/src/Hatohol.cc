@@ -34,6 +34,7 @@ using namespace mlpl;
 #include "FaceRest.h"
 #include "HatoholException.h"
 #include "DBAgentSQLite3.h"
+#include "DBAgentMySQL.h"
 #include "DBClientConfig.h"
 #include "DBClientHatohol.h"
 #include "DBClientZabbix.h"
@@ -50,6 +51,7 @@ static void init(void)
 	HatoholException::init();
 
 	DBAgentSQLite3::init();
+	DBAgentMySQL::init();
 	DBClientConfig::init();
 	DBClientHatohol::init();
 	DBClientZabbix::init();

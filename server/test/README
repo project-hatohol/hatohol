@@ -5,4 +5,4 @@ $ TEST_MYSQL_PORT=8006 ./run-test.sh -t /testMySQLWorkerZabbix/
 $ HATOHOL_EXCEPTION_STACK_TRACE=1 ./run-test.sh
 
 * Some database tests may be faster by setting the database dir to RAM Disk as
-$ HATOHOL_DB_DIR=/dev/shm ./run-test.sh
+$ HATOHOL_DB_DIR=/dev/shm HATOHOL_MYSQL_ENGINE_MEMORY=1 ./run-test.sh

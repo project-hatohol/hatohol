@@ -22,6 +22,7 @@
 #include "Params.h"
 
 struct DBAgentMySQL::PrivateContext {
+	static string engineStr;
 	MYSQL mysql;
 	bool  connected;
 	string dbName;
@@ -32,9 +33,20 @@ struct DBAgentMySQL::PrivateContext {
 	}
 };
 
+string DBAgentMySQL::PrivateContext::engineStr;
+
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
+void DBAgentMySQL::init(void)
+{
+	char *env = getenv("HATOHOL_MYSQL_ENGINE_MEMORY");
+	if (env && atoi(env) == 1) {
+		MLPL_INFO("Use memory engine\n");
+		PrivateContext::engineStr = " ENGINE=MEMORY";
+	}
+}
+
 DBAgentMySQL::DBAgentMySQL(const char *db, const char *user, const char *passwd,
                            const char *host, unsigned int port,
                            DBDomainId domainId, bool skipSetup)
@@ -214,6 +226,8 @@ void DBAgentMySQL::createTable(DBAgentTableCreationArg &tableCreationArg)
 			query += ",";
 	}
 	query += ")";
+	if (!m_ctx->engineStr.empty())
+		query += m_ctx->engineStr;
 
 	execSql(query);
 }

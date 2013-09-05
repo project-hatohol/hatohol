@@ -25,6 +25,8 @@
 
 class DBAgentMySQL : public DBAgent {
 public:
+	static void init(void);
+
 	// constructor and destructor
 	DBAgentMySQL(const char *db,            // When the parameter is NULL,
 	             const char *user = NULL,   //   current user name is used
