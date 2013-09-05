@@ -18,13 +18,17 @@
  */
 
 #include <cppcutter.h>
+#include <gcutter.h>
 #include <unistd.h>
+#include <typeinfo>
 #include "Helpers.h"
 #include "DBClientZabbix.h"
 #include "DBClientConfig.h"
+#include "DBClientAction.h"
 #include "DBClientTest.h"
 #include "DBAgentSQLite3.h"
 #include "DBAgentMySQL.h"
+#include "SQLUtils.h"
 
 void _assertStringVector(StringVector &expected, StringVector &actual)
 {
@@ -60,30 +64,125 @@ void _assertExist(const string &target, const string &words)
 	cut_fail("Not found: %s in %s", target.c_str(), words.c_str());
 }
 
+struct SpawnSyncContext {
+	bool running;
+	bool hasError;
+	GIOChannel *ioch;
+	guint dataCbId;
+	guint errCbId;
+	string &msg;
+
+	SpawnSyncContext(int fd, string &_msg)
+	: running(true),
+	  ioch(NULL),
+	  msg(_msg)
+	{
+		ioch = g_io_channel_unix_new(fd);
+		cppcut_assert_not_null(ioch);
+
+		GError *error = NULL;
+		g_io_channel_set_encoding(ioch, NULL, &error);
+		gcut_assert_error(error);
+
+		// non blocking
+		GIOFlags flags = G_IO_FLAG_NONBLOCK;
+		g_io_channel_set_flags(ioch, flags, &error);
+		gcut_assert_error(error);
+
+		// data callback
+		GIOCondition cond = G_IO_IN;
+		dataCbId = g_io_add_watch(ioch, cond, cbData, this);
+
+		// error callback
+		cond = (GIOCondition)(G_IO_PRI|G_IO_ERR|G_IO_HUP|G_IO_NVAL);
+		errCbId = g_io_add_watch(ioch, cond, cbErr, this);
+	}
+
+	virtual ~SpawnSyncContext()
+	{
+		Utils::removeEventSourceIfNeeded(dataCbId);
+		Utils::removeEventSourceIfNeeded(errCbId);
+		g_io_channel_unref(ioch);
+	}
+
+	static gboolean cbData(GIOChannel *source, GIOCondition condition,
+	                gpointer data)
+	{
+		SpawnSyncContext *obj = static_cast<SpawnSyncContext *>(data);
+		GError *error = NULL;
+		gsize bytesRead;
+		gsize bufSize = 0x1000;
+		gchar buf[bufSize];
+		GIOStatus stat =
+		  g_io_channel_read_chars(source, buf, bufSize, &bytesRead,
+		                          &error);
+		if (stat != G_IO_STATUS_NORMAL) {
+			MLPL_ERR("Failed to call g_io_channel_read_chars: %s\n",
+			         error ? error->message : "unknown");
+			if (error)
+				g_error_free(error);
+			obj->running = false;
+			obj->dataCbId = INVALID_EVENT_ID;
+			return FALSE;
+		}
+		obj->msg += string(buf, 0, bytesRead);
+		return TRUE;
+	}
+
+	static gboolean cbErr(GIOChannel *source, GIOCondition condition,
+	                gpointer data)
+	{
+		SpawnSyncContext *obj = static_cast<SpawnSyncContext *>(data);
+		obj->running = false;
+		obj->errCbId = INVALID_EVENT_ID;
+		return FALSE;
+	}
+};
+
+gboolean spawnSync(const string &commandLine, string &stdOut, string &stdErr,
+                   GError **error)
+{
+	gchar **argv = NULL;
+	if (!g_shell_parse_argv(commandLine.c_str(), NULL, &argv, error))
+		return FALSE;
+
+	const gchar *workingDir = NULL;
+	gchar **envp = NULL;
+	GSpawnFlags flags = G_SPAWN_SEARCH_PATH;
+	GSpawnChildSetupFunc childSetup = NULL;
+	gpointer userData = NULL;
+	GPid childPid;
+	gint stdOutFd;
+	gint stdErrFd;
+	gboolean ret =
+	  g_spawn_async_with_pipes(workingDir, argv, envp, flags,
+	                           childSetup, userData, &childPid,
+	                           NULL /* stdInFd */, &stdOutFd, &stdErrFd,
+	                           error);
+	g_strfreev(argv);
+	if (!ret)
+		return FALSE;
+
+	SpawnSyncContext ctxStd(stdOutFd, stdOut);
+	SpawnSyncContext ctxErr(stdErrFd, stdErr);
+
+	while (ctxStd.running && ctxErr.running)
+		g_main_context_iteration(NULL, TRUE);
+	return TRUE;
+}
+
 string executeCommand(const string &commandLine)
 {
 	gboolean ret;
-	gchar *standardOutput = NULL;
-	gchar *standardError = NULL;
-	gint exitStatus;
-	GError *error = NULL;
 	string errorStr;
 	string stdoutStr, stderrStr;
+	GError *error = NULL;
 
-	ret = g_spawn_command_line_sync(commandLine.c_str(),
-	                                &standardOutput, &standardError,
-	                                &exitStatus, &error);
-	if (standardOutput) {
-		stdoutStr = standardOutput;
-		g_free(standardOutput);
-	}
-	if (standardError) {
-		stderrStr = standardError;
-		g_free(standardError);
-	}
+	// g_spawn_sync families cannot be used for htohol tests.
+	// Because they update the signal handler for SIGCHLD. As a result,
+	// Hatohol's SIGCHLD signal handler is ignored.
+	ret = spawnSync(commandLine, stdoutStr, stderrStr, &error);
 	if (!ret)
-		goto err;
-	if (exitStatus != 0)
 		goto err;
 	return stdoutStr;
 
@@ -92,10 +191,8 @@ err:
 		errorStr = error->message;
 		g_error_free(error);
 	}
-	cut_fail("ret: %d, exit status: %d\n<<stdout>>\n%s\n<<stderr>>\n%s\n"
-	         "<<error->message>>\n%s",
-	         ret, exitStatus, stdoutStr.c_str(), stderrStr.c_str(), 
-	         errorStr.c_str());
+	cut_fail("<<stdout>>\n%s\n<<stderr>>\n%s\n<<error->message>>\n%s",
+	         stdoutStr.c_str(), stderrStr.c_str(), errorStr.c_str());
 	return "";
 }
 
@@ -170,19 +267,89 @@ string execMySQL(const string &dbName, const string &statement, bool showHeader)
 	return result;
 }
 
+void _assertDatetime(int expectedClock, int actualClock)
+{
+	if (expectedClock == CURR_DATETIME)
+		assertCurrDatetime(actualClock);
+	else
+		cppcut_assert_equal(expectedClock, actualClock);
+}
+
+void _assertCurrDatetime(int clock)
+{
+	const int MAX_ALLOWD_CURR_TIME_ERROR = 5;
+	int currClock = (int)time(NULL);
+	cppcut_assert_equal(
+	  true, currClock >= clock,
+	  cut_message("currClock: %d, clock: %d", currClock, clock));
+	cppcut_assert_equal(
+	  true, currClock - clock < MAX_ALLOWD_CURR_TIME_ERROR,
+	  cut_message( "currClock: %d, clock: %d", currClock, clock));
+}
+
+void _assertCurrDatetime(const string &datetime)
+{
+	ItemDataPtr item = SQLUtils::createFromString(datetime.c_str(),
+	                                              SQL_COLUMN_TYPE_DATETIME);
+	int clock = ItemDataUtils::getInt(item);
+	assertCurrDatetime(clock);
+}
+
+string getExpectedNullNotation(DBAgent &dbAgent)
+{
+	const type_info &tid = typeid(dbAgent);
+	if (tid == typeid(DBAgentMySQL))
+		return "NULL";
+	else if (tid == typeid(DBAgentSQLite3))
+		return "";
+	else
+		cut_fail("Unknown type: %s", DEMANGLED_TYPE_NAME(dbAgent));
+	return "";
+}
+
+static void assertDBContentForComponets(const string &expect,
+                                        const string &actual,
+                                        DBAgent *dbAgent)
+{
+	StringVector wordsExpect;
+	StringVector wordsActual;
+	bool doMerge = false;
+	StringUtils::split(wordsExpect, expect, '|', doMerge);
+	StringUtils::split(wordsActual, actual, '|', doMerge);
+	cppcut_assert_equal(wordsExpect.size(), wordsActual.size(),
+	                    cut_message("<<expect>>: %s\n<<actual>>: %s\n",
+	                                expect.c_str(), actual.c_str()));
+	for (size_t i = 0; i < wordsExpect.size(); i++) {
+		if (wordsExpect[i] == DBCONTENT_MAGIC_CURR_DATETIME) {
+			assertCurrDatetime(wordsActual[i]);
+		} else if(wordsExpect[i] == DBCONTENT_MAGIC_NULL) {
+			cppcut_assert_equal(getExpectedNullNotation(*dbAgent),
+			                    wordsActual[i]);
+		} else {
+			cppcut_assert_equal(wordsExpect[i], wordsActual[i],
+			  cut_message(
+			    "line no: %zd\n<<expect>>: %s\n<<actual>>: %s\n",
+	                    i, expect.c_str(), actual.c_str()));
+		}
+	}
+}
+
 void _assertDBContent(DBAgent *dbAgent, const string &statement,
                       const string &expect)
 {
-	string output;
-	const type_info& tid = typeid(*dbAgent);
-	if (tid == typeid(DBAgentMySQL)) {
-		DBAgentMySQL *dbMySQL = dynamic_cast<DBAgentMySQL *>(dbAgent);
-		output = execMySQL(dbMySQL->getDBName(), statement);
-		output = StringUtils::replace(output, "\t", "|");
+	const string actual = execSQL(dbAgent, statement);
+	StringVector linesExpect;
+	StringVector linesActual;
+	StringUtils::split(linesExpect, expect, '\n');
+	StringUtils::split(linesActual, actual, '\n');
+	cppcut_assert_equal(linesExpect.size(), linesActual.size(),
+	  cut_message("<<expect>>\n%s\n\n<<actual>>%s\n",
+	              expect.c_str(), actual.c_str()));
+	for (size_t i = 0; i < linesExpect.size(); i++) {
+		cut_trace(
+		  assertDBContentForComponets(linesExpect[i], linesActual[i],
+		                              dbAgent));
 	}
-	else
-		cut_fail("Unknown type_info");
-	cppcut_assert_equal(expect, output);
 }
 
 void _assertCreateTable(DBAgent *dbAgent, const string &tableName)
@@ -300,4 +467,61 @@ void setupTestDBServers(void)
 			dbConfig.addTargetServer(&serverInfo[i]);
 		dbServerReady = true;
 	}
+}
+
+void setupTestDBAction(bool dbRecreate)
+{
+	static const char *TEST_DB_NAME = "test_action";
+	static const char *TEST_DB_USER = "hatohol_test_user";
+	static const char *TEST_DB_PASSWORD = ""; // empty: No password is used
+	DBClientAction::setDefaultDBParams(TEST_DB_NAME,
+	                                   TEST_DB_USER, TEST_DB_PASSWORD);
+
+	makeTestMySQLDBIfNeeded(TEST_DB_NAME, dbRecreate);
+}
+
+string execSQL(DBAgent *dbAgent, const string &statement, bool showHeader)
+{
+	string output;
+	const type_info& tid = typeid(*dbAgent);
+	if (tid == typeid(DBAgentMySQL)) {
+		DBAgentMySQL *dbMySQL = dynamic_cast<DBAgentMySQL *>(dbAgent);
+		output = execMySQL(dbMySQL->getDBName(), statement, showHeader);
+		output = StringUtils::replace(output, "\t", "|");
+	}
+	else
+		cut_fail("Unknown type_info");
+	return output;
+}
+
+string joinStringVector(const StringVector &strVect, const string &pad,
+                        bool isPaddingTail)
+{
+	string output;
+	size_t numElem = strVect.size();
+	size_t lastIndex = numElem - 1;
+	for (size_t i = 0; i < numElem; i++) {
+		output += strVect[i];
+		if (i < lastIndex)
+			output += pad;
+		else if (i == lastIndex && isPaddingTail)
+			output += pad;
+	}
+	return output;
+}
+
+void crash(void)
+{
+	// Accessing the invalid address (NULL) finally causes SIGILL
+	// when the compiler is clang, although we expect SIGSEGV.
+	// So we send the signal directly when using clang.
+	// Now hatohol is built with clang as a trial.
+#ifdef __clang__
+	kill(getpid(), SIGSEGV);
+	while (true)
+		sleep(1);
+#else
+	char *p = NULL;
+	*p = 'a';
+#endif
 }

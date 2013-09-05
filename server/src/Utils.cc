@@ -22,11 +22,14 @@
 using namespace mlpl;
 
 #include <cstdio>
+#include <cstdlib>
+#include <cstring>
 #include <cxxabi.h>
 #include <stdexcept>
 #include <unistd.h>
 #include <errno.h>
 #include <sys/time.h>
+#include <limits.h>
 #include "Utils.h"
 #include "FormulaElement.h"
 
@@ -188,6 +191,65 @@ string Utils::getExtension(const string &path)
 		break;
 	}
 	return ext;
+}
+
+string Utils::getSelfExeDir(void)
+{
+	char buf[PATH_MAX];
+	ssize_t bytesRead = readlink("/proc/self/exe", buf, PATH_MAX);
+	if (bytesRead == -1) {
+		THROW_HATOHOL_EXCEPTION(
+		  "Failed to readlink(\"/proc/self/exe\"): %s",
+		  strerror(errno));
+	}
+
+	int i;
+	for (i = bytesRead - 2; i > 0; i--) {
+		if (buf[i] == '/')
+			break;
+	}
+	if (i < 1)
+		return "/";
+	return string(buf, 0, i);
+}
+
+string Utils::getStringFromGIOCondition(GIOCondition condition)
+{
+	struct CondStruct {
+		GIOCondition condition;
+		const char *word;
+	};
+	const CondStruct condStruct[] = {
+	   {G_IO_IN, "G_IO_IN"},
+	   {G_IO_OUT, "G_IO_OUT"},
+	   {G_IO_PRI, "G_IO_PRI"},
+	   {G_IO_ERR, "G_IO_ERR"},
+	   {G_IO_HUP, "G_IO_HUP"},
+	   {G_IO_NVAL, "G_IO_NVAL"},
+	};
+	const size_t numCondStruct = sizeof(condStruct) / sizeof(CondStruct);
+
+	string str;
+	for (size_t i = 0; i < numCondStruct; i++) {
+		const CondStruct &cs = condStruct[i];
+		if (!(condition & cs.condition))
+			continue;
+		if (!str.empty())
+			str += " ";
+		str += cs.word;
+	}
+	return str;
+}
+
+bool Utils::removeEventSourceIfNeeded(guint tag)
+{
+	if (tag == INVALID_EVENT_ID)
+		return true;
+	if (!g_source_remove(tag)) {
+		MLPL_ERR("Failed to remove source: %d\n", tag);
+		return false;
+	}
+	return true;
 }
 
 // ---------------------------------------------------------------------------

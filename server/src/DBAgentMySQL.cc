@@ -19,7 +19,7 @@
 
 #include "DBAgentMySQL.h"
 #include "SQLUtils.h"
-#include "ConfigManager.h"
+#include "Params.h"
 
 struct DBAgentMySQL::PrivateContext {
 	MYSQL mysql;
@@ -36,8 +36,9 @@ struct DBAgentMySQL::PrivateContext {
 // Public methods
 // ---------------------------------------------------------------------------
 DBAgentMySQL::DBAgentMySQL(const char *db, const char *user, const char *passwd,
-                           const char *host, unsigned int port, bool skipSetup)
-: DBAgent(DB_DOMAIN_ID_CONFIG, skipSetup),
+                           const char *host, unsigned int port,
+                           DBDomainId domainId, bool skipSetup)
+: DBAgent(domainId, skipSetup),
   m_ctx(NULL)
 {
 	const char *unixSocket = NULL;
@@ -158,6 +159,8 @@ static string getColumnTypeQuery(const ColumnDef &columnDef)
 		return StringUtils::sprintf("DOUBLE(%zd,%zd)",
 					    columnDef.columnLength,
 					    columnDef.decFracLength);
+	case SQL_COLUMN_TYPE_DATETIME:
+		return " DATETIME";
 	default:
 		HATOHOL_ASSERT(false, "Unknown type: %d", columnDef.type);
 	}
@@ -202,6 +205,11 @@ void DBAgentMySQL::createTable(DBAgentTableCreationArg &tableCreationArg)
 	for (size_t i = 0; i < tableCreationArg.numColumns; i++) {
 		const ColumnDef &columnDef = tableCreationArg.columnDefs[i];
 		query += getColumnDefinitionQuery(columnDef);
+
+		// auto increment
+		if (columnDef.flags & SQL_COLUMN_FLAG_AUTO_INC)
+			query += " AUTO_INCREMENT";
+
 		if (i < tableCreationArg.numColumns -1)
 			query += ",";
 	}
@@ -227,8 +235,16 @@ void DBAgentMySQL::insert(DBAgentInsertArg &insertArg)
 	}
 	query += ") VALUES (";
 	for (size_t i = 0; i < insertArg.numColumns; i++) {
+		if (i > 0)
+			query += ",";
+
 		const ColumnDef &columnDef = insertArg.columnDefs[i];
 		const ItemData *itemData = insertArg.row->getItemAt(i);
+		if (itemData->isNull()) {
+			query += "NULL";
+			continue;
+		}
+
 		switch (columnDef.type) {
 		case SQL_COLUMN_TYPE_INT:
 		case SQL_COLUMN_TYPE_BIGUINT:
@@ -249,11 +265,15 @@ void DBAgentMySQL::insert(DBAgentInsertArg &insertArg)
 			delete escaped;
 			break;
 		}
+		case SQL_COLUMN_TYPE_DATETIME:
+		{ // bracket is used to avoid an error: jump to case label
+			DEFINE_AND_ASSERT(itemData, ItemInt, item);
+			query += makeDatetimeString(item->get());
+			break;
+		}
 		default:
 			HATOHOL_ASSERT(false, "Unknown type: %d", columnDef.type);
 		}
-		if (i < insertArg.numColumns -1)
-			query += ",";
 	}
 	query += ")";
 
@@ -339,7 +359,27 @@ void DBAgentMySQL::select(DBAgentSelectExArg &selectExArg)
 
 void DBAgentMySQL::deleteRows(DBAgentDeleteArg &deleteArg)
 {
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	HATOHOL_ASSERT(m_ctx->connected, "Not connected.");
+	string query = makeDeleteStatement(deleteArg);
+	execSql(query);
+}
+
+uint64_t DBAgentMySQL::getLastInsertId(void)
+{
+	HATOHOL_ASSERT(m_ctx->connected, "Not connected.");
+	execSql("SELECT LAST_INSERT_ID()");
+	MYSQL_RES *result = mysql_store_result(&m_ctx->mysql);
+	if (!result) {
+		THROW_HATOHOL_EXCEPTION(
+		  "Failed to call mysql_store_result: %s\n",
+		  mysql_error(&m_ctx->mysql));
+	}
+	MYSQL_ROW row = mysql_fetch_row(result);
+	HATOHOL_ASSERT(row, "Failed to call mysql_fetch_row.");
+	uint64_t id;
+	int numScan = sscanf(row[0], "%"PRIu64, &id);
+	HATOHOL_ASSERT(numScan == 1, "numScan: %d, %s", numScan, row[0]);
+	return id;
 }
 
 void DBAgentMySQL::addColumns(DBAgentAddColumnsArg &addColumnsArg)

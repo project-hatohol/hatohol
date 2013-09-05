@@ -6,8 +6,8 @@ if WITH_CUTTER
 TESTS = run-test.sh
 TESTS_ENVIRONMENT = NO_MAKE=yes CUTTER="$(CUTTER)"
 
-noinst_LTLIBRARIES = libTest.la testHatohol.la
-noinst_PROGRAMS = zabbix-api-response-collector
+noinst_LTLIBRARIES = libTest.la testHatohol.la residentTest.la
+noinst_PROGRAMS = ActionTp zabbix-api-response-collector
 endif
 
 # default
@@ -25,10 +25,13 @@ LIBS = \
 
 # Test cases
 testHatohol_la_SOURCES = \
+	testActionManager.cc \
 	testHatoholException.cc testSQLProcessorException.cc \
 	testHatoholThreadBase.cc \
 	testDBAgentSQLite3.cc testDBAgentMySQL.cc \
+	testDBClientUtils.cc \
 	testDBClientConfig.cc testDBClientHatohol.cc testDBClientZabbix.cc \
+	testDBClientAction.cc \
 	testSQLUtils.cc testSQLProcessor.cc \
 	testSQLProcessorInsert.cc testSQLProcessorUpdate.cc \
 	testFormulaElement.cc \
@@ -41,10 +44,15 @@ testHatohol_la_SOURCES = \
 	testItemDataUtils.cc \
 	testFormulaOperator.cc \
 	testJsonParserAgent.cc testJsonBuilderAgent.cc testUtils.cc \
+	testNamedPipe.cc \
 	testArmZabbixAPI.cc testArmNagiosNDOUtils.cc \
 	testUnifiedDataStore.cc
 testHatohol_la_LDFLAGS = $(AM_LDFLAGS) $(LIBS)
 testHatohol_la_LIBADD = libTest.la
+
+residentTest_la_SOURCES = residentTest.cc
+residentTest_la_LDFLAGS = $(AM_LDFLAGS) $(LIBS)
+residentTest_la_LIBADD  = libTest.la
 
 libTest_la_SOURCES = \
 	FormulaTestUtils.cc Helpers.cc DBAgentTest.cc DBClientTest.cc \
@@ -53,6 +61,10 @@ libTest_la_SOURCES = \
 	ZabbixAPIEmulator.h Synchronizer.h \
 	ExceptionTestUtils.h AssertJoin.h
 libTest_la_LDFLAGS =
+
+ActionTp_SOURCES = ActionTp.cc ActionTp.h
+ActionTp_LDADD = $(LIBS)
+ActionTp_LDFLAGS = -lTest
 
 zabbix_api_response_collector_SOURCES = zabbix-api-response-collector.cc
 zabbix_api_response_collector_LDFLAGS = -lstdc++

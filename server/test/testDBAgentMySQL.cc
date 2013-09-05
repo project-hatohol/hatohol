@@ -19,6 +19,7 @@
 
 #include <cppcutter.h>
 #include "DBAgentMySQL.h"
+#include "SQLUtils.h"
 #include "DBAgentTest.h"
 #include "Helpers.h"
 
@@ -35,14 +36,14 @@ public:
 	{
 		// get the table information with mysql command.
 		string sql = "desc ";
-		sql += TABLE_NAME_TEST;
+		sql += arg.tableName;
 		string result = execMySQL(TEST_DB_NAME, sql, true);
 
 		// check the number of obtained lines
 		size_t linesIdx = 0;
 		StringVector lines;
 		StringUtils::split(lines, result, '\n');
-		cppcut_assert_equal(NUM_COLUMNS_TEST+1, lines.size());
+		cppcut_assert_equal(arg.numColumns+1, lines.size());
 
 		// assert header output
 		const char *headers[] = {
@@ -59,14 +60,14 @@ public:
 
 		// assert tables
 		string expected;
-		for (size_t  i = 0; i < NUM_COLUMNS_TEST; i++) {
+		for (size_t  i = 0; i < arg.numColumns; i++) {
 			size_t idx = 0;
 			StringVector words;
 			const bool doMerge = false;
 			StringUtils::split(words, lines[linesIdx++], '\t',
 			                   doMerge);
 			cppcut_assert_equal(numHeaders, words.size());
-			const ColumnDef &columnDef = COLUMN_DEF_TEST[i];
+			const ColumnDef &columnDef = arg.columnDefs[i];
 
 			// column name
 			expected = columnDef.columnName;
@@ -99,6 +100,9 @@ public:
 				             "double(%zd,%zd)",
 				             columnDef.columnLength,
 				             columnDef.decFracLength);
+				break;
+			case SQL_COLUMN_TYPE_DATETIME:
+				expected = "datetime";
 				break;
 			case NUM_SQL_COLUMN_TYPES:
 			default:
@@ -135,15 +139,20 @@ public:
 			cppcut_assert_equal(expected, words[idx++]);
 
 			// extra
-			expected = "";
+			if (columnDef.flags & SQL_COLUMN_FLAG_AUTO_INC)
+				expected = "auto_increment";
+			else
+				expected = "";
 			cppcut_assert_equal(expected, words[idx++]);
 		}
 	}
 
 	virtual void assertExistingRecord(uint64_t id, int age,
 	                                  const char *name, double height,
+	                                  int datetime,
 	                                  size_t numColumns,
-	                                  const ColumnDef *columnDefs)
+	                                  const ColumnDef *columnDefs,
+	                                  const set<size_t> *nullIndexes)
 	{
 		// get the table information with mysql command.
 		string sql =
@@ -168,37 +177,22 @@ public:
 			                    actualHeaders[i]);
 		}
 
-		// value
-		size_t idx = 0;
-		string expected;
-		StringVector words;
-		StringUtils::split(words, lines[linesIdx++], '\t');
-		cppcut_assert_equal(numColumns, words.size());
-
-		// id
-		expected = StringUtils::sprintf("%"PRIu64, id);
-		cppcut_assert_equal(expected, words[idx++]);
-
-		// age
-		expected = StringUtils::sprintf("%d", age);
-		cppcut_assert_equal(expected, words[idx++]);
-
-		// name
-		expected = name;
-		cppcut_assert_equal(expected, words[idx++]);
-
-		// height
-		const ColumnDef &columnDef = columnDefs[idx];
-		string fmt = StringUtils::sprintf("%%.%zdlf",
-		               columnDef.decFracLength);
-		expected = StringUtils::sprintf(fmt.c_str(), height);
-		cppcut_assert_equal(expected, words[idx++]);
+		assertExistingRecordEachWord(id, age, name, height, datetime,
+		                             numColumns, columnDefs,
+		                             lines[linesIdx++], '\t',
+		                             nullIndexes, "NULL");
 	}
 
 	virtual void getIDStringVector(const ColumnDef &columnDefId,
 	                               vector<string> &actualIds)
 	{
-		cut_fail("Not implemented: %s", __PRETTY_FUNCTION__);
+		string sql =
+		  StringUtils::sprintf(
+		    "SELECT %s FROM %s ORDER BY %s ASC",
+		    columnDefId.columnName, columnDefId.tableName, 
+		    columnDefId.columnName);
+		string output = execMySQL(TEST_DB_NAME, sql, false);
+		StringUtils::split(actualIds, output, '\n');
 	}
 };
 
@@ -269,6 +263,9 @@ void test_isRecordExistingNotIncluded(void)
 	assertIsRecordExisting(skipInsert);
 }
 
+//
+// The following tests are using DBAgentTest functions.
+//
 void test_createTable(void)
 {
 	createGlobalDBAgent();
@@ -297,6 +294,12 @@ void test_insertUint64_0xffffffffffffffff(void)
 {
 	createGlobalDBAgent();
 	dbAgentTestInsertUint64(*g_dbAgent, dbAgentChecker, 0xffffffffffffffff);
+}
+
+void test_insertNull(void)
+{
+	createGlobalDBAgent();
+	dbAgentTestInsertNull(*g_dbAgent, dbAgentChecker);
 }
 
 void test_update(void)
@@ -335,6 +338,18 @@ void test_selectExWithCondAllColumns(void)
 	dbAgentTestSelectExWithCondAllColumns(*g_dbAgent);
 }
 
+void test_selectExWithOrderBy(void)
+{
+	createGlobalDBAgent();
+	dbAgentTestSelectHeightOrder(*g_dbAgent);
+}
+
+void test_selectExWithOrderByLimit(void)
+{
+	createGlobalDBAgent();
+	dbAgentTestSelectHeightOrder(*g_dbAgent, 1);
+}
+
 void test_selectExWithOrderByLimitTwo(void)
 {
 	createGlobalDBAgent();
@@ -353,10 +368,28 @@ void test_selectExWithOrderByLimitOffsetOverData(void)
 	dbAgentTestSelectHeightOrder(*g_dbAgent, 1, NUM_TEST_DATA, 0);
 }
 
+void test_delete(void)
+{
+	createGlobalDBAgent();
+	dbAgentTestDelete(*g_dbAgent, dbAgentChecker);
+}
+
 void test_isTableExisting(void)
 {
 	createGlobalDBAgent();
 	dbAgentTestIsTableExisting(*g_dbAgent, dbAgentChecker);
+}
+
+void test_autoIncrement(void)
+{
+	createGlobalDBAgent();
+	dbAgentTestAutoIncrement(*g_dbAgent, dbAgentChecker);
+}
+
+void test_autoIncrementWithDel(void)
+{
+	createGlobalDBAgent();
+	dbAgentTestAutoIncrementWithDel(*g_dbAgent, dbAgentChecker);
 }
 
 } // testDBAgentMySQL

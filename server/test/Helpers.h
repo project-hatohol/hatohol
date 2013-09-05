@@ -28,6 +28,9 @@ using namespace mlpl;
 #include "DBAgent.h"
 #include "DBClient.h"
 
+#define DBCONTENT_MAGIC_CURR_DATETIME "#CURR_DATETIME#"
+#define DBCONTENT_MAGIC_NULL          "#NULL#"
+
 typedef pair<int,int>      IntIntPair;
 typedef vector<IntIntPair> IntIntPairVector;
 
@@ -79,6 +82,14 @@ string execSqlite3ForDBClient(DBDomainId domainId, const string &statement);
 string execSqlite3ForDBClientZabbix(int serverId, const string &statement);
 string execMySQL(const string &dbName, const string &statement,
                  bool showHeader = false);
+
+void _assertDatetime(int expectedClock, int actualClock);
+#define assertDatetime(E,A) cut_trace(_assertDatetime(E,A))
+
+void _assertCurrDatetime(const string &datetime);
+void _assertCurrDatetime(int datetime);
+#define assertCurrDatetime(D) cut_trace(_assertCurrDatetime(D))
+
 void _assertDBContent(DBAgent *dbAgent, const string &statement,
                       const string &expect);
 #define assertDBContent(DB_AGENT, FMT, EXPECT) \
@@ -104,5 +115,12 @@ template<typename T> void _assertAddToDB(T *arg, void (*func)(T *))
 
 void makeTestMySQLDBIfNeeded(const string &dbName, bool recreate = false);
 void setupTestDBServers(void);
+void setupTestDBAction(bool dbRecreate = true);
+string execSQL(DBAgent *agent, const string &statement,
+               bool showHeader = false);
+string joinStringVector(const StringVector &strVect, const string &pad = "",
+                        bool isPaddingTail = true);
+
+void crash(void);
 
 #endif // Helpers_h

@@ -1,8 +1,11 @@
-sbin_PROGRAMS = hatohol
+sbin_PROGRAMS = hatohol hatohol-resident-yard
 hatohol_SOURCES = main.cc
+hatohol_resident_yard_SOURCES = hatoholResidentYard.cc
 
 lib_LTLIBRARIES = libhatohol.la
 libhatohol_la_SOURCES = \
+	ActionManager.cc ActionManager.h \
+	ActorCollector.cc ActorCollector.h \
 	ArmBase.cc ArmBase.h \
 	ArmNagiosNDOUtils.cc ArmNagiosNDOUtils.h \
 	ArmZabbixAPI-template.h \
@@ -14,6 +17,8 @@ libhatohol_la_SOURCES = \
 	DBAgentMySQL.cc DBAgentMySQL.h \
 	DBAgentSQLite3.cc DBAgentSQLite3.h \
 	DBClient.cc DBClient.h \
+	DBClientAction.cc DBClientAction.h \
+	DBClientConnectable.h \
 	DBClientConfig.cc DBClientConfig.h \
 	DBClientHatohol.cc DBClientHatohol.h \
 	DBClientUtils.h \
@@ -45,10 +50,14 @@ libhatohol_la_SOURCES = \
 	ItemTable.cc ItemTable.h \
 	ItemTablePtr.cc ItemTablePtr.h \
 	ItemTableUtils.h \
+	NamedPipe.cc NamedPipe.h \
 	JsonBuilderAgent.cc JsonBuilderAgent.h \
 	JsonParserAgent.cc JsonParserAgent.h \
+	Params.h \
 	PrimaryCondition.cc PrimaryCondition.h \
 	PrimaryConditionPicker.cc PrimaryConditionPicker.h \
+	ResidentProtocol.h \
+	ResidentCommunicator.cc ResidentCommunicator.h \
 	SQLColumnParser.cc SQLColumnParser.h \
 	SQLFormulaParser.cc SQLFormulaParser.h \
 	SQLFromParser.cc SQLFromParser.h \
@@ -81,3 +90,4 @@ AM_LDFLAGS = -lrt \
 	$(LIBSOUP_LIBS) $(JSON_GLIB_LIBS) $(SQLITE3_LIBS) $(MYSQL_LIBS)
 
 hatohol_LDADD = libhatohol.la
+hatohol_resident_yard_LDADD = libhatohol.la

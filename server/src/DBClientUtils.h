@@ -20,16 +20,18 @@
 #ifndef DBClientUtils_h
 #define DBClientUtils_h
 
-#define GET_FROM_GRP(NATIVE_TYPE, ITEM_TYPE, ITEM_GRP, IDX) \
-ItemDataUtils::get<NATIVE_TYPE, ITEM_TYPE>(ITEM_GRP->getItemAt(IDX));
+#include "ItemDataUtils.h"
 
-#define GET_UINT64_FROM_GRP(ITEM_GRP, IDX) \
-GET_FROM_GRP(uint64_t, ItemUint64, ITEM_GRP, IDX)
+#define GET_FROM_GRP(NATIVE_TYPE, ITEM_TYPE, ITEM_GRP, IDX, ...) \
+ItemDataUtils::get<NATIVE_TYPE, ITEM_TYPE>(ITEM_GRP->getItemAt(IDX), ##__VA_ARGS__)
 
-#define GET_INT_FROM_GRP(ITEM_GRP, IDX) \
-GET_FROM_GRP(int, ItemInt, ITEM_GRP, IDX)
+#define GET_UINT64_FROM_GRP(ITEM_GRP, IDX, ...) \
+GET_FROM_GRP(uint64_t, ItemUint64, ITEM_GRP, IDX, ##__VA_ARGS__)
 
-#define GET_STRING_FROM_GRP(ITEM_GRP, IDX) \
-GET_FROM_GRP(string, ItemString, ITEM_GRP, IDX)
+#define GET_INT_FROM_GRP(ITEM_GRP, IDX, ...) \
+GET_FROM_GRP(int, ItemInt, ITEM_GRP, IDX, ##__VA_ARGS__)
+
+#define GET_STRING_FROM_GRP(ITEM_GRP, IDX, ...) \
+GET_FROM_GRP(string, ItemString, ITEM_GRP, IDX, ##__VA_ARGS__)
 
 #endif // DBClientUtils_h

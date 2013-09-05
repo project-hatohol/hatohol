@@ -33,12 +33,15 @@ public:
 	static ItemDataPtr createAsNumber(const string &word);
 	static ItemDataPtr createAsNumberOrString(const string &word);
 	template<typename NativeType, typename ItemDataType>
-	static const NativeType &get(const ItemData *itemData) {
+	static const NativeType
+	   &get(const ItemData *itemData, bool *isNull = NULL) {
 		HATOHOL_ASSERT(itemData, "itemData: NULL");
 		const ItemDataType *casted = ItemDataType::cast(*itemData);
 		HATOHOL_ASSERT(casted, "Invalid cast: %s -> %s",
 		             DEMANGLED_TYPE_NAME(itemData),
 		             DEMANGLED_TYPE_NAME(ItemDataType));
+		if (isNull)
+			*isNull = casted->isNull();
 		return casted->get();
 	}
 

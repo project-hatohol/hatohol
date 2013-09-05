@@ -33,6 +33,7 @@ using namespace mlpl;
 #include "ItemEnum.h"
 #include "DBClientZabbix.h"
 #include "DBClientHatohol.h"
+#include "ActionManager.h"
 
 using namespace std;
 
@@ -51,6 +52,7 @@ struct ArmZabbixAPI::PrivateContext
 	VariableItemTablePtr functionsTablePtr;
 	DBClientZabbix dbClientZabbix;
 	DBClientHatohol  dbClientHatohol;
+	ActionManager    actionManager;
 
 	// constructors
 	PrivateContext(const MonitoringServerInfo &serverInfo)
@@ -603,9 +605,7 @@ void ArmZabbixAPI::pushApplicationid(JsonParserAgent &parser,
 	startObject(parser, "applications");
 	int numElem = parser.countElements();
 	if (numElem == 0) {
-		ItemData *data = new ItemUint64(itemId, 0);
-		data->setNull();
-		itemGroup->add(data, false);
+		itemGroup->ADD_NEW_ITEM(Uint64, itemId, 0, ITEM_DATA_NULL);
 	} else  {
 		for (int i = 0; i < numElem; i++) {
 			startElement(parser, i);
@@ -624,9 +624,7 @@ void ArmZabbixAPI::pushTriggersHostid(JsonParserAgent &parser,
 	startObject(parser, "hosts");
 	int numElem = parser.countElements();
 	if (numElem == 0) {
-		ItemData *data = new ItemUint64(itemId, 0);
-		data->setNull();
-		itemGroup->add(data, false);
+		itemGroup->ADD_NEW_ITEM(Uint64, itemId, 0, ITEM_DATA_NULL);
 	} else  {
 		for (int i = 0; i < numElem; i++) {
 			startElement(parser, i);
@@ -929,22 +927,23 @@ void ArmZabbixAPI::makeHatoholTriggers(void)
 	TriggerInfoList triggerInfoList;
 	m_ctx->dbClientZabbix.getTriggersAsHatoholFormat(triggerInfoList);
 	m_ctx->dbClientHatohol.setTriggerInfoList(triggerInfoList,
-	                                        m_ctx->zabbixServerId);
+	                                          m_ctx->zabbixServerId);
 }
 
 void ArmZabbixAPI::makeHatoholEvents(ItemTablePtr events)
 {
 	EventInfoList eventInfoList;
 	DBClientZabbix::transformEventsToHatoholFormat(eventInfoList, events,
-	                                             m_ctx->zabbixServerId);
+	                                               m_ctx->zabbixServerId);
 	m_ctx->dbClientHatohol.addEventInfoList(eventInfoList);
+	m_ctx->actionManager.checkEvents(eventInfoList);
 }
 
 void ArmZabbixAPI::makeHatoholItems(ItemTablePtr items)
 {
 	ItemInfoList itemInfoList;
 	DBClientZabbix::transformItemsToHatoholFormat(itemInfoList, items,
-	                                            m_ctx->zabbixServerId);
+	                                              m_ctx->zabbixServerId);
 	m_ctx->dbClientHatohol.addItemInfoList(itemInfoList);
 }
 

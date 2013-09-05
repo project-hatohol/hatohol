@@ -32,14 +32,16 @@ using namespace mlpl;
 SmartBuffer::SmartBuffer(void)
 : m_index(0),
   m_buf(NULL),
-  m_size(0)
+  m_size(0),
+  m_watermark(0)
 {
 }
 
 SmartBuffer::SmartBuffer(size_t size)
 : m_index(0),
   m_buf(NULL),
-  m_size(0)
+  m_size(0),
+  m_watermark(0)
 {
 	alloc(size);
 }
@@ -80,13 +82,18 @@ size_t SmartBuffer::remainingSize(void) const
 	return m_size - m_index;
 }
 
-void SmartBuffer::alloc(size_t size, bool resetIndex)
+size_t SmartBuffer::watermark(void) const
+{
+	return m_watermark;
+}
+
+void SmartBuffer::alloc(size_t size, bool _resetIndexDeep)
 {
 	m_buf = static_cast<uint8_t *>(realloc(m_buf, size));
 	if (m_buf == NULL)
 		throw SmartBufferException();
-	if (resetIndex)
-		m_index = 0;
+	if (_resetIndexDeep)
+		resetIndexDeep();
 	m_size = size;
 }
 
@@ -100,6 +107,12 @@ void SmartBuffer::ensureRemainingSize(size_t size)
 void SmartBuffer::resetIndex(void)
 {
 	m_index = 0;
+}
+
+void SmartBuffer::resetIndexDeep(void)
+{
+	resetIndex();
+	m_watermark = 0;
 }
 
 void SmartBuffer::add8(uint8_t val)
@@ -125,13 +138,13 @@ void SmartBuffer::add64(uint64_t val)
 void SmartBuffer::add(const void *src, size_t len)
 {
 	memcpy(&m_buf[m_index], src, len);
-	m_index += len;
+	incIndex(len);
 }
 
 void SmartBuffer::addZero(size_t size)
 {
 	memset(&m_buf[m_index], 0, size);
-	m_index += size;
+	incIndex(size);
 }
 
 void SmartBuffer::addEx8(uint8_t val)
@@ -164,6 +177,7 @@ void SmartBuffer::addEx(const void *src, size_t len)
 void SmartBuffer::incIndex(size_t size)
 {
 	m_index += size;
+	setWatermarkIfNeeded();
 }
 
 void SmartBuffer::setAt(size_t index, uint32_t val)
@@ -190,6 +204,19 @@ void SmartBuffer::printBuffer(void)
 		msg += "\n";
 	}
 	MLPL_INFO(msg.c_str());
+}
+
+SmartBuffer *SmartBuffer::takeOver(void)
+{
+	SmartBuffer *sbuf = new SmartBuffer();
+	sbuf->m_index = m_index;
+	sbuf->m_buf = m_buf;
+	sbuf->m_size = m_size;
+	sbuf->m_watermark = m_watermark;
+	resetIndexDeep();
+	m_buf = NULL;
+	m_size = 0;
+	return sbuf;
 }
 
 // ---------------------------------------------------------------------------

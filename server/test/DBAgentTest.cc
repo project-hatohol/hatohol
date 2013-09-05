@@ -18,6 +18,7 @@
  */
 
 #include "DBAgentTest.h"
+#include "SQLUtils.h"
 #include "Helpers.h"
 
 const char *TABLE_NAME_TEST = "test_table";
@@ -40,7 +41,7 @@ const ColumnDef COLUMN_DEF_TEST[] = {
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
 	0,                                 // decFracLength
-	false,                             // canBeNull
+	true,                              // canBeNull
 	SQL_KEY_NONE,                      // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
@@ -62,6 +63,17 @@ const ColumnDef COLUMN_DEF_TEST[] = {
 	SQL_COLUMN_TYPE_DOUBLE,            // type
 	15,                                // columnLength
 	1,                                 // decFracLength
+	true,                              // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+},{
+	ITEM_ID_NOT_SET,                   // itemId
+	TABLE_NAME_TEST,                   // tableName
+	"time",                            // columnName
+	SQL_COLUMN_TYPE_DATETIME,          // type
+	0,                                 // columnLength
+	0,                                 // decFracLength
 	false,                             // canBeNull
 	SQL_KEY_NONE,                      // keyType
 	0,                                 // flags
@@ -75,24 +87,73 @@ const uint64_t ID[NUM_TEST_DATA]   = {1, 2, 0xfedcba9876543210};
 const int AGE[NUM_TEST_DATA]       = {14, 17, 180};
 const char *NAME[NUM_TEST_DATA]    = {"rei", "aoi", "giraffe"};
 const double HEIGHT[NUM_TEST_DATA] = {158.2, 203.9, -23593.2};
+const int TIME[NUM_TEST_DATA]   = {1376462763, CURR_DATETIME, 0};
+
+// table for auto increment test
+const char *TABLE_NAME_TEST_AUTO_INC = "test_table_auto_inc";
+static const ColumnDef COLUMN_DEF_TEST_AUTO_INC[] = {
+{
+	ITEM_ID_NOT_SET,                   // itemId
+	TABLE_NAME_TEST_AUTO_INC,          // tableName
+	"id",                              // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	11,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_PRI,                       // keyType
+	SQL_COLUMN_FLAG_AUTO_INC,          // flags
+	NULL,                              // defaultValue
+},{
+	ITEM_ID_NOT_SET,                   // itemId
+	TABLE_NAME_TEST_AUTO_INC,          // tableName
+	"val",                             // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	11,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}
+};
+const size_t NUM_COLUMNS_TEST_AUTO_INC =
+   sizeof(COLUMN_DEF_TEST_AUTO_INC) / sizeof(ColumnDef);
+
+enum {
+	IDX_TEST_TABLE_AUTO_INC_ID,
+	IDX_TEST_TABLE_AUTO_INC_VAL,
+};
+
+static ItemDataNullFlagType calcNullFlag(set<size_t> *nullIndexes, size_t idx)
+{
+	if (!nullIndexes)
+		return ITEM_DATA_NOT_NULL;
+	if (nullIndexes->count(idx) == 0)
+		return ITEM_DATA_NOT_NULL;
+	return ITEM_DATA_NULL;
+}
 
 static void checkInsert(DBAgent &dbAgent, DBAgentChecker &checker,
-                        uint64_t id, int age, const char *name, double height)
+                        uint64_t id, int age, const char *name, double height,
+                        set<size_t> *nullIndexes = NULL)
 {
 	DBAgentInsertArg arg;
 	arg.tableName = TABLE_NAME_TEST;
 	arg.numColumns = NUM_COLUMNS_TEST;
 	arg.columnDefs = COLUMN_DEF_TEST;
 	VariableItemGroupPtr row;
-	row->ADD_NEW_ITEM(Uint64, id);
-	row->ADD_NEW_ITEM(Int, age);
-	row->ADD_NEW_ITEM(String, name);
-	row->ADD_NEW_ITEM(Double, height);
+	size_t idx = 0;
+	row->ADD_NEW_ITEM(Uint64, id, calcNullFlag(nullIndexes, idx++));
+	row->ADD_NEW_ITEM(Int, age, calcNullFlag(nullIndexes, idx++));
+	row->ADD_NEW_ITEM(String, name, calcNullFlag(nullIndexes, idx++));
+	row->ADD_NEW_ITEM(Double, height, calcNullFlag(nullIndexes, idx++));
+	row->ADD_NEW_ITEM(Int, CURR_DATETIME, calcNullFlag(nullIndexes, idx++));
 	arg.row = row;
 	dbAgent.insert(arg);
 
-	checker.assertExistingRecord(id, age, name, height,
-	                             NUM_COLUMNS_TEST, COLUMN_DEF_TEST);
+	checker.assertExistingRecord(id, age, name, height, CURR_DATETIME,
+	                             NUM_COLUMNS_TEST, COLUMN_DEF_TEST,
+	                             nullIndexes);
 }
 
 static void checkUpdate(DBAgent &dbAgent, DBAgentChecker &checker,
@@ -109,11 +170,12 @@ static void checkUpdate(DBAgent &dbAgent, DBAgentChecker &checker,
 	row->ADD_NEW_ITEM(Int, age);
 	row->ADD_NEW_ITEM(String, name);
 	row->ADD_NEW_ITEM(Double, height);
+	row->ADD_NEW_ITEM(Int, CURR_DATETIME);
 	arg.row = row;
 	arg.condition = condition;
 	dbAgent.update(arg);
 
-	checker.assertExistingRecord(id, age, name, height,
+	checker.assertExistingRecord(id, age, name, height, CURR_DATETIME,
 	                             NUM_COLUMNS_TEST, COLUMN_DEF_TEST);
 }
 
@@ -154,6 +216,22 @@ void dbAgentTestInsertUint64
 	const double HEIGHT = 158.2;
 
 	checkInsert(dbAgent, checker, id, AGE, NAME, HEIGHT);
+}
+
+void dbAgentTestInsertNull(DBAgent &dbAgent, DBAgentChecker &checker)
+{
+	// create table
+	dbAgentTestCreateTable(dbAgent, checker);
+
+	// insert a row
+	const uint64_t ID = 999;
+	const int AGE = 0;       // we set NULL for this column
+	const char *NAME = "taro";
+	const double HEIGHT = 0; // we set NULL for this column
+	set<size_t> nullIndexes;
+	nullIndexes.insert(IDX_TEST_TABLE_AGE);
+	nullIndexes.insert(IDX_TEST_TABLE_HEIGHT);
+	checkInsert(dbAgent, checker, ID, AGE, NAME, HEIGHT, &nullIndexes);
 }
 
 void dbAgentTestUpdate(DBAgent &dbAgent, DBAgentChecker &checker)
@@ -210,6 +288,7 @@ void dbAgentTestSelect(DBAgent &dbAgent)
 	arg.columnIndexes.push_back(IDX_TEST_TABLE_AGE);
 	arg.columnIndexes.push_back(IDX_TEST_TABLE_NAME);
 	arg.columnIndexes.push_back(IDX_TEST_TABLE_HEIGHT);
+	arg.columnIndexes.push_back(IDX_TEST_TABLE_TIME);
 	dbAgent.select(arg);
 
 	// check the result
@@ -384,49 +463,6 @@ void dbAgentTestSelectHeightOrder
 	}
 }
 
-// --------------------------------------------------------------------------
-// DBAgentChecker
-// --------------------------------------------------------------------------
-void DBAgentChecker::createTable(DBAgent &dbAgent)
-{
-	DBAgentTableCreationArg arg;
-	arg.tableName = TABLE_NAME_TEST;
-	arg.numColumns = NUM_COLUMNS_TEST;
-	arg.columnDefs = COLUMN_DEF_TEST;
-	dbAgent.createTable(arg);
-}
-
-void DBAgentChecker::insert
-  (DBAgent &dbAgent, uint64_t id, int age, const char *name, double height)
-{
-	DBAgentInsertArg arg;
-	arg.tableName = TABLE_NAME_TEST;
-	arg.numColumns = NUM_COLUMNS_TEST;
-	arg.columnDefs = COLUMN_DEF_TEST;
-	VariableItemGroupPtr row;
-	row->ADD_NEW_ITEM(Uint64, id);
-	row->ADD_NEW_ITEM(Int, age);
-	row->ADD_NEW_ITEM(String, name);
-	row->ADD_NEW_ITEM(Double, height);
-	arg.row = row;
-	dbAgent.insert(arg);
-}
-
-void DBAgentChecker::makeTestData(DBAgent &dbAgent)
-{
-	for (size_t i = 0; i < NUM_TEST_DATA; i++)
-		insert(dbAgent, ID[i], AGE[i], NAME[i], HEIGHT[i]);
-}
-
-void DBAgentChecker::makeTestData
-  (DBAgent &dbAgent, map<uint64_t, size_t> &testDataIdIndexMap)
-{
-	makeTestData(dbAgent);
-	for (size_t i = 0; i < NUM_TEST_DATA; i++)
-		testDataIdIndexMap[ID[i]] = i;
-	cppcut_assert_equal(NUM_TEST_DATA, testDataIdIndexMap.size());
-}
-
 void dbAgentTestDelete(DBAgent &dbAgent, DBAgentChecker &checker)
 {
 	// create table
@@ -475,3 +511,164 @@ void dbAgentTestIsTableExisting(DBAgent &dbAgent, DBAgentChecker &checker)
 	dbAgentTestCreateTable(dbAgent, checker);
 	cppcut_assert_equal(true, dbAgent.isTableExisting(TABLE_NAME_TEST));
 }
+
+static void createTestTableAutoInc(DBAgent &dbAgent, DBAgentChecker &checker)
+{
+	DBAgentTableCreationArg arg;
+	arg.tableName = TABLE_NAME_TEST_AUTO_INC;
+	arg.numColumns = NUM_COLUMNS_TEST_AUTO_INC;
+	arg.columnDefs = COLUMN_DEF_TEST_AUTO_INC;
+	dbAgent.createTable(arg);
+
+	checker.assertTable(arg);
+}
+
+static void insertRowToTestTableAutoInc(DBAgent &dbAgent,
+                                        DBAgentChecker &checker, int val)
+{
+	DBAgentInsertArg arg;
+	arg.tableName = TABLE_NAME_TEST_AUTO_INC;
+	arg.numColumns = NUM_COLUMNS_TEST_AUTO_INC;
+	arg.columnDefs = COLUMN_DEF_TEST_AUTO_INC;
+	VariableItemGroupPtr row;
+	row->ADD_NEW_ITEM(Int, 0);
+	row->ADD_NEW_ITEM(Int, val);
+	arg.row = row;
+	dbAgent.insert(arg);
+}
+
+static void deleteRowFromTestTableAutoInc(DBAgent &dbAgent,
+                                          DBAgentChecker &checker, int id)
+{
+	DBAgentDeleteArg arg;
+	arg.tableName = TABLE_NAME_TEST_AUTO_INC;
+	const ColumnDef &columnDefId =
+	   COLUMN_DEF_TEST_AUTO_INC[IDX_TEST_TABLE_AUTO_INC_ID];
+	arg.condition = StringUtils::sprintf
+	                  ("%s=%d", columnDefId.columnName, id);
+	dbAgent.deleteRows(arg);
+}
+
+void dbAgentTestAutoIncrement(DBAgent &dbAgent, DBAgentChecker &checker)
+{
+	createTestTableAutoInc(dbAgent, checker);
+	insertRowToTestTableAutoInc(dbAgent, checker, 0);
+	uint64_t expectedId = 1;
+	cppcut_assert_equal(expectedId, dbAgent.getLastInsertId());
+}
+
+void dbAgentTestAutoIncrementWithDel(DBAgent &dbAgent, DBAgentChecker &checker)
+{
+	dbAgentTestAutoIncrement(dbAgent, checker);
+
+	// add a new record
+	insertRowToTestTableAutoInc(dbAgent, checker, 10);
+	uint64_t expectedId = 2;
+	cppcut_assert_equal(expectedId, dbAgent.getLastInsertId());
+
+	// delete the last record
+	deleteRowFromTestTableAutoInc(dbAgent, checker, expectedId);
+
+	// we expected the incremented ID 
+	insertRowToTestTableAutoInc(dbAgent, checker, 20);
+	expectedId++;
+	cppcut_assert_equal(expectedId, dbAgent.getLastInsertId());
+
+}
+
+// --------------------------------------------------------------------------
+// DBAgentChecker
+// --------------------------------------------------------------------------
+void DBAgentChecker::createTable(DBAgent &dbAgent)
+{
+	DBAgentTableCreationArg arg;
+	arg.tableName = TABLE_NAME_TEST;
+	arg.numColumns = NUM_COLUMNS_TEST;
+	arg.columnDefs = COLUMN_DEF_TEST;
+	dbAgent.createTable(arg);
+}
+
+void DBAgentChecker::insert
+  (DBAgent &dbAgent, uint64_t id, int age, const char *name, double height,
+   int time)
+{
+	DBAgentInsertArg arg;
+	arg.tableName = TABLE_NAME_TEST;
+	arg.numColumns = NUM_COLUMNS_TEST;
+	arg.columnDefs = COLUMN_DEF_TEST;
+	VariableItemGroupPtr row;
+	row->ADD_NEW_ITEM(Uint64, id);
+	row->ADD_NEW_ITEM(Int, age);
+	row->ADD_NEW_ITEM(String, name);
+	row->ADD_NEW_ITEM(Double, height);
+	row->ADD_NEW_ITEM(Int, time);
+	arg.row = row;
+	dbAgent.insert(arg);
+}
+
+void DBAgentChecker::makeTestData(DBAgent &dbAgent)
+{
+	for (size_t i = 0; i < NUM_TEST_DATA; i++)
+		insert(dbAgent, ID[i], AGE[i], NAME[i], HEIGHT[i], TIME[i]);
+}
+
+void DBAgentChecker::makeTestData
+  (DBAgent &dbAgent, map<uint64_t, size_t> &testDataIdIndexMap)
+{
+	makeTestData(dbAgent);
+	for (size_t i = 0; i < NUM_TEST_DATA; i++)
+		testDataIdIndexMap[ID[i]] = i;
+	cppcut_assert_equal(NUM_TEST_DATA, testDataIdIndexMap.size());
+}
+
+void DBAgentChecker::assertExistingRecordEachWord
+  (uint64_t id, int age, const char *name, double height, int datetime,
+   size_t numColumns, const ColumnDef *columnDefs, const string &line,
+   const char splitChar, const set<size_t> *nullIndexes,
+   const string &expectedNullNotation, const char *U64fmt)
+{
+	// value
+	size_t idx = 0;
+	string expected;
+	StringVector words;
+	StringUtils::split(words, line, splitChar, false);
+	cppcut_assert_equal(numColumns, words.size(),
+	                    cut_message("line: %s\n", line.c_str()));
+
+	// id
+	expected = (nullIndexes && nullIndexes->count(idx)) ?
+	             expectedNullNotation : StringUtils::sprintf(U64fmt, id);
+	cppcut_assert_equal(expected, words[idx++]);
+
+	// age
+	expected = (nullIndexes && nullIndexes->count(idx)) ?
+	             expectedNullNotation : StringUtils::sprintf("%d", age);
+	cppcut_assert_equal(expected, words[idx++]);
+
+	// name
+	expected = (nullIndexes && nullIndexes->count(idx)) ?
+	             expectedNullNotation : name;
+	cppcut_assert_equal(expected, words[idx++]);
+
+	// height
+	if (nullIndexes && nullIndexes->count(idx)) {
+		expected = expectedNullNotation;
+	} else {
+		const ColumnDef &columnDef = columnDefs[idx];
+		string fmt =
+		   StringUtils::sprintf("%%.%zdlf", columnDef.decFracLength);
+		expected = StringUtils::sprintf(fmt.c_str(), height);
+	}
+	cppcut_assert_equal(expected, words[idx++]);
+
+	// time
+	if (nullIndexes && nullIndexes->count(idx)) {
+		cppcut_assert_equal(string(expectedNullNotation), words[idx++]);
+	} else if (datetime == CURR_DATETIME) {
+		assertCurrDatetime(words[idx++]);
+	} else {
+		cut_fail("Not implemented");
+		cppcut_assert_equal(expected, words[idx++]);
+	}
+}
+

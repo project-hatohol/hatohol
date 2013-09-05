@@ -18,8 +18,10 @@
  */
 
 #include <cppcutter.h>
-#include <sys/time.h>
 #include <errno.h>
+#include <unistd.h>
+#include <sys/time.h>
+#include <sys/types.h> 
 #include "Hatohol.h"
 #include "Utils.h"
 #include "Helpers.h"
@@ -121,6 +123,21 @@ void test_getExtensionRoot(void)
 void test_getExtensionNull(void)
 {
 	assertGetExtension("", "");
+}
+
+void test_getSelfExeDir(void)
+{
+	string actual = Utils::getSelfExeDir();
+	string selfPath = executeCommand(
+	  StringUtils::sprintf("readlink /proc/%d/exe", getpid()));
+	string basename =
+	   executeCommand(StringUtils::sprintf("basename `%s`",
+	                                       selfPath.c_str()));
+	static const size_t SIZE_DIR_SEPARATOR = 1;
+	size_t expectLen =
+	   selfPath.size() - basename.size() - SIZE_DIR_SEPARATOR;
+	string expect(selfPath, 0, expectLen);
+	cppcut_assert_equal(expect, actual);
 }
 
 } // namespace testUtils

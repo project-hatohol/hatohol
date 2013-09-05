@@ -30,6 +30,7 @@
 #include "ConfigManager.h"
 #include "ItemTablePtr.h"
 #include "JsonParserAgent.h"
+#include "DBClientAction.h"
 
 namespace testArmZabbixAPI {
 static Synchronizer g_sync;
@@ -376,6 +377,7 @@ void cut_setup(void)
 		g_apiEmulator.setOperationMode(OPE_MODE_NORMAL);
 
 	deleteDBClientDB(DB_DOMAIN_ID_HATOHOL);
+	setupTestDBAction();
 }
 
 void cut_teardown(void)

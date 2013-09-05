@@ -34,32 +34,6 @@ namespace testDBAgentSQLite3 {
 
 static string g_dbPath = DBAgentSQLite3::getDBPath(DEFAULT_DB_DOMAIN_ID);
 
-void _assertExistRecord(uint64_t id, int age, const char *name, double height)
-{
-	// check if the columns is inserted
-
-	// INFO: We use the trick that unsigned interger is stored as
-	// signed interger. So large integers (MSB bit is one) are recognized
-	// as negative intergers. So we use PRId64 in the following statement.
-	string cmd = StringUtils::sprintf(
-	               "sqlite3 %s \"select * from %s where id=%"PRId64 "\"",
-	               g_dbPath.c_str(), TABLE_NAME_TEST, id);
-	string output = executeCommand(cmd);
-	
-	const ColumnDef &columnDefHeight =
-	   COLUMN_DEF_TEST[IDX_TEST_TABLE_HEIGHT];
-	
-	// Here we also use PRId64 (not PRIu64) with the same
-	// reason of the above comment.
-	string fmt = StringUtils::sprintf("%%"PRId64"|%%d|%%s|%%.%zdlf\n",
-	                                  columnDefHeight.decFracLength);
-	string expectedOut = StringUtils::sprintf(fmt.c_str(),
-	                                          id, age, name, height);
-	cppcut_assert_equal(expectedOut, output);
-}
-#define assertExistRecord(ID,AGE,NAME,HEIGHT) \
-cut_trace(_assertExistRecord(ID,AGE,NAME,HEIGHT))
-
 class DBAgentCheckerSQLite3 : public DBAgentChecker {
 public:
 	// overriden virtual methods
@@ -120,6 +94,9 @@ public:
 			case SQL_COLUMN_TYPE_DOUBLE:
 				expected += "REAL ";
 				break;
+			case SQL_COLUMN_TYPE_DATETIME:
+				expected += " ";
+				break;
 			case NUM_SQL_COLUMN_TYPES:
 			default:
 				cut_fail("Unknwon type: %d\n", columnDef.type);
@@ -139,17 +116,30 @@ public:
 
 	virtual void assertExistingRecord(uint64_t id, int age,
 	                                  const char *name, double height,
+	                                  int datetime,
 	                                  size_t numColumns,
-	                                  const ColumnDef *columnDefs)
+	                                  const ColumnDef *columnDefs,
+	                                  const set<size_t> *nullIndexes)
 	{
-		assertExistRecord(id, age, name,height);
-	}
+		// INFO: We use the trick that unsigned interger is stored as
+		// signed interger. So large integers (MSB bit is one) are
+		// recognized as negative intergers. So we use PRId64
+		// in the following statement.
+		string cmd =
+		  StringUtils::sprintf(
+		    "sqlite3 %s \"select * from %s where id=%"PRId64 "\"",
+	            g_dbPath.c_str(), TABLE_NAME_TEST, id);
+		string result = executeCommand(cmd);
 
-	virtual void assertUpdate(uint64_t id, int age,
-	                          const char *name, double height,
-	                          const string &condition)
-	{
-		assertExistRecord(id, age, name,height);
+		// check the number of obtained lines
+		StringVector lines;
+		StringUtils::split(lines, result, '\n');
+		size_t numExpectedLines = 1;
+		cppcut_assert_equal(numExpectedLines, lines.size());
+		assertExistingRecordEachWord
+		  (id, age, name, height, datetime,
+		   numColumns, columnDefs, lines[0], '|', nullIndexes, "",
+		   "%"PRId64);
 	}
 
 	virtual void getIDStringVector(const ColumnDef &columnDefId,
@@ -226,6 +216,9 @@ void test_testIsRecordExistingNotIncluded(void)
 	  (false, dbAgent.isRecordExisting("foo", expectFalseCondition));
 }
 
+//
+// The following tests are using DBAgentTest functions.
+//
 void test_createTable(void)
 {
 	DBAgentSQLite3 dbAgent;
@@ -254,6 +247,12 @@ void test_insertUint64_0xffffffffffffffff(void)
 {
 	DBAgentSQLite3 dbAgent;
 	dbAgentTestInsertUint64(dbAgent, dbAgentChecker, 0xffffffffffffffff);
+}
+
+void test_insertNull(void)
+{
+	DBAgentSQLite3 dbAgent;
+	dbAgentTestInsertNull(dbAgent, dbAgentChecker);
 }
 
 void test_update(void)
@@ -332,6 +331,18 @@ void test_isTableExisting(void)
 {
 	DBAgentSQLite3 dbAgent;
 	dbAgentTestIsTableExisting(dbAgent, dbAgentChecker);
+}
+
+void test_autoIncrement(void)
+{
+	// TODO: implementation of DBAgentSQLite3
+	cut_omit("Not implemented yet");
+}
+
+void test_autoIncrementWithDel(void)
+{
+	// TODO: implementation of DBAgentSQLite3
+	cut_omit("Not implemented yet");
 }
 
 } // testDBAgentSQLite3

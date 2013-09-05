@@ -20,7 +20,7 @@
 #include "DBAgentFactory.h"
 #include "DBAgentSQLite3.h"
 #include "DBAgentMySQL.h"
-#include "ConfigManager.h"
+#include "Params.h"
 
 // ---------------------------------------------------------------------------
 // Public methods
@@ -28,13 +28,15 @@
 DBAgent* DBAgentFactory::create(DBDomainId domainId, bool skipSetup,
                                 const DBConnectInfo *connectInfo)
 {
-	if (domainId == DB_DOMAIN_ID_CONFIG) {
+	if (domainId == DB_DOMAIN_ID_CONFIG ||
+	    domainId == DB_DOMAIN_ID_ACTION) {
 		HATOHOL_ASSERT(connectInfo, "connectInfo: NULL");
 		return new DBAgentMySQL(connectInfo->dbName.c_str(),
 		                        connectInfo->getUser(),
 		                        connectInfo->getPassword(),
 		                        connectInfo->getHost(),
-		                        connectInfo->port, skipSetup);
+		                        connectInfo->port,
+		                        domainId, skipSetup);
 	}
 	return new DBAgentSQLite3(domainId, skipSetup);
 }

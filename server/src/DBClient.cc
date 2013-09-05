@@ -293,3 +293,8 @@ bool DBClient::isRecordExisting(const string &tableName,
 {
 	return getDBAgent()->isRecordExisting(tableName, condition);
 }
+
+uint64_t DBClient::getLastInsertId(void)
+{
+	return getDBAgent()->getLastInsertId();
+}

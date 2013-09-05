@@ -53,6 +53,7 @@ struct ZabbixAPIEmulator::PrivateContext {
 	size_t        numEventSlices;
 	size_t        currEventSliceIndex;
 	vector<string> slicedEventVector;
+	GMainContext   *gMainCtx;
 	
 	// methods
 	PrivateContext(void)
@@ -61,8 +62,10 @@ struct ZabbixAPIEmulator::PrivateContext {
 	  soupServer(NULL),
 	  operationMode(OPE_MODE_NORMAL),
 	  numEventSlices(0),
-	  currEventSliceIndex(0)
+	  currEventSliceIndex(0),
+	  gMainCtx(0)
 	{
+		gMainCtx = g_main_context_new();
 	}
 
 	virtual ~PrivateContext()
@@ -74,6 +77,8 @@ struct ZabbixAPIEmulator::PrivateContext {
 			// nothing to do
 #endif // GLIB_VERSION_2_32
 		}
+		if (gMainCtx)
+			g_main_context_unref(gMainCtx);
 	}
 
 	void reset(void)
@@ -138,7 +143,9 @@ void ZabbixAPIEmulator::start(guint port)
 		return;
 	}
 	
-	m_ctx->soupServer = soup_server_new(SOUP_SERVER_PORT, port, NULL);
+	m_ctx->soupServer =
+	  soup_server_new(SOUP_SERVER_PORT, port,
+	                  SOUP_SERVER_ASYNC_CONTEXT, m_ctx->gMainCtx, NULL);
 	soup_server_add_handler(m_ctx->soupServer, NULL, handlerDefault,
 	                        this, NULL);
 	soup_server_add_handler(m_ctx->soupServer, "/zabbix/api_jsonrpc.php",

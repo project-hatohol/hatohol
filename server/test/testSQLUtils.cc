@@ -123,6 +123,74 @@ void test_itemChar(void)
 	assertCreateItemData(string, ItemString, &testDefChar, data);
 }
 
+void test_createFromStringInt(void)
+{
+	int val = 5;
+	ItemDataPtr dataPtr =
+	  SQLUtils::createFromString(StringUtils::sprintf("%d", val).c_str(),
+	                             SQL_COLUMN_TYPE_INT);
+	cppcut_assert_equal(val, ItemDataUtils::getInt(dataPtr));
+}
+
+void test_createFromStringIntWithNull(void)
+{
+	ItemDataPtr dataPtr =
+	  SQLUtils::createFromString(NULL, SQL_COLUMN_TYPE_INT);
+	cppcut_assert_equal(true, dataPtr->isNull());
+	cppcut_assert_equal(ITEM_TYPE_INT, dataPtr->getItemType());
+}
+
+void test_createFromStringBiguint(void)
+{
+	uint64_t val = 0x89abcdef01234567;
+	ItemDataPtr dataPtr =
+	  SQLUtils::createFromString(
+	    StringUtils::sprintf("%"PRIu64, val).c_str(),
+	                         SQL_COLUMN_TYPE_BIGUINT);
+	cppcut_assert_equal(val, ItemDataUtils::getUint64(dataPtr));
+}
+
+void test_createFromStringBiguintWithNull(void)
+{
+	ItemDataPtr dataPtr =
+	  SQLUtils::createFromString(NULL, SQL_COLUMN_TYPE_BIGUINT);
+	cppcut_assert_equal(true, dataPtr->isNull());
+	cppcut_assert_equal(ITEM_TYPE_UINT64, dataPtr->getItemType());
+}
+
+void test_createFromStringVarchar(void)
+{
+	string val = "I like a soft-serve ice cream.";
+	ItemDataPtr dataPtr =
+	  SQLUtils::createFromString(val.c_str(), SQL_COLUMN_TYPE_VARCHAR);
+	cppcut_assert_equal(val, ItemDataUtils::getString(dataPtr));
+}
+
+void test_createFromStringVarcharWithNull(void)
+{
+	ItemDataPtr dataPtr =
+	  SQLUtils::createFromString(NULL, SQL_COLUMN_TYPE_VARCHAR);
+	cppcut_assert_equal(true, dataPtr->isNull());
+	cppcut_assert_equal(ITEM_TYPE_STRING, dataPtr->getItemType());
+}
+
+void test_createFromStringDouble(void)
+{
+	double val = 0.123456789012345;
+	string valStr = StringUtils::sprintf("%.15lf", val);
+	ItemDataPtr dataPtr =
+	  SQLUtils::createFromString(valStr.c_str(), SQL_COLUMN_TYPE_DOUBLE);
+	cppcut_assert_equal(val, ItemDataUtils::getDouble(dataPtr));
+}
+
+void test_createFromStringDoubleWithNull(void)
+{
+	ItemDataPtr dataPtr =
+	  SQLUtils::createFromString(NULL, SQL_COLUMN_TYPE_DOUBLE);
+	cppcut_assert_equal(true, dataPtr->isNull());
+	cppcut_assert_equal(ITEM_TYPE_DOUBLE, dataPtr->getItemType());
+}
+
 void test_createFromStringDatetime(void)
 {
 	tzset();
@@ -139,8 +207,16 @@ void test_createFromStringDatetime(void)
 	                                  tm.tm_year, tm.tm_mon, tm.tm_mday,
 	                                  tm.tm_hour, tm.tm_min, tm.tm_sec);
 	ItemDataPtr dataPtr =
-	  SQLUtils::createFromString(str, SQL_COLUMN_TYPE_DATETIME);
+	  SQLUtils::createFromString(str.c_str(), SQL_COLUMN_TYPE_DATETIME);
 	cppcut_assert_equal((int)time_local, ItemDataUtils::getInt(dataPtr));
+}
+
+void test_createFromStringDatetimeWithNull(void)
+{
+	ItemDataPtr dataPtr =
+	  SQLUtils::createFromString(NULL, SQL_COLUMN_TYPE_DATETIME);
+	cppcut_assert_equal(true, dataPtr->isNull());
+	cppcut_assert_equal(ITEM_TYPE_INT, dataPtr->getItemType());
 }
 
 } // namespace testSQLUtils

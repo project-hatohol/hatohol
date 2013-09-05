@@ -116,7 +116,7 @@ static const ColumnDef COLUMN_DEF_SERVICESTATUS[] = {
 	TABLE_NAME_SERVICESTATUS,          // tableName
 	"status_update_time",              // columnName
 	SQL_COLUMN_TYPE_DATETIME,          // type
-	11,                                // columnLength
+	0,                                 // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
 	SQL_KEY_MUL,                       // keyType
@@ -236,7 +236,7 @@ static const ColumnDef COLUMN_DEF_STATEHISTORY[] = {
 	TABLE_NAME_HOSTS,                  // tableName
 	"state_time",                      // columnName
 	SQL_COLUMN_TYPE_DATETIME,          // type
-	11,                                // columnLength
+	0,                                 // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
 	SQL_KEY_NONE,                      // keyType

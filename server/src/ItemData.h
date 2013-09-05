@@ -47,6 +47,11 @@ enum ItemDataExceptionType {
 	ITEM_DATA_EXCEPTION_INVALID_OPERATION,
 };
 
+enum ItemDataNullFlagType {
+	ITEM_DATA_NOT_NULL,
+	ITEM_DATA_NULL,
+};
+
 class ItemData;
 class ItemDataException : public HatoholException
 {
@@ -133,14 +138,22 @@ ostream &operator<<(ostream &os, const ItemData &itemData);
 template <typename T, ItemDataType ITEM_TYPE>
 class ItemGeneric : public ItemData {
 public:
-	ItemGeneric(ItemId id, T data)
+	ItemGeneric(ItemId id, T data,
+	            ItemDataNullFlagType nullFlag = ITEM_DATA_NOT_NULL)
 	: ItemData(id, ITEM_TYPE),
-	  m_data(data) {
+	  m_data(data)
+	{
+		if (nullFlag == ITEM_DATA_NULL)
+			setNull();
 	}
 
-	ItemGeneric(T data)
+	ItemGeneric(T data,
+	            ItemDataNullFlagType nullFlag = ITEM_DATA_NOT_NULL)
 	: ItemData(SYSTEM_ITEM_ID_ANONYMOUS, ITEM_TYPE),
-	  m_data(data) {
+	  m_data(data)
+	{
+		if (nullFlag == ITEM_DATA_NULL)
+			setNull();
 	}
 
 	static const ItemGeneric<T, ITEM_TYPE> *cast(const ItemData &itemData)
@@ -158,27 +171,32 @@ public:
 	}
 
 	// virtual methods defined in this class
-	virtual const T &get(void) const {
+	virtual const T &get(void) const
+	{
 		return m_data;
 	}
 
 	// virtual methods (override)
-	virtual ItemData *clone(void) const {
+	virtual ItemData *clone(void) const
+	{
 		return new ItemGeneric<T, ITEM_TYPE>(getId(), m_data);
 	}
 
-	virtual string getString(void) const {
+	virtual string getString(void) const
+	{
 		stringstream ss;
 		ss << m_data;
 		return ss.str();
 	}
 
-	virtual operator bool () const {
+	virtual operator bool () const
+	{
 		THROW_ITEM_DATA_EXCEPTION_UNDEFINED_OPERATION("cast to bool");
 		return false;
 	}
 
-	virtual ItemData & operator =(const ItemData &itemData) {
+	virtual ItemData & operator =(const ItemData &itemData)
+	{
 		if (isSameType(itemData)) {
 			m_data = cast(itemData)->get();
 			return *this;
@@ -187,7 +205,8 @@ public:
 		return *this;
 	}
 
-	virtual ItemData * operator +(const ItemData &itemData) const {
+	virtual ItemData * operator +(const ItemData &itemData) const
+	{
 		if (isSameType(itemData)) {
 			const T &v0 = m_data;
 			const T &v1 = cast(itemData)->get();
@@ -197,7 +216,8 @@ public:
 		return NULL;
 	}
 
-	virtual ItemData * operator /(const ItemData &itemData) const {
+	virtual ItemData * operator /(const ItemData &itemData) const
+	{
 		if (isSameType(itemData)) {
 			const T &v0 = m_data;
 			const T &v1 = cast(itemData)->get();
@@ -207,7 +227,8 @@ public:
 		return NULL;
 	}
 
-	virtual bool operator >(const ItemData &itemData) const {
+	virtual bool operator >(const ItemData &itemData) const
+	{
 		if (isSameType(itemData)) {
 			const T &v0 = m_data;
 			const T &v1 = cast(itemData)->get();
@@ -217,7 +238,8 @@ public:
 		return false;
 	}
 
-	virtual bool operator <(const ItemData &itemData) const {
+	virtual bool operator <(const ItemData &itemData) const
+	{
 		if (isSameType(itemData)) {
 			const T &v0 = m_data;
 			const T &v1 = cast(itemData)->get();
@@ -227,16 +249,20 @@ public:
 		return false;
 	}
 
-	virtual bool operator >=(const ItemData &itemData) const {
+	virtual bool operator >=(const ItemData &itemData) const
+	{
 		THROW_ITEM_DATA_EXCEPTION_UNDEFINED_OPERATION(">=", itemData);
 		return false;
 	}
-	virtual bool operator <=(const ItemData &itemData) const {
+
+	virtual bool operator <=(const ItemData &itemData) const
+	{
 		THROW_ITEM_DATA_EXCEPTION_UNDEFINED_OPERATION("<=", itemData);
 		return false;
 	}
 
-	virtual bool operator ==(const ItemData &itemData) const {
+	virtual bool operator ==(const ItemData &itemData) const
+	{
 		if (isSameType(itemData)) {
 			const T &v0 = m_data;
 			const T &v1 = cast(itemData)->get();

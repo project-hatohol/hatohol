@@ -21,7 +21,7 @@
 #include <cutter.h>
 #include <unistd.h>
 
-#include "ConfigManager.h"
+#include "Params.h"
 #include "DBAgentSQLite3.h"
 #include "UnifiedDataStore.h"
 #include "DBClientTest.h"

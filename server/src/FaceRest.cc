@@ -130,7 +130,10 @@ void FaceRest::stop(void)
 // ---------------------------------------------------------------------------
 gpointer FaceRest::mainThread(HatoholThreadArg *arg)
 {
-	m_soupServer = soup_server_new(SOUP_SERVER_PORT, m_port, NULL);
+	GMainContext *gMainCtx = g_main_context_new();
+	m_soupServer = soup_server_new(SOUP_SERVER_PORT, m_port,
+	                               SOUP_SERVER_ASYNC_CONTEXT, gMainCtx,
+	                               NULL);
 	HATOHOL_ASSERT(m_soupServer, "failed: soup_server_new: %u\n", m_port);
 	soup_server_add_handler(m_soupServer, NULL, handlerDefault, this, NULL);
 	soup_server_add_handler(m_soupServer, "/hello.html",
@@ -152,6 +155,7 @@ gpointer FaceRest::mainThread(HatoholThreadArg *arg)
 	                        launchHandlerInTryBlock,
 	                        (gpointer)handlerGetItems, NULL);
 	soup_server_run(m_soupServer);
+	g_main_context_unref(gMainCtx);
 	MLPL_INFO("exited face-rest\n");
 	return NULL;
 }
@@ -569,7 +573,7 @@ void FaceRest::handlerGetItems
 
 	JsonBuilderAgent agent;
 	agent.startObject();
-	agent.add("apiVersion", API_VERSION_EVENTS);
+	agent.add("apiVersion", API_VERSION_ITEMS);
 	agent.addTrue("result");
 	agent.add("numberOfItems", itemList.size());
 	agent.startArray("items");

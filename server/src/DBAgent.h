@@ -26,7 +26,10 @@ using namespace std;
 #include <glib.h>
 #include <stdint.h>
 
+#include "Params.h"
 #include "SQLProcessorTypes.h"
+
+#define CURR_DATETIME -1
 
 struct DBAgentTableCreationArg {
 	string              tableName;
@@ -100,7 +103,6 @@ struct DBConnectInfo {
 	const char *getPassword(void) const;
 };
 
-typedef uint32_t DBDomainId;
 typedef void (*DBSetupFunc)(DBDomainId domainId, void *data);
 static const DBDomainId DEFAULT_DB_DOMAIN_ID = 0;
 
@@ -127,6 +129,7 @@ public:
 	virtual void select(DBAgentSelectExArg &selectExArg) = 0;
 	virtual void deleteRows(DBAgentDeleteArg &deleteArg) = 0;
 	virtual void addColumns(DBAgentAddColumnsArg &addColumnsArg) = 0;
+	virtual uint64_t getLastInsertId(void) = 0;
 
 protected:
 	static string makeSelectStatement(DBAgentSelectArg &selectArg);
@@ -134,6 +137,8 @@ protected:
 	static string getColumnValueString(const ColumnDef *columnDef,
 	                                   const ItemData *itemData);
 	static string makeUpdateStatement(DBAgentUpdateArg &updateArg);
+	static string makeDeleteStatement(DBAgentDeleteArg &deleteArg);
+	static string makeDatetimeString(int datetime);
 
 private:
 	struct PrivateContext;

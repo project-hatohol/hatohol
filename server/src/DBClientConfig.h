@@ -21,7 +21,8 @@
 #define DBClientConfig_h
 
 #include <list>
-#include "DBClient.h"
+#include "DBClientConnectable.h"
+#include "Params.h"
 
 enum MonitoringSystemType {
 	MONITORING_SYSTEM_ZABBIX,
@@ -67,31 +68,12 @@ struct MonitoringServerInfo {
 typedef list<MonitoringServerInfo>         MonitoringServerInfoList;
 typedef MonitoringServerInfoList::iterator MonitoringServerInfoListIterator;
 
-class DBClientConfig : public DBClient {
+class DBClientConfig : public DBClientConnectable<DB_DOMAIN_ID_CONFIG> {
 public:
 	static int CONFIG_DB_VERSION;
 	static const char *DEFAULT_DB_NAME;
-	static void reset(bool deepReset = false);
 	static bool parseCommandLineArgument(CommandLineArg &cmdArg);
-	static const DBConnectInfo &getDBConnectInfo(void);
-
-	/**
-	 * set the default parameters to connect the DB.
-	 * The parameters set by this function are used for the instance of
-	 * DBClientConfig created with NULL as the first argument.
-	 * The paramers are reset to the sysytem default when reset() is called.
-	 *
-	 * @param dbName A database name.
-	 * @param user
-	 * A user name. If this paramter is "" (empty string), the name of
-	 * the current user is used.
-	 * @param passowrd
-	 * A password. If this parameter is "" (empty string), no passowrd
-	 * is used.
-	 */
-	static void setDefaultDBParams(const string &dbName,
-	                               const string &user = "",
-	                               const string &password = "");
+	static void init(void);
 
 	DBClientConfig(const DBConnectInfo *connectInfo = NULL);
 	virtual ~DBClientConfig();
@@ -106,18 +88,13 @@ public:
 	void getTargetServers(MonitoringServerInfoList &monitoringServers);
 
 protected:
-	static void resetDBInitializedFlags(void);
 	static void tableInitializerSystem(DBAgent *dbAgent, void *data);
-	static void initDefaultDBConnectInfoMaster(void);
-	static void initDefaultDBConnectInfo(void);
 	static bool parseDBServer(const string &dbServer,
 	                          string &host, size_t &port);
-	void prepareSetupFunction(const DBConnectInfo *connectInfo);
-	const DBConnectInfo *getDefaultConnectInfo(void);
-
 private:
 	struct PrivateContext;
 	PrivateContext *m_ctx;
+
 };
 
 #endif // DBClientConfig_h

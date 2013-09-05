@@ -37,6 +37,9 @@ using namespace mlpl;
 #include "DBClientConfig.h"
 #include "DBClientHatohol.h"
 #include "DBClientZabbix.h"
+#include "ActionManager.h"
+#include "ActorCollector.h"
+#include "DBClientAction.h"
 
 static MutexLock mutex;
 static bool initDone = false; 
@@ -47,8 +50,10 @@ static void init(void)
 	HatoholException::init();
 
 	DBAgentSQLite3::init();
+	DBClientConfig::init();
 	DBClientHatohol::init();
 	DBClientZabbix::init();
+	DBClientAction::init();
 
 	ItemData::init();
 	SQLUtils::init();
@@ -63,6 +68,7 @@ static void init(void)
 	SQLProcessorZabbix::init();
 	SQLProcessorFactory::init();
 
+	ActorCollector::init();
 	FaceRest::init();
 }
 
@@ -72,6 +78,9 @@ static void reset(void)
 	DBClientConfig::reset();
 	DBClientHatohol::reset();
 	DBClientZabbix::reset();
+
+	ActionManager::reset();
+	ActorCollector::reset();
 }
 
 void hatoholInit(void)

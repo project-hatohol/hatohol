@@ -101,6 +101,7 @@ protected:
 	void addColumns(DBAgentAddColumnsArg &addColumnsArg);
 	bool isRecordExisting(const string &tableName,
 	                      const string &condition);
+	uint64_t getLastInsertId(void);
 
 private:
 	struct PrivateContext;

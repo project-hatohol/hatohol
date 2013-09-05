@@ -24,8 +24,8 @@ using namespace std;
 
 #include "DBAgentFactory.h"
 #include "DBClientConfig.h"
-#include "ConfigManager.h"
 #include "DBClientUtils.h"
+#include "Params.h"
 
 static const char *TABLE_NAME_SYSTEM  = "system";
 static const char *TABLE_NAME_SERVERS = "servers";
@@ -244,16 +244,6 @@ const char *MonitoringServerInfo::getHostAddress(void) const
 
 struct DBClientConfig::PrivateContext
 {
-	static MutexLock mutex;
-	static bool   initialized;
-
-	// Contents in connectInfo is set to those in connectInfoMaseter
-	// on reset(). However, connectInfoMaster is never changed after
-	// its contents are set in the initialization.
-	static DBConnectInfo connectInfo;
-	static DBConnectInfo connectInfoMaster;
-	static bool connectInfoMasterInitialized;
-
 	PrivateContext(void)
 	{
 	}
@@ -261,38 +251,27 @@ struct DBClientConfig::PrivateContext
 	virtual ~PrivateContext()
 	{
 	}
-
-	static void lock(void)
-	{
-		mutex.lock();
-	}
-
-	static void unlock(void)
-	{
-		mutex.unlock();
-	}
 };
-MutexLock DBClientConfig::PrivateContext::mutex;
-bool   DBClientConfig::PrivateContext::initialized = false;
-DBConnectInfo DBClientConfig::PrivateContext::connectInfo;
-DBConnectInfo DBClientConfig::PrivateContext::connectInfoMaster;
-bool DBClientConfig::PrivateContext::connectInfoMasterInitialized = false;
+
+static void updateDB(DBAgent *dbAgent, int oldVer, void *data)
+{
+	if (oldVer <= 5) {
+		DBAgentAddColumnsArg addColumnsArg;
+		addColumnsArg.tableName = TABLE_NAME_SYSTEM;
+		addColumnsArg.columnDefs = COLUMN_DEF_SYSTEM;
+		addColumnsArg.columnIndexes.push_back(
+		  IDX_SYSTEM_ENABLE_COPY_ON_DEMAND);
+		dbAgent->addColumns(addColumnsArg);
+	}
+}
 
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
-void DBClientConfig::reset(bool deepReset)
-{
-	resetDBInitializedFlags();
-	if (deepReset)
-		initDefaultDBConnectInfoMaster();
-	initDefaultDBConnectInfo();
-}
-
 bool DBClientConfig::parseCommandLineArgument(CommandLineArg &cmdArg)
 {
 	initDefaultDBConnectInfoMaster();
-	DBConnectInfo &connMaster = PrivateContext::connectInfoMaster;
+	DBConnectInfo &connMaster = getDBConnectInfoMaster();
 
 	string dbServer;
 	for (size_t i = 0; i < cmdArg.size(); i++) {
@@ -327,19 +306,43 @@ bool DBClientConfig::parseCommandLineArgument(CommandLineArg &cmdArg)
 	return true;
 }
 
-const DBConnectInfo & DBClientConfig::getDBConnectInfo(void)
+void DBClientConfig::init(void)
 {
-	return PrivateContext::connectInfo;
-}
+	HATOHOL_ASSERT(NUM_COLUMNS_SYSTEM == NUM_IDX_SYSTEM,
+	  "NUM_COLUMNS_SYSTEM: %zd, NUM_IDX_SYSTEM: %d",
+	  NUM_COLUMNS_SYSTEM, NUM_IDX_SYSTEM);
 
-void DBClientConfig::setDefaultDBParams(const string &name,
-                                        const string &user,
-                                        const string &password)
-{
-	DBConnectInfo &connInfo = PrivateContext::connectInfo;;
-	connInfo.dbName   = name;
-	connInfo.user     = user;
-	connInfo.password = password;
+	HATOHOL_ASSERT(NUM_COLUMNS_SERVERS == NUM_IDX_SERVERS,
+	  "NUM_COLUMNS_SERVERS: %zd, NUM_IDX_SERVERS: %d",
+	  NUM_COLUMNS_SERVERS, NUM_IDX_SERVERS);
+
+	//
+	// set database info
+	//
+	static const DBSetupTableInfo DB_TABLE_INFO[] = {
+	{
+		TABLE_NAME_SYSTEM,
+		NUM_COLUMNS_SYSTEM,
+		COLUMN_DEF_SYSTEM,
+		tableInitializerSystem,
+	}, {
+		TABLE_NAME_SERVERS,
+		NUM_COLUMNS_SERVERS,
+		COLUMN_DEF_SERVERS,
+	}
+	};
+	static const size_t NUM_TABLE_INFO =
+	  sizeof(DB_TABLE_INFO) / sizeof(DBSetupTableInfo);
+
+	static DBSetupFuncArg DB_SETUP_FUNC_ARG = {
+		CONFIG_DB_VERSION,
+		NUM_TABLE_INFO,
+		DB_TABLE_INFO,
+		&updateDB,
+	};
+
+	addDefaultDBInfo(
+	  DB_DOMAIN_ID_CONFIG, DEFAULT_DB_NAME, &DB_SETUP_FUNC_ARG);
 }
 
 DBClientConfig::DBClientConfig(const DBConnectInfo *connectInfo)
@@ -347,18 +350,7 @@ DBClientConfig::DBClientConfig(const DBConnectInfo *connectInfo)
 {
 	m_ctx = new PrivateContext();
 
-	m_ctx->lock();
-	if (!connectInfo)
-		connectInfo = getDefaultConnectInfo();
-	if (!m_ctx->initialized) {
-		// The setup function: dbSetupFunc() is called from
-		// the creation of DBAgent instance below.
-		prepareSetupFunction(connectInfo);
-	}
-	m_ctx->unlock();
-	bool skipSetup = false;
-	setDBAgent(DBAgentFactory::create(DB_DOMAIN_ID_CONFIG, skipSetup,
-	                                  connectInfo));
+
 }
 
 DBClientConfig::~DBClientConfig()
@@ -582,11 +574,6 @@ void DBClientConfig::getTargetServers
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
-void DBClientConfig::resetDBInitializedFlags(void)
-{
-	PrivateContext::initialized = false;
-}
-
 void DBClientConfig::tableInitializerSystem(DBAgent *dbAgent, void *data)
 {
 	const ColumnDef &columnDefDatabaseDir =
@@ -616,31 +603,6 @@ void DBClientConfig::tableInitializerSystem(DBAgent *dbAgent, void *data)
 	dbAgent->insert(insArg);
 }
 
-void DBClientConfig::initDefaultDBConnectInfoMaster(void)
-{
-	DBConnectInfo &connInfo = PrivateContext::connectInfoMaster;
-	connInfo.host     = "localhost";
-	connInfo.port     = 0; // default port
-	connInfo.user     = "hatohol";
-	connInfo.password = "hatohol";
-	connInfo.dbName   = DEFAULT_DB_NAME;
-	PrivateContext::connectInfoMasterInitialized = true;
-}
-
-void DBClientConfig::initDefaultDBConnectInfo(void)
-{
-	DBConnectInfo &connInfo = PrivateContext::connectInfo;
-	DBConnectInfo &master   = PrivateContext::connectInfoMaster;
-	if (!PrivateContext::connectInfoMasterInitialized)
-		initDefaultDBConnectInfoMaster();
-
-	connInfo.host     = master.host;
-	connInfo.port     = master.port;
-	connInfo.user     = master.user;
-	connInfo.password = master.password;
-	connInfo.dbName   = master.dbName;
-}
-
 bool DBClientConfig::parseDBServer(const string &dbServer,
                                    string &host, size_t &port)
 {
@@ -659,49 +621,3 @@ bool DBClientConfig::parseDBServer(const string &dbServer,
 	return true;
 }
 
-static void updateDB(DBAgent *dbAgent, int oldVer, void *data)
-{
-	if (oldVer <= 5) {
-		DBAgentAddColumnsArg addColumnsArg;
-		addColumnsArg.tableName = TABLE_NAME_SYSTEM;
-		addColumnsArg.columnDefs = COLUMN_DEF_SYSTEM;
-		addColumnsArg.columnIndexes.push_back(
-		  IDX_SYSTEM_ENABLE_COPY_ON_DEMAND);
-		dbAgent->addColumns(addColumnsArg);
-	}
-}
-
-void DBClientConfig::prepareSetupFunction(const DBConnectInfo *connectInfo)
-{
-	static const DBSetupTableInfo DB_TABLE_INFO[] = {
-	{
-		TABLE_NAME_SYSTEM,
-		NUM_COLUMNS_SYSTEM,
-		COLUMN_DEF_SYSTEM,
-		tableInitializerSystem,
-	}, {
-		TABLE_NAME_SERVERS,
-		NUM_COLUMNS_SERVERS,
-		COLUMN_DEF_SERVERS,
-	}
-	};
-	static const size_t NUM_TABLE_INFO =
-	sizeof(DB_TABLE_INFO) / sizeof(DBSetupTableInfo);
-
-	static const DBSetupFuncArg DB_SETUP_FUNC_ARG = {
-		CONFIG_DB_VERSION,
-		NUM_TABLE_INFO,
-		DB_TABLE_INFO,
-		&updateDB,
-		this,
-		connectInfo,
-	};
-
-	DBAgent::addSetupFunction(DB_DOMAIN_ID_CONFIG,
-	                          dbSetupFunc, (void *)&DB_SETUP_FUNC_ARG);
-}
-
-const DBConnectInfo *DBClientConfig::getDefaultConnectInfo(void)
-{
-	return &m_ctx->connectInfo;
-}

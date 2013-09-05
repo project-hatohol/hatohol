@@ -104,6 +104,16 @@ void test_splitDontMergeLastIsDoubleSeparator(void)
 	cut_assert_equal_string("", it->c_str());
 }
 
+void test_splitOneWord(void)
+{
+	string target = "ABC";
+	StringList words;
+	StringUtils::split(words, target, ' ', false);
+	cppcut_assert_equal((size_t)1, words.size());
+	StringListIterator it = words.begin();
+	cppcut_assert_equal(target, *it);
+}
+
 void test_sprintf(void)
 {
 	const char *fmt = "ABC %d xyz";

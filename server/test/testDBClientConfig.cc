@@ -70,9 +70,9 @@ void cut_setup(void)
 {
 	hatoholInit();
 	
-	// test_parseArgConfigDBServer() and test_parseArgConfigDBServerWithPort()
-	// changes the master data structure of DBClientConfig. The following call
-	// is needed to clear that information.
+	// test_parseArgConfigDBServer() & test_parseArgConfigDBServerWithPort()
+	// changes the master data structure of DBClientConfig.
+	// The following call is needed to clear that information.
 	DBClientConfig::reset(true);
 
 	static const char *TEST_DB_USER = "hatohol_test_user";
@@ -87,6 +87,13 @@ void cut_setup(void)
 // ---------------------------------------------------------------------------
 // Test cases
 // ---------------------------------------------------------------------------
+void test_dbDomainId(void)
+{
+	DBClientConfig dbConfig;
+	cppcut_assert_equal(DB_DOMAIN_ID_CONFIG,
+	                    dbConfig.getDBAgent()->getDBDomainId());
+}
+
 void test_getHostAddressIP(void)
 {
 	const char *ipAddr = "192.168.1.1";

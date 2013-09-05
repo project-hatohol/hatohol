@@ -1,4 +1,4 @@
-bin_PROGRAMS = hatohol-config-db-creator
+bin_PROGRAMS = hatohol-config-db-creator hatohol-cli
 hatohol_config_db_creator_SOURCES = hatohol-config-db-creator.cc
 
 MLPL_CFLAGS = -I ../mlpl/src

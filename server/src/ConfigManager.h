@@ -25,15 +25,6 @@
 
 #include "DBClientConfig.h"
 
-static const DBDomainId DB_DOMAIN_ID_CONFIG  = 0x0010;
-static const DBDomainId DB_DOMAIN_ID_HATOHOL = 0x0020;
-static const DBDomainId DB_DOMAIN_ID_ZABBIX  = 0x1000;
-static const size_t NUM_MAX_ZABBIX_SERVERS = 100;
-// DBClintZabbix uses the number of domains by NUM_MAX_ZABBIX_SERVERS 
-// So the domain ID is occupied
-//   from DB_DOMAIN_ID_ZABBIX
-//   to   DB_DOMAIN_ID_ZABBIX + NUM_MAX_ZABBIX_SERVERS - 1
-
 class ConfigManager {
 public:
 	static const char *HATOHOL_DB_DIR_ENV_VAR_NAME;
