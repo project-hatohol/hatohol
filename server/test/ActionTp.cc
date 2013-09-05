@@ -24,6 +24,7 @@
 #include <unistd.h>
 #include "ActionTp.h"
 #include "NamedPipe.h"
+#include "Helpers.h"
 #include "Logger.h"
 #include "SmartBuffer.h"
 #include "ResidentCommunicator.h"
@@ -149,12 +150,6 @@ static void dispatch(GIOStatus stat, SmartBuffer &sbuf,
 	}
 	if (continueFlag)
 		ctx->pullHeader(dispatch);
-}
-
-static void crash(void)
-{
-	char *p = NULL;
-	*p = 'a';
 }
 
 int main(int argc, char *argv[])

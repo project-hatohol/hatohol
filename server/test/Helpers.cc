@@ -509,3 +509,15 @@ string joinStringVector(const StringVector &strVect, const string &pad,
 	}
 	return output;
 }
+
+void crash(void)
+{
+	// The following code causes SIGILL when the test is executed with
+	// the compiler: clang, although we expect SIGSEGV.
+	// So we send the signal directly.
+	/*
+	char *p = NULL;
+	*p = 'a';
+	*/
+	kill(getpid(), SIGSEGV);
+}

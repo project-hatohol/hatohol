@@ -121,4 +121,6 @@ string execSQL(DBAgent *agent, const string &statement,
 string joinStringVector(const StringVector &strVect, const string &pad = "",
                         bool isPaddingTail = true);
 
+void crash(void);
+
 #endif // Helpers_h

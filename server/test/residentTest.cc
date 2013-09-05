@@ -23,6 +23,7 @@
 #include "ResidentProtocol.h"
 #include "ResidentCommunicator.h"
 #include "NamedPipe.h"
+#include "Helpers.h"
 #include "Utils.h"
 #include "Logger.h"
 #include "StringUtils.h"
@@ -84,12 +85,6 @@ static void testCmdCb(GIOStatus stat, SmartBuffer &sbuf,
 		MLPL_ERR("Unknown expected cmd: %d\n", cmdType);
 		exit(EXIT_FAILURE);
 	}
-}
-
-static void crash(void)
-{
-	char *p = NULL;
-	*p = 'a';
 }
 
 static void stall(void)
