@@ -313,6 +313,8 @@ static DBClient::DBSetupFuncArg DB_ACTION_SETUP_FUNC_ARG = {
 
 struct DBClientAction::PrivateContext
 {
+	static const string actionDefConditionTemplate;
+
 	PrivateContext(void)
 	{
 	}
@@ -320,9 +322,76 @@ struct DBClientAction::PrivateContext
 	virtual ~PrivateContext()
 	{
 	}
+	
+	static string makeActionDefConditionTemplate(void);
 };
 
+const string DBClientAction::PrivateContext::actionDefConditionTemplate
+  = makeActionDefConditionTemplate();
 
+string DBClientAction::PrivateContext::makeActionDefConditionTemplate(void)
+{
+	string cond;
+
+	// server_id;
+	const ColumnDef &colDefSvId = COLUMN_DEF_ACTIONS[IDX_ACTIONS_SERVER_ID];
+	cond += StringUtils::sprintf(
+	  "((%s is NULL) or (%s=%%d))",
+	  colDefSvId.columnName, colDefSvId.columnName);
+	cond += " and ";
+
+	// host_id;
+	const ColumnDef &colDefHostId = COLUMN_DEF_ACTIONS[IDX_ACTIONS_HOST_ID];
+	cond += StringUtils::sprintf(
+	  "((%s is NULL) or (%s=%%"PRIu64"))",
+	  colDefHostId.columnName, colDefHostId.columnName);
+	cond += " and ";
+
+#if 0   // TODO: we will enable this condition
+	//       after host group feagure is supported.
+	// host_group_id;
+	const ColumnDef &colDefHostGrpId =
+	   COLUMN_DEF_ACTIONS[IDX_ACTIONS_HOST_GROUP_ID];
+	cond += StringUtils::sprintf(
+	  "((%s is NULL) or (%s=%%"PRIu64"))",
+	  colDefHostGrpId.columnName, colDefHostGrpId.columnName);
+	cond += " and "
+#endif
+
+	// trigger_id
+	const ColumnDef &colDefTrigId =
+	   COLUMN_DEF_ACTIONS[IDX_ACTIONS_TRIGGER_ID];
+	cond += StringUtils::sprintf(
+	  "((%s is NULL) or (%s=%%"PRIu64"))",
+	  colDefTrigId.columnName, colDefTrigId.columnName);
+	cond += " and ";
+
+	// trigger_status
+	const ColumnDef &colDefTrigStat =
+	   COLUMN_DEF_ACTIONS[IDX_ACTIONS_TRIGGER_STATUS];
+	cond += StringUtils::sprintf(
+	  "((%s is NULL) or (%s=%%d))",
+	  colDefTrigStat.columnName, colDefTrigStat.columnName);
+	cond += " and ";
+
+	// trigger_severity
+	const ColumnDef &colDefTrigSeve =
+	   COLUMN_DEF_ACTIONS[IDX_ACTIONS_TRIGGER_SEVERITY];
+	const ColumnDef &colDefTrigSeveCmpType =
+	   COLUMN_DEF_ACTIONS[IDX_ACTIONS_TRIGGER_SEVERITY_COMP_TYPE];
+	cond += StringUtils::sprintf(
+	  "((%s is NULL) or (%s=%d and %s=%%d) or (%s=%d and %s>=%%d))",
+	  colDefTrigSeve.columnName,
+	  colDefTrigSeveCmpType.columnName, CMP_EQ, colDefTrigSeve.columnName,
+	  colDefTrigSeveCmpType.columnName, CMP_EQ_GT,
+	  colDefTrigSeve.columnName);
+
+	return cond;
+}
+
+// ---------------------------------------------------------------------------
+// LogEndExecActionArg
+// ---------------------------------------------------------------------------
 DBClientAction::LogEndExecActionArg::LogEndExecActionArg(void)
 : logId(INVALID_ACTION_LOG_ID),
   status(ACTLOG_STAT_INVALID),
@@ -409,7 +478,6 @@ void DBClientAction::addAction(ActionDef &actionDef)
 void DBClientAction::getActionList(const EventInfo &eventInfo,
                                    ActionDefList &actionDefList)
 {
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
 	DBAgentSelectExArg arg;
 	arg.tableName = TABLE_NAME_ACTIONS;
 	arg.pushColumn(COLUMN_DEF_ACTIONS[IDX_ACTIONS_ACTION_ID]);
@@ -418,6 +486,7 @@ void DBClientAction::getActionList(const EventInfo &eventInfo,
 	arg.pushColumn(COLUMN_DEF_ACTIONS[IDX_ACTIONS_HOST_ID]);
 	arg.pushColumn(COLUMN_DEF_ACTIONS[IDX_ACTIONS_HOST_GROUP_ID]);
 	arg.pushColumn(COLUMN_DEF_ACTIONS[IDX_ACTIONS_TRIGGER_ID]);
+	arg.pushColumn(COLUMN_DEF_ACTIONS[IDX_ACTIONS_TRIGGER_STATUS]);
 	arg.pushColumn(COLUMN_DEF_ACTIONS[IDX_ACTIONS_TRIGGER_SEVERITY]);
 	arg.pushColumn(
 	  COLUMN_DEF_ACTIONS[IDX_ACTIONS_TRIGGER_SEVERITY_COMP_TYPE]);
@@ -427,7 +496,7 @@ void DBClientAction::getActionList(const EventInfo &eventInfo,
 	arg.pushColumn(COLUMN_DEF_ACTIONS[IDX_ACTIONS_WORKING_DIR]);
 	arg.pushColumn(COLUMN_DEF_ACTIONS[IDX_ACTIONS_TIMEOUT]);
 
-	// TODO: append where section
+	arg.condition = makeActionDefCondition(eventInfo);
 
 	DBCLIENT_TRANSACTION_BEGIN() {
 		select(arg);
@@ -452,27 +521,27 @@ void DBClientAction::getActionList(const EventInfo &eventInfo,
 			actionDef.condition.enable(ACTCOND_SERVER_ID);
 
 		actionDef.condition.hostId =
-		   GET_UINT64_FROM_GRP(itemGroup, idx++);
+		   GET_UINT64_FROM_GRP(itemGroup, idx++, &isNull);
 		if (!isNull)
 			actionDef.condition.enable(ACTCOND_HOST_ID);
 
 		actionDef.condition.hostGroupId =
-		   GET_UINT64_FROM_GRP(itemGroup, idx++);
+		   GET_UINT64_FROM_GRP(itemGroup, idx++, &isNull);
 		if (!isNull)
 			actionDef.condition.enable(ACTCOND_HOST_GROUP_ID);
 
 		actionDef.condition.triggerId =
-		   GET_UINT64_FROM_GRP(itemGroup, idx++);
+		   GET_UINT64_FROM_GRP(itemGroup, idx++, &isNull);
 		if (!isNull)
 			actionDef.condition.enable(ACTCOND_TRIGGER_ID);
 
 		actionDef.condition.triggerStatus =
-		   GET_INT_FROM_GRP(itemGroup, idx++);
+		   GET_INT_FROM_GRP(itemGroup, idx++, &isNull);
 		if (!isNull)
 			actionDef.condition.enable(ACTCOND_TRIGGER_STATUS);
 
 		actionDef.condition.triggerSeverity =
-		   GET_INT_FROM_GRP(itemGroup, idx++);
+		   GET_INT_FROM_GRP(itemGroup, idx++, &isNull);
 		if (!isNull)
 			actionDef.condition.enable(ACTCOND_TRIGGER_SEVERITY);
 
@@ -685,4 +754,20 @@ ItemDataNullFlagType DBClientAction::getNullFlag
 		return ITEM_DATA_NOT_NULL;
 	else
 		return ITEM_DATA_NULL;
+}
+
+string DBClientAction::makeActionDefCondition(const EventInfo &eventInfo)
+{
+	HATOHOL_ASSERT(!m_ctx->actionDefConditionTemplate.empty(),
+	               "ActionDef condition template is empty.");
+	string cond = 
+	  StringUtils::sprintf(m_ctx->actionDefConditionTemplate.c_str(),
+	                       eventInfo.serverId,
+	                       eventInfo.hostId,
+	                       // TODO: hostGroupId
+	                       eventInfo.triggerId,
+	                       eventInfo.status,
+	                       eventInfo.severity,
+	                       eventInfo.severity);
+	return cond;
 }

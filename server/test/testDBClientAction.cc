@@ -158,6 +158,47 @@ static string makeExpectedEndLogString(
 	return joinStringVector(words, "|", false);
 }
 
+void _assertEqual(const ActionDef &expect, const ActionDef &actual)
+{
+	cppcut_assert_equal(expect.condition.enableBits,
+	                    actual.condition.enableBits);
+	if (expect.condition.enableBits & ACTCOND_SERVER_ID) {
+		cppcut_assert_equal(expect.condition.serverId,
+		                    actual.condition.serverId);
+	}
+	if (expect.condition.enableBits & ACTCOND_HOST_ID) {
+		cppcut_assert_equal(expect.condition.hostId,
+		                    actual.condition.hostId);
+	}
+	if (expect.condition.enableBits & ACTCOND_HOST_GROUP_ID) {
+		cppcut_assert_equal(expect.condition.hostGroupId,
+		                    actual.condition.hostGroupId);
+	}
+	if (expect.condition.enableBits & ACTCOND_TRIGGER_ID) {
+		cppcut_assert_equal(expect.condition.triggerId,
+		                    actual.condition.triggerId);
+	}
+	if (expect.condition.enableBits & ACTCOND_TRIGGER_STATUS) {
+		cppcut_assert_equal(expect.condition.triggerStatus,
+		                    actual.condition.triggerStatus);
+	}
+	if (expect.condition.enableBits & ACTCOND_TRIGGER_SEVERITY) {
+		cppcut_assert_equal(expect.condition.triggerSeverity,
+		                    actual.condition.triggerSeverity);
+		cppcut_assert_equal(expect.condition.triggerSeverityCompType,
+		                    actual.condition.triggerSeverityCompType);
+	} else {
+		cppcut_assert_equal(CMP_INVALID,
+		                    actual.condition.triggerSeverityCompType);
+	} 
+
+	cppcut_assert_equal(expect.type, actual.type);
+	cppcut_assert_equal(expect.workingDir, actual.workingDir);
+	cppcut_assert_equal(expect.command, actual.command);
+	cppcut_assert_equal(expect.timeout, actual.timeout);
+}
+#define assertEqual(E,A) cut_trace(_assertEqual(E,A))
+
 void setup(void)
 {
 	hatoholInit();
@@ -265,6 +306,39 @@ void test_endExecAction(void)
 	rowVector[targetIdx] = expectedLine;
 	string expect = joinStringVector(rowVector, "\n");
 	assertDBContent(dbAction.getDBAgent(), statement, expect);
+}
+
+void test_getTriggerActionList(void)
+{
+	test_addAction(); // save test data into DB.
+
+	// make an EventInfo instance for the test
+	int idxTarget = 1;
+	const ActionCondition condDummy  = testActionDef[0].condition;
+	const ActionCondition condDummy2 = testActionDef[2].condition;
+	const ActionCondition condTarget = testActionDef[idxTarget].condition;
+	EventInfo eventInfo;
+	eventInfo.serverId  = condTarget.serverId;
+	eventInfo.id        = 0;
+	eventInfo.time.tv_sec  = 1378339653;
+	eventInfo.time.tv_nsec = 6889;
+	eventInfo.type      = EVENT_TYPE_ACTIVATED;
+	eventInfo.triggerId = condDummy.triggerId;
+	eventInfo.status    = (TriggerStatusType) condTarget.triggerStatus;
+	eventInfo.severity  = (TriggerSeverityType) condTarget.triggerSeverity;
+	eventInfo.hostId    = condDummy2.hostId;
+	eventInfo.hostName  = "foo";
+	eventInfo.brief     = "foo foo foo";
+
+	// get the list and check the number
+	DBClientAction dbAction;
+	ActionDefList actionDefList;
+	dbAction.getActionList(eventInfo, actionDefList);
+	cppcut_assert_equal((size_t)1, actionDefList.size());
+
+	// check the content
+	const ActionDef &actual = *actionDefList.begin();
+	assertEqual(testActionDef[idxTarget], actual);
 }
 
 } // namespace testDBClientAction

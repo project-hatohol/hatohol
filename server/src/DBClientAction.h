@@ -286,6 +286,7 @@ public:
 protected:
 	ItemDataNullFlagType getNullFlag(const ActionDef &actionDef,
 	                                 ActionConditionEnableFlag enableFlag);
+	string makeActionDefCondition(const EventInfo &eventInfo);
 
 private:
 	struct PrivateContext;
