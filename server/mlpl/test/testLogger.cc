@@ -192,7 +192,6 @@ static const char* LogHeaders [MLPL_NUM_LOG_LEVEL] = {
 };
 
 #define DEF 1024
-#define TIMEOUT 1
 
 static void _assertSyslogOutput(const char *envMessage, const char *outMessage,
                              bool expectOut)
@@ -235,14 +234,16 @@ static void _assertSyslogOutput(const char *envMessage, const char *outMessage,
 	time_t start = time(NULL);
 	bool output = false;
 	for (;;) {
+		static const int TIMEOUT = 1000; // millisecond
 		struct pollfd fds[1];
 		fds[0].fd = fd;
 		fds[0].events = POLLIN;
 		fds[0].revents = 0;
-		if (poll(fds, 1 ,(TIMEOUT - time(NULL) + start)*1000) > 0){
+		int timeoutClock = (time(NULL) - start) * 1000 + TIMEOUT;
+		if (poll(fds, 1, timeoutClock) > 0) {
 			char buf[INOTIFY_EVT_BUF_SIZE];
 			cppcut_assert_not_equal(
-			  -1, read(fd, buf, sizeof(buf));
+			  (ssize_t)-1, read(fd, buf, sizeof(buf)),
 			  cut_message("%s", strerror(errno)));
 		} else {
 			break;
