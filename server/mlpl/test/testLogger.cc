@@ -222,6 +222,7 @@ static void _assertSyslogOutput(const char *envMessage, const char *outMessage,
 	}
 	cppcut_assert_not_equal(-1, fp, cut_message("%s", strerror(errno)));
 
+	// move the file pointer to the tail
 	cppcut_assert_not_equal((loff_t)-1, lseek(fp, 0, SEEK_END),
 	                        cut_message("%s", strerror(errno)));
 	int fd = inotify_init();
