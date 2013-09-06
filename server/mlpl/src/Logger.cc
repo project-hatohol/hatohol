@@ -38,7 +38,6 @@ bool Logger::syslogoutputFlag = true;
 ReadWriteLock Logger::lock;
 const char *Logger::LEVEL_ENV_VAR_NAME = "MLPL_LOGGER_LEVEL";
 
-
 // ----------------------------------------------------------------------------
 // Public methods
 // ----------------------------------------------------------------------------
