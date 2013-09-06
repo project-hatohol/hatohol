@@ -47,11 +47,13 @@ public:
 	static void disableSyslogOuputput(void);
 protected:
 	static void setCurrLogLevel(void);
+	static void connectSyslogIfNeeded(void);
 private:
 	static LogLevel m_currLogLevel;
 	static pthread_rwlock_t m_rwlock;
 	static bool syslogoutputFlag;
 	static ReadWriteLock lock;
+	static bool syslogConnected;
 };
 
 #define MLPL_P(LOG_LV, FMT, ...) \

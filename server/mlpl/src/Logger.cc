@@ -37,6 +37,7 @@ pthread_rwlock_t Logger::m_rwlock = PTHREAD_RWLOCK_INITIALIZER;
 bool Logger::syslogoutputFlag = true;
 ReadWriteLock Logger::lock;
 const char *Logger::LEVEL_ENV_VAR_NAME = "MLPL_LOGGER_LEVEL";
+bool Logger::syslogConnected = false;
 
 // ----------------------------------------------------------------------------
 // Public methods
@@ -57,9 +58,8 @@ void Logger::log(LogLevel level, const char *fileName, int lineNumber,
 
 	lock.readLock();
 	if (syslogoutputFlag) {
-		openlog(fileName, LOG_CONS | LOG_PID, LOG_USER);
+		connectSyslogIfNeeded();
 		syslog(LOG_INFO, "%s%s", header.c_str(), body.c_str());
-		closelog();
 	}
 	lock.unlock();
 }
@@ -129,4 +129,12 @@ void Logger::setCurrLogLevel(void)
 		m_currLogLevel = MLPL_LOG_INFO;
 	}
 	pthread_rwlock_unlock(&m_rwlock);
+}
+
+void Logger::connectSyslogIfNeeded(void)
+{
+	if (syslogConnected)
+		return;
+	openlog(NULL, LOG_CONS | LOG_PID, LOG_USER);
+	syslogConnected = true;
 }
