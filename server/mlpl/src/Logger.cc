@@ -26,6 +26,7 @@ using namespace std;
 #include "Logger.h"
 using namespace mlpl;
 #include <string.h>
+#include "StringUtils.h"
 
 static const char* LogHeaders [MLPL_NUM_LOG_LEVEL] = {
 	"BUG", "CRIT", "ERR", "WARN", "INFO", "DBG",
@@ -55,24 +56,23 @@ void Logger::log(LogLevel level, const char *fileName, int lineNumber,
 
 	lock.readLock();
 	if (syslogoutput_flag) {
-		char Logmessage[256];
-		memset(Logmessage, '\0', sizeof(Logmessage));
-		sprintf(Logmessage, "[%s] <%s:%d> ", LogHeaders[level], 
-			fileName, lineNumber);
+		string msg = 
+		   StringUtils::sprintf("[%s] <%s:%d> ", LogHeaders[level],
+		                        fileName, lineNumber);
 
-		char tmp[256];
+		static size_t bufSize = 256;
+		char tmp[bufSize];
 		memset(tmp, '\0', sizeof(tmp));
 		va_start(ap, fmt);
-		vsprintf(tmp, fmt, ap);
-		strcat(Logmessage, tmp);
+		vsnprintf(tmp, bufSize, fmt, ap);
+		va_end(ap);
+		msg += tmp;
 
 		openlog(fileName, LOG_CONS | LOG_PID, LOG_USER);
-		syslog(LOG_INFO, "%s", Logmessage);
+		syslog(LOG_INFO, "%s", msg.c_str());
 		closelog();
-
 	}
 	lock.unlock();
-	
 }
 
 // ----------------------------------------------------------------------------
