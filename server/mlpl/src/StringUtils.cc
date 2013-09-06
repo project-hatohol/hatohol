@@ -126,6 +126,7 @@ string StringUtils::sprintf(const char *fmt, va_list ap)
 	// In the case, generation of the output string is completed
 	if (outLen <= (int)SPRINTF_BUF_ON_STACK_LENGTH) {
 		string str(bufOnStack);
+		va_end(copiedAp);
 		return str;
 	}
 
