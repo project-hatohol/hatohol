@@ -44,9 +44,10 @@ const char *Logger::LEVEL_ENV_VAR_NAME = "MLPL_LOGGER_LEVEL";
 void Logger::log(LogLevel level, const char *fileName, int lineNumber,
                  const char *fmt, ...)
 {
-	
-	fprintf(stderr, "[%s] <%s:%d> ", LogHeaders[level], fileName,
-	        lineNumber);
+	string header = StringUtils::sprintf("[%s] <%s:%d> ",
+	                                     LogHeaders[level], fileName,
+	                                     lineNumber);
+	fputs(header.c_str(), stderr);
 	
 	va_list ap;
 	va_start(ap, fmt);
@@ -55,17 +56,13 @@ void Logger::log(LogLevel level, const char *fileName, int lineNumber,
 
 	lock.readLock();
 	if (syslogoutputFlag) {
-		string msg = 
-		   StringUtils::sprintf("[%s] <%s:%d> ", LogHeaders[level],
-		                        fileName, lineNumber);
-
 		static size_t bufSize = 256;
 		char tmp[bufSize];
 		memset(tmp, '\0', sizeof(tmp));
 		va_start(ap, fmt);
 		vsnprintf(tmp, bufSize, fmt, ap);
 		va_end(ap);
-		msg += tmp;
+		string msg = header + tmp;
 
 		openlog(fileName, LOG_CONS | LOG_PID, LOG_USER);
 		syslog(LOG_INFO, "%s", msg.c_str());
