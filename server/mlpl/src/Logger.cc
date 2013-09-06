@@ -47,25 +47,18 @@ void Logger::log(LogLevel level, const char *fileName, int lineNumber,
 	string header = StringUtils::sprintf("[%s] <%s:%d> ",
 	                                     LogHeaders[level], fileName,
 	                                     lineNumber);
-	fputs(header.c_str(), stderr);
-	
 	va_list ap;
 	va_start(ap, fmt);
-	vfprintf(stderr, fmt, ap);
+	string body = StringUtils::sprintf(fmt, ap);
 	va_end(ap);
+
+	fputs(header.c_str(), stderr);
+	fputs(body.c_str(), stderr);
 
 	lock.readLock();
 	if (syslogoutputFlag) {
-		static size_t bufSize = 256;
-		char tmp[bufSize];
-		memset(tmp, '\0', sizeof(tmp));
-		va_start(ap, fmt);
-		vsnprintf(tmp, bufSize, fmt, ap);
-		va_end(ap);
-		string msg = header + tmp;
-
 		openlog(fileName, LOG_CONS | LOG_PID, LOG_USER);
-		syslog(LOG_INFO, "%s", msg.c_str());
+		syslog(LOG_INFO, "%s%s", header.c_str(), body.c_str());
 		closelog();
 	}
 	lock.unlock();
