@@ -17,32 +17,27 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <cstdio>
 #include <cstdlib>
 #include <string>
-using namespace std;
-
-#include "Logger.h"
-#include "StringUtils.h"
-#include "ParsableString.h"
-using namespace mlpl;
-
-#include <cutter.h>
-#include <cppcutter.h>
-#include <glib.h>
-
-#include "loggerTester.h"
-
-
-#include <stdio.h>
 #include <stdarg.h>
-#include <string.h>
 #include <time.h>
 #include <syslog.h>
 #include <sys/inotify.h>
 #include <fcntl.h>
 #include <unistd.h>
 #include <poll.h>
+#include <glib.h>
+#include <cutter.h>
+#include <cppcutter.h>
 
+#include "Logger.h"
+#include "StringUtils.h"
+#include "ParsableString.h"
+#include "loggerTester.h"
+
+using namespace std;
+using namespace mlpl;
 
 namespace testLogger {
 
