@@ -206,9 +206,8 @@ static void _assertSyslogOutput(const char *envMessage, const char *outMessage,
 	strcat(consoleMessage, envMessage);
 
 	const char *syslogPlace[] = {
-		"/var/log/messages",    //CentOS
 		"/var/log/syslog",      //ubuntu
-		"/var/adm/messages",    //Slackware
+		"/var/log/messages",    //CentOS
 	};
 	const size_t syslogPlacePattern =
 	   sizeof(syslogPlace) / sizeof(const char *);
