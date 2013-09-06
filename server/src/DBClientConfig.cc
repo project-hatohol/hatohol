@@ -344,7 +344,9 @@ void DBClientConfig::init(const CommandLineArg *cmdArg)
 	addDefaultDBInfo(
 	  DB_DOMAIN_ID_CONFIG, DEFAULT_DB_NAME, &DB_SETUP_FUNC_ARG);
 
-	if (cmdArg && !parseCommandLineArgument(*cmdArg))
+	if (!cmdArg)
+		return;
+	if (!parseCommandLineArgument(*cmdArg))
 		THROW_HATOHOL_EXCEPTION("Failed to parse argument.");
 }
 
