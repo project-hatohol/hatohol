@@ -44,7 +44,7 @@ public:
 
 	static const DBConnectInfo &getDBConnectInfo(void)
 	{
-		return m_connectInfo;
+		return m_ctx.connectInfo;
 	}
 
 	/**
@@ -65,9 +65,9 @@ public:
 	                               const string &user = "",
 	                               const string &password = "")
 	{
-		m_connectInfo.dbName   = dbName;
-		m_connectInfo.user     = user;
-		m_connectInfo.password = password;
+		m_ctx.connectInfo.dbName   = dbName;
+		m_ctx.connectInfo.user     = user;
+		m_ctx.connectInfo.password = password;
 	}
 
 	DBClientConnectable(const DBConnectInfo *connectInfo = NULL)
@@ -75,9 +75,9 @@ public:
 		// m_connectInfo is initizalied in reset(). It isn't updated
 		// after reset. So we can refere it without a lock.
 		if (!connectInfo)
-			connectInfo = &m_connectInfo;
-		m_mutex.lock();
-		if (!m_initialized) {
+			connectInfo = &m_ctx.connectInfo;
+		m_ctx.mutex.lock();
+		if (!m_ctx.initialized) {
 			// The setup function: dbSetupFunc() is called from
 			// the creation of DBAgent instance below.
 			DefaultDBInfo &dbInfo = getDefaultDBInfo(DB_DOMAIN_ID);
@@ -88,10 +88,10 @@ public:
 			bool skipSetup = false;
 			setDBAgent(DBAgentFactory::create(
 			  DB_DOMAIN_ID, skipSetup, connectInfo));
-			m_initialized = true;
-			m_mutex.unlock();
+			m_ctx.initialized = true;
+			m_ctx.mutex.unlock();
 		} else {
-			m_mutex.unlock();
+			m_ctx.mutex.unlock();
 			bool skipSetup = true;
 			setDBAgent(DBAgentFactory::create(
 			  DB_DOMAIN_ID, skipSetup, connectInfo));
@@ -105,55 +105,59 @@ public:
 protected:
 	static DBConnectInfo &getDBConnectInfoMaster(void)
 	{
-		return m_connectInfoMaster;
+		return m_ctx.connectInfoMaster;
 	}
 
 	static void resetDBInitializedFlags(void)
 	{
-		m_initialized = false;
+		m_ctx.initialized = false;
 	}
 
 	static void initDefaultDBConnectInfoMaster(void)
 	{
 		DefaultDBInfo &dbInfo = getDefaultDBInfo(DB_DOMAIN_ID);
-		m_connectInfoMaster.host     = "localhost";
-		m_connectInfoMaster.port     = 0; // default port
-		m_connectInfoMaster.user     = "hatohol";
-		m_connectInfoMaster.password = "hatohol";
-		m_connectInfoMaster.dbName   = dbInfo.dbName;
-		m_connectInfoMasterInitialized = true;
+		m_ctx.connectInfoMaster.host     = "localhost";
+		m_ctx.connectInfoMaster.port     = 0; // default port
+		m_ctx.connectInfoMaster.user     = "hatohol";
+		m_ctx.connectInfoMaster.password = "hatohol";
+		m_ctx.connectInfoMaster.dbName   = dbInfo.dbName;
+		m_ctx.connectInfoMasterInitialized = true;
 	}
 
 	static void initDefaultDBConnectInfo(void)
 	{
-		if (!m_connectInfoMasterInitialized)
+		if (!m_ctx.connectInfoMasterInitialized)
 			initDefaultDBConnectInfoMaster();
 
-		m_connectInfo.host     = m_connectInfoMaster.host;
-		m_connectInfo.port     = m_connectInfoMaster.port;
-		m_connectInfo.user     = m_connectInfoMaster.user;
-		m_connectInfo.password = m_connectInfoMaster.password;
-		m_connectInfo.dbName   = m_connectInfoMaster.dbName;
+		m_ctx.connectInfo.host     = m_ctx.connectInfoMaster.host;
+		m_ctx.connectInfo.port     = m_ctx.connectInfoMaster.port;
+		m_ctx.connectInfo.user     = m_ctx.connectInfoMaster.user;
+		m_ctx.connectInfo.password = m_ctx.connectInfoMaster.password;
+		m_ctx.connectInfo.dbName   = m_ctx.connectInfoMaster.dbName;
 	}
 
 private:
-	static bool m_initialized;
-	static mlpl::MutexLock m_mutex;
+	struct PrivateContext {
+		bool initialized;
+		mlpl::MutexLock mutex;
 
-	// Contents in connectInfo is set to those in connectInfoMaseter
-	// on reset(). However, connectInfoMaster is never changed after
-	// its contents are set in the initialization.
-	static DBConnectInfo m_connectInfo;
-	static DBConnectInfo m_connectInfoMaster;
-	static bool m_connectInfoMasterInitialized;
+		// Contents in connectInfo is set to those in connectInfoMaseter
+		// on reset(). However, connectInfoMaster is never changed after
+		// its contents are set in the initialization.
+		DBConnectInfo connectInfo;
+		DBConnectInfo connectInfoMaster;
+		bool          connectInfoMasterInitialized;
+
+		PrivateContext(void)
+		: initialized(false),
+		  connectInfoMasterInitialized(false)
+		{
+		}
+	};
+	static PrivateContext m_ctx;
 };
 
-template<DBDomainId DID> mlpl::MutexLock DBClientConnectable<DID>::m_mutex;
-template<DBDomainId DID> bool DBClientConnectable<DID>::m_initialized = false;
-template<DBDomainId DID> DBConnectInfo DBClientConnectable<DID>::m_connectInfo;
-template<DBDomainId DID>
-  DBConnectInfo DBClientConnectable<DID>::m_connectInfoMaster;
-template<DBDomainId DID>
-  bool DBClientConnectable<DID>::m_connectInfoMasterInitialized = false;
+template<DBDomainId DID> typename DBClientConnectable<DID>::PrivateContext
+  DBClientConnectable<DID>::m_ctx;
 
 #endif // DBClientConnectable_h
