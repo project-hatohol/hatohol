@@ -19,6 +19,7 @@
 
 #include <cstdio>
 #include <cstdlib>
+#include <fstream>
 #include <string>
 #include <stdarg.h>
 #include <time.h>
@@ -191,8 +192,6 @@ static const char* LogHeaders [MLPL_NUM_LOG_LEVEL] = {
 	"BUG", "CRIT", "ERR", "WARN", "INFO", "DBG",
 };
 
-#define DEF 1024
-
 static void _assertSyslogOutput(const char *envMessage, const char *outMessage,
                              bool expectOut)
 {
@@ -214,18 +213,17 @@ static void _assertSyslogOutput(const char *envMessage, const char *outMessage,
 	   sizeof(syslogPathCandidates) / sizeof(const char *);
 	
 	const char *syslogPath = NULL;
-	int fp;
+	ifstream syslogFileStream;
 	for (size_t i = 0; i < syslogPathCandidatesPattern; i++){
-		if ((fp = open(syslogPathCandidates[i], O_RDONLY)) != -1){
-			syslogPath = syslogPathCandidates[i];
+		syslogPath = syslogPathCandidates[i];
+		syslogFileStream.open(syslogPath, ios::in);
+		if (syslogFileStream.good())
 			break;
-		}
 	}
-	cppcut_assert_not_equal(-1, fp, cut_message("%s", strerror(errno)));
+	cppcut_assert_equal(true, syslogFileStream.good(),
+	                    cut_message("Failed to find a syslog file."));
+	syslogFileStream.seekg(0, ios_base::end);
 
-	// move the file pointer to the tail
-	cppcut_assert_not_equal((loff_t)-1, lseek(fp, 0, SEEK_END),
-	                        cut_message("%s", strerror(errno)));
 	int fd = inotify_init();
 	inotify_add_watch(fd, syslogPath,
 	                  IN_MODIFY|IN_ATTRIB|IN_DELETE_SELF|IN_MOVE_SELF);
@@ -248,17 +246,13 @@ static void _assertSyslogOutput(const char *envMessage, const char *outMessage,
 		} else {
 			break;
 		}
-		char syslogMessage[DEF];
-		memset(syslogMessage, 0, sizeof(syslogMessage));
-		if (!read(fp, syslogMessage, DEF)){
-			cut_fail("Error occur in test_syslogoutput. Failed to read syslog.");
-		}
-		if (strstr(syslogMessage, expectedMsg.c_str()) != NULL) {
+		string line;
+		getline(syslogFileStream, line);
+		if (strstr(line.c_str(), expectedMsg.c_str()) != NULL) {
 			output = true;
 			break;
 		}
 	}
-	close(fp);
 	close(fd);
  
 	if (output != expectOut){
