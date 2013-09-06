@@ -59,9 +59,11 @@ void Logger::log(LogLevel level, const char *fileName, int lineNumber,
 	lock.readLock();
 	if (syslogoutputFlag) {
 		connectSyslogIfNeeded();
+		lock.unlock();
 		syslog(LOG_INFO, "%s%s", header.c_str(), body.c_str());
+	} else {
+		lock.unlock();
 	}
-	lock.unlock();
 }
 
 // ----------------------------------------------------------------------------
