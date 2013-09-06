@@ -123,8 +123,8 @@ static void _assertWaitSyslogUpdate(int fd, int timeout, int startTime)
 	cppcut_assert_not_equal(0, ret, cut_message("timed out"));
 
 	char buf[INOTIFY_EVT_BUF_SIZE];
-	cppcut_assert_not_equal((ssize_t)-1,
-	                        read(fd, buf, sizeof(buf)),
+	ssize_t readRet = read(fd, buf, sizeof(buf));
+	cppcut_assert_not_equal((ssize_t)-1, readRet,
 	                        cut_message("%s", strerror(errno)));
 }
 #define assertWaitSyslogUpdate(F,T,S) cut_trace(_assertWaitSyslogUpdate(F,T,S))
