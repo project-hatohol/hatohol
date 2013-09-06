@@ -25,6 +25,7 @@
 #include <syslog.h>
 #include <sys/inotify.h>
 #include <fcntl.h>
+#include <errno.h>
 #include <unistd.h>
 #include <poll.h>
 #include <glib.h>
@@ -222,8 +223,8 @@ static void _assertSyslogOutput(const char *envMessage, const char *outMessage,
 	if (fp == -1){
 		cut_fail("Error occur in test_syslogoutput. Failed to open syslog.");
 	}
-	char hoge[DEF];
-        while (read(fp, hoge, DEF));
+	cppcut_assert_not_equal((loff_t)-1, lseek(fp, 0, SEEK_END),
+	                        cut_message("%s", strerror(errno)));
 	int fd = inotify_init();
 	inotify_add_watch(fd, syslogPath,
 				   IN_MODIFY|IN_ATTRIB|IN_DELETE_SELF|IN_MOVE_SELF);
