@@ -129,6 +129,63 @@ static void _assertWaitSyslogUpdate(int fd, int timeout, int startTime)
 }
 #define assertWaitSyslogUpdate(F,T,S) cut_trace(_assertWaitSyslogUpdate(F,T,S))
 
+static const char* LogHeaders[MLPL_NUM_LOG_LEVEL] = {
+	"BUG", "CRIT", "ERR", "WARN", "INFO", "DBG",
+};
+
+static void _assertSyslogOutput(const char *envMessage, const char *outMessage,
+                                bool shouldLog)
+{
+	LogLevel level = MLPL_LOG_INFO;
+	const char *fileName = "test file";
+	int lineNumber = 1;
+	string expectedMsg =
+	   StringUtils::sprintf("[%s] <%s:%d> ",
+	                        LogHeaders[level], fileName, lineNumber);
+	expectedMsg += envMessage;
+
+	const char *syslogPathCandidates[] = {
+		"/var/log/syslog",      //ubuntu
+		"/var/log/messages",    //CentOS
+	};
+	const size_t numSyslogPathCandidates =
+	   sizeof(syslogPathCandidates) / sizeof(const char *);
+	
+	const char *syslogPath = NULL;
+	ifstream syslogFileStream;
+	for (size_t i = 0; i < numSyslogPathCandidates; i++){
+		syslogPath = syslogPathCandidates[i];
+		syslogFileStream.open(syslogPath, ios::in);
+		if (syslogFileStream.good())
+			break;
+	}
+	cppcut_assert_equal(true, syslogFileStream.good(),
+	                    cut_message("Failed to find a syslog file."));
+	syslogFileStream.seekg(0, ios_base::end);
+
+	int fd = inotify_init();
+	inotify_add_watch(fd, syslogPath,
+	                  IN_MODIFY|IN_ATTRIB|IN_DELETE_SELF|IN_MOVE_SELF);
+	Logger::enableSyslogOutput();
+	Logger::log(level, fileName, lineNumber,outMessage);
+	int startTime = time(NULL) * 1000;
+	bool found = false;
+	for (;;) {
+		static const int TIMEOUT = 1000; // millisecond
+		assertWaitSyslogUpdate(fd, TIMEOUT, startTime);
+		string line;
+		getline(syslogFileStream, line);
+		if (line.find(expectedMsg, 0) != string::npos) {
+			found = true;
+			break;
+		} else if (!shouldLog)
+			break;
+	}
+	close(fd);
+	cppcut_assert_equal(shouldLog, found);
+}
+#define assertSyslogOutput(EM,OM,EXP) cut_trace(_assertSyslogOutput(EM,OM,EXP))
+
 void cut_teardown(void)
 {
 	if (g_standardOutput) {
@@ -207,63 +264,6 @@ void test_envLevelBUG(void)
 	assertLogOutput("BUG", "CRIT", false);
 	assertLogOutput("BUG", "BUG",  true);
 }
-
-static const char* LogHeaders [MLPL_NUM_LOG_LEVEL] = {
-	"BUG", "CRIT", "ERR", "WARN", "INFO", "DBG",
-};
-
-static void _assertSyslogOutput(const char *envMessage, const char *outMessage,
-                                bool shouldLog)
-{
-	LogLevel level = MLPL_LOG_INFO;
-	const char *fileName = "test file";
-	int lineNumber = 1;
-	string expectedMsg =
-	   StringUtils::sprintf("[%s] <%s:%d> ",
-	                        LogHeaders[level], fileName, lineNumber);
-	expectedMsg += envMessage;
-
-	const char *syslogPathCandidates[] = {
-		"/var/log/syslog",      //ubuntu
-		"/var/log/messages",    //CentOS
-	};
-	const size_t numSyslogPathCandidates =
-	   sizeof(syslogPathCandidates) / sizeof(const char *);
-	
-	const char *syslogPath = NULL;
-	ifstream syslogFileStream;
-	for (size_t i = 0; i < numSyslogPathCandidates; i++){
-		syslogPath = syslogPathCandidates[i];
-		syslogFileStream.open(syslogPath, ios::in);
-		if (syslogFileStream.good())
-			break;
-	}
-	cppcut_assert_equal(true, syslogFileStream.good(),
-	                    cut_message("Failed to find a syslog file."));
-	syslogFileStream.seekg(0, ios_base::end);
-
-	int fd = inotify_init();
-	inotify_add_watch(fd, syslogPath,
-	                  IN_MODIFY|IN_ATTRIB|IN_DELETE_SELF|IN_MOVE_SELF);
-	Logger::enableSyslogOutput();
-	Logger::log(level, fileName, lineNumber,outMessage);
-	int startTime = time(NULL) * 1000;
-	bool found = false;
-	for (;;) {
-		static const int TIMEOUT = 1000; // millisecond
-		assertWaitSyslogUpdate(fd, TIMEOUT, startTime);
-		string line;
-		getline(syslogFileStream, line);
-		if (line.find(expectedMsg, 0) != string::npos) {
-			found = true;
-			break;
-		} else if (!shouldLog)
-			break;
-	}
-	close(fd);
-	cppcut_assert_equal(shouldLog, found);
-}
-#define assertSyslogOutput(EM,OM,EXP) cut_trace(_assertSyslogOutput(EM,OM,EXP))
 
 void test_syslogoutput(void)
 {
