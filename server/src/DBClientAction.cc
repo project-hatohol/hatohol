@@ -21,6 +21,7 @@
 #include "DBAgentFactory.h"
 #include "DBClientAction.h"
 #include "DBClientUtils.h"
+#include "DBClientHatohol.h"
 #include "MutexLock.h"
 
 using namespace mlpl;
@@ -28,8 +29,10 @@ using namespace mlpl;
 const char *TABLE_NAME_ACTIONS     = "actions";
 const char *TABLE_NAME_ACTION_LOGS = "action_logs";
 
-int DBClientAction::ACTION_DB_VERSION = 1;
-const char *DBClientAction::DEFAULT_DB_NAME = "action";
+// The tables actions and action_logs are in the same DB as tables 
+// for DBClientConfig. So the DB name and version must be shared.
+int DBClientAction::ACTION_DB_VERSION = DBClientConfig::CONFIG_DB_VERSION;
+const char *DBClientAction::DEFAULT_DB_NAME = DBClientConfig::DEFAULT_DB_NAME;
 
 static const ColumnDef COLUMN_DEF_ACTIONS[] = {
 {
