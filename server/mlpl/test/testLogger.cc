@@ -204,18 +204,18 @@ static void _assertSyslogOutput(const char *envMessage, const char *outMessage,
 	                        LogHeaders[level], fileName, lineNumber);
 	expectedMsg += envMessage;
 
-	const char *syslogPlace[] = {
+	const char *syslogPathCandidates[] = {
 		"/var/log/syslog",      //ubuntu
 		"/var/log/messages",    //CentOS
 	};
-	const size_t syslogPlacePattern =
-	   sizeof(syslogPlace) / sizeof(const char *);
+	const size_t syslogPathCandidatesPattern =
+	   sizeof(syslogPathCandidates) / sizeof(const char *);
 	
 	const char *syslogPath = NULL;
 	int fp;
-	for (size_t i = 0; i < syslogPlacePattern; i++){
-		if ((fp = open(syslogPlace[i], O_RDONLY)) != -1){
-			syslogPath = syslogPlace[i];
+	for (size_t i = 0; i < syslogPathCandidatesPattern; i++){
+		if ((fp = open(syslogPathCandidates[i], O_RDONLY)) != -1){
+			syslogPath = syslogPathCandidates[i];
 			break;
 		}
 	}
