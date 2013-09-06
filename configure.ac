@@ -93,7 +93,6 @@ if test "$ac_cv_use_cutter" != "no"; then
   have_cutter=yes
 fi
 
-
 dnl **************************************************************
 dnl Results
 dnl **************************************************************
@@ -101,6 +100,11 @@ dnl **************************************************************
 AC_OUTPUT([
 Makefile
 hatohol.spec
+data/init.d/Makefile
+data/init.d/debian/hatohol.debian
+data/init.d/debian/Makefile
+data/init.d/centos/hatohol.centos
+data/init.d/centos/Makefile
 server/Makefile
 server/mlpl/Makefile
 server/mlpl/src/Makefile

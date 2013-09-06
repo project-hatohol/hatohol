@@ -1,3 +1,7 @@
+2013-08-21  Noriki Nakamura <noriki.nakamura@miraclelinux.com>
+
+	[Server] Be daemon
+
 2013-07-12  Kazuhiro Yamato <kazuhiro.yamato@miraclelinux.com>
 
 	[Server] Replace DBAgent in DBClientConfig with DBAgentMySQL from DBAgentSQLite3. (#25)

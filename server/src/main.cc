@@ -22,6 +22,7 @@
 #include <cstring>
 #include <glib.h>
 #include <errno.h>
+#include <unistd.h>
 
 #include <string>
 #include <vector>
@@ -87,6 +88,40 @@ static void setupGizmoForExit(gpointer data)
 	g_io_add_watch(ioch, G_IO_HUP, exitFunc, data);
 }
 
+static bool isForegroundOptionIncluded(CommandLineArg &cmdArg)
+{
+	for (size_t i = 0; i < cmdArg.size(); i++) {
+		string &arg = cmdArg[i];
+		if (arg == "--foreground")
+			return true;
+	}
+
+	return false;
+}
+
+static bool daemonize(void)
+{
+	pid_t pid;
+	const char *pid_file_path = "/var/run/hatohol.pid";
+	FILE *pid_file;
+	pid_file = fopen(pid_file_path, "w+");
+
+	if (pid_file == NULL) {
+		MLPL_ERR("Failed to record pid file\n");
+		return false;
+	}
+
+	if (daemon(0, 0) == 0) {
+		pid = getpid();
+		fprintf(pid_file, "%d\n", pid);
+		fclose(pid_file);
+		return true;
+	} else {
+		fclose(pid_file);
+		return false;
+	}
+}
+
 int mainRoutine(int argc, char *argv[])
 {
 #ifndef GLIB_VERSION_2_36
@@ -100,6 +135,12 @@ int mainRoutine(int argc, char *argv[])
 	CommandLineArg cmdArg;
 	for (int i = 1; i < argc; i++)
 		cmdArg.push_back(argv[i]);
+	if (!isForegroundOptionIncluded(cmdArg)){
+		if (!daemonize()) {
+			MLPL_ERR("Can't start daemon process\n");
+			return EXIT_FAILURE;
+		}
+	}
 	if (!DBClientConfig::parseCommandLineArgument(cmdArg))
 		return EXIT_FAILURE;
 

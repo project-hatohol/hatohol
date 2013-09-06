@@ -1,0 +1,36 @@
+#!/bin/sh
+# chkconfig: 2345 91 91
+# description: Hatohol is a unified manager of
+#              monitoring software.
+
+. /etc/rc.d/init.d/functions
+
+PATH=/sbin:/bin:/usr/sbin:/usr/bin:/usr/local/sbin
+NAME=hatohol
+exec_prefix=@prefix@
+PROG=@sbindir@/$NAME
+OPTIONS="--config-db-server localhost"
+PROGNAME=`basename $PROG`
+
+[ -f $PROG ]|| exit 0
+
+case "$1" in
+	start)
+		echo -n $"Starting $PROGNAME: "
+		daemon $PROG $OPTIONS
+		echo
+		;;
+	stop)
+		echo -n $"Stopping $PROGNAME: "
+		killproc $PROGNAME
+		echo
+		;;
+	status)
+		status $PROGNAME
+		;;
+	*)
+		echo $"Usage: $PROGNAME {start|stop|status}" >&2
+		exit 1
+		;;
+esac
+exit 0

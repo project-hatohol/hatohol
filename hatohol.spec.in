@@ -61,9 +61,16 @@ rm -rf %{buildroot}
 rm -f %{buildroot}/%{_libdir}/*.la
 rm -f %{buildroot}/%{_libdir}/*.a
 
-%post -p /sbin/ldconfig
+%post
+/sbin/ldconfig
+cp %{_datadir}/hatohol/hatohol.centos /etc/init.d/hatohol
+chmod +x /etc/init.d/hatohol
+/sbin/chkconfig --add hatohol
 
-%postun -p /sbin/ldconfig
+%postun
+/sbin/ldconfig
+/sbin/service hatohol stop
+/sbin/chkconfig --del hatohol
 
 %clean
 rm -rf %{buildroot}
@@ -75,6 +82,8 @@ rm -rf %{buildroot}
 %{_sbindir}/*
 %{_libdir}/lib*.so.*
 %{_datadir}/hatohol/hatohol-config.dat.example
+%{_datadir}/hatohol/hatohol.centos
+%{_datadir}/hatohol/hatohol.debian
 
 %files client
 %defattr(-,root,root,-)
