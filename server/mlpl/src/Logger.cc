@@ -34,7 +34,7 @@ static const char* LogHeaders [MLPL_NUM_LOG_LEVEL] = {
 
 LogLevel Logger::m_currLogLevel = MLPL_LOG_LEVEL_NOT_SET;
 pthread_rwlock_t Logger::m_rwlock = PTHREAD_RWLOCK_INITIALIZER;
-bool Logger::syslogoutput_flag = true;
+bool Logger::syslogoutputFlag = true;
 ReadWriteLock Logger::lock;
 const char *Logger::LEVEL_ENV_VAR_NAME = "MLPL_LOGGER_LEVEL";
 
@@ -55,7 +55,7 @@ void Logger::log(LogLevel level, const char *fileName, int lineNumber,
 	va_end(ap);
 
 	lock.readLock();
-	if (syslogoutput_flag) {
+	if (syslogoutputFlag) {
 		string msg = 
 		   StringUtils::sprintf("[%s] <%s:%d> ", LogHeaders[level],
 		                        fileName, lineNumber);
@@ -96,14 +96,14 @@ bool Logger::shouldLog(LogLevel level)
 void Logger::enableSyslogOutput(void)
 {
 	lock.writeLock();
-	syslogoutput_flag = true;
+	syslogoutputFlag = true;
 	lock.unlock();
 }
 
 void Logger::disableSyslogOuputput(void)
 {
 	lock.writeLock();
-	syslogoutput_flag = false;
+	syslogoutputFlag = false;
 	lock.unlock();
 }
 

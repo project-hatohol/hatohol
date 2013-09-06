@@ -50,7 +50,7 @@ protected:
 private:
 	static LogLevel m_currLogLevel;
 	static pthread_rwlock_t m_rwlock;
-	static bool syslogoutput_flag;
+	static bool syslogoutputFlag;
 	static ReadWriteLock lock;
 };
 
