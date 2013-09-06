@@ -129,13 +129,13 @@ static void _assertWaitSyslogUpdate(int fd, int timeout, int startTime)
 }
 #define assertWaitSyslogUpdate(F,T,S) cut_trace(_assertWaitSyslogUpdate(F,T,S))
 
-static const char* LogHeaders[MLPL_NUM_LOG_LEVEL] = {
-	"BUG", "CRIT", "ERR", "WARN", "INFO", "DBG",
-};
-
 static void _assertSyslogOutput(const char *envMessage, const char *outMessage,
                                 bool shouldLog)
 {
+	static const char* LogHeaders[MLPL_NUM_LOG_LEVEL] = {
+		"BUG", "CRIT", "ERR", "WARN", "INFO", "DBG",
+	};
+
 	LogLevel level = MLPL_LOG_INFO;
 	const char *fileName = "test file";
 	int lineNumber = 1;
