@@ -192,7 +192,6 @@ static const char* LogHeaders [MLPL_NUM_LOG_LEVEL] = {
 
 #define DEF 1024
 #define TIMEOUT 1
-#define syslogPlacePattern 3
 
 static void _assertSyslogOutput(const char *envMessage, const char *outMessage,
                              bool expectOut)
@@ -206,10 +205,13 @@ static void _assertSyslogOutput(const char *envMessage, const char *outMessage,
 	        lineNumber);
 	strcat(consoleMessage, envMessage);
 
-	char syslogPlace[syslogPlacePattern][32] = {
+	const char *syslogPlace[] = {
 		"/var/log/messages",    //CentOS
 		"/var/log/syslog",      //ubuntu
-		"/var/adm/messages"};   //Slackware
+		"/var/adm/messages",    //Slackware
+	};
+	const size_t syslogPlacePattern =
+	   sizeof(syslogPlace) / sizeof(const char *);
 	
 	int kindOfOS = 0;
 	int fp;
