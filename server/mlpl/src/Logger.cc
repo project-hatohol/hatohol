@@ -53,8 +53,7 @@ void Logger::log(LogLevel level, const char *fileName, int lineNumber,
 	string body = StringUtils::sprintf(fmt, ap);
 	va_end(ap);
 
-	fputs(header.c_str(), stderr);
-	fputs(body.c_str(), stderr);
+	fprintf(stderr, "%s%s", header.c_str(), body.c_str());
 
 	lock.readLock();
 	if (syslogoutputFlag) {
