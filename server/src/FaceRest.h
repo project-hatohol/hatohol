@@ -30,6 +30,7 @@ public:
 	static int API_VERSION_TRIGGERS;
 	static int API_VERSION_EVENTS;
 	static int API_VERSION_ITEMS;
+	static int API_VERSION_ACTIONS;
 
 	static void init(void);
 	FaceRest(CommandLineArg &cmdArg);
@@ -79,6 +80,9 @@ protected:
 	static void handlerGetItems
 	  (SoupServer *server, SoupMessage *msg, const char *path,
 	   GHashTable *query, SoupClientContext *client, HandlerArg *arg);
+	static void handlerGetActions
+	  (SoupServer *server, SoupMessage *msg, const char *path,
+	   GHashTable *query, SoupClientContext *client, HandlerArg *arg);
 
 private:
 	static const char *pathForGetOverview;
@@ -86,6 +90,7 @@ private:
 	static const char *pathForGetTriggers;
 	static const char *pathForGetEvents;
 	static const char *pathForGetItems;
+	static const char *pathForGetActions;
 
 	guint       m_port;
 	SoupServer *m_soupServer;
