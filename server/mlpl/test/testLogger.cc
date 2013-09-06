@@ -209,12 +209,12 @@ static void _assertSyslogOutput(const char *envMessage, const char *outMessage,
 		"/var/log/syslog",      //ubuntu
 		"/var/log/messages",    //CentOS
 	};
-	const size_t syslogPathCandidatesPattern =
+	const size_t numSyslogPathCandidates =
 	   sizeof(syslogPathCandidates) / sizeof(const char *);
 	
 	const char *syslogPath = NULL;
 	ifstream syslogFileStream;
-	for (size_t i = 0; i < syslogPathCandidatesPattern; i++){
+	for (size_t i = 0; i < numSyslogPathCandidates; i++){
 		syslogPath = syslogPathCandidates[i];
 		syslogFileStream.open(syslogPath, ios::in);
 		if (syslogFileStream.good())
