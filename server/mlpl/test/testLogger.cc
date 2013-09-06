@@ -186,10 +186,6 @@ void test_envLevelBUG(void)
 	assertLogOutput("BUG", "BUG",  true);
 }
 
-
-
-
-
 static const char* LogHeaders [MLPL_NUM_LOG_LEVEL] = {
 	"BUG", "CRIT", "ERR", "WARN", "INFO", "DBG",
 };
@@ -201,11 +197,9 @@ static const char* LogHeaders [MLPL_NUM_LOG_LEVEL] = {
 static void _assertSyslogOutput(const char *envMessage, const char *outMessage,
                              bool expectOut)
 {
-
 	LogLevel level = MLPL_LOG_INFO;
 	const char *fileName = "test file";
 	int lineNumber = 1;
-	
 	char consoleMessage[DEF];
 	memset(consoleMessage, '\0', sizeof(consoleMessage));
 	sprintf(consoleMessage, "[%s] <%s:%d> ", LogHeaders[level], fileName,
@@ -225,25 +219,16 @@ static void _assertSyslogOutput(const char *envMessage, const char *outMessage,
 			break;
 		}
 	}
-
 	if (fp == -1){
 		cut_fail("Error occur in test_syslogoutput. Failed to open syslog.");
 	}
-
 	char hoge[DEF];
         while (read(fp, hoge, DEF));
-	
-	
 	int fd = inotify_init();
 	inotify_add_watch(fd, syslogPlace[kindOfOS], 
 				   IN_MODIFY|IN_ATTRIB|IN_DELETE_SELF|IN_MOVE_SELF);
-
-
 	Logger::enableSyslogOutput();
-	
-
 	Logger::log(level, fileName, lineNumber,outMessage);
-
 	time_t start = time(NULL);
 	bool output = false;
 	for (;;) {
@@ -259,31 +244,24 @@ static void _assertSyslogOutput(const char *envMessage, const char *outMessage,
 		} else {
 			break;
 		}
-		
 		char syslogMessage[DEF];
 		memset(syslogMessage, 0, sizeof(syslogMessage));
-
 		if (!read(fp, syslogMessage, DEF)){
 			cut_fail("Error occur in test_syslogoutput. Failed to read syslog.");
 		}
-		
 		if (strstr(syslogMessage, consoleMessage) != NULL) {
 			output = true;
 			break;
 		}
 	}
-	
 	close(fp);
 	close(fd);
  
 	if (output != expectOut){
 		cut_fail("Error occur in test_syslogoutput. Don't output expect message in syslog.");
 	}
-	
 }
 #define assertSyslogOutput(EM,OM,EXP) cut_trace(_assertSyslogOutput(EM,OM,EXP))
-
-
 
 void test_syslogoutput(void)
 {
