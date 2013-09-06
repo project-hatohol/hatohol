@@ -21,7 +21,7 @@
 #define DBClientConnectable_h
 
 #include <list>
-#include "DBClient.h"
+#include "DBClientConnectableBase.h"
 #include "DBAgentFactory.h"
 #include "MutexLock.h"
 
@@ -32,7 +32,7 @@
 // a drived class. Such behavior is undesirable.
 
 template<DBDomainId DB_DOMAIN_ID>
-class DBClientConnectable : public DBClient {
+class DBClientConnectable : public DBClientConnectableBase {
 public:
 	static void reset(bool deepReset = false)
 	{
@@ -80,7 +80,7 @@ public:
 		if (!m_initialized) {
 			// The setup function: dbSetupFunc() is called from
 			// the creation of DBAgent instance below.
-			DefaultDBInfo &dbInfo = getDefaultDBInfo();
+			DefaultDBInfo &dbInfo = getDefaultDBInfo(DB_DOMAIN_ID);
 			dbInfo.dbSetupFuncArg->connectInfo = connectInfo;
 			DBAgent::addSetupFunction(
 			  DB_DOMAIN_ID, dbSetupFunc,
@@ -103,41 +103,9 @@ public:
 	}
 
 protected:
-	struct DefaultDBInfo {
-		const char     *dbName;
-		DBSetupFuncArg *dbSetupFuncArg;
-	};
-	typedef map<DBDomainId, DefaultDBInfo>      DefaultDBInfoMap;
-	typedef typename DefaultDBInfoMap::iterator DefaultDBInfoMapIterator;
-
 	static DBConnectInfo &getDBConnectInfoMaster(void)
 	{
 		return m_connectInfoMaster;
-	}
-
-	static void addDefaultDBInfo(DBDomainId domainId,
-	                             const char *defaultDBName,
-	                             DBSetupFuncArg *dbSetupFuncArg)
-	{
-		pair<DefaultDBInfoMapIterator, bool> result;
-		DefaultDBInfo dbInfo = {defaultDBName, dbSetupFuncArg};
-		m_dbInfoLock.writeLock();
-		result = m_defaultDBInfoMap.insert(
-		  pair<DBDomainId, DefaultDBInfo>(domainId, dbInfo));
-		m_dbInfoLock.unlock();
-		HATOHOL_ASSERT(result.second,
-		               "Failed to insert: Domain ID: %d", domainId);
-	}
-
-	static DefaultDBInfo &getDefaultDBInfo(void)
-	{
-		DBDomainId domainId = DB_DOMAIN_ID;
-		m_dbInfoLock.readLock();
-		DefaultDBInfoMapIterator it = m_defaultDBInfoMap.find(domainId);
-		m_dbInfoLock.unlock();
-		HATOHOL_ASSERT(it != m_defaultDBInfoMap.end(),
-		               "Not found default DB info: %d", domainId);
-		return it->second;
 	}
 
 	static void resetDBInitializedFlags(void)
@@ -147,7 +115,7 @@ protected:
 
 	static void initDefaultDBConnectInfoMaster(void)
 	{
-		DefaultDBInfo &dbInfo = getDefaultDBInfo();
+		DefaultDBInfo &dbInfo = getDefaultDBInfo(DB_DOMAIN_ID);
 		m_connectInfoMaster.host     = "localhost";
 		m_connectInfoMaster.port     = 0; // default port
 		m_connectInfoMaster.user     = "hatohol";
@@ -170,9 +138,7 @@ protected:
 
 private:
 	static bool m_initialized;
-	static DefaultDBInfoMap m_defaultDBInfoMap;
 	static mlpl::MutexLock m_mutex;
-	static mlpl::ReadWriteLock m_dbInfoLock;
 
 	// Contents in connectInfo is set to those in connectInfoMaseter
 	// on reset(). However, connectInfoMaster is never changed after
@@ -183,11 +149,6 @@ private:
 };
 
 template<DBDomainId DID> mlpl::MutexLock DBClientConnectable<DID>::m_mutex;
-template<DBDomainId DID> mlpl::ReadWriteLock
-   DBClientConnectable<DID>::m_dbInfoLock;
-template<DBDomainId DID>
-  typename DBClientConnectable<DID>::DefaultDBInfoMap
-    DBClientConnectable<DID>::m_defaultDBInfoMap;
 template<DBDomainId DID> bool DBClientConnectable<DID>::m_initialized = false;
 template<DBDomainId DID> DBConnectInfo DBClientConnectable<DID>::m_connectInfo;
 template<DBDomainId DID>
