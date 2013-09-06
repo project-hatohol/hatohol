@@ -199,11 +199,10 @@ static void _assertSyslogOutput(const char *envMessage, const char *outMessage,
 	LogLevel level = MLPL_LOG_INFO;
 	const char *fileName = "test file";
 	int lineNumber = 1;
-	char consoleMessage[DEF];
-	memset(consoleMessage, '\0', sizeof(consoleMessage));
-	sprintf(consoleMessage, "[%s] <%s:%d> ", LogHeaders[level], fileName,
-	        lineNumber);
-	strcat(consoleMessage, envMessage);
+	string expectedMsg =
+	   StringUtils::sprintf("[%s] <%s:%d> ",
+	                        LogHeaders[level], fileName, lineNumber);
+	expectedMsg += envMessage;
 
 	const char *syslogPlace[] = {
 		"/var/log/syslog",      //ubuntu
@@ -250,7 +249,7 @@ static void _assertSyslogOutput(const char *envMessage, const char *outMessage,
 		if (!read(fp, syslogMessage, DEF)){
 			cut_fail("Error occur in test_syslogoutput. Failed to read syslog.");
 		}
-		if (strstr(syslogMessage, consoleMessage) != NULL) {
+		if (strstr(syslogMessage, expectedMsg.c_str()) != NULL) {
 			output = true;
 			break;
 		}
