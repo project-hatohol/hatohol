@@ -248,7 +248,7 @@ static void _assertSyslogOutput(const char *envMessage, const char *outMessage,
 		}
 		string line;
 		getline(syslogFileStream, line);
-		if (strstr(line.c_str(), expectedMsg.c_str()) != NULL) {
+		if (line.find(expectedMsg, 0) != string::npos) {
 			output = true;
 			break;
 		}
