@@ -212,11 +212,11 @@ static void _assertSyslogOutput(const char *envMessage, const char *outMessage,
 	const size_t syslogPlacePattern =
 	   sizeof(syslogPlace) / sizeof(const char *);
 	
-	int kindOfOS = 0;
+	const char *syslogPath = NULL;
 	int fp;
 	for (int i = 0; i < syslogPlacePattern; i++){
 		if ((fp = open(syslogPlace[i], O_RDONLY)) != -1){
-			kindOfOS = i;
+			syslogPath = syslogPlace[i];
 			break;
 		}
 	}
@@ -226,7 +226,7 @@ static void _assertSyslogOutput(const char *envMessage, const char *outMessage,
 	char hoge[DEF];
         while (read(fp, hoge, DEF));
 	int fd = inotify_init();
-	inotify_add_watch(fd, syslogPlace[kindOfOS], 
+	inotify_add_watch(fd, syslogPath,
 				   IN_MODIFY|IN_ATTRIB|IN_DELETE_SELF|IN_MOVE_SELF);
 	Logger::enableSyslogOutput();
 	Logger::log(level, fileName, lineNumber,outMessage);
