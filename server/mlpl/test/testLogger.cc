@@ -197,6 +197,8 @@ static const char* LogHeaders [MLPL_NUM_LOG_LEVEL] = {
 static void _assertSyslogOutput(const char *envMessage, const char *outMessage,
                              bool expectOut)
 {
+	static const size_t INOTIFY_EVT_BUF_SIZE =
+	  sizeof(struct inotify_event) + NAME_MAX + 1;
 	LogLevel level = MLPL_LOG_INFO;
 	const char *fileName = "test file";
 	int lineNumber = 1;
@@ -238,10 +240,10 @@ static void _assertSyslogOutput(const char *envMessage, const char *outMessage,
 		fds[0].events = POLLIN;
 		fds[0].revents = 0;
 		if (poll(fds, 1 ,(TIMEOUT - time(NULL) + start)*1000) > 0){
-			char buf[DEF];
-		        if (!read(fd, buf, sizeof(buf))){
-				cut_fail("Error occur in test_syslogoutput. Failed to read buf.");
-			}
+			char buf[INOTIFY_EVT_BUF_SIZE];
+			cppcut_assert_not_equal(
+			  -1, read(fd, buf, sizeof(buf));
+			  cut_message("%s", strerror(errno)));
 		} else {
 			break;
 		}
