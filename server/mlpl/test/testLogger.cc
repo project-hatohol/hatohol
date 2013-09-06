@@ -193,7 +193,7 @@ static const char* LogHeaders [MLPL_NUM_LOG_LEVEL] = {
 };
 
 static void _assertSyslogOutput(const char *envMessage, const char *outMessage,
-                             bool expectOut)
+                                bool shouldLog)
 {
 	static const size_t INOTIFY_EVT_BUF_SIZE =
 	  sizeof(struct inotify_event) + NAME_MAX + 1;
@@ -230,7 +230,7 @@ static void _assertSyslogOutput(const char *envMessage, const char *outMessage,
 	Logger::enableSyslogOutput();
 	Logger::log(level, fileName, lineNumber,outMessage);
 	time_t start = time(NULL);
-	bool output = false;
+	bool found = false;
 	for (;;) {
 		static const int TIMEOUT = 1000; // millisecond
 		struct pollfd fds[1];
@@ -249,15 +249,12 @@ static void _assertSyslogOutput(const char *envMessage, const char *outMessage,
 		string line;
 		getline(syslogFileStream, line);
 		if (line.find(expectedMsg, 0) != string::npos) {
-			output = true;
+			found = true;
 			break;
 		}
 	}
 	close(fd);
- 
-	if (output != expectOut){
-		cut_fail("Error occur in test_syslogoutput. Don't output expect message in syslog.");
-	}
+	cppcut_assert_equal(shouldLog, found);
 }
 #define assertSyslogOutput(EM,OM,EXP) cut_trace(_assertSyslogOutput(EM,OM,EXP))
 
