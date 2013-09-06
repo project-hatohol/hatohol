@@ -26,6 +26,7 @@
 #include "NamedPipe.h"
 #include "ResidentProtocol.h"
 #include "ResidentCommunicator.h"
+#include "ActionExecArgMaker.h"
 
 using namespace std;
 
@@ -176,37 +177,6 @@ struct ActionManager::PrivateContext {
 	// It's danger to use from a GLIB's event callback context or
 	// other thread, becuase DBClientAction is MT-thread unsafe.
 	DBClientAction dbAction;
-
-	// member for a command line parsing
-	SeparatorCheckerWithCallback separator;
-	bool inQuot;
-	bool byBackSlash;
-	string currWord;
-	StringVector *argVect;
-
-	PrivateContext(void)
-	: separator(" '\\"),
-	  inQuot(false),
-	  byBackSlash(false),
-	  argVect(NULL)
-	{
-	}
-
-	void resetParser(StringVector *_argVect)
-	{
-		inQuot = false;
-		byBackSlash = false;
-		currWord.clear();
-		argVect = _argVect;
-	}
-
-	void pushbackCurrWord(void)
-	{
-		if (currWord.empty())
-			return;
-		argVect->push_back(currWord);
-		currWord.clear();
-	}
 };
 
 ActorCollector ActionManager::PrivateContext::collector;
@@ -238,12 +208,6 @@ ActionManager::ActionManager(void)
 : m_ctx(NULL)
 {
 	m_ctx = new PrivateContext();
-	m_ctx->separator.setCallbackTempl<PrivateContext>
-	  (' ', separatorCallback, m_ctx);
-	m_ctx->separator.setCallbackTempl<PrivateContext>
-	  ('\'', separatorCallback, m_ctx);
-	m_ctx->separator.setCallbackTempl<PrivateContext>
-	  ('\\', separatorCallback, m_ctx);
 }
 
 ActionManager::~ActionManager()
@@ -267,27 +231,6 @@ void ActionManager::checkEvents(const EventInfoList &eventList)
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
-void ActionManager::separatorCallback(const char sep, PrivateContext *ctx)
-{
-	if (sep == ' ') {
-		if (ctx->inQuot)
-			ctx->currWord += ' ';
-		else
-			ctx->pushbackCurrWord();
-		ctx->byBackSlash = false;
-	} else if (sep == '\'') {
-		if (ctx->byBackSlash)
-			ctx->currWord += "'";
-		else
-			ctx->inQuot = !ctx->inQuot;
-		ctx->byBackSlash = false;
-	} else if (sep == '\\') {
-		if (ctx->byBackSlash)
-			ctx->currWord += '\\';
-		ctx->byBackSlash = !ctx->byBackSlash;
-	}
-}
-
 void ActionManager::runAction(const ActionDef &actionDef,
                               const EventInfo &eventInfo)
 {
@@ -298,33 +241,6 @@ void ActionManager::runAction(const ActionDef &actionDef,
 	} else {
 		HATOHOL_ASSERT(true, "Unknown type: %d\n", actionDef.type);
 	}
-}
-
-void ActionManager::makeExecArg(StringVector &argVect, const string &cmd)
-{
-	m_ctx->resetParser(&argVect);
-	ParsableString parsable(cmd);
-	while (!parsable.finished()) {
-		string word = parsable.readWord(m_ctx->separator);
-		m_ctx->currWord += word;
-		m_ctx->byBackSlash = false;
-	}
-	m_ctx->pushbackCurrWord();
-}
-
-void ActionManager::parseResidentCommand(
-  const string &command, string &path, string &option)
-{
-	size_t posSpace = command.find(' ');
-	if (posSpace == string::npos) {
-		path = command;
-		option.clear();
-		return;
-	}
-	
-	path = string(command, 0, posSpace);
-	string optionRaw = string(command, posSpace);
-	option = StringUtils::stripBothEndsSpaces(optionRaw);
 }
 
 ActorInfo *ActionManager::spawn(const ActionDef &actionDef, const gchar **argv,
@@ -392,7 +308,8 @@ void ActionManager::execCommandAction(const ActionDef &actionDef,
 	HATOHOL_ASSERT(actionDef.type == ACTION_COMMAND,
 	               "Invalid type: %d\n", actionDef.type);
 	StringVector argVect;
-	makeExecArg(argVect, actionDef.command);
+	ActionExecArgMaker argMaker;
+	argMaker.makeExecArg(argVect, actionDef.command);
 	argVect.push_back(NUM_COMMNAD_ACTION_EVENT_ARG_MAGIC);
 	argVect.push_back(StringUtils::sprintf("%d", actionDef.id));
 	argVect.push_back(StringUtils::sprintf("%"PRIu32, eventInfo.serverId));
@@ -631,9 +548,9 @@ void ActionManager::gotNotifyEventAckCb(GIOStatus stat, SmartBuffer &sbuf,
 
 void ActionManager::sendParameters(ResidentInfo *residentInfo)
 {
-	parseResidentCommand(residentInfo->actionDef.command,
-	                     residentInfo->modulePath,
-	                     residentInfo->moduleOption);
+	ActionExecArgMaker::parseResidentCommand(
+	  residentInfo->actionDef.command, residentInfo->modulePath,
+	  residentInfo->moduleOption);
 	size_t bodyLen = RESIDENT_PROTO_PARAM_MODULE_PATH_LEN
 	                 + residentInfo->modulePath.size()
 	                 + RESIDENT_PROTO_PARAM_MODULE_OPTION_LEN
