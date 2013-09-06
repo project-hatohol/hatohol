@@ -220,9 +220,8 @@ static void _assertSyslogOutput(const char *envMessage, const char *outMessage,
 			break;
 		}
 	}
-	if (fp == -1){
-		cut_fail("Error occur in test_syslogoutput. Failed to open syslog.");
-	}
+	cppcut_assert_not_equal(-1, fp, cut_message("%s", strerror(errno)));
+
 	cppcut_assert_not_equal((loff_t)-1, lseek(fp, 0, SEEK_END),
 	                        cut_message("%s", strerror(errno)));
 	int fd = inotify_init();
