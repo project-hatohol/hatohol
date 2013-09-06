@@ -32,7 +32,7 @@ protected:
 		DBSetupFuncArg *dbSetupFuncArg;
 	};
 	typedef map<DBDomainId, DefaultDBInfo>      DefaultDBInfoMap;
-	typedef typename DefaultDBInfoMap::iterator DefaultDBInfoMapIterator;
+	typedef DefaultDBInfoMap::iterator DefaultDBInfoMapIterator;
 
 	static void addDefaultDBInfo(
 	  DBDomainId domainId, const char *defaultDBName,
