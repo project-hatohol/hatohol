@@ -227,7 +227,7 @@ static void _assertSyslogOutput(const char *envMessage, const char *outMessage,
 	                        cut_message("%s", strerror(errno)));
 	int fd = inotify_init();
 	inotify_add_watch(fd, syslogPath,
-				   IN_MODIFY|IN_ATTRIB|IN_DELETE_SELF|IN_MOVE_SELF);
+	                  IN_MODIFY|IN_ATTRIB|IN_DELETE_SELF|IN_MOVE_SELF);
 	Logger::enableSyslogOutput();
 	Logger::log(level, fileName, lineNumber,outMessage);
 	time_t start = time(NULL);
