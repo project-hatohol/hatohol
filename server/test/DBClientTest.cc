@@ -180,6 +180,81 @@ ItemInfo testItemInfo[] = {
 };
 size_t NumTestItemInfo = sizeof(testItemInfo) / sizeof(ItemInfo);
 
+ActionDef testActionDef[] = {
+{
+	0,                 // id (this filed is ignored)
+	ActionCondition(
+	  ACTCOND_SERVER_ID |
+	  ACTCOND_TRIGGER_STATUS,   // enableBits
+	  1,                        // serverId
+	  10,                       // hostId
+	  5,                        // hostGroupId
+	  3,                        // triggerId
+	  TRIGGER_STATUS_PROBLEM,   // triggerStatus
+	  TRIGGER_SEVERITY_INFO,    // triggerSeverity
+	  CMP_INVALID               // triggerSeverityCompType;
+	), // condition
+	ACTION_COMMAND,    // type
+	"",                // working dir
+	"/bin/hoge",       // command
+	300,               // timeout
+}, {
+	0,                 // id (this filed is ignored)
+	ActionCondition(
+	  ACTCOND_TRIGGER_STATUS,   // enableBits
+	  0,                        // serverId
+	  0,                        // hostId
+	  0,                        // hostGroupId
+	  0x12345,                  // triggerId
+	  TRIGGER_STATUS_PROBLEM,   // triggerStatus
+	  TRIGGER_SEVERITY_INFO,    // triggerSeverity
+	  CMP_EQ_GT                 // triggerSeverityCompType;
+	), // condition
+	ACTION_COMMAND,    // type
+	"/home/%%\"'@#!()+-~<>?:;",  // working dir
+	"/usr/libexec/w",  // command
+	30,                // timeout
+}, {
+	0,                 // id (this filed is ignored)
+	ActionCondition(
+	  ACTCOND_SERVER_ID | ACTCOND_HOST_ID | ACTCOND_HOST_GROUP_ID |
+	  ACTCOND_TRIGGER_ID | ACTCOND_TRIGGER_STATUS,   // enableBits
+	  100,                      // serverId
+	  0x7fffffffffffffff,       // hostId
+	  0x8000000000000000,       // hostGroupId
+	  0xfedcba9876543210,       // triggerId
+	  TRIGGER_STATUS_PROBLEM,   // triggerStatus
+	  TRIGGER_SEVERITY_WARN,    // triggerSeverity
+	  CMP_EQ                    // triggerSeverityCompType;
+	), // condition
+	ACTION_RESIDENT,   // type
+	"/tmp",            // working dir
+	"/usr/lib/liba.so",// command
+	60,                // timeout
+}, {
+	0,                 // id (this filed is ignored)
+	ActionCondition(
+	  ACTCOND_SERVER_ID | ACTCOND_HOST_ID | ACTCOND_HOST_GROUP_ID |
+	  ACTCOND_TRIGGER_ID | ACTCOND_TRIGGER_STATUS |
+	   ACTCOND_TRIGGER_SEVERITY,   // enableBits
+	  2,                        // serverId
+	  0x89abcdefffffffff,       // hostId
+	  0x8000000000000000,       // hostGroupId
+	  0xfedcba9876543210,       // triggerId
+	  TRIGGER_STATUS_OK,        // triggerStatus
+	  TRIGGER_SEVERITY_WARN,    // triggerSeverity
+	  CMP_EQ_GT                 // triggerSeverityCompType;
+	), // condition
+	ACTION_RESIDENT,   // type
+	"/home/hatohol",   // working dir
+	"/usr/lib/liba.so",// command
+	0,                 // timeout
+},
+};
+
+const size_t NumTestActionDef = sizeof(testActionDef) / sizeof(ActionDef);
+
+
 const TriggerInfo &searchTestTriggerInfo(const EventInfo &eventInfo)
 {
 	for (size_t i = 0; i < NumTestTriggerInfo; i++) {
