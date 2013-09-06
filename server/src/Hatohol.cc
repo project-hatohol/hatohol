@@ -45,14 +45,14 @@ using namespace mlpl;
 static MutexLock mutex;
 static bool initDone = false; 
 
-static void init(void)
+static void init(const CommandLineArg *arg)
 {
 	Utils::init();
 	HatoholException::init();
 
 	DBAgentSQLite3::init();
 	DBAgentMySQL::init();
-	DBClientConfig::init();
+	DBClientConfig::init(arg);
 	DBClientHatohol::init();
 	DBClientZabbix::init();
 	DBClientAction::init();
@@ -86,11 +86,11 @@ static void reset(void)
 	ActorCollector::reset();
 }
 
-void hatoholInit(void)
+void hatoholInit(const CommandLineArg *arg)
 {
 	mutex.lock();
 	if (!initDone) {
-		init();
+		init(arg);
 		initDone = true;
 	}
 	reset();

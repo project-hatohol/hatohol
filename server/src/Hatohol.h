@@ -20,7 +20,9 @@
 #ifndef Hatohol_h
 #define Hatohol_h
 
-void hatoholInit(void);
+#include "Utils.h"
+
+void hatoholInit(const CommandLineArg *arg = NULL);
 
 #endif // Hatohol_h
 
