@@ -213,7 +213,7 @@ static void _assertSyslogOutput(const char *envMessage, const char *outMessage,
 	
 	const char *syslogPath = NULL;
 	int fp;
-	for (int i = 0; i < syslogPlacePattern; i++){
+	for (size_t i = 0; i < syslogPlacePattern; i++){
 		if ((fp = open(syslogPlace[i], O_RDONLY)) != -1){
 			syslogPath = syslogPlace[i];
 			break;
