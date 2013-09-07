@@ -109,8 +109,7 @@ static void _assertLogOutput(const char *envLevel, const char *outLevel,
 }
 #define assertLogOutput(EL,OL,EXP) cut_trace(_assertLogOutput(EL,OL,EXP))
 
-static void _assertWaitSyslogUpdate(int fd, int expireTime, int startTime,
-                                    bool &timedOut)
+static void _assertWaitSyslogUpdate(int fd, int timeout, bool &timedOut)
 {
 	static const size_t INOTIFY_EVT_BUF_SIZE =
 	  sizeof(struct inotify_event) + NAME_MAX + 1;
@@ -118,7 +117,7 @@ static void _assertWaitSyslogUpdate(int fd, int expireTime, int startTime,
 	fds[0].fd = fd;
 	fds[0].events = POLLIN;
 	fds[0].revents = 0;
-	int ret = poll(fds, 1, expireTime);
+	int ret = poll(fds, 1, timeout);
 	if (ret == 0) {
 		timedOut = true;
 		return;
@@ -130,8 +129,7 @@ static void _assertWaitSyslogUpdate(int fd, int expireTime, int startTime,
 	cppcut_assert_not_equal((ssize_t)-1, readRet,
 	                        cut_message("%s", strerror(errno)));
 }
-#define assertWaitSyslogUpdate(F,T,S,O) \
-cut_trace(_assertWaitSyslogUpdate(F,T,S,O))
+#define assertWaitSyslogUpdate(F,T,O) cut_trace(_assertWaitSyslogUpdate(F,T,O))
 
 static void _assertSyslogOutput(const char *envMessage, const char *outMessage,
                                 bool shouldLog)
@@ -177,11 +175,14 @@ static void _assertSyslogOutput(const char *envMessage, const char *outMessage,
 	Logger::log(level, fileName, lineNumber,outMessage);
 
 	static const int TIMEOUT = 5 * 1000; // millisecond
-	int expireTime = time(NULL) * 1000 + TIMEOUT;
+	int expireClock = time(NULL) * 1000 + TIMEOUT;
 	bool found = false;
 	for (;;) {
 		bool timedOut = false;
-		assertWaitSyslogUpdate(fd, TIMEOUT, expireTime, timedOut);
+		int timeout = expireClock - time(NULL) * 1000;
+		if (timeout <= 0)
+			break;
+		assertWaitSyslogUpdate(fd, timeout, timedOut);
 		if (timedOut)
 			break;
 		string line;
