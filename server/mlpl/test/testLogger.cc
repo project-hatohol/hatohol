@@ -171,7 +171,7 @@ static void _assertSyslogOutput(const char *envMessage, const char *outMessage,
 	int startTime = time(NULL) * 1000;
 	bool found = false;
 	for (;;) {
-		static const int TIMEOUT = 1000; // millisecond
+		static const int TIMEOUT = 5 * 1000; // millisecond
 		assertWaitSyslogUpdate(fd, TIMEOUT, startTime);
 		string line;
 		getline(syslogFileStream, line);
