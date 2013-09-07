@@ -57,8 +57,8 @@ void ActorCollector::reset(void)
 {
 	// Some tests calls g_child_watch_add() and g_spawn_sync() families
 	// that internally call it. They set their own handler for SIGCHLD
-	// and makes ActorCollector's SIGCHILD handler invalid.
-	// So we reset here. This implies that a test uses ActorCollect
+	// and makes an ActorCollector's SIGCHLD handler invalid.
+	// So we reset it here. This implies that a test uses ActorCollect
 	// have to call hatoholInit() or ActorCollector::reset() in cut_setup().
 	registerSIGCHLD();
 
