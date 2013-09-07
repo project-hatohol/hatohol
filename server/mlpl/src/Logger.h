@@ -44,7 +44,7 @@ public:
 	                const char *fmt, ...);
 	static bool shouldLog(LogLevel level);
 	static void enableSyslogOutput(void);
-	static void disableSyslogOuputput(void);
+	static void disableSyslogOutput(void);
 protected:
 	static void setCurrLogLevel(void);
 	static void connectSyslogIfNeeded(void);

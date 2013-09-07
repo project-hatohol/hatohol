@@ -90,7 +90,7 @@ void Logger::enableSyslogOutput(void)
 	lock.unlock();
 }
 
-void Logger::disableSyslogOuputput(void)
+void Logger::disableSyslogOutput(void)
 {
 	lock.writeLock();
 	syslogoutputFlag = false;

@@ -173,7 +173,7 @@ static void _assertSyslogOutput(const char *envMessage, const char *outMessage,
 	if (shouldLog)
 		Logger::enableSyslogOutput();
 	else
-		Logger::disableSyslogOuputput();
+		Logger::disableSyslogOutput();
 	Logger::log(level, fileName, lineNumber,outMessage);
 
 	static const int TIMEOUT = 5 * 1000; // millisecond
