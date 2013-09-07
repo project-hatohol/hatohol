@@ -278,6 +278,10 @@ void test_envLevelBUG(void)
 void test_syslogoutput(void)
 {
 	assertSyslogOutput("Test message", "Test message",  true);
+}
+
+void test_syslogoutputDisable(void)
+{
 	assertSyslogOutput("Test message", "Message of test",  false);
 }
 
