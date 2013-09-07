@@ -57,7 +57,7 @@ struct FunctionArg {
 	}
 };
 
-struct daemonizeVariable {
+struct DaemonizeVariable {
 	pid_t grandchildParentPid;
 	string magicNumber;
 	GPid childPid;
@@ -65,7 +65,7 @@ struct daemonizeVariable {
 	bool finishTest;
 	string pidFilePath;
 
-	daemonizeVariable(void)
+	DaemonizeVariable(void)
 	: grandchildParentPid(0),
 	  childPid(0),
 	  grandchildPid(0),
@@ -111,7 +111,7 @@ struct daemonizeVariable {
 		return true;
 	}
 
-	~daemonizeVariable(void)
+	~DaemonizeVariable(void)
 	{
 		if (finishTest) {
 			kill(grandchildPid, SIGTERM);
@@ -121,7 +121,7 @@ struct daemonizeVariable {
 		}
 	}
 };
-daemonizeVariable *g_daemonizeValue;
+DaemonizeVariable *g_daemonizeValue;
 
 void endChildProcess(GPid child_pid, gint status, gpointer data)
 {
@@ -275,7 +275,7 @@ void cut_teardown(void)
 
 void test_daemonize(void)
 {
-	daemonizeVariable *value = new daemonizeVariable();
+	DaemonizeVariable *value = new DaemonizeVariable();
 	g_daemonizeValue = value;
 
 	cppcut_assert_equal(true, makeRandomNumber(value->magicNumber));
