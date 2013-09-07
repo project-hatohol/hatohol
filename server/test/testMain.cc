@@ -121,7 +121,7 @@ struct daemonizeVariable {
 		}
 	}
 };
-daemonizeVariable *daemonizeValue;
+daemonizeVariable *g_daemonizeValue;
 
 void endChildProcess(GPid child_pid, gint status, gpointer data)
 {
@@ -269,14 +269,14 @@ bool spawnChildProcess(string magicNumber, GPid &childPid, const string &pidFile
 
 void cut_teardown(void)
 {
-	if (daemonizeValue != NULL)
-		delete daemonizeValue;
+	if (g_daemonizeValue != NULL)
+		delete g_daemonizeValue;
 }
 
 void test_daemonize(void)
 {
 	daemonizeVariable *value = new daemonizeVariable();
-	daemonizeValue = value;
+	g_daemonizeValue = value;
 
 	cppcut_assert_equal(true, makeRandomNumber(value->magicNumber));
 	cppcut_assert_equal(true,
