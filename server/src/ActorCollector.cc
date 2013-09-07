@@ -55,6 +55,13 @@ void ActorCollector::init(void)
 
 void ActorCollector::reset(void)
 {
+	// Some tests calls g_child_watch_add() and g_spawn_sync() families
+	// that internally call it. They set their own handler for SIGCHLD
+	// and makes ActorCollector's SIGCHILD handler invalid.
+	// So we reset here. This implies that a test uses ActorCollect
+	// have to call hatoholInit() or ActorCollector::reset() in cut_setup().
+	registerSIGCHLD();
+
 	// This function is mainly for the test. In the normal use,
 	// waitChildSet is of course empty when this function is called
 	// at the start-up.
@@ -106,6 +113,16 @@ ActorCollector::~ActorCollector()
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
+void ActorCollector::registerSIGCHLD(void)
+{
+	struct sigaction sa;
+	memset(&sa, 0, sizeof(struct sigaction));
+	sa.sa_sigaction = ActorCollector::signalHandlerChild;
+	sa.sa_flags |= (SA_RESTART|SA_SIGINFO);
+	HATOHOL_ASSERT(sigaction(SIGCHLD, &sa, NULL ) == 0,
+	               "Failed to set SIGCHLD, errno: %d\n", errno);
+}
+
 void ActorCollector::setupHandlerForSIGCHLD(void)
 {
 	// We assume that this function (implictly ActorCollector::init) is
@@ -118,12 +135,7 @@ void ActorCollector::setupHandlerForSIGCHLD(void)
 	               "Failed to open pipe: errno: %d", errno);
 
 	// set signal handler
-	struct sigaction sa;
-	memset(&sa, 0, sizeof(struct sigaction));
-	sa.sa_sigaction = ActorCollector::signalHandlerChild;
-	sa.sa_flags |= (SA_RESTART|SA_SIGINFO);
-	HATOHOL_ASSERT(sigaction(SIGCHLD, &sa, NULL ) == 0,
-	               "Failed to set SIGCHLD, errno: %d\n", errno);
+	registerSIGCHLD();
 	
 	// set glib callback handler for the pipe
 	GIOChannel *ioch = g_io_channel_unix_new(PrivateContext::pipefd[0]);

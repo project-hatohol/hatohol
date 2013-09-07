@@ -71,6 +71,7 @@ public:
 	static void setDontLog(pid_t pid);
 
 protected:
+	static void registerSIGCHLD(void);
 	static void setupHandlerForSIGCHLD(void);
 	static void signalHandlerChild(int signo, siginfo_t *info, void *arg);
 	static gboolean checkExitProcess
