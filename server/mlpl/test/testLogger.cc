@@ -109,7 +109,7 @@ static void _assertLogOutput(const char *envLevel, const char *outLevel,
 }
 #define assertLogOutput(EL,OL,EXP) cut_trace(_assertLogOutput(EL,OL,EXP))
 
-static void _assertWaitSyslogUpdate(int fd, int timeout, int startTime,
+static void _assertWaitSyslogUpdate(int fd, int expireTime, int startTime,
                                     bool &timedOut)
 {
 	static const size_t INOTIFY_EVT_BUF_SIZE =
@@ -118,8 +118,7 @@ static void _assertWaitSyslogUpdate(int fd, int timeout, int startTime,
 	fds[0].fd = fd;
 	fds[0].events = POLLIN;
 	fds[0].revents = 0;
-	int timedOutClock = time(NULL) * 1000 - startTime + timeout;
-	int ret = poll(fds, 1, timedOutClock);
+	int ret = poll(fds, 1, expireTime);
 	if (ret == 0) {
 		timedOut = true;
 		return;
@@ -176,12 +175,13 @@ static void _assertSyslogOutput(const char *envMessage, const char *outMessage,
 	else
 		Logger::disableSyslogOuputput();
 	Logger::log(level, fileName, lineNumber,outMessage);
-	int startTime = time(NULL) * 1000;
+
+	static const int TIMEOUT = 5 * 1000; // millisecond
+	int expireTime = time(NULL) * 1000 + TIMEOUT;
 	bool found = false;
 	for (;;) {
-		static const int TIMEOUT = 5 * 1000; // millisecond
 		bool timedOut = false;
-		assertWaitSyslogUpdate(fd, TIMEOUT, startTime, timedOut);
+		assertWaitSyslogUpdate(fd, TIMEOUT, expireTime, timedOut);
 		if (timedOut)
 			break;
 		string line;
