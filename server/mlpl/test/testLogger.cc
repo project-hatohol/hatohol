@@ -109,7 +109,8 @@ static void _assertLogOutput(const char *envLevel, const char *outLevel,
 }
 #define assertLogOutput(EL,OL,EXP) cut_trace(_assertLogOutput(EL,OL,EXP))
 
-static void _assertWaitSyslogUpdate(int fd, int timeout, int startTime)
+static void _assertWaitSyslogUpdate(int fd, int timeout, int startTime,
+                                    bool &timedOut)
 {
 	static const size_t INOTIFY_EVT_BUF_SIZE =
 	  sizeof(struct inotify_event) + NAME_MAX + 1;
@@ -119,15 +120,19 @@ static void _assertWaitSyslogUpdate(int fd, int timeout, int startTime)
 	fds[0].revents = 0;
 	int timedOutClock = time(NULL) * 1000 - startTime + timeout;
 	int ret = poll(fds, 1, timedOutClock);
+	if (ret == 0) {
+		timedOut = true;
+		return;
+	}
 	cppcut_assert_not_equal(-1, ret, cut_message("%s", strerror(errno)));
-	cppcut_assert_not_equal(0, ret, cut_message("timed out"));
 
 	char buf[INOTIFY_EVT_BUF_SIZE];
 	ssize_t readRet = read(fd, buf, sizeof(buf));
 	cppcut_assert_not_equal((ssize_t)-1, readRet,
 	                        cut_message("%s", strerror(errno)));
 }
-#define assertWaitSyslogUpdate(F,T,S) cut_trace(_assertWaitSyslogUpdate(F,T,S))
+#define assertWaitSyslogUpdate(F,T,S,O) \
+cut_trace(_assertWaitSyslogUpdate(F,T,S,O))
 
 static void _assertSyslogOutput(const char *envMessage, const char *outMessage,
                                 bool shouldLog)
@@ -166,20 +171,25 @@ static void _assertSyslogOutput(const char *envMessage, const char *outMessage,
 	int fd = inotify_init();
 	inotify_add_watch(fd, syslogPath,
 	                  IN_MODIFY|IN_ATTRIB|IN_DELETE_SELF|IN_MOVE_SELF);
-	Logger::enableSyslogOutput();
+	if (shouldLog)
+		Logger::enableSyslogOutput();
+	else
+		Logger::disableSyslogOuputput();
 	Logger::log(level, fileName, lineNumber,outMessage);
 	int startTime = time(NULL) * 1000;
 	bool found = false;
 	for (;;) {
 		static const int TIMEOUT = 5 * 1000; // millisecond
-		assertWaitSyslogUpdate(fd, TIMEOUT, startTime);
+		bool timedOut = false;
+		assertWaitSyslogUpdate(fd, TIMEOUT, startTime, timedOut);
+		if (timedOut)
+			break;
 		string line;
 		getline(syslogFileStream, line);
 		if (line.find(expectedMsg, 0) != string::npos) {
 			found = true;
 			break;
-		} else if (!shouldLog)
-			break;
+		}
 	}
 	close(fd);
 	cppcut_assert_equal(shouldLog, found);
