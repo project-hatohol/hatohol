@@ -40,6 +40,7 @@ using namespace mlpl;
 #include "ActorCollector.h"
 
 static int pipefd[2];
+static const char *DEFAULT_PID_FILE_PATH = "/var/run/hatohol.pid";
 
 struct ExecContext {
 	UnifiedDataStore *unifiedDataStore;
@@ -99,12 +100,25 @@ static bool isForegroundOptionIncluded(CommandLineArg &cmdArg)
 	return false;
 }
 
-static bool daemonize(void)
+static string getPidFilePath(const CommandLineArg &arg)
+{
+	for (size_t idx = 0; idx < arg.size(); idx++) {
+		const string word = arg[idx];
+		if (word != "--pid-file-path")
+			continue;
+		HATOHOL_ASSERT(idx < arg.size() - 1,
+		  "--pid-file-path is specified, but not the path is given.");
+		return arg[idx+1];
+	}
+	return DEFAULT_PID_FILE_PATH;
+}
+
+static bool daemonize(const CommandLineArg &arg)
 {
 	pid_t pid;
-	const char *pid_file_path = "/var/run/hatohol.pid";
+	string pidFilePath = getPidFilePath(arg);
 	FILE *pid_file;
-	pid_file = fopen(pid_file_path, "w+");
+	pid_file = fopen(pidFilePath.c_str(), "w+");
 
 	if (pid_file == NULL) {
 		MLPL_ERR("Failed to record pid file\n");
@@ -136,7 +150,7 @@ int mainRoutine(int argc, char *argv[])
 	for (int i = 1; i < argc; i++)
 		cmdArg.push_back(argv[i]);
 	if (!isForegroundOptionIncluded(cmdArg)){
-		if (!daemonize()) {
+		if (!daemonize(cmdArg)) {
 			MLPL_ERR("Can't start daemon process\n");
 			return EXIT_FAILURE;
 		}

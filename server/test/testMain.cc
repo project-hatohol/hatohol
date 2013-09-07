@@ -29,6 +29,8 @@
 #include <signal.h>
 #include <sys/types.h>
 #include <dirent.h>
+#include <sys/types.h> 
+#include <unistd.h>
 
 #include "Hatohol.h"
 #include "Utils.h"
@@ -61,6 +63,7 @@ struct daemonizeVariable {
 	GPid childPid;
 	pid_t grandchildPid;
 	bool finishTest;
+	string pidFilePath;
 
 	daemonizeVariable(void)
 	: grandchildParentPid(0),
@@ -68,6 +71,8 @@ struct daemonizeVariable {
 	  grandchildPid(0),
 	  finishTest(false)
 	{
+		pidFilePath = StringUtils::sprintf(
+		  "/tmp/hatohol-test-daemonize-test-%d.pid", getpid());
 	}
 
 	void checkEnvironAndKillProcess(pid_t pid)
@@ -178,12 +183,11 @@ bool childProcessLoop(GPid &childPid)
 	return true;
 }
 
-bool parsePIDFile(int &grandchildPid)
+bool parsePIDFile(int &grandchildPid, const string &grandChildPidFilePath)
 {
-	const char *grandchildPidFilePath = "/var/run/hatohol.pid";
-	cut_assert_exist_path(grandchildPidFilePath);
+	cut_assert_exist_path(grandChildPidFilePath.c_str());
 	FILE *grandchildPidFile;
-	grandchildPidFile = fopen(grandchildPidFilePath, "r");
+	grandchildPidFile = fopen(grandChildPidFilePath.c_str(), "r");
 	cppcut_assert_not_null(grandchildPidFile);
 	cppcut_assert_not_equal(EOF, fscanf(grandchildPidFile, "%d", &grandchildPid));
 	cppcut_assert_equal(0, fclose(grandchildPidFile));
@@ -238,9 +242,11 @@ bool makeRandomNumber(string &magicNumber)
 	return true;
 }
 
-bool spawnChildProcess(string magicNumber, GPid &childPid)
+bool spawnChildProcess(string magicNumber, GPid &childPid, const string &pidFilePath)
 {
-	const gchar *argv[] = {"../src/hatohol", "--config-db-server", "localhost", NULL};
+	const gchar *argv[] = {
+	  "../src/hatohol", "--config-db-server", "localhost",
+	   "--pid-file-path", pidFilePath.c_str(), NULL};
 	const gchar *envp[] = {"LD_LIBRARY_PATH=../src/.libs/", magicNumber.c_str(), NULL};
 	gint stdOut, stdErr;
 	GError *error;
@@ -273,9 +279,12 @@ void test_daemonize(void)
 	daemonizeValue = value;
 
 	cppcut_assert_equal(true, makeRandomNumber(value->magicNumber));
-	cppcut_assert_equal(true, spawnChildProcess(value->magicNumber, value->childPid));
+	cppcut_assert_equal(true,
+	   spawnChildProcess(value->magicNumber, value->childPid,
+	                     value->pidFilePath));
 	cppcut_assert_equal(true, childProcessLoop(value->childPid));
-	cppcut_assert_equal(true, parsePIDFile(value->grandchildPid));
+	cppcut_assert_equal(true, parsePIDFile(value->grandchildPid,
+	                                       value->pidFilePath));
 	cppcut_assert_equal(true, parseStatFile(value->grandchildParentPid, value->grandchildPid));
 	cppcut_assert_equal(1, value->grandchildParentPid);
 	cppcut_assert_equal(true, parseEnvironFile(value->magicNumber, value->grandchildPid));
