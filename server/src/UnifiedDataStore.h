@@ -22,6 +22,7 @@
 
 #include "ArmBase.h"
 #include "DBClientHatohol.h"
+#include "DBClientAction.h"
 #include "Utils.h"
 
 class UnifiedDataStore
@@ -43,6 +44,7 @@ public:
 	                         uint32_t targetServerId = ALL_SERVERS);
 	virtual void getHostList(HostInfoList &hostInfoList,
 	                         uint32_t targetServerId = ALL_SERVERS);
+	virtual void getActionList(ActionDefList &actionList);
 	virtual size_t getNumberOfTriggers
 	                 (uint32_t serverId, uint64_t hostGroupId,
 	                  TriggerSeverityType severity);

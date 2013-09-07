@@ -22,7 +22,6 @@
 
 #include <list>
 #include "DBClientConnectable.h"
-#include "Params.h"
 
 enum MonitoringSystemType {
 	MONITORING_SYSTEM_ZABBIX,
@@ -72,8 +71,8 @@ class DBClientConfig : public DBClientConnectable<DB_DOMAIN_ID_CONFIG> {
 public:
 	static int CONFIG_DB_VERSION;
 	static const char *DEFAULT_DB_NAME;
-	static bool parseCommandLineArgument(CommandLineArg &cmdArg);
-	static void init(void);
+	static bool parseCommandLineArgument(const CommandLineArg &cmdArg);
+	static void init(const CommandLineArg *cmdArg = NULL);
 
 	DBClientConfig(const DBConnectInfo *connectInfo = NULL);
 	virtual ~DBClientConfig();

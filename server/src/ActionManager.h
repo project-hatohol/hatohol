@@ -54,7 +54,6 @@ public:
 	void checkEvents(const EventInfoList &eventList);
 
 protected:
-	static void separatorCallback(const char sep, PrivateContext *ctx);
 	static gboolean residentReadErrCb(GIOChannel *source,
 	                                  GIOCondition condition,
 	                                  gpointer data);
@@ -73,9 +72,6 @@ protected:
 	static void residentActionTimeoutCb(NamedPipe *namedPipe,
 	                                    gpointer data);
 	void runAction(const ActionDef &actionDef, const EventInfo &eventInfo);
-	void makeExecArg(StringVector &argVect, const string &cmd);
-	static void parseResidentCommand(
-	  const string &command, string &path, string &option);
 
 	/**
 	 * Spawn an actor.

@@ -17,12 +17,30 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef Hatohol_h
-#define Hatohol_h
+#ifndef DBClientConnectableBase_h
+#define DBClientConnectableBase_h
 
-#include "Utils.h"
+#include <list>
+#include "DBClient.h"
+#include "DBAgentFactory.h"
+#include "MutexLock.h"
 
-void hatoholInit(const CommandLineArg *arg = NULL);
+class DBClientConnectableBase : public DBClient {
+protected:
+	struct DefaultDBInfo {
+		const char     *dbName;
+		DBSetupFuncArg *dbSetupFuncArg;
+	};
+	typedef map<DBDomainId, DefaultDBInfo>      DefaultDBInfoMap;
+	typedef DefaultDBInfoMap::iterator DefaultDBInfoMapIterator;
 
-#endif // Hatohol_h
+	static void addDefaultDBInfo(
+	  DBDomainId domainId, const char *defaultDBName,
+	  DBSetupFuncArg *dbSetupFuncArg);
+	static DefaultDBInfo &getDefaultDBInfo(DBDomainId domainId);
 
+private:
+	struct PrivateContext;
+};
+
+#endif // DBClientConnectableBase_h

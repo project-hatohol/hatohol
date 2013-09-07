@@ -155,10 +155,8 @@ int mainRoutine(int argc, char *argv[])
 			return EXIT_FAILURE;
 		}
 	}
-	if (!DBClientConfig::parseCommandLineArgument(cmdArg))
-		return EXIT_FAILURE;
 
-	hatoholInit();
+	hatoholInit(&cmdArg);
 	MLPL_INFO("started hatohol server: ver. %s\n", PACKAGE_VERSION);
 
 	// setup signal handlers for exit

@@ -244,8 +244,6 @@ const char *MonitoringServerInfo::getHostAddress(void) const
 
 struct DBClientConfig::PrivateContext
 {
-	static bool initCalled;
-
 	PrivateContext(void)
 	{
 	}
@@ -254,7 +252,6 @@ struct DBClientConfig::PrivateContext
 	{
 	}
 };
-bool DBClientConfig::PrivateContext::initCalled = false;;
 
 static void updateDB(DBAgent *dbAgent, int oldVer, void *data)
 {
@@ -271,15 +268,14 @@ static void updateDB(DBAgent *dbAgent, int oldVer, void *data)
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
-bool DBClientConfig::parseCommandLineArgument(CommandLineArg &cmdArg)
+bool DBClientConfig::parseCommandLineArgument(const CommandLineArg &cmdArg)
 {
-	DBClientConfig::init();
 	initDefaultDBConnectInfoMaster();
 	DBConnectInfo &connMaster = getDBConnectInfoMaster();
 
 	string dbServer;
 	for (size_t i = 0; i < cmdArg.size(); i++) {
-		string &arg = cmdArg[i];
+		const string &arg = cmdArg[i];
 		if (arg == "--config-db-server") {
 			if (i == cmdArg.size()-1) {
 				MLPL_ERR(
@@ -310,11 +306,8 @@ bool DBClientConfig::parseCommandLineArgument(CommandLineArg &cmdArg)
 	return true;
 }
 
-void DBClientConfig::init(void)
+void DBClientConfig::init(const CommandLineArg *cmdArg)
 {
-	if (PrivateContext::initCalled)
-		return;
-
 	HATOHOL_ASSERT(NUM_COLUMNS_SYSTEM == NUM_IDX_SYSTEM,
 	  "NUM_COLUMNS_SYSTEM: %zd, NUM_IDX_SYSTEM: %d",
 	  NUM_COLUMNS_SYSTEM, NUM_IDX_SYSTEM);
@@ -351,7 +344,10 @@ void DBClientConfig::init(void)
 	addDefaultDBInfo(
 	  DB_DOMAIN_ID_CONFIG, DEFAULT_DB_NAME, &DB_SETUP_FUNC_ARG);
 
-	PrivateContext::initCalled = true;
+	if (!cmdArg)
+		return;
+	if (!parseCommandLineArgument(*cmdArg))
+		THROW_HATOHOL_EXCEPTION("Failed to parse argument.");
 }
 
 DBClientConfig::DBClientConfig(const DBConnectInfo *connectInfo)

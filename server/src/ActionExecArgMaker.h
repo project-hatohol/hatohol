@@ -17,12 +17,29 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef Hatohol_h
-#define Hatohol_h
+#ifndef ActionExecArgMaker_h
+#define ActionExecArgMaker_h
 
-#include "Utils.h"
+#include "StringUtils.h"
 
-void hatoholInit(const CommandLineArg *arg = NULL);
+class ActionExecArgMaker
+{
+private:
+	struct PrivateContext;
 
-#endif // Hatohol_h
+public:
+	ActionExecArgMaker(void);
+	virtual ~ActionExecArgMaker();
+	void makeExecArg(mlpl::StringVector &argVect, const string &cmd);
+	static void parseResidentCommand(
+	  const string &command, string &path, string &option);
+
+protected:
+	static void separatorCallback(const char sep, PrivateContext *ctx);
+
+private:
+	PrivateContext *m_ctx;
+};
+
+#endif // ActionExecArgMaker_h
 

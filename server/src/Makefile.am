@@ -4,6 +4,7 @@ hatohol_resident_yard_SOURCES = hatoholResidentYard.cc
 
 lib_LTLIBRARIES = libhatohol.la
 libhatohol_la_SOURCES = \
+	ActionExecArgMaker.cc ActionExecArgMaker.h \
 	ActionManager.cc ActionManager.h \
 	ActorCollector.cc ActorCollector.h \
 	ArmBase.cc ArmBase.h \
@@ -19,6 +20,7 @@ libhatohol_la_SOURCES = \
 	DBClient.cc DBClient.h \
 	DBClientAction.cc DBClientAction.h \
 	DBClientConnectable.h \
+	DBClientConnectableBase.h DBClientConnectableBase.cc \
 	DBClientConfig.cc DBClientConfig.h \
 	DBClientHatohol.cc DBClientHatohol.h \
 	DBClientUtils.h \

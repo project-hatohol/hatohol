@@ -132,6 +132,14 @@ static void _assertValueInParser(JsonParserAgent *parser,
 
 #define assertValueInParser(P,M,E) cut_trace(_assertValueInParser(P,M,E));
 
+static void _assertNullInParser(JsonParserAgent *parser, const string &member)
+{
+	bool result = false;
+	cppcut_assert_equal(true, parser->isNull(member, result));
+	cppcut_assert_equal(true, result);
+}
+#define assertNullInParser(P,M) cut_trace(_assertNullInParser(P,M))
+
 static void _assertTestTriggerInfo(const TriggerInfo &triggerInfo)
 {
 	assertValueInParser(g_parser, "status", 
@@ -284,7 +292,7 @@ static void _assertItems(const string &path, const string &callbackName = "")
 	startFaceRest();
 	g_parser = getResponseAsJsonParser(path, callbackName);
 	assertValueInParser(g_parser, "apiVersion",
-	                    (uint32_t)FaceRest::API_VERSION_EVENTS);
+	                    (uint32_t)FaceRest::API_VERSION_ITEMS);
 	assertValueInParser(g_parser, "result", true);
 	assertValueInParser(g_parser, "numberOfItems",
 	                    (uint32_t)NumTestItemInfo);
@@ -305,6 +313,78 @@ static void _assertItems(const string &path, const string &callbackName = "")
 	assertServersIdNameHashInParser(g_parser);
 }
 #define assertItems(P,...) cut_trace(_assertItems(P,##__VA_ARGS__))
+
+template<typename T>
+static void _assertActionCondition(
+  JsonParserAgent *parser, const ActionCondition &cond,
+   const string &member, ActionConditionEnableFlag bit, T expect)
+{
+	if (cond.isEnable(bit)) {
+		assertValueInParser(parser, member, expect);
+	} else {
+		assertNullInParser(parser, member);
+	}
+}
+#define asssertActionCondition(PARSER, COND, MEMBER, BIT, T, EXPECT) \
+cut_trace(_assertActionCondition<T>(PARSER, COND, MEMBER, BIT, EXPECT))
+
+static void _assertActions(const string &path, const string &callbackName = "")
+{
+	startFaceRest();
+	g_parser = getResponseAsJsonParser(path, callbackName);
+	assertValueInParser(g_parser, "apiVersion",
+	                    (uint32_t)FaceRest::API_VERSION_ACTIONS);
+	assertValueInParser(g_parser, "result", true);
+	assertValueInParser(g_parser, "numberOfActions",
+	                    (uint32_t)NumTestActionDef);
+	g_parser->startObject("actions");
+	for (size_t i = 0; i < NumTestActionDef; i++) {
+		g_parser->startElement(i);
+		const ActionDef &actionDef = testActionDef[i];
+		const ActionCondition &cond = actionDef.condition;
+		assertValueInParser(g_parser, "actionId",
+		                    (uint32_t)actionDef.id);
+
+		assertValueInParser(g_parser, "enableBits", cond.enableBits);
+		asssertActionCondition(
+		  g_parser, cond, "serverId", ACTCOND_SERVER_ID,
+		  uint32_t, cond.serverId);
+		asssertActionCondition(
+		  g_parser, cond, "hostId", ACTCOND_HOST_ID,
+		  uint64_t, cond.hostId);
+		asssertActionCondition(
+		  g_parser, cond, "hostGroupId", ACTCOND_HOST_GROUP_ID,
+		  uint64_t, cond.hostGroupId);
+		asssertActionCondition(
+		  g_parser, cond, "triggerId", ACTCOND_TRIGGER_ID,
+		  uint64_t, cond.triggerId);
+		asssertActionCondition(
+		  g_parser, cond, "triggerStatus", ACTCOND_TRIGGER_STATUS,
+		  uint32_t, cond.triggerStatus);
+		asssertActionCondition(
+		  g_parser, cond, "triggerSeverity", ACTCOND_TRIGGER_SEVERITY,
+		  uint32_t, cond.triggerSeverity);
+
+		uint32_t expectCompType
+		  = cond.isEnable(ACTCOND_TRIGGER_SEVERITY) ?
+		    (uint32_t)cond.triggerSeverityCompType : CMP_INVALID;
+		assertValueInParser(g_parser,
+		                    "triggerSeverityComparatorType",
+		                    expectCompType);
+
+		assertValueInParser(g_parser, "type", (uint32_t)actionDef.type);
+		assertValueInParser(g_parser, "workingDirectory",
+		                    actionDef.workingDir);
+		assertValueInParser(g_parser, "command", actionDef.command);
+		assertValueInParser(g_parser, "timeout",
+		                    (uint32_t)actionDef.timeout);
+		g_parser->endElement();
+	}
+	g_parser->endObject();
+	assertServersIdNameHashInParser(g_parser);
+}
+#define assertActions(P,...) cut_trace(_assertActions(P,##__VA_ARGS__))
+
 
 void cut_setup(void)
 {
@@ -372,6 +452,14 @@ void test_items(void)
 void test_itemsJsonp(void)
 {
 	assertItems("/items.jsonp", "foo");
+}
+
+void test_actionsJsonp(void)
+{
+	bool recreate = true;
+	bool loadData = true;
+	setupTestDBAction(recreate, loadData);
+	assertActions("/actions.jsonp", "foo");
 }
 
 } // namespace testFaceRest

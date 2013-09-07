@@ -469,7 +469,7 @@ void setupTestDBServers(void)
 	}
 }
 
-void setupTestDBAction(bool dbRecreate)
+void setupTestDBAction(bool dbRecreate, bool loadTestData)
 {
 	static const char *TEST_DB_NAME = "test_action";
 	static const char *TEST_DB_USER = "hatohol_test_user";
@@ -478,6 +478,15 @@ void setupTestDBAction(bool dbRecreate)
 	                                   TEST_DB_USER, TEST_DB_PASSWORD);
 
 	makeTestMySQLDBIfNeeded(TEST_DB_NAME, dbRecreate);
+	if (loadTestData)
+		loadTestDBAction();
+}
+
+void loadTestDBAction(void)
+{
+	DBClientAction dbAction;
+	for (size_t i = 0; i < NumTestActionDef; i++)
+		dbAction.addAction(testActionDef[i]);
 }
 
 string execSQL(DBAgent *dbAgent, const string &statement, bool showHeader)

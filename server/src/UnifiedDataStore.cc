@@ -24,6 +24,7 @@
 #include "UnifiedDataStore.h"
 #include "VirtualDataStoreZabbix.h"
 #include "VirtualDataStoreNagios.h"
+#include "DBClientAction.h"
 
 using namespace mlpl;
 
@@ -226,6 +227,12 @@ void UnifiedDataStore::getHostList(HostInfoList &hostInfoList,
 	fetchItems();
 	DBClientHatohol dbHatohol;
 	dbHatohol.getHostInfoList(hostInfoList, targetServerId);
+}
+
+void UnifiedDataStore::getActionList(ActionDefList &actionList)
+{
+	DBClientAction dbAction;
+	dbAction.getActionList(actionList);
 }
 
 size_t UnifiedDataStore::getNumberOfTriggers(uint32_t serverId,

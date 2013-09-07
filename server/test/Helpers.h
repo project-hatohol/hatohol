@@ -115,7 +115,8 @@ template<typename T> void _assertAddToDB(T *arg, void (*func)(T *))
 
 void makeTestMySQLDBIfNeeded(const string &dbName, bool recreate = false);
 void setupTestDBServers(void);
-void setupTestDBAction(bool dbRecreate = true);
+void setupTestDBAction(bool dbRecreate = true, bool loadTestDat = false);
+void loadTestDBAction(void);
 string execSQL(DBAgent *agent, const string &statement,
                bool showHeader = false);
 string joinStringVector(const StringVector &strVect, const string &pad = "",

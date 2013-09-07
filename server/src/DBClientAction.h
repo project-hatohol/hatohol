@@ -225,8 +225,9 @@ public:
 	DBClientAction(void);
 	virtual ~DBClientAction();
 	void addAction(ActionDef &actionDef);
-	void getActionList(const EventInfo &eventInfo,
-	                   ActionDefList &actionDefList);
+	void getActionList(ActionDefList &actionDefList,
+	                   const EventInfo *eventInfo = NULL);
+
 	/**
 	 * make an action log.
 	 *

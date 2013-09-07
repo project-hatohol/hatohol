@@ -22,6 +22,7 @@
 
 #include "DBClientConfig.h"
 #include "DBClientHatohol.h"
+#include "DBClientAction.h"
 
 typedef set<uint64_t>       HostIdSet;
 typedef HostIdSet::iterator HostIdSetIterator;
@@ -45,6 +46,9 @@ extern uint64_t findLastEventId(uint32_t serverId);
 
 extern ItemInfo testItemInfo[];
 extern size_t NumTestItemInfo;
+
+extern ActionDef testActionDef[];
+extern const size_t NumTestActionDef;
 
 extern size_t getNumberOfTestTriggers(uint32_t serverId);
 extern size_t getNumberOfTestTriggers(uint32_t serverId, uint64_t hostGroupId,

@@ -105,25 +105,36 @@ bool StringUtils::casecmp(string &str1, string &str2)
 
 string StringUtils::sprintf(const char *fmt, ...)
 {
-	char bufOnStack[SPRINTF_BUF_ON_STACK_LENGTH];
 	va_list ap;
 	va_start(ap, fmt);
+	string str = sprintf(fmt, ap);
+	va_end(ap);
+	return str;
+}
+
+string StringUtils::sprintf(const char *fmt, va_list ap)
+{
+	char bufOnStack[SPRINTF_BUF_ON_STACK_LENGTH];
+
+	// make make a back up of ap
+	va_list copiedAp;
+	va_copy(copiedAp, ap);
+
 	int outLen = vsnprintf(bufOnStack,
 	                       SPRINTF_BUF_ON_STACK_LENGTH, fmt, ap);
-	va_end(ap);
 
 	// In the case, generation of the output string is completed
 	if (outLen <= (int)SPRINTF_BUF_ON_STACK_LENGTH) {
 		string str(bufOnStack);
+		va_end(copiedAp);
 		return str;
 	}
 
 	// In the case, buffer size is not enough
 	outLen += 1; // add length for Null terminator.
 	char *outStr = new char[outLen];
-	va_start(ap, fmt);
-	vsnprintf(outStr, outLen, fmt, ap);
-	va_end(ap);
+	vsnprintf(outStr, outLen, fmt, copiedAp);
+	va_end(copiedAp);
 
 	string str(outStr);
 	delete [] outStr;

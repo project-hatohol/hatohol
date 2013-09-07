@@ -30,6 +30,7 @@ int FaceRest::API_VERSION_SERVERS  = 1;
 int FaceRest::API_VERSION_TRIGGERS = 1;
 int FaceRest::API_VERSION_EVENTS   = 1;
 int FaceRest::API_VERSION_ITEMS    = 1;
+int FaceRest::API_VERSION_ACTIONS  = 1;
 
 typedef void (*RestHandler)
   (SoupServer *server, SoupMessage *msg, const char *path,
@@ -47,6 +48,7 @@ const char *FaceRest::pathForGetServers = "/servers";
 const char *FaceRest::pathForGetTriggers = "/triggers";
 const char *FaceRest::pathForGetEvents   = "/events";
 const char *FaceRest::pathForGetItems    = "/items";
+const char *FaceRest::pathForGetActions  = "/actions";
 
 static const char *MIME_HTML = "text/html";
 static const char *MIME_JSON = "application/json";
@@ -154,6 +156,9 @@ gpointer FaceRest::mainThread(HatoholThreadArg *arg)
 	soup_server_add_handler(m_soupServer, pathForGetItems,
 	                        launchHandlerInTryBlock,
 	                        (gpointer)handlerGetItems, NULL);
+	soup_server_add_handler(m_soupServer, pathForGetActions,
+	                        launchHandlerInTryBlock,
+	                        (gpointer)handlerGetActions, NULL);
 	soup_server_run(m_soupServer);
 	g_main_context_unref(gMainCtx);
 	MLPL_INFO("exited face-rest\n");
@@ -588,6 +593,72 @@ void FaceRest::handlerGetItems
 		agent.add("lastValue", itemInfo.lastValue);
 		agent.add("prevValue", itemInfo.prevValue);
 		agent.add("itemGroupName", itemInfo.itemGroupName);
+		agent.endObject();
+	}
+	agent.endArray();
+	addServersIdNameHash(agent);
+	agent.endObject();
+
+	replyJsonData(agent, msg, jsonpCallbackName, arg);
+}
+
+template <typename T>
+static void setActionCondition(
+  JsonBuilderAgent &agent, const ActionCondition &cond,
+  const string &member, ActionConditionEnableFlag bit,
+  T value)
+{
+		if (cond.isEnable(bit))
+			agent.add(member, value);
+		else
+			agent.addNull(member);
+}
+
+void FaceRest::handlerGetActions
+  (SoupServer *server, SoupMessage *msg, const char *path,
+   GHashTable *query, SoupClientContext *client, HandlerArg *arg)
+{
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+	string jsonpCallbackName = getJsonpCallbackName(query, arg);
+
+	ActionDefList actionList;
+	dataStore->getActionList(actionList);
+
+	JsonBuilderAgent agent;
+	agent.startObject();
+	agent.add("apiVersion", API_VERSION_ACTIONS);
+	agent.addTrue("result");
+	agent.add("numberOfActions", actionList.size());
+	agent.startArray("actions");
+	ActionDefListIterator it = actionList.begin();
+	for (; it != actionList.end(); ++it) {
+		const ActionDef &actionDef = *it;
+		const ActionCondition &cond = actionDef.condition;
+		agent.startObject();
+		agent.add("actionId",  actionDef.id);
+		agent.add("enableBits", cond.enableBits);
+		setActionCondition<uint32_t>(
+		  agent, cond, "serverId", ACTCOND_SERVER_ID, cond.serverId);
+		setActionCondition<uint64_t>(
+		  agent, cond, "hostId", ACTCOND_HOST_ID, cond.hostId);
+		setActionCondition<uint64_t>(
+		  agent, cond, "hostGroupId", ACTCOND_HOST_GROUP_ID,
+		   cond.hostGroupId);
+		setActionCondition<uint64_t>(
+		  agent, cond, "triggerId", ACTCOND_TRIGGER_ID, cond.triggerId);
+		setActionCondition<uint32_t>(
+		  agent, cond, "triggerStatus", ACTCOND_TRIGGER_STATUS,
+		  cond.triggerStatus);
+		setActionCondition<uint32_t>(
+		  agent, cond, "triggerSeverity", ACTCOND_TRIGGER_SEVERITY,
+		  cond.triggerSeverity);
+		agent.add("triggerSeverityComparatorType",
+		          cond.triggerSeverityCompType);
+		agent.add("type",      actionDef.type);
+		agent.add("workingDirectory",
+		          actionDef.workingDir.c_str());
+		agent.add("command", actionDef.command);
+		agent.add("timeout", actionDef.timeout);
 		agent.endObject();
 	}
 	agent.endArray();

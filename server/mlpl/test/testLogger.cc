@@ -17,32 +17,29 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <cstdio>
 #include <cstdlib>
+#include <fstream>
 #include <string>
-using namespace std;
-
-#include "Logger.h"
-#include "StringUtils.h"
-#include "ParsableString.h"
-using namespace mlpl;
-
-#include <cutter.h>
-#include <cppcutter.h>
-#include <glib.h>
-
-#include "loggerTester.h"
-
-
-#include <stdio.h>
 #include <stdarg.h>
-#include <string.h>
 #include <time.h>
 #include <syslog.h>
 #include <sys/inotify.h>
 #include <fcntl.h>
+#include <errno.h>
 #include <unistd.h>
 #include <poll.h>
+#include <glib.h>
+#include <cutter.h>
+#include <cppcutter.h>
 
+#include "Logger.h"
+#include "StringUtils.h"
+#include "ParsableString.h"
+#include "loggerTester.h"
+
+using namespace std;
+using namespace mlpl;
 
 namespace testLogger {
 
@@ -111,6 +108,83 @@ static void _assertLogOutput(const char *envLevel, const char *outLevel,
 	cppcut_assert_equal(expectStr, word);
 }
 #define assertLogOutput(EL,OL,EXP) cut_trace(_assertLogOutput(EL,OL,EXP))
+
+static void _assertWaitSyslogUpdate(int fd, int timeout, int startTime)
+{
+	static const size_t INOTIFY_EVT_BUF_SIZE =
+	  sizeof(struct inotify_event) + NAME_MAX + 1;
+	struct pollfd fds[1];
+	fds[0].fd = fd;
+	fds[0].events = POLLIN;
+	fds[0].revents = 0;
+	int timedOutClock = time(NULL) * 1000 - startTime + timeout;
+	int ret = poll(fds, 1, timedOutClock);
+	cppcut_assert_not_equal(-1, ret, cut_message("%s", strerror(errno)));
+	cppcut_assert_not_equal(0, ret, cut_message("timed out"));
+
+	char buf[INOTIFY_EVT_BUF_SIZE];
+	ssize_t readRet = read(fd, buf, sizeof(buf));
+	cppcut_assert_not_equal((ssize_t)-1, readRet,
+	                        cut_message("%s", strerror(errno)));
+}
+#define assertWaitSyslogUpdate(F,T,S) cut_trace(_assertWaitSyslogUpdate(F,T,S))
+
+static void _assertSyslogOutput(const char *envMessage, const char *outMessage,
+                                bool shouldLog)
+{
+	static const char* LogHeaders[MLPL_NUM_LOG_LEVEL] = {
+		"BUG", "CRIT", "ERR", "WARN", "INFO", "DBG",
+	};
+
+	LogLevel level = MLPL_LOG_INFO;
+	const char *fileName = "test file";
+	int lineNumber = 1;
+	string expectedMsg =
+	   StringUtils::sprintf("[%s] <%s:%d> ",
+	                        LogHeaders[level], fileName, lineNumber);
+	expectedMsg += envMessage;
+
+	const char *syslogPathCandidates[] = {
+		"/var/log/syslog",      //ubuntu
+		"/var/log/messages",    //CentOS
+	};
+	const size_t numSyslogPathCandidates =
+	   sizeof(syslogPathCandidates) / sizeof(const char *);
+	
+	const char *syslogPath = NULL;
+	ifstream syslogFileStream;
+	for (size_t i = 0; i < numSyslogPathCandidates; i++){
+		syslogPath = syslogPathCandidates[i];
+		syslogFileStream.open(syslogPath, ios::in);
+		if (syslogFileStream.good())
+			break;
+	}
+	cppcut_assert_equal(true, syslogFileStream.good(),
+	                    cut_message("Failed to find a syslog file."));
+	syslogFileStream.seekg(0, ios_base::end);
+
+	int fd = inotify_init();
+	inotify_add_watch(fd, syslogPath,
+	                  IN_MODIFY|IN_ATTRIB|IN_DELETE_SELF|IN_MOVE_SELF);
+	Logger::enableSyslogOutput();
+	Logger::log(level, fileName, lineNumber,outMessage);
+	int startTime = time(NULL) * 1000;
+	bool found = false;
+	for (;;) {
+		static const int TIMEOUT = 1000; // millisecond
+		assertWaitSyslogUpdate(fd, TIMEOUT, startTime);
+		string line;
+		getline(syslogFileStream, line);
+		if (line.find(expectedMsg, 0) != string::npos) {
+			found = true;
+			break;
+		} else if (!shouldLog)
+			break;
+	}
+	close(fd);
+	cppcut_assert_equal(shouldLog, found);
+}
+#define assertSyslogOutput(EM,OM,EXP) cut_trace(_assertSyslogOutput(EM,OM,EXP))
 
 void cut_teardown(void)
 {
@@ -190,105 +264,6 @@ void test_envLevelBUG(void)
 	assertLogOutput("BUG", "CRIT", false);
 	assertLogOutput("BUG", "BUG",  true);
 }
-
-
-
-
-
-static const char* LogHeaders [MLPL_NUM_LOG_LEVEL] = {
-	"BUG", "CRIT", "ERR", "WARN", "INFO", "DBG",
-};
-
-#define DEF 1024
-#define TIMEOUT 1
-#define syslogPlacePattern 3
-
-static void _assertSyslogOutput(const char *envMessage, const char *outMessage,
-                             bool expectOut)
-{
-
-	LogLevel level = MLPL_LOG_INFO;
-	const char *fileName = "test file";
-	int lineNumber = 1;
-	
-	char consoleMessage[DEF];
-	memset(consoleMessage, '\0', sizeof(consoleMessage));
-	sprintf(consoleMessage, "[%s] <%s:%d> ", LogHeaders[level], fileName,
-	        lineNumber);
-	strcat(consoleMessage, envMessage);
-
-	char syslogPlace[syslogPlacePattern][32] = {
-		"/var/log/messages",    //CentOS
-		"/var/log/syslog",      //ubuntu
-		"/var/adm/messages"};   //Slackware
-	
-	int kindOfOS = 0;
-	int fp;
-	for (int i = 0; i < syslogPlacePattern; i++){
-		if ((fp = open(syslogPlace[i], O_RDONLY)) != -1){
-			kindOfOS = i;
-			break;
-		}
-	}
-
-	if (fp == -1){
-		cut_fail("Error occur in test_syslogoutput. Failed to open syslog.");
-	}
-
-	char hoge[DEF];
-        while (read(fp, hoge, DEF));
-	
-	
-	int fd = inotify_init();
-	inotify_add_watch(fd, syslogPlace[kindOfOS], 
-				   IN_MODIFY|IN_ATTRIB|IN_DELETE_SELF|IN_MOVE_SELF);
-
-
-	Logger::enableSyslogOutput();
-	
-
-	Logger::log(level, fileName, lineNumber,outMessage);
-
-	time_t start = time(NULL);
-	bool output = false;
-	for (;;) {
-		struct pollfd fds[1];
-		fds[0].fd = fd;
-		fds[0].events = POLLIN;
-		fds[0].revents = 0;
-		if (poll(fds, 1 ,(TIMEOUT - time(NULL) + start)*1000) > 0){
-			char buf[DEF];
-		        if (!read(fd, buf, sizeof(buf))){
-				cut_fail("Error occur in test_syslogoutput. Failed to read buf.");
-			}
-		} else {
-			break;
-		}
-		
-		char syslogMessage[DEF];
-		memset(syslogMessage, 0, sizeof(syslogMessage));
-
-		if (!read(fp, syslogMessage, DEF)){
-			cut_fail("Error occur in test_syslogoutput. Failed to read syslog.");
-		}
-		
-		if (strstr(syslogMessage, consoleMessage) != NULL) {
-			output = true;
-			break;
-		}
-	}
-	
-	close(fp);
-	close(fd);
- 
-	if (output != expectOut){
-		cut_fail("Error occur in test_syslogoutput. Don't output expect message in syslog.");
-	}
-	
-}
-#define assertSyslogOutput(EM,OM,EXP) cut_trace(_assertSyslogOutput(EM,OM,EXP))
-
-
 
 void test_syslogoutput(void)
 {

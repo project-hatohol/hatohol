@@ -26,6 +26,7 @@ using namespace std;
 #include "Logger.h"
 using namespace mlpl;
 #include <string.h>
+#include "StringUtils.h"
 
 static const char* LogHeaders [MLPL_NUM_LOG_LEVEL] = {
 	"BUG", "CRIT", "ERR", "WARN", "INFO", "DBG",
@@ -33,10 +34,10 @@ static const char* LogHeaders [MLPL_NUM_LOG_LEVEL] = {
 
 LogLevel Logger::m_currLogLevel = MLPL_LOG_LEVEL_NOT_SET;
 pthread_rwlock_t Logger::m_rwlock = PTHREAD_RWLOCK_INITIALIZER;
-bool Logger::syslogoutput_flag = true;
+bool Logger::syslogoutputFlag = true;
 ReadWriteLock Logger::lock;
 const char *Logger::LEVEL_ENV_VAR_NAME = "MLPL_LOGGER_LEVEL";
-
+bool Logger::syslogConnected = false;
 
 // ----------------------------------------------------------------------------
 // Public methods
@@ -44,35 +45,24 @@ const char *Logger::LEVEL_ENV_VAR_NAME = "MLPL_LOGGER_LEVEL";
 void Logger::log(LogLevel level, const char *fileName, int lineNumber,
                  const char *fmt, ...)
 {
-	
-	fprintf(stderr, "[%s] <%s:%d> ", LogHeaders[level], fileName,
-	        lineNumber);
-	
+	string header = StringUtils::sprintf("[%s] <%s:%d> ",
+	                                     LogHeaders[level], fileName,
+	                                     lineNumber);
 	va_list ap;
 	va_start(ap, fmt);
-	vfprintf(stderr, fmt, ap);
+	string body = StringUtils::sprintf(fmt, ap);
 	va_end(ap);
 
+	fprintf(stderr, "%s%s", header.c_str(), body.c_str());
+
 	lock.readLock();
-	if (syslogoutput_flag) {
-		char Logmessage[256];
-		memset(Logmessage, '\0', sizeof(Logmessage));
-		sprintf(Logmessage, "[%s] <%s:%d> ", LogHeaders[level], 
-			fileName, lineNumber);
-
-		char tmp[256];
-		memset(tmp, '\0', sizeof(tmp));
-		va_start(ap, fmt);
-		vsprintf(tmp, fmt, ap);
-		strcat(Logmessage, tmp);
-
-		openlog(fileName, LOG_CONS | LOG_PID, LOG_USER);
-		syslog(LOG_INFO, "%s", Logmessage);
-		closelog();
-
+	if (syslogoutputFlag) {
+		connectSyslogIfNeeded();
+		lock.unlock();
+		syslog(LOG_INFO, "%s%s", header.c_str(), body.c_str());
+	} else {
+		lock.unlock();
 	}
-	lock.unlock();
-	
 }
 
 // ----------------------------------------------------------------------------
@@ -96,14 +86,14 @@ bool Logger::shouldLog(LogLevel level)
 void Logger::enableSyslogOutput(void)
 {
 	lock.writeLock();
-	syslogoutput_flag = true;
+	syslogoutputFlag = true;
 	lock.unlock();
 }
 
 void Logger::disableSyslogOuputput(void)
 {
 	lock.writeLock();
-	syslogoutput_flag = false;
+	syslogoutputFlag = false;
 	lock.unlock();
 }
 
@@ -140,4 +130,12 @@ void Logger::setCurrLogLevel(void)
 		m_currLogLevel = MLPL_LOG_INFO;
 	}
 	pthread_rwlock_unlock(&m_rwlock);
+}
+
+void Logger::connectSyslogIfNeeded(void)
+{
+	if (syslogConnected)
+		return;
+	openlog(NULL, LOG_CONS | LOG_PID, LOG_USER);
+	syslogConnected = true;
 }
