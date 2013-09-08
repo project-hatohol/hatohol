@@ -48,9 +48,9 @@ struct ConfigValue {
 	// constructor
 	ConfigValue(void)
 	: configDBServerPort(0),
-	  configDBName("hatohol"),
-	  configDBUser("hatohol"),
-	  configDBPassword("hatohol"),
+	  configDBName(DBClientConfig::DEFAULT_DB_NAME),
+	  configDBUser(DBClientConfig::DEFAULT_USER_NAME),
+	  configDBPassword(DBClientConfig::DEFAULT_PASSWORD),
 	  faceRestPort(0)
 	{
 	}
