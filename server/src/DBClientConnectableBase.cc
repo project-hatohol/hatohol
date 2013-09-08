@@ -143,5 +143,6 @@ void DBClientConnectableBase::setConnectInfo(
 {
 	DBSetupContext *setupCtx = PrivateContext::getDBSetupContext(domainId);
 	setupCtx->connectInfo = connectInfo;
+	setupCtx->dbSetupFuncArg->connectInfo = &setupCtx->connectInfo;
 	setupCtx->mutex.unlock();
 }

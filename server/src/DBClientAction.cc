@@ -418,6 +418,11 @@ void DBClientAction::init(void)
 
 	registerSetupInfo(
 	  DB_DOMAIN_ID_ACTION, DEFAULT_DB_NAME, &DB_ACTION_SETUP_FUNC_ARG);
+
+	// Now we assume that a DB server for this class is the same as that
+	// for DBClientConfig. So we copy the connectInfo of it.
+	DBConnectInfo connInfo = getDBConnectInfo(DB_DOMAIN_ID_CONFIG);
+	setConnectInfo(DB_DOMAIN_ID_ACTION, connInfo);
 }
 
 const char *DBClientAction::getTableNameActions(void)
