@@ -303,7 +303,7 @@ bool DBClientConfig::parseCommandLineArgument(const CommandLineArg &cmdArg)
 	return true;
 }
 
-void DBClientConfig::init(const CommandLineArg *cmdArg)
+void DBClientConfig::init(const CommandLineArg &cmdArg)
 {
 	HATOHOL_ASSERT(NUM_COLUMNS_SYSTEM == NUM_IDX_SYSTEM,
 	  "NUM_COLUMNS_SYSTEM: %zd, NUM_IDX_SYSTEM: %d",
@@ -341,9 +341,7 @@ void DBClientConfig::init(const CommandLineArg *cmdArg)
 	registerSetupInfo(
 	  DB_DOMAIN_ID_CONFIG, DEFAULT_DB_NAME, &DB_SETUP_FUNC_ARG);
 
-	if (!cmdArg)
-		return;
-	if (!parseCommandLineArgument(*cmdArg))
+	if (!parseCommandLineArgument(cmdArg))
 		THROW_HATOHOL_EXCEPTION("Failed to parse argument.");
 }
 

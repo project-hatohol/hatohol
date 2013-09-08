@@ -72,7 +72,7 @@ public:
 	static int CONFIG_DB_VERSION;
 	static const char *DEFAULT_DB_NAME;
 	static bool parseCommandLineArgument(const CommandLineArg &cmdArg);
-	static void init(const CommandLineArg *cmdArg = NULL);
+	static void init(const CommandLineArg &cmdArg);
 
 	DBClientConfig(const DBConnectInfo *connectInfo = NULL);
 	virtual ~DBClientConfig();

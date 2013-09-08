@@ -52,7 +52,7 @@ static void init(const CommandLineArg *arg)
 
 	DBAgentSQLite3::init();
 	DBAgentMySQL::init();
-	DBClientConfig::init(arg);
+	DBClientConfig::init(*arg);
 	DBClientHatohol::init();
 	DBClientZabbix::init();
 	DBClientAction::init();
@@ -86,6 +86,9 @@ static void reset(void)
 
 void hatoholInit(const CommandLineArg *arg)
 {
+	CommandLineArg emptyArg;
+	if (!arg)
+		arg = &emptyArg;
 	mutex.lock();
 	if (!initDone) {
 		init(arg);
