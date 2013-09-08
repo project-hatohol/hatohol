@@ -60,6 +60,9 @@ cut_trace(_assertAddToDB<MonitoringServerInfo>(X, addTargetServer))
 
 static DBConnectInfo getDefaultDBConnectInfo(void)
 {
+	// Default connectInfo is modified in cut_setup().
+	// DBClientConfig::parserCommandLineArguemnt() reset the default
+	// database name.
 	CommandLineArg cmdArg;
 	cppcut_assert_equal(
 	  true, TestDBClientConfig::callParseCommandLineArgument(cmdArg));
@@ -124,15 +127,7 @@ void test_getHostAddressBothNotSet(void)
 
 void test_databaseName(void)
 {
-	// Default connectInfo is modified in cut_setup().
-	// DBClientConfig::parserCommandLineArguemnt() reset the default
-	// database name.
-	CommandLineArg cmdArg;
-	cppcut_assert_equal(
-	  true, TestDBClientConfig::callParseCommandLineArgument(cmdArg));
-
-	DBConnectInfo connInfo =
-	  DBClient::getDBConnectInfo(DB_DOMAIN_ID_CONFIG);
+	DBConnectInfo connInfo = getDefaultDBConnectInfo();
 	cppcut_assert_equal(string(DBClientConfig::DEFAULT_DB_NAME),
 	                    connInfo.dbName);
 }
