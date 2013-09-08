@@ -86,11 +86,11 @@ static string makeExpectedOutput(MonitoringServerInfo *serverInfo)
 	return expectedOut;
 }
 
+static const char *TEST_DB_USER = "hatohol_test_user";
+static const char *TEST_DB_PASSWORD = ""; // empty: No password is used
 void cut_setup(void)
 {
 	hatoholInit();
-	static const char *TEST_DB_USER = "hatohol_test_user";
-	static const char *TEST_DB_PASSWORD = ""; // empty: No password is used
 	DBClient::setDefaultDBParams(
 	  DB_DOMAIN_ID_CONFIG, TEST_DB_NAME, TEST_DB_USER, TEST_DB_PASSWORD);
 
@@ -106,6 +106,14 @@ void test_dbDomainId(void)
 	DBClientConfig dbConfig;
 	cppcut_assert_equal(DB_DOMAIN_ID_CONFIG,
 	                    dbConfig.getDBAgent()->getDBDomainId());
+}
+
+void test_setDefaultDBParams(void)
+{
+	DBConnectInfo connInfo =
+	  DBClient::getDBConnectInfo(DB_DOMAIN_ID_CONFIG);
+	cppcut_assert_equal(string(TEST_DB_USER), connInfo.user);
+	cppcut_assert_equal(string(TEST_DB_PASSWORD), connInfo.password);
 }
 
 void test_getHostAddressIP(void)
