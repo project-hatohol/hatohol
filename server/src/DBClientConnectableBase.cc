@@ -25,18 +25,11 @@ struct DBClientConnectableBase::DBSetupContext {
 	MutexLock         mutex;
 	string            dbName;
 	DBSetupFuncArg   *dbSetupFuncArg;
-
-	// Contents in connectInfo is set to those in connectInfoMaseter
-	// on reset(). However, connectInfoMaster is never changed after
-	// its contents are set in the initialization.
-	DBConnectInfo connectInfo;
-	DBConnectInfo connectInfoMaster;
-	bool          connectInfoMasterInitialized;
+	DBConnectInfo     connectInfo;
 
 	DBSetupContext(void)
 	: initialized(false),
-	  dbSetupFuncArg(NULL),
-	  connectInfoMasterInitialized(false)
+	  dbSetupFuncArg(NULL)
 	{
 	}
 };
