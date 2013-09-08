@@ -77,9 +77,7 @@ static void init(const CommandLineArg *arg)
 static void reset(void)
 {
 	DBAgentSQLite3::reset();
-	DBClientConfig::reset();
-	DBClientAction::reset();
-	DBClientHatohol::reset();
+	DBClientConnectableBase::reset();
 	DBClientZabbix::reset();
 
 	ActionManager::reset();

@@ -270,9 +270,7 @@ static void updateDB(DBAgent *dbAgent, int oldVer, void *data)
 // ---------------------------------------------------------------------------
 bool DBClientConfig::parseCommandLineArgument(const CommandLineArg &cmdArg)
 {
-	initDefaultDBConnectInfoMaster();
-	DBConnectInfo &connMaster = getDBConnectInfoMaster();
-
+	DBConnectInfo connInfo;
 	string dbServer;
 	for (size_t i = 0; i < cmdArg.size(); i++) {
 		const string &arg = cmdArg[i];
@@ -288,21 +286,20 @@ bool DBClientConfig::parseCommandLineArgument(const CommandLineArg &cmdArg)
 	}
 
 	if (!dbServer.empty()) {
-		if (!parseDBServer(dbServer, connMaster.host, connMaster.port))
+		if (!parseDBServer(dbServer, connInfo.host, connInfo.port))
 			return false;
 	}
 
 	string portStr;
-	if (connMaster.port == 0)
+	if (connInfo.port == 0)
 		portStr = "(default)";
 	else
-		portStr = StringUtils::sprintf("%zd", connMaster.port);
+		portStr = StringUtils::sprintf("%zd", connInfo.port);
 	MLPL_INFO("Configuration DB Server: %s, port: %s, User: %s\n",
-	          connMaster.host.c_str(), portStr.c_str(),
-	          connMaster.user.c_str());
+	          connInfo.host.c_str(), portStr.c_str(),
+	          connInfo.user.c_str());
 
-	// copy the master data to connectInfo.
-	initDefaultDBConnectInfo();
+	setConnectInfo(DB_DOMAIN_ID_CONFIG, connInfo);
 	return true;
 }
 
@@ -341,7 +338,7 @@ void DBClientConfig::init(const CommandLineArg *cmdArg)
 		&updateDB,
 	};
 
-	addDefaultDBInfo(
+	registerSetupInfo(
 	  DB_DOMAIN_ID_CONFIG, DEFAULT_DB_NAME, &DB_SETUP_FUNC_ARG);
 
 	if (!cmdArg)
@@ -351,7 +348,8 @@ void DBClientConfig::init(const CommandLineArg *cmdArg)
 }
 
 DBClientConfig::DBClientConfig(const DBConnectInfo *connectInfo)
-: m_ctx(NULL)
+: DBClientConnectableBase(DB_DOMAIN_ID_CONFIG),
+  m_ctx(NULL)
 {
 	m_ctx = new PrivateContext();
 }

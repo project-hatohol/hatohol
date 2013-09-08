@@ -416,7 +416,7 @@ void DBClientAction::init(void)
 	  "NUM_COLUMNS_ACTION_LOGS: %zd, NUM_IDX_ACTION_LOGS: %d",
 	  NUM_COLUMNS_ACTION_LOGS, NUM_IDX_ACTION_LOGS);
 
-	addDefaultDBInfo(
+	registerSetupInfo(
 	  DB_DOMAIN_ID_ACTION, DEFAULT_DB_NAME, &DB_ACTION_SETUP_FUNC_ARG);
 }
 
@@ -431,7 +431,8 @@ const char *DBClientAction::getTableNameActionLogs(void)
 }
 
 DBClientAction::DBClientAction(void)
-: m_ctx(NULL)
+: DBClientConnectableBase(DB_DOMAIN_ID_ACTION),
+  m_ctx(NULL)
 {
 	m_ctx = new PrivateContext();
 }

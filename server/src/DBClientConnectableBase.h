@@ -26,18 +26,42 @@
 #include "MutexLock.h"
 
 class DBClientConnectableBase : public DBClient {
-protected:
-	struct DefaultDBInfo {
-		const char     *dbName;
-		DBSetupFuncArg *dbSetupFuncArg;
-	};
-	typedef map<DBDomainId, DefaultDBInfo>      DefaultDBInfoMap;
-	typedef DefaultDBInfoMap::iterator DefaultDBInfoMapIterator;
 
-	static void addDefaultDBInfo(
-	  DBDomainId domainId, const char *defaultDBName,
-	  DBSetupFuncArg *dbSetupFuncArg);
-	static DefaultDBInfo &getDefaultDBInfo(DBDomainId domainId);
+public:
+	static void reset(void);
+
+	/**
+	 * set the default parameters to connect the DB.
+	 * The parameters set by this function are used for the instance of
+	 * DBClientConnectable created with NULL as the first argument.
+	 * The paramers are reset to the sysytem default when reset() is called.
+	 *
+	 * @param domainId A DB domain ID.
+	 * @param dbName A database name.
+	 * @param user
+	 * A user name. If this paramter is "" (empty string), the name of
+	 * the current user is used.
+	 * @param passowrd
+	 * A password. If this parameter is "" (empty string), no passowrd
+	 * is used.
+	 */
+	static void setDefaultDBParams(DBDomainId domainId,
+	                               const string &dbName,
+	                               const string &user = "",
+	                               const string &password = "");
+	static DBConnectInfo getDBConnectInfo(DBDomainId domainId);
+
+	DBClientConnectableBase(DBDomainId domainId);
+
+protected:
+	struct DBSetupContext;
+	typedef map<DBDomainId, DBSetupContext *> DBSetupContextMap;
+	typedef DBSetupContextMap::iterator       DBSetupContextMapIterator;
+
+	static void registerSetupInfo(DBDomainId domainId, const string &dbName,
+	                              DBSetupFuncArg *dbSetupFuncArg);
+	static void setConnectInfo(DBDomainId domainId,
+	                           const DBConnectInfo &connectInfo);
 
 private:
 	struct PrivateContext;

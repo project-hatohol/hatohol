@@ -107,8 +107,7 @@ typedef list<ItemInfo>               ItemInfoList;
 typedef ItemInfoList::iterator       ItemInfoListIterator;
 typedef ItemInfoList::const_iterator ItemInfoListConstIterator;
 
-class DBClientHatohol :
-   public DBClientConnectable<DB_DOMAIN_ID_HATOHOL> {
+class DBClientHatohol : public DBClientConnectableBase {
 public:
 	static uint64_t EVENT_NOT_FOUND;
 	static int HATOHOL_DB_VERSION;

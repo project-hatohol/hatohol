@@ -473,12 +473,13 @@ void DBClientHatohol::init(void)
 	  "NUM_COLUMNS_ITEMS: %zd, NUM_IDX_ITEMS: %d",
 	  NUM_COLUMNS_ITEMS, NUM_IDX_ITEMS);
 
-	addDefaultDBInfo(
+	registerSetupInfo(
 	  DB_DOMAIN_ID_HATOHOL, DEFAULT_DB_NAME, &DB_SETUP_FUNC_ARG);
 }
 
 DBClientHatohol::DBClientHatohol(void)
-: m_ctx(NULL)
+: DBClientConnectableBase(DB_DOMAIN_ID_HATOHOL),
+  m_ctx(NULL)
 {
 	m_ctx = new PrivateContext();
 }

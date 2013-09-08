@@ -19,7 +19,6 @@ libhatohol_la_SOURCES = \
 	DBAgentSQLite3.cc DBAgentSQLite3.h \
 	DBClient.cc DBClient.h \
 	DBClientAction.cc DBClientAction.h \
-	DBClientConnectable.h \
 	DBClientConnectableBase.h DBClientConnectableBase.cc \
 	DBClientConfig.cc DBClientConfig.h \
 	DBClientHatohol.cc DBClientHatohol.h \

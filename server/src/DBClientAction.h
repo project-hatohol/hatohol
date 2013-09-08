@@ -201,8 +201,7 @@ enum ActionLogExecFailureCode {
 	ACTLOG_EXECFAIL_UNEXPECTED_EXIT,
 };
 
-class DBClientAction :
-   public DBClientConnectable<DB_DOMAIN_ID_ACTION>
+class DBClientAction : public DBClientConnectableBase
 {
 public:
 	struct LogEndExecActionArg {

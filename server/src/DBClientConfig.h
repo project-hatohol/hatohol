@@ -67,7 +67,7 @@ struct MonitoringServerInfo {
 typedef list<MonitoringServerInfo>         MonitoringServerInfoList;
 typedef MonitoringServerInfoList::iterator MonitoringServerInfoListIterator;
 
-class DBClientConfig : public DBClientConnectable<DB_DOMAIN_ID_CONFIG> {
+class DBClientConfig : public DBClientConnectableBase {
 public:
 	static int CONFIG_DB_VERSION;
 	static const char *DEFAULT_DB_NAME;

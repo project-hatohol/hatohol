@@ -19,41 +19,129 @@
 
 #include "DBClientConnectableBase.h"
 
+// This structure instnace is created once every DB_DOMAIN_ID
+struct DBClientConnectableBase::DBSetupContext {
+	bool              initialized;
+	MutexLock         mutex;
+	string            dbName;
+	DBSetupFuncArg   *dbSetupFuncArg;
 
-struct DBClientConnectableBase::PrivateContext {
-	static DefaultDBInfoMap defaultDBInfoMap;
-	static ReadWriteLock    dbInfoLock;
+	// Contents in connectInfo is set to those in connectInfoMaseter
+	// on reset(). However, connectInfoMaster is never changed after
+	// its contents are set in the initialization.
+	DBConnectInfo connectInfo;
+	DBConnectInfo connectInfoMaster;
+	bool          connectInfoMasterInitialized;
+
+	DBSetupContext(void)
+	: initialized(false),
+	  dbSetupFuncArg(NULL),
+	  connectInfoMasterInitialized(false)
+	{
+	}
 };
 
-DBClientConnectableBase::DefaultDBInfoMap
-  DBClientConnectableBase::PrivateContext::defaultDBInfoMap;
-ReadWriteLock DBClientConnectableBase::PrivateContext::dbInfoLock;
+struct DBClientConnectableBase::PrivateContext {
+	static DBSetupContextMap dbSetupCtxMap;
+	static ReadWriteLock     dbSetupCtxMapLock;
+
+	static DBSetupContext *getDBSetupContext(DBDomainId domainId)
+	{
+		dbSetupCtxMapLock.readLock();
+		DBSetupContextMapIterator it = dbSetupCtxMap.find(domainId);
+		HATOHOL_ASSERT(it != dbSetupCtxMap.end(),
+		               "Failed to find. domainId: %d\n", domainId);
+		DBSetupContext *setupCtx = it->second;
+		setupCtx->mutex.lock();
+		dbSetupCtxMapLock.unlock();
+		return setupCtx;
+	}
+
+	static void registerSetupInfo(DBDomainId domainId, const string &dbName,
+	                              DBSetupFuncArg *dbSetupFuncArg)
+	{
+		DBSetupContext *setupCtx = NULL;
+		dbSetupCtxMapLock.readLock();
+		DBSetupContextMapIterator it = dbSetupCtxMap.find(domainId);
+		if (it == dbSetupCtxMap.end()) {
+			setupCtx = new DBSetupContext();
+			dbSetupCtxMap[domainId] = setupCtx;
+		}
+		else {
+			setupCtx = it->second;
+		}
+		setupCtx->dbName = dbName;
+		setupCtx->dbSetupFuncArg = dbSetupFuncArg;
+		dbSetupCtxMapLock.unlock();
+	}
+};
+
+DBClientConnectableBase::DBSetupContextMap
+  DBClientConnectableBase::PrivateContext::dbSetupCtxMap;
+ReadWriteLock DBClientConnectableBase::PrivateContext::dbSetupCtxMapLock;
+
+// ---------------------------------------------------------------------------
+// Public methods
+// ---------------------------------------------------------------------------
+void DBClientConnectableBase::reset(void)
+{
+	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+}
+
+void DBClientConnectableBase::setDefaultDBParams(
+  DBDomainId domainId,
+  const string &dbName, const string &user, const string &password)
+{
+	DBSetupContext *setupCtx = PrivateContext::getDBSetupContext(domainId);
+	setupCtx->connectInfo.dbName   = dbName;
+	setupCtx->connectInfo.user     = user;
+	setupCtx->connectInfo.password = password;
+	setupCtx->mutex.unlock();
+}
+
+DBConnectInfo DBClientConnectableBase::getDBConnectInfo(DBDomainId domainId)
+{
+	DBSetupContext *setupCtx = PrivateContext::getDBSetupContext(domainId);
+	DBConnectInfo connInfo = setupCtx->connectInfo;
+	setupCtx->mutex.unlock();
+	return connInfo; // we return the copy
+}
+
+DBClientConnectableBase::DBClientConnectableBase(DBDomainId domainId)
+{
+	DBSetupContext *setupCtx = PrivateContext::getDBSetupContext(domainId);
+	if (!setupCtx->initialized) {
+		// The setup function: dbSetupFunc() is called from
+		// the creation of DBAgent instance below.
+		DBAgent::addSetupFunction(
+		  domainId, dbSetupFunc, (void *)setupCtx->dbSetupFuncArg);
+		bool skipSetup = false;
+		setDBAgent(DBAgentFactory::create(
+		  domainId, skipSetup, &setupCtx->connectInfo));
+		setupCtx->initialized = true;
+		setupCtx->mutex.unlock();
+	} else {
+		setupCtx->mutex.unlock();
+		bool skipSetup = true;
+		setDBAgent(DBAgentFactory::create(
+		  domainId, skipSetup, &setupCtx->connectInfo));
+	}
+}
 
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
-void DBClientConnectableBase::addDefaultDBInfo(
-  DBDomainId domainId, const char *defaultDBName,
+void DBClientConnectableBase::registerSetupInfo(
+  DBDomainId domainId, const string &dbName,
   DBSetupFuncArg *dbSetupFuncArg)
 {
-	pair<DefaultDBInfoMapIterator, bool> result;
-	DefaultDBInfo dbInfo = {defaultDBName, dbSetupFuncArg};
-	PrivateContext::dbInfoLock.writeLock();
-	result = PrivateContext::defaultDBInfoMap.insert(
-	  pair<DBDomainId, DefaultDBInfo>(domainId, dbInfo));
-	PrivateContext::dbInfoLock.unlock();
-	HATOHOL_ASSERT(result.second,
-	               "Failed to insert: Domain ID: %d", domainId);
+	PrivateContext::registerSetupInfo(domainId, dbName, dbSetupFuncArg);
 }
 
-DBClientConnectableBase::DefaultDBInfo
-&DBClientConnectableBase::getDefaultDBInfo(DBDomainId domainId)
+void DBClientConnectableBase::setConnectInfo(
+  DBDomainId domainId, const DBConnectInfo &connectInfo)
 {
-	PrivateContext::dbInfoLock.readLock();
-	DefaultDBInfoMapIterator it =
-	  PrivateContext::defaultDBInfoMap.find(domainId);
-	PrivateContext::dbInfoLock.unlock();
-	HATOHOL_ASSERT(it != PrivateContext::defaultDBInfoMap.end(),
-	               "Not found default DB info: %d", domainId);
-	return it->second;
+	DBSetupContext *setupCtx = PrivateContext::getDBSetupContext(domainId);
+	setupCtx->connectInfo = connectInfo;
+	setupCtx->mutex.unlock();
 }
