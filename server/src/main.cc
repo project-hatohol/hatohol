@@ -121,7 +121,8 @@ static bool daemonize(const CommandLineArg &arg)
 	pid_file = fopen(pidFilePath.c_str(), "w+");
 
 	if (pid_file == NULL) {
-		MLPL_ERR("Failed to record pid file\n");
+		MLPL_ERR("Failed to record pid file: %s\n",
+		         pidFilePath.c_str());
 		return false;
 	}
 
