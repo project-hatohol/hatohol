@@ -35,6 +35,12 @@ struct DBClientConnectableBase::DBSetupContext {
 };
 
 struct DBClientConnectableBase::PrivateContext {
+	// A DBSetupContext insntace is first stored in standbySetupCtxMap
+	// when it is registered by registerSetupInfo(). It is moved to
+	// dbSetupCtxMap when it is used. The purpose of thiss mechanism is
+	// to reduce the time of the instance lookup, because there may
+	// be instances that are registered but not actually used.
+	static DBSetupContextMap standbySetupCtxMap;
 	static DBSetupContextMap dbSetupCtxMap;
 	static ReadWriteLock     dbSetupCtxMapLock;
 
@@ -42,9 +48,20 @@ struct DBClientConnectableBase::PrivateContext {
 	{
 		dbSetupCtxMapLock.readLock();
 		DBSetupContextMapIterator it = dbSetupCtxMap.find(domainId);
-		HATOHOL_ASSERT(it != dbSetupCtxMap.end(),
-		               "Failed to find. domainId: %d\n", domainId);
-		DBSetupContext *setupCtx = it->second;
+		DBSetupContext *setupCtx = NULL;
+		if (it == dbSetupCtxMap.end()) {
+			// search from the standby map.
+			it = standbySetupCtxMap.find(domainId);
+			HATOHOL_ASSERT(it != dbSetupCtxMap.end(),
+			  "Failed to find. domainId: %d\n", domainId);
+
+			// move the element to dbSetupCtxMap.
+			setupCtx = it->second;
+			standbySetupCtxMap.erase(it);
+			dbSetupCtxMap[domainId] = setupCtx;
+		} else {
+			setupCtx = it->second;
+		}
 		setupCtx->mutex.lock();
 		dbSetupCtxMapLock.unlock();
 		return setupCtx;
@@ -56,13 +73,22 @@ struct DBClientConnectableBase::PrivateContext {
 		DBSetupContext *setupCtx = NULL;
 		dbSetupCtxMapLock.readLock();
 		DBSetupContextMapIterator it = dbSetupCtxMap.find(domainId);
-		if (it == dbSetupCtxMap.end()) {
-			setupCtx = new DBSetupContext();
-			dbSetupCtxMap[domainId] = setupCtx;
-		}
-		else {
+		if (it != dbSetupCtxMap.end()) {
 			setupCtx = it->second;
+		} else {
+			// search from the standby map.
+			it = standbySetupCtxMap.find(domainId);
+			if (it != standbySetupCtxMap.end())
+				setupCtx = it->second;
 		}
+
+		// make a new DBSetupContext if it is neither in dbSetupCtxMap
+		// nor standbySetupCtxMap.
+		if (!setupCtx) {
+			setupCtx = new DBSetupContext();
+			standbySetupCtxMap[domainId] = setupCtx;
+		}
+
 		setupCtx->dbName = dbName;
 		setupCtx->dbSetupFuncArg = dbSetupFuncArg;
 		dbSetupCtxMapLock.unlock();
@@ -81,6 +107,8 @@ struct DBClientConnectableBase::PrivateContext {
 	}
 };
 
+DBClientConnectableBase::DBSetupContextMap
+  DBClientConnectableBase::PrivateContext::standbySetupCtxMap;
 DBClientConnectableBase::DBSetupContextMap
   DBClientConnectableBase::PrivateContext::dbSetupCtxMap;
 ReadWriteLock DBClientConnectableBase::PrivateContext::dbSetupCtxMapLock;
