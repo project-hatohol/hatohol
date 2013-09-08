@@ -22,7 +22,7 @@
 
 #include <list>
 #include "DBClient.h"
-#include "DBClientConnectable.h"
+#include "DBClientConnectableBase.h"
 
 enum TriggerStatusType {
 	TRIGGER_STATUS_OK,

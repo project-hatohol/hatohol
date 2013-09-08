@@ -21,7 +21,7 @@
 #define DBClientConfig_h
 
 #include <list>
-#include "DBClientConnectable.h"
+#include "DBClientConnectableBase.h"
 
 enum MonitoringSystemType {
 	MONITORING_SYSTEM_ZABBIX,

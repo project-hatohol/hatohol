@@ -22,7 +22,7 @@
 
 #include <string>
 #include "DBClientHatohol.h"
-#include "DBClientConnectable.h"
+#include "DBClientConnectableBase.h"
 #include "Params.h"
 
 const static uint64_t INVALID_ACTION_LOG_ID = -1;
