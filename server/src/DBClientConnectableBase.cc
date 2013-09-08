@@ -67,6 +67,17 @@ struct DBClientConnectableBase::PrivateContext {
 		setupCtx->dbSetupFuncArg = dbSetupFuncArg;
 		dbSetupCtxMapLock.unlock();
 	}
+
+	static void clearInitializedFlag(void)
+	{
+		dbSetupCtxMapLock.readLock();
+		DBSetupContextMapIterator it = dbSetupCtxMap.begin();
+		for (; it != dbSetupCtxMap.end(); ++it) {
+			DBSetupContext *setupCtx = it->second;
+			setupCtx->initialized = false;
+		}
+		dbSetupCtxMapLock.unlock();
+	}
 };
 
 DBClientConnectableBase::DBSetupContextMap
@@ -78,7 +89,8 @@ ReadWriteLock DBClientConnectableBase::PrivateContext::dbSetupCtxMapLock;
 // ---------------------------------------------------------------------------
 void DBClientConnectableBase::reset(void)
 {
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	// We assume that this function is called in the test.
+	PrivateContext::clearInitializedFlag();
 }
 
 void DBClientConnectableBase::setDefaultDBParams(
