@@ -218,6 +218,7 @@ public:
 	static const char *DEFAULT_DB_NAME;
 
 	static void init(void);
+	static void reset(void);
 	static const char *getTableNameActions(void);
 	static const char *getTableNameActionLogs(void);
 

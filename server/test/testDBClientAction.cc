@@ -317,3 +317,36 @@ void test_getTriggerActionListWithAllCondition(void)
 }
 
 } // namespace testDBClientAction
+
+namespace testDBClientActionDefault {
+
+void cut_setup(void)
+{
+	hatoholInit();
+}
+
+void test_databaseName(void)
+{
+	DBConnectInfo connInfo =
+	  DBClient::getDBConnectInfo(DB_DOMAIN_ID_ACTION);
+	cppcut_assert_equal(string(DBClientConfig::DEFAULT_DB_NAME),
+	                    connInfo.dbName);
+}
+
+void test_databaseUser(void)
+{
+	DBConnectInfo connInfo =
+	  DBClient::getDBConnectInfo(DB_DOMAIN_ID_ACTION);
+	cppcut_assert_equal(string(DBClientConfig::DEFAULT_USER_NAME),
+	                    connInfo.user);
+}
+
+void test_databasePassword(void)
+{
+	DBConnectInfo connInfo =
+	  DBClient::getDBConnectInfo(DB_DOMAIN_ID_ACTION);
+	cppcut_assert_equal(string(DBClientConfig::DEFAULT_USER_NAME),
+	                    connInfo.user);
+}
+
+} // namespace testDBClientActionDefault
