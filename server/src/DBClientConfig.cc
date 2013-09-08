@@ -246,6 +246,8 @@ const char *MonitoringServerInfo::getHostAddress(void) const
 
 struct DBClientConfig::PrivateContext
 {
+	static DBConnectInfo connInfo;
+
 	PrivateContext(void)
 	{
 	}
@@ -254,6 +256,7 @@ struct DBClientConfig::PrivateContext
 	{
 	}
 };
+DBConnectInfo DBClientConfig::PrivateContext::connInfo;
 
 static void updateDB(DBAgent *dbAgent, int oldVer, void *data)
 {
@@ -310,6 +313,27 @@ void DBClientConfig::init(const CommandLineArg &cmdArg)
 
 	if (!parseCommandLineArgument(cmdArg))
 		THROW_HATOHOL_EXCEPTION("Failed to parse argument.");
+}
+
+void DBClientConfig::reset(void)
+{
+	DBConnectInfo &connInfo = PrivateContext::connInfo;
+	connInfo.user = DEFAULT_USER_NAME;
+	connInfo.password = DEFAULT_PASSWORD;
+	connInfo.dbName = DEFAULT_DB_NAME;
+
+	string portStr;
+	if (connInfo.port == 0)
+		portStr = "(default)";
+	else
+		portStr = StringUtils::sprintf("%zd", connInfo.port);
+	bool usePassword = !connInfo.password.empty();
+	MLPL_INFO("Configuration DB Server: %s, port: %s, "
+	          "DB: %s, User: %s, use password: %s\n",
+	          connInfo.host.c_str(), portStr.c_str(),
+	          connInfo.dbName.c_str(),
+	          connInfo.user.c_str(), usePassword ? "yes" : "no");
+	setConnectInfo(DB_DOMAIN_ID_CONFIG, connInfo);
 }
 
 DBClientConfig::DBClientConfig(void)
@@ -542,7 +566,8 @@ void DBClientConfig::getTargetServers
 // ---------------------------------------------------------------------------
 bool DBClientConfig::parseCommandLineArgument(const CommandLineArg &cmdArg)
 {
-	DBConnectInfo connInfo;
+	DBConnectInfo &connInfo = PrivateContext::connInfo;
+	connInfo.reset();
 	string dbServer;
 	for (size_t i = 0; i < cmdArg.size(); i++) {
 		const string &arg = cmdArg[i];
@@ -562,22 +587,6 @@ bool DBClientConfig::parseCommandLineArgument(const CommandLineArg &cmdArg)
 			return false;
 	}
 
-	string portStr;
-	if (connInfo.port == 0)
-		portStr = "(default)";
-	else
-		portStr = StringUtils::sprintf("%zd", connInfo.port);
-
-	connInfo.user = DEFAULT_USER_NAME;
-	connInfo.password = DEFAULT_PASSWORD;
-	connInfo.dbName = DEFAULT_DB_NAME;
-	bool usePassword = !connInfo.password.empty();
-	MLPL_INFO("Configuration DB Server: %s, port: %s, "
-	          "DB: %s, User: %s, use password: %s\n",
-	          connInfo.host.c_str(), portStr.c_str(),
-	          connInfo.dbName.c_str(),
-	          connInfo.user.c_str(), usePassword ? "yes" : "no");
-	setConnectInfo(DB_DOMAIN_ID_CONFIG, connInfo);
 	return true;
 }
 

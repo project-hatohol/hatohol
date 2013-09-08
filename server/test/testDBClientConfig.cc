@@ -32,9 +32,11 @@ struct TestDBClientConfig : public DBClientConfig {
 
 	static bool callParseCommandLineArgument(const CommandLineArg &cmdArg)
 	{
-		return parseCommandLineArgument(cmdArg);
+		bool ret = parseCommandLineArgument(cmdArg);
+		// Some of the parameters in the above are effective on reset().
+		TestDBClientConfig::reset();
+		return ret;
 	}
-
 };
 
 namespace testDBClientConfig {
@@ -96,6 +98,13 @@ void cut_setup(void)
 
 	bool recreate = true;
 	makeTestMySQLDBIfNeeded(TEST_DB_NAME, recreate);
+}
+
+void cut_teardown(void)
+{
+	// This commands resets the server address and the port.
+	CommandLineArg cmdArg;
+	TestDBClientConfig::callParseCommandLineArgument(cmdArg);
 }
 
 // ---------------------------------------------------------------------------

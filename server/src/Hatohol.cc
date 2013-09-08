@@ -78,6 +78,7 @@ static void reset(void)
 {
 	DBAgentSQLite3::reset();
 	DBClient::reset();
+	DBClientConfig::reset(); // must be after DBClient::reset()
 
 	ActionManager::reset();
 	ActorCollector::reset();

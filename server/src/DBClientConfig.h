@@ -74,6 +74,7 @@ public:
 	static const char *DEFAULT_USER_NAME;
 	static const char *DEFAULT_PASSWORD;
 	static void init(const CommandLineArg &cmdArg);
+	static void reset(void);
 
 	DBClientConfig(void);
 	virtual ~DBClientConfig();
