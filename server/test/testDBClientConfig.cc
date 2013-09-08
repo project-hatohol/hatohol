@@ -120,7 +120,8 @@ void test_databaseName(void)
 	// DBClientConfig::parserCommandLineArguemnt() reset the default
 	// database name.
 	CommandLineArg cmdArg;
-	TestDBClientConfig::callParseCommandLineArgument(cmdArg);
+	cppcut_assert_equal(
+	  true, TestDBClientConfig::callParseCommandLineArgument(cmdArg));
 
 	DBConnectInfo connInfo =
 	  DBClient::getDBConnectInfo(DB_DOMAIN_ID_CONFIG);
@@ -230,7 +231,8 @@ void test_parseArgConfigDBServer(void)
 	CommandLineArg arg;
 	arg.push_back("--config-db-server");
 	arg.push_back(serverName);
-	TestDBClientConfig::callParseCommandLineArgument(arg);
+	cppcut_assert_equal(
+	  true, TestDBClientConfig::callParseCommandLineArgument(arg));
 	DBConnectInfo connInfo =
 	   DBClient::getDBConnectInfo(DB_DOMAIN_ID_CONFIG);
 	cppcut_assert_equal(serverName, connInfo.host);
@@ -243,7 +245,8 @@ void test_parseArgConfigDBServerWithPort(void)
 	CommandLineArg arg;
 	arg.push_back("--config-db-server");
 	arg.push_back(StringUtils::sprintf("%s:%zd", serverName.c_str(), port));
-	TestDBClientConfig::callParseCommandLineArgument(arg);
+	cppcut_assert_equal(
+	  true, TestDBClientConfig::callParseCommandLineArgument(arg));
 	DBConnectInfo connInfo =
 	   DBClient::getDBConnectInfo(DB_DOMAIN_ID_CONFIG);
 	cppcut_assert_equal(serverName, connInfo.host);
