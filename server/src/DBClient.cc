@@ -66,7 +66,6 @@ enum {
 
 struct DBClient::PrivateContext
 {
-	static MutexLock mutex;
 	DBAgent      *dbAgent;
 
 	PrivateContext(void)
@@ -79,18 +78,7 @@ struct DBClient::PrivateContext
 		if (dbAgent)
 			delete dbAgent;
 	}
-
-	static void lock(void)
-	{
-		mutex.lock();
-	}
-
-	static void unlock(void)
-	{
-		mutex.unlock();
-	}
 };
-MutexLock DBClient::PrivateContext::mutex;
 
 // ---------------------------------------------------------------------------
 // Public methods
