@@ -346,7 +346,7 @@ void DBClientConfig::init(const CommandLineArg &cmdArg)
 }
 
 DBClientConfig::DBClientConfig(const DBConnectInfo *connectInfo)
-: DBClientConnectableBase(DB_DOMAIN_ID_CONFIG),
+: DBClient(DB_DOMAIN_ID_CONFIG),
   m_ctx(NULL)
 {
 	m_ctx = new PrivateContext();

@@ -454,10 +454,8 @@ void setupTestDBServers(void)
 	static const char *TEST_DB_NAME = "test_servers_in_helper";
 	static const char *TEST_DB_USER = "hatohol_test_user";
 	static const char *TEST_DB_PASSWORD = ""; // empty: No password is used
-	DBClientConnectableBase::setDefaultDBParams(DB_DOMAIN_ID_CONFIG,
-	                                            TEST_DB_NAME,
-	                                            TEST_DB_USER,
-	                                            TEST_DB_PASSWORD);
+	DBClient::setDefaultDBParams(DB_DOMAIN_ID_CONFIG, TEST_DB_NAME,
+	                             TEST_DB_USER, TEST_DB_PASSWORD);
 	static bool dbServerReady = false;
 	if (!dbServerReady) {
 		bool recreate = true;
@@ -475,10 +473,8 @@ void setupTestDBAction(bool dbRecreate, bool loadTestData)
 	static const char *TEST_DB_NAME = "test_action";
 	static const char *TEST_DB_USER = "hatohol_test_user";
 	static const char *TEST_DB_PASSWORD = ""; // empty: No password is used
-	DBClientConnectableBase::setDefaultDBParams(DB_DOMAIN_ID_ACTION,
-	                                            TEST_DB_NAME,
-	                                            TEST_DB_USER,
-	                                            TEST_DB_PASSWORD);
+	DBClient::setDefaultDBParams(DB_DOMAIN_ID_ACTION, TEST_DB_NAME,
+	                             TEST_DB_USER, TEST_DB_PASSWORD);
 	makeTestMySQLDBIfNeeded(TEST_DB_NAME, dbRecreate);
 	if (loadTestData)
 		loadTestDBAction();

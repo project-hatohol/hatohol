@@ -21,7 +21,7 @@
 #define DBClientConfig_h
 
 #include <list>
-#include "DBClientConnectableBase.h"
+#include "DBClient.h"
 
 enum MonitoringSystemType {
 	MONITORING_SYSTEM_ZABBIX,
@@ -67,7 +67,7 @@ struct MonitoringServerInfo {
 typedef list<MonitoringServerInfo>         MonitoringServerInfoList;
 typedef MonitoringServerInfoList::iterator MonitoringServerInfoListIterator;
 
-class DBClientConfig : public DBClientConnectableBase {
+class DBClientConfig : public DBClient {
 public:
 	static int CONFIG_DB_VERSION;
 	static const char *DEFAULT_DB_NAME;

@@ -27,8 +27,10 @@
 #include "ResidentProtocol.h"
 #include "ResidentCommunicator.h"
 #include "ActionExecArgMaker.h"
+#include "MutexLock.h"
 
 using namespace std;
+using namespace mlpl;
 
 struct ResidentInfo;
 struct ActionManager::ResidentNotifyInfo {

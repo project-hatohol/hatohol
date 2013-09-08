@@ -1585,7 +1585,7 @@ DBDomainId DBClientZabbix::getDBDomainId(int zabbixServerId)
 }
 
 DBClientZabbix::DBClientZabbix(size_t zabbixServerId)
-: DBClientConnectableBase(getDBDomainId(zabbixServerId)),
+: DBClient(getDBDomainId(zabbixServerId)),
   m_ctx(NULL)
 {
 	HATOHOL_ASSERT(zabbixServerId < NUM_MAX_ZABBIX_SERVERS,

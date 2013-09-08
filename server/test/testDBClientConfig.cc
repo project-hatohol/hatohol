@@ -71,7 +71,7 @@ void cut_setup(void)
 	hatoholInit();
 	static const char *TEST_DB_USER = "hatohol_test_user";
 	static const char *TEST_DB_PASSWORD = ""; // empty: No password is used
-	DBClientConnectableBase::setDefaultDBParams(
+	DBClient::setDefaultDBParams(
 	  DB_DOMAIN_ID_CONFIG, TEST_DB_NAME, TEST_DB_USER, TEST_DB_PASSWORD);
 
 	bool recreate = true;
@@ -209,7 +209,7 @@ void test_parseArgConfigDBServer(void)
 	arg.push_back(serverName);
 	DBClientConfig::parseCommandLineArgument(arg);
 	DBConnectInfo connInfo =
-	   DBClientConnectableBase::getDBConnectInfo(DB_DOMAIN_ID_CONFIG);
+	   DBClient::getDBConnectInfo(DB_DOMAIN_ID_CONFIG);
 	cppcut_assert_equal(serverName, connInfo.host);
 }
 
@@ -222,7 +222,7 @@ void test_parseArgConfigDBServerWithPort(void)
 	arg.push_back(StringUtils::sprintf("%s:%zd", serverName.c_str(), port));
 	DBClientConfig::parseCommandLineArgument(arg);
 	DBConnectInfo connInfo =
-	   DBClientConnectableBase::getDBConnectInfo(DB_DOMAIN_ID_CONFIG);
+	   DBClient::getDBConnectInfo(DB_DOMAIN_ID_CONFIG);
 	cppcut_assert_equal(serverName, connInfo.host);
 	cppcut_assert_equal(port, connInfo.port);
 }

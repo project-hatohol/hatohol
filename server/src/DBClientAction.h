@@ -22,7 +22,7 @@
 
 #include <string>
 #include "DBClientHatohol.h"
-#include "DBClientConnectableBase.h"
+#include "DBClient.h"
 #include "Params.h"
 
 const static uint64_t INVALID_ACTION_LOG_ID = -1;
@@ -201,8 +201,8 @@ enum ActionLogExecFailureCode {
 	ACTLOG_EXECFAIL_UNEXPECTED_EXIT,
 };
 
-class DBClientAction : public DBClientConnectableBase
-{
+class DBClientAction : public DBClient {
+
 public:
 	struct LogEndExecActionArg {
 		uint64_t logId;

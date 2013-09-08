@@ -20,10 +20,10 @@
 #ifndef DBClientZabbix_h
 #define DBClientZabbix_h
 
-#include "DBClientConnectableBase.h"
+#include "DBClient.h"
 #include "DBClientHatohol.h"
 
-class DBClientZabbix : public DBClientConnectableBase {
+class DBClientZabbix : public DBClient {
 public:
 	typedef void (DBClientZabbix::*AbsentItemPicker)
 	               (vector<uint64_t> &absentHostIdVector,

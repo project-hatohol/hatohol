@@ -436,7 +436,7 @@ const char *DBClientAction::getTableNameActionLogs(void)
 }
 
 DBClientAction::DBClientAction(void)
-: DBClientConnectableBase(DB_DOMAIN_ID_ACTION),
+: DBClient(DB_DOMAIN_ID_ACTION),
   m_ctx(NULL)
 {
 	m_ctx = new PrivateContext();

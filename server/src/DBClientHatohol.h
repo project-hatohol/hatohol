@@ -22,7 +22,7 @@
 
 #include <list>
 #include "DBClient.h"
-#include "DBClientConnectableBase.h"
+#include "DBClient.h"
 
 enum TriggerStatusType {
 	TRIGGER_STATUS_OK,
@@ -107,7 +107,7 @@ typedef list<ItemInfo>               ItemInfoList;
 typedef ItemInfoList::iterator       ItemInfoListIterator;
 typedef ItemInfoList::const_iterator ItemInfoListConstIterator;
 
-class DBClientHatohol : public DBClientConnectableBase {
+class DBClientHatohol : public DBClient {
 public:
 	static uint64_t EVENT_NOT_FOUND;
 	static int HATOHOL_DB_VERSION;

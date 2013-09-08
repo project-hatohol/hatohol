@@ -64,9 +64,33 @@ enum {
 	NUM_IDX_DBCLIENT,
 };
 
-struct DBClient::PrivateContext
-{
-	DBAgent      *dbAgent;
+// This structure instnace is created once every DB_DOMAIN_ID
+struct DBClient::DBSetupContext {
+	bool              initialized;
+	MutexLock         mutex;
+	string            dbName;
+	DBSetupFuncArg   *dbSetupFuncArg;
+	DBConnectInfo     connectInfo;
+
+	DBSetupContext(void)
+	: initialized(false),
+	  dbSetupFuncArg(NULL)
+	{
+	}
+};
+
+struct DBClient::PrivateContext {
+
+	DBAgent                 *dbAgent;
+
+	// A DBSetupContext insntace is first stored in standbySetupCtxMap
+	// when it is registered by registerSetupInfo(). It is moved to
+	// dbSetupCtxMap when it is used. The purpose of thiss mechanism is
+	// to reduce the time of the instance lookup, because there may
+	// be instances that are registered but not actually used.
+	static DBSetupContextMap standbySetupCtxMap;
+	static DBSetupContextMap dbSetupCtxMap;
+	static ReadWriteLock     dbSetupCtxMapLock;
 
 	PrivateContext(void)
 	: dbAgent(NULL)
@@ -78,15 +102,129 @@ struct DBClient::PrivateContext
 		if (dbAgent)
 			delete dbAgent;
 	}
+
+	static DBSetupContext *getDBSetupContext(DBDomainId domainId)
+	{
+		dbSetupCtxMapLock.readLock();
+		DBSetupContextMapIterator it = dbSetupCtxMap.find(domainId);
+		DBSetupContext *setupCtx = NULL;
+		if (it == dbSetupCtxMap.end()) {
+			// search from the standby map.
+			it = standbySetupCtxMap.find(domainId);
+			HATOHOL_ASSERT(it != dbSetupCtxMap.end(),
+			  "Failed to find. domainId: %d\n", domainId);
+
+			// move the element to dbSetupCtxMap.
+			setupCtx = it->second;
+			standbySetupCtxMap.erase(it);
+			dbSetupCtxMap[domainId] = setupCtx;
+		} else {
+			setupCtx = it->second;
+		}
+		setupCtx->mutex.lock();
+		dbSetupCtxMapLock.unlock();
+		return setupCtx;
+	}
+
+	static void registerSetupInfo(DBDomainId domainId, const string &dbName,
+	                              DBSetupFuncArg *dbSetupFuncArg)
+	{
+		DBSetupContext *setupCtx = NULL;
+		dbSetupCtxMapLock.readLock();
+		DBSetupContextMapIterator it = dbSetupCtxMap.find(domainId);
+		if (it != dbSetupCtxMap.end()) {
+			setupCtx = it->second;
+		} else {
+			// search from the standby map.
+			it = standbySetupCtxMap.find(domainId);
+			if (it != standbySetupCtxMap.end())
+				setupCtx = it->second;
+		}
+
+		// make a new DBSetupContext if it is neither in dbSetupCtxMap
+		// nor standbySetupCtxMap.
+		if (!setupCtx) {
+			setupCtx = new DBSetupContext();
+			standbySetupCtxMap[domainId] = setupCtx;
+		}
+
+		setupCtx->dbName = dbName;
+		setupCtx->dbSetupFuncArg = dbSetupFuncArg;
+		dbSetupCtxMapLock.unlock();
+	}
+
+	static void clearInitializedFlag(void)
+	{
+		dbSetupCtxMapLock.readLock();
+		DBSetupContextMapIterator it = dbSetupCtxMap.begin();
+		for (; it != dbSetupCtxMap.end(); ++it) {
+			DBSetupContext *setupCtx = it->second;
+			setupCtx->initialized = false;
+			setupCtx->connectInfo.reset();
+		}
+		dbSetupCtxMapLock.unlock();
+	}
 };
+
+DBClient::DBSetupContextMap
+  DBClient::PrivateContext::standbySetupCtxMap;
+DBClient::DBSetupContextMap
+  DBClient::PrivateContext::dbSetupCtxMap;
+ReadWriteLock DBClient::PrivateContext::dbSetupCtxMapLock;
 
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
-DBClient::DBClient(void)
+
+// static method
+void DBClient::reset(void)
+{
+	// We assume that this function is called in the test.
+	PrivateContext::clearInitializedFlag();
+}
+
+void DBClient::setDefaultDBParams(
+  DBDomainId domainId,
+  const string &dbName, const string &user, const string &password)
+{
+	DBSetupContext *setupCtx = PrivateContext::getDBSetupContext(domainId);
+	setupCtx->connectInfo.dbName   = dbName;
+	setupCtx->connectInfo.user     = user;
+	setupCtx->connectInfo.password = password;
+	setupCtx->mutex.unlock();
+}
+
+DBConnectInfo DBClient::getDBConnectInfo(DBDomainId domainId)
+{
+	DBSetupContext *setupCtx = PrivateContext::getDBSetupContext(domainId);
+	DBConnectInfo connInfo = setupCtx->connectInfo;
+	setupCtx->mutex.unlock();
+	return connInfo; // we return the copy
+}
+
+// non static method
+DBClient::DBClient(DBDomainId domainId)
 : m_ctx(NULL)
 {
 	m_ctx = new PrivateContext();
+
+	DBSetupContext *setupCtx = PrivateContext::getDBSetupContext(domainId);
+	if (!setupCtx->initialized) {
+		// The setup function: dbSetupFunc() is called from
+		// the creation of DBAgent instance below.
+		DBAgent::addSetupFunction(
+		  domainId, dbSetupFunc, (void *)setupCtx->dbSetupFuncArg);
+		bool skipSetup = false;
+		setDBAgent(DBAgentFactory::create(
+		  domainId, skipSetup, &setupCtx->connectInfo));
+		setupCtx->initialized = true;
+		setupCtx->mutex.unlock();
+	} else {
+		setupCtx->mutex.unlock();
+		bool skipSetup = true;
+		setDBAgent(DBAgentFactory::create(
+		  domainId, skipSetup, &setupCtx->connectInfo));
+	}
 }
 
 DBClient::~DBClient()
@@ -105,6 +243,22 @@ DBAgent *DBClient::getDBAgent(void) const
 // ---------------------------------------------------------------------------
 
 // static methods
+void DBClient::registerSetupInfo(
+  DBDomainId domainId, const string &dbName,
+  DBSetupFuncArg *dbSetupFuncArg)
+{
+	PrivateContext::registerSetupInfo(domainId, dbName, dbSetupFuncArg);
+}
+
+void DBClient::setConnectInfo(
+  DBDomainId domainId, const DBConnectInfo &connectInfo)
+{
+	DBSetupContext *setupCtx = PrivateContext::getDBSetupContext(domainId);
+	setupCtx->connectInfo = connectInfo;
+	setupCtx->dbSetupFuncArg->connectInfo = &setupCtx->connectInfo;
+	setupCtx->mutex.unlock();
+}
+
 void DBClient::createTable
   (DBAgent *dbAgent, const string &tableName, size_t numColumns,
    const ColumnDef *columnDefs, CreateTableInitializer initializer, void *data)

@@ -478,7 +478,7 @@ void DBClientHatohol::init(void)
 }
 
 DBClientHatohol::DBClientHatohol(void)
-: DBClientConnectableBase(DB_DOMAIN_ID_HATOHOL),
+: DBClient(DB_DOMAIN_ID_HATOHOL),
   m_ctx(NULL)
 {
 	m_ctx = new PrivateContext();
