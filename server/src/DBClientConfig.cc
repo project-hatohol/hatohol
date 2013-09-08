@@ -310,7 +310,7 @@ void DBClientConfig::init(const CommandLineArg &cmdArg)
 		THROW_HATOHOL_EXCEPTION("Failed to parse argument.");
 }
 
-DBClientConfig::DBClientConfig(const DBConnectInfo *connectInfo)
+DBClientConfig::DBClientConfig(void)
 : DBClient(DB_DOMAIN_ID_CONFIG),
   m_ctx(NULL)
 {

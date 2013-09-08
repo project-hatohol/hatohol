@@ -73,7 +73,7 @@ public:
 	static const char *DEFAULT_DB_NAME;
 	static void init(const CommandLineArg &cmdArg);
 
-	DBClientConfig(const DBConnectInfo *connectInfo = NULL);
+	DBClientConfig(void);
 	virtual ~DBClientConfig();
 
 	string  getDatabaseDir(void);
