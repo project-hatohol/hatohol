@@ -98,6 +98,7 @@ struct DBConnectInfo {
 
 	DBConnectInfo(void);
 	virtual ~DBConnectInfo();
+	void reset(void);
 	const char *getHost(void) const;
 	const char *getUser(void) const;
 	const char *getPassword(void) const;

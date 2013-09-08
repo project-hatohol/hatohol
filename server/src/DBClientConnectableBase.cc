@@ -75,6 +75,7 @@ struct DBClientConnectableBase::PrivateContext {
 		for (; it != dbSetupCtxMap.end(); ++it) {
 			DBSetupContext *setupCtx = it->second;
 			setupCtx->initialized = false;
+			setupCtx->connectInfo.reset();
 		}
 		dbSetupCtxMapLock.unlock();
 	}

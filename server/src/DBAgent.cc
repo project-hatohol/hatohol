@@ -59,6 +59,16 @@ DBConnectInfo::~DBConnectInfo()
 {
 }
 
+void DBConnectInfo::reset(void)
+{
+	host = "localhost";
+	port = 0;
+
+	user.clear();
+	password.clear();
+	dbName.clear();
+}
+
 const char *DBConnectInfo::getHost(void) const
 {
 	if (host.empty())
