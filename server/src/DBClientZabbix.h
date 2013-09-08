@@ -20,10 +20,10 @@
 #ifndef DBClientZabbix_h
 #define DBClientZabbix_h
 
-#include "DBClient.h"
+#include "DBClientConnectableBase.h"
 #include "DBClientHatohol.h"
 
-class DBClientZabbix : public DBClient {
+class DBClientZabbix : public DBClientConnectableBase {
 public:
 	typedef void (DBClientZabbix::*AbsentItemPicker)
 	               (vector<uint64_t> &absentHostIdVector,
@@ -35,9 +35,7 @@ public:
 	static const int TRIGGER_CHANGE_TIME_NOT_FOUND;
 
 	static void init(void);
-	static void reset(void);
 	static DBDomainId getDBDomainId(int zabbixServerId);
-	static void resetDBInitializedFlags(void);
 	static void transformEventsToHatoholFormat(EventInfoList &eventInfoList,
 	                                         const ItemTablePtr events,
 	                                         uint32_t serverId);
@@ -102,7 +100,6 @@ protected:
 	static int  getItemVariable(const string &word);
 	static void extractItemKeys(StringVector &params, const string &key);
 
-	void prepareSetupFuncCallback(size_t zabbixServerId);
 	void addItems(
 	  ItemTablePtr tablePtr, const string &tableName,
 	  size_t numColumns, const ColumnDef *columnDefs,

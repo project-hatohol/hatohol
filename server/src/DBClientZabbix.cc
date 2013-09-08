@@ -1479,8 +1479,6 @@ enum {
 
 struct DBClientZabbix::PrivateContext
 {
-	static MutexLock mutex;
-	static bool   dbInitializedFlags[NUM_MAX_ZABBIX_SERVERS];
 	size_t             serverId;
 	DBAgentSelectExArg selectExArgForTriggerAsHatoholFormat;
 
@@ -1489,24 +1487,7 @@ struct DBClientZabbix::PrivateContext
 	: serverId(_serverId)
 	{
 	}
-
-	~PrivateContext()
-	{
-	}
-
-	static void lock(void)
-	{
-		mutex.lock();
-	}
-
-	static void unlock(void)
-	{
-		mutex.unlock();
-	}
 };
-
-MutexLock DBClientZabbix::PrivateContext::mutex;
-bool DBClientZabbix::PrivateContext::dbInitializedFlags[NUM_MAX_ZABBIX_SERVERS];
 
 // ---------------------------------------------------------------------------
 // Public methods
@@ -1548,11 +1529,54 @@ void DBClientZabbix::init(void)
 	  "Invalid number of elements: NUM_COLUMNS_APPLICATIONS_RAW_2_0 (%zd), "
 	  "NUM_IDX_APPLICATIONS_RAW_2_0 (%d)",
 	  NUM_COLUMNS_APPLICATIONS_RAW_2_0, NUM_IDX_APPLICATIONS_RAW_2_0);
-}
 
-void DBClientZabbix::reset(void)
-{
-	DBClientZabbix::resetDBInitializedFlags();
+	static const DBSetupTableInfo DB_TABLE_INFO[] = {
+	{
+		TABLE_NAME_SYSTEM,
+		NUM_COLUMNS_SYSTEM,
+		COLUMN_DEF_SYSTEM,
+		tableInitializerSystem,
+	}, {
+		TABLE_NAME_TRIGGERS_RAW_2_0,
+		NUM_COLUMNS_TRIGGERS_RAW_2_0,
+		COLUMN_DEF_TRIGGERS_RAW_2_0,
+	}, {
+		TABLE_NAME_FUNCTIONS_RAW_2_0,
+		NUM_COLUMNS_FUNCTIONS_RAW_2_0,
+		COLUMN_DEF_FUNCTIONS_RAW_2_0,
+	}, {
+		TABLE_NAME_ITEMS_RAW_2_0,
+		NUM_COLUMNS_ITEMS_RAW_2_0,
+		COLUMN_DEF_ITEMS_RAW_2_0,
+	}, {
+		TABLE_NAME_HOSTS_RAW_2_0,
+		NUM_COLUMNS_HOSTS_RAW_2_0,
+		COLUMN_DEF_HOSTS_RAW_2_0,
+	}, {
+		TABLE_NAME_EVENTS_RAW_2_0,
+		NUM_COLUMNS_EVENTS_RAW_2_0,
+		COLUMN_DEF_EVENTS_RAW_2_0,
+	}, {
+		TABLE_NAME_APPLICATIONS_RAW_2_0,
+		NUM_COLUMNS_APPLICATIONS_RAW_2_0,
+		COLUMN_DEF_APPLICATIONS_RAW_2_0,
+	},
+	};
+	static const size_t NUM_TABLE_INFO =
+	sizeof(DB_TABLE_INFO) / sizeof(DBClient::DBSetupTableInfo);
+
+	static DBSetupFuncArg DB_SETUP_FUNC_ARG = {
+		ZABBIX_DB_VERSION,
+		NUM_TABLE_INFO,
+		DB_TABLE_INFO,
+	};
+
+	for (size_t i = 0; i < NUM_MAX_ZABBIX_SERVERS; i++) {
+		string dbName =
+		  StringUtils::sprintf("hatohol_cache_zabbix_%zd", i);
+		DBDomainId domainId = DB_DOMAIN_ID_ZABBIX + i;
+		registerSetupInfo(domainId, dbName, &DB_SETUP_FUNC_ARG);
+	}
 }
 
 DBDomainId DBClientZabbix::getDBDomainId(int zabbixServerId)
@@ -1560,37 +1584,14 @@ DBDomainId DBClientZabbix::getDBDomainId(int zabbixServerId)
 	return DB_DOMAIN_ID_ZABBIX + zabbixServerId;
 }
 
-void DBClientZabbix::resetDBInitializedFlags(void)
-{
-	// This function is mainly for test
-	for (size_t i = 0; i < NUM_MAX_ZABBIX_SERVERS; i++)
-		PrivateContext::dbInitializedFlags[i] = false;
-}
-
 DBClientZabbix::DBClientZabbix(size_t zabbixServerId)
-: m_ctx(NULL)
+: DBClientConnectableBase(getDBDomainId(zabbixServerId)),
+  m_ctx(NULL)
 {
 	HATOHOL_ASSERT(zabbixServerId < NUM_MAX_ZABBIX_SERVERS,
 	   "The specified zabbix server ID is larger than max: %zd",
 	   zabbixServerId); 
 	m_ctx = new PrivateContext(zabbixServerId);
-
-	DBDomainId domainId = DB_DOMAIN_ID_ZABBIX + zabbixServerId;
-	m_ctx->lock();
-	if (!m_ctx->dbInitializedFlags[zabbixServerId]) {
-		// prepareSetupFuncCallack() just registers a setup function.
-		// The actual setup is performed in the first creation of 
-		// an instance in the following DBAgentFactory::create().
-		prepareSetupFuncCallback(zabbixServerId);
-		bool skipSetup = false;
-		setDBAgent(DBAgentFactory::create(domainId, skipSetup));
-		m_ctx->dbInitializedFlags[zabbixServerId] = true;
-		m_ctx->unlock();
-	} else {
-		m_ctx->unlock();
-		bool skipSetup = true;
-		setDBAgent(DBAgentFactory::create(domainId, skipSetup));
-	}
 }
 
 DBClientZabbix::~DBClientZabbix()
@@ -2151,54 +2152,6 @@ void DBClientZabbix::extractItemKeys(StringVector &params, const string &key)
 //
 // Non-static methods
 //
-void DBClientZabbix::prepareSetupFuncCallback(size_t zabbixServerId)
-{
-	static const DBSetupTableInfo DB_TABLE_INFO[] = {
-	{
-		TABLE_NAME_SYSTEM,
-		NUM_COLUMNS_SYSTEM,
-		COLUMN_DEF_SYSTEM,
-		tableInitializerSystem,
-	}, {
-		TABLE_NAME_TRIGGERS_RAW_2_0,
-		NUM_COLUMNS_TRIGGERS_RAW_2_0,
-		COLUMN_DEF_TRIGGERS_RAW_2_0,
-	}, {
-		TABLE_NAME_FUNCTIONS_RAW_2_0,
-		NUM_COLUMNS_FUNCTIONS_RAW_2_0,
-		COLUMN_DEF_FUNCTIONS_RAW_2_0,
-	}, {
-		TABLE_NAME_ITEMS_RAW_2_0,
-		NUM_COLUMNS_ITEMS_RAW_2_0,
-		COLUMN_DEF_ITEMS_RAW_2_0,
-	}, {
-		TABLE_NAME_HOSTS_RAW_2_0,
-		NUM_COLUMNS_HOSTS_RAW_2_0,
-		COLUMN_DEF_HOSTS_RAW_2_0,
-	}, {
-		TABLE_NAME_EVENTS_RAW_2_0,
-		NUM_COLUMNS_EVENTS_RAW_2_0,
-		COLUMN_DEF_EVENTS_RAW_2_0,
-	}, {
-		TABLE_NAME_APPLICATIONS_RAW_2_0,
-		NUM_COLUMNS_APPLICATIONS_RAW_2_0,
-		COLUMN_DEF_APPLICATIONS_RAW_2_0,
-	},
-	};
-	static const size_t NUM_TABLE_INFO =
-	sizeof(DB_TABLE_INFO) / sizeof(DBClient::DBSetupTableInfo);
-
-	static const DBSetupFuncArg DB_SETUP_FUNC_ARG = {
-		ZABBIX_DB_VERSION,
-		NUM_TABLE_INFO,
-		DB_TABLE_INFO,
-	};
-
-	DBDomainId domainId = getDBDomainId(zabbixServerId);
-	DBAgent::addSetupFunction(domainId, dbSetupFunc,
-	                          (void *)&DB_SETUP_FUNC_ARG);
-}
-
 void DBClientZabbix::addItems(
   ItemTablePtr tablePtr,
   const string &tableName, size_t numColumns, const ColumnDef *columnDefs,
