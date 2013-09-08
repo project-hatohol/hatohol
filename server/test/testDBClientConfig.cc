@@ -58,6 +58,14 @@ static void addTargetServer(MonitoringServerInfo *serverInfo)
 #define assertAddServerToDB(X) \
 cut_trace(_assertAddToDB<MonitoringServerInfo>(X, addTargetServer))
 
+static DBConnectInfo getDefaultDBConnectInfo(void)
+{
+	CommandLineArg cmdArg;
+	cppcut_assert_equal(
+	  true, TestDBClientConfig::callParseCommandLineArgument(cmdArg));
+	return DBClient::getDBConnectInfo(DB_DOMAIN_ID_CONFIG);
+}
+
 static string makeExpectedOutput(MonitoringServerInfo *serverInfo)
 {
 	string expectedOut = StringUtils::sprintf
@@ -127,6 +135,20 @@ void test_databaseName(void)
 	  DBClient::getDBConnectInfo(DB_DOMAIN_ID_CONFIG);
 	cppcut_assert_equal(string(DBClientConfig::DEFAULT_DB_NAME),
 	                    connInfo.dbName);
+}
+
+void test_databaseUser(void)
+{
+	DBConnectInfo connInfo = getDefaultDBConnectInfo();
+	cppcut_assert_equal(string(DBClientConfig::DEFAULT_USER_NAME),
+	                    connInfo.user);
+}
+
+void test_databasePassword(void)
+{
+	DBConnectInfo connInfo = getDefaultDBConnectInfo();
+	cppcut_assert_equal(string(DBClientConfig::DEFAULT_USER_NAME),
+	                    connInfo.user);
 }
 
 void test_createDB(void)

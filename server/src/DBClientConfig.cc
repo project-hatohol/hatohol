@@ -32,6 +32,8 @@ static const char *TABLE_NAME_SERVERS = "servers";
 
 int DBClientConfig::CONFIG_DB_VERSION = 6;
 const char *DBClientConfig::DEFAULT_DB_NAME = "hatohol";
+const char *DBClientConfig::DEFAULT_USER_NAME = "hatohol";
+const char *DBClientConfig::DEFAULT_PASSWORD  = "hatohol";
 
 static const ColumnDef COLUMN_DEF_SYSTEM[] = {
 {
@@ -566,6 +568,8 @@ bool DBClientConfig::parseCommandLineArgument(const CommandLineArg &cmdArg)
 	else
 		portStr = StringUtils::sprintf("%zd", connInfo.port);
 
+	connInfo.user = DEFAULT_USER_NAME;
+	connInfo.password = DEFAULT_PASSWORD;
 	connInfo.dbName = DEFAULT_DB_NAME;
 	bool usePassword = !connInfo.password.empty();
 	MLPL_INFO("Configuration DB Server: %s, port: %s, User: %s, "
