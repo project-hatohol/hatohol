@@ -215,15 +215,15 @@ DBClient::DBClient(DBDomainId domainId)
 		DBAgent::addSetupFunction(
 		  domainId, dbSetupFunc, (void *)setupCtx->dbSetupFuncArg);
 		bool skipSetup = false;
-		setDBAgent(DBAgentFactory::create(
-		  domainId, skipSetup, &setupCtx->connectInfo));
+		m_ctx->dbAgent = DBAgentFactory::create(domainId, skipSetup,
+		                                        &setupCtx->connectInfo);
 		setupCtx->initialized = true;
 		setupCtx->mutex.unlock();
 	} else {
 		setupCtx->mutex.unlock();
 		bool skipSetup = true;
-		setDBAgent(DBAgentFactory::create(
-		  domainId, skipSetup, &setupCtx->connectInfo));
+		m_ctx->dbAgent = DBAgentFactory::create(domainId, skipSetup,
+		                                        &setupCtx->connectInfo);
 	}
 }
 
@@ -378,11 +378,6 @@ void DBClient::dbSetupFunc(DBDomainId domainId, void *data)
 		(*tableInfo.initializer)(rawDBAgent.get(),
 	                                 tableInfo.initializerData);
 	}
-}
-
-void DBClient::setDBAgent(DBAgent *dbAgent)
-{
-	m_ctx->dbAgent = dbAgent;
 }
 
 void DBClient::begin(void)

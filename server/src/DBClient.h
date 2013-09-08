@@ -118,7 +118,6 @@ protected:
 
 	// non-static methods
 	static void dbSetupFunc(DBDomainId domainId, void *data);
-	void setDBAgent(DBAgent *dbAgent);
 
 	void begin(void);
 	void rollback(void);
