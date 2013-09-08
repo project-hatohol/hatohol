@@ -71,7 +71,6 @@ class DBClientConfig : public DBClient {
 public:
 	static int CONFIG_DB_VERSION;
 	static const char *DEFAULT_DB_NAME;
-	static bool parseCommandLineArgument(const CommandLineArg &cmdArg);
 	static void init(const CommandLineArg &cmdArg);
 
 	DBClientConfig(const DBConnectInfo *connectInfo = NULL);
@@ -87,6 +86,7 @@ public:
 	void getTargetServers(MonitoringServerInfoList &monitoringServers);
 
 protected:
+	static bool parseCommandLineArgument(const CommandLineArg &cmdArg);
 	static void tableInitializerSystem(DBAgent *dbAgent, void *data);
 	static bool parseDBServer(const string &dbServer,
 	                          string &host, size_t &port);

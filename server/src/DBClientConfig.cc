@@ -268,41 +268,6 @@ static void updateDB(DBAgent *dbAgent, int oldVer, void *data)
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
-bool DBClientConfig::parseCommandLineArgument(const CommandLineArg &cmdArg)
-{
-	DBConnectInfo connInfo;
-	string dbServer;
-	for (size_t i = 0; i < cmdArg.size(); i++) {
-		const string &arg = cmdArg[i];
-		if (arg == "--config-db-server") {
-			if (i == cmdArg.size()-1) {
-				MLPL_ERR(
-				  "--config-db-server needs an argument.\n");
-				return false;
-			}
-			i++;
-			dbServer = cmdArg[i];
-		}
-	}
-
-	if (!dbServer.empty()) {
-		if (!parseDBServer(dbServer, connInfo.host, connInfo.port))
-			return false;
-	}
-
-	string portStr;
-	if (connInfo.port == 0)
-		portStr = "(default)";
-	else
-		portStr = StringUtils::sprintf("%zd", connInfo.port);
-	MLPL_INFO("Configuration DB Server: %s, port: %s, User: %s\n",
-	          connInfo.host.c_str(), portStr.c_str(),
-	          connInfo.user.c_str());
-
-	setConnectInfo(DB_DOMAIN_ID_CONFIG, connInfo);
-	return true;
-}
-
 void DBClientConfig::init(const CommandLineArg &cmdArg)
 {
 	HATOHOL_ASSERT(NUM_COLUMNS_SYSTEM == NUM_IDX_SYSTEM,
@@ -573,6 +538,41 @@ void DBClientConfig::getTargetServers
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
+bool DBClientConfig::parseCommandLineArgument(const CommandLineArg &cmdArg)
+{
+	DBConnectInfo connInfo;
+	string dbServer;
+	for (size_t i = 0; i < cmdArg.size(); i++) {
+		const string &arg = cmdArg[i];
+		if (arg == "--config-db-server") {
+			if (i == cmdArg.size()-1) {
+				MLPL_ERR(
+				  "--config-db-server needs an argument.\n");
+				return false;
+			}
+			i++;
+			dbServer = cmdArg[i];
+		}
+	}
+
+	if (!dbServer.empty()) {
+		if (!parseDBServer(dbServer, connInfo.host, connInfo.port))
+			return false;
+	}
+
+	string portStr;
+	if (connInfo.port == 0)
+		portStr = "(default)";
+	else
+		portStr = StringUtils::sprintf("%zd", connInfo.port);
+	MLPL_INFO("Configuration DB Server: %s, port: %s, User: %s\n",
+	          connInfo.host.c_str(), portStr.c_str(),
+	          connInfo.user.c_str());
+
+	setConnectInfo(DB_DOMAIN_ID_CONFIG, connInfo);
+	return true;
+}
+
 void DBClientConfig::tableInitializerSystem(DBAgent *dbAgent, void *data)
 {
 	const ColumnDef &columnDefDatabaseDir =

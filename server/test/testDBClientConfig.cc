@@ -28,6 +28,15 @@
 
 static const char *TEST_DB_NAME = "test_db_config";
 
+struct TestDBClientConfig : public DBClientConfig {
+
+	static bool callParseCommandLineArgument(const CommandLineArg &cmdArg)
+	{
+		return parseCommandLineArgument(cmdArg);
+	}
+
+};
+
 namespace testDBClientConfig {
 
 void _assertGetHostAddress
@@ -207,7 +216,7 @@ void test_parseArgConfigDBServer(void)
 	CommandLineArg arg;
 	arg.push_back("--config-db-server");
 	arg.push_back(serverName);
-	DBClientConfig::parseCommandLineArgument(arg);
+	TestDBClientConfig::callParseCommandLineArgument(arg);
 	DBConnectInfo connInfo =
 	   DBClient::getDBConnectInfo(DB_DOMAIN_ID_CONFIG);
 	cppcut_assert_equal(serverName, connInfo.host);
@@ -220,7 +229,7 @@ void test_parseArgConfigDBServerWithPort(void)
 	CommandLineArg arg;
 	arg.push_back("--config-db-server");
 	arg.push_back(StringUtils::sprintf("%s:%zd", serverName.c_str(), port));
-	DBClientConfig::parseCommandLineArgument(arg);
+	TestDBClientConfig::callParseCommandLineArgument(arg);
 	DBConnectInfo connInfo =
 	   DBClient::getDBConnectInfo(DB_DOMAIN_ID_CONFIG);
 	cppcut_assert_equal(serverName, connInfo.host);
