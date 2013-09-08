@@ -565,10 +565,13 @@ bool DBClientConfig::parseCommandLineArgument(const CommandLineArg &cmdArg)
 		portStr = "(default)";
 	else
 		portStr = StringUtils::sprintf("%zd", connInfo.port);
-	MLPL_INFO("Configuration DB Server: %s, port: %s, User: %s\n",
-	          connInfo.host.c_str(), portStr.c_str(),
-	          connInfo.user.c_str());
 
+	connInfo.dbName = DEFAULT_DB_NAME;
+	bool usePassword = !connInfo.password.empty();
+	MLPL_INFO("Configuration DB Server: %s, port: %s, User: %s, "
+	          "use password: %s\n",
+	          connInfo.host.c_str(), portStr.c_str(),
+	          connInfo.user.c_str(), usePassword ? "yes" : "no");
 	setConnectInfo(DB_DOMAIN_ID_CONFIG, connInfo);
 	return true;
 }

@@ -114,6 +114,20 @@ void test_getHostAddressBothNotSet(void)
 	assertGetHostAddress("", "", NULL);
 }
 
+void test_databaseName(void)
+{
+	// Default connectInfo is modified in cut_setup().
+	// DBClientConfig::parserCommandLineArguemnt() reset the default
+	// database name.
+	CommandLineArg cmdArg;
+	TestDBClientConfig::callParseCommandLineArgument(cmdArg);
+
+	DBConnectInfo connInfo =
+	  DBClient::getDBConnectInfo(DB_DOMAIN_ID_CONFIG);
+	cppcut_assert_equal(string(DBClientConfig::DEFAULT_DB_NAME),
+	                    connInfo.dbName);
+}
+
 void test_createDB(void)
 {
 	// create an instance
