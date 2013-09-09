@@ -1,4 +1,5 @@
 {% extends "viewer/base.html" %}
+{% load i18n %}
 
 {% comment %}
   Copyright (C) 2013 Project Hatohol
@@ -20,7 +21,7 @@
 {% endcomment %}
 
 {% block navbar %}
-  <li><a href="ajax_dashboard">ダッシュボード</a></li>
+  <li><a href="ajax_dashboard">{% trans "Dashboard" %}</a></li>
   <li><a href="ajax_overview_triggers">概要:トリガー</a></li>
   <li><a href="ajax_overview_items">概要:アイテム</a></li>
   <li><a href="ajax_latest">最新データ</a></li>

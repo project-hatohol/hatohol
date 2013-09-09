@@ -1,4 +1,5 @@
 {% extends "viewer/base_ajax.html" %}
+{% load i18n %}
 
 {% comment %}
   Copyright (C) 2013 Project Hatohol
@@ -71,7 +72,7 @@
       th.eq(data.column).append("<i class='sort icon-arrow-" + icon +"'></i>");
     });
 
-    var status_choices   = [ '正常', '障害', '不明' ];
+    var status_choices   = [ '正常', '障害', '{% trans "Unknown" %}' ];
     var severity_choices = [ '未分類', '情報', '警告', '軽度の障害', '重度の障害', '致命的な障害' ];
 
     var rawData;
