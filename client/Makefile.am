@@ -1,6 +1,8 @@
 libexecdir=$(exec_prefix)/libexec/$(PACKAGE)/client
 nobase_dist_libexec_SCRIPTS = \
 	./manage.py \
+	conf/locale/ja/LC_MESSAGES/django.po \
+	conf/locale/ja/LC_MESSAGES/djangojs.po \
 	mysite/forwardview.py \
 	mysite/wsgi.py \
 	mysite/urls.py \
