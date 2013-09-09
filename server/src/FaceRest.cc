@@ -159,7 +159,7 @@ gpointer FaceRest::mainThread(HatoholThreadArg *arg)
 	                        (gpointer)handlerGetItems, NULL);
 	soup_server_add_handler(m_soupServer, pathForGetActions,
 	                        launchHandlerInTryBlock,
-	                        (gpointer)handlerGetActions, NULL);
+	                        (gpointer)handlerActions, NULL);
 	soup_server_run(m_soupServer);
 	g_main_context_unref(gMainCtx);
 	MLPL_INFO("exited face-rest\n");
@@ -615,15 +615,24 @@ static void setActionCondition(
 			agent.addNull(member);
 }
 
+void FaceRest::handlerActions
+  (SoupServer *server, SoupMessage *msg, const char *path,
+   GHashTable *query, SoupClientContext *client, HandlerArg *arg)
+{
+	if (strcasecmp(msg->method, "GET") == 0) {
+		handlerGetActions(server, msg, path, query, client, arg);
+	} else if (strcasecmp(msg->method, "POST") == 0) {
+		handlerPostAction(server, msg, path, query, client, arg);
+	} else {
+		MLPL_ERR("Unknown method: %s\n", msg->method);
+		soup_message_set_status(msg, SOUP_STATUS_METHOD_NOT_ALLOWED);
+	}
+}
+
 void FaceRest::handlerGetActions
   (SoupServer *server, SoupMessage *msg, const char *path,
    GHashTable *query, SoupClientContext *client, HandlerArg *arg)
 {
-	if (strcasecmp(msg->method, "POST") == 0) {
-		addAction(server, msg, path, query, client, arg);
-		return;
-	}
-
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	string jsonpCallbackName = getJsonpCallbackName(query, arg);
 
@@ -674,7 +683,7 @@ void FaceRest::handlerGetActions
 	replyJsonData(agent, msg, jsonpCallbackName, arg);
 }
 
-void FaceRest::addAction
+void FaceRest::handlerPostAction
   (SoupServer *server, SoupMessage *msg, const char *path,
    GHashTable *query, SoupClientContext *client, HandlerArg *arg)
 {
