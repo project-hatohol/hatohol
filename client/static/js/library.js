@@ -123,7 +123,7 @@ function update(param) {
   setStatus({
     "class" : "warning",
     "label" : "DRAW",
-    "lines" : [ "描画中" ],
+    "lines" : [ gettext("Drawing") ],
   });
 
   updateCore(param);
