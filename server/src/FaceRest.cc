@@ -688,6 +688,27 @@ void FaceRest::handlerPostAction
    GHashTable *query, SoupClientContext *client, HandlerArg *arg)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+
+	ActionDef actionDef;
+	// mandatory parameters
+	string actionType;
+	gpointer value = g_hash_table_lookup(query, "type");
+	if (!value) {
+		MLPL_ERR("actionType is not specified.\n");
+		soup_message_set_status(msg, SOUP_STATUS_BAD_REQUEST);
+		return;
+	}
+	string actionTypeStr((const char *)value);
+	if (actionTypeStr == "command") {
+		actionDef.type = ACTION_COMMAND;
+	} else if (actionTypeStr == "resident") {
+		actionDef.type = ACTION_RESIDENT;
+	} else {
+		MLPL_ERR("Unknown actionType: %s\n", actionTypeStr.c_str());
+		soup_message_set_status(msg, SOUP_STATUS_BAD_REQUEST);
+	}
+
+	// optional parameters
 	MLPL_BUG("Not implemented: %s, %p\n", __PRETTY_FUNCTION__, dataStore);
 	soup_message_set_status(msg, SOUP_STATUS_INTERNAL_SERVER_ERROR);
 }

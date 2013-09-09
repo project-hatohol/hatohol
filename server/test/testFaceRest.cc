@@ -475,7 +475,7 @@ void test_addAction(void)
 {
 	startFaceRest();
 	g_parser = getResponseAsJsonParser("/actions.jsonp", "foo",
-	                                   "type=Command");
+	                                   "type=command");
 	assertValueInParser(g_parser, "apiVersion",
 	                    (uint32_t)FaceRest::API_VERSION_ACTIONS);
 }
