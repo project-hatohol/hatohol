@@ -17,6 +17,7 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <cstring>
 #include <Logger.h>
 using namespace mlpl;
 
@@ -618,6 +619,11 @@ void FaceRest::handlerGetActions
   (SoupServer *server, SoupMessage *msg, const char *path,
    GHashTable *query, SoupClientContext *client, HandlerArg *arg)
 {
+	if (strcasecmp(msg->method, "POST") == 0) {
+		addAction(server, msg, path, query, client, arg);
+		return;
+	}
+
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	string jsonpCallbackName = getJsonpCallbackName(query, arg);
 
@@ -666,4 +672,13 @@ void FaceRest::handlerGetActions
 	agent.endObject();
 
 	replyJsonData(agent, msg, jsonpCallbackName, arg);
+}
+
+void FaceRest::addAction
+  (SoupServer *server, SoupMessage *msg, const char *path,
+   GHashTable *query, SoupClientContext *client, HandlerArg *arg)
+{
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+	MLPL_BUG("Not implemented: %s, %p\n", __PRETTY_FUNCTION__, dataStore);
+	soup_message_set_status(msg, SOUP_STATUS_INTERNAL_SERVER_ERROR);
 }

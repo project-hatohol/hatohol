@@ -83,6 +83,9 @@ protected:
 	static void handlerGetActions
 	  (SoupServer *server, SoupMessage *msg, const char *path,
 	   GHashTable *query, SoupClientContext *client, HandlerArg *arg);
+	static void addAction
+	  (SoupServer *server, SoupMessage *msg, const char *path,
+	   GHashTable *query, SoupClientContext *client, HandlerArg *arg);
 
 private:
 	static const char *pathForGetOverview;

@@ -51,7 +51,8 @@ static void startFaceRest(void)
 }
 
 static JsonParserAgent *getResponseAsJsonParser(const string &url,
-                                                const string &callbackName = "")
+                                                const string &callbackName = "",
+                                                const string &postData = "")
 {
 	string callbackParam;
 	if (!callbackName.empty()) {
@@ -59,10 +60,18 @@ static JsonParserAgent *getResponseAsJsonParser(const string &url,
 		callbackParam += callbackName;
 	}
 
+	string postDataArg;
+	if (!postData.empty()) {
+		postDataArg = "--post-data '";
+		postDataArg += postData;
+		postDataArg += "'";
+	}
+
 	// get reply with wget
 	string getCmd =
-	  StringUtils::sprintf("wget http://localhost:%u%s%s -O -",
-	                       TEST_PORT, url.c_str(), callbackParam.c_str());
+	  StringUtils::sprintf("wget http://localhost:%u%s%s %s -O -",
+	                       TEST_PORT, url.c_str(), callbackParam.c_str(),
+	                       postDataArg.c_str());
 	string response = executeCommand(getCmd);
 
 	// if JSONP, check the callback name
@@ -460,6 +469,15 @@ void test_actionsJsonp(void)
 	bool loadData = true;
 	setupTestDBAction(recreate, loadData);
 	assertActions("/actions.jsonp", "foo");
+}
+
+void test_addAction(void)
+{
+	startFaceRest();
+	g_parser = getResponseAsJsonParser("/actions.jsonp", "foo",
+	                                   "type=Command");
+	assertValueInParser(g_parser, "apiVersion",
+	                    (uint32_t)FaceRest::API_VERSION_ACTIONS);
 }
 
 } // namespace testFaceRest
