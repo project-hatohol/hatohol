@@ -713,8 +713,6 @@ void FaceRest::handlerPostAction
 	soup_message_set_status(msg, SOUP_STATUS_INTERNAL_SERVER_ERROR);
 
 	// make a response
-
-	// make a response
 	MLPL_BUG("Not implemented: %s, %p\n", __PRETTY_FUNCTION__, dataStore);
 	JsonBuilderAgent agent;
 	agent.startObject();
