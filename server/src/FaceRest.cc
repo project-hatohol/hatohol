@@ -710,7 +710,7 @@ void FaceRest::handlerPostAction
 		actionDef.type = ACTION_RESIDENT;
 	} else {
 		string errMsg = StringUtils::sprintf(
-		  "Unknown actionType: %d\n", actionTypeStr.c_str());
+		  "Unknown actionType: %s\n", actionTypeStr.c_str());
 		replyError(msg, errMsg, jsonpCallbackName);
 		return;
 	}
