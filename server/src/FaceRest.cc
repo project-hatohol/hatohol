@@ -188,6 +188,8 @@ size_t FaceRest::parseCmdArgPort(CommandLineArg &cmdArg, size_t idx)
 void FaceRest::replyError(SoupMessage *msg, const string &errorMessage,
                           const string &jsonpCallbackName)
 {
+	MLPL_ERR(errorMessage.c_str());
+
 	JsonBuilderAgent agent;
 	agent.startObject();
 	agent.addFalse("result");
@@ -283,7 +285,6 @@ void FaceRest::launchHandlerInTryBlock
 	try {
 		(*handler)(server, msg, path, query, client, &arg);
 	} catch (const HatoholException &e) {
-		MLPL_INFO("Got Exception: %s\n", e.getFancyMessage().c_str());
 		replyError(msg, e.getFancyMessage());
 	}
 }
@@ -711,7 +712,6 @@ void FaceRest::handlerPostAction
 		string errMsg = "Unknown actionType: ";
 		errMsg += actionTypeStr;
 		errMsg += "\n";
-		MLPL_ERR(errMsg.c_str());
 		replyError(msg, errMsg, jsonpCallbackName);
 		return;
 	}
