@@ -705,8 +705,11 @@ void FaceRest::handlerPostAction
 	} else if (actionTypeStr == "resident") {
 		actionDef.type = ACTION_RESIDENT;
 	} else {
-		MLPL_ERR("Unknown actionType: %s\n", actionTypeStr.c_str());
-		soup_message_set_status(msg, SOUP_STATUS_BAD_REQUEST);
+		string errMsg = "Unknown actionType: ";
+		errMsg += actionTypeStr;
+		errMsg += "\n";
+		MLPL_ERR(errMsg.c_str());
+		replyError(msg, errMsg);
 	}
 
 	// optional parameters
