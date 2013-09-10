@@ -277,6 +277,12 @@ void UnifiedDataStore::setCopyOnDemandEnabled(bool enable)
 	}
 }
 
+void UnifiedDataStore::addAction(ActionDef &actionDef)
+{
+	DBClientAction dbAction;
+	dbAction.addAction(actionDef);
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------

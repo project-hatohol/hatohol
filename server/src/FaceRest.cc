@@ -828,7 +828,7 @@ void FaceRest::handlerPostAction
 	}
 
 	// save the obtained action
-	// TODO: call UnifiedData's API to save data
+	dataStore->addAction(actionDef);
 
 	// make a response
 	MLPL_BUG("Not implemented: %s, %p\n", __PRETTY_FUNCTION__, dataStore);
@@ -836,7 +836,7 @@ void FaceRest::handlerPostAction
 	agent.startObject();
 	agent.add("apiVersion", API_VERSION_ACTIONS);
 	agent.addTrue("result");
-	// TODO: add action ID.
+	agent.add("id", actionDef.id);
 	agent.endObject();
 	replyJsonData(agent, msg, jsonpCallbackName, arg);
 }

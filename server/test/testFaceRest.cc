@@ -410,6 +410,7 @@ void _assertAddAction(const StringVector &params)
 	assertValueInParser(g_parser, "result", true);
 	assertValueInParser(g_parser, "apiVersion",
 	                    (uint32_t)FaceRest::API_VERSION_ACTIONS);
+	assertValueInParser(g_parser, "id", (uint32_t)1);
 }
 #define assertAddAction(P) cut_trace(_assertAddAction(P))
 

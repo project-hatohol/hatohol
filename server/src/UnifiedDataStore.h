@@ -55,6 +55,7 @@ public:
 
 	virtual bool getCopyOnDemandEnabled(void) const;
 	virtual void setCopyOnDemandEnabled(bool enable);
+	virtual void addAction(ActionDef &actionDef);
 
 private:
 	struct PrivateContext;
