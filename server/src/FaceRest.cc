@@ -700,14 +700,15 @@ void FaceRest::handlerPostAction
 	ActionDef actionDef;
 
 	// action type
+	char *value;
 	string actionType;
-	gpointer value = g_hash_table_lookup(query, "type");
+	value = (char *)g_hash_table_lookup(query, "type");
 	if (!value) {
 		string errMsg = "actionType is not specified.\n";
 		replyError(msg, errMsg, jsonpCallbackName);
 		return;
 	}
-	string actionTypeStr((const char *)value);
+	string actionTypeStr(value);
 	if (actionTypeStr == "command") {
 		actionDef.type = ACTION_COMMAND;
 	} else if (actionTypeStr == "resident") {
@@ -720,13 +721,13 @@ void FaceRest::handlerPostAction
 	}
 
 	// command
-	value = g_hash_table_lookup(query, "command");
+	value = (char *)g_hash_table_lookup(query, "command");
 	if (!value) {
 		string errMsg = "An action command is not specified.\n";
 		replyError(msg, errMsg, jsonpCallbackName);
 		return;
 	}
-	actionDef.command = (const char *)value;
+	actionDef.command = value;
 
 	// optional parameters
 	soup_message_set_status(msg, SOUP_STATUS_INTERNAL_SERVER_ERROR);
