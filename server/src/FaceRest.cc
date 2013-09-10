@@ -188,7 +188,7 @@ size_t FaceRest::parseCmdArgPort(CommandLineArg &cmdArg, size_t idx)
 void FaceRest::replyError(SoupMessage *msg, const string &errorMessage,
                           const string &jsonpCallbackName)
 {
-	MLPL_ERR(errorMessage.c_str());
+	MLPL_ERR("%s", errorMessage.c_str());
 
 	JsonBuilderAgent agent;
 	agent.startObject();
