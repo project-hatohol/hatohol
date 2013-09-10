@@ -428,6 +428,13 @@ void _assertAddActionError(const StringVector &params)
 }
 #define assertAddActionError(P) cut_trace(_assertAddActionError(P))
 
+static void setupPostAction(void)
+{
+	bool recreate = true;
+	bool loadData = false;
+	setupTestDBAction(recreate, loadData);
+}
+
 void cut_setup(void)
 {
 	hatoholInit();
@@ -506,9 +513,7 @@ void test_actionsJsonp(void)
 
 void test_addAction(void)
 {
-	bool recreate = true;
-	bool loadData = false;
-	setupTestDBAction(recreate, loadData);
+	setupPostAction();
 
 	int type = ACTION_COMMAND;
 	const string command = "makan-kosappo";
@@ -533,9 +538,7 @@ void test_addAction(void)
 
 void test_addActionParamterFull(void)
 {
-	bool recreate = true;
-	bool loadData = false;
-	setupTestDBAction(recreate, loadData);
+	setupPostAction();
 
 	const string command = "/usr/bin/pochi";
 	const string workingDir = "/usr/local/wani";
@@ -590,9 +593,7 @@ void test_addActionParamterFull(void)
 
 void test_addActionParamterOver32bit(void)
 {
-	bool recreate = true;
-	bool loadData = false;
-	setupTestDBAction(recreate, loadData);
+	setupPostAction();
 
 	const string command = "/usr/bin/pochi";
 	uint64_t hostId = 0x89abcdef01234567;
@@ -621,9 +622,7 @@ void test_addActionParamterOver32bit(void)
 
 void test_addActionComplicatedCommand(void)
 {
-	bool recreate = true;
-	bool loadData = false;
-	setupTestDBAction(recreate, loadData);
+	setupPostAction();
 
 	const string command =
 	   "/usr/bin/@hoge -l '?ABC+{[=:;|.,#*`!$%\\~]}FOX-' --X '$^' --name \"@'v'@\"'";
@@ -643,9 +642,7 @@ void test_addActionComplicatedCommand(void)
 
 void test_addActionCommandWithJapanese(void)
 {
-	bool recreate = true;
-	bool loadData = false;
-	setupTestDBAction(recreate, loadData);
+	setupPostAction();
 
 	const string command = COMMAND_EX_JP;
 	gchar *encodedCommand = soup_uri_encode(command.c_str(), "+");
