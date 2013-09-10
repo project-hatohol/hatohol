@@ -97,7 +97,6 @@ static JsonParserAgent *getResponseAsJsonParser(
 	// check the JSON body
 	if (isVerboseMode())
 		cut_notify("<<response>>\n%s\n", response.c_str());
-	printf("*** res: %s\n", response.c_str());
 	JsonParserAgent *parser = new JsonParserAgent(response);
 	if (parser->hasError()) {
 		string parserErrMsg = parser->getErrorMessage();
@@ -499,8 +498,6 @@ void test_addActionInvalidType(void)
 	startFaceRest();
 	g_parser = getResponseAsJsonParser("/actions.jsonp", "foo",
 	                                   params, post);
-	assertValueInParser(g_parser, "apiVersion",
-	                    (uint32_t)FaceRest::API_VERSION_ACTIONS);
 	assertValueInParser(g_parser, "result", false);
 }
 

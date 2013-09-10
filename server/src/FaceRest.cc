@@ -185,7 +185,8 @@ size_t FaceRest::parseCmdArgPort(CommandLineArg &cmdArg, size_t idx)
 	return idx;
 }
 
-void FaceRest::replyError(SoupMessage *msg, const string &errorMessage)
+void FaceRest::replyError(SoupMessage *msg, const string &errorMessage,
+                          const string &jsonpCallbackName)
 {
 	JsonBuilderAgent agent;
 	agent.startObject();
@@ -193,6 +194,8 @@ void FaceRest::replyError(SoupMessage *msg, const string &errorMessage)
 	agent.add("message", errorMessage.c_str());
 	agent.endObject();
 	string response = agent.generate();
+	if (!jsonpCallbackName.empty())
+		response = wrapForJsonp(response, jsonpCallbackName);
 	soup_message_headers_set_content_type(msg->response_headers,
 	                                      MIME_JSON, NULL);
 	soup_message_body_append(msg->response_body, SOUP_MEMORY_COPY,
@@ -709,7 +712,8 @@ void FaceRest::handlerPostAction
 		errMsg += actionTypeStr;
 		errMsg += "\n";
 		MLPL_ERR(errMsg.c_str());
-		replyError(msg, errMsg);
+		replyError(msg, errMsg, jsonpCallbackName);
+		return;
 	}
 
 	// optional parameters
