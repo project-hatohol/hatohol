@@ -588,6 +588,37 @@ void test_addActionParamterFull(void)
 	assertDBContent(dbAction.getDBAgent(), statement, expect);
 }
 
+void test_addActionParamterOver32bit(void)
+{
+	bool recreate = true;
+	bool loadData = false;
+	setupTestDBAction(recreate, loadData);
+
+	const string command = "/usr/bin/pochi";
+	uint64_t hostId = 0x89abcdef01234567;
+	uint64_t hostGroupId = 0xabcdef0123456789;
+	uint64_t triggerId = 0x56789abcdef01234;
+
+	StringVector params;
+	params.push_back(StringUtils::sprintf("type=%d", ACTION_RESIDENT));
+	params.push_back("command=" + command);
+	params.push_back(StringUtils::sprintf("hostId=%"PRIu64, hostId));
+	params.push_back(
+	  StringUtils::sprintf("hostGroupId=%"PRIu64, hostGroupId));
+	params.push_back(StringUtils::sprintf("triggerId=%"PRIu64, triggerId));
+	assertAddAction(params);
+
+	// check the content in the DB
+	DBClientAction dbAction;
+	string statement = "select host_id, host_group_id, trigger_id from ";
+	statement += DBClientAction::getTableNameActions();
+	string expect;
+	expect += StringUtils::sprintf("%"PRIu64"|%"PRIu64"|%"PRIu64"",
+	  hostId, hostGroupId, triggerId);
+	assertDBContent(dbAction.getDBAgent(), statement, expect);
+}
+
+
 void test_addActionComplicatedCommand(void)
 {
 	bool recreate = true;
