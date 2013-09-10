@@ -596,14 +596,14 @@ void test_addActionWithoutType(void)
 void test_addActionWithoutCommand(void)
 {
 	StringVector params;
-	params.push_back("type=command");
+	params.push_back(StringUtils::sprintf("type=%d", ACTION_COMMAND));
 	assertAddActionError(params);
 }
 
 void test_addActionInvalidType(void)
 {
 	StringVector params;
-	params.push_back("type=InvalidCommandType");
+	params.push_back(StringUtils::sprintf("type=%d", ACTION_RESIDENT+1));
 	assertAddActionError(params);
 }
 
