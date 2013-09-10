@@ -32,6 +32,7 @@ static const unsigned int TEST_PORT = 53194;
 static const char *TEST_DB_CONFIG_NAME = "test_db_config";
 static const char *TEST_DB_HATOHOL_NAME = "testDatabase-hatohol.db";
 
+static StringVector emptyStringVector;
 static FaceRest *g_faceRest = NULL;
 static JsonParserAgent *g_parser = NULL;
 
@@ -50,32 +51,38 @@ static void startFaceRest(void)
 	g_faceRest->start();
 }
 
-static JsonParserAgent *getResponseAsJsonParser(const string &url,
-                                                const string &callbackName = "",
-                                                const string &postData = "")
+static JsonParserAgent *getResponseAsJsonParser(
+  const string &url, const string &callbackName = "",
+  const StringVector &parameters = emptyStringVector,
+  bool post = false)
 {
-	string callbackParam;
+	string joinedQueryParams;
 	if (!callbackName.empty()) {
-		callbackParam = "?callback=";
-		callbackParam += callbackName;
+		joinedQueryParams = "?callback=";
+		joinedQueryParams += callbackName;
+	}
+	
+	for (size_t i = 0; i < parameters.size(); i++) {
+		const string &oneQuery = parameters[i];
+		if (!joinedQueryParams.empty())
+			joinedQueryParams += "&";
+		joinedQueryParams += oneQuery;
 	}
 
 	string postDataArg;
-	if (!postData.empty()) {
-		postDataArg = "--post-data '";
-		postDataArg += postData;
-		postDataArg += "'";
-	}
+	if (post)
+		postDataArg = "--post-data ''";
 
 	// get reply with wget
 	string getCmd =
 	  StringUtils::sprintf("wget http://localhost:%u%s%s %s -O -",
-	                       TEST_PORT, url.c_str(), callbackParam.c_str(),
+	                       TEST_PORT, url.c_str(),
+	                       joinedQueryParams.c_str(),
 	                       postDataArg.c_str());
 	string response = executeCommand(getCmd);
 
 	// if JSONP, check the callback name
-	if (!callbackParam.empty()) {
+	if (!callbackName.empty()) {
 		size_t lenCallbackName = callbackName.size();
 		size_t minimumLen = lenCallbackName + 2; // +2 for ''(' and ')'
 		cppcut_assert_equal(true, response.size() > minimumLen);
@@ -473,9 +480,12 @@ void test_actionsJsonp(void)
 
 void test_addAction(void)
 {
+	StringVector params;
+	params.push_back("type=command");
+	bool post = true;
 	startFaceRest();
 	g_parser = getResponseAsJsonParser("/actions.jsonp", "foo",
-	                                   "type=command");
+	                                   params, post);
 	assertValueInParser(g_parser, "apiVersion",
 	                    (uint32_t)FaceRest::API_VERSION_ACTIONS);
 }
