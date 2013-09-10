@@ -694,8 +694,12 @@ void FaceRest::handlerPostAction
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	string jsonpCallbackName = getJsonpCallbackName(query, arg);
 
-	ActionDef actionDef;
+	//
 	// mandatory parameters
+	//
+	ActionDef actionDef;
+
+	// action type
 	string actionType;
 	gpointer value = g_hash_table_lookup(query, "type");
 	if (!value) {
@@ -714,6 +718,15 @@ void FaceRest::handlerPostAction
 		replyError(msg, errMsg, jsonpCallbackName);
 		return;
 	}
+
+	// command
+	value = g_hash_table_lookup(query, "command");
+	if (!value) {
+		string errMsg = "An action command is not specified.\n";
+		replyError(msg, errMsg, jsonpCallbackName);
+		return;
+	}
+	actionDef.command = (const char *)value;
 
 	// optional parameters
 	soup_message_set_status(msg, SOUP_STATUS_INTERNAL_SERVER_ERROR);

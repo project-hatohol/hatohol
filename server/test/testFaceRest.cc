@@ -481,6 +481,7 @@ void test_addAction(void)
 {
 	StringVector params;
 	params.push_back("type=command");
+	params.push_back("command=makan-kosappo");
 	bool post = true;
 	startFaceRest();
 	g_parser = getResponseAsJsonParser("/actions.jsonp", "foo",
