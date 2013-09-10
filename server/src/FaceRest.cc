@@ -688,6 +688,7 @@ void FaceRest::handlerPostAction
    GHashTable *query, SoupClientContext *client, HandlerArg *arg)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+	string jsonpCallbackName = getJsonpCallbackName(query, arg);
 
 	ActionDef actionDef;
 	// mandatory parameters
@@ -709,6 +710,17 @@ void FaceRest::handlerPostAction
 	}
 
 	// optional parameters
-	MLPL_BUG("Not implemented: %s, %p\n", __PRETTY_FUNCTION__, dataStore);
 	soup_message_set_status(msg, SOUP_STATUS_INTERNAL_SERVER_ERROR);
+
+	// make a response
+
+	// make a response
+	MLPL_BUG("Not implemented: %s, %p\n", __PRETTY_FUNCTION__, dataStore);
+	JsonBuilderAgent agent;
+	agent.startObject();
+	agent.add("apiVersion", API_VERSION_ACTIONS);
+	agent.addTrue("result");
+	// TODO: add action ID.
+	agent.endObject();
+	replyJsonData(agent, msg, jsonpCallbackName, arg);
 }
