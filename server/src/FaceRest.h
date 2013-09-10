@@ -93,6 +93,13 @@ protected:
 	   GHashTable *query, SoupClientContext *client, HandlerArg *arg);
 
 private:
+	// The body is defined in the FaceRest.cc. So this function can
+	// be used only from the soruce file.
+	template<typename T>
+	static bool getParamWithErrorReply(
+	  GHashTable *query, SoupMessage *msg, const string &jsonpCallbackName,
+	  const char *paramName, const char *scanFmt, T &dest, bool *exist);
+
 	static const char *pathForGetOverview;
 	static const char *pathForGetServers;
 	static const char *pathForGetTriggers;

@@ -729,8 +729,106 @@ void FaceRest::handlerPostAction
 	}
 	actionDef.command = value;
 
+	//
 	// optional parameters
-	soup_message_set_status(msg, SOUP_STATUS_INTERNAL_SERVER_ERROR);
+	//
+	bool exist;
+	bool succeeded;
+	ActionCondition &cond = actionDef.condition;
+
+	// workingDirectory
+	value = (char *)g_hash_table_lookup(query, "workingDirectory");
+	if (value) {
+		actionDef.workingDir = value;
+	}
+
+	// timeout
+	succeeded = getParamWithErrorReply<int>(
+	              query, msg, jsonpCallbackName,
+	              "timeout", "%d", actionDef.timeout, &exist);
+	if (!succeeded)
+		return;
+	if (!exist)
+		actionDef.timeout = 0;
+
+	// serverId
+	succeeded = getParamWithErrorReply<int>(
+	              query, msg, jsonpCallbackName,
+	              "serverId", "%d", cond.serverId, &exist);
+	if (!succeeded)
+		return;
+	if (exist)
+		cond.enable(ACTCOND_SERVER_ID);
+
+	// hostId
+	succeeded = getParamWithErrorReply<uint64_t>(
+	              query, msg, jsonpCallbackName,
+	              "hostId", "%"PRIu64, cond.hostId, &exist);
+	if (!succeeded)
+		return;
+	if (exist)
+		cond.enable(ACTCOND_HOST_ID);
+
+	// hostGroupId
+	succeeded = getParamWithErrorReply<uint64_t>(
+	              query, msg, jsonpCallbackName,
+	              "hostGroupId", "%"PRIu64, cond.hostGroupId, &exist);
+	if (!succeeded)
+		return;
+	if (exist)
+		cond.enable(ACTCOND_HOST_GROUP_ID);
+
+	// triggerId
+	succeeded = getParamWithErrorReply<uint64_t>(
+	              query, msg, jsonpCallbackName,
+	              "triggerId", "%"PRIu64, cond.triggerId, &exist);
+	if (!succeeded)
+		return;
+	if (exist)
+		cond.enable(ACTCOND_TRIGGER_ID);
+
+	// triggerStatus
+	succeeded = getParamWithErrorReply<int>(
+	              query, msg, jsonpCallbackName,
+	              "triggerStatus", "%d", cond.triggerStatus, &exist);
+	if (!succeeded)
+		return;
+	if (exist)
+		cond.enable(ACTCOND_TRIGGER_STATUS);
+
+	// triggerSeverity
+	succeeded = getParamWithErrorReply<int>(
+	              query, msg, jsonpCallbackName,
+	              "triggerSeverity", "%d", cond.triggerSeverity, &exist);
+	if (!succeeded)
+		return;
+	if (exist) {
+		cond.enable(ACTCOND_TRIGGER_SEVERITY);
+
+		// triggerSeverityComparatorType
+		value = (char *)g_hash_table_lookup(
+		                  query, "triggerSeverityComparatorType");
+		if (!value) {
+			string errMsg =
+			   "triggerSeverityComparatorType is not specified.\n";
+			replyError(msg, errMsg, jsonpCallbackName);
+			return;
+		}
+		string comp(value);
+		if (comp == "EQ")
+			cond.triggerSeverityCompType = CMP_EQ;
+		else if (comp == "GE")
+			cond.triggerSeverityCompType = CMP_EQ_GT;
+		else  {
+			string errMsg = StringUtils::sprintf(
+			  "Unknown comparator type: %s\n", comp.c_str());
+			replyError(msg, errMsg, jsonpCallbackName);
+			return;
+		}
+	}
+
+	// save the obtained action
+	// TODO: call UnifiedData's API to save data
 
 	// make a response
 	MLPL_BUG("Not implemented: %s, %p\n", __PRETTY_FUNCTION__, dataStore);
@@ -742,3 +840,27 @@ void FaceRest::handlerPostAction
 	agent.endObject();
 	replyJsonData(agent, msg, jsonpCallbackName, arg);
 }
+
+// ---------------------------------------------------------------------------
+// Private methods
+// ---------------------------------------------------------------------------
+template<typename T>
+bool FaceRest::getParamWithErrorReply(
+  GHashTable *query, SoupMessage *msg, const string &jsonpCallbackName,
+  const char *paramName, const char *scanFmt, T &dest, bool *exist)
+{
+	char *value = (char *)g_hash_table_lookup(query, paramName);
+	if (exist)
+		*exist = value;
+	if (!value)
+		return true;
+
+	if (sscanf(value, scanFmt, &dest) != 1) {
+		string errMsg = StringUtils::sprintf(
+		  "Invalid %s: %s\n", paramName, value);
+		replyError(msg, errMsg, jsonpCallbackName);
+		return false;
+	}
+	return true;
+}
+
