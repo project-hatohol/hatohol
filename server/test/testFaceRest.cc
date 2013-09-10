@@ -502,6 +502,10 @@ void test_actionsJsonp(void)
 
 void test_addAction(void)
 {
+	bool recreate = true;
+	bool loadData = false;
+	setupTestDBAction(recreate, loadData);
+
 	StringVector params;
 	params.push_back("type=command");
 	params.push_back("command=makan-kosappo");
@@ -515,6 +519,10 @@ void test_addAction(void)
 
 void test_addActionParamterFull(void)
 {
+	bool recreate = true;
+	bool loadData = false;
+	setupTestDBAction(recreate, loadData);
+
 	StringVector params;
 	params.push_back("type=command");
 	params.push_back("command=/usr/bin/pochi");
