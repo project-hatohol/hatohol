@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import sys
 import urllib2
+import HatoholActionCreator
 
 DEFAULT_PORT = 33194
 
@@ -15,6 +16,17 @@ def print_usage():
   print "  show-events"
   print "  show-items"
   print "  show-actions"
+  print "  add-action"
+  print "    --type command|resident"
+  print "    --command COMMAND_DEFINITION"
+  print "    [--working-dir   DIR]"
+  print "    [--timeout       TIMEOUT]"
+  print "    [--server-id     SERVER_ID]"
+  print "    [--host-id       HOST_ID]"
+  print "    [--host-group-id HOST_GROUP_ID]"
+  print "    [--trigger-id    TRIGGER_ID]"
+  print "    [--status        TRIGGER_STATUS]"
+  print "    [--severity      TRIGGER_SEVERITY TRIGGER_SEVERITY_COMPARATOR]"
   print ""
 
 def parse_server_option(argv):
@@ -62,11 +74,16 @@ def show_actions(url, options):
   actions_json = response.read()
   print actions_json
 
+def add_actions(url, options):
+  action_creator = HatoholActionCreator.HatoholActionCreator(url)
+  action_creator.add(options)
+
 command_map = {
   "show-events":show_events,
   "show-triggers":show_triggers,
   "show-items":show_items,
   "show-actions":show_actions,
+  "add-action":add_actions,
 }
 
 #
