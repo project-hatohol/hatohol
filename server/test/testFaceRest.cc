@@ -401,6 +401,16 @@ static void _assertActions(const string &path, const string &callbackName = "")
 }
 #define assertActions(P,...) cut_trace(_assertActions(P,##__VA_ARGS__))
 
+void _assertAddActionError(const StringVector &params)
+{
+	bool post = true;
+	startFaceRest();
+	g_parser = getResponseAsJsonParser("/actions.jsonp", "foo",
+	                                   params, post);
+	assertValueInParser(g_parser, "result", false);
+}
+#define assertAddActionError(P) cut_trace(_assertAddActionError(P))
+
 void cut_setup(void)
 {
 	hatoholInit();
@@ -493,33 +503,21 @@ void test_addAction(void)
 void test_addActionWithoutType(void)
 {
 	StringVector params;
-	bool post = true;
-	startFaceRest();
-	g_parser = getResponseAsJsonParser("/actions.jsonp", "foo",
-	                                   params, post);
-	assertValueInParser(g_parser, "result", false);
+	assertAddActionError(params);
 }
 
 void test_addActionWithoutCommand(void)
 {
 	StringVector params;
 	params.push_back("type=command");
-	bool post = true;
-	startFaceRest();
-	g_parser = getResponseAsJsonParser("/actions.jsonp", "foo",
-	                                   params, post);
-	assertValueInParser(g_parser, "result", false);
+	assertAddActionError(params);
 }
 
 void test_addActionInvalidType(void)
 {
 	StringVector params;
 	params.push_back("type=InvalidCommandType");
-	bool post = true;
-	startFaceRest();
-	g_parser = getResponseAsJsonParser("/actions.jsonp", "foo",
-	                                   params, post);
-	assertValueInParser(g_parser, "result", false);
+	assertAddActionError(params);
 }
 
 } // namespace testFaceRest
