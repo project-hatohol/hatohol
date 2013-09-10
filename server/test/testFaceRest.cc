@@ -401,7 +401,6 @@ static void _assertActions(const string &path, const string &callbackName = "")
 }
 #define assertActions(P,...) cut_trace(_assertActions(P,##__VA_ARGS__))
 
-
 void cut_setup(void)
 {
 	hatoholInit();
@@ -488,6 +487,16 @@ void test_addAction(void)
 	                                   params, post);
 	assertValueInParser(g_parser, "apiVersion",
 	                    (uint32_t)FaceRest::API_VERSION_ACTIONS);
+}
+
+void test_addActionWithoutType(void)
+{
+	StringVector params;
+	bool post = true;
+	startFaceRest();
+	g_parser = getResponseAsJsonParser("/actions.jsonp", "foo",
+	                                   params, post);
+	assertValueInParser(g_parser, "result", false);
 }
 
 void test_addActionInvalidType(void)

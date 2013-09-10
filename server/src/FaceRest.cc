@@ -699,8 +699,8 @@ void FaceRest::handlerPostAction
 	string actionType;
 	gpointer value = g_hash_table_lookup(query, "type");
 	if (!value) {
-		MLPL_ERR("actionType is not specified.\n");
-		soup_message_set_status(msg, SOUP_STATUS_BAD_REQUEST);
+		string errMsg = "actionType is not specified.\n";
+		replyError(msg, errMsg, jsonpCallbackName);
 		return;
 	}
 	string actionTypeStr((const char *)value);
