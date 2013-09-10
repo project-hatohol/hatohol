@@ -509,10 +509,25 @@ void test_addAction(void)
 	bool loadData = false;
 	setupTestDBAction(recreate, loadData);
 
+	int type = ACTION_COMMAND;
+	const string command = "makan-kosappo";
 	StringVector params;
 	params.push_back("type=command");
-	params.push_back("command=makan-kosappo");
+	params.push_back("command=" + command);
 	assertAddAction(params);
+
+	// check the content in the DB
+	DBClientAction dbAction;
+	string statement = "select * from ";
+	statement += DBClientAction::getTableNameActions();
+	string expect;
+	int expectedId = 1;
+	expect += StringUtils::sprintf("%d|", expectedId);
+	expect += "#NULL#|#NULL#|#NULL#|#NULL#|#NULL#|#NULL#|#NULL#|";
+	expect += StringUtils::sprintf("%d|",type);
+	expect += command;
+	expect += "||0"; /* workingDirectory and timeout */
+	assertDBContent(dbAction.getDBAgent(), statement, expect);
 }
 
 void test_addActionParamterFull(void)
@@ -521,19 +536,55 @@ void test_addActionParamterFull(void)
 	bool loadData = false;
 	setupTestDBAction(recreate, loadData);
 
+	const string command = "/usr/bin/pochi";
+	const string workingDir = "/usr/local/wani";
+	int type = ACTION_COMMAND;
+	int timeout = 300;
+	int serverId= 50;
+	uint64_t hostId = 50;
+	uint64_t hostGroupId = 1000;
+	uint64_t triggerId = 333;
+	int triggerStatus = TRIGGER_STATUS_PROBLEM;;
+	int triggerSeverity = TRIGGER_SEVERITY_CRITICAL;
+	int triggerSeverityComparatorType = CMP_EQ_GT;
+
 	StringVector params;
 	params.push_back("type=command");
-	params.push_back("command=/usr/bin/pochi");
-	params.push_back("workingDirectory=/usr/local/wani");
-	params.push_back("timeout=300");
-	params.push_back("serverId=50");
-	params.push_back("hostId=50");
-	params.push_back("hostGroupId=1000");
-	params.push_back("triggerId=333");
-	params.push_back("triggerStatus=1");
-	params.push_back("triggerSeverity=3");
-	params.push_back("triggerSeverityComparator=GE");
+	params.push_back("command=" + command);
+	params.push_back("workingDirectory=" + workingDir);
+	params.push_back(StringUtils::sprintf("timeout=%d", timeout));
+	params.push_back(StringUtils::sprintf("serverId=%d", serverId));
+	params.push_back(StringUtils::sprintf("hostId=%"PRIu64, hostId));
+	params.push_back(
+	  StringUtils::sprintf("hostGroupId=%"PRIu64, hostGroupId));
+	params.push_back(StringUtils::sprintf("triggerId=%"PRIu64, triggerId));
+	params.push_back(
+	  StringUtils::sprintf("triggerStatus=%d", triggerStatus));
+	params.push_back(
+	  StringUtils::sprintf("triggerSeverity=%d", triggerSeverity));
+	params.push_back(
+	  StringUtils::sprintf("triggerSeverityComparator=GE"));
 	assertAddAction(params);
+
+	// check the content in the DB
+	DBClientAction dbAction;
+	string statement = "select * from ";
+	statement += DBClientAction::getTableNameActions();
+	string expect;
+	int expectedId = 1;
+	expect += StringUtils::sprintf("%d|%d|", expectedId, serverId);
+	expect += StringUtils::sprintf("%"PRIu64"|%"PRIu64"|%"PRIu64"|",
+	  hostId, hostGroupId, triggerId);
+	expect += StringUtils::sprintf(
+	  "%d|%d|%d|", triggerStatus, triggerSeverity,
+	              triggerSeverityComparatorType);
+	expect += StringUtils::sprintf("%d|", type);
+	expect += command;
+	expect += "|";
+	expect += workingDir;
+	expect += "|";
+	expect += StringUtils::sprintf("%d", timeout);
+	assertDBContent(dbAction.getDBAgent(), statement, expect);
 }
 
 void test_addActionWithoutType(void)
