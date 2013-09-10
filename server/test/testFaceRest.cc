@@ -595,7 +595,7 @@ void test_addActionComplicatedCommand(void)
 
 	const string command =
 	   "/usr/bin/@hoge -l '?ABC+{[=:;\\~]}FOX-' --X '$^' --name \"@'v'@\"'";
-	gchar *encodedCommand = soup_uri_encode(command.c_str(), NULL);
+	gchar *encodedCommand = soup_uri_encode(command.c_str(), "+");
 	StringVector params;
 	params.push_back(StringUtils::sprintf("type=%d", ACTION_COMMAND));
 	params.push_back(string("command=") + encodedCommand);
