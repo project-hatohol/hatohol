@@ -509,12 +509,7 @@ void test_addAction(void)
 	StringVector params;
 	params.push_back("type=command");
 	params.push_back("command=makan-kosappo");
-	bool post = true;
-	startFaceRest();
-	g_parser = getResponseAsJsonParser("/actions.jsonp", "foo",
-	                                   params, post);
-	assertValueInParser(g_parser, "apiVersion",
-	                    (uint32_t)FaceRest::API_VERSION_ACTIONS);
+	assertAddAction(params);
 }
 
 void test_addActionParamterFull(void)
