@@ -25,6 +25,7 @@
 #include "DBAgentSQLite3.h"
 #include "DBClientTest.h"
 #include "Params.h"
+#include "MultiLangTest.h"
 
 namespace testFaceRest {
 
@@ -595,6 +596,27 @@ void test_addActionComplicatedCommand(void)
 
 	const string command =
 	   "/usr/bin/@hoge -l '?ABC+{[=:;|.,#*`!$%\\~]}FOX-' --X '$^' --name \"@'v'@\"'";
+	gchar *encodedCommand = soup_uri_encode(command.c_str(), "+");
+	StringVector params;
+	params.push_back(StringUtils::sprintf("type=%d", ACTION_COMMAND));
+	params.push_back(string("command=") + encodedCommand);
+	g_free(encodedCommand);
+	assertAddAction(params);
+
+	// check the content in the DB
+	DBClientAction dbAction;
+	string statement = "select command from ";
+	statement += DBClientAction::getTableNameActions();
+	assertDBContent(dbAction.getDBAgent(), statement, command);
+}
+
+void test_addActionCommandWithJapanese(void)
+{
+	bool recreate = true;
+	bool loadData = false;
+	setupTestDBAction(recreate, loadData);
+
+	const string command = COMMAND_EX_JP;
 	gchar *encodedCommand = soup_uri_encode(command.c_str(), "+");
 	StringVector params;
 	params.push_back(StringUtils::sprintf("type=%d", ACTION_COMMAND));

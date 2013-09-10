@@ -490,6 +490,29 @@ void loadTestDBAction(void)
 		dbAction.addAction(testActionDef[i]);
 }
 
+string
+replaceForUtf8(const string &str, const string &target, const string &newChar)
+{
+	string ret;
+	const gchar *orig = str.c_str();
+	const gchar *curr = orig;
+	gchar *next;
+	while (true)
+	{
+		next = g_utf8_find_next_char(curr, NULL);
+		if (curr == next)
+			break;
+		size_t len = next - curr;
+		string currChar(curr, 0, len);
+		if (currChar == target)
+			ret += newChar;
+		else
+			ret += currChar;
+		curr = next;
+	}
+	return ret;
+}
+
 string execSQL(DBAgent *dbAgent, const string &statement, bool showHeader)
 {
 	string output;
@@ -497,7 +520,7 @@ string execSQL(DBAgent *dbAgent, const string &statement, bool showHeader)
 	if (tid == typeid(DBAgentMySQL)) {
 		DBAgentMySQL *dbMySQL = dynamic_cast<DBAgentMySQL *>(dbAgent);
 		output = execMySQL(dbMySQL->getDBName(), statement, showHeader);
-		output = StringUtils::replace(output, "\t", "|");
+		output = replaceForUtf8(output, "\t", "|");
 	}
 	else
 		cut_fail("Unknown type_info");
