@@ -500,6 +500,17 @@ void test_addActionWithoutType(void)
 	assertValueInParser(g_parser, "result", false);
 }
 
+void test_addActionWithoutCommand(void)
+{
+	StringVector params;
+	params.push_back("type=command");
+	bool post = true;
+	startFaceRest();
+	g_parser = getResponseAsJsonParser("/actions.jsonp", "foo",
+	                                   params, post);
+	assertValueInParser(g_parser, "result", false);
+}
+
 void test_addActionInvalidType(void)
 {
 	StringVector params;
