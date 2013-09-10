@@ -401,6 +401,18 @@ static void _assertActions(const string &path, const string &callbackName = "")
 }
 #define assertActions(P,...) cut_trace(_assertActions(P,##__VA_ARGS__))
 
+void _assertAddAction(const StringVector &params)
+{
+	bool post = true;
+	startFaceRest();
+	g_parser = getResponseAsJsonParser("/actions.jsonp", "foo",
+	                                   params, post);
+	assertValueInParser(g_parser, "result", true);
+	assertValueInParser(g_parser, "apiVersion",
+	                    (uint32_t)FaceRest::API_VERSION_ACTIONS);
+}
+#define assertAddAction(P) cut_trace(_assertAddAction(P))
+
 void _assertAddActionError(const StringVector &params)
 {
 	bool post = true;
@@ -498,6 +510,23 @@ void test_addAction(void)
 	                                   params, post);
 	assertValueInParser(g_parser, "apiVersion",
 	                    (uint32_t)FaceRest::API_VERSION_ACTIONS);
+}
+
+void test_addActionParamterFull(void)
+{
+	StringVector params;
+	params.push_back("type=command");
+	params.push_back("command=/usr/bin/pochi");
+	params.push_back("workingDirectory=/usr/local/wani");
+	params.push_back("timeout=300");
+	params.push_back("serverId=50");
+	params.push_back("hostId=50");
+	params.push_back("hostGroupId=1000");
+	params.push_back("triggerId=333");
+	params.push_back("triggerStatus=1");
+	params.push_back("triggerSeverity=3");
+	params.push_back("triggerSeverityComparator=GE");
+	assertAddAction(params);
 }
 
 void test_addActionWithoutType(void)

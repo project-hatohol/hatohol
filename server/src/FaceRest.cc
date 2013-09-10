@@ -807,10 +807,10 @@ void FaceRest::handlerPostAction
 
 		// triggerSeverityComparatorType
 		value = (char *)g_hash_table_lookup(
-		                  query, "triggerSeverityComparatorType");
+		                  query, "triggerSeverityComparator");
 		if (!value) {
 			string errMsg =
-			   "triggerSeverityComparatorType is not specified.\n";
+			   "triggerSeverityComparator is not specified.\n";
 			replyError(msg, errMsg, jsonpCallbackName);
 			return;
 		}
