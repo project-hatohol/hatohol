@@ -260,8 +260,11 @@ string execSqlite3ForDBClientZabbix(int serverId, const string &statement)
 string execMySQL(const string &dbName, const string &statement, bool showHeader)
 {
 	const char *headerOpt = showHeader ? "" : "-N";
+	//
+	// We use a --raw option that disable the escape such as \ -> \\.
+	//
 	string commandLine =
-	  StringUtils::sprintf("mysql -B %s -D %s -e \"%s\"",
+	  StringUtils::sprintf("mysql --raw -B %s -D %s -e \"%s\"",
 	                       headerOpt, dbName.c_str(), statement.c_str());
 	string result = executeCommand(commandLine);
 	return result;
