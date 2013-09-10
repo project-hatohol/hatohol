@@ -435,6 +435,32 @@ static void setupPostAction(void)
 	setupTestDBAction(recreate, loadData);
 }
 
+struct LocaleInfo {
+	string lcAll;
+	string lang;
+};
+
+static LocaleInfo *g_localeInfo = NULL;
+
+static void changeLocale(const char *locale)
+{
+	// save the current locale
+	if (!g_localeInfo) {
+		g_localeInfo = new LocaleInfo();
+		char *env;
+		env = getenv("LC_ALL");
+		if (env)
+			g_localeInfo->lcAll = env;
+		env = getenv("LANG");
+		if (env)
+			g_localeInfo->lang = env;
+	}
+
+	// set new locale
+	setenv("LC_ALL", locale, 1);
+	setenv("LANG", locale, 1);
+}
+
 void cut_setup(void)
 {
 	hatoholInit();
@@ -457,6 +483,15 @@ void cut_teardown(void)
 	if (g_parser) {
 		delete g_parser;
 		g_parser = NULL;
+	}
+
+	if (g_localeInfo) {
+		if (!g_localeInfo->lcAll.empty())
+			setenv("LC_ALL", g_localeInfo->lcAll.c_str(), 1);
+		if (!g_localeInfo->lang.empty())
+			setenv("LANG", g_localeInfo->lang.c_str(), 1);
+		delete g_localeInfo;
+		g_localeInfo = NULL;
 	}
 }
 
@@ -643,6 +678,7 @@ void test_addActionComplicatedCommand(void)
 void test_addActionCommandWithJapanese(void)
 {
 	setupPostAction();
+	changeLocale("en.UTF-8");
 
 	const string command = COMMAND_EX_JP;
 	gchar *encodedCommand = soup_uri_encode(command.c_str(), "+");
