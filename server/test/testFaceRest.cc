@@ -594,7 +594,7 @@ void test_addActionComplicatedCommand(void)
 	setupTestDBAction(recreate, loadData);
 
 	const string command =
-	   "/usr/bin/@hoge -l '?ABC+{[=:;\\~]}FOX-' --X '$^' --name \"@'v'@\"'";
+	   "/usr/bin/@hoge -l '?ABC+{[=:;|.,#*`!$%\\~]}FOX-' --X '$^' --name \"@'v'@\"'";
 	gchar *encodedCommand = soup_uri_encode(command.c_str(), "+");
 	StringVector params;
 	params.push_back(StringUtils::sprintf("type=%d", ACTION_COMMAND));
