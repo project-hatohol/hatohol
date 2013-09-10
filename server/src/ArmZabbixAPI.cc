@@ -1009,11 +1009,10 @@ bool ArmZabbixAPI::mainThreadOneProc(void)
 		// update needed hosts
 		updateHosts(triggers);
 
-		// Currently functions is no longer updated, because ZABBIX can
-		// return host ID diretory (If we use DBs as exactly the same as
-		// those in Zabbix Server, we have to join triggers, functions, and
-		// items to get the host ID). The related functions and structures
-		// main for the possiblity of future use again.
+		// Currently functions are no longer updated, because ZABBIX
+		// API can return host ID directly (If we use DBs as exactly
+		// the same as those in Zabbix Server, we have to join
+		// triggers, functions, and items to get the host ID).
 		//
 		// updateFunctions();
 
