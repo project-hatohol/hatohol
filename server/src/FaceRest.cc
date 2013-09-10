@@ -697,25 +697,26 @@ void FaceRest::handlerPostAction
 	//
 	// mandatory parameters
 	//
+	char *value;
+	bool exist;
+	bool succeeded;
 	ActionDef actionDef;
 
 	// action type
-	char *value;
-	string actionType;
-	value = (char *)g_hash_table_lookup(query, "type");
-	if (!value) {
-		string errMsg = "actionType is not specified.\n";
+	succeeded = getParamWithErrorReply<int>(
+	              query, msg, jsonpCallbackName,
+	              "type", "%d", (int &)actionDef.type, &exist);
+	if (!succeeded)
+		return;
+	if (!exist) {
+		string errMsg = "action type is not specified.\n";
 		replyError(msg, errMsg, jsonpCallbackName);
 		return;
 	}
-	string actionTypeStr(value);
-	if (actionTypeStr == "command") {
-		actionDef.type = ACTION_COMMAND;
-	} else if (actionTypeStr == "resident") {
-		actionDef.type = ACTION_RESIDENT;
-	} else {
+	if (!(actionDef.type == ACTION_COMMAND ||
+	      actionDef.type == ACTION_RESIDENT)) {
 		string errMsg = StringUtils::sprintf(
-		  "Unknown actionType: %s\n", actionTypeStr.c_str());
+		  "Unknown action type: %d\n", actionDef.type);
 		replyError(msg, errMsg, jsonpCallbackName);
 		return;
 	}
@@ -732,8 +733,6 @@ void FaceRest::handlerPostAction
 	//
 	// optional parameters
 	//
-	bool exist;
-	bool succeeded;
 	ActionCondition &cond = actionDef.condition;
 
 	// workingDirectory
@@ -806,22 +805,23 @@ void FaceRest::handlerPostAction
 		cond.enable(ACTCOND_TRIGGER_SEVERITY);
 
 		// triggerSeverityComparatorType
-		value = (char *)g_hash_table_lookup(
-		                  query, "triggerSeverityComparator");
-		if (!value) {
+		succeeded = getParamWithErrorReply<int>(
+		              query, msg, jsonpCallbackName,
+		              "triggerSeverityCompType", "%d",
+		              (int &)cond.triggerSeverityCompType, &exist);
+		if (!succeeded)
+			return;
+		if (!exist) {
 			string errMsg =
-			   "triggerSeverityComparator is not specified.\n";
+			   "triggerSeverityCompType is not specified.\n";
 			replyError(msg, errMsg, jsonpCallbackName);
 			return;
 		}
-		string comp(value);
-		if (comp == "EQ")
-			cond.triggerSeverityCompType = CMP_EQ;
-		else if (comp == "GE")
-			cond.triggerSeverityCompType = CMP_EQ_GT;
-		else  {
+		if (!(cond.triggerSeverityCompType == CMP_EQ ||
+		      cond.triggerSeverityCompType == CMP_EQ_GT)) {
 			string errMsg = StringUtils::sprintf(
-			  "Unknown comparator type: %s\n", comp.c_str());
+			  "Unknown comparator type: %d\n",
+			  cond.triggerSeverityCompType);
 			replyError(msg, errMsg, jsonpCallbackName);
 			return;
 		}

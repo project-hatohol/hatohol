@@ -512,7 +512,7 @@ void test_addAction(void)
 	int type = ACTION_COMMAND;
 	const string command = "makan-kosappo";
 	StringVector params;
-	params.push_back("type=command");
+	params.push_back(StringUtils::sprintf("type=%d", type));
 	params.push_back("command=" + command);
 	assertAddAction(params);
 
@@ -546,10 +546,10 @@ void test_addActionParamterFull(void)
 	uint64_t triggerId = 333;
 	int triggerStatus = TRIGGER_STATUS_PROBLEM;;
 	int triggerSeverity = TRIGGER_SEVERITY_CRITICAL;
-	int triggerSeverityComparatorType = CMP_EQ_GT;
+	int triggerSeverityCompType = CMP_EQ_GT;
 
 	StringVector params;
-	params.push_back("type=command");
+	params.push_back(StringUtils::sprintf("type=%d", type));
 	params.push_back("command=" + command);
 	params.push_back("workingDirectory=" + workingDir);
 	params.push_back(StringUtils::sprintf("timeout=%d", timeout));
@@ -563,7 +563,8 @@ void test_addActionParamterFull(void)
 	params.push_back(
 	  StringUtils::sprintf("triggerSeverity=%d", triggerSeverity));
 	params.push_back(
-	  StringUtils::sprintf("triggerSeverityComparator=GE"));
+	  StringUtils::sprintf("triggerSeverityCompType=%d",
+	                       triggerSeverityCompType));
 	assertAddAction(params);
 
 	// check the content in the DB
@@ -576,8 +577,7 @@ void test_addActionParamterFull(void)
 	expect += StringUtils::sprintf("%"PRIu64"|%"PRIu64"|%"PRIu64"|",
 	  hostId, hostGroupId, triggerId);
 	expect += StringUtils::sprintf(
-	  "%d|%d|%d|", triggerStatus, triggerSeverity,
-	              triggerSeverityComparatorType);
+	  "%d|%d|%d|", triggerStatus, triggerSeverity, triggerSeverityCompType);
 	expect += StringUtils::sprintf("%d|", type);
 	expect += command;
 	expect += "|";
