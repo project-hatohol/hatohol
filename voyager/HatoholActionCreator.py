@@ -97,7 +97,7 @@ class HatoholActionCreator:
     if severity:
       print "Seveirty   : " + severity_cmp + " " + severity
 
-    self._send(type_code, command, working_dir, timeout, server_id, host_id, host_group_id, trigger_id, status_code, severity_cmp, severity)
+    self._send(type_code, command, working_dir, timeout, server_id, host_id, host_group_id, trigger_id, status_code, severity_cmp_code, severity_code)
 
   def _send(self, type_code, command, working_dir, timeout, server_id, host_id, host_group_id, trigger_id, status_code, severity_cmp_code, severity_code):
     query = {}
