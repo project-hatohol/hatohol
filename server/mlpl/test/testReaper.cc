@@ -75,5 +75,15 @@ void test_destructCppObject(void)
 	cppcut_assert_equal(true, ctx.called);
 }
 
+void test_deactivate(void)
+{
+	TestContext ctx;
+	cppcut_assert_equal(false, ctx.called);
+	{
+		Reaper<TestContextOperator> var(new TestContextOperator(&ctx));
+		var.deactivate();
+	}
+	cppcut_assert_equal(false, ctx.called);
+}
 
 } // namespace testReaper

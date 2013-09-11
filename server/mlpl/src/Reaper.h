@@ -29,21 +29,30 @@ class Reaper {
 public:
 	Reaper(T *obj, ReaperDestroyFunc destroyFunc = NULL)
 	: m_obj(obj),
-	  m_destroyFunc(destroyFunc)
+	  m_destroyFunc(destroyFunc),
+	  m_active(true)
 	{
 	}
 
 	virtual ~Reaper()
 	{
+		if (!m_active)
+			return;
 		if (!m_destroyFunc)
 			delete m_obj;
 		else
 			(*m_destroyFunc)(m_obj);
 	}
 
+	void deactivate(void)
+	{
+		m_active = false;
+	}
+
 private:
 	T *m_obj;
 	ReaperDestroyFunc m_destroyFunc;
+	bool m_active;
 };
 
 } // namespace mlpl
