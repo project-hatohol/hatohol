@@ -51,17 +51,17 @@
   <table class="table table-condensed table-hover" id="table">
     <thead>
       <tr>
+        <th data-sort="string"> ID </th>
         <th data-sort="string"> サーバ </th>
         <th data-sort="string"> ホスト </th>
         <th data-sort="string"> ホストグループ </th>
         <th data-sort="int"> トリガーID </th>
         <th data-sort="string"> トリガー状態 </th>
         <th data-sort="string"> 深刻度 </th>
-        <th data-sort="string"> 深刻度比較 </th>
         <th data-sort="string"> タイプ </th>
         <th data-sort="string"> 作業ディレクトリ </th>
         <th data-sort="string"> コマンド </th>
-        <th data-sort="string"> タイムアウト </th>
+        <th data-sort="string"> タイムアウト(秒) </th>
       </tr>
     </thead>
     <tbody>
@@ -96,18 +96,63 @@
       chooseRow();
     });
 
-    function parseData(rd) {
+    function makeNamelessServerLabel(serverId) {
+        return "(ID:" + serverId + ")";
+    }
+
+    function makeNamelessHostLabel(serverId, hostId) {
+        return "(S" + serverId + "-H" + hostId + ")";
+    }
+
+    function getServerName(actionsPkt, actionDef) {
+      var serverId = actionDef["serverId"];
+      if (!serverId)
+        return null;
+      var server = actionsPkt["servers"][serverId];
+      if (!server)
+        return makeNamelessServerLabel(serverId);
+      var serverName = actionsPkt["servers"][serverId]["name"];
+      if (!serverName)
+        return makeNamelessServerLabel(serverId);
+      return serverName;
+    }
+
+    function getHostName(actionsPkt, actionDef) {
+      var hostId = actionDef["hostId"]
+      if (!hostId)
+        return null;
+      var serverId = actionDef["serverId"];
+      if (!serverId)
+        return makeNamelessHostLabel(serverId, hostId);
+      var hostArray = actionsPkt["servers"][serverId]
+      if (!hostArray)
+        return makeNamelessHostLabel(serverId, hostId);
+      var host = hostArray[hostId];
+      if (!host)
+        return makeNamelessHostLabel(serverId, hostId);
+      var hostName = host["name"];
+      if (!hostName)
+        return makeNamelessHostLabel(serverId, hostId);
+      return hostName;
+    }
+
+    function parseData(actionsPkt) {
       var pd = new Object();
       var x;
       var ss, hs;
-      var s;
 
       ss = [];
       hs = [];
-      for (x= 0; x < rd["actions"].length; ++x) {
-        o = rd["actions"][x];
-        ss.push(rd["servers"][o["serverId"]]["name"]);
-        hs.push(rd["servers"][o["serverId"]]["hosts"][o["hostId"]]["name"]);
+      for (x = 0; x < actionsPkt["actions"].length; ++x) {
+        var actionDef = actionsPkt["actions"][x];
+        var serverName = getServerName(actionsPkt, actionDef)
+        if (serverName)
+          ss.push(serverName);
+        else
+          continue;
+        var hostName = getHostName(actionsPkt, actionDef);
+        if (hostName)
+          hs.push(hostName);
       }
       pd.servers = ss.uniq().sort();
       pd.hosts   = hs.uniq().sort();
@@ -115,25 +160,66 @@
       return pd;
     }
 
-    function drawTableBody(rd) {
+    function drawTableBody(actionsPkt) {
       var x;
-      var s;
-      var o;
       var klass, server, host;
 
-      s = "";
-      for (x = 0; x < rd["actions"].length; ++x) {
-        o = rd["actions"][x];
-        server   = rd["actions"][o["serverId"]]["name"];
-        host     = rd["actions"][o["serverId"]]["hosts"][o["hostId"]]["name"];
-        // TODO: add hostGroupId, triggerId, triggerStatus, triggerSeverity,
-        //       triggerServerityComparatorType, type, workingDirectory,
-        //       command, and timeout.
-        klass    = server + " " + host;
+      var s = "";
+      for (x = 0; x < actionsPkt["actions"].length; ++x) {
+        var actionDef = actionsPkt["actions"][x];
+        klass = serverName + " " + hostName;
         s += "<tr class='" + klass + "'>";
-        s += "<td>" + server + "</td>";
-        s += "<td>" + host   + "</td>";
-        s += "<td>" + "unsupported" + "</td>";
+        s += "<td>" + actionDef.actionId + "</td>";
+
+        var serverName = getServerName(actionsPkt, actionDef);
+        if (!serverName)
+          serverName = "ANY";
+        s += "<td>" + serverName + "</td>";
+
+        var hostName = getHostName(actionsPkt, actionDef);
+        if (!hostName)
+          hostName = "ANY";
+        s += "<td>" + hostName   + "</td>";
+
+        var hostGroupName = "unsupported";
+        s += "<td>" + hostGroupName + "</td>";
+
+        var triggerId = actionDef.triggerId;
+        if (!triggerId)
+          triggerId = "ANY";
+        s += "<td>" + triggerId + "</td>";
+
+        var triggerStatus = actionDef.triggerStatus;
+        if (!triggerStatus)
+          triggerStatus = "ANY";
+        s += "<td>" + triggerStatus + "</td>";
+
+        var severityCompType = actionDef.triggerSeverityComparatorType;
+        if (!severityCompType)
+          severityCompType = ""
+
+        var triggerSeverity = actionDef.triggerSeverity;
+        if (!triggerSeverity)
+          triggerSeverity = "ANY";
+        s += "<td>" + severityCompType + " " + triggerSeverity + "</td>";
+
+        var type = actionDef.type;
+        var typeLabel = "TYPE: " + type;
+        s += "<td>" + typeLabel + "</td>";
+
+        var workingDir = actionDef.workingDirectory;
+        if (!workingDir)
+            workingDir = "N/A";
+        s += "<td>" + workingDir + "</td>";
+
+        var command = actionDef.command;
+        s += "<td>" + command + "</td>";
+
+        var timeout = actionDef.timeout;
+        if (timeout == 0)
+          timeout = "No limit";
+        s += "<td>" + timeout + "</td>";
+
         s += "</tr>";
       }
 
