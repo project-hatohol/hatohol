@@ -17,6 +17,8 @@
   along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
 {% endcomment %}
 
+{% load i18n %}
+
 <html>
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"></meta>
@@ -33,7 +35,7 @@
     <div class="navbar navbar-inverse navbar-fixed-top">
       <div class="navbar-inner">
 
-        <a class="brand">&nbsp;<i>Hatohol</i>&nbsp;</a>
+        <a class="brand">&nbsp;<i>{% "Hatohol" %}</i>&nbsp;</a>
         <ul class="nav">
 {% block navbar %}
 {% endblock %}
@@ -41,11 +43,11 @@
 
         <div class="pull-right btn-group" id ="sts">
           <button class="btn dropdown-toggle btn-info" data-toggle="dropdown">
-            <span>PREPARE</span> 
+            <span>{% trans "PREPARE" %}</span> 
             <span class="caret"></span>
           </button>
           <ul class="dropdown-menu">
-            <li>準備中</li>
+            <li>{% trans "Preparing" %}</li>
           </ul>
         </div>
 

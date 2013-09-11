@@ -6,14 +6,26 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-09-11 05:05-0500\n"
-"PO-Revision-Date: 2013-09-11 19:03+0900\n"
+"POT-Creation-Date: 2013-09-11 08:06-0500\n"
+"PO-Revision-Date: 2013-09-11 22:00+0900\n"
 "Last-Translator: Takuro Ashie <ashie@clear-code.com>\n"
 "Language-Team: Project Hatohol\n"
 "Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+
+#: viewer/base.html:36
+msgid "Hatohol"
+msgstr ""
+
+#: viewer/base_ajax.html:46
+msgid "PREPARE"
+msgstr "準備中"
+
+#: viewer/base_ajax.html:50
+msgid "Preparing"
+msgstr "準備中"
 
 #: viewer/dashboard_ajax.html:24 viewer/events_ajax.html:24
 #: viewer/index.html:24 viewer/latest_ajax.html:24
