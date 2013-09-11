@@ -38,7 +38,7 @@ public:
 	virtual void stop(void);
 
 protected:
-        struct HandlerArg;
+	struct HandlerArg;
 
 	// virtual methods
 	gpointer mainThread(HatoholThreadArg *arg);
