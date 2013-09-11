@@ -79,7 +79,7 @@ void test_deactivate(void)
 	TestContext ctx;
 	cppcut_assert_equal(false, ctx.called);
 	{
-		Reaper<TestContextOperator> var(new TestContextOperator(&ctx));
+		Reaper<TestContext> var(&ctx, (ReaperDestroyFunc)destFunc);
 		var.deactivate();
 	}
 	cppcut_assert_equal(false, ctx.called);
