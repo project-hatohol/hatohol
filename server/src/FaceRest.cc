@@ -19,6 +19,7 @@
 
 #include <cstring>
 #include <Logger.h>
+#include <Reaper.h>
 using namespace mlpl;
 
 #include "FaceRest.h"
@@ -74,19 +75,6 @@ static FormatTypeMap g_formatTypeMap;
 typedef map<FormatType, const char *> MimeTypeMap;
 typedef MimeTypeMap::iterator   MimeTypeMapIterator;;
 static MimeTypeMap g_mimeTypeMap;
-
-struct GHashTableDestructor {
-	GHashTable *table;
-	GHashTableDestructor(GHashTable *_table)
-	: table(_table)
-	{
-	}
-
-	virtual ~GHashTableDestructor()
-	{
-		g_hash_table_unref(table);
-	}
-};
 
 // ---------------------------------------------------------------------------
 // Public methods
@@ -706,7 +694,7 @@ void FaceRest::handlerPostAction
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	GHashTable *query = soup_form_decode(msg->request_body->data);
-	GHashTableDestructor htDestructor(query);
+	Reaper<GHashTable> reaper(query, (ReaperDestroyFunc)g_hash_table_unref);
 	string jsonpCallbackName = getJsonpCallbackName(query, arg);
 
 	//
