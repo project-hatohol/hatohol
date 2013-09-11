@@ -245,8 +245,9 @@ void ActionManager::runAction(const ActionDef &actionDef,
 	}
 }
 
-ActorInfo *ActionManager::spawn(const ActionDef &actionDef, const gchar **argv,
-                                uint64_t *logId)
+ActorInfo *ActionManager::spawn(
+  const ActionDef &actionDef, const EventInfo &eventInfo, const gchar **argv,
+  uint64_t *logId)
 {
 	const gchar *workingDirectory = NULL;
 	if (!actionDef.workingDir.empty())
@@ -272,20 +273,8 @@ ActorInfo *ActionManager::spawn(const ActionDef &actionDef, const gchar **argv,
 	                flags, childSetup, userData, &actorInfo->pid, &error);
 	if (!succeeded) {
 		m_ctx->collector.unlock();
-		string msg = StringUtils::sprintf(
-		  "Failed to execute command: %s, action ID: %d",
-		  error->message, actionDef.id);
-		ActionLogExecFailureCode failureCode =
-		  error->code == G_SPAWN_ERROR_NOENT ?
-		    ACTLOG_EXECFAIL_ENTRY_NOT_FOUND :
-		    ACTLOG_EXECFAIL_EXEC_FAILURE;
-		g_error_free(error);
-		actorInfo->logId =
-		  m_ctx->dbAction.createActionLog(actionDef, failureCode);
-		MLPL_ERR("%s, logID: %"PRIu64"\n",
-		         msg.c_str(), actorInfo->logId);
-		if (logId)
-			*logId = actorInfo->logId;
+		postProcSpawnFailure(actionDef, eventInfo, actorInfo,
+		                     logId, error);
 		delete actorInfo;
 		return NULL;
 	}
@@ -330,7 +319,7 @@ void ActionManager::execCommandAction(const ActionDef &actionDef,
 	argv[argVect.size()] = NULL;
 
 	uint64_t logId;
-	ActorInfo *actorInfo = spawn(actionDef, argv, &logId);
+	ActorInfo *actorInfo = spawn(actionDef, eventInfo, argv, &logId);
 	copyActorInfoForExecResult(_actorInfo, actorInfo, logId);
 	if (actorInfo && actionDef.timeout > 0) {
 		actorInfo->timerTag =
@@ -619,7 +608,7 @@ ResidentInfo *ActionManager::launchResidentActionYard
 	  residentInfo->pipeName.c_str(),
 	  NULL};
 	
-	ActorInfo *actorInfo = spawn(actionDef, argv, logId);
+	ActorInfo *actorInfo = spawn(actionDef, eventInfo, argv, logId);
 	*actorInfoPtr = actorInfo;
 	if (!actorInfo) {
 		delete residentInfo;
@@ -752,3 +741,22 @@ void ActionManager::copyActorInfoForExecResult
 		actorInfoDest->logId = logId;
 }
 
+void ActionManager::postProcSpawnFailure(
+  const ActionDef &actionDef, const EventInfo &eventInfo, ActorInfo *actorInfo,
+  uint64_t *logId, GError *error)
+{
+	string msg = StringUtils::sprintf(
+	  "Failed: %s, action ID: %d",
+	  error->message, actionDef.id);
+	ActionLogExecFailureCode failureCode =
+	  error->code == G_SPAWN_ERROR_NOENT ?
+	    ACTLOG_EXECFAIL_ENTRY_NOT_FOUND :
+	    ACTLOG_EXECFAIL_EXEC_FAILURE;
+	g_error_free(error);
+	actorInfo->logId =
+	  m_ctx->dbAction.createActionLog(actionDef, failureCode);
+	MLPL_ERR("%s, logID: %"PRIu64"\n",
+	         msg.c_str(), actorInfo->logId);
+	if (logId)
+		*logId = actorInfo->logId;
+}
