@@ -1,4 +1,5 @@
 {% extends "viewer/base_ajax.html" %}
+{% load i18n %}
 
 {% comment %}
   Copyright (C) 2013 Project Hatohol
@@ -20,17 +21,17 @@
 {% endcomment %}
 
 {% block navbar %}
-  <li><a href="ajax_dashboard">ダッシュボード</a></li>
-  <li class="active"><a>概要:トリガー</a></li>
-  <li><a href="ajax_overview_items">概要:アイテム</a></li>
-  <li><a href="ajax_latest">最新データ</a></li>
-  <li><a href="ajax_triggers">トリガー</a></li>
-  <li><a href="ajax_events">イベント</a></li>
-  <li><a href="ajax_servers">サーバ管理</a></li>
+  <li><a href="ajax_dashboard">{% trans "Dashboard" %}</a></li>
+  <li class="active"><a>{% trans "Overview : Triggers" %}</a></li>
+  <li><a href="ajax_overview_items">{% trans "Overview : Items" %}</a></li>
+  <li><a href="ajax_latest">{% trans "Latest data" %}</a></li>
+  <li><a href="ajax_triggers">{% trans "Triggers" %}</a></li>
+  <li><a href="ajax_events">{% trans "Events" %}</a></li>
+  <li><a href="ajax_servers">{% trans "Server Status" %}</a></li>
 {% endblock %}
 
 {% block main %}
-  <h2>Overview : Triggers</h2>
+  <h2>{% trans "Overview : Triggers" %}</h2>
 
   <form class="form-inline">
     <label>Minimum Severity:</label>

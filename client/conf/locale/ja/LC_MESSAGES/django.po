@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-09-10 03:53-0500\n"
-"PO-Revision-Date: 2013-09-10 18:03+0900\n"
+"POT-Creation-Date: 2013-09-11 04:54-0500\n"
+"PO-Revision-Date: 2013-09-11 18:53+0900\n"
 "Last-Translator: Takuro Ashie <ashie@clear-code.com>\n"
 "Language-Team: Project Hatohol\n"
 "Language: \n"
@@ -15,10 +15,61 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: viewer/events_ajax.html:75
-msgid "Unknown"
-msgstr ""
-
-#: viewer/index.html:24
+#: viewer/dashboard_ajax.html:24 viewer/events_ajax.html:24
+#: viewer/index.html:24 viewer/latest_ajax.html:24
+#: viewer/overview_items_ajax.html:24 viewer/overview_triggers_ajax.html:24
+#: viewer/servers_ajax.html:24 viewer/triggers_ajax.html:24
 msgid "Dashboard"
 msgstr "ダッシュボード"
+
+#: viewer/dashboard_ajax.html:25 viewer/events_ajax.html:25
+#: viewer/index.html:25 viewer/latest_ajax.html:25
+#: viewer/overview_items_ajax.html:25 viewer/overview_triggers_ajax.html:25
+#: viewer/overview_triggers_ajax.html:34 viewer/servers_ajax.html:25
+#: viewer/triggers_ajax.html:25
+msgid "Overview : Triggers"
+msgstr "概要:トリガー"
+
+#: viewer/dashboard_ajax.html:26 viewer/events_ajax.html:26
+#: viewer/index.html:26 viewer/latest_ajax.html:26
+#: viewer/overview_items_ajax.html:26 viewer/overview_items_ajax.html.py:34
+#: viewer/overview_triggers_ajax.html:26 viewer/servers_ajax.html:26
+#: viewer/triggers_ajax.html:26
+msgid "Overview : Items"
+msgstr "概要:アイテム"
+
+#: viewer/dashboard_ajax.html:27 viewer/events_ajax.html:27
+#: viewer/index.html:27 viewer/latest_ajax.html:27
+#: viewer/latest_ajax.html.py:34 viewer/overview_items_ajax.html:27
+#: viewer/overview_triggers_ajax.html:27 viewer/servers_ajax.html:27
+#: viewer/triggers_ajax.html:27
+msgid "Latest data"
+msgstr "最新データ"
+
+#: viewer/dashboard_ajax.html:28 viewer/events_ajax.html:28
+#: viewer/index.html:28 viewer/latest_ajax.html:28
+#: viewer/overview_items_ajax.html:28 viewer/overview_triggers_ajax.html:28
+#: viewer/servers_ajax.html:28 viewer/triggers_ajax.html:28
+#: viewer/triggers_ajax.html.py:34
+msgid "Triggers"
+msgstr "トリガー"
+
+#: viewer/dashboard_ajax.html:29 viewer/events_ajax.html:29
+#: viewer/events_ajax.html.py:34 viewer/index.html:29
+#: viewer/latest_ajax.html:29 viewer/overview_items_ajax.html:29
+#: viewer/overview_triggers_ajax.html:29 viewer/servers_ajax.html:29
+#: viewer/triggers_ajax.html:29
+msgid "Events"
+msgstr "イベント"
+
+#: viewer/dashboard_ajax.html:30 viewer/events_ajax.html:30
+#: viewer/index.html:30 viewer/latest_ajax.html:30
+#: viewer/overview_items_ajax.html:30 viewer/overview_triggers_ajax.html:30
+#: viewer/servers_ajax.html:30 viewer/servers_ajax.html.py:34
+#: viewer/triggers_ajax.html:30
+msgid "Server Status"
+msgstr "サーバステータス"
+
+#: viewer/events_ajax.html:75
+msgid "Unknown"
+msgstr "不明"
