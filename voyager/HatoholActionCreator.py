@@ -104,22 +104,22 @@ class HatoholActionCreator:
     query["type"] = str(type_code)
     query["command"] = command
     if working_dir:
-      query["&workingDirectory"] = working_dir
+      query["workingDirectory"] = working_dir
     if timeout:
       query["timeout"] = str(timeout)
     if server_id:
       query["serverId"] = str(server_id)
     if host_id:
-      query["&hostId="] = str(host_id)
+      query["hostId"] = str(host_id)
     if host_group_id:
-      query["&hostGroupId="] = str(host_group_id)
+      query["hostGroupId"] = str(host_group_id)
     if trigger_id:
-      query["&triggerId="] = str(trigger_id)
+      query["triggerId"] = str(trigger_id)
     if status_code:
-      query["&triggerStatus="] = str(status_code)
+      query["triggerStatus"] = str(status_code)
     if severity_code:
-      query["&triggerSeverity="] = str(severity_code)
-      query["&triggerSeverityCompType="] = str(severity_cmp_code)
+      query["triggerSeverity"] = str(severity_code)
+      query["triggerSeverityCompType"] = str(severity_cmp_code)
 
     encoded_query = urllib.urlencode(query)
     url = self._url + "/actions.json"
