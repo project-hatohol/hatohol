@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-09-11 08:51-0500\n"
-"PO-Revision-Date: 2013-09-11 22:51+0900\n"
+"POT-Creation-Date: 2013-09-11 09:12-0500\n"
+"PO-Revision-Date: 2013-09-11 23:12+0900\n"
 "Last-Translator: Takuro Ashie <ashie@clear-code.com>\n"
 "Language-Team: Project Hatohol\n"
 "Language: \n"
@@ -82,9 +82,73 @@ msgstr "イベント"
 msgid "Server Status"
 msgstr "サーバステータス"
 
+#: viewer/events_ajax.html:46 viewer/triggers_ajax.html:54
+msgid "Server"
+msgstr "サーバ"
+
+#: viewer/events_ajax.html:47
+msgid "Time"
+msgstr "時間"
+
+#: viewer/events_ajax.html:48
+msgid "Brief"
+msgstr "説明"
+
+#: viewer/events_ajax.html:49 viewer/triggers_ajax.html:56
+msgid "Status"
+msgstr "ステータス"
+
+#: viewer/events_ajax.html:50 viewer/triggers_ajax.html:55
+msgid "Severity"
+msgstr "深刻度"
+
+#: viewer/events_ajax.html:51 viewer/triggers_ajax.html:58
+msgid "Duration"
+msgstr "継続時間"
+
+#: viewer/events_ajax.html:52 viewer/triggers_ajax.html:62
+msgid "Comment"
+msgstr "コメント"
+
+#: viewer/events_ajax.html:53
+msgid "Action"
+msgstr "アクション"
+
+#: viewer/events_ajax.html:75 viewer/triggers_ajax.html:84
+msgid "OK"
+msgstr "正常"
+
+#: viewer/events_ajax.html:75 viewer/triggers_ajax.html:84
+msgid "Problem"
+msgstr "障害"
+
 #: viewer/events_ajax.html:75 viewer/triggers_ajax.html:84
 msgid "Unknown"
 msgstr "不明"
+
+#: viewer/events_ajax.html:76 viewer/triggers_ajax.html:85
+msgid "Not classified"
+msgstr "未分類"
+
+#: viewer/events_ajax.html:76 viewer/triggers_ajax.html:85
+msgid "Information"
+msgstr "情報"
+
+#: viewer/events_ajax.html:76 viewer/triggers_ajax.html:85
+msgid "Warning"
+msgstr "警告"
+
+#: viewer/events_ajax.html:76 viewer/triggers_ajax.html:85
+msgid "Average"
+msgstr "軽度の障害"
+
+#: viewer/events_ajax.html:76 viewer/triggers_ajax.html:85
+msgid "High"
+msgstr "重度の障害"
+
+#: viewer/events_ajax.html:76 viewer/triggers_ajax.html:85
+msgid "Disaster"
+msgstr "致命的な障害"
 
 #: viewer/servers_ajax.html:39
 msgid "ID"
@@ -118,25 +182,9 @@ msgstr "グループ:"
 msgid "Host:"
 msgstr "ホスト:"
 
-#: viewer/triggers_ajax.html:54
-msgid "Server"
-msgstr "サーバ"
-
-#: viewer/triggers_ajax.html:55
-msgid "Severity"
-msgstr "深刻度"
-
-#: viewer/triggers_ajax.html:56
-msgid "Status"
-msgstr "ステータス"
-
 #: viewer/triggers_ajax.html:57
 msgid "Last change"
 msgstr "最新の変更"
-
-#: viewer/triggers_ajax.html:58
-msgid "Duration"
-msgstr "継続時間"
 
 #: viewer/triggers_ajax.html:59
 msgid "Acknowledged"
@@ -149,39 +197,3 @@ msgstr "ホスト"
 #: viewer/triggers_ajax.html:61
 msgid "Name"
 msgstr "名前"
-
-#: viewer/triggers_ajax.html:62
-msgid "Comment"
-msgstr "コメント"
-
-#: viewer/triggers_ajax.html:84
-msgid "OK"
-msgstr "正常"
-
-#: viewer/triggers_ajax.html:84
-msgid "Problem"
-msgstr "障害"
-
-#: viewer/triggers_ajax.html:85
-msgid "Not classified"
-msgstr "未分類"
-
-#: viewer/triggers_ajax.html:85
-msgid "Information"
-msgstr "情報"
-
-#: viewer/triggers_ajax.html:85
-msgid "Warning"
-msgstr "警告"
-
-#: viewer/triggers_ajax.html:85
-msgid "Average"
-msgstr "軽度の障害"
-
-#: viewer/triggers_ajax.html:85
-msgid "High"
-msgstr "重度の障害"
-
-#: viewer/triggers_ajax.html:85
-msgid "Disaster"
-msgstr "致命的な障害"

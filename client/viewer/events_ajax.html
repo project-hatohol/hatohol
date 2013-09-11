@@ -34,7 +34,7 @@
   <h2>{% trans "Events" %}</h2>
 
   <form class="form-inline">
-    <label>Server:</label>
+    <label>{% trans "Server:" %}</label>
     <select id="select-server">
       <option>---------</option>
     </select>
@@ -43,14 +43,14 @@
   <table class="table table-condensed table-hover" id="table">
     <thead>
       <tr>
-        <th data-sort="string"> Server </th>
-        <th data-sort="int"> 時間 </th>
-        <th data-sort="string"> 説明 </th>
-        <th data-sort="int"> ステータス </th>
-        <th data-sort="int"> 深刻度 </th>
-        <th data-sort="int"> 継続時間 </th>
-        <th data-sort="int"> コメント </th>
-        <th data-sort="int"> アクション </th>
+        <th data-sort="string"> {% trans "Server" %} </th>
+        <th data-sort="int"> {% trans "Time" %} </th>
+        <th data-sort="string"> {% trans "Brief" %} </th>
+        <th data-sort="int"> {% trans "Status" %} </th>
+        <th data-sort="int"> {% trans "Severity" %} </th>
+        <th data-sort="int"> {% trans "Duration" %} </th>
+        <th data-sort="int"> {% trans "Comment" %} </th>
+        <th data-sort="int"> {% trans "Action" %} </th>
       </tr>
     </thead>
     <tbody>
@@ -72,8 +72,8 @@
       th.eq(data.column).append("<i class='sort icon-arrow-" + icon +"'></i>");
     });
 
-    var status_choices   = [ '正常', '障害', '{% trans "Unknown" %}' ];
-    var severity_choices = [ '未分類', '情報', '警告', '軽度の障害', '重度の障害', '致命的な障害' ];
+    var status_choices   = [ '{% trans "OK" %}', '{% trans "Problem" %}', '{% trans "Unknown" %}' ];
+    var severity_choices = [ '{% trans "Not classified" %}', '{% trans "Information" %}', '{% trans "Warning" %}', '{% trans "Average" %}', '{% trans "High" %}', '{% trans "Disaster" %}' ];
 
     var rawData;
     var parsedData;
