@@ -27,7 +27,7 @@ typedef void (*ReaperDestroyFunc)(void *obj);
 template<typename T>
 class Reaper {
 public:
-	Reaper(T *obj, ReaperDestroyFunc destroyFunc)
+	Reaper(T *obj, ReaperDestroyFunc destroyFunc = NULL)
 	: m_obj(obj),
 	  m_destroyFunc(destroyFunc)
 	{
@@ -35,7 +35,10 @@ public:
 
 	virtual ~Reaper()
 	{
-		(*m_destroyFunc)(m_obj);
+		if (!m_destroyFunc)
+			delete m_obj;
+		else
+			(*m_destroyFunc)(m_obj);
 	}
 
 private:

@@ -33,6 +33,21 @@ struct TestContext {
 	}
 };
 
+class TestContextOperator {
+	TestContext *m_ctx;
+
+public:
+	TestContextOperator(TestContext *ctx)
+	: m_ctx(ctx)
+	{
+	}
+
+	virtual ~TestContextOperator()
+	{
+		m_ctx->called = true;
+	}
+};
+
 static void destFunc(void *obj)
 {
 	TestContext *ctx = static_cast<TestContext *>(obj);
@@ -49,5 +64,16 @@ void test_destructFuncCalled(void)
 	}
 	cppcut_assert_equal(true, ctx.called);
 }
+
+void test_destructCppObject(void)
+{
+	TestContext ctx;
+	cppcut_assert_equal(false, ctx.called);
+	{
+		Reaper<TestContextOperator> var(new TestContextOperator(&ctx));
+	}
+	cppcut_assert_equal(true, ctx.called);
+}
+
 
 } // namespace testReaper
