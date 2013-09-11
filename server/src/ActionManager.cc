@@ -28,6 +28,7 @@
 #include "ResidentCommunicator.h"
 #include "ActionExecArgMaker.h"
 #include "MutexLock.h"
+#include "LabelUtils.h"
 
 using namespace std;
 using namespace mlpl;
@@ -745,18 +746,30 @@ void ActionManager::postProcSpawnFailure(
   const ActionDef &actionDef, const EventInfo &eventInfo, ActorInfo *actorInfo,
   uint64_t *logId, GError *error)
 {
-	string msg = StringUtils::sprintf(
-	  "Failed: %s, action ID: %d",
-	  error->message, actionDef.id);
+	// make an action log
 	ActionLogExecFailureCode failureCode =
 	  error->code == G_SPAWN_ERROR_NOENT ?
-	    ACTLOG_EXECFAIL_ENTRY_NOT_FOUND :
-	    ACTLOG_EXECFAIL_EXEC_FAILURE;
+	    ACTLOG_EXECFAIL_ENTRY_NOT_FOUND : ACTLOG_EXECFAIL_EXEC_FAILURE;
 	g_error_free(error);
 	actorInfo->logId =
 	  m_ctx->dbAction.createActionLog(actionDef, failureCode);
-	MLPL_ERR("%s, logID: %"PRIu64"\n",
-	         msg.c_str(), actorInfo->logId);
+
+	// MLPL log
+	MLPL_ERR(
+	  "Failed: %s, action ID: %d, log ID: %"PRIu64", "
+	  "server ID: %d, event ID: %"PRIu64", "
+	  "time: %ld.%ld, type: %s, "
+	  "trigger ID: %d, status: %s, severity: %s, host ID: "PRIu64"\n", 
+	  error->message, actionDef.id, actorInfo->logId,
+	  eventInfo.serverId, eventInfo.id,
+	  eventInfo.time.tv_sec, eventInfo.time.tv_nsec,
+	  LabelUtils::getEventTypeLabel(eventInfo.type).c_str(),
+	  eventInfo.triggerId,
+	  LabelUtils::getTriggerStatusLabel(eventInfo.status).c_str(),
+	  LabelUtils::getTriggerSeverityLabel(eventInfo.severity).c_str(),
+	  eventInfo.hostId);
+
+	// copy the log ID
 	if (logId)
 		*logId = actorInfo->logId;
 }
