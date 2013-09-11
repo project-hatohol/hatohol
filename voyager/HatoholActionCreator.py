@@ -97,7 +97,7 @@ class HatoholActionCreator:
     if severity:
       print "Seveirty   : " + severity_cmp + " " + severity
 
-    result = self._send(type_code, command, working_dir, timeout, server_id, host_id, host_group_id, trigger_id, status_code, severity_cmp, severity)
+    self._send(type_code, command, working_dir, timeout, server_id, host_id, host_group_id, trigger_id, status_code, severity_cmp, severity)
 
   def _send(self, type_code, command, working_dir, timeout, server_id, host_id, host_group_id, trigger_id, status_code, severity_cmp_code, severity_code):
     query = {}
@@ -122,10 +122,10 @@ class HatoholActionCreator:
       query["&triggerSeverityCompType="] = str(severity_cmp_code)
 
     encoded_query = urllib.urlencode(query)
-    url = self._url + "/actions.json?" + encoded_query
+    url = self._url + "/actions.json"
     print "URL: " + url
-    response = urllib2.urlopen(url + "/actions.json")
-    print response
+    response = urllib2.urlopen(url, encoded_query)
+    print response.read()
 
   def _get_arg(self, options, key, allow_none = False, num_arg=1):
     if key not in options:
