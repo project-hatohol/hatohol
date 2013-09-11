@@ -59,8 +59,7 @@ void test_destructFuncCalled(void)
 	TestContext ctx;
 	cppcut_assert_equal(false, ctx.called);
 	{
-		Reaper<TestContext> var(&ctx,
-		   (ReaperDestroyFunc)destFunc);
+		Reaper<TestContext> var(&ctx, (ReaperDestroyFunc)destFunc);
 	}
 	cppcut_assert_equal(true, ctx.called);
 }
