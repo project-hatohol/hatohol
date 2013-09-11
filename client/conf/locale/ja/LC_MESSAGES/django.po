@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-09-11 08:06-0500\n"
-"PO-Revision-Date: 2013-09-11 22:00+0900\n"
+"POT-Creation-Date: 2013-09-11 08:51-0500\n"
+"PO-Revision-Date: 2013-09-11 22:51+0900\n"
 "Last-Translator: Takuro Ashie <ashie@clear-code.com>\n"
 "Language-Team: Project Hatohol\n"
 "Language: \n"
@@ -15,9 +15,9 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: viewer/base.html:36
+#: viewer/base.html:36 viewer/base_ajax.html:38
 msgid "Hatohol"
-msgstr ""
+msgstr "Hatohol"
 
 #: viewer/base_ajax.html:46
 msgid "PREPARE"
@@ -82,7 +82,7 @@ msgstr "イベント"
 msgid "Server Status"
 msgstr "サーバステータス"
 
-#: viewer/events_ajax.html:75
+#: viewer/events_ajax.html:75 viewer/triggers_ajax.html:84
 msgid "Unknown"
 msgstr "不明"
 
@@ -105,3 +105,83 @@ msgstr "IPアドレス"
 #: viewer/servers_ajax.html:43
 msgid "Nickname"
 msgstr "ニックネーム"
+
+#: viewer/triggers_ajax.html:37
+msgid "Server:"
+msgstr "サーバ:"
+
+#: viewer/triggers_ajax.html:41
+msgid "Group:"
+msgstr "グループ:"
+
+#: viewer/triggers_ajax.html:45
+msgid "Host:"
+msgstr "ホスト:"
+
+#: viewer/triggers_ajax.html:54
+msgid "Server"
+msgstr "サーバ"
+
+#: viewer/triggers_ajax.html:55
+msgid "Severity"
+msgstr "深刻度"
+
+#: viewer/triggers_ajax.html:56
+msgid "Status"
+msgstr "ステータス"
+
+#: viewer/triggers_ajax.html:57
+msgid "Last change"
+msgstr "最新の変更"
+
+#: viewer/triggers_ajax.html:58
+msgid "Duration"
+msgstr "継続時間"
+
+#: viewer/triggers_ajax.html:59
+msgid "Acknowledged"
+msgstr "障害対応済"
+
+#: viewer/triggers_ajax.html:60
+msgid "Host"
+msgstr "ホスト"
+
+#: viewer/triggers_ajax.html:61
+msgid "Name"
+msgstr "名前"
+
+#: viewer/triggers_ajax.html:62
+msgid "Comment"
+msgstr "コメント"
+
+#: viewer/triggers_ajax.html:84
+msgid "OK"
+msgstr "正常"
+
+#: viewer/triggers_ajax.html:84
+msgid "Problem"
+msgstr "障害"
+
+#: viewer/triggers_ajax.html:85
+msgid "Not classified"
+msgstr "未分類"
+
+#: viewer/triggers_ajax.html:85
+msgid "Information"
+msgstr "情報"
+
+#: viewer/triggers_ajax.html:85
+msgid "Warning"
+msgstr "警告"
+
+#: viewer/triggers_ajax.html:85
+msgid "Average"
+msgstr "軽度の障害"
+
+#: viewer/triggers_ajax.html:85
+msgid "High"
+msgstr "重度の障害"
+
+#: viewer/triggers_ajax.html:85
+msgid "Disaster"
+msgstr "致命的な障害"
