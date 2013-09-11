@@ -22,7 +22,6 @@
 
 #include <list>
 #include "DBClient.h"
-#include "DBClient.h"
 
 enum TriggerStatusType {
 	TRIGGER_STATUS_OK,
