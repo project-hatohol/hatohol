@@ -75,6 +75,19 @@ typedef map<FormatType, const char *> MimeTypeMap;
 typedef MimeTypeMap::iterator   MimeTypeMapIterator;;
 static MimeTypeMap g_mimeTypeMap;
 
+struct GHashTableDestructor {
+	GHashTable *table;
+	GHashTableDestructor(GHashTable *_table)
+	: table(_table)
+	{
+	}
+
+	virtual ~GHashTableDestructor()
+	{
+		g_hash_table_unref(table);
+	}
+};
+
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
@@ -689,9 +702,11 @@ void FaceRest::handlerGetActions
 
 void FaceRest::handlerPostAction
   (SoupServer *server, SoupMessage *msg, const char *path,
-   GHashTable *query, SoupClientContext *client, HandlerArg *arg)
+   GHashTable *_query, SoupClientContext *client, HandlerArg *arg)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+	GHashTable *query = soup_form_decode(msg->request_body->data);
+	GHashTableDestructor htDestructor(query);
 	string jsonpCallbackName = getJsonpCallbackName(query, arg);
 
 	//

@@ -29,11 +29,15 @@
 
 namespace testFaceRest {
 
+typedef map<string, string>       StringMap;
+typedef StringMap::iterator       StringMapIterator;
+typedef StringMap::const_iterator StringMapConstIterator;
+
 static const unsigned int TEST_PORT = 53194;
 static const char *TEST_DB_CONFIG_NAME = "test_db_config";
 static const char *TEST_DB_HATOHOL_NAME = "testDatabase-hatohol.db";
 
-static StringVector emptyStringVector;
+static StringMap    emptyStringMap;
 static FaceRest *g_faceRest = NULL;
 static JsonParserAgent *g_parser = NULL;
 
@@ -54,25 +58,38 @@ static void startFaceRest(void)
 
 static JsonParserAgent *getResponseAsJsonParser(
   const string &url, const string &callbackName = "",
-  const StringVector &parameters = emptyStringVector,
+  const StringMap &parameters = emptyStringMap,
   bool post = false)
 {
-	string joinedQueryParams;
-	if (!callbackName.empty()) {
-		joinedQueryParams = "?callback=";
-		joinedQueryParams += callbackName;
+	// make encoded query parameters
+	GHashTable *hashTable = g_hash_table_new(g_str_hash, g_str_equal);
+	cppcut_assert_not_null(hashTable);
+	StringMapConstIterator it = parameters.begin();
+	for (; it != parameters.end(); ++it) {
+		string key = it->first;
+		string val = it->second;
+		g_hash_table_insert(hashTable,
+		                    (void *)key.c_str(), (void *)val.c_str());
 	}
-	
-	for (size_t i = 0; i < parameters.size(); i++) {
-		const string &oneQuery = parameters[i];
-		if (!joinedQueryParams.empty())
-			joinedQueryParams += "&";
-		joinedQueryParams += StringUtils::replace(oneQuery, "'", "\\'");
+	if (!callbackName.empty()) {
+		g_hash_table_insert(hashTable, (void *)"callback",
+		                    (void *)callbackName.c_str());
 	}
 
+	char *encoded = soup_form_encode_hash(hashTable);
+	string joinedQueryParams = encoded;
+	g_free(encoded);
+	g_hash_table_unref(hashTable);
+	
 	string postDataArg;
-	if (post)
-		postDataArg = "--post-data ''";
+	if (post) {
+		postDataArg = "--post-data '";
+		postDataArg += joinedQueryParams;
+		postDataArg += "'";
+		joinedQueryParams.clear();
+	}
+	if (!joinedQueryParams.empty())
+		joinedQueryParams = "?" + joinedQueryParams;
 
 	// get reply with wget
 	string getCmd =
@@ -402,7 +419,7 @@ static void _assertActions(const string &path, const string &callbackName = "")
 }
 #define assertActions(P,...) cut_trace(_assertActions(P,##__VA_ARGS__))
 
-void _assertAddAction(const StringVector &params)
+void _assertAddAction(const StringMap &params)
 {
 	bool post = true;
 	startFaceRest();
@@ -418,7 +435,7 @@ void _assertAddAction(const StringVector &params)
 }
 #define assertAddAction(P) cut_trace(_assertAddAction(P))
 
-void _assertAddActionError(const StringVector &params)
+void _assertAddActionError(const StringMap &params)
 {
 	bool post = true;
 	startFaceRest();
@@ -552,9 +569,9 @@ void test_addAction(void)
 
 	int type = ACTION_COMMAND;
 	const string command = "makan-kosappo";
-	StringVector params;
-	params.push_back(StringUtils::sprintf("type=%d", type));
-	params.push_back("command=" + command);
+	StringMap params;
+	params["type"] = StringUtils::sprintf("%d", type);
+	params["command"] = command;
 	assertAddAction(params);
 
 	// check the content in the DB
@@ -587,23 +604,19 @@ void test_addActionParamterFull(void)
 	int triggerSeverity = TRIGGER_SEVERITY_CRITICAL;
 	int triggerSeverityCompType = CMP_EQ_GT;
 
-	StringVector params;
-	params.push_back(StringUtils::sprintf("type=%d", type));
-	params.push_back("command=" + command);
-	params.push_back("workingDirectory=" + workingDir);
-	params.push_back(StringUtils::sprintf("timeout=%d", timeout));
-	params.push_back(StringUtils::sprintf("serverId=%d", serverId));
-	params.push_back(StringUtils::sprintf("hostId=%"PRIu64, hostId));
-	params.push_back(
-	  StringUtils::sprintf("hostGroupId=%"PRIu64, hostGroupId));
-	params.push_back(StringUtils::sprintf("triggerId=%"PRIu64, triggerId));
-	params.push_back(
-	  StringUtils::sprintf("triggerStatus=%d", triggerStatus));
-	params.push_back(
-	  StringUtils::sprintf("triggerSeverity=%d", triggerSeverity));
-	params.push_back(
-	  StringUtils::sprintf("triggerSeverityCompType=%d",
-	                       triggerSeverityCompType));
+	StringMap params;
+	params["type"]        = StringUtils::sprintf("%d", type);
+	params["command"]     = command;
+	params["workingDirectory"] = workingDir;
+	params["timeout"]     = StringUtils::sprintf("%d", timeout);
+	params["serverId"]    = StringUtils::sprintf("%d", serverId);
+	params["hostId"]      = StringUtils::sprintf("%"PRIu64, hostId);
+	params["hostGroupId"] = StringUtils::sprintf("%"PRIu64, hostGroupId);
+	params["triggerId"]   = StringUtils::sprintf("%"PRIu64, triggerId);
+	params["triggerStatus"]   = StringUtils::sprintf("%d", triggerStatus);
+	params["triggerSeverity"] = StringUtils::sprintf("%d", triggerSeverity);
+	params["triggerSeverityCompType"] =
+	   StringUtils::sprintf("%d", triggerSeverityCompType);
 	assertAddAction(params);
 
 	// check the content in the DB
@@ -635,13 +648,12 @@ void test_addActionParamterOver32bit(void)
 	uint64_t hostGroupId = 0xabcdef0123456789;
 	uint64_t triggerId = 0x56789abcdef01234;
 
-	StringVector params;
-	params.push_back(StringUtils::sprintf("type=%d", ACTION_RESIDENT));
-	params.push_back("command=" + command);
-	params.push_back(StringUtils::sprintf("hostId=%"PRIu64, hostId));
-	params.push_back(
-	  StringUtils::sprintf("hostGroupId=%"PRIu64, hostGroupId));
-	params.push_back(StringUtils::sprintf("triggerId=%"PRIu64, triggerId));
+	StringMap params;
+	params["type"]        = StringUtils::sprintf("%d", ACTION_RESIDENT);
+	params["command"]     = command;
+	params["hostId"]      = StringUtils::sprintf("%"PRIu64, hostId);
+	params["hostGroupId"] = StringUtils::sprintf("%"PRIu64, hostGroupId);
+	params["triggerId"]   = StringUtils::sprintf("%"PRIu64, triggerId);
 	assertAddAction(params);
 
 	// check the content in the DB
@@ -654,18 +666,15 @@ void test_addActionParamterOver32bit(void)
 	assertDBContent(dbAction.getDBAgent(), statement, expect);
 }
 
-
 void test_addActionComplicatedCommand(void)
 {
 	setupPostAction();
 
 	const string command =
 	   "/usr/bin/@hoge -l '?ABC+{[=:;|.,#*`!$%\\~]}FOX-' --X '$^' --name \"@'v'@\"'";
-	gchar *encodedCommand = soup_uri_encode(command.c_str(), "+");
-	StringVector params;
-	params.push_back(StringUtils::sprintf("type=%d", ACTION_COMMAND));
-	params.push_back(string("command=") + encodedCommand);
-	g_free(encodedCommand);
+	StringMap params;
+	params["type"] = StringUtils::sprintf("%d", ACTION_COMMAND);
+	params["command"] = command;
 	assertAddAction(params);
 
 	// check the content in the DB
@@ -681,11 +690,9 @@ void test_addActionCommandWithJapanese(void)
 	changeLocale("en.UTF-8");
 
 	const string command = COMMAND_EX_JP;
-	gchar *encodedCommand = soup_uri_encode(command.c_str(), "+");
-	StringVector params;
-	params.push_back(StringUtils::sprintf("type=%d", ACTION_COMMAND));
-	params.push_back(string("command=") + encodedCommand);
-	g_free(encodedCommand);
+	StringMap params;
+	params["type"] = StringUtils::sprintf("%d", ACTION_COMMAND);
+	params["command"] = command;
 	assertAddAction(params);
 
 	// check the content in the DB
@@ -697,21 +704,21 @@ void test_addActionCommandWithJapanese(void)
 
 void test_addActionWithoutType(void)
 {
-	StringVector params;
+	StringMap params;
 	assertAddActionError(params);
 }
 
 void test_addActionWithoutCommand(void)
 {
-	StringVector params;
-	params.push_back(StringUtils::sprintf("type=%d", ACTION_COMMAND));
+	StringMap params;
+	params["type"] = StringUtils::sprintf("%d", ACTION_COMMAND);
 	assertAddActionError(params);
 }
 
 void test_addActionInvalidType(void)
 {
-	StringVector params;
-	params.push_back(StringUtils::sprintf("type=%d", ACTION_RESIDENT+1));
+	StringMap params;
+	params["type"] = StringUtils::sprintf("%d", ACTION_RESIDENT+1);
 	assertAddActionError(params);
 }
 
