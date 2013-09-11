@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-09-11 10:15-0500\n"
-"PO-Revision-Date: 2013-09-12 00:16+0900\n"
+"POT-Creation-Date: 2013-09-11 10:27-0500\n"
+"PO-Revision-Date: 2013-09-12 00:29+0900\n"
 "Last-Translator: Takuro Ashie <ashie@clear-code.com>\n"
 "Language-Team: Project Hatohol\n"
 "Language: \n"
@@ -83,6 +83,7 @@ msgid "Server Status"
 msgstr "サーバステータス"
 
 #: viewer/events_ajax.html:37 viewer/latest_ajax.html:37
+#: viewer/overview_items_ajax.html:45 viewer/overview_triggers_ajax.html:45
 #: viewer/triggers_ajax.html:37
 msgid "Server:"
 msgstr "サーバ:"
@@ -184,6 +185,20 @@ msgstr "最新の値"
 msgid "Previous value"
 msgstr "前回の値"
 
+#: viewer/overview_items_ajax.html:37 viewer/overview_triggers_ajax.html:37
+msgid "Minimum Severity:"
+msgstr "最小の深刻度:"
+
+#: viewer/overview_items_ajax.html:49 viewer/overview_triggers_ajax.html:49
+#: viewer/triggers_ajax.html:41
+msgid "Group:"
+msgstr "グループ:"
+
+#: viewer/overview_items_ajax.html:56 viewer/overview_triggers_ajax.html:56
+#: viewer/triggers_ajax.html:45
+msgid "Host:"
+msgstr "ホスト:"
+
 #: viewer/servers_ajax.html:39
 msgid "ID"
 msgstr "ID"
@@ -203,14 +218,6 @@ msgstr "IPアドレス"
 #: viewer/servers_ajax.html:43
 msgid "Nickname"
 msgstr "ニックネーム"
-
-#: viewer/triggers_ajax.html:41
-msgid "Group:"
-msgstr "グループ:"
-
-#: viewer/triggers_ajax.html:45
-msgid "Host:"
-msgstr "ホスト:"
 
 #: viewer/triggers_ajax.html:57
 msgid "Last change"
