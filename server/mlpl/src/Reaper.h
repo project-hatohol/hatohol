@@ -27,32 +27,45 @@ typedef void (*ReaperDestroyFunc)(void *obj);
 template<typename T>
 class Reaper {
 public:
-	Reaper(T *obj, ReaperDestroyFunc destroyFunc = NULL)
+	Reaper(T *obj, ReaperDestroyFunc destroyFunc)
 	: m_obj(obj),
-	  m_destroyFunc(destroyFunc),
-	  m_active(true)
+	  m_destroyFunc(destroyFunc)
 	{
 	}
 
 	virtual ~Reaper()
 	{
-		if (!m_active)
-			return;
-		if (!m_destroyFunc)
-			delete m_obj;
-		else
+		if (m_obj)
 			(*m_destroyFunc)(m_obj);
 	}
 
 	void deactivate(void)
 	{
-		m_active = false;
+		m_obj = NULL;
 	}
 
-private:
+protected:
 	T *m_obj;
+
+private:
 	ReaperDestroyFunc m_destroyFunc;
-	bool m_active;
+};
+
+template<typename T>
+class CppReaper : public Reaper<T> {
+public:
+	CppReaper(T *obj)
+	: Reaper<T>(obj, NULL)
+	{
+	}
+
+	virtual ~CppReaper()
+	{
+		if (Reaper<T>::m_obj) {
+			delete Reaper<T>::m_obj;
+			Reaper<T>::m_obj = NULL;
+		}
+	}
 };
 
 } // namespace mlpl
