@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-09-11 09:12-0500\n"
-"PO-Revision-Date: 2013-09-11 23:12+0900\n"
+"POT-Creation-Date: 2013-09-11 10:15-0500\n"
+"PO-Revision-Date: 2013-09-12 00:16+0900\n"
 "Last-Translator: Takuro Ashie <ashie@clear-code.com>\n"
 "Language-Team: Project Hatohol\n"
 "Language: \n"
@@ -82,7 +82,13 @@ msgstr "イベント"
 msgid "Server Status"
 msgstr "サーバステータス"
 
-#: viewer/events_ajax.html:46 viewer/triggers_ajax.html:54
+#: viewer/events_ajax.html:37 viewer/latest_ajax.html:37
+#: viewer/triggers_ajax.html:37
+msgid "Server:"
+msgstr "サーバ:"
+
+#: viewer/events_ajax.html:46 viewer/latest_ajax.html:52
+#: viewer/triggers_ajax.html:54
 msgid "Server"
 msgstr "サーバ"
 
@@ -150,6 +156,34 @@ msgstr "重度の障害"
 msgid "Disaster"
 msgstr "致命的な障害"
 
+#: viewer/latest_ajax.html:42
+msgid "Application:"
+msgstr "アプリケーション:"
+
+#: viewer/latest_ajax.html:53 viewer/triggers_ajax.html:60
+msgid "Host"
+msgstr "ホスト"
+
+#: viewer/latest_ajax.html:54
+msgid "Application"
+msgstr "アプリケーション"
+
+#: viewer/latest_ajax.html:55 viewer/triggers_ajax.html:61
+msgid "Name"
+msgstr "名前"
+
+#: viewer/latest_ajax.html:56
+msgid "Last check"
+msgstr "最新の変更"
+
+#: viewer/latest_ajax.html:57
+msgid "Last value"
+msgstr "最新の値"
+
+#: viewer/latest_ajax.html:58
+msgid "Previous value"
+msgstr "前回の値"
+
 #: viewer/servers_ajax.html:39
 msgid "ID"
 msgstr "ID"
@@ -170,10 +204,6 @@ msgstr "IPアドレス"
 msgid "Nickname"
 msgstr "ニックネーム"
 
-#: viewer/triggers_ajax.html:37
-msgid "Server:"
-msgstr "サーバ:"
-
 #: viewer/triggers_ajax.html:41
 msgid "Group:"
 msgstr "グループ:"
@@ -189,11 +219,3 @@ msgstr "最新の変更"
 #: viewer/triggers_ajax.html:59
 msgid "Acknowledged"
 msgstr "障害対応済"
-
-#: viewer/triggers_ajax.html:60
-msgid "Host"
-msgstr "ホスト"
-
-#: viewer/triggers_ajax.html:61
-msgid "Name"
-msgstr "名前"

@@ -34,12 +34,12 @@
   <h2>{% trans "Latest data" %}</h2>
 
   <form class="form-inline">
-    <label>Server:</label>
+    <label>{% trans "Server:" %}</label>
     <select id="select-server">
       <option>---------</option>
     </select>
 
-    <label>Application:</label>
+    <label>{% trans "Application:" %}</label>
     <select id="select-application">
       <option>---------</option>
       <option>_non_</option>
@@ -49,13 +49,13 @@
   <table class="table table-condensed table-hover" id="table">
     <thead>
       <tr>
-        <th data-sort="string"> Server </th>
-        <th data-sort="string"> ホスト </th>
-        <th data-sort="string"> Application </th>
-        <th data-sort="string"> 名前 </th>
-        <th data-sort="int"> 最新のチェック </th>
-        <th> 最新の値 </th>
-        <th> 変更 </th>
+        <th data-sort="string"> {% trans "Server" %} </th>
+        <th data-sort="string"> {% trans "Host" %} </th>
+        <th data-sort="string"> {% trans "Application" %} </th>
+        <th data-sort="string"> {% trans "Name" %} </th>
+        <th data-sort="int"> {% trans "Last check" %} </th>
+        <th> {% trans "Last value" %} </th>
+        <th> {% trans "Previous value" %} </th>
       </tr>
     </thead>
     <tbody>
