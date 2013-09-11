@@ -44,7 +44,10 @@ def print_usage():
   print "    [--host-group-id HOST_GROUP_ID]"
   print "    [--trigger-id    TRIGGER_ID]"
   print "    [--status        TRIGGER_STATUS]"
-  print "    [--severity      TRIGGER_SEVERITY SEVERITY_COMPARATOR]"
+  print "        TRIGGER_STATUS: ok or problem"
+  print "    [--severity      COMPARATOR TRIGGER_SEVERITY]"
+  print "        COMPARATOR       : -eq or -ge"
+  print "        TRIGGER_SEVERITY : info, warn, or critical"
   print ""
 
 def parse_server_option(argv):
