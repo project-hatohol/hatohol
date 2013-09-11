@@ -74,6 +74,7 @@
 {% endblock %}
 
 {% block logic %}
+  <script src="{{ STATIC_URL }}js/hatohol_def.js"></script>
   <script type="text/javascript">
     $("#table").stupidtable();
     $("#table").bind('aftertablesort', function(event, data) {
@@ -102,6 +103,54 @@
 
     function makeNamelessHostLabel(serverId, hostId) {
         return "(S" + serverId + "-H" + hostId + ")";
+    }
+
+    function makeTypeLabel(type) {
+      switch(type) {
+        case ACTION_COMMAND:
+          return "COMMAND"
+        case ACTION_RESIDENT:
+          return "RESIDENT";
+        default:
+          return "INVALID: " + type;
+      }
+    }
+
+    function makeTriggerStatusLabel(status) {
+      switch(status) {
+        case TRIGGER_STATUS_OK:
+          return "OK";
+        case TRIGGER_STATUS_PROBLEM:
+          return "PROBLEM";
+        default:
+          return "INVALID: " + status;
+      }
+    }
+
+    function makeServerityLabel(severity) {
+      switch(severity) {
+        case TRIGGER_SEVERITY_INFO:
+          return "INFO";
+        case TRIGGER_SEVERITY_WARN:
+          return "WARN";
+        case TRIGGER_SEVERITY_CRITICAL:
+          return "CRITICAL";
+        case TRIGGER_SEVERITY_UNKNOWN:
+          return "UNKNOWN";
+        default:
+          return "INVALID: " + severity;
+      }
+    }
+
+    function makeServerityCompTypeLabel(compType) {
+      switch(compType) {
+        case CMP_EQ:
+          return "=";
+        case CMP_EQ_GT:
+          return ">=";
+        default:
+          return "INVALID: " + compType;
+      }
     }
 
     function getServerName(actionsPkt, actionDef) {
@@ -190,21 +239,24 @@
         s += "<td>" + triggerId + "</td>";
 
         var triggerStatus = actionDef.triggerStatus;
-        if (!triggerStatus)
-          triggerStatus = "ANY";
-        s += "<td>" + triggerStatus + "</td>";
+        var triggerStatusLabel = "ANY";
+        if (triggerStatus)
+          triggerStatusLabel =makeTriggerStatusLabel(triggerStatus);
+        s += "<td>" + triggerStatusLabel + "</td>";
 
         var severityCompType = actionDef.triggerSeverityComparatorType;
-        if (!severityCompType)
-          severityCompType = ""
+        var severityCompLabel = "";
+        if (severityCompType)
+          severityCompLabel = makeServerityCompTypeLabel(severityCompType);
 
         var triggerSeverity = actionDef.triggerSeverity;
-        if (!triggerSeverity)
-          triggerSeverity = "ANY";
-        s += "<td>" + severityCompType + " " + triggerSeverity + "</td>";
+        var severityLabel = "ANY";
+        if (triggerSeverity)
+          severityLabel = makeServerityLabel(triggerSeverity);
+        s += "<td>" + severityCompLabel + " " + severityLabel + "</td>";
 
         var type = actionDef.type;
-        var typeLabel = "TYPE: " + type;
+        var typeLabel = makeTypeLabel(type);
         s += "<td>" + typeLabel + "</td>";
 
         var workingDir = actionDef.workingDirectory;
