@@ -191,8 +191,17 @@
       {
         text: "ADD",
         click: function(){
-          if (validateAddParameters())
+          if (validateAddParameters()) {
+            $.post("/actions.jsonp", {abc:"x"},
+              function(data) {
+                console.log(data);
+              })
+              .fail(function() {
+                console.log("FAILED");
+              }
+            );
             $("#add-status-dialog").dialog("open");
+          }
         }
       }, {
         text: "Canncel",
