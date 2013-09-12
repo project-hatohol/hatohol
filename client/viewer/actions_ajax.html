@@ -194,7 +194,7 @@
 
     $("#selectTriggerSeverity").change(function() {
       var severity = $(this).val();
-      var compTypeCombo = selectTriggerSeverityCompType;
+      var compTypeCombo = $("#selectTriggerSeverityCompType")[0];
       if (severity != "ANY")
         compTypeCombo.style.visibility = "visible";
       else
