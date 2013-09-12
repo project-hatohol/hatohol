@@ -194,11 +194,10 @@
 
     $("#selectTriggerSeverity").change(function() {
       var severity = $(this).val();
-      var compTypeCombo = $("#selectTriggerSeverityCompType")[0];
       if (severity != "ANY")
-        compTypeCombo.style.visibility = "visible";
+        $("#selectTriggerSeverityCompType").css("visibility","visible");
       else
-        compTypeCombo.style.visibility = "hidden";
+        $("#selectTriggerSeverityCompType").css("visibility","hidden");
     });
 
     var status_choices   = [ '正常', '障害', '不明' ];
