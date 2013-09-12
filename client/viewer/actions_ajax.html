@@ -48,6 +48,9 @@
       <option>---------</option>
     </select>
   </form>
+  <div id="add-action-dialog">
+    <p>Test Dialog</p>
+  </div>
 
   <table class="table table-condensed table-hover" id="table">
     <thead>
@@ -72,6 +75,10 @@
 
 {% block option %}
   <script src="{{ STATIC_URL }}js/stupidtable.js"></script>
+
+  <!-- TODO: We should download jquery-ui.js and the CSS to the local. -->
+  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1/jquery-ui.min.js"></script>
+  <link type="text/css" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1/themes/ui-lightness/jquery-ui.css" rel="stylesheet" />
 {% endblock %}
 
 {% block logic %}
@@ -86,7 +93,27 @@
     });
 
     $("#add-action-button").click(function() {
-      alert("Add action !\nThe dialog will be created.");
+      $("#add-action-dialog").dialog("open");
+    });
+
+    $("#add-action-dialog").dialog({
+      autoOpen: false,
+      title: "Add Action",
+      closeOnEscape: false,
+      width:  "95%",
+      modal: true,
+      buttons: [
+      {
+        text: "ADD",
+        click: function(){
+          alert("Not implemented!");
+        }
+      }, {
+        text: "Canncel",
+        click: function(){
+          $(this).dialog("close");
+        }
+      }]
     });
 
     var status_choices   = [ '正常', '障害', '不明' ];
