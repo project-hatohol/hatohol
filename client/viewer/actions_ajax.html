@@ -49,7 +49,83 @@
     </select>
   </form>
   <div id="add-action-dialog">
-    <p>Test Dialog</p>
+    <h3>条件</h3>
+    <form class="form-inline">
+      <label>サーバ</label>
+      <select id="selectServerId">
+        <option value=-1>ANY</option>
+        <option value="select">== SELECT ==</option>
+      </select>
+
+      <label>ホストグループ</label>
+      <select id="selectHostGroupId">
+        <option value=-1>ANY</option>
+        <!-- Currently host group ID is not supported
+        <option value="select">== SELECT ==</option>
+        -->
+      </select>
+    </form>
+
+    <form class="form-inline">
+      <label>ホスト</label>
+      <select id="selectHostId">
+        <option value=-1>ANY</option>
+        <option value="select">== SELECT ==</option>
+      </select>
+
+      <label>トリガー</label>
+      <select id="selectTriggerId">
+        <option value=-1>ANY</option>
+        <option value="select">== SELECT ==</option>
+      </select>
+    </form>
+
+    <form class="form-inline">
+      <label>トリガー状態</label>
+      <select id="selectTriggerStatus">
+        <option value=-1>ANY</option>
+        <option value=TRIGGER_STATUS_OK>OK</option>
+        <option value=TRIGGER_STATUS_PROBLEM>PROBLM</option>
+      </select>
+
+      <label>深刻度</label>
+      <select id="selectTriggerSeverity">
+        <option value=-1>ANY</option>
+        <option value=TRIGGER_SEVERITY_INFO>INFO</option>
+        <option value=TRIGGER_SEVERITY_WARN>WARN</option>
+        <option value=TRIGGER_SEVERITY_CRITICAL>CRITICAL</option>
+      </select>
+      <select id="selectTriggerSeverityCompType">
+        <option value=CMP_EQ>一致</option>
+        <option value=CMP_EQ_GT>以上</option>
+      </select>
+    </form>
+    <hr>
+    <h3>実行内容</h3>
+    <form class="form-inline">
+      <label>タイプ</label>
+      <select id="selectType">
+        <option value=ACTION_COMMAND>COMMAND</option>
+        <option value=ACTION_RESIDENT>RESIDENT</option>
+      </select>
+    </form>
+
+    <form class="form-inline">
+      <label>コマンド</label>
+      <input id="inputActionCommand" value="" style="width:100%;">
+    </form>
+
+    <form class="form-inline">
+      <label>タイムアウト (秒)</label>
+      <input id="inputTimeout" value="0">
+      <label> (0: 無制限)</label>
+    </form>
+
+    <form class="form-inline">
+      <label>作業ディレクトリ</label>
+      <input id="inputWorkingDir" value="" style="width:100%;">
+    </form>
+
   </div>
 
   <table class="table table-condensed table-hover" id="table">
