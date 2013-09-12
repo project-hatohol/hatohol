@@ -192,8 +192,8 @@
         text: "ADD",
         click: function() {
           if (validateAddParameters()) {
-            postAddAction();
             $("#add-status-dialog").dialog("open");
+            postAddAction();
           }
         }
       }, {
@@ -271,9 +271,17 @@
           console.log(data);
         },
         error: function(XMLHttpRequest, textStatus, errorThrown) {
-          console.log(XMLHttpRequest)
-          console.log(textStatus);
-          console.log(errorThrown);
+          var errorMsg = "Error: " + XMLHttpRequest.status + ": " +
+                         XMLHttpRequest.statusText;
+          $("#add-status").text(errorMsg);
+          $("#add-status-dialog").dialog("option", "title", "ERROR");
+          $("#add-status-dialog").dialog("option", "buttons",
+            { "CLOSE":
+              function() {
+               $("#add-status-dialog").dialog("close");
+              }
+            }
+          );
         }
       })
     }
