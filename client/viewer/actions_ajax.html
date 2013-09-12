@@ -128,6 +128,14 @@
 
   </div>
 
+  <div id="msgbox" title="Message Box">
+    <p id="msgbox-text"></p>
+  </div>
+
+  <div id="add-status-dialog">
+    <p id="add-status">Now requesting...</p>
+  </div>
+
   <table class="table table-condensed table-hover" id="table">
     <thead>
       <tr>
@@ -155,6 +163,7 @@
   <!-- TODO: We should download jquery-ui.js and the CSS to the local. -->
   <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1/jquery-ui.min.js"></script>
   <link type="text/css" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1/themes/ui-lightness/jquery-ui.css" rel="stylesheet" />
+  
 {% endblock %}
 
 {% block logic %}
@@ -182,10 +191,38 @@
       {
         text: "ADD",
         click: function(){
-          alert("Not implemented!");
+          if (validateAddParameters())
+            $("#add-status-dialog").dialog("open");
         }
       }, {
         text: "Canncel",
+        click: function(){
+          $(this).dialog("close");
+        }
+      }]
+    });
+
+    $("#add-status-dialog").dialog({
+      autoOpen: false,
+      title: "Requesting",
+      closeOnEscape: false,
+      modal: true,
+      buttons: [
+      {
+        text: "Canncel",
+        click: function(){
+          $(this).dialog("close");
+        }
+      }]
+    });
+
+    $("#msgbox").dialog({
+      autoOpen: false,
+      closeOnEscape: false,
+      modal: true,
+      buttons: [
+      {
+        text: "OK",
         click: function(){
           $(this).dialog("close");
         }
@@ -212,6 +249,16 @@
     $("#select-host").change(function() {
       chooseRow();
     });
+
+    function validateAddParameters() {
+      if ($("#inputActionCommand").val() == "") {
+        $("#msgbox").attr("title", "Error");
+        $("#msgbox-text").text("Command is empty!");
+        $("#msgbox").dialog("open");
+        return false;
+      }
+      return true;
+    }
 
     function makeNamelessServerLabel(serverId) {
       return "(ID:" + serverId + ")";
