@@ -759,7 +759,7 @@ void ActionManager::postProcSpawnFailure(
 	  "Failed: %s, action ID: %d, log ID: %"PRIu64", "
 	  "server ID: %d, event ID: %"PRIu64", "
 	  "time: %ld.%ld, type: %s, "
-	  "trigger ID: %d, status: %s, severity: %s, host ID: "PRIu64"\n", 
+	  "trigger ID: %d, status: %s, severity: %s, host ID: %"PRIu64"\n", 
 	  error->message, actionDef.id, actorInfo->logId,
 	  eventInfo.serverId, eventInfo.id,
 	  eventInfo.time.tv_sec, eventInfo.time.tv_nsec,
