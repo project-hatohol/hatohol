@@ -192,14 +192,7 @@
         text: "ADD",
         click: function(){
           if (validateAddParameters()) {
-            $.post("/actions.jsonp", {abc:"x"},
-              function(data) {
-                console.log(data);
-              })
-              .fail(function() {
-                console.log("FAILED");
-              }
-            );
+            postAddAction();
             $("#add-status-dialog").dialog("open");
           }
         }
@@ -267,6 +260,22 @@
         return false;
       }
       return true;
+    }
+
+    function postAddAction() {
+      $.ajax({
+        url: "/actions.jsonp",
+        type: "POST",
+        data: {abc:"x"},
+        success: function(data) {
+          console.log(data);
+        },
+        error: function(XMLHttpRequest, textStatus, errorThrown) {
+          console.log(XMLHttpRequest)
+          console.log(textStatus);
+          console.log(errorThrown);
+        }
+      })
     }
 
     function makeNamelessServerLabel(serverId) {
