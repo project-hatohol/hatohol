@@ -34,6 +34,7 @@
   <h2>アクション</h2>
 
   <form class="form-inline">
+    <input id="add-action-button" type="button" value="Add an action" />
     <label>Server:</label>
     <select id="select-server">
       <option>---------</option>
@@ -82,6 +83,10 @@
       th.find("i.sort").remove();
       var icon = data.direction === "asc" ? "up" : "down";
       th.eq(data.column).append("<i class='sort icon-arrow-" + icon +"'></i>");
+    });
+
+    $("#add-action-button").click(function() {
+      alert("Add action !\nThe dialog will be created.");
     });
 
     var status_choices   = [ '正常', '障害', '不明' ];
