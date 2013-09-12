@@ -103,58 +103,58 @@
     });
 
     function makeNamelessServerLabel(serverId) {
-        return "(ID:" + serverId + ")";
+      return "(ID:" + serverId + ")";
     }
 
     function makeNamelessHostLabel(serverId, hostId) {
-        return "(S" + serverId + "-H" + hostId + ")";
+      return "(S" + serverId + "-H" + hostId + ")";
     }
 
     function makeTypeLabel(type) {
       switch(type) {
-        case ACTION_COMMAND:
-          return "COMMAND"
-        case ACTION_RESIDENT:
-          return "RESIDENT";
-        default:
-          return "INVALID: " + type;
+      case ACTION_COMMAND:
+        return "COMMAND"
+      case ACTION_RESIDENT:
+        return "RESIDENT";
+      default:
+        return "INVALID: " + type;
       }
     }
 
     function makeTriggerStatusLabel(status) {
       switch(status) {
-        case TRIGGER_STATUS_OK:
-          return "OK";
-        case TRIGGER_STATUS_PROBLEM:
-          return "PROBLEM";
-        default:
-          return "INVALID: " + status;
+      case TRIGGER_STATUS_OK:
+        return "OK";
+      case TRIGGER_STATUS_PROBLEM:
+        return "PROBLEM";
+      default:
+        return "INVALID: " + status;
       }
     }
 
     function makeServerityLabel(severity) {
       switch(severity) {
-        case TRIGGER_SEVERITY_INFO:
-          return "INFO";
-        case TRIGGER_SEVERITY_WARN:
-          return "WARN";
-        case TRIGGER_SEVERITY_CRITICAL:
-          return "CRITICAL";
-        case TRIGGER_SEVERITY_UNKNOWN:
-          return "UNKNOWN";
-        default:
-          return "INVALID: " + severity;
+      case TRIGGER_SEVERITY_INFO:
+        return "INFO";
+      case TRIGGER_SEVERITY_WARN:
+        return "WARN";
+      case TRIGGER_SEVERITY_CRITICAL:
+        return "CRITICAL";
+      case TRIGGER_SEVERITY_UNKNOWN:
+        return "UNKNOWN";
+      default:
+        return "INVALID: " + severity;
       }
     }
 
     function makeServerityCompTypeLabel(compType) {
       switch(compType) {
-        case CMP_EQ:
-          return "=";
-        case CMP_EQ_GT:
-          return ">=";
-        default:
-          return "INVALID: " + compType;
+      case CMP_EQ:
+        return "=";
+      case CMP_EQ_GT:
+        return ">=";
+      default:
+        return "INVALID: " + compType;
       }
     }
 
