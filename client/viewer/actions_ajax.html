@@ -90,12 +90,12 @@
 
       <label>深刻度</label>
       <select id="selectTriggerSeverity">
-        <option value=-1>ANY</option>
-        <option value=TRIGGER_SEVERITY_INFO>INFO</option>
-        <option value=TRIGGER_SEVERITY_WARN>WARN</option>
-        <option value=TRIGGER_SEVERITY_CRITICAL>CRITICAL</option>
+        <option value=ANY>ANY</option>
+        <option value=INFO>INFO</option>
+        <option value=WARN>WARN</option>
+        <option value=CRITICAL>CRITICAL</option>
       </select>
-      <select id="selectTriggerSeverityCompType">
+      <select id="selectTriggerSeverityCompType" style="visibility:hidden;">
         <option value=CMP_EQ>一致</option>
         <option value=CMP_EQ_GT>以上</option>
       </select>
@@ -190,6 +190,15 @@
           $(this).dialog("close");
         }
       }]
+    });
+
+    $("#selectTriggerSeverity").change(function() {
+      var severity = $(this).val();
+      var compTypeCombo = selectTriggerSeverityCompType;
+      if (severity != "ANY")
+        compTypeCombo.style.visibility = "visible";
+      else
+        compTypeCombo.style.visibility = "hidden";
     });
 
     var status_choices   = [ '正常', '障害', '不明' ];
