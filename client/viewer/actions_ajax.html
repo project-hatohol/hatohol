@@ -47,6 +47,7 @@
     <select id="select-host">
       <option>---------</option>
     </select>
+    <input id="delete-action-button" type="button" disabled value="Delete actions" />
   </form>
   <div id="add-action-dialog">
     <h3>条件</h3>
@@ -181,6 +182,7 @@
     var queryData = {
         csrfmiddlewaretoken: $("*[name=csrfmiddlewaretoken]").val(),
     };
+    var numSelected = 0;
 
     //
     // Main view
@@ -207,10 +209,20 @@
       chooseRow();
     });
 
-    $(".selectcheckbox").change(function() {
-      check = $(this).is(":checked");
-      console.log("check: " + check);
-    });
+    function setupCheckboxHandler() {
+        $(".selectcheckbox").change(function() {
+          check = $(this).is(":checked");
+          var prevNumSelected = numSelected;
+          if (check)
+            numSelected += 1;
+          else
+            numSelected -= 1;
+          if (prevNumSelected == 0 && numSelected == 1)
+            $("#delete-action-button").attr("disabled", false);
+          else if (prevNumSelected == 1 && numSelected == 0)
+            $("#delete-action-button").attr("disabled", true);
+        });
+    }
 
     //
     // Event handlers for forms in the add-action dialog
@@ -628,6 +640,8 @@
 
       $("#table tbody").empty();
       $("#table tbody").append(drawTableBody(rawData));
+      setupCheckboxHandler();
+      numSelected = 0;
     }
 
     //
