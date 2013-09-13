@@ -135,6 +135,8 @@
   <div id="add-status-dialog">
     <p id="add-status">Now requesting...</p>
   </div>
+  <form id="add-acton-form", method="POST"> {% csrf_token %}
+  </form>
 
   <table class="table table-condensed table-hover" id="table">
     <thead>
@@ -264,9 +266,12 @@
 
     function postAddAction() {
       $.ajax({
-        url: "/actions.jsonp",
+        url: "/tunnel/actions.json",
         type: "POST",
-        data: {abc:"x"},
+        data: {
+          csrfmiddlewaretoken: $("*[name=csrfmiddlewaretoken]").val(),
+          abc: "x"
+        },
         success: function(data) {
           console.log(data);
         },
