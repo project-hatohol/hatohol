@@ -1,4 +1,5 @@
 {% extends "viewer/base_ajax.html" %}
+{% load i18n %}
 
 {% comment %}
   Copyright (C) 2013 Project Hatohol
@@ -20,28 +21,28 @@
 {% endcomment %}
 
 {% block navbar %}
-  <li><a href="ajax_dashboard">ダッシュボード</a></li>
-  <li><a href="ajax_overview_triggers">概要:トリガー</a></li>
-  <li><a href="ajax_overview_items">概要:アイテム</a></li>
-  <li><a href="ajax_latest">最新データ</a></li>
-  <li class="active"><a>トリガー</a></li>
-  <li><a href="ajax_events">イベント</a></li>
-  <li><a href="ajax_servers">サーバ管理</a></li>
+  <li><a href="ajax_dashboard">{% trans "Dashboard" %}</a></li>
+  <li><a href="ajax_overview_triggers">{% trans "Overview : Triggers" %}</a></li>
+  <li><a href="ajax_overview_items">{% trans "Overview : Items" %}</a></li>
+  <li><a href="ajax_latest">{% trans "Latest data" %}</a></li>
+  <li class="active"><a>{% trans "Triggers" %}</a></li>
+  <li><a href="ajax_events">{% trans "Events" %}</a></li>
+  <li><a href="ajax_servers">{% trans "Servers" %}</a></li>
 {% endblock %}
 
 {% block main %}
-  <h2>Triggers</h2>
+  <h2>{% trans "Triggers" %}</h2>
 
   <form class="form-inline">
-    <label>Server:</label>
+    <label>{% trans "Server:" %}</label>
     <select id="select-server">
       <option>---------</option>
     </select>
-    <label>Group:</label>
+    <label>{% trans "Group:" %}</label>
     <select id="select-group">
       <option>---------</option>
     </select>
-    <label>Host:</label>
+    <label>{% trans "Host:" %}</label>
     <select id="select-host">
       <option>---------</option>
     </select>
@@ -50,15 +51,15 @@
   <table class="table table-condensed table-hover" id="table">
     <thead>
       <tr>
-        <th data-sort="string"> Server </th>
-        <th data-sort="int"> 深刻度 </th>
-        <th data-sort="int"> ステータス </th>
-        <th data-sort="int"> 最新の変更 </th>
-        <th data-sort="int"> 継続時間 </th>
-        <th data-sort="int"> 障害対応済 </th>
-        <th data-sort="string"> ホスト </th>
-        <th data-sort="string"> 名前 </th>
-        <th data-sort="int"> コメント </th>
+        <th data-sort="string"> {% trans "Server" %} </th>
+        <th data-sort="int"> {% trans "Severity" %} </th>
+        <th data-sort="int"> {% trans "Status" %} </th>
+        <th data-sort="int"> {% trans "Last change" %} </th>
+        <th data-sort="int"> {% trans "Duration" %} </th>
+        <th data-sort="int"> {% trans "Acknowledged" %} </th>
+        <th data-sort="string"> {% trans "Host" %} </th>
+        <th data-sort="string"> {% trans "Name" %} </th>
+        <th data-sort="int"> {% trans "Comment" %} </th>
       </tr>
     </thead>
     <tbody>
@@ -80,8 +81,8 @@
       th.eq(data.column).append("<i class='sort icon-arrow-" + icon +"'></i>");
     });
 
-    var status_choices   = [ '正常', '障害', '不明' ];
-    var severity_choices = [ '未分類', '情報', '警告', '軽度の障害', '重度の障害', '致命的な障害' ];
+    var status_choices   = [ '{% trans "OK" %}', '{% trans "Problem" %}', '{% trans "Unknown" %}' ];
+    var severity_choices = [ '{% trans "Not classified" %}', '{% trans "Information" %}', '{% trans "Warning" %}', '{% trans "Average" %}', '{% trans "High" %}', '{% trans "Disaster" %}' ];
 
     var rawData;
     var parsedData;

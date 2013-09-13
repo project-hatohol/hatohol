@@ -17,6 +17,8 @@
   along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
 {% endcomment %}
 
+{% load i18n %}
+
 <html>
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"></meta>
@@ -31,7 +33,7 @@
   <body style="padding-top: 60px">
     <div class="navbar navbar-inverse navbar-fixed-top">
       <div class="navbar-inner">
-        <a class="brand">&nbsp;<i>Hatohol</i>&nbsp;</a>
+        <a class="brand">&nbsp;<i>{% trans "Hatohol" %}</i>&nbsp;</a>
         <ul class="nav">
 {% block navbar %}
 {% endblock %}

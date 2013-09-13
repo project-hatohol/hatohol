@@ -122,15 +122,15 @@ function setStatus(value) {
 function update(param) {
   setStatus({
     "class" : "warning",
-    "label" : "DRAW",
-    "lines" : [ "描画中" ],
+    "label" : gettext("DRAW"),
+    "lines" : [ gettext("Drawing") ],
   });
 
   updateCore(param);
 
   setStatus({
     "class" : "success",
-    "label" : "DONE",
+    "label" : gettext("DONE"),
     "lines" : [],
   });
 }
@@ -139,8 +139,8 @@ function schedule(timer, table, param) {
   setTimeout(function() {
     setStatus({
       "class" : "warning",
-      "label" : "LOAD",
-      "lines" : [ "バックエンドと通信中" ],
+      "label" : gettext("LOAD"),
+      "lines" : [ gettext("Communicating with backend") ],
     });
 
     $.getJSON("/tunnel/" + table + ".json", function(json) {

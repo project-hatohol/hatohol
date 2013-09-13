@@ -1,6 +1,8 @@
 libexecdir=$(exec_prefix)/libexec/$(PACKAGE)/client
 nobase_dist_libexec_SCRIPTS = \
 	./manage.py \
+	conf/locale/ja/LC_MESSAGES/django.po \
+	conf/locale/ja/LC_MESSAGES/djangojs.po \
 	mysite/forwardview.py \
 	mysite/wsgi.py \
 	mysite/urls.py \
@@ -28,3 +30,20 @@ nobase_dist_libexec_SCRIPTS = \
 	viewer/overview_items_ajax.html \
 	viewer/dashboard_ajax.html \
 	viewer/tests.py
+
+MO_FILES = \
+	conf/locale/ja/LC_MESSAGES/django.mo \
+	conf/locale/ja/LC_MESSAGES/djangojs.mo
+
+CLEANFILES = \
+	$(MO_FILES)
+
+nobase_nodist_libexec_SCRIPTS = \
+	$(MO_FILES)
+
+update-po:
+	./manage.py makemessages -a
+	./manage.py makemessages -d djangojs -a
+
+.po.mo:
+	./manage.py compilemessages
