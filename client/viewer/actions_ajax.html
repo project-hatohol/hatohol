@@ -466,9 +466,44 @@
       }, {
         text: "YES",
         click: function() {
+          deleteActions();
         }
       }]
     });
+
+    function deleteActions() {
+      $.ajax({
+        url: "/tunnel/actions.json",
+        type: "DELETE",
+        data: queryData,
+        success: function(data) {
+          parseDeleteActionResult(data);
+        },
+        error: function(XMLHttpRequest, textStatus, errorThrown) {
+          var errorMsg = "Error: " + XMLHttpRequest.status + ": " +
+                         XMLHttpRequest.statusText;
+          putErrorMessageOnDeleteDialog(errorMsg);
+          console.log(errorMsg);
+        }
+      })
+    }
+
+    function parseDeleteActionResult(data) {
+      console.log("Delete OK");
+      console.log(data);
+    }
+
+    function putErrorMessageOnDeleteDialog(msg) {
+      $("#delete-dialog").dialog("option", "title", "Error");
+      $("#delete-dialog-text").text(msg);
+      $("#delete-dialog").dialog("option", "buttons",
+        { "CLOSE":
+          function() {
+           $(this).dialog("close");
+          }
+        }
+      );
+    }
 
     //
     // Functions for make the main view.
