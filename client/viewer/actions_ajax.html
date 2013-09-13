@@ -139,6 +139,7 @@
   <table class="table table-condensed table-hover" id="table">
     <thead>
       <tr>
+        <th>  </th>
         <th data-sort="int"> ID </th>
         <th data-sort="string"> サーバ </th>
         <th data-sort="string"> ホスト </th>
@@ -204,6 +205,11 @@
     });
     $("#select-host").change(function() {
       chooseRow();
+    });
+
+    $(".selectcheckbox").change(function() {
+      check = $(this).is(":checked");
+      console.log("check: " + check);
     });
 
     //
@@ -553,6 +559,7 @@
         var actionDef = actionsPkt["actions"][x];
         klass = serverName + " " + hostName;
         s += "<tr class='" + klass + "'>";
+        s += "<td><input type='checkbox' class='selectcheckbox'></td>";
         s += "<td>" + actionDef.actionId + "</td>";
 
         var serverName = getServerName(actionsPkt, actionDef);
