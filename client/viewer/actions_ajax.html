@@ -333,8 +333,8 @@
     function parsePostActionResult(data) {
         var msg;
         if (data.result == undefined || data.message == undefined) {
-            msg = "The returned content is malformed: "
-                  "Not found 'result' or 'message'.\n" + data;
+            msg = "The returned content is malformed: " +
+                  "Not found 'result' or 'message'.\n" + JSON.stringify(data);
             putErrorMessageOnStatusDialog(msg);
             return;
         }
