@@ -84,20 +84,20 @@
       <label>トリガー状態</label>
       <select id="selectTriggerStatus">
         <option value=-1>ANY</option>
-        <option value=TRIGGER_STATUS_OK>OK</option>
-        <option value=TRIGGER_STATUS_PROBLEM>PROBLM</option>
+        <option value="TRIGGER_STATUS_OK">OK</option>
+        <option value="TRIGGER_STATUS_PROBLEM">PROBLM</option>
       </select>
 
       <label>深刻度</label>
       <select id="selectTriggerSeverity">
-        <option value=ANY>ANY</option>
-        <option value=INFO>INFO</option>
-        <option value=WARN>WARN</option>
-        <option value=CRITICAL>CRITICAL</option>
+        <option value="ANY">ANY</option>
+        <option value="INFO">INFO</option>
+        <option value="WARN">WARN</option>
+        <option value="CRITICAL">CRITICAL</option>
       </select>
       <select id="selectTriggerSeverityCompType" style="visibility:hidden;">
-        <option value=CMP_EQ>一致</option>
-        <option value=CMP_EQ_GT>以上</option>
+        <option value="CMP_EQ">一致</option>
+        <option value="CMP_EQ_GT">以上</option>
       </select>
     </form>
     <hr>
@@ -105,8 +105,8 @@
     <form class="form-inline">
       <label>タイプ</label>
       <select id="selectType">
-        <option value=ACTION_COMMAND>COMMAND</option>
-        <option value=ACTION_RESIDENT>RESIDENT</option>
+        <option value="ACTION_COMMAND">COMMAND</option>
+        <option value="ACTION_RESIDENT">RESIDENT</option>
       </select>
     </form>
 
