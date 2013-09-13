@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-09-11 10:27-0500\n"
-"PO-Revision-Date: 2013-09-12 00:29+0900\n"
+"POT-Creation-Date: 2013-09-13 00:50-0500\n"
+"PO-Revision-Date: 2013-09-13 14:52+0900\n"
 "Last-Translator: Takuro Ashie <ashie@clear-code.com>\n"
 "Language-Team: Project Hatohol\n"
 "Language: \n"
@@ -27,8 +27,8 @@ msgstr "準備中"
 msgid "Preparing"
 msgstr "準備中"
 
-#: viewer/dashboard_ajax.html:24 viewer/events_ajax.html:24
-#: viewer/index.html:24 viewer/latest_ajax.html:24
+#: viewer/dashboard_ajax.html:24 viewer/dashboard_ajax.html.py:34
+#: viewer/events_ajax.html:24 viewer/index.html:24 viewer/latest_ajax.html:24
 #: viewer/overview_items_ajax.html:24 viewer/overview_triggers_ajax.html:24
 #: viewer/servers_ajax.html:24 viewer/triggers_ajax.html:24
 msgid "Dashboard"
@@ -82,16 +82,95 @@ msgstr "イベント"
 msgid "Server Status"
 msgstr "サーバステータス"
 
+#: viewer/dashboard_ajax.html:41
+msgid "Parameter"
+msgstr "パラメータ"
+
+#: viewer/dashboard_ajax.html:42
+msgid "Value"
+msgstr "値"
+
+#: viewer/dashboard_ajax.html:58 viewer/dashboard_ajax.html.py:78
+#: viewer/events_ajax.html:46 viewer/latest_ajax.html:52
+#: viewer/triggers_ajax.html:54
+msgid "Server"
+msgstr "サーバ"
+
+#: viewer/dashboard_ajax.html:59 viewer/dashboard_ajax.html.py:79
+msgid "Group"
+msgstr "グループ"
+
+#: viewer/dashboard_ajax.html:60 viewer/events_ajax.html:76
+#: viewer/triggers_ajax.html:85
+msgid "Disaster"
+msgstr "致命的な障害"
+
+#: viewer/dashboard_ajax.html:61 viewer/events_ajax.html:76
+#: viewer/triggers_ajax.html:85
+msgid "High"
+msgstr "重度の障害"
+
+#: viewer/dashboard_ajax.html:62 viewer/events_ajax.html:76
+#: viewer/triggers_ajax.html:85
+msgid "Average"
+msgstr "軽度の障害"
+
+#: viewer/dashboard_ajax.html:63 viewer/events_ajax.html:76
+#: viewer/triggers_ajax.html:85
+msgid "Warning"
+msgstr "警告"
+
+#: viewer/dashboard_ajax.html:64 viewer/events_ajax.html:76
+#: viewer/triggers_ajax.html:85
+msgid "Information"
+msgstr "情報"
+
+#: viewer/dashboard_ajax.html:65 viewer/events_ajax.html:76
+#: viewer/triggers_ajax.html:85
+msgid "Not classified"
+msgstr "未分類"
+
+#: viewer/dashboard_ajax.html:80
+msgid "Without problems"
+msgstr "障害なし"
+
+#: viewer/dashboard_ajax.html:81
+msgid "With problems"
+msgstr "障害あり"
+
+#: viewer/dashboard_ajax.html:82
+msgid "Total"
+msgstr "合計"
+
+#: viewer/dashboard_ajax.html:161
+msgid "Number of servers [With problem]"
+msgstr "サーバ数 [障害あり]"
+
+#: viewer/dashboard_ajax.html:171
+msgid "Number of hosts [with problem]"
+msgstr "ホスト数 [障害あり]"
+
+#: viewer/dashboard_ajax.html:176
+msgid "Number of items"
+msgstr "アイテム数"
+
+#: viewer/dashboard_ajax.html:181
+msgid "Number of triggers [with problem]"
+msgstr "トリガー数 [障害あり]"
+
+#: viewer/dashboard_ajax.html:186
+msgid "Number of users [Online]"
+msgstr "ユーザ数 [オンライン]"
+
+#: viewer/dashboard_ajax.html:191
+msgid "New values per second"
+msgstr "１秒あたりの監視項目数"
+
 #: viewer/events_ajax.html:37 viewer/latest_ajax.html:37
 #: viewer/overview_items_ajax.html:45 viewer/overview_triggers_ajax.html:45
 #: viewer/triggers_ajax.html:37
 msgid "Server:"
 msgstr "サーバ:"
-
-#: viewer/events_ajax.html:46 viewer/latest_ajax.html:52
-#: viewer/triggers_ajax.html:54
-msgid "Server"
-msgstr "サーバ"
 
 #: viewer/events_ajax.html:47
 msgid "Time"
@@ -132,30 +211,6 @@ msgstr "障害"
 #: viewer/events_ajax.html:75 viewer/triggers_ajax.html:84
 msgid "Unknown"
 msgstr "不明"
-
-#: viewer/events_ajax.html:76 viewer/triggers_ajax.html:85
-msgid "Not classified"
-msgstr "未分類"
-
-#: viewer/events_ajax.html:76 viewer/triggers_ajax.html:85
-msgid "Information"
-msgstr "情報"
-
-#: viewer/events_ajax.html:76 viewer/triggers_ajax.html:85
-msgid "Warning"
-msgstr "警告"
-
-#: viewer/events_ajax.html:76 viewer/triggers_ajax.html:85
-msgid "Average"
-msgstr "軽度の障害"
-
-#: viewer/events_ajax.html:76 viewer/triggers_ajax.html:85
-msgid "High"
-msgstr "重度の障害"
-
-#: viewer/events_ajax.html:76 viewer/triggers_ajax.html:85
-msgid "Disaster"
-msgstr "致命的な障害"
 
 #: viewer/latest_ajax.html:42
 msgid "Application:"

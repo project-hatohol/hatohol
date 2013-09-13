@@ -31,15 +31,15 @@
 {% endblock %}
 
 {% block main %}
-  <h2>Dashboard</h2>
+  <h2>{% trans "Dashboard" %}</h2>
 
-  {# サーバ総数 #}
-  {# グッドサーバステータス #}
+  {# Total servers count #}
+  {# Good server status #}
   <table class="table table-condensed table-striped table-hover" id="tblServer">
     <thead>
       <tr>
-        <th colspan='2'>パラメータ</th>
-        <th>値</th>
+        <th colspan='2'>{% trans "Parameter" %}</th>
+        <th>{% trans "Value" %}</th>
         <th>　　　　</th>
       </tr>
     </thead>
@@ -47,22 +47,22 @@
     </tbody>
   </table>
 
-  {# バッドサーバリーズン #}
+  {# Bad server reason #}
 
   <hr />
 
-  {# システムステータス #}
+  {# System status #}
   <table class="table table-condensed table-striped table-hover" id="tblTrigger">
     <thead>
       <tr>
-        <th>サーバ</th>
-        <th>グループ</th>
-        <th>致命的な障害</th>
-        <th>重度の障害</th>
-        <th>軽度の障害</th>
-        <th>警告</th>
-        <th>情報</th>
-        <th>未分類</th>
+        <th>{% trans "Server" %}</th>
+        <th>{% trans "Group" %}</th>
+        <th>{% trans "Disaster" %}</th>
+        <th>{% trans "High" %}</th>
+        <th>{% trans "Average" %}</th>
+        <th>{% trans "Warning" %}</th>
+        <th>{% trans "Information" %}</th>
+        <th>{% trans "Not classified" %}</th>
       </tr>
     </thead>
     <tbody>
@@ -71,15 +71,15 @@
 
   <hr />
 
-  {# ホストステータス #}
+  {# Host status #}
   <table class="table table-condensed table-striped table-hover" id="tblHost">
     <thead>
       <tr>
-        <th>サーバ</th>
-        <th>グループ</th>
-        <th>障害なし</th>
-        <th>障害あり</th>
-        <th>合計</th>
+        <th>{% trans "Server" %}</th>
+        <th>{% trans "Group" %}</th>
+        <th>{% trans "Without problems" %}</th>
+        <th>{% trans "With problems" %}</th>
+        <th>{% trans "Total" %}</th>
       </tr>
     </thead>
     <tbody>
@@ -158,7 +158,7 @@
       bads  = rd["badServers"];
 
       s += "<tr>";
-      s += "<td colspan='2'>サーバ数 [障害あり]</td>";
+      s += "<td colspan='2'>{% trans "Number of servers [With problem]" %}</td>";
       s += "<td>" + bads.length + " / " + rd["numberOfServers"] + "</td>";
       s += "<td>" + buildProgress(bads.length, rd["numberOfServers"]) + "</td>";
       s += "</tr>";
@@ -168,27 +168,27 @@
         server = o["serverId"];
         s += "<tr>";
         s += "<td rowspan='5'>" + o["serverNickname"] + "</td>";
-        s += "<td>ホスト数 [障害あり]</td>";
+        s += "<td>{% trans "Number of hosts [with problem]" %}</td>";
         s += "<td>" + pd[server]["badHosts"] + " / " + o["numberOfHosts"] + "</td>";
         s += "<td>" + buildProgress(pd[server]["badHosts"], o["numberOfHosts"]) + "</td>";
         s += "</tr>";
         s += "<tr>";
-        s += "<td>アイテム数</td>";
+        s += "<td>{% trans "Number of items" %}</td>";
         s += "<td>" + o["numberOfItems"] + "</td>";
         s += "<td></td>";
         s += "</tr>";
         s += "<tr>";
-        s += "<td>トリガー数 [障害あり]</td>";
+        s += "<td>{% trans "Number of triggers [with problem]" %}</td>";
         s += "<td>" + pd[server]["problem"] + " / " + o["numberOfTriggers"] + "</td>";
         s += "<td>" + buildProgress(pd[server]["problem"], o["numberOfTriggers"]) + "</td>";
         s += "</tr>";
         s += "<tr>";
-        s += "<td>ユーザ数 [オンライン]</td>";
+        s += "<td>{% trans "Number of users [Online]" %}</td>";
         s += "<td>" + o["numberOfOnlineUsers"] + " / " + o["numberOfUsers"] + "</td>";
         s += "<td>" + buildProgress(o["numberOfOnlineUsers"], o["numberOfUsers"]) + "</td>";
         s += "</tr>";
         s += "<tr>";
-        s += "<td>１秒あたりの監視項目数</td>";
+        s += "<td>{% trans "New values per second" %}</td>";
         s += "<td>" + o["numberOfMonitoredItemsPerSecond"] + "</td>";
         s += "<td></td>";
         s += "</tr>";
