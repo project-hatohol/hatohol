@@ -308,6 +308,21 @@
       return undefined;
     }
 
+    function getStatusValue() {
+      var status = $("#selectTriggerStatus").val();
+      switch(status) {
+      case "ANY":
+        return undefined;
+      case "TRIGGER_STATUS_OK":
+        return TRIGGER_STATUS_OK;
+      case "TRIGGER_STATUS_PROBLEM":
+        return TRIGGER_STATUS_PROBLEM;
+      default:
+        alert("Unknown status: " + status);
+      }
+      return undefined;
+    }
+
     function getSeverityValue() {
       var severity = $("#selectTriggerSeverity").val();
       switch(severity) {
@@ -342,6 +357,7 @@
         queryData.type = getCommandType();
         queryData.timeout = $("#inputTimeout").val();
         queryData.command = $("#inputActionCommand").val();
+        queryData.triggerStatus   = getStatusValue();
         queryData.triggerSeverity = getSeverityValue();
         queryData.triggerSeverityCompType = getSeverityCompTypeValue();
     }
