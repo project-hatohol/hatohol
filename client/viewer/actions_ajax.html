@@ -131,7 +131,13 @@
   <div id="add-status-dialog">
     <p id="add-status">Now requesting...</p>
   </div>
+
   <form id="add-acton-form", method="POST"> {% csrf_token %}
+
+  <div id="delete-dialog">
+    <p id="delete-dialog-text"></p>
+  </div>
+
   </form>
 
   <table class="table table-condensed table-hover" id="table">
@@ -194,6 +200,11 @@
 
     $("#add-action-button").click(function() {
       $("#add-action-dialog").dialog("open");
+    });
+
+    $("#delete-action-button").click(function() {
+      $("#delete-dialog-text").text("Do you really delete the selected actions ?");
+      $("#delete-dialog").dialog("open");
     });
 
     //
@@ -437,6 +448,27 @@
         // TODO: Should we simply add the newly created action.
         schedule(0000, "actions");
     }
+
+    //
+    // delete-action dialog
+    //
+    $("#delete-dialog").dialog({
+      autoOpen: false,
+      title: "Confirm",
+      closeOnEscape: false,
+      modal: true,
+      buttons: [
+      {
+        text: "NO",
+        click: function() {
+          $(this).dialog("close");
+        }
+      }, {
+        text: "YES",
+        click: function() {
+        }
+      }]
+    });
 
     //
     // Functions for make the main view.
