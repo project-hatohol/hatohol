@@ -611,12 +611,13 @@
         var severityLabel = "ANY";
         if (triggerSeverity != undefined)
           severityLabel = makeServerityLabel(triggerSeverity);
-        s += "<td>" + severityCompLabel + " " + severityLabel + "</td>";
 
         var severityCompType = actionDef.triggerSeverityComparatorType;
         var severityCompLabel = "";
         if (triggerSeverity != undefined)
           severityCompLabel = makeServerityCompTypeLabel(severityCompType);
+
+        s += "<td>" + severityCompLabel + " " + severityLabel + "</td>";
 
         var type = actionDef.type;
         var typeLabel = makeTypeLabel(type);
