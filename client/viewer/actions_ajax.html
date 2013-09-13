@@ -133,11 +133,6 @@
   </div>
 
   <form id="add-acton-form", method="POST"> {% csrf_token %}
-
-  <div id="delete-dialog">
-    <p id="delete-dialog-text"></p>
-  </div>
-
   </form>
 
   <table class="table table-condensed table-hover" id="table">
@@ -203,8 +198,8 @@
     });
 
     $("#delete-action-button").click(function() {
-      $("#delete-dialog-text").text("Do you really delete the selected actions ?");
-      $("#delete-dialog").dialog("open");
+      showMessageBox("Are you really delete the selected actions",
+                     "Confirmation", NO_YES_BUTTON, deleteActions);
     });
 
     //
@@ -443,24 +438,6 @@
     //
     // delete-action dialog
     //
-    $("#delete-dialog").dialog({
-      autoOpen: false,
-      title: "Confirm",
-      closeOnEscape: false,
-      modal: true,
-      buttons: [
-      {
-        text: "NO",
-        click: function() {
-          $(this).dialog("close");
-        }
-      }, {
-        text: "YES",
-        click: function() {
-          deleteActions();
-        }
-      }]
-    });
 
     function deleteActions() {
       $.ajax({
@@ -483,18 +460,6 @@
       console.log(data);
     }
 
-    function putErrorMessageOnDeleteDialog(msg) {
-      $("#delete-dialog").dialog("option", "title", "Error");
-      $("#delete-dialog-text").text(msg);
-      $("#delete-dialog").dialog("option", "buttons",
-        { "CLOSE":
-          function() {
-           $(this).dialog("close");
-          }
-        }
-      );
-    }
-
     //
     // Functions for message box.
     //
@@ -504,10 +469,23 @@
         }
     };
 
-    function showMessageBox(msg, title, buttons) {
+    var NO_YES_BUTTON = [{
+      text: "NO",
+      click: function() {
+        $(this).dialog("close");
+      }
+    }, {
+      text: "YES",
+      click: function() {
+      }
+    }]
+
+    function showMessageBox(msg, title, buttons, callback) {
       $("#msgbox").dialog("open");
       $("#msgbox-text").text(msg);
       $("#msgbox").dialog("option", "title", title);
+      if (buttons == NO_YES_BUTTON)
+        NO_YES_BUTTON[1].click = callback;
       $("#msgbox").dialog("option", "buttons", buttons);
     }
 
