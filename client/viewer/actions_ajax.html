@@ -128,10 +128,6 @@
     <p id="msgbox-text"></p>
   </div>
 
-  <div id="add-status-dialog">
-    <p id="add-status">Now requesting...</p>
-  </div>
-
   <form id="add-acton-form", method="POST"> {% csrf_token %}
   </form>
 
@@ -253,25 +249,12 @@
         click: function() {
           if (validateAddParameters()) {
             makeQueryData();
-            $("#add-status-dialog").dialog("open");
+            showMessageBox("Now creating an action ...", "Information",
+                           undefined);
             postAddAction();
           }
         }
       }, {
-        text: "Canncel",
-        click: function() {
-          $(this).dialog("close");
-        }
-      }]
-    });
-
-    $("#add-status-dialog").dialog({
-      autoOpen: false,
-      title: "Requesting",
-      closeOnEscape: false,
-      modal: true,
-      buttons: [
-      {
         text: "Canncel",
         click: function() {
           $(this).dialog("close");
@@ -371,29 +354,9 @@
         error: function(XMLHttpRequest, textStatus, errorThrown) {
           var errorMsg = "Error: " + XMLHttpRequest.status + ": " +
                          XMLHttpRequest.statusText;
-          putErrorMessageOnStatusDialog(errorMsg);
+          showMessageBox(errorMsg, "Error", CLOSE_BUTTON);
         }
       })
-    }
-
-    function putOnStatusDialog(msg, title) {
-      $("#add-status").text(msg);
-      $("#add-status-dialog").dialog("option", "title", title);
-      $("#add-status-dialog").dialog("option", "buttons",
-        { "CLOSE":
-          function() {
-           $("#add-status-dialog").dialog("close");
-          }
-        }
-      );
-    }
-
-    function putErrorMessageOnStatusDialog(msg) {
-      putOnStatusDialog(msg, "ERROR");
-    }
-
-    function putMessageOnStatusDialog(msg) {
-      putOnStatusDialog(msg, "Message");
     }
 
     function parsePostActionResult(data) {
@@ -406,12 +369,12 @@
         if (malformed) {
             msg = "The returned content is malformed: " +
                   "Not found 'result' or 'message'.\n" + JSON.stringify(data);
-            putErrorMessageOnStatusDialog(msg);
+            showMessageBox(msg, "Error", CLOSE_BUTTON);
             return;
         }
         if (!data.result) {
             msg = "Failed:\n" + data.message
-            putErrorMessageOnStatusDialog(msg);
+            showMessageBox(msg, "Error", CLOSE_BUTTON);
             return;
         }
 
@@ -419,13 +382,12 @@
             msg = "The returned content is malformed: " +
                   "'result' is true, however, 'id' is missing.\n" +
                   JSON.stringify(data);
-            putErrorMessageOnStatusDialog(msg);
+            showMessageBox(msg, "Error", CLOSE_BUTTON);
             return;
         }
 
         // close dialogs
-        if ($("#add-status-dialog").dialog != undefined)
-            putMessageOnStatusDialog("Successfully created.");
+        showMessageBox("Successfully created.", "Information", CLOSE_BUTTON);
 
         if ($("#add-action-dialog").dialog != undefined)
             $("#add-action-dialog").dialog("close");
