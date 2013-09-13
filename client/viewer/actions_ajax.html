@@ -399,7 +399,9 @@
       $.ajax({
         url: "/tunnel/actions.json",
         type: "DELETE",
-        data: queryData,
+        beforeSend: function(xhr) {
+          xhr.setRequestHeader("X-CSRFToken", queryData.csrfmiddlewaretoken);
+        },
         success: function(data) {
           parseDeleteActionResult(data);
         },
