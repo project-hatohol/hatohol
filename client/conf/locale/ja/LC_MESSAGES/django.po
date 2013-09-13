@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-09-13 00:50-0500\n"
-"PO-Revision-Date: 2013-09-13 14:52+0900\n"
+"POT-Creation-Date: 2013-09-13 01:26-0500\n"
+"PO-Revision-Date: 2013-09-13 15:28+0900\n"
 "Last-Translator: Takuro Ashie <ashie@clear-code.com>\n"
 "Language-Team: Project Hatohol\n"
 "Language: \n"
@@ -79,8 +79,8 @@ msgstr "イベント"
 #: viewer/overview_items_ajax.html:30 viewer/overview_triggers_ajax.html:30
 #: viewer/servers_ajax.html:30 viewer/servers_ajax.html.py:34
 #: viewer/triggers_ajax.html:30
-msgid "Server Status"
-msgstr "サーバステータス"
+msgid "Servers"
+msgstr "サーバ"
 
 #: viewer/dashboard_ajax.html:41
 msgid "Parameter"
