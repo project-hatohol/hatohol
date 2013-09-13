@@ -262,12 +262,6 @@
       }]
     });
 
-    $("#msgbox").dialog({
-      autoOpen: false,
-      closeOnEscape: false,
-      modal: true,
-    });
-
     function validateAddParameters() {
       if ($("#inputActionCommand").val() == "") {
         showMessageBox("Command is empty!", "Error", CLOSE_BUTTON);
@@ -440,6 +434,12 @@
       click: function() {
       }
     }]
+
+    $("#msgbox").dialog({
+      autoOpen: false,
+      closeOnEscape: false,
+      modal: true,
+    });
 
     function showMessageBox(msg, title, buttons, callback) {
       $("#msgbox").dialog("open");
