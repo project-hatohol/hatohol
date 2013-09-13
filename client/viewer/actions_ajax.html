@@ -288,20 +288,11 @@
       autoOpen: false,
       closeOnEscape: false,
       modal: true,
-      buttons: [
-      {
-        text: "OK",
-        click: function() {
-          $(this).dialog("close");
-        }
-      }]
     });
 
     function validateAddParameters() {
       if ($("#inputActionCommand").val() == "") {
-        $("#msgbox").attr("title", "Error");
-        $("#msgbox-text").text("Command is empty!");
-        $("#msgbox").dialog("open");
+        showMessageBox("Command is empty!", "Error", CLOSE_BUTTON);
         return false;
       }
       return true;
@@ -482,8 +473,7 @@
         error: function(XMLHttpRequest, textStatus, errorThrown) {
           var errorMsg = "Error: " + XMLHttpRequest.status + ": " +
                          XMLHttpRequest.statusText;
-          putErrorMessageOnDeleteDialog(errorMsg);
-          console.log(errorMsg);
+          showMessageBox(errorMsg, "Error", CLOSE_BUTTON);
         }
       })
     }
@@ -503,6 +493,22 @@
           }
         }
       );
+    }
+
+    //
+    // Functions for message box.
+    //
+    var CLOSE_BUTTON = {
+        "CLOSE": function() {
+          $(this).dialog("close");
+        }
+    };
+
+    function showMessageBox(msg, title, buttons) {
+      $("#msgbox").dialog("open");
+      $("#msgbox-text").text(msg);
+      $("#msgbox").dialog("option", "title", title);
+      $("#msgbox").dialog("option", "buttons", buttons);
     }
 
     //
