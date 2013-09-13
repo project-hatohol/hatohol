@@ -230,7 +230,7 @@
         $("#selectTriggerSeverityCompType").css("visibility","visible");
       else
         $("#selectTriggerSeverityCompType").css("visibility","hidden");
-    });
+    })
 
     //
     // Add-action dialog
@@ -296,9 +296,43 @@
       return true;
     }
 
+    function getSeverityValue() {
+      var severity = $("#selectTriggerSeverity").val();
+      switch(severity) {
+      case "ANY":
+        return undefined;
+      case "INFO":
+        return TRIGGER_SEVERITY_INFO;
+      case "WARN":
+        return TRIGGER_SEVERITY_WARN;
+      case "CRITICAL":
+        return TRIGGER_SEVERITY_CRITICAL;
+      default:
+        alert("Unknown severity: " + severity);
+      }
+      return undefined;
+    }
+
+    function getSeverityCompTypeValue() {
+      var compType = $("#selectTriggerSeverityCompType").val();
+      switch(compType) {
+      case "CMP_EQ":
+        return CMP_EQ;
+      case "CMP_EQ_GT":
+        return CMP_EQ_GT;
+      default:
+        alert("Unknown severity: " + severity);
+      }
+      return undefined;
+    }
+
     function makeQueryData() {
         queryData.timeout = $("#inputTimeout").val();
         queryData.command = $("#inputActionCommand").val();
+        // queryData.type is changed in $("#selectType").change
+        queryData.triggerSeverity = getSeverityValue();
+        console.log("triggerSeverity: " + queryData.triggerSeverity);
+        queryData.triggerSeverityCompType = getSeverityCompTypeValue();
     }
 
     function postAddAction() {
