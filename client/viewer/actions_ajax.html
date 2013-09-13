@@ -209,20 +209,6 @@
     //
     // Event handlers for forms in the add-action dialog
     //
-    $("#selectType").change(function() {
-      var type = $(this).val();
-      switch(type) {
-      case "ACTION_COMMAND":
-        queryData.type = ACTION_COMMAND;
-        break;
-      case "ACTION_RESIDENT":
-        queryData.type = ACTION_RESIDENT;
-        break;
-      default:
-        console.log("Unknown type: " + type);
-      }
-    })
-
     $("#selectTriggerSeverity").change(function() {
       var severity = $(this).val();
       if (severity != "ANY")
