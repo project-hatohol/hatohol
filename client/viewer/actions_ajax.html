@@ -331,7 +331,6 @@
         queryData.command = $("#inputActionCommand").val();
         // queryData.type is changed in $("#selectType").change
         queryData.triggerSeverity = getSeverityValue();
-        console.log("triggerSeverity: " + queryData.triggerSeverity);
         queryData.triggerSeverityCompType = getSeverityCompTypeValue();
     }
 
@@ -539,26 +538,26 @@
         s += "<td>" + hostGroupName + "</td>";
 
         var triggerId = actionDef.triggerId;
-        if (!triggerId)
+        if (triggerId == undefined)
           triggerId = "ANY";
         s += "<td>" + triggerId + "</td>";
 
         var triggerStatus = actionDef.triggerStatus;
         var triggerStatusLabel = "ANY";
-        if (triggerStatus)
+        if (triggerStatus != undefined)
           triggerStatusLabel = makeTriggerStatusLabel(triggerStatus);
         s += "<td>" + triggerStatusLabel + "</td>";
 
-        var severityCompType = actionDef.triggerSeverityComparatorType;
-        var severityCompLabel = "";
-        if (severityCompType)
-          severityCompLabel = makeServerityCompTypeLabel(severityCompType);
-
         var triggerSeverity = actionDef.triggerSeverity;
         var severityLabel = "ANY";
-        if (triggerSeverity)
+        if (triggerSeverity != undefined)
           severityLabel = makeServerityLabel(triggerSeverity);
         s += "<td>" + severityCompLabel + " " + severityLabel + "</td>";
+
+        var severityCompType = actionDef.triggerSeverityComparatorType;
+        var severityCompLabel = "";
+        if (triggerSeverity != undefined)
+          severityCompLabel = makeServerityCompTypeLabel(severityCompType);
 
         var type = actionDef.type;
         var typeLabel = makeTypeLabel(type);
