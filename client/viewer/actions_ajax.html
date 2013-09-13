@@ -161,6 +161,7 @@
 
 {% block option %}
   <script src="{{ STATIC_URL }}js/stupidtable.js"></script>
+  <script src="{{ STATIC_URL }}js/hatohol_def.js"></script>
 
   <!-- TODO: We should download jquery-ui.js and the CSS to the local. -->
   <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1/jquery-ui.min.js"></script>
@@ -169,8 +170,22 @@
 {% endblock %}
 
 {% block logic %}
-  <script src="{{ STATIC_URL }}js/hatohol_def.js"></script>
   <script type="text/javascript">
+    //
+    // Variables
+    //
+    var status_choices   = [ '正常', '障害', '不明' ];
+    var severity_choices = [ '未分類', '情報', '警告', '軽度の障害', '重度の障害', '致命的な障害' ];
+
+    var rawData;
+    var parsedData;
+    var queryData = {
+        csrfmiddlewaretoken: $("*[name=csrfmiddlewaretoken]").val(),
+    };
+
+    //
+    // Main view
+    //
     $("#table").stupidtable();
     $("#table").bind('aftertablesort', function(event, data) {
       var th = $(this).find("th");
@@ -183,6 +198,30 @@
       $("#add-action-dialog").dialog("open");
     });
 
+    //
+    // Event handlers for forms in the main view
+    //
+    $("#select-server").change(function() {
+      chooseRow();
+    });
+    $("#select-host").change(function() {
+      chooseRow();
+    });
+
+    //
+    // Event handlers for forms in the add-action dialog
+    //
+    $("#selectTriggerSeverity").change(function() {
+      var severity = $(this).val();
+      if (severity != "ANY")
+        $("#selectTriggerSeverityCompType").css("visibility","visible");
+      else
+        $("#selectTriggerSeverityCompType").css("visibility","hidden");
+    });
+
+    //
+    // Add-action dialog
+    //
     $("#add-action-dialog").dialog({
       autoOpen: false,
       title: "Add Action",
@@ -232,30 +271,6 @@
           $(this).dialog("close");
         }
       }]
-    });
-
-    $("#selectTriggerSeverity").change(function() {
-      var severity = $(this).val();
-      if (severity != "ANY")
-        $("#selectTriggerSeverityCompType").css("visibility","visible");
-      else
-        $("#selectTriggerSeverityCompType").css("visibility","hidden");
-    });
-
-    var status_choices   = [ '正常', '障害', '不明' ];
-    var severity_choices = [ '未分類', '情報', '警告', '軽度の障害', '重度の障害', '致命的な障害' ];
-
-    var rawData;
-    var parsedData;
-    var queryData = {
-        csrfmiddlewaretoken: $("*[name=csrfmiddlewaretoken]").val(),
-    };
-
-    $("#select-server").change(function() {
-      chooseRow();
-    });
-    $("#select-host").change(function() {
-      chooseRow();
     });
 
     function validateAddParameters() {
@@ -318,6 +333,9 @@
         console.log("success: parsePostActionResult");
     }
 
+    //
+    // Functions for make the main view.
+    //
     function makeNamelessServerLabel(serverId) {
       return "(ID:" + serverId + ")";
     }
@@ -374,6 +392,9 @@
       }
     }
 
+    //
+    // parser of received json data
+    //
     function getServerName(actionsPkt, actionDef) {
       var serverId = actionDef["serverId"];
       if (!serverId)
@@ -430,6 +451,9 @@
       return pd;
     }
 
+    //
+    // callback function from the base template
+    //
     function drawTableBody(actionsPkt) {
       var x;
       var klass, server, host;
@@ -509,6 +533,9 @@
       $("#table tbody").append(drawTableBody(rawData));
     }
 
+    //
+    // main code
+    //
     schedule(0000, "actions");
   </script>
 {% endblock %}
