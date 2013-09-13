@@ -1,0 +1,283 @@
+# This file is part of Hatohol.
+# Copyright (C) 2013 Project Hatohol
+# This file is distributed under the same license as the PACKAGE package.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2013-09-13 01:26-0500\n"
+"PO-Revision-Date: 2013-09-13 15:28+0900\n"
+"Last-Translator: Takuro Ashie <ashie@clear-code.com>\n"
+"Language-Team: Project Hatohol\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: viewer/base.html:36 viewer/base_ajax.html:38
+msgid "Hatohol"
+msgstr "Hatohol"
+
+#: viewer/base_ajax.html:46
+msgid "PREPARE"
+msgstr "準備中"
+
+#: viewer/base_ajax.html:50
+msgid "Preparing"
+msgstr "準備中"
+
+#: viewer/dashboard_ajax.html:24 viewer/dashboard_ajax.html.py:34
+#: viewer/events_ajax.html:24 viewer/index.html:24 viewer/latest_ajax.html:24
+#: viewer/overview_items_ajax.html:24 viewer/overview_triggers_ajax.html:24
+#: viewer/servers_ajax.html:24 viewer/triggers_ajax.html:24
+msgid "Dashboard"
+msgstr "ダッシュボード"
+
+#: viewer/dashboard_ajax.html:25 viewer/events_ajax.html:25
+#: viewer/index.html:25 viewer/latest_ajax.html:25
+#: viewer/overview_items_ajax.html:25 viewer/overview_triggers_ajax.html:25
+#: viewer/overview_triggers_ajax.html:34 viewer/servers_ajax.html:25
+#: viewer/triggers_ajax.html:25
+msgid "Overview : Triggers"
+msgstr "概要:トリガー"
+
+#: viewer/dashboard_ajax.html:26 viewer/events_ajax.html:26
+#: viewer/index.html:26 viewer/latest_ajax.html:26
+#: viewer/overview_items_ajax.html:26 viewer/overview_items_ajax.html.py:34
+#: viewer/overview_triggers_ajax.html:26 viewer/servers_ajax.html:26
+#: viewer/triggers_ajax.html:26
+msgid "Overview : Items"
+msgstr "概要:アイテム"
+
+#: viewer/dashboard_ajax.html:27 viewer/events_ajax.html:27
+#: viewer/index.html:27 viewer/latest_ajax.html:27
+#: viewer/latest_ajax.html.py:34 viewer/overview_items_ajax.html:27
+#: viewer/overview_triggers_ajax.html:27 viewer/servers_ajax.html:27
+#: viewer/triggers_ajax.html:27
+msgid "Latest data"
+msgstr "最新データ"
+
+#: viewer/dashboard_ajax.html:28 viewer/events_ajax.html:28
+#: viewer/index.html:28 viewer/latest_ajax.html:28
+#: viewer/overview_items_ajax.html:28 viewer/overview_triggers_ajax.html:28
+#: viewer/servers_ajax.html:28 viewer/triggers_ajax.html:28
+#: viewer/triggers_ajax.html.py:34
+msgid "Triggers"
+msgstr "トリガー"
+
+#: viewer/dashboard_ajax.html:29 viewer/events_ajax.html:29
+#: viewer/events_ajax.html.py:34 viewer/index.html:29
+#: viewer/latest_ajax.html:29 viewer/overview_items_ajax.html:29
+#: viewer/overview_triggers_ajax.html:29 viewer/servers_ajax.html:29
+#: viewer/triggers_ajax.html:29
+msgid "Events"
+msgstr "イベント"
+
+#: viewer/dashboard_ajax.html:30 viewer/events_ajax.html:30
+#: viewer/index.html:30 viewer/latest_ajax.html:30
+#: viewer/overview_items_ajax.html:30 viewer/overview_triggers_ajax.html:30
+#: viewer/servers_ajax.html:30 viewer/servers_ajax.html.py:34
+#: viewer/triggers_ajax.html:30
+msgid "Servers"
+msgstr "サーバ"
+
+#: viewer/dashboard_ajax.html:41
+msgid "Parameter"
+msgstr "パラメータ"
+
+#: viewer/dashboard_ajax.html:42
+msgid "Value"
+msgstr "値"
+
+#: viewer/dashboard_ajax.html:58 viewer/dashboard_ajax.html.py:78
+#: viewer/events_ajax.html:46 viewer/latest_ajax.html:52
+#: viewer/triggers_ajax.html:54
+msgid "Server"
+msgstr "サーバ"
+
+#: viewer/dashboard_ajax.html:59 viewer/dashboard_ajax.html.py:79
+msgid "Group"
+msgstr "グループ"
+
+#: viewer/dashboard_ajax.html:60 viewer/events_ajax.html:76
+#: viewer/triggers_ajax.html:85
+msgid "Disaster"
+msgstr "致命的な障害"
+
+#: viewer/dashboard_ajax.html:61 viewer/events_ajax.html:76
+#: viewer/triggers_ajax.html:85
+msgid "High"
+msgstr "重度の障害"
+
+#: viewer/dashboard_ajax.html:62 viewer/events_ajax.html:76
+#: viewer/triggers_ajax.html:85
+msgid "Average"
+msgstr "軽度の障害"
+
+#: viewer/dashboard_ajax.html:63 viewer/events_ajax.html:76
+#: viewer/triggers_ajax.html:85
+msgid "Warning"
+msgstr "警告"
+
+#: viewer/dashboard_ajax.html:64 viewer/events_ajax.html:76
+#: viewer/triggers_ajax.html:85
+msgid "Information"
+msgstr "情報"
+
+#: viewer/dashboard_ajax.html:65 viewer/events_ajax.html:76
+#: viewer/triggers_ajax.html:85
+msgid "Not classified"
+msgstr "未分類"
+
+#: viewer/dashboard_ajax.html:80
+msgid "Without problems"
+msgstr "障害なし"
+
+#: viewer/dashboard_ajax.html:81
+msgid "With problems"
+msgstr "障害あり"
+
+#: viewer/dashboard_ajax.html:82
+msgid "Total"
+msgstr "合計"
+
+#: viewer/dashboard_ajax.html:161
+msgid "Number of servers [With problem]"
+msgstr "サーバ数 [障害あり]"
+
+#: viewer/dashboard_ajax.html:171
+msgid "Number of hosts [with problem]"
+msgstr "ホスト数 [障害あり]"
+
+#: viewer/dashboard_ajax.html:176
+msgid "Number of items"
+msgstr "アイテム数"
+
+#: viewer/dashboard_ajax.html:181
+msgid "Number of triggers [with problem]"
+msgstr "トリガー数 [障害あり]"
+
+#: viewer/dashboard_ajax.html:186
+msgid "Number of users [Online]"
+msgstr "ユーザ数 [オンライン]"
+
+#: viewer/dashboard_ajax.html:191
+msgid "New values per second"
+msgstr "１秒あたりの監視項目数"
+
+#: viewer/events_ajax.html:37 viewer/latest_ajax.html:37
+#: viewer/overview_items_ajax.html:45 viewer/overview_triggers_ajax.html:45
+#: viewer/triggers_ajax.html:37
+msgid "Server:"
+msgstr "サーバ:"
+
+#: viewer/events_ajax.html:47
+msgid "Time"
+msgstr "時間"
+
+#: viewer/events_ajax.html:48
+msgid "Brief"
+msgstr "説明"
+
+#: viewer/events_ajax.html:49 viewer/triggers_ajax.html:56
+msgid "Status"
+msgstr "ステータス"
+
+#: viewer/events_ajax.html:50 viewer/triggers_ajax.html:55
+msgid "Severity"
+msgstr "深刻度"
+
+#: viewer/events_ajax.html:51 viewer/triggers_ajax.html:58
+msgid "Duration"
+msgstr "継続時間"
+
+#: viewer/events_ajax.html:52 viewer/triggers_ajax.html:62
+msgid "Comment"
+msgstr "コメント"
+
+#: viewer/events_ajax.html:53
+msgid "Action"
+msgstr "アクション"
+
+#: viewer/events_ajax.html:75 viewer/triggers_ajax.html:84
+msgid "OK"
+msgstr "正常"
+
+#: viewer/events_ajax.html:75 viewer/triggers_ajax.html:84
+msgid "Problem"
+msgstr "障害"
+
+#: viewer/events_ajax.html:75 viewer/triggers_ajax.html:84
+msgid "Unknown"
+msgstr "不明"
+
+#: viewer/latest_ajax.html:42
+msgid "Application:"
+msgstr "アプリケーション:"
+
+#: viewer/latest_ajax.html:53 viewer/triggers_ajax.html:60
+msgid "Host"
+msgstr "ホスト"
+
+#: viewer/latest_ajax.html:54
+msgid "Application"
+msgstr "アプリケーション"
+
+#: viewer/latest_ajax.html:55 viewer/triggers_ajax.html:61
+msgid "Name"
+msgstr "名前"
+
+#: viewer/latest_ajax.html:56
+msgid "Last check"
+msgstr "最新の変更"
+
+#: viewer/latest_ajax.html:57
+msgid "Last value"
+msgstr "最新の値"
+
+#: viewer/latest_ajax.html:58
+msgid "Previous value"
+msgstr "前回の値"
+
+#: viewer/overview_items_ajax.html:37 viewer/overview_triggers_ajax.html:37
+msgid "Minimum Severity:"
+msgstr "最小の深刻度:"
+
+#: viewer/overview_items_ajax.html:49 viewer/overview_triggers_ajax.html:49
+#: viewer/triggers_ajax.html:41
+msgid "Group:"
+msgstr "グループ:"
+
+#: viewer/overview_items_ajax.html:56 viewer/overview_triggers_ajax.html:56
+#: viewer/triggers_ajax.html:45
+msgid "Host:"
+msgstr "ホスト:"
+
+#: viewer/servers_ajax.html:39
+msgid "ID"
+msgstr "ID"
+
+#: viewer/servers_ajax.html:40
+msgid "Type"
+msgstr "タイプ"
+
+#: viewer/servers_ajax.html:41
+msgid "Hostname"
+msgstr "ホスト名"
+
+#: viewer/servers_ajax.html:42
+msgid "IP Address"
+msgstr "IPアドレス"
+
+#: viewer/servers_ajax.html:43
+msgid "Nickname"
+msgstr "ニックネーム"
+
+#: viewer/triggers_ajax.html:57
+msgid "Last change"
+msgstr "最新の変更"
+
+#: viewer/triggers_ajax.html:59
+msgid "Acknowledged"
+msgstr "障害対応済"
