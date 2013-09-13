@@ -376,6 +376,18 @@
       );
     }
 
+    function putMessageOnStatusDialog(msg) {
+      $("#add-status").text(msg);
+      $("#add-status-dialog").dialog("option", "title", "Message");
+      $("#add-status-dialog").dialog("option", "buttons",
+        { "CLOSE":
+          function() {
+           $("#add-status-dialog").dialog("close");
+          }
+        }
+      );
+    }
+
     function parsePostActionResult(data) {
         var msg;
         var malformed = false;
@@ -402,8 +414,17 @@
             putErrorMessageOnStatusDialog(msg);
             return;
         }
-        // TODO: we have to close dialog and reload actions.
-        console.log("success: ID: " + data.id);
+
+        // close dialogs
+        if ($("#add-status-dialog").dialog != undefined)
+            putMessageOnStatusDialog("Successfully created.");
+
+        if ($("#add-action-dialog").dialog != undefined)
+            $("#add-action-dialog").dialog("close");
+
+        // update the main view
+        // TODO: Should we simply add the newly created action.
+        schedule(0000, "actions");
     }
 
     //
