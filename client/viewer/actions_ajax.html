@@ -299,7 +299,8 @@
     }
 
     function makeQueryData() {
-        queryData.timeout = $("inputTimeout").val();
+        queryData.timeout = $("#inputTimeout").val();
+        queryData.command = $("#inputActionCommand").val();
     }
 
     function postAddAction() {
@@ -332,7 +333,12 @@
 
     function parsePostActionResult(data) {
         var msg;
-        if (data.result == undefined || data.message == undefined) {
+        var malformed = false;
+        if (data.result == undefined)
+           malformed = true;
+        if (!malformed && !data.result && data.message == undefined)
+           malformed = true;
+        if (malformed) {
             msg = "The returned content is malformed: " +
                   "Not found 'result' or 'message'.\n" + JSON.stringify(data);
             putErrorMessageOnStatusDialog(msg);
@@ -343,7 +349,16 @@
             putErrorMessageOnStatusDialog(msg);
             return;
         }
-        console.log("success: parsePostActionResult");
+
+        if (data.id == undefined) {
+            msg = "The returned content is malformed: " +
+                  "'result' is true, however, 'id' is missing.\n" +
+                  JSON.stringify(data);
+            putErrorMessageOnStatusDialog(msg);
+            return;
+        }
+        // TODO: we have to close dialog and reload actions.
+        console.log("success: ID: " + data.id);
     }
 
     //
