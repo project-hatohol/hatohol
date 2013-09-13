@@ -364,9 +364,9 @@
       })
     }
 
-    function putErrorMessageOnStatusDialog(msg) {
+    function putOnStatusDialog(msg, title) {
       $("#add-status").text(msg);
-      $("#add-status-dialog").dialog("option", "title", "ERROR");
+      $("#add-status-dialog").dialog("option", "title", title);
       $("#add-status-dialog").dialog("option", "buttons",
         { "CLOSE":
           function() {
@@ -376,16 +376,12 @@
       );
     }
 
+    function putErrorMessageOnStatusDialog(msg) {
+      putOnStatusDialog(msg, "ERROR");
+    }
+
     function putMessageOnStatusDialog(msg) {
-      $("#add-status").text(msg);
-      $("#add-status-dialog").dialog("option", "title", "Message");
-      $("#add-status-dialog").dialog("option", "buttons",
-        { "CLOSE":
-          function() {
-           $("#add-status-dialog").dialog("close");
-          }
-        }
-      );
+      putOnStatusDialog(msg, "Message");
     }
 
     function parsePostActionResult(data) {
