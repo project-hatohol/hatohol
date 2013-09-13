@@ -22,7 +22,6 @@ from django.http import HttpResponse
 def jsonforward(request, path, **kwargs):
     server  = kwargs['server']
     url     = 'http://%s/%s' % (server, path)
-    #content = None
     if request.method == "POST":
       content = urllib2.urlopen(url, urllib.urlencode(request.REQUEST))
     else:
