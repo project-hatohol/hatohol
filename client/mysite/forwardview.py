@@ -23,6 +23,7 @@ def jsonforward(request, path, **kwargs):
     server  = kwargs['server']
     url     = 'http://%s/%s' % (server, path)
     if request.method == "POST":
+      print(request.REQUEST)
       content = urllib2.urlopen(url, urllib.urlencode(request.REQUEST))
     else:
       content = urllib2.urlopen(url)

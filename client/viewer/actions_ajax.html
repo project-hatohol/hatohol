@@ -194,6 +194,7 @@
         text: "ADD",
         click: function() {
           if (validateAddParameters()) {
+            makeQueryData();
             $("#add-status-dialog").dialog("open");
             postAddAction();
           }
@@ -246,6 +247,9 @@
 
     var rawData;
     var parsedData;
+    var queryData = {
+        csrfmiddlewaretoken: $("*[name=csrfmiddlewaretoken]").val(),
+    };
 
     $("#select-server").change(function() {
       chooseRow();
@@ -264,31 +268,54 @@
       return true;
     }
 
+    function makeQueryData() {
+        queryData.type = $("#selectType").val();
+        console.log("type: " + queryData.type);
+        queryData.timeout = $("inputTimeout").val();
+    }
+
     function postAddAction() {
       $.ajax({
         url: "/tunnel/actions.json",
         type: "POST",
-        data: {
-          csrfmiddlewaretoken: $("*[name=csrfmiddlewaretoken]").val(),
-          abc: "x"
-        },
+        data: queryData,
         success: function(data) {
-          console.log(data);
+          parsePostActionResult(data);
         },
         error: function(XMLHttpRequest, textStatus, errorThrown) {
           var errorMsg = "Error: " + XMLHttpRequest.status + ": " +
                          XMLHttpRequest.statusText;
-          $("#add-status").text(errorMsg);
-          $("#add-status-dialog").dialog("option", "title", "ERROR");
-          $("#add-status-dialog").dialog("option", "buttons",
-            { "CLOSE":
-              function() {
-               $("#add-status-dialog").dialog("close");
-              }
-            }
-          );
+          putErrorMessageOnStatusDialog(errorMsg);
         }
       })
+    }
+
+    function putErrorMessageOnStatusDialog(msg) {
+      $("#add-status").text(msg);
+      $("#add-status-dialog").dialog("option", "title", "ERROR");
+      $("#add-status-dialog").dialog("option", "buttons",
+        { "CLOSE":
+          function() {
+           $("#add-status-dialog").dialog("close");
+          }
+        }
+      );
+    }
+
+    function parsePostActionResult(data) {
+        var msg;
+        if (data.result == undefined || data.message == undefined) {
+            msg = "The returned content is malformed: "
+                  "Not found 'result' or 'message'.\n" + data;
+            putErrorMessageOnStatusDialog(msg);
+            return;
+        }
+        if (!data.result) {
+            msg = "Failed:\n" + data.message
+            putErrorMessageOnStatusDialog(msg);
+            return;
+        }
+        console.log("success: parsePostActionResult");
     }
 
     function makeNamelessServerLabel(serverId) {
