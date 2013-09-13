@@ -179,7 +179,6 @@
     var parsedData;
     var queryData = {
         csrfmiddlewaretoken: $("*[name=csrfmiddlewaretoken]").val(),
-        type: ACTION_COMMAND,
     };
 
     //
@@ -296,6 +295,19 @@
       return true;
     }
 
+    function getCommandType() {
+      var type = $("#selectType").val();
+      switch(type) {
+      case "ACTION_COMMAND":
+        return ACTION_COMMAND;
+      case "ACTION_RESIDENT":
+        return ACTION_RESIDENT;
+      default:
+        alert("Unknown command type: " + type);
+      }
+      return undefined;
+    }
+
     function getSeverityValue() {
       var severity = $("#selectTriggerSeverity").val();
       switch(severity) {
@@ -327,9 +339,9 @@
     }
 
     function makeQueryData() {
+        queryData.type = getCommandType();
         queryData.timeout = $("#inputTimeout").val();
         queryData.command = $("#inputActionCommand").val();
-        // queryData.type is changed in $("#selectType").change
         queryData.triggerSeverity = getSeverityValue();
         queryData.triggerSeverityCompType = getSeverityCompTypeValue();
     }
