@@ -202,6 +202,29 @@ void test_deleteAction(void)
 	assertDBContent(dbAction.getDBAgent(), statement, expect);
 }
 
+void test_deleteActionMultiple(void)
+{
+	DBClientAction dbAction;
+	test_addAction(); // add all test actions
+
+	// we delete items with even IDs.
+	string expect;
+	ActionIdList idList;
+	for (size_t i = 0; i < NumTestActionDef; i++) {
+		const int expectedId = i + 1;
+		if (expectedId % 2 == 0)
+			idList.push_back(expectedId);
+		else
+			expect += StringUtils::sprintf("%d\n", expectedId);
+	}
+	dbAction.deleteActions(idList);
+
+	// check
+	string statement = "select action_id from ";
+	statement += DBClientAction::getTableNameActions();
+	assertDBContent(dbAction.getDBAgent(), statement, expect);
+}
+
 void test_startExecAction(void)
 {
 	string expect;
