@@ -235,6 +235,12 @@ void UnifiedDataStore::getActionList(ActionDefList &actionList)
 	dbAction.getActionList(actionList);
 }
 
+void UnifiedDataStore::deleteActionList(const ActionIdList &actionIdList)
+{
+	DBClientAction dbAction;
+	dbAction.deleteActions(actionIdList);
+}
+
 size_t UnifiedDataStore::getNumberOfTriggers(uint32_t serverId,
                                           uint64_t hostGroupId,
                                           TriggerSeverityType severity)

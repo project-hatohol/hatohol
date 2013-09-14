@@ -861,10 +861,29 @@ void FaceRest::handlerDeleteActions
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	GHashTable *query = soup_form_decode(msg->request_body->data);
 	string jsonpCallbackName = getJsonpCallbackName(query, arg);
-	string errmsg = StringUtils::sprintf(
-	  "Not implemented: %s, dataStore: %p\n",
-	  __PRETTY_FUNCTION__, dataStore);
-	replyError(msg, errmsg.c_str(), jsonpCallbackName);
+	if (arg->id.empty()) {
+		replyError(msg, "ID is missing.\n", jsonpCallbackName);
+		return;
+	}
+	int actionId;
+	if (sscanf(arg->id.c_str(), "%d", &actionId) != 1) {
+		string errmsg =
+		   StringUtils::sprintf("Invalid ID: %s", arg->id.c_str());
+		replyError(msg, errmsg, jsonpCallbackName);
+		return;
+	}
+	ActionIdList actionIdList;
+	actionIdList.push_back(actionId);
+	dataStore->deleteActionList(actionIdList);
+
+	// replay
+	JsonBuilderAgent agent;
+	agent.startObject();
+	agent.add("apiVersion", API_VERSION_ACTIONS);
+	agent.addTrue("result");
+	agent.add("id", arg->id);
+	agent.endObject();
+	replyJsonData(agent, msg, jsonpCallbackName, arg);
 }
 
 // ---------------------------------------------------------------------------
