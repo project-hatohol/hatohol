@@ -177,6 +177,31 @@ void test_addAction(void)
 	}
 }
 
+void test_deleteAction(void)
+{
+	DBClientAction dbAction;
+	test_addAction(); // add all test actions
+
+	// we delete 2nd one
+	size_t targetIdx = 1;
+	ActionIdList idList;
+	idList.push_back(testActionDef[targetIdx].id);
+	dbAction.deleteActions(idList);
+
+	// check
+	string expect;
+	for (size_t i = 0; i < NumTestActionDef; i++) {
+		if (i == targetIdx)
+			continue;
+		const int expectedId = i + 1;
+		expect += StringUtils::sprintf("%d\n", expectedId);
+	}
+
+	string statement = "select action_id from ";
+	statement += DBClientAction::getTableNameActions();
+	assertDBContent(dbAction.getDBAgent(), statement, expect);
+}
+
 void test_startExecAction(void)
 {
 	string expect;

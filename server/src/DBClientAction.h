@@ -121,6 +121,10 @@ typedef list<ActionDef>               ActionDefList;
 typedef ActionDefList::iterator       ActionDefListIterator;
 typedef ActionDefList::const_iterator ActionDefListConstIterator;
 
+typedef list<int>                     ActionIdList;
+typedef ActionIdList::iterator        ActionIdListIterator;
+typedef ActionIdList::const_iterator  ActionIdListConstIterator;
+
 enum {
 	ACTLOG_FLAG_QUEUING_TIME = (1 << 0),
 	ACTLOG_FLAG_START_TIME   = (1 << 1),
@@ -227,6 +231,7 @@ public:
 	void addAction(ActionDef &actionDef);
 	void getActionList(ActionDefList &actionDefList,
 	                   const EventInfo *eventInfo = NULL);
+	void deleteActions(const ActionIdList &idList);
 
 	/**
 	 * make an action log.
