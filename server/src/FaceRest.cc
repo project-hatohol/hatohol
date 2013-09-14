@@ -844,7 +844,6 @@ void FaceRest::handlerPostAction
 	dataStore->addAction(actionDef);
 
 	// make a response
-	MLPL_BUG("Not implemented: %s, %p\n", __PRETTY_FUNCTION__, dataStore);
 	JsonBuilderAgent agent;
 	agent.startObject();
 	agent.add("apiVersion", API_VERSION_ACTIONS);
