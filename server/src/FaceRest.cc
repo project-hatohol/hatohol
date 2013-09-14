@@ -66,6 +66,7 @@ struct FaceRest::HandlerArg
 {
 	FormatType formatType;
 	const char *mimeType;
+	string      id;
 };
 
 typedef map<string, FormatType> FormatTypeMap;
@@ -264,8 +265,15 @@ void FaceRest::launchHandlerInTryBlock
 
 	HandlerArg arg;
 
+	// NOTE: This is a tentative.
+	// The format will be specified by a query paramter.
 	// format
 	string extension = Utils::getExtension(path);
+	size_t posSlash = extension.find("/");
+	if (posSlash != string::npos) {
+		arg.id = string(extension, posSlash + 1);
+		extension = string(extension, 0, posSlash);
+	}
 	FormatTypeMapIterator fmtIt = g_formatTypeMap.find(extension);
 	if (fmtIt == g_formatTypeMap.end()) {
 		string errMsg = StringUtils::sprintf(
@@ -628,6 +636,8 @@ void FaceRest::handlerActions
 		handlerGetActions(server, msg, path, query, client, arg);
 	} else if (strcasecmp(msg->method, "POST") == 0) {
 		handlerPostAction(server, msg, path, query, client, arg);
+	} else if (strcasecmp(msg->method, "DELETE") == 0) {
+		handlerDeleteActions(server, msg, path, query, client, arg);
 	} else {
 		MLPL_ERR("Unknown method: %s\n", msg->method);
 		soup_message_set_status(msg, SOUP_STATUS_METHOD_NOT_ALLOWED);
@@ -842,6 +852,19 @@ void FaceRest::handlerPostAction
 	agent.add("id", actionDef.id);
 	agent.endObject();
 	replyJsonData(agent, msg, jsonpCallbackName, arg);
+}
+
+void FaceRest::handlerDeleteActions
+  (SoupServer *server, SoupMessage *msg, const char *path,
+   GHashTable *_query, SoupClientContext *client, HandlerArg *arg)
+{
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+	GHashTable *query = soup_form_decode(msg->request_body->data);
+	string jsonpCallbackName = getJsonpCallbackName(query, arg);
+	string errmsg = StringUtils::sprintf(
+	  "Not implemented: %s, dataStore: %p\n",
+	  __PRETTY_FUNCTION__, dataStore);
+	replyError(msg, errmsg.c_str(), jsonpCallbackName);
 }
 
 // ---------------------------------------------------------------------------

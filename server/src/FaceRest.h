@@ -91,6 +91,9 @@ protected:
 	static void handlerPostAction
 	  (SoupServer *server, SoupMessage *msg, const char *path,
 	   GHashTable *query, SoupClientContext *client, HandlerArg *arg);
+	static void handlerDeleteActions
+	  (SoupServer *server, SoupMessage *msg, const char *path,
+	   GHashTable *query, SoupClientContext *client, HandlerArg *arg);
 
 private:
 	// The body is defined in the FaceRest.cc. So this function can
