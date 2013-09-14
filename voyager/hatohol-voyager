@@ -49,6 +49,8 @@ def print_usage():
   print "        COMPARATOR       : -eq or -ge"
   print "        TRIGGER_SEVERITY : info, warn, or critical"
   print ""
+  print "  del-actions actionID"
+  print ""
 
 def parse_server_option(argv):
   if "--server" not in argv:
@@ -99,12 +101,24 @@ def add_actions(url, options):
   action_creator = HatoholActionCreator.HatoholActionCreator(url)
   action_creator.add(options)
 
+def del_action(url, options):
+  if len(options) == 0:
+    print "Need actoin ID. "
+    sys.exit(-1)
+  action_id = options[0]
+  req = urllib2.Request(url + "/actions.json/" + action_id)
+  req.get_method = lambda: 'DELETE'
+  response = urllib2.urlopen(req)
+  result_json = response.read()
+  print result_json
+
 command_map = {
   "show-events":show_events,
   "show-triggers":show_triggers,
   "show-items":show_items,
   "show-actions":show_actions,
   "add-action":add_actions,
+  "del-action":del_action,
 }
 
 #
