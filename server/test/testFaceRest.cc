@@ -56,12 +56,9 @@ static void startFaceRest(void)
 	g_faceRest->start();
 }
 
-static JsonParserAgent *getResponseAsJsonParser(
-  const string &url, const string &callbackName = "",
-  const StringMap &parameters = emptyStringMap,
-  bool post = false)
+static string makeQueryString(const StringMap &parameters,
+                              const string &callbackName)
 {
-	// make encoded query parameters
 	GHashTable *hashTable = g_hash_table_new(g_str_hash, g_str_equal);
 	cppcut_assert_not_null(hashTable);
 	StringMapConstIterator it = parameters.begin();
@@ -77,26 +74,49 @@ static JsonParserAgent *getResponseAsJsonParser(
 	}
 
 	char *encoded = soup_form_encode_hash(hashTable);
-	string joinedQueryParams = encoded;
+	string queryString = encoded;
 	g_free(encoded);
 	g_hash_table_unref(hashTable);
-	
+	return queryString;
+}
+
+static string makeQueryStringForCurlPost(const StringMap &parameters,
+                                         const string &callbackName)
+{
 	string postDataArg;
-	if (post) {
-		postDataArg = "--post-data '";
-		postDataArg += joinedQueryParams;
-		postDataArg += "'";
-		joinedQueryParams.clear();
+	StringVector queryVect;
+	string joinedString = makeQueryString(parameters, callbackName);
+	StringUtils::split(queryVect, joinedString, '&');
+	for (size_t i = 0; i < queryVect.size(); i++) {
+		postDataArg += " -d ";
+		postDataArg += queryVect[i];
 	}
-	if (!joinedQueryParams.empty())
-		joinedQueryParams = "?" + joinedQueryParams;
+	return postDataArg;
+}
+
+static JsonParserAgent *getResponseAsJsonParser(
+  const string &url, const string &callbackName = "",
+  const StringMap &parameters = emptyStringMap,
+  const string &request = "GET")
+{
+	// make encoded query parameters
+	string joinedQueryParams;
+	string postDataArg;
+	if (request == "POST") {
+		postDataArg =
+		   makeQueryStringForCurlPost(parameters, callbackName);
+	} else {
+		joinedQueryParams = makeQueryString(parameters, callbackName);
+		if (!joinedQueryParams.empty())
+			joinedQueryParams = "?" + joinedQueryParams;
+	}
 
 	// get reply with wget
 	string getCmd =
-	  StringUtils::sprintf("wget http://localhost:%u%s%s %s -O -",
+	  StringUtils::sprintf("curl -X %s %s http://localhost:%u%s%s",
+	                       request.c_str(), postDataArg.c_str(),
 	                       TEST_PORT, url.c_str(),
-	                       joinedQueryParams.c_str(),
-	                       postDataArg.c_str());
+	                       joinedQueryParams.c_str());
 	string response = executeCommand(getCmd);
 
 	// if JSONP, check the callback name
@@ -421,10 +441,9 @@ static void _assertActions(const string &path, const string &callbackName = "")
 
 void _assertAddAction(const StringMap &params)
 {
-	bool post = true;
 	startFaceRest();
 	g_parser = getResponseAsJsonParser("/actions.jsonp", "foo",
-	                                   params, post);
+	                                   params, "POST");
 	assertValueInParser(g_parser, "result", true);
 	assertValueInParser(g_parser, "apiVersion",
 	                    (uint32_t)FaceRest::API_VERSION_ACTIONS);
@@ -437,10 +456,9 @@ void _assertAddAction(const StringMap &params)
 
 void _assertAddActionError(const StringMap &params)
 {
-	bool post = true;
 	startFaceRest();
 	g_parser = getResponseAsJsonParser("/actions.jsonp", "foo",
-	                                   params, post);
+	                                   params, "POST");
 	assertValueInParser(g_parser, "result", false);
 }
 #define assertAddActionError(P) cut_trace(_assertAddActionError(P))
