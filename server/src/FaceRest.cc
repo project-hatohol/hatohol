@@ -56,6 +56,13 @@ static const char *MIME_HTML = "text/html";
 static const char *MIME_JSON = "application/json";
 static const char *MIME_JAVASCRIPT = "text/javascript";
 
+#define REPLY_ERROR(MSG, ARG, ERR_MSG_FMT, ...) \
+do { \
+	string errMsg = StringUtils::sprintf(ERR_MSG_FMT, ##__VA_ARGS__); \
+	MLPL_ERR("%s", errMsg.c_str()); \
+	replyError(MSG, ARG, errMsg); \
+} while (0)
+
 enum FormatType {
 	FORMAT_HTML,
 	FORMAT_JSON,
@@ -189,19 +196,17 @@ size_t FaceRest::parseCmdArgPort(CommandLineArg &cmdArg, size_t idx)
 	return idx;
 }
 
-void FaceRest::replyError(SoupMessage *msg, const string &errorMessage,
-                          const string &jsonpCallbackName)
+void FaceRest::replyError(SoupMessage *msg, const HandlerArg *arg,
+                          const string &errorMessage)
 {
-	MLPL_ERR("%s", errorMessage.c_str());
-
 	JsonBuilderAgent agent;
 	agent.startObject();
 	agent.addFalse("result");
 	agent.add("message", errorMessage.c_str());
 	agent.endObject();
 	string response = agent.generate();
-	if (!jsonpCallbackName.empty())
-		response = wrapForJsonp(response, jsonpCallbackName);
+	if (!arg->jsonpCallbackName.empty())
+		response = wrapForJsonp(response, arg->jsonpCallbackName);
 	soup_message_headers_set_content_type(msg->response_headers,
 	                                      MIME_JSON, NULL);
 	soup_message_body_append(msg->response_body, SOUP_MEMORY_COPY,
@@ -308,10 +313,9 @@ void FaceRest::launchHandlerInTryBlock
 
 	// a format type
 	if (!parseFormatType(query, arg)) {
-		string errMsg = StringUtils::sprintf(
+		REPLY_ERROR(msg, &arg, 
 		  "Unsupported format type: %s, path: %s\n",
 		  arg.formatString.c_str(), path);
-		replyError(msg, errMsg);
 		return;
 	}
 
@@ -334,7 +338,7 @@ void FaceRest::launchHandlerInTryBlock
 	try {
 		(*handler)(server, msg, path, query, client, &arg);
 	} catch (const HatoholException &e) {
-		replyError(msg, e.getFancyMessage());
+		REPLY_ERROR(msg, &arg, "%s", e.getFancyMessage().c_str());
 	}
 }
 
@@ -745,28 +749,26 @@ void FaceRest::handlerPostAction
 
 	// action type
 	succeeded = getParamWithErrorReply<int>(
-	              query, msg, arg->jsonpCallbackName,
+	              query, msg, arg,
 	              "type", "%d", (int &)actionDef.type, &exist);
 	if (!succeeded)
 		return;
 	if (!exist) {
-		string errMsg = "action type is not specified.\n";
-		replyError(msg, errMsg, arg->jsonpCallbackName);
+		REPLY_ERROR(msg, arg, "action type is not specified.\n");
 		return;
 	}
 	if (!(actionDef.type == ACTION_COMMAND ||
 	      actionDef.type == ACTION_RESIDENT)) {
-		string errMsg = StringUtils::sprintf(
-		  "Unknown action type: %d\n", actionDef.type);
-		replyError(msg, errMsg, arg->jsonpCallbackName);
+		REPLY_ERROR(msg, arg,
+		            "Unknown action type: %d\n", actionDef.type);
 		return;
 	}
 
 	// command
 	value = (char *)g_hash_table_lookup(query, "command");
 	if (!value) {
-		string errMsg = "An action command is not specified.\n";
-		replyError(msg, errMsg, arg->jsonpCallbackName);
+		REPLY_ERROR(msg, arg,
+		            "An action command is not specified.\n");
 		return;
 	}
 	actionDef.command = value;
@@ -784,7 +786,7 @@ void FaceRest::handlerPostAction
 
 	// timeout
 	succeeded = getParamWithErrorReply<int>(
-	              query, msg, arg->jsonpCallbackName,
+	              query, msg, arg,
 	              "timeout", "%d", actionDef.timeout, &exist);
 	if (!succeeded)
 		return;
@@ -793,7 +795,7 @@ void FaceRest::handlerPostAction
 
 	// serverId
 	succeeded = getParamWithErrorReply<int>(
-	              query, msg, arg->jsonpCallbackName,
+	              query, msg, arg,
 	              "serverId", "%d", cond.serverId, &exist);
 	if (!succeeded)
 		return;
@@ -802,7 +804,7 @@ void FaceRest::handlerPostAction
 
 	// hostId
 	succeeded = getParamWithErrorReply<uint64_t>(
-	              query, msg, arg->jsonpCallbackName,
+	              query, msg, arg,
 	              "hostId", "%"PRIu64, cond.hostId, &exist);
 	if (!succeeded)
 		return;
@@ -811,7 +813,7 @@ void FaceRest::handlerPostAction
 
 	// hostGroupId
 	succeeded = getParamWithErrorReply<uint64_t>(
-	              query, msg, arg->jsonpCallbackName,
+	              query, msg, arg,
 	              "hostGroupId", "%"PRIu64, cond.hostGroupId, &exist);
 	if (!succeeded)
 		return;
@@ -820,7 +822,7 @@ void FaceRest::handlerPostAction
 
 	// triggerId
 	succeeded = getParamWithErrorReply<uint64_t>(
-	              query, msg, arg->jsonpCallbackName,
+	              query, msg, arg,
 	              "triggerId", "%"PRIu64, cond.triggerId, &exist);
 	if (!succeeded)
 		return;
@@ -829,7 +831,7 @@ void FaceRest::handlerPostAction
 
 	// triggerStatus
 	succeeded = getParamWithErrorReply<int>(
-	              query, msg, arg->jsonpCallbackName,
+	              query, msg, arg,
 	              "triggerStatus", "%d", cond.triggerStatus, &exist);
 	if (!succeeded)
 		return;
@@ -838,7 +840,7 @@ void FaceRest::handlerPostAction
 
 	// triggerSeverity
 	succeeded = getParamWithErrorReply<int>(
-	              query, msg, arg->jsonpCallbackName,
+	              query, msg, arg,
 	              "triggerSeverity", "%d", cond.triggerSeverity, &exist);
 	if (!succeeded)
 		return;
@@ -847,23 +849,21 @@ void FaceRest::handlerPostAction
 
 		// triggerSeverityComparatorType
 		succeeded = getParamWithErrorReply<int>(
-		              query, msg, arg->jsonpCallbackName,
+		              query, msg, arg,
 		              "triggerSeverityCompType", "%d",
 		              (int &)cond.triggerSeverityCompType, &exist);
 		if (!succeeded)
 			return;
 		if (!exist) {
-			string errMsg =
-			   "triggerSeverityCompType is not specified.\n";
-			replyError(msg, errMsg, arg->jsonpCallbackName);
+			REPLY_ERROR(msg, arg,
+			  "triggerSeverityCompType is not specified.\n");
 			return;
 		}
 		if (!(cond.triggerSeverityCompType == CMP_EQ ||
 		      cond.triggerSeverityCompType == CMP_EQ_GT)) {
-			string errMsg = StringUtils::sprintf(
-			  "Unknown comparator type: %d\n",
-			  cond.triggerSeverityCompType);
-			replyError(msg, errMsg, arg->jsonpCallbackName);
+			REPLY_ERROR(msg, arg,
+			            "Unknown comparator type: %d\n",
+			            cond.triggerSeverityCompType);
 			return;
 		}
 	}
@@ -887,14 +887,12 @@ void FaceRest::handlerDeleteAction
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	if (arg->id.empty()) {
-		replyError(msg, "ID is missing.\n", arg->jsonpCallbackName);
+		REPLY_ERROR(msg, arg, "ID is missing.\n");
 		return;
 	}
 	int actionId;
 	if (sscanf(arg->id.c_str(), "%d", &actionId) != 1) {
-		string errmsg =
-		   StringUtils::sprintf("Invalid ID: %s", arg->id.c_str());
-		replyError(msg, errmsg, arg->jsonpCallbackName);
+		REPLY_ERROR(msg, arg, "Invalid ID: %s", arg->id.c_str());
 		return;
 	}
 	ActionIdList actionIdList;
@@ -916,7 +914,7 @@ void FaceRest::handlerDeleteAction
 // ---------------------------------------------------------------------------
 template<typename T>
 bool FaceRest::getParamWithErrorReply(
-  GHashTable *query, SoupMessage *msg, const string &jsonpCallbackName,
+  GHashTable *query, SoupMessage *msg, const HandlerArg *arg,
   const char *paramName, const char *scanFmt, T &dest, bool *exist)
 {
 	char *value = (char *)g_hash_table_lookup(query, paramName);
@@ -926,9 +924,7 @@ bool FaceRest::getParamWithErrorReply(
 		return true;
 
 	if (sscanf(value, scanFmt, &dest) != 1) {
-		string errMsg = StringUtils::sprintf(
-		  "Invalid %s: %s\n", paramName, value);
-		replyError(msg, errMsg, jsonpCallbackName);
+		REPLY_ERROR(msg, arg, "Invalid %s: %s\n", paramName, value);
 		return false;
 	}
 	return true;

@@ -45,8 +45,8 @@ protected:
 
 	// generic sub routines
 	size_t parseCmdArgPort(CommandLineArg &cmdArg, size_t idx);
-	static void replyError(SoupMessage *msg, const string &errorMessage,
-	                       const string &jsonCallbackName = "");
+	static void replyError(SoupMessage *msg, const HandlerArg *arg,
+	                       const string &errorMessage);
 	static string getJsonpCallbackName(GHashTable *query, HandlerArg *arg);
 	static string wrapForJsonp(const string &jsonBody,
                                    const string &callbackName);
@@ -101,7 +101,7 @@ private:
 	// be used only from the soruce file.
 	template<typename T>
 	static bool getParamWithErrorReply(
-	  GHashTable *query, SoupMessage *msg, const string &jsonpCallbackName,
+	  GHashTable *query, SoupMessage *msg, const HandlerArg *arg,
 	  const char *paramName, const char *scanFmt, T &dest, bool *exist);
 
 	static const char *pathForGetOverview;
