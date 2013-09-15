@@ -68,6 +68,7 @@ struct FaceRest::HandlerArg
 	FormatType formatType;
 	const char *mimeType;
 	string      id;
+	string      jsonpCallbackName;
 };
 
 typedef map<string, FormatType> FormatTypeMap;
@@ -327,6 +328,9 @@ void FaceRest::launchHandlerInTryBlock
 	  "Invalid formatType: %d, %s", arg.formatType, path);
 	arg.mimeType = mimeIt->second;
 
+	// jsonp callback name
+	arg.jsonpCallbackName = getJsonpCallbackName(query, &arg);
+
 	try {
 		(*handler)(server, msg, path, query, client, &arg);
 	} catch (const HatoholException &e) {
@@ -508,8 +512,6 @@ void FaceRest::handlerGetOverview
   (SoupServer *server, SoupMessage *msg, const char *path,
    GHashTable *query, SoupClientContext *client, HandlerArg *arg)
 {
-	string jsonpCallbackName = getJsonpCallbackName(query, arg);
-
 	JsonBuilderAgent agent;
 	agent.startObject();
 	agent.add("apiVersion", API_VERSION_SERVER);
@@ -517,15 +519,13 @@ void FaceRest::handlerGetOverview
 	addOverview(agent);
 	agent.endObject();
 
-	replyJsonData(agent, msg, jsonpCallbackName, arg);
+	replyJsonData(agent, msg, arg->jsonpCallbackName, arg);
 }
 
 void FaceRest::handlerGetServer
   (SoupServer *server, SoupMessage *msg, const char *path,
    GHashTable *query, SoupClientContext *client, HandlerArg *arg)
 {
-	string jsonpCallbackName = getJsonpCallbackName(query, arg);
-
 	JsonBuilderAgent agent;
 	agent.startObject();
 	agent.add("apiVersion", API_VERSION_SERVER);
@@ -533,7 +533,7 @@ void FaceRest::handlerGetServer
 	addServers(agent);
 	agent.endObject();
 
-	replyJsonData(agent, msg, jsonpCallbackName, arg);
+	replyJsonData(agent, msg, arg->jsonpCallbackName, arg);
 }
 
 void FaceRest::handlerGetTrigger
@@ -541,8 +541,6 @@ void FaceRest::handlerGetTrigger
    GHashTable *query, SoupClientContext *client, HandlerArg *arg)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-	string jsonpCallbackName = getJsonpCallbackName(query, arg);
-
 	TriggerInfoList triggerList;
 	dataStore->getTriggerList(triggerList);
 
@@ -572,7 +570,7 @@ void FaceRest::handlerGetTrigger
 	addServersIdNameHash(agent, &hostMaps);
 	agent.endObject();
 
-	replyJsonData(agent, msg, jsonpCallbackName, arg);
+	replyJsonData(agent, msg, arg->jsonpCallbackName, arg);
 }
 
 void FaceRest::handlerGetEvent
@@ -580,7 +578,6 @@ void FaceRest::handlerGetEvent
    GHashTable *query, SoupClientContext *client, HandlerArg *arg)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-	string jsonpCallbackName = getJsonpCallbackName(query, arg);
 
 	EventInfoList eventList;
 	dataStore->getEventList(eventList);
@@ -613,7 +610,7 @@ void FaceRest::handlerGetEvent
 	addServersIdNameHash(agent, &hostMaps);
 	agent.endObject();
 
-	replyJsonData(agent, msg, jsonpCallbackName, arg);
+	replyJsonData(agent, msg, arg->jsonpCallbackName, arg);
 }
 
 void FaceRest::handlerGetItem
@@ -621,7 +618,6 @@ void FaceRest::handlerGetItem
    GHashTable *query, SoupClientContext *client, HandlerArg *arg)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-	string jsonpCallbackName = getJsonpCallbackName(query, arg);
 
 	ItemInfoList itemList;
 	dataStore->getItemList(itemList);
@@ -649,7 +645,7 @@ void FaceRest::handlerGetItem
 	addServersIdNameHash(agent);
 	agent.endObject();
 
-	replyJsonData(agent, msg, jsonpCallbackName, arg);
+	replyJsonData(agent, msg, arg->jsonpCallbackName, arg);
 }
 
 template <typename T>
@@ -685,7 +681,6 @@ void FaceRest::handlerGetAction
    GHashTable *query, SoupClientContext *client, HandlerArg *arg)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-	string jsonpCallbackName = getJsonpCallbackName(query, arg);
 
 	ActionDefList actionList;
 	dataStore->getActionList(actionList);
@@ -731,7 +726,7 @@ void FaceRest::handlerGetAction
 	addServersIdNameHash(agent);
 	agent.endObject();
 
-	replyJsonData(agent, msg, jsonpCallbackName, arg);
+	replyJsonData(agent, msg, arg->jsonpCallbackName, arg);
 }
 
 void FaceRest::handlerPostAction
@@ -739,7 +734,6 @@ void FaceRest::handlerPostAction
    GHashTable *query, SoupClientContext *client, HandlerArg *arg)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-	string jsonpCallbackName = getJsonpCallbackName(query, arg);
 
 	//
 	// mandatory parameters
@@ -751,20 +745,20 @@ void FaceRest::handlerPostAction
 
 	// action type
 	succeeded = getParamWithErrorReply<int>(
-	              query, msg, jsonpCallbackName,
+	              query, msg, arg->jsonpCallbackName,
 	              "type", "%d", (int &)actionDef.type, &exist);
 	if (!succeeded)
 		return;
 	if (!exist) {
 		string errMsg = "action type is not specified.\n";
-		replyError(msg, errMsg, jsonpCallbackName);
+		replyError(msg, errMsg, arg->jsonpCallbackName);
 		return;
 	}
 	if (!(actionDef.type == ACTION_COMMAND ||
 	      actionDef.type == ACTION_RESIDENT)) {
 		string errMsg = StringUtils::sprintf(
 		  "Unknown action type: %d\n", actionDef.type);
-		replyError(msg, errMsg, jsonpCallbackName);
+		replyError(msg, errMsg, arg->jsonpCallbackName);
 		return;
 	}
 
@@ -772,7 +766,7 @@ void FaceRest::handlerPostAction
 	value = (char *)g_hash_table_lookup(query, "command");
 	if (!value) {
 		string errMsg = "An action command is not specified.\n";
-		replyError(msg, errMsg, jsonpCallbackName);
+		replyError(msg, errMsg, arg->jsonpCallbackName);
 		return;
 	}
 	actionDef.command = value;
@@ -790,7 +784,7 @@ void FaceRest::handlerPostAction
 
 	// timeout
 	succeeded = getParamWithErrorReply<int>(
-	              query, msg, jsonpCallbackName,
+	              query, msg, arg->jsonpCallbackName,
 	              "timeout", "%d", actionDef.timeout, &exist);
 	if (!succeeded)
 		return;
@@ -799,7 +793,7 @@ void FaceRest::handlerPostAction
 
 	// serverId
 	succeeded = getParamWithErrorReply<int>(
-	              query, msg, jsonpCallbackName,
+	              query, msg, arg->jsonpCallbackName,
 	              "serverId", "%d", cond.serverId, &exist);
 	if (!succeeded)
 		return;
@@ -808,7 +802,7 @@ void FaceRest::handlerPostAction
 
 	// hostId
 	succeeded = getParamWithErrorReply<uint64_t>(
-	              query, msg, jsonpCallbackName,
+	              query, msg, arg->jsonpCallbackName,
 	              "hostId", "%"PRIu64, cond.hostId, &exist);
 	if (!succeeded)
 		return;
@@ -817,7 +811,7 @@ void FaceRest::handlerPostAction
 
 	// hostGroupId
 	succeeded = getParamWithErrorReply<uint64_t>(
-	              query, msg, jsonpCallbackName,
+	              query, msg, arg->jsonpCallbackName,
 	              "hostGroupId", "%"PRIu64, cond.hostGroupId, &exist);
 	if (!succeeded)
 		return;
@@ -826,7 +820,7 @@ void FaceRest::handlerPostAction
 
 	// triggerId
 	succeeded = getParamWithErrorReply<uint64_t>(
-	              query, msg, jsonpCallbackName,
+	              query, msg, arg->jsonpCallbackName,
 	              "triggerId", "%"PRIu64, cond.triggerId, &exist);
 	if (!succeeded)
 		return;
@@ -835,7 +829,7 @@ void FaceRest::handlerPostAction
 
 	// triggerStatus
 	succeeded = getParamWithErrorReply<int>(
-	              query, msg, jsonpCallbackName,
+	              query, msg, arg->jsonpCallbackName,
 	              "triggerStatus", "%d", cond.triggerStatus, &exist);
 	if (!succeeded)
 		return;
@@ -844,7 +838,7 @@ void FaceRest::handlerPostAction
 
 	// triggerSeverity
 	succeeded = getParamWithErrorReply<int>(
-	              query, msg, jsonpCallbackName,
+	              query, msg, arg->jsonpCallbackName,
 	              "triggerSeverity", "%d", cond.triggerSeverity, &exist);
 	if (!succeeded)
 		return;
@@ -853,7 +847,7 @@ void FaceRest::handlerPostAction
 
 		// triggerSeverityComparatorType
 		succeeded = getParamWithErrorReply<int>(
-		              query, msg, jsonpCallbackName,
+		              query, msg, arg->jsonpCallbackName,
 		              "triggerSeverityCompType", "%d",
 		              (int &)cond.triggerSeverityCompType, &exist);
 		if (!succeeded)
@@ -861,7 +855,7 @@ void FaceRest::handlerPostAction
 		if (!exist) {
 			string errMsg =
 			   "triggerSeverityCompType is not specified.\n";
-			replyError(msg, errMsg, jsonpCallbackName);
+			replyError(msg, errMsg, arg->jsonpCallbackName);
 			return;
 		}
 		if (!(cond.triggerSeverityCompType == CMP_EQ ||
@@ -869,7 +863,7 @@ void FaceRest::handlerPostAction
 			string errMsg = StringUtils::sprintf(
 			  "Unknown comparator type: %d\n",
 			  cond.triggerSeverityCompType);
-			replyError(msg, errMsg, jsonpCallbackName);
+			replyError(msg, errMsg, arg->jsonpCallbackName);
 			return;
 		}
 	}
@@ -884,7 +878,7 @@ void FaceRest::handlerPostAction
 	agent.addTrue("result");
 	agent.add("id", actionDef.id);
 	agent.endObject();
-	replyJsonData(agent, msg, jsonpCallbackName, arg);
+	replyJsonData(agent, msg, arg->jsonpCallbackName, arg);
 }
 
 void FaceRest::handlerDeleteAction
@@ -892,16 +886,15 @@ void FaceRest::handlerDeleteAction
    GHashTable *query, SoupClientContext *client, HandlerArg *arg)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-	string jsonpCallbackName = getJsonpCallbackName(query, arg);
 	if (arg->id.empty()) {
-		replyError(msg, "ID is missing.\n", jsonpCallbackName);
+		replyError(msg, "ID is missing.\n", arg->jsonpCallbackName);
 		return;
 	}
 	int actionId;
 	if (sscanf(arg->id.c_str(), "%d", &actionId) != 1) {
 		string errmsg =
 		   StringUtils::sprintf("Invalid ID: %s", arg->id.c_str());
-		replyError(msg, errmsg, jsonpCallbackName);
+		replyError(msg, errmsg, arg->jsonpCallbackName);
 		return;
 	}
 	ActionIdList actionIdList;
@@ -915,7 +908,7 @@ void FaceRest::handlerDeleteAction
 	agent.addTrue("result");
 	agent.add("id", arg->id);
 	agent.endObject();
-	replyJsonData(agent, msg, jsonpCallbackName, arg);
+	replyJsonData(agent, msg, arg->jsonpCallbackName, arg);
 }
 
 // ---------------------------------------------------------------------------
