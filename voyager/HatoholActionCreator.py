@@ -122,7 +122,7 @@ class HatoholActionCreator:
       query["triggerSeverityCompType"] = str(severity_cmp_code)
 
     encoded_query = urllib.urlencode(query)
-    url = self._url + "/actions.json"
+    url = self._url + "/action"
     print "URL: " + url
     response = urllib2.urlopen(url, encoded_query)
     print response.read()
