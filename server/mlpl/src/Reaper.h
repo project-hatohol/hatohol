@@ -53,7 +53,7 @@ public:
 	bool set(T *obj, ReaperDestroyFunc destroyFunc)
 	{
 		if (m_obj || m_destroyFunc)
-			return true;
+			return false;
 		m_obj = obj;
 		m_destroyFunc = destroyFunc;
 		return true;

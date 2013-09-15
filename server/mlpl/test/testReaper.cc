@@ -98,4 +98,18 @@ void test_set(void)
 	cppcut_assert_equal(true, ctx.called);
 }
 
+void test_setDouble(void)
+{
+	TestContext ctx;
+	cppcut_assert_equal(false, ctx.called);
+	{
+		Reaper<TestContext> var;
+		cppcut_assert_equal(true,
+		                   var.set(&ctx, (ReaperDestroyFunc)destFunc));
+		cppcut_assert_equal(false,
+		                    var.set(&ctx, (ReaperDestroyFunc)destFunc));
+	}
+	cppcut_assert_equal(true, ctx.called);
+}
+
 } // namespace testReaper
