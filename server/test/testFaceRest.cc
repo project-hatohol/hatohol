@@ -470,6 +470,13 @@ static void setupPostAction(void)
 	setupTestDBAction(recreate, loadData);
 }
 
+static void setupActionDB(void)
+{
+	bool recreate = true;
+	bool loadData = true;
+	setupTestDBAction(recreate, loadData);
+}
+
 struct LocaleInfo {
 	string lcAll;
 	string lang;
@@ -738,6 +745,35 @@ void test_addActionInvalidType(void)
 	StringMap params;
 	params["type"] = StringUtils::sprintf("%d", ACTION_RESIDENT+1);
 	assertAddActionError(params);
+}
+
+void test_deleteAction(void)
+{
+	startFaceRest();
+	setupActionDB(); // make a test action DB.
+
+	int targetId = 2;
+	string url = StringUtils::sprintf("/actions.jsonp/%d", targetId);
+	g_parser =
+	  getResponseAsJsonParser(url, "cbname", emptyStringMap, "DELETE");
+
+	// check the response
+	assertValueInParser(g_parser, "result", true);
+	assertValueInParser(g_parser, "apiVersion",
+	                    (uint32_t)FaceRest::API_VERSION_ACTIONS);
+
+	// check DB
+	string expect;
+	for (size_t i = 0; i < NumTestActionDef; i++) {
+		const int expectedId = i + 1;
+		if (expectedId == targetId)
+			continue;
+		expect += StringUtils::sprintf("%d\n", expectedId);
+	}
+	string statement = "select action_id from ";
+	statement += DBClientAction::getTableNameActions();
+	DBClientAction dbAction;
+	assertDBContent(dbAction.getDBAgent(), statement, expect);
 }
 
 } // namespace testFaceRest

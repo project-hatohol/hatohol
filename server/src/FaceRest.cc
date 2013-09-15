@@ -855,10 +855,9 @@ void FaceRest::handlerPostAction
 
 void FaceRest::handlerDeleteActions
   (SoupServer *server, SoupMessage *msg, const char *path,
-   GHashTable *_query, SoupClientContext *client, HandlerArg *arg)
+   GHashTable *query, SoupClientContext *client, HandlerArg *arg)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-	GHashTable *query = soup_form_decode(msg->request_body->data);
 	string jsonpCallbackName = getJsonpCallbackName(query, arg);
 	if (arg->id.empty()) {
 		replyError(msg, "ID is missing.\n", jsonpCallbackName);
