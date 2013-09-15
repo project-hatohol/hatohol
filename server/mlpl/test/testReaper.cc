@@ -93,7 +93,7 @@ void test_set(void)
 	{
 		Reaper<TestContext> var;
 		cppcut_assert_equal(true,
-		                   var.set(&ctx, (ReaperDestroyFunc)destFunc));
+		                    var.set(&ctx, (ReaperDestroyFunc)destFunc));
 	}
 	cppcut_assert_equal(true, ctx.called);
 }
@@ -105,7 +105,7 @@ void test_setDouble(void)
 	{
 		Reaper<TestContext> var;
 		cppcut_assert_equal(true,
-		                   var.set(&ctx, (ReaperDestroyFunc)destFunc));
+		                    var.set(&ctx, (ReaperDestroyFunc)destFunc));
 		cppcut_assert_equal(false,
 		                    var.set(&ctx, (ReaperDestroyFunc)destFunc));
 	}
