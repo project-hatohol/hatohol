@@ -27,6 +27,12 @@ typedef void (*ReaperDestroyFunc)(void *obj);
 template<typename T>
 class Reaper {
 public:
+	Reaper(void)
+	: m_obj(NULL),
+	  m_destroyFunc(NULL)
+	{
+	}
+
 	Reaper(T *obj, ReaperDestroyFunc destroyFunc)
 	: m_obj(obj),
 	  m_destroyFunc(destroyFunc)
@@ -42,6 +48,15 @@ public:
 	void deactivate(void)
 	{
 		m_obj = NULL;
+	}
+
+	bool set(T *obj, ReaperDestroyFunc destroyFunc)
+	{
+		if (m_obj || m_destroyFunc)
+			return true;
+		m_obj = obj;
+		m_destroyFunc = destroyFunc;
+		return true;
 	}
 
 protected:

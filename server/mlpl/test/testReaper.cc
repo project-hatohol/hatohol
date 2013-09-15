@@ -86,4 +86,16 @@ void test_deactivate(void)
 	cppcut_assert_equal(false, ctx.called);
 }
 
+void test_set(void)
+{
+	TestContext ctx;
+	cppcut_assert_equal(false, ctx.called);
+	{
+		Reaper<TestContext> var;
+		cppcut_assert_equal(true,
+		                   var.set(&ctx, (ReaperDestroyFunc)destFunc));
+	}
+	cppcut_assert_equal(true, ctx.called);
+}
+
 } // namespace testReaper
