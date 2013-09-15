@@ -340,7 +340,7 @@
 
     function postAddAction() {
       $.ajax({
-        url: "/tunnel/actions.json",
+        url: "/tunnel/action",
         type: "POST",
         data: queryData,
         success: function(data) {
@@ -389,7 +389,7 @@
 
         // update the main view
         // TODO: Should we simply add the newly created action.
-        schedule(0000, "actions");
+        schedule(0000, "action");
     }
 
     //
@@ -397,7 +397,7 @@
     //
     function deleteActions() {
       $.ajax({
-        url: "/tunnel/actions.json",
+        url: "/tunnel/action",
         type: "DELETE",
         beforeSend: function(xhr) {
           xhr.setRequestHeader("X-CSRFToken", queryData.csrfmiddlewaretoken);
@@ -660,6 +660,6 @@
     //
     // main code
     //
-    schedule(0000, "actions");
+    schedule(0000, "action");
   </script>
 {% endblock %}

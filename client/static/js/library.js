@@ -143,7 +143,7 @@ function schedule(timer, table, param) {
       "lines" : [ "バックエンドと通信中" ],
     });
 
-    $.getJSON("/tunnel/" + table + ".json", function(json) {
+    $.getJSON("/tunnel/" + table, function(json) {
       rawData = json;
       update(param);
     });
