@@ -25,6 +25,10 @@ def jsonforward(request, path, **kwargs):
     if request.method == "POST":
       print(request.REQUEST)
       content = urllib2.urlopen(url, urllib.urlencode(request.REQUEST))
+    elif request.method == "DELETE":
+      req = urllib2.Request(url)
+      req.get_method = lambda: 'DELETE'
+      content = urllib2.urlopen(req)
     else:
       content = urllib2.urlopen(url)
 

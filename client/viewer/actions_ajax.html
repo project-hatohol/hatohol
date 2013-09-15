@@ -235,6 +235,38 @@
     })
 
     //
+    // Commonly used functions from a dialog.
+    //
+    function parseResult(data) {
+        var msg;
+        var malformed = false;
+        if (data.result == undefined)
+           malformed = true;
+        if (!malformed && !data.result && data.message == undefined)
+           malformed = true;
+        if (malformed) {
+            msg = "The returned content is malformed: " +
+                  "Not found 'result' or 'message'.\n" + JSON.stringify(data);
+            showMessageBox(msg, "Error", CLOSE_BUTTON);
+            return false;
+        }
+        if (!data.result) {
+            msg = "Failed:\n" + data.message
+            showMessageBox(msg, "Error", CLOSE_BUTTON);
+            return false;
+        }
+
+        if (data.id == undefined) {
+            msg = "The returned content is malformed: " +
+                  "'result' is true, however, 'id' is missing.\n" +
+                  JSON.stringify(data);
+            showMessageBox(msg, "Error", CLOSE_BUTTON);
+            return false;
+        }
+        return true;
+    }
+
+    //
     // Add-action dialog
     //
     $("#add-action-dialog").dialog({
@@ -355,67 +387,86 @@
     }
 
     function parsePostActionResult(data) {
-        var msg;
-        var malformed = false;
-        if (data.result == undefined)
-           malformed = true;
-        if (!malformed && !data.result && data.message == undefined)
-           malformed = true;
-        if (malformed) {
-            msg = "The returned content is malformed: " +
-                  "Not found 'result' or 'message'.\n" + JSON.stringify(data);
-            showMessageBox(msg, "Error", CLOSE_BUTTON);
-            return;
-        }
-        if (!data.result) {
-            msg = "Failed:\n" + data.message
-            showMessageBox(msg, "Error", CLOSE_BUTTON);
-            return;
-        }
+      if (!parseResult(data))
+        return;
 
-        if (data.id == undefined) {
-            msg = "The returned content is malformed: " +
-                  "'result' is true, however, 'id' is missing.\n" +
-                  JSON.stringify(data);
-            showMessageBox(msg, "Error", CLOSE_BUTTON);
-            return;
-        }
+      if ($("#add-action-dialog").dialog != undefined)
+        $("#add-action-dialog").dialog("close");
 
-        // close dialogs
-        showMessageBox("Successfully created.", "Information", CLOSE_BUTTON);
+      // close dialogs
+      showMessageBox("Successfully created.", "Information", CLOSE_BUTTON);
 
-        if ($("#add-action-dialog").dialog != undefined)
-            $("#add-action-dialog").dialog("close");
-
-        // update the main view
-        // TODO: Should we simply add the newly created action.
-        schedule(0000, "action");
+      // update the main view
+      schedule(0000, "action");
     }
 
     //
     // delete-action dialog
     //
     function deleteActions() {
+        checkbox = $(".selectcheckbox");
+        var deletedIdArray = {count:0, total:0, errors:0};
+        for (var i = 0; i < checkbox.length; i++) {
+          if (!checkbox[i].checked)
+            continue;
+          var actionId = checkbox[i].getAttribute("actionId");
+          deletedIdArray[actionId] = true;
+          deletedIdArray.count++;
+          deletedIdArray.total++;
+          deleteOneAction(actionId, deletedIdArray);
+        }
+        showMessageBox("Deleting...", "Information", CLOSE_BUTTON);
+    }
+
+    function deleteOneAction(id, deletedIdArray) {
       $.ajax({
-        url: "/tunnel/action",
+        url: "/tunnel/action/" + id,
         type: "DELETE",
+        context: deletedIdArray,
         beforeSend: function(xhr) {
           xhr.setRequestHeader("X-CSRFToken", queryData.csrfmiddlewaretoken);
         },
         success: function(data) {
-          parseDeleteActionResult(data);
+          parseDeleteActionResult(data, this);
         },
         error: function(XMLHttpRequest, textStatus, errorThrown) {
           var errorMsg = "Error: " + XMLHttpRequest.status + ": " +
                          XMLHttpRequest.statusText;
           showMessageBox(errorMsg, "Error", CLOSE_BUTTON);
+          deletedIdArray.errors++;
+        },
+        complete: function() {
+          compleOneDelAction(this);
         }
       })
     }
 
-    function parseDeleteActionResult(data) {
-      console.log("Delete OK");
-      console.log(data);
+    function parseDeleteActionResult(data, deletedIdArray) {
+      if (!parseResult(data))
+        return;
+      if (!(data.id in deletedIdArray)) {
+        alert("Fatal Error: You should reload page.\nID: " + data.id +
+              " is not in deletedIdArray: " + deletedIdArray);
+        deletedIdArray.errors++;
+        return;
+      }
+      delete deletedIdArray[data.id];
+    }
+
+    function compleOneDelAction(deletedIdArray) {
+      deletedIdArray.count--;
+      var completed = deletedIdArray.total - deletedIdArray.count;
+      showMessageBox("Deleting... " + completed + " / " + deletedIdArray.total,
+                     "Information", CLOSE_BUTTON);
+      if (deletedIdArray.count > 0)
+        return;
+
+      // close dialogs
+      showMessageBox("Completed. (Number of errors: " +
+                     deletedIdArray.errors + ")", "Information", CLOSE_BUTTON);
+
+      // update the main view
+      schedule(0000, "action");
     }
 
     //
@@ -583,7 +634,8 @@
         var actionDef = actionsPkt["actions"][x];
         klass = serverName + " " + hostName;
         s += "<tr class='" + klass + "'>";
-        s += "<td><input type='checkbox' class='selectcheckbox'></td>";
+        s += "<td><input type='checkbox' class='selectcheckbox' " +
+             "actionId='" + actionDef.actionId + "'></td>";
         s += "<td>" + actionDef.actionId + "</td>";
 
         var serverName = getServerName(actionsPkt, actionDef);
