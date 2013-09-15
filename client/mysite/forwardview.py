@@ -23,7 +23,6 @@ def jsonforward(request, path, **kwargs):
     server  = kwargs['server']
     url     = 'http://%s/%s' % (server, path)
     if request.method == "POST":
-      print(request.REQUEST)
       content = urllib2.urlopen(url, urllib.urlencode(request.REQUEST))
     elif request.method == "DELETE":
       req = urllib2.Request(url)
