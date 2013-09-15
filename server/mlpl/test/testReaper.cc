@@ -112,4 +112,16 @@ void test_setDouble(void)
 	cppcut_assert_equal(true, ctx.called);
 }
 
+void test_setCpp(void)
+{
+	TestContext ctx;
+	cppcut_assert_equal(false, ctx.called);
+	{
+		CppReaper<TestContextOperator> var;
+		cppcut_assert_equal(true,
+		                    var.set(new TestContextOperator(&ctx)));
+	}
+	cppcut_assert_equal(true, ctx.called);
+}
+
 } // namespace testReaper

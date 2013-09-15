@@ -69,6 +69,10 @@ private:
 template<typename T>
 class CppReaper : public Reaper<T> {
 public:
+	CppReaper(void)
+	{
+	}
+
 	CppReaper(T *obj)
 	: Reaper<T>(obj, NULL)
 	{
@@ -80,6 +84,11 @@ public:
 			delete Reaper<T>::m_obj;
 			Reaper<T>::m_obj = NULL;
 		}
+	}
+
+	bool set(T *obj)
+	{
+		return Reaper<T>::set(obj, NULL);
 	}
 };
 
