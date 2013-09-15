@@ -28,11 +28,11 @@ using namespace mlpl;
 #include "ConfigManager.h"
 #include "UnifiedDataStore.h"
 
-int FaceRest::API_VERSION_SERVERS  = 1;
-int FaceRest::API_VERSION_TRIGGERS = 1;
-int FaceRest::API_VERSION_EVENTS   = 1;
-int FaceRest::API_VERSION_ITEMS    = 1;
-int FaceRest::API_VERSION_ACTIONS  = 1;
+int FaceRest::API_VERSION_SERVER   = 2;
+int FaceRest::API_VERSION_TRIGGER  = 2;
+int FaceRest::API_VERSION_EVENT    = 2;
+int FaceRest::API_VERSION_ITEM     = 2;
+int FaceRest::API_VERSION_ACTION   = 2;
 
 typedef void (*RestHandler)
   (SoupServer *server, SoupMessage *msg, const char *path,
@@ -46,11 +46,11 @@ typedef map<ServerID, HostNameMap> HostNameMaps;
 static const guint DEFAULT_PORT = 33194;
 
 const char *FaceRest::pathForGetOverview = "/overview";
-const char *FaceRest::pathForGetServers = "/servers";
-const char *FaceRest::pathForGetTriggers = "/triggers";
-const char *FaceRest::pathForGetEvents   = "/events";
-const char *FaceRest::pathForGetItems    = "/items";
-const char *FaceRest::pathForGetActions  = "/actions";
+const char *FaceRest::pathForGetServer   = "/server";
+const char *FaceRest::pathForGetTrigger  = "/trigger";
+const char *FaceRest::pathForGetEvent    = "/event";
+const char *FaceRest::pathForGetItem     = "/item";
+const char *FaceRest::pathForGetAction   = "/action";
 
 static const char *MIME_HTML = "text/html";
 static const char *MIME_JSON = "application/json";
@@ -147,21 +147,21 @@ gpointer FaceRest::mainThread(HatoholThreadArg *arg)
 	soup_server_add_handler(m_soupServer, pathForGetOverview,
 	                        launchHandlerInTryBlock,
 	                        (gpointer)handlerGetOverview, NULL);
-	soup_server_add_handler(m_soupServer, pathForGetServers,
+	soup_server_add_handler(m_soupServer, pathForGetServer,
 	                        launchHandlerInTryBlock,
-	                        (gpointer)handlerGetServers, NULL);
-	soup_server_add_handler(m_soupServer, pathForGetTriggers,
+	                        (gpointer)handlerGetServer, NULL);
+	soup_server_add_handler(m_soupServer, pathForGetTrigger,
 	                        launchHandlerInTryBlock,
-	                        (gpointer)handlerGetTriggers, NULL);
-	soup_server_add_handler(m_soupServer, pathForGetEvents,
+	                        (gpointer)handlerGetTrigger, NULL);
+	soup_server_add_handler(m_soupServer, pathForGetEvent,
 	                        launchHandlerInTryBlock,
-	                        (gpointer)handlerGetEvents, NULL);
-	soup_server_add_handler(m_soupServer, pathForGetItems,
+	                        (gpointer)handlerGetEvent, NULL);
+	soup_server_add_handler(m_soupServer, pathForGetItem,
 	                        launchHandlerInTryBlock,
-	                        (gpointer)handlerGetItems, NULL);
-	soup_server_add_handler(m_soupServer, pathForGetActions,
+	                        (gpointer)handlerGetItem, NULL);
+	soup_server_add_handler(m_soupServer, pathForGetAction,
 	                        launchHandlerInTryBlock,
-	                        (gpointer)handlerActions, NULL);
+	                        (gpointer)handlerAction, NULL);
 	soup_server_run(m_soupServer);
 	g_main_context_unref(gMainCtx);
 	MLPL_INFO("exited face-rest\n");
@@ -476,7 +476,7 @@ void FaceRest::handlerGetOverview
 
 	JsonBuilderAgent agent;
 	agent.startObject();
-	agent.add("apiVersion", API_VERSION_SERVERS);
+	agent.add("apiVersion", API_VERSION_SERVER);
 	agent.addTrue("result");
 	addOverview(agent);
 	agent.endObject();
@@ -484,7 +484,7 @@ void FaceRest::handlerGetOverview
 	replyJsonData(agent, msg, jsonpCallbackName, arg);
 }
 
-void FaceRest::handlerGetServers
+void FaceRest::handlerGetServer
   (SoupServer *server, SoupMessage *msg, const char *path,
    GHashTable *query, SoupClientContext *client, HandlerArg *arg)
 {
@@ -492,7 +492,7 @@ void FaceRest::handlerGetServers
 
 	JsonBuilderAgent agent;
 	agent.startObject();
-	agent.add("apiVersion", API_VERSION_SERVERS);
+	agent.add("apiVersion", API_VERSION_SERVER);
 	agent.addTrue("result");
 	addServers(agent);
 	agent.endObject();
@@ -500,7 +500,7 @@ void FaceRest::handlerGetServers
 	replyJsonData(agent, msg, jsonpCallbackName, arg);
 }
 
-void FaceRest::handlerGetTriggers
+void FaceRest::handlerGetTrigger
   (SoupServer *server, SoupMessage *msg, const char *path,
    GHashTable *query, SoupClientContext *client, HandlerArg *arg)
 {
@@ -512,7 +512,7 @@ void FaceRest::handlerGetTriggers
 
 	JsonBuilderAgent agent;
 	agent.startObject();
-	agent.add("apiVersion", API_VERSION_TRIGGERS);
+	agent.add("apiVersion", API_VERSION_TRIGGER);
 	agent.addTrue("result");
 	agent.add("numberOfTriggers", triggerList.size());
 	agent.startArray("triggers");
@@ -539,7 +539,7 @@ void FaceRest::handlerGetTriggers
 	replyJsonData(agent, msg, jsonpCallbackName, arg);
 }
 
-void FaceRest::handlerGetEvents
+void FaceRest::handlerGetEvent
   (SoupServer *server, SoupMessage *msg, const char *path,
    GHashTable *query, SoupClientContext *client, HandlerArg *arg)
 {
@@ -551,7 +551,7 @@ void FaceRest::handlerGetEvents
 
 	JsonBuilderAgent agent;
 	agent.startObject();
-	agent.add("apiVersion", API_VERSION_EVENTS);
+	agent.add("apiVersion", API_VERSION_EVENT);
 	agent.addTrue("result");
 	agent.add("numberOfEvents", eventList.size());
 	agent.startArray("events");
@@ -580,7 +580,7 @@ void FaceRest::handlerGetEvents
 	replyJsonData(agent, msg, jsonpCallbackName, arg);
 }
 
-void FaceRest::handlerGetItems
+void FaceRest::handlerGetItem
   (SoupServer *server, SoupMessage *msg, const char *path,
    GHashTable *query, SoupClientContext *client, HandlerArg *arg)
 {
@@ -592,7 +592,7 @@ void FaceRest::handlerGetItems
 
 	JsonBuilderAgent agent;
 	agent.startObject();
-	agent.add("apiVersion", API_VERSION_ITEMS);
+	agent.add("apiVersion", API_VERSION_ITEM);
 	agent.addTrue("result");
 	agent.add("numberOfItems", itemList.size());
 	agent.startArray("items");
@@ -628,23 +628,23 @@ static void setActionCondition(
 			agent.addNull(member);
 }
 
-void FaceRest::handlerActions
+void FaceRest::handlerAction
   (SoupServer *server, SoupMessage *msg, const char *path,
    GHashTable *query, SoupClientContext *client, HandlerArg *arg)
 {
 	if (strcasecmp(msg->method, "GET") == 0) {
-		handlerGetActions(server, msg, path, query, client, arg);
+		handlerGetAction(server, msg, path, query, client, arg);
 	} else if (strcasecmp(msg->method, "POST") == 0) {
 		handlerPostAction(server, msg, path, query, client, arg);
 	} else if (strcasecmp(msg->method, "DELETE") == 0) {
-		handlerDeleteActions(server, msg, path, query, client, arg);
+		handlerDeleteAction(server, msg, path, query, client, arg);
 	} else {
 		MLPL_ERR("Unknown method: %s\n", msg->method);
 		soup_message_set_status(msg, SOUP_STATUS_METHOD_NOT_ALLOWED);
 	}
 }
 
-void FaceRest::handlerGetActions
+void FaceRest::handlerGetAction
   (SoupServer *server, SoupMessage *msg, const char *path,
    GHashTable *query, SoupClientContext *client, HandlerArg *arg)
 {
@@ -656,7 +656,7 @@ void FaceRest::handlerGetActions
 
 	JsonBuilderAgent agent;
 	agent.startObject();
-	agent.add("apiVersion", API_VERSION_ACTIONS);
+	agent.add("apiVersion", API_VERSION_ACTION);
 	agent.addTrue("result");
 	agent.add("numberOfActions", actionList.size());
 	agent.startArray("actions");
@@ -846,14 +846,14 @@ void FaceRest::handlerPostAction
 	// make a response
 	JsonBuilderAgent agent;
 	agent.startObject();
-	agent.add("apiVersion", API_VERSION_ACTIONS);
+	agent.add("apiVersion", API_VERSION_ACTION);
 	agent.addTrue("result");
 	agent.add("id", actionDef.id);
 	agent.endObject();
 	replyJsonData(agent, msg, jsonpCallbackName, arg);
 }
 
-void FaceRest::handlerDeleteActions
+void FaceRest::handlerDeleteAction
   (SoupServer *server, SoupMessage *msg, const char *path,
    GHashTable *query, SoupClientContext *client, HandlerArg *arg)
 {
@@ -877,7 +877,7 @@ void FaceRest::handlerDeleteActions
 	// replay
 	JsonBuilderAgent agent;
 	agent.startObject();
-	agent.add("apiVersion", API_VERSION_ACTIONS);
+	agent.add("apiVersion", API_VERSION_ACTION);
 	agent.addTrue("result");
 	agent.add("id", arg->id);
 	agent.endObject();

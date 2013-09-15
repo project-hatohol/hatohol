@@ -279,7 +279,7 @@ static void _assertServers(const string &path, const string &callbackName = "")
 	startFaceRest();
 	g_parser = getResponseAsJsonParser(path, callbackName);
 	assertValueInParser(g_parser, "apiVersion",
-	                    (uint32_t)FaceRest::API_VERSION_SERVERS);
+	                    (uint32_t)FaceRest::API_VERSION_SERVER);
 	assertValueInParser(g_parser, "result", true);
 	assertServersInParser(g_parser);
 }
@@ -290,7 +290,7 @@ static void _assertTriggers(const string &path, const string &callbackName = "")
 	startFaceRest();
 	g_parser = getResponseAsJsonParser(path, callbackName);
 	assertValueInParser(g_parser, "apiVersion",
-	                    (uint32_t)FaceRest::API_VERSION_TRIGGERS);
+	                    (uint32_t)FaceRest::API_VERSION_TRIGGER);
 	assertValueInParser(g_parser, "result", true);
 	assertValueInParser(g_parser, "numberOfTriggers",
 	                    (uint32_t)NumTestTriggerInfo);
@@ -313,7 +313,7 @@ static void _assertEvents(const string &path, const string &callbackName = "")
 	startFaceRest();
 	g_parser = getResponseAsJsonParser(path, callbackName);
 	assertValueInParser(g_parser, "apiVersion",
-	                    (uint32_t)FaceRest::API_VERSION_EVENTS);
+	                    (uint32_t)FaceRest::API_VERSION_EVENT);
 	assertValueInParser(g_parser, "result", true);
 	assertValueInParser(g_parser, "numberOfEvents",
 	                    (uint32_t)NumTestEventInfo);
@@ -346,7 +346,7 @@ static void _assertItems(const string &path, const string &callbackName = "")
 	startFaceRest();
 	g_parser = getResponseAsJsonParser(path, callbackName);
 	assertValueInParser(g_parser, "apiVersion",
-	                    (uint32_t)FaceRest::API_VERSION_ITEMS);
+	                    (uint32_t)FaceRest::API_VERSION_ITEM);
 	assertValueInParser(g_parser, "result", true);
 	assertValueInParser(g_parser, "numberOfItems",
 	                    (uint32_t)NumTestItemInfo);
@@ -387,7 +387,7 @@ static void _assertActions(const string &path, const string &callbackName = "")
 	startFaceRest();
 	g_parser = getResponseAsJsonParser(path, callbackName);
 	assertValueInParser(g_parser, "apiVersion",
-	                    (uint32_t)FaceRest::API_VERSION_ACTIONS);
+	                    (uint32_t)FaceRest::API_VERSION_ACTION);
 	assertValueInParser(g_parser, "result", true);
 	assertValueInParser(g_parser, "numberOfActions",
 	                    (uint32_t)NumTestActionDef);
@@ -446,7 +446,7 @@ void _assertAddAction(const StringMap &params)
 	                                   params, "POST");
 	assertValueInParser(g_parser, "result", true);
 	assertValueInParser(g_parser, "apiVersion",
-	                    (uint32_t)FaceRest::API_VERSION_ACTIONS);
+	                    (uint32_t)FaceRest::API_VERSION_ACTION);
 
 	// This function asummes that the test database is recreated and
 	// is empty. So the added action is the first and the ID should one.
@@ -760,7 +760,7 @@ void test_deleteAction(void)
 	// check the response
 	assertValueInParser(g_parser, "result", true);
 	assertValueInParser(g_parser, "apiVersion",
-	                    (uint32_t)FaceRest::API_VERSION_ACTIONS);
+	                    (uint32_t)FaceRest::API_VERSION_ACTION);
 
 	// check DB
 	string expect;

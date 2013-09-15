@@ -26,11 +26,11 @@
 
 class FaceRest : public FaceBase {
 public:
-	static int API_VERSION_SERVERS;
-	static int API_VERSION_TRIGGERS;
-	static int API_VERSION_EVENTS;
-	static int API_VERSION_ITEMS;
-	static int API_VERSION_ACTIONS;
+	static int API_VERSION_SERVER;
+	static int API_VERSION_TRIGGER;
+	static int API_VERSION_EVENT;
+	static int API_VERSION_ITEM;
+	static int API_VERSION_ACTION;
 
 	static void init(void);
 	FaceRest(CommandLineArg &cmdArg);
@@ -69,29 +69,29 @@ protected:
 	static void handlerGetOverview
 	  (SoupServer *server, SoupMessage *msg, const char *path,
 	   GHashTable *query, SoupClientContext *client, HandlerArg *arg);
-	static void handlerGetServers
+	static void handlerGetServer
 	  (SoupServer *server, SoupMessage *msg, const char *path,
 	   GHashTable *query, SoupClientContext *client, HandlerArg *arg);
-	static void handlerGetTriggers
+	static void handlerGetTrigger
 	  (SoupServer *server, SoupMessage *msg, const char *path,
 	   GHashTable *query, SoupClientContext *client, HandlerArg *arg);
-	static void handlerGetEvents
+	static void handlerGetEvent
 	  (SoupServer *server, SoupMessage *msg, const char *path,
 	   GHashTable *query, SoupClientContext *client, HandlerArg *arg);
-	static void handlerGetItems
+	static void handlerGetItem
 	  (SoupServer *server, SoupMessage *msg, const char *path,
 	   GHashTable *query, SoupClientContext *client, HandlerArg *arg);
 
-	static void handlerActions
+	static void handlerAction
 	  (SoupServer *server, SoupMessage *msg, const char *path,
 	   GHashTable *query, SoupClientContext *client, HandlerArg *arg);
-	static void handlerGetActions
+	static void handlerGetAction
 	  (SoupServer *server, SoupMessage *msg, const char *path,
 	   GHashTable *query, SoupClientContext *client, HandlerArg *arg);
 	static void handlerPostAction
 	  (SoupServer *server, SoupMessage *msg, const char *path,
 	   GHashTable *query, SoupClientContext *client, HandlerArg *arg);
-	static void handlerDeleteActions
+	static void handlerDeleteAction
 	  (SoupServer *server, SoupMessage *msg, const char *path,
 	   GHashTable *query, SoupClientContext *client, HandlerArg *arg);
 
@@ -104,11 +104,11 @@ private:
 	  const char *paramName, const char *scanFmt, T &dest, bool *exist);
 
 	static const char *pathForGetOverview;
-	static const char *pathForGetServers;
-	static const char *pathForGetTriggers;
-	static const char *pathForGetEvents;
-	static const char *pathForGetItems;
-	static const char *pathForGetActions;
+	static const char *pathForGetServer;
+	static const char *pathForGetTrigger;
+	static const char *pathForGetEvent;
+	static const char *pathForGetItem;
+	static const char *pathForGetAction;
 
 	guint       m_port;
 	SoupServer *m_soupServer;
