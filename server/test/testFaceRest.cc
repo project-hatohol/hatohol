@@ -71,6 +71,7 @@ static string makeQueryString(const StringMap &parameters,
 	if (!callbackName.empty()) {
 		g_hash_table_insert(hashTable, (void *)"callback",
 		                    (void *)callbackName.c_str());
+		g_hash_table_insert(hashTable, (void *)"fmt", (void *)"jsonp");
 	}
 
 	char *encoded = soup_form_encode_hash(hashTable);
@@ -442,7 +443,7 @@ static void _assertActions(const string &path, const string &callbackName = "")
 void _assertAddAction(const StringMap &params)
 {
 	startFaceRest();
-	g_parser = getResponseAsJsonParser("/actions.jsonp", "foo",
+	g_parser = getResponseAsJsonParser("/action", "foo",
 	                                   params, "POST");
 	assertValueInParser(g_parser, "result", true);
 	assertValueInParser(g_parser, "apiVersion",
@@ -457,7 +458,7 @@ void _assertAddAction(const StringMap &params)
 void _assertAddActionError(const StringMap &params)
 {
 	startFaceRest();
-	g_parser = getResponseAsJsonParser("/actions.jsonp", "foo",
+	g_parser = getResponseAsJsonParser("/action", "foo",
 	                                   params, "POST");
 	assertValueInParser(g_parser, "result", false);
 }
@@ -542,42 +543,42 @@ void cut_teardown(void)
 // ---------------------------------------------------------------------------
 void test_servers(void)
 {
-	assertServers("/servers.json");
+	assertServers("/server");
 }
 
 void test_serversJsonp(void)
 {
-	assertServers("/servers.jsonp", "foo");
+	assertServers("/server", "foo");
 }
 
 void test_triggers(void)
 {
-	assertTriggers("/triggers.json");
+	assertTriggers("/trigger");
 }
 
 void test_triggersJsonp(void)
 {
-	assertTriggers("/triggers.jsonp", "foo");
+	assertTriggers("/trigger", "foo");
 }
 
 void test_events(void)
 {
-	assertEvents("/events.json");
+	assertEvents("/event");
 }
 
 void test_eventsJsonp(void)
 {
-	assertEvents("/events.jsonp", "foo");
+	assertEvents("/event", "foo");
 }
 
 void test_items(void)
 {
-	assertItems("/items.json");
+	assertItems("/item");
 }
 
 void test_itemsJsonp(void)
 {
-	assertItems("/items.jsonp", "foo");
+	assertItems("/item", "foo");
 }
 
 void test_actionsJsonp(void)
@@ -585,7 +586,7 @@ void test_actionsJsonp(void)
 	bool recreate = true;
 	bool loadData = true;
 	setupTestDBAction(recreate, loadData);
-	assertActions("/actions.jsonp", "foo");
+	assertActions("/action", "foo");
 }
 
 void test_addAction(void)
@@ -753,7 +754,7 @@ void test_deleteAction(void)
 	setupActionDB(); // make a test action DB.
 
 	int targetId = 2;
-	string url = StringUtils::sprintf("/actions.jsonp/%d", targetId);
+	string url = StringUtils::sprintf("/action/%d", targetId);
 	g_parser =
 	  getResponseAsJsonParser(url, "cbname", emptyStringMap, "DELETE");
 

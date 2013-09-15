@@ -64,6 +64,7 @@ enum FormatType {
 
 struct FaceRest::HandlerArg
 {
+	string     formatString;
 	FormatType formatType;
 	const char *mimeType;
 	string      id;
@@ -257,38 +258,73 @@ void FaceRest::handlerDefault(SoupServer *server, SoupMessage *msg,
 	soup_message_set_status(msg, SOUP_STATUS_NOT_FOUND);
 }
 
+bool FaceRest::parseFormatType(GHashTable *query, HandlerArg &arg)
+{
+	arg.formatString.clear();
+	if (!query) {
+		arg.formatType = FORMAT_JSON;
+		return true;
+	}
+
+	gchar *format = (gchar *)g_hash_table_lookup(query, "fmt");
+	if (!format) {
+		arg.formatType = FORMAT_JSON; // default value
+		return true;
+	}
+	arg.formatString = format;
+
+	FormatTypeMapIterator fmtIt = g_formatTypeMap.find(format);
+	if (fmtIt == g_formatTypeMap.end())
+		return false;
+	arg.formatType = fmtIt->second;
+	return true;
+}
+
 void FaceRest::launchHandlerInTryBlock
   (SoupServer *server, SoupMessage *msg, const char *path,
-   GHashTable *query, SoupClientContext *client, gpointer user_data)
+   GHashTable *_query, SoupClientContext *client, gpointer user_data)
 {
 	RestHandler handler = reinterpret_cast<RestHandler>(user_data);
 
 	HandlerArg arg;
 
-	// NOTE: This is a tentative.
-	// The format will be specified by a query paramter.
-	// format
-	string extension = Utils::getExtension(path);
-	size_t posSlash = extension.find("/");
-	if (posSlash != string::npos) {
-		arg.id = string(extension, posSlash + 1);
-		extension = string(extension, 0, posSlash);
+	// We expect URIs  whose style are the following.
+	//
+	// Examples:
+	// http://localhost:33194/action
+	// http://localhost:33194/action?fmt=json
+	// http://localhost:33194/action/2345?fmt=html
+
+	GHashTable *query = _query;
+	Reaper<GHashTable> postQueryReaper;
+	if (strcasecmp(msg->method, "POST") == 0) {
+		// The POST request contains query parameters in the body
+		// according to application/x-www-form-urlencoded.
+		query = soup_form_decode(msg->request_body->data);
+		postQueryReaper.set(query,
+		                    (ReaperDestroyFunc)g_hash_table_unref);
 	}
-	FormatTypeMapIterator fmtIt = g_formatTypeMap.find(extension);
-	if (fmtIt == g_formatTypeMap.end()) {
+
+	// a format type
+	if (!parseFormatType(query, arg)) {
 		string errMsg = StringUtils::sprintf(
-		  "Unsupported extension: %s, path: %s\n",
-		  extension.c_str(), path);
+		  "Unsupported format type: %s, path: %s\n",
+		  arg.formatString.c_str(), path);
 		replyError(msg, errMsg);
 		return;
 	}
-	arg.formatType = fmtIt->second;
+
+	// ID
+	StringVector pathElemVect;
+	StringUtils::split(pathElemVect, path, '/');
+	if (pathElemVect.size() >= 2)
+		arg.id = pathElemVect[1];
 
 	// MIME
 	MimeTypeMapIterator mimeIt = g_mimeTypeMap.find(arg.formatType);
 	HATOHOL_ASSERT(
 	  mimeIt != g_mimeTypeMap.end(),
-	  "Invalid formatType: %d, %s", arg.formatType, extension.c_str());
+	  "Invalid formatType: %d, %s", arg.formatType, path);
 	arg.mimeType = mimeIt->second;
 
 	try {
@@ -700,11 +736,9 @@ void FaceRest::handlerGetAction
 
 void FaceRest::handlerPostAction
   (SoupServer *server, SoupMessage *msg, const char *path,
-   GHashTable *_query, SoupClientContext *client, HandlerArg *arg)
+   GHashTable *query, SoupClientContext *client, HandlerArg *arg)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-	GHashTable *query = soup_form_decode(msg->request_body->data);
-	Reaper<GHashTable> reaper(query, (ReaperDestroyFunc)g_hash_table_unref);
 	string jsonpCallbackName = getJsonpCallbackName(query, arg);
 
 	//
