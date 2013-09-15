@@ -207,6 +207,9 @@ int main(int argc, char *argv[])
 		DEFAULT_PORT,             // port
 		10,                       // polling_interval_sec
 		5,                        // retry_interval_sec
+
+		"admin",                  // userName
+		"zabbix",                 // password
 	};
 	serverInfo.hostName = server;
 
