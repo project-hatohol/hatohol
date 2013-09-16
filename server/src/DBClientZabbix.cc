@@ -1845,8 +1845,11 @@ bool DBClientZabbix::transformEventItemGroupToEventInfo
 	case EVENT_TYPE_BAD:
 		eventInfo.status = TRIGGER_STATUS_PROBLEM;
 		break;
+	case EVENT_TYPE_UNKNOWN:
+		eventInfo.status = TRIGGER_STATUS_UNKNOWN;
+		break;
 	default:
-		MLPL_ERR("Unknown status: %d\n", eventInfo.type);
+		MLPL_ERR("Unknown type: %d\n", eventInfo.type);
 		eventInfo.status = TRIGGER_STATUS_UNKNOWN;
 	}
 

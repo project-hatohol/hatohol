@@ -25,6 +25,7 @@
 #include "DBAgentSQLite3.h"
 #include "UnifiedDataStore.h"
 #include "DBClientTest.h"
+#include "LabelUtils.h"
 
 namespace testUnifiedDataStore {
 
@@ -110,18 +111,7 @@ void test_getTriggerList(void)
 
 static const char *eventTypeToString(EventType type)
 {
-	switch(type) {
-	case EVENT_TYPE_GOOD:
-		return "GOOD";
-	case EVENT_TYPE_BAD:
-		return "BAD";
-	case EVENT_TYPE_UNKNOWN:
-		return "UNKNOWN";
-	default:
-		cut_fail("Unknown EventType: %d\n",
-			 static_cast<int>(type));
-		return "";
-	}
+	return LabelUtils::getEventTypeLabel(type).c_str();
 }
 
 static string dumpEventInfo(const EventInfo &info)
