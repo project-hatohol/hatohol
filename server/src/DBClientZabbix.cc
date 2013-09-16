@@ -1840,10 +1840,10 @@ bool DBClientZabbix::transformEventItemGroupToEventInfo
 	// This value is refered in ActionManager. So we set here.
 	switch (eventInfo.type) {
 	case EVENT_TYPE_ACTIVATED:
-		eventInfo.status = TRIGGER_STATUS_PROBLEM;
+		eventInfo.status = TRIGGER_STATUS_OK;
 		break;
 	case EVENT_TYPE_DEACTIVATED:
-		eventInfo.status = TRIGGER_STATUS_OK;
+		eventInfo.status = TRIGGER_STATUS_PROBLEM;
 		break;
 	default:
 		MLPL_ERR("Unknown status: %d\n", eventInfo.type);
