@@ -47,16 +47,7 @@ void test_singleton(void) {
 
 static const char *triggerStatusToString(TriggerStatusType type)
 {
-	switch(type) {
-	case TRIGGER_STATUS_OK:
-		return "OK";
-	case TRIGGER_STATUS_PROBLEM:
-		return "PROBLEM";
-	default:
-		cut_fail("Unknown TriggerStatusType: %d\n",
-			 static_cast<int>(type));
-		return "";
-	}
+	return LabelUtils::getTriggerStatusLabel(type).c_str();
 }
 
 static const char *triggerSeverityToString(TriggerSeverityType type)
