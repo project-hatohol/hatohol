@@ -137,8 +137,8 @@ Event type
 .. list-table::
 
    * - 0
-     - EVENT_TYPE_ACTIVATED
+     - EVENT_TYPE_GOOD
    * - 1
-     - EVENT_TYPE_DEACTIVATED
+     - EVENT_TYPE_BAD
    * - 2
      - EVENT_TYPE_UNKNOWN

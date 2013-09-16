@@ -314,7 +314,7 @@ void test_getTriggerActionList(void)
 	eventInfo.id        = 0;
 	eventInfo.time.tv_sec  = 1378339653;
 	eventInfo.time.tv_nsec = 6889;
-	eventInfo.type      = EVENT_TYPE_ACTIVATED;
+	eventInfo.type      = EVENT_TYPE_GOOD;
 	eventInfo.triggerId = condDummy.triggerId;
 	eventInfo.status    = (TriggerStatusType) condTarget.triggerStatus;
 	eventInfo.severity  = (TriggerSeverityType) condTarget.triggerSeverity;
@@ -345,7 +345,7 @@ void test_getTriggerActionListWithAllCondition(void)
 	eventInfo.id        = 0;
 	eventInfo.time.tv_sec  = 1378339653;
 	eventInfo.time.tv_nsec = 6889;
-	eventInfo.type      = EVENT_TYPE_ACTIVATED;
+	eventInfo.type      = EVENT_TYPE_GOOD;
 	eventInfo.triggerId = condTarget.triggerId;
 	eventInfo.status    = (TriggerStatusType) condTarget.triggerStatus;
 	eventInfo.severity  = (TriggerSeverityType) condTarget.triggerSeverity;

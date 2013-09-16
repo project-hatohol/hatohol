@@ -28,10 +28,10 @@ using namespace mlpl;
 string LabelUtils::getEventTypeLabel(EventType eventType)
 {
 	switch (eventType) {
-	case EVENT_TYPE_ACTIVATED:
-		return "Activated";
-	case EVENT_TYPE_DEACTIVATED:
-		return "Deactivated";
+	case EVENT_TYPE_GOOD:
+		return "GOOD";
+	case EVENT_TYPE_BAD:
+		return "BAD";
 	case EVENT_TYPE_UNKNOWN:
 		return "Unknown";
 	default:

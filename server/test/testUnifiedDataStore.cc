@@ -111,10 +111,10 @@ void test_getTriggerList(void)
 static const char *eventTypeToString(EventType type)
 {
 	switch(type) {
-	case EVENT_TYPE_ACTIVATED:
-		return "ACTIVATED";
-	case EVENT_TYPE_DEACTIVATED:
-		return "DEACTIVATED";
+	case EVENT_TYPE_GOOD:
+		return "GOOD";
+	case EVENT_TYPE_BAD:
+		return "BAD";
 	case EVENT_TYPE_UNKNOWN:
 		return "UNKNOWN";
 	default:

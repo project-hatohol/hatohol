@@ -1839,10 +1839,10 @@ bool DBClientZabbix::transformEventItemGroupToEventInfo
 	// Trigger's value. This can be transformed from Event's value
 	// This value is refered in ActionManager. So we set here.
 	switch (eventInfo.type) {
-	case EVENT_TYPE_ACTIVATED:
+	case EVENT_TYPE_GOOD:
 		eventInfo.status = TRIGGER_STATUS_OK;
 		break;
-	case EVENT_TYPE_DEACTIVATED:
+	case EVENT_TYPE_BAD:
 		eventInfo.status = TRIGGER_STATUS_PROBLEM;
 		break;
 	default:
