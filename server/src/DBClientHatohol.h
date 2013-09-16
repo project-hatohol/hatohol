@@ -122,6 +122,22 @@ public:
 
 	void addTriggerInfo(TriggerInfo *triggerInfo);
 	void addTriggerInfoList(const TriggerInfoList &triggerInfoList);
+
+	/**
+	 * Get the trigger information with the specified server ID and
+	 * the trigger ID.
+	 *
+	 * @param triggerInfo
+	 * Obtained information is copied to this instance.
+	 *
+	 * @param serverId  A server ID to be obtained.
+	 * @param triggerId A trigger ID to be obtained.
+	 *
+	 * @return true if the trigger information is found. Otherwise false.
+	 *
+	 */
+	bool getTriggerInfo(TriggerInfo &triggerInfo,
+	                    uint32_t serverId, uint64_t triggerId);
 	void getTriggerInfoList(TriggerInfoList &triggerInfoList,
 	                        uint32_t targetServerId = ALL_SERVERS);
 	void setTriggerInfoList(const TriggerInfoList &triggerInfoList,

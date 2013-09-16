@@ -561,6 +561,30 @@ void DBClientHatohol::addTriggerInfoList(const TriggerInfoList &triggerInfoList)
 	} DBCLIENT_TRANSACTION_END();
 }
 
+bool DBClientHatohol::getTriggerInfo(TriggerInfo &triggerInfo,
+                                     uint32_t serverId, uint64_t triggerId)
+{
+	string condition;
+	const char *colNameServerId = 
+	  COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SERVER_ID].columnName;
+	const char *colNameId = 
+	  COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_ID].columnName;
+	condition = StringUtils::sprintf("%s=%"PRIu32" and %s=%"PRIu64,
+	                                  colNameServerId, serverId,
+	                                  colNameId, triggerId);
+
+	TriggerInfoList triggerInfoList;
+	getTriggerInfoList(triggerInfoList, condition);
+	size_t numTriggers = triggerInfoList.size();
+	HATOHOL_ASSERT(numTriggers <= 1,
+	               "Number of triggers: %zd", numTriggers);
+	if (numTriggers == 0)
+		return false;
+
+	triggerInfo = *triggerInfoList.begin();
+	return true;
+}
+
 void DBClientHatohol::getTriggerInfoList(TriggerInfoList &triggerInfoList,
                                          uint32_t targetServerId)
 {
