@@ -177,6 +177,9 @@ protected:
 	void addEventInfoBare(const EventInfo &eventInfo);
 	void addItemInfoBare(const ItemInfo &itemInfo);
 
+	void getTriggerInfoList(TriggerInfoList &triggerInfoList,
+	                        const string &condition);
+
 private:
 	struct PrivateContext;
 	PrivateContext *m_ctx;
