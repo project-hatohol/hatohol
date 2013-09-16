@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-09-16 16:30-0500\n"
+"POT-Creation-Date: 2013-09-16 16:59-0500\n"
 "PO-Revision-Date: 2013-09-13 15:28+0900\n"
 "Last-Translator: Takuro Ashie <ashie@clear-code.com>\n"
 "Language-Team: Project Hatohol\n"
@@ -79,89 +79,142 @@ msgstr "サーバ"
 msgid "Actions"
 msgstr "アクション"
 
-#: viewer/actions_ajax.html:38
+#: viewer/actions_ajax.html:38 viewer/actions_ajax.html.py:277
 msgid "ADD ACTION"
 msgstr "アクション追加"
 
-#: viewer/actions_ajax.html:54
+#: viewer/actions_ajax.html:52
+msgid "DELETE ACTIONS"
+msgstr "アクション削除"
+
+#: viewer/actions_ajax.html:55
 msgid "Condition"
 msgstr "条件"
 
-#: viewer/actions_ajax.html:56 viewer/actions_ajax.html.py:140
+#: viewer/actions_ajax.html:57 viewer/actions_ajax.html.py:141
 #: viewer/dashboard_ajax.html:59 viewer/dashboard_ajax.html.py:79
 #: viewer/events_ajax.html:47 viewer/latest_ajax.html:53
 #: viewer/triggers_ajax.html:55
 msgid "Server"
 msgstr "サーバ"
 
-#: viewer/actions_ajax.html:59 viewer/actions_ajax.html.py:66
-#: viewer/actions_ajax.html:72 viewer/actions_ajax.html.py:80
+#: viewer/actions_ajax.html:60 viewer/actions_ajax.html.py:67
+#: viewer/actions_ajax.html:73 viewer/actions_ajax.html.py:81
 msgid "SELECT"
 msgstr "選択"
 
-#: viewer/actions_ajax.html:62 viewer/actions_ajax.html.py:142
+#: viewer/actions_ajax.html:63 viewer/actions_ajax.html.py:143
 msgid "Host Group"
 msgstr "ホストグループ"
 
-#: viewer/actions_ajax.html:69 viewer/actions_ajax.html.py:141
+#: viewer/actions_ajax.html:70 viewer/actions_ajax.html.py:142
 #: viewer/latest_ajax.html:54 viewer/triggers_ajax.html:61
 msgid "Host"
 msgstr "ホスト"
 
-#: viewer/actions_ajax.html:77 viewer/actions_ajax.html.py:143
+#: viewer/actions_ajax.html:78 viewer/actions_ajax.html.py:144
 msgid "Trigger"
 msgstr "トリガー"
 
-#: viewer/actions_ajax.html:83 viewer/actions_ajax.html.py:144
+#: viewer/actions_ajax.html:84 viewer/actions_ajax.html.py:145
 #: viewer/events_ajax.html:50 viewer/triggers_ajax.html:57
 msgid "Status"
 msgstr "ステータス"
 
-#: viewer/actions_ajax.html:90 viewer/actions_ajax.html.py:145
+#: viewer/actions_ajax.html:91 viewer/actions_ajax.html.py:146
 #: viewer/events_ajax.html:51 viewer/triggers_ajax.html:56
 msgid "Severity"
 msgstr "深刻度"
 
-#: viewer/actions_ajax.html:98
+#: viewer/actions_ajax.html:99
 msgid "Equal to"
 msgstr "一致"
 
-#: viewer/actions_ajax.html:99
+#: viewer/actions_ajax.html:100
 msgid "Equal to or greater than"
 msgstr "以上"
 
-#: viewer/actions_ajax.html:103
+#: viewer/actions_ajax.html:104
 msgid "Execution parameters"
 msgstr "実行パラメータ"
 
-#: viewer/actions_ajax.html:105 viewer/actions_ajax.html.py:146
+#: viewer/actions_ajax.html:106 viewer/actions_ajax.html.py:147
 #: viewer/servers_ajax.html:41
 msgid "Type"
 msgstr "タイプ"
 
-#: viewer/actions_ajax.html:107
+#: viewer/actions_ajax.html:108
 msgid "COMMAND"
 msgstr "コマンド"
 
-#: viewer/actions_ajax.html:108
+#: viewer/actions_ajax.html:109
 msgid "RESIDENT"
 msgstr "常駐"
 
-#: viewer/actions_ajax.html:111 viewer/actions_ajax.html.py:149
+#: viewer/actions_ajax.html:112 viewer/actions_ajax.html.py:150
 msgid "Time-out (sec)"
 msgstr "タイムアウト (秒)"
 
-#: viewer/actions_ajax.html:113
+#: viewer/actions_ajax.html:114
 msgid "(0: No limit)"
 msgstr "(0: 無制限)"
 
-#: viewer/actions_ajax.html:117 viewer/actions_ajax.html.py:148
+#: viewer/actions_ajax.html:118 viewer/actions_ajax.html.py:149
 msgid "Command"
 msgstr "コマンド"
 
-#: viewer/actions_ajax.html:122 viewer/actions_ajax.html.py:147
+#: viewer/actions_ajax.html:123 viewer/actions_ajax.html.py:148
 msgid "Execution directory"
 msgstr "実行ディレクトリ"
+
+#: viewer/actions_ajax.html:200
+msgid "Do you delete the selected items ?"
+msgstr "選択項目を削除しますか？"
+
+#: viewer/actions_ajax.html:201
+msgid "Confirmation"
+msgstr "確認"
+
+#: viewer/actions_ajax.html:283
+msgid "ADD"
+msgstr "追加"
+
+#: viewer/actions_ajax.html:287
+msgid "Now creating an action ..."
+msgstr "アクションを作成しています"
+
+#: viewer/actions_ajax.html:288 viewer/dashboard_ajax.html:65
+#: viewer/events_ajax.html:77 viewer/triggers_ajax.html:86
+msgid "Information"
+msgstr "情報"
+
+#: viewer/actions_ajax.html:294
+msgid "CANNCEL"
+msgstr "キャンセル"
+
+#: viewer/actions_ajax.html:303 viewer/actions_ajax.html.py:389
+msgid "Error"
+msgstr "エラー"
+
+#: viewer/actions_ajax.html:402
+msgid "Successfully created."
+msgstr "正常に作成されました"
+
+#: viewer/actions_ajax.html:471
+msgid "Completed. (Number of errors: "
+msgstr "完了 (エラー数: "
+
+#: viewer/actions_ajax.html:482
+msgid "CLOSE"
+msgstr "閉じる"
+
+#: viewer/actions_ajax.html:488
+msgid "NO"
+msgstr "いいえ"
+
+#: viewer/actions_ajax.html:493
+msgid "YES"
+msgstr "はい"
 
 #: viewer/base.html:36 viewer/base_ajax.html:38
 msgid "Hatohol"
@@ -206,11 +259,6 @@ msgstr "軽度の障害"
 #: viewer/triggers_ajax.html:86
 msgid "Warning"
 msgstr "警告"
-
-#: viewer/dashboard_ajax.html:65 viewer/events_ajax.html:77
-#: viewer/triggers_ajax.html:86
-msgid "Information"
-msgstr "情報"
 
 #: viewer/dashboard_ajax.html:66 viewer/events_ajax.html:77
 #: viewer/triggers_ajax.html:86
@@ -352,18 +400,3 @@ msgstr "最新の変更"
 #: viewer/triggers_ajax.html:60
 msgid "Acknowledged"
 msgstr "障害対応済"
-
-#~ msgid "ADD"
-#~ msgstr "追加"
-
-#~ msgid "Canncel"
-#~ msgstr "キャンセル"
-
-#~ msgid "CLOSE"
-#~ msgstr "閉じる"
-
-#~ msgid "NO"
-#~ msgstr "いいえ"
-
-#~ msgid "YES"
-#~ msgstr "はい"

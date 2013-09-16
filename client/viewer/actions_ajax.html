@@ -48,7 +48,8 @@
     <select id="select-host">
       <option>---------</option>
     </select>
-    <input id="delete-action-button" type="button" disabled value="Delete actions" />
+    <input id="delete-action-button" type="button" disabled
+     value="{% trans "DELETE ACTIONS" %}" />
   </form>
   <div id="add-action-dialog">
     <h3>{% trans "Condition" %}</h3>
@@ -195,8 +196,9 @@
     });
 
     $("#delete-action-button").click(function() {
-      showMessageBox("Are you really delete the selected actions",
-                     "Confirmation", NO_YES_BUTTON, deleteActions);
+      showMessageBox(
+        "{% trans "Do you delete the selected items ?" %}",
+        "{% trans "Confirmation" %}", NO_YES_BUTTON, deleteActions);
     });
 
     //
@@ -272,23 +274,24 @@
     //
     $("#add-action-dialog").dialog({
       autoOpen: false,
-      title: "Add Action",
+      title: "{% trans "ADD ACTION" %}",
       closeOnEscape: false,
       width:  "95%",
       modal: true,
       buttons: [
       {
-        text: "ADD",
+        text: "{% trans "ADD" %}",
         click: function() {
           if (validateAddParameters()) {
             makeQueryData();
-            showMessageBox("Now creating an action ...", "Information",
+            showMessageBox("{% trans "Now creating an action ..." %}",
+                           "{% trans "Information" %}",
                            undefined);
             postAddAction();
           }
         }
       }, {
-        text: "Canncel",
+        text: "{% trans "CANNCEL" %}",
         click: function() {
           $(this).dialog("close");
         }
@@ -297,7 +300,8 @@
 
     function validateAddParameters() {
       if ($("#inputActionCommand").val() == "") {
-        showMessageBox("Command is empty!", "Error", CLOSE_BUTTON);
+        showMessageBox("Command is empty!", "{% trans "Error" %}",
+                       CLOSE_BUTTON);
         return false;
       }
       return true;
@@ -382,7 +386,7 @@
         error: function(XMLHttpRequest, textStatus, errorThrown) {
           var errorMsg = "Error: " + XMLHttpRequest.status + ": " +
                          XMLHttpRequest.statusText;
-          showMessageBox(errorMsg, "Error", CLOSE_BUTTON);
+          showMessageBox(errorMsg, "{% trans "Error" %}", CLOSE_BUTTON);
         }
       })
     }
@@ -395,7 +399,8 @@
         $("#add-action-dialog").dialog("close");
 
       // close dialogs
-      showMessageBox("Successfully created.", "Information", CLOSE_BUTTON);
+      showMessageBox("{% trans "Successfully created." %}",
+                     "Information", CLOSE_BUTTON);
 
       // update the main view
       schedule(0000, "action");
@@ -463,7 +468,7 @@
         return;
 
       // close dialogs
-      showMessageBox("Completed. (Number of errors: " +
+      showMessageBox("{% trans "Completed. (Number of errors: " %}"+
                      deletedIdArray.errors + ")", "Information", CLOSE_BUTTON);
 
       // update the main view
@@ -474,18 +479,18 @@
     // Functions for message box.
     //
     var CLOSE_BUTTON = {
-        "CLOSE": function() {
+        "{% trans "CLOSE" %}": function() {
           $(this).dialog("close");
         }
     };
 
     var NO_YES_BUTTON = [{
-      text: "NO",
+      text: "{% trans "NO" %}",
       click: function() {
         $(this).dialog("close");
       }
     }, {
-      text: "YES",
+      text: "{% trans "YES" %}",
       click: function() {
       }
     }]
