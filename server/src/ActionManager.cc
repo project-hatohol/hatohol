@@ -753,7 +753,6 @@ void ActionManager::postProcSpawnFailure(
 	ActionLogExecFailureCode failureCode =
 	  error->code == G_SPAWN_ERROR_NOENT ?
 	    ACTLOG_EXECFAIL_ENTRY_NOT_FOUND : ACTLOG_EXECFAIL_EXEC_FAILURE;
-	g_error_free(error);
 	actorInfo->logId =
 	  m_ctx->dbAction.createActionLog(actionDef, failureCode);
 
@@ -771,6 +770,8 @@ void ActionManager::postProcSpawnFailure(
 	  LabelUtils::getTriggerStatusLabel(eventInfo.status).c_str(),
 	  LabelUtils::getTriggerSeverityLabel(eventInfo.severity).c_str(),
 	  eventInfo.hostId);
+
+	g_error_free(error);
 
 	// copy the log ID
 	if (logId)
