@@ -321,6 +321,17 @@ void test_getTriggerInfo(void)
 	assertTriggerInfo(targetTriggerInfo, triggerInfo);
 }
 
+void test_getTriggerInfoNotFound(void)
+{
+	setupTestTriggerDB();
+	uint32_t invalidSvId = -1;
+	uint32_t invalidTrigId = -1;
+	TriggerInfo triggerInfo;
+	DBClientHatohol dbHatohol;
+	cppcut_assert_equal(false,
+	   dbHatohol.getTriggerInfo(triggerInfo, invalidSvId, invalidTrigId));
+}
+
 void test_getTriggerInfoList(void)
 {
 	assertGetTriggerInfoList(ALL_SERVERS);
