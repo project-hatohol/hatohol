@@ -694,7 +694,7 @@ void ArmNagiosNDOUtils::getEvent(void)
 			eventInfo.status = TRIGGER_STATUS_PROBLEM;
 			if (state == STATE_WARNING)
 				eventInfo.severity = TRIGGER_SEVERITY_WARN;
-			if (state == STATE_CRITICAL)
+			else if (state == STATE_CRITICAL)
 				eventInfo.severity = TRIGGER_SEVERITY_CRITICAL;
 			else
 				eventInfo.severity = TRIGGER_SEVERITY_UNKNOWN;
