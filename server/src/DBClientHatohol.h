@@ -47,6 +47,8 @@ struct HostInfo {
 	string              nickname;
 };
 
+static const uint64_t INVALID_HOST_ID = -1;
+
 typedef list<HostInfo>               HostInfoList;
 typedef HostInfoList::iterator       HostInfoListIterator;
 typedef HostInfoList::const_iterator HostInfoListConstIterator;

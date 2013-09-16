@@ -167,6 +167,8 @@ protected:
 	  const ActionDef &actionDef, const EventInfo &eventInfo,
 	   ActorInfo *actorInfo, uint64_t *logId, GError *error);
 
+	void fillTriggerInfoInEventInfo(EventInfo &eventInfo);
+
 private:
 	PrivateContext *m_ctx;
 };

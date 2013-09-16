@@ -235,8 +235,11 @@ void ActionManager::checkEvents(const EventInfoList &eventList)
 // Protected methods
 // ---------------------------------------------------------------------------
 void ActionManager::runAction(const ActionDef &actionDef,
-                              const EventInfo &eventInfo)
+                              const EventInfo &_eventInfo)
 {
+	EventInfo eventInfo(_eventInfo);
+	fillTriggerInfoInEventInfo(eventInfo);
+
 	if (actionDef.type == ACTION_COMMAND) {
 		execCommandAction(actionDef, eventInfo);
 	} else if (actionDef.type == ACTION_RESIDENT) {
@@ -772,4 +775,26 @@ void ActionManager::postProcSpawnFailure(
 	// copy the log ID
 	if (logId)
 		*logId = actorInfo->logId;
+}
+
+void ActionManager::fillTriggerInfoInEventInfo(EventInfo &eventInfo)
+{
+	DBClientHatohol dbHatohol;
+	TriggerInfo triggerInfo;
+	bool succedded =
+	   dbHatohol.getTriggerInfo(triggerInfo,
+	                            eventInfo.serverId, eventInfo.triggerId);
+	if (succedded) {
+		eventInfo.severity = triggerInfo.severity;
+		eventInfo.hostId   = triggerInfo.hostId;
+		eventInfo.hostName = triggerInfo.hostName;
+		eventInfo.brief    = triggerInfo.brief;
+	} else {
+		MLPL_ERR("Not found: svID: %"PRIu32", trigID: %"PRIu64"\n",
+		         eventInfo.serverId, eventInfo.triggerId);
+		eventInfo.severity = TRIGGER_SEVERITY_UNKNOWN;
+		eventInfo.hostId   = INVALID_HOST_ID;
+		eventInfo.hostName.clear();
+		eventInfo.brief.clear();
+	}
 }
