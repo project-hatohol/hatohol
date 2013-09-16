@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-09-16 00:51-0500\n"
+"POT-Creation-Date: 2013-09-16 16:30-0500\n"
 "PO-Revision-Date: 2013-09-13 15:28+0900\n"
 "Last-Translator: Takuro Ashie <ashie@clear-code.com>\n"
 "Language-Team: Project Hatohol\n"
@@ -79,6 +79,10 @@ msgstr "サーバ"
 msgid "Actions"
 msgstr "アクション"
 
+#: viewer/actions_ajax.html:38
+msgid "ADD ACTION"
+msgstr "アクション追加"
+
 #: viewer/actions_ajax.html:54
 msgid "Condition"
 msgstr "条件"
@@ -89,6 +93,11 @@ msgstr "条件"
 #: viewer/triggers_ajax.html:55
 msgid "Server"
 msgstr "サーバ"
+
+#: viewer/actions_ajax.html:59 viewer/actions_ajax.html.py:66
+#: viewer/actions_ajax.html:72 viewer/actions_ajax.html.py:80
+msgid "SELECT"
+msgstr "選択"
 
 #: viewer/actions_ajax.html:62 viewer/actions_ajax.html.py:142
 msgid "Host Group"
@@ -129,6 +138,14 @@ msgstr "実行パラメータ"
 #: viewer/servers_ajax.html:41
 msgid "Type"
 msgstr "タイプ"
+
+#: viewer/actions_ajax.html:107
+msgid "COMMAND"
+msgstr "コマンド"
+
+#: viewer/actions_ajax.html:108
+msgid "RESIDENT"
+msgstr "常駐"
 
 #: viewer/actions_ajax.html:111 viewer/actions_ajax.html.py:149
 msgid "Time-out (sec)"
@@ -335,9 +352,6 @@ msgstr "最新の変更"
 #: viewer/triggers_ajax.html:60
 msgid "Acknowledged"
 msgstr "障害対応済"
-
-#~ msgid "Add an action"
-#~ msgstr "アクション追加"
 
 #~ msgid "ADD"
 #~ msgstr "追加"

@@ -35,7 +35,7 @@
   <h2>{% trans "Actions" %}</h2>
 
   <form class="form-inline">
-    <input id="add-action-button" type="button" value="Add an action" />
+    <input id="add-action-button" type="button" value="{% trans "ADD ACTION" %}" />
     <label>Server:</label>
     <select id="select-server">
       <option>---------</option>
@@ -56,20 +56,20 @@
       <label>{% trans "Server" %}</label>
       <select id="selectServerId">
         <option value="ANY">ANY</option>
-        <option value="select">== SELECT ==</option>
+        <option value="select">== {% trans "SELECT" %} ==</option>
       </select>
 
       <label>{% trans "Host Group" %}</label>
       <select id="selectHostGroupId">
         <option value="ANY">ANY</option>
         <!-- Currently host group ID is not supported
-        <option value="select">== SELECT ==</option>
+        <option value="select">== {% trans "SELECT" %} ==</option>
         -->
       </select>
       <label>{% trans "Host" %}</label>
       <select id="selectHostId">
         <option value="ANY">ANY</option>
-        <option value="select">== SELECT ==</option>
+        <option value="select">== {% trans "SELECT" %} ==</option>
       </select>
     </form>
 
@@ -77,7 +77,7 @@
       <label>{% trans "Trigger" %}</label>
       <select id="selectTriggerId">
         <option value="ANY">ANY</option>
-        <option value="select">== SELECT ==</option>
+        <option value="select">== {% trans "SELECT" %} ==</option>
       </select>
 
       <label>{% trans "Status" %}</label>
@@ -104,8 +104,8 @@
     <form class="form-inline">
       <label>{% trans "Type" %}</label>
       <select id="selectType">
-        <option value="ACTION_COMMAND">COMMAND</option>
-        <option value="ACTION_RESIDENT">RESIDENT</option>
+        <option value="ACTION_COMMAND">{% trans "COMMAND" %}</option>
+        <option value="ACTION_RESIDENT">{% trans "RESIDENT" %}</option>
       </select>
 
       <label>{% trans "Time-out (sec)" %}</label>
