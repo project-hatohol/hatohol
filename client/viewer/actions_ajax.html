@@ -1,4 +1,5 @@
 {% extends "viewer/base_ajax.html" %}
+{% load i18n %}
 
 {% comment %}
   Copyright (C) 2013 Project Hatohol
@@ -20,18 +21,18 @@
 {% endcomment %}
 
 {% block navbar %}
-  <li><a href="ajax_dashboard">ダッシュボード</a></li>
-  <li><a href="ajax_overview_triggers">概要:トリガー</a></li>
-  <li><a href="ajax_overview_items">概要:アイテム</a></li>
-  <li><a href="ajax_latest">最新データ</a></li>
-  <li><a href="ajax_trigger">トリガー</a></li>
-  <li><a href="ajax_events">イベント</a></li>
-  <li><a href="ajax_servers">サーバ管理</a></li>
-  <li class="active"><a>アクション</a></li>
+  <li><a href="ajax_dashboard">{% trans "Dashboard" %}</a></li>
+  <li><a href="ajax_overview_triggers">{% trans "Overview : Triggers" %}</a></li>
+  <li><a href="ajax_overview_items">{% trans "Overview : Items" %}</a></li>
+  <li><a href="ajax_latest">{% trans "Latest data" %}</a></li>
+  <li><a href="ajax_triggers">{% trans "Triggers" %}</a></li>
+  <li><a href="ajax_events">{% trans "Events" %}</a></li>
+  <li><a href="ajax_servers">{% trans "Servers" %}</a></li>
+  <li class="active"><a>{% trans "Actions" %}</a></li>
 {% endblock %}
 
 {% block main %}
-  <h2>アクション</h2>
+  <h2>{% trans "Actions" %}</h2>
 
   <form class="form-inline">
     <input id="add-action-button" type="button" value="Add an action" />
@@ -50,22 +51,22 @@
     <input id="delete-action-button" type="button" disabled value="Delete actions" />
   </form>
   <div id="add-action-dialog">
-    <h3>条件</h3>
+    <h3>{% trans "Condition" %}</h3>
     <form class="form-inline">
-      <label>サーバ</label>
+      <label>{% trans "Server" %}</label>
       <select id="selectServerId">
         <option value="ANY">ANY</option>
         <option value="select">== SELECT ==</option>
       </select>
 
-      <label>ホストグループ</label>
+      <label>{% trans "Host Group" %}</label>
       <select id="selectHostGroupId">
         <option value="ANY">ANY</option>
         <!-- Currently host group ID is not supported
         <option value="select">== SELECT ==</option>
         -->
       </select>
-      <label>ホスト</label>
+      <label>{% trans "Host" %}</label>
       <select id="selectHostId">
         <option value="ANY">ANY</option>
         <option value="select">== SELECT ==</option>
@@ -73,20 +74,20 @@
     </form>
 
     <form class="form-inline">
-      <label>トリガー</label>
+      <label>{% trans "Trigger" %}</label>
       <select id="selectTriggerId">
         <option value="ANY">ANY</option>
         <option value="select">== SELECT ==</option>
       </select>
 
-      <label>トリガー状態</label>
+      <label>{% trans "Status" %}</label>
       <select id="selectTriggerStatus">
         <option value="ANY">ANY</option>
         <option value="TRIGGER_STATUS_OK">OK</option>
         <option value="TRIGGER_STATUS_PROBLEM">PROBLM</option>
       </select>
 
-      <label>深刻度</label>
+      <label>{% trans "Severity" %}</label>
       <select id="selectTriggerSeverity">
         <option value="ANY">ANY</option>
         <option value="INFO">INFO</option>
@@ -94,31 +95,31 @@
         <option value="CRITICAL">CRITICAL</option>
       </select>
       <select id="selectTriggerSeverityCompType" style="visibility:hidden;">
-        <option value="CMP_EQ">一致</option>
-        <option value="CMP_EQ_GT">以上</option>
+        <option value="CMP_EQ">{% trans "Equal to" %}</option>
+        <option value="CMP_EQ_GT">{% trans "Equal to or greater than" %}</option>
       </select>
     </form>
 
-    <h3>実行内容</h3>
+    <h3>{% trans "Execution parameters" %}</h3>
     <form class="form-inline">
-      <label>タイプ</label>
+      <label>{% trans "Type" %}</label>
       <select id="selectType">
         <option value="ACTION_COMMAND">COMMAND</option>
         <option value="ACTION_RESIDENT">RESIDENT</option>
       </select>
 
-      <label>タイムアウト (秒)</label>
+      <label>{% trans "Time-out (sec)" %}</label>
       <input id="inputTimeout" value="0">
-      <label> (0: 無制限)</label>
+      <label>{% trans "(0: No limit)" %}</label>
     </form>
 
     <form class="form-inline">
-      <label>コマンド</label>
+      <label>{% trans "Command" %}</label>
       <input id="inputActionCommand" value="" style="width:100%;">
     </form>
 
     <form class="form-inline">
-      <label>作業ディレクトリ</label>
+      <label>{% trans "Execution directory" %}</label>
       <input id="inputWorkingDir" value="" style="width:100%;">
     </form>
 
@@ -136,16 +137,16 @@
       <tr>
         <th>  </th>
         <th data-sort="int"> ID </th>
-        <th data-sort="string"> サーバ </th>
-        <th data-sort="string"> ホスト </th>
-        <th data-sort="string"> ホストグループ </th>
-        <th data-sort="int"> トリガーID </th>
-        <th data-sort="string"> トリガー状態 </th>
-        <th data-sort="string"> 深刻度 </th>
-        <th data-sort="string"> タイプ </th>
-        <th data-sort="string"> 作業ディレクトリ </th>
-        <th data-sort="string"> コマンド </th>
-        <th data-sort="int"> タイムアウト(秒) </th>
+        <th data-sort="string"> {% trans "Server" %} </th>
+        <th data-sort="string"> {% trans "Host" %} </th>
+        <th data-sort="string"> {% trans "Host Group" %} </th>
+        <th data-sort="int"> {% trans "Trigger" %} </th>
+        <th data-sort="string"> {% trans "Status" %} </th>
+        <th data-sort="string"> {% trans "Severity" %} </th>
+        <th data-sort="string"> {% trans "Type" %} </th>
+        <th data-sort="string"> {% trans "Execution directory" %} </th>
+        <th data-sort="string"> {% trans "Command" %} </th>
+        <th data-sort="int"> {% trans "Time-out (sec)" %} </th>
       </tr>
     </thead>
     <tbody>
