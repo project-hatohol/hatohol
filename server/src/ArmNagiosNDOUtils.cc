@@ -615,15 +615,15 @@ void ArmNagiosNDOUtils::getTrigger(void)
 		   itemGroup->getItemAt(idx++), ItemInt, itemStatus);
 		int currentStatus = itemStatus->get();
 		trigInfo.status = TRIGGER_STATUS_OK;
-		trigInfo.severity = TRIGGER_SEVERITY_UNKNOWN;
+		trigInfo.severity = TRIGGER_SEVERITY_INFO;
 		if (currentStatus != STATE_OK) {
 			trigInfo.status = TRIGGER_STATUS_PROBLEM;
 			if (currentStatus == STATE_WARNING)
-				trigInfo.severity = TRIGGER_SEVERITY_WARN;
+				trigInfo.severity = TRIGGER_SEVERITY_WARNING;
 			else if (currentStatus == STATE_CRITICAL)
 				trigInfo.severity = TRIGGER_SEVERITY_CRITICAL;
 			else
-				MLPL_WARN("Unknown status: %d", currentStatus);
+				trigInfo.severity = TRIGGER_SEVERITY_UNKNOWN;
 		}
 
 		// lastChangeTime (status_update_time)
@@ -688,12 +688,12 @@ void ArmNagiosNDOUtils::getEvent(void)
 		if (state == STATE_OK) {
 			eventInfo.type = EVENT_TYPE_GOOD;
 			eventInfo.status = TRIGGER_STATUS_OK,
-			eventInfo.severity = TRIGGER_SEVERITY_UNKNOWN;
+			eventInfo.severity = TRIGGER_SEVERITY_INFO;
 		} else {
 			eventInfo.type = EVENT_TYPE_BAD;
 			eventInfo.status = TRIGGER_STATUS_PROBLEM;
 			if (state == STATE_WARNING)
-				eventInfo.severity = TRIGGER_SEVERITY_WARN;
+				eventInfo.severity = TRIGGER_SEVERITY_WARNING;
 			else if (state == STATE_CRITICAL)
 				eventInfo.severity = TRIGGER_SEVERITY_CRITICAL;
 			else

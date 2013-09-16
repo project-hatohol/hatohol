@@ -54,14 +54,18 @@ string LabelUtils::getTriggerStatusLabel(TriggerStatusType status)
 string LabelUtils::getTriggerSeverityLabel(TriggerSeverityType severity)
 {
 	switch (severity) {
-	case TRIGGER_SEVERITY_INFO:
-		return "INFO";
-	case TRIGGER_SEVERITY_WARN:
-		return "WARN";
-	case TRIGGER_SEVERITY_CRITICAL:
-		return "CRITICAL";
 	case TRIGGER_SEVERITY_UNKNOWN:
 		return "UNKNWON";
+	case TRIGGER_SEVERITY_INFO:
+		return "INFO";
+	case TRIGGER_SEVERITY_WARNING:
+		return "WARNING";
+	case TRIGGER_SEVERITY_ERROR:
+		return "ERRNOR";
+	case TRIGGER_SEVERITY_CRITICAL:
+		return "CRITICAL";
+	case TRIGGER_SEVERITY_EMERGENCY:
+		return "EMERGENCY";
 	default:
 		return StringUtils::sprintf("Invalid: %d", severity);
 	}
