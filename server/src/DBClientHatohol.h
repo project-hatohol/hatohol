@@ -26,6 +26,7 @@
 enum TriggerStatusType {
 	TRIGGER_STATUS_OK,
 	TRIGGER_STATUS_PROBLEM,
+	TRIGGER_STATUS_UNKNOWN,
 };
 
 enum TriggerSeverityType {

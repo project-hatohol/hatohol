@@ -1836,6 +1836,18 @@ bool DBClientZabbix::transformEventItemGroupToEventInfo
 	  ItemInt, itemNs);
 	eventInfo.time.tv_nsec = itemNs->get();
 
+	// Trigger's value. This can be transformed from Event's value
+	// This value is refered in ActionManager. So we set here.
+	switch (eventInfo.type) {
+	case EVENT_TYPE_ACTIVATED:
+		eventInfo.status = TRIGGER_STATUS_PROBLEM;
+	case EVENT_TYPE_DEACTIVATED:
+		eventInfo.status = TRIGGER_STATUS_OK;
+	default:
+		MLPL_ERR("Unknown status: %d\n", eventInfo.status);
+		eventInfo.status = TRIGGER_STATUS_UNKNOWN;
+	}
+
 	return true;
 }
 
