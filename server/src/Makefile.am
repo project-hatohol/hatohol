@@ -50,6 +50,7 @@ libhatohol_la_SOURCES = \
 	ItemTable.cc ItemTable.h \
 	ItemTablePtr.cc ItemTablePtr.h \
 	ItemTableUtils.h \
+	LabelUtils.cc LabelUtils.h \
 	NamedPipe.cc NamedPipe.h \
 	JsonBuilderAgent.cc JsonBuilderAgent.h \
 	JsonParserAgent.cc JsonParserAgent.h \

@@ -686,11 +686,11 @@ void ArmNagiosNDOUtils::getEvent(void)
 		   itemGroup->getItemAt(idx++), ItemInt, itemState);
 		int state = itemState->get();
 		if (state == STATE_OK) {
-			eventInfo.type = EVENT_TYPE_DEACTIVATED;
+			eventInfo.type = EVENT_TYPE_GOOD;
 			eventInfo.status = TRIGGER_STATUS_OK,
 			eventInfo.severity = TRIGGER_SEVERITY_UNKNOWN;
 		} else {
-			eventInfo.type = EVENT_TYPE_ACTIVATED;
+			eventInfo.type = EVENT_TYPE_BAD;
 			eventInfo.status = TRIGGER_STATUS_PROBLEM;
 			if (state == STATE_WARNING)
 				eventInfo.severity = TRIGGER_SEVERITY_WARN;

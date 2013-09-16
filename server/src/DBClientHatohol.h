@@ -22,11 +22,11 @@
 
 #include <list>
 #include "DBClient.h"
-#include "DBClient.h"
 
 enum TriggerStatusType {
 	TRIGGER_STATUS_OK,
 	TRIGGER_STATUS_PROBLEM,
+	TRIGGER_STATUS_UNKNOWN,
 };
 
 enum TriggerSeverityType {
@@ -46,6 +46,8 @@ struct HostInfo {
 	string              ipAddr;
 	string              nickname;
 };
+
+static const uint64_t INVALID_HOST_ID = -1;
 
 typedef list<HostInfo>               HostInfoList;
 typedef HostInfoList::iterator       HostInfoListIterator;
@@ -67,8 +69,8 @@ typedef TriggerInfoList::iterator       TriggerInfoListIterator;
 typedef TriggerInfoList::const_iterator TriggerInfoListConstIterator;
 
 enum EventType {
-	EVENT_TYPE_ACTIVATED,
-	EVENT_TYPE_DEACTIVATED,
+	EVENT_TYPE_GOOD,
+	EVENT_TYPE_BAD,
 	EVENT_TYPE_UNKNOWN,
 };
 
@@ -122,6 +124,22 @@ public:
 
 	void addTriggerInfo(TriggerInfo *triggerInfo);
 	void addTriggerInfoList(const TriggerInfoList &triggerInfoList);
+
+	/**
+	 * Get the trigger information with the specified server ID and
+	 * the trigger ID.
+	 *
+	 * @param triggerInfo
+	 * Obtained information is copied to this instance.
+	 *
+	 * @param serverId  A server ID to be obtained.
+	 * @param triggerId A trigger ID to be obtained.
+	 *
+	 * @return true if the trigger information is found. Otherwise false.
+	 *
+	 */
+	bool getTriggerInfo(TriggerInfo &triggerInfo,
+	                    uint32_t serverId, uint64_t triggerId);
 	void getTriggerInfoList(TriggerInfoList &triggerInfoList,
 	                        uint32_t targetServerId = ALL_SERVERS);
 	void setTriggerInfoList(const TriggerInfoList &triggerInfoList,
@@ -176,6 +194,9 @@ protected:
 	void addTriggerInfoBare(const TriggerInfo &triggerInfo);
 	void addEventInfoBare(const EventInfo &eventInfo);
 	void addItemInfoBare(const ItemInfo &itemInfo);
+
+	void getTriggerInfoList(TriggerInfoList &triggerInfoList,
+	                        const string &condition);
 
 private:
 	struct PrivateContext;

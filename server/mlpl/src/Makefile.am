@@ -11,4 +11,4 @@ includedir = $(prefix)/include/mlpl
 include_HEADERS = \
 	MutexLock.h ReadWriteLock.h \
 	SmartBuffer.h Logger.h StringUtils.h SmartQueue.h ParsableString.h \
-	TimeCounter.h
+	TimeCounter.h Reaper.h

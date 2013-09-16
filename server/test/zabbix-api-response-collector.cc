@@ -26,10 +26,23 @@
 static const int DEFAULT_PORT = 80;
 static const int ZBX_SVR_ID = 0;
 
+struct CommandContext {
+	const string   &command;
+	vector<string> &cmdArgs;
+	bool            showOpenInfo;
+
+	CommandContext(const string &_command, vector<string> &_cmdArgs)
+	: command(_command),
+	  cmdArgs(_cmdArgs),
+	  showOpenInfo(true)
+	{
+	}
+};
+
 class ZabbixAPIResponseCollector : public ArmZabbixAPI
 {
 	typedef bool (ZabbixAPIResponseCollector::*CommandFunc)
-	               (const string &command, vector<string>& cmdArgs);
+	               (CommandContext &ctx);
 	typedef map<string, CommandFunc> CommandFuncMap;
 	typedef CommandFuncMap::iterator CommandFuncMapIterator;
 
@@ -37,15 +50,16 @@ class ZabbixAPIResponseCollector : public ArmZabbixAPI
 public:
 	ZabbixAPIResponseCollector(const MonitoringServerInfo &serverInfo);
 	virtual ~ZabbixAPIResponseCollector();
-	bool execute(const string &command, vector<string> &cmdArg);
+	bool execute(CommandContext &ctx);
 
 protected:
-	bool commandFuncTrigger(const string &command, vector<string>& cmdArgs);
-	bool commandFuncItem(const string &command, vector<string>& cmdArgs);
-	bool commandFuncHost(const string &command, vector<string>& cmdArgs);
-	bool commandFuncEvent(const string &command, vector<string>& cmdArgs);
-	bool commandFuncApplication(const string &command, vector<string>& cmdArgs);
-	bool commandFuncOpen(const string &command, vector<string>& cmdArgs);
+	bool commandFuncTrigger(CommandContext &ctx);
+	bool commandFuncItem(CommandContext &ctx);
+	bool commandFuncHost(CommandContext &ctx);
+	bool commandFuncEvent(CommandContext &ctx);
+	bool commandFuncApplication(CommandContext &ctx);
+	bool commandFuncOpen(CommandContext &ctx);
+	bool commandFuncOpenSilent(CommandContext &ctx);
 };
 
 ZabbixAPIResponseCollector::ZabbixAPIResponseCollector
@@ -70,33 +84,37 @@ ZabbixAPIResponseCollector::~ZabbixAPIResponseCollector()
 {
 }
 
-bool ZabbixAPIResponseCollector::execute(const string &command,
-                                         vector<string> &cmdArgs)
+bool ZabbixAPIResponseCollector::execute(CommandContext &ctx)
 {
-	CommandFuncMapIterator it = m_commandFuncMap.find(command);
+	CommandFuncMapIterator it = m_commandFuncMap.find(ctx.command);
 	if (it == m_commandFuncMap.end()) {
-		fprintf(stderr, "Unknwon command: %s\n", command.c_str());
+		fprintf(stderr, "Unknwon command: %s\n", ctx.command.c_str());
 		return false;
 	}
 	CommandFunc func = it->second;
-	return (this->*func)(command, cmdArgs);
+	return (this->*func)(ctx);
 }
 
-bool ZabbixAPIResponseCollector::commandFuncOpen
-  (const string &command, vector<string>& cmdArgs)
+bool ZabbixAPIResponseCollector::commandFuncOpen(CommandContext &ctx)
 {
 	SoupMessage *msg;
 	if (!openSession(&msg))
 		return false;
-	printf("%s\n", msg->response_body->data);
+	if (ctx.showOpenInfo)
+		printf("%s\n", msg->response_body->data);
 	g_object_unref(msg);
 	return true;
 }
 
-bool ZabbixAPIResponseCollector::commandFuncTrigger
-  (const string &command, vector<string>& cmdArgs)
+bool ZabbixAPIResponseCollector::commandFuncOpenSilent(CommandContext &ctx)
 {
-	if (!commandFuncOpen(command, cmdArgs))
+	ctx.showOpenInfo = false;
+	return commandFuncOpen(ctx);
+}
+
+bool ZabbixAPIResponseCollector::commandFuncTrigger(CommandContext &ctx)
+{
+	if (!commandFuncOpenSilent(ctx))
 		return false;
 
 	SoupMessage *msg = queryTrigger();
@@ -107,10 +125,9 @@ bool ZabbixAPIResponseCollector::commandFuncTrigger
 	return true;
 }
 
-bool ZabbixAPIResponseCollector::commandFuncItem
-  (const string &command, vector<string>& cmdArgs)
+bool ZabbixAPIResponseCollector::commandFuncItem(CommandContext &ctx)
 {
-	if (!commandFuncOpen(command, cmdArgs))
+	if (!commandFuncOpenSilent(ctx))
 		return false;
 
 	SoupMessage *msg = queryItem();
@@ -121,10 +138,9 @@ bool ZabbixAPIResponseCollector::commandFuncItem
 	return true;
 }
 
-bool ZabbixAPIResponseCollector::commandFuncHost
-  (const string &command, vector<string>& cmdArgs)
+bool ZabbixAPIResponseCollector::commandFuncHost(CommandContext &ctx)
 {
-	if (!commandFuncOpen(command, cmdArgs))
+	if (!commandFuncOpenSilent(ctx))
 		return false;
 
 	vector<uint64_t> hostIds; // empty means all hosts.
@@ -136,10 +152,9 @@ bool ZabbixAPIResponseCollector::commandFuncHost
 	return true;
 }
 
-bool ZabbixAPIResponseCollector::commandFuncEvent
-  (const string &command, vector<string>& cmdArgs)
+bool ZabbixAPIResponseCollector::commandFuncEvent(CommandContext &ctx)
 {
-	if (!commandFuncOpen(command, cmdArgs))
+	if (!commandFuncOpenSilent(ctx))
 		return false;
 
 	SoupMessage *msg = queryEvent(0);
@@ -150,10 +165,9 @@ bool ZabbixAPIResponseCollector::commandFuncEvent
 	return true;
 }
 
-bool ZabbixAPIResponseCollector::commandFuncApplication
-  (const string &command, vector<string>& cmdArgs)
+bool ZabbixAPIResponseCollector::commandFuncApplication(CommandContext &ctx)
 {
-	if (!commandFuncOpen(command, cmdArgs))
+	if (!commandFuncOpenSilent(ctx))
 		return false;
 
 	vector<uint64_t> hostIds; // empty means all hosts.
@@ -207,11 +221,15 @@ int main(int argc, char *argv[])
 		DEFAULT_PORT,             // port
 		10,                       // polling_interval_sec
 		5,                        // retry_interval_sec
+
+		"admin",                  // userName
+		"zabbix",                 // password
 	};
 	serverInfo.hostName = server;
 
 	ZabbixAPIResponseCollector collector(serverInfo);
-	if (!collector.execute(command, cmdArgs))
+	CommandContext ctx(command, cmdArgs);
+	if (!collector.execute(ctx))
 		return EXIT_FAILURE;
 	return EXIT_SUCCESS;
 }

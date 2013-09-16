@@ -177,6 +177,54 @@ void test_addAction(void)
 	}
 }
 
+void test_deleteAction(void)
+{
+	DBClientAction dbAction;
+	test_addAction(); // add all test actions
+
+	// we delete 2nd one
+	size_t targetIdx = 1;
+	ActionIdList idList;
+	idList.push_back(testActionDef[targetIdx].id);
+	dbAction.deleteActions(idList);
+
+	// check
+	string expect;
+	for (size_t i = 0; i < NumTestActionDef; i++) {
+		if (i == targetIdx)
+			continue;
+		const int expectedId = i + 1;
+		expect += StringUtils::sprintf("%d\n", expectedId);
+	}
+
+	string statement = "select action_id from ";
+	statement += DBClientAction::getTableNameActions();
+	assertDBContent(dbAction.getDBAgent(), statement, expect);
+}
+
+void test_deleteActionMultiple(void)
+{
+	DBClientAction dbAction;
+	test_addAction(); // add all test actions
+
+	// we delete items with even IDs.
+	string expect;
+	ActionIdList idList;
+	for (size_t i = 0; i < NumTestActionDef; i++) {
+		const int expectedId = i + 1;
+		if (expectedId % 2 == 0)
+			idList.push_back(expectedId);
+		else
+			expect += StringUtils::sprintf("%d\n", expectedId);
+	}
+	dbAction.deleteActions(idList);
+
+	// check
+	string statement = "select action_id from ";
+	statement += DBClientAction::getTableNameActions();
+	assertDBContent(dbAction.getDBAgent(), statement, expect);
+}
+
 void test_startExecAction(void)
 {
 	string expect;
@@ -266,7 +314,7 @@ void test_getTriggerActionList(void)
 	eventInfo.id        = 0;
 	eventInfo.time.tv_sec  = 1378339653;
 	eventInfo.time.tv_nsec = 6889;
-	eventInfo.type      = EVENT_TYPE_ACTIVATED;
+	eventInfo.type      = EVENT_TYPE_GOOD;
 	eventInfo.triggerId = condDummy.triggerId;
 	eventInfo.status    = (TriggerStatusType) condTarget.triggerStatus;
 	eventInfo.severity  = (TriggerSeverityType) condTarget.triggerSeverity;
@@ -297,7 +345,7 @@ void test_getTriggerActionListWithAllCondition(void)
 	eventInfo.id        = 0;
 	eventInfo.time.tv_sec  = 1378339653;
 	eventInfo.time.tv_nsec = 6889;
-	eventInfo.type      = EVENT_TYPE_ACTIVATED;
+	eventInfo.type      = EVENT_TYPE_GOOD;
 	eventInfo.triggerId = condTarget.triggerId;
 	eventInfo.status    = (TriggerStatusType) condTarget.triggerStatus;
 	eventInfo.severity  = (TriggerSeverityType) condTarget.triggerSeverity;

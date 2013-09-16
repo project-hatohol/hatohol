@@ -570,6 +570,33 @@ void DBClientAction::getActionList(ActionDefList &actionDefList,
 	}
 }
 
+void DBClientAction::deleteActions(const ActionIdList &idList)
+{
+	if (idList.empty()) {
+		MLPL_WARN("idList is empty.\n");
+		return;
+	}
+	
+	DBAgentDeleteArg arg;
+	arg.tableName = TABLE_NAME_ACTIONS;
+	const ColumnDef &colId = COLUMN_DEF_ACTIONS[IDX_ACTIONS_ACTION_ID];
+	arg.condition = StringUtils::sprintf("%s in (", colId.columnName);
+	ActionIdListConstIterator it = idList.begin();
+	while (true) {
+		const int id = *it;
+		arg.condition += StringUtils::sprintf("%d", id);
+		++it;
+		if (it == idList.end())
+			break;
+		arg.condition += ",";
+	}
+	arg.condition += ")";
+
+	DBCLIENT_TRANSACTION_BEGIN() {
+		deleteRows(arg);
+	} DBCLIENT_TRANSACTION_END();
+}
+
 uint64_t DBClientAction::createActionLog
   (const ActionDef &actionDef, ActionLogExecFailureCode failureCode,
    ActionLogStatus initialStatus)

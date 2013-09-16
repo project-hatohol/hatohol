@@ -59,7 +59,8 @@ libTest_la_SOURCES = \
 	ZabbixAPIEmulator.cc Synchronizer.cc \
 	FormulaTestUtils.h Helpers.h DBAgentTest.h DBClientTest.h \
 	ZabbixAPIEmulator.h Synchronizer.h \
-	ExceptionTestUtils.h AssertJoin.h
+	ExceptionTestUtils.h AssertJoin.h \
+	MultiLangTest.h
 libTest_la_LDFLAGS =
 
 ActionTp_SOURCES = ActionTp.cc ActionTp.h

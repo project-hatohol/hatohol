@@ -25,13 +25,19 @@
 #include "DBAgentSQLite3.h"
 #include "DBClientTest.h"
 #include "Params.h"
+#include "MultiLangTest.h"
 
 namespace testFaceRest {
+
+typedef map<string, string>       StringMap;
+typedef StringMap::iterator       StringMapIterator;
+typedef StringMap::const_iterator StringMapConstIterator;
 
 static const unsigned int TEST_PORT = 53194;
 static const char *TEST_DB_CONFIG_NAME = "test_db_config";
 static const char *TEST_DB_HATOHOL_NAME = "testDatabase-hatohol.db";
 
+static StringMap    emptyStringMap;
 static FaceRest *g_faceRest = NULL;
 static JsonParserAgent *g_parser = NULL;
 
@@ -50,23 +56,72 @@ static void startFaceRest(void)
 	g_faceRest->start();
 }
 
-static JsonParserAgent *getResponseAsJsonParser(const string &url,
-                                                const string &callbackName = "")
+static string makeQueryString(const StringMap &parameters,
+                              const string &callbackName)
 {
-	string callbackParam;
+	GHashTable *hashTable = g_hash_table_new(g_str_hash, g_str_equal);
+	cppcut_assert_not_null(hashTable);
+	StringMapConstIterator it = parameters.begin();
+	for (; it != parameters.end(); ++it) {
+		string key = it->first;
+		string val = it->second;
+		g_hash_table_insert(hashTable,
+		                    (void *)key.c_str(), (void *)val.c_str());
+	}
 	if (!callbackName.empty()) {
-		callbackParam = "?callback=";
-		callbackParam += callbackName;
+		g_hash_table_insert(hashTable, (void *)"callback",
+		                    (void *)callbackName.c_str());
+		g_hash_table_insert(hashTable, (void *)"fmt", (void *)"jsonp");
+	}
+
+	char *encoded = soup_form_encode_hash(hashTable);
+	string queryString = encoded;
+	g_free(encoded);
+	g_hash_table_unref(hashTable);
+	return queryString;
+}
+
+static string makeQueryStringForCurlPost(const StringMap &parameters,
+                                         const string &callbackName)
+{
+	string postDataArg;
+	StringVector queryVect;
+	string joinedString = makeQueryString(parameters, callbackName);
+	StringUtils::split(queryVect, joinedString, '&');
+	for (size_t i = 0; i < queryVect.size(); i++) {
+		postDataArg += " -d ";
+		postDataArg += queryVect[i];
+	}
+	return postDataArg;
+}
+
+static JsonParserAgent *getResponseAsJsonParser(
+  const string &url, const string &callbackName = "",
+  const StringMap &parameters = emptyStringMap,
+  const string &request = "GET")
+{
+	// make encoded query parameters
+	string joinedQueryParams;
+	string postDataArg;
+	if (request == "POST") {
+		postDataArg =
+		   makeQueryStringForCurlPost(parameters, callbackName);
+	} else {
+		joinedQueryParams = makeQueryString(parameters, callbackName);
+		if (!joinedQueryParams.empty())
+			joinedQueryParams = "?" + joinedQueryParams;
 	}
 
 	// get reply with wget
 	string getCmd =
-	  StringUtils::sprintf("wget http://localhost:%u%s%s -O -",
-	                       TEST_PORT, url.c_str(), callbackParam.c_str());
+	  StringUtils::sprintf("curl -X %s %s http://localhost:%u%s%s",
+	                       request.c_str(), postDataArg.c_str(),
+	                       TEST_PORT, url.c_str(),
+	                       joinedQueryParams.c_str());
 	string response = executeCommand(getCmd);
 
 	// if JSONP, check the callback name
-	if (!callbackParam.empty()) {
+	if (!callbackName.empty()) {
 		size_t lenCallbackName = callbackName.size();
 		size_t minimumLen = lenCallbackName + 2; // +2 for ''(' and ')'
 		cppcut_assert_equal(true, response.size() > minimumLen);
@@ -225,7 +280,7 @@ static void _assertServers(const string &path, const string &callbackName = "")
 	startFaceRest();
 	g_parser = getResponseAsJsonParser(path, callbackName);
 	assertValueInParser(g_parser, "apiVersion",
-	                    (uint32_t)FaceRest::API_VERSION_SERVERS);
+	                    (uint32_t)FaceRest::API_VERSION_SERVER);
 	assertValueInParser(g_parser, "result", true);
 	assertServersInParser(g_parser);
 }
@@ -236,7 +291,7 @@ static void _assertTriggers(const string &path, const string &callbackName = "")
 	startFaceRest();
 	g_parser = getResponseAsJsonParser(path, callbackName);
 	assertValueInParser(g_parser, "apiVersion",
-	                    (uint32_t)FaceRest::API_VERSION_TRIGGERS);
+	                    (uint32_t)FaceRest::API_VERSION_TRIGGER);
 	assertValueInParser(g_parser, "result", true);
 	assertValueInParser(g_parser, "numberOfTriggers",
 	                    (uint32_t)NumTestTriggerInfo);
@@ -259,7 +314,7 @@ static void _assertEvents(const string &path, const string &callbackName = "")
 	startFaceRest();
 	g_parser = getResponseAsJsonParser(path, callbackName);
 	assertValueInParser(g_parser, "apiVersion",
-	                    (uint32_t)FaceRest::API_VERSION_EVENTS);
+	                    (uint32_t)FaceRest::API_VERSION_EVENT);
 	assertValueInParser(g_parser, "result", true);
 	assertValueInParser(g_parser, "numberOfEvents",
 	                    (uint32_t)NumTestEventInfo);
@@ -292,7 +347,7 @@ static void _assertItems(const string &path, const string &callbackName = "")
 	startFaceRest();
 	g_parser = getResponseAsJsonParser(path, callbackName);
 	assertValueInParser(g_parser, "apiVersion",
-	                    (uint32_t)FaceRest::API_VERSION_ITEMS);
+	                    (uint32_t)FaceRest::API_VERSION_ITEM);
 	assertValueInParser(g_parser, "result", true);
 	assertValueInParser(g_parser, "numberOfItems",
 	                    (uint32_t)NumTestItemInfo);
@@ -333,7 +388,7 @@ static void _assertActions(const string &path, const string &callbackName = "")
 	startFaceRest();
 	g_parser = getResponseAsJsonParser(path, callbackName);
 	assertValueInParser(g_parser, "apiVersion",
-	                    (uint32_t)FaceRest::API_VERSION_ACTIONS);
+	                    (uint32_t)FaceRest::API_VERSION_ACTION);
 	assertValueInParser(g_parser, "result", true);
 	assertValueInParser(g_parser, "numberOfActions",
 	                    (uint32_t)NumTestActionDef);
@@ -385,6 +440,69 @@ static void _assertActions(const string &path, const string &callbackName = "")
 }
 #define assertActions(P,...) cut_trace(_assertActions(P,##__VA_ARGS__))
 
+void _assertAddAction(const StringMap &params)
+{
+	startFaceRest();
+	g_parser = getResponseAsJsonParser("/action", "foo",
+	                                   params, "POST");
+	assertValueInParser(g_parser, "result", true);
+	assertValueInParser(g_parser, "apiVersion",
+	                    (uint32_t)FaceRest::API_VERSION_ACTION);
+
+	// This function asummes that the test database is recreated and
+	// is empty. So the added action is the first and the ID should one.
+	assertValueInParser(g_parser, "id", (uint32_t)1);
+}
+#define assertAddAction(P) cut_trace(_assertAddAction(P))
+
+void _assertAddActionError(const StringMap &params)
+{
+	startFaceRest();
+	g_parser = getResponseAsJsonParser("/action", "foo",
+	                                   params, "POST");
+	assertValueInParser(g_parser, "result", false);
+}
+#define assertAddActionError(P) cut_trace(_assertAddActionError(P))
+
+static void setupPostAction(void)
+{
+	bool recreate = true;
+	bool loadData = false;
+	setupTestDBAction(recreate, loadData);
+}
+
+static void setupActionDB(void)
+{
+	bool recreate = true;
+	bool loadData = true;
+	setupTestDBAction(recreate, loadData);
+}
+
+struct LocaleInfo {
+	string lcAll;
+	string lang;
+};
+
+static LocaleInfo *g_localeInfo = NULL;
+
+static void changeLocale(const char *locale)
+{
+	// save the current locale
+	if (!g_localeInfo) {
+		g_localeInfo = new LocaleInfo();
+		char *env;
+		env = getenv("LC_ALL");
+		if (env)
+			g_localeInfo->lcAll = env;
+		env = getenv("LANG");
+		if (env)
+			g_localeInfo->lang = env;
+	}
+
+	// set new locale
+	setenv("LC_ALL", locale, 1);
+	setenv("LANG", locale, 1);
+}
 
 void cut_setup(void)
 {
@@ -409,6 +527,15 @@ void cut_teardown(void)
 		delete g_parser;
 		g_parser = NULL;
 	}
+
+	if (g_localeInfo) {
+		if (!g_localeInfo->lcAll.empty())
+			setenv("LC_ALL", g_localeInfo->lcAll.c_str(), 1);
+		if (!g_localeInfo->lang.empty())
+			setenv("LANG", g_localeInfo->lang.c_str(), 1);
+		delete g_localeInfo;
+		g_localeInfo = NULL;
+	}
 }
 
 // ---------------------------------------------------------------------------
@@ -416,42 +543,42 @@ void cut_teardown(void)
 // ---------------------------------------------------------------------------
 void test_servers(void)
 {
-	assertServers("/servers.json");
+	assertServers("/server");
 }
 
 void test_serversJsonp(void)
 {
-	assertServers("/servers.jsonp", "foo");
+	assertServers("/server", "foo");
 }
 
 void test_triggers(void)
 {
-	assertTriggers("/triggers.json");
+	assertTriggers("/trigger");
 }
 
 void test_triggersJsonp(void)
 {
-	assertTriggers("/triggers.jsonp", "foo");
+	assertTriggers("/trigger", "foo");
 }
 
 void test_events(void)
 {
-	assertEvents("/events.json");
+	assertEvents("/event");
 }
 
 void test_eventsJsonp(void)
 {
-	assertEvents("/events.jsonp", "foo");
+	assertEvents("/event", "foo");
 }
 
 void test_items(void)
 {
-	assertItems("/items.json");
+	assertItems("/item");
 }
 
 void test_itemsJsonp(void)
 {
-	assertItems("/items.jsonp", "foo");
+	assertItems("/item", "foo");
 }
 
 void test_actionsJsonp(void)
@@ -459,7 +586,195 @@ void test_actionsJsonp(void)
 	bool recreate = true;
 	bool loadData = true;
 	setupTestDBAction(recreate, loadData);
-	assertActions("/actions.jsonp", "foo");
+	assertActions("/action", "foo");
+}
+
+void test_addAction(void)
+{
+	setupPostAction();
+
+	int type = ACTION_COMMAND;
+	const string command = "makan-kosappo";
+	StringMap params;
+	params["type"] = StringUtils::sprintf("%d", type);
+	params["command"] = command;
+	assertAddAction(params);
+
+	// check the content in the DB
+	DBClientAction dbAction;
+	string statement = "select * from ";
+	statement += DBClientAction::getTableNameActions();
+	string expect;
+	int expectedId = 1;
+	expect += StringUtils::sprintf("%d|", expectedId);
+	expect += "#NULL#|#NULL#|#NULL#|#NULL#|#NULL#|#NULL#|#NULL#|";
+	expect += StringUtils::sprintf("%d|",type);
+	expect += command;
+	expect += "||0"; /* workingDirectory and timeout */
+	assertDBContent(dbAction.getDBAgent(), statement, expect);
+}
+
+void test_addActionParamterFull(void)
+{
+	setupPostAction();
+
+	const string command = "/usr/bin/pochi";
+	const string workingDir = "/usr/local/wani";
+	int type = ACTION_COMMAND;
+	int timeout = 300;
+	int serverId= 50;
+	uint64_t hostId = 50;
+	uint64_t hostGroupId = 1000;
+	uint64_t triggerId = 333;
+	int triggerStatus = TRIGGER_STATUS_PROBLEM;;
+	int triggerSeverity = TRIGGER_SEVERITY_CRITICAL;
+	int triggerSeverityCompType = CMP_EQ_GT;
+
+	StringMap params;
+	params["type"]        = StringUtils::sprintf("%d", type);
+	params["command"]     = command;
+	params["workingDirectory"] = workingDir;
+	params["timeout"]     = StringUtils::sprintf("%d", timeout);
+	params["serverId"]    = StringUtils::sprintf("%d", serverId);
+	params["hostId"]      = StringUtils::sprintf("%"PRIu64, hostId);
+	params["hostGroupId"] = StringUtils::sprintf("%"PRIu64, hostGroupId);
+	params["triggerId"]   = StringUtils::sprintf("%"PRIu64, triggerId);
+	params["triggerStatus"]   = StringUtils::sprintf("%d", triggerStatus);
+	params["triggerSeverity"] = StringUtils::sprintf("%d", triggerSeverity);
+	params["triggerSeverityCompType"] =
+	   StringUtils::sprintf("%d", triggerSeverityCompType);
+	assertAddAction(params);
+
+	// check the content in the DB
+	DBClientAction dbAction;
+	string statement = "select * from ";
+	statement += DBClientAction::getTableNameActions();
+	string expect;
+	int expectedId = 1;
+	expect += StringUtils::sprintf("%d|%d|", expectedId, serverId);
+	expect += StringUtils::sprintf("%"PRIu64"|%"PRIu64"|%"PRIu64"|",
+	  hostId, hostGroupId, triggerId);
+	expect += StringUtils::sprintf(
+	  "%d|%d|%d|", triggerStatus, triggerSeverity, triggerSeverityCompType);
+	expect += StringUtils::sprintf("%d|", type);
+	expect += command;
+	expect += "|";
+	expect += workingDir;
+	expect += "|";
+	expect += StringUtils::sprintf("%d", timeout);
+	assertDBContent(dbAction.getDBAgent(), statement, expect);
+}
+
+void test_addActionParamterOver32bit(void)
+{
+	setupPostAction();
+
+	const string command = "/usr/bin/pochi";
+	uint64_t hostId = 0x89abcdef01234567;
+	uint64_t hostGroupId = 0xabcdef0123456789;
+	uint64_t triggerId = 0x56789abcdef01234;
+
+	StringMap params;
+	params["type"]        = StringUtils::sprintf("%d", ACTION_RESIDENT);
+	params["command"]     = command;
+	params["hostId"]      = StringUtils::sprintf("%"PRIu64, hostId);
+	params["hostGroupId"] = StringUtils::sprintf("%"PRIu64, hostGroupId);
+	params["triggerId"]   = StringUtils::sprintf("%"PRIu64, triggerId);
+	assertAddAction(params);
+
+	// check the content in the DB
+	DBClientAction dbAction;
+	string statement = "select host_id, host_group_id, trigger_id from ";
+	statement += DBClientAction::getTableNameActions();
+	string expect;
+	expect += StringUtils::sprintf("%"PRIu64"|%"PRIu64"|%"PRIu64"",
+	  hostId, hostGroupId, triggerId);
+	assertDBContent(dbAction.getDBAgent(), statement, expect);
+}
+
+void test_addActionComplicatedCommand(void)
+{
+	setupPostAction();
+
+	const string command =
+	   "/usr/bin/@hoge -l '?ABC+{[=:;|.,#*`!$%\\~]}FOX-' --X '$^' --name \"@'v'@\"'";
+	StringMap params;
+	params["type"] = StringUtils::sprintf("%d", ACTION_COMMAND);
+	params["command"] = command;
+	assertAddAction(params);
+
+	// check the content in the DB
+	DBClientAction dbAction;
+	string statement = "select command from ";
+	statement += DBClientAction::getTableNameActions();
+	assertDBContent(dbAction.getDBAgent(), statement, command);
+}
+
+void test_addActionCommandWithJapanese(void)
+{
+	setupPostAction();
+	changeLocale("en.UTF-8");
+
+	const string command = COMMAND_EX_JP;
+	StringMap params;
+	params["type"] = StringUtils::sprintf("%d", ACTION_COMMAND);
+	params["command"] = command;
+	assertAddAction(params);
+
+	// check the content in the DB
+	DBClientAction dbAction;
+	string statement = "select command from ";
+	statement += DBClientAction::getTableNameActions();
+	assertDBContent(dbAction.getDBAgent(), statement, command);
+}
+
+void test_addActionWithoutType(void)
+{
+	StringMap params;
+	assertAddActionError(params);
+}
+
+void test_addActionWithoutCommand(void)
+{
+	StringMap params;
+	params["type"] = StringUtils::sprintf("%d", ACTION_COMMAND);
+	assertAddActionError(params);
+}
+
+void test_addActionInvalidType(void)
+{
+	StringMap params;
+	params["type"] = StringUtils::sprintf("%d", ACTION_RESIDENT+1);
+	assertAddActionError(params);
+}
+
+void test_deleteAction(void)
+{
+	startFaceRest();
+	setupActionDB(); // make a test action DB.
+
+	int targetId = 2;
+	string url = StringUtils::sprintf("/action/%d", targetId);
+	g_parser =
+	  getResponseAsJsonParser(url, "cbname", emptyStringMap, "DELETE");
+
+	// check the response
+	assertValueInParser(g_parser, "result", true);
+	assertValueInParser(g_parser, "apiVersion",
+	                    (uint32_t)FaceRest::API_VERSION_ACTION);
+
+	// check DB
+	string expect;
+	for (size_t i = 0; i < NumTestActionDef; i++) {
+		const int expectedId = i + 1;
+		if (expectedId == targetId)
+			continue;
+		expect += StringUtils::sprintf("%d\n", expectedId);
+	}
+	string statement = "select action_id from ";
+	statement += DBClientAction::getTableNameActions();
+	DBClientAction dbAction;
+	assertDBContent(dbAction.getDBAgent(), statement, expect);
 }
 
 } // namespace testFaceRest

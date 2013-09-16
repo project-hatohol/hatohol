@@ -10,12 +10,10 @@ Path
 .. list-table::
    :header-rows: 1
 
-   * - Format
-     - URL
-   * - JSON
-     - /overview.json
-   * - JSONP
-     - /overview.jsonp
+   * - URL
+     - Comments
+   * - /overview
+     - N/A
 
 Parameters
 ----------
@@ -23,9 +21,18 @@ Parameters
    :header-rows: 1
 
    * - Parameter
+     - Value
+     - Comments
      - JSON
      - JSONP
+   * - fmt
+     - json or jsonp
+     - This parameter is omitted, the return format is json.
+     - Optional 
+     - Optional
    * - callback
+     - The name of returned JSONP object.
+     - N/A
      - N/A
      - Mandatory
 
@@ -44,7 +51,7 @@ Repsponse structure
    * - apiVersion
      - Number
      - An API version of this URL.
-       This document is written for version **1**.
+       This document is written for version **2**.
      - Always
    * - result
      - Boolean

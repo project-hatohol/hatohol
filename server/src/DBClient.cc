@@ -192,6 +192,12 @@ void DBClient::setDefaultDBParams(
 	setupCtx->connectInfo.user     = user;
 	setupCtx->connectInfo.password = password;
 	setupCtx->mutex.unlock();
+
+	bool usePassword = !setupCtx->connectInfo.password.empty();
+	MLPL_INFO("Default DB: %s, User: %s, use passowrd: %s\n",
+	          setupCtx->connectInfo.dbName.c_str(),
+	          setupCtx->connectInfo.user.c_str(),
+	          usePassword ? "yes" : "no");
 }
 
 DBConnectInfo DBClient::getDBConnectInfo(DBDomainId domainId)

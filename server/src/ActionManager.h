@@ -77,6 +77,7 @@ protected:
 	 * Spawn an actor.
 	 *
 	 * @param actionDef An ActionDef instance.
+	 * @param eventInfo An EventInfo instance.
 	 * @param argv
 	 * An argument array for the command to be spawned. The first element
 	 * is the command path itself. The last element should be NULL.
@@ -87,8 +88,8 @@ protected:
 	 * @return An actorInfo instance if the spawn was successful.
 	 * Otherwise NULL.
 	 */
-	ActorInfo *spawn(const ActionDef &actionDef, const gchar **argv,
-	                 uint64_t *logId = NULL);
+	ActorInfo *spawn(const ActionDef &actionDef, const EventInfo &eventInfo,
+	                 const gchar **argv, uint64_t *logId = NULL);
 
 	/**
 	 * execute a command-type action.
@@ -161,6 +162,12 @@ protected:
 	static void copyActorInfoForExecResult(
 	  ActorInfo *actorInfoDest, const ActorInfo *actorInfoSrc,
 	  uint64_t logId);
+
+	void postProcSpawnFailure(
+	  const ActionDef &actionDef, const EventInfo &eventInfo,
+	   ActorInfo *actorInfo, uint64_t *logId, GError *error);
+
+	void fillTriggerInfoInEventInfo(EventInfo &eventInfo);
 
 private:
 	PrivateContext *m_ctx;

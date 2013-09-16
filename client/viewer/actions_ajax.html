@@ -1,0 +1,717 @@
+{% extends "viewer/base_ajax.html" %}
+
+{% comment %}
+  Copyright (C) 2013 Project Hatohol
+
+  This file is part of Hatohol.
+
+  Hatohol is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 2 of the License, or
+  (at your option) any later version.
+
+  Hatohol is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+{% endcomment %}
+
+{% block navbar %}
+  <li><a href="ajax_dashboard">ダッシュボード</a></li>
+  <li><a href="ajax_overview_triggers">概要:トリガー</a></li>
+  <li><a href="ajax_overview_items">概要:アイテム</a></li>
+  <li><a href="ajax_latest">最新データ</a></li>
+  <li><a href="ajax_trigger">トリガー</a></li>
+  <li><a href="ajax_events">イベント</a></li>
+  <li><a href="ajax_servers">サーバ管理</a></li>
+  <li class="active"><a>アクション</a></li>
+{% endblock %}
+
+{% block main %}
+  <h2>アクション</h2>
+
+  <form class="form-inline">
+    <input id="add-action-button" type="button" value="Add an action" />
+    <label>Server:</label>
+    <select id="select-server">
+      <option>---------</option>
+    </select>
+    <label>Group:</label>
+    <select id="select-group">
+      <option>---------</option>
+    </select>
+    <label>Host:</label>
+    <select id="select-host">
+      <option>---------</option>
+    </select>
+    <input id="delete-action-button" type="button" disabled value="Delete actions" />
+  </form>
+  <div id="add-action-dialog">
+    <h3>条件</h3>
+    <form class="form-inline">
+      <label>サーバ</label>
+      <select id="selectServerId">
+        <option value="ANY">ANY</option>
+        <option value="select">== SELECT ==</option>
+      </select>
+
+      <label>ホストグループ</label>
+      <select id="selectHostGroupId">
+        <option value="ANY">ANY</option>
+        <!-- Currently host group ID is not supported
+        <option value="select">== SELECT ==</option>
+        -->
+      </select>
+      <label>ホスト</label>
+      <select id="selectHostId">
+        <option value="ANY">ANY</option>
+        <option value="select">== SELECT ==</option>
+      </select>
+    </form>
+
+    <form class="form-inline">
+      <label>トリガー</label>
+      <select id="selectTriggerId">
+        <option value="ANY">ANY</option>
+        <option value="select">== SELECT ==</option>
+      </select>
+
+      <label>トリガー状態</label>
+      <select id="selectTriggerStatus">
+        <option value="ANY">ANY</option>
+        <option value="TRIGGER_STATUS_OK">OK</option>
+        <option value="TRIGGER_STATUS_PROBLEM">PROBLM</option>
+      </select>
+
+      <label>深刻度</label>
+      <select id="selectTriggerSeverity">
+        <option value="ANY">ANY</option>
+        <option value="INFO">INFO</option>
+        <option value="WARN">WARN</option>
+        <option value="CRITICAL">CRITICAL</option>
+      </select>
+      <select id="selectTriggerSeverityCompType" style="visibility:hidden;">
+        <option value="CMP_EQ">一致</option>
+        <option value="CMP_EQ_GT">以上</option>
+      </select>
+    </form>
+
+    <h3>実行内容</h3>
+    <form class="form-inline">
+      <label>タイプ</label>
+      <select id="selectType">
+        <option value="ACTION_COMMAND">COMMAND</option>
+        <option value="ACTION_RESIDENT">RESIDENT</option>
+      </select>
+
+      <label>タイムアウト (秒)</label>
+      <input id="inputTimeout" value="0">
+      <label> (0: 無制限)</label>
+    </form>
+
+    <form class="form-inline">
+      <label>コマンド</label>
+      <input id="inputActionCommand" value="" style="width:100%;">
+    </form>
+
+    <form class="form-inline">
+      <label>作業ディレクトリ</label>
+      <input id="inputWorkingDir" value="" style="width:100%;">
+    </form>
+
+  </div>
+
+  <div id="msgbox" title="Message Box">
+    <p id="msgbox-text"></p>
+  </div>
+
+  <form id="add-acton-form", method="POST"> {% csrf_token %}
+  </form>
+
+  <table class="table table-condensed table-hover" id="table">
+    <thead>
+      <tr>
+        <th>  </th>
+        <th data-sort="int"> ID </th>
+        <th data-sort="string"> サーバ </th>
+        <th data-sort="string"> ホスト </th>
+        <th data-sort="string"> ホストグループ </th>
+        <th data-sort="int"> トリガーID </th>
+        <th data-sort="string"> トリガー状態 </th>
+        <th data-sort="string"> 深刻度 </th>
+        <th data-sort="string"> タイプ </th>
+        <th data-sort="string"> 作業ディレクトリ </th>
+        <th data-sort="string"> コマンド </th>
+        <th data-sort="int"> タイムアウト(秒) </th>
+      </tr>
+    </thead>
+    <tbody>
+    </tbody>
+  </table>
+{% endblock %}
+
+{% block option %}
+  <script src="{{ STATIC_URL }}js/stupidtable.js"></script>
+  <script src="{{ STATIC_URL }}js/hatohol_def.js"></script>
+
+  <!-- TODO: We should download jquery-ui.js and the CSS to the local. -->
+  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1/jquery-ui.min.js"></script>
+  <link type="text/css" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1/themes/ui-lightness/jquery-ui.css" rel="stylesheet" />
+  
+{% endblock %}
+
+{% block logic %}
+  <script type="text/javascript">
+    //
+    // Variables
+    //
+    var status_choices   = [ '正常', '障害', '不明' ];
+    var severity_choices = [ '未分類', '情報', '警告', '軽度の障害', '重度の障害', '致命的な障害' ];
+
+    var rawData;
+    var parsedData;
+    var queryData = {
+        csrfmiddlewaretoken: $("*[name=csrfmiddlewaretoken]").val(),
+    };
+    var numSelected = 0;
+
+    //
+    // Main view
+    //
+    $("#table").stupidtable();
+    $("#table").bind('aftertablesort', function(event, data) {
+      var th = $(this).find("th");
+      th.find("i.sort").remove();
+      var icon = data.direction === "asc" ? "up" : "down";
+      th.eq(data.column).append("<i class='sort icon-arrow-" + icon +"'></i>");
+    });
+
+    $("#add-action-button").click(function() {
+      $("#add-action-dialog").dialog("open");
+    });
+
+    $("#delete-action-button").click(function() {
+      showMessageBox("Are you really delete the selected actions",
+                     "Confirmation", NO_YES_BUTTON, deleteActions);
+    });
+
+    //
+    // Event handlers for forms in the main view
+    //
+    $("#select-server").change(function() {
+      chooseRow();
+    });
+    $("#select-host").change(function() {
+      chooseRow();
+    });
+
+    function setupCheckboxHandler() {
+        $(".selectcheckbox").change(function() {
+          check = $(this).is(":checked");
+          var prevNumSelected = numSelected;
+          if (check)
+            numSelected += 1;
+          else
+            numSelected -= 1;
+          if (prevNumSelected == 0 && numSelected == 1)
+            $("#delete-action-button").attr("disabled", false);
+          else if (prevNumSelected == 1 && numSelected == 0)
+            $("#delete-action-button").attr("disabled", true);
+        });
+    }
+
+    //
+    // Event handlers for forms in the add-action dialog
+    //
+    $("#selectTriggerSeverity").change(function() {
+      var severity = $(this).val();
+      if (severity != "ANY")
+        $("#selectTriggerSeverityCompType").css("visibility","visible");
+      else
+        $("#selectTriggerSeverityCompType").css("visibility","hidden");
+    })
+
+    //
+    // Commonly used functions from a dialog.
+    //
+    function parseResult(data) {
+        var msg;
+        var malformed = false;
+        if (data.result == undefined)
+           malformed = true;
+        if (!malformed && !data.result && data.message == undefined)
+           malformed = true;
+        if (malformed) {
+            msg = "The returned content is malformed: " +
+                  "Not found 'result' or 'message'.\n" + JSON.stringify(data);
+            showMessageBox(msg, "Error", CLOSE_BUTTON);
+            return false;
+        }
+        if (!data.result) {
+            msg = "Failed:\n" + data.message
+            showMessageBox(msg, "Error", CLOSE_BUTTON);
+            return false;
+        }
+
+        if (data.id == undefined) {
+            msg = "The returned content is malformed: " +
+                  "'result' is true, however, 'id' is missing.\n" +
+                  JSON.stringify(data);
+            showMessageBox(msg, "Error", CLOSE_BUTTON);
+            return false;
+        }
+        return true;
+    }
+
+    //
+    // Add-action dialog
+    //
+    $("#add-action-dialog").dialog({
+      autoOpen: false,
+      title: "Add Action",
+      closeOnEscape: false,
+      width:  "95%",
+      modal: true,
+      buttons: [
+      {
+        text: "ADD",
+        click: function() {
+          if (validateAddParameters()) {
+            makeQueryData();
+            showMessageBox("Now creating an action ...", "Information",
+                           undefined);
+            postAddAction();
+          }
+        }
+      }, {
+        text: "Canncel",
+        click: function() {
+          $(this).dialog("close");
+        }
+      }]
+    });
+
+    function validateAddParameters() {
+      if ($("#inputActionCommand").val() == "") {
+        showMessageBox("Command is empty!", "Error", CLOSE_BUTTON);
+        return false;
+      }
+      return true;
+    }
+
+    function getCommandType() {
+      var type = $("#selectType").val();
+      switch(type) {
+      case "ACTION_COMMAND":
+        return ACTION_COMMAND;
+      case "ACTION_RESIDENT":
+        return ACTION_RESIDENT;
+      default:
+        alert("Unknown command type: " + type);
+      }
+      return undefined;
+    }
+
+    function getStatusValue() {
+      var status = $("#selectTriggerStatus").val();
+      switch(status) {
+      case "ANY":
+        return undefined;
+      case "TRIGGER_STATUS_OK":
+        return TRIGGER_STATUS_OK;
+      case "TRIGGER_STATUS_PROBLEM":
+        return TRIGGER_STATUS_PROBLEM;
+      default:
+        alert("Unknown status: " + status);
+      }
+      return undefined;
+    }
+
+    function getSeverityValue() {
+      var severity = $("#selectTriggerSeverity").val();
+      switch(severity) {
+      case "ANY":
+        return undefined;
+      case "INFO":
+        return TRIGGER_SEVERITY_INFO;
+      case "WARN":
+        return TRIGGER_SEVERITY_WARN;
+      case "CRITICAL":
+        return TRIGGER_SEVERITY_CRITICAL;
+      default:
+        alert("Unknown severity: " + severity);
+      }
+      return undefined;
+    }
+
+    function getSeverityCompTypeValue() {
+      var compType = $("#selectTriggerSeverityCompType").val();
+      switch(compType) {
+      case "CMP_EQ":
+        return CMP_EQ;
+      case "CMP_EQ_GT":
+        return CMP_EQ_GT;
+      default:
+        alert("Unknown severity: " + severity);
+      }
+      return undefined;
+    }
+
+    function makeQueryData() {
+        queryData.type = getCommandType();
+        queryData.timeout = $("#inputTimeout").val();
+        queryData.command = $("#inputActionCommand").val();
+        queryData.workingDirectory = $("#inputWorkingDir").val();
+        queryData.triggerStatus   = getStatusValue();
+        queryData.triggerSeverity = getSeverityValue();
+        queryData.triggerSeverityCompType = getSeverityCompTypeValue();
+    }
+
+    function postAddAction() {
+      $.ajax({
+        url: "/tunnel/action",
+        type: "POST",
+        data: queryData,
+        success: function(data) {
+          parsePostActionResult(data);
+        },
+        error: function(XMLHttpRequest, textStatus, errorThrown) {
+          var errorMsg = "Error: " + XMLHttpRequest.status + ": " +
+                         XMLHttpRequest.statusText;
+          showMessageBox(errorMsg, "Error", CLOSE_BUTTON);
+        }
+      })
+    }
+
+    function parsePostActionResult(data) {
+      if (!parseResult(data))
+        return;
+
+      if ($("#add-action-dialog").dialog != undefined)
+        $("#add-action-dialog").dialog("close");
+
+      // close dialogs
+      showMessageBox("Successfully created.", "Information", CLOSE_BUTTON);
+
+      // update the main view
+      schedule(0000, "action");
+    }
+
+    //
+    // delete-action dialog
+    //
+    function deleteActions() {
+        checkbox = $(".selectcheckbox");
+        var deletedIdArray = {count:0, total:0, errors:0};
+        for (var i = 0; i < checkbox.length; i++) {
+          if (!checkbox[i].checked)
+            continue;
+          var actionId = checkbox[i].getAttribute("actionId");
+          deletedIdArray[actionId] = true;
+          deletedIdArray.count++;
+          deletedIdArray.total++;
+          deleteOneAction(actionId, deletedIdArray);
+        }
+        showMessageBox("Deleting...", "Information", CLOSE_BUTTON);
+    }
+
+    function deleteOneAction(id, deletedIdArray) {
+      $.ajax({
+        url: "/tunnel/action/" + id,
+        type: "DELETE",
+        context: deletedIdArray,
+        beforeSend: function(xhr) {
+          xhr.setRequestHeader("X-CSRFToken", queryData.csrfmiddlewaretoken);
+        },
+        success: function(data) {
+          parseDeleteActionResult(data, this);
+        },
+        error: function(XMLHttpRequest, textStatus, errorThrown) {
+          var errorMsg = "Error: " + XMLHttpRequest.status + ": " +
+                         XMLHttpRequest.statusText;
+          showMessageBox(errorMsg, "Error", CLOSE_BUTTON);
+          deletedIdArray.errors++;
+        },
+        complete: function() {
+          compleOneDelAction(this);
+        }
+      })
+    }
+
+    function parseDeleteActionResult(data, deletedIdArray) {
+      if (!parseResult(data))
+        return;
+      if (!(data.id in deletedIdArray)) {
+        alert("Fatal Error: You should reload page.\nID: " + data.id +
+              " is not in deletedIdArray: " + deletedIdArray);
+        deletedIdArray.errors++;
+        return;
+      }
+      delete deletedIdArray[data.id];
+    }
+
+    function compleOneDelAction(deletedIdArray) {
+      deletedIdArray.count--;
+      var completed = deletedIdArray.total - deletedIdArray.count;
+      showMessageBox("Deleting... " + completed + " / " + deletedIdArray.total,
+                     "Information", CLOSE_BUTTON);
+      if (deletedIdArray.count > 0)
+        return;
+
+      // close dialogs
+      showMessageBox("Completed. (Number of errors: " +
+                     deletedIdArray.errors + ")", "Information", CLOSE_BUTTON);
+
+      // update the main view
+      schedule(0000, "action");
+    }
+
+    //
+    // Functions for message box.
+    //
+    var CLOSE_BUTTON = {
+        "CLOSE": function() {
+          $(this).dialog("close");
+        }
+    };
+
+    var NO_YES_BUTTON = [{
+      text: "NO",
+      click: function() {
+        $(this).dialog("close");
+      }
+    }, {
+      text: "YES",
+      click: function() {
+      }
+    }]
+
+    $("#msgbox").dialog({
+      autoOpen: false,
+      closeOnEscape: false,
+      modal: true,
+    });
+
+    function showMessageBox(msg, title, buttons, callback) {
+      $("#msgbox").dialog("open");
+      $("#msgbox-text").text(msg);
+      $("#msgbox").dialog("option", "title", title);
+      if (buttons == NO_YES_BUTTON)
+        NO_YES_BUTTON[1].click = callback;
+      $("#msgbox").dialog("option", "buttons", buttons);
+    }
+
+    //
+    // Functions for make the main view.
+    //
+    function makeNamelessServerLabel(serverId) {
+      return "(ID:" + serverId + ")";
+    }
+
+    function makeNamelessHostLabel(serverId, hostId) {
+      return "(S" + serverId + "-H" + hostId + ")";
+    }
+
+    function makeTypeLabel(type) {
+      switch(type) {
+      case ACTION_COMMAND:
+        return "COMMAND"
+      case ACTION_RESIDENT:
+        return "RESIDENT";
+      default:
+        return "INVALID: " + type;
+      }
+    }
+
+    function makeTriggerStatusLabel(status) {
+      switch(status) {
+      case TRIGGER_STATUS_OK:
+        return "OK";
+      case TRIGGER_STATUS_PROBLEM:
+        return "PROBLEM";
+      default:
+        return "INVALID: " + status;
+      }
+    }
+
+    function makeServerityLabel(severity) {
+      switch(severity) {
+      case TRIGGER_SEVERITY_INFO:
+        return "INFO";
+      case TRIGGER_SEVERITY_WARN:
+        return "WARN";
+      case TRIGGER_SEVERITY_CRITICAL:
+        return "CRITICAL";
+      case TRIGGER_SEVERITY_UNKNOWN:
+        return "UNKNOWN";
+      default:
+        return "INVALID: " + severity;
+      }
+    }
+
+    function makeServerityCompTypeLabel(compType) {
+      switch(compType) {
+      case CMP_EQ:
+        return "=";
+      case CMP_EQ_GT:
+        return ">=";
+      default:
+        return "INVALID: " + compType;
+      }
+    }
+
+    //
+    // parser of received json data
+    //
+    function getServerName(actionsPkt, actionDef) {
+      var serverId = actionDef["serverId"];
+      if (!serverId)
+        return null;
+      var server = actionsPkt["servers"][serverId];
+      if (!server)
+        return makeNamelessServerLabel(serverId);
+      var serverName = actionsPkt["servers"][serverId]["name"];
+      if (!serverName)
+        return makeNamelessServerLabel(serverId);
+      return serverName;
+    }
+
+    function getHostName(actionsPkt, actionDef) {
+      var hostId = actionDef["hostId"]
+      if (!hostId)
+        return null;
+      var serverId = actionDef["serverId"];
+      if (!serverId)
+        return makeNamelessHostLabel(serverId, hostId);
+      var hostArray = actionsPkt["servers"][serverId]
+      if (!hostArray)
+        return makeNamelessHostLabel(serverId, hostId);
+      var host = hostArray[hostId];
+      if (!host)
+        return makeNamelessHostLabel(serverId, hostId);
+      var hostName = host["name"];
+      if (!hostName)
+        return makeNamelessHostLabel(serverId, hostId);
+      return hostName;
+    }
+
+    function parseData(actionsPkt) {
+      var pd = new Object();
+      var x;
+      var ss, hs;
+
+      ss = [];
+      hs = [];
+      for (x = 0; x < actionsPkt["actions"].length; ++x) {
+        var actionDef = actionsPkt["actions"][x];
+        var serverName = getServerName(actionsPkt, actionDef)
+        if (serverName)
+          ss.push(serverName);
+        else
+          continue;
+        var hostName = getHostName(actionsPkt, actionDef);
+        if (hostName)
+          hs.push(hostName);
+      }
+      pd.servers = ss.uniq().sort();
+      pd.hosts   = hs.uniq().sort();
+
+      return pd;
+    }
+
+    //
+    // callback function from the base template
+    //
+    function drawTableBody(actionsPkt) {
+      var x;
+      var klass, server, host;
+
+      var s = "";
+      for (x = 0; x < actionsPkt["actions"].length; ++x) {
+        var actionDef = actionsPkt["actions"][x];
+        klass = serverName + " " + hostName;
+        s += "<tr class='" + klass + "'>";
+        s += "<td><input type='checkbox' class='selectcheckbox' " +
+             "actionId='" + actionDef.actionId + "'></td>";
+        s += "<td>" + actionDef.actionId + "</td>";
+
+        var serverName = getServerName(actionsPkt, actionDef);
+        if (!serverName)
+          serverName = "ANY";
+        s += "<td>" + serverName + "</td>";
+
+        var hostName = getHostName(actionsPkt, actionDef);
+        if (!hostName)
+          hostName = "ANY";
+        s += "<td>" + hostName   + "</td>";
+
+        var hostGroupName = "unsupported";
+        s += "<td>" + hostGroupName + "</td>";
+
+        var triggerId = actionDef.triggerId;
+        if (triggerId == undefined)
+          triggerId = "ANY";
+        s += "<td>" + triggerId + "</td>";
+
+        var triggerStatus = actionDef.triggerStatus;
+        var triggerStatusLabel = "ANY";
+        if (triggerStatus != undefined)
+          triggerStatusLabel = makeTriggerStatusLabel(triggerStatus);
+        s += "<td>" + triggerStatusLabel + "</td>";
+
+        var triggerSeverity = actionDef.triggerSeverity;
+        var severityLabel = "ANY";
+        if (triggerSeverity != undefined)
+          severityLabel = makeServerityLabel(triggerSeverity);
+
+        var severityCompType = actionDef.triggerSeverityComparatorType;
+        var severityCompLabel = "";
+        if (triggerSeverity != undefined)
+          severityCompLabel = makeServerityCompTypeLabel(severityCompType);
+
+        s += "<td>" + severityCompLabel + " " + severityLabel + "</td>";
+
+        var type = actionDef.type;
+        var typeLabel = makeTypeLabel(type);
+        s += "<td>" + typeLabel + "</td>";
+
+        var workingDir = actionDef.workingDirectory;
+        if (!workingDir)
+            workingDir = "N/A";
+        s += "<td>" + workingDir + "</td>";
+
+        var command = actionDef.command;
+        s += "<td>" + command + "</td>";
+
+        var timeout = actionDef.timeout;
+        if (timeout == 0)
+          timeout = "No limit";
+        s += "<td>" + timeout + "</td>";
+
+        s += "</tr>";
+      }
+
+      return s;
+    }
+
+    function updateCore() {
+      parsedData = parseData(rawData);
+
+      setCandidate($("#select-server"), parsedData.servers);
+      setCandidate($("#select-host"),   parsedData.hosts);
+
+      $("#table tbody").empty();
+      $("#table tbody").append(drawTableBody(rawData));
+      setupCheckboxHandler();
+      numSelected = 0;
+    }
+
+    //
+    // main code
+    //
+    schedule(0000, "action");
+  </script>
+{% endblock %}

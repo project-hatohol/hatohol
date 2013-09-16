@@ -45,6 +45,7 @@ public:
 	virtual void getHostList(HostInfoList &hostInfoList,
 	                         uint32_t targetServerId = ALL_SERVERS);
 	virtual void getActionList(ActionDefList &actionList);
+	virtual void deleteActionList(const ActionIdList &actionIdList);
 	virtual size_t getNumberOfTriggers
 	                 (uint32_t serverId, uint64_t hostGroupId,
 	                  TriggerSeverityType severity);
@@ -55,6 +56,7 @@ public:
 
 	virtual bool getCopyOnDemandEnabled(void) const;
 	virtual void setCopyOnDemandEnabled(bool enable);
+	virtual void addAction(ActionDef &actionDef);
 
 private:
 	struct PrivateContext;

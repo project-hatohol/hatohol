@@ -28,6 +28,7 @@
 #include "ResidentCommunicator.h"
 #include "ActionExecArgMaker.h"
 #include "MutexLock.h"
+#include "LabelUtils.h"
 
 using namespace std;
 using namespace mlpl;
@@ -234,8 +235,11 @@ void ActionManager::checkEvents(const EventInfoList &eventList)
 // Protected methods
 // ---------------------------------------------------------------------------
 void ActionManager::runAction(const ActionDef &actionDef,
-                              const EventInfo &eventInfo)
+                              const EventInfo &_eventInfo)
 {
+	EventInfo eventInfo(_eventInfo);
+	fillTriggerInfoInEventInfo(eventInfo);
+
 	if (actionDef.type == ACTION_COMMAND) {
 		execCommandAction(actionDef, eventInfo);
 	} else if (actionDef.type == ACTION_RESIDENT) {
@@ -245,8 +249,9 @@ void ActionManager::runAction(const ActionDef &actionDef,
 	}
 }
 
-ActorInfo *ActionManager::spawn(const ActionDef &actionDef, const gchar **argv,
-                                uint64_t *logId)
+ActorInfo *ActionManager::spawn(
+  const ActionDef &actionDef, const EventInfo &eventInfo, const gchar **argv,
+  uint64_t *logId)
 {
 	const gchar *workingDirectory = NULL;
 	if (!actionDef.workingDir.empty())
@@ -272,20 +277,8 @@ ActorInfo *ActionManager::spawn(const ActionDef &actionDef, const gchar **argv,
 	                flags, childSetup, userData, &actorInfo->pid, &error);
 	if (!succeeded) {
 		m_ctx->collector.unlock();
-		string msg = StringUtils::sprintf(
-		  "Failed to execute command: %s, action ID: %d",
-		  error->message, actionDef.id);
-		ActionLogExecFailureCode failureCode =
-		  error->code == G_SPAWN_ERROR_NOENT ?
-		    ACTLOG_EXECFAIL_ENTRY_NOT_FOUND :
-		    ACTLOG_EXECFAIL_EXEC_FAILURE;
-		g_error_free(error);
-		actorInfo->logId =
-		  m_ctx->dbAction.createActionLog(actionDef, failureCode);
-		MLPL_ERR("%s, logID: %"PRIu64"\n",
-		         msg.c_str(), actorInfo->logId);
-		if (logId)
-			*logId = actorInfo->logId;
+		postProcSpawnFailure(actionDef, eventInfo, actorInfo,
+		                     logId, error);
 		delete actorInfo;
 		return NULL;
 	}
@@ -330,7 +323,7 @@ void ActionManager::execCommandAction(const ActionDef &actionDef,
 	argv[argVect.size()] = NULL;
 
 	uint64_t logId;
-	ActorInfo *actorInfo = spawn(actionDef, argv, &logId);
+	ActorInfo *actorInfo = spawn(actionDef, eventInfo, argv, &logId);
 	copyActorInfoForExecResult(_actorInfo, actorInfo, logId);
 	if (actorInfo && actionDef.timeout > 0) {
 		actorInfo->timerTag =
@@ -619,7 +612,7 @@ ResidentInfo *ActionManager::launchResidentActionYard
 	  residentInfo->pipeName.c_str(),
 	  NULL};
 	
-	ActorInfo *actorInfo = spawn(actionDef, argv, logId);
+	ActorInfo *actorInfo = spawn(actionDef, eventInfo, argv, logId);
 	*actorInfoPtr = actorInfo;
 	if (!actorInfo) {
 		delete residentInfo;
@@ -752,3 +745,57 @@ void ActionManager::copyActorInfoForExecResult
 		actorInfoDest->logId = logId;
 }
 
+void ActionManager::postProcSpawnFailure(
+  const ActionDef &actionDef, const EventInfo &eventInfo, ActorInfo *actorInfo,
+  uint64_t *logId, GError *error)
+{
+	// make an action log
+	ActionLogExecFailureCode failureCode =
+	  error->code == G_SPAWN_ERROR_NOENT ?
+	    ACTLOG_EXECFAIL_ENTRY_NOT_FOUND : ACTLOG_EXECFAIL_EXEC_FAILURE;
+	actorInfo->logId =
+	  m_ctx->dbAction.createActionLog(actionDef, failureCode);
+
+	// MLPL log
+	MLPL_ERR(
+	  "%s, action ID: %d, log ID: %"PRIu64", "
+	  "server ID: %d, event ID: %"PRIu64", "
+	  "time: %ld.%09ld, type: %s, "
+	  "trigger ID: %d, status: %s, severity: %s, host ID: %"PRIu64"\n", 
+	  error->message, actionDef.id, actorInfo->logId,
+	  eventInfo.serverId, eventInfo.id,
+	  eventInfo.time.tv_sec, eventInfo.time.tv_nsec,
+	  LabelUtils::getEventTypeLabel(eventInfo.type).c_str(),
+	  eventInfo.triggerId,
+	  LabelUtils::getTriggerStatusLabel(eventInfo.status).c_str(),
+	  LabelUtils::getTriggerSeverityLabel(eventInfo.severity).c_str(),
+	  eventInfo.hostId);
+
+	g_error_free(error);
+
+	// copy the log ID
+	if (logId)
+		*logId = actorInfo->logId;
+}
+
+void ActionManager::fillTriggerInfoInEventInfo(EventInfo &eventInfo)
+{
+	DBClientHatohol dbHatohol;
+	TriggerInfo triggerInfo;
+	bool succedded =
+	   dbHatohol.getTriggerInfo(triggerInfo,
+	                            eventInfo.serverId, eventInfo.triggerId);
+	if (succedded) {
+		eventInfo.severity = triggerInfo.severity;
+		eventInfo.hostId   = triggerInfo.hostId;
+		eventInfo.hostName = triggerInfo.hostName;
+		eventInfo.brief    = triggerInfo.brief;
+	} else {
+		MLPL_ERR("Not found: svID: %"PRIu32", trigID: %"PRIu64"\n",
+		         eventInfo.serverId, eventInfo.triggerId);
+		eventInfo.severity = TRIGGER_SEVERITY_UNKNOWN;
+		eventInfo.hostId   = INVALID_HOST_ID;
+		eventInfo.hostName.clear();
+		eventInfo.brief.clear();
+	}
+}

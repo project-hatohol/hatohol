@@ -233,6 +233,23 @@ void _assertGetNumberOfHostsWithStatus(bool status)
 #define assertGetNumberOfHostsWithStatus(ST) \
 cut_trace(_assertGetNumberOfHostsWithStatus(ST))
 
+
+void _assertTriggerInfo(TriggerInfo &expect, TriggerInfo &actual)
+{
+	cppcut_assert_equal(expect.serverId, actual.serverId);
+	cppcut_assert_equal(expect.id, actual.id);
+	cppcut_assert_equal(expect.status, actual.status);
+	cppcut_assert_equal(expect.severity, actual.severity);
+	cppcut_assert_equal(expect.lastChangeTime.tv_sec,
+	                    actual.lastChangeTime.tv_sec);
+	cppcut_assert_equal(expect.lastChangeTime.tv_nsec,
+	                    actual.lastChangeTime.tv_nsec);
+	cppcut_assert_equal(expect.hostId, actual.hostId);
+	cppcut_assert_equal(expect.hostName, actual.hostName);
+	cppcut_assert_equal(expect.brief, actual.brief);
+}
+#define assertTriggerInfo(E,A) cut_trace(_assertTriggerInfo(E,A))
+
 void cut_setup(void)
 {
 	hatoholInit();
@@ -289,6 +306,30 @@ void test_addTriggerInfo(void)
 	string result = executeCommand(cmd);
 	string expectedOut = makeExpectedOutput(testInfo);
 	cppcut_assert_equal(expectedOut, result);
+}
+
+void test_getTriggerInfo(void)
+{
+	setupTestTriggerDB();
+	int targetIdx = 2;
+	TriggerInfo &targetTriggerInfo = testTriggerInfo[targetIdx];
+	TriggerInfo triggerInfo;
+	DBClientHatohol dbHatohol;
+	cppcut_assert_equal(true,
+	   dbHatohol.getTriggerInfo(
+	      triggerInfo, targetTriggerInfo.serverId, targetTriggerInfo.id));
+	assertTriggerInfo(targetTriggerInfo, triggerInfo);
+}
+
+void test_getTriggerInfoNotFound(void)
+{
+	setupTestTriggerDB();
+	uint32_t invalidSvId = -1;
+	uint32_t invalidTrigId = -1;
+	TriggerInfo triggerInfo;
+	DBClientHatohol dbHatohol;
+	cppcut_assert_equal(false,
+	   dbHatohol.getTriggerInfo(triggerInfo, invalidSvId, invalidTrigId));
 }
 
 void test_getTriggerInfoList(void)

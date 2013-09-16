@@ -25,6 +25,7 @@
 #include "DBAgentSQLite3.h"
 #include "UnifiedDataStore.h"
 #include "DBClientTest.h"
+#include "LabelUtils.h"
 
 namespace testUnifiedDataStore {
 
@@ -46,35 +47,12 @@ void test_singleton(void) {
 
 static const char *triggerStatusToString(TriggerStatusType type)
 {
-	switch(type) {
-	case TRIGGER_STATUS_OK:
-		return "OK";
-	case TRIGGER_STATUS_PROBLEM:
-		return "PROBLEM";
-	default:
-		cut_fail("Unknown TriggerStatusType: %d\n",
-			 static_cast<int>(type));
-		return "";
-	}
+	return LabelUtils::getTriggerStatusLabel(type).c_str();
 }
 
 static const char *triggerSeverityToString(TriggerSeverityType type)
 {
-	switch(type) {
-	case TRIGGER_SEVERITY_INFO:
-		return "INFO";
-	case TRIGGER_SEVERITY_WARN:
-		return "WARN";
-	case TRIGGER_SEVERITY_CRITICAL:
-		return "CRITICAL";
-	case TRIGGER_SEVERITY_UNKNOWN:
-		return "UNKNOWN";
-	default:
-		cut_fail("Unknown TriggerSeverityType: %d\n",
-			 static_cast<int>(type));
-		return "";
-	}
-
+	return LabelUtils::getTriggerSeverityLabel(type).c_str();
 }
 
 static string dumpTriggerInfo(const TriggerInfo &info)
@@ -110,18 +88,7 @@ void test_getTriggerList(void)
 
 static const char *eventTypeToString(EventType type)
 {
-	switch(type) {
-	case EVENT_TYPE_ACTIVATED:
-		return "ACTIVATED";
-	case EVENT_TYPE_DEACTIVATED:
-		return "DEACTIVATED";
-	case EVENT_TYPE_UNKNOWN:
-		return "UNKNOWN";
-	default:
-		cut_fail("Unknown EventType: %d\n",
-			 static_cast<int>(type));
-		return "";
-	}
+	return LabelUtils::getEventTypeLabel(type).c_str();
 }
 
 static string dumpEventInfo(const EventInfo &info)

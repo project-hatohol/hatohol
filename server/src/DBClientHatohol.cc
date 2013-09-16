@@ -561,57 +561,41 @@ void DBClientHatohol::addTriggerInfoList(const TriggerInfoList &triggerInfoList)
 	} DBCLIENT_TRANSACTION_END();
 }
 
+bool DBClientHatohol::getTriggerInfo(TriggerInfo &triggerInfo,
+                                     uint32_t serverId, uint64_t triggerId)
+{
+	string condition;
+	const char *colNameServerId = 
+	  COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SERVER_ID].columnName;
+	const char *colNameId = 
+	  COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_ID].columnName;
+	condition = StringUtils::sprintf("%s=%"PRIu32" and %s=%"PRIu64,
+	                                  colNameServerId, serverId,
+	                                  colNameId, triggerId);
+
+	TriggerInfoList triggerInfoList;
+	getTriggerInfoList(triggerInfoList, condition);
+	size_t numTriggers = triggerInfoList.size();
+	HATOHOL_ASSERT(numTriggers <= 1,
+	               "Number of triggers: %zd", numTriggers);
+	if (numTriggers == 0)
+		return false;
+
+	triggerInfo = *triggerInfoList.begin();
+	return true;
+}
+
 void DBClientHatohol::getTriggerInfoList(TriggerInfoList &triggerInfoList,
                                          uint32_t targetServerId)
 {
-	DBAgentSelectExArg arg;
-	arg.tableName = TABLE_NAME_TRIGGERS;
-	arg.pushColumn(COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SERVER_ID]);
-	arg.pushColumn(COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_ID]);
-	arg.pushColumn(COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_STATUS]);
-	arg.pushColumn(COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SEVERITY]);
-	arg.pushColumn(COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_LAST_CHANGE_TIME_SEC]);
-	arg.pushColumn(COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_LAST_CHANGE_TIME_NS]);
-	arg.pushColumn(COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_HOST_ID]);
-	arg.pushColumn(COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_HOSTNAME]);
-	arg.pushColumn(COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_BRIEF]);
-
-	// condition
+	string condition;
 	if (targetServerId != ALL_SERVERS) {
 		const char *colName = 
 		  COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SERVER_ID].columnName;
-		arg.condition = StringUtils::sprintf("%s=%"PRIu32, colName,
-		                                     targetServerId);
+		condition = StringUtils::sprintf("%s=%"PRIu32, colName,
+		                                 targetServerId);
 	}
-
-
-	DBCLIENT_TRANSACTION_BEGIN() {
-		select(arg);
-	} DBCLIENT_TRANSACTION_END();
-
-	// check the result and copy
-	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
-	ItemGroupListConstIterator it = grpList.begin();
-	for (; it != grpList.end(); ++it) {
-		size_t idx = 0;
-		const ItemGroup *itemGroup = *it;
-		triggerInfoList.push_back(TriggerInfo());
-		TriggerInfo &trigInfo = triggerInfoList.back();
-
-		trigInfo.serverId  = GET_INT_FROM_GRP(itemGroup, idx++);
-		trigInfo.id        = GET_UINT64_FROM_GRP(itemGroup, idx++);
-		int status         = GET_INT_FROM_GRP(itemGroup, idx++);
-		trigInfo.status    = static_cast<TriggerStatusType>(status);
-		int severity       = GET_INT_FROM_GRP(itemGroup, idx++);
-		trigInfo.severity  = static_cast<TriggerSeverityType>(severity);
-		trigInfo.lastChangeTime.tv_sec = 
-		  GET_INT_FROM_GRP(itemGroup, idx++);
-		trigInfo.lastChangeTime.tv_nsec =
-		  GET_INT_FROM_GRP(itemGroup, idx++);
-		trigInfo.hostId    = GET_UINT64_FROM_GRP(itemGroup, idx++);
-		trigInfo.hostName  = GET_STRING_FROM_GRP(itemGroup, idx++);
-		trigInfo.brief     = GET_STRING_FROM_GRP(itemGroup, idx++);
-	}
+	getTriggerInfoList(triggerInfoList, condition);
 }
 
 void DBClientHatohol::setTriggerInfoList(const TriggerInfoList &triggerInfoList,
@@ -1164,3 +1148,51 @@ void DBClientHatohol::addItemInfoBare(const ItemInfo &itemInfo)
 		update(arg);
 	}
 }
+
+void DBClientHatohol::getTriggerInfoList(TriggerInfoList &triggerInfoList,
+                                         const string &condition)
+{
+	DBAgentSelectExArg arg;
+	arg.tableName = TABLE_NAME_TRIGGERS;
+	arg.pushColumn(COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SERVER_ID]);
+	arg.pushColumn(COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_ID]);
+	arg.pushColumn(COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_STATUS]);
+	arg.pushColumn(COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SEVERITY]);
+	arg.pushColumn(COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_LAST_CHANGE_TIME_SEC]);
+	arg.pushColumn(COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_LAST_CHANGE_TIME_NS]);
+	arg.pushColumn(COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_HOST_ID]);
+	arg.pushColumn(COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_HOSTNAME]);
+	arg.pushColumn(COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_BRIEF]);
+
+	// condition
+	arg.condition = condition;
+
+	DBCLIENT_TRANSACTION_BEGIN() {
+		select(arg);
+	} DBCLIENT_TRANSACTION_END();
+
+	// check the result and copy
+	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
+	ItemGroupListConstIterator it = grpList.begin();
+	for (; it != grpList.end(); ++it) {
+		size_t idx = 0;
+		const ItemGroup *itemGroup = *it;
+		triggerInfoList.push_back(TriggerInfo());
+		TriggerInfo &trigInfo = triggerInfoList.back();
+
+		trigInfo.serverId  = GET_INT_FROM_GRP(itemGroup, idx++);
+		trigInfo.id        = GET_UINT64_FROM_GRP(itemGroup, idx++);
+		int status         = GET_INT_FROM_GRP(itemGroup, idx++);
+		trigInfo.status    = static_cast<TriggerStatusType>(status);
+		int severity       = GET_INT_FROM_GRP(itemGroup, idx++);
+		trigInfo.severity  = static_cast<TriggerSeverityType>(severity);
+		trigInfo.lastChangeTime.tv_sec = 
+		  GET_INT_FROM_GRP(itemGroup, idx++);
+		trigInfo.lastChangeTime.tv_nsec =
+		  GET_INT_FROM_GRP(itemGroup, idx++);
+		trigInfo.hostId    = GET_UINT64_FROM_GRP(itemGroup, idx++);
+		trigInfo.hostName  = GET_STRING_FROM_GRP(itemGroup, idx++);
+		trigInfo.brief     = GET_STRING_FROM_GRP(itemGroup, idx++);
+	}
+}
+

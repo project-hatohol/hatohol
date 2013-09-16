@@ -17,7 +17,9 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <cstring>
 #include <Logger.h>
+#include <Reaper.h>
 using namespace mlpl;
 
 #include "FaceRest.h"
@@ -26,11 +28,11 @@ using namespace mlpl;
 #include "ConfigManager.h"
 #include "UnifiedDataStore.h"
 
-int FaceRest::API_VERSION_SERVERS  = 1;
-int FaceRest::API_VERSION_TRIGGERS = 1;
-int FaceRest::API_VERSION_EVENTS   = 1;
-int FaceRest::API_VERSION_ITEMS    = 1;
-int FaceRest::API_VERSION_ACTIONS  = 1;
+int FaceRest::API_VERSION_SERVER   = 2;
+int FaceRest::API_VERSION_TRIGGER  = 2;
+int FaceRest::API_VERSION_EVENT    = 2;
+int FaceRest::API_VERSION_ITEM     = 2;
+int FaceRest::API_VERSION_ACTION   = 2;
 
 typedef void (*RestHandler)
   (SoupServer *server, SoupMessage *msg, const char *path,
@@ -44,15 +46,22 @@ typedef map<ServerID, HostNameMap> HostNameMaps;
 static const guint DEFAULT_PORT = 33194;
 
 const char *FaceRest::pathForGetOverview = "/overview";
-const char *FaceRest::pathForGetServers = "/servers";
-const char *FaceRest::pathForGetTriggers = "/triggers";
-const char *FaceRest::pathForGetEvents   = "/events";
-const char *FaceRest::pathForGetItems    = "/items";
-const char *FaceRest::pathForGetActions  = "/actions";
+const char *FaceRest::pathForGetServer   = "/server";
+const char *FaceRest::pathForGetTrigger  = "/trigger";
+const char *FaceRest::pathForGetEvent    = "/event";
+const char *FaceRest::pathForGetItem     = "/item";
+const char *FaceRest::pathForGetAction   = "/action";
 
 static const char *MIME_HTML = "text/html";
 static const char *MIME_JSON = "application/json";
 static const char *MIME_JAVASCRIPT = "text/javascript";
+
+#define REPLY_ERROR(MSG, ARG, ERR_MSG_FMT, ...) \
+do { \
+	string errMsg = StringUtils::sprintf(ERR_MSG_FMT, ##__VA_ARGS__); \
+	MLPL_ERR("%s", errMsg.c_str()); \
+	replyError(MSG, ARG, errMsg); \
+} while (0)
 
 enum FormatType {
 	FORMAT_HTML,
@@ -62,8 +71,11 @@ enum FormatType {
 
 struct FaceRest::HandlerArg
 {
+	string     formatString;
 	FormatType formatType;
 	const char *mimeType;
+	string      id;
+	string      jsonpCallbackName;
 };
 
 typedef map<string, FormatType> FormatTypeMap;
@@ -144,21 +156,21 @@ gpointer FaceRest::mainThread(HatoholThreadArg *arg)
 	soup_server_add_handler(m_soupServer, pathForGetOverview,
 	                        launchHandlerInTryBlock,
 	                        (gpointer)handlerGetOverview, NULL);
-	soup_server_add_handler(m_soupServer, pathForGetServers,
+	soup_server_add_handler(m_soupServer, pathForGetServer,
 	                        launchHandlerInTryBlock,
-	                        (gpointer)handlerGetServers, NULL);
-	soup_server_add_handler(m_soupServer, pathForGetTriggers,
+	                        (gpointer)handlerGetServer, NULL);
+	soup_server_add_handler(m_soupServer, pathForGetTrigger,
 	                        launchHandlerInTryBlock,
-	                        (gpointer)handlerGetTriggers, NULL);
-	soup_server_add_handler(m_soupServer, pathForGetEvents,
+	                        (gpointer)handlerGetTrigger, NULL);
+	soup_server_add_handler(m_soupServer, pathForGetEvent,
 	                        launchHandlerInTryBlock,
-	                        (gpointer)handlerGetEvents, NULL);
-	soup_server_add_handler(m_soupServer, pathForGetItems,
+	                        (gpointer)handlerGetEvent, NULL);
+	soup_server_add_handler(m_soupServer, pathForGetItem,
 	                        launchHandlerInTryBlock,
-	                        (gpointer)handlerGetItems, NULL);
-	soup_server_add_handler(m_soupServer, pathForGetActions,
+	                        (gpointer)handlerGetItem, NULL);
+	soup_server_add_handler(m_soupServer, pathForGetAction,
 	                        launchHandlerInTryBlock,
-	                        (gpointer)handlerGetActions, NULL);
+	                        (gpointer)handlerAction, NULL);
 	soup_server_run(m_soupServer);
 	g_main_context_unref(gMainCtx);
 	MLPL_INFO("exited face-rest\n");
@@ -184,7 +196,8 @@ size_t FaceRest::parseCmdArgPort(CommandLineArg &cmdArg, size_t idx)
 	return idx;
 }
 
-void FaceRest::replyError(SoupMessage *msg, const string &errorMessage)
+void FaceRest::replyError(SoupMessage *msg, const HandlerArg *arg,
+                          const string &errorMessage)
 {
 	JsonBuilderAgent agent;
 	agent.startObject();
@@ -192,6 +205,8 @@ void FaceRest::replyError(SoupMessage *msg, const string &errorMessage)
 	agent.add("message", errorMessage.c_str());
 	agent.endObject();
 	string response = agent.generate();
+	if (!arg->jsonpCallbackName.empty())
+		response = wrapForJsonp(response, arg->jsonpCallbackName);
 	soup_message_headers_set_content_type(msg->response_headers,
 	                                      MIME_JSON, NULL);
 	soup_message_body_append(msg->response_body, SOUP_MEMORY_COPY,
@@ -249,38 +264,81 @@ void FaceRest::handlerDefault(SoupServer *server, SoupMessage *msg,
 	soup_message_set_status(msg, SOUP_STATUS_NOT_FOUND);
 }
 
+bool FaceRest::parseFormatType(GHashTable *query, HandlerArg &arg)
+{
+	arg.formatString.clear();
+	if (!query) {
+		arg.formatType = FORMAT_JSON;
+		return true;
+	}
+
+	gchar *format = (gchar *)g_hash_table_lookup(query, "fmt");
+	if (!format) {
+		arg.formatType = FORMAT_JSON; // default value
+		return true;
+	}
+	arg.formatString = format;
+
+	FormatTypeMapIterator fmtIt = g_formatTypeMap.find(format);
+	if (fmtIt == g_formatTypeMap.end())
+		return false;
+	arg.formatType = fmtIt->second;
+	return true;
+}
+
 void FaceRest::launchHandlerInTryBlock
   (SoupServer *server, SoupMessage *msg, const char *path,
-   GHashTable *query, SoupClientContext *client, gpointer user_data)
+   GHashTable *_query, SoupClientContext *client, gpointer user_data)
 {
 	RestHandler handler = reinterpret_cast<RestHandler>(user_data);
 
 	HandlerArg arg;
 
-	// format
-	string extension = Utils::getExtension(path);
-	FormatTypeMapIterator fmtIt = g_formatTypeMap.find(extension);
-	if (fmtIt == g_formatTypeMap.end()) {
-		string errMsg = StringUtils::sprintf(
-		  "Unsupported extension: %s, path: %s\n",
-		  extension.c_str(), path);
-		replyError(msg, errMsg);
+	// We expect URIs  whose style are the following.
+	//
+	// Examples:
+	// http://localhost:33194/action
+	// http://localhost:33194/action?fmt=json
+	// http://localhost:33194/action/2345?fmt=html
+
+	GHashTable *query = _query;
+	Reaper<GHashTable> postQueryReaper;
+	if (strcasecmp(msg->method, "POST") == 0) {
+		// The POST request contains query parameters in the body
+		// according to application/x-www-form-urlencoded.
+		query = soup_form_decode(msg->request_body->data);
+		postQueryReaper.set(query,
+		                    (ReaperDestroyFunc)g_hash_table_unref);
+	}
+
+	// a format type
+	if (!parseFormatType(query, arg)) {
+		REPLY_ERROR(msg, &arg, 
+		  "Unsupported format type: %s, path: %s\n",
+		  arg.formatString.c_str(), path);
 		return;
 	}
-	arg.formatType = fmtIt->second;
+
+	// ID
+	StringVector pathElemVect;
+	StringUtils::split(pathElemVect, path, '/');
+	if (pathElemVect.size() >= 2)
+		arg.id = pathElemVect[1];
 
 	// MIME
 	MimeTypeMapIterator mimeIt = g_mimeTypeMap.find(arg.formatType);
 	HATOHOL_ASSERT(
 	  mimeIt != g_mimeTypeMap.end(),
-	  "Invalid formatType: %d, %s", arg.formatType, extension.c_str());
+	  "Invalid formatType: %d, %s", arg.formatType, path);
 	arg.mimeType = mimeIt->second;
+
+	// jsonp callback name
+	arg.jsonpCallbackName = getJsonpCallbackName(query, &arg);
 
 	try {
 		(*handler)(server, msg, path, query, client, &arg);
 	} catch (const HatoholException &e) {
-		MLPL_INFO("Got Exception: %s\n", e.getFancyMessage().c_str());
-		replyError(msg, e.getFancyMessage());
+		REPLY_ERROR(msg, &arg, "%s", e.getFancyMessage().c_str());
 	}
 }
 
@@ -458,47 +516,41 @@ void FaceRest::handlerGetOverview
   (SoupServer *server, SoupMessage *msg, const char *path,
    GHashTable *query, SoupClientContext *client, HandlerArg *arg)
 {
-	string jsonpCallbackName = getJsonpCallbackName(query, arg);
-
 	JsonBuilderAgent agent;
 	agent.startObject();
-	agent.add("apiVersion", API_VERSION_SERVERS);
+	agent.add("apiVersion", API_VERSION_SERVER);
 	agent.addTrue("result");
 	addOverview(agent);
 	agent.endObject();
 
-	replyJsonData(agent, msg, jsonpCallbackName, arg);
+	replyJsonData(agent, msg, arg->jsonpCallbackName, arg);
 }
 
-void FaceRest::handlerGetServers
+void FaceRest::handlerGetServer
   (SoupServer *server, SoupMessage *msg, const char *path,
    GHashTable *query, SoupClientContext *client, HandlerArg *arg)
 {
-	string jsonpCallbackName = getJsonpCallbackName(query, arg);
-
 	JsonBuilderAgent agent;
 	agent.startObject();
-	agent.add("apiVersion", API_VERSION_SERVERS);
+	agent.add("apiVersion", API_VERSION_SERVER);
 	agent.addTrue("result");
 	addServers(agent);
 	agent.endObject();
 
-	replyJsonData(agent, msg, jsonpCallbackName, arg);
+	replyJsonData(agent, msg, arg->jsonpCallbackName, arg);
 }
 
-void FaceRest::handlerGetTriggers
+void FaceRest::handlerGetTrigger
   (SoupServer *server, SoupMessage *msg, const char *path,
    GHashTable *query, SoupClientContext *client, HandlerArg *arg)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-	string jsonpCallbackName = getJsonpCallbackName(query, arg);
-
 	TriggerInfoList triggerList;
 	dataStore->getTriggerList(triggerList);
 
 	JsonBuilderAgent agent;
 	agent.startObject();
-	agent.add("apiVersion", API_VERSION_TRIGGERS);
+	agent.add("apiVersion", API_VERSION_TRIGGER);
 	agent.addTrue("result");
 	agent.add("numberOfTriggers", triggerList.size());
 	agent.startArray("triggers");
@@ -522,22 +574,21 @@ void FaceRest::handlerGetTriggers
 	addServersIdNameHash(agent, &hostMaps);
 	agent.endObject();
 
-	replyJsonData(agent, msg, jsonpCallbackName, arg);
+	replyJsonData(agent, msg, arg->jsonpCallbackName, arg);
 }
 
-void FaceRest::handlerGetEvents
+void FaceRest::handlerGetEvent
   (SoupServer *server, SoupMessage *msg, const char *path,
    GHashTable *query, SoupClientContext *client, HandlerArg *arg)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-	string jsonpCallbackName = getJsonpCallbackName(query, arg);
 
 	EventInfoList eventList;
 	dataStore->getEventList(eventList);
 
 	JsonBuilderAgent agent;
 	agent.startObject();
-	agent.add("apiVersion", API_VERSION_EVENTS);
+	agent.add("apiVersion", API_VERSION_EVENT);
 	agent.addTrue("result");
 	agent.add("numberOfEvents", eventList.size());
 	agent.startArray("events");
@@ -563,22 +614,21 @@ void FaceRest::handlerGetEvents
 	addServersIdNameHash(agent, &hostMaps);
 	agent.endObject();
 
-	replyJsonData(agent, msg, jsonpCallbackName, arg);
+	replyJsonData(agent, msg, arg->jsonpCallbackName, arg);
 }
 
-void FaceRest::handlerGetItems
+void FaceRest::handlerGetItem
   (SoupServer *server, SoupMessage *msg, const char *path,
    GHashTable *query, SoupClientContext *client, HandlerArg *arg)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-	string jsonpCallbackName = getJsonpCallbackName(query, arg);
 
 	ItemInfoList itemList;
 	dataStore->getItemList(itemList);
 
 	JsonBuilderAgent agent;
 	agent.startObject();
-	agent.add("apiVersion", API_VERSION_ITEMS);
+	agent.add("apiVersion", API_VERSION_ITEM);
 	agent.addTrue("result");
 	agent.add("numberOfItems", itemList.size());
 	agent.startArray("items");
@@ -599,7 +649,7 @@ void FaceRest::handlerGetItems
 	addServersIdNameHash(agent);
 	agent.endObject();
 
-	replyJsonData(agent, msg, jsonpCallbackName, arg);
+	replyJsonData(agent, msg, arg->jsonpCallbackName, arg);
 }
 
 template <typename T>
@@ -614,19 +664,34 @@ static void setActionCondition(
 			agent.addNull(member);
 }
 
-void FaceRest::handlerGetActions
+void FaceRest::handlerAction
+  (SoupServer *server, SoupMessage *msg, const char *path,
+   GHashTable *query, SoupClientContext *client, HandlerArg *arg)
+{
+	if (strcasecmp(msg->method, "GET") == 0) {
+		handlerGetAction(server, msg, path, query, client, arg);
+	} else if (strcasecmp(msg->method, "POST") == 0) {
+		handlerPostAction(server, msg, path, query, client, arg);
+	} else if (strcasecmp(msg->method, "DELETE") == 0) {
+		handlerDeleteAction(server, msg, path, query, client, arg);
+	} else {
+		MLPL_ERR("Unknown method: %s\n", msg->method);
+		soup_message_set_status(msg, SOUP_STATUS_METHOD_NOT_ALLOWED);
+	}
+}
+
+void FaceRest::handlerGetAction
   (SoupServer *server, SoupMessage *msg, const char *path,
    GHashTable *query, SoupClientContext *client, HandlerArg *arg)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-	string jsonpCallbackName = getJsonpCallbackName(query, arg);
 
 	ActionDefList actionList;
 	dataStore->getActionList(actionList);
 
 	JsonBuilderAgent agent;
 	agent.startObject();
-	agent.add("apiVersion", API_VERSION_ACTIONS);
+	agent.add("apiVersion", API_VERSION_ACTION);
 	agent.addTrue("result");
 	agent.add("numberOfActions", actionList.size());
 	agent.startArray("actions");
@@ -665,5 +730,203 @@ void FaceRest::handlerGetActions
 	addServersIdNameHash(agent);
 	agent.endObject();
 
-	replyJsonData(agent, msg, jsonpCallbackName, arg);
+	replyJsonData(agent, msg, arg->jsonpCallbackName, arg);
 }
+
+void FaceRest::handlerPostAction
+  (SoupServer *server, SoupMessage *msg, const char *path,
+   GHashTable *query, SoupClientContext *client, HandlerArg *arg)
+{
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+
+	//
+	// mandatory parameters
+	//
+	char *value;
+	bool exist;
+	bool succeeded;
+	ActionDef actionDef;
+
+	// action type
+	succeeded = getParamWithErrorReply<int>(
+	              query, msg, arg,
+	              "type", "%d", (int &)actionDef.type, &exist);
+	if (!succeeded)
+		return;
+	if (!exist) {
+		REPLY_ERROR(msg, arg, "action type is not specified.\n");
+		return;
+	}
+	if (!(actionDef.type == ACTION_COMMAND ||
+	      actionDef.type == ACTION_RESIDENT)) {
+		REPLY_ERROR(msg, arg,
+		            "Unknown action type: %d\n", actionDef.type);
+		return;
+	}
+
+	// command
+	value = (char *)g_hash_table_lookup(query, "command");
+	if (!value) {
+		REPLY_ERROR(msg, arg,
+		            "An action command is not specified.\n");
+		return;
+	}
+	actionDef.command = value;
+
+	//
+	// optional parameters
+	//
+	ActionCondition &cond = actionDef.condition;
+
+	// workingDirectory
+	value = (char *)g_hash_table_lookup(query, "workingDirectory");
+	if (value) {
+		actionDef.workingDir = value;
+	}
+
+	// timeout
+	succeeded = getParamWithErrorReply<int>(
+	              query, msg, arg,
+	              "timeout", "%d", actionDef.timeout, &exist);
+	if (!succeeded)
+		return;
+	if (!exist)
+		actionDef.timeout = 0;
+
+	// serverId
+	succeeded = getParamWithErrorReply<int>(
+	              query, msg, arg,
+	              "serverId", "%d", cond.serverId, &exist);
+	if (!succeeded)
+		return;
+	if (exist)
+		cond.enable(ACTCOND_SERVER_ID);
+
+	// hostId
+	succeeded = getParamWithErrorReply<uint64_t>(
+	              query, msg, arg,
+	              "hostId", "%"PRIu64, cond.hostId, &exist);
+	if (!succeeded)
+		return;
+	if (exist)
+		cond.enable(ACTCOND_HOST_ID);
+
+	// hostGroupId
+	succeeded = getParamWithErrorReply<uint64_t>(
+	              query, msg, arg,
+	              "hostGroupId", "%"PRIu64, cond.hostGroupId, &exist);
+	if (!succeeded)
+		return;
+	if (exist)
+		cond.enable(ACTCOND_HOST_GROUP_ID);
+
+	// triggerId
+	succeeded = getParamWithErrorReply<uint64_t>(
+	              query, msg, arg,
+	              "triggerId", "%"PRIu64, cond.triggerId, &exist);
+	if (!succeeded)
+		return;
+	if (exist)
+		cond.enable(ACTCOND_TRIGGER_ID);
+
+	// triggerStatus
+	succeeded = getParamWithErrorReply<int>(
+	              query, msg, arg,
+	              "triggerStatus", "%d", cond.triggerStatus, &exist);
+	if (!succeeded)
+		return;
+	if (exist)
+		cond.enable(ACTCOND_TRIGGER_STATUS);
+
+	// triggerSeverity
+	succeeded = getParamWithErrorReply<int>(
+	              query, msg, arg,
+	              "triggerSeverity", "%d", cond.triggerSeverity, &exist);
+	if (!succeeded)
+		return;
+	if (exist) {
+		cond.enable(ACTCOND_TRIGGER_SEVERITY);
+
+		// triggerSeverityComparatorType
+		succeeded = getParamWithErrorReply<int>(
+		              query, msg, arg,
+		              "triggerSeverityCompType", "%d",
+		              (int &)cond.triggerSeverityCompType, &exist);
+		if (!succeeded)
+			return;
+		if (!exist) {
+			REPLY_ERROR(msg, arg,
+			  "triggerSeverityCompType is not specified.\n");
+			return;
+		}
+		if (!(cond.triggerSeverityCompType == CMP_EQ ||
+		      cond.triggerSeverityCompType == CMP_EQ_GT)) {
+			REPLY_ERROR(msg, arg,
+			            "Unknown comparator type: %d\n",
+			            cond.triggerSeverityCompType);
+			return;
+		}
+	}
+
+	// save the obtained action
+	dataStore->addAction(actionDef);
+
+	// make a response
+	JsonBuilderAgent agent;
+	agent.startObject();
+	agent.add("apiVersion", API_VERSION_ACTION);
+	agent.addTrue("result");
+	agent.add("id", actionDef.id);
+	agent.endObject();
+	replyJsonData(agent, msg, arg->jsonpCallbackName, arg);
+}
+
+void FaceRest::handlerDeleteAction
+  (SoupServer *server, SoupMessage *msg, const char *path,
+   GHashTable *query, SoupClientContext *client, HandlerArg *arg)
+{
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+	if (arg->id.empty()) {
+		REPLY_ERROR(msg, arg, "ID is missing.\n");
+		return;
+	}
+	int actionId;
+	if (sscanf(arg->id.c_str(), "%d", &actionId) != 1) {
+		REPLY_ERROR(msg, arg, "Invalid ID: %s", arg->id.c_str());
+		return;
+	}
+	ActionIdList actionIdList;
+	actionIdList.push_back(actionId);
+	dataStore->deleteActionList(actionIdList);
+
+	// replay
+	JsonBuilderAgent agent;
+	agent.startObject();
+	agent.add("apiVersion", API_VERSION_ACTION);
+	agent.addTrue("result");
+	agent.add("id", arg->id);
+	agent.endObject();
+	replyJsonData(agent, msg, arg->jsonpCallbackName, arg);
+}
+
+// ---------------------------------------------------------------------------
+// Private methods
+// ---------------------------------------------------------------------------
+template<typename T>
+bool FaceRest::getParamWithErrorReply(
+  GHashTable *query, SoupMessage *msg, const HandlerArg *arg,
+  const char *paramName, const char *scanFmt, T &dest, bool *exist)
+{
+	char *value = (char *)g_hash_table_lookup(query, paramName);
+	if (exist)
+		*exist = value;
+	if (!value)
+		return true;
+
+	if (sscanf(value, scanFmt, &dest) != 1) {
+		REPLY_ERROR(msg, arg, "Invalid %s: %s\n", paramName, value);
+		return false;
+	}
+	return true;
+}
+

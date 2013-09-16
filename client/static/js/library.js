@@ -143,7 +143,7 @@ function schedule(timer, table, param) {
       "lines" : [ gettext("Communicating with backend") ],
     });
 
-    $.getJSON("/tunnel/" + table + ".json", function(json) {
+    $.getJSON("/tunnel/" + table, function(json) {
       rawData = json;
       update(param);
     });

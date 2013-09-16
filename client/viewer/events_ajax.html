@@ -28,6 +28,7 @@
   <li><a href="ajax_triggers">{% trans "Triggers" %}</a></li>
   <li class="active"><a>{% trans "Events" %}</a></li>
   <li><a href="ajax_servers">{% trans "Servers" %}</a></li>
+  <li><a href="ajax_actions">{% trans "Actions" %}</a></li>
 {% endblock %}
 
 {% block main %}
@@ -166,6 +167,6 @@
       $("#table tbody").append(drawTableBody(rawData, parsedData));
     }
 
-    schedule(0000, "events");
+    schedule(0000, "event");
   </script>
 {% endblock %}
