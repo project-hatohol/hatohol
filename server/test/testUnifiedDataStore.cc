@@ -61,21 +61,7 @@ static const char *triggerStatusToString(TriggerStatusType type)
 
 static const char *triggerSeverityToString(TriggerSeverityType type)
 {
-	switch(type) {
-	case TRIGGER_SEVERITY_INFO:
-		return "INFO";
-	case TRIGGER_SEVERITY_WARN:
-		return "WARN";
-	case TRIGGER_SEVERITY_CRITICAL:
-		return "CRITICAL";
-	case TRIGGER_SEVERITY_UNKNOWN:
-		return "UNKNOWN";
-	default:
-		cut_fail("Unknown TriggerSeverityType: %d\n",
-			 static_cast<int>(type));
-		return "";
-	}
-
+	return LabelUtils::getTriggerSeverityLabel(type).c_str();
 }
 
 static string dumpTriggerInfo(const TriggerInfo &info)
