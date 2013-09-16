@@ -1844,7 +1844,7 @@ bool DBClientZabbix::transformEventItemGroupToEventInfo
 	case EVENT_TYPE_DEACTIVATED:
 		eventInfo.status = TRIGGER_STATUS_OK;
 	default:
-		MLPL_ERR("Unknown status: %d\n", eventInfo.status);
+		MLPL_ERR("Unknown status: %d\n", eventInfo.type);
 		eventInfo.status = TRIGGER_STATUS_UNKNOWN;
 	}
 
