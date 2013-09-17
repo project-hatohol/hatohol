@@ -106,10 +106,6 @@ protected:
 	  int updateCheckIndex);
 	void makeSelectExArgForTriggerAsHatoholFormat(void);
 
-	bool isRecordExisting(
-	  const ItemGroup *itemGroup, const string &tableName,
-	  size_t numColumns, const ColumnDef &columnCheck);
-
 private:
 	struct PrivateContext;
 	PrivateContext *m_ctx;
