@@ -441,3 +441,12 @@ uint64_t DBClient::getLastInsertId(void)
 {
 	return getDBAgent()->getLastInsertId();
 }
+
+bool DBClient::updateIfExistElseInsert(
+  const ItemGroup *itemGroup, const string &tableName,
+  size_t numColumns, const ColumnDef *columnDefs, size_t targetIndex)
+{
+	return getDBAgent()->updateIfExistElseInsert(
+	         itemGroup, tableName, numColumns, columnDefs, targetIndex);
+}
+

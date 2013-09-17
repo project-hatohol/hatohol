@@ -132,7 +132,9 @@ protected:
 	bool isRecordExisting(const string &tableName,
 	                      const string &condition);
 	uint64_t getLastInsertId(void);
-
+	bool updateIfExistElseInsert(
+	  const ItemGroup *itemGroup, const string &tableName,
+	  size_t numColumns, const ColumnDef *columnDefs, size_t targetIndex);
 private:
 	struct PrivateContext;
 	PrivateContext *m_ctx;
