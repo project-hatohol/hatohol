@@ -91,9 +91,11 @@
       <label>{% trans "Severity" %}</label>
       <select id="selectTriggerSeverity">
         <option value="ANY">ANY</option>
-        <option value="INFO">INFO</option>
-        <option value="WARN">WARN</option>
-        <option value="CRITICAL">CRITICAL</option>
+        <option value="INFO">{% trans "Information" %}</option>
+        <option value="WARNING">{% trans "Warning" %}</option>
+        <option value="ERROR">{% trans "Average" %}</option>
+        <option value="CRITICAL">{% trans "High" %}</option>
+        <option value="EMERGENCY">{% trans "Disaster" %}</option>
       </select>
       <select id="selectTriggerSeverityCompType" style="visibility:hidden;">
         <option value="CMP_EQ">{% trans "Equal to" %}</option>
@@ -340,10 +342,14 @@
         return undefined;
       case "INFO":
         return TRIGGER_SEVERITY_INFO;
-      case "WARN":
-        return TRIGGER_SEVERITY_WARN;
+      case "WARNING":
+        return TRIGGER_SEVERITY_WARNING;
+      case "ERROR":
+        return TRIGGER_SEVERITY_ERROR;
       case "CRITICAL":
         return TRIGGER_SEVERITY_CRITICAL;
+      case "EMERGENCY":
+        return TRIGGER_SEVERITY_EMERGENCY;
       default:
         alert("Unknown severity: " + severity);
       }
@@ -555,16 +561,20 @@
 
     function makeServerityLabel(severity) {
       switch(severity) {
-      case TRIGGER_SEVERITY_INFO:
-        return "INFO";
-      case TRIGGER_SEVERITY_WARN:
-        return "WARN";
-      case TRIGGER_SEVERITY_CRITICAL:
-        return "CRITICAL";
       case TRIGGER_SEVERITY_UNKNOWN:
-        return "UNKNOWN";
+        return "{% trans "Not classified" %}";
+      case TRIGGER_SEVERITY_INFO:
+        return "{% trans "Information" %}";
+      case TRIGGER_SEVERITY_WARNING:
+        return "{% trans "Warning" %}";
+      case TRIGGER_SEVERITY_ERROR:
+        return "{% trans "Average" %}";
+      case TRIGGER_SEVERITY_CRITICAL:
+        return "{% trans "High" %}";
+      case TRIGGER_SEVERITY_EMERGENCY:
+        return "{% trans "Disaster" %}";
       default:
-        return "INVALID: " + severity;
+        return "{% trans "INVALID" %}" + ": " + severity;
       }
     }
 
