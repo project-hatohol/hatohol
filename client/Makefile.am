@@ -15,6 +15,7 @@ nobase_dist_libexec_SCRIPTS = \
 	static/js/jquery.min.js \
 	static/js/stupidtable.min.js \
 	static/js/stupidtable.js \
+	static/js/hatohol_def.js \
 	viewer/urls.py \
 	viewer/__init__.py \
 	viewer/models.py \
@@ -40,6 +41,10 @@ CLEANFILES = \
 
 nobase_nodist_libexec_SCRIPTS = \
 	$(MO_FILES)
+
+HATOHOL_DEF_GENERATOR = ../server/tools/hatohol-def-src-file-generator
+static/js/hatohol_def.js: $(HATOHOL_DEF_GENERATOR)
+	$(HATOHOL_DEF_GENERATOR) js > $@
 
 update-po:
 	./manage.py makemessages -a

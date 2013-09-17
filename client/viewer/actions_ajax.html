@@ -1,4 +1,5 @@
 {% extends "viewer/base_ajax.html" %}
+{% load i18n %}
 
 {% comment %}
   Copyright (C) 2013 Project Hatohol
@@ -20,21 +21,21 @@
 {% endcomment %}
 
 {% block navbar %}
-  <li><a href="ajax_dashboard">ダッシュボード</a></li>
-  <li><a href="ajax_overview_triggers">概要:トリガー</a></li>
-  <li><a href="ajax_overview_items">概要:アイテム</a></li>
-  <li><a href="ajax_latest">最新データ</a></li>
-  <li><a href="ajax_trigger">トリガー</a></li>
-  <li><a href="ajax_events">イベント</a></li>
-  <li><a href="ajax_servers">サーバ管理</a></li>
-  <li class="active"><a>アクション</a></li>
+  <li><a href="ajax_dashboard">{% trans "Dashboard" %}</a></li>
+  <li><a href="ajax_overview_triggers">{% trans "Overview : Triggers" %}</a></li>
+  <li><a href="ajax_overview_items">{% trans "Overview : Items" %}</a></li>
+  <li><a href="ajax_latest">{% trans "Latest data" %}</a></li>
+  <li><a href="ajax_triggers">{% trans "Triggers" %}</a></li>
+  <li><a href="ajax_events">{% trans "Events" %}</a></li>
+  <li><a href="ajax_servers">{% trans "Servers" %}</a></li>
+  <li class="active"><a>{% trans "Actions" %}</a></li>
 {% endblock %}
 
 {% block main %}
-  <h2>アクション</h2>
+  <h2>{% trans "Actions" %}</h2>
 
   <form class="form-inline">
-    <input id="add-action-button" type="button" value="Add an action" />
+    <input id="add-action-button" type="button" value="{% trans "ADD ACTION" %}" />
     <label>Server:</label>
     <select id="select-server">
       <option>---------</option>
@@ -47,78 +48,81 @@
     <select id="select-host">
       <option>---------</option>
     </select>
-    <input id="delete-action-button" type="button" disabled value="Delete actions" />
+    <input id="delete-action-button" type="button" disabled
+     value="{% trans "DELETE ACTIONS" %}" />
   </form>
   <div id="add-action-dialog">
-    <h3>条件</h3>
+    <h3>{% trans "Condition" %}</h3>
     <form class="form-inline">
-      <label>サーバ</label>
+      <label>{% trans "Server" %}</label>
       <select id="selectServerId">
         <option value="ANY">ANY</option>
-        <option value="select">== SELECT ==</option>
+        <option value="select">== {% trans "SELECT" %} ==</option>
       </select>
 
-      <label>ホストグループ</label>
+      <label>{% trans "Host Group" %}</label>
       <select id="selectHostGroupId">
         <option value="ANY">ANY</option>
         <!-- Currently host group ID is not supported
-        <option value="select">== SELECT ==</option>
+        <option value="select">== {% trans "SELECT" %} ==</option>
         -->
       </select>
-      <label>ホスト</label>
+      <label>{% trans "Host" %}</label>
       <select id="selectHostId">
         <option value="ANY">ANY</option>
-        <option value="select">== SELECT ==</option>
+        <option value="select">== {% trans "SELECT" %} ==</option>
       </select>
     </form>
 
     <form class="form-inline">
-      <label>トリガー</label>
+      <label>{% trans "Trigger" %}</label>
       <select id="selectTriggerId">
         <option value="ANY">ANY</option>
-        <option value="select">== SELECT ==</option>
+        <option value="select">== {% trans "SELECT" %} ==</option>
       </select>
 
-      <label>トリガー状態</label>
+      <label>{% trans "Status" %}</label>
       <select id="selectTriggerStatus">
         <option value="ANY">ANY</option>
-        <option value="TRIGGER_STATUS_OK">OK</option>
-        <option value="TRIGGER_STATUS_PROBLEM">PROBLM</option>
+        <option value="TRIGGER_STATUS_OK">{% trans "OK" %}</option>
+        <option value="TRIGGER_STATUS_PROBLEM">{% trans "Problem" %}</option>
       </select>
 
-      <label>深刻度</label>
+      <label>{% trans "Severity" %}</label>
       <select id="selectTriggerSeverity">
         <option value="ANY">ANY</option>
-        <option value="INFO">INFO</option>
-        <option value="WARN">WARN</option>
-        <option value="CRITICAL">CRITICAL</option>
+        <option value="INFO">{% trans "Information" %}</option>
+        <option value="WARNING">{% trans "Warning" %}</option>
+        <option value="ERROR">{% trans "Average" %}</option>
+        <option value="CRITICAL">{% trans "High" %}</option>
+        <option value="EMERGENCY">{% trans "Disaster" %}</option>
       </select>
       <select id="selectTriggerSeverityCompType" style="visibility:hidden;">
-        <option value="CMP_EQ">一致</option>
-        <option value="CMP_EQ_GT">以上</option>
+        <option value="CMP_EQ">{% trans "Equal to" %}</option>
+        <option value="CMP_EQ_GT">{% trans "Equal to or greater than" %}</option>
       </select>
     </form>
 
-    <h3>実行内容</h3>
+    <h3>{% trans "Execution parameters" %}</h3>
     <form class="form-inline">
-      <label>タイプ</label>
+      <label>{% trans "Type" %}</label>
       <select id="selectType">
-        <option value="ACTION_COMMAND">COMMAND</option>
-        <option value="ACTION_RESIDENT">RESIDENT</option>
+        <option value="ACTION_COMMAND">{% trans "COMMAND" %}</option>
+        <option value="ACTION_RESIDENT">{% trans "RESIDENT" %}</option>
       </select>
 
-      <label>タイムアウト (秒)</label>
+      <label>{% trans "Time-out (sec)" %}</label>
       <input id="inputTimeout" value="0">
-      <label> (0: 無制限)</label>
+      <label>(0: {% trans "No limit" %})</label>
     </form>
 
     <form class="form-inline">
-      <label>コマンド</label>
+      <label>{% trans "Command" %}</label>
       <input id="inputActionCommand" value="" style="width:100%;">
     </form>
 
     <form class="form-inline">
-      <label>作業ディレクトリ</label>
+      <label>{% trans "Execution directory" %}</label>
       <input id="inputWorkingDir" value="" style="width:100%;">
     </form>
 
@@ -136,16 +140,16 @@
       <tr>
         <th>  </th>
         <th data-sort="int"> ID </th>
-        <th data-sort="string"> サーバ </th>
-        <th data-sort="string"> ホスト </th>
-        <th data-sort="string"> ホストグループ </th>
-        <th data-sort="int"> トリガーID </th>
-        <th data-sort="string"> トリガー状態 </th>
-        <th data-sort="string"> 深刻度 </th>
-        <th data-sort="string"> タイプ </th>
-        <th data-sort="string"> 作業ディレクトリ </th>
-        <th data-sort="string"> コマンド </th>
-        <th data-sort="int"> タイムアウト(秒) </th>
+        <th data-sort="string"> {% trans "Server" %} </th>
+        <th data-sort="string"> {% trans "Host" %} </th>
+        <th data-sort="string"> {% trans "Host Group" %} </th>
+        <th data-sort="int"> {% trans "Trigger" %} </th>
+        <th data-sort="string"> {% trans "Status" %} </th>
+        <th data-sort="string"> {% trans "Severity" %} </th>
+        <th data-sort="string"> {% trans "Type" %} </th>
+        <th data-sort="string"> {% trans "Execution directory" %} </th>
+        <th data-sort="string"> {% trans "Command" %} </th>
+        <th data-sort="int"> {% trans "Time-out (sec)" %} </th>
       </tr>
     </thead>
     <tbody>
@@ -194,8 +198,8 @@
     });
 
     $("#delete-action-button").click(function() {
-      showMessageBox("Are you really delete the selected actions",
-                     "Confirmation", NO_YES_BUTTON, deleteActions);
+      showNoYesMessageBox(
+        "{% trans "Do you delete the selected items ?" %}", deleteActions);
     });
 
     //
@@ -247,12 +251,12 @@
         if (malformed) {
             msg = "The returned content is malformed: " +
                   "Not found 'result' or 'message'.\n" + JSON.stringify(data);
-            showMessageBox(msg, "Error", CLOSE_BUTTON);
+            showErrorMessageBox(msg);
             return false;
         }
         if (!data.result) {
             msg = "Failed:\n" + data.message
-            showMessageBox(msg, "Error", CLOSE_BUTTON);
+            showErrorMessageBox(msg);
             return false;
         }
 
@@ -260,7 +264,7 @@
             msg = "The returned content is malformed: " +
                   "'result' is true, however, 'id' is missing.\n" +
                   JSON.stringify(data);
-            showMessageBox(msg, "Error", CLOSE_BUTTON);
+            showErrorMessageBox(msg);
             return false;
         }
         return true;
@@ -271,23 +275,24 @@
     //
     $("#add-action-dialog").dialog({
       autoOpen: false,
-      title: "Add Action",
+      title: "{% trans "ADD ACTION" %}",
       closeOnEscape: false,
       width:  "95%",
       modal: true,
       buttons: [
       {
-        text: "ADD",
+        text: "{% trans "ADD" %}",
         click: function() {
           if (validateAddParameters()) {
             makeQueryData();
-            showMessageBox("Now creating an action ...", "Information",
+            showMessageBox("{% trans "Now creating an action ..." %}",
+                           "{% trans "Information" %}",
                            undefined);
             postAddAction();
           }
         }
       }, {
-        text: "Canncel",
+        text: "{% trans "CANNCEL" %}",
         click: function() {
           $(this).dialog("close");
         }
@@ -296,7 +301,7 @@
 
     function validateAddParameters() {
       if ($("#inputActionCommand").val() == "") {
-        showMessageBox("Command is empty!", "Error", CLOSE_BUTTON);
+        showErrorMessageBox("Command is empty!");
         return false;
       }
       return true;
@@ -337,10 +342,14 @@
         return undefined;
       case "INFO":
         return TRIGGER_SEVERITY_INFO;
-      case "WARN":
-        return TRIGGER_SEVERITY_WARN;
+      case "WARNING":
+        return TRIGGER_SEVERITY_WARNING;
+      case "ERROR":
+        return TRIGGER_SEVERITY_ERROR;
       case "CRITICAL":
         return TRIGGER_SEVERITY_CRITICAL;
+      case "EMERGENCY":
+        return TRIGGER_SEVERITY_EMERGENCY;
       default:
         alert("Unknown severity: " + severity);
       }
@@ -381,7 +390,7 @@
         error: function(XMLHttpRequest, textStatus, errorThrown) {
           var errorMsg = "Error: " + XMLHttpRequest.status + ": " +
                          XMLHttpRequest.statusText;
-          showMessageBox(errorMsg, "Error", CLOSE_BUTTON);
+          showErrorMessageBox(errorMsg);
         }
       })
     }
@@ -394,7 +403,7 @@
         $("#add-action-dialog").dialog("close");
 
       // close dialogs
-      showMessageBox("Successfully created.", "Information", CLOSE_BUTTON);
+      showInfoMessageBox("{% trans "Successfully created." %}");
 
       // update the main view
       schedule(0000, "action");
@@ -415,7 +424,7 @@
           deletedIdArray.total++;
           deleteOneAction(actionId, deletedIdArray);
         }
-        showMessageBox("Deleting...", "Information", CLOSE_BUTTON);
+        showInfoMessageBox("{% trans "Deleting..." %}");
     }
 
     function deleteOneAction(id, deletedIdArray) {
@@ -432,7 +441,7 @@
         error: function(XMLHttpRequest, textStatus, errorThrown) {
           var errorMsg = "Error: " + XMLHttpRequest.status + ": " +
                          XMLHttpRequest.statusText;
-          showMessageBox(errorMsg, "Error", CLOSE_BUTTON);
+          showErrorMessageBox(errorMsg);
           deletedIdArray.errors++;
         },
         complete: function() {
@@ -456,14 +465,14 @@
     function compleOneDelAction(deletedIdArray) {
       deletedIdArray.count--;
       var completed = deletedIdArray.total - deletedIdArray.count;
-      showMessageBox("Deleting... " + completed + " / " + deletedIdArray.total,
-                     "Information", CLOSE_BUTTON);
+      showInfoMessageBox("{% trans "Deleting..." %}" + " " + completed +
+                         " / " + deletedIdArray.total);
       if (deletedIdArray.count > 0)
         return;
 
       // close dialogs
-      showMessageBox("Completed. (Number of errors: " +
-                     deletedIdArray.errors + ")", "Information", CLOSE_BUTTON);
+      showInfoMessageBox("{% trans "Completed. (Number of errors: " %}"+
+                         deletedIdArray.errors + ")");
 
       // update the main view
       schedule(0000, "action");
@@ -473,18 +482,18 @@
     // Functions for message box.
     //
     var CLOSE_BUTTON = {
-        "CLOSE": function() {
+        "{% trans "CLOSE" %}": function() {
           $(this).dialog("close");
         }
     };
 
     var NO_YES_BUTTON = [{
-      text: "NO",
+      text: "{% trans "NO" %}",
       click: function() {
         $(this).dialog("close");
       }
     }, {
-      text: "YES",
+      text: "{% trans "YES" %}",
       click: function() {
       }
     }]
@@ -504,6 +513,19 @@
       $("#msgbox").dialog("option", "buttons", buttons);
     }
 
+    function showInfoMessageBox(msg) {
+      showMessageBox(msg, "{% trans "Information" %}", CLOSE_BUTTON)
+    }
+
+    function showErrorMessageBox(msg) {
+      showMessageBox(msg, "{% trans "Error" %}", CLOSE_BUTTON)
+    }
+
+    function showNoYesMessageBox(msg, yesCallback) {
+      showMessageBox(msg, "{% trans "Confirmation" %}", NO_YES_BUTTON,
+                     yesCallback);
+    }
+
     //
     // Functions for make the main view.
     //
@@ -518,9 +540,9 @@
     function makeTypeLabel(type) {
       switch(type) {
       case ACTION_COMMAND:
-        return "COMMAND"
+        return "{% trans "COMMAND" %}"
       case ACTION_RESIDENT:
-        return "RESIDENT";
+        return "{% trans "RESIDENT" %}";
       default:
         return "INVALID: " + type;
       }
@@ -529,9 +551,9 @@
     function makeTriggerStatusLabel(status) {
       switch(status) {
       case TRIGGER_STATUS_OK:
-        return "OK";
+        return "{% trans "OK" %}";
       case TRIGGER_STATUS_PROBLEM:
-        return "PROBLEM";
+        return "{% trans "Problem" %}";
       default:
         return "INVALID: " + status;
       }
@@ -539,16 +561,20 @@
 
     function makeServerityLabel(severity) {
       switch(severity) {
-      case TRIGGER_SEVERITY_INFO:
-        return "INFO";
-      case TRIGGER_SEVERITY_WARN:
-        return "WARN";
-      case TRIGGER_SEVERITY_CRITICAL:
-        return "CRITICAL";
       case TRIGGER_SEVERITY_UNKNOWN:
-        return "UNKNOWN";
+        return "{% trans "Not classified" %}";
+      case TRIGGER_SEVERITY_INFO:
+        return "{% trans "Information" %}";
+      case TRIGGER_SEVERITY_WARNING:
+        return "{% trans "Warning" %}";
+      case TRIGGER_SEVERITY_ERROR:
+        return "{% trans "Average" %}";
+      case TRIGGER_SEVERITY_CRITICAL:
+        return "{% trans "High" %}";
+      case TRIGGER_SEVERITY_EMERGENCY:
+        return "{% trans "Disaster" %}";
       default:
-        return "INVALID: " + severity;
+        return "{% trans "INVALID" %}" + ": " + severity;
       }
     }
 
@@ -688,7 +714,7 @@
 
         var timeout = actionDef.timeout;
         if (timeout == 0)
-          timeout = "No limit";
+          timeout = "{% trans "No limit" %}";
         s += "<td>" + timeout + "</td>";
 
         s += "</tr>";

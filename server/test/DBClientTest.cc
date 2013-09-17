@@ -93,7 +93,7 @@ TriggerInfo testTriggerInfo[] =
 	3,                        // serverId
 	2,                        // id
 	TRIGGER_STATUS_PROBLEM,   // status
-	TRIGGER_SEVERITY_WARN,    // severity
+	TRIGGER_SEVERITY_WARNING, // severity
 	{1362957200,0},           // lastChangeTime
 	10001,                    // hostId,
 	"hostZ1",                 // hostName,
@@ -118,7 +118,7 @@ EventInfo testEventInfo[] = {
 	EVENT_TYPE_GOOD,          // type
 	2,                        // triggerId
 	TRIGGER_STATUS_PROBLEM,   // status
-	TRIGGER_SEVERITY_WARN,    // severity
+	TRIGGER_SEVERITY_WARNING, // severity
 	10001,                    // hostId,
 	"hostZ1",                 // hostName,
 	"TEST Trigger 2",         // brief,
@@ -224,7 +224,7 @@ ActionDef testActionDef[] = {
 	  0x8000000000000000,       // hostGroupId
 	  0xfedcba9876543210,       // triggerId
 	  TRIGGER_STATUS_PROBLEM,   // triggerStatus
-	  TRIGGER_SEVERITY_WARN,    // triggerSeverity
+	  TRIGGER_SEVERITY_WARNING, // triggerSeverity
 	  CMP_EQ                    // triggerSeverityCompType;
 	), // condition
 	ACTION_RESIDENT,   // type
@@ -242,7 +242,7 @@ ActionDef testActionDef[] = {
 	  0x8000000000000000,       // hostGroupId
 	  0xfedcba9876543210,       // triggerId
 	  TRIGGER_STATUS_OK,        // triggerStatus
-	  TRIGGER_SEVERITY_WARN,    // triggerSeverity
+	  TRIGGER_SEVERITY_WARNING, // triggerSeverity
 	  CMP_EQ_GT                 // triggerSeverityCompType;
 	), // condition
 	ACTION_RESIDENT,   // type
