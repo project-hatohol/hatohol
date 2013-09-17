@@ -123,6 +123,15 @@ string joinStringVector(const StringVector &strVect, const string &pad = "",
                         bool isPaddingTail = true);
 
 void crash(void);
+
+/**
+ * Make a format string for a double float value that can be used for
+ * printf() family functions. The number of decimals is columnDef.decFracLength.
+ *
+ * @param columnDef A reference of a columnDef instance.
+ * @return A format string.
+ *
+ */
 string makeDoubleFloatFormat(const ColumnDef &columnDef);
 
 #endif // Helpers_h
