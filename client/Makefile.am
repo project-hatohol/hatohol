@@ -1,6 +1,8 @@
-libexecdir=$(exec_prefix)/libexec/$(PACKAGE)/client
-nobase_dist_libexec_SCRIPTS = \
-	./manage.py \
+hatohol_clientdir=$(libexecdir)/$(PACKAGE)/client
+nobase_dist_hatohol_client_SCRIPTS = \
+	./manage.py
+
+nobase_dist_hatohol_client_DATA = \
 	conf/locale/ja/LC_MESSAGES/django.po \
 	conf/locale/ja/LC_MESSAGES/djangojs.po \
 	mysite/forwardview.py \
@@ -39,7 +41,7 @@ MO_FILES = \
 CLEANFILES = \
 	$(MO_FILES)
 
-nobase_nodist_libexec_SCRIPTS = \
+nobase_nodist_hatohol_client_DATA = \
 	$(MO_FILES)
 
 HATOHOL_DEF_GENERATOR = ../server/tools/hatohol-def-src-file-generator
