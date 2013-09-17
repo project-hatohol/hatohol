@@ -84,8 +84,8 @@
       <label>{% trans "Status" %}</label>
       <select id="selectTriggerStatus">
         <option value="ANY">ANY</option>
-        <option value="TRIGGER_STATUS_OK">OK</option>
-        <option value="TRIGGER_STATUS_PROBLEM">PROBLM</option>
+        <option value="TRIGGER_STATUS_OK">{% trans "OK" %}</option>
+        <option value="TRIGGER_STATUS_PROBLEM">{% trans "Problem" %}</option>
       </select>
 
       <label>{% trans "Severity" %}</label>
@@ -551,9 +551,9 @@
     function makeTriggerStatusLabel(status) {
       switch(status) {
       case TRIGGER_STATUS_OK:
-        return "OK";
+        return "{% trans "OK" %}";
       case TRIGGER_STATUS_PROBLEM:
-        return "PROBLEM";
+        return "{% trans "Problem" %}";
       default:
         return "INVALID: " + status;
       }
