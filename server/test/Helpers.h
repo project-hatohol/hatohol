@@ -123,5 +123,6 @@ string joinStringVector(const StringVector &strVect, const string &pad = "",
                         bool isPaddingTail = true);
 
 void crash(void);
+string makeDoubleFloatFormat(const ColumnDef &columnDef);
 
 #endif // Helpers_h

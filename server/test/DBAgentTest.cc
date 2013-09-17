@@ -614,11 +614,8 @@ static bool dbAgentUpdateIfExistEleseInsertOneRecord(
 void dbAgentUpdateIfExistEleseInsert(DBAgent &dbAgent, DBAgentChecker &checker)
 {
 	dbAgentTestCreateTable(dbAgent, checker);
-	string doubleFmt =
-	   StringUtils::sprintf("%%.%zdlf",
-	     COLUMN_DEF_TEST[IDX_TEST_TABLE_HEIGHT].decFracLength);
 	string fmt = "%"PRIu64"|%d|%s|";
-	fmt += doubleFmt;
+	fmt += makeDoubleFloatFormat(COLUMN_DEF_TEST[IDX_TEST_TABLE_HEIGHT]);
 	fmt += "|%s\n";
 	string expectLines;
 	string statement = StringUtils::sprintf(
@@ -739,9 +736,7 @@ void DBAgentChecker::assertExistingRecordEachWord
 	if (nullIndexes && nullIndexes->count(idx)) {
 		expected = expectedNullNotation;
 	} else {
-		const ColumnDef &columnDef = columnDefs[idx];
-		string fmt =
-		   StringUtils::sprintf("%%.%zdlf", columnDef.decFracLength);
+		string fmt = makeDoubleFloatFormat(columnDefs[idx]);
 		expected = StringUtils::sprintf(fmt.c_str(), height);
 	}
 	cppcut_assert_equal(expected, words[idx++]);

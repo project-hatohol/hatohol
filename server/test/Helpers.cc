@@ -563,3 +563,8 @@ void crash(void)
 	*p = 'a';
 #endif
 }
+
+string makeDoubleFloatFormat(const ColumnDef &columnDef)
+{
+	return StringUtils::sprintf("%%.%zdlf", columnDef.decFracLength);
+}
