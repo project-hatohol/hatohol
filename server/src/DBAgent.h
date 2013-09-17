@@ -132,6 +132,31 @@ public:
 	virtual void addColumns(DBAgentAddColumnsArg &addColumnsArg) = 0;
 	virtual uint64_t getLastInsertId(void) = 0;
 
+	/**
+	 * Update a record if there is the record with the same value in the
+	 * specified column. Or this function executes an insert operation.
+	 * NOTE: the value that belongs to the column with PRIMARY KEY is not
+	 * updated.
+	 *
+	 * @param itemGroup
+	 * An ItemGroup instance that has values for the record to be
+	 * updated or inserted.
+	 *
+	 * @param tableName
+	 * The target table name.
+	 *
+	 * @param numColumns
+	 * The number of columns of the table.
+	 *
+	 * @param targetIndex
+	 * A column index used for the comparison.
+	 *
+	 * @return true if updated, otherwise false.
+	 */
+	virtual bool updateIfExistElseInsert(
+	  const ItemGroup *itemGroup, const string &tableName,
+	  size_t numColumns, const ColumnDef *columnDefs, size_t targetIndex);
+
 protected:
 	static string makeSelectStatement(DBAgentSelectArg &selectArg);
 	static string makeSelectStatement(DBAgentSelectExArg &selectExArg);

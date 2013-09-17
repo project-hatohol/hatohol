@@ -91,5 +91,6 @@ void dbAgentTestDelete(DBAgent &dbAgent, DBAgentChecker &checker);
 void dbAgentTestIsTableExisting(DBAgent &dbAgent, DBAgentChecker &checker);
 void dbAgentTestAutoIncrement(DBAgent &dbAgent, DBAgentChecker &checker);
 void dbAgentTestAutoIncrementWithDel(DBAgent &dbAgent, DBAgentChecker &checker);
+void dbAgentUpdateIfExistEleseInsert(DBAgent &dbAgent, DBAgentChecker &checker);
 
 #endif // DBAgentTestCommon_h

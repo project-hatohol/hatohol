@@ -345,5 +345,11 @@ void test_autoIncrementWithDel(void)
 	cut_omit("Not implemented yet");
 }
 
+void test_updateIfExistElseInsert(void)
+{
+	DBAgentSQLite3 dbAgent;
+	dbAgentUpdateIfExistEleseInsert(dbAgent, dbAgentChecker);
+}
+
 } // testDBAgentSQLite3
 

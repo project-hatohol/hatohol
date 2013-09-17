@@ -21,6 +21,7 @@
 using namespace mlpl;
 
 #include "DBAgent.h"
+#include "HatoholException.h"
 
 struct DBSetupInfo {
 	DBSetupFunc func;
@@ -333,3 +334,50 @@ string DBAgent::makeDatetimeString(int datetime)
 	return str;
 }
 
+bool DBAgent::updateIfExistElseInsert(
+  const ItemGroup *itemGroup, const string &tableName,
+  size_t numColumns, const ColumnDef *columnDefs, size_t targetIndex)
+{
+	size_t numElemInItemGrp = itemGroup->getNumberOfItems();
+	HATOHOL_ASSERT(targetIndex < numElemInItemGrp,
+	               "targetIndex: %zd, number of items: %zd",
+	               targetIndex, numElemInItemGrp);
+	HATOHOL_ASSERT(numColumns == numElemInItemGrp,
+	               "numColumns: %zd, number of items: %zd",
+	               numColumns, numElemInItemGrp);
+	const ItemData *item = itemGroup->getItemAt(targetIndex);
+	const char *columnName = columnDefs[targetIndex].columnName;
+	string condition = StringUtils::sprintf("%s=%s", columnName,
+	                                        item->getString().c_str());
+	bool exist = isRecordExisting(tableName, condition);
+	if (exist) {
+		// update
+		DBAgentUpdateArg arg;
+		arg.tableName = tableName;
+		arg.columnDefs = columnDefs;
+		VariableItemGroupPtr row;
+		for (size_t i = 0; i < numColumns; i++) {
+			// exclude primary
+			if (columnDefs[i].keyType == SQL_KEY_PRI)
+				continue;
+			row->add(itemGroup->getItemAt(i));
+			arg.columnIndexes.push_back(i);
+		}
+		arg.row = row;
+		arg.condition = condition;
+		update(arg);
+	} else {
+		// insert
+		DBAgentInsertArg arg;
+		arg.tableName = tableName;
+		arg.numColumns = numColumns;
+		arg.columnDefs = columnDefs;
+
+		VariableItemGroupPtr row;
+		for (size_t i = 0; i < numColumns; i++)
+			row->add(itemGroup->getItemAt(i));
+		arg.row = row;
+		insert(arg);
+	}
+	return exist;
+}

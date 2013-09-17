@@ -392,5 +392,11 @@ void test_autoIncrementWithDel(void)
 	dbAgentTestAutoIncrementWithDel(*g_dbAgent, dbAgentChecker);
 }
 
+void test_updateIfExistElseInsert(void)
+{
+	createGlobalDBAgent();
+	dbAgentUpdateIfExistEleseInsert(*g_dbAgent, dbAgentChecker);
+}
+
 } // testDBAgentMySQL
 

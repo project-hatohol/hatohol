@@ -21,6 +21,14 @@
 #include "SQLUtils.h"
 #include "Helpers.h"
 
+class TestDBAgent : public DBAgent {
+public:
+	static string callMakeDatetimeString(int datetime)
+	{
+		return makeDatetimeString(datetime);
+	}
+};
+
 const char *TABLE_NAME_TEST = "test_table";
 const ColumnDef COLUMN_DEF_TEST[] = {
 {
@@ -574,6 +582,83 @@ void dbAgentTestAutoIncrementWithDel(DBAgent &dbAgent, DBAgentChecker &checker)
 	expectedId++;
 	cppcut_assert_equal(expectedId, dbAgent.getLastInsertId());
 
+}
+
+static bool dbAgentUpdateIfExistEleseInsertOneRecord(
+  DBAgent &dbAgent, size_t i, string &expectedLine, size_t targetIndex,
+  const string &fmt,
+  uint64_t id, int age, const char *name, double height, int time)
+{
+	VariableItemGroupPtr row;
+	row->ADD_NEW_ITEM(Uint64, id);
+	row->ADD_NEW_ITEM(Int, age);
+	row->ADD_NEW_ITEM(String, name);
+	row->ADD_NEW_ITEM(Double, height);
+	row->ADD_NEW_ITEM(Int, time);
+	bool updated = dbAgent.updateIfExistElseInsert(
+	                 row, TABLE_NAME_TEST, NUM_COLUMNS_TEST,
+	                 COLUMN_DEF_TEST, targetIndex);
+
+	string expectedTimeStr;
+	if (time == CURR_DATETIME) {
+		expectedTimeStr = DBCONTENT_MAGIC_CURR_DATETIME;
+	} else {
+		expectedTimeStr = StringUtils::eraseChars(
+		  TestDBAgent::callMakeDatetimeString(time), "'");
+	}
+	expectedLine = StringUtils::sprintf(
+	  fmt.c_str(), id, age, name, height, expectedTimeStr.c_str());
+	return updated;
+}
+
+void dbAgentUpdateIfExistEleseInsert(DBAgent &dbAgent, DBAgentChecker &checker)
+{
+	dbAgentTestCreateTable(dbAgent, checker);
+	string doubleFmt =
+	   StringUtils::sprintf("%%.%zdlf",
+	     COLUMN_DEF_TEST[IDX_TEST_TABLE_HEIGHT].decFracLength);
+	string fmt = "%"PRIu64"|%d|%s|";
+	fmt += doubleFmt;
+	fmt += "|%s\n";
+	string expectLines;
+	string statement = StringUtils::sprintf(
+	     "select * from %s order by %s asc",
+	     TABLE_NAME_TEST, COLUMN_DEF_TEST[IDX_TEST_TABLE_ID].columnName);
+	StringVector firstExpectedLines;
+	string expectedLine;
+
+	// First we expect an insertion
+	const size_t targetIndex = IDX_TEST_TABLE_ID;
+	for (size_t i = 0; i < NUM_TEST_DATA; i++) {
+		bool updated = 
+		  dbAgentUpdateIfExistEleseInsertOneRecord(
+		    dbAgent, i, expectedLine, targetIndex, fmt,
+		    i, AGE[i], NAME[i], HEIGHT[i], TIME[i]);
+		cppcut_assert_equal(false, updated);
+		firstExpectedLines.push_back(expectedLine);
+		expectLines += expectedLine;
+	}
+	assertDBContent(&dbAgent, statement, expectLines);
+
+	// Then we update the first and the third records
+	set<size_t> targetRows;
+	targetRows.insert(0);
+	targetRows.insert(2);
+	expectLines.clear();
+	for (size_t i = 0; i < NUM_TEST_DATA; i++) {
+		if (targetRows.count(i) == 0) {
+			expectLines += firstExpectedLines[i];
+			continue;
+		}
+
+		bool updated = 
+		  dbAgentUpdateIfExistEleseInsertOneRecord(
+		    dbAgent, i, expectedLine, targetIndex, fmt,
+		    i, AGE[i]/2, "FOO", HEIGHT[i]/2, TIME[i]);
+		cppcut_assert_equal(true, updated);
+		expectLines += expectedLine;
+	}
+	assertDBContent(&dbAgent, statement, expectLines);
 }
 
 // --------------------------------------------------------------------------
