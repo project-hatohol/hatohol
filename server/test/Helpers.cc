@@ -521,9 +521,14 @@ string execSQL(DBAgent *dbAgent, const string &statement, bool showHeader)
 		DBAgentMySQL *dbMySQL = dynamic_cast<DBAgentMySQL *>(dbAgent);
 		output = execMySQL(dbMySQL->getDBName(), statement, showHeader);
 		output = replaceForUtf8(output, "\t", "|");
-	}
-	else
+	} else if (tid == typeid(DBAgentSQLite3)) {
+		cppcut_assert_equal(false, showHeader,
+		  cut_message("Not implemented yet\n"));
+		output = execSqlite3ForDBClient(
+		           dbAgent->getDBDomainId(), statement);
+	} else {
 		cut_fail("Unknown type_info");
+	}
 	return output;
 }
 
