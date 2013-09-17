@@ -352,6 +352,7 @@ SoupMessage *ArmZabbixAPI::queryTrigger(int requestSince)
 	if (requestSince > 0)
 		agent.add("lastChangeSince", requestSince);
 	agent.add("selectHosts", "refer");
+	agent.addTrue("active");
 	agent.endObject();
 
 	agent.add("auth", m_ctx->authToken);
