@@ -349,7 +349,8 @@ SoupMessage *ArmZabbixAPI::queryTrigger(int requestSince)
 	// See also comments in mainThreadOneProc().
 	//
 	// agent.add("selectFunctions", "extend");
-	agent.add("lastChangeSince", requestSince);
+	if (requestSince > 0)
+		agent.add("lastChangeSince", requestSince);
 	agent.add("selectHosts", "refer");
 	agent.endObject();
 
