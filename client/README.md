@@ -51,7 +51,7 @@ This Django project was written as PATH FREE so you can place this anyware witho
 
     $ mkdir -p ~/tmp-bs
     $ cd ~/tmp-bs
-    $ wget http://twitter.github.io/bootstrap/assets/bootstrap.zip
+    $ wget http://getbootstrap.com/2.3.2/assets/bootstrap.zip
     $ unzip bootstrap.zip
     $ cp -ar bootstrap/* <Hatohol client directory>/static/
 
