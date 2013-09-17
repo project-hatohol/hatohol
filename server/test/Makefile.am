@@ -50,7 +50,7 @@ testHatohol_la_SOURCES = \
 testHatohol_la_LDFLAGS = $(AM_LDFLAGS) $(LIBS)
 testHatohol_la_LIBADD = libTest.la
 
-residentTest_la_SOURCES = residentTest.cc
+residentTest_la_SOURCES = residentTest.cc residentTest.h
 residentTest_la_LDFLAGS = $(AM_LDFLAGS) $(LIBS)
 residentTest_la_LIBADD  = libTest.la
 
