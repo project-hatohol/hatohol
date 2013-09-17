@@ -1620,7 +1620,8 @@ void DBClientZabbix::addFunctionsRaw2_0(ItemTablePtr tablePtr)
 		deleteRows(arg);
 		addItems(tablePtr, TABLE_NAME_FUNCTIONS_RAW_2_0,
 		         NUM_COLUMNS_FUNCTIONS_RAW_2_0,
-		         COLUMN_DEF_FUNCTIONS_RAW_2_0);
+		         COLUMN_DEF_FUNCTIONS_RAW_2_0,
+		         IDX_FUNCTIONS_RAW_2_0_FUNCTIONSTIONID);
 	} DBCLIENT_TRANSACTION_END();
 }
 
@@ -1634,7 +1635,8 @@ void DBClientZabbix::addItemsRaw2_0(ItemTablePtr tablePtr)
 		deleteRows(arg);
 		addItems(tablePtr, TABLE_NAME_ITEMS_RAW_2_0,
 		         NUM_COLUMNS_ITEMS_RAW_2_0,
-		         COLUMN_DEF_ITEMS_RAW_2_0);
+		         COLUMN_DEF_ITEMS_RAW_2_0,
+		         IDX_ITEMS_RAW_2_0_ITEMID);
 	} DBCLIENT_TRANSACTION_END();
 }
 
@@ -1655,7 +1657,8 @@ void DBClientZabbix::addEventsRaw2_0(ItemTablePtr tablePtr)
 		// get the duplicated events. So we don't specify 5th argument
 		// for a update check.
 		addItems(tablePtr, TABLE_NAME_EVENTS_RAW_2_0,
-		         NUM_COLUMNS_EVENTS_RAW_2_0, COLUMN_DEF_EVENTS_RAW_2_0);
+		         NUM_COLUMNS_EVENTS_RAW_2_0, COLUMN_DEF_EVENTS_RAW_2_0,
+		         IDX_EVENTS_RAW_2_0_EVENTID);
 	} DBCLIENT_TRANSACTION_END();
 }
 
@@ -2181,57 +2184,9 @@ void DBClientZabbix::addItems(
 	ItemGroupListConstIterator it = itemGroupList.begin();
 	for (; it != itemGroupList.end(); ++it) {
 		const ItemGroup *itemGroup = *it;
-
-		// update if needed
-		if (updateCheckIndex >= 0) {
-			const ColumnDef &columnCheck =
-			  columnDefs[updateCheckIndex];
-			bool exist = isRecordExisting(itemGroup, tableName,
-				                      numColumns, columnCheck);
-			if (exist) {
-				updateItems(itemGroup, tableName,
-				            numColumns, columnDefs);
-				continue;
-			}
-		}
-
-		// insert
-		DBAgentInsertArg arg;
-		arg.tableName = tableName;
-		arg.numColumns = numColumns;
-		arg.columnDefs = columnDefs;
-
-		VariableItemGroupPtr row;
-		for (size_t i = 0; i < itemGroup->getNumberOfItems(); i++)
-			row->add(itemGroup->getItemAt(i));
-		arg.row = row;
-		insert(arg);
+		updateIfExistElseInsert(itemGroup, tableName, numColumns,
+		                        columnDefs, updateCheckIndex);
 	}
-}
-
-void DBClientZabbix::updateItems(
-  const ItemGroup *itemGroup,
-  const string &tableName, size_t numColumns, const ColumnDef *columnDefs)
-{
-	//
-	// We assumed that this function is called in the transaction.
-	//
-	DBAgentUpdateArg arg;
-	arg.tableName = tableName;
-	arg.columnDefs = columnDefs;
-	VariableItemGroupPtr row;
-	HATOHOL_ASSERT(itemGroup->getNumberOfItems() == numColumns,
-	             "Mismatch: %zd, %zd",
-	             itemGroup->getNumberOfItems(), numColumns);
-	for (size_t i = 0; i < itemGroup->getNumberOfItems(); i++) {
-		// exclude primary
-		if (columnDefs[i].keyType == SQL_KEY_PRI)
-			continue;
-		row->add(itemGroup->getItemAt(i));
-		arg.columnIndexes.push_back(i);
-	}
-	arg.row = row;
-	update(arg);
 }
 
 void DBClientZabbix::makeSelectExArgForTriggerAsHatoholFormat(void)
@@ -2278,15 +2233,3 @@ void DBClientZabbix::makeSelectExArgForTriggerAsHatoholFormat(void)
 	arg.pushColumn(hostsHostid,        VAR_HOSTS);
 	arg.pushColumn(hostsName,          VAR_HOSTS);
 }
-
-bool DBClientZabbix::isRecordExisting(
-  const ItemGroup *itemGroup, const string &tableName,
-  size_t numColumns, const ColumnDef &columnCheck)
-{
-	const ItemData *item = itemGroup->getItem(columnCheck.itemId);
-	uint64_t val = ItemDataUtils::getUint64(item);
-	string condition = StringUtils::sprintf(
-	                     "%s=%"PRIu64, columnCheck.columnName, val);
-	return DBClient::isRecordExisting(tableName, condition);
-}
-
