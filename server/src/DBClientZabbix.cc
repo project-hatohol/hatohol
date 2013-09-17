@@ -2020,7 +2020,7 @@ void DBClientZabbix::pickupAbsentHostIds(vector<uint64_t> &absentHostIdVector,
 			uint64_t id = hostIdVector[i];
 			condition = hostidName;
 			condition += StringUtils::sprintf("=%"PRIu64, id);
-			if (DBClient::isRecordExisting(tableName, condition))
+			if (isRecordExisting(tableName, condition))
 				continue;
 			absentHostIdVector.push_back(id);
 		}
@@ -2041,7 +2041,7 @@ void DBClientZabbix::pickupAbsentApplcationIds
 			uint64_t id = appIdVector[i];
 			condition = appidName;
 			condition += StringUtils::sprintf("=%"PRIu64, id);
-			if (DBClient::isRecordExisting(tableName, condition))
+			if (isRecordExisting(tableName, condition))
 				continue;
 			absentAppIdVector.push_back(id);
 		}
