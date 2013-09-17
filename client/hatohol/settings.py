@@ -16,7 +16,7 @@
 # along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
 
 
-# Django settings for mysite project.
+# Django settings for hatohol project.
 import os
 
 PROJECT_HOME = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
@@ -124,10 +124,10 @@ MIDDLEWARE_CLASSES = (
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
 
-ROOT_URLCONF = 'mysite.urls'
+ROOT_URLCONF = 'hatohol.urls'
 
 # Python dotted path to the WSGI application used by Django's runserver.
-WSGI_APPLICATION = 'mysite.wsgi.application'
+WSGI_APPLICATION = 'hatohol.wsgi.application'
 
 TEMPLATE_DIRS = (
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".

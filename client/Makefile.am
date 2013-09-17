@@ -5,12 +5,12 @@ nobase_dist_hatohol_client_SCRIPTS = \
 nobase_dist_hatohol_client_DATA = \
 	conf/locale/ja/LC_MESSAGES/django.po \
 	conf/locale/ja/LC_MESSAGES/djangojs.po \
-	mysite/forwardview.py \
-	mysite/wsgi.py \
-	mysite/urls.py \
-	mysite/__init__.py \
-	mysite/settings.py \
-	mysite/django_realize.py \
+	hatohol/forwardview.py \
+	hatohol/wsgi.py \
+	hatohol/urls.py \
+	hatohol/__init__.py \
+	hatohol/settings.py \
+	hatohol/django_realize.py \
 	static/css/zabbix.css \
 	static/js/library.js \
 	static/js/jquery.js \
