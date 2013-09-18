@@ -19,11 +19,20 @@
 
 var HatoholServerSelector = function() {
 
-    HatoholDialog("server-selector", "Server selecion", makeTable());
+    this.mainDiv = document.createElement("div");
+    this.mainDiv.id = "serverSelectMainDiv";
+    HatoholDialog("server-selector", "Server selecion", this.mainDiv);
+    showInitialView();
+    getServerList();
 
-    function makeTable() {
-      var div = document.createElement("div");
-      div.innerHTML =
+    function showInitialView() {
+      $("#serverSelectMainDiv").html(
+        '<p id="serverSelectMsgArea">' + gettext("Now getting servers...") +
+        '</p>');
+    }
+
+    function makeTable(data) {
+      var html =
       '<table class="table table-condensed table-striped table-hover" id="serverSelectTable">' +
       '  <thead>' +
       '    <tr>' +
@@ -34,9 +43,45 @@ var HatoholServerSelector = function() {
       '      <th>' + gettext("Nickname") + '</th>' +
       '    </tr>' +
       '  </thead>' +
-      '  <tbody>' +
-      '  </tbody>' +
+      '  <tbody></tbody>' +
       '</table>'
-      return div;
+      return html;
+    }
+
+    function makeTableBody(data) {
+      var s;
+      for (var i = 0; i < data.servers.length; i++) {
+        sv = data.servers[i];
+        s += '<tr>';
+        s += '<td>' + sv.id + '</td>';
+        s += '<td>' + sv.type + '</td>';
+        s += '<td>' + sv.hostName + '</td>';
+        s += '<td>' + sv.ipAddress + '</td>';
+        s += '<td>' + sv.nickname  + '</td>';
+        s += '</tr>';
+      }
+      return s;
+    }
+
+    function parseReceivedServersJson(data) {
+      // TODO: implement
+      return true;
+    }
+
+    function getServerList() {
+      $.ajax({
+        url: "/tunnel/server",
+        type: "GET",
+        success: function(data) {
+          if (!parseReceivedServersJson(data))
+            return;
+          $("#serverSelectMainDiv").html(makeTable(data));
+          $("#serverSelectMainDiv tbody").empty();
+          $("#serverSelectmainDiv tbody").append(makeTableBody(data));
+        },
+        error: function(XMLHttpRequest, textStatus, errorThrown) {
+          console.log("ERROR: " + textStatus);
+        }
+      })
     }
 }
