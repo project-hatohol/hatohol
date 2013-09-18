@@ -52,7 +52,7 @@ var HatoholServerSelector = function(selectedCb) {
     $("#serverSelectMainDiv").data("ctx", ctx);
 
     HatoholDialog("server-selector", "Server selecion",
-                  div[0], dialogButtons);
+                  div, dialogButtons);
     setSelectButtonState(false);
     showInitialView();
     getServerList();
