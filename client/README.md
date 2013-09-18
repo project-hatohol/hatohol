@@ -62,7 +62,7 @@ How to configure
 ----------------------------------------
 You must configure if your prepared Hatohol server may runs on not a default port.
 
-- edit mysite/urls.py to change the port
+- edit hatohol/urls.py to change the port
 
 Ex.)
 
