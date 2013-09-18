@@ -48,10 +48,10 @@ var HatoholServerSelector = function() {
       return html;
     }
 
-    function makeTableBody(data) {
+    function makeTableBody(reply) {
       var s;
-      for (var i = 0; i < data.servers.length; i++) {
-        sv = data.servers[i];
+      for (var i = 0; i < reply.servers.length; i++) {
+        sv = reply.servers[i];
         s += '<tr>';
         s += '<td>' + sv.id + '</td>';
         s += '<td>' + sv.type + '</td>';
@@ -63,24 +63,24 @@ var HatoholServerSelector = function() {
       return s;
     }
 
-    function parseReceivedServersJson(data) {
-      // TODO: implement
-      return true;
-    }
-
     function getServerList() {
       $.ajax({
         url: "/tunnel/server",
         type: "GET",
-        success: function(data) {
-          if (!parseReceivedServersJson(data))
+        success: function(reply) {
+          var replyParser = new HatoholReplyParser(reply);
+          if (!(replyParser.getStatus() === REPLY_STATUS.OK)) {
+            $("#serverSelectMainDiv").text(replyParser.getStatusMessage());
             return;
-          $("#serverSelectMainDiv").html(makeTable(data));
+          }
+          $("#serverSelectMainDiv").html(makeTable(reply));
           $("#serverSelectMainDiv tbody").empty();
-          $("#serverSelectmainDiv tbody").append(makeTableBody(data));
+          $("#serverSelectmainDiv tbody").append(makeTableBody(reply));
         },
         error: function(XMLHttpRequest, textStatus, errorThrown) {
-          console.log("ERROR: " + textStatus);
+          var errorMsg = "Error: " + XMLHttpRequest.status + ": " +
+                         XMLHttpRequest.statusText;
+          $("#serverSelectMainDiv").text(errorMsg);
         }
       })
     }
