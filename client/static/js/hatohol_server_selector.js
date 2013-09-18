@@ -76,6 +76,13 @@ var HatoholServerSelector = function() {
           $("#serverSelectMainDiv").html(makeTable(reply));
           $("#serverSelectMainDiv tbody").empty();
           $("#serverSelectmainDiv tbody").append(makeTableBody(reply));
+          $("#serverSelectTable tr").click(function(){
+            var selectedRow = $("#serverSelectTable").data("selected-row");
+            if (selectedRow)
+              selectedRow.removeClass("info");
+            $(this).attr("class", "info");
+            $("#serverSelectTable").data("selected-row", $(this));
+          });
         },
         error: function(XMLHttpRequest, textStatus, errorThrown) {
           var errorMsg = "Error: " + XMLHttpRequest.status + ": " +
