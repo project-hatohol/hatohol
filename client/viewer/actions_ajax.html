@@ -57,7 +57,7 @@
       <label>{% trans "Server" %}</label>
       <select id="selectServerId">
         <option value="ANY">ANY</option>
-        <option value="select">== {% trans "SELECT" %} ==</option>
+        <option value="SELECT">== {% trans "SELECT" %} ==</option>
       </select>
 
       <label>{% trans "Host Group" %}</label>
@@ -160,6 +160,8 @@
 {% block option %}
   <script src="{{ STATIC_URL }}js/stupidtable.js"></script>
   <script src="{{ STATIC_URL }}js/hatohol_def.js"></script>
+  <script src="{{ STATIC_URL }}js/hatohol_dialog.js"></script>
+  <script src="{{ STATIC_URL }}js/hatohol_server_selector.js"></script>
 
   <!-- TODO: We should download jquery-ui.js and the CSS to the local. -->
   <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1/jquery-ui.min.js"></script>
@@ -236,6 +238,11 @@
         $("#selectTriggerSeverityCompType").css("visibility","visible");
       else
         $("#selectTriggerSeverityCompType").css("visibility","hidden");
+    })
+
+    $("#selectServerId").change(function() {
+      if ($(this).val() == "SELECT")
+        HatoholServerSelector();
     })
 
     //
