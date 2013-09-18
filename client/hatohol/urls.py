@@ -16,7 +16,7 @@
 # along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
 
 from django.conf.urls import patterns, include, url
-from mysite.forwardview import jsonforward
+from hatohol.forwardview import jsonforward
 
 # Uncomment the next two lines to enable the admin:
 # from django.contrib import admin
@@ -24,8 +24,8 @@ from mysite.forwardview import jsonforward
 
 urlpatterns = patterns('',
     # Examples:
-    # url(r'^$', 'mysite.views.home', name='home'),
-    # url(r'^mysite/', include('mysite.foo.urls')),
+    # url(r'^$', 'hatohol.views.home', name='home'),
+    # url(r'^hatohol/', include('hatohol.foo.urls')),
 
     # Uncomment the admin/doc line below to enable admin documentation:
     # url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
