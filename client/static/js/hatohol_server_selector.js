@@ -19,6 +19,7 @@
 
 var HatoholServerSelector = function() {
 
+    var selectedRow = undefined;
     this.mainDiv = document.createElement("div");
     this.mainDiv.id = "serverSelectMainDiv";
     HatoholDialog("server-selector", "Server selecion", this.mainDiv);
@@ -77,11 +78,10 @@ var HatoholServerSelector = function() {
           $("#serverSelectMainDiv tbody").empty();
           $("#serverSelectmainDiv tbody").append(makeTableBody(reply));
           $("#serverSelectTable tr").click(function(){
-            var selectedRow = $("#serverSelectTable").data("selected-row");
             if (selectedRow)
               selectedRow.removeClass("info");
             $(this).attr("class", "info");
-            $("#serverSelectTable").data("selected-row", $(this));
+            selectedRow = $(this);
           });
         },
         error: function(XMLHttpRequest, textStatus, errorThrown) {
