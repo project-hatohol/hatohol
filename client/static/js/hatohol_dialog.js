@@ -17,7 +17,7 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
-var HatoholDialog = function(id, dialogTitle, bodyElem) {
+var HatoholDialog = function(id, dialogTitle, bodyElem, buttons) {
   this.mainDiv = document.createElement("div");
   this.mainDiv.id = id;
   this.mainDiv.appendChild(bodyElem);
@@ -30,13 +30,8 @@ var HatoholDialog = function(id, dialogTitle, bodyElem) {
     closeOnEscape: false,
     width:  "95%",
     modal: true,
-    buttons: {
-      "close": function() {
-        $(this).dialog("close");
-      }
-  }});
+    buttons: buttons,
+  });
 
   $(dialogId).dialog("open");
 }
-
-

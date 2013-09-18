@@ -19,12 +19,38 @@
 
 var HatoholServerSelector = function() {
 
+    var dialogButtons = [{
+      text: gettext("SELECT"),
+      click: function() {
+        // TODO: callback the selected ID.
+      }
+    }, {
+      text: gettext("CANCEL"),
+      click: function() {
+        $(this).dialog("close");
+      }
+    }]
+
     var selectedRow = undefined;
     this.mainDiv = document.createElement("div");
     this.mainDiv.id = "serverSelectMainDiv";
-    HatoholDialog("server-selector", "Server selecion", this.mainDiv);
+    HatoholDialog("server-selector", "Server selecion",
+                  this.mainDiv, dialogButtons);
+    setSelectButtonState(false);
     showInitialView();
     getServerList();
+
+    function setSelectButtonState(state) {
+      var btn = $(".ui-dialog-buttonpane").find("button:contains(" +
+                  gettext("SELECT") + ")");
+      if (state) {
+         btn.removeAttr("disabled");
+         btn.removeClass("ui-state-disabled");
+      } else {
+         btn.attr("disabled", "disable");
+         btn.addClass("ui-state-disabled");
+      }
+    }
 
     function showInitialView() {
       $("#serverSelectMainDiv").html(
@@ -80,6 +106,8 @@ var HatoholServerSelector = function() {
           $("#serverSelectTable tr").click(function(){
             if (selectedRow)
               selectedRow.removeClass("info");
+            else
+              setSelectButtonState(true);
             $(this).attr("class", "info");
             selectedRow = $(this);
           });
