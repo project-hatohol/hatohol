@@ -393,6 +393,9 @@
     }
 
     function makeQueryData() {
+        var serverId = $("#selectServerId").val();
+        if (serverId != "ANY")
+          queryData.serverId = serverId;
         queryData.type = getCommandType();
         queryData.timeout = $("#inputTimeout").val();
         queryData.command = $("#inputActionCommand").val();
