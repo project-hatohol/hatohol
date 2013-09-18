@@ -17,25 +17,42 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
-var HatoholServerSelector = function() {
+var HatoholServerSelector = function(selectedCb) {
 
     var dialogButtons = [{
       text: gettext("SELECT"),
       click: function() {
-        // TODO: callback the selected ID.
+        var ctx = getContext();
+        if (selectedCb) {
+          if (!ctx.selectedRow)
+            selectedCb(null);
+          else
+            selectedCb(ctx.serverArray[ctx.selectedRow.index()]);
+        }
+        $(this).dialog("close");
+        $("#server-selector").remove();
       }
     }, {
       text: gettext("CANCEL"),
       click: function() {
+        if (selectedCb)
+          selectedCb(null);
         $(this).dialog("close");
+        $("#server-selector").remove();
       }
-    }]
+    }];
 
-    var selectedRow = undefined;
-    this.mainDiv = document.createElement("div");
-    this.mainDiv.id = "serverSelectMainDiv";
+    var div = $("<div>");
+    div.attr("id", "serverSelectMainDiv");
+    $("body").append(div);
+    var ctx = {
+      selectedRow: null,
+      serverArray: null,
+    };
+    $("#serverSelectMainDiv").data("ctx", ctx);
+
     HatoholDialog("server-selector", "Server selecion",
-                  this.mainDiv, dialogButtons);
+                  div[0], dialogButtons);
     setSelectButtonState(false);
     showInitialView();
     getServerList();
@@ -75,8 +92,14 @@ var HatoholServerSelector = function() {
       return html;
     }
 
+    function getContext() {
+      return $("#serverSelectMainDiv").data("ctx");
+    }
+
     function makeTableBody(reply) {
       var s;
+      var ctx = getContext();
+      ctx.serverArray = reply.servers;
       for (var i = 0; i < reply.servers.length; i++) {
         sv = reply.servers[i];
         s += '<tr>';
@@ -104,12 +127,13 @@ var HatoholServerSelector = function() {
           $("#serverSelectMainDiv tbody").empty();
           $("#serverSelectmainDiv tbody").append(makeTableBody(reply));
           $("#serverSelectTable tr").click(function(){
-            if (selectedRow)
-              selectedRow.removeClass("info");
+            var ctx = getContext();
+            if (ctx.selectedRow)
+              ctx.selectedRow.removeClass("info");
             else
               setSelectButtonState(true);
             $(this).attr("class", "info");
-            selectedRow = $(this);
+            ctx.selectedRow = $(this);
           });
         },
         error: function(XMLHttpRequest, textStatus, errorThrown) {

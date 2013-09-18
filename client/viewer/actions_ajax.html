@@ -243,8 +243,23 @@
 
     $("#selectServerId").change(function() {
       if ($(this).val() == "SELECT")
-        HatoholServerSelector();
+        HatoholServerSelector(serverSelectedCb);
     })
+
+    function serverSelectedCb(serverInfo) {
+      var numOptions = $("#selectServerId").children().length;
+      if (!serverInfo) {
+        $("#selectServerId").val("ANY");
+        return;
+      }
+      if (numOptions == 3)
+        $("#selectServerId").children('option:last-child').remove();
+
+      var label = serverInfo.hostName;
+      var value = serverInfo.id
+      $("#selectServerId").append($("<option>").html(label).val(value));
+      $("#selectServerId").val(value);
+    }
 
     //
     // Commonly used functions from a dialog.
