@@ -236,7 +236,7 @@ void _assertGetNumberOfHostsWithStatus(bool status)
 cut_trace(_assertGetNumberOfHostsWithStatus(ST))
 
 
-void _assertTriggerInfo(TriggerInfo &expect, TriggerInfo &actual)
+void _assertTriggerInfo(const TriggerInfo &expect, const TriggerInfo &actual)
 {
 	cppcut_assert_equal(expect.serverId, actual.serverId);
 	cppcut_assert_equal(expect.id, actual.id);
