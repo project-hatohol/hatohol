@@ -28,11 +28,7 @@ using namespace mlpl;
 #include "ConfigManager.h"
 #include "UnifiedDataStore.h"
 
-int FaceRest::API_VERSION_SERVER   = 2;
-int FaceRest::API_VERSION_TRIGGER  = 2;
-int FaceRest::API_VERSION_EVENT    = 2;
-int FaceRest::API_VERSION_ITEM     = 2;
-int FaceRest::API_VERSION_ACTION   = 2;
+int FaceRest::API_VERSION = 2;
 
 typedef void (*RestHandler)
   (SoupServer *server, SoupMessage *msg, const char *path,
@@ -518,7 +514,7 @@ void FaceRest::handlerGetOverview
 {
 	JsonBuilderAgent agent;
 	agent.startObject();
-	agent.add("apiVersion", API_VERSION_SERVER);
+	agent.add("apiVersion", API_VERSION);
 	agent.addTrue("result");
 	addOverview(agent);
 	agent.endObject();
@@ -532,7 +528,7 @@ void FaceRest::handlerGetServer
 {
 	JsonBuilderAgent agent;
 	agent.startObject();
-	agent.add("apiVersion", API_VERSION_SERVER);
+	agent.add("apiVersion", API_VERSION);
 	agent.addTrue("result");
 	addServers(agent);
 	agent.endObject();
@@ -550,7 +546,7 @@ void FaceRest::handlerGetTrigger
 
 	JsonBuilderAgent agent;
 	agent.startObject();
-	agent.add("apiVersion", API_VERSION_TRIGGER);
+	agent.add("apiVersion", API_VERSION);
 	agent.addTrue("result");
 	agent.add("numberOfTriggers", triggerList.size());
 	agent.startArray("triggers");
@@ -588,7 +584,7 @@ void FaceRest::handlerGetEvent
 
 	JsonBuilderAgent agent;
 	agent.startObject();
-	agent.add("apiVersion", API_VERSION_EVENT);
+	agent.add("apiVersion", API_VERSION);
 	agent.addTrue("result");
 	agent.add("numberOfEvents", eventList.size());
 	agent.startArray("events");
@@ -628,7 +624,7 @@ void FaceRest::handlerGetItem
 
 	JsonBuilderAgent agent;
 	agent.startObject();
-	agent.add("apiVersion", API_VERSION_ITEM);
+	agent.add("apiVersion", API_VERSION);
 	agent.addTrue("result");
 	agent.add("numberOfItems", itemList.size());
 	agent.startArray("items");
@@ -691,7 +687,7 @@ void FaceRest::handlerGetAction
 
 	JsonBuilderAgent agent;
 	agent.startObject();
-	agent.add("apiVersion", API_VERSION_ACTION);
+	agent.add("apiVersion", API_VERSION);
 	agent.addTrue("result");
 	agent.add("numberOfActions", actionList.size());
 	agent.startArray("actions");
@@ -874,7 +870,7 @@ void FaceRest::handlerPostAction
 	// make a response
 	JsonBuilderAgent agent;
 	agent.startObject();
-	agent.add("apiVersion", API_VERSION_ACTION);
+	agent.add("apiVersion", API_VERSION);
 	agent.addTrue("result");
 	agent.add("id", actionDef.id);
 	agent.endObject();
@@ -902,7 +898,7 @@ void FaceRest::handlerDeleteAction
 	// replay
 	JsonBuilderAgent agent;
 	agent.startObject();
-	agent.add("apiVersion", API_VERSION_ACTION);
+	agent.add("apiVersion", API_VERSION);
 	agent.addTrue("result");
 	agent.add("id", arg->id);
 	agent.endObject();

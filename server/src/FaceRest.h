@@ -26,11 +26,7 @@
 
 class FaceRest : public FaceBase {
 public:
-	static int API_VERSION_SERVER;
-	static int API_VERSION_TRIGGER;
-	static int API_VERSION_EVENT;
-	static int API_VERSION_ITEM;
-	static int API_VERSION_ACTION;
+	static int API_VERSION;
 
 	static void init(void);
 	FaceRest(CommandLineArg &cmdArg);
