@@ -55,19 +55,33 @@ static string makeExpectedOutput(const TriggerInfo *triggerInfo)
 static void _assertGetTriggers(uint32_t serverId = ALL_SERVERS,
                                uint64_t hostId = ALL_HOSTS)
 {
+	map<uint32_t, map<uint64_t, size_t> > indexMap;
+	map<uint32_t, map<uint64_t, size_t> >::iterator indexMapIt;
+	map<uint64_t, size_t>::iterator trigIdIdxIt;
 	TriggerInfoList triggerInfoList;
 	DBClientHatohol dbHatohol;
 	dbHatohol.getTriggerInfoList(triggerInfoList, serverId, hostId);
-	size_t numExpectedTestTriggers =
-	   getNumberOfTestTriggers(serverId, hostId);
+	getTestTriggersIndexes(indexMap, serverId, hostId);
+
+	// check the number
+	size_t numExpectedTestTriggers = 0;
+	indexMapIt = indexMap.begin();
+	for (; indexMapIt != indexMap.end(); ++indexMapIt)
+		numExpectedTestTriggers += indexMapIt->second.size();
 	cppcut_assert_equal(numExpectedTestTriggers, triggerInfoList.size());
 
 	string expectedText;
 	string actualText;
 	TriggerInfoListIterator it = triggerInfoList.begin();
 	for (size_t i = 0; i < numExpectedTestTriggers; i++, ++it) {
-		expectedText += makeExpectedOutput(&testTriggerInfo[i]);
-		actualText += makeExpectedOutput(&(*it));
+		const TriggerInfo &actual = *it;
+		actualText += makeExpectedOutput(&actual);
+		trigIdIdxIt = indexMap[actual.serverId].find(actual.id);
+		cppcut_assert_equal(
+		  true, trigIdIdxIt != indexMap[actual.serverId].end());
+		size_t idx = trigIdIdxIt->second;
+		expectedText += makeExpectedOutput(&testTriggerInfo[idx]);
+		indexMap[actual.serverId].erase(trigIdIdxIt);
 	}
 	cppcut_assert_equal(expectedText, actualText);
 }

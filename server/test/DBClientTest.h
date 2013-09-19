@@ -50,7 +50,23 @@ extern size_t NumTestItemInfo;
 extern ActionDef testActionDef[];
 extern const size_t NumTestActionDef;
 
-extern size_t getNumberOfTestTriggers(uint32_t serverId, uint64_t hostId);
+/**
+ * get the test trigger data indexes whose serverId and hostId are 
+ * matched with the specified.
+ *
+ * @param indexMap
+ * The key of the outside map is a server Id. The key of the inside map is
+ * a trigger ID. The value of the inside map is the index of test trigger data.
+ *
+ * @param serverId
+ * A server ID. ALL_SERVERS can be specified.
+ *
+ * @param hostId
+ * A host ID. ALL_HOSTS can be specified.
+ */
+extern void getTestTriggersIndexes(
+  map<uint32_t, map<uint64_t, size_t> > &indexMap,
+  uint32_t serverId, uint64_t hostId);
 extern size_t getNumberOfTestTriggers(uint32_t serverId, uint64_t hostGroupId,
                                       TriggerSeverityType severity);
 

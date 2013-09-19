@@ -298,24 +298,25 @@ static void addHostInfoToList(HostInfoList &hostInfoList,
 	hostInfo.hostName = trigInfo.hostName;
 }
 
-size_t getNumberOfTestTriggers(uint32_t serverId, uint64_t hostId)
+void getTestTriggersIndexes(
+  map<uint32_t, map<uint64_t, size_t> > &indexMap,
+  uint32_t serverId, uint64_t hostId)
 {
-	if (serverId == ALL_SERVERS && hostId == ALL_HOSTS)
-		return NumTestTriggerInfo;
-
-	size_t count = 0;
 	for (size_t i = 0; i < NumTestTriggerInfo; i++) {
+		const TriggerInfo &trigInfo = testTriggerInfo[i];
 		if (serverId != ALL_SERVERS) {
-			if (testTriggerInfo[i].serverId != serverId)
+			if (trigInfo.serverId != serverId)
 				continue;
 		}
 		if (hostId != ALL_HOSTS) {
-			if (testTriggerInfo[i].hostId != hostId)
+			if (trigInfo.hostId != hostId)
 				continue;
 		}
-		count++;
+		// If the following assertion fails, the test data is illegal.
+		cppcut_assert_equal(
+		  (size_t)0, indexMap[trigInfo.serverId].count(trigInfo.id));
+		indexMap[trigInfo.serverId][trigInfo.id] = i;
 	}
-	return count;
 }
 
 size_t getNumberOfTestItems(uint32_t serverId)
