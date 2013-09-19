@@ -23,24 +23,10 @@ var HatoholServerSelector = function(selectedCb) {
 
   var dialogButtons = [{
     text: gettext("SELECT"),
-    click: function() {
-      if (selectedCb) {
-        if (!self.selectedRow)
-          selectedCb(null);
-        else
-          selectedCb(self.serverArray[self.selectedRow.index()]);
-      }
-      $(this).dialog("close");
-      $("#server-selector").remove();
-    }
+    click: selectButtonClickedCb,
   }, {
     text: gettext("CANCEL"),
-    click: function() {
-      if (selectedCb)
-        selectedCb(null);
-      $(this).dialog("close");
-      $("#server-selector").remove();
-    }
+    click: cancelButtonClickedCb,
   }];
 
   // call the constructor of the super class
@@ -48,6 +34,24 @@ var HatoholServerSelector = function(selectedCb) {
     this, ["server-selector", "Server selecion", dialogButtons]);
   setSelectButtonState(false);
   getServerList();
+
+  function selectButtonClickedCb() {
+    if (selectedCb) {
+      if (!self.selectedRow)
+        selectedCb(null);
+      else
+        selectedCb(self.serverArray[self.selectedRow.index()]);
+    }
+    $(this).dialog("close");
+    $("#server-selector").remove();
+  }
+
+  function cancelButtonClickedCb() {
+    if (selectedCb)
+      selectedCb(null);
+    $(this).dialog("close");
+    $("#server-selector").remove();
+  }
 
   function setSelectButtonState(state) {
     var btn = $(".ui-dialog-buttonpane").find("button:contains(" +
