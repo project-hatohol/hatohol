@@ -487,3 +487,25 @@ size_t getNumberOfTestHostsWithStatus(uint32_t serverId, uint64_t hostGroupId,
 	HostIdSet &hostIdSet = hostIt->second;
 	return hostIdSet.size();
 }
+
+void getDBCTestHostInfo(HostInfoList &hostInfoList, uint32_t targetServerId)
+{
+	map<uint32_t, set<uint64_t> > svIdHostIdsMap;
+	map<uint32_t, set<uint64_t> >::iterator it;
+	for (size_t i = 0; i < NumTestTriggerInfo; i++) {
+		const TriggerInfo &trigInfo = testTriggerInfo[i];
+		const uint32_t svId = trigInfo.serverId;
+		const uint64_t hostId = trigInfo.hostId;
+		if (targetServerId != ALL_SERVERS && svId != ALL_SERVERS)
+			continue;
+		if (svIdHostIdsMap[svId].count(hostId))
+			continue;
+
+		HostInfo hostInfo;
+		hostInfo.serverId = svId;
+		hostInfo.id       = hostId;
+		hostInfo.hostName = trigInfo.hostName;
+		hostInfoList.push_back(hostInfo);
+		svIdHostIdsMap[svId].insert(hostId);
+	}
+}

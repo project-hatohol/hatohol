@@ -43,6 +43,7 @@ static const guint DEFAULT_PORT = 33194;
 
 const char *FaceRest::pathForGetOverview = "/overview";
 const char *FaceRest::pathForGetServer   = "/server";
+const char *FaceRest::pathForGetHost     = "/host";
 const char *FaceRest::pathForGetTrigger  = "/trigger";
 const char *FaceRest::pathForGetEvent    = "/event";
 const char *FaceRest::pathForGetItem     = "/item";
@@ -155,6 +156,9 @@ gpointer FaceRest::mainThread(HatoholThreadArg *arg)
 	soup_server_add_handler(m_soupServer, pathForGetServer,
 	                        launchHandlerInTryBlock,
 	                        (gpointer)handlerGetServer, NULL);
+	soup_server_add_handler(m_soupServer, pathForGetHost,
+	                        launchHandlerInTryBlock,
+	                        (gpointer)handlerGetHost, NULL);
 	soup_server_add_handler(m_soupServer, pathForGetTrigger,
 	                        launchHandlerInTryBlock,
 	                        (gpointer)handlerGetTrigger, NULL);
@@ -472,6 +476,26 @@ static void addServers(JsonBuilderAgent &agent)
 	agent.endArray();
 }
 
+static void addHosts(JsonBuilderAgent &agent, uint32_t targetServerId)
+{
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+	HostInfoList hostInfoList;
+	dataStore->getHostList(hostInfoList, targetServerId);
+
+	agent.add("numberOfHosts", hostInfoList.size());
+	agent.startArray("hosts");
+	HostInfoListIterator it = hostInfoList.begin();
+	for (; it != hostInfoList.end(); ++it) {
+		HostInfo &hostInfo = *it;
+		agent.startObject();
+		agent.add("id", hostInfo.id);
+		agent.add("serverId", hostInfo.serverId);
+		agent.add("hostName", hostInfo.hostName);
+		agent.endObject();
+	}
+	agent.endArray();
+}
+
 static void addHostsIdNameHash(JsonBuilderAgent &agent,
 			       MonitoringServerInfo &serverInfo,
 			       HostNameMaps &hostMaps)
@@ -531,6 +555,36 @@ void FaceRest::handlerGetServer
 	agent.add("apiVersion", API_VERSION);
 	agent.addTrue("result");
 	addServers(agent);
+	agent.endObject();
+
+	replyJsonData(agent, msg, arg->jsonpCallbackName, arg);
+}
+
+void FaceRest::handlerGetHost
+  (SoupServer *server, SoupMessage *msg, const char *path,
+   GHashTable *query, SoupClientContext *client, HandlerArg *arg)
+{
+	uint32_t targetServerId = ALL_SERVERS;
+	gchar *requestedServerId = NULL;
+	if (query) {
+		requestedServerId = (gchar *)g_hash_table_lookup(query,
+		                                                 "serverId");
+	}
+	if (requestedServerId) {
+		uint32_t svId;
+		if (sscanf(requestedServerId, "%"PRIu32, &svId) == 1) {
+			targetServerId = svId;
+		} else {
+			MLPL_INFO("Invalid requested ID: %s\n",
+			          requestedServerId);
+		}
+	}
+
+	JsonBuilderAgent agent;
+	agent.startObject();
+	agent.add("apiVersion", API_VERSION);
+	agent.addTrue("result");
+	addHosts(agent, targetServerId);
 	agent.endObject();
 
 	replyJsonData(agent, msg, arg->jsonpCallbackName, arg);

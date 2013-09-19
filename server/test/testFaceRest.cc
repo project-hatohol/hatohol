@@ -227,6 +227,48 @@ static void assertServersInParser(JsonParserAgent *parser)
 	parser->endObject();
 }
 
+static void assertHostsInParser(JsonParserAgent *parser)
+{
+	HostInfoList hostInfoList;
+	getDBCTestHostInfo(hostInfoList);
+	assertValueInParser(parser, "numberOfHosts",
+	                    (uint32_t)hostInfoList.size());
+
+	// make an index
+	map<uint32_t, map<uint64_t, const HostInfo *> > hostInfoMap;
+	map<uint64_t, const HostInfo *>::iterator hostMapIt;
+	HostInfoListConstIterator it = hostInfoList.begin();
+	for (; it != hostInfoList.end(); ++it) {
+		const HostInfo &hostInfo = *it;
+		hostMapIt = hostInfoMap[hostInfo.serverId].find(hostInfo.id);
+		cppcut_assert_equal(
+		  true, hostMapIt == hostInfoMap[hostInfo.serverId].end());
+		hostInfoMap[hostInfo.serverId][hostInfo.id] = &hostInfo;
+	}
+
+	parser->startObject("hosts");
+	uint32_t serverId;
+	uint64_t hostId;
+	for (size_t i = 0; i < hostInfoList.size(); i++) {
+		int64_t var64;
+		parser->startElement(i);
+		cppcut_assert_equal(true, parser->read("serverId", var64));
+		serverId = (uint32_t)var64;
+		cppcut_assert_equal(true, parser->read("id", var64));
+		hostId = (uint64_t)var64;
+
+		hostMapIt = hostInfoMap[serverId].find(hostId);
+		cppcut_assert_equal(true,
+		                    hostMapIt != hostInfoMap[serverId].end());
+		const HostInfo &hostInfo = *hostMapIt->second;
+
+		assertValueInParser(parser, "hostName", hostInfo.hostName);
+		parser->endElement();
+		hostInfoMap[serverId].erase(hostMapIt);
+	}
+	parser->endObject();
+}
+
 static void assertHostsIdNameHashInParser(TriggerInfo *triggers,
                                           size_t numberOfTriggers,
                                           JsonParserAgent *parser)
@@ -285,6 +327,17 @@ static void _assertServers(const string &path, const string &callbackName = "")
 	assertServersInParser(g_parser);
 }
 #define assertServers(P,...) cut_trace(_assertServers(P,##__VA_ARGS__))
+
+static void _assertHosts(const string &path, const string &callbackName = "")
+{
+	startFaceRest();
+	g_parser = getResponseAsJsonParser(path, callbackName);
+	assertValueInParser(g_parser, "apiVersion",
+	                    (uint32_t)FaceRest::API_VERSION);
+	assertValueInParser(g_parser, "result", true);
+	assertHostsInParser(g_parser);
+}
+#define assertHosts(P,...) cut_trace(_assertHosts(P,##__VA_ARGS__))
 
 static void _assertTriggers(const string &path, const string &callbackName = "")
 {
@@ -549,6 +602,11 @@ void test_servers(void)
 void test_serversJsonp(void)
 {
 	assertServers("/server", "foo");
+}
+
+void test_hosts(void)
+{
+	assertHosts("/host");
 }
 
 void test_triggers(void)

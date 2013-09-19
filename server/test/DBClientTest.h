@@ -65,5 +65,8 @@ extern size_t getNumberOfTestHostsWithStatus(uint32_t serverId,
 
 const TriggerInfo &searchTestTriggerInfo(const EventInfo &eventInfo);
 
+extern void getDBCTestHostInfo(HostInfoList &hostInfoList,
+                               uint32_t targetServerId = ALL_SERVERS);
+
 #endif // DBClientTest_h
 
