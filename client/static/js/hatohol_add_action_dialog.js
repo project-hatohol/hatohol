@@ -17,7 +17,7 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
-var HatoholAddActionDialog = function() {
+var HatoholAddActionDialog = function(addSucceededCb) {
   var self = this;
 
   var dialogButtons = [{
@@ -184,9 +184,8 @@ var HatoholAddActionDialog = function() {
     self.closeDialog();
     showInfoMessageBox(gettext("Successfully created."));
 
-    // update the main view
-    // TODO: call is from the actions_ajax.html
-    schedule(0000, "action");
+    if (addSucceededCb)
+      addSucceededCb();
   }
 
   function validateAddParameters() {

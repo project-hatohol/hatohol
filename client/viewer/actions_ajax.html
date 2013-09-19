@@ -118,13 +118,17 @@
     });
 
     $("#add-action-button").click(function() {
-      new HatoholAddActionDialog();
+      new HatoholAddActionDialog(addSucceededCb);
     });
 
     $("#delete-action-button").click(function() {
       showNoYesMessageBox(
         "{% trans "Do you delete the selected items ?" %}", deleteActions);
     });
+
+    function addSucceededCb() {
+      schedule(0000, "action");
+    }
 
     //
     // Event handlers for forms in the main view
