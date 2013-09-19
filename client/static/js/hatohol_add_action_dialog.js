@@ -145,6 +145,9 @@ var HatoholAddActionDialog = function() {
   }
 
   function makeQueryData() {
+      var queryData = {
+        csrfmiddlewaretoken: $("*[name=csrfmiddlewaretoken]").val(),
+      };
       var serverId = $("#selectServerId").val();
       if (serverId != "ANY")
         queryData.serverId = serverId;
@@ -155,13 +158,14 @@ var HatoholAddActionDialog = function() {
       queryData.triggerStatus   = getStatusValue();
       queryData.triggerSeverity = getSeverityValue();
       queryData.triggerSeverityCompType = getSeverityCompTypeValue();
+      return queryData;
   }
 
   function postAddAction() {
     $.ajax({
       url: "/tunnel/action",
       type: "POST",
-      data: queryData,
+      data: makeQueryData(),
       success: function(data) {
         parsePostActionResult(data);
       },
