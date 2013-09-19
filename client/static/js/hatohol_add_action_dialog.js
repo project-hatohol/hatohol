@@ -64,10 +64,8 @@ var HatoholAddActionDialog = function(addSucceededCb) {
     var val = $(this).val();
     if (val == "SELECT")
       new HatoholServerSelector(serverSelectedCb);
-    else if (val == "ANY")
-      self.selectedServerId = null;
     else
-      self.selectedServerId = val;
+      setSelectedServerId(val);
   })
 
   function serverSelectedCb(serverInfo) {
@@ -86,9 +84,16 @@ var HatoholAddActionDialog = function(addSucceededCb) {
       $("#selectServerId").children('option:last-child').remove();
     }
     var label = serverInfo.id + ": " + serverInfo.hostName;
-    self.selectedServerId = serverInfo.id
-    $("#selectServerId").append($("<option>").html(label).val(self.selectedServerId));
-    $("#selectServerId").val(self.selectedServerId);
+    setSelectedServerId(serverInfo.id);
+    $("#selectServerId").append($("<option>").html(label).val(serverInfo.id));
+    $("#selectServerId").val(serverInfo.id);
+  }
+
+  function setSelectedServerId(value) {
+    if (value == "ANY")
+      self.selectedServerId = null;
+    else
+      self.selectedServerId = value;
   }
 
   //
