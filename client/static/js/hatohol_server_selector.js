@@ -19,15 +19,16 @@
 
 var HatoholServerSelector = function(selectedCb) {
 
+    var self = this;
+
     var dialogButtons = [{
       text: gettext("SELECT"),
       click: function() {
-        var ctx = getContext();
         if (selectedCb) {
-          if (!ctx.selectedRow)
+          if (!self.selectedRow)
             selectedCb(null);
           else
-            selectedCb(ctx.serverArray[ctx.selectedRow.index()]);
+            selectedCb(self.serverArray[self.selectedRow.index()]);
         }
         $(this).dialog("close");
         $("#server-selector").remove();
@@ -42,19 +43,10 @@ var HatoholServerSelector = function(selectedCb) {
       }
     }];
 
-    var div = $("<div>");
-    div.attr("id", "serverSelectMainDiv");
-    $("body").append(div);
-    var ctx = {
-      selectedRow: null,
-      serverArray: null,
-    };
-    $("#serverSelectMainDiv").data("ctx", ctx);
-
-    HatoholDialog("server-selector", "Server selecion",
-                  div, dialogButtons);
+    // call the constructor of the super class
+    HatoholDialog.apply(
+      this, ["server-selector", "Server selecion", dialogButtons]);
     setSelectButtonState(false);
-    showInitialView();
     getServerList();
 
     function setSelectButtonState(state) {
@@ -67,12 +59,6 @@ var HatoholServerSelector = function(selectedCb) {
          btn.attr("disabled", "disable");
          btn.addClass("ui-state-disabled");
       }
-    }
-
-    function showInitialView() {
-      $("#serverSelectMainDiv").html(
-        '<p id="serverSelectMsgArea">' + gettext("Now getting servers...") +
-        '</p>');
     }
 
     function makeTable(data) {
@@ -92,14 +78,9 @@ var HatoholServerSelector = function(selectedCb) {
       return html;
     }
 
-    function getContext() {
-      return $("#serverSelectMainDiv").data("ctx");
-    }
-
     function makeTableBody(reply) {
       var s;
-      var ctx = getContext();
-      ctx.serverArray = reply.servers;
+      self.serverArray = reply.servers;
       for (var i = 0; i < reply.servers.length; i++) {
         sv = reply.servers[i];
         s += '<tr>';
@@ -120,27 +101,41 @@ var HatoholServerSelector = function(selectedCb) {
         success: function(reply) {
           var replyParser = new HatoholReplyParser(reply);
           if (!(replyParser.getStatus() === REPLY_STATUS.OK)) {
-            $("#serverSelectMainDiv").text(replyParser.getStatusMessage());
+            $("#serverSelectMsgArea").text(replyParser.getStatusMessage());
             return;
           }
-          $("#serverSelectMainDiv").html(makeTable(reply));
-          $("#serverSelectMainDiv tbody").empty();
-          $("#serverSelectmainDiv tbody").append(makeTableBody(reply));
+
+          // create a table
+          var table = $(makeTable(reply));
+          self.replaceMainElement(table);
+          $("#serverSelectTable tbody").empty();
+          $("#serverSelectTable tbody").append(makeTableBody(reply));
+
+          // set events
           $("#serverSelectTable tr").click(function(){
-            var ctx = getContext();
-            if (ctx.selectedRow)
-              ctx.selectedRow.removeClass("info");
+            if (self.selectedRow)
+              self.selectedRow.removeClass("info");
             else
               setSelectButtonState(true);
             $(this).attr("class", "info");
-            ctx.selectedRow = $(this);
+            self.selectedRow = $(this);
           });
         },
         error: function(XMLHttpRequest, textStatus, errorThrown) {
           var errorMsg = "Error: " + XMLHttpRequest.status + ": " +
                          XMLHttpRequest.statusText;
-          $("#serverSelectMainDiv").text(errorMsg);
+          $("#serverSelectMsgArea").text(errorMsg);
         }
       })
     }
+}
+
+HatoholServerSelector.prototype = Object.create(HatoholDialog.prototype);
+HatoholServerSelector.prototype.constructor = HatoholServerSelector;
+
+HatoholServerSelector.prototype.createMainElement = function() {
+  var ptag = $("<p/>");
+  ptag.attr("id", "serverSelectMsgArea");
+  ptag.text(gettext("Now getting server information..."));
+  return ptag;
 }

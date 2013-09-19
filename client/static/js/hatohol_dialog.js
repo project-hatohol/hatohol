@@ -17,11 +17,13 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
-var HatoholDialog = function(id, dialogTitle, elem, buttons) {
+var HatoholDialog = function(id, dialogTitle, buttons) {
 
   var self = this;
-  self.mainFrame = $("<div>");
+
+  self.mainFrame = $("<div/>");
   self.mainFrame.attr("id", id);
+  var elem = self.createMainElement();
   self.mainFrame.append(elem);
   $("body").append(self.mainFrame);
 
@@ -36,4 +38,9 @@ var HatoholDialog = function(id, dialogTitle, elem, buttons) {
   });
 
   $(dialogId).dialog("open");
+}
+
+HatoholDialog.prototype.replaceMainElement = function(elem) {
+  this.mainFrame.empty();
+  this.mainFrame.append(elem);
 }

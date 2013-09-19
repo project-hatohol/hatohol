@@ -243,7 +243,7 @@
 
     $("#selectServerId").change(function() {
       if ($(this).val() == "SELECT")
-        HatoholServerSelector(serverSelectedCb);
+        new HatoholServerSelector(serverSelectedCb);
     })
 
     function serverSelectedCb(serverInfo) {
