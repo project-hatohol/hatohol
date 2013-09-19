@@ -29,11 +29,25 @@ class ConfigManager {
 public:
 	static const char *HATOHOL_DB_DIR_ENV_VAR_NAME;
 	static ConfigManager *getInstance(void);
+	static int ALLOW_ACTION_FOR_ALL_OLD_EVENTS;
 
 	void addTargetServer(MonitoringServerInfo *monitoringServerInfo);
 	void getTargetServers(MonitoringServerInfoList &monitoringServers);
 	const string &getDatabaseDirectory(void) const;
 	size_t getNumberOfPreservedReplicaGeneration(void) const;
+
+	/**
+	 * Get the time to ignore an action for old events.
+	 * The events that are older than Tc - Ts shall be ignored, where
+	 * Tc is the current time and Ts is a return value of this function.
+	 *
+	 * @return
+	 * The allowed time in second. If this value is
+	 * ALLOW_ACTION_FOR_ALL_OLD_EVENTS, the action shoall be invoked
+	 * even for any old event.
+	 *
+	 */
+	int getAllowedTimeOfActionForOldEvents(void);
 
 private:
 	struct PrivateContext;

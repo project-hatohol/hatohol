@@ -27,6 +27,10 @@ const char *ConfigManager::HATOHOL_DB_DIR_ENV_VAR_NAME = "HATOHOL_DB_DIR";
 static const char *DEFAULT_DATABASE_DIR = "/tmp";
 static const size_t DEFAULT_NUM_PRESERVED_REPLICA_GENERATION = 3;
 
+int ConfigManager::ALLOW_ACTION_FOR_ALL_OLD_EVENTS;
+static int DEFAULT_ALLOWED_TIME_OF_ACTION_FOR_OLD_EVENTS
+  = 60 * 60 * 24; // 24 hours
+
 struct ConfigManager::PrivateContext {
 	static MutexLock      mutex;
 	static ConfigManager *instance;
@@ -84,6 +88,11 @@ const string &ConfigManager::getDatabaseDirectory(void) const
 size_t ConfigManager::getNumberOfPreservedReplicaGeneration(void) const
 {
 	return DEFAULT_NUM_PRESERVED_REPLICA_GENERATION;
+}
+
+int ConfigManager::getAllowedTimeOfActionForOldEvents(void)
+{
+	return DEFAULT_ALLOWED_TIME_OF_ACTION_FOR_OLD_EVENTS;
 }
 
 // ---------------------------------------------------------------------------
