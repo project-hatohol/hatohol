@@ -255,7 +255,7 @@
       if (numOptions == 3)
         $("#selectServerId").children('option:last-child').remove();
 
-      var label = serverInfo.hostName;
+      var label = serverInfo.id + ": " + serverInfo.hostName;
       var value = serverInfo.id
       $("#selectServerId").append($("<option>").html(label).val(value));
       $("#selectServerId").val(value);
