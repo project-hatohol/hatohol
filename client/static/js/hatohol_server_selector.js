@@ -106,6 +106,10 @@ var HatoholServerSelector = function(selectedCb) {
           $("#serverSelectMsgArea").text(replyParser.getStatusMessage());
           return;
         }
+        if (reply.numberOfServers == 0) {
+          $("#serverSelectMsgArea").text(gettext("No data."));
+          return;
+        }
 
         // create a table
         var table = $(makeTable(reply));
