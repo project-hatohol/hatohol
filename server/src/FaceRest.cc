@@ -596,21 +596,8 @@ void FaceRest::handlerGetHost
   (SoupServer *server, SoupMessage *msg, const char *path,
    GHashTable *query, SoupClientContext *client, HandlerArg *arg)
 {
-	uint32_t targetServerId = ALL_SERVERS;
-	gchar *requestedServerId = NULL;
-	if (query) {
-		requestedServerId = (gchar *)g_hash_table_lookup(query,
-		                                                 "serverId");
-	}
-	if (requestedServerId) {
-		uint32_t svId;
-		if (sscanf(requestedServerId, "%"PRIu32, &svId) == 1) {
-			targetServerId = svId;
-		} else {
-			MLPL_INFO("Invalid requested ID: %s\n",
-			          requestedServerId);
-		}
-	}
+	uint32_t targetServerId;
+	parseQueryServerId(query, targetServerId);
 
 	JsonBuilderAgent agent;
 	agent.startObject();
