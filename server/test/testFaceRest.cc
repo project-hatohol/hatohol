@@ -346,24 +346,59 @@ static void _assertHosts(const string &path, const string &callbackName = "",
 }
 #define assertHosts(P,...) cut_trace(_assertHosts(P,##__VA_ARGS__))
 
-static void _assertTriggers(const string &path, const string &callbackName = "")
+static void _assertTriggers(const string &path, const string &callbackName = "",
+                            uint32_t serverId = ALL_SERVERS,
+                            uint64_t hostId = ALL_HOSTS)
 {
 	startFaceRest();
-	g_parser = getResponseAsJsonParser(path, callbackName);
+
+	// calculate the expected test triggers
+	map<uint32_t, map<uint64_t, size_t> > indexMap;
+	map<uint32_t, map<uint64_t, size_t> >::iterator indexMapIt;
+	map<uint64_t, size_t>::iterator trigIdIdxIt;
+	getTestTriggersIndexes(indexMap, serverId, hostId);
+	size_t expectedNumTrig = 0;
+	indexMapIt = indexMap.begin();
+	for (; indexMapIt != indexMap.end(); ++indexMapIt)
+		expectedNumTrig += indexMapIt->second.size();
+
+	// request
+	StringMap queryMap;
+	if (serverId != ALL_SERVERS) {
+		queryMap["serverId"] =
+		   StringUtils::sprintf("%"PRIu32, serverId); 
+	}
+	if (hostId != ALL_HOSTS)
+		queryMap["hostId"] = StringUtils::sprintf("%"PRIu64, hostId); 
+	g_parser = getResponseAsJsonParser(path, callbackName, queryMap);
+
+	// Check the result
 	assertValueInParser(g_parser, "apiVersion",
 	                    (uint32_t)FaceRest::API_VERSION);
 	assertValueInParser(g_parser, "result", true);
 	assertValueInParser(g_parser, "numberOfTriggers",
-	                    (uint32_t)NumTestTriggerInfo);
+	                    (uint32_t)expectedNumTrig);
 	g_parser->startObject("triggers");
-	for (size_t i = 0; i < NumTestTriggerInfo; i++) {
+	for (size_t i = 0; i < expectedNumTrig; i++) {
 		g_parser->startElement(i);
-		TriggerInfo &triggerInfo = testTriggerInfo[i];
+		int64_t var64;
+		cppcut_assert_equal(true, g_parser->read("serverId", var64));
+		uint32_t actSvId = (uint32_t)var64;
+		cppcut_assert_equal(true, g_parser->read("id", var64));
+		uint64_t actTrigId = (uint64_t)var64;
+
+		trigIdIdxIt = indexMap[actSvId].find(actTrigId);
+		cppcut_assert_equal(
+		  true, trigIdIdxIt != indexMap[actSvId].end());
+		size_t idx = trigIdIdxIt->second;
+		indexMap[actSvId].erase(trigIdIdxIt);
+
+		TriggerInfo &triggerInfo = testTriggerInfo[idx];
 		assertTestTriggerInfo(triggerInfo);
 		g_parser->endElement();
 	}
 	g_parser->endObject();
-	assertHostsIdNameHashInParser(testTriggerInfo, NumTestTriggerInfo,
+	assertHostsIdNameHashInParser(testTriggerInfo, expectedNumTrig,
 				      g_parser);
 	assertServersIdNameHashInParser(g_parser);
 }
@@ -634,6 +669,12 @@ void test_triggers(void)
 void test_triggersJsonp(void)
 {
 	assertTriggers("/trigger", "foo");
+}
+
+void test_triggersForOneServerOneHost(void)
+{
+	assertTriggers("/trigger", "foo",
+	               testTriggerInfo[1].serverId, testTriggerInfo[1].hostId);
 }
 
 void test_events(void)

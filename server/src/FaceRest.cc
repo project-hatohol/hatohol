@@ -254,6 +254,38 @@ void FaceRest::replyJsonData(JsonBuilderAgent &agent, SoupMessage *msg,
 	soup_message_set_status(msg, SOUP_STATUS_OK);
 }
 
+void FaceRest::parseQueryServerId(GHashTable *query, uint32_t &serverId)
+{
+	serverId = ALL_SERVERS;
+	if (!query)
+		return;
+	gchar *value = (gchar *)g_hash_table_lookup(query, "serverId");
+	if (!value)
+		return;
+
+	uint32_t svId;
+	if (sscanf(value, "%"PRIu32, &svId) == 1)
+		serverId = svId;
+	else
+		MLPL_INFO("Invalid requested ID: %s\n", value);
+}
+
+void FaceRest::parseQueryHostId(GHashTable *query, uint64_t &hostId)
+{
+	hostId = ALL_HOSTS;
+	if (!query)
+		return;
+	gchar *value = (gchar *)g_hash_table_lookup(query, "hostId");
+	if (!value)
+		return;
+
+	uint64_t id;
+	if (sscanf(value, "%"PRIu64, &id) == 1)
+		hostId = id;
+	else
+		MLPL_INFO("Invalid requested ID: %s\n", value);
+}
+
 // handlers
 void FaceRest::handlerDefault(SoupServer *server, SoupMessage *msg,
                               const char *path, GHashTable *query,
@@ -594,9 +626,15 @@ void FaceRest::handlerGetTrigger
   (SoupServer *server, SoupMessage *msg, const char *path,
    GHashTable *query, SoupClientContext *client, HandlerArg *arg)
 {
+
+	uint32_t serverId;
+	parseQueryServerId(query, serverId);
+	uint64_t hostId;
+	parseQueryHostId(query, hostId);
+
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	TriggerInfoList triggerList;
-	dataStore->getTriggerList(triggerList);
+	dataStore->getTriggerList(triggerList, serverId, hostId);
 
 	JsonBuilderAgent agent;
 	agent.startObject();

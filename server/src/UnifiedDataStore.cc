@@ -202,10 +202,11 @@ void UnifiedDataStore::fetchItems(void)
 }
 
 void UnifiedDataStore::getTriggerList(TriggerInfoList &triggerList,
-                                      uint32_t targetServerId)
+                                      uint32_t targetServerId,
+                                      uint64_t targetHostId)
 {
 	DBClientHatohol dbHatohol;
-	dbHatohol.getTriggerInfoList(triggerList, targetServerId);
+	dbHatohol.getTriggerInfoList(triggerList, targetServerId, targetHostId);
 }
 
 void UnifiedDataStore::getEventList(EventInfoList &eventList)

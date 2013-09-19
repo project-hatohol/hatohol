@@ -49,6 +49,29 @@ protected:
 	static void replyJsonData(JsonBuilderAgent &agent, SoupMessage *msg,
 	                          const string &jsonpCallbackName,
 	                          HandlerArg *arg);
+	/**
+	 * Parse 'serverId' query parameter if it exists.
+	 *
+	 * @param query
+	 * A hash table of query parameters.
+	 *
+	 * @param serverId.
+	 * If 'serverId' query parameter is found, the value is set to
+	 * this variable. Otherwise, ALL_SERVERS is set.
+	 */
+	static void parseQueryServerId(GHashTable *query, uint32_t &serverId);
+
+	/**
+	 * Parse 'hostId' query parameter if it exists.
+	 *
+	 * @param query
+	 * A hash table of query parameters.
+	 *
+	 * @param hostId.
+	 * If 'hostId' query parameter is found, the value is set to
+	 * this variable. Otherwise, ALL_HOSTS is set.
+	 */
+	static void parseQueryHostId(GHashTable *query, uint64_t &hostId);
 
 	// handlers
 	static void
