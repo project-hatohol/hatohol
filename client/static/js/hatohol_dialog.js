@@ -40,11 +40,20 @@ var HatoholDialog = function(id, dialogTitle, buttons) {
   $(self.dialogId).dialog("open");
 }
 
+/**
+ * Replace a main element of the dialog.
+ * Note that the old element is deleted.
+ *
+ * @param elem A new element to be set.
+ */
 HatoholDialog.prototype.replaceMainElement = function(elem) {
   this.mainFrame.empty();
   this.mainFrame.append(elem);
 }
 
+/**
+ * Close and delete the dialog.
+ */
 HatoholDialog.prototype.closeDialog = function() {
   $(this.dialogId).dialog("close");
   $(this.dialogId).remove();
