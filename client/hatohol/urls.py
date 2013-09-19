@@ -16,6 +16,7 @@
 # along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
 
 from django.conf.urls import patterns, include, url
+from django.conf.urls.i18n import i18n_patterns
 from hatohol.forwardview import jsonforward
 
 # Uncomment the next two lines to enable the admin:
@@ -35,4 +36,8 @@ urlpatterns = patterns('',
     url(r'^viewer/', include('viewer.urls')),
     url(r'^tunnel/(?P<path>.+)', jsonforward, kwargs={'server':'localhost:33194'}),
     url(r'^jsi18n/$', 'django.views.i18n.javascript_catalog'),
+)
+
+urlpatterns += i18n_patterns('',
+    url(r'^viewer/', include('viewer.urls')),
 )
