@@ -45,6 +45,8 @@ struct HostInfo {
 	uint32_t            serverId;
 	uint64_t            id;
 	string              hostName;
+
+	// The follwong members are currently not used.
 	string              ipAddr;
 	string              nickname;
 };
