@@ -21,6 +21,7 @@ var HatoholAddActionDialog = function(addSucceededCb) {
   var self = this;
 
   self.selectedServerId = null;
+  self.selectedHostId = null;
   var dialogButtons = [{
     text: gettext("ADD"),
     click: addButtonClickedCb,
@@ -68,6 +69,14 @@ var HatoholAddActionDialog = function(addSucceededCb) {
       setSelectedServerId(val);
   })
 
+  $("#selectHostId").change(function() {
+    var val = $(this).val();
+    if (val == "SELECT")
+      new HatoholHostSelector(self.selectedServerId, hostSelectedCb);
+    else
+      setSelectedHostId(val);
+  })
+
   function serverSelectedCb(serverInfo) {
     var numOptions = $("#selectServerId").children().length;
     if (!serverInfo) {
@@ -94,6 +103,55 @@ var HatoholAddActionDialog = function(addSucceededCb) {
       self.selectedServerId = null;
     else
       self.selectedServerId = value;
+    fixupSelectHostBox(value);
+  }
+
+  function hostSelectedCb(hostInfo) {
+    var numOptions = $("#selectHostId").children().length;
+    if (!hostInfo) {
+      // restore the original state
+      if (!self.selectedHostId)
+        $("#selectHostId").val("ANY");
+      else
+        $("#selectHostId").val(self.selectedHostId);
+      return;
+    }
+
+    if (numOptions == 3) {
+      if (hostInfo.id == self.selectedHostId)
+        return;
+      $("#selectHostId").children('option:last-child').remove();
+    }
+    var label = hostInfo.hostName;
+    setSelectedHostId(hostInfo.id);
+    $("#selectHostId").append($("<option>").html(label).val(hostInfo.id));
+    $("#selectHostId").val(hostInfo.id);
+  }
+
+  function fixupSelectHostBox(newServerId) {
+    var numOptions = $("#selectHostId").children().length;
+    if (newServerId == "ANY") {
+      for (var i = numOptions; i > 1; i--)
+        $("#selectHostId").children('option:last-child').remove();
+      $("#selectHostId").val("ANY");
+      setSelectedHostId("ANY");
+      return;
+    }
+    if (numOptions == 1) {
+      var label = "== " + gettext("SELECT") + " ==";
+      $("#selectHostId").append($("<option>").html(label).val("SELECT"));
+    }
+    if (numOptions == 3)
+      $("#selectServerId").children('option:last-child').remove();
+    $("#selectHostId").val("ANY");
+    setSelectedHostId("ANY");
+  }
+
+  function setSelectedHostId(value) {
+    if (value == "ANY")
+      self.selectedHostId = "ANY";
+    else
+      self.selectedHostId = value;
   }
 
   //
@@ -242,7 +300,6 @@ HatoholAddActionDialog.prototype.createMainElement = function() {
     s += '  <label>' + gettext("Host") + '</label>'
     s += '  <select id="selectHostId">'
     s += '    <option value="ANY">ANY</option>'
-    s += '    <option value="select">== ' + gettext("SELECT") + ' ==</option>'
     s += '  </select>'
     s += '</form>'
 
