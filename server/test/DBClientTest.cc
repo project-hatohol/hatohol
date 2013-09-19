@@ -496,7 +496,7 @@ void getDBCTestHostInfo(HostInfoList &hostInfoList, uint32_t targetServerId)
 		const TriggerInfo &trigInfo = testTriggerInfo[i];
 		const uint32_t svId = trigInfo.serverId;
 		const uint64_t hostId = trigInfo.hostId;
-		if (targetServerId != ALL_SERVERS && svId != ALL_SERVERS)
+		if (targetServerId != ALL_SERVERS && svId != targetServerId)
 			continue;
 		if (svIdHostIdsMap[svId].count(hostId))
 			continue;

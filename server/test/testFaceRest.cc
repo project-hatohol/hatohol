@@ -227,10 +227,11 @@ static void assertServersInParser(JsonParserAgent *parser)
 	parser->endObject();
 }
 
-static void assertHostsInParser(JsonParserAgent *parser)
+static void assertHostsInParser(JsonParserAgent *parser,
+                                uint32_t targetServerId)
 {
 	HostInfoList hostInfoList;
-	getDBCTestHostInfo(hostInfoList);
+	getDBCTestHostInfo(hostInfoList, targetServerId);
 	assertValueInParser(parser, "numberOfHosts",
 	                    (uint32_t)hostInfoList.size());
 
@@ -328,14 +329,20 @@ static void _assertServers(const string &path, const string &callbackName = "")
 }
 #define assertServers(P,...) cut_trace(_assertServers(P,##__VA_ARGS__))
 
-static void _assertHosts(const string &path, const string &callbackName = "")
+static void _assertHosts(const string &path, const string &callbackName = "",
+                         uint32_t serverId = ALL_SERVERS)
 {
 	startFaceRest();
-	g_parser = getResponseAsJsonParser(path, callbackName);
+	StringMap queryMap;
+	if (serverId != ALL_SERVERS) {
+		queryMap["serverId"] =
+		   StringUtils::sprintf("%"PRIu32, serverId); 
+	}
+	g_parser = getResponseAsJsonParser(path, callbackName, queryMap);
 	assertValueInParser(g_parser, "apiVersion",
 	                    (uint32_t)FaceRest::API_VERSION);
 	assertValueInParser(g_parser, "result", true);
-	assertHostsInParser(g_parser);
+	assertHostsInParser(g_parser, serverId);
 }
 #define assertHosts(P,...) cut_trace(_assertHosts(P,##__VA_ARGS__))
 
@@ -612,6 +619,11 @@ void test_hosts(void)
 void test_hostsJsonp(void)
 {
 	assertHosts("/host", "foo");
+}
+
+void test_hostsForOneServer(void)
+{
+	assertHosts("/host", "foo", testTriggerInfo[0].serverId);
 }
 
 void test_triggers(void)
