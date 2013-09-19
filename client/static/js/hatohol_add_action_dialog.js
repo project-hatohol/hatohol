@@ -45,7 +45,7 @@ var HatoholAddActionDialog = function() {
   }
 
   function cancelButtonClickedCb() {
-    this.closeDialog();
+    self.closeDialog();
   }
 
   //
