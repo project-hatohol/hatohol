@@ -21,6 +21,7 @@
 #include <cstdlib>
 #include <string>
 #include "DBClientHatohol.h"
+#include "DBClientConfig.h"
 #include "ActionManager.h"
 
 using namespace std;
@@ -79,6 +80,12 @@ static string makeJsDefSource(char *arg[])
 	APPEND(s, "var CMP_INVALID = %d\n",  CMP_INVALID);
 	APPEND(s, "var CMP_EQ      = %d\n",  CMP_EQ);
 	APPEND(s, "var CMP_EQ_GT   = %d\n",  CMP_EQ_GT);
+	APPEND(s, "\n");
+
+	APPEND(s,
+	  "var MONITORING_SYSTEM_ZABBIX = %d\n", MONITORING_SYSTEM_ZABBIX);
+	APPEND(s,
+	  "var MONITORING_SYSTEM_NAGIOS = %d\n", MONITORING_SYSTEM_NAGIOS);
 
 	return s;
 }
