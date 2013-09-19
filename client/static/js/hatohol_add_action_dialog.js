@@ -343,18 +343,18 @@ HatoholAddActionDialog.prototype.createMainElement = function() {
     s += '  </select>'
 
     s += '  <label for="inputTimeout">' + gettext("Time-out (sec)") + '</label>'
-    s += '  <input id="inputTimeout" type="text" value="0">'
+    s += '  <input id="inputTimeout" type="text" style="height:1.8em;" value="0">'
     s += '  <label for="inputTimeout">(0: ' + gettext("No limit") + ') </label>'
     s += '</form>'
 
     s += '<form class="form-inline">'
     s += '  <label for="inputActionCommand">' + gettext("Command") + '</label>'
-    s += '  <input id="inputActionCommand" type="text" value="" style="width:100%;">'
+    s += '  <input id="inputActionCommand" type="text" style="width:100%; height:1.8em;" value="">'
     s += '</form>'
 
     s += '<form class="form-inline">'
     s += '  <label for="inputWorkingDir">' + gettext("Execution directory") + '</label>'
-    s += '  <input id="inputWorkingDir" type="text" value="" style="width:100%;">'
+    s += '  <input id="inputWorkingDir" type="text" value="" style="width:100%; height:1.8em;">'
     s += '</form>'
     s += '</div>'
     return s;
