@@ -36,7 +36,7 @@ static void addTriggerInfo(TriggerInfo *triggerInfo)
 #define assertAddTriggerToDB(X) \
 cut_trace(_assertAddToDB<TriggerInfo>(X, addTriggerInfo))
 
-static string makeExpectedOutput(TriggerInfo *triggerInfo)
+static string makeExpectedOutput(const TriggerInfo *triggerInfo)
 {
 	string expectedOut =
 	  StringUtils::sprintf(
