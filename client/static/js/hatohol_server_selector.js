@@ -31,7 +31,7 @@ var HatoholServerSelector = function(selectedCb) {
 
   // call the constructor of the super class
   HatoholDialog.apply(
-    this, ["server-selector", "Server selecion", dialogButtons]);
+    this, ["server-selector", gettext("Server selecion"), dialogButtons]);
   setSelectButtonState(false);
   getServerList();
 

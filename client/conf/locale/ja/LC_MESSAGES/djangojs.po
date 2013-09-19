@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-09-18 20:07-0500\n"
+"POT-Creation-Date: 2013-09-18 20:37-0500\n"
 "PO-Revision-Date: 2013-09-10 18:03+0900\n"
 "Last-Translator: Takuro Ashie <ashie@clear-code.com>\n"
 "Language-Team: Project Hatohol\n"
@@ -23,6 +23,10 @@ msgstr "選択"
 #: static/js/hatohol_server_selector.js:28
 msgid "CANCEL"
 msgstr "キャンセル"
+
+#: static/js/hatohol_server_selector.js:34
+msgid "Server selecion"
+msgstr "サーバ選択"
 
 #: static/js/hatohol_server_selector.js:72
 msgid "Type"
