@@ -157,7 +157,7 @@ function makeTriggerStatusLabel(status) {
   case TRIGGER_STATUS_PROBLEM:
     return gettext("Problem");
   default:
-    return gettext("INVALID: ") + status;
+    return "INVALID: " + status;
   }
 }
 
@@ -176,7 +176,7 @@ function makeServerityLabel(severity) {
   case TRIGGER_SEVERITY_EMERGENCY:
     return gettext("Disaster");
   default:
-    return gettext("INVALID") + ": " + severity;
+    return "INVALID: " + severity;
   }
 }
 
@@ -187,6 +187,6 @@ function makeMonitoringSystemTypeLabel(type) {
   case MONITORING_SYSTEM_NAGIOS:
     return "NAGIOS";
   default:
-    return gettext("INVALID") + ": " + type;
+    return "INVALID: " + type;
   }
 }
