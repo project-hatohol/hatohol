@@ -74,7 +74,7 @@ var HatoholAddActionDialog = function(addSucceededCb) {
     var numOptions = $("#selectServerId").children().length;
     if (!serverInfo) {
       if (!self.selectedServerId)
-          $("#selectServerId").val("ANY");
+        $("#selectServerId").val("ANY");
       else
         $("#selectServerId").val(self.selectedServerId);
       return;
