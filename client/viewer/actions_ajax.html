@@ -322,36 +322,6 @@
       }
     }
 
-    function makeTriggerStatusLabel(status) {
-      switch(status) {
-      case TRIGGER_STATUS_OK:
-        return "{% trans "OK" %}";
-      case TRIGGER_STATUS_PROBLEM:
-        return "{% trans "Problem" %}";
-      default:
-        return "INVALID: " + status;
-      }
-    }
-
-    function makeServerityLabel(severity) {
-      switch(severity) {
-      case TRIGGER_SEVERITY_UNKNOWN:
-        return "{% trans "Not classified" %}";
-      case TRIGGER_SEVERITY_INFO:
-        return "{% trans "Information" %}";
-      case TRIGGER_SEVERITY_WARNING:
-        return "{% trans "Warning" %}";
-      case TRIGGER_SEVERITY_ERROR:
-        return "{% trans "Average" %}";
-      case TRIGGER_SEVERITY_CRITICAL:
-        return "{% trans "High" %}";
-      case TRIGGER_SEVERITY_EMERGENCY:
-        return "{% trans "Disaster" %}";
-      default:
-        return "{% trans "INVALID" %}" + ": " + severity;
-      }
-    }
-
     function makeServerityCompTypeLabel(compType) {
       switch(compType) {
       case CMP_EQ:
