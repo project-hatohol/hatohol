@@ -609,6 +609,11 @@ void test_hosts(void)
 	assertHosts("/host");
 }
 
+void test_hostsJsonp(void)
+{
+	assertHosts("/host", "foo");
+}
+
 void test_triggers(void)
 {
 	assertTriggers("/trigger");
