@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-09-16 21:51-0500\n"
+"POT-Creation-Date: 2013-09-18 20:07-0500\n"
 "PO-Revision-Date: 2013-09-13 15:28+0900\n"
 "Last-Translator: Takuro Ashie <ashie@clear-code.com>\n"
 "Language-Team: Project Hatohol\n"
@@ -79,7 +79,7 @@ msgstr "サーバ"
 msgid "Actions"
 msgstr "アクション"
 
-#: viewer/actions_ajax.html:38 viewer/actions_ajax.html.py:278
+#: viewer/actions_ajax.html:38 viewer/actions_ajax.html.py:301
 msgid "ADD ACTION"
 msgstr "アクション追加"
 
@@ -121,12 +121,12 @@ msgstr "トリガー"
 msgid "Status"
 msgstr "ステータス"
 
-#: viewer/actions_ajax.html:87 viewer/actions_ajax.html.py:554
+#: viewer/actions_ajax.html:87 viewer/actions_ajax.html.py:580
 #: viewer/events_ajax.html:76 viewer/triggers_ajax.html:85
 msgid "OK"
 msgstr "正常"
 
-#: viewer/actions_ajax.html:88 viewer/actions_ajax.html.py:556
+#: viewer/actions_ajax.html:88 viewer/actions_ajax.html.py:582
 #: viewer/events_ajax.html:76 viewer/triggers_ajax.html:85
 msgid "Problem"
 msgstr "障害"
@@ -136,32 +136,32 @@ msgstr "障害"
 msgid "Severity"
 msgstr "深刻度"
 
-#: viewer/actions_ajax.html:94 viewer/actions_ajax.html.py:289
-#: viewer/actions_ajax.html:517 viewer/actions_ajax.html.py:567
+#: viewer/actions_ajax.html:94 viewer/actions_ajax.html.py:312
+#: viewer/actions_ajax.html:543 viewer/actions_ajax.html.py:593
 #: viewer/dashboard_ajax.html:65 viewer/events_ajax.html:77
 #: viewer/triggers_ajax.html:86
 msgid "Information"
 msgstr "情報"
 
-#: viewer/actions_ajax.html:95 viewer/actions_ajax.html.py:569
+#: viewer/actions_ajax.html:95 viewer/actions_ajax.html.py:595
 #: viewer/dashboard_ajax.html:64 viewer/events_ajax.html:77
 #: viewer/triggers_ajax.html:86
 msgid "Warning"
 msgstr "警告"
 
-#: viewer/actions_ajax.html:96 viewer/actions_ajax.html.py:571
+#: viewer/actions_ajax.html:96 viewer/actions_ajax.html.py:597
 #: viewer/dashboard_ajax.html:63 viewer/events_ajax.html:77
 #: viewer/triggers_ajax.html:86
 msgid "Average"
 msgstr "軽度の障害"
 
-#: viewer/actions_ajax.html:97 viewer/actions_ajax.html.py:573
+#: viewer/actions_ajax.html:97 viewer/actions_ajax.html.py:599
 #: viewer/dashboard_ajax.html:62 viewer/events_ajax.html:77
 #: viewer/triggers_ajax.html:86
 msgid "High"
 msgstr "重度の障害"
 
-#: viewer/actions_ajax.html:98 viewer/actions_ajax.html.py:575
+#: viewer/actions_ajax.html:98 viewer/actions_ajax.html.py:601
 #: viewer/dashboard_ajax.html:61 viewer/events_ajax.html:77
 #: viewer/triggers_ajax.html:86
 msgid "Disaster"
@@ -184,11 +184,11 @@ msgstr "実行パラメータ"
 msgid "Type"
 msgstr "タイプ"
 
-#: viewer/actions_ajax.html:110 viewer/actions_ajax.html.py:543
+#: viewer/actions_ajax.html:110 viewer/actions_ajax.html.py:569
 msgid "COMMAND"
 msgstr "コマンド"
 
-#: viewer/actions_ajax.html:111 viewer/actions_ajax.html.py:545
+#: viewer/actions_ajax.html:111 viewer/actions_ajax.html.py:571
 msgid "RESIDENT"
 msgstr "常駐"
 
@@ -196,7 +196,7 @@ msgstr "常駐"
 msgid "Time-out (sec)"
 msgstr "タイムアウト (秒)"
 
-#: viewer/actions_ajax.html:116 viewer/actions_ajax.html.py:717
+#: viewer/actions_ajax.html:116 viewer/actions_ajax.html.py:743
 msgid "No limit"
 msgstr "制限なし"
 
@@ -208,72 +208,72 @@ msgstr "コマンド"
 msgid "Execution directory"
 msgstr "実行ディレクトリ"
 
-#: viewer/actions_ajax.html:202
+#: viewer/actions_ajax.html:205
 msgid "Do you delete the selected items ?"
 msgstr "選択項目を削除しますか？"
 
-#: viewer/actions_ajax.html:284
+#: viewer/actions_ajax.html:307
 msgid "ADD"
 msgstr "追加"
 
-#: viewer/actions_ajax.html:288
+#: viewer/actions_ajax.html:311
 msgid "Now creating an action ..."
 msgstr "アクションを作成しています..."
 
-#: viewer/actions_ajax.html:295
+#: viewer/actions_ajax.html:318
 msgid "CANNCEL"
 msgstr "キャンセル"
 
-#: viewer/actions_ajax.html:406
+#: viewer/actions_ajax.html:432
 msgid "Successfully created."
 msgstr "正常に作成されました"
 
-#: viewer/actions_ajax.html:427 viewer/actions_ajax.html.py:468
+#: viewer/actions_ajax.html:453 viewer/actions_ajax.html.py:494
 msgid "Deleting..."
 msgstr "削除中..."
 
-#: viewer/actions_ajax.html:474
+#: viewer/actions_ajax.html:500
 msgid "Completed. (Number of errors: "
 msgstr "完了 (エラー数: "
 
-#: viewer/actions_ajax.html:485
+#: viewer/actions_ajax.html:511
 msgid "CLOSE"
 msgstr "閉じる"
 
-#: viewer/actions_ajax.html:491
+#: viewer/actions_ajax.html:517
 msgid "NO"
 msgstr "いいえ"
 
-#: viewer/actions_ajax.html:496
+#: viewer/actions_ajax.html:522
 msgid "YES"
 msgstr "はい"
 
-#: viewer/actions_ajax.html:521
+#: viewer/actions_ajax.html:547
 msgid "Error"
 msgstr "エラー"
 
-#: viewer/actions_ajax.html:525
+#: viewer/actions_ajax.html:551
 msgid "Confirmation"
 msgstr "確認"
 
-#: viewer/actions_ajax.html:565 viewer/dashboard_ajax.html:66
+#: viewer/actions_ajax.html:591 viewer/dashboard_ajax.html:66
 #: viewer/events_ajax.html:77 viewer/triggers_ajax.html:86
 msgid "Not classified"
 msgstr "未分類"
 
-#: viewer/actions_ajax.html:577
+#: viewer/actions_ajax.html:603
 msgid "INVALID"
 msgstr ""
 
-#: viewer/base.html:36 viewer/base_ajax.html:38
+#: viewer/base.html:36 viewer/base_ajax.html:39
 msgid "Hatohol"
 msgstr "Hatohol"
 
-#: viewer/base_ajax.html:46
+#: viewer/base_ajax.html:47
 msgid "PREPARE"
 msgstr "準備中"
 
-#: viewer/base_ajax.html:50
+#: viewer/base_ajax.html:51
 msgid "Preparing"
 msgstr "準備中"
 
