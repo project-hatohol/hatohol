@@ -42,15 +42,13 @@ var HatoholServerSelector = function(selectedCb) {
       else
         selectedCb(self.serverArray[self.selectedRow.index()]);
     }
-    $(this).dialog("close");
-    $("#server-selector").remove();
+    self.closeDialog();
   }
 
   function cancelButtonClickedCb() {
     if (selectedCb)
       selectedCb(null);
-    $(this).dialog("close");
-    $("#server-selector").remove();
+    self.closeDialog();
   }
 
   function setSelectButtonState(state) {

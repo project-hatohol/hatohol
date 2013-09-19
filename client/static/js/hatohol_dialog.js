@@ -27,8 +27,8 @@ var HatoholDialog = function(id, dialogTitle, buttons) {
   self.mainFrame.append(elem);
   $("body").append(self.mainFrame);
 
-  var dialogId = "#" + id
-  $(dialogId).dialog({
+  self.dialogId = "#" + id
+  $(self.dialogId).dialog({
     autoOpen: false,
     title: dialogTitle,
     closeOnEscape: false,
@@ -37,10 +37,15 @@ var HatoholDialog = function(id, dialogTitle, buttons) {
     buttons: buttons,
   });
 
-  $(dialogId).dialog("open");
+  $(self.dialogId).dialog("open");
 }
 
 HatoholDialog.prototype.replaceMainElement = function(elem) {
   this.mainFrame.empty();
   this.mainFrame.append(elem);
+}
+
+HatoholDialog.prototype.closeDialog = function() {
+  $(this.dialogId).dialog("close");
+  $(this.dialogId).remove();
 }
