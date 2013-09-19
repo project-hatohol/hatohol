@@ -290,26 +290,28 @@ HatoholAddActionDialog.prototype.createMainElement = function() {
     s += '    <option value="SELECT">== ' + gettext("SELECT") + ' ==</option>'
     s += '  </select>'
 
+    /*
     s += '  <label>' + gettext("Host Group") + '</label>'
     s += '  <select id="selectHostGroupId">'
     s += '    <option value="ANY">ANY</option>'
     s += '    <!-- Currently host group ID is not supported'
     s += '    <option value="select">== ' + gettext("SELECT") + ' ==</option>'
     s += '    -->'
+    */
     s += '  </select>'
     s += '  <label>' + gettext("Host") + '</label>'
     s += '  <select id="selectHostId">'
     s += '    <option value="ANY">ANY</option>'
     s += '  </select>'
-    s += '</form>'
 
-    s += '<form class="form-inline">'
     s += '  <label>' + gettext("Trigger") + '</label>'
     s += '  <select id="selectTriggerId">'
     s += '    <option value="ANY">ANY</option>'
     s += '    <option value="select">== ' + gettext("SELECT") + '==</option>'
     s += '  </select>'
+    s += '</form>'
 
+    s += '<form class="form-inline">'
     s += '  <label>' + gettext("Status") + '</label>'
     s += '  <select id="selectTriggerStatus">'
     s += '    <option value="ANY">ANY</option>'
