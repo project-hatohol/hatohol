@@ -399,7 +399,7 @@ static void _assertTriggers(const string &path, const string &callbackName = "",
 	}
 	g_parser->endObject();
 	assertHostsIdNameHashInParser(testTriggerInfo, expectedNumTrig,
-				      g_parser);
+	                              g_parser);
 	assertServersIdNameHashInParser(g_parser);
 }
 #define assertTriggers(P,...) cut_trace(_assertTriggers(P,##__VA_ARGS__))
