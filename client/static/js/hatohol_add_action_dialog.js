@@ -20,6 +20,7 @@
 var HatoholAddActionDialog = function(addSucceededCb) {
   var self = this;
 
+  self.selectedServerId = null;
   var dialogButtons = [{
     text: gettext("ADD"),
     click: addButtonClickedCb,
@@ -60,23 +61,34 @@ var HatoholAddActionDialog = function(addSucceededCb) {
   })
 
   $("#selectServerId").change(function() {
-    if ($(this).val() == "SELECT")
+    var val = $(this).val();
+    if (val == "SELECT")
       new HatoholServerSelector(serverSelectedCb);
+    else if (val == "ANY")
+      self.selectedServerId = null;
+    else
+      self.selectedServerId = val;
   })
 
   function serverSelectedCb(serverInfo) {
     var numOptions = $("#selectServerId").children().length;
     if (!serverInfo) {
-      $("#selectServerId").val("ANY");
+      if (!self.selectedServerId)
+          $("#selectServerId").val("ANY");
+      else
+        $("#selectServerId").val(self.selectedServerId);
       return;
     }
-    if (numOptions == 3)
-      $("#selectServerId").children('option:last-child').remove();
 
+    if (numOptions == 3) {
+      if (serverInfo.id == self.selectedServerId)
+        return;
+      $("#selectServerId").children('option:last-child').remove();
+    }
     var label = serverInfo.id + ": " + serverInfo.hostName;
-    var value = serverInfo.id
-    $("#selectServerId").append($("<option>").html(label).val(value));
-    $("#selectServerId").val(value);
+    self.selectedServerId = serverInfo.id
+    $("#selectServerId").append($("<option>").html(label).val(self.selectedServerId));
+    $("#selectServerId").val(self.selectedServerId);
   }
 
   //
