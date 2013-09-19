@@ -50,7 +50,7 @@ extern size_t NumTestItemInfo;
 extern ActionDef testActionDef[];
 extern const size_t NumTestActionDef;
 
-extern size_t getNumberOfTestTriggers(uint32_t serverId);
+extern size_t getNumberOfTestTriggers(uint32_t serverId, uint64_t hostId);
 extern size_t getNumberOfTestTriggers(uint32_t serverId, uint64_t hostGroupId,
                                       TriggerSeverityType severity);
 

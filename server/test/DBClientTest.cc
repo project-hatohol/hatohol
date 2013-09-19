@@ -298,15 +298,22 @@ static void addHostInfoToList(HostInfoList &hostInfoList,
 	hostInfo.hostName = trigInfo.hostName;
 }
 
-size_t getNumberOfTestTriggers(uint32_t serverId)
+size_t getNumberOfTestTriggers(uint32_t serverId, uint64_t hostId)
 {
-	if (serverId == ALL_SERVERS)
+	if (serverId == ALL_SERVERS && hostId == ALL_HOSTS)
 		return NumTestTriggerInfo;
 
 	size_t count = 0;
 	for (size_t i = 0; i < NumTestTriggerInfo; i++) {
-		if (testTriggerInfo[i].serverId == serverId)
-			count++;
+		if (serverId != ALL_SERVERS) {
+			if (testTriggerInfo[i].serverId != serverId)
+				continue;
+		}
+		if (hostId != ALL_HOSTS) {
+			if (testTriggerInfo[i].hostId != hostId)
+				continue;
+		}
+		count++;
 	}
 	return count;
 }

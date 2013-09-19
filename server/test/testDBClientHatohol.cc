@@ -52,12 +52,14 @@ static string makeExpectedOutput(TriggerInfo *triggerInfo)
 	return expectedOut;
 }
 
-static void _assertGetTriggers(uint32_t serverId = ALL_SERVERS)
+static void _assertGetTriggers(uint32_t serverId = ALL_SERVERS,
+                               uint64_t hostId = ALL_HOSTS)
 {
 	TriggerInfoList triggerInfoList;
 	DBClientHatohol dbHatohol;
-	dbHatohol.getTriggerInfoList(triggerInfoList, serverId);
-	size_t numExpectedTestTriggers = getNumberOfTestTriggers(serverId);
+	dbHatohol.getTriggerInfoList(triggerInfoList, serverId, hostId);
+	size_t numExpectedTestTriggers =
+	   getNumberOfTestTriggers(serverId, hostId);
 	cppcut_assert_equal(numExpectedTestTriggers, triggerInfoList.size());
 
 	string expectedText;
@@ -78,13 +80,13 @@ static void _setupTestTriggerDB(void)
 }
 #define setupTestTriggerDB() cut_trace(_setupTestTriggerDB())
 
-static void _assertGetTriggerInfoList(uint32_t serverId)
+static void _assertGetTriggerInfoList(uint32_t serverId, uint64_t hostId = ALL_HOSTS)
 {
 	setupTestTriggerDB();
-	assertGetTriggers(serverId);
+	assertGetTriggers(serverId, hostId);
 }
-#define assertGetTriggerInfoList(SERVER_ID) \
-cut_trace(_assertGetTriggerInfoList(SERVER_ID))
+#define assertGetTriggerInfoList(SERVER_ID, ...) \
+cut_trace(_assertGetTriggerInfoList(SERVER_ID, ##__VA_ARGS__))
 
 
 // TODO: The names of makeExpectedOutput() and makeExpectedItemOutput()
@@ -341,6 +343,13 @@ void test_getTriggerInfoListForOneServer(void)
 {
 	uint32_t targetServerId = testTriggerInfo[0].serverId;
 	assertGetTriggerInfoList(targetServerId);
+}
+
+void test_getTriggerInfoListForOneServerOneHost(void)
+{
+	uint32_t targetServerId = testTriggerInfo[1].serverId;
+	uint64_t targetHostId = testTriggerInfo[1].hostId;
+	assertGetTriggerInfoList(targetServerId, targetHostId);
 }
 
 void test_setTriggerInfoList(void)
