@@ -150,3 +150,13 @@ function schedule(timer, table, param) {
   }, timer);
 }
 
+function makeMonitoringSystemTypeLabel(type) {
+  switch (type) {
+  case MONITORING_SYSTEM_ZABBIX:
+    return "ZABBIX";
+  case MONITORING_SYSTEM_NAGIOS:
+    return "NAGIOS";
+  default:
+    return gettext("INVALID") + ": " + type;
+  }
+}
