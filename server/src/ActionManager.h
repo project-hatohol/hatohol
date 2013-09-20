@@ -94,14 +94,18 @@ protected:
 	static void residentActionTimeoutCb(NamedPipe *namedPipe,
 	                                    gpointer data);
 	bool shouldSkipByTime(const EventInfo &eventInfo);
-	bool shouldSkipByLog(const EventInfo &eventInfo);
-	void runAction(const ActionDef &actionDef, const EventInfo &eventInfo);
+	bool shouldSkipByLog(const EventInfo &eventInfo,
+	                     DBClientAction &dbAction);
+	void runAction(const ActionDef &actionDef, const EventInfo &eventInfo,
+	               DBClientAction &dbAction);
 
 	/**
 	 * Spawn an actor.
 	 *
 	 * @param actionDef An ActionDef instance.
 	 * @param eventInfo An EventInfo instance.
+	 * @param dbAgent   An DBClientAction instance.
+	 *
 	 * @param argv
 	 * An argument array for the command to be spawned. The first element
 	 * is the command path itself. The last element should be NULL.
@@ -119,7 +123,7 @@ protected:
 	 * @return true if the spawn was successful. Otherwise false.
 	 */
 	bool spawn(const ActionDef &actionDef, const EventInfo &eventInfo,
-	           const gchar **argv,
+	           DBClientAction &dbAction, const gchar **argv,
 	           SpawnPostproc postproc, void *postprocPriv);
 
 	/**
@@ -131,6 +135,9 @@ protected:
 	 * @param eventInfo
 	 * An EventInfo instance concerned with the action.
 	 *
+	 * @param dbAgent
+	 * An DBClientAction instance.
+	 *
 	 * @param actorInfo
 	 * If this parameter is not NULL, information about the executed
 	 * actor such as a PID and a log ID is returned in it.
@@ -138,10 +145,12 @@ protected:
 	 */
 	void execCommandAction(const ActionDef &actionDef,
 	                       const EventInfo &eventInfo,
+	                       DBClientAction &dbAction,
 	                       ActorInfo *actorInfo = NULL);
 
 	void execCommandActionCore(const ActionDef &actionDef,
 	                           const EventInfo &eventInfo,
+	                           DBClientAction &dbAction,
 	                           ActorInfo *actorInfoCopy,
 	                           const StringVector &argVect);
 
@@ -154,6 +163,9 @@ protected:
 	 * @param eventInfo
 	 * An EventInfo instance concerned with the action.
 	 *
+	 * @param dbAgent
+	 * An DBClientAction instance.
+	 *
 	 * @param actorInfo
 	 * If this parameter is not NULL, information about the executed
 	 * actor such as a PID and a log ID is returned in it.
@@ -161,10 +173,12 @@ protected:
 	 */
 	void execResidentAction(const ActionDef &actionDef,
 	                        const EventInfo &eventInfo,
+	                        DBClientAction &dbAction,
 	                        ActorInfo *actorInfo = NULL);
 
 	ResidentInfo *launchResidentActionYard(const ActionDef &actionDef,
 	                                       const EventInfo &eventInfo,
+	                                       DBClientAction &dbAction,
 	                                       ActorInfo *actorInfoCopy);
 	/**
 	 * notify hatohol-resident-yard of a event only when it is idle and
@@ -206,7 +220,8 @@ protected:
 
 	void postProcSpawnFailure(
 	  const ActionDef &actionDef, const EventInfo &eventInfo,
-	   ActorInfo *actorInfo, uint64_t *logId, GError *error);
+	  DBClientAction &dbAction, ActorInfo *actorInfo,
+	  uint64_t *logId, GError *error);
 
 	void fillTriggerInfoInEventInfo(EventInfo &eventInfo);
 

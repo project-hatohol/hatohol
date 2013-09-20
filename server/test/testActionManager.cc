@@ -37,19 +37,20 @@
 
 class TestActionManager : public ActionManager
 {
+	DBClientAction m_dbAction;
 public:
 	void callExecCommandAction(const ActionDef &actionDef,
 	                            const EventInfo &eventInfo,
 	                           ActorInfo *actorInfo = NULL)
 	{
-		execCommandAction(actionDef, eventInfo, actorInfo);
+		execCommandAction(actionDef, eventInfo, m_dbAction, actorInfo);
 	}
 
 	void callExecResidentAction(const ActionDef &actionDef,
 	                            const EventInfo &eventInfo,
 	                            ActorInfo *actorInfo = NULL)
 	{
-		execResidentAction(actionDef, eventInfo, actorInfo);
+		execResidentAction(actionDef, eventInfo, m_dbAction, actorInfo);
 	}
 
 	bool callShouldSkipByTime(const EventInfo &eventInfo)
@@ -59,7 +60,7 @@ public:
 
 	bool callShouldSkipByLog(const EventInfo &eventInfo)
 	{
-		return shouldSkipByLog(eventInfo);
+		return shouldSkipByLog(eventInfo, m_dbAction);
 	}
 };
 

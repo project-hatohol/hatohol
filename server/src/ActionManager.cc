@@ -186,11 +186,6 @@ struct ActionManager::PrivateContext {
 	static ActorCollector collector;
 	static MutexLock waitingCommandActionListLock;
 	static deque<WaitingCommandActionInfo *> waitingCommandActionList;
-
-	// This can only be used on the owner's context (thread),
-	// It's danger to use from a GLIB's event callback context or
-	// other thread, becuase DBClientAction is MT-thread unsafe.
-	DBClientAction dbAction;
 };
 
 ActorCollector ActionManager::PrivateContext::collector;
@@ -235,18 +230,19 @@ ActionManager::~ActionManager()
 
 void ActionManager::checkEvents(const EventInfoList &eventList)
 {
+	DBClientAction dbAction;
 	EventInfoListConstIterator it = eventList.begin();
 	for (; it != eventList.end(); ++it) {
 		ActionDefList actionDefList;
 		const EventInfo &eventInfo = *it;
 		if (shouldSkipByTime(eventInfo))
 			continue;
-		if (shouldSkipByLog(eventInfo))
+		if (shouldSkipByLog(eventInfo, dbAction))
 			continue;
-		m_ctx->dbAction.getActionList(actionDefList, &eventInfo);
+		dbAction.getActionList(actionDefList, &eventInfo);
 		ActionDefListIterator actIt = actionDefList.begin();
 		for (; actIt != actionDefList.end(); ++actIt)
-			runAction(*actIt, eventInfo);
+			runAction(*actIt, eventInfo, dbAction);
 	}
 }
 
@@ -266,33 +262,35 @@ bool ActionManager::shouldSkipByTime(const EventInfo &eventInfo)
 	return passedTime.getAsSec() > allowedOldTime;
 }
 
-bool ActionManager::shouldSkipByLog(const EventInfo &eventInfo)
+bool ActionManager::shouldSkipByLog(const EventInfo &eventInfo,
+                                    DBClientAction &dbAction)
 {
 	ActionLog actionLog;
 	bool found;
-	found = m_ctx->dbAction.getLog(actionLog,
-	                               eventInfo.serverId, eventInfo.id);
+	found = dbAction.getLog(actionLog, eventInfo.serverId, eventInfo.id);
 	// TODO: We shouldn't skip if status is ACTLOG_STAT_QUEUING.
 	return found;
 }
 
 void ActionManager::runAction(const ActionDef &actionDef,
-                              const EventInfo &_eventInfo)
+                              const EventInfo &_eventInfo,
+                              DBClientAction &dbAction)
 {
 	EventInfo eventInfo(_eventInfo);
 	fillTriggerInfoInEventInfo(eventInfo);
 
 	if (actionDef.type == ACTION_COMMAND) {
-		execCommandAction(actionDef, eventInfo);
+		execCommandAction(actionDef, eventInfo, dbAction);
 	} else if (actionDef.type == ACTION_RESIDENT) {
-		execResidentAction(actionDef, eventInfo);
+		execResidentAction(actionDef, eventInfo, dbAction);
 	} else {
 		HATOHOL_ASSERT(true, "Unknown type: %d\n", actionDef.type);
 	}
 }
 
 bool ActionManager::spawn(
-  const ActionDef &actionDef, const EventInfo &eventInfo, const gchar **argv,
+  const ActionDef &actionDef, const EventInfo &eventInfo,
+  DBClientAction &dbAction, const gchar **argv,
   SpawnPostproc postproc, void *postprocPriv)
 {
 	const gchar *workingDirectory = NULL;
@@ -320,7 +318,7 @@ bool ActionManager::spawn(
 	if (!succeeded) {
 		m_ctx->collector.unlock();
 		uint64_t logId;
-		postProcSpawnFailure(actionDef, eventInfo, actorInfo,
+		postProcSpawnFailure(actionDef, eventInfo, dbAction, actorInfo,
 		                     &logId, error);
 		delete actorInfo;
 		if (postproc)
@@ -332,8 +330,8 @@ bool ActionManager::spawn(
 	  (actionDef.type == ACTION_COMMAND) ?
 	    ACTLOG_STAT_STARTED : ACTLOG_STAT_LAUNCHING_RESIDENT;
 	actorInfo->logId =
-	  m_ctx->dbAction.createActionLog(actionDef, eventInfo,
-	                                  ACTLOG_EXECFAIL_NONE, initialStatus);
+	  dbAction.createActionLog(actionDef, eventInfo,
+	                           ACTLOG_EXECFAIL_NONE, initialStatus);
 	m_ctx->collector.addActor(actorInfo);
 	if (postproc) {
 		(*postproc)(actorInfo, actionDef,
@@ -345,6 +343,7 @@ bool ActionManager::spawn(
 
 void ActionManager::execCommandAction(const ActionDef &actionDef,
                                       const EventInfo &eventInfo,
+                                      DBClientAction &dbAction,
                                       ActorInfo *_actorInfo)
 {
 	HATOHOL_ASSERT(actionDef.type == ACTION_COMMAND,
@@ -370,9 +369,9 @@ void ActionManager::execCommandAction(const ActionDef &actionDef,
 		WaitingCommandActionInfo *waitCmdInfo =
 		   new WaitingCommandActionInfo();
 		waitCmdInfo->logId =
-		   m_ctx->dbAction.createActionLog(actionDef, eventInfo,
-		                                   ACTLOG_EXECFAIL_NONE,
-		                                   ACTLOG_STAT_QUEUING);
+		   dbAction.createActionLog(actionDef, eventInfo,
+		                            ACTLOG_EXECFAIL_NONE,
+		                            ACTLOG_STAT_QUEUING);
 		waitCmdInfo->actionDef = actionDef;
 		waitCmdInfo->eventInfo = eventInfo;
 		waitCmdInfo->argVect   = argVect;
@@ -382,7 +381,8 @@ void ActionManager::execCommandAction(const ActionDef &actionDef,
 		return;
 	}
 
-	execCommandActionCore(actionDef, eventInfo, _actorInfo, argVect);
+	execCommandActionCore(actionDef, eventInfo, dbAction,
+	                      _actorInfo, argVect);
 }
 
 void ActionManager::spawnPostprocCommandAction(ActorInfo *actorInfo,
@@ -397,23 +397,24 @@ void ActionManager::spawnPostprocCommandAction(ActorInfo *actorInfo,
 	   g_timeout_add(actionDef.timeout, commandActionTimeoutCb, actorInfo);
 }
 
-void ActionManager::execCommandActionCore(const ActionDef &actionDef,
-                                          const EventInfo &eventInfo,
-                                          ActorInfo *actorInfoCopy,
-                                          const StringVector &argVect)
+void ActionManager::execCommandActionCore(
+  const ActionDef &actionDef, const EventInfo &eventInfo,
+  DBClientAction &dbAction, ActorInfo *actorInfoCopy,
+  const StringVector &argVect)
 {
 	const gchar *argv[argVect.size()+1];
 	for (size_t i = 0; i < argVect.size(); i++)
 		argv[i] = argVect[i].c_str();
 	argv[argVect.size()] = NULL;
 
-	spawn(actionDef, eventInfo, argv,
+	spawn(actionDef, eventInfo, dbAction, argv,
 	      spawnPostprocCommandAction, actorInfoCopy);
 	// spawnPostprocCommandAction() is called in the above spawn().
 }
 
 void ActionManager::execResidentAction(const ActionDef &actionDef,
                                        const EventInfo &eventInfo,
+                                       DBClientAction &dbAction,
                                        ActorInfo *_actorInfo)
 {
 	HATOHOL_ASSERT(actionDef.type == ACTION_RESIDENT,
@@ -432,7 +433,7 @@ void ActionManager::execResidentAction(const ActionDef &actionDef,
 		   new ResidentNotifyInfo(residentInfo);
 		notifyInfo->eventInfo = eventInfo; // just copy
 		notifyInfo->logId =
-		   m_ctx->dbAction.createActionLog(
+		   dbAction.createActionLog(
 		     actionDef, eventInfo, ACTLOG_EXECFAIL_NONE,
 		     ACTLOG_STAT_RESIDENT_QUEUING);
 
@@ -449,7 +450,7 @@ void ActionManager::execResidentAction(const ActionDef &actionDef,
 
 	// make a new resident instance
 	ResidentInfo *residentInfo =
-	  launchResidentActionYard(actionDef, eventInfo, _actorInfo);
+	  launchResidentActionYard(actionDef, eventInfo, dbAction, _actorInfo);
 	if (residentInfo) {
 		ResidentInfo::runningResidentMap[actionDef.id] = residentInfo;
 		residentInfo->inRunningResidentMap = true;
@@ -699,7 +700,7 @@ void ActionManager::spawnPostprocResidentAction(ActorInfo *actorInfo,
 
 ResidentInfo *ActionManager::launchResidentActionYard
   (const ActionDef &actionDef, const EventInfo &eventInfo,
-   ActorInfo *actorInfoCopy)
+   DBClientAction &dbAction, ActorInfo *actorInfoCopy)
 {
 	// make a ResidentInfo instance.
 	ResidentInfo *residentInfo = new ResidentInfo(this, actionDef);
@@ -716,7 +717,7 @@ ResidentInfo *ActionManager::launchResidentActionYard
 	SpawnPostprocResidentActionCtx postprocCtx;
 	postprocCtx.actorInfoCopy = actorInfoCopy;
 	postprocCtx.residentInfo  = residentInfo;
-	bool succeeded = spawn(actionDef, eventInfo, argv,
+	bool succeeded = spawn(actionDef, eventInfo, dbAction, argv,
 	                       spawnPostprocResidentAction, &postprocCtx);
 	// spawnPostprocResidentAction() is called in the above spawn() and
 	// the member in postprocArg is set.
@@ -851,7 +852,8 @@ void ActionManager::copyActorInfoForExecResult
 }
 
 void ActionManager::postProcSpawnFailure(
-  const ActionDef &actionDef, const EventInfo &eventInfo, ActorInfo *actorInfo,
+  const ActionDef &actionDef, const EventInfo &eventInfo,
+  DBClientAction &dbAction, ActorInfo *actorInfo,
   uint64_t *logId, GError *error)
 {
 	// make an action log
@@ -859,7 +861,7 @@ void ActionManager::postProcSpawnFailure(
 	  error->code == G_SPAWN_ERROR_NOENT ?
 	    ACTLOG_EXECFAIL_ENTRY_NOT_FOUND : ACTLOG_EXECFAIL_EXEC_FAILURE;
 	actorInfo->logId =
-	  m_ctx->dbAction.createActionLog(actionDef, eventInfo, failureCode);
+	  dbAction.createActionLog(actionDef, eventInfo, failureCode);
 
 	// MLPL log
 	MLPL_ERR(
