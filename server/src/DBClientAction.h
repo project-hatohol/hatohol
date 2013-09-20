@@ -161,6 +161,8 @@ enum {
 	IDX_ACTION_LOGS_END_TIME,
 	IDX_ACTION_LOGS_EXEC_FAILURE_CODE,
 	IDX_ACTION_LOGS_EXIT_CODE,
+	IDX_ACTION_LOGS_SERVER_ID,
+	IDX_ACTION_LOGS_EVENT_ID,
 	NUM_IDX_ACTION_LOGS,
 };
 
@@ -254,7 +256,7 @@ public:
 	 * @return a created action log ID.
 	 */
 	uint64_t createActionLog
-	  (const ActionDef &actionDef,
+	  (const ActionDef &actionDef, const EventInfo &eventInfo,
 	   ActionLogExecFailureCode failureCode = ACTLOG_EXECFAIL_NONE,
 	   ActionLogStatus initialStatus = ACTLOG_STAT_STARTED);
 

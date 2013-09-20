@@ -288,6 +288,28 @@ static const ColumnDef COLUMN_DEF_ACTION_LOGS[] = {
 	SQL_KEY_MUL,                       // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
+}, {
+	ITEM_ID_NOT_SET,                   // itemId
+	TABLE_NAME_ACTION_LOGS,            // tableName
+	"server_id",                       // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	11,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_MUL,                       // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}, {
+	ITEM_ID_NOT_SET,                   // itemId
+	TABLE_NAME_ACTION_LOGS,            // tableName
+	"event_id",                        // columnName
+	SQL_COLUMN_TYPE_BIGUINT,           // type
+	20,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_MUL,                       // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
 },
 };
 
@@ -597,9 +619,9 @@ void DBClientAction::deleteActions(const ActionIdList &idList)
 	} DBCLIENT_TRANSACTION_END();
 }
 
-uint64_t DBClientAction::createActionLog
-  (const ActionDef &actionDef, ActionLogExecFailureCode failureCode,
-   ActionLogStatus initialStatus)
+uint64_t DBClientAction::createActionLog(
+  const ActionDef &actionDef, const EventInfo &eventInfo,
+  ActionLogExecFailureCode failureCode, ActionLogStatus initialStatus)
 {
 	VariableItemGroupPtr row;
 	DBAgentInsertArg arg;
@@ -632,6 +654,10 @@ uint64_t DBClientAction::createActionLog
 
 	row->ADD_NEW_ITEM(Int, failureCode);
 	row->ADD_NEW_ITEM(Int, 0, ITEM_DATA_NULL); // exit_code
+
+	// server ID and event ID
+	row->ADD_NEW_ITEM(Int, eventInfo.serverId);
+	row->ADD_NEW_ITEM(Uint64, eventInfo.id);
 
 	arg.row = row;
 	uint64_t logId;

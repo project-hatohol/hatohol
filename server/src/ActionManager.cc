@@ -305,7 +305,7 @@ ActorInfo *ActionManager::spawn(
 	  (actionDef.type == ACTION_COMMAND) ?
 	    ACTLOG_STAT_STARTED : ACTLOG_STAT_LAUNCHING_RESIDENT;
 	actorInfo->logId =
-	  m_ctx->dbAction.createActionLog(actionDef,
+	  m_ctx->dbAction.createActionLog(actionDef, eventInfo,
 	                                  ACTLOG_EXECFAIL_NONE, initialStatus);
 	m_ctx->collector.addActor(actorInfo);
 	m_ctx->collector.unlock();
@@ -371,7 +371,7 @@ void ActionManager::execResidentAction(const ActionDef &actionDef,
 		notifyInfo->eventInfo = eventInfo; // just copy
 		notifyInfo->logId =
 		   m_ctx->dbAction.createActionLog(
-		     actionDef, ACTLOG_EXECFAIL_NONE,
+		     actionDef, eventInfo, ACTLOG_EXECFAIL_NONE,
 		     ACTLOG_STAT_RESIDENT_QUEUING);
 
 		residentInfo->notifyQueue.push_back(notifyInfo);
@@ -772,7 +772,7 @@ void ActionManager::postProcSpawnFailure(
 	  error->code == G_SPAWN_ERROR_NOENT ?
 	    ACTLOG_EXECFAIL_ENTRY_NOT_FOUND : ACTLOG_EXECFAIL_EXEC_FAILURE;
 	actorInfo->logId =
-	  m_ctx->dbAction.createActionLog(actionDef, failureCode);
+	  m_ctx->dbAction.createActionLog(actionDef, eventInfo, failureCode);
 
 	// MLPL log
 	MLPL_ERR(
