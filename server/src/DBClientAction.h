@@ -291,6 +291,17 @@ public:
 	 */
 	bool getLog(ActionLog &actionLog, uint64_t logId);
 
+	/**
+	 * Get the event log.
+	 * @param actionLog
+	 * The returned values are filled in this instance.
+	 * @param serverId A server ID.
+	 * @param eventId  An event ID.
+	 *
+	 * @return true if the log is found. Otherwise false.
+	 */
+	bool getLog(ActionLog &actionLog, uint32_t serverId, uint64_t eventId);
+
 protected:
 	ItemDataNullFlagType getNullFlag(const ActionDef &actionDef,
 	                                 ActionConditionEnableFlag enableFlag);
