@@ -294,6 +294,18 @@ protected:
 	                                 ActionConditionEnableFlag enableFlag);
 	string makeActionDefCondition(const EventInfo &eventInfo);
 
+	/**
+	 * Get the action log.
+	 * @param actionLog
+	 * The returned values are filled in this instance.
+	 * @param condition
+	 * The condtion that are used a string in where section
+	 * in a SQL statement.
+	 *
+	 * @return true if the log is found. Otherwise false.
+	 */
+	bool getLog(ActionLog &actionLog, const string &condition);
+
 private:
 	struct PrivateContext;
 	PrivateContext *m_ctx;

@@ -703,11 +703,46 @@ void DBClientAction::updateLogStatusToStart(uint64_t logId)
 
 bool DBClientAction::getLog(ActionLog &actionLog, uint64_t logId)
 {
+	const ColumnDef *def = COLUMN_DEF_ACTION_LOGS;
+	const char *idColName = def[IDX_ACTION_LOGS_ACTION_LOG_ID].columnName;
+	string condition = StringUtils::sprintf("%s=%"PRIu64, idColName, logId);
+	return getLog(actionLog, condition);
+}
+
+// ---------------------------------------------------------------------------
+// Protected methods
+// ---------------------------------------------------------------------------
+ItemDataNullFlagType DBClientAction::getNullFlag
+  (const ActionDef &actionDef, ActionConditionEnableFlag enableFlag)
+{
+	if (actionDef.condition.isEnable(enableFlag))
+		return ITEM_DATA_NOT_NULL;
+	else
+		return ITEM_DATA_NULL;
+}
+
+string DBClientAction::makeActionDefCondition(const EventInfo &eventInfo)
+{
+	HATOHOL_ASSERT(!m_ctx->actionDefConditionTemplate.empty(),
+	               "ActionDef condition template is empty.");
+	string cond = 
+	  StringUtils::sprintf(m_ctx->actionDefConditionTemplate.c_str(),
+	                       eventInfo.serverId,
+	                       eventInfo.hostId,
+	                       // TODO: hostGroupId
+	                       eventInfo.triggerId,
+	                       eventInfo.status,
+	                       eventInfo.severity,
+	                       eventInfo.severity);
+	return cond;
+}
+
+bool DBClientAction::getLog(ActionLog &actionLog, const string &condition)
+{
 	DBAgentSelectExArg arg;
 	arg.tableName = TABLE_NAME_ACTION_LOGS;
 	const ColumnDef *def = COLUMN_DEF_ACTION_LOGS;
-	const char *idColName = def[IDX_ACTION_LOGS_ACTION_LOG_ID].columnName;
-	arg.condition = StringUtils::sprintf("%s=%"PRIu64, idColName, logId);
+	arg.condition = condition;
 	arg.pushColumn(def[IDX_ACTION_LOGS_ACTION_LOG_ID]);
 	arg.pushColumn(def[IDX_ACTION_LOGS_ACTION_ID]);
 	arg.pushColumn(def[IDX_ACTION_LOGS_STATUS]); 
@@ -724,8 +759,7 @@ bool DBClientAction::getLog(ActionLog &actionLog, uint64_t logId)
 
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
 	size_t numGrpList = grpList.size();
-	HATOHOL_ASSERT(numGrpList <= 1, "numGrpList: %zd, logId: %"PRIu64,
-	               numGrpList, logId);
+
 	// Not found
 	if (numGrpList == 0)
 		return false;
@@ -784,30 +818,3 @@ bool DBClientAction::getLog(ActionLog &actionLog, uint64_t logId)
 	return true;
 }
 
-// ---------------------------------------------------------------------------
-// Protected methods
-// ---------------------------------------------------------------------------
-ItemDataNullFlagType DBClientAction::getNullFlag
-  (const ActionDef &actionDef, ActionConditionEnableFlag enableFlag)
-{
-	if (actionDef.condition.isEnable(enableFlag))
-		return ITEM_DATA_NOT_NULL;
-	else
-		return ITEM_DATA_NULL;
-}
-
-string DBClientAction::makeActionDefCondition(const EventInfo &eventInfo)
-{
-	HATOHOL_ASSERT(!m_ctx->actionDefConditionTemplate.empty(),
-	               "ActionDef condition template is empty.");
-	string cond = 
-	  StringUtils::sprintf(m_ctx->actionDefConditionTemplate.c_str(),
-	                       eventInfo.serverId,
-	                       eventInfo.hostId,
-	                       // TODO: hostGroupId
-	                       eventInfo.triggerId,
-	                       eventInfo.status,
-	                       eventInfo.severity,
-	                       eventInfo.severity);
-	return cond;
-}
