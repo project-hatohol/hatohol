@@ -175,10 +175,17 @@ struct ResidentInfo :
 MutexLock          ResidentInfo::residentMapLock;
 RunningResidentMap ResidentInfo::runningResidentMap;
 
+struct WaitingCommandActionInfo {
+	uint64_t  logId;
+	ActionDef actionDef;
+	EventInfo eventInfo;
+	StringVector argVect;
+};
+
 struct ActionManager::PrivateContext {
 	static ActorCollector collector;
-	static ReadWriteLock commandActionListLock;
-	static deque<uint64_t> runningCommandActionList;
+	static MutexLock waitingCommandActionListLock;
+	static deque<WaitingCommandActionInfo *> waitingCommandActionList;
 
 	// This can only be used on the owner's context (thread),
 	// It's danger to use from a GLIB's event callback context or
@@ -187,7 +194,9 @@ struct ActionManager::PrivateContext {
 };
 
 ActorCollector ActionManager::PrivateContext::collector;
-ReadWriteLock ActionManager::PrivateContext::commandActionListLock;
+MutexLock ActionManager::PrivateContext::waitingCommandActionListLock;
+deque<WaitingCommandActionInfo *>
+  ActionManager::PrivateContext::waitingCommandActionList;
 
 // ---------------------------------------------------------------------------
 // Public methods
@@ -357,8 +366,19 @@ void ActionManager::execCommandAction(const ActionDef &actionDef,
 
 	ConfigManager *confMgr = ConfigManager::getInstance();
 	size_t numActorLimit = confMgr->getMaxNumberOfRunningCommandAction();
-	if (m_ctx->collector->getNumberOfWaitingActors() >= numActorLimit) {
-		queueCommandAction(actionDef, eventInfo, argv);
+	if (m_ctx->collector.getNumberOfWaitingActors() >= numActorLimit) {
+		WaitingCommandActionInfo *waitCmdInfo =
+		   new WaitingCommandActionInfo();
+		waitCmdInfo->logId =
+		   m_ctx->dbAction.createActionLog(actionDef, eventInfo,
+		                                   ACTLOG_EXECFAIL_NONE,
+		                                   ACTLOG_STAT_QUEUING);
+		waitCmdInfo->actionDef = actionDef;
+		waitCmdInfo->eventInfo = eventInfo;
+		waitCmdInfo->argVect   = argVect;
+		m_ctx->waitingCommandActionListLock.lock();
+		m_ctx->waitingCommandActionList.push_back(waitCmdInfo);
+		m_ctx->waitingCommandActionListLock.unlock();
 		return;
 	}
 
@@ -737,6 +757,8 @@ void ActionManager::actorCollectedCb(void *priv)
 		  "ResidentInfo instance will be removed. However, "
 		  "notifyQueue is not empty.\n");
 	}
+
+	// TODO: check waiting command action and execute it if needeed.
 
 	// Pending notifyInfo instancess will be deleted in the destructor.
 	delete residentInfo;
