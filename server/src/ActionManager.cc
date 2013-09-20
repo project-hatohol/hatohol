@@ -810,7 +810,7 @@ void ActionManager::residentActorCollectedCb(void *priv)
 void ActionManager::closeResident(ResidentInfo *residentInfo)
 {
 	// kill hatohol-resident-yard.
-	// After hatohol-resident-yard is killed, actorCollectedCb()
+	// After hatohol-resident-yard is killed, residentActorCollectedCb()
 	// will be called form ActorCollector::checkExitProcess().
 	pid_t pid = residentInfo->pid;
 	if (pid && kill(pid, SIGKILL))
