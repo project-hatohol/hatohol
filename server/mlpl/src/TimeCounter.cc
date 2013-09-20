@@ -43,6 +43,12 @@ TimeCounter::TimeCounter(InitType initType)
 	}
 }
 
+TimeCounter::TimeCounter(const timespec &ts)
+: m_time(0)
+{
+	m_time = ts.tv_sec + ts.tv_nsec/1.0e9;
+}
+
 TimeCounter::~TimeCounter()
 {
 }
