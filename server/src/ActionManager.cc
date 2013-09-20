@@ -229,10 +229,10 @@ void ActionManager::checkEvents(const EventInfoList &eventList)
 		const EventInfo &eventInfo = *it;
 		if (shouldSkipAction(eventInfo))
 			continue;
-		m_ctx->dbAction.getActionList(actionDefList, &*it);
+		m_ctx->dbAction.getActionList(actionDefList, &eventInfo);
 		ActionDefListIterator actIt = actionDefList.begin();
 		for (; actIt != actionDefList.end(); ++actIt)
-			runAction(*actIt, *it);
+			runAction(*actIt, eventInfo);
 	}
 }
 
