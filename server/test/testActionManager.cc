@@ -575,6 +575,40 @@ static void _assertWaitRemoveWatching(ExecCommandContext *ctx)
 }
 #define assertWaitRemoveWatching(CTX) cut_trace(_assertWaitRemoveWatching(CTX))
 
+static void _assertShouldSkipByLog(bool EvenEventNotLog)
+{
+	DBClientAction dbAction;
+
+	// make a test data;
+	TestActionManager actMgr;
+	ActionDef actDef;
+	actDef.id = 102;
+	actDef.type = ACTION_COMMAND;
+	actDef.timeout = 0;
+	DBClientAction::LogEndExecActionArg logArg;
+	logArg.status = ACTLOG_STAT_SUCCEEDED;
+	logArg.exitCode = 0;
+	logArg.failureCode = ACTLOG_EXECFAIL_NONE;
+	for (size_t i = 0; i < NumTestEventInfo; i++) {
+		if (EvenEventNotLog && (i % 2 == 0))
+			continue;
+		const EventInfo &eventInfo = testEventInfo[i];
+		logArg.logId = dbAction.createActionLog(actDef, eventInfo);
+		dbAction.logEndExecAction(logArg);
+	}
+
+	// check
+	for (size_t i = 0; i < NumTestEventInfo; i++) {
+		bool expect = true;
+		if (EvenEventNotLog && (i % 2 == 0))
+			expect = false;
+		const EventInfo &eventInfo = testEventInfo[i];
+		cppcut_assert_equal(expect,
+		                    actMgr.callShouldSkipByLog(eventInfo));
+	}
+}
+#define assertShouldSkipByLog(E) cut_trace(_assertShouldSkipByLog(E))
+
 void setup(void)
 {
 	hatoholInit();
@@ -886,6 +920,11 @@ void test_shouldSkipByLog(void)
 		cppcut_assert_equal(true,
 		                    actMgr.callShouldSkipByLog(eventInfo));
 	}
+}
+
+void test_shouldSkipByLogNotFound(void)
+{
+	assertShouldSkipByLog(true);
 }
 
 } // namespace testActionManager
