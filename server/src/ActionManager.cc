@@ -293,7 +293,7 @@ void ActionManager::runAction(const ActionDef &actionDef,
 
 ActorInfo *ActionManager::spawn(
   const ActionDef &actionDef, const EventInfo &eventInfo, const gchar **argv,
-  uint64_t *logId)
+  uint64_t *logId, SpawnPostproc postproc, void *postprocPriv)
 {
 	const gchar *workingDirectory = NULL;
 	if (!actionDef.workingDir.empty())
@@ -322,6 +322,8 @@ ActorInfo *ActionManager::spawn(
 		postProcSpawnFailure(actionDef, eventInfo, actorInfo,
 		                     logId, error);
 		delete actorInfo;
+		if (postproc)
+			(*postproc)(NULL, actionDef, *logId, postprocPriv);
 		return NULL;
 	}
 
@@ -332,6 +334,10 @@ ActorInfo *ActionManager::spawn(
 	  m_ctx->dbAction.createActionLog(actionDef, eventInfo,
 	                                  ACTLOG_EXECFAIL_NONE, initialStatus);
 	m_ctx->collector.addActor(actorInfo);
+	if (postproc) {
+		(*postproc)(actorInfo, actionDef,
+		            actorInfo->logId, postprocPriv);
+	}
 	m_ctx->collector.unlock();
 	if (logId)
 		*logId = actorInfo->logId;
@@ -380,9 +386,21 @@ void ActionManager::execCommandAction(const ActionDef &actionDef,
 	execCommandActionCore(actionDef, eventInfo, _actorInfo, argVect);
 }
 
+void ActionManager::spawnPostprocCommandAction(ActorInfo *actorInfo,
+                                               const ActionDef &actionDef,
+                                               uint64_t logId, void *priv)
+{
+	ActorInfo *actorInfoCopy = static_cast<ActorInfo *>(priv);
+	copyActorInfoForExecResult(actorInfoCopy, actorInfo, logId);
+	if (!actorInfo || actionDef.timeout <= 0)
+		return;
+	actorInfo->timerTag =
+	   g_timeout_add(actionDef.timeout, commandActionTimeoutCb, actorInfo);
+}
+
 void ActionManager::execCommandActionCore(const ActionDef &actionDef,
                                           const EventInfo &eventInfo,
-                                          ActorInfo *_actorInfo,
+                                          ActorInfo *actorInfoCopy,
                                           const StringVector &argVect)
 {
 	const gchar *argv[argVect.size()+1];
@@ -391,12 +409,9 @@ void ActionManager::execCommandActionCore(const ActionDef &actionDef,
 	argv[argVect.size()] = NULL;
 
 	uint64_t logId;
-	ActorInfo *actorInfo = spawn(actionDef, eventInfo, argv, &logId);
-	copyActorInfoForExecResult(_actorInfo, actorInfo, logId);
-	if (!actorInfo || actionDef.timeout <= 0)
-		return;
-	actorInfo->timerTag =
-	   g_timeout_add(actionDef.timeout, commandActionTimeoutCb, actorInfo);
+	spawn(actionDef, eventInfo, argv, &logId,
+	      spawnPostprocCommandAction, actorInfoCopy);
+	// spawnPostprocCommandAction() is called in the above spawn().
 }
 
 void ActionManager::execResidentAction(const ActionDef &actionDef,
@@ -436,15 +451,13 @@ void ActionManager::execResidentAction(const ActionDef &actionDef,
 
 	// make a new resident instance
 	uint64_t logId;
-	ActorInfo *actorInfo = NULL;
 	ResidentInfo *residentInfo =
-	  launchResidentActionYard(actionDef, eventInfo, &actorInfo, &logId);
+	  launchResidentActionYard(actionDef, eventInfo, _actorInfo, &logId);
 	if (residentInfo) {
 		ResidentInfo::runningResidentMap[actionDef.id] = residentInfo;
 		residentInfo->inRunningResidentMap = true;
 	}
 	ResidentInfo::residentMapLock.unlock();
-	copyActorInfoForExecResult(_actorInfo, actorInfo, logId);
 }
 
 gboolean ActionManager::residentReadErrCb(
@@ -663,9 +676,33 @@ void ActionManager::residentActionTimeoutCb(NamedPipe *namedPipe, gpointer data)
 	obj->closeResident(notifyInfo, ACTLOG_EXECFAIL_KILLED_TIMEOUT);
 }
 
+struct SpawnPostprocResidentActionCtx {
+	// passed to the callback
+	ActorInfo    *actorInfoCopy;
+	ResidentInfo *residentInfo;
+
+	// set in the callback
+	uint64_t logId;
+};
+
+void ActionManager::spawnPostprocResidentAction(ActorInfo *actorInfo,
+                                                const ActionDef &actionDef,
+                                                uint64_t logId, void *priv)
+{
+	SpawnPostprocResidentActionCtx *ctx =
+	  static_cast<SpawnPostprocResidentActionCtx *>(priv);
+	copyActorInfoForExecResult(ctx->actorInfoCopy, actorInfo, logId);
+	if (!actorInfo)
+		return;
+	actorInfo->collectedCb = actorCollectedCb;
+	actorInfo->collectedCbPriv = ctx->residentInfo;
+	ctx->residentInfo->pid = actorInfo->pid;
+	ctx->logId = logId;
+}
+
 ResidentInfo *ActionManager::launchResidentActionYard
   (const ActionDef &actionDef, const EventInfo &eventInfo,
-   ActorInfo **actorInfoPtr, uint64_t *logId)
+   ActorInfo *actorInfoCopy, uint64_t *logId)
 {
 	// make a ResidentInfo instance.
 	ResidentInfo *residentInfo = new ResidentInfo(this, actionDef);
@@ -679,15 +716,18 @@ ResidentInfo *ActionManager::launchResidentActionYard
 	  residentInfo->pipeName.c_str(),
 	  NULL};
 	
-	ActorInfo *actorInfo = spawn(actionDef, eventInfo, argv, logId);
-	*actorInfoPtr = actorInfo;
+	SpawnPostprocResidentActionCtx postprocCtx;
+	postprocCtx.actorInfoCopy = actorInfoCopy;
+	postprocCtx.residentInfo  = residentInfo;
+	ActorInfo *actorInfo = spawn(actionDef, eventInfo, argv, logId,
+	                             spawnPostprocResidentAction,
+	                             &postprocCtx);
+	// spawnPostprocResidentAction() is called in the above spawn() and
+	// the member in postprocArg is set.
 	if (!actorInfo) {
 		delete residentInfo;
 		return NULL;
 	}
-	actorInfo->collectedCb = actorCollectedCb;
-	actorInfo->collectedCbPriv = residentInfo;
-	residentInfo->pid = actorInfo->pid;
 	if (actionDef.timeout > 0) {
 		residentInfo->pipeRd.setTimeout(actionDef.timeout,
 		                                residentActionTimeoutCb,
@@ -700,7 +740,7 @@ ResidentInfo *ActionManager::launchResidentActionYard
 	// We can push the notifyInfo to the queue without locking,
 	// because no other users of this instance at this point.
 	ResidentNotifyInfo *notifyInfo = new ResidentNotifyInfo(residentInfo);
-	notifyInfo->logId = actorInfo->logId;
+	notifyInfo->logId = postprocCtx.logId;
 	notifyInfo->eventInfo = eventInfo;
 	residentInfo->notifyQueue.push_back(notifyInfo);
 

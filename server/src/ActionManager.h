@@ -54,6 +54,28 @@ public:
 	void checkEvents(const EventInfoList &eventList);
 
 protected:
+	/**
+	 * A callback function that is called in spawn() after the child
+	 * process is spawned.
+	 *
+	 * @param actorInfo
+	 * An ActorInfo instance that has information about the spawned process.
+	 * If the spawn fails, this parameter is set to NULL.
+	 *
+	 * @param actionDef
+	 * An ActionDef reference that is passed to spawn().
+	 *
+	 * @param logId
+	 * A log ID concerned with the spawned process.
+	 *
+	 * @param priv
+	 * A pointer that is passed as a 'postprocPriv' on the call of spawn().
+	 *
+	 */
+	typedef void (*SpawnPostproc)(ActorInfo *actorInfo,
+	                              const ActionDef &actionDef,
+	                              uint64_t logId, void *priv);
+
 	static gboolean residentReadErrCb(GIOChannel *source,
 	                                  GIOCondition condition,
 	                                  gpointer data);
@@ -87,11 +109,22 @@ protected:
 	 * @param logId
 	 * If this parameter is not NULL, the action log ID is set.
 	 *
+	 * @param postproc
+	 * A callback function called after the child process is spawned.
+	 * Because this function is executed after ActorCollect is locked,
+	 * 'actorInfo', an argument of postproc, is never deleted in the time.
+	 * Event if the spawn fails, this function is called back with
+	 * actorInfo = NULL.
+	 *
+	 * @param postprocPriv
+	 * A pointer that is passed to postproc.
+	 *
 	 * @return An actorInfo instance if the spawn was successful.
 	 * Otherwise NULL.
 	 */
 	ActorInfo *spawn(const ActionDef &actionDef, const EventInfo &eventInfo,
-	                 const gchar **argv, uint64_t *logId = NULL);
+	                 const gchar **argv, uint64_t *logId,
+	                 SpawnPostproc postproc, void *postprocPriv);
 
 	/**
 	 * execute a command-type action.
@@ -113,7 +146,7 @@ protected:
 
 	void execCommandActionCore(const ActionDef &actionDef,
 	                           const EventInfo &eventInfo,
-	                           ActorInfo *actorInfo,
+	                           ActorInfo *actorInfoCopy,
 	                           const StringVector &argVect);
 
 	/**
@@ -136,7 +169,7 @@ protected:
 
 	ResidentInfo *launchResidentActionYard(const ActionDef &actionDef,
 	                                       const EventInfo &eventInfo,
-	                                       ActorInfo **actorInfoPtr,
+	                                       ActorInfo *actorInfoCopy,
 	                                       uint64_t *logId);
 	/**
 	 * notify hatohol-resident-yard of a event only when it is idle and
@@ -169,6 +202,12 @@ protected:
 	static void copyActorInfoForExecResult(
 	  ActorInfo *actorInfoDest, const ActorInfo *actorInfoSrc,
 	  uint64_t logId);
+	static void spawnPostprocCommandAction(ActorInfo *actorInfo,
+	                                       const ActionDef &actionDef,
+	                                       uint64_t logId, void *priv);
+	static void spawnPostprocResidentAction(ActorInfo *actorInfo,
+	                                        const ActionDef &actionDef,
+	                                        uint64_t logId, void *priv);
 
 	void postProcSpawnFailure(
 	  const ActionDef &actionDef, const EventInfo &eventInfo,
