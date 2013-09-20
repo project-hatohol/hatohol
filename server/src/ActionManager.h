@@ -119,12 +119,11 @@ protected:
 	 * @param postprocPriv
 	 * A pointer that is passed to postproc.
 	 *
-	 * @return An actorInfo instance if the spawn was successful.
-	 * Otherwise NULL.
+	 * @return true if the spawn was successful. Otherwise false.
 	 */
-	ActorInfo *spawn(const ActionDef &actionDef, const EventInfo &eventInfo,
-	                 const gchar **argv, uint64_t *logId,
-	                 SpawnPostproc postproc, void *postprocPriv);
+	bool spawn(const ActionDef &actionDef, const EventInfo &eventInfo,
+	           const gchar **argv, uint64_t *logId,
+	           SpawnPostproc postproc, void *postprocPriv);
 
 	/**
 	 * execute a command-type action.

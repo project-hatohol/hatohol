@@ -291,7 +291,7 @@ void ActionManager::runAction(const ActionDef &actionDef,
 	}
 }
 
-ActorInfo *ActionManager::spawn(
+bool ActionManager::spawn(
   const ActionDef &actionDef, const EventInfo &eventInfo, const gchar **argv,
   uint64_t *logId, SpawnPostproc postproc, void *postprocPriv)
 {
@@ -324,7 +324,7 @@ ActorInfo *ActionManager::spawn(
 		delete actorInfo;
 		if (postproc)
 			(*postproc)(NULL, actionDef, *logId, postprocPriv);
-		return NULL;
+		return false;
 	}
 
 	ActionLogStatus initialStatus =
@@ -341,7 +341,7 @@ ActorInfo *ActionManager::spawn(
 	m_ctx->collector.unlock();
 	if (logId)
 		*logId = actorInfo->logId;
-	return actorInfo;
+	return true;
 }
 
 void ActionManager::execCommandAction(const ActionDef &actionDef,
@@ -719,12 +719,11 @@ ResidentInfo *ActionManager::launchResidentActionYard
 	SpawnPostprocResidentActionCtx postprocCtx;
 	postprocCtx.actorInfoCopy = actorInfoCopy;
 	postprocCtx.residentInfo  = residentInfo;
-	ActorInfo *actorInfo = spawn(actionDef, eventInfo, argv, logId,
-	                             spawnPostprocResidentAction,
-	                             &postprocCtx);
+	bool succeeded = spawn(actionDef, eventInfo, argv, logId,
+	                       spawnPostprocResidentAction, &postprocCtx);
 	// spawnPostprocResidentAction() is called in the above spawn() and
 	// the member in postprocArg is set.
-	if (!actorInfo) {
+	if (!succeeded) {
 		delete residentInfo;
 		return NULL;
 	}
