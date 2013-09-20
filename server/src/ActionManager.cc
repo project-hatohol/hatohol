@@ -393,11 +393,10 @@ void ActionManager::execCommandActionCore(const ActionDef &actionDef,
 	uint64_t logId;
 	ActorInfo *actorInfo = spawn(actionDef, eventInfo, argv, &logId);
 	copyActorInfoForExecResult(_actorInfo, actorInfo, logId);
-	if (actorInfo && actionDef.timeout > 0) {
-		actorInfo->timerTag =
-		  g_timeout_add(actionDef.timeout, commandActionTimeoutCb,
-		                actorInfo);
-	}
+	if (!actorInfo || actionDef.timeout <= 0)
+		return;
+	actorInfo->timerTag =
+	   g_timeout_add(actionDef.timeout, commandActionTimeoutCb, actorInfo);
 }
 
 void ActionManager::execResidentAction(const ActionDef &actionDef,
