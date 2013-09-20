@@ -177,6 +177,8 @@ RunningResidentMap ResidentInfo::runningResidentMap;
 
 struct ActionManager::PrivateContext {
 	static ActorCollector collector;
+	static ReadWriteLock commandActionListLock;
+	static deque<uint64_t> runningCommandActionList;
 
 	// This can only be used on the owner's context (thread),
 	// It's danger to use from a GLIB's event callback context or
@@ -185,6 +187,7 @@ struct ActionManager::PrivateContext {
 };
 
 ActorCollector ActionManager::PrivateContext::collector;
+ReadWriteLock ActionManager::PrivateContext::commandActionListLock;
 
 // ---------------------------------------------------------------------------
 // Public methods
@@ -351,6 +354,13 @@ void ActionManager::execCommandAction(const ActionDef &actionDef,
 	for (size_t i = 0; i < argVect.size(); i++)
 		argv[i] = argVect[i].c_str();
 	argv[argVect.size()] = NULL;
+
+	ConfigManager *confMgr = ConfigManager::getInstance();
+	size_t numActorLimit = confMgr->getMaxNumberOfRunningCommandAction();
+	if (m_ctx->collector->getNumberOfWaitingActors() >= numActorLimit) {
+		queueCommandAction(actionDef, eventInfo, argv);
+		return;
+	}
 
 	uint64_t logId;
 	ActorInfo *actorInfo = spawn(actionDef, eventInfo, argv, &logId);

@@ -49,6 +49,8 @@ public:
 	 */
 	int getAllowedTimeOfActionForOldEvents(void);
 
+	int getMaxNumberOfRunningCommandAction(void);
+
 private:
 	struct PrivateContext;
 	PrivateContext *m_ctx;

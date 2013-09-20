@@ -31,6 +31,8 @@ int ConfigManager::ALLOW_ACTION_FOR_ALL_OLD_EVENTS;
 static int DEFAULT_ALLOWED_TIME_OF_ACTION_FOR_OLD_EVENTS
   = 60 * 60 * 24; // 24 hours
 
+static int DEFAULT_MAX_NUM_RUNNING_COMMAND_ACTION = 10;
+
 struct ConfigManager::PrivateContext {
 	static MutexLock      mutex;
 	static ConfigManager *instance;
@@ -93,6 +95,11 @@ size_t ConfigManager::getNumberOfPreservedReplicaGeneration(void) const
 int ConfigManager::getAllowedTimeOfActionForOldEvents(void)
 {
 	return DEFAULT_ALLOWED_TIME_OF_ACTION_FOR_OLD_EVENTS;
+}
+
+int ConfigManager::getMaxNumberOfRunningCommandAction(void)
+{
+	return DEFAULT_MAX_NUM_RUNNING_COMMAND_ACTION;
 }
 
 // ---------------------------------------------------------------------------
