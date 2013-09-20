@@ -52,9 +52,9 @@ public:
 		execResidentAction(actionDef, eventInfo, actorInfo);
 	}
 
-	bool callShouldSkipAction(const EventInfo &eventInfo)
+	bool callShouldSkipByTime(const EventInfo &eventInfo)
 	{
-		return shouldSkipAction(eventInfo);
+		return shouldSkipByTime(eventInfo);
 	}
 
 	bool callShouldSkipByLog(const EventInfo &eventInfo)
@@ -865,7 +865,7 @@ void test_execResidentActionCheckArg(void)
 	assertWaitEventBody(ctx);
 }
 
-void test_shouldSkipAction(void)
+void test_shouldSkipByTime(void)
 {
 	TestActionManager actMgr;
 	ConfigManager *confMgr = ConfigManager::getInstance();
@@ -891,7 +891,7 @@ void test_shouldSkipAction(void)
 	EventInfoListIterator it = eventInfoList.begin();
 	bool evenIdx = true;
 	for (; it != eventInfoList.end(); ++it, evenIdx = !evenIdx)
-		cppcut_assert_equal(evenIdx, actMgr.callShouldSkipAction(*it));
+		cppcut_assert_equal(evenIdx, actMgr.callShouldSkipByTime(*it));
 }
 
 void test_shouldSkipByLog(void)

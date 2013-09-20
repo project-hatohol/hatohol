@@ -227,7 +227,7 @@ void ActionManager::checkEvents(const EventInfoList &eventList)
 	for (; it != eventList.end(); ++it) {
 		ActionDefList actionDefList;
 		const EventInfo &eventInfo = *it;
-		if (shouldSkipAction(eventInfo))
+		if (shouldSkipByTime(eventInfo))
 			continue;
 		if (shouldSkipByLog(eventInfo))
 			continue;
@@ -241,7 +241,7 @@ void ActionManager::checkEvents(const EventInfoList &eventList)
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
-bool ActionManager::shouldSkipAction(const EventInfo &eventInfo)
+bool ActionManager::shouldSkipByTime(const EventInfo &eventInfo)
 {
 	ConfigManager *configMgr = ConfigManager::getInstance();
 	int allowedOldTime = configMgr->getAllowedTimeOfActionForOldEvents();
