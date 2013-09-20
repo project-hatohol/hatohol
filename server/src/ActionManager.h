@@ -106,9 +106,6 @@ protected:
 	 * An argument array for the command to be spawned. The first element
 	 * is the command path itself. The last element should be NULL.
 	 *
-	 * @param logId
-	 * If this parameter is not NULL, the action log ID is set.
-	 *
 	 * @param postproc
 	 * A callback function called after the child process is spawned.
 	 * Because this function is executed after ActorCollect is locked,
@@ -122,7 +119,7 @@ protected:
 	 * @return true if the spawn was successful. Otherwise false.
 	 */
 	bool spawn(const ActionDef &actionDef, const EventInfo &eventInfo,
-	           const gchar **argv, uint64_t *logId,
+	           const gchar **argv,
 	           SpawnPostproc postproc, void *postprocPriv);
 
 	/**
@@ -168,8 +165,7 @@ protected:
 
 	ResidentInfo *launchResidentActionYard(const ActionDef &actionDef,
 	                                       const EventInfo &eventInfo,
-	                                       ActorInfo *actorInfoCopy,
-	                                       uint64_t *logId);
+	                                       ActorInfo *actorInfoCopy);
 	/**
 	 * notify hatohol-resident-yard of a event only when it is idle and
 	 * there is at least one element in residentInfo->notifyQueue.

@@ -293,7 +293,7 @@ void ActionManager::runAction(const ActionDef &actionDef,
 
 bool ActionManager::spawn(
   const ActionDef &actionDef, const EventInfo &eventInfo, const gchar **argv,
-  uint64_t *logId, SpawnPostproc postproc, void *postprocPriv)
+  SpawnPostproc postproc, void *postprocPriv)
 {
 	const gchar *workingDirectory = NULL;
 	if (!actionDef.workingDir.empty())
@@ -319,11 +319,12 @@ bool ActionManager::spawn(
 	                flags, childSetup, userData, &actorInfo->pid, &error);
 	if (!succeeded) {
 		m_ctx->collector.unlock();
+		uint64_t logId;
 		postProcSpawnFailure(actionDef, eventInfo, actorInfo,
-		                     logId, error);
+		                     &logId, error);
 		delete actorInfo;
 		if (postproc)
-			(*postproc)(NULL, actionDef, *logId, postprocPriv);
+			(*postproc)(NULL, actionDef, logId, postprocPriv);
 		return false;
 	}
 
@@ -339,8 +340,6 @@ bool ActionManager::spawn(
 		            actorInfo->logId, postprocPriv);
 	}
 	m_ctx->collector.unlock();
-	if (logId)
-		*logId = actorInfo->logId;
 	return true;
 }
 
@@ -408,8 +407,7 @@ void ActionManager::execCommandActionCore(const ActionDef &actionDef,
 		argv[i] = argVect[i].c_str();
 	argv[argVect.size()] = NULL;
 
-	uint64_t logId;
-	spawn(actionDef, eventInfo, argv, &logId,
+	spawn(actionDef, eventInfo, argv,
 	      spawnPostprocCommandAction, actorInfoCopy);
 	// spawnPostprocCommandAction() is called in the above spawn().
 }
@@ -450,9 +448,8 @@ void ActionManager::execResidentAction(const ActionDef &actionDef,
 	}
 
 	// make a new resident instance
-	uint64_t logId;
 	ResidentInfo *residentInfo =
-	  launchResidentActionYard(actionDef, eventInfo, _actorInfo, &logId);
+	  launchResidentActionYard(actionDef, eventInfo, _actorInfo);
 	if (residentInfo) {
 		ResidentInfo::runningResidentMap[actionDef.id] = residentInfo;
 		residentInfo->inRunningResidentMap = true;
@@ -702,7 +699,7 @@ void ActionManager::spawnPostprocResidentAction(ActorInfo *actorInfo,
 
 ResidentInfo *ActionManager::launchResidentActionYard
   (const ActionDef &actionDef, const EventInfo &eventInfo,
-   ActorInfo *actorInfoCopy, uint64_t *logId)
+   ActorInfo *actorInfoCopy)
 {
 	// make a ResidentInfo instance.
 	ResidentInfo *residentInfo = new ResidentInfo(this, actionDef);
@@ -719,7 +716,7 @@ ResidentInfo *ActionManager::launchResidentActionYard
 	SpawnPostprocResidentActionCtx postprocCtx;
 	postprocCtx.actorInfoCopy = actorInfoCopy;
 	postprocCtx.residentInfo  = residentInfo;
-	bool succeeded = spawn(actionDef, eventInfo, argv, logId,
+	bool succeeded = spawn(actionDef, eventInfo, argv,
 	                       spawnPostprocResidentAction, &postprocCtx);
 	// spawnPostprocResidentAction() is called in the above spawn() and
 	// the member in postprocArg is set.
