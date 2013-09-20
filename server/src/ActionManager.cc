@@ -359,11 +359,6 @@ void ActionManager::execCommandAction(const ActionDef &actionDef,
 	argVect.push_back(StringUtils::sprintf("%d", eventInfo.status));
 	argVect.push_back(StringUtils::sprintf("%d", eventInfo.severity));
 
-	const gchar *argv[argVect.size()+1];
-	for (size_t i = 0; i < argVect.size(); i++)
-		argv[i] = argVect[i].c_str();
-	argv[argVect.size()] = NULL;
-
 	ConfigManager *confMgr = ConfigManager::getInstance();
 	size_t numActorLimit = confMgr->getMaxNumberOfRunningCommandAction();
 	if (m_ctx->collector.getNumberOfWaitingActors() >= numActorLimit) {
@@ -381,6 +376,19 @@ void ActionManager::execCommandAction(const ActionDef &actionDef,
 		m_ctx->waitingCommandActionListLock.unlock();
 		return;
 	}
+
+	execCommandActionCore(actionDef, eventInfo, _actorInfo, argVect);
+}
+
+void ActionManager::execCommandActionCore(const ActionDef &actionDef,
+                                          const EventInfo &eventInfo,
+                                          ActorInfo *_actorInfo,
+                                          const StringVector &argVect)
+{
+	const gchar *argv[argVect.size()+1];
+	for (size_t i = 0; i < argVect.size(); i++)
+		argv[i] = argVect[i].c_str();
+	argv[argVect.size()] = NULL;
 
 	uint64_t logId;
 	ActorInfo *actorInfo = spawn(actionDef, eventInfo, argv, &logId);

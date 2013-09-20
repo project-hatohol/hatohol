@@ -111,6 +111,11 @@ protected:
 	                       const EventInfo &eventInfo,
 	                       ActorInfo *actorInfo = NULL);
 
+	void execCommandActionCore(const ActionDef &actionDef,
+	                           const EventInfo &eventInfo,
+	                           ActorInfo *actorInfo,
+	                           const StringVector &argVect);
+
 	/**
 	 * execute a resident-type action.
 	 *
