@@ -190,7 +190,7 @@ protected:
 	void notifyEvent(ResidentInfo *residentInfo,
 	                 ResidentNotifyInfo *notifyInfo);
 
-	static void actorCollectedCb(void *priv);
+	static void residentActorCollectedCb(void *priv);
 	void closeResident(ResidentInfo *residentInfo);
 	void closeResident(ResidentNotifyInfo *notifyInfo,
 	                   ActionLogExecFailureCode failureCode);

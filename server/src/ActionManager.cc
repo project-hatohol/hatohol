@@ -691,7 +691,7 @@ void ActionManager::spawnPostprocResidentAction(ActorInfo *actorInfo,
 	copyActorInfoForExecResult(ctx->actorInfoCopy, actorInfo, logId);
 	if (!actorInfo)
 		return;
-	actorInfo->collectedCb = actorCollectedCb;
+	actorInfo->collectedCb = residentActorCollectedCb;
 	actorInfo->collectedCbPriv = ctx->residentInfo;
 	ctx->residentInfo->pid = actorInfo->pid;
 	ctx->logId = logId;
@@ -787,7 +787,7 @@ void ActionManager::notifyEvent(ResidentInfo *residentInfo,
 	dbAction.updateLogStatusToStart(notifyInfo->logId);
 }
 
-void ActionManager::actorCollectedCb(void *priv)
+void ActionManager::residentActorCollectedCb(void *priv)
 {
 	ResidentInfo *residentInfo = static_cast<ResidentInfo *>(priv);
 	residentInfo->queueLock.lock();
