@@ -19,6 +19,7 @@
 
 #include <cppcutter.h>
 #include <sys/types.h> 
+#include <sys/time.h>
 #include <stdarg.h>
 #include <unistd.h>
 #include <errno.h>
@@ -32,6 +33,7 @@
 #include "NamedPipe.h"
 #include "residentTest.h"
 #include "DBClientTest.h"
+#include "ConfigManager.h"
 
 class TestActionManager : public ActionManager
 {
@@ -48,6 +50,11 @@ public:
 	                            ActorInfo *actorInfo = NULL)
 	{
 		execResidentAction(actionDef, eventInfo, actorInfo);
+	}
+
+	bool callShouldSkipAction(const EventInfo &eventInfo)
+	{
+		return shouldSkipAction(eventInfo);
 	}
 };
 
@@ -817,6 +824,35 @@ void test_execResidentActionCheckArg(void)
 	  statusChangedCbForArgCheck);
 
 	assertWaitEventBody(ctx);
+}
+
+void test_shouldSkipAction(void)
+{
+	TestActionManager actMgr;
+	ConfigManager *confMgr = ConfigManager::getInstance();
+	EventInfoList eventInfoList;
+	static const size_t numTestEvt = 4;
+	static const size_t timeOffsetUnitSec = 100;
+	struct timeval tv;
+	cppcut_assert_equal(0, gettimeofday(&tv, NULL));
+	tv.tv_sec -= confMgr->getAllowedTimeOfActionForOldEvents();
+
+	for (size_t i = 0; i < numTestEvt; i++) {
+		// Even Index: past, Odd index: future.
+		EventInfo evtInfo = testEventInfo[i % NumTestEventInfo];
+		evtInfo.time.tv_sec = tv.tv_sec;
+		if (i % 2 == 0)
+			evtInfo.time.tv_sec -= timeOffsetUnitSec * i;
+		else
+			evtInfo.time.tv_sec += timeOffsetUnitSec * i;
+		eventInfoList.push_back(evtInfo);
+	}
+
+	// check
+	EventInfoListIterator it = eventInfoList.begin();
+	bool evenIdx = true;
+	for (; it != eventInfoList.end(); ++it, evenIdx = !evenIdx)
+		cppcut_assert_equal(evenIdx, actMgr.callShouldSkipAction(*it));
 }
 
 } // namespace testActionManager

@@ -71,6 +71,7 @@ protected:
 	static gboolean commandActionTimeoutCb(gpointer data);
 	static void residentActionTimeoutCb(NamedPipe *namedPipe,
 	                                    gpointer data);
+	bool shouldSkipAction(const EventInfo &eventInfo);
 	void runAction(const ActionDef &actionDef, const EventInfo &eventInfo);
 
 	/**

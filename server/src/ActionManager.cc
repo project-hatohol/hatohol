@@ -29,6 +29,8 @@
 #include "ActionExecArgMaker.h"
 #include "MutexLock.h"
 #include "LabelUtils.h"
+#include "ConfigManager.h"
+#include "TimeCounter.h"
 
 using namespace std;
 using namespace mlpl;
@@ -224,6 +226,9 @@ void ActionManager::checkEvents(const EventInfoList &eventList)
 	EventInfoListConstIterator it = eventList.begin();
 	for (; it != eventList.end(); ++it) {
 		ActionDefList actionDefList;
+		const EventInfo &eventInfo = *it;
+		if (shouldSkipAction(eventInfo))
+			continue;
 		m_ctx->dbAction.getActionList(actionDefList, &*it);
 		ActionDefListIterator actIt = actionDefList.begin();
 		for (; actIt != actionDefList.end(); ++actIt)
@@ -234,6 +239,19 @@ void ActionManager::checkEvents(const EventInfoList &eventList)
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
+bool ActionManager::shouldSkipAction(const EventInfo &eventInfo)
+{
+	ConfigManager *configMgr = ConfigManager::getInstance();
+	int allowedOldTime = configMgr->getAllowedTimeOfActionForOldEvents();
+	if (allowedOldTime == ConfigManager::ALLOW_ACTION_FOR_ALL_OLD_EVENTS)
+		return false;
+
+	TimeCounter eventTimeCounter(eventInfo.time);
+	TimeCounter passedTime(TimeCounter::INIT_CURR_TIME);
+	passedTime -= eventTimeCounter;
+	return passedTime.getAsSec() > allowedOldTime;
+}
+
 void ActionManager::runAction(const ActionDef &actionDef,
                               const EventInfo &_eventInfo)
 {
