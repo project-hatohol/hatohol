@@ -282,3 +282,11 @@ void ActorCollector::setDontLog(pid_t pid)
 	if (!found)
 		MLPL_WARN("Not found pid: %d for setDontLog().", pid);
 }
+
+size_t ActorCollector::getNumberOfWaitingActors(void)
+{
+	lock();
+	size_t num = PrivateContext::waitChildSet.size();
+	unlock();
+	return num;
+}

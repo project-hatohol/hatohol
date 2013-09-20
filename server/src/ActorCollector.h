@@ -70,6 +70,8 @@ public:
 
 	static void setDontLog(pid_t pid);
 
+	static size_t getNumberOfWaitingActors(void);
+
 protected:
 	static void registerSIGCHLD(void);
 	static void setupHandlerForSIGCHLD(void);
