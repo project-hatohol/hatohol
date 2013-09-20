@@ -35,6 +35,9 @@ var HatoholDialog = function(id, dialogTitle, buttons) {
     width:  "95%",
     modal: true,
     buttons: buttons,
+    open: function(event, ui){
+      $(".ui-dialog-titlebar-close").hide();
+    }
   });
 
   $(self.dialogId).dialog("open");
