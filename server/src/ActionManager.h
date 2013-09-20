@@ -72,6 +72,7 @@ protected:
 	static void residentActionTimeoutCb(NamedPipe *namedPipe,
 	                                    gpointer data);
 	bool shouldSkipAction(const EventInfo &eventInfo);
+	bool shouldSkipByLog(const EventInfo &eventInfo);
 	void runAction(const ActionDef &actionDef, const EventInfo &eventInfo);
 
 	/**

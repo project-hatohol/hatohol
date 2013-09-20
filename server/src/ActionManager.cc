@@ -229,6 +229,8 @@ void ActionManager::checkEvents(const EventInfoList &eventList)
 		const EventInfo &eventInfo = *it;
 		if (shouldSkipAction(eventInfo))
 			continue;
+		if (shouldSkipByLog(eventInfo))
+			continue;
 		m_ctx->dbAction.getActionList(actionDefList, &eventInfo);
 		ActionDefListIterator actIt = actionDefList.begin();
 		for (; actIt != actionDefList.end(); ++actIt)
@@ -250,6 +252,16 @@ bool ActionManager::shouldSkipAction(const EventInfo &eventInfo)
 	TimeCounter passedTime(TimeCounter::INIT_CURR_TIME);
 	passedTime -= eventTimeCounter;
 	return passedTime.getAsSec() > allowedOldTime;
+}
+
+bool ActionManager::shouldSkipByLog(const EventInfo &eventInfo)
+{
+	ActionLog actionLog;
+	bool found;
+	found = m_ctx->dbAction.getLog(actionLog,
+	                               eventInfo.serverId, eventInfo.id);
+	// TODO: We shouldn't skip if status is ACTLOG_STAT_QUEUING.
+	return found;
 }
 
 void ActionManager::runAction(const ActionDef &actionDef,
