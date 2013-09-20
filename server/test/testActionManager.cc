@@ -896,30 +896,7 @@ void test_shouldSkipAction(void)
 
 void test_shouldSkipByLog(void)
 {
-	DBClientAction dbAction;
-
-	// make a test data;
-	TestActionManager actMgr;
-	ActionDef actDef;
-	actDef.id = 102;
-	actDef.type = ACTION_COMMAND;
-	actDef.timeout = 0;
-	DBClientAction::LogEndExecActionArg logArg;
-	logArg.status = ACTLOG_STAT_SUCCEEDED;
-	logArg.exitCode = 0;
-	logArg.failureCode = ACTLOG_EXECFAIL_NONE;
-	for (size_t i = 0; i < NumTestEventInfo; i++) {
-		const EventInfo &eventInfo = testEventInfo[i];
-		logArg.logId = dbAction.createActionLog(actDef, eventInfo);
-		dbAction.logEndExecAction(logArg);
-	}
-
-	// check
-	for (size_t i = 0; i < NumTestEventInfo; i++) {
-		const EventInfo &eventInfo = testEventInfo[i];
-		cppcut_assert_equal(true,
-		                    actMgr.callShouldSkipByLog(eventInfo));
-	}
+	assertShouldSkipByLog(false);
 }
 
 void test_shouldSkipByLogNotFound(void)
