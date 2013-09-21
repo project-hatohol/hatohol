@@ -391,6 +391,7 @@ void ActionManager::spawnPostprocCommandAction(ActorInfo *actorInfo,
 	copyActorInfoForExecResult(actorInfoCopy, actorInfo, logId);
 	if (!actorInfo || actionDef.timeout <= 0)
 		return;
+	actorInfo->collectedCb = commandActorCollectedCb;
 	actorInfo->timerTag =
 	   g_timeout_add(actionDef.timeout, commandActionTimeoutCb, actorInfo);
 }
@@ -786,6 +787,39 @@ void ActionManager::notifyEvent(ResidentInfo *residentInfo,
 	dbAction.updateLogStatusToStart(notifyInfo->logId);
 }
 
+void ActionManager::commandActorCollectedCb(void *notUsed)
+{
+	PrivateContext::waitingCommandActionListLock.lock();
+	if (PrivateContext::waitingCommandActionList.empty()) {
+		PrivateContext::waitingCommandActionListLock.unlock();
+		return;
+	}
+
+	// TODO: Fix the way to get the number of running actions
+	//       for the followwing reasons.
+	// (1) If other thread executes execCommandAction() at the same time,
+	//     the number of running actors may exceed the limit.
+	// (2) Using confMgr->getMaxNumberOfRunningCommandAction() is not
+	//     correct, because it includes the number of residentActions.
+	ConfigManager *confMgr = ConfigManager::getInstance();
+	size_t numActorLimit = confMgr->getMaxNumberOfRunningCommandAction();
+	if (ActorCollector::getNumberOfWaitingActors() >= numActorLimit) {
+		PrivateContext::waitingCommandActionListLock.unlock();
+		return;
+	}
+
+	// exectute a command
+	WaitingCommandActionInfo *actInfo =
+	  PrivateContext::waitingCommandActionList.front();
+	PrivateContext::waitingCommandActionList.pop_front();
+	PrivateContext::waitingCommandActionListLock.unlock();
+
+	DBClientAction dbAction;
+	execCommandActionCore(actInfo->actionDef, actInfo->eventInfo,
+	                      dbAction, NULL, actInfo->argVect);
+	delete actInfo;
+}
+
 void ActionManager::residentActorCollectedCb(void *priv)
 {
 	ResidentInfo *residentInfo = static_cast<ResidentInfo *>(priv);
@@ -799,8 +833,6 @@ void ActionManager::residentActorCollectedCb(void *priv)
 		  "ResidentInfo instance will be removed. However, "
 		  "notifyQueue is not empty.\n");
 	}
-
-	// TODO: check waiting command action and execute it if needeed.
 
 	// Pending notifyInfo instancess will be deleted in the destructor.
 	delete residentInfo;
