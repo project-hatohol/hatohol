@@ -122,9 +122,10 @@ protected:
 	 *
 	 * @return true if the spawn was successful. Otherwise false.
 	 */
-	bool spawn(const ActionDef &actionDef, const EventInfo &eventInfo,
-	           DBClientAction &dbAction, const gchar **argv,
-	           SpawnPostproc postproc, void *postprocPriv);
+	static bool spawn(const ActionDef &actionDef,
+	                  const EventInfo &eventInfo,
+	                  DBClientAction &dbAction, const gchar **argv,
+	                  SpawnPostproc postproc, void *postprocPriv);
 
 	/**
 	 * execute a command-type action.
@@ -148,11 +149,11 @@ protected:
 	                       DBClientAction &dbAction,
 	                       ActorInfo *actorInfo = NULL);
 
-	void execCommandActionCore(const ActionDef &actionDef,
-	                           const EventInfo &eventInfo,
-	                           DBClientAction &dbAction,
-	                           ActorInfo *actorInfoCopy,
-	                           const StringVector &argVect);
+	static void execCommandActionCore(const ActionDef &actionDef,
+	                                  const EventInfo &eventInfo,
+	                                  DBClientAction &dbAction,
+	                                  ActorInfo *actorInfoCopy,
+	                                  const StringVector &argVect);
 
 	/**
 	 * execute a resident-type action.
@@ -218,7 +219,7 @@ protected:
 	                                        const ActionDef &actionDef,
 	                                        uint64_t logId, void *priv);
 
-	void postProcSpawnFailure(
+	static void postProcSpawnFailure(
 	  const ActionDef &actionDef, const EventInfo &eventInfo,
 	  DBClientAction &dbAction, ActorInfo *actorInfo,
 	  uint64_t *logId, GError *error);
