@@ -184,12 +184,60 @@ struct WaitingCommandActionInfo {
 
 struct ActionManager::PrivateContext {
 	static MutexLock waitingCommandActionListLock;
+	static MutexLock lock;
 	static deque<WaitingCommandActionInfo *> waitingCommandActionList;
+	static set<size_t> runningActionSet;
+
+	// methods
+	static bool registerRunningAction(size_t &reservationId)
+	{
+		lock.lock();
+
+		// check the number of running actions
+		ConfigManager *confMgr = ConfigManager::getInstance();
+		size_t numActorLimit =
+		  confMgr->getMaxNumberOfRunningCommandAction();
+		if (runningActionSet.size() >= numActorLimit) {
+			lock.unlock();
+			return false;
+		}
+
+		// search for the available reservation ID and insert it.
+		if (runningActionSet.empty()) {
+			reservationId = 0;
+		} else {
+			size_t lastId = *runningActionSet.rbegin();
+			reservationId = lastId + 1;
+			while (!isAvailable(reservationId))
+				reservationId++;
+		}
+		runningActionSet.insert(reservationId);
+		lock.unlock();
+		return true;
+	}
+
+	static void unregisterRunningAction(size_t reservationId)
+	{
+		lock.lock();
+		set<size_t>::iterator it = runningActionSet.find(reservationId);
+		HATOHOL_ASSERT(it != runningActionSet.end(),
+		               "Not found reservationID: %zd\n", reservationId);
+		runningActionSet.erase(it);
+		lock.unlock();
+	}
+
+protected:
+	static bool isAvailable(size_t id)
+	{
+		return (runningActionSet.find(id) == runningActionSet.end());
+	}
 };
 
 MutexLock ActionManager::PrivateContext::waitingCommandActionListLock;
+MutexLock ActionManager::PrivateContext::lock;
 deque<WaitingCommandActionInfo *>
   ActionManager::PrivateContext::waitingCommandActionList;
+set<size_t> ActionManager::PrivateContext::runningActionSet;
 
 // ---------------------------------------------------------------------------
 // Public methods
