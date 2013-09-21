@@ -183,12 +183,10 @@ struct WaitingCommandActionInfo {
 };
 
 struct ActionManager::PrivateContext {
-	static ActorCollector collector;
 	static MutexLock waitingCommandActionListLock;
 	static deque<WaitingCommandActionInfo *> waitingCommandActionList;
 };
 
-ActorCollector ActionManager::PrivateContext::collector;
 MutexLock ActionManager::PrivateContext::waitingCommandActionListLock;
 deque<WaitingCommandActionInfo *>
   ActionManager::PrivateContext::waitingCommandActionList;
@@ -308,15 +306,15 @@ bool ActionManager::spawn(
 
 	// We take the lock here to avoid the child spanwed below from
 	// not being collected. If the child immediately exits
-	// before the following 'm_ctx->collector.addActor(&childPid)' is
+	// before the following 'ActorCollector::addActor(&childPid)' is
 	// called, ActorCollector::checkExitProcess() possibly ignores it,
 	// because the pid of the child isn't in the wait child set.
-	m_ctx->collector.lock();
+	ActorCollector::lock();
 	gboolean succeeded =
 	  g_spawn_async(workingDirectory, (gchar **)argv, NULL,
 	                flags, childSetup, userData, &actorInfo->pid, &error);
 	if (!succeeded) {
-		m_ctx->collector.unlock();
+		ActorCollector::unlock();
 		uint64_t logId;
 		postProcSpawnFailure(actionDef, eventInfo, dbAction, actorInfo,
 		                     &logId, error);
@@ -332,12 +330,12 @@ bool ActionManager::spawn(
 	actorInfo->logId =
 	  dbAction.createActionLog(actionDef, eventInfo,
 	                           ACTLOG_EXECFAIL_NONE, initialStatus);
-	m_ctx->collector.addActor(actorInfo);
+	ActorCollector::addActor(actorInfo);
 	if (postproc) {
 		(*postproc)(actorInfo, actionDef,
 		            actorInfo->logId, postprocPriv);
 	}
-	m_ctx->collector.unlock();
+	ActorCollector::unlock();
 	return true;
 }
 
@@ -365,7 +363,7 @@ void ActionManager::execCommandAction(const ActionDef &actionDef,
 
 	ConfigManager *confMgr = ConfigManager::getInstance();
 	size_t numActorLimit = confMgr->getMaxNumberOfRunningCommandAction();
-	if (m_ctx->collector.getNumberOfWaitingActors() >= numActorLimit) {
+	if (ActorCollector::getNumberOfWaitingActors() >= numActorLimit) {
 		WaitingCommandActionInfo *waitCmdInfo =
 		   new WaitingCommandActionInfo();
 		waitCmdInfo->logId =
