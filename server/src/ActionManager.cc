@@ -184,12 +184,14 @@ struct WaitingCommandActionInfo {
 
 struct ActionManager::PrivateContext {
 	static MutexLock waitingCommandActionListLock;
-	static MutexLock lock;
 	static deque<WaitingCommandActionInfo *> waitingCommandActionList;
-	static set<size_t> runningActionSet;
+
+	static MutexLock     lock;
+	static set<uint64_t> runningActionSet;  // key is logId
+	static set<size_t>   reservedActionSet;
 
 	// methods
-	static bool registerRunningAction(size_t &reservationId)
+	static bool reserveRunningAction(size_t &reservationId)
 	{
 		lock.lock();
 
@@ -197,31 +199,54 @@ struct ActionManager::PrivateContext {
 		ConfigManager *confMgr = ConfigManager::getInstance();
 		size_t numActorLimit =
 		  confMgr->getMaxNumberOfRunningCommandAction();
-		if (runningActionSet.size() >= numActorLimit) {
+		size_t numTotalActions = 
+		  runningActionSet.size() + reservedActionSet.size();
+		if (numTotalActions >= numActorLimit) {
 			lock.unlock();
 			return false;
 		}
 
 		// search for the available reservation ID and insert it.
-		if (runningActionSet.empty()) {
+		if (reservedActionSet.empty()) {
 			reservationId = 0;
 		} else {
-			size_t lastId = *runningActionSet.rbegin();
+			size_t lastId = *reservedActionSet.rbegin();
 			reservationId = lastId + 1;
 			while (!isAvailable(reservationId))
 				reservationId++;
 		}
-		runningActionSet.insert(reservationId);
+		reservedActionSet.insert(reservationId);
 		lock.unlock();
 		return true;
 	}
 
-	static void unregisterRunningAction(size_t reservationId)
+	static void cancelRunningAction(const size_t reservationId)
 	{
 		lock.lock();
-		set<size_t>::iterator it = runningActionSet.find(reservationId);
+		removeReservationId(reservationId);
+		lock.unlock();
+	}
+
+	static void resisterRunningAction(const size_t reservationId,
+	                                  const uint64_t logId)
+	{
+		lock.lock();
+		removeReservationId(reservationId);
+
+		// insert the log ID
+		pair<set<uint64_t>::iterator, bool> result =
+		   runningActionSet.insert(logId);
+		HATOHOL_ASSERT(result.second,
+		               "Failed to insert: logID: %"PRIu64"\n", logId);
+		lock.unlock();
+	}
+
+	static void unregisterRunningAction(const uint64_t logId)
+	{
+		lock.lock();
+		set<uint64_t>::iterator it = runningActionSet.find(logId);
 		HATOHOL_ASSERT(it != runningActionSet.end(),
-		               "Not found reservationID: %zd\n", reservationId);
+		               "Not found log ID: %"PRIu64"\n", logId);
 		runningActionSet.erase(it);
 		lock.unlock();
 	}
@@ -231,12 +256,22 @@ protected:
 	{
 		return (runningActionSet.find(id) == runningActionSet.end());
 	}
+
+	static void removeReservationId(const size_t reservationId)
+	{
+		set<size_t>::iterator it =
+		   reservedActionSet.find(reservationId);
+		HATOHOL_ASSERT(it != reservedActionSet.end(),
+		               "Not found reservationID: %zd\n", reservationId);
+		reservedActionSet.erase(it);
+	}
 };
 
 MutexLock ActionManager::PrivateContext::waitingCommandActionListLock;
-MutexLock ActionManager::PrivateContext::lock;
 deque<WaitingCommandActionInfo *>
   ActionManager::PrivateContext::waitingCommandActionList;
+
+MutexLock ActionManager::PrivateContext::lock;
 set<size_t> ActionManager::PrivateContext::runningActionSet;
 
 // ---------------------------------------------------------------------------
