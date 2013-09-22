@@ -967,25 +967,25 @@ void ActionManager::commandActorCollectedCb(const ActorInfo *actorInfo)
 	}
 
 	// exectute a command
-	WaitingCommandActionInfo *actInfo =
+	WaitingCommandActionInfo *waitCmdInfo =
 	   CommandActionContext::waitingList.front();
 	CommandActionContext::waitingList.pop_front();
 	CommandActionContext::lock.unlock();
 
 	// set the post collected callback
 	actorInfo->postCollectedCb = commandActorPostCollectedCb;
-	actorInfo->collectedCbPriv = actInfo;
+	actorInfo->collectedCbPriv = waitCmdInfo;
 }
 
 void ActionManager::commandActorPostCollectedCb(const ActorInfo *actorInfo)
 {
 	DBClientAction dbAction;
-	WaitingCommandActionInfo *actInfo =
+	WaitingCommandActionInfo *waitCmdInfo =
 	  static_cast<WaitingCommandActionInfo *>(actorInfo->collectedCbPriv);
 	
-	execCommandActionCore(actInfo->actionDef, actInfo->eventInfo,
-	                      dbAction, NULL, actInfo->argVect);
-	delete actInfo;
+	execCommandActionCore(waitCmdInfo->actionDef, waitCmdInfo->eventInfo,
+	                      dbAction, NULL, waitCmdInfo->argVect);
+	delete waitCmdInfo;
 }
 
 void ActionManager::residentActorCollectedCb(const ActorInfo *actorInfo)
