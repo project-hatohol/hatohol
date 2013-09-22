@@ -250,8 +250,7 @@ struct CommandActionContext {
 		}
 
 		// search for the available reservation ID and insert it.
-		reservationId = getReservationId();
-		reservedSet.insert(reservationId);
+		reservationId = reserveAndInsert();
 		lock.unlock();
 		return NULL;
 	}
@@ -294,6 +293,14 @@ struct CommandActionContext {
 		  confMgr->getMaxNumberOfRunningCommandAction();
 		size_t numTotalActions = runningSet.size() + reservedSet.size();
 		return numTotalActions >= numActorLimit;
+	}
+
+	static size_t reserveAndInsert(void)
+	{
+		// This function assumes that 'lock' is being locked.
+		size_t rsvId = getReservationId();
+		reservedSet.insert(rsvId);
+		return rsvId;
 	}
 
 protected:
