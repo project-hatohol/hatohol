@@ -212,7 +212,7 @@ struct CommandActionContext {
 		reservedSet.clear();
 	}
 
-	static bool reserveCommandAction(
+	static bool reserve(
 	  size_t &reservationId, const ActionDef &actionDef,
 	  const EventInfo &eventInfo, DBClientAction &dbAction,
 	  const StringVector &argVect)
@@ -246,15 +246,14 @@ struct CommandActionContext {
 		return true;
 	}
 
-	static void cancelCommandAction(const size_t reservationId)
+	static void cancel(const size_t reservationId)
 	{
 		lock.lock();
 		removeReservationId(reservationId);
 		lock.unlock();
 	}
 
-	static void registerRunningAction(const size_t reservationId,
-	                                  const uint64_t logId)
+	static void add(const size_t reservationId, const uint64_t logId)
 	{
 		lock.lock();
 		removeReservationId(reservationId);
@@ -267,7 +266,7 @@ struct CommandActionContext {
 		lock.unlock();
 	}
 
-	static void unregisterRunningAction(const uint64_t logId)
+	static void remove(const uint64_t logId)
 	{
 		lock.lock();
 		set<uint64_t>::iterator it = runningSet.find(logId);
@@ -492,7 +491,7 @@ void ActionManager::execCommandAction(const ActionDef &actionDef,
 	argVect.push_back(StringUtils::sprintf("%d", eventInfo.severity));
 
 	size_t reservationId;
-	bool succeeded = CommandActionContext::reserveCommandAction(
+	bool succeeded = CommandActionContext::reserve(
 	                   reservationId, actionDef, eventInfo, dbAction,
 	                   argVect);
 	// If the number of running command actions exceeds the limit,
@@ -516,14 +515,10 @@ void ActionManager::spawnPostprocCommandAction(ActorInfo *actorInfo,
 	SpawnPostprocCommandActionCtx *ctx =
 	  static_cast<SpawnPostprocCommandActionCtx *>(priv);
 	copyActorInfoForExecResult(ctx->actorInfoCopy, actorInfo, logId);
-	if (actorInfo) {
-		 // Successfully executed
-		CommandActionContext::registerRunningAction(ctx->reservationId,
-		                                      logId);
-	} else {
-		 // Failed to execute the actor
-		CommandActionContext::cancelCommandAction(ctx->reservationId);
-	}
+	if (actorInfo) // Successfully executed
+		CommandActionContext::add(ctx->reservationId, logId);
+	else // Failed to execute the actor
+		CommandActionContext::cancel(ctx->reservationId);
 	if (!actorInfo || actionDef.timeout <= 0)
 		return;
 	actorInfo->collectedCb = commandActorCollectedCb;
@@ -927,7 +922,7 @@ void ActionManager::commandActorCollectedCb(const ActorInfo *actorInfo)
 	CommandActionContext::lock.lock();
 
 	// remove this actor from CommandActionContext::runningSet.
-	CommandActionContext::unregisterRunningAction(actorInfo->logId);
+	CommandActionContext::remove(actorInfo->logId);
 
 	// check if there is a waiting command action.
 	if (CommandActionContext::waitingList.empty()) {
