@@ -643,7 +643,11 @@ uint64_t DBClientAction::createActionLog(
 	// TODO: set the appropriate the following starter ID.
 	row->ADD_NEW_ITEM(Int, 0); // starter_id
 
-	row->ADD_NEW_ITEM(Int, 0, ITEM_DATA_NULL); // queuing_time
+	// queuing_time
+	if (initialStatus == ACTLOG_STAT_QUEUING)
+		row->ADD_NEW_ITEM(Int, CURR_DATETIME);
+	else
+		row->ADD_NEW_ITEM(Int, 0, ITEM_DATA_NULL);
 	row->ADD_NEW_ITEM(Int, CURR_DATETIME);     // start_time
 
 	// end_time
