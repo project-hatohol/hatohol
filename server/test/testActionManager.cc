@@ -275,7 +275,7 @@ static void _assertActionLog(
 	cppcut_assert_equal(status,       actionLog.status);
 	cppcut_assert_equal(starterId,    actionLog.starterId);
 	if (!(nullFlags & ACTLOG_FLAG_QUEUING_TIME))
-		cppcut_assert_equal(queueingTime, actionLog.queuingTime);
+		assertDatetime(queueingTime, actionLog.queuingTime);
 	if (!(nullFlags & ACTLOG_FLAG_START_TIME))
 		assertDatetime(startTime, actionLog.startTime);
 	if (!(nullFlags & ACTLOG_FLAG_END_TIME))
