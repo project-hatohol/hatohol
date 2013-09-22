@@ -944,10 +944,11 @@ void test_limitCommandAction(void)
 	static const int numWaitingActions = 5;
 	ConfigManager *confMgr = ConfigManager::getInstance();
 	int maxNum = confMgr->getMaxNumberOfRunningCommandAction();
-	for (int i = 0; i < maxNum; i++)
-		assertExecuteAction(352, ACTLOG_STAT_STARTED, false);
-	for (int i = 0; i < numWaitingActions; i++)
-		assertExecuteAction(352, ACTLOG_STAT_QUEUING, true);
+	int actionId = 352;
+	for (int i = 0; i < maxNum; i++, actionId++)
+		assertExecuteAction(actionId, ACTLOG_STAT_STARTED, false);
+	for (int i = 0; i < numWaitingActions; i++, actionId++)
+		assertExecuteAction(actionId, ACTLOG_STAT_QUEUING, true);
 }
 
 } // namespace testActionManager
