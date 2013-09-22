@@ -183,10 +183,8 @@ struct WaitingCommandActionInfo {
 };
 
 struct ActionManager::PrivateContext {
-	static MutexLock waitingCommandActionListLock;
-	static deque<WaitingCommandActionInfo *> waitingCommandActionList;
-
 	static MutexLock     lock;
+	static deque<WaitingCommandActionInfo *> waitingCommandActionList;
 	static set<uint64_t> runningActionSet;  // key is logId
 	static set<size_t>   reservedActionSet;
 
@@ -267,11 +265,9 @@ protected:
 	}
 };
 
-MutexLock ActionManager::PrivateContext::waitingCommandActionListLock;
+MutexLock ActionManager::PrivateContext::lock;
 deque<WaitingCommandActionInfo *>
   ActionManager::PrivateContext::waitingCommandActionList;
-
-MutexLock ActionManager::PrivateContext::lock;
 set<size_t> ActionManager::PrivateContext::runningActionSet;
 
 // ---------------------------------------------------------------------------
@@ -456,9 +452,9 @@ void ActionManager::execCommandAction(const ActionDef &actionDef,
 		waitCmdInfo->actionDef = actionDef;
 		waitCmdInfo->eventInfo = eventInfo;
 		waitCmdInfo->argVect   = argVect;
-		m_ctx->waitingCommandActionListLock.lock();
+		m_ctx->lock.lock();
 		m_ctx->waitingCommandActionList.push_back(waitCmdInfo);
-		m_ctx->waitingCommandActionListLock.unlock();
+		m_ctx->lock.unlock();
 		return;
 	}
 
@@ -872,9 +868,9 @@ void ActionManager::notifyEvent(ResidentInfo *residentInfo,
 
 void ActionManager::commandActorCollectedCb(const ActorInfo *actorInfo)
 {
-	PrivateContext::waitingCommandActionListLock.lock();
+	PrivateContext::lock.lock();
 	if (PrivateContext::waitingCommandActionList.empty()) {
-		PrivateContext::waitingCommandActionListLock.unlock();
+		PrivateContext::lock.unlock();
 		return;
 	}
 
@@ -887,7 +883,7 @@ void ActionManager::commandActorCollectedCb(const ActorInfo *actorInfo)
 	ConfigManager *confMgr = ConfigManager::getInstance();
 	size_t numActorLimit = confMgr->getMaxNumberOfRunningCommandAction();
 	if (ActorCollector::getNumberOfWaitingActors() >= numActorLimit) {
-		PrivateContext::waitingCommandActionListLock.unlock();
+		PrivateContext::lock.unlock();
 		return;
 	}
 
@@ -895,7 +891,7 @@ void ActionManager::commandActorCollectedCb(const ActorInfo *actorInfo)
 	WaitingCommandActionInfo *actInfo =
 	  PrivateContext::waitingCommandActionList.front();
 	PrivateContext::waitingCommandActionList.pop_front();
-	PrivateContext::waitingCommandActionListLock.unlock();
+	PrivateContext::lock.unlock();
 
 	DBClientAction dbAction;
 	execCommandActionCore(actInfo->actionDef, actInfo->eventInfo,
