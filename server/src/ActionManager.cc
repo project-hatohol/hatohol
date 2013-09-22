@@ -956,11 +956,10 @@ void ActionManager::notifyEvent(ResidentInfo *residentInfo,
 
 void ActionManager::commandActorCollectedCb(const ActorInfo *actorInfo)
 {
-	CommandActionContext::lock.lock();
-
 	// remove this actor from CommandActionContext::runningSet.
 	CommandActionContext::remove(actorInfo->logId);
 
+	CommandActionContext::lock.lock();
 	// check if there is a waiting command action.
 	if (CommandActionContext::waitingList.empty()) {
 		CommandActionContext::lock.unlock();
