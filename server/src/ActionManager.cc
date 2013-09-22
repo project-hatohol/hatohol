@@ -212,19 +212,41 @@ struct CommandActionContext {
 		reservedSet.clear();
 	}
 
-	static bool reserve(
+	/**
+	 * Reserve the command action. If the sum of the number of running
+	 * actors and reserved actors (the number of onstage actors) is less
+	 * than the limit, this function returns a reservationId that is
+	 * needed to add the actor to runningSet. Otherwise the action
+	 * is added to the queue and executed later.
+	 *
+	 * @param reservationId
+	 * A reservation ID. This is returned only when the number of onstage
+	 * actors less than the limit. Otherwise it is not changed.
+	 *
+	 * @param actionDef A reference of ActionDef.
+	 * @param eventInfo A reference of EventInfo.
+	 * @param dbAction  A reference of DBClientAction.
+	 * @param argVect   A vector that has command line components.
+	 *
+	 * @return
+	 * NULL on success. Otherwise a pointer of WaitingCommandActionInfo
+	 * is returned.
+	 */
+	static WaitingCommandActionInfo *reserve(
 	  size_t &reservationId, const ActionDef &actionDef,
 	  const EventInfo &eventInfo, DBClientAction &dbAction,
 	  const StringVector &argVect)
 	{
+		WaitingCommandActionInfo *waitCmdInfo = NULL;
 		lock.lock();
 
 		// check the number of running actions
 		if (isFullHouse()) {
-			insertToWaitingCommandActionList(
-			  actionDef, eventInfo, dbAction, argVect);
+			waitCmdInfo =
+			  insertToWaitingCommandActionList(
+			    actionDef, eventInfo, dbAction, argVect);
 			lock.unlock();
-			return false;
+			return waitCmdInfo;
 		}
 
 		// search for the available reservation ID and insert it.
@@ -238,7 +260,7 @@ struct CommandActionContext {
 		}
 		reservedSet.insert(reservationId);
 		lock.unlock();
-		return true;
+		return NULL;
 	}
 
 	static void cancel(const size_t reservationId)
@@ -282,7 +304,7 @@ struct CommandActionContext {
 	}
 
 protected:
-	static void insertToWaitingCommandActionList(
+	static WaitingCommandActionInfo *insertToWaitingCommandActionList(
 	  const ActionDef &actionDef, const EventInfo &eventInfo,
 	  DBClientAction &dbAction, const StringVector &argVect)
 	{
@@ -297,6 +319,7 @@ protected:
 		waitCmdInfo->eventInfo = eventInfo;
 		waitCmdInfo->argVect   = argVect;
 		waitingList.push_back(waitCmdInfo);
+		return waitCmdInfo;
 	}
 
 	static bool isAvailable(size_t id)
@@ -496,14 +519,17 @@ void ActionManager::execCommandAction(const ActionDef &actionDef,
 	argVect.push_back(StringUtils::sprintf("%d", eventInfo.severity));
 
 	size_t reservationId;
-	bool succeeded = CommandActionContext::reserve(
-	                   reservationId, actionDef, eventInfo, dbAction,
-	                   argVect);
+	WaitingCommandActionInfo *waitCmdInfo =
+	  CommandActionContext::reserve(reservationId, actionDef, eventInfo,
+	                                dbAction, argVect);
 	// If the number of running command actions exceeds the limit,
-	// reserveCommandAction() returns false. In the case, the action is
-	// queued and will be executed later.
-	if (!succeeded)
+	// reserveCommandAction() returns a pointer of
+	// WaitingCommandActionInfo. In the case, the action is queued
+	// and will be executed later.
+	if (waitCmdInfo) {
+		_actorInfo->logId = waitCmdInfo->logId;
 		return;
+	}
 
 	SpawnPostprocCommandActionCtx postprocCtx;
 	postprocCtx.actorInfoCopy = _actorInfo;
