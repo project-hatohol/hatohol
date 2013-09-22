@@ -250,14 +250,7 @@ struct CommandActionContext {
 		}
 
 		// search for the available reservation ID and insert it.
-		if (reservedSet.empty()) {
-			reservationId = 0;
-		} else {
-			size_t lastId = *reservedSet.rbegin();
-			reservationId = lastId + 1;
-			while (!isAvailable(reservationId))
-				reservationId++;
-		}
+		reservationId = getReservationId();
 		reservedSet.insert(reservationId);
 		lock.unlock();
 		return NULL;
@@ -320,6 +313,19 @@ protected:
 		waitCmdInfo->argVect   = argVect;
 		waitingList.push_back(waitCmdInfo);
 		return waitCmdInfo;
+	}
+
+	static size_t getReservationId(void)
+	{
+		size_t rsvId = 0;
+		// This function assumes that 'lock' is being locked.
+		if (!reservedSet.empty()) {
+			size_t lastId = *reservedSet.rbegin();
+			rsvId = lastId + 1;
+			while (!isAvailable(rsvId))
+				rsvId++;
+		}
+		return rsvId;
 	}
 
 	static bool isAvailable(size_t id)
