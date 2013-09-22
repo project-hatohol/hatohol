@@ -508,8 +508,13 @@ bool ActionManager::spawn(
 	if (!succeeded) {
 		ActorCollector::unlock();
 		uint64_t logId;
+		bool logUpdateFlag = false;
+		if (waitCmdInfo) {
+			logId = waitCmdInfo->logId;
+			logUpdateFlag = true;
+		}
 		postProcSpawnFailure(actionDef, eventInfo, dbAction, actorInfo,
-		                     &logId, error);
+		                     &logId, error, logUpdateFlag);
 		delete actorInfo;
 		if (postproc)
 			(*postproc)(NULL, actionDef, logId, postprocPriv);
@@ -1103,14 +1108,24 @@ void ActionManager::copyActorInfoForExecResult
 void ActionManager::postProcSpawnFailure(
   const ActionDef &actionDef, const EventInfo &eventInfo,
   DBClientAction &dbAction, ActorInfo *actorInfo,
-  uint64_t *logId, GError *error)
+  uint64_t *logId, GError *error, bool logUpdateFlag)
 {
 	// make an action log
 	ActionLogExecFailureCode failureCode =
 	  error->code == G_SPAWN_ERROR_NOENT ?
 	    ACTLOG_EXECFAIL_ENTRY_NOT_FOUND : ACTLOG_EXECFAIL_EXEC_FAILURE;
-	actorInfo->logId =
-	  dbAction.createActionLog(actionDef, eventInfo, failureCode);
+	if (!logUpdateFlag) {
+		actorInfo->logId =
+		  dbAction.createActionLog(actionDef, eventInfo, failureCode);
+	} else {
+		actorInfo->logId = *logId;
+		DBClientAction::LogEndExecActionArg logArg;
+		logArg.logId = *logId;
+		logArg.status = ACTLOG_STAT_FAILED;
+		logArg.failureCode = failureCode;
+		logArg.nullFlags = ACTLOG_FLAG_EXIT_CODE;
+		dbAction.logEndExecAction(logArg);
+	}
 
 	// MLPL log
 	MLPL_ERR(

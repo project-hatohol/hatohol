@@ -452,13 +452,18 @@ void _assertActionLogForFailure(ExecCommandContext *ctx, int failureCode,
 {
 	cppcut_assert_equal(
 	  true, ctx->dbAction.getLog(ctx->actionLog, ctx->actorInfo.logId));
+
+	int expectedQueuingTime = 0;
+	if (!(expectedNullFlags & ACTLOG_FLAG_QUEUING_TIME))
+		expectedQueuingTime = CURR_DATETIME;
+
 	assertActionLog(
 	  ctx->actionLog,
 	  ctx->actorInfo.logId,
 	  ctx->actDef.id,
 	  ACTLOG_STAT_FAILED,
 	  0, /* starterId */
-	  0, /* queuingTime */
+	  expectedQueuingTime, /* queuingTime */
 	  CURR_DATETIME, /* startTime */
 	  CURR_DATETIME, /* endTime */
 	  failureCode,
@@ -632,7 +637,8 @@ static void _assertShouldSkipByLog(bool EvenEventNotLog)
 static void _assertExecuteAction(
   int actionId,
   ActionLogStatus expectStatus = ACTLOG_STAT_STARTED,
-  bool dontCheckOptions = false)
+  bool dontCheckOptions = false,
+  const string &commandName = "")
 {
 	ExecCommandContext *ctx = new ExecCommandContext();
 	g_execCommandCtxVect.push_back(ctx); // just an alias
@@ -643,11 +649,18 @@ static void _assertExecuteAction(
 
 	ctx->eventInfo = testEventInfo[0];
 	ExecActionArg arg(actionId, ACTION_COMMAND);
+	if (!commandName.empty())
+		arg.command = commandName;
 	assertExecAction(ctx, arg);
 	assertActionLogJustAfterExec(ctx, expectStatus, dontCheckOptions);
 }
 #define assertExecuteAction(ID, ...) \
 cut_trace(_assertExecuteAction(ID, ##__VA_ARGS__))
+
+static bool isFailureCase(size_t idx)
+{
+	return (idx % 3) == 0;
+}
 
 void setup(void)
 {
@@ -950,12 +963,19 @@ void test_shouldSkipByLogNotFound(void)
 void test_limitCommandAction(void)
 {
 	ConfigManager *confMgr = ConfigManager::getInstance();
-	int maxNum = confMgr->getMaxNumberOfRunningCommandAction();
+	size_t maxNum = confMgr->getMaxNumberOfRunningCommandAction();
 	int actionId = 352;
-	for (int i = 0; i < maxNum; i++, actionId++)
+	size_t idx = 0;
+	for (; idx < maxNum; idx++, actionId++)
 		assertExecuteAction(actionId, ACTLOG_STAT_STARTED, false);
-	for (size_t i = 0; i < numWaitingActions; i++, actionId++)
-		assertExecuteAction(actionId, ACTLOG_STAT_QUEUING, true);
+	for (; idx < maxNum + numWaitingActions; idx++, actionId++) {
+		string commandName;
+		// We set the wrong command when the index is multiples of thee.
+		if (isFailureCase(idx))
+			commandName = "wrong-commandoooooooo";
+		assertExecuteAction(actionId, ACTLOG_STAT_QUEUING, true,
+		                    commandName);
+	}
 }
 
 void test_executeWaitedCommandAction(void)
@@ -973,15 +993,23 @@ void test_executeWaitedCommandAction(void)
 
 		// check the status of the waiting action.
 		size_t idxWait = maxNum + i;
-		cppcut_assert_equal(true,
-		                    idxWait < g_execCommandCtxVect.size());
+		cppcut_assert_equal(
+		  true, idxWait < g_execCommandCtxVect.size(),
+		  cut_message("idxWait: %zd, VectSize: %zd",
+		              idxWait, g_execCommandCtxVect.size()));
 		ExecCommandContext *ctxWait = g_execCommandCtxVect[idxWait];
 		assertWaitForChangeActionLogStatus(ctxWait,
 		                                   ACTLOG_STAT_QUEUING);
-		// check if the status is ACTLOG_STAT_STARTED
-		assertActionLogJustAfterExec(
-		  ctxWait, ACTLOG_STAT_STARTED, false,
-		  ACTLOG_FLAG_END_TIME | ACTLOG_FLAG_EXIT_CODE);
+		// check the status: ACTLOG_STAT_STARTE or Failure
+		if (!isFailureCase(idxWait)) {
+			assertActionLogJustAfterExec(
+			  ctxWait, ACTLOG_STAT_STARTED, false,
+			  ACTLOG_FLAG_END_TIME | ACTLOG_FLAG_EXIT_CODE);
+		} else {
+			assertActionLogForFailure(
+			  ctxWait, ACTLOG_EXECFAIL_ENTRY_NOT_FOUND,
+			  ACTLOG_FLAG_EXIT_CODE);
+		}
 	}
 }
 

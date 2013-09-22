@@ -215,6 +215,7 @@ public:
 		ActionLogStatus status;
 		int   exitCode;
 		ActionLogExecFailureCode failureCode;
+		int nullFlags;
 
 		// constructor: just for initialization
 		LogEndExecActionArg(void);

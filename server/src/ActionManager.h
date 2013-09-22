@@ -223,7 +223,7 @@ protected:
 	static void postProcSpawnFailure(
 	  const ActionDef &actionDef, const EventInfo &eventInfo,
 	  DBClientAction &dbAction, ActorInfo *actorInfo,
-	  uint64_t *logId, GError *error);
+	  uint64_t *logId, GError *error, bool logUpdateFlag);
 
 	void fillTriggerInfoInEventInfo(EventInfo &eventInfo);
 
