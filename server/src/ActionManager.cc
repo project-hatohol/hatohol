@@ -69,10 +69,20 @@ enum ResidentStatus {
 	RESIDENT_STAT_IDLE,
 };
 
+struct WaitingCommandActionInfo;
 struct SpawnPostprocCommandActionCtx {
 	// passed to the callback
 	ActorInfo *actorInfoCopy;
 	size_t     reservationId;
+	WaitingCommandActionInfo *waitCmdInfo;
+
+	// constructor
+	SpawnPostprocCommandActionCtx(void)
+	: actorInfoCopy(NULL),
+	  reservationId(-1),
+	  waitCmdInfo(NULL)
+	{
+	}
 };
 
 struct ResidentInfo :
@@ -186,6 +196,11 @@ struct WaitingCommandActionInfo {
 	ActionDef actionDef;
 	EventInfo eventInfo;
 	StringVector argVect;
+
+	// The following variable is used only when the waiting action passes
+	// a reservation ID from the collectedCallback to the
+	// postCollected callback.
+	size_t reservationId;
 };
 
 struct CommandActionContext {
@@ -474,6 +489,13 @@ bool ActionManager::spawn(
 	// create an ActorInfo instance.
 	ActorInfo *actorInfo = new ActorInfo();
 
+	WaitingCommandActionInfo *waitCmdInfo = NULL;
+	if (actionDef.type == ACTION_COMMAND) {
+		SpawnPostprocCommandActionCtx *postprocCtx =
+		  static_cast<SpawnPostprocCommandActionCtx *>(postprocPriv);
+		waitCmdInfo = postprocCtx->waitCmdInfo;
+	}
+
 	// We take the lock here to avoid the child spanwed below from
 	// not being collected. If the child immediately exits
 	// before the following 'ActorCollector::addActor(&childPid)' is
@@ -497,9 +519,17 @@ bool ActionManager::spawn(
 	ActionLogStatus initialStatus =
 	  (actionDef.type == ACTION_COMMAND) ?
 	    ACTLOG_STAT_STARTED : ACTLOG_STAT_LAUNCHING_RESIDENT;
-	actorInfo->logId =
-	  dbAction.createActionLog(actionDef, eventInfo,
-	                           ACTLOG_EXECFAIL_NONE, initialStatus);
+
+	if (waitCmdInfo) {
+		// A waiting command action has the log ID.
+		// So we simply update the status.
+		dbAction.updateLogStatusToStart(waitCmdInfo->logId);
+		actorInfo->logId = waitCmdInfo->logId;
+	} else {
+		actorInfo->logId =
+		  dbAction.createActionLog(actionDef, eventInfo,
+		                           ACTLOG_EXECFAIL_NONE, initialStatus);
+	}
 	ActorCollector::addActor(actorInfo);
 	if (postproc) {
 		(*postproc)(actorInfo, actionDef,
@@ -981,10 +1011,10 @@ void ActionManager::commandActorCollectedCb(const ActorInfo *actorInfo)
 		CommandActionContext::lock.unlock();
 		return;
 	}
-
 	// exectute a command
 	WaitingCommandActionInfo *waitCmdInfo =
 	   CommandActionContext::waitingList.front();
+	waitCmdInfo->reservationId = CommandActionContext::reserveAndInsert();
 	CommandActionContext::waitingList.pop_front();
 	CommandActionContext::lock.unlock();
 
@@ -999,8 +1029,12 @@ void ActionManager::commandActorPostCollectedCb(const ActorInfo *actorInfo)
 	WaitingCommandActionInfo *waitCmdInfo =
 	  static_cast<WaitingCommandActionInfo *>(actorInfo->collectedCbPriv);
 	
+	SpawnPostprocCommandActionCtx postprocCtx;
+	postprocCtx.actorInfoCopy = NULL;
+	postprocCtx.reservationId = waitCmdInfo->reservationId;
+	postprocCtx.waitCmdInfo = waitCmdInfo;
 	execCommandActionCore(waitCmdInfo->actionDef, waitCmdInfo->eventInfo,
-	                      dbAction, NULL, waitCmdInfo->argVect);
+	                      dbAction, &postprocCtx, waitCmdInfo->argVect);
 	delete waitCmdInfo;
 }
 

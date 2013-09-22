@@ -66,6 +66,8 @@ public:
 
 namespace testActionManager {
 
+static const size_t numWaitingActions = 5;
+
 struct ExecCommandContext : public ResidentPullHelper<ExecCommandContext> {
 	pid_t actionTpPid;
 	bool timedOut;
@@ -352,14 +354,18 @@ static void _assertExecAction(ExecCommandContext *ctx, ExecActionArg &arg)
 void _assertActionLogJustAfterExec(
   ExecCommandContext *ctx,
   ActionLogStatus expectStatus = ACTLOG_STAT_STARTED,
-  bool dontCheckOptions = false)
+  bool dontCheckOptions = false,
+  uint32_t forceExpectedNullFlags = 0)
 {
 	int expectQueuingTime = 0;
 	uint32_t expectedNullFlags = 
 	  ACTLOG_FLAG_END_TIME | ACTLOG_FLAG_EXIT_CODE;
-	if (expectStatus != ACTLOG_STAT_QUEUING)
+	if (forceExpectedNullFlags)
+		expectedNullFlags = forceExpectedNullFlags;
+	else if (expectStatus != ACTLOG_STAT_QUEUING)
 		expectedNullFlags |= ACTLOG_FLAG_QUEUING_TIME;
-	else
+
+	if (!(expectedNullFlags & ACTLOG_STAT_QUEUING))
 		expectQueuingTime = CURR_DATETIME;
 
 	cppcut_assert_equal(
@@ -414,7 +420,9 @@ void _assertWaitForChangeActionLogStatus(ExecCommandContext *ctx,
 #define assertWaitForChangeActionLogStatus(CTX,STAT) \
 cut_trace(_assertWaitForChangeActionLogStatus(CTX,STAT))
 
-void _assertActionLogAfterEnding(ExecCommandContext *ctx)
+void _assertActionLogAfterEnding(
+  ExecCommandContext *ctx,
+  int expectedNullFlags = ACTLOG_FLAG_QUEUING_TIME)
 {
 	// check the action log after the actor is terminated
 	while (true) {
@@ -431,12 +439,12 @@ void _assertActionLogAfterEnding(ExecCommandContext *ctx)
 		  CURR_DATETIME, /* endTime */
 		  ACTLOG_EXECFAIL_NONE, /* failureCode */
 		  EXIT_SUCCESS, /* exitCode */
-		  ACTLOG_FLAG_QUEUING_TIME /* nullFlags */);
+		  expectedNullFlags /* nullFlags */);
 		break;
 	}
 }
-#define assertActionLogAfterEnding(CTX) \
-cut_trace(_assertActionLogAfterEnding(CTX))
+#define assertActionLogAfterEnding(CTX, ...) \
+cut_trace(_assertActionLogAfterEnding(CTX, ##__VA_ARGS__))
 
 void _assertActionLogForFailure(ExecCommandContext *ctx, int failureCode,
   int expectedNullFlags = ACTLOG_FLAG_QUEUING_TIME|ACTLOG_FLAG_EXIT_CODE,
@@ -941,14 +949,40 @@ void test_shouldSkipByLogNotFound(void)
 
 void test_limitCommandAction(void)
 {
-	static const int numWaitingActions = 5;
 	ConfigManager *confMgr = ConfigManager::getInstance();
 	int maxNum = confMgr->getMaxNumberOfRunningCommandAction();
 	int actionId = 352;
 	for (int i = 0; i < maxNum; i++, actionId++)
 		assertExecuteAction(actionId, ACTLOG_STAT_STARTED, false);
-	for (int i = 0; i < numWaitingActions; i++, actionId++)
+	for (size_t i = 0; i < numWaitingActions; i++, actionId++)
 		assertExecuteAction(actionId, ACTLOG_STAT_QUEUING, true);
+}
+
+void test_executeWaitedCommandAction(void)
+{
+	ConfigManager *confMgr = ConfigManager::getInstance();
+	int maxNum = confMgr->getMaxNumberOfRunningCommandAction();
+	test_limitCommandAction(); // make normal actions and waiting actions.
+	for (size_t i = 0; i < numWaitingActions; i++) {
+		cppcut_assert_equal(true, i < g_execCommandCtxVect.size());
+		ExecCommandContext *ctx = g_execCommandCtxVect[i];
+
+		// Quit a normally executed tp quit.
+		sendQuit(ctx);
+		assertActionLogAfterEnding(ctx);
+
+		// check the status of the waiting action.
+		size_t idxWait = maxNum + i;
+		cppcut_assert_equal(true,
+		                    idxWait < g_execCommandCtxVect.size());
+		ExecCommandContext *ctxWait = g_execCommandCtxVect[idxWait];
+		assertWaitForChangeActionLogStatus(ctxWait,
+		                                   ACTLOG_STAT_QUEUING);
+		// check if the status is ACTLOG_STAT_STARTED
+		assertActionLogJustAfterExec(
+		  ctxWait, ACTLOG_STAT_STARTED, false,
+		  ACTLOG_FLAG_END_TIME | ACTLOG_FLAG_EXIT_CODE);
+	}
 }
 
 } // namespace testActionManager
