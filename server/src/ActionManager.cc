@@ -188,15 +188,15 @@ struct WaitingCommandActionInfo {
 	StringVector argVect;
 };
 
-struct ActionManager::PrivateContext {
+struct CommandActionContext {
 	// We must take locks with the following order to prevent a deadlock.
 	// (1) ActorCollector::lock()
 	// (2) ActionManager::PrivateContext::lock
 	static MutexLock     lock;
 
-	static deque<WaitingCommandActionInfo *> waitingCommandActionList;
-	static set<uint64_t> runningActionSet;  // key is logId
-	static set<size_t>   reservedActionSet;
+	static deque<WaitingCommandActionInfo *> waitingList;
+	static set<uint64_t> runningSet;  // key is logId
+	static set<size_t>   reservedSet;
 
 	// methods
 	static void reset(void)
@@ -204,12 +204,12 @@ struct ActionManager::PrivateContext {
 		// We assume that this function is called only when the test.
 		// So we forcely delete instances without locking.
 		deque<WaitingCommandActionInfo *>::iterator it =
-		  waitingCommandActionList.begin();
-		for (; it != waitingCommandActionList.end(); ++it)
+		  waitingList.begin();
+		for (; it != waitingList.end(); ++it)
 			delete *it;
-		waitingCommandActionList.begin();
-		runningActionSet.clear();
-		reservedActionSet.clear();
+		waitingList.begin();
+		runningSet.clear();
+		reservedSet.clear();
 	}
 
 	static bool reserveCommandAction(
@@ -224,8 +224,7 @@ struct ActionManager::PrivateContext {
 		lock.lock();
 
 		// check the number of running actions
-		size_t numTotalActions = 
-		  runningActionSet.size() + reservedActionSet.size();
+		size_t numTotalActions = runningSet.size() + reservedSet.size();
 		if (numTotalActions >= numActorLimit) {
 			insertToWaitingCommandActionList(
 			  actionDef, eventInfo, dbAction, argVect);
@@ -234,15 +233,15 @@ struct ActionManager::PrivateContext {
 		}
 
 		// search for the available reservation ID and insert it.
-		if (reservedActionSet.empty()) {
+		if (reservedSet.empty()) {
 			reservationId = 0;
 		} else {
-			size_t lastId = *reservedActionSet.rbegin();
+			size_t lastId = *reservedSet.rbegin();
 			reservationId = lastId + 1;
 			while (!isAvailable(reservationId))
 				reservationId++;
 		}
-		reservedActionSet.insert(reservationId);
+		reservedSet.insert(reservationId);
 		lock.unlock();
 		return true;
 	}
@@ -262,7 +261,7 @@ struct ActionManager::PrivateContext {
 
 		// insert the log ID
 		pair<set<uint64_t>::iterator, bool> result =
-		   runningActionSet.insert(logId);
+		   runningSet.insert(logId);
 		HATOHOL_ASSERT(result.second,
 		               "Failed to insert: logID: %"PRIu64"\n", logId);
 		lock.unlock();
@@ -271,10 +270,10 @@ struct ActionManager::PrivateContext {
 	static void unregisterRunningAction(const uint64_t logId)
 	{
 		lock.lock();
-		set<uint64_t>::iterator it = runningActionSet.find(logId);
-		HATOHOL_ASSERT(it != runningActionSet.end(),
+		set<uint64_t>::iterator it = runningSet.find(logId);
+		HATOHOL_ASSERT(it != runningSet.end(),
 		               "Not found log ID: %"PRIu64"\n", logId);
-		runningActionSet.erase(it);
+		runningSet.erase(it);
 		lock.unlock();
 	}
 
@@ -293,29 +292,32 @@ protected:
 		waitCmdInfo->actionDef = actionDef;
 		waitCmdInfo->eventInfo = eventInfo;
 		waitCmdInfo->argVect   = argVect;
-		waitingCommandActionList.push_back(waitCmdInfo);
+		waitingList.push_back(waitCmdInfo);
 	}
 
 	static bool isAvailable(size_t id)
 	{
-		return (runningActionSet.find(id) == runningActionSet.end());
+		return (runningSet.find(id) == runningSet.end());
 	}
 
 	static void removeReservationId(const size_t reservationId)
 	{
 		set<size_t>::iterator it =
-		   reservedActionSet.find(reservationId);
-		HATOHOL_ASSERT(it != reservedActionSet.end(),
+		   reservedSet.find(reservationId);
+		HATOHOL_ASSERT(it != reservedSet.end(),
 		               "Not found reservationID: %zd\n", reservationId);
-		reservedActionSet.erase(it);
+		reservedSet.erase(it);
 	}
 };
 
-MutexLock ActionManager::PrivateContext::lock;
+MutexLock CommandActionContext::lock;
 deque<WaitingCommandActionInfo *>
-  ActionManager::PrivateContext::waitingCommandActionList;
-set<size_t> ActionManager::PrivateContext::reservedActionSet;
-set<uint64_t> ActionManager::PrivateContext::runningActionSet;
+  CommandActionContext::waitingList;
+set<size_t> CommandActionContext::reservedSet;
+set<uint64_t> CommandActionContext::runningSet;
+
+struct ActionManager::PrivateContext {
+};
 
 // ---------------------------------------------------------------------------
 // Public methods
@@ -339,7 +341,7 @@ void ActionManager::reset(void)
 	}
 	ResidentInfo::runningResidentMap.clear();
 
-	PrivateContext::reset();
+	CommandActionContext::reset();
 }
 
 ActionManager::ActionManager(void)
@@ -490,7 +492,7 @@ void ActionManager::execCommandAction(const ActionDef &actionDef,
 	argVect.push_back(StringUtils::sprintf("%d", eventInfo.severity));
 
 	size_t reservationId;
-	bool succeeded = PrivateContext::reserveCommandAction(
+	bool succeeded = CommandActionContext::reserveCommandAction(
 	                   reservationId, actionDef, eventInfo, dbAction,
 	                   argVect);
 	// If the number of running command actions exceeds the limit,
@@ -516,11 +518,11 @@ void ActionManager::spawnPostprocCommandAction(ActorInfo *actorInfo,
 	copyActorInfoForExecResult(ctx->actorInfoCopy, actorInfo, logId);
 	if (actorInfo) {
 		 // Successfully executed
-		PrivateContext::registerRunningAction(ctx->reservationId,
+		CommandActionContext::registerRunningAction(ctx->reservationId,
 		                                      logId);
 	} else {
 		 // Failed to execute the actor
-		PrivateContext::cancelCommandAction(ctx->reservationId);
+		CommandActionContext::cancelCommandAction(ctx->reservationId);
 	}
 	if (!actorInfo || actionDef.timeout <= 0)
 		return;
@@ -922,32 +924,32 @@ void ActionManager::notifyEvent(ResidentInfo *residentInfo,
 
 void ActionManager::commandActorCollectedCb(const ActorInfo *actorInfo)
 {
-	PrivateContext::lock.lock();
+	CommandActionContext::lock.lock();
 
-	// remove this actor from PrivateContext::runningActionSet.
-	PrivateContext::unregisterRunningAction(actorInfo->logId);
+	// remove this actor from CommandActionContext::runningSet.
+	CommandActionContext::unregisterRunningAction(actorInfo->logId);
 
 	// check if there is a waiting command action.
-	if (PrivateContext::waitingCommandActionList.empty()) {
-		PrivateContext::lock.unlock();
+	if (CommandActionContext::waitingList.empty()) {
+		CommandActionContext::lock.unlock();
 		return;
 	}
 
 	ConfigManager *confMgr = ConfigManager::getInstance();
 	size_t numActorLimit =
 	  confMgr->getMaxNumberOfRunningCommandAction();
-	size_t numTotalActions = PrivateContext::runningActionSet.size() +
-	                         PrivateContext::reservedActionSet.size();
+	size_t numTotalActions = CommandActionContext::runningSet.size() +
+	                         CommandActionContext::reservedSet.size();
 	if (numTotalActions >= numActorLimit) {
-		PrivateContext::lock.unlock();
+		CommandActionContext::lock.unlock();
 		return;
 	}
 
 	// exectute a command
 	WaitingCommandActionInfo *actInfo =
-	  PrivateContext::waitingCommandActionList.front();
-	PrivateContext::waitingCommandActionList.pop_front();
-	PrivateContext::lock.unlock();
+	   CommandActionContext::waitingList.front();
+	CommandActionContext::waitingList.pop_front();
+	CommandActionContext::lock.unlock();
 
 	// set the post collected callback
 	actorInfo->postCollectedCb = commandActorPostCollectedCb;
