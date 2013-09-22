@@ -150,6 +150,7 @@ struct ExecCommandContext : public ResidentPullHelper<ExecCommandContext> {
 	}
 };
 static ExecCommandContext *g_execCommandCtx = NULL;
+static vector<ExecCommandContext *>g_execCommandCtxVect;
 
 static void waitConnectCb(GIOStatus stat, mlpl::SmartBuffer &sbuf,
                           size_t size, ExecCommandContext *ctx)
@@ -348,18 +349,26 @@ static void _assertExecAction(ExecCommandContext *ctx, ExecActionArg &arg)
 }
 #define assertExecAction(CTX, ARG) cut_trace(_assertExecAction(CTX, ARG))
 
-void _assertActionLogJustAfterExec(ExecCommandContext *ctx)
+void _assertActionLogJustAfterExec(
+  ExecCommandContext *ctx,
+  ActionLogStatus expectStatus = ACTLOG_STAT_STARTED,
+  bool dontCheckOptions = false)
 {
+	int expectQueuingTime = 0;
 	uint32_t expectedNullFlags = 
-	  ACTLOG_FLAG_QUEUING_TIME | ACTLOG_FLAG_END_TIME |
-	  ACTLOG_FLAG_EXIT_CODE;
+	  ACTLOG_FLAG_END_TIME | ACTLOG_FLAG_EXIT_CODE;
+	if (expectStatus != ACTLOG_STAT_QUEUING)
+		expectedNullFlags |= ACTLOG_FLAG_QUEUING_TIME;
+	else
+		expectQueuingTime = CURR_DATETIME;
+
 	cppcut_assert_equal(
 	  true, ctx->dbAction.getLog(ctx->actionLog, ctx->actorInfo.logId));
 	assertActionLog(
 	  ctx->actionLog, ctx->actorInfo.logId,
-	  ctx->actDef.id, ACTLOG_STAT_STARTED,
+	  ctx->actDef.id, expectStatus,
 	  0, /* starterId */
-	  0, /* queuingTime */
+	  expectQueuingTime, /* queuingTime */
 	  CURR_DATETIME, /* startTime */
 	  0, /* endTime */
 	  ACTLOG_EXECFAIL_NONE, /* failureCode */
@@ -367,6 +376,8 @@ void _assertActionLogJustAfterExec(ExecCommandContext *ctx)
 	  expectedNullFlags);
 
 	// connect to ActionTp and check the command line options
+	if (dontCheckOptions)
+		return;
 	waitConnect(ctx);
 	const EventInfo &evInf = ctx->eventInfo;
 	StringVector expectedArgs;
@@ -386,8 +397,8 @@ void _assertActionLogJustAfterExec(ExecCommandContext *ctx)
 	expectedArgs.push_back(StringUtils::sprintf("%d", evInf.severity));
 	getArguments(ctx, expectedArgs);
 }
-#define assertActionLogJustAfterExec(CTX) \
-cut_trace(_assertActionLogJustAfterExec(CTX))
+#define assertActionLogJustAfterExec(CTX, ...) \
+cut_trace(_assertActionLogJustAfterExec(CTX, ##__VA_ARGS__))
 
 void _assertWaitForChangeActionLogStatus(ExecCommandContext *ctx,
                                          ActionLogStatus currStatus)
@@ -610,6 +621,25 @@ static void _assertShouldSkipByLog(bool EvenEventNotLog)
 }
 #define assertShouldSkipByLog(E) cut_trace(_assertShouldSkipByLog(E))
 
+static void _assertExecuteAction(
+  int actionId,
+  ActionLogStatus expectStatus = ACTLOG_STAT_STARTED,
+  bool dontCheckOptions = false)
+{
+	ExecCommandContext *ctx = new ExecCommandContext();
+	g_execCommandCtxVect.push_back(ctx); // just an alias
+
+	string pipeName = "test-command-action";
+	ctx->initPipes(pipeName);
+
+	ctx->eventInfo = testEventInfo[0];
+	ExecActionArg arg(actionId, ACTION_COMMAND);
+	assertExecAction(ctx, arg);
+	assertActionLogJustAfterExec(ctx, expectStatus, dontCheckOptions);
+}
+#define assertExecuteAction(ID, ...) \
+cut_trace(_assertExecuteAction(ID, ##__VA_ARGS__))
+
 void setup(void)
 {
 	hatoholInit();
@@ -622,6 +652,9 @@ void teardown(void)
 		delete g_execCommandCtx;
 		g_execCommandCtx = NULL;
 	}
+	for (size_t i = 0; i < g_execCommandCtxVect.size(); i++)
+		delete g_execCommandCtxVect[i];
+	g_execCommandCtxVect.clear();
 }
 
 // ---------------------------------------------------------------------------
@@ -903,6 +936,17 @@ void test_shouldSkipByLog(void)
 void test_shouldSkipByLogNotFound(void)
 {
 	assertShouldSkipByLog(true);
+}
+
+void test_limitCommandAction(void)
+{
+	static const int numWaitingActions = 5;
+	ConfigManager *confMgr = ConfigManager::getInstance();
+	int maxNum = confMgr->getMaxNumberOfRunningCommandAction();
+	for (int i = 0; i < maxNum; i++)
+		assertExecuteAction(352, ACTLOG_STAT_STARTED, false);
+	for (int i = 0; i < numWaitingActions; i++)
+		assertExecuteAction(352, ACTLOG_STAT_QUEUING, true);
 }
 
 } // namespace testActionManager
