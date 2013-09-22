@@ -264,7 +264,7 @@ static string getActionLogContent(const ActionLog &actionLog)
 
 static void _assertActionLog(
   ActionLog &actionLog,
- uint64_t id, int actionId, int status, int starterId, int queueintTime,
+ uint64_t id, int actionId, int status, int starterId, int queueingTime,
  int startTime, int endTime, int failureCode, int exitCode, uint32_t nullFlags)
 {
 	cppcut_assert_equal(nullFlags,    actionLog.nullFlags,
@@ -275,7 +275,7 @@ static void _assertActionLog(
 	cppcut_assert_equal(status,       actionLog.status);
 	cppcut_assert_equal(starterId,    actionLog.starterId);
 	if (!(nullFlags & ACTLOG_FLAG_QUEUING_TIME))
-		cppcut_assert_equal(queueintTime, actionLog.queuingTime);
+		cppcut_assert_equal(queueingTime, actionLog.queuingTime);
 	if (!(nullFlags & ACTLOG_FLAG_START_TIME))
 		assertDatetime(startTime, actionLog.startTime);
 	if (!(nullFlags & ACTLOG_FLAG_END_TIME))
