@@ -237,15 +237,17 @@ gboolean ActorCollector::checkExitProcess
 		actorInfo = it->second;
 		PrivateContext::waitChildSet.erase(it);
 	}
-	unlock();
 
 	// return if the actorInfo instance was not found
-	if (!actorInfo)
+	if (!actorInfo) {
+		unlock();
 		return TRUE;
+	}
 
 	// execute the callback function
 	if (actorInfo->collectedCb)
 		(*actorInfo->collectedCb)(actorInfo);
+	unlock();
 
 	// log the action result if needed
 	if (!actorInfo->dontLog) {
@@ -253,6 +255,10 @@ gboolean ActorCollector::checkExitProcess
 		logArg.logId = actorInfo->logId;
 		dbAction.logEndExecAction(logArg);
 	}
+
+	// execute the callback function without the lock
+	if (actorInfo->postCollectedCb)
+		(*actorInfo->postCollectedCb)(actorInfo);
 
 	delete actorInfo;
 	return TRUE;

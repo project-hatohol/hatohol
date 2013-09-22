@@ -149,11 +149,10 @@ protected:
 	                       DBClientAction &dbAction,
 	                       ActorInfo *actorInfo = NULL);
 
-	static void execCommandActionCore(const ActionDef &actionDef,
-	                                  const EventInfo &eventInfo,
-	                                  DBClientAction &dbAction,
-	                                  ActorInfo *actorInfoCopy,
-	                                  const StringVector &argVect);
+	static void execCommandActionCore(
+	  const ActionDef &actionDef, const EventInfo &eventInfo,
+	  DBClientAction &dbAction, void *postprocCtx,
+	  const StringVector &argVect);
 
 	/**
 	 * execute a resident-type action.
@@ -206,6 +205,7 @@ protected:
 	                 ResidentNotifyInfo *notifyInfo);
 
 	static void commandActorCollectedCb(const ActorInfo *actorInfo);
+	static void commandActorPostCollectedCb(const ActorInfo *actorInfo);
 	static void residentActorCollectedCb(const ActorInfo *actorInfo);
 	void closeResident(ResidentInfo *residentInfo);
 	void closeResident(ResidentNotifyInfo *notifyInfo,

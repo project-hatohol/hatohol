@@ -29,8 +29,12 @@ struct ActorInfo {
 	pid_t    pid;
 	uint64_t logId;
 	bool     dontLog;
+
+	// collectedCb is called with taking ActorCollector::lock().
+	// postCollectedCb is called after calling ActorCollector::unlock().
 	ActorCollectedFunc collectedCb;
-	void              *collectedCbPriv;
+	mutable ActorCollectedFunc postCollectedCb;
+	mutable void              *collectedCbPriv;
 	gint     timerTag;
 	
 	// constructor
@@ -39,6 +43,7 @@ struct ActorInfo {
 	  logId(-1),
 	  dontLog(false),
 	  collectedCb(NULL),
+	  postCollectedCb(NULL),
 	  collectedCbPriv(NULL),
 	  timerTag(INVALID_EVENT_ID)
 	{
