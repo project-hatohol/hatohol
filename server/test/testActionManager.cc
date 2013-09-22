@@ -629,7 +629,8 @@ static void _assertExecuteAction(
 	ExecCommandContext *ctx = new ExecCommandContext();
 	g_execCommandCtxVect.push_back(ctx); // just an alias
 
-	string pipeName = "test-command-action";
+	string pipeName = StringUtils::sprintf("test-command-action-%d",
+	                                       actionId);
 	ctx->initPipes(pipeName);
 
 	ctx->eventInfo = testEventInfo[0];
