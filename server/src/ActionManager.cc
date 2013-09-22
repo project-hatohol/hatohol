@@ -556,9 +556,13 @@ void ActionManager::spawnPostprocCommandAction(ActorInfo *actorInfo,
 		CommandActionContext::add(ctx->reservationId, logId);
 	else // Failed to execute the actor
 		CommandActionContext::cancel(ctx->reservationId);
-	if (!actorInfo || actionDef.timeout <= 0)
+	if (!actorInfo)
 		return;
 	actorInfo->collectedCb = commandActorCollectedCb;
+
+	// set the timeout
+	if (actionDef.timeout <= 0)
+		return;
 	actorInfo->timerTag =
 	   g_timeout_add(actionDef.timeout, commandActionTimeoutCb, actorInfo);
 }
