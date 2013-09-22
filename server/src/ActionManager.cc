@@ -870,7 +870,7 @@ void ActionManager::notifyEvent(ResidentInfo *residentInfo,
 	dbAction.updateLogStatusToStart(notifyInfo->logId);
 }
 
-void ActionManager::commandActorCollectedCb(void *notUsed)
+void ActionManager::commandActorCollectedCb(const ActorInfo *actorInfo)
 {
 	PrivateContext::waitingCommandActionListLock.lock();
 	if (PrivateContext::waitingCommandActionList.empty()) {
@@ -903,9 +903,10 @@ void ActionManager::commandActorCollectedCb(void *notUsed)
 	delete actInfo;
 }
 
-void ActionManager::residentActorCollectedCb(void *priv)
+void ActionManager::residentActorCollectedCb(const ActorInfo *actorInfo)
 {
-	ResidentInfo *residentInfo = static_cast<ResidentInfo *>(priv);
+	ResidentInfo *residentInfo =
+	   static_cast<ResidentInfo *>(actorInfo->collectedCbPriv);
 	residentInfo->queueLock.lock();
 	bool isQueueEmpty = residentInfo->notifyQueue.empty();
 	residentInfo->queueLock.unlock();

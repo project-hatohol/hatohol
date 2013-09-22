@@ -205,8 +205,8 @@ protected:
 	void notifyEvent(ResidentInfo *residentInfo,
 	                 ResidentNotifyInfo *notifyInfo);
 
-	static void commandActorCollectedCb(void *priv);
-	static void residentActorCollectedCb(void *priv);
+	static void commandActorCollectedCb(const ActorInfo *actorInfo);
+	static void residentActorCollectedCb(const ActorInfo *actorInfo);
 	void closeResident(ResidentInfo *residentInfo);
 	void closeResident(ResidentNotifyInfo *notifyInfo,
 	                   ActionLogExecFailureCode failureCode);

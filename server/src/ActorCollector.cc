@@ -245,7 +245,7 @@ gboolean ActorCollector::checkExitProcess
 
 	// execute the callback function
 	if (actorInfo->collectedCb)
-		(*actorInfo->collectedCb)(actorInfo->collectedCbPriv);
+		(*actorInfo->collectedCb)(actorInfo);
 
 	// log the action result if needed
 	if (!actorInfo->dontLog) {

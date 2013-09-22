@@ -22,7 +22,8 @@
 
 #include "HatoholThreadBase.h"
 
-typedef void (*ActorCollectedFunc)(void *priv);
+struct ActorInfo;
+typedef void (*ActorCollectedFunc)(const ActorInfo *actorInfo);
 
 struct ActorInfo {
 	pid_t    pid;
