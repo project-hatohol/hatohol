@@ -226,6 +226,7 @@ protected:
 	  uint64_t *logId, GError *error, bool logUpdateFlag);
 
 	void fillTriggerInfoInEventInfo(EventInfo &eventInfo);
+	static size_t getNumberOfOnstageCommandActors(void);
 
 private:
 	PrivateContext *m_ctx;

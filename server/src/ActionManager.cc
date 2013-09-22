@@ -318,6 +318,15 @@ struct CommandActionContext {
 		return rsvId;
 	}
 
+	static size_t getNumberOfOnstageCommandActors(void)
+	{
+		lock.lock();
+		size_t numOnstageActors =
+		   runningSet.size() + reservedSet.size();
+		lock.unlock();
+		return numOnstageActors;
+	}
+
 protected:
 	static WaitingCommandActionInfo *insertToWaitingCommandActionList(
 	  const ActionDef &actionDef, const EventInfo &eventInfo,
@@ -1169,4 +1178,9 @@ void ActionManager::fillTriggerInfoInEventInfo(EventInfo &eventInfo)
 		eventInfo.hostName.clear();
 		eventInfo.brief.clear();
 	}
+}
+
+size_t ActionManager::getNumberOfOnstageCommandActors(void)
+{
+	return CommandActionContext::getNumberOfOnstageCommandActors();
 }

@@ -62,6 +62,11 @@ public:
 	{
 		return shouldSkipByLog(eventInfo, m_dbAction);
 	}
+
+	size_t callGetNumberOfOnstageCommandActors(void)
+	{
+		return getNumberOfOnstageCommandActors();
+	}
 };
 
 namespace testActionManager {
@@ -1051,6 +1056,10 @@ void test_checkExitWaitedCommandAction(void)
 		assertActionLogAfterEnding(ctx, expectedNullFlags);
 		aliveIndexSet.erase(it);
 	}
+
+	TestActionManager actMgr;
+	cppcut_assert_equal((size_t)0,
+	                    actMgr.callGetNumberOfOnstageCommandActors());
 }
 
 } // namespace testActionManager
