@@ -207,7 +207,7 @@ struct CommandActionContext {
 		  waitingList.begin();
 		for (; it != waitingList.end(); ++it)
 			delete *it;
-		waitingList.begin();
+		waitingList.clear();
 		runningSet.clear();
 		reservedSet.clear();
 	}
