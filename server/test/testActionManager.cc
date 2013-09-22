@@ -424,6 +424,10 @@ void _assertActionLogAfterEnding(
   ExecCommandContext *ctx,
   int expectedNullFlags = ACTLOG_FLAG_QUEUING_TIME)
 {
+	int expectedQueuingTime = 0;
+	if (!(expectedNullFlags & ACTLOG_FLAG_QUEUING_TIME))
+		expectedQueuingTime = CURR_DATETIME;
+
 	// check the action log after the actor is terminated
 	while (true) {
 		// ActionCollector updates the aciton log in the wake of GLIB's
@@ -434,7 +438,7 @@ void _assertActionLogAfterEnding(
 		  ctx->actionLog, ctx->actorInfo.logId,
 		  ctx->actDef.id, ACTLOG_STAT_SUCCEEDED,
 		  0, /* starterId */
-		  0, /* queuingTime */
+		  expectedQueuingTime, /* queuingTime */
 		  CURR_DATETIME, /* startTime */
 		  CURR_DATETIME, /* endTime */
 		  ACTLOG_EXECFAIL_NONE, /* failureCode */
@@ -662,6 +666,14 @@ static bool isFailureCase(size_t idx)
 	return (idx % 3) == 0;
 }
 
+static void deleteGlobalExecCommandCtx(size_t idx)
+{
+	if (!g_execCommandCtxVect[idx])
+		return;
+	delete g_execCommandCtxVect[idx];
+	g_execCommandCtxVect[idx] = NULL;
+}
+
 void setup(void)
 {
 	hatoholInit();
@@ -675,7 +687,7 @@ void teardown(void)
 		g_execCommandCtx = NULL;
 	}
 	for (size_t i = 0; i < g_execCommandCtxVect.size(); i++)
-		delete g_execCommandCtxVect[i];
+		deleteGlobalExecCommandCtx(i);
 	g_execCommandCtxVect.clear();
 }
 
@@ -990,6 +1002,7 @@ void test_executeWaitedCommandAction(void)
 		// Quit a normally executed tp quit.
 		sendQuit(ctx);
 		assertActionLogAfterEnding(ctx);
+		deleteGlobalExecCommandCtx(i);
 
 		// check the status of the waiting action.
 		size_t idxWait = maxNum + i;
@@ -1009,7 +1022,34 @@ void test_executeWaitedCommandAction(void)
 			assertActionLogForFailure(
 			  ctxWait, ACTLOG_EXECFAIL_ENTRY_NOT_FOUND,
 			  ACTLOG_FLAG_EXIT_CODE);
+			deleteGlobalExecCommandCtx(idxWait);
 		}
+	}
+}
+
+void test_checkExitWaitedCommandAction(void)
+{
+	test_executeWaitedCommandAction();
+
+	// gather alive ActionTps
+	set<size_t> aliveIndexSet;
+	ConfigManager *confMgr = ConfigManager::getInstance();
+	int maxNum = confMgr->getMaxNumberOfRunningCommandAction();
+	for (size_t i = 0; i < maxNum + numWaitingActions; i++) {
+		if (g_execCommandCtxVect[i])
+			aliveIndexSet.insert(i);
+	}
+
+	// quit process at the head and the tail alternately
+	set<size_t>::iterator it = aliveIndexSet.begin();
+	for (; it != aliveIndexSet.end(); ++it) {
+		size_t idx = *it;
+		ExecCommandContext *ctx = g_execCommandCtxVect[*it];
+		sendQuit(ctx);
+		bool waiting = (idx >= (size_t)maxNum);
+		int expectedNullFlags = waiting ? 0 : ACTLOG_FLAG_QUEUING_TIME;
+		assertActionLogAfterEnding(ctx, expectedNullFlags);
+		aliveIndexSet.erase(it);
 	}
 }
 
