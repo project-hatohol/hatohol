@@ -217,15 +217,10 @@ struct CommandActionContext {
 	  const EventInfo &eventInfo, DBClientAction &dbAction,
 	  const StringVector &argVect)
 	{
-		ConfigManager *confMgr = ConfigManager::getInstance();
-		size_t numActorLimit =
-		  confMgr->getMaxNumberOfRunningCommandAction();
-
 		lock.lock();
 
 		// check the number of running actions
-		size_t numTotalActions = runningSet.size() + reservedSet.size();
-		if (numTotalActions >= numActorLimit) {
+		if (isFullHouse()) {
 			insertToWaitingCommandActionList(
 			  actionDef, eventInfo, dbAction, argVect);
 			lock.unlock();
@@ -274,6 +269,16 @@ struct CommandActionContext {
 		               "Not found log ID: %"PRIu64"\n", logId);
 		runningSet.erase(it);
 		lock.unlock();
+	}
+
+	static bool isFullHouse(void)
+	{
+		// This function assumes that 'lock' is being locked.
+		ConfigManager *confMgr = ConfigManager::getInstance();
+		 size_t numActorLimit =
+		  confMgr->getMaxNumberOfRunningCommandAction();
+		size_t numTotalActions = runningSet.size() + reservedSet.size();
+		return numTotalActions >= numActorLimit;
 	}
 
 protected:
@@ -930,12 +935,7 @@ void ActionManager::commandActorCollectedCb(const ActorInfo *actorInfo)
 		return;
 	}
 
-	ConfigManager *confMgr = ConfigManager::getInstance();
-	size_t numActorLimit =
-	  confMgr->getMaxNumberOfRunningCommandAction();
-	size_t numTotalActions = CommandActionContext::runningSet.size() +
-	                         CommandActionContext::reservedSet.size();
-	if (numTotalActions >= numActorLimit) {
+	if (CommandActionContext::isFullHouse()) {
 		CommandActionContext::lock.unlock();
 		return;
 	}
