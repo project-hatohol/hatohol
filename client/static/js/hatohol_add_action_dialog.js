@@ -149,7 +149,7 @@ var HatoholAddActionDialog = function(addSucceededCb) {
 
   function setSelectedHostId(value) {
     if (value == "ANY")
-      self.selectedHostId = "ANY";
+      self.selectedHostId = null;
     else
       self.selectedHostId = value;
   }
