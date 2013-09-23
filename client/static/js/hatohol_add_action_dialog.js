@@ -106,6 +106,25 @@ var HatoholAddActionDialog = function(addSucceededCb) {
     fixupSelectHostBox(value);
   }
 
+  function fixupSelectHostBox(newServerId) {
+    var numOptions = $("#selectHostId").children().length;
+    if (newServerId == "ANY") {
+      for (var i = numOptions; i > 1; i--)
+        $("#selectHostId").children('option:last-child').remove();
+      $("#selectHostId").val("ANY");
+      setSelectedHostId("ANY");
+      return;
+    }
+    if (numOptions == 1) {
+      var label = "== " + gettext("SELECT") + " ==";
+      $("#selectHostId").append($("<option>").html(label).val("SELECT"));
+    }
+    if (numOptions == 3)
+      $("#selectServerId").children('option:last-child').remove();
+    $("#selectHostId").val("ANY");
+    setSelectedHostId("ANY");
+  }
+
   function hostSelectedCb(hostInfo) {
     var numOptions = $("#selectHostId").children().length;
     if (!hostInfo) {
@@ -126,25 +145,6 @@ var HatoholAddActionDialog = function(addSucceededCb) {
     setSelectedHostId(hostInfo.id);
     $("#selectHostId").append($("<option>").html(label).val(hostInfo.id));
     $("#selectHostId").val(hostInfo.id);
-  }
-
-  function fixupSelectHostBox(newServerId) {
-    var numOptions = $("#selectHostId").children().length;
-    if (newServerId == "ANY") {
-      for (var i = numOptions; i > 1; i--)
-        $("#selectHostId").children('option:last-child').remove();
-      $("#selectHostId").val("ANY");
-      setSelectedHostId("ANY");
-      return;
-    }
-    if (numOptions == 1) {
-      var label = "== " + gettext("SELECT") + " ==";
-      $("#selectHostId").append($("<option>").html(label).val("SELECT"));
-    }
-    if (numOptions == 3)
-      $("#selectServerId").children('option:last-child').remove();
-    $("#selectHostId").val("ANY");
-    setSelectedHostId("ANY");
   }
 
   function setSelectedHostId(value) {
