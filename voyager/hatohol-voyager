@@ -18,6 +18,7 @@
   along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
 """
 import sys
+import urllib
 import urllib2
 import HatoholActionCreator
 
@@ -33,6 +34,7 @@ def print_usage():
   print "  show-trigger"
   print "  show-event"
   print "  show-item"
+  print "  show-host [sererId]"
   print "  show-action"
   print "  add-action"
   print "    --type command|resident"
@@ -92,6 +94,16 @@ def show_item(url, options):
   items_json = response.read()
   print items_json
 
+def show_host(url, options):
+  url += "/host"
+  if len(options) >= 1:
+    query = {"serverId":options[0]}  
+    encoded_query = urllib.urlencode(query)
+    url += "?" + encoded_query
+  response = urllib2.urlopen(url)
+  items_json = response.read()
+  print items_json
+
 def show_action(url, options):
   response = urllib2.urlopen(url + "/action")
   actions_json = response.read()
@@ -116,6 +128,7 @@ command_map = {
   "show-event":show_event,
   "show-trigger":show_trigger,
   "show-item":show_item,
+  "show-host":show_host,
   "show-action":show_action,
   "add-action":add_action,
   "del-action":del_action,
