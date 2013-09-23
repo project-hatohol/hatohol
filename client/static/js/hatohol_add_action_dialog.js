@@ -152,6 +152,33 @@ var HatoholAddActionDialog = function(addSucceededCb) {
       self.selectedHostId = null;
     else
       self.selectedHostId = value;
+    fixupSelectTriggerBox(value);
+  }
+
+  function fixupSelectTriggerBox(newHostId) {
+    var numOptions = $("#selectTriggerId").children().length;
+    if (newHostId == "ANY") {
+      for (var i = numOptions; i > 1; i--)
+        $("#selectTriggerId").children('option:last-child').remove();
+      $("#selectTriggerId").val("ANY");
+      setSelectedTriggerId("ANY");
+      return;
+    }
+    if (numOptions == 1) {
+      var label = "== " + gettext("SELECT") + " ==";
+      $("#selectTriggerId").append($("<option>").html(label).val("SELECT"));
+    }
+    if (numOptions == 3)
+      $("#selectTriggerId").children('option:last-child').remove();
+    $("#selectTriggerId").val("ANY");
+    setSelectedTriggerId("ANY");
+  }
+
+  function setSelectedTriggerId(value) {
+    if (value == "ANY")
+      self.selectedTriggerId = null;
+    else
+      self.selectedTriggerId = value;
   }
 
   //
