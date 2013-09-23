@@ -120,7 +120,7 @@ var HatoholAddActionDialog = function(addSucceededCb) {
       $("#selectHostId").append($("<option>").html(label).val("SELECT"));
     }
     if (numOptions == 3)
-      $("#selectServerId").children('option:last-child').remove();
+      $("#selectHostId").children('option:last-child').remove();
     $("#selectHostId").val("ANY");
     setSelectedHostId("ANY");
   }
