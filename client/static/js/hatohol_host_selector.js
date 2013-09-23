@@ -85,7 +85,7 @@ var HatoholHostSelector = function(serverId, selectedCb) {
       s += '<tr>';
       s += '<td>' + host.id + '</td>';
       s += '<td>' + host.serverId + '</td>';
-      s += '<td>' + sv.hostName + '</td>';
+      s += '<td>' + host.hostName + '</td>';
       s += '</tr>';
     }
     return s;
