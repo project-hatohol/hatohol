@@ -87,32 +87,41 @@ var HatoholAddActionDialog = function(addSucceededCb) {
   })
 
   function serverSelectedCb(serverInfo) {
-    var numOptions = $("#selectServerId").children().length;
-    if (!serverInfo) {
-      if (!self.selectedServerId)
-        $("#selectServerId").val("ANY");
+    var label = "";
+    if (serverInfo)
+      label = serverInfo.id + ": " + serverInfo.hostName;
+    selectedCallback($("#selectServerId"), serverInfo, self.selectedServerId,
+                     label, fixupSelectHostBox);
+  }
+
+  function selectedCallback(jQObjSelectId, response, currSelectedId,
+                            label, fixupSelectBoxFunc) {
+    var numOptions = jQObjSelectId.children().length;
+    if (!response) {
+      if (!currSelectedId)
+        jQObjSelectId.val("ANY");
       else
-        $("#selectServerId").val(self.selectedServerId);
+        jQObjSelectId.val(currSelectedId);
       return;
     }
 
     if (numOptions == 3) {
-      if (serverInfo.id == self.selectedServerId)
+      if (response.id == currSelectedId)
         return;
-      $("#selectServerId").children('option:last-child').remove();
+      jQObjSelectId.children('option:last-child').remove();
     }
-    var label = serverInfo.id + ": " + serverInfo.hostName;
-    setSelectedServerId(serverInfo.id);
-    $("#selectServerId").append($("<option>").html(label).val(serverInfo.id));
-    $("#selectServerId").val(serverInfo.id);
+    setSelectedId(response.id, fixupSelectBoxFunc);
+    jQObjSelectId.append($("<option>").html(label).val(response.id));
+    jQObjSelectId.val(response.id);
   }
 
-  function setSelectedServerId(value) {
+  function setSelectedId(value, fixupSelectBoxFunc) {
     if (value == "ANY")
-      self.selectedServerId = null;
+      currentSelectedId = null;
     else
-      self.selectedServerId = value;
-    fixupSelectHostBox(value);
+      currentSelectedId = value;
+    if (fixupSelectBoxFunc)
+      fixupSelectBoxFunc(value);
   }
 
   function fixupSelectHostBox(newServerId) {
