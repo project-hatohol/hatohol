@@ -177,22 +177,7 @@ var HatoholAddActionDialog = function(addSucceededCb) {
   }
 
   function fixupSelectTriggerBox(newHostId) {
-    var numOptions = $("#selectTriggerId").children().length;
-    if (newHostId == "ANY") {
-      for (var i = numOptions; i > 1; i--)
-        $("#selectTriggerId").children('option:last-child').remove();
-      $("#selectTriggerId").val("ANY");
-      setSelectedTriggerId("ANY");
-      return;
-    }
-    if (numOptions == 1) {
-      var label = "== " + gettext("SELECT") + " ==";
-      $("#selectTriggerId").append($("<option>").html(label).val("SELECT"));
-    }
-    if (numOptions == 3)
-      $("#selectTriggerId").children('option:last-child').remove();
-    $("#selectTriggerId").val("ANY");
-    setSelectedTriggerId("ANY");
+    fixupSelectBox($("#selectTriggerId"), newHostId, setSelectedTriggerId);
   }
 
   function setSelectedTriggerId(value) {
