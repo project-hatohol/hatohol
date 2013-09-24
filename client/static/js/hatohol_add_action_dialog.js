@@ -20,8 +20,6 @@
 var HatoholAddActionDialog = function(addSucceededCb) {
   var self = this;
 
-  self.selectedHostId = null;
-
   var IDX_SELECTED_SERVER  = 0;
   var IDX_SELECTED_HOST    = 1;
   var IDX_SELECTED_TRIGGER = 2;
@@ -90,7 +88,8 @@ var HatoholAddActionDialog = function(addSucceededCb) {
     var val = $(this).val();
     if (val == "SELECT") {
       new HatoholTriggerSelector(self.selectedId[IDX_SELECTED_SERVER],
-                                 self.selectedHostId, triggerSelectedCb);
+                                 self.selectedId[IDX_SELECTED_HOST],
+                                 triggerSelectedCb);
     } else
       setSelectedTriggerId(val);
   })
@@ -101,6 +100,14 @@ var HatoholAddActionDialog = function(addSucceededCb) {
       label = serverInfo.id + ": " + serverInfo.hostName;
     selectedCallback($("#selectServerId"), serverInfo,
                      IDX_SELECTED_SERVER, label, fixupSelectHostBox);
+  }
+
+  function hostSelectedCb(hostInfo) {
+    var label = "";
+    if (hostInfo)
+      label = hostInfo.hostName;
+    selectedCallback($("#selectHostId"), hostInfo, IDX_SELECTED_HOST,
+                     label, fixupSelectTriggerBox);
   }
 
   function selectedCallback(jQObjSelectId, response, selectedIdIndex,
@@ -134,10 +141,6 @@ var HatoholAddActionDialog = function(addSucceededCb) {
       fixupSelectBoxFunc(value);
   }
 
-  function fixupSelectHostBox(newServerId) {
-    fixupSelectBox($("#selectHostId"), newServerId, setSelectedHostId);
-  }
-
   function fixupSelectBox(jQObjSelect, newValue, selectedIdSetter) {
     var numOptions = jQObjSelect.children().length;
     if (newValue == "ANY") {
@@ -157,34 +160,12 @@ var HatoholAddActionDialog = function(addSucceededCb) {
     selectedIdSetter("ANY");
   }
 
-  function hostSelectedCb(hostInfo) {
-    var numOptions = $("#selectHostId").children().length;
-    if (!hostInfo) {
-      // restore the original state
-      if (!self.selectedHostId)
-        $("#selectHostId").val("ANY");
-      else
-        $("#selectHostId").val(self.selectedHostId);
-      return;
-    }
-
-    if (numOptions == 3) {
-      if (hostInfo.id == self.selectedHostId)
-        return;
-      $("#selectHostId").children('option:last-child').remove();
-    }
-    var label = hostInfo.hostName;
-    setSelectedHostId(hostInfo.id);
-    $("#selectHostId").append($("<option>").html(label).val(hostInfo.id));
-    $("#selectHostId").val(hostInfo.id);
+  function fixupSelectHostBox(newServerId) {
+    fixupSelectBox($("#selectHostId"), newServerId, setSelectedHostId);
   }
 
   function setSelectedHostId(value) {
-    if (value == "ANY")
-      self.selectedHostId = null;
-    else
-      self.selectedHostId = value;
-    fixupSelectTriggerBox(value);
+    setSelectedId(IDX_SELECTED_HOST, value, fixupSelectTriggerBox);
   }
 
   function fixupSelectTriggerBox(newHostId) {
