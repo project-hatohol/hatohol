@@ -81,3 +81,11 @@ HatoholSelectorDialog.prototype.setMessage = function(msg) {
 HatoholSelectorDialog.prototype.setObjectArray = function(ary) {
   this.objectArray = ary;
 }
+
+HatoholSelectorDialog.prototype.setSelectedRow = function(row) {
+  this.selectedRow = row;
+}
+
+HatoholSelectorDialog.prototype.getSelectedRow = function() {
+  return this.selectedRow;
+}

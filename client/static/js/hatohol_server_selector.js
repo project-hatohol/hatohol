@@ -82,12 +82,13 @@ var HatoholServerSelector = function(selectedCb) {
 
         // set events
         $("#serverSelectTable tr").click(function(){
-          if (self.selectedRow)
-            self.selectedRow.removeClass("info");
+          var selectedRow = self.getSelectedRow();
+          if (selectedRow)
+            selectedRow.removeClass("info");
           else
             self.setSelectButtonState(true);
           $(this).attr("class", "info");
-          self.selectedRow = $(this);
+          self.setSelectedRow($(this));
         });
       },
       error: function(XMLHttpRequest, textStatus, errorThrown) {
