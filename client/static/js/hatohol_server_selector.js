@@ -21,47 +21,10 @@ var HatoholServerSelector = function(selectedCb) {
 
   var self = this;
 
-  var dialogButtons = [{
-    text: gettext("SELECT"),
-    click: selectButtonClickedCb,
-  }, {
-    text: gettext("CANCEL"),
-    click: cancelButtonClickedCb,
-  }];
-
   // call the constructor of the super class
-  HatoholDialog.apply(
-    this, ["server-selector", gettext("Server selecion"), dialogButtons]);
-  setSelectButtonState(false);
+  HatoholSelectorDialog.apply(
+    this, ["server-selector", gettext("Server selecion"), selectedCb]);
   getServerList();
-
-  function selectButtonClickedCb() {
-    if (selectedCb) {
-      if (!self.selectedRow)
-        selectedCb(null);
-      else
-        selectedCb(self.serverArray[self.selectedRow.index()]);
-    }
-    self.closeDialog();
-  }
-
-  function cancelButtonClickedCb() {
-    if (selectedCb)
-      selectedCb(null);
-    self.closeDialog();
-  }
-
-  function setSelectButtonState(state) {
-    var btn = $(".ui-dialog-buttonpane").find("button:contains(" +
-                gettext("SELECT") + ")");
-    if (state) {
-       btn.removeAttr("disabled");
-       btn.removeClass("ui-state-disabled");
-    } else {
-       btn.attr("disabled", "disable");
-       btn.addClass("ui-state-disabled");
-    }
-  }
 
   function makeTable(data) {
     var html =
@@ -103,11 +66,11 @@ var HatoholServerSelector = function(selectedCb) {
       success: function(reply) {
         var replyParser = new HatoholReplyParser(reply);
         if (!(replyParser.getStatus() === REPLY_STATUS.OK)) {
-          $("#serverSelectMsgArea").text(replyParser.getStatusMessage());
+          self.setMessage(replyParser.getStatusMessage());
           return;
         }
         if (reply.numberOfServers == 0) {
-          $("#serverSelectMsgArea").text(gettext("No data."));
+          self.setMessage(gettext("No data."));
           return;
         }
 
@@ -122,7 +85,7 @@ var HatoholServerSelector = function(selectedCb) {
           if (self.selectedRow)
             self.selectedRow.removeClass("info");
           else
-            setSelectButtonState(true);
+            self.setSelectButtonState(true);
           $(this).attr("class", "info");
           self.selectedRow = $(this);
         });
@@ -130,18 +93,12 @@ var HatoholServerSelector = function(selectedCb) {
       error: function(XMLHttpRequest, textStatus, errorThrown) {
         var errorMsg = "Error: " + XMLHttpRequest.status + ": " +
                        XMLHttpRequest.statusText;
-        $("#serverSelectMsgArea").text(errorMsg);
+        self.setMessage(errorMsg);
       }
     })
   }
 }
 
-HatoholServerSelector.prototype = Object.create(HatoholDialog.prototype);
+HatoholServerSelector.prototype =
+  Object.create(HatoholSelectorDialog.prototype);
 HatoholServerSelector.prototype.constructor = HatoholServerSelector;
-
-HatoholServerSelector.prototype.createMainElement = function() {
-  var ptag = $("<p/>");
-  ptag.attr("id", "serverSelectMsgArea");
-  ptag.text(gettext("Now getting server information..."));
-  return ptag;
-}
