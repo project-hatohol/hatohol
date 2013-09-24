@@ -77,6 +77,15 @@ var HatoholAddActionDialog = function(addSucceededCb) {
       setSelectedHostId(val);
   })
 
+  $("#selectTriggerId").change(function() {
+    var val = $(this).val();
+    if (val == "SELECT") {
+      new HatoholTriggerSelector(self.selectedServerId, self.selectedHostId,
+                                 triggerSelectedCb);
+    } else
+      setSelectedTriggerId(val);
+  })
+
   function serverSelectedCb(serverInfo) {
     var numOptions = $("#selectServerId").children().length;
     if (!serverInfo) {
@@ -172,6 +181,28 @@ var HatoholAddActionDialog = function(addSucceededCb) {
       $("#selectTriggerId").children('option:last-child').remove();
     $("#selectTriggerId").val("ANY");
     setSelectedTriggerId("ANY");
+  }
+
+  function triggerSelectedCb(triggerInfo) {
+    var numOptions = $("#selectTriggerId").children().length;
+    if (!triggerInfo) {
+      // restore the original state
+      if (!self.selectedTriggerId)
+        $("#selectTriggerId").val("ANY");
+      else
+        $("#selectTriggerId").val(self.selectedTriggerId);
+      return;
+    }
+
+    if (numOptions == 3) {
+      if (triggerInfo.id == self.selectedTriggerId)
+        return;
+      $("#selectTriggerId").children('option:last-child').remove();
+    }
+    var label = triggerInfo.brief;
+    setSelectedTriggerId(triggerInfo.id);
+    $("#selectTriggerId").append($("<option>").html(label).val(triggerInfo.id));
+    $("#selectTriggerId").val(triggerInfo.id);
   }
 
   function setSelectedTriggerId(value) {
