@@ -20,8 +20,16 @@
 var HatoholAddActionDialog = function(addSucceededCb) {
   var self = this;
 
-  self.selectedServerId = null;
   self.selectedHostId = null;
+
+  var IDX_SELECTED_SERVER  = 0;
+  var IDX_SELECTED_HOST    = 1;
+  var IDX_SELECTED_TRIGGER = 2;
+  self.selectedId = new Array();
+  self.selectedId[IDX_SELECTED_SERVER]  = null;
+  self.selectedId[IDX_SELECTED_HOST]    = null;
+  self.selectedId[IDX_SELECTED_TRIGGER] = null;
+
   var dialogButtons = [{
     text: gettext("ADD"),
     click: addButtonClickedCb,
@@ -71,17 +79,18 @@ var HatoholAddActionDialog = function(addSucceededCb) {
 
   $("#selectHostId").change(function() {
     var val = $(this).val();
-    if (val == "SELECT")
-      new HatoholHostSelector(self.selectedServerId, hostSelectedCb);
-    else
+    if (val == "SELECT") {
+      new HatoholHostSelector(self.selectedId[IDX_SELECTED_SERVER],
+                              hostSelectedCb);
+    } else
       setSelectedHostId(val);
   })
 
   $("#selectTriggerId").change(function() {
     var val = $(this).val();
     if (val == "SELECT") {
-      new HatoholTriggerSelector(self.selectedServerId, self.selectedHostId,
-                                 triggerSelectedCb);
+      new HatoholTriggerSelector(self.selectedId[IDX_SELECTED_SERVER],
+                                 self.selectedHostId, triggerSelectedCb);
     } else
       setSelectedTriggerId(val);
   })
@@ -90,13 +99,14 @@ var HatoholAddActionDialog = function(addSucceededCb) {
     var label = "";
     if (serverInfo)
       label = serverInfo.id + ": " + serverInfo.hostName;
-    selectedCallback($("#selectServerId"), serverInfo, self.selectedServerId,
-                     label, fixupSelectHostBox);
+    selectedCallback($("#selectServerId"), serverInfo,
+                     IDX_SELECTED_SERVER, label, fixupSelectHostBox);
   }
 
-  function selectedCallback(jQObjSelectId, response, currSelectedId,
+  function selectedCallback(jQObjSelectId, response, selectedIdIndex,
                             label, fixupSelectBoxFunc) {
     var numOptions = jQObjSelectId.children().length;
+    var currSelectedId = self.selectedId[selectedIdIndex];
     if (!response) {
       if (!currSelectedId)
         jQObjSelectId.val("ANY");
@@ -110,16 +120,16 @@ var HatoholAddActionDialog = function(addSucceededCb) {
         return;
       jQObjSelectId.children('option:last-child').remove();
     }
-    setSelectedId(currSelectedId, response.id, fixupSelectBoxFunc);
+    setSelectedId(selectedIdIndex, response.id, fixupSelectBoxFunc);
     jQObjSelectId.append($("<option>").html(label).val(response.id));
     jQObjSelectId.val(response.id);
   }
 
-  function setSelectedId(currSelectedId, value, fixupSelectBoxFunc) {
+  function setSelectedId(selectedIdIndex, value, fixupSelectBoxFunc) {
     if (value == "ANY")
-      currentSelectedId = null;
+      self.selectedId[selectedIdIndex] = null;
     else
-      currentSelectedId = value;
+      self.selectedId[selectedIdIndex] = value;
     if (fixupSelectBoxFunc)
       fixupSelectBoxFunc(value);
   }
