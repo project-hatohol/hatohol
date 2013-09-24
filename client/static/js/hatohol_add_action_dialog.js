@@ -110,12 +110,12 @@ var HatoholAddActionDialog = function(addSucceededCb) {
         return;
       jQObjSelectId.children('option:last-child').remove();
     }
-    setSelectedId(response.id, fixupSelectBoxFunc);
+    setSelectedId(currSelectedId, response.id, fixupSelectBoxFunc);
     jQObjSelectId.append($("<option>").html(label).val(response.id));
     jQObjSelectId.val(response.id);
   }
 
-  function setSelectedId(value, fixupSelectBoxFunc) {
+  function setSelectedId(currSelectedId, value, fixupSelectBoxFunc) {
     if (value == "ANY")
       currentSelectedId = null;
     else
