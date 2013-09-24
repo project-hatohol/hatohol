@@ -31,7 +31,7 @@ def print_usage():
   print ""
   print "* commands"
   print ""
-  print "  show-trigger"
+  print "  show-trigger [serverId [hostId]]"
   print "  show-event"
   print "  show-item"
   print "  show-host [sererId]"
@@ -80,7 +80,16 @@ def parse_server_option(argv):
   return "http://%s:%d" % (server_name, port)
 
 def show_trigger(url, options):
-  response = urllib2.urlopen(url + "/trigger")
+  url += "/trigger"
+  query = {}
+  if len(options) >= 1:
+    query["serverId"] = options[0]
+  if len(options) >= 2:
+    query["hostId"] = options[1]
+  if len(query) > 0:
+    encoded_query = urllib.urlencode(query)
+    url += "?" + encoded_query
+  response = urllib2.urlopen(url)
   triggers_json = response.read()
   print triggers_json
 
