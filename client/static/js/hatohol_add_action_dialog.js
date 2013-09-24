@@ -181,10 +181,7 @@ var HatoholAddActionDialog = function(addSucceededCb) {
   }
 
   function setSelectedTriggerId(value) {
-    if (value == "ANY")
-      self.selectedTriggerId = null;
-    else
-      self.selectedTriggerId = value;
+    setSelectedId(IDX_SELECTED_TRIGGER, value, null);
   }
 
   //
