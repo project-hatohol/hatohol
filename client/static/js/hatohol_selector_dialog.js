@@ -41,7 +41,7 @@ HatoholSelectorDialog.prototype.constructor = HatoholSelectorDialog;
 HatoholSelectorDialog.prototype.createMainElement = function() {
   var ptag = $("<p/>");
   ptag.attr("id", "selectorDialogMsgArea");
-  ptag.text(gettext("Now getting server information..."));
+  ptag.text(gettext("Now getting information..."));
   return ptag;
 }
 
