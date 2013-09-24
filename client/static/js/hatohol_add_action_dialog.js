@@ -110,6 +110,14 @@ var HatoholAddActionDialog = function(addSucceededCb) {
                      label, fixupSelectTriggerBox);
   }
 
+  function triggerSelectedCb(triggerInfo) {
+    var label = "";
+    if (triggerInfo)
+      label = triggerInfo.brief;
+    selectedCallback($("#selectTriggerId"), triggerInfo, IDX_SELECTED_TRIGGER,
+                     label, null);
+  }
+
   function selectedCallback(jQObjSelectId, response, selectedIdIndex,
                             label, fixupSelectBoxFunc) {
     var numOptions = jQObjSelectId.children().length;
@@ -185,28 +193,6 @@ var HatoholAddActionDialog = function(addSucceededCb) {
       $("#selectTriggerId").children('option:last-child').remove();
     $("#selectTriggerId").val("ANY");
     setSelectedTriggerId("ANY");
-  }
-
-  function triggerSelectedCb(triggerInfo) {
-    var numOptions = $("#selectTriggerId").children().length;
-    if (!triggerInfo) {
-      // restore the original state
-      if (!self.selectedTriggerId)
-        $("#selectTriggerId").val("ANY");
-      else
-        $("#selectTriggerId").val(self.selectedTriggerId);
-      return;
-    }
-
-    if (numOptions == 3) {
-      if (triggerInfo.id == self.selectedTriggerId)
-        return;
-      $("#selectTriggerId").children('option:last-child').remove();
-    }
-    var label = triggerInfo.brief;
-    setSelectedTriggerId(triggerInfo.id);
-    $("#selectTriggerId").append($("<option>").html(label).val(triggerInfo.id));
-    $("#selectTriggerId").val(triggerInfo.id);
   }
 
   function setSelectedTriggerId(value) {
