@@ -20,6 +20,7 @@
 var HatoholSelectorDialog = function(id, title, selectedCallback) {
   var self = this;
   self.selectedCallback = selectedCallback;
+  self.objectArray = null;
   self.selectedRow = null;
 
   var dialogButtons = [{
@@ -51,7 +52,7 @@ HatoholSelectorDialog.prototype.selectButtonClicked = function() {
   if (!this.selectedRow)
     this.selectedCallback(null);
   else
-    this.selectedCallback(this.serverArray[this.selectedRow.index()]);
+    this.selectedCallback(this.objectArray[this.selectedRow.index()]);
   this.closeDialog();
 }
 
@@ -75,4 +76,8 @@ HatoholSelectorDialog.prototype.setSelectButtonState = function(state) {
 
 HatoholSelectorDialog.prototype.setMessage = function(msg) {
   $("#selectorDialogMsgArea").text(msg);
+}
+
+HatoholSelectorDialog.prototype.setObjectArray = function(ary) {
+  this.objectArray = ary;
 }

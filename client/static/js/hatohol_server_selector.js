@@ -45,7 +45,7 @@ var HatoholServerSelector = function(selectedCb) {
 
   function makeTableBody(reply) {
     var s;
-    self.serverArray = reply.servers;
+    self.setObjectArray(reply.servers);
     for (var i = 0; i < reply.servers.length; i++) {
       sv = reply.servers[i];
       s += '<tr>';
