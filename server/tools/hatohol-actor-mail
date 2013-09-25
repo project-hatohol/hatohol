@@ -111,6 +111,8 @@ def arg_parser_hatohol_actv1(params, argv):
   idx += 1
 
   trigger_status = int(argv[idx])
+  if trigger_status not in (hatohol.TRIGGER_STATUS_OK, hatohol.TRIGGER_STATUS_PROBLEM):
+    warn("Unknown trigger status: %d" % trigger_status)
   idx += 1
 
   trigger_severity = int(argv[idx])
