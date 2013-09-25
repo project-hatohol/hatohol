@@ -115,7 +115,15 @@ def arg_parser_hatohol_actv1(params, argv):
     warn("Unknown trigger status: %d" % trigger_status)
   idx += 1
 
+  trigger_severity_names = {
+    hatohol.TRIGGER_SEVERITY_INFO:"INFO",
+    hatohol.TRIGGER_SEVERITY_WARNING:"WARNING",
+    hatohol.TRIGGER_SEVERITY_ERROR:"ERROR",
+    hatohol.TRIGGER_SEVERITY_CRITICAL:"CRITICAL",
+    hatohol.TRIGGER_SEVERITY_EMERGENCY:"EMERGENCY"}
   trigger_severity = int(argv[idx])
+  if trigger_severity not in trigger_severity_names:
+    warn("Unknown trigger severity: %d" % trigger_severity)
   idx += 1
 
   subj = "[%s] EventID: %d, Trigger ID: %d" % (str(trigger_severity), event_id, trigger_id)
