@@ -102,7 +102,7 @@ HatoholSelectorDialog.prototype.start = function(url, requestType) {
     data: this.makeQueryData(),
     success: function(reply) {
       var replyParser = new HatoholReplyParser(reply);
-      if (!(replyParser.getStatus() === REPLY_STATUS.OK)) {
+      if (replyParser.getStatus() !== REPLY_STATUS.OK) {
         self.setMessage(replyParser.getStatusMessage());
         return;
       }
