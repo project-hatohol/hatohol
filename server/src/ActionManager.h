@@ -155,7 +155,7 @@ protected:
 	  DBClientAction &dbAction, void *postprocCtx,
 	  const StringVector &argVect);
 	
-	void addCommandDirectory(StringVector &argVect);
+	static void addCommandDirectory(string &path);
 
 	/**
 	 * execute a resident-type action.

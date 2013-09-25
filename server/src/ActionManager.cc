@@ -562,7 +562,10 @@ void ActionManager::execCommandAction(const ActionDef &actionDef,
 	StringVector argVect;
 	ActionExecArgMaker argMaker;
 	argMaker.makeExecArg(argVect, actionDef.command);
-	addCommandDirectory(argVect);
+	if (argVect.empty())
+		MLPL_WARN("argVect empty.\n");
+	else
+		addCommandDirectory(argVect[0]);
 	argVect.push_back(NUM_COMMNAD_ACTION_EVENT_ARG_MAGIC);
 	argVect.push_back(StringUtils::sprintf("%d", actionDef.id));
 	argVect.push_back(StringUtils::sprintf("%"PRIu32, eventInfo.serverId));
@@ -633,17 +636,13 @@ void ActionManager::execCommandActionCore(
 	// spawnPostprocCommandAction() is called in the above spawn().
 }
 
-void ActionManager::addCommandDirectory(StringVector &argVect)
+void ActionManager::addCommandDirectory(string &path)
 {
 	// add the action command directory
-	if (argVect.empty()) {
-		MLPL_WARN("argVect empty.\n");
-		return;
-	}
 	string absPath = ConfigManager::getActionCommandDirectory();
 	absPath += "/";
-	absPath+= argVect[0];
-	argVect[0] = absPath;
+	absPath += path;
+	path = absPath;
 }
 
 void ActionManager::execResidentAction(const ActionDef &actionDef,
@@ -858,6 +857,8 @@ void ActionManager::sendParameters(ResidentInfo *residentInfo)
 	ActionExecArgMaker::parseResidentCommand(
 	  residentInfo->actionDef.command, residentInfo->modulePath,
 	  residentInfo->moduleOption);
+	
+	addCommandDirectory(residentInfo->modulePath);
 	size_t bodyLen = RESIDENT_PROTO_PARAM_MODULE_PATH_LEN
 	                 + residentInfo->modulePath.size()
 	                 + RESIDENT_PROTO_PARAM_MODULE_OPTION_LEN
