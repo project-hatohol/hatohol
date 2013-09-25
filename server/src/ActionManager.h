@@ -24,6 +24,7 @@
 #include "DBClientAction.h"
 #include "ActorCollector.h"
 #include "NamedPipe.h"
+#include "StringUtils.h"
 
 struct ResidentInfo;
 
@@ -153,6 +154,8 @@ protected:
 	  const ActionDef &actionDef, const EventInfo &eventInfo,
 	  DBClientAction &dbAction, void *postprocCtx,
 	  const StringVector &argVect);
+	
+	void addCommandDirectory(StringVector &argVect);
 
 	/**
 	 * execute a resident-type action.

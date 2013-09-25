@@ -682,6 +682,11 @@ static void deleteGlobalExecCommandCtx(size_t idx)
 void setup(void)
 {
 	hatoholInit();
+	ConfigManager::setActionCommandDirectory(get_current_dir_name());
+
+	string residentYardDir = get_current_dir_name();
+	residentYardDir += "/../src/.libs";
+	ConfigManager::setResidentYardDirectory(residentYardDir);
 	setupTestDBAction();
 }
 

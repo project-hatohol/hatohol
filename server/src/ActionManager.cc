@@ -489,8 +489,7 @@ bool ActionManager::spawn(
 	if (!actionDef.workingDir.empty())
 		workingDirectory = actionDef.workingDir.c_str();
 
-	GSpawnFlags flags =
-	  (GSpawnFlags)(G_SPAWN_DO_NOT_REAP_CHILD | G_SPAWN_SEARCH_PATH);
+	GSpawnFlags flags = (GSpawnFlags)(G_SPAWN_DO_NOT_REAP_CHILD);
 	GSpawnChildSetupFunc childSetup = NULL;
 	gpointer userData = NULL;
 	GError *error = NULL;
@@ -563,6 +562,7 @@ void ActionManager::execCommandAction(const ActionDef &actionDef,
 	StringVector argVect;
 	ActionExecArgMaker argMaker;
 	argMaker.makeExecArg(argVect, actionDef.command);
+	addCommandDirectory(argVect);
 	argVect.push_back(NUM_COMMNAD_ACTION_EVENT_ARG_MAGIC);
 	argVect.push_back(StringUtils::sprintf("%d", actionDef.id));
 	argVect.push_back(StringUtils::sprintf("%"PRIu32, eventInfo.serverId));
@@ -631,6 +631,19 @@ void ActionManager::execCommandActionCore(
 	spawn(actionDef, eventInfo, dbAction, argv,
 	      spawnPostprocCommandAction, postprocCtx);
 	// spawnPostprocCommandAction() is called in the above spawn().
+}
+
+void ActionManager::addCommandDirectory(StringVector &argVect)
+{
+	// add the action command directory
+	if (argVect.empty()) {
+		MLPL_WARN("argVect empty.\n");
+		return;
+	}
+	string absPath = ConfigManager::getActionCommandDirectory();
+	absPath += "/";
+	absPath+= argVect[0];
+	argVect[0] = absPath;
 }
 
 void ActionManager::execResidentAction(const ActionDef &actionDef,
@@ -930,8 +943,10 @@ ResidentInfo *ActionManager::launchResidentActionYard
 		return NULL;
 	}
 
+	string absPath = ConfigManager::getResidentYardDirectory();
+	absPath += "/hatohol-resident-yard";
 	const gchar *argv[] = {
-	  "hatohol-resident-yard",
+	  absPath.c_str(),
 	  residentInfo->pipeName.c_str(),
 	  NULL};
 	
