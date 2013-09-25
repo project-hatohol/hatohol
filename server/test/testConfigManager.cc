@@ -47,4 +47,19 @@ void test_setActionCommandDirectory(void)
 	  exampleDir, ConfigManager::getActionCommandDirectory());
 }
 
+void test_getResidentYardDirectory(void)
+{
+	string expect = PREFIX "/sbin";
+	cppcut_assert_equal(
+	  expect, ConfigManager::getResidentYardDirectory());
+}
+
+void test_setResidentYardDirectory(void)
+{
+	string exampleDir = "/usr/hoge/example/dog";
+	ConfigManager::setResidentYardDirectory(exampleDir);
+	cppcut_assert_equal(
+	  exampleDir, ConfigManager::getResidentYardDirectory());
+}
+
 } // namespace testConfigManager

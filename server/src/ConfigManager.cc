@@ -42,6 +42,7 @@ struct ConfigManager::PrivateContext {
 	static ConfigManager *instance;
 	string                databaseDirectory;
 	static string         actionCommandDirectory;
+	static string         residentYardDirectory;
 
 	// methods
 	static void lock(void)
@@ -58,6 +59,7 @@ struct ConfigManager::PrivateContext {
 MutexLock      ConfigManager::PrivateContext::mutex;
 ConfigManager *ConfigManager::PrivateContext::instance = NULL;
 string         ConfigManager::PrivateContext::actionCommandDirectory;
+string         ConfigManager::PrivateContext::residentYardDirectory;
 
 // ---------------------------------------------------------------------------
 // Public methods
@@ -66,6 +68,8 @@ void ConfigManager::reset(void)
 {
 	PrivateContext::actionCommandDirectory =
 	  StringUtils::sprintf("%s/%s/action", LIBEXECDIR, PACKAGE);
+	PrivateContext::residentYardDirectory =
+	  StringUtils::sprintf("%s/sbin", PREFIX);
 }
 
 ConfigManager *ConfigManager::getInstance(void)
@@ -128,6 +132,22 @@ void ConfigManager::setActionCommandDirectory(const string &dir)
 	PrivateContext::actionCommandDirectory = dir;
 	PrivateContext::unlock();
 }
+
+string ConfigManager::getResidentYardDirectory(void)
+{
+	PrivateContext::lock();
+	string dir = PrivateContext::residentYardDirectory;
+	PrivateContext::unlock();
+	return dir;
+}
+
+void ConfigManager::setResidentYardDirectory(const string &dir)
+{
+	PrivateContext::lock();
+	PrivateContext::residentYardDirectory = dir;
+	PrivateContext::unlock();
+}
+
 
 // ---------------------------------------------------------------------------
 // Private methods

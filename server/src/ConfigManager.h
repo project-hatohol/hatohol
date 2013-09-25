@@ -55,6 +55,8 @@ public:
 
 	static string getActionCommandDirectory(void);
 	static void setActionCommandDirectory(const string &dir);
+	static string getResidentYardDirectory(void);
+	static void setResidentYardDirectory(const string &dir);
 
 private:
 	struct PrivateContext;
