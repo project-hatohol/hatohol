@@ -41,6 +41,9 @@ def error_exit(msg, exit_code = 1):
   print msg
   sys.exit(exit_code)
 
+def warn(msg):
+  print "WARNING: " + msg
+
 def print_usage():
   print("Usage")
   print("")
@@ -96,7 +99,9 @@ def arg_parser_hatohol_actv1(params, argv):
   (time_sec, time_nsec) = parse_time(argv[idx])
   idx += 1
 
-  type_id = int(argv[idx])
+  event_type = int(argv[idx])
+  if event_type != hatohol.EVENT_TYPE_GOOD and event_type != hatohol.EVENT_TYPE_BAD:
+    warn("Unknown event type: %d" % event_type)
   idx += 1
 
   event_id = int(argv[idx])
