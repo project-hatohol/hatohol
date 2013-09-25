@@ -100,7 +100,7 @@ def arg_parser_hatohol_actv1(params, argv):
   idx += 1
 
   event_type = int(argv[idx])
-  if event_type != hatohol.EVENT_TYPE_GOOD and event_type != hatohol.EVENT_TYPE_BAD:
+  if event_type not in (hatohol.EVENT_TYPE_GOOD, hatohol.EVENT_TYPE_BAD):
     warn("Unknown event type: %d" % event_type)
   idx += 1
 
