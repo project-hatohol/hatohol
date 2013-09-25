@@ -124,9 +124,12 @@ def arg_parser_hatohol_actv1(params, argv):
   trigger_severity = int(argv[idx])
   if trigger_severity not in trigger_severity_names:
     warn("Unknown trigger severity: %d" % trigger_severity)
+    trigger_severity_label = str(trigger_severity)
+  else:
+    trigger_severity_label = trigger_severity_names[trigger_severity]
   idx += 1
 
-  subj = "[%s] EventID: %d, Trigger ID: %d" % (str(trigger_severity), event_id, trigger_id)
+  subj = "[%s] EventID: %d, Trigger ID: %d" % (trigger_severity_label, event_id, trigger_id)
 
   params["subject"] = subj
   return NUM_ACTION_ARGS - 1
