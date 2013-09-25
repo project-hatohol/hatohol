@@ -19,6 +19,7 @@
 """
 import sys
 import smtplib
+import time
 import hatohol
 from email.MIMEText import MIMEText
 from email.Utils import formatdate
@@ -100,8 +101,13 @@ def arg_parser_hatohol_actv1(params, argv):
   idx += 1
 
   event_type = int(argv[idx])
-  if event_type not in (hatohol.EVENT_TYPE_GOOD, hatohol.EVENT_TYPE_BAD):
+  event_type_names = {
+    hatohol.EVENT_TYPE_GOOD:"GOOD", hatohol.EVENT_TYPE_BAD:"BAD"}
+  if event_type not in event_type_names:
     warn("Unknown event type: %d" % event_type)
+    event_type_label = "N/A"
+  else:
+    event_type_label = event_type_names[event_type]
   idx += 1
 
   event_id = int(argv[idx])
@@ -111,8 +117,13 @@ def arg_parser_hatohol_actv1(params, argv):
   idx += 1
 
   trigger_status = int(argv[idx])
-  if trigger_status not in (hatohol.TRIGGER_STATUS_OK, hatohol.TRIGGER_STATUS_PROBLEM):
+  trigger_status_names = {
+    hatohol.TRIGGER_STATUS_OK:"OK", hatohol.TRIGGER_STATUS_PROBLEM:"PROBLEM"}
+  if trigger_status not in trigger_status_names:
     warn("Unknown trigger status: %d" % trigger_status)
+    trigger_status_label = "N/A"
+  else:
+    trigger_status_label = trigger_status_names[trigger_status]
   idx += 1
 
   trigger_severity_names = {
@@ -124,14 +135,31 @@ def arg_parser_hatohol_actv1(params, argv):
   trigger_severity = int(argv[idx])
   if trigger_severity not in trigger_severity_names:
     warn("Unknown trigger severity: %d" % trigger_severity)
-    trigger_severity_label = str(trigger_severity)
+    trigger_severity_label = "N/A"
   else:
     trigger_severity_label = trigger_severity_names[trigger_severity]
   idx += 1
 
+  # make a subject
   subj = "[%s] EventID: %d, Trigger ID: %d" % (trigger_severity_label, event_id, trigger_id)
 
+  # make a body
+  body = ""
+  body += "action: %d\n" % action_id
+  body += "server: %d\n" % server_id
+  body += "host: %d\n" % host_id
+  
+  time_local_label = time.asctime(time.localtime(time_sec));
+  body += "time: %d.%d (%s)\n" % (time_sec, time_nsec, time_local_label)
+
+  body += "event type: %d (%s)\n" % (event_type, event_type_label)
+  body += "event: %d\n" % event_id
+  body += "trigger: %s\n" % trigger_id
+  body += "trigger status: %d (%s)\n" % (trigger_status, trigger_status_label)
+  body += "trigger severity: %d (%s)\n" % (trigger_severity, trigger_severity_label)
+
   params["subject"] = subj
+  params["body"] = body
   return NUM_ACTION_ARGS - 1
 
 def parse_arg():
@@ -144,7 +172,7 @@ def parse_arg():
   params["from_addr"] = DEFAULT_FROM_ADDR
 
   params["to_addr"] = None
-  params["body"] = "test"
+  params["body"] = ""
   params["subject"] = None
 
   idx = 1
