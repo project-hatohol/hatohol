@@ -1,5 +1,6 @@
 bin_PROGRAMS = hatohol-config-db-creator hatohol-cli \
                hatohol-def-src-file-generator
+bin_SCRIPTS = hatohol-actor-mail
 hatohol_config_db_creator_SOURCES = hatohol-config-db-creator.cc
 hatohol_cli_SOURCES = hatohol-cli.cc
 
@@ -17,5 +18,9 @@ config_example_DATA = hatohol-config.dat.example
 config_exampledir = $(pkgdatadir)
 
 hatohol_def_src_file_generator_SOURCES = hatohol-def-src-file-generator.cc
+
+hatohol-actor-mail: hatohol.py
+hatohol.py: hatohol-def-src-file-generator
+	./hatohol-def-src-file-generator py > $@
 
 EXTRA_DIST = $(config_example_DATA)
