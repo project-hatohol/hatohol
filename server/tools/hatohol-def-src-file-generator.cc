@@ -77,6 +77,10 @@ static string makeJsDefSource(char *arg[])
 	APPEND(s, "var TRIGGER_STATUS_PROBLEM = %d\n",  TRIGGER_STATUS_PROBLEM);
 	APPEND(s, "\n");
 
+	APPEND(s, "var EVENT_TYPE_GOOD = %d\n", EVENT_TYPE_GOOD);
+	APPEND(s, "var EVENT_TYPE_BAD  = %d\n", EVENT_TYPE_BAD);
+	APPEND(s, "\n");
+
 	APPEND(s,
 	  "var TRIGGER_SEVERITY_UNKNOWN   = %d\n",  TRIGGER_SEVERITY_UNKNOWN);
 	APPEND(s,
@@ -117,6 +121,10 @@ static string makePythonDefSource(char *arg[])
 
 	APPEND(s, "TRIGGER_STATUS_OK      = %d\n",  TRIGGER_STATUS_OK);
 	APPEND(s, "TRIGGER_STATUS_PROBLEM = %d\n",  TRIGGER_STATUS_PROBLEM);
+	APPEND(s, "\n");
+
+	APPEND(s, "EVENT_TYPE_GOOD = %d\n", EVENT_TYPE_GOOD);
+	APPEND(s, "EVENT_TYPE_BAD  = %d\n", EVENT_TYPE_BAD);
 	APPEND(s, "\n");
 
 	APPEND(s,
