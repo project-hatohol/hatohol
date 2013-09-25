@@ -24,82 +24,47 @@ var HatoholServerSelector = function(selectedCb) {
   // call the constructor of the super class
   HatoholSelectorDialog.apply(
     this, ["server-selector", gettext("Server selecion"), selectedCb]);
-  getServerList();
-
-  function makeTable(data) {
-    var html =
-    '<table class="table table-condensed table-striped table-hover" id="serverSelectTable">' +
-    '  <thead>' +
-    '    <tr>' +
-    '      <th>ID</th>' +
-    '      <th>' + gettext("Type") + '</th>' +
-    '      <th>' + gettext("Hostname") + '</th>' +
-    '      <th>' + gettext("IP Address") + '</th>' +
-    '      <th>' + gettext("Nickname") + '</th>' +
-    '    </tr>' +
-    '  </thead>' +
-    '  <tbody></tbody>' +
-    '</table>'
-    return html;
-  }
-
-  function makeTableBody(reply) {
-    var s;
-    self.setObjectArray(reply.servers);
-    for (var i = 0; i < reply.servers.length; i++) {
-      sv = reply.servers[i];
-      s += '<tr>';
-      s += '<td>' + sv.id + '</td>';
-      s += '<td>' + makeMonitoringSystemTypeLabel(sv.type) + '</td>';
-      s += '<td>' + sv.hostName + '</td>';
-      s += '<td>' + sv.ipAddress + '</td>';
-      s += '<td>' + sv.nickname  + '</td>';
-      s += '</tr>';
-    }
-    return s;
-  }
-
-  function getServerList() {
-    $.ajax({
-      url: "/tunnel/server",
-      type: "GET",
-      success: function(reply) {
-        var replyParser = new HatoholReplyParser(reply);
-        if (!(replyParser.getStatus() === REPLY_STATUS.OK)) {
-          self.setMessage(replyParser.getStatusMessage());
-          return;
-        }
-        if (reply.numberOfServers == 0) {
-          self.setMessage(gettext("No data."));
-          return;
-        }
-
-        // create a table
-        var table = $(makeTable(reply));
-        self.replaceMainElement(table);
-        $("#serverSelectTable tbody").empty();
-        $("#serverSelectTable tbody").append(makeTableBody(reply));
-
-        // set events
-        $("#serverSelectTable tr").click(function(){
-          var selectedRow = self.getSelectedRow();
-          if (selectedRow)
-            selectedRow.removeClass("info");
-          else
-            self.setSelectButtonState(true);
-          $(this).attr("class", "info");
-          self.setSelectedRow($(this));
-        });
-      },
-      error: function(XMLHttpRequest, textStatus, errorThrown) {
-        var errorMsg = "Error: " + XMLHttpRequest.status + ": " +
-                       XMLHttpRequest.statusText;
-        self.setMessage(errorMsg);
-      }
-    })
-  }
+  self.start("/tunnel/server", "GET");
 }
 
 HatoholServerSelector.prototype =
   Object.create(HatoholSelectorDialog.prototype);
 HatoholServerSelector.prototype.constructor = HatoholServerSelector;
+
+HatoholServerSelector.prototype.getNumberOfObjects = function(reply) {
+  return reply.numberOfServers;
+}
+
+HatoholServerSelector.prototype.generateMainTable = function(tableId) {
+  var html =
+  '<table class="table table-condensed table-striped table-hover" id=' +
+  tableId + '>' +
+  '  <thead>' +
+  '    <tr>' +
+  '      <th>ID</th>' +
+  '      <th>' + gettext("Type") + '</th>' +
+  '      <th>' + gettext("Hostname") + '</th>' +
+  '      <th>' + gettext("IP Address") + '</th>' +
+  '      <th>' + gettext("Nickname") + '</th>' +
+  '    </tr>' +
+  '  </thead>' +
+  '  <tbody></tbody>' +
+  '</table>'
+  return html;
+}
+
+HatoholServerSelector.prototype.generateTableRows = function(reply) {
+  var s = "";
+  this.setObjectArray(reply.servers);
+  for (var i = 0; i < reply.servers.length; i++) {
+    sv = reply.servers[i];
+    s += '<tr>';
+    s += '<td>' + sv.id + '</td>';
+    s += '<td>' + makeMonitoringSystemTypeLabel(sv.type) + '</td>';
+    s += '<td>' + sv.hostName + '</td>';
+    s += '<td>' + sv.ipAddress + '</td>';
+    s += '<td>' + sv.nickname  + '</td>';
+    s += '</tr>';
+  }
+  return s;
+}

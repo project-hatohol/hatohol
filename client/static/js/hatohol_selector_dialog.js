@@ -89,3 +89,49 @@ HatoholSelectorDialog.prototype.setSelectedRow = function(row) {
 HatoholSelectorDialog.prototype.getSelectedRow = function() {
   return this.selectedRow;
 }
+
+HatoholSelectorDialog.prototype.makeQueryData= function() {
+  return {};
+}
+
+HatoholSelectorDialog.prototype.start = function(url, requestType) {
+  var self = this;
+  $.ajax({
+    url: url,
+    type: requestType,
+    data: this.makeQueryData(),
+    success: function(reply) {
+      var replyParser = new HatoholReplyParser(reply);
+      if (!(replyParser.getStatus() === REPLY_STATUS.OK)) {
+        self.setMessage(replyParser.getStatusMessage());
+        return;
+      }
+      if (self.getNumberOfObjects(reply) == 0) {
+        self.setMessage(gettext("No data."));
+        return;
+      }
+
+      // create a table
+      var tableId = "selectorMainTable";
+      var table = self.generateMainTable(tableId);
+      self.replaceMainElement(table);
+      $("#" + tableId + " tbody").append(self.generateTableRows(reply));
+
+      // set events
+      $("#" + tableId + " tr").click(function(){
+        var selectedRow = self.getSelectedRow();
+        if (selectedRow)
+          selectedRow.removeClass("info");
+        else
+          self.setSelectButtonState(true);
+        $(this).attr("class", "info");
+        self.setSelectedRow($(this));
+      });
+    },
+    error: function(XMLHttpRequest, textStatus, errorThrown) {
+      var errorMsg = "Error: " + XMLHttpRequest.status + ": " +
+                     XMLHttpRequest.statusText;
+      self.setMessage(errorMsg);
+    }
+  })
+}
