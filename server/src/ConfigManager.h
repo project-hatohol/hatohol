@@ -31,6 +31,8 @@ public:
 	static ConfigManager *getInstance(void);
 	static int ALLOW_ACTION_FOR_ALL_OLD_EVENTS;
 
+	static void reset(void);
+
 	void addTargetServer(MonitoringServerInfo *monitoringServerInfo);
 	void getTargetServers(MonitoringServerInfoList &monitoringServers);
 	const string &getDatabaseDirectory(void) const;
@@ -50,6 +52,9 @@ public:
 	int getAllowedTimeOfActionForOldEvents(void);
 
 	int getMaxNumberOfRunningCommandAction(void);
+
+	static string getActionCommandDirectory(void);
+	static void setActionCommandDirectory(const string &dir);
 
 private:
 	struct PrivateContext;

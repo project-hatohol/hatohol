@@ -17,6 +17,10 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif // HAVE_CONFIG_H
+
 #include <MutexLock.h>
 using namespace mlpl;
 
@@ -37,6 +41,7 @@ struct ConfigManager::PrivateContext {
 	static MutexLock      mutex;
 	static ConfigManager *instance;
 	string                databaseDirectory;
+	static string         actionCommandDirectory;
 
 	// methods
 	static void lock(void)
@@ -52,10 +57,17 @@ struct ConfigManager::PrivateContext {
 
 MutexLock      ConfigManager::PrivateContext::mutex;
 ConfigManager *ConfigManager::PrivateContext::instance = NULL;
+string         ConfigManager::PrivateContext::actionCommandDirectory;
 
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
+void ConfigManager::reset(void)
+{
+	PrivateContext::actionCommandDirectory =
+	  StringUtils::sprintf("%s/%s/action", LIBEXECDIR, PACKAGE);
+}
+
 ConfigManager *ConfigManager::getInstance(void)
 {
 	if (PrivateContext::instance)
@@ -100,6 +112,21 @@ int ConfigManager::getAllowedTimeOfActionForOldEvents(void)
 int ConfigManager::getMaxNumberOfRunningCommandAction(void)
 {
 	return DEFAULT_MAX_NUM_RUNNING_COMMAND_ACTION;
+}
+
+string ConfigManager::getActionCommandDirectory(void)
+{
+	PrivateContext::lock();
+	string dir = PrivateContext::actionCommandDirectory;
+	PrivateContext::unlock();
+	return dir;
+}
+
+void ConfigManager::setActionCommandDirectory(const string &dir)
+{
+	PrivateContext::lock();
+	PrivateContext::actionCommandDirectory = dir;
+	PrivateContext::unlock();
 }
 
 // ---------------------------------------------------------------------------
