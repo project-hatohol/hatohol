@@ -1,0 +1,160 @@
+#!/usr/bin/env python
+"""
+  Copyright (C) 2013 Project Hatohol
+
+  This file is part of Hatohol.
+
+  Hatohol is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 2 of the License, or
+  (at your option) any later version.
+
+  Hatohol is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+"""
+import sys
+import smtplib
+import hatohol
+from email.MIMEText import MIMEText
+from email.Utils import formatdate
+
+DEFAULT_SMTP_SERVER = "localhost"
+DEFAULT_FROM_ADDR = "hatohol@localhost"
+
+def send(params):
+  msg = MIMEText(params["body"])
+  msg["Subject"] = params["subject"]
+  msg["From"] = params["from_addr"]
+  msg["To"] = params["to_addr"]
+  msg["Date"] = formatdate()
+
+  smtp = smtplib.SMTP(params["smtp_server"])
+  smtp.sendmail(params["from_addr"], [params["to_addr"]], msg.as_string())
+  smtp.close()
+
+def error_exit(msg, exit_code = 1):
+  print msg
+  sys.exit(exit_code)
+
+def print_usage():
+  print("Usage")
+  print("")
+  print("$ hatohol-actor-mail [options] to_address HATOHOL_ACTION_ARGS...")
+  print("")
+  print("options:")
+  print("  --smtp-server SMTP_SERVER")
+  print("")
+  print("HATOHOL_ACTION_ARGS:")
+  print("  --hatohol-action-v1")
+  print("  action def. ID")
+  print("  server ID")
+  print("  host ID")
+  print("  unixTime.nanosec")
+  print("  type (0: GOOD, 1: BAD)")
+  print("  event ID")
+  print("  trigger ID")
+  print("  trigger status (0: OK, 1: PROBLEM)")
+  print("  trigger severity (0: INFO, 1: WARNING, 2: ERROR, 3: CRITICAL, 4: EMERGENCY)")
+  print("")
+
+def get_next_word(argv):
+  if len(argv) < 2:
+    error_eixt("Not argument for %s" % argv[0])
+  return argv[1]
+
+def arg_parser_smtp_server(params, argv):
+  params["smtp_server"] = get_next_word(argv)
+  return 1
+
+def parse_time(arg):
+  words = arg.split(".")
+  if len(words) != 2:
+    error_exit("Invalid string for time: " + arg)
+  return (int(words[0]), int(words[1]))
+
+def arg_parser_hatohol_actv1(params, argv):
+  NUM_ACTION_ARGS = 10
+  num_action_arg = len(argv)
+  if num_action_arg != NUM_ACTION_ARGS:
+    error_exit("Invalid number of action argument: %d (expect: %d)" %
+               (num_action_arg, NUM_ACTION_ARGS))
+  idx = 1
+  action_id = int(argv[idx])
+  idx += 1
+
+  server_id = int(argv[idx])
+  idx += 1
+
+  host_id = int(argv[idx])
+  idx += 1
+
+  (time_sec, time_nsec) = parse_time(argv[idx])
+  idx += 1
+
+  type_id = int(argv[idx])
+  idx += 1
+
+  event_id = int(argv[idx])
+  idx += 1
+
+  trigger_id = int(argv[idx])
+  idx += 1
+
+  trigger_status = int(argv[idx])
+  idx += 1
+
+  trigger_severity = int(argv[idx])
+  idx += 1
+
+  subj = "[%s] EventID: %d, Trigger ID: %d" % (str(trigger_severity), event_id, trigger_id)
+
+  params["subject"] = subj
+  return NUM_ACTION_ARGS - 1
+
+def parse_arg():
+
+  arg_parsers = {"--smtp-server":arg_parser_smtp_server,
+                 "--hatohol-action-v1":arg_parser_hatohol_actv1}
+
+  params = {}
+  params["smtp_server"] = DEFAULT_SMTP_SERVER
+  params["from_addr"] = DEFAULT_FROM_ADDR
+
+  params["to_addr"] = None
+  params["body"] = "test"
+  params["subject"] = None
+
+  idx = 1
+  while idx < len(sys.argv):
+    arg = sys.argv[idx]
+    if arg in arg_parsers:
+      idx += arg_parsers[arg](params, sys.argv[idx:])
+    else:
+      params["to_addr"] = arg
+    idx += 1
+
+  # validateions
+  if not params["to_addr"]:
+    error_exit("Not found: To address")
+
+  if not params["subject"]:
+    error_exit("Not found: subject. You may not pass HATOHOL_ACTION_ARGS")
+
+  # show summary
+  print "TO: " + params["to_addr"]
+
+  return params
+
+if __name__ == '__main__':
+  if len(sys.argv) == 1:
+    print_usage()
+    sys.exit(1)
+  params = parse_arg()
+  send(params)
+
+
