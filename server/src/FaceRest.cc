@@ -511,11 +511,12 @@ static void addServers(JsonBuilderAgent &agent)
 	agent.endArray();
 }
 
-static void addHosts(JsonBuilderAgent &agent, uint32_t targetServerId)
+static void addHosts(JsonBuilderAgent &agent,
+                     uint32_t targetServerId, uint64_t targetHostId)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	HostInfoList hostInfoList;
-	dataStore->getHostList(hostInfoList, targetServerId);
+	dataStore->getHostList(hostInfoList, targetServerId, targetHostId);
 
 	agent.add("numberOfHosts", hostInfoList.size());
 	agent.startArray("hosts");
@@ -601,12 +602,14 @@ void FaceRest::handlerGetHost
 {
 	uint32_t targetServerId;
 	parseQueryServerId(query, targetServerId);
+	uint64_t targetHostId;
+	parseQueryHostId(query, targetHostId);
 
 	JsonBuilderAgent agent;
 	agent.startObject();
 	agent.add("apiVersion", API_VERSION);
 	agent.addTrue("result");
-	addHosts(agent, targetServerId);
+	addHosts(agent, targetServerId, targetHostId);
 	agent.endObject();
 
 	replyJsonData(agent, msg, arg->jsonpCallbackName, arg);

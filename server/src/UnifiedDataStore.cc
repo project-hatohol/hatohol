@@ -223,12 +223,12 @@ void UnifiedDataStore::getItemList(ItemInfoList &itemList,
 	dbHatohol.getItemInfoList(itemList, targetServerId);
 }
 
-void UnifiedDataStore::getHostList(HostInfoList &hostInfoList,
-                                   uint32_t targetServerId)
+void UnifiedDataStore::getHostList(
+  HostInfoList &hostInfoList, uint32_t targetServerId, uint64_t targetHostId)
 {
 	fetchItems();
 	DBClientHatohol dbHatohol;
-	dbHatohol.getHostInfoList(hostInfoList, targetServerId);
+	dbHatohol.getHostInfoList(hostInfoList, targetServerId, targetHostId);
 }
 
 void UnifiedDataStore::getActionList(ActionDefList &actionList)

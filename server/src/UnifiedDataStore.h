@@ -44,7 +44,8 @@ public:
 	virtual void getItemList(ItemInfoList &itemList,
 	                         uint32_t targetServerId = ALL_SERVERS);
 	virtual void getHostList(HostInfoList &hostInfoList,
-	                         uint32_t targetServerId = ALL_SERVERS);
+	                         uint32_t targetServerId = ALL_SERVERS,
+	                         uint64_t targetHostId = ALL_HOSTS);
 	virtual void getActionList(ActionDefList &actionList);
 	virtual void deleteActionList(const ActionIdList &actionIdList);
 	virtual size_t getNumberOfTriggers
