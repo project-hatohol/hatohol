@@ -18,6 +18,7 @@
  */
 
 #include <unistd.h>
+#include <semaphore.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <errno.h>
@@ -38,12 +39,18 @@ struct ActorCollector::PrivateContext {
 	static int     pipefd[2];
 	static MutexLock lock;
 	static WaitChildSet waitChildSet;
+	static ActorCollector *collector;
+	static sem_t collectorSem;
+	static bool  collectorExitRequest;
 };
 
 bool ActorCollector::PrivateContext::initialized = false;
 int ActorCollector::PrivateContext::pipefd[2];
 MutexLock ActorCollector::PrivateContext::lock;
 WaitChildSet ActorCollector::PrivateContext::waitChildSet;
+ActorCollector *ActorCollector::PrivateContext::collector = NULL;
+sem_t           ActorCollector::PrivateContext::collectorSem;
+bool            ActorCollector::PrivateContext::collectorExitRequest = false;
 
 // ---------------------------------------------------------------------------
 // Public methods
@@ -51,26 +58,32 @@ WaitChildSet ActorCollector::PrivateContext::waitChildSet;
 void ActorCollector::init(void)
 {
 	setupHandlerForSIGCHLD();
+	HATOHOL_ASSERT(sem_init(&PrivateContext::collectorSem, 0, 0) == 0,
+	               "Failed to call sem_init(): %d\n", errno);
 }
 
 void ActorCollector::reset(void)
 {
 	// Some tests calls g_child_watch_add() and g_spawn_sync() families
-	// that internally call it. They set their own handler for SIGCHLD
-	// and makes an ActorCollector's SIGCHLD handler invalid.
-	// So we reset it here. This implies that a test uses ActorCollect
-	// have to call hatoholInit() or ActorCollector::reset() in cut_setup().
+	// that internally call it. They set their own handler for SIGCHLD.
+	// So we reset it here. This implies that a test that uses
+	// ActorCollector has to call hatoholInit() or ActorCollector::reset()
+	// in cut_setup().
 	registerSIGCHLD();
 
 	// This function is mainly for the test. In the normal use,
 	// waitChildSet is of course empty when this function is called
 	// at the start-up.
+	lock();
 	PrivateContext::waitChildSet.clear();
+	unlock();
 }
 
-void ActorCollector::stop(void)
+void ActorCollector::quit(void)
 {
 	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	if (PrivateContext::collector)
+		PrivateContext::collector->stop();
 }
 
 void ActorCollector::lock(void)
@@ -96,6 +109,8 @@ void ActorCollector::addActor(ActorInfo *actorInfo)
 		         actorInfo->pid, actorInfo->logId);
 		return;
 	}
+
+	incWaitingActor();
 }
 
 ActorCollector::ActorCollector(void)
@@ -117,7 +132,7 @@ void ActorCollector::registerSIGCHLD(void)
 {
 	struct sigaction sa;
 	memset(&sa, 0, sizeof(struct sigaction));
-	sa.sa_sigaction = ActorCollector::signalHandlerChild;
+	sa.sa_handler = SIG_DFL;
 	sa.sa_flags |= (SA_RESTART|SA_SIGINFO);
 	HATOHOL_ASSERT(sigaction(SIGCHLD, &sa, NULL ) == 0,
 	               "Failed to set SIGCHLD, errno: %d\n", errno);
@@ -154,21 +169,18 @@ void ActorCollector::setupHandlerForSIGCHLD(void)
 	PrivateContext::initialized = true;
 }
 
-void ActorCollector::signalHandlerChild(int signo, siginfo_t *info, void *arg)
+void ActorCollector::incWaitingActor(void)
 {
-	// We use write() to notify the reception of SIGCHLD.
-	// because write() is one of the asynchronus SIGNAL safe functions.
-	ChildSigInfo childSigInfo;
-	childSigInfo.pid      = info->si_pid;
-	childSigInfo.code     = info->si_code;
-	childSigInfo.status   = info->si_status;
-	ssize_t ret = write(PrivateContext::pipefd[1],
-	                    &childSigInfo, sizeof(ChildSigInfo));
-	if (ret == -1) {
-		// We cannot call printf() and other
-		// signal unsafe output function.
-		abort();
+	if (!PrivateContext::collector) {
+		PrivateContext::collector = new ActorCollector();
+		PrivateContext::collector->start();
 	}
+
+	// We assumes that PrivateContext::collector already has
+	// been created at that time.
+	HATOHOL_ASSERT(
+	  sem_post(&PrivateContext::collectorSem) == 0,
+	  "Failed to call sem_post(): %d\n", errno);
 }
 
 gboolean ActorCollector::checkExitProcess
@@ -222,8 +234,11 @@ gboolean ActorCollector::checkExitProcess
 	} else {
 		// The received-signal candidates are
 		// CLD_TRAPPED, CLD_STOPPED, and CLD_CONTINUED.
-		MLPL_INFO("Actor (%d) received a signal: %d\n",
+		MLPL_INFO("Actor: %d, status: %d\n",
 		          childSigInfo.pid, childSigInfo.status);
+		lock();
+		incWaitingActor();
+		unlock();
 		return TRUE;
 	}
 	logArg.exitCode = childSigInfo.status;
@@ -240,6 +255,7 @@ gboolean ActorCollector::checkExitProcess
 
 	// return if the actorInfo instance was not found
 	if (!actorInfo) {
+		incWaitingActor();
 		unlock();
 		return TRUE;
 	}
@@ -295,4 +311,55 @@ size_t ActorCollector::getNumberOfWaitingActors(void)
 	size_t num = PrivateContext::waitChildSet.size();
 	unlock();
 	return num;
+}
+
+void ActorCollector::start(void)
+{
+	bool autoDelete = true;
+	HatoholThreadBase::start(autoDelete);
+}
+
+//
+// These methods are executed on a collector thread
+//
+gpointer ActorCollector::mainThread(HatoholThreadArg *arg)
+{
+	int ret;
+	siginfo_t siginfo;
+	while (true) {
+		ret = sem_wait(&PrivateContext::collectorSem);
+		if (ret == -1 && errno == EINTR)
+			continue;
+
+		// TODO: use an atomic variable to improve performance
+		lock();
+		bool shouldExit = PrivateContext::collectorExitRequest;
+		unlock();
+		if (shouldExit)
+			break;
+
+		while (true) {
+			ret = waitid(P_ALL, 0, &siginfo, WEXITED);
+			if (ret == -1 && errno == EINTR)
+				continue;
+			break;
+		}
+		if (ret == -1) {
+			MLPL_ERR("Failed to call wait_id: %d\n", errno);
+			continue;
+		}
+		notifyChildSiginfo(&siginfo);
+	}
+	return NULL;
+}
+
+void ActorCollector::notifyChildSiginfo(siginfo_t *info)
+{
+	ChildSigInfo childSigInfo;
+	childSigInfo.pid      = info->si_pid;
+	childSigInfo.code     = info->si_code;
+	childSigInfo.status   = info->si_status;
+	ssize_t ret = write(PrivateContext::pipefd[1],
+	                    &childSigInfo, sizeof(ChildSigInfo));
+	HATOHOL_ASSERT(ret != -1, "Faied to write(): %d\n", errno);
 }

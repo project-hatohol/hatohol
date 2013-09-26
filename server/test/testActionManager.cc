@@ -114,7 +114,7 @@ struct ExecCommandContext : public ResidentPullHelper<ExecCommandContext> {
 	{
 		if (actionTpPid) {
 			int signo = SIGKILL;
-			if (kill(actionTpPid, signo) == -1) {
+			if (kill(actionTpPid, signo) == -1 && errno != ESRCH) {
 				// We cannot stop the clean up.
 				// So we don't use cut_assert_...() here
 				cut_notify(

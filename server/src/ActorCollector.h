@@ -50,12 +50,12 @@ struct ActorInfo {
 	}
 };
 
-class ActorCollector
+class ActorCollector : public HatoholThreadBase
 {
 public:
 	static void init(void);
 	static void reset(void);
-	static void stop(void);
+	static void quit(void);
 	static void lock(void);
 	static void unlock(void);
 
@@ -81,9 +81,17 @@ public:
 protected:
 	static void registerSIGCHLD(void);
 	static void setupHandlerForSIGCHLD(void);
-	static void signalHandlerChild(int signo, siginfo_t *info, void *arg);
+	static void incWaitingActor(void);
 	static gboolean checkExitProcess
 	  (GIOChannel *source, GIOCondition condition, gpointer data);
+
+	// we redefine start() as protected so that HatoholThreadBase::start()
+	// cannot be called from other classes.
+	void start(void);
+	void notifyChildSiginfo(siginfo_t *info);
+
+	// overriden virtual methods
+	virtual gpointer mainThread(HatoholThreadArg *arg);
 
 private:
 	struct PrivateContext;
