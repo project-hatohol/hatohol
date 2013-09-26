@@ -168,6 +168,10 @@ var HatoholAddActionDialog = function(addSucceededCb) {
     selectedIdSetter("ANY");
   }
 
+  function setSelectedServerId(value) {
+    setSelectedId(IDX_SELECTED_SERVER, value, fixupSelectHostBox);
+  }
+
   function fixupSelectHostBox(newServerId) {
     fixupSelectBox($("#selectHostId"), newServerId, setSelectedHostId);
   }
