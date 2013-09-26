@@ -76,7 +76,6 @@ def get_host_name(server_id, host_id):
   encoded_query = urllib.urlencode(query)
   url += "?" + encoded_query
   try:
-    print "URL: " + url
     response = urllib2.urlopen(url)
   except:
     return "N/A (Failed to connect)"
