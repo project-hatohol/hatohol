@@ -114,14 +114,14 @@ void ActorCollector::reset(void)
 void ActorCollector::quit(void)
 {
 	lock();
-	PrivateContext::collectorExitRequest = true;;
-	incWaitingActor(); 
-	unlock();
-	if (PrivateContext::collector) {
-		MLPL_INFO("stop process: started.\n");
-		PrivateContext::collector->stop();
-		MLPL_INFO("stop process: completed.\n");
+	if (!PrivateContext::collector) {
+		unlock();
+		return;
 	}
+	MLPL_INFO("stop process: started.\n");
+	PrivateContext::collectorExitRequest = true;;
+	unlock();
+	incWaitingActor(); 
 }
 
 void ActorCollector::lock(void)
@@ -269,6 +269,7 @@ gpointer ActorCollector::mainThread(HatoholThreadArg *arg)
 		}
 		notifyChildSiginfo(&siginfo);
 	}
+	MLPL_INFO("stop process: completed.\n");
 	return NULL;
 }
 
