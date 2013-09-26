@@ -40,6 +40,11 @@ public:
 	{
 		ArmNagiosNDOUtils::getEvent();
 	} 
+
+	void connect(void)
+	{
+		ArmNagiosNDOUtils::connect();
+	} 
 };
 
 static ArmNagiosNDOUtils *g_armNagi = NULL;
@@ -71,6 +76,7 @@ static void createGlobalInstance(void)
 
 	// If T is ArmNagiosNDOUtils, the following cast will return NULL.
 	g_armNagiTestee = dynamic_cast<ArmNagiosNDOUtilsTestee *>(g_armNagi);
+	g_armNagiTestee->connect();
 }
 
 void cut_setup(void)
@@ -93,7 +99,7 @@ void cut_teardown(void)
 // ---------------------------------------------------------------------------
 void test_create(void)
 {
-	createGlobalInstance<ArmNagiosNDOUtils>();
+	createGlobalInstance<ArmNagiosNDOUtilsTestee>();
 	cppcut_assert_not_null(g_armNagi);
 }
 
