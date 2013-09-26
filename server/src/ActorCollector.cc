@@ -113,9 +113,15 @@ void ActorCollector::reset(void)
 
 void ActorCollector::quit(void)
 {
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
-	if (PrivateContext::collector)
+	lock();
+	PrivateContext::collectorExitRequest = true;;
+	incWaitingActor(); 
+	unlock();
+	if (PrivateContext::collector) {
+		MLPL_INFO("stop process: started.\n");
 		PrivateContext::collector->stop();
+		MLPL_INFO("stop process: completed.\n");
+	}
 }
 
 void ActorCollector::lock(void)
