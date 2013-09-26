@@ -60,16 +60,22 @@ def main():
                    help="host ID")
   group.add_option("--timestamp", action="callback", type="string", callback=parse_timestamp, metavar="TIMESTAMP",
                    help="TIMESTAMP as unixtime.nanosec")
-  group.add_option("--event-type", action="callback", type="int", callback=parse_event_type, metavar="TYPE",
-                   help="type (0: GOOD, 1: BAD)")
+  available_event_types = make_available_values(EVENT_TYPE_NAMES)
+  event_types_description = make_description(EVENT_TYPE_NAMES)
+  group.add_option("--event-type", type="choice", choices=available_event_types, metavar="TYPE",
+                   help="type (%s)" % event_types_description)
   group.add_option("--event", type="int", dest="event_id", metavar="ID",
                    help="event ID")
-  group.add_option("--trigger", type="int", dest="trigger_id", default=-1, metavar="ID",
+  group.add_option("--trigger", type="int", dest="trigger_id", metavar="ID",
                    help="trigger ID")
-  group.add_option("--trigger-status", action="callback", type="int", callback=parse_trigger_status, metavar="STATUS",
-                   help="trigger status (0: OK, 1: PROBLEM)")
-  group.add_option("--trigger-severity", action="callback", type="int", callback=parse_trigger_severity, metavar="SEVERITY",
-                   help="trigger severity (0: INFO, 1: WARNING, 2: ERROR, 3: CRITICAL, 4: EMERGENCY)")
+  available_trigger_status = make_available_values(TRIGGER_STATUS_NAMES)
+  trigger_status_description = make_description(TRIGGER_STATUS_NAMES)
+  group.add_option("--trigger-status", type="choice", choices=available_trigger_status, metavar="STATUS",
+                   help="trigger status (%s)" % trigger_status_description)
+  available_trigger_severity = make_available_values(TRIGGER_SEVERITY_NAMES)
+  trigger_severity_description = make_description(TRIGGER_SEVERITY_NAMES)
+  group.add_option("--trigger-severity", type="choice", choices=available_trigger_severity, metavar="SEVERITY",
+                   help="trigger severity (%s)" % trigger_severity_description)
   parser.add_option_group(group)
   (options, args) = parser.parse_args()
 
@@ -81,6 +87,36 @@ def main():
   if len(args) != 0:
     parser.error("Too many argumets")
 
+  options.event_type_label = None
+  options.trigger_status_label = None
+  options.trigger_severity_label = None
+
+  event_type = int(options.event_type or -1)
+  options.event_type = event_type
+  if event_type in EVENT_TYPE_NAMES:
+    options.event_type_label = EVENT_TYPE_NAMES[event_type]
+  else:
+    warn("Unknown event type %d" % event_type)
+    options.event_type_label = "N/A"
+
+  trigger_status = int(options.trigger_status or -1)
+  options.trigger_status = trigger_status
+  if trigger_status in TRIGGER_STATUS_NAMES:
+    options.trigger_status_label = TRIGGER_STATUS_NAMES[trigger_status]
+  else:
+    warn("Unknown trigger status %d" % trigger_status)
+    options.trigger_status_label = "N/A"
+
+  trigger_severity = int(options.trigger_severity or -1)
+  options.trigger_severity = trigger_severity
+  if trigger_severity in TRIGGER_SEVERITY_NAMES:
+    options.trigger_severity_label = TRIGGER_SEVERITY_NAMES[trigger_severity]
+  else:
+    warn("Unknown trigger severity %d" % trigger_severity)
+    options.trigger_severity_label = "N/A"
+
+  print("%s.%s" % (options.time_sec, options.time_nsec))
+
   subject = make_subject(options)
   body = make_body(options)
 
@@ -89,6 +125,12 @@ def main():
             to_addr,
             subject,
             body)
+
+def make_available_values(dictionary):
+  return map((lambda x: str(x)), dictionary.keys())
+
+def make_description(dictionary):
+  return ", ".join(map((lambda x: "%s:%s" % x), dictionary.items()))
 
 def warn(msg):
   print "WARNING: " + msg
@@ -126,34 +168,7 @@ def send_mail(smtp_server, from_addr, to_addr, subject, body):
   smtp.close()
 
 def parse_timestamp(option, opt, value, parser):
-  (parser.values.time_sec, parser.values.time_nsec) = value.split(".")
-
-def parse_event_type(option, opt, value, parser):
-  event_type = int(value)
-  parser.values.event_type = event_type
-  if event_type in EVENT_TYPE_NAMES:
-    parser.values.event_type_label = EVENT_TYPE_NAMES[event_type]
-  else:
-    warn("Unknown event type %d" % event_type)
-    parser.values.event_type_label = "N/A"
-
-def parse_trigger_status(option, opt, value, parser):
-  trigger_status = int(value)
-  parser.values.trigger_status = trigger_status
-  if trigger_status in TRIGGER_STATUS_NAMES:
-    parser.values.trigger_status_label = TRIGGER_STATUS_NAMES[trigger_status]
-  else:
-    warn("Unknown trigger status %d" % trigger_status)
-    parser.values.trigger_status_label = "N/A"
-
-def parse_trigger_severity(option, opt, value, parser):
-  trigger_severity = int(value)
-  parser.values.trigger_severity = trigger_severity
-  if trigger_severity in TRIGGER_SEVERITY_NAMES:
-    parser.values.trigger_severity_label = TRIGGER_SEVERITY_NAMES[trigger_severity]
-  else:
-    warn("Unknow trigger severity %d" % trigger_severity)
-    parser.values.trigger_severity_label = "N/A"
+  (parser.values.time_sec, parser.values.time_nsec) = map((lambda x: int(x)), value.split("."))
 
 if __name__ == '__main__':
   main()
