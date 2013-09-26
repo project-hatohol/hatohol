@@ -19,7 +19,10 @@
 """
 import sys
 import smtplib
+import urllib
+import urllib2
 import time
+import json
 import hatohol
 from email.MIMEText import MIMEText
 from email.Utils import formatdate
@@ -65,6 +68,30 @@ def print_usage():
   print("  trigger status (0: OK, 1: PROBLEM)")
   print("  trigger severity (0: INFO, 1: WARNING, 2: ERROR, 3: CRITICAL, 4: EMERGENCY)")
   print("")
+
+def get_host_name(server_id, host_id):
+  port = 33194
+  url = "http://localhost:%d/host" % port
+  query = {"serverId":server_id, "hostId":host_id}
+  encoded_query = urllib.urlencode(query)
+  url += "?" + encoded_query
+  try:
+    print "URL: " + url
+    response = urllib2.urlopen(url)
+  except:
+    return "N/A (error: 1)";
+  reply = json.loads(response.read())
+  print reply
+  if "numberOfHosts" not in reply:
+    return "N/A (error: 2)";
+  if reply["numberOfHosts"] != 1:
+    return "N/A (error: 3)";
+  if "hosts" not in reply:
+    return "N/A (error: 3)";
+  host = reply["hosts"][0];
+  if "hostName" not in host:
+    return "N/A (error: 4)";
+  return host["hostName"];
 
 def get_next_word(argv):
   if len(argv) < 2:
@@ -147,8 +174,8 @@ def arg_parser_hatohol_actv1(params, argv):
   body = ""
   body += "action: %d\n" % action_id
   body += "server: %d\n" % server_id
-  body += "host: %d\n" % host_id
-  
+  body += "host: %d (%s)\n" % (host_id, get_host_name(server_id, host_id));
+
   time_local_label = time.asctime(time.localtime(time_sec));
   body += "time: %d.%d (%s)\n" % (time_sec, time_nsec, time_local_label)
 
