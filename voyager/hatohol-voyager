@@ -34,7 +34,7 @@ def print_usage():
   print "  show-trigger [serverId [hostId]]"
   print "  show-event"
   print "  show-item"
-  print "  show-host [sererId]"
+  print "  show-host [sererId [hostId]]"
   print "  show-action"
   print "  add-action"
   print "    --type command|resident"
@@ -105,8 +105,12 @@ def show_item(url, options):
 
 def show_host(url, options):
   url += "/host"
+  query = {}
   if len(options) >= 1:
-    query = {"serverId":options[0]}  
+    query["serverId"] = options[0]
+  if len(options) >= 2:
+    query["hostId"] = options[1]
+  if len(query) > 0:
     encoded_query = urllib.urlencode(query)
     url += "?" + encoded_query
   response = urllib2.urlopen(url)
