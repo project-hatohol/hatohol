@@ -35,30 +35,34 @@ typedef WaitChildSet::iterator       WaitChildSetIterator;
 typedef WaitChildSet::const_iterator WaitChildSetConstIterator;
 
 struct ActorCollector::PrivateContext {
-	static bool    initialized;
-	static int     pipefd[2];
 	static MutexLock lock;
 	static WaitChildSet waitChildSet;
 	static ActorCollector *collector;
 	static sem_t collectorSem;
 	static bool  collectorExitRequest;
+
+	// for reset
+	static bool  inReset;
+	static sem_t resetCompletionSem;
 };
 
-bool ActorCollector::PrivateContext::initialized = false;
-int ActorCollector::PrivateContext::pipefd[2];
 MutexLock ActorCollector::PrivateContext::lock;
 WaitChildSet ActorCollector::PrivateContext::waitChildSet;
 ActorCollector *ActorCollector::PrivateContext::collector = NULL;
 sem_t           ActorCollector::PrivateContext::collectorSem;
 bool            ActorCollector::PrivateContext::collectorExitRequest = false;
 
+sem_t           ActorCollector::PrivateContext::resetCompletionSem;
+bool            ActorCollector::PrivateContext::inReset = false;
+
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
 void ActorCollector::init(void)
 {
-	setupHandlerForSIGCHLD();
 	HATOHOL_ASSERT(sem_init(&PrivateContext::collectorSem, 0, 0) == 0,
+	               "Failed to call sem_init(): %d\n", errno);
+	HATOHOL_ASSERT(sem_init(&PrivateContext::resetCompletionSem, 0, 0) == 0,
 	               "Failed to call sem_init(): %d\n", errno);
 }
 
@@ -74,8 +78,36 @@ void ActorCollector::reset(void)
 	// This function is mainly for the test. In the normal use,
 	// waitChildSet is of course empty when this function is called
 	// at the start-up.
+	// Here we wait for the exit of all the children.
 	lock();
-	PrivateContext::waitChildSet.clear();
+	PrivateContext::inReset = true;
+	bool isEmpty = PrivateContext::waitChildSet.empty();
+	WaitChildSetIterator it = PrivateContext::waitChildSet.begin();
+	for (; it != PrivateContext::waitChildSet.end(); ++it) {
+		pid_t pid = it->first;
+		int ret = kill(pid, SIGKILL);
+		if (ret == -1 && errno == ESRCH) {
+			MLPL_INFO("No process w/ pid: %d\n", pid);
+			PrivateContext::waitChildSet.erase(it);
+		}
+		HATOHOL_ASSERT(ret == 0, "Failed to send kill (%d): %d\n",
+		               pid, errno);
+	}
+	unlock();
+	if (isEmpty) {
+		PrivateContext::inReset = false;
+		return;
+	}
+	while (true) {
+		int ret = sem_wait(&PrivateContext::resetCompletionSem);
+		if (ret == -1 && errno == EINTR)
+			continue;
+		HATOHOL_ASSERT(ret == 0,
+		               "Failed to call sem_wait(): %d\n", errno);
+		break;
+	}
+	lock();
+	PrivateContext::inReset = false;
 	unlock();
 }
 
@@ -98,6 +130,11 @@ void ActorCollector::unlock(void)
 
 void ActorCollector::addActor(ActorInfo *actorInfo)
 {
+	if (PrivateContext::inReset) {
+		MLPL_INFO("Ignore addActor(): %d (inReset)\n", actorInfo->pid);
+		return;
+	}
+
 	// This function is currently called only from
 	// ActionManager::execCommandAction(). Because lock() and unlock() are
 	// called in it, so they aren't called here.
@@ -138,146 +175,22 @@ void ActorCollector::registerSIGCHLD(void)
 	               "Failed to set SIGCHLD, errno: %d\n", errno);
 }
 
-void ActorCollector::setupHandlerForSIGCHLD(void)
-{
-	// We assume that this function (implictly ActorCollector::init) is
-	// never called concurrently.
-	if (PrivateContext::initialized)
-		return;
-
-	// open pipe
-	HATOHOL_ASSERT(pipe(PrivateContext::pipefd) == 0,
-	               "Failed to open pipe: errno: %d", errno);
-
-	// set signal handler
-	registerSIGCHLD();
-	
-	// set glib callback handler for the pipe
-	GIOChannel *ioch = g_io_channel_unix_new(PrivateContext::pipefd[0]);
-	GError *error = NULL;
-	GIOStatus status = g_io_channel_set_encoding(ioch, NULL, &error);
-	if (status == G_IO_STATUS_ERROR) {
-		THROW_HATOHOL_EXCEPTION("status: G_IO_STATUS_ERROR: %s",
-		                        error->message);
-		g_error_free(error);
-	} else if (status != G_IO_STATUS_NORMAL) {
-		THROW_HATOHOL_EXCEPTION("Illegal status: %d", status);
-	}
-	g_io_add_watch(ioch,
-	               (GIOCondition)(G_IO_IN|G_IO_PRI|G_IO_ERR|G_IO_HUP),
-	               ActorCollector::checkExitProcess, NULL);
-	PrivateContext::initialized = true;
-}
-
 void ActorCollector::incWaitingActor(void)
 {
+	// Currently this functions calls from addActor() and
+	// notifyChildSiginfo(). In the former case, addActor() is called
+	// only from ActorManager::spawn() with the lock. So a race never
+	// happens. In the later case, it is ensured that 'collector' is not
+	// NULL and not changed, because notifyChildSiginfo() is a class
+	// method of 'collector'.
 	if (!PrivateContext::collector) {
 		PrivateContext::collector = new ActorCollector();
 		PrivateContext::collector->start();
 	}
 
-	// We assumes that PrivateContext::collector already has
-	// been created at that time.
 	HATOHOL_ASSERT(
 	  sem_post(&PrivateContext::collectorSem) == 0,
 	  "Failed to call sem_post(): %d\n", errno);
-}
-
-gboolean ActorCollector::checkExitProcess
-  (GIOChannel *source, GIOCondition condition, gpointer data)
-{
-	if (condition & G_IO_ERR) {
-		THROW_HATOHOL_EXCEPTION("GIO watch: Error\n");
-	} else if (condition & G_IO_HUP) {
-		THROW_HATOHOL_EXCEPTION("GIO watch: HUP\n");
-	}
-
-	GError *error = NULL;
-	ChildSigInfo childSigInfo;
-	GIOStatus stat;
-	gsize bytesRead;
-	gsize requestSize = sizeof(childSigInfo);
-	gchar *buf = reinterpret_cast<gchar *>(&childSigInfo);
-	while (true) {
-		stat = g_io_channel_read_chars(source, buf, requestSize,
-		                               &bytesRead, &error);
-		if (stat == G_IO_STATUS_AGAIN) {
-			continue;
-		} else if (stat == G_IO_STATUS_EOF) {
-			THROW_HATOHOL_EXCEPTION("Unexcepted EOF\n");
-		} else if (stat == G_IO_STATUS_ERROR) {
-			THROW_HATOHOL_EXCEPTION("ERROR: %s\n",
-			                        error->message);
-			g_error_free(error);
-		} else if (stat != G_IO_STATUS_NORMAL) {
-			THROW_HATOHOL_EXCEPTION("Unknown stat: %d\n", stat);
-		}
-
-		if (bytesRead >= requestSize)
-			break;
-		requestSize -= bytesRead;
-		buf += bytesRead;
-	}
-
-	// check the reason of the signal.
-	DBClientAction::LogEndExecActionArg logArg;
-	if (childSigInfo.code == CLD_EXITED) {
-		logArg.status = ACTLOG_STAT_SUCCEEDED;
-		// failureCode is set to ACTLOG_EXECFAIL_NONE in the
-		// LogEndExecActionArg's constructor.
-	} else if (childSigInfo.code == CLD_KILLED) {
-		logArg.status = ACTLOG_STAT_FAILED;
-		logArg.failureCode = ACTLOG_EXECFAIL_KILLED_SIGNAL;
-	} else if (childSigInfo.code == CLD_DUMPED) {
-		logArg.status = ACTLOG_STAT_FAILED;
-		logArg.failureCode = ACTLOG_EXECFAIL_DUMPED_SIGNAL;
-	} else {
-		// The received-signal candidates are
-		// CLD_TRAPPED, CLD_STOPPED, and CLD_CONTINUED.
-		MLPL_INFO("Actor: %d, status: %d\n",
-		          childSigInfo.pid, childSigInfo.status);
-		lock();
-		incWaitingActor();
-		unlock();
-		return TRUE;
-	}
-	logArg.exitCode = childSigInfo.status;
-
-	// try to find the action log.
-	const ActorInfo *actorInfo = NULL;
-	lock();
-	WaitChildSetIterator it =
-	   PrivateContext::waitChildSet.find(childSigInfo.pid);
-	if (it != PrivateContext::waitChildSet.end()) {
-		actorInfo = it->second;
-		PrivateContext::waitChildSet.erase(it);
-	}
-
-	// return if the actorInfo instance was not found
-	if (!actorInfo) {
-		incWaitingActor();
-		unlock();
-		return TRUE;
-	}
-
-	// execute the callback function
-	if (actorInfo->collectedCb)
-		(*actorInfo->collectedCb)(actorInfo);
-	unlock();
-
-	// log the action result if needed
-	if (!actorInfo->dontLog) {
-		DBClientAction dbAction;
-		logArg.logId = actorInfo->logId;
-		dbAction.logEndExecAction(logArg);
-	}
-
-	// execute the callback function without the lock
-	if (actorInfo->postCollectedCb)
-		(*actorInfo->postCollectedCb)(actorInfo);
-
-	delete actorInfo;
-	return TRUE;
 }
 
 bool ActorCollector::isWatching(pid_t pid)
@@ -359,7 +272,73 @@ void ActorCollector::notifyChildSiginfo(siginfo_t *info)
 	childSigInfo.pid      = info->si_pid;
 	childSigInfo.code     = info->si_code;
 	childSigInfo.status   = info->si_status;
-	ssize_t ret = write(PrivateContext::pipefd[1],
-	                    &childSigInfo, sizeof(ChildSigInfo));
-	HATOHOL_ASSERT(ret != -1, "Faied to write(): %d\n", errno);
+
+	// check the reason of the signal.
+	DBClientAction::LogEndExecActionArg logArg;
+	if (childSigInfo.code == CLD_EXITED) {
+		logArg.status = ACTLOG_STAT_SUCCEEDED;
+		// failureCode is set to ACTLOG_EXECFAIL_NONE in the
+		// LogEndExecActionArg's constructor.
+	} else if (childSigInfo.code == CLD_KILLED) {
+		logArg.status = ACTLOG_STAT_FAILED;
+		logArg.failureCode = ACTLOG_EXECFAIL_KILLED_SIGNAL;
+	} else if (childSigInfo.code == CLD_DUMPED) {
+		logArg.status = ACTLOG_STAT_FAILED;
+		logArg.failureCode = ACTLOG_EXECFAIL_DUMPED_SIGNAL;
+	} else {
+		// The received-signal candidates are
+		// CLD_TRAPPED, CLD_STOPPED, and CLD_CONTINUED.
+		MLPL_INFO("Actor: %d, status: %d\n",
+		          childSigInfo.pid, childSigInfo.status);
+		incWaitingActor();
+		return;
+	}
+	logArg.exitCode = childSigInfo.status;
+
+	// try to find the action log.
+	const ActorInfo *actorInfo = NULL;
+	lock();
+	WaitChildSetIterator it =
+	   PrivateContext::waitChildSet.find(childSigInfo.pid);
+	if (it != PrivateContext::waitChildSet.end()) {
+		actorInfo = it->second;
+		PrivateContext::waitChildSet.erase(it);
+	}
+
+	// return if the actorInfo instance was not found
+	if (!actorInfo) {
+		unlock();
+		incWaitingActor();
+		return;
+	}
+
+	// if in the reset, just return
+	if (PrivateContext::inReset) {
+		bool isEmpty = PrivateContext::waitChildSet.empty();
+		unlock();
+		if (isEmpty) {
+			HATOHOL_ASSERT(
+			  sem_post(&PrivateContext::resetCompletionSem) == 0,
+			           "Failed to call sem_post(): %d\n", errno);
+		}
+		return;
+	}
+
+	// execute the callback function
+	if (actorInfo->collectedCb)
+		(*actorInfo->collectedCb)(actorInfo);
+	unlock();
+
+	// log the action result if needed
+	if (!actorInfo->dontLog) {
+		DBClientAction dbAction;
+		logArg.logId = actorInfo->logId;
+		dbAction.logEndExecAction(logArg);
+	}
+
+	// execute the callback function without the lock
+	if (actorInfo->postCollectedCb)
+		(*actorInfo->postCollectedCb)(actorInfo);
+
+	delete actorInfo;
 }

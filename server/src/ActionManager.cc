@@ -507,7 +507,7 @@ bool ActionManager::spawn(
 	// We take the lock here to avoid the child spanwed below from
 	// not being collected. If the child immediately exits
 	// before the following 'ActorCollector::addActor(&childPid)' is
-	// called, ActorCollector::checkExitProcess() possibly ignores it,
+	// called, ActorCollector::notifyChildSiginfo() possibly ignores it,
 	// because the pid of the child isn't in the wait child set.
 	ActorCollector::lock();
 	gboolean succeeded =

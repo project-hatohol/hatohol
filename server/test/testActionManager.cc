@@ -415,7 +415,7 @@ void _assertWaitForChangeActionLogStatus(ExecCommandContext *ctx,
                                          ActionLogStatus currStatus)
 {
 	do {
-		g_main_context_iteration(NULL, TRUE);
+		g_main_context_iteration(NULL, FALSE);
 		cppcut_assert_equal(false, ctx->timedOut);
 		cppcut_assert_equal(
 		  true, ctx->dbAction.getLog(ctx->actionLog,
@@ -603,7 +603,7 @@ static void _assertWaitEventBody(ExecCommandContext *ctx)
 static void _assertWaitRemoveWatching(ExecCommandContext *ctx)
 {
 	while (ActorCollector::isWatching(ctx->actionTpPid)) {
-		g_main_context_iteration(NULL, TRUE);
+		g_main_context_iteration(NULL, FALSE);
 		cppcut_assert_equal(false, ctx->timedOut);
 	}
 }

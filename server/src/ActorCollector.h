@@ -80,10 +80,7 @@ public:
 
 protected:
 	static void registerSIGCHLD(void);
-	static void setupHandlerForSIGCHLD(void);
 	static void incWaitingActor(void);
-	static gboolean checkExitProcess
-	  (GIOChannel *source, GIOCondition condition, gpointer data);
 
 	// we redefine start() as protected so that HatoholThreadBase::start()
 	// cannot be called from other classes.

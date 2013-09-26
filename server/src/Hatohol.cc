@@ -77,6 +77,7 @@ static void init(const CommandLineArg *arg)
 
 static void reset(void)
 {
+	ActorCollector::reset();
 	ConfigManager::reset();
 
 	DBAgentSQLite3::reset();
@@ -85,7 +86,6 @@ static void reset(void)
 	DBClientAction::reset(); // must be after DBClientConfig::reset()
 
 	ActionManager::reset();
-	ActorCollector::reset();
 }
 
 void hatoholInit(const CommandLineArg *arg)
