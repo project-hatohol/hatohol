@@ -59,6 +59,13 @@ public:
 	virtual void setCopyOnDemandEnabled(bool enable);
 	virtual void addAction(ActionDef &actionDef);
 
+	/**
+	 * Add events in the Hatohol DB and executes action if needed. 
+	 * 
+	 * @param eventList A list of EventInfo.
+	 */
+	virtual void addEventList(const EventInfoList &eventList);
+
 private:
 	struct PrivateContext;
 	PrivateContext *m_ctx;

@@ -25,6 +25,7 @@
 #include "VirtualDataStoreZabbix.h"
 #include "VirtualDataStoreNagios.h"
 #include "DBClientAction.h"
+#include "ActionManager.h"
 
 using namespace mlpl;
 
@@ -288,6 +289,14 @@ void UnifiedDataStore::addAction(ActionDef &actionDef)
 {
 	DBClientAction dbAction;
 	dbAction.addAction(actionDef);
+}
+
+void UnifiedDataStore::addEventList(const EventInfoList &eventList)
+{
+	DBClientHatohol dbHatohol;
+	ActionManager actionManager;
+	actionManager.checkEvents(eventList);
+	dbHatohol.addEventInfoList(eventList);
 }
 
 // ---------------------------------------------------------------------------
