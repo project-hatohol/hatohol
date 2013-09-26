@@ -489,11 +489,11 @@ static void addOverview(JsonBuilderAgent &agent)
 	agent.endArray();
 }
 
-static void addServers(JsonBuilderAgent &agent)
+static void addServers(JsonBuilderAgent &agent, uint32_t targetServerId)
 {
 	ConfigManager *configManager = ConfigManager::getInstance();
 	MonitoringServerInfoList monitoringServers;
-	configManager->getTargetServers(monitoringServers);
+	configManager->getTargetServers(monitoringServers, targetServerId);
 
 	agent.add("numberOfServers", monitoringServers.size());
 	agent.startArray("servers");
@@ -586,11 +586,14 @@ void FaceRest::handlerGetServer
   (SoupServer *server, SoupMessage *msg, const char *path,
    GHashTable *query, SoupClientContext *client, HandlerArg *arg)
 {
+	uint32_t targetServerId;
+	parseQueryServerId(query, targetServerId);
+
 	JsonBuilderAgent agent;
 	agent.startObject();
 	agent.add("apiVersion", API_VERSION);
 	agent.addTrue("result");
-	addServers(agent);
+	addServers(agent, targetServerId);
 	agent.endObject();
 
 	replyJsonData(agent, msg, arg->jsonpCallbackName, arg);

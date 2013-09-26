@@ -92,10 +92,10 @@ void ConfigManager::addTargetServer(MonitoringServerInfo *monitoringServerInfo)
 }
 
 void ConfigManager::getTargetServers
-  (MonitoringServerInfoList &monitoringServers)
+  (MonitoringServerInfoList &monitoringServers, uint32_t targetServerId)
 {
 	DBClientConfig dbConfig;
-	dbConfig.getTargetServers(monitoringServers);
+	dbConfig.getTargetServers(monitoringServers, targetServerId);
 }
 
 const string &ConfigManager::getDatabaseDirectory(void) const
