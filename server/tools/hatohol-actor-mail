@@ -60,15 +60,15 @@ def main():
                    help="host ID")
   group.add_option("--timestamp", action="callback", type="string", callback=parse_timestamp, metavar="TIMESTAMP",
                    help="TIMESTAMP as unixtime.nanosec")
-  group.add_option("--event-type", type="callback", callback=parse_event_type, metavar="TYPE",
+  group.add_option("--event-type", action="callback", type="int", callback=parse_event_type, metavar="TYPE",
                    help="type (0: GOOD, 1: BAD)")
   group.add_option("--event", type="int", dest="event_id", metavar="ID",
                    help="event ID")
-  group.add_option("--trigger", type="int", dest="trigger_id", metavar="ID",
+  group.add_option("--trigger", type="int", dest="trigger_id", default=-1, metavar="ID",
                    help="trigger ID")
-  group.add_option("--trigger-status", type="callback", callback=parse_trigger_status, metavar="STATUS",
+  group.add_option("--trigger-status", action="callback", type="int", callback=parse_trigger_status, metavar="STATUS",
                    help="trigger status (0: OK, 1: PROBLEM)")
-  group.add_option("--trigger-severity", type="callback", callback=parse_trigger_severity, metavar="SEVERITY",
+  group.add_option("--trigger-severity", action="callback", type="int", callback=parse_trigger_severity, metavar="SEVERITY",
                    help="trigger severity (0: INFO, 1: WARNING, 2: ERROR, 3: CRITICAL, 4: EMERGENCY)")
   parser.add_option_group(group)
   (options, args) = parser.parse_args()
