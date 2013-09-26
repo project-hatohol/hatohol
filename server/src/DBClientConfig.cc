@@ -532,7 +532,10 @@ void DBClientConfig::getTargetServers
 	arg.pushColumn(COLUMN_DEF_SERVERS[IDX_SERVERS_DB_NAME]);
 
 	if (targetServerId != ALL_SERVERS) {
-		arg.condition = StringUtils::sprintf("server_id=%"PRIu32,
+		const char *columnName =
+		  COLUMN_DEF_SERVERS[IDX_SERVERS_ID].columnName;
+		arg.condition = StringUtils::sprintf("%s=%"PRIu32,
+		                                     columnName,
 		                                     targetServerId);
 	}
 
