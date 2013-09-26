@@ -258,7 +258,7 @@ struct DBClientConfig::PrivateContext
 };
 DBConnectInfo DBClientConfig::PrivateContext::connInfo;
 
-static void updateDB(DBAgent *dbAgent, int oldVer, void *data)
+static bool updateDB(DBAgent *dbAgent, int oldVer, void *data)
 {
 	if (oldVer <= 5) {
 		DBAgentAddColumnsArg addColumnsArg;
@@ -268,6 +268,7 @@ static void updateDB(DBAgent *dbAgent, int oldVer, void *data)
 		  IDX_SYSTEM_ENABLE_COPY_ON_DEMAND);
 		dbAgent->addColumns(addColumnsArg);
 	}
+	return true;
 }
 
 // ---------------------------------------------------------------------------
