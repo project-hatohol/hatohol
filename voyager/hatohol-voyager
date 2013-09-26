@@ -31,6 +31,7 @@ def print_usage():
   print ""
   print "* commands"
   print ""
+  print "  show-server [serverId]"
   print "  show-trigger [serverId [hostId]]"
   print "  show-event"
   print "  show-item"
@@ -78,6 +79,18 @@ def parse_server_option(argv):
   print "Server: %s, port: %d" % (server_name, port)
   del argv[idx:idx+2]
   return "http://%s:%d" % (server_name, port)
+
+def show_server(url, options):
+  url += "/server"
+  query = {}
+  if len(options) >= 1:
+    query["serverId"] = options[0]
+  if len(query) > 0:
+    encoded_query = urllib.urlencode(query)
+    url += "?" + encoded_query
+  response = urllib2.urlopen(url)
+  server_json = response.read()
+  print server_json
 
 def show_trigger(url, options):
   url += "/trigger"
@@ -138,6 +151,7 @@ def del_action(url, options):
   print result_json
 
 command_map = {
+  "show-server":show_server,
   "show-event":show_event,
   "show-trigger":show_trigger,
   "show-item":show_item,
