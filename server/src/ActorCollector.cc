@@ -89,6 +89,7 @@ void ActorCollector::reset(void)
 		if (ret == -1 && errno == ESRCH) {
 			MLPL_INFO("No process w/ pid: %d\n", pid);
 			PrivateContext::waitChildSet.erase(it);
+			continue;
 		}
 		HATOHOL_ASSERT(ret == 0, "Failed to send kill (%d): %d\n",
 		               pid, errno);
