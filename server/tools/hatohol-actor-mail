@@ -81,7 +81,6 @@ def get_host_name(server_id, host_id):
   except:
     return "N/A (Failed to connect)"
   reply = json.loads(response.read())
-  print reply
   if "numberOfHosts" not in reply:
     return "N/A (Not found: numberOfHosts)"
   if reply["numberOfHosts"] != 1:
