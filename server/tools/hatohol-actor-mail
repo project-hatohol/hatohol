@@ -59,8 +59,8 @@ def print_usage():
   print("  server ID")
   print("  host ID")
   print("  unixTime.nanosec")
-  print("  type (0: GOOD, 1: BAD)")
   print("  event ID")
+  print("  type (0: GOOD, 1: BAD)")
   print("  trigger ID")
   print("  trigger status (0: OK, 1: PROBLEM)")
   print("  trigger severity (0: INFO, 1: WARNING, 2: ERROR, 3: CRITICAL, 4: EMERGENCY)")
@@ -100,6 +100,9 @@ def arg_parser_hatohol_actv1(params, argv):
   (time_sec, time_nsec) = parse_time(argv[idx])
   idx += 1
 
+  event_id = int(argv[idx])
+  idx += 1
+
   event_type = int(argv[idx])
   event_type_names = {
     hatohol.EVENT_TYPE_GOOD:"GOOD", hatohol.EVENT_TYPE_BAD:"BAD"}
@@ -108,9 +111,6 @@ def arg_parser_hatohol_actv1(params, argv):
     event_type_label = "N/A"
   else:
     event_type_label = event_type_names[event_type]
-  idx += 1
-
-  event_id = int(argv[idx])
   idx += 1
 
   trigger_id = int(argv[idx])
