@@ -57,32 +57,8 @@ DBAgentMySQL::DBAgentMySQL(const char *db, const char *user, const char *passwd,
 	unsigned long clientFlag = 0;
 	m_ctx = new PrivateContext();
 	mysql_init(&m_ctx->mysql);
-
-	// We met the following problem on Travis CI.
-	//
-	//     Failed to connect to MySQL: (null): Lost connection to
-	//     MySQL server at 'reading initial communication packet',
-	//     system error: 4
-	//
-	// The root cause has not been understood yet. I guess a UNIX signal
-	// interrupts a system call in mysql_real_connect().
-	// So we block SIGCHLD during the call of it.
-	sigset_t set;
-	sigemptyset(&set);
-	sigaddset(&set, SIGCHLD);
-	int retCode = pthread_sigmask(SIG_BLOCK, &set, NULL);
-	if (retCode != 0) {
-		THROW_HATOHOL_EXCEPTION("Failed to block signal: %d\n",
-		                        retCode);
-	}
-
 	MYSQL *result = mysql_real_connect(&m_ctx->mysql, host, user, passwd,
 	                                   db, port, unixSocket, clientFlag);
-	retCode = pthread_sigmask(SIG_UNBLOCK, &set, NULL);
-	if (retCode != 0) {
-		THROW_HATOHOL_EXCEPTION("Failed to unblock signal: %d\n",
-		                        retCode);
-	}
 	if (!result) {
 		THROW_HATOHOL_EXCEPTION("Failed to connect to MySQL: %s: %s\n",
 		                      db, mysql_error(&m_ctx->mysql));
