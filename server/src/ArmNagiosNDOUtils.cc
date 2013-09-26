@@ -21,6 +21,7 @@
 #include "ArmNagiosNDOUtils.h"
 #include "DBAgentMySQL.h"
 #include "Utils.h"
+#include "UnifiedDataStore.h"
 
 using namespace std;
 
@@ -314,13 +315,16 @@ struct ArmNagiosNDOUtils::PrivateContext
 	DBAgentSelectExArg selectEventArg;
 	string             selectEventBaseCondition;
 	DBAgentSelectExArg selectItemArg;
+	UnifiedDataStore *dataStore;
 
 	// methods
 	PrivateContext(const MonitoringServerInfo &serverInfo)
 	: dbAgent(serverInfo.dbName.c_str(), serverInfo.userName.c_str(),
 	          serverInfo.password.c_str(),
-	          serverInfo.getHostAddress(), serverInfo.port)
+	          serverInfo.getHostAddress(), serverInfo.port),
+	  dataStore(NULL)
 	{
+		dataStore = UnifiedDataStore::getInstance();
 	}
 
 	virtual ~PrivateContext()
@@ -729,6 +733,7 @@ void ArmNagiosNDOUtils::getEvent(void)
 		eventInfoList.push_back(eventInfo);
 	}
 	m_ctx->dbHatohol.addEventInfoList(eventInfoList);
+	m_ctx->dataStore->addEventList(eventInfoList);
 }
 
 void ArmNagiosNDOUtils::getItem(void)
