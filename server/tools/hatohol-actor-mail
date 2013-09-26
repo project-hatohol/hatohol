@@ -79,18 +79,18 @@ def get_host_name(server_id, host_id):
     print "URL: " + url
     response = urllib2.urlopen(url)
   except:
-    return "N/A (error: 1)";
+    return "N/A (Failed to connect)"
   reply = json.loads(response.read())
   print reply
   if "numberOfHosts" not in reply:
-    return "N/A (error: 2)";
+    return "N/A (Not found: numberOfHosts)"
   if reply["numberOfHosts"] != 1:
-    return "N/A (error: 3)";
+    return "N/A (numberOfHosts: %d)" % reply["numberOfHosts"]
   if "hosts" not in reply:
-    return "N/A (error: 3)";
+    return "N/A (Not found: hosts)"
   host = reply["hosts"][0];
   if "hostName" not in host:
-    return "N/A (error: 4)";
+    return "N/A (Not found: hostName)"
   return host["hostName"];
 
 def get_next_word(argv):
