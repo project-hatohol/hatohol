@@ -20,6 +20,7 @@
 #include <cppcutter.h>
 #include "Hatohol.h"
 #include "ArmNagiosNDOUtils.h"
+#include "Helpers.h"
 
 namespace testArmNagiosNDOUtils {
 
@@ -75,6 +76,7 @@ static void createGlobalInstance(void)
 void cut_setup(void)
 {
 	hatoholInit();
+	setupTestDBAction();
 }
 
 void cut_teardown(void)
