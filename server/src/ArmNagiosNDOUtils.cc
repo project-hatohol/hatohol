@@ -732,7 +732,6 @@ void ArmNagiosNDOUtils::getEvent(void)
 
 		eventInfoList.push_back(eventInfo);
 	}
-	m_ctx->dbHatohol.addEventInfoList(eventInfoList);
 	m_ctx->dataStore->addEventList(eventInfoList);
 }
 
