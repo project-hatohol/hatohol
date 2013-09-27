@@ -18,6 +18,13 @@ nobase_dist_hatohol_client_DATA = \
 	static/js/stupidtable.min.js \
 	static/js/stupidtable.js \
 	static/js/hatohol_def.js \
+	static/js/hatohol_add_action_dialog.js \
+	static/js/hatohol_dialog.js \
+	static/js/hatohol_reply_parser.js \
+	static/js/hatohol_server_selector.js \
+	static/js/hatohol_host_selector.js \
+	static/js/hatohol_selector_dialog.js \
+	static/js/hatohol_trigger_selector.js \
 	viewer/urls.py \
 	viewer/__init__.py \
 	viewer/models.py \
@@ -32,6 +39,7 @@ nobase_dist_hatohol_client_DATA = \
 	viewer/base_ajax.html \
 	viewer/overview_items_ajax.html \
 	viewer/dashboard_ajax.html \
+	viewer/actions_ajax.html \
 	viewer/tests.py
 
 MO_FILES = \
