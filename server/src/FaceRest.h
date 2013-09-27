@@ -72,6 +72,7 @@ protected:
 	 * this variable. Otherwise, ALL_HOSTS is set.
 	 */
 	static void parseQueryHostId(GHashTable *query, uint64_t &hostId);
+	static void parseQueryTriggerId(GHashTable *query, uint64_t &triggerId);
 
 	// handlers
 	static void

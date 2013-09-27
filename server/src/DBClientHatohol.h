@@ -41,6 +41,7 @@ enum TriggerSeverityType {
 
 static const uint32_t ALL_SERVERS = -1;
 static const uint64_t ALL_HOSTS   = -1;
+static const uint64_t ALL_TRIGGERS = -1;
 
 struct HostInfo {
 	uint32_t            serverId;
@@ -148,7 +149,8 @@ public:
 	                    uint32_t serverId, uint64_t triggerId);
 	void getTriggerInfoList(TriggerInfoList &triggerInfoList,
 	                        uint32_t targetServerId = ALL_SERVERS,
-	                        uint64_t targetHostId = ALL_HOSTS);
+	                        uint64_t targetHostId = ALL_HOSTS,
+	                        uint64_t targetTriggerId = ALL_TRIGGERS);
 	void setTriggerInfoList(const TriggerInfoList &triggerInfoList,
 	                        uint32_t serverId);
 	/**

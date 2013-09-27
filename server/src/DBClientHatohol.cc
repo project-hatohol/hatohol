@@ -596,9 +596,9 @@ bool DBClientHatohol::getTriggerInfo(TriggerInfo &triggerInfo,
 	return true;
 }
 
-void DBClientHatohol::getTriggerInfoList(TriggerInfoList &triggerInfoList,
-                                         uint32_t targetServerId,
-                                         uint64_t targetHostId)
+void DBClientHatohol::getTriggerInfoList(
+  TriggerInfoList &triggerInfoList, uint32_t targetServerId,
+  uint64_t targetHostId, uint64_t targetTriggerId)
 {
 	string condition;
 	if (targetServerId != ALL_SERVERS) {
@@ -614,6 +614,14 @@ void DBClientHatohol::getTriggerInfoList(TriggerInfoList &triggerInfoList,
 		  COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_HOST_ID].columnName;
 		condition += StringUtils::sprintf("%s=%"PRIu64, colName,
 		                                  targetHostId);
+	}
+	if (targetTriggerId != ALL_TRIGGERS) {
+		if (!condition.empty())
+			condition += " AND ";
+		const char *colName = 
+		  COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_ID].columnName;
+		condition += StringUtils::sprintf("%s=%"PRIu64, colName,
+		                                  targetTriggerId);
 	}
 	getTriggerInfoList(triggerInfoList, condition);
 }
