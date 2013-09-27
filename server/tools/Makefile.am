@@ -1,9 +1,7 @@
-bin_PROGRAMS = hatohol-config-db-creator hatohol-cli \
+bin_PROGRAMS = hatohol-config-db-creator \
                hatohol-def-src-file-generator
 bin_SCRIPTS = hatohol-actor-mail
 hatohol_config_db_creator_SOURCES = hatohol-config-db-creator.cc
-hatohol_cli_SOURCES = hatohol-cli.cc
-
 
 MLPL_CFLAGS = -I ../mlpl/src
 MLPL_LIBS = ../mlpl/src/libmlpl.la
