@@ -1,6 +1,7 @@
 bin_PROGRAMS = hatohol-config-db-creator \
                hatohol-def-src-file-generator
-bin_SCRIPTS = hatohol-actor-mail
+actiondir = $(libexecdir)/$(PACKAGE)/action
+dist_action_SCRIPTS = hatohol-actor-mail
 hatohol_config_db_creator_SOURCES = hatohol-config-db-creator.cc
 
 MLPL_CFLAGS = -I ../mlpl/src
@@ -17,8 +18,8 @@ config_exampledir = $(pkgdatadir)
 
 hatohol_def_src_file_generator_SOURCES = hatohol-def-src-file-generator.cc
 
-hatohol-actor-mail: hatohol.py
-hatohol.py: hatohol-def-src-file-generator
+hatohol-actor-mail: hatohol/hatohol_def.py
+hatohol/hatohol_def.py: hatohol-def-src-file-generator
 	./hatohol-def-src-file-generator py > $@
 
 EXTRA_DIST = $(config_example_DATA)

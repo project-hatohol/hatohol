@@ -20,7 +20,7 @@
 import sys
 import urllib
 import urllib2
-import HatoholActionCreator
+from hatohol import HatoholActionCreator
 
 DEFAULT_PORT = 33194
 
