@@ -32,7 +32,7 @@ def print_usage():
   print "* commands"
   print ""
   print "  show-server [serverId]"
-  print "  show-trigger [serverId [hostId]]"
+  print "  show-trigger [serverId [hostId [triggerId]]]"
   print "  show-event"
   print "  show-item"
   print "  show-host [sererId [hostId]]"
@@ -99,6 +99,8 @@ def show_trigger(url, options):
     query["serverId"] = options[0]
   if len(options) >= 2:
     query["hostId"] = options[1]
+  if len(options) >= 3:
+    query["triggerId"] = options[2]
   if len(query) > 0:
     encoded_query = urllib.urlencode(query)
     url += "?" + encoded_query
