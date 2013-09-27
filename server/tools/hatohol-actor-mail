@@ -62,7 +62,7 @@ def main():
                    help="TIMESTAMP as unixtime.nanosec")
   available_event_types = make_available_values(EVENT_TYPE_NAMES)
   event_types_description = make_description(EVENT_TYPE_NAMES)
-  group.add_option("--event-type", type="choice", choices=available_event_types, metavar="TYPE",
+  group.add_option("--event-type", type="choice", choices=available_event_types, dest="event_type", metavar="TYPE",
                    help="type (%s)" % event_types_description)
   group.add_option("--event", type="int", dest="event_id", metavar="ID",
                    help="event ID")
@@ -70,11 +70,11 @@ def main():
                    help="trigger ID")
   available_trigger_status = make_available_values(TRIGGER_STATUS_NAMES)
   trigger_status_description = make_description(TRIGGER_STATUS_NAMES)
-  group.add_option("--trigger-status", type="choice", choices=available_trigger_status, metavar="STATUS",
+  group.add_option("--trigger-status", type="choice", choices=available_trigger_status, dest="trigger_status", metavar="STATUS",
                    help="trigger status (%s)" % trigger_status_description)
   available_trigger_severity = make_available_values(TRIGGER_SEVERITY_NAMES)
   trigger_severity_description = make_description(TRIGGER_SEVERITY_NAMES)
-  group.add_option("--trigger-severity", type="choice", choices=available_trigger_severity, metavar="SEVERITY",
+  group.add_option("--trigger-severity", type="choice", choices=available_trigger_severity, dest="trigger_severity", metavar="SEVERITY",
                    help="trigger severity (%s)" % trigger_severity_description)
   parser.add_option_group(group)
   (options, args) = parser.parse_args()
