@@ -21,7 +21,7 @@
 import sys
 import urllib
 import urllib2
-import HatoholDefine
+import hatohol
 
 class HatoholActionCreator:
   def __init__(self, url):
