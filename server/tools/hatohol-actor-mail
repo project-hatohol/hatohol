@@ -113,7 +113,7 @@ def get_server_label(server_id):
     return "N/A (Failed to connect)"
   reply = json.loads(response.read())
   if "numberOfServers" not in reply:
-    return "N/A (Not found: numberOfservers)"
+    return "N/A (Not found: numberOfServers)"
   if reply["numberOfServers"] != 1:
     return "N/A (numberOfServers: %d)" % reply["numberOfServers"]
   if "servers" not in reply:
