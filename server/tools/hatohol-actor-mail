@@ -86,11 +86,8 @@ def get_element(obj, name, fallback=None):
     return ""
 
 def get_host_name(server_id, host_id):
-  port = 33194
-  url = "http://localhost:%d/host" % port
   query = {"serverId":server_id, "hostId":host_id}
-  encoded_query = urllib.urlencode(query)
-  url += "?" + encoded_query
+  url = make_base_url("host", query)
   try:
     response = urllib2.urlopen(url)
   except:
