@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-09-18 23:32-0500\n"
+"POT-Creation-Date: 2013-09-27 05:12-0500\n"
 "PO-Revision-Date: 2013-09-10 18:03+0900\n"
 "Last-Translator: Takuro Ashie <ashie@clear-code.com>\n"
 "Language-Team: Project Hatohol\n"
@@ -15,153 +15,169 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: static/js/hatohol_add_action_dialog.js:24
+#: static/js/hatohol_add_action_dialog.js:32
 msgid "ADD"
 msgstr "追加"
 
-#: static/js/hatohol_add_action_dialog.js:27
-#: static/js/hatohol_server_selector.js:28
+#: static/js/hatohol_add_action_dialog.js:35
+#: static/js/hatohol_selector_dialog.js:30
 msgid "CANCEL"
 msgstr "キャンセル"
 
-#: static/js/hatohol_add_action_dialog.js:33
+#: static/js/hatohol_add_action_dialog.js:41
 msgid "ADD ACTION"
 msgstr "アクション追加"
 
-#: static/js/hatohol_add_action_dialog.js:41
+#: static/js/hatohol_add_action_dialog.js:49
 msgid "Now creating an action ..."
 msgstr "アクションを作成しています..."
 
-#: static/js/hatohol_add_action_dialog.js:42
-#: static/js/hatohol_add_action_dialog.js:249 static/js/library.js:169
+#: static/js/hatohol_add_action_dialog.js:50
+#: static/js/hatohol_add_action_dialog.js:365 static/js/library.js:169
 msgid "Information"
 msgstr "情報"
 
-#: static/js/hatohol_add_action_dialog.js:185
-msgid "Successfully created."
-msgstr "正常に作成されました"
-
-#: static/js/hatohol_add_action_dialog.js:210
-msgid "Condition"
-msgstr "条件"
-
-#: static/js/hatohol_add_action_dialog.js:212
-msgid "Server"
-msgstr "サーバ"
-
-#: static/js/hatohol_add_action_dialog.js:215
-#: static/js/hatohol_add_action_dialog.js:222
-#: static/js/hatohol_add_action_dialog.js:228
-#: static/js/hatohol_add_action_dialog.js:236
-#: static/js/hatohol_server_selector.js:25
-#: static/js/hatohol_server_selector.js:56
+#: static/js/hatohol_add_action_dialog.js:162
+#: static/js/hatohol_add_action_dialog.js:330
+#: static/js/hatohol_add_action_dialog.js:350
+#: static/js/hatohol_selector_dialog.js:27
+#: static/js/hatohol_selector_dialog.js:67
 msgid "SELECT"
 msgstr "選択"
 
-#: static/js/hatohol_add_action_dialog.js:218
-msgid "Host Group"
-msgstr "ホストグループ"
+#: static/js/hatohol_add_action_dialog.js:300
+msgid "Successfully created."
+msgstr "正常に作成されました"
 
-#: static/js/hatohol_add_action_dialog.js:225
+#: static/js/hatohol_add_action_dialog.js:325
+msgid "Condition"
+msgstr "条件"
+
+#: static/js/hatohol_add_action_dialog.js:327
+msgid "Server"
+msgstr "サーバ"
+
+#: static/js/hatohol_add_action_dialog.js:342
 msgid "Host"
 msgstr "ホスト名"
 
-#: static/js/hatohol_add_action_dialog.js:233
+#: static/js/hatohol_add_action_dialog.js:347
 msgid "Trigger"
 msgstr "トリガー"
 
-#: static/js/hatohol_add_action_dialog.js:239
+#: static/js/hatohol_add_action_dialog.js:355
 msgid "Status"
 msgstr "ステータス"
 
-#: static/js/hatohol_add_action_dialog.js:242 static/js/library.js:156
+#: static/js/hatohol_add_action_dialog.js:358 static/js/library.js:156
 msgid "OK"
 msgstr "正常"
 
-#: static/js/hatohol_add_action_dialog.js:243 static/js/library.js:158
+#: static/js/hatohol_add_action_dialog.js:359 static/js/library.js:158
 msgid "Problem"
 msgstr "障害"
 
-#: static/js/hatohol_add_action_dialog.js:246
+#: static/js/hatohol_add_action_dialog.js:362
 msgid "Severity"
 msgstr "深刻度"
 
-#: static/js/hatohol_add_action_dialog.js:250 static/js/library.js:171
+#: static/js/hatohol_add_action_dialog.js:366 static/js/library.js:171
 msgid "Warning"
 msgstr "警告"
 
-#: static/js/hatohol_add_action_dialog.js:251 static/js/library.js:173
+#: static/js/hatohol_add_action_dialog.js:367 static/js/library.js:173
 msgid "Average"
 msgstr "軽度の障害"
 
-#: static/js/hatohol_add_action_dialog.js:252 static/js/library.js:175
+#: static/js/hatohol_add_action_dialog.js:368 static/js/library.js:175
 msgid "High"
 msgstr "重度の障害"
 
-#: static/js/hatohol_add_action_dialog.js:253 static/js/library.js:177
+#: static/js/hatohol_add_action_dialog.js:369 static/js/library.js:177
 msgid "Disaster"
 msgstr "致命的な障害"
 
-#: static/js/hatohol_add_action_dialog.js:256
+#: static/js/hatohol_add_action_dialog.js:372
 msgid "Equal to"
 msgstr "一致"
 
-#: static/js/hatohol_add_action_dialog.js:257
+#: static/js/hatohol_add_action_dialog.js:373
 msgid "Equal to or greater than"
 msgstr "以上"
 
-#: static/js/hatohol_add_action_dialog.js:261
+#: static/js/hatohol_add_action_dialog.js:377
 msgid "Execution parameters"
 msgstr "実行パラメータ"
 
-#: static/js/hatohol_add_action_dialog.js:263
-#: static/js/hatohol_server_selector.js:72
+#: static/js/hatohol_add_action_dialog.js:379
+#: static/js/hatohol_server_selector.js:45
 msgid "Type"
 msgstr "タイプ"
 
-#: static/js/hatohol_add_action_dialog.js:265
+#: static/js/hatohol_add_action_dialog.js:381
 msgid "COMMAND"
 msgstr "コマンド"
 
-#: static/js/hatohol_add_action_dialog.js:266
+#: static/js/hatohol_add_action_dialog.js:382
 msgid "RESIDENT"
 msgstr "常駐"
 
-#: static/js/hatohol_add_action_dialog.js:269
+#: static/js/hatohol_add_action_dialog.js:385
 msgid "Time-out (sec)"
 msgstr "タイムアウト (秒)"
 
-#: static/js/hatohol_add_action_dialog.js:271
+#: static/js/hatohol_add_action_dialog.js:387
 msgid "No limit"
 msgstr "制限なし"
 
-#: static/js/hatohol_add_action_dialog.js:275
+#: static/js/hatohol_add_action_dialog.js:391
 msgid "Command"
 msgstr "コマンド"
 
-#: static/js/hatohol_add_action_dialog.js:280
+#: static/js/hatohol_add_action_dialog.js:396
 msgid "Execution directory"
 msgstr "実行ディレクトリ"
 
-#: static/js/hatohol_server_selector.js:34
-msgid "Server selecion"
-msgstr "サーバ選択"
+#: static/js/hatohol_host_selector.js:26
+msgid "Host selecion"
+msgstr "ホスト選択"
 
-#: static/js/hatohol_server_selector.js:73
+#: static/js/hatohol_host_selector.js:49
+msgid "Server ID"
+msgstr "サーバID"
+
+#: static/js/hatohol_host_selector.js:50
+#: static/js/hatohol_server_selector.js:46
 msgid "Hostname"
 msgstr "ホスト名"
 
-#: static/js/hatohol_server_selector.js:74
+#: static/js/hatohol_selector_dialog.js:45
+msgid "Now getting information..."
+msgstr "情報を取得しています.."
+
+#: static/js/hatohol_selector_dialog.js:110
+msgid "No data."
+msgstr "データがありません"
+
+#: static/js/hatohol_server_selector.js:26
+msgid "Server selecion"
+msgstr "サーバ選択"
+
+#: static/js/hatohol_server_selector.js:47
 msgid "IP Address"
 msgstr "IPアドレス"
 
-#: static/js/hatohol_server_selector.js:75
+#: static/js/hatohol_server_selector.js:48
 msgid "Nickname"
 msgstr "ニックネーム"
 
-#: static/js/hatohol_server_selector.js:141
-msgid "Now getting server information..."
-msgstr "サーバ情報を取得しています.."
+#: static/js/hatohol_trigger_selector.js:26
+msgid "Trigger selecion"
+msgstr "トリガー選択"
+
+#: static/js/hatohol_trigger_selector.js:49
+msgid "Brief"
+msgstr "概要"
 
 #: static/js/library.js:125
 msgid "DRAW"
@@ -186,3 +202,6 @@ msgstr "バックエンドと通信中"
 #: static/js/library.js:167
 msgid "Not classified"
 msgstr "未分類"
+
+#~ msgid "Host Group"
+#~ msgstr "ホストグループ"
