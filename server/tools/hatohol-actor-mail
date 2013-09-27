@@ -126,6 +126,26 @@ def get_server_label(server_id):
 
   return "%s, %s, %s" % (host_name, ip_addr, nickname)
 
+def get_trigger_label(server_id, host_id, trigger_id):
+  query = {"serverId":server_id, "hostId":host_id, "triggerId":trigger_id}
+  url = make_base_url("trigger", query)
+  print url
+  try:
+    response = urllib2.urlopen(url)
+  except:
+    return "N/A (Failed to connect)"
+  reply = json.loads(response.read())
+  if "numberOfTriggers" not in reply:
+    return "N/A (Not found: numberOfTriggers)"
+  if reply["numberOfTriggers"] != 1:
+    return "N/A (numberOfTriggers: %d)" % reply["numberOfTriggers"]
+  if "triggers" not in reply:
+    return "N/A (Not found: triggers)"
+  triggers = reply["triggers"][0];
+ 
+  brief = get_element(triggers, "brief", "N/A")
+  return brief
+
 def get_next_word(argv):
   if len(argv) < 2:
     error_eixt("Not argument for %s" % argv[0])
@@ -214,7 +234,8 @@ def arg_parser_hatohol_actv1(params, argv):
 
   body += "event type: %d (%s)\n" % (event_type, event_type_label)
   body += "event: %d\n" % event_id
-  body += "trigger: %s\n" % trigger_id
+  body += "trigger: %s (%s)\n" % \
+          (trigger_id, get_trigger_label(server_id, host_id, trigger_id))
   body += "trigger status: %d (%s)\n" % (trigger_status, trigger_status_label)
   body += "trigger severity: %d (%s)\n" % (trigger_severity, trigger_severity_label)
 
