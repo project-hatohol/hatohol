@@ -1,7 +1,9 @@
 AC_PREREQ(2.63)
 
-AC_INIT(hatohol, 0.0.3)
+AC_INIT(hatohol, 0.1)
 AM_INIT_AUTOMAKE([1.9 no-dist-gzip dist-bzip2 tar-pax])
+
+AC_CONFIG_HEADER(config.h)
 
 AC_DISABLE_STATIC
 AC_PROG_LIBTOOL
@@ -9,6 +11,16 @@ AC_PROG_CXX
 
 AC_CONFIG_MACRO_DIR([m4])
 AM_SILENT_RULES([yes])
+
+if test x"$prefix" = x"NONE"; then
+    prefix=$ac_default_prefix
+fi
+AC_DEFINE_UNQUOTED(PREFIX, "$prefix", "Prefix for install directory")
+
+if test x"$exec_prefix" = x"NONE"; then
+    exec_prefix=$prefix
+fi
+AC_DEFINE_UNQUOTED(LIBEXECDIR, "`eval echo $libexecdir`", "Prefix for libexec directory")
 
 dnl **************************************************************
 dnl Checks for GLib

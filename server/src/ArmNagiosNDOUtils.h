@@ -43,6 +43,7 @@ protected:
 	void getTrigger(void);
 	void getEvent(void);
 	void getItem(void);
+	void connect(void);
 
 	// virtual methods
 	virtual gpointer mainThread(HatoholThreadArg *arg);

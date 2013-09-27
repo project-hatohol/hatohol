@@ -21,7 +21,7 @@
 import sys
 import urllib
 import urllib2
-import HatoholDefine
+import hatohol
 
 class HatoholActionCreator:
   def __init__(self, url):
@@ -31,9 +31,9 @@ class HatoholActionCreator:
     type = self._get_one_arg(options, "--type")
     type_code = None
     if type == "command":
-      type_code = HatoholDefine.ACTION_COMMAND
+      type_code = hatohol.ACTION_COMMAND
     elif type == "resident":
-      type_code = HatoholDefine.ACTION_RESIDENT
+      type_code = hatohol.ACTION_RESIDENT
     else:
       print "Type must be 'command' or 'resident'."
       sys.exit(-1)
@@ -49,9 +49,9 @@ class HatoholActionCreator:
     status = self._get_one_arg(options, "--status", True)
     status_code = None
     if status == "ok":
-      status_code = HatoholDefine.TRIGGER_STATUS_OK
+      status_code = hatohol.TRIGGER_STATUS_OK
     elif status == "problem":
-      status_code = HatoholDefine.TRIGGER_STATUS_PROBLEM
+      status_code = hatohol.TRIGGER_STATUS_PROBLEM
     else:
       print "Status must be 'ok' or 'problem'."
       sys.exit(-1)
@@ -61,19 +61,19 @@ class HatoholActionCreator:
     severity_code = None
     if severity:
       if severity == "info":
-        severity_code = HatoholDefine.TRIGGER_SEVERITY_INFO
+        severity_code = hatohol.TRIGGER_SEVERITY_INFO
       elif severity == "warn":
-        severity_code = HatoholDefine.TRIGGER_SEVERITY_WARN
+        severity_code = hatohol.TRIGGER_SEVERITY_WARN
       elif severity == "critical":
-        severity_code = HatoholDefine.TRIGGER_SEVERITY_CRITICAL
+        severity_code = hatohol.TRIGGER_SEVERITY_CRITICAL
       else:
         print "Severity must be 'info', 'warn', or 'critical'."
         sys.exit(-1)
 
       if severity_cmp == "-eq":
-        severity_cmp_code = HatoholDefine.CMP_EQ
+        severity_cmp_code = hatohol.CMP_EQ
       elif severity_cmp == "-ge":
-        severity_cmp_code = HatoholDefine.CMP_EQ_GT
+        severity_cmp_code = hatohol.CMP_EQ_GT
       else:
         print "Severity comparator must be '-eq' or '-ge'."
         sys.exit(-1)

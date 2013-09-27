@@ -29,6 +29,8 @@ def jsonforward(request, path, **kwargs):
       req.get_method = lambda: 'DELETE'
       content = urllib2.urlopen(req)
     else:
+      encoded_query = urllib.urlencode(request.REQUEST)
+      url += "?" + encoded_query
       content = urllib2.urlopen(url)
 
     return HttpResponse(content,

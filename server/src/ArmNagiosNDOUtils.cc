@@ -21,6 +21,7 @@
 #include "ArmNagiosNDOUtils.h"
 #include "DBAgentMySQL.h"
 #include "Utils.h"
+#include "UnifiedDataStore.h"
 
 using namespace std;
 
@@ -307,24 +308,38 @@ enum {
 // ---------------------------------------------------------------------------
 struct ArmNagiosNDOUtils::PrivateContext
 {
-	DBAgentMySQL dbAgent;
+	DBAgentMySQL   *dbAgent;
 	DBClientHatohol dbHatohol;
 	DBAgentSelectExArg selectTriggerArg;
 	string             selectTriggerBaseCondition;
 	DBAgentSelectExArg selectEventArg;
 	string             selectEventBaseCondition;
 	DBAgentSelectExArg selectItemArg;
+	UnifiedDataStore *dataStore;
+	MonitoringServerInfo serverInfo;
 
 	// methods
-	PrivateContext(const MonitoringServerInfo &serverInfo)
-	: dbAgent(serverInfo.dbName.c_str(), serverInfo.userName.c_str(),
-	          serverInfo.password.c_str(),
-	          serverInfo.getHostAddress(), serverInfo.port)
+	PrivateContext(const MonitoringServerInfo &_serverInfo)
+	: dbAgent(NULL),
+	  dataStore(NULL),
+	  serverInfo(_serverInfo)
 	{
+		dataStore = UnifiedDataStore::getInstance();
 	}
 
 	virtual ~PrivateContext()
 	{
+		if (dbAgent)
+			delete dbAgent;
+	}
+
+	void connect(void)
+	{
+		HATOHOL_ASSERT(!dbAgent, "dbAgent is NOT NULL.");
+		dbAgent = new DBAgentMySQL(
+		  serverInfo.dbName.c_str(), serverInfo.userName.c_str(),
+		  serverInfo.password.c_str(),
+		  serverInfo.getHostAddress(), serverInfo.port);
 	}
 };
 
@@ -587,7 +602,7 @@ void ArmNagiosNDOUtils::getTrigger(void)
 	addConditionForTriggerQuery();
 
 	// TODO: should use transaction
-	m_ctx->dbAgent.select(m_ctx->selectTriggerArg);
+	m_ctx->dbAgent->select(m_ctx->selectTriggerArg);
 	size_t numTriggers =
 	   m_ctx->selectTriggerArg.dataTable->getNumberOfRows();
 	MLPL_DBG("The number of triggers: %zd\n", numTriggers);
@@ -657,7 +672,7 @@ void ArmNagiosNDOUtils::getEvent(void)
 	addConditionForEventQuery();
 
 	// TODO: should use transaction
-	m_ctx->dbAgent.select(m_ctx->selectEventArg);
+	m_ctx->dbAgent->select(m_ctx->selectEventArg);
 	size_t numEvents =
 	   m_ctx->selectEventArg.dataTable->getNumberOfRows();
 	MLPL_DBG("The number of events: %zd\n", numEvents);
@@ -728,13 +743,13 @@ void ArmNagiosNDOUtils::getEvent(void)
 
 		eventInfoList.push_back(eventInfo);
 	}
-	m_ctx->dbHatohol.addEventInfoList(eventInfoList);
+	m_ctx->dataStore->addEventList(eventInfoList);
 }
 
 void ArmNagiosNDOUtils::getItem(void)
 {
 	// TODO: should use transaction
-	m_ctx->dbAgent.select(m_ctx->selectItemArg);
+	m_ctx->dbAgent->select(m_ctx->selectItemArg);
 	size_t numItems =
 	   m_ctx->selectItemArg.dataTable->getNumberOfRows();
 	MLPL_DBG("The number of items: %zd\n", numItems);
@@ -790,8 +805,14 @@ void ArmNagiosNDOUtils::getItem(void)
 	m_ctx->dbHatohol.addItemInfoList(itemInfoList);
 }
 
+void ArmNagiosNDOUtils::connect(void)
+{
+	m_ctx->connect();
+}
+
 gpointer ArmNagiosNDOUtils::mainThread(HatoholThreadArg *arg)
 {
+	connect();
 	const MonitoringServerInfo &svInfo = getServerInfo();
 	MLPL_INFO("started: ArmNagiosNDOUtils (server: %s)\n",
 	          svInfo.hostName.c_str());

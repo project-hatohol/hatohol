@@ -81,6 +81,8 @@ rm -rf %{buildroot}
 %{_bindir}/*
 %{_sbindir}/*
 %{_libdir}/lib*.so.*
+%{_prefix}/lib/python*
+%{_libexecdir}/hatohol/*
 %{_datadir}/hatohol/hatohol-config.dat.example
 %{_datadir}/hatohol/hatohol.centos
 %{_datadir}/hatohol/hatohol.debian
@@ -96,5 +98,8 @@ rm -rf %{buildroot}
 %{_libdir}/pkgconfig/*.pc
 
 %changelog
+* Fri Sep 27 2013 Kazuhiro Yamato <kyamato@mriaclelinux.com> 0.1-1
+- Add an action framework.
+
 * Sat Jul 06 2013 Kazuhiro Yamato <kyamato@mriaclelinux.com> 0.0.3-1
 - Fix to create RPM files.

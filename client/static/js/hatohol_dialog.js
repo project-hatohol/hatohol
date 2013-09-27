@@ -17,26 +17,47 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
-var HatoholDialog = function(id, dialogTitle, bodyElem) {
-  this.mainDiv = document.createElement("div");
-  this.mainDiv.id = id;
-  this.mainDiv.appendChild(bodyElem);
-  document.body.appendChild(this.mainDiv);
+var HatoholDialog = function(id, dialogTitle, buttons) {
 
-  var dialogId = "#" + id
-  $(dialogId).dialog({
+  var self = this;
+
+  self.mainFrame = $("<div/>");
+  self.mainFrame.attr("id", id);
+  var elem = self.createMainElement();
+  self.mainFrame.append(elem);
+  $("body").append(self.mainFrame);
+
+  self.dialogId = "#" + id
+  $(self.dialogId).dialog({
     autoOpen: false,
     title: dialogTitle,
     closeOnEscape: false,
     width:  "95%",
     modal: true,
-    buttons: {
-      "close": function() {
-        $(this).dialog("close");
-      }
-  }});
+    buttons: buttons,
+    open: function(event, ui){
+      $(".ui-dialog-titlebar-close").hide();
+    }
+  });
 
-  $(dialogId).dialog("open");
+  $(self.dialogId).dialog("open");
 }
 
+/**
+ * Replace a main element of the dialog.
+ * Note that the old element is deleted.
+ *
+ * @param elem A new element to be set.
+ */
+HatoholDialog.prototype.replaceMainElement = function(elem) {
+  this.mainFrame.empty();
+  this.mainFrame.append(elem);
+}
 
+/**
+ * Close and delete the dialog.
+ */
+HatoholDialog.prototype.closeDialog = function() {
+  $(this.dialogId).dialog("close");
+  $(this.dialogId).remove();
+}

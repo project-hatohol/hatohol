@@ -227,6 +227,49 @@ static void assertServersInParser(JsonParserAgent *parser)
 	parser->endObject();
 }
 
+static void assertHostsInParser(JsonParserAgent *parser,
+                                uint32_t targetServerId)
+{
+	HostInfoList hostInfoList;
+	getDBCTestHostInfo(hostInfoList, targetServerId);
+	assertValueInParser(parser, "numberOfHosts",
+	                    (uint32_t)hostInfoList.size());
+
+	// make an index
+	map<uint32_t, map<uint64_t, const HostInfo *> > hostInfoMap;
+	map<uint64_t, const HostInfo *>::iterator hostMapIt;
+	HostInfoListConstIterator it = hostInfoList.begin();
+	for (; it != hostInfoList.end(); ++it) {
+		const HostInfo &hostInfo = *it;
+		hostMapIt = hostInfoMap[hostInfo.serverId].find(hostInfo.id);
+		cppcut_assert_equal(
+		  true, hostMapIt == hostInfoMap[hostInfo.serverId].end());
+		hostInfoMap[hostInfo.serverId][hostInfo.id] = &hostInfo;
+	}
+
+	parser->startObject("hosts");
+	uint32_t serverId;
+	uint64_t hostId;
+	for (size_t i = 0; i < hostInfoList.size(); i++) {
+		int64_t var64;
+		parser->startElement(i);
+		cppcut_assert_equal(true, parser->read("serverId", var64));
+		serverId = (uint32_t)var64;
+		cppcut_assert_equal(true, parser->read("id", var64));
+		hostId = (uint64_t)var64;
+
+		hostMapIt = hostInfoMap[serverId].find(hostId);
+		cppcut_assert_equal(true,
+		                    hostMapIt != hostInfoMap[serverId].end());
+		const HostInfo &hostInfo = *hostMapIt->second;
+
+		assertValueInParser(parser, "hostName", hostInfo.hostName);
+		parser->endElement();
+		hostInfoMap[serverId].erase(hostMapIt);
+	}
+	parser->endObject();
+}
+
 static void assertHostsIdNameHashInParser(TriggerInfo *triggers,
                                           size_t numberOfTriggers,
                                           JsonParserAgent *parser)
@@ -280,31 +323,83 @@ static void _assertServers(const string &path, const string &callbackName = "")
 	startFaceRest();
 	g_parser = getResponseAsJsonParser(path, callbackName);
 	assertValueInParser(g_parser, "apiVersion",
-	                    (uint32_t)FaceRest::API_VERSION_SERVER);
+	                    (uint32_t)FaceRest::API_VERSION);
 	assertValueInParser(g_parser, "result", true);
 	assertServersInParser(g_parser);
 }
 #define assertServers(P,...) cut_trace(_assertServers(P,##__VA_ARGS__))
 
-static void _assertTriggers(const string &path, const string &callbackName = "")
+static void _assertHosts(const string &path, const string &callbackName = "",
+                         uint32_t serverId = ALL_SERVERS)
 {
 	startFaceRest();
-	g_parser = getResponseAsJsonParser(path, callbackName);
+	StringMap queryMap;
+	if (serverId != ALL_SERVERS) {
+		queryMap["serverId"] =
+		   StringUtils::sprintf("%"PRIu32, serverId); 
+	}
+	g_parser = getResponseAsJsonParser(path, callbackName, queryMap);
 	assertValueInParser(g_parser, "apiVersion",
-	                    (uint32_t)FaceRest::API_VERSION_TRIGGER);
+	                    (uint32_t)FaceRest::API_VERSION);
+	assertValueInParser(g_parser, "result", true);
+	assertHostsInParser(g_parser, serverId);
+}
+#define assertHosts(P,...) cut_trace(_assertHosts(P,##__VA_ARGS__))
+
+static void _assertTriggers(const string &path, const string &callbackName = "",
+                            uint32_t serverId = ALL_SERVERS,
+                            uint64_t hostId = ALL_HOSTS)
+{
+	startFaceRest();
+
+	// calculate the expected test triggers
+	map<uint32_t, map<uint64_t, size_t> > indexMap;
+	map<uint32_t, map<uint64_t, size_t> >::iterator indexMapIt;
+	map<uint64_t, size_t>::iterator trigIdIdxIt;
+	getTestTriggersIndexes(indexMap, serverId, hostId);
+	size_t expectedNumTrig = 0;
+	indexMapIt = indexMap.begin();
+	for (; indexMapIt != indexMap.end(); ++indexMapIt)
+		expectedNumTrig += indexMapIt->second.size();
+
+	// request
+	StringMap queryMap;
+	if (serverId != ALL_SERVERS) {
+		queryMap["serverId"] =
+		   StringUtils::sprintf("%"PRIu32, serverId); 
+	}
+	if (hostId != ALL_HOSTS)
+		queryMap["hostId"] = StringUtils::sprintf("%"PRIu64, hostId); 
+	g_parser = getResponseAsJsonParser(path, callbackName, queryMap);
+
+	// Check the result
+	assertValueInParser(g_parser, "apiVersion",
+	                    (uint32_t)FaceRest::API_VERSION);
 	assertValueInParser(g_parser, "result", true);
 	assertValueInParser(g_parser, "numberOfTriggers",
-	                    (uint32_t)NumTestTriggerInfo);
+	                    (uint32_t)expectedNumTrig);
 	g_parser->startObject("triggers");
-	for (size_t i = 0; i < NumTestTriggerInfo; i++) {
+	for (size_t i = 0; i < expectedNumTrig; i++) {
 		g_parser->startElement(i);
-		TriggerInfo &triggerInfo = testTriggerInfo[i];
+		int64_t var64;
+		cppcut_assert_equal(true, g_parser->read("serverId", var64));
+		uint32_t actSvId = (uint32_t)var64;
+		cppcut_assert_equal(true, g_parser->read("id", var64));
+		uint64_t actTrigId = (uint64_t)var64;
+
+		trigIdIdxIt = indexMap[actSvId].find(actTrigId);
+		cppcut_assert_equal(
+		  true, trigIdIdxIt != indexMap[actSvId].end());
+		size_t idx = trigIdIdxIt->second;
+		indexMap[actSvId].erase(trigIdIdxIt);
+
+		TriggerInfo &triggerInfo = testTriggerInfo[idx];
 		assertTestTriggerInfo(triggerInfo);
 		g_parser->endElement();
 	}
 	g_parser->endObject();
-	assertHostsIdNameHashInParser(testTriggerInfo, NumTestTriggerInfo,
-				      g_parser);
+	assertHostsIdNameHashInParser(testTriggerInfo, expectedNumTrig,
+	                              g_parser);
 	assertServersIdNameHashInParser(g_parser);
 }
 #define assertTriggers(P,...) cut_trace(_assertTriggers(P,##__VA_ARGS__))
@@ -314,7 +409,7 @@ static void _assertEvents(const string &path, const string &callbackName = "")
 	startFaceRest();
 	g_parser = getResponseAsJsonParser(path, callbackName);
 	assertValueInParser(g_parser, "apiVersion",
-	                    (uint32_t)FaceRest::API_VERSION_EVENT);
+	                    (uint32_t)FaceRest::API_VERSION);
 	assertValueInParser(g_parser, "result", true);
 	assertValueInParser(g_parser, "numberOfEvents",
 	                    (uint32_t)NumTestEventInfo);
@@ -347,7 +442,7 @@ static void _assertItems(const string &path, const string &callbackName = "")
 	startFaceRest();
 	g_parser = getResponseAsJsonParser(path, callbackName);
 	assertValueInParser(g_parser, "apiVersion",
-	                    (uint32_t)FaceRest::API_VERSION_ITEM);
+	                    (uint32_t)FaceRest::API_VERSION);
 	assertValueInParser(g_parser, "result", true);
 	assertValueInParser(g_parser, "numberOfItems",
 	                    (uint32_t)NumTestItemInfo);
@@ -388,7 +483,7 @@ static void _assertActions(const string &path, const string &callbackName = "")
 	startFaceRest();
 	g_parser = getResponseAsJsonParser(path, callbackName);
 	assertValueInParser(g_parser, "apiVersion",
-	                    (uint32_t)FaceRest::API_VERSION_ACTION);
+	                    (uint32_t)FaceRest::API_VERSION);
 	assertValueInParser(g_parser, "result", true);
 	assertValueInParser(g_parser, "numberOfActions",
 	                    (uint32_t)NumTestActionDef);
@@ -447,7 +542,7 @@ void _assertAddAction(const StringMap &params)
 	                                   params, "POST");
 	assertValueInParser(g_parser, "result", true);
 	assertValueInParser(g_parser, "apiVersion",
-	                    (uint32_t)FaceRest::API_VERSION_ACTION);
+	                    (uint32_t)FaceRest::API_VERSION);
 
 	// This function asummes that the test database is recreated and
 	// is empty. So the added action is the first and the ID should one.
@@ -551,6 +646,21 @@ void test_serversJsonp(void)
 	assertServers("/server", "foo");
 }
 
+void test_hosts(void)
+{
+	assertHosts("/host");
+}
+
+void test_hostsJsonp(void)
+{
+	assertHosts("/host", "foo");
+}
+
+void test_hostsForOneServer(void)
+{
+	assertHosts("/host", "foo", testTriggerInfo[0].serverId);
+}
+
 void test_triggers(void)
 {
 	assertTriggers("/trigger");
@@ -559,6 +669,12 @@ void test_triggers(void)
 void test_triggersJsonp(void)
 {
 	assertTriggers("/trigger", "foo");
+}
+
+void test_triggersForOneServerOneHost(void)
+{
+	assertTriggers("/trigger", "foo",
+	               testTriggerInfo[1].serverId, testTriggerInfo[1].hostId);
 }
 
 void test_events(void)
@@ -761,7 +877,7 @@ void test_deleteAction(void)
 	// check the response
 	assertValueInParser(g_parser, "result", true);
 	assertValueInParser(g_parser, "apiVersion",
-	                    (uint32_t)FaceRest::API_VERSION_ACTION);
+	                    (uint32_t)FaceRest::API_VERSION);
 
 	// check DB
 	string expect;

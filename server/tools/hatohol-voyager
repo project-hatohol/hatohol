@@ -18,8 +18,9 @@
   along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
 """
 import sys
+import urllib
 import urllib2
-import HatoholActionCreator
+from hatohol import HatoholActionCreator
 
 DEFAULT_PORT = 33194
 
@@ -30,9 +31,11 @@ def print_usage():
   print ""
   print "* commands"
   print ""
-  print "  show-trigger"
+  print "  show-server [serverId]"
+  print "  show-trigger [serverId [hostId [triggerId]]]"
   print "  show-event"
   print "  show-item"
+  print "  show-host [sererId [hostId]]"
   print "  show-action"
   print "  add-action"
   print "    --type command|resident"
@@ -77,8 +80,31 @@ def parse_server_option(argv):
   del argv[idx:idx+2]
   return "http://%s:%d" % (server_name, port)
 
+def show_server(url, options):
+  url += "/server"
+  query = {}
+  if len(options) >= 1:
+    query["serverId"] = options[0]
+  if len(query) > 0:
+    encoded_query = urllib.urlencode(query)
+    url += "?" + encoded_query
+  response = urllib2.urlopen(url)
+  server_json = response.read()
+  print server_json
+
 def show_trigger(url, options):
-  response = urllib2.urlopen(url + "/trigger")
+  url += "/trigger"
+  query = {}
+  if len(options) >= 1:
+    query["serverId"] = options[0]
+  if len(options) >= 2:
+    query["hostId"] = options[1]
+  if len(options) >= 3:
+    query["triggerId"] = options[2]
+  if len(query) > 0:
+    encoded_query = urllib.urlencode(query)
+    url += "?" + encoded_query
+  response = urllib2.urlopen(url)
   triggers_json = response.read()
   print triggers_json
 
@@ -89,6 +115,20 @@ def show_event(url, options):
 
 def show_item(url, options):
   response = urllib2.urlopen(url + "/item")
+  items_json = response.read()
+  print items_json
+
+def show_host(url, options):
+  url += "/host"
+  query = {}
+  if len(options) >= 1:
+    query["serverId"] = options[0]
+  if len(options) >= 2:
+    query["hostId"] = options[1]
+  if len(query) > 0:
+    encoded_query = urllib.urlencode(query)
+    url += "?" + encoded_query
+  response = urllib2.urlopen(url)
   items_json = response.read()
   print items_json
 
@@ -113,9 +153,11 @@ def del_action(url, options):
   print result_json
 
 command_map = {
+  "show-server":show_server,
   "show-event":show_event,
   "show-trigger":show_trigger,
   "show-item":show_item,
+  "show-host":show_host,
   "show-action":show_action,
   "add-action":add_action,
   "del-action":del_action,

@@ -16,6 +16,9 @@
  * You should have received a copy of the GNU General Public License
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif // HAVE_CONFIG_H
 
 #include <cstring>
 #include <Logger.h>
@@ -28,11 +31,7 @@ using namespace mlpl;
 #include "ConfigManager.h"
 #include "UnifiedDataStore.h"
 
-int FaceRest::API_VERSION_SERVER   = 2;
-int FaceRest::API_VERSION_TRIGGER  = 2;
-int FaceRest::API_VERSION_EVENT    = 2;
-int FaceRest::API_VERSION_ITEM     = 2;
-int FaceRest::API_VERSION_ACTION   = 2;
+int FaceRest::API_VERSION = 2;
 
 typedef void (*RestHandler)
   (SoupServer *server, SoupMessage *msg, const char *path,
@@ -47,6 +46,7 @@ static const guint DEFAULT_PORT = 33194;
 
 const char *FaceRest::pathForGetOverview = "/overview";
 const char *FaceRest::pathForGetServer   = "/server";
+const char *FaceRest::pathForGetHost     = "/host";
 const char *FaceRest::pathForGetTrigger  = "/trigger";
 const char *FaceRest::pathForGetEvent    = "/event";
 const char *FaceRest::pathForGetItem     = "/item";
@@ -159,6 +159,9 @@ gpointer FaceRest::mainThread(HatoholThreadArg *arg)
 	soup_server_add_handler(m_soupServer, pathForGetServer,
 	                        launchHandlerInTryBlock,
 	                        (gpointer)handlerGetServer, NULL);
+	soup_server_add_handler(m_soupServer, pathForGetHost,
+	                        launchHandlerInTryBlock,
+	                        (gpointer)handlerGetHost, NULL);
 	soup_server_add_handler(m_soupServer, pathForGetTrigger,
 	                        launchHandlerInTryBlock,
 	                        (gpointer)handlerGetTrigger, NULL);
@@ -252,6 +255,54 @@ void FaceRest::replyJsonData(JsonBuilderAgent &agent, SoupMessage *msg,
 	soup_message_body_append(msg->response_body, SOUP_MEMORY_COPY,
 	                         response.c_str(), response.size());
 	soup_message_set_status(msg, SOUP_STATUS_OK);
+}
+
+void FaceRest::parseQueryServerId(GHashTable *query, uint32_t &serverId)
+{
+	serverId = ALL_SERVERS;
+	if (!query)
+		return;
+	gchar *value = (gchar *)g_hash_table_lookup(query, "serverId");
+	if (!value)
+		return;
+
+	uint32_t svId;
+	if (sscanf(value, "%"PRIu32, &svId) == 1)
+		serverId = svId;
+	else
+		MLPL_INFO("Invalid requested ID: %s\n", value);
+}
+
+void FaceRest::parseQueryHostId(GHashTable *query, uint64_t &hostId)
+{
+	hostId = ALL_HOSTS;
+	if (!query)
+		return;
+	gchar *value = (gchar *)g_hash_table_lookup(query, "hostId");
+	if (!value)
+		return;
+
+	uint64_t id;
+	if (sscanf(value, "%"PRIu64, &id) == 1)
+		hostId = id;
+	else
+		MLPL_INFO("Invalid requested ID: %s\n", value);
+}
+
+void FaceRest::parseQueryTriggerId(GHashTable *query, uint64_t &triggerId)
+{
+	triggerId = ALL_TRIGGERS;
+	if (!query)
+		return;
+	gchar *value = (gchar *)g_hash_table_lookup(query, "triggerId");
+	if (!value)
+		return;
+
+	uint64_t id;
+	if (sscanf(value, "%"PRIu64, &id) == 1)
+		triggerId = id;
+	else
+		MLPL_INFO("Invalid requested ID: %s\n", value);
 }
 
 // handlers
@@ -454,11 +505,11 @@ static void addOverview(JsonBuilderAgent &agent)
 	agent.endArray();
 }
 
-static void addServers(JsonBuilderAgent &agent)
+static void addServers(JsonBuilderAgent &agent, uint32_t targetServerId)
 {
 	ConfigManager *configManager = ConfigManager::getInstance();
 	MonitoringServerInfoList monitoringServers;
-	configManager->getTargetServers(monitoringServers);
+	configManager->getTargetServers(monitoringServers, targetServerId);
 
 	agent.add("numberOfServers", monitoringServers.size());
 	agent.startArray("servers");
@@ -471,6 +522,27 @@ static void addServers(JsonBuilderAgent &agent)
 		agent.add("hostName", serverInfo.hostName);
 		agent.add("ipAddress", serverInfo.ipAddress);
 		agent.add("nickname", serverInfo.nickname);
+		agent.endObject();
+	}
+	agent.endArray();
+}
+
+static void addHosts(JsonBuilderAgent &agent,
+                     uint32_t targetServerId, uint64_t targetHostId)
+{
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+	HostInfoList hostInfoList;
+	dataStore->getHostList(hostInfoList, targetServerId, targetHostId);
+
+	agent.add("numberOfHosts", hostInfoList.size());
+	agent.startArray("hosts");
+	HostInfoListIterator it = hostInfoList.begin();
+	for (; it != hostInfoList.end(); ++it) {
+		HostInfo &hostInfo = *it;
+		agent.startObject();
+		agent.add("id", hostInfo.id);
+		agent.add("serverId", hostInfo.serverId);
+		agent.add("hostName", hostInfo.hostName);
 		agent.endObject();
 	}
 	agent.endArray();
@@ -518,7 +590,7 @@ void FaceRest::handlerGetOverview
 {
 	JsonBuilderAgent agent;
 	agent.startObject();
-	agent.add("apiVersion", API_VERSION_SERVER);
+	agent.add("apiVersion", API_VERSION);
 	agent.addTrue("result");
 	addOverview(agent);
 	agent.endObject();
@@ -530,11 +602,33 @@ void FaceRest::handlerGetServer
   (SoupServer *server, SoupMessage *msg, const char *path,
    GHashTable *query, SoupClientContext *client, HandlerArg *arg)
 {
+	uint32_t targetServerId;
+	parseQueryServerId(query, targetServerId);
+
 	JsonBuilderAgent agent;
 	agent.startObject();
-	agent.add("apiVersion", API_VERSION_SERVER);
+	agent.add("apiVersion", API_VERSION);
 	agent.addTrue("result");
-	addServers(agent);
+	addServers(agent, targetServerId);
+	agent.endObject();
+
+	replyJsonData(agent, msg, arg->jsonpCallbackName, arg);
+}
+
+void FaceRest::handlerGetHost
+  (SoupServer *server, SoupMessage *msg, const char *path,
+   GHashTable *query, SoupClientContext *client, HandlerArg *arg)
+{
+	uint32_t targetServerId;
+	parseQueryServerId(query, targetServerId);
+	uint64_t targetHostId;
+	parseQueryHostId(query, targetHostId);
+
+	JsonBuilderAgent agent;
+	agent.startObject();
+	agent.add("apiVersion", API_VERSION);
+	agent.addTrue("result");
+	addHosts(agent, targetServerId, targetHostId);
 	agent.endObject();
 
 	replyJsonData(agent, msg, arg->jsonpCallbackName, arg);
@@ -544,13 +638,21 @@ void FaceRest::handlerGetTrigger
   (SoupServer *server, SoupMessage *msg, const char *path,
    GHashTable *query, SoupClientContext *client, HandlerArg *arg)
 {
+
+	uint32_t serverId;
+	parseQueryServerId(query, serverId);
+	uint64_t hostId;
+	parseQueryHostId(query, hostId);
+	uint64_t triggerId;
+	parseQueryTriggerId(query, triggerId);
+
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	TriggerInfoList triggerList;
-	dataStore->getTriggerList(triggerList);
+	dataStore->getTriggerList(triggerList, serverId, hostId, triggerId);
 
 	JsonBuilderAgent agent;
 	agent.startObject();
-	agent.add("apiVersion", API_VERSION_TRIGGER);
+	agent.add("apiVersion", API_VERSION);
 	agent.addTrue("result");
 	agent.add("numberOfTriggers", triggerList.size());
 	agent.startArray("triggers");
@@ -559,6 +661,7 @@ void FaceRest::handlerGetTrigger
 	for (; it != triggerList.end(); ++it) {
 		TriggerInfo &triggerInfo = *it;
 		agent.startObject();
+		agent.add("id",       triggerInfo.id);
 		agent.add("status",   triggerInfo.status);
 		agent.add("severity", triggerInfo.severity);
 		agent.add("lastChangeTime", triggerInfo.lastChangeTime.tv_sec);
@@ -588,7 +691,7 @@ void FaceRest::handlerGetEvent
 
 	JsonBuilderAgent agent;
 	agent.startObject();
-	agent.add("apiVersion", API_VERSION_EVENT);
+	agent.add("apiVersion", API_VERSION);
 	agent.addTrue("result");
 	agent.add("numberOfEvents", eventList.size());
 	agent.startArray("events");
@@ -628,7 +731,7 @@ void FaceRest::handlerGetItem
 
 	JsonBuilderAgent agent;
 	agent.startObject();
-	agent.add("apiVersion", API_VERSION_ITEM);
+	agent.add("apiVersion", API_VERSION);
 	agent.addTrue("result");
 	agent.add("numberOfItems", itemList.size());
 	agent.startArray("items");
@@ -691,7 +794,7 @@ void FaceRest::handlerGetAction
 
 	JsonBuilderAgent agent;
 	agent.startObject();
-	agent.add("apiVersion", API_VERSION_ACTION);
+	agent.add("apiVersion", API_VERSION);
 	agent.addTrue("result");
 	agent.add("numberOfActions", actionList.size());
 	agent.startArray("actions");
@@ -874,7 +977,7 @@ void FaceRest::handlerPostAction
 	// make a response
 	JsonBuilderAgent agent;
 	agent.startObject();
-	agent.add("apiVersion", API_VERSION_ACTION);
+	agent.add("apiVersion", API_VERSION);
 	agent.addTrue("result");
 	agent.add("id", actionDef.id);
 	agent.endObject();
@@ -902,7 +1005,7 @@ void FaceRest::handlerDeleteAction
 	// replay
 	JsonBuilderAgent agent;
 	agent.startObject();
-	agent.add("apiVersion", API_VERSION_ACTION);
+	agent.add("apiVersion", API_VERSION);
 	agent.addTrue("result");
 	agent.add("id", arg->id);
 	agent.endObject();

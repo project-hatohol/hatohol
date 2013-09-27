@@ -491,7 +491,8 @@ DBClientHatohol::~DBClientHatohol()
 }
 
 void DBClientHatohol::getHostInfoList(HostInfoList &hostInfoList,
-                                      uint32_t targetServerId)
+                                      uint32_t targetServerId,
+                                      uint64_t targetHostId)
 {
 	// Now we don't have a DB table for hosts. So we get a host list from
 	// the trigger table. In the future, we will add the table for hosts
@@ -519,12 +520,22 @@ void DBClientHatohol::getHostInfoList(HostInfoList &hostInfoList,
 	    COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_HOSTNAME].type);
 
 	// condition
+	string condition;
 	if (targetServerId != ALL_SERVERS) {
 		const char *colName = 
 		  COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SERVER_ID].columnName;
-		arg.condition = StringUtils::sprintf("%s=%"PRIu32, colName,
-		                                     targetServerId);
+		condition = StringUtils::sprintf("%s=%"PRIu32, colName,
+		                                 targetServerId);
 	}
+	if (targetHostId != ALL_HOSTS) {
+		if (!condition.empty())
+			condition += " AND ";
+		const char *colName = 
+		  COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_HOST_ID].columnName;
+		condition += StringUtils::sprintf("%s=%"PRIu64, colName,
+		                                  targetHostId);
+	}
+	arg.condition = condition;
 
 	DBCLIENT_TRANSACTION_BEGIN() {
 		select(arg);
@@ -585,8 +596,9 @@ bool DBClientHatohol::getTriggerInfo(TriggerInfo &triggerInfo,
 	return true;
 }
 
-void DBClientHatohol::getTriggerInfoList(TriggerInfoList &triggerInfoList,
-                                         uint32_t targetServerId)
+void DBClientHatohol::getTriggerInfoList(
+  TriggerInfoList &triggerInfoList, uint32_t targetServerId,
+  uint64_t targetHostId, uint64_t targetTriggerId)
 {
 	string condition;
 	if (targetServerId != ALL_SERVERS) {
@@ -594,6 +606,22 @@ void DBClientHatohol::getTriggerInfoList(TriggerInfoList &triggerInfoList,
 		  COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SERVER_ID].columnName;
 		condition = StringUtils::sprintf("%s=%"PRIu32, colName,
 		                                 targetServerId);
+	}
+	if (targetHostId != ALL_HOSTS) {
+		if (!condition.empty())
+			condition += " AND ";
+		const char *colName = 
+		  COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_HOST_ID].columnName;
+		condition += StringUtils::sprintf("%s=%"PRIu64, colName,
+		                                  targetHostId);
+	}
+	if (targetTriggerId != ALL_TRIGGERS) {
+		if (!condition.empty())
+			condition += " AND ";
+		const char *colName = 
+		  COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_ID].columnName;
+		condition += StringUtils::sprintf("%s=%"PRIu64, colName,
+		                                  targetTriggerId);
 	}
 	getTriggerInfoList(triggerInfoList, condition);
 }

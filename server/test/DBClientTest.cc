@@ -298,17 +298,25 @@ static void addHostInfoToList(HostInfoList &hostInfoList,
 	hostInfo.hostName = trigInfo.hostName;
 }
 
-size_t getNumberOfTestTriggers(uint32_t serverId)
+void getTestTriggersIndexes(
+  map<uint32_t, map<uint64_t, size_t> > &indexMap,
+  uint32_t serverId, uint64_t hostId)
 {
-	if (serverId == ALL_SERVERS)
-		return NumTestTriggerInfo;
-
-	size_t count = 0;
 	for (size_t i = 0; i < NumTestTriggerInfo; i++) {
-		if (testTriggerInfo[i].serverId == serverId)
-			count++;
+		const TriggerInfo &trigInfo = testTriggerInfo[i];
+		if (serverId != ALL_SERVERS) {
+			if (trigInfo.serverId != serverId)
+				continue;
+		}
+		if (hostId != ALL_HOSTS) {
+			if (trigInfo.hostId != hostId)
+				continue;
+		}
+		// If the following assertion fails, the test data is illegal.
+		cppcut_assert_equal(
+		  (size_t)0, indexMap[trigInfo.serverId].count(trigInfo.id));
+		indexMap[trigInfo.serverId][trigInfo.id] = i;
 	}
-	return count;
 }
 
 size_t getNumberOfTestItems(uint32_t serverId)
@@ -486,4 +494,26 @@ size_t getNumberOfTestHostsWithStatus(uint32_t serverId, uint64_t hostGroupId,
 		return 0;
 	HostIdSet &hostIdSet = hostIt->second;
 	return hostIdSet.size();
+}
+
+void getDBCTestHostInfo(HostInfoList &hostInfoList, uint32_t targetServerId)
+{
+	map<uint32_t, set<uint64_t> > svIdHostIdsMap;
+	map<uint32_t, set<uint64_t> >::iterator it;
+	for (size_t i = 0; i < NumTestTriggerInfo; i++) {
+		const TriggerInfo &trigInfo = testTriggerInfo[i];
+		const uint32_t svId = trigInfo.serverId;
+		const uint64_t hostId = trigInfo.hostId;
+		if (targetServerId != ALL_SERVERS && svId != targetServerId)
+			continue;
+		if (svIdHostIdsMap[svId].count(hostId))
+			continue;
+
+		HostInfo hostInfo;
+		hostInfo.serverId = svId;
+		hostInfo.id       = hostId;
+		hostInfo.hostName = trigInfo.hostName;
+		hostInfoList.push_back(hostInfo);
+		svIdHostIdsMap[svId].insert(hostId);
+	}
 }

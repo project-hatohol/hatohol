@@ -24,6 +24,7 @@ using namespace mlpl;
 
 #include "Hatohol.h"
 #include "Utils.h"
+#include "ConfigManager.h"
 #include "SQLUtils.h"
 #include "SQLProcessorZabbix.h"
 #include "SQLProcessorFactory.h"
@@ -76,13 +77,15 @@ static void init(const CommandLineArg *arg)
 
 static void reset(void)
 {
+	ActorCollector::reset();
+	ConfigManager::reset();
+
 	DBAgentSQLite3::reset();
 	DBClient::reset();
 	DBClientConfig::reset(); // must be after DBClient::reset()
 	DBClientAction::reset(); // must be after DBClientConfig::reset()
 
 	ActionManager::reset();
-	ActorCollector::reset();
 }
 
 void hatoholInit(const CommandLineArg *arg)

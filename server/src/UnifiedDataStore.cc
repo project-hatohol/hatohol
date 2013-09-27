@@ -25,6 +25,7 @@
 #include "VirtualDataStoreZabbix.h"
 #include "VirtualDataStoreNagios.h"
 #include "DBClientAction.h"
+#include "ActionManager.h"
 
 using namespace mlpl;
 
@@ -202,10 +203,13 @@ void UnifiedDataStore::fetchItems(void)
 }
 
 void UnifiedDataStore::getTriggerList(TriggerInfoList &triggerList,
-                                      uint32_t targetServerId)
+                                      uint32_t targetServerId,
+                                      uint64_t targetHostId,
+                                      uint64_t targetTriggerId)
 {
 	DBClientHatohol dbHatohol;
-	dbHatohol.getTriggerInfoList(triggerList, targetServerId);
+	dbHatohol.getTriggerInfoList(triggerList, targetServerId,
+	                             targetHostId, targetTriggerId);
 }
 
 void UnifiedDataStore::getEventList(EventInfoList &eventList)
@@ -221,12 +225,12 @@ void UnifiedDataStore::getItemList(ItemInfoList &itemList,
 	dbHatohol.getItemInfoList(itemList, targetServerId);
 }
 
-void UnifiedDataStore::getHostList(HostInfoList &hostInfoList,
-                                   uint32_t targetServerId)
+void UnifiedDataStore::getHostList(
+  HostInfoList &hostInfoList, uint32_t targetServerId, uint64_t targetHostId)
 {
 	fetchItems();
 	DBClientHatohol dbHatohol;
-	dbHatohol.getHostInfoList(hostInfoList, targetServerId);
+	dbHatohol.getHostInfoList(hostInfoList, targetServerId, targetHostId);
 }
 
 void UnifiedDataStore::getActionList(ActionDefList &actionList)
@@ -287,6 +291,14 @@ void UnifiedDataStore::addAction(ActionDef &actionDef)
 {
 	DBClientAction dbAction;
 	dbAction.addAction(actionDef);
+}
+
+void UnifiedDataStore::addEventList(const EventInfoList &eventList)
+{
+	DBClientHatohol dbHatohol;
+	ActionManager actionManager;
+	actionManager.checkEvents(eventList);
+	dbHatohol.addEventInfoList(eventList);
 }
 
 // ---------------------------------------------------------------------------

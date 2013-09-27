@@ -18,18 +18,13 @@
   along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
 """
 
-# TODO: We will create this file automatically.
+from distutils.core import setup
 
-TRIGGER_STATUS_OK = 0
-TRIGGER_STATUS_PROBLEM = 1
-
-TRIGGER_SEVERITY_INFO = 0
-TRIGGER_SEVERITY_WARN = 1
-TRIGGER_SEVERITY_CRITICAL = 2
-TRIGGER_SEVERITY_UNKNOWN = 3
-
-ACTION_COMMAND = 0
-ACTION_RESIDENT = 1
-
-CMP_EQ = 1
-CMP_EQ_GT = 2
+setup(name='hatohol',
+      version='0.1',
+      description='Hatohol python library',
+      author='Kazuhiro Yamato',
+      author_email='kazuhiro.yamato@miraclelinux.com',
+      url='http://https://github.com/project-hatohol/hatohol',
+      packages=['hatohol'],
+     )

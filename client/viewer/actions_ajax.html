@@ -35,7 +35,7 @@
   <h2>{% trans "Actions" %}</h2>
 
   <form class="form-inline">
-    <input id="add-action-button" type="button" value="{% trans "ADD ACTION" %}" />
+    <input id="add-action-button" type="button" class="btn" value="{% trans "ADD ACTION" %}" />
     <label>Server:</label>
     <select id="select-server">
       <option>---------</option>
@@ -48,86 +48,9 @@
     <select id="select-host">
       <option>---------</option>
     </select>
-    <input id="delete-action-button" type="button" disabled
+    <input id="delete-action-button" type="button" class="btn" disabled
      value="{% trans "DELETE ACTIONS" %}" />
   </form>
-  <div id="add-action-dialog">
-    <h3>{% trans "Condition" %}</h3>
-    <form class="form-inline">
-      <label>{% trans "Server" %}</label>
-      <select id="selectServerId">
-        <option value="ANY">ANY</option>
-        <option value="SELECT">== {% trans "SELECT" %} ==</option>
-      </select>
-
-      <label>{% trans "Host Group" %}</label>
-      <select id="selectHostGroupId">
-        <option value="ANY">ANY</option>
-        <!-- Currently host group ID is not supported
-        <option value="select">== {% trans "SELECT" %} ==</option>
-        -->
-      </select>
-      <label>{% trans "Host" %}</label>
-      <select id="selectHostId">
-        <option value="ANY">ANY</option>
-        <option value="select">== {% trans "SELECT" %} ==</option>
-      </select>
-    </form>
-
-    <form class="form-inline">
-      <label>{% trans "Trigger" %}</label>
-      <select id="selectTriggerId">
-        <option value="ANY">ANY</option>
-        <option value="select">== {% trans "SELECT" %} ==</option>
-      </select>
-
-      <label>{% trans "Status" %}</label>
-      <select id="selectTriggerStatus">
-        <option value="ANY">ANY</option>
-        <option value="TRIGGER_STATUS_OK">{% trans "OK" %}</option>
-        <option value="TRIGGER_STATUS_PROBLEM">{% trans "Problem" %}</option>
-      </select>
-
-      <label>{% trans "Severity" %}</label>
-      <select id="selectTriggerSeverity">
-        <option value="ANY">ANY</option>
-        <option value="INFO">{% trans "Information" %}</option>
-        <option value="WARNING">{% trans "Warning" %}</option>
-        <option value="ERROR">{% trans "Average" %}</option>
-        <option value="CRITICAL">{% trans "High" %}</option>
-        <option value="EMERGENCY">{% trans "Disaster" %}</option>
-      </select>
-      <select id="selectTriggerSeverityCompType" style="visibility:hidden;">
-        <option value="CMP_EQ">{% trans "Equal to" %}</option>
-        <option value="CMP_EQ_GT">{% trans "Equal to or greater than" %}</option>
-      </select>
-    </form>
-
-    <h3>{% trans "Execution parameters" %}</h3>
-    <form class="form-inline">
-      <label>{% trans "Type" %}</label>
-      <select id="selectType">
-        <option value="ACTION_COMMAND">{% trans "COMMAND" %}</option>
-        <option value="ACTION_RESIDENT">{% trans "RESIDENT" %}</option>
-      </select>
-
-      <label>{% trans "Time-out (sec)" %}</label>
-      <input id="inputTimeout" value="0">
-      <label>(0: {% trans "No limit" %})</label>
-    </form>
-
-    <form class="form-inline">
-      <label>{% trans "Command" %}</label>
-      <input id="inputActionCommand" value="" style="width:100%;">
-    </form>
-
-    <form class="form-inline">
-      <label>{% trans "Execution directory" %}</label>
-      <input id="inputWorkingDir" value="" style="width:100%;">
-    </form>
-
-  </div>
-
   <div id="msgbox" title="Message Box">
     <p id="msgbox-text"></p>
   </div>
@@ -160,8 +83,13 @@
 {% block option %}
   <script src="{{ STATIC_URL }}js/stupidtable.js"></script>
   <script src="{{ STATIC_URL }}js/hatohol_def.js"></script>
+  <script src="{{ STATIC_URL }}js/hatohol_reply_parser.js"></script>
   <script src="{{ STATIC_URL }}js/hatohol_dialog.js"></script>
+  <script src="{{ STATIC_URL }}js/hatohol_add_action_dialog.js"></script>
+  <script src="{{ STATIC_URL }}js/hatohol_selector_dialog.js"></script>
   <script src="{{ STATIC_URL }}js/hatohol_server_selector.js"></script>
+  <script src="{{ STATIC_URL }}js/hatohol_host_selector.js"></script>
+  <script src="{{ STATIC_URL }}js/hatohol_trigger_selector.js"></script>
 
   <!-- TODO: We should download jquery-ui.js and the CSS to the local. -->
   <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1/jquery-ui.min.js"></script>
@@ -174,9 +102,6 @@
     //
     // Variables
     //
-    var status_choices   = [ '正常', '障害', '不明' ];
-    var severity_choices = [ '未分類', '情報', '警告', '軽度の障害', '重度の障害', '致命的な障害' ];
-
     var rawData;
     var parsedData;
     var queryData = {
@@ -196,13 +121,17 @@
     });
 
     $("#add-action-button").click(function() {
-      $("#add-action-dialog").dialog("open");
+      new HatoholAddActionDialog(addSucceededCb);
     });
 
     $("#delete-action-button").click(function() {
       showNoYesMessageBox(
         "{% trans "Do you delete the selected items ?" %}", deleteActions);
     });
+
+    function addSucceededCb() {
+      schedule(0000, "action");
+    }
 
     //
     // Event handlers for forms in the main view
@@ -228,22 +157,6 @@
             $("#delete-action-button").attr("disabled", true);
         });
     }
-
-    //
-    // Event handlers for forms in the add-action dialog
-    //
-    $("#selectTriggerSeverity").change(function() {
-      var severity = $(this).val();
-      if (severity != "ANY")
-        $("#selectTriggerSeverityCompType").css("visibility","visible");
-      else
-        $("#selectTriggerSeverityCompType").css("visibility","hidden");
-    })
-
-    $("#selectServerId").change(function() {
-      if ($(this).val() == "SELECT")
-        HatoholServerSelector();
-    })
 
     //
     // Commonly used functions from a dialog.
@@ -275,145 +188,6 @@
             return false;
         }
         return true;
-    }
-
-    //
-    // Add-action dialog
-    //
-    $("#add-action-dialog").dialog({
-      autoOpen: false,
-      title: "{% trans "ADD ACTION" %}",
-      closeOnEscape: false,
-      width:  "95%",
-      modal: true,
-      buttons: [
-      {
-        text: "{% trans "ADD" %}",
-        click: function() {
-          if (validateAddParameters()) {
-            makeQueryData();
-            showMessageBox("{% trans "Now creating an action ..." %}",
-                           "{% trans "Information" %}",
-                           undefined);
-            postAddAction();
-          }
-        }
-      }, {
-        text: "{% trans "CANNCEL" %}",
-        click: function() {
-          $(this).dialog("close");
-        }
-      }]
-    });
-
-    function validateAddParameters() {
-      if ($("#inputActionCommand").val() == "") {
-        showErrorMessageBox("Command is empty!");
-        return false;
-      }
-      return true;
-    }
-
-    function getCommandType() {
-      var type = $("#selectType").val();
-      switch(type) {
-      case "ACTION_COMMAND":
-        return ACTION_COMMAND;
-      case "ACTION_RESIDENT":
-        return ACTION_RESIDENT;
-      default:
-        alert("Unknown command type: " + type);
-      }
-      return undefined;
-    }
-
-    function getStatusValue() {
-      var status = $("#selectTriggerStatus").val();
-      switch(status) {
-      case "ANY":
-        return undefined;
-      case "TRIGGER_STATUS_OK":
-        return TRIGGER_STATUS_OK;
-      case "TRIGGER_STATUS_PROBLEM":
-        return TRIGGER_STATUS_PROBLEM;
-      default:
-        alert("Unknown status: " + status);
-      }
-      return undefined;
-    }
-
-    function getSeverityValue() {
-      var severity = $("#selectTriggerSeverity").val();
-      switch(severity) {
-      case "ANY":
-        return undefined;
-      case "INFO":
-        return TRIGGER_SEVERITY_INFO;
-      case "WARNING":
-        return TRIGGER_SEVERITY_WARNING;
-      case "ERROR":
-        return TRIGGER_SEVERITY_ERROR;
-      case "CRITICAL":
-        return TRIGGER_SEVERITY_CRITICAL;
-      case "EMERGENCY":
-        return TRIGGER_SEVERITY_EMERGENCY;
-      default:
-        alert("Unknown severity: " + severity);
-      }
-      return undefined;
-    }
-
-    function getSeverityCompTypeValue() {
-      var compType = $("#selectTriggerSeverityCompType").val();
-      switch(compType) {
-      case "CMP_EQ":
-        return CMP_EQ;
-      case "CMP_EQ_GT":
-        return CMP_EQ_GT;
-      default:
-        alert("Unknown severity: " + severity);
-      }
-      return undefined;
-    }
-
-    function makeQueryData() {
-        queryData.type = getCommandType();
-        queryData.timeout = $("#inputTimeout").val();
-        queryData.command = $("#inputActionCommand").val();
-        queryData.workingDirectory = $("#inputWorkingDir").val();
-        queryData.triggerStatus   = getStatusValue();
-        queryData.triggerSeverity = getSeverityValue();
-        queryData.triggerSeverityCompType = getSeverityCompTypeValue();
-    }
-
-    function postAddAction() {
-      $.ajax({
-        url: "/tunnel/action",
-        type: "POST",
-        data: queryData,
-        success: function(data) {
-          parsePostActionResult(data);
-        },
-        error: function(XMLHttpRequest, textStatus, errorThrown) {
-          var errorMsg = "Error: " + XMLHttpRequest.status + ": " +
-                         XMLHttpRequest.statusText;
-          showErrorMessageBox(errorMsg);
-        }
-      })
-    }
-
-    function parsePostActionResult(data) {
-      if (!parseResult(data))
-        return;
-
-      if ($("#add-action-dialog").dialog != undefined)
-        $("#add-action-dialog").dialog("close");
-
-      // close dialogs
-      showInfoMessageBox("{% trans "Successfully created." %}");
-
-      // update the main view
-      schedule(0000, "action");
     }
 
     //
@@ -552,36 +326,6 @@
         return "{% trans "RESIDENT" %}";
       default:
         return "INVALID: " + type;
-      }
-    }
-
-    function makeTriggerStatusLabel(status) {
-      switch(status) {
-      case TRIGGER_STATUS_OK:
-        return "{% trans "OK" %}";
-      case TRIGGER_STATUS_PROBLEM:
-        return "{% trans "Problem" %}";
-      default:
-        return "INVALID: " + status;
-      }
-    }
-
-    function makeServerityLabel(severity) {
-      switch(severity) {
-      case TRIGGER_SEVERITY_UNKNOWN:
-        return "{% trans "Not classified" %}";
-      case TRIGGER_SEVERITY_INFO:
-        return "{% trans "Information" %}";
-      case TRIGGER_SEVERITY_WARNING:
-        return "{% trans "Warning" %}";
-      case TRIGGER_SEVERITY_ERROR:
-        return "{% trans "Average" %}";
-      case TRIGGER_SEVERITY_CRITICAL:
-        return "{% trans "High" %}";
-      case TRIGGER_SEVERITY_EMERGENCY:
-        return "{% trans "Disaster" %}";
-      default:
-        return "{% trans "INVALID" %}" + ": " + severity;
       }
     }
 

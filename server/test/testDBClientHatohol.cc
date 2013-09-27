@@ -36,7 +36,7 @@ static void addTriggerInfo(TriggerInfo *triggerInfo)
 #define assertAddTriggerToDB(X) \
 cut_trace(_assertAddToDB<TriggerInfo>(X, addTriggerInfo))
 
-static string makeExpectedOutput(TriggerInfo *triggerInfo)
+static string makeExpectedOutput(const TriggerInfo *triggerInfo)
 {
 	string expectedOut =
 	  StringUtils::sprintf(
@@ -52,20 +52,36 @@ static string makeExpectedOutput(TriggerInfo *triggerInfo)
 	return expectedOut;
 }
 
-static void _assertGetTriggers(uint32_t serverId = ALL_SERVERS)
+static void _assertGetTriggers(uint32_t serverId = ALL_SERVERS,
+                               uint64_t hostId = ALL_HOSTS)
 {
+	map<uint32_t, map<uint64_t, size_t> > indexMap;
+	map<uint32_t, map<uint64_t, size_t> >::iterator indexMapIt;
+	map<uint64_t, size_t>::iterator trigIdIdxIt;
 	TriggerInfoList triggerInfoList;
 	DBClientHatohol dbHatohol;
-	dbHatohol.getTriggerInfoList(triggerInfoList, serverId);
-	size_t numExpectedTestTriggers = getNumberOfTestTriggers(serverId);
+	dbHatohol.getTriggerInfoList(triggerInfoList, serverId, hostId);
+	getTestTriggersIndexes(indexMap, serverId, hostId);
+
+	// check the number
+	size_t numExpectedTestTriggers = 0;
+	indexMapIt = indexMap.begin();
+	for (; indexMapIt != indexMap.end(); ++indexMapIt)
+		numExpectedTestTriggers += indexMapIt->second.size();
 	cppcut_assert_equal(numExpectedTestTriggers, triggerInfoList.size());
 
 	string expectedText;
 	string actualText;
 	TriggerInfoListIterator it = triggerInfoList.begin();
 	for (size_t i = 0; i < numExpectedTestTriggers; i++, ++it) {
-		expectedText += makeExpectedOutput(&testTriggerInfo[i]);
-		actualText += makeExpectedOutput(&(*it));
+		const TriggerInfo &actual = *it;
+		actualText += makeExpectedOutput(&actual);
+		trigIdIdxIt = indexMap[actual.serverId].find(actual.id);
+		cppcut_assert_equal(
+		  true, trigIdIdxIt != indexMap[actual.serverId].end());
+		size_t idx = trigIdIdxIt->second;
+		expectedText += makeExpectedOutput(&testTriggerInfo[idx]);
+		indexMap[actual.serverId].erase(trigIdIdxIt);
 	}
 	cppcut_assert_equal(expectedText, actualText);
 }
@@ -78,13 +94,13 @@ static void _setupTestTriggerDB(void)
 }
 #define setupTestTriggerDB() cut_trace(_setupTestTriggerDB())
 
-static void _assertGetTriggerInfoList(uint32_t serverId)
+static void _assertGetTriggerInfoList(uint32_t serverId, uint64_t hostId = ALL_HOSTS)
 {
 	setupTestTriggerDB();
-	assertGetTriggers(serverId);
+	assertGetTriggers(serverId, hostId);
 }
-#define assertGetTriggerInfoList(SERVER_ID) \
-cut_trace(_assertGetTriggerInfoList(SERVER_ID))
+#define assertGetTriggerInfoList(SERVER_ID, ...) \
+cut_trace(_assertGetTriggerInfoList(SERVER_ID, ##__VA_ARGS__))
 
 
 // TODO: The names of makeExpectedOutput() and makeExpectedItemOutput()
@@ -234,7 +250,7 @@ void _assertGetNumberOfHostsWithStatus(bool status)
 cut_trace(_assertGetNumberOfHostsWithStatus(ST))
 
 
-void _assertTriggerInfo(TriggerInfo &expect, TriggerInfo &actual)
+void _assertTriggerInfo(const TriggerInfo &expect, const TriggerInfo &actual)
 {
 	cppcut_assert_equal(expect.serverId, actual.serverId);
 	cppcut_assert_equal(expect.id, actual.id);
@@ -341,6 +357,13 @@ void test_getTriggerInfoListForOneServer(void)
 {
 	uint32_t targetServerId = testTriggerInfo[0].serverId;
 	assertGetTriggerInfoList(targetServerId);
+}
+
+void test_getTriggerInfoListForOneServerOneHost(void)
+{
+	uint32_t targetServerId = testTriggerInfo[1].serverId;
+	uint64_t targetHostId = testTriggerInfo[1].hostId;
+	assertGetTriggerInfoList(targetServerId, targetHostId);
 }
 
 void test_setTriggerInfoList(void)

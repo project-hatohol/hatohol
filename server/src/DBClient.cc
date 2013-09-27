@@ -313,7 +313,11 @@ void DBClient::updateDBIfNeeded(DBAgent *dbAgent, DBSetupFuncArg *setupFuncArg)
 		HATOHOL_ASSERT(setupFuncArg->dbUpdater,
 		             "Updater: NULL, expect/actual ver. %d/%d",
 		             setupFuncArg->version, dbVersion);
-		(*setupFuncArg->dbUpdater)(dbAgent, dbVersion, data);
+		bool succeeded =
+		  (*setupFuncArg->dbUpdater)(dbAgent, dbVersion, data);
+		HATOHOL_ASSERT(succeeded,
+		               "Failed to update DB, expect/actual ver. %d/%d",
+		               setupFuncArg->version, dbVersion);
 		setDBVersion(dbAgent, columnDef, setupFuncArg->version);
 	}
 }

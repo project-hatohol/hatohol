@@ -40,11 +40,15 @@ enum TriggerSeverityType {
 };
 
 static const uint32_t ALL_SERVERS = -1;
+static const uint64_t ALL_HOSTS   = -1;
+static const uint64_t ALL_TRIGGERS = -1;
 
 struct HostInfo {
 	uint32_t            serverId;
 	uint64_t            id;
 	string              hostName;
+
+	// The follwong members are currently not used.
 	string              ipAddr;
 	string              nickname;
 };
@@ -122,7 +126,8 @@ public:
 	virtual ~DBClientHatohol();
 
 	void getHostInfoList(HostInfoList &hostInfoList,
-	                     uint32_t targetServerId = ALL_SERVERS);
+	                     uint32_t targetServerId = ALL_SERVERS,
+	                     uint64_t targetHostId = ALL_HOSTS);
 
 	void addTriggerInfo(TriggerInfo *triggerInfo);
 	void addTriggerInfoList(const TriggerInfoList &triggerInfoList);
@@ -143,7 +148,9 @@ public:
 	bool getTriggerInfo(TriggerInfo &triggerInfo,
 	                    uint32_t serverId, uint64_t triggerId);
 	void getTriggerInfoList(TriggerInfoList &triggerInfoList,
-	                        uint32_t targetServerId = ALL_SERVERS);
+	                        uint32_t targetServerId = ALL_SERVERS,
+	                        uint64_t targetHostId = ALL_HOSTS,
+	                        uint64_t targetTriggerId = ALL_TRIGGERS);
 	void setTriggerInfoList(const TriggerInfoList &triggerInfoList,
 	                        uint32_t serverId);
 	/**

@@ -26,11 +26,7 @@
 
 class FaceRest : public FaceBase {
 public:
-	static int API_VERSION_SERVER;
-	static int API_VERSION_TRIGGER;
-	static int API_VERSION_EVENT;
-	static int API_VERSION_ITEM;
-	static int API_VERSION_ACTION;
+	static int API_VERSION;
 
 	static void init(void);
 	FaceRest(CommandLineArg &cmdArg);
@@ -53,6 +49,30 @@ protected:
 	static void replyJsonData(JsonBuilderAgent &agent, SoupMessage *msg,
 	                          const string &jsonpCallbackName,
 	                          HandlerArg *arg);
+	/**
+	 * Parse 'serverId' query parameter if it exists.
+	 *
+	 * @param query
+	 * A hash table of query parameters.
+	 *
+	 * @param serverId.
+	 * If 'serverId' query parameter is found, the value is set to
+	 * this variable. Otherwise, ALL_SERVERS is set.
+	 */
+	static void parseQueryServerId(GHashTable *query, uint32_t &serverId);
+
+	/**
+	 * Parse 'hostId' query parameter if it exists.
+	 *
+	 * @param query
+	 * A hash table of query parameters.
+	 *
+	 * @param hostId.
+	 * If 'hostId' query parameter is found, the value is set to
+	 * this variable. Otherwise, ALL_HOSTS is set.
+	 */
+	static void parseQueryHostId(GHashTable *query, uint64_t &hostId);
+	static void parseQueryTriggerId(GHashTable *query, uint64_t &triggerId);
 
 	// handlers
 	static void
@@ -71,6 +91,9 @@ protected:
 	  (SoupServer *server, SoupMessage *msg, const char *path,
 	   GHashTable *query, SoupClientContext *client, HandlerArg *arg);
 	static void handlerGetServer
+	  (SoupServer *server, SoupMessage *msg, const char *path,
+	   GHashTable *query, SoupClientContext *client, HandlerArg *arg);
+	static void handlerGetHost
 	  (SoupServer *server, SoupMessage *msg, const char *path,
 	   GHashTable *query, SoupClientContext *client, HandlerArg *arg);
 	static void handlerGetTrigger
@@ -106,6 +129,7 @@ private:
 
 	static const char *pathForGetOverview;
 	static const char *pathForGetServer;
+	static const char *pathForGetHost;
 	static const char *pathForGetTrigger;
 	static const char *pathForGetEvent;
 	static const char *pathForGetItem;

@@ -17,37 +17,25 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TimeCounter_h
-#define TimeCounter_h
+#include <cppcutter.h>
+#include "TimeCounter.h"
 
-#include <time.h>
+using namespace mlpl;
 
-namespace mlpl {
+namespace testTimeCounter {
 
-class TimeCounter {
-public:
-	enum InitType {
-		INIT_NONE,
-		INIT_CURR_TIME,
-	};
+void test_constructorTimespec(void)
+{
+	timespec ts;
+	ts.tv_sec = 1379641056;
+	ts.tv_nsec = 987654321;
+	TimeCounter timeCnt(ts);
 
-	static double getCurrTime(void);
+	double actual = timeCnt.getAsSec();
+	int actualInt = (int)actual;
+	cppcut_assert_equal((int)ts.tv_sec, actualInt);
+	int  actualDecimalPartUsec = (actual - actualInt) * 1e6;
+	cppcut_assert_equal((int)(ts.tv_nsec/1e3), actualDecimalPartUsec);
+}
 
-	TimeCounter(InitType initType = INIT_NONE);
-	TimeCounter(const timespec &ts);
-	virtual ~TimeCounter();
-
-	void setCurrTime(void);
-	void setTime(double time);
-	double getAsSec(void) const;
-	double getAsMSec(void) const;
-
-	TimeCounter &operator-=(const TimeCounter &rhs);
-
-private:
-	double m_time;
-};
-
-} // namespace mlpl
-
-#endif // TimeCounter_h
+} // namespace testTimeCounter
