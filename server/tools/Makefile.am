@@ -1,5 +1,6 @@
 bin_PROGRAMS = hatohol-config-db-creator \
                hatohol-def-src-file-generator
+dist_bin_SCRIPTS = hatohol-voyager
 actiondir = $(libexecdir)/$(PACKAGE)/action
 dist_action_SCRIPTS = hatohol-actor-mail
 hatohol_config_db_creator_SOURCES = hatohol-config-db-creator.cc
