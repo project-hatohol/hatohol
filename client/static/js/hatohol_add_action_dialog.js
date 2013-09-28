@@ -419,7 +419,8 @@ HatoholAddActionDialog.prototype.onAppendMainElement = function () {
       $("#selectType").val(type);
       break;
     default:
-      // TODO: show an error message
+      var msg = gettext("The template script may have a problem. (command type: ") + type + ")";
+      showErrorMessageBox(gettext(msg));
       return;
     }
     $("#inputActionCommand").val(commandDesc);
