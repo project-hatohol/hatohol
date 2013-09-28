@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-09-27 05:12-0500\n"
+"POT-Creation-Date: 2013-09-28 06:10-0500\n"
 "PO-Revision-Date: 2013-09-13 15:28+0900\n"
 "Last-Translator: Takuro Ashie <ashie@clear-code.com>\n"
 "Language-Team: Project Hatohol\n"
@@ -132,52 +132,52 @@ msgstr "コマンド"
 msgid "Time-out (sec)"
 msgstr "タイムアウト (秒)"
 
-#: viewer/actions_ajax.html:129
+#: viewer/actions_ajax.html:130
 msgid "Do you delete the selected items ?"
 msgstr "選択項目を削除しますか？"
 
-#: viewer/actions_ajax.html:208 viewer/actions_ajax.html.py:249
+#: viewer/actions_ajax.html:209 viewer/actions_ajax.html.py:250
 msgid "Deleting..."
 msgstr "削除中..."
 
-#: viewer/actions_ajax.html:255
+#: viewer/actions_ajax.html:256
 msgid "Completed. (Number of errors: "
 msgstr "完了 (エラー数: "
 
-#: viewer/actions_ajax.html:266
+#: viewer/actions_ajax.html:267
 msgid "CLOSE"
 msgstr "閉じる"
 
-#: viewer/actions_ajax.html:272
+#: viewer/actions_ajax.html:273
 msgid "NO"
 msgstr "いいえ"
 
-#: viewer/actions_ajax.html:277
+#: viewer/actions_ajax.html:278
 msgid "YES"
 msgstr "はい"
 
-#: viewer/actions_ajax.html:298 viewer/dashboard_ajax.html:65
+#: viewer/actions_ajax.html:299 viewer/dashboard_ajax.html:65
 #: viewer/events_ajax.html:77 viewer/triggers_ajax.html:86
 msgid "Information"
 msgstr "情報"
 
-#: viewer/actions_ajax.html:302
+#: viewer/actions_ajax.html:303
 msgid "Error"
 msgstr "エラー"
 
-#: viewer/actions_ajax.html:306
+#: viewer/actions_ajax.html:307
 msgid "Confirmation"
 msgstr "確認"
 
-#: viewer/actions_ajax.html:324
+#: viewer/actions_ajax.html:325
 msgid "COMMAND"
 msgstr "コマンド"
 
-#: viewer/actions_ajax.html:326
+#: viewer/actions_ajax.html:327
 msgid "RESIDENT"
 msgstr "常駐"
 
-#: viewer/actions_ajax.html:468
+#: viewer/actions_ajax.html:469
 msgid "No limit"
 msgstr "制限なし"
 

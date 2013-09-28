@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-09-27 05:12-0500\n"
+"POT-Creation-Date: 2013-09-28 06:10-0500\n"
 "PO-Revision-Date: 2013-09-10 18:03+0900\n"
 "Last-Translator: Takuro Ashie <ashie@clear-code.com>\n"
 "Language-Team: Project Hatohol\n"
@@ -15,14 +15,32 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: static/js/hatohol_add_action_dialog.js:32
-msgid "ADD"
-msgstr "追加"
+#: static/js/hatohol_actor_mail_dialog.js:26
+#: static/js/hatohol_actor_mail_dialog.js:87
+msgid "APPLY"
+msgstr "適用"
 
+#: static/js/hatohol_actor_mail_dialog.js:29
 #: static/js/hatohol_add_action_dialog.js:35
 #: static/js/hatohol_selector_dialog.js:30
 msgid "CANCEL"
 msgstr "キャンセル"
+
+#: static/js/hatohol_actor_mail_dialog.js:50
+msgid "TO: "
+msgstr ""
+
+#: static/js/hatohol_actor_mail_dialog.js:54
+msgid "SMTP server "
+msgstr "SMTPサーバ"
+
+#: static/js/hatohol_actor_mail_dialog.js:55
+msgid "(If empty, localhost is used)"
+msgstr "(空白の場合、localhostが使用されます)"
+
+#: static/js/hatohol_add_action_dialog.js:32
+msgid "ADD"
+msgstr "追加"
 
 #: static/js/hatohol_add_action_dialog.js:41
 msgid "ADD ACTION"
@@ -110,33 +128,45 @@ msgid "Execution parameters"
 msgstr "実行パラメータ"
 
 #: static/js/hatohol_add_action_dialog.js:379
+msgid "Templates "
+msgstr "テンプレート"
+
+#: static/js/hatohol_add_action_dialog.js:380
+msgid "e-mail"
+msgstr "Eメール"
+
+#: static/js/hatohol_add_action_dialog.js:384
 #: static/js/hatohol_server_selector.js:45
 msgid "Type"
 msgstr "タイプ"
 
-#: static/js/hatohol_add_action_dialog.js:381
+#: static/js/hatohol_add_action_dialog.js:386
 msgid "COMMAND"
 msgstr "コマンド"
 
-#: static/js/hatohol_add_action_dialog.js:382
+#: static/js/hatohol_add_action_dialog.js:387
 msgid "RESIDENT"
 msgstr "常駐"
 
-#: static/js/hatohol_add_action_dialog.js:385
+#: static/js/hatohol_add_action_dialog.js:390
 msgid "Time-out (sec)"
 msgstr "タイムアウト (秒)"
 
-#: static/js/hatohol_add_action_dialog.js:387
+#: static/js/hatohol_add_action_dialog.js:392
 msgid "No limit"
 msgstr "制限なし"
 
-#: static/js/hatohol_add_action_dialog.js:391
+#: static/js/hatohol_add_action_dialog.js:396
 msgid "Command"
 msgstr "コマンド"
 
-#: static/js/hatohol_add_action_dialog.js:396
+#: static/js/hatohol_add_action_dialog.js:401
 msgid "Execution directory"
 msgstr "実行ディレクトリ"
+
+#: static/js/hatohol_add_action_dialog.js:422
+msgid "The template script returned the invalid value."
+msgstr "テンプレートスクリプトが不正な値を返しました。"
 
 #: static/js/hatohol_host_selector.js:26
 msgid "Host selecion"

@@ -419,7 +419,7 @@ HatoholAddActionDialog.prototype.onAppendMainElement = function () {
       $("#selectType").val(type);
       break;
     default:
-      var msg = gettext("The template script may have a problem. (command type: ") + type + ")";
+      var msg = gettext("The template script returned the invalid value.") + " (command type: " + type + ")";
       showErrorMessageBox(gettext(msg));
       return;
     }
