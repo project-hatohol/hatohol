@@ -26,6 +26,7 @@ var HatoholDialog = function(id, dialogTitle, buttons) {
   var elem = self.createMainElement();
   self.mainFrame.append(elem);
   $("body").append(self.mainFrame);
+  self.onAppendMainElement();
 
   self.dialogId = "#" + id
   $(self.dialogId).dialog({
@@ -41,6 +42,12 @@ var HatoholDialog = function(id, dialogTitle, buttons) {
   });
 
   $(self.dialogId).dialog("open");
+}
+
+/**
+ * Called just after the main element is appended to the HTML body.
+ */
+HatoholDialog.prototype.onAppendMainElement = function () {
 }
 
 /**

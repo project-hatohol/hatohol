@@ -375,6 +375,11 @@ HatoholAddActionDialog.prototype.createMainElement = function() {
     s += '</form>'
 
     s += '<h3>' + gettext("Execution parameters") + '</h3>'
+    s += '<form class="form-inline" style="height:0.9em;">'
+    s += '  <label>' + gettext("Templates ") + '</label>'
+    s += '  <input id="actor-mail-dialog-button" type="button" class="btn" value=' + gettext("e-mail") + ' />'
+    s += '</form>'
+
     s += '<form class="form-inline">'
     s += '  <label>' + gettext("Type") + '</label>'
     s += '  <select id="selectType">'
@@ -401,3 +406,22 @@ HatoholAddActionDialog.prototype.createMainElement = function() {
   }
 }
 
+HatoholAddActionDialog.prototype.onAppendMainElement = function () {
+  $("#actor-mail-dialog-button").click(function() {
+    var currCommand = ""
+    new HatoholActorMailDialog(applyCallback, currCommand);
+  });
+
+  function applyCallback(type, commandDesc) {
+    switch (type) {
+    case ACTION_COMMAND:
+    case ACTION_RESIDENT:
+      $("#selectType").val(type);
+      break;
+    default:
+      // TODO: show an error message
+      return;
+    }
+    $("#inputActionCommand").val(commandDesc);
+  }
+}
