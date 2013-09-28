@@ -393,7 +393,7 @@ HatoholAddActionDialog.prototype.createMainElement = function() {
     s += '</form>'
 
     s += '<form class="form-inline">'
-    s += '  <label for="inputActionCommand">' + gettext("Command") + '</label>'
+    s += '  <label for="inputActionCommand">' + gettext("Command parameter") + '</label>'
     s += '  <input id="inputActionCommand" type="text" style="width:100%; height:1.8em;" value="">'
     s += '</form>'
 
