@@ -556,7 +556,7 @@ static string getHostName(const ServerID serverId, const HostID hostId)
 	dataStore->getHostList(hostInfoList, serverId, hostId);
 	if (hostInfoList.empty()) {
 		MLPL_WARN("Failed to get HostInfo: "
-		          "%"PRIu32", "PRIu64"\n",
+		          "%"PRIu32", %"PRIu64"\n",
 		          serverId, hostId);
 	} else {
 		HostInfo &hostInfo = *hostInfoList.begin();
