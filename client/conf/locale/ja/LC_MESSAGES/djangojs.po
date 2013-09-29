@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-09-28 06:10-0500\n"
+"POT-Creation-Date: 2013-09-28 19:00-0500\n"
 "PO-Revision-Date: 2013-09-10 18:03+0900\n"
 "Last-Translator: Takuro Ashie <ashie@clear-code.com>\n"
 "Language-Team: Project Hatohol\n"
@@ -157,8 +157,8 @@ msgid "No limit"
 msgstr "制限なし"
 
 #: static/js/hatohol_add_action_dialog.js:396
-msgid "Command"
-msgstr "コマンド"
+msgid "Command parameter"
+msgstr "実行パラメータ"
 
 #: static/js/hatohol_add_action_dialog.js:401
 msgid "Execution directory"
@@ -232,6 +232,9 @@ msgstr "バックエンドと通信中"
 #: static/js/library.js:167
 msgid "Not classified"
 msgstr "未分類"
+
+#~ msgid "Command"
+#~ msgstr "コマンド"
 
 #~ msgid "Host Group"
 #~ msgstr "ホストグループ"
