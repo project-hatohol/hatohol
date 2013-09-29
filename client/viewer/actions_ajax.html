@@ -82,6 +82,8 @@
 
 {% block option %}
   <script src="{{ STATIC_URL }}js/stupidtable.js"></script>
+  <script src="{{ STATIC_URL }}js.external/jquery-ui.min.js"></script>
+  <link type="text/css" href="{{ STATIC_URL }}css.external/themes/ui-lightness/jquery-ui.css" rel="stylesheet" />
   <script src="{{ STATIC_URL }}js/hatohol_def.js"></script>
   <script src="{{ STATIC_URL }}js/hatohol_reply_parser.js"></script>
   <script src="{{ STATIC_URL }}js/hatohol_dialog.js"></script>
@@ -91,11 +93,6 @@
   <script src="{{ STATIC_URL }}js/hatohol_host_selector.js"></script>
   <script src="{{ STATIC_URL }}js/hatohol_trigger_selector.js"></script>
   <script src="{{ STATIC_URL }}js/hatohol_actor_mail_dialog.js"></script>
-
-  <!-- TODO: We should download jquery-ui.js and the CSS to the local. -->
-  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1/jquery-ui.min.js"></script>
-  <link type="text/css" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1/themes/ui-lightness/jquery-ui.css" rel="stylesheet" />
-  
 {% endblock %}
 
 {% block logic %}
