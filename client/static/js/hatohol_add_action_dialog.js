@@ -39,6 +39,7 @@ var HatoholAddActionDialog = function(addSucceededCb) {
   // call the constructor of the super class
   HatoholDialog.apply(
     this, ["add-action-dialog", gettext("ADD ACTION"), dialogButtons]);
+  self.setAddButtonState(false);
 
   //
   // Dialog button handlers
@@ -407,9 +408,15 @@ HatoholAddActionDialog.prototype.createMainElement = function() {
 }
 
 HatoholAddActionDialog.prototype.onAppendMainElement = function () {
+  var self = this;
+
   $("#actor-mail-dialog-button").click(function() {
     var currCommand = $("#inputActionCommand").val();
     new HatoholActorMailDialog(applyCallback, currCommand);
+  });
+
+  $("#inputActionCommand").keyup(function() {
+    fixupAddButtonState();
   });
 
   function applyCallback(type, commandDesc) {
@@ -424,5 +431,25 @@ HatoholAddActionDialog.prototype.onAppendMainElement = function () {
       return;
     }
     $("#inputActionCommand").val(commandDesc);
+    fixupAddButtonState();
+  }
+
+  function fixupAddButtonState() {
+    if ($("#inputActionCommand").val())
+      self.setAddButtonState(true);
+    else
+      self.setAddButtonState(false);
+  }
+}
+
+HatoholAddActionDialog.prototype.setAddButtonState = function(state) {
+  var btn = $(".ui-dialog-buttonpane").find("button:contains(" +
+              gettext("ADD") + ")");
+  if (state) {
+     btn.removeAttr("disabled");
+     btn.removeClass("ui-state-disabled");
+  } else {
+     btn.attr("disabled", "disable");
+     btn.addClass("ui-state-disabled");
   }
 }
