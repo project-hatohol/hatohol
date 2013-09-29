@@ -174,7 +174,13 @@ def get_next_word(argv, offset=0):
   return argv[offset + 1]
 
 def arg_parser_smtp_server(params, argv):
-  params["smtp_server"] = get_next_word(argv)
+  smtp_server = get_next_word(argv)
+  words = smtp_server.split(":");
+  if (len(words) > 2):
+    error_exit("The given argument for --smtp-server is invalid: %s" % stmp_server)
+  params["smtp_server"] = words[0]
+  if (len(words) >= 2):   
+    params["smtp_port"] = int(words[1])
   return 1
 
 def arg_parser_tls(params, argv):
@@ -307,6 +313,8 @@ def parse_arg():
   # show summary
   print "TO     : " + params["to_addr"]
   print "SMTP sv: " + params["smtp_server"]
+  if "smtp_port" in params:
+    print "port   : %d" % params["smtp_port"]
   if "account" in params:
     print "account: " + params["account"]
 
