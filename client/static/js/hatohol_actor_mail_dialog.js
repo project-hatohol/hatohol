@@ -34,27 +34,53 @@ var HatoholActorMailDialog = function(applyCallback, currCommand) {
   var id = "hatohol_actor_mail_dialog"
   var title = "Execution parameter maker";
   HatoholDialog.apply(this, [id, title, dialogButtons]);
-  self.setApplyButtonState(false);
+
+  if ($("#inputTo").val())
+    self.setApplyButtonState(true);
+  else
+    self.setApplyButtonState(false);
 }
 
 HatoholActorMailDialog.prototype = Object.create(HatoholDialog.prototype);
 HatoholActorMailDialog.prototype.constructor = HatoholActorMailDialog;
 
 HatoholActorMailDialog.prototype.createMainElement = function() {
-  var div = $(makeMainDivHTML());
+  var initParams = parseCurrentCommand(this.currCommand);
+  var div = $(makeMainDivHTML(initParams));
   return div;
 
-  function makeMainDivHTML() {
+  function parseCurrentCommand(currCommand) {
+    params = {}
+    params.toAddr = "";
+    params.smtpServer = "";
+    words = currCommand.split(" ");
+    if (words.length < 2)
+      return params;
+    if (words[0] != "hatohol-actor-mail")
+      return params;
+    // to addr
+    params.toAddr = words[1];
+    // smtp server 
+    var idx = words.indexOf("--smtp-server");
+    if (idx != -1 && words.length > idx + 1)
+      params.smtpServer = words[idx + 1];
+    return params;
+  }
+
+  function makeMainDivHTML(initParams) {
     var s = "";
     s += '<form class="form-inline">'
     s += '  <label for="inputTo">' + gettext("TO: ") + '</label>'
-    s += '  <input id="inputTo" type="text" value="" style="height:1.8em;" class="input-xxlarge">'
+    s += '  <input id="inputTo" type="text" value="' + initParams.toAddr +
+         '" style="height:1.8em;" class="input-xxlarge">'
     s += '</form>'
     s += '<form class="form-inline">'
     s += '  <label for="inputSmtpServer">' + gettext("SMTP server ") + '</label>'
     s += '  <label for="inputSmtpServer">' + gettext("(If empty, localhost is used)") + '</label>'
     s += '  <br>'
-    s += '  <input id="inputSmtpServer" type="text" value="" style="height:1.8em;" class="input-xxlarge">'
+    s += '  <input id="inputSmtpServer" type="text" value="' +
+         initParams.smtpServer +
+         '" style="height:1.8em;" class="input-xxlarge">'
     s += '</form>'
     return s;
   }

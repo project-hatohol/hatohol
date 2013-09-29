@@ -408,7 +408,7 @@ HatoholAddActionDialog.prototype.createMainElement = function() {
 
 HatoholAddActionDialog.prototype.onAppendMainElement = function () {
   $("#actor-mail-dialog-button").click(function() {
-    var currCommand = ""
+    var currCommand = $("#inputActionCommand").val();
     new HatoholActorMailDialog(applyCallback, currCommand);
   });
 
