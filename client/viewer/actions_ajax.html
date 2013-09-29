@@ -361,7 +361,7 @@
       var serverId = actionDef["serverId"];
       if (!serverId)
         return makeNamelessHostLabel(serverId, hostId);
-      var hostArray = actionsPkt["servers"][serverId]
+      var hostArray = actionsPkt["servers"][serverId]["hosts"]
       if (!hostArray)
         return makeNamelessHostLabel(serverId, hostId);
       var host = hostArray[hostId];
