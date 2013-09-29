@@ -856,7 +856,8 @@ void FaceRest::handlerGetAction
 		agent.endObject();
 		// We don't know the host name at this point.
 		// We'll get it later.
-		hostMaps[cond.serverId][cond.hostId] = "";
+		if (cond.isEnable(ACTCOND_HOST_ID))
+			hostMaps[cond.serverId][cond.hostId] = "";
 	}
 	agent.endArray();
 	const bool lookupHostName = true;
