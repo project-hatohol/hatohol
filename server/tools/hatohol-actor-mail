@@ -29,6 +29,24 @@ from email.Utils import formatdate
 
 DEFAULT_SMTP_SERVER = "localhost"
 DEFAULT_FROM_ADDR = "hatohol@localhost"
+DEFAULT_TLS_PORT = 587
+
+def send_tls(params, msg):
+  if "account" not in params:
+    error_exit("'account' is not specified");
+  if "password" not in params:
+    error_exit("'password' is not specified");
+
+  port = DEFAULT_TLS_PORT;
+  if "smtp_port" in params:
+    port = params["smtp_port"]
+  smtp = smtplib.SMTP(params["smtp_server"], port)
+  smtp.ehlo()
+  smtp.starttls()
+  smtp.ehlo()
+  smtp.login(params["account"], params["password"])
+  smtp.sendmail(params["from_addr"], [params["to_addr"]], msg.as_string())
+  smtp.close()
 
 def send(params):
   msg = MIMEText(params["body"])
@@ -37,9 +55,12 @@ def send(params):
   msg["To"] = params["to_addr"]
   msg["Date"] = formatdate()
 
-  smtp = smtplib.SMTP(params["smtp_server"])
-  smtp.sendmail(params["from_addr"], [params["to_addr"]], msg.as_string())
-  smtp.close()
+  if params["use_tls"]:
+   send_tls(params, msg)
+  else:
+    smtp = smtplib.SMTP(params["smtp_server"])
+    smtp.sendmail(params["from_addr"], [params["to_addr"]], msg.as_string())
+    smtp.close()
 
 def error_exit(msg, exit_code = 1):
   print msg
@@ -55,6 +76,7 @@ def print_usage():
   print("")
   print("options:")
   print("  --smtp-server SMTP_SERVER")
+  print("  --tls account password")
   print("")
   print("HATOHOL_ACTION_ARGS:")
   print("  --hatohol-action-v1")
@@ -146,14 +168,22 @@ def get_trigger_label(server_id, host_id, trigger_id):
   brief = get_element(triggers, "brief", "N/A")
   return brief
 
-def get_next_word(argv):
-  if len(argv) < 2:
-    error_eixt("Not argument for %s" % argv[0])
-  return argv[1]
+def get_next_word(argv, offset=0):
+  if len(argv) < 2 + offset:
+    error_eixt("Not argument for %s" % argv[offset])
+  return argv[offset + 1]
 
 def arg_parser_smtp_server(params, argv):
   params["smtp_server"] = get_next_word(argv)
   return 1
+
+def arg_parser_tls(params, argv):
+  if len(argv) < 3:
+    error_exit("Options for --tls is missing: %d" % len(argv))
+  params["use_tls"] = True
+  params["account"] = get_next_word(argv)
+  params["password"] = get_next_word(argv, 1)
+  return 2
 
 def parse_time(arg):
   words = arg.split(".")
@@ -246,9 +276,11 @@ def arg_parser_hatohol_actv1(params, argv):
 def parse_arg():
 
   arg_parsers = {"--smtp-server":arg_parser_smtp_server,
+                 "--tls":arg_parser_tls,
                  "--hatohol-action-v1":arg_parser_hatohol_actv1}
 
   params = {}
+  params["use_tls"] = False
   params["smtp_server"] = DEFAULT_SMTP_SERVER
   params["from_addr"] = DEFAULT_FROM_ADDR
 
@@ -273,7 +305,10 @@ def parse_arg():
     error_exit("Not found: subject. You may not pass HATOHOL_ACTION_ARGS")
 
   # show summary
-  print "TO: " + params["to_addr"]
+  print "TO     : " + params["to_addr"]
+  print "SMTP sv: " + params["smtp_server"]
+  if "account" in params:
+    print "account: " + params["account"]
 
   return params
 
