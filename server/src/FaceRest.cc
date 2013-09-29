@@ -580,8 +580,8 @@ static void addHostsIdNameHash(JsonBuilderAgent &agent,
 		string &hostName = it->second;
 		if (lookupHostName)
 			hostName = getHostName(serverId, hostId);
-		agent.startObject(StringUtils::toString(it->first));
-		agent.add("name", it->second);
+		agent.startObject(StringUtils::toString(hostId));
+		agent.add("name", hostName);
 		agent.endObject();
 	}
 	agent.endObject();
