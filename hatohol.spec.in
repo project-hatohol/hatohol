@@ -82,7 +82,7 @@ rm -rf %{buildroot}
 %{_sbindir}/*
 %{_libdir}/lib*.so.*
 %{_prefix}/lib/python*
-%{_libexecdir}/hatohol/*
+%{_libexecdir}/hatohol/action/*
 %{_datadir}/hatohol/hatohol-config.dat.example
 %{_datadir}/hatohol/hatohol.centos
 %{_datadir}/hatohol/hatohol.debian
