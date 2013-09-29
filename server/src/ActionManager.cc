@@ -578,7 +578,7 @@ void ActionManager::execCommandAction(const ActionDef &actionDef,
 	argVect.push_back(StringUtils::sprintf("%d", eventInfo.status));
 	argVect.push_back(StringUtils::sprintf("%d", eventInfo.severity));
 
-	size_t reservationId;
+	size_t reservationId = -1;
 	WaitingCommandActionInfo *waitCmdInfo =
 	  CommandActionContext::reserve(reservationId, actionDef, eventInfo,
 	                                dbAction, argVect);
