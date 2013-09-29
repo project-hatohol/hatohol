@@ -548,15 +548,38 @@ static void addHosts(JsonBuilderAgent &agent,
 	agent.endArray();
 }
 
+static string getHostName(const ServerID serverId, const HostID hostId)
+{
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+	string hostName;
+	HostInfoList hostInfoList;
+	dataStore->getHostList(hostInfoList, serverId, hostId);
+	if (hostInfoList.empty()) {
+		MLPL_WARN("Failed to get HostInfo: "
+		          "%"PRIu32", "PRIu64"\n",
+		          serverId, hostId);
+	} else {
+		HostInfo &hostInfo = *hostInfoList.begin();
+		hostName = hostInfo.hostName;
+	}
+	return hostName;
+}
+
 static void addHostsIdNameHash(JsonBuilderAgent &agent,
 			       MonitoringServerInfo &serverInfo,
-			       HostNameMaps &hostMaps)
+			       HostNameMaps &hostMaps,
+                               bool lookupHostName = false)
 {
 	HostNameMaps::iterator server_it = hostMaps.find(serverInfo.id);
 	agent.startObject("hosts");
+	ServerID serverId = server_it->first;
 	HostNameMap &hosts = server_it->second;
 	HostNameMap::iterator it = hosts.begin();
 	for (; server_it != hostMaps.end() && it != hosts.end(); it++) {
+		HostID hostId = it->first;
+		string &hostName = it->second;
+		if (lookupHostName)
+			hostName = getHostName(serverId, hostId);
 		agent.startObject(StringUtils::toString(it->first));
 		agent.add("name", it->second);
 		agent.endObject();
@@ -565,7 +588,8 @@ static void addHostsIdNameHash(JsonBuilderAgent &agent,
 }
 
 static void addServersIdNameHash(JsonBuilderAgent &agent,
-                                 HostNameMaps *hostMaps = NULL)
+                                 HostNameMaps *hostMaps = NULL,
+                                 bool lookupHostName = false)
 {
 	ConfigManager *configManager = ConfigManager::getInstance();
 	MonitoringServerInfoList monitoringServers;
@@ -577,8 +601,10 @@ static void addServersIdNameHash(JsonBuilderAgent &agent,
 		MonitoringServerInfo &serverInfo = *it;
 		agent.startObject(StringUtils::toString(serverInfo.id));
 		agent.add("name", serverInfo.hostName);
-		if (hostMaps)
-			addHostsIdNameHash(agent, serverInfo, *hostMaps);
+		if (hostMaps) {
+			addHostsIdNameHash(agent, serverInfo,
+			                   *hostMaps, lookupHostName);
+		}
 		agent.endObject();
 	}
 	agent.endObject();
@@ -798,6 +824,7 @@ void FaceRest::handlerGetAction
 	agent.addTrue("result");
 	agent.add("numberOfActions", actionList.size());
 	agent.startArray("actions");
+	HostNameMaps hostMaps;
 	ActionDefListIterator it = actionList.begin();
 	for (; it != actionList.end(); ++it) {
 		const ActionDef &actionDef = *it;
@@ -828,9 +855,13 @@ void FaceRest::handlerGetAction
 		agent.add("command", actionDef.command);
 		agent.add("timeout", actionDef.timeout);
 		agent.endObject();
+		// We don't know the host name at this point.
+		// We'll get it later.
+		hostMaps[cond.serverId][cond.hostId] = "";
 	}
 	agent.endArray();
-	addServersIdNameHash(agent);
+	const bool lookupHostName = true;
+	addServersIdNameHash(agent, &hostMaps, lookupHostName);
 	agent.endObject();
 
 	replyJsonData(agent, msg, arg->jsonpCallbackName, arg);
