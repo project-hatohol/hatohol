@@ -565,10 +565,9 @@ static string getHostName(const ServerID serverId, const HostID hostId)
 	return hostName;
 }
 
-static void addHostsIdNameHash(JsonBuilderAgent &agent,
-			       MonitoringServerInfo &serverInfo,
-			       HostNameMaps &hostMaps,
-                               bool lookupHostName = false)
+static void addHostsIdNameHash(
+  JsonBuilderAgent &agent, MonitoringServerInfo &serverInfo,
+  HostNameMaps &hostMaps, bool lookupHostName = false)
 {
 	HostNameMaps::iterator server_it = hostMaps.find(serverInfo.id);
 	agent.startObject("hosts");
