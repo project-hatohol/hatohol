@@ -17,3 +17,4 @@ before_script:
 script:
   - ./server/mlpl/test/run-test.sh
   - cd server/test && ./run-test.sh
+  - cd server/tools/test && ./run-test.sh
