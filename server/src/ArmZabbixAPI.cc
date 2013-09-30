@@ -452,6 +452,27 @@ SoupMessage *ArmZabbixAPI::queryEvent(uint64_t eventIdOffset)
 	return queryCommon(agent);
 }
 
+SoupMessage *ArmZabbixAPI::queryGetLastEventId(void)
+{
+	JsonBuilderAgent agent;
+	agent.startObject();
+	agent.add("jsonrpc", "2.0");
+	agent.add("method", "event.get");
+
+	agent.startObject("params");
+	agent.add("output", "shorten");
+	agent.add("sortfield", "eventid");
+	agent.add("sortorder", "DESC");
+	agent.add("limit", 1);
+	agent.endObject(); //params
+
+	agent.add("auth", m_ctx->authToken);
+	agent.add("id", 1);
+	agent.endObject();
+
+	return queryCommon(agent);
+}
+
 string ArmZabbixAPI::getInitialJsonRequest(void)
 {
 	JsonBuilderAgent agent;
