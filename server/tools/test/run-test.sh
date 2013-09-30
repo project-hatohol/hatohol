@@ -1,1 +1,1 @@
-PYTHONPATH=.. TestHatoholUtils.py
+PYTHONPATH=.. ./TestHatoholUtils.py
