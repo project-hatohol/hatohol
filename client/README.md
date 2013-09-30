@@ -47,7 +47,7 @@ This Django project was written as PATH FREE so you can place this anyware witho
 
 	sudo apt-get install libapache2-mod-wsgi python-django
 
-### An example to intall bootstrap on CentOS 6.4
+## An example to intall bootstrap
 
     $ mkdir -p ~/tmp-bs
     $ cd ~/tmp-bs
@@ -56,6 +56,8 @@ This Django project was written as PATH FREE so you can place this anyware witho
     $ cp -ar bootstrap/* <Hatohol client directory>/static/
 
     At this point you can remove working dir: tmp-bs.
+
+If you use CentOS6.4, you can download the package from https://github.com/project-hatohol/bootstrap-for-hatohol
 
 
 How to configure
