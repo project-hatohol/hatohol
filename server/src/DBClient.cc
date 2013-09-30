@@ -25,26 +25,25 @@ using namespace mlpl;
 #include "DBClient.h"
 #include "DBAgentFactory.h"
 
-int DBClient::DBCLIENT_DB_VERSION = 1;
-static const char *TABLE_NAME_DBCLIENT = "_dbclient";
+static const char *TABLE_NAME_DBCLIENT_VERSION = "_dbclient_version";
 
-static const ColumnDef COLUMN_DEF_DBCLIENT[] = {
+static const ColumnDef COLUMN_DEF_DBCLIENT_VERSION[] = {
 {
 	// This column has the schema version for '_dbclient' table.
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_DBCLIENT,               // tableName
-	"self_db_version",                 // columnName
+	TABLE_NAME_DBCLIENT_VERSION,       // tableName
+	"domain_id",                       // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
-	SQL_KEY_NONE,                      // keyType
+	SQL_KEY_PRI,                       // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
 	// This column has the schema version for the sub class's table.
 	ITEM_ID_NOT_SET,                   // itemId
-	TABLE_NAME_DBCLIENT,               // tableName
+	TABLE_NAME_DBCLIENT_VERSION,       // tableName
 	"version",                         // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -55,12 +54,12 @@ static const ColumnDef COLUMN_DEF_DBCLIENT[] = {
 	NULL,                              // defaultValue
 },
 };
-static const size_t NUM_COLUMNS_DBCLIENT =
-  sizeof(COLUMN_DEF_DBCLIENT) / sizeof(ColumnDef);
+static const size_t NUM_COLUMNS_DBCLIENT_VERSION =
+  sizeof(COLUMN_DEF_DBCLIENT_VERSION) / sizeof(ColumnDef);
 
 enum {
-	IDX_DBCLIENT_SELF_DB_VERSION,
-	IDX_DBCLIENT_VERSION,
+	IDX_DBCLIENT_VERSION_DOMAIN_ID,
+	IDX_DBCLIENT_VERSION_VERSION,
 	NUM_IDX_DBCLIENT,
 };
 
@@ -278,17 +277,16 @@ void DBClient::createTable
 		(*initializer)(dbAgent, data);
 }
 
-void DBClient::tableInitializerDBClient(DBAgent *dbAgent, void *data)
+void DBClient::insertDBClientVersion(DBAgent *dbAgent,
+                                     DBSetupFuncArg *setupFuncArg)
 {
-	DBSetupFuncArg *setupFuncArg = static_cast<DBSetupFuncArg *>(data);
-
 	// insert default value
 	DBAgentInsertArg insArg;
-	insArg.tableName = TABLE_NAME_DBCLIENT;
-	insArg.numColumns = NUM_COLUMNS_DBCLIENT;
-	insArg.columnDefs = COLUMN_DEF_DBCLIENT;
+	insArg.tableName = TABLE_NAME_DBCLIENT_VERSION;
+	insArg.numColumns = NUM_COLUMNS_DBCLIENT_VERSION;
+	insArg.columnDefs = COLUMN_DEF_DBCLIENT_VERSION;
 	VariableItemGroupPtr row;
-	row->ADD_NEW_ITEM(Int, DBCLIENT_DB_VERSION);
+	row->ADD_NEW_ITEM(Int, dbAgent->getDBDomainId());
 	row->ADD_NEW_ITEM(Int, setupFuncArg->version);
 	insArg.row = row;
 	dbAgent->insert(insArg);
@@ -296,18 +294,7 @@ void DBClient::tableInitializerDBClient(DBAgent *dbAgent, void *data)
 
 void DBClient::updateDBIfNeeded(DBAgent *dbAgent, DBSetupFuncArg *setupFuncArg)
 {
-	// check the version for this class's database
-	const ColumnDef *columnDef =
-	 &COLUMN_DEF_DBCLIENT[IDX_DBCLIENT_SELF_DB_VERSION];
-	int dbVersion = getDBVersion(dbAgent, columnDef);
-	if (dbVersion != DBCLIENT_DB_VERSION) {
-		THROW_HATOHOL_EXCEPTION("Not implemented: %s\n",
-		                      __PRETTY_FUNCTION__);
-	}
-
-	// check the version for the sub class's database
-	columnDef = &COLUMN_DEF_DBCLIENT[IDX_DBCLIENT_VERSION];
-	dbVersion = getDBVersion(dbAgent, columnDef);
+	int dbVersion = getDBVersion(dbAgent);
 	if (dbVersion != setupFuncArg->version) {
 		void *data = setupFuncArg->dbUpdaterData;
 		HATOHOL_ASSERT(setupFuncArg->dbUpdater,
@@ -318,16 +305,19 @@ void DBClient::updateDBIfNeeded(DBAgent *dbAgent, DBSetupFuncArg *setupFuncArg)
 		HATOHOL_ASSERT(succeeded,
 		               "Failed to update DB, expect/actual ver. %d/%d",
 		               setupFuncArg->version, dbVersion);
-		setDBVersion(dbAgent, columnDef, setupFuncArg->version);
+		setDBVersion(dbAgent, setupFuncArg->version);
 	}
 }
 
-int DBClient::getDBVersion(DBAgent *dbAgent, const ColumnDef *columnDef)
+int DBClient::getDBVersion(DBAgent *dbAgent)
 {
-	DBAgentSelectArg arg;
-	arg.tableName = columnDef->tableName;
-	arg.columnDefs = columnDef;
-	arg.columnIndexes.push_back(0);
+	DBAgentSelectExArg arg;
+	arg.tableName = TABLE_NAME_DBCLIENT_VERSION;
+	arg.pushColumn(
+	  COLUMN_DEF_DBCLIENT_VERSION[IDX_DBCLIENT_VERSION_VERSION]);
+	arg.condition = StringUtils::sprintf("%s=%d",
+	  COLUMN_DEF_DBCLIENT_VERSION[IDX_DBCLIENT_VERSION_DOMAIN_ID].columnName,
+	  dbAgent->getDBDomainId());
 	dbAgent->select(arg);
 
 	const ItemGroupList &itemGroupList = arg.dataTable->getItemGroupList();
@@ -346,15 +336,18 @@ int DBClient::getDBVersion(DBAgent *dbAgent, const ColumnDef *columnDef)
 	return itemVersion->get();
 }
 
-void DBClient::setDBVersion(DBAgent *dbAgent, const ColumnDef *columnDef, int version)
+void DBClient::setDBVersion(DBAgent *dbAgent, int version)
 {
 	DBAgentUpdateArg arg;
-	arg.tableName = columnDef->tableName;
-	arg.columnDefs = columnDef;
-	arg.columnIndexes.push_back(0);
+	arg.tableName = TABLE_NAME_DBCLIENT_VERSION;
+	arg.columnDefs = COLUMN_DEF_DBCLIENT_VERSION;
+	arg.columnIndexes.push_back(1);
 	VariableItemGroupPtr row;
 	row->ADD_NEW_ITEM(Int, version);
 	arg.row = row;
+	arg.condition = StringUtils::sprintf("%s=%d",
+	  COLUMN_DEF_DBCLIENT_VERSION[IDX_DBCLIENT_VERSION_DOMAIN_ID].columnName,
+	  dbAgent->getDBDomainId());
 	dbAgent->update(arg);
 }
 
@@ -367,14 +360,23 @@ void DBClient::dbSetupFunc(DBDomainId domainId, void *data)
 	auto_ptr<DBAgent> rawDBAgent(DBAgentFactory::create(domainId,
 	                                                    skipSetup,
 	                                                    connectInfo));
-	if (!rawDBAgent->isTableExisting(TABLE_NAME_DBCLIENT)) {
+	if (!rawDBAgent->isTableExisting(TABLE_NAME_DBCLIENT_VERSION)) {
 		createTable(rawDBAgent.get(),
-		            TABLE_NAME_DBCLIENT, NUM_COLUMNS_DBCLIENT,
-		            COLUMN_DEF_DBCLIENT, tableInitializerDBClient,
-		            setupFuncArg);
-	} else {
-		updateDBIfNeeded(rawDBAgent.get(), setupFuncArg);
+		            TABLE_NAME_DBCLIENT_VERSION,
+		            NUM_COLUMNS_DBCLIENT_VERSION,
+		            COLUMN_DEF_DBCLIENT_VERSION);
 	}
+
+	// If the row that has the version of this DBClient doesn't exist,
+	// we insert it.
+	string condition = StringUtils::sprintf("%s=%d",
+	  COLUMN_DEF_DBCLIENT_VERSION[IDX_DBCLIENT_VERSION_DOMAIN_ID].columnName,
+	  domainId);
+	if (!rawDBAgent->isRecordExisting(TABLE_NAME_DBCLIENT_VERSION,
+	                                  condition))
+		insertDBClientVersion(rawDBAgent.get(), setupFuncArg);
+	else
+		updateDBIfNeeded(rawDBAgent.get(), setupFuncArg);
 
 	for (size_t i = 0; i < setupFuncArg->numTableInfo; i++) {
 		const DBSetupTableInfo &tableInfo

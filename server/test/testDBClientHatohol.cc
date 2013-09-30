@@ -285,10 +285,10 @@ void test_createDB(void)
 	cut_assert_exist_path(dbPath.c_str());
 
 	// check the version
-	string statement = "select * from _dbclient";
+	string statement = "select * from _dbclient_version";
 	string output = execSqlite3ForDBClient(DB_DOMAIN_ID_HATOHOL, statement);
 	string expectedOut = StringUtils::sprintf
-	                       ("%d|%d\n", DBClient::DBCLIENT_DB_VERSION,
+	                       ("%d|%d\n", DB_DOMAIN_ID_HATOHOL,
 	                                   DBClientHatohol::HATOHOL_DB_VERSION);
 	cppcut_assert_equal(expectedOut, output);
 }

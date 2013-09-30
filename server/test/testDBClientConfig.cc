@@ -138,10 +138,10 @@ void test_createDB(void)
 	DBClientConfig dbConfig;
 
 	// check the version
-	string statement = "select * from _dbclient";
+	string statement = "select * from _dbclient_version";
 	string expect =
 	  StringUtils::sprintf(
-	    "%d|%d\n", DBClient::DBCLIENT_DB_VERSION,
+	    "%d|%d\n", DB_DOMAIN_ID_CONFIG,
 	               DBClientConfig::CONFIG_DB_VERSION);
 	assertDBContent(dbConfig.getDBAgent(), statement, expect);
 }
