@@ -40,4 +40,5 @@ urlpatterns = patterns('',
 
 urlpatterns += i18n_patterns('',
     url(r'^viewer/', include('viewer.urls')),
+    url(r'^jsi18n/$', 'django.views.i18n.javascript_catalog'),
 )
