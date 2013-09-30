@@ -39,8 +39,12 @@ typedef void (*RestHandler)
 
 typedef uint64_t ServerID;
 typedef uint64_t HostID;
+typedef uint64_t TriggerID;
 typedef map<HostID, string> HostNameMap;
 typedef map<ServerID, HostNameMap> HostNameMaps;
+
+typedef map<TriggerID, string> TriggerBriefMap;
+typedef map<ServerID, TriggerBriefMap> TriggerBriefMaps;
 
 static const guint DEFAULT_PORT = 33194;
 
@@ -586,9 +590,50 @@ static void addHostsIdNameHash(
 	agent.endObject();
 }
 
-static void addServersIdNameHash(JsonBuilderAgent &agent,
-                                 HostNameMaps *hostMaps = NULL,
-                                 bool lookupHostName = false)
+static string getTriggerBrief(
+  const ServerID serverId, const TriggerID triggerId)
+{
+	// TODO: use UnifiedDataStore
+	DBClientHatohol dbHatohol;
+	string triggerBrief;
+	TriggerInfo triggerInfo;
+	bool succeeded = dbHatohol.getTriggerInfo(triggerInfo,
+	                                          serverId, triggerId);
+	if (!succeeded) {
+		MLPL_WARN("Failed to get TriggerInfo: "
+		          "%"PRIu32", %"PRIu64"\n",
+		          serverId, triggerId);
+	} else {
+		triggerBrief = triggerInfo.brief;
+	}
+	return triggerBrief;
+}
+
+static void addTriggersIdBriefHash(
+  JsonBuilderAgent &agent, MonitoringServerInfo &serverInfo,
+  TriggerBriefMaps &triggerMaps, bool lookupTriggerBrief = false)
+{
+	TriggerBriefMaps::iterator server_it = triggerMaps.find(serverInfo.id);
+	agent.startObject("triggers");
+	ServerID serverId = server_it->first;
+	TriggerBriefMap &triggers = server_it->second;
+	TriggerBriefMap::iterator it = triggers.begin();
+	for (; server_it != triggerMaps.end() && it != triggers.end(); it++) {
+		TriggerID triggerId = it->first;
+		string &triggerBrief = it->second;
+		if (lookupTriggerBrief)
+			triggerBrief = getTriggerBrief(serverId, triggerId);
+		agent.startObject(StringUtils::toString(triggerId));
+		agent.add("brief", triggerBrief);
+		agent.endObject();
+	}
+	agent.endObject();
+}
+
+static void addServersIdNameHash(
+  JsonBuilderAgent &agent,
+  HostNameMaps *hostMaps = NULL, bool lookupHostName = false,
+  TriggerBriefMaps *triggerMaps = NULL, bool lookupTriggerBrief = false)
 {
 	ConfigManager *configManager = ConfigManager::getInstance();
 	MonitoringServerInfoList monitoringServers;
@@ -603,6 +648,10 @@ static void addServersIdNameHash(JsonBuilderAgent &agent,
 		if (hostMaps) {
 			addHostsIdNameHash(agent, serverInfo,
 			                   *hostMaps, lookupHostName);
+		}
+		if (triggerMaps) {
+			addTriggersIdBriefHash(agent, serverInfo, *triggerMaps,
+			                       lookupTriggerBrief);
 		}
 		agent.endObject();
 	}
@@ -824,6 +873,7 @@ void FaceRest::handlerGetAction
 	agent.add("numberOfActions", actionList.size());
 	agent.startArray("actions");
 	HostNameMaps hostMaps;
+	TriggerBriefMaps triggerMaps;
 	ActionDefListIterator it = actionList.begin();
 	for (; it != actionList.end(); ++it) {
 		const ActionDef &actionDef = *it;
@@ -858,10 +908,14 @@ void FaceRest::handlerGetAction
 		// We'll get it later.
 		if (cond.isEnable(ACTCOND_HOST_ID))
 			hostMaps[cond.serverId][cond.hostId] = "";
+		if (cond.isEnable(ACTCOND_TRIGGER_ID))
+			triggerMaps[cond.serverId][cond.triggerId] = "";
 	}
 	agent.endArray();
 	const bool lookupHostName = true;
-	addServersIdNameHash(agent, &hostMaps, lookupHostName);
+	const bool lookupTriggerBrief = true;
+	addServersIdNameHash(agent, &hostMaps, lookupHostName,
+	                     &triggerMaps, lookupTriggerBrief);
 	agent.endObject();
 
 	replyJsonData(agent, msg, arg->jsonpCallbackName, arg);
