@@ -80,6 +80,11 @@ void ActorCollector::reset(void)
 	// at the start-up.
 	// Here we wait for the exit of all the children.
 	lock();
+	if (!PrivateContext::collector) {
+		unlock();
+		return;
+	}
+
 	PrivateContext::inReset = true;
 	bool isEmpty = PrivateContext::waitChildSet.empty();
 	WaitChildSetIterator it = PrivateContext::waitChildSet.begin();
