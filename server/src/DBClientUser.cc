@@ -67,6 +67,7 @@ static const size_t NUM_COLUMNS_USERS =
 enum {
 	IDX_USERS_ID,
 	IDX_USERS_NAME,
+	IDX_USERS_PASSWORD,
 	NUM_IDX_USERS,
 };
 

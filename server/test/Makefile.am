@@ -32,7 +32,7 @@ testHatohol_la_SOURCES = \
 	testDBAgentSQLite3.cc testDBAgentMySQL.cc \
 	testDBClientUtils.cc \
 	testDBClientConfig.cc testDBClientHatohol.cc testDBClientZabbix.cc \
-	testDBClientAction.cc \
+	testDBClientAction.cc testDBClientUser.cc \
 	testSQLUtils.cc testSQLProcessor.cc \
 	testSQLProcessorInsert.cc testSQLProcessorUpdate.cc \
 	testFormulaElement.cc \

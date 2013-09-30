@@ -42,6 +42,7 @@ using namespace mlpl;
 #include "ActionManager.h"
 #include "ActorCollector.h"
 #include "DBClientAction.h"
+#include "DBClientUser.h"
 
 static MutexLock mutex;
 static bool initDone = false; 
@@ -54,6 +55,7 @@ static void init(const CommandLineArg *arg)
 	DBAgentSQLite3::init();
 	DBAgentMySQL::init();
 	DBClientConfig::init(*arg);
+	DBClientUser::init();
 	DBClientHatohol::init();
 	DBClientZabbix::init();
 	DBClientAction::init();
