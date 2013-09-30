@@ -249,6 +249,25 @@ ItemTablePtr ArmZabbixAPI::getEvents(uint64_t eventIdOffset)
 	return ItemTablePtr(tablePtr);
 }
 
+int64_t ArmZabbixAPI::getLastEventId(void)
+{
+	int64_t lastEventId = 0;
+	SoupMessage *msg = queryGetLastEventId();
+	if (!msg)
+		THROW_DATA_STORE_EXCEPTION("Failed to query events.");
+
+	JsonParserAgent parser(msg->response_body->data);
+	g_object_unref(msg);
+	if (parser.hasError()) {
+		THROW_DATA_STORE_EXCEPTION(
+		  "Failed to parser: %s", parser.getErrorMessage());
+	}
+
+	parser.read("eventid", lastEventId);
+	MLPL_DBG("LastEventID: %d\n", lastEventId);
+	return lastEventId;
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
