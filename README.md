@@ -23,7 +23,9 @@ Currently Hatohol provides the following information.
 
 - Event
 
-  History of the status change of items.
+  History of the status change of items. When an event detected, Hatohol can execute
+  a user command (called action).
+
 
 Project Hatohol
 -----------------------------
