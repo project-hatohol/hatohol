@@ -36,18 +36,6 @@
 
   <form class="form-inline">
     <input id="add-action-button" type="button" class="btn" value="{% trans "ADD ACTION" %}" />
-    <label>Server:</label>
-    <select id="select-server">
-      <option>---------</option>
-    </select>
-    <label>Group:</label>
-    <select id="select-group">
-      <option>---------</option>
-    </select>
-    <label>Host:</label>
-    <select id="select-host">
-      <option>---------</option>
-    </select>
     <input id="delete-action-button" type="button" class="btn" disabled
      value="{% trans "DELETE ACTIONS" %}" />
   </form>
@@ -134,13 +122,6 @@
     //
     // Event handlers for forms in the main view
     //
-    $("#select-server").change(function() {
-      chooseRow();
-    });
-    $("#select-host").change(function() {
-      chooseRow();
-    });
-
     function setupCheckboxHandler() {
         $(".selectcheckbox").change(function() {
           check = $(this).is(":checked");
@@ -396,30 +377,6 @@
       return triggerBrief;
     }
 
-    function parseData(actionsPkt) {
-      var pd = new Object();
-      var x;
-      var ss, hs;
-
-      ss = [];
-      hs = [];
-      for (x = 0; x < actionsPkt["actions"].length; ++x) {
-        var actionDef = actionsPkt["actions"][x];
-        var serverName = getServerName(actionsPkt, actionDef)
-        if (serverName)
-          ss.push(serverName);
-        else
-          continue;
-        var hostName = getHostName(actionsPkt, actionDef);
-        if (hostName)
-          hs.push(hostName);
-      }
-      pd.servers = ss.uniq().sort();
-      pd.hosts   = hs.uniq().sort();
-
-      return pd;
-    }
-
     //
     // callback function from the base template
     //
@@ -496,11 +453,6 @@
     }
 
     function updateCore() {
-      parsedData = parseData(rawData);
-
-      setCandidate($("#select-server"), parsedData.servers);
-      setCandidate($("#select-host"),   parsedData.hosts);
-
       $("#table tbody").empty();
       $("#table tbody").append(drawTableBody(rawData));
       setupCheckboxHandler();
