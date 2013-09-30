@@ -85,7 +85,7 @@ struct DBClient::PrivateContext {
 
 	// A DBSetupContext insntace is first stored in standbySetupCtxMap
 	// when it is registered by registerSetupInfo(). It is moved to
-	// dbSetupCtxMap when it is used. The purpose of thiss mechanism is
+	// dbSetupCtxMap when it is used. The purpose of this mechanism is
 	// to reduce the time of the instance lookup, because there may
 	// be instances that are registered but not actually used.
 	static DBSetupContextMap standbySetupCtxMap;
