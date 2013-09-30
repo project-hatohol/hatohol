@@ -97,6 +97,8 @@ def main():
     (params["account"], params["password"]) = args.tls
     params["port"] = args.smtp_port
 
+  show_summary(params)
+
   send(params)
 
 def send_tls(params, messsage):
@@ -279,6 +281,14 @@ def make_body(args):
   body += "trigger status: %d (%s)\n" % (args.trigger_status, args.trigger_status_label)
   body += "trigger severity: %d (%s)\n" % (args.trigger_severity, args.trigger_severity_label)
   return body
+
+def show_summary(params):
+  print "TO         : %s" % params["to_address"]
+  print "SMTP Server: %s" % params["smtp_server"]
+  if "smtp_port" in params:
+    print "port       : %d" % params["smtp_port"]
+  if "account" in params:
+    print "account    : " + params["account"]
 
 if __name__ == '__main__':
   main()
