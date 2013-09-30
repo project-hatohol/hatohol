@@ -85,7 +85,7 @@ static const char *eventTypeToString(EventType type)
 static string dumpEventInfo(const EventInfo &info)
 {
 	return StringUtils::sprintf(
-		"%"PRIu32"|%"PRIu64"|%lu|%ld|%s|%s\%s|%"PRIu64"|%s|%s\n",
+		"%"PRIu32"|%"PRIu64"|%lu|%ld|%s|%s|%s|%"PRIu64"|%s|%s\n",
 		info.serverId,
 		info.id,
 		info.time.tv_sec,
