@@ -54,4 +54,19 @@ void test_dbDomainId(void)
 	                    dbUser.getDBAgent()->getDBDomainId());
 }
 
+void test_createDB(void)
+{
+	// create an instance
+	// Tables in the DB will be automatically created.
+	DBClientUser dbUser;
+
+	// check the version
+	string statement = "select * from _dbclient_version";
+	string expect =
+	  StringUtils::sprintf(
+	    "%d|%d\n", DB_DOMAIN_ID_USERS,
+	               DBClientUser::USER_DB_VERSION);
+	assertDBContent(dbUser.getDBAgent(), statement, expect);
+}
+
 } // namespace testDBClientUser
