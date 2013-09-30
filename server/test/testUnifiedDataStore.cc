@@ -29,15 +29,6 @@
 
 namespace testUnifiedDataStore {
 
-void cut_setup(void)
-{
-	const gchar *dbPath = cut_build_path(cut_get_test_directory(),
-	                                     "fixtures",
-	                                     "testDatabase-hatohol.db",
-	                                     NULL);
- 	DBAgentSQLite3::defineDBPath(DB_DOMAIN_ID_HATOHOL, dbPath);
-}
-
 void test_singleton(void) {
 	UnifiedDataStore *dataStore1 = UnifiedDataStore::getInstance();
 	UnifiedDataStore *dataStore2 = UnifiedDataStore::getInstance();
@@ -107,6 +98,33 @@ static string dumpEventInfo(const EventInfo &info)
 		info.brief.c_str());
 }
 
+static string dumpItemInfo(const ItemInfo &info)
+{
+	return StringUtils::sprintf(
+		"%"PRIu32"|%"PRIu64"|%"PRIu64"|%s|%lu|%ld|%s|%s|%s\n",
+		info.serverId,
+		info.id,
+		info.hostId,
+		info.brief.c_str(),
+		info.lastValueTime.tv_sec,
+		info.lastValueTime.tv_nsec,
+		info.lastValue.c_str(),
+		info.prevValue.c_str(),
+		info.itemGroupName.c_str());
+}
+
+void cut_setup(void)
+{
+	const gchar *dbPath = cut_build_path(cut_get_test_directory(),
+	                                     "fixtures",
+	                                     "testDatabase-hatohol.db",
+	                                     NULL);
+ 	DBAgentSQLite3::defineDBPath(DB_DOMAIN_ID_HATOHOL, dbPath);
+}
+
+// ---------------------------------------------------------------------------
+// Test cases
+// ---------------------------------------------------------------------------
 void test_getEventList(void)
 {
 	string expected, actual;
@@ -121,21 +139,6 @@ void test_getEventList(void)
 	for (it = list.begin(); it != list.end(); it++)
 		actual += dumpEventInfo(*it);
 	cppcut_assert_equal(expected, actual);
-}
-
-static string dumpItemInfo(const ItemInfo &info)
-{
-	return StringUtils::sprintf(
-		"%"PRIu32"|%"PRIu64"|%"PRIu64"|%s|%lu|%ld|%s|%s|%s\n",
-		info.serverId,
-		info.id,
-		info.hostId,
-		info.brief.c_str(),
-		info.lastValueTime.tv_sec,
-		info.lastValueTime.tv_nsec,
-		info.lastValue.c_str(),
-		info.prevValue.c_str(),
-		info.itemGroupName.c_str());
 }
 
 void test_getItemList(void)
