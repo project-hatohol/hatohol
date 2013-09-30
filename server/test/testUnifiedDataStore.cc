@@ -21,6 +21,7 @@
 #include <cutter.h>
 #include <unistd.h>
 
+#include "Hatohol.h"
 #include "Params.h"
 #include "DBAgentSQLite3.h"
 #include "UnifiedDataStore.h"
@@ -115,6 +116,7 @@ static string dumpItemInfo(const ItemInfo &info)
 
 void cut_setup(void)
 {
+	hatoholInit();
 	const gchar *dbPath = cut_build_path(cut_get_test_directory(),
 	                                     "fixtures",
 	                                     "testDatabase-hatohol.db",
