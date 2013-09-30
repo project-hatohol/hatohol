@@ -17,23 +17,25 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef Params_h
-#define Params_h
+#ifndef DBClientUser_h
+#define DBClientUser_h
 
-typedef uint32_t DBDomainId;
+#include "DBClient.h"
 
-static const DBDomainId DB_DOMAIN_ID_CONFIG  = 0x0010;
-static const DBDomainId DB_DOMAIN_ID_ACTION  = 0x0018;
-static const DBDomainId DB_DOMAIN_ID_HATOHOL = 0x0020;
-static const DBDomainId DB_DOMAIN_ID_USERS   = 0x0030;
-static const DBDomainId DB_DOMAIN_ID_ZABBIX  = 0x1000;
-static const size_t NUM_MAX_ZABBIX_SERVERS = 100;
-// DBClintZabbix uses the number of domains by NUM_MAX_ZABBIX_SERVERS 
-// So the domain ID is occupied
-//   from DB_DOMAIN_ID_ZABBIX
-//   to   DB_DOMAIN_ID_ZABBIX + NUM_MAX_ZABBIX_SERVERS - 1
-static const DBDomainId DB_DOMAIN_ID_NONE    = -1;
+class DBClientUser : public DBClient {
+public:
+	static const int   USER_DB_VERSION;
+	static const char *DEFAULT_DB_NAME;
+	static void init(void);
 
-#endif // Params_h
+	DBClientUser(void);
+	virtual ~DBClientUser();
 
+protected:
 
+private:
+	struct PrivateContext;
+	PrivateContext *m_ctx;
+};
+
+#endif // DBClientUser_h

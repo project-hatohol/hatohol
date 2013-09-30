@@ -21,6 +21,7 @@ libhatohol_la_SOURCES = \
 	DBClientAction.cc DBClientAction.h \
 	DBClientConfig.cc DBClientConfig.h \
 	DBClientHatohol.cc DBClientHatohol.h \
+	DBClientUser.h DBClientUser.cc \
 	DBClientUtils.h \
 	DBClientZabbix.cc DBClientZabbix.h \
 	DataStore.cc DataStore.h \
