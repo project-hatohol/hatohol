@@ -316,6 +316,10 @@
       return "(S" + serverId + "-H" + hostId + ")";
     }
 
+    function makeNamelessTriggerLabel(triggerId) {
+      return "(T" + triggerId + ")";
+    }
+
     function makeTypeLabel(type) {
       switch(type) {
       case ACTION_COMMAND:
@@ -373,6 +377,25 @@
       return hostName;
     }
 
+    function getTriggerBrief(actionsPkt, actionDef) {
+      var triggerId = actionDef["triggerId"]
+      if (!triggerId)
+        return null;
+      var serverId = actionDef["serverId"];
+      if (!serverId)
+        return makeNamelessTriggerLabel(triggerId);
+      var triggerArray = actionsPkt["servers"][serverId]["triggers"]
+      if (!triggerArray)
+        return makeNamelessTriggerLabel(triggerId);
+      var trigger = triggerArray[triggerId];
+      if (!trigger)
+        return makeNamelessTriggerLabel(triggerId);
+      var triggerBrief = trigger["brief"];
+      if (!triggerBrief)
+        return makeNamelessTriggerLabel(triggerId);
+      return triggerBrief;
+    }
+
     function parseData(actionsPkt) {
       var pd = new Object();
       var x;
@@ -426,10 +449,10 @@
         var hostGroupName = "unsupported";
         s += "<td>" + hostGroupName + "</td>";
 
-        var triggerId = actionDef.triggerId;
-        if (triggerId == undefined)
-          triggerId = "ANY";
-        s += "<td>" + triggerId + "</td>";
+        var triggerBrief = getTriggerBrief(actionsPkt, actionDef);
+        if (!triggerBrief)
+          triggerBrief = "ANY";
+        s += "<td>" + triggerBrief + "</td>";
 
         var triggerStatus = actionDef.triggerStatus;
         var triggerStatusLabel = "ANY";
