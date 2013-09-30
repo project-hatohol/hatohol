@@ -32,9 +32,9 @@ namespace testUnifiedDataStore {
 void cut_setup(void)
 {
 	const gchar *dbPath = cut_build_path(cut_get_test_directory(),
-					     "fixtures",
-					     "testDatabase-hatohol.db",
-					     NULL);
+	                                     "fixtures",
+	                                     "testDatabase-hatohol.db",
+	                                     NULL);
  	DBAgentSQLite3::defineDBPath(DB_DOMAIN_ID_HATOHOL, dbPath);
 }
 
