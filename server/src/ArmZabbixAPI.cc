@@ -251,7 +251,7 @@ ItemTablePtr ArmZabbixAPI::getEvents(uint64_t eventIdOffset)
 
 uint64_t ArmZabbixAPI::getLastEventId(void)
 {
-	int64_t lastEventId = 0;
+	uint64_t lastEventId = 0;
 	SoupMessage *msg = queryGetLastEventId();
 	if (!msg)
 		THROW_DATA_STORE_EXCEPTION("Failed to query events.");
