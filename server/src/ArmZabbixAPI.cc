@@ -271,7 +271,7 @@ uint64_t ArmZabbixAPI::getLastEventId(void)
 		THROW_DATA_STORE_EXCEPTION("Failed to read: eventid\n");
 
 	lastEventId = convertStrToUint64(strLastEventId);
-	MLPL_DBG("LastEventID: %llu\n", lastEventId);
+	MLPL_DBG("LastEventID: %"PRIu64"\n", lastEventId);
 
 	return lastEventId;
 }
