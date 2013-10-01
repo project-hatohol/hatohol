@@ -55,6 +55,7 @@ class ActorCollector : public HatoholThreadBase
 public:
 	static void init(void);
 	static void reset(void);
+	static void resetOnCollectorThread(void);
 	static void quit(void);
 	static void lock(void);
 	static void unlock(void);

@@ -75,35 +75,16 @@ void ActorCollector::reset(void)
 	// in cut_setup().
 	registerSIGCHLD();
 
-	// This function is mainly for the test. In the normal use,
-	// waitChildSet is of course empty when this function is called
-	// at the start-up.
-	// Here we wait for the exit of all the children.
 	lock();
 	if (!PrivateContext::collector) {
 		unlock();
 		return;
 	}
-
+	incWaitingActor(); // to unblock wait_sem().
 	PrivateContext::inReset = true;
-	bool isEmpty = PrivateContext::waitChildSet.empty();
-	WaitChildSetIterator it = PrivateContext::waitChildSet.begin();
-	for (; it != PrivateContext::waitChildSet.end(); ++it) {
-		pid_t pid = it->first;
-		int ret = kill(pid, SIGKILL);
-		if (ret == -1 && errno == ESRCH) {
-			MLPL_INFO("No process w/ pid: %d\n", pid);
-			PrivateContext::waitChildSet.erase(it);
-			continue;
-		}
-		HATOHOL_ASSERT(ret == 0, "Failed to send kill (%d): %d\n",
-		               pid, errno);
-	}
 	unlock();
-	if (isEmpty) {
-		PrivateContext::inReset = false;
-		return;
-	}
+
+	// Wait for the completion of reset() on the collected thread
 	while (true) {
 		int ret = sem_wait(&PrivateContext::resetCompletionSem);
 		if (ret == -1 && errno == EINTR)
@@ -112,9 +93,33 @@ void ActorCollector::reset(void)
 		               "Failed to call sem_wait(): %d\n", errno);
 		break;
 	}
-	lock();
+}
+
+void ActorCollector::resetOnCollectorThread(void)
+{
+	// This function is mainly for the test. In the normal use,
+	// waitChildSet is of course empty when this function is called
+	// at the start-up.
+	WaitChildSetIterator it = PrivateContext::waitChildSet.begin();
+	for (; it != PrivateContext::waitChildSet.end(); ++it) {
+
+		delete it->second; // actorInfo;
+		pid_t pid = it->first;
+		PrivateContext::waitChildSet.erase(it);
+		int ret = kill(pid, SIGKILL);
+		if (ret == -1 && errno == ESRCH) {
+			MLPL_INFO("No process w/ pid: %d\n", pid);
+			continue;
+		}
+		HATOHOL_ASSERT(ret == 0, "Failed to send kill (%d): %d\n",
+		               pid, errno);
+	}
+
 	PrivateContext::inReset = false;
-	unlock();
+	HATOHOL_ASSERT(sem_init(&PrivateContext::collectorSem, 0, 0) == 0,
+	               "Failed to call sem_init(): %d\n", errno);
+	HATOHOL_ASSERT(sem_post(&PrivateContext::resetCompletionSem) == 0,
+	               "Failed to call sem_post(): %d\n", errno);
 }
 
 void ActorCollector::quit(void)
@@ -142,11 +147,6 @@ void ActorCollector::unlock(void)
 
 void ActorCollector::addActor(ActorInfo *actorInfo)
 {
-	if (PrivateContext::inReset) {
-		MLPL_INFO("Ignore addActor(): %d (inReset)\n", actorInfo->pid);
-		return;
-	}
-
 	// This function is currently called only from
 	// ActionManager::execCommandAction(). Because lock() and unlock() are
 	// called in it, so they aren't called here.
@@ -255,9 +255,12 @@ gpointer ActorCollector::mainThread(HatoholThreadArg *arg)
 		ret = sem_wait(&PrivateContext::collectorSem);
 		if (ret == -1 && errno == EINTR)
 			continue;
-
-		// TODO: use an atomic variable to improve performance
 		lock();
+		if (PrivateContext::inReset) {
+			unlock();
+			resetOnCollectorThread();
+			continue;
+		}
 		bool shouldExit = PrivateContext::collectorExitRequest;
 		unlock();
 		if (shouldExit)
@@ -322,18 +325,6 @@ void ActorCollector::notifyChildSiginfo(siginfo_t *info)
 	if (!actorInfo) {
 		unlock();
 		incWaitingActor();
-		return;
-	}
-
-	// if in the reset, just return
-	if (PrivateContext::inReset) {
-		bool isEmpty = PrivateContext::waitChildSet.empty();
-		unlock();
-		if (isEmpty) {
-			HATOHOL_ASSERT(
-			  sem_post(&PrivateContext::resetCompletionSem) == 0,
-			           "Failed to call sem_post(): %d\n", errno);
-		}
 		return;
 	}
 
