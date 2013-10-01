@@ -46,6 +46,13 @@ static void _assertCurrentTime(const SmartTime &smtime)
 }
 #define assertCurrentTime(SMT) cut_trace(_assertCurrentTime(SMT))
 
+static void _assertEqualTimespec(const timespec &expect, const timespec &actual)
+{
+	cppcut_assert_equal(expect.tv_sec, actual.tv_sec);
+	cppcut_assert_equal(expect.tv_nsec, actual.tv_nsec);
+}
+#define assertEqualTimespec(E,A) cut_trace(_assertEqualTimespec(E,A))
+
 // ---------------------------------------------------------------------------
 // Test cases
 // ---------------------------------------------------------------------------
@@ -93,9 +100,7 @@ void test_getAsTimespec(void)
 	ts.tv_sec = 1379641056;
 	ts.tv_nsec = 987654321;
 	SmartTime smtime(ts);
-	timespec actual = smtime.getAsTimespec();
-	cppcut_assert_equal(ts.tv_sec, actual.tv_sec);
-	cppcut_assert_equal(ts.tv_nsec, actual.tv_nsec);
+	assertEqualTimespec(ts, smtime.getAsTimespec());
 }
 
 } // namespace testSmartTime
