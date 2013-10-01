@@ -251,7 +251,9 @@ ItemTablePtr ArmZabbixAPI::getEvents(uint64_t eventIdOffset)
 
 uint64_t ArmZabbixAPI::getLastEventId(void)
 {
+	string strLastEventId;
 	uint64_t lastEventId = 0;
+
 	SoupMessage *msg = queryGetLastEventId();
 	if (!msg)
 		MLPL_ERR("Failed to query eventID.");
@@ -262,7 +264,8 @@ uint64_t ArmZabbixAPI::getLastEventId(void)
 		MLPL_ERR("Failed to parser: %s", parser.getErrorMessage());
 	}
 
-	parser.read("eventid", lastEventId);
+	if (!parser.read("eventid", strLastEventId))
+		MLPL_ERR("Failed to read: eventid\n");
 	MLPL_DBG("LastEventID: %d\n", lastEventId);
 	return lastEventId;
 }
