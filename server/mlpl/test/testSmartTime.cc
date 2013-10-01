@@ -97,9 +97,7 @@ void test_setCurrTime(void)
 
 void test_getAsTimespec(void)
 {
-	timespec ts;
-	ts.tv_sec = 1379641056;
-	ts.tv_nsec = 987654321;
+	timespec ts = getSampleTimespec();
 	SmartTime smtime(ts);
 	assertEqualTimespec(ts, smtime.getAsTimespec());
 }
