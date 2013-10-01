@@ -108,4 +108,12 @@ void test_getAsMSec(void)
 	cppcut_assert_equal(1e3*smtime.getAsSec(), smtime.getAsMSec());
 }
 
+void test_operatorSubst(void)
+{
+	SmartTime src(getSampleTimespec());
+	SmartTime dst(SmartTime::INIT_CURR_TIME);
+	dst = src;
+	assertEqualTimespec(src.getAsTimespec(), dst.getAsTimespec());
+}
+
 } // namespace testSmartTime
