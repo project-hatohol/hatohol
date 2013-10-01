@@ -249,7 +249,7 @@ ItemTablePtr ArmZabbixAPI::getEvents(uint64_t eventIdOffset)
 	return ItemTablePtr(tablePtr);
 }
 
-int64_t ArmZabbixAPI::getLastEventId(void)
+uint64_t ArmZabbixAPI::getLastEventId(void)
 {
 	int64_t lastEventId = 0;
 	SoupMessage *msg = queryGetLastEventId();
