@@ -87,4 +87,15 @@ void test_constructorCurrTime(void)
 	assertCurrentTime(smtime);
 }
 
+void test_getAsTimespec(void)
+{
+	timespec ts;
+	ts.tv_sec = 1379641056;
+	ts.tv_nsec = 987654321;
+	SmartTime smtime(ts);
+	timespec actual = smtime.getAsTimespec();
+	cppcut_assert_equal(ts.tv_sec, actual.tv_sec);
+	cppcut_assert_equal(ts.tv_nsec, actual.tv_nsec);
+}
+
 } // namespace testSmartTime

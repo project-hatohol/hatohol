@@ -94,6 +94,11 @@ double SmartTime::getAsMSec(void) const
 	return 1e3 * getAsSec();
 }
 
+const timespec &SmartTime::getAsTimespec(void) const
+{
+	return m_ctx->time;
+}
+
 SmartTime SmartTime::getCurrTime(void)
 {
 	SmartTime smtime;

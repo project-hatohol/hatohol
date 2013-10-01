@@ -41,6 +41,7 @@ public:
 	void setTime(double time);
 	double getAsSec(void) const;
 	double getAsMSec(void) const;
+	const timespec &getAsTimespec(void) const;
 
 	SmartTime &operator-=(const SmartTime &rhs);
 	SmartTime &operator=(const SmartTime &rhs);
