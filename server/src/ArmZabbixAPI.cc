@@ -263,6 +263,8 @@ uint64_t ArmZabbixAPI::getLastEventId(void)
 	if (parser.hasError()) {
 		MLPL_ERR("Failed to parser: %s", parser.getErrorMessage());
 	}
+	startObject(parser, "result");
+	startElement(parser, 0);
 
 	if (!parser.read("eventid", strLastEventId))
 		MLPL_ERR("Failed to read: eventid\n");
