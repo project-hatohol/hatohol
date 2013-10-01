@@ -51,6 +51,12 @@ SQLITE3_REQUIRED=3.6.0
 PKG_CHECK_MODULES(SQLITE3, sqlite3 >= $SQLITE3_REQUIRED)
 
 dnl **************************************************************
+dnl Checks for uuid
+dnl **************************************************************
+UUID_REQUIRED=2.17
+PKG_CHECK_MODULES(UUID, uuid >= $UUID_REQUIRED)
+
+dnl **************************************************************
 dnl Checks for MySQL
 dnl **************************************************************
 AC_CHECK_PROGS(MYSQL_CONFIG, mysql_config)

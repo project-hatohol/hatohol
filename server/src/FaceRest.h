@@ -87,6 +87,9 @@ protected:
 	static void handlerHelloPage
 	  (SoupServer *server, SoupMessage *msg, const char *path,
 	   GHashTable *query, SoupClientContext *client, HandlerArg *arg);
+	static void handlerLogin
+	  (SoupServer *server, SoupMessage *msg, const char *path,
+	   GHashTable *query, SoupClientContext *client, HandlerArg *arg);
 	static void handlerGetOverview
 	  (SoupServer *server, SoupMessage *msg, const char *path,
 	   GHashTable *query, SoupClientContext *client, HandlerArg *arg);
@@ -120,6 +123,8 @@ protected:
 	   GHashTable *query, SoupClientContext *client, HandlerArg *arg);
 
 private:
+	struct PrivateContext;
+
 	// The body is defined in the FaceRest.cc. So this function can
 	// be used only from the soruce file.
 	template<typename T>
@@ -127,6 +132,7 @@ private:
 	  GHashTable *query, SoupMessage *msg, const HandlerArg *arg,
 	  const char *paramName, const char *scanFmt, T &dest, bool *exist);
 
+	static const char *pathForLogin;
 	static const char *pathForGetOverview;
 	static const char *pathForGetServer;
 	static const char *pathForGetHost;

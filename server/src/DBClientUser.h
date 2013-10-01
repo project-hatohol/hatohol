@@ -27,6 +27,7 @@ struct UserInfo {
 	string name;
 	string password;
 };
+static const int INVALID_USER_ID = -1;
 
 class DBClientUser : public DBClient {
 public:
@@ -47,8 +48,19 @@ public:
 	 */
 	void addUserInfo(UserInfo &userInfo);
 
+	/*
+	 * Get the user Id.
+	 *
+	 * @param user A user name.
+	 * @param password A password.
+	 *
+	 * @return
+	 * A user ID if authentification is successed.
+	 * Otherwise INVALID_USER_ID is returned.
+	 */
+	int getUserId(const string &user, const string &password);
+
 protected:
-	string sha256(const string &data);
 
 private:
 	struct PrivateContext;

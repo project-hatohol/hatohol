@@ -23,13 +23,17 @@
 #include <cstring>
 #include <Logger.h>
 #include <Reaper.h>
+#include <MutexLock.h>
 using namespace mlpl;
+
+#include <uuid/uuid.h>
 
 #include "FaceRest.h"
 #include "JsonBuilderAgent.h"
 #include "HatoholException.h"
 #include "ConfigManager.h"
 #include "UnifiedDataStore.h"
+#include "DBClientUser.h"
 
 int FaceRest::API_VERSION = 2;
 
@@ -48,6 +52,7 @@ typedef map<ServerID, TriggerBriefMap> TriggerBriefMaps;
 
 static const guint DEFAULT_PORT = 33194;
 
+const char *FaceRest::pathForLogin       = "/login";
 const char *FaceRest::pathForGetOverview = "/overview";
 const char *FaceRest::pathForGetServer   = "/server";
 const char *FaceRest::pathForGetHost     = "/host";
@@ -89,6 +94,24 @@ static FormatTypeMap g_formatTypeMap;
 typedef map<FormatType, const char *> MimeTypeMap;
 typedef MimeTypeMap::iterator   MimeTypeMapIterator;;
 static MimeTypeMap g_mimeTypeMap;
+
+// Key: session ID, value: user ID
+typedef map<string, int>           SessionIdMap;
+typedef map<string, int>::iterator SessionIdMapIterator;
+
+struct FaceRest::PrivateContext {
+	static MutexLock    lock;
+	static SessionIdMap sessionIdMap;
+
+	static void insertSessionId(const string &sessionId, int userId) {
+		lock.lock();
+		sessionIdMap[sessionId] = userId;
+		lock.unlock();
+	}
+};
+
+MutexLock    FaceRest::PrivateContext::lock;
+SessionIdMap FaceRest::PrivateContext::sessionIdMap;
 
 // ---------------------------------------------------------------------------
 // Public methods
@@ -157,6 +180,9 @@ gpointer FaceRest::mainThread(HatoholThreadArg *arg)
 	soup_server_add_handler(m_soupServer, "/hello.html",
 	                        launchHandlerInTryBlock,
 	                        (gpointer)handlerHelloPage, NULL);
+	soup_server_add_handler(m_soupServer, pathForLogin,
+	                        launchHandlerInTryBlock,
+	                        NULL, NULL);
 	soup_server_add_handler(m_soupServer, pathForGetOverview,
 	                        launchHandlerInTryBlock,
 	                        (gpointer)handlerGetOverview, NULL);
@@ -346,7 +372,6 @@ void FaceRest::launchHandlerInTryBlock
    GHashTable *_query, SoupClientContext *client, gpointer user_data)
 {
 	RestHandler handler = reinterpret_cast<RestHandler>(user_data);
-
 	HandlerArg arg;
 
 	// We expect URIs  whose style are the following.
@@ -656,6 +681,49 @@ static void addServersIdNameHash(
 		agent.endObject();
 	}
 	agent.endObject();
+}
+
+void FaceRest::handlerLogin
+  (SoupServer *server, SoupMessage *msg, const char *path,
+   GHashTable *query, SoupClientContext *client, HandlerArg *arg)
+{
+	gchar *user = (gchar *)g_hash_table_lookup(query, "user");
+	if (!user) {
+		MLPL_INFO("Not found: user");
+		replyError(msg, arg, "Authentification failed");
+		return;
+	}
+	gchar *password = (gchar *)g_hash_table_lookup(query, "passowrd");
+	if (!password) {
+		MLPL_INFO("Not found: password");
+		replyError(msg, arg, "Authentification failed");
+		return;
+	}
+
+	DBClientUser dbUser;
+	int userId = dbUser.getUserId(user, password);
+	if (userId == INVALID_USER_ID) {
+		MLPL_INFO("Failed to authenticate: %s.", user);
+		replyError(msg, arg, "Authentification failed");
+		return;
+	}
+
+	uuid_t sessionUuid;
+	uuid_generate(sessionUuid);
+	static const size_t uuidBufSize = 37;
+	char uuidBuf[uuidBufSize];
+	uuid_unparse(sessionUuid, uuidBuf);
+	string sessionId = uuidBuf;
+	PrivateContext::insertSessionId(sessionId, userId);
+
+	JsonBuilderAgent agent;
+	agent.startObject();
+	agent.add("apiVersion", API_VERSION);
+	agent.addTrue("result");
+	agent.add("sessionId", sessionId);
+	agent.endObject();
+
+	replyJsonData(agent, msg, arg->jsonpCallbackName, arg);
 }
 
 void FaceRest::handlerGetOverview

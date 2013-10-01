@@ -115,4 +115,14 @@ void test_addUser(void)
 	assertDBContent(dbUser.getDBAgent(), statement, expect);
 }
 
+void test_getUserId(void)
+{
+	loadTestDBUser();
+	const int targetIdx = 1;
+	DBClientUser dbUser;
+	int userId = dbUser.getUserId(testUserInfo[targetIdx].name,
+	                              testUserInfo[targetIdx].password);
+	cppcut_assert_equal(targetIdx+1, userId);
+}
+
 } // namespace testDBClientUser

@@ -143,6 +143,43 @@ void DBClientUser::addUserInfo(UserInfo &userInfo)
 	} DBCLIENT_TRANSACTION_END();
 }
 
+int DBClientUser::getUserId(const string &user, const string &password)
+{
+	DBAgentSelectExArg arg;
+	arg.tableName = TABLE_NAME_USERS;
+	arg.pushColumn(COLUMN_DEF_USERS[IDX_USERS_ID]);
+	arg.pushColumn(COLUMN_DEF_USERS[IDX_USERS_PASSWORD]);
+	arg.condition = StringUtils::sprintf("%s='%s'",
+	  COLUMN_DEF_USERS[IDX_USERS_NAME].columnName, user.c_str());
+	select(arg);
+
+	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
+	if (grpList.empty())
+		return INVALID_USER_ID;
+
+	const ItemGroup *itemGroup = *grpList.begin();
+	int idx = 0;
+
+	// user ID
+	DEFINE_AND_ASSERT(itemGroup->getItemAt(idx++), ItemInt, itemUserId);
+	int userId = itemUserId->get();
+
+	// password
+	DEFINE_AND_ASSERT(itemGroup->getItemAt(idx++), ItemString, itemPasswd);
+	string truePasswd = itemPasswd->get();
+
+	// comapare the passwords
+	gchar *sha256passwd = g_compute_checksum_for_string(G_CHECKSUM_SHA256,
+	                                                    password.c_str(),
+	                                                    -1);
+	HATOHOL_ASSERT(sha256passwd, "checksum_type may be wrong.");
+	bool matched = (truePasswd == sha256passwd);
+	g_free(sha256passwd);
+	if (!matched)
+		return INVALID_USER_ID;
+	return userId;
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
