@@ -31,7 +31,7 @@ var HatoholActorMailDialog = function(applyCallback, currCommand) {
   }];
 
   // call the constructor of the super class
-  var id = "hatohol_actor_mail_dialog"
+  var id = "hatohol_actor_mail_dialog";
   var title = "Execution parameter maker";
   HatoholDialog.apply(this, [id, title, dialogButtons]);
 
@@ -39,7 +39,7 @@ var HatoholActorMailDialog = function(applyCallback, currCommand) {
     self.setApplyButtonState(true);
   else
     self.setApplyButtonState(false);
-}
+};
 
 HatoholActorMailDialog.prototype = Object.create(HatoholDialog.prototype);
 HatoholActorMailDialog.prototype.constructor = HatoholActorMailDialog;
@@ -50,7 +50,7 @@ HatoholActorMailDialog.prototype.createMainElement = function() {
   return div;
 
   function parseCurrentCommand(currCommand) {
-    params = {}
+    params = {};
     params.toAddr = "";
     params.smtpServer = "";
     words = currCommand.split(" ");
@@ -69,22 +69,22 @@ HatoholActorMailDialog.prototype.createMainElement = function() {
 
   function makeMainDivHTML(initParams) {
     var s = "";
-    s += '<form class="form-inline">'
-    s += '  <label for="inputTo">' + gettext("TO: ") + '</label>'
+    s += '<form class="form-inline">';
+    s += '  <label for="inputTo">' + gettext("TO: ") + '</label>';
     s += '  <input id="inputTo" type="text" value="' + initParams.toAddr +
-         '" style="height:1.8em;" class="input-xxlarge">'
-    s += '</form>'
-    s += '<form class="form-inline">'
-    s += '  <label for="inputSmtpServer">' + gettext("SMTP server ") + '</label>'
-    s += '  <label for="inputSmtpServer">' + gettext("(If empty, localhost is used)") + '</label>'
-    s += '  <br>'
+         '" style="height:1.8em;" class="input-xxlarge">';
+    s += '</form>';
+    s += '<form class="form-inline">';
+    s += '  <label for="inputSmtpServer">' + gettext("SMTP server ") + '</label>';
+    s += '  <label for="inputSmtpServer">' + gettext("(If empty, localhost is used)") + '</label>';
+    s += '  <br>';
     s += '  <input id="inputSmtpServer" type="text" value="' +
          initParams.smtpServer +
-         '" style="height:1.8em;" class="input-xxlarge">'
-    s += '</form>'
+         '" style="height:1.8em;" class="input-xxlarge">';
+    s += '</form>';
     return s;
   }
-}
+};
 
 HatoholActorMailDialog.prototype.onAppendMainElement = function () {
   var self = this;
@@ -95,7 +95,7 @@ HatoholActorMailDialog.prototype.onAppendMainElement = function () {
     else
       self.setApplyButtonState(false);
   });
-}
+};
 
 HatoholActorMailDialog.prototype.okButtonClicked = function() {
   var toAddr = $("#inputTo").val();
@@ -106,7 +106,7 @@ HatoholActorMailDialog.prototype.okButtonClicked = function() {
 
   this.applyCallback(ACTION_COMMAND, commandDesc);
   this.closeDialog();
-}
+};
 
 HatoholActorMailDialog.prototype.setApplyButtonState = function(state) {
   var btn = $(".ui-dialog-buttonpane").find("button:contains(" +
@@ -118,4 +118,4 @@ HatoholActorMailDialog.prototype.setApplyButtonState = function(state) {
      btn.attr("disabled", "disable");
      btn.addClass("ui-state-disabled");
   }
-}
+};
