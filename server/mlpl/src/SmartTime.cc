@@ -24,18 +24,30 @@
 
 using namespace mlpl;
 
+struct SmartTime::PrivateContext {
+	double time;
+
+	// constructor
+	PrivateContext(void)
+	: time(0)
+	{
+	}
+};
+
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
 SmartTime::SmartTime(InitType initType)
-: m_time(0)
+: m_ctx(NULL)
 {
+	m_ctx = new PrivateContext();
+
 	switch(initType) {
 	case INIT_NONE:
 		// nothing to do;
 		break;
 	case INIT_CURR_TIME:
-		m_time = getCurrTime();
+		m_ctx->time = getCurrTime();
 		break;
 	default:
 		MLPL_ERR("Unknown initType: %d\n", initType);
@@ -44,33 +56,37 @@ SmartTime::SmartTime(InitType initType)
 }
 
 SmartTime::SmartTime(const timespec &ts)
-: m_time(0)
+: m_ctx(NULL)
 {
-	m_time = ts.tv_sec + ts.tv_nsec/1.0e9;
+	m_ctx = new PrivateContext();
+
+	m_ctx->time = ts.tv_sec + ts.tv_nsec/1.0e9;
 }
 
 SmartTime::~SmartTime()
 {
+	if (m_ctx)
+		delete m_ctx;
 }
 
 void SmartTime::setCurrTime(void)
 {
-	m_time = getCurrTime();
+	m_ctx->time = getCurrTime();
 }
 
 void SmartTime::setTime(double time)
 {
-	m_time = time;
+	m_ctx->time = time;
 }
 
 double SmartTime::getAsSec(void) const
 {
-	return m_time;
+	return m_ctx->time;
 }
 
 double SmartTime::getAsMSec(void) const
 {
-	return m_time * 1.0e3;
+	return m_ctx->time * 1.0e3;
 }
 
 double SmartTime::getCurrTime(void)
@@ -85,7 +101,7 @@ double SmartTime::getCurrTime(void)
 
 SmartTime &SmartTime::operator-=(const SmartTime &rhs)
 {
-	m_time -= rhs.m_time;
+	m_ctx->time -= rhs.m_ctx->time;
 	return *this;
 }
 

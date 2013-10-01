@@ -45,6 +45,8 @@ public:
 	SmartTime &operator-=(const SmartTime &rhs);
 
 private:
+	struct PrivateContext;
+	PrivateContext *m_ctx;
 	double m_time;
 };
 
