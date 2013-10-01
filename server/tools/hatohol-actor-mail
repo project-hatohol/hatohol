@@ -55,10 +55,9 @@ def main():
                                    formatter_class=argparse.RawTextHelpFormatter)
   smtp_group = parser.add_argument_group("SMTP Options")
 
-  smtp_group.add_argument("--smtp-server", type=str, metavar="HOST",
-                          help="SMTP Server HOST", default=DEFAULT_SMTP_SERVER)
-  smtp_group.add_argument("--smtp-port", type=int, metavar="PORT",
-                          help="SMTP Port", default=DEFAULT_TLS_PORT)
+  smtp_group.add_argument("--smtp-server", type=parse_smtp_server_port, dest="smtp_server_port",
+                          metavar="HOSTNAME[:PORT]",
+                          help="SMTP Server HOSTNAME and PORT", default=DEFAULT_SMTP_SERVER)
   smtp_group.add_argument("--tls", type=str, metavar=("ACCOUNT", "PASSWORD"), dest="tls", nargs=2,
                           help="Account and password for SMTP AUTH")
   smtp_group.add_argument("--to-address", required=True, metavar="TO", type=str,
@@ -77,6 +76,7 @@ def main():
                                     metavar=("ID", "ID", "ID", "UNIXTIME.NSEC", "ID", "ID", "ID", "STATUS", "SEVERITY"),
                                     help=help_message)
   args = parser.parse_args()
+  (args.smtp_server, args.smtp_port) = args.smtp_server_port
   args = parse_hatohol_action_v1(args)
 
   # print(args)
@@ -215,6 +215,19 @@ def get_trigger_label(server_id, host_id, trigger_id):
  
   brief = get_element(triggers, "brief", "N/A")
   return brief
+
+def parse_smtp_server_port(server_spec):
+  words = server_spec.split(":")
+  if (len(words) > 2):
+    error_exit("The given argument for --smtp-server is invalid: %s" % stmp_server)
+
+  server = words[0]
+  if (len(words) == 2):
+    port = int(words[1])
+  else:
+    port = DEFAULT_TLS_PORT
+
+  return (server, port)
 
 def parse_time(timestamp):
   words = timestamp.split(".")
