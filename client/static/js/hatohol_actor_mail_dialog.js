@@ -54,12 +54,16 @@ HatoholActorMailDialog.prototype.createMainElement = function() {
     params.toAddr = "";
     params.smtpServer = "";
     var words = currCommand.split(" ");
-    if (words.length < 2)
+    if (words.length < 3)
       return params;
     if (words[0] != "hatohol-actor-mail")
       return params;
+
     // to addr
-    params.toAddr = words[1].split("=")[1];
+    var idx = words.indexOf("--to-address");
+    if (idx != -1 && words.length > idx + 1)
+      params.toAddr = words[2];
+
     // smtp server
     var idx = words.indexOf("--smtp-server");
     if (idx != -1 && words.length > idx + 1)
@@ -98,7 +102,7 @@ HatoholActorMailDialog.prototype.onAppendMainElement = function () {
 };
 
 HatoholActorMailDialog.prototype.okButtonClicked = function() {
-  var toAddr = "--to-address=" + $("#inputTo").val();
+  var toAddr = "--to-address " + $("#inputTo").val();
   var commandDesc = "hatohol-actor-mail " + toAddr;
   var smtpServer = $("#inputSmtpServer").val();
   if (smtpServer)
