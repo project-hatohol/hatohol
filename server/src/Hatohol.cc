@@ -85,6 +85,7 @@ static void reset(void)
 	DBAgentSQLite3::reset();
 	DBClient::reset();
 	DBClientConfig::reset(); // must be after DBClient::reset()
+	DBClientUser::reset();
 	DBClientAction::reset(); // must be after DBClientConfig::reset()
 
 	ActionManager::reset();

@@ -26,18 +26,45 @@
 
 namespace testDBClientUser {
 
+static UserInfo testUserInfo[] = {
+{
+	0,                 // id
+	"cheesecake",      // name
+	"CDEF~!@#$%^&*()", // password
+}, {
+	0,                 // id
+	"pineapple",       // name
+	"Po+-\\|}{\":?><", // password
+}, {
+	0,                 // id
+	"m1ffy@v@",        // name
+	"",                // password
+}
+};
+static size_t NumTestUserInfo = sizeof(testUserInfo) / sizeof(UserInfo);
+
 static const char *TEST_DB_NAME = "test_db_user";
 static const char *TEST_DB_USER = "hatohol_test_user";
 static const char *TEST_DB_PASSWORD = ""; // empty: No password is used
 
+static void loadTestDBUser(void)
+{
+	DBClientUser dbUser;
+	for (size_t i = 0; i < NumTestUserInfo; i++)
+		dbUser.addUserInfo(testUserInfo[i]);
+}
+
+static void setupTestDBUsers(bool dbRecreate = true)
+{
+	DBClient::setDefaultDBParams(DB_DOMAIN_ID_USERS, TEST_DB_NAME,
+	                             TEST_DB_USER, TEST_DB_PASSWORD);
+	makeTestMySQLDBIfNeeded(TEST_DB_NAME, dbRecreate);
+}
+
 void cut_setup(void)
 {
 	hatoholInit();
-	DBClient::setDefaultDBParams(
-	  DB_DOMAIN_ID_USERS, TEST_DB_NAME, TEST_DB_USER, TEST_DB_PASSWORD);
-
-	bool recreate = true;
-	makeTestMySQLDBIfNeeded(TEST_DB_NAME, recreate);
+	setupTestDBUsers();
 }
 
 void cut_teardown(void)
@@ -66,6 +93,25 @@ void test_createDB(void)
 	  StringUtils::sprintf(
 	    "%d|%d\n", DB_DOMAIN_ID_USERS,
 	               DBClientUser::USER_DB_VERSION);
+	assertDBContent(dbUser.getDBAgent(), statement, expect);
+}
+
+void test_addUser(void)
+{
+	loadTestDBUser();
+	DBClientUser dbUser;
+
+	// check the version
+	string statement = "select * from ";
+	statement += DBClientUser::TABLE_NAME_USERS;
+	statement += " ORDER BY id ASC";
+	string expect;
+	for (size_t i = 0; i < NumTestUserInfo; i++) {
+		const UserInfo &userInfo = testUserInfo[i];
+		expect += StringUtils::sprintf("%zd|%s|%s\n",
+		  i+1, userInfo.name.c_str(),
+		  Utils::sha256(userInfo.password).c_str());
+	}
 	assertDBContent(dbUser.getDBAgent(), statement, expect);
 }
 

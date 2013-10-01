@@ -22,16 +22,33 @@
 
 #include "DBClient.h"
 
+struct UserInfo {
+	int id;
+	string name;
+	string password;
+};
+
 class DBClientUser : public DBClient {
 public:
 	static const int   USER_DB_VERSION;
 	static const char *DEFAULT_DB_NAME;
+	static const char *TABLE_NAME_USERS;
 	static void init(void);
+	static void reset(void);
 
 	DBClientUser(void);
 	virtual ~DBClientUser();
 
+	/**
+	 * Add user information to DB.
+	 *
+	 * @param userInfo
+	 * A UserInfo instance that has parameters to be stored.
+	 */
+	void addUserInfo(UserInfo &userInfo);
+
 protected:
+	string sha256(const string &data);
 
 private:
 	struct PrivateContext;

@@ -22,8 +22,8 @@
 
 const int   DBClientUser::USER_DB_VERSION = 1;
 const char *DBClientUser::DEFAULT_DB_NAME = DBClientConfig::DEFAULT_DB_NAME;
-
-static const char *TABLE_NAME_USERS = "users";
+const char *DBClientUser::TABLE_NAME_USERS = "users";
+static const char *TABLE_NAME_USERS = DBClientUser::TABLE_NAME_USERS;
 
 static const ColumnDef COLUMN_DEF_USERS[] = {
 {
@@ -105,6 +105,12 @@ void DBClientUser::init(void)
 	  DB_DOMAIN_ID_USERS, DEFAULT_DB_NAME, &DB_SETUP_FUNC_ARG);
 }
 
+void DBClientUser::reset(void)
+{
+	DBConnectInfo connInfo = getDBConnectInfo(DB_DOMAIN_ID_USERS);
+	setConnectInfo(DB_DOMAIN_ID_USERS, connInfo);
+}
+
 DBClientUser::DBClientUser(void)
 : DBClient(DB_DOMAIN_ID_USERS),
   m_ctx(NULL)
@@ -116,6 +122,25 @@ DBClientUser::~DBClientUser()
 {
 	if (m_ctx)
 		delete m_ctx;
+}
+
+void DBClientUser::addUserInfo(UserInfo &userInfo)
+{
+	VariableItemGroupPtr row;
+	DBAgentInsertArg arg;
+	arg.tableName = TABLE_NAME_USERS;
+	arg.numColumns = NUM_COLUMNS_USERS;
+	arg.columnDefs = COLUMN_DEF_USERS;
+
+	row->ADD_NEW_ITEM(Int, 0); // This is automaticall set (0 is dummy)
+	row->ADD_NEW_ITEM(String, userInfo.name);
+	row->ADD_NEW_ITEM(String, Utils::sha256(userInfo.password));
+	arg.row = row;
+
+	DBCLIENT_TRANSACTION_BEGIN() {
+		insert(arg);
+		userInfo.id = getLastInsertId();
+	} DBCLIENT_TRANSACTION_END();
 }
 
 // ---------------------------------------------------------------------------
