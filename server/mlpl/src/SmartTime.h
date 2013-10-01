@@ -31,7 +31,7 @@ public:
 		INIT_CURR_TIME,
 	};
 
-	static double getCurrTime(void);
+	static SmartTime getCurrTime(void);
 
 	SmartTime(InitType initType = INIT_NONE);
 	SmartTime(const timespec &ts);
@@ -43,11 +43,11 @@ public:
 	double getAsMSec(void) const;
 
 	SmartTime &operator-=(const SmartTime &rhs);
+	SmartTime &operator=(const SmartTime &rhs);
 
 private:
 	struct PrivateContext;
 	PrivateContext *m_ctx;
-	double m_time;
 };
 
 } // namespace mlpl

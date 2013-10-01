@@ -17,6 +17,7 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <cmath>
 #include <sys/time.h>
 #include <errno.h>
 #include "SmartTime.h"
@@ -25,12 +26,13 @@
 using namespace mlpl;
 
 struct SmartTime::PrivateContext {
-	double time;
+	timespec time;
 
 	// constructor
 	PrivateContext(void)
-	: time(0)
 	{
+		time.tv_sec = 0;
+		time.tv_nsec = 0;
 	}
 };
 
@@ -47,7 +49,7 @@ SmartTime::SmartTime(InitType initType)
 		// nothing to do;
 		break;
 	case INIT_CURR_TIME:
-		m_ctx->time = getCurrTime();
+		*this = getCurrTime();
 		break;
 	default:
 		MLPL_ERR("Unknown initType: %d\n", initType);
@@ -59,8 +61,8 @@ SmartTime::SmartTime(const timespec &ts)
 : m_ctx(NULL)
 {
 	m_ctx = new PrivateContext();
-
-	m_ctx->time = ts.tv_sec + ts.tv_nsec/1.0e9;
+	m_ctx->time.tv_sec  = ts.tv_sec;
+	m_ctx->time.tv_nsec = ts.tv_nsec;
 }
 
 SmartTime::~SmartTime()
@@ -71,37 +73,51 @@ SmartTime::~SmartTime()
 
 void SmartTime::setCurrTime(void)
 {
-	m_ctx->time = getCurrTime();
+	*this = getCurrTime();
 }
 
 void SmartTime::setTime(double time)
 {
-	m_ctx->time = time;
+	double integer;
+	double frac = modf(time, &integer);
+	m_ctx->time.tv_sec = static_cast<time_t>(integer);
+	m_ctx->time.tv_nsec = (frac * 1e9);
 }
 
 double SmartTime::getAsSec(void) const
 {
-	return m_ctx->time;
+	return m_ctx->time.tv_sec + m_ctx->time.tv_nsec/1e9;
 }
 
 double SmartTime::getAsMSec(void) const
 {
-	return m_ctx->time * 1.0e3;
+	return 1e3 * getAsSec();
 }
 
-double SmartTime::getCurrTime(void)
+SmartTime SmartTime::getCurrTime(void)
 {
-	struct timeval tv;
-	if (gettimeofday(&tv, NULL) == -1) {
-		MLPL_ERR("Failed to call gettimeofday(): errno: %d\n", errno);
-		return -1;
+	SmartTime smtime;
+	if (clock_gettime(CLOCK_REALTIME, &smtime.m_ctx->time) == -1) {
+		MLPL_ERR("Failed to call clock_gettime(%d): errno: %d\n",
+		         CLOCK_REALTIME,  errno);
 	}
-	return (tv.tv_sec + tv.tv_usec/1.0e6);
+	return smtime;
 }
 
 SmartTime &SmartTime::operator-=(const SmartTime &rhs)
 {
-	m_ctx->time -= rhs.m_ctx->time;
+	m_ctx->time.tv_sec  -= rhs.m_ctx->time.tv_sec;
+	m_ctx->time.tv_nsec -= rhs.m_ctx->time.tv_nsec;
+	if (m_ctx->time.tv_nsec < 0) {
+		m_ctx->time.tv_sec -= 1;
+		m_ctx->time.tv_nsec += 1e9;
+	}
 	return *this;
 }
 
+SmartTime &SmartTime::operator=(const SmartTime &rhs)
+{
+	m_ctx->time.tv_sec  = rhs.m_ctx->time.tv_sec;
+	m_ctx->time.tv_nsec = rhs.m_ctx->time.tv_nsec;
+	return *this;
+}

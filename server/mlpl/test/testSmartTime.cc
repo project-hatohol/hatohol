@@ -18,11 +18,31 @@
  */
 
 #include <cppcutter.h>
+#include <sys/time.h>
+#include <errno.h>
+#include <cmath>
 #include "SmartTime.h"
 
 using namespace mlpl;
 
 namespace testSmartTime {
+
+// ---------------------------------------------------------------------------
+// Test cases
+// ---------------------------------------------------------------------------
+void test_getCurrTime(void)
+{
+	static const double ALLOWED_ERROR = 1e-3;
+	timeval tv;
+	cppcut_assert_equal(0, gettimeofday(&tv, NULL),
+	                    cut_message("errno: %d", errno)); 
+	SmartTime smtime = SmartTime::getCurrTime();
+	double diff = tv.tv_sec + tv.tv_usec/1e6;
+	diff -= smtime.getAsSec();
+	cppcut_assert_equal(true, fabs(diff) < ALLOWED_ERROR,
+	                    cut_message("smtime: %e, diff: %e",
+	                                smtime.getAsSec(), diff)); 
+}
 
 void test_constructorTimespec(void)
 {
