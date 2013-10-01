@@ -38,7 +38,6 @@ public:
 	virtual ~SmartTime();
 
 	void setCurrTime(void);
-	void setTime(double time);
 	double getAsSec(void) const;
 	double getAsMSec(void) const;
 	const timespec &getAsTimespec(void) const;

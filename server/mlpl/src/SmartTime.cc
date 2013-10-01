@@ -76,14 +76,6 @@ void SmartTime::setCurrTime(void)
 	*this = getCurrTime();
 }
 
-void SmartTime::setTime(double time)
-{
-	double integer;
-	double frac = modf(time, &integer);
-	m_ctx->time.tv_sec = static_cast<time_t>(integer);
-	m_ctx->time.tv_nsec = (frac * 1e9);
-}
-
 double SmartTime::getAsSec(void) const
 {
 	return m_ctx->time.tv_sec + m_ctx->time.tv_nsec/1e9;
