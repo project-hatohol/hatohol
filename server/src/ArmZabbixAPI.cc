@@ -261,13 +261,15 @@ uint64_t ArmZabbixAPI::getLastEventId(void)
 	JsonParserAgent parser(msg->response_body->data);
 	g_object_unref(msg);
 	if (parser.hasError()) {
-		MLPL_ERR("Failed to parser: %s", parser.getErrorMessage());
+		THROW_DATA_STORE_EXCEPTION(
+		  "Failed to parser: %s", parser.getErrorMessage());
 	}
 	startObject(parser, "result");
 	startElement(parser, 0);
 
 	if (!parser.read("eventid", strLastEventId))
-		MLPL_ERR("Failed to read: eventid\n");
+		THROW_DATA_STORE_EXCEPTION("Failed to read: eventid\n");
+
 	lastEventId = atoi(strLastEventId.c_str());
 	MLPL_DBG("LastEventID: %d\n", lastEventId);
 
