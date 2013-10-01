@@ -80,6 +80,13 @@ void test_constructorCurrTime(void)
 	assertCurrentTime(smtime);
 }
 
+void test_setCurrTime(void)
+{
+	SmartTime smtime;
+	smtime.setCurrTime();
+	assertCurrentTime(smtime);
+}
+
 void test_getAsTimespec(void)
 {
 	timespec ts;
