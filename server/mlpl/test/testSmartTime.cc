@@ -18,24 +18,24 @@
  */
 
 #include <cppcutter.h>
-#include "TimeCounter.h"
+#include "SmartTime.h"
 
 using namespace mlpl;
 
-namespace testTimeCounter {
+namespace testSmartTime {
 
 void test_constructorTimespec(void)
 {
 	timespec ts;
 	ts.tv_sec = 1379641056;
 	ts.tv_nsec = 987654321;
-	TimeCounter timeCnt(ts);
+	SmartTime smtime(ts);
 
-	double actual = timeCnt.getAsSec();
+	double actual = smtime.getAsSec();
 	int actualInt = (int)actual;
 	cppcut_assert_equal((int)ts.tv_sec, actualInt);
 	int  actualDecimalPartUsec = (actual - actualInt) * 1e6;
 	cppcut_assert_equal((int)(ts.tv_nsec/1e3), actualDecimalPartUsec);
 }
 
-} // namespace testTimeCounter
+} // namespace testSmartTime

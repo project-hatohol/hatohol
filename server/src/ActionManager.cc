@@ -30,7 +30,7 @@
 #include "MutexLock.h"
 #include "LabelUtils.h"
 #include "ConfigManager.h"
-#include "TimeCounter.h"
+#include "SmartTime.h"
 
 using namespace std;
 using namespace mlpl;
@@ -448,9 +448,9 @@ bool ActionManager::shouldSkipByTime(const EventInfo &eventInfo)
 	if (allowedOldTime == ConfigManager::ALLOW_ACTION_FOR_ALL_OLD_EVENTS)
 		return false;
 
-	TimeCounter eventTimeCounter(eventInfo.time);
-	TimeCounter passedTime(TimeCounter::INIT_CURR_TIME);
-	passedTime -= eventTimeCounter;
+	SmartTime eventTime(eventInfo.time);
+	SmartTime passedTime(SmartTime::INIT_CURR_TIME);
+	passedTime -= eventTime;
 	return passedTime.getAsSec() > allowedOldTime;
 }
 

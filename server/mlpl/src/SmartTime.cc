@@ -19,7 +19,7 @@
 
 #include <sys/time.h>
 #include <errno.h>
-#include "TimeCounter.h"
+#include "SmartTime.h"
 #include "Logger.h"
 
 using namespace mlpl;
@@ -27,7 +27,7 @@ using namespace mlpl;
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
-TimeCounter::TimeCounter(InitType initType)
+SmartTime::SmartTime(InitType initType)
 : m_time(0)
 {
 	switch(initType) {
@@ -43,37 +43,37 @@ TimeCounter::TimeCounter(InitType initType)
 	}
 }
 
-TimeCounter::TimeCounter(const timespec &ts)
+SmartTime::SmartTime(const timespec &ts)
 : m_time(0)
 {
 	m_time = ts.tv_sec + ts.tv_nsec/1.0e9;
 }
 
-TimeCounter::~TimeCounter()
+SmartTime::~SmartTime()
 {
 }
 
-void TimeCounter::setCurrTime(void)
+void SmartTime::setCurrTime(void)
 {
 	m_time = getCurrTime();
 }
 
-void TimeCounter::setTime(double time)
+void SmartTime::setTime(double time)
 {
 	m_time = time;
 }
 
-double TimeCounter::getAsSec(void) const
+double SmartTime::getAsSec(void) const
 {
 	return m_time;
 }
 
-double TimeCounter::getAsMSec(void) const
+double SmartTime::getAsMSec(void) const
 {
 	return m_time * 1.0e3;
 }
 
-double TimeCounter::getCurrTime(void)
+double SmartTime::getCurrTime(void)
 {
 	struct timeval tv;
 	if (gettimeofday(&tv, NULL) == -1) {
@@ -83,7 +83,7 @@ double TimeCounter::getCurrTime(void)
 	return (tv.tv_sec + tv.tv_usec/1.0e6);
 }
 
-TimeCounter &TimeCounter::operator-=(const TimeCounter &rhs)
+SmartTime &SmartTime::operator-=(const SmartTime &rhs)
 {
 	m_time -= rhs.m_time;
 	return *this;

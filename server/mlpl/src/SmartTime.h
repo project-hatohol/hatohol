@@ -17,14 +17,14 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TimeCounter_h
-#define TimeCounter_h
+#ifndef SmartTime_h
+#define SmartTime_h
 
 #include <time.h>
 
 namespace mlpl {
 
-class TimeCounter {
+class SmartTime {
 public:
 	enum InitType {
 		INIT_NONE,
@@ -33,16 +33,16 @@ public:
 
 	static double getCurrTime(void);
 
-	TimeCounter(InitType initType = INIT_NONE);
-	TimeCounter(const timespec &ts);
-	virtual ~TimeCounter();
+	SmartTime(InitType initType = INIT_NONE);
+	SmartTime(const timespec &ts);
+	virtual ~SmartTime();
 
 	void setCurrTime(void);
 	void setTime(double time);
 	double getAsSec(void) const;
 	double getAsMSec(void) const;
 
-	TimeCounter &operator-=(const TimeCounter &rhs);
+	SmartTime &operator-=(const SmartTime &rhs);
 
 private:
 	double m_time;
@@ -50,4 +50,4 @@ private:
 
 } // namespace mlpl
 
-#endif // TimeCounter_h
+#endif // SmartTime_h
