@@ -75,6 +75,12 @@ void test_constructorNone(void)
 	cppcut_assert_equal(0.0, smtime.getAsSec());
 }
 
+void test_constructorNoneExplicit(void)
+{
+	SmartTime smtime(SmartTime::INIT_NONE);
+	cppcut_assert_equal(0.0, smtime.getAsSec());
+}
+
 void test_constructorCurrTime(void)
 {
 	SmartTime smtime(SmartTime::INIT_CURR_TIME);
