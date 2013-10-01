@@ -4,7 +4,7 @@ libmlpl_la_SOURCES = \
 	SmartBuffer.cc Logger.cc StringUtils.cc SmartQueue.cc \
 	ParsableString.cc SmartTime.cc
  
-AM_CXXFLAGS = -Wall -g -O2
+AM_CXXFLAGS = -Wall -g3 -O2
 AM_LDFLAGS = -lpthread -lrt
 
 includedir = $(prefix)/include/mlpl
