@@ -254,13 +254,12 @@ uint64_t ArmZabbixAPI::getLastEventId(void)
 	uint64_t lastEventId = 0;
 	SoupMessage *msg = queryGetLastEventId();
 	if (!msg)
-		THROW_DATA_STORE_EXCEPTION("Failed to query events.");
+		MLPL_ERR("Failed to query eventID.");
 
 	JsonParserAgent parser(msg->response_body->data);
 	g_object_unref(msg);
 	if (parser.hasError()) {
-		THROW_DATA_STORE_EXCEPTION(
-		  "Failed to parser: %s", parser.getErrorMessage());
+		MLPL_ERR("Failed to parser: %s", parser.getErrorMessage());
 	}
 
 	parser.read("eventid", lastEventId);
