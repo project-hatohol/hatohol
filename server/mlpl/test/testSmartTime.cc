@@ -62,20 +62,6 @@ void test_getCurrTime(void)
 	assertCurrentTime(smtime);
 }
 
-void test_constructorTimespec(void)
-{
-	timespec ts;
-	ts.tv_sec = 1379641056;
-	ts.tv_nsec = 987654321;
-	SmartTime smtime(ts);
-
-	double actual = smtime.getAsSec();
-	int actualInt = (int)actual;
-	cppcut_assert_equal((int)ts.tv_sec, actualInt);
-	int  actualDecimalPartUsec = (actual - actualInt) * 1e6;
-	cppcut_assert_equal((int)(ts.tv_nsec/1e3), actualDecimalPartUsec);
-}
-
 void test_constructorNone(void)
 {
 	SmartTime smtime;
