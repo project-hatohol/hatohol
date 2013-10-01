@@ -931,6 +931,7 @@ ItemTablePtr ArmZabbixAPI::updateEvents(void)
 {
 	uint64_t eventIdOffset;
 	uint64_t dbLastEventId = m_ctx->dbClientZabbix.getLastEventId();
+	uint64_t serverLastEventId = getLastEventId();
 	if (dbLastEventId == DBClientZabbix::EVENT_ID_NOT_FOUND)
 		eventIdOffset = 0;
 	else
