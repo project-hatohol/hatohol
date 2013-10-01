@@ -27,6 +27,14 @@ using namespace mlpl;
 
 namespace testSmartTime {
 
+static timespec getSmapleTimespec(void)
+{
+	timespec ts;
+	ts.tv_sec = 1379641056;
+	ts.tv_nsec = 987654321;
+	return ts;
+}
+
 static double getCurrTimeAsSec(void)
 {
 	timeval tv;
@@ -94,6 +102,12 @@ void test_getAsTimespec(void)
 	ts.tv_nsec = 987654321;
 	SmartTime smtime(ts);
 	assertEqualTimespec(ts, smtime.getAsTimespec());
+}
+
+void test_getAsMSec(void)
+{
+	SmartTime smtime(getSmapleTimespec());
+	cppcut_assert_equal(1e3*smtime.getAsSec(), smtime.getAsMSec());
 }
 
 } // namespace testSmartTime
