@@ -50,10 +50,10 @@ HatoholActorMailDialog.prototype.createMainElement = function() {
   return div;
 
   function parseCurrentCommand(currCommand) {
-    params = {};
+    var params = {};
     params.toAddr = "";
     params.smtpServer = "";
-    words = currCommand.split(" ");
+    var words = currCommand.split(" ");
     if (words.length < 2)
       return params;
     if (words[0] != "hatohol-actor-mail")
