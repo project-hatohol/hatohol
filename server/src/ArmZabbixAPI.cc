@@ -268,7 +268,9 @@ uint64_t ArmZabbixAPI::getLastEventId(void)
 
 	if (!parser.read("eventid", strLastEventId))
 		MLPL_ERR("Failed to read: eventid\n");
+	lastEventId = atoi(strLastEventId.c_str());
 	MLPL_DBG("LastEventID: %d\n", lastEventId);
+
 	return lastEventId;
 }
 
