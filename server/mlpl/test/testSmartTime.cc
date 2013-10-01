@@ -58,4 +58,10 @@ void test_constructorTimespec(void)
 	cppcut_assert_equal((int)(ts.tv_nsec/1e3), actualDecimalPartUsec);
 }
 
+void test_constructorNone(void)
+{
+	SmartTime smtime;
+	cppcut_assert_equal(0.0, smtime.getAsSec());
+}
+
 } // namespace testSmartTime
