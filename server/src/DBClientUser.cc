@@ -169,12 +169,7 @@ int DBClientUser::getUserId(const string &user, const string &password)
 	string truePasswd = itemPasswd->get();
 
 	// comapare the passwords
-	gchar *sha256passwd = g_compute_checksum_for_string(G_CHECKSUM_SHA256,
-	                                                    password.c_str(),
-	                                                    -1);
-	HATOHOL_ASSERT(sha256passwd, "checksum_type may be wrong.");
-	bool matched = (truePasswd == sha256passwd);
-	g_free(sha256passwd);
+	bool matched = (truePasswd == Utils::sha256(password));
 	if (!matched)
 		return INVALID_USER_ID;
 	return userId;
