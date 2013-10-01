@@ -27,6 +27,25 @@ using namespace mlpl;
 
 namespace testSmartTime {
 
+static double getCurrTimeAsSec(void)
+{
+	timeval tv;
+	cppcut_assert_equal(0, gettimeofday(&tv, NULL),
+	                    cut_message("errno: %d", errno)); 
+	return tv.tv_sec + tv.tv_usec/1e6;
+}
+
+static void _assertCurrentTime(const SmartTime &smtime)
+{
+	static const double ALLOWED_ERROR = 1e-3;
+	double diff = getCurrTimeAsSec();
+	diff -= smtime.getAsSec();
+	cppcut_assert_equal(true, fabs(diff) < ALLOWED_ERROR,
+	                    cut_message("smtime: %e, diff: %e",
+	                                smtime.getAsSec(), diff)); 
+}
+#define assertCurrentTime(SMT) cut_trace(_assertCurrentTime(SMT))
+
 // ---------------------------------------------------------------------------
 // Test cases
 // ---------------------------------------------------------------------------
@@ -62,6 +81,12 @@ void test_constructorNone(void)
 {
 	SmartTime smtime;
 	cppcut_assert_equal(0.0, smtime.getAsSec());
+}
+
+void test_constructorCurrTime(void)
+{
+	SmartTime smtime(SmartTime::INIT_CURR_TIME);
+	assertCurrentTime(smtime);
 }
 
 } // namespace testSmartTime
