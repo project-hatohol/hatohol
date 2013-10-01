@@ -60,7 +60,7 @@ HatoholActorMailDialog.prototype.createMainElement = function() {
       return params;
     // to addr
     params.toAddr = words[1].split("=")[1];
-    // smtp server 
+    // smtp server
     var idx = words.indexOf("--smtp-server");
     if (idx != -1 && words.length > idx + 1)
       params.smtpServer = words[idx + 1];
