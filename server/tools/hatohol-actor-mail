@@ -23,6 +23,7 @@ import urllib
 import urllib2
 import time
 import json
+import argparse
 import hatohol
 from email.MIMEText import MIMEText
 from email.Utils import formatdate
@@ -31,7 +32,76 @@ DEFAULT_SMTP_SERVER = "localhost"
 DEFAULT_FROM_ADDR = "hatohol@localhost"
 DEFAULT_TLS_PORT = 587
 
-def send_tls(params, msg):
+EVENT_TYPE_NAMES = {
+  hatohol.EVENT_TYPE_GOOD:"GOOD",
+  hatohol.EVENT_TYPE_BAD:"BAD"
+}
+
+TRIGGER_STATUS_NAMES = {
+  hatohol.TRIGGER_STATUS_OK:"OK",
+  hatohol.TRIGGER_STATUS_PROBLEM:"PROBLEM"
+}
+
+TRIGGER_SEVERITY_NAMES = {
+  hatohol.TRIGGER_SEVERITY_INFO:"INFO",
+  hatohol.TRIGGER_SEVERITY_WARNING:"WARNING",
+  hatohol.TRIGGER_SEVERITY_ERROR:"ERROR",
+  hatohol.TRIGGER_SEVERITY_CRITICAL:"CRITICAL",
+  hatohol.TRIGGER_SEVERITY_EMERGENCY:"EMERGENCY"
+}
+
+def main():
+  parser = argparse.ArgumentParser(description="",
+                                   formatter_class=argparse.RawTextHelpFormatter)
+  smtp_group = parser.add_argument_group("SMTP Options")
+
+  smtp_group.add_argument("--smtp-server", type=parse_smtp_server_port, dest="smtp_server_port",
+                          metavar="HOSTNAME[:PORT]",
+                          help="SMTP Server HOSTNAME and PORT", default=DEFAULT_SMTP_SERVER)
+  smtp_group.add_argument("--tls", type=str, metavar=("ACCOUNT", "PASSWORD"), dest="tls", nargs=2,
+                          help="Account and password for SMTP AUTH")
+  smtp_group.add_argument("--to-address", required=True, metavar="TO", type=str,
+                          help="A destination email address")
+  hatohol_action_group = parser.add_argument_group("Hatohol action args")
+  help_message  = "action def. ID\n"
+  help_message += "server ID\n"
+  help_message += "host ID\n"
+  help_message += "Timestamp like unixtime.nsec\n"
+  help_message += "event ID\n"
+  help_message += "type (%s)\n" % make_description(EVENT_TYPE_NAMES)
+  help_message += "trigger ID\n"
+  help_message += "trigger status (%s)\n" % make_description(TRIGGER_STATUS_NAMES)
+  help_message += "trigger severity (%s)" % make_description(TRIGGER_SEVERITY_NAMES)
+  hatohol_action_group.add_argument("--hatohol-action-v1", type=str, nargs=9, required=True,
+                                    metavar=("ID", "ID", "ID", "UNIXTIME.NSEC", "ID", "ID", "ID", "STATUS", "SEVERITY"),
+                                    help=help_message)
+  args = parser.parse_args()
+  (args.smtp_server, args.smtp_port) = args.smtp_server_port
+  args = parse_hatohol_action_v1(args)
+
+  # print(args)
+
+  subject = make_subject(args)
+  body = make_body(args)
+
+  params = {
+    "subject": subject,
+    "body": body,
+    "from_address": DEFAULT_FROM_ADDR,
+    "to_address": args.to_address,
+    "smtp_server": args.smtp_server,
+    "use_tls": False
+  }
+  if args.tls:
+    params["use_tls"] = True
+    (params["account"], params["password"]) = args.tls
+    params["port"] = args.smtp_port
+
+  show_summary(params)
+
+  send(params)
+
+def send_tls(params, messsage):
   if "account" not in params:
     error_exit("'account' is not specified");
   if "password" not in params:
@@ -45,21 +115,21 @@ def send_tls(params, msg):
   smtp.starttls()
   smtp.ehlo()
   smtp.login(params["account"], params["password"])
-  smtp.sendmail(params["from_addr"], [params["to_addr"]], msg.as_string())
+  smtp.sendmail(params["from_address"], [params["to_address"]], msgessage.as_string())
   smtp.close()
 
 def send(params):
-  msg = MIMEText(params["body"])
-  msg["Subject"] = params["subject"]
-  msg["From"] = params["from_addr"]
-  msg["To"] = params["to_addr"]
-  msg["Date"] = formatdate()
+  message = MIMEText(params["body"])
+  message["Subject"] = params["subject"]
+  message["From"] = params["from_address"]
+  message["To"] = params["to_address"]
+  message["Date"] = formatdate()
 
   if params["use_tls"]:
-   send_tls(params, msg)
+    send_tls(params, message)
   else:
     smtp = smtplib.SMTP(params["smtp_server"])
-    smtp.sendmail(params["from_addr"], [params["to_addr"]], msg.as_string())
+    smtp.sendmail(params["from_address"], [params["to_address"]], message.as_string())
     smtp.close()
 
 def error_exit(msg, exit_code = 1):
@@ -68,28 +138,6 @@ def error_exit(msg, exit_code = 1):
 
 def warn(msg):
   print "WARNING: " + msg
-
-def print_usage():
-  print("Usage")
-  print("")
-  print("$ hatohol-actor-mail [options] to_address HATOHOL_ACTION_ARGS...")
-  print("")
-  print("options:")
-  print("  --smtp-server SMTP_SERVER")
-  print("  --tls account password")
-  print("")
-  print("HATOHOL_ACTION_ARGS:")
-  print("  --hatohol-action-v1")
-  print("  action def. ID")
-  print("  server ID")
-  print("  host ID")
-  print("  unixTime.nanosec")
-  print("  event ID")
-  print("  type (0: GOOD, 1: BAD)")
-  print("  trigger ID")
-  print("  trigger status (0: OK, 1: PROBLEM)")
-  print("  trigger severity (0: INFO, 1: WARNING, 2: ERROR, 3: CRITICAL, 4: EMERGENCY)")
-  print("")
 
 def make_base_url(topdir, query):
   port = 33194
@@ -168,163 +216,93 @@ def get_trigger_label(server_id, host_id, trigger_id):
   brief = get_element(triggers, "brief", "N/A")
   return brief
 
-def get_next_word(argv, offset=0):
-  if len(argv) < 2 + offset:
-    error_eixt("Not argument for %s" % argv[offset])
-  return argv[offset + 1]
-
-def arg_parser_smtp_server(params, argv):
-  smtp_server = get_next_word(argv)
-  words = smtp_server.split(":");
+def parse_smtp_server_port(server_spec):
+  words = server_spec.split(":")
   if (len(words) > 2):
     error_exit("The given argument for --smtp-server is invalid: %s" % stmp_server)
-  params["smtp_server"] = words[0]
-  if (len(words) >= 2):   
-    params["smtp_port"] = int(words[1])
-  return 1
 
-def arg_parser_tls(params, argv):
-  if len(argv) < 3:
-    error_exit("Options for --tls is missing: %d" % len(argv))
-  params["use_tls"] = True
-  params["account"] = get_next_word(argv)
-  params["password"] = get_next_word(argv, 1)
-  return 2
+  server = words[0]
+  if (len(words) == 2):
+    port = int(words[1])
+  else:
+    port = DEFAULT_TLS_PORT
 
-def parse_time(arg):
-  words = arg.split(".")
+  return (server, port)
+
+def parse_time(timestamp):
+  words = timestamp.split(".")
   if len(words) != 2:
-    error_exit("Invalid string for time: " + arg)
-  return (int(words[0]), int(words[1]))
+    error_exit("Invalid string for time: %s" % timestamp)
+  return map((lambda x: int(x)), words)
 
-def arg_parser_hatohol_actv1(params, argv):
-  NUM_ACTION_ARGS = 10
-  num_action_arg = len(argv)
-  if num_action_arg != NUM_ACTION_ARGS:
-    error_exit("Invalid number of action argument: %d (expect: %d)" %
-               (num_action_arg, NUM_ACTION_ARGS))
-  idx = 1
-  action_id = int(argv[idx])
-  idx += 1
+def parse_hatohol_action_v1(args):
+  (action_id, server_id, host_id, timestamp,
+   event_id, event_type, trigger_id, trigger_status, trigger_severity) = args.hatohol_action_v1
+  args.action_id = int(action_id)
+  args.server_id = int(server_id)
+  args.host_id = int(host_id)
+  (args.time_sec, args.time_nsec) = parse_time(timestamp)
+  args.event_id = int(event_id)
+  args.event_type = int(event_type)
+  args.trigger_id = int(trigger_id)
+  args.trigger_status = int(trigger_status)
+  args.trigger_severity = int(trigger_severity)
 
-  server_id = int(argv[idx])
-  idx += 1
-
-  host_id = int(argv[idx])
-  idx += 1
-
-  (time_sec, time_nsec) = parse_time(argv[idx])
-  idx += 1
-
-  event_id = int(argv[idx])
-  idx += 1
-
-  event_type = int(argv[idx])
-  event_type_names = {
-    hatohol.EVENT_TYPE_GOOD:"GOOD", hatohol.EVENT_TYPE_BAD:"BAD"}
-  if event_type not in event_type_names:
-    warn("Unknown event type: %d" % event_type)
-    event_type_label = "N/A"
+  if args.event_type in EVENT_TYPE_NAMES:
+    args.event_type_label = EVENT_TYPE_NAMES[args.event_type]
   else:
-    event_type_label = event_type_names[event_type]
-  idx += 1
+    warn("Unknown event type: %d" % args.event_type)
+    args.event_type_label = "N/A"
 
-  trigger_id = int(argv[idx])
-  idx += 1
-
-  trigger_status = int(argv[idx])
-  trigger_status_names = {
-    hatohol.TRIGGER_STATUS_OK:"OK", hatohol.TRIGGER_STATUS_PROBLEM:"PROBLEM"}
-  if trigger_status not in trigger_status_names:
-    warn("Unknown trigger status: %d" % trigger_status)
-    trigger_status_label = "N/A"
+  if args.trigger_status in TRIGGER_STATUS_NAMES:
+    args.trigger_status_label = TRIGGER_STATUS_NAMES[args.trigger_status]
   else:
-    trigger_status_label = trigger_status_names[trigger_status]
-  idx += 1
+    warn("Unknown trigger status: %d" % args.trigger_status)
+    args.trigger_status_label = "N/A"
 
-  trigger_severity_names = {
-    hatohol.TRIGGER_SEVERITY_INFO:"INFO",
-    hatohol.TRIGGER_SEVERITY_WARNING:"WARNING",
-    hatohol.TRIGGER_SEVERITY_ERROR:"ERROR",
-    hatohol.TRIGGER_SEVERITY_CRITICAL:"CRITICAL",
-    hatohol.TRIGGER_SEVERITY_EMERGENCY:"EMERGENCY"}
-  trigger_severity = int(argv[idx])
-  if trigger_severity not in trigger_severity_names:
-    warn("Unknown trigger severity: %d" % trigger_severity)
-    trigger_severity_label = "N/A"
+  if args.trigger_severity in TRIGGER_SEVERITY_NAMES:
+    args.trigger_severity_label = TRIGGER_SEVERITY_NAMES[args.trigger_severity]
   else:
-    trigger_severity_label = trigger_severity_names[trigger_severity]
-  idx += 1
+    warn("Unknown trigger severity: %d" % args.trigger_severity)
+    args.trigger_severity_label = "N/A"
 
-  # make a subject
-  subj = "[%s] EventID: %d, Trigger ID: %d" % (trigger_severity_label, event_id, trigger_id)
+  return args
 
-  # make a body
+def make_description(dictionary):
+  return ", ".join(map((lambda x: "%s:%s" % x), dictionary.items()))
+
+def make_subject(args):
+  subject = "[%s] EventID: %d, Trigger ID: %d" % (args.trigger_severity_label, args.event_id, args.trigger_id)
+  return subject
+
+def make_body(args):
+  server_label = get_server_label(args.server_id)
+  host_label = get_host_label(args.server_id, args.host_id)
   body = ""
-  body += "action: %d\n" % action_id
-  body += "server: %d (%s)\n" % (server_id, get_server_label(server_id));
-  body += "host: %d (%s)\n" % (host_id, get_host_label(server_id, host_id));
+  body = ""
+  body += "action: %d\n" % args.action_id
+  body += "server: %d (%s)\n" % (args.server_id, server_label);
+  body += "host: %d (%s)\n" % (args.host_id, host_label);
 
-  time_local_label = time.asctime(time.localtime(time_sec));
-  body += "time: %d.%d (%s)\n" % (time_sec, time_nsec, time_local_label)
+  time_local_label = time.asctime(time.localtime(args.time_sec));
+  body += "time: %d.%d (%s)\n" % (args.time_sec, args.time_nsec, time_local_label)
 
-  body += "event type: %d (%s)\n" % (event_type, event_type_label)
-  body += "event: %d\n" % event_id
-  body += "trigger: %s (%s)\n" % \
-          (trigger_id, get_trigger_label(server_id, host_id, trigger_id))
-  body += "trigger status: %d (%s)\n" % (trigger_status, trigger_status_label)
-  body += "trigger severity: %d (%s)\n" % (trigger_severity, trigger_severity_label)
+  body += "event type: %d (%s)\n" % (args.event_type, args.event_type_label)
+  body += "event: %d\n" % args.event_id
+  trigger_label = get_trigger_label(args.server_id, args.host_id, args.trigger_id)
+  body += "trigger: %s (%s)\n" % (args.trigger_id, trigger_label)
+  body += "trigger status: %d (%s)\n" % (args.trigger_status, args.trigger_status_label)
+  body += "trigger severity: %d (%s)\n" % (args.trigger_severity, args.trigger_severity_label)
+  return body
 
-  params["subject"] = subj
-  params["body"] = body
-  return NUM_ACTION_ARGS - 1
-
-def parse_arg():
-
-  arg_parsers = {"--smtp-server":arg_parser_smtp_server,
-                 "--tls":arg_parser_tls,
-                 "--hatohol-action-v1":arg_parser_hatohol_actv1}
-
-  params = {}
-  params["use_tls"] = False
-  params["smtp_server"] = DEFAULT_SMTP_SERVER
-  params["from_addr"] = DEFAULT_FROM_ADDR
-
-  params["to_addr"] = None
-  params["body"] = ""
-  params["subject"] = None
-
-  idx = 1
-  while idx < len(sys.argv):
-    arg = sys.argv[idx]
-    if arg in arg_parsers:
-      idx += arg_parsers[arg](params, sys.argv[idx:])
-    else:
-      params["to_addr"] = arg
-    idx += 1
-
-  # validateions
-  if not params["to_addr"]:
-    error_exit("Not found: To address")
-
-  if not params["subject"]:
-    error_exit("Not found: subject. You may not pass HATOHOL_ACTION_ARGS")
-
-  # show summary
-  print "TO     : " + params["to_addr"]
-  print "SMTP sv: " + params["smtp_server"]
+def show_summary(params):
+  print "TO         : %s" % params["to_address"]
+  print "SMTP Server: %s" % params["smtp_server"]
   if "smtp_port" in params:
-    print "port   : %d" % params["smtp_port"]
+    print "port       : %d" % params["smtp_port"]
   if "account" in params:
-    print "account: " + params["account"]
-
-  return params
+    print "account    : " + params["account"]
 
 if __name__ == '__main__':
-  if len(sys.argv) == 1:
-    print_usage()
-    sys.exit(1)
-  params = parse_arg()
-  send(params)
-
+  main()
 
