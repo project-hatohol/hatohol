@@ -686,6 +686,13 @@ void ArmZabbixAPI::pushTriggersHostid(JsonParserAgent &parser,
 	parser.endObject();
 }
 
+uint64_t ArmZabbixAPI::convertStrToUint64(const string strData)
+{
+	uint64_t valU64;
+	sscanf(strData.c_str(), "%"PRIu64, &valU64);
+	return valU64;
+}
+
 void ArmZabbixAPI::parseAndPushItemsData
   (JsonParserAgent &parser, VariableItemTablePtr &tablePtr, int index)
 {
