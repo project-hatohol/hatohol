@@ -135,4 +135,13 @@ void test_getUserIdWrongUserPassword(void)
 	cppcut_assert_equal(INVALID_USER_ID, userId);
 }
 
+void test_getUserIdFromEmptyDB(void)
+{
+	const int targetIdx = 1;
+	DBClientUser dbUser;
+	int userId = dbUser.getUserId(testUserInfo[targetIdx].name,
+	                              testUserInfo[targetIdx].password);
+	cppcut_assert_equal(INVALID_USER_ID, userId);
+}
+
 } // namespace testDBClientUser
