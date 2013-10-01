@@ -101,7 +101,7 @@ def main():
 
   send(params)
 
-def send_tls(params, messsage):
+def send_tls(params, message):
   if "account" not in params:
     error_exit("'account' is not specified");
   if "password" not in params:
@@ -115,7 +115,7 @@ def send_tls(params, messsage):
   smtp.starttls()
   smtp.ehlo()
   smtp.login(params["account"], params["password"])
-  smtp.sendmail(params["from_address"], [params["to_address"]], msgessage.as_string())
+  smtp.sendmail(params["from_address"], [params["to_address"]], message.as_string())
   smtp.close()
 
 def send(params):
