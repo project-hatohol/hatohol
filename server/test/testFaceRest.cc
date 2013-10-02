@@ -921,13 +921,7 @@ void test_login(void)
 
 void test_loginFailure(void)
 {
-	setupTestDBUser(true, true);
-	startFaceRest();
-	StringMap query;
-	query["user"] = testUserInfo[1].name;
-	query["password"] = testUserInfo[0].password;
-	string url = "/login";
-	g_parser = getResponseAsJsonParser(url, "cbname", query);
+	assertLogin(testUserInfo[1].name, testUserInfo[0].password);
 	assertValueInParser(g_parser, "result", false);
 }
 
