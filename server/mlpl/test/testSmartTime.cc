@@ -149,4 +149,20 @@ void test_operatorMinusSubstBorrow(void)
 	                    (int)smtime1.getAsTimespec().tv_nsec);
 }
 
+void test_operatorMinusSubstResultMinus(void)
+{
+	timespec ts0 = getSampleTimespec();
+	SmartTime smtime0(ts0);
+
+	static const int DiffSec = 1050;
+	static const int DiffNSec = 237;
+	timespec ts1;
+	ts1.tv_sec = ts0.tv_sec - DiffSec;
+	ts1.tv_nsec = ts0.tv_nsec + DiffNSec;
+	SmartTime smtime1(ts1);
+	smtime1 -= smtime0;
+	cppcut_assert_equal(-DiffSec, (int)smtime1.getAsTimespec().tv_sec);
+	cppcut_assert_equal(DiffNSec, (int)smtime1.getAsTimespec().tv_nsec);
+}
+
 } // namespace testSmartTime
