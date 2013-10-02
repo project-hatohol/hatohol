@@ -35,6 +35,13 @@ struct UserInfo {
 };
 static const int INVALID_USER_ID = -1;
 
+struct AccessInfo {
+	int id;
+	int userId;
+	uint32_t serverId;
+	uint64_t hostGroupId;
+};
+
 class DBClientUser : public DBClient {
 public:
 	static const int   USER_DB_VERSION;
@@ -66,6 +73,14 @@ public:
 	 * Otherwise INVALID_USER_ID is returned.
 	 */
 	int getUserId(const string &user, const string &password);
+
+	/**
+	 * Add an access list element.
+	 *
+	 * @param accessInfo 
+	 * An AccessInfo instance that has parameters to be stored.
+	 */
+	void addAccessInfo(AccessInfo &accessInfo);
 
 protected:
 

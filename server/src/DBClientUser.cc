@@ -260,6 +260,26 @@ int DBClientUser::getUserId(const string &user, const string &password)
 	return userId;
 }
 
+void DBClientUser::addAccessInfo(AccessInfo &accessInfo)
+{
+	VariableItemGroupPtr row;
+	DBAgentInsertArg arg;
+	arg.tableName = TABLE_NAME_ACCESS_LIST;
+	arg.numColumns = NUM_COLUMNS_ACCESS_LIST;
+	arg.columnDefs = COLUMN_DEF_ACCESS_LIST;
+
+	row->ADD_NEW_ITEM(Int, 0); // This is automaticall set (0 is dummy)
+	row->ADD_NEW_ITEM(Int, accessInfo.userId);
+	row->ADD_NEW_ITEM(Int, accessInfo.serverId);
+	row->ADD_NEW_ITEM(Uint64, accessInfo.hostGroupId);
+	arg.row = row;
+
+	DBCLIENT_TRANSACTION_BEGIN() {
+		insert(arg);
+		accessInfo.id = getLastInsertId();
+	} DBCLIENT_TRANSACTION_END();
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------

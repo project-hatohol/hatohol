@@ -42,6 +42,7 @@ enum TriggerSeverityType {
 static const uint32_t ALL_SERVERS = -1;
 static const uint64_t ALL_HOSTS   = -1;
 static const uint64_t ALL_TRIGGERS = -1;
+static const uint64_t ALL_HOST_GROUPS = -1;
 
 struct HostInfo {
 	uint32_t            serverId;

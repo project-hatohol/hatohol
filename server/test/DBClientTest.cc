@@ -274,6 +274,46 @@ UserInfo testUserInfo[] = {
 };
 const size_t NumTestUserInfo = sizeof(testUserInfo) / sizeof(UserInfo);
 
+AccessInfo testAccessInfo[] = {
+{
+	0,                 // id
+	1,                 // userId
+	1,                 // serverId
+	0,                 // hostGroupId
+}, {
+	0,                 // id
+	1,                 // userId
+	1,                 // serverId
+	1,                 // hostGroupId
+}, {
+	0,                 // id
+	2,                 // userId
+	ALL_SERVERS,       // serverId
+	ALL_HOST_GROUPS,   // hostGroupId
+}, {
+	0,                 // id
+	3,                 // userId
+	1,                 // serverId
+	ALL_HOST_GROUPS,   // hostGroupId
+}, {
+	0,                 // id
+	3,                 // userId
+	2,                 // serverId
+	1,                 // hostGroupId
+}, {
+	0,                 // id
+	3,                 // userId
+	2,                 // serverId
+	2,                 // hostGroupId
+}, {
+	0,                 // id
+	3,                 // userId
+	4,                 // serverId
+	1,                 // hostGroupId
+}
+};
+const size_t NumTestAccessInfo = sizeof(testAccessInfo) / sizeof(AccessInfo);
+
 const TriggerInfo &searchTestTriggerInfo(const EventInfo &eventInfo)
 {
 	for (size_t i = 0; i < NumTestTriggerInfo; i++) {

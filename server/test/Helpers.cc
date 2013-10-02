@@ -500,6 +500,13 @@ void loadTestDBUser(void)
 		dbUser.addUserInfo(testUserInfo[i]);
 }
 
+void loadTestDBAccessList(void)
+{
+	DBClientUser dbUser;
+	for (size_t i = 0; i < NumTestAccessInfo; i++)
+		dbUser.addAccessInfo(testAccessInfo[i]);
+}
+
 void setupTestDBUser(bool dbRecreate, bool loadTestData)
 {
 	static const char *TEST_DB_NAME = "test_db_user";

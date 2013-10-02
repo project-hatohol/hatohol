@@ -123,6 +123,7 @@ void setupTestDBAction(bool dbRecreate = true, bool loadTestDat = false);
 void setupTestDBUser(bool dbRecreate = true, bool loadTestDat = false);
 void loadTestDBAction(void);
 void loadTestDBUser(void);
+void loadTestDBAccessList(void);
 string execSQL(DBAgent *agent, const string &statement,
                bool showHeader = false);
 string joinStringVector(const StringVector &strVect, const string &pad = "",

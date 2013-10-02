@@ -112,4 +112,22 @@ void test_getUserIdFromEmptyDB(void)
 	cppcut_assert_equal(INVALID_USER_ID, userId);
 }
 
+void test_addAccessList(void)
+{
+	loadTestDBAccessList();
+	DBClientUser dbUser;
+
+	string statement = "select * from ";
+	statement += DBClientUser::TABLE_NAME_ACCESS_LIST;
+	statement += " ORDER BY id ASC";
+	string expect;
+	for (size_t i = 0; i < NumTestAccessInfo; i++) {
+		const AccessInfo &accessInfo = testAccessInfo[i];
+		expect += StringUtils::sprintf("%zd|%d|%d|%"PRIu64"\n",
+		  i+1, accessInfo.userId,
+		  accessInfo.serverId, accessInfo.hostGroupId);
+	}
+	assertDBContent(dbUser.getDBAgent(), statement, expect);
+}
+
 } // namespace testDBClientUser
