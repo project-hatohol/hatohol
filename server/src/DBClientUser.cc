@@ -268,7 +268,7 @@ void DBClientUser::addAccessInfo(AccessInfo &accessInfo)
 	arg.numColumns = NUM_COLUMNS_ACCESS_LIST;
 	arg.columnDefs = COLUMN_DEF_ACCESS_LIST;
 
-	row->ADD_NEW_ITEM(Int, 0); // This is automaticall set (0 is dummy)
+	row->ADD_NEW_ITEM(Int, 0); // This is automatically set (0 is dummy)
 	row->ADD_NEW_ITEM(Int, accessInfo.userId);
 	row->ADD_NEW_ITEM(Int, accessInfo.serverId);
 	row->ADD_NEW_ITEM(Uint64, accessInfo.hostGroupId);
