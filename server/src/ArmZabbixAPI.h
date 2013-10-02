@@ -28,6 +28,8 @@
 #include "DBClientConfig.h"
 #include "DBClientZabbix.h"
 
+const static uint64_t UNLIMITED = -1;
+
 class ArmZabbixAPI : public ArmBase
 {
 public:
