@@ -89,11 +89,11 @@ struct FaceRest::HandlerArg
 };
 
 typedef map<string, FormatType> FormatTypeMap;
-typedef FormatTypeMap::iterator FormatTypeMapIterator;;
+typedef FormatTypeMap::iterator FormatTypeMapIterator;
 static FormatTypeMap g_formatTypeMap;
 
 typedef map<FormatType, const char *> MimeTypeMap;
-typedef MimeTypeMap::iterator   MimeTypeMapIterator;;
+typedef MimeTypeMap::iterator   MimeTypeMapIterator;
 static MimeTypeMap g_mimeTypeMap;
 
 // Key: session ID, value: user ID
@@ -127,7 +127,7 @@ struct FaceRest::PrivateContext {
 
 	static void removeSessionId(const string &sessionId) {
 		lock.lock();
-		SessionIdMapIterator it = sessionIdMap.find(sessionId);;
+		SessionIdMapIterator it = sessionIdMap.find(sessionId);
 		bool found = it != sessionIdMap.end();
 		if (found)
 			sessionIdMap.erase(it);
