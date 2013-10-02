@@ -983,6 +983,7 @@ void test_logout(void)
 	g_parser = getResponseAsJsonParser(url, "cbname", emptyStringMap,
 	                                   "GET", headers);
 	assertValueInParser(g_parser, "result", true);
+	cppcut_assert_null(TestFaceRest::callGetSessionInfo(sessionId));
 }
 
 } // namespace testFaceRest
