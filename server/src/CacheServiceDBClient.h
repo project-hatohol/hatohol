@@ -26,6 +26,12 @@ class CacheServiceDBClient
 {
 public:
 	static void reset(void);
+
+	/**
+	 * Delete cache for the caller thread.
+	 */
+	static void cleanup(void);
+
 	CacheServiceDBClient(void);
 	virtual ~CacheServiceDBClient();
 	DBClientHatohol *getHatohol(void);

@@ -80,6 +80,20 @@ struct CacheServiceDBClient::PrivateContext {
 			delete it->second;
 		delete dbClientMap;
 	}
+
+	static void cleanup(void)
+	{
+		if (!clientMap)
+			return;
+		lock.lock();
+		DBClientMapSetIterator it = dbClientMapSet.find(clientMap);
+		bool found = (it != dbClientMapSet.end());
+		if (found)
+			dbClientMapSet.erase(it);
+		lock.unlock();
+		HATOHOL_ASSERT(found, "Failed to lookup clientMap.");
+		deleteDBClientMap(clientMap);
+	}
 };
 __thread DBClientMap *CacheServiceDBClient::PrivateContext::clientMap = NULL;
 MutexLock      CacheServiceDBClient::PrivateContext::lock;
@@ -92,6 +106,12 @@ void CacheServiceDBClient::reset(void)
 {
 	PrivateContext::reset();
 }
+
+void CacheServiceDBClient::cleanup(void)
+{
+	PrivateContext::cleanup();
+}
+
 
 CacheServiceDBClient::CacheServiceDBClient(void)
 {
