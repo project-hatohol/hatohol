@@ -429,7 +429,7 @@ static void removeHostIdIfNeeded(ServerIdHostGroupHostIdMap &svIdHostGrpIdMap,
 size_t getNumberOfTestHostsWithStatus(uint32_t serverId, uint64_t hostGroupId,
                                       bool status)
 {
-	ServerIdHostGroupHostIdMap svIdHostGrpIdMap;;
+	ServerIdHostGroupHostIdMap svIdHostGrpIdMap;
 	ServerIdHostGroupHostIdMapIterator svIt;
 	HostGroupHostIdMapIterator         hostIt;
 

@@ -439,7 +439,7 @@ void SQLFromParser::associatePrimaryConditionColumnsEqual
 	int columnIdx0, columnIdx1;
 	if (leftTableCtx->id < rightTableCtx->id) {
 		tableCtx0 = leftTableCtx;
-		tableCtx1 = rightTableCtx;;
+		tableCtx1 = rightTableCtx;
 		columnIdx0 = m_ctx->columnIndexResolver->getIndex
 		               (condColumnsEqual->getLeftTableName(),
 		                condColumnsEqual->getLeftColumnName());
@@ -448,7 +448,7 @@ void SQLFromParser::associatePrimaryConditionColumnsEqual
 		                condColumnsEqual->getRightColumnName());
 	} else {
 		tableCtx0 = rightTableCtx;
-		tableCtx1 = leftTableCtx;;
+		tableCtx1 = leftTableCtx;
 		columnIdx0 = m_ctx->columnIndexResolver->getIndex
 		               (condColumnsEqual->getRightTableName(),
 		                condColumnsEqual->getRightColumnName());
