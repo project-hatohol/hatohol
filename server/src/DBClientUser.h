@@ -40,6 +40,7 @@ public:
 	static const int   USER_DB_VERSION;
 	static const char *DEFAULT_DB_NAME;
 	static const char *TABLE_NAME_USERS;
+	static const char *TABLE_NAME_ACCESS_LIST;
 	static void init(void);
 	static void reset(void);
 

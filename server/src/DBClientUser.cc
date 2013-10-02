@@ -23,7 +23,10 @@
 const int   DBClientUser::USER_DB_VERSION = 1;
 const char *DBClientUser::DEFAULT_DB_NAME = DBClientConfig::DEFAULT_DB_NAME;
 const char *DBClientUser::TABLE_NAME_USERS = "users";
+const char *DBClientUser::TABLE_NAME_ACCESS_LIST = "access_list";
 static const char *TABLE_NAME_USERS = DBClientUser::TABLE_NAME_USERS;
+static const char *TABLE_NAME_ACCESS_LIST =
+  DBClientUser::TABLE_NAME_ACCESS_LIST;
 
 static const ColumnDef COLUMN_DEF_USERS[] = {
 {
@@ -83,6 +86,65 @@ enum {
 	NUM_IDX_USERS,
 };
 
+
+static const ColumnDef COLUMN_DEF_ACCESS_LIST[] = {
+{
+	ITEM_ID_NOT_SET,                   // itemId
+	TABLE_NAME_ACCESS_LIST,            // tableName
+	"id",                              // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	11,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_PRI,                       // keyType
+	SQL_COLUMN_FLAG_AUTO_INC,          // flags
+	NULL,                              // defaultValue
+}, {
+	ITEM_ID_NOT_SET,                   // itemId
+	TABLE_NAME_ACCESS_LIST,            // tableName
+	"user_id",                         // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	11,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_MUL,                       // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}, {
+	ITEM_ID_NOT_SET,                   // itemId
+	TABLE_NAME_ACCESS_LIST,            // tableName
+	"server_id",                       // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	11,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_MUL,                       // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}, {
+	ITEM_ID_NOT_SET,                   // itemId
+	TABLE_NAME_ACCESS_LIST,            // tableName
+	"host_group_id",                   // columnName
+	SQL_COLUMN_TYPE_BIGUINT,           // type
+	20,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_MUL,                       // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}
+};
+static const size_t NUM_COLUMNS_ACCESS_LIST =
+  sizeof(COLUMN_DEF_ACCESS_LIST) / sizeof(ColumnDef);
+
+enum {
+	IDX_ACCESS_LIST_ID,
+	IDX_ACCESS_LIST_USER_ID,
+	IDX_ACCESS_LIST_SERVER_ID,
+	IDX_ACCESS_LIST_HOST_GROUP_ID,
+	NUM_IDX_ACCESS_LIST,
+};
+
 struct DBClientUser::PrivateContext {
 };
 
@@ -97,11 +159,21 @@ void DBClientUser::init(void)
 	  "NUM_IDX_USERS (%d)",
 	  NUM_COLUMNS_USERS, NUM_IDX_USERS);
 
+	HATOHOL_ASSERT(
+	  NUM_COLUMNS_ACCESS_LIST == NUM_IDX_ACCESS_LIST,
+	  "Invalid number of elements: NUM_COLUMNS_ACCESS_LIST (%zd), "
+	  "NUM_IDX_ACCESS_LIST (%d)",
+	  NUM_COLUMNS_ACCESS_LIST, NUM_IDX_ACCESS_LIST);
+
 	static const DBSetupTableInfo DB_TABLE_INFO[] = {
 	{
 		TABLE_NAME_USERS,
 		NUM_COLUMNS_USERS,
 		COLUMN_DEF_USERS,
+	}, {
+		TABLE_NAME_ACCESS_LIST,
+		NUM_COLUMNS_ACCESS_LIST,
+		COLUMN_DEF_ACCESS_LIST,
 	},
 	};
 	static const size_t NUM_TABLE_INFO =
