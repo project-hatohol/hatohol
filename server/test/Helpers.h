@@ -22,6 +22,7 @@
 
 #include <cppcutter.h>
 #include <StringUtils.h>
+#include <SmartTime.h>
 using namespace mlpl;
 
 #include "ItemTable.h"
@@ -98,6 +99,9 @@ cut_trace(_assertDBContent(DB_AGENT, FMT, EXPECT))
 void _assertCreateTable(DBAgent *dbAgent, const string &tableName);
 #define assertCreateTable(DBAGENT,TBL_NAME) \
 cut_trace(_assertCreateTable(DBAGENT,TBL_NAME))
+
+void _assertTimeIsNow(const mlpl::SmartTime &smtime, double allowedError = 1);
+#define assertTimeIsNow(ST, ...) cut_trace(_assertTimeIsNow(ST, ##__VA_ARGS__))
 
 template<typename T> void _assertAddToDB(T *arg, void (*func)(T *))
 {

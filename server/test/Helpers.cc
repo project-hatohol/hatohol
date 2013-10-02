@@ -377,6 +377,16 @@ void _assertCreateTable(DBAgent *dbAgent, const string &tableName)
 	assertExist(tableName, output);
 }
 
+void _assertTimeIsNow(const SmartTime &smtime, double allowedError)
+{
+	SmartTime diff(SmartTime::INIT_CURR_TIME);
+	diff -= smtime;
+	cppcut_assert_equal(
+	  true, diff.getAsSec() < allowedError,
+	  cut_message("time: %e, diff: %e, allowedError: %e",
+	              smtime.getAsSec(), diff.getAsSec(), allowedError));
+}
+
 static bool makeTestDB(MYSQL *mysql, const string &dbName)
 {
 	string query = "CREATE DATABASE ";
