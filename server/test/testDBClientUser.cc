@@ -20,51 +20,18 @@
 #include <cppcutter.h>
 #include <cutter.h>
 
+#include "Helpers.h"
 #include "DBClientUser.h"
+#include "DBClientTest.h"
 #include "Helpers.h"
 #include "Hatohol.h"
 
 namespace testDBClientUser {
 
-static UserInfo testUserInfo[] = {
-{
-	0,                 // id
-	"cheesecake",      // name
-	"CDEF~!@#$%^&*()", // password
-}, {
-	0,                 // id
-	"pineapple",       // name
-	"Po+-\\|}{\":?><", // password
-}, {
-	0,                 // id
-	"m1ffy@v@",        // name
-	"",                // password
-}
-};
-static size_t NumTestUserInfo = sizeof(testUserInfo) / sizeof(UserInfo);
-
-static const char *TEST_DB_NAME = "test_db_user";
-static const char *TEST_DB_USER = "hatohol_test_user";
-static const char *TEST_DB_PASSWORD = ""; // empty: No password is used
-
-static void loadTestDBUser(void)
-{
-	DBClientUser dbUser;
-	for (size_t i = 0; i < NumTestUserInfo; i++)
-		dbUser.addUserInfo(testUserInfo[i]);
-}
-
-static void setupTestDBUsers(bool dbRecreate = true)
-{
-	DBClient::setDefaultDBParams(DB_DOMAIN_ID_USERS, TEST_DB_NAME,
-	                             TEST_DB_USER, TEST_DB_PASSWORD);
-	makeTestMySQLDBIfNeeded(TEST_DB_NAME, dbRecreate);
-}
-
 void cut_setup(void)
 {
 	hatoholInit();
-	setupTestDBUsers();
+	setupTestDBUser();
 }
 
 void cut_teardown(void)

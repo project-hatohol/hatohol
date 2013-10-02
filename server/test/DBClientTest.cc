@@ -254,6 +254,22 @@ ActionDef testActionDef[] = {
 
 const size_t NumTestActionDef = sizeof(testActionDef) / sizeof(ActionDef);
 
+UserInfo testUserInfo[] = {
+{
+	0,                 // id
+	"cheesecake",      // name
+	"CDEF~!@#$%^&*()", // password
+}, {
+	0,                 // id
+	"pineapple",       // name
+	"Po+-\\|}{\":?><", // password
+}, {
+	0,                 // id
+	"m1ffy@v@",        // name
+	"",                // password
+}
+};
+const size_t NumTestUserInfo = sizeof(testUserInfo) / sizeof(UserInfo);
 
 const TriggerInfo &searchTestTriggerInfo(const EventInfo &eventInfo)
 {

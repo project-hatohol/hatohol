@@ -23,6 +23,7 @@
 #include "DBClientConfig.h"
 #include "DBClientHatohol.h"
 #include "DBClientAction.h"
+#include "DBClientUser.h"
 
 typedef set<uint64_t>       HostIdSet;
 typedef HostIdSet::iterator HostIdSetIterator;
@@ -49,6 +50,9 @@ extern size_t NumTestItemInfo;
 
 extern ActionDef testActionDef[];
 extern const size_t NumTestActionDef;
+
+extern UserInfo testUserInfo[];
+extern const size_t NumTestUserInfo;
 
 /**
  * get the test trigger data indexes whose serverId and hostId are 

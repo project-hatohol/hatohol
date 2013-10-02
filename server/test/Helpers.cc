@@ -483,6 +483,25 @@ void setupTestDBAction(bool dbRecreate, bool loadTestData)
 		loadTestDBAction();
 }
 
+void loadTestDBUser(void)
+{
+	DBClientUser dbUser;
+	for (size_t i = 0; i < NumTestUserInfo; i++)
+		dbUser.addUserInfo(testUserInfo[i]);
+}
+
+void setupTestDBUser(bool dbRecreate, bool loadTestData)
+{
+	static const char *TEST_DB_NAME = "test_db_user";
+	static const char *TEST_DB_USER = "hatohol_test_user";
+	static const char *TEST_DB_PASSWORD = ""; // empty: No password is used
+	DBClient::setDefaultDBParams(DB_DOMAIN_ID_USERS, TEST_DB_NAME,
+	                             TEST_DB_USER, TEST_DB_PASSWORD);
+	makeTestMySQLDBIfNeeded(TEST_DB_NAME, dbRecreate);
+	if (loadTestData)
+		loadTestDBUser();
+}
+
 void loadTestDBAction(void)
 {
 	DBClientAction dbAction;
