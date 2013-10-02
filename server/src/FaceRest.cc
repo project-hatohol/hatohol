@@ -88,6 +88,8 @@ struct FaceRest::HandlerArg
 	const char *mimeType;
 	string      id;
 	string      jsonpCallbackName;
+	string      sessionId;
+	int         userId;
 };
 
 typedef map<string, FormatType> FormatTypeMap;
@@ -415,6 +417,27 @@ void FaceRest::launchHandlerInTryBlock
 {
 	RestHandler handler = reinterpret_cast<RestHandler>(user_data);
 	HandlerArg arg;
+
+	const char *sessionId =
+	   soup_message_headers_get_one(msg->request_headers,
+	                                SESSION_ID_HEADER_NAME);
+	if (!sessionId && path != pathForLogin) {
+		// We should return an error. But now, we just set
+		// USER_ID_ADMIN to keep compatiblity until the user privilege
+		// feature is completely implemnted.
+		arg.userId = USER_ID_ADMIN;
+	}
+	else {
+		arg.sessionId = sessionId;
+		PrivateContext::lock.lock();
+		const SessionInfo *sessionInfo = getSessionInfo(sessionId);
+		arg.userId = sessionInfo->userId;
+		PrivateContext::lock.unlock();
+		if (!sessionInfo) {
+			REPLY_ERROR(msg, &arg, "Not found session ID");
+			return;
+		}
+	}
 
 	// We expect URIs  whose style are the following.
 	//
@@ -772,15 +795,7 @@ void FaceRest::handlerLogout
   (SoupServer *server, SoupMessage *msg, const char *path,
    GHashTable *query, SoupClientContext *client, HandlerArg *arg)
 {
-	const char *sessionId =
-	   soup_message_headers_get_one(msg->request_headers,
-	                                SESSION_ID_HEADER_NAME);
-	if (!sessionId) {
-		replyError(msg, arg, "Not found session ID");
-		return;
-	}
-
-	if (!PrivateContext::removeSessionId(sessionId)) {
+	if (!PrivateContext::removeSessionId(arg->sessionId)) {
 		replyError(msg, arg, "Not found session ID");
 		return;
 	}

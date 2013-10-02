@@ -34,6 +34,7 @@ struct UserInfo {
 	uint32_t flags;
 };
 static const int INVALID_USER_ID = -1;
+static const int USER_ID_ADMIN = 0;
 
 struct AccessInfo {
 	int id;
