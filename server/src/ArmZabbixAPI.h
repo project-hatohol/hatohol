@@ -58,7 +58,7 @@ public:
 	ItemTablePtr getHosts(const vector<uint64_t> &hostIdVector);
 
 	ItemTablePtr getApplications(const vector<uint64_t> &appIdVector);
-	ItemTablePtr getEvents(uint64_t eventIdOffset);
+	ItemTablePtr getEvents(uint64_t eventIdOffset, uint64_t eventIdTill);
 	uint64_t getLastEventId(void);
 
 protected:
@@ -85,7 +85,7 @@ protected:
 	SoupMessage *queryItem(void);
 	SoupMessage *queryHost(const vector<uint64_t> &hostIdVector);
 	SoupMessage *queryApplication(const vector<uint64_t> &appIdVector);
-	SoupMessage *queryEvent(uint64_t eventIdOffset);
+	SoupMessage *queryEvent(uint64_t eventIdOffset, uint64_t eventIdTill);
 	SoupMessage *queryGetLastEventId(void);
 	string getInitialJsonRequest(void);
 	bool parseInitialResponse(SoupMessage *msg);

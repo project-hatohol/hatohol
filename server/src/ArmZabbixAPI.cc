@@ -224,9 +224,9 @@ ItemTablePtr ArmZabbixAPI::getApplications(const vector<uint64_t> &appIdVector)
 	return ItemTablePtr(tablePtr);
 }
 
-ItemTablePtr ArmZabbixAPI::getEvents(uint64_t eventIdOffset)
+ItemTablePtr ArmZabbixAPI::getEvents(uint64_t eventIdOffset, uint64_t eventIdTill)
 {
-	SoupMessage *msg = queryEvent(eventIdOffset);
+	SoupMessage *msg = queryEvent(eventIdOffset, eventIdTill);
 	if (!msg)
 		THROW_DATA_STORE_EXCEPTION("Failed to query events.");
 
@@ -459,7 +459,7 @@ SoupMessage *ArmZabbixAPI::queryApplication(const vector<uint64_t> &appIdVector)
 	return queryCommon(agent);
 }
 
-SoupMessage *ArmZabbixAPI::queryEvent(uint64_t eventIdOffset)
+SoupMessage *ArmZabbixAPI::queryEvent(uint64_t eventIdOffset, uint64_t eventIdTill)
 {
 	JsonBuilderAgent agent;
 	agent.startObject();
@@ -468,8 +468,12 @@ SoupMessage *ArmZabbixAPI::queryEvent(uint64_t eventIdOffset)
 
 	agent.startObject("params");
 	agent.add("output", "extend");
-	string eventIdStr = StringUtils::sprintf("%"PRId64, eventIdOffset);
-	agent.add("eventid_from", eventIdStr.c_str());
+	string strEventIdFrom = StringUtils::sprintf("%"PRId64, eventIdOffset);
+	agent.add("eventid_from", strEventIdFrom.c_str());
+	if (eventIdTill != UNLIMITED) {
+		string strEventIdTill = StringUtils::sprintf("%"PRId64, eventIdTill);
+		agent.add("eventid_till", strEventIdTill.c_str());
+	}
 	agent.endObject(); // params
 
 	agent.add("auth", m_ctx->authToken);
@@ -945,7 +949,7 @@ ItemTablePtr ArmZabbixAPI::updateEvents(void)
 		eventIdOffset = 0;
 	else
 		eventIdOffset = dbLastEventId + 1;
-	ItemTablePtr tablePtr = getEvents(eventIdOffset);
+	ItemTablePtr tablePtr = getEvents(eventIdOffset, serverLastEventId);
 	m_ctx->dbClientZabbix.addEventsRaw2_0(tablePtr);
 	return tablePtr;
 }
