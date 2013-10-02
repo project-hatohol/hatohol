@@ -18,38 +18,81 @@
  */
 
 #include <map>
+#include <list>
+#include <MutexLock.h>
 #include "Params.h"
 #include "DBClient.h"
 #include "CacheServiceDBClient.h"
 using namespace std;
+using namespace mlpl;
 
-typedef map<DBDomainId, void *> DBClientMap;
+typedef map<DBDomainId, DBClient *> DBClientMap;
 typedef DBClientMap::iterator   DBClientMapIterator;
 
+typedef set<DBClientMap *>       DBClientMapSet;
+typedef DBClientMapSet::iterator DBClientMapSetIterator;
+
 struct CacheServiceDBClient::PrivateContext {
+	// This lock is for DBClientMapList. clientMap can be accessed w/o
+	// the lock because it is on the thread local storage.
+	static MutexLock lock;
+	static DBClientMapSet dbClientMapSet;
+
 	static __thread DBClientMap *clientMap;
 
-	static void *get(DBDomainId domainId)
+	static DBClient *get(DBDomainId domainId)
 	{
-		if (!clientMap)
+		if (!clientMap) {
 			clientMap = new DBClientMap();
+			lock.lock();
+			dbClientMapSet.insert(clientMap);
+			lock.unlock();
+		}
+
 		DBClientMapIterator it = clientMap->find(domainId);
 		if (it != clientMap->end())
 			return it->second;
-		void *dbClient = NULL;
+		DBClient *dbClient = NULL;
 		if (domainId == DB_DOMAIN_ID_HATOHOL)
 			dbClient = new DBClientHatohol();
 		HATOHOL_ASSERT(dbClient,
 		               "ptr is NULL. domainId: %d\n", domainId);
-		clientMap->insert(pair<DBDomainId, void *>(domainId, dbClient));
+		clientMap->insert(
+		  pair<DBDomainId,DBClient *>(domainId, dbClient));
+
 		return dbClient;
+	}
+
+	static void reset(void)
+	{
+		lock.lock();
+		DBClientMapSetIterator it = dbClientMapSet.begin();
+		for (; it != dbClientMapSet.end(); ++it)
+			deleteDBClientMap(*it);
+		dbClientMapSet.clear();
+		lock.unlock();
+	}
+
+	static void deleteDBClientMap(DBClientMap *dbClientMap)
+	{
+		DBClientMapIterator it = dbClientMap->begin();
+		for (; it != dbClientMap->end(); ++it)
+			delete it->second;
+		delete dbClientMap;
 	}
 };
 __thread DBClientMap *CacheServiceDBClient::PrivateContext::clientMap = NULL;
+MutexLock      CacheServiceDBClient::PrivateContext::lock;
+DBClientMapSet CacheServiceDBClient::PrivateContext::dbClientMapSet;
 
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
+void CacheServiceDBClient::reset(void)
+{
+	PrivateContext::reset();
+}
+
 CacheServiceDBClient::CacheServiceDBClient(void)
 {
 }
@@ -60,6 +103,6 @@ CacheServiceDBClient::~CacheServiceDBClient()
 
 DBClientHatohol *CacheServiceDBClient::getHatohol(void)
 {
-	void *dbHatohol = PrivateContext::get(DB_DOMAIN_ID_HATOHOL);
+	DBClient *dbHatohol = PrivateContext::get(DB_DOMAIN_ID_HATOHOL);
 	return static_cast<DBClientHatohol *>(dbHatohol);
 }

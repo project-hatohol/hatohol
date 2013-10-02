@@ -43,6 +43,7 @@ using namespace mlpl;
 #include "ActorCollector.h"
 #include "DBClientAction.h"
 #include "DBClientUser.h"
+#include "CacheServiceDBClient.h"
 
 static MutexLock mutex;
 static bool initDone = false; 
@@ -89,6 +90,7 @@ static void reset(void)
 	DBClientAction::reset(); // must be after DBClientConfig::reset()
 
 	ActionManager::reset();
+	CacheServiceDBClient::reset();
 }
 
 void hatoholInit(const CommandLineArg *arg)

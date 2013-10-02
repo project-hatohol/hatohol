@@ -25,6 +25,7 @@
 class CacheServiceDBClient
 {
 public:
+	static void reset(void);
 	CacheServiceDBClient(void);
 	virtual ~CacheServiceDBClient();
 	DBClientHatohol *getHatohol(void);
