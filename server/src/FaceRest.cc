@@ -24,6 +24,7 @@
 #include <Logger.h>
 #include <Reaper.h>
 #include <MutexLock.h>
+#include <SmartTime.h>
 using namespace mlpl;
 
 #include <uuid/uuid.h>
@@ -96,16 +97,31 @@ typedef MimeTypeMap::iterator   MimeTypeMapIterator;;
 static MimeTypeMap g_mimeTypeMap;
 
 // Key: session ID, value: user ID
-typedef map<string, int>           SessionIdMap;
-typedef map<string, int>::iterator SessionIdMapIterator;
+struct SessionInfo {
+	int       userId;
+	SmartTime loginTime;
+	SmartTime lastAccessTime;
+
+	// constructor
+	SessionInfo(void)
+	: userId(INVALID_USER_ID),
+	  loginTime(SmartTime::INIT_CURR_TIME),
+	  lastAccessTime(SmartTime::INIT_CURR_TIME)
+	{
+	}
+};
+typedef map<string, SessionInfo *>           SessionIdMap;
+typedef map<string, SessionInfo *>::iterator SessionIdMapIterator;
 
 struct FaceRest::PrivateContext {
 	static MutexLock    lock;
 	static SessionIdMap sessionIdMap;
 
 	static void insertSessionId(const string &sessionId, int userId) {
+		SessionInfo *sessionInfo = new SessionInfo();
+		sessionInfo->userId = userId;
 		lock.lock();
-		sessionIdMap[sessionId] = userId;
+		sessionIdMap[sessionId] = sessionInfo;
 		lock.unlock();
 	}
 };
