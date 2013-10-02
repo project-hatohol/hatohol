@@ -722,7 +722,7 @@ void FaceRest::handlerLogin
 		replyError(msg, arg, "Authentification failed");
 		return;
 	}
-	gchar *password = (gchar *)g_hash_table_lookup(query, "passowrd");
+	gchar *password = (gchar *)g_hash_table_lookup(query, "password");
 	if (!password) {
 		MLPL_INFO("Not found: password");
 		replyError(msg, arg, "Authentification failed");
