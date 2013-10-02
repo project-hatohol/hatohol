@@ -24,7 +24,7 @@
 using namespace std;
 
 typedef map<DBDomainId, void *> DBClientMap;
-typedef DBClientMap::iterator       DBClientMapIterator;
+typedef DBClientMap::iterator   DBClientMapIterator;
 
 struct CacheServiceDBClient::PrivateContext {
 	static __thread DBClientMap *clientMap;
