@@ -259,14 +259,17 @@ UserInfo testUserInfo[] = {
 	0,                 // id
 	"cheesecake",      // name
 	"CDEF~!@#$%^&*()", // password
+	0,                 // flags
 }, {
 	0,                 // id
 	"pineapple",       // name
 	"Po+-\\|}{\":?><", // password
+	USER_FLAG_ADMIN,   // flags
 }, {
 	0,                 // id
 	"m1ffy@v@",        // name
 	"",                // password
+	0,                 // flags
 }
 };
 const size_t NumTestUserInfo = sizeof(testUserInfo) / sizeof(UserInfo);

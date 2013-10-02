@@ -59,6 +59,17 @@ static const ColumnDef COLUMN_DEF_USERS[] = {
 	SQL_KEY_NONE,                      // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
+}, {
+	ITEM_ID_NOT_SET,                   // itemId
+	TABLE_NAME_USERS,                  // tableName
+	"flags",                           // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	11,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
 }
 };
 static const size_t NUM_COLUMNS_USERS =
@@ -68,6 +79,7 @@ enum {
 	IDX_USERS_ID,
 	IDX_USERS_NAME,
 	IDX_USERS_PASSWORD,
+	IDX_USERS_FLAGS,
 	NUM_IDX_USERS,
 };
 
@@ -135,6 +147,7 @@ void DBClientUser::addUserInfo(UserInfo &userInfo)
 	row->ADD_NEW_ITEM(Int, 0); // This is automaticall set (0 is dummy)
 	row->ADD_NEW_ITEM(String, userInfo.name);
 	row->ADD_NEW_ITEM(String, Utils::sha256(userInfo.password));
+	row->ADD_NEW_ITEM(Int, userInfo.flags);
 	arg.row = row;
 
 	DBCLIENT_TRANSACTION_BEGIN() {

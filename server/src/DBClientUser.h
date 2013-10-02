@@ -22,10 +22,16 @@
 
 #include "DBClient.h"
 
+enum
+{
+	USER_FLAG_ADMIN = (1 << 0),
+};
+
 struct UserInfo {
 	int id;
 	string name;
 	string password;
+	uint32_t flags;
 };
 static const int INVALID_USER_ID = -1;
 
