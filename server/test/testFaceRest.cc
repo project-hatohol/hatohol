@@ -911,4 +911,16 @@ void test_login(void)
 	cppcut_assert_equal(false, sessionId.empty());
 }
 
+void test_loginFailure(void)
+{
+	setupTestDBUser(true, true);
+	startFaceRest();
+	StringMap query;
+	query["user"] = testUserInfo[1].name;
+	query["password"] = testUserInfo[0].password;
+	string url = "/login";
+	g_parser = getResponseAsJsonParser(url, "cbname", query);
+	assertValueInParser(g_parser, "result", false);
+}
+
 } // namespace testFaceRest
