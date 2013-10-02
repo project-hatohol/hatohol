@@ -942,15 +942,22 @@ void ArmZabbixAPI::updateHosts(const ItemTable *triggers)
 
 ItemTablePtr ArmZabbixAPI::updateEvents(void)
 {
-	uint64_t eventIdOffset;
+	uint64_t eventIdOffset, eventIdTill;
 	uint64_t dbLastEventId = m_ctx->dbClientZabbix.getLastEventId();
 	uint64_t serverLastEventId = getLastEventId();
-	if (dbLastEventId == DBClientZabbix::EVENT_ID_NOT_FOUND)
-		eventIdOffset = 0;
-	else
-		eventIdOffset = dbLastEventId + 1;
-	ItemTablePtr tablePtr = getEvents(eventIdOffset, serverLastEventId);
-	m_ctx->dbClientZabbix.addEventsRaw2_0(tablePtr);
+	ItemTablePtr tablePtr;
+	do{
+		if (dbLastEventId == DBClientZabbix::EVENT_ID_NOT_FOUND) {
+			eventIdOffset = 0;
+			eventIdTill = 1000;
+		} else {
+			eventIdOffset = dbLastEventId + 1;
+			eventIdTill = dbLastEventId + 1001;
+		}
+		tablePtr = getEvents(eventIdOffset, eventIdTill);
+		m_ctx->dbClientZabbix.addEventsRaw2_0(tablePtr);
+		dbLastEventId = m_ctx->dbClientZabbix.getLastEventId();
+	} while(dbLastEventId != serverLastEventId);
 	return tablePtr;
 }
 
