@@ -99,21 +99,16 @@ typedef MimeTypeMap::iterator   MimeTypeMapIterator;
 static MimeTypeMap g_mimeTypeMap;
 
 // Key: session ID, value: user ID
-struct SessionInfo {
-	int       userId;
-	SmartTime loginTime;
-	SmartTime lastAccessTime;
-
-	// constructor
-	SessionInfo(void)
-	: userId(INVALID_USER_ID),
-	  loginTime(SmartTime::INIT_CURR_TIME),
-	  lastAccessTime(SmartTime::INIT_CURR_TIME)
-	{
-	}
-};
 typedef map<string, SessionInfo *>           SessionIdMap;
 typedef map<string, SessionInfo *>::iterator SessionIdMapIterator;
+
+// constructor
+SessionInfo::SessionInfo(void)
+: userId(INVALID_USER_ID),
+  loginTime(SmartTime::INIT_CURR_TIME),
+  lastAccessTime(SmartTime::INIT_CURR_TIME)
+{
+}
 
 struct FaceRest::PrivateContext {
 	static MutexLock    lock;
@@ -139,6 +134,13 @@ struct FaceRest::PrivateContext {
 			          sessionId.c_str());
 		}
 		return found;
+	}
+
+	static const SessionInfo *getSessionInfo(const string &sessionId) {
+		SessionIdMapIterator it = sessionIdMap.find(sessionId);
+		if (it == sessionIdMap.end())
+			return NULL;
+		return it->second;
 	}
 };
 
@@ -320,6 +322,11 @@ void FaceRest::replyJsonData(JsonBuilderAgent &agent, SoupMessage *msg,
 	soup_message_body_append(msg->response_body, SOUP_MEMORY_COPY,
 	                         response.c_str(), response.size());
 	soup_message_set_status(msg, SOUP_STATUS_OK);
+}
+
+const SessionInfo *FaceRest::getSessionInfo(const string &sessionId)
+{
+	return PrivateContext::getSessionInfo(sessionId);
 }
 
 void FaceRest::parseQueryServerId(GHashTable *query, uint32_t &serverId)

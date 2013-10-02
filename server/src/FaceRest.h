@@ -23,6 +23,16 @@
 #include <libsoup/soup.h>
 #include "FaceBase.h"
 #include "JsonBuilderAgent.h"
+#include "SmartTime.h"
+
+struct SessionInfo {
+	int       userId;
+	mlpl::SmartTime loginTime;
+	mlpl::SmartTime lastAccessTime;
+
+	// constructor
+	SessionInfo(void);
+};
 
 class FaceRest : public FaceBase {
 public:
@@ -50,6 +60,7 @@ protected:
 	static void replyJsonData(JsonBuilderAgent &agent, SoupMessage *msg,
 	                          const string &jsonpCallbackName,
 	                          HandlerArg *arg);
+
 	/**
 	 * Parse 'serverId' query parameter if it exists.
 	 *
@@ -125,6 +136,20 @@ protected:
 	static void handlerDeleteAction
 	  (SoupServer *server, SoupMessage *msg, const char *path,
 	   GHashTable *query, SoupClientContext *client, HandlerArg *arg);
+
+	/**
+	 * Get the SessionInfo instance.
+	 * NOTE: This function doesn't take a lock in it. So you should 
+	 *       take a lock if the other thread may accesses the session
+	 *       information.
+	 *
+	 * @param sessionId A session ID string.
+	 *
+	 * @return
+	 * A pointer to the SesionInfo instance when the session is found.
+	 * Otherwise, NULL is returned.
+	 */
+	static const SessionInfo *getSessionInfo(const string &sessionId);
 
 private:
 	struct PrivateContext;

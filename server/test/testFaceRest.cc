@@ -29,6 +29,14 @@
 
 namespace testFaceRest {
 
+class TestFaceRest : public FaceRest {
+public:
+	static const SessionInfo *callGetSessionInfo(const string &sessionId)
+	{
+		return getSessionInfo(sessionId);
+	}
+};
+
 typedef map<string, string>       StringMap;
 typedef StringMap::iterator       StringMapIterator;
 typedef StringMap::const_iterator StringMapConstIterator;
@@ -919,7 +927,8 @@ void test_deleteAction(void)
 
 void test_login(void)
 {
-	const UserInfo &userInfo = testUserInfo[1];
+	const int targetIdx = 1;
+	const UserInfo &userInfo = testUserInfo[targetIdx];
 	assertLogin(userInfo.name, userInfo.password);
 	assertValueInParser(g_parser, "apiVersion",
 	                    (uint32_t)FaceRest::API_VERSION);
@@ -927,6 +936,13 @@ void test_login(void)
 	string sessionId;
 	cppcut_assert_equal(true, g_parser->read("sessionId", sessionId));
 	cppcut_assert_equal(false, sessionId.empty());
+
+	const SessionInfo *sessionInfo =
+	  TestFaceRest::callGetSessionInfo(sessionId);
+	cppcut_assert_not_null(sessionInfo);
+	cppcut_assert_equal(targetIdx + 1, sessionInfo->userId);
+	assertTimeIsNow(sessionInfo->loginTime);
+	assertTimeIsNow(sessionInfo->lastAccessTime);
 }
 
 void test_loginFailure(void)
