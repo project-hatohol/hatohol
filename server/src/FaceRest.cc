@@ -124,6 +124,19 @@ struct FaceRest::PrivateContext {
 		sessionIdMap[sessionId] = sessionInfo;
 		lock.unlock();
 	}
+
+	static void removeSessionId(const string &sessionId) {
+		lock.lock();
+		SessionIdMapIterator it = sessionIdMap.find(sessionId);;
+		bool found = it != sessionIdMap.end();
+		if (found)
+			sessionIdMap.erase(it);
+		lock.unlock();
+		if (!found) {
+			MLPL_WARN("Failed to erase session ID: %s\n",
+			          sessionId.c_str());
+		}
+	}
 };
 
 MutexLock    FaceRest::PrivateContext::lock;
