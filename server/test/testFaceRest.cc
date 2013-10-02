@@ -559,6 +559,20 @@ void _assertAddActionError(const StringMap &params)
 }
 #define assertAddActionError(P) cut_trace(_assertAddActionError(P))
 
+void _assertLogin(const string &user, const string &password)
+{
+	setupTestDBUser(true, true);
+	startFaceRest();
+	StringMap query;
+	if (!user.empty())
+		query["user"] = user;
+	if (!password.empty())
+		query["password"] = password;
+	string url = "/login";
+	g_parser = getResponseAsJsonParser(url, "cbname", query);
+}
+#define assertLogin(U,P) cut_trace(_assertLogin(U,P))
+
 static void setupPostAction(void)
 {
 	bool recreate = true;
@@ -895,14 +909,8 @@ void test_deleteAction(void)
 
 void test_login(void)
 {
-	setupTestDBUser(true, true);
-	startFaceRest();
-	StringMap query;
 	const UserInfo &userInfo = testUserInfo[1];
-	query["user"] = userInfo.name;
-	query["password"] = userInfo.password;
-	string url = "/login";
-	g_parser = getResponseAsJsonParser(url, "cbname", query);
+	assertLogin(userInfo.name, userInfo.password);
 	assertValueInParser(g_parser, "apiVersion",
 	                    (uint32_t)FaceRest::API_VERSION);
 	assertValueInParser(g_parser, "result", true);
