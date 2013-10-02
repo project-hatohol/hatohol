@@ -211,7 +211,7 @@ gpointer FaceRest::mainThread(HatoholThreadArg *arg)
 	                        (gpointer)handlerHelloPage, NULL);
 	soup_server_add_handler(m_soupServer, pathForLogin,
 	                        launchHandlerInTryBlock,
-	                        NULL, NULL);
+	                        (gpointer)handlerLogin, NULL);
 	soup_server_add_handler(m_soupServer, pathForGetOverview,
 	                        launchHandlerInTryBlock,
 	                        (gpointer)handlerGetOverview, NULL);

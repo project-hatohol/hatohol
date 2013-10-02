@@ -893,4 +893,22 @@ void test_deleteAction(void)
 	assertDBContent(dbAction.getDBAgent(), statement, expect);
 }
 
+void test_login(void)
+{
+	setupTestDBUser(true, true);
+	startFaceRest();
+	StringMap query;
+	const UserInfo &userInfo = testUserInfo[1];
+	query["user"] = userInfo.name;
+	query["password"] = userInfo.password;
+	string url = "/login";
+	g_parser = getResponseAsJsonParser(url, "cbname", query);
+	assertValueInParser(g_parser, "apiVersion",
+	                    (uint32_t)FaceRest::API_VERSION);
+	assertValueInParser(g_parser, "result", true);
+	string sessionId;
+	cppcut_assert_equal(true, g_parser->read("sessionId", sessionId));
+	cppcut_assert_equal(false, sessionId.empty());
+}
+
 } // namespace testFaceRest
