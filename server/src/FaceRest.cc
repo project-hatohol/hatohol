@@ -914,7 +914,7 @@ void FaceRest::handlerGetEvent
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 
 	EventInfoList eventList;
-	dataStore->getEventList(eventList);
+	dataStore->getEventList(eventList, arg->userId);
 
 	JsonBuilderAgent agent;
 	agent.startObject();
