@@ -931,4 +931,10 @@ void test_loginNoUserName(void)
 	assertValueInParser(g_parser, "result", false);
 }
 
+void test_loginNoPassword(void)
+{
+	assertLogin(testUserInfo[0].name, "");
+	assertValueInParser(g_parser, "result", false);
+}
+
 } // namespace testFaceRest
