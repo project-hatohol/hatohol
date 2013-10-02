@@ -27,6 +27,7 @@
 class FaceRest : public FaceBase {
 public:
 	static int API_VERSION;
+	static const char *SESSION_ID_HEADER_NAME;
 
 	static void init(void);
 	FaceRest(CommandLineArg &cmdArg);
@@ -90,6 +91,9 @@ protected:
 	static void handlerLogin
 	  (SoupServer *server, SoupMessage *msg, const char *path,
 	   GHashTable *query, SoupClientContext *client, HandlerArg *arg);
+	static void handlerLogout
+	  (SoupServer *server, SoupMessage *msg, const char *path,
+	   GHashTable *query, SoupClientContext *client, HandlerArg *arg);
 	static void handlerGetOverview
 	  (SoupServer *server, SoupMessage *msg, const char *path,
 	   GHashTable *query, SoupClientContext *client, HandlerArg *arg);
@@ -133,6 +137,7 @@ private:
 	  const char *paramName, const char *scanFmt, T &dest, bool *exist);
 
 	static const char *pathForLogin;
+	static const char *pathForLogout;
 	static const char *pathForGetOverview;
 	static const char *pathForGetServer;
 	static const char *pathForGetHost;

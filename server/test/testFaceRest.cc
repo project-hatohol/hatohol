@@ -38,6 +38,7 @@ static const char *TEST_DB_CONFIG_NAME = "test_db_config";
 static const char *TEST_DB_HATOHOL_NAME = "testDatabase-hatohol.db";
 
 static StringMap    emptyStringMap;
+static StringVector emptyStringVector;
 static FaceRest *g_faceRest = NULL;
 static JsonParserAgent *g_parser = NULL;
 
@@ -98,7 +99,8 @@ static string makeQueryStringForCurlPost(const StringMap &parameters,
 static JsonParserAgent *getResponseAsJsonParser(
   const string &url, const string &callbackName = "",
   const StringMap &parameters = emptyStringMap,
-  const string &request = "GET")
+  const string &request = "GET",
+  const StringVector &headersVect = emptyStringVector)
 {
 	// make encoded query parameters
 	string joinedQueryParams;
@@ -112,11 +114,19 @@ static JsonParserAgent *getResponseAsJsonParser(
 			joinedQueryParams = "?" + joinedQueryParams;
 	}
 
+	// headers
+	string headers;
+	for (size_t i = 0; i < headersVect.size(); i++) {
+		headers += "-H \"";
+		headers += headersVect[i];
+		headers += "\" ";
+	}
+
 	// get reply with wget
 	string getCmd =
-	  StringUtils::sprintf("curl -X %s %s http://localhost:%u%s%s",
-	                       request.c_str(), postDataArg.c_str(),
-	                       TEST_PORT, url.c_str(),
+	  StringUtils::sprintf("curl -X %s %s %s http://localhost:%u%s%s",
+	                       request.c_str(), headers.c_str(),
+	                       postDataArg.c_str(), TEST_PORT, url.c_str(),
 	                       joinedQueryParams.c_str());
 	string response = executeCommand(getCmd);
 
@@ -941,6 +951,22 @@ void test_loginNoUserNameAndPassword(void)
 {
 	assertLogin("", "");
 	assertValueInParser(g_parser, "result", false);
+}
+
+void test_logout(void)
+{
+	test_login();
+	string sessionId;
+	cppcut_assert_equal(true, g_parser->read("sessionId", sessionId));
+	delete g_parser;
+	string url = "/logout";
+	StringVector headers;
+	headers.push_back(
+	  StringUtils::sprintf("%s:%s", FaceRest::SESSION_ID_HEADER_NAME,
+	                                sessionId.c_str()));
+	g_parser = getResponseAsJsonParser(url, "cbname", emptyStringMap,
+	                                   "GET", headers);
+	assertValueInParser(g_parser, "result", true);
 }
 
 } // namespace testFaceRest

@@ -37,6 +37,7 @@ using namespace mlpl;
 #include "DBClientUser.h"
 
 int FaceRest::API_VERSION = 2;
+const char *FaceRest::SESSION_ID_HEADER_NAME = "X-Hatohol-Session";
 
 typedef void (*RestHandler)
   (SoupServer *server, SoupMessage *msg, const char *path,
@@ -54,6 +55,7 @@ typedef map<ServerID, TriggerBriefMap> TriggerBriefMaps;
 static const guint DEFAULT_PORT = 33194;
 
 const char *FaceRest::pathForLogin       = "/login";
+const char *FaceRest::pathForLogout      = "/logout";
 const char *FaceRest::pathForGetOverview = "/overview";
 const char *FaceRest::pathForGetServer   = "/server";
 const char *FaceRest::pathForGetHost     = "/host";
@@ -125,7 +127,7 @@ struct FaceRest::PrivateContext {
 		lock.unlock();
 	}
 
-	static void removeSessionId(const string &sessionId) {
+	static bool removeSessionId(const string &sessionId) {
 		lock.lock();
 		SessionIdMapIterator it = sessionIdMap.find(sessionId);
 		bool found = it != sessionIdMap.end();
@@ -136,6 +138,7 @@ struct FaceRest::PrivateContext {
 			MLPL_WARN("Failed to erase session ID: %s\n",
 			          sessionId.c_str());
 		}
+		return found;
 	}
 };
 
@@ -212,6 +215,9 @@ gpointer FaceRest::mainThread(HatoholThreadArg *arg)
 	soup_server_add_handler(m_soupServer, pathForLogin,
 	                        launchHandlerInTryBlock,
 	                        (gpointer)handlerLogin, NULL);
+	soup_server_add_handler(m_soupServer, pathForLogout,
+	                        launchHandlerInTryBlock,
+	                        (gpointer)handlerLogout, NULL);
 	soup_server_add_handler(m_soupServer, pathForGetOverview,
 	                        launchHandlerInTryBlock,
 	                        (gpointer)handlerGetOverview, NULL);
@@ -750,6 +756,32 @@ void FaceRest::handlerLogin
 	agent.add("apiVersion", API_VERSION);
 	agent.addTrue("result");
 	agent.add("sessionId", sessionId);
+	agent.endObject();
+
+	replyJsonData(agent, msg, arg->jsonpCallbackName, arg);
+}
+
+void FaceRest::handlerLogout
+  (SoupServer *server, SoupMessage *msg, const char *path,
+   GHashTable *query, SoupClientContext *client, HandlerArg *arg)
+{
+	const char *sessionId =
+	   soup_message_headers_get_one(msg->request_headers,
+	                                SESSION_ID_HEADER_NAME);
+	if (!sessionId) {
+		replyError(msg, arg, "Not found session ID");
+		return;
+	}
+
+	if (!PrivateContext::removeSessionId(sessionId)) {
+		replyError(msg, arg, "Not found session ID");
+		return;
+	}
+
+	JsonBuilderAgent agent;
+	agent.startObject();
+	agent.add("apiVersion", API_VERSION);
+	agent.addTrue("result");
 	agent.endObject();
 
 	replyJsonData(agent, msg, arg->jsonpCallbackName, arg);
