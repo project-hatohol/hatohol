@@ -946,7 +946,7 @@ ItemTablePtr ArmZabbixAPI::updateEvents(void)
 	uint64_t dbLastEventId = m_ctx->dbClientZabbix.getLastEventId();
 	uint64_t serverLastEventId = getLastEventId();
 	ItemTablePtr tablePtr;
-	do{
+	while (dbLastEventId != serverLastEventId) {
 		if (dbLastEventId == DBClientZabbix::EVENT_ID_NOT_FOUND) {
 			eventIdOffset = 0;
 			eventIdTill = 1000;
@@ -957,7 +957,7 @@ ItemTablePtr ArmZabbixAPI::updateEvents(void)
 		tablePtr = getEvents(eventIdOffset, eventIdTill);
 		m_ctx->dbClientZabbix.addEventsRaw2_0(tablePtr);
 		dbLastEventId = m_ctx->dbClientZabbix.getLastEventId();
-	} while(dbLastEventId != serverLastEventId);
+	}
 	return tablePtr;
 }
 
