@@ -742,7 +742,7 @@ void test_addActionParamterFull(void)
 	uint64_t hostId = 50;
 	uint64_t hostGroupId = 1000;
 	uint64_t triggerId = 333;
-	int triggerStatus = TRIGGER_STATUS_PROBLEM;;
+	int triggerStatus = TRIGGER_STATUS_PROBLEM;
 	int triggerSeverity = TRIGGER_SEVERITY_CRITICAL;
 	int triggerSeverityCompType = CMP_EQ_GT;
 
