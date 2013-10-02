@@ -421,13 +421,15 @@ void FaceRest::launchHandlerInTryBlock
 	const char *sessionId =
 	   soup_message_headers_get_one(msg->request_headers,
 	                                SESSION_ID_HEADER_NAME);
-	if (!sessionId && path != pathForLogin) {
+	if (!sessionId) {
 		// We should return an error. But now, we just set
 		// USER_ID_ADMIN to keep compatiblity until the user privilege
 		// feature is completely implemnted.
-		arg.userId = USER_ID_ADMIN;
-	}
-	else {
+		if (path != pathForLogin)
+			arg.userId = USER_ID_ADMIN;
+		else
+			arg.userId = INVALID_USER_ID;
+	} else {
 		arg.sessionId = sessionId;
 		PrivateContext::lock.lock();
 		const SessionInfo *sessionInfo = getSessionInfo(sessionId);
