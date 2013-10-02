@@ -104,5 +104,8 @@ CacheServiceDBClient::~CacheServiceDBClient()
 DBClientHatohol *CacheServiceDBClient::getHatohol(void)
 {
 	DBClient *dbHatohol = PrivateContext::get(DB_DOMAIN_ID_HATOHOL);
+	// Here we use static_cast, although this is upcast.
+	// Sub classes other than DBClientHahol is never returned
+	// from the above get() according to the design.
 	return static_cast<DBClientHatohol *>(dbHatohol);
 }
