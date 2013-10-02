@@ -91,7 +91,8 @@ struct CacheServiceDBClient::PrivateContext {
 		if (found)
 			dbClientMapSet.erase(it);
 		lock.unlock();
-		HATOHOL_ASSERT(found, "Failed to lookup clientMap.");
+		HATOHOL_ASSERT(found, "Failed to lookup clientMap: %p.",
+		               clientMap);
 		deleteDBClientMap(clientMap);
 	}
 };
