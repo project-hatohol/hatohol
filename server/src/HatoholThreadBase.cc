@@ -23,6 +23,7 @@
 #include <Logger.h>
 #include <MutexLock.h>
 #include <ReadWriteLock.h>
+#include <Reaper.h>
 using namespace mlpl;
 
 #include <exception>
@@ -31,6 +32,7 @@ using namespace mlpl;
 #include "Utils.h"
 #include "HatoholThreadBase.h"
 #include "HatoholException.h"
+#include "CacheServiceDBClient.h"
 
 struct HatoholThreadBase::PrivateContext {
 	GThread *thread;
@@ -168,8 +170,18 @@ void HatoholThreadBase::doExitCallback(void)
 // ---------------------------------------------------------------------------
 // Private methods
 // ---------------------------------------------------------------------------
+static void callCacheServiceCleanup(void *unused)
+{
+	CacheServiceDBClient::cleanup();
+}
+
 gpointer HatoholThreadBase::threadStarter(gpointer data)
 {
+	// To call CacheServiceDBClient::cleanup() surely when this function
+	// returns, even if it is due to an exception.
+	Reaper<int> cacheServiceCleaner((int *)1, // dummy and not used
+	                                callCacheServiceCleanup);
+
 	gpointer ret = NULL;
 	HatoholThreadArg *arg = static_cast<HatoholThreadArg *>(data);
 	arg->obj->m_ctx->mutexForThreadExit.lock();
