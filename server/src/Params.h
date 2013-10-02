@@ -20,6 +20,8 @@
 #ifndef Params_h
 #define Params_h
 
+#include <stdint.h>
+
 typedef uint32_t DBDomainId;
 
 static const DBDomainId DB_DOMAIN_ID_CONFIG  = 0x0010;
