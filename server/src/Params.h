@@ -20,6 +20,7 @@
 #ifndef Params_h
 #define Params_h
 
+#include <cstdio>
 #include <stdint.h>
 
 typedef uint32_t DBDomainId;
