@@ -147,8 +147,7 @@ enum {
 
 AccessInfoMap::~AccessInfoMap()
 {
-	AccessInfoMapIterator it = begin();
-	for (; it != end(); ++it) {
+	for (AccessInfoMapIterator it = begin(); it != end(); ++it) {
 		AccessInfoHGMap *accessInfoHGMap = it->second;
 		AccessInfoHGMapIterator jt = accessInfoHGMap->begin();
 		for (; jt != accessInfoHGMap->end(); ++jt)
