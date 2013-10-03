@@ -389,7 +389,7 @@ void DBClientUser::getAccessInfoMap(AccessInfoMap &accessInfoMap,
 		AccessInfoHGMapIterator jt =
 		  accessInfoHGMap->find(accessInfo->hostGroupId);
 		if (jt != accessInfoHGMap->end()) {
-			MLPL_WARN("Found duplicated: serverId and hostGroupId: "
+			MLPL_WARN("Found duplicated serverId and hostGroupId: "
 			          "%"PRIu32 ", %" PRIu64"\n",
 			          accessInfo->serverId,
 			          accessInfo->hostGroupId);
