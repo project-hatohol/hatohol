@@ -23,6 +23,7 @@
 #include <list>
 #include "DBClient.h"
 #include "DataQueryOption.h"
+#include "DBClientUser.h"
 
 enum TriggerStatusType {
 	TRIGGER_STATUS_OK,
@@ -209,6 +210,14 @@ protected:
 
 	void getTriggerInfoList(TriggerInfoList &triggerInfoList,
 	                        const string &condition);
+
+	static void appendCondition(string &cond, const string &newCond);
+	static string makeConditionHostGroup(
+	  const AccessInfoHGMap *accessInfoHGMap,
+	  const string &hostGroupIdColumnName);
+	static string makeCondition(const AccessInfoMap &accessInfoMap,
+	                            const string &serverIdColumnName,
+	                            const string &hostGroupIdColumnName);
 
 private:
 	struct PrivateContext;

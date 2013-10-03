@@ -1225,3 +1225,58 @@ void DBClientHatohol::getTriggerInfoList(TriggerInfoList &triggerInfoList,
 	}
 }
 
+void DBClientHatohol::appendCondition(string &cond, const string &newCond)
+{
+	if (cond.empty()) {
+		cond = newCond;
+		return;
+	}
+	cond += " AND ";
+	cond += newCond;
+}
+
+string DBClientHatohol::makeConditionHostGroup(
+  const AccessInfoHGMap *accessInfoHGMap, const string &hostGroupIdColumnName)
+{
+	string hostGrps;
+	AccessInfoHGMapConstIterator it = accessInfoHGMap->begin();
+	size_t commaCnt = accessInfoHGMap->size() - 1;
+	for (; it != accessInfoHGMap->end(); ++it, commaCnt--) {
+		const uint64_t hostGroupId = it->first;
+		if (hostGroupId == ALL_HOST_GROUPS)
+			return "";
+		hostGrps += StringUtils::sprintf("%"PRIu64, hostGroupId);
+		if (commaCnt)
+			hostGrps += ",";
+	}
+	string cond = StringUtils::sprintf(
+	  "%s IN (%s)", hostGroupIdColumnName.c_str(), hostGrps.c_str());
+	return cond;
+}
+
+string DBClientHatohol::makeCondition(const AccessInfoMap &accessInfoMap,
+                                      const string &serverIdColumnName,
+                                      const string &hostGroupIdColumnName)
+{
+	string cond;
+	AccessInfoMapConstIterator it = accessInfoMap.begin();
+	for (; it != accessInfoMap.end(); ++it) {
+		const uint32_t serverId = it->first;
+		if (serverId == ALL_SERVERS)
+			return "";
+		string condSv = StringUtils::sprintf(
+		  "%s=%"PRIu32, serverIdColumnName.c_str(), serverId);
+
+		const AccessInfoHGMap *accessInfoHGMap = it->second;
+		string condHG = makeConditionHostGroup(accessInfoHGMap,
+		                                       hostGroupIdColumnName);
+		if (!condHG.empty()) {
+			string condMix = StringUtils::sprintf(
+			  "(%s AND %s)", condSv.c_str(), condHG.c_str());
+			appendCondition(cond, condMix);
+		} else {
+			appendCondition(cond, condSv);
+		}
+	}
+	return cond;
+}
