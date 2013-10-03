@@ -153,4 +153,15 @@ void test_hasInstanceByThread(void)
 	}
 }
 
+void test_ensureCached(void)
+{
+	test_hasInstanceByThread();
+	for (size_t i = 0; i < g_threads.size(); i++) {
+		TestCacheServiceThread *thr = g_threads[i];
+		DBClientHatohol *prevDBCHatohol = thr->getPrevDBCHatohol();
+		DBClientHatohol *newDBCHatohol = thr->callGetHatohol();
+		cppcut_assert_equal(prevDBCHatohol, newDBCHatohol);
+	}
+}
+
 } // namespace testCacheServiceDBClient
