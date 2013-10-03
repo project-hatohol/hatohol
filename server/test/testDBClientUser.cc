@@ -123,7 +123,8 @@ void test_addAccessList(void)
 	string expect;
 	for (size_t i = 0; i < NumTestAccessInfo; i++) {
 		const AccessInfo &accessInfo = testAccessInfo[i];
-		expect += StringUtils::sprintf("%zd|%d|%d|%"PRIu64"\n",
+		expect += StringUtils::sprintf(
+		  "%zd|%"FMT_USER_ID"|%d|%"PRIu64"\n",
 		  i+1, accessInfo.userId,
 		  accessInfo.serverId, accessInfo.hostGroupId);
 	}
