@@ -31,10 +31,12 @@ public:
 	 * Delete cache for the caller thread.
 	 */
 	static void cleanup(void);
+	static size_t getNumberOfDBClientMaps(void);
 
 	CacheServiceDBClient(void);
 	virtual ~CacheServiceDBClient();
 	DBClientHatohol *getHatohol(void);
+
 private:
 	struct PrivateContext;
 };

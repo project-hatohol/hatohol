@@ -113,6 +113,13 @@ void CacheServiceDBClient::cleanup(void)
 	PrivateContext::cleanup();
 }
 
+size_t CacheServiceDBClient::getNumberOfDBClientMaps(void)
+{
+	PrivateContext::lock.lock();
+	size_t num = PrivateContext::dbClientMapSet.size();
+	PrivateContext::lock.unlock();
+	return num;
+}
 
 CacheServiceDBClient::CacheServiceDBClient(void)
 {

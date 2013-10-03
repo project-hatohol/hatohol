@@ -112,6 +112,14 @@ protected:
 	}
 };
 
+static bool deleteTestCacheServiceThread(TestCacheServiceThread *thr)
+{
+	bool hasError = thr->hasError();
+	thr->stop();
+	delete thr;
+	return !hasError;
+}
+
 static vector<TestCacheServiceThread *> g_threads;
 
 void cut_setup(void)
@@ -124,10 +132,10 @@ void cut_teardown(void)
 	bool hasError = false;
 	for (size_t i = 0; i < g_threads.size(); i++) {
 		TestCacheServiceThread *thr = g_threads[i];
-		if (thr->hasError())
+		if (!thr)
+			continue;
+		if (!deleteTestCacheServiceThread(thr))
 			hasError = true;
-		thr->stop();
-		delete thr;
 	}
 	g_threads.clear();
 	cppcut_assert_equal(false, hasError);
@@ -161,6 +169,23 @@ void test_ensureCached(void)
 		DBClientHatohol *prevDBCHatohol = thr->getPrevDBCHatohol();
 		DBClientHatohol *newDBCHatohol = thr->callGetHatohol();
 		cppcut_assert_equal(prevDBCHatohol, newDBCHatohol);
+	}
+}
+
+void test_cleanupOnThreadExit(void)
+{
+	test_hasInstanceByThread();
+	size_t numCached = CacheServiceDBClient::getNumberOfDBClientMaps();
+	cppcut_assert_equal(g_threads.size(), numCached);
+	for (size_t i = 0; i < g_threads.size(); i++) {
+		TestCacheServiceThread *thr = g_threads[i];
+		bool hasError = deleteTestCacheServiceThread(thr);
+		g_threads[i] = NULL;
+		cppcut_assert_equal(true, hasError);
+		size_t newNumCached = 
+		  CacheServiceDBClient::getNumberOfDBClientMaps();
+		cppcut_assert_equal(numCached - 1, newNumCached);
+		numCached = newNumCached;
 	}
 }
 
