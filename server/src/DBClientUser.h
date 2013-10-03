@@ -54,11 +54,11 @@ struct AccessInfoMap : std::map<uint32_t, AccessInfoHGMap *> {
 typedef AccessInfoMap::iterator               AccessInfoMapIterator;
 typedef AccessInfoMap::const_iterator         AccessInfoMapConstIterator;
 
-typedef std::set<uint64_t>             HostGroupIdSet;
-typedef HostGroupIdSet::iterator       HostGroupIdSetIterator;
-typedef HostGroupIdSet::const_iterator HostGroupIdSetConstIterator;
+typedef std::set<uint64_t>                  HostGroupSet;
+typedef HostGroupSet::iterator              HostGroupSetIterator;
+typedef HostGroupSet::const_iterator        HostGroupSetConstIterator;
 
-typedef std::map<uint32_t, HostGroupIdSet>  ServerHostGrpSetMap;
+typedef std::map<uint32_t, HostGroupSet>    ServerHostGrpSetMap;
 typedef ServerHostGrpSetMap::iterator       ServerHostGrpSetMapIterator;
 typedef ServerHostGrpSetMap::const_iterator ServerHostGrpSetMapConstIterator;
 
