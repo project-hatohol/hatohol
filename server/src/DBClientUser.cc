@@ -389,6 +389,19 @@ void DBClientUser::getAccessInfoMap(AccessInfoMap &accessInfoMap,
 	}
 }
 
+void DBClientUser::freeAccessInfoMap(AccessInfoMap &accessInfoMap)
+{
+	AccessInfoMapIterator it = accessInfoMap.begin();
+	for (; it != accessInfoMap.end(); ++it) {
+		AccessInfoHGMap *accessInfoHGMap = it->second;
+		AccessInfoHGMapIterator jt = accessInfoHGMap->begin();
+		for (; jt != accessInfoHGMap->end(); jt++)
+			delete jt->second;
+		delete accessInfoHGMap;
+	}
+	accessInfoMap.clear();
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
