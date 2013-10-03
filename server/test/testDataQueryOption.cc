@@ -21,6 +21,7 @@
 #include <cutter.h>
 
 #include "DataQueryOption.h"
+#include "DBClientUser.h"
 
 namespace testDataQueryOption {
 
@@ -35,6 +36,12 @@ void cut_teardown(void)
 // ---------------------------------------------------------------------------
 // Test cases
 // ---------------------------------------------------------------------------
+void test_initialValue(void)
+{
+	DataQueryOption opt;
+	cppcut_assert_equal(INVALID_USER_ID, opt.getUserId());
+}
+
 void test_setGetUserId(void)
 {
 	const UserIdType userId = 5;
