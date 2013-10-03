@@ -23,6 +23,7 @@
 #include "Hatohol.h"
 #include "CacheServiceDBClient.h"
 #include "HatoholThreadBase.h"
+#include "Helpers.h"
 
 namespace testCacheServiceDBClient {
 
@@ -125,6 +126,7 @@ static vector<TestCacheServiceThread *> g_threads;
 void cut_setup(void)
 {
 	hatoholInit();
+	setupTestDBUser();
 }
 
 void cut_teardown(void)
@@ -187,6 +189,18 @@ void test_cleanupOnThreadExit(void)
 		cppcut_assert_equal(numCached - 1, newNumCached);
 		numCached = newNumCached;
 	}
+}
+
+void test_getUser(void)
+{
+	CacheServiceDBClient cache;
+	DBClientUser* dbUser = cache.getUser();
+	cppcut_assert_not_null(dbUser);
+	const type_info &expect = typeid(DBClientUser);
+	const type_info &actual = typeid(*dbUser);
+	cppcut_assert_equal(true, expect == actual,
+	                    cut_message("expect: %s, actual: %s\n",
+	                      expect.name(), actual.name()));
 }
 
 } // namespace testCacheServiceDBClient

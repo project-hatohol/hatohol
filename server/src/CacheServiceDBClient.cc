@@ -55,6 +55,8 @@ struct CacheServiceDBClient::PrivateContext {
 		DBClient *dbClient = NULL;
 		if (domainId == DB_DOMAIN_ID_HATOHOL)
 			dbClient = new DBClientHatohol();
+		else if (domainId == DB_DOMAIN_ID_USERS)
+			dbClient = new DBClientUser();
 		HATOHOL_ASSERT(dbClient,
 		               "ptr is NULL. domainId: %d\n", domainId);
 		clientMap->insert(
@@ -137,3 +139,22 @@ DBClientHatohol *CacheServiceDBClient::getHatohol(void)
 	// from the above get() according to the design.
 	return static_cast<DBClientHatohol *>(dbHatohol);
 }
+
+DBClientUser *CacheServiceDBClient::getUser(void)
+{
+	return get<DBClientUser>(DB_DOMAIN_ID_USERS);
+}
+
+// ---------------------------------------------------------------------------
+// Private methods
+// ---------------------------------------------------------------------------
+template <class T>
+T *CacheServiceDBClient::get(DBDomainId domainId)
+{
+	DBClient *dbClient = PrivateContext::get(domainId);
+	// Here we use static_cast, although this is downcast.
+	// Sub class other than that correspoinding to domainId is
+	// never returned from the above get() according to the design.
+	return static_cast<T *>(dbClient);
+}
+

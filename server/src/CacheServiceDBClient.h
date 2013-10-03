@@ -21,6 +21,7 @@
 #define CacheServiceDBClient_h
 
 #include "DBClientHatohol.h"
+#include "DBClientUser.h"
 
 class CacheServiceDBClient
 {
@@ -36,9 +37,12 @@ public:
 	CacheServiceDBClient(void);
 	virtual ~CacheServiceDBClient();
 	DBClientHatohol *getHatohol(void);
+	DBClientUser    *getUser(void);
 
 private:
 	struct PrivateContext;
+
+	template <class T> T *get(DBDomainId domainId);
 };
 
 #endif // CacheServiceDBClient_h
