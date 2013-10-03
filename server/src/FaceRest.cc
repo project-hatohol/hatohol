@@ -454,8 +454,7 @@ void FaceRest::launchHandlerInTryBlock
 		// The POST request contains query parameters in the body
 		// according to application/x-www-form-urlencoded.
 		query = soup_form_decode(msg->request_body->data);
-		postQueryReaper.set(query,
-		                    (ReaperDestroyFunc)g_hash_table_unref);
+		postQueryReaper.set(query, g_hash_table_unref);
 	}
 
 	// a format type

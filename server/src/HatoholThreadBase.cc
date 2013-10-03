@@ -170,7 +170,7 @@ void HatoholThreadBase::doExitCallback(void)
 // ---------------------------------------------------------------------------
 // Private methods
 // ---------------------------------------------------------------------------
-static void callCacheServiceCleanup(void *unused)
+static void callCacheServiceCleanup(int *unused)
 {
 	CacheServiceDBClient::cleanup();
 }
