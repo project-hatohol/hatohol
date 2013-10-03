@@ -26,6 +26,7 @@ LIBS = \
 # Test cases
 testHatohol_la_SOURCES = \
 	testActionExecArgMaker.cc testActionManager.cc \
+	testCacheServiceDBClient.cc \
 	testConfigManager.cc \
 	testHatoholException.cc testSQLProcessorException.cc \
 	testHatoholThreadBase.cc \
