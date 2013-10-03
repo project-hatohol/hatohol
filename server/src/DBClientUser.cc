@@ -145,6 +145,18 @@ enum {
 	NUM_IDX_ACCESS_LIST,
 };
 
+AccessInfoMap::~AccessInfoMap()
+{
+	AccessInfoMapIterator it = begin();
+	for (; it != end(); ++it) {
+		AccessInfoHGMap *accessInfoHGMap = it->second;
+		AccessInfoHGMapIterator jt = accessInfoHGMap->begin();
+		for (; jt != accessInfoHGMap->end(); jt++)
+			delete jt->second;
+		delete accessInfoHGMap;
+	}
+}
+
 struct DBClientUser::PrivateContext {
 };
 
@@ -387,19 +399,6 @@ void DBClientUser::getAccessInfoMap(AccessInfoMap &accessInfoMap,
 		}
 		(*accessInfoHGMap)[accessInfo->hostGroupId] = accessInfo;
 	}
-}
-
-void DBClientUser::freeAccessInfoMap(AccessInfoMap &accessInfoMap)
-{
-	AccessInfoMapIterator it = accessInfoMap.begin();
-	for (; it != accessInfoMap.end(); ++it) {
-		AccessInfoHGMap *accessInfoHGMap = it->second;
-		AccessInfoHGMapIterator jt = accessInfoHGMap->begin();
-		for (; jt != accessInfoHGMap->end(); jt++)
-			delete jt->second;
-		delete accessInfoHGMap;
-	}
-	accessInfoMap.clear();
 }
 
 // ---------------------------------------------------------------------------

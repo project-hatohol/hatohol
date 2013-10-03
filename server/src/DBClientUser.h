@@ -48,7 +48,9 @@ typedef std::map<uint64_t, AccessInfo *> AccessInfoHGMap;
 typedef AccessInfoHGMap::iterator        AccessInfoHGMapIterator;
 typedef AccessInfoHGMap::const_iterator  AccessInfoHGMapConstIterator;
 
-typedef std::map<uint32_t, AccessInfoHGMap *> AccessInfoMap;
+struct AccessInfoMap : std::map<uint32_t, AccessInfoHGMap *> {
+	virtual ~AccessInfoMap();
+};
 typedef AccessInfoMap::iterator               AccessInfoMapIterator;;
 typedef AccessInfoMap::const_iterator         AccessInfoMapConstIterator;;
 
@@ -96,20 +98,12 @@ public:
 
 	/**
 	 * Make a map that has the AccessInfo instances for user with userId.
-	 * Note that the caller should free allocataed AccessInfo instances
-	 * in accessInfoMap by freeAccessInfoMap().
 	 *
 	 * @param accessInfoMap An AccessInfoMap instance.
 	 * @param userId a user ID.
 	 */
 	void getAccessInfoMap(AccessInfoMap &accessInfoMap,
 	                      const UserIdType userId);
-	/**
-	 * Free all elements in accessInfoMap.
-	 *
-	 * @param accessInfoMap An AccessInfoMap instance.
-	 */
-	static void freeAccessInfoMap(AccessInfoMap &accessInfoMap);
 
 protected:
 
