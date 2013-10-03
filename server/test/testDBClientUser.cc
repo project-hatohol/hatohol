@@ -221,7 +221,6 @@ void test_getAccessInfoMap(void)
 		dbUser.getAccessInfoMap(accessInfoMap, userId);
 		assertAccessInfoMap(it->second, accessInfoMap);
 	}
-
 }
 
 } // namespace testDBClientUser
