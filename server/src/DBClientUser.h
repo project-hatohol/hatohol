@@ -58,9 +58,9 @@ typedef std::set<uint64_t>             HostGroupIdSet;
 typedef HostGroupIdSet::iterator       HostGroupIdSetIterator;
 typedef HostGroupIdSet::const_iterator HostGroupIdSetConstIterator;
 
-typedef std::map<uint32_t, HostGroupIdSet> AccessServerHGMap;
-typedef AccessServerHGMap::iterator        AccessServerHGMapIterator;
-typedef AccessServerHGMap::const_iterator  AccessServerHGMapConstIterator;
+typedef std::map<uint32_t, HostGroupIdSet>  AccessSrvHostGrpMap;
+typedef AccessSrvHostGrpMap::iterator       AccessSrvHostGrpMapIterator;
+typedef AccessSrvHostGrpMap::const_iterator AccessSrvHostGrpMapConstIterator;
 
 class DBClientUser : public DBClient {
 public:
