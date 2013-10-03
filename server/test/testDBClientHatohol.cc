@@ -123,7 +123,8 @@ static void _assertGetEvents(void)
 {
 	EventInfoList eventInfoList;
 	DBClientHatohol dbHatohol;
-	dbHatohol.getEventInfoList(eventInfoList);
+	DataQueryOption option;
+	dbHatohol.getEventInfoList(eventInfoList, option);
 	cppcut_assert_equal(NumTestEventInfo, eventInfoList.size());
 
 	string expectedText;

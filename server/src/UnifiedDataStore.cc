@@ -212,10 +212,11 @@ void UnifiedDataStore::getTriggerList(TriggerInfoList &triggerList,
 	                             targetHostId, targetTriggerId);
 }
 
-void UnifiedDataStore::getEventList(EventInfoList &eventList, UserIdType userId)
+void UnifiedDataStore::getEventList(EventInfoList &eventList,
+                                    DataQueryOption &option)
 {
 	DBClientHatohol dbHatohol;
-	dbHatohol.getEventInfoList(eventList);
+	dbHatohol.getEventInfoList(eventList, option);
 }
 
 void UnifiedDataStore::getItemList(ItemInfoList &itemList,
