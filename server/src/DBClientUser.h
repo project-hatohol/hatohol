@@ -54,6 +54,14 @@ struct AccessInfoMap : std::map<uint32_t, AccessInfoHGMap *> {
 typedef AccessInfoMap::iterator               AccessInfoMapIterator;
 typedef AccessInfoMap::const_iterator         AccessInfoMapConstIterator;
 
+typedef std::set<uint64_t>             HostGroupIdSet;
+typedef HostGroupIdSet::iterator       HostGroupIdSetIterator;
+typedef HostGroupIdSet::const_iterator HostGroupIdSetConstIterator;
+
+typedef std::map<uint32_t, HostGroupIdSet> AccessServerHGMap;
+typedef AccessServerHGMap::iterator        AccessServerHGMapIterator;
+typedef AccessServerHGMap::const_iterator  AccessServerHGMapConstIterator;
+
 class DBClientUser : public DBClient {
 public:
 	static const int   USER_DB_VERSION;
