@@ -17,22 +17,30 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DataQueryOption_h
-#define DataQueryOption_h
+#include <cppcutter.h>
+#include <cutter.h>
 
-#include "Params.h"
+#include "DataQueryOption.h"
 
-class DataQueryOption {
-public:
-	DataQueryOption(void);
-	~DataQueryOption();
+namespace testDataQueryOption {
 
-	void setUserId(UserIdType userId);
-	UserIdType getUserId(void) const;
+void cut_setup(void)
+{
+}
 
-private:
-	struct PrivateContext;
-	PrivateContext *m_ctx;
-};
+void cut_teardown(void)
+{
+}
 
-#endif // DataQueryOption_h
+// ---------------------------------------------------------------------------
+// Test cases
+// ---------------------------------------------------------------------------
+void test_setGetUserId(void)
+{
+	const UserIdType userId = 5;
+	DataQueryOption opt;
+	opt.setUserId(userId);
+	cppcut_assert_equal(userId, opt.getUserId());
+}
+
+} // namespace testDataQueryOption

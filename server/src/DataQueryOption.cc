@@ -18,9 +18,17 @@
  */
 
 #include <cstdio>
+#include "DBClientUser.h"
 #include "DataQueryOption.h"
 
 struct DataQueryOption::PrivateContext {
+	UserIdType userId;
+
+	// constuctor
+	PrivateContext(void)
+	: userId(INVALID_USER_ID)
+	{
+	}
 };
 
 // ---------------------------------------------------------------------------
@@ -34,4 +42,14 @@ DataQueryOption::DataQueryOption(void)
 
 DataQueryOption::~DataQueryOption()
 {
+}
+
+void DataQueryOption::setUserId(UserIdType userId)
+{
+	m_ctx->userId = userId;
+}
+
+UserIdType DataQueryOption::getUserId(void) const
+{
+	return m_ctx->userId;
 }
