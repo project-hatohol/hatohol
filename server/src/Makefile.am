@@ -14,6 +14,7 @@ libhatohol_la_SOURCES = \
 	Closure.cc Closure.h \
 	CacheServiceDBClient.cc CacheServiceDBClient.h \
 	ConfigManager.cc ConfigManager.h \
+	DataQueryOption.cc DataQueryOption.h \
 	DBAgent.cc DBAgent.h \
 	DBAgentFactory.cc DBAgentFactory.h \
 	DBAgentMySQL.cc DBAgentMySQL.h \
