@@ -121,6 +121,18 @@ static bool deleteTestCacheServiceThread(TestCacheServiceThread *thr)
 	return !hasError;
 }
 
+template<class T>
+static void _assertType(DBClient *dbClient)
+{
+	cppcut_assert_not_null(dbClient);
+	const type_info &expect = typeid(T);
+	const type_info &actual = typeid(*dbClient);
+	cppcut_assert_equal(true, expect == actual,
+	                    cut_message("expect: %s, actual: %s\n",
+	                      expect.name(), actual.name()));
+}
+#define assertType(E,DBC) cut_trace(_assertType<E>(DBC))
+
 static vector<TestCacheServiceThread *> g_threads;
 
 void cut_setup(void)
@@ -194,13 +206,7 @@ void test_cleanupOnThreadExit(void)
 void test_getUser(void)
 {
 	CacheServiceDBClient cache;
-	DBClientUser* dbUser = cache.getUser();
-	cppcut_assert_not_null(dbUser);
-	const type_info &expect = typeid(DBClientUser);
-	const type_info &actual = typeid(*dbUser);
-	cppcut_assert_equal(true, expect == actual,
-	                    cut_message("expect: %s, actual: %s\n",
-	                      expect.name(), actual.name()));
+	assertType(DBClientUser, cache.getUser());
 }
 
 } // namespace testCacheServiceDBClient
