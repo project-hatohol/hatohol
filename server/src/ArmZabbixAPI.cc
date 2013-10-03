@@ -956,6 +956,7 @@ ItemTablePtr ArmZabbixAPI::updateEvents(void)
 		}
 		tablePtr = getEvents(eventIdOffset, eventIdTill);
 		m_ctx->dbClientZabbix.addEventsRaw2_0(tablePtr);
+		makeHatoholEvents(tablePtr);
 		dbLastEventId = m_ctx->dbClientZabbix.getLastEventId();
 	}
 	return tablePtr;
@@ -1088,7 +1089,6 @@ bool ArmZabbixAPI::mainThreadOneProc(void)
 		makeHatoholTriggers();
 
 		ItemTablePtr events = updateEvents();
-		makeHatoholEvents(events);
 
 		if (!getCopyOnDemandEnabled()) {
 			ItemTablePtr items = updateItems();
