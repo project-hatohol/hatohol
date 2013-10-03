@@ -29,28 +29,27 @@ namespace testCacheServiceDBClient {
 class TestCacheServiceThread : public HatoholThreadBase {
 
 	DBClientHatohol *m_dbHatohol;
-	sem_t            m_sem;
+	sem_t            m_requestSem;
+	sem_t            m_completSem;
 	bool             m_hasError;
+	bool             m_exitRequest;
 
 public:
 	TestCacheServiceThread(void)
 	: m_dbHatohol(NULL),
-	  m_hasError(false)
+	  m_hasError(false),
+	  m_exitRequest(false)
 	{
-		cppcut_assert_equal(0, sem_init(&m_sem, 0, 0),
+		cppcut_assert_equal(0, sem_init(&m_requestSem, 0, 0),
+		                    cut_message("errno: %d", errno));
+		cppcut_assert_equal(0, sem_init(&m_completSem, 0, 0),
 		                    cut_message("errno: %d", errno));
 	}
 
 	DBClientHatohol *callGetHatohol(void)
 	{
-		while (true) {
-			int ret = sem_wait(&m_sem);
-			if (ret == -1 && errno == EINTR)
-				continue;
-			if (ret == -1)
-				m_hasError = true;
-			break;
-		}
+		postSem(&m_requestSem);
+		waitSem(&m_completSem);
 		return m_dbHatohol;
 	}
 
@@ -59,14 +58,55 @@ public:
 		return m_hasError;
 	}
 
-protected:
-	virtual gpointer mainThread(HatoholThreadArg *arg)
+	DBClientHatohol *getPrevDBCHatohol(void)
 	{
-		CacheServiceDBClient cache;
-		m_dbHatohol = cache.getHatohol();
-		if (sem_post(&m_sem) != 0) {
+		return m_dbHatohol;
+	}
+
+	virtual void stop(void)
+	{
+		m_exitRequest = true;
+		postSem(&m_requestSem);
+		HatoholThreadBase::stop();
+	}
+
+protected:
+	bool postSem(sem_t *sem)
+	{
+		int ret = sem_post(sem);
+		if (ret == -1) {
 			MLPL_ERR("Failed to call sem_post(): %d\n", errno);
 			m_hasError = true;
+			return false;
+		}
+		return true;
+	}
+
+	void waitSem(sem_t *sem)
+	{
+		while (true) {
+			int ret = sem_wait(sem);
+			if (ret == -1 && errno == EINTR)
+				continue;
+			if (ret == -1) {
+				MLPL_ERR("Failed to call sem_wait(): %d\n",
+				         errno);
+				m_hasError = true;
+			}
+			break;
+		}
+	}
+
+	virtual gpointer mainThread(HatoholThreadArg *arg)
+	{
+		while (true) {
+			waitSem(&m_requestSem);
+			if (m_exitRequest)
+				break;
+			CacheServiceDBClient cache;
+			m_dbHatohol = cache.getHatohol();
+			if (!postSem(&m_completSem))
+				break;
 		}
 		return NULL;
 	}
