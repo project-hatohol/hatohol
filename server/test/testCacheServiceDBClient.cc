@@ -203,6 +203,12 @@ void test_cleanupOnThreadExit(void)
 	}
 }
 
+void test_getHatohol(void)
+{
+	CacheServiceDBClient cache;
+	assertType(DBClientHatohol, cache.getHatohol());
+}
+
 void test_getUser(void)
 {
 	CacheServiceDBClient cache;
