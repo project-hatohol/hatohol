@@ -51,8 +51,8 @@ typedef AccessInfoHGMap::const_iterator  AccessInfoHGMapConstIterator;
 struct AccessInfoMap : std::map<uint32_t, AccessInfoHGMap *> {
 	virtual ~AccessInfoMap();
 };
-typedef AccessInfoMap::iterator               AccessInfoMapIterator;;
-typedef AccessInfoMap::const_iterator         AccessInfoMapConstIterator;;
+typedef AccessInfoMap::iterator               AccessInfoMapIterator;
+typedef AccessInfoMap::const_iterator         AccessInfoMapConstIterator;
 
 class DBClientUser : public DBClient {
 public:
