@@ -28,6 +28,15 @@
 
 namespace testDBClientUser {
 
+static void _assertUserInfo(const UserInfo &expect, const UserInfo &actual)
+{
+	cppcut_assert_equal(expect.id, actual.id);
+	cppcut_assert_equal(expect.name, actual.name);
+	cppcut_assert_equal(Utils::sha256(expect.password), actual.password);
+	cppcut_assert_equal(expect.flags, actual.flags);
+}
+#define assertUserInfo(E,A) cut_trace(_assertUserInfo(E,A))
+
 void cut_setup(void)
 {
 	hatoholInit();
@@ -128,6 +137,20 @@ void test_addAccessList(void)
 		  accessInfo.serverId, accessInfo.hostGroupId);
 	}
 	assertDBContent(dbUser.getDBAgent(), statement, expect);
+}
+
+void test_getUserInfo(void)
+{
+	loadTestDBUser();
+	DBClientUser dbUser;
+
+	const size_t targetIdx = 2;
+	const UserIdType targetUserId = targetIdx + 1;
+	const UserInfo expectUserInfo = testUserInfo[targetIdx];
+	UserInfo userInfo;
+	cppcut_assert_equal(
+	  true, dbUser.getUserInfo(userInfo, targetUserId));
+	assertUserInfo(expectUserInfo, userInfo);
 }
 
 } // namespace testDBClientUser

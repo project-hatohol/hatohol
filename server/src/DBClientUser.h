@@ -83,6 +83,8 @@ public:
 	 */
 	void addAccessInfo(AccessInfo &accessInfo);
 
+	bool getUserInfo(UserInfo &userInfo, UserIdType userId);
+
 protected:
 
 private:
