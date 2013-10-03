@@ -236,7 +236,9 @@ UserIdType DBClientUser::getUserId(const string &user, const string &password)
 	arg.pushColumn(COLUMN_DEF_USERS[IDX_USERS_PASSWORD]);
 	arg.condition = StringUtils::sprintf("%s='%s'",
 	  COLUMN_DEF_USERS[IDX_USERS_NAME].columnName, user.c_str());
-	select(arg);
+	DBCLIENT_TRANSACTION_BEGIN() {
+		select(arg);
+	} DBCLIENT_TRANSACTION_END();
 
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
 	if (grpList.empty())
