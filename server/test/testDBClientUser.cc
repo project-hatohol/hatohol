@@ -58,8 +58,7 @@ void test_createDB(void)
 	string statement = "select * from _dbclient_version";
 	string expect =
 	  StringUtils::sprintf(
-	    "%d|%d\n", DB_DOMAIN_ID_USERS,
-	               DBClientUser::USER_DB_VERSION);
+	    "%d|%d\n", DB_DOMAIN_ID_USERS, DBClientUser::USER_DB_VERSION);
 	assertDBContent(dbUser.getDBAgent(), statement, expect);
 }
 
