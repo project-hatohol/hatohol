@@ -41,7 +41,7 @@ public:
 	                            uint32_t targetServerId = ALL_SERVERS,
 	                            uint64_t targetHostId = ALL_HOSTS,
 	                            uint64_t targetTriggerId = ALL_TRIGGERS);
-	virtual void getEventList(EventInfoList &eventList, int userId);
+	virtual void getEventList(EventInfoList &eventList, UserIdType userId);
 	virtual void getItemList(ItemInfoList &itemList,
 	                         uint32_t targetServerId = ALL_SERVERS);
 	virtual void getHostList(HostInfoList &hostInfoList,

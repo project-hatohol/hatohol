@@ -228,7 +228,7 @@ void DBClientUser::addUserInfo(UserInfo &userInfo)
 	} DBCLIENT_TRANSACTION_END();
 }
 
-int DBClientUser::getUserId(const string &user, const string &password)
+UserIdType DBClientUser::getUserId(const string &user, const string &password)
 {
 	DBAgentSelectExArg arg;
 	arg.tableName = TABLE_NAME_USERS;
@@ -247,7 +247,7 @@ int DBClientUser::getUserId(const string &user, const string &password)
 
 	// user ID
 	DEFINE_AND_ASSERT(itemGroup->getItemAt(idx++), ItemInt, itemUserId);
-	int userId = itemUserId->get();
+	UserIdType userId = itemUserId->get();
 
 	// password
 	DEFINE_AND_ASSERT(itemGroup->getItemAt(idx++), ItemString, itemPasswd);

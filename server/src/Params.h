@@ -37,6 +37,9 @@ static const size_t NUM_MAX_ZABBIX_SERVERS = 100;
 //   to   DB_DOMAIN_ID_ZABBIX + NUM_MAX_ZABBIX_SERVERS - 1
 static const DBDomainId DB_DOMAIN_ID_NONE    = -1;
 
+typedef int UserIdType;
+#define FMT_USER_ID "d"
+
 #endif // Params_h
 
 

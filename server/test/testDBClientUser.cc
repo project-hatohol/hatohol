@@ -88,8 +88,8 @@ void test_getUserId(void)
 	loadTestDBUser();
 	const int targetIdx = 1;
 	DBClientUser dbUser;
-	int userId = dbUser.getUserId(testUserInfo[targetIdx].name,
-	                              testUserInfo[targetIdx].password);
+	UserIdType userId = dbUser.getUserId(testUserInfo[targetIdx].name,
+	                                     testUserInfo[targetIdx].password);
 	cppcut_assert_equal(targetIdx+1, userId);
 }
 
@@ -98,8 +98,8 @@ void test_getUserIdWrongUserPassword(void)
 	loadTestDBUser();
 	const int targetIdx = 1;
 	DBClientUser dbUser;
-	int userId = dbUser.getUserId(testUserInfo[targetIdx-1].name,
-	                              testUserInfo[targetIdx].password);
+	UserIdType userId = dbUser.getUserId(testUserInfo[targetIdx-1].name,
+	                                     testUserInfo[targetIdx].password);
 	cppcut_assert_equal(INVALID_USER_ID, userId);
 }
 
@@ -107,8 +107,8 @@ void test_getUserIdFromEmptyDB(void)
 {
 	const int targetIdx = 1;
 	DBClientUser dbUser;
-	int userId = dbUser.getUserId(testUserInfo[targetIdx].name,
-	                              testUserInfo[targetIdx].password);
+	UserIdType userId = dbUser.getUserId(testUserInfo[targetIdx].name,
+	                                     testUserInfo[targetIdx].password);
 	cppcut_assert_equal(INVALID_USER_ID, userId);
 }
 

@@ -24,9 +24,10 @@
 #include "FaceBase.h"
 #include "JsonBuilderAgent.h"
 #include "SmartTime.h"
+#include "Params.h"
 
 struct SessionInfo {
-	int       userId;
+	UserIdType userId;
 	mlpl::SmartTime loginTime;
 	mlpl::SmartTime lastAccessTime;
 

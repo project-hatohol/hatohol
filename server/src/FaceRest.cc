@@ -89,7 +89,7 @@ struct FaceRest::HandlerArg
 	string      id;
 	string      jsonpCallbackName;
 	string      sessionId;
-	int         userId;
+	UserIdType  userId;
 };
 
 typedef map<string, FormatType> FormatTypeMap;
@@ -116,7 +116,8 @@ struct FaceRest::PrivateContext {
 	static MutexLock    lock;
 	static SessionIdMap sessionIdMap;
 
-	static void insertSessionId(const string &sessionId, int userId) {
+	static void insertSessionId(const string &sessionId, UserIdType userId)
+	{
 		SessionInfo *sessionInfo = new SessionInfo();
 		sessionInfo->userId = userId;
 		lock.lock();
@@ -767,7 +768,7 @@ void FaceRest::handlerLogin
 	}
 
 	DBClientUser dbUser;
-	int userId = dbUser.getUserId(user, password);
+	UserIdType userId = dbUser.getUserId(user, password);
 	if (userId == INVALID_USER_ID) {
 		MLPL_INFO("Failed to authenticate: %s.", user);
 		replyError(msg, arg, "Authentification failed");

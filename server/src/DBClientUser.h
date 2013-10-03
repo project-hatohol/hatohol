@@ -28,17 +28,17 @@ enum
 };
 
 struct UserInfo {
-	int id;
+	UserIdType id;
 	string name;
 	string password;
 	uint32_t flags;
 };
-static const int INVALID_USER_ID = -1;
+static const UserIdType INVALID_USER_ID = -1;
 static const int USER_ID_ADMIN = 0;
 
 struct AccessInfo {
 	int id;
-	int userId;
+	UserIdType userId;
 	uint32_t serverId;
 	uint64_t hostGroupId;
 };
@@ -73,7 +73,7 @@ public:
 	 * A user ID if authentification is successed.
 	 * Otherwise INVALID_USER_ID is returned.
 	 */
-	int getUserId(const string &user, const string &password);
+	UserIdType getUserId(const string &user, const string &password);
 
 	/**
 	 * Add an access list element.
