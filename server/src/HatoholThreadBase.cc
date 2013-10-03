@@ -170,20 +170,26 @@ void HatoholThreadBase::doExitCallback(void)
 // ---------------------------------------------------------------------------
 // Private methods
 // ---------------------------------------------------------------------------
-static void callCacheServiceCleanup(int *unused)
+void HatoholThreadBase::threadCleanup(HatoholThreadArg *arg)
 {
+	arg->obj->doExitCallback();
+	arg->obj->m_ctx->mutexForThreadExit.unlock();
+	if (arg->autoDeleteObject)
+		delete arg->obj;
+	delete arg;
+
 	CacheServiceDBClient::cleanup();
 }
 
 gpointer HatoholThreadBase::threadStarter(gpointer data)
 {
-	// To call CacheServiceDBClient::cleanup() surely when this function
-	// returns, even if it is due to an exception.
-	Reaper<int> cacheServiceCleaner((int *)1, // dummy and not used
-	                                callCacheServiceCleanup);
-
 	gpointer ret = NULL;
 	HatoholThreadArg *arg = static_cast<HatoholThreadArg *>(data);
+
+	// threadCleanup() is called when the this function returns,
+	// even if it is due to an exception.
+	Reaper<HatoholThreadArg> threadCleaner(arg, threadCleanup);
+
 	arg->obj->m_ctx->mutexForThreadExit.lock();
 	try {
 		ret = arg->obj->mainThread(arg);
@@ -195,13 +201,7 @@ gpointer HatoholThreadBase::threadStarter(gpointer data)
 		MLPL_ERR("Got Exception: %s\n", e.what());
 		arg->obj->doExceptionCallback(e);
 	} catch (...) {
-		arg->obj->m_ctx->mutexForThreadExit.unlock();
 		throw;
 	}
-	arg->obj->doExitCallback();
-	arg->obj->m_ctx->mutexForThreadExit.unlock();
-	if (arg->autoDeleteObject)
-		delete arg->obj;
-	delete arg;
 	return ret;
 }
