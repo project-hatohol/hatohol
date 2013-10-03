@@ -72,7 +72,7 @@ public:
 	 */
 	void addUserInfo(UserInfo &userInfo);
 
-	/*
+	/**
 	 * Get the user Id.
 	 *
 	 * @param user A user name.
