@@ -20,6 +20,7 @@
 #ifndef DBClientUser_h
 #define DBClientUser_h
 
+#include <map>
 #include "DBClient.h"
 
 enum
@@ -42,6 +43,14 @@ struct AccessInfo {
 	uint32_t serverId;
 	uint64_t hostGroupId;
 };
+
+typedef std::map<uint64_t, AccessInfo *> AccessInfoHGMap;
+typedef AccessInfoHGMap::iterator        AccessInfoHGMapIterator;
+typedef AccessInfoHGMap::const_iterator  AccessInfoHGMapConstIterator;
+
+typedef std::map<uint32_t, AccessInfoHGMap *> AccessInfoMap;
+typedef AccessInfoMap::iterator               AccessInfoMapIterator;;
+typedef AccessInfoMap::const_iterator         AccessInfoMapConstIterator;;
 
 class DBClientUser : public DBClient {
 public:
@@ -84,6 +93,8 @@ public:
 	void addAccessInfo(AccessInfo &accessInfo);
 
 	bool getUserInfo(UserInfo &userInfo, const UserIdType userId);
+	void getAccessInfoMap(AccessInfoMap &accessInfoMap,
+	                      const UserIdType userId);
 
 protected:
 

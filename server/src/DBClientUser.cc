@@ -323,6 +323,72 @@ bool DBClientUser::getUserInfo(UserInfo &userInfo, const UserIdType userId)
 	return true;
 }
 
+void DBClientUser::getAccessInfoMap(AccessInfoMap &accessInfoMap,
+                                    const UserIdType userId)
+{
+	DBAgentSelectExArg arg;
+	arg.tableName = TABLE_NAME_ACCESS_LIST;
+	arg.pushColumn(COLUMN_DEF_ACCESS_LIST[IDX_ACCESS_LIST_ID]);
+	arg.pushColumn(COLUMN_DEF_ACCESS_LIST[IDX_ACCESS_LIST_USER_ID]);
+	arg.pushColumn(COLUMN_DEF_ACCESS_LIST[IDX_ACCESS_LIST_SERVER_ID]);
+	arg.pushColumn(COLUMN_DEF_ACCESS_LIST[IDX_ACCESS_LIST_HOST_GROUP_ID]);
+	arg.condition = StringUtils::sprintf("%s=%"FMT_USER_ID"",
+	  COLUMN_DEF_ACCESS_LIST[IDX_ACCESS_LIST_USER_ID].columnName, userId);
+	DBCLIENT_TRANSACTION_BEGIN() {
+		select(arg);
+	} DBCLIENT_TRANSACTION_END();
+
+	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
+	ItemGroupListConstIterator it = grpList.begin();
+	for (; it != grpList.end(); ++it) {
+		const ItemGroup *itemGroup = *it;
+		int idx = 0;
+		AccessInfo *accessInfo = new AccessInfo();
+
+		// ID
+		DEFINE_AND_ASSERT(itemGroup->getItemAt(idx++), ItemInt, itemId);
+		accessInfo->id = itemId->get();
+
+		// user ID
+		DEFINE_AND_ASSERT(itemGroup->getItemAt(idx++),
+		                  ItemInt, itemUserId);
+		accessInfo->userId = itemUserId->get();
+
+		// server ID
+		DEFINE_AND_ASSERT(itemGroup->getItemAt(idx++),
+		                  ItemInt, itemServerId);
+		accessInfo->serverId = itemServerId->get();
+
+		// host group ID
+		DEFINE_AND_ASSERT(itemGroup->getItemAt(idx++),
+		                  ItemUint64, itemHostGrpId);
+		accessInfo->hostGroupId = itemHostGrpId->get();
+
+		// insert data
+		AccessInfoHGMap *accessInfoHGMap = NULL;
+		AccessInfoMapIterator it =
+		  accessInfoMap.find(accessInfo->serverId);
+		if (it == accessInfoMap.end()) {
+			accessInfoHGMap = new AccessInfoHGMap();
+			accessInfoMap[accessInfo->serverId] = accessInfoHGMap;
+		} else {
+			accessInfoHGMap = it->second;
+		}
+		
+		AccessInfoHGMapIterator jt =
+		  accessInfoHGMap->find(accessInfo->hostGroupId);
+		if (jt != accessInfoHGMap->end()) {
+			MLPL_WARN("Found duplicated: serverId and hostGroupId: "
+			          "%"PRIu32 ", %" PRIu64"\n",
+			          accessInfo->serverId,
+			          accessInfo->hostGroupId);
+			delete accessInfo;
+			continue;
+		}
+		(*accessInfoHGMap)[accessInfo->hostGroupId] = accessInfo;
+	}
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------

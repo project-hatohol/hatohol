@@ -37,6 +37,54 @@ static void _assertUserInfo(const UserInfo &expect, const UserInfo &actual)
 }
 #define assertUserInfo(E,A) cut_trace(_assertUserInfo(E,A))
 
+static size_t countAccessInfoMapElements(const AccessInfoMap &accessInfoMap)
+{
+	size_t num = 0;
+	AccessInfoMapConstIterator it = accessInfoMap.begin();
+	for (; it != accessInfoMap.end(); ++it) {
+		const AccessInfoHGMap *accessInfoHGMap = it->second;
+		num += accessInfoHGMap->size();
+	}
+	return num;
+}
+
+static void _assertAccessInfo(const AccessInfo &expect,
+                              const AccessInfo &actual)
+{
+	cppcut_assert_equal(expect.userId, actual.userId);
+	cppcut_assert_equal(expect.serverId, actual.serverId);
+	cppcut_assert_equal(expect.hostGroupId, actual.hostGroupId);
+}
+#define assertAccessInfo(E,A) cut_trace(_assertAccessInfo(E,A))
+
+static void _assertAccessInfoMap(const set<int> &expectIdxSet,
+                                 const AccessInfoMap &accessInfoMap)
+{
+	// check total number
+	cppcut_assert_equal(expectIdxSet.size(),
+	                    countAccessInfoMapElements(accessInfoMap));
+
+	// check each element
+	set<int>::const_iterator it = expectIdxSet.begin();
+	for (; it != expectIdxSet.end(); ++it) {
+		const AccessInfo &expectAccessInfo = testAccessInfo[*it];
+		AccessInfoMapConstIterator jt = 
+		  accessInfoMap.find(expectAccessInfo.serverId);
+		cppcut_assert_equal(true, jt != accessInfoMap.end(),
+		                    cut_message("Failed to lookup: %"PRIu32,
+		                                expectAccessInfo.serverId));
+		const AccessInfoHGMap *accessInfoHGMap = jt->second;
+		AccessInfoHGMapConstIterator kt =
+		   accessInfoHGMap->find(expectAccessInfo.hostGroupId);
+		cppcut_assert_equal(true, kt != accessInfoHGMap->end(),
+		                    cut_message("Failed to lookup: %"PRIu64,
+		                                expectAccessInfo.hostGroupId));
+		const AccessInfo *actualAccessInfo = kt->second;
+		assertAccessInfo(expectAccessInfo, *actualAccessInfo);
+	}
+}
+#define assertAccessInfoMap(E,A) cut_trace(_assertAccessInfoMap(E,A))
+
 void cut_setup(void)
 {
 	hatoholInit();
@@ -151,6 +199,29 @@ void test_getUserInfo(void)
 	cppcut_assert_equal(
 	  true, dbUser.getUserInfo(userInfo, targetUserId));
 	assertUserInfo(expectUserInfo, userInfo);
+}
+
+void test_getAccessInfoMap(void)
+{
+	loadTestDBAccessList();
+	DBClientUser dbUser;
+
+	typedef map<UserIdType, set<int> > UserIdIndexMap;
+	typedef UserIdIndexMap::iterator   UserIdIndexMapIterator;
+	UserIdIndexMap userIdIndexMap;
+	for (size_t i = 0; i < NumTestAccessInfo; i++) {
+		AccessInfo &accessInfo = testAccessInfo[i];
+		userIdIndexMap[accessInfo.userId].insert(i);
+	}
+
+	UserIdIndexMapIterator it = userIdIndexMap.begin();
+	for (; it != userIdIndexMap.end(); ++it) {
+		AccessInfoMap accessInfoMap;
+		UserIdType userId = it->first;
+		dbUser.getAccessInfoMap(accessInfoMap, userId);
+		assertAccessInfoMap(it->second, accessInfoMap);
+	}
+
 }
 
 } // namespace testDBClientUser
