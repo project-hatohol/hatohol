@@ -282,7 +282,7 @@ void DBClientUser::addAccessInfo(AccessInfo &accessInfo)
 	} DBCLIENT_TRANSACTION_END();
 }
 
-bool DBClientUser::getUserInfo(UserInfo &userInfo, UserIdType userId)
+bool DBClientUser::getUserInfo(UserInfo &userInfo, const UserIdType userId)
 {
 	DBAgentSelectExArg arg;
 	arg.tableName = TABLE_NAME_USERS;

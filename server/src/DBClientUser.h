@@ -83,7 +83,7 @@ public:
 	 */
 	void addAccessInfo(AccessInfo &accessInfo);
 
-	bool getUserInfo(UserInfo &userInfo, UserIdType userId);
+	bool getUserInfo(UserInfo &userInfo, const UserIdType userId);
 
 protected:
 
