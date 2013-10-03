@@ -151,7 +151,7 @@ AccessInfoMap::~AccessInfoMap()
 	for (; it != end(); ++it) {
 		AccessInfoHGMap *accessInfoHGMap = it->second;
 		AccessInfoHGMapIterator jt = accessInfoHGMap->begin();
-		for (; jt != accessInfoHGMap->end(); jt++)
+		for (; jt != accessInfoHGMap->end(); ++jt)
 			delete jt->second;
 		delete accessInfoHGMap;
 	}
