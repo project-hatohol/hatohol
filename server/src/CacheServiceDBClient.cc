@@ -80,7 +80,6 @@ struct CacheServiceDBClient::PrivateContext {
 		DBClientMapIterator it = dbClientMap->begin();
 		for (; it != dbClientMap->end(); ++it)
 			delete it->second;
-		delete dbClientMap;
 	}
 
 	static void cleanup(void)
