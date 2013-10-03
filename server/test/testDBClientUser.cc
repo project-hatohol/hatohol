@@ -220,6 +220,8 @@ void test_getAccessInfoMap(void)
 		UserIdType userId = it->first;
 		dbUser.getAccessInfoMap(accessInfoMap, userId);
 		assertAccessInfoMap(it->second, accessInfoMap);
+		DBClientUser::freeAccessInfoMap(accessInfoMap);
+		cppcut_assert_equal((size_t)0, accessInfoMap.size());
 	}
 }
 
