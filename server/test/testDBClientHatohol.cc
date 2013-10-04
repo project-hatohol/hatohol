@@ -648,4 +648,14 @@ void test_makeSelectConditionUserAdminFlag(void)
 	cppcut_assert_equal(actual, expect);
 }
 
+void test_makeSelectConditionNoneUser(void)
+{
+	setupTestDBUser(true, true);
+	EventQueryOption option;
+	option.setUserId(INVALID_USER_ID);
+	string actual = TestDBClientHatohol::callMakeSelectCondition(option);
+	string expect = "FALSE";
+	cppcut_assert_equal(actual, expect);
+}
+
 } // namespace testDBClientHatohol

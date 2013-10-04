@@ -1315,7 +1315,7 @@ string DBClientHatohol::makeSelectCondition(DataQueryOption &option)
 	if (!dbUser->getUserInfo(userInfo, userId)) {
 		MLPL_ERR("Failed to getUserInfo(): userId: %"FMT_USER_ID"\n",
 		         userId);
-		return "(FALSE)";
+		return "FALSE";
 	}
 	if (userInfo.flags & USER_FLAG_ADMIN)
 		return "";
