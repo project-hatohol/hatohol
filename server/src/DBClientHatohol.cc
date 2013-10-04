@@ -1231,7 +1231,7 @@ void DBClientHatohol::appendCondition(string &cond, const string &newCond)
 		cond = newCond;
 		return;
 	}
-	cond += " AND ";
+	cond += " OR ";
 	cond += newCond;
 }
 
@@ -1278,5 +1278,5 @@ string DBClientHatohol::makeCondition(
 			appendCondition(cond, condSv);
 		}
 	}
-	return cond;
+	return StringUtils::sprintf("(%s)", cond.c_str());
 }
