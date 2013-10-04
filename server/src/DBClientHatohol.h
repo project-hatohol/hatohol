@@ -225,6 +225,7 @@ protected:
 	static string makeCondition(const ServerHostGrpSetMap &srvHostGrpSetMap,
 	                            const string &serverIdColumnName,
 	                            const string &hostGroupIdColumnName);
+	static string makeSelectCondition(DataQueryOption &option);
 
 private:
 	struct PrivateContext;

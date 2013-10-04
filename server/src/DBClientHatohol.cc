@@ -1301,3 +1301,29 @@ string DBClientHatohol::makeCondition(
 		return cond;
 	return StringUtils::sprintf("(%s)", cond.c_str());
 }
+
+string DBClientHatohol::makeSelectCondition(DataQueryOption &option)
+{
+	string condition;
+	UserIdType userId = option.getUserId();
+	if (userId == USER_ID_ADMIN)
+		return "";
+
+	CacheServiceDBClient cache;
+	DBClientUser *dbUser = cache.getUser();
+	UserInfo userInfo;
+	if (!dbUser->getUserInfo(userInfo, userId)) {
+		MLPL_ERR("Failed to getUserInfo(): userId: %"FMT_USER_ID"\n",
+		         userId);
+		return "(FALSE)";
+	}
+	if (userInfo.flags & USER_FLAG_ADMIN)
+		return "";
+
+	ServerHostGrpSetMap srvHostGrpSetMap;
+	dbUser->getServerHostGrpSetMap(srvHostGrpSetMap, userId);
+	condition = makeCondition(srvHostGrpSetMap,
+	                          option.getServerIdColumnName(),
+	                          option.getHostGroupIdColumnName());
+	return condition;
+}
