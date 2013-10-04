@@ -38,6 +38,11 @@ public:
 		return makeCondition(srvHostGrpSetMap,
 		                     serverIdColumnName, hostGroupIdColumnName);
 	}
+
+	static string callMakeSelectCondition(DataQueryOption &option)
+	{
+		return makeSelectCondition(option);
+	}
 };
 
 static const string serverIdColumnName = "server_id";
@@ -611,6 +616,15 @@ void test_makeConditionComplicated(void)
 	  serverIdColumnName.c_str(),
 	  serverIdColumnName.c_str(), hostGroupIdColumnName.c_str());
 	assertMakeCondition(srvHostGrpSetMap, expect);
+}
+
+void test_makeSelectConditionUserAdmin(void)
+{
+	EventQueryOption option;
+	option.setUserId(USER_ID_ADMIN);
+	string actual = TestDBClientHatohol::callMakeSelectCondition(option);
+	string expect = "";
+	cppcut_assert_equal(actual, expect);
 }
 
 } // namespace testDBClientHatohol
