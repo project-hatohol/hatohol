@@ -127,6 +127,18 @@ static void _assertServerHostGrpSetMap(
 #define assertServerHostGrpSetMap(E,A) \
 cut_trace(_assertServerHostGrpSetMap(E,A))
 
+typedef map<UserIdType, set<int> > UserIdIndexMap;
+typedef UserIdIndexMap::iterator UserIdIndexMapIterator;
+static void setupWithUserIdIndexMap(UserIdIndexMap &userIdIndexMap)
+{
+	loadTestDBAccessList();
+
+	for (size_t i = 0; i < NumTestAccessInfo; i++) {
+		AccessInfo &accessInfo = testAccessInfo[i];
+		userIdIndexMap[accessInfo.userId].insert(i);
+	}
+}
+
 void cut_setup(void)
 {
 	hatoholInit();
@@ -245,17 +257,9 @@ void test_getUserInfo(void)
 
 void test_getServerAccessInfoMap(void)
 {
-	loadTestDBAccessList();
 	DBClientUser dbUser;
-
-	typedef map<UserIdType, set<int> > UserIdIndexMap;
-	typedef UserIdIndexMap::iterator   UserIdIndexMapIterator;
 	UserIdIndexMap userIdIndexMap;
-	for (size_t i = 0; i < NumTestAccessInfo; i++) {
-		AccessInfo &accessInfo = testAccessInfo[i];
-		userIdIndexMap[accessInfo.userId].insert(i);
-	}
-
+	setupWithUserIdIndexMap(userIdIndexMap);
 	UserIdIndexMapIterator it = userIdIndexMap.begin();
 	for (; it != userIdIndexMap.end(); ++it) {
 		ServerAccessInfoMap srvAccessInfoMap;
@@ -267,17 +271,9 @@ void test_getServerAccessInfoMap(void)
 
 void test_getServerHostGrpSetMap(void)
 {
-	loadTestDBAccessList();
 	DBClientUser dbUser;
-
-	typedef map<UserIdType, set<int> > UserIdIndexMap;
-	typedef UserIdIndexMap::iterator   UserIdIndexMapIterator;
 	UserIdIndexMap userIdIndexMap;
-	for (size_t i = 0; i < NumTestAccessInfo; i++) {
-		AccessInfo &accessInfo = testAccessInfo[i];
-		userIdIndexMap[accessInfo.userId].insert(i);
-	}
-
+	setupWithUserIdIndexMap(userIdIndexMap);
 	UserIdIndexMapIterator it = userIdIndexMap.begin();
 	for (; it != userIdIndexMap.end(); ++it) {
 		ServerHostGrpSetMap srvHostGrpSetMap;
