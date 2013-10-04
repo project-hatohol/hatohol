@@ -577,7 +577,7 @@ void getDBCTestHostInfo(HostInfoList &hostInfoList, uint32_t targetServerId)
 	}
 }
 
-void makeUserIdIndexMap(UserIdIndexMap &userIdIndexMap)
+void makeTestUserIdIndexMap(UserIdIndexMap &userIdIndexMap)
 {
 
 	for (size_t i = 0; i < NumTestAccessInfo; i++) {

@@ -96,7 +96,7 @@ void getDBCTestHostInfo(HostInfoList &hostInfoList,
 
 typedef std::map<UserIdType, std::set<int> > UserIdIndexMap;
 typedef UserIdIndexMap::iterator UserIdIndexMapIterator;
-void makeUserIdIndexMap(UserIdIndexMap &userIdIndexMap);
+void makeTestUserIdIndexMap(UserIdIndexMap &userIdIndexMap);
 
 #endif // DBClientTest_h
 

@@ -129,7 +129,7 @@ cut_trace(_assertServerHostGrpSetMap(E,A))
 static void setupWithUserIdIndexMap(UserIdIndexMap &userIdIndexMap)
 {
 	loadTestDBAccessList();
-	makeUserIdIndexMap(userIdIndexMap);
+	makeTestUserIdIndexMap(userIdIndexMap);
 }
 
 void cut_setup(void)
