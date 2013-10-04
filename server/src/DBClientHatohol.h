@@ -213,9 +213,9 @@ protected:
 
 	static void appendCondition(string &cond, const string &newCond);
 	static string makeConditionHostGroup(
-	  const HostGrpAccessInfoMap *hostGrpAccessInfoMap,
+	  const HostGroupSet &hostGroupSet,
 	  const string &hostGroupIdColumnName);
-	static string makeCondition(const ServerAccessInfoMap &srvAccessInfoMap,
+	static string makeCondition(const ServerHostGrpSetMap &srvHostGrpSetMap,
 	                            const string &serverIdColumnName,
 	                            const string &hostGroupIdColumnName);
 

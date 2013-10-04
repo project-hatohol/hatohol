@@ -1236,14 +1236,13 @@ void DBClientHatohol::appendCondition(string &cond, const string &newCond)
 }
 
 string DBClientHatohol::makeConditionHostGroup(
-  const HostGrpAccessInfoMap *hostGrpAccessInfoMap,
-  const string &hostGroupIdColumnName)
+  const HostGroupSet &hostGroupSet, const string &hostGroupIdColumnName)
 {
 	string hostGrps;
-	HostGrpAccessInfoMapConstIterator it = hostGrpAccessInfoMap->begin();
-	size_t commaCnt = hostGrpAccessInfoMap->size() - 1;
-	for (; it != hostGrpAccessInfoMap->end(); ++it, commaCnt--) {
-		const uint64_t hostGroupId = it->first;
+	HostGroupSetConstIterator it = hostGroupSet.begin();
+	size_t commaCnt = hostGroupSet.size() - 1;
+	for (; it != hostGroupSet.end(); ++it, commaCnt--) {
+		const uint64_t hostGroupId = *it;
 		if (hostGroupId == ALL_HOST_GROUPS)
 			return "";
 		hostGrps += StringUtils::sprintf("%"PRIu64, hostGroupId);
@@ -1256,20 +1255,20 @@ string DBClientHatohol::makeConditionHostGroup(
 }
 
 string DBClientHatohol::makeCondition(
-  const ServerAccessInfoMap &srvAccessInfoMap,
+  const ServerHostGrpSetMap &srvHostGrpSetMap,
   const string &serverIdColumnName, const string &hostGroupIdColumnName)
 {
 	string cond;
-	ServerAccessInfoMapConstIterator it = srvAccessInfoMap.begin();
-	for (; it != srvAccessInfoMap.end(); ++it) {
+	ServerHostGrpSetMapConstIterator it = srvHostGrpSetMap.begin();
+	for (; it != srvHostGrpSetMap.end(); ++it) {
 		const uint32_t serverId = it->first;
 		if (serverId == ALL_SERVERS)
 			return "";
 		string condSv = StringUtils::sprintf(
 		  "%s=%"PRIu32, serverIdColumnName.c_str(), serverId);
 
-		const HostGrpAccessInfoMap *hostGrpAccessInfoMap = it->second;
-		string condHG = makeConditionHostGroup(hostGrpAccessInfoMap,
+		const HostGroupSet &hostGroupSet = it->second;
+		string condHG = makeConditionHostGroup(hostGroupSet,
 		                                       hostGroupIdColumnName);
 		if (!condHG.empty()) {
 			string condMix = StringUtils::sprintf(
