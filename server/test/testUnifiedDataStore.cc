@@ -27,6 +27,7 @@
 #include "UnifiedDataStore.h"
 #include "DBClientTest.h"
 #include "LabelUtils.h"
+#include "Helpers.h"
 
 namespace testUnifiedDataStore {
 
@@ -136,6 +137,7 @@ void test_getEventList(void)
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	EventInfoList list;
 	EventQueryOption option;
+	option.setUserId(USER_ID_ADMIN);
 	dataStore->getEventList(list, option);
 
 	EventInfoListIterator it;

@@ -765,6 +765,12 @@ void DBClientHatohol::getEventInfoList(EventInfoList &eventInfoList,
 	  VAR_EVENTS, eventsServerId.columnName,
 	  VAR_TRIGGERS, triggersServerId.columnName);
 
+	string optCond = makeSelectCondition(option);
+	if (!optCond.empty()) {
+		arg.condition += " AND ";
+		arg.condition += optCond;
+	}
+
 	DBCLIENT_TRANSACTION_BEGIN() {
 		select(arg);
 	} DBCLIENT_TRANSACTION_END();

@@ -144,6 +144,7 @@ static void _assertGetEvents(void)
 	EventInfoList eventInfoList;
 	DBClientHatohol dbHatohol;
 	EventQueryOption option;
+	option.setUserId(USER_ID_ADMIN);
 	dbHatohol.getEventInfoList(eventInfoList, option);
 	cppcut_assert_equal(NumTestEventInfo, eventInfoList.size());
 
