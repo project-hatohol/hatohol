@@ -37,13 +37,16 @@ static void _assertUserInfo(const UserInfo &expect, const UserInfo &actual)
 }
 #define assertUserInfo(E,A) cut_trace(_assertUserInfo(E,A))
 
-static size_t countAccessInfoMapElements(const AccessInfoMap &accessInfoMap)
+static size_t countServerAccessInfoMapElements(
+  const ServerAccessInfoMap &srvServerAccessInfoMap)
 {
 	size_t num = 0;
-	AccessInfoMapConstIterator it = accessInfoMap.begin();
-	for (; it != accessInfoMap.end(); ++it) {
-		const AccessInfoHGMap *accessInfoHGMap = it->second;
-		num += accessInfoHGMap->size();
+	ServerAccessInfoMapConstIterator it =
+	  srvServerAccessInfoMap.begin();
+	for (; it != srvServerAccessInfoMap.end(); ++it) {
+		const HostGrpAccessInfoMap
+		  *hostGrpAccessInfoMap = it->second;
+		num += hostGrpAccessInfoMap->size();
 	}
 	return num;
 }
@@ -57,33 +60,33 @@ static void _assertAccessInfo(const AccessInfo &expect,
 }
 #define assertAccessInfo(E,A) cut_trace(_assertAccessInfo(E,A))
 
-static void _assertAccessInfoMap(const set<int> &expectIdxSet,
-                                 const AccessInfoMap &accessInfoMap)
+static void _assertServerAccessInfoMap(
+  const set<int> &expectIdxSet, const ServerAccessInfoMap &srvAccessInfoMap)
 {
 	// check total number
 	cppcut_assert_equal(expectIdxSet.size(),
-	                    countAccessInfoMapElements(accessInfoMap));
+	                    countServerAccessInfoMapElements(srvAccessInfoMap));
 
 	// check each element
 	set<int>::const_iterator it = expectIdxSet.begin();
 	for (; it != expectIdxSet.end(); ++it) {
 		const AccessInfo &expectAccessInfo = testAccessInfo[*it];
-		AccessInfoMapConstIterator jt = 
-		  accessInfoMap.find(expectAccessInfo.serverId);
-		cppcut_assert_equal(true, jt != accessInfoMap.end(),
+		ServerAccessInfoMapConstIterator jt = 
+		  srvAccessInfoMap.find(expectAccessInfo.serverId);
+		cppcut_assert_equal(true, jt != srvAccessInfoMap.end(),
 		                    cut_message("Failed to lookup: %"PRIu32,
 		                                expectAccessInfo.serverId));
-		const AccessInfoHGMap *accessInfoHGMap = jt->second;
-		AccessInfoHGMapConstIterator kt =
-		   accessInfoHGMap->find(expectAccessInfo.hostGroupId);
-		cppcut_assert_equal(true, kt != accessInfoHGMap->end(),
+		const HostGrpAccessInfoMap *hostGrpAccessInfoMap = jt->second;
+		HostGrpAccessInfoMapConstIterator kt =
+		   hostGrpAccessInfoMap->find(expectAccessInfo.hostGroupId);
+		cppcut_assert_equal(true, kt != hostGrpAccessInfoMap->end(),
 		                    cut_message("Failed to lookup: %"PRIu64,
 		                                expectAccessInfo.hostGroupId));
 		const AccessInfo *actualAccessInfo = kt->second;
 		assertAccessInfo(expectAccessInfo, *actualAccessInfo);
 	}
 }
-#define assertAccessInfoMap(E,A) cut_trace(_assertAccessInfoMap(E,A))
+#define assertServerAccessInfoMap(E,A) cut_trace(_assertServerAccessInfoMap(E,A))
 
 void cut_setup(void)
 {
@@ -201,7 +204,7 @@ void test_getUserInfo(void)
 	assertUserInfo(expectUserInfo, userInfo);
 }
 
-void test_getAccessInfoMap(void)
+void test_getServerAccessInfoMap(void)
 {
 	loadTestDBAccessList();
 	DBClientUser dbUser;
@@ -216,10 +219,10 @@ void test_getAccessInfoMap(void)
 
 	UserIdIndexMapIterator it = userIdIndexMap.begin();
 	for (; it != userIdIndexMap.end(); ++it) {
-		AccessInfoMap accessInfoMap;
+		ServerAccessInfoMap srvAccessInfoMap;
 		UserIdType userId = it->first;
-		dbUser.getAccessInfoMap(accessInfoMap, userId);
-		assertAccessInfoMap(it->second, accessInfoMap);
+		dbUser.getAccessInfoMap(srvAccessInfoMap, userId);
+		assertServerAccessInfoMap(it->second, srvAccessInfoMap);
 	}
 }
 
