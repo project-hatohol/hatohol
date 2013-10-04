@@ -1259,6 +1259,8 @@ string DBClientHatohol::makeCondition(
   const string &serverIdColumnName, const string &hostGroupIdColumnName)
 {
 	string cond;
+	if (srvHostGrpSetMap.empty())
+		return "FALSE";
 	ServerHostGrpSetMapConstIterator it = srvHostGrpSetMap.begin();
 	for (; it != srvHostGrpSetMap.end(); ++it) {
 		const uint32_t serverId = it->first;

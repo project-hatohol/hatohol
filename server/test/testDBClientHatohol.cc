@@ -28,6 +28,18 @@
 
 namespace testDBClientHatohol {
 
+class TestDBClientHatohol : public DBClientHatohol {
+public:
+	static
+	string callMakeCondition(const ServerHostGrpSetMap &srvHostGrpSetMap,
+	                         const string &serverIdColumnName,
+	                         const string &hostGroupIdColumnName)
+	{
+		return makeCondition(srvHostGrpSetMap,
+		                     serverIdColumnName, hostGroupIdColumnName);
+	}
+};
+
 static void addTriggerInfo(TriggerInfo *triggerInfo)
 {
 	DBClientHatohol dbHatohol;
@@ -478,6 +490,18 @@ void test_getNumberOfGoodHosts(void)
 void test_getNumberOfBadHosts(void)
 {
 	assertGetNumberOfHostsWithStatus(false);
+}
+
+void test_makeConditionEmpty(void)
+{
+	string serverIdColumnName = "server_id";
+	string hostGroupIdColumnName = "host_group_id";
+	ServerHostGrpSetMap srvHostGrpSetMap;
+	string expect = "FALSE";
+	string cond = TestDBClientHatohol::callMakeCondition(
+	                srvHostGrpSetMap,
+	                serverIdColumnName, hostGroupIdColumnName);
+	cppcut_assert_equal(expect, cond);
 }
 
 } // namespace testDBClientHatohol
