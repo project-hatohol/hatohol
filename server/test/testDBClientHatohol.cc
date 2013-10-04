@@ -572,4 +572,17 @@ void test_makeConditionOneServerAndHostGroups(void)
 	assertMakeCondition(srvHostGrpSetMap, expect);
 }
 
+void test_makeConditionMultipleServers(void)
+{
+	ServerHostGrpSetMap srvHostGrpSetMap;
+	srvHostGrpSetMap[5].insert(ALL_HOST_GROUPS);
+	srvHostGrpSetMap[14].insert(ALL_HOST_GROUPS);
+	srvHostGrpSetMap[768].insert(ALL_HOST_GROUPS);
+	string expect = StringUtils::sprintf("(%s=5 OR %s=14 OR %s=768)",
+	  serverIdColumnName.c_str(),
+	  serverIdColumnName.c_str(),
+	  serverIdColumnName.c_str());
+	assertMakeCondition(srvHostGrpSetMap, expect);
+}
+
 } // namespace testDBClientHatohol
