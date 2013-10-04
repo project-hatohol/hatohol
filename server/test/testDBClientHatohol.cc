@@ -240,7 +240,7 @@ static void _assertGetHostInfoList(uint32_t serverId)
 #define assertGetHostInfoList(SERVER_ID) \
 cut_trace(_assertGetHostInfoList(SERVER_ID))
 
-void _assertGetNumberOfHostsWithStatus(bool status)
+static void _assertGetNumberOfHostsWithStatus(bool status)
 {
 	setupTestTriggerDB();
 
@@ -262,7 +262,7 @@ void _assertGetNumberOfHostsWithStatus(bool status)
 #define assertGetNumberOfHostsWithStatus(ST) \
 cut_trace(_assertGetNumberOfHostsWithStatus(ST))
 
-
+static
 void _assertTriggerInfo(const TriggerInfo &expect, const TriggerInfo &actual)
 {
 	cppcut_assert_equal(expect.serverId, actual.serverId);
