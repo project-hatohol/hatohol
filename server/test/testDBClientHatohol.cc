@@ -40,6 +40,9 @@ public:
 	}
 };
 
+static const string serverIdColumnName = "server_id";
+static const string hostGroupIdColumnName = "host_group_id";
+
 static void addTriggerInfo(TriggerInfo *triggerInfo)
 {
 	DBClientHatohol dbHatohol;
@@ -282,8 +285,6 @@ void _assertTriggerInfo(const TriggerInfo &expect, const TriggerInfo &actual)
 static void _assertMakeCondition(const ServerHostGrpSetMap &srvHostGrpSetMap,
                                  const string &expect)
 {
-	string serverIdColumnName = "server_id";
-	string hostGroupIdColumnName = "host_group_id";
 	string cond = TestDBClientHatohol::callMakeCondition(
 	                srvHostGrpSetMap,
 	                serverIdColumnName, hostGroupIdColumnName);
@@ -527,6 +528,15 @@ void test_makeConditionAllServersWithOthers(void)
 	srvHostGrpSetMap[3].insert(1);
 	srvHostGrpSetMap[ALL_SERVERS].insert(ALL_HOST_GROUPS);
 	string expect = "";
+	assertMakeCondition(srvHostGrpSetMap, expect);
+}
+
+void test_makeConditionOneServersAllHostGrp(void)
+{
+	ServerHostGrpSetMap srvHostGrpSetMap;
+	srvHostGrpSetMap[1].insert(ALL_HOST_GROUPS);
+	string expect =
+	  StringUtils::sprintf("(%s=1)", serverIdColumnName.c_str());
 	assertMakeCondition(srvHostGrpSetMap, expect);
 }
 
