@@ -20,6 +20,9 @@
 #ifndef DBClientTest_h
 #define DBClientTest_h
 
+#include <map>
+#include <set>
+
 #include "DBClientConfig.h"
 #include "DBClientHatohol.h"
 #include "DBClientAction.h"
@@ -90,6 +93,10 @@ const TriggerInfo &searchTestTriggerInfo(const EventInfo &eventInfo);
 
 extern void getDBCTestHostInfo(HostInfoList &hostInfoList,
                                uint32_t targetServerId = ALL_SERVERS);
+
+typedef std::map<UserIdType, std::set<int> > UserIdIndexMap;
+typedef UserIdIndexMap::iterator UserIdIndexMapIterator;
+void makeUserIdIndexMap(UserIdIndexMap &userIdIndexMap);
 
 #endif // DBClientTest_h
 

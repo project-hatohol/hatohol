@@ -10,8 +10,7 @@
  *
  * Hatohol is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
@@ -127,16 +126,10 @@ static void _assertServerHostGrpSetMap(
 #define assertServerHostGrpSetMap(E,A) \
 cut_trace(_assertServerHostGrpSetMap(E,A))
 
-typedef map<UserIdType, set<int> > UserIdIndexMap;
-typedef UserIdIndexMap::iterator UserIdIndexMapIterator;
 static void setupWithUserIdIndexMap(UserIdIndexMap &userIdIndexMap)
 {
 	loadTestDBAccessList();
-
-	for (size_t i = 0; i < NumTestAccessInfo; i++) {
-		AccessInfo &accessInfo = testAccessInfo[i];
-		userIdIndexMap[accessInfo.userId].insert(i);
-	}
+	makeUserIdIndexMap(userIdIndexMap);
 }
 
 void cut_setup(void)

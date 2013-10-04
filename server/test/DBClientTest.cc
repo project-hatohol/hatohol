@@ -576,3 +576,12 @@ void getDBCTestHostInfo(HostInfoList &hostInfoList, uint32_t targetServerId)
 		svIdHostIdsMap[svId].insert(hostId);
 	}
 }
+
+void makeUserIdIndexMap(UserIdIndexMap &userIdIndexMap)
+{
+
+	for (size_t i = 0; i < NumTestAccessInfo; i++) {
+		AccessInfo &accessInfo = testAccessInfo[i];
+		userIdIndexMap[accessInfo.userId].insert(i);
+	}
+}
