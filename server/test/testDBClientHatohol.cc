@@ -585,4 +585,32 @@ void test_makeConditionMultipleServers(void)
 	assertMakeCondition(srvHostGrpSetMap, expect);
 }
 
+void test_makeConditionComplicated(void)
+{
+	ServerHostGrpSetMap srvHostGrpSetMap;
+	srvHostGrpSetMap[5].insert(205);
+	srvHostGrpSetMap[5].insert(800);
+	srvHostGrpSetMap[14].insert(ALL_HOST_GROUPS);
+	srvHostGrpSetMap[768].insert(817);
+	srvHostGrpSetMap[768].insert(818);
+	srvHostGrpSetMap[768].insert(12817);
+	srvHostGrpSetMap[2000].insert(ALL_HOST_GROUPS);
+	srvHostGrpSetMap[2001].insert(ALL_HOST_GROUPS);
+	srvHostGrpSetMap[8192].insert(4096);
+	string expect = StringUtils::sprintf(
+	  "((%s=5 AND %s IN (205,800)) OR "
+	  "%s=14 OR "
+	  "(%s=768 AND %s IN (817,818,12817)) OR "
+	  "%s=2000 OR "
+	  "%s=2001 OR "
+	  "(%s=8192 AND %s IN (4096)))",
+	  serverIdColumnName.c_str(), hostGroupIdColumnName.c_str(),
+	  serverIdColumnName.c_str(),
+	  serverIdColumnName.c_str(), hostGroupIdColumnName.c_str(),
+	  serverIdColumnName.c_str(),
+	  serverIdColumnName.c_str(),
+	  serverIdColumnName.c_str(), hostGroupIdColumnName.c_str());
+	assertMakeCondition(srvHostGrpSetMap, expect);
+}
+
 } // namespace testDBClientHatohol
