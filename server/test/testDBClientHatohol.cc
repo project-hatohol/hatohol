@@ -548,7 +548,7 @@ void test_makeConditionOneServerAllHostGrp(void)
 	assertMakeCondition(srvHostGrpSetMap, expect);
 }
 
-void test_makeConditionOneServerAndHostGroups(void)
+void test_makeConditionOneServerAndOneHostGroup(void)
 {
 	ServerHostGrpSetMap srvHostGrpSetMap;
 	srvHostGrpSetMap[1].insert(3);
