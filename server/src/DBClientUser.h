@@ -48,11 +48,11 @@ typedef std::map<uint64_t, AccessInfo *>      HostGrpAccessInfoMap;
 typedef HostGrpAccessInfoMap::iterator        HostGrpAccessInfoMapIterator;
 typedef HostGrpAccessInfoMap::const_iterator  HostGrpAccessInfoMapConstIterator;
 
-struct AccessInfoMap : std::map<uint32_t, HostGrpAccessInfoMap *> {
-	virtual ~AccessInfoMap();
+struct ServerAccessInfoMap : std::map<uint32_t, HostGrpAccessInfoMap *> {
+	virtual ~ServerAccessInfoMap();
 };
-typedef AccessInfoMap::iterator               AccessInfoMapIterator;
-typedef AccessInfoMap::const_iterator         AccessInfoMapConstIterator;
+typedef ServerAccessInfoMap::iterator         ServerAccessInfoMapIterator;
+typedef ServerAccessInfoMap::const_iterator   ServerAccessInfoMapConstIterator;
 
 typedef std::set<uint64_t>                  HostGroupSet;
 typedef HostGroupSet::iterator              HostGroupSetIterator;
@@ -105,12 +105,13 @@ public:
 	bool getUserInfo(UserInfo &userInfo, const UserIdType userId);
 
 	/**
-	 * Make a map that has the AccessInfo instances for user with userId.
+	 * Make a map that has the ServerAccessInfo instances for
+	 * the user with userId.
 	 *
-	 * @param accessInfoMap An AccessInfoMap instance.
+	 * @param srvAccessInfoMap An ServerAccessInfoMap instance.
 	 * @param userId a user ID.
 	 */
-	void getAccessInfoMap(AccessInfoMap &accessInfoMap,
+	void getAccessInfoMap(ServerAccessInfoMap &srvAccessInfoMap,
 	                      const UserIdType userId);
 
 protected:

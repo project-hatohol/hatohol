@@ -145,9 +145,9 @@ enum {
 	NUM_IDX_ACCESS_LIST,
 };
 
-AccessInfoMap::~AccessInfoMap()
+ServerAccessInfoMap::~ServerAccessInfoMap()
 {
-	for (AccessInfoMapIterator it = begin(); it != end(); ++it) {
+	for (ServerAccessInfoMapIterator it = begin(); it != end(); ++it) {
 		HostGrpAccessInfoMap *hostGrpAccessInfoMap = it->second;
 		HostGrpAccessInfoMapIterator jt = hostGrpAccessInfoMap->begin();
 		for (; jt != hostGrpAccessInfoMap->end(); ++jt)
@@ -334,7 +334,7 @@ bool DBClientUser::getUserInfo(UserInfo &userInfo, const UserIdType userId)
 	return true;
 }
 
-void DBClientUser::getAccessInfoMap(AccessInfoMap &accessInfoMap,
+void DBClientUser::getAccessInfoMap(ServerAccessInfoMap &srvAccessInfoMap,
                                     const UserIdType userId)
 {
 	DBAgentSelectExArg arg;
@@ -377,11 +377,11 @@ void DBClientUser::getAccessInfoMap(AccessInfoMap &accessInfoMap,
 
 		// insert data
 		HostGrpAccessInfoMap *hostGrpAccessInfoMap = NULL;
-		AccessInfoMapIterator it =
-		  accessInfoMap.find(accessInfo->serverId);
-		if (it == accessInfoMap.end()) {
+		ServerAccessInfoMapIterator it =
+		  srvAccessInfoMap.find(accessInfo->serverId);
+		if (it == srvAccessInfoMap.end()) {
 			hostGrpAccessInfoMap = new HostGrpAccessInfoMap();
-			accessInfoMap[accessInfo->serverId] =
+			srvAccessInfoMap[accessInfo->serverId] =
 			   hostGrpAccessInfoMap;
 		} else {
 			hostGrpAccessInfoMap = it->second;

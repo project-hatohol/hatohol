@@ -1255,13 +1255,13 @@ string DBClientHatohol::makeConditionHostGroup(
 	return cond;
 }
 
-string DBClientHatohol::makeCondition(const AccessInfoMap &accessInfoMap,
-                                      const string &serverIdColumnName,
-                                      const string &hostGroupIdColumnName)
+string DBClientHatohol::makeCondition(
+  const ServerAccessInfoMap &srvAccessInfoMap,
+  const string &serverIdColumnName, const string &hostGroupIdColumnName)
 {
 	string cond;
-	AccessInfoMapConstIterator it = accessInfoMap.begin();
-	for (; it != accessInfoMap.end(); ++it) {
+	ServerAccessInfoMapConstIterator it = srvAccessInfoMap.begin();
+	for (; it != srvAccessInfoMap.end(); ++it) {
 		const uint32_t serverId = it->first;
 		if (serverId == ALL_SERVERS)
 			return "";

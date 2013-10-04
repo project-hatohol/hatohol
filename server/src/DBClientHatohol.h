@@ -215,7 +215,7 @@ protected:
 	static string makeConditionHostGroup(
 	  const HostGrpAccessInfoMap *hostGrpAccessInfoMap,
 	  const string &hostGroupIdColumnName);
-	static string makeCondition(const AccessInfoMap &accessInfoMap,
+	static string makeCondition(const ServerAccessInfoMap &srvAccessInfoMap,
 	                            const string &serverIdColumnName,
 	                            const string &hostGroupIdColumnName);
 
