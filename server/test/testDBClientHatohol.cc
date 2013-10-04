@@ -307,6 +307,28 @@ static UserIdType findFirstUserWithAdminFlag(void)
 	return INVALID_USER_ID;
 }
 
+static string makeExpectedConditionForUser(UserIdType userId)
+{
+	string exp;
+	UserIdIndexMap userIdIndexMap;
+	makeTestUserIdIndexMap(userIdIndexMap);
+	UserIdIndexMapIterator it = userIdIndexMap.find(userId);
+	if (it == userIdIndexMap.end())
+		return "FALSE";
+
+	ServerHostGrpSetMap srvHostGrpSetMap;
+	const set<int> &indexes = it->second;
+	set<int>::const_iterator jt = indexes.begin();
+	for (; jt != indexes.end(); ++jt) {
+		const AccessInfo &accInfo = testAccessInfo[*jt];
+		srvHostGrpSetMap[accInfo.serverId].insert(accInfo.hostGroupId);
+	}
+	exp = TestDBClientHatohol::callMakeCondition(srvHostGrpSetMap,
+	                                             serverIdColumnName,
+	                                             hostGroupIdColumnName);
+	return exp;
+}
+
 void cut_setup(void)
 {
 	hatoholInit();
@@ -656,6 +678,21 @@ void test_makeSelectConditionNoneUser(void)
 	string actual = TestDBClientHatohol::callMakeSelectCondition(option);
 	string expect = "FALSE";
 	cppcut_assert_equal(actual, expect);
+}
+
+void test_makeSelectCondition(void)
+{
+	setupTestDBUser(true, true);
+	loadTestDBAccessList();
+	EventQueryOption option;
+	for (size_t i = 0; i < NumTestUserInfo; i++) {
+		UserIdType userId = i + 1;
+		option.setUserId(userId);
+		string actual =
+		   TestDBClientHatohol::callMakeSelectCondition(option);
+		string expect = makeExpectedConditionForUser(userId);
+		cppcut_assert_equal(expect, actual);
+	}
 }
 
 } // namespace testDBClientHatohol
