@@ -148,11 +148,11 @@ enum {
 AccessInfoMap::~AccessInfoMap()
 {
 	for (AccessInfoMapIterator it = begin(); it != end(); ++it) {
-		AccessInfoHGMap *accessInfoHGMap = it->second;
-		AccessInfoHGMapIterator jt = accessInfoHGMap->begin();
-		for (; jt != accessInfoHGMap->end(); ++jt)
+		HostGrpAccessInfoMap *hostGrpAccessInfoMap = it->second;
+		HostGrpAccessInfoMapIterator jt = hostGrpAccessInfoMap->begin();
+		for (; jt != hostGrpAccessInfoMap->end(); ++jt)
 			delete jt->second;
-		delete accessInfoHGMap;
+		delete hostGrpAccessInfoMap;
 	}
 }
 
@@ -376,19 +376,20 @@ void DBClientUser::getAccessInfoMap(AccessInfoMap &accessInfoMap,
 		accessInfo->hostGroupId = itemHostGrpId->get();
 
 		// insert data
-		AccessInfoHGMap *accessInfoHGMap = NULL;
+		HostGrpAccessInfoMap *hostGrpAccessInfoMap = NULL;
 		AccessInfoMapIterator it =
 		  accessInfoMap.find(accessInfo->serverId);
 		if (it == accessInfoMap.end()) {
-			accessInfoHGMap = new AccessInfoHGMap();
-			accessInfoMap[accessInfo->serverId] = accessInfoHGMap;
+			hostGrpAccessInfoMap = new HostGrpAccessInfoMap();
+			accessInfoMap[accessInfo->serverId] =
+			   hostGrpAccessInfoMap;
 		} else {
-			accessInfoHGMap = it->second;
+			hostGrpAccessInfoMap = it->second;
 		}
 		
-		AccessInfoHGMapIterator jt =
-		  accessInfoHGMap->find(accessInfo->hostGroupId);
-		if (jt != accessInfoHGMap->end()) {
+		HostGrpAccessInfoMapIterator jt =
+		  hostGrpAccessInfoMap->find(accessInfo->hostGroupId);
+		if (jt != hostGrpAccessInfoMap->end()) {
 			MLPL_WARN("Found duplicated serverId and hostGroupId: "
 			          "%"PRIu32 ", %" PRIu64"\n",
 			          accessInfo->serverId,
@@ -396,7 +397,7 @@ void DBClientUser::getAccessInfoMap(AccessInfoMap &accessInfoMap,
 			delete accessInfo;
 			continue;
 		}
-		(*accessInfoHGMap)[accessInfo->hostGroupId] = accessInfo;
+		(*hostGrpAccessInfoMap)[accessInfo->hostGroupId] = accessInfo;
 	}
 }
 

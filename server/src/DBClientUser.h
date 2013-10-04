@@ -44,11 +44,11 @@ struct AccessInfo {
 	uint64_t hostGroupId;
 };
 
-typedef std::map<uint64_t, AccessInfo *> AccessInfoHGMap;
-typedef AccessInfoHGMap::iterator        AccessInfoHGMapIterator;
-typedef AccessInfoHGMap::const_iterator  AccessInfoHGMapConstIterator;
+typedef std::map<uint64_t, AccessInfo *>      HostGrpAccessInfoMap;
+typedef HostGrpAccessInfoMap::iterator        HostGrpAccessInfoMapIterator;
+typedef HostGrpAccessInfoMap::const_iterator  HostGrpAccessInfoMapConstIterator;
 
-struct AccessInfoMap : std::map<uint32_t, AccessInfoHGMap *> {
+struct AccessInfoMap : std::map<uint32_t, HostGrpAccessInfoMap *> {
 	virtual ~AccessInfoMap();
 };
 typedef AccessInfoMap::iterator               AccessInfoMapIterator;

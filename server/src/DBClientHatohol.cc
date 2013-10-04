@@ -1236,12 +1236,13 @@ void DBClientHatohol::appendCondition(string &cond, const string &newCond)
 }
 
 string DBClientHatohol::makeConditionHostGroup(
-  const AccessInfoHGMap *accessInfoHGMap, const string &hostGroupIdColumnName)
+  const HostGrpAccessInfoMap *hostGrpAccessInfoMap,
+  const string &hostGroupIdColumnName)
 {
 	string hostGrps;
-	AccessInfoHGMapConstIterator it = accessInfoHGMap->begin();
-	size_t commaCnt = accessInfoHGMap->size() - 1;
-	for (; it != accessInfoHGMap->end(); ++it, commaCnt--) {
+	HostGrpAccessInfoMapConstIterator it = hostGrpAccessInfoMap->begin();
+	size_t commaCnt = hostGrpAccessInfoMap->size() - 1;
+	for (; it != hostGrpAccessInfoMap->end(); ++it, commaCnt--) {
 		const uint64_t hostGroupId = it->first;
 		if (hostGroupId == ALL_HOST_GROUPS)
 			return "";
@@ -1267,8 +1268,8 @@ string DBClientHatohol::makeCondition(const AccessInfoMap &accessInfoMap,
 		string condSv = StringUtils::sprintf(
 		  "%s=%"PRIu32, serverIdColumnName.c_str(), serverId);
 
-		const AccessInfoHGMap *accessInfoHGMap = it->second;
-		string condHG = makeConditionHostGroup(accessInfoHGMap,
+		const HostGrpAccessInfoMap *hostGrpAccessInfoMap = it->second;
+		string condHG = makeConditionHostGroup(hostGrpAccessInfoMap,
 		                                       hostGroupIdColumnName);
 		if (!condHG.empty()) {
 			string condMix = StringUtils::sprintf(

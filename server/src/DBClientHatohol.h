@@ -213,7 +213,7 @@ protected:
 
 	static void appendCondition(string &cond, const string &newCond);
 	static string makeConditionHostGroup(
-	  const AccessInfoHGMap *accessInfoHGMap,
+	  const HostGrpAccessInfoMap *hostGrpAccessInfoMap,
 	  const string &hostGroupIdColumnName);
 	static string makeCondition(const AccessInfoMap &accessInfoMap,
 	                            const string &serverIdColumnName,
