@@ -544,7 +544,18 @@ void test_makeConditionOneServerAllHostGrp(void)
 	ServerHostGrpSetMap srvHostGrpSetMap;
 	srvHostGrpSetMap[1].insert(ALL_HOST_GROUPS);
 	string expect =
-	  StringUtils::sprintf("(%s=1)", serverIdColumnName.c_str());
+	  StringUtils::sprintf("%s=1", serverIdColumnName.c_str());
+	assertMakeCondition(srvHostGrpSetMap, expect);
+}
+
+void test_makeConditionOneServerAndHostGroups(void)
+{
+	ServerHostGrpSetMap srvHostGrpSetMap;
+	srvHostGrpSetMap[1].insert(3);
+	string expect =
+	  StringUtils::sprintf("(%s=1 AND %s IN (3))",
+	  serverIdColumnName.c_str(),
+	  hostGroupIdColumnName.c_str());
 	assertMakeCondition(srvHostGrpSetMap, expect);
 }
 

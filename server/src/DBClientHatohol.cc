@@ -1259,7 +1259,8 @@ string DBClientHatohol::makeCondition(
   const string &serverIdColumnName, const string &hostGroupIdColumnName)
 {
 	string cond;
-	if (srvHostGrpSetMap.empty())
+	size_t numServers = srvHostGrpSetMap.size();
+	if (numServers == 0)
 		return "FALSE";
 	ServerHostGrpSetMapConstIterator it = srvHostGrpSetMap.begin();
 	for (; it != srvHostGrpSetMap.end(); ++it) {
@@ -1280,5 +1281,7 @@ string DBClientHatohol::makeCondition(
 			appendCondition(cond, condSv);
 		}
 	}
+	if (numServers == 1)
+		return cond;
 	return StringUtils::sprintf("(%s)", cond.c_str());
 }
