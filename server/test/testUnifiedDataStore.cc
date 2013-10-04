@@ -38,14 +38,14 @@ void test_singleton(void) {
 	cppcut_assert_equal(dataStore1, dataStore2);
 }
 
-static const char *triggerStatusToString(TriggerStatusType type)
+static const string triggerStatusToString(TriggerStatusType type)
 {
-	return LabelUtils::getTriggerStatusLabel(type).c_str();
+	return LabelUtils::getTriggerStatusLabel(type);
 }
 
-static const char *triggerSeverityToString(TriggerSeverityType type)
+static const string triggerSeverityToString(TriggerSeverityType type)
 {
-	return LabelUtils::getTriggerSeverityLabel(type).c_str();
+	return LabelUtils::getTriggerSeverityLabel(type);
 }
 
 static string dumpTriggerInfo(const TriggerInfo &info)
@@ -54,8 +54,8 @@ static string dumpTriggerInfo(const TriggerInfo &info)
 		"%"PRIu32"|%"PRIu64"|%s|%s|%lu|%ld|%"PRIu64"|%s|%s\n",
 		info.serverId,
 		info.id,
-		triggerStatusToString(info.status),
-		triggerSeverityToString(info.severity),
+		triggerStatusToString(info.status).c_str(),
+		triggerSeverityToString(info.severity).c_str(),
 		info.lastChangeTime.tv_sec,
 		info.lastChangeTime.tv_nsec,
 		info.hostId,
@@ -93,8 +93,8 @@ static string dumpEventInfo(const EventInfo &info)
 		info.time.tv_sec,
 		info.time.tv_nsec,
 		eventTypeToString(info.type),
-		triggerStatusToString(info.status),
-		triggerSeverityToString(info.severity),
+		triggerStatusToString(info.status).c_str(),
+		triggerSeverityToString(info.severity).c_str(),
 		info.hostId,
 		info.hostName.c_str(),
 		info.brief.c_str());
