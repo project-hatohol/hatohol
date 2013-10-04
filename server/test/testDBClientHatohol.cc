@@ -531,6 +531,14 @@ void test_makeConditionAllServersWithOthers(void)
 	assertMakeCondition(srvHostGrpSetMap, expect);
 }
 
+void test_makeConditionAllServersWithSpecifiedHostGroup(void)
+{
+	ServerHostGrpSetMap srvHostGrpSetMap;
+	srvHostGrpSetMap[ALL_SERVERS].insert(1);
+	string expect = "";
+	assertMakeCondition(srvHostGrpSetMap, expect);
+}
+
 void test_makeConditionOneServersAllHostGrp(void)
 {
 	ServerHostGrpSetMap srvHostGrpSetMap;
