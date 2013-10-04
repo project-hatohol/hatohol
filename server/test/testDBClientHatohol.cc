@@ -279,6 +279,18 @@ void _assertTriggerInfo(const TriggerInfo &expect, const TriggerInfo &actual)
 }
 #define assertTriggerInfo(E,A) cut_trace(_assertTriggerInfo(E,A))
 
+static void _assertMakeCondition(const ServerHostGrpSetMap &srvHostGrpSetMap,
+                                 const string &expect)
+{
+	string serverIdColumnName = "server_id";
+	string hostGroupIdColumnName = "host_group_id";
+	string cond = TestDBClientHatohol::callMakeCondition(
+	                srvHostGrpSetMap,
+	                serverIdColumnName, hostGroupIdColumnName);
+	cppcut_assert_equal(expect, cond);
+}
+#define assertMakeCondition(M,E) cut_trace(_assertMakeCondition(M,E))
+
 void cut_setup(void)
 {
 	hatoholInit();
@@ -494,14 +506,9 @@ void test_getNumberOfBadHosts(void)
 
 void test_makeConditionEmpty(void)
 {
-	string serverIdColumnName = "server_id";
-	string hostGroupIdColumnName = "host_group_id";
 	ServerHostGrpSetMap srvHostGrpSetMap;
 	string expect = "FALSE";
-	string cond = TestDBClientHatohol::callMakeCondition(
-	                srvHostGrpSetMap,
-	                serverIdColumnName, hostGroupIdColumnName);
-	cppcut_assert_equal(expect, cond);
+	assertMakeCondition(srvHostGrpSetMap, expect);
 }
 
 } // namespace testDBClientHatohol
