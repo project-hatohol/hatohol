@@ -519,4 +519,15 @@ void test_makeConditionAllServers(void)
 	assertMakeCondition(srvHostGrpSetMap, expect);
 }
 
+void test_makeConditionAllServersWithOthers(void)
+{
+	ServerHostGrpSetMap srvHostGrpSetMap;
+	srvHostGrpSetMap[1].insert(1);
+	srvHostGrpSetMap[1].insert(2);
+	srvHostGrpSetMap[3].insert(1);
+	srvHostGrpSetMap[ALL_SERVERS].insert(ALL_HOST_GROUPS);
+	string expect = "";
+	assertMakeCondition(srvHostGrpSetMap, expect);
+}
+
 } // namespace testDBClientHatohol
