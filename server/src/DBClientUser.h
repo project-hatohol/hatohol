@@ -114,6 +114,16 @@ public:
 	void getAccessInfoMap(ServerAccessInfoMap &srvAccessInfoMap,
 	                      const UserIdType userId);
 
+	/**
+	 * Gather server IDs and host group IDs for the user with userId.
+	 *
+	 * @param srvHostGrpMap
+	 * A ServerHostGrpSetMap instance in which the obtained data is stored.
+	 * @param userId a user ID.
+	 */
+	void getServerHostGrpSetMap(ServerHostGrpSetMap &srvHostGrpSetMap,
+	                            const UserIdType userId);
+
 protected:
 
 private:

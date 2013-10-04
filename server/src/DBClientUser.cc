@@ -401,6 +401,47 @@ void DBClientUser::getAccessInfoMap(ServerAccessInfoMap &srvAccessInfoMap,
 	}
 }
 
+void DBClientUser::getServerHostGrpSetMap(
+  ServerHostGrpSetMap &srvHostGrpSetMap, const UserIdType userId)
+{
+	DBAgentSelectExArg arg;
+	arg.tableName = TABLE_NAME_ACCESS_LIST;
+	arg.pushColumn(COLUMN_DEF_ACCESS_LIST[IDX_ACCESS_LIST_SERVER_ID]);
+	arg.pushColumn(COLUMN_DEF_ACCESS_LIST[IDX_ACCESS_LIST_HOST_GROUP_ID]);
+	arg.condition = StringUtils::sprintf("%s=%"FMT_USER_ID"",
+	  COLUMN_DEF_ACCESS_LIST[IDX_ACCESS_LIST_USER_ID].columnName, userId);
+	DBCLIENT_TRANSACTION_BEGIN() {
+		select(arg);
+	} DBCLIENT_TRANSACTION_END();
+
+	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
+	ItemGroupListConstIterator it = grpList.begin();
+	for (; it != grpList.end(); ++it) {
+		const ItemGroup *itemGroup = *it;
+		int idx = 0;
+
+		// server ID
+		DEFINE_AND_ASSERT(itemGroup->getItemAt(idx++),
+		                  ItemInt, itemServerId);
+		uint32_t serverId = itemServerId->get();
+
+		// host group ID
+		DEFINE_AND_ASSERT(itemGroup->getItemAt(idx++),
+		                  ItemUint64, itemHostGrpId);
+		uint64_t hostGroupId = itemHostGrpId->get();
+
+		// insert data
+		pair<HostGroupSetIterator, bool> result =
+		  srvHostGrpSetMap[serverId].insert(hostGroupId);
+		if (!result.second) {
+			MLPL_WARN("Found duplicated serverId and hostGroupId: "
+			          "%"PRIu32 ", %" PRIu64"\n",
+			          serverId, hostGroupId);
+			continue;
+		}
+	}
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------

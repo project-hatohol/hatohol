@@ -51,6 +51,18 @@ static size_t countServerAccessInfoMapElements(
 	return num;
 }
 
+static size_t countServerHostGrpSetMapElements(
+  const ServerHostGrpSetMap &srvHostGrpSetMap)
+{
+	size_t num = 0;
+	ServerHostGrpSetMapConstIterator it = srvHostGrpSetMap.begin();
+	for (; it != srvHostGrpSetMap.end(); ++it) {
+		const HostGroupSet &hostGroupSet = it->second;
+		num += hostGroupSet.size();
+	}
+	return num;
+}
+
 static void _assertAccessInfo(const AccessInfo &expect,
                               const AccessInfo &actual)
 {
@@ -87,6 +99,33 @@ static void _assertServerAccessInfoMap(
 	}
 }
 #define assertServerAccessInfoMap(E,A) cut_trace(_assertServerAccessInfoMap(E,A))
+
+static void _assertServerHostGrpSetMap(
+  const set<int> &expectIdxSet, const ServerHostGrpSetMap &srvHostGrpSetMap)
+{
+	// check total number
+	cppcut_assert_equal(expectIdxSet.size(),
+	                    countServerHostGrpSetMapElements(srvHostGrpSetMap));
+
+	// check each element
+	set<int>::const_iterator it = expectIdxSet.begin();
+	for (; it != expectIdxSet.end(); ++it) {
+		const AccessInfo &expectAccessInfo = testAccessInfo[*it];
+		ServerHostGrpSetMapConstIterator jt = 
+		  srvHostGrpSetMap.find(expectAccessInfo.serverId);
+		cppcut_assert_equal(true, jt != srvHostGrpSetMap.end(),
+		                    cut_message("Failed to lookup: %"PRIu32,
+		                                expectAccessInfo.serverId));
+		const HostGroupSet &hostGroupSet = jt->second;
+		HostGroupSetConstIterator kt =
+		   hostGroupSet.find(expectAccessInfo.hostGroupId);
+		cppcut_assert_equal(true, kt != hostGroupSet.end(),
+		                    cut_message("Failed to lookup: %"PRIu64,
+		                                expectAccessInfo.hostGroupId));
+	}
+}
+#define assertServerHostGrpSetMap(E,A) \
+cut_trace(_assertServerHostGrpSetMap(E,A))
 
 void cut_setup(void)
 {
@@ -223,6 +262,28 @@ void test_getServerAccessInfoMap(void)
 		UserIdType userId = it->first;
 		dbUser.getAccessInfoMap(srvAccessInfoMap, userId);
 		assertServerAccessInfoMap(it->second, srvAccessInfoMap);
+	}
+}
+
+void test_getServerHostGrpSetMap(void)
+{
+	loadTestDBAccessList();
+	DBClientUser dbUser;
+
+	typedef map<UserIdType, set<int> > UserIdIndexMap;
+	typedef UserIdIndexMap::iterator   UserIdIndexMapIterator;
+	UserIdIndexMap userIdIndexMap;
+	for (size_t i = 0; i < NumTestAccessInfo; i++) {
+		AccessInfo &accessInfo = testAccessInfo[i];
+		userIdIndexMap[accessInfo.userId].insert(i);
+	}
+
+	UserIdIndexMapIterator it = userIdIndexMap.begin();
+	for (; it != userIdIndexMap.end(); ++it) {
+		ServerHostGrpSetMap srvHostGrpSetMap;
+		UserIdType userId = it->first;
+		dbUser.getServerHostGrpSetMap(srvHostGrpSetMap, userId);
+		assertServerHostGrpSetMap(it->second, srvHostGrpSetMap);
 	}
 }
 
