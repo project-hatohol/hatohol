@@ -545,7 +545,7 @@ void test_getNumberOfBadHosts(void)
 void test_makeConditionEmpty(void)
 {
 	ServerHostGrpSetMap srvHostGrpSetMap;
-	string expect = "FALSE";
+	string expect = "0";
 	assertMakeCondition(srvHostGrpSetMap, expect);
 }
 
@@ -676,7 +676,7 @@ void test_makeSelectConditionNoneUser(void)
 	EventQueryOption option;
 	option.setUserId(INVALID_USER_ID);
 	string actual = TestDBClientHatohol::callMakeSelectCondition(option);
-	string expect = "FALSE";
+	string expect = "0";
 	cppcut_assert_equal(actual, expect);
 }
 

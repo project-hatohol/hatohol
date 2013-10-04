@@ -1277,7 +1277,7 @@ string DBClientHatohol::makeCondition(
 	string cond;
 	size_t numServers = srvHostGrpSetMap.size();
 	if (numServers == 0)
-		return "FALSE";
+		return "0";
 	ServerHostGrpSetMapConstIterator it = srvHostGrpSetMap.begin();
 	for (; it != srvHostGrpSetMap.end(); ++it) {
 		const uint32_t serverId = it->first;
@@ -1315,7 +1315,7 @@ string DBClientHatohol::makeSelectCondition(DataQueryOption &option)
 	if (!dbUser->getUserInfo(userInfo, userId)) {
 		MLPL_ERR("Failed to getUserInfo(): userId: %"FMT_USER_ID"\n",
 		         userId);
-		return "FALSE";
+		return "0";
 	}
 	if (userInfo.flags & USER_FLAG_ADMIN)
 		return "";
