@@ -74,25 +74,25 @@ extern const size_t NumTestAccessInfo;
  * @param hostId
  * A host ID. ALL_HOSTS can be specified.
  */
-extern void getTestTriggersIndexes(
+void getTestTriggersIndexes(
   map<uint32_t, map<uint64_t, size_t> > &indexMap,
   uint32_t serverId, uint64_t hostId);
-extern size_t getNumberOfTestTriggers(uint32_t serverId, uint64_t hostGroupId,
-                                      TriggerSeverityType severity);
+size_t getNumberOfTestTriggers(uint32_t serverId, uint64_t hostGroupId,
+                               TriggerSeverityType severity);
 
-extern size_t getNumberOfTestItems(uint32_t serverId);
+size_t getNumberOfTestItems(uint32_t serverId);
 
-extern void getTestHostInfoList(HostInfoList &hostInfoList,
-                                uint32_t targetServerId,
-                                ServerIdHostIdMap *serverIdHostIdMap = NULL);
+void getTestHostInfoList(HostInfoList &hostInfoList,
+                         uint32_t targetServerId,
+                         ServerIdHostIdMap *serverIdHostIdMap = NULL);
 
-extern size_t getNumberOfTestHostsWithStatus(uint32_t serverId,
-                                          uint64_t hostGroupId, bool status);
+size_t getNumberOfTestHostsWithStatus(uint32_t serverId,
+                                      uint64_t hostGroupId, bool status);
 
 const TriggerInfo &searchTestTriggerInfo(const EventInfo &eventInfo);
 
-extern void getDBCTestHostInfo(HostInfoList &hostInfoList,
-                               uint32_t targetServerId = ALL_SERVERS);
+void getDBCTestHostInfo(HostInfoList &hostInfoList,
+                        uint32_t targetServerId = ALL_SERVERS);
 
 typedef std::map<UserIdType, std::set<int> > UserIdIndexMap;
 typedef UserIdIndexMap::iterator UserIdIndexMapIterator;
