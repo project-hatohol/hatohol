@@ -20,6 +20,7 @@
 #ifndef DataQueryOption_h
 #define DataQueryOption_h
 
+#include <string>
 #include "Params.h"
 
 class DataQueryOption {
@@ -29,6 +30,9 @@ public:
 
 	void setUserId(UserIdType userId);
 	UserIdType getUserId(void) const;
+
+	virtual const std::string getServerIdColumnName(void) = 0;
+	virtual const std::string getHostGroupIdColumnName(void) = 0;
 
 private:
 	struct PrivateContext;

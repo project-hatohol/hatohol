@@ -135,7 +135,7 @@ void test_getEventList(void)
 
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	EventInfoList list;
-	DataQueryOption option;
+	EventQueryOption option;
 	dataStore->getEventList(list, option);
 
 	EventInfoListIterator it;

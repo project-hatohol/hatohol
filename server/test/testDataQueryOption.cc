@@ -25,6 +25,19 @@
 
 namespace testDataQueryOption {
 
+class TestQueryOption : public DataQueryOption {
+public:
+	const string getServerIdColumnName(void)
+	{
+		return "";
+	}
+
+	const string getHostGroupIdColumnName(void)
+	{
+		return "";
+	}
+};
+
 void cut_setup(void)
 {
 }
@@ -38,14 +51,14 @@ void cut_teardown(void)
 // ---------------------------------------------------------------------------
 void test_initialValue(void)
 {
-	DataQueryOption opt;
+	TestQueryOption opt;
 	cppcut_assert_equal(INVALID_USER_ID, opt.getUserId());
 }
 
 void test_setGetUserId(void)
 {
 	const UserIdType userId = 5;
-	DataQueryOption opt;
+	TestQueryOption opt;
 	opt.setUserId(userId);
 	cppcut_assert_equal(userId, opt.getUserId());
 }

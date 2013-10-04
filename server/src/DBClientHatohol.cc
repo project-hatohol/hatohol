@@ -24,7 +24,9 @@ using namespace mlpl;
 
 #include "DBAgentFactory.h"
 #include "DBClientHatohol.h"
+#include "DBClientUser.h"
 #include "DBClientUtils.h"
+#include "CacheServiceDBClient.h"
 #include "Params.h"
 
 static const char *TABLE_NAME_TRIGGERS = "triggers";
@@ -455,6 +457,20 @@ struct DBClientHatohol::PrivateContext
 	{
 	}
 };
+
+// ---------------------------------------------------------------------------
+// EventQueryOption
+// ---------------------------------------------------------------------------
+const string EventQueryOption::getServerIdColumnName(void)
+{
+	return COLUMN_DEF_EVENTS[IDX_EVENTS_SERVER_ID].columnName;
+}
+
+const string EventQueryOption::getHostGroupIdColumnName(void)
+{
+	// TODO: this is temporarily
+	return "host_group_id";
+}
 
 // ---------------------------------------------------------------------------
 // Public methods

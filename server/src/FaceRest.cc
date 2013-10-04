@@ -914,7 +914,7 @@ void FaceRest::handlerGetEvent
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 
 	EventInfoList eventList;
-	DataQueryOption option;
+	EventQueryOption option;
 	option.setUserId(arg->userId);
 	dataStore->getEventList(eventList, option);
 

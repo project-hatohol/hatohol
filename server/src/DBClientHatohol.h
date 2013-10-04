@@ -118,6 +118,14 @@ typedef list<ItemInfo>               ItemInfoList;
 typedef ItemInfoList::iterator       ItemInfoListIterator;
 typedef ItemInfoList::const_iterator ItemInfoListConstIterator;
 
+class EventQueryOption : public DataQueryOption {
+public:
+	// Implemented virtual methods
+	virtual const string getServerIdColumnName(void);
+	virtual const string getHostGroupIdColumnName(void);
+
+};
+
 class DBClientHatohol : public DBClient {
 public:
 	static uint64_t EVENT_NOT_FOUND;
@@ -210,7 +218,6 @@ protected:
 
 	void getTriggerInfoList(TriggerInfoList &triggerInfoList,
 	                        const string &condition);
-
 	static void appendCondition(string &cond, const string &newCond);
 	static string makeConditionHostGroup(
 	  const HostGroupSet &hostGroupSet,
