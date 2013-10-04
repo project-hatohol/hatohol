@@ -559,4 +559,17 @@ void test_makeConditionOneServerAndOneHostGroup(void)
 	assertMakeCondition(srvHostGrpSetMap, expect);
 }
 
+void test_makeConditionOneServerAndHostGroups(void)
+{
+	ServerHostGrpSetMap srvHostGrpSetMap;
+	srvHostGrpSetMap[1].insert(3);
+	srvHostGrpSetMap[1].insert(1003);
+	srvHostGrpSetMap[1].insert(2048);
+	string expect =
+	  StringUtils::sprintf("(%s=1 AND %s IN (3,1003,2048))",
+	  serverIdColumnName.c_str(),
+	  hostGroupIdColumnName.c_str());
+	assertMakeCondition(srvHostGrpSetMap, expect);
+}
+
 } // namespace testDBClientHatohol
