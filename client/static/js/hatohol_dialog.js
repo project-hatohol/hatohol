@@ -74,3 +74,15 @@ HatoholDialog.prototype.closeDialog = function() {
   $(this.dialogId).dialog("close");
   $(this.dialogId).remove();
 }
+
+HatoholDialog.prototype.setButtonState = function(buttonLabel, state) {
+  var btn = $(".ui-dialog-buttonpane").find("button:contains(" +
+              buttonLabel + ")");
+  if (state) {
+     btn.removeAttr("disabled");
+     btn.removeClass("ui-state-disabled");
+  } else {
+     btn.attr("disabled", "disable");
+     btn.addClass("ui-state-disabled");
+  }
+}
