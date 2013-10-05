@@ -17,7 +17,7 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
-var HatoholDialog = function(id, dialogTitle, buttons) {
+var HatoholDialog = function(id, dialogTitle, buttons, dialogAttr) {
 
   var self = this;
 
@@ -28,12 +28,18 @@ var HatoholDialog = function(id, dialogTitle, buttons) {
   $("body").append(self.mainFrame);
   self.onAppendMainElement();
 
+  var width = "95%";
+  if (dialogAttr) {
+    if (dialogAttr.width)
+      width = dialogAttr.width
+  }
+
   self.dialogId = "#" + id
   $(self.dialogId).dialog({
     autoOpen: false,
     title: dialogTitle,
     closeOnEscape: false,
-    width:  "95%",
+    width: width,
     modal: true,
     buttons: buttons,
     open: function(event, ui){
