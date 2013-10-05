@@ -48,3 +48,15 @@ var HatoholMessageBox = function(msg, title, buttonLabel) {
 
   $(self.dialogId).dialog("open");
 };
+
+function hatoholInfoMsgBox(msg) {
+  new HatoholMessageBox(msg, gettext("Information"));
+};
+
+function hatoholWarnMsgBox(msg) {
+  new HatoholMessageBox(msg, gettext("Warning"));
+};
+
+function hatoholErrorMsgBox(msg) {
+  new HatoholMessageBox(msg, gettext("Error"));
+};
