@@ -8,16 +8,25 @@ window.onload = function() {
 
 function main()
 {
-  new HatoholLoginDialog(loginCallback);
+  new HatoholLoginDialog(loginCallback, tryLoginCallback);
 }
 
-function loginCallback(username, password)
+function tryLoginCallback(username, password)
 {
     var s = ''
     s += 'UserName: ' + username;
     s += '<br>'
     s += 'password: ' + password;
-    $("#msg").html(s);
+    s += '<br>'
+    $("#msg").append(s);
+}
+
+function loginCallback(sessionId)
+{
+    var s = ''
+    s += 'session ID: ' + sessionId;
+    s += '<br>'
+    $("#msg").append(s);
 }
 
 </script>
