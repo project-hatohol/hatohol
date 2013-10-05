@@ -28,7 +28,7 @@ var HatoholLoginDialog = function(loginCallback) {
   }];
 
   // call the constructor of the super class
-  var id = "hatohol_login_dialog"
+  var id = "hatohol_login_dialog";
   var title = gettext("Login");
   dialogAttr = {};
   dialogAttr.width = "auto";
