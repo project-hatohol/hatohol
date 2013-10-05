@@ -15,9 +15,11 @@
 # You should have received a copy of the GNU General Public License
 # along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
 
+import os
 from django.conf.urls import patterns, include, url
 from django.conf.urls.i18n import i18n_patterns
 from hatohol.forwardview import jsonforward
+from django.views.generic import TemplateView
 
 # Uncomment the next two lines to enable the admin:
 # from django.contrib import admin
@@ -42,3 +44,9 @@ urlpatterns += i18n_patterns('',
     url(r'^viewer/', include('viewer.urls')),
     url(r'^jsi18n/$', 'django.views.i18n.javascript_catalog'),
 )
+
+if 'HATOHOL_DEBUG' in os.environ and os.environ['HATOHOL_DEBUG'] == '1':
+  urlpatterns += patterns('',
+      url(r'^tasting/hatohol_login_dialog.html$', TemplateView.as_view(template_name='tasting/hatohol_login_dialog.html')),
+      url(r'^tasting/js_loader.js$', TemplateView.as_view(template_name='tasting/js_loader.js')),
+  )
