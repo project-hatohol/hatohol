@@ -73,7 +73,7 @@ HatoholLoginDialog.prototype.onAppendMainElement = function () {
   });
 
   function fixupAddButtonState() {
-    var state = (validUserName && validPassword)
+    var state = (validUserName && validPassword);
     self.setButtonState(self.buttonName, state);
   }
 }
