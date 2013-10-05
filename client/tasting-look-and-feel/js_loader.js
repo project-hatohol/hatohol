@@ -80,6 +80,8 @@ function hatohol_base_js_load(mainFunction) {
   }
 }
 
+// This is too easy workaround. This doesn't translate the input message.
+// We should fix it.
 function gettext(msg)
 {
     return msg;
