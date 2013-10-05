@@ -17,7 +17,7 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
-var HatoholLoginDialog = function(loginCallback) {
+var HatoholLoginDialog = function(loginCallback, tryLoginCallback) {
   var self = this;
   self.loginCallback = loginCallback;
   self.buttonName = gettext("Login");
@@ -36,10 +36,30 @@ var HatoholLoginDialog = function(loginCallback) {
   self.setButtonState(self.buttonName, false);
 
   function loginButtonClicked() {
-    var username = $("#inputUserName").val();
+    var user = $("#inputUserName").val();
     var password = $("#inputPassword").val();
+    if (tryLoginCallback)
+      tryLoginCallback(user, password);
+
+    $.ajax({
+      url: "/tunnel/login&user=" + encodeURI(user) + "&password=" + encodeURI(password),
+      type: "GET",
+      success: function(data) {
+        parseLoginResult(data);
+      },
+      error: function(XMLHttpRequest, textStatus, errorThrown) {
+        var errorMsg = "Error: " + XMLHttpRequest.status + ": " +
+                       XMLHttpRequest.statusText;
+        showErrorMessageBox(errorMsg);
+      },
+    });
+  }
+
+  function parseLoginResult(data) {
+    console.log(data);
+    sessionId = "";
     self.closeDialog();
-    self.loginCallback(username, password);
+    self.loginCallback(sessionId);
   }
 }
 
