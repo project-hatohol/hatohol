@@ -20,9 +20,10 @@
 var HatoholLoginDialog = function(loginCallback) {
   var self = this;
   self.loginCallback = loginCallback;
+  self.buttonName = gettext("Login");
 
   var dialogButtons = [{
-    text: gettext("Login"),
+    text: self.buttonName,
     click: function() { self.loginButtonClicked() },
   }];
 
@@ -32,6 +33,7 @@ var HatoholLoginDialog = function(loginCallback) {
   dialogAttr = {};
   dialogAttr.width = "auto";
   HatoholDialog.apply(this, [id, title, dialogButtons, dialogAttr]);
+  self.setButtonState(self.buttonName, false);
 }
 
 HatoholLoginDialog.prototype = Object.create(HatoholDialog.prototype);
