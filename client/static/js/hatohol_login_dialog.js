@@ -36,6 +36,9 @@ var HatoholLoginDialog = function(loginCallback) {
   self.setButtonState(self.buttonName, false);
 }
 
+//
+// Override methods
+//
 HatoholLoginDialog.prototype = Object.create(HatoholDialog.prototype);
 HatoholLoginDialog.prototype.constructor = HatoholLoginDialog;
 
@@ -53,9 +56,13 @@ HatoholLoginDialog.prototype.createMainElement = function() {
   }
 }
 
+//
+// Methods defined in this object
+//
 HatoholLoginDialog.prototype.loginButtonClicked = function() {
   var username = $("#inputUserName").val();
   var password = $("#inputPassword").val();
   this.closeDialog();
   this.loginCallback(username, password);
 }
+
