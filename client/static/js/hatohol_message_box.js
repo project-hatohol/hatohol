@@ -28,9 +28,12 @@ var HatoholMessageBox = function(msg, title, buttonLabel) {
 
   var button = [{
     text: label,
-    click: function() { $(this).dialog("close"); }
+    click: function() {
+      $(this).dialog("destroy");
+      $(self.dialogId).remove();
+    }
   }];
-  var id = "hatohol-message-box";
+  id = "hatohol-message-box";
   var div = "<div id='" + id + "'>" + msg + "</div>";
   $("body").append(div);
 
