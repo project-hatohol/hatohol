@@ -33,7 +33,7 @@ var HatoholMessageBox = function(msg, title, buttonLabel) {
       $(self.dialogId).remove();
     }
   }];
-  id = "hatohol-message-box";
+  var id = "hatohol-message-box";
   var div = "<div id='" + id + "'>" + msg + "</div>";
   $("body").append(div);
 
