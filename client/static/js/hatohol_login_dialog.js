@@ -56,6 +56,28 @@ HatoholLoginDialog.prototype.createMainElement = function() {
   }
 }
 
+HatoholLoginDialog.prototype.onAppendMainElement = function () {
+
+  var self = this;
+  var validUserName = false;
+  var validPassword = false;
+
+  $("#inputUserName").keyup(function() {
+    validUserName = !!$("#inputUserName").val();
+    fixupAddButtonState();
+  });
+
+  $("#inputPassword").keyup(function() {
+    validPassword = !!$("#inputPassword").val();
+    fixupAddButtonState();
+  });
+
+  function fixupAddButtonState() {
+    var state = (validUserName && validPassword)
+    self.setButtonState(self.buttonName, state);
+  }
+}
+
 //
 // Methods defined in this object
 //
