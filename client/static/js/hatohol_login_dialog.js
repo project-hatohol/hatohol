@@ -24,7 +24,7 @@ var HatoholLoginDialog = function(loginCallback) {
 
   var dialogButtons = [{
     text: self.buttonName,
-    click: function() { self.loginButtonClicked() },
+    click: function() { loginButtonClicked(); },
   }];
 
   // call the constructor of the super class
@@ -34,6 +34,13 @@ var HatoholLoginDialog = function(loginCallback) {
   dialogAttr.width = "auto";
   HatoholDialog.apply(this, [id, title, dialogButtons, dialogAttr]);
   self.setButtonState(self.buttonName, false);
+
+  function loginButtonClicked() {
+    var username = $("#inputUserName").val();
+    var password = $("#inputPassword").val();
+    self.closeDialog();
+    self.loginCallback(username, password);
+  }
 }
 
 //
@@ -81,10 +88,3 @@ HatoholLoginDialog.prototype.onAppendMainElement = function () {
 //
 // Methods defined in this object
 //
-HatoholLoginDialog.prototype.loginButtonClicked = function() {
-  var username = $("#inputUserName").val();
-  var password = $("#inputPassword").val();
-  this.closeDialog();
-  this.loginCallback(username, password);
-}
-
