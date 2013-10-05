@@ -756,13 +756,13 @@ void FaceRest::handlerLogin
 {
 	gchar *user = (gchar *)g_hash_table_lookup(query, "user");
 	if (!user) {
-		MLPL_INFO("Not found: user");
+		MLPL_INFO("Not found: user\n");
 		replyError(msg, arg, "Authentification failed");
 		return;
 	}
 	gchar *password = (gchar *)g_hash_table_lookup(query, "password");
 	if (!password) {
-		MLPL_INFO("Not found: password");
+		MLPL_INFO("Not found: password\n");
 		replyError(msg, arg, "Authentification failed");
 		return;
 	}
@@ -770,7 +770,7 @@ void FaceRest::handlerLogin
 	DBClientUser dbUser;
 	UserIdType userId = dbUser.getUserId(user, password);
 	if (userId == INVALID_USER_ID) {
-		MLPL_INFO("Failed to authenticate: %s.", user);
+		MLPL_INFO("Failed to authenticate: %s.\n", user);
 		replyError(msg, arg, "Authentification failed");
 		return;
 	}
