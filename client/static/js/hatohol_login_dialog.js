@@ -50,7 +50,7 @@ var HatoholLoginDialog = function(loginCallback, tryLoginCallback) {
       error: function(XMLHttpRequest, textStatus, errorThrown) {
         var errorMsg = "Error: " + XMLHttpRequest.status + ": " +
                        XMLHttpRequest.statusText;
-        showErrorMessageBox(errorMsg);
+        hatoholErrorMsgBox(errorMsg);
       },
     });
   }
