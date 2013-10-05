@@ -9,6 +9,7 @@ function hatohol_base_js_load(mainFunction) {
     "bootstrap.js",
     "library.js",
     "hatohol_def.js",
+    "hatohol_message_box.js",
     "hatohol_dialog.js",
     "hatohol_login_dialog.js"
   ];
