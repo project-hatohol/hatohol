@@ -67,6 +67,10 @@ HatoholDialog.prototype.replaceMainElement = function(elem) {
   this.mainFrame.append(elem);
 }
 
+HatoholDialog.prototype.appendToMainElement = function(elem) {
+  this.mainFrame.append(elem);
+}
+
 /**
  * Close and delete the dialog.
  */
@@ -86,3 +90,4 @@ HatoholDialog.prototype.setButtonState = function(buttonLabel, state) {
      btn.addClass("ui-state-disabled");
   }
 }
+
