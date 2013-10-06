@@ -75,7 +75,7 @@ HatoholReplyParser.prototype.getStatusMessage = function() {
 // HatoholLoginReplyParser
 // ---------------------------------------------------------------------------
 var HatoholLoginReplyParser = function(reply) {
-  HatoholReplyParser.apply(this, reply);
+  HatoholReplyParser.apply(this, [reply]);
   if (this.getStatus() != REPLY_STATUS.OK)
     return;
   if (!("sesseionId" in reply))
