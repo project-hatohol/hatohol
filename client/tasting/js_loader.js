@@ -10,6 +10,7 @@ function hatohol_base_js_load(mainFunction) {
     "library.js",
     "hatohol_def.js",
     "hatohol_message_box.js",
+    "hatohol_reply_parser.js",
     "hatohol_dialog.js",
     "hatohol_login_dialog.js"
   ];

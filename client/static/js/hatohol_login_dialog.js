@@ -56,8 +56,13 @@ var HatoholLoginDialog = function(loginCallback, tryLoginCallback) {
   }
 
   function parseLoginResult(data) {
-    console.log(data);
-    sessionId = "";
+    var parser = new HatoholLoginReplyParser(data);
+    if (parser.getStatus() != REPLY_STATUS.OK) {
+      var msg = gettext("Failed to login.") + parser.getStatusMessage();
+      hatoholErrorMsgBox(msg);
+      return;
+    }
+    sessionId = parser.getSessionId();
     self.closeDialog();
     self.loginCallback(sessionId);
   }

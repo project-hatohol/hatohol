@@ -26,6 +26,8 @@ var REPLY_STATUS = {
   NOT_FOUND_RESULT:  2,
   RESULT_IS_FALSE:   3,
   RESULT_IS_FALSE_BUT_NOT_FOUND_MSG: 4,
+
+  NOT_FOUND_SESSEION_ID: 100,
 };
 
 var HatoholReplyParser = function(reply) {
@@ -63,6 +65,27 @@ HatoholReplyParser.prototype.getStatusMessage = function() {
     return "Result is false: " + this.errorMessage;
   case REPLY_STATUS.RESULT_IS_FALSE_BUT_NOT_FOUND_MSG:
     return "Result is false, but message is not found.";
+  case REPLY_STATUS.NOT_FOUND_SESSION_ID:
+    return "Not found: sessionId.";
   }
   return "Unknown status: " + this.stat;
 }
+
+// ---------------------------------------------------------------------------
+// HatoholLoginReplyParser
+// ---------------------------------------------------------------------------
+var HatoholLoginReplyParser = function(reply) {
+  HatoholReplyParser.apply(this, reply);
+  if (this.getStatus() != REPLY_STATUS.OK)
+    return;
+  if (!("sesseionId" in reply))
+    this.stat = REPLY_STATUS.NOT_FOUND_SESSION_ID;
+}
+
+HatoholLoginReplyParser.prototype = Object.create(HatoholReplyParser.prototype);
+HatoholLoginReplyParser.prototype.constructor = HatoholLoginReplyParser;
+
+HatoholLoginReplyParser.prototype.getSessionId = function() {
+  return this.sessionId;
+}
+
