@@ -17,6 +17,9 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
+// ---------------------------------------------------------------------------
+// HatohoReplyParser
+// ---------------------------------------------------------------------------
 var REPLY_STATUS = {
   OK: 0,
   NULL_OR_UNDEFINED: 1,
@@ -37,7 +40,7 @@ var HatoholReplyParser = function(reply) {
   } else if (!reply.result) {
     if ("message" in reply) {
       this.stat = REPLY_STATUS.RESULT_IS_FALSE;
-      this.errorMessage = result.message;
+      this.errorMessage = reply.message;
     } else {
       this.stat = REPLY_STATUS.RESULT_IS_FALSE_BUT_NOT_FOUND_MSG;
     }
