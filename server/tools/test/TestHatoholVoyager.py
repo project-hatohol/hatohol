@@ -55,5 +55,9 @@ class TestHatoholVoyager(unittest.TestCase):
     arg_list = ["show-trigger"]
     self.assert_url(arg_list, "http://localhost:33194/trigger")
 
+  def test_show_trigger_with_server_id(self):
+    arg_list = ["show-trigger", "3"]
+    self.assert_url(arg_list, "http://localhost:33194/trigger?serverId=3")
+
 if __name__ == '__main__':
     unittest.main()
