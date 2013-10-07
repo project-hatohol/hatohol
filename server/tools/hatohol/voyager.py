@@ -68,7 +68,6 @@ def parse_server_arg(arg):
   return "http://%s:%d" % (server, port)
 
 def show_server(url, args):
-  print url
   url += "/server"
   query = {}
   if "serverId" in args:
