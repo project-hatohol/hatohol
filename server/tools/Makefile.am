@@ -1,6 +1,6 @@
 bin_PROGRAMS = hatohol-config-db-creator \
                hatohol-def-src-file-generator
-dist_bin_SCRIPTS = hatohol_voyager
+dist_bin_SCRIPTS = hatohol-voyager
 actiondir = $(libexecdir)/$(PACKAGE)/action
 dist_action_SCRIPTS = hatohol-actor-mail
 hatohol_config_db_creator_SOURCES = hatohol-config-db-creator.cc
@@ -22,6 +22,7 @@ hatohol_def_src_file_generator_SOURCES = hatohol-def-src-file-generator.cc
 hatohol_pymodules = \
   hatohol/__init__.py \
   hatohol/hatohol_def.py \
+  hatohol/voyager.py \
   hatohol/HatoholActionCreator.py \
   setup.py
 
