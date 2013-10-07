@@ -63,6 +63,7 @@ const char *FaceRest::pathForGetTrigger  = "/trigger";
 const char *FaceRest::pathForGetEvent    = "/event";
 const char *FaceRest::pathForGetItem     = "/item";
 const char *FaceRest::pathForGetAction   = "/action";
+const char *FaceRest::pathForUser        = "/user";
 
 static const char *MIME_HTML = "text/html";
 static const char *MIME_JSON = "application/json";
@@ -244,6 +245,9 @@ gpointer FaceRest::mainThread(HatoholThreadArg *arg)
 	soup_server_add_handler(m_soupServer, pathForGetAction,
 	                        launchHandlerInTryBlock,
 	                        (gpointer)handlerAction, NULL);
+	soup_server_add_handler(m_soupServer, pathForUser,
+	                        launchHandlerInTryBlock,
+	                        (gpointer)handlerUser, NULL);
 	soup_server_run(m_soupServer);
 	g_main_context_unref(gMainCtx);
 	MLPL_INFO("exited face-rest\n");
@@ -1250,6 +1254,46 @@ void FaceRest::handlerDeleteAction
 	agent.add("id", arg->id);
 	agent.endObject();
 	replyJsonData(agent, msg, arg->jsonpCallbackName, arg);
+}
+
+void FaceRest::handlerUser
+  (SoupServer *server, SoupMessage *msg, const char *path,
+   GHashTable *query, SoupClientContext *client, HandlerArg *arg)
+{
+	if (strcasecmp(msg->method, "GET") == 0) {
+		handlerGetUser(server, msg, path, query, client, arg);
+	} else if (strcasecmp(msg->method, "POST") == 0) {
+		handlerPostUser(server, msg, path, query, client, arg);
+	} else if (strcasecmp(msg->method, "DELETE") == 0) {
+		handlerDeleteUser(server, msg, path, query, client, arg);
+	} else {
+		MLPL_ERR("Unknown method: %s\n", msg->method);
+		soup_message_set_status(msg, SOUP_STATUS_METHOD_NOT_ALLOWED);
+	}
+}
+
+void FaceRest::handlerGetUser
+  (SoupServer *server, SoupMessage *msg, const char *path,
+   GHashTable *query, SoupClientContext *client, HandlerArg *arg)
+{
+	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	replyError(msg, arg, "Not implmented.");
+}
+
+void FaceRest::handlerPostUser
+  (SoupServer *server, SoupMessage *msg, const char *path,
+   GHashTable *query, SoupClientContext *client, HandlerArg *arg)
+{
+	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	replyError(msg, arg, "Not implmented.");
+}
+
+void FaceRest::handlerDeleteUser
+  (SoupServer *server, SoupMessage *msg, const char *path,
+   GHashTable *query, SoupClientContext *client, HandlerArg *arg)
+{
+	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	replyError(msg, arg, "Not implmented.");
 }
 
 // ---------------------------------------------------------------------------

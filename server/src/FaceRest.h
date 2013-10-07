@@ -138,6 +138,19 @@ protected:
 	  (SoupServer *server, SoupMessage *msg, const char *path,
 	   GHashTable *query, SoupClientContext *client, HandlerArg *arg);
 
+	static void handlerUser
+	  (SoupServer *server, SoupMessage *msg, const char *path,
+	   GHashTable *query, SoupClientContext *client, HandlerArg *arg);
+	static void handlerGetUser
+	  (SoupServer *server, SoupMessage *msg, const char *path,
+	   GHashTable *query, SoupClientContext *client, HandlerArg *arg);
+	static void handlerPostUser
+	  (SoupServer *server, SoupMessage *msg, const char *path,
+	   GHashTable *query, SoupClientContext *client, HandlerArg *arg);
+	static void handlerDeleteUser
+	  (SoupServer *server, SoupMessage *msg, const char *path,
+	   GHashTable *query, SoupClientContext *client, HandlerArg *arg);
+
 	/**
 	 * Get the SessionInfo instance.
 	 * NOTE: This function doesn't take a lock in it. So you should 
@@ -171,6 +184,7 @@ private:
 	static const char *pathForGetEvent;
 	static const char *pathForGetItem;
 	static const char *pathForGetAction;
+	static const char *pathForUser;
 
 	guint       m_port;
 	SoupServer *m_soupServer;
