@@ -57,6 +57,20 @@ def print_usage():
   print "  del-action ACTION_ID"
   print ""
 
+url_open_fook_func = None
+
+def set_url_open_hook(func):
+  global url_open_fook_func
+  url_open_fook_func = func
+
+def open_url(url):
+  global url_open_fook_func
+  if url_open_fook_func:
+    url_open_fook_func(url)
+
+  response = urllib2.urlopen(url)
+  return response
+
 def parse_server_arg(arg):
   words = arg.split(":")
   server = words[0]
@@ -75,7 +89,7 @@ def show_server(url, args):
   if len(query) > 0:
     encoded_query = urllib.urlencode(query)
     url += "?" + encoded_query
-  response = urllib2.urlopen(url)
+  response = open_url(url)
   server_json = response.read()
   print server_json
 
@@ -150,7 +164,7 @@ command_map = {
   "del-action":del_action,
 }
 
-def main():
+def main(arg_list=None):
   parser = argparse.ArgumentParser(description="Hatohol Voyager")
   parser.add_argument("--server", type=parse_server_arg, dest="server_url",
                       metavar="SERVER[:PORT]",
@@ -167,5 +181,5 @@ def main():
   sub_trigger.add_argument("hostId", type=int, nargs="?")
   sub_trigger.add_argument("triggerId", type=int, nargs="?")
 
-  args = parser.parse_args()
+  args = parser.parse_args(arg_list)
   command_map[args.sub_command](args.server_url, args)
