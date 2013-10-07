@@ -79,5 +79,9 @@ class TestHatoholVoyager(unittest.TestCase):
     arg_list = ["show-host"]
     self.assert_url(arg_list, "http://localhost:33194/host")
 
+  def test_show_host_with_server_id(self):
+    arg_list = ["show-host", "3"]
+    self.assert_url(arg_list, "http://localhost:33194/host?serverId=3")
+
 if __name__ == '__main__':
     unittest.main()
