@@ -110,7 +110,8 @@ def show_trigger(url, args):
   print triggers_json
 
 def show_event(url, options):
-  response = urllib2.urlopen(url + "/event")
+  url += "/event"
+  response = open_url(url)
   events_json = response.read()
   print events_json
 
@@ -180,6 +181,9 @@ def main(arg_list=None):
   sub_trigger.add_argument("serverId", type=int, nargs="?")
   sub_trigger.add_argument("hostId", type=int, nargs="?")
   sub_trigger.add_argument("triggerId", type=int, nargs="?")
+
+  # event
+  sub_trigger = subparsers.add_parser("show-event")
 
   args = parser.parse_args(arg_list)
   command_map[args.sub_command](args.server_url, args)
