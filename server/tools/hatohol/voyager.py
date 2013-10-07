@@ -136,7 +136,8 @@ def show_host(url, args):
   print items_json
 
 def show_action(url, options):
-  response = urllib2.urlopen(url + "/action")
+  url += "/action"
+  response = open_url(url)
   actions_json = response.read()
   print actions_json
 
@@ -193,6 +194,9 @@ def main(arg_list=None):
   sub_host = subparsers.add_parser("show-host")
   sub_host.add_argument("serverId", type=int, nargs="?")
   sub_host.add_argument("hostId", type=int, nargs="?")
+
+  # action
+  sub_action = subparsers.add_parser("show-action")
 
   args = parser.parse_args(arg_list)
   command_map[args.sub_command](args.server_url, args)
