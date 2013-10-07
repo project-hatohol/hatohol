@@ -57,16 +57,16 @@ def print_usage():
   print "  del-action ACTION_ID"
   print ""
 
-url_open_fook_func = None
+url_open_hook_func = None
 
 def set_url_open_hook(func):
-  global url_open_fook_func
-  url_open_fook_func = func
+  global url_open_hook_func
+  url_open_hook_func = func
 
 def open_url(url):
-  global url_open_fook_func
-  if url_open_fook_func:
-    url_open_fook_func(url)
+  global url_open_hook_func
+  if url_open_hook_func:
+    url_open_hook_func(url)
 
   response = urllib2.urlopen(url)
   return response
