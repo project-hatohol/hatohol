@@ -34,7 +34,7 @@ class TestHatoholVoyager(unittest.TestCase):
 
     voyager.set_url_open_hook(url_hook)
     try:
-      voyager.main(["show-server"])
+      voyager.main(arg_list)
     except TestHatoholEscapeException:
       pass
     actual = ctx["url"]
@@ -46,6 +46,10 @@ class TestHatoholVoyager(unittest.TestCase):
   def test_show_server(self):
     arg_list = ["show-server"]
     self.assert_url(arg_list, "http://localhost:33194/server")
+
+  def test_show_server_with_id(self):
+    arg_list = ["show-server", "1"]
+    self.assert_url(arg_list, "http://localhost:33194/server?serverId=1")
 
 if __name__ == '__main__':
     unittest.main()
