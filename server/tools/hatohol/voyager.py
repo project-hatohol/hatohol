@@ -116,7 +116,8 @@ def show_event(url, options):
   print events_json
 
 def show_item(url, options):
-  response = urllib2.urlopen(url + "/item")
+  url += "/item"
+  response = open_url(url)
   items_json = response.read()
   print items_json
 
@@ -184,6 +185,9 @@ def main(arg_list=None):
 
   # event
   sub_trigger = subparsers.add_parser("show-event")
+
+  # item
+  sub_item = subparsers.add_parser("show-item")
 
   args = parser.parse_args(arg_list)
   command_map[args.sub_command](args.server_url, args)
