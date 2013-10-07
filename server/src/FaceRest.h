@@ -183,7 +183,7 @@ private:
 	static const char *pathForGetTrigger;
 	static const char *pathForGetEvent;
 	static const char *pathForGetItem;
-	static const char *pathForGetAction;
+	static const char *pathForAction;
 	static const char *pathForUser;
 
 	guint       m_port;

@@ -62,7 +62,7 @@ const char *FaceRest::pathForGetHost     = "/host";
 const char *FaceRest::pathForGetTrigger  = "/trigger";
 const char *FaceRest::pathForGetEvent    = "/event";
 const char *FaceRest::pathForGetItem     = "/item";
-const char *FaceRest::pathForGetAction   = "/action";
+const char *FaceRest::pathForAction      = "/action";
 const char *FaceRest::pathForUser        = "/user";
 
 static const char *MIME_HTML = "text/html";
@@ -242,7 +242,7 @@ gpointer FaceRest::mainThread(HatoholThreadArg *arg)
 	soup_server_add_handler(m_soupServer, pathForGetItem,
 	                        launchHandlerInTryBlock,
 	                        (gpointer)handlerGetItem, NULL);
-	soup_server_add_handler(m_soupServer, pathForGetAction,
+	soup_server_add_handler(m_soupServer, pathForAction,
 	                        launchHandlerInTryBlock,
 	                        (gpointer)handlerAction, NULL);
 	soup_server_add_handler(m_soupServer, pathForUser,
