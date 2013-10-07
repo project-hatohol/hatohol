@@ -184,7 +184,7 @@ def main(arg_list=None):
   sub_trigger.add_argument("triggerId", type=int, nargs="?")
 
   # event
-  sub_trigger = subparsers.add_parser("show-event")
+  sub_event = subparsers.add_parser("show-event")
 
   # item
   sub_item = subparsers.add_parser("show-item")
