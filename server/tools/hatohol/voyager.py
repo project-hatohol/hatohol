@@ -109,13 +109,13 @@ def show_trigger(url, args):
   triggers_json = response.read()
   print triggers_json
 
-def show_event(url, options):
+def show_event(url, args):
   url += "/event"
   response = open_url(url)
   events_json = response.read()
   print events_json
 
-def show_item(url, options):
+def show_item(url, args):
   url += "/item"
   response = open_url(url)
   items_json = response.read()
