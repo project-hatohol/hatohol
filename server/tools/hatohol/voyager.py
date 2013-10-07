@@ -121,17 +121,17 @@ def show_item(url, options):
   items_json = response.read()
   print items_json
 
-def show_host(url, options):
+def show_host(url, args):
   url += "/host"
   query = {}
-  if len(options) >= 1:
-    query["serverId"] = options[0]
-  if len(options) >= 2:
-    query["hostId"] = options[1]
+  if args.serverId != None:
+    query["serverId"] = args.serverId
+  if args.hostId != None:
+    query["hostId"] = args.hostId
   if len(query) > 0:
     encoded_query = urllib.urlencode(query)
     url += "?" + encoded_query
-  response = urllib2.urlopen(url)
+  response = open_url(url)
   items_json = response.read()
   print items_json
 
@@ -188,6 +188,11 @@ def main(arg_list=None):
 
   # item
   sub_item = subparsers.add_parser("show-item")
+
+  # host
+  sub_host = subparsers.add_parser("show-host")
+  sub_host.add_argument("serverId", type=int, nargs="?")
+  sub_host.add_argument("hostId", type=int, nargs="?")
 
   args = parser.parse_args(arg_list)
   command_map[args.sub_command](args.server_url, args)
