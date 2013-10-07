@@ -84,7 +84,6 @@ def parse_server_arg(arg):
 def show_server(url, args):
   url += "/server"
   query = {}
-  print args.serverId
   if args.serverId != None:
     query["serverId"] = args.serverId;
   if len(query) > 0:
