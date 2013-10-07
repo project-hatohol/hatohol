@@ -26,8 +26,7 @@ class TestHatoholEscapeException:
 
 class TestHatoholVoyager(unittest.TestCase):
 
-  def test_show_server(self):
-
+  def assert_url(self, arg_list, expect):
     ctx = {"url":None}
     def url_hook(hook_url):
       ctx["url"] = hook_url
@@ -38,7 +37,15 @@ class TestHatoholVoyager(unittest.TestCase):
       voyager.main(["show-server"])
     except TestHatoholEscapeException:
       pass
-    self.assertEquals("http://localhost:33194/server", ctx["url"])
+    actual = ctx["url"]
+    self.assertEquals(actual, expect)
+
+  #
+  # Test cases
+  #
+  def test_show_server(self):
+    arg_list = ["show-server"]
+    self.assert_url(arg_list, "http://localhost:33194/server")
 
 if __name__ == '__main__':
     unittest.main()
