@@ -20,8 +20,10 @@
 import sys
 import urllib
 import urllib2
+import argparse
 from hatohol import HatoholActionCreator
 
+DEFAULT_SERVER = "localhost"
 DEFAULT_PORT = 33194
 
 def print_usage():
@@ -55,36 +57,22 @@ def print_usage():
   print "  del-action ACTION_ID"
   print ""
 
-def parse_server_option(argv):
-  if "--server" not in argv:
-    return "http://localhost:%d" % DEFAULT_PORT
-  idx = argv.index("--server")
-  if idx == len(argv) - 1:
-    print "--server: Not found server address"
-    sys.exit(-1)
-  
-  server_arg = argv[idx + 1]
-  words = server_arg.split(":")
-  if len(words) >= 3:
-    print "Invalid server option: " + server_arg
-    sys.exit(-1)
-
-  if len(words) == 1:
-    server_name = server_arg
-    port = DEFAULT_PORT
-  else:
-    server_name = words[0]
+def parse_server_arg(arg):
+  words = arg.split(":")
+  server = words[0]
+  if (len(words) == 2):
     port = int(words[1])
-  
-  print "Server: %s, port: %d" % (server_name, port)
-  del argv[idx:idx+2]
-  return "http://%s:%d" % (server_name, port)
+  else:
+    port = DEFAULT_PORT
 
-def show_server(url, options):
+  return "http://%s:%d" % (server, port)
+
+def show_server(url, args):
+  print url
   url += "/server"
   query = {}
-  if len(options) >= 1:
-    query["serverId"] = options[0]
+  if "serverId" in args:
+    query["serverId"] = args.serverId;
   if len(query) > 0:
     encoded_query = urllib.urlencode(query)
     url += "?" + encoded_query
@@ -92,15 +80,15 @@ def show_server(url, options):
   server_json = response.read()
   print server_json
 
-def show_trigger(url, options):
+def show_trigger(url, args):
   url += "/trigger"
   query = {}
-  if len(options) >= 1:
-    query["serverId"] = options[0]
-  if len(options) >= 2:
-    query["hostId"] = options[1]
-  if len(options) >= 3:
-    query["triggerId"] = options[2]
+  if "serverId" in args:
+    query["serverId"] = args.serverId
+  if "hostId" in args:
+    query["hostId"] = args.hostId
+  if "triggerId" in args:
+    query["triggerId"] = args.triggerId
   if len(query) > 0:
     encoded_query = urllib.urlencode(query)
     url += "?" + encoded_query
@@ -163,20 +151,28 @@ command_map = {
   "del-action":del_action,
 }
 
+def main():
+  parser = argparse.ArgumentParser(description="Hatohol Voyager")
+  parser.add_argument("--server", type=parse_server_arg, dest="server_url",
+                      metavar="SERVER[:PORT]",
+                      default="%s:%d" % (DEFAULT_SERVER, DEFAULT_PORT))
+  subparsers = parser.add_subparsers(help="Sub commands", dest="sub_command")
+
+  # server
+  sub_server = subparsers.add_parser("show-server")
+  sub_server.add_argument("serverId", type=int, nargs="?",
+                          help="get a server only with serverId")
+  # trigger
+  sub_trigger = subparsers.add_parser("show-trigger")
+  sub_trigger.add_argument("serverId", type=int, nargs="?")
+  sub_trigger.add_argument("hostId", type=int, nargs="?")
+  sub_trigger.add_argument("triggerId", type=int, nargs="?")
+
+  args = parser.parse_args()
+  command_map[args.sub_command](args.server_url, args)
+
 #
 # main
 #
-url = parse_server_option(sys.argv)
-
-if len(sys.argv) < 2:
-  print_usage()
-  sys.exit(-1)
-
-command = sys.argv[1]
-if command not in command_map:
-  print "The command: %s is unknown !!!" % command
-  print ""
-  sys.exit(-1)
-
-command_map[command](url, sys.argv[2:])
-
+if __name__ == '__main__':
+  main()
