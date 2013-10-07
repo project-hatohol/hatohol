@@ -96,16 +96,16 @@ def show_server(url, args):
 def show_trigger(url, args):
   url += "/trigger"
   query = {}
-  if "serverId" in args:
+  if args.serverId != None:
     query["serverId"] = args.serverId
-  if "hostId" in args:
+  if args.hostId != None:
     query["hostId"] = args.hostId
-  if "triggerId" in args:
+  if args.triggerId != None:
     query["triggerId"] = args.triggerId
   if len(query) > 0:
     encoded_query = urllib.urlencode(query)
     url += "?" + encoded_query
-  response = urllib2.urlopen(url)
+  response = open_url(url)
   triggers_json = response.read()
   print triggers_json
 
