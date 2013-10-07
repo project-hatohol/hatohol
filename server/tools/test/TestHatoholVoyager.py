@@ -18,6 +18,7 @@
   along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
 """
 import unittest
+import urllib2
 
 from hatohol import voyager
 
@@ -26,10 +27,14 @@ class TestHatoholEscapeException:
 
 class TestHatoholVoyager(unittest.TestCase):
 
-  def assert_url(self, arg_list, expect):
+  def assert_url(self, arg_list, expect, expect_method=None):
     ctx = {"url":None}
     def url_hook(hook_url):
-      ctx["url"] = hook_url
+      if isinstance(hook_url, urllib2.Request):
+        ctx["url"] = hook_url.get_full_url()
+        ctx["method"] = hook_url.get_method()
+      else:
+        ctx["url"] = hook_url
       raise TestHatoholEscapeException()
 
     voyager.set_url_open_hook(url_hook)
@@ -39,6 +44,8 @@ class TestHatoholVoyager(unittest.TestCase):
       pass
     actual = ctx["url"]
     self.assertEquals(actual, expect)
+    if expect_method != None:
+      self.assertEquals(ctx["method"], expect_method)
 
   #
   # Test cases
@@ -89,6 +96,10 @@ class TestHatoholVoyager(unittest.TestCase):
   def test_show_action(self):
     arg_list = ["show-action"]
     self.assert_url(arg_list, "http://localhost:33194/action")
+
+  def test_del_action(self):
+    arg_list = ["del-action", "25"]
+    self.assert_url(arg_list, "http://localhost:33194/action/25", "DELETE")
 
 if __name__ == '__main__':
     unittest.main()

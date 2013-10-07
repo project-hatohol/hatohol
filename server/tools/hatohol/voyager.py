@@ -145,14 +145,11 @@ def add_action(url, options):
   action_creator = HatoholActionCreator.HatoholActionCreator(url)
   action_creator.add(options)
 
-def del_action(url, options):
-  if len(options) == 0:
-    print "Need actoin ID. "
-    sys.exit(-1)
-  action_id = options[0]
-  req = urllib2.Request(url + "/action/" + action_id)
+def del_action(url, args):
+  url = url + "/action/" + args.action_id
+  req = urllib2.Request(url)
   req.get_method = lambda: 'DELETE'
-  response = urllib2.urlopen(req)
+  response = open_url(req)
   result_json = response.read()
   print result_json
 
@@ -197,6 +194,10 @@ def main(arg_list=None):
 
   # action
   sub_action = subparsers.add_parser("show-action")
+
+  # action (delete)
+  sub_action = subparsers.add_parser("del-action")
+  sub_action.add_argument("action_id")
 
   args = parser.parse_args(arg_list)
   command_map[args.sub_command](args.server_url, args)
