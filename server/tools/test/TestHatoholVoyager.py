@@ -29,8 +29,8 @@ class TestHatoholEscapeException:
 
 class TestHatoholVoyager(unittest.TestCase):
 
-  def assert_url(self, arg_list, expect, expect_method=None,
-                 expect_query=None):
+  def _assert_url(self, arg_list, expect, expect_method=None,
+                  expect_query=None):
     ctx = {"url":None}
     def url_hook(hook_url, encoded_query):
       if isinstance(hook_url, urllib2.Request):
@@ -64,64 +64,64 @@ class TestHatoholVoyager(unittest.TestCase):
                 option, opt_value]
     expect_query = {"type":hatohol.ACTION_COMMAND, "command":ex_cmd,
                     query_key:query_value}
-    self.assert_url(arg_list, "http://localhost:33194/action", None,
-                    expect_query)
+    self._assert_url(arg_list, "http://localhost:33194/action", None,
+                     expect_query)
 
   #
   # Test cases
   #
   def test_show_server(self):
     arg_list = ["show-server"]
-    self.assert_url(arg_list, "http://localhost:33194/server")
+    self._assert_url(arg_list, "http://localhost:33194/server")
 
   def test_show_server_with_id(self):
     arg_list = ["show-server", "1"]
-    self.assert_url(arg_list, "http://localhost:33194/server?serverId=1")
+    self._assert_url(arg_list, "http://localhost:33194/server?serverId=1")
 
   def test_show_trigger(self):
     arg_list = ["show-trigger"]
-    self.assert_url(arg_list, "http://localhost:33194/trigger")
+    self._assert_url(arg_list, "http://localhost:33194/trigger")
 
   def test_show_trigger_with_server_id(self):
     arg_list = ["show-trigger", "3"]
-    self.assert_url(arg_list, "http://localhost:33194/trigger?serverId=3")
+    self._assert_url(arg_list, "http://localhost:33194/trigger?serverId=3")
 
   def test_show_trigger_with_server_and_host_id(self):
     arg_list = ["show-trigger", "3", "2000"]
-    self.assert_url(arg_list, "http://localhost:33194/trigger?serverId=3&hostId=2000")
+    self._assert_url(arg_list, "http://localhost:33194/trigger?serverId=3&hostId=2000")
 
   def test_show_trigger_with_server_host_and_trigger_id(self):
     arg_list = ["show-trigger", "3", "2000", "123456789"]
-    self.assert_url(arg_list, "http://localhost:33194/trigger?serverId=3&hostId=2000&triggerId=123456789")
+    self._assert_url(arg_list, "http://localhost:33194/trigger?serverId=3&hostId=2000&triggerId=123456789")
 
   def test_show_event(self):
     arg_list = ["show-event"]
-    self.assert_url(arg_list, "http://localhost:33194/event")
+    self._assert_url(arg_list, "http://localhost:33194/event")
 
   def test_show_item(self):
     arg_list = ["show-item"]
-    self.assert_url(arg_list, "http://localhost:33194/item")
+    self._assert_url(arg_list, "http://localhost:33194/item")
 
   def test_show_host(self):
     arg_list = ["show-host"]
-    self.assert_url(arg_list, "http://localhost:33194/host")
+    self._assert_url(arg_list, "http://localhost:33194/host")
 
   def test_show_host_with_server_id(self):
     arg_list = ["show-host", "3"]
-    self.assert_url(arg_list, "http://localhost:33194/host?serverId=3")
+    self._assert_url(arg_list, "http://localhost:33194/host?serverId=3")
 
   def test_show_host_with_server_and_host_id(self):
     arg_list = ["show-host", "3", "25600"]
-    self.assert_url(arg_list, "http://localhost:33194/host?serverId=3&hostId=25600")
+    self._assert_url(arg_list, "http://localhost:33194/host?serverId=3&hostId=25600")
   def test_show_action(self):
     arg_list = ["show-action"]
-    self.assert_url(arg_list, "http://localhost:33194/action")
+    self._assert_url(arg_list, "http://localhost:33194/action")
 
   def test_add_action(self):
     ex_cmd = "ex-cmd -x --for ABC"
     arg_list = ["add-action", "--type", "command", "--command", ex_cmd]
     expect_query = {"type":hatohol.ACTION_COMMAND, "command":ex_cmd}
-    self.assert_url(arg_list, "http://localhost:33194/action", None,
+    self._assert_url(arg_list, "http://localhost:33194/action", None,
                     expect_query)
 
   def test_add_action_working_dir(self):
@@ -160,7 +160,7 @@ class TestHatoholVoyager(unittest.TestCase):
 
   def test_del_action(self):
     arg_list = ["del-action", "25"]
-    self.assert_url(arg_list, "http://localhost:33194/action/25", "DELETE")
+    self._assert_url(arg_list, "http://localhost:33194/action/25", "DELETE")
 
 if __name__ == '__main__':
     unittest.main()
