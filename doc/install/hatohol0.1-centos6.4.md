@@ -1,8 +1,8 @@
 How to install Hatohol on CentOS 6.4 (x86_64) with RPM files
 ============================================================
 
-Install needed packages
------------------------
+Installation of needed packages
+-------------------------------
 ### json-glib
 Download the RPM from the following URL.
 - https://github.com/project-hatohol/json-glib-for-distribution/blob/master/RPMS/x86_64/json-glib-0.12.6-1PH.x86_64.rpm?raw=true
@@ -58,11 +58,11 @@ If you already have MySQL server and use it, you can skip this step.
     # chkconfig mysqld on
     # service mysqld start
 
-### Setup Hatohol cache DB
+### Setup of Hatohol cache DB
 
 You have to prepare a directory for Hatohol cache DB. Here we use '/var/lib/hatohol' as an example.
 
-Make the directory if needed
+Make the directory if needed.
 
     # mkdir /var/lib/hatohol
 
@@ -75,7 +75,7 @@ Add the environment variable 'HATOHOL_DB_DIR' for specifing the cache dicrectory
  
      [ -f $PROG ]|| exit 0
 
-### Initialize Hatohol DB
+### Initialization of Hatohol DB
 
 Copy the configuration template file to an arbitrary directory.
 
@@ -87,7 +87,7 @@ Reflect the configuration to the DB as
 
     # hatohol-config-db-creator hatohol-config.dat
 
-### Start Hatohol Server
+### Start of Hatohol Server
 
     # service hatohol start
 
@@ -99,14 +99,14 @@ When Hatohol server successfully starts, you can see log messages such as the fo
     Oct  8 09:46:59 localhost hatohol[3038]: [INFO] <ArmZabbixAPI.cc:925> started: ArmZabbixAPI (server: testZbxSv1)
     Oct  8 09:47:01 localhost hatohol[3038]: [INFO] <ArmZabbixAPI.cc:925> started: ArmZabbixAPI (server: testZbxSv2)
 
-### start Hatohol Client
+### Start of Hatohol Client
 
     # /usr/libexec/hatohol/client/manage.py runserver 0.0.0.0:8000
 
 > ** Note **
 > The accessible range can be limited by the 2nd argument. In the above example, Hatohol client replies for any computers.
 
-Access with a Web browser
+Access with a web browser
 -------------------------
 Open the following URL from your Browser. For example, if the Hatohol client runs on computer: 192.168.1.1,
 
