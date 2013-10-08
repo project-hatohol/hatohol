@@ -110,15 +110,15 @@ class HatoholActionCreator:
     if args.working_dir is not None:
       print "Working dir: " + args.working_dir
     if args.timeout is not None:
-      print "Timeout    : " + args.timeout
+      print "Timeout    : " + str(args.timeout)
     if args.server_id is not None:
-      print "Server ID  : " + args.server_id
+      print "Server ID  : " + str(args.server_id)
     if args.host_id is not None:
-      print "Host ID    : " + args.host_id
+      print "Host ID    : " + str(args.host_id
     if args.host_group_id is not None:
-      print "Host Grp ID: " + args.host_group_id
+      print "Host Grp ID: " + str(args.host_group_id
     if args.trigger_id is not None:
-      print "Trigger ID : " + args.trigger_id
+      print "Trigger ID : " + str(args.trigger_id)
     if args.status is not None:
       print "Trig. Stat.: " + args.status
     if args.severity is not None:
