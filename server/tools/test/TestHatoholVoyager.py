@@ -125,14 +125,9 @@ class TestHatoholVoyager(unittest.TestCase):
                     expect_query)
 
   def test_add_action_working_dir(self):
-    ex_cmd = "ex-cmd -x --for ABC"
     workdir = "/tmp/foo/@@$$"
-    arg_list = ["add-action", "--type", "command", "--command", ex_cmd,
-                "--working-dir", workdir]
-    expect_query = {"type":hatohol.ACTION_COMMAND, "command":ex_cmd,
-                    "workingDirectory":workdir}
-    self.assert_url(arg_list, "http://localhost:33194/action", None,
-                    expect_query)
+    self._assert_add_action_one_opt("--working-dir", workdir,
+                                    "workingDirectory", workdir)
 
   def test_add_action_timeout(self):
     timeout = 305
