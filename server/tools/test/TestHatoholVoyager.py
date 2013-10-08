@@ -154,6 +154,16 @@ class TestHatoholVoyager(unittest.TestCase):
     self.assert_url(arg_list, "http://localhost:33194/action", None,
                     expect_query)
 
+  def test_add_action_host_group_id(self):
+    ex_cmd = "ex-cmd -x --for ABC"
+    host_group_id = 0xa0b1c2d3e4f50617
+    arg_list = ["add-action", "--type", "command", "--command", ex_cmd,
+                "--host-group-id", str(host_group_id)]
+    expect_query = {"type":hatohol.ACTION_COMMAND, "command":ex_cmd,
+                    "hostGroupId":str(host_group_id)}
+    self.assert_url(arg_list, "http://localhost:33194/action", None,
+                    expect_query)
+
   def test_add_action_trigger_id(self):
     ex_cmd = "ex-cmd -x --for ABC"
     trigger_id = 0xfedcba9876543210
