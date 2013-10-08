@@ -53,7 +53,7 @@ def parse_server_arg(arg):
 def show_server(url, args):
   url += "/server"
   query = {}
-  if args.serverId != None:
+  if args.serverId is not None:
     query["serverId"] = args.serverId;
   if len(query) > 0:
     encoded_query = urllib.urlencode(query)
@@ -65,11 +65,11 @@ def show_server(url, args):
 def show_trigger(url, args):
   url += "/trigger"
   query = {}
-  if args.serverId != None:
+  if args.serverId is not None:
     query["serverId"] = args.serverId
-  if args.hostId != None:
+  if args.hostId is not None:
     query["hostId"] = args.hostId
-  if args.triggerId != None:
+  if args.triggerId is not None:
     query["triggerId"] = args.triggerId
   if len(query) > 0:
     encoded_query = urllib.urlencode(query)
@@ -93,9 +93,9 @@ def show_item(url, args):
 def show_host(url, args):
   url += "/host"
   query = {}
-  if args.serverId != None:
+  if args.serverId is not None:
     query["serverId"] = args.serverId
-  if args.hostId != None:
+  if args.hostId is not None:
     query["hostId"] = args.hostId
   if len(query) > 0:
     encoded_query = urllib.urlencode(query)

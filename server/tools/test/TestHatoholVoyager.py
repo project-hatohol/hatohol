@@ -52,7 +52,7 @@ class TestHatoholVoyager(unittest.TestCase):
       pass
     actual = ctx["url"]
     self.assertEquals(actual, expect)
-    if expect_method != None:
+    if expect_method is not None:
       self.assertEquals(ctx["method"], expect_method)
     if expect_query is not None:
       self.assertEquals(ctx["encoded_query"], urllib.urlencode(expect_query))
