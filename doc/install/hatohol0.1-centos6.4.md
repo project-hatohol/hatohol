@@ -75,13 +75,16 @@ Add the environment variable 'HATOHOL_DB_DIR' for specifing the cache dicrectory
  
      [ -f $PROG ]|| exit 0
 
+> ** NOTE ** The line with '+' means the newly added .
+
 ### Initialization of Hatohol DB
 
 Copy the configuration template file to an arbitrary directory.
 
     # cp /usr/share/hatohol/hatohol-config.dat.example ~/hatohol-config.dat
 
-Edit the copied configuration file. Some rules and examples are in the file as comments.
+Add the information of ZABBIX server and nagios server in the copied configuration file.
+Some rules and examples are in the file as comments.
 
 Reflect the configuration to the DB as
 
@@ -108,6 +111,43 @@ When Hatohol server successfully starts, you can see log messages such as the fo
 
 Access with a web browser
 -------------------------
+### Check of the setting of iptables and SELinux
+By default, some security mechanism such as iptables and SELinux blocks the access from other computers.
+You have to deactivate them if needed.
+> ** WARNING **
+> You should do the following things after you understand the security risk.
+
+You can confirm the current SELinux status as
+
+    # getenforce
+    Enforcing
+
+If 'Enforcing' is replied, it is enabled. And you can disable it as
+
+    # setenforce 0
+    # getenforce
+    Permissive
+
+> ** Tips **
+> By editing /etc/selinux/config, you can disable SELinux permanently.
+
+As for iptable, you can add the allowed port by editing /etc/sysconfig/iptables.
+The following is an example to allow port 8000.
+
+      -A INPUT -p icmp -j ACCEPT
+      -A INPUT -i lo -j ACCEPT
+      -A INPUT -m state --state NEW -m tcp -p tcp --dport 22 -j ACCEPT
+     +-A INPUT -m state --state NEW -p tcp --dport 8000 -j ACCEPT
+      -A INPUT -j REJECT --reject-with icmp-host-prohibited
+      -A FORWARD -j REJECT --reject-with icmp-host-prohibited
+
+> ** NOTE ** The line with '+' means the newly added line.
+
+Then, the following command reloads the iptables setting.
+
+    # service iptables restart
+
+### View of information
 Open the following URL from your Browser. For example, if the Hatohol client runs on computer: 192.168.1.1,
 
 - http://192.168.1.1:8000/viewer/
