@@ -1,5 +1,2 @@
 export PYTHONPATH=..
-exitCode=0
-./TestHatoholUtils.py || exitCode=1
-./TestHatoholVoyager.py || exitCode=1
-exit $exitCode
+python -m unittest discover -p 'Test*.py'
