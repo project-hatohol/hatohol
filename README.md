@@ -83,16 +83,12 @@ The detailed document is [here](doc/install/cent-os-6.4.md)
 Plans
 -----
 We will add useful features. If you have requests or good ideas,
-please tell us them. The following lists are our recent plans.
+please tell us them. The following lists are our recent major plans.
 
-- 2013 Fall  : Chart (graph) support  
-- 2013 Fall  : Efficient (on-demand and cached) item data acquisition  
+- 2013.12  : Improve the viewer UI including user setting. 
+- 2014.03  : Graph support.
 
-### Rough ideas
-- Programable and user-defined alert generation mechanism  
-- Configuration of target hosts
-- Communication with monitoring system with private IP address
-- More monitoring software support
+See also [the issues page](https://github.com/project-hatohol/hatohol/issues?milestone=2&state=open)
 
 Mailing Lists
 -------------
