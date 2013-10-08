@@ -74,7 +74,7 @@ Other pages are now preparing.
 Installation
 ------------
 ### Installation by RPM files (only for CentOS 6.4)
-The detailed document is [here](doc/install/cent-os-6.4.md)
+The detailed document is [here](doc/install/hatohol0.1-centos6.4.md)
 
 ### Installation by building needed applications
 - [Server installation](server/README.md)
