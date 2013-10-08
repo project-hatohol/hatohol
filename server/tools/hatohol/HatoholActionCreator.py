@@ -114,9 +114,9 @@ class HatoholActionCreator:
     if args.server_id is not None:
       print "Server ID  : " + str(args.server_id)
     if args.host_id is not None:
-      print "Host ID    : " + str(args.host_id
+      print "Host ID    : " + str(args.host_id)
     if args.host_group_id is not None:
-      print "Host Grp ID: " + str(args.host_group_id
+      print "Host Grp ID: " + str(args.host_group_id)
     if args.trigger_id is not None:
       print "Trigger ID : " + str(args.trigger_id)
     if args.status is not None:
