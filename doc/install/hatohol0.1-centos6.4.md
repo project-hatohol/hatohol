@@ -75,7 +75,7 @@ Add the environment variable 'HATOHOL_DB_DIR' for specifing the cache dicrectory
  
      [ -f $PROG ]|| exit 0
 
-> ** NOTE ** The line with '+' means the newly added .
+> ** NOTE ** The mark '+' at the head means a newly added line.
 
 ### Initialization of Hatohol DB
 
@@ -112,7 +112,7 @@ When Hatohol server successfully starts, you can see log messages such as the fo
 Access with a web browser
 -------------------------
 ### Check of the setting of iptables and SELinux
-By default, some security mechanism such as iptables and SELinux blocks the access from other computers.
+By default, some security mechanisms such as SELinux and iptables block the access from other computers.
 You have to deactivate them if needed.
 > ** WARNING **
 > You should do the following things after you understand the security risk.
@@ -129,9 +129,9 @@ If 'Enforcing' is replied, it is enabled. And you can disable it as
     Permissive
 
 > ** Tips **
-> By editing /etc/selinux/config, you can disable SELinux permanently.
+> By editing /etc/selinux/config, it can be disabled permanently.
 
-As for iptable, you can add the allowed port by editing /etc/sysconfig/iptables.
+As for iptable, an allowed port can be added by editing /etc/sysconfig/iptables.
 The following is an example to allow port 8000.
 
       -A INPUT -p icmp -j ACCEPT
@@ -141,13 +141,13 @@ The following is an example to allow port 8000.
       -A INPUT -j REJECT --reject-with icmp-host-prohibited
       -A FORWARD -j REJECT --reject-with icmp-host-prohibited
 
-> ** NOTE ** The line with '+' means the newly added line.
+> ** NOTE ** The mark '+' at the head means a newly added line.
 
 Then, the following command reloads the iptables setting.
 
     # service iptables restart
 
-### View of information
+### View of Hatohol information
 Open the following URL from your Browser. For example, if the Hatohol client runs on computer: 192.168.1.1,
 
 - http://192.168.1.1:8000/viewer/
