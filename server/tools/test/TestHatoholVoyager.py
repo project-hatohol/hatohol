@@ -175,14 +175,9 @@ class TestHatoholVoyager(unittest.TestCase):
                     expect_query)
 
   def test_add_action_trigger_id(self):
-    ex_cmd = "ex-cmd -x --for ABC"
     trigger_id = 0xfedcba9876543210
-    arg_list = ["add-action", "--type", "command", "--command", ex_cmd,
-                "--trigger-id", str(trigger_id)]
-    expect_query = {"type":hatohol.ACTION_COMMAND, "command":ex_cmd,
-                    "triggerId":str(trigger_id)}
-    self.assert_url(arg_list, "http://localhost:33194/action", None,
-                    expect_query)
+    self._assert_add_action_one_opt("--trigger-id", str(trigger_id),
+                                    "triggerId", str(trigger_id))
 
   def test_add_action_status_ok(self):
     self._assert_add_action_one_opt("--status", "ok", "triggerStatus",
