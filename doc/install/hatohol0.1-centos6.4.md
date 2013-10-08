@@ -60,12 +60,13 @@ If you already have MySQL server and use it, you can skip this step.
 
 ### Setup Hatohol cache DB
 
-- You have to prepare a directory for Hatohol cache DB. Here we use '/var/lib/hatohol' as an example.
-- Make the directory if needed
+You have to prepare a directory for Hatohol cache DB. Here we use '/var/lib/hatohol' as an example.
+
+Make the directory if needed
 
     # mkdir /var/lib/hatohol
 
-- Add the environment variable 'HATOHOL_DB_DIR' for specifing the cache dicrectory in /etc/init.d/hatohol as
+Add the environment variable 'HATOHOL_DB_DIR' for specifing the cache dicrectory in /etc/init.d/hatohol as
 
      PROG=/usr/sbin/$NAME
      OPTIONS="--config-db-server localhost"
@@ -76,12 +77,13 @@ If you already have MySQL server and use it, you can skip this step.
 
 ### Initialize Hatohol DB
 
-- copy the configuration template file to an arbitrary directory.
+Copy the configuration template file to an arbitrary directory.
 
     # cp /usr/share/hatohol/hatohol-config.dat.example ~/hatohol-config.dat
 
-- Edit the copied configuration file. Some rules and examples are in the file as comments.
-- Reflect the configuration to the DB as
+Edit the copied configuration file. Some rules and examples are in the file as comments.
+
+Reflect the configuration to the DB as
 
     # hatohol-config-db-creator hatohol-config.dat
 
@@ -89,7 +91,7 @@ If you already have MySQL server and use it, you can skip this step.
 
     # service hatohol start
 
-When the hatohol successfully starts, you can see log messages such as the following in /var/log/message.
+When Hatohol server successfully starts, you can see log messages such as the following in /var/log/message.
 
     Oct  8 09:46:58 localhost hatohol[3038]: [INFO] <DBClientConfig.cc:336> Configuration DB Server: localhost, port: (default), DB: hatohol, User: hatohol, use password: yes
     Oct  8 09:46:58 localhost hatohol[3038]: [INFO] <main.cc:165> started hatohol server: ver. 0.1
@@ -101,4 +103,14 @@ When the hatohol successfully starts, you can see log messages such as the follo
 
     # /usr/libexec/hatohol/client/manage.py runserver 0.0.0.0:8000
 
-Note: The accessible range can be limited by the 2nd argument. In the above example, Hatohol client replies for any computers.
+> ** Note **
+> The accessible range can be limited by the 2nd argument. In the above example, Hatohol client replies for any computers.
+
+Access with a Web browser
+-------------------------
+Open the following URL from your Browser. For example, if the Hatohol client runs on computer: 192.168.1.1,
+
+- http://192.168.1.1:8000/viewer/
+
+> ** Note **
+> Currently the pages have been checked with Google Chrome.
