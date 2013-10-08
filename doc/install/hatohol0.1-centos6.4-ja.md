@@ -97,7 +97,7 @@ Zabbix serverとnagiosサーバの情報をコピーした設定ファイルに�
     # service hatohol start
 
 
-Hatohol serverが正常に開始した場合、/var/log/messageに下記のようなメッセージが記録されています。
+Hatohol serverが正常に開始した場合、/var/log/messageに下記のようなメッセージが記録されます。
 
     Oct  8 09:46:58 localhost hatohol[3038]: [INFO] <DBClientConfig.cc:336> Configuration DB Server: localhost, port: (default), DB: hatohol, User: hatohol, use password: yes
     Oct  8 09:46:58 localhost hatohol[3038]: [INFO] <main.cc:165> started hatohol server: ver. 0.1
