@@ -124,6 +124,13 @@ class TestHatoholVoyager(unittest.TestCase):
     self._assert_url(arg_list, "http://localhost:33194/action", None,
                     expect_query)
 
+  def test_add_action_resident(self):
+    ex_cmd = "foo.so -x --for ABC"
+    arg_list = ["add-action", "--type", "resident", "--command", ex_cmd]
+    expect_query = {"type":hatohol.ACTION_RESIDENT, "command":ex_cmd}
+    self._assert_url(arg_list, "http://localhost:33194/action", None,
+                    expect_query)
+
   def test_add_action_working_dir(self):
     workdir = "/tmp/foo/@@$$"
     self._assert_add_action_one_opt("--working-dir", workdir,
