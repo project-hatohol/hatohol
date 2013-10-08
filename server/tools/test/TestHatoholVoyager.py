@@ -124,7 +124,7 @@ class TestHatoholVoyager(unittest.TestCase):
     self.assert_url(arg_list, "http://localhost:33194/action", None,
                     expect_query)
 
-  def test_add_action_working_timeout(self):
+  def test_add_action_timeout(self):
     ex_cmd = "ex-cmd -x --for ABC"
     timeout = "305"
     arg_list = ["add-action", "--type", "command", "--command", ex_cmd,
@@ -134,7 +134,7 @@ class TestHatoholVoyager(unittest.TestCase):
     self.assert_url(arg_list, "http://localhost:33194/action", None,
                     expect_query)
 
-  def test_add_action_working_server_id(self):
+  def test_add_action_server_id(self):
     ex_cmd = "ex-cmd -x --for ABC"
     server_id = "23"
     arg_list = ["add-action", "--type", "command", "--command", ex_cmd,
