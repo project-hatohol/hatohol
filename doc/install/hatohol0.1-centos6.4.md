@@ -96,7 +96,7 @@ Reflect the configuration to the DB as
 
     # service hatohol start
 
-When Hatohol server successfully starts, you can see log messages such as the following in /var/log/message.
+When Hatohol server successfully starts, you can see log messages such as the following in /var/log/messages.
 
     Oct  8 09:46:58 localhost hatohol[3038]: [INFO] <DBClientConfig.cc:336> Configuration DB Server: localhost, port: (default), DB: hatohol, User: hatohol, use password: yes
     Oct  8 09:46:58 localhost hatohol[3038]: [INFO] <main.cc:165> started hatohol server: ver. 0.1
