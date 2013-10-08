@@ -165,6 +165,10 @@ class TestHatoholVoyager(unittest.TestCase):
     self._assert_add_action_one_opt("--status", "ok", "triggerStatus",
                                     str(hatohol.TRIGGER_STATUS_OK))
 
+  def test_add_action_status_problem(self):
+    self._assert_add_action_one_opt("--status", "problem", "triggerStatus",
+                                    str(hatohol.TRIGGER_STATUS_PROBLEM))
+
   def test_del_action(self):
     arg_list = ["del-action", "25"]
     self._assert_url(arg_list, "http://localhost:33194/action/25", "DELETE")
