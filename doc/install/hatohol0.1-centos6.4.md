@@ -1,6 +1,8 @@
 How to install Hatohol on CentOS 6.4 (x86_64) with RPM files
 ============================================================
 
+[Japanese](hatohol0.1-centos6.4-ja.md)
+
 Installation of needed packages
 -------------------------------
 ### json-glib
@@ -148,9 +150,10 @@ Then, the following command reloads the iptables setting.
     # service iptables restart
 
 ### View of Hatohol information
-Open the following URL from your Browser. For example, if the Hatohol client runs on computer: 192.168.1.1,
+For example, if the Hatohol client runs on computer: 192.168.1.1,
+Open the following URL from your Browser.
 
 - http://192.168.1.1:8000/viewer/
 
 > ** Note **
-> Currently the pages have been checked with Google Chrome.
+> Currently the above pages have been checked with Google Chrome.
