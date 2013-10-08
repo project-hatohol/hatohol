@@ -18,8 +18,10 @@
   along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
 """
 import unittest
+import urllib
 import urllib2
 
+import hatohol
 from hatohol import voyager
 
 class TestHatoholEscapeException:
@@ -27,14 +29,20 @@ class TestHatoholEscapeException:
 
 class TestHatoholVoyager(unittest.TestCase):
 
-  def assert_url(self, arg_list, expect, expect_method=None):
+  def assert_url(self, arg_list, expect, expect_method=None,
+                 expect_query=None):
     ctx = {"url":None}
-    def url_hook(hook_url):
+    def url_hook(hook_url, encoded_query):
       if isinstance(hook_url, urllib2.Request):
         ctx["url"] = hook_url.get_full_url()
         ctx["method"] = hook_url.get_method()
       else:
         ctx["url"] = hook_url
+
+      if encoded_query is not None:
+        ctx["encoded_query"] = encoded_query
+      else:
+        ctx["encoded_query"] = None
       raise TestHatoholEscapeException()
 
     voyager.set_url_open_hook(url_hook)
@@ -46,6 +54,8 @@ class TestHatoholVoyager(unittest.TestCase):
     self.assertEquals(actual, expect)
     if expect_method != None:
       self.assertEquals(ctx["method"], expect_method)
+    if expect_query is not None:
+      self.assertEquals(ctx["encoded_query"], urllib.urlencode(expect_query))
 
   #
   # Test cases
@@ -95,6 +105,12 @@ class TestHatoholVoyager(unittest.TestCase):
     self.assert_url(arg_list, "http://localhost:33194/host?serverId=3&hostId=25600")
   def test_show_action(self):
     arg_list = ["show-action"]
+    self.assert_url(arg_list, "http://localhost:33194/action")
+
+  def test_add_action(self):
+    ex_cmd = "ex-cmd -x --for ABC"
+    arg_list = ["add-action", "--type", "command", "--command", ex_cmd]
+    expect_query = {"type":hatohol.ACTION_COMMAND, "command":ex_cmd}
     self.assert_url(arg_list, "http://localhost:33194/action")
 
   def test_del_action(self):

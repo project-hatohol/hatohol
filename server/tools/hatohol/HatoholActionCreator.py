@@ -22,44 +22,74 @@ import sys
 import urllib
 import urllib2
 import hatohol
+import argparse
 
 class HatoholActionCreator:
   def __init__(self, url):
-    self._url = url
+    self._url = url + "/action"
+    self._encoded_query = None
 
-  def add(self, options):
-    type = self._get_one_arg(options, "--type")
+  @classmethod
+  def setup_arguments(cls, parser):
+    parser.add_argument("--type", choices=["command", "resident"],
+                        required=True)
+    parser.add_argument("--command", required=True)
+    parser.add_argument("--working-dir")
+    parser.add_argument("--timeout")
+    parser.add_argument("--server-id", type=int)
+    parser.add_argument("--host-id", type=int)
+    parser.add_argument("--host-group-id", type=int)
+    parser.add_argument("--trigger-id", type=int)
+    parser.add_argument("--status", choices=["ok", "problem"])
+    parser.add_argument("--severity", nargs=2,
+                        metavar=("SEVERITY_CMP", "SEVERITY"),
+                        type=HatoholActionCreator._severity_type,
+                        help="{-eq,-ge} {info,warn,critical}")
+
+  @staticmethod
+  def _severity_type(arg):
+    if len(arg) != 2:
+       raise argparse.ArgumentTypeError("--severity must have two arguments.")
+    cmp_choices = ("-eq", "-ge")
+    if arg[0] not in cmp_choices:
+       raise argparse.ArgumentTypeError("comparator must be: -eq or -ge")
+    severity_choices = ("info", "warn", "critical")
+    if arg[1] not in severity_choices:
+       raise argparse.ArgumentTypeError("comparator must be: info,warn,critical")
+    return arg
+
+  def get_url(self):
+    return self._url
+
+  def get_encoded_query(self):
+    return self._encoded_query
+
+  def add(self, args):
     type_code = None
-    if type == "command":
+    if args.type == "command":
       type_code = hatohol.ACTION_COMMAND
-    elif type == "resident":
+    elif args.type == "resident":
       type_code = hatohol.ACTION_RESIDENT
     else:
       print "Type must be 'command' or 'resident'."
       sys.exit(-1)
 
-    command = self._get_one_arg(options, "--command")
-    working_dir = self._get_one_arg(options, "--working-dir", True)
-    timeout = self._get_one_arg(options, "--timeout", True)
-    server_id = self._get_one_arg(options, "--server-id", True)
-    host_id = self._get_one_arg(options, "--host-id", True)
-    host_group_id = self._get_one_arg(options, "--host-group-id", True)
-    trigger_id = self._get_one_arg(options, "--trigger-id", True)
+    server_id = args.server_id
+    trigger_id = args.trigger_id
 
-    status = self._get_one_arg(options, "--status", True)
+    status = args.status
     status_code = None
     if status == "ok":
       status_code = hatohol.TRIGGER_STATUS_OK
     elif status == "problem":
       status_code = hatohol.TRIGGER_STATUS_PROBLEM
-    else:
-      print "Status must be 'ok' or 'problem'."
-      sys.exit(-1)
 
-    (severity_cmp, severity) = self._get_arg(options, "--severity", True, 2)
+    (severity_cmp, severity) = (None, None)
+    if args.severity is not None:
+      (severity_cmp, severity) = args.severity
     severity_cmp_code = None
     severity_code = None
-    if severity:
+    if args.severity:
       if severity == "info":
         severity_code = hatohol.TRIGGER_SEVERITY_INFO
       elif severity == "warn":
@@ -74,76 +104,46 @@ class HatoholActionCreator:
         severity_cmp_code = hatohol.CMP_EQ
       elif severity_cmp == "-ge":
         severity_cmp_code = hatohol.CMP_EQ_GT
-      else:
-        print "Severity comparator must be '-eq' or '-ge'."
-        sys.exit(-1)
 
-    print "Type       : " + type
-    print "Commad     : " + command
-    if working_dir:
-      print "Working dir: " + working_dir
-    if timeout:
-      print "Timeout    : " + timeout
-    if server_id:
-      print "Server ID  : " + server_id
-    if host_id:
-      print "Host ID    : " + host_id
-    if host_group_id:
-      print "Host Grp ID: " + host_group_id
-    if trigger_id:
-      print "Trigger ID : " + trigger_id
-    if status:
-      print "Trig. Stat.: " + status
-    if severity:
-      print "Seveirty   : " + severity_cmp + " " + severity
+    print "Type       : " + args.type
+    print "Commad     : " + args.command
+    if args.working_dir is not None:
+      print "Working dir: " + args.working_dir
+    if args.timeout is not None:
+      print "Timeout    : " + args.timeout
+    if args.server_id is not None:
+      print "Server ID  : " + args.server_id
+    if args.host_id is not None:
+      print "Host ID    : " + args.host_id
+    if args.host_group_id is not None:
+      print "Host Grp ID: " + args.host_group_id
+    if args.trigger_id is not None:
+      print "Trigger ID : " + args.trigger_id
+    if args.status is not None:
+      print "Trig. Stat.: " + args.status
+    if args.severity is not None:
+      print "Seveirty   : " + args.severity_cmp + " " + args.severity
 
-    self._send(type_code, command, working_dir, timeout, server_id, host_id, host_group_id, trigger_id, status_code, severity_cmp_code, severity_code)
-
-  def _send(self, type_code, command, working_dir, timeout, server_id, host_id, host_group_id, trigger_id, status_code, severity_cmp_code, severity_code):
     query = {}
     query["type"] = str(type_code)
-    query["command"] = command
-    if working_dir:
-      query["workingDirectory"] = working_dir
-    if timeout:
-      query["timeout"] = str(timeout)
-    if server_id:
-      query["serverId"] = str(server_id)
-    if host_id:
-      query["hostId"] = str(host_id)
-    if host_group_id:
-      query["hostGroupId"] = str(host_group_id)
-    if trigger_id:
-      query["triggerId"] = str(trigger_id)
-    if status_code:
+    query["command"] = args.command
+    if args.working_dir is not None:
+      query["workingDirectory"] = args.working_dir
+    if args.timeout is not None:
+      query["timeout"] = str(args.timeout)
+    if args.server_id is not None:
+      query["serverId"] = str(args.server_id)
+    if args.host_id is not None:
+      query["hostId"] = str(args.host_id)
+    if args.host_group_id is not None:
+      query["hostGroupId"] = str(args.host_group_id)
+    if args.trigger_id is not None:
+      query["triggerId"] = str(args.trigger_id)
+    if status_code is not None:
       query["triggerStatus"] = str(status_code)
-    if severity_code:
+    if severity_code is not None:
       query["triggerSeverity"] = str(severity_code)
       query["triggerSeverityCompType"] = str(severity_cmp_code)
 
-    encoded_query = urllib.urlencode(query)
-    url = self._url + "/action"
-    print "URL: " + url
-    response = urllib2.urlopen(url, encoded_query)
-    print response.read()
-
-  def _get_arg(self, options, key, allow_none = False, num_arg=1):
-    if key not in options:
-      if allow_none:
-        args = []
-        for i in range(num_arg):
-          args.append(None)
-        return args
-      print key + " is not defined."
-      sys.exit(-1)
-    idx = options.index(key)
-    if idx >= len(options) - num_arg:
-      print key + ": must have the argument."
-      sys.exit(-1)
-    args = options[idx+1:idx+num_arg+1]
-    del options[idx:idx+num_arg+1]
-    return args
-
-  def _get_one_arg(self, options, key, allow_none = False):
-    return self._get_arg(options, key, allow_none)[0]
-
+    self.encoded_query = urllib.urlencode(query)
+    print "URL: " + self._url

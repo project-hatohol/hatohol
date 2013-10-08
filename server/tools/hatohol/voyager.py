@@ -21,41 +21,10 @@ import sys
 import urllib
 import urllib2
 import argparse
-from hatohol import HatoholActionCreator
+from hatohol.HatoholActionCreator import HatoholActionCreator
 
 DEFAULT_SERVER = "localhost"
 DEFAULT_PORT = 33194
-
-def print_usage():
-  print "Usage: "
-  print ""
-  print "  $ hatohol-voyager [--server address[:port]] command [options]"
-  print ""
-  print "* commands"
-  print ""
-  print "  show-server [serverId]"
-  print "  show-trigger [serverId [hostId [triggerId]]]"
-  print "  show-event"
-  print "  show-item"
-  print "  show-host [sererId [hostId]]"
-  print "  show-action"
-  print "  add-action"
-  print "    --type command|resident"
-  print "    --command COMMAND_DEFINITION"
-  print "    [--working-dir   DIR]"
-  print "    [--timeout       TIMEOUT]"
-  print "    [--server-id     SERVER_ID]"
-  print "    [--host-id       HOST_ID]"
-  print "    [--host-group-id HOST_GROUP_ID]"
-  print "    [--trigger-id    TRIGGER_ID]"
-  print "    [--status        TRIGGER_STATUS]"
-  print "        TRIGGER_STATUS: ok or problem"
-  print "    [--severity      COMPARATOR TRIGGER_SEVERITY]"
-  print "        COMPARATOR       : -eq or -ge"
-  print "        TRIGGER_SEVERITY : info, warn, or critical"
-  print ""
-  print "  del-action ACTION_ID"
-  print ""
 
 url_open_hook_func = None
 
@@ -63,10 +32,10 @@ def set_url_open_hook(func):
   global url_open_hook_func
   url_open_hook_func = func
 
-def open_url(url):
+def open_url(url, encoded_query=None):
   global url_open_hook_func
   if url_open_hook_func:
-    url_open_hook_func(url)
+    url_open_hook_func(url, encoded_query)
 
   response = urllib2.urlopen(url)
   return response
@@ -141,9 +110,13 @@ def show_action(url, options):
   actions_json = response.read()
   print actions_json
 
-def add_action(url, options):
-  action_creator = HatoholActionCreator.HatoholActionCreator(url)
-  action_creator.add(options)
+def add_action(url, args):
+  action_creator = HatoholActionCreator(url)
+  action_creator.add(args)
+  url = action_creator.get_url()
+  encoded_query = action_creator.get_encoded_query()
+  response = open_url(url, encoded_query)
+  print response.read()
 
 def del_action(url, args):
   url = url + "/action/" + args.action_id
@@ -194,6 +167,10 @@ def main(arg_list=None):
 
   # action
   sub_action = subparsers.add_parser("show-action")
+
+  # action (add)
+  sub_action = subparsers.add_parser("add-action")
+  HatoholActionCreator.setup_arguments(sub_action)
 
   # action (delete)
   sub_action = subparsers.add_parser("del-action")
