@@ -31,29 +31,15 @@ class TestHatoholVoyager(unittest.TestCase):
 
   def _assert_url(self, arg_list, expect, expect_method=None,
                   expect_query=None):
-    ctx = {"url":None}
-    def url_hook(hook_url, encoded_query):
-      if isinstance(hook_url, urllib2.Request):
-        ctx["url"] = hook_url.get_full_url()
-        ctx["method"] = hook_url.get_method()
-      else:
-        ctx["url"] = hook_url
-
-      if encoded_query is not None:
-        ctx["encoded_query"] = encoded_query
-      else:
-        ctx["encoded_query"] = None
-      raise TestHatoholEscapeException()
-
-    voyager.set_url_open_hook(url_hook)
-    try:
-      voyager.main(arg_list)
-    except TestHatoholEscapeException:
-      pass
-    actual = ctx["url"]
-    self.assertEquals(actual, expect)
+    ctx = voyager.main(arg_list, exec_postproc=False)
+    if isinstance(ctx["url"], urllib2.Request):
+      url = ctx["url"].get_full_url()
+      method = ctx["url"].get_method()
+    else:
+      url = ctx["url"]
+    self.assertEquals(url, expect)
     if expect_method is not None:
-      self.assertEquals(ctx["method"], expect_method)
+      self.assertEquals(method, expect_method)
     if expect_query is not None:
       self.assertEquals(ctx["encoded_query"], urllib.urlencode(expect_query))
 

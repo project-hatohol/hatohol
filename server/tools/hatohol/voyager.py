@@ -26,19 +26,9 @@ from hatohol.ActionCreator import ActionCreator
 DEFAULT_SERVER = "localhost"
 DEFAULT_PORT = 33194
 
-url_open_hook_func = None
-
-def set_url_open_hook(func):
-  global url_open_hook_func
-  url_open_hook_func = func
-
-def open_url(url, encoded_query=None):
-  global url_open_hook_func
-  if url_open_hook_func:
-    url_open_hook_func(url, encoded_query)
-
-  response = urllib2.urlopen(url)
-  return response
+def open_url_and_show_response(cmd_ctx):
+  response = urllib2.urlopen(cmd_ctx["url"])
+  print response.read()
 
 def parse_server_arg(arg):
   words = arg.split(":")
@@ -58,9 +48,7 @@ def show_server(url, args):
   if len(query) > 0:
     encoded_query = urllib.urlencode(query)
     url += "?" + encoded_query
-  response = open_url(url)
-  server_json = response.read()
-  print server_json
+  return {"url":url, "postproc":open_url_and_show_response}
 
 def show_trigger(url, args):
   url += "/trigger"
@@ -74,21 +62,15 @@ def show_trigger(url, args):
   if len(query) > 0:
     encoded_query = urllib.urlencode(query)
     url += "?" + encoded_query
-  response = open_url(url)
-  triggers_json = response.read()
-  print triggers_json
+  return {"url":url, "postproc":open_url_and_show_response}
 
 def show_event(url, args):
   url += "/event"
-  response = open_url(url)
-  events_json = response.read()
-  print events_json
+  return {"url":url, "postproc":open_url_and_show_response}
 
 def show_item(url, args):
   url += "/item"
-  response = open_url(url)
-  items_json = response.read()
-  print items_json
+  return {"url":url, "postproc":open_url_and_show_response}
 
 def show_host(url, args):
   url += "/host"
@@ -100,31 +82,25 @@ def show_host(url, args):
   if len(query) > 0:
     encoded_query = urllib.urlencode(query)
     url += "?" + encoded_query
-  response = open_url(url)
-  items_json = response.read()
-  print items_json
+  return {"url":url, "postproc":open_url_and_show_response}
 
 def show_action(url, options):
   url += "/action"
-  response = open_url(url)
-  actions_json = response.read()
-  print actions_json
+  return {"url":url, "postproc":open_url_and_show_response}
 
 def add_action(url, args):
   action_creator = ActionCreator(url)
   action_creator.add(args)
   url = action_creator.get_url()
   encoded_query = action_creator.get_encoded_query()
-  response = open_url(url, encoded_query)
-  print response.read()
+  return {"url":url, "postproc":open_url_and_show_response,
+          "encoded_query":encoded_query}
 
 def del_action(url, args):
   url = url + "/action/" + args.action_id
   req = urllib2.Request(url)
   req.get_method = lambda: 'DELETE'
-  response = open_url(req)
-  result_json = response.read()
-  print result_json
+  return {"url":req, "postproc":open_url_and_show_response}
 
 command_map = {
   "show-server":show_server,
@@ -137,7 +113,7 @@ command_map = {
   "del-action":del_action,
 }
 
-def main(arg_list=None):
+def main(arg_list=None, exec_postproc=True):
   parser = argparse.ArgumentParser(description="Hatohol Voyager")
   parser.add_argument("--server", type=parse_server_arg, dest="server_url",
                       metavar="SERVER[:PORT]",
@@ -177,4 +153,7 @@ def main(arg_list=None):
   sub_action.add_argument("action_id")
 
   args = parser.parse_args(arg_list)
-  command_map[args.sub_command](args.server_url, args)
+  cmd_ctx = command_map[args.sub_command](args.server_url, args)
+  if not exec_postproc:
+    return cmd_ctx
+  cmd_ctx["postproc"](cmd_ctx)
