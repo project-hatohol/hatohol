@@ -295,42 +295,15 @@ void DBClientUser::addAccessInfo(AccessInfo &accessInfo)
 
 bool DBClientUser::getUserInfo(UserInfo &userInfo, const UserIdType userId)
 {
-	DBAgentSelectExArg arg;
-	arg.tableName = TABLE_NAME_USERS;
-	arg.pushColumn(COLUMN_DEF_USERS[IDX_USERS_ID]);
-	arg.pushColumn(COLUMN_DEF_USERS[IDX_USERS_NAME]);
-	arg.pushColumn(COLUMN_DEF_USERS[IDX_USERS_PASSWORD]);
-	arg.pushColumn(COLUMN_DEF_USERS[IDX_USERS_FLAGS]);
-	arg.condition = StringUtils::sprintf("%s='%"FMT_USER_ID"'",
+	UserInfoList userInfoList;
+	string condition = StringUtils::sprintf("%s='%"FMT_USER_ID"'",
 	  COLUMN_DEF_USERS[IDX_USERS_ID].columnName, userId);
-
-	DBCLIENT_TRANSACTION_BEGIN() {
-		select(arg);
-	} DBCLIENT_TRANSACTION_END();
-
-	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
-	if (grpList.empty())
+	getUserInfoList(userInfoList, condition);
+	if (userInfoList.empty())
 		return false;
-
-	const ItemGroup *itemGroup = *grpList.begin();
-	int idx = 0;
-
-	// user ID
-	DEFINE_AND_ASSERT(itemGroup->getItemAt(idx++), ItemInt, itemUserId);
-	userInfo.id = itemUserId->get();
-
-	// password
-	DEFINE_AND_ASSERT(itemGroup->getItemAt(idx++), ItemString, itemName);
-	userInfo.name = itemName->get();
-
-	// password
-	DEFINE_AND_ASSERT(itemGroup->getItemAt(idx++), ItemString, itemPasswd);
-	userInfo.password = itemPasswd->get();
-
-	// flags
-	DEFINE_AND_ASSERT(itemGroup->getItemAt(idx++), ItemInt, itemFlags);
-	userInfo.flags = itemFlags->get();
-
+	HATOHOL_ASSERT(userInfoList.size() == 1, "userInfoList.size(): %zd\n",
+	               userInfoList.size());
+	userInfo = *userInfoList.begin();
 	return true;
 }
 
