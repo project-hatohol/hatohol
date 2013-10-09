@@ -24,9 +24,6 @@ import urllib2
 import hatohol
 from hatohol import voyager
 
-class TestHatoholEscapeException:
-  pass
-
 class TestHatoholVoyager(unittest.TestCase):
 
   def _assert_url(self, arg_list, expect, expect_method=None,
