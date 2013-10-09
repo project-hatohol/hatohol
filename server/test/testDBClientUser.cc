@@ -361,14 +361,17 @@ void test_isValidPasswordWithLongPassword(void)
 	string password;
 	for (size_t i = 0; i < DBClientUser::MAX_PASSWORD_LENGTH; i++)
 		password += "A";
-	cppcut_assert_equal(true, DBClientUser::isValidPassword(password));
+	cppcut_assert_equal(DBCUSRERR_NO_ERROR,
+	                    DBClientUser::isValidPassword(password));
 	password += "A";
-	cppcut_assert_equal(false, DBClientUser::isValidPassword(password));
+	cppcut_assert_equal(DBCUSRERR_TOO_LONG_PASSWORD,
+	                    DBClientUser::isValidPassword(password));
 }
 
 void test_isValidPasswordWithEmptyPassword(void)
 {
-	cppcut_assert_equal(false, DBClientUser::isValidPassword(""));
+	cppcut_assert_equal(DBCUSRERR_EMPTY_PASSWORD,
+	                    DBClientUser::isValidPassword(""));
 }
 
 } // namespace testDBClientUser

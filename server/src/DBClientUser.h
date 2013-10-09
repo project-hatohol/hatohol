@@ -31,6 +31,12 @@ enum
 	USER_FLAG_ADMIN = (1 << 0),
 };
 
+enum DBClientUserError {
+	DBCUSRERR_NO_ERROR,
+	DBCUSRERR_EMPTY_PASSWORD,
+	DBCUSRERR_TOO_LONG_PASSWORD,
+};
+
 struct UserInfo {
 	UserIdType id;
 	string name;
@@ -142,7 +148,7 @@ public:
 	                            const UserIdType userId);
 
 	static bool isValidUserName(const string &name);
-	static bool isValidPassword(const string &password);
+	static DBClientUserError isValidPassword(const string &password);
 
 protected:
 

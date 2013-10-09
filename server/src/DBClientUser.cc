@@ -262,7 +262,7 @@ UserIdType DBClientUser::getUserId(const string &user, const string &password)
 {
 	if (!isValidUserName(user))
 		return INVALID_USER_ID;
-	if (!isValidPassword(password))
+	if (isValidPassword(password) != DBCUSRERR_NO_ERROR)
 		return INVALID_USER_ID;
 
 	DBAgentSelectExArg arg;
@@ -526,13 +526,13 @@ bool DBClientUser::isValidUserName(const string &name)
 	return true;
 }
 
-bool DBClientUser::isValidPassword(const string &password)
+DBClientUserError DBClientUser::isValidPassword(const string &password)
 {
 	if (password.empty())
-		return false;
+		return DBCUSRERR_EMPTY_PASSWORD;
 	if (password.size() > MAX_PASSWORD_LENGTH)
-		return false;
-	return true;
+		return DBCUSRERR_TOO_LONG_PASSWORD;
+	return DBCUSRERR_NO_ERROR;
 }
 
 // ---------------------------------------------------------------------------
