@@ -20,6 +20,7 @@
 #ifndef DBClientUser_h
 #define DBClientUser_h
 
+#include <list>
 #include <map>
 #include "DBClient.h"
 
@@ -43,6 +44,10 @@ struct AccessInfo {
 	uint32_t serverId;
 	uint64_t hostGroupId;
 };
+
+typedef std::list<AccessInfo>          AccessInfoList;
+typedef AccessInfoList::iterator       AccessInfoIterator;
+typedef AccessInfoList::const_iterator AccessInfoConstIterator;
 
 typedef std::map<uint64_t, AccessInfo *>      HostGrpAccessInfoMap;
 typedef HostGrpAccessInfoMap::iterator        HostGrpAccessInfoMapIterator;
