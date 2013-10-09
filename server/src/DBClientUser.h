@@ -142,6 +142,7 @@ public:
 	                            const UserIdType userId);
 
 	static bool isValidUserName(const string &name);
+	static bool isValidPassword(const string &password);
 
 protected:
 

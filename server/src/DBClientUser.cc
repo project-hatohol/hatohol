@@ -524,6 +524,15 @@ bool DBClientUser::isValidUserName(const string &name)
 	return true;
 }
 
+bool DBClientUser::isValidPassword(const string &password)
+{
+	if (password.empty())
+		return false;
+	if (password.size() > MAX_PASSWORD_LENGTH)
+		return false;
+	return true;
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
