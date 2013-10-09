@@ -53,8 +53,8 @@ def parse_server_arg(arg):
 def show_server(url, args):
   url += "/server"
   query = {}
-  if args.serverId is not None:
-    query["serverId"] = args.serverId;
+  if args.server_id is not None:
+    query["serverId"] = args.server_id;
   if len(query) > 0:
     encoded_query = urllib.urlencode(query)
     url += "?" + encoded_query
@@ -65,12 +65,12 @@ def show_server(url, args):
 def show_trigger(url, args):
   url += "/trigger"
   query = {}
-  if args.serverId is not None:
-    query["serverId"] = args.serverId
-  if args.hostId is not None:
-    query["hostId"] = args.hostId
-  if args.triggerId is not None:
-    query["triggerId"] = args.triggerId
+  if args.server_id is not None:
+    query["serverId"] = args.server_id
+  if args.host_id is not None:
+    query["hostId"] = args.host_id
+  if args.trigger_id is not None:
+    query["triggerId"] = args.trigger_id
   if len(query) > 0:
     encoded_query = urllib.urlencode(query)
     url += "?" + encoded_query
@@ -93,10 +93,10 @@ def show_item(url, args):
 def show_host(url, args):
   url += "/host"
   query = {}
-  if args.serverId is not None:
-    query["serverId"] = args.serverId
-  if args.hostId is not None:
-    query["hostId"] = args.hostId
+  if args.server_id is not None:
+    query["serverId"] = args.server_id
+  if args.host_id is not None:
+    query["hostId"] = args.host_id
   if len(query) > 0:
     encoded_query = urllib.urlencode(query)
     url += "?" + encoded_query
@@ -146,13 +146,13 @@ def main(arg_list=None):
 
   # server
   sub_server = subparsers.add_parser("show-server")
-  sub_server.add_argument("serverId", type=int, nargs="?",
-                          help="get a server only with serverId")
+  sub_server.add_argument("server_id", type=int, nargs="?",
+                          help="get a server only with server ID")
   # trigger
   sub_trigger = subparsers.add_parser("show-trigger")
-  sub_trigger.add_argument("serverId", type=int, nargs="?")
-  sub_trigger.add_argument("hostId", type=int, nargs="?")
-  sub_trigger.add_argument("triggerId", type=int, nargs="?")
+  sub_trigger.add_argument("server_id", type=int, nargs="?")
+  sub_trigger.add_argument("host_id", type=int, nargs="?")
+  sub_trigger.add_argument("trigger_id", type=int, nargs="?")
 
   # event
   sub_event = subparsers.add_parser("show-event")
@@ -162,8 +162,8 @@ def main(arg_list=None):
 
   # host
   sub_host = subparsers.add_parser("show-host")
-  sub_host.add_argument("serverId", type=int, nargs="?")
-  sub_host.add_argument("hostId", type=int, nargs="?")
+  sub_host.add_argument("server_id", type=int, nargs="?")
+  sub_host.add_argument("host_id", type=int, nargs="?")
 
   # action
   sub_action = subparsers.add_parser("show-action")
