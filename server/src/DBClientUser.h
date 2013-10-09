@@ -41,8 +41,8 @@ static const UserIdType INVALID_USER_ID = -1;
 static const int USER_ID_ADMIN = 0;
 
 typedef std::list<UserInfo>          UserInfoList;
-typedef UserInfoList::iterator       UserInfoIterator;
-typedef UserInfoList::const_iterator UserInfoConstIterator;
+typedef UserInfoList::iterator       UserInfoListIterator;
+typedef UserInfoList::const_iterator UserInfoListConstIterator;
 
 struct AccessInfo {
 	int id;
