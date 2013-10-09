@@ -188,6 +188,15 @@ void test_addUser(void)
 	assertDBContent(dbUser.getDBAgent(), statement, expect);
 }
 
+void test_addUserDuplicate(void)
+{
+	loadTestDBUser();
+	DBClientUser dbUser;
+	UserInfo &userInfo = testUserInfo[1];
+	cppcut_assert_equal(DBCUSRERR_USER_NAME_EXIST,
+	                    dbUser.addUserInfo(userInfo));
+}
+
 void test_getUserId(void)
 {
 	loadTestDBUser();

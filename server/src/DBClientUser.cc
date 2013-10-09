@@ -260,11 +260,19 @@ DBClientUserError DBClientUser::addUserInfo(UserInfo &userInfo)
 	row->ADD_NEW_ITEM(Int, userInfo.flags);
 	arg.row = row;
 
+	string dupCheckCond = StringUtils::sprintf("%s='%s'",
+	  COLUMN_DEF_USERS[IDX_USERS_NAME].columnName, userInfo.name.c_str());
+
 	DBCLIENT_TRANSACTION_BEGIN() {
-		insert(arg);
-		userInfo.id = getLastInsertId();
+		if (isRecordExisting(TABLE_NAME_USERS, dupCheckCond)) {
+			err = DBCUSRERR_USER_NAME_EXIST;
+		} else {
+			insert(arg);
+			userInfo.id = getLastInsertId();
+			err = DBCUSRERR_NO_ERROR;
+		}
 	} DBCLIENT_TRANSACTION_END();
-	return DBCUSRERR_NO_ERROR;
+	return err;
 }
 
 UserIdType DBClientUser::getUserId(const string &user, const string &password)
