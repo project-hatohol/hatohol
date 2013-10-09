@@ -325,4 +325,9 @@ void test_isValidUserNameWithInvalidChars(void)
 	}
 }
 
+void test_isValidUserNameWithEmptyString(void)
+{
+		cppcut_assert_equal(false, DBClientUser::isValidUserName(""));
+}
+
 } // namespace testDBClientUser
