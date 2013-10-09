@@ -115,7 +115,7 @@ class HatoholActionCreator:
       print "Trigger ID : " + str(args.trigger_id)
     if args.status is not None:
       print "Trig. Stat.: " + args.status
-    if args.severity is not None:
+    if hasattr(args, "severity_cmp"):
       print "Seveirty   : " + args.severity_cmp + " " + args.severity
 
     query = {}
@@ -135,7 +135,7 @@ class HatoholActionCreator:
       query["triggerId"] = str(args.trigger_id)
     if status_code is not None:
       query["triggerStatus"] = str(status_code)
-    if args.severity_code is not None:
+    if hasattr(args, "severity_cmp"):
       query["triggerSeverity"] = str(args.severity_code)
       query["triggerSeverityCompType"] = str(args.severity_cmp_code)
 
