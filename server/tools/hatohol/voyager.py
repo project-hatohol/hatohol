@@ -21,7 +21,7 @@ import sys
 import urllib
 import urllib2
 import argparse
-from hatohol.HatoholActionCreator import HatoholActionCreator
+from hatohol.ActionCreator import ActionCreator
 
 DEFAULT_SERVER = "localhost"
 DEFAULT_PORT = 33194
@@ -111,7 +111,7 @@ def show_action(url, options):
   print actions_json
 
 def add_action(url, args):
-  action_creator = HatoholActionCreator(url)
+  action_creator = ActionCreator(url)
   action_creator.add(args)
   url = action_creator.get_url()
   encoded_query = action_creator.get_encoded_query()
@@ -170,7 +170,7 @@ def main(arg_list=None):
 
   # action (add)
   sub_action = subparsers.add_parser("add-action")
-  HatoholActionCreator.setup_arguments(sub_action)
+  ActionCreator.setup_arguments(sub_action)
 
   # action (delete)
   sub_action = subparsers.add_parser("del-action")

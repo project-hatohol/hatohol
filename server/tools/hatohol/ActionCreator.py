@@ -51,7 +51,7 @@ class SeverityParseAction(argparse.Action):
 
 
 
-class HatoholActionCreator:
+class ActionCreator:
   def __init__(self, url):
     self._url = url + "/action"
     self._encoded_query = None

@@ -23,7 +23,7 @@ hatohol_pymodules = \
   hatohol/__init__.py \
   hatohol/hatohol_def.py \
   hatohol/voyager.py \
-  hatohol/HatoholActionCreator.py \
+  hatohol/ActionCreator.py \
   setup.py
 
 # To make hahol_def.py on the build.
