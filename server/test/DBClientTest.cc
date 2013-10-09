@@ -268,7 +268,7 @@ UserInfo testUserInfo[] = {
 }, {
 	0,                 // id
 	"m1ffy@v@",        // name
-	"",                // password
+	"S/N R@t10",       // password
 	0,                 // flags
 }
 };

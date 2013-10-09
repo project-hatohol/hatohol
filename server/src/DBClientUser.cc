@@ -238,8 +238,16 @@ DBClientUser::~DBClientUser()
 		delete m_ctx;
 }
 
-void DBClientUser::addUserInfo(UserInfo &userInfo)
+DBClientUserError DBClientUser::addUserInfo(UserInfo &userInfo)
 {
+	DBClientUserError err;
+	err = isValidUserName(userInfo.name);
+	if (err != DBCUSRERR_NO_ERROR)
+		return err;
+	err = isValidPassword(userInfo.password);
+	if (err != DBCUSRERR_NO_ERROR)
+		return err;
+
 	VariableItemGroupPtr row;
 	DBAgentInsertArg arg;
 	arg.tableName = TABLE_NAME_USERS;
@@ -256,6 +264,7 @@ void DBClientUser::addUserInfo(UserInfo &userInfo)
 		insert(arg);
 		userInfo.id = getLastInsertId();
 	} DBCLIENT_TRANSACTION_END();
+	return DBCUSRERR_NO_ERROR;
 }
 
 UserIdType DBClientUser::getUserId(const string &user, const string &password)

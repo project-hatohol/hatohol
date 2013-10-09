@@ -101,8 +101,10 @@ public:
 	 *
 	 * @param userInfo
 	 * A UserInfo instance that has parameters to be stored.
+	 *
+	 * @return An error code.
 	 */
-	void addUserInfo(UserInfo &userInfo);
+	DBClientUserError addUserInfo(UserInfo &userInfo);
 
 	/**
 	 * Get the user Id.

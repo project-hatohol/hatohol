@@ -496,8 +496,11 @@ void setupTestDBAction(bool dbRecreate, bool loadTestData)
 void loadTestDBUser(void)
 {
 	DBClientUser dbUser;
-	for (size_t i = 0; i < NumTestUserInfo; i++)
-		dbUser.addUserInfo(testUserInfo[i]);
+	DBClientUserError err;
+	for (size_t i = 0; i < NumTestUserInfo; i++) {
+		err = dbUser.addUserInfo(testUserInfo[i]);
+		cppcut_assert_equal(DBCUSRERR_NO_ERROR, err);
+	}
 }
 
 void loadTestDBAccessList(void)
