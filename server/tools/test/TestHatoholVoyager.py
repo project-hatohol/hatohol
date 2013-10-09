@@ -67,6 +67,22 @@ class TestHatoholVoyager(unittest.TestCase):
     self._assert_url(arg_list, "http://localhost:33194/action", None,
                      expect_query)
 
+  def _assert_severity(self, comparator, comparator_value):
+    # TODO: add error, emergency
+    severities = (("info", hatohol.TRIGGER_SEVERITY_INFO),
+                  ("warn", hatohol.TRIGGER_SEVERITY_WARNING),
+                  ("critical", hatohol.TRIGGER_SEVERITY_CRITICAL))
+    for (severity_label, severity_value) in severities:
+      ex_cmd = "ex-cmd -x --for ABC"
+      arg_list = ["add-action", "--type", "command", "--command", ex_cmd,
+                  "--severity", comparator, severity_label]
+      print arg_list
+      expect_query = {"type":hatohol.ACTION_COMMAND, "command":ex_cmd,
+                      "triggerSeverityCompType":str(comparator_value),
+                      "triggerSeverity":str(severity_value)}
+      self._assert_url(arg_list, "http://localhost:33194/action", None,
+                       expect_query)
+
   #
   # Test cases
   #
@@ -168,6 +184,11 @@ class TestHatoholVoyager(unittest.TestCase):
   def test_add_action_status_problem(self):
     self._assert_add_action_one_opt("--status", "problem", "triggerStatus",
                                     str(hatohol.TRIGGER_STATUS_PROBLEM))
+
+  def test_add_action_status_serverity(self):
+    severity_cmp = (("eq", hatohol.CMP_EQ), ("ge", hatohol.CMP_EQ_GT))
+    for (comparator, value) in severity_cmp:
+      self._assert_severity(comparator, value)
 
   def test_del_action(self):
     arg_list = ["del-action", "25"]

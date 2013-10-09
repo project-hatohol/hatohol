@@ -24,6 +24,23 @@ import urllib2
 import hatohol
 import argparse
 
+class SeverityParseAction(argparse.Action):
+  def __call__(self, parser, namespace, values, option_string=None):
+    if len(values) != 2:
+       raise argparse.ArgumentTypeError("--severity expects 2 arguments.")
+    cmp_choices = ("eq", "ge")
+    comparator = values[0]
+    if comparator not in cmp_choices:
+       raise argparse.ArgumentTypeError("comparator must be: eq or ge (%s)" %
+                                        comparator)
+    severity_choices = ("info", "warn", "critical")
+    severity = values[1]
+    if severity not in severity_choices:
+       raise argparse.ArgumentTypeError("severity must be: info, warn, or critical (%s)" % severity)
+
+    setattr(namespace, "severity_cmp", comparator)
+    setattr(namespace, "severity", severity)
+
 class HatoholActionCreator:
   def __init__(self, url):
     self._url = url + "/action"
@@ -43,20 +60,8 @@ class HatoholActionCreator:
     parser.add_argument("--status", choices=["ok", "problem"])
     parser.add_argument("--severity", nargs=2,
                         metavar=("SEVERITY_CMP", "SEVERITY"),
-                        type=HatoholActionCreator._severity_type,
-                        help="{-eq,-ge} {info,warn,critical}")
-
-  @staticmethod
-  def _severity_type(arg):
-    if len(arg) != 2:
-       raise argparse.ArgumentTypeError("--severity must have two arguments.")
-    cmp_choices = ("-eq", "-ge")
-    if arg[0] not in cmp_choices:
-       raise argparse.ArgumentTypeError("comparator must be: -eq or -ge")
-    severity_choices = ("info", "warn", "critical")
-    if arg[1] not in severity_choices:
-       raise argparse.ArgumentTypeError("comparator must be: info,warn,critical")
-    return arg
+                        action=SeverityParseAction,
+                        help="{eq,ge} {info,warn,critical}")
 
   def get_url(self):
     return self._url
@@ -84,25 +89,19 @@ class HatoholActionCreator:
     elif status == "problem":
       status_code = hatohol.TRIGGER_STATUS_PROBLEM
 
-    (severity_cmp, severity) = (None, None)
-    if args.severity is not None:
-      (severity_cmp, severity) = args.severity
     severity_cmp_code = None
     severity_code = None
     if args.severity:
-      if severity == "info":
+      if args.severity == "info":
         severity_code = hatohol.TRIGGER_SEVERITY_INFO
-      elif severity == "warn":
-        severity_code = hatohol.TRIGGER_SEVERITY_WARN
-      elif severity == "critical":
+      elif args.severity == "warn":
+        severity_code = hatohol.TRIGGER_SEVERITY_WARNING
+      elif args.severity == "critical":
         severity_code = hatohol.TRIGGER_SEVERITY_CRITICAL
-      else:
-        print "Severity must be 'info', 'warn', or 'critical'."
-        sys.exit(-1)
 
-      if severity_cmp == "-eq":
+      if args.severity_cmp == "eq":
         severity_cmp_code = hatohol.CMP_EQ
-      elif severity_cmp == "-ge":
+      elif args.severity_cmp == "ge":
         severity_cmp_code = hatohol.CMP_EQ_GT
 
     print "Type       : " + args.type
