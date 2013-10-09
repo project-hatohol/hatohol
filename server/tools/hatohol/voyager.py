@@ -27,7 +27,10 @@ DEFAULT_SERVER = "localhost"
 DEFAULT_PORT = 33194
 
 def open_url_and_show_response(cmd_ctx):
-  response = urllib2.urlopen(cmd_ctx["url"])
+  if "encoded_query" in cmd_ctx:
+    response = urllib2.urlopen(cmd_ctx["url"], cmd_ctx["encoded_query"])
+  else:
+    response = urllib2.urlopen(cmd_ctx["url"])
   print response.read()
 
 def parse_server_arg(arg):
