@@ -1090,7 +1090,7 @@ void ActionManager::closeResident(ResidentInfo *residentInfo)
 {
 	// kill hatohol-resident-yard.
 	// After hatohol-resident-yard is killed, residentActorCollectedCb()
-	// will be called form ActorCollector::checkExitProcess().
+	// will be called back from ActorCollector::checkExitProcess().
 	pid_t pid = residentInfo->pid;
 	if (pid && kill(pid, SIGKILL))
 		MLPL_ERR("Failed to kill. pid: %d, %s\n", pid, strerror(errno));
