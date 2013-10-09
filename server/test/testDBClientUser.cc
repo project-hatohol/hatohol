@@ -248,6 +248,15 @@ void test_getUserInfo(void)
 	assertUserInfo(expectUserInfo, userInfo);
 }
 
+void test_getUserInfoWithNonExistId(void)
+{
+	loadTestDBUser();
+	DBClientUser dbUser;
+	UserInfo userInfo;
+	UserIdType nonexistId = NumTestUserInfo + 5;
+	cppcut_assert_equal(false, dbUser.getUserInfo(userInfo, nonexistId));
+}
+
 void test_getServerAccessInfoMap(void)
 {
 	DBClientUser dbUser;
