@@ -16,6 +16,8 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#define __STDC_LIMIT_MACROS 
+#include <stdint.h>
 #include <cppcutter.h>
 #include <cutter.h>
 
@@ -304,6 +306,23 @@ void test_isValidUserName(void)
 	cppcut_assert_equal(true, DBClientUser::isValidUserName("sna-ke"));
 	cppcut_assert_equal(true, DBClientUser::isValidUserName("sna.ke"));
 	cppcut_assert_equal(true, DBClientUser::isValidUserName("Ab9@ho.com"));
+}
+
+void test_isValidUserNameWithInvalidChars(void)
+{
+	for (int i = 1; i <= UINT8_MAX; i++) {
+		if (i >= 'A' && i <= 'Z')
+			continue;
+		if (i >= 'a' && i <= 'z')
+			continue;
+		if (i >= '0' && i <= '9')
+			continue;
+		if (i == '.' || i == '-' || i == '_' || i == '@')
+			continue;
+		string name = StringUtils::sprintf("AB%cxy", i);
+		cppcut_assert_equal(false, DBClientUser::isValidUserName(name),
+		                    cut_message("index: %d", i));
+	}
 }
 
 } // namespace testDBClientUser
