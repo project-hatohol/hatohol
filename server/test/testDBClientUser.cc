@@ -206,6 +206,16 @@ void test_getUserIdWrongUserPassword(void)
 	cppcut_assert_equal(INVALID_USER_ID, userId);
 }
 
+void test_getUserIdWithSQLInjection(void)
+{
+	loadTestDBUser();
+	DBClientUser dbUser;
+	string name = "a' OR 1 OR name='a";
+	string password = testUserInfo[0].password;
+	UserIdType userId = dbUser.getUserId(name, password);
+	cppcut_assert_equal(INVALID_USER_ID, userId);
+}
+
 void test_getUserIdFromEmptyDB(void)
 {
 	const int targetIdx = 1;
