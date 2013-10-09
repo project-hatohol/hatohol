@@ -391,7 +391,7 @@ const char *ActionManager::NUM_COMMNAD_ACTION_EVENT_ARG_MAGIC
 
 void ActionManager::reset(void)
 {
-	// The following deletion is naturally no effect at the start of
+	// The following deletion has naturally no effect at the start of
 	// Hatohol. This is mainly for the test in which this function is 
 	// calls many times.
 	// NOTE: This is a special case for test, so we don't take
