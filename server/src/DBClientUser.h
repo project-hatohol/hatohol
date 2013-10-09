@@ -114,6 +114,10 @@ public:
 	void addAccessInfo(AccessInfo &accessInfo);
 
 	bool getUserInfo(UserInfo &userInfo, const UserIdType userId);
+	void getUserInfoList(UserInfoList &userInfoList,
+	                     const string &condition);
+	void getUserInfoList(UserInfoList &userInfoList,
+	                     DataQueryOption &option);
 
 	/**
 	 * Make a map that has the ServerAccessInfo instances for
@@ -134,8 +138,6 @@ public:
 	 */
 	void getServerHostGrpSetMap(ServerHostGrpSetMap &srvHostGrpSetMap,
 	                            const UserIdType userId);
-
-    void getUserInfoList(UserInfoList &userInfoList, DataQueryOption &option);
 
 protected:
 

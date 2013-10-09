@@ -334,6 +334,79 @@ bool DBClientUser::getUserInfo(UserInfo &userInfo, const UserIdType userId)
 	return true;
 }
 
+void DBClientUser::getUserInfoList(UserInfoList &userInfoList,
+                                   const string &condition)
+{
+	DBAgentSelectExArg arg;
+	arg.tableName = TABLE_NAME_USERS;
+	arg.pushColumn(COLUMN_DEF_USERS[IDX_USERS_ID]);
+	arg.pushColumn(COLUMN_DEF_USERS[IDX_USERS_NAME]);
+	arg.pushColumn(COLUMN_DEF_USERS[IDX_USERS_PASSWORD]);
+	arg.pushColumn(COLUMN_DEF_USERS[IDX_USERS_FLAGS]);
+	arg.condition = condition;
+
+	DBCLIENT_TRANSACTION_BEGIN() {
+		select(arg);
+	} DBCLIENT_TRANSACTION_END();
+
+	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
+	ItemGroupListConstIterator it = grpList.begin();
+	for (; it != grpList.end(); ++it) {
+		size_t idx = 0;
+		const ItemGroup *itemGroup = *it;
+		UserInfo userInfo;
+
+		// user ID
+		DEFINE_AND_ASSERT(itemGroup->getItemAt(idx++), ItemInt,
+		                  itemUserId);
+		userInfo.id = itemUserId->get();
+
+		// password
+		DEFINE_AND_ASSERT(itemGroup->getItemAt(idx++), ItemString,
+		                  itemName);
+		userInfo.name = itemName->get();
+
+		// password
+		DEFINE_AND_ASSERT(itemGroup->getItemAt(idx++), ItemString,
+		                  itemPasswd);
+		userInfo.password = itemPasswd->get();
+
+		// flags
+		DEFINE_AND_ASSERT(itemGroup->getItemAt(idx++), ItemInt,
+		                  itemFlags);
+		userInfo.flags = itemFlags->get();
+
+		userInfoList.push_back(userInfo);
+	}
+}
+
+void DBClientUser::getUserInfoList(UserInfoList &userInfoList,
+                                   DataQueryOption &option)
+{
+	UserIdType userId = option.getUserId();
+	if (userId == INVALID_USER_ID) {
+		MLPL_WARN("INVALID_USER_ID\n");
+		return;
+	}
+
+	string condition;
+	if (userId != USER_ID_ADMIN) {
+		UserInfo userInfo;
+		if (!getUserInfo(userInfo, userId)) {
+			MLPL_ERR("Failed to getUserInfo(): userId: "
+			         "%"FMT_USER_ID"\n", userId);
+		}
+		return;
+
+		if (!(userInfo.flags & USER_FLAG_ADMIN) &&
+		    !(userInfo.flags & USER_FLAG_GET_ALL_USERS)) {
+			userInfoList.push_back(userInfo);
+			return;
+		}
+	}
+	getUserInfoList(userInfoList, condition);
+}
+
 void DBClientUser::getAccessInfoMap(ServerAccessInfoMap &srvAccessInfoMap,
                                     const UserIdType userId)
 {
@@ -440,12 +513,6 @@ void DBClientUser::getServerHostGrpSetMap(
 			continue;
 		}
 	}
-}
-
-void DBClientUser::getUserInfoList(UserInfoList &userInfoList,
-                                   DataQueryOption &option)
-{
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
 }
 
 // ---------------------------------------------------------------------------
