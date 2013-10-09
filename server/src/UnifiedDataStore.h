@@ -69,6 +69,9 @@ public:
 	 */
 	virtual void addEventList(const EventInfoList &eventList);
 
+	virtual void getUserList(UserInfoList &userList,
+                                 DataQueryOption &option);
+
 private:
 	struct PrivateContext;
 	PrivateContext *m_ctx;

@@ -26,6 +26,7 @@
 #include "VirtualDataStoreNagios.h"
 #include "DBClientAction.h"
 #include "ActionManager.h"
+#include "CacheServiceDBClient.h"
 
 using namespace mlpl;
 
@@ -300,6 +301,14 @@ void UnifiedDataStore::addEventList(const EventInfoList &eventList)
 	ActionManager actionManager;
 	actionManager.checkEvents(eventList);
 	dbHatohol.addEventInfoList(eventList);
+}
+
+void UnifiedDataStore::getUserList(UserInfoList &userList,
+                                   DataQueryOption &option)
+{
+	CacheServiceDBClient cache;
+	DBClientUser *dbUser = cache.getUser();
+	dbUser->getUserInfoList(userList, option);
 }
 
 // ---------------------------------------------------------------------------
