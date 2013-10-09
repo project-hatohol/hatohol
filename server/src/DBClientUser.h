@@ -27,7 +27,7 @@
 
 enum
 {
-	USER_FLAG_GET_ALL_USER = (1 << 0),
+	USER_FLAG_GET_ALL_USERS = (1 << 0),
 	USER_FLAG_ADMIN = (1 << 0),
 };
 
