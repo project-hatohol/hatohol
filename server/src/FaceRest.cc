@@ -1276,8 +1276,32 @@ void FaceRest::handlerGetUser
   (SoupServer *server, SoupMessage *msg, const char *path,
    GHashTable *query, SoupClientContext *client, HandlerArg *arg)
 {
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
-	replyError(msg, arg, "Not implmented.");
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+
+	UserInfoList userList;
+	SimpleQueryOption option;
+	option.setUserId(arg->userId);
+	dataStore->getUserList(userList, option);
+
+	JsonBuilderAgent agent;
+	agent.startObject();
+	agent.add("apiVersion", API_VERSION);
+	agent.addTrue("result");
+	agent.add("numberOfUser", userList.size());
+	agent.startArray("users");
+	UserInfoListIterator it = userList.begin();
+	for (; it != userList.end(); ++it) {
+		const UserInfo &userInfo = *it;
+		agent.startObject();
+		agent.add("userId",  userInfo.id);
+		agent.add("name", userInfo.name);
+		agent.add("flags", userInfo.flags);
+		agent.endObject();
+	}
+	agent.endArray();
+	agent.endObject();
+
+	replyJsonData(agent, msg, arg->jsonpCallbackName, arg);
 }
 
 void FaceRest::handlerPostUser
