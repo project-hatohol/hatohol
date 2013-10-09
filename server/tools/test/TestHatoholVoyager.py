@@ -91,6 +91,10 @@ class TestHatoholVoyager(unittest.TestCase):
     arg_list = ["--server", "www.example.com", "show-server"]
     self._assert_url(arg_list, "http://www.example.com:33194/server")
 
+  def test_target_server_port(self):
+    arg_list = ["--server", "www.example.com:23231", "show-server"]
+    self._assert_url(arg_list, "http://www.example.com:23231/server")
+
   def test_show_server(self):
     arg_list = ["show-server"]
     self._assert_url(arg_list, "http://localhost:33194/server")
