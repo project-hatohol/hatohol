@@ -68,10 +68,11 @@ class TestHatoholVoyager(unittest.TestCase):
                      expect_query)
 
   def _assert_severity(self, comparator, comparator_value):
-    # TODO: add error, emergency
     severities = (("info", hatohol.TRIGGER_SEVERITY_INFO),
                   ("warn", hatohol.TRIGGER_SEVERITY_WARNING),
-                  ("critical", hatohol.TRIGGER_SEVERITY_CRITICAL))
+                  ("error", hatohol.TRIGGER_SEVERITY_ERROR),
+                  ("critical", hatohol.TRIGGER_SEVERITY_CRITICAL),
+                  ("emergency", hatohol.TRIGGER_SEVERITY_EMERGENCY))
     for (severity_label, severity_value) in severities:
       ex_cmd = "ex-cmd -x --for ABC"
       arg_list = ["add-action", "--type", "command", "--command", ex_cmd,

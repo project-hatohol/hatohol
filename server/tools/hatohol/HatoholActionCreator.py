@@ -28,18 +28,28 @@ class SeverityParseAction(argparse.Action):
   def __call__(self, parser, namespace, values, option_string=None):
     if len(values) != 2:
        raise argparse.ArgumentTypeError("--severity expects 2 arguments.")
-    cmp_choices = ("eq", "ge")
+
+    severity_cmp_dict = {"eq":hatohol.CMP_EQ, "ge":hatohol.CMP_EQ_GT}
+    severity_dict = {"info":hatohol.TRIGGER_SEVERITY_INFO,
+                     "warn":hatohol.TRIGGER_SEVERITY_WARNING,
+                     "error":hatohol.TRIGGER_SEVERITY_ERROR,
+                     "critical":hatohol.TRIGGER_SEVERITY_CRITICAL,
+                     "emergency":hatohol.TRIGGER_SEVERITY_EMERGENCY}
     comparator = values[0]
-    if comparator not in cmp_choices:
+    if comparator not in severity_cmp_dict:
        raise argparse.ArgumentTypeError("comparator must be: eq or ge (%s)" %
                                         comparator)
-    severity_choices = ("info", "warn", "critical")
     severity = values[1]
-    if severity not in severity_choices:
-       raise argparse.ArgumentTypeError("severity must be: info, warn, or critical (%s)" % severity)
+    if severity not in severity_dict:
+       raise argparse.ArgumentTypeError("severity must be: info, warn, error, critical, or emergency (%s)" % severity)
 
     setattr(namespace, "severity_cmp", comparator)
     setattr(namespace, "severity", severity)
+
+    setattr(namespace, "severity_cmp_code", severity_cmp_dict[comparator])
+    setattr(namespace, "severity_code", severity_dict[severity])
+
+
 
 class HatoholActionCreator:
   def __init__(self, url):
@@ -61,7 +71,7 @@ class HatoholActionCreator:
     parser.add_argument("--severity", nargs=2,
                         metavar=("SEVERITY_CMP", "SEVERITY"),
                         action=SeverityParseAction,
-                        help="{eq,ge} {info,warn,critical}")
+                        help="{eq,ge} {info,warn,error,critical,emergency}")
 
   def get_url(self):
     return self._url
@@ -88,21 +98,6 @@ class HatoholActionCreator:
       status_code = hatohol.TRIGGER_STATUS_OK
     elif status == "problem":
       status_code = hatohol.TRIGGER_STATUS_PROBLEM
-
-    severity_cmp_code = None
-    severity_code = None
-    if args.severity:
-      if args.severity == "info":
-        severity_code = hatohol.TRIGGER_SEVERITY_INFO
-      elif args.severity == "warn":
-        severity_code = hatohol.TRIGGER_SEVERITY_WARNING
-      elif args.severity == "critical":
-        severity_code = hatohol.TRIGGER_SEVERITY_CRITICAL
-
-      if args.severity_cmp == "eq":
-        severity_cmp_code = hatohol.CMP_EQ
-      elif args.severity_cmp == "ge":
-        severity_cmp_code = hatohol.CMP_EQ_GT
 
     print "Type       : " + args.type
     print "Commad     : " + args.command
@@ -140,9 +135,9 @@ class HatoholActionCreator:
       query["triggerId"] = str(args.trigger_id)
     if status_code is not None:
       query["triggerStatus"] = str(status_code)
-    if severity_code is not None:
-      query["triggerSeverity"] = str(severity_code)
-      query["triggerSeverityCompType"] = str(severity_cmp_code)
+    if args.severity_code is not None:
+      query["triggerSeverity"] = str(args.severity_code)
+      query["triggerSeverityCompType"] = str(args.severity_cmp_code)
 
     self._encoded_query = urllib.urlencode(query)
     print "URL: " + self._url
