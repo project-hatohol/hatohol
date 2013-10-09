@@ -26,6 +26,8 @@ const int   DBClientUser::USER_DB_VERSION = 1;
 const char *DBClientUser::DEFAULT_DB_NAME = DBClientConfig::DEFAULT_DB_NAME;
 const char *DBClientUser::TABLE_NAME_USERS = "users";
 const char *DBClientUser::TABLE_NAME_ACCESS_LIST = "access_list";
+const size_t DBClientUser::MAX_USER_NAME_LENGTH = 128;
+const size_t DBClientUser::MAX_PASSWORD_LENGTH = 128;
 static const char *TABLE_NAME_USERS = DBClientUser::TABLE_NAME_USERS;
 static const char *TABLE_NAME_ACCESS_LIST =
   DBClientUser::TABLE_NAME_ACCESS_LIST;
@@ -511,6 +513,8 @@ void DBClientUser::getServerHostGrpSetMap(
 bool DBClientUser::isValidUserName(const string &name)
 {
 	if (name.empty())
+		return false;
+	if (name.size() > MAX_USER_NAME_LENGTH)
 		return false;
 	for (const char *p = name.c_str(); *p; p++) {
 		uint8_t idx = *p;

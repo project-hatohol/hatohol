@@ -79,6 +79,8 @@ public:
 	static const char *DEFAULT_DB_NAME;
 	static const char *TABLE_NAME_USERS;
 	static const char *TABLE_NAME_ACCESS_LIST;
+	static const size_t MAX_USER_NAME_LENGTH;
+	static const size_t MAX_PASSWORD_LENGTH;
 	static void init(void);
 	static void reset(void);
 

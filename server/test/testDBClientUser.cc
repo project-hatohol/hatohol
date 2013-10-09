@@ -330,4 +330,14 @@ void test_isValidUserNameWithEmptyString(void)
 	cppcut_assert_equal(false, DBClientUser::isValidUserName(""));
 }
 
+void test_isValidUserNameLongUserName(void)
+{
+	string name;
+	for (size_t i = 0; i < DBClientUser::MAX_USER_NAME_LENGTH; i++)
+		name += "A";
+	cppcut_assert_equal(true, DBClientUser::isValidUserName(name));
+	name += "A";
+	cppcut_assert_equal(false, DBClientUser::isValidUserName(name));
+}
+
 } // namespace testDBClientUser
