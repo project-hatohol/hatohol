@@ -39,4 +39,10 @@ private:
 	PrivateContext *m_ctx;
 };
 
+class SimpleQueryOption : public DataQueryOption {
+public:
+	virtual const std::string getServerIdColumnName(void);
+	virtual const std::string getHostGroupIdColumnName(void);
+};
+
 #endif // DataQueryOption_h
