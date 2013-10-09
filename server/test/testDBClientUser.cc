@@ -350,4 +350,9 @@ void test_isValidPasswordWithLongPassowrd(void)
 	cppcut_assert_equal(false, DBClientUser::isValidPassword(password));
 }
 
+void test_isValidPasswordWithEmptyPassword(void)
+{
+	cppcut_assert_equal(false, DBClientUser::isValidPassword(""));
+}
+
 } // namespace testDBClientUser
