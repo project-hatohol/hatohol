@@ -262,6 +262,8 @@ UserIdType DBClientUser::getUserId(const string &user, const string &password)
 {
 	if (!isValidUserName(user))
 		return INVALID_USER_ID;
+	if (!isValidPassword(password))
+		return INVALID_USER_ID;
 
 	DBAgentSelectExArg arg;
 	arg.tableName = TABLE_NAME_USERS;

@@ -227,6 +227,22 @@ void test_getUserIdFromEmptyDB(void)
 	cppcut_assert_equal(INVALID_USER_ID, userId);
 }
 
+void test_getUserIdWithEmptyUsername(void)
+{
+	loadTestDBUser();
+	DBClientUser dbUser;
+	UserIdType userId = dbUser.getUserId("", "foo");
+	cppcut_assert_equal(INVALID_USER_ID, userId);
+}
+
+void test_getUserIdWithEmptyPasword(void)
+{
+	loadTestDBUser();
+	DBClientUser dbUser;
+	UserIdType userId = dbUser.getUserId("fff", "");
+	cppcut_assert_equal(INVALID_USER_ID, userId);
+}
+
 void test_addAccessList(void)
 {
 	loadTestDBAccessList();
