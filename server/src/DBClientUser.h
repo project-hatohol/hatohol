@@ -23,6 +23,7 @@
 #include <list>
 #include <map>
 #include "DBClient.h"
+#include "DataQueryOption.h"
 
 enum
 {
@@ -37,6 +38,10 @@ struct UserInfo {
 };
 static const UserIdType INVALID_USER_ID = -1;
 static const int USER_ID_ADMIN = 0;
+
+typedef std::list<UserInfo>          UserInfoList;
+typedef UserInfoList::iterator       UserInfoIterator;
+typedef UserInfoList::const_iterator UserInfoConstIterator;
 
 struct AccessInfo {
 	int id;
@@ -128,6 +133,8 @@ public:
 	 */
 	void getServerHostGrpSetMap(ServerHostGrpSetMap &srvHostGrpSetMap,
 	                            const UserIdType userId);
+
+    void getUserInfoList(UserInfoList &userInfoList, DataQueryOption &option);
 
 protected:
 

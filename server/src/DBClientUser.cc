@@ -442,6 +442,12 @@ void DBClientUser::getServerHostGrpSetMap(
 	}
 }
 
+void DBClientUser::getUserInfoList(UserInfoList &userInfoList,
+                                   DataQueryOption &option)
+{
+	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
