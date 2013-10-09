@@ -315,13 +315,20 @@ void test_getServerHostGrpSetMap(void)
 
 void test_isValidUserName(void)
 {
-	cppcut_assert_equal(true, DBClientUser::isValidUserName("CAPITAL"));
-	cppcut_assert_equal(true, DBClientUser::isValidUserName("small"));
-	cppcut_assert_equal(true, DBClientUser::isValidUserName("Camel"));
-	cppcut_assert_equal(true, DBClientUser::isValidUserName("sna_ke"));
-	cppcut_assert_equal(true, DBClientUser::isValidUserName("sna-ke"));
-	cppcut_assert_equal(true, DBClientUser::isValidUserName("sna.ke"));
-	cppcut_assert_equal(true, DBClientUser::isValidUserName("Ab9@ho.com"));
+	cppcut_assert_equal(DBCUSRERR_NO_ERROR,
+	                    DBClientUser::isValidUserName("CAPITAL"));
+	cppcut_assert_equal(DBCUSRERR_NO_ERROR,
+	                    DBClientUser::isValidUserName("small"));
+	cppcut_assert_equal(DBCUSRERR_NO_ERROR,
+	                    DBClientUser::isValidUserName("Camel"));
+	cppcut_assert_equal(DBCUSRERR_NO_ERROR,
+	                    DBClientUser::isValidUserName("sna_ke"));
+	cppcut_assert_equal(DBCUSRERR_NO_ERROR,
+	                    DBClientUser::isValidUserName("sna-ke"));
+	cppcut_assert_equal(DBCUSRERR_NO_ERROR,
+	                    DBClientUser::isValidUserName("sna.ke"));
+	cppcut_assert_equal(DBCUSRERR_NO_ERROR,
+	                    DBClientUser::isValidUserName("Ab9@ho.com"));
 }
 
 void test_isValidUserNameWithInvalidChars(void)
@@ -336,14 +343,16 @@ void test_isValidUserNameWithInvalidChars(void)
 		if (i == '.' || i == '-' || i == '_' || i == '@')
 			continue;
 		string name = StringUtils::sprintf("AB%cxy", i);
-		cppcut_assert_equal(false, DBClientUser::isValidUserName(name),
+		cppcut_assert_equal(DBCUSRERR_INVALID_CHAR,
+		                    DBClientUser::isValidUserName(name),
 		                    cut_message("index: %d", i));
 	}
 }
 
 void test_isValidUserNameWithEmptyString(void)
 {
-	cppcut_assert_equal(false, DBClientUser::isValidUserName(""));
+	cppcut_assert_equal(DBCUSRERR_EMPTY_USER_NAME,
+	                    DBClientUser::isValidUserName(""));
 }
 
 void test_isValidUserNameLongUserName(void)
@@ -351,9 +360,11 @@ void test_isValidUserNameLongUserName(void)
 	string name;
 	for (size_t i = 0; i < DBClientUser::MAX_USER_NAME_LENGTH; i++)
 		name += "A";
-	cppcut_assert_equal(true, DBClientUser::isValidUserName(name));
+	cppcut_assert_equal(DBCUSRERR_NO_ERROR,
+	                    DBClientUser::isValidUserName(name));
 	name += "A";
-	cppcut_assert_equal(false, DBClientUser::isValidUserName(name));
+	cppcut_assert_equal(DBCUSRERR_TOO_LONG_USER_NAME,
+	                    DBClientUser::isValidUserName(name));
 }
 
 void test_isValidPasswordWithLongPassword(void)

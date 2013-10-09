@@ -260,7 +260,7 @@ void DBClientUser::addUserInfo(UserInfo &userInfo)
 
 UserIdType DBClientUser::getUserId(const string &user, const string &password)
 {
-	if (!isValidUserName(user))
+	if (isValidUserName(user) != DBCUSRERR_NO_ERROR)
 		return INVALID_USER_ID;
 	if (isValidPassword(password) != DBCUSRERR_NO_ERROR)
 		return INVALID_USER_ID;
@@ -512,18 +512,18 @@ void DBClientUser::getServerHostGrpSetMap(
 	}
 }
 
-bool DBClientUser::isValidUserName(const string &name)
+DBClientUserError DBClientUser::isValidUserName(const string &name)
 {
 	if (name.empty())
-		return false;
+		return DBCUSRERR_EMPTY_USER_NAME;
 	if (name.size() > MAX_USER_NAME_LENGTH)
-		return false;
+		return DBCUSRERR_TOO_LONG_USER_NAME;
 	for (const char *p = name.c_str(); *p; p++) {
 		uint8_t idx = *p;
 		if (!PrivateContext::validUsernameChars[idx])
-			return false;
+			return DBCUSRERR_INVALID_CHAR;
 	}
-	return true;
+	return DBCUSRERR_NO_ERROR;
 }
 
 DBClientUserError DBClientUser::isValidPassword(const string &password)

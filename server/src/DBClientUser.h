@@ -33,6 +33,9 @@ enum
 
 enum DBClientUserError {
 	DBCUSRERR_NO_ERROR,
+	DBCUSRERR_EMPTY_USER_NAME,
+	DBCUSRERR_TOO_LONG_USER_NAME,
+	DBCUSRERR_INVALID_CHAR,
 	DBCUSRERR_EMPTY_PASSWORD,
 	DBCUSRERR_TOO_LONG_PASSWORD,
 };
@@ -147,7 +150,7 @@ public:
 	void getServerHostGrpSetMap(ServerHostGrpSetMap &srvHostGrpSetMap,
 	                            const UserIdType userId);
 
-	static bool isValidUserName(const string &name);
+	static DBClientUserError isValidUserName(const string &name);
 	static DBClientUserError isValidPassword(const string &password);
 
 protected:
