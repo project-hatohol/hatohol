@@ -17,6 +17,8 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#define __STDC_LIMIT_MACROS
+#include <stdint.h>
 #include "DBClientUser.h"
 #include "DBClientConfig.h"
 
@@ -157,7 +159,10 @@ ServerAccessInfoMap::~ServerAccessInfoMap()
 }
 
 struct DBClientUser::PrivateContext {
+	static bool validUsernameChars[UINT8_MAX+1];
 };
+
+bool DBClientUser::PrivateContext::validUsernameChars[UINT8_MAX+1];
 
 // ---------------------------------------------------------------------------
 // Public methods
@@ -198,6 +203,18 @@ void DBClientUser::init(void)
 
 	registerSetupInfo(
 	  DB_DOMAIN_ID_USERS, DEFAULT_DB_NAME, &DB_SETUP_FUNC_ARG);
+
+	// set valid characters for the user name
+	for (uint8_t c = 'A'; c <= 'Z'; c++)
+		PrivateContext::validUsernameChars[c] = true;
+	for (uint8_t c = 'a'; c <= 'z'; c++)
+		PrivateContext::validUsernameChars[c] = true;
+	for (uint8_t c = '0'; c <= '9'; c++)
+		PrivateContext::validUsernameChars[c] = true;
+	PrivateContext::validUsernameChars['.'] = true;
+	PrivateContext::validUsernameChars['-'] = true;
+	PrivateContext::validUsernameChars['_'] = true;
+	PrivateContext::validUsernameChars['@'] = true;
 }
 
 void DBClientUser::reset(void)
@@ -486,6 +503,18 @@ void DBClientUser::getServerHostGrpSetMap(
 			continue;
 		}
 	}
+}
+
+bool DBClientUser::isValidUserName(const string &name)
+{
+	if (name.empty())
+		return false;
+	for (const char *p = name.c_str(); *p; p++) {
+		uint8_t idx = *p;
+		if (!PrivateContext::validUsernameChars[idx])
+			return false;
+	}
+	return true;
 }
 
 // ---------------------------------------------------------------------------

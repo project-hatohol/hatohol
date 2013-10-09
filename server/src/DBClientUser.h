@@ -139,6 +139,8 @@ public:
 	void getServerHostGrpSetMap(ServerHostGrpSetMap &srvHostGrpSetMap,
 	                            const UserIdType userId);
 
+	static bool isValidUserName(const string &name);
+
 protected:
 
 private:

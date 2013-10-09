@@ -295,4 +295,15 @@ void test_getServerHostGrpSetMap(void)
 	}
 }
 
+void test_isValidUserName(void)
+{
+	cppcut_assert_equal(true, DBClientUser::isValidUserName("CAPITAL"));
+	cppcut_assert_equal(true, DBClientUser::isValidUserName("small"));
+	cppcut_assert_equal(true, DBClientUser::isValidUserName("Camel"));
+	cppcut_assert_equal(true, DBClientUser::isValidUserName("sna_ke"));
+	cppcut_assert_equal(true, DBClientUser::isValidUserName("sna-ke"));
+	cppcut_assert_equal(true, DBClientUser::isValidUserName("sna.ke"));
+	cppcut_assert_equal(true, DBClientUser::isValidUserName("Ab9@ho.com"));
+}
+
 } // namespace testDBClientUser
