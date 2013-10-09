@@ -258,6 +258,9 @@ void DBClientUser::addUserInfo(UserInfo &userInfo)
 
 UserIdType DBClientUser::getUserId(const string &user, const string &password)
 {
+	if (!isValidUserName(user))
+		return INVALID_USER_ID;
+
 	DBAgentSelectExArg arg;
 	arg.tableName = TABLE_NAME_USERS;
 	arg.pushColumn(COLUMN_DEF_USERS[IDX_USERS_ID]);
