@@ -340,7 +340,7 @@ void test_isValidUserNameLongUserName(void)
 	cppcut_assert_equal(false, DBClientUser::isValidUserName(name));
 }
 
-void test_isValidPasswordWithLongPassowrd(void)
+void test_isValidPasswordWithLongPassword(void)
 {
 	string password;
 	for (size_t i = 0; i < DBClientUser::MAX_PASSWORD_LENGTH; i++)
