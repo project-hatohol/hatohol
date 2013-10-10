@@ -26,6 +26,7 @@
 enum OperationPrivilegeType
 {
 	OPPRVLG_CREATE_USER,
+	NUM_OPPRVLG,
 };
 
 typedef uint64_t OperationPrivilegeFlag;
@@ -36,6 +37,9 @@ public:
 	virtual ~OperationPrivilege();
 
 	const OperationPrivilegeFlag &getFlags(void) const;
+	static const OperationPrivilegeFlag 
+	  makeFlag(OperationPrivilegeType type);
+	
 
 private:
 	struct PrivateContext;

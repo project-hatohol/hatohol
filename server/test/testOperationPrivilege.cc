@@ -31,4 +31,15 @@ void test_getDefaultFlags(void)
 	cppcut_assert_equal((OperationPrivilegeFlag)0, privilege.getFlags());
 }
 
+void test_makeFlag(void)
+{
+	for (size_t i = 0; i < NUM_OPPRVLG; i++) {
+		OperationPrivilegeType type =
+		  static_cast<OperationPrivilegeType>(i);
+		cppcut_assert_equal(
+		  (OperationPrivilegeFlag)(1 << i),
+		  OperationPrivilege::makeFlag(type));
+	}
+}
+
 } // namespace testOperationPrivilege
