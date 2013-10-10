@@ -322,6 +322,25 @@ void test_getUserInfoListByNormalUser(void)
 	assertUserInfo(userInfo, *userInfoList.begin());
 }
 
+void test_getUserInfoListByUserWithGetAllUsersFlag(void)
+{
+	loadTestDBUser();
+	UserInfoList userInfoList;
+	SimpleQueryOption option;
+	const UserInfo &userInfo =
+	   findFirstTestUserInfoByFlag(USER_FLAG_GET_ALL_USERS);
+	option.setUserId(userInfo.id);
+	DBClientUser dbUser;
+	dbUser.getUserInfoList(userInfoList, option);
+	cppcut_assert_equal(NumTestUserInfo, userInfoList.size());
+	UserInfoListIterator it = userInfoList.begin();
+	for (size_t i = 0; i < NumTestUserInfo; i++, ++it) {
+		UserInfo &userInfo = *it;
+		userInfo.id = i + 1;
+		assertUserInfo(testUserInfo[i], userInfo);
+	}
+}
+
 void test_getServerAccessInfoMap(void)
 {
 	DBClientUser dbUser;
