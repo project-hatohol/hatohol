@@ -23,7 +23,7 @@
 #include <string>
 #include "Params.h"
 
-enum OprationPrivilegeType
+enum OperationPrivilegeType
 {
 	OPPRVLG_CREATE_USER,
 };
