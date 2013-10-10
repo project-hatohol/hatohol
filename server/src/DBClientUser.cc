@@ -353,52 +353,6 @@ bool DBClientUser::getUserInfo(UserInfo &userInfo, const UserIdType userId)
 }
 
 void DBClientUser::getUserInfoList(UserInfoList &userInfoList,
-                                   const string &condition)
-{
-	DBAgentSelectExArg arg;
-	arg.tableName = TABLE_NAME_USERS;
-	arg.pushColumn(COLUMN_DEF_USERS[IDX_USERS_ID]);
-	arg.pushColumn(COLUMN_DEF_USERS[IDX_USERS_NAME]);
-	arg.pushColumn(COLUMN_DEF_USERS[IDX_USERS_PASSWORD]);
-	arg.pushColumn(COLUMN_DEF_USERS[IDX_USERS_FLAGS]);
-	arg.condition = condition;
-
-	DBCLIENT_TRANSACTION_BEGIN() {
-		select(arg);
-	} DBCLIENT_TRANSACTION_END();
-
-	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
-	ItemGroupListConstIterator it = grpList.begin();
-	for (; it != grpList.end(); ++it) {
-		size_t idx = 0;
-		const ItemGroup *itemGroup = *it;
-		UserInfo userInfo;
-
-		// user ID
-		DEFINE_AND_ASSERT(itemGroup->getItemAt(idx++), ItemInt,
-		                  itemUserId);
-		userInfo.id = itemUserId->get();
-
-		// password
-		DEFINE_AND_ASSERT(itemGroup->getItemAt(idx++), ItemString,
-		                  itemName);
-		userInfo.name = itemName->get();
-
-		// password
-		DEFINE_AND_ASSERT(itemGroup->getItemAt(idx++), ItemString,
-		                  itemPasswd);
-		userInfo.password = itemPasswd->get();
-
-		// flags
-		DEFINE_AND_ASSERT(itemGroup->getItemAt(idx++), ItemInt,
-		                  itemFlags);
-		userInfo.flags = itemFlags->get();
-
-		userInfoList.push_back(userInfo);
-	}
-}
-
-void DBClientUser::getUserInfoList(UserInfoList &userInfoList,
                                    DataQueryOption &option)
 {
 	UserIdType userId = option.getUserId();
@@ -559,3 +513,49 @@ DBClientUserError DBClientUser::isValidPassword(const string &password)
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
+void DBClientUser::getUserInfoList(UserInfoList &userInfoList,
+                                   const string &condition)
+{
+	DBAgentSelectExArg arg;
+	arg.tableName = TABLE_NAME_USERS;
+	arg.pushColumn(COLUMN_DEF_USERS[IDX_USERS_ID]);
+	arg.pushColumn(COLUMN_DEF_USERS[IDX_USERS_NAME]);
+	arg.pushColumn(COLUMN_DEF_USERS[IDX_USERS_PASSWORD]);
+	arg.pushColumn(COLUMN_DEF_USERS[IDX_USERS_FLAGS]);
+	arg.condition = condition;
+
+	DBCLIENT_TRANSACTION_BEGIN() {
+		select(arg);
+	} DBCLIENT_TRANSACTION_END();
+
+	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
+	ItemGroupListConstIterator it = grpList.begin();
+	for (; it != grpList.end(); ++it) {
+		size_t idx = 0;
+		const ItemGroup *itemGroup = *it;
+		UserInfo userInfo;
+
+		// user ID
+		DEFINE_AND_ASSERT(itemGroup->getItemAt(idx++), ItemInt,
+		                  itemUserId);
+		userInfo.id = itemUserId->get();
+
+		// password
+		DEFINE_AND_ASSERT(itemGroup->getItemAt(idx++), ItemString,
+		                  itemName);
+		userInfo.name = itemName->get();
+
+		// password
+		DEFINE_AND_ASSERT(itemGroup->getItemAt(idx++), ItemString,
+		                  itemPasswd);
+		userInfo.password = itemPasswd->get();
+
+		// flags
+		DEFINE_AND_ASSERT(itemGroup->getItemAt(idx++), ItemInt,
+		                  itemFlags);
+		userInfo.flags = itemFlags->get();
+
+		userInfoList.push_back(userInfo);
+	}
+}
+

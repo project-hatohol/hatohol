@@ -135,8 +135,6 @@ public:
 
 	bool getUserInfo(UserInfo &userInfo, const UserIdType userId);
 	void getUserInfoList(UserInfoList &userInfoList,
-	                     const string &condition);
-	void getUserInfoList(UserInfoList &userInfoList,
 	                     DataQueryOption &option);
 
 	/**
@@ -163,6 +161,8 @@ public:
 	static DBClientUserError isValidPassword(const string &password);
 
 protected:
+	void getUserInfoList(UserInfoList &userInfoList,
+	                     const string &condition);
 
 private:
 	struct PrivateContext;
