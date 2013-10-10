@@ -30,6 +30,7 @@ enum OperationPrivilegeType
 };
 
 typedef uint64_t OperationPrivilegeFlag;
+const static OperationPrivilegeFlag ALL_PRIVILEGS = -1;
 
 class OperationPrivilege {
 public:
