@@ -153,7 +153,7 @@ static void _assertGetUserInfo(uint64_t userFlags, size_t expectedNumUser,
 	option.setUserId(userInfo.id);
 	DBClientUser dbUser;
 	dbUser.getUserInfoList(userInfoList, option);
-	cppcut_assert_equal(NumTestUserInfo, userInfoList.size());
+	cppcut_assert_equal(expectedNumUser, userInfoList.size());
 	UserInfoListIterator it = userInfoList.begin();
 	if (expectAllUsers) {
 		for (size_t i = 0; i < NumTestUserInfo; i++, ++it) {
@@ -335,15 +335,7 @@ void test_getUserInfoWithNonExistId(void)
 
 void test_getUserInfoListByNormalUser(void)
 {
-	loadTestDBUser();
-	UserInfoList userInfoList;
-	SimpleQueryOption option;
-	const UserInfo &userInfo = findFirstTestUserInfoByFlag(0);
-	option.setUserId(userInfo.id);
-	DBClientUser dbUser;
-	dbUser.getUserInfoList(userInfoList, option);
-	cppcut_assert_equal((size_t)1, userInfoList.size());
-	assertUserInfo(userInfo, *userInfoList.begin());
+	assertGetUserInfo(0, 1, false);
 }
 
 void test_getUserInfoListByUserWithGetAllUsersFlag(void)
