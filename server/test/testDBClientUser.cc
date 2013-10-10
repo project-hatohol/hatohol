@@ -143,6 +143,30 @@ static const UserInfo findFirstTestUserInfoByFlag(uint32_t flags)
 	return retUserInfo;
 }
 
+static void _assertGetUserInfo(uint64_t userFlags, size_t expectedNumUser,
+                               bool expectAllUsers)
+{
+	loadTestDBUser();
+	UserInfoList userInfoList;
+	SimpleQueryOption option;
+	const UserInfo userInfo = findFirstTestUserInfoByFlag(userFlags);
+	option.setUserId(userInfo.id);
+	DBClientUser dbUser;
+	dbUser.getUserInfoList(userInfoList, option);
+	cppcut_assert_equal(NumTestUserInfo, userInfoList.size());
+	UserInfoListIterator it = userInfoList.begin();
+	if (expectAllUsers) {
+		for (size_t i = 0; i < NumTestUserInfo; i++, ++it) {
+			UserInfo &userInfo = *it;
+			userInfo.id = i + 1;
+			assertUserInfo(testUserInfo[i], userInfo);
+		}
+	} else {
+		assertUserInfo(userInfo, *it);
+	}
+}
+#define assertGetUserInfo(F,N,A) cut_trace(_assertGetUserInfo(F,N,A))
+
 static void setupWithUserIdIndexMap(UserIdIndexMap &userIdIndexMap)
 {
 	loadTestDBAccessList();
@@ -324,21 +348,7 @@ void test_getUserInfoListByNormalUser(void)
 
 void test_getUserInfoListByUserWithGetAllUsersFlag(void)
 {
-	loadTestDBUser();
-	UserInfoList userInfoList;
-	SimpleQueryOption option;
-	const UserInfo &userInfo =
-	   findFirstTestUserInfoByFlag(USER_FLAG_GET_ALL_USERS);
-	option.setUserId(userInfo.id);
-	DBClientUser dbUser;
-	dbUser.getUserInfoList(userInfoList, option);
-	cppcut_assert_equal(NumTestUserInfo, userInfoList.size());
-	UserInfoListIterator it = userInfoList.begin();
-	for (size_t i = 0; i < NumTestUserInfo; i++, ++it) {
-		UserInfo &userInfo = *it;
-		userInfo.id = i + 1;
-		assertUserInfo(testUserInfo[i], userInfo);
-	}
+	assertGetUserInfo(USER_FLAG_GET_ALL_USERS, NumTestUserInfo, true);
 }
 
 void test_getServerAccessInfoMap(void)
