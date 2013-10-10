@@ -270,6 +270,11 @@ UserInfo testUserInfo[] = {
 	"m1ffy@v@",        // name
 	"S/N R@t10",       // password
 	0,                 // flags
+}, {
+	0,                 // id
+	"higgs",           // name
+	"gg -> h",        // password
+	USER_FLAG_GET_ALL_USERS, // flags
 }
 };
 const size_t NumTestUserInfo = sizeof(testUserInfo) / sizeof(UserInfo);
