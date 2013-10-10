@@ -315,7 +315,7 @@ static string makeExpectedConditionForUser(UserIdType userId)
 	makeTestUserIdIndexMap(userIdIndexMap);
 	UserIdIndexMapIterator it = userIdIndexMap.find(userId);
 	if (it == userIdIndexMap.end())
-		return "FALSE";
+		return "0";
 
 	ServerHostGrpSetMap srvHostGrpSetMap;
 	const set<int> &indexes = it->second;
