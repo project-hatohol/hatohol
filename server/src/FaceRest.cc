@@ -1308,8 +1308,58 @@ void FaceRest::handlerPostUser
   (SoupServer *server, SoupMessage *msg, const char *path,
    GHashTable *query, SoupClientContext *client, HandlerArg *arg)
 {
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
-	replyError(msg, arg, "Not implmented.");
+	// Get query parameters
+	char *value;
+	bool exist;
+	bool succeeded;
+	UserInfo userInfo;
+
+	// name
+	value = (char *)g_hash_table_lookup(query, "user");
+	if (!value) {
+		REPLY_ERROR(msg, arg, "Not found: 'user'.\n");
+		return;
+	}
+	userInfo.name = value;
+
+	// password
+	value = (char *)g_hash_table_lookup(query, "password");
+	if (!value) {
+		REPLY_ERROR(msg, arg, "Not found: 'password'.\n");
+		return;
+	}
+	userInfo.password = value;
+
+	// flags
+	succeeded = getParamWithErrorReply<OperationPrivilegeFlag>(
+	              query, msg, arg,
+	              "flags", "%"FMT_OPPRVLG, userInfo.flags, &exist);
+	if (!succeeded)
+		return;
+	if (!exist) {
+		REPLY_ERROR(msg, arg, "Not found: 'flags'.\n");
+		return;
+	}
+
+	// try to add
+	SimpleQueryOption option;
+	option.setUserId(arg->userId);
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+	DBClientUserError err = dataStore->addUser(userInfo, option);
+
+	// make a response
+	JsonBuilderAgent agent;
+	agent.startObject();
+	agent.add("apiVersion", API_VERSION);
+	if (err == DBCUSRERR_NO_ERROR) {
+		agent.addTrue("result");
+		agent.add("id", userInfo.id);
+	} else {
+		agent.addFalse("result");
+		agent.add("errorCode", err);
+	}
+	agent.endObject();
+	replyJsonData(agent, msg, arg->jsonpCallbackName, arg);
 }
 
 void FaceRest::handlerDeleteUser
