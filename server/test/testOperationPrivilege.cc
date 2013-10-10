@@ -48,4 +48,10 @@ void test_makeFlag(void)
 	}
 }
 
+void test_has(void)
+{
+	OperationPrivilege privilege;
+	cppcut_assert_equal(false, privilege.has(OPPRVLG_CREATE_USER));
+}
+
 } // namespace testOperationPrivilege

@@ -40,7 +40,7 @@ public:
 	const OperationPrivilegeFlag &getFlags(void) const;
 	static const OperationPrivilegeFlag 
 	  makeFlag(OperationPrivilegeType type);
-	
+	const bool has(OperationPrivilegeType type) const;
 
 private:
 	struct PrivateContext;
