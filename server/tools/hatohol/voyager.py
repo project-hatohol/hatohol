@@ -105,6 +105,10 @@ def del_action(url, args):
   req.get_method = lambda: 'DELETE'
   return {"url":req, "postproc":open_url_and_show_response}
 
+def show_user(url, args):
+  url += "/user"
+  return {"url":url, "postproc":open_url_and_show_response}
+
 command_map = {
   "show-server":show_server,
   "show-event":show_event,
@@ -114,6 +118,7 @@ command_map = {
   "show-action":show_action,
   "add-action":add_action,
   "del-action":del_action,
+  "show-user":show_user,
 }
 
 def main(arg_list=None, exec_postproc=True):
@@ -154,6 +159,9 @@ def main(arg_list=None, exec_postproc=True):
   # action (delete)
   sub_action = subparsers.add_parser("del-action")
   sub_action.add_argument("action_id")
+
+  # user (show)
+  sub_action = subparsers.add_parser("show-user")
 
   args = parser.parse_args(arg_list)
   cmd_ctx = command_map[args.sub_command](args.server_url, args)
