@@ -175,7 +175,9 @@ static void _assertValueInParser(JsonParserAgent *parser,
                                  const string &member, uint32_t expected)
 {
 	int64_t val;
-	cppcut_assert_equal(true, parser->read(member, val));
+	cppcut_assert_equal(true, parser->read(member, val),
+	                    cut_message("member: %s, expect: %"PRIu32,
+	                                member.c_str(), expected));
 	cppcut_assert_equal(expected, (uint32_t)val);
 }
 
