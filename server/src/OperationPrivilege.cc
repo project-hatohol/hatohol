@@ -31,7 +31,7 @@ struct OperationPrivilege::PrivateContext {
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
-OperationPrivilege::OperationPrivilege(const OperationPrivilegeFlag &flags)
+OperationPrivilege::OperationPrivilege(const OperationPrivilegeFlag flags)
 : m_ctx(NULL)
 {
 	m_ctx = new PrivateContext();
@@ -49,7 +49,7 @@ const OperationPrivilegeFlag &OperationPrivilege::getFlags(void) const
 	return m_ctx->flags;
 }
 
-void OperationPrivilege::setFlags(const OperationPrivilegeFlag &flags)
+void OperationPrivilege::setFlags(const OperationPrivilegeFlag flags)
 {
 	m_ctx->flags = flags;
 }
