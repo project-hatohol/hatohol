@@ -128,6 +128,21 @@ static void _assertServerHostGrpSetMap(
 #define assertServerHostGrpSetMap(E,A) \
 cut_trace(_assertServerHostGrpSetMap(E,A))
 
+static const UserInfo findFirstTestUserInfoByFlag(uint32_t flags)
+{
+	UserInfo retUserInfo;
+	for (size_t i = 0; i < NumTestUserInfo; i++) {
+		const UserInfo &userInfo = testUserInfo[i];
+		if (userInfo.flags == flags) {
+			retUserInfo = userInfo;
+			retUserInfo.id = i + 1;
+			return retUserInfo;
+		}
+	}
+	cut_fail("Failed to find the user with flags: %"PRIu32, flags);
+	return retUserInfo;
+}
+
 static void setupWithUserIdIndexMap(UserIdIndexMap &userIdIndexMap)
 {
 	loadTestDBAccessList();
@@ -292,6 +307,19 @@ void test_getUserInfoWithNonExistId(void)
 	UserInfo userInfo;
 	UserIdType nonexistId = NumTestUserInfo + 5;
 	cppcut_assert_equal(false, dbUser.getUserInfo(userInfo, nonexistId));
+}
+
+void test_getUserInfoListByNormalUser(void)
+{
+	loadTestDBUser();
+	UserInfoList userInfoList;
+	SimpleQueryOption option;
+	const UserInfo &userInfo = findFirstTestUserInfoByFlag(0);
+	option.setUserId(userInfo.id);
+	DBClientUser dbUser;
+	dbUser.getUserInfoList(userInfoList, option);
+	cppcut_assert_equal((size_t)1, userInfoList.size());
+	assertUserInfo(userInfo, *userInfoList.begin());
 }
 
 void test_getServerAccessInfoMap(void)

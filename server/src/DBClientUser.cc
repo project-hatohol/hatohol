@@ -409,8 +409,8 @@ void DBClientUser::getUserInfoList(UserInfoList &userInfoList,
 		if (!getUserInfo(userInfo, userId)) {
 			MLPL_ERR("Failed to getUserInfo(): userId: "
 			         "%"FMT_USER_ID"\n", userId);
+			return;
 		}
-		return;
 
 		if (!(userInfo.flags & USER_FLAG_ADMIN) &&
 		    !(userInfo.flags & USER_FLAG_GET_ALL_USERS)) {
