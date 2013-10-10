@@ -128,7 +128,7 @@ static void _assertServerHostGrpSetMap(
 #define assertServerHostGrpSetMap(E,A) \
 cut_trace(_assertServerHostGrpSetMap(E,A))
 
-static const UserInfo findFirstTestUserInfoByFlag(uint32_t flags)
+static const UserInfo findFirstTestUserInfoByFlag(uint64_t flags)
 {
 	UserInfo retUserInfo;
 	for (size_t i = 0; i < NumTestUserInfo; i++) {
@@ -139,7 +139,7 @@ static const UserInfo findFirstTestUserInfoByFlag(uint32_t flags)
 			return retUserInfo;
 		}
 	}
-	cut_fail("Failed to find the user with flags: %"PRIu32, flags);
+	cut_fail("Failed to find the user with flags: %"PRIu64, flags);
 	return retUserInfo;
 }
 
