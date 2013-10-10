@@ -49,8 +49,6 @@ struct UserInfo {
 	string password;
 	uint64_t flags;
 };
-static const UserIdType INVALID_USER_ID = -1;
-static const int USER_ID_ADMIN = 0;
 
 typedef std::list<UserInfo>          UserInfoList;
 typedef UserInfoList::iterator       UserInfoListIterator;

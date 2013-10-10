@@ -39,6 +39,8 @@ static const DBDomainId DB_DOMAIN_ID_NONE    = -1;
 
 typedef int UserIdType;
 #define FMT_USER_ID "d"
+static const UserIdType INVALID_USER_ID = -1;
+static const UserIdType USER_ID_ADMIN   = 0;
 
 #endif // Params_h
 
