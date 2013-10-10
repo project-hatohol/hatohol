@@ -505,7 +505,7 @@ DBClientUserError DBClientUser::isValidPassword(const string &password)
 
 DBClientUserError DBClientUser::isValidFlags(const OperationPrivilegeFlag flags)
 {
-	if (flags > OperationPrivilege::makeFlag(NUM_OPPRVLG))
+	if (flags >= OperationPrivilege::makeFlag(NUM_OPPRVLG))
 		return DBCUSRERR_INVALID_USER_FLAGS;
 	return DBCUSRERR_NO_ERROR;
 }

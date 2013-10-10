@@ -468,4 +468,12 @@ void test_isValidFlagsAllValidBits(void)
 	                    DBClientUser::isValidFlags(flags));
 }
 
+void test_isValidFlagsExceededBit(void)
+{
+	OperationPrivilegeFlag flags =
+	  OperationPrivilege::makeFlag(NUM_OPPRVLG);
+	cppcut_assert_equal(DBCUSRERR_INVALID_USER_FLAGS,
+	                    DBClientUser::isValidFlags(flags));
+}
+
 } // namespace testDBClientUser
