@@ -348,6 +348,17 @@ void test_getUserInfoListByUserWithGetAdminUser(void)
 	assertGetUserInfo(USER_FLAG_ADMIN, NumTestUserInfo, true);
 }
 
+void test_getUserInfoListWithNonExistUser(void)
+{
+	DBClientUser dbUser;
+	SimpleQueryOption option;
+	UserIdType nonexistId = NumTestUserInfo + 5;
+	option.setUserId(nonexistId);
+	UserInfoList userInfoList;
+	dbUser.getUserInfoList(userInfoList, option);
+	cppcut_assert_equal(true, userInfoList.empty());
+}
+
 void test_getServerAccessInfoMap(void)
 {
 	DBClientUser dbUser;
