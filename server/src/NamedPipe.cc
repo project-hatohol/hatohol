@@ -70,8 +70,21 @@ struct TimeoutInfo {
 	{
 		TimeoutInfo *obj = static_cast<TimeoutInfo *>(data);
 		NamedPipe *namedPipe = obj->namedPipe;
-		(*obj->cbFunc)(namedPipe, obj->priv);
+
+		// Setting obj->tag has to be put before excuting the callback
+		// handler. If the callback deletes the NamedPipe instance
+		// that has this instance, it is an invalid memory access.
+		// Even if the callback just makes a trigger of the deletion,
+		// it's also possible.
+		// For example, ActionManager::residentActionTimeoutCb(),
+		// a user of this timeout callback mechanism, sends SIGKILL.
+		// Then ActionManager::residentActorCollectedCb() called from
+		// the ActorCollector thread deletes a ResidentInfo instance
+		// that has a NamedPipe instance and this instance.
+		// In that case, the problem may happen, especially on a single
+		// core CPU.
 		obj->tag = INVALID_EVENT_ID;
+		(*obj->cbFunc)(namedPipe, obj->priv);
 		return FALSE;
 	}
 
