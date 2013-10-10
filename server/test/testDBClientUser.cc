@@ -195,7 +195,7 @@ void test_addUser(void)
 	string expect;
 	for (size_t i = 0; i < NumTestUserInfo; i++) {
 		const UserInfo &userInfo = testUserInfo[i];
-		expect += StringUtils::sprintf("%zd|%s|%s|%"PRIu32"\n",
+		expect += StringUtils::sprintf("%zd|%s|%s|%"PRIu64"\n",
 		  i+1, userInfo.name.c_str(),
 		  Utils::sha256(userInfo.password).c_str(),
 		  userInfo.flags);

@@ -45,7 +45,7 @@ struct UserInfo {
 	UserIdType id;
 	string name;
 	string password;
-	uint32_t flags;
+	uint64_t flags;
 };
 static const UserIdType INVALID_USER_ID = -1;
 static const int USER_ID_ADMIN = 0;
