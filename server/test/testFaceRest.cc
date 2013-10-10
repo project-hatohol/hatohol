@@ -593,6 +593,28 @@ void _assertLogin(const string &user, const string &password)
 }
 #define assertLogin(U,P) cut_trace(_assertLogin(U,P))
 
+static void _assertUsers(const string &path, const string &callbackName = "")
+{
+	startFaceRest();
+	g_parser = getResponseAsJsonParser(path, callbackName);
+	assertValueInParser(g_parser, "apiVersion",
+	                    (uint32_t)FaceRest::API_VERSION);
+	assertValueInParser(g_parser, "result", true);
+	assertValueInParser(g_parser, "numberOfUsers",
+	                    (uint32_t)NumTestUserInfo);
+	g_parser->startObject("users");
+	for (size_t i = 0; i < NumTestUserInfo; i++) {
+		g_parser->startElement(i);
+		const UserInfo &userInfo = testUserInfo[i];
+		assertValueInParser(g_parser, "userId", (uint32_t)(i + 1));
+		assertValueInParser(g_parser, "name", userInfo.name);
+		assertValueInParser(g_parser, "flags", userInfo.flags);
+		g_parser->endElement();
+	}
+	g_parser->endObject();
+}
+#define assertUsers(P,...) cut_trace(_assertUsers(P,##__VA_ARGS__))
+
 static void setupPostAction(void)
 {
 	bool recreate = true;
@@ -986,6 +1008,14 @@ void test_logout(void)
 	                                   "GET", headers);
 	assertValueInParser(g_parser, "result", true);
 	cppcut_assert_null(TestFaceRest::callGetSessionInfo(sessionId));
+}
+
+void test_getUser(void)
+{
+	const bool dbRecreate = true;
+	const bool loadTestDat = true;
+	setupTestDBUser(dbRecreate, loadTestDat);
+	assertUsers("/user", "cbname");
 }
 
 } // namespace testFaceRest

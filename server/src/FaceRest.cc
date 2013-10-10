@@ -1287,7 +1287,7 @@ void FaceRest::handlerGetUser
 	agent.startObject();
 	agent.add("apiVersion", API_VERSION);
 	agent.addTrue("result");
-	agent.add("numberOfUser", userList.size());
+	agent.add("numberOfUsers", userList.size());
 	agent.startArray("users");
 	UserInfoListIterator it = userList.begin();
 	for (; it != userList.end(); ++it) {
