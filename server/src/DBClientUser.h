@@ -103,13 +103,13 @@ public:
 	 * @param userInfo
 	 * A UserInfo instance that has parameters to be stored.
 	 *
-	 * @param opePrivilege
+	 * @param privilege
 	 * An OperationPrivilege instance.
 	 *
 	 * @return An error code.
 	 */
 	DBClientUserError addUserInfo(UserInfo &userInfo,
-	                              const OperationPrivilege &opePrivilege);
+	                              const OperationPrivilege &privilege);
 
 	/**
 	 * Get the user Id.

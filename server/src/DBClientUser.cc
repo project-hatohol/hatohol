@@ -240,10 +240,10 @@ DBClientUser::~DBClientUser()
 }
 
 DBClientUserError DBClientUser::addUserInfo(
-  UserInfo &userInfo, const OperationPrivilege &opePrivilege)
+  UserInfo &userInfo, const OperationPrivilege &privilege)
 {
 	DBClientUserError err;
-	if (!opePrivilege.has(OPPRVLG_CREATE_USER))
+	if (!privilege.has(OPPRVLG_CREATE_USER))
 		return DBCUSRERR_NO_PRIVILEGE;
 	err = isValidUserName(userInfo.name);
 	if (err != DBCUSRERR_NO_ERROR)
