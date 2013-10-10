@@ -26,7 +26,7 @@ struct DataQueryOption::PrivateContext {
 
 	// constuctor
 	PrivateContext(void)
-	: userId(NULL_USER_ID)
+	: userId(INVALID_USER_ID)
 	{
 	}
 };
