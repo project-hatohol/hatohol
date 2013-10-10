@@ -43,6 +43,15 @@ void test_allPrivileges(void)
 	cppcut_assert_equal(true, privilege.has(OPPRVLG_CREATE_USER));
 }
 
+void test_setFlags(void)
+{
+	OperationPrivilegeFlag flags =
+	  OperationPrivilege::makeFlag(OPPRVLG_CREATE_USER);
+	OperationPrivilege privilege;
+	privilege.setFlags(flags);
+	cppcut_assert_equal(flags, privilege.getFlags());
+}
+
 void test_makeFlag(void)
 {
 	for (size_t i = 0; i < NUM_OPPRVLG; i++) {

@@ -38,6 +38,7 @@ public:
 	virtual ~OperationPrivilege();
 
 	const OperationPrivilegeFlag &getFlags(void) const;
+	void setFlags(const OperationPrivilegeFlag &flags);
 	static const OperationPrivilegeFlag 
 	  makeFlag(OperationPrivilegeType type);
 	const bool has(OperationPrivilegeType type) const;

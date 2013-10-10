@@ -49,6 +49,11 @@ const OperationPrivilegeFlag &OperationPrivilege::getFlags(void) const
 	return m_ctx->flags;
 }
 
+void OperationPrivilege::setFlags(const OperationPrivilegeFlag &flags)
+{
+	m_ctx->flags = flags;
+}
+
 const OperationPrivilegeFlag
 OperationPrivilege::makeFlag(OperationPrivilegeType type)
 {
