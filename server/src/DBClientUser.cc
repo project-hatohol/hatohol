@@ -221,7 +221,8 @@ void DBClientUser::init(void)
 
 void DBClientUser::reset(void)
 {
-	DBConnectInfo connInfo = getDBConnectInfo(DB_DOMAIN_ID_USERS);
+	// We share the connection information with CONFIG.
+	DBConnectInfo connInfo = getDBConnectInfo(DB_DOMAIN_ID_CONFIG);
 	setConnectInfo(DB_DOMAIN_ID_USERS, connInfo);
 }
 
