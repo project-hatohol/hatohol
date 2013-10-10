@@ -24,6 +24,7 @@
 #include <map>
 #include "DBClient.h"
 #include "DataQueryOption.h"
+#include "OperationPrivilege.h"
 
 enum
 {
@@ -39,6 +40,7 @@ enum DBClientUserError {
 	DBCUSRERR_EMPTY_PASSWORD,
 	DBCUSRERR_TOO_LONG_PASSWORD,
 	DBCUSRERR_USER_NAME_EXIST,
+	DBCUSRERR_NO_PRIVILEGE,
 };
 
 struct UserInfo {
@@ -103,9 +105,13 @@ public:
 	 * @param userInfo
 	 * A UserInfo instance that has parameters to be stored.
 	 *
+	 * @param opePrivilege
+	 * An OperationPrivilege instance.
+	 *
 	 * @return An error code.
 	 */
-	DBClientUserError addUserInfo(UserInfo &userInfo);
+	DBClientUserError addUserInfo(UserInfo &userInfo,
+	                              const OperationPrivilege &opePrivilege);
 
 	/**
 	 * Get the user Id.

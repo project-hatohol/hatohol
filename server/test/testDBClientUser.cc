@@ -231,10 +231,11 @@ void test_addUser(void)
 void test_addUserDuplicate(void)
 {
 	loadTestDBUser();
+	OperationPrivilege privilege(ALL_PRIVILEGS);
 	DBClientUser dbUser;
 	UserInfo &userInfo = testUserInfo[1];
 	cppcut_assert_equal(DBCUSRERR_USER_NAME_EXIST,
-	                    dbUser.addUserInfo(userInfo));
+	                    dbUser.addUserInfo(userInfo, privilege));
 }
 
 void test_getUserId(void)

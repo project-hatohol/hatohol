@@ -71,7 +71,8 @@ public:
 
 	virtual void getUserList(UserInfoList &userList,
                                  DataQueryOption &option);
-	virtual DBClientUserError addUser(UserInfo &userInfo);
+	virtual DBClientUserError addUser(
+	  UserInfo &userInfo, const OperationPrivilege &opePrivilege);
 
 private:
 	struct PrivateContext;
