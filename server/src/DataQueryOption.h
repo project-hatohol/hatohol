@@ -22,8 +22,9 @@
 
 #include <string>
 #include "Params.h"
+#include "OperationPrivilege.h"
 
-class DataQueryOption {
+class DataQueryOption : public OperationPrivilege {
 public:
 	DataQueryOption(void);
 	~DataQueryOption();
