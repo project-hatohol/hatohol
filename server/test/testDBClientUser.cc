@@ -129,7 +129,8 @@ static void _assertServerHostGrpSetMap(
 #define assertServerHostGrpSetMap(E,A) \
 cut_trace(_assertServerHostGrpSetMap(E,A))
 
-static const UserInfo findFirstTestUserInfoByFlag(uint64_t flags)
+static const UserInfo findFirstTestUserInfoByFlag(
+  const OperationPrivilegeFlag flags)
 {
 	UserInfo retUserInfo;
 	for (size_t i = 0; i < NumTestUserInfo; i++) {
@@ -140,17 +141,18 @@ static const UserInfo findFirstTestUserInfoByFlag(uint64_t flags)
 			return retUserInfo;
 		}
 	}
-	cut_fail("Failed to find the user with flags: %"PRIu64, flags);
+	cut_fail("Failed to find the user with flags: %"FMT_OPPRVLG, flags);
 	return retUserInfo;
 }
 
-static void _assertGetUserInfo(uint64_t userFlags, size_t expectedNumUser,
-                               bool expectAllUsers)
+static void _assertGetUserInfo(const OperationPrivilegeFlag flags,
+                               const size_t expectedNumUser,
+                               const bool expectAllUsers)
 {
 	loadTestDBUser();
 	UserInfoList userInfoList;
 	SimpleQueryOption option;
-	const UserInfo userInfo = findFirstTestUserInfoByFlag(userFlags);
+	const UserInfo userInfo = findFirstTestUserInfoByFlag(flags);
 	option.setUserId(userInfo.id);
 	DBClientUser dbUser;
 	dbUser.getUserInfoList(userInfoList, option);
@@ -220,7 +222,7 @@ void test_addUser(void)
 	string expect;
 	for (size_t i = 0; i < NumTestUserInfo; i++) {
 		const UserInfo &userInfo = testUserInfo[i];
-		expect += StringUtils::sprintf("%zd|%s|%s|%"PRIu64"\n",
+		expect += StringUtils::sprintf("%zd|%s|%s|%"FMT_OPPRVLG"\n",
 		  i+1, userInfo.name.c_str(),
 		  Utils::sha256(userInfo.password).c_str(),
 		  userInfo.flags);
@@ -342,12 +344,9 @@ void test_getUserInfoListByNormalUser(void)
 
 void test_getUserInfoListByUserWithGetAllUsersFlag(void)
 {
-	assertGetUserInfo(USER_FLAG_GET_ALL_USERS, NumTestUserInfo, true);
-}
-
-void test_getUserInfoListByUserWithGetAdminUser(void)
-{
-	assertGetUserInfo(USER_FLAG_ADMIN, NumTestUserInfo, true);
+	assertGetUserInfo(
+	  OperationPrivilege::makeFlag(OPPRVLG_GET_ALL_USERS),
+	  NumTestUserInfo, true);
 }
 
 void test_getUserInfoListWithNonExistUser(void)

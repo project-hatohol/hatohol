@@ -1314,18 +1314,11 @@ string DBClientHatohol::makeSelectCondition(DataQueryOption &option)
 	UserIdType userId = option.getUserId();
 	if (userId == USER_ID_ADMIN)
 		return "";
+	if (userId == INVALID_USER_ID)
+		return "0";
 
 	CacheServiceDBClient cache;
 	DBClientUser *dbUser = cache.getUser();
-	UserInfo userInfo;
-	if (!dbUser->getUserInfo(userInfo, userId)) {
-		MLPL_ERR("Failed to getUserInfo(): userId: %"FMT_USER_ID"\n",
-		         userId);
-		return "0";
-	}
-	if (userInfo.flags & USER_FLAG_ADMIN)
-		return "";
-
 	ServerHostGrpSetMap srvHostGrpSetMap;
 	dbUser->getServerHostGrpSetMap(srvHostGrpSetMap, userId);
 	condition = makeCondition(srvHostGrpSetMap,

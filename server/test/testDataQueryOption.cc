@@ -20,8 +20,11 @@
 #include <cppcutter.h>
 #include <cutter.h>
 
+#include "Hatohol.h"
 #include "DataQueryOption.h"
 #include "DBClientUser.h"
+#include "DBClientTest.h"
+#include "Helpers.h"
 
 namespace testDataQueryOption {
 
@@ -40,6 +43,7 @@ public:
 
 void cut_setup(void)
 {
+	hatoholInit();
 }
 
 void cut_teardown(void)
@@ -57,7 +61,10 @@ void test_initialValue(void)
 
 void test_setGetUserId(void)
 {
-	const UserIdType userId = 5;
+	bool dbRecreate = true;
+	bool loadTestData = true;
+	setupTestDBUser(dbRecreate, loadTestData);
+	const UserIdType userId = testUserInfo[2].id;
 	TestQueryOption opt;
 	opt.setUserId(userId);
 	cppcut_assert_equal(userId, opt.getUserId());

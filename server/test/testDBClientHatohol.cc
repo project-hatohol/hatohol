@@ -298,16 +298,6 @@ static void _assertMakeCondition(const ServerHostGrpSetMap &srvHostGrpSetMap,
 }
 #define assertMakeCondition(M,E) cut_trace(_assertMakeCondition(M,E))
 
-static UserIdType findFirstUserWithAdminFlag(void)
-{
-	for (size_t i = 0; i < NumTestUserInfo; i++) {
-		if (testUserInfo[i].flags & USER_FLAG_ADMIN)
-			return i + 1;
-	}
-	cut_fail("Failed to find user with USER_FLAG_ADMIN"); 
-	return INVALID_USER_ID;
-}
-
 static string makeExpectedConditionForUser(UserIdType userId)
 {
 	string exp;
@@ -655,17 +645,6 @@ void test_makeSelectConditionUserAdmin(void)
 {
 	EventQueryOption option;
 	option.setUserId(USER_ID_ADMIN);
-	string actual = TestDBClientHatohol::callMakeSelectCondition(option);
-	string expect = "";
-	cppcut_assert_equal(actual, expect);
-}
-
-void test_makeSelectConditionUserAdminFlag(void)
-{
-	setupTestDBUser(true, true);
-	UserIdType userId = findFirstUserWithAdminFlag();
-	EventQueryOption option;
-	option.setUserId(userId);
 	string actual = TestDBClientHatohol::callMakeSelectCondition(option);
 	string expect = "";
 	cppcut_assert_equal(actual, expect);

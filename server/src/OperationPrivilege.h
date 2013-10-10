@@ -26,11 +26,14 @@
 enum OperationPrivilegeType
 {
 	OPPRVLG_CREATE_USER,
+	OPPRVLG_GET_ALL_USERS,
 	NUM_OPPRVLG,
 };
 
 typedef uint64_t OperationPrivilegeFlag;
+const static OperationPrivilegeFlag NONE_PRIVILEGE = 0;
 const static OperationPrivilegeFlag ALL_PRIVILEGES = -1;
+#define FMT_OPPRVLG PRIu64
 
 class OperationPrivilege {
 public:

@@ -70,11 +70,11 @@ static const ColumnDef COLUMN_DEF_USERS[] = {
 	ITEM_ID_NOT_SET,                   // itemId
 	TABLE_NAME_USERS,                  // tableName
 	"flags",                           // columnName
-	SQL_COLUMN_TYPE_INT,               // type
-	11,                                // columnLength
+	SQL_COLUMN_TYPE_BIGUINT,           // type
+	20,                                // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
-	SQL_KEY_NONE,                      // keyType
+	SQL_KEY_MUL,                       // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
 }
@@ -261,7 +261,7 @@ DBClientUserError DBClientUser::addUserInfo(
 	row->ADD_NEW_ITEM(Int, 0); // This is automaticall set (0 is dummy)
 	row->ADD_NEW_ITEM(String, userInfo.name);
 	row->ADD_NEW_ITEM(String, Utils::sha256(userInfo.password));
-	row->ADD_NEW_ITEM(Int, userInfo.flags);
+	row->ADD_NEW_ITEM(Uint64, userInfo.flags);
 	arg.row = row;
 
 	string dupCheckCond = StringUtils::sprintf("%s='%s'",
@@ -362,19 +362,9 @@ void DBClientUser::getUserInfoList(UserInfoList &userInfoList,
 	}
 
 	string condition;
-	if (userId != USER_ID_ADMIN) {
-		UserInfo userInfo;
-		if (!getUserInfo(userInfo, userId)) {
-			MLPL_ERR("Failed to getUserInfo(): userId: "
-			         "%"FMT_USER_ID"\n", userId);
-			return;
-		}
-
-		if (!(userInfo.flags & USER_FLAG_ADMIN) &&
-		    !(userInfo.flags & USER_FLAG_GET_ALL_USERS)) {
-			userInfoList.push_back(userInfo);
-			return;
-		}
+	if (!option.has(OPPRVLG_GET_ALL_USERS)) {
+		condition = StringUtils::sprintf("%s=%"FMT_USER_ID"",
+		  COLUMN_DEF_USERS[IDX_USERS_ID].columnName, userId);
 	}
 	getUserInfoList(userInfoList, condition);
 }
@@ -551,7 +541,7 @@ void DBClientUser::getUserInfoList(UserInfoList &userInfoList,
 		userInfo.password = itemPasswd->get();
 
 		// flags
-		DEFINE_AND_ASSERT(itemGroup->getItemAt(idx++), ItemInt,
+		DEFINE_AND_ASSERT(itemGroup->getItemAt(idx++), ItemUint64,
 		                  itemFlags);
 		userInfo.flags = itemFlags->get();
 

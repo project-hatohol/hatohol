@@ -26,12 +26,6 @@
 #include "DataQueryOption.h"
 #include "OperationPrivilege.h"
 
-enum
-{
-	USER_FLAG_ADMIN = (1 << 0),
-	USER_FLAG_GET_ALL_USERS = (1 << 1),
-};
-
 enum DBClientUserError {
 	DBCUSRERR_NO_ERROR,
 	DBCUSRERR_EMPTY_USER_NAME,
@@ -47,7 +41,7 @@ struct UserInfo {
 	UserIdType id;
 	string name;
 	string password;
-	uint64_t flags;
+	OperationPrivilegeFlag flags;
 };
 
 typedef std::list<UserInfo>          UserInfoList;

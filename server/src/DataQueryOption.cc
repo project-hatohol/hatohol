@@ -20,6 +20,7 @@
 #include <cstdio>
 #include "DBClientUser.h"
 #include "DataQueryOption.h"
+#include "CacheServiceDBClient.h"
 
 struct DataQueryOption::PrivateContext {
 	UserIdType userId;
@@ -47,6 +48,20 @@ DataQueryOption::~DataQueryOption()
 void DataQueryOption::setUserId(UserIdType userId)
 {
 	m_ctx->userId = userId;
+	if (m_ctx->userId == USER_ID_ADMIN) {
+		setFlags(ALL_PRIVILEGES);
+		return;
+	}
+
+	UserInfo userInfo;
+	CacheServiceDBClient cache;
+	if (!cache.getUser()->getUserInfo(userInfo, userId)) {
+		MLPL_ERR("Failed to getUserInfo(): userId: "
+		         "%"FMT_USER_ID"\n", userId);
+		m_ctx->userId = INVALID_USER_ID;
+		return;
+	}
+	setFlags(userInfo.flags);
 }
 
 UserIdType DataQueryOption::getUserId(void) const

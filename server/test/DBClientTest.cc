@@ -264,7 +264,7 @@ UserInfo testUserInfo[] = {
 	0,                 // id
 	"pineapple",       // name
 	"Po+-\\|}{\":?><", // password
-	USER_FLAG_ADMIN,   // flags
+	ALL_PRIVILEGES,    // flags
 }, {
 	0,                 // id
 	"m1ffy@v@",        // name
@@ -274,7 +274,7 @@ UserInfo testUserInfo[] = {
 	0,                 // id
 	"higgs",           // name
 	"gg -> h",        // password
-	USER_FLAG_GET_ALL_USERS, // flags
+	OperationPrivilege::makeFlag(OPPRVLG_GET_ALL_USERS), // flags
 }
 };
 const size_t NumTestUserInfo = sizeof(testUserInfo) / sizeof(UserInfo);
