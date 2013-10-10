@@ -460,4 +460,12 @@ void test_isValidPasswordWithEmptyPassword(void)
 	                    DBClientUser::isValidPassword(""));
 }
 
+void test_isValidFlagsAllValidBits(void)
+{
+	OperationPrivilegeFlag flags =
+	  OperationPrivilege::makeFlag(NUM_OPPRVLG) - 1;
+	cppcut_assert_equal(DBCUSRERR_NO_ERROR,
+	                    DBClientUser::isValidFlags(flags));
+}
+
 } // namespace testDBClientUser

@@ -251,6 +251,9 @@ DBClientUserError DBClientUser::addUserInfo(
 	err = isValidPassword(userInfo.password);
 	if (err != DBCUSRERR_NO_ERROR)
 		return err;
+	err = isValidFlags(userInfo.flags);
+	if (err != DBCUSRERR_NO_ERROR)
+		return err;
 
 	VariableItemGroupPtr row;
 	DBAgentInsertArg arg;
@@ -497,6 +500,13 @@ DBClientUserError DBClientUser::isValidPassword(const string &password)
 		return DBCUSRERR_EMPTY_PASSWORD;
 	if (password.size() > MAX_PASSWORD_LENGTH)
 		return DBCUSRERR_TOO_LONG_PASSWORD;
+	return DBCUSRERR_NO_ERROR;
+}
+
+DBClientUserError DBClientUser::isValidFlags(const OperationPrivilegeFlag flags)
+{
+	if (flags > OperationPrivilege::makeFlag(NUM_OPPRVLG))
+		return DBCUSRERR_INVALID_USER_FLAGS;
 	return DBCUSRERR_NO_ERROR;
 }
 

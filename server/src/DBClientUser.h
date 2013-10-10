@@ -35,6 +35,7 @@ enum DBClientUserError {
 	DBCUSRERR_TOO_LONG_PASSWORD,
 	DBCUSRERR_USER_NAME_EXIST,
 	DBCUSRERR_NO_PRIVILEGE,
+	DBCUSRERR_INVALID_USER_FLAGS,
 };
 
 struct UserInfo {
@@ -151,6 +152,8 @@ public:
 
 	static DBClientUserError isValidUserName(const string &name);
 	static DBClientUserError isValidPassword(const string &password);
+	static DBClientUserError isValidFlags(
+	                           const OperationPrivilegeFlag flags);
 
 protected:
 	void getUserInfoList(UserInfoList &userInfoList,
