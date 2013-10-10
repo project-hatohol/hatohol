@@ -50,6 +50,7 @@ struct UserInfo {
 	uint64_t flags;
 };
 static const UserIdType INVALID_USER_ID = -1;
+static const UserIdType NULL_USER_ID    = -2;
 static const int USER_ID_ADMIN = 0;
 
 typedef std::list<UserInfo>          UserInfoList;
