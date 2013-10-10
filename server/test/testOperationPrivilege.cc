@@ -33,13 +33,13 @@ void test_getDefaultFlags(void)
 
 void test_getSpecifiedFlags(void)
 {
-	OperationPrivilege privilege(ALL_PRIVILEGS);
-	cppcut_assert_equal(ALL_PRIVILEGS, privilege.getFlags());
+	OperationPrivilege privilege(ALL_PRIVILEGES);
+	cppcut_assert_equal(ALL_PRIVILEGES, privilege.getFlags());
 }
 
 void test_allPrivileges(void)
 {
-	OperationPrivilege privilege(ALL_PRIVILEGS);
+	OperationPrivilege privilege(ALL_PRIVILEGES);
 	cppcut_assert_equal(true, privilege.has(OPPRVLG_CREATE_USER));
 }
 

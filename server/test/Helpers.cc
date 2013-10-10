@@ -497,7 +497,7 @@ void loadTestDBUser(void)
 {
 	DBClientUser dbUser;
 	DBClientUserError err;
-	OperationPrivilege opePrivilege(ALL_PRIVILEGS);
+	OperationPrivilege opePrivilege(ALL_PRIVILEGES);
 	for (size_t i = 0; i < NumTestUserInfo; i++) {
 		err = dbUser.addUserInfo(testUserInfo[i], opePrivilege);
 		cppcut_assert_equal(DBCUSRERR_NO_ERROR, err);
