@@ -343,6 +343,11 @@ void test_getUserInfoListByUserWithGetAllUsersFlag(void)
 	assertGetUserInfo(USER_FLAG_GET_ALL_USERS, NumTestUserInfo, true);
 }
 
+void test_getUserInfoListByUserWithGetAdminUser(void)
+{
+	assertGetUserInfo(USER_FLAG_ADMIN, NumTestUserInfo, true);
+}
+
 void test_getServerAccessInfoMap(void)
 {
 	DBClientUser dbUser;
