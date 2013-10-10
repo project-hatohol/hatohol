@@ -34,7 +34,7 @@ const static OperationPrivilegeFlag ALL_PRIVILEGS = -1;
 
 class OperationPrivilege {
 public:
-	OperationPrivilege(void);
+	OperationPrivilege(const OperationPrivilegeFlag &flags = 0);
 	virtual ~OperationPrivilege();
 
 	const OperationPrivilegeFlag &getFlags(void) const;
