@@ -32,7 +32,6 @@ enum OperationPrivilegeType
 
 typedef uint64_t OperationPrivilegeFlag;
 const static OperationPrivilegeFlag NONE_PRIVILEGE = 0;
-const static OperationPrivilegeFlag ALL_PRIVILEGES = -1;
 #define FMT_OPPRVLG PRIu64
 
 class OperationPrivilege {
@@ -50,5 +49,8 @@ private:
 	struct PrivateContext;
 	PrivateContext *m_ctx;
 };
+
+const static OperationPrivilegeFlag ALL_PRIVILEGES = 
+  OperationPrivilege::makeFlag(NUM_OPPRVLG) - 1;
 
 #endif // OperationPrivilege_h
