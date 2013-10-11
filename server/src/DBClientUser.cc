@@ -20,7 +20,9 @@
 #define __STDC_LIMIT_MACROS
 #include <stdint.h>
 #include "DBClientUser.h"
-#include "DBClientConfig.h"
+# include "DBClientConfig.h"
+
+const UserIdSet EMPTY_USER_ID_SET;
 
 const int   DBClientUser::USER_DB_VERSION = 1;
 const char *DBClientUser::DEFAULT_DB_NAME = DBClientConfig::DEFAULT_DB_NAME;

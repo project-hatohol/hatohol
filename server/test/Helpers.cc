@@ -28,6 +28,7 @@
 #include "DBClientTest.h"
 #include "DBAgentSQLite3.h"
 #include "DBAgentMySQL.h"
+#include "CacheServiceDBClient.h"
 #include "SQLUtils.h"
 
 void _assertStringVector(StringVector &expected, StringVector &actual)
@@ -385,6 +386,27 @@ void _assertTimeIsNow(const SmartTime &smtime, double allowedError)
 	  true, diff.getAsSec() < allowedError,
 	  cut_message("time: %e, diff: %e, allowedError: %e",
 	              smtime.getAsSec(), diff.getAsSec(), allowedError));
+}
+
+void _assertUsersInDB(const UserIdSet &excludeUserIdSet)
+{
+	string statement = "select * from ";
+	statement += DBClientUser::TABLE_NAME_USERS;
+	statement += " ORDER BY id ASC";
+	string expect;
+	for (size_t i = 0; i < NumTestUserInfo; i++) {
+		UserIdType userId = i + 1;
+		if (excludeUserIdSet.find(userId) != excludeUserIdSet.end())
+			continue;
+		const UserInfo &userInfo = testUserInfo[i];
+		expect += StringUtils::sprintf(
+		  "%"FMT_USER_ID"|%s|%s|%"FMT_OPPRVLG"\n",
+		  userId, userInfo.name.c_str(),
+		  Utils::sha256(userInfo.password).c_str(),
+		  userInfo.flags);
+	}
+	CacheServiceDBClient cache;
+	assertDBContent(cache.getUser()->getDBAgent(), statement, expect);
 }
 
 static bool makeTestDB(MYSQL *mysql, const string &dbName)

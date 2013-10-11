@@ -117,6 +117,9 @@ template<typename T> void _assertAddToDB(T *arg, void (*func)(T *))
 	cppcut_assert_equal(false, gotException);
 }
 
+void _assertUsersInDB(const UserIdSet &excludeUserIdSet = EMPTY_USER_ID_SET);
+#define assertUsersInDB(E) cut_trace(_assertUsersInDB(E))
+
 void makeTestMySQLDBIfNeeded(const string &dbName, bool recreate = false);
 void setupTestDBServers(void);
 void setupTestDBAction(bool dbRecreate = true, bool loadTestDat = false);

@@ -46,6 +46,7 @@ static const UserIdType USER_ID_ADMIN   = 0;
 typedef std::set<UserIdType>      UserIdSet;
 typedef UserIdSet::iterator       UserIdSetIterator;
 typedef UserIdSet::const_iterator UserIdSetIterator;
+extern const UserIdSet EMPTY_USER_ID_SET;
 
 #endif // Params_h
 
