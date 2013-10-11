@@ -73,6 +73,8 @@ public:
                                  DataQueryOption &option);
 	virtual DBClientUserError addUser(
 	  UserInfo &userInfo, const OperationPrivilege &privilege);
+	virtual DBClientUserError deleteUser(
+	  UserIdType userId, const OperationPrivilege &privilege);
 
 private:
 	struct PrivateContext;

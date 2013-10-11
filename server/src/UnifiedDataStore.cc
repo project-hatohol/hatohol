@@ -319,6 +319,14 @@ DBClientUserError UnifiedDataStore::addUser(
 	return dbUser->addUserInfo(userInfo, privilege);
 }
 
+DBClientUserError UnifiedDataStore::deleteUser(
+  UserIdType userId, const OperationPrivilege &privilege)
+{
+	CacheServiceDBClient cache;
+	DBClientUser *dbUser = cache.getUser();
+	return dbUser->deleteUserInfo(userId, privilege);
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
