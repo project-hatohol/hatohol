@@ -27,8 +27,12 @@
 #include "DBClientTest.h"
 #include "Helpers.h"
 #include "Hatohol.h"
+#include "CacheServiceDBClient.h"
 
 namespace testDBClientUser {
+
+typedef set<UserIdType> UserIdSet;
+static UserIdSet EMPTY_USER_ID_SET;
 
 static void _assertUserInfo(const UserInfo &expect, const UserInfo &actual)
 {
@@ -170,6 +174,28 @@ static void _assertGetUserInfo(const OperationPrivilegeFlag flags,
 }
 #define assertGetUserInfo(F,N,A) cut_trace(_assertGetUserInfo(F,N,A))
 
+void _assertUsersInDB(const UserIdSet &excludeUserIdSet = EMPTY_USER_ID_SET)
+{
+	string statement = "select * from ";
+	statement += DBClientUser::TABLE_NAME_USERS;
+	statement += " ORDER BY id ASC";
+	string expect;
+	for (size_t i = 0; i < NumTestUserInfo; i++) {
+		UserIdType userId = i + 1;
+		if (excludeUserIdSet.find(userId) != excludeUserIdSet.end())
+			continue;
+		const UserInfo &userInfo = testUserInfo[i];
+		expect += StringUtils::sprintf(
+		  "%"FMT_USER_ID"|%s|%s|%"FMT_OPPRVLG"\n",
+		  userId, userInfo.name.c_str(),
+		  Utils::sha256(userInfo.password).c_str(),
+		  userInfo.flags);
+	}
+	CacheServiceDBClient cache;
+	assertDBContent(cache.getUser()->getDBAgent(), statement, expect);
+}
+#define assertUsersInDB(E) cut_trace(_assertUsersInDB(E))
+
 static void setupWithUserIdIndexMap(UserIdIndexMap &userIdIndexMap)
 {
 	loadTestDBAccessList();
@@ -241,20 +267,9 @@ void test_deleteUser(void)
 	cppcut_assert_equal(DBCUSRERR_NO_ERROR, err);
 
 	// check the version
-	string statement = "select * from ";
-	statement += DBClientUser::TABLE_NAME_USERS;
-	statement += " ORDER BY id ASC";
-	string expect;
-	for (size_t i = 0; i < NumTestUserInfo; i++) {
-		if (UserIdType(i + 1) == targetId)
-			continue;
-		const UserInfo &userInfo = testUserInfo[i];
-		expect += StringUtils::sprintf("%zd|%s|%s|%"FMT_OPPRVLG"\n",
-		  i+1, userInfo.name.c_str(),
-		  Utils::sha256(userInfo.password).c_str(),
-		  userInfo.flags);
-	}
-	assertDBContent(dbUser.getDBAgent(), statement, expect);
+	UserIdSet userIdSet;
+	userIdSet.insert(targetId);
+	assertUsersInDB(userIdSet);
 }
 
 void test_addUserDuplicate(void)
