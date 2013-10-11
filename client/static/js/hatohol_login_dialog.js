@@ -42,7 +42,7 @@ var HatoholLoginDialog = function(loginCallback, tryLoginCallback) {
       tryLoginCallback(user, password);
 
     $.ajax({
-      url: "/tunnel/login&user=" + encodeURI(user) + "&password=" + encodeURI(password),
+      url: "/tunnel/login?user=" + encodeURI(user) + "&password=" + encodeURI(password),
       type: "GET",
       success: function(data) {
         parseLoginResult(data);
