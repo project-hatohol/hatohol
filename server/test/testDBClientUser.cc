@@ -240,20 +240,7 @@ void test_addUser(void)
 {
 	loadTestDBUser();
 	DBClientUser dbUser;
-
-	// check the version
-	string statement = "select * from ";
-	statement += DBClientUser::TABLE_NAME_USERS;
-	statement += " ORDER BY id ASC";
-	string expect;
-	for (size_t i = 0; i < NumTestUserInfo; i++) {
-		const UserInfo &userInfo = testUserInfo[i];
-		expect += StringUtils::sprintf("%zd|%s|%s|%"FMT_OPPRVLG"\n",
-		  i+1, userInfo.name.c_str(),
-		  Utils::sha256(userInfo.password).c_str(),
-		  userInfo.flags);
-	}
-	assertDBContent(dbUser.getDBAgent(), statement, expect);
+	assertUsersInDB();
 }
 
 void test_deleteUser(void)
