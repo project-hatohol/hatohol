@@ -191,5 +191,14 @@ class TestHatoholVoyager(unittest.TestCase):
     arg_list = ["show-user"]
     self._assert_url(arg_list, "http://localhost:33194/user")
 
+  def test_add_user(self):
+    user = "hatohol"
+    password = "H@T0h.!"
+    flags = 0
+    arg_list = ["add-user", user, password, flags]
+    expect_query = {"user":user, "password":password, "flags":flags}
+    self._assert_url(arg_list, "http://localhost:33194/user", None,
+                     expect_query)
+
 if __name__ == '__main__':
     unittest.main()

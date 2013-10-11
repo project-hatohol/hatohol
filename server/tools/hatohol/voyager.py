@@ -26,6 +26,30 @@ from hatohol.ActionCreator import ActionCreator
 DEFAULT_SERVER = "localhost"
 DEFAULT_PORT = 33194
 
+class UserCreator:
+  def __init__(self, url):
+    self._url = url + "/user"
+    self._encoded_query = None
+
+  @classmethod
+  def setup_arguments(cls, parser):
+    parser.add_argument("user")
+    parser.add_argument("password")
+    parser.add_argument("flags")
+
+  def get_url(self):
+    return self._url
+
+  def get_encoded_query(self):
+    return self._encoded_query
+
+  def add(self, args):
+    query = {}
+    query["user"] = args.user;
+    query["password"] = args.password;
+    query["flags"] = args.flags;
+    self._encoded_query = urllib.urlencode(query)
+
 def open_url_and_show_response(cmd_ctx):
   if "encoded_query" in cmd_ctx:
     response = urllib2.urlopen(cmd_ctx["url"], cmd_ctx["encoded_query"])
@@ -109,6 +133,14 @@ def show_user(url, args):
   url += "/user"
   return {"url":url, "postproc":open_url_and_show_response}
 
+def add_user(url, args):
+  user_creator = UserCreator(url)
+  user_creator.add(args)
+  url = user_creator.get_url()
+  encoded_query = user_creator.get_encoded_query()
+  return {"url":url, "postproc":open_url_and_show_response,
+          "encoded_query":encoded_query}
+
 command_map = {
   "show-server":show_server,
   "show-event":show_event,
@@ -119,6 +151,7 @@ command_map = {
   "add-action":add_action,
   "del-action":del_action,
   "show-user":show_user,
+  "add-user":add_user,
 }
 
 def main(arg_list=None, exec_postproc=True):
@@ -162,6 +195,10 @@ def main(arg_list=None, exec_postproc=True):
 
   # user (show)
   sub_action = subparsers.add_parser("show-user")
+
+  # user (add)
+  sub_user = subparsers.add_parser("add-user")
+  UserCreator.setup_arguments(sub_user)
 
   args = parser.parse_args(arg_list)
   cmd_ctx = command_map[args.sub_command](args.server_url, args)
