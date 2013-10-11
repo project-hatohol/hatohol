@@ -1131,4 +1131,17 @@ void test_deleteUser(void)
 	assertUsersInDB(userIdSet);
 }
 
+void test_deleteUserWithoutId(void)
+{
+	startFaceRest();
+	bool dbRecreate = true;
+	bool loadTestData = true;
+	setupTestDBUser(dbRecreate, loadTestData);
+
+	string url = StringUtils::sprintf("/user");
+	g_parser =
+	  getResponseAsJsonParser(url, "cbname", emptyStringMap, "DELETE");
+	assertValueInParser(g_parser, "result", false);
+}
+
 } // namespace testFaceRest
