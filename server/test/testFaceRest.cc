@@ -1069,7 +1069,8 @@ void test_addUser(void)
 
 	// check the content in the DB
 	DBClientUser dbUser;
-	string statement = "select * from users";
+	string statement = "select * from ";
+	statement += DBClientUser::TABLE_NAME_USERS;
 	int expectedId = 1;
 	string expect = StringUtils::sprintf("%d|%s|%s|%"FMT_OPPRVLG,
 	  expectedId, user.c_str(), Utils::sha256(password).c_str(), flags);
