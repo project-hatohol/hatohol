@@ -312,11 +312,11 @@ void UnifiedDataStore::getUserList(UserInfoList &userList,
 }
 
 DBClientUserError UnifiedDataStore::addUser(
-  UserInfo &userInfo, const OperationPrivilege &opePrivilege)
+  UserInfo &userInfo, const OperationPrivilege &privilege)
 {
 	CacheServiceDBClient cache;
 	DBClientUser *dbUser = cache.getUser();
-	return dbUser->addUserInfo(userInfo, opePrivilege);
+	return dbUser->addUserInfo(userInfo, privilege);
 }
 
 // ---------------------------------------------------------------------------
