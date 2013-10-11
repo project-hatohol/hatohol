@@ -1144,4 +1144,17 @@ void test_deleteUserWithoutId(void)
 	assertValueInParser(g_parser, "result", false);
 }
 
+void test_deleteUserWithNonNumericId(void)
+{
+	startFaceRest();
+	bool dbRecreate = true;
+	bool loadTestData = true;
+	setupTestDBUser(dbRecreate, loadTestData);
+
+	string url = StringUtils::sprintf("/user/zoo");
+	g_parser =
+	  getResponseAsJsonParser(url, "cbname", emptyStringMap, "DELETE");
+	assertValueInParser(g_parser, "result", false);
+}
+
 } // namespace testFaceRest
