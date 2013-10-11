@@ -282,6 +282,23 @@ DBClientUserError DBClientUser::addUserInfo(
 	return err;
 }
 
+DBClientUserError DBClientUser::deleteUserInfo(
+  const UserIdType userId, const OperationPrivilege &privilege)
+{
+	if (!privilege.has(OPPRVLG_DELETE_USER))
+		return DBCUSRERR_NO_PRIVILEGE;
+
+	DBAgentDeleteArg arg;
+	arg.tableName = TABLE_NAME_USERS;
+	const ColumnDef &colId = COLUMN_DEF_USERS[IDX_USERS_ID];
+	arg.condition = StringUtils::sprintf("%s=%"FMT_USER_ID,
+	                                     colId.columnName, userId);
+	DBCLIENT_TRANSACTION_BEGIN() {
+		deleteRows(arg);
+	} DBCLIENT_TRANSACTION_END();
+	return DBCUSRERR_NO_ERROR;
+}
+
 UserIdType DBClientUser::getUserId(const string &user, const string &password)
 {
 	if (isValidUserName(user) != DBCUSRERR_NO_ERROR)

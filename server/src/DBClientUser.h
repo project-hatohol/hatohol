@@ -106,6 +106,9 @@ public:
 	DBClientUserError addUserInfo(UserInfo &userInfo,
 	                              const OperationPrivilege &privilege);
 
+	DBClientUserError deleteUserInfo(const UserIdType userId,
+	                                 const OperationPrivilege &privilege);
+
 	/**
 	 * Get the user Id.
 	 *

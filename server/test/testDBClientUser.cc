@@ -230,6 +230,33 @@ void test_addUser(void)
 	assertDBContent(dbUser.getDBAgent(), statement, expect);
 }
 
+void test_deleteUser(void)
+{
+	loadTestDBUser();
+	DBClientUser dbUser;
+	const UserIdType targetId = 2;
+	OperationPrivilege privilege(ALL_PRIVILEGES);
+	DBClientUserError err =
+	  dbUser.deleteUserInfo(targetId, privilege);
+	cppcut_assert_equal(DBCUSRERR_NO_ERROR, err);
+
+	// check the version
+	string statement = "select * from ";
+	statement += DBClientUser::TABLE_NAME_USERS;
+	statement += " ORDER BY id ASC";
+	string expect;
+	for (size_t i = 0; i < NumTestUserInfo; i++) {
+		if (UserIdType(i + 1) == targetId)
+			continue;
+		const UserInfo &userInfo = testUserInfo[i];
+		expect += StringUtils::sprintf("%zd|%s|%s|%"FMT_OPPRVLG"\n",
+		  i+1, userInfo.name.c_str(),
+		  Utils::sha256(userInfo.password).c_str(),
+		  userInfo.flags);
+	}
+	assertDBContent(dbUser.getDBAgent(), statement, expect);
+}
+
 void test_addUserDuplicate(void)
 {
 	loadTestDBUser();
