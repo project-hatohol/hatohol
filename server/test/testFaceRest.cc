@@ -1088,4 +1088,13 @@ void test_addUserWithoutFlags(void)
 	assertAddUserWithSetup(params, false);
 }
 
+void test_addUserInvalidUserName(void)
+{
+	StringMap params;
+	params["user"] = "!^.^!"; // '!' and '^' are invalid characters
+	params["password"] = "w(^_^)d";
+	params["flags"] = "0";
+	assertAddUserWithSetup(params, false);
+}
+
 } // namespace testFaceRest
