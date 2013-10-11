@@ -187,7 +187,7 @@ class TestHatoholVoyager(unittest.TestCase):
     arg_list = ["del-action", "25"]
     self._assert_url(arg_list, "http://localhost:33194/action/25", "DELETE")
 
-  def test_show_action(self):
+  def test_show_user(self):
     arg_list = ["show-user"]
     self._assert_url(arg_list, "http://localhost:33194/user")
 
