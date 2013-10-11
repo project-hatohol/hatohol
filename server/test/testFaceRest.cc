@@ -1072,4 +1072,12 @@ void test_addUserWithoutUser(void)
 	assertAddUserWithSetup(params, false);
 }
 
+void test_addUserWithoutPassword(void)
+{
+	StringMap params;
+	params["user"] = "y@ru0";
+	params["flags"] = "0";
+	assertAddUserWithSetup(params, false);
+}
+
 } // namespace testFaceRest
