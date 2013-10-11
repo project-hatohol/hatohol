@@ -22,6 +22,7 @@
 
 #include <cstdio>
 #include <stdint.h>
+#include <set>
 
 typedef uint32_t DBDomainId;
 
@@ -41,6 +42,10 @@ typedef int UserIdType;
 #define FMT_USER_ID "d"
 static const UserIdType INVALID_USER_ID = -1;
 static const UserIdType USER_ID_ADMIN   = 0;
+
+typedef std::set<UserIdType>      UserIdSet;
+typedef UserIdSet::iterator       UserIdSetIterator;
+typedef UserIdSet::const_iterator UserIdSetIterator;
 
 #endif // Params_h
 

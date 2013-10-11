@@ -31,7 +31,6 @@
 
 namespace testDBClientUser {
 
-typedef set<UserIdType> UserIdSet;
 static UserIdSet EMPTY_USER_ID_SET;
 
 static void _assertUserInfo(const UserInfo &expect, const UserInfo &actual)
