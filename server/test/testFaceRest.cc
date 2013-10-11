@@ -615,6 +615,21 @@ static void _assertUsers(const string &path, const string &callbackName = "")
 }
 #define assertUsers(P,...) cut_trace(_assertUsers(P,##__VA_ARGS__))
 
+void _assertAddUser(const StringMap &params)
+{
+	startFaceRest();
+	g_parser = getResponseAsJsonParser("/user", "foo",
+	                                   params, "POST");
+	assertValueInParser(g_parser, "result", true);
+	assertValueInParser(g_parser, "apiVersion",
+	                    (uint32_t)FaceRest::API_VERSION);
+
+	// This function asummes that the test database is recreated and
+	// is empty. So the added action is the first and the ID should one.
+	assertValueInParser(g_parser, "id", (uint32_t)1);
+}
+#define assertAddUser(P) cut_trace(_assertAddUser(P))
+
 static void setupPostAction(void)
 {
 	bool recreate = true;
@@ -1016,6 +1031,19 @@ void test_getUser(void)
 	const bool loadTestDat = true;
 	setupTestDBUser(dbRecreate, loadTestDat);
 	assertUsers("/user", "cbname");
+}
+
+void test_addUser(void)
+{
+	const bool dbRecreate = true;
+	const bool loadTestDat = false;
+	setupTestDBUser(dbRecreate, loadTestDat);
+
+	StringMap params;
+	params["user"] = "y@ru0";
+	params["password"] = "w(^_^)d";
+	params["flags"] = "0";
+	assertAddUser(params);
 }
 
 } // namespace testFaceRest
