@@ -259,6 +259,17 @@ void test_deleteUser(void)
 	assertUsersInDB(userIdSet);
 }
 
+void test_deleteUserWithoutPrivilege(void)
+{
+	loadTestDBUser();
+	DBClientUser dbUser;
+	const UserIdType targetId = 2;
+	OperationPrivilege privilege;
+	DBClientUserError err =
+	  dbUser.deleteUserInfo(targetId, privilege);
+	cppcut_assert_equal(DBCUSRERR_NO_PRIVILEGE, err);
+}
+
 void test_addUserDuplicate(void)
 {
 	loadTestDBUser();
