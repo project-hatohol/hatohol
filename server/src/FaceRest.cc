@@ -87,7 +87,7 @@ struct FaceRest::HandlerArg
 	string     formatString;
 	FormatType formatType;
 	const char *mimeType;
-	string      id; // we assume that URL form is http://xxx.com/request/id
+	string      id; // we assume URL form is http://example.com/request/id
 	string      jsonpCallbackName;
 	string      sessionId;
 	UserIdType  userId;
