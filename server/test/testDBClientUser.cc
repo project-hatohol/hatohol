@@ -243,6 +243,16 @@ void test_addUser(void)
 	assertUsersInDB();
 }
 
+void test_addUserDuplicate(void)
+{
+	loadTestDBUser();
+	OperationPrivilege privilege(ALL_PRIVILEGES);
+	DBClientUser dbUser;
+	UserInfo &userInfo = testUserInfo[1];
+	cppcut_assert_equal(DBCUSRERR_USER_NAME_EXIST,
+	                    dbUser.addUserInfo(userInfo, privilege));
+}
+
 void test_deleteUser(void)
 {
 	loadTestDBUser();
@@ -268,16 +278,6 @@ void test_deleteUserWithoutPrivilege(void)
 	DBClientUserError err =
 	  dbUser.deleteUserInfo(targetId, privilege);
 	cppcut_assert_equal(DBCUSRERR_NO_PRIVILEGE, err);
-}
-
-void test_addUserDuplicate(void)
-{
-	loadTestDBUser();
-	OperationPrivilege privilege(ALL_PRIVILEGES);
-	DBClientUser dbUser;
-	UserInfo &userInfo = testUserInfo[1];
-	cppcut_assert_equal(DBCUSRERR_USER_NAME_EXIST,
-	                    dbUser.addUserInfo(userInfo, privilege));
 }
 
 void test_getUserId(void)
