@@ -639,6 +639,18 @@ void _assertAddUserError(const StringMap &params)
 }
 #define assertAddUserError(P) cut_trace(_assertAddUserError(P))
 
+void _assertAddUserWithSetup(const StringMap &params, bool expectSuccess)
+{
+	const bool dbRecreate = true;
+	const bool loadTestDat = false;
+	setupTestDBUser(dbRecreate, loadTestDat);
+
+	if (expectSuccess)
+		assertAddUser(params);
+	else
+		assertAddUserError(params);
+}
+#define assertAddUserWithSetup(P,E) cut_trace(_assertAddUserWithSetup(P,E))
 
 static void setupPostAction(void)
 {
@@ -1045,27 +1057,19 @@ void test_getUser(void)
 
 void test_addUser(void)
 {
-	const bool dbRecreate = true;
-	const bool loadTestDat = false;
-	setupTestDBUser(dbRecreate, loadTestDat);
-
 	StringMap params;
 	params["user"] = "y@ru0";
 	params["password"] = "w(^_^)d";
 	params["flags"] = "0";
-	assertAddUser(params);
+	assertAddUserWithSetup(params, true);
 }
 
 void test_addUserWithoutUser(void)
 {
-	const bool dbRecreate = true;
-	const bool loadTestDat = false;
-	setupTestDBUser(dbRecreate, loadTestDat);
-
 	StringMap params;
 	params["password"] = "w(^_^)d";
 	params["flags"] = "0";
-	assertAddUserError(params);
+	assertAddUserWithSetup(params, false);
 }
 
 } // namespace testFaceRest
