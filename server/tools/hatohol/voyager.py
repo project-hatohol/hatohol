@@ -141,6 +141,12 @@ def add_user(url, args):
   return {"url":url, "postproc":open_url_and_show_response,
           "encoded_query":encoded_query}
 
+def del_user(url, args):
+  url = url + "/user/" + args.user_id
+  req = urllib2.Request(url)
+  req.get_method = lambda: 'DELETE'
+  return {"url":req, "postproc":open_url_and_show_response}
+
 command_map = {
   "show-server":show_server,
   "show-event":show_event,
@@ -152,6 +158,7 @@ command_map = {
   "del-action":del_action,
   "show-user":show_user,
   "add-user":add_user,
+  "del-user":del_user,
 }
 
 def main(arg_list=None, exec_postproc=True):
@@ -199,6 +206,10 @@ def main(arg_list=None, exec_postproc=True):
   # user (add)
   sub_user = subparsers.add_parser("add-user")
   UserCreator.setup_arguments(sub_user)
+
+  # user (delete)
+  sub_user = subparsers.add_parser("del-user")
+  sub_user.add_argument("user_id")
 
   args = parser.parse_args(arg_list)
   cmd_ctx = command_map[args.sub_command](args.server_url, args)

@@ -200,5 +200,9 @@ class TestHatoholVoyager(unittest.TestCase):
     self._assert_url(arg_list, "http://localhost:33194/user", None,
                      expect_query)
 
+  def test_del_user(self):
+    arg_list = ["del-user", "25"]
+    self._assert_url(arg_list, "http://localhost:33194/user/25", "DELETE")
+
 if __name__ == '__main__':
     unittest.main()
