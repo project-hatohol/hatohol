@@ -476,4 +476,11 @@ void test_isValidFlagsExceededBit(void)
 	                    DBClientUser::isValidFlags(flags));
 }
 
+void test_isValidFlagsNone(void)
+{
+	OperationPrivilegeFlag flags = 0;
+	cppcut_assert_equal(DBCUSRERR_NO_ERROR,
+	                    DBClientUser::isValidFlags(flags));
+}
+
 } // namespace testDBClientUser
