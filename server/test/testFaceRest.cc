@@ -1057,11 +1057,23 @@ void test_getUser(void)
 
 void test_addUser(void)
 {
+	OperationPrivilegeFlag flags = OPPRVLG_GET_ALL_USERS;
+	const string user = "y@ru0";
+	const string password = "w(^_^)d";
+
 	StringMap params;
-	params["user"] = "y@ru0";
-	params["password"] = "w(^_^)d";
-	params["flags"] = "0";
+	params["user"] = user;
+	params["password"] = password;
+	params["flags"] = StringUtils::sprintf("%"FMT_OPPRVLG, flags);
 	assertAddUserWithSetup(params, true);
+
+	// check the content in the DB
+	DBClientUser dbUser;
+	string statement = "select * from users";
+	int expectedId = 1;
+	string expect = StringUtils::sprintf("%d|%s|%s|%"FMT_OPPRVLG,
+	  expectedId, user.c_str(), Utils::sha256(password).c_str(), flags);
+	assertDBContent(dbUser.getDBAgent(), statement, expect);
 }
 
 void test_addUserWithoutUser(void)
