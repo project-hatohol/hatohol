@@ -630,6 +630,16 @@ void _assertAddUser(const StringMap &params)
 }
 #define assertAddUser(P) cut_trace(_assertAddUser(P))
 
+void _assertAddUserError(const StringMap &params)
+{
+	startFaceRest();
+	g_parser = getResponseAsJsonParser("/action", "foo",
+	                                   params, "POST");
+	assertValueInParser(g_parser, "result", false);
+}
+#define assertAddUserError(P) cut_trace(_assertAddUserError(P))
+
+
 static void setupPostAction(void)
 {
 	bool recreate = true;
@@ -1044,6 +1054,18 @@ void test_addUser(void)
 	params["password"] = "w(^_^)d";
 	params["flags"] = "0";
 	assertAddUser(params);
+}
+
+void test_addUserWithoutUser(void)
+{
+	const bool dbRecreate = true;
+	const bool loadTestDat = false;
+	setupTestDBUser(dbRecreate, loadTestDat);
+
+	StringMap params;
+	params["password"] = "w(^_^)d";
+	params["flags"] = "0";
+	assertAddUserError(params);
 }
 
 } // namespace testFaceRest
