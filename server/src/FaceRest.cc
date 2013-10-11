@@ -1366,8 +1366,35 @@ void FaceRest::handlerDeleteUser
   (SoupServer *server, SoupMessage *msg, const char *path,
    GHashTable *query, SoupClientContext *client, HandlerArg *arg)
 {
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
-	replyError(msg, arg, "Not implmented.");
+	if (arg->id.empty()) {
+		REPLY_ERROR(msg, arg, "ID is missing.\n");
+		return;
+	}
+	int userId;
+	if (sscanf(arg->id.c_str(), "%"FMT_USER_ID, &userId) != 1) {
+		REPLY_ERROR(msg, arg, "Invalid ID: %s", arg->id.c_str());
+		return;
+	}
+
+	SimpleQueryOption option;
+	option.setUserId(arg->userId);
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+	DBClientUserError err = dataStore->deleteUser(userId, option);
+
+	// replay
+	JsonBuilderAgent agent;
+	agent.startObject();
+	agent.add("apiVersion", API_VERSION);
+	agent.addTrue("result");
+	if (err == DBCUSRERR_NO_ERROR) {
+		agent.addTrue("result");
+		agent.add("id", userId);
+	} else {
+		agent.addFalse("result");
+		agent.add("errorCode", err);
+	}
+	agent.endObject();
+	replyJsonData(agent, msg, arg->jsonpCallbackName, arg);
 }
 
 // ---------------------------------------------------------------------------

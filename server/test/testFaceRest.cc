@@ -1110,4 +1110,25 @@ void test_addUserInvalidUserName(void)
 	assertAddUserWithSetup(params, false);
 }
 
+void test_deleteUser(void)
+{
+	startFaceRest();
+	bool dbRecreate = true;
+	bool loadTestData = true;
+	setupTestDBUser(dbRecreate, loadTestData);
+
+	const UserIdType targetId = 2;
+	string url = StringUtils::sprintf("/user/%"FMT_USER_ID, targetId);
+	g_parser =
+	  getResponseAsJsonParser(url, "cbname", emptyStringMap, "DELETE");
+
+	// check the response
+	assertValueInParser(g_parser, "result", true);
+	assertValueInParser(g_parser, "apiVersion",
+	                    (uint32_t)FaceRest::API_VERSION);
+	UserIdSet userIdSet;
+	userIdSet.insert(targetId);
+	assertUsersInDB(userIdSet);
+}
+
 } // namespace testFaceRest
