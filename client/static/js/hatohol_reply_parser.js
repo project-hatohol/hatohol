@@ -78,8 +78,9 @@ var HatoholLoginReplyParser = function(reply) {
   HatoholReplyParser.apply(this, [reply]);
   if (this.getStatus() != REPLY_STATUS.OK)
     return;
-  if (!("sesseionId" in reply))
+  if (!("sessionId" in reply))
     this.stat = REPLY_STATUS.NOT_FOUND_SESSION_ID;
+  this.sessionId = reply.sessionId
 }
 
 HatoholLoginReplyParser.prototype = Object.create(HatoholReplyParser.prototype);
