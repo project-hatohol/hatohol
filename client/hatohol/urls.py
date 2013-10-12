@@ -51,10 +51,10 @@ urlpatterns += i18n_patterns('',
 
 if 'HATOHOL_DEBUG' in os.environ and os.environ['HATOHOL_DEBUG'] == '1':
   urlpatterns += patterns('',
-      url(r'^tasting/$', TemplateView.as_view(template_name='tasting/index.html')),
-      url(r'^tasting/hatohol_login_dialog.html$', TemplateView.as_view(template_name='tasting/hatohol_login_dialog.html')),
-      url(r'^tasting/hatohol_message_box.html$', TemplateView.as_view(template_name='tasting/hatohol_message_box.html')),
+      makeTastingUrl('index.html'),
+      makeTastingUrl('hatohol_login_dialog.html'),
+      makeTastingUrl('hatohol_message_box.html'),
       makeTastingUrl('hatohol_session_manager.html'),
-      url(r'^tasting/js_loader.js$', TemplateView.as_view(template_name='tasting/js_loader.js')),
+      makeTastingUrl('js_loader.js'),
   )
 
