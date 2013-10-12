@@ -19,6 +19,7 @@
 
 var HatoholSessionManager = function() {
   var HATOHOL_SID_COOKIE_NAME = "hatoholSessionId";
+  var HATOHOL_SID_COOKIE_MAX_AGE = 7 * 24 * 3600;
 
   return {
     get: function() {
@@ -32,6 +33,11 @@ var HatoholSessionManager = function() {
           return hands[1]
       }
       return null;
-    }
+    },
+
+    set: function(sessionId) {
+      document.cookie = HATOHOL_SID_COOKIE_NAME + "=" + sessionId +
+                        "; max-age=" + HATOHOL_SID_COOKIE_MAX_AGE;
+    },
   }
 }();

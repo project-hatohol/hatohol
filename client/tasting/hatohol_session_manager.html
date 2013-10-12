@@ -11,9 +11,18 @@ function main()
   $("#msg").text("session: " + HatoholSessionManager.get());
 }
 
+function onSidButtonClick()
+{
+  var newSid = $("#sid-input").val();
+  HatoholSessionManager.set(newSid);
+  main();
+}
+
 </script>
 </head>
 <body>
+<input type="text" id="sid-input"/>
+<button onclick="onSidButtonClick()">Update Session ID</button>
 <div id="msg" />
 </body>
 </html>
