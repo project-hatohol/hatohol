@@ -39,5 +39,12 @@ var HatoholSessionManager = function() {
       document.cookie = HATOHOL_SID_COOKIE_NAME + "=" + sessionId +
                         "; max-age=" + HATOHOL_SID_COOKIE_MAX_AGE;
     },
+
+    deleteCookie: function() {
+      var date = new Date();
+      date.setTime(0);
+      document.cookie = HATOHOL_SID_COOKIE_NAME + "=; expires=" +
+                        date.toGMTString();
+    }
   }
 }();

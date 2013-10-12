@@ -29,6 +29,11 @@ def makeTastingUrl(file_name):
   return url(r'^tasting/' + file_name + '$',
              TemplateView.as_view(template_name='tasting/' + file_name))
 
+def makeTestUrl(file_name):
+  return url(r'^test/' + file_name + '$',
+             TemplateView.as_view(template_name='test/browser/' + file_name))
+
+
 urlpatterns = patterns('',
     # Examples:
     # url(r'^$', 'hatohol.views.home', name='home'),
@@ -56,5 +61,10 @@ if 'HATOHOL_DEBUG' in os.environ and os.environ['HATOHOL_DEBUG'] == '1':
       makeTastingUrl('hatohol_message_box.html'),
       makeTastingUrl('hatohol_session_manager.html'),
       makeTastingUrl('js_loader.js'),
+      makeTestUrl('index.html'),
+      makeTestUrl('test_hatohol_session_manager.js'),
+      makeTestUrl('mocha.js'),
+      makeTestUrl('mocha.css'),
+      makeTestUrl('expect.js'),
   )
 
