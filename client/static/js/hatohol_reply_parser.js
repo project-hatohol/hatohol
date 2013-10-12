@@ -36,7 +36,7 @@ var HatoholReplyParser = function(reply) {
   this.errorMessage = "";
 
   if (!reply) {
-    this.stat = REPLY_STATUS.NULL_OR_UNDEFIND;
+    this.stat = REPLY_STATUS.NULL_OR_UNDEFINED;
   } else if (!("result" in reply)) {
     this.stat = REPLY_STATUS.NOT_FOUND_RESULT;
   } else if (!reply.result) {
@@ -47,6 +47,11 @@ var HatoholReplyParser = function(reply) {
       this.stat = REPLY_STATUS.RESULT_IS_FALSE_BUT_NOT_FOUND_MSG;
     }
   }
+}
+
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = HatoholReplyParser;
+  module.exports.REPLY_STATUS = REPLY_STATUS;
 }
 
 HatoholReplyParser.prototype.getStatus = function() {
