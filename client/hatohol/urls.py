@@ -25,6 +25,10 @@ from django.views.generic import TemplateView
 # from django.contrib import admin
 # admin.autodiscover()
 
+def makeTastingUrl(file_name):
+  return url(r'^tasting/' + file_name + '$',
+             TemplateView.as_view(template_name='tasting/' + file_name))
+
 urlpatterns = patterns('',
     # Examples:
     # url(r'^$', 'hatohol.views.home', name='home'),
@@ -50,5 +54,7 @@ if 'HATOHOL_DEBUG' in os.environ and os.environ['HATOHOL_DEBUG'] == '1':
       url(r'^tasting/$', TemplateView.as_view(template_name='tasting/index.html')),
       url(r'^tasting/hatohol_login_dialog.html$', TemplateView.as_view(template_name='tasting/hatohol_login_dialog.html')),
       url(r'^tasting/hatohol_message_box.html$', TemplateView.as_view(template_name='tasting/hatohol_message_box.html')),
+      makeTastingUrl('hatohol_session_manager.html'),
       url(r'^tasting/js_loader.js$', TemplateView.as_view(template_name='tasting/js_loader.js')),
   )
+
