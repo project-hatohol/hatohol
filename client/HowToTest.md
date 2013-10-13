@@ -34,6 +34,9 @@ run djang with debug mode
 -------------------------
     $ HATOHOL_DEBUG=1 ./manage.py runserver 0.0.0.0:8000
 
+> ** Memo ** The set of the above environment variable make 'tasting' and 'test'
+directories accessible.
+
 run test on the browser
 -----------------------
 Access the following URL.
