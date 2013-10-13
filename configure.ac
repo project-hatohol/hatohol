@@ -112,6 +112,36 @@ if test "$ac_cv_use_cutter" != "no"; then
 fi
 
 dnl **************************************************************
+dnl Mocha, expect.js, and npm (indirectly node.js)
+dnl **************************************************************
+have_js_test_tools=yes
+AC_CHECK_PROG([have_mocha], [mocha], [yes], [no])
+AC_CHECK_PROG([have_npm], [npm], [yes], [no])
+have_expect_js=no
+if test "$have_npm" = "yes"; then
+  expect_js_ver=`npm ls -g | grep expect.js | awk '{ print $2 }' FS=@`
+  if test x"$expect_js_ver" != x; then
+    have_expect_js=yes
+  fi
+  mocha_ver=`npm ls -g | grep mocha | awk '{ print $2 }' FS=@`
+fi
+
+if test "$have_mocha" = "no"; then
+  have_js_test_tools=no
+fi
+if test "$have_npm" = "no"; then
+  have_js_test_tools=no
+fi
+if test "$have_expect_js" = "no"; then
+  have_js_test_tools=no
+fi
+
+if test "$have_js_test_tools" = "yes"; then
+  WITH_JS_TEST=1
+  AC_SUBST(WITH_JS_TEST)
+fi
+
+dnl **************************************************************
 dnl Results
 dnl **************************************************************
 
@@ -139,4 +169,5 @@ echo
 echo "Configure Result:"
 echo
 echo "  C Unit test (cutter) : ${have_cutter}"
+echo "  JS Unit test         : ${have_js_test_tools}"
 echo
