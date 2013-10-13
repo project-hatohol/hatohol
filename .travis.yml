@@ -7,10 +7,10 @@ compiler:
   - clang
 install:
   - curl https://raw.github.com/clear-code/cutter/master/data/travis/setup.sh | sh
-  - sudo apt-get install -qq -y autotools-dev libglib2.0-dev libjson-glib-dev libsoup2.4-dev libmysqlclient-dev sqlite3 ndoutils-nagios3-mysql uuid-dev npm nodejs-legacy
+  - sudo apt-get install -qq -y autotools-dev libglib2.0-dev libjson-glib-dev libsoup2.4-dev libmysqlclient-dev sqlite3 ndoutils-nagios3-mysql uuid-dev npm
   - mysql -u root -e "GRANT all on ndoutils.* TO ndoutils@localhost IDENTIFIED BY 'admin';"
-  - sudo npm install -g mocha
-  - sudo npm install -g expect.js
+  - npm install -g mocha
+  - npm install -g expect.js
 before_script:
   - ./autogen.sh
   - ./configure
@@ -20,4 +20,4 @@ script:
   - ./server/mlpl/test/run-test.sh
   - cd server/test && ./run-test.sh
   - cd ../tools/test && ./run-test.sh
-  - cd ../../../client/test/node && ./run-test.sh
+  - cd ../../../client/test && make && cd node && ./run-test.sh
