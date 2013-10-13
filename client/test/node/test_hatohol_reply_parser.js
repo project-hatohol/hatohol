@@ -7,4 +7,11 @@ describe("HatoholReplyParser", function() {
     var stat = parser.getStatus();
     expect(stat).to.be(HatoholReplyParser.REPLY_STATUS.NULL_OR_UNDEFINED);
   })
+
+  it("undefined", function() {
+    var parser = new HatoholReplyParser(undefined);
+    var stat = parser.getStatus();
+    expect(stat).to.be(HatoholReplyParser.REPLY_STATUS.NULL_OR_UNDEFINED);
+  })
+
 });
