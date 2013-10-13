@@ -1,3 +1,4 @@
+SUBDIRS = . test
 hatohol_clientdir=$(libexecdir)/$(PACKAGE)/client
 nobase_dist_hatohol_client_SCRIPTS = \
 	./manage.py

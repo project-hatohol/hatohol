@@ -136,10 +136,7 @@ if test "$have_expect_js" = "no"; then
   have_js_test_tools=no
 fi
 
-if test "$have_js_test_tools" = "yes"; then
-  WITH_JS_TEST=1
-  AC_SUBST(WITH_JS_TEST)
-fi
+AM_CONDITIONAL([WITH_JS_TEST], [test "$have_js_test_tools" = "yes"])
 
 dnl **************************************************************
 dnl Results
@@ -163,6 +160,7 @@ server/tools/Makefile
 server/test/Makefile
 server/test/fixtures/Makefile
 client/Makefile
+client/test/Makefile
 ])
 
 echo

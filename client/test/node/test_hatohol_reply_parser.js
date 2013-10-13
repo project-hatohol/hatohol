@@ -1,4 +1,4 @@
-var expect = require("../browser/expect.js");
+var expect = require('expect.js');
 var HatoholReplyParser = require("../../static/js/hatohol_reply_parser");
 
 describe("HatoholReplyParser", function() {

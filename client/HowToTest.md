@@ -8,10 +8,27 @@ Install packages (for Ubuntu 12.04)
 
 make symbolic links
 -------------------
-    $ cd test/browser
-    $ ln -s /usr/local/lib/node_modules/mocha/mocha.js
-    $ ln -s /usr/local/lib/node_modules/mocha/mocha.css
-    $ ln -s /usr/local/lib/node_modules/expect.js/expect.js
+Execute ./configure on the top directory. If the above packages are detected,
+the following summary will be shown.
+
+<pre>
+checking for sqlite3... yes
+checking for mocha... yes
+checking for npm... yes
+configure: creating ./config.status
+<snip>
+Configure Result:
+
+  C Unit test (cutter) : yes
+  JS Unit test         : yes
+</pre>
+
+Then, when 'make' is executed, the following links are created.
+
+    test/node_modules
+    browser/mocha.js
+    browser/mocha.css
+    browser/expect.js
 
 run djang with debug mode
 -------------------------
