@@ -1,7 +1,7 @@
 Install packages (for Ubuntu 12.04)
 -----------------------------------
 
-    # apt-get npm
+    # apt-get install npm
     # npm install -g mocha
     # npm install -g expect.js
     # apt-get install nodejs-legacy
