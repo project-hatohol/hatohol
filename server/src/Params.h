@@ -48,6 +48,19 @@ typedef UserIdSet::iterator       UserIdSetIterator;
 typedef UserIdSet::const_iterator UserIdSetIterator;
 extern const UserIdSet EMPTY_USER_ID_SET;
 
+enum HatoholErrorCode
+{
+	HTERR_OK,
+	HTERR_EMPTY_USER_NAME,
+	HTERR_TOO_LONG_USER_NAME,
+	HTERR_INVALID_CHAR,
+	HTERR_EMPTY_PASSWORD,
+	HTERR_TOO_LONG_PASSWORD,
+	HTERR_USER_NAME_EXIST,
+	HTERR_NO_PRIVILEGE,
+	HTERR_INVALID_USER_FLAGS,
+};
+
 #endif // Params_h
 
 

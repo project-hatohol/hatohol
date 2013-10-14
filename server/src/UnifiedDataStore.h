@@ -71,9 +71,9 @@ public:
 
 	virtual void getUserList(UserInfoList &userList,
                                  DataQueryOption &option);
-	virtual DBClientUserError addUser(
+	virtual HatoholErrorCode addUser(
 	  UserInfo &userInfo, const OperationPrivilege &privilege);
-	virtual DBClientUserError deleteUser(
+	virtual HatoholErrorCode deleteUser(
 	  UserIdType userId, const OperationPrivilege &privilege);
 
 private:

@@ -1345,13 +1345,13 @@ void FaceRest::handlerPostUser
 	SimpleQueryOption option;
 	option.setUserId(arg->userId);
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-	DBClientUserError err = dataStore->addUser(userInfo, option);
+	HatoholErrorCode err = dataStore->addUser(userInfo, option);
 
 	// make a response
 	JsonBuilderAgent agent;
 	agent.startObject();
 	agent.add("apiVersion", API_VERSION);
-	if (err == DBCUSRERR_NO_ERROR) {
+	if (err == HTERR_OK) {
 		agent.addTrue("result");
 		agent.add("id", userInfo.id);
 	} else {
@@ -1379,14 +1379,14 @@ void FaceRest::handlerDeleteUser
 	SimpleQueryOption option;
 	option.setUserId(arg->userId);
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-	DBClientUserError err = dataStore->deleteUser(userId, option);
+	HatoholErrorCode err = dataStore->deleteUser(userId, option);
 
 	// replay
 	JsonBuilderAgent agent;
 	agent.startObject();
 	agent.add("apiVersion", API_VERSION);
 	agent.addTrue("result");
-	if (err == DBCUSRERR_NO_ERROR) {
+	if (err == HTERR_OK) {
 		agent.addTrue("result");
 		agent.add("id", userId);
 	} else {

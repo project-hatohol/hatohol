@@ -241,20 +241,20 @@ DBClientUser::~DBClientUser()
 		delete m_ctx;
 }
 
-DBClientUserError DBClientUser::addUserInfo(
+HatoholErrorCode DBClientUser::addUserInfo(
   UserInfo &userInfo, const OperationPrivilege &privilege)
 {
-	DBClientUserError err;
+	HatoholErrorCode err;
 	if (!privilege.has(OPPRVLG_CREATE_USER))
-		return DBCUSRERR_NO_PRIVILEGE;
+		return HTERR_NO_PRIVILEGE;
 	err = isValidUserName(userInfo.name);
-	if (err != DBCUSRERR_NO_ERROR)
+	if (err != HTERR_OK)
 		return err;
 	err = isValidPassword(userInfo.password);
-	if (err != DBCUSRERR_NO_ERROR)
+	if (err != HTERR_OK)
 		return err;
 	err = isValidFlags(userInfo.flags);
-	if (err != DBCUSRERR_NO_ERROR)
+	if (err != HTERR_OK)
 		return err;
 
 	VariableItemGroupPtr row;
@@ -274,21 +274,21 @@ DBClientUserError DBClientUser::addUserInfo(
 
 	DBCLIENT_TRANSACTION_BEGIN() {
 		if (isRecordExisting(TABLE_NAME_USERS, dupCheckCond)) {
-			err = DBCUSRERR_USER_NAME_EXIST;
+			err = HTERR_USER_NAME_EXIST;
 		} else {
 			insert(arg);
 			userInfo.id = getLastInsertId();
-			err = DBCUSRERR_NO_ERROR;
+			err = HTERR_OK;
 		}
 	} DBCLIENT_TRANSACTION_END();
 	return err;
 }
 
-DBClientUserError DBClientUser::deleteUserInfo(
+HatoholErrorCode DBClientUser::deleteUserInfo(
   const UserIdType userId, const OperationPrivilege &privilege)
 {
 	if (!privilege.has(OPPRVLG_DELETE_USER))
-		return DBCUSRERR_NO_PRIVILEGE;
+		return HTERR_NO_PRIVILEGE;
 
 	DBAgentDeleteArg arg;
 	arg.tableName = TABLE_NAME_USERS;
@@ -298,14 +298,14 @@ DBClientUserError DBClientUser::deleteUserInfo(
 	DBCLIENT_TRANSACTION_BEGIN() {
 		deleteRows(arg);
 	} DBCLIENT_TRANSACTION_END();
-	return DBCUSRERR_NO_ERROR;
+	return HTERR_OK;
 }
 
 UserIdType DBClientUser::getUserId(const string &user, const string &password)
 {
-	if (isValidUserName(user) != DBCUSRERR_NO_ERROR)
+	if (isValidUserName(user) != HTERR_OK)
 		return INVALID_USER_ID;
-	if (isValidPassword(password) != DBCUSRERR_NO_ERROR)
+	if (isValidPassword(password) != HTERR_OK)
 		return INVALID_USER_ID;
 
 	DBAgentSelectExArg arg;
@@ -499,34 +499,34 @@ void DBClientUser::getServerHostGrpSetMap(
 	}
 }
 
-DBClientUserError DBClientUser::isValidUserName(const string &name)
+HatoholErrorCode DBClientUser::isValidUserName(const string &name)
 {
 	if (name.empty())
-		return DBCUSRERR_EMPTY_USER_NAME;
+		return HTERR_EMPTY_USER_NAME;
 	if (name.size() > MAX_USER_NAME_LENGTH)
-		return DBCUSRERR_TOO_LONG_USER_NAME;
+		return HTERR_TOO_LONG_USER_NAME;
 	for (const char *p = name.c_str(); *p; p++) {
 		uint8_t idx = *p;
 		if (!PrivateContext::validUsernameChars[idx])
-			return DBCUSRERR_INVALID_CHAR;
+			return HTERR_INVALID_CHAR;
 	}
-	return DBCUSRERR_NO_ERROR;
+	return HTERR_OK;
 }
 
-DBClientUserError DBClientUser::isValidPassword(const string &password)
+HatoholErrorCode DBClientUser::isValidPassword(const string &password)
 {
 	if (password.empty())
-		return DBCUSRERR_EMPTY_PASSWORD;
+		return HTERR_EMPTY_PASSWORD;
 	if (password.size() > MAX_PASSWORD_LENGTH)
-		return DBCUSRERR_TOO_LONG_PASSWORD;
-	return DBCUSRERR_NO_ERROR;
+		return HTERR_TOO_LONG_PASSWORD;
+	return HTERR_OK;
 }
 
-DBClientUserError DBClientUser::isValidFlags(const OperationPrivilegeFlag flags)
+HatoholErrorCode DBClientUser::isValidFlags(const OperationPrivilegeFlag flags)
 {
 	if (flags >= OperationPrivilege::makeFlag(NUM_OPPRVLG))
-		return DBCUSRERR_INVALID_USER_FLAGS;
-	return DBCUSRERR_NO_ERROR;
+		return HTERR_INVALID_USER_FLAGS;
+	return HTERR_OK;
 }
 
 // ---------------------------------------------------------------------------

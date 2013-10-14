@@ -26,18 +26,6 @@
 #include "DataQueryOption.h"
 #include "OperationPrivilege.h"
 
-enum DBClientUserError {
-	DBCUSRERR_NO_ERROR,
-	DBCUSRERR_EMPTY_USER_NAME,
-	DBCUSRERR_TOO_LONG_USER_NAME,
-	DBCUSRERR_INVALID_CHAR,
-	DBCUSRERR_EMPTY_PASSWORD,
-	DBCUSRERR_TOO_LONG_PASSWORD,
-	DBCUSRERR_USER_NAME_EXIST,
-	DBCUSRERR_NO_PRIVILEGE,
-	DBCUSRERR_INVALID_USER_FLAGS,
-};
-
 struct UserInfo {
 	UserIdType id;
 	string name;
@@ -103,11 +91,11 @@ public:
 	 *
 	 * @return An error code.
 	 */
-	DBClientUserError addUserInfo(UserInfo &userInfo,
-	                              const OperationPrivilege &privilege);
+	HatoholErrorCode addUserInfo(UserInfo &userInfo,
+	                             const OperationPrivilege &privilege);
 
-	DBClientUserError deleteUserInfo(const UserIdType userId,
-	                                 const OperationPrivilege &privilege);
+	HatoholErrorCode deleteUserInfo(const UserIdType userId,
+	                                const OperationPrivilege &privilege);
 
 	/**
 	 * Get the user Id.
@@ -153,9 +141,9 @@ public:
 	void getServerHostGrpSetMap(ServerHostGrpSetMap &srvHostGrpSetMap,
 	                            const UserIdType userId);
 
-	static DBClientUserError isValidUserName(const string &name);
-	static DBClientUserError isValidPassword(const string &password);
-	static DBClientUserError isValidFlags(
+	static HatoholErrorCode isValidUserName(const string &name);
+	static HatoholErrorCode isValidPassword(const string &password);
+	static HatoholErrorCode isValidFlags(
 	                           const OperationPrivilegeFlag flags);
 
 protected:
