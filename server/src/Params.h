@@ -62,5 +62,3 @@ enum HatoholErrorCode
 };
 
 #endif // Params_h
-
-
