@@ -17,7 +17,10 @@ before_script:
   - sudo chmod +r /var/log/syslog
   - sudo chmod 777 /var/run
 script:
+  - pushd .
   - ./server/mlpl/test/run-test.sh
   - cd server/test && ./run-test.sh
-  - cd ../tools/test && ./run-test.sh
-  - cd ../../../client/test && make && cd node && ./run-test.sh
+  - popd; pushd .
+  - cd server/tools/test && ./run-test.sh
+  - popd; pushd .
+  - cd client/test && make && cd node && ./run-test.sh
