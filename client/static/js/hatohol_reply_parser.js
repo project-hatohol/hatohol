@@ -39,6 +39,9 @@ var HatoholReplyParser = function(reply) {
   if (!reply) {
     this.stat = REPLY_STATUS.NULL_OR_UNDEFINED;
     return;
+  } else if (!("apiVersion" in reply)) {
+    this.stat = REPLY_STATUS.NOT_FOUND_API_VERSION;
+    return;
   } else if (!("errorCode" in reply)) {
     this.stat = REPLY_STATUS.NOT_FOUND_ERROR_CODE;
     return;
