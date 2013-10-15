@@ -595,20 +595,8 @@ static void _assertUsers(const string &path, const string &callbackName = "")
 }
 #define assertUsers(P,...) cut_trace(_assertUsers(P,##__VA_ARGS__))
 
-void _assertAddUser(const StringMap &params, const HatoholErrorCode &expectCode)
-{
-	startFaceRest();
-	g_parser = getResponseAsJsonParser("/user", "foo",
-	                                   params, "POST");
-	assertErrorCode(g_parser, expectCode);
-	if (expectCode != HTERR_OK)
-		return;
-
-	// This function asummes that the test database is recreated and
-	// is empty. So the added action is the first and the ID should one.
-	assertValueInParser(g_parser, "id", (uint32_t)1);
-}
-#define assertAddUser(P,C) cut_trace(_assertAddUser(P,C))
+#define assertAddUser(P, ...) \
+cut_trace(_assertAddRecord(P, "/user", ##__VA_ARGS__))
 
 void _assertAddUserWithSetup(const StringMap &params,
                              const HatoholErrorCode &expectCode)
