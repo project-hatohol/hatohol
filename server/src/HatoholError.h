@@ -17,6 +17,9 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef HatoholError_h
+#define HatoholError_h
+
 #include <string>
 
 enum HatoholErrorCode
@@ -50,3 +53,5 @@ private:
 	HatoholErrorCode m_code;
 	std::string      m_optMessage;
 };
+
+#endif // HatoholError_h
