@@ -561,16 +561,6 @@ void _assertAddRecord(const StringMap &params, const string &url,
 #define assertAddAction(P, ...) \
 cut_trace(_assertAddRecord(P, "/action", ##__VA_ARGS__))
 
-void _assertAddActionError(const StringMap &params,
-                           const HatoholErrorCode &expectCode)
-{
-	startFaceRest();
-	g_parser = getResponseAsJsonParser("/action", "foo",
-	                                   params, "POST");
-	assertErrorCode(g_parser, expectCode);
-}
-#define assertAddActionError(P,C) cut_trace(_assertAddActionError(P,C))
-
 void _assertLogin(const string &user, const string &password)
 {
 	setupTestDBUser(true, true);
