@@ -35,6 +35,7 @@ public:
 	const HatoholErrorCode &getErrorCode(void) const;
 
 	bool operator==(const HatoholErrorCode &rhs);
+	bool operator!=(const HatoholErrorCode &rhs) const;
 private:
 	// We don't use 'PrivateCotnext' (Pimpl idiom) for the performance
 	// reason. We assume that this class is typically used as a return
