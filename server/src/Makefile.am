@@ -39,6 +39,7 @@ libhatohol_la_SOURCES = \
 	FormulaFunction.cc FormulaFunction.h \
 	FormulaOperator.cc FormulaOperator.h \
 	Hatohol.cc Hatohol.h \
+	HatoholError.cc HatoholError.h \
 	HatoholException.cc HatoholException.h \
 	HatoholThreadBase.cc HatoholThreadBase.h \
 	ItemData.cc ItemData.h \
