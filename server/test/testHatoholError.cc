@@ -60,5 +60,4 @@ void test_operatorNotEqual(void)
 	cppcut_assert_equal(true, err != HTERR_OK);
 }
 
-
 } // namespace testHatoholError
