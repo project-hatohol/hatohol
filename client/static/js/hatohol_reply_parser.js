@@ -22,13 +22,13 @@
 // ---------------------------------------------------------------------------
 var REPLY_STATUS = {
   OK: 0,
-  NULL_OR_UNDEFINED:    1,
-  NOT_FOUND_API_VER:    2,
-  UNSUPPORTED_API_VER:  3,
-  NOT_FOUND_ERROR_CODE: 4,
-  ERROR_CODE_IS_NOT_OK: 5,
+  NULL_OR_UNDEFINED:        1,
+  NOT_FOUND_API_VERSION:    2,
+  UNSUPPORTED_API_VERVSION: 3,
+  NOT_FOUND_ERROR_CODE:     4,
+  ERROR_CODE_IS_NOT_OK:     5,
 
-  NOT_FOUND_SESSEION_ID: 100,
+  NOT_FOUND_SESSEION_ID:    100,
 };
 
 var HatoholReplyParser = function(reply) {
