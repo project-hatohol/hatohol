@@ -22,6 +22,7 @@
 enum HatoholErrorCode
 {
 	HTERR_OK,
+	HTERR_UNINITIALIZED,
 	NUM_HATOHOL_ERROR_CODE,
 };
 

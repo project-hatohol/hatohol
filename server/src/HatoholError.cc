@@ -27,9 +27,11 @@ static const char *errorMessages[NUM_HATOHOL_ERROR_CODE];
 void HatoholError::init(void)
 {
 	errorMessages[HTERR_OK] = "OK.";
+	errorMessages[HTERR_UNINITIALIZED] =
+	  "Uninitialized (This is probably a bug).";
 }
 
-HatoholError::HatoholError(const HatoholErrorCode &code,
+HatoholError::HatoholError(const HatoholErrorCode &code = HTERR_UNINITIALIZED,
                            const string &optMessage)
 : m_code(code)
 {
