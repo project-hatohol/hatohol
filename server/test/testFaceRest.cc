@@ -544,12 +544,11 @@ static void _assertActions(const string &path, const string &callbackName = "")
 }
 #define assertActions(P,...) cut_trace(_assertActions(P,##__VA_ARGS__))
 
-void _assertAddAction(const StringMap &params,
+void _assertAddRecord(const StringMap &params, const string &url,
                       const HatoholErrorCode &expectCode = HTERR_OK)
 {
 	startFaceRest();
-	g_parser = getResponseAsJsonParser("/action", "foo",
-	                                   params, "POST");
+	g_parser = getResponseAsJsonParser(url, "foo", params, "POST");
 	assertErrorCode(g_parser, expectCode);
 	if (expectCode != HTERR_OK)
 		return;
@@ -558,7 +557,9 @@ void _assertAddAction(const StringMap &params,
 	// is empty. So the added action is the first and the ID should one.
 	assertValueInParser(g_parser, "id", (uint32_t)1);
 }
-#define assertAddAction(P, ...) cut_trace(_assertAddAction(P, ##__VA_ARGS__))
+
+#define assertAddAction(P, ...) \
+cut_trace(_assertAddRecord(P, "/action", ##__VA_ARGS__))
 
 void _assertAddActionError(const StringMap &params,
                            const HatoholErrorCode &expectCode)
