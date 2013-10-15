@@ -633,7 +633,7 @@ void _assertAddUser(const StringMap &params)
 void _assertAddUserError(const StringMap &params)
 {
 	startFaceRest();
-	g_parser = getResponseAsJsonParser("/action", "foo",
+	g_parser = getResponseAsJsonParser("/user", "foo",
 	                                   params, "POST");
 	assertValueInParser(g_parser, "result", false);
 }
