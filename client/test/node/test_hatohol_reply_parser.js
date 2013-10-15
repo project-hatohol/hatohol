@@ -14,11 +14,11 @@ describe("HatoholReplyParser", function() {
     expect(stat).to.be(HatoholReplyParser.REPLY_STATUS.NULL_OR_UNDEFINED);
   })
 
-  it("not found result", function() {
-    var reply = {"res@1t":false};
+  it("not found errorCode", function() {
+    var reply = {"errorC@de":false};
     var parser = new HatoholReplyParser(reply);
     var stat = parser.getStatus();
-    expect(stat).to.be(HatoholReplyParser.REPLY_STATUS.NOT_FOUND_RESULT);
+    expect(stat).to.be(HatoholReplyParser.REPLY_STATUS.NOT_FOUND_ERROR_CODE);
   })
 
 });

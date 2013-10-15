@@ -22,10 +22,11 @@
 // ---------------------------------------------------------------------------
 var REPLY_STATUS = {
   OK: 0,
-  NULL_OR_UNDEFINED: 1,
-  NOT_FOUND_RESULT:  2,
-  RESULT_IS_FALSE:   3,
-  RESULT_IS_FALSE_BUT_NOT_FOUND_MSG: 4,
+  NULL_OR_UNDEFINED:    1,
+  NOT_FOUND_API_VER:    2,
+  UNSUPPORTED_API_VER:  3,
+  NOT_FOUND_ERROR_CODE: 4,
+  ERROR_CODE_IS_NOT_OK: 5,
 
   NOT_FOUND_SESSEION_ID: 100,
 };
@@ -33,20 +34,20 @@ var REPLY_STATUS = {
 var HatoholReplyParser = function(reply) {
 
   this.stat = REPLY_STATUS.OK;
-  this.errorMessage = "";
+  this.optionMessage = "";
 
   if (!reply) {
     this.stat = REPLY_STATUS.NULL_OR_UNDEFINED;
-  } else if (!("result" in reply)) {
-    this.stat = REPLY_STATUS.NOT_FOUND_RESULT;
-  } else if (!reply.result) {
-    if ("message" in reply) {
-      this.stat = REPLY_STATUS.RESULT_IS_FALSE;
-      this.errorMessage = reply.message;
-    } else {
-      this.stat = REPLY_STATUS.RESULT_IS_FALSE_BUT_NOT_FOUND_MSG;
-    }
+    return;
+  } else if (!("errorCode" in reply)) {
+    this.stat = REPLY_STATUS.NOT_FOUND_ERROR_CODE;
+    return;
   }
+  this.errorCode = reply.errorCode;
+  if (this.errorCode != 0) // TOOD: Use a constant variable
+    this.stat = ERROR_CODE_IS_NOT_OK;
+  if ("optionMessage" in reply)
+    this.optionMessage = reply.optionMessage;
 }
 
 if (typeof module !== 'undefined' && module.exports) {
