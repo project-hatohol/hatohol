@@ -37,7 +37,7 @@ void cut_teardown(void)
 void test_defaultValue(void)
 {
 	HatoholError err;
-	cppcut_assert_equal(HTERR_UNINITIALIZED, err.getErrorCode());
+	cppcut_assert_equal(HTERR_UNINITIALIZED, err.getCode());
 	cppcut_assert_equal(true, err.getOptMessage().empty());
 }
 
@@ -64,7 +64,7 @@ void test_operatorSubst(void)
 {
 	HatoholError err(HTERR_UNKNOWN_REASON, "Option message.");
 	err =  HTERR_OK;
-	cppcut_assert_equal(HTERR_OK, err.getErrorCode());
+	cppcut_assert_equal(HTERR_OK, err.getCode());
 	cppcut_assert_equal(true, err.getOptMessage().empty());
 }
 

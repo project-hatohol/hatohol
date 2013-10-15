@@ -391,7 +391,7 @@ void _assertTimeIsNow(const SmartTime &smtime, double allowedError)
 void _assertHatoholError(const HatoholErrorCode &code,
                          const HatoholError err)
 {
-	cppcut_assert_equal(code, err.getErrorCode());
+	cppcut_assert_equal(code, err.getCode());
 }
 
 void _assertUsersInDB(const UserIdSet &excludeUserIdSet)
@@ -528,7 +528,7 @@ void loadTestDBUser(void)
 	OperationPrivilege opePrivilege(ALL_PRIVILEGES);
 	for (size_t i = 0; i < NumTestUserInfo; i++) {
 		err = dbUser.addUserInfo(testUserInfo[i], opePrivilege);
-		cppcut_assert_equal(HTERR_OK, err.getErrorCode());
+		assertHatoholError(HTERR_OK, err);
 	}
 }
 

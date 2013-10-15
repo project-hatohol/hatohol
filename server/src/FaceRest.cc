@@ -275,7 +275,7 @@ size_t FaceRest::parseCmdArgPort(CommandLineArg &cmdArg, size_t idx)
 void FaceRest::addHatoholError(JsonBuilderAgent &agent,
                                const HatoholError &err)
 {
-	agent.add("errorCode", err.getErrorCode());
+	agent.add("errorCode", err.getCode());
 	if (!err.getOptMessage().empty())
 		agent.add("optionMessages", err.getOptMessage().c_str());
 }

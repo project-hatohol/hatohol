@@ -43,7 +43,7 @@ HatoholError::~HatoholError(void)
 {
 }
 
-const HatoholErrorCode &HatoholError::getErrorCode(void) const
+const HatoholErrorCode &HatoholError::getCode(void) const
 {
 	return m_code;
 }
