@@ -945,14 +945,15 @@ ItemTablePtr ArmZabbixAPI::updateEvents(void)
 	uint64_t eventIdOffset, eventIdTill;
 	uint64_t dbLastEventId = m_ctx->dbClientZabbix.getLastEventId();
 	uint64_t serverLastEventId = getLastEventId();
+	uint64_t getRange = 1000;
 	ItemTablePtr tablePtr;
 	while (dbLastEventId != serverLastEventId) {
 		if (dbLastEventId == DBClientZabbix::EVENT_ID_NOT_FOUND) {
 			eventIdOffset = 0;
-			eventIdTill = 1000;
+			eventIdTill = getRange;
 		} else {
 			eventIdOffset = dbLastEventId + 1;
-			eventIdTill = dbLastEventId + 1000;
+			eventIdTill = dbLastEventId + getRange;
 		}
 		tablePtr = getEvents(eventIdOffset, eventIdTill);
 		m_ctx->dbClientZabbix.addEventsRaw2_0(tablePtr);
