@@ -62,3 +62,10 @@ bool HatoholError::operator!=(const HatoholErrorCode &rhs) const
 {
 	return m_code != rhs;
 }
+
+const HatoholError &HatoholError::operator=(const HatoholErrorCode &code)
+{
+	m_code = code;
+	m_optMessage.clear();
+	return *this;
+}
