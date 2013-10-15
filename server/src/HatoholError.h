@@ -32,6 +32,7 @@ public:
 	HatoholError(const HatoholErrorCode &code = HTERR_UNINITIALIZED,
 	             const std::string &optMessage = "");
 	virtual ~HatoholError(void);
+	const HatoholErrorCode &getErrorCode(void) const;
 
 	bool operator==(const HatoholErrorCode &rhs);
 private:
