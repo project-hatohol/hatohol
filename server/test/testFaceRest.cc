@@ -164,14 +164,6 @@ static JsonParserAgent *getResponseAsJsonParser(
 }
 
 static void _assertValueInParser(JsonParserAgent *parser,
-                                 const string &member, bool expected)
-{
-	bool val;
-	cppcut_assert_equal(true, parser->read(member, val));
-	cppcut_assert_equal(expected, val);
-}
-
-static void _assertValueInParser(JsonParserAgent *parser,
                                  const string &member, uint32_t expected)
 {
 	int64_t val;
@@ -214,6 +206,15 @@ static void _assertNullInParser(JsonParserAgent *parser, const string &member)
 	cppcut_assert_equal(true, result);
 }
 #define assertNullInParser(P,M) cut_trace(_assertNullInParser(P,M))
+
+static void _assertErrorCode(JsonParserAgent *parser,
+                             const HatoholErrorCode &expectCode = HTERR_OK)
+{
+	assertValueInParser(parser, "apiVersion",
+	                    (uint32_t)FaceRest::API_VERSION);
+	assertValueInParser(parser, "errorCode", (uint32_t)expectCode);
+}
+#define assertErrorCode(P, ...) cut_trace(_assertErrorCode(P, ##__VA_ARGS__))
 
 static void _assertTestTriggerInfo(const TriggerInfo &triggerInfo)
 {
@@ -342,9 +343,7 @@ static void _assertServers(const string &path, const string &callbackName = "")
 {
 	startFaceRest();
 	g_parser = getResponseAsJsonParser(path, callbackName);
-	assertValueInParser(g_parser, "apiVersion",
-	                    (uint32_t)FaceRest::API_VERSION);
-	assertValueInParser(g_parser, "result", true);
+	assertErrorCode(g_parser);
 	assertServersInParser(g_parser);
 }
 #define assertServers(P,...) cut_trace(_assertServers(P,##__VA_ARGS__))
@@ -359,9 +358,7 @@ static void _assertHosts(const string &path, const string &callbackName = "",
 		   StringUtils::sprintf("%"PRIu32, serverId); 
 	}
 	g_parser = getResponseAsJsonParser(path, callbackName, queryMap);
-	assertValueInParser(g_parser, "apiVersion",
-	                    (uint32_t)FaceRest::API_VERSION);
-	assertValueInParser(g_parser, "result", true);
+	assertErrorCode(g_parser);
 	assertHostsInParser(g_parser, serverId);
 }
 #define assertHosts(P,...) cut_trace(_assertHosts(P,##__VA_ARGS__))
@@ -392,10 +389,8 @@ static void _assertTriggers(const string &path, const string &callbackName = "",
 		queryMap["hostId"] = StringUtils::sprintf("%"PRIu64, hostId); 
 	g_parser = getResponseAsJsonParser(path, callbackName, queryMap);
 
-	// Check the result
-	assertValueInParser(g_parser, "apiVersion",
-	                    (uint32_t)FaceRest::API_VERSION);
-	assertValueInParser(g_parser, "result", true);
+	// Check the reply
+	assertErrorCode(g_parser);
 	assertValueInParser(g_parser, "numberOfTriggers",
 	                    (uint32_t)expectedNumTrig);
 	g_parser->startObject("triggers");
@@ -428,9 +423,7 @@ static void _assertEvents(const string &path, const string &callbackName = "")
 {
 	startFaceRest();
 	g_parser = getResponseAsJsonParser(path, callbackName);
-	assertValueInParser(g_parser, "apiVersion",
-	                    (uint32_t)FaceRest::API_VERSION);
-	assertValueInParser(g_parser, "result", true);
+	assertErrorCode(g_parser);
 	assertValueInParser(g_parser, "numberOfEvents",
 	                    (uint32_t)NumTestEventInfo);
 	g_parser->startObject("events");
@@ -461,9 +454,7 @@ static void _assertItems(const string &path, const string &callbackName = "")
 {
 	startFaceRest();
 	g_parser = getResponseAsJsonParser(path, callbackName);
-	assertValueInParser(g_parser, "apiVersion",
-	                    (uint32_t)FaceRest::API_VERSION);
-	assertValueInParser(g_parser, "result", true);
+	assertErrorCode(g_parser);
 	assertValueInParser(g_parser, "numberOfItems",
 	                    (uint32_t)NumTestItemInfo);
 	g_parser->startObject("items");
@@ -502,9 +493,7 @@ static void _assertActions(const string &path, const string &callbackName = "")
 {
 	startFaceRest();
 	g_parser = getResponseAsJsonParser(path, callbackName);
-	assertValueInParser(g_parser, "apiVersion",
-	                    (uint32_t)FaceRest::API_VERSION);
-	assertValueInParser(g_parser, "result", true);
+	assertErrorCode(g_parser);
 	assertValueInParser(g_parser, "numberOfActions",
 	                    (uint32_t)NumTestActionDef);
 	g_parser->startObject("actions");
@@ -555,29 +544,31 @@ static void _assertActions(const string &path, const string &callbackName = "")
 }
 #define assertActions(P,...) cut_trace(_assertActions(P,##__VA_ARGS__))
 
-void _assertAddAction(const StringMap &params)
+void _assertAddAction(const StringMap &params,
+                      const HatoholErrorCode &expectCode = HTERR_OK)
 {
 	startFaceRest();
 	g_parser = getResponseAsJsonParser("/action", "foo",
 	                                   params, "POST");
-	assertValueInParser(g_parser, "result", true);
-	assertValueInParser(g_parser, "apiVersion",
-	                    (uint32_t)FaceRest::API_VERSION);
+	assertErrorCode(g_parser, expectCode);
+	if (expectCode != HTERR_OK)
+		return;
 
 	// This function asummes that the test database is recreated and
 	// is empty. So the added action is the first and the ID should one.
 	assertValueInParser(g_parser, "id", (uint32_t)1);
 }
-#define assertAddAction(P) cut_trace(_assertAddAction(P))
+#define assertAddAction(P, ...) cut_trace(_assertAddAction(P, ##__VA_ARGS__))
 
-void _assertAddActionError(const StringMap &params)
+void _assertAddActionError(const StringMap &params,
+                           const HatoholErrorCode &expectCode)
 {
 	startFaceRest();
 	g_parser = getResponseAsJsonParser("/action", "foo",
 	                                   params, "POST");
-	assertValueInParser(g_parser, "result", false);
+	assertErrorCode(g_parser, expectCode);
 }
-#define assertAddActionError(P) cut_trace(_assertAddActionError(P))
+#define assertAddActionError(P,C) cut_trace(_assertAddActionError(P,C))
 
 void _assertLogin(const string &user, const string &password)
 {
@@ -597,9 +588,7 @@ static void _assertUsers(const string &path, const string &callbackName = "")
 {
 	startFaceRest();
 	g_parser = getResponseAsJsonParser(path, callbackName);
-	assertValueInParser(g_parser, "apiVersion",
-	                    (uint32_t)FaceRest::API_VERSION);
-	assertValueInParser(g_parser, "result", true);
+	assertErrorCode(g_parser);
 	assertValueInParser(g_parser, "numberOfUsers",
 	                    (uint32_t)NumTestUserInfo);
 	g_parser->startObject("users");
@@ -615,42 +604,30 @@ static void _assertUsers(const string &path, const string &callbackName = "")
 }
 #define assertUsers(P,...) cut_trace(_assertUsers(P,##__VA_ARGS__))
 
-void _assertAddUser(const StringMap &params)
+void _assertAddUser(const StringMap &params, const HatoholErrorCode &expectCode)
 {
 	startFaceRest();
 	g_parser = getResponseAsJsonParser("/user", "foo",
 	                                   params, "POST");
-	assertValueInParser(g_parser, "result", true);
-	assertValueInParser(g_parser, "apiVersion",
-	                    (uint32_t)FaceRest::API_VERSION);
+	assertErrorCode(g_parser, expectCode);
+	if (expectCode != HTERR_OK)
+		return;
 
 	// This function asummes that the test database is recreated and
 	// is empty. So the added action is the first and the ID should one.
 	assertValueInParser(g_parser, "id", (uint32_t)1);
 }
-#define assertAddUser(P) cut_trace(_assertAddUser(P))
+#define assertAddUser(P,C) cut_trace(_assertAddUser(P,C))
 
-void _assertAddUserError(const StringMap &params)
-{
-	startFaceRest();
-	g_parser = getResponseAsJsonParser("/user", "foo",
-	                                   params, "POST");
-	assertValueInParser(g_parser, "result", false);
-}
-#define assertAddUserError(P) cut_trace(_assertAddUserError(P))
-
-void _assertAddUserWithSetup(const StringMap &params, bool expectSuccess)
+void _assertAddUserWithSetup(const StringMap &params,
+                             const HatoholErrorCode &expectCode)
 {
 	const bool dbRecreate = true;
 	const bool loadTestDat = false;
 	setupTestDBUser(dbRecreate, loadTestDat);
-
-	if (expectSuccess)
-		assertAddUser(params);
-	else
-		assertAddUserError(params);
+	assertAddUser(params, expectCode);
 }
-#define assertAddUserWithSetup(P,E) cut_trace(_assertAddUserWithSetup(P,E))
+#define assertAddUserWithSetup(P,C) cut_trace(_assertAddUserWithSetup(P,C))
 
 static void setupPostAction(void)
 {
@@ -940,21 +917,21 @@ void test_addActionCommandWithJapanese(void)
 void test_addActionWithoutType(void)
 {
 	StringMap params;
-	assertAddActionError(params);
+	assertAddAction(params, HTERR_NOT_FOUND_PARAMETER);
 }
 
 void test_addActionWithoutCommand(void)
 {
 	StringMap params;
 	params["type"] = StringUtils::sprintf("%d", ACTION_COMMAND);
-	assertAddActionError(params);
+	assertAddAction(params, HTERR_NOT_FOUND_PARAMETER);
 }
 
 void test_addActionInvalidType(void)
 {
 	StringMap params;
 	params["type"] = StringUtils::sprintf("%d", ACTION_RESIDENT+1);
-	assertAddActionError(params);
+	assertAddAction(params, HTERR_INVALID_PARAMETER);
 }
 
 void test_deleteAction(void)
@@ -967,10 +944,8 @@ void test_deleteAction(void)
 	g_parser =
 	  getResponseAsJsonParser(url, "cbname", emptyStringMap, "DELETE");
 
-	// check the response
-	assertValueInParser(g_parser, "result", true);
-	assertValueInParser(g_parser, "apiVersion",
-	                    (uint32_t)FaceRest::API_VERSION);
+	// check the reply
+	assertErrorCode(g_parser);
 
 	// check DB
 	string expect;
@@ -991,9 +966,7 @@ void test_login(void)
 	const int targetIdx = 1;
 	const UserInfo &userInfo = testUserInfo[targetIdx];
 	assertLogin(userInfo.name, userInfo.password);
-	assertValueInParser(g_parser, "apiVersion",
-	                    (uint32_t)FaceRest::API_VERSION);
-	assertValueInParser(g_parser, "result", true);
+	assertErrorCode(g_parser);
 	string sessionId;
 	cppcut_assert_equal(true, g_parser->read("sessionId", sessionId));
 	cppcut_assert_equal(false, sessionId.empty());
@@ -1009,25 +982,25 @@ void test_login(void)
 void test_loginFailure(void)
 {
 	assertLogin(testUserInfo[1].name, testUserInfo[0].password);
-	assertValueInParser(g_parser, "result", false);
+	assertErrorCode(g_parser, HTERR_AUTH_FAILED);
 }
 
 void test_loginNoUserName(void)
 {
 	assertLogin("", testUserInfo[0].password);
-	assertValueInParser(g_parser, "result", false);
+	assertErrorCode(g_parser, HTERR_AUTH_FAILED);
 }
 
 void test_loginNoPassword(void)
 {
 	assertLogin(testUserInfo[0].name, "");
-	assertValueInParser(g_parser, "result", false);
+	assertErrorCode(g_parser, HTERR_AUTH_FAILED);
 }
 
 void test_loginNoUserNameAndPassword(void)
 {
 	assertLogin("", "");
-	assertValueInParser(g_parser, "result", false);
+	assertErrorCode(g_parser, HTERR_AUTH_FAILED);
 }
 
 void test_logout(void)
@@ -1043,7 +1016,7 @@ void test_logout(void)
 	                                sessionId.c_str()));
 	g_parser = getResponseAsJsonParser(url, "cbname", emptyStringMap,
 	                                   "GET", headers);
-	assertValueInParser(g_parser, "result", true);
+	assertErrorCode(g_parser);
 	cppcut_assert_null(TestFaceRest::callGetSessionInfo(sessionId));
 }
 
@@ -1065,7 +1038,7 @@ void test_addUser(void)
 	params["user"] = user;
 	params["password"] = password;
 	params["flags"] = StringUtils::sprintf("%"FMT_OPPRVLG, flags);
-	assertAddUserWithSetup(params, true);
+	assertAddUserWithSetup(params, HTERR_OK);
 
 	// check the content in the DB
 	DBClientUser dbUser;
@@ -1082,7 +1055,7 @@ void test_addUserWithoutUser(void)
 	StringMap params;
 	params["password"] = "w(^_^)d";
 	params["flags"] = "0";
-	assertAddUserWithSetup(params, false);
+	assertAddUserWithSetup(params, HTERR_NOT_FOUND_PARAMETER);
 }
 
 void test_addUserWithoutPassword(void)
@@ -1090,7 +1063,7 @@ void test_addUserWithoutPassword(void)
 	StringMap params;
 	params["user"] = "y@ru0";
 	params["flags"] = "0";
-	assertAddUserWithSetup(params, false);
+	assertAddUserWithSetup(params, HTERR_NOT_FOUND_PARAMETER);
 }
 
 void test_addUserWithoutFlags(void)
@@ -1098,7 +1071,7 @@ void test_addUserWithoutFlags(void)
 	StringMap params;
 	params["user"] = "y@ru0";
 	params["password"] = "w(^_^)d";
-	assertAddUserWithSetup(params, false);
+	assertAddUserWithSetup(params, HTERR_NOT_FOUND_PARAMETER);
 }
 
 void test_addUserInvalidUserName(void)
@@ -1107,7 +1080,7 @@ void test_addUserInvalidUserName(void)
 	params["user"] = "!^.^!"; // '!' and '^' are invalid characters
 	params["password"] = "w(^_^)d";
 	params["flags"] = "0";
-	assertAddUserWithSetup(params, false);
+	assertAddUserWithSetup(params, HTERR_INVALID_CHAR);
 }
 
 void test_deleteUser(void)
@@ -1122,10 +1095,8 @@ void test_deleteUser(void)
 	g_parser =
 	  getResponseAsJsonParser(url, "cbname", emptyStringMap, "DELETE");
 
-	// check the response
-	assertValueInParser(g_parser, "result", true);
-	assertValueInParser(g_parser, "apiVersion",
-	                    (uint32_t)FaceRest::API_VERSION);
+	// check the reply
+	assertErrorCode(g_parser);
 	UserIdSet userIdSet;
 	userIdSet.insert(targetId);
 	assertUsersInDB(userIdSet);
@@ -1141,7 +1112,7 @@ void test_deleteUserWithoutId(void)
 	string url = StringUtils::sprintf("/user");
 	g_parser =
 	  getResponseAsJsonParser(url, "cbname", emptyStringMap, "DELETE");
-	assertValueInParser(g_parser, "result", false);
+	assertErrorCode(g_parser, HTERR_NOT_FOUND_ID_IN_URL);
 }
 
 void test_deleteUserWithNonNumericId(void)
@@ -1154,7 +1125,7 @@ void test_deleteUserWithNonNumericId(void)
 	string url = StringUtils::sprintf("/user/zoo");
 	g_parser =
 	  getResponseAsJsonParser(url, "cbname", emptyStringMap, "DELETE");
-	assertValueInParser(g_parser, "result", false);
+	assertErrorCode(g_parser, HTERR_INVALID_PARAMETER);
 }
 
 } // namespace testFaceRest

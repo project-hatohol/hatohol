@@ -36,7 +36,7 @@ using namespace mlpl;
 #include "UnifiedDataStore.h"
 #include "DBClientUser.h"
 
-int FaceRest::API_VERSION = 2;
+int FaceRest::API_VERSION = 3;
 const char *FaceRest::SESSION_ID_HEADER_NAME = "X-Hatohol-Session";
 
 typedef void (*RestHandler)
@@ -275,6 +275,7 @@ size_t FaceRest::parseCmdArgPort(CommandLineArg &cmdArg, size_t idx)
 void FaceRest::addHatoholError(JsonBuilderAgent &agent,
                                const HatoholError &err)
 {
+	agent.add("apiVersion", API_VERSION);
 	agent.add("errorCode", err.getCode());
 	if (!err.getOptionMessage().empty())
 		agent.add("optionMessages", err.getOptionMessage().c_str());
@@ -291,9 +292,7 @@ void FaceRest::replyError(SoupMessage *msg, const HandlerArg *arg,
 
 	JsonBuilderAgent agent;
 	agent.startObject();
-	agent.add("errorCode", errorCode);
-	agent.addFalse("result");
-	agent.add("message", optionMessage.c_str());
+	addHatoholError(agent, errorCode);
 	agent.endObject();
 	string response = agent.generate();
 	if (!arg->jsonpCallbackName.empty())
@@ -803,8 +802,7 @@ void FaceRest::handlerLogin
 
 	JsonBuilderAgent agent;
 	agent.startObject();
-	agent.add("apiVersion", API_VERSION);
-	agent.addTrue("result");
+	addHatoholError(agent, HatoholError(HTERR_OK));
 	agent.add("sessionId", sessionId);
 	agent.endObject();
 
@@ -822,8 +820,7 @@ void FaceRest::handlerLogout
 
 	JsonBuilderAgent agent;
 	agent.startObject();
-	agent.add("apiVersion", API_VERSION);
-	agent.addTrue("result");
+	addHatoholError(agent, HatoholError(HTERR_OK));
 	agent.endObject();
 
 	replyJsonData(agent, msg, arg->jsonpCallbackName, arg);
@@ -835,8 +832,7 @@ void FaceRest::handlerGetOverview
 {
 	JsonBuilderAgent agent;
 	agent.startObject();
-	agent.add("apiVersion", API_VERSION);
-	agent.addTrue("result");
+	addHatoholError(agent, HatoholError(HTERR_OK));
 	addOverview(agent);
 	agent.endObject();
 
@@ -852,8 +848,7 @@ void FaceRest::handlerGetServer
 
 	JsonBuilderAgent agent;
 	agent.startObject();
-	agent.add("apiVersion", API_VERSION);
-	agent.addTrue("result");
+	addHatoholError(agent, HatoholError(HTERR_OK));
 	addServers(agent, targetServerId);
 	agent.endObject();
 
@@ -871,8 +866,7 @@ void FaceRest::handlerGetHost
 
 	JsonBuilderAgent agent;
 	agent.startObject();
-	agent.add("apiVersion", API_VERSION);
-	agent.addTrue("result");
+	addHatoholError(agent, HatoholError(HTERR_OK));
 	addHosts(agent, targetServerId, targetHostId);
 	agent.endObject();
 
@@ -897,8 +891,7 @@ void FaceRest::handlerGetTrigger
 
 	JsonBuilderAgent agent;
 	agent.startObject();
-	agent.add("apiVersion", API_VERSION);
-	agent.addTrue("result");
+	addHatoholError(agent, HatoholError(HTERR_OK));
 	agent.add("numberOfTriggers", triggerList.size());
 	agent.startArray("triggers");
 	TriggerInfoListIterator it = triggerList.begin();
@@ -938,8 +931,7 @@ void FaceRest::handlerGetEvent
 
 	JsonBuilderAgent agent;
 	agent.startObject();
-	agent.add("apiVersion", API_VERSION);
-	agent.addTrue("result");
+	addHatoholError(agent, HatoholError(HTERR_OK));
 	agent.add("numberOfEvents", eventList.size());
 	agent.startArray("events");
 	EventInfoListIterator it = eventList.begin();
@@ -978,8 +970,7 @@ void FaceRest::handlerGetItem
 
 	JsonBuilderAgent agent;
 	agent.startObject();
-	agent.add("apiVersion", API_VERSION);
-	agent.addTrue("result");
+	addHatoholError(agent, HatoholError(HTERR_OK));
 	agent.add("numberOfItems", itemList.size());
 	agent.startArray("items");
 	ItemInfoListIterator it = itemList.begin();
@@ -1041,8 +1032,7 @@ void FaceRest::handlerGetAction
 
 	JsonBuilderAgent agent;
 	agent.startObject();
-	agent.add("apiVersion", API_VERSION);
-	agent.addTrue("result");
+	addHatoholError(agent, HatoholError(HTERR_OK));
 	agent.add("numberOfActions", actionList.size());
 	agent.startArray("actions");
 	HostNameMaps hostMaps;
@@ -1233,8 +1223,7 @@ void FaceRest::handlerPostAction
 	// make a response
 	JsonBuilderAgent agent;
 	agent.startObject();
-	agent.add("apiVersion", API_VERSION);
-	agent.addTrue("result");
+	addHatoholError(agent, HatoholError(HTERR_OK));
 	agent.add("id", actionDef.id);
 	agent.endObject();
 	replyJsonData(agent, msg, arg->jsonpCallbackName, arg);
@@ -1262,8 +1251,7 @@ void FaceRest::handlerDeleteAction
 	// replay
 	JsonBuilderAgent agent;
 	agent.startObject();
-	agent.add("apiVersion", API_VERSION);
-	agent.addTrue("result");
+	addHatoholError(agent, HatoholError(HTERR_OK));
 	agent.add("id", arg->id);
 	agent.endObject();
 	replyJsonData(agent, msg, arg->jsonpCallbackName, arg);
@@ -1298,8 +1286,7 @@ void FaceRest::handlerGetUser
 
 	JsonBuilderAgent agent;
 	agent.startObject();
-	agent.add("apiVersion", API_VERSION);
-	agent.addTrue("result");
+	addHatoholError(agent, HatoholError(HTERR_OK));
 	agent.add("numberOfUsers", userList.size());
 	agent.startArray("users");
 	UserInfoListIterator it = userList.begin();
@@ -1363,13 +1350,9 @@ void FaceRest::handlerPostUser
 	// make a response
 	JsonBuilderAgent agent;
 	agent.startObject();
-	agent.add("apiVersion", API_VERSION);
-	if (err == HTERR_OK) {
-		agent.addTrue("result");
+	addHatoholError(agent, err);
+	if (err == HTERR_OK)
 		agent.add("id", userInfo.id);
-	} else {
-		agent.addFalse("result");
-	}
 	agent.endObject();
 	replyJsonData(agent, msg, arg->jsonpCallbackName, arg);
 }
@@ -1397,15 +1380,9 @@ void FaceRest::handlerDeleteUser
 	// replay
 	JsonBuilderAgent agent;
 	agent.startObject();
-	agent.add("apiVersion", API_VERSION);
-	agent.addTrue("result");
 	addHatoholError(agent, err);
-	if (err == HTERR_OK) {
-		agent.addTrue("result");
+	if (err == HTERR_OK)
 		agent.add("id", userId);
-	} else {
-		agent.addFalse("result");
-	}
 	agent.endObject();
 	replyJsonData(agent, msg, arg->jsonpCallbackName, arg);
 }
