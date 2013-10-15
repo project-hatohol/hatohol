@@ -29,6 +29,7 @@ testHatohol_la_SOURCES = \
 	testCacheServiceDBClient.cc \
 	testConfigManager.cc \
 	testDataQueryOption.cc \
+	testHatoholError.cc \
 	testHatoholException.cc testSQLProcessorException.cc \
 	testHatoholThreadBase.cc \
 	testDBAgentSQLite3.cc testDBAgentMySQL.cc \

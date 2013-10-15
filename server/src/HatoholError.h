@@ -32,6 +32,8 @@ public:
 	HatoholError(const HatoholErrorCode &code = HTERR_UNINITIALIZED,
 	             const std::string &optMessage = "");
 	virtual ~HatoholError(void);
+
+	bool operator==(const HatoholErrorCode &rhs);
 private:
 	// We don't use 'PrivateCotnext' (Pimpl idiom) for the performance
 	// reason. We assume that this class is typically used as a return
