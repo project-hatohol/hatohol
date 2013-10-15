@@ -48,6 +48,11 @@ const HatoholErrorCode &HatoholError::getErrorCode(void) const
 	return m_code;
 }
 
+const string &HatoholError::getOptMessage(void) const
+{
+	return m_optMessage;
+}
+
 bool HatoholError::operator==(const HatoholErrorCode &rhs) const
 {
 	return m_code == rhs;

@@ -19,6 +19,7 @@
 
 #include <cppcutter.h>
 #include "HatoholError.h"
+using namespace std;
 
 namespace testHatoholError {
 
@@ -37,6 +38,13 @@ void test_defaultValue(void)
 {
 	HatoholError err;
 	cppcut_assert_equal(HTERR_UNINITIALIZED, err.getErrorCode());
+}
+
+void test_getOptMessage(void)
+{
+	string optMsg = "Option message.";
+	HatoholError err(HTERR_OK, optMsg);
+	cppcut_assert_equal(optMsg, err.getOptMessage());
 }
 
 void test_operatorEqual(void)

@@ -33,6 +33,7 @@ public:
 	             const std::string &optMessage = "");
 	virtual ~HatoholError(void);
 	const HatoholErrorCode &getErrorCode(void) const;
+	const std::string &getOptMessage(void) const;
 
 	bool operator==(const HatoholErrorCode &rhs) const;
 	bool operator!=(const HatoholErrorCode &rhs) const;
