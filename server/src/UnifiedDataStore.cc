@@ -311,7 +311,7 @@ void UnifiedDataStore::getUserList(UserInfoList &userList,
 	dbUser->getUserInfoList(userList, option);
 }
 
-HatoholErrorCode UnifiedDataStore::addUser(
+HatoholError UnifiedDataStore::addUser(
   UserInfo &userInfo, const OperationPrivilege &privilege)
 {
 	CacheServiceDBClient cache;
@@ -319,7 +319,7 @@ HatoholErrorCode UnifiedDataStore::addUser(
 	return dbUser->addUserInfo(userInfo, privilege);
 }
 
-HatoholErrorCode UnifiedDataStore::deleteUser(
+HatoholError UnifiedDataStore::deleteUser(
   UserIdType userId, const OperationPrivilege &privilege)
 {
 	CacheServiceDBClient cache;

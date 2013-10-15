@@ -69,11 +69,10 @@ static const char *MIME_HTML = "text/html";
 static const char *MIME_JSON = "application/json";
 static const char *MIME_JAVASCRIPT = "text/javascript";
 
-#define REPLY_ERROR(MSG, ARG, ERR_MSG_FMT, ...) \
+#define REPLY_ERROR(MSG, ARG, ERR_CODE, ERR_MSG_FMT, ...) \
 do { \
-	string errMsg = StringUtils::sprintf(ERR_MSG_FMT, ##__VA_ARGS__); \
-	MLPL_ERR("%s", errMsg.c_str()); \
-	replyError(MSG, ARG, errMsg); \
+	string optMsg = StringUtils::sprintf(ERR_MSG_FMT, ##__VA_ARGS__); \
+	replyError(MSG, ARG, ERR_CODE, optMsg); \
 } while (0)
 
 enum FormatType {
@@ -273,13 +272,28 @@ size_t FaceRest::parseCmdArgPort(CommandLineArg &cmdArg, size_t idx)
 	return idx;
 }
 
-void FaceRest::replyError(SoupMessage *msg, const HandlerArg *arg,
-                          const string &errorMessage)
+void FaceRest::addHatoholError(JsonBuilderAgent &agent,
+                               const HatoholError &err)
 {
+	agent.add("errorCode", err.getErrorCode());
+	if (!err.getOptMessage().empty())
+		agent.add("optionMessages", err.getOptMessage().c_str());
+}
+
+void FaceRest::replyError(SoupMessage *msg, const HandlerArg *arg,
+                          const HatoholErrorCode &errorCode,
+                          const string &optionMessage)
+{
+	if (optionMessage.empty())
+		MLPL_ERR("error: %d\n", errorCode);
+	else
+		MLPL_ERR("error: %d, %s", errorCode, optionMessage.c_str());
+
 	JsonBuilderAgent agent;
 	agent.startObject();
+	agent.add("errorCode", errorCode);
 	agent.addFalse("result");
-	agent.add("message", errorMessage.c_str());
+	agent.add("message", optionMessage.c_str());
 	agent.endObject();
 	string response = agent.generate();
 	if (!arg->jsonpCallbackName.empty())
@@ -441,7 +455,7 @@ void FaceRest::launchHandlerInTryBlock
 		arg.userId = sessionInfo->userId;
 		PrivateContext::lock.unlock();
 		if (!sessionInfo) {
-			REPLY_ERROR(msg, &arg, "Not found session ID");
+			replyError(msg, &arg, HTERR_NOT_FOUND_SESSION_ID);
 			return;
 		}
 	}
@@ -464,9 +478,8 @@ void FaceRest::launchHandlerInTryBlock
 
 	// a format type
 	if (!parseFormatType(query, arg)) {
-		REPLY_ERROR(msg, &arg, 
-		  "Unsupported format type: %s, path: %s\n",
-		  arg.formatString.c_str(), path);
+		REPLY_ERROR(msg, &arg, HTERR_UNSUPORTED_FORMAT,
+		            "%s", arg.formatString.c_str());
 		return;
 	}
 
@@ -489,7 +502,8 @@ void FaceRest::launchHandlerInTryBlock
 	try {
 		(*handler)(server, msg, path, query, client, &arg);
 	} catch (const HatoholException &e) {
-		REPLY_ERROR(msg, &arg, "%s", e.getFancyMessage().c_str());
+		REPLY_ERROR(msg, &arg, HTERR_GOT_EXCEPTION,
+		            "%s", e.getFancyMessage().c_str());
 	}
 }
 
@@ -761,13 +775,13 @@ void FaceRest::handlerLogin
 	gchar *user = (gchar *)g_hash_table_lookup(query, "user");
 	if (!user) {
 		MLPL_INFO("Not found: user\n");
-		replyError(msg, arg, "Authentification failed");
+		replyError(msg, arg, HTERR_AUTH_FAILED);
 		return;
 	}
 	gchar *password = (gchar *)g_hash_table_lookup(query, "password");
 	if (!password) {
 		MLPL_INFO("Not found: password\n");
-		replyError(msg, arg, "Authentification failed");
+		replyError(msg, arg, HTERR_AUTH_FAILED);
 		return;
 	}
 
@@ -775,7 +789,7 @@ void FaceRest::handlerLogin
 	UserIdType userId = dbUser.getUserId(user, password);
 	if (userId == INVALID_USER_ID) {
 		MLPL_INFO("Failed to authenticate: %s.\n", user);
-		replyError(msg, arg, "Authentification failed");
+		replyError(msg, arg, HTERR_AUTH_FAILED);
 		return;
 	}
 
@@ -802,7 +816,7 @@ void FaceRest::handlerLogout
    GHashTable *query, SoupClientContext *client, HandlerArg *arg)
 {
 	if (!PrivateContext::removeSessionId(arg->sessionId)) {
-		replyError(msg, arg, "Not found session ID");
+		replyError(msg, arg, HTERR_NOT_FOUND_SESSION_ID);
 		return;
 	}
 
@@ -1101,21 +1115,20 @@ void FaceRest::handlerPostAction
 	if (!succeeded)
 		return;
 	if (!exist) {
-		REPLY_ERROR(msg, arg, "action type is not specified.\n");
+		REPLY_ERROR(msg, arg, HTERR_NOT_FOUND_PARAMETER, "type");
 		return;
 	}
 	if (!(actionDef.type == ACTION_COMMAND ||
 	      actionDef.type == ACTION_RESIDENT)) {
-		REPLY_ERROR(msg, arg,
-		            "Unknown action type: %d\n", actionDef.type);
+		REPLY_ERROR(msg, arg, HTERR_INVALID_PARAMETER,
+		            "type: %d\n", actionDef.type);
 		return;
 	}
 
 	// command
 	value = (char *)g_hash_table_lookup(query, "command");
 	if (!value) {
-		REPLY_ERROR(msg, arg,
-		            "An action command is not specified.\n");
+		replyError(msg, arg, HTERR_NOT_FOUND_PARAMETER, "command");
 		return;
 	}
 	actionDef.command = value;
@@ -1202,15 +1215,14 @@ void FaceRest::handlerPostAction
 		if (!succeeded)
 			return;
 		if (!exist) {
-			REPLY_ERROR(msg, arg,
-			  "triggerSeverityCompType is not specified.\n");
+			replyError(msg, arg, HTERR_NOT_FOUND_PARAMETER, 
+			           "triggerSeverityCompType");
 			return;
 		}
 		if (!(cond.triggerSeverityCompType == CMP_EQ ||
 		      cond.triggerSeverityCompType == CMP_EQ_GT)) {
-			REPLY_ERROR(msg, arg,
-			            "Unknown comparator type: %d\n",
-			            cond.triggerSeverityCompType);
+			REPLY_ERROR(msg, arg, HTERR_INVALID_PARAMETER,
+			            "type: %d", cond.triggerSeverityCompType);
 			return;
 		}
 	}
@@ -1234,12 +1246,13 @@ void FaceRest::handlerDeleteAction
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	if (arg->id.empty()) {
-		REPLY_ERROR(msg, arg, "ID is missing.\n");
+		replyError(msg, arg, HTERR_NOT_FOUND_ID_IN_URL);
 		return;
 	}
 	int actionId;
 	if (sscanf(arg->id.c_str(), "%d", &actionId) != 1) {
-		REPLY_ERROR(msg, arg, "Invalid ID: %s", arg->id.c_str());
+		REPLY_ERROR(msg, arg, HTERR_INVALID_PARAMETER,
+		            "id: %s", arg->id.c_str());
 		return;
 	}
 	ActionIdList actionIdList;
@@ -1317,7 +1330,7 @@ void FaceRest::handlerPostUser
 	// name
 	value = (char *)g_hash_table_lookup(query, "user");
 	if (!value) {
-		REPLY_ERROR(msg, arg, "Not found: 'user'.\n");
+		REPLY_ERROR(msg, arg, HTERR_NOT_FOUND_PARAMETER, "user");
 		return;
 	}
 	userInfo.name = value;
@@ -1325,7 +1338,7 @@ void FaceRest::handlerPostUser
 	// password
 	value = (char *)g_hash_table_lookup(query, "password");
 	if (!value) {
-		REPLY_ERROR(msg, arg, "Not found: 'password'.\n");
+		REPLY_ERROR(msg, arg, HTERR_NOT_FOUND_PARAMETER, "password");
 		return;
 	}
 	userInfo.password = value;
@@ -1337,7 +1350,7 @@ void FaceRest::handlerPostUser
 	if (!succeeded)
 		return;
 	if (!exist) {
-		REPLY_ERROR(msg, arg, "Not found: 'flags'.\n");
+		REPLY_ERROR(msg, arg, HTERR_NOT_FOUND_PARAMETER, "flags");
 		return;
 	}
 
@@ -1345,7 +1358,7 @@ void FaceRest::handlerPostUser
 	SimpleQueryOption option;
 	option.setUserId(arg->userId);
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-	HatoholErrorCode err = dataStore->addUser(userInfo, option);
+	HatoholError err = dataStore->addUser(userInfo, option);
 
 	// make a response
 	JsonBuilderAgent agent;
@@ -1356,7 +1369,6 @@ void FaceRest::handlerPostUser
 		agent.add("id", userInfo.id);
 	} else {
 		agent.addFalse("result");
-		agent.add("errorCode", err);
 	}
 	agent.endObject();
 	replyJsonData(agent, msg, arg->jsonpCallbackName, arg);
@@ -1367,31 +1379,32 @@ void FaceRest::handlerDeleteUser
    GHashTable *query, SoupClientContext *client, HandlerArg *arg)
 {
 	if (arg->id.empty()) {
-		REPLY_ERROR(msg, arg, "ID is missing.\n");
+		replyError(msg, arg, HTERR_NOT_FOUND_ID_IN_URL);
 		return;
 	}
 	int userId;
 	if (sscanf(arg->id.c_str(), "%"FMT_USER_ID, &userId) != 1) {
-		REPLY_ERROR(msg, arg, "Invalid ID: %s", arg->id.c_str());
+		REPLY_ERROR(msg, arg, HTERR_INVALID_PARAMETER,
+		            "id: %s", arg->id.c_str());
 		return;
 	}
 
 	SimpleQueryOption option;
 	option.setUserId(arg->userId);
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-	HatoholErrorCode err = dataStore->deleteUser(userId, option);
+	HatoholError err = dataStore->deleteUser(userId, option);
 
 	// replay
 	JsonBuilderAgent agent;
 	agent.startObject();
 	agent.add("apiVersion", API_VERSION);
 	agent.addTrue("result");
+	addHatoholError(agent, err);
 	if (err == HTERR_OK) {
 		agent.addTrue("result");
 		agent.add("id", userId);
 	} else {
 		agent.addFalse("result");
-		agent.add("errorCode", err);
 	}
 	agent.endObject();
 	replyJsonData(agent, msg, arg->jsonpCallbackName, arg);
@@ -1412,7 +1425,8 @@ bool FaceRest::getParamWithErrorReply(
 		return true;
 
 	if (sscanf(value, scanFmt, &dest) != 1) {
-		REPLY_ERROR(msg, arg, "Invalid %s: %s\n", paramName, value);
+		REPLY_ERROR(msg, arg, HTERR_INVALID_PARAMETER,
+		            "%s: %s\n", paramName, value);
 		return false;
 	}
 	return true;

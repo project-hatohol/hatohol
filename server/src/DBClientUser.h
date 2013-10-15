@@ -25,6 +25,7 @@
 #include "DBClient.h"
 #include "DataQueryOption.h"
 #include "OperationPrivilege.h"
+#include "HatoholError.h"
 
 struct UserInfo {
 	UserIdType id;
@@ -91,10 +92,10 @@ public:
 	 *
 	 * @return An error code.
 	 */
-	HatoholErrorCode addUserInfo(UserInfo &userInfo,
+	HatoholError addUserInfo(UserInfo &userInfo,
 	                             const OperationPrivilege &privilege);
 
-	HatoholErrorCode deleteUserInfo(const UserIdType userId,
+	HatoholError deleteUserInfo(const UserIdType userId,
 	                                const OperationPrivilege &privilege);
 
 	/**
@@ -141,9 +142,9 @@ public:
 	void getServerHostGrpSetMap(ServerHostGrpSetMap &srvHostGrpSetMap,
 	                            const UserIdType userId);
 
-	static HatoholErrorCode isValidUserName(const string &name);
-	static HatoholErrorCode isValidPassword(const string &password);
-	static HatoholErrorCode isValidFlags(
+	static HatoholError isValidUserName(const string &name);
+	static HatoholError isValidPassword(const string &password);
+	static HatoholError isValidFlags(
 	                           const OperationPrivilegeFlag flags);
 
 protected:

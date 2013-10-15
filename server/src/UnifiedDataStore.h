@@ -71,9 +71,9 @@ public:
 
 	virtual void getUserList(UserInfoList &userList,
                                  DataQueryOption &option);
-	virtual HatoholErrorCode addUser(
+	virtual HatoholError addUser(
 	  UserInfo &userInfo, const OperationPrivilege &privilege);
-	virtual HatoholErrorCode deleteUser(
+	virtual HatoholError deleteUser(
 	  UserIdType userId, const OperationPrivilege &privilege);
 
 private:

@@ -25,6 +25,7 @@
 #include "JsonBuilderAgent.h"
 #include "SmartTime.h"
 #include "Params.h"
+#include "HatoholError.h"
 
 struct SessionInfo {
 	UserIdType userId;
@@ -53,8 +54,11 @@ protected:
 
 	// generic sub routines
 	size_t parseCmdArgPort(CommandLineArg &cmdArg, size_t idx);
+	static void addHatoholError(JsonBuilderAgent &agent,
+	                            const HatoholError &err);
 	static void replyError(SoupMessage *msg, const HandlerArg *arg,
-	                       const string &errorMessage);
+	                       const HatoholErrorCode &errorCode,
+	                       const string &optionMessage = "");
 	static string getJsonpCallbackName(GHashTable *query, HandlerArg *arg);
 	static string wrapForJsonp(const string &jsonBody,
                                    const string &callbackName);

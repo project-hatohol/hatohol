@@ -388,6 +388,12 @@ void _assertTimeIsNow(const SmartTime &smtime, double allowedError)
 	              smtime.getAsSec(), diff.getAsSec(), allowedError));
 }
 
+void _assertHatoholError(const HatoholErrorCode &code,
+                         const HatoholError err)
+{
+	cppcut_assert_equal(code, err.getErrorCode());
+}
+
 void _assertUsersInDB(const UserIdSet &excludeUserIdSet)
 {
 	string statement = "select * from ";
@@ -518,11 +524,11 @@ void setupTestDBAction(bool dbRecreate, bool loadTestData)
 void loadTestDBUser(void)
 {
 	DBClientUser dbUser;
-	HatoholErrorCode err;
+	HatoholError err;
 	OperationPrivilege opePrivilege(ALL_PRIVILEGES);
 	for (size_t i = 0; i < NumTestUserInfo; i++) {
 		err = dbUser.addUserInfo(testUserInfo[i], opePrivilege);
-		cppcut_assert_equal(HTERR_OK, err);
+		cppcut_assert_equal(HTERR_OK, err.getErrorCode());
 	}
 }
 

@@ -224,8 +224,8 @@ void test_addUserDuplicate(void)
 	OperationPrivilege privilege(ALL_PRIVILEGES);
 	DBClientUser dbUser;
 	UserInfo &userInfo = testUserInfo[1];
-	cppcut_assert_equal(HTERR_USER_NAME_EXIST,
-	                    dbUser.addUserInfo(userInfo, privilege));
+	assertHatoholError(HTERR_USER_NAME_EXIST,
+	                   dbUser.addUserInfo(userInfo, privilege));
 }
 
 void test_deleteUser(void)
@@ -234,9 +234,8 @@ void test_deleteUser(void)
 	DBClientUser dbUser;
 	const UserIdType targetId = 2;
 	OperationPrivilege privilege(ALL_PRIVILEGES);
-	HatoholErrorCode err =
-	  dbUser.deleteUserInfo(targetId, privilege);
-	cppcut_assert_equal(HTERR_OK, err);
+	HatoholError err = dbUser.deleteUserInfo(targetId, privilege);
+	assertHatoholError(HTERR_OK, err);
 
 	// check the version
 	UserIdSet userIdSet;
@@ -250,9 +249,8 @@ void test_deleteUserWithoutPrivilege(void)
 	DBClientUser dbUser;
 	const UserIdType targetId = 2;
 	OperationPrivilege privilege;
-	HatoholErrorCode err =
-	  dbUser.deleteUserInfo(targetId, privilege);
-	cppcut_assert_equal(HTERR_NO_PRIVILEGE, err);
+	HatoholError err = dbUser.deleteUserInfo(targetId, privilege);
+	assertHatoholError(HTERR_NO_PRIVILEGE, err);
 }
 
 void test_getUserId(void)
@@ -405,19 +403,19 @@ void test_getServerHostGrpSetMap(void)
 
 void test_isValidUserName(void)
 {
-	cppcut_assert_equal(HTERR_OK,
+	assertHatoholError(HTERR_OK,
 	                    DBClientUser::isValidUserName("CAPITAL"));
-	cppcut_assert_equal(HTERR_OK,
+	assertHatoholError(HTERR_OK,
 	                    DBClientUser::isValidUserName("small"));
-	cppcut_assert_equal(HTERR_OK,
+	assertHatoholError(HTERR_OK,
 	                    DBClientUser::isValidUserName("Camel"));
-	cppcut_assert_equal(HTERR_OK,
+	assertHatoholError(HTERR_OK,
 	                    DBClientUser::isValidUserName("sna_ke"));
-	cppcut_assert_equal(HTERR_OK,
+	assertHatoholError(HTERR_OK,
 	                    DBClientUser::isValidUserName("sna-ke"));
-	cppcut_assert_equal(HTERR_OK,
+	assertHatoholError(HTERR_OK,
 	                    DBClientUser::isValidUserName("sna.ke"));
-	cppcut_assert_equal(HTERR_OK,
+	assertHatoholError(HTERR_OK,
 	                    DBClientUser::isValidUserName("Ab9@ho.com"));
 }
 
@@ -433,16 +431,15 @@ void test_isValidUserNameWithInvalidChars(void)
 		if (i == '.' || i == '-' || i == '_' || i == '@')
 			continue;
 		string name = StringUtils::sprintf("AB%cxy", i);
-		cppcut_assert_equal(HTERR_INVALID_CHAR,
-		                    DBClientUser::isValidUserName(name),
-		                    cut_message("index: %d", i));
+		assertHatoholError(HTERR_INVALID_CHAR,
+		                   DBClientUser::isValidUserName(name));
 	}
 }
 
 void test_isValidUserNameWithEmptyString(void)
 {
-	cppcut_assert_equal(HTERR_EMPTY_USER_NAME,
-	                    DBClientUser::isValidUserName(""));
+	assertHatoholError(HTERR_EMPTY_USER_NAME,
+	                   DBClientUser::isValidUserName(""));
 }
 
 void test_isValidUserNameLongUserName(void)
@@ -450,11 +447,10 @@ void test_isValidUserNameLongUserName(void)
 	string name;
 	for (size_t i = 0; i < DBClientUser::MAX_USER_NAME_LENGTH; i++)
 		name += "A";
-	cppcut_assert_equal(HTERR_OK,
-	                    DBClientUser::isValidUserName(name));
+	assertHatoholError(HTERR_OK, DBClientUser::isValidUserName(name));
 	name += "A";
-	cppcut_assert_equal(HTERR_TOO_LONG_USER_NAME,
-	                    DBClientUser::isValidUserName(name));
+	assertHatoholError(HTERR_TOO_LONG_USER_NAME,
+	                   DBClientUser::isValidUserName(name));
 }
 
 void test_isValidPasswordWithLongPassword(void)
@@ -462,16 +458,15 @@ void test_isValidPasswordWithLongPassword(void)
 	string password;
 	for (size_t i = 0; i < DBClientUser::MAX_PASSWORD_LENGTH; i++)
 		password += "A";
-	cppcut_assert_equal(HTERR_OK,
-	                    DBClientUser::isValidPassword(password));
+	assertHatoholError(HTERR_OK, DBClientUser::isValidPassword(password));
 	password += "A";
-	cppcut_assert_equal(HTERR_TOO_LONG_PASSWORD,
-	                    DBClientUser::isValidPassword(password));
+	assertHatoholError(HTERR_TOO_LONG_PASSWORD,
+	                   DBClientUser::isValidPassword(password));
 }
 
 void test_isValidPasswordWithEmptyPassword(void)
 {
-	cppcut_assert_equal(HTERR_EMPTY_PASSWORD,
+	assertHatoholError(HTERR_EMPTY_PASSWORD,
 	                    DBClientUser::isValidPassword(""));
 }
 
@@ -479,23 +474,21 @@ void test_isValidFlagsAllValidBits(void)
 {
 	OperationPrivilegeFlag flags =
 	  OperationPrivilege::makeFlag(NUM_OPPRVLG) - 1;
-	cppcut_assert_equal(HTERR_OK,
-	                    DBClientUser::isValidFlags(flags));
+	assertHatoholError(HTERR_OK, DBClientUser::isValidFlags(flags));
 }
 
 void test_isValidFlagsExceededBit(void)
 {
 	OperationPrivilegeFlag flags =
 	  OperationPrivilege::makeFlag(NUM_OPPRVLG);
-	cppcut_assert_equal(HTERR_INVALID_USER_FLAGS,
-	                    DBClientUser::isValidFlags(flags));
+	assertHatoholError(HTERR_INVALID_USER_FLAGS,
+	                   DBClientUser::isValidFlags(flags));
 }
 
 void test_isValidFlagsNone(void)
 {
 	OperationPrivilegeFlag flags = 0;
-	cppcut_assert_equal(HTERR_OK,
-	                    DBClientUser::isValidFlags(flags));
+	assertHatoholError(HTERR_OK, DBClientUser::isValidFlags(flags));
 }
 
 } // namespace testDBClientUser

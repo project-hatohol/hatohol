@@ -241,12 +241,12 @@ DBClientUser::~DBClientUser()
 		delete m_ctx;
 }
 
-HatoholErrorCode DBClientUser::addUserInfo(
+HatoholError DBClientUser::addUserInfo(
   UserInfo &userInfo, const OperationPrivilege &privilege)
 {
-	HatoholErrorCode err;
+	HatoholError err;
 	if (!privilege.has(OPPRVLG_CREATE_USER))
-		return HTERR_NO_PRIVILEGE;
+		return HatoholError(HTERR_NO_PRIVILEGE);
 	err = isValidUserName(userInfo.name);
 	if (err != HTERR_OK)
 		return err;
@@ -284,7 +284,7 @@ HatoholErrorCode DBClientUser::addUserInfo(
 	return err;
 }
 
-HatoholErrorCode DBClientUser::deleteUserInfo(
+HatoholError DBClientUser::deleteUserInfo(
   const UserIdType userId, const OperationPrivilege &privilege)
 {
 	if (!privilege.has(OPPRVLG_DELETE_USER))
@@ -499,7 +499,7 @@ void DBClientUser::getServerHostGrpSetMap(
 	}
 }
 
-HatoholErrorCode DBClientUser::isValidUserName(const string &name)
+HatoholError DBClientUser::isValidUserName(const string &name)
 {
 	if (name.empty())
 		return HTERR_EMPTY_USER_NAME;
@@ -513,7 +513,7 @@ HatoholErrorCode DBClientUser::isValidUserName(const string &name)
 	return HTERR_OK;
 }
 
-HatoholErrorCode DBClientUser::isValidPassword(const string &password)
+HatoholError DBClientUser::isValidPassword(const string &password)
 {
 	if (password.empty())
 		return HTERR_EMPTY_PASSWORD;
@@ -522,7 +522,7 @@ HatoholErrorCode DBClientUser::isValidPassword(const string &password)
 	return HTERR_OK;
 }
 
-HatoholErrorCode DBClientUser::isValidFlags(const OperationPrivilegeFlag flags)
+HatoholError DBClientUser::isValidFlags(const OperationPrivilegeFlag flags)
 {
 	if (flags >= OperationPrivilege::makeFlag(NUM_OPPRVLG))
 		return HTERR_INVALID_USER_FLAGS;
