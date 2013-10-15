@@ -38,6 +38,7 @@ using namespace mlpl;
 using namespace std;
 
 static const char *MIME_JSON_RPC = "application/json-rpc";
+static const uint64_t GETRANGE = 1000;
 
 struct ArmZabbixAPI::PrivateContext
 {
@@ -945,15 +946,14 @@ ItemTablePtr ArmZabbixAPI::updateEvents(void)
 	uint64_t eventIdOffset, eventIdTill;
 	uint64_t dbLastEventId = m_ctx->dbClientZabbix.getLastEventId();
 	uint64_t serverLastEventId = getLastEventId();
-	uint64_t getRange = 1000;
 	ItemTablePtr tablePtr;
 	while (dbLastEventId != serverLastEventId) {
 		if (dbLastEventId == DBClientZabbix::EVENT_ID_NOT_FOUND) {
 			eventIdOffset = 0;
-			eventIdTill = getRange;
+			eventIdTill = GETRANGE;
 		} else {
 			eventIdOffset = dbLastEventId + 1;
-			eventIdTill = dbLastEventId + getRange;
+			eventIdTill = dbLastEventId + GETRANGE;
 		}
 		tablePtr = getEvents(eventIdOffset, eventIdTill);
 		m_ctx->dbClientZabbix.addEventsRaw2_0(tablePtr);
