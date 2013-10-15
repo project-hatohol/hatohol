@@ -38,6 +38,7 @@ void test_defaultValue(void)
 {
 	HatoholError err;
 	cppcut_assert_equal(HTERR_UNINITIALIZED, err.getErrorCode());
+	cppcut_assert_equal(true, err.getOptMessage().empty());
 }
 
 void test_getOptMessage(void)
