@@ -276,8 +276,8 @@ void FaceRest::addHatoholError(JsonBuilderAgent &agent,
                                const HatoholError &err)
 {
 	agent.add("errorCode", err.getCode());
-	if (!err.getOptMessage().empty())
-		agent.add("optionMessages", err.getOptMessage().c_str());
+	if (!err.getOptionMessage().empty())
+		agent.add("optionMessages", err.getOptionMessage().c_str());
 }
 
 void FaceRest::replyError(SoupMessage *msg, const HandlerArg *arg,

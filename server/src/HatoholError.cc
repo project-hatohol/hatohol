@@ -48,7 +48,7 @@ const HatoholErrorCode &HatoholError::getCode(void) const
 	return m_code;
 }
 
-const string &HatoholError::getOptMessage(void) const
+const string &HatoholError::getOptionMessage(void) const
 {
 	return m_optMessage;
 }

@@ -38,14 +38,14 @@ void test_defaultValue(void)
 {
 	HatoholError err;
 	cppcut_assert_equal(HTERR_UNINITIALIZED, err.getCode());
-	cppcut_assert_equal(true, err.getOptMessage().empty());
+	cppcut_assert_equal(true, err.getOptionMessage().empty());
 }
 
 void test_getOptMessage(void)
 {
 	string optMsg = "Option message.";
 	HatoholError err(HTERR_OK, optMsg);
-	cppcut_assert_equal(optMsg, err.getOptMessage());
+	cppcut_assert_equal(optMsg, err.getOptionMessage());
 }
 
 void test_operatorEqual(void)
@@ -65,7 +65,7 @@ void test_operatorSubst(void)
 	HatoholError err(HTERR_UNKNOWN_REASON, "Option message.");
 	err =  HTERR_OK;
 	cppcut_assert_equal(HTERR_OK, err.getCode());
-	cppcut_assert_equal(true, err.getOptMessage().empty());
+	cppcut_assert_equal(true, err.getOptionMessage().empty());
 }
 
 } // namespace testHatoholError
