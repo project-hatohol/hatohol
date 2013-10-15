@@ -34,7 +34,7 @@ public:
 	virtual ~HatoholError(void);
 	const HatoholErrorCode &getErrorCode(void) const;
 
-	bool operator==(const HatoholErrorCode &rhs);
+	bool operator==(const HatoholErrorCode &rhs) const;
 	bool operator!=(const HatoholErrorCode &rhs) const;
 private:
 	// We don't use 'PrivateCotnext' (Pimpl idiom) for the performance

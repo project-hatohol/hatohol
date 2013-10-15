@@ -48,7 +48,7 @@ const HatoholErrorCode &HatoholError::getErrorCode(void) const
 	return m_code;
 }
 
-bool HatoholError::operator==(const HatoholErrorCode &rhs)
+bool HatoholError::operator==(const HatoholErrorCode &rhs) const
 {
 	return m_code == rhs;
 }
