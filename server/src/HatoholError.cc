@@ -31,7 +31,7 @@ void HatoholError::init(void)
 	  "Uninitialized (This is probably a bug).";
 }
 
-HatoholError::HatoholError(const HatoholErrorCode &code = HTERR_UNINITIALIZED,
+HatoholError::HatoholError(const HatoholErrorCode &code,
                            const string &optMessage)
 : m_code(code)
 {

@@ -29,7 +29,7 @@ enum HatoholErrorCode
 class HatoholError {
 public:
 	static void init(void);
-	HatoholError(const HatoholErrorCode &code,
+	HatoholError(const HatoholErrorCode &code = HTERR_UNINITIALIZED,
 	             const std::string &optMessage = "");
 	virtual ~HatoholError(void);
 private:
