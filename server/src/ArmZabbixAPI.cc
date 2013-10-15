@@ -952,7 +952,7 @@ ItemTablePtr ArmZabbixAPI::updateEvents(void)
 			eventIdTill = 1000;
 		} else {
 			eventIdOffset = dbLastEventId + 1;
-			eventIdTill = dbLastEventId + 1001;
+			eventIdTill = dbLastEventId + 1000;
 		}
 		tablePtr = getEvents(eventIdOffset, eventIdTill);
 		m_ctx->dbClientZabbix.addEventsRaw2_0(tablePtr);
