@@ -1,8 +1,11 @@
 *.la
 *.lo
+*.o
+*.mo
 *.swp
 *.pyc
 *.pyo
+*.in
 .deps/
 .libs/
 AUTHORS
