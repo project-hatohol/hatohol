@@ -17,9 +17,8 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
-var HatoholLoginDialog = function(loginCallback, tryLoginCallback) {
+var HatoholLoginDialog = function(readyCallback) {
   var self = this;
-  self.loginCallback = loginCallback;
   self.buttonName = gettext("Login");
 
   var dialogButtons = [{
@@ -38,33 +37,7 @@ var HatoholLoginDialog = function(loginCallback, tryLoginCallback) {
   function loginButtonClicked() {
     var user = $("#inputUserName").val();
     var password = $("#inputPassword").val();
-    if (tryLoginCallback)
-      tryLoginCallback(user, password);
-
-    $.ajax({
-      url: "/tunnel/login?user=" + encodeURI(user) + "&password=" + encodeURI(password),
-      type: "GET",
-      success: function(data) {
-        parseLoginResult(data);
-      },
-      error: function(XMLHttpRequest, textStatus, errorThrown) {
-        var errorMsg = "Error: " + XMLHttpRequest.status + ": " +
-                       XMLHttpRequest.statusText;
-        hatoholErrorMsgBox(errorMsg);
-      },
-    });
-  }
-
-  function parseLoginResult(data) {
-    var parser = new HatoholLoginReplyParser(data);
-    if (parser.getStatus() != REPLY_STATUS.OK) {
-      var msg = gettext("Failed to login.") + parser.getStatusMessage();
-      hatoholErrorMsgBox(msg);
-      return;
-    }
-    sessionId = parser.getSessionId();
-    self.closeDialog();
-    self.loginCallback(sessionId);
+    readyCallback(user, password);
   }
 }
 
