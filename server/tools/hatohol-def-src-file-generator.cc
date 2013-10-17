@@ -24,6 +24,7 @@
 #include "DBClientConfig.h"
 #include "ActionManager.h"
 #include "HatoholError.h"
+#include "FaceRest.h"
 
 using namespace std;
 
@@ -151,6 +152,13 @@ static void makeDefSourceValues(string &s, LanguageType langType)
 	ADD_LINE(s, langType, HTERR_NOT_FOUND_PARAMETER);
 	ADD_LINE(s, langType, HTERR_INVALID_PARAMETER);
 	ADD_LINE(s, langType, HTERR_AUTH_FAILED);
+	APPEND(s, "\n");
+
+	//
+	// FaceRest
+	//
+	int FACE_REST_API_VERSION = FaceRest::API_VERSION;
+	ADD_LINE(s, langType, FACE_REST_API_VERSION);
 	APPEND(s, "\n");
 }
 

@@ -22,15 +22,23 @@ describe("HatoholReplyParser", function() {
     expect(stat).to.be(HatoholReplyParser.REPLY_STATUS.NOT_FOUND_API_VERSION);
   })
 
+  it("not suport API version", function() {
+    var reply = {"apiVersion":1};
+    var parser = new HatoholReplyParser(reply);
+    var stat = parser.getStatus();
+    expect(stat).to.be(HatoholReplyParser.REPLY_STATUS.UNSUPPORTED_API_VERSION);
+  })
+
   it("not found errorCode", function() {
-    var reply = {"apiVersion":2};
+    var reply = {"apiVersion":hatohol.FACE_REST_API_VERSION};
     var parser = new HatoholReplyParser(reply);
     var stat = parser.getStatus();
     expect(stat).to.be(HatoholReplyParser.REPLY_STATUS.NOT_FOUND_ERROR_CODE);
   })
 
   it("errorCode is not OK", function() {
-    var reply = {"apiVersion":2, errorCode:hatohol.HTERR_UNKOWN_REASON};
+    var reply = {"apiVersion":hatohol.FACE_REST_API_VERSION2,
+                 errorCode:hatohol.HTERR_UNKOWN_REASON};
     var parser = new HatoholReplyParser(reply);
     var stat = parser.getStatus();
     expect(stat).to.be(HatoholReplyParser.REPLY_STATUS.ERROR_CODE_IS_NOT_OK);

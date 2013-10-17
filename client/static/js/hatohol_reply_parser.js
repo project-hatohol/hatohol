@@ -24,7 +24,7 @@ var REPLY_STATUS = {
   OK: 0,
   NULL_OR_UNDEFINED:        1,
   NOT_FOUND_API_VERSION:    2,
-  UNSUPPORTED_API_VERVSION: 3,
+  UNSUPPORTED_API_VERSION:  3,
   NOT_FOUND_ERROR_CODE:     4,
   ERROR_CODE_IS_NOT_OK:     5,
 
@@ -42,10 +42,17 @@ var HatoholReplyParser = function(reply) {
   } else if (!("apiVersion" in reply)) {
     this.stat = REPLY_STATUS.NOT_FOUND_API_VERSION;
     return;
-  } else if (!("errorCode" in reply)) {
+  }
+  if (reply.apiVersion != hatohol.FACE_REST_API_VERSION) {
+    this.stat = REPLY_STATUS.UNSUPPORTED_API_VERSION;
+    return;
+  }
+
+  if (!("errorCode" in reply)) {
     this.stat = REPLY_STATUS.NOT_FOUND_ERROR_CODE;
     return;
   }
+
   this.errorCode = reply.errorCode;
   if (this.errorCode != hatohol.HTERR_OK)
     this.stat = REPLY_STATUS.ERROR_CODE_IS_NOT_OK;
