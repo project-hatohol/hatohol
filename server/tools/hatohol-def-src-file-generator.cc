@@ -102,25 +102,27 @@ static void makeDefSourceValues(string &s, LanguageType langType)
 	ADD_LINE(s, langType, EVENT_TYPE_BAD);
 	APPEND(s, "\n");
 
-	ADD_LINE(s, langType,  TRIGGER_SEVERITY_UNKNOWN);
-	ADD_LINE(s, langType,  TRIGGER_SEVERITY_INFO);
-	ADD_LINE(s, langType,  TRIGGER_SEVERITY_WARNING);
-	ADD_LINE(s, langType,  TRIGGER_SEVERITY_ERROR);
-	ADD_LINE(s, langType,  TRIGGER_SEVERITY_CRITICAL);
-	ADD_LINE(s, langType,  TRIGGER_SEVERITY_EMERGENCY);
+	ADD_LINE(s, langType, TRIGGER_SEVERITY_UNKNOWN);
+	ADD_LINE(s, langType, TRIGGER_SEVERITY_INFO);
+	ADD_LINE(s, langType, TRIGGER_SEVERITY_WARNING);
+	ADD_LINE(s, langType, TRIGGER_SEVERITY_ERROR);
+	ADD_LINE(s, langType, TRIGGER_SEVERITY_CRITICAL);
+	ADD_LINE(s, langType, TRIGGER_SEVERITY_EMERGENCY);
 	APPEND(s, "\n");
 
-	ADD_LINE(s, langType,  ACTION_COMMAND);
-	ADD_LINE(s, langType,  ACTION_RESIDENT);
+	ADD_LINE(s, langType, ACTION_COMMAND);
+	ADD_LINE(s, langType, ACTION_RESIDENT);
 	APPEND(s, "\n");
 
-	ADD_LINE(s, langType,  CMP_INVALID);
-	ADD_LINE(s, langType,  CMP_EQ);
-	ADD_LINE(s, langType,  CMP_EQ_GT);
+	ADD_LINE(s, langType, CMP_INVALID);
+	ADD_LINE(s, langType, CMP_EQ);
+	ADD_LINE(s, langType, CMP_EQ_GT);
 	APPEND(s, "\n");
 
 	ADD_LINE(s, langType, MONITORING_SYSTEM_ZABBIX);
 	ADD_LINE(s, langType, MONITORING_SYSTEM_NAGIOS);
+	APPEND(s, "\n");
+
 }
 
 static string makeDefSource(LanguageType langType)
