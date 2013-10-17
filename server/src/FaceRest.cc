@@ -451,12 +451,13 @@ void FaceRest::launchHandlerInTryBlock
 		arg.sessionId = sessionId;
 		PrivateContext::lock.lock();
 		const SessionInfo *sessionInfo = getSessionInfo(sessionId);
-		arg.userId = sessionInfo->userId;
-		PrivateContext::lock.unlock();
 		if (!sessionInfo) {
+			PrivateContext::lock.unlock();
 			replyError(msg, &arg, HTERR_NOT_FOUND_SESSION_ID);
 			return;
 		}
+		arg.userId = sessionInfo->userId;
+		PrivateContext::lock.unlock();
 	}
 
 	// We expect URIs  whose style are the following.
