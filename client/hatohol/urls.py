@@ -60,6 +60,7 @@ if 'HATOHOL_DEBUG' in os.environ and os.environ['HATOHOL_DEBUG'] == '1':
       makeTastingUrl('hatohol_login_dialog.html'),
       makeTastingUrl('hatohol_message_box.html'),
       makeTastingUrl('hatohol_session_manager.html'),
+      makeTastingUrl('hatohol_connector.html'),
       makeTastingUrl('js_loader.js'),
       makeTestUrl('index.html'),
       makeTestUrl('test_hatohol_session_manager.js'),
