@@ -23,4 +23,4 @@ script:
   - popd; pushd .
   - cd server/tools/test && ./run-test.sh
   - popd; pushd .
-  - cd client/test && make && cd node && ./run-test.sh
+  - cd client; make static/js/hatohol_def.js && cd test; make && cd node; ./run-test.sh
