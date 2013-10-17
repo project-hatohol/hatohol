@@ -23,6 +23,7 @@
 #include "DBClientHatohol.h"
 #include "DBClientConfig.h"
 #include "ActionManager.h"
+#include "HatoholError.h"
 
 using namespace std;
 
@@ -123,6 +124,34 @@ static void makeDefSourceValues(string &s, LanguageType langType)
 	ADD_LINE(s, langType, MONITORING_SYSTEM_NAGIOS);
 	APPEND(s, "\n");
 
+	//
+	// HaotholError
+	//
+	ADD_LINE(s, langType, HTERR_OK);
+	ADD_LINE(s, langType, HTERR_UNINITIALIZED);
+	ADD_LINE(s, langType, HTERR_UNKNOWN_REASON);
+	ADD_LINE(s, langType, HTERR_GOT_EXCEPTION);
+	APPEND(s, "\n");
+
+	// DBClientUser
+	ADD_LINE(s, langType, HTERR_EMPTY_USER_NAME);
+	ADD_LINE(s, langType, HTERR_TOO_LONG_USER_NAME);
+	ADD_LINE(s, langType, HTERR_INVALID_CHAR);
+	ADD_LINE(s, langType, HTERR_EMPTY_PASSWORD);
+	ADD_LINE(s, langType, HTERR_TOO_LONG_PASSWORD);
+	ADD_LINE(s, langType, HTERR_USER_NAME_EXIST);
+	ADD_LINE(s, langType, HTERR_NO_PRIVILEGE);
+	ADD_LINE(s, langType, HTERR_INVALID_USER_FLAGS);
+	APPEND(s, "\n");
+
+	// FaceRest
+	ADD_LINE(s, langType, HTERR_UNSUPORTED_FORMAT);
+	ADD_LINE(s, langType, HTERR_NOT_FOUND_SESSION_ID);
+	ADD_LINE(s, langType, HTERR_NOT_FOUND_ID_IN_URL);
+	ADD_LINE(s, langType, HTERR_NOT_FOUND_PARAMETER);
+	ADD_LINE(s, langType, HTERR_INVALID_PARAMETER);
+	ADD_LINE(s, langType, HTERR_AUTH_FAILED);
+	APPEND(s, "\n");
 }
 
 static string makeDefSource(LanguageType langType)
