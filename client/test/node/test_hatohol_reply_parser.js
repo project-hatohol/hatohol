@@ -37,7 +37,7 @@ describe("HatoholReplyParser", function() {
   })
 
   it("errorCode is not OK", function() {
-    var reply = {"apiVersion":hatohol.FACE_REST_API_VERSION2,
+    var reply = {"apiVersion":hatohol.FACE_REST_API_VERSION,
                  errorCode:hatohol.HTERR_UNKOWN_REASON};
     var parser = new HatoholReplyParser(reply);
     var stat = parser.getStatus();
