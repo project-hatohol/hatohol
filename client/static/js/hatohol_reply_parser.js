@@ -47,8 +47,8 @@ var HatoholReplyParser = function(reply) {
     return;
   }
   this.errorCode = reply.errorCode;
-  if (this.errorCode != 0) // TOOD: Use a constant variable
-    this.stat = ERROR_CODE_IS_NOT_OK;
+  if (this.errorCode != hatohol.HTERR_OK)
+    this.stat = REPLY_STATUS.ERROR_CODE_IS_NOT_OK;
   if ("optionMessage" in reply)
     this.optionMessage = reply.optionMessage;
 }
@@ -56,6 +56,7 @@ var HatoholReplyParser = function(reply) {
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = HatoholReplyParser;
   module.exports.REPLY_STATUS = REPLY_STATUS;
+  var hatohol = require("../../static/js/hatohol_def");
 }
 
 HatoholReplyParser.prototype.getStatus = function() {

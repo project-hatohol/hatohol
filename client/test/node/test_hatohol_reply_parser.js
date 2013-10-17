@@ -1,5 +1,6 @@
 var expect = require('expect.js');
 var HatoholReplyParser = require("../../static/js/hatohol_reply_parser");
+var hatohol = require("../../static/js/hatohol_def");
 
 describe("HatoholReplyParser", function() {
   it("null", function() {
@@ -21,7 +22,6 @@ describe("HatoholReplyParser", function() {
     expect(stat).to.be(HatoholReplyParser.REPLY_STATUS.NOT_FOUND_API_VERSION);
   })
 
-
   it("not found errorCode", function() {
     var reply = {"apiVersion":2};
     var parser = new HatoholReplyParser(reply);
@@ -29,4 +29,10 @@ describe("HatoholReplyParser", function() {
     expect(stat).to.be(HatoholReplyParser.REPLY_STATUS.NOT_FOUND_ERROR_CODE);
   })
 
+  it("errorCode is not OK", function() {
+    var reply = {"apiVersion":2, errorCode:hatohol.HTERR_UNKOWN_REASON};
+    var parser = new HatoholReplyParser(reply);
+    var stat = parser.getStatus();
+    expect(stat).to.be(HatoholReplyParser.REPLY_STATUS.ERROR_CODE_IS_NOT_OK);
+  })
 });
