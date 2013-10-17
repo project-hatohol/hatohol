@@ -22,16 +22,20 @@ from django.http import HttpResponse
 def jsonforward(request, path, **kwargs):
     server  = kwargs['server']
     url     = 'http://%s/%s' % (server, path)
+    hdrs = {}
+    if "HTTP_X_HATOHOL_SESSION" in request.META:
+      hdrs = {"X-Hatohol-Session": request.META["HTTP_X_HATOHOL_SESSION"]}
     if request.method == "POST":
-      content = urllib2.urlopen(url, urllib.urlencode(request.REQUEST))
+      req = urllib2.Request(url, urllib.urlencode(request.REQUEST),
+                            headers=hdrs)
     elif request.method == "DELETE":
-      req = urllib2.Request(url)
+      req = urllib2.Request(url, headers=hdrs)
       req.get_method = lambda: 'DELETE'
-      content = urllib2.urlopen(req)
     else:
       encoded_query = urllib.urlencode(request.REQUEST)
       url += "?" + encoded_query
-      content = urllib2.urlopen(url)
+      req = urllib2.Request(url, headers=hdrs)
+    content = urllib2.urlopen(req)
 
     return HttpResponse(content,
                         content_type='application/json')
