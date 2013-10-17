@@ -20,6 +20,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <string>
+#include <sstream>
 #include "DBClientHatohol.h"
 #include "DBClientConfig.h"
 #include "ActionManager.h"
@@ -37,7 +38,7 @@ enum LanguageType {
 do { CONTENT += StringUtils::sprintf(FMT, ##__VA_ARGS__); } while(0)
 
 #define ADD_LINE(SOURCE, LANG_TYPE, VAL) \
-SOURCE += makeLine(LANG_TYPE, #VAL, VAL);
+SOURCE += makeLine(LANG_TYPE, #VAL, toString(VAL))
 
 static const char *GPL_V2_OR_LATER_HEADER_C_STYLE =
 "/*\n"
@@ -77,14 +78,24 @@ static const char *GPL_V2_OR_LATER_HEADER_PLAIN =
 "  You should have received a copy of the GNU General Public License\n"
 "  along with Hatohol. If not, see <http://www.gnu.org/licenses/>.\n";
 
+static string toString(const int value)
+{
+	return StringUtils::sprintf("%d", value);
+}
+
+static string toString(const string &value)
+{
+	return StringUtils::sprintf("'%s'", value.c_str());
+}
+
 static string makeLine(LanguageType langType,
-                       const string &varName, const int value)
+                       const string &varName, const string value)
 {
 	string line;
 	switch(langType) {
 	case JAVASCRIPT:
-		line = StringUtils::sprintf("  %s: %d,",
-		                            varName.c_str(), value);
+		line = StringUtils::sprintf("  %s: %s,",
+		                            varName.c_str(), value.c_str());
 		break;
 	default:
 		THROW_HATOHOL_EXCEPTION("Unknown language type: %d\n",
@@ -159,6 +170,10 @@ static void makeDefSourceValues(string &s, LanguageType langType)
 	//
 	int FACE_REST_API_VERSION = FaceRest::API_VERSION;
 	ADD_LINE(s, langType, FACE_REST_API_VERSION);
+
+	string FACE_REST_SESSION_ID_HEADER_NAME =
+	   FaceRest::SESSION_ID_HEADER_NAME;
+	ADD_LINE(s, langType, FACE_REST_SESSION_ID_HEADER_NAME);
 	APPEND(s, "\n");
 }
 
