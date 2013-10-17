@@ -26,8 +26,16 @@
 
 using namespace std;
 
+enum LanguageType {
+	JAVASCRIPT,
+	PYTHON,
+};
+
 #define APPEND(CONTENT, FMT, ...) \
 do { CONTENT += StringUtils::sprintf(FMT, ##__VA_ARGS__); } while(0)
+
+#define ADD_LINE(SOURCE, LANG_TYPE, VAL) \
+SOURCE += makeLine(LANG_TYPE, #VAL, VAL);
 
 static const char *GPL_V2_OR_LATER_HEADER_C_STYLE =
 "/*\n"
@@ -66,6 +74,72 @@ static const char *GPL_V2_OR_LATER_HEADER_PLAIN =
 "\n"
 "  You should have received a copy of the GNU General Public License\n"
 "  along with Hatohol. If not, see <http://www.gnu.org/licenses/>.\n";
+
+static string makeLine(LanguageType langType,
+                       const string &varName, const int value)
+{
+	string line;
+	switch(langType) {
+	case JAVASCRIPT:
+		line = StringUtils::sprintf("  %s: %d,",
+		                            varName.c_str(), value);
+		break;
+	default:
+		THROW_HATOHOL_EXCEPTION("Unknown language type: %d\n",
+		                        langType);
+	}
+	line += "\n";
+	return line;
+}
+
+static void makeDefSourceValues(string &s, LanguageType langType)
+{
+	ADD_LINE(s, langType, TRIGGER_STATUS_OK);
+	ADD_LINE(s, langType, TRIGGER_STATUS_PROBLEM);
+	APPEND(s, "\n");
+
+	ADD_LINE(s, langType, EVENT_TYPE_GOOD);
+	ADD_LINE(s, langType, EVENT_TYPE_BAD);
+	APPEND(s, "\n");
+
+	ADD_LINE(s, langType,  TRIGGER_SEVERITY_UNKNOWN);
+	ADD_LINE(s, langType,  TRIGGER_SEVERITY_INFO);
+	ADD_LINE(s, langType,  TRIGGER_SEVERITY_WARNING);
+	ADD_LINE(s, langType,  TRIGGER_SEVERITY_ERROR);
+	ADD_LINE(s, langType,  TRIGGER_SEVERITY_CRITICAL);
+	ADD_LINE(s, langType,  TRIGGER_SEVERITY_EMERGENCY);
+	APPEND(s, "\n");
+
+	ADD_LINE(s, langType,  ACTION_COMMAND);
+	ADD_LINE(s, langType,  ACTION_RESIDENT);
+	APPEND(s, "\n");
+
+	ADD_LINE(s, langType,  CMP_INVALID);
+	ADD_LINE(s, langType,  CMP_EQ);
+	ADD_LINE(s, langType,  CMP_EQ_GT);
+	APPEND(s, "\n");
+
+	ADD_LINE(s, langType, MONITORING_SYSTEM_ZABBIX);
+	ADD_LINE(s, langType, MONITORING_SYSTEM_NAGIOS);
+}
+
+static string makeDefSource(LanguageType langType)
+{
+	string s;
+	s += GPL_V2_OR_LATER_HEADER_C_STYLE;
+	APPEND(s, "\n");
+	switch (langType) {
+	case JAVASCRIPT:
+		APPEND(s, "var hatohol = {\n");
+		makeDefSourceValues(s, langType);
+		APPEND(s, "};\n");
+		break;
+	default:
+		THROW_HATOHOL_EXCEPTION("Unknown language type: %d\n",
+		                        langType);
+	}
+	return s;
+}
 
 static string makeJsDefSource(char *arg[])
 {
@@ -180,6 +254,8 @@ int main(int argc, char *argv[])
 	string content;
 	if (cmd == "js") {
 		content = makeJsDefSource(&argv[2]);
+		content += "\n";
+		content += makeDefSource(JAVASCRIPT);
 	} else if (cmd == "py") {
 		content = makePythonDefSource(&argv[2]);
 	} else {
