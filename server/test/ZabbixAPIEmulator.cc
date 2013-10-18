@@ -416,10 +416,10 @@ void ZabbixAPIEmulator::APIHandlerEventGet(APIHandlerArg &arg)
 				      output.c_str());
 	}
 
-	int64_t eventIdFrom;
+	int64_t eventIdFrom = 0;
 	parser.read("eventid_from", eventIdFrom);
 
-	int64_t eventIdTill;
+	int64_t eventIdTill = 0;
 	parser.read("eventid_till", eventIdTill);
 
 	string sortField;
@@ -438,7 +438,7 @@ void ZabbixAPIEmulator::APIHandlerEventGet(APIHandlerArg &arg)
 		}
 	}
 
-	int64_t limit;
+	int64_t limit = 0;
 	parser.read("limit", limit);
 
 	if (m_ctx->numEventSlices != 0) {
