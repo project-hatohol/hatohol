@@ -399,6 +399,47 @@ void ZabbixAPIEmulator::APIHandlerEventGet(APIHandlerArg &arg)
 	gsize length;
 	static const char *DATA_FILE = "zabbix-api-res-events-002.json";
 	string path = getFixturesDir() + DATA_FILE;
+
+	JsonParserAgent parser(arg.msg->request_body->data);
+	if (parser.hasError()) {
+		THROW_HATOHOL_EXCEPTION("Error in parsing: %s",
+				      parser.getErrorMessage());
+	}
+
+	// parse parameter
+	string output;
+	if (!parser.read("output", output))
+		THROW_HATOHOL_EXCEPTION("Not found: output");
+	if (output != "extend" || output != "shorten") {
+		THROW_HATOHOL_EXCEPTION("Invalid parameter: output: %s",
+				      output.c_str());
+	}
+
+	int64_t eventIdFrom;
+	parser.read("eventid_from", eventIdFrom);
+
+	int64_t eventIdTill;
+	parser.read("eventid_till", eventIdTill);
+
+	string sortField;
+	if (parser.read("sortfield", sortField)) {
+		if (sortField != "eventid") {
+			THROW_HATOHOL_EXCEPTION("Invalid parameter: sortfield: %s",
+					sortField.c_str());
+		}
+	}
+
+	string sortOrder;
+	if (parser.read("sortorder", sortOrder)) {
+		if (sortOrder != "ASC" || sortOrder != "DESC") {
+			THROW_HATOHOL_EXCEPTION("Invalid parameter: sortorder: %s",
+					sortOrder.c_str());
+		}
+	}
+
+	int64_t limit;
+	parser.read("limit", limit);
+
 	if (m_ctx->numEventSlices != 0) {
 		// slice mode
 		string response;
