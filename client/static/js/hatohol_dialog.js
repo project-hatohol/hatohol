@@ -17,6 +17,21 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
+var HatoholDialogObserver = (function() {
+  var createdCallbacks = new Array();
+
+  return {
+    registerCreatedCallback: function(callback) {
+      createdCallbacks.push(callback);
+    },
+
+    notifyCreated: function(id, obj) {
+      for (var i in createdCallbacks)
+        createdCallbacks[i](id, obj);
+    }
+  }
+})();
+
 var HatoholDialog = function(id, dialogTitle, buttons, dialogAttr) {
 
   var self = this;
@@ -48,6 +63,7 @@ var HatoholDialog = function(id, dialogTitle, buttons, dialogAttr) {
   });
 
   $(self.dialogId).dialog("open");
+  HatoholDialogObserver.notifyCreated(id, this);
 }
 
 /**
