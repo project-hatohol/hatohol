@@ -405,6 +405,7 @@ void ZabbixAPIEmulator::APIHandlerEventGet(APIHandlerArg &arg)
 		THROW_HATOHOL_EXCEPTION("Error in parsing: %s",
 				      parser.getErrorMessage());
 	}
+	parser.startObject("params");
 
 	// parse parameter
 	string output;
