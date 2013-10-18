@@ -9,7 +9,7 @@ window.onload = function() {
 function main()
 {
   var connectParams = {
-    url: "/server",
+    url: "/test",
     replyCallback: replyCallback,
   };
   new HatoholConnector(connectParams);
@@ -17,7 +17,8 @@ function main()
 
 function replyCallback(data)
 {
-    $("#msg").append("Success: numberOfServers: " + data.numberOfServers);
+    $("#msg").append("API Version: " + data.apiVersion +
+                     ", ErrorCode: " + data.errorCode);
     $("#msg").append("<br>");
 }
 
