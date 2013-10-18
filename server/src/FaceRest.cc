@@ -306,6 +306,13 @@ void FaceRest::addHatoholError(JsonBuilderAgent &agent,
 }
 
 void FaceRest::replyError(SoupMessage *msg, const HandlerArg *arg,
+                          const HatoholError &hatoholError)
+{
+	replyError(msg, arg, hatoholError.getCode(),
+	           hatoholError.getOptionMessage());
+}
+
+void FaceRest::replyError(SoupMessage *msg, const HandlerArg *arg,
                           const HatoholErrorCode &errorCode,
                           const string &optionMessage)
 {

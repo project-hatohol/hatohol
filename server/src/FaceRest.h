@@ -60,6 +60,8 @@ protected:
 	static void addHatoholError(JsonBuilderAgent &agent,
 	                            const HatoholError &err);
 	static void replyError(SoupMessage *msg, const HandlerArg *arg,
+	                       const HatoholError &hatoholError);
+	static void replyError(SoupMessage *msg, const HandlerArg *arg,
 	                       const HatoholErrorCode &errorCode,
 	                       const string &optionMessage = "");
 	static string getJsonpCallbackName(GHashTable *query, HandlerArg *arg);
