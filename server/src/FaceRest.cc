@@ -114,6 +114,7 @@ SessionInfo::SessionInfo(void)
 }
 
 struct FaceRest::PrivateContext {
+	static bool         testMode;
 	static MutexLock    lock;
 	static SessionIdMap sessionIdMap;
 
@@ -148,14 +149,22 @@ struct FaceRest::PrivateContext {
 	}
 };
 
+bool         FaceRest::PrivateContext::testMode = false;
 MutexLock    FaceRest::PrivateContext::lock;
 SessionIdMap FaceRest::PrivateContext::sessionIdMap;
 
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
-void FaceRest::init(void)
+void FaceRest::init(const CommandLineArg &arg)
 {
+	for (size_t i = 0; i < arg.size(); i++) {
+		if (arg[i] == "--test-mode") {
+			MLPL_INFO("Run as a test mode.\n");
+			PrivateContext::testMode = true;
+		}
+	}
+
 	g_formatTypeMap["html"] = FORMAT_HTML;
 	g_formatTypeMap["json"] = FORMAT_JSON;
 	g_formatTypeMap["jsonp"] = FORMAT_JSONP;
@@ -779,6 +788,10 @@ void FaceRest::handlerTest
 	JsonBuilderAgent agent;
 	agent.startObject();
 	addHatoholError(agent, HatoholError(HTERR_OK));
+	if (PrivateContext::testMode)
+		agent.addTrue("testMode");
+	else
+		agent.addFalse("testMode");
 	agent.endObject();
 	replyJsonData(agent, msg, arg->jsonpCallbackName, arg);
 }

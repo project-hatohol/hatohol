@@ -75,7 +75,7 @@ static void init(const CommandLineArg *arg)
 	SQLProcessorFactory::init();
 
 	ActorCollector::init();
-	FaceRest::init();
+	FaceRest::init(*arg);
 }
 
 static void reset(void)
