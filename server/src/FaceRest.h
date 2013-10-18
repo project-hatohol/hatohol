@@ -41,7 +41,8 @@ public:
 	static int API_VERSION;
 	static const char *SESSION_ID_HEADER_NAME;
 
-	static void init(const CommandLineArg &arg);
+	static void init(void);
+	static void reset(const CommandLineArg &arg);
 	FaceRest(CommandLineArg &cmdArg);
 	virtual ~FaceRest();
 	virtual void stop(void);

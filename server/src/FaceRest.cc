@@ -156,15 +156,8 @@ SessionIdMap FaceRest::PrivateContext::sessionIdMap;
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
-void FaceRest::init(const CommandLineArg &arg)
+void FaceRest::init(void)
 {
-	for (size_t i = 0; i < arg.size(); i++) {
-		if (arg[i] == "--test-mode") {
-			MLPL_INFO("Run as a test mode.\n");
-			PrivateContext::testMode = true;
-		}
-	}
-
 	g_formatTypeMap["html"] = FORMAT_HTML;
 	g_formatTypeMap["json"] = FORMAT_JSON;
 	g_formatTypeMap["jsonp"] = FORMAT_JSONP;
@@ -172,6 +165,19 @@ void FaceRest::init(const CommandLineArg &arg)
 	g_mimeTypeMap[FORMAT_HTML] = MIME_HTML;
 	g_mimeTypeMap[FORMAT_JSON] = MIME_JSON;
 	g_mimeTypeMap[FORMAT_JSONP] = MIME_JAVASCRIPT;
+}
+
+void FaceRest::reset(const CommandLineArg &arg)
+{
+	bool foundTestMode = false;
+	for (size_t i = 0; i < arg.size(); i++) {
+		if (arg[i] == "--test-mode")
+			foundTestMode = true;
+	}
+
+	if (foundTestMode)
+		MLPL_INFO("Run as a test mode.\n");
+	PrivateContext::testMode = foundTestMode;
 }
 
 FaceRest::FaceRest(CommandLineArg &cmdArg)

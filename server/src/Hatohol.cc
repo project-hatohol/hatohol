@@ -75,10 +75,10 @@ static void init(const CommandLineArg *arg)
 	SQLProcessorFactory::init();
 
 	ActorCollector::init();
-	FaceRest::init(*arg);
+	FaceRest::init();
 }
 
-static void reset(void)
+static void reset(const CommandLineArg &arg)
 {
 	ActorCollector::reset();
 	ConfigManager::reset();
@@ -91,6 +91,8 @@ static void reset(void)
 
 	ActionManager::reset();
 	CacheServiceDBClient::reset();
+
+	FaceRest::reset(arg);
 }
 
 void hatoholInit(const CommandLineArg *arg)
@@ -103,6 +105,6 @@ void hatoholInit(const CommandLineArg *arg)
 		init(arg);
 		initDone = true;
 	}
-	reset();
+	reset(*arg);
 	mutex.unlock();
 }
