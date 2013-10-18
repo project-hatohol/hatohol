@@ -73,8 +73,9 @@ var HatoholConnector = function(connectParams) {
 
   function request() {
     var url = "/tunnel" + connectParams.url;
-    var hdrs = {}
-    hdrs[hatohol.FACE_REST_SESSION_ID_HEADER_NAME] = HatoholSessionManager.get()
+    var hdrs = {};
+    hdrs[hatohol.FACE_REST_SESSION_ID_HEADER_NAME] =
+       HatoholSessionManager.get();
     $.ajax({
       url: url,
       headers: hdrs,
