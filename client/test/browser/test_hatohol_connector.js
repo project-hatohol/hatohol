@@ -7,6 +7,11 @@ describe('HatoholConnector', function() {
     done();
   });
 
+  afterEach(function(done) {
+    HatoholDialogObserver.reset();
+    done();
+  });
+
   it('get simplest', function(done) {
     HatoholDialogObserver.registerCreatedCallback(function(id, obj) {
       if (id == "hatohol_login_dialog")
