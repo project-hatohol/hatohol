@@ -21,6 +21,10 @@ var HatoholDialogObserver = (function() {
   var createdCallbacks = new Array();
 
   return {
+    reset: function() {
+      createdCallbacks.length = 0;
+    },
+
     registerCreatedCallback: function(callback) {
       createdCallbacks.push(callback);
     },
