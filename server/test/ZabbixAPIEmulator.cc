@@ -432,7 +432,7 @@ void ZabbixAPIEmulator::APIHandlerEventGet(APIHandlerArg &arg)
 
 	string sortOrder;
 	if (parser.read("sortorder", sortOrder)) {
-		if (sortOrder != "ASC" || sortOrder != "DESC") {
+		if (sortOrder != "ASC" && sortOrder != "DESC") {
 			THROW_HATOHOL_EXCEPTION("Invalid parameter: sortorder: %s",
 					sortOrder.c_str());
 		}
