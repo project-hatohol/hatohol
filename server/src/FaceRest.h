@@ -43,6 +43,8 @@ public:
 
 	static void init(void);
 	static void reset(const CommandLineArg &arg);
+	static bool isTestMode(void);
+
 	FaceRest(CommandLineArg &cmdArg);
 	virtual ~FaceRest();
 	virtual void stop(void);

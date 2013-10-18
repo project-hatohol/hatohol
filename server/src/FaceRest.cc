@@ -180,6 +180,11 @@ void FaceRest::reset(const CommandLineArg &arg)
 	PrivateContext::testMode = foundTestMode;
 }
 
+bool FaceRest::isTestMode(void)
+{
+	return PrivateContext::testMode;
+}
+
 FaceRest::FaceRest(CommandLineArg &cmdArg)
 : m_port(DEFAULT_PORT),
   m_soupServer(NULL)

@@ -685,6 +685,11 @@ void cut_teardown(void)
 // ---------------------------------------------------------------------------
 // Test cases
 // ---------------------------------------------------------------------------
+void test_isTestModeDefault(void)
+{
+	cppcut_assert_equal(false, FaceRest::isTestMode());
+}
+
 void test_servers(void)
 {
 	assertServers("/server");
