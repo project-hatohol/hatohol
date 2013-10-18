@@ -18,11 +18,20 @@ function main()
 function replyCallback(data)
 {
     $("#msg").append("Success: numberOfServers: " + data.numberOfServers);
+    $("#msg").append("<br>");
+}
+
+function clearSession()
+{
+  HatoholSessionManager.deleteCookie();
+  $("#msg").text("");
 }
 
 </script>
 </head>
 <body>
+<button onclick="clearSession()">Clear Session ID</button>
+<button onclick="main()">Connect again</button>
 <div id="msg"></div>
 </body>
 </html>
