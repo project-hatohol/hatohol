@@ -698,6 +698,13 @@ void test_isTestModeSet(void)
 	cppcut_assert_equal(true, FaceRest::isTestMode());
 }
 
+void test_isTestModeReset(void)
+{
+	test_isTestModeSet();
+	hatoholInit();
+	cppcut_assert_equal(false, FaceRest::isTestMode());
+}
+
 void test_servers(void)
 {
 	assertServers("/server");
