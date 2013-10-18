@@ -717,6 +717,7 @@ void test_isTestModeSet(void)
 	arg.push_back("--test-mode");
 	hatoholInit(&arg);
 	cppcut_assert_equal(true, FaceRest::isTestMode());
+	assertTestMode(true);
 }
 
 void test_isTestModeReset(void)
