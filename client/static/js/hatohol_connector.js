@@ -26,8 +26,10 @@ var HatoholConnector = function(connectParams) {
   //   request: GET, POST, PUT, and DELETE (Default: GET)
   //   data: data to send
   //   replyCallback: function(reply, parser)
-  //   errorCallback: function(XMLHttpRequest, textStatus, errorThrown)
-  //                  (Default: show message)
+  //   connectErrorCallback: function(XMLHttpRequest, textStatus, errorThrown)
+  //     If undefined, a message box is shown.
+  //   parseErrorCallback: function(reply, parser)
+  //     If undefined, replyCallback is called.
   //   replyParser  : (Default: HatoholReplyParser)
   var self = this;
   if (connectParams.request)
@@ -92,6 +94,10 @@ var HatoholConnector = function(connectParams) {
             login();
             return;
           }
+          if (connectParams.parseErrorCallback) {
+            connectParams.parseErrorCallback(data, parser)
+            return;
+          }
         }
         connectParams.replyCallback(data, parser);
       },
@@ -100,8 +106,8 @@ var HatoholConnector = function(connectParams) {
   }
 
   function connectError(XMLHttpRequest, textStatus, errorThrown) {
-    if (connectParams.errorCallback) {
-      connectParams.errorCallback(XMLHttpReuest, textStatus, errorThrown);
+    if (connectParams.connectErrorCallback) {
+      connectParams.connectErrorCallback(XMLHttpReuest, textStatus, errorThrown);
       return;
     }
     var errorMsg = "Error: " + XMLHttpRequest.status + ": " +

@@ -64,6 +64,7 @@ if 'HATOHOL_DEBUG' in os.environ and os.environ['HATOHOL_DEBUG'] == '1':
       makeTastingUrl('js_loader.js'),
       makeTestUrl('index.html'),
       makeTestUrl('test_hatohol_session_manager.js'),
+      makeTestUrl('test_hatohol_connector.js'),
       makeTestUrl('mocha.js'),
       makeTestUrl('mocha.css'),
       makeTestUrl('expect.js'),
