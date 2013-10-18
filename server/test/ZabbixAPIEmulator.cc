@@ -411,7 +411,7 @@ void ZabbixAPIEmulator::APIHandlerEventGet(APIHandlerArg &arg)
 	string output;
 	if (!parser.read("output", output))
 		THROW_HATOHOL_EXCEPTION("Not found: output");
-	if (output != "extend" || output != "shorten") {
+	if (output != "extend" && output != "shorten") {
 		THROW_HATOHOL_EXCEPTION("Invalid parameter: output: %s",
 				      output.c_str());
 	}
