@@ -48,14 +48,14 @@ using namespace mlpl;
 static MutexLock mutex;
 static bool initDone = false; 
 
-static void init(const CommandLineArg *arg)
+static void init(const CommandLineArg &arg)
 {
 	Utils::init();
 	HatoholException::init();
 
 	DBAgentSQLite3::init();
 	DBAgentMySQL::init();
-	DBClientConfig::init(*arg);
+	DBClientConfig::init(arg);
 	DBClientUser::init();
 	DBClientHatohol::init();
 	DBClientZabbix::init();
@@ -102,7 +102,7 @@ void hatoholInit(const CommandLineArg *arg)
 		arg = &emptyArg;
 	mutex.lock();
 	if (!initDone) {
-		init(arg);
+		init(*arg);
 		initDone = true;
 	}
 	reset(*arg);
