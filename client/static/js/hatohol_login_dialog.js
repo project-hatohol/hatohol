@@ -19,6 +19,7 @@
 
 var HatoholLoginDialog = function(readyCallback) {
   var self = this;
+  self.readyCallback = readyCallback;
   self.buttonName = gettext("Login");
 
   var dialogButtons = [{
@@ -86,3 +87,6 @@ HatoholLoginDialog.prototype.onAppendMainElement = function () {
 //
 // Methods defined in this object
 //
+HatoholLoginDialog.prototype.makeInput = function(user, password) {
+  this.readyCallback(user, password);
+}
