@@ -723,6 +723,7 @@ void test_isTestModeSet(void)
 void test_isTestModeReset(void)
 {
 	test_isTestModeSet();
+	cut_teardown();
 	hatoholInit();
 	cppcut_assert_equal(false, FaceRest::isTestMode());
 	assertTestMode(false);
