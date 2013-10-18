@@ -690,6 +690,14 @@ void test_isTestModeDefault(void)
 	cppcut_assert_equal(false, FaceRest::isTestMode());
 }
 
+void test_isTestModeSet(void)
+{
+	CommandLineArg arg;
+	arg.push_back("--test-mode");
+	hatoholInit(&arg);
+	cppcut_assert_equal(true, FaceRest::isTestMode());
+}
+
 void test_servers(void)
 {
 	assertServers("/server");
