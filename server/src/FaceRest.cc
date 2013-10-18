@@ -54,6 +54,7 @@ typedef map<ServerID, TriggerBriefMap> TriggerBriefMaps;
 
 static const guint DEFAULT_PORT = 33194;
 
+const char *FaceRest::pathForTest        = "/test";
 const char *FaceRest::pathForLogin       = "/login";
 const char *FaceRest::pathForLogout      = "/logout";
 const char *FaceRest::pathForGetOverview = "/overview";
@@ -217,6 +218,9 @@ gpointer FaceRest::mainThread(HatoholThreadArg *arg)
 	soup_server_add_handler(m_soupServer, "/hello.html",
 	                        launchHandlerInTryBlock,
 	                        (gpointer)handlerHelloPage, NULL);
+	soup_server_add_handler(m_soupServer, "/test",
+	                        launchHandlerInTryBlock,
+	                        (gpointer)handlerTest, NULL);
 	soup_server_add_handler(m_soupServer, pathForLogin,
 	                        launchHandlerInTryBlock,
 	                        (gpointer)handlerLogin, NULL);
@@ -766,6 +770,17 @@ static void addServersIdNameHash(
 		agent.endObject();
 	}
 	agent.endObject();
+}
+
+void FaceRest::handlerTest
+  (SoupServer *server, SoupMessage *msg, const char *path,
+   GHashTable *query, SoupClientContext *client, HandlerArg *arg)
+{
+	JsonBuilderAgent agent;
+	agent.startObject();
+	addHatoholError(agent, HatoholError(HTERR_OK));
+	agent.endObject();
+	replyJsonData(agent, msg, arg->jsonpCallbackName, arg);
 }
 
 void FaceRest::handlerLogin

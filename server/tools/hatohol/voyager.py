@@ -67,6 +67,10 @@ def parse_server_arg(arg):
 
   return "http://%s:%d" % (server, port)
 
+def do_test(url, args):
+  url += "/test"
+  return {"url":url, "postproc":open_url_and_show_response}
+
 def show_server(url, args):
   url += "/server"
   query = {}
@@ -148,6 +152,7 @@ def del_user(url, args):
   return {"url":req, "postproc":open_url_and_show_response}
 
 command_map = {
+  "test":do_test,
   "show-server":show_server,
   "show-event":show_event,
   "show-trigger":show_trigger,
@@ -167,6 +172,9 @@ def main(arg_list=None, exec_postproc=True):
                       metavar="SERVER[:PORT]",
                       default="%s:%d" % (DEFAULT_SERVER, DEFAULT_PORT))
   subparsers = parser.add_subparsers(help="Sub commands", dest="sub_command")
+
+  # test
+  sub_server = subparsers.add_parser("test")
 
   # server
   sub_server = subparsers.add_parser("show-server")
