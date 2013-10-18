@@ -164,6 +164,16 @@ static JsonParserAgent *getResponseAsJsonParser(
 }
 
 static void _assertValueInParser(JsonParserAgent *parser,
+                                 const string &member, const bool expected)
+{
+	bool val;
+	cppcut_assert_equal(true, parser->read(member, val),
+	                    cut_message("member: %s, expect: %d",
+	                                member.c_str(), expected));
+	cppcut_assert_equal(expected, val);
+}
+
+static void _assertValueInParser(JsonParserAgent *parser,
                                  const string &member, uint32_t expected)
 {
 	int64_t val;
@@ -338,6 +348,16 @@ static void assertServersIdNameHashInParser(JsonParserAgent *parser)
 	}
 	parser->endObject();
 }
+
+static void _assertTestMode(const bool expectedMode = false,
+                            const string &callbackName = "")
+{
+	startFaceRest();
+	g_parser = getResponseAsJsonParser("/test");
+	assertErrorCode(g_parser);
+	assertValueInParser(g_parser, "testMode", expectedMode);
+}
+#define assertTestMode(E,...) cut_trace(_assertTestMode(E,##__VA_ARGS__))
 
 static void _assertServers(const string &path, const string &callbackName = "")
 {
@@ -688,6 +708,7 @@ void cut_teardown(void)
 void test_isTestModeDefault(void)
 {
 	cppcut_assert_equal(false, FaceRest::isTestMode());
+	assertTestMode(false);
 }
 
 void test_isTestModeSet(void)
