@@ -68,8 +68,7 @@ void ConfigManager::reset(void)
 {
 	PrivateContext::actionCommandDirectory =
 	  StringUtils::sprintf("%s/%s/action", LIBEXECDIR, PACKAGE);
-	PrivateContext::residentYardDirectory =
-	  StringUtils::sprintf("%s/sbin", PREFIX);
+	PrivateContext::residentYardDirectory = string(PREFIX"/sbin");
 }
 
 ConfigManager *ConfigManager::getInstance(void)
