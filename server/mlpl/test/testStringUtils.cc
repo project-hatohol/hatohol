@@ -281,4 +281,12 @@ void test_replace(void)
 	cppcut_assert_equal(expected, replacedStr);
 }
 
+void test_shouldNotReplaceUTF8(void)
+{
+	string src = "これがエスケープされるなんてそんなバカな！";
+	string expected = src;
+	string actual = StringUtils::replace(src, "'", "''");
+	cppcut_assert_equal(expected, actual);
+}
+
 } // namespace testStringUtils

@@ -246,7 +246,7 @@ string StringUtils::replace(const string &source, const string &targetChars,
 
 	string replacedString;
 	for (size_t i = 0; i < source.size(); i++) {
-		char charCode = source[i];
+		unsigned char charCode = source[i];
 		int idx = static_cast<int>(charCode);
 		if (targetCharArray[idx])
 			replacedString += newWord;
