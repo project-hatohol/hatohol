@@ -304,7 +304,7 @@ void UnifiedDataStore::addEventList(const EventInfoList &eventList)
 }
 
 void UnifiedDataStore::getUserList(UserInfoList &userList,
-                                   DataQueryOption &option)
+                                   UserQueryOption &option)
 {
 	CacheServiceDBClient cache;
 	DBClientUser *dbUser = cache.getUser();

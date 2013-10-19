@@ -169,6 +169,25 @@ struct DBClientUser::PrivateContext {
 bool DBClientUser::PrivateContext::validUsernameChars[UINT8_MAX+1];
 
 // ---------------------------------------------------------------------------
+// UserQueryOption
+// ---------------------------------------------------------------------------
+string UserQueryOption::getCondition(void) const
+{
+	UserIdType userId = getUserId();
+	if (userId == INVALID_USER_ID) {
+		MLPL_WARN("INVALID_USER_ID\n");
+		return "0";
+	}
+
+	string condition;
+	if (!has(OPPRVLG_GET_ALL_USERS)) {
+		condition = StringUtils::sprintf("%s=%"FMT_USER_ID"",
+		  COLUMN_DEF_USERS[IDX_USERS_ID].columnName, userId);
+	}
+	return condition;
+}
+
+// ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
 void DBClientUser::init(void)
@@ -375,20 +394,9 @@ bool DBClientUser::getUserInfo(UserInfo &userInfo, const UserIdType userId)
 }
 
 void DBClientUser::getUserInfoList(UserInfoList &userInfoList,
-                                   DataQueryOption &option)
+                                   UserQueryOption &option)
 {
-	UserIdType userId = option.getUserId();
-	if (userId == INVALID_USER_ID) {
-		MLPL_WARN("INVALID_USER_ID\n");
-		return;
-	}
-
-	string condition;
-	if (!option.has(OPPRVLG_GET_ALL_USERS)) {
-		condition = StringUtils::sprintf("%s=%"FMT_USER_ID"",
-		  COLUMN_DEF_USERS[IDX_USERS_ID].columnName, userId);
-	}
-	getUserInfoList(userInfoList, condition);
+	getUserInfoList(userInfoList, option.getCondition());
 }
 
 void DBClientUser::getAccessInfoMap(ServerAccessInfoMap &srvAccessInfoMap,

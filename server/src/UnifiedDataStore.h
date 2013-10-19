@@ -70,7 +70,7 @@ public:
 	virtual void addEventList(const EventInfoList &eventList);
 
 	virtual void getUserList(UserInfoList &userList,
-                                 DataQueryOption &option);
+                                 UserQueryOption &option);
 	virtual HatoholError addUser(
 	  UserInfo &userInfo, const OperationPrivilege &privilege);
 	virtual HatoholError deleteUser(

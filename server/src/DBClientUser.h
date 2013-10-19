@@ -67,6 +67,12 @@ typedef std::map<uint32_t, HostGroupSet>    ServerHostGrpSetMap;
 typedef ServerHostGrpSetMap::iterator       ServerHostGrpSetMapIterator;
 typedef ServerHostGrpSetMap::const_iterator ServerHostGrpSetMapConstIterator;
 
+class UserQueryOption : public DataQueryOption {
+public:
+	// Overriding virtual methods
+	std::string getCondition(void) const;
+};
+
 class DBClientUser : public DBClient {
 public:
 	static const int   USER_DB_VERSION;
@@ -119,8 +125,18 @@ public:
 	void addAccessInfo(AccessInfo &accessInfo);
 
 	bool getUserInfo(UserInfo &userInfo, const UserIdType userId);
+
+	/**
+	 * Get a list of UserInfo instances.
+	 *
+	 * @param userInfoList The found results are added to this reference.
+	 * @param option
+	 * A UserQueryOption instance.
+	 * If OPPRVLG_GET_ALL_USERS is not set, the search target is only the
+	 * user set in this parameter.
+	 */
 	void getUserInfoList(UserInfoList &userInfoList,
-	                     DataQueryOption &option);
+	                     UserQueryOption &option);
 
 	/**
 	 * Make a map that has the ServerAccessInfo instances for

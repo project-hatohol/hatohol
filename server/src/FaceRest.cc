@@ -1327,7 +1327,7 @@ void FaceRest::handlerGetUser
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 
 	UserInfoList userList;
-	DataQueryOption option;
+	UserQueryOption option;
 	option.setUserId(arg->userId);
 	dataStore->getUserList(userList, option);
 

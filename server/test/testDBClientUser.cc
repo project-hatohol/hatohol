@@ -152,7 +152,7 @@ static void _assertGetUserInfo(const OperationPrivilegeFlag flags,
 {
 	loadTestDBUser();
 	UserInfoList userInfoList;
-	DataQueryOption option;
+	UserQueryOption option;
 	const UserInfo userInfo = findFirstTestUserInfoByFlag(flags);
 	option.setUserId(userInfo.id);
 	DBClientUser dbUser;
@@ -365,7 +365,7 @@ void test_getUserInfoListByUserWithGetAllUsersFlag(void)
 void test_getUserInfoListWithNonExistUser(void)
 {
 	DBClientUser dbUser;
-	DataQueryOption option;
+	UserQueryOption option;
 	UserIdType nonexistId = NumTestUserInfo + 5;
 	option.setUserId(nonexistId);
 	UserInfoList userInfoList;
