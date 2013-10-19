@@ -28,20 +28,15 @@
 
 namespace testDBClientHatohol {
 
-class TestDBClientHatohol : public DBClientHatohol {
+class TestEventQueryOption : public EventQueryOption {
 public:
 	static
 	string callMakeCondition(const ServerHostGrpSetMap &srvHostGrpSetMap,
 	                         const string &serverIdColumnName,
 	                         const string &hostGroupIdColumnName)
 	{
-		return makeCondition(srvHostGrpSetMap,
-		                     serverIdColumnName, hostGroupIdColumnName);
-	}
-
-	static string callMakeSelectCondition(DataQueryOption &option)
-	{
-		return makeSelectCondition(option);
+		return makeCondition(srvHostGrpSetMap, serverIdColumnName,
+		                     hostGroupIdColumnName);
 	}
 };
 
@@ -291,7 +286,7 @@ void _assertTriggerInfo(const TriggerInfo &expect, const TriggerInfo &actual)
 static void _assertMakeCondition(const ServerHostGrpSetMap &srvHostGrpSetMap,
                                  const string &expect)
 {
-	string cond = TestDBClientHatohol::callMakeCondition(
+	string cond = TestEventQueryOption::callMakeCondition(
 	                srvHostGrpSetMap,
 	                serverIdColumnName, hostGroupIdColumnName);
 	cppcut_assert_equal(expect, cond);
@@ -314,9 +309,9 @@ static string makeExpectedConditionForUser(UserIdType userId)
 		const AccessInfo &accInfo = testAccessInfo[*jt];
 		srvHostGrpSetMap[accInfo.serverId].insert(accInfo.hostGroupId);
 	}
-	exp = TestDBClientHatohol::callMakeCondition(srvHostGrpSetMap,
-	                                             serverIdColumnName,
-	                                             hostGroupIdColumnName);
+	exp = TestEventQueryOption::callMakeCondition(srvHostGrpSetMap,
+	                                              serverIdColumnName,
+	                                              hostGroupIdColumnName);
 	return exp;
 }
 
@@ -645,7 +640,7 @@ void test_makeSelectConditionUserAdmin(void)
 {
 	EventQueryOption option;
 	option.setUserId(USER_ID_ADMIN);
-	string actual = TestDBClientHatohol::callMakeSelectCondition(option);
+	string actual = option.getCondition();
 	string expect = "";
 	cppcut_assert_equal(actual, expect);
 }
@@ -655,7 +650,7 @@ void test_makeSelectConditionNoneUser(void)
 	setupTestDBUser(true, true);
 	EventQueryOption option;
 	option.setUserId(INVALID_USER_ID);
-	string actual = TestDBClientHatohol::callMakeSelectCondition(option);
+	string actual = option.getCondition();
 	string expect = "0";
 	cppcut_assert_equal(actual, expect);
 }
@@ -668,8 +663,7 @@ void test_makeSelectCondition(void)
 	for (size_t i = 0; i < NumTestUserInfo; i++) {
 		UserIdType userId = i + 1;
 		option.setUserId(userId);
-		string actual =
-		   TestDBClientHatohol::callMakeSelectCondition(option);
+		string actual = option.getCondition();
 		string expect = makeExpectedConditionForUser(userId);
 		cppcut_assert_equal(expect, actual);
 	}

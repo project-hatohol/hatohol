@@ -32,18 +32,11 @@ public:
 	void setUserId(UserIdType userId);
 	UserIdType getUserId(void) const;
 
-	virtual const std::string getServerIdColumnName(void) = 0;
-	virtual const std::string getHostGroupIdColumnName(void) = 0;
+	virtual std::string getCondition(void) const;
 
 private:
 	struct PrivateContext;
 	PrivateContext *m_ctx;
-};
-
-class SimpleQueryOption : public DataQueryOption {
-public:
-	virtual const std::string getServerIdColumnName(void);
-	virtual const std::string getHostGroupIdColumnName(void);
 };
 
 #endif // DataQueryOption_h

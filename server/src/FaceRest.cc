@@ -1327,7 +1327,7 @@ void FaceRest::handlerGetUser
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 
 	UserInfoList userList;
-	SimpleQueryOption option;
+	DataQueryOption option;
 	option.setUserId(arg->userId);
 	dataStore->getUserList(userList, option);
 
@@ -1389,7 +1389,7 @@ void FaceRest::handlerPostUser
 	}
 
 	// try to add
-	SimpleQueryOption option;
+	DataQueryOption option;
 	option.setUserId(arg->userId);
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	HatoholError err = dataStore->addUser(userInfo, option);
@@ -1419,7 +1419,7 @@ void FaceRest::handlerDeleteUser
 		return;
 	}
 
-	SimpleQueryOption option;
+	DataQueryOption option;
 	option.setUserId(arg->userId);
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	HatoholError err = dataStore->deleteUser(userId, option);

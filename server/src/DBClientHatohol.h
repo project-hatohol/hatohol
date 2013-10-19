@@ -120,9 +120,21 @@ typedef ItemInfoList::const_iterator ItemInfoListConstIterator;
 
 class EventQueryOption : public DataQueryOption {
 public:
-	// Implemented virtual methods
-	virtual const string getServerIdColumnName(void);
-	virtual const string getHostGroupIdColumnName(void);
+	// Overriding of virtual methods
+	std::string getCondition(void) const;
+
+protected:
+	std::string getServerIdColumnName(void) const;
+	std::string getHostGroupIdColumnName(void) const;
+	static void appendCondition(std::string &cond,
+	                            const std::string &newCond);
+	static std::string makeCondition(
+	  const ServerHostGrpSetMap &srvHostGrpSetMap,
+	  const std::string &serverIdColumnName,
+	  const std::string &hostGroupIdColumnName);
+	static std::string makeConditionHostGroup(
+	  const HostGroupSet &hostGroupSet,
+	  const std::string &hostGroupIdColumnName);
 
 };
 
@@ -218,14 +230,6 @@ protected:
 
 	void getTriggerInfoList(TriggerInfoList &triggerInfoList,
 	                        const string &condition);
-	static void appendCondition(string &cond, const string &newCond);
-	static string makeConditionHostGroup(
-	  const HostGroupSet &hostGroupSet,
-	  const string &hostGroupIdColumnName);
-	static string makeCondition(const ServerHostGrpSetMap &srvHostGrpSetMap,
-	                            const string &serverIdColumnName,
-	                            const string &hostGroupIdColumnName);
-	static string makeSelectCondition(DataQueryOption &option);
 
 private:
 	struct PrivateContext;

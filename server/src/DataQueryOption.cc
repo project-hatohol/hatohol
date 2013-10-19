@@ -45,6 +45,11 @@ DataQueryOption::~DataQueryOption()
 {
 }
 
+string DataQueryOption::getCondition(void) const
+{
+	return "";
+}
+
 void DataQueryOption::setUserId(UserIdType userId)
 {
 	m_ctx->userId = userId;
@@ -67,21 +72,4 @@ void DataQueryOption::setUserId(UserIdType userId)
 UserIdType DataQueryOption::getUserId(void) const
 {
 	return m_ctx->userId;
-}
-
-// ---------------------------------------------------------------------------
-// SimpleQueryOption
-// ---------------------------------------------------------------------------
-const string SimpleQueryOption::getServerIdColumnName(void)
-{
-	MLPL_WARN("This function is just for passing the build and "
-	          "should not be called.\n");
-	return "InvalidServerIdColumn";
-}
-
-const string SimpleQueryOption::getHostGroupIdColumnName(void)
-{
-	MLPL_WARN("This function is just for passing the build and "
-	          "should not be called.\n");
-	return "InvaliHostGroupIdColumn";
 }
