@@ -189,7 +189,7 @@ public:
 	void addEventInfo(EventInfo *eventInfo);
 	void addEventInfoList(const EventInfoList &eventInfoList);
 	void getEventInfoList(EventInfoList &eventInfoList,
-	                      DataQueryOption &option);
+	                      EventQueryOption &option);
 	void setEventInfoList(const EventInfoList &eventInfoList,
 	                      uint32_t serverId);
 

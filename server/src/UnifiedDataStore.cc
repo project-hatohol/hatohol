@@ -214,7 +214,7 @@ void UnifiedDataStore::getTriggerList(TriggerInfoList &triggerList,
 }
 
 void UnifiedDataStore::getEventList(EventInfoList &eventList,
-                                    DataQueryOption &option)
+                                    EventQueryOption &option)
 {
 	DBClientHatohol dbHatohol;
 	dbHatohol.getEventInfoList(eventList, option);

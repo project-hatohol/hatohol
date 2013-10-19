@@ -42,7 +42,7 @@ public:
 	                            uint64_t targetHostId = ALL_HOSTS,
 	                            uint64_t targetTriggerId = ALL_TRIGGERS);
 	virtual void getEventList(EventInfoList &eventList,
-	                          DataQueryOption &option);
+	                          EventQueryOption &option);
 	virtual void getItemList(ItemInfoList &itemList,
 	                         uint32_t targetServerId = ALL_SERVERS);
 	virtual void getHostList(HostInfoList &hostInfoList,

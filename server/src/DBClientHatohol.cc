@@ -783,7 +783,7 @@ void DBClientHatohol::addEventInfoList(const EventInfoList &eventInfoList)
 }
 
 void DBClientHatohol::getEventInfoList(EventInfoList &eventInfoList,
-                                       DataQueryOption &option)
+                                       EventQueryOption &option)
 {
 	const ColumnDef &eventsServerId =
 	  COLUMN_DEF_EVENTS[IDX_EVENTS_SERVER_ID];
