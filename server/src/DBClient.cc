@@ -251,6 +251,11 @@ const std::string &DBClient::getAlwaysFalseCondition(void)
 	return PrivateContext::alwaysFalseCondition;
 }
 
+bool DBClient::isAlwaysFalseCondition(const std::string &condition)
+{
+	return PrivateContext::alwaysFalseCondition == condition;
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------

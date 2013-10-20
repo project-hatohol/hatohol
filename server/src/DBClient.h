@@ -73,6 +73,7 @@ public:
 	virtual ~DBClient();
 	DBAgent *getDBAgent(void) const;
 	static const std::string &getAlwaysFalseCondition(void);
+	static bool isAlwaysFalseCondition(const std::string &condition);
 
 protected:
 	struct DBSetupContext;
