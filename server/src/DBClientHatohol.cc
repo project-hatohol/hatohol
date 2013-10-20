@@ -508,7 +508,7 @@ string EventQueryOption::makeCondition(
 	string cond;
 	size_t numServers = srvHostGrpSetMap.size();
 	if (numServers == 0)
-		return "0";
+		return DBClientHatohol::getAlwaysFalseCondition();
 	ServerHostGrpSetMapConstIterator it = srvHostGrpSetMap.begin();
 	for (; it != srvHostGrpSetMap.end(); ++it) {
 		const uint32_t serverId = it->first;
@@ -540,7 +540,7 @@ string EventQueryOption::getCondition(void) const
 	if (userId == USER_ID_ADMIN)
 		return "";
 	if (userId == INVALID_USER_ID)
-		return "0";
+		return DBClientHatohol::getAlwaysFalseCondition();
 
 	CacheServiceDBClient cache;
 	DBClientUser *dbUser = cache.getUser();

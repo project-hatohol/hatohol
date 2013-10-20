@@ -72,6 +72,7 @@ public:
 	DBClient(DBDomainId domainId);
 	virtual ~DBClient();
 	DBAgent *getDBAgent(void) const;
+	static const std::string &getAlwaysFalseCondition(void);
 
 protected:
 	struct DBSetupContext;

@@ -91,6 +91,8 @@ struct DBClient::PrivateContext {
 	static DBSetupContextMap dbSetupCtxMap;
 	static ReadWriteLock     dbSetupCtxMapLock;
 
+	static const string      alwaysFalseCondition;
+
 	PrivateContext(void)
 	: dbAgent(NULL)
 	{
@@ -170,6 +172,7 @@ DBClient::DBSetupContextMap
 DBClient::DBSetupContextMap
   DBClient::PrivateContext::dbSetupCtxMap;
 ReadWriteLock DBClient::PrivateContext::dbSetupCtxMapLock;
+const string DBClient::PrivateContext::alwaysFalseCondition = "0";
 
 // ---------------------------------------------------------------------------
 // Public methods
@@ -241,6 +244,11 @@ DBClient::~DBClient()
 DBAgent *DBClient::getDBAgent(void) const
 {
 	return m_ctx->dbAgent;
+}
+
+const std::string &DBClient::getAlwaysFalseCondition(void)
+{
+	return PrivateContext::alwaysFalseCondition;
 }
 
 // ---------------------------------------------------------------------------

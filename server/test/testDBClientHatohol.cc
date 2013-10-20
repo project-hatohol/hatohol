@@ -300,7 +300,7 @@ static string makeExpectedConditionForUser(UserIdType userId)
 	makeTestUserIdIndexMap(userIdIndexMap);
 	UserIdIndexMapIterator it = userIdIndexMap.find(userId);
 	if (it == userIdIndexMap.end())
-		return "0";
+		return DBClientHatohol::getAlwaysFalseCondition();
 
 	ServerHostGrpSetMap srvHostGrpSetMap;
 	const set<int> &indexes = it->second;
@@ -531,7 +531,7 @@ void test_getNumberOfBadHosts(void)
 void test_makeConditionEmpty(void)
 {
 	ServerHostGrpSetMap srvHostGrpSetMap;
-	string expect = "0";
+	string expect = DBClientHatohol::getAlwaysFalseCondition();
 	assertMakeCondition(srvHostGrpSetMap, expect);
 }
 
@@ -651,7 +651,7 @@ void test_makeSelectConditionNoneUser(void)
 	EventQueryOption option;
 	option.setUserId(INVALID_USER_ID);
 	string actual = option.getCondition();
-	string expect = "0";
+	string expect = DBClientHatohol::getAlwaysFalseCondition();
 	cppcut_assert_equal(actual, expect);
 }
 

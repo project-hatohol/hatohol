@@ -176,7 +176,7 @@ string UserQueryOption::getCondition(void) const
 	UserIdType userId = getUserId();
 	if (userId == INVALID_USER_ID) {
 		MLPL_WARN("INVALID_USER_ID\n");
-		return "0";
+		return DBClientUser::getAlwaysFalseCondition();
 	}
 
 	string condition;
