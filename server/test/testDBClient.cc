@@ -32,4 +32,10 @@ void test_isAlwaysFalseCondition(void)
 	cppcut_assert_equal(true, actual);
 }
 
+void test_isAlwaysFalseConditionReturnFalse(void)
+{
+	bool actual = DBClient::isAlwaysFalseCondition("1");
+	cppcut_assert_equal(false, actual);
+}
+
 } // namespace testDBClient
