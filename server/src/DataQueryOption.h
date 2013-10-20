@@ -32,6 +32,11 @@ public:
 	void setUserId(UserIdType userId);
 	UserIdType getUserId(void) const;
 
+	/**
+	 * Get a string for 'where section' of an SQL statement.
+	 *
+	 * @return a string for 'where' in an SQL statment.
+	 */
 	virtual std::string getCondition(void) const;
 
 private:
