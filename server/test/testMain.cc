@@ -279,8 +279,8 @@ bool spawnChildProcess(string magicNumber, GPid &childPid, const string &pidFile
 static pid_t getInitPid(int pid)
 {
 	// Distributions (such as Ubuntu 13.10) that run 'init' as
-	// a user session mode, the pid of it is not 1. So we have to
-	// find 'init' that is the most closely ancestor.
+	// a user session mode. In that case, the pid of it is not 1.
+	// So we have to find 'init' that is the most closely ancestor.
 	pid_t parentPid = pid;
 	string programName;
 	while (parentPid != 1) {
