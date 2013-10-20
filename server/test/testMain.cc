@@ -216,22 +216,10 @@ bool parsePIDFile(int &grandchildPid, const string &grandChildPidFilePath)
 	return true;
 }
 
-bool parseStatFile(int &parentPid, int grandchildPid)
+static void parseStatFile(int &parentPid, int grandchildPid)
 {
-	stringstream ssStat;
-	ssStat << "/proc/" << grandchildPid << "/stat";
-	string grandchildProcFilePath = ssStat.str();
-	cut_assert_exist_path(grandchildProcFilePath.c_str());
-	FILE *grandchildProcFile;
-	grandchildProcFile = fopen(grandchildProcFilePath.c_str(), "r");
-	cppcut_assert_not_null(grandchildProcFile);
-	int grandchildProcPid;
-	char comm[11];
-	char state;
-	cppcut_assert_equal(4, fscanf(grandchildProcFile, "%d (%10s) %c %d ", &grandchildProcPid, comm, &state, &parentPid));
-	cppcut_assert_equal(0, fclose(grandchildProcFile));
-
-	return true;
+	string programName;
+	parentPid = getParentPid(grandchildPid, programName);
 }
 
 bool parseEnvironFile(string makedMagicNumber, int grandchildPid)
@@ -321,7 +309,7 @@ void test_daemonize(void)
 	cppcut_assert_equal(true, childProcessLoop(value->childPid));
 	cppcut_assert_equal(true, parsePIDFile(value->grandchildPid,
 	                                       value->pidFilePath));
-	cppcut_assert_equal(true, parseStatFile(value->grandchildParentPid, value->grandchildPid));
+	parseStatFile(value->grandchildParentPid, value->grandchildPid);
 	cppcut_assert_equal(getInitPid(getpid()), value->grandchildParentPid);
 	cppcut_assert_equal(true, parseEnvironFile(value->magicNumber, value->grandchildPid));
 
