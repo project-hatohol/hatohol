@@ -846,6 +846,8 @@ void DBClientHatohol::getEventInfoList(EventInfoList &eventInfoList,
 	  VAR_TRIGGERS, triggersServerId.columnName);
 
 	string optCond = option.getCondition();
+	if (isAlwaysFalseCondition(optCond))
+		return;
 	if (!optCond.empty()) {
 		arg.condition += " AND ";
 		arg.condition += optCond;
