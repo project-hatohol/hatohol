@@ -123,6 +123,27 @@ struct DaemonizeVariable {
 };
 DaemonizeVariable *g_daemonizeValue;
 
+static pid_t getParentPid(pid_t pid, string &programName)
+{
+	stringstream procStatPath;
+	procStatPath << "/proc/" << pid << "/stat";
+	ifstream ifs(procStatPath.str().c_str());
+	cppcut_assert_equal(
+	  true, ifs.good(),
+	  cut_message("path: %s", procStatPath.str().c_str()));
+
+	pid_t mypid = 0;
+	pid_t parentPid = 0;
+	string status;
+	ifs >> mypid;
+	ifs >> programName;
+	ifs >> status;
+	ifs >> parentPid;
+
+	programName = StringUtils::eraseChars(programName, "()");
+	return parentPid;
+}
+
 void endChildProcess(GPid child_pid, gint status, gpointer data)
 {
 	FunctionArg *arg = (FunctionArg *) data;
@@ -267,6 +288,21 @@ bool spawnChildProcess(string magicNumber, GPid &childPid, const string &pidFile
 	return succeeded == TRUE;
 }
 
+static pid_t getInitPid(int pid)
+{
+	// Ubuntu 13.10 runs init as a user session mode when X11 is used.
+	// In that case, pid of the user mode 'init' is not 1.
+	pid_t parentPid = pid;
+	string programName;
+	while (parentPid != 1) {
+		parentPid = getParentPid(pid, programName);
+		if (programName == "init")
+			break;
+		pid = parentPid;
+	}
+	return pid;
+}
+
 void cut_teardown(void)
 {
 	if (g_daemonizeValue != NULL)
@@ -286,7 +322,7 @@ void test_daemonize(void)
 	cppcut_assert_equal(true, parsePIDFile(value->grandchildPid,
 	                                       value->pidFilePath));
 	cppcut_assert_equal(true, parseStatFile(value->grandchildParentPid, value->grandchildPid));
-	cppcut_assert_equal(1, value->grandchildParentPid);
+	cppcut_assert_equal(getInitPid(getpid()), value->grandchildParentPid);
 	cppcut_assert_equal(true, parseEnvironFile(value->magicNumber, value->grandchildPid));
 
 	value->finishTest = true;
