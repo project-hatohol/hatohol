@@ -45,7 +45,8 @@ This Django project was written as PATH FREE so you can place this anyware witho
 
 ### On Ubuntu 13.04
 
-	sudo apt-get install libapache2-mod-wsgi python-django
+    # sudo apt-get install python-pip
+    # pip install django
 
 ## An example to intall bootstrap
 
