@@ -543,6 +543,9 @@ HatoholError DBClientUser::isValidFlags(const OperationPrivilegeFlag flags)
 void DBClientUser::getUserInfoList(UserInfoList &userInfoList,
                                    const string &condition)
 {
+	if (isAlwaysFalseCondition(condition))
+		return;
+
 	DBAgentSelectExArg arg;
 	arg.tableName = TABLE_NAME_USERS;
 	arg.pushColumn(COLUMN_DEF_USERS[IDX_USERS_ID]);
