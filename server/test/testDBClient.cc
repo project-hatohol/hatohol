@@ -25,6 +25,11 @@ namespace testDBClient {
 // ---------------------------------------------------------------------------
 // Test cases
 // ---------------------------------------------------------------------------
+void test_getAlwaysFalseConditionIsNotEmpty()
+{
+	cppcut_assert_equal(false, DBClient::getAlwaysFalseCondition().empty());
+}
+
 void test_isAlwaysFalseCondition(void)
 {
 	bool actual = DBClient::isAlwaysFalseCondition(
