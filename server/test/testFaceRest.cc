@@ -42,7 +42,6 @@ typedef StringMap::iterator       StringMapIterator;
 typedef StringMap::const_iterator StringMapConstIterator;
 
 static const unsigned int TEST_PORT = 53194;
-static const char *TEST_DB_CONFIG_NAME = "test_db_config";
 static const char *TEST_DB_HATOHOL_NAME = "testDatabase-hatohol.db";
 
 static StringMap    emptyStringMap;
@@ -52,10 +51,10 @@ static JsonParserAgent *g_parser = NULL;
 
 static void startFaceRest(void)
 {
-	string dbPathConfig = getFixturesDir() + TEST_DB_CONFIG_NAME;
 	string dbPathHatohol  = getFixturesDir() + TEST_DB_HATOHOL_NAME;
+	setupTestDBServers();
+
 	// TODO: remove the direct call of DBAgentSQLite3's API.
-	DBAgentSQLite3::defineDBPath(DB_DOMAIN_ID_CONFIG, dbPathConfig);
 	DBAgentSQLite3::defineDBPath(DB_DOMAIN_ID_HATOHOL, dbPathHatohol);
 
 	CommandLineArg arg;
