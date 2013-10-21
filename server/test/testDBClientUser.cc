@@ -204,6 +204,17 @@ void _assertGetUserInfoListWithTargetName(
 #define assertGetUserInfoListWithTargetName(F,N, ...) \
 cut_trace(_assertGetUserInfoListWithTargetName(F,N, ##__VA_ARGS__))
 
+static UserInfo setupForUpdate(void)
+{
+	loadTestDBUser();
+	const size_t targetIndex = 1;
+	UserInfo userInfo = testUserInfo[targetIndex];
+	userInfo.id = targetIndex + 1;
+	userInfo.password = ">=_=<3";
+	userInfo.flags = 0;
+	return userInfo;
+}
+
 static void setupWithUserIdIndexMap(UserIdIndexMap &userIdIndexMap)
 {
 	loadTestDBAccessList();
@@ -285,6 +296,15 @@ void test_updateUser(void)
 	    userInfo.id, userInfo.name.c_str(),
 	    Utils::sha256( userInfo.password).c_str(), userInfo.flags);
 	assertDBContent(dbUser.getDBAgent(), statement, expect);
+}
+
+void test_updateUserWithoutPrivilege(void)
+{
+	DBClientUser dbUser;
+	UserInfo userInfo = setupForUpdate();
+	OperationPrivilege privilege;
+	HatoholError err = dbUser.updateUserInfo(userInfo, privilege);
+	assertHatoholError(HTERR_NO_PRIVILEGE, err);
 }
 
 void test_deleteUser(void)
