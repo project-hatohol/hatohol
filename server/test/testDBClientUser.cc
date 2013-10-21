@@ -302,6 +302,16 @@ void test_updateUserWithoutPrivilege(void)
 	assertHatoholError(HTERR_NO_PRIVILEGE, err);
 }
 
+void test_updateNonExistUser(void)
+{
+	DBClientUser dbUser;
+	UserInfo userInfo = setupForUpdate();
+	userInfo.id = NumTestUserInfo + 5;
+	OperationPrivilege privilege(ALL_PRIVILEGES);
+	HatoholError err = dbUser.updateUserInfo(userInfo, privilege);
+	assertHatoholError(HTERR_NOT_FOUND_USER_ID, err);
+}
+
 void test_deleteUser(void)
 {
 	loadTestDBUser();
