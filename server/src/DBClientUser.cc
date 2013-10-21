@@ -92,7 +92,6 @@ enum {
 	NUM_IDX_USERS,
 };
 
-
 static const ColumnDef COLUMN_DEF_ACCESS_LIST[] = {
 {
 	ITEM_ID_NOT_SET,                   // itemId
