@@ -627,12 +627,16 @@ void _assertAddUserWithSetup(const StringMap &params,
 }
 #define assertAddUserWithSetup(P,C) cut_trace(_assertAddUserWithSetup(P,C))
 
-void _assertUpdateAddUserMissing(const StringMap &parameters)
+static void setupTestMode(void)
 {
 	CommandLineArg arg;
 	arg.push_back("--test-mode");
 	hatoholInit(&arg);
+}
 
+void _assertUpdateAddUserMissing(const StringMap &parameters)
+{
+	setupTestMode();
 	startFaceRest();
 	string url = "/test/user";
 	g_parser = getResponseAsJsonParser(url, "cbname", parameters, "POST");
