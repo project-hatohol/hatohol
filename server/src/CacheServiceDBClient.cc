@@ -96,6 +96,7 @@ struct CacheServiceDBClient::PrivateContext {
 		HATOHOL_ASSERT(found, "Failed to lookup clientMap: %p.",
 		               clientMap);
 		deleteDBClientMap(clientMap);
+		clientMap = NULL;
 	}
 };
 __thread DBClientMap *CacheServiceDBClient::PrivateContext::clientMap = NULL;
