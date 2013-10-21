@@ -383,7 +383,7 @@ void test_getUserInfoListWithMyNameAsTargetName(void)
 		if (testUserInfo[index].flags == ALL_PRIVILEGES)
 			break;
 	}
-	cppcut_assert_equal(true, index != 0);
+	cppcut_assert_not_equal(index, NumTestUserInfo);
 	const size_t userId = index + 1;
 	const UserInfo &targetUserInfo = testUserInfo[index];
 
