@@ -73,6 +73,8 @@ public:
                                  UserQueryOption &option);
 	virtual HatoholError addUser(
 	  UserInfo &userInfo, const OperationPrivilege &privilege);
+	virtual HatoholError updateUser(
+	  UserInfo &userInfo, const OperationPrivilege &privilege);
 	virtual HatoholError deleteUser(
 	  UserIdType userId, const OperationPrivilege &privilege);
 

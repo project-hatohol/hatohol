@@ -1150,4 +1150,13 @@ void test_deleteUserWithNonNumericId(void)
 	assertErrorCode(g_parser, HTERR_INVALID_PARAMETER);
 }
 
+void test_updateOrAddUserNotInTestMode(void)
+{
+	startFaceRest();
+	string url = StringUtils::sprintf("/test/user");
+	g_parser =
+	  getResponseAsJsonParser(url, "cbname", emptyStringMap, "POST");
+	assertErrorCode(g_parser, HTERR_NOT_TEST_MODE);
+}
+
 } // namespace testFaceRest

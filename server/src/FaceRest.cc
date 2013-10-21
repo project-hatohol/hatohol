@@ -76,6 +76,14 @@ do { \
 	replyError(MSG, ARG, ERR_CODE, optMsg); \
 } while (0)
 
+#define RETURN_IF_NOT_TEST_MODE(MSG, ARG) \
+do { \
+	if (!isTestMode()) { \
+		replyError(MSG, ARG, HTERR_NOT_TEST_MODE); \
+		return; \
+	}\
+} while(0)
+
 enum FormatType {
 	FORMAT_HTML,
 	FORMAT_JSON,
@@ -811,6 +819,16 @@ void FaceRest::handlerTest
 	else
 		agent.addFalse("testMode");
 	agent.endObject();
+
+	if (string(path) == "/test/user" && string(msg->method) == "POST") {
+		RETURN_IF_NOT_TEST_MODE(msg, arg);
+		UserQueryOption option;
+		HatoholError err = updateOrAddUser(query, option);
+		if (err != HTERR_OK) {
+			replyError(msg, arg, err);
+			return;
+		}
+	}
 	replyJsonData(agent, msg, arg->jsonpCallbackName, arg);
 }
 
@@ -1434,9 +1452,74 @@ void FaceRest::handlerDeleteUser
 	replyJsonData(agent, msg, arg->jsonpCallbackName, arg);
 }
 
+HatoholError FaceRest::parseUserParameter(UserInfo &userInfo, GHashTable *query)
+{
+	char *value;
+
+	// name
+	value = (char *)g_hash_table_lookup(query, "user");
+	if (!value)
+		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "user");
+	userInfo.name = value;
+
+	// password
+	value = (char *)g_hash_table_lookup(query, "password");
+	if (!value) {
+		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "password");
+	}
+	userInfo.password = value;
+
+	// flags
+	HatoholError err = getParam<OperationPrivilegeFlag>(
+	                     query, "flags", "%"FMT_OPPRVLG, userInfo.flags);
+	if (err != HTERR_OK)
+		return err;
+	return HatoholError(HTERR_OK);
+}
+
+HatoholError FaceRest::updateOrAddUser(GHashTable *query,
+                                       UserQueryOption &option)
+{
+	UserInfo userInfo;
+	HatoholError err = parseUserParameter(userInfo, query);
+	if (err != HTERR_OK)
+		return err;
+
+	err = option.setTargetName(userInfo.name);
+	if (err != HTERR_OK)
+		return err;
+	UserInfoList userList;
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+	dataStore->getUserList(userList, option);
+
+	if (userList.empty())
+		err = dataStore->addUser(userInfo, option);
+	else
+		err = dataStore->updateUser(userInfo, option);
+	if (err != HTERR_OK)
+		return err;
+	return HatoholError(HTERR_OK);
+}
+
 // ---------------------------------------------------------------------------
 // Private methods
 // ---------------------------------------------------------------------------
+template<typename T>
+HatoholError FaceRest::getParam(
+  GHashTable *query, const char *paramName, const char *scanFmt, T &dest)
+{
+	char *value = (char *)g_hash_table_lookup(query, paramName);
+	if (!value)
+		return HatoholError(HTERR_NOT_FOUND_PARAMETER, paramName);
+
+	if (sscanf(value, scanFmt, &dest) != 1) {
+		string optMsg = StringUtils::sprintf("%s: %s\n",
+		                                     paramName, value);
+		return HatoholError(HTERR_INVALID_PARAMETER, optMsg);
+	}
+	return HatoholError(HTERR_OK);
+}
+
 template<typename T>
 bool FaceRest::getParamWithErrorReply(
   GHashTable *query, SoupMessage *msg, const HandlerArg *arg,
