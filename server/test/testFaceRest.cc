@@ -634,16 +634,18 @@ static void setupTestMode(void)
 	hatoholInit(&arg);
 }
 
-void _assertUpdateAddUserMissing(const StringMap &parameters)
+void _assertUpdateAddUserMissing(
+  const StringMap &parameters,
+  const HatoholErrorCode expectErrorCode = HTERR_NOT_FOUND_PARAMETER)
 {
 	setupTestMode();
 	startFaceRest();
 	string url = "/test/user";
 	g_parser = getResponseAsJsonParser(url, "cbname", parameters, "POST");
-	assertErrorCode(g_parser, HTERR_NOT_FOUND_PARAMETER);
+	assertErrorCode(g_parser, expectErrorCode);
 }
-#define assertUpdateAddUserMissing(P) \
-cut_trace(_assertUpdateAddUserMissing(P))
+#define assertUpdateAddUserMissing(P,...) \
+cut_trace(_assertUpdateAddUserMissing(P, ##__VA_ARGS__))
 
 static void setupPostAction(void)
 {
@@ -1199,6 +1201,23 @@ void test_updateOrAddUserMissingFlags(void)
 	parameters["name"] = "ABC";
 	parameters["password"] = "AR2c43fdsaf";
 	assertUpdateAddUserMissing(parameters);
+}
+
+void test_updateOrAddUserAdd(void)
+{
+	const bool dbRecreate = true;
+	const bool loadTestDat = true;
+	setupTestDBUser(dbRecreate, loadTestDat);
+	string name = "Tux";
+	// make sure the name is not in test data.
+	for (size_t i = 0; i < NumTestUserInfo; i++)
+		cppcut_assert_not_equal(name, testUserInfo[i].name);
+
+	StringMap parameters;
+	parameters["user"] = name;
+	parameters["password"] = "AR2c43fdsaf";
+	parameters["flags"] = "0";
+	assertUpdateAddUserMissing(parameters, HTERR_OK);
 }
 
 } // namespace testFaceRest

@@ -823,6 +823,7 @@ void FaceRest::handlerTest
 	if (string(path) == "/test/user" && string(msg->method) == "POST") {
 		RETURN_IF_NOT_TEST_MODE(msg, arg);
 		UserQueryOption option;
+		option.setFlags(ALL_PRIVILEGES);
 		HatoholError err = updateOrAddUser(query, option);
 		if (err != HTERR_OK) {
 			replyError(msg, arg, err);
