@@ -1159,4 +1159,19 @@ void test_updateOrAddUserNotInTestMode(void)
 	assertErrorCode(g_parser, HTERR_NOT_TEST_MODE);
 }
 
+void test_updateOrAddUserMissingName(void)
+{
+	CommandLineArg arg;
+	arg.push_back("--test-mode");
+	hatoholInit(&arg);
+
+	startFaceRest();
+	string url = "/test/user";
+	StringMap parameters;
+	parameters["password"] = "foo";
+	parameters["flags"] = "0";
+	g_parser = getResponseAsJsonParser(url, "cbname", parameters, "POST");
+	assertErrorCode(g_parser, HTERR_NOT_FOUND_PARAMETER);
+}
+
 } // namespace testFaceRest
