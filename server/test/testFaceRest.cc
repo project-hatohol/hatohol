@@ -1179,7 +1179,7 @@ void test_updateOrAddUserNotInTestMode(void)
 	assertErrorCode(g_parser, HTERR_NOT_TEST_MODE);
 }
 
-void test_updateOrAddUserMissingName(void)
+void test_updateOrAddUserMissingUser(void)
 {
 	StringMap parameters;
 	parameters["password"] = "foo";
@@ -1190,7 +1190,7 @@ void test_updateOrAddUserMissingName(void)
 void test_updateOrAddUserMissingPassword(void)
 {
 	StringMap parameters;
-	parameters["name"] = "ABC";
+	parameters["user"] = "ABC";
 	parameters["flags"] = "2";
 	assertUpdateAddUserMissing(parameters);
 }
@@ -1198,7 +1198,7 @@ void test_updateOrAddUserMissingPassword(void)
 void test_updateOrAddUserMissingFlags(void)
 {
 	StringMap parameters;
-	parameters["name"] = "ABC";
+	parameters["user"] = "ABC";
 	parameters["password"] = "AR2c43fdsaf";
 	assertUpdateAddUserMissing(parameters);
 }
