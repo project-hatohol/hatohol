@@ -67,18 +67,16 @@ struct CacheServiceDBClient::PrivateContext {
 
 	static void reset(void)
 	{
-		lock.lock();
-		DBClientMapSetIterator it = dbClientMapSet.begin();
-		for (; it != dbClientMapSet.end(); ++it)
-			deleteDBClientMap(*it);
-		dbClientMapSet.clear();
-		lock.unlock();
-
-		// This sets NULL only for the current thread.  For the other
-		// threads, it should be done in cleanup(). This implies
-		// this method shall be called from the main thread that
-		// is not based on HatoholThreadBase.
-		clientMap = NULL;
+		// This only free the DBClientMap instance of the current
+		// thread. For the other, cleanup() should be called from
+		// HatoholThreadBase::threadCleanup(). This implies this
+		// method is called from the main thread that is not based
+		// on HatoholThreadBase.
+		//
+		// NOTE: We don't free all elements in dbClientMapSet here.
+		// because some threads (such as ActorCollector) don't exit
+		// at reset().
+		cleanup();
 	}
 
 	static void deleteDBClientMap(DBClientMap *dbClientMap)
