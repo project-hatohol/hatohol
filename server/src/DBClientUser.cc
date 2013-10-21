@@ -342,6 +342,51 @@ HatoholError DBClientUser::addUserInfo(
 	return err;
 }
 
+HatoholError DBClientUser::updateUserInfo(
+  UserInfo &userInfo, const OperationPrivilege &privilege)
+{
+	HatoholError err;
+	if (!privilege.has(OPPRVLG_UPDATE_USER))
+		return HatoholError(HTERR_NO_PRIVILEGE);
+	err = isValidUserName(userInfo.name);
+	if (err != HTERR_OK)
+		return err;
+	err = isValidPassword(userInfo.password);
+	if (err != HTERR_OK)
+		return err;
+	err = isValidFlags(userInfo.flags);
+	if (err != HTERR_OK)
+		return err;
+
+	VariableItemGroupPtr row;
+	DBAgentUpdateArg arg;
+	arg.tableName = TABLE_NAME_USERS;
+	arg.columnDefs = COLUMN_DEF_USERS;
+
+	row->ADD_NEW_ITEM(String, userInfo.name);
+	arg.columnIndexes.push_back(IDX_USERS_NAME);
+
+	row->ADD_NEW_ITEM(String, Utils::sha256(userInfo.password));
+	arg.columnIndexes.push_back(IDX_USERS_PASSWORD);
+
+	row->ADD_NEW_ITEM(Uint64, userInfo.flags);
+	arg.columnIndexes.push_back(IDX_USERS_FLAGS);
+	arg.row = row;
+
+	arg.condition = StringUtils::sprintf("%s=%"FMT_USER_ID,
+	  COLUMN_DEF_USERS[IDX_USERS_ID].columnName, userInfo.id);
+
+	DBCLIENT_TRANSACTION_BEGIN() {
+		if (!isRecordExisting(TABLE_NAME_USERS, arg.condition)) {
+			err = HTERR_NOT_FOUND_USER_ID;
+		} else {
+			update(arg);
+			err = HTERR_OK;
+		}
+	} DBCLIENT_TRANSACTION_END();
+	return err;
+}
+
 HatoholError DBClientUser::deleteUserInfo(
   const UserIdType userId, const OperationPrivilege &privilege)
 {

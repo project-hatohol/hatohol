@@ -110,6 +110,9 @@ public:
 	HatoholError addUserInfo(UserInfo &userInfo,
 	                             const OperationPrivilege &privilege);
 
+	HatoholError updateUserInfo(UserInfo &userInfo,
+	                            const OperationPrivilege &privilege);
+
 	HatoholError deleteUserInfo(const UserIdType userId,
 	                                const OperationPrivilege &privilege);
 
