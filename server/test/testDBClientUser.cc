@@ -414,7 +414,7 @@ void test_getUserInfoListWithMyNameAsTargetNameWithoutPrivileges(void)
 	assertGetUserInfoListWithTargetName(0, 1);
 }
 
-void test_getUserInfoListWithOtherNameWithoutPrivileges(void)
+void test_getUserInfoListWithOtherName(void)
 {
 	assertGetUserInfoListWithTargetName(ALL_PRIVILEGES, 1, false);
 }
