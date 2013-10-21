@@ -171,6 +171,35 @@ static void _assertGetUserInfo(const OperationPrivilegeFlag flags,
 }
 #define assertGetUserInfo(F,N,A) cut_trace(_assertGetUserInfo(F,N,A))
 
+void _assertGetUserInfoListWithTargetName(
+  const OperationPrivilegeFlag callerFlags,
+  const size_t expectNumList)
+{
+	loadTestDBUser();
+
+	// search the user who has all privileges.
+	size_t index = 0;
+	for (; index < NumTestUserInfo; index++) {
+		if (testUserInfo[index].flags == callerFlags)
+			break;
+	}
+	cppcut_assert_not_equal(index, NumTestUserInfo);
+	const size_t userId = index + 1;
+	const UserInfo &targetUserInfo = testUserInfo[index];
+
+	UserQueryOption option;
+	option.setUserId(userId);
+	option.setTargetName(targetUserInfo.name);
+
+	UserInfoList userInfoList;
+	DBClientUser dbUser;
+	dbUser.getUserInfoList(userInfoList, option);
+	cppcut_assert_equal(expectNumList, userInfoList.size());
+	assertUserInfo(targetUserInfo, *userInfoList.begin());
+}
+#define assertGetUserInfoListWithTargetName(F,N) \
+cut_trace(_assertGetUserInfoListWithTargetName(F,N))
+
 static void setupWithUserIdIndexMap(UserIdIndexMap &userIdIndexMap)
 {
 	loadTestDBAccessList();
@@ -375,27 +404,7 @@ void test_getUserInfoListWithNonExistUser(void)
 
 void test_getUserInfoListWithMyNameAsTargetName(void)
 {
-	loadTestDBUser();
-
-	// search the user who has all privileges.
-	size_t index = 0;
-	for (; index < NumTestUserInfo; index++) {
-		if (testUserInfo[index].flags == ALL_PRIVILEGES)
-			break;
-	}
-	cppcut_assert_not_equal(index, NumTestUserInfo);
-	const size_t userId = index + 1;
-	const UserInfo &targetUserInfo = testUserInfo[index];
-
-	UserQueryOption option;
-	option.setUserId(userId);
-	option.setTargetName(targetUserInfo.name);
-
-	UserInfoList userInfoList;
-	DBClientUser dbUser;
-	dbUser.getUserInfoList(userInfoList, option);
-	cppcut_assert_equal((size_t)1, userInfoList.size());
-	assertUserInfo(targetUserInfo, *userInfoList.begin());
+	assertGetUserInfoListWithTargetName(ALL_PRIVILEGES, 1);
 }
 
 void test_getServerAccessInfoMap(void)
