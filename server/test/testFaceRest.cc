@@ -627,6 +627,20 @@ void _assertAddUserWithSetup(const StringMap &params,
 }
 #define assertAddUserWithSetup(P,C) cut_trace(_assertAddUserWithSetup(P,C))
 
+void _assertUpdateAddUserMissing(const StringMap &parameters)
+{
+	CommandLineArg arg;
+	arg.push_back("--test-mode");
+	hatoholInit(&arg);
+
+	startFaceRest();
+	string url = "/test/user";
+	g_parser = getResponseAsJsonParser(url, "cbname", parameters, "POST");
+	assertErrorCode(g_parser, HTERR_NOT_FOUND_PARAMETER);
+}
+#define assertUpdateAddUserMissing(P) \
+cut_trace(_assertUpdateAddUserMissing(P))
+
 static void setupPostAction(void)
 {
 	bool recreate = true;
@@ -1161,17 +1175,10 @@ void test_updateOrAddUserNotInTestMode(void)
 
 void test_updateOrAddUserMissingName(void)
 {
-	CommandLineArg arg;
-	arg.push_back("--test-mode");
-	hatoholInit(&arg);
-
-	startFaceRest();
-	string url = "/test/user";
 	StringMap parameters;
 	parameters["password"] = "foo";
 	parameters["flags"] = "0";
-	g_parser = getResponseAsJsonParser(url, "cbname", parameters, "POST");
-	assertErrorCode(g_parser, HTERR_NOT_FOUND_PARAMETER);
+	assertUpdateAddUserMissing(parameters);
 }
 
 } // namespace testFaceRest
