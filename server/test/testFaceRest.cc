@@ -1193,4 +1193,12 @@ void test_updateOrAddUserMissingPassword(void)
 	assertUpdateAddUserMissing(parameters);
 }
 
+void test_updateOrAddUserMissingFlags(void)
+{
+	StringMap parameters;
+	parameters["name"] = "ABC";
+	parameters["password"] = "AR2c43fdsaf";
+	assertUpdateAddUserMissing(parameters);
+}
+
 } // namespace testFaceRest
