@@ -1205,6 +1205,10 @@ void test_updateOrAddUserMissingFlags(void)
 
 void test_updateOrAddUserAdd(void)
 {
+	setupTestMode();
+	startFaceRest();
+
+	string url = "/test/user";
 	const bool dbRecreate = true;
 	const bool loadTestDat = true;
 	setupTestDBUser(dbRecreate, loadTestDat);
@@ -1217,7 +1221,9 @@ void test_updateOrAddUserAdd(void)
 	parameters["user"] = name;
 	parameters["password"] = "AR2c43fdsaf";
 	parameters["flags"] = "0";
-	assertUpdateAddUserMissing(parameters, HTERR_OK);
+
+	g_parser = getResponseAsJsonParser(url, "cbname", parameters, "POST");
+	assertErrorCode(g_parser, HTERR_OK);
 }
 
 } // namespace testFaceRest
