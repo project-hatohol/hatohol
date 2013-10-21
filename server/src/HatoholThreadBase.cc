@@ -173,12 +173,11 @@ void HatoholThreadBase::doExitCallback(void)
 void HatoholThreadBase::threadCleanup(HatoholThreadArg *arg)
 {
 	arg->obj->doExitCallback();
+	CacheServiceDBClient::cleanup();
 	arg->obj->m_ctx->mutexForThreadExit.unlock();
 	if (arg->autoDeleteObject)
 		delete arg->obj;
 	delete arg;
-
-	CacheServiceDBClient::cleanup();
 }
 
 gpointer HatoholThreadBase::threadStarter(gpointer data)
