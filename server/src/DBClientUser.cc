@@ -170,6 +170,31 @@ bool DBClientUser::PrivateContext::validUsernameChars[UINT8_MAX+1];
 // ---------------------------------------------------------------------------
 // UserQueryOption
 // ---------------------------------------------------------------------------
+struct UserQueryOption::PrivateContext {
+	string targetName;
+};
+
+UserQueryOption::UserQueryOption(void)
+: m_ctx(NULL)
+{
+	m_ctx = new PrivateContext();
+}
+
+UserQueryOption::~UserQueryOption()
+{
+	if (m_ctx)
+		delete m_ctx;
+}
+
+HatoholError UserQueryOption::setTargetName(const string &name)
+{
+	HatoholError err = DBClientUser::isValidUserName(name);
+	if (err != HTERR_OK)
+		return err;
+	m_ctx->targetName = name;
+	return HatoholError(HTERR_OK);
+}
+
 string UserQueryOption::getCondition(void) const
 {
 	UserIdType userId = getUserId();
@@ -182,6 +207,21 @@ string UserQueryOption::getCondition(void) const
 	if (!has(OPPRVLG_GET_ALL_USERS)) {
 		condition = StringUtils::sprintf("%s=%"FMT_USER_ID"",
 		  COLUMN_DEF_USERS[IDX_USERS_ID].columnName, userId);
+	}
+
+	if (!m_ctx->targetName.empty()) {
+		// The validity of 'targetName' has been checked in
+		// setTargetName().
+		string nameCond =
+		  StringUtils::sprintf("%s='%s'",
+		    COLUMN_DEF_USERS[IDX_USERS_NAME].columnName,
+		   m_ctx->targetName.c_str());
+		if (condition.empty()) {
+			condition = nameCond;
+		} else {
+			condition += " AND ";
+			condition += nameCond;
+		}
 	}
 	return condition;
 }

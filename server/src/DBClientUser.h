@@ -69,8 +69,17 @@ typedef ServerHostGrpSetMap::const_iterator ServerHostGrpSetMapConstIterator;
 
 class UserQueryOption : public DataQueryOption {
 public:
+	UserQueryOption(void);
+	virtual ~UserQueryOption();
+
+	HatoholError setTargetName(const string &name);
+
 	// Overriding virtual methods
 	std::string getCondition(void) const;
+
+private:
+	struct PrivateContext;
+	PrivateContext *m_ctx;
 };
 
 class DBClientUser : public DBClient {
@@ -134,6 +143,8 @@ public:
 	 * A UserQueryOption instance.
 	 * If OPPRVLG_GET_ALL_USERS is not set, the search target is only the
 	 * user set in this parameter.
+	 * In addtion, setTargetName() is called and the name is set,
+	 * this method searches only that.
 	 */
 	void getUserInfoList(UserInfoList &userInfoList,
 	                     UserQueryOption &option);

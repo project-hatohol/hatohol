@@ -373,6 +373,31 @@ void test_getUserInfoListWithNonExistUser(void)
 	cppcut_assert_equal(true, userInfoList.empty());
 }
 
+void test_getUserInfoListWithMyNameAsTargetName(void)
+{
+	loadTestDBUser();
+
+	// search the user who has all privileges.
+	size_t index = 0;
+	for (; index < NumTestUserInfo; index++) {
+		if (testUserInfo[index].flags == ALL_PRIVILEGES)
+			break;
+	}
+	cppcut_assert_equal(true, index != 0);
+	const size_t userId = index + 1;
+	const UserInfo &targetUserInfo = testUserInfo[index];
+
+	UserQueryOption option;
+	option.setUserId(userId);
+	option.setTargetName(targetUserInfo.name);
+
+	UserInfoList userInfoList;
+	DBClientUser dbUser;
+	dbUser.getUserInfoList(userInfoList, option);
+	cppcut_assert_equal((size_t)1, userInfoList.size());
+	assertUserInfo(targetUserInfo, *userInfoList.begin());
+}
+
 void test_getServerAccessInfoMap(void)
 {
 	DBClientUser dbUser;
