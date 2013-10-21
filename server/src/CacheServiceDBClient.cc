@@ -73,6 +73,12 @@ struct CacheServiceDBClient::PrivateContext {
 			deleteDBClientMap(*it);
 		dbClientMapSet.clear();
 		lock.unlock();
+
+		// This sets NULL only for the current thread.  For the other
+		// threads, it should be done in cleanup(). This implies
+		// this method shall be called from the main thread that
+		// is not based on HatoholThreadBase.
+		clientMap = NULL;
 	}
 
 	static void deleteDBClientMap(DBClientMap *dbClientMap)
@@ -81,6 +87,7 @@ struct CacheServiceDBClient::PrivateContext {
 		for (; it != dbClientMap->end(); ++it)
 			delete it->second;
 		dbClientMap->clear();
+		delete dbClientMap;
 	}
 
 	static void cleanup(void)
