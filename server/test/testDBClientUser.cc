@@ -274,13 +274,8 @@ void test_addUserDuplicate(void)
 
 void test_updateUser(void)
 {
-	loadTestDBUser();
+	UserInfo userInfo = setupForUpdate();
 	DBClientUser dbUser;
-	const size_t targetIndex = 1;
-	UserInfo userInfo = testUserInfo[targetIndex];
-	userInfo.id = targetIndex + 1;
-	userInfo.password = ">=_=<3";
-	userInfo.flags = 0;
 	OperationPrivilege
 	   privilege(OperationPrivilege::makeFlag(OPPRVLG_UPDATE_USER));
 	HatoholError err = dbUser.updateUserInfo(userInfo, privilege);
