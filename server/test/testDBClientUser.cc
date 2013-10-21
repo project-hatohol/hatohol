@@ -197,6 +197,8 @@ void _assertGetUserInfoListWithTargetName(
 	DBClientUser dbUser;
 	dbUser.getUserInfoList(userInfoList, option);
 	cppcut_assert_equal(expectNumList, userInfoList.size());
+	if (expectNumList == 0)
+		return;
 	assertUserInfo(targetUserInfo, *userInfoList.begin());
 }
 #define assertGetUserInfoListWithTargetName(F,N, ...) \
@@ -417,6 +419,11 @@ void test_getUserInfoListWithMyNameAsTargetNameWithoutPrivileges(void)
 void test_getUserInfoListWithOtherName(void)
 {
 	assertGetUserInfoListWithTargetName(ALL_PRIVILEGES, 1, false);
+}
+
+void test_getUserInfoListWithOtherNameWithoutPrivileges(void)
+{
+	assertGetUserInfoListWithTargetName(0, 0, false);
 }
 
 void test_getServerAccessInfoMap(void)
