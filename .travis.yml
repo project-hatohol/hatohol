@@ -6,7 +6,7 @@ compiler:
   - gcc
   - clang
 install:
-  - curl https://raw.github.com/clear-code/cutter/master/data/travis/setup.sh | sh
+  - server/misc/setup-cutter.sh
   - sudo apt-get install -qq -y autotools-dev libglib2.0-dev libjson-glib-dev libsoup2.4-dev libmysqlclient-dev sqlite3 ndoutils-nagios3-mysql uuid-dev npm
   - mysql -u root -e "GRANT all on ndoutils.* TO ndoutils@localhost IDENTIFIED BY 'admin';"
   - npm install -g mocha
