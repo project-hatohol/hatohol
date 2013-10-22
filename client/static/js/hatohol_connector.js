@@ -107,7 +107,7 @@ var HatoholConnector = function(connectParams) {
 
   function connectError(XMLHttpRequest, textStatus, errorThrown) {
     if (connectParams.connectErrorCallback) {
-      connectParams.connectErrorCallback(XMLHttpReuest, textStatus, errorThrown);
+      connectParams.connectErrorCallback(XMLHttpRequest, textStatus, errorThrown);
       return;
     }
     var errorMsg = "Error: " + XMLHttpRequest.status + ": " +

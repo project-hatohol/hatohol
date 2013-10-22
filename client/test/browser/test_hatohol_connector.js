@@ -75,5 +75,23 @@ describe('HatoholConnector', function() {
     };
     var connector = new HatoholConnector(params);
   });
+
+  it('connection error callback', function(done) {
+    setLoginDialogCallback();
+    var params = {
+      url: "/test",
+      request: "POST",
+      data: {},
+      replyCallback: function(data, parser) {
+        expect().fail("replyCallback() should not be called.");
+        done();
+      },
+      connectErrorCallback: function(XMLHttpRequest, textStatus, errorThrown) {
+        expect(XMLHttpRequest.status).to.be(403);
+        done();
+      },
+    };
+    var connector = new HatoholConnector(params);
+  });
 });
 
