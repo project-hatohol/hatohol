@@ -796,6 +796,14 @@ void test_testPost(void)
 		assertValueInParser(g_parser, it->first, it->second);
 }
 
+void test_testError(void)
+{
+	setupTestMode();
+	startFaceRest();
+	g_parser = getResponseAsJsonParser("/test/error");
+	assertErrorCode(g_parser, HTERR_ERROR_TEST);
+}
+
 void test_servers(void)
 { assertServers("/server");
 }

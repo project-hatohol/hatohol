@@ -834,6 +834,12 @@ void FaceRest::handlerTest
 		return;
 	} 
 
+	if (string(path) == "/test/error") {
+		agent.endObject(); // top level
+		replyError(msg, arg, HTERR_ERROR_FOR_TEST);
+		return;
+	} 
+
 	if (string(path) == "/test/user" && string(msg->method) == "POST") {
 		RETURN_IF_NOT_TEST_MODE(msg, arg);
 		UserQueryOption option;
