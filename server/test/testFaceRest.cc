@@ -780,9 +780,20 @@ void test_isTestModeReset(void)
 	assertTestMode(false);
 }
 
-void test_servers(void)
+void test_testPost(void)
 {
-	assertServers("/server");
+	setupTestMode();
+	startFaceRest();
+	StringMap parameters;
+	parameters["AB"] = "Foo Goo N2";
+	parameters["<!>"] = "? @ @ v '";
+	parameters["O.O -v@v-"] = "'<< x234 >>'";
+	g_parser = getResponseAsJsonParser("/test",
+	                                   "cbname", parameters, "POST");
+}
+
+void test_servers(void)
+{ assertServers("/server");
 }
 
 void test_serversJsonp(void)

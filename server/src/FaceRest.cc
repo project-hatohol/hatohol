@@ -818,7 +818,21 @@ void FaceRest::handlerTest
 		agent.addTrue("testMode");
 	else
 		agent.addFalse("testMode");
-	agent.endObject();
+
+	if (string(path) == "/test" && string(msg->method) == "POST") {
+		agent.startObject("queryData");
+		GHashTableIter iter;
+		gpointer key, value;
+		g_hash_table_iter_init(&iter, query);
+		while (g_hash_table_iter_next(&iter, &key, &value)) {
+			agent.add(string((const char *)key),
+			          string((const char *)value));
+		}
+		agent.endObject(); // queryData
+		agent.endObject(); // top level
+		replyJsonData(agent, msg, arg->jsonpCallbackName, arg);
+		return;
+	} 
 
 	if (string(path) == "/test/user" && string(msg->method) == "POST") {
 		RETURN_IF_NOT_TEST_MODE(msg, arg);
@@ -830,6 +844,8 @@ void FaceRest::handlerTest
 			return;
 		}
 	}
+
+	agent.endObject();
 	replyJsonData(agent, msg, arg->jsonpCallbackName, arg);
 }
 
