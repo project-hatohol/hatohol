@@ -790,6 +790,10 @@ void test_testPost(void)
 	parameters["O.O -v@v-"] = "'<< x234 >>'";
 	g_parser = getResponseAsJsonParser("/test",
 	                                   "cbname", parameters, "POST");
+	cppcut_assert_equal(true, g_parser->startObject("queryData"));
+	StringMapIterator it = parameters.begin();
+	for (; it != parameters.end(); ++it)
+		assertValueInParser(g_parser, it->first, it->second);
 }
 
 void test_servers(void)
