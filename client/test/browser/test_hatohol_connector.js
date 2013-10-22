@@ -55,7 +55,7 @@ describe('HatoholConnector', function() {
         done();
       },
     };
-    var connector = HatoholConnector(params);
+    var connector = new HatoholConnector(params);
   })
 
   it('post simple', function(done) {
@@ -73,7 +73,7 @@ describe('HatoholConnector', function() {
         done();
       },
     };
-    var connector = HatoholConnector(params);
+    var connector = new HatoholConnector(params);
   })
 });
 
