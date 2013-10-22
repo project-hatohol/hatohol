@@ -68,9 +68,7 @@ describe('HatoholConnector', function() {
       request: "POST",
       data: queryData,
       replyCallback: function(data, parser) {
-        expect(data).not.to.be(undefined);
-        expect(parser).not.to.be(undefined);
-        expect(parser.getStatus()).to.be(hatohol.HTERR_OK);
+        checkBasicResponse(data, parser);
         expect(data.queryData).to.eql(queryData);
         done();
       },
