@@ -62,8 +62,7 @@ describe('HatoholConnector', function() {
   it('post simple', function(done) {
     setLoginDialogCallback();
     var queryData = {
-      csrfmiddlewaretoken: $("*[name=csrfmiddlewaretoken]").val(),
-      "A":123, "S":"foo", "!'^@^`?":"<(.)>"};
+      csrfmiddlewaretoken: CSRF_TOKEN, "A":123, "S":"foo", "!'^@^`?":"<(.)>"};
     var params = {
       url: "/test",
       request: "POST",
