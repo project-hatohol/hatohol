@@ -43,4 +43,14 @@ describe("HatoholReplyParser", function() {
     var stat = parser.getStatus();
     expect(stat).to.be(HatoholReplyParser.REPLY_STATUS.ERROR_CODE_IS_NOT_OK);
   })
+
+  it("get error code", function() {
+    var reply = {"apiVersion":hatohol.FACE_REST_API_VERSION,
+                 "errorCode":hatohol.HTERR_ERROR_TEST};
+    var parser = new HatoholReplyParser(reply);
+    var stat = parser.getStatus();
+    var errorCode = parser.getErrorCode();
+    expect(stat).to.be(HatoholReplyParser.REPLY_STATUS.ERROR_CODE_IS_NOT_OK);
+    expect(errorCode).to.be(hatohol.HTERR_ERROR_TEST);
+  });
 });

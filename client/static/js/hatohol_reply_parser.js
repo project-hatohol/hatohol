@@ -54,12 +54,12 @@ var HatoholReplyParser = function(reply) {
     this.stat = REPLY_STATUS.NOT_FOUND_ERROR_CODE;
     return;
   }
+  this.errorCode = reply.errorCode;
   if (reply.errorCode != hatohol.HTERR_OK) {
     this.stat = REPLY_STATUS.ERROR_CODE_IS_NOT_OK;
     return;
   }
 
-  this.errorCode = reply.errorCode;
   if ("optionMessage" in reply)
     this.optionMessage = reply.optionMessage;
 }
@@ -72,6 +72,10 @@ if (typeof module !== 'undefined' && module.exports) {
 
 HatoholReplyParser.prototype.getStatus = function() {
   return this.stat;
+}
+
+HatoholReplyParser.prototype.getErrorCode = function() {
+  return this.errorCode;
 }
 
 HatoholReplyParser.prototype.getStatusMessage = function() {
