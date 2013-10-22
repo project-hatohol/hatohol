@@ -1,6 +1,7 @@
 describe('HatoholConnector', function() {
   var TEST_USER = "test-user";
   var TEST_PASSWORD = "test*pass*d";
+  var CSRF_TOKEN;
 
   function setLoginDialogCallback() {
     HatoholDialogObserver.registerCreatedCallback(function(id, obj) {
@@ -16,13 +17,13 @@ describe('HatoholConnector', function() {
   }
 
   before(function(done) {
-    var csrfmiddlewaretoken = $("*[name=csrfmiddlewaretoken]").val();
+    CSRF_TOKEN = $("*[name=csrfmiddlewaretoken]").val();
     $.ajax({
       url: "/tunnel/test/user",
       type: "POST",
       data: {"user":TEST_USER, "password":TEST_PASSWORD, "flags":0},
       beforeSend: function(xhr) {
-        xhr.setRequestHeader("X-CSRFToken", csrfmiddlewaretoken);
+        xhr.setRequestHeader("X-CSRFToken", CSRF_TOKEN);
       },
       success: function(data) {
         var parser = new HatoholReplyParser(data);
