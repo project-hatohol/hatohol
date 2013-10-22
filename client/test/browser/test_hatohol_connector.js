@@ -41,11 +41,7 @@ describe('HatoholConnector', function() {
   });
 
   it('get simplest', function(done) {
-    HatoholDialogObserver.registerCreatedCallback(function(id, obj) {
-      if (id == "hatohol_login_dialog")
-        obj.makeInput(TEST_USER, TEST_PASSWORD);
-    });
-
+    setLoginDialogCallback();
     var params = {
       url: "/test",
       replyCallback: function(data, parser) {
