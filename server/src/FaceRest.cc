@@ -823,7 +823,7 @@ void FaceRest::handlerTest
 	if (string(path) == "/test/user" && string(msg->method) == "POST") {
 		RETURN_IF_NOT_TEST_MODE(msg, arg);
 		UserQueryOption option;
-		option.setFlags(ALL_PRIVILEGES);
+		option.setUserId(USER_ID_ADMIN);
 		HatoholError err = updateOrAddUser(query, option);
 		if (err != HTERR_OK) {
 			replyError(msg, arg, err);
@@ -1493,10 +1493,12 @@ HatoholError FaceRest::updateOrAddUser(GHashTable *query,
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	dataStore->getUserList(userList, option);
 
-	if (userList.empty())
+	if (userList.empty()) {
 		err = dataStore->addUser(userInfo, option);
-	else
+	} else {
+		userInfo.id = userList.begin()->id;
 		err = dataStore->updateUser(userInfo, option);
+	}
 	if (err != HTERR_OK)
 		return err;
 	return HatoholError(HTERR_OK);

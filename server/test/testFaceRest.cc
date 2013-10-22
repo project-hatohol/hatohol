@@ -1226,4 +1226,25 @@ void test_updateOrAddUserAdd(void)
 	assertErrorCode(g_parser, HTERR_OK);
 }
 
+void test_updateOrAddUserUpdate(void)
+{
+	setupTestMode();
+	startFaceRest();
+
+	string url = "/test/user";
+	const bool dbRecreate = true;
+	const bool loadTestDat = true;
+	setupTestDBUser(dbRecreate, loadTestDat);
+	const size_t targetIndex = 2;
+	const UserInfo &userInfo = testUserInfo[targetIndex];
+
+	StringMap parameters;
+	parameters["user"] = userInfo.name;
+	parameters["password"] = "AR2c43fdsaf";
+	parameters["flags"] = "0";
+
+	g_parser = getResponseAsJsonParser(url, "cbname", parameters, "POST");
+	assertErrorCode(g_parser, HTERR_OK);
+}
+
 } // namespace testFaceRest
