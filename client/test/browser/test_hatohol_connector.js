@@ -1,6 +1,14 @@
 describe('HatoholConnector', function() {
   var TEST_USER = "test-user";
   var TEST_PASSWORD = "test*pass*d";
+
+  function setLoginDialogCallback() {
+    HatoholDialogObserver.registerCreatedCallback(function(id, obj) {
+      if (id == "hatohol_login_dialog")
+        obj.makeInput(TEST_USER, TEST_PASSWORD);
+    });
+  }
+
   before(function(done) {
     var csrfmiddlewaretoken = $("*[name=csrfmiddlewaretoken]").val();
     $.ajax({
@@ -51,11 +59,7 @@ describe('HatoholConnector', function() {
   })
 
   it('post simple', function(done) {
-    HatoholDialogObserver.registerCreatedCallback(function(id, obj) {
-      if (id == "hatohol_login_dialog")
-        obj.makeInput(TEST_USER, TEST_PASSWORD);
-    });
-
+    setLoginDialogCallback();
     var queryData = {
       csrfmiddlewaretoken: $("*[name=csrfmiddlewaretoken]").val(),
       "A":123, "S":"foo", "!'^@^`?":"<(.)>"};
