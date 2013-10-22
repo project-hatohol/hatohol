@@ -647,6 +647,26 @@ static void _assertUpdateAddUserMissing(
 #define assertUpdateAddUserMissing(P,...) \
 cut_trace(_assertUpdateAddUserMissing(P, ##__VA_ARGS__))
 
+static void _assertUpdateOrAddUser(const string &name)
+{
+	setupTestMode();
+	startFaceRest();
+
+	string url = "/test/user";
+	const bool dbRecreate = true;
+	const bool loadTestDat = true;
+	setupTestDBUser(dbRecreate, loadTestDat);
+
+	StringMap parameters;
+	parameters["user"] = name;
+	parameters["password"] = "AR2c43fdsaf";
+	parameters["flags"] = "0";
+
+	g_parser = getResponseAsJsonParser(url, "cbname", parameters, "POST");
+	assertErrorCode(g_parser, HTERR_OK);
+}
+#define assertUpdateOrAddUser(U) cut_trace(_assertUpdateOrAddUser(U))
+
 static void setupPostAction(void)
 {
 	bool recreate = true;
@@ -1205,25 +1225,11 @@ void test_updateOrAddUserMissingFlags(void)
 
 void test_updateOrAddUserAdd(void)
 {
-	setupTestMode();
-	startFaceRest();
-
-	string url = "/test/user";
-	const bool dbRecreate = true;
-	const bool loadTestDat = true;
-	setupTestDBUser(dbRecreate, loadTestDat);
-	string name = "Tux";
+	const string name = "Tux";
 	// make sure the name is not in test data.
 	for (size_t i = 0; i < NumTestUserInfo; i++)
 		cppcut_assert_not_equal(name, testUserInfo[i].name);
-
-	StringMap parameters;
-	parameters["user"] = name;
-	parameters["password"] = "AR2c43fdsaf";
-	parameters["flags"] = "0";
-
-	g_parser = getResponseAsJsonParser(url, "cbname", parameters, "POST");
-	assertErrorCode(g_parser, HTERR_OK);
+	assertUpdateOrAddUser(name);
 }
 
 void test_updateOrAddUserUpdate(void)
