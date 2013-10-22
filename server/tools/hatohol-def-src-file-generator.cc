@@ -175,6 +175,12 @@ static void makeDefSourceValues(string &s, LanguageType langType)
 	   FaceRest::SESSION_ID_HEADER_NAME;
 	ADD_LINE(s, langType, FACE_REST_SESSION_ID_HEADER_NAME);
 	APPEND(s, "\n");
+
+	//
+	// Other
+	//
+	ADD_LINE(s, langType, HTERR_ERROR_TEST);
+	APPEND(s, "\n");
 }
 
 static string makeNodeModuleExport(void)

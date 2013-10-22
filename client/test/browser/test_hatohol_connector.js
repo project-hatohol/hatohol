@@ -93,5 +93,23 @@ describe('HatoholConnector', function() {
     };
     var connector = new HatoholConnector(params);
   });
+
+  it('parse error callback', function(done) {
+    setLoginDialogCallback();
+    var params = {
+      url: "/test/error",
+      replyCallback: function(data, parser) {
+        expect().fail("replyCallback() should not be called.");
+        done();
+      },
+      parseErrorCallback: function(data, parser) {
+        expect(data).not.to.be(undefined);
+        expect(parser).not.to.be(undefined);
+        expect(parser.getErrorCode()).to.be(hatohol.HTERR_ERROR_TEST);
+        done();
+      },
+    };
+    var connector = new HatoholConnector(params);
+  });
 });
 
