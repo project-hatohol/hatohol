@@ -448,7 +448,6 @@ void ZabbixAPIEmulator::APIHandlerEventGet(APIHandlerArg &arg)
 		m_ctx->isEventGetFirst = false;
 	} else {
 		if(parser.read("eventid_from", eventIdFrom)) {
-			printf("Read success: eventid_from\n");
 			if (eventIdFrom < 0)
 				THROW_HATOHOL_EXCEPTION("Invalid parameter: eventid_from: %"PRId64"\n", eventIdFrom);
 		} else {
@@ -456,7 +455,6 @@ void ZabbixAPIEmulator::APIHandlerEventGet(APIHandlerArg &arg)
 		}
 
 		if(parser.read("eventid_till", eventIdTill)) {
-			printf("Read success: eventid_till\n");
 			if (eventIdTill < 0)
 				THROW_HATOHOL_EXCEPTION("Invalid parameter: eventid_till: %"PRId64"\n", eventIdTill);
 		} else {
