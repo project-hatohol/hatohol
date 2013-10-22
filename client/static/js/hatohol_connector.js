@@ -86,7 +86,7 @@ var HatoholConnector = function(connectParams) {
       success: function(data) {
         var parser;
         if (connectParams.replyParser)
-          parser = new connectParams.replyParser(reply)
+          parser = new connectParams.replyParser(data)
         else
           parser = new HatoholReplyParser(data);
         if (parser.getStatus() == REPLY_STATUS.ERROR_CODE_IS_NOT_OK) {

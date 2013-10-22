@@ -111,5 +111,25 @@ describe('HatoholConnector', function() {
     };
     var connector = new HatoholConnector(params);
   });
+
+  it('specify replyParser', function(done) {
+    setLoginDialogCallback();
+    var numParserCalled = 0;
+    var CustomParser = function() {
+      numParserCalled++;
+    };
+    CustomParser.prototype = Object.create(HatoholReplyParser.prototype);
+    CustomParser.prototype.constructor = CustomParser;
+
+    var params = {
+      url: "/test",
+      replyCallback: function(data, parser) {
+        expect(numParserCalled).to.be(1);
+        done();
+      },
+      replyParser: CustomParser,
+    };
+    var connector = new HatoholConnector(params);
+  });
 });
 
