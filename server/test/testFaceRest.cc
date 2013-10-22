@@ -634,7 +634,7 @@ static void setupTestMode(void)
 	hatoholInit(&arg);
 }
 
-void _assertUpdateAddUserMissing(
+static void _assertUpdateAddUserMissing(
   const StringMap &parameters,
   const HatoholErrorCode expectErrorCode = HTERR_NOT_FOUND_PARAMETER)
 {
