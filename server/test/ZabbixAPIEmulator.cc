@@ -54,6 +54,7 @@ struct ZabbixAPIEmulator::PrivateContext {
 	size_t        currEventSliceIndex;
 	vector<string> slicedEventVector;
 	GMainContext   *gMainCtx;
+	bool		isEventGetFirst;
 	
 	// methods
 	PrivateContext(void)
@@ -63,7 +64,8 @@ struct ZabbixAPIEmulator::PrivateContext {
 	  operationMode(OPE_MODE_NORMAL),
 	  numEventSlices(0),
 	  currEventSliceIndex(0),
-	  gMainCtx(0)
+	  gMainCtx(0),
+	  isEventGetFirst(true)
 	{
 		gMainCtx = g_main_context_new();
 	}
@@ -397,6 +399,12 @@ void ZabbixAPIEmulator::APIHandlerEventGet(APIHandlerArg &arg)
 {
 	gchar *contents;
 	gsize length;
+	string output;
+	string sortField;
+	string sortOrder;
+	int64_t limit = 0;
+	string eventIdFrom;
+	string eventIdTill;
 	static const char *DATA_FILE = "zabbix-api-res-events-002.json";
 	string path = getFixturesDir() + DATA_FILE;
 
@@ -408,38 +416,54 @@ void ZabbixAPIEmulator::APIHandlerEventGet(APIHandlerArg &arg)
 	parser.startObject("params");
 
 	// parse parameter
-	string output;
 	if (!parser.read("output", output))
 		THROW_HATOHOL_EXCEPTION("Not found: output");
 	if (output != "extend" && output != "shorten") {
 		THROW_HATOHOL_EXCEPTION("Invalid parameter: output: %s",
-				      output.c_str());
+				output.c_str());
 	}
 
-	int64_t eventIdFrom = 0;
-	parser.read("eventid_from", eventIdFrom);
-
-	int64_t eventIdTill = 0;
-	parser.read("eventid_till", eventIdTill);
-
-	string sortField;
-	if (parser.read("sortfield", sortField)) {
-		if (sortField != "eventid") {
-			THROW_HATOHOL_EXCEPTION("Invalid parameter: sortfield: %s",
-					sortField.c_str());
+	if (m_ctx->isEventGetFirst) {
+		if (parser.read("sortfield", sortField)) {
+			if (sortField != "eventid") {
+				THROW_HATOHOL_EXCEPTION("Invalid parameter: sortfield: %s",
+						sortField.c_str());
+			}
 		}
-	}
 
-	string sortOrder;
-	if (parser.read("sortorder", sortOrder)) {
-		if (sortOrder != "ASC" && sortOrder != "DESC") {
-			THROW_HATOHOL_EXCEPTION("Invalid parameter: sortorder: %s",
-					sortOrder.c_str());
+		if (parser.read("sortorder", sortOrder)) {
+			if (sortOrder != "ASC" && sortOrder != "DESC") {
+				THROW_HATOHOL_EXCEPTION("Invalid parameter: sortorder: %s",
+						sortOrder.c_str());
+			}
 		}
-	}
 
-	int64_t limit = 0;
-	parser.read("limit", limit);
+		if (parser.read("limit", limit)) {
+			if (limit < 0) 
+				THROW_HATOHOL_EXCEPTION("Invalid parameter: limit: %"PRId64"\n", limit);
+		} else {
+			THROW_HATOHOL_EXCEPTION("Not found: limit");
+		}
+
+		m_ctx->isEventGetFirst = false;
+	} else {
+		if(parser.read("eventid_from", eventIdFrom)) {
+			printf("Read success: eventid_from\n");
+			if (eventIdFrom < 0)
+				THROW_HATOHOL_EXCEPTION("Invalid parameter: eventid_from: %"PRId64"\n", eventIdFrom);
+		} else {
+			THROW_HATOHOL_EXCEPTION("Not Found: eventid_from");
+		}
+
+		if(parser.read("eventid_till", eventIdTill)) {
+			printf("Read success: eventid_till\n");
+			if (eventIdTill < 0)
+				THROW_HATOHOL_EXCEPTION("Invalid parameter: eventid_till: %"PRId64"\n", eventIdTill);
+		} else {
+			THROW_HATOHOL_EXCEPTION("Not Found: eventid_till");
+		}
+
+	}
 
 	if (m_ctx->numEventSlices != 0) {
 		// slice mode
