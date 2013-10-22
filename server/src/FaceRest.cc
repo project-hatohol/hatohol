@@ -836,7 +836,7 @@ void FaceRest::handlerTest
 
 	if (string(path) == "/test/error") {
 		agent.endObject(); // top level
-		replyError(msg, arg, HTERR_ERROR_FOR_TEST);
+		replyError(msg, arg, HTERR_ERROR_TEST);
 		return;
 	} 
 
