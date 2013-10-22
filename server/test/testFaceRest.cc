@@ -26,6 +26,7 @@
 #include "DBClientTest.h"
 #include "Params.h"
 #include "MultiLangTest.h"
+#include "CacheServiceDBClient.h"
 
 namespace testFaceRest {
 
@@ -664,6 +665,17 @@ static void _assertUpdateOrAddUser(const string &name)
 
 	g_parser = getResponseAsJsonParser(url, "cbname", parameters, "POST");
 	assertErrorCode(g_parser, HTERR_OK);
+
+	// check the data in the DB
+	string statement = StringUtils::sprintf(
+	  "select name,password,flags from %s where name='%s'",
+	  DBClientUser::TABLE_NAME_USERS, name.c_str());
+	string expect = StringUtils::sprintf("%s|%s|%s",
+	  parameters["user"].c_str(),
+	  Utils::sha256( parameters["password"]).c_str(),
+	  parameters["flags"].c_str());
+	CacheServiceDBClient cache;
+	assertDBContent(cache.getUser()->getDBAgent(), statement, expect);
 }
 #define assertUpdateOrAddUser(U) cut_trace(_assertUpdateOrAddUser(U))
 
