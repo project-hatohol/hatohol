@@ -57,7 +57,7 @@ describe('HatoholConnector', function() {
       },
     };
     var connector = new HatoholConnector(params);
-  })
+  });
 
   it('post simple', function(done) {
     setLoginDialogCallback();
@@ -74,6 +74,6 @@ describe('HatoholConnector', function() {
       },
     };
     var connector = new HatoholConnector(params);
-  })
+  });
 });
 
