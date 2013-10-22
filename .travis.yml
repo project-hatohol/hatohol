@@ -7,15 +7,17 @@ compiler:
   - clang
 install:
   - server/misc/setup-cutter.sh
-  - sudo apt-get install -qq -y autotools-dev libglib2.0-dev libjson-glib-dev libsoup2.4-dev libmysqlclient-dev sqlite3 ndoutils-nagios3-mysql uuid-dev npm
+  - sudo apt-get install -qq -y autotools-dev libglib2.0-dev libjson-glib-dev libsoup2.4-dev libmysqlclient-dev sqlite3 ndoutils-nagios3-mysql uuid-dev npm python-pip
   - mysql -u root -e "GRANT all on ndoutils.* TO ndoutils@localhost IDENTIFIED BY 'admin';"
   - npm install -g mocha
   - npm install -g expect.js
+  - pip install django
 before_script:
   - ./autogen.sh
   - ./configure
   - sudo chmod +r /var/log/syslog
   - sudo chmod 777 /var/run
+  - make
 script:
   - pushd .
   - ./server/mlpl/test/run-test.sh
@@ -23,4 +25,4 @@ script:
   - popd; pushd .
   - cd server/tools/test && ./run-test.sh
   - popd; pushd .
-  - cd client; make static/js/hatohol_def.js && cd test; make && cd node; ./run-test.sh
+  - cd client/test/node && ./run-test.sh
