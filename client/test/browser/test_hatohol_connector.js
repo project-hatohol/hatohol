@@ -49,5 +49,29 @@ describe('HatoholConnector', function() {
     };
     var connector = HatoholConnector(params);
   })
+
+  it('post simple', function(done) {
+    HatoholDialogObserver.registerCreatedCallback(function(id, obj) {
+      if (id == "hatohol_login_dialog")
+        obj.makeInput(TEST_USER, TEST_PASSWORD);
+    });
+
+    var queryData = {
+      csrfmiddlewaretoken: $("*[name=csrfmiddlewaretoken]").val(),
+      "A":123, "S":"foo", "!'^@^`?":"<(.)>"};
+    var params = {
+      url: "/test",
+      request: "POST",
+      data: queryData,
+      replyCallback: function(data, parser) {
+        expect(data).not.to.be(undefined);
+        expect(parser).not.to.be(undefined);
+        expect(parser.getStatus()).to.be(hatohol.HTERR_OK);
+        expect(data.queryData).to.eql(queryData);
+        done();
+      },
+    };
+    var connector = HatoholConnector(params);
+  })
 });
 
