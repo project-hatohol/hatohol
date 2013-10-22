@@ -9,6 +9,12 @@ describe('HatoholConnector', function() {
     });
   }
 
+  function checkBasicResponse(data, parser) {
+    expect(data).not.to.be(undefined);
+    expect(parser).not.to.be(undefined);
+    expect(parser.getStatus()).to.be(hatohol.HTERR_OK);
+  }
+
   before(function(done) {
     var csrfmiddlewaretoken = $("*[name=csrfmiddlewaretoken]").val();
     $.ajax({
@@ -45,9 +51,7 @@ describe('HatoholConnector', function() {
     var params = {
       url: "/test",
       replyCallback: function(data, parser) {
-        expect(data).not.to.be(undefined);
-        expect(parser).not.to.be(undefined);
-        expect(parser.getStatus()).to.be(hatohol.HTERR_OK);
+        checkBasicResponse(data, parser);
         done();
       },
     };
