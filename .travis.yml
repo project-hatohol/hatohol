@@ -28,7 +28,7 @@ script:
   - popd; pushd .
   - cd client/test/node && ./run-test.sh
   - popd; pushd .
-  - cd server && LD_LIBRARY_PATH=mlpl/src/.libs:src/.libs src/.libs/hatohol --test-mode
+  - cd server && LD_LIBRARY_PATH=mlpl/src/.libs:src/.libs src/.libs/hatohol --foreground --test-mode
   - popd; pushd .
   - cd client && HATOHOL_DEBUG=1 ./manage.py runserver 0.0.0.0:8000 &
   - popd; pushd .
