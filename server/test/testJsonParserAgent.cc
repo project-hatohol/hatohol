@@ -32,7 +32,7 @@ void _assertReadFile(const string &fileName, string &output)
 	while (getline(ifs, str))
 		output += str;
 }
-#define assertReadFile(X,Y) cut_trace(_assertReadFile(X, Y))
+#define assertReadFile(X,Y) cut_trace(_assertReadFile(X,Y))
 
 template<typename T> void _assertReadWord(JsonParserAgent &parser,
                      const string &name, const T &expect)
@@ -41,7 +41,7 @@ template<typename T> void _assertReadWord(JsonParserAgent &parser,
 	cppcut_assert_equal(true, parser.read(name, actual));
 	cppcut_assert_equal(expect, actual);
 }
-#define assertReadWord(Z,A,X,Y) cut_trace(_assertReadWord<Z>(A,X, Y))
+#define assertReadWord(Z,A,X,Y) cut_trace(_assertReadWord<Z>(A,X,Y))
 
 void _assertReadWordElement(JsonParserAgent &parser,
                      int index, const string &expect)
@@ -50,7 +50,7 @@ void _assertReadWordElement(JsonParserAgent &parser,
 	cppcut_assert_equal(true, parser.read(index, actual));
 	cppcut_assert_equal(expect, actual);
 }
-#define assertReadWordElement(A,X,Y) cut_trace(_assertReadWordElement(A,X, Y))
+#define assertReadWordElement(A,X,Y) cut_trace(_assertReadWordElement(A,X,Y))
 
 #define DEFINE_PARSER_AND_READ(PARSER, JSON_MATERIAL) \
 string _json; \
