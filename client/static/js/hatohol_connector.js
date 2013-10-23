@@ -22,7 +22,7 @@
 // ---------------------------------------------------------------------------
 var HatoholConnector = function(connectParams) {
   // connectParams has the following paramters.
-  //   url: mandatory (e.g. /tunnel/server)
+  //   url: mandatory (e.g. /server, Note /tunnel is automatically added)
   //   request: GET, POST, PUT, and DELETE (Default: GET)
   //   data: data to send
   //   replyCallback: function(reply, parser)
