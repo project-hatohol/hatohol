@@ -113,6 +113,11 @@ void test_parseStringInObjectInArray(void)
 	parser.endObject(); // array0;
 }
 
+void test_checkParseSuccess(void)
+{
+	DEFINE_PARSER_AND_READ(parser, "fixtures/testJson05.json");
+}
+
 } //namespace testJsonParserAgent
 
 
