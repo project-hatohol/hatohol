@@ -32,12 +32,8 @@ RETRY_INTERVAL=0.5
 n=0
 while [ $n -le $NUM_RETRY ]
 do
-  if [ ! -d /proc/$server_pid ]; then
-    exit 1
-  fi
-  if [ ! -d /proc/$client_pid ]; then
-    exit 1
-  fi
+  test -d /proc/$server_pid || exit 1
+  test -d /proc/$client_pid || exit 1
 
   http_code=`curl http://localhost:8000/tunnel/hello.html -o /dev/null -w '%{http_code}\n'` 
   if [ $http_code -eq 200 ]; then
