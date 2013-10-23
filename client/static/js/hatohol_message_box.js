@@ -34,10 +34,15 @@ var HatoholMessageBox = function(msg, title, buttonLabel) {
     }
   }];
   var id = "hatohol-message-box";
-  var div = "<div id='" + id + "'>" + msg + "</div>";
-  $("body").append(div);
-
   self.dialogId = "#" + id
+  var msgDiv = $(self.dialogId);
+  if (!msgDiv[0]) {
+    var div = "<div id='" + id + "'>" + msg + "</div>";
+    $("body").append(div);
+  } else  {
+    msgDiv.text(msg);
+  }
+
   $(self.dialogId).dialog({
     autoOpen: false,
     title: title,
