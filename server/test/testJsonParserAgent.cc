@@ -135,6 +135,10 @@ void test_parseStringInObjectInArray(void)
 void test_checkParseSuccess(void)
 {
 	DEFINE_PARSER_AND_READ(parser, "fixtures/testJson05.json");
+
+	assertReadWordBool(parser, "valid", true);
+	assertReadWordInt64t(parser, "id", (int64_t)1);
+	assertReadWordString(parser, "name", "Hatohol");
 }
 
 } //namespace testJsonParserAgent
