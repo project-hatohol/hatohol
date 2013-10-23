@@ -11,6 +11,7 @@ install:
   - mysql -u root -e "GRANT all on ndoutils.* TO ndoutils@localhost IDENTIFIED BY 'admin';"
   - npm install -g mocha
   - npm install -g expect.js
+  - npm install -g mocha-phantomjs phantomjs
   - sudo pip install django
 before_script:
   - ./autogen.sh
@@ -26,3 +27,9 @@ script:
   - cd server/tools/test && ./run-test.sh
   - popd; pushd .
   - cd client/test/node && ./run-test.sh
+  - popd; pushd .
+  - cd server && LD_LIBRARY_PATH=mlpl/src/.libs:src/.libs src/.libs/hatohol --test-mode
+  - popd; pushd .
+  - cd client && HATOHOL_DEBUG=1 ./manage.py runserver 0.0.0.0:8000 &
+  - popd; pushd .
+  - mocha-phantomjs http://localhost:8000/test/index.html
