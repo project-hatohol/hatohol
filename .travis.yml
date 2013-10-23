@@ -7,7 +7,7 @@ compiler:
   - clang
 install:
   - server/misc/setup-cutter.sh
-  - sudo apt-get install -qq -y autotools-dev libglib2.0-dev libjson-glib-dev libsoup2.4-dev libmysqlclient-dev sqlite3 ndoutils-nagios3-mysql uuid-dev npm python-pip
+  - sudo apt-get install -qq -y autotools-dev libglib2.0-dev libjson-glib-dev libsoup2.4-dev libmysqlclient-dev sqlite3 ndoutils-nagios3-mysql uuid-dev npm python-pip expect
   - mysql -u root -e "GRANT all on ndoutils.* TO ndoutils@localhost IDENTIFIED BY 'admin';"
   - npm install -g mocha
   - npm install -g expect.js
@@ -28,8 +28,5 @@ script:
   - popd; pushd .
   - cd client/test/node && ./run-test.sh
   - popd; pushd .
-  - cd server && LD_LIBRARY_PATH=mlpl/src/.libs:src/.libs src/.libs/hatohol --foreground --test-mode
-  - popd; pushd .
-  - cd client && HATOHOL_DEBUG=1 ./manage.py runserver 0.0.0.0:8000 &
-  - popd; pushd .
+  - test/launch-hatohol-for-test.sh
   - mocha-phantomjs http://localhost:8000/test/index.html
