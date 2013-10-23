@@ -138,6 +138,22 @@ void test_checkResultWhenTrueFalseTrue(void)
 	assertReadWord(int64_t, parser, "code", 124);
 	parser.endObject();
 }
+
+void test_checkResultWhenFalseTrueFalse(void)
+{
+	DEFINE_PARSER_AND_READ(parser, "fixtures/testJson05.json");
+	string value;
+
+	cppcut_assert_equal(false, parser.read("address", value));
+	assertReadWord(string, parser, "name", "Hatohol");
+	cppcut_assert_equal(false, parser.read("phone", value));
+
+	cppcut_assert_equal(true, parser.startObject("object"));
+	cppcut_assert_equal(false, parser.read("country", value));
+	assertReadWord(string, parser, "name", "Hatohol");
+	cppcut_assert_equal(false, parser.read("no", value));
+	parser.endObject();
+}
 } //namespace testJsonParserAgent
 
 
