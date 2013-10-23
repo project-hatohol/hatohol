@@ -25,3 +25,26 @@ server_pid=$!
 cd $client_dir
 HATOHOL_DEBUG=1 ./manage.py runserver 0.0.0.0:8000 &
 client_pid=$!
+
+# wait for the boot completion
+NUM_RETRY=30
+RETRY_INTERVAL=0.5
+n=0
+while [ $n -le $NUM_RETRY ]
+do
+  if [ ! -d /proc/$server_pid ]; then
+    exit 1
+  fi
+  if [ ! -d /proc/$client_pid ]; then
+    exit 1
+  fi
+
+  http_code=`curl http://localhost:8000/tunnel/hello.html -o /dev/null -w '%{http_code}\n'` 
+  if [ $http_code -eq 200 ]; then
+    break
+  fi
+  
+  sleep $RETRY_INTERVAL
+  n=`expr $n + 1`
+done
+exit 0
