@@ -1,7 +1,7 @@
 {
   "id":1,
   "name":"Hatohol",
-  "tel":1234567890,
+  "valid":true,
   "object":{
     "home":true,
     "city":"Tokyo",
