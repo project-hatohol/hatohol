@@ -278,25 +278,16 @@ var HatoholAddActionDialog = function(addSucceededCb) {
   }
 
   function postAddAction() {
-    $.ajax({
-      url: "/tunnel/action",
-      type: "POST",
+    new HatoholConnector({
+      url: "/action",
+      request: "POST",
       data: makeQueryData(),
-      success: function(data) {
-        parsePostActionResult(data);
-      },
-      error: function(XMLHttpRequest, textStatus, errorThrown) {
-        var errorMsg = "Error: " + XMLHttpRequest.status + ": " +
-                       XMLHttpRequest.statusText;
-        showErrorMessageBox(errorMsg);
-      }
-    })
+      replyCallback: replyCallback,
+      parseErrorCallback: hatoholErrorMsgBoxForParser,
+    });
   }
 
-  function parsePostActionResult(data) {
-    if (!parseResult(data))
-      return;
-
+  function replyCallback(reply, parser) {
     self.closeDialog();
     showInfoMessageBox(gettext("Successfully created."));
 
