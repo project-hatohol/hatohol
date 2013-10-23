@@ -1,10 +1,10 @@
 {
-  "id":"1",
+  "id":1,
   "name":"Hatohol",
-  "tel":"xxx-yyy-zzz",
+  "tel":1234567890,
   "object":{
-    "country":"Japan",
+    "home":true,
     "city":"Tokyo",
-    "zipcode":"xxx-yyy"
+    "code":124
   }
 } 
