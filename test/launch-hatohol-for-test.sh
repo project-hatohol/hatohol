@@ -43,4 +43,5 @@ do
   sleep $RETRY_INTERVAL
   n=`expr $n + 1`
 done
+test $n -eq $NUM_RETRY && exit 1
 exit 0
