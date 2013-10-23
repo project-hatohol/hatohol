@@ -34,32 +34,14 @@ void _assertReadFile(const string &fileName, string &output)
 }
 #define assertReadFile(X,Y) cut_trace(_assertReadFile(X, Y))
 
-void _assertReadWordBool(JsonParserAgent &parser,
-                     const string &name, const bool &expect)
+template<typename T> void _assertReadWord(JsonParserAgent &parser,
+                     const string &name, const T &expect)
 {
-	bool actual;
+	T actual;
 	cppcut_assert_equal(true, parser.read(name, actual));
 	cppcut_assert_equal(expect, actual);
 }
-#define assertReadWordBool(A,X,Y) cut_trace(_assertReadWordBool(A,X, Y))
-
-void _assertReadWordInt64t(JsonParserAgent &parser,
-                     const string &name, const int64_t &expect)
-{
-	int64_t actual;
-	cppcut_assert_equal(true, parser.read(name, actual));
-	cppcut_assert_equal(expect, actual);
-}
-#define assertReadWordInt64t(A,X,Y) cut_trace(_assertReadWordInt64t(A,X, Y))
-
-void _assertReadWordString(JsonParserAgent &parser,
-                     const string &name, const string &expect)
-{
-	string actual;
-	cppcut_assert_equal(true, parser.read(name, actual));
-	cppcut_assert_equal(expect, actual);
-}
-#define assertReadWordString(A,X,Y) cut_trace(_assertReadWordString(A,X, Y))
+#define assertReadWord(Z,A,X,Y) cut_trace(_assertReadWord<Z>(A,X, Y))
 
 void _assertReadWordElement(JsonParserAgent &parser,
                      int index, const string &expect)
@@ -83,8 +65,8 @@ cppcut_assert_equal(false, PARSER.hasError());
 void test_parseString(void)
 {
 	DEFINE_PARSER_AND_READ(parser, "fixtures/testJson01.json");
-	assertReadWordString(parser, "name0", "string value");
-	assertReadWordString(parser, "name1", "123");
+	assertReadWord(string, parser, "name0", "string value");
+	assertReadWord(string, parser, "name1", "123");
 }
 
 void test_parseStringInObject(void)
@@ -92,11 +74,11 @@ void test_parseStringInObject(void)
 	DEFINE_PARSER_AND_READ(parser, "fixtures/testJson02.json");
 
 	cppcut_assert_equal(true, parser.startObject("object0"));
-	assertReadWordString(parser, "food", "donuts");
+	assertReadWord(string, parser, "food", "donuts");
 	parser.endObject();
 	cppcut_assert_equal(true, parser.startObject("object1"));
-	assertReadWordString(parser, "name", "dog");
-	assertReadWordString(parser, "age", "5");
+	assertReadWord(string, parser, "name", "dog");
+	assertReadWord(string, parser, "age", "5");
 	parser.endObject();
 }
 
@@ -120,13 +102,13 @@ void test_parseStringInObjectInArray(void)
 	cppcut_assert_equal(2, parser.countElements());
 
 	cppcut_assert_equal(true, parser.startElement(0));
-	assertReadWordString(parser, "key0", "value0");
-	assertReadWordString(parser, "key1", "value1");
+	assertReadWord(string, parser, "key0", "value0");
+	assertReadWord(string, parser, "key1", "value1");
 	parser.endElement();
 
 	cppcut_assert_equal(true, parser.startElement(1));
-	assertReadWordString(parser, "key0X", "value0Y");
-	assertReadWordString(parser, "key1X", "value1Y");
+	assertReadWord(string, parser, "key0X", "value0Y");
+	assertReadWord(string, parser, "key1X", "value1Y");
 	parser.endElement();
 
 	parser.endObject(); // array0;
@@ -136,9 +118,9 @@ void test_checkParseSuccess(void)
 {
 	DEFINE_PARSER_AND_READ(parser, "fixtures/testJson05.json");
 
-	assertReadWordBool(parser, "valid", true);
-	assertReadWordInt64t(parser, "id", (int64_t)1);
-	assertReadWordString(parser, "name", "Hatohol");
+	assertReadWord(bool, parser, "valid", true);
+	assertReadWord(int64_t, parser, "id", 1);
+	assertReadWord(string, parser, "name", "Hatohol");
 }
 
 void test_checkResultWhenTrueFalseTrue(void)
@@ -146,14 +128,14 @@ void test_checkResultWhenTrueFalseTrue(void)
 	DEFINE_PARSER_AND_READ(parser, "fixtures/testJson05.json");
 	string value;
 
-	assertReadWordInt64t(parser, "id", (int64_t)1);
+	assertReadWord(int64_t, parser, "id", 1);
 	cppcut_assert_equal(false, parser.read("address", value));
-	assertReadWordBool(parser, "valid", true);
+	assertReadWord(bool, parser, "valid", true);
 
 	cppcut_assert_equal(true, parser.startObject("object"));
-	assertReadWordBool(parser, "home", true);
+	assertReadWord(bool, parser, "home", true);
 	cppcut_assert_equal(false, parser.read("address", value));
-	assertReadWordInt64t(parser, "code", (int64_t)124);
+	assertReadWord(int64_t, parser, "code", 124);
 	parser.endObject();
 }
 } //namespace testJsonParserAgent
