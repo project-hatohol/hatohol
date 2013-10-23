@@ -63,3 +63,13 @@ function hatoholWarnMsgBox(msg) {
 function hatoholErrorMsgBox(msg) {
   new HatoholMessageBox(msg, gettext("Error"));
 };
+
+function hatoholMsgBoxForParser(reply, parser, title) {
+  var msg = gettext("Failed to parse the result. status code: ");
+  msg += parser.getStatus();
+  new HatoholMessageBox(msg, gettext("Error"));
+};
+
+function hatoholErrorMsgBoxForParser(reply, parser) {
+  hatoholMessageBoxForParser(reply, parser, gettext("Error"));
+};
