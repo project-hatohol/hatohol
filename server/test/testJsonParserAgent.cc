@@ -141,6 +141,21 @@ void test_checkParseSuccess(void)
 	assertReadWordString(parser, "name", "Hatohol");
 }
 
+void test_checkResultWhenTrueFalseTrue(void)
+{
+	DEFINE_PARSER_AND_READ(parser, "fixtures/testJson05.json");
+	string value;
+
+	assertReadWordInt64t(parser, "id", (int64_t)1);
+	cppcut_assert_equal(false, parser.read("address", value));
+	assertReadWordBool(parser, "valid", true);
+
+	cppcut_assert_equal(true, parser.startObject("object"));
+	assertReadWordBool(parser, "home", true);
+	cppcut_assert_equal(false, parser.read("address", value));
+	assertReadWordInt64t(parser, "code", (int64_t)124);
+	parser.endObject();
+}
 } //namespace testJsonParserAgent
 
 
