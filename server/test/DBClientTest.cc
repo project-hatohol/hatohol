@@ -254,6 +254,70 @@ ActionDef testActionDef[] = {
 
 const size_t NumTestActionDef = sizeof(testActionDef) / sizeof(ActionDef);
 
+UserInfo testUserInfo[] = {
+{
+	0,                 // id
+	"cheesecake",      // name
+	"CDEF~!@#$%^&*()", // password
+	0,                 // flags
+}, {
+	0,                 // id
+	"pineapple",       // name
+	"Po+-\\|}{\":?><", // password
+	ALL_PRIVILEGES,    // flags
+}, {
+	0,                 // id
+	"m1ffy@v@",        // name
+	"S/N R@t10",       // password
+	0,                 // flags
+}, {
+	0,                 // id
+	"higgs",           // name
+	"gg -> h",        // password
+	OperationPrivilege::makeFlag(OPPRVLG_GET_ALL_USERS), // flags
+}
+};
+const size_t NumTestUserInfo = sizeof(testUserInfo) / sizeof(UserInfo);
+
+AccessInfo testAccessInfo[] = {
+{
+	0,                 // id
+	1,                 // userId
+	1,                 // serverId
+	0,                 // hostGroupId
+}, {
+	0,                 // id
+	1,                 // userId
+	1,                 // serverId
+	1,                 // hostGroupId
+}, {
+	0,                 // id
+	2,                 // userId
+	ALL_SERVERS,       // serverId
+	ALL_HOST_GROUPS,   // hostGroupId
+}, {
+	0,                 // id
+	3,                 // userId
+	1,                 // serverId
+	ALL_HOST_GROUPS,   // hostGroupId
+}, {
+	0,                 // id
+	3,                 // userId
+	2,                 // serverId
+	1,                 // hostGroupId
+}, {
+	0,                 // id
+	3,                 // userId
+	2,                 // serverId
+	2,                 // hostGroupId
+}, {
+	0,                 // id
+	3,                 // userId
+	4,                 // serverId
+	1,                 // hostGroupId
+}
+};
+const size_t NumTestAccessInfo = sizeof(testAccessInfo) / sizeof(AccessInfo);
 
 const TriggerInfo &searchTestTriggerInfo(const EventInfo &eventInfo)
 {
@@ -429,7 +493,7 @@ static void removeHostIdIfNeeded(ServerIdHostGroupHostIdMap &svIdHostGrpIdMap,
 size_t getNumberOfTestHostsWithStatus(uint32_t serverId, uint64_t hostGroupId,
                                       bool status)
 {
-	ServerIdHostGroupHostIdMap svIdHostGrpIdMap;;
+	ServerIdHostGroupHostIdMap svIdHostGrpIdMap;
 	ServerIdHostGroupHostIdMapIterator svIt;
 	HostGroupHostIdMapIterator         hostIt;
 
@@ -515,5 +579,14 @@ void getDBCTestHostInfo(HostInfoList &hostInfoList, uint32_t targetServerId)
 		hostInfo.hostName = trigInfo.hostName;
 		hostInfoList.push_back(hostInfo);
 		svIdHostIdsMap[svId].insert(hostId);
+	}
+}
+
+void makeTestUserIdIndexMap(UserIdIndexMap &userIdIndexMap)
+{
+
+	for (size_t i = 0; i < NumTestAccessInfo; i++) {
+		AccessInfo &accessInfo = testAccessInfo[i];
+		userIdIndexMap[accessInfo.userId].insert(i);
 	}
 }

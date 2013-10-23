@@ -1,0 +1,16 @@
+#
+# Example config file for Hatohol Server.
+#
+# A comment line begins with '#'
+# A empty line is ignored.
+
+# A server for storing config information
+configDBServer: localhost
+configDBServerPort: 0
+
+# server: Server ID, TYPE (0: Zabbix, 1: Naigos), Hostname, IP Address, nickname, Port, Polling Interval (sec.), Retry Interval (sec.), user name, passowrd[, dbname (only needed for Naigos)]
+
+# Port 0 means default port.
+faceRestPort: 0
+# We don't register servers
+#server: 1, 0, localhost, 127.0.0.1, My machine, 80, 30, 10, Admin,    zabbix

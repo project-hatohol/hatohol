@@ -20,11 +20,16 @@
 #ifndef Params_h
 #define Params_h
 
+#include <cstdio>
+#include <stdint.h>
+#include <set>
+
 typedef uint32_t DBDomainId;
 
 static const DBDomainId DB_DOMAIN_ID_CONFIG  = 0x0010;
 static const DBDomainId DB_DOMAIN_ID_ACTION  = 0x0018;
 static const DBDomainId DB_DOMAIN_ID_HATOHOL = 0x0020;
+static const DBDomainId DB_DOMAIN_ID_USERS   = 0x0030;
 static const DBDomainId DB_DOMAIN_ID_ZABBIX  = 0x1000;
 static const size_t NUM_MAX_ZABBIX_SERVERS = 100;
 // DBClintZabbix uses the number of domains by NUM_MAX_ZABBIX_SERVERS 
@@ -33,6 +38,14 @@ static const size_t NUM_MAX_ZABBIX_SERVERS = 100;
 //   to   DB_DOMAIN_ID_ZABBIX + NUM_MAX_ZABBIX_SERVERS - 1
 static const DBDomainId DB_DOMAIN_ID_NONE    = -1;
 
+typedef int UserIdType;
+#define FMT_USER_ID "d"
+static const UserIdType INVALID_USER_ID = -1;
+static const UserIdType USER_ID_ADMIN   = 0;
+
+typedef std::set<UserIdType>      UserIdSet;
+typedef UserIdSet::iterator       UserIdSetIterator;
+typedef UserIdSet::const_iterator UserIdSetIterator;
+extern const UserIdSet EMPTY_USER_ID_SET;
+
 #endif // Params_h
-
-

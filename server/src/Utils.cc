@@ -252,6 +252,16 @@ bool Utils::removeEventSourceIfNeeded(guint tag)
 	return true;
 }
 
+string Utils::sha256(const string &data)
+{
+	gchar *sha256 = g_compute_checksum_for_string(G_CHECKSUM_SHA256,
+	                                              data.c_str(), -1);
+	HATOHOL_ASSERT(sha256, "checksum type may be wrong.");
+	string shaStr = sha256;
+	g_free(sha256);
+	return shaStr;
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------

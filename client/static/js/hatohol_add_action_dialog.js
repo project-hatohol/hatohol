@@ -47,8 +47,7 @@ var HatoholAddActionDialog = function(addSucceededCb) {
   function addButtonClickedCb() {
     if (validateAddParameters()) {
       makeQueryData();
-      showMessageBox(gettext("Now creating an action ..."),
-                     gettext("Information"));
+      hatoholInfoMsgBox(gettext("Now creating an action ..."));
       postAddAction();
     }
   }
@@ -278,27 +277,18 @@ var HatoholAddActionDialog = function(addSucceededCb) {
   }
 
   function postAddAction() {
-    $.ajax({
-      url: "/tunnel/action",
-      type: "POST",
+    new HatoholConnector({
+      url: "/action",
+      request: "POST",
       data: makeQueryData(),
-      success: function(data) {
-        parsePostActionResult(data);
-      },
-      error: function(XMLHttpRequest, textStatus, errorThrown) {
-        var errorMsg = "Error: " + XMLHttpRequest.status + ": " +
-                       XMLHttpRequest.statusText;
-        showErrorMessageBox(errorMsg);
-      }
-    })
+      replyCallback: replyCallback,
+      parseErrorCallback: hatoholErrorMsgBoxForParser,
+    });
   }
 
-  function parsePostActionResult(data) {
-    if (!parseResult(data))
-      return;
-
+  function replyCallback(reply, parser) {
     self.closeDialog();
-    showInfoMessageBox(gettext("Successfully created."));
+    hatoholInfoMsgBox(gettext("Successfully created."));
 
     if (addSucceededCb)
       addSucceededCb();
@@ -306,7 +296,7 @@ var HatoholAddActionDialog = function(addSucceededCb) {
 
   function validateAddParameters() {
     if ($("#inputActionCommand").val() == "") {
-      showErrorMessageBox("Command is empty!");
+      hatoholErrorMsgBox("Command is empty!");
       return false;
     }
     return true;

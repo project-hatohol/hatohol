@@ -73,8 +73,12 @@
   <script src="{{ STATIC_URL }}js.external/jquery-ui.min.js"></script>
   <link type="text/css" href="{{ STATIC_URL }}css.external/themes/ui-lightness/jquery-ui.css" rel="stylesheet" />
   <script src="{{ STATIC_URL }}js/hatohol_def.js"></script>
-  <script src="{{ STATIC_URL }}js/hatohol_reply_parser.js"></script>
+  <script src="{{ STATIC_URL }}js/hatohol_message_box.js"></script>
+  <script src="{{ STATIC_URL }}js/hatohol_session_manager.js"></script>
   <script src="{{ STATIC_URL }}js/hatohol_dialog.js"></script>
+  <script src="{{ STATIC_URL }}js/hatohol_login_dialog.js"></script>
+  <script src="{{ STATIC_URL }}js/hatohol_connector.js"></script>
+  <script src="{{ STATIC_URL }}js/hatohol_reply_parser.js"></script>
   <script src="{{ STATIC_URL }}js/hatohol_add_action_dialog.js"></script>
   <script src="{{ STATIC_URL }}js/hatohol_selector_dialog.js"></script>
   <script src="{{ STATIC_URL }}js/hatohol_server_selector.js"></script>
@@ -150,12 +154,12 @@
         if (malformed) {
             msg = "The returned content is malformed: " +
                   "Not found 'result' or 'message'.\n" + JSON.stringify(data);
-            showErrorMessageBox(msg);
+            hatoholErrorMsgBox(msg);
             return false;
         }
         if (!data.result) {
             msg = "Failed:\n" + data.message
-            showErrorMessageBox(msg);
+            hatoholErrorMsgBox(msg);
             return false;
         }
 
@@ -163,7 +167,7 @@
             msg = "The returned content is malformed: " +
                   "'result' is true, however, 'id' is missing.\n" +
                   JSON.stringify(data);
-            showErrorMessageBox(msg);
+            hatoholErrorMsgBox(msg);
             return false;
         }
         return true;
@@ -173,6 +177,7 @@
     // delete-action dialog
     //
     function deleteActions() {
+        $(this).dialog("close");
         checkbox = $(".selectcheckbox");
         var deletedIdArray = {count:0, total:0, errors:0};
         for (var i = 0; i < checkbox.length; i++) {
@@ -184,7 +189,7 @@
           deletedIdArray.total++;
           deleteOneAction(actionId, deletedIdArray);
         }
-        showInfoMessageBox("{% trans "Deleting..." %}");
+        hatoholInfoMsgBox("{% trans "Deleting..." %}");
     }
 
     function deleteOneAction(id, deletedIdArray) {
@@ -201,7 +206,7 @@
         error: function(XMLHttpRequest, textStatus, errorThrown) {
           var errorMsg = "Error: " + XMLHttpRequest.status + ": " +
                          XMLHttpRequest.statusText;
-          showErrorMessageBox(errorMsg);
+          hatoholErrorMsgBox(errorMsg);
           deletedIdArray.errors++;
         },
         complete: function() {
@@ -225,14 +230,14 @@
     function compleOneDelAction(deletedIdArray) {
       deletedIdArray.count--;
       var completed = deletedIdArray.total - deletedIdArray.count;
-      showInfoMessageBox("{% trans "Deleting..." %}" + " " + completed +
+      hatoholErrorMsgBox("{% trans "Deleting..." %}" + " " + completed +
                          " / " + deletedIdArray.total);
       if (deletedIdArray.count > 0)
         return;
 
       // close dialogs
-      showInfoMessageBox("{% trans "Completed. (Number of errors: " %}"+
-                         deletedIdArray.errors + ")");
+      hatoholInfoMsgBox("{% trans "Completed. (Number of errors: " %}"+
+                        deletedIdArray.errors + ")");
 
       // update the main view
       schedule(0000, "action");
@@ -271,14 +276,6 @@
       if (buttons == NO_YES_BUTTON)
         NO_YES_BUTTON[1].click = callback;
       $("#msgbox").dialog("option", "buttons", buttons);
-    }
-
-    function showInfoMessageBox(msg) {
-      showMessageBox(msg, "{% trans "Information" %}", CLOSE_BUTTON)
-    }
-
-    function showErrorMessageBox(msg) {
-      showMessageBox(msg, "{% trans "Error" %}", CLOSE_BUTTON)
     }
 
     function showNoYesMessageBox(msg, yesCallback) {

@@ -41,7 +41,8 @@ public:
 	                            uint32_t targetServerId = ALL_SERVERS,
 	                            uint64_t targetHostId = ALL_HOSTS,
 	                            uint64_t targetTriggerId = ALL_TRIGGERS);
-	virtual void getEventList(EventInfoList &eventList);
+	virtual void getEventList(EventInfoList &eventList,
+	                          EventQueryOption &option);
 	virtual void getItemList(ItemInfoList &itemList,
 	                         uint32_t targetServerId = ALL_SERVERS);
 	virtual void getHostList(HostInfoList &hostInfoList,
@@ -67,6 +68,15 @@ public:
 	 * @param eventList A list of EventInfo.
 	 */
 	virtual void addEventList(const EventInfoList &eventList);
+
+	virtual void getUserList(UserInfoList &userList,
+                                 UserQueryOption &option);
+	virtual HatoholError addUser(
+	  UserInfo &userInfo, const OperationPrivilege &privilege);
+	virtual HatoholError updateUser(
+	  UserInfo &userInfo, const OperationPrivilege &privilege);
+	virtual HatoholError deleteUser(
+	  UserIdType userId, const OperationPrivilege &privilege);
 
 private:
 	struct PrivateContext;

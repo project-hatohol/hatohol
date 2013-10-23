@@ -24,7 +24,9 @@ using namespace mlpl;
 
 #include "DBAgentFactory.h"
 #include "DBClientHatohol.h"
+#include "DBClientUser.h"
 #include "DBClientUtils.h"
+#include "CacheServiceDBClient.h"
 #include "Params.h"
 
 static const char *TABLE_NAME_TRIGGERS = "triggers";
@@ -457,6 +459,100 @@ struct DBClientHatohol::PrivateContext
 };
 
 // ---------------------------------------------------------------------------
+// EventQueryOption
+// ---------------------------------------------------------------------------
+string EventQueryOption::getServerIdColumnName(void) const
+{
+	return COLUMN_DEF_EVENTS[IDX_EVENTS_SERVER_ID].columnName;
+}
+
+string EventQueryOption::getHostGroupIdColumnName(void) const
+{
+	// TODO: this is temporarily
+	return "host_group_id";
+}
+
+void EventQueryOption::appendCondition(string &cond, const string &newCond)
+{
+	if (cond.empty()) {
+		cond = newCond;
+		return;
+	}
+	cond += " OR ";
+	cond += newCond;
+}
+
+string EventQueryOption::makeConditionHostGroup(
+  const HostGroupSet &hostGroupSet, const string &hostGroupIdColumnName)
+{
+	string hostGrps;
+	HostGroupSetConstIterator it = hostGroupSet.begin();
+	size_t commaCnt = hostGroupSet.size() - 1;
+	for (; it != hostGroupSet.end(); ++it, commaCnt--) {
+		const uint64_t hostGroupId = *it;
+		if (hostGroupId == ALL_HOST_GROUPS)
+			return "";
+		hostGrps += StringUtils::sprintf("%"PRIu64, hostGroupId);
+		if (commaCnt)
+			hostGrps += ",";
+	}
+	string cond = StringUtils::sprintf(
+	  "%s IN (%s)", hostGroupIdColumnName.c_str(), hostGrps.c_str());
+	return cond;
+}
+
+string EventQueryOption::makeCondition(
+  const ServerHostGrpSetMap &srvHostGrpSetMap,
+  const string &serverIdColumnName, const string &hostGroupIdColumnName)
+{
+	string cond;
+	size_t numServers = srvHostGrpSetMap.size();
+	if (numServers == 0)
+		return DBClientHatohol::getAlwaysFalseCondition();
+	ServerHostGrpSetMapConstIterator it = srvHostGrpSetMap.begin();
+	for (; it != srvHostGrpSetMap.end(); ++it) {
+		const uint32_t serverId = it->first;
+		if (serverId == ALL_SERVERS)
+			return "";
+		string condSv = StringUtils::sprintf(
+		  "%s=%"PRIu32, serverIdColumnName.c_str(), serverId);
+
+		const HostGroupSet &hostGroupSet = it->second;
+		string condHG = makeConditionHostGroup(hostGroupSet,
+		                                       hostGroupIdColumnName);
+		if (!condHG.empty()) {
+			string condMix = StringUtils::sprintf(
+			  "(%s AND %s)", condSv.c_str(), condHG.c_str());
+			appendCondition(cond, condMix);
+		} else {
+			appendCondition(cond, condSv);
+		}
+	}
+	if (numServers == 1)
+		return cond;
+	return StringUtils::sprintf("(%s)", cond.c_str());
+}
+
+string EventQueryOption::getCondition(void) const
+{
+	string condition;
+	UserIdType userId = getUserId();
+	if (userId == USER_ID_ADMIN)
+		return "";
+	if (userId == INVALID_USER_ID)
+		return DBClientHatohol::getAlwaysFalseCondition();
+
+	CacheServiceDBClient cache;
+	DBClientUser *dbUser = cache.getUser();
+	ServerHostGrpSetMap srvHostGrpSetMap;
+	dbUser->getServerHostGrpSetMap(srvHostGrpSetMap, userId);
+	condition = makeCondition(srvHostGrpSetMap,
+	                          getServerIdColumnName(),
+	                          getHostGroupIdColumnName());
+	return condition;
+}
+
+// ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
 void DBClientHatohol::init(void)
@@ -686,7 +782,8 @@ void DBClientHatohol::addEventInfoList(const EventInfoList &eventInfoList)
 	} DBCLIENT_TRANSACTION_END();
 }
 
-void DBClientHatohol::getEventInfoList(EventInfoList &eventInfoList)
+void DBClientHatohol::getEventInfoList(EventInfoList &eventInfoList,
+                                       EventQueryOption &option)
 {
 	const ColumnDef &eventsServerId =
 	  COLUMN_DEF_EVENTS[IDX_EVENTS_SERVER_ID];
@@ -747,6 +844,14 @@ void DBClientHatohol::getEventInfoList(EventInfoList &eventInfoList)
 	  "%s.%s=%s.%s", 
 	  VAR_EVENTS, eventsServerId.columnName,
 	  VAR_TRIGGERS, triggersServerId.columnName);
+
+	string optCond = option.getCondition();
+	if (isAlwaysFalseCondition(optCond))
+		return;
+	if (!optCond.empty()) {
+		arg.condition += " AND ";
+		arg.condition += optCond;
+	}
 
 	DBCLIENT_TRANSACTION_BEGIN() {
 		select(arg);
@@ -1223,4 +1328,3 @@ void DBClientHatohol::getTriggerInfoList(TriggerInfoList &triggerInfoList,
 		trigInfo.brief     = GET_STRING_FROM_GRP(itemGroup, idx++);
 	}
 }
-

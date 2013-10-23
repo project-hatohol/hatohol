@@ -219,12 +219,12 @@ void test_createDB(void)
 	cut_assert_exist_path(dbPath.c_str());
 
 	// check the version
-	string statement = "select * from _dbclient";
+	string statement = "select * from _dbclient_version";
 	string output = execSqlite3ForDBClientZabbix(TEST_ZABBIX_SERVER_ID,
 	                                             statement);
-	string expectedOut = StringUtils::sprintf
-	                       ("%d|%d\n", DBClient::DBCLIENT_DB_VERSION,
-	                                   DBClientZabbix::ZABBIX_DB_VERSION);
+	string expectedOut = StringUtils::sprintf("%d|%d\n",
+	   DBClientZabbix::getDBDomainId(TEST_ZABBIX_SERVER_ID),
+	   DBClientZabbix::ZABBIX_DB_VERSION);
 	cppcut_assert_equal(expectedOut, output);
 }
 

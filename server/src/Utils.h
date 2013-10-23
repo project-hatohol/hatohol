@@ -65,6 +65,16 @@ public:
 	 */
 	static bool removeEventSourceIfNeeded(guint tag);
 
+	/**
+	 * compute a SHA256.
+	 *
+	 * @param data
+	 * A source string to be computed.
+	 *
+	 * @return A SHA256 string.
+	 */
+	static string sha256(const string &data);
+
 protected:
 	static string makeDemangledStackTraceString(string &stackTraceLine);
 };

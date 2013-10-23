@@ -28,6 +28,21 @@
 
 namespace testDBClientHatohol {
 
+class TestEventQueryOption : public EventQueryOption {
+public:
+	static
+	string callMakeCondition(const ServerHostGrpSetMap &srvHostGrpSetMap,
+	                         const string &serverIdColumnName,
+	                         const string &hostGroupIdColumnName)
+	{
+		return makeCondition(srvHostGrpSetMap, serverIdColumnName,
+		                     hostGroupIdColumnName);
+	}
+};
+
+static const string serverIdColumnName = "server_id";
+static const string hostGroupIdColumnName = "host_group_id";
+
 static void addTriggerInfo(TriggerInfo *triggerInfo)
 {
 	DBClientHatohol dbHatohol;
@@ -123,7 +138,9 @@ static void _assertGetEvents(void)
 {
 	EventInfoList eventInfoList;
 	DBClientHatohol dbHatohol;
-	dbHatohol.getEventInfoList(eventInfoList);
+	EventQueryOption option;
+	option.setUserId(USER_ID_ADMIN);
+	dbHatohol.getEventInfoList(eventInfoList, option);
 	cppcut_assert_equal(NumTestEventInfo, eventInfoList.size());
 
 	string expectedText;
@@ -227,7 +244,7 @@ static void _assertGetHostInfoList(uint32_t serverId)
 #define assertGetHostInfoList(SERVER_ID) \
 cut_trace(_assertGetHostInfoList(SERVER_ID))
 
-void _assertGetNumberOfHostsWithStatus(bool status)
+static void _assertGetNumberOfHostsWithStatus(bool status)
 {
 	setupTestTriggerDB();
 
@@ -249,7 +266,7 @@ void _assertGetNumberOfHostsWithStatus(bool status)
 #define assertGetNumberOfHostsWithStatus(ST) \
 cut_trace(_assertGetNumberOfHostsWithStatus(ST))
 
-
+static
 void _assertTriggerInfo(const TriggerInfo &expect, const TriggerInfo &actual)
 {
 	cppcut_assert_equal(expect.serverId, actual.serverId);
@@ -265,6 +282,38 @@ void _assertTriggerInfo(const TriggerInfo &expect, const TriggerInfo &actual)
 	cppcut_assert_equal(expect.brief, actual.brief);
 }
 #define assertTriggerInfo(E,A) cut_trace(_assertTriggerInfo(E,A))
+
+static void _assertMakeCondition(const ServerHostGrpSetMap &srvHostGrpSetMap,
+                                 const string &expect)
+{
+	string cond = TestEventQueryOption::callMakeCondition(
+	                srvHostGrpSetMap,
+	                serverIdColumnName, hostGroupIdColumnName);
+	cppcut_assert_equal(expect, cond);
+}
+#define assertMakeCondition(M,E) cut_trace(_assertMakeCondition(M,E))
+
+static string makeExpectedConditionForUser(UserIdType userId)
+{
+	string exp;
+	UserIdIndexMap userIdIndexMap;
+	makeTestUserIdIndexMap(userIdIndexMap);
+	UserIdIndexMapIterator it = userIdIndexMap.find(userId);
+	if (it == userIdIndexMap.end())
+		return DBClientHatohol::getAlwaysFalseCondition();
+
+	ServerHostGrpSetMap srvHostGrpSetMap;
+	const set<int> &indexes = it->second;
+	set<int>::const_iterator jt = indexes.begin();
+	for (; jt != indexes.end(); ++jt) {
+		const AccessInfo &accInfo = testAccessInfo[*jt];
+		srvHostGrpSetMap[accInfo.serverId].insert(accInfo.hostGroupId);
+	}
+	exp = TestEventQueryOption::callMakeCondition(srvHostGrpSetMap,
+	                                              serverIdColumnName,
+	                                              hostGroupIdColumnName);
+	return exp;
+}
 
 void cut_setup(void)
 {
@@ -285,10 +334,10 @@ void test_createDB(void)
 	cut_assert_exist_path(dbPath.c_str());
 
 	// check the version
-	string statement = "select * from _dbclient";
+	string statement = "select * from _dbclient_version";
 	string output = execSqlite3ForDBClient(DB_DOMAIN_ID_HATOHOL, statement);
 	string expectedOut = StringUtils::sprintf
-	                       ("%d|%d\n", DBClient::DBCLIENT_DB_VERSION,
+	                       ("%d|%d\n", DB_DOMAIN_ID_HATOHOL,
 	                                   DBClientHatohol::HATOHOL_DB_VERSION);
 	cppcut_assert_equal(expectedOut, output);
 }
@@ -477,6 +526,147 @@ void test_getNumberOfGoodHosts(void)
 void test_getNumberOfBadHosts(void)
 {
 	assertGetNumberOfHostsWithStatus(false);
+}
+
+void test_makeConditionEmpty(void)
+{
+	ServerHostGrpSetMap srvHostGrpSetMap;
+	string expect = DBClientHatohol::getAlwaysFalseCondition();
+	assertMakeCondition(srvHostGrpSetMap, expect);
+}
+
+void test_makeConditionAllServers(void)
+{
+	ServerHostGrpSetMap srvHostGrpSetMap;
+	srvHostGrpSetMap[ALL_SERVERS].insert(ALL_HOST_GROUPS);
+	string expect = "";
+	assertMakeCondition(srvHostGrpSetMap, expect);
+}
+
+void test_makeConditionAllServersWithOthers(void)
+{
+	ServerHostGrpSetMap srvHostGrpSetMap;
+	srvHostGrpSetMap[1].insert(1);
+	srvHostGrpSetMap[1].insert(2);
+	srvHostGrpSetMap[3].insert(1);
+	srvHostGrpSetMap[ALL_SERVERS].insert(ALL_HOST_GROUPS);
+	string expect = "";
+	assertMakeCondition(srvHostGrpSetMap, expect);
+}
+
+void test_makeConditionAllServersWithSpecifiedHostGroup(void)
+{
+	ServerHostGrpSetMap srvHostGrpSetMap;
+	srvHostGrpSetMap[ALL_SERVERS].insert(1);
+	string expect = "";
+	assertMakeCondition(srvHostGrpSetMap, expect);
+}
+
+void test_makeConditionOneServerAllHostGrp(void)
+{
+	ServerHostGrpSetMap srvHostGrpSetMap;
+	srvHostGrpSetMap[1].insert(ALL_HOST_GROUPS);
+	string expect =
+	  StringUtils::sprintf("%s=1", serverIdColumnName.c_str());
+	assertMakeCondition(srvHostGrpSetMap, expect);
+}
+
+void test_makeConditionOneServerAndOneHostGroup(void)
+{
+	ServerHostGrpSetMap srvHostGrpSetMap;
+	srvHostGrpSetMap[1].insert(3);
+	string expect =
+	  StringUtils::sprintf("(%s=1 AND %s IN (3))",
+	  serverIdColumnName.c_str(),
+	  hostGroupIdColumnName.c_str());
+	assertMakeCondition(srvHostGrpSetMap, expect);
+}
+
+void test_makeConditionOneServerAndHostGroups(void)
+{
+	ServerHostGrpSetMap srvHostGrpSetMap;
+	srvHostGrpSetMap[1].insert(3);
+	srvHostGrpSetMap[1].insert(1003);
+	srvHostGrpSetMap[1].insert(2048);
+	string expect =
+	  StringUtils::sprintf("(%s=1 AND %s IN (3,1003,2048))",
+	  serverIdColumnName.c_str(),
+	  hostGroupIdColumnName.c_str());
+	assertMakeCondition(srvHostGrpSetMap, expect);
+}
+
+void test_makeConditionMultipleServers(void)
+{
+	ServerHostGrpSetMap srvHostGrpSetMap;
+	srvHostGrpSetMap[5].insert(ALL_HOST_GROUPS);
+	srvHostGrpSetMap[14].insert(ALL_HOST_GROUPS);
+	srvHostGrpSetMap[768].insert(ALL_HOST_GROUPS);
+	string expect = StringUtils::sprintf("(%s=5 OR %s=14 OR %s=768)",
+	  serverIdColumnName.c_str(),
+	  serverIdColumnName.c_str(),
+	  serverIdColumnName.c_str());
+	assertMakeCondition(srvHostGrpSetMap, expect);
+}
+
+void test_makeConditionComplicated(void)
+{
+	ServerHostGrpSetMap srvHostGrpSetMap;
+	srvHostGrpSetMap[5].insert(205);
+	srvHostGrpSetMap[5].insert(800);
+	srvHostGrpSetMap[14].insert(ALL_HOST_GROUPS);
+	srvHostGrpSetMap[768].insert(817);
+	srvHostGrpSetMap[768].insert(818);
+	srvHostGrpSetMap[768].insert(12817);
+	srvHostGrpSetMap[2000].insert(ALL_HOST_GROUPS);
+	srvHostGrpSetMap[2001].insert(ALL_HOST_GROUPS);
+	srvHostGrpSetMap[8192].insert(4096);
+	string expect = StringUtils::sprintf(
+	  "((%s=5 AND %s IN (205,800)) OR "
+	  "%s=14 OR "
+	  "(%s=768 AND %s IN (817,818,12817)) OR "
+	  "%s=2000 OR "
+	  "%s=2001 OR "
+	  "(%s=8192 AND %s IN (4096)))",
+	  serverIdColumnName.c_str(), hostGroupIdColumnName.c_str(),
+	  serverIdColumnName.c_str(),
+	  serverIdColumnName.c_str(), hostGroupIdColumnName.c_str(),
+	  serverIdColumnName.c_str(),
+	  serverIdColumnName.c_str(),
+	  serverIdColumnName.c_str(), hostGroupIdColumnName.c_str());
+	assertMakeCondition(srvHostGrpSetMap, expect);
+}
+
+void test_makeSelectConditionUserAdmin(void)
+{
+	EventQueryOption option;
+	option.setUserId(USER_ID_ADMIN);
+	string actual = option.getCondition();
+	string expect = "";
+	cppcut_assert_equal(actual, expect);
+}
+
+void test_makeSelectConditionNoneUser(void)
+{
+	setupTestDBUser(true, true);
+	EventQueryOption option;
+	option.setUserId(INVALID_USER_ID);
+	string actual = option.getCondition();
+	string expect = DBClientHatohol::getAlwaysFalseCondition();
+	cppcut_assert_equal(actual, expect);
+}
+
+void test_makeSelectCondition(void)
+{
+	setupTestDBUser(true, true);
+	loadTestDBAccessList();
+	EventQueryOption option;
+	for (size_t i = 0; i < NumTestUserInfo; i++) {
+		UserIdType userId = i + 1;
+		option.setUserId(userId);
+		string actual = option.getCondition();
+		string expect = makeExpectedConditionForUser(userId);
+		cppcut_assert_equal(expect, actual);
+	}
 }
 
 } // namespace testDBClientHatohol

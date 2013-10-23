@@ -23,15 +23,21 @@
 #include <cstring>
 #include <Logger.h>
 #include <Reaper.h>
+#include <MutexLock.h>
+#include <SmartTime.h>
 using namespace mlpl;
+
+#include <uuid/uuid.h>
 
 #include "FaceRest.h"
 #include "JsonBuilderAgent.h"
 #include "HatoholException.h"
 #include "ConfigManager.h"
 #include "UnifiedDataStore.h"
+#include "DBClientUser.h"
 
-int FaceRest::API_VERSION = 2;
+int FaceRest::API_VERSION = 3;
+const char *FaceRest::SESSION_ID_HEADER_NAME = "X-Hatohol-Session";
 
 typedef void (*RestHandler)
   (SoupServer *server, SoupMessage *msg, const char *path,
@@ -48,24 +54,35 @@ typedef map<ServerID, TriggerBriefMap> TriggerBriefMaps;
 
 static const guint DEFAULT_PORT = 33194;
 
+const char *FaceRest::pathForTest        = "/test";
+const char *FaceRest::pathForLogin       = "/login";
+const char *FaceRest::pathForLogout      = "/logout";
 const char *FaceRest::pathForGetOverview = "/overview";
 const char *FaceRest::pathForGetServer   = "/server";
 const char *FaceRest::pathForGetHost     = "/host";
 const char *FaceRest::pathForGetTrigger  = "/trigger";
 const char *FaceRest::pathForGetEvent    = "/event";
 const char *FaceRest::pathForGetItem     = "/item";
-const char *FaceRest::pathForGetAction   = "/action";
+const char *FaceRest::pathForAction      = "/action";
+const char *FaceRest::pathForUser        = "/user";
 
 static const char *MIME_HTML = "text/html";
 static const char *MIME_JSON = "application/json";
 static const char *MIME_JAVASCRIPT = "text/javascript";
 
-#define REPLY_ERROR(MSG, ARG, ERR_MSG_FMT, ...) \
+#define REPLY_ERROR(MSG, ARG, ERR_CODE, ERR_MSG_FMT, ...) \
 do { \
-	string errMsg = StringUtils::sprintf(ERR_MSG_FMT, ##__VA_ARGS__); \
-	MLPL_ERR("%s", errMsg.c_str()); \
-	replyError(MSG, ARG, errMsg); \
+	string optMsg = StringUtils::sprintf(ERR_MSG_FMT, ##__VA_ARGS__); \
+	replyError(MSG, ARG, ERR_CODE, optMsg); \
 } while (0)
+
+#define RETURN_IF_NOT_TEST_MODE(MSG, ARG) \
+do { \
+	if (!isTestMode()) { \
+		replyError(MSG, ARG, HTERR_NOT_TEST_MODE); \
+		return; \
+	}\
+} while(0)
 
 enum FormatType {
 	FORMAT_HTML,
@@ -78,17 +95,71 @@ struct FaceRest::HandlerArg
 	string     formatString;
 	FormatType formatType;
 	const char *mimeType;
-	string      id;
+	string      id; // we assume URL form is http://example.com/request/id
 	string      jsonpCallbackName;
+	string      sessionId;
+	UserIdType  userId;
 };
 
 typedef map<string, FormatType> FormatTypeMap;
-typedef FormatTypeMap::iterator FormatTypeMapIterator;;
+typedef FormatTypeMap::iterator FormatTypeMapIterator;
 static FormatTypeMap g_formatTypeMap;
 
 typedef map<FormatType, const char *> MimeTypeMap;
-typedef MimeTypeMap::iterator   MimeTypeMapIterator;;
+typedef MimeTypeMap::iterator   MimeTypeMapIterator;
 static MimeTypeMap g_mimeTypeMap;
+
+// Key: session ID, value: user ID
+typedef map<string, SessionInfo *>           SessionIdMap;
+typedef map<string, SessionInfo *>::iterator SessionIdMapIterator;
+
+// constructor
+SessionInfo::SessionInfo(void)
+: userId(INVALID_USER_ID),
+  loginTime(SmartTime::INIT_CURR_TIME),
+  lastAccessTime(SmartTime::INIT_CURR_TIME)
+{
+}
+
+struct FaceRest::PrivateContext {
+	static bool         testMode;
+	static MutexLock    lock;
+	static SessionIdMap sessionIdMap;
+
+	static void insertSessionId(const string &sessionId, UserIdType userId)
+	{
+		SessionInfo *sessionInfo = new SessionInfo();
+		sessionInfo->userId = userId;
+		lock.lock();
+		sessionIdMap[sessionId] = sessionInfo;
+		lock.unlock();
+	}
+
+	static bool removeSessionId(const string &sessionId) {
+		lock.lock();
+		SessionIdMapIterator it = sessionIdMap.find(sessionId);
+		bool found = it != sessionIdMap.end();
+		if (found)
+			sessionIdMap.erase(it);
+		lock.unlock();
+		if (!found) {
+			MLPL_WARN("Failed to erase session ID: %s\n",
+			          sessionId.c_str());
+		}
+		return found;
+	}
+
+	static const SessionInfo *getSessionInfo(const string &sessionId) {
+		SessionIdMapIterator it = sessionIdMap.find(sessionId);
+		if (it == sessionIdMap.end())
+			return NULL;
+		return it->second;
+	}
+};
+
+bool         FaceRest::PrivateContext::testMode = false;
+MutexLock    FaceRest::PrivateContext::lock;
+SessionIdMap FaceRest::PrivateContext::sessionIdMap;
 
 // ---------------------------------------------------------------------------
 // Public methods
@@ -102,6 +173,24 @@ void FaceRest::init(void)
 	g_mimeTypeMap[FORMAT_HTML] = MIME_HTML;
 	g_mimeTypeMap[FORMAT_JSON] = MIME_JSON;
 	g_mimeTypeMap[FORMAT_JSONP] = MIME_JAVASCRIPT;
+}
+
+void FaceRest::reset(const CommandLineArg &arg)
+{
+	bool foundTestMode = false;
+	for (size_t i = 0; i < arg.size(); i++) {
+		if (arg[i] == "--test-mode")
+			foundTestMode = true;
+	}
+
+	if (foundTestMode)
+		MLPL_INFO("Run as a test mode.\n");
+	PrivateContext::testMode = foundTestMode;
+}
+
+bool FaceRest::isTestMode(void)
+{
+	return PrivateContext::testMode;
 }
 
 FaceRest::FaceRest(CommandLineArg &cmdArg)
@@ -157,6 +246,15 @@ gpointer FaceRest::mainThread(HatoholThreadArg *arg)
 	soup_server_add_handler(m_soupServer, "/hello.html",
 	                        launchHandlerInTryBlock,
 	                        (gpointer)handlerHelloPage, NULL);
+	soup_server_add_handler(m_soupServer, "/test",
+	                        launchHandlerInTryBlock,
+	                        (gpointer)handlerTest, NULL);
+	soup_server_add_handler(m_soupServer, pathForLogin,
+	                        launchHandlerInTryBlock,
+	                        (gpointer)handlerLogin, NULL);
+	soup_server_add_handler(m_soupServer, pathForLogout,
+	                        launchHandlerInTryBlock,
+	                        (gpointer)handlerLogout, NULL);
 	soup_server_add_handler(m_soupServer, pathForGetOverview,
 	                        launchHandlerInTryBlock,
 	                        (gpointer)handlerGetOverview, NULL);
@@ -175,9 +273,12 @@ gpointer FaceRest::mainThread(HatoholThreadArg *arg)
 	soup_server_add_handler(m_soupServer, pathForGetItem,
 	                        launchHandlerInTryBlock,
 	                        (gpointer)handlerGetItem, NULL);
-	soup_server_add_handler(m_soupServer, pathForGetAction,
+	soup_server_add_handler(m_soupServer, pathForAction,
 	                        launchHandlerInTryBlock,
 	                        (gpointer)handlerAction, NULL);
+	soup_server_add_handler(m_soupServer, pathForUser,
+	                        launchHandlerInTryBlock,
+	                        (gpointer)handlerUser, NULL);
 	soup_server_run(m_soupServer);
 	g_main_context_unref(gMainCtx);
 	MLPL_INFO("exited face-rest\n");
@@ -203,13 +304,34 @@ size_t FaceRest::parseCmdArgPort(CommandLineArg &cmdArg, size_t idx)
 	return idx;
 }
 
-void FaceRest::replyError(SoupMessage *msg, const HandlerArg *arg,
-                          const string &errorMessage)
+void FaceRest::addHatoholError(JsonBuilderAgent &agent,
+                               const HatoholError &err)
 {
+	agent.add("apiVersion", API_VERSION);
+	agent.add("errorCode", err.getCode());
+	if (!err.getOptionMessage().empty())
+		agent.add("optionMessages", err.getOptionMessage().c_str());
+}
+
+void FaceRest::replyError(SoupMessage *msg, const HandlerArg *arg,
+                          const HatoholError &hatoholError)
+{
+	replyError(msg, arg, hatoholError.getCode(),
+	           hatoholError.getOptionMessage());
+}
+
+void FaceRest::replyError(SoupMessage *msg, const HandlerArg *arg,
+                          const HatoholErrorCode &errorCode,
+                          const string &optionMessage)
+{
+	if (optionMessage.empty())
+		MLPL_ERR("error: %d\n", errorCode);
+	else
+		MLPL_ERR("error: %d, %s", errorCode, optionMessage.c_str());
+
 	JsonBuilderAgent agent;
 	agent.startObject();
-	agent.addFalse("result");
-	agent.add("message", errorMessage.c_str());
+	addHatoholError(agent, errorCode);
 	agent.endObject();
 	string response = agent.generate();
 	if (!arg->jsonpCallbackName.empty())
@@ -259,6 +381,11 @@ void FaceRest::replyJsonData(JsonBuilderAgent &agent, SoupMessage *msg,
 	soup_message_body_append(msg->response_body, SOUP_MEMORY_COPY,
 	                         response.c_str(), response.size());
 	soup_message_set_status(msg, SOUP_STATUS_OK);
+}
+
+const SessionInfo *FaceRest::getSessionInfo(const string &sessionId)
+{
+	return PrivateContext::getSessionInfo(sessionId);
 }
 
 void FaceRest::parseQueryServerId(GHashTable *query, uint32_t &serverId)
@@ -346,8 +473,31 @@ void FaceRest::launchHandlerInTryBlock
    GHashTable *_query, SoupClientContext *client, gpointer user_data)
 {
 	RestHandler handler = reinterpret_cast<RestHandler>(user_data);
-
 	HandlerArg arg;
+
+	const char *sessionId =
+	   soup_message_headers_get_one(msg->request_headers,
+	                                SESSION_ID_HEADER_NAME);
+	if (!sessionId) {
+		// We should return an error. But now, we just set
+		// USER_ID_ADMIN to keep compatiblity until the user privilege
+		// feature is completely implemnted.
+		if (path != pathForLogin)
+			arg.userId = USER_ID_ADMIN;
+		else
+			arg.userId = INVALID_USER_ID;
+	} else {
+		arg.sessionId = sessionId;
+		PrivateContext::lock.lock();
+		const SessionInfo *sessionInfo = getSessionInfo(sessionId);
+		if (!sessionInfo) {
+			PrivateContext::lock.unlock();
+			replyError(msg, &arg, HTERR_NOT_FOUND_SESSION_ID);
+			return;
+		}
+		arg.userId = sessionInfo->userId;
+		PrivateContext::lock.unlock();
+	}
 
 	// We expect URIs  whose style are the following.
 	//
@@ -362,15 +512,13 @@ void FaceRest::launchHandlerInTryBlock
 		// The POST request contains query parameters in the body
 		// according to application/x-www-form-urlencoded.
 		query = soup_form_decode(msg->request_body->data);
-		postQueryReaper.set(query,
-		                    (ReaperDestroyFunc)g_hash_table_unref);
+		postQueryReaper.set(query, g_hash_table_unref);
 	}
 
 	// a format type
 	if (!parseFormatType(query, arg)) {
-		REPLY_ERROR(msg, &arg, 
-		  "Unsupported format type: %s, path: %s\n",
-		  arg.formatString.c_str(), path);
+		REPLY_ERROR(msg, &arg, HTERR_UNSUPORTED_FORMAT,
+		            "%s", arg.formatString.c_str());
 		return;
 	}
 
@@ -393,7 +541,8 @@ void FaceRest::launchHandlerInTryBlock
 	try {
 		(*handler)(server, msg, path, query, client, &arg);
 	} catch (const HatoholException &e) {
-		REPLY_ERROR(msg, &arg, "%s", e.getFancyMessage().c_str());
+		REPLY_ERROR(msg, &arg, HTERR_GOT_EXCEPTION,
+		            "%s", e.getFancyMessage().c_str());
 	}
 }
 
@@ -658,14 +807,120 @@ static void addServersIdNameHash(
 	agent.endObject();
 }
 
+void FaceRest::handlerTest
+  (SoupServer *server, SoupMessage *msg, const char *path,
+   GHashTable *query, SoupClientContext *client, HandlerArg *arg)
+{
+	JsonBuilderAgent agent;
+	agent.startObject();
+	addHatoholError(agent, HatoholError(HTERR_OK));
+	if (PrivateContext::testMode)
+		agent.addTrue("testMode");
+	else
+		agent.addFalse("testMode");
+
+	if (string(path) == "/test" && string(msg->method) == "POST") {
+		agent.startObject("queryData");
+		GHashTableIter iter;
+		gpointer key, value;
+		g_hash_table_iter_init(&iter, query);
+		while (g_hash_table_iter_next(&iter, &key, &value)) {
+			agent.add(string((const char *)key),
+			          string((const char *)value));
+		}
+		agent.endObject(); // queryData
+		agent.endObject(); // top level
+		replyJsonData(agent, msg, arg->jsonpCallbackName, arg);
+		return;
+	} 
+
+	if (string(path) == "/test/error") {
+		agent.endObject(); // top level
+		replyError(msg, arg, HTERR_ERROR_TEST);
+		return;
+	} 
+
+	if (string(path) == "/test/user" && string(msg->method) == "POST") {
+		RETURN_IF_NOT_TEST_MODE(msg, arg);
+		UserQueryOption option;
+		option.setUserId(USER_ID_ADMIN);
+		HatoholError err = updateOrAddUser(query, option);
+		if (err != HTERR_OK) {
+			replyError(msg, arg, err);
+			return;
+		}
+	}
+
+	agent.endObject();
+	replyJsonData(agent, msg, arg->jsonpCallbackName, arg);
+}
+
+void FaceRest::handlerLogin
+  (SoupServer *server, SoupMessage *msg, const char *path,
+   GHashTable *query, SoupClientContext *client, HandlerArg *arg)
+{
+	gchar *user = (gchar *)g_hash_table_lookup(query, "user");
+	if (!user) {
+		MLPL_INFO("Not found: user\n");
+		replyError(msg, arg, HTERR_AUTH_FAILED);
+		return;
+	}
+	gchar *password = (gchar *)g_hash_table_lookup(query, "password");
+	if (!password) {
+		MLPL_INFO("Not found: password\n");
+		replyError(msg, arg, HTERR_AUTH_FAILED);
+		return;
+	}
+
+	DBClientUser dbUser;
+	UserIdType userId = dbUser.getUserId(user, password);
+	if (userId == INVALID_USER_ID) {
+		MLPL_INFO("Failed to authenticate: %s.\n", user);
+		replyError(msg, arg, HTERR_AUTH_FAILED);
+		return;
+	}
+
+	uuid_t sessionUuid;
+	uuid_generate(sessionUuid);
+	static const size_t uuidBufSize = 37;
+	char uuidBuf[uuidBufSize];
+	uuid_unparse(sessionUuid, uuidBuf);
+	string sessionId = uuidBuf;
+	PrivateContext::insertSessionId(sessionId, userId);
+
+	JsonBuilderAgent agent;
+	agent.startObject();
+	addHatoholError(agent, HatoholError(HTERR_OK));
+	agent.add("sessionId", sessionId);
+	agent.endObject();
+
+	replyJsonData(agent, msg, arg->jsonpCallbackName, arg);
+}
+
+void FaceRest::handlerLogout
+  (SoupServer *server, SoupMessage *msg, const char *path,
+   GHashTable *query, SoupClientContext *client, HandlerArg *arg)
+{
+	if (!PrivateContext::removeSessionId(arg->sessionId)) {
+		replyError(msg, arg, HTERR_NOT_FOUND_SESSION_ID);
+		return;
+	}
+
+	JsonBuilderAgent agent;
+	agent.startObject();
+	addHatoholError(agent, HatoholError(HTERR_OK));
+	agent.endObject();
+
+	replyJsonData(agent, msg, arg->jsonpCallbackName, arg);
+}
+
 void FaceRest::handlerGetOverview
   (SoupServer *server, SoupMessage *msg, const char *path,
    GHashTable *query, SoupClientContext *client, HandlerArg *arg)
 {
 	JsonBuilderAgent agent;
 	agent.startObject();
-	agent.add("apiVersion", API_VERSION);
-	agent.addTrue("result");
+	addHatoholError(agent, HatoholError(HTERR_OK));
 	addOverview(agent);
 	agent.endObject();
 
@@ -681,8 +936,7 @@ void FaceRest::handlerGetServer
 
 	JsonBuilderAgent agent;
 	agent.startObject();
-	agent.add("apiVersion", API_VERSION);
-	agent.addTrue("result");
+	addHatoholError(agent, HatoholError(HTERR_OK));
 	addServers(agent, targetServerId);
 	agent.endObject();
 
@@ -700,8 +954,7 @@ void FaceRest::handlerGetHost
 
 	JsonBuilderAgent agent;
 	agent.startObject();
-	agent.add("apiVersion", API_VERSION);
-	agent.addTrue("result");
+	addHatoholError(agent, HatoholError(HTERR_OK));
 	addHosts(agent, targetServerId, targetHostId);
 	agent.endObject();
 
@@ -726,8 +979,7 @@ void FaceRest::handlerGetTrigger
 
 	JsonBuilderAgent agent;
 	agent.startObject();
-	agent.add("apiVersion", API_VERSION);
-	agent.addTrue("result");
+	addHatoholError(agent, HatoholError(HTERR_OK));
 	agent.add("numberOfTriggers", triggerList.size());
 	agent.startArray("triggers");
 	TriggerInfoListIterator it = triggerList.begin();
@@ -761,12 +1013,13 @@ void FaceRest::handlerGetEvent
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 
 	EventInfoList eventList;
-	dataStore->getEventList(eventList);
+	EventQueryOption option;
+	option.setUserId(arg->userId);
+	dataStore->getEventList(eventList, option);
 
 	JsonBuilderAgent agent;
 	agent.startObject();
-	agent.add("apiVersion", API_VERSION);
-	agent.addTrue("result");
+	addHatoholError(agent, HatoholError(HTERR_OK));
 	agent.add("numberOfEvents", eventList.size());
 	agent.startArray("events");
 	EventInfoListIterator it = eventList.begin();
@@ -805,8 +1058,7 @@ void FaceRest::handlerGetItem
 
 	JsonBuilderAgent agent;
 	agent.startObject();
-	agent.add("apiVersion", API_VERSION);
-	agent.addTrue("result");
+	addHatoholError(agent, HatoholError(HTERR_OK));
 	agent.add("numberOfItems", itemList.size());
 	agent.startArray("items");
 	ItemInfoListIterator it = itemList.begin();
@@ -868,8 +1120,7 @@ void FaceRest::handlerGetAction
 
 	JsonBuilderAgent agent;
 	agent.startObject();
-	agent.add("apiVersion", API_VERSION);
-	agent.addTrue("result");
+	addHatoholError(agent, HatoholError(HTERR_OK));
 	agent.add("numberOfActions", actionList.size());
 	agent.startArray("actions");
 	HostNameMaps hostMaps;
@@ -942,21 +1193,20 @@ void FaceRest::handlerPostAction
 	if (!succeeded)
 		return;
 	if (!exist) {
-		REPLY_ERROR(msg, arg, "action type is not specified.\n");
+		REPLY_ERROR(msg, arg, HTERR_NOT_FOUND_PARAMETER, "type");
 		return;
 	}
 	if (!(actionDef.type == ACTION_COMMAND ||
 	      actionDef.type == ACTION_RESIDENT)) {
-		REPLY_ERROR(msg, arg,
-		            "Unknown action type: %d\n", actionDef.type);
+		REPLY_ERROR(msg, arg, HTERR_INVALID_PARAMETER,
+		            "type: %d\n", actionDef.type);
 		return;
 	}
 
 	// command
 	value = (char *)g_hash_table_lookup(query, "command");
 	if (!value) {
-		REPLY_ERROR(msg, arg,
-		            "An action command is not specified.\n");
+		replyError(msg, arg, HTERR_NOT_FOUND_PARAMETER, "command");
 		return;
 	}
 	actionDef.command = value;
@@ -1043,15 +1293,14 @@ void FaceRest::handlerPostAction
 		if (!succeeded)
 			return;
 		if (!exist) {
-			REPLY_ERROR(msg, arg,
-			  "triggerSeverityCompType is not specified.\n");
+			replyError(msg, arg, HTERR_NOT_FOUND_PARAMETER, 
+			           "triggerSeverityCompType");
 			return;
 		}
 		if (!(cond.triggerSeverityCompType == CMP_EQ ||
 		      cond.triggerSeverityCompType == CMP_EQ_GT)) {
-			REPLY_ERROR(msg, arg,
-			            "Unknown comparator type: %d\n",
-			            cond.triggerSeverityCompType);
+			REPLY_ERROR(msg, arg, HTERR_INVALID_PARAMETER,
+			            "type: %d", cond.triggerSeverityCompType);
 			return;
 		}
 	}
@@ -1062,8 +1311,7 @@ void FaceRest::handlerPostAction
 	// make a response
 	JsonBuilderAgent agent;
 	agent.startObject();
-	agent.add("apiVersion", API_VERSION);
-	agent.addTrue("result");
+	addHatoholError(agent, HatoholError(HTERR_OK));
 	agent.add("id", actionDef.id);
 	agent.endObject();
 	replyJsonData(agent, msg, arg->jsonpCallbackName, arg);
@@ -1075,12 +1323,13 @@ void FaceRest::handlerDeleteAction
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	if (arg->id.empty()) {
-		REPLY_ERROR(msg, arg, "ID is missing.\n");
+		replyError(msg, arg, HTERR_NOT_FOUND_ID_IN_URL);
 		return;
 	}
 	int actionId;
 	if (sscanf(arg->id.c_str(), "%d", &actionId) != 1) {
-		REPLY_ERROR(msg, arg, "Invalid ID: %s", arg->id.c_str());
+		REPLY_ERROR(msg, arg, HTERR_INVALID_PARAMETER,
+		            "id: %s", arg->id.c_str());
 		return;
 	}
 	ActionIdList actionIdList;
@@ -1090,16 +1339,212 @@ void FaceRest::handlerDeleteAction
 	// replay
 	JsonBuilderAgent agent;
 	agent.startObject();
-	agent.add("apiVersion", API_VERSION);
-	agent.addTrue("result");
+	addHatoholError(agent, HatoholError(HTERR_OK));
 	agent.add("id", arg->id);
 	agent.endObject();
 	replyJsonData(agent, msg, arg->jsonpCallbackName, arg);
 }
 
+void FaceRest::handlerUser
+  (SoupServer *server, SoupMessage *msg, const char *path,
+   GHashTable *query, SoupClientContext *client, HandlerArg *arg)
+{
+	if (strcasecmp(msg->method, "GET") == 0) {
+		handlerGetUser(server, msg, path, query, client, arg);
+	} else if (strcasecmp(msg->method, "POST") == 0) {
+		handlerPostUser(server, msg, path, query, client, arg);
+	} else if (strcasecmp(msg->method, "DELETE") == 0) {
+		handlerDeleteUser(server, msg, path, query, client, arg);
+	} else {
+		MLPL_ERR("Unknown method: %s\n", msg->method);
+		soup_message_set_status(msg, SOUP_STATUS_METHOD_NOT_ALLOWED);
+	}
+}
+
+void FaceRest::handlerGetUser
+  (SoupServer *server, SoupMessage *msg, const char *path,
+   GHashTable *query, SoupClientContext *client, HandlerArg *arg)
+{
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+
+	UserInfoList userList;
+	UserQueryOption option;
+	option.setUserId(arg->userId);
+	dataStore->getUserList(userList, option);
+
+	JsonBuilderAgent agent;
+	agent.startObject();
+	addHatoholError(agent, HatoholError(HTERR_OK));
+	agent.add("numberOfUsers", userList.size());
+	agent.startArray("users");
+	UserInfoListIterator it = userList.begin();
+	for (; it != userList.end(); ++it) {
+		const UserInfo &userInfo = *it;
+		agent.startObject();
+		agent.add("userId",  userInfo.id);
+		agent.add("name", userInfo.name);
+		agent.add("flags", userInfo.flags);
+		agent.endObject();
+	}
+	agent.endArray();
+	agent.endObject();
+
+	replyJsonData(agent, msg, arg->jsonpCallbackName, arg);
+}
+
+void FaceRest::handlerPostUser
+  (SoupServer *server, SoupMessage *msg, const char *path,
+   GHashTable *query, SoupClientContext *client, HandlerArg *arg)
+{
+	// Get query parameters
+	char *value;
+	bool exist;
+	bool succeeded;
+	UserInfo userInfo;
+
+	// name
+	value = (char *)g_hash_table_lookup(query, "user");
+	if (!value) {
+		REPLY_ERROR(msg, arg, HTERR_NOT_FOUND_PARAMETER, "user");
+		return;
+	}
+	userInfo.name = value;
+
+	// password
+	value = (char *)g_hash_table_lookup(query, "password");
+	if (!value) {
+		REPLY_ERROR(msg, arg, HTERR_NOT_FOUND_PARAMETER, "password");
+		return;
+	}
+	userInfo.password = value;
+
+	// flags
+	succeeded = getParamWithErrorReply<OperationPrivilegeFlag>(
+	              query, msg, arg,
+	              "flags", "%"FMT_OPPRVLG, userInfo.flags, &exist);
+	if (!succeeded)
+		return;
+	if (!exist) {
+		REPLY_ERROR(msg, arg, HTERR_NOT_FOUND_PARAMETER, "flags");
+		return;
+	}
+
+	// try to add
+	DataQueryOption option;
+	option.setUserId(arg->userId);
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+	HatoholError err = dataStore->addUser(userInfo, option);
+
+	// make a response
+	JsonBuilderAgent agent;
+	agent.startObject();
+	addHatoholError(agent, err);
+	if (err == HTERR_OK)
+		agent.add("id", userInfo.id);
+	agent.endObject();
+	replyJsonData(agent, msg, arg->jsonpCallbackName, arg);
+}
+
+void FaceRest::handlerDeleteUser
+  (SoupServer *server, SoupMessage *msg, const char *path,
+   GHashTable *query, SoupClientContext *client, HandlerArg *arg)
+{
+	if (arg->id.empty()) {
+		replyError(msg, arg, HTERR_NOT_FOUND_ID_IN_URL);
+		return;
+	}
+	int userId;
+	if (sscanf(arg->id.c_str(), "%"FMT_USER_ID, &userId) != 1) {
+		REPLY_ERROR(msg, arg, HTERR_INVALID_PARAMETER,
+		            "id: %s", arg->id.c_str());
+		return;
+	}
+
+	DataQueryOption option;
+	option.setUserId(arg->userId);
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+	HatoholError err = dataStore->deleteUser(userId, option);
+
+	// replay
+	JsonBuilderAgent agent;
+	agent.startObject();
+	addHatoholError(agent, err);
+	if (err == HTERR_OK)
+		agent.add("id", userId);
+	agent.endObject();
+	replyJsonData(agent, msg, arg->jsonpCallbackName, arg);
+}
+
+HatoholError FaceRest::parseUserParameter(UserInfo &userInfo, GHashTable *query)
+{
+	char *value;
+
+	// name
+	value = (char *)g_hash_table_lookup(query, "user");
+	if (!value)
+		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "user");
+	userInfo.name = value;
+
+	// password
+	value = (char *)g_hash_table_lookup(query, "password");
+	if (!value) {
+		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "password");
+	}
+	userInfo.password = value;
+
+	// flags
+	HatoholError err = getParam<OperationPrivilegeFlag>(
+	                     query, "flags", "%"FMT_OPPRVLG, userInfo.flags);
+	if (err != HTERR_OK)
+		return err;
+	return HatoholError(HTERR_OK);
+}
+
+HatoholError FaceRest::updateOrAddUser(GHashTable *query,
+                                       UserQueryOption &option)
+{
+	UserInfo userInfo;
+	HatoholError err = parseUserParameter(userInfo, query);
+	if (err != HTERR_OK)
+		return err;
+
+	err = option.setTargetName(userInfo.name);
+	if (err != HTERR_OK)
+		return err;
+	UserInfoList userList;
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+	dataStore->getUserList(userList, option);
+
+	if (userList.empty()) {
+		err = dataStore->addUser(userInfo, option);
+	} else {
+		userInfo.id = userList.begin()->id;
+		err = dataStore->updateUser(userInfo, option);
+	}
+	if (err != HTERR_OK)
+		return err;
+	return HatoholError(HTERR_OK);
+}
+
 // ---------------------------------------------------------------------------
 // Private methods
 // ---------------------------------------------------------------------------
+template<typename T>
+HatoholError FaceRest::getParam(
+  GHashTable *query, const char *paramName, const char *scanFmt, T &dest)
+{
+	char *value = (char *)g_hash_table_lookup(query, paramName);
+	if (!value)
+		return HatoholError(HTERR_NOT_FOUND_PARAMETER, paramName);
+
+	if (sscanf(value, scanFmt, &dest) != 1) {
+		string optMsg = StringUtils::sprintf("%s: %s\n",
+		                                     paramName, value);
+		return HatoholError(HTERR_INVALID_PARAMETER, optMsg);
+	}
+	return HatoholError(HTERR_OK);
+}
+
 template<typename T>
 bool FaceRest::getParamWithErrorReply(
   GHashTable *query, SoupMessage *msg, const HandlerArg *arg,
@@ -1112,7 +1557,8 @@ bool FaceRest::getParamWithErrorReply(
 		return true;
 
 	if (sscanf(value, scanFmt, &dest) != 1) {
-		REPLY_ERROR(msg, arg, "Invalid %s: %s\n", paramName, value);
+		REPLY_ERROR(msg, arg, HTERR_INVALID_PARAMETER,
+		            "%s: %s\n", paramName, value);
 		return false;
 	}
 	return true;

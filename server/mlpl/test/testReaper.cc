@@ -48,9 +48,8 @@ public:
 	}
 };
 
-static void destFunc(void *obj)
+static void destFunc(TestContext *ctx)
 {
-	TestContext *ctx = static_cast<TestContext *>(obj);
 	ctx->called = true;
 }
 
@@ -59,7 +58,7 @@ void test_destructFuncCalled(void)
 	TestContext ctx;
 	cppcut_assert_equal(false, ctx.called);
 	{
-		Reaper<TestContext> var(&ctx, (ReaperDestroyFunc)destFunc);
+		Reaper<TestContext> var(&ctx, destFunc);
 	}
 	cppcut_assert_equal(true, ctx.called);
 }
@@ -80,7 +79,7 @@ void test_deactivate(void)
 	TestContext ctx;
 	cppcut_assert_equal(false, ctx.called);
 	{
-		Reaper<TestContext> var(&ctx, (ReaperDestroyFunc)destFunc);
+		Reaper<TestContext> var(&ctx, destFunc);
 		var.deactivate();
 	}
 	cppcut_assert_equal(false, ctx.called);
@@ -92,8 +91,7 @@ void test_set(void)
 	cppcut_assert_equal(false, ctx.called);
 	{
 		Reaper<TestContext> var;
-		cppcut_assert_equal(true,
-		                    var.set(&ctx, (ReaperDestroyFunc)destFunc));
+		cppcut_assert_equal(true, var.set(&ctx, destFunc));
 	}
 	cppcut_assert_equal(true, ctx.called);
 }
@@ -104,10 +102,8 @@ void test_setDouble(void)
 	cppcut_assert_equal(false, ctx.called);
 	{
 		Reaper<TestContext> var;
-		cppcut_assert_equal(true,
-		                    var.set(&ctx, (ReaperDestroyFunc)destFunc));
-		cppcut_assert_equal(false,
-		                    var.set(&ctx, (ReaperDestroyFunc)destFunc));
+		cppcut_assert_equal(true, var.set(&ctx, destFunc));
+		cppcut_assert_equal(false, var.set(&ctx, destFunc));
 	}
 	cppcut_assert_equal(true, ctx.called);
 }

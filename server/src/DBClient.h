@@ -72,6 +72,8 @@ public:
 	DBClient(DBDomainId domainId);
 	virtual ~DBClient();
 	DBAgent *getDBAgent(void) const;
+	static const std::string &getAlwaysFalseCondition(void);
+	static bool isAlwaysFalseCondition(const std::string &condition);
 
 protected:
 	struct DBSetupContext;
@@ -87,7 +89,8 @@ protected:
 	  (DBAgent *dbAgent, const string &tableName, size_t numColumns,
 	   const ColumnDef *columnDefs,
 	   CreateTableInitializer initializer = NULL, void *data = NULL);
-	static void tableInitializerDBClient(DBAgent *dbAgent, void *data);
+	static void insertDBClientVersion(DBAgent *dbAgent,
+	                                  DBSetupFuncArg *setupFuncArg);
 	static void updateDBIfNeeded(DBAgent *dbAgent,
 	                             DBSetupFuncArg *setupFuncArg);
 	/**
@@ -97,24 +100,18 @@ protected:
 	 * provides a function to manage the DB version.
 	 *
 	 * @param dbAgent A pointer to a DBAgent instance.
-	 * @param columnDef
-	 * A pointer to a ColumnDef structure for _dbclient.version.
-	 * Note that this is not the head of a ColumnDef structure array,
-	 * but points the address of the "version" definition such as
-	 * &COLUMN_DEF_DBCLIENT[IDX_DBCLIENT_VERSION].
 	 */
-	static int getDBVersion(DBAgent *dbAgent, const ColumnDef *columnDef);
+	static int getDBVersion(DBAgent *dbAgent);
 
 	/**
 	 * Set the DB version for the sub class.
 	 * See also the description of getDBVersion().
 	 *
 	 * @param dbAgent A pointer to a DBAgent instance.
-	 * @param columnDef
-	 * A pointer to a ColumnDef structure for _dbclient.version.
+	 * @param version
+	 * A new version of the DBClient whose name is dbclietName.
 	 */
-	static void setDBVersion(DBAgent *dbAgent, const ColumnDef *columnDef,
-	                         int version);
+	static void setDBVersion(DBAgent *dbAgent, int version);
 
 	// non-static methods
 	static void dbSetupFunc(DBDomainId domainId, void *data);

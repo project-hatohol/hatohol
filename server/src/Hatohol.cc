@@ -42,18 +42,21 @@ using namespace mlpl;
 #include "ActionManager.h"
 #include "ActorCollector.h"
 #include "DBClientAction.h"
+#include "DBClientUser.h"
+#include "CacheServiceDBClient.h"
 
 static MutexLock mutex;
 static bool initDone = false; 
 
-static void init(const CommandLineArg *arg)
+static void init(const CommandLineArg &arg)
 {
 	Utils::init();
 	HatoholException::init();
 
 	DBAgentSQLite3::init();
 	DBAgentMySQL::init();
-	DBClientConfig::init(*arg);
+	DBClientConfig::init(arg);
+	DBClientUser::init();
 	DBClientHatohol::init();
 	DBClientZabbix::init();
 	DBClientAction::init();
@@ -75,7 +78,7 @@ static void init(const CommandLineArg *arg)
 	FaceRest::init();
 }
 
-static void reset(void)
+static void reset(const CommandLineArg &arg)
 {
 	ActorCollector::reset();
 	ConfigManager::reset();
@@ -83,9 +86,13 @@ static void reset(void)
 	DBAgentSQLite3::reset();
 	DBClient::reset();
 	DBClientConfig::reset(); // must be after DBClient::reset()
+	DBClientUser::reset();
 	DBClientAction::reset(); // must be after DBClientConfig::reset()
 
 	ActionManager::reset();
+	CacheServiceDBClient::reset();
+
+	FaceRest::reset(arg);
 }
 
 void hatoholInit(const CommandLineArg *arg)
@@ -95,9 +102,9 @@ void hatoholInit(const CommandLineArg *arg)
 		arg = &emptyArg;
 	mutex.lock();
 	if (!initDone) {
-		init(arg);
+		init(*arg);
 		initDone = true;
 	}
-	reset();
+	reset(*arg);
 	mutex.unlock();
 }

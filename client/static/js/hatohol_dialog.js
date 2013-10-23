@@ -17,7 +17,26 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
-var HatoholDialog = function(id, dialogTitle, buttons) {
+var HatoholDialogObserver = (function() {
+  var createdCallbacks = new Array();
+
+  return {
+    reset: function() {
+      createdCallbacks.length = 0;
+    },
+
+    registerCreatedCallback: function(callback) {
+      createdCallbacks.push(callback);
+    },
+
+    notifyCreated: function(id, obj) {
+      for (var i in createdCallbacks)
+        createdCallbacks[i](id, obj);
+    }
+  }
+})();
+
+var HatoholDialog = function(id, dialogTitle, buttons, dialogAttr) {
 
   var self = this;
 
@@ -28,12 +47,18 @@ var HatoholDialog = function(id, dialogTitle, buttons) {
   $("body").append(self.mainFrame);
   self.onAppendMainElement();
 
+  var width = "95%";
+  if (dialogAttr) {
+    if (dialogAttr.width)
+      width = dialogAttr.width
+  }
+
   self.dialogId = "#" + id
   $(self.dialogId).dialog({
     autoOpen: false,
     title: dialogTitle,
     closeOnEscape: false,
-    width:  "95%",
+    width: width,
     modal: true,
     buttons: buttons,
     open: function(event, ui){
@@ -42,6 +67,7 @@ var HatoholDialog = function(id, dialogTitle, buttons) {
   });
 
   $(self.dialogId).dialog("open");
+  HatoholDialogObserver.notifyCreated(id, this);
 }
 
 /**
@@ -61,6 +87,10 @@ HatoholDialog.prototype.replaceMainElement = function(elem) {
   this.mainFrame.append(elem);
 }
 
+HatoholDialog.prototype.appendToMainElement = function(elem) {
+  this.mainFrame.append(elem);
+}
+
 /**
  * Close and delete the dialog.
  */
@@ -68,3 +98,16 @@ HatoholDialog.prototype.closeDialog = function() {
   $(this.dialogId).dialog("close");
   $(this.dialogId).remove();
 }
+
+HatoholDialog.prototype.setButtonState = function(buttonLabel, state) {
+  var btn = $(".ui-dialog-buttonpane").find("button:contains(" +
+              buttonLabel + ")");
+  if (state) {
+     btn.removeAttr("disabled");
+     btn.removeClass("ui-state-disabled");
+  } else {
+     btn.attr("disabled", "disable");
+     btn.addClass("ui-state-disabled");
+  }
+}
+

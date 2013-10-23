@@ -30,7 +30,7 @@
 #include "MutexLock.h"
 #include "LabelUtils.h"
 #include "ConfigManager.h"
-#include "TimeCounter.h"
+#include "SmartTime.h"
 
 using namespace std;
 using namespace mlpl;
@@ -391,9 +391,8 @@ const char *ActionManager::NUM_COMMNAD_ACTION_EVENT_ARG_MAGIC
 
 void ActionManager::reset(void)
 {
-	// The following deletion is naturally no effect at the start of
-	// Hatohol. This is mainly for the test in which this function is 
-	// calls many times.
+	// The following deletion has naturally no effect at the start of
+	// Hatohol. This is mainly for the test.
 	// NOTE: This is a special case for test, so we don't take
 	// ResidentInfo::residentMapLock. Or the deadlock will happen
 	// in the desctoructor of ResidentInfo.
@@ -448,9 +447,9 @@ bool ActionManager::shouldSkipByTime(const EventInfo &eventInfo)
 	if (allowedOldTime == ConfigManager::ALLOW_ACTION_FOR_ALL_OLD_EVENTS)
 		return false;
 
-	TimeCounter eventTimeCounter(eventInfo.time);
-	TimeCounter passedTime(TimeCounter::INIT_CURR_TIME);
-	passedTime -= eventTimeCounter;
+	SmartTime eventTime(eventInfo.time);
+	SmartTime passedTime(SmartTime::INIT_CURR_TIME);
+	passedTime -= eventTime;
 	return passedTime.getAsSec() > allowedOldTime;
 }
 
@@ -1091,7 +1090,7 @@ void ActionManager::closeResident(ResidentInfo *residentInfo)
 {
 	// kill hatohol-resident-yard.
 	// After hatohol-resident-yard is killed, residentActorCollectedCb()
-	// will be called form ActorCollector::checkExitProcess().
+	// will be called back from ActorCollector::checkExitProcess().
 	pid_t pid = residentInfo->pid;
 	if (pid && kill(pid, SIGKILL))
 		MLPL_ERR("Failed to kill. pid: %d, %s\n", pid, strerror(errno));

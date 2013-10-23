@@ -74,6 +74,7 @@ private:
 	struct PrivateContext;
 	PrivateContext *m_ctx;
 
+	static void threadCleanup(HatoholThreadArg *arg);
 	static gpointer threadStarter(gpointer data);
 };
 

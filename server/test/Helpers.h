@@ -22,11 +22,13 @@
 
 #include <cppcutter.h>
 #include <StringUtils.h>
+#include <SmartTime.h>
 using namespace mlpl;
 
 #include "ItemTable.h"
 #include "DBAgent.h"
 #include "DBClient.h"
+#include "HatoholError.h"
 
 #define DBCONTENT_MAGIC_CURR_DATETIME "#CURR_DATETIME#"
 #define DBCONTENT_MAGIC_NULL          "#NULL#"
@@ -99,6 +101,13 @@ void _assertCreateTable(DBAgent *dbAgent, const string &tableName);
 #define assertCreateTable(DBAGENT,TBL_NAME) \
 cut_trace(_assertCreateTable(DBAGENT,TBL_NAME))
 
+void _assertTimeIsNow(const mlpl::SmartTime &smtime, double allowedError = 1);
+#define assertTimeIsNow(ST, ...) cut_trace(_assertTimeIsNow(ST, ##__VA_ARGS__))
+
+void _assertHatoholError(const HatoholErrorCode &code,
+                         const HatoholError err);
+#define assertHatoholError(C,E) cut_trace(_assertHatoholError(C,E))
+
 template<typename T> void _assertAddToDB(T *arg, void (*func)(T *))
 {
 	bool gotException = false;
@@ -113,10 +122,16 @@ template<typename T> void _assertAddToDB(T *arg, void (*func)(T *))
 	cppcut_assert_equal(false, gotException);
 }
 
+void _assertUsersInDB(const UserIdSet &excludeUserIdSet = EMPTY_USER_ID_SET);
+#define assertUsersInDB(E) cut_trace(_assertUsersInDB(E))
+
 void makeTestMySQLDBIfNeeded(const string &dbName, bool recreate = false);
 void setupTestDBServers(void);
 void setupTestDBAction(bool dbRecreate = true, bool loadTestDat = false);
+void setupTestDBUser(bool dbRecreate = true, bool loadTestDat = false);
 void loadTestDBAction(void);
+void loadTestDBUser(void);
+void loadTestDBAccessList(void);
 string execSQL(DBAgent *agent, const string &statement,
                bool showHeader = false);
 string joinStringVector(const StringVector &strVect, const string &pad = "",

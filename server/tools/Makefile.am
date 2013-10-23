@@ -10,7 +10,7 @@ MLPL_LIBS = ../mlpl/src/libmlpl.la
 
 AM_CXXFLAGS = -Wall -g3 \
 	-D__STDC_FORMAT_MACROS \
-	-I ../src $(MLPL_CFLAGS) $(GLIB_CFLAGS) $(MYSQL_CFLAGS)
+	-I ../src $(MLPL_CFLAGS) $(GLIB_CFLAGS) $(MYSQL_CFLAGS) $(LIBSOUP_CFLAGS) $(JSON_GLIB_CFLAGS)
 
 AM_LDFLAGS = ../src/libhatohol.la $(MLPL_LIBS) $(GLIB_LIBS) $(MYSQL_LIBS)
 
@@ -22,7 +22,8 @@ hatohol_def_src_file_generator_SOURCES = hatohol-def-src-file-generator.cc
 hatohol_pymodules = \
   hatohol/__init__.py \
   hatohol/hatohol_def.py \
-  hatohol/HatoholActionCreator.py \
+  hatohol/voyager.py \
+  hatohol/ActionCreator.py \
   setup.py
 
 # To make hahol_def.py on the build.

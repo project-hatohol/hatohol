@@ -23,6 +23,7 @@
 #include <Logger.h>
 #include <MutexLock.h>
 #include <ReadWriteLock.h>
+#include <Reaper.h>
 using namespace mlpl;
 
 #include <exception>
@@ -31,6 +32,7 @@ using namespace mlpl;
 #include "Utils.h"
 #include "HatoholThreadBase.h"
 #include "HatoholException.h"
+#include "CacheServiceDBClient.h"
 
 struct HatoholThreadBase::PrivateContext {
 	GThread *thread;
@@ -168,10 +170,25 @@ void HatoholThreadBase::doExitCallback(void)
 // ---------------------------------------------------------------------------
 // Private methods
 // ---------------------------------------------------------------------------
+void HatoholThreadBase::threadCleanup(HatoholThreadArg *arg)
+{
+	arg->obj->doExitCallback();
+	CacheServiceDBClient::cleanup();
+	arg->obj->m_ctx->mutexForThreadExit.unlock();
+	if (arg->autoDeleteObject)
+		delete arg->obj;
+	delete arg;
+}
+
 gpointer HatoholThreadBase::threadStarter(gpointer data)
 {
 	gpointer ret = NULL;
 	HatoholThreadArg *arg = static_cast<HatoholThreadArg *>(data);
+
+	// threadCleanup() is called when the this function returns,
+	// even if it is due to an exception.
+	Reaper<HatoholThreadArg> threadCleaner(arg, threadCleanup);
+
 	arg->obj->m_ctx->mutexForThreadExit.lock();
 	try {
 		ret = arg->obj->mainThread(arg);
@@ -183,13 +200,7 @@ gpointer HatoholThreadBase::threadStarter(gpointer data)
 		MLPL_ERR("Got Exception: %s\n", e.what());
 		arg->obj->doExceptionCallback(e);
 	} catch (...) {
-		arg->obj->m_ctx->mutexForThreadExit.unlock();
 		throw;
 	}
-	arg->obj->doExitCallback();
-	arg->obj->m_ctx->mutexForThreadExit.unlock();
-	if (arg->autoDeleteObject)
-		delete arg->obj;
-	delete arg;
 	return ret;
 }

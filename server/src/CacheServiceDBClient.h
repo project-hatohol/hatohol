@@ -17,37 +17,32 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TimeCounter_h
-#define TimeCounter_h
+#ifndef CacheServiceDBClient_h
+#define CacheServiceDBClient_h
 
-#include <time.h>
+#include "DBClientHatohol.h"
+#include "DBClientUser.h"
 
-namespace mlpl {
-
-class TimeCounter {
+class CacheServiceDBClient
+{
 public:
-	enum InitType {
-		INIT_NONE,
-		INIT_CURR_TIME,
-	};
+	static void reset(void);
 
-	static double getCurrTime(void);
+	/**
+	 * Delete cache for the caller thread.
+	 */
+	static void cleanup(void);
+	static size_t getNumberOfDBClientMaps(void);
 
-	TimeCounter(InitType initType = INIT_NONE);
-	TimeCounter(const timespec &ts);
-	virtual ~TimeCounter();
-
-	void setCurrTime(void);
-	void setTime(double time);
-	double getAsSec(void) const;
-	double getAsMSec(void) const;
-
-	TimeCounter &operator-=(const TimeCounter &rhs);
+	CacheServiceDBClient(void);
+	virtual ~CacheServiceDBClient();
+	DBClientHatohol *getHatohol(void);
+	DBClientUser    *getUser(void);
 
 private:
-	double m_time;
+	struct PrivateContext;
+
+	template <class T> T *get(DBDomainId domainId);
 };
 
-} // namespace mlpl
-
-#endif // TimeCounter_h
+#endif // CacheServiceDBClient_h

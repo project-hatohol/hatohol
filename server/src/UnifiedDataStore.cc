@@ -26,6 +26,7 @@
 #include "VirtualDataStoreNagios.h"
 #include "DBClientAction.h"
 #include "ActionManager.h"
+#include "CacheServiceDBClient.h"
 
 using namespace mlpl;
 
@@ -212,10 +213,11 @@ void UnifiedDataStore::getTriggerList(TriggerInfoList &triggerList,
 	                             targetHostId, targetTriggerId);
 }
 
-void UnifiedDataStore::getEventList(EventInfoList &eventList)
+void UnifiedDataStore::getEventList(EventInfoList &eventList,
+                                    EventQueryOption &option)
 {
 	DBClientHatohol dbHatohol;
-	dbHatohol.getEventInfoList(eventList);
+	dbHatohol.getEventInfoList(eventList, option);
 }
 
 void UnifiedDataStore::getItemList(ItemInfoList &itemList,
@@ -299,6 +301,38 @@ void UnifiedDataStore::addEventList(const EventInfoList &eventList)
 	ActionManager actionManager;
 	actionManager.checkEvents(eventList);
 	dbHatohol.addEventInfoList(eventList);
+}
+
+void UnifiedDataStore::getUserList(UserInfoList &userList,
+                                   UserQueryOption &option)
+{
+	CacheServiceDBClient cache;
+	DBClientUser *dbUser = cache.getUser();
+	dbUser->getUserInfoList(userList, option);
+}
+
+HatoholError UnifiedDataStore::addUser(
+  UserInfo &userInfo, const OperationPrivilege &privilege)
+{
+	CacheServiceDBClient cache;
+	DBClientUser *dbUser = cache.getUser();
+	return dbUser->addUserInfo(userInfo, privilege);
+}
+
+HatoholError UnifiedDataStore::updateUser(
+  UserInfo &userInfo, const OperationPrivilege &privilege)
+{
+	CacheServiceDBClient cache;
+	DBClientUser *dbUser = cache.getUser();
+	return dbUser->updateUserInfo(userInfo, privilege);
+}
+
+HatoholError UnifiedDataStore::deleteUser(
+  UserIdType userId, const OperationPrivilege &privilege)
+{
+	CacheServiceDBClient cache;
+	DBClientUser *dbUser = cache.getUser();
+	return dbUser->deleteUserInfo(userId, privilege);
 }
 
 // ---------------------------------------------------------------------------

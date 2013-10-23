@@ -18,24 +18,29 @@
  */
 
 #include <cppcutter.h>
-#include "TimeCounter.h"
+#include "DBClient.h"
 
-using namespace mlpl;
+namespace testDBClient {
 
-namespace testTimeCounter {
-
-void test_constructorTimespec(void)
+// ---------------------------------------------------------------------------
+// Test cases
+// ---------------------------------------------------------------------------
+void test_getAlwaysFalseConditionIsNotEmpty()
 {
-	timespec ts;
-	ts.tv_sec = 1379641056;
-	ts.tv_nsec = 987654321;
-	TimeCounter timeCnt(ts);
-
-	double actual = timeCnt.getAsSec();
-	int actualInt = (int)actual;
-	cppcut_assert_equal((int)ts.tv_sec, actualInt);
-	int  actualDecimalPartUsec = (actual - actualInt) * 1e6;
-	cppcut_assert_equal((int)(ts.tv_nsec/1e3), actualDecimalPartUsec);
+	cppcut_assert_equal(false, DBClient::getAlwaysFalseCondition().empty());
 }
 
-} // namespace testTimeCounter
+void test_isAlwaysFalseCondition(void)
+{
+	bool actual = DBClient::isAlwaysFalseCondition(
+	                DBClient::getAlwaysFalseCondition());
+	cppcut_assert_equal(true, actual);
+}
+
+void test_isAlwaysFalseConditionReturnFalse(void)
+{
+	bool actual = DBClient::isAlwaysFalseCondition("1");
+	cppcut_assert_equal(false, actual);
+}
+
+} // namespace testDBClient

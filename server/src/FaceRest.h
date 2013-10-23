@@ -23,12 +23,29 @@
 #include <libsoup/soup.h>
 #include "FaceBase.h"
 #include "JsonBuilderAgent.h"
+#include "SmartTime.h"
+#include "Params.h"
+#include "HatoholError.h"
+#include "DBClientUser.h"
+
+struct SessionInfo {
+	UserIdType userId;
+	mlpl::SmartTime loginTime;
+	mlpl::SmartTime lastAccessTime;
+
+	// constructor
+	SessionInfo(void);
+};
 
 class FaceRest : public FaceBase {
 public:
 	static int API_VERSION;
+	static const char *SESSION_ID_HEADER_NAME;
 
 	static void init(void);
+	static void reset(const CommandLineArg &arg);
+	static bool isTestMode(void);
+
 	FaceRest(CommandLineArg &cmdArg);
 	virtual ~FaceRest();
 	virtual void stop(void);
@@ -41,14 +58,20 @@ protected:
 
 	// generic sub routines
 	size_t parseCmdArgPort(CommandLineArg &cmdArg, size_t idx);
+	static void addHatoholError(JsonBuilderAgent &agent,
+	                            const HatoholError &err);
 	static void replyError(SoupMessage *msg, const HandlerArg *arg,
-	                       const string &errorMessage);
+	                       const HatoholError &hatoholError);
+	static void replyError(SoupMessage *msg, const HandlerArg *arg,
+	                       const HatoholErrorCode &errorCode,
+	                       const string &optionMessage = "");
 	static string getJsonpCallbackName(GHashTable *query, HandlerArg *arg);
 	static string wrapForJsonp(const string &jsonBody,
                                    const string &callbackName);
 	static void replyJsonData(JsonBuilderAgent &agent, SoupMessage *msg,
 	                          const string &jsonpCallbackName,
 	                          HandlerArg *arg);
+
 	/**
 	 * Parse 'serverId' query parameter if it exists.
 	 *
@@ -87,6 +110,15 @@ protected:
 	static void handlerHelloPage
 	  (SoupServer *server, SoupMessage *msg, const char *path,
 	   GHashTable *query, SoupClientContext *client, HandlerArg *arg);
+	static void handlerTest
+	  (SoupServer *server, SoupMessage *msg, const char *path,
+	   GHashTable *query, SoupClientContext *client, HandlerArg *arg);
+	static void handlerLogin
+	  (SoupServer *server, SoupMessage *msg, const char *path,
+	   GHashTable *query, SoupClientContext *client, HandlerArg *arg);
+	static void handlerLogout
+	  (SoupServer *server, SoupMessage *msg, const char *path,
+	   GHashTable *query, SoupClientContext *client, HandlerArg *arg);
 	static void handlerGetOverview
 	  (SoupServer *server, SoupMessage *msg, const char *path,
 	   GHashTable *query, SoupClientContext *client, HandlerArg *arg);
@@ -119,21 +151,78 @@ protected:
 	  (SoupServer *server, SoupMessage *msg, const char *path,
 	   GHashTable *query, SoupClientContext *client, HandlerArg *arg);
 
+	static void handlerUser
+	  (SoupServer *server, SoupMessage *msg, const char *path,
+	   GHashTable *query, SoupClientContext *client, HandlerArg *arg);
+	static void handlerGetUser
+	  (SoupServer *server, SoupMessage *msg, const char *path,
+	   GHashTable *query, SoupClientContext *client, HandlerArg *arg);
+	static void handlerPostUser
+	  (SoupServer *server, SoupMessage *msg, const char *path,
+	   GHashTable *query, SoupClientContext *client, HandlerArg *arg);
+	static void handlerDeleteUser
+	  (SoupServer *server, SoupMessage *msg, const char *path,
+	   GHashTable *query, SoupClientContext *client, HandlerArg *arg);
+
+	/**
+	 * Get the SessionInfo instance.
+	 * NOTE: This function doesn't take a lock in it. So you should 
+	 *       take a lock if the other thread may accesses the session
+	 *       information.
+	 *
+	 * @param sessionId A session ID string.
+	 *
+	 * @return
+	 * A pointer to the SesionInfo instance when the session is found.
+	 * Otherwise, NULL is returned.
+	 */
+	static const SessionInfo *getSessionInfo(const string &sessionId);
+
+	static HatoholError parseUserParameter(UserInfo &userInfo,
+	                                       GHashTable *query);
+
+	/**
+	 * Update the user informformation if 'name' specifined in 'query'
+	 * exits in the DB. Otherwise, the user is newly added.
+	 * NOTE: This method is currently used for test purpose.
+	 *
+	 * @param query 
+	 * A hash table that has query parameters in the URL.
+	 *
+	 * @param option
+	 * A UserQueryOption used for the query.
+	 *
+	 * @return A HatoholError is returned.
+	 */
+	static HatoholError updateOrAddUser(GHashTable *query,
+	                                    UserQueryOption &option);
+
 private:
+	struct PrivateContext;
+
 	// The body is defined in the FaceRest.cc. So this function can
 	// be used only from the soruce file.
+	template<typename T>
+	static HatoholError getParam(
+	  GHashTable *query, const char *paramName,
+	  const char *scanFmt, T &dest);
+
 	template<typename T>
 	static bool getParamWithErrorReply(
 	  GHashTable *query, SoupMessage *msg, const HandlerArg *arg,
 	  const char *paramName, const char *scanFmt, T &dest, bool *exist);
 
+	static const char *pathForTest;
+	static const char *pathForLogin;
+	static const char *pathForLogout;
 	static const char *pathForGetOverview;
 	static const char *pathForGetServer;
 	static const char *pathForGetHost;
 	static const char *pathForGetTrigger;
 	static const char *pathForGetEvent;
 	static const char *pathForGetItem;
-	static const char *pathForGetAction;
+	static const char *pathForAction;
+	static const char *pathForUser;
 
 	guint       m_port;
 	SoupServer *m_soupServer;

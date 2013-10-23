@@ -22,6 +22,8 @@
 
 #include <list>
 #include "DBClient.h"
+#include "DataQueryOption.h"
+#include "DBClientUser.h"
 
 enum TriggerStatusType {
 	TRIGGER_STATUS_OK,
@@ -42,6 +44,7 @@ enum TriggerSeverityType {
 static const uint32_t ALL_SERVERS = -1;
 static const uint64_t ALL_HOSTS   = -1;
 static const uint64_t ALL_TRIGGERS = -1;
+static const uint64_t ALL_HOST_GROUPS = -1;
 
 struct HostInfo {
 	uint32_t            serverId;
@@ -115,6 +118,26 @@ typedef list<ItemInfo>               ItemInfoList;
 typedef ItemInfoList::iterator       ItemInfoListIterator;
 typedef ItemInfoList::const_iterator ItemInfoListConstIterator;
 
+class EventQueryOption : public DataQueryOption {
+public:
+	// Overriding of virtual methods
+	std::string getCondition(void) const;
+
+protected:
+	std::string getServerIdColumnName(void) const;
+	std::string getHostGroupIdColumnName(void) const;
+	static void appendCondition(std::string &cond,
+	                            const std::string &newCond);
+	static std::string makeCondition(
+	  const ServerHostGrpSetMap &srvHostGrpSetMap,
+	  const std::string &serverIdColumnName,
+	  const std::string &hostGroupIdColumnName);
+	static std::string makeConditionHostGroup(
+	  const HostGroupSet &hostGroupSet,
+	  const std::string &hostGroupIdColumnName);
+
+};
+
 class DBClientHatohol : public DBClient {
 public:
 	static uint64_t EVENT_NOT_FOUND;
@@ -165,7 +188,8 @@ public:
 
 	void addEventInfo(EventInfo *eventInfo);
 	void addEventInfoList(const EventInfoList &eventInfoList);
-	void getEventInfoList(EventInfoList &eventInfoList);
+	void getEventInfoList(EventInfoList &eventInfoList,
+	                      EventQueryOption &option);
 	void setEventInfoList(const EventInfoList &eventInfoList,
 	                      uint32_t serverId);
 

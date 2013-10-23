@@ -15,13 +15,24 @@
 # You should have received a copy of the GNU General Public License
 # along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
 
+import os
 from django.conf.urls import patterns, include, url
 from django.conf.urls.i18n import i18n_patterns
 from hatohol.forwardview import jsonforward
+from django.views.generic import TemplateView
 
 # Uncomment the next two lines to enable the admin:
 # from django.contrib import admin
 # admin.autodiscover()
+
+def makeTastingUrl(file_name):
+  return url(r'^tasting/' + file_name + '$',
+             TemplateView.as_view(template_name='tasting/' + file_name))
+
+def makeTestUrl(file_name):
+  return url(r'^test/' + file_name + '$',
+             TemplateView.as_view(template_name='test/browser/' + file_name))
+
 
 urlpatterns = patterns('',
     # Examples:
@@ -42,3 +53,20 @@ urlpatterns += i18n_patterns('',
     url(r'^viewer/', include('viewer.urls')),
     url(r'^jsi18n/$', 'django.views.i18n.javascript_catalog'),
 )
+
+if 'HATOHOL_DEBUG' in os.environ and os.environ['HATOHOL_DEBUG'] == '1':
+  urlpatterns += patterns('',
+      makeTastingUrl('index.html'),
+      makeTastingUrl('hatohol_login_dialog.html'),
+      makeTastingUrl('hatohol_message_box.html'),
+      makeTastingUrl('hatohol_session_manager.html'),
+      makeTastingUrl('hatohol_connector.html'),
+      makeTastingUrl('js_loader.js'),
+      makeTestUrl('index.html'),
+      makeTestUrl('test_hatohol_session_manager.js'),
+      makeTestUrl('test_hatohol_connector.js'),
+      makeTestUrl('mocha.js'),
+      makeTestUrl('mocha.css'),
+      makeTestUrl('expect.js'),
+  )
+

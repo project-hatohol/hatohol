@@ -26,13 +26,18 @@ LIBS = \
 # Test cases
 testHatohol_la_SOURCES = \
 	testActionExecArgMaker.cc testActionManager.cc \
+	testCacheServiceDBClient.cc \
 	testConfigManager.cc \
+	testDataQueryOption.cc \
+	testHatoholError.cc \
 	testHatoholException.cc testSQLProcessorException.cc \
 	testHatoholThreadBase.cc \
 	testDBAgentSQLite3.cc testDBAgentMySQL.cc \
+	testDBClient.cc \
 	testDBClientUtils.cc \
 	testDBClientConfig.cc testDBClientHatohol.cc testDBClientZabbix.cc \
-	testDBClientAction.cc \
+	testDBClientAction.cc testDBClientUser.cc \
+	testOperationPrivilege.cc \
 	testSQLUtils.cc testSQLProcessor.cc \
 	testSQLProcessorInsert.cc testSQLProcessorUpdate.cc \
 	testFormulaElement.cc \
@@ -65,8 +70,7 @@ libTest_la_SOURCES = \
 libTest_la_LDFLAGS =
 
 ActionTp_SOURCES = ActionTp.cc ActionTp.h
-ActionTp_LDADD = $(LIBS)
-ActionTp_LDFLAGS = -lTest
+ActionTp_LDADD = $(LIBS) libTest.la
 
 zabbix_api_response_collector_SOURCES = zabbix-api-response-collector.cc
 zabbix_api_response_collector_LDFLAGS = -lstdc++
