@@ -1,8 +1,10 @@
 {
   "id":"1",
   "name":"Hatohol",
+  "tell":"xxx-yyy-zzz",
   "object":{
     "country":"Japan",
-    "city":"Tokyo"
+    "city":"Tokyo",
+    "zipcode":"xxx-yyy"
   }
 } 
