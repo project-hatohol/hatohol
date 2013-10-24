@@ -57,13 +57,13 @@ var HatoholMessageBox = function(msg, param) {
   }
 
   var title = getTitle();
-  var buttons = getButtons();
+  self.buttons = getButtons();
   $(self.msgDivId).dialog({
     autoOpen: false,
     title: title,
     closeOnEscape: false,
     modal: true,
-    buttons: buttons,
+    buttons: self.buttons,
     open: function(event, ui){
       var titleBar = self.getTitleBar();
       titleBar.children(".ui-dialog-titlebar-close").hide();
@@ -95,9 +95,8 @@ var HatoholMessageBox = function(msg, param) {
   }
 
   function getDefaultButtonLabel() {
-    var DEFAULT_LABEL = gettext("CLOSE");
     if (!param || !param.defaultButtonLabel)
-      return DEFAULT_LABEL;
+      return self.getDefaultButtonLabel();
     return param.defaultButtonLabel;
   }
 
@@ -119,6 +118,11 @@ HatoholMessageBox.prototype.getDefaultId = function () {
   return DEFAULT_ID;
 }
 
+HatoholMessageBox.prototype.getDefaultButtonLabel = function () {
+  var DEFAULT_LABEL = gettext("CLOSE");
+  return DEFAULT_LABEL;
+}
+
 HatoholMessageBox.prototype.getMessage = function () {
   return $(this.msgDivId).text();
 }
@@ -129,6 +133,10 @@ HatoholMessageBox.prototype.getTitleBar = function () {
 
 HatoholMessageBox.prototype.isTitleBarVisible = function () {
   return this.getTitleBar().is(":visible");
+}
+
+HatoholMessageBox.prototype.getButtons = function () {
+  return this.buttons;
 }
 
 function hatoholInfoMsgBox(msg) {
