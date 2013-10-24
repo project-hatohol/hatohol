@@ -104,10 +104,7 @@ var HatoholMessageBox = function(msg, param) {
       label = getDefaultButtonLabel();
     return [{
       text: label,
-      click: function() {
-        $(this).dialog("destroy");
-        $(self.msgDivId).remove();
-      }
+      click: function() { self.destroy(); }
     }];
   }
 };
@@ -145,6 +142,11 @@ HatoholMessageBox.prototype.isTitleBarVisible = function () {
 
 HatoholMessageBox.prototype.getButtons = function () {
   return this.buttons;
+}
+
+HatoholMessageBox.prototype.destroy = function() {
+  $(this.msgDivId).dialog("destroy");
+  $(this.msgDivId).remove();
 }
 
 function hatoholInfoMsgBox(msg) {

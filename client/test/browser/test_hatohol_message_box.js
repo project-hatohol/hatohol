@@ -1,7 +1,15 @@
 describe('HatoholMessageBox', function() {
 
+  var msgbox;
+  beforeEach(function(done) {
+    msgbox = undefined;
+    done();
+  });
+
   afterEach(function(done) {
     HatoholDialogObserver.reset();
+    if (msgbox)
+      msgbox.destroy();
     done();
   });
 
@@ -28,6 +36,6 @@ describe('HatoholMessageBox', function() {
 
       done();
     });
-    var msgbox = new HatoholMessageBox(msg);
+    msgbox = new HatoholMessageBox(msg);
   });
 });
