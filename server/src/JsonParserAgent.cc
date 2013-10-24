@@ -62,8 +62,10 @@ bool JsonParserAgent::hasError(void)
 bool JsonParserAgent::read(const string &member, bool &dest)
 {
 	internalCheck();
-	if (!json_reader_read_member(m_reader, member.c_str()))
+	if (!json_reader_read_member(m_reader, member.c_str())) {
+		json_reader_end_member(m_reader);
 		return false;
+	}
 	dest = json_reader_get_boolean_value(m_reader);
 	json_reader_end_member(m_reader);
 	return true;
@@ -72,8 +74,10 @@ bool JsonParserAgent::read(const string &member, bool &dest)
 bool JsonParserAgent::read(const string &member, int64_t &dest)
 {
 	internalCheck();
-	if (!json_reader_read_member(m_reader, member.c_str()))
+	if (!json_reader_read_member(m_reader, member.c_str())) {
+		json_reader_end_member(m_reader);
 		return false;
+	}
 	dest = json_reader_get_int_value(m_reader);
 	json_reader_end_member(m_reader);
 	return true;
@@ -82,8 +86,10 @@ bool JsonParserAgent::read(const string &member, int64_t &dest)
 bool JsonParserAgent::read(const string &member, string &dest)
 {
 	internalCheck();
-	if (!json_reader_read_member(m_reader, member.c_str()))
+	if (!json_reader_read_member(m_reader, member.c_str())) {
+		json_reader_end_member(m_reader);
 		return false;
+	}
 	dest = json_reader_get_string_value(m_reader);
 	json_reader_end_member(m_reader);
 	return true;
@@ -92,8 +98,10 @@ bool JsonParserAgent::read(const string &member, string &dest)
 bool JsonParserAgent::read(int index, string &dest)
 {
 	internalCheck();
-	if (!json_reader_read_element(m_reader,index))
+	if (!json_reader_read_element(m_reader,index)) {
+		json_reader_end_element(m_reader);
 		return false;
+	}
 	dest = json_reader_get_string_value(m_reader);
 	json_reader_end_element(m_reader);
 	return true;
@@ -102,8 +110,10 @@ bool JsonParserAgent::read(int index, string &dest)
 bool JsonParserAgent::isNull(const string &member, bool &dest)
 {
 	internalCheck();
-	if (!json_reader_read_member(m_reader, member.c_str()))
+	if (!json_reader_read_member(m_reader, member.c_str())) {
+		json_reader_end_member(m_reader);
 		return false;
+	}
 	dest = json_reader_get_null_value(m_reader);
 	json_reader_end_element(m_reader);
 	return true;
@@ -111,8 +121,10 @@ bool JsonParserAgent::isNull(const string &member, bool &dest)
 
 bool JsonParserAgent::startObject(const string &member)
 {
-	if (!json_reader_read_member(m_reader, member.c_str()))
+	if (!json_reader_read_member(m_reader, member.c_str())) {
+		json_reader_end_member(m_reader);
 		return false;
+	}
 	return true;
 }
 
