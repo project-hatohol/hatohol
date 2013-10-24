@@ -65,9 +65,10 @@ var HatoholMessageBox = function(msg, param) {
     modal: true,
     buttons: buttons,
     open: function(event, ui){
-      $(".ui-dialog-titlebar-close").hide();
+      var titleBar = $(self.msgDivId).siblings(".ui-dialog-titlebar");
+      titleBar.children(".ui-dialog-titlebar-close").hide();
       if (!param || !param.title)
-        $(".ui-dialog-titlebar").hide();
+        titleBar.hide();
     }
   });
 
