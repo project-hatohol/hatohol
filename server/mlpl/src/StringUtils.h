@@ -79,6 +79,10 @@ public:
 	 * @param newWord
 	 * The characters in 'targetChars' are replaced with 'newWord'.
 	 *
+	 * @return
+	 * The replaced string is returned. If an error is happend, an empty string is
+	 * returned.
+	 *
 	 */
 	static string replace(const string &source, const string &targetChars,
 	                      const string &newWord);

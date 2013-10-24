@@ -239,15 +239,19 @@ string StringUtils::replace(const string &source, const string &targetChars,
 	for (size_t i = 0; i < numArrayChars; i++)
 		targetCharArray[i] = false;
 	for (size_t i = 0; i < targetChars.size(); i++) {
-		char charCode = targetChars[i];
-		int idx = static_cast<int>(charCode);
+		unsigned char charCode = targetChars[i];
+		size_t idx = static_cast<int>(charCode);
+		if (idx >= numArrayChars)
+			return "";
 		targetCharArray[idx] = true;
 	}
 
 	string replacedString;
 	for (size_t i = 0; i < source.size(); i++) {
 		unsigned char charCode = source[i];
-		int idx = static_cast<int>(charCode);
+		size_t idx = static_cast<int>(charCode);
+		if (idx >= numArrayChars)
+			return "";
 		if (targetCharArray[idx])
 			replacedString += newWord;
 		else
