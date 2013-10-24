@@ -56,6 +56,29 @@ public:
 	static string toString(int number);
 	static string toLower(string str);
 	static string stripBothEndsSpaces(const string &str);
+
+	/**
+	 * Erase specified characters in a string.
+	 *
+	 * Example:
+	 * string source = "ABCDEFG";
+	 * string eraseChars = "BD";
+	 * string s = StringUtils::eraseChars(source, eraseChars);
+	 *
+	 * The 's' should have "ACEFG"
+	 *
+	 * @param source
+	 *  A source string. A UTF-8 string is acceptable.
+	 *
+	 * @param eraseChars
+	 * Characters to be erased. Multi-byte characters cannot not be used. They
+	 * are treated as multiple single-byte characters.
+	 *
+	 * @return
+	 * The erased string is returned. If an error is happend, an empty string is
+	 * returned.
+	 *
+	 */
 	static string eraseChars(const string &source,
 	                         const string &eraseChars);
 	/**

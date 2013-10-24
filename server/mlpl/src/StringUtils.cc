@@ -214,15 +214,19 @@ string StringUtils::eraseChars(const string &source, const string &eraseChars)
 	for (size_t i = 0; i < numArrayChars; i++)
 		eraseCharArray[i] = false;
 	for (size_t i = 0; i < eraseChars.size(); i++) {
-		char charCode = eraseChars[i];
-		int idx = static_cast<int>(charCode);
+		unsigned char charCode = eraseChars[i];
+		size_t idx = static_cast<int>(charCode);
+		if (idx >= numArrayChars)
+			return "";
 		eraseCharArray[idx] = true;
 	}
 
 	string erasedString;
 	for (size_t i = 0; i < source.size(); i++) {
-		char charCode = source[i];
-		int idx = static_cast<int>(charCode);
+		unsigned char charCode = source[i];
+		size_t idx = static_cast<int>(charCode);
+		if (idx >= numArrayChars)
+			return "";
 		if (eraseCharArray[idx])
 			continue;
 		erasedString += charCode;
