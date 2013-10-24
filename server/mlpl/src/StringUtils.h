@@ -58,6 +58,28 @@ public:
 	static string stripBothEndsSpaces(const string &str);
 	static string eraseChars(const string &source,
 	                         const string &eraseChars);
+	/**
+	 * Replace specified characters with a word.
+	 *
+	 * Example:
+	 * string source = "ABCDEFG";
+	 * string targetChars = "BD";
+	 * string newWord = "dog";
+	 * string s = StringUtils::replace(source, targetChars, newWord);
+	 *
+	 * The 's' should have "AdogCdogEFG"
+	 *
+	 * @param source
+	 *  A source string. A UTF-8 string is acceptable.
+	 *
+	 * @param targetChars
+	 * Characters to be replaced. Multi-byte characters cannot not be used. They
+	 * are treated as multiple single-byte characters.
+	 *
+	 * @param newWord
+	 * The characters in 'targetChars' are replaced with 'newWord'.
+	 *
+	 */
 	static string replace(const string &source, const string &targetChars,
 	                      const string &newWord);
 };
