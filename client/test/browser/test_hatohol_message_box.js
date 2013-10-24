@@ -57,24 +57,12 @@ describe('HatoholMessageBox', function() {
     var msg = "Test message.";
     var param = {title: "Title Teeeeeest"};
     HatoholDialogObserver.registerCreatedCallback(function(id, obj) {
-      if (!("getDefaultId" in obj))
-        return;
-      if (id != obj.getDefaultId())
-        return;
-
-      // message
-      expect(obj.getMessage()).to.be(msg);
-
-      // title bar
-      expect(obj.isTitleBarVisible()).to.be(true);
-      expect(obj.getTitleString()).to.be(param.title);
-
-      // button
-      var buttons = obj.getButtons();
-      expect(buttons).to.have.length(1);
-      var button = buttons[0];
-      expect(button.text).to.be(obj.getDefaultButtonLabel());
-
+      checkResult(id, obj, {
+        msg: msg,
+        titleVisible: true,
+        titleString: param.title,
+        buttonLabels: [obj.getDefaultButtonLabel()],
+      });
       done();
     });
     msgbox = new HatoholMessageBox(msg, param);
