@@ -7,6 +7,7 @@ describe('HatoholMessageBox', function() {
       if (id != obj.getDefaultId())
         return;
 
+      // message
       expect(obj.getMessage()).to.be(msg);
 
       // title bar
