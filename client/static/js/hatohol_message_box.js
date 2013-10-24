@@ -128,7 +128,7 @@ HatoholMessageBox.prototype.getTitleBar = function () {
 }
 
 HatoholMessageBox.prototype.isTitleBarVisible = function () {
-  return this.getTitleBar().is(':visible');
+  return this.getTitleBar().is(":visible");
 }
 
 function hatoholInfoMsgBox(msg) {
