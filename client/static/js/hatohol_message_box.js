@@ -123,6 +123,14 @@ HatoholMessageBox.prototype.getMessage = function () {
   return $(this.msgDivId).text();
 }
 
+HatoholMessageBox.prototype.getTitleBar = function () {
+  return $(this.msgDivId).siblings(".ui-dialog-titlebar");
+}
+
+HatoholMessageBox.prototype.isTitleBarVisible = function () {
+  return this.getTitleBar().is(':visible');
+}
+
 function hatoholInfoMsgBox(msg) {
   var param = {title: gettext("Information")};
   new HatoholMessageBox(msg, param);

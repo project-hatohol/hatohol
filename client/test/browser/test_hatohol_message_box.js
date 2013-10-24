@@ -8,6 +8,7 @@ describe('HatoholMessageBox', function() {
         return;
 
       expect(obj.getMessage()).to.be(msg);
+      expect(obj.isTitleBarVisible()).to.be(false);
       done();
     });
     var msgbox = new HatoholMessageBox(msg);
