@@ -65,7 +65,7 @@ var HatoholMessageBox = function(msg, param) {
     modal: true,
     buttons: buttons,
     open: function(event, ui){
-      var titleBar = $(self.msgDivId).siblings(".ui-dialog-titlebar");
+      var titleBar = self.getTitleBar();
       titleBar.children(".ui-dialog-titlebar-close").hide();
       if (!param || !param.title)
         titleBar.hide();
