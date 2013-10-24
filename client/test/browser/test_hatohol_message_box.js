@@ -1,6 +1,32 @@
 describe('HatoholMessageBox', function() {
 
+  function checkResult(id, obj, expected) {
+    if (!("getDefaultId" in obj))
+      return;
+    if (id != obj.getDefaultId())
+      return;
+
+    // message
+    expect(obj.getMessage()).to.be(expected.msg);
+
+    // title bar
+    expect(obj.isTitleBarVisible()).to.be(expected.titleVisible);
+    expect(obj.getTitleString()).to.be(expected.titleString);
+
+    // button
+    var buttons = obj.getButtons();
+    expect(buttons).to.have.length(expected.buttonLabels.length);
+    for (var i = 0; i < expected.buttonLabels.length; i++) {
+      var button = buttons[i];
+      expect(button.text).to.be(expected.buttonLabels[i]);
+    }
+  }
+
+  // -------------------------------------------------------------------------
+  // Test cases
+  // -------------------------------------------------------------------------
   var msgbox;
+
   beforeEach(function(done) {
     msgbox = undefined;
     done();
@@ -16,24 +42,12 @@ describe('HatoholMessageBox', function() {
   it('passes only the first (message) argument', function(done) {
     var msg = "Test message.";
     HatoholDialogObserver.registerCreatedCallback(function(id, obj) {
-      if (!("getDefaultId" in obj))
-        return;
-      if (id != obj.getDefaultId())
-        return;
-
-      // message
-      expect(obj.getMessage()).to.be(msg);
-
-      // title bar
-      expect(obj.isTitleBarVisible()).to.be(false);
-      expect(obj.getTitleString()).to.be(obj.getDefaultTitleString());
-
-      // button
-      var buttons = obj.getButtons();
-      expect(buttons).to.have.length(1);
-      var button = buttons[0];
-      expect(button.text).to.be(obj.getDefaultButtonLabel());
-
+      checkResult(id, obj, {
+        msg: msg,
+        titleVisible: false,
+        titleString: obj.getDefaultTitleString(),
+        buttonLabels: [obj.getDefaultButtonLabel()],
+      });
       done();
     });
     msgbox = new HatoholMessageBox(msg);
