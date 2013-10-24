@@ -65,4 +65,31 @@ describe('HatoholMessageBox', function() {
     });
     msgbox = new HatoholMessageBox(msg, param);
   });
+
+  it('specify the defaultButtonLabel', function(done) {
+    var msg = "Test message.";
+    var param = {title: "Test MessageBox", defaultButtonLabel:"<lv.vl>"};
+    HatoholDialogObserver.registerCreatedCallback(function(id, obj) {
+      if (!("getDefaultId" in obj))
+        return;
+      if (id != obj.getDefaultId())
+        return;
+
+      // message
+      expect(obj.getMessage()).to.be(msg);
+
+      // title bar
+      expect(obj.isTitleBarVisible()).to.be(true);
+      expect(obj.getTitleString()).to.be(param.title);
+
+      // button
+      var buttons = obj.getButtons();
+      expect(buttons).to.have.length(1);
+      var button = buttons[0];
+      expect(button.text).to.be(param.defaultButtonLabel);
+
+      done();
+    });
+    msgbox = new HatoholMessageBox(msg, param);
+  });
 });
