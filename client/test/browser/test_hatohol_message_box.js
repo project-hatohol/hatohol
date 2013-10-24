@@ -1,4 +1,10 @@
 describe('HatoholMessageBox', function() {
+
+  afterEach(function(done) {
+    HatoholDialogObserver.reset();
+    done();
+  });
+
   it('passes only the first (message) argument', function(done) {
     var msg = "Test message.";
     HatoholDialogObserver.registerCreatedCallback(function(id, obj) {
