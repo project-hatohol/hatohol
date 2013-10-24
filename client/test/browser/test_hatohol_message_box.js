@@ -11,6 +11,7 @@ describe('HatoholMessageBox', function() {
 
       // title bar
       expect(obj.isTitleBarVisible()).to.be(false);
+      expect(obj.getTitleString()).to.be(obj.getDefaultTitleString());
 
       // button
       var buttons = obj.getButtons();

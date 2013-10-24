@@ -56,11 +56,11 @@ var HatoholMessageBox = function(msg, param) {
     $(msgDiv).text(msg);
   }
 
-  var title = getTitle();
+  self.title = getTitle();
   self.buttons = getButtons();
   $(self.msgDivId).dialog({
     autoOpen: false,
-    title: title,
+    title: self.title,
     closeOnEscape: false,
     modal: true,
     buttons: self.buttons,
@@ -82,9 +82,8 @@ var HatoholMessageBox = function(msg, param) {
   }
 
   function getTitle() {
-    var DEFAULT_TITLE_BAR_STRING = gettext("MessageBox");
     if (!param || !param.title)
-      return DEFAULT_TITLE_BAR_STRING;
+      return self.getDefaultTitleString();
     return param.title;
   }
 
@@ -123,12 +122,21 @@ HatoholMessageBox.prototype.getDefaultButtonLabel = function () {
   return DEFAULT_LABEL;
 }
 
+HatoholMessageBox.prototype.getDefaultTitleString = function () {
+    var DEFAULT_TITLE_BAR_STRING = gettext("MessageBox");
+    return DEFAULT_TITLE_BAR_STRING;
+}
+
 HatoholMessageBox.prototype.getMessage = function () {
   return $(this.msgDivId).text();
 }
 
 HatoholMessageBox.prototype.getTitleBar = function () {
   return $(this.msgDivId).siblings(".ui-dialog-titlebar");
+}
+
+HatoholMessageBox.prototype.getTitleString = function () {
+  return this.title;
 }
 
 HatoholMessageBox.prototype.isTitleBarVisible = function () {
