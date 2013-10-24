@@ -131,7 +131,8 @@ static pid_t getParentPid(pid_t pid, string &programName)
 	ifstream ifs(procStatPath.str().c_str());
 	cppcut_assert_equal(
 	  true, ifs.good(),
-	  cut_message("path: %s", procStatPath.str().c_str()));
+	  cut_message("path: %s, errno: %d",
+	              procStatPath.str().c_str(), errno));
 
 	pid_t mypid = 0;
 	pid_t parentPid = 0;
