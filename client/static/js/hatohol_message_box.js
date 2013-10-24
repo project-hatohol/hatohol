@@ -17,64 +17,130 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
-var HatoholMessageBox = function(msg, title, buttonLabel) {
+/**
+ * Show a message box.
+ *
+ * @param msg
+ * A message string.
+ * 
+ * @param param
+ * A parameter object. Available elements are the following.
+ *
+ * title:
+ * A title string. If this is undefined, the title is not shown.
+ *
+ * buttons:
+ * A button definition array passed to jQuery dialog. If this is undefined,
+ * a default button labeled 'CLOSE' (or the translated word) is shown.
+ *
+ * defaultButtonLabel:
+ * A label on the default button. If the above 'buttons' is specified,
+ * this parameter is not used.
+ *
+ * id:
+ * An ID of the dialog. If the dialog with 'id' exists, it is reused.
+ * For example, a displayed message is replaced.
+ *
+ */
+var HatoholMessageBox = function(msg, param) {
 
   var self = this;
-  var label;
-  if (buttonLabel)
-    label = buttonLabel;
-  else
-    label = gettext("CLOSE");
 
-  var button = [{
-    text: label,
-    click: function() {
-      $(this).dialog("destroy");
-      $(self.dialogId).remove();
-    }
-  }];
-  var id = "hatohol-message-box";
-  self.dialogId = "#" + id
-  var msgDiv = $(self.dialogId);
-  if (!msgDiv[0]) {
+  var id = getId();
+  self.msgDivId = "#" + id
+  var msgDiv = $(self.msgDivId)[0];
+  if (!msgDiv) {
     var div = "<div id='" + id + "'>" + msg + "</div>";
     $("body").append(div);
   } else  {
-    msgDiv.text(msg);
+    $(msgDiv).text(msg);
   }
 
-  $(self.dialogId).dialog({
+  var title = getTitle();
+  var buttons = getButtons();
+  $(self.msgDivId).dialog({
     autoOpen: false,
     title: title,
     closeOnEscape: false,
     modal: true,
-    buttons: button,
+    buttons: buttons,
     open: function(event, ui){
       $(".ui-dialog-titlebar-close").hide();
     }
   });
 
-  $(self.dialogId).dialog("open");
+  $(self.msgDivId).dialog("open");
+  HatoholDialogObserver.notifyCreated(id, this);
+
+  function getId() {
+    if (!param || !param.id)
+      return self.getDefaultId();
+    return param.id;
+  }
+
+  function getTitle() {
+    var DEFAULT_TITLE_BAR_STRING = gettext("MessageBox");
+    if (!param || !param.title)
+      return DEFAULT_TITLE_BAR_STRING;
+    return param.title;
+  }
+
+  function getButtons() {
+    if (!param || !param.buttons)
+      return getDefualtButtons();
+    return param.buttons;
+  }
+
+  function getDefaultButtonLabel() {
+    var DEFAULT_LABEL = gettext("CLOSE");
+    if (!param || !param.defaultButtonLabel)
+      return DEFAULT_LABEL;
+    return param.defaultButtonLabel;
+  }
+
+  function getDefualtButtons(label) {
+    if (!label)
+      label = getDefaultButtonLabel();
+    return [{
+      text: label,
+      click: function() {
+        $(this).dialog("destroy");
+        $(self.msgDivId).remove();
+      }
+    }];
+  }
 };
 
+HatoholMessageBox.prototype.getDefaultId = function () {
+  var DEFAULT_ID = "hatohol-message-box";
+  return DEFAULT_ID;
+}
+
+HatoholMessageBox.prototype.getMessage = function () {
+  return $(this.msgDivId).text();
+}
+
 function hatoholInfoMsgBox(msg) {
-  new HatoholMessageBox(msg, gettext("Information"));
+  var param = {title: gettext("Information")};
+  new HatoholMessageBox(msg, param);
 };
 
 function hatoholWarnMsgBox(msg) {
-  new HatoholMessageBox(msg, gettext("Warning"));
+  var param = {title: gettext("Warning")};
+  new HatoholMessageBox(msg, param);
 };
 
 function hatoholErrorMsgBox(msg) {
-  new HatoholMessageBox(msg, gettext("Error"));
+  var param = {title: gettext("Error")};
+  new HatoholMessageBox(msg, param);
 };
 
 function hatoholMsgBoxForParser(reply, parser, title) {
   var msg = gettext("Failed to parse the result. status code: ");
   msg += parser.getStatus();
-  new HatoholMessageBox(msg, gettext("Error"));
+  hatoholErrorMsgBox(msg);
 };
 
 function hatoholErrorMsgBoxForParser(reply, parser) {
-  hatoholMessageBoxForParser(reply, parser, gettext("Error"));
+  hatoholMsgBoxForParser(reply, parser, gettext("Error"));
 };

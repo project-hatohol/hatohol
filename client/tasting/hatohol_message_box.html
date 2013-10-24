@@ -8,7 +8,8 @@ window.onload = function() {
 
 function main()
 {
-  new HatoholMessageBox("This is a test Message", "Title", "OK");
+  var param = {title: "Title", defaultButtonLabel: "OK"};
+  new HatoholMessageBox("This is a test Message", param);
 }
 
 </script>
