@@ -31,6 +31,7 @@
 #include <dirent.h>
 #include <sys/types.h> 
 #include <unistd.h>
+#include <errno.h>
 
 #include "Hatohol.h"
 #include "Utils.h"
@@ -207,12 +208,27 @@ bool childProcessLoop(GPid &childPid)
 bool parsePIDFile(int &grandchildPid, const string &grandChildPidFilePath)
 {
 	cut_assert_exist_path(grandChildPidFilePath.c_str());
-	FILE *grandchildPidFile;
-	grandchildPidFile = fopen(grandChildPidFilePath.c_str(), "r");
-	cppcut_assert_not_null(grandchildPidFile);
-	cppcut_assert_not_equal(EOF, fscanf(grandchildPidFile, "%d", &grandchildPid));
-	cppcut_assert_equal(0, fclose(grandchildPidFile));
 
+	// At this time, the deamon process may still write the pid to the file.
+	// We try to read it some times.
+	const size_t TIMEOUT = 10; // sec.
+	const size_t RETRY_INTERVAL = 100 * 1000; // us.
+	const size_t MAX_NUM_RETRY = TIMEOUT * 1000 * 1000 /  RETRY_INTERVAL;
+	int scanResult = EOF;
+	for (size_t i = 0; i < MAX_NUM_RETRY; i++) {
+		FILE *grandchildPidFile;
+		grandchildPidFile = fopen(grandChildPidFilePath.c_str(), "r");
+		cppcut_assert_not_null(grandchildPidFile);
+		scanResult = fscanf(grandchildPidFile, "%d", &grandchildPid);
+		cppcut_assert_equal(0, fclose(grandchildPidFile));
+		if (scanResult == 1)
+			break;
+		if (usleep(RETRY_INTERVAL == -1)) {
+			if (errno != EINTR)
+				cut_assert_errno();
+		}
+	}
+	cppcut_assert_equal(1, scanResult);
 	return true;
 }
 
