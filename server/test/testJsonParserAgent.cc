@@ -155,5 +155,3 @@ void test_checkResultWhenFalseTrueFalse(void)
 	parser.endObject();
 }
 } //namespace testJsonParserAgent
-
-
