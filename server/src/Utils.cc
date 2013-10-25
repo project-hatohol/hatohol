@@ -269,6 +269,7 @@ void Utils::executeOnGLibEventLoop(
 	GSource *source = g_idle_source_new();
 	g_source_set_callback(source, IdleTask::callbackGate, &task, NULL);
 	task.tag = g_source_attach(source, context);
+	g_source_unref(source);
 
 	// wait for the completion
 	task.mutex.lock();
