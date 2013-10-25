@@ -210,6 +210,7 @@ bool parsePIDFile(int &grandchildPid, const string &grandChildPidFilePath)
 {
 	cut_assert_exist_path(grandChildPidFilePath.c_str());
 
+	// TODO: Consider that we should use inotify.
 	// At this time, the deamon process may still write the pid to the file.
 	// We try to read it some times.
 	const size_t TIMEOUT = 10; // sec.
