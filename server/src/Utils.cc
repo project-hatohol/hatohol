@@ -268,8 +268,8 @@ bool Utils::removeEventSourceIfNeeded(guint tag)
 	// This is useful when this function is called on the thread other than
 	// executing g_main_loop_run().
 	// g_source_remove() just removes information used in GLIB such as
-	// polled FDs. So the event handler may be running just when
-	// this function returns if we only call it.
+	// polled FDs. So the event handler may be running when this function
+	// returns if we only call it.
 	WaitObject waitObj;
 	g_mutex_lock(&waitObj.mutex);
 	GMainContext *context = NULL; // default context
