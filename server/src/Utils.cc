@@ -243,9 +243,42 @@ string Utils::getStringFromGIOCondition(GIOCondition condition)
 
 bool Utils::removeEventSourceIfNeeded(guint tag)
 {
+	struct WaitObject {
+		GMutex mutex;
+		GCond cond;
+
+		WaitObject(void)
+		{
+			g_mutex_init(&mutex);
+			g_cond_init(&cond);
+		}
+
+		virtual ~WaitObject()
+		{
+			g_cond_clear(&cond);
+			g_mutex_clear(&mutex);
+		}
+	};
+
 	if (tag == INVALID_EVENT_ID)
 		return true;
-	if (!g_source_remove(tag)) {
+
+	// We take the GLIB's context to make sure the event handler concerned
+	// with 'tag' is not running when this function returns.
+	// This is useful when this function is called on the thread other than
+	// executing g_main_loop_run().
+	// g_source_remove() just remove polled FDs. So the event handler
+	// may be running just whenn this function returns if we only call it.
+	WaitObject waitObj;
+	g_mutex_lock(&waitObj.mutex);
+	GMainContext *context = NULL; // default context
+	if (!g_main_context_wait(context, &waitObj.cond, &waitObj.mutex)) {
+		MLPL_ERR("Failed to call g_main_context()\n");
+		return false;
+	}
+	gboolean succeeded = g_source_remove(tag);
+	g_main_context_release(context);
+	if (!succeeded) {
 		MLPL_ERR("Failed to remove source: %d\n", tag);
 		return false;
 	}
