@@ -969,12 +969,10 @@ gboolean ActionManager::commandActionTimeoutCb(gpointer data)
  */
 void ActionManager::residentActionTimeoutCb(NamedPipe *namedPipe, gpointer data)
 {
-	// TODO: Accessing data (resdentInfo) is not safe, because
-	//       it may be deleted in residentActorCollectedCb() called
-	//       from ActorCollector::notifyChildSiginfo().
-	//       We have to fix the race.
-	MLPL_BUG("FIX ME (see the comment in the source code)!\n");
-
+	// 'namedPipe' and 'data' (residentInfo) are never freed, during
+	// this method is running, because the destructor of TimeoutInfo uses
+	// Utils::removeEventSourceIfNeeded() that takes the default
+	// GMainContext.
 	ResidentInfo *residentInfo = static_cast<ResidentInfo *>(data);
 	ActionManager *obj = residentInfo->actionManager;
 
