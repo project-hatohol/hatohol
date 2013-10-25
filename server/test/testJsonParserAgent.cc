@@ -121,6 +121,12 @@ void test_checkParseSuccess(void)
 	assertReadWord(bool, parser, "valid", true);
 	assertReadWord(int64_t, parser, "id", 1);
 	assertReadWord(string, parser, "name", "Hatohol");
+
+	cppcut_assert_equal(true, parser.startObject("object"));
+	assertReadWord(bool, parser, "home", true);
+	assertReadWord(string, parser, "city", "Tokyo");
+	assertReadWord(int64_t, parser, "code", 124);
+
 }
 
 void test_checkResultWhenTrueFalseTrue(void)
