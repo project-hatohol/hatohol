@@ -23,18 +23,25 @@ using namespace mlpl;
 #include <stdexcept>
 #include "JsonParserAgent.h"
 
+struct JsonParserAgent::PrivateContext
+{
+	string objectPosition;
+};
+
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
 JsonParserAgent::JsonParserAgent(const string &data)
 : m_reader(NULL),
-  m_error(NULL)
+  m_error(NULL),
+  m_ctx(NULL)
 {
 	m_error = NULL;
 	m_parser = json_parser_new();
 	if (!json_parser_load_from_data(m_parser, data.c_str(), -1, &m_error))
 		return;
 	m_reader = json_reader_new(json_parser_get_root(m_parser));
+	m_ctx = new PrivateContext;
 }
 
 JsonParserAgent::~JsonParserAgent()
@@ -64,6 +71,8 @@ bool JsonParserAgent::read(const string &member, bool &dest)
 	internalCheck();
 	if (!json_reader_read_member(m_reader, member.c_str())) {
 		json_reader_end_member(m_reader);
+		if (!m_ctx->objectPosition.empty())
+			json_reader_read_member(m_reader, m_ctx->objectPosition.c_str());
 		return false;
 	}
 	dest = json_reader_get_boolean_value(m_reader);
@@ -76,6 +85,8 @@ bool JsonParserAgent::read(const string &member, int64_t &dest)
 	internalCheck();
 	if (!json_reader_read_member(m_reader, member.c_str())) {
 		json_reader_end_member(m_reader);
+		if (!m_ctx->objectPosition.empty())
+			json_reader_read_member(m_reader, m_ctx->objectPosition.c_str());
 		return false;
 	}
 	dest = json_reader_get_int_value(m_reader);
@@ -85,9 +96,12 @@ bool JsonParserAgent::read(const string &member, int64_t &dest)
 
 bool JsonParserAgent::read(const string &member, string &dest)
 {
+	g_print("Start: %s\n", member.c_str());
 	internalCheck();
 	if (!json_reader_read_member(m_reader, member.c_str())) {
 		json_reader_end_member(m_reader);
+		if (!m_ctx->objectPosition.empty())
+			json_reader_read_member(m_reader, m_ctx->objectPosition.c_str());
 		return false;
 	}
 	dest = json_reader_get_string_value(m_reader);
@@ -125,6 +139,7 @@ bool JsonParserAgent::startObject(const string &member)
 		json_reader_end_member(m_reader);
 		return false;
 	}
+	m_ctx->objectPosition = member.c_str();
 	return true;
 }
 
