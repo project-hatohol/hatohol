@@ -479,6 +479,14 @@ void ActionManager::runAction(const ActionDef &actionDef,
 	}
 }
 
+/*
+ * executed on the following thread(s)
+ * - Threads that call checkEvents()
+ *     [from execCommandActionCore()]
+ *     [from launchResidentActionYard()]
+ * - ActorCollector thread
+ *     [from execCommandActionCore() from commandActorPostCollectedCb()]
+ */
 bool ActionManager::spawn(
   const ActionDef &actionDef, const EventInfo &eventInfo,
   DBClientAction &dbAction, const gchar **argv,
@@ -551,6 +559,11 @@ bool ActionManager::spawn(
 	return true;
 }
 
+/*
+ * executed on the following thread(s)
+ * - Threads that call checkEvents()
+ *     [from runAction()]
+ */
 void ActionManager::execCommandAction(const ActionDef &actionDef,
                                       const EventInfo &eventInfo,
                                       DBClientAction &dbAction,
@@ -598,6 +611,13 @@ void ActionManager::execCommandAction(const ActionDef &actionDef,
 	                      &postprocCtx, argVect);
 }
 
+/*
+ * executed on the following thread(s)
+ * - Threads that call checkEvents()
+ *     [from spawn() from execCommandActionCore()]
+ * - ActorCollector thread
+ *     [from spawn() from execCommandActionCore()]
+ */
 void ActionManager::spawnPostprocCommandAction(ActorInfo *actorInfo,
                                                const ActionDef &actionDef,
                                                uint64_t logId, void *priv)
@@ -620,6 +640,13 @@ void ActionManager::spawnPostprocCommandAction(ActorInfo *actorInfo,
 	   g_timeout_add(actionDef.timeout, commandActionTimeoutCb, actorInfo);
 }
 
+/*
+ * executed on the following thread(s)
+ * - Threads that call checkEvents()
+ *     [from runAction()]
+ * - ActorCollector thread
+ *     [from commandActorPostCollectedCb()]
+ */
 void ActionManager::execCommandActionCore(
   const ActionDef &actionDef, const EventInfo &eventInfo,
   DBClientAction &dbAction, void *postprocCtx,
@@ -644,6 +671,11 @@ void ActionManager::addCommandDirectory(string &path)
 	path = absPath;
 }
 
+/*
+ * executed on the following thread(s)
+ * - Threads that call checkEvents()
+ *     [from runAction()]
+ */
 void ActionManager::execResidentAction(const ActionDef &actionDef,
                                        const EventInfo &eventInfo,
                                        DBClientAction &dbAction,
@@ -690,6 +722,10 @@ void ActionManager::execResidentAction(const ActionDef &actionDef,
 	ResidentInfo::residentMapLock.unlock();
 }
 
+/*
+ * - The default GLIB event dispacther thread (main)
+ *     [callback registered by init()]
+ */
 gboolean ActionManager::residentReadErrCb(
   GIOChannel *source, GIOCondition condition, gpointer data)
 {
@@ -702,6 +738,10 @@ gboolean ActionManager::residentReadErrCb(
 	return FALSE;
 }
 
+/*
+ * - The default GLIB event dispacther thread (main)
+ *     [callback registered by init()]
+ */
 gboolean ActionManager::residentWriteErrCb(
   GIOChannel *source, GIOCondition condition, gpointer data)
 {
@@ -714,6 +754,11 @@ gboolean ActionManager::residentWriteErrCb(
 	return FALSE;
 }
 
+/*
+ * executed on the following thread(s)
+ * - The default GLIB event dispacther thread (main)
+ *     [callback registered by pullData()]
+ */
 void ActionManager::launchedCb(GIOStatus stat, mlpl::SmartBuffer &sbuf,
                                size_t size, ResidentNotifyInfo *notifyInfo)
 {
@@ -752,6 +797,11 @@ void ActionManager::launchedCb(GIOStatus stat, mlpl::SmartBuffer &sbuf,
 	residentInfo->setStatus(RESIDENT_STAT_WAIT_PARAM_ACK);
 }
 
+/*
+ * executed on the following thread(s)
+ * - The default GLIB event dispacther thread (main)
+ *     [callback registered by pullData()]
+ */
 void ActionManager::moduleLoadedCb(GIOStatus stat, SmartBuffer &sbuf,
                                    size_t size, ResidentNotifyInfo *notifyInfo)
 {
@@ -807,6 +857,11 @@ void ActionManager::moduleLoadedCb(GIOStatus stat, SmartBuffer &sbuf,
 	obj->tryNotifyEvent(residentInfo);
 }
 
+/*
+ * executed on the following thread(s)
+ * - The default GLIB event dispacther thread (main)
+ *     [callback registered by pullData()]
+ */
 void ActionManager::gotNotifyEventAckCb(GIOStatus stat, SmartBuffer &sbuf,
                                         size_t size,
                                         ResidentNotifyInfo *notifyInfo)
@@ -851,6 +906,11 @@ void ActionManager::gotNotifyEventAckCb(GIOStatus stat, SmartBuffer &sbuf,
 	obj->tryNotifyEvent(residentInfo);
 }
 
+/*
+ * executed on the following thread(s)
+ * - The default GLIB event dispacther thread (main)
+ *     [from launchedCb()]
+ */
 void ActionManager::sendParameters(ResidentInfo *residentInfo)
 {
 	ActionExecArgMaker::parseResidentCommand(
@@ -869,8 +929,16 @@ void ActionManager::sendParameters(ResidentInfo *residentInfo)
 	comm.push(residentInfo->pipeWr);
 }
 
+/**
+ * executed on the following thread(s)
+ * - The default GLIB event dispacther thread (main)
+ */
 gboolean ActionManager::commandActionTimeoutCb(gpointer data)
 {
+	// TODO: Accessing data (actorInfo) is not safe, because
+	//       it may be deleted in ActorCollector::notifyChildSiginfo().
+	//       We have to fix the race.
+	MLPL_BUG("FIX ME (see the comment in the source code)!\n");
 	DBClientAction dbAction;
 	DBClientAction::LogEndExecActionArg logArg;
 	ActorInfo *actorInfo = static_cast<ActorInfo *>(data);
@@ -886,8 +954,18 @@ gboolean ActionManager::commandActionTimeoutCb(gpointer data)
 	return FALSE;
 }
 
+/**
+ * executed on the following thread(s)
+ * - The default GLIB event dispacther thread (main)
+ */
 void ActionManager::residentActionTimeoutCb(NamedPipe *namedPipe, gpointer data)
 {
+	// TODO: Accessing data (resdentInfo) is not safe, because
+	//       it may be deleted in residentActorCollectedCb() called
+	//       from ActorCollector::notifyChildSiginfo().
+	//       We have to fix the race.
+	MLPL_BUG("FIX ME (see the comment in the source code)!\n");
+
 	ResidentInfo *residentInfo = static_cast<ResidentInfo *>(data);
 	ActionManager *obj = residentInfo->actionManager;
 
@@ -917,6 +995,11 @@ struct SpawnPostprocResidentActionCtx {
 	uint64_t logId;
 };
 
+/*
+ * executed on the following thread(s)
+ * - Threads that call checkEvents()
+ *     [ from spwan() from execResidentAction()]
+ */
 void ActionManager::spawnPostprocResidentAction(ActorInfo *actorInfo,
                                                 const ActionDef &actionDef,
                                                 uint64_t logId, void *priv)
@@ -932,6 +1015,11 @@ void ActionManager::spawnPostprocResidentAction(ActorInfo *actorInfo,
 	ctx->logId = logId;
 }
 
+/*
+ * executed on the following thread(s)
+ * - Threads that call checkEvents()
+ *     [from execResidentAction()]
+ */
 ResidentInfo *ActionManager::launchResidentActionYard
   (const ActionDef &actionDef, const EventInfo &eventInfo,
    DBClientAction &dbAction, ActorInfo *actorInfoCopy)
@@ -986,6 +1074,14 @@ ResidentInfo *ActionManager::launchResidentActionYard
 	return residentInfo;
 }
 
+/*
+ * executed on the following thread(s)
+ * - Threads that call checkEvents()
+ *     [from execResidentAction()]
+ * - The default GLIB event dispacther thread (main)
+ *     [from moduleLoadedCb()]
+ *     [from gotNotifyEventAckCb]
+ */
 void ActionManager::tryNotifyEvent(ResidentInfo *residentInfo)
 {
 	residentInfo->queueLock.lock();
@@ -1003,6 +1099,13 @@ void ActionManager::tryNotifyEvent(ResidentInfo *residentInfo)
 		notifyEvent(residentInfo, notifyInfo);
 }
 
+/*
+ * executed on the following thread(s)
+ * - Threads that call checkEvents()
+ *     [from notifyEvent()]
+ * - The default GLIB event dispacther thread (main)
+ *     [from notifyEvent()]
+ */
 void ActionManager::notifyEvent(ResidentInfo *residentInfo,
                                 ResidentNotifyInfo *notifyInfo)
 {
@@ -1024,6 +1127,10 @@ void ActionManager::notifyEvent(ResidentInfo *residentInfo,
 	dbAction.updateLogStatusToStart(notifyInfo->logId);
 }
 
+/*
+ * executed on the following thread(s)
+ * - ActorCollector thread
+ */
 void ActionManager::commandActorCollectedCb(const ActorInfo *actorInfo)
 {
 	// remove this actor from CommandActionContext::runningSet.
@@ -1052,6 +1159,10 @@ void ActionManager::commandActorCollectedCb(const ActorInfo *actorInfo)
 	actorInfo->collectedCbPriv = waitCmdInfo;
 }
 
+/**
+ * executed on the following thread(s)
+ * - ActorCollector thread
+ */
 void ActionManager::commandActorPostCollectedCb(const ActorInfo *actorInfo)
 {
 	DBClientAction dbAction;
@@ -1067,6 +1178,10 @@ void ActionManager::commandActorPostCollectedCb(const ActorInfo *actorInfo)
 	delete waitCmdInfo;
 }
 
+/*
+ * executed on the following thread(s)
+ * - ActorCollector thread
+ */
 void ActionManager::residentActorCollectedCb(const ActorInfo *actorInfo)
 {
 	ResidentInfo *residentInfo =
@@ -1086,6 +1201,14 @@ void ActionManager::residentActorCollectedCb(const ActorInfo *actorInfo)
 	delete residentInfo;
 }
 
+/*
+ * executed on the following thread(s)
+ * - The default GLIB event dispacther thread (main)
+ *     [from residentReadErrCb()]
+ *     [from residentWriteErrCb()]
+ *     [from residentActionTimeoutCb()]
+ *     [from closeResident()]
+ */
 void ActionManager::closeResident(ResidentInfo *residentInfo)
 {
 	// kill hatohol-resident-yard.
@@ -1096,6 +1219,15 @@ void ActionManager::closeResident(ResidentInfo *residentInfo)
 		MLPL_ERR("Failed to kill. pid: %d, %s\n", pid, strerror(errno));
 }
 
+/*
+ * executed on the following thread(s)
+ * - The default GLIB event dispacther thread (main)
+ *     [callback registered by pullData()]
+ *     [from residentActionTimeoutCb()]
+ *     [from gotNotifyEventAckCb()]
+ *     [from launchedCb()]
+ *     [from moduleLoadedCb()]
+ */
 void ActionManager::closeResident(ResidentNotifyInfo *notifyInfo,
                                   ActionLogExecFailureCode failureCode)
 {
@@ -1117,6 +1249,13 @@ void ActionManager::closeResident(ResidentNotifyInfo *notifyInfo,
 	closeResident(residentInfo);
 }
 
+/*
+ * executed on the following thread(s)
+ * - Threads that call checkEvents()
+ *     [from spawnPostprocCommandAction()]
+ * - ActorCollector thread
+ *     [from spawnPostprocCommandAction()]
+ */
 void ActionManager::copyActorInfoForExecResult
   (ActorInfo *actorInfoDest, const ActorInfo *actorInfoSrc, uint64_t logId)
 {
@@ -1129,6 +1268,13 @@ void ActionManager::copyActorInfoForExecResult
 		actorInfoDest->logId = logId;
 }
 
+/*
+ * executed on the following thread(s)
+ * - Threads that call checkEvents()
+ *     [from spawn()]
+ * - ActorCollector thread
+ *     [from spawn()]
+ */
 void ActionManager::postProcSpawnFailure(
   const ActionDef &actionDef, const EventInfo &eventInfo,
   DBClientAction &dbAction, ActorInfo *actorInfo,
