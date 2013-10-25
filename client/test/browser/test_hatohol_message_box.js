@@ -76,7 +76,7 @@ describe('HatoholMessageBox', function() {
         msg: msg,
         titleVisible: true,
         titleString: param.title,
-        buttonLabels: [param.defaultButtonLabel)],
+        buttonLabels: [param.defaultButtonLabel],
       });
       done();
     });
