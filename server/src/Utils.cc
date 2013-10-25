@@ -273,10 +273,9 @@ bool Utils::removeEventSourceIfNeeded(guint tag)
 	WaitObject waitObj;
 	g_mutex_lock(&waitObj.mutex);
 	GMainContext *context = NULL; // default context
-	if (!g_main_context_wait(context, &waitObj.cond, &waitObj.mutex)) {
-		MLPL_ERR("Failed to call g_main_context()\n");
-		return false;
-	}
+	HATOHOL_ASSERT(g_main_context_wait(context, &waitObj.cond,
+	                                   &waitObj.mutex),
+	               "Failed to call g_main_context().");
 	gboolean succeeded = g_source_remove(tag);
 	g_main_context_release(context);
 	if (!succeeded) {
