@@ -52,6 +52,8 @@ JsonParserAgent::~JsonParserAgent()
 		g_object_unref(m_reader);
 	if (m_parser)
 		g_object_unref(m_parser);
+	if (m_ctx)
+		delete m_ctx;
 }
 
 const char *JsonParserAgent::getErrorMessage(void)
