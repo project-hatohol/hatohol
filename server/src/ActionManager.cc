@@ -119,6 +119,15 @@ struct ResidentInfo :
 		initResidentPullHelper(&pipeRd, NULL);
 	}
 
+	/*
+	 * executed on the following thread(s)
+	 * - Threads that call checkEvents()
+	 *     [from launchResidentActionYard() on failure]
+	 * - ActorCollector thread
+	 *     [residentActorCollectedCb()]
+	 * - Thread that calls reset()
+	 *     [currently the main thread of the test (cutter)]
+	 */
 	virtual ~ResidentInfo(void)
 	{
 		queueLock.lock();
