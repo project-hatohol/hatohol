@@ -19,6 +19,7 @@
 
 #include <StringUtils.h>
 #include <Logger.h>
+#include <MutexLock.h>
 using namespace mlpl;
 
 #include <cstdio>
@@ -239,6 +240,38 @@ string Utils::getStringFromGIOCondition(GIOCondition condition)
 		str += cs.word;
 	}
 	return str;
+}
+
+void Utils::executeOnGLibEventLoop(
+  GSourceFunc func, gpointer data, GMainContext *context)
+{
+	struct IdleTask {
+		GSourceFunc userFunc;
+		gpointer    userData;
+		MutexLock   mutex;
+		guint       tag;
+		static gboolean callbackGate(gpointer data) {
+			IdleTask *obj = static_cast<IdleTask *>(data);
+			return obj->callback();
+		}
+
+		gboolean callback(void) {
+			(*userFunc)(userData);
+			mutex.unlock();
+			return G_SOURCE_REMOVE;
+		}
+	} task;
+
+	task.userFunc = func;
+	task.userData = data;
+	task.mutex.lock();
+
+	GSource *source = g_idle_source_new();
+	g_source_set_callback(source, IdleTask::callbackGate, &task, NULL);
+	task.tag = g_source_attach(source, context);
+
+	// wait for the completion
+	task.mutex.lock();
 }
 
 bool Utils::removeEventSourceIfNeeded(guint tag)

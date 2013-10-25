@@ -57,6 +57,9 @@ public:
 	static string getSelfExeDir(void);
 	static string getStringFromGIOCondition(GIOCondition condition);
 
+	static void executeOnGLibEventLoop(
+	  GSourceFunc func, gpointer data = NULL, GMainContext *context = NULL);
+
 	/**
 	 * remove a GLIB's event.
 	 *
