@@ -30,6 +30,7 @@ using namespace mlpl;
 #include <unistd.h>
 #include <errno.h>
 #include <sys/time.h>
+#include <syscall.h>
 #include <limits.h>
 #include "Utils.h"
 #include "FormulaElement.h"
@@ -327,6 +328,11 @@ string Utils::sha256(const string &data)
 	string shaStr = sha256;
 	g_free(sha256);
 	return shaStr;
+}
+
+pid_t Utils::getThreadId(void)
+{
+	return syscall(SYS_gettid);
 }
 
 // ---------------------------------------------------------------------------

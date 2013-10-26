@@ -78,6 +78,8 @@ public:
 	 */
 	static string sha256(const string &data);
 
+	static pid_t getThreadId(void);
+
 protected:
 	static string makeDemangledStackTraceString(string &stackTraceLine);
 };
