@@ -57,8 +57,22 @@ public:
 	static string getSelfExeDir(void);
 	static string getStringFromGIOCondition(GIOCondition condition);
 
+	/**
+	 * execute a function on the specified GLIB event loop.
+	 *
+	 * @param func
+	 * A function to be executed.
+	 *
+	 * @param data
+	 * A pointer that is passed to 'func' as an argument.
+	 *
+	 * @param context
+	 * A GMainContext on which the function is execuetd. If this is NULL,
+	 * the default context is used.
+	 */
 	static void executeOnGLibEventLoop(
-	  GSourceFunc func, gpointer data = NULL, GMainContext *context = NULL);
+	  void (*func)(gpointer data), gpointer data = NULL,
+	  GMainContext *context = NULL);
 
 	/**
 	 * remove a GLIB's event.

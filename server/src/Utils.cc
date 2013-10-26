@@ -244,22 +244,22 @@ string Utils::getStringFromGIOCondition(GIOCondition condition)
 }
 
 void Utils::executeOnGLibEventLoop(
-  GSourceFunc func, gpointer data, GMainContext *context)
+  void (*func)(gpointer), gpointer data, GMainContext *context)
 {
 	struct IdleTask {
-		GSourceFunc userFunc;
+		void (*userFunc)(gpointer);
 		gpointer    userData;
 		MutexLock   mutex;
 		guint       tag;
 		static gboolean callbackGate(gpointer data) {
 			IdleTask *obj = static_cast<IdleTask *>(data);
-			return obj->callback();
+			obj->callback();
+			return G_SOURCE_REMOVE;
 		}
 
-		gboolean callback(void) {
+		void callback(void) {
 			(*userFunc)(userData);
 			mutex.unlock();
-			return G_SOURCE_REMOVE;
 		}
 	} task;
 

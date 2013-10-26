@@ -166,17 +166,16 @@ void test_executeOnGlibEventLoop(void)
 			return NULL;
 		}
 
-		static gboolean _idleTask(gpointer data)
+		static void _idleTask(gpointer data)
 		{
 			TestThread *obj = static_cast<TestThread *>(data);
-			return obj->idleTask();
+			obj->idleTask();
 		}
 
-		gboolean idleTask(void)
+		void idleTask(void)
 		{
 			eventLoopThreadId = Utils::getThreadId();
 			g_main_loop_quit(loop);
-			return G_SOURCE_REMOVE;
 		}
 	};
 
