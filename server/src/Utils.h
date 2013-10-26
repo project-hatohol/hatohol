@@ -83,6 +83,17 @@ public:
 		  static_cast<gpointer>(data), context);
 	}
 
+	template<typename T>
+	static void executeOnGLibEventLoop(T &obj, GMainContext *context = NULL)
+	{
+		struct Task {
+			static void run(T *obj) {
+				(*obj)();
+			}
+		};
+		executeOnGLibEventLoop(Task::run, &obj, context);
+	}
+
 	/**
 	 * remove a GLIB's event.
 	 *

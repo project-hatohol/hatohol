@@ -62,6 +62,10 @@ struct TestExecEvtLoop : public HatoholThreadBase {
 		eventLoopThreadId = Utils::getThreadId();
 		g_main_loop_quit(loop);
 	}
+
+	void operator()(void) {
+		idleTask();
+	}
 };
 
 static void _assertValidateJSMethodName(const string &name, bool expect)
@@ -204,6 +208,19 @@ void test_executeOnGlibEventLoopCalledFromSameContext(void)
 
 	task.mainThread(NULL);
 	cppcut_assert_equal(Utils::getThreadId(), task.threadId);
+	cppcut_assert_equal(Utils::getThreadId(), task.eventLoopThreadId);
+}
+
+void test_executeOnGlibEventLoopForFunctor(void)
+{
+	TestExecEvtLoop task;
+	task.context = g_main_context_default();
+	cppcut_assert_not_null(task.context);
+
+	task.loop = g_main_loop_new(task.context, TRUE);
+	cppcut_assert_not_null(task.loop);
+
+	Utils::executeOnGLibEventLoop<TestExecEvtLoop>(task, task.context);
 	cppcut_assert_equal(Utils::getThreadId(), task.eventLoopThreadId);
 }
 
