@@ -94,6 +94,17 @@ public:
 		executeOnGLibEventLoop(Task::run, &obj, context);
 	}
 
+	template<typename T>
+	static void deleteOnGLibEventLoop(T *obj, GMainContext *context = NULL)
+	{
+		struct Task {
+			static void run(T *obj) {
+				delete obj;
+			}
+		};
+		executeOnGLibEventLoop<T>(Task::run, obj, context);
+	}
+
 	/**
 	 * remove a GLIB's event.
 	 *

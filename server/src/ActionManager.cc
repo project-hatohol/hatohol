@@ -409,7 +409,7 @@ void ActionManager::reset(void)
 	   ResidentInfo::runningResidentMap.begin();
 	for (; it != ResidentInfo::runningResidentMap.end(); ++it) {
 		ResidentInfo *residentInfo = it->second;
-		delete residentInfo;
+		Utils::deleteOnGLibEventLoop<ResidentInfo>(residentInfo);
 	}
 	ResidentInfo::runningResidentMap.clear();
 
@@ -969,10 +969,6 @@ gboolean ActionManager::commandActionTimeoutCb(gpointer data)
  */
 void ActionManager::residentActionTimeoutCb(NamedPipe *namedPipe, gpointer data)
 {
-	// 'namedPipe' and 'data' (residentInfo) are never freed, during
-	// this method is running, because the destructor of TimeoutInfo uses
-	// Utils::removeEventSourceIfNeeded() that takes the default
-	// GMainContext.
 	ResidentInfo *residentInfo = static_cast<ResidentInfo *>(data);
 	ActionManager *obj = residentInfo->actionManager;
 
@@ -1204,8 +1200,11 @@ void ActionManager::residentActorCollectedCb(const ActorInfo *actorInfo)
 		  "notifyQueue is not empty.\n");
 	}
 
-	// Pending notifyInfo instancess will be deleted in the destructor.
-	delete residentInfo;
+	// 1. Pending notifyInfo instancess will be deleted in the destructor.
+	// 2. residentInfo uses GLib's timeout event and GIOChannel.
+	//    The following prevents residentInfo from being destoryed
+	//    when the event handlers are running.
+	Utils::deleteOnGLibEventLoop<ResidentInfo>(residentInfo);
 }
 
 /*
