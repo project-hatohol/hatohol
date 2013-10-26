@@ -285,44 +285,33 @@ void Utils::executeOnGLibEventLoop(
 	task.mutex.lock();
 }
 
+struct RemoveEventTask {
+	gboolean succeeded;
+	guint    tag;
+
+	static void run(RemoveEventTask *obj)
+	{
+		obj->succeeded = g_source_remove(obj->tag);
+	}
+};
+
 bool Utils::removeEventSourceIfNeeded(guint tag)
 {
-	struct WaitObject {
-		GMutex mutex;
-		GCond cond;
-
-		WaitObject(void)
-		{
-			g_mutex_init(&mutex);
-			g_cond_init(&cond);
-		}
-
-		virtual ~WaitObject()
-		{
-			g_cond_clear(&cond);
-			g_mutex_clear(&mutex);
-		}
-	};
-
 	if (tag == INVALID_EVENT_ID)
 		return true;
 
-	// We take the GLIB's context to make sure the event handler concerned
-	// with 'tag' is not running when this function returns.
+	// We remove the event on the GLIB's event loop to avoid the race.
 	// This is useful when this function is called on the thread other than
 	// executing g_main_loop_run().
 	// g_source_remove() just removes information used in GLIB such as
 	// polled FDs. So the event handler may be running when this function
 	// returns if we only call it.
-	WaitObject waitObj;
-	g_mutex_lock(&waitObj.mutex);
 	GMainContext *context = NULL; // default context
-	HATOHOL_ASSERT(g_main_context_wait(context, &waitObj.cond,
-	                                   &waitObj.mutex),
-	               "Failed to call g_main_context().");
-	gboolean succeeded = g_source_remove(tag);
-	g_main_context_release(context);
-	if (!succeeded) {
+	RemoveEventTask task;
+	task.tag = tag;
+	executeOnGLibEventLoop<RemoveEventTask>(
+	  RemoveEventTask::run, &task, context);
+	if (!task.succeeded) {
 		MLPL_ERR("Failed to remove source: %d\n", tag);
 		return false;
 	}
