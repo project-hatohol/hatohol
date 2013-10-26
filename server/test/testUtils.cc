@@ -30,6 +30,40 @@
 
 namespace testUtils {
 
+struct TestExecEvtLoop : public HatoholThreadBase {
+	pid_t threadId;
+	pid_t eventLoopThreadId;
+	GMainContext *context;
+	GMainLoop *loop;
+
+	TestExecEvtLoop(void)
+	: threadId(0),
+	  eventLoopThreadId(0),
+	  context(NULL),
+	  loop(NULL)
+	{
+	}
+
+	virtual gpointer mainThread(HatoholThreadArg *arg)
+	{
+		threadId = Utils::getThreadId();
+		Utils::executeOnGLibEventLoop<TestExecEvtLoop>(
+		  _idleTask, this, context);
+		return NULL;
+	}
+
+	static void _idleTask(TestExecEvtLoop *obj)
+	{
+		obj->idleTask();
+	}
+
+	void idleTask(void)
+	{
+		eventLoopThreadId = Utils::getThreadId();
+		g_main_loop_quit(loop);
+	}
+};
+
 static void _assertValidateJSMethodName(const string &name, bool expect)
 {
 	string errMsg;
@@ -144,42 +178,7 @@ void test_getSelfExeDir(void)
 
 void test_executeOnGlibEventLoop(void)
 {
-	struct TestThread : public HatoholThreadBase {
-		pid_t threadId;
-		pid_t eventLoopThreadId;
-		GMainContext *context;
-		GMainLoop *loop;
-
-		TestThread(void)
-		: threadId(0),
-		  eventLoopThreadId(0),
-		  context(NULL),
-		  loop(NULL)
-		{
-		}
-
-		virtual gpointer mainThread(HatoholThreadArg *arg)
-		{
-			threadId = Utils::getThreadId();
-			Utils::executeOnGLibEventLoop(
-			  _idleTask, this, context);
-			return NULL;
-		}
-
-		static void _idleTask(gpointer data)
-		{
-			TestThread *obj = static_cast<TestThread *>(data);
-			obj->idleTask();
-		}
-
-		void idleTask(void)
-		{
-			eventLoopThreadId = Utils::getThreadId();
-			g_main_loop_quit(loop);
-		}
-	};
-
-	TestThread thread;
+	TestExecEvtLoop thread;
 	thread.context = g_main_context_default();
 	cppcut_assert_not_null(thread.context);
 

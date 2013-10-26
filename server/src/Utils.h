@@ -74,6 +74,15 @@ public:
 	  void (*func)(gpointer data), gpointer data = NULL,
 	  GMainContext *context = NULL);
 
+	template<typename T>
+	static void executeOnGLibEventLoop(
+	  void (*func)(T *data), T *data = NULL, GMainContext *context = NULL)
+	{
+		executeOnGLibEventLoop(
+		  reinterpret_cast<void (*)(gpointer)>(func),
+		  static_cast<gpointer>(data), context);
+	}
+
 	/**
 	 * remove a GLIB's event.
 	 *
