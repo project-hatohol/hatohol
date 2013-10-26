@@ -254,17 +254,26 @@ void Utils::executeOnGLibEventLoop(
 		static gboolean callbackGate(gpointer data) {
 			IdleTask *obj = static_cast<IdleTask *>(data);
 			obj->callback();
+			obj->mutex.unlock();
 			return G_SOURCE_REMOVE;
 		}
 
 		void callback(void) {
 			(*userFunc)(userData);
-			mutex.unlock();
 		}
 	} task;
 
 	task.userFunc = func;
 	task.userData = data;
+
+	// just call the function if the caller has the ownership
+	// of the context.
+	if (g_main_context_acquire(context)) {
+		task.callback();
+		g_main_context_release(context);
+		return;
+	}
+
 	task.mutex.lock();
 
 	GSource *source = g_idle_source_new();

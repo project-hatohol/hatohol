@@ -193,4 +193,18 @@ void test_executeOnGlibEventLoop(void)
 	cppcut_assert_not_equal(thread.threadId, thread.eventLoopThreadId);
 }
 
+void test_executeOnGlibEventLoopCalledFromSameContext(void)
+{
+	TestExecEvtLoop task;
+	task.context = g_main_context_default();
+	cppcut_assert_not_null(task.context);
+
+	task.loop = g_main_loop_new(task.context, TRUE);
+	cppcut_assert_not_null(task.loop);
+
+	task.mainThread(NULL);
+	cppcut_assert_equal(Utils::getThreadId(), task.threadId);
+	cppcut_assert_equal(Utils::getThreadId(), task.eventLoopThreadId);
+}
+
 } // namespace testUtils
