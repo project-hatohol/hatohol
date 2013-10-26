@@ -556,7 +556,10 @@ bool NamedPipe::makeBasedirIfNeeded(const string &baseDir)
 		return false;
 
 	// make a directory
-	if (mkdir(BASE_DIR, BASE_DIR_MODE) == -1) {
+	mode_t prevMask = umask(0002);
+	int result = mkdir(BASE_DIR, BASE_DIR_MODE);
+	umask(prevMask);
+	if (result == -1) {
 		if (errno != EEXIST) {
 			MLPL_ERR("Failed to make dir: %s, %s\n",
 			         BASE_DIR, strerror(errno));
