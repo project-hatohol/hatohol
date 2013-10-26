@@ -227,7 +227,7 @@ void ActorCollector::setDontLog(pid_t pid)
 	}
 	unlock();
 	if (!found)
-		MLPL_WARN("Not found pid: %d for setDontLog().", pid);
+		MLPL_WARN("Not found pid: %d for setDontLog().\n", pid);
 }
 
 size_t ActorCollector::getNumberOfWaitingActors(void)
