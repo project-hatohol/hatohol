@@ -36,13 +36,15 @@ struct TestExecEvtLoop : public HatoholThreadBase {
 	GMainContext *context;
 	GMainLoop *loop;
 	bool quitLoop;
+	bool useFunctor;
 
 	TestExecEvtLoop(void)
 	: threadId(0),
 	  eventLoopThreadId(0),
 	  context(NULL),
 	  loop(NULL),
-	  quitLoop(true)
+	  quitLoop(true),
+	  useFunctor(false)
 	{
 		context = g_main_context_default();
 		cppcut_assert_not_null(context);
@@ -54,8 +56,13 @@ struct TestExecEvtLoop : public HatoholThreadBase {
 	virtual gpointer mainThread(HatoholThreadArg *arg)
 	{
 		threadId = Utils::getThreadId();
-		Utils::executeOnGLibEventLoop<TestExecEvtLoop>(
-		  _idleTask, this, context);
+		if (!useFunctor) {
+			Utils::executeOnGLibEventLoop<TestExecEvtLoop>(
+			  _idleTask, this, context);
+		} else {
+			Utils::executeOnGLibEventLoop<TestExecEvtLoop>(
+			  *this, context);
+		}
 		return NULL;
 	}
 
@@ -206,6 +213,18 @@ void test_executeOnGlibEventLoopCalledFromSameContext(void)
 	task.mainThread(NULL);
 	cppcut_assert_equal(Utils::getThreadId(), task.threadId);
 	cppcut_assert_equal(Utils::getThreadId(), task.eventLoopThreadId);
+}
+
+void test_executeOnGlibEventLoopForFunctor(void)
+{
+	TestExecEvtLoop thread;
+	thread.useFunctor = true;
+	thread.start();
+	g_main_loop_run(thread.loop);
+
+	cppcut_assert_equal(Utils::getThreadId(), thread.eventLoopThreadId);
+	cppcut_assert_not_equal(0, thread.eventLoopThreadId);
+	cppcut_assert_not_equal(thread.threadId, thread.eventLoopThreadId);
 }
 
 void test_executeOnGlibEventLoopFromSameContextForFunctor(void)
