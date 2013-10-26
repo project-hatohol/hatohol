@@ -42,6 +42,11 @@ struct TestExecEvtLoop : public HatoholThreadBase {
 	  context(NULL),
 	  loop(NULL)
 	{
+		context = g_main_context_default();
+		cppcut_assert_not_null(context);
+
+		loop = g_main_loop_new(context, TRUE);
+		cppcut_assert_not_null(loop);
 	}
 
 	virtual gpointer mainThread(HatoholThreadArg *arg)
@@ -183,12 +188,6 @@ void test_getSelfExeDir(void)
 void test_executeOnGlibEventLoop(void)
 {
 	TestExecEvtLoop thread;
-	thread.context = g_main_context_default();
-	cppcut_assert_not_null(thread.context);
-
-	thread.loop = g_main_loop_new(thread.context, TRUE);
-	cppcut_assert_not_null(thread.loop);
-
 	thread.start();
 	g_main_loop_run(thread.loop);
 
@@ -200,12 +199,6 @@ void test_executeOnGlibEventLoop(void)
 void test_executeOnGlibEventLoopCalledFromSameContext(void)
 {
 	TestExecEvtLoop task;
-	task.context = g_main_context_default();
-	cppcut_assert_not_null(task.context);
-
-	task.loop = g_main_loop_new(task.context, TRUE);
-	cppcut_assert_not_null(task.loop);
-
 	task.mainThread(NULL);
 	cppcut_assert_equal(Utils::getThreadId(), task.threadId);
 	cppcut_assert_equal(Utils::getThreadId(), task.eventLoopThreadId);
@@ -214,12 +207,6 @@ void test_executeOnGlibEventLoopCalledFromSameContext(void)
 void test_executeOnGlibEventLoopForFunctor(void)
 {
 	TestExecEvtLoop task;
-	task.context = g_main_context_default();
-	cppcut_assert_not_null(task.context);
-
-	task.loop = g_main_loop_new(task.context, TRUE);
-	cppcut_assert_not_null(task.loop);
-
 	Utils::executeOnGLibEventLoop<TestExecEvtLoop>(task, task.context);
 	cppcut_assert_equal(Utils::getThreadId(), task.eventLoopThreadId);
 }
