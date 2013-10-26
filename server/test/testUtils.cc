@@ -35,12 +35,14 @@ struct TestExecEvtLoop : public HatoholThreadBase {
 	pid_t eventLoopThreadId;
 	GMainContext *context;
 	GMainLoop *loop;
+	bool quitLoop;
 
 	TestExecEvtLoop(void)
 	: threadId(0),
 	  eventLoopThreadId(0),
 	  context(NULL),
-	  loop(NULL)
+	  loop(NULL),
+	  quitLoop(true)
 	{
 		context = g_main_context_default();
 		cppcut_assert_not_null(context);
@@ -65,7 +67,8 @@ struct TestExecEvtLoop : public HatoholThreadBase {
 	void idleTask(void)
 	{
 		eventLoopThreadId = Utils::getThreadId();
-		g_main_loop_quit(loop);
+		if (quitLoop)
+			g_main_loop_quit(loop);
 	}
 
 	void operator()(void) {
@@ -199,6 +202,7 @@ void test_executeOnGlibEventLoop(void)
 void test_executeOnGlibEventLoopCalledFromSameContext(void)
 {
 	TestExecEvtLoop task;
+	task.quitLoop = false;
 	task.mainThread(NULL);
 	cppcut_assert_equal(Utils::getThreadId(), task.threadId);
 	cppcut_assert_equal(Utils::getThreadId(), task.eventLoopThreadId);
@@ -207,6 +211,7 @@ void test_executeOnGlibEventLoopCalledFromSameContext(void)
 void test_executeOnGlibEventLoopForFunctor(void)
 {
 	TestExecEvtLoop task;
+	task.quitLoop = false;
 	Utils::executeOnGLibEventLoop<TestExecEvtLoop>(task, task.context);
 	cppcut_assert_equal(Utils::getThreadId(), task.eventLoopThreadId);
 }
