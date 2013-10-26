@@ -230,8 +230,10 @@ void test_executeOnGlibEventLoopForFunctor(void)
 void test_executeOnGlibEventLoopFromSameContextForFunctor(void)
 {
 	TestExecEvtLoop task;
+	task.useFunctor = true;
 	task.quitLoop = false;
-	Utils::executeOnGLibEventLoop<TestExecEvtLoop>(task, task.context);
+	task.mainThread(NULL);
+	cppcut_assert_equal(Utils::getThreadId(), task.threadId);
 	cppcut_assert_equal(Utils::getThreadId(), task.eventLoopThreadId);
 }
 
