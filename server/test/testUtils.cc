@@ -22,9 +22,11 @@
 #include <unistd.h>
 #include <sys/time.h>
 #include <sys/types.h> 
+#include <syscall.h>
 #include "Hatohol.h"
 #include "Utils.h"
 #include "Helpers.h"
+#include "HatoholThreadBase.h"
 
 namespace testUtils {
 
@@ -138,6 +140,59 @@ void test_getSelfExeDir(void)
 	   selfPath.size() - basename.size() - SIZE_DIR_SEPARATOR;
 	string expect(selfPath, 0, expectLen);
 	cppcut_assert_equal(expect, actual);
+}
+
+void test_executeOnGlibEventLoop(void)
+{
+	struct TestThread : public HatoholThreadBase {
+		pid_t threadId;
+		pid_t eventLoopThreadId;
+		GMainContext *context;
+		GMainLoop *loop;
+
+		TestThread(void)
+		: threadId(0),
+		  eventLoopThreadId(0),
+		  context(NULL),
+		  loop(NULL)
+		{
+		}
+
+		virtual gpointer mainThread(HatoholThreadArg *arg)
+		{
+			threadId = Utils::getThreadId();
+			Utils::executeOnGLibEventLoop(
+			  _idleTask, this, context);
+			return NULL;
+		}
+
+		static gboolean _idleTask(gpointer data)
+		{
+			TestThread *obj = static_cast<TestThread *>(data);
+			return obj->idleTask();
+		}
+
+		gboolean idleTask(void)
+		{
+			eventLoopThreadId = Utils::getThreadId();
+			g_main_loop_quit(loop);
+			return G_SOURCE_REMOVE;
+		}
+	};
+
+	TestThread thread;
+	thread.context = g_main_context_default();
+	cppcut_assert_not_null(thread.context);
+
+	thread.loop = g_main_loop_new(thread.context, TRUE);
+	cppcut_assert_not_null(thread.loop);
+
+	thread.start();
+	g_main_loop_run(thread.loop);
+
+	cppcut_assert_equal(Utils::getThreadId(), thread.eventLoopThreadId);
+	cppcut_assert_not_equal(0, thread.eventLoopThreadId);
+	cppcut_assert_not_equal(thread.threadId, thread.eventLoopThreadId);
 }
 
 } // namespace testUtils
