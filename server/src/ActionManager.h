@@ -213,9 +213,6 @@ protected:
 	void closeResident(ResidentInfo *residentInfo);
 	void closeResident(ResidentNotifyInfo *notifyInfo,
 	                   ActionLogExecFailureCode failureCode);
-	static void copyActorInfoForExecResult(
-	  ActorInfo *actorInfoDest, const ActorInfo *actorInfoSrc,
-	  uint64_t logId);
 	static void spawnPostprocCommandAction(ActorInfo *actorInfo,
 	                                       const ActionDef &actionDef,
 	                                       uint64_t logId, void *priv);

@@ -389,6 +389,40 @@ deque<WaitingCommandActionInfo *>
 set<size_t> CommandActionContext::reservedSet;
 set<uint64_t> CommandActionContext::runningSet;
 
+class ActorInfoCopier {
+public:
+	// constructor and destructor
+	ActorInfoCopier(ActorInfo *dest, const ActorInfo *src, uint64_t logId)
+	: m_dest(dest),
+	  m_src(src),
+	  m_logId(logId)
+	{
+	}
+
+	/*
+	 * executed on the following thread(s)
+	 * - Threads that call checkEvents()
+	 *     [from spawnPostprocCommandAction()]
+	 * - ActorCollector thread
+	 *     [from spawnPostprocCommandAction()]
+	 */
+	virtual ~ActorInfoCopier()
+	{
+		if (!m_dest)
+			return;
+
+		if (m_src)
+			*m_dest = *m_src;
+		else
+			m_dest->logId = m_logId;
+	}
+
+private:
+	ActorInfo       *m_dest;
+	const ActorInfo *m_src;
+	uint64_t         m_logId;
+};
+
 struct ActionManager::PrivateContext {
 };
 
@@ -633,7 +667,10 @@ void ActionManager::spawnPostprocCommandAction(ActorInfo *actorInfo,
 {
 	SpawnPostprocCommandActionCtx *ctx =
 	  static_cast<SpawnPostprocCommandActionCtx *>(priv);
-	copyActorInfoForExecResult(ctx->actorInfoCopy, actorInfo, logId);
+
+	// AcotorInfo is copied at the end of this method.
+	ActorInfoCopier actorInfoCopier(ctx->actorInfoCopy, actorInfo, logId);
+
 	if (actorInfo) // Successfully executed
 		CommandActionContext::add(ctx->reservationId, logId);
 	else // Failed to execute the actor
@@ -1009,7 +1046,10 @@ void ActionManager::spawnPostprocResidentAction(ActorInfo *actorInfo,
 {
 	SpawnPostprocResidentActionCtx *ctx =
 	  static_cast<SpawnPostprocResidentActionCtx *>(priv);
-	copyActorInfoForExecResult(ctx->actorInfoCopy, actorInfo, logId);
+
+	// AcotorInfo is copied at the end of this method.
+	ActorInfoCopier actorInfoCopier(ctx->actorInfoCopy, actorInfo, logId);
+
 	if (!actorInfo)
 		return;
 	actorInfo->collectedCb = residentActorCollectedCb;
@@ -1253,25 +1293,6 @@ void ActionManager::closeResident(ResidentNotifyInfo *notifyInfo,
 	//       deleted in the above function.
 
 	closeResident(residentInfo);
-}
-
-/*
- * executed on the following thread(s)
- * - Threads that call checkEvents()
- *     [from spawnPostprocCommandAction()]
- * - ActorCollector thread
- *     [from spawnPostprocCommandAction()]
- */
-void ActionManager::copyActorInfoForExecResult
-  (ActorInfo *actorInfoDest, const ActorInfo *actorInfoSrc, uint64_t logId)
-{
-	if (!actorInfoDest)
-		return;
-
-	if (actorInfoSrc)
-		*actorInfoDest = *actorInfoSrc;
-	else
-		actorInfoDest->logId = logId;
 }
 
 /*
