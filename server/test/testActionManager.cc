@@ -765,6 +765,27 @@ void test_execCommandActionTimeout(void)
 	                          ACTLOG_FLAG_QUEUING_TIME);
 }
 
+void test_execCommandActionTimeoutNotExpired(void)
+{
+	g_execCommandCtx = new ExecCommandContext();
+	ExecCommandContext *ctx = g_execCommandCtx; // just an alias
+
+	string pipeName = "test-command-action";
+	ctx->initPipes(pipeName);
+
+	ctx->eventInfo = testEventInfo[0];
+	ExecActionArg arg(2343242, ACTION_COMMAND);
+	arg.timeout = 1 * 1000;
+	assertExecAction(ctx, arg);
+	assertActionLogJustAfterExec(ctx);
+	sendQuit(ctx);
+	assertActionLogAfterEnding(ctx);
+
+	// We expects the timer event is removed. So the return value
+	// should be FALSE (i.e. not found).
+	cppcut_assert_equal(FALSE, g_source_remove(ctx->actorInfo.timerTag));
+}
+
 void test_execResidentAction(void)
 {
 	g_execCommandCtx = new ExecCommandContext();

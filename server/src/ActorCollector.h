@@ -35,19 +35,11 @@ struct ActorInfo {
 	ActorCollectedFunc collectedCb;
 	mutable ActorCollectedFunc postCollectedCb;
 	mutable void              *collectedCbPriv;
-	gint     timerTag;
+	guint timerTag;
 	
-	// constructor
-	ActorInfo (void)
-	: pid(0),
-	  logId(-1),
-	  dontLog(false),
-	  collectedCb(NULL),
-	  postCollectedCb(NULL),
-	  collectedCbPriv(NULL),
-	  timerTag(INVALID_EVENT_ID)
-	{
-	}
+	// constructor and destructor
+	ActorInfo(void);
+	virtual ~ActorInfo();
 };
 
 class ActorCollector : public HatoholThreadBase

@@ -56,6 +56,27 @@ sem_t           ActorCollector::PrivateContext::resetCompletionSem;
 bool            ActorCollector::PrivateContext::inReset = false;
 
 // ---------------------------------------------------------------------------
+// ActorInfo
+// ---------------------------------------------------------------------------
+ActorInfo::ActorInfo(void)
+: pid(0),
+  logId(-1),
+  dontLog(false),
+  collectedCb(NULL),
+  postCollectedCb(NULL),
+  collectedCbPriv(NULL),
+  timerTag(INVALID_EVENT_ID)
+{
+}
+
+ActorInfo::~ActorInfo()
+{
+	// If the following function fails, MPL_ERR() is called in it.
+	// So we do nothing here.
+	Utils::removeEventSourceIfNeeded(timerTag);
+}
+
+// ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
 void ActorCollector::init(void)
@@ -312,7 +333,7 @@ void ActorCollector::notifyChildSiginfo(siginfo_t *info)
 	logArg.exitCode = childSigInfo.status;
 
 	// try to find the action log.
-	const ActorInfo *actorInfo = NULL;
+	ActorInfo *actorInfo = NULL;
 	lock();
 	WaitChildSetIterator it =
 	   PrivateContext::waitChildSet.find(childSigInfo.pid);
@@ -343,6 +364,8 @@ void ActorCollector::notifyChildSiginfo(siginfo_t *info)
 	// execute the callback function without the lock
 	if (actorInfo->postCollectedCb)
 		(*actorInfo->postCollectedCb)(actorInfo);
-
-	delete actorInfo;
+	
+	// ActionManager::commandActionTimeoutCb() may be running on the
+	// default GLib event loop. So we delete actorInfo on that.
+	Utils::deleteOnGLibEventLoop<ActorInfo>(actorInfo);
 }

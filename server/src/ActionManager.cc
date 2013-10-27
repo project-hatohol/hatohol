@@ -981,10 +981,6 @@ void ActionManager::sendParameters(ResidentInfo *residentInfo)
  */
 gboolean ActionManager::commandActionTimeoutCb(gpointer data)
 {
-	// TODO: Accessing data (actorInfo) is not safe, because
-	//       it may be deleted in ActorCollector::notifyChildSiginfo().
-	//       We have to fix the race.
-	MLPL_BUG("FIX ME (see the comment in the source code)!\n");
 	DBClientAction dbAction;
 	DBClientAction::LogEndExecActionArg logArg;
 	ActorInfo *actorInfo = static_cast<ActorInfo *>(data);
@@ -997,6 +993,7 @@ gboolean ActionManager::commandActionTimeoutCb(gpointer data)
 	dbAction.logEndExecAction(logArg);
 	ActorCollector::setDontLog(actorInfo->pid);
 	kill(actorInfo->pid, SIGKILL);
+	actorInfo->timerTag = INVALID_EVENT_ID;
 	return FALSE;
 }
 
