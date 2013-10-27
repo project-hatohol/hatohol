@@ -132,32 +132,33 @@ void test_checkParseSuccess(void)
 void test_checkResultWhenTrueFalseTrue(void)
 {
 	DEFINE_PARSER_AND_READ(parser, "fixtures/testJson05.json");
-	string value;
+	int64_t value;
 
-	assertReadWord(int64_t, parser, "id", 1);
-	cppcut_assert_equal(false, parser.read("address", value));
 	assertReadWord(bool, parser, "valid", true);
+	cppcut_assert_equal(false, parser.read("no", value));
+	assertReadWord(string, parser, "name", "Hatohol");
 
 	cppcut_assert_equal(true, parser.startObject("object"));
 	assertReadWord(bool, parser, "home", true);
-	cppcut_assert_equal(false, parser.read("address", value));
-	assertReadWord(int64_t, parser, "code", 124);
+	cppcut_assert_equal(false, parser.read("date", value));
+	assertReadWord(string, parser, "city", "Tokyo");
 	parser.endObject();
 }
 
 void test_checkResultWhenFalseTrueFalse(void)
 {
 	DEFINE_PARSER_AND_READ(parser, "fixtures/testJson05.json");
-	string value;
+	string value1;
+	bool value2;
 
-	cppcut_assert_equal(false, parser.read("address", value));
+	cppcut_assert_equal(false, parser.read("address", value1));
 	assertReadWord(string, parser, "name", "Hatohol");
-	cppcut_assert_equal(false, parser.read("phone", value));
+	cppcut_assert_equal(false, parser.read("pay", value2));
 
 	cppcut_assert_equal(true, parser.startObject("object"));
-	cppcut_assert_equal(false, parser.read("country", value));
+	cppcut_assert_equal(false, parser.read("town", value1));
 	assertReadWord(string, parser, "name", "Hatohol");
-	cppcut_assert_equal(false, parser.read("no", value));
+	cppcut_assert_equal(false, parser.read("foreign", value2));
 	parser.endObject();
 }
 } //namespace testJsonParserAgent
