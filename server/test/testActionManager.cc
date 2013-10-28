@@ -785,6 +785,8 @@ void test_execCommandActionTimeoutNotExpired(void)
 
 	// We expects the timer event is removed. So the return value
 	// should be FALSE (i.e. not found).
+	while (g_main_context_iteration(NULL, FALSE))
+		;
 	cppcut_assert_equal(FALSE, g_source_remove(ctx->actorInfo.timerTag));
 }
 
