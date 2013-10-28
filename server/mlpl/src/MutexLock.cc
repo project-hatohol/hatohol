@@ -19,6 +19,8 @@
 
 #include <errno.h>
 #include "MutexLock.h"
+#include "SmartTime.h"
+#include "Logger.h"
 
 using namespace mlpl;
 
@@ -54,6 +56,26 @@ MutexLock::~MutexLock()
 void MutexLock::lock(void)
 {
 	pthread_mutex_lock(&m_ctx->lock);
+}
+
+MutexLock::Status MutexLock::timedlock(size_t timeoutInMSec)
+{
+	SmartTime abs(SmartTime::INIT_CURR_TIME);
+	struct timespec waitTime;
+	waitTime.tv_sec = timeoutInMSec / 1000;
+	waitTime.tv_nsec = (timeoutInMSec % 1000) * 1000 * 1000;
+	abs += waitTime;
+	int err = pthread_mutex_timedlock(&m_ctx->lock, &abs.getAsTimespec());
+	switch (err) {
+	case 0:
+		return STAT_OK;
+	case ETIMEDOUT:
+		return STAT_TIMEDOUT;
+	default:
+		MLPL_ERR("Failed to clock_gettime: errno: %d\n", errno);
+		return STAT_ERROR_UNKNOWN;
+	}
+	return STAT_OK;
 }
 
 void MutexLock::unlock(void)

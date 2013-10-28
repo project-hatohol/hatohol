@@ -26,9 +26,16 @@ namespace mlpl {
 
 class MutexLock {
 public:
+	enum Status {
+		STAT_OK,
+		STAT_TIMEDOUT,
+		STAT_ERROR_UNKNOWN,
+	};
+
 	MutexLock(void);
 	virtual ~MutexLock();
 	void lock(void);
+	Status timedlock(size_t timeoutInMSec);
 	void unlock(void);
 
 	/**
