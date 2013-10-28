@@ -98,7 +98,6 @@ bool JsonParserAgent::read(const string &member, int64_t &dest)
 
 bool JsonParserAgent::read(const string &member, string &dest)
 {
-	g_print("Start: %s\n", member.c_str());
 	internalCheck();
 	if (!json_reader_read_member(m_reader, member.c_str())) {
 		json_reader_end_member(m_reader);
