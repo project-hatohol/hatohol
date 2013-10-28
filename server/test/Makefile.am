@@ -11,13 +11,13 @@ noinst_PROGRAMS = ActionTp zabbix-api-response-collector
 endif
 
 # default
-AM_CXXFLAGS = -g3 -Wall -D__STDC_FORMAT_MACROS
-AM_LDFLAGS = -module -rpath $(libdir) -avoid-version -no-undefined
-INCLUDES = \
+AM_CXXFLAGS = \
+	-g3 -Wall -D__STDC_FORMAT_MACROS \
 	$(CUTTER_CFLAGS) $(CPPCUTTER_CFLAGS) \
 	$(GLIB_CFLAGS) $(MLPL_CFLAGS) $(JSON_GLIB_CFLAGS) $(LIBSOUP_CFLAGS) \
 	$(MYSQL_CFLAGS) \
 	-I ../src
+AM_LDFLAGS = -module -rpath $(libdir) -avoid-version -no-undefined
 
 LIBS = \
 	$(CUTTER_LIBS) $(CPPCUTTER_LIBS) \
