@@ -636,3 +636,19 @@ string makeDoubleFloatFormat(const ColumnDef &columnDef)
 {
 	return StringUtils::sprintf("%%.%zdlf", columnDef.decFracLength);
 }
+
+static GMainContext *g_acquiredContext = NULL;
+void _acquireDefaultContext(void)
+{
+	GMainContext *context = g_main_context_default();
+	cppcut_assert_equal((gboolean)TRUE, g_main_context_acquire(context));
+	g_acquiredContext = context;
+}
+
+void releaseDefaultContext(void)
+{
+	if (g_acquiredContext) {
+		g_main_context_release(g_acquiredContext); 
+		g_acquiredContext = NULL;
+	}
+}

@@ -107,15 +107,6 @@ static void _assertGetExtension(const string &path, const string &expected)
 }
 #define assertGetExtension(P, E) cut_trace(_assertGetExtension(P, E))
 
-static GMainContext *g_acquiredContext = NULL;
-static void _acquireDefaultContext(void)
-{
-	GMainContext *context = g_main_context_default();
-	cppcut_assert_equal((gboolean)TRUE, g_main_context_acquire(context));
-	g_acquiredContext = context;
-}
-#define acquireDefaultContext() cut_trace(_acquireDefaultContext())
-
 void cut_setup(void)
 {
 	hatoholInit();
@@ -123,10 +114,7 @@ void cut_setup(void)
 
 void cut_teardown(void)
 {
-	if (g_acquiredContext) {
-		g_main_context_release(g_acquiredContext); 
-		g_acquiredContext = NULL;
-	}
+	releaseDefaultContext();
 }
 
 // ---------------------------------------------------------------------------

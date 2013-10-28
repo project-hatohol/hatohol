@@ -149,4 +149,8 @@ void crash(void);
  */
 string makeDoubleFloatFormat(const ColumnDef &columnDef);
 
+void _acquireDefaultContext(void);
+#define acquireDefaultContext() cut_trace(_acquireDefaultContext())
+void releaseDefaultContext(void);
+
 #endif // Helpers_h
