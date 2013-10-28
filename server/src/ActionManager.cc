@@ -1224,6 +1224,16 @@ void ActionManager::commandActorPostCollectedCb(const ActorInfo *actorInfo)
  */
 void ActionManager::residentActorCollectedCb(const ActorInfo *actorInfo)
 {
+	// residentInfo has to be deleted without lock
+	actorInfo->postCollectedCb = residentActorPostCollectedCb;
+}
+
+/*
+ * executed on the following thread(s)
+ * - ActorCollector thread
+ */
+void ActionManager::residentActorPostCollectedCb(const ActorInfo *actorInfo)
+{
 	ResidentInfo *residentInfo =
 	   static_cast<ResidentInfo *>(actorInfo->collectedCbPriv);
 	residentInfo->queueLock.lock();

@@ -210,6 +210,7 @@ protected:
 	static void commandActorCollectedCb(const ActorInfo *actorInfo);
 	static void commandActorPostCollectedCb(const ActorInfo *actorInfo);
 	static void residentActorCollectedCb(const ActorInfo *actorInfo);
+	static void residentActorPostCollectedCb(const ActorInfo *actorInfo);
 	void closeResident(ResidentInfo *residentInfo);
 	void closeResident(ResidentNotifyInfo *notifyInfo,
 	                   ActionLogExecFailureCode failureCode);
