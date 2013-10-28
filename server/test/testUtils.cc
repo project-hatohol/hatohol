@@ -272,10 +272,9 @@ void test_executeOnGlibEventLoopAsync(void)
 	TestExecEvtLoop thread;
 	thread.start();
 	thread.syncType = ASYNC;
-	// TODO: If executeOnGLibEventLoop() doesn't work asynchnously,
-	// the following mutex is never unlocked. We can notice an error by
-	// the (dead) lock. However, this way is too ugly and too bad. Fix soon.
-	thread.mutex.lock();
+	const size_t timeoutInMSec = 5000;
+	cppcut_assert_equal(MutexLock::STAT_OK,
+	                    thread.mutex.timedlock(timeoutInMSec));
 	g_main_loop_run(thread.loop);
 
 	cppcut_assert_equal(Utils::getThreadId(), thread.eventLoopThreadId);
