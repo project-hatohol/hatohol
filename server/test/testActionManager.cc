@@ -23,6 +23,7 @@
 #include <stdarg.h>
 #include <unistd.h>
 #include <errno.h>
+#include <sys/resource.h>
 #include "Hatohol.h"
 #include "Helpers.h"
 #include "ActionManager.h"
@@ -158,6 +159,16 @@ struct ExecCommandContext : public ResidentPullHelper<ExecCommandContext> {
 };
 static ExecCommandContext *g_execCommandCtx = NULL;
 static vector<ExecCommandContext *>g_execCommandCtxVect;
+
+static ActionLogExecFailureCode getFailureCodeSignalOrDumpedByRLimit(void)
+{
+	struct rlimit rlim;
+	getrlimit(RLIMIT_CORE, &rlim);
+	cut_assert_errno();
+	if (rlim.rlim_cur > 0)
+		return ACTLOG_EXECFAIL_DUMPED_SIGNAL;
+	return ACTLOG_EXECFAIL_KILLED_SIGNAL;
+}
 
 static void waitConnectCb(GIOStatus stat, mlpl::SmartBuffer &sbuf,
                           size_t size, ExecCommandContext *ctx)
@@ -746,7 +757,7 @@ void test_execCommandActionCrashSoon(void)
 	arg.option = OPTION_CRASH_SOON;
 	assertExecAction(ctx, arg);
 	assertWaitForChangeActionLogStatus(ctx, ACTLOG_STAT_STARTED);
-	assertActionLogForFailure(ctx, ACTLOG_EXECFAIL_KILLED_SIGNAL,
+	assertActionLogForFailure(ctx, getFailureCodeSignalOrDumpedByRLimit(),
 	                          ACTLOG_FLAG_QUEUING_TIME, SIGSEGV);
 }
 
@@ -818,7 +829,7 @@ void test_execResidentActionCrashInInit(void)
 	  ctx, ACTLOG_FLAG_QUEUING_TIME,
 	  ACTLOG_STAT_LAUNCHING_RESIDENT, ACTLOG_STAT_FAILED,
 	  NULL, /* statusChangedCb */
-	  ACTLOG_EXECFAIL_KILLED_SIGNAL, SIGSEGV);
+	  getFailureCodeSignalOrDumpedByRLimit(), SIGSEGV);
 }
 
 void test_execResidentActionCrashInNotifyEvent(void)
@@ -842,8 +853,7 @@ void test_execResidentActionCrashInNotifyEvent(void)
 	  0, /* queuingTime */
 	  CURR_DATETIME, /* startTime */
 	  CURR_DATETIME, /* endTime */
-	  ACTLOG_EXECFAIL_KILLED_SIGNAL,
-	  SIGSEGV,
+	  getFailureCodeSignalOrDumpedByRLimit(), SIGSEGV,
 	  ACTLOG_FLAG_QUEUING_TIME);
 }
 
