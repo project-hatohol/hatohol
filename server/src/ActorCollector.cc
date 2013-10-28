@@ -107,7 +107,15 @@ void ActorCollector::reset(void)
 
 	// Wait for the completion of reset() on the collected thread
 	while (true) {
-		int ret = sem_wait(&PrivateContext::resetCompletionSem);
+		int ret = sem_trywait(&PrivateContext::resetCompletionSem);
+		if (ret == -1 && errno == EAGAIN) {
+			bool worked = false;
+			while (g_main_context_iteration(NULL, FALSE))
+				worked = true;
+			if (!worked)
+				sched_yield();
+			continue;
+		}
 		if (ret == -1 && errno == EINTR)
 			continue;
 		HATOHOL_ASSERT(ret == 0,
