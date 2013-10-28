@@ -401,8 +401,9 @@ void ZabbixAPIEmulator::APIHandlerEventGet(APIHandlerArg &arg)
 	string sortField;
 	string sortOrder;
 	int64_t limit = 0;
-	string eventIdFrom;
-	string eventIdTill;
+	string rawEventIdFrom, rawEventIdTill;
+	uint64_t eventIdFrom = 0;
+	uint64_t eventIdTill = 0;
 	static const char *DATA_FILE = "zabbix-api-res-events-002.json";
 	string path = getFixturesDir() + DATA_FILE;
 
@@ -442,14 +443,16 @@ void ZabbixAPIEmulator::APIHandlerEventGet(APIHandlerArg &arg)
 		THROW_HATOHOL_EXCEPTION("Not found: limit");
 	}
 
-	if(parser.read("eventid_from", eventIdFrom)) {
+	if(parser.read("eventid_from", rawEventIdFrom)) {
+		sscanf(rawEventIdFrom.c_str(), "%"PRIu64, &eventIdFrom);
 		if (eventIdFrom < 0)
 			THROW_HATOHOL_EXCEPTION("Invalid parameter: eventid_from: %"PRId64"\n", eventIdFrom);
 	} else {
 		THROW_HATOHOL_EXCEPTION("Not Found: eventid_from");
 	}
 
-	if(parser.read("eventid_till", eventIdTill)) {
+	if(parser.read("eventid_till", rawEventIdTill)) {
+		sscanf(rawEventIdTill.c_str(), "%"PRIu64, &eventIdTill);
 		if (eventIdTill < 0)
 			THROW_HATOHOL_EXCEPTION("Invalid parameter: eventid_till: %"PRId64"\n", eventIdTill);
 	} else {
