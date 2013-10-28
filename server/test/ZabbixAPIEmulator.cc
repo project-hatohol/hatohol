@@ -421,40 +421,40 @@ void ZabbixAPIEmulator::APIHandlerEventGet(APIHandlerArg &arg)
 				output.c_str());
 	}
 
-		if (parser.read("sortfield", sortField)) {
-			if (sortField != "eventid") {
-				THROW_HATOHOL_EXCEPTION("Invalid parameter: sortfield: %s",
-						sortField.c_str());
-			}
+	if (parser.read("sortfield", sortField)) {
+		if (sortField != "eventid") {
+			THROW_HATOHOL_EXCEPTION("Invalid parameter: sortfield: %s",
+					sortField.c_str());
 		}
+	}
 
-		if (parser.read("sortorder", sortOrder)) {
-			if (sortOrder != "ASC" && sortOrder != "DESC") {
-				THROW_HATOHOL_EXCEPTION("Invalid parameter: sortorder: %s",
-						sortOrder.c_str());
-			}
+	if (parser.read("sortorder", sortOrder)) {
+		if (sortOrder != "ASC" && sortOrder != "DESC") {
+			THROW_HATOHOL_EXCEPTION("Invalid parameter: sortorder: %s",
+					sortOrder.c_str());
 		}
+	}
 
-		if (parser.read("limit", limit)) {
-			if (limit < 0) 
-				THROW_HATOHOL_EXCEPTION("Invalid parameter: limit: %"PRId64"\n", limit);
-		} else {
-			THROW_HATOHOL_EXCEPTION("Not found: limit");
-		}
+	if (parser.read("limit", limit)) {
+		if (limit < 0)
+			THROW_HATOHOL_EXCEPTION("Invalid parameter: limit: %"PRId64"\n", limit);
+	} else {
+		THROW_HATOHOL_EXCEPTION("Not found: limit");
+	}
 
-		if(parser.read("eventid_from", eventIdFrom)) {
-			if (eventIdFrom < 0)
-				THROW_HATOHOL_EXCEPTION("Invalid parameter: eventid_from: %"PRId64"\n", eventIdFrom);
-		} else {
-			THROW_HATOHOL_EXCEPTION("Not Found: eventid_from");
-		}
+	if(parser.read("eventid_from", eventIdFrom)) {
+		if (eventIdFrom < 0)
+			THROW_HATOHOL_EXCEPTION("Invalid parameter: eventid_from: %"PRId64"\n", eventIdFrom);
+	} else {
+		THROW_HATOHOL_EXCEPTION("Not Found: eventid_from");
+	}
 
-		if(parser.read("eventid_till", eventIdTill)) {
-			if (eventIdTill < 0)
-				THROW_HATOHOL_EXCEPTION("Invalid parameter: eventid_till: %"PRId64"\n", eventIdTill);
-		} else {
-			THROW_HATOHOL_EXCEPTION("Not Found: eventid_till");
-		}
+	if(parser.read("eventid_till", eventIdTill)) {
+		if (eventIdTill < 0)
+			THROW_HATOHOL_EXCEPTION("Invalid parameter: eventid_till: %"PRId64"\n", eventIdTill);
+	} else {
+		THROW_HATOHOL_EXCEPTION("Not Found: eventid_till");
+	}
 
 	if (m_ctx->numEventSlices != 0) {
 		// slice mode
