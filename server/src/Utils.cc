@@ -247,43 +247,55 @@ void Utils::executeOnGLibEventLoop(
   void (*func)(gpointer), gpointer data, SyncType syncType,
   GMainContext *context)
 {
+	HATOHOL_ASSERT(syncType == SYNC || syncType == ASYNC,
+	               "Invalid syncType: %d\n", syncType);
 	struct IdleTask {
 		void (*userFunc)(gpointer);
 		gpointer    userData;
 		MutexLock   mutex;
-		guint       tag;
+		SyncType    syncType;
+
 		static gboolean callbackGate(gpointer data) {
 			IdleTask *obj = static_cast<IdleTask *>(data);
 			obj->callback();
-			obj->mutex.unlock();
 			return G_SOURCE_REMOVE;
 		}
 
 		void callback(void) {
 			(*userFunc)(userData);
+			if (syncType == SYNC)
+				mutex.unlock();
+			else
+				delete this;
 		}
-	} task;
-
-	task.userFunc = func;
-	task.userData = data;
+	};
 
 	// just call the function if the caller has the ownership
 	// of the context.
 	if (g_main_context_acquire(context)) {
-		task.callback();
+		(*func)(data);
 		g_main_context_release(context);
 		return;
 	}
 
-	task.mutex.lock();
+	IdleTask *task = new IdleTask();
+	task->userFunc = func;
+	task->userData = data;
+	task->syncType = syncType;
+
+	if (syncType == SYNC)
+		task->mutex.lock();
 
 	GSource *source = g_idle_source_new();
-	g_source_set_callback(source, IdleTask::callbackGate, &task, NULL);
-	task.tag = g_source_attach(source, context);
+	g_source_set_callback(source, IdleTask::callbackGate, task, NULL);
+	g_source_attach(source, context);
 	g_source_unref(source);
 
 	// wait for the completion
-	task.mutex.lock();
+	if (syncType == SYNC) {
+		task->mutex.lock();
+		delete task;
+	}
 }
 
 struct RemoveEventTask {

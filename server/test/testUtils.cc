@@ -23,6 +23,8 @@
 #include <sys/time.h>
 #include <sys/types.h> 
 #include <syscall.h>
+#include <MutexLock.h>
+using namespace mlpl;
 #include "Hatohol.h"
 #include "Utils.h"
 #include "Helpers.h"
@@ -37,6 +39,8 @@ struct TestExecEvtLoop : public HatoholThreadBase {
 	GMainLoop *loop;
 	bool quitLoop;
 	bool useFunctor;
+	SyncType syncType;
+	MutexLock mutex;
 
 	TestExecEvtLoop(void)
 	: threadId(0),
@@ -44,8 +48,10 @@ struct TestExecEvtLoop : public HatoholThreadBase {
 	  context(NULL),
 	  loop(NULL),
 	  quitLoop(true),
-	  useFunctor(false)
+	  useFunctor(false),
+	  syncType(SYNC)
 	{
+		mutex.lock();
 		context = g_main_context_default();
 		cppcut_assert_not_null(context);
 
@@ -58,11 +64,12 @@ struct TestExecEvtLoop : public HatoholThreadBase {
 		threadId = Utils::getThreadId();
 		if (!useFunctor) {
 			Utils::executeOnGLibEventLoop<TestExecEvtLoop>(
-			  _idleTask, this, SYNC, context);
+			  _idleTask, this, syncType, context);
 		} else {
 			Utils::executeOnGLibEventLoop<TestExecEvtLoop>(
-			  *this, SYNC, context);
+			  *this, syncType, context);
 		}
+		mutex.unlock();
 		return NULL;
 	}
 
@@ -100,9 +107,26 @@ static void _assertGetExtension(const string &path, const string &expected)
 }
 #define assertGetExtension(P, E) cut_trace(_assertGetExtension(P, E))
 
+static GMainContext *g_acquiredContext = NULL;
+static void _acquireDefaultContext(void)
+{
+	GMainContext *context = g_main_context_default();
+	cppcut_assert_equal((gboolean)TRUE, g_main_context_acquire(context));
+	g_acquiredContext = context;
+}
+#define acquireDefaultContext() cut_trace(_acquireDefaultContext())
+
 void cut_setup(void)
 {
 	hatoholInit();
+}
+
+void cut_teardown(void)
+{
+	if (g_acquiredContext) {
+		g_main_context_release(g_acquiredContext); 
+		g_acquiredContext = NULL;
+	}
 }
 
 // ---------------------------------------------------------------------------
@@ -235,6 +259,24 @@ void test_executeOnGlibEventLoopFromSameContextForFunctor(void)
 	task.mainThread(NULL);
 	cppcut_assert_equal(Utils::getThreadId(), task.threadId);
 	cppcut_assert_equal(Utils::getThreadId(), task.eventLoopThreadId);
+}
+
+void test_executeOnGlibEventLoopAsync(void)
+{
+	acquireDefaultContext();
+
+	TestExecEvtLoop thread;
+	thread.start();
+	thread.syncType = ASYNC;
+	// TODO: If executeOnGLibEventLoop() doesn't work asynchnously,
+	// the following mutex is never unlocked. We can notice an error by
+	// the (dead) lock. However, this way is too ugly and too bad. Fix soon.
+	thread.mutex.lock();
+	g_main_loop_run(thread.loop);
+
+	cppcut_assert_equal(Utils::getThreadId(), thread.eventLoopThreadId);
+	cppcut_assert_not_equal(0, thread.eventLoopThreadId);
+	cppcut_assert_not_equal(thread.threadId, thread.eventLoopThreadId);
 }
 
 } // namespace testUtils
