@@ -54,7 +54,6 @@ struct ZabbixAPIEmulator::PrivateContext {
 	size_t        currEventSliceIndex;
 	vector<string> slicedEventVector;
 	GMainContext   *gMainCtx;
-	bool		isEventGetFirst;
 	
 	// methods
 	PrivateContext(void)
@@ -64,8 +63,7 @@ struct ZabbixAPIEmulator::PrivateContext {
 	  operationMode(OPE_MODE_NORMAL),
 	  numEventSlices(0),
 	  currEventSliceIndex(0),
-	  gMainCtx(0),
-	  isEventGetFirst(true)
+	  gMainCtx(0)
 	{
 		gMainCtx = g_main_context_new();
 	}
@@ -423,7 +421,6 @@ void ZabbixAPIEmulator::APIHandlerEventGet(APIHandlerArg &arg)
 				output.c_str());
 	}
 
-	if (m_ctx->isEventGetFirst) {
 		if (parser.read("sortfield", sortField)) {
 			if (sortField != "eventid") {
 				THROW_HATOHOL_EXCEPTION("Invalid parameter: sortfield: %s",
@@ -445,8 +442,6 @@ void ZabbixAPIEmulator::APIHandlerEventGet(APIHandlerArg &arg)
 			THROW_HATOHOL_EXCEPTION("Not found: limit");
 		}
 
-		m_ctx->isEventGetFirst = false;
-	} else {
 		if(parser.read("eventid_from", eventIdFrom)) {
 			if (eventIdFrom < 0)
 				THROW_HATOHOL_EXCEPTION("Invalid parameter: eventid_from: %"PRId64"\n", eventIdFrom);
@@ -460,8 +455,6 @@ void ZabbixAPIEmulator::APIHandlerEventGet(APIHandlerArg &arg)
 		} else {
 			THROW_HATOHOL_EXCEPTION("Not Found: eventid_till");
 		}
-
-	}
 
 	if (m_ctx->numEventSlices != 0) {
 		// slice mode
