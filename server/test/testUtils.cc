@@ -221,6 +221,7 @@ void test_getSelfExeDir(void)
 
 void test_executeOnGlibEventLoop(void)
 {
+	acquireDefaultContext();
 	TestExecEvtLoop thread;
 	thread.start();
 	g_main_loop_run(thread.loop);
@@ -232,6 +233,7 @@ void test_executeOnGlibEventLoop(void)
 
 void test_executeOnGlibEventLoopCalledFromSameContext(void)
 {
+	acquireDefaultContext();
 	TestExecEvtLoop task;
 	task.quitLoop = false;
 	task.mainThread(NULL);
@@ -241,6 +243,7 @@ void test_executeOnGlibEventLoopCalledFromSameContext(void)
 
 void test_executeOnGlibEventLoopForFunctor(void)
 {
+	acquireDefaultContext();
 	TestExecEvtLoop thread;
 	thread.useFunctor = true;
 	thread.start();
@@ -253,6 +256,7 @@ void test_executeOnGlibEventLoopForFunctor(void)
 
 void test_executeOnGlibEventLoopFromSameContextForFunctor(void)
 {
+	acquireDefaultContext();
 	TestExecEvtLoop task;
 	task.useFunctor = true;
 	task.quitLoop = false;
