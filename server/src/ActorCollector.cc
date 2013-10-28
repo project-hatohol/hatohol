@@ -367,5 +367,5 @@ void ActorCollector::notifyChildSiginfo(siginfo_t *info)
 	
 	// ActionManager::commandActionTimeoutCb() may be running on the
 	// default GLib event loop. So we delete actorInfo on that.
-	Utils::deleteOnGLibEventLoop<ActorInfo>(actorInfo);
+	Utils::deleteOnGLibEventLoop<ActorInfo>(actorInfo, ASYNC);
 }
