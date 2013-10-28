@@ -157,7 +157,7 @@ void test_checkResultWhenFalseTrueFalse(void)
 
 	cppcut_assert_equal(true, parser.startObject("object"));
 	cppcut_assert_equal(false, parser.read("town", value1));
-	assertReadWord(string, parser, "name", "Hatohol");
+	assertReadWord(string, parser, "city", "Tokyo");
 	cppcut_assert_equal(false, parser.read("foreign", value2));
 	parser.endObject();
 }
