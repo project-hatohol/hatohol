@@ -682,6 +682,7 @@ static void deleteGlobalExecCommandCtx(size_t idx)
 void setup(void)
 {
 	hatoholInit();
+	acquireDefaultContext();
 	ConfigManager::setActionCommandDirectory(get_current_dir_name());
 
 	string residentYardDir = get_current_dir_name();
@@ -699,6 +700,7 @@ void teardown(void)
 	for (size_t i = 0; i < g_execCommandCtxVect.size(); i++)
 		deleteGlobalExecCommandCtx(i);
 	g_execCommandCtxVect.clear();
+	releaseDefaultContext();
 }
 
 // ---------------------------------------------------------------------------
