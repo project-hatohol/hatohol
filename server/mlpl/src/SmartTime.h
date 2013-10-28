@@ -30,6 +30,7 @@ public:
 		INIT_NONE,
 		INIT_CURR_TIME,
 	};
+	static const long NANO_SEC_PER_SEC = 1000 * 1000 * 1000;
 
 	static SmartTime getCurrTime(void);
 
@@ -42,6 +43,7 @@ public:
 	double getAsMSec(void) const;
 	const timespec &getAsTimespec(void) const;
 
+	SmartTime &operator+=(const timespec &rhs);
 	SmartTime &operator-=(const SmartTime &rhs);
 	SmartTime &operator=(const SmartTime &rhs);
 

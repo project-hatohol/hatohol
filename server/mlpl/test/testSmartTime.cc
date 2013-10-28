@@ -61,6 +61,36 @@ static void _assertEqualTimespec(const timespec &expect, const timespec &actual)
 }
 #define assertEqualTimespec(E,A) cut_trace(_assertEqualTimespec(E,A))
 
+static void _assertOperatorPlusSubst(bool carry)
+{
+	timespec ts0 = getSampleTimespec();
+	SmartTime smtime0(ts0);
+
+	long addedSec = 1050;
+	long addedNSec = SmartTime::NANO_SEC_PER_SEC - ts0.tv_nsec;
+	static const long EXPECTED_DECIMAL_VALUE = 2052;
+	if (!carry)
+		addedNSec -= 1;
+	else
+		addedNSec += EXPECTED_DECIMAL_VALUE;
+	timespec ts1;
+	ts1.tv_sec = addedSec;
+	ts1.tv_nsec = addedNSec;
+	smtime0 += ts1;
+
+	long expectInt = ts0.tv_sec + addedSec;
+	long expectDec = 0;
+	if (!carry) {
+		expectDec = 999999999;
+	} else {
+		expectInt += 1;
+		expectDec = EXPECTED_DECIMAL_VALUE;
+	}
+	cppcut_assert_equal(expectInt, (long)smtime0.getAsTimespec().tv_sec);
+	cppcut_assert_equal(expectDec, (long)smtime0.getAsTimespec().tv_nsec);
+}
+#define assertOperatorPlusSubst(C) cut_trace(_assertOperatorPlusSubst(C))
+
 static void _assertOperatorMinusSubst(bool plusInt, bool plusDec)
 {
 	timespec ts0 = getSampleTimespec();
@@ -153,6 +183,16 @@ void test_operatorSubst(void)
 	SmartTime dst(SmartTime::INIT_CURR_TIME);
 	dst = src;
 	assertEqualTimespec(src.getAsTimespec(), dst.getAsTimespec());
+}
+
+void test_operatorPlusSubst(void)
+{
+	assertOperatorPlusSubst(false);
+}
+
+void test_operatorPlusSubstCarry(void)
+{
+	assertOperatorPlusSubst(true);
 }
 
 void test_operatorMinusSubst(void)

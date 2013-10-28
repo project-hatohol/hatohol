@@ -101,6 +101,17 @@ SmartTime SmartTime::getCurrTime(void)
 	return smtime;
 }
 
+SmartTime &SmartTime::operator+=(const timespec &rhs)
+{
+	m_ctx->time.tv_sec  += rhs.tv_sec;
+	m_ctx->time.tv_nsec += rhs.tv_nsec;
+	if (m_ctx->time.tv_nsec >= NANO_SEC_PER_SEC) {
+		m_ctx->time.tv_sec += 1;
+		m_ctx->time.tv_nsec -= NANO_SEC_PER_SEC;
+	}
+	return *this;
+}
+
 SmartTime &SmartTime::operator-=(const SmartTime &rhs)
 {
 	m_ctx->time.tv_sec  -= rhs.m_ctx->time.tv_sec;
