@@ -244,7 +244,8 @@ string Utils::getStringFromGIOCondition(GIOCondition condition)
 }
 
 void Utils::executeOnGLibEventLoop(
-  void (*func)(gpointer), gpointer data, GMainContext *context)
+  void (*func)(gpointer), gpointer data, SyncType syncType,
+  GMainContext *context)
 {
 	struct IdleTask {
 		void (*userFunc)(gpointer);
@@ -295,7 +296,7 @@ struct RemoveEventTask {
 	}
 };
 
-bool Utils::removeEventSourceIfNeeded(guint tag)
+bool Utils::removeEventSourceIfNeeded(guint tag, SyncType syncType)
 {
 	if (tag == INVALID_EVENT_ID)
 		return true;
@@ -310,7 +311,7 @@ bool Utils::removeEventSourceIfNeeded(guint tag)
 	RemoveEventTask task;
 	task.tag = tag;
 	executeOnGLibEventLoop<RemoveEventTask>(
-	  RemoveEventTask::run, &task, context);
+	  RemoveEventTask::run, &task, syncType, context);
 	if (!task.succeeded) {
 		MLPL_ERR("Failed to remove source: %d\n", tag);
 		return false;

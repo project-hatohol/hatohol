@@ -48,4 +48,9 @@ typedef UserIdSet::iterator       UserIdSetIterator;
 typedef UserIdSet::const_iterator UserIdSetIterator;
 extern const UserIdSet EMPTY_USER_ID_SET;
 
+enum SyncType {
+	SYNC,
+	ASYNC,
+};
+
 #endif // Params_h

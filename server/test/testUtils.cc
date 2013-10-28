@@ -58,10 +58,10 @@ struct TestExecEvtLoop : public HatoholThreadBase {
 		threadId = Utils::getThreadId();
 		if (!useFunctor) {
 			Utils::executeOnGLibEventLoop<TestExecEvtLoop>(
-			  _idleTask, this, context);
+			  _idleTask, this, SYNC, context);
 		} else {
 			Utils::executeOnGLibEventLoop<TestExecEvtLoop>(
-			  *this, context);
+			  *this, SYNC, context);
 		}
 		return NULL;
 	}
