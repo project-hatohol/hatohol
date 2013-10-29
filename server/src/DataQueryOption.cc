@@ -34,6 +34,8 @@ struct DataQueryOption::PrivateContext {
 	}
 };
 
+const size_t DataQueryOption::NO_LIMIT = 0;
+
 // ---------------------------------------------------------------------------
 // Public static methods
 // ---------------------------------------------------------------------------

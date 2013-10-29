@@ -26,7 +26,7 @@
 
 class DataQueryOption : public OperationPrivilege {
 public:
-	static const size_t NO_LIMIT = 0;
+	static const size_t NO_LIMIT;
 
 	DataQueryOption(void);
 	~DataQueryOption();

@@ -78,4 +78,11 @@ void test_setGetMaximumNumber(void)
 	cppcut_assert_equal(maxNum, option.getMaximumNumber());
 }
 
+void test_getDefaultMaximumNumber(void)
+{
+	DataQueryOption option;
+	cppcut_assert_equal(DataQueryOption::NO_LIMIT,
+	                    option.getMaximumNumber());
+}
+
 } // namespace testDataQueryOption
