@@ -100,5 +100,4 @@ void test_getDefaultSortOrder(void)
 	                    option.getSortOrder());
 }
 
-
 } // namespace testDataQueryOption
