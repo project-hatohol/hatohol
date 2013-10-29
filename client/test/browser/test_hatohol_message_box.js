@@ -3,7 +3,9 @@ describe('HatoholMessageBox', function() {
   function checkResult(id, obj, expected) {
     if (!("getDefaultId" in obj))
       return;
-    if (id != obj.getDefaultId())
+    if (("id" in expected) && id == expected.id)
+      ;
+    else if (id != obj.getDefaultId())
       return;
 
     // message
@@ -77,6 +79,23 @@ describe('HatoholMessageBox', function() {
         titleVisible: true,
         titleString: param.title,
         buttonLabels: [param.defaultButtonLabel],
+      });
+      done();
+    });
+    msgbox = new HatoholMessageBox(msg, param);
+  });
+
+  it('specify ID', function(done) {
+    var msg = "Test message.";
+    var customId = "HOGETA-HOGETARO-Zaemon";
+    var param = {id: customId};
+    HatoholDialogObserver.registerCreatedCallback(function(id, obj) {
+      checkResult(id, obj, {
+        id: customId,
+        msg: msg,
+        titleVisible: false,
+        titleString: obj.getDefaultTitleString(),
+        buttonLabels: [obj.getDefaultButtonLabel()],
       });
       done();
     });
