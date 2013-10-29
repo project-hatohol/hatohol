@@ -43,6 +43,13 @@ public:
 	virtual void setMaximumNumber(size_t maximum);
 
 	/**
+	 * Get the maximum number of returned elements.
+	 *
+	 * @return A maximum number of returned elements.
+	 */
+	size_t getMaximumNumber(void) const;
+
+	/**
 	 * Get a string for 'where section' of an SQL statement.
 	 *
 	 * @return a string for 'where' in an SQL statment.

@@ -57,6 +57,11 @@ void DataQueryOption::setMaximumNumber(size_t maximum)
 	m_ctx->maxNumber = maximum;
 }
 
+size_t DataQueryOption::getMaximumNumber(void) const
+{
+	return m_ctx->maxNumber;
+}
+
 void DataQueryOption::setUserId(UserIdType userId)
 {
 	m_ctx->userId = userId;
