@@ -70,4 +70,12 @@ void test_setGetUserId(void)
 	cppcut_assert_equal(userId, opt.getUserId());
 }
 
+void test_setGetMaximumNumber(void)
+{
+	size_t maxNum = 12345;
+	DataQueryOption option;
+	option.setMaximumNumber(maxNum);
+	cppcut_assert_equal(maxNum, option.getMaximumNumber());
+}
+
 } // namespace testDataQueryOption
