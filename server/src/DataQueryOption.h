@@ -55,6 +55,13 @@ public:
 	size_t getMaximumNumber(void) const;
 
 	/**
+	 * Set the sort order of returned elements.
+	 *
+	 * @order A sort order.
+	 */
+	void setSortOrder(SortOrder order);
+
+	/**
 	 * Get the sort order of returned elements.
 	 *
 	 * @return A sort order.

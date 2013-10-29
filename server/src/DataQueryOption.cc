@@ -66,6 +66,11 @@ size_t DataQueryOption::getMaximumNumber(void) const
 	return m_ctx->maxNumber;
 }
 
+void DataQueryOption::setSortOrder(SortOrder order)
+{
+	m_ctx->sortOrder = order;
+}
+
 DataQueryOption::SortOrder DataQueryOption::getSortOrder(void) const
 {
 	return m_ctx->sortOrder;

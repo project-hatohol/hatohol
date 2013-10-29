@@ -85,6 +85,14 @@ void test_getDefaultMaximumNumber(void)
 	                    option.getMaximumNumber());
 }
 
+void test_setGetSortOrder(void)
+{
+	DataQueryOption option;
+	DataQueryOption::SortOrder order = DataQueryOption::SORT_ASCENDING;
+	option.setSortOrder(order);
+	cppcut_assert_equal(order, option.getSortOrder());
+}
+
 void test_getDefaultSortOrder(void)
 {
 	DataQueryOption option;
