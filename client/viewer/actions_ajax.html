@@ -115,8 +115,8 @@
     });
 
     $("#delete-action-button").click(function() {
-      showNoYesMessageBox(
-        "{% trans "Do you delete the selected items ?" %}", deleteActions);
+      var msg = "{% trans "Do you delete the selected items ?" %}";
+      hatoholNoYesMsgBox(msg, deleteActions);
     });
 
     function addSucceededCb() {
@@ -241,40 +241,6 @@
 
       // update the main view
       schedule(0000, "action");
-    }
-
-    //
-    // Functions for message box.
-    //
-    var NO_YES_BUTTON = [{
-      text: "{% trans "NO" %}",
-      click: function() {
-        $(this).dialog("close");
-      }
-    }, {
-      text: "{% trans "YES" %}",
-      click: function() {
-      }
-    }]
-
-    $("#msgbox").dialog({
-      autoOpen: false,
-      closeOnEscape: false,
-      modal: true,
-    });
-
-    function showMessageBox(msg, title, buttons, callback) {
-      $("#msgbox").dialog("open");
-      $("#msgbox-text").text(msg);
-      $("#msgbox").dialog("option", "title", title);
-      if (buttons == NO_YES_BUTTON)
-        NO_YES_BUTTON[1].click = callback;
-      $("#msgbox").dialog("option", "buttons", buttons);
-    }
-
-    function showNoYesMessageBox(msg, yesCallback) {
-      showMessageBox(msg, "{% trans "Confirmation" %}", NO_YES_BUTTON,
-                     yesCallback);
     }
 
     //
