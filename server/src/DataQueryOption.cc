@@ -24,10 +24,12 @@
 
 struct DataQueryOption::PrivateContext {
 	UserIdType userId;
+	size_t maxNumber;
 
 	// constuctor
 	PrivateContext(void)
-	: userId(INVALID_USER_ID)
+	: userId(INVALID_USER_ID),
+	  maxNumber(NO_LIMIT)
 	{
 	}
 };
@@ -48,6 +50,11 @@ DataQueryOption::~DataQueryOption()
 string DataQueryOption::getCondition(void) const
 {
 	return "";
+}
+
+void DataQueryOption::setMaximumNumber(size_t maximum)
+{
+	m_ctx->maxNumber = maximum;
 }
 
 void DataQueryOption::setUserId(UserIdType userId)

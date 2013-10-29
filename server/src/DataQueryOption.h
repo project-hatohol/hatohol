@@ -26,11 +26,21 @@
 
 class DataQueryOption : public OperationPrivilege {
 public:
+	static const size_t NO_LIMIT = 0;
+
 	DataQueryOption(void);
 	~DataQueryOption();
 
 	void setUserId(UserIdType userId);
 	UserIdType getUserId(void) const;
+
+	/**
+	 * Set the maximum number of the returned elements.
+	 *
+	 * @param maximum A maximum number. If NO_LIMIT is given, all data
+	 * are returned.
+	 */
+	virtual void setMaximumNumber(size_t maximum);
 
 	/**
 	 * Get a string for 'where section' of an SQL statement.
