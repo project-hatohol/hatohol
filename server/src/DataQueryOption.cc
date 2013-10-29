@@ -26,12 +26,14 @@ struct DataQueryOption::PrivateContext {
 	UserIdType userId;
 	size_t maxNumber;
 	SortOrder sortOrder;
+	uint64_t startId;
 
 	// constuctor
 	PrivateContext(void)
 	: userId(INVALID_USER_ID),
 	  maxNumber(NO_LIMIT),
-	  sortOrder(SORT_DONT_CARE)
+	  sortOrder(SORT_DONT_CARE),
+	  startId(0)
 	{
 	}
 };
@@ -74,6 +76,11 @@ void DataQueryOption::setSortOrder(SortOrder order)
 DataQueryOption::SortOrder DataQueryOption::getSortOrder(void) const
 {
 	return m_ctx->sortOrder;
+}
+
+uint64_t DataQueryOption::getStartId(void) const
+{
+	return m_ctx->startId;
 }
 
 void DataQueryOption::setUserId(UserIdType userId)

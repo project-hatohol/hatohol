@@ -69,6 +69,13 @@ public:
 	SortOrder getSortOrder(void) const;
 
 	/**
+	 * Get the start ID.
+	 *
+	 * @return A start ID.
+	 */
+	uint64_t getStartId(void) const;
+
+	/**
 	 * Get a string for 'where section' of an SQL statement.
 	 *
 	 * @return a string for 'where' in an SQL statment.
