@@ -57,7 +57,7 @@ public:
 	/**
 	 * Set the sort order of returned elements.
 	 *
-	 * @order A sort order.
+	 * @param order A sort order.
 	 */
 	void setSortOrder(SortOrder order);
 
@@ -68,7 +68,7 @@ public:
 	 */
 	SortOrder getSortOrder(void) const;
 
-	/**
+	**
 	 * Get a string for 'where section' of an SQL statement.
 	 *
 	 * @return a string for 'where' in an SQL statment.
