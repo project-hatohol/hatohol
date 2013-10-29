@@ -24,6 +24,13 @@ describe('HatoholMessageBox', function() {
     }
   }
 
+  function checkNoYesButton(buttons) {
+    expect(buttons).to.be.an('array'); 
+    expect(buttons).to.have.length(2);
+    expect(buttons[0].text).to.be(gettext("NO"));
+    expect(buttons[1].text).to.be(gettext("YES"));
+  }
+
   // -------------------------------------------------------------------------
   // Test cases
   // -------------------------------------------------------------------------
@@ -133,5 +140,12 @@ describe('HatoholMessageBox', function() {
     expect(buttons).to.have.length(2);
     expect(buttons[0].text).to.be(gettext("NO"));
     expect(buttons[1].text).to.be(gettext("YES"));
+  });
+
+  it('confirm builtin NO/YES buttons are deeply copied', function() {
+    var buttons = HatoholMessageBox.prototype.getBuiltinNoYesButtons();
+    buttons[0].text = "annihilation engine";
+    buttons = HatoholMessageBox.prototype.getBuiltinNoYesButtons();
+    checkNoYesButton(buttons);
   });
 });
