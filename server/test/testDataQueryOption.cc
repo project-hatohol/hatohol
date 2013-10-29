@@ -85,4 +85,12 @@ void test_getDefaultMaximumNumber(void)
 	                    option.getMaximumNumber());
 }
 
+void test_getDefaultSortOrder(void)
+{
+	DataQueryOption option;
+	cppcut_assert_equal(DataQueryOption::SORT_DONT_CARE,
+	                    option.getSortOrder());
+}
+
+
 } // namespace testDataQueryOption

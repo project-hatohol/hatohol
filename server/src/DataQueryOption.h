@@ -27,6 +27,11 @@
 class DataQueryOption : public OperationPrivilege {
 public:
 	static const size_t NO_LIMIT;
+	enum SortOrder {
+		SORT_DONT_CARE,
+		SORT_ASCENDING,
+		SORT_DESCENDING,
+	};
 
 	DataQueryOption(void);
 	~DataQueryOption();
@@ -48,6 +53,13 @@ public:
 	 * @return A maximum number of returned elements.
 	 */
 	size_t getMaximumNumber(void) const;
+
+	/**
+	 * Get the sort order of returned elements.
+	 *
+	 * @return A sort order.
+	 */
+	SortOrder getSortOrder(void) const;
 
 	/**
 	 * Get a string for 'where section' of an SQL statement.
