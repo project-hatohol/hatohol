@@ -144,6 +144,21 @@ HatoholMessageBox.prototype.getButtons = function () {
   return this.buttons;
 }
 
+HatoholMessageBox.prototype.getBuiltinNoYesButtons = function () {
+  var button = [{
+    text: gettext("NO"),
+    click: function() {
+      $(this).dialog("close");
+    }
+  }, {
+    text: gettext("YES"),
+    click: function() {
+    }
+  }];
+  // return a copy so that caller can modify the button.
+  return jQuery.extend(true, [], button);
+}
+
 HatoholMessageBox.prototype.destroy = function() {
   $(this.msgDivId).dialog("destroy");
   $(this.msgDivId).remove();
