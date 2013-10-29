@@ -78,6 +78,11 @@ DataQueryOption::SortOrder DataQueryOption::getSortOrder(void) const
 	return m_ctx->sortOrder;
 }
 
+void DataQueryOption::setStartId(uint64_t id)
+{
+	m_ctx->startId = id;
+}
+
 uint64_t DataQueryOption::getStartId(void) const
 {
 	return m_ctx->startId;

@@ -69,6 +69,13 @@ public:
 	SortOrder getSortOrder(void) const;
 
 	/**
+	 * Set a start ID.
+	 *
+	 * @param id A start ID.
+	 */
+	void setStartId(uint64_t id);
+
+	/**
 	 * Get the start ID.
 	 *
 	 * @return A start ID.

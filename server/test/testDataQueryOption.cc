@@ -100,6 +100,14 @@ void test_getDefaultSortOrder(void)
 	                    option.getSortOrder());
 }
 
+void test_setGetStartId(void)
+{
+	uint64_t startId = 8;
+	DataQueryOption option;
+	option.setStartId(startId);
+	cppcut_assert_equal(startId, option.getStartId());
+}
+
 void test_getDefaultStartId(void)
 {
 	DataQueryOption option;
