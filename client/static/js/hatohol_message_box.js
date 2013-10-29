@@ -179,6 +179,13 @@ function hatoholErrorMsgBox(msg) {
   new HatoholMessageBox(msg, param);
 };
 
+function hatoholNoYesMsgBox(msg, yesCallback) {
+  var buttons = HatoholMessageBox.prototype.getBuiltinNoYesButtons();
+  buttons[1].click = deleteActions;
+  var param = {title: gettext("Question"), buttons: buttons};
+  new HatoholMessageBox(msg, param);
+};
+
 function hatoholMsgBoxForParser(reply, parser, title) {
   var msg = gettext("Failed to parse the result. status code: ");
   msg += parser.getStatus();
