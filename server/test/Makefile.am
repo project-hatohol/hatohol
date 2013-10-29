@@ -70,7 +70,8 @@ libTest_la_SOURCES = \
 libTest_la_LDFLAGS =
 
 ActionTp_SOURCES = ActionTp.cc ActionTp.h
-ActionTp_LDFLAGS = $(LIBS) -lTest
+ActionTp_LDFLAGS = $(LIBS)
+ActionTp_LDADD = libTest.la
 
 zabbix_api_response_collector_SOURCES = zabbix-api-response-collector.cc
 zabbix_api_response_collector_LDFLAGS = -lstdc++
