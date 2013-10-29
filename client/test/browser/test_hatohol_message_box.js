@@ -136,10 +136,7 @@ describe('HatoholMessageBox', function() {
 
   it('get builtin NO/YES buttons', function() {
     var buttons = HatoholMessageBox.prototype.getBuiltinNoYesButtons();
-    expect(buttons).to.be.an('array'); 
-    expect(buttons).to.have.length(2);
-    expect(buttons[0].text).to.be(gettext("NO"));
-    expect(buttons[1].text).to.be(gettext("YES"));
+    checkNoYesButton(buttons);
   });
 
   it('confirm builtin NO/YES buttons are deeply copied', function() {
