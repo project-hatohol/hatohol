@@ -101,4 +101,29 @@ describe('HatoholMessageBox', function() {
     });
     msgbox = new HatoholMessageBox(msg, param);
   });
+
+  it('specify buttons', function(done) {
+    var msg = "Test message.";
+    var buttons = [{
+      text: "Fish and chips", click: function(){}
+    }, {
+      text: "Easy come, easy go.", click: function(){}
+    }, {
+      text: "All is fair in love and war.", click: function(){}
+    }];
+    var param = {buttons: buttons};
+    var expectButtonLabels = [];
+    for (var i = 0; i < buttons.length; i++)
+      expectButtonLabels.push(buttons[i].text);
+    HatoholDialogObserver.registerCreatedCallback(function(id, obj) {
+      checkResult(id, obj, {
+        msg: msg,
+        titleVisible: false,
+        titleString: obj.getDefaultTitleString(),
+        buttonLabels: expectButtonLabels,
+      });
+      done();
+    });
+    msgbox = new HatoholMessageBox(msg, param);
+  });
 });
