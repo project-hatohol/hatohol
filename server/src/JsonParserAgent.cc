@@ -164,6 +164,12 @@ int JsonParserAgent::countElements(void)
 	return json_reader_count_elements(m_reader);
 }
 
+void JsonParserAgent::getMemberName(void)
+{
+	const gchar *memberName = json_reader_get_member_name(m_reader);
+	g_print("MemberName: %s\n", memberName);
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
