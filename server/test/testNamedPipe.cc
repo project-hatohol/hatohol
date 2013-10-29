@@ -26,6 +26,8 @@
 using namespace std;
 using namespace mlpl;
 
+#include "Helpers.h"
+
 namespace testNamedPipe {
 
 static const gint INVALID_RESOURCE_ID = -1;
@@ -286,12 +288,18 @@ static void timeoutTestCb(NamedPipe *namedPipe, void *data)
 	g_main_loop_quit(ctx->loop);
 }
 
+void cut_setup(void)
+{
+	acquireDefaultContext();
+}
+
 void cut_teardown(void)
 {
 	if (g_testPushCtx) {
 		delete g_testPushCtx;
 		g_testPushCtx = NULL;
 	}
+	releaseDefaultContext();
 }
 
 // ---------------------------------------------------------------------------
