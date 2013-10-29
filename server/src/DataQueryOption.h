@@ -68,7 +68,7 @@ public:
 	 */
 	SortOrder getSortOrder(void) const;
 
-	**
+	/**
 	 * Get a string for 'where section' of an SQL statement.
 	 *
 	 * @return a string for 'where' in an SQL statment.
