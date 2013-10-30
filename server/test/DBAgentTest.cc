@@ -20,8 +20,6 @@
 #include "DBAgentTest.h"
 #include "SQLUtils.h"
 #include "Helpers.h"
-// TODO: remove the implementation dependet code
-#include "DBAgentMySQL.h"
 
 class TestDBAgent : public DBAgent {
 public:
@@ -534,15 +532,14 @@ static void createTestTableAutoInc(DBAgent &dbAgent, DBAgentChecker &checker)
 }
 
 static void insertRowToTestTableAutoInc(DBAgent &dbAgent,
-                                        DBAgentChecker &checker, int val,
-                                        int id = 0)
+                                        DBAgentChecker &checker, int val)
 {
 	DBAgentInsertArg arg;
 	arg.tableName = TABLE_NAME_TEST_AUTO_INC;
 	arg.numColumns = NUM_COLUMNS_TEST_AUTO_INC;
 	arg.columnDefs = COLUMN_DEF_TEST_AUTO_INC;
 	VariableItemGroupPtr row;
-	row->ADD_NEW_ITEM(Int, id);
+	row->ADD_NEW_ITEM(Int, 0, ITEM_DATA_NULL);
 	row->ADD_NEW_ITEM(Int, val);
 	arg.row = row;
 	dbAgent.insert(arg);
@@ -668,10 +665,7 @@ void dbAgentGetLastInsertId(DBAgent &dbAgent, DBAgentChecker &checker)
 	static const size_t NUM_REPEAT = 3;
 	for (uint64_t id = 1; id < NUM_REPEAT; id++) {
 		int val = id * 3;
-		int insertId = id;
-		if (typeid(dbAgent) == typeid(DBAgentMySQL))
-			insertId = 0;
-		insertRowToTestTableAutoInc(dbAgent, checker, val, insertId);
+		insertRowToTestTableAutoInc(dbAgent, checker, val);
 		cppcut_assert_equal(id, dbAgent.getLastInsertId());
 	}
 }
