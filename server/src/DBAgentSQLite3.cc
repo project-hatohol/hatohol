@@ -413,6 +413,8 @@ void DBAgentSQLite3::createTable(sqlite3 *db,
 		switch (columnDef.keyType) {
 		case SQL_KEY_PRI:
 			sql += "PRIMARY KEY";
+			if (columnDef.flags & SQL_COLUMN_FLAG_AUTO_INC)
+				sql += " AUTOINCREMENT";
 			break;
 		case SQL_KEY_MUL:
 			multipleKeyColumnIndexVector.push_back(i);

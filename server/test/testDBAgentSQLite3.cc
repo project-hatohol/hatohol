@@ -50,8 +50,9 @@ public:
 		// check table definition
 		//
 		cmd = StringUtils::sprintf(
-		  "sqlite3 %s \"select * from sqlite_master\"",
-		  g_dbPath.c_str());
+		  "sqlite3 %s \"select * from sqlite_master "
+		  "where tbl_name='%s'\"",
+		  g_dbPath.c_str(), arg.tableName.c_str());
 		output = executeCommand(cmd);
 		StringVector outVec;
 		StringUtils::split(outVec, output, '|');
@@ -103,8 +104,11 @@ public:
 			}
 
 			// key 
-			if (columnDef.keyType == SQL_KEY_PRI)
+			if (columnDef.keyType == SQL_KEY_PRI) {
 				expected += "PRIMARY KEY";
+				if (columnDef.flags & SQL_COLUMN_FLAG_AUTO_INC)
+					expected += " AUTOINCREMENT";
+			}
 
 			if (i < arg.numColumns - 1)
 				expected += ",";
@@ -335,14 +339,14 @@ void test_isTableExisting(void)
 
 void test_autoIncrement(void)
 {
-	// TODO: implementation of DBAgentSQLite3
-	cut_omit("Not implemented yet");
+	DBAgentSQLite3 dbAgent;
+	dbAgentTestAutoIncrement(dbAgent, dbAgentChecker);
 }
 
 void test_autoIncrementWithDel(void)
 {
-	// TODO: implementation of DBAgentSQLite3
-	cut_omit("Not implemented yet");
+	DBAgentSQLite3 dbAgent;
+	dbAgentTestAutoIncrementWithDel(dbAgent, dbAgentChecker);
 }
 
 void test_updateIfExistElseInsert(void)
