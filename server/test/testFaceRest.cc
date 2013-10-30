@@ -140,7 +140,9 @@ static JsonParserAgent *getResponseAsJsonParser(
 	if (!callbackName.empty()) {
 		size_t lenCallbackName = callbackName.size();
 		size_t minimumLen = lenCallbackName + 2; // +2 for ''(' and ')'
-		cppcut_assert_equal(true, response.size() > minimumLen);
+		cppcut_assert_equal(true, response.size() > minimumLen,
+		  cut_message("length: %zd, minmumLen: %zd\n%s",
+		              response.size(), minimumLen, response.c_str()));
 
 		cut_assert_equal_substring(
 		  callbackName.c_str(), response.c_str(), lenCallbackName);
