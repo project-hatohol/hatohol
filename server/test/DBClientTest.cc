@@ -112,6 +112,7 @@ size_t NumTestTriggerInfo = sizeof(testTriggerInfo) / sizeof(TriggerInfo);
 
 EventInfo testEventInfo[] = {
 {
+	0,                        // unifiedId (automatically set by DBMS)
 	3,                        // serverId
 	1,                        // id
 	{1362957200,0},           // time
@@ -123,6 +124,7 @@ EventInfo testEventInfo[] = {
 	"hostZ1",                 // hostName,
 	"TEST Trigger 2",         // brief,
 }, {
+	0,                        // unifiedId (automatically set by DBMS)
 	3,                        // serverId
 	2,                        // id
 	{1362951000,0},           // time
@@ -134,6 +136,7 @@ EventInfo testEventInfo[] = {
 	"hostZ2",                 // hostName,
 	"TEST Trigger 3",         // brief,
 }, {
+	0,                        // unifiedId (automatically set by DBMS)
 	1,                        // serverId
 	1,                        // id
 	{1362951000,0},           // time

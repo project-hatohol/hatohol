@@ -84,6 +84,10 @@ enum EventType {
 };
 
 struct EventInfo {
+	// 'unifiedId' is the unique ID in the event table of Hatohol cache DB.
+	// 'id' is the unique in a 'serverId'. It is typically the same as
+	// the event ID of a monitroing system such as ZABBIX and Nagios.
+	uint64_t            unifiedId;
 	uint32_t            serverId;
 	uint64_t            id;
 	timespec            time;

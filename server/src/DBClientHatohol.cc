@@ -34,7 +34,7 @@ static const char *TABLE_NAME_EVENTS   = "events";
 static const char *TABLE_NAME_ITEMS    = "items";
 
 uint64_t DBClientHatohol::EVENT_NOT_FOUND = -1;
-int DBClientHatohol::HATOHOL_DB_VERSION = 3;
+int DBClientHatohol::HATOHOL_DB_VERSION = 4;
 
 // Currently DBClientHatohol uses DBAgentSQLite3. In that case,
 // DEFAULT_DB_NAME passed to addDefaultDBInfo() is ignored in it.
@@ -164,6 +164,17 @@ static const ColumnDef COLUMN_DEF_EVENTS[] = {
 {
 	ITEM_ID_NOT_SET,                   // itemId
 	TABLE_NAME_EVENTS,                 // tableName
+	"unified_id",                      // columnName
+	SQL_COLUMN_TYPE_BIGUINT,           // type
+	20,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_PRI,                       // keyType
+	SQL_COLUMN_FLAG_AUTO_INC,          // flags
+	NULL,                              // defaultValue
+}, {
+	ITEM_ID_NOT_SET,                   // itemId
+	TABLE_NAME_EVENTS,                 // tableName
 	"server_id",                       // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -289,6 +300,7 @@ static const size_t NUM_COLUMNS_EVENTS =
   sizeof(COLUMN_DEF_EVENTS) / sizeof(ColumnDef);
 
 enum {
+	IDX_EVENTS_UNIFIED_ID,
 	IDX_EVENTS_SERVER_ID,
 	IDX_EVENTS_ID,
 	IDX_EVENTS_TIME_SEC,
@@ -785,6 +797,8 @@ void DBClientHatohol::addEventInfoList(const EventInfoList &eventInfoList)
 void DBClientHatohol::getEventInfoList(EventInfoList &eventInfoList,
                                        EventQueryOption &option)
 {
+	const ColumnDef &eventsUnifiedId =
+	  COLUMN_DEF_EVENTS[IDX_EVENTS_UNIFIED_ID];
 	const ColumnDef &eventsServerId =
 	  COLUMN_DEF_EVENTS[IDX_EVENTS_SERVER_ID];
 	const ColumnDef &eventsId =
@@ -826,6 +840,7 @@ void DBClientHatohol::getEventInfoList(EventInfoList &eventInfoList,
 	  VAR_TRIGGERS, triggersTriggerId.columnName);
 
 	// Columns
+	arg.pushColumn(eventsUnifiedId,  VAR_EVENTS);
 	arg.pushColumn(eventsServerId,   VAR_EVENTS);
 	arg.pushColumn(eventsId,         VAR_EVENTS);
 	arg.pushColumn(eventsTimeSec,    VAR_EVENTS);
@@ -866,6 +881,7 @@ void DBClientHatohol::getEventInfoList(EventInfoList &eventInfoList,
 		eventInfoList.push_back(EventInfo());
 		EventInfo &eventInfo = eventInfoList.back();
 
+		eventInfo.unifiedId  = GET_UINT64_FROM_GRP(itemGroup, idx++);
 		eventInfo.serverId   = GET_INT_FROM_GRP(itemGroup, idx++);
 		eventInfo.id         = GET_UINT64_FROM_GRP(itemGroup, idx++);
 		eventInfo.time.tv_sec  = GET_INT_FROM_GRP(itemGroup, idx++);
@@ -1169,6 +1185,7 @@ void DBClientHatohol::addEventInfoBare(const EventInfo &eventInfo)
 		arg.tableName = TABLE_NAME_EVENTS;
 		arg.numColumns = NUM_COLUMNS_EVENTS;
 		arg.columnDefs = COLUMN_DEF_EVENTS;
+		row->ADD_NEW_ITEM(Uint64, 0, ITEM_DATA_NULL),
 		row->ADD_NEW_ITEM(Int, eventInfo.serverId),
 		row->ADD_NEW_ITEM(Uint64, eventInfo.id);
 		row->ADD_NEW_ITEM(Int, eventInfo.time.tv_sec); 
