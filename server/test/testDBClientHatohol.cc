@@ -136,6 +136,7 @@ static string makeEventOutput(EventInfo &eventInfo)
 }
 
 struct AssertGetEventsArg {
+	EventInfoList eventInfoList;
 	EventQueryOption option;
 
 	virtual void fixupOption(void)
@@ -147,24 +148,27 @@ struct AssertGetEventsArg {
 	{
 		fixupOption();
 	}
+
+	virtual void assert(void)
+	{
+		cppcut_assert_equal(NumTestEventInfo, eventInfoList.size());
+		string expectedText;
+		string actualText;
+		EventInfoListIterator it = eventInfoList.begin();
+		for (size_t i = 0; i < NumTestEventInfo; i++, ++it) {
+			expectedText += makeEventOutput(testEventInfo[i]);
+			actualText += makeEventOutput(*it);
+		}
+		cppcut_assert_equal(expectedText, actualText);
+	}
 };
 
 static void _assertGetEvents(AssertGetEventsArg &arg)
 {
-	EventInfoList eventInfoList;
 	DBClientHatohol dbHatohol;
 	arg.fixup();
-	dbHatohol.getEventInfoList(eventInfoList, arg.option);
-	cppcut_assert_equal(NumTestEventInfo, eventInfoList.size());
-
-	string expectedText;
-	string actualText;
-	EventInfoListIterator it = eventInfoList.begin();
-	for (size_t i = 0; i < NumTestEventInfo; i++, ++it) {
-		expectedText += makeEventOutput(testEventInfo[i]);
-		actualText += makeEventOutput(*it);
-	}
-	cppcut_assert_equal(expectedText, actualText);
+	dbHatohol.getEventInfoList(arg.eventInfoList, arg.option);
+	arg.assert();
 }
 #define assertGetEvents(A) cut_trace(_assertGetEvents(A))
 
@@ -691,6 +695,31 @@ void test_getEventSortAscending(void)
 
 	AssertGetEventsArg arg;
 	arg.option.setSortOrder(DataQueryOption::SORT_ASCENDING);
+	assertGetEvents(arg);
+}
+
+void test_getEventSortDescending(void)
+{
+	struct TestArg : public AssertGetEventsArg {
+		virtual void assert(void)
+		{
+			cppcut_assert_equal(NumTestEventInfo,
+			                    eventInfoList.size());
+			string expect, actual;
+			EventInfoListIterator it = eventInfoList.begin();
+			size_t i = NumTestEventInfo - 1;
+			for (; it != eventInfoList.end(); i--, ++it) {
+				expect += makeEventOutput(testEventInfo[i]);
+				actual += makeEventOutput(*it);
+			}
+			cppcut_assert_equal(expect, actual);
+		}
+	} arg;
+
+	// setup event data
+	test_addEventInfoList();
+
+	arg.option.setSortOrder(DataQueryOption::SORT_DESCENDING);
 	assertGetEvents(arg);
 }
 
