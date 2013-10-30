@@ -22,7 +22,6 @@
 #include "FaceRest.h"
 #include "Helpers.h"
 #include "JsonParserAgent.h"
-#include "DBAgentSQLite3.h"
 #include "DBClientTest.h"
 #include "Params.h"
 #include "MultiLangTest.h"
@@ -55,8 +54,7 @@ static void startFaceRest(void)
 	string dbPathHatohol  = getFixturesDir() + TEST_DB_HATOHOL_NAME;
 	setupTestDBServers();
 
-	// TODO: remove the direct call of DBAgentSQLite3's API.
-	DBAgentSQLite3::defineDBPath(DB_DOMAIN_ID_HATOHOL, dbPathHatohol);
+	defineDBPath(DB_DOMAIN_ID_HATOHOL, dbPathHatohol);
 
 	CommandLineArg arg;
 	arg.push_back("--face-rest-port");

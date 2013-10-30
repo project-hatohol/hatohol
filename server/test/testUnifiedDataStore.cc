@@ -23,7 +23,6 @@
 
 #include "Hatohol.h"
 #include "Params.h"
-#include "DBAgentSQLite3.h"
 #include "UnifiedDataStore.h"
 #include "DBClientTest.h"
 #include "LabelUtils.h"
@@ -122,7 +121,7 @@ void cut_setup(void)
 	                                     "fixtures",
 	                                     "testDatabase-hatohol.db",
 	                                     NULL);
- 	DBAgentSQLite3::defineDBPath(DB_DOMAIN_ID_HATOHOL, dbPath);
+ 	defineDBPath(DB_DOMAIN_ID_HATOHOL, dbPath);
 }
 
 // ---------------------------------------------------------------------------
