@@ -135,13 +135,26 @@ static string makeEventOutput(EventInfo &eventInfo)
 	return output;
 }
 
-static void _assertGetEvents(void)
+struct AssertGetEventsArg {
+	EventQueryOption option;
+
+	virtual void fixupOption(void)
+	{
+		option.setUserId(USER_ID_ADMIN);
+	}
+
+	void fixup(void)
+	{
+		fixupOption();
+	}
+};
+
+static void _assertGetEvents(AssertGetEventsArg &arg)
 {
 	EventInfoList eventInfoList;
 	DBClientHatohol dbHatohol;
-	EventQueryOption option;
-	option.setUserId(USER_ID_ADMIN);
-	dbHatohol.getEventInfoList(eventInfoList, option);
+	arg.fixup();
+	dbHatohol.getEventInfoList(eventInfoList, arg.option);
 	cppcut_assert_equal(NumTestEventInfo, eventInfoList.size());
 
 	string expectedText;
@@ -153,7 +166,7 @@ static void _assertGetEvents(void)
 	}
 	cppcut_assert_equal(expectedText, actualText);
 }
-#define assertGetEvents() cut_trace(_assertGetEvents())
+#define assertGetEvents(A) cut_trace(_assertGetEvents(A))
 
 static string makeExpectedItemOutput(ItemInfo *itemInfo)
 {
@@ -475,7 +488,8 @@ void test_addEventInfoList(void)
 		eventInfoList.push_back(testEventInfo[i]);
 	dbHatohol.addEventInfoList(eventInfoList);
 
-	assertGetEvents();
+	AssertGetEventsArg arg;
+	assertGetEvents(arg);
 }
 
 void test_getLastEventId(void)
@@ -675,24 +689,9 @@ void test_getEventSortAscending(void)
 	// setup event data
 	test_addEventInfoList();
 
-	CacheServiceDBClient cache;
-	DBClientHatohol *dbHatohol = cache.getHatohol();
-	
-	EventQueryOption option;
-	option.setSortOrder(DataQueryOption::SORT_ASCENDING);
-	option.setUserId(USER_ID_ADMIN);
-
-	EventInfoList eventInfoList;
-	dbHatohol->getEventInfoList(eventInfoList, option);
-	EventInfoListIterator it = eventInfoList.begin();
-
-	string expectedText;
-	string actualText;
-	for (size_t i = 0; i < NumTestEventInfo; i++, ++it) {
-		expectedText += makeEventOutput(testEventInfo[i]);
-		actualText += makeEventOutput(*it);
-	}
-	cppcut_assert_equal(expectedText, actualText);
+	AssertGetEventsArg arg;
+	arg.option.setSortOrder(DataQueryOption::SORT_ASCENDING);
+	assertGetEvents(arg);
 }
 
 } // namespace testDBClientHatohol
