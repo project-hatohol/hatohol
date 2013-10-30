@@ -51,6 +51,8 @@ DataQueryOption::DataQueryOption(void)
 
 DataQueryOption::~DataQueryOption()
 {
+	if (m_ctx)
+		delete m_ctx;
 }
 
 string DataQueryOption::getCondition(void) const
