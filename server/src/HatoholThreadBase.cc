@@ -110,6 +110,7 @@ void HatoholThreadBase::start(bool autoDeleteObject)
 	if (m_ctx->thread == NULL) {
 		MLPL_ERR("Failed to call g_thread_try_new: %s\n",
 		         error->message);
+		g_error_free(error);
 	}
 }
 
