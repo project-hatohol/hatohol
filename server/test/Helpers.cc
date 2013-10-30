@@ -652,3 +652,10 @@ void releaseDefaultContext(void)
 		g_acquiredContext = NULL;
 	}
 }
+
+void defineDBPath(DBDomainId domainId, const string &dbPath)
+{
+	if (domainId != DB_DOMAIN_ID_HATOHOL)
+		cut_fail("Cannot set a domain ID for %d\n", domainId);
+	DBAgentSQLite3::defineDBPath(DB_DOMAIN_ID_HATOHOL, dbPath);
+}

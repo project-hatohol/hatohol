@@ -153,4 +153,6 @@ void _acquireDefaultContext(void);
 #define acquireDefaultContext() cut_trace(_acquireDefaultContext())
 void releaseDefaultContext(void);
 
+void defineDBPath(DBDomainId domainId, const string &dbPath);
+
 #endif // Helpers_h
