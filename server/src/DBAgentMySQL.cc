@@ -276,7 +276,7 @@ void DBAgentMySQL::insert(DBAgentInsertArg &insertArg)
 			query += "'";
 			query += escaped,
 			query += "'";
-			delete escaped;
+			delete [] escaped;
 			break;
 		}
 		case SQL_COLUMN_TYPE_DATETIME:
