@@ -37,8 +37,14 @@ struct SessionInfo {
 	SessionInfo(void);
 };
 
+struct FaceRestParam {
+	void (*setupDoneNotifyFunc)(void *);
+	void *setupDoneNotifyPriv;
+};
+
 class FaceRest : public FaceBase {
 public:
+
 	static int API_VERSION;
 	static const char *SESSION_ID_HEADER_NAME;
 

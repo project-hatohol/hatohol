@@ -279,6 +279,14 @@ gpointer FaceRest::mainThread(HatoholThreadArg *arg)
 	soup_server_add_handler(m_soupServer, pathForUser,
 	                        launchHandlerInTryBlock,
 	                        (gpointer)handlerUser, NULL);
+	if (arg->userData) {
+		FaceRestParam *param =
+		   static_cast<FaceRestParam *>(arg->userData);
+		if (param->setupDoneNotifyFunc) {
+			void *priv = param->setupDoneNotifyPriv;
+			(*param->setupDoneNotifyFunc)(priv);
+		}
+	}
 	soup_server_run(m_soupServer);
 	g_main_context_unref(gMainCtx);
 	MLPL_INFO("exited face-rest\n");
