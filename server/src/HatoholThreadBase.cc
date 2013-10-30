@@ -95,10 +95,11 @@ HatoholThreadBase::~HatoholThreadBase()
 		delete m_ctx;
 }
 
-void HatoholThreadBase::start(bool autoDeleteObject)
+void HatoholThreadBase::start(bool autoDeleteObject, void *userData)
 {
 	HatoholThreadArg *arg = new HatoholThreadArg();
 	arg->obj = this;
+	arg->userData = userData;
 	arg->autoDeleteObject = autoDeleteObject;
 	GError *error = NULL;
 	m_ctx->thread =

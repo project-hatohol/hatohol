@@ -29,6 +29,7 @@ class HatoholThreadBase;
 struct HatoholThreadArg {
 	HatoholThreadBase *obj;
 	bool autoDeleteObject;
+	void *userData;
 };
 
 class HatoholThreadBase {
@@ -53,7 +54,7 @@ private:
 public:
 	HatoholThreadBase(void);
 	virtual ~HatoholThreadBase();
-	void start(bool autoDeleteObject = false);
+	void start(bool autoDeleteObject = false, void *userData = NULL);
 	void addExceptionCallback(ExceptionCallbackFunc func, void *data);
 	void addExitCallback(ExitCallbackFunc func, void *data);
 
