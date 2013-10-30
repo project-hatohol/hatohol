@@ -478,10 +478,19 @@ void DBAgentSQLite3::insert(sqlite3 *db, DBAgentInsertArg &insertArg)
 			sql += ",";
 		const ColumnDef &columnDef = insertArg.columnDefs[i];
 		const ItemData *itemData = insertArg.row->getItemAt(i);
-		if (itemData->isNull())
-			sql += "NULL";
-		else
-			sql += getColumnValueString(&columnDef, itemData);
+		string valueStr;
+		if (itemData->isNull()) {
+			valueStr = "NULL";
+		} else {
+			valueStr = getColumnValueString(&columnDef, itemData);
+			if (columnDef.flags & SQL_COLUMN_FLAG_AUTO_INC) {
+				// Converting 0 to NULL makes the behavior
+				// compatible with DBAgentMySQL.
+				if (valueStr == "0")
+					valueStr = "NULL";
+			}
+		}
+		sql += valueStr;
 	}
 	sql += ")";
 
