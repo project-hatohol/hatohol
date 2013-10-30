@@ -64,15 +64,15 @@ public:
 		cppcut_assert_equal(expected, outVec[idx++]);
 
 		// name and table name
-		cppcut_assert_equal(string(TABLE_NAME_TEST), outVec[idx++]);
-		cppcut_assert_equal(string(TABLE_NAME_TEST), outVec[idx++]);
+		cppcut_assert_equal(arg.tableName, outVec[idx++]);
+		cppcut_assert_equal(arg.tableName, outVec[idx++]);
 
 		// rootpage (we ignore it)
 		idx++;
 
 		// table schema
 		expected = StringUtils::sprintf("CREATE TABLE %s(",
-		                                TABLE_NAME_TEST);
+		                                arg.tableName.c_str());
 		for (size_t i = 0; i < arg.numColumns; i++) {
 			const ColumnDef &columnDef = arg.columnDefs[i];
 
