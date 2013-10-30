@@ -868,6 +868,25 @@ void DBClientHatohol::getEventInfoList(EventInfoList &eventInfoList,
 		arg.condition += optCond;
 	}
 
+	// Order By
+	DataQueryOption::SortOrder sortOrder = option.getSortOrder();
+	if (sortOrder != DataQueryOption::SORT_DONT_CARE) {
+		arg.orderBy +=
+		  COLUMN_DEF_EVENTS[IDX_EVENTS_UNIFIED_ID].columnName;
+		if (sortOrder == DataQueryOption::SORT_ASCENDING) {
+			arg.orderBy += " ASC";
+		} else if (sortOrder == DataQueryOption::SORT_DESCENDING) {
+			arg.orderBy += " DESC";
+		} else {
+			HATOHOL_ASSERT(false, "Unknown sort order: %d\n",
+			               sortOrder);
+		}
+	}
+
+	// Limit and Offset
+	arg.limit = option.getMaximumNumber();
+	arg.offset = option.getStartId();
+
 	DBCLIENT_TRANSACTION_BEGIN() {
 		select(arg);
 	} DBCLIENT_TRANSACTION_END();

@@ -25,6 +25,7 @@
 #include "Helpers.h"
 #include "DBClientTest.h"
 #include "Params.h"
+#include "CacheServiceDBClient.h"
 
 namespace testDBClientHatohol {
 
@@ -667,6 +668,31 @@ void test_makeSelectCondition(void)
 		string expect = makeExpectedConditionForUser(userId);
 		cppcut_assert_equal(expect, actual);
 	}
+}
+
+void test_getEventSortAscending(void)
+{
+	// setup event data
+	test_addEventInfoList();
+
+	CacheServiceDBClient cache;
+	DBClientHatohol *dbHatohol = cache.getHatohol();
+	
+	EventQueryOption option;
+	option.setSortOrder(DataQueryOption::SORT_ASCENDING);
+	option.setUserId(USER_ID_ADMIN);
+
+	EventInfoList eventInfoList;
+	dbHatohol->getEventInfoList(eventInfoList, option);
+	EventInfoListIterator it = eventInfoList.begin();
+
+	string expectedText;
+	string actualText;
+	for (size_t i = 0; i < NumTestEventInfo; i++, ++it) {
+		expectedText += makeEventOutput(testEventInfo[i]);
+		actualText += makeEventOutput(*it);
+	}
+	cppcut_assert_equal(expectedText, actualText);
 }
 
 } // namespace testDBClientHatohol
