@@ -115,7 +115,7 @@ struct SpawnSyncContext {
 		gsize bufSize = 0x1000;
 		gchar buf[bufSize];
 		GIOStatus stat =
-		  g_io_channel_read_chars(source, buf, bufSize, &bytesRead,
+		  g_io_channel_read_chars(source, buf, bufSize-1, &bytesRead,
 		                          &error);
 		if (stat != G_IO_STATUS_NORMAL) {
 			MLPL_ERR("Failed to call g_io_channel_read_chars: %s\n",
@@ -126,7 +126,8 @@ struct SpawnSyncContext {
 			obj->dataCbId = INVALID_EVENT_ID;
 			return FALSE;
 		}
-		obj->msg += string(buf, 0, bytesRead);
+		buf[bytesRead] = '\0';
+		obj->msg += buf;
 		return TRUE;
 	}
 
