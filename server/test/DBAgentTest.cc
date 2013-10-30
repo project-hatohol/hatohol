@@ -658,6 +658,20 @@ void dbAgentUpdateIfExistEleseInsert(DBAgent &dbAgent, DBAgentChecker &checker)
 	assertDBContent(&dbAgent, statement, expectLines);
 }
 
+void dbAgentGetLastInsertId(DBAgent &dbAgent, DBAgentChecker &checker)
+{
+	// create table
+	dbAgentTestCreateTable(dbAgent, checker);
+	static const size_t NUM_REPEAT = 3;
+	for (uint64_t id = 1; id < NUM_REPEAT; id++) {
+		const int AGE = 14 * id;
+		const char *NAME = "rei";
+		const double HEIGHT = 158.2 * id;
+		checkInsert(dbAgent, checker, id, AGE, NAME, HEIGHT);
+		cppcut_assert_equal(id, dbAgent.getLastInsertId());
+	}
+}
+
 // --------------------------------------------------------------------------
 // DBAgentChecker
 // --------------------------------------------------------------------------

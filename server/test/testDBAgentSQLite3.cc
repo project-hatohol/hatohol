@@ -351,5 +351,11 @@ void test_updateIfExistElseInsert(void)
 	dbAgentUpdateIfExistEleseInsert(dbAgent, dbAgentChecker);
 }
 
+void test_getLastInsertId(void)
+{
+	DBAgentSQLite3 dbAgent;
+	dbAgentGetLastInsertId(dbAgent, dbAgentChecker);
+}
+
 } // testDBAgentSQLite3
 

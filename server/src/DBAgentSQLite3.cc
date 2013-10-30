@@ -619,8 +619,7 @@ void DBAgentSQLite3::selectGetValuesIteration(DBAgentSelectArg &selectArg,
 
 uint64_t DBAgentSQLite3::getLastInsertId(sqlite3 *db)
 {
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
-	return 0;
+	return sqlite3_last_insert_rowid(db);
 }
 
 ItemDataPtr DBAgentSQLite3::getValue(sqlite3_stmt *stmt,
