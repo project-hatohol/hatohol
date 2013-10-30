@@ -44,7 +44,7 @@ public:
 		string cmd = StringUtils::sprintf("sqlite3 %s \".table\"",
 		                                  g_dbPath.c_str());
 		string output = executeCommand(cmd);
-		assertExist(TABLE_NAME_TEST, output);
+		assertExist(arg.tableName, output);
 
 		//
 		// check table definition
