@@ -127,6 +127,8 @@ void test_isStarted(void)
 	threadTestee.start();
 	cppcut_assert_equal(true, threadTestee.isStarted());
 	priv.mutex.unlock();
+	threadTestee.stop();
+	cppcut_assert_equal(false, threadTestee.isStarted());
 }
 
 } // namespace testHatoholThreadBase
