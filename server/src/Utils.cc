@@ -299,10 +299,7 @@ void Utils::executeOnGLibEventLoop(
 	if (syncType == SYNC)
 		task->mutex.lock();
 
-	GSource *source = g_idle_source_new();
-	g_source_set_callback(source, IdleTask::callbackGate, task, NULL);
-	g_source_attach(source, context);
-	g_source_unref(source);
+	setGLibIdleEvent(IdleTask::callbackGate, task, context);
 
 	// wait for the completion
 	if (syncType == SYNC) {
