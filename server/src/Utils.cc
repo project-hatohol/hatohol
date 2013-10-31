@@ -243,6 +243,19 @@ string Utils::getStringFromGIOCondition(GIOCondition condition)
 	return str;
 }
 
+guint Utils::setGLibIdleEvent(GSourceFunc func, gpointer data,
+                              GMainContext *context)
+{
+	if (!context)
+		context = g_main_context_default();
+	GSource *source = g_idle_source_new();
+	g_source_set_callback(source, func, data, NULL);
+	guint id = g_source_attach(source, context);
+	g_source_unref(source);
+	return id;
+}
+
+
 void Utils::executeOnGLibEventLoop(
   void (*func)(gpointer), gpointer data, SyncType syncType,
   GMainContext *context)

@@ -58,6 +58,9 @@ public:
 	static string getSelfExeDir(void);
 	static string getStringFromGIOCondition(GIOCondition condition);
 
+	static guint setGLibIdleEvent(GSourceFunc func, gpointer data = NULL,
+	                              GMainContext *context = NULL);
+
 	/**
 	 * execute a function on the specified GLIB event loop.
 	 *

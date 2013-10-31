@@ -258,10 +258,7 @@ void FaceRest::stop(void)
 				return G_SOURCE_REMOVE;
 			}
 		};
-		GSource *source = g_idle_source_new();
-		g_source_set_callback(source, IterAlarm::task, NULL, NULL);
-		g_source_attach(source, m_ctx->gMainCtx);
-		g_source_unref(source);
+		Utils::setGLibIdleEvent(IterAlarm::task, NULL, m_ctx->gMainCtx);
 	}
 
 	HatoholThreadBase::stop();
