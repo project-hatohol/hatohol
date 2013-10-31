@@ -111,6 +111,24 @@ void test_isStartedInitial(void)
 	cppcut_assert_equal(false, threadTestee.isStarted());
 }
 
+void test_isStarted(void)
+{
+	struct Priv {
+		MutexLock mutex;
+		static gpointer func(void *data) {
+			Priv *obj = static_cast<Priv *>(data);
+			obj->mutex.lock();
+			return NULL;
+		}
+	} priv;
+	HatoholThreadTestImpl threadTestee;
+	threadTestee.setTestFunc(priv.func, &priv);
+	priv.mutex.lock();
+	threadTestee.start();
+	cppcut_assert_equal(true, threadTestee.isStarted());
+	priv.mutex.unlock();
+}
+
 } // namespace testHatoholThreadBase
 
 
