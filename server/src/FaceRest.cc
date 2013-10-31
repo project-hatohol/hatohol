@@ -125,6 +125,12 @@ struct FaceRest::PrivateContext {
 	static bool         testMode;
 	static MutexLock    lock;
 	static SessionIdMap sessionIdMap;
+	FaceRestParam      *param;
+
+	PrivateContext(FaceRestParam *_param)
+	: param(_param)
+	{
+	}
 
 	static void insertSessionId(const string &sessionId, UserIdType userId)
 	{
@@ -193,10 +199,13 @@ bool FaceRest::isTestMode(void)
 	return PrivateContext::testMode;
 }
 
-FaceRest::FaceRest(CommandLineArg &cmdArg)
-: m_port(DEFAULT_PORT),
+FaceRest::FaceRest(CommandLineArg &cmdArg, FaceRestParam *param)
+: m_ctx(NULL),
+  m_port(DEFAULT_PORT),
   m_soupServer(NULL)
 {
+	m_ctx = new PrivateContext(param);
+
 	DBClientConfig dbConfig;
 	int port = dbConfig.getFaceRestPort();
 	if (port != 0 && Utils::isValidPort(port))
@@ -222,6 +231,9 @@ FaceRest::~FaceRest()
 		g_object_unref(m_soupServer);
 	}
 	MLPL_INFO("FaceRest: stop process: completed.\n");
+
+	if (m_ctx)
+		delete m_ctx;
 }
 
 void FaceRest::stop(void)
@@ -279,14 +291,8 @@ gpointer FaceRest::mainThread(HatoholThreadArg *arg)
 	soup_server_add_handler(m_soupServer, pathForUser,
 	                        launchHandlerInTryBlock,
 	                        (gpointer)handlerUser, NULL);
-	if (arg->userData) {
-		FaceRestParam *param =
-		   static_cast<FaceRestParam *>(arg->userData);
-		if (param->setupDoneNotifyFunc) {
-			void *priv = param->setupDoneNotifyPriv;
-			(*param->setupDoneNotifyFunc)(priv);
-		}
-	}
+	if (m_ctx->param)
+		m_ctx->param->setupDoneNotifyFunc();
 	soup_server_run(m_soupServer);
 	g_main_context_unref(gMainCtx);
 	MLPL_INFO("exited face-rest\n");

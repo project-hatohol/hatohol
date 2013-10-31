@@ -18,6 +18,7 @@
  */
 
 #include <cppcutter.h>
+#include <MutexLock.h>
 #include "Hatohol.h"
 #include "FaceRest.h"
 #include "Helpers.h"
@@ -26,6 +27,7 @@
 #include "Params.h"
 #include "MultiLangTest.h"
 #include "CacheServiceDBClient.h"
+using namespace mlpl;
 
 namespace testFaceRest {
 
@@ -51,6 +53,14 @@ static JsonParserAgent *g_parser = NULL;
 
 static void startFaceRest(void)
 {
+	struct : public FaceRestParam {
+		MutexLock mutex;
+		virtual void setupDoneNotifyFunc(void) 
+		{
+			mutex.unlock();
+		}
+	} param;
+
 	string dbPathHatohol  = getFixturesDir() + TEST_DB_HATOHOL_NAME;
 	setupTestDBServers();
 
@@ -59,8 +69,13 @@ static void startFaceRest(void)
 	CommandLineArg arg;
 	arg.push_back("--face-rest-port");
 	arg.push_back(StringUtils::sprintf("%u", TEST_PORT));
-	g_faceRest = new FaceRest(arg);
+	g_faceRest = new FaceRest(arg, &param);
+
+	param.mutex.lock();
 	g_faceRest->start();
+
+	// wait for the setup completion of FaceReset
+	param.mutex.lock();
 }
 
 static string makeQueryString(const StringMap &parameters,

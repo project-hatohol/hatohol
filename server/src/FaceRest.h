@@ -38,8 +38,9 @@ struct SessionInfo {
 };
 
 struct FaceRestParam {
-	void (*setupDoneNotifyFunc)(void *);
-	void *setupDoneNotifyPriv;
+	virtual void setupDoneNotifyFunc(void)
+	{
+	}
 };
 
 class FaceRest : public FaceBase {
@@ -52,7 +53,7 @@ public:
 	static void reset(const CommandLineArg &arg);
 	static bool isTestMode(void);
 
-	FaceRest(CommandLineArg &cmdArg);
+	FaceRest(CommandLineArg &cmdArg, FaceRestParam *param = NULL);
 	virtual ~FaceRest();
 	virtual void stop(void);
 
@@ -205,6 +206,7 @@ protected:
 
 private:
 	struct PrivateContext;
+	PrivateContext *m_ctx;
 
 	// The body is defined in the FaceRest.cc. So this function can
 	// be used only from the soruce file.
