@@ -40,6 +40,12 @@ public:
 		return __sync_fetch_and_add(&m_value, &v);
 	}
 
+	void set(const T &newVal)
+	{
+		__sync_val_compare_and_swap(&m_value, m_value, newVal);
+	}
+
+
 private:
 	volatile T m_value;
 };

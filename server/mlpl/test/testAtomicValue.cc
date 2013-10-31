@@ -43,4 +43,12 @@ void test_get(void)
 	cppcut_assert_equal(initValue, val.get());
 }
 
+void test_setAndGet(void)
+{
+	int initValue = -3;
+	AtomicValue<int> val;
+	val.set(initValue);
+	cppcut_assert_equal(initValue, val.get());
+}
+
 } // namespace testAtomicValue
