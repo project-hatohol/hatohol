@@ -25,6 +25,7 @@
 #include <Reaper.h>
 #include <MutexLock.h>
 #include <SmartTime.h>
+#include <AtomicValue.h>
 using namespace mlpl;
 
 #include <uuid/uuid.h>
@@ -125,11 +126,21 @@ struct FaceRest::PrivateContext {
 	static bool         testMode;
 	static MutexLock    lock;
 	static SessionIdMap sessionIdMap;
+	GMainContext       *gMainCtx;
 	FaceRestParam      *param;
+	AtomicValue<bool>   quitRequest;
 
 	PrivateContext(FaceRestParam *_param)
-	: param(_param)
+	: gMainCtx(NULL),
+	  param(_param),
+	  quitRequest(false)
 	{
+		gMainCtx = g_main_context_new();
+	}
+
+	virtual ~PrivateContext()
+	{
+		g_main_context_unref(gMainCtx);
 	}
 
 	static void insertSessionId(const string &sessionId, UserIdType userId)
@@ -238,8 +249,20 @@ FaceRest::~FaceRest()
 
 void FaceRest::stop(void)
 {
-	HATOHOL_ASSERT(m_soupServer, "m_soupServer: NULL");
-	soup_server_quit(m_soupServer);
+	if (isStarted()) {
+		m_ctx->quitRequest.set(true);
+
+		// To return g_main_context_iteration() in mainThread()
+		struct IterAlarm {
+			static gboolean task(gpointer data) {
+				return G_SOURCE_REMOVE;
+			}
+		};
+		GSource *source = g_idle_source_new();
+		g_source_set_callback(source, IterAlarm::task, NULL, NULL);
+		g_source_attach(source, m_ctx->gMainCtx);
+		g_source_unref(source);
+	}
 
 	HatoholThreadBase::stop();
 }
@@ -249,10 +272,9 @@ void FaceRest::stop(void)
 // ---------------------------------------------------------------------------
 gpointer FaceRest::mainThread(HatoholThreadArg *arg)
 {
-	GMainContext *gMainCtx = g_main_context_new();
 	m_soupServer = soup_server_new(SOUP_SERVER_PORT, m_port,
-	                               SOUP_SERVER_ASYNC_CONTEXT, gMainCtx,
-	                               NULL);
+	                               SOUP_SERVER_ASYNC_CONTEXT,
+	                               m_ctx->gMainCtx, NULL);
 	HATOHOL_ASSERT(m_soupServer, "failed: soup_server_new: %u\n", m_port);
 	soup_server_add_handler(m_soupServer, NULL, handlerDefault, this, NULL);
 	soup_server_add_handler(m_soupServer, "/hello.html",
@@ -293,8 +315,10 @@ gpointer FaceRest::mainThread(HatoholThreadArg *arg)
 	                        (gpointer)handlerUser, NULL);
 	if (m_ctx->param)
 		m_ctx->param->setupDoneNotifyFunc();
-	soup_server_run(m_soupServer);
-	g_main_context_unref(gMainCtx);
+	soup_server_run_async(m_soupServer);
+	while (!m_ctx->quitRequest.get())
+		g_main_context_iteration(m_ctx->gMainCtx, TRUE);
+	soup_server_quit(m_soupServer);
 	MLPL_INFO("exited face-rest\n");
 	return NULL;
 }
