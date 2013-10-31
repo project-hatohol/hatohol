@@ -36,8 +36,7 @@ public:
 
 	T get(void)
 	{
-		static T v = 0;
-		return __sync_fetch_and_add(&m_value, &v);
+		return __sync_fetch_and_add(&m_value, 0);
 	}
 
 	void set(const T &newVal)
