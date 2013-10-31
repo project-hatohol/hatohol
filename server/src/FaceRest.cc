@@ -123,6 +123,7 @@ SessionInfo::SessionInfo(void)
 }
 
 struct FaceRest::PrivateContext {
+	struct MainThreadCleaner;
 	static bool         testMode;
 	static MutexLock    lock;
 	static SessionIdMap sessionIdMap;
@@ -269,8 +270,34 @@ void FaceRest::stop(void)
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
+struct FaceRest::PrivateContext::MainThreadCleaner {
+	PrivateContext *ctx;
+	bool running;
+
+	MainThreadCleaner(PrivateContext *_ctx)
+	: ctx(_ctx),
+	  running(false)
+	{
+	}
+
+	static void callgate(MainThreadCleaner *obj)
+	{
+		obj->run();
+	}
+
+	void run(void)
+	{
+		if (ctx->soupServer && running)
+			soup_server_quit(ctx->soupServer);
+	}
+};
+
 gpointer FaceRest::mainThread(HatoholThreadArg *arg)
 {
+	PrivateContext::MainThreadCleaner cleaner(m_ctx);
+	Reaper<PrivateContext::MainThreadCleaner>
+	   reaper(&cleaner, PrivateContext::MainThreadCleaner::callgate);
+
 	m_ctx->soupServer = soup_server_new(SOUP_SERVER_PORT, m_ctx->port,
 	                               SOUP_SERVER_ASYNC_CONTEXT,
 	                               m_ctx->gMainCtx, NULL);
@@ -317,9 +344,9 @@ gpointer FaceRest::mainThread(HatoholThreadArg *arg)
 	if (m_ctx->param)
 		m_ctx->param->setupDoneNotifyFunc();
 	soup_server_run_async(m_ctx->soupServer);
+	cleaner.running = true;
 	while (!m_ctx->quitRequest.get())
 		g_main_context_iteration(m_ctx->gMainCtx, TRUE);
-	soup_server_quit(m_ctx->soupServer);
 	MLPL_INFO("exited face-rest\n");
 	return NULL;
 }
