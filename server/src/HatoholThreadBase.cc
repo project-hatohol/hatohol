@@ -144,6 +144,11 @@ void HatoholThreadBase::addExitCallback(ExitCallbackFunc func, void *data)
 	m_ctx->write_unlock();
 }
 
+bool HatoholThreadBase::isStarted(void) const
+{
+	return m_ctx->thread;
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------

@@ -57,6 +57,7 @@ public:
 	void start(bool autoDeleteObject = false, void *userData = NULL);
 	void addExceptionCallback(ExceptionCallbackFunc func, void *data);
 	void addExitCallback(ExitCallbackFunc func, void *data);
+	bool isStarted(void) const;
 
 	/**
 	 * Send a stop request. This function blocks until

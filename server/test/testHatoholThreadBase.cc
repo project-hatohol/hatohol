@@ -105,6 +105,12 @@ void test_exitCallback(void)
 	cppcut_assert_equal(true, threadTestee.doTest());
 }
 
+void test_isStartedInitial(void)
+{
+	HatoholThreadTestImpl threadTestee;
+	cppcut_assert_equal(false, threadTestee.isStarted());
+}
+
 } // namespace testHatoholThreadBase
 
 
