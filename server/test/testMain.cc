@@ -225,7 +225,7 @@ bool parsePIDFile(int &grandchildPid, const string &grandChildPidFilePath)
 		cppcut_assert_equal(0, fclose(grandchildPidFile));
 		if (scanResult == 1)
 			break;
-		if (usleep(RETRY_INTERVAL == -1)) {
+		if (usleep(RETRY_INTERVAL) == -1) {
 			if (errno != EINTR)
 				cut_assert_errno();
 		}
