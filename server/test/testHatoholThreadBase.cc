@@ -114,19 +114,23 @@ void test_isStartedInitial(void)
 void test_isStarted(void)
 {
 	struct Priv {
-		MutexLock mutex;
+		MutexLock mutexThreadExit;
+		MutexLock mutexWaitRun;
 		static gpointer func(void *data) {
 			Priv *obj = static_cast<Priv *>(data);
-			obj->mutex.lock();
+			obj->mutexWaitRun.unlock();
+			obj->mutexThreadExit.lock();
 			return NULL;
 		}
 	} priv;
 	HatoholThreadTestImpl threadTestee;
 	threadTestee.setTestFunc(priv.func, &priv);
-	priv.mutex.lock();
+	priv.mutexThreadExit.lock();
+	priv.mutexWaitRun.lock();
 	threadTestee.start();
 	cppcut_assert_equal(true, threadTestee.isStarted());
-	priv.mutex.unlock();
+	priv.mutexWaitRun.lock();
+	priv.mutexThreadExit.unlock();
 	threadTestee.stop();
 	cppcut_assert_equal(false, threadTestee.isStarted());
 }
