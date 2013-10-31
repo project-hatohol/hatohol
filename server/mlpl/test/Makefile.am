@@ -24,7 +24,8 @@ loggerTestee_SOURCES = loggerTestee.cc
 testMLPL_la_SOURCES = \
 	testMutexLock.cc testReadWriteLock.cc \
 	testLogger.cc testStringUtils.cc testParsableString.cc \
-	testSmartBuffer.cc testReaper.cc testSmartTime.cc
+	testSmartBuffer.cc testReaper.cc testSmartTime.cc \
+	testAtomicValue.cc
 
 echo-cutter:
 	@echo $(CUTTER)

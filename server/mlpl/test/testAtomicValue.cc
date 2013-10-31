@@ -36,4 +36,11 @@ void test_DefineWithInit(void)
 	AtomicValue<int> val(5);
 }
 
+void test_get(void)
+{
+	int initValue = -3;
+	AtomicValue<int> val(initValue);
+	cppcut_assert_equal(initValue, val.get());
+}
+
 } // namespace testAtomicValue

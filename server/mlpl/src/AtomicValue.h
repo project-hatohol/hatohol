@@ -34,8 +34,14 @@ public:
 	{
 	}
 
+	T get(void)
+	{
+		static T v = 0;
+		return __sync_fetch_and_add(&m_value, &v);
+	}
+
 private:
-	T m_value;
+	volatile T m_value;
 };
 
 } // namespace mlpl
