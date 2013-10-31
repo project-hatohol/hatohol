@@ -182,7 +182,7 @@ void HatoholThreadBase::threadCleanup(HatoholThreadArg *arg)
 	arg->obj->doExitCallback();
 	CacheServiceDBClient::cleanup();
 	arg->obj->m_ctx->mutexForThreadExit.unlock();
-	arg->obj->m_ctx->thread = NULL;
+	arg->obj->m_ctx->thread = NULL; // TODO: Use an atomic way.
 	if (arg->autoDeleteObject)
 		delete arg->obj;
 	delete arg;
