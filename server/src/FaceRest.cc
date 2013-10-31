@@ -126,12 +126,16 @@ struct FaceRest::PrivateContext {
 	static bool         testMode;
 	static MutexLock    lock;
 	static SessionIdMap sessionIdMap;
+	guint               port;
+	SoupServer         *soupServer;
 	GMainContext       *gMainCtx;
 	FaceRestParam      *param;
 	AtomicValue<bool>   quitRequest;
 
 	PrivateContext(FaceRestParam *_param)
-	: gMainCtx(NULL),
+	: port(DEFAULT_PORT),
+	  soupServer(NULL),
+	  gMainCtx(NULL),
 	  param(_param),
 	  quitRequest(false)
 	{
@@ -211,23 +215,21 @@ bool FaceRest::isTestMode(void)
 }
 
 FaceRest::FaceRest(CommandLineArg &cmdArg, FaceRestParam *param)
-: m_ctx(NULL),
-  m_port(DEFAULT_PORT),
-  m_soupServer(NULL)
+: m_ctx(NULL)
 {
 	m_ctx = new PrivateContext(param);
 
 	DBClientConfig dbConfig;
 	int port = dbConfig.getFaceRestPort();
 	if (port != 0 && Utils::isValidPort(port))
-		m_port = port;
+		m_ctx->port = port;
 
 	for (size_t i = 0; i < cmdArg.size(); i++) {
 		string &cmd = cmdArg[i];
 		if (cmd == "--face-rest-port")
 			i = parseCmdArgPort(cmdArg, i);
 	}
-	MLPL_INFO("started face-rest, port: %d\n", m_port);
+	MLPL_INFO("started face-rest, port: %d\n", m_ctx->port);
 }
 
 FaceRest::~FaceRest()
@@ -236,10 +238,10 @@ FaceRest::~FaceRest()
 	stop();
 
 	MLPL_INFO("FaceRest: stop process: started.\n");
-	if (m_soupServer) {
-		SoupSocket *sock = soup_server_get_listener(m_soupServer);
+	if (m_ctx->soupServer) {
+		SoupSocket *sock = soup_server_get_listener(m_ctx->soupServer);
 		soup_socket_disconnect(sock);
-		g_object_unref(m_soupServer);
+		g_object_unref(m_ctx->soupServer);
 	}
 	MLPL_INFO("FaceRest: stop process: completed.\n");
 
@@ -269,53 +271,55 @@ void FaceRest::stop(void)
 // ---------------------------------------------------------------------------
 gpointer FaceRest::mainThread(HatoholThreadArg *arg)
 {
-	m_soupServer = soup_server_new(SOUP_SERVER_PORT, m_port,
+	m_ctx->soupServer = soup_server_new(SOUP_SERVER_PORT, m_ctx->port,
 	                               SOUP_SERVER_ASYNC_CONTEXT,
 	                               m_ctx->gMainCtx, NULL);
-	HATOHOL_ASSERT(m_soupServer, "failed: soup_server_new: %u\n", m_port);
-	soup_server_add_handler(m_soupServer, NULL, handlerDefault, this, NULL);
-	soup_server_add_handler(m_soupServer, "/hello.html",
+	HATOHOL_ASSERT(m_ctx->soupServer, "failed: soup_server_new: %u\n",
+	               m_ctx->port);
+	soup_server_add_handler(m_ctx->soupServer, NULL,
+	                        handlerDefault, this, NULL);
+	soup_server_add_handler(m_ctx->soupServer, "/hello.html",
 	                        launchHandlerInTryBlock,
 	                        (gpointer)handlerHelloPage, NULL);
-	soup_server_add_handler(m_soupServer, "/test",
+	soup_server_add_handler(m_ctx->soupServer, "/test",
 	                        launchHandlerInTryBlock,
 	                        (gpointer)handlerTest, NULL);
-	soup_server_add_handler(m_soupServer, pathForLogin,
+	soup_server_add_handler(m_ctx->soupServer, pathForLogin,
 	                        launchHandlerInTryBlock,
 	                        (gpointer)handlerLogin, NULL);
-	soup_server_add_handler(m_soupServer, pathForLogout,
+	soup_server_add_handler(m_ctx->soupServer, pathForLogout,
 	                        launchHandlerInTryBlock,
 	                        (gpointer)handlerLogout, NULL);
-	soup_server_add_handler(m_soupServer, pathForGetOverview,
+	soup_server_add_handler(m_ctx->soupServer, pathForGetOverview,
 	                        launchHandlerInTryBlock,
 	                        (gpointer)handlerGetOverview, NULL);
-	soup_server_add_handler(m_soupServer, pathForGetServer,
+	soup_server_add_handler(m_ctx->soupServer, pathForGetServer,
 	                        launchHandlerInTryBlock,
 	                        (gpointer)handlerGetServer, NULL);
-	soup_server_add_handler(m_soupServer, pathForGetHost,
+	soup_server_add_handler(m_ctx->soupServer, pathForGetHost,
 	                        launchHandlerInTryBlock,
 	                        (gpointer)handlerGetHost, NULL);
-	soup_server_add_handler(m_soupServer, pathForGetTrigger,
+	soup_server_add_handler(m_ctx->soupServer, pathForGetTrigger,
 	                        launchHandlerInTryBlock,
 	                        (gpointer)handlerGetTrigger, NULL);
-	soup_server_add_handler(m_soupServer, pathForGetEvent,
+	soup_server_add_handler(m_ctx->soupServer, pathForGetEvent,
 	                        launchHandlerInTryBlock,
 	                        (gpointer)handlerGetEvent, NULL);
-	soup_server_add_handler(m_soupServer, pathForGetItem,
+	soup_server_add_handler(m_ctx->soupServer, pathForGetItem,
 	                        launchHandlerInTryBlock,
 	                        (gpointer)handlerGetItem, NULL);
-	soup_server_add_handler(m_soupServer, pathForAction,
+	soup_server_add_handler(m_ctx->soupServer, pathForAction,
 	                        launchHandlerInTryBlock,
 	                        (gpointer)handlerAction, NULL);
-	soup_server_add_handler(m_soupServer, pathForUser,
+	soup_server_add_handler(m_ctx->soupServer, pathForUser,
 	                        launchHandlerInTryBlock,
 	                        (gpointer)handlerUser, NULL);
 	if (m_ctx->param)
 		m_ctx->param->setupDoneNotifyFunc();
-	soup_server_run_async(m_soupServer);
+	soup_server_run_async(m_ctx->soupServer);
 	while (!m_ctx->quitRequest.get())
 		g_main_context_iteration(m_ctx->gMainCtx, TRUE);
-	soup_server_quit(m_soupServer);
+	soup_server_quit(m_ctx->soupServer);
 	MLPL_INFO("exited face-rest\n");
 	return NULL;
 }
@@ -335,7 +339,7 @@ size_t FaceRest::parseCmdArgPort(CommandLineArg &cmdArg, size_t idx)
 		return idx;
 	}
 
-	m_port = port;
+	m_ctx->port = port;
 	return idx;
 }
 

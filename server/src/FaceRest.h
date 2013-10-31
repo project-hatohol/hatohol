@@ -231,9 +231,6 @@ private:
 	static const char *pathForGetItem;
 	static const char *pathForAction;
 	static const char *pathForUser;
-
-	guint       m_port;
-	SoupServer *m_soupServer;
 };
 
 #endif // FaceRest_h
