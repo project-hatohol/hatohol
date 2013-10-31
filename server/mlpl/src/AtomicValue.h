@@ -41,7 +41,7 @@ public:
 
 	void set(const T &newVal)
 	{
-		__sync_val_compare_and_swap(&m_value, m_value, newVal);
+		__sync_bool_compare_and_swap(&m_value, m_value, newVal);
 	}
 
 
