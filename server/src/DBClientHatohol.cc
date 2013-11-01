@@ -794,8 +794,8 @@ void DBClientHatohol::addEventInfoList(const EventInfoList &eventInfoList)
 	} DBCLIENT_TRANSACTION_END();
 }
 
-void DBClientHatohol::getEventInfoList(EventInfoList &eventInfoList,
-                                       EventQueryOption &option)
+HatoholError DBClientHatohol::getEventInfoList(EventInfoList &eventInfoList,
+                                               EventQueryOption &option)
 {
 	const ColumnDef &eventsUnifiedId =
 	  COLUMN_DEF_EVENTS[IDX_EVENTS_UNIFIED_ID];
@@ -855,21 +855,33 @@ void DBClientHatohol::getEventInfoList(EventInfoList &eventInfoList,
 	arg.pushColumn(triggersBrief,    VAR_TRIGGERS);
 
 	// Condition
+	DataQueryOption::SortOrder sortOrder = option.getSortOrder();
 	arg.condition = StringUtils::sprintf(
 	  "%s.%s=%s.%s", 
 	  VAR_EVENTS, eventsServerId.columnName,
 	  VAR_TRIGGERS, triggersServerId.columnName);
+	uint64_t startId = option.getStartId();
+	if (startId) {
+		if (sortOrder != DataQueryOption::SORT_ASCENDING &&
+		    sortOrder != DataQueryOption::SORT_DESCENDING) {
+			return HatoholError(HTERR_NOT_FOUND_SORT_ORDER);
+		}
+		arg.condition += StringUtils::sprintf(
+		  " AND %s.%s%s%"PRIu64,
+		  VAR_EVENTS, eventsUnifiedId.columnName,
+		  sortOrder == DataQueryOption::SORT_ASCENDING ? ">=" : "<=",
+		  startId);
+	}
 
 	string optCond = option.getCondition();
 	if (isAlwaysFalseCondition(optCond))
-		return;
+		return HatoholError(HTERR_OK);
 	if (!optCond.empty()) {
 		arg.condition += " AND ";
 		arg.condition += optCond;
 	}
 
 	// Order By
-	DataQueryOption::SortOrder sortOrder = option.getSortOrder();
 	if (sortOrder != DataQueryOption::SORT_DONT_CARE) {
 		arg.orderBy +=
 		  COLUMN_DEF_EVENTS[IDX_EVENTS_UNIFIED_ID].columnName;
@@ -885,7 +897,6 @@ void DBClientHatohol::getEventInfoList(EventInfoList &eventInfoList,
 
 	// Limit and Offset
 	arg.limit = option.getMaximumNumber();
-	arg.offset = option.getStartId();
 
 	DBCLIENT_TRANSACTION_BEGIN() {
 		select(arg);
@@ -917,6 +928,7 @@ void DBClientHatohol::getEventInfoList(EventInfoList &eventInfoList,
 		eventInfo.hostName  = GET_STRING_FROM_GRP(itemGroup, idx++);
 		eventInfo.brief     = GET_STRING_FROM_GRP(itemGroup, idx++);
 	}
+	return HatoholError(HTERR_OK);
 }
 
 void DBClientHatohol::setEventInfoList(const EventInfoList &eventInfoList,

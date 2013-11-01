@@ -167,7 +167,8 @@ static void _assertGetEvents(AssertGetEventsArg &arg)
 {
 	DBClientHatohol dbHatohol;
 	arg.fixup();
-	dbHatohol.getEventInfoList(arg.eventInfoList, arg.option);
+	assertHatoholError(
+	  HTERR_OK, dbHatohol.getEventInfoList(arg.eventInfoList, arg.option));
 	arg.assert();
 }
 #define assertGetEvents(A) cut_trace(_assertGetEvents(A))
@@ -773,6 +774,35 @@ void test_getEventWithMaximumNumberDescending(void)
 	cppcut_assert_equal(true, maxNum < NumTestEventInfo);
 	arg.option.setMaximumNumber(maxNum);
 	arg.option.setSortOrder(DataQueryOption::SORT_DESCENDING);
+	assertGetEvents(arg);
+}
+
+void test_getEventWithMaximumNumberAscendingOffset(void)
+{
+	static const uint64_t startId = 2;
+	static const size_t maxNum = 2;
+	struct TestArg : public AssertGetEventsArg {
+		virtual void assert(void)
+		{
+			cppcut_assert_equal(maxNum, eventInfoList.size());
+			string expect, actual;
+			EventInfoListIterator it = eventInfoList.begin();
+			size_t i = startId - 1;
+			for (; it != eventInfoList.end(); i++, ++it) {
+				expect += makeEventOutput(testEventInfo[i]);
+				actual += makeEventOutput(*it);
+			}
+			cppcut_assert_equal(expect, actual);
+		}
+	} arg;
+
+	// setup event data
+	test_addEventInfoList();
+
+	cppcut_assert_equal(true, startId + maxNum  - 1 <= NumTestEventInfo);
+	arg.option.setMaximumNumber(maxNum);
+	arg.option.setSortOrder(DataQueryOption::SORT_ASCENDING);
+	arg.option.setStartId(startId);
 	assertGetEvents(arg);
 }
 
