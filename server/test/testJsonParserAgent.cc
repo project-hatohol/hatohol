@@ -126,7 +126,7 @@ void test_checkParseSuccess(void)
 	assertReadWord(bool, parser, "home", true);
 	assertReadWord(string, parser, "city", "Tokyo");
 	assertReadWord(int64_t, parser, "code", 124);
-
+	parser.endObject();
 }
 
 void test_checkResultWhenTrueFalseTrue(void)
