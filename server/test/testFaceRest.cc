@@ -1343,4 +1343,20 @@ void test_parseEventParameterSortOrderNotFound(void)
 	                    option.getSortOrder());
 }
 
+void test_parseEventParameterSortOrderDontCare(void)
+{
+	static const DataQueryOption::SortOrder sortOrder =
+	   DataQueryOption::SORT_DONT_CARE;
+	static const string sortOrderStr =
+	  StringUtils::sprintf("%d", sortOrder);
+	EventQueryOption option;
+	GHashTable *query = g_hash_table_new(g_str_hash, g_str_equal);
+	g_hash_table_insert(query,
+	                    (gpointer)"sortOrder",
+	                    (gpointer) sortOrderStr.c_str());
+	assertHatoholError(
+	  HTERR_OK, TestFaceRestNoInit::callParseEventParameter(option, query));
+	cppcut_assert_equal(sortOrder, option.getSortOrder());
+}
+
 } // namespace testFaceRestNoInit
