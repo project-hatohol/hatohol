@@ -27,6 +27,7 @@
 #include "Params.h"
 #include "HatoholError.h"
 #include "DBClientUser.h"
+#include "DBClientHatohol.h"
 
 struct SessionInfo {
 	UserIdType userId;
@@ -203,6 +204,11 @@ protected:
 	 */
 	static HatoholError updateOrAddUser(GHashTable *query,
 	                                    UserQueryOption &option);
+
+	static HatoholError parseSortOrderFromQuery(
+	  DataQueryOption::SortOrder &sortOrder, GHashTable *query);
+	static HatoholError parseEventParameter(EventQueryOption &option,
+	                                        GHashTable *query);
 
 private:
 	struct PrivateContext;

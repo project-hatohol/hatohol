@@ -1081,6 +1081,11 @@ void FaceRest::handlerGetEvent
 	EventInfoList eventList;
 	EventQueryOption option;
 	option.setUserId(arg->userId);
+	HatoholError err = parseEventParameter(option, query);
+	if (err != HTERR_OK) {
+		replyError(msg, arg, err);
+		return;
+	}
 	dataStore->getEventList(eventList, option);
 
 	JsonBuilderAgent agent;
@@ -1590,6 +1595,48 @@ HatoholError FaceRest::updateOrAddUser(GHashTable *query,
 	}
 	if (err != HTERR_OK)
 		return err;
+	return HatoholError(HTERR_OK);
+}
+
+HatoholError FaceRest::parseSortOrderFromQuery(
+  DataQueryOption::SortOrder &sortOrder, GHashTable *query)
+{
+	HatoholError err =
+	   getParam<DataQueryOption::SortOrder>(query, "sortOrder", "%d",
+	                                        sortOrder);
+	if (err != HTERR_OK)
+		return err;
+	if (sortOrder != DataQueryOption::SORT_DONT_CARE &&
+	    sortOrder != DataQueryOption::SORT_ASCENDING &&
+	    sortOrder != DataQueryOption::SORT_DESCENDING) {
+		return HatoholError(HTERR_INVALID_PARAMETER,
+		                    StringUtils::sprintf("%d", sortOrder));
+	}
+	return HatoholError(HTERR_OK);
+}
+
+HatoholError FaceRest::parseEventParameter(EventQueryOption &option,
+                                           GHashTable *query)
+{
+	if (!query)
+		return HatoholError(HTERR_OK);
+
+	HatoholError err;
+
+	// sort order
+	DataQueryOption::SortOrder sortOrder;
+	err = parseSortOrderFromQuery(sortOrder, query);
+	if (err == HTERR_OK)
+		option.setSortOrder(sortOrder);
+	else if (err != HTERR_NOT_FOUND_PARAMETER)
+		return err;
+
+	// maximum number
+	// TODO: implement
+
+	// start ID
+	// TODO: implement
+
 	return HatoholError(HTERR_OK);
 }
 
