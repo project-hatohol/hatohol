@@ -29,7 +29,7 @@ Parameters
      - json or jsonp
      - This parameter is omitted, the return format is json.
      - Optional 
-     - Optional
+     - <-
    * - callback
      - The name of returned JSONP object.
      - N/A
