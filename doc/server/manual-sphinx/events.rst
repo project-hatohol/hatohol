@@ -114,6 +114,9 @@ Event object
    * - Key
      - Value type
      - Brief
+   * - unifiedId 
+     - Number
+     - A unified ID. This Id is unique in the Haothol DB.
    * - serverId
      - Number
      - A server ID.
