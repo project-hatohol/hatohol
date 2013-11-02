@@ -336,21 +336,21 @@ static string makeExpectedConditionForUser(UserIdType userId)
 
 static void _assertGetEventsWithFilter(
   AssertGetEventsArg &arg, DataQueryOption::SortOrder sortOrder,
-  size_t maxNumber, uint64_t startId = 0)
+  size_t maxNumber = 0, uint64_t startId = 0)
 {
 	// setup event data
 	void test_addEventInfoList(void);
 	test_addEventInfoList();
 
-	cppcut_assert_equal(true, startId + maxNumber  - 1 <= NumTestEventInfo);
-	arg.option.setMaximumNumber(maxNumber);
+	if (maxNumber)
+		arg.option.setMaximumNumber(maxNumber);
 	arg.option.setSortOrder(sortOrder);
 	if (startId)
 		arg.option.setStartId(startId);
 	assertGetEvents(arg);
 }
-#define assertGetEventsWithFilter(ARG, ORDER, MAX_NUM, ...) \
-cut_trace(_assertGetEventsWithFilter(ARG, ORDER, MAX_NUM, ##__VA_ARGS__))
+#define assertGetEventsWithFilter(ARG, ORDER, ...) \
+cut_trace(_assertGetEventsWithFilter(ARG, ORDER, ##__VA_ARGS__))
 
 void cut_setup(void)
 {
@@ -734,12 +734,7 @@ void test_getEventSortDescending(void)
 			cppcut_assert_equal(expect, actual);
 		}
 	} arg;
-
-	// setup event data
-	test_addEventInfoList();
-
-	arg.option.setSortOrder(DataQueryOption::SORT_DESCENDING);
-	assertGetEvents(arg);
+	assertGetEventsWithFilter(arg, DataQueryOption::SORT_DESCENDING);
 }
 
 void test_getEventWithMaximumNumber(void)
