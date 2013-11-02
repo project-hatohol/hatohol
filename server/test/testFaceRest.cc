@@ -1291,3 +1291,34 @@ void test_updateOrAddUserUpdate(void)
 }
 
 } // namespace testFaceRest
+
+// ---------------------------------------------------------------------------
+// testFaceRestNoInit
+//
+// This namespace contains test cases that don't need to call hatoholInit(),
+// which takes a little time.
+// ---------------------------------------------------------------------------
+namespace testFaceRestNoInit {
+
+class TestFaceRestNoInit : public FaceRest {
+public:
+	static HatoholError callParseEventParameter(EventQueryOption &option,
+	                                            GHashTable *query)
+	{
+		return parseEventParameter(option, query);
+	}
+};
+
+
+void test_parseEventParameterWithNullQueryParameter(void)
+{
+	EventQueryOption orig;
+	EventQueryOption option(orig);
+	GHashTable *query = NULL;
+	assertHatoholError(
+	  HTERR_OK, TestFaceRestNoInit::callParseEventParameter(option, query));
+	// we confirm that the content is not changed.
+	cppcut_assert_equal(true, option == orig);
+}
+
+} // namespace testFaceRestNoInit
