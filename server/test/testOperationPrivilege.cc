@@ -88,4 +88,12 @@ void test_operatorEq(void)
 	cppcut_assert_equal(true, lhs == rhs);
 }
 
+void test_operatorEqFalse(void)
+{
+	OperationPrivilege lhs;
+	OperationPrivilege rhs;
+	rhs.setFlags(OperationPrivilege::makeFlag(OPPRVLG_CREATE_USER));
+	cppcut_assert_equal(false, lhs == rhs);
+}
+
 } // namespace testOperationPrivilege
