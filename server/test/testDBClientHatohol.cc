@@ -141,11 +141,13 @@ struct AssertGetEventsArg {
 	DataQueryOption::SortOrder sortOrder;
 	size_t maxNumber;
 	uint64_t startId;
+	HatoholErrorCode expectedErrorCode;
 
 	AssertGetEventsArg(void)
 	: sortOrder(DataQueryOption::SORT_DONT_CARE),
 	  maxNumber(0),
-	  startId(0)
+	  startId(0),
+	  expectedErrorCode(HTERR_OK)
 	{
 	}
 
@@ -195,7 +197,10 @@ static void _assertGetEvents(AssertGetEventsArg &arg)
 	DBClientHatohol dbHatohol;
 	arg.fixup();
 	assertHatoholError(
-	  HTERR_OK, dbHatohol.getEventInfoList(arg.eventInfoList, arg.option));
+	  arg.expectedErrorCode,
+	  dbHatohol.getEventInfoList(arg.eventInfoList, arg.option));
+	if (arg.expectedErrorCode != HTERR_OK)
+		return;
 	arg.assert();
 }
 #define assertGetEvents(A) cut_trace(_assertGetEvents(A))
@@ -767,6 +772,14 @@ void test_getEventWithMaximumNumberAscendingStartId(void)
 	arg.maxNumber = 2;
 	arg.sortOrder = DataQueryOption::SORT_ASCENDING;
 	arg.startId = 2;
+	assertGetEventsWithFilter(arg);
+}
+
+void test_getEventWithStartIdWithoutSortOrder(void)
+{
+	AssertGetEventsArg arg;
+	arg.startId = 2;
+	arg.expectedErrorCode = HTERR_NOT_FOUND_SORT_ORDER;
 	assertGetEventsWithFilter(arg);
 }
 
