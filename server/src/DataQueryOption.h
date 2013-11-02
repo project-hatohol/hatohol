@@ -36,6 +36,8 @@ public:
 	DataQueryOption(void);
 	~DataQueryOption();
 
+	bool operator==(const DataQueryOption &rhs);
+
 	void setUserId(UserIdType userId);
 	UserIdType getUserId(void) const;
 

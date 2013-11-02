@@ -55,6 +55,19 @@ DataQueryOption::~DataQueryOption()
 		delete m_ctx;
 }
 
+bool DataQueryOption::operator==(const DataQueryOption &rhs)
+{
+	if (m_ctx->userId != rhs.m_ctx->userId)
+		return false;
+	if (m_ctx->maxNumber != rhs.m_ctx->maxNumber)
+		return false;
+	if (m_ctx->sortOrder != rhs.m_ctx->sortOrder)
+		return false;
+	if (m_ctx->startId != rhs.m_ctx->startId)
+		return false;
+	return true;
+}
+
 string DataQueryOption::getCondition(void) const
 {
 	return "";

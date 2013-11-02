@@ -59,6 +59,12 @@ void test_initialValue(void)
 	cppcut_assert_equal(INVALID_USER_ID, opt.getUserId());
 }
 
+void test_operatorEqToMySelf(void)
+{
+	DataQueryOption lhs;
+	cppcut_assert_equal(true, lhs == lhs);
+}
+
 void test_setGetUserId(void)
 {
 	bool dbRecreate = true;
