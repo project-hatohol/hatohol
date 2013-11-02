@@ -1309,6 +1309,19 @@ public:
 	}
 };
 
+GHashTable *g_query = NULL;
+
+void cut_teardown(void)
+{
+	if (g_query) {
+		g_hash_table_unref(g_query);
+		g_query = NULL;
+	}
+}
+
+// ---------------------------------------------------------------------------
+// test cases
+// ---------------------------------------------------------------------------
 void test_parseEventParameterWithNullQueryParameter(void)
 {
 	EventQueryOption orig;
@@ -1318,6 +1331,16 @@ void test_parseEventParameterWithNullQueryParameter(void)
 	  HTERR_OK, TestFaceRestNoInit::callParseEventParameter(option, query));
 	// we confirm that the content is not changed.
 	cppcut_assert_equal(true, option == orig);
+}
+
+void test_parseEventParameterSortOrderNotFound(void)
+{
+	EventQueryOption option;
+	GHashTable *query = g_hash_table_new(g_str_hash, g_str_equal);
+	assertHatoholError(
+	  HTERR_OK, TestFaceRestNoInit::callParseEventParameter(option, query));
+	cppcut_assert_equal(DataQueryOption::SORT_DONT_CARE,
+	                    option.getSortOrder());
 }
 
 } // namespace testFaceRestNoInit
