@@ -77,4 +77,15 @@ void test_has(void)
 	cppcut_assert_equal(false, privilege.has(OPPRVLG_CREATE_USER));
 }
 
+void test_operatorEq(void)
+{
+	OperationPrivilege lhs;
+	OperationPrivilege rhs;
+	cppcut_assert_equal(true, lhs == rhs);
+
+	lhs.setFlags(OperationPrivilege::makeFlag(OPPRVLG_CREATE_USER));
+	rhs.setFlags(OperationPrivilege::makeFlag(OPPRVLG_CREATE_USER));
+	cppcut_assert_equal(true, lhs == rhs);
+}
+
 } // namespace testOperationPrivilege

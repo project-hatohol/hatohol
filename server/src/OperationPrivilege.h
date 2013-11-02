@@ -48,6 +48,8 @@ public:
 	  makeFlag(OperationPrivilegeType type);
 	const bool has(OperationPrivilegeType type) const;
 
+	bool operator==(const OperationPrivilege &rhs);
+
 private:
 	struct PrivateContext;
 	PrivateContext *m_ctx;

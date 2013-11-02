@@ -72,3 +72,9 @@ const bool OperationPrivilege::has(OperationPrivilegeType type) const
 	return (m_ctx->flags & flag);
 }
 
+bool OperationPrivilege::operator==(const OperationPrivilege &rhs)
+{
+	if (m_ctx->flags != rhs.m_ctx->flags)
+		return false;
+	return true;
+}
