@@ -1093,6 +1093,7 @@ void FaceRest::handlerGetEvent
 	for (; it != eventList.end(); ++it) {
 		EventInfo &eventInfo = *it;
 		agent.startObject();
+		agent.add("unifiedId", eventInfo.unifiedId);
 		agent.add("serverId",  eventInfo.serverId);
 		agent.add("time",      eventInfo.time.tv_sec);
 		agent.add("type",      eventInfo.type);
