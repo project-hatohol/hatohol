@@ -775,6 +775,15 @@ void test_getEventWithMaximumNumberAscendingStartId(void)
 	assertGetEventsWithFilter(arg);
 }
 
+void test_getEventWithMaximumNumberDescendingStartId(void)
+{
+	AssertGetEventsArg arg;
+	arg.maxNumber = 2;
+	arg.sortOrder = DataQueryOption::SORT_DESCENDING;
+	arg.startId = NumTestEventInfo - 1;
+	assertGetEventsWithFilter(arg);
+}
+
 void test_getEventWithStartIdWithoutSortOrder(void)
 {
 	AssertGetEventsArg arg;
