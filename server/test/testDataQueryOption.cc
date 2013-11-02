@@ -81,6 +81,14 @@ void test_operatorEq(void)
 	cppcut_assert_equal(true, lhs == rhs);
 }
 
+void test_operatorEqFail(void)
+{
+	DataQueryOption lhs;
+	DataQueryOption rhs;
+	rhs.setMaximumNumber(2);
+	cppcut_assert_equal(false, lhs == rhs);
+}
+
 void test_setGetUserId(void)
 {
 	bool dbRecreate = true;
