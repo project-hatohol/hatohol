@@ -88,6 +88,12 @@ void test_operatorEq(void)
 	cppcut_assert_equal(true, lhs == rhs);
 }
 
+void test_operatorEqToSelf(void)
+{
+	OperationPrivilege lhs;
+	cppcut_assert_equal(true, lhs == lhs);
+}
+
 void test_operatorEqFalse(void)
 {
 	OperationPrivilege lhs;
