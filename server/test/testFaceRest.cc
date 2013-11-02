@@ -1310,7 +1310,8 @@ public:
 };
 
 void _assertParseEventParameterSortOrderDontCare(
-  const DataQueryOption::SortOrder &sortOrder)
+  const DataQueryOption::SortOrder &sortOrder,
+  const HatoholErrorCode &expectCode = HTERR_OK)
 {
 	const string sortOrderStr = StringUtils::sprintf("%d", sortOrder);
 	EventQueryOption option;
@@ -1319,11 +1320,14 @@ void _assertParseEventParameterSortOrderDontCare(
 	                    (gpointer)"sortOrder",
 	                    (gpointer) sortOrderStr.c_str());
 	assertHatoholError(
-	  HTERR_OK, TestFaceRestNoInit::callParseEventParameter(option, query));
+	  expectCode,
+	  TestFaceRestNoInit::callParseEventParameter(option, query));
+	if (expectCode != HTERR_OK)
+		return;
 	cppcut_assert_equal(sortOrder, option.getSortOrder());
 }
-#define assertParseEventParameterSortOrderDontCare(O) \
-cut_trace(_assertParseEventParameterSortOrderDontCare(O))
+#define assertParseEventParameterSortOrderDontCare(O, ...) \
+cut_trace(_assertParseEventParameterSortOrderDontCare(O, ##__VA_ARGS__))
 
 GHashTable *g_query = NULL;
 
@@ -1375,6 +1379,12 @@ void test_parseEventParameterSortOrderDescending(void)
 {
 	assertParseEventParameterSortOrderDontCare(
 	  DataQueryOption::SORT_DESCENDING);
+}
+
+void test_parseEventParameterSortInvalidValue(void)
+{
+	assertParseEventParameterSortOrderDontCare(
+	  (DataQueryOption::SortOrder)-1, HTERR_INVALID_PARAMETER);
 }
 
 } // namespace testFaceRestNoInit
