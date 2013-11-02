@@ -794,7 +794,7 @@ void test_getEventWithMaximumNumberDescending(void)
 	assertGetEvents(arg);
 }
 
-void test_getEventWithMaximumNumberAscendingOffset(void)
+void test_getEventWithMaximumNumberAscendingStartId(void)
 {
 	static const uint64_t startId = 2;
 	static const size_t maxNum = 2;
