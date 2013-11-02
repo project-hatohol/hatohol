@@ -138,6 +138,12 @@ static string makeEventOutput(EventInfo &eventInfo)
 struct AssertGetEventsArg {
 	EventInfoList eventInfoList;
 	EventQueryOption option;
+	DataQueryOption::SortOrder sortOrder;
+
+	AssertGetEventsArg(void)
+	: sortOrder(DataQueryOption::SORT_DONT_CARE)
+	{
+	}
 
 	virtual void fixupOption(void)
 	{
@@ -149,6 +155,13 @@ struct AssertGetEventsArg {
 		fixupOption();
 	}
 
+	EventInfo &getExpectedEventInfo(size_t idx)
+	{
+		if (sortOrder == DataQueryOption::SORT_DESCENDING)
+			idx = (NumTestEventInfo - 1) - idx;
+		return testEventInfo[idx];
+	}
+
 	virtual void assert(void)
 	{
 		cppcut_assert_equal(NumTestEventInfo, eventInfoList.size());
@@ -156,7 +169,8 @@ struct AssertGetEventsArg {
 		string actualText;
 		EventInfoListIterator it = eventInfoList.begin();
 		for (size_t i = 0; i < NumTestEventInfo; i++, ++it) {
-			expectedText += makeEventOutput(testEventInfo[i]);
+			EventInfo &expectedEventInfo = getExpectedEventInfo(i);
+			expectedText += makeEventOutput(expectedEventInfo);
 			actualText += makeEventOutput(*it);
 		}
 		cppcut_assert_equal(expectedText, actualText);
@@ -715,21 +729,8 @@ void test_getEventSortAscending(void)
 
 void test_getEventSortDescending(void)
 {
-	struct TestArg : public AssertGetEventsArg {
-		virtual void assert(void)
-		{
-			cppcut_assert_equal(NumTestEventInfo,
-			                    eventInfoList.size());
-			string expect, actual;
-			EventInfoListIterator it = eventInfoList.begin();
-			size_t i = NumTestEventInfo - 1;
-			for (; it != eventInfoList.end(); i--, ++it) {
-				expect += makeEventOutput(testEventInfo[i]);
-				actual += makeEventOutput(*it);
-			}
-			cppcut_assert_equal(expect, actual);
-		}
-	} arg;
+	AssertGetEventsArg arg;
+	arg.sortOrder = DataQueryOption::SORT_DESCENDING;
 	assertGetEventsWithFilter(arg, DataQueryOption::SORT_DESCENDING);
 }
 
