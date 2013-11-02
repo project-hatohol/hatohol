@@ -1371,4 +1371,10 @@ void test_parseEventParameterSortOrderAscending(void)
 	  DataQueryOption::SORT_ASCENDING);
 }
 
+void test_parseEventParameterSortOrderDescending(void)
+{
+	assertParseEventParameterSortOrderDontCare(
+	  DataQueryOption::SORT_DESCENDING);
+}
+
 } // namespace testFaceRestNoInit
