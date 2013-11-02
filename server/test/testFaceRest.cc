@@ -1309,6 +1309,22 @@ public:
 	}
 };
 
+void _assertParseEventParameterSortOrderDontCare(
+  const DataQueryOption::SortOrder &sortOrder)
+{
+	const string sortOrderStr = StringUtils::sprintf("%d", sortOrder);
+	EventQueryOption option;
+	GHashTable *query = g_hash_table_new(g_str_hash, g_str_equal);
+	g_hash_table_insert(query,
+	                    (gpointer)"sortOrder",
+	                    (gpointer) sortOrderStr.c_str());
+	assertHatoholError(
+	  HTERR_OK, TestFaceRestNoInit::callParseEventParameter(option, query));
+	cppcut_assert_equal(sortOrder, option.getSortOrder());
+}
+#define assertParseEventParameterSortOrderDontCare(O) \
+cut_trace(_assertParseEventParameterSortOrderDontCare(O))
+
 GHashTable *g_query = NULL;
 
 void cut_teardown(void)
@@ -1345,18 +1361,8 @@ void test_parseEventParameterSortOrderNotFound(void)
 
 void test_parseEventParameterSortOrderDontCare(void)
 {
-	static const DataQueryOption::SortOrder sortOrder =
-	   DataQueryOption::SORT_DONT_CARE;
-	static const string sortOrderStr =
-	  StringUtils::sprintf("%d", sortOrder);
-	EventQueryOption option;
-	GHashTable *query = g_hash_table_new(g_str_hash, g_str_equal);
-	g_hash_table_insert(query,
-	                    (gpointer)"sortOrder",
-	                    (gpointer) sortOrderStr.c_str());
-	assertHatoholError(
-	  HTERR_OK, TestFaceRestNoInit::callParseEventParameter(option, query));
-	cppcut_assert_equal(sortOrder, option.getSortOrder());
+	assertParseEventParameterSortOrderDontCare(
+	  DataQueryOption::SORT_DONT_CARE);
 }
 
 } // namespace testFaceRestNoInit
