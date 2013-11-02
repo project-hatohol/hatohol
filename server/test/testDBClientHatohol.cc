@@ -709,12 +709,8 @@ void test_makeSelectCondition(void)
 
 void test_getEventSortAscending(void)
 {
-	// setup event data
-	test_addEventInfoList();
-
 	AssertGetEventsArg arg;
-	arg.option.setSortOrder(DataQueryOption::SORT_ASCENDING);
-	assertGetEvents(arg);
+	assertGetEventsWithFilter(arg, DataQueryOption::SORT_ASCENDING);
 }
 
 void test_getEventSortDescending(void)
