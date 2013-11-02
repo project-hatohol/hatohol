@@ -139,9 +139,11 @@ struct AssertGetEventsArg {
 	EventInfoList eventInfoList;
 	EventQueryOption option;
 	DataQueryOption::SortOrder sortOrder;
+	size_t maxNumber;
 
 	AssertGetEventsArg(void)
-	: sortOrder(DataQueryOption::SORT_DONT_CARE)
+	: sortOrder(DataQueryOption::SORT_DONT_CARE),
+	  maxNumber(0)
 	{
 	}
 
@@ -162,13 +164,20 @@ struct AssertGetEventsArg {
 		return testEventInfo[idx];
 	}
 
+	void assertNumberOfEvents(void)
+	{
+		size_t expectedNum = maxNumber ? : NumTestEventInfo;
+		cppcut_assert_equal(expectedNum, eventInfoList.size());
+	}
+
 	virtual void assert(void)
 	{
-		cppcut_assert_equal(NumTestEventInfo, eventInfoList.size());
+		assertNumberOfEvents();
+
 		string expectedText;
 		string actualText;
 		EventInfoListIterator it = eventInfoList.begin();
-		for (size_t i = 0; i < NumTestEventInfo; i++, ++it) {
+		for (size_t i = 0; it != eventInfoList.end(); i++, ++it) {
 			EventInfo &expectedEventInfo = getExpectedEventInfo(i);
 			expectedText += makeEventOutput(expectedEventInfo);
 			actualText += makeEventOutput(*it);
@@ -737,20 +746,8 @@ void test_getEventSortDescending(void)
 void test_getEventWithMaximumNumber(void)
 {
 	static const size_t maxNum = 2;
-	struct TestArg : public AssertGetEventsArg {
-		virtual void assert(void)
-		{
-			cppcut_assert_equal(maxNum, eventInfoList.size());
-			string expect, actual;
-			EventInfoListIterator it = eventInfoList.begin();
-			size_t i = 0;
-			for (; it != eventInfoList.end(); i++, ++it) {
-				expect += makeEventOutput(testEventInfo[i]);
-				actual += makeEventOutput(*it);
-			}
-			cppcut_assert_equal(expect, actual);
-		}
-	} arg;
+	AssertGetEventsArg arg;
+	arg.maxNumber = maxNum;
 	assertGetEventsWithFilter(
 	  arg, DataQueryOption::SORT_DONT_CARE, maxNum);
 }
