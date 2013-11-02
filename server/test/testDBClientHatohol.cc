@@ -755,20 +755,9 @@ void test_getEventWithMaximumNumber(void)
 void test_getEventWithMaximumNumberDescending(void)
 {
 	static const size_t maxNum = 2;
-	struct TestArg : public AssertGetEventsArg {
-		virtual void assert(void)
-		{
-			cppcut_assert_equal(maxNum, eventInfoList.size());
-			string expect, actual;
-			EventInfoListIterator it = eventInfoList.begin();
-			size_t i = NumTestEventInfo - 1;
-			for (; it != eventInfoList.end(); i--, ++it) {
-				expect += makeEventOutput(testEventInfo[i]);
-				actual += makeEventOutput(*it);
-			}
-			cppcut_assert_equal(expect, actual);
-		}
-	} arg;
+	AssertGetEventsArg arg;
+	arg.maxNumber = maxNum;
+	arg.sortOrder = DataQueryOption::SORT_DESCENDING;
 	assertGetEventsWithFilter(
 	  arg, DataQueryOption::SORT_DESCENDING, maxNum);
 }
