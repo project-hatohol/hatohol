@@ -748,29 +748,25 @@ void test_getEventSortDescending(void)
 
 void test_getEventWithMaximumNumber(void)
 {
-	static const size_t maxNum = 2;
 	AssertGetEventsArg arg;
-	arg.maxNumber = maxNum;
+	arg.maxNumber = 2;
 	assertGetEventsWithFilter(arg);
 }
 
 void test_getEventWithMaximumNumberDescending(void)
 {
-	static const size_t maxNum = 2;
 	AssertGetEventsArg arg;
-	arg.maxNumber = maxNum;
+	arg.maxNumber = 2;
 	arg.sortOrder = DataQueryOption::SORT_DESCENDING;
 	assertGetEventsWithFilter(arg);
 }
 
 void test_getEventWithMaximumNumberAscendingStartId(void)
 {
-	static const uint64_t startId = 2;
-	static const size_t maxNum = 2;
 	AssertGetEventsArg arg;
-	arg.maxNumber = maxNum;
+	arg.maxNumber = 2;
 	arg.sortOrder = DataQueryOption::SORT_ASCENDING;
-	arg.startId = startId;
+	arg.startId = 2;
 	assertGetEventsWithFilter(arg);
 }
 
