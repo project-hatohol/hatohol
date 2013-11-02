@@ -334,6 +334,23 @@ static string makeExpectedConditionForUser(UserIdType userId)
 	return exp;
 }
 
+static void _assertGetEventsWithFilter(
+  AssertGetEventsArg &arg, DataQueryOption::SortOrder sortOrder,
+  size_t maxNumber, uint64_t startId)
+{
+	// setup event data
+	void test_addEventInfoList(void);
+	test_addEventInfoList();
+
+	cppcut_assert_equal(true, startId + maxNumber  - 1 <= NumTestEventInfo);
+	arg.option.setMaximumNumber(maxNumber);
+	arg.option.setSortOrder(sortOrder);
+	arg.option.setStartId(startId);
+	assertGetEvents(arg);
+}
+#define assertGetEventsWithFilter(ARG, ORDER, MAX_NUM, START_ID) \
+cut_trace(_assertGetEventsWithFilter(ARG, ORDER, MAX_NUM, START_ID))
+
 void cut_setup(void)
 {
 	hatoholInit();
@@ -795,15 +812,8 @@ void test_getEventWithMaximumNumberAscendingOffset(void)
 			cppcut_assert_equal(expect, actual);
 		}
 	} arg;
-
-	// setup event data
-	test_addEventInfoList();
-
-	cppcut_assert_equal(true, startId + maxNum  - 1 <= NumTestEventInfo);
-	arg.option.setMaximumNumber(maxNum);
-	arg.option.setSortOrder(DataQueryOption::SORT_ASCENDING);
-	arg.option.setStartId(startId);
-	assertGetEvents(arg);
+	assertGetEventsWithFilter(
+	  arg, DataQueryOption::SORT_ASCENDING, maxNum, startId);
 }
 
 } // namespace testDBClientHatohol
