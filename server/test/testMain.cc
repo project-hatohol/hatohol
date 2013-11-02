@@ -39,6 +39,7 @@ using namespace std;
 using namespace mlpl;
 
 namespace testMain {
+
 struct FunctionArg {
 	bool timedOut;
 	bool isEndChildProcess;
@@ -334,5 +335,6 @@ void test_daemonize(void)
 
 	value->finishTest = true;
 }
-}
+
+} // namespace testMain
 
