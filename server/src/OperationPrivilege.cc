@@ -38,6 +38,12 @@ OperationPrivilege::OperationPrivilege(const OperationPrivilegeFlag flags)
 	m_ctx->flags = flags;
 }
 
+OperationPrivilege::OperationPrivilege(const OperationPrivilege &src)
+{
+	m_ctx = new PrivateContext();
+	m_ctx->flags = src.m_ctx->flags;
+}
+
 OperationPrivilege::~OperationPrivilege()
 {
 	if (m_ctx)

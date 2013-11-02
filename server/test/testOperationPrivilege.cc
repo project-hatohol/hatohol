@@ -31,6 +31,14 @@ void test_getDefaultFlags(void)
 	cppcut_assert_equal((OperationPrivilegeFlag)0, privilege.getFlags());
 }
 
+void test_copyConstructor(void)
+{
+	OperationPrivilege privilege;
+	privilege.setFlags(OperationPrivilege::makeFlag(OPPRVLG_CREATE_USER));
+	OperationPrivilege copied(privilege);
+	cppcut_assert_equal(privilege.getFlags(), copied.getFlags());
+}
+
 void test_getSpecifiedFlags(void)
 {
 	OperationPrivilege privilege(ALL_PRIVILEGES);

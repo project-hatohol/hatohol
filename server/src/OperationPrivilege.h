@@ -39,6 +39,7 @@ const static OperationPrivilegeFlag NONE_PRIVILEGE = 0;
 class OperationPrivilege {
 public:
 	OperationPrivilege(const OperationPrivilegeFlag flags = 0);
+	OperationPrivilege(const OperationPrivilege &src);
 	virtual ~OperationPrivilege();
 
 	const OperationPrivilegeFlag &getFlags(void) const;
