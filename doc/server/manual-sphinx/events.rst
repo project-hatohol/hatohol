@@ -12,7 +12,7 @@ Path
 
    * - URL
      - Comments
-   * - /trigger
+   * - /event
      - N/A
 
 Parameters
