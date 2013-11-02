@@ -1387,4 +1387,13 @@ void test_parseEventParameterSortInvalidValue(void)
 	  (DataQueryOption::SortOrder)-1, HTERR_INVALID_PARAMETER);
 }
 
+void test_parseEventParameterMaximumNumberNotFound(void)
+{
+	EventQueryOption option;
+	GHashTable *query = g_hash_table_new(g_str_hash, g_str_equal);
+	assertHatoholError(
+	  HTERR_OK, TestFaceRestNoInit::callParseEventParameter(option, query));
+	cppcut_assert_equal((size_t)0, option.getMaximumNumber());
+}
+
 } // namespace testFaceRestNoInit
