@@ -37,13 +37,13 @@ Parameters
      - Mandatory
    * - sortOrder
      - Any of `Sort order`_.
-     - A sort order of returned events.
+     - The default value is SORT_DONT_CARE.
      - If startId is specified, SORT_ASCENDING or SORT_DESCENDING has to be
        specified. Otherwise optional.
      - <-
    * - maximumNumber
      - A maximum number of returned events.
-     - (None)
+     - If this paramters is omitted, all events will be returned.
      - Optional
      - <-
    * - startId
