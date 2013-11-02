@@ -35,6 +35,34 @@ Parameters
      - N/A
      - N/A
      - Mandatory
+   * - sortOrder
+     - Any of `Sort order`_.
+     - A sort order of returned events.
+     - If startId is specified, SORT_ASCENDING or SORT_DESCENDING has to be
+       specified. Otherwise optional.
+     - <-
+   * - maximumNumber
+     - A maximum number of returned events.
+     - (None)
+     - Optional
+     - <-
+   * - startId
+     - A start ID of returned events.
+     - - This ID is included in the returned events if it exists.
+       - sortOrder has to be specified when this paramter is used.
+     - Optional
+     - <-
+
+Sort order
+----------
+.. list-table::
+
+   * - 0
+     - SORT_DONT_CARE
+   * - 1
+     - SORT_ASCENDING
+   * - 2
+     - SORT_DESCENDING
 
 Response
 ========
@@ -51,7 +79,7 @@ Repsponse structure
    * - apiVersion
      - Number
      - An API version of this URL.
-       This document is written for version **2**.
+       This document is written for version **3**.
      - Always
    * - result
      - Boolean
