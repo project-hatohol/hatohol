@@ -89,6 +89,15 @@ void test_operatorEqFail(void)
 	cppcut_assert_equal(false, lhs == rhs);
 }
 
+void test_copyConstructor(void)
+{
+	DataQueryOption opt;
+	opt.setSortOrder(DataQueryOption::SORT_ASCENDING);
+	opt.setMaximumNumber(1234);
+	DataQueryOption copied(opt);
+	cppcut_assert_equal(true, opt == copied);
+}
+
 void test_setGetUserId(void)
 {
 	bool dbRecreate = true;

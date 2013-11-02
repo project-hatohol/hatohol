@@ -49,6 +49,12 @@ DataQueryOption::DataQueryOption(void)
 	m_ctx = new PrivateContext();
 }
 
+DataQueryOption::DataQueryOption(const DataQueryOption &src)
+{
+	m_ctx = new PrivateContext();
+	*m_ctx = *src.m_ctx;
+}
+
 DataQueryOption::~DataQueryOption()
 {
 	if (m_ctx)

@@ -34,6 +34,7 @@ public:
 	};
 
 	DataQueryOption(void);
+	DataQueryOption(const DataQueryOption &src);
 	~DataQueryOption();
 
 	bool operator==(const DataQueryOption &rhs);
