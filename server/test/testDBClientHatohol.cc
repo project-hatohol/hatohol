@@ -759,13 +759,8 @@ void test_getEventWithMaximumNumber(void)
 			cppcut_assert_equal(expect, actual);
 		}
 	} arg;
-
-	// setup event data
-	test_addEventInfoList();
-
-	cppcut_assert_equal(true, maxNum < NumTestEventInfo);
-	arg.option.setMaximumNumber(maxNum);
-	assertGetEvents(arg);
+	assertGetEventsWithFilter(
+	  arg, DataQueryOption::SORT_DONT_CARE, maxNum);
 }
 
 void test_getEventWithMaximumNumberDescending(void)
