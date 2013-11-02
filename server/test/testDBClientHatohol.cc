@@ -361,23 +361,21 @@ static string makeExpectedConditionForUser(UserIdType userId)
 	return exp;
 }
 
-static void _assertGetEventsWithFilter(
-  AssertGetEventsArg &arg, DataQueryOption::SortOrder sortOrder,
-  size_t maxNumber = 0, uint64_t startId = 0)
+static void _assertGetEventsWithFilter(AssertGetEventsArg &arg)
 {
 	// setup event data
 	void test_addEventInfoList(void);
 	test_addEventInfoList();
 
-	if (maxNumber)
-		arg.option.setMaximumNumber(maxNumber);
-	arg.option.setSortOrder(sortOrder);
-	if (startId)
-		arg.option.setStartId(startId);
+	if (arg.maxNumber)
+		arg.option.setMaximumNumber(arg.maxNumber);
+	arg.option.setSortOrder(arg.sortOrder);
+	if (arg.startId)
+		arg.option.setStartId(arg.startId);
 	assertGetEvents(arg);
 }
-#define assertGetEventsWithFilter(ARG, ORDER, ...) \
-cut_trace(_assertGetEventsWithFilter(ARG, ORDER, ##__VA_ARGS__))
+#define assertGetEventsWithFilter(ARG) \
+cut_trace(_assertGetEventsWithFilter(ARG))
 
 void cut_setup(void)
 {
@@ -737,14 +735,15 @@ void test_makeSelectCondition(void)
 void test_getEventSortAscending(void)
 {
 	AssertGetEventsArg arg;
-	assertGetEventsWithFilter(arg, DataQueryOption::SORT_ASCENDING);
+	arg.sortOrder = DataQueryOption::SORT_ASCENDING;
+	assertGetEventsWithFilter(arg);
 }
 
 void test_getEventSortDescending(void)
 {
 	AssertGetEventsArg arg;
 	arg.sortOrder = DataQueryOption::SORT_DESCENDING;
-	assertGetEventsWithFilter(arg, DataQueryOption::SORT_DESCENDING);
+	assertGetEventsWithFilter(arg);
 }
 
 void test_getEventWithMaximumNumber(void)
@@ -752,8 +751,7 @@ void test_getEventWithMaximumNumber(void)
 	static const size_t maxNum = 2;
 	AssertGetEventsArg arg;
 	arg.maxNumber = maxNum;
-	assertGetEventsWithFilter(
-	  arg, DataQueryOption::SORT_DONT_CARE, maxNum);
+	assertGetEventsWithFilter(arg);
 }
 
 void test_getEventWithMaximumNumberDescending(void)
@@ -762,8 +760,7 @@ void test_getEventWithMaximumNumberDescending(void)
 	AssertGetEventsArg arg;
 	arg.maxNumber = maxNum;
 	arg.sortOrder = DataQueryOption::SORT_DESCENDING;
-	assertGetEventsWithFilter(
-	  arg, DataQueryOption::SORT_DESCENDING, maxNum);
+	assertGetEventsWithFilter(arg);
 }
 
 void test_getEventWithMaximumNumberAscendingStartId(void)
@@ -774,8 +771,7 @@ void test_getEventWithMaximumNumberAscendingStartId(void)
 	arg.maxNumber = maxNum;
 	arg.sortOrder = DataQueryOption::SORT_ASCENDING;
 	arg.startId = startId;
-	assertGetEventsWithFilter(
-	  arg, DataQueryOption::SORT_ASCENDING, maxNum, startId);
+	assertGetEventsWithFilter(arg);
 }
 
 } // namespace testDBClientHatohol
