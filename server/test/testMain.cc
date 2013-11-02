@@ -35,6 +35,7 @@
 
 #include "Hatohol.h"
 #include "Utils.h"
+#include "Logger.h"
 using namespace std;
 using namespace mlpl;
 
@@ -329,6 +330,8 @@ void test_daemonize(void)
 	cppcut_assert_equal(true, childProcessLoop(value->childPid));
 	cppcut_assert_equal(true, parsePIDFile(value->grandchildPid,
 	                                       value->pidFilePath));
+	MLPL_INFO("[PIDs] self: %d, child: %d, grandchild: %d\n",
+	  getpid(), value->childPid, value->grandchildPid);
 	parseStatFile(value->grandchildParentPid, value->grandchildPid);
 	cppcut_assert_equal(getInitPid(getpid()), value->grandchildParentPid);
 	cppcut_assert_equal(true, parseEnvironFile(value->magicNumber, value->grandchildPid));
