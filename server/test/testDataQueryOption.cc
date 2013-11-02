@@ -65,6 +65,13 @@ void test_operatorEqToMySelf(void)
 	cppcut_assert_equal(true, lhs == lhs);
 }
 
+void test_operatorEqInitailObject(void)
+{
+	DataQueryOption lhs;
+	DataQueryOption rhs;
+	cppcut_assert_equal(true, lhs == rhs);
+}
+
 void test_setGetUserId(void)
 {
 	bool dbRecreate = true;
