@@ -139,7 +139,6 @@ protected:
 	static std::string makeConditionHostGroup(
 	  const HostGroupSet &hostGroupSet,
 	  const std::string &hostGroupIdColumnName);
-
 };
 
 class DBClientHatohol : public DBClient {
