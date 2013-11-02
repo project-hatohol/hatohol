@@ -1309,7 +1309,6 @@ public:
 	}
 };
 
-
 void test_parseEventParameterWithNullQueryParameter(void)
 {
 	EventQueryOption orig;
