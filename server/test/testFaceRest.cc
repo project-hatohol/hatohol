@@ -1313,11 +1313,17 @@ template<typename PARAM_TYPE>
 void _assertParseEventParameterTempl(
   const PARAM_TYPE &expectValue, const string &fmt, const string &paramName,
   PARAM_TYPE (EventQueryOption::*valueGetter)(void) const,
-  const HatoholErrorCode &expectCode = HTERR_OK)
+  const HatoholErrorCode &expectCode = HTERR_OK,
+  const string &forceValueStr = "")
 {
-	const string expectStr = StringUtils::sprintf(fmt.c_str(), expectValue);
 	EventQueryOption option;
 	GHashTable *query = g_hash_table_new(g_str_hash, g_str_equal);
+
+	string expectStr;
+	if (forceValueStr.empty())
+		expectStr =StringUtils::sprintf(fmt.c_str(), expectValue);
+	else
+		expectStr = forceValueStr;
 	g_hash_table_insert(query,
 	                    (gpointer) paramName.c_str(),
 	                    (gpointer) expectStr.c_str());
@@ -1343,12 +1349,12 @@ void _assertParseEventParameterSortOrderDontCare(
 cut_trace(_assertParseEventParameterSortOrderDontCare(O, ##__VA_ARGS__))
 
 void _assertParseEventParameterMaximumNumber(
-  const size_t &expectValue,
+  const size_t &expectValue, const string &forceValueStr = "",
   const HatoholErrorCode &expectCode = HTERR_OK)
 {
 	assertParseEventParameterTempl(
 	  size_t, expectValue, "%zd", "maximumNumber",
-	  &EventQueryOption::getMaximumNumber, expectCode);
+	  &EventQueryOption::getMaximumNumber, expectCode, forceValueStr);
 }
 #define assertParseEventParameterMaximumNumber(E, ...) \
 cut_trace(_assertParseEventParameterMaximumNumber(E, ##__VA_ARGS__))
@@ -1423,6 +1429,12 @@ void test_parseEventParameterMaximumNumberNotFound(void)
 void test_parseEventParameterMaximumNumber(void)
 {
 	assertParseEventParameterMaximumNumber(100);
+}
+
+void test_parseEventParameterMaximumNumberInvalidInput(void)
+{
+	assertParseEventParameterMaximumNumber(0, "lion",
+	                                       HTERR_INVALID_PARAMETER);
 }
 
 } // namespace testFaceRestNoInit
