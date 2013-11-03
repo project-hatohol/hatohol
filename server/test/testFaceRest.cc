@@ -1451,4 +1451,10 @@ void test_parseEventParameterStartId(void)
 	assertParseEventParameterMaximumNumber(345678);
 }
 
+void test_parseEventParameterStartIdInvalidInput(void)
+{
+	assertParseEventParameterMaximumNumber(0, "orca",
+	                                       HTERR_INVALID_PARAMETER);
+}
+
 } // namespace testFaceRestNoInit
