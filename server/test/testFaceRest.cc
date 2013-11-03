@@ -1309,6 +1309,28 @@ public:
 	}
 };
 
+template<typename PARAM_TYPE>
+void _assertParseEventParameterTempl(
+  const PARAM_TYPE &expectValue, const string &fmt, const string &paramName,
+  PARAM_TYPE (EventQueryOption::*valueGetter)(void) const,
+  const HatoholErrorCode &expectCode = HTERR_OK)
+{
+	const string expectStr = StringUtils::sprintf(fmt.c_str(), expectValue);
+	EventQueryOption option;
+	GHashTable *query = g_hash_table_new(g_str_hash, g_str_equal);
+	g_hash_table_insert(query,
+	                    (gpointer) paramName.c_str(),
+	                    (gpointer) expectStr.c_str());
+	assertHatoholError(
+	  expectCode,
+	  TestFaceRestNoInit::callParseEventParameter(option, query));
+	if (expectCode != HTERR_OK)
+		return;
+	cppcut_assert_equal(expectValue, (option.*valueGetter)());
+}
+#define assertParseEventParameterTempl(T, E, FM, PN, GT, ...) \
+cut_trace(_assertParseEventParameterTempl<T>(E, FM, PN, GT, ##__VA_ARGS__))
+
 void _assertParseEventParameterSortOrderDontCare(
   const DataQueryOption::SortOrder &sortOrder,
   const HatoholErrorCode &expectCode = HTERR_OK)
@@ -1328,6 +1350,17 @@ void _assertParseEventParameterSortOrderDontCare(
 }
 #define assertParseEventParameterSortOrderDontCare(O, ...) \
 cut_trace(_assertParseEventParameterSortOrderDontCare(O, ##__VA_ARGS__))
+
+void _assertParseEventParameterMaximumNumber(
+  const size_t &expectValue,
+  const HatoholErrorCode &expectCode = HTERR_OK)
+{
+	assertParseEventParameterTempl(
+	  size_t, expectValue, "%zd", "maximumNumber",
+	  &EventQueryOption::getMaximumNumber, expectCode);
+}
+#define assertParseEventParameterMaximumNumber(E, ...) \
+cut_trace(_assertParseEventParameterMaximumNumber(E, ##__VA_ARGS__))
 
 GHashTable *g_query = NULL;
 
@@ -1394,6 +1427,11 @@ void test_parseEventParameterMaximumNumberNotFound(void)
 	assertHatoholError(
 	  HTERR_OK, TestFaceRestNoInit::callParseEventParameter(option, query));
 	cppcut_assert_equal((size_t)0, option.getMaximumNumber());
+}
+
+void test_parseEventParameterMaximumNumber(void)
+{
+	assertParseEventParameterMaximumNumber(100);
 }
 
 } // namespace testFaceRestNoInit
