@@ -1335,18 +1335,9 @@ void _assertParseEventParameterSortOrderDontCare(
   const DataQueryOption::SortOrder &sortOrder,
   const HatoholErrorCode &expectCode = HTERR_OK)
 {
-	const string sortOrderStr = StringUtils::sprintf("%d", sortOrder);
-	EventQueryOption option;
-	GHashTable *query = g_hash_table_new(g_str_hash, g_str_equal);
-	g_hash_table_insert(query,
-	                    (gpointer)"sortOrder",
-	                    (gpointer) sortOrderStr.c_str());
-	assertHatoholError(
-	  expectCode,
-	  TestFaceRestNoInit::callParseEventParameter(option, query));
-	if (expectCode != HTERR_OK)
-		return;
-	cppcut_assert_equal(sortOrder, option.getSortOrder());
+	assertParseEventParameterTempl(
+	  DataQueryOption::SortOrder, sortOrder, "%d", "sortOrder",
+	  &EventQueryOption::getSortOrder, expectCode);
 }
 #define assertParseEventParameterSortOrderDontCare(O, ...) \
 cut_trace(_assertParseEventParameterSortOrderDontCare(O, ##__VA_ARGS__))
