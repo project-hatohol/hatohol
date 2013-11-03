@@ -1446,4 +1446,9 @@ void test_parseEventParameterStartIdNotFound(void)
 	cppcut_assert_equal((uint64_t)0, option.getStartId());
 }
 
+void test_parseEventParameterStartId(void)
+{
+	assertParseEventParameterMaximumNumber(345678);
+}
+
 } // namespace testFaceRestNoInit
