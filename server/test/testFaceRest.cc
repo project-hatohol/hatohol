@@ -1359,6 +1359,17 @@ void _assertParseEventParameterMaximumNumber(
 #define assertParseEventParameterMaximumNumber(E, ...) \
 cut_trace(_assertParseEventParameterMaximumNumber(E, ##__VA_ARGS__))
 
+void _assertParseEventParameterStartId(
+  const size_t &expectValue, const string &forceValueStr = "",
+  const HatoholErrorCode &expectCode = HTERR_OK)
+{
+	assertParseEventParameterTempl(
+	  uint64_t, expectValue, "%"PRIu64, "startId",
+	  &EventQueryOption::getStartId, expectCode, forceValueStr);
+}
+#define assertParseEventParameterStartId(E, ...) \
+cut_trace(_assertParseEventParameterStartId(E, ##__VA_ARGS__))
+
 GHashTable *g_query = NULL;
 
 void cut_teardown(void)
@@ -1448,13 +1459,12 @@ void test_parseEventParameterStartIdNotFound(void)
 
 void test_parseEventParameterStartId(void)
 {
-	assertParseEventParameterMaximumNumber(345678);
+	assertParseEventParameterStartId(345678);
 }
 
 void test_parseEventParameterStartIdInvalidInput(void)
 {
-	assertParseEventParameterMaximumNumber(0, "orca",
-	                                       HTERR_INVALID_PARAMETER);
+	assertParseEventParameterStartId(0, "orca", HTERR_INVALID_PARAMETER);
 }
 
 } // namespace testFaceRestNoInit
