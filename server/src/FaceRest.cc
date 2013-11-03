@@ -1639,7 +1639,11 @@ HatoholError FaceRest::parseEventParameter(EventQueryOption &option,
 	option.setMaximumNumber(maximumNumber);
 
 	// start ID
-	// TODO: implement
+	uint64_t startId = 0;
+	err = getParam<uint64_t>(query, "startId", "%"PRIu64, startId);
+	if (err != HTERR_OK && err != HTERR_NOT_FOUND_PARAMETER)
+		return err;
+	option.setStartId(startId);
 
 	return HatoholError(HTERR_OK);
 }

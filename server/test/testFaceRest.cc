@@ -1437,4 +1437,13 @@ void test_parseEventParameterMaximumNumberInvalidInput(void)
 	                                       HTERR_INVALID_PARAMETER);
 }
 
+void test_parseEventParameterStartIdNotFound(void)
+{
+	EventQueryOption option;
+	GHashTable *query = g_hash_table_new(g_str_hash, g_str_equal);
+	assertHatoholError(
+	  HTERR_OK, TestFaceRestNoInit::callParseEventParameter(option, query));
+	cppcut_assert_equal((uint64_t)0, option.getStartId());
+}
+
 } // namespace testFaceRestNoInit
