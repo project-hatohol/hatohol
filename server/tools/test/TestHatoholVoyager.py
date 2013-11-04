@@ -110,6 +110,18 @@ class TestHatoholVoyager(unittest.TestCase):
     arg_list = ["show-event"]
     self._assert_url(arg_list, "http://localhost:33194/event")
 
+  def test_show_event_sort_asc(self):
+    arg_list = ["show-event", "--sort", "asc"]
+    self._assert_url(arg_list,
+                     "http://localhost:33194/event?sortOrder=%d" %
+                       hatohol.DATA_QUERY_OPTION_SORT_ASCENDING)
+
+  def test_show_event_sort_desc(self):
+    arg_list = ["show-event", "--sort", "desc"]
+    self._assert_url(arg_list,
+                     "http://localhost:33194/event?sortOrder=%d" %
+                       hatohol.DATA_QUERY_OPTION_SORT_DESCENDING)
+
   def test_show_item(self):
     arg_list = ["show-item"]
     self._assert_url(arg_list, "http://localhost:33194/item")
