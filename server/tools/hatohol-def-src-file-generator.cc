@@ -40,6 +40,12 @@ do { CONTENT += StringUtils::sprintf(FMT, ##__VA_ARGS__); } while(0)
 #define ADD_LINE(SOURCE, LANG_TYPE, VAL) \
 SOURCE += makeLine(LANG_TYPE, #VAL, toString(VAL))
 
+#define DEF_LINE(SOURCE, LANG_TYPE, VAL, TYPE, ACTUAL) \
+do { \
+	TYPE VAL = ACTUAL; \
+	ADD_LINE(SOURCE, LANG_TYPE, VAL); \
+} while (0)
+
 static const char *GPL_V2_OR_LATER_HEADER_C_STYLE =
 "/*\n"
 " * Copyright (C) 2013 Project Hatohol\n"
@@ -188,18 +194,12 @@ static void makeDefSourceValues(string &s, LanguageType langType)
 	//
 	// DataQueryOption
 	//
-	DataQueryOption::SortOrder DATA_QUERY_OPTION_SORT_DONT_CARE
-	  = DataQueryOption::SORT_DONT_CARE;
-	ADD_LINE(s, langType, DATA_QUERY_OPTION_SORT_DONT_CARE);
-
-	DataQueryOption::SortOrder DATA_QUERY_OPTION_SORT_ASCENDING
-	  = DataQueryOption::SORT_ASCENDING;
-	ADD_LINE(s, langType, DATA_QUERY_OPTION_SORT_ASCENDING);
-
-	DataQueryOption::SortOrder DATA_QUERY_OPTION_SORT_DESCENDING
-	  = DataQueryOption::SORT_DESCENDING;
-	ADD_LINE(s, langType, DATA_QUERY_OPTION_SORT_DESCENDING);
-
+	DEF_LINE(s, langType, DATA_QUERY_OPTION_SORT_DONT_CARE,
+	         DataQueryOption::SortOrder, DataQueryOption::SORT_DONT_CARE);
+	DEF_LINE(s, langType, DATA_QUERY_OPTION_SORT_ASCENDING,
+	         DataQueryOption::SortOrder, DataQueryOption::SORT_ASCENDING);
+	DEF_LINE(s, langType, DATA_QUERY_OPTION_SORT_DESCENDING,
+	         DataQueryOption::SortOrder, DataQueryOption::SORT_DESCENDING);
 	APPEND(s, "\n");
 
 	//
