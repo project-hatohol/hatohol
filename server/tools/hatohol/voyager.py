@@ -21,6 +21,7 @@ import sys
 import urllib
 import urllib2
 import argparse
+import hatohol
 from hatohol.ActionCreator import ActionCreator
 
 DEFAULT_SERVER = "localhost"
@@ -97,6 +98,14 @@ def show_trigger(url, args):
 
 def show_event(url, args):
   url += "/event"
+  query = {}
+  if args.sort is not None:
+    orderDict = {"asc":hatohol.DATA_QUERY_OPTION_SORT_ASCENDING,
+                 "desc":hatohol.DATA_QUERY_OPTION_SORT_DESCENDING}
+    query["sortOrder"] = orderDict[args.sort]
+  if len(query) > 0:
+    encoded_query = urllib.urlencode(query)
+    url += "?" + encoded_query
   return {"url":url, "postproc":open_url_and_show_response}
 
 def show_item(url, args):
@@ -188,6 +197,7 @@ def main(arg_list=None, exec_postproc=True):
 
   # event
   sub_event = subparsers.add_parser("show-event")
+  sub_event.add_argument("--sort", choices=["asc", "desc"])
 
   # item
   sub_item = subparsers.add_parser("show-item")
