@@ -183,12 +183,10 @@ static void makeDefSourceValues(string &s, LanguageType langType)
 	//
 	// FaceRest
 	//
-	int FACE_REST_API_VERSION = FaceRest::API_VERSION;
-	ADD_LINE(s, langType, FACE_REST_API_VERSION);
-
-	string FACE_REST_SESSION_ID_HEADER_NAME =
-	   FaceRest::SESSION_ID_HEADER_NAME;
-	ADD_LINE(s, langType, FACE_REST_SESSION_ID_HEADER_NAME);
+	DEF_LINE(s, langType, FACE_REST_API_VERSION,
+	         int, FaceRest::API_VERSION);
+	DEF_LINE(s, langType, FACE_REST_SESSION_ID_HEADER_NAME,
+	         string, FaceRest::SESSION_ID_HEADER_NAME);
 	APPEND(s, "\n");
 
 	//
