@@ -133,6 +133,10 @@ class TestHatoholVoyager(unittest.TestCase):
     arg_list = ["show-event", "-n", "5"]
     self._assert_url(arg_list, "http://localhost:33194/event?maximumNumber=5")
 
+  def test_show_event_start_id(self):
+    arg_list = ["show-event", "--start-id", "3"]
+    self._assert_url(arg_list, "http://localhost:33194/event?startId=3")
+
   # Item
   def test_show_item(self):
     arg_list = ["show-item"]

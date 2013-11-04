@@ -105,6 +105,8 @@ def show_event(url, args):
     query["sortOrder"] = orderDict[args.sort]
   if args.max_number is not None:
     query["maximumNumber"] = args.max_number
+  if args.start_id is not None:
+    query["startId"] = args.start_id
   if len(query) > 0:
     encoded_query = urllib.urlencode(query)
     url += "?" + encoded_query
@@ -201,6 +203,7 @@ def main(arg_list=None, exec_postproc=True):
   sub_event = subparsers.add_parser("show-event")
   sub_event.add_argument("--sort", choices=["asc", "desc"])
   sub_event.add_argument("-n", "--max-number", type=int)
+  sub_event.add_argument("--start-id", type=int)
 
   # item
   sub_item = subparsers.add_parser("show-item")
