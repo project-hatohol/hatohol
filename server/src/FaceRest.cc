@@ -390,10 +390,12 @@ void FaceRest::replyError(SoupMessage *msg, const HandlerArg *arg,
                           const HatoholErrorCode &errorCode,
                           const string &optionMessage)
 {
-	if (optionMessage.empty())
-		MLPL_ERR("error: %d\n", errorCode);
-	else
-		MLPL_ERR("error: %d, %s", errorCode, optionMessage.c_str());
+	if (optionMessage.empty()) {
+		MLPL_INFO("reply error: %d\n", errorCode);
+	} else {
+		MLPL_INFO("reply error: %d, %s",
+		          errorCode, optionMessage.c_str());
+	}
 
 	JsonBuilderAgent agent;
 	agent.startObject();
