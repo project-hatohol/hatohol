@@ -158,6 +158,11 @@ static void makeDefSourceValues(string &s, LanguageType langType)
 	ADD_LINE(s, langType, HTERR_USER_NAME_EXIST);
 	ADD_LINE(s, langType, HTERR_NO_PRIVILEGE);
 	ADD_LINE(s, langType, HTERR_INVALID_USER_FLAGS);
+	ADD_LINE(s, langType, HTERR_NOT_FOUND_USER_ID);
+	APPEND(s, "\n");
+
+	// DBClientHatohol
+	ADD_LINE(s, langType, HTERR_NOT_FOUND_SORT_ORDER);
 	APPEND(s, "\n");
 
 	// FaceRest
