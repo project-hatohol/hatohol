@@ -1088,7 +1088,11 @@ void FaceRest::handlerGetEvent
 		replyError(msg, arg, err);
 		return;
 	}
-	dataStore->getEventList(eventList, option);
+	err = dataStore->getEventList(eventList, option);
+	if (err != HTERR_OK) {
+		replyError(msg, arg, err);
+		return;
+	}
 
 	JsonBuilderAgent agent;
 	agent.startObject();

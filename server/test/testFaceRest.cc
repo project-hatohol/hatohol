@@ -870,6 +870,16 @@ void test_eventsJsonp(void)
 	assertEvents("/event", "foo");
 }
 
+void test_eventsStartIdWithoutSortOrder(void)
+{
+	startFaceRest();
+	StringMap parameters;
+	parameters["startId"] = "5";
+	JsonParserAgent *g_parser = getResponseAsJsonParser("/event", "hoge",
+	                                                    parameters);
+	assertErrorCode(g_parser, HTERR_NOT_FOUND_SORT_ORDER);
+}
+
 void test_items(void)
 {
 	assertItems("/item");
