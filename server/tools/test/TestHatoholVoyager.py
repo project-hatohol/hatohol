@@ -106,6 +106,9 @@ class TestHatoholVoyager(unittest.TestCase):
     arg_list = ["show-trigger", "3", "2000", "123456789"]
     self._assert_url(arg_list, "http://localhost:33194/trigger?serverId=3&hostId=2000&triggerId=123456789")
 
+  #
+  # Event
+  #
   def test_show_event(self):
     arg_list = ["show-event"]
     self._assert_url(arg_list, "http://localhost:33194/event")
@@ -130,6 +133,7 @@ class TestHatoholVoyager(unittest.TestCase):
     arg_list = ["show-event", "-n", "5"]
     self._assert_url(arg_list, "http://localhost:33194/event?maximumNumber=5")
 
+  # Item
   def test_show_item(self):
     arg_list = ["show-item"]
     self._assert_url(arg_list, "http://localhost:33194/item")
