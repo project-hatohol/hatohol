@@ -200,7 +200,7 @@ def main(arg_list=None, exec_postproc=True):
   # event
   sub_event = subparsers.add_parser("show-event")
   sub_event.add_argument("--sort", choices=["asc", "desc"])
-  sub_event.add_argument("--max-number", type=int)
+  sub_event.add_argument("-n", "--max-number", type=int)
 
   # item
   sub_item = subparsers.add_parser("show-item")
