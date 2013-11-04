@@ -97,6 +97,10 @@ static string makeLine(LanguageType langType,
 		line = StringUtils::sprintf("  %s: %s,",
 		                            varName.c_str(), value.c_str());
 		break;
+	case PYTHON:
+		line = StringUtils::sprintf("%s = %s",
+		                            varName.c_str(), value.c_str());
+		break;
 	default:
 		THROW_HATOHOL_EXCEPTION("Unknown language type: %d\n",
 		                        langType);
@@ -195,15 +199,22 @@ static string makeNodeModuleExport(void)
 static string makeDefSource(LanguageType langType)
 {
 	string s;
-	s += GPL_V2_OR_LATER_HEADER_C_STYLE;
-	APPEND(s, "\n");
 	switch (langType) {
 	case JAVASCRIPT:
+		s += GPL_V2_OR_LATER_HEADER_C_STYLE;
+		APPEND(s, "\n");
 		APPEND(s, "var hatohol = {\n");
 		makeDefSourceValues(s, langType);
 		APPEND(s, "};\n");
 		APPEND(s, "\n");
 		s += makeNodeModuleExport();
+		break;
+	case PYTHON:
+		APPEND(s, "\"\"\"\n");
+		s += GPL_V2_OR_LATER_HEADER_PLAIN;
+		APPEND(s, "\"\"\"\n");
+		APPEND(s, "\n");
+		makeDefSourceValues(s, langType);
 		break;
 	default:
 		THROW_HATOHOL_EXCEPTION("Unknown language type: %d\n",
@@ -257,52 +268,6 @@ static string makeJsDefSource(char *arg[])
 	return s;
 }
 
-static string makePythonDefSource(char *arg[])
-{
-	string s = "\"\"\"\n";
-	s += GPL_V2_OR_LATER_HEADER_PLAIN;
-    APPEND(s, "\"\"\"\n");
-	APPEND(s, "\n");
-
-	APPEND(s, "TRIGGER_STATUS_OK      = %d\n",  TRIGGER_STATUS_OK);
-	APPEND(s, "TRIGGER_STATUS_PROBLEM = %d\n",  TRIGGER_STATUS_PROBLEM);
-	APPEND(s, "\n");
-
-	APPEND(s, "EVENT_TYPE_GOOD = %d\n", EVENT_TYPE_GOOD);
-	APPEND(s, "EVENT_TYPE_BAD  = %d\n", EVENT_TYPE_BAD);
-	APPEND(s, "\n");
-
-	APPEND(s,
-	  "TRIGGER_SEVERITY_UNKNOWN   = %d\n",  TRIGGER_SEVERITY_UNKNOWN);
-	APPEND(s,
-	  "TRIGGER_SEVERITY_INFO      = %d\n",  TRIGGER_SEVERITY_INFO);
-	APPEND(s,
-	  "TRIGGER_SEVERITY_WARNING   = %d\n",  TRIGGER_SEVERITY_WARNING);
-	APPEND(s,
-	  "TRIGGER_SEVERITY_ERROR     = %d\n",  TRIGGER_SEVERITY_ERROR);
-	APPEND(s,
-	  "TRIGGER_SEVERITY_CRITICAL  = %d\n",  TRIGGER_SEVERITY_CRITICAL);
-	APPEND(s,
-	  "TRIGGER_SEVERITY_EMERGENCY = %d\n",  TRIGGER_SEVERITY_EMERGENCY);
-	APPEND(s, "\n");
-
-	APPEND(s, "ACTION_COMMAND  = %d\n",  ACTION_COMMAND);
-	APPEND(s, "ACTION_RESIDENT = %d\n",  ACTION_RESIDENT);
-	APPEND(s, "\n");
-
-	APPEND(s, "CMP_INVALID = %d\n",  CMP_INVALID);
-	APPEND(s, "CMP_EQ      = %d\n",  CMP_EQ);
-	APPEND(s, "CMP_EQ_GT   = %d\n",  CMP_EQ_GT);
-	APPEND(s, "\n");
-
-	APPEND(s,
-	  "MONITORING_SYSTEM_ZABBIX = %d\n", MONITORING_SYSTEM_ZABBIX);
-	APPEND(s,
-	  "MONITORING_SYSTEM_NAGIOS = %d\n", MONITORING_SYSTEM_NAGIOS);
-
-	return s;
-}
-
 static void printUsage(void)
 {
 	printf("Usage:\n");
@@ -328,7 +293,7 @@ int main(int argc, char *argv[])
 		content += "\n";
 		content += makeDefSource(JAVASCRIPT);
 	} else if (cmd == "py") {
-		content = makePythonDefSource(&argv[2]);
+		content = makeDefSource(PYTHON);
 	} else {
 		printf("Unknown command: %s\n", cmd.c_str());
 		return EXIT_FAILURE;
