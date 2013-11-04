@@ -103,6 +103,8 @@ def show_event(url, args):
     orderDict = {"asc":hatohol.DATA_QUERY_OPTION_SORT_ASCENDING,
                  "desc":hatohol.DATA_QUERY_OPTION_SORT_DESCENDING}
     query["sortOrder"] = orderDict[args.sort]
+  if args.max_number is not None:
+    query["maximumNumber"] = args.max_number
   if len(query) > 0:
     encoded_query = urllib.urlencode(query)
     url += "?" + encoded_query
@@ -198,6 +200,7 @@ def main(arg_list=None, exec_postproc=True):
   # event
   sub_event = subparsers.add_parser("show-event")
   sub_event.add_argument("--sort", choices=["asc", "desc"])
+  sub_event.add_argument("--max-number", type=int)
 
   # item
   sub_item = subparsers.add_parser("show-item")

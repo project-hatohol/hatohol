@@ -122,6 +122,10 @@ class TestHatoholVoyager(unittest.TestCase):
                      "http://localhost:33194/event?sortOrder=%d" %
                        hatohol.DATA_QUERY_OPTION_SORT_DESCENDING)
 
+  def test_show_event_max_number(self):
+    arg_list = ["show-event", "--max-number", "5"]
+    self._assert_url(arg_list, "http://localhost:33194/event?maximumNumber=5")
+
   def test_show_item(self):
     arg_list = ["show-item"]
     self._assert_url(arg_list, "http://localhost:33194/item")
