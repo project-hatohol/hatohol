@@ -164,22 +164,6 @@ int JsonParserAgent::countElements(void)
 	return json_reader_count_elements(m_reader);
 }
 
-void JsonParserAgent::getMemberName(void)
-{
-	const gchar *memberName = json_reader_get_member_name(m_reader);
-	if (!memberName) {
-		g_print("MemberName: FALSE\n");
-		if (!m_ctx->objectPosition.empty()) {
-			json_reader_end_member(m_reader);
-			json_reader_read_member(m_reader, m_ctx->objectPosition.c_str());
-		} else {
-			json_reader_end_member(m_reader);
-		}
-	} else {
-		g_print("MemberName: %s\n", memberName);
-	}
-}
-
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
