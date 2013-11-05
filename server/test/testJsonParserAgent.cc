@@ -187,8 +187,8 @@ void test_checkIsMember(void)
 	cppcut_assert_equal(true, parser.isMember("prefecture"));
 
 	cppcut_assert_equal(true, parser.startObject("data"));
-	cppcut_assert_equal(true, parser.startObject("ticketgate"));
-	cppcut_assert_equal(true, parser.startObject("greenwindows"));
+	cppcut_assert_equal(true, parser.isMember("ticketgate"));
+	cppcut_assert_equal(true, parser.isMember("greenwindows"));
 	parser.endObject();
 }
 } //namespace testJsonParserAgent
