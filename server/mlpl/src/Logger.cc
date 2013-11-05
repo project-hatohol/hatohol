@@ -50,7 +50,7 @@ void Logger::log(LogLevel level, const char *fileName, int lineNumber,
 	                                     lineNumber);
 	va_list ap;
 	va_start(ap, fmt);
-	string body = StringUtils::sprintf(fmt, ap);
+	string body = StringUtils::vsprintf(fmt, ap);
 	va_end(ap);
 
 	fprintf(stderr, "%s%s", header.c_str(), body.c_str());

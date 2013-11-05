@@ -107,12 +107,12 @@ string StringUtils::sprintf(const char *fmt, ...)
 {
 	va_list ap;
 	va_start(ap, fmt);
-	string str = sprintf(fmt, ap);
+	string str = vsprintf(fmt, ap);
 	va_end(ap);
 	return str;
 }
 
-string StringUtils::sprintf(const char *fmt, va_list ap)
+string StringUtils::vsprintf(const char *fmt, va_list ap)
 {
 	char bufOnStack[SPRINTF_BUF_ON_STACK_LENGTH];
 
