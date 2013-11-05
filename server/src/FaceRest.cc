@@ -28,6 +28,7 @@
 #include <AtomicValue.h>
 using namespace mlpl;
 
+#include <errno.h>
 #include <uuid/uuid.h>
 
 #include "FaceRest.h"
@@ -299,10 +300,11 @@ gpointer FaceRest::mainThread(HatoholThreadArg *arg)
 	   reaper(&cleaner, PrivateContext::MainThreadCleaner::callgate);
 
 	m_ctx->soupServer = soup_server_new(SOUP_SERVER_PORT, m_ctx->port,
-	                               SOUP_SERVER_ASYNC_CONTEXT,
-	                               m_ctx->gMainCtx, NULL);
-	HATOHOL_ASSERT(m_ctx->soupServer, "failed: soup_server_new: %u\n",
-	               m_ctx->port);
+	                                    SOUP_SERVER_ASYNC_CONTEXT,
+	                                    m_ctx->gMainCtx, NULL);
+	HATOHOL_ASSERT(m_ctx->soupServer,
+	               "failed: soup_server_new: %u, errno: %d\n",
+	               m_ctx->port, errno);
 	soup_server_add_handler(m_ctx->soupServer, NULL,
 	                        handlerDefault, this, NULL);
 	soup_server_add_handler(m_ctx->soupServer, "/hello.html",
