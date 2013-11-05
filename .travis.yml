@@ -7,12 +7,15 @@ compiler:
   - clang
 install:
   - server/misc/setup-cutter.sh
-  - sudo apt-get install -qq -y autotools-dev libglib2.0-dev libjson-glib-dev libsoup2.4-dev libmysqlclient-dev sqlite3 ndoutils-nagios3-mysql uuid-dev npm python-pip expect
+  - sudo apt-get install -qq -y autotools-dev libglib2.0-dev libjson-glib-dev libsoup2.4-dev libmysqlclient-dev sqlite3 ndoutils-nagios3-mysql uuid-dev npm python-pip expect python-dev
   - mysql -u root -e "GRANT all on ndoutils.* TO ndoutils@localhost IDENTIFIED BY 'admin';"
+  - mysql -u root -e "CREATE DATABASE hatohol_client;"
+  - mysql -u root -e "GRANT ALL PRIVILEGES ON hatohol_client.* TO hatohol@localhost IDENTIFIED BY 'hatohol';"
   - npm install -g mocha
   - npm install -g expect.js
   - npm install -g mocha-phantomjs phantomjs
   - sudo pip install django
+  - sudo pip install mysql-python
 before_script:
   - ./autogen.sh
   - ./configure
