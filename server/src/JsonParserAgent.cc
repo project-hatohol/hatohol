@@ -149,7 +149,6 @@ bool JsonParserAgent::isMember(const string &member)
 			return true;
 		i++;
 	}
-
 	return false;
 }
 
