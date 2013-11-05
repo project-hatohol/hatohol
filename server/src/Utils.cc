@@ -197,13 +197,16 @@ string Utils::getExtension(const string &path)
 
 string Utils::getSelfExeDir(void)
 {
-	char buf[PATH_MAX];
+	char buf[PATH_MAX+1];
 	ssize_t bytesRead = readlink("/proc/self/exe", buf, PATH_MAX);
 	if (bytesRead == -1) {
 		THROW_HATOHOL_EXCEPTION(
 		  "Failed to readlink(\"/proc/self/exe\"): %s",
 		  strerror(errno));
 	}
+	// readlink() doesn't add a NULL terminator and the constructor of string()
+	// needs it.
+	buf[bytesRead] = '\0';
 
 	int i;
 	for (i = bytesRead - 2; i > 0; i--) {
