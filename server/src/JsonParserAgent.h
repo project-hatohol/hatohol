@@ -59,7 +59,6 @@ public:
 	bool startElement(int index);
 	void endElement(void);
 	int countElements(void);
-	void getMemberName(void);
 
 protected:
 	void internalCheck(void);
