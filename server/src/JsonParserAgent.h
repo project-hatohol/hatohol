@@ -38,6 +38,7 @@ public:
 	bool read(const string &member, int64_t &dest);
 	bool read(const string &member, string &dest);
 	bool read(int index, string &dest);
+	bool isMember(const string &member);
 
 	/**
 	 * checks whether the element is Null.

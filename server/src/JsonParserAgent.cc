@@ -18,6 +18,7 @@
  */
 
 #include <Logger.h>
+#include <string.h>
 using namespace mlpl;
 
 #include <stdexcept>
@@ -132,6 +133,21 @@ bool JsonParserAgent::isNull(const string &member, bool &dest)
 	dest = json_reader_get_null_value(m_reader);
 	json_reader_end_element(m_reader);
 	return true;
+}
+
+bool JsonParserAgent::isMember(const string &member)
+{
+	gchar **listedMemberName;
+	int i = 0;
+	listedMemberName = json_reader_list_members(m_reader);
+
+	while (listedMemberName[i] != NULL) {
+		if (strcmp(listedMemberName[i], member.c_str()) == 0)
+			return true;
+		i++;
+	}
+
+	return false;
 }
 
 bool JsonParserAgent::startObject(const string &member)
