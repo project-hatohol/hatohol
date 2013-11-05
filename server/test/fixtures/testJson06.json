@@ -1,0 +1,8 @@
+{
+  "name":"Osaka",
+  "prefecture":"Osaka",
+  "data":{
+    "ticketgate":true,
+    "greenwindows":3,
+  }
+}

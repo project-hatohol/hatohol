@@ -178,4 +178,17 @@ void test_checkResultWhenFalseFalseTrue(void)
 	assertReadWord(string, parser, "city", "Tokyo");
 	parser.endObject();
 }
+
+void test_checkIsMember(void)
+{
+	DEFINE_PARSER_AND_READ(parser, "fixtures/testJson06.json");
+
+	cppcut_assert_equal(true, parser.isMember("name"));
+	cppcut_assert_equal(true, parser.isMember("prefecture"));
+
+	cppcut_assert_equal(true, parser.startObject("data"));
+	cppcut_assert_equal(true, parser.startObject("ticketgate"));
+	cppcut_assert_equal(true, parser.startObject("greenwindows"));
+	parser.endObject();
+}
 } //namespace testJsonParserAgent
