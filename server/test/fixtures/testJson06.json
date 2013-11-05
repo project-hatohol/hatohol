@@ -3,6 +3,6 @@
   "prefecture":"Osaka",
   "data":{
     "ticketgate":true,
-    "greenwindows":3,
+    "greenwindows":3
   }
 }
