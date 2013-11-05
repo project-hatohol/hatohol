@@ -16,6 +16,7 @@
 # along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
 
 import os
+import re
 from django.conf.urls import patterns, include, url
 from django.conf.urls.i18n import i18n_patterns
 from hatohol.forwardview import jsonforward
@@ -25,14 +26,24 @@ from django.views.generic import TemplateView
 # from django.contrib import admin
 # admin.autodiscover()
 
+def guessContentTypeFromFileName(file_name):
+  if re.search("\.js$", file_name):
+    return 'text/javascript'
+  elif re.search("\.css$", file_name):
+    return 'text/css'
+  return 'text/html'
+
 def makeTastingUrl(file_name):
+  content_type = guessContentTypeFromFileName(file_name)
   return url(r'^tasting/' + file_name + '$',
-             TemplateView.as_view(template_name='tasting/' + file_name))
+             TemplateView.as_view(template_name='tasting/' + file_name,
+                                  content_type=content_type))
 
 def makeTestUrl(file_name):
+  content_type = guessContentTypeFromFileName(file_name)
   return url(r'^test/' + file_name + '$',
-             TemplateView.as_view(template_name='test/browser/' + file_name))
-
+             TemplateView.as_view(template_name='test/browser/' + file_name,
+                                  content_type=content_type))
 
 urlpatterns = patterns('',
     # Examples:
