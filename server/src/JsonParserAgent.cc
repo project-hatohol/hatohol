@@ -26,7 +26,6 @@ using namespace mlpl;
 
 struct JsonParserAgent::PrivateContext
 {
-	string objectPosition;
 };
 
 // ---------------------------------------------------------------------------
@@ -158,7 +157,6 @@ bool JsonParserAgent::startObject(const string &member)
 		json_reader_end_member(m_reader);
 		return false;
 	}
-	m_ctx->objectPosition = member.c_str();
 	return true;
 }
 
