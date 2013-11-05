@@ -213,6 +213,7 @@ void test_executeOnGlibEventLoop(void)
 	TestExecEvtLoop thread;
 	thread.start();
 	g_main_loop_run(thread.loop);
+	thread.mutex.lock(); // wait for mainThread() to exit.
 
 	cppcut_assert_equal(Utils::getThreadId(), thread.eventLoopThreadId);
 	cppcut_assert_not_equal(0, thread.eventLoopThreadId);
@@ -236,6 +237,7 @@ void test_executeOnGlibEventLoopForFunctor(void)
 	thread.useFunctor = true;
 	thread.start();
 	g_main_loop_run(thread.loop);
+	thread.mutex.lock(); // wait for mainThread() to exit.
 
 	cppcut_assert_equal(Utils::getThreadId(), thread.eventLoopThreadId);
 	cppcut_assert_not_equal(0, thread.eventLoopThreadId);
