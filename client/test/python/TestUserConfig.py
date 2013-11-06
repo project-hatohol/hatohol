@@ -51,5 +51,9 @@ class TestUserConfig(unittest.TestCase):
     def test_get_from_empty(self):
         self.assertEquals(UserConfig.get("age", 5), None)
 
+    def test_get_integer(self):
+        self.test_create_integer()
+        self.assertEquals(UserConfig.get("age", 5), 17)
+
 if __name__ == '__main__':
     unittest.main()

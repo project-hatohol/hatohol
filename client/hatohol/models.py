@@ -39,5 +39,5 @@ class UserConfig(models.Model):
         if not objs:
             return None
         assert len(objs) == 1
-        return objs[0]
+        return objs[0].value
 

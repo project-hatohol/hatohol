@@ -39,8 +39,8 @@ class SmartField(models.Field):
     def to_python(self, value):
         if isinstance(value, str):
             try:
-                b64data = cPickle.loads(value)
-                return base64.b64decode(b64data)
+                pickle_data = base64.b64decode(value)
+                return cPickle.loads(pickle_data)
             except:
                 pass
         return value
