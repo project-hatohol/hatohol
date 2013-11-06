@@ -55,5 +55,9 @@ class TestUserConfig(unittest.TestCase):
         self.test_create_integer()
         self.assertEquals(UserConfig.get("age", 5), 17)
 
+    def test_get_string(self):
+        self.test_create_string()
+        self.assertEquals(UserConfig.get("name", 5), "Foo")
+
 if __name__ == '__main__':
     unittest.main()
