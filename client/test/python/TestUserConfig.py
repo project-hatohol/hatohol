@@ -21,8 +21,12 @@ import unittest
 
 from hatohol.models import UserConfig
 from django.db import connection
+import subprocess
 
 class TestUserConfig(unittest.TestCase):
+
+    def setUp(self):
+        UserConfig.objects.all().delete()
 
     def test_create_integer(self):
         user_conf = UserConfig(item_name="age", user_id=5, value=17)
