@@ -75,5 +75,11 @@ class TestUserConfig(unittest.TestCase):
         self.test_create_float()
         self.assertEquals(UserConfig.get("name", 600), None)
 
+    def test_get_none_with_diffent_name(self):
+        self.test_create_integer()
+        self.test_create_string()
+        self.test_create_float()
+        self.assertEquals(UserConfig.get("FOGA", 5), None)
+
 if __name__ == '__main__':
     unittest.main()
