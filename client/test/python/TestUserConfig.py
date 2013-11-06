@@ -21,7 +21,6 @@ import unittest
 
 from hatohol.models import UserConfig
 from django.db import connection
-import subprocess
 
 class TestUserConfig(unittest.TestCase):
 
