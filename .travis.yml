@@ -29,6 +29,8 @@ script:
   - popd; pushd .
   - cd server/tools/test && ./run-test.sh
   - popd; pushd .
+  - cd client/test/python && ./run-test.sh
+  - popd; pushd .
   - cd client/test/node && ./run-test.sh
   - popd; pushd .
   - test/launch-hatohol-for-test.sh
