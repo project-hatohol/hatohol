@@ -18,6 +18,7 @@
 from django.db import models
 from django.conf import settings
 import cPickle
+import base64
  
 # The document for making custom field is
 # https://docs.djangoproject.com/en/dev/howto/custom-model-fields/
@@ -38,10 +39,15 @@ class SmartField(models.Field):
     def to_python(self, value):
         if isinstance(value, str):
             try:
-                return cPickle.loads(value)        
+                b64data = cPickle.loads(value)        
+                return base64.b64decode(b64data)
             except:
                 pass
         return value
 
-    def get_db_prep_save(self, value):
-        return cPickle.dumps(value, cPickle.HIGHEST_PROTOCOL)
+    def get_db_prep_save(self, value, connection):
+        # We use ASCII (Base64) pickle.  There are two reasons to use ASCII.
+        # (1) Easy to see the content when we check it with mysql command.
+        # (2) CursorDebugWrapper, which logs SQL statements when
+        #     settings.DEBUG = True, cannot handle the binary string.
+        return base64.b64encode(cPickle.dumps(value, cPickle.HIGHEST_PROTOCOL))
