@@ -64,10 +64,6 @@ protected:
 	void internalCheck(void);
 
 private:
-	JsonParser *m_parser;
-	JsonReader *m_reader;
-	GError *m_error;
-
 	struct PrivateContext;
 	PrivateContext *m_ctx;
 };
