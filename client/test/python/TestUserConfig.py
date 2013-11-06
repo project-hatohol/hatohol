@@ -59,5 +59,9 @@ class TestUserConfig(unittest.TestCase):
         self.test_create_string()
         self.assertEquals(UserConfig.get("name", 5), "Foo")
 
+    def test_get_float(self):
+        self.test_create_float()
+        self.assertEquals(UserConfig.get("height", 5), 172.5)
+
 if __name__ == '__main__':
     unittest.main()
