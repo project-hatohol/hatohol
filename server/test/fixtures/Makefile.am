@@ -27,6 +27,7 @@ EXTRA_DIST= \
 	testJson03.json \
 	testJson04.json \
 	testJson05.json \
+	testJson06.json \
 	zabbix-api-res-applications-003.json \
 	zabbix-api-res-events-002.json \
 	zabbix-api-res-hosts-001.json \
