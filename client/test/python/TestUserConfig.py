@@ -29,23 +29,23 @@ class TestUserConfig(unittest.TestCase):
 
     def test_create_integer(self):
         user_conf = UserConfig(item_name="age", user_id=5, value=17)
-        self.assertEquals(user_conf.item_name, "age");
-        self.assertEquals(user_conf.user_id, 5);
-        self.assertEquals(user_conf.value, 17);
+        self.assertEquals(user_conf.item_name, "age")
+        self.assertEquals(user_conf.user_id, 5)
+        self.assertEquals(user_conf.value, 17)
         user_conf.save()
 
     def test_create_string(self):
         user_conf = UserConfig(item_name="name", user_id=5, value="Foo")
-        self.assertEquals(user_conf.item_name, "name");
-        self.assertEquals(user_conf.user_id, 5);
-        self.assertEquals(user_conf.value, "Foo");
+        self.assertEquals(user_conf.item_name, "name")
+        self.assertEquals(user_conf.user_id, 5)
+        self.assertEquals(user_conf.value, "Foo")
         user_conf.save()
 
     def test_create_float(self):
         user_conf = UserConfig(item_name="height", user_id=5, value=172.5)
-        self.assertEquals(user_conf.item_name, "height");
-        self.assertEquals(user_conf.user_id, 5);
-        self.assertEquals(user_conf.value, 172.5);
+        self.assertEquals(user_conf.item_name, "height")
+        self.assertEquals(user_conf.user_id, 5)
+        self.assertEquals(user_conf.value, 172.5)
         user_conf.save()
 
     def test_get_from_empty(self):
