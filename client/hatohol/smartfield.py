@@ -36,7 +36,12 @@ class SmartField(models.Field):
             raise NotImplementedError
 
     def to_python(self, value):
-        return cPickle.loads(value)        
+        if isinstance(value, str):
+            try:
+                return cPickle.loads(value)        
+            except:
+                pass
+        return value
 
     def get_db_prep_save(self, value):
-        return pickle.dumps(value, pickle.HIGHEST_PROTOCOL)
+        return cPickle.dumps(value, cPickle.HIGHEST_PROTOCOL)
