@@ -48,6 +48,8 @@ class TestUserConfig(unittest.TestCase):
         self.assertEquals(user_conf.value, 172.5);
         user_conf.save()
 
+    def test_get_from_empty(self):
+        self.assertEquals(UserConfig.get("age", 5), None)
 
 if __name__ == '__main__':
     unittest.main()

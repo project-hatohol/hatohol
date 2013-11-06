@@ -22,3 +22,22 @@ class UserConfig(models.Model):
     item_name = models.CharField(max_length=255, db_index=True)
     user_id = models.IntegerField(db_index=True)
     value = smartfield.SmartField()
+
+    @classmethod
+    def get(cls, item_name, user_id):
+        """Get a user configuration
+
+        Args:
+            item_name: A configuration item
+            user_id: A user ID for the configuration
+
+        Returns:
+            If the matched item exists, it is returned. Otherwise, None is
+            returned.
+        """
+        objs = UserConfig.objects.filter(item_name=item_name).filter(user_id=user_id)
+        if not objs:
+            return None
+        assert len(objs) == 1
+        return objs[0]
+
