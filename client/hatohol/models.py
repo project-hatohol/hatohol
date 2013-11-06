@@ -19,6 +19,6 @@ from django.db import models
 import smartfield
 
 class UserConfig(models.Model):
-    item_name = models.CharField(max_length=255)
-    user_id = models.IntegerField()
+    item_name = models.CharField(max_length=255, db_index=True)
+    user_id = models.IntegerField(db_index=True)
     value = smartfield.SmartField()
