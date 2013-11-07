@@ -18,7 +18,7 @@ Python
 ======
 Baisically follow PEP 8
 
-Tab: 4
+Indent: 4 spaces
 String: Single quotation
 
 JavaScript
