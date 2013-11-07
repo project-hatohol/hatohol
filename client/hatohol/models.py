@@ -16,6 +16,7 @@
 # along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
 
 from django.db import models
+from django.db import transaction
 import smartfield
 
 class UserConfig(models.Model):
@@ -33,8 +34,8 @@ class UserConfig(models.Model):
         return "%s (%d)" % (self.item_name, self.user_id)
 
     @classmethod
-    def get(cls, item_name, user_id):
-        """Get a user configuration
+    def get_object(cls, item_name, user_id):
+        """Get an object of UserConfig
 
         Args:
             item_name: A configuration item
@@ -48,5 +49,31 @@ class UserConfig(models.Model):
         if not objs:
             return None
         assert len(objs) == 1
-        return objs[0].value
+        return objs[0]
 
+    @classmethod
+    def get(cls, item_name, user_id):
+        """Get a user configuration
+
+        Args:
+            item_name: A configuration item
+            user_id: A user ID for the configuration
+
+        Returns:
+            If the matched item exists, it is returned. Otherwise, None is
+            returned.
+        """
+        obj = cls.get_object(item_name, user_id)
+        if obj is None:
+            return None
+        return obj.value
+
+    @transaction.commit_on_success
+    def store(self):
+        """Insert if the record with item_name and user_id doesn't exist.
+           Otherwise update with value of the this object.
+        """
+        obj = self.get_object(self.item_name, self.user_id)
+        if obj is not None:
+            self.id = obj.id # to update on save()
+        self.save()
