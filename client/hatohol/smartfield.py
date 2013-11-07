@@ -25,7 +25,7 @@ import base64
 
 class SmartField(models.Field):
 
-    description = "A field that can store any type"
+    description = 'A field that can store any type'
 
     __metaclass__ = models.SubfieldBase
 

@@ -25,13 +25,13 @@ class UserConfig(models.Model):
     value = smartfield.SmartField()
 
     def __init__(self, *args, **kwargs):
-        if "value" in kwargs:
-            value = kwargs["value"];
-            kwargs["value"] = smartfield.SmartField.UserConfigValue(value)
+        if 'value' in kwargs:
+            value = kwargs['value'];
+            kwargs['value'] = smartfield.SmartField.UserConfigValue(value)
         models.Model.__init__(self, *args, **kwargs)
 
     def __unicode__(self):
-        return "%s (%d)" % (self.item_name, self.user_id)
+        return '%s (%d)' % (self.item_name, self.user_id)
 
     @classmethod
     def get_object(cls, item_name, user_id):

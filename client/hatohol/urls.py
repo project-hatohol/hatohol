@@ -27,9 +27,9 @@ from django.views.generic import TemplateView
 # admin.autodiscover()
 
 def guessContentTypeFromFileName(file_name):
-    if re.search("\.js$", file_name):
+    if re.search('\.js$', file_name):
         return 'text/javascript'
-    elif re.search("\.css$", file_name):
+    elif re.search('\.css$', file_name):
         return 'text/css'
     return 'text/html'
 
