@@ -17,11 +17,24 @@
 
 from django.http import HttpResponse
 from hatohol.models import UserConfig
+import urllib2
 import json
 import hatohol.hatoholserver
 
 def get_user_id_from_hatohol_server(session_id):
-    return 0; # TODO: get ID from hatohol server
+    server  = hatoholserver.get_address()
+    port    = hatoholserver.get_port()
+    path    = '/user/me'
+    url     = 'http://%s:%d/%s' % (server, port, path)
+    hdrs = {}
+    if hatoholserver.SESSION_NAME_META in request.META:
+        hdrs = {hatoholserver.SESSION_NAME:
+                request.META[hatoholserver.SESSION_NAME_META]}
+    req = urllib2.Request(url, headers=hdrs)
+    response = urllib2.urlopen(req)
+    user_info = json.loads(response)
+    # TODO: check the error code
+    return user_info.id
 
 def index(request, item_name):
     if hatoholserver.SESSION_NAME_META not in request.META:
