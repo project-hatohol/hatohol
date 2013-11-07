@@ -27,23 +27,23 @@ from django.views.generic import TemplateView
 # admin.autodiscover()
 
 def guessContentTypeFromFileName(file_name):
-  if re.search("\.js$", file_name):
-    return 'text/javascript'
-  elif re.search("\.css$", file_name):
-    return 'text/css'
-  return 'text/html'
+    if re.search("\.js$", file_name):
+        return 'text/javascript'
+    elif re.search("\.css$", file_name):
+        return 'text/css'
+    return 'text/html'
 
 def makeTastingUrl(file_name):
-  content_type = guessContentTypeFromFileName(file_name)
-  return url(r'^tasting/' + file_name + '$',
-             TemplateView.as_view(template_name='tasting/' + file_name,
-                                  content_type=content_type))
+    content_type = guessContentTypeFromFileName(file_name)
+    return url(r'^tasting/' + file_name + '$',
+               TemplateView.as_view(template_name='tasting/' + file_name,
+                                    content_type=content_type))
 
 def makeTestUrl(file_name):
-  content_type = guessContentTypeFromFileName(file_name)
-  return url(r'^test/' + file_name + '$',
-             TemplateView.as_view(template_name='test/browser/' + file_name,
-                                  content_type=content_type))
+    content_type = guessContentTypeFromFileName(file_name)
+    return url(r'^test/' + file_name + '$',
+               TemplateView.as_view(template_name='test/browser/' + file_name,
+                                    content_type=content_type))
 
 urlpatterns = patterns('',
     # Examples:
@@ -66,19 +66,19 @@ urlpatterns += i18n_patterns('',
 )
 
 if 'HATOHOL_DEBUG' in os.environ and os.environ['HATOHOL_DEBUG'] == '1':
-  urlpatterns += patterns('',
-      makeTastingUrl('index.html'),
-      makeTastingUrl('hatohol_login_dialog.html'),
-      makeTastingUrl('hatohol_message_box.html'),
-      makeTastingUrl('hatohol_session_manager.html'),
-      makeTastingUrl('hatohol_connector.html'),
-      makeTastingUrl('js_loader.js'),
-      makeTestUrl('index.html'),
-      makeTestUrl('test_hatohol_session_manager.js'),
-      makeTestUrl('test_hatohol_connector.js'),
-      makeTestUrl('test_hatohol_message_box.js'),
-      makeTestUrl('mocha.js'),
-      makeTestUrl('mocha.css'),
-      makeTestUrl('expect.js'),
-  )
+    urlpatterns += patterns('',
+        makeTastingUrl('index.html'),
+        makeTastingUrl('hatohol_login_dialog.html'),
+        makeTastingUrl('hatohol_message_box.html'),
+        makeTastingUrl('hatohol_session_manager.html'),
+        makeTastingUrl('hatohol_connector.html'),
+        makeTastingUrl('js_loader.js'),
+        makeTestUrl('index.html'),
+        makeTestUrl('test_hatohol_session_manager.js'),
+        makeTestUrl('test_hatohol_connector.js'),
+        makeTestUrl('test_hatohol_message_box.js'),
+        makeTestUrl('mocha.js'),
+        makeTestUrl('mocha.css'),
+        makeTestUrl('expect.js'),
+    )
 
