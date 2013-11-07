@@ -16,7 +16,7 @@ install:
   - npm install -g mocha
   - npm install -g expect.js
   - npm install -g mocha-phantomjs phantomjs
-  - sudo pip install django
+  - sudo pip install django==1.5.4
   - sudo pip install mysql-python
 before_script:
   - ./autogen.sh
