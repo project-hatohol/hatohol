@@ -56,7 +56,7 @@ urlpatterns = patterns('',
     # Uncomment the next line to enable the admin:
     # url(r'^admin/', include(admin.site.urls)),
     url(r'^viewer/', include('viewer.urls')),
-    url(r'^tunnel/(?P<path>.+)', jsonforward, kwargs={'server':'localhost:33194'}),
+    url(r'^tunnel/(?P<path>.+)', jsonforward),
     url(r'^userconfig/(?P<item_name>.+)/', 'viewer.userconfig.index'),
     url(r'^jsi18n/$', 'django.views.i18n.javascript_catalog'),
 )

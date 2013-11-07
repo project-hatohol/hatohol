@@ -18,13 +18,15 @@
 import urllib
 import urllib2
 from django.http import HttpResponse
+import hatoholserver
 
-def jsonforward(request, path, **kwargs):
-    server  = kwargs['server']
-    url     = 'http://%s/%s' % (server, path)
+def jsonforward(request, path):
+    server  = hatoholserver.get_address()
+    port    = hatoholserver.get_port()
+    url     = 'http://%s:%d/%s' % (server, port, path)
     hdrs = {}
-    if "HTTP_X_HATOHOL_SESSION" in request.META:
-      hdrs = {"X-Hatohol-Session": request.META["HTTP_X_HATOHOL_SESSION"]}
+    if hatoholserver.SESSION_NAME_META in request.META:
+      hdrs = {hatoholserver.SESSION_NAME: request.META[hatoholserver.SESSION_NAME_META]}
     if request.method == "POST":
       req = urllib2.Request(url, urllib.urlencode(request.REQUEST),
                             headers=hdrs)
