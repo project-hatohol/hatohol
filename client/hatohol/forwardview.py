@@ -26,17 +26,18 @@ def jsonforward(request, path):
     url     = 'http://%s:%d/%s' % (server, port, path)
     hdrs = {}
     if hatoholserver.SESSION_NAME_META in request.META:
-      hdrs = {hatoholserver.SESSION_NAME: request.META[hatoholserver.SESSION_NAME_META]}
+        hdrs = {hatoholserver.SESSION_NAME:
+                request.META[hatoholserver.SESSION_NAME_META]}
     if request.method == 'POST':
-      req = urllib2.Request(url, urllib.urlencode(request.REQUEST),
+        req = urllib2.Request(url, urllib.urlencode(request.REQUEST),
                             headers=hdrs)
     elif request.method == 'DELETE':
-      req = urllib2.Request(url, headers=hdrs)
-      req.get_method = lambda: 'DELETE'
+        req = urllib2.Request(url, headers=hdrs)
+        req.get_method = lambda: 'DELETE'
     else:
-      encoded_query = urllib.urlencode(request.REQUEST)
-      url += '?' + encoded_query
-      req = urllib2.Request(url, headers=hdrs)
+        encoded_query = urllib.urlencode(request.REQUEST)
+        url += '?' + encoded_query
+        req = urllib2.Request(url, headers=hdrs)
     content = urllib2.urlopen(req)
 
     return HttpResponse(content, content_type='application/json')
