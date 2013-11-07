@@ -1,0 +1,27 @@
+C++ 
+====
+Naming
+------
+Variable: lower camel case.
+
+	domainName
+
+Class: upper camel case
+File name: upper camel case
+
+	DatabaseConnector
+
+Function argument:
+An input parameter shall be 'const &type'.
+
+Python
+======
+Baisically follow PEP 8
+
+Tab: 4
+String: Single quotation
+
+JavaScript
+==========
+
+String: Single quotation
