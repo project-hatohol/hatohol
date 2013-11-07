@@ -29,6 +29,8 @@ struct JsonParserAgent::PrivateContext
 	JsonParser *parser;
 	JsonReader *reader;
 	GError *error;
+	JsonNode *currentNode;
+	JsonNode *previousNode;
 };
 
 // ---------------------------------------------------------------------------
@@ -42,7 +44,9 @@ JsonParserAgent::JsonParserAgent(const string &data)
 	m_ctx->parser = json_parser_new();
 	if (!json_parser_load_from_data(m_ctx->parser, data.c_str(), -1, &m_ctx->error))
 		return;
-	m_ctx->reader = json_reader_new(json_parser_get_root(m_ctx->parser));
+	m_ctx->currentNode = json_parser_get_root(m_ctx->parser);
+	m_ctx->previousNode = NULL;
+	m_ctx->reader = json_reader_new(m_ctx->currentNode);
 }
 
 JsonParserAgent::~JsonParserAgent()
@@ -53,6 +57,10 @@ JsonParserAgent::~JsonParserAgent()
 		g_object_unref(m_ctx->reader);
 	if (m_ctx->parser)
 		g_object_unref(m_ctx->parser);
+	if (m_ctx->currentNode)
+		g_object_unref(m_ctx->currentNode);
+	if (m_ctx->previousNode)
+		g_object_unref(m_ctx->previousNode);
 	if (m_ctx)
 		delete m_ctx;
 }
