@@ -148,16 +148,16 @@ bool JsonParserAgent::isNull(const string &member, bool &dest)
 
 bool JsonParserAgent::isMember(const string &member)
 {
-	gchar **listedMemberName;
-	int i = 0;
-	listedMemberName = json_reader_list_members(m_ctx->reader);
+	JsonObject *object;
 
-	while (listedMemberName[i] != NULL) {
-		if (strcmp(listedMemberName[i], member.c_str()) == 0)
-			return true;
-		i++;
+	object = json_node_get_object(m_ctx->node);
+	if(!json_object_has_member(object, member.c_str())) {
+		MLPL_ERR("The member '%s' is not defined in the current node.",
+				member.c_str());
+		return false;
 	}
-	return false;
+
+	return true;
 }
 
 bool JsonParserAgent::startObject(const string &member)
