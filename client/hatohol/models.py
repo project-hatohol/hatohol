@@ -29,6 +29,9 @@ class UserConfig(models.Model):
             kwargs["value"] = smartfield.SmartField.UserConfigValue(value)
         models.Model.__init__(self, *args, **kwargs)
 
+    def __unicode__(self):
+        return "%s (%d)" % (self.item_name, self.user_id)
+
     @classmethod
     def get(cls, item_name, user_id):
         """Get a user configuration

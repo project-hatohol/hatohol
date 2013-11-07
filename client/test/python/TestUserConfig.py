@@ -87,5 +87,10 @@ class TestUserConfig(unittest.TestCase):
         self.test_create_float()
         self.assertEquals(UserConfig.get("FOGA", 5), None)
 
+    def test_unicode_expression(self):
+        user_conf = UserConfig(item_name="name", user_id=5, value=123)
+        user_conf.save()
+        self.assertEquals(str(UserConfig.objects.all()[0]), "name (5)")
+
 if __name__ == '__main__':
     unittest.main()
