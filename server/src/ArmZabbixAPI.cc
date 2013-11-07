@@ -282,7 +282,7 @@ bool ArmZabbixAPI::openSession(SoupMessage **msgPtr)
 	                 ret, m_ctx->uri.c_str());
 		return false;
 	}
-	MLPL_DBG("body: %d, %s\n", msg->response_body->length,
+	MLPL_DBG("body: %lld, %s\n", msg->response_body->length,
 	                           msg->response_body->data);
 	bool succeeded = parseInitialResponse(msg);
 	if (!succeeded) {

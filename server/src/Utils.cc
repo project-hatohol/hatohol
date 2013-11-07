@@ -152,7 +152,7 @@ bool Utils::isValidPort(int port, bool showErrorMsg)
 {
 	if (port < 0 || port > 65536) {
 		if (showErrorMsg)
-			MLPL_ERR("invalid port: %s, %d\n", port);
+			MLPL_ERR("invalid port: %d\n", port);
 		return false;
 	}
 	return true;

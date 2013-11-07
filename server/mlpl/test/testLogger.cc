@@ -172,7 +172,7 @@ static void _assertSyslogOutput(const char *envMessage, const char *outMessage,
 		Logger::enableSyslogOutput();
 	else
 		Logger::disableSyslogOutput();
-	Logger::log(level, fileName, lineNumber,outMessage);
+	Logger::log(level, fileName, lineNumber, "%s", outMessage);
 
 	static const int TIMEOUT = 5 * 1000; // millisecond
 	int expireClock = time(NULL) * 1000 + TIMEOUT;

@@ -779,7 +779,7 @@ static string getHostName(const ServerID serverId, const HostID hostId)
 	dataStore->getHostList(hostInfoList, serverId, hostId);
 	if (hostInfoList.empty()) {
 		MLPL_WARN("Failed to get HostInfo: "
-		          "%"PRIu32", %"PRIu64"\n",
+		          "%"PRIu64", %"PRIu64"\n",
 		          serverId, hostId);
 	} else {
 		HostInfo &hostInfo = *hostInfoList.begin();
@@ -820,7 +820,7 @@ static string getTriggerBrief(
 	                                          serverId, triggerId);
 	if (!succeeded) {
 		MLPL_WARN("Failed to get TriggerInfo: "
-		          "%"PRIu32", %"PRIu64"\n",
+		          "%"PRIu64", %"PRIu64"\n",
 		          serverId, triggerId);
 	} else {
 		triggerBrief = triggerInfo.brief;
