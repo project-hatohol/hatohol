@@ -31,6 +31,16 @@ struct JsonParserAgent::PrivateContext
 	GError *error;
 	JsonNode *currentNode;
 	JsonNode *previousNode;
+
+	PrivateContext(const string &data)
+	: error(NULL),
+	  previousNode(NULL)
+	{
+	  parser = json_parser_new();
+	  currentNode = json_parser_get_root(parser);
+	  reader = json_reader_new(currentNode);
+	}
+
 };
 
 // ---------------------------------------------------------------------------
@@ -39,14 +49,9 @@ struct JsonParserAgent::PrivateContext
 JsonParserAgent::JsonParserAgent(const string &data)
 : m_ctx(NULL)
 {
-	m_ctx = new PrivateContext;
-	m_ctx->error = NULL;
-	m_ctx->parser = json_parser_new();
+	m_ctx = new PrivateContext(data);
 	if (!json_parser_load_from_data(m_ctx->parser, data.c_str(), -1, &m_ctx->error))
 		return;
-	m_ctx->currentNode = json_parser_get_root(m_ctx->parser);
-	m_ctx->previousNode = NULL;
-	m_ctx->reader = json_reader_new(m_ctx->currentNode);
 }
 
 JsonParserAgent::~JsonParserAgent()
