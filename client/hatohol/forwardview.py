@@ -39,5 +39,4 @@ def jsonforward(request, path):
       req = urllib2.Request(url, headers=hdrs)
     content = urllib2.urlopen(req)
 
-    return HttpResponse(content,
-                        content_type='application/json')
+    return HttpResponse(content, content_type='application/json')
