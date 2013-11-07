@@ -63,7 +63,7 @@ struct ArmBase::PrivateContext
 		int result = clock_gettime(CLOCK_REALTIME,
 					   &lastPollingTime);
 		if (result == 0) {
-			MLPL_DBG("lastPollingTime: %d\n",
+			MLPL_DBG("lastPollingTime: %ld\n",
 				 lastPollingTime.tv_sec);
 		} else {
 			MLPL_ERR("Failed to call clock_gettime: %d\n",
