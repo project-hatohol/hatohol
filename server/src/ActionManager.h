@@ -184,7 +184,7 @@ protected:
 	                                       DBClientAction &dbAction,
 	                                       ActorInfo *actorInfoCopy);
 	/**
-	 * notify hatohol-resident-yard of a event only when it is idle and
+	 * notify hatohol-resident-yard of an event only when it is idle and
 	 * there is at least one element in residentInfo->notifyQueue.
 	 * Othewise the request is processed later.
 	 *
@@ -193,7 +193,7 @@ protected:
 	void tryNotifyEvent(ResidentInfo *residentInfo);
 
 	/**
-	 * notify hatohol-resident-yard of a event at the top of notifyQueue.
+	 * notify hatohol-resident-yard of an event at the top of notifyQueue.
 	 * NOTE: This function is assumed to be called only from
 	 * tryNotifyEvent().
 	 *
