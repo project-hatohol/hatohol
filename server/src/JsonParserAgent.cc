@@ -160,6 +160,18 @@ bool JsonParserAgent::isMember(const string &member)
 	return true;
 }
 
+bool advanceNode(const string &member)
+{
+	JsonObject *object;
+
+	if (!isMember(member))
+		return false;
+
+	m_ctx->previousNode = m_ctx->currentNode;
+	m_ctx->currentNode = json_object_get_member(object, member.c_str());
+	return false;
+}
+
 bool JsonParserAgent::startObject(const string &member)
 {
 	if (!json_reader_read_member(m_ctx->reader, member.c_str())) {
