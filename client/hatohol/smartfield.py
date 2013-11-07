@@ -29,6 +29,16 @@ class SmartField(models.Field):
 
     __metaclass__ = models.SubfieldBase
 
+    # We have data as a object of UserConfigValue. The purpose is to
+    # distinguish a string (that is encoded by Base64 + pickled) as a
+    # configuration value with a string from database.
+    class UserConfigValue:
+        def __init__(self, value):
+            self._value = value
+
+        def get(self):
+            return self._value
+
     def db_type(self, connection):
         # We only support MySQL at present.
         if connection.settings_dict['ENGINE'] == 'django.db.backends.mysql':
@@ -37,13 +47,13 @@ class SmartField(models.Field):
             raise NotImplementedError
 
     def to_python(self, value):
-        if isinstance(value, str):
-            try:
-                pickle_data = base64.b64decode(value)
-                return cPickle.loads(pickle_data)
-            except:
-                pass
-        return value
+        if isinstance(value, self.UserConfigValue):
+            return value.get()
+
+        # We assume this path is used when the data is read from the database.
+        assert isinstance(value, str)
+        pickle_data = base64.b64decode(value)
+        return cPickle.loads(pickle_data)
 
     def get_db_prep_save(self, value, connection):
         # We use ASCII (Base64) pickle.  There are two reasons to use ASCII.

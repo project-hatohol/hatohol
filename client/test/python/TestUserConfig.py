@@ -48,6 +48,12 @@ class TestUserConfig(unittest.TestCase):
         self.assertEquals(user_conf.value, 172.5)
         user_conf.save()
 
+    def test_create_base64_plus_pickle_string(self):
+        user_conf = UserConfig(item_name="base64.pickle.name",
+                               user_id=5, value="gAJVA0Zvb3EBLg==")
+        self.assertEquals(user_conf.value, "gAJVA0Zvb3EBLg==")
+        user_conf.save()
+
     def test_get_from_empty(self):
         self.assertEquals(UserConfig.get("age", 5), None)
 

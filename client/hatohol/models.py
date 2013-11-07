@@ -23,6 +23,12 @@ class UserConfig(models.Model):
     user_id = models.IntegerField(db_index=True)
     value = smartfield.SmartField()
 
+    def __init__(self, *args, **kwargs):
+        if "value" in kwargs:
+            value = kwargs["value"];
+            kwargs["value"] = smartfield.SmartField.UserConfigValue(value)
+        models.Model.__init__(self, *args, **kwargs)
+
     @classmethod
     def get(cls, item_name, user_id):
         """Get a user configuration
