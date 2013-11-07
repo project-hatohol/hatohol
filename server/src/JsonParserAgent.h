@@ -54,7 +54,6 @@ public:
 	 * the element is null. Otherwise false is returned.
 	 */ 
 	bool isNull(const string &member, bool &dest);
-	bool advanceNode(const string &member);
 	bool startObject(const string &member);
 	void endObject(void);
 	bool startElement(int index);
