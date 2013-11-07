@@ -193,7 +193,7 @@ protected:
 	void tryNotifyEvent(ResidentInfo *residentInfo);
 
 	/**
-	 * notify hatohol-resident-yaevent of a event at the top of notifyQueue.
+	 * notify hatohol-resident-yard of a event at the top of notifyQueue.
 	 * NOTE: This function is assumed to be called only from
 	 * tryNotifyEvent().
 	 *
