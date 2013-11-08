@@ -55,9 +55,9 @@ struct JsonParserAgent::PrivateContext
 		if (parser)
 			g_object_unref(parser);
 		if (currentNode)
-			g_object_unref(currentNode);
+			json_node_free(currentNode);
 		if (previousNode)
-			g_object_unref(previousNode);
+			json_node_free(previousNode);
 	}
 };
 
