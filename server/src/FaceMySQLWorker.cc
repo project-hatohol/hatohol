@@ -571,7 +571,7 @@ bool FaceMySQLWorker::receive(char* buf, size_t size)
 		if (ret == 0)
 			return false;
 		if (ret > remain_size) {
-			MLPL_BUG("ret: %d > remain_size: %zd\n",
+			MLPL_BUG("ret: %"G_GSSIZE_FORMAT" > remain_size: %d\n",
 			         ret, remain_size);
 			return false;
 		}
