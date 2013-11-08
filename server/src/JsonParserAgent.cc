@@ -27,18 +27,18 @@ using namespace mlpl;
 struct JsonParserAgent::PrivateContext
 {
 	JsonParser *parser;
-	JsonReader *reader;
-	GError *error;
 	JsonNode *currentNode;
+	JsonReader *reader;
 	JsonNode *previousNode;
+	GError *error;
 
 	PrivateContext(const string &data)
-	: error(NULL),
-	  previousNode(NULL)
+	: parser(json_parser_new()),
+	  currentNode(json_parser_get_root(parser)),
+	  reader(json_reader_new(currentNode)),
+	  previousNode(NULL),
+	  error(NULL)
 	{
-	  parser = json_parser_new();
-	  currentNode = json_parser_get_root(parser);
-	  reader = json_reader_new(currentNode);
 	}
 
 };
