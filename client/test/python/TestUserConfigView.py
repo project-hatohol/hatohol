@@ -24,6 +24,7 @@ from BaseHTTPServer import HTTPServer
 import urlparse
 import threading
 import json
+import httplib
 from viewer import userconfig
 from hatohol import hatoholserver
 
@@ -83,10 +84,10 @@ class TestUserConfigView(unittest.TestCase):
         # is just fake.
         request.META[hatoholserver.SESSION_NAME_META] = 'c579a3da-65db-44b4-a0da-ebf27548f4fd';
         response = userconfig.index(request, item_name)
-        self.assertEquals(response.status_code, 200)
+        self.assertEquals(response.status_code, httplib.OK)
 
     def test_index_without_session_id(self):
         self._emulator = HatoholServerEmulator()
         self._emulator.start_and_wait_setup_done()
         response = userconfig.index(HttpRequest(), "foo")
-        self.assertEquals(response.status_code, 400) # Bad Request
+        self.assertEquals(response.status_code, httplib.BAD_REQUEST)

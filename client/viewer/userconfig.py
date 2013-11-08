@@ -18,6 +18,7 @@
 from django.http import HttpResponse
 from hatohol.models import UserConfig
 import urllib2
+import httplib
 import json
 from hatohol import hatoholserver
 
@@ -36,11 +37,11 @@ def get_user_id_from_hatohol_server(session_id):
 
 def index(request, item_name):
     if hatoholserver.SESSION_NAME_META not in request.META:
-        return HttpResponse(status=400)
+        return HttpResponse(status=httplib.BAD_REQUEST)
     session_id = request.META[hatoholserver.SESSION_NAME_META]
     user_id = get_user_id_from_hatohol_server(session_id)
     if user_id is None:
-        return HttpResponse(status=401)
+        return HttpResponse(status=httplib.UNAUTHORIZED)
     value = UserConfig.get(item_name, user_id)
     body = json.dumps({item_name:value})
     return HttpResponse(body, mimetype='application/json')
