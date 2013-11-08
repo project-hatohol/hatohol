@@ -19,27 +19,25 @@ from django.http import HttpResponse
 from hatohol.models import UserConfig
 import urllib2
 import json
-import hatohol.hatoholserver
+from hatohol import hatoholserver
 
 def get_user_id_from_hatohol_server(session_id):
-    server  = hatoholserver.get_address()
-    port    = hatoholserver.get_port()
-    path    = '/user/me'
-    url     = 'http://%s:%d/%s' % (server, port, path)
-    hdrs = {}
-    if hatoholserver.SESSION_NAME_META in request.META:
-        hdrs = {hatoholserver.SESSION_NAME:
-                request.META[hatoholserver.SESSION_NAME_META]}
+    server = hatoholserver.get_address()
+    port = hatoholserver.get_port()
+    path = '/user/me'
+    url = 'http://%s:%d%s' % (server, port, path)
+    hdrs = {hatoholserver.SESSION_NAME: session_id}
     req = urllib2.Request(url, headers=hdrs)
     response = urllib2.urlopen(req)
-    user_info = json.loads(response)
+    body = response.read()    
+    user_info = json.loads(body)
     # TODO: check the error code
-    return user_info.id
+    return user_info['userId']
 
 def index(request, item_name):
     if hatoholserver.SESSION_NAME_META not in request.META:
         return HttpResponse('Bad Request', status=400)
-    session_id = request.META[SESSION_NAME_META]
+    session_id = request.META[hatoholserver.SESSION_NAME_META]
     user_id = get_user_id_from_hatohol_server(session_id)
     if user_id is None:
         return HttpResponse('Unauthorized', status=401)
