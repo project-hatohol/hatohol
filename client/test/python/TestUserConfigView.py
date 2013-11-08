@@ -30,32 +30,46 @@ from hatohol import hatoholserver
 from hatohol import hatohol_def
 
 class HatoholServerEmulationHandler(BaseHTTPRequestHandler):
+    def _request_user_me(self):
+        self.send_response(httplib.OK)
+        body_dict = {'apiVersion': hatohol_def.FACE_REST_API_VERSION,
+                     'errorCode': hatohol_def.HTERR_OK,
+                     'numberOfUsers': 1,
+                     'users': [{'userId':5, 'name':'hogetaro', 'flags':0}]}
+        return json.dumps(body_dict)
+
     def do_GET(self):
         parsed_path = urlparse.urlparse(self.path)
         body = ""
         if parsed_path.path == '/user/me':
-            body_dict = {'apiVersion': hatohol_def.FACE_REST_API_VERSION,
-                         'errorCode': hatohol_def.HTERR_OK,
-                         'numberOfUsers': 1,
-                         'users': [{'userId':5, 'name':'hogetaro', 'flags':0}]}
-            body = json.dumps(body_dict)
-            self.send_response(httplib.OK)
+            body = self._request_user_me()
         else:
             self.send_response(httplib.NOT_FOUND)
         self.end_headers()
         self.wfile.write(body)
 
+
+class EmulationHandlerNotReturnUserInfo(HatoholServerEmulationHandler):
+    def _request_user_me(self):
+        self.send_response(httplib.OK)
+        body_dict = {'apiVersion': hatohol_def.FACE_REST_API_VERSION,
+                     'errorCode': hatohol_def.HTERR_OK,
+                     'numberOfUsers': 0,
+                     'users': []}
+        return json.dumps(body_dict)
+
 class HatoholServerEmulator(threading.Thread):
 
-    def __init__(self):
+    def __init__(self, handler=HatoholServerEmulationHandler):
         threading.Thread.__init__(self)
         self._server = None
         self._setup_done_evt = threading.Event()
+        self._emulation_handler = handler
 
     def run(self):
         addr = hatoholserver.get_address()
         port = hatoholserver.get_port()
-        self._server = HTTPServer((addr, port), HatoholServerEmulationHandler)
+        self._server = HTTPServer((addr, port), self._emulation_handler)
         self._setup_done_evt.set()
         self._server.serve_forever()
 
@@ -96,3 +110,11 @@ class TestUserConfigView(unittest.TestCase):
         self._emulator.start_and_wait_setup_done()
         response = userconfig.index(HttpRequest(), "foo")
         self.assertEquals(response.status_code, httplib.BAD_REQUEST)
+
+    def test_index_server_not_return_userinfo(self):
+        self._emulator = HatoholServerEmulator(handler=EmulationHandlerNotReturnUserInfo)
+        self._emulator.start_and_wait_setup_done()
+        request = HttpRequest()
+        request.META[hatoholserver.SESSION_NAME_META] = 'c579a3da-65db-44b4-a0da-ebf27548f4fd';
+        response = userconfig.index(request, 'foo-item')
+        self.assertEquals(response.status_code, httplib.INTERNAL_SERVER_ERROR)

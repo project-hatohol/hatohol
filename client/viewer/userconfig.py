@@ -38,6 +38,12 @@ def get_user_id_from_hatohol_server(session_id):
     return user_id
 
 def index(request, item_name):
+    try:
+        return index_core(request, item_name)
+    except:
+        return HttpResponse(status=httplib.INTERNAL_SERVER_ERROR)
+
+def index_core(request, item_name):
     if hatoholserver.SESSION_NAME_META not in request.META:
         return HttpResponse(status=httplib.BAD_REQUEST)
     session_id = request.META[hatoholserver.SESSION_NAME_META]
