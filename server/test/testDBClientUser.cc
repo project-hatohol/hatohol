@@ -477,6 +477,20 @@ void test_getUserInfoListWithOtherNameWithoutPrivileges(void)
 	assertGetUserInfoListWithTargetName(0, 0, false);
 }
 
+void test_getUserInfoListOnlyMyself(void)
+{
+	loadTestDBUser();
+	DBClientUser dbUser;
+	UserQueryOption option;
+	option.queryOnlyMyself();
+	static const UserIdType userId = 2;
+	option.setUserId(userId);
+	UserInfoList userInfoList;
+	dbUser.getUserInfoList(userInfoList, option);
+	cppcut_assert_equal((size_t)1, userInfoList.size());
+	assertUserInfo(testUserInfo[userId-1], *userInfoList.begin());
+}
+
 void test_getServerAccessInfoMap(void)
 {
 	DBClientUser dbUser;

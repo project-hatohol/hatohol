@@ -73,6 +73,7 @@ public:
 	virtual ~UserQueryOption();
 
 	HatoholError setTargetName(const string &name);
+	void         queryOnlyMyself(void);
 
 	// Overriding virtual methods
 	std::string getCondition(void) const;
@@ -144,8 +145,8 @@ public:
 	 * @param userInfoList The found results are added to this reference.
 	 * @param option
 	 * A UserQueryOption instance.
-	 * If OPPRVLG_GET_ALL_USERS is not set, the search target is only the
-	 * user set in this parameter.
+	 * If OPPRVLG_GET_ALL_USERS is not set or queryOnlyMyself() is called,
+	 * the search target is only the user set in this parameter.
 	 * In addtion, setTargetName() is called and the name is set,
 	 * this method searches only that.
 	 */

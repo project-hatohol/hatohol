@@ -171,7 +171,13 @@ bool DBClientUser::PrivateContext::validUsernameChars[UINT8_MAX+1];
 // UserQueryOption
 // ---------------------------------------------------------------------------
 struct UserQueryOption::PrivateContext {
+	bool   onlyMyself;
 	string targetName;
+
+	PrivateContext(void)
+	: onlyMyself(false)
+	{
+	}
 };
 
 UserQueryOption::UserQueryOption(void)
@@ -195,6 +201,11 @@ HatoholError UserQueryOption::setTargetName(const string &name)
 	return HatoholError(HTERR_OK);
 }
 
+void UserQueryOption::queryOnlyMyself(void)
+{
+	m_ctx->onlyMyself = true;
+}
+
 string UserQueryOption::getCondition(void) const
 {
 	UserIdType userId = getUserId();
@@ -204,7 +215,7 @@ string UserQueryOption::getCondition(void) const
 	}
 
 	string condition;
-	if (!has(OPPRVLG_GET_ALL_USERS)) {
+	if (!has(OPPRVLG_GET_ALL_USERS) || m_ctx->onlyMyself) {
 		condition = StringUtils::sprintf("%s=%"FMT_USER_ID"",
 		  COLUMN_DEF_USERS[IDX_USERS_ID].columnName, userId);
 	}
