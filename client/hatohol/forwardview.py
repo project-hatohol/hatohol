@@ -19,6 +19,7 @@ import urllib
 import urllib2
 from django.http import HttpResponse
 import hatoholserver
+import hatohol_def
 
 def jsonforward(request, path):
     server  = hatoholserver.get_address()
@@ -26,7 +27,7 @@ def jsonforward(request, path):
     url     = 'http://%s:%d/%s' % (server, port, path)
     hdrs = {}
     if hatoholserver.SESSION_NAME_META in request.META:
-        hdrs = {hatoholserver.SESSION_NAME:
+        hdrs = {hatohol_def.FACE_REST_SESSION_ID_HEADER_NAME:
                 request.META[hatoholserver.SESSION_NAME_META]}
     if request.method == 'POST':
         req = urllib2.Request(url, urllib.urlencode(request.REQUEST),
