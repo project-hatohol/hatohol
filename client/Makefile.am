@@ -12,6 +12,7 @@ nobase_dist_hatohol_client_DATA = \
 	hatohol/__init__.py \
 	hatohol/settings.py \
 	hatohol/django_realize.py \
+	hatohol/hatohol_def.py \
 	static/css/zabbix.css \
 	static/css.external/themes/ui-lightness/jquery-ui.css \
 	static/css.external/themes/ui-lightness/images/ui-bg_gloss-wave_35_f6a828_500x100.png \
@@ -67,6 +68,9 @@ nobase_nodist_hatohol_client_DATA = \
 HATOHOL_DEF_GENERATOR = ../server/tools/hatohol-def-src-file-generator
 static/js/hatohol_def.js: $(HATOHOL_DEF_GENERATOR)
 	$(HATOHOL_DEF_GENERATOR) js > $@
+
+hatohol/hatohol_def.py: $(HATOHOL_DEF_GENERATOR)
+	$(HATOHOL_DEF_GENERATOR) py > $@
 
 update-po:
 	./manage.py makemessages -a

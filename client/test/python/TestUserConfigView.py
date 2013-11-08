@@ -27,13 +27,18 @@ import json
 import httplib
 from viewer import userconfig
 from hatohol import hatoholserver
+from hatohol import hatohol_def
 
 class HatoholServerEmulationHandler(BaseHTTPRequestHandler):
     def do_GET(self):
         parsed_path = urlparse.urlparse(self.path)
         body = ""
         if parsed_path.path == '/user/me':
-            body = json.dumps({'userId':5, 'name':'hogetaro', 'flags':0})
+            body_dict = {'apiVersion': hatohol_def.FACE_REST_API_VERSION,
+                         'errorCode': hatohol_def.HTERR_OK,
+                         'numberOfUsers': 1,
+                         'users': [{'userId':5, 'name':'hogetaro', 'flags':0}]}
+            body = json.dumps(body_dict)
             self.send_response(httplib.OK)
         else:
             self.send_response(httplib.NOT_FOUND)

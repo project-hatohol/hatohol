@@ -33,7 +33,8 @@ def get_user_id_from_hatohol_server(session_id):
     body = response.read()    
     user_info = json.loads(body)
     # TODO: check the error code
-    return user_info['userId']
+    user_id = user_info['users'][0]['userId']
+    return user_id
 
 def index(request, item_name):
     if hatoholserver.SESSION_NAME_META not in request.META:
