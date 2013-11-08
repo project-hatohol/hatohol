@@ -17,7 +17,6 @@
 
 SERVER_ADDR = 'localhost'
 SERVER_PORT = 33194
-SESSION_NAME = 'X-Hatohol-Session'
 SESSION_NAME_META = 'HTTP_X_HATOHOL_SESSION'
 
 def get_address():

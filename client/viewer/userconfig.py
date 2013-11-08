@@ -21,13 +21,14 @@ import urllib2
 import httplib
 import json
 from hatohol import hatoholserver
+from hatohol import hatohol_def
 
 def get_user_id_from_hatohol_server(session_id):
     server = hatoholserver.get_address()
     port = hatoholserver.get_port()
     path = '/user/me'
     url = 'http://%s:%d%s' % (server, port, path)
-    hdrs = {hatoholserver.SESSION_NAME: session_id}
+    hdrs = {hatohol_def.FACE_REST_SESSION_ID_HEADER_NAME: session_id}
     req = urllib2.Request(url, headers=hdrs)
     response = urllib2.urlopen(req)
     body = response.read()    
