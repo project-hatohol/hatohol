@@ -46,6 +46,19 @@ struct JsonParserAgent::PrivateContext
 		reader = json_reader_new(currentNode);
 	}
 
+	virtual ~PrivateContext()
+	{
+		if (error)
+			g_error_free(error);
+		if (reader)
+			g_object_unref(reader);
+		if (parser)
+			g_object_unref(parser);
+		if (currentNode)
+			g_object_unref(currentNode);
+		if (previousNode)
+			g_object_unref(previousNode);
+	}
 };
 
 // ---------------------------------------------------------------------------
@@ -59,16 +72,6 @@ JsonParserAgent::JsonParserAgent(const string &data)
 
 JsonParserAgent::~JsonParserAgent()
 {
-	if (m_ctx->error)
-		g_error_free(m_ctx->error);
-	if (m_ctx->reader)
-		g_object_unref(m_ctx->reader);
-	if (m_ctx->parser)
-		g_object_unref(m_ctx->parser);
-	if (m_ctx->currentNode)
-		g_object_unref(m_ctx->currentNode);
-	if (m_ctx->previousNode)
-		g_object_unref(m_ctx->previousNode);
 	if (m_ctx)
 		delete m_ctx;
 }
