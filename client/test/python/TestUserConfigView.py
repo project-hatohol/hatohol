@@ -34,9 +34,9 @@ class HatoholServerEmulationHandler(BaseHTTPRequestHandler):
         body = ""
         if parsed_path.path == '/user/me':
             body = json.dumps({'userId':5, 'name':'hogetaro', 'flags':0})
-            self.send_response(200)
+            self.send_response(httplib.OK)
         else:
-            self.send_response(404)
+            self.send_response(httplib.NOT_FOUND)
         self.end_headers()
         self.wfile.write(body)
 
