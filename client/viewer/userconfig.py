@@ -36,11 +36,11 @@ def get_user_id_from_hatohol_server(session_id):
 
 def index(request, item_name):
     if hatoholserver.SESSION_NAME_META not in request.META:
-        return HttpResponse('Bad Request', status=400)
+        return HttpResponse(status=400)
     session_id = request.META[hatoholserver.SESSION_NAME_META]
     user_id = get_user_id_from_hatohol_server(session_id)
     if user_id is None:
-        return HttpResponse('Unauthorized', status=401)
+        return HttpResponse(status=401)
     value = UserConfig.get(item_name, user_id)
     body = json.dumps({item_name:value})
     return HttpResponse(body, mimetype='application/json')
