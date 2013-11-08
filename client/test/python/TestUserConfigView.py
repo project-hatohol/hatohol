@@ -53,7 +53,8 @@ class HatoholServerEmulator(threading.Thread):
         self._setup_done_evt.set()
         self._server.serve_forever()
 
-    def wait_setup_done(self):
+    def start_and_wait_setup_done(self):
+        self.start()
         self._setup_done_evt.wait()
 
     def shutdown(self):
@@ -75,8 +76,7 @@ class TestUserConfigView(unittest.TestCase):
 
     def test_index(self):
         self._emulator = HatoholServerEmulator()
-        self._emulator.start()
-        self._emulator.wait_setup_done()
+        self._emulator.start_and_wait_setup_done()
         item_name = "foo.goo"
         request = HttpRequest()
         # The followiing session ID is acutually not verified. So the value
@@ -87,7 +87,6 @@ class TestUserConfigView(unittest.TestCase):
 
     def test_index_without_session_id(self):
         self._emulator = HatoholServerEmulator()
-        self._emulator.start()
-        self._emulator.wait_setup_done()
+        self._emulator.start_and_wait_setup_done()
         response = userconfig.index(HttpRequest(), "foo")
         self.assertEquals(response.status_code, 400) # Bad Request
