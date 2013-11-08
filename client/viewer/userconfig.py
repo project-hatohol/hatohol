@@ -22,6 +22,10 @@ import httplib
 import json
 from hatohol import hatoholserver
 from hatohol import hatohol_def
+import logging
+import traceback
+
+logger = logging.getLogger('hatohol.client.userconfig')
 
 def get_user_id_from_hatohol_server(session_id):
     server = hatoholserver.get_address()
@@ -41,6 +45,7 @@ def index(request, item_name):
     try:
         return index_core(request, item_name)
     except:
+        logger.error(traceback.format_exc())
         return HttpResponse(status=httplib.INTERNAL_SERVER_ERROR)
 
 def index_core(request, item_name):
