@@ -91,46 +91,34 @@ bool JsonParserAgent::hasError(void)
 bool JsonParserAgent::read(const string &member, bool &dest)
 {
 	internalCheck();
-	if (isMember(member)) {
-		if (!json_reader_read_member(m_ctx->reader, member.c_str())) {
-			json_reader_end_member(m_ctx->reader);
-			return false;
-		}
-		dest = json_reader_get_boolean_value(m_ctx->reader);
-		json_reader_end_member(m_ctx->reader);
-		return true;
-	}
-	return false;
+	if (!startObject(member))
+		return false;
+
+	dest = json_node_get_boolean(m_ctx->currentNode);
+	endObject();
+	return true;
 }
 
 bool JsonParserAgent::read(const string &member, int64_t &dest)
 {
 	internalCheck();
-	if (isMember(member)) {
-		if (!json_reader_read_member(m_ctx->reader, member.c_str())) {
-			json_reader_end_member(m_ctx->reader);
-			return false;
-		}
-		dest = json_reader_get_int_value(m_ctx->reader);
-		json_reader_end_member(m_ctx->reader);
-		return true;
-	}
-	return false;
+	if (!startObject(member))
+		return false;
+
+	dest = json_node_get_int(m_ctx->currentNode);
+	endObject();
+	return true;
 }
 
 bool JsonParserAgent::read(const string &member, string &dest)
 {
 	internalCheck();
-	if (isMember(member)) {
-		if (!json_reader_read_member(m_ctx->reader, member.c_str())) {
-			json_reader_end_member(m_ctx->reader);
-			return false;
-		}
-		dest = json_reader_get_string_value(m_ctx->reader);
-		json_reader_end_member(m_ctx->reader);
-		return true;
-	}
-	return false;
+	if (!startObject(member))
+		return false;
+
+	dest = json_node_get_string(m_ctx->currentNode);
+	endObject();
+	return true;
 }
 
 bool JsonParserAgent::read(int index, string &dest)
