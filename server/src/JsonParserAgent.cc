@@ -183,7 +183,15 @@ bool JsonParserAgent::startObject(const string &member)
 
 void JsonParserAgent::endObject(void)
 {
-	json_reader_end_member(m_ctx->reader);
+	JsonNode *tmp;
+
+	if (m_ctx->previousNode != NULL)
+		tmp = json_node_get_parent(m_ctx->previousNode);
+	else
+		tmp = NULL;
+
+	m_ctx->currentNode = m_ctx->previousNode;
+	m_ctx->previousNode = tmp;
 }
 
 bool JsonParserAgent::startElement(int index)
