@@ -84,3 +84,10 @@ class TestUserConfigView(unittest.TestCase):
         request.META[hatoholserver.SESSION_NAME_META] = 'c579a3da-65db-44b4-a0da-ebf27548f4fd';
         response = userconfig.index(request, item_name)
         self.assertEquals(response.status_code, 200)
+
+    def test_index_without_session_id(self):
+        self._emulator = HatoholServerEmulator()
+        self._emulator.start()
+        self._emulator.wait_setup_done()
+        response = userconfig.index(HttpRequest(), "foo")
+        self.assertEquals(response.status_code, 400) # Bad Request
