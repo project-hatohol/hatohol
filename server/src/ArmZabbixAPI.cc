@@ -282,7 +282,7 @@ bool ArmZabbixAPI::openSession(SoupMessage **msgPtr)
 	                 ret, m_ctx->uri.c_str());
 		return false;
 	}
-	MLPL_DBG("body: %"G_GSIZE_FORMAT", %s\n",
+	MLPL_DBG("body: %"G_GOFFSET_FORMAT", %s\n",
 	         msg->response_body->length, msg->response_body->data);
 	bool succeeded = parseInitialResponse(msg);
 	if (!succeeded) {
