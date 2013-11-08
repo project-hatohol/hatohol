@@ -282,8 +282,8 @@ bool ArmZabbixAPI::openSession(SoupMessage **msgPtr)
 	                 ret, m_ctx->uri.c_str());
 		return false;
 	}
-	MLPL_DBG("body: %lld, %s\n", msg->response_body->length,
-	                           msg->response_body->data);
+	MLPL_DBG("body: %"G_GSIZE_FORMAT", %s\n",
+	         msg->response_body->length, msg->response_body->data);
 	bool succeeded = parseInitialResponse(msg);
 	if (!succeeded) {
 		g_object_unref(msg);
