@@ -611,6 +611,16 @@ void _assertLogin(const string &user, const string &password)
 }
 #define assertLogin(U,P) cut_trace(_assertLogin(U,P))
 
+static void _assertUser(JsonParserAgent *parser, const UserInfo &userInfo,
+                        uint32_t expectUserId = 0)
+{
+	if (expectUserId)
+		assertValueInParser(parser, "userId", expectUserId);
+	assertValueInParser(parser, "name", userInfo.name);
+	assertValueInParser(parser, "flags", userInfo.flags);
+}
+#define assertUser(P,I,...) cut_trace(_assertUser(P,I,##__VA_ARGS__))
+
 static void _assertUsers(const string &path, const string &callbackName = "")
 {
 	startFaceRest();
@@ -1149,6 +1159,30 @@ void test_getUser(void)
 	const bool loadTestDat = true;
 	setupTestDBUser(dbRecreate, loadTestDat);
 	assertUsers("/user", "cbname");
+}
+
+void test_getUserMe(void)
+{
+	const UserInfo &user = testUserInfo[1];
+	assertLogin(user.name, user.password);
+	assertErrorCode(g_parser);
+	string sessionId;
+	cppcut_assert_equal(true, g_parser->read("sessionId", sessionId));
+	delete g_parser;
+	g_parser = NULL;
+
+	StringVector headers;
+	headers.push_back(
+	  StringUtils::sprintf("%s:%s", FaceRest::SESSION_ID_HEADER_NAME,
+	                       sessionId.c_str()));
+	static const string url = "/user/me";
+	g_parser = getResponseAsJsonParser(url, "cbname", emptyStringMap,
+	                                   "GET", headers);
+	assertErrorCode(g_parser);
+	assertValueInParser(g_parser, "numberOfUsers", (uint32_t)1);
+	g_parser->startObject("users");
+	g_parser->startElement(0);
+	assertUser(g_parser, user);
 }
 
 void test_addUser(void)

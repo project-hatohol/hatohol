@@ -128,6 +128,7 @@ struct FaceRest::PrivateContext {
 	static bool         testMode;
 	static MutexLock    lock;
 	static SessionIdMap sessionIdMap;
+	static const string pathForUserMe;
 	guint               port;
 	SoupServer         *soupServer;
 	GMainContext       *gMainCtx;
@@ -147,6 +148,11 @@ struct FaceRest::PrivateContext {
 	virtual ~PrivateContext()
 	{
 		g_main_context_unref(gMainCtx);
+	}
+
+	static string initPathForUserMe(void)
+	{
+		return string(FaceRest::pathForUser) + "/me";
 	}
 
 	static void insertSessionId(const string &sessionId, UserIdType userId)
@@ -183,6 +189,8 @@ struct FaceRest::PrivateContext {
 bool         FaceRest::PrivateContext::testMode = false;
 MutexLock    FaceRest::PrivateContext::lock;
 SessionIdMap FaceRest::PrivateContext::sessionIdMap;
+const string FaceRest::PrivateContext::pathForUserMe =
+  FaceRest::PrivateContext::initPathForUserMe();
 
 // ---------------------------------------------------------------------------
 // Public methods
@@ -1450,6 +1458,8 @@ void FaceRest::handlerGetUser
 	UserInfoList userList;
 	UserQueryOption option;
 	option.setUserId(arg->userId);
+	if (path == PrivateContext::pathForUserMe)
+		option.queryOnlyMyself();
 	dataStore->getUserList(userList, option);
 
 	JsonBuilderAgent agent;
