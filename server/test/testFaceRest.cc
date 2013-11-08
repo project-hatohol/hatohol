@@ -632,9 +632,7 @@ static void _assertUsers(const string &path, const string &callbackName = "")
 	for (size_t i = 0; i < NumTestUserInfo; i++) {
 		g_parser->startElement(i);
 		const UserInfo &userInfo = testUserInfo[i];
-		assertValueInParser(g_parser, "userId", (uint32_t)(i + 1));
-		assertValueInParser(g_parser, "name", userInfo.name);
-		assertValueInParser(g_parser, "flags", userInfo.flags);
+		assertUser(g_parser, userInfo, (uint32_t)(i + 1));
 		g_parser->endElement();
 	}
 	g_parser->endObject();
