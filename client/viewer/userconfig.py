@@ -25,7 +25,7 @@ from hatohol import hatohol_def
 import logging
 import traceback
 
-logger = logging.getLogger('hatohol.client.userconfig')
+logger = logging.getLogger(__name__)
 
 def get_user_id_from_hatohol_server(session_id):
     server = hatoholserver.get_address()
