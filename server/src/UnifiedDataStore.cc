@@ -223,6 +223,7 @@ HatoholError UnifiedDataStore::getEventList(EventInfoList &eventList,
 void UnifiedDataStore::getItemList(ItemInfoList &itemList,
                                    uint32_t targetServerId)
 {
+	fetchItems();
 	DBClientHatohol dbHatohol;
 	dbHatohol.getItemInfoList(itemList, targetServerId);
 }
@@ -230,7 +231,6 @@ void UnifiedDataStore::getItemList(ItemInfoList &itemList,
 void UnifiedDataStore::getHostList(
   HostInfoList &hostInfoList, uint32_t targetServerId, uint64_t targetHostId)
 {
-	fetchItems();
 	DBClientHatohol dbHatohol;
 	dbHatohol.getHostInfoList(hostInfoList, targetServerId, targetHostId);
 }
