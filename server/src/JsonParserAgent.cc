@@ -28,14 +28,12 @@ struct JsonParserAgent::PrivateContext
 {
 	JsonParser *parser;
 	JsonNode *currentNode;
-	JsonReader *reader;
 	JsonNode *previousNode;
 	GError *error;
 
 	PrivateContext(const string &data)
 	: parser(NULL),
 	  currentNode(NULL),
-	  reader(NULL),
 	  previousNode(NULL),
 	  error(NULL)
 	{
@@ -43,15 +41,12 @@ struct JsonParserAgent::PrivateContext
 		if (!json_parser_load_from_data(parser, data.c_str(), -1, &error))
 			return;
 		currentNode = json_parser_get_root(parser);
-		reader = json_reader_new(currentNode);
 	}
 
 	virtual ~PrivateContext()
 	{
 		if (error)
 			g_error_free(error);
-		if (reader)
-			g_object_unref(reader);
 		if (parser)
 			g_object_unref(parser);
 	}
