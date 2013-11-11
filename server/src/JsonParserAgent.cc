@@ -120,12 +120,11 @@ bool JsonParserAgent::read(const string &member, string &dest)
 bool JsonParserAgent::read(int index, string &dest)
 {
 	internalCheck();
-	if (!json_reader_read_element(m_ctx->reader,index)) {
-		json_reader_end_element(m_ctx->reader);
+	if (!startElement(index))
 		return false;
-	}
-	dest = json_reader_get_string_value(m_ctx->reader);
-	json_reader_end_element(m_ctx->reader);
+
+	dest = json_node_get_string(m_ctx->currentNode);
+	endElement();
 	return true;
 }
 
