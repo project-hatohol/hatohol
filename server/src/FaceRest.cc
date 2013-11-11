@@ -575,7 +575,6 @@ void FaceRest::launchHandlerInTryBlock
    GHashTable *_query, SoupClientContext *client, gpointer user_data)
 {
 	HandlerClosure *closure = static_cast<HandlerClosure *>(user_data);
-	RestHandler handler = closure->m_handler;
 	HandlerArg arg;
 
 	arg.faceRest = closure->m_faceRest;
@@ -644,7 +643,7 @@ void FaceRest::launchHandlerInTryBlock
 	arg.jsonpCallbackName = getJsonpCallbackName(query, &arg);
 
 	try {
-		(*handler)(server, msg, path, query, client, &arg);
+		(*closure->m_handler)(server, msg, path, query, client, &arg);
 	} catch (const HatoholException &e) {
 		REPLY_ERROR(msg, &arg, HTERR_GOT_EXCEPTION,
 		            "%s", e.getFancyMessage().c_str());
