@@ -18,6 +18,7 @@
 
 # Django settings for hatohol project.
 import os
+import logging
 
 PROJECT_HOME = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 
@@ -168,6 +169,10 @@ LOGGING = {
             'level': 'ERROR',
             'filters': ['require_debug_false'],
             'class': 'django.utils.log.AdminEmailHandler'
+        },
+        'syslog': {
+            'level': 'INFO',
+            'class': 'logging.handlers.SysLogHandler'
         }
     },
     'loggers': {
@@ -176,6 +181,10 @@ LOGGING = {
             'level': 'ERROR',
             'propagate': True,
         },
+        'viewer' : {
+            'level': 'INFO',
+            'propagate': True,
+        }
     }
 }
 

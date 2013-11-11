@@ -37,7 +37,6 @@ def get_user_id_from_hatohol_server(session_id):
     response = urllib2.urlopen(req)
     body = response.read()    
     user_info = json.loads(body)
-    # TODO: check the error code
     user_id = user_info['users'][0]['userId']
     return user_id
 
