@@ -91,8 +91,8 @@ enum FormatType {
 struct FaceRest::HandlerArg
 {
 	FaceRest   *faceRest;
-	string     formatString;
-	FormatType formatType;
+	string      formatString;
+	FormatType  formatType;
 	const char *mimeType;
 	string      id; // we assume URL form is http://example.com/request/id
 	string      jsonpCallbackName;
