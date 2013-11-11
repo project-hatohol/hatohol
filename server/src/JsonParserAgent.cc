@@ -131,12 +131,11 @@ bool JsonParserAgent::read(int index, string &dest)
 bool JsonParserAgent::isNull(const string &member, bool &dest)
 {
 	internalCheck();
-	if (!json_reader_read_member(m_ctx->reader, member.c_str())) {
-		json_reader_end_member(m_ctx->reader);
+	if (!startObject(member))
 		return false;
-	}
-	dest = json_reader_get_null_value(m_ctx->reader);
-	json_reader_end_element(m_ctx->reader);
+
+	dest = JSON_NODE_HOLDS_NULL(m_ctx->currentNode);
+	endObject();
 	return true;
 }
 
