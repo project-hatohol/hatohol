@@ -237,7 +237,7 @@ int JsonParserAgent::countElements(void)
 // ---------------------------------------------------------------------------
 void JsonParserAgent::internalCheck(void)
 {
-	if (!m_ctx->reader)
-		throw runtime_error("reader: NULL\n");
+	if (!m_ctx->currentNode)
+		throw runtime_error("currentNode: NULL\n");
 
 }
