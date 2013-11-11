@@ -51,7 +51,10 @@ class TestHatoholserver(unittest.TestCase):
             del os.environ['HATOHOL_SERVER_PORT']
         hatoholserver._setup() # Update the internal information
 
-    def test_get_address(self):
+    def test_get_default_address(self):
+        if os.getenv('HATOHOL_SERVER_ADDR'):
+            del os.environ['HATOHOL_SERVER_ADDR']
+        hatoholserver._setup() # Update the internal information
         addr = self.assertEqual(hatoholserver.get_address(), 'localhost')
 
     def test_get_address_with_env(self):
@@ -60,7 +63,8 @@ class TestHatoholserver(unittest.TestCase):
         addr = self.assertEqual(hatoholserver.get_address(), 'foo.example.com')
 
     def test_get_default_port(self):
-        del os.environ['HATOHOL_SERVER_PORT']
+        if os.getenv('HATOHOL_SERVER_PORT'):
+            del os.environ['HATOHOL_SERVER_PORT']
         hatoholserver._setup() # Update the internal information
         addr = self.assertEqual(hatoholserver.get_port(),
                                 hatoholserver.DEFAULT_SERVER_PORT)
