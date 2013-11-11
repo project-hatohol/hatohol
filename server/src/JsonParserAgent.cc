@@ -147,7 +147,7 @@ bool JsonParserAgent::isMember(const string &member)
 
 	object = json_node_get_object(m_ctx->currentNode);
 	if(!json_object_has_member(object, member.c_str())) {
-		MLPL_ERR("The member '%s' is not defined in the current node.",
+		MLPL_DBG("The member '%s' is not defined in the current node.",
 				member.c_str());
 		return false;
 	}
