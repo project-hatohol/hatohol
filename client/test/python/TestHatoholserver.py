@@ -41,10 +41,14 @@ class TestHaotholserver(unittest.TestCase):
         if self._orig_server_addr:
             os.environ['HATOHOL_SERVER_ADDR'] = self._orig_server_addr
             self._orig_server_addr = None
+        elif 'HATOHOL_SERVER_ADDR' in os.environ:
+            del os.environ['HATOHOL_SERVER_ADDR']
 
         if self._orig_server_port:
             os.environ['HATOHOL_SERVER_PORT'] = self._orig_server_port
             self._orig_server_port = None
+        elif 'HATOHOL_SERVER_PORT' in os.environ:
+            del os.environ['HATOHOL_SERVER_PORT']
         hatoholserver._setup() # Update the internal information
 
     def test_get_address(self):
