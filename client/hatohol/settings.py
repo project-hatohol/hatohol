@@ -181,7 +181,13 @@ LOGGING = {
             'level': 'ERROR',
             'propagate': True,
         },
+        'hatohol' : {
+            'handlers': ['syslog'],
+            'level': 'INFO',
+            'propagate': True,
+        },
         'viewer' : {
+            'handlers': ['syslog'],
             'level': 'INFO',
             'propagate': True,
         }

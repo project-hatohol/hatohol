@@ -180,6 +180,11 @@ LOGGING = {
             'level': 'ERROR',
             'propagate': True,
         },
+        'hatohol': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
         'viewer': {
             'handlers': ['console'],
             'level': 'DEBUG',
