@@ -18,10 +18,39 @@
   along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
 """
 import unittest
+import os
 
 from hatohol import hatoholserver
 
 class TestHaotholserver(unittest.TestCase):
 
+    def setUp(self):
+        server_addr = os.getenv('HATOHOL_SERVER_ADDR')
+        if server_addr:
+            self._orig_server_addr = server_add
+        else:
+            self._orig_server_addr = None
+
+        server_port = os.getenv('HATOHOL_SERVER_PORT')
+        if server_port:
+            self._orig_server_port = server_port
+        else:
+            self._orig_server_port = None
+
+    def tearDown(self):
+        if self._orig_server_addr:
+            os.environ['HATOHOL_SERVER_ADDR'] = self._orig_server_addr
+            self._orig_server_addr = None
+
+        if self._orig_server_port:
+            os.environ['HATOHOL_SERVER_PORT'] = self._orig_server_port
+            self._orig_server_port = None
+        hatoholserver._setup() # Update the internal information
+
     def test_get_address(self):
         addr = self.assertEqual(hatoholserver.get_address(), 'localhost')
+
+    def test_get_address_with_env(self):
+        os.environ['HATOHOL_SERVER_ADDR'] = 'foo.example.com'
+        hatoholserver._setup() # Update the internal information
+        addr = self.assertEqual(hatoholserver.get_address(), 'foo.example.com')
