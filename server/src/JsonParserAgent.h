@@ -56,7 +56,7 @@ public:
 	bool isNull(const string &member, bool &dest);
 	bool startObject(const string &member);
 	void endObject(void);
-	bool startElement(int index);
+	bool startElement(unsigned int index);
 	void endElement(void);
 	int countElements(void);
 
