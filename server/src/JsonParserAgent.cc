@@ -215,7 +215,7 @@ bool JsonParserAgent::startElement(unsigned int index)
 				       }
 				       break;
 		default:
-				       g_assert_not_reached();
+				       HATOHOL_ASSERT(false, "The node isn't JSON_NODE_ARRAY and JSON_NODE_OBJECT.");
 				       return false;
 	}
 
