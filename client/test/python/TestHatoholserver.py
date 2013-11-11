@@ -27,7 +27,7 @@ class TestHaotholserver(unittest.TestCase):
     def setUp(self):
         server_addr = os.getenv('HATOHOL_SERVER_ADDR')
         if server_addr:
-            self._orig_server_addr = server_add
+            self._orig_server_addr = server_addr
         else:
             self._orig_server_addr = None
 
@@ -58,3 +58,10 @@ class TestHaotholserver(unittest.TestCase):
         os.environ['HATOHOL_SERVER_ADDR'] = 'foo.example.com'
         hatoholserver._setup() # Update the internal information
         addr = self.assertEqual(hatoholserver.get_address(), 'foo.example.com')
+
+    def test_get_default_port(self):
+        del os.environ['HATOHOL_SERVER_PORT']
+        hatoholserver._setup() # Update the internal information
+        addr = self.assertEqual(hatoholserver.get_port(),
+                                hatoholserver.DEFAULT_SERVER_PORT)
+
