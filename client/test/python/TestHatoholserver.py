@@ -22,7 +22,7 @@ import os
 
 from hatohol import hatoholserver
 
-class TestHaotholserver(unittest.TestCase):
+class TestHatoholserver(unittest.TestCase):
 
     def setUp(self):
         server_addr = os.getenv('HATOHOL_SERVER_ADDR')
