@@ -177,41 +177,41 @@ void JsonParserAgent::endObject(void)
 bool JsonParserAgent::startElement(unsigned int index)
 {
 	switch (json_node_get_node_type(m_ctx->currentNode)) {
-		case JSON_NODE_ARRAY: {
-					      JsonArray * array = json_node_get_array(m_ctx->currentNode);
+	case JSON_NODE_ARRAY: {
+		JsonArray * array = json_node_get_array(m_ctx->currentNode);
 
-					      if (index >= json_array_get_length(array)) {
-						      MLPL_DBG("The index '%d' is greater than the size of "
-								      "the array at the current position.", index);
-						      return false;
-					      }
+		if (index >= json_array_get_length(array)) {
+			MLPL_DBG("The index '%d' is greater than the size of "
+				"the array at the current position.", index);
+		return false;
+		}
 
-					      m_ctx->previousNode = m_ctx->currentNode;
-					      m_ctx->currentNode = json_array_get_element(array, index);
-				      }
-				      break;
-		case JSON_NODE_OBJECT: {
-					       JsonObject *object = json_node_get_object(m_ctx->currentNode);
-					       GList *members;
-					       const gchar *name;
+		m_ctx->previousNode = m_ctx->currentNode;
+		m_ctx->currentNode = json_array_get_element(array, index);
+	}
+	break;
+	case JSON_NODE_OBJECT: {
+		JsonObject *object = json_node_get_object(m_ctx->currentNode);
+		GList *members;
+		const gchar *name;
 
-					       if(index >= json_object_get_size(object)) {
-						       MLPL_DBG("The index '%d' is greater than the size of "
-								       "the array at the current position.", index);
-						       return false;
-					       }
+		if(index >= json_object_get_size(object)) {
+			MLPL_DBG("The index '%d' is greater than the size of "
+				"the array at the current position.", index);
+			return false;
+		}
 
-					       m_ctx->previousNode = m_ctx->currentNode;
-					       members = json_object_get_members(object);
-					       name = static_cast<gchar *>(g_list_nth_data(members, index));
-					       m_ctx->currentNode = json_object_get_member(object, name);
+		m_ctx->previousNode = m_ctx->currentNode;
+		members = json_object_get_members(object);
+		name = static_cast<gchar *>(g_list_nth_data(members, index));
+		m_ctx->currentNode = json_object_get_member(object, name);
 
-					       g_list_free(members);
-				       }
-				       break;
-		default:
-				       HATOHOL_ASSERT(false, "The node isn't JSON_NODE_ARRAY and JSON_NODE_OBJECT.");
-				       return false;
+		g_list_free(members);
+	}
+	break;
+	default:
+		HATOHOL_ASSERT(false, "The node isn't JSON_NODE_ARRAY and JSON_NODE_OBJECT.");
+		return false;
 	}
 
 	return true;
