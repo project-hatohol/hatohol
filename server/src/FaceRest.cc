@@ -90,6 +90,7 @@ enum FormatType {
 
 struct FaceRest::HandlerArg
 {
+	FaceRest   *faceRest;
 	string     formatString;
 	FormatType formatType;
 	const char *mimeType;
@@ -576,6 +577,8 @@ void FaceRest::launchHandlerInTryBlock
 	HandlerClosure *closure = static_cast<HandlerClosure *>(user_data);
 	RestHandler handler = closure->m_handler;
 	HandlerArg arg;
+
+	arg.faceRest = closure->m_faceRest;
 
 	const char *sessionId =
 	   soup_message_headers_get_one(msg->request_headers,
