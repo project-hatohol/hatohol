@@ -5,6 +5,9 @@ Install packages (for Ubuntu 12.04)
     # npm install -g mocha
     # npm install -g expect.js
     # apt-get install nodejs-legacy
+    # npm install -g mocha-phantomjs phantomjs
+    # pip install django==1.5.4
+    # pip install mysql-python
 
 make symbolic links
 -------------------
