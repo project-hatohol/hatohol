@@ -226,7 +226,7 @@ bool JsonParserAgent::startElement(unsigned int index)
 
 void JsonParserAgent::endElement(void)
 {
-	json_reader_end_element(m_ctx->reader);
+	endObject();
 }
 
 int JsonParserAgent::countElements(void)
