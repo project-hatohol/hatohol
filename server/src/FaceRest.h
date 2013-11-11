@@ -60,6 +60,12 @@ public:
 
 protected:
 	struct HandlerArg;
+	struct HandlerClosure;
+
+	typedef void (*RestHandler)
+	  (SoupServer *server, SoupMessage *msg, const char *path,
+	   GHashTable *query, SoupClientContext *client,
+	   HandlerArg *arg);
 
 	// virtual methods
 	gpointer mainThread(HatoholThreadArg *arg);

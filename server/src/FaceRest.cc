@@ -41,10 +41,6 @@ using namespace mlpl;
 int FaceRest::API_VERSION = 3;
 const char *FaceRest::SESSION_ID_HEADER_NAME = "X-Hatohol-Session";
 
-typedef void (*RestHandler)
-  (SoupServer *server, SoupMessage *msg, const char *path,
-   GHashTable *query, SoupClientContext *client, gpointer user_data);
-
 typedef uint64_t ServerID;
 typedef uint64_t HostID;
 typedef uint64_t TriggerID;
@@ -301,6 +297,21 @@ struct FaceRest::PrivateContext::MainThreadCleaner {
 	}
 };
 
+typedef struct FaceRest::HandlerClosure
+{
+	FaceRest *m_faceRest;
+	FaceRest::RestHandler m_handler;
+	HandlerClosure(FaceRest *faceRest, FaceRest::RestHandler handler)
+	: m_faceRest(faceRest), m_handler(handler)
+	{}
+} HandlerClosure;
+
+static void deleteHandlerClosure(gpointer data)
+{
+	HandlerClosure *arg = static_cast<HandlerClosure *>(data);
+	delete arg;
+}
+
 gpointer FaceRest::mainThread(HatoholThreadArg *arg)
 {
 	PrivateContext::MainThreadCleaner cleaner(m_ctx);
@@ -317,40 +328,52 @@ gpointer FaceRest::mainThread(HatoholThreadArg *arg)
 	                        handlerDefault, this, NULL);
 	soup_server_add_handler(m_ctx->soupServer, "/hello.html",
 	                        launchHandlerInTryBlock,
-	                        (gpointer)handlerHelloPage, NULL);
+	                        new HandlerClosure(this, &handlerHelloPage),
+				deleteHandlerClosure);
 	soup_server_add_handler(m_ctx->soupServer, "/test",
 	                        launchHandlerInTryBlock,
-	                        (gpointer)handlerTest, NULL);
+	                        new HandlerClosure(this, handlerTest),
+				deleteHandlerClosure);
 	soup_server_add_handler(m_ctx->soupServer, pathForLogin,
 	                        launchHandlerInTryBlock,
-	                        (gpointer)handlerLogin, NULL);
+	                        new HandlerClosure(this, handlerLogin),
+				deleteHandlerClosure);
 	soup_server_add_handler(m_ctx->soupServer, pathForLogout,
 	                        launchHandlerInTryBlock,
-	                        (gpointer)handlerLogout, NULL);
+	                        new HandlerClosure(this, handlerLogout),
+				deleteHandlerClosure);
 	soup_server_add_handler(m_ctx->soupServer, pathForGetOverview,
 	                        launchHandlerInTryBlock,
-	                        (gpointer)handlerGetOverview, NULL);
+	                        new HandlerClosure(this, handlerGetOverview),
+				deleteHandlerClosure);
 	soup_server_add_handler(m_ctx->soupServer, pathForGetServer,
 	                        launchHandlerInTryBlock,
-	                        (gpointer)handlerGetServer, NULL);
+	                        new HandlerClosure(this, handlerGetServer),
+				deleteHandlerClosure);
 	soup_server_add_handler(m_ctx->soupServer, pathForGetHost,
 	                        launchHandlerInTryBlock,
-	                        (gpointer)handlerGetHost, NULL);
+	                        new HandlerClosure(this, handlerGetHost),
+				deleteHandlerClosure);
 	soup_server_add_handler(m_ctx->soupServer, pathForGetTrigger,
 	                        launchHandlerInTryBlock,
-	                        (gpointer)handlerGetTrigger, NULL);
+	                        new HandlerClosure(this, handlerGetTrigger),
+				deleteHandlerClosure);
 	soup_server_add_handler(m_ctx->soupServer, pathForGetEvent,
 	                        launchHandlerInTryBlock,
-	                        (gpointer)handlerGetEvent, NULL);
+	                        new HandlerClosure(this, handlerGetEvent),
+				deleteHandlerClosure);
 	soup_server_add_handler(m_ctx->soupServer, pathForGetItem,
 	                        launchHandlerInTryBlock,
-	                        (gpointer)handlerGetItem, NULL);
+	                        new HandlerClosure(this, handlerGetItem),
+				deleteHandlerClosure);
 	soup_server_add_handler(m_ctx->soupServer, pathForAction,
 	                        launchHandlerInTryBlock,
-	                        (gpointer)handlerAction, NULL);
+	                        new HandlerClosure(this, handlerAction),
+				deleteHandlerClosure);
 	soup_server_add_handler(m_ctx->soupServer, pathForUser,
 	                        launchHandlerInTryBlock,
-	                        (gpointer)handlerUser, NULL);
+	                        new HandlerClosure(this, handlerUser),
+				deleteHandlerClosure);
 	if (m_ctx->param)
 		m_ctx->param->setupDoneNotifyFunc();
 	soup_server_run_async(m_ctx->soupServer);
@@ -550,7 +573,8 @@ void FaceRest::launchHandlerInTryBlock
   (SoupServer *server, SoupMessage *msg, const char *path,
    GHashTable *_query, SoupClientContext *client, gpointer user_data)
 {
-	RestHandler handler = reinterpret_cast<RestHandler>(user_data);
+	HandlerClosure *closure = static_cast<HandlerClosure *>(user_data);
+	RestHandler handler = closure->m_handler;
 	HandlerArg arg;
 
 	const char *sessionId =
