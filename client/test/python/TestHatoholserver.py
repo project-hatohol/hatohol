@@ -69,3 +69,8 @@ class TestHatoholserver(unittest.TestCase):
         addr = self.assertEqual(hatoholserver.get_port(),
                                 hatoholserver.DEFAULT_SERVER_PORT)
 
+    def test_get_address_with_env(self):
+        os.environ['HATOHOL_SERVER_PORT'] = '12345'
+        hatoholserver._setup() # Update the internal information
+        addr = self.assertEqual(hatoholserver.get_port(), 12345)
+
