@@ -183,7 +183,7 @@ bool JsonParserAgent::startElement(unsigned int index)
 		if (index >= json_array_get_length(array)) {
 			MLPL_DBG("The index '%d' is greater than the size of "
 				"the array at the current position.", index);
-		return false;
+			return false;
 		}
 
 		m_ctx->previousNode = m_ctx->currentNode;
