@@ -28,7 +28,7 @@ var HatoholConnector = function(connectParams) {
   //   e.g. '/server'. Note: '/tunnel' is automatically added.
   //
   // request: <string> [optional]
-  //   'GET', 'POST', 'PUT', and 'DELETE' (Default: 'GET')
+  //   'GET', 'POST', 'PUT', or 'DELETE' (Default: 'GET')
   //
   // data: <object or string> [optional]
   //   data to be sent. It is used as 'data' of jQuery's ajax().
