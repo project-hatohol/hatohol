@@ -68,6 +68,14 @@ Ex.)
 	- url(r'^tunnel/(?P<path>.+)', jsonforward, kwargs={'server':'localhost:33194'})
 	+ url(r'^tunnel/(?P<path>.+)', jsonforward, kwargs={'server':'localhost:30080'})
 
+Initialize database the client uses
+-----------------------------------
+You have to create database for the client only once.
+
+Ex.)
+
+	$ ./manage.py syncdb
+
 How to run
 ----------------------------------------
 This is a standard Django project so you can run this on some WSGI compliant application server.
