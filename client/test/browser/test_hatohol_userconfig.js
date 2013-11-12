@@ -24,6 +24,7 @@ describe('HatoholUserConfig', function() {
     var params = {
       itemNames: ['foo'],
       successCallback: function(values) {
+        expect(values).not.to.be(undefined);
         expect(values).to.be.an('object');
         expect(values).to.have.key('foo');
         done();
