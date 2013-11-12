@@ -32,7 +32,7 @@ var HatoholConnector = function(connectParams) {
   //   data: <object or string> [optional]
   //     data to be sent. It is used as 'data' of jQuery's ajax().
   //
-  //   replyCallback: <function> [optionanl]
+  //   replyCallback: <function> [mandatory]
   //     function(reply, parser)
   //
   //   connectErrorCallback: <function> [optional]
