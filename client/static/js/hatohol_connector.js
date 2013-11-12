@@ -23,28 +23,29 @@
 var HatoholConnector = function(connectParams) {
   //
   // connectParams has the following paramters.
-  //   url: <string> [mandatory]
-  //     e.g. '/server'. Note: '/tunnel' is automatically added.
   //
-  //   request: <string> [optional]
-  //     'GET', 'POST', 'PUT', and 'DELETE' (Default: 'GET')
+  // url: <string> [mandatory]
+  //   e.g. '/server'. Note: '/tunnel' is automatically added.
   //
-  //   data: <object or string> [optional]
-  //     data to be sent. It is used as 'data' of jQuery's ajax().
+  // request: <string> [optional]
+  //   'GET', 'POST', 'PUT', and 'DELETE' (Default: 'GET')
   //
-  //   replyCallback: <function> [mandatory]
-  //     function(reply, parser)
+  // data: <object or string> [optional]
+  //   data to be sent. It is used as 'data' of jQuery's ajax().
   //
-  //   connectErrorCallback: <function> [optional]
-  //     function(XMLHttpRequest, textStatus, errorThrown)
-  //     If undefined, a message box is shown.
+  // replyCallback: <function> [mandatory]
+  //   function(reply, parser)
   //
-  //   parseErrorCallback: <function> [optional]
-  //     function(reply, parser)
-  //     If undefined, replyCallback is called.
+  // connectErrorCallback: <function> [optional]
+  //   function(XMLHttpRequest, textStatus, errorThrown)
+  //   If undefined, a message box is shown.
   //
-  //   replyParser: <function> [optional]
-  //     Default: HatoholReplyParser
+  // parseErrorCallback: <function> [optional]
+  //   function(reply, parser)
+  //   If undefined, replyCallback is called.
+  //
+  // replyParser: <function> [optional]
+  //   Default: HatoholReplyParser
   //
   var self = this;
   if (connectParams.request)
