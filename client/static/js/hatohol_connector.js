@@ -96,7 +96,7 @@ var HatoholConnector = function(connectParams) {
 
   function request() {
     var pathPrefix;
-    if (connectParams.pathPrefix)
+    if (connectParams.pathPrefix != undefined)
       pathPrefix = connectParams.pathPrefix;
     else
       pathPrefix = "/tunnel";
