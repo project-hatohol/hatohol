@@ -30,8 +30,10 @@ describe('HatoholUserConfig', function() {
         done();
       },
       connectErrorCallback: function(XMLHttpRequest, textStatus, errorThrown) {
-        expect().fail(function(){ return textStatus + ": " + errorThrown })
-        done()
+        expect().fail(function(){
+          return "status " + XMLHttpRequest.status +
+                 ": " + textStatus + ": " + errorThrown });
+        done();
       }
     }
     new HatoholUserConfig(params);
