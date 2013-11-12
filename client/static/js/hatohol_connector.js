@@ -21,16 +21,31 @@
 // HatohoConnector
 // ---------------------------------------------------------------------------
 var HatoholConnector = function(connectParams) {
+  //
   // connectParams has the following paramters.
-  //   url: mandatory (e.g. /server, Note /tunnel is automatically added)
-  //   request: GET, POST, PUT, and DELETE (Default: GET)
-  //   data: data to send
-  //   replyCallback: function(reply, parser)
-  //   connectErrorCallback: function(XMLHttpRequest, textStatus, errorThrown)
+  //   url: <string> [mandatory]
+  //     e.g. '/server'. Note: '/tunnel' is automatically added.
+  //
+  //   request: <string> [optional]
+  //     'GET', 'POST', 'PUT', and 'DELETE' (Default: 'GET')
+  //
+  //   data: <object or string> [optional]
+  //     data to be sent. It is used as 'data' of jQuery's ajax().
+  //
+  //   replyCallback: <function> [optionanl]
+  //     function(reply, parser)
+  //
+  //   connectErrorCallback: <function> [optional]
+  //     function(XMLHttpRequest, textStatus, errorThrown)
   //     If undefined, a message box is shown.
-  //   parseErrorCallback: function(reply, parser)
+  //
+  //   parseErrorCallback: <function> [optional]
+  //     function(reply, parser)
   //     If undefined, replyCallback is called.
-  //   replyParser  : (Default: HatoholReplyParser)
+  //
+  //   replyParser: <function> [optional]
+  //     Default: HatoholReplyParser
+  //
   var self = this;
   if (connectParams.request)
     self.request = connectParams.request;
