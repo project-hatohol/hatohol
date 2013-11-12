@@ -232,7 +232,5 @@ int JsonParserAgent::countElements(void)
 // ---------------------------------------------------------------------------
 void JsonParserAgent::internalCheck(void)
 {
-	if (!m_ctx->currentNode)
-		HATOHOL_ASSERT("currentNode: NULL\n");
-
+	HATOHOL_ASSERT(m_ctx->currentNode, "CurrentNode: NULL");
 }
