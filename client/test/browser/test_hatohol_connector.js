@@ -76,6 +76,29 @@ describe('HatoholConnector', function() {
     var connector = new HatoholConnector(params);
   });
 
+  it('specify pathPrefix', function(done) {
+    setLoginDialogCallback();
+    var params = {
+      url: "/hello",
+      pathPrefix: "/test",
+      data: {},
+      replyParser: function(data) {
+        return {
+          getStatus: function() { return REPLY_STATUS.OK; }
+        }
+      },
+      replyCallback: function(data, parser) {
+        expect(data).to.be('Hello');
+        done();
+      },
+      connectErrorCallback: function(XMLHttpRequest, textStatus, errorThrown) {
+        expect(XMLHttpRequest.status).to.be(403);
+        done();
+      },
+    };
+    var connector = new HatoholConnector(params);
+  });
+
   it('connection error callback', function(done) {
     setLoginDialogCallback();
     var params = {

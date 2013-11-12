@@ -25,7 +25,12 @@ var HatoholConnector = function(connectParams) {
   // connectParams has the following paramters.
   //
   // url: <string> [mandatory]
-  //   e.g. '/server'. Note: '/tunnel' is automatically added.
+  //   e.g. '/server'.
+  //   Note: '/tunnel' is automatically added unless 'pathPrefix' parameter
+  //         is set.
+  //
+  // pathPrefix: <string> [optional]
+  //   Defaut: '/tunnel'.
   //
   // request: <string> [optional]
   //   'GET', 'POST', 'PUT', or 'DELETE' (Default: 'GET')
@@ -90,7 +95,12 @@ var HatoholConnector = function(connectParams) {
   }
 
   function request() {
-    var url = "/tunnel" + connectParams.url;
+    var pathPrefix;
+    if (connectParams.pathPrefix)
+      pathPrefix = connectParams.pathPrefix;
+    else
+      pathPrefix = "/tunnel";
+    var url = pathPrefix + connectParams.url;
     var hdrs = {};
     hdrs[hatohol.FACE_REST_SESSION_ID_HEADER_NAME] =
        HatoholSessionManager.get();

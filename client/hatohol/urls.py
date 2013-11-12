@@ -21,6 +21,7 @@ from django.conf.urls import patterns, include, url
 from django.conf.urls.i18n import i18n_patterns
 from hatohol.forwardview import jsonforward
 from django.views.generic import TemplateView
+import test.python.utils
 
 # Uncomment the next two lines to enable the admin:
 # from django.contrib import admin
@@ -74,6 +75,7 @@ if 'HATOHOL_DEBUG' in os.environ and os.environ['HATOHOL_DEBUG'] == '1':
         makeTastingUrl('hatohol_session_manager.html'),
         makeTastingUrl('hatohol_connector.html'),
         makeTastingUrl('js_loader.js'),
+        url(r'^test/hello', test.python.utils.hello),
         makeTestUrl('index.html'),
         makeTestUrl('test_hatohol_session_manager.js'),
         makeTestUrl('test_hatohol_connector.js'),
