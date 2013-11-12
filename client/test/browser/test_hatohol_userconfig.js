@@ -19,6 +19,14 @@
 
 describe('HatoholUserConfig', function() {
 
+  function defaultConnectErrorCallback(XMLHttpRequest, textStatus, errorThrown) {
+    expect().fail(function(){
+      return "status " + XMLHttpRequest.status +
+             ": " + textStatus + ": " + errorThrown });
+    // done() may not be unnecessary because the above fail()
+    // throw an exception
+  }
+
   it('try to get nonexisting item', function(done) {
     //setLoginDialogCallback();
     var params = {
@@ -29,12 +37,7 @@ describe('HatoholUserConfig', function() {
         expect(values).to.have.key('foo');
         done();
       },
-      connectErrorCallback: function(XMLHttpRequest, textStatus, errorThrown) {
-        expect().fail(function(){
-          return "status " + XMLHttpRequest.status +
-                 ": " + textStatus + ": " + errorThrown });
-        done();
-      }
+      connectErrorCallback: defaultConnectErrorCallback,
     }
     new HatoholUserConfig(params);
   });
