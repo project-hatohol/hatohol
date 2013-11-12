@@ -55,5 +55,6 @@ def index_core(request, item_name):
     user_id = get_user_id_from_hatohol_server(session_id)
     if user_id is None:
         return HttpResponse(status=httplib.UNAUTHORIZED)
+    value = UserConfig.get(item_name, user_id)
     body = json.dumps({item_name:value})
     return HttpResponse(body, mimetype='application/json')
