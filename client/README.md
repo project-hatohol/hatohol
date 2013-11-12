@@ -4,7 +4,7 @@ Hatohol Client
 Hatohol Clinet is a frontend part of Hatohol and provides a web UI based
 on Django.
 
-Required software and settings.
+Required software and settings
 ----------------------------------------
 - Python 2.6
 - Django 1.5
@@ -57,13 +57,14 @@ The following shows examples to install Django.
 
 How to run
 ----------------------------------------
-This is a standard Django project so you can run this on some WSGI compliant application server.
+Hatohol Client is a standard Django project. So you can run it on any WSGI
+compliant application server.
 
-Of course you can run with runserver subcommand of Django's manage.py.
+Alternatively you can run with a runserver sub-command of Django's manage.py.
 
 	$ ./manage.py runserver
 
-If you want to serve to the outside of the host that this frontend run on, you need specifying the address.
+If you allow to access from the outside, you need specifying the address like
 
 	$ ./manage.py runserver 0.0.0.0:8000
 
