@@ -23,6 +23,7 @@ HATOHOL_DB_DIR=/tmp $server_dir/src/.libs/hatohol --pid-file-path /tmp/hatohol.p
 server_pid=$!
 
 cd $client_dir
+./manage.py syncdb
 HATOHOL_DEBUG=1 ./manage.py runserver 0.0.0.0:8000 &
 client_pid=$!
 
