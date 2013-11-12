@@ -52,7 +52,7 @@ var HatoholUserConfig = function(params) {
       pathPrefix: '',
       replyCallback: function(reply, parser) {
         var itemName = params.itemNames[self.itemIndex];
-        self.values[itemName] = reply.itemName;
+        self.values[itemName] = reply[itemName];
         self.itemIndex++;
         mainIterate();
       },

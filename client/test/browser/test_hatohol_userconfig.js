@@ -35,6 +35,7 @@ describe('HatoholUserConfig', function() {
         expect(values).not.to.be(undefined);
         expect(values).to.be.an('object');
         expect(values).to.have.key('foo');
+        expect(values['foo']).to.be(null);
         done();
       },
       connectErrorCallback: defaultConnectErrorCallback,
