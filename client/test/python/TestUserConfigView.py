@@ -164,12 +164,8 @@ class TestUserConfigView(unittest.TestCase):
         self.assertEquals(response.status_code, httplib.INTERNAL_SERVER_ERROR)
 
     def test_store(self):
-        self._emulator = HatoholServerEmulator()
-        self._emulator.start_and_wait_setup_done()
-        request = HttpRequest()
-        self._setPostItems(request, {'favorite':'dog'})
-        self._setSessionId(request)
-        response = userconfig.index(request)
+        self._setup_emulator()
+        response = self._post({'favorite':'dog'})
         self.assertEquals(response.status_code, httplib.OK)
 
     def test_store_and_get(self):
