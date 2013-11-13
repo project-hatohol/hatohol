@@ -110,6 +110,8 @@ class TestUserConfigView(unittest.TestCase):
         self._setSessionId(request)
         response = userconfig.index(request)
         self.assertEquals(response.status_code, httplib.OK)
+        items = json.loads(response.content)
+        self.assertEquals(items['foo.goo'], None)
 
     def test_index_without_session_id(self):
         self._emulator = HatoholServerEmulator()
