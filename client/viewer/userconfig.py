@@ -41,20 +41,35 @@ def get_user_id_from_hatohol_server(session_id):
     user_id = user_info['users'][0]['userId']
     return user_id
 
-def index(request, item_name):
+def index(request):
     try:
-        return index_core(request, item_name)
+        return index_core(request)
     except:
         logger.error(traceback.format_exc())
         return HttpResponse(status=httplib.INTERNAL_SERVER_ERROR)
 
-def index_core(request, item_name):
+def index_core(request):
+    # session ID
     if hatoholserver.SESSION_NAME_META not in request.META:
+        logger.info('Session ID is missing.')
         return HttpResponse(status=httplib.BAD_REQUEST)
     session_id = request.META[hatoholserver.SESSION_NAME_META]
+
+    # keys
+    print type(request.GET)
+    if not request.GET.has_key('items[]'):
+        logger.info('Not found key: items[].')
+        return HttpResponse(status=httplib.BAD_REQUEST)
+    item_name_list = request.GET.getlist('items[]')
+
     user_id = get_user_id_from_hatohol_server(session_id)
     if user_id is None:
+        logger.info('Failed to get user ID.')
         return HttpResponse(status=httplib.UNAUTHORIZED)
-    value = UserConfig.get(item_name, user_id)
-    body = json.dumps({item_name:value})
+
+    response_dict = {}
+    for item_name in item_name_list:
+      value = UserConfig.get(item_name, user_id)
+      response_dict[item_name] = value
+    body = json.dumps(response_dict)
     return HttpResponse(body, mimetype='application/json')

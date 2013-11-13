@@ -19,6 +19,7 @@
 """
 import unittest
 from django.http import HttpRequest
+from django.http import QueryDict
 from BaseHTTPServer import BaseHTTPRequestHandler
 from BaseHTTPServer import HTTPServer
 import urlparse
@@ -97,18 +98,20 @@ class TestUserConfigView(unittest.TestCase):
     def test_index(self):
         self._emulator = HatoholServerEmulator()
         self._emulator.start_and_wait_setup_done()
-        item_name = "foo.goo"
         request = HttpRequest()
+        request.GET = QueryDict('items[]=foo.goo')
         # The followiing session ID is acutually not verified. So the value
         # is just fake.
         request.META[hatoholserver.SESSION_NAME_META] = 'c579a3da-65db-44b4-a0da-ebf27548f4fd';
-        response = userconfig.index(request, item_name)
+        response = userconfig.index(request)
         self.assertEquals(response.status_code, httplib.OK)
 
     def test_index_without_session_id(self):
         self._emulator = HatoholServerEmulator()
         self._emulator.start_and_wait_setup_done()
-        response = userconfig.index(HttpRequest(), "foo")
+        request = HttpRequest()
+        request.GET = QueryDict('items[]=foo')
+        response = userconfig.index(request)
         self.assertEquals(response.status_code, httplib.BAD_REQUEST)
 
     def test_index_server_not_return_userinfo(self):
@@ -116,5 +119,6 @@ class TestUserConfigView(unittest.TestCase):
         self._emulator.start_and_wait_setup_done()
         request = HttpRequest()
         request.META[hatoholserver.SESSION_NAME_META] = 'c579a3da-65db-44b4-a0da-ebf27548f4fd';
-        response = userconfig.index(request, 'foo-item')
+        request.GET = QueryDict('items[]=foo-item')
+        response = userconfig.index(request)
         self.assertEquals(response.status_code, httplib.INTERNAL_SERVER_ERROR)

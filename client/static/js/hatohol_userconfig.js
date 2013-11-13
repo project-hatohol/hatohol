@@ -38,28 +38,17 @@ var HatoholUserConfig = function(params) {
   //   A callback function that is called on the error.
   //
   var self = this;
-  self.itemIndex = 0
-  self.values = {}
-  mainIterate();
 
-  function mainIterate() {
-    if (self.itemIndex >= params.itemNames.length) {
-      params.successCallback(self.values);
-      return;
-    }
-    new HatoholConnector({
-      url: '/userconfig/' + encodeURI(params.itemNames[self.itemIndex]),
-      pathPrefix: '',
-      replyCallback: function(reply, parser) {
-        var itemName = params.itemNames[self.itemIndex];
-        self.values[itemName] = reply[itemName];
-        self.itemIndex++;
-        mainIterate();
-      },
-      connectErrorCallback: params.connectErrorCallback,
-      replyParser: function(data) {
-        return { getStatus: function() { return REPLY_STATUS.OK; } }
-      },
-    });
-  }
+  new HatoholConnector({
+    url: '/userconfig',
+    data: {'items': params.itemNames},
+    pathPrefix: '',
+    replyCallback: function(reply, parser) {
+      return params.successCallback(reply);
+    },
+    connectErrorCallback: params.connectErrorCallback,
+    replyParser: function(data) {
+      return { getStatus: function() { return REPLY_STATUS.OK; } }
+    },
+  });
 };
