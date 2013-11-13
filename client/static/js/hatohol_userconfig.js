@@ -49,9 +49,7 @@ HatoholUserConfig.prototype.get = function(params) {
       return params.successCallback(reply);
     },
     connectErrorCallback: params.connectErrorCallback,
-    replyParser: function(data) {
-      return { getStatus: function() { return REPLY_STATUS.OK; } }
-    },
+    replyParser: getInactionParser(),
   });
 }
 
@@ -81,8 +79,6 @@ HatoholUserConfig.prototype.store = function(params) {
           params.successCallback(reply);
     },
     connectErrorCallback: params.connectErrorCallback,
-    replyParser: function(data) {
-      return { getStatus: function() { return REPLY_STATUS.OK; } }
-    },
+    replyParser: getInactionParser(),
   });
 }
