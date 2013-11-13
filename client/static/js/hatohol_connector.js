@@ -182,3 +182,9 @@ var HatoholConnector = function(connectParams) {
     showErrorMessageBox(errorMsg);
   }
 };
+
+function getInactionParser() {
+  return function(data) {
+    return { getStatus: function() { return REPLY_STATUS.OK; } }
+  };
+}

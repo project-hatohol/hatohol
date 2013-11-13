@@ -40,6 +40,17 @@ describe('HatoholUserConfig', function() {
   //
   // Test cases
   //
+  beforeEach(function(done) {
+    var params = {
+      url: '/test/delete_user_config',
+      pathPrefix: '',
+      replyCallback: function(reply, parser) { done(); },
+      connectErrorCallback: defaultConnectErrorCallback,
+      replyParser: getInactionParser(),
+    };
+    new HatoholConnector(params);
+  });
+
   it('try to get nonexisting item', function(done) {
     //setLoginDialogCallback();
     var params = {

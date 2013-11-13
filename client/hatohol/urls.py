@@ -77,6 +77,7 @@ if 'HATOHOL_DEBUG' in os.environ and os.environ['HATOHOL_DEBUG'] == '1':
         makeTastingUrl('hatohol_connector.html'),
         makeTastingUrl('js_loader.js'),
         url(r'^test/hello', test.python.utils.hello),
+        url(r'^test/delete_user_config', test.python.utils.delete_user_config),
         makeTestUrl('index.html'),
         makeTestUrl('test_hatohol_session_manager.js'),
         makeTestUrl('test_hatohol_connector.js'),
