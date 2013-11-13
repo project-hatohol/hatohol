@@ -122,3 +122,16 @@ class TestUserConfigView(unittest.TestCase):
         request.GET = QueryDict('items[]=foo-item')
         response = userconfig.index(request)
         self.assertEquals(response.status_code, httplib.INTERNAL_SERVER_ERROR)
+
+    def test_store(self):
+        self._emulator = HatoholServerEmulator()
+        self._emulator.start_and_wait_setup_done()
+        request = HttpRequest()
+        request.method = "POST"
+        request.POST = QueryDict('favorite=dog')
+        # The followiing session ID is acutually not verified. So the value
+        # is just fake.
+        request.META[hatoholserver.SESSION_NAME_META] = 'c579a3da-65db-44b4-a0da-ebf27548f4fd';
+        response = userconfig.index(request)
+        self.assertEquals(response.status_code, httplib.OK)
+
