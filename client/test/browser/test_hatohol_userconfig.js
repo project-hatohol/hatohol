@@ -66,13 +66,7 @@ describe('HatoholUserConfig', function() {
   });
 
   it('store an float', function(done) {
-    var params = {
-      items: {'height': 18.2},
-      successCallback: function(reply) { done(); },
-      connectErrorCallback: defaultConnectErrorCallback,
-    }
-    userconfig = new HatoholUserConfig();
-    userconfig.store(params);
+    storeOneItem(done, {'height': 18.2});
   });
 
   it('store a boolean', function(done) {
