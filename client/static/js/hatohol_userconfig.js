@@ -54,3 +54,35 @@ HatoholUserConfig.prototype.get = function(params) {
     },
   });
 }
+
+HatoholUserConfig.prototype.store = function(params) {
+  //
+  // params has the following parameters.
+  //
+  // items: <object> [mandatory]
+  //   items to be stored.
+  //
+  // successCallback: <function> [optional]
+  //   A callback function that is called on the success.
+  //   The function form: func(returnedBody),
+  //
+  // connectErrorCallback: <function> [mandatory]
+  //   function(XMLHttpRequest, textStatus, errorThrown)
+  //   A callback function that is called on the error.
+  //
+  new HatoholConnector({
+    url: '/userconfig',
+    request: 'POST',
+    data: JSON.stringify(params.items),
+    pathPrefix: '',
+    contentType: 'application/json',
+    replyCallback: function(reply, parser) {
+      if (params.successCallback)
+          params.successCallback(reply);
+    },
+    connectErrorCallback: params.connectErrorCallback,
+    replyParser: function(data) {
+      return { getStatus: function() { return REPLY_STATUS.OK; } }
+    },
+  });
+}

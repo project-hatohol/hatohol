@@ -23,6 +23,7 @@ from django.http import QueryDict
 from BaseHTTPServer import BaseHTTPRequestHandler
 from BaseHTTPServer import HTTPServer
 import urlparse
+import urllib
 import threading
 import json
 import httplib
@@ -94,6 +95,27 @@ class TestUserConfigView(unittest.TestCase):
         request.META[hatoholserver.SESSION_NAME_META] = \
           'c579a3da-65db-44b4-a0da-ebf27548f4fd';
 
+    def _setup_emulator(self):
+        self._emulator = HatoholServerEmulator()
+        self._emulator.start_and_wait_setup_done()
+
+    def _setPostItems(self, request, items):
+        request.method = 'POST'
+        # This way is too bad. A private member of HttpRequest object is
+        # directly changed. But... I don't know other good way.
+        request._body = json.dumps(items)
+
+    def _get(self, query):
+        request = HttpRequest()
+        if not isinstance(query, str):
+            print query
+            query = urllib.urlencode(query)
+        request.GET = QueryDict(query)
+        self._setSessionId(request)
+        response = userconfig.index(request)
+        self.assertEquals(response.status_code, httplib.OK)
+        return response
+
     #
     # Test cases
     #
@@ -138,8 +160,7 @@ class TestUserConfigView(unittest.TestCase):
         self._emulator = HatoholServerEmulator()
         self._emulator.start_and_wait_setup_done()
         request = HttpRequest()
-        request.method = "POST"
-        request.POST = QueryDict('favorite=dog')
+        self._setPostItems(request, {'favorite':'dog'})
         self._setSessionId(request)
         response = userconfig.index(request)
         self.assertEquals(response.status_code, httplib.OK)
@@ -153,4 +174,3 @@ class TestUserConfigView(unittest.TestCase):
         self.assertEquals(response.status_code, httplib.OK)
         items = json.loads(response.content)
         self.assertEquals(items['favorite'], 'dog')
-

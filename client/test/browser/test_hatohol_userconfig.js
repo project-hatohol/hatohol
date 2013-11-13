@@ -43,4 +43,24 @@ describe('HatoholUserConfig', function() {
     userconfig = new HatoholUserConfig();
     userconfig.get(params);
   });
+
+  it('store a string', function(done) {
+    var params = {
+      items: {'color':'red and blue'},
+      successCallback: function(reply) { done(); },
+      connectErrorCallback: defaultConnectErrorCallback,
+    }
+    userconfig = new HatoholUserConfig();
+    userconfig.store(params);
+  });
+
+  it('store an integer', function(done) {
+    var params = {
+      items: {'level': 99},
+      successCallback: function(reply) { done(); },
+      connectErrorCallback: defaultConnectErrorCallback,
+    }
+    userconfig = new HatoholUserConfig();
+    userconfig.store(params);
+  });
 });

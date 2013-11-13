@@ -78,8 +78,9 @@ def index_core(request):
     return HttpResponse(body, mimetype='application/json')
 
 def store(request, user_id):
-    for name in request.POST:
-        value = request.POST.get(name)
+    items = json.loads(request.body)
+    for name in items:
+        value = items[name]
         user_conf = UserConfig(item_name=name, user_id=user_id, value=value)
         user_conf.store()
     return HttpResponse()
