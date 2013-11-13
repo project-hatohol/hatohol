@@ -26,6 +26,7 @@ import urlparse
 import threading
 import json
 import httplib
+from hatohol.models import UserConfig
 from viewer import userconfig
 from hatohol import hatoholserver
 from hatohol import hatohol_def
@@ -96,6 +97,9 @@ class TestUserConfigView(unittest.TestCase):
     #
     # Test cases
     #
+    def setUp(self):
+        UserConfig.objects.all().delete()
+
     def tearDown(self):
         if self._emulator is not None:
             self._emulator.shutdown()
