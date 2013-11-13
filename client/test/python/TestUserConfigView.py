@@ -164,11 +164,7 @@ class TestUserConfigView(unittest.TestCase):
 
     def test_store_and_get(self):
         self.test_store()
-        request = HttpRequest()
-        request.GET = QueryDict('items[]=favorite')
-        self._setSessionId(request)
-        response = userconfig.index(request)
-        self.assertEquals(response.status_code, httplib.OK)
+        response = self._get('items[]=favorite')
         items = json.loads(response.content)
         self.assertEquals(items['favorite'], 'dog')
 
