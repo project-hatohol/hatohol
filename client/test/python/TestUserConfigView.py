@@ -136,13 +136,8 @@ class TestUserConfigView(unittest.TestCase):
             del self._emulator
 
     def test_index(self):
-        self._emulator = HatoholServerEmulator()
-        self._emulator.start_and_wait_setup_done()
-        request = HttpRequest()
-        request.GET = QueryDict('items[]=foo.goo')
-        self._setSessionId(request)
-        response = userconfig.index(request)
-        self.assertEquals(response.status_code, httplib.OK)
+        self._setup_emulator()
+        response = self._get('items[]=foo.goo')
         items = json.loads(response.content)
         self.assertEquals(items['foo.goo'], None)
 
