@@ -74,12 +74,6 @@ describe('HatoholUserConfig', function() {
   });
 
   it('store null', function(done) {
-    var params = {
-      items: {'nurunuru': null},
-      successCallback: function(reply) { done(); },
-      connectErrorCallback: defaultConnectErrorCallback,
-    }
-    userconfig = new HatoholUserConfig();
-    userconfig.store(params);
+    storeOneItem(done, {'nurunuru': null});
   });
 });
