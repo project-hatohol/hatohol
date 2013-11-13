@@ -63,4 +63,14 @@ describe('HatoholUserConfig', function() {
     userconfig = new HatoholUserConfig();
     userconfig.store(params);
   });
+
+  it('store an float', function(done) {
+    var params = {
+      items: {'height': 18.2},
+      successCallback: function(reply) { done(); },
+      connectErrorCallback: defaultConnectErrorCallback,
+    }
+    userconfig = new HatoholUserConfig();
+    userconfig.store(params);
+  });
 });
