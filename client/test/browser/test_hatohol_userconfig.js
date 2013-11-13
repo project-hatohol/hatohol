@@ -62,13 +62,7 @@ describe('HatoholUserConfig', function() {
   });
 
   it('store an integer', function(done) {
-    var params = {
-      items: {'level': 99},
-      successCallback: function(reply) { done(); },
-      connectErrorCallback: defaultConnectErrorCallback,
-    }
-    userconfig = new HatoholUserConfig();
-    userconfig.store(params);
+    storeOneItem(done, {'level': 99});
   });
 
   it('store an float', function(done) {
