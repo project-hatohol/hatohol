@@ -73,4 +73,14 @@ describe('HatoholUserConfig', function() {
     userconfig = new HatoholUserConfig();
     userconfig.store(params);
   });
+
+  it('store a boolean', function(done) {
+    var params = {
+      items: {'beautiful': true},
+      successCallback: function(reply) { done(); },
+      connectErrorCallback: defaultConnectErrorCallback,
+    }
+    userconfig = new HatoholUserConfig();
+    userconfig.store(params);
+  });
 });
