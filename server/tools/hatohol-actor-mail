@@ -1,0 +1,308 @@
+#!/usr/bin/env python
+"""
+  Copyright (C) 2013 Project Hatohol
+
+  This file is part of Hatohol.
+
+  Hatohol is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 2 of the License, or
+  (at your option) any later version.
+
+  Hatohol is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+"""
+import sys
+import smtplib
+import urllib
+import urllib2
+import time
+import json
+import argparse
+import hatohol
+from email.MIMEText import MIMEText
+from email.Utils import formatdate
+
+DEFAULT_SMTP_SERVER = "localhost"
+DEFAULT_FROM_ADDR = "hatohol@localhost"
+DEFAULT_TLS_PORT = 587
+
+EVENT_TYPE_NAMES = {
+  hatohol.EVENT_TYPE_GOOD:"GOOD",
+  hatohol.EVENT_TYPE_BAD:"BAD"
+}
+
+TRIGGER_STATUS_NAMES = {
+  hatohol.TRIGGER_STATUS_OK:"OK",
+  hatohol.TRIGGER_STATUS_PROBLEM:"PROBLEM"
+}
+
+TRIGGER_SEVERITY_NAMES = {
+  hatohol.TRIGGER_SEVERITY_INFO:"INFO",
+  hatohol.TRIGGER_SEVERITY_WARNING:"WARNING",
+  hatohol.TRIGGER_SEVERITY_ERROR:"ERROR",
+  hatohol.TRIGGER_SEVERITY_CRITICAL:"CRITICAL",
+  hatohol.TRIGGER_SEVERITY_EMERGENCY:"EMERGENCY"
+}
+
+def main():
+  parser = argparse.ArgumentParser(description="",
+                                   formatter_class=argparse.RawTextHelpFormatter)
+  smtp_group = parser.add_argument_group("SMTP Options")
+
+  smtp_group.add_argument("--smtp-server", type=parse_smtp_server_port, dest="smtp_server_port",
+                          metavar="HOSTNAME[:PORT]",
+                          help="SMTP Server HOSTNAME and PORT", default=DEFAULT_SMTP_SERVER)
+  smtp_group.add_argument("--tls", type=str, metavar=("ACCOUNT", "PASSWORD"), dest="tls", nargs=2,
+                          help="Account and password for SMTP AUTH")
+  smtp_group.add_argument("--to-address", required=True, metavar="TO", type=str,
+                          help="A destination email address")
+  hatohol_action_group = parser.add_argument_group("Hatohol action args")
+  help_message  = "action def. ID\n"
+  help_message += "server ID\n"
+  help_message += "host ID\n"
+  help_message += "Timestamp like unixtime.nsec\n"
+  help_message += "event ID\n"
+  help_message += "type (%s)\n" % make_description(EVENT_TYPE_NAMES)
+  help_message += "trigger ID\n"
+  help_message += "trigger status (%s)\n" % make_description(TRIGGER_STATUS_NAMES)
+  help_message += "trigger severity (%s)" % make_description(TRIGGER_SEVERITY_NAMES)
+  hatohol_action_group.add_argument("--hatohol-action-v1", type=str, nargs=9, required=True,
+                                    metavar=("ID", "ID", "ID", "UNIXTIME.NSEC", "ID", "ID", "ID", "STATUS", "SEVERITY"),
+                                    help=help_message)
+  args = parser.parse_args()
+  (args.smtp_server, args.smtp_port) = args.smtp_server_port
+  args = parse_hatohol_action_v1(args)
+
+  # print(args)
+
+  subject = make_subject(args)
+  body = make_body(args)
+
+  params = {
+    "subject": subject,
+    "body": body,
+    "from_address": DEFAULT_FROM_ADDR,
+    "to_address": args.to_address,
+    "smtp_server": args.smtp_server,
+    "use_tls": False
+  }
+  if args.tls:
+    params["use_tls"] = True
+    (params["account"], params["password"]) = args.tls
+    params["port"] = args.smtp_port
+
+  show_summary(params)
+
+  send(params)
+
+def send_tls(params, message):
+  if "account" not in params:
+    error_exit("'account' is not specified");
+  if "password" not in params:
+    error_exit("'password' is not specified");
+
+  port = DEFAULT_TLS_PORT;
+  if "smtp_port" in params:
+    port = params["smtp_port"]
+  smtp = smtplib.SMTP(params["smtp_server"], port)
+  smtp.ehlo()
+  smtp.starttls()
+  smtp.ehlo()
+  smtp.login(params["account"], params["password"])
+  smtp.sendmail(params["from_address"], [params["to_address"]], message.as_string())
+  smtp.close()
+
+def send(params):
+  message = MIMEText(params["body"])
+  message["Subject"] = params["subject"]
+  message["From"] = params["from_address"]
+  message["To"] = params["to_address"]
+  message["Date"] = formatdate()
+
+  if params["use_tls"]:
+    send_tls(params, message)
+  else:
+    smtp = smtplib.SMTP(params["smtp_server"])
+    smtp.sendmail(params["from_address"], [params["to_address"]], message.as_string())
+    smtp.close()
+
+def error_exit(msg, exit_code = 1):
+  print msg
+  sys.exit(exit_code)
+
+def warn(msg):
+  print "WARNING: " + msg
+
+def make_base_url(topdir, query):
+  port = 33194
+  url = "http://localhost:%d/%s" % (port, topdir)
+  if len(query) > 0:
+    encoded_query = urllib.urlencode(query)
+    url += "?" + encoded_query
+  return url
+
+def get_element(obj, name, fallback=None):
+  if name in obj:
+    return obj[name]
+  elif fallback:
+    return fallback
+  else:
+    return ""
+
+def get_host_label(server_id, host_id):
+  query = {"serverId":server_id, "hostId":host_id}
+  url = make_base_url("host", query)
+  try:
+    response = urllib2.urlopen(url)
+  except:
+    return "N/A (Failed to connect)"
+  reply = json.loads(response.read())
+  if "numberOfHosts" not in reply:
+    return "N/A (Not found: numberOfHosts)"
+  if reply["numberOfHosts"] != 1:
+    return "N/A (numberOfHosts: %d)" % reply["numberOfHosts"]
+  if "hosts" not in reply:
+    return "N/A (Not found: hosts)"
+  host = reply["hosts"][0];
+  if "hostName" not in host:
+    return "N/A (Not found: hostName)"
+  return host["hostName"];
+
+def get_server_label(server_id):
+  query = {"serverId":server_id}
+  url = make_base_url("server", query)
+  try:
+    response = urllib2.urlopen(url)
+  except:
+    return "N/A (Failed to connect)"
+  reply = json.loads(response.read())
+  if "numberOfServers" not in reply:
+    return "N/A (Not found: numberOfServers)"
+  if reply["numberOfServers"] != 1:
+    return "N/A (numberOfServers: %d)" % reply["numberOfServers"]
+  if "servers" not in reply:
+    return "N/A (Not found: servers)"
+  server = reply["servers"][0];
+ 
+  host_name = get_element(server, "hostName", "N/A")
+  ip_addr = get_element(server, "ipAddress", "N/A")
+  nickname = get_element(server, "nickname", "N/A")
+
+  return "%s, %s, %s" % (host_name, ip_addr, nickname)
+
+def get_trigger_label(server_id, host_id, trigger_id):
+  query = {"serverId":server_id, "hostId":host_id, "triggerId":trigger_id}
+  url = make_base_url("trigger", query)
+  print url
+  try:
+    response = urllib2.urlopen(url)
+  except:
+    return "N/A (Failed to connect)"
+  reply = json.loads(response.read())
+  if "numberOfTriggers" not in reply:
+    return "N/A (Not found: numberOfTriggers)"
+  if reply["numberOfTriggers"] != 1:
+    return "N/A (numberOfTriggers: %d)" % reply["numberOfTriggers"]
+  if "triggers" not in reply:
+    return "N/A (Not found: triggers)"
+  triggers = reply["triggers"][0];
+ 
+  brief = get_element(triggers, "brief", "N/A")
+  return brief
+
+def parse_smtp_server_port(server_spec):
+  words = server_spec.split(":")
+  if (len(words) > 2):
+    error_exit("The given argument for --smtp-server is invalid: %s" % stmp_server)
+
+  server = words[0]
+  if (len(words) == 2):
+    port = int(words[1])
+  else:
+    port = DEFAULT_TLS_PORT
+
+  return (server, port)
+
+def parse_time(timestamp):
+  words = timestamp.split(".")
+  if len(words) != 2:
+    error_exit("Invalid string for time: %s" % timestamp)
+  return map((lambda x: int(x)), words)
+
+def parse_hatohol_action_v1(args):
+  (action_id, server_id, host_id, timestamp,
+   event_id, event_type, trigger_id, trigger_status, trigger_severity) = args.hatohol_action_v1
+  args.action_id = int(action_id)
+  args.server_id = int(server_id)
+  args.host_id = int(host_id)
+  (args.time_sec, args.time_nsec) = parse_time(timestamp)
+  args.event_id = int(event_id)
+  args.event_type = int(event_type)
+  args.trigger_id = int(trigger_id)
+  args.trigger_status = int(trigger_status)
+  args.trigger_severity = int(trigger_severity)
+
+  if args.event_type in EVENT_TYPE_NAMES:
+    args.event_type_label = EVENT_TYPE_NAMES[args.event_type]
+  else:
+    warn("Unknown event type: %d" % args.event_type)
+    args.event_type_label = "N/A"
+
+  if args.trigger_status in TRIGGER_STATUS_NAMES:
+    args.trigger_status_label = TRIGGER_STATUS_NAMES[args.trigger_status]
+  else:
+    warn("Unknown trigger status: %d" % args.trigger_status)
+    args.trigger_status_label = "N/A"
+
+  if args.trigger_severity in TRIGGER_SEVERITY_NAMES:
+    args.trigger_severity_label = TRIGGER_SEVERITY_NAMES[args.trigger_severity]
+  else:
+    warn("Unknown trigger severity: %d" % args.trigger_severity)
+    args.trigger_severity_label = "N/A"
+
+  return args
+
+def make_description(dictionary):
+  return ", ".join(map((lambda x: "%s:%s" % x), dictionary.items()))
+
+def make_subject(args):
+  subject = "[%s] EventID: %d, Trigger ID: %d" % (args.trigger_severity_label, args.event_id, args.trigger_id)
+  return subject
+
+def make_body(args):
+  server_label = get_server_label(args.server_id)
+  host_label = get_host_label(args.server_id, args.host_id)
+  body = ""
+  body = ""
+  body += "action: %d\n" % args.action_id
+  body += "server: %d (%s)\n" % (args.server_id, server_label);
+  body += "host: %d (%s)\n" % (args.host_id, host_label);
+
+  time_local_label = time.asctime(time.localtime(args.time_sec));
+  body += "time: %d.%d (%s)\n" % (args.time_sec, args.time_nsec, time_local_label)
+
+  body += "event type: %d (%s)\n" % (args.event_type, args.event_type_label)
+  body += "event: %d\n" % args.event_id
+  trigger_label = get_trigger_label(args.server_id, args.host_id, args.trigger_id)
+  body += "trigger: %s (%s)\n" % (args.trigger_id, trigger_label)
+  body += "trigger status: %d (%s)\n" % (args.trigger_status, args.trigger_status_label)
+  body += "trigger severity: %d (%s)\n" % (args.trigger_severity, args.trigger_severity_label)
+  return body
+
+def show_summary(params):
+  print "TO         : %s" % params["to_address"]
+  print "SMTP Server: %s" % params["smtp_server"]
+  if "smtp_port" in params:
+    print "port       : %d" % params["smtp_port"]
+  if "account" in params:
+    print "account    : " + params["account"]
+
+if __name__ == '__main__':
+  main()
+

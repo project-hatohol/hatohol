@@ -50,14 +50,63 @@ public:
 	static bool casecmp(const char *str1, string &str2);
 	static bool casecmp(string &str1, string &str2);
 	static string sprintf(const char *fmt, ...) __attribute__((__format__ (__printf__, 1, 2)));
-	static string sprintf(const char *fmt, va_list ap);
+	static string vsprintf(const char *fmt, va_list ap);
 	static bool isNumber(const char *str, bool *isFloat = NULL);
 	static bool isNumber(const string &str, bool *isFloat = NULL);
 	static string toString(int number);
 	static string toLower(string str);
 	static string stripBothEndsSpaces(const string &str);
+
+	/**
+	 * Erase specified characters in a string.
+	 *
+	 * Example:
+	 * string source = "ABCDEFG";
+	 * string eraseChars = "BD";
+	 * string s = StringUtils::eraseChars(source, eraseChars);
+	 *
+	 * The 's' should have "ACEFG"
+	 *
+	 * @param source
+	 *  A source string. A UTF-8 string is acceptable.
+	 *
+	 * @param eraseChars
+	 * Characters to be erased. Multi-byte characters cannot not be used. They
+	 * are treated as multiple single-byte characters.
+	 *
+	 * @return
+	 * The erased string is returned. If an error is happend, an empty string is
+	 * returned.
+	 *
+	 */
 	static string eraseChars(const string &source,
 	                         const string &eraseChars);
+	/**
+	 * Replace specified characters with a word.
+	 *
+	 * Example:
+	 * string source = "ABCDEFG";
+	 * string targetChars = "BD";
+	 * string newWord = "dog";
+	 * string s = StringUtils::replace(source, targetChars, newWord);
+	 *
+	 * The 's' should have "AdogCdogEFG"
+	 *
+	 * @param source
+	 *  A source string. A UTF-8 string is acceptable.
+	 *
+	 * @param targetChars
+	 * Characters to be replaced. Multi-byte characters cannot not be used. They
+	 * are treated as multiple single-byte characters.
+	 *
+	 * @param newWord
+	 * The characters in 'targetChars' are replaced with 'newWord'.
+	 *
+	 * @return
+	 * The replaced string is returned. If an error is happend, an empty string is
+	 * returned.
+	 *
+	 */
 	static string replace(const string &source, const string &targetChars,
 	                      const string &newWord);
 };

@@ -46,6 +46,7 @@
       <tr>
         <th data-sort="string"> {% trans "Server" %} </th>
         <th data-sort="int"> {% trans "Time" %} </th>
+        <th data-sort="string"> {% trans "Host" %} </th>
         <th data-sort="string"> {% trans "Brief" %} </th>
         <th data-sort="int"> {% trans "Status" %} </th>
         <th data-sort="int"> {% trans "Severity" %} </th>
@@ -60,7 +61,7 @@
 {% endblock %}
 
 {% block option %}
-  <script src="{{ STATIC_URL }}js/stupidtable.js"></script>
+  <script src="{{ STATIC_URL }}js.external/stupidtable.js"></script>
 {% endblock %}
 
 {% block logic %}
@@ -133,11 +134,12 @@
       var s = "";
       var o;
       var x;
-      var klass, server, clock, status, severity, diff;
+      var klass, server, host, clock, status, severity, diff;
 
       for (x = 0; x < rd["events"].length; ++x) {
         o = rd["events"][x];
         server   = rd["servers"][o["serverId"]]["name"];
+        host     = rd["servers"][o["serverId"]]["hosts"][o["hostId"]]["name"];
         clock    = o["time"];
         status   = o["type"];
         severity = o["severity"];
@@ -146,6 +148,7 @@
         s += "<tr class='" + klass + "'>";
         s += "<td>" + server + "</td>";
         s += "<td data-sort-value='" + clock + "'>" + formatDate(clock) + "</td>";
+        s += "<td>" + host + "</td>";
         s += "<td>" + o["brief"] + "</td>";
         s += "<td class='status" + status + "' data-sort-value='" + status + "'>" + status_choices[Number(status)] + "</td>";
         s += "<td class='severity" + severity + "' data-sort-value='" + severity + "'>" + severity_choices[Number(severity)] + "</td>";

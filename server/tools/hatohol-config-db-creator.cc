@@ -44,6 +44,7 @@ struct ConfigValue {
 	string                   configDBPassword;
 	int                      faceRestPort;
 	MonitoringServerInfoList serverInfoList;
+	UserInfoList             userInfoList;
 	
 	// constructor
 	ConfigValue(void)
@@ -159,6 +160,45 @@ static bool parseServerConfigLine(ParsableString &parsable,
 	return true;
 }
 
+static bool parseUserConfigLine(ParsableString &parsable,
+                                UserInfoList &userInfoList, size_t lineNo)
+{
+	string word;
+	UserInfo userInfo;
+
+	// ID
+	userInfo.id = 0; // automatically set
+
+	// name
+	if (!extractString(parsable, word, lineNo))
+		return false;
+	userInfo.name = word;
+
+	// password
+	if (!extractString(parsable, word, lineNo))
+		return false;
+	userInfo.password = word;
+
+	// flags
+	if (!extractString(parsable, word, lineNo))
+		return false;
+	userInfo.flags = 0;
+	if (word == "admin") {
+		userInfo.flags = ALL_PRIVILEGES;
+	} else if (word == "guest") {
+		userInfo.flags = 0;
+	} else {
+		fprintf(stderr, "Unexpected word: %zd: %s\n",
+		        lineNo, word.c_str());
+		return false;
+	}
+
+	// push back the info
+	userInfoList.push_back(userInfo);
+
+	return true;
+}
+
 static bool readConfigFile(const string &configFilePath, ConfigValue &confValue)
 {
 	ifstream ifs(configFilePath.c_str());
@@ -206,6 +246,10 @@ static bool readConfigFile(const string &configFilePath, ConfigValue &confValue)
 		} else if (element == "server") {
 			if (!parseServerConfigLine
 			       (parsable, confValue.serverInfoList, lineNo))
+				return false;
+		} else if (element == "user") {
+			if (!parseUserConfigLine(
+			       parsable, confValue.userInfoList, lineNo))
 				return false;
 		} else {
 			fprintf(stderr, "Unknown element: %zd: %s\n",
@@ -514,6 +558,7 @@ int main(int argc, char *argv[])
 	if (!setupDBServer(confValue))
 		return EXIT_SUCCESS;
 	DBClientConfig dbConfig;
+	DBClientUser   dbUser;
 
 	// FaceRest port
 	dbConfig.setFaceRestPort(confValue.faceRestPort);
@@ -534,6 +579,21 @@ int main(int argc, char *argv[])
 		       svInfo.retryIntervalSec,
 		       svInfo.userName.c_str(), svInfo.password.c_str(),
 		       svInfo.dbName.c_str());
+	}
+
+	// users
+	UserInfoListIterator itUser = confValue.userInfoList.begin();
+	OperationPrivilege privilege(ALL_PRIVILEGES);
+	for (; itUser != confValue.userInfoList.end(); ++itUser) {
+		UserInfo &userInfo = *itUser;
+		HatoholError err = dbUser.addUserInfo(userInfo, privilege);
+		if (err != HTERR_OK) {
+			printf("Failed to add user: %s (code: %d)\n",
+			       userInfo.name.c_str(), err.getCode());
+		}
+		printf("USER: ID: %"FMT_USER_ID", name: %s, "
+		       "flags: %"FMT_OPPRVLG"\n",
+		       userInfo.id, userInfo.name.c_str(), userInfo.flags);
 	}
 
 	return EXIT_SUCCESS;

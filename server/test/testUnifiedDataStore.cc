@@ -21,22 +21,14 @@
 #include <cutter.h>
 #include <unistd.h>
 
+#include "Hatohol.h"
 #include "Params.h"
-#include "DBAgentSQLite3.h"
 #include "UnifiedDataStore.h"
 #include "DBClientTest.h"
 #include "LabelUtils.h"
+#include "Helpers.h"
 
 namespace testUnifiedDataStore {
-
-void cut_setup(void)
-{
-	const gchar *dbPath = cut_build_path(cut_get_test_directory(),
-					     "fixtures",
-					     "testDatabase-hatohol.db",
-					     NULL);
- 	DBAgentSQLite3::defineDBPath(DB_DOMAIN_ID_HATOHOL, dbPath);
-}
 
 void test_singleton(void) {
 	UnifiedDataStore *dataStore1 = UnifiedDataStore::getInstance();
@@ -45,14 +37,14 @@ void test_singleton(void) {
 	cppcut_assert_equal(dataStore1, dataStore2);
 }
 
-static const char *triggerStatusToString(TriggerStatusType type)
+static const string triggerStatusToString(TriggerStatusType type)
 {
-	return LabelUtils::getTriggerStatusLabel(type).c_str();
+	return LabelUtils::getTriggerStatusLabel(type);
 }
 
-static const char *triggerSeverityToString(TriggerSeverityType type)
+static const string triggerSeverityToString(TriggerSeverityType type)
 {
-	return LabelUtils::getTriggerSeverityLabel(type).c_str();
+	return LabelUtils::getTriggerSeverityLabel(type);
 }
 
 static string dumpTriggerInfo(const TriggerInfo &info)
@@ -61,8 +53,8 @@ static string dumpTriggerInfo(const TriggerInfo &info)
 		"%"PRIu32"|%"PRIu64"|%s|%s|%lu|%ld|%"PRIu64"|%s|%s\n",
 		info.serverId,
 		info.id,
-		triggerStatusToString(info.status),
-		triggerSeverityToString(info.severity),
+		triggerStatusToString(info.status).c_str(),
+		triggerSeverityToString(info.severity).c_str(),
 		info.lastChangeTime.tv_sec,
 		info.lastChangeTime.tv_nsec,
 		info.hostId,
@@ -94,33 +86,17 @@ static const char *eventTypeToString(EventType type)
 static string dumpEventInfo(const EventInfo &info)
 {
 	return StringUtils::sprintf(
-		"%"PRIu32"|%"PRIu64"|%lu|%ld|%s|%s\%s|%"PRIu64"|%s|%s\n",
+		"%"PRIu32"|%"PRIu64"|%lu|%ld|%s|%s|%s|%"PRIu64"|%s|%s\n",
 		info.serverId,
 		info.id,
 		info.time.tv_sec,
 		info.time.tv_nsec,
 		eventTypeToString(info.type),
-		triggerStatusToString(info.status),
-		triggerSeverityToString(info.severity),
+		triggerStatusToString(info.status).c_str(),
+		triggerSeverityToString(info.severity).c_str(),
 		info.hostId,
 		info.hostName.c_str(),
 		info.brief.c_str());
-}
-
-void test_getEventList(void)
-{
-	string expected, actual;
-	for (size_t i = 0; i < NumTestEventInfo; i++)
-		expected += dumpEventInfo(testEventInfo[i]);
-
-	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-	EventInfoList list;
-	dataStore->getEventList(list);
-
-	EventInfoListIterator it;
-	for (it = list.begin(); it != list.end(); it++)
-		actual += dumpEventInfo(*it);
-	cppcut_assert_equal(expected, actual);
 }
 
 static string dumpItemInfo(const ItemInfo &info)
@@ -136,6 +112,37 @@ static string dumpItemInfo(const ItemInfo &info)
 		info.lastValue.c_str(),
 		info.prevValue.c_str(),
 		info.itemGroupName.c_str());
+}
+
+void cut_setup(void)
+{
+	hatoholInit();
+	const gchar *dbPath = cut_build_path(cut_get_test_directory(),
+	                                     "fixtures",
+	                                     "testDatabase-hatohol.db",
+	                                     NULL);
+ 	defineDBPath(DB_DOMAIN_ID_HATOHOL, dbPath);
+}
+
+// ---------------------------------------------------------------------------
+// Test cases
+// ---------------------------------------------------------------------------
+void test_getEventList(void)
+{
+	string expected, actual;
+	for (size_t i = 0; i < NumTestEventInfo; i++)
+		expected += dumpEventInfo(testEventInfo[i]);
+
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+	EventInfoList list;
+	EventQueryOption option;
+	option.setUserId(USER_ID_ADMIN);
+	dataStore->getEventList(list, option);
+
+	EventInfoListIterator it;
+	for (it = list.begin(); it != list.end(); it++)
+		actual += dumpEventInfo(*it);
+	cppcut_assert_equal(expected, actual);
 }
 
 void test_getItemList(void)

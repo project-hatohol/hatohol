@@ -28,6 +28,7 @@
 #include "DBClientTest.h"
 #include "DBAgentSQLite3.h"
 #include "DBAgentMySQL.h"
+#include "CacheServiceDBClient.h"
 #include "SQLUtils.h"
 
 void _assertStringVector(StringVector &expected, StringVector &actual)
@@ -114,7 +115,7 @@ struct SpawnSyncContext {
 		gsize bufSize = 0x1000;
 		gchar buf[bufSize];
 		GIOStatus stat =
-		  g_io_channel_read_chars(source, buf, bufSize, &bytesRead,
+		  g_io_channel_read_chars(source, buf, bufSize-1, &bytesRead,
 		                          &error);
 		if (stat != G_IO_STATUS_NORMAL) {
 			MLPL_ERR("Failed to call g_io_channel_read_chars: %s\n",
@@ -125,7 +126,8 @@ struct SpawnSyncContext {
 			obj->dataCbId = INVALID_EVENT_ID;
 			return FALSE;
 		}
-		obj->msg += string(buf, 0, bytesRead);
+		buf[bytesRead] = '\0';
+		obj->msg += buf;
 		return TRUE;
 	}
 
@@ -377,6 +379,43 @@ void _assertCreateTable(DBAgent *dbAgent, const string &tableName)
 	assertExist(tableName, output);
 }
 
+void _assertTimeIsNow(const SmartTime &smtime, double allowedError)
+{
+	SmartTime diff(SmartTime::INIT_CURR_TIME);
+	diff -= smtime;
+	cppcut_assert_equal(
+	  true, diff.getAsSec() < allowedError,
+	  cut_message("time: %e, diff: %e, allowedError: %e",
+	              smtime.getAsSec(), diff.getAsSec(), allowedError));
+}
+
+void _assertHatoholError(const HatoholErrorCode &code,
+                         const HatoholError err)
+{
+	cppcut_assert_equal(code, err.getCode());
+}
+
+void _assertUsersInDB(const UserIdSet &excludeUserIdSet)
+{
+	string statement = "select * from ";
+	statement += DBClientUser::TABLE_NAME_USERS;
+	statement += " ORDER BY id ASC";
+	string expect;
+	for (size_t i = 0; i < NumTestUserInfo; i++) {
+		UserIdType userId = i + 1;
+		if (excludeUserIdSet.find(userId) != excludeUserIdSet.end())
+			continue;
+		const UserInfo &userInfo = testUserInfo[i];
+		expect += StringUtils::sprintf(
+		  "%"FMT_USER_ID"|%s|%s|%"FMT_OPPRVLG"\n",
+		  userId, userInfo.name.c_str(),
+		  Utils::sha256(userInfo.password).c_str(),
+		  userInfo.flags);
+	}
+	CacheServiceDBClient cache;
+	assertDBContent(cache.getUser()->getDBAgent(), statement, expect);
+}
+
 static bool makeTestDB(MYSQL *mysql, const string &dbName)
 {
 	string query = "CREATE DATABASE ";
@@ -483,6 +522,36 @@ void setupTestDBAction(bool dbRecreate, bool loadTestData)
 		loadTestDBAction();
 }
 
+void loadTestDBUser(void)
+{
+	DBClientUser dbUser;
+	HatoholError err;
+	OperationPrivilege opePrivilege(ALL_PRIVILEGES);
+	for (size_t i = 0; i < NumTestUserInfo; i++) {
+		err = dbUser.addUserInfo(testUserInfo[i], opePrivilege);
+		assertHatoholError(HTERR_OK, err);
+	}
+}
+
+void loadTestDBAccessList(void)
+{
+	DBClientUser dbUser;
+	for (size_t i = 0; i < NumTestAccessInfo; i++)
+		dbUser.addAccessInfo(testAccessInfo[i]);
+}
+
+void setupTestDBUser(bool dbRecreate, bool loadTestData)
+{
+	static const char *TEST_DB_NAME = "test_db_user";
+	static const char *TEST_DB_USER = "hatohol_test_user";
+	static const char *TEST_DB_PASSWORD = ""; // empty: No password is used
+	DBClient::setDefaultDBParams(DB_DOMAIN_ID_USERS, TEST_DB_NAME,
+	                             TEST_DB_USER, TEST_DB_PASSWORD);
+	makeTestMySQLDBIfNeeded(TEST_DB_NAME, dbRecreate);
+	if (loadTestData)
+		loadTestDBUser();
+}
+
 void loadTestDBAction(void)
 {
 	DBClientAction dbAction;
@@ -567,4 +636,27 @@ void crash(void)
 string makeDoubleFloatFormat(const ColumnDef &columnDef)
 {
 	return StringUtils::sprintf("%%.%zdlf", columnDef.decFracLength);
+}
+
+static GMainContext *g_acquiredContext = NULL;
+void _acquireDefaultContext(void)
+{
+	GMainContext *context = g_main_context_default();
+	cppcut_assert_equal((gboolean)TRUE, g_main_context_acquire(context));
+	g_acquiredContext = context;
+}
+
+void releaseDefaultContext(void)
+{
+	if (g_acquiredContext) {
+		g_main_context_release(g_acquiredContext); 
+		g_acquiredContext = NULL;
+	}
+}
+
+void defineDBPath(DBDomainId domainId, const string &dbPath)
+{
+	if (domainId != DB_DOMAIN_ID_HATOHOL)
+		cut_fail("Cannot set a domain ID for %d\n", domainId);
+	DBAgentSQLite3::defineDBPath(DB_DOMAIN_ID_HATOHOL, dbPath);
 }

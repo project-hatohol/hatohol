@@ -20,6 +20,7 @@
 #include <cppcutter.h>
 #include "Hatohol.h"
 #include "ArmNagiosNDOUtils.h"
+#include "Helpers.h"
 
 namespace testArmNagiosNDOUtils {
 
@@ -38,6 +39,11 @@ public:
 	void getEvent(void)
 	{
 		ArmNagiosNDOUtils::getEvent();
+	} 
+
+	void connect(void)
+	{
+		ArmNagiosNDOUtils::connect();
 	} 
 };
 
@@ -70,11 +76,13 @@ static void createGlobalInstance(void)
 
 	// If T is ArmNagiosNDOUtils, the following cast will return NULL.
 	g_armNagiTestee = dynamic_cast<ArmNagiosNDOUtilsTestee *>(g_armNagi);
+	g_armNagiTestee->connect();
 }
 
 void cut_setup(void)
 {
 	hatoholInit();
+	setupTestDBAction();
 }
 
 void cut_teardown(void)
@@ -91,7 +99,7 @@ void cut_teardown(void)
 // ---------------------------------------------------------------------------
 void test_create(void)
 {
-	createGlobalInstance<ArmNagiosNDOUtils>();
+	createGlobalInstance<ArmNagiosNDOUtilsTestee>();
 	cppcut_assert_not_null(g_armNagi);
 }
 

@@ -19,6 +19,7 @@
 
 #include <StringUtils.h>
 #include <Logger.h>
+#include <MutexLock.h>
 using namespace mlpl;
 
 #include <cstdio>
@@ -29,6 +30,7 @@ using namespace mlpl;
 #include <unistd.h>
 #include <errno.h>
 #include <sys/time.h>
+#include <syscall.h>
 #include <limits.h>
 #include "Utils.h"
 #include "FormulaElement.h"
@@ -150,7 +152,7 @@ bool Utils::isValidPort(int port, bool showErrorMsg)
 {
 	if (port < 0 || port > 65536) {
 		if (showErrorMsg)
-			MLPL_ERR("invalid port: %s, %d\n", port);
+			MLPL_ERR("invalid port: %d\n", port);
 		return false;
 	}
 	return true;
@@ -195,13 +197,16 @@ string Utils::getExtension(const string &path)
 
 string Utils::getSelfExeDir(void)
 {
-	char buf[PATH_MAX];
+	char buf[PATH_MAX+1];
 	ssize_t bytesRead = readlink("/proc/self/exe", buf, PATH_MAX);
 	if (bytesRead == -1) {
 		THROW_HATOHOL_EXCEPTION(
 		  "Failed to readlink(\"/proc/self/exe\"): %s",
 		  strerror(errno));
 	}
+	// readlink() doesn't add a NULL terminator and the constructor of string()
+	// needs it.
+	buf[bytesRead] = '\0';
 
 	int i;
 	for (i = bytesRead - 2; i > 0; i--) {
@@ -241,15 +246,117 @@ string Utils::getStringFromGIOCondition(GIOCondition condition)
 	return str;
 }
 
-bool Utils::removeEventSourceIfNeeded(guint tag)
+guint Utils::setGLibIdleEvent(GSourceFunc func, gpointer data,
+                              GMainContext *context)
+{
+	if (!context)
+		context = g_main_context_default();
+	GSource *source = g_idle_source_new();
+	g_source_set_callback(source, func, data, NULL);
+	guint id = g_source_attach(source, context);
+	g_source_unref(source);
+	return id;
+}
+
+
+void Utils::executeOnGLibEventLoop(
+  void (*func)(gpointer), gpointer data, SyncType syncType,
+  GMainContext *context)
+{
+	HATOHOL_ASSERT(syncType == SYNC || syncType == ASYNC,
+	               "Invalid syncType: %d\n", syncType);
+	struct IdleTask {
+		void (*userFunc)(gpointer);
+		gpointer    userData;
+		MutexLock   mutex;
+		SyncType    syncType;
+
+		static gboolean callbackGate(gpointer data) {
+			IdleTask *obj = static_cast<IdleTask *>(data);
+			obj->callback();
+			return G_SOURCE_REMOVE;
+		}
+
+		void callback(void) {
+			(*userFunc)(userData);
+			if (syncType == SYNC)
+				mutex.unlock();
+			else
+				delete this;
+		}
+	};
+
+	// just call the function if the caller has the ownership
+	// of the context.
+	if (g_main_context_acquire(context)) {
+		(*func)(data);
+		g_main_context_release(context);
+		return;
+	}
+
+	IdleTask *task = new IdleTask();
+	task->userFunc = func;
+	task->userData = data;
+	task->syncType = syncType;
+
+	if (syncType == SYNC)
+		task->mutex.lock();
+
+	setGLibIdleEvent(IdleTask::callbackGate, task, context);
+
+	// wait for the completion
+	if (syncType == SYNC) {
+		task->mutex.lock();
+		delete task;
+	}
+}
+
+struct RemoveEventTask {
+	gboolean succeeded;
+	guint    tag;
+
+	static void run(RemoveEventTask *obj)
+	{
+		obj->succeeded = g_source_remove(obj->tag);
+	}
+};
+
+bool Utils::removeEventSourceIfNeeded(guint tag, SyncType syncType)
 {
 	if (tag == INVALID_EVENT_ID)
 		return true;
-	if (!g_source_remove(tag)) {
+
+	// We remove the event on the GLIB's event loop to avoid the race.
+	// This is useful when this function is called on the thread other than
+	// executing g_main_loop_run().
+	// g_source_remove() just removes information used in GLIB such as
+	// polled FDs. So the event handler may be running when this function
+	// returns if we only call it.
+	GMainContext *context = NULL; // default context
+	RemoveEventTask task;
+	task.tag = tag;
+	executeOnGLibEventLoop<RemoveEventTask>(
+	  RemoveEventTask::run, &task, syncType, context);
+	if (!task.succeeded) {
 		MLPL_ERR("Failed to remove source: %d\n", tag);
 		return false;
 	}
 	return true;
+}
+
+string Utils::sha256(const string &data)
+{
+	gchar *sha256 = g_compute_checksum_for_string(G_CHECKSUM_SHA256,
+	                                              data.c_str(), -1);
+	HATOHOL_ASSERT(sha256, "checksum type may be wrong.");
+	string shaStr = sha256;
+	g_free(sha256);
+	return shaStr;
+}
+
+pid_t Utils::getThreadId(void)
+{
+	return syscall(SYS_gettid);
 }
 
 // ---------------------------------------------------------------------------

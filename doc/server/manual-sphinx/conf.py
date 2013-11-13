@@ -42,7 +42,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'HATOHOL REST Service'
-copyright = '2013, MIRACLE LINUX CORPORATION'
+copyright = '2013, Project Hatohol'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -185,7 +185,7 @@ latex_elements = {
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
   ('index', 'HATOHOLRESTService.tex', 'HATOHOL REST Service Documentation',
-   'MIRACLE LINUX CORPORATION', 'manual'),
+   'Project Hatohol', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -215,7 +215,7 @@ latex_documents = [
 # (source start file, name, description, authors, manual section).
 man_pages = [
     ('index', 'hatoholrestservice', 'HATOHOL REST Service Documentation',
-     ['MIRACLE LINUX CORPORATION'], 1)
+     ['Project Hatohol'], 1)
 ]
 
 # If true, show URL addresses after external links.
@@ -229,7 +229,7 @@ man_pages = [
 #  dir menu entry, description, category)
 texinfo_documents = [
   ('index', 'HATOHOLRESTService', 'HATOHOL REST Service Documentation',
-   'MIRACLE LINUX CORPORATION', 'HATOHOLRESTService', 'One line description of project.',
+   'Project Hatohol', 'HATOHOLRESTService', 'One line description of project.',
    'Miscellaneous'),
 ]
 

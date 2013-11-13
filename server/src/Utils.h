@@ -32,6 +32,7 @@ using namespace std;
 using namespace mlpl;
 
 #include <execinfo.h>
+#include "Params.h"
 
 class FormulaElement;
 
@@ -57,13 +58,90 @@ public:
 	static string getSelfExeDir(void);
 	static string getStringFromGIOCondition(GIOCondition condition);
 
+	static guint setGLibIdleEvent(GSourceFunc func, gpointer data = NULL,
+	                              GMainContext *context = NULL);
+
+	/**
+	 * execute a function on the specified GLIB event loop.
+	 *
+	 * @param func
+	 * A function to be executed.
+	 *
+	 * @param data
+	 * A pointer that is passed to 'func' as an argument.
+	 *
+	 * @param syncType
+	 * If this is SYNC, this function returns after 'func' is completed.
+	 * If this is ASYNC, this function returns immediately.
+	 *
+	 * @param context
+	 * A GMainContext on which the function is execuetd. If this is NULL,
+	 * the default context is used.
+	 */
+	static void executeOnGLibEventLoop(
+	  void (*func)(gpointer data), gpointer data = NULL,
+	  SyncType syncType = SYNC, GMainContext *context = NULL);
+
+	template<typename T>
+	static void executeOnGLibEventLoop(
+	  void (*func)(T *data), T *data = NULL, SyncType syncType = SYNC,
+	  GMainContext *context = NULL)
+	{
+		executeOnGLibEventLoop(
+		  reinterpret_cast<void (*)(gpointer)>(func),
+		  static_cast<gpointer>(data), syncType, context);
+	}
+
+	template<typename T>
+	static void executeOnGLibEventLoop(T &obj, SyncType syncType = SYNC,
+	                                   GMainContext *context = NULL)
+	{
+		struct Task {
+			static void run(T *obj) {
+				(*obj)();
+			}
+		};
+		executeOnGLibEventLoop(Task::run, &obj, syncType, context);
+	}
+
+	template<typename T>
+	static void deleteOnGLibEventLoop(T *obj, SyncType syncType = SYNC,
+	                                  GMainContext *context = NULL)
+	{
+		struct Task {
+			static void run(T *obj) {
+				delete obj;
+			}
+		};
+		executeOnGLibEventLoop<T>(Task::run, obj, syncType, context);
+	}
+
 	/**
 	 * remove a GLIB's event.
 	 *
 	 * @param tag A event tag.
+	 *
+	 * @param syncType 
+	 * If this is SYNC, this function returns after the event source is
+	 * completely removed.
+	 * If this is ASYNC, this function returns immediately.
+	 *
 	 * @return true if the event was successfuly removed. Otherwise false.
 	 */
-	static bool removeEventSourceIfNeeded(guint tag);
+	static bool removeEventSourceIfNeeded(guint tag,
+	                                      SyncType syncType = SYNC);
+
+	/**
+	 * compute a SHA256.
+	 *
+	 * @param data
+	 * A source string to be computed.
+	 *
+	 * @return A SHA256 string.
+	 */
+	static string sha256(const string &data);
+
+	static pid_t getThreadId(void);
 
 protected:
 	static string makeDemangledStackTraceString(string &stackTraceLine);

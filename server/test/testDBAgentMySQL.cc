@@ -398,5 +398,11 @@ void test_updateIfExistElseInsert(void)
 	dbAgentUpdateIfExistEleseInsert(*g_dbAgent, dbAgentChecker);
 }
 
+void test_getLastInsertId(void)
+{
+	createGlobalDBAgent();
+	dbAgentGetLastInsertId(*g_dbAgent, dbAgentChecker);
+}
+
 } // testDBAgentMySQL
 

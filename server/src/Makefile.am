@@ -12,7 +12,9 @@ libhatohol_la_SOURCES = \
 	ArmZabbixAPI-template.h \
 	ArmZabbixAPI.cc ArmZabbixAPI.h \
 	Closure.cc Closure.h \
+	CacheServiceDBClient.cc CacheServiceDBClient.h \
 	ConfigManager.cc ConfigManager.h \
+	DataQueryOption.cc DataQueryOption.h \
 	DBAgent.cc DBAgent.h \
 	DBAgentFactory.cc DBAgentFactory.h \
 	DBAgentMySQL.cc DBAgentMySQL.h \
@@ -21,6 +23,7 @@ libhatohol_la_SOURCES = \
 	DBClientAction.cc DBClientAction.h \
 	DBClientConfig.cc DBClientConfig.h \
 	DBClientHatohol.cc DBClientHatohol.h \
+	DBClientUser.h DBClientUser.cc \
 	DBClientUtils.h \
 	DBClientZabbix.cc DBClientZabbix.h \
 	DataStore.cc DataStore.h \
@@ -36,6 +39,7 @@ libhatohol_la_SOURCES = \
 	FormulaFunction.cc FormulaFunction.h \
 	FormulaOperator.cc FormulaOperator.h \
 	Hatohol.cc Hatohol.h \
+	HatoholError.cc HatoholError.h \
 	HatoholException.cc HatoholException.h \
 	HatoholThreadBase.cc HatoholThreadBase.h \
 	ItemData.cc ItemData.h \
@@ -52,6 +56,7 @@ libhatohol_la_SOURCES = \
 	ItemTableUtils.h \
 	LabelUtils.cc LabelUtils.h \
 	NamedPipe.cc NamedPipe.h \
+	OperationPrivilege.cc OperationPrivilege.h \
 	JsonBuilderAgent.cc JsonBuilderAgent.h \
 	JsonParserAgent.cc JsonParserAgent.h \
 	Params.h \
@@ -84,11 +89,13 @@ libhatohol_la_SOURCES = \
 AM_CXXFLAGS = -Wall -g3 \
 	-D__STDC_FORMAT_MACROS \
 	$(MLPL_CFLAGS) $(GLIB_CFLAGS) $(GTHREAD_CFLAGS) $(GIO_CFLAGS) \
-	$(LIBSOUP_CFLAGS) $(JSON_GLIB_CFLAGS) $(SQLITE3_CFLAGS) $(MYSQL_CFLAGS)
+	$(LIBSOUP_CFLAGS) $(JSON_GLIB_CFLAGS) $(SQLITE3_CFLAGS) \
+	$(UUID_CFLAGS) $(MYSQL_CFLAGS)
 
 AM_LDFLAGS = -lrt \
 	$(MLPL_LIBS) $(GLIB_LIBS) $(GTHREAD_LIBS) $(GIO_LIBS) \
-	$(LIBSOUP_LIBS) $(JSON_GLIB_LIBS) $(SQLITE3_LIBS) $(MYSQL_LIBS)
+	$(LIBSOUP_LIBS) $(JSON_GLIB_LIBS) $(SQLITE3_LIBS) \
+	$(UUID_LIBS) $(MYSQL_LIBS)
 
 hatohol_LDADD = libhatohol.la
 hatohol_resident_yard_LDADD = libhatohol.la

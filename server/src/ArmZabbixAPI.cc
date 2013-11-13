@@ -33,7 +33,7 @@ using namespace mlpl;
 #include "ItemEnum.h"
 #include "DBClientZabbix.h"
 #include "DBClientHatohol.h"
-#include "ActionManager.h"
+#include "UnifiedDataStore.h"
 
 using namespace std;
 
@@ -53,7 +53,7 @@ struct ArmZabbixAPI::PrivateContext
 	VariableItemTablePtr functionsTablePtr;
 	DBClientZabbix dbClientZabbix;
 	DBClientHatohol  dbClientHatohol;
-	ActionManager    actionManager;
+	UnifiedDataStore *dataStore;
 
 	// constructors
 	PrivateContext(const MonitoringServerInfo &serverInfo)
@@ -61,9 +61,11 @@ struct ArmZabbixAPI::PrivateContext
 	  session(NULL),
 	  gotTriggers(false),
 	  triggerid(0),
-	  dbClientZabbix(serverInfo.id)
+	  dbClientZabbix(serverInfo.id),
+	  dataStore(NULL)
 	{
 		// TODO: use serverInfo.ipAddress if it is given.
+		dataStore = UnifiedDataStore::getInstance();
 	}
 
 	~PrivateContext()
@@ -308,8 +310,8 @@ bool ArmZabbixAPI::openSession(SoupMessage **msgPtr)
 	                 ret, m_ctx->uri.c_str());
 		return false;
 	}
-	MLPL_DBG("body: %d, %s\n", msg->response_body->length,
-	                           msg->response_body->data);
+	MLPL_DBG("body: %"G_GOFFSET_FORMAT", %s\n",
+	         msg->response_body->length, msg->response_body->data);
 	bool succeeded = parseInitialResponse(msg);
 	if (!succeeded) {
 		g_object_unref(msg);
@@ -1006,8 +1008,7 @@ void ArmZabbixAPI::makeHatoholEvents(ItemTablePtr events)
 	EventInfoList eventInfoList;
 	DBClientZabbix::transformEventsToHatoholFormat(eventInfoList, events,
 	                                               m_ctx->zabbixServerId);
-	m_ctx->dbClientHatohol.addEventInfoList(eventInfoList);
-	m_ctx->actionManager.checkEvents(eventInfoList);
+	m_ctx->dataStore->addEventList(eventInfoList);
 }
 
 void ArmZabbixAPI::makeHatoholItems(ItemTablePtr items)

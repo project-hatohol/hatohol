@@ -22,8 +22,6 @@
 
 namespace mlpl {
 
-typedef void (*ReaperDestroyFunc)(void *obj);
-
 template<typename T>
 class Reaper {
 public:
@@ -33,7 +31,7 @@ public:
 	{
 	}
 
-	Reaper(T *obj, ReaperDestroyFunc destroyFunc)
+	Reaper(T *obj, void (*destroyFunc)(T *))
 	: m_obj(obj),
 	  m_destroyFunc(destroyFunc)
 	{
@@ -50,7 +48,7 @@ public:
 		m_obj = NULL;
 	}
 
-	bool set(T *obj, ReaperDestroyFunc destroyFunc)
+	bool set(T *obj, void (*destroyFunc)(T *))
 	{
 		if (m_obj || m_destroyFunc)
 			return false;
@@ -63,7 +61,7 @@ protected:
 	T *m_obj;
 
 private:
-	ReaperDestroyFunc m_destroyFunc;
+	void (*m_destroyFunc)(T *);
 };
 
 template<typename T>

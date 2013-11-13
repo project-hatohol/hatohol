@@ -20,9 +20,13 @@
 #ifndef DBClientTest_h
 #define DBClientTest_h
 
+#include <map>
+#include <set>
+
 #include "DBClientConfig.h"
 #include "DBClientHatohol.h"
 #include "DBClientAction.h"
+#include "DBClientUser.h"
 
 typedef set<uint64_t>       HostIdSet;
 typedef HostIdSet::iterator HostIdSetIterator;
@@ -50,20 +54,49 @@ extern size_t NumTestItemInfo;
 extern ActionDef testActionDef[];
 extern const size_t NumTestActionDef;
 
-extern size_t getNumberOfTestTriggers(uint32_t serverId);
-extern size_t getNumberOfTestTriggers(uint32_t serverId, uint64_t hostGroupId,
-                                      TriggerSeverityType severity);
+extern UserInfo testUserInfo[];
+extern const size_t NumTestUserInfo;
 
-extern size_t getNumberOfTestItems(uint32_t serverId);
+extern AccessInfo testAccessInfo[];
+extern const size_t NumTestAccessInfo;
 
-extern void getTestHostInfoList(HostInfoList &hostInfoList,
-                                uint32_t targetServerId,
-                                ServerIdHostIdMap *serverIdHostIdMap = NULL);
+/**
+ * get the test trigger data indexes whose serverId and hostId are 
+ * matched with the specified.
+ *
+ * @param indexMap
+ * The key of the outside map is a server Id. The key of the inside map is
+ * a trigger ID. The value of the inside map is the index of test trigger data.
+ *
+ * @param serverId
+ * A server ID. ALL_SERVERS can be specified.
+ *
+ * @param hostId
+ * A host ID. ALL_HOSTS can be specified.
+ */
+void getTestTriggersIndexes(
+  map<uint32_t, map<uint64_t, size_t> > &indexMap,
+  uint32_t serverId, uint64_t hostId);
+size_t getNumberOfTestTriggers(uint32_t serverId, uint64_t hostGroupId,
+                               TriggerSeverityType severity);
 
-extern size_t getNumberOfTestHostsWithStatus(uint32_t serverId,
-                                          uint64_t hostGroupId, bool status);
+size_t getNumberOfTestItems(uint32_t serverId);
+
+void getTestHostInfoList(HostInfoList &hostInfoList,
+                         uint32_t targetServerId,
+                         ServerIdHostIdMap *serverIdHostIdMap = NULL);
+
+size_t getNumberOfTestHostsWithStatus(uint32_t serverId,
+                                      uint64_t hostGroupId, bool status);
 
 const TriggerInfo &searchTestTriggerInfo(const EventInfo &eventInfo);
+
+void getDBCTestHostInfo(HostInfoList &hostInfoList,
+                        uint32_t targetServerId = ALL_SERVERS);
+
+typedef std::map<UserIdType, std::set<int> > UserIdIndexMap;
+typedef UserIdIndexMap::iterator UserIdIndexMapIterator;
+void makeTestUserIdIndexMap(UserIdIndexMap &userIdIndexMap);
 
 #endif // DBClientTest_h
 

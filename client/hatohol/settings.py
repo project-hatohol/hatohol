@@ -18,6 +18,7 @@
 
 # Django settings for hatohol project.
 import os
+import logging
 
 PROJECT_HOME = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 
@@ -32,12 +33,12 @@ MANAGERS = ADMINS
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': '',                      # Or path to database file if using sqlite3.
-        'USER': '',                      # Not used with sqlite3.
-        'PASSWORD': '',                  # Not used with sqlite3.
-        'HOST': '',                      # Set to empty string for localhost. Not used with sqlite3.
-        'PORT': '',                      # Set to empty string for default. Not used with sqlite3.
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'hatohol_client',
+        'USER': 'hatohol',          
+        'PASSWORD': 'hatohol',
+        'HOST': '',                      # Set to empty string for localhost.
+        'PORT': '',                      # Set to empty string for default.
     }
 }
 
@@ -137,16 +138,17 @@ TEMPLATE_DIRS = (
 )
 
 INSTALLED_APPS = (
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.sites',
-    'django.contrib.messages',
+    #'django.contrib.auth',
+    #'django.contrib.contenttypes',
+    #'django.contrib.sessions',
+    #'django.contrib.sites',
+    #'django.contrib.messages',
     'django.contrib.staticfiles',
     # Uncomment the next line to enable the admin:
     # 'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
+    'hatohol',
 )
 
 # A sample logging configuration. The only tangible logging
@@ -167,6 +169,10 @@ LOGGING = {
             'level': 'ERROR',
             'filters': ['require_debug_false'],
             'class': 'django.utils.log.AdminEmailHandler'
+        },
+        'syslog': {
+            'level': 'INFO',
+            'class': 'logging.handlers.SysLogHandler'
         }
     },
     'loggers': {
@@ -175,6 +181,10 @@ LOGGING = {
             'level': 'ERROR',
             'propagate': True,
         },
+        'viewer' : {
+            'level': 'INFO',
+            'propagate': True,
+        }
     }
 }
 

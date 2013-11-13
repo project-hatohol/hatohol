@@ -38,12 +38,16 @@ public:
 	virtual void fetchItems(void);
 
 	virtual void getTriggerList(TriggerInfoList &triggerList,
-	                            uint32_t targetServerId = ALL_SERVERS);
-	virtual void getEventList(EventInfoList &eventList);
+	                            uint32_t targetServerId = ALL_SERVERS,
+	                            uint64_t targetHostId = ALL_HOSTS,
+	                            uint64_t targetTriggerId = ALL_TRIGGERS);
+	virtual HatoholError getEventList(EventInfoList &eventList,
+	                                  EventQueryOption &option);
 	virtual void getItemList(ItemInfoList &itemList,
 	                         uint32_t targetServerId = ALL_SERVERS);
 	virtual void getHostList(HostInfoList &hostInfoList,
-	                         uint32_t targetServerId = ALL_SERVERS);
+	                         uint32_t targetServerId = ALL_SERVERS,
+	                         uint64_t targetHostId = ALL_HOSTS);
 	virtual void getActionList(ActionDefList &actionList);
 	virtual void deleteActionList(const ActionIdList &actionIdList);
 	virtual size_t getNumberOfTriggers
@@ -57,6 +61,22 @@ public:
 	virtual bool getCopyOnDemandEnabled(void) const;
 	virtual void setCopyOnDemandEnabled(bool enable);
 	virtual void addAction(ActionDef &actionDef);
+
+	/**
+	 * Add events in the Hatohol DB and executes action if needed. 
+	 * 
+	 * @param eventList A list of EventInfo.
+	 */
+	virtual void addEventList(const EventInfoList &eventList);
+
+	virtual void getUserList(UserInfoList &userList,
+                                 UserQueryOption &option);
+	virtual HatoholError addUser(
+	  UserInfo &userInfo, const OperationPrivilege &privilege);
+	virtual HatoholError updateUser(
+	  UserInfo &userInfo, const OperationPrivilege &privilege);
+	virtual HatoholError deleteUser(
+	  UserIdType userId, const OperationPrivilege &privilege);
 
 private:
 	struct PrivateContext;

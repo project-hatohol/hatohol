@@ -19,9 +19,11 @@
 
 #include <cppcutter.h>
 #include <sys/types.h> 
+#include <sys/time.h>
 #include <stdarg.h>
 #include <unistd.h>
 #include <errno.h>
+#include <sys/resource.h>
 #include "Hatohol.h"
 #include "Helpers.h"
 #include "ActionManager.h"
@@ -32,26 +34,45 @@
 #include "NamedPipe.h"
 #include "residentTest.h"
 #include "DBClientTest.h"
+#include "ConfigManager.h"
 
 class TestActionManager : public ActionManager
 {
+	DBClientAction m_dbAction;
 public:
 	void callExecCommandAction(const ActionDef &actionDef,
 	                            const EventInfo &eventInfo,
 	                           ActorInfo *actorInfo = NULL)
 	{
-		execCommandAction(actionDef, eventInfo, actorInfo);
+		execCommandAction(actionDef, eventInfo, m_dbAction, actorInfo);
 	}
 
 	void callExecResidentAction(const ActionDef &actionDef,
 	                            const EventInfo &eventInfo,
 	                            ActorInfo *actorInfo = NULL)
 	{
-		execResidentAction(actionDef, eventInfo, actorInfo);
+		execResidentAction(actionDef, eventInfo, m_dbAction, actorInfo);
+	}
+
+	bool callShouldSkipByTime(const EventInfo &eventInfo)
+	{
+		return shouldSkipByTime(eventInfo);
+	}
+
+	bool callShouldSkipByLog(const EventInfo &eventInfo)
+	{
+		return shouldSkipByLog(eventInfo, m_dbAction);
+	}
+
+	size_t callGetNumberOfOnstageCommandActors(void)
+	{
+		return getNumberOfOnstageCommandActors();
 	}
 };
 
 namespace testActionManager {
+
+static const size_t numWaitingActions = 5;
 
 struct ExecCommandContext : public ResidentPullHelper<ExecCommandContext> {
 	pid_t actionTpPid;
@@ -94,7 +115,7 @@ struct ExecCommandContext : public ResidentPullHelper<ExecCommandContext> {
 	{
 		if (actionTpPid) {
 			int signo = SIGKILL;
-			if (kill(actionTpPid, signo) == -1) {
+			if (kill(actionTpPid, signo) == -1 && errno != ESRCH) {
 				// We cannot stop the clean up.
 				// So we don't use cut_assert_...() here
 				cut_notify(
@@ -137,6 +158,17 @@ struct ExecCommandContext : public ResidentPullHelper<ExecCommandContext> {
 	}
 };
 static ExecCommandContext *g_execCommandCtx = NULL;
+static vector<ExecCommandContext *>g_execCommandCtxVect;
+
+static ActionLogExecFailureCode getFailureCodeSignalOrDumpedByRLimit(void)
+{
+	struct rlimit rlim;
+	getrlimit(RLIMIT_CORE, &rlim);
+	cut_assert_errno();
+	if (rlim.rlim_cur > 0)
+		return ACTLOG_EXECFAIL_DUMPED_SIGNAL;
+	return ACTLOG_EXECFAIL_KILLED_SIGNAL;
+}
 
 static void waitConnectCb(GIOStatus stat, mlpl::SmartBuffer &sbuf,
                           size_t size, ExecCommandContext *ctx)
@@ -251,7 +283,7 @@ static string getActionLogContent(const ActionLog &actionLog)
 
 static void _assertActionLog(
   ActionLog &actionLog,
- uint64_t id, int actionId, int status, int starterId, int queueintTime,
+ uint64_t id, int actionId, int status, int starterId, int queueingTime,
  int startTime, int endTime, int failureCode, int exitCode, uint32_t nullFlags)
 {
 	cppcut_assert_equal(nullFlags,    actionLog.nullFlags,
@@ -262,7 +294,7 @@ static void _assertActionLog(
 	cppcut_assert_equal(status,       actionLog.status);
 	cppcut_assert_equal(starterId,    actionLog.starterId);
 	if (!(nullFlags & ACTLOG_FLAG_QUEUING_TIME))
-		cppcut_assert_equal(queueintTime, actionLog.queuingTime);
+		assertDatetime(queueingTime, actionLog.queuingTime);
 	if (!(nullFlags & ACTLOG_FLAG_START_TIME))
 		assertDatetime(startTime, actionLog.startTime);
 	if (!(nullFlags & ACTLOG_FLAG_END_TIME))
@@ -335,18 +367,30 @@ static void _assertExecAction(ExecCommandContext *ctx, ExecActionArg &arg)
 }
 #define assertExecAction(CTX, ARG) cut_trace(_assertExecAction(CTX, ARG))
 
-void _assertActionLogJustAfterExec(ExecCommandContext *ctx)
+void _assertActionLogJustAfterExec(
+  ExecCommandContext *ctx,
+  ActionLogStatus expectStatus = ACTLOG_STAT_STARTED,
+  bool dontCheckOptions = false,
+  uint32_t forceExpectedNullFlags = 0)
 {
+	int expectQueuingTime = 0;
 	uint32_t expectedNullFlags = 
-	  ACTLOG_FLAG_QUEUING_TIME | ACTLOG_FLAG_END_TIME |
-	  ACTLOG_FLAG_EXIT_CODE;
+	  ACTLOG_FLAG_END_TIME | ACTLOG_FLAG_EXIT_CODE;
+	if (forceExpectedNullFlags)
+		expectedNullFlags = forceExpectedNullFlags;
+	else if (expectStatus != ACTLOG_STAT_QUEUING)
+		expectedNullFlags |= ACTLOG_FLAG_QUEUING_TIME;
+
+	if (!(expectedNullFlags & ACTLOG_STAT_QUEUING))
+		expectQueuingTime = CURR_DATETIME;
+
 	cppcut_assert_equal(
 	  true, ctx->dbAction.getLog(ctx->actionLog, ctx->actorInfo.logId));
 	assertActionLog(
 	  ctx->actionLog, ctx->actorInfo.logId,
-	  ctx->actDef.id, ACTLOG_STAT_STARTED,
+	  ctx->actDef.id, expectStatus,
 	  0, /* starterId */
-	  0, /* queuingTime */
+	  expectQueuingTime, /* queuingTime */
 	  CURR_DATETIME, /* startTime */
 	  0, /* endTime */
 	  ACTLOG_EXECFAIL_NONE, /* failureCode */
@@ -354,6 +398,8 @@ void _assertActionLogJustAfterExec(ExecCommandContext *ctx)
 	  expectedNullFlags);
 
 	// connect to ActionTp and check the command line options
+	if (dontCheckOptions)
+		return;
 	waitConnect(ctx);
 	const EventInfo &evInf = ctx->eventInfo;
 	StringVector expectedArgs;
@@ -373,14 +419,14 @@ void _assertActionLogJustAfterExec(ExecCommandContext *ctx)
 	expectedArgs.push_back(StringUtils::sprintf("%d", evInf.severity));
 	getArguments(ctx, expectedArgs);
 }
-#define assertActionLogJustAfterExec(CTX) \
-cut_trace(_assertActionLogJustAfterExec(CTX))
+#define assertActionLogJustAfterExec(CTX, ...) \
+cut_trace(_assertActionLogJustAfterExec(CTX, ##__VA_ARGS__))
 
 void _assertWaitForChangeActionLogStatus(ExecCommandContext *ctx,
                                          ActionLogStatus currStatus)
 {
 	do {
-		g_main_context_iteration(NULL, TRUE);
+		g_main_context_iteration(NULL, FALSE);
 		cppcut_assert_equal(false, ctx->timedOut);
 		cppcut_assert_equal(
 		  true, ctx->dbAction.getLog(ctx->actionLog,
@@ -390,8 +436,14 @@ void _assertWaitForChangeActionLogStatus(ExecCommandContext *ctx,
 #define assertWaitForChangeActionLogStatus(CTX,STAT) \
 cut_trace(_assertWaitForChangeActionLogStatus(CTX,STAT))
 
-void _assertActionLogAfterEnding(ExecCommandContext *ctx)
+void _assertActionLogAfterEnding(
+  ExecCommandContext *ctx,
+  int expectedNullFlags = ACTLOG_FLAG_QUEUING_TIME)
 {
+	int expectedQueuingTime = 0;
+	if (!(expectedNullFlags & ACTLOG_FLAG_QUEUING_TIME))
+		expectedQueuingTime = CURR_DATETIME;
+
 	// check the action log after the actor is terminated
 	while (true) {
 		// ActionCollector updates the aciton log in the wake of GLIB's
@@ -402,17 +454,17 @@ void _assertActionLogAfterEnding(ExecCommandContext *ctx)
 		  ctx->actionLog, ctx->actorInfo.logId,
 		  ctx->actDef.id, ACTLOG_STAT_SUCCEEDED,
 		  0, /* starterId */
-		  0, /* queuingTime */
+		  expectedQueuingTime, /* queuingTime */
 		  CURR_DATETIME, /* startTime */
 		  CURR_DATETIME, /* endTime */
 		  ACTLOG_EXECFAIL_NONE, /* failureCode */
 		  EXIT_SUCCESS, /* exitCode */
-		  ACTLOG_FLAG_QUEUING_TIME /* nullFlags */);
+		  expectedNullFlags /* nullFlags */);
 		break;
 	}
 }
-#define assertActionLogAfterEnding(CTX) \
-cut_trace(_assertActionLogAfterEnding(CTX))
+#define assertActionLogAfterEnding(CTX, ...) \
+cut_trace(_assertActionLogAfterEnding(CTX, ##__VA_ARGS__))
 
 void _assertActionLogForFailure(ExecCommandContext *ctx, int failureCode,
   int expectedNullFlags = ACTLOG_FLAG_QUEUING_TIME|ACTLOG_FLAG_EXIT_CODE,
@@ -420,13 +472,18 @@ void _assertActionLogForFailure(ExecCommandContext *ctx, int failureCode,
 {
 	cppcut_assert_equal(
 	  true, ctx->dbAction.getLog(ctx->actionLog, ctx->actorInfo.logId));
+
+	int expectedQueuingTime = 0;
+	if (!(expectedNullFlags & ACTLOG_FLAG_QUEUING_TIME))
+		expectedQueuingTime = CURR_DATETIME;
+
 	assertActionLog(
 	  ctx->actionLog,
 	  ctx->actorInfo.logId,
 	  ctx->actDef.id,
 	  ACTLOG_STAT_FAILED,
 	  0, /* starterId */
-	  0, /* queuingTime */
+	  expectedQueuingTime, /* queuingTime */
 	  CURR_DATETIME, /* startTime */
 	  CURR_DATETIME, /* endTime */
 	  failureCode,
@@ -557,15 +614,91 @@ static void _assertWaitEventBody(ExecCommandContext *ctx)
 static void _assertWaitRemoveWatching(ExecCommandContext *ctx)
 {
 	while (ActorCollector::isWatching(ctx->actionTpPid)) {
-		g_main_context_iteration(NULL, TRUE);
+		g_main_context_iteration(NULL, FALSE);
 		cppcut_assert_equal(false, ctx->timedOut);
 	}
 }
 #define assertWaitRemoveWatching(CTX) cut_trace(_assertWaitRemoveWatching(CTX))
 
+static void _assertShouldSkipByLog(bool EvenEventNotLog)
+{
+	DBClientAction dbAction;
+
+	// make a test data;
+	TestActionManager actMgr;
+	ActionDef actDef;
+	actDef.id = 102;
+	actDef.type = ACTION_COMMAND;
+	actDef.timeout = 0;
+	DBClientAction::LogEndExecActionArg logArg;
+	logArg.status = ACTLOG_STAT_SUCCEEDED;
+	logArg.exitCode = 0;
+	logArg.failureCode = ACTLOG_EXECFAIL_NONE;
+	for (size_t i = 0; i < NumTestEventInfo; i++) {
+		if (EvenEventNotLog && (i % 2 == 0))
+			continue;
+		const EventInfo &eventInfo = testEventInfo[i];
+		logArg.logId = dbAction.createActionLog(actDef, eventInfo);
+		dbAction.logEndExecAction(logArg);
+	}
+
+	// check
+	for (size_t i = 0; i < NumTestEventInfo; i++) {
+		bool expect = true;
+		if (EvenEventNotLog && (i % 2 == 0))
+			expect = false;
+		const EventInfo &eventInfo = testEventInfo[i];
+		cppcut_assert_equal(expect,
+		                    actMgr.callShouldSkipByLog(eventInfo));
+	}
+}
+#define assertShouldSkipByLog(E) cut_trace(_assertShouldSkipByLog(E))
+
+static void _assertExecuteAction(
+  int actionId,
+  ActionLogStatus expectStatus = ACTLOG_STAT_STARTED,
+  bool dontCheckOptions = false,
+  const string &commandName = "")
+{
+	ExecCommandContext *ctx = new ExecCommandContext();
+	g_execCommandCtxVect.push_back(ctx); // just an alias
+
+	string pipeName = StringUtils::sprintf("test-command-action-%d",
+	                                       actionId);
+	ctx->initPipes(pipeName);
+
+	ctx->eventInfo = testEventInfo[0];
+	ExecActionArg arg(actionId, ACTION_COMMAND);
+	if (!commandName.empty())
+		arg.command = commandName;
+	assertExecAction(ctx, arg);
+	assertActionLogJustAfterExec(ctx, expectStatus, dontCheckOptions);
+}
+#define assertExecuteAction(ID, ...) \
+cut_trace(_assertExecuteAction(ID, ##__VA_ARGS__))
+
+static bool isFailureCase(size_t idx)
+{
+	return (idx % 3) == 0;
+}
+
+static void deleteGlobalExecCommandCtx(size_t idx)
+{
+	if (!g_execCommandCtxVect[idx])
+		return;
+	delete g_execCommandCtxVect[idx];
+	g_execCommandCtxVect[idx] = NULL;
+}
+
 void setup(void)
 {
 	hatoholInit();
+	acquireDefaultContext();
+	ConfigManager::setActionCommandDirectory(get_current_dir_name());
+
+	string residentYardDir = get_current_dir_name();
+	residentYardDir += "/../src/.libs";
+	ConfigManager::setResidentYardDirectory(residentYardDir);
 	setupTestDBAction();
 }
 
@@ -575,6 +708,10 @@ void teardown(void)
 		delete g_execCommandCtx;
 		g_execCommandCtx = NULL;
 	}
+	for (size_t i = 0; i < g_execCommandCtxVect.size(); i++)
+		deleteGlobalExecCommandCtx(i);
+	g_execCommandCtxVect.clear();
+	releaseDefaultContext();
 }
 
 // ---------------------------------------------------------------------------
@@ -620,7 +757,7 @@ void test_execCommandActionCrashSoon(void)
 	arg.option = OPTION_CRASH_SOON;
 	assertExecAction(ctx, arg);
 	assertWaitForChangeActionLogStatus(ctx, ACTLOG_STAT_STARTED);
-	assertActionLogForFailure(ctx, ACTLOG_EXECFAIL_KILLED_SIGNAL,
+	assertActionLogForFailure(ctx, getFailureCodeSignalOrDumpedByRLimit(),
 	                          ACTLOG_FLAG_QUEUING_TIME, SIGSEGV);
 }
 
@@ -639,6 +776,29 @@ void test_execCommandActionTimeout(void)
 	assertWaitForChangeActionLogStatus(ctx, ACTLOG_STAT_STARTED);
 	assertActionLogForFailure(ctx, ACTLOG_EXECFAIL_KILLED_TIMEOUT,
 	                          ACTLOG_FLAG_QUEUING_TIME);
+}
+
+void test_execCommandActionTimeoutNotExpired(void)
+{
+	g_execCommandCtx = new ExecCommandContext();
+	ExecCommandContext *ctx = g_execCommandCtx; // just an alias
+
+	string pipeName = "test-command-action";
+	ctx->initPipes(pipeName);
+
+	ctx->eventInfo = testEventInfo[0];
+	ExecActionArg arg(2343242, ACTION_COMMAND);
+	arg.timeout = 1 * 1000;
+	assertExecAction(ctx, arg);
+	assertActionLogJustAfterExec(ctx);
+	sendQuit(ctx);
+	assertActionLogAfterEnding(ctx);
+
+	// We expects the timer event is removed. So the return value
+	// should be FALSE (i.e. not found).
+	while (g_main_context_iteration(NULL, FALSE))
+		;
+	cppcut_assert_equal(FALSE, g_source_remove(ctx->actorInfo.timerTag));
 }
 
 void test_execResidentAction(void)
@@ -669,7 +829,7 @@ void test_execResidentActionCrashInInit(void)
 	  ctx, ACTLOG_FLAG_QUEUING_TIME,
 	  ACTLOG_STAT_LAUNCHING_RESIDENT, ACTLOG_STAT_FAILED,
 	  NULL, /* statusChangedCb */
-	  ACTLOG_EXECFAIL_KILLED_SIGNAL, SIGSEGV);
+	  getFailureCodeSignalOrDumpedByRLimit(), SIGSEGV);
 }
 
 void test_execResidentActionCrashInNotifyEvent(void)
@@ -693,8 +853,7 @@ void test_execResidentActionCrashInNotifyEvent(void)
 	  0, /* queuingTime */
 	  CURR_DATETIME, /* startTime */
 	  CURR_DATETIME, /* endTime */
-	  ACTLOG_EXECFAIL_KILLED_SIGNAL,
-	  SIGSEGV,
+	  getFailureCodeSignalOrDumpedByRLimit(), SIGSEGV,
 	  ACTLOG_FLAG_QUEUING_TIME);
 }
 
@@ -817,6 +976,130 @@ void test_execResidentActionCheckArg(void)
 	  statusChangedCbForArgCheck);
 
 	assertWaitEventBody(ctx);
+}
+
+void test_shouldSkipByTime(void)
+{
+	TestActionManager actMgr;
+	ConfigManager *confMgr = ConfigManager::getInstance();
+	EventInfoList eventInfoList;
+	static const size_t numTestEvt = 4;
+	static const size_t timeOffsetUnitSec = 100;
+	struct timeval tv;
+	cppcut_assert_equal(0, gettimeofday(&tv, NULL));
+	tv.tv_sec -= confMgr->getAllowedTimeOfActionForOldEvents();
+
+	for (size_t i = 0; i < numTestEvt; i++) {
+		// Even Index: past, Odd index: future.
+		EventInfo evtInfo = testEventInfo[i % NumTestEventInfo];
+		evtInfo.time.tv_sec = tv.tv_sec;
+		if (i % 2 == 0)
+			evtInfo.time.tv_sec -= timeOffsetUnitSec * i;
+		else
+			evtInfo.time.tv_sec += timeOffsetUnitSec * i;
+		eventInfoList.push_back(evtInfo);
+	}
+
+	// check
+	EventInfoListIterator it = eventInfoList.begin();
+	bool evenIdx = true;
+	for (; it != eventInfoList.end(); ++it, evenIdx = !evenIdx)
+		cppcut_assert_equal(evenIdx, actMgr.callShouldSkipByTime(*it));
+}
+
+void test_shouldSkipByLog(void)
+{
+	assertShouldSkipByLog(false);
+}
+
+void test_shouldSkipByLogNotFound(void)
+{
+	assertShouldSkipByLog(true);
+}
+
+void test_limitCommandAction(void)
+{
+	ConfigManager *confMgr = ConfigManager::getInstance();
+	size_t maxNum = confMgr->getMaxNumberOfRunningCommandAction();
+	int actionId = 352;
+	size_t idx = 0;
+	for (; idx < maxNum; idx++, actionId++)
+		assertExecuteAction(actionId, ACTLOG_STAT_STARTED, false);
+	for (; idx < maxNum + numWaitingActions; idx++, actionId++) {
+		string commandName;
+		// We set the wrong command when the index is multiples of thee.
+		if (isFailureCase(idx))
+			commandName = "wrong-commandoooooooo";
+		assertExecuteAction(actionId, ACTLOG_STAT_QUEUING, true,
+		                    commandName);
+	}
+}
+
+void test_executeWaitedCommandAction(void)
+{
+	ConfigManager *confMgr = ConfigManager::getInstance();
+	int maxNum = confMgr->getMaxNumberOfRunningCommandAction();
+	test_limitCommandAction(); // make normal actions and waiting actions.
+	for (size_t i = 0; i < numWaitingActions; i++) {
+		cppcut_assert_equal(true, i < g_execCommandCtxVect.size());
+		ExecCommandContext *ctx = g_execCommandCtxVect[i];
+
+		// Quit a normally executed tp quit.
+		sendQuit(ctx);
+		assertActionLogAfterEnding(ctx);
+		deleteGlobalExecCommandCtx(i);
+
+		// check the status of the waiting action.
+		size_t idxWait = maxNum + i;
+		cppcut_assert_equal(
+		  true, idxWait < g_execCommandCtxVect.size(),
+		  cut_message("idxWait: %zd, VectSize: %zd",
+		              idxWait, g_execCommandCtxVect.size()));
+		ExecCommandContext *ctxWait = g_execCommandCtxVect[idxWait];
+		assertWaitForChangeActionLogStatus(ctxWait,
+		                                   ACTLOG_STAT_QUEUING);
+		// check the status: ACTLOG_STAT_STARTE or Failure
+		if (!isFailureCase(idxWait)) {
+			assertActionLogJustAfterExec(
+			  ctxWait, ACTLOG_STAT_STARTED, false,
+			  ACTLOG_FLAG_END_TIME | ACTLOG_FLAG_EXIT_CODE);
+		} else {
+			assertActionLogForFailure(
+			  ctxWait, ACTLOG_EXECFAIL_ENTRY_NOT_FOUND,
+			  ACTLOG_FLAG_EXIT_CODE);
+			deleteGlobalExecCommandCtx(idxWait);
+		}
+	}
+}
+
+void test_checkExitWaitedCommandAction(void)
+{
+	test_executeWaitedCommandAction();
+
+	// gather alive ActionTps
+	set<size_t> aliveIndexSet;
+	ConfigManager *confMgr = ConfigManager::getInstance();
+	int maxNum = confMgr->getMaxNumberOfRunningCommandAction();
+	for (size_t i = 0; i < maxNum + numWaitingActions; i++) {
+		if (g_execCommandCtxVect[i])
+			aliveIndexSet.insert(i);
+	}
+
+	// quit process at the head and the tail alternately
+	set<size_t>::iterator it = aliveIndexSet.begin();
+	for (; it != aliveIndexSet.end(); ++it) {
+		size_t idx = *it;
+		ExecCommandContext *ctx = g_execCommandCtxVect[*it];
+		sendQuit(ctx);
+		bool waiting = (idx >= (size_t)maxNum);
+		int expectedNullFlags = waiting ? 0 : ACTLOG_FLAG_QUEUING_TIME;
+		assertActionLogAfterEnding(ctx, expectedNullFlags);
+		aliveIndexSet.erase(it);
+	}
+
+	TestActionManager actMgr;
+	cppcut_assert_equal((size_t)0,
+	                    actMgr.callGetNumberOfOnstageCommandActors());
 }
 
 } // namespace testActionManager

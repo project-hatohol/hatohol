@@ -17,30 +17,38 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TimeCounter_h
-#define TimeCounter_h
+#include <cppcutter.h>
+#include "AtomicValue.h"
+using namespace mlpl;
 
-class TimeCounter {
-public:
-	enum InitType {
-		INIT_NONE,
-		INIT_CURR_TIME,
-	};
+namespace testAtomicValue {
 
-	static double getCurrTime(void);
+// ---------------------------------------------------------------------------
+// Test cases
+// ---------------------------------------------------------------------------
+void test_Define(void)
+{
+	AtomicValue<int> val;
+}
 
-	TimeCounter(InitType initType = INIT_NONE);
-	virtual ~TimeCounter();
+void test_DefineWithInit(void)
+{
+	AtomicValue<int> val(5);
+}
 
-	void setCurrTime(void);
-	void setTime(double time);
-	double getAsSec(void) const;
-	double getAsMSec(void) const;
+void test_get(void)
+{
+	int initValue = -3;
+	AtomicValue<int> val(initValue);
+	cppcut_assert_equal(initValue, val.get());
+}
 
-	TimeCounter &operator-=(const TimeCounter &rhs);
+void test_setAndGet(void)
+{
+	int initValue = -3;
+	AtomicValue<int> val;
+	val.set(initValue);
+	cppcut_assert_equal(initValue, val.get());
+}
 
-private:
-	double m_time;
-};
-
-#endif // TimeCounter_h
+} // namespace testAtomicValue

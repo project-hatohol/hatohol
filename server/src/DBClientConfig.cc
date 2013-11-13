@@ -30,7 +30,7 @@ using namespace std;
 static const char *TABLE_NAME_SYSTEM  = "system";
 static const char *TABLE_NAME_SERVERS = "servers";
 
-int DBClientConfig::CONFIG_DB_VERSION = 6;
+int DBClientConfig::CONFIG_DB_VERSION = 7;
 const char *DBClientConfig::DEFAULT_DB_NAME = "hatohol";
 const char *DBClientConfig::DEFAULT_USER_NAME = "hatohol";
 const char *DBClientConfig::DEFAULT_PASSWORD  = "hatohol";
@@ -258,7 +258,7 @@ struct DBClientConfig::PrivateContext
 };
 DBConnectInfo DBClientConfig::PrivateContext::connInfo;
 
-static void updateDB(DBAgent *dbAgent, int oldVer, void *data)
+static bool updateDB(DBAgent *dbAgent, int oldVer, void *data)
 {
 	if (oldVer <= 5) {
 		DBAgentAddColumnsArg addColumnsArg;
@@ -268,6 +268,7 @@ static void updateDB(DBAgent *dbAgent, int oldVer, void *data)
 		  IDX_SYSTEM_ENABLE_COPY_ON_DEMAND);
 		dbAgent->addColumns(addColumnsArg);
 	}
+	return true;
 }
 
 // ---------------------------------------------------------------------------
@@ -514,22 +515,29 @@ void DBClientConfig::addTargetServer(MonitoringServerInfo *monitoringServerInfo)
 }
 
 void DBClientConfig::getTargetServers
-  (MonitoringServerInfoList &monitoringServers)
+  (MonitoringServerInfoList &monitoringServers, uint32_t targetServerId)
 {
-	DBAgentSelectArg arg;
+	DBAgentSelectExArg arg;
 	arg.tableName = TABLE_NAME_SERVERS;
-	arg.columnDefs = COLUMN_DEF_SERVERS;
-	arg.columnIndexes.push_back(IDX_SERVERS_ID);
-	arg.columnIndexes.push_back(IDX_SERVERS_TYPE);
-	arg.columnIndexes.push_back(IDX_SERVERS_HOSTNAME);
-	arg.columnIndexes.push_back(IDX_SERVERS_IP_ADDRESS);
-	arg.columnIndexes.push_back(IDX_SERVERS_NICKNAME);
-	arg.columnIndexes.push_back(IDX_SERVERS_PORT);
-	arg.columnIndexes.push_back(IDX_SERVERS_POLLING_INTERVAL_SEC);
-	arg.columnIndexes.push_back(IDX_SERVERS_RETRY_INTERVAL_SEC);
-	arg.columnIndexes.push_back(IDX_SERVERS_USER_NAME);
-	arg.columnIndexes.push_back(IDX_SERVERS_PASSWORD);
-	arg.columnIndexes.push_back(IDX_SERVERS_DB_NAME);
+	arg.pushColumn(COLUMN_DEF_SERVERS[IDX_SERVERS_ID]);
+	arg.pushColumn(COLUMN_DEF_SERVERS[IDX_SERVERS_TYPE]);
+	arg.pushColumn(COLUMN_DEF_SERVERS[IDX_SERVERS_HOSTNAME]);
+	arg.pushColumn(COLUMN_DEF_SERVERS[IDX_SERVERS_IP_ADDRESS]);
+	arg.pushColumn(COLUMN_DEF_SERVERS[IDX_SERVERS_NICKNAME]);
+	arg.pushColumn(COLUMN_DEF_SERVERS[IDX_SERVERS_PORT]);
+	arg.pushColumn(COLUMN_DEF_SERVERS[IDX_SERVERS_POLLING_INTERVAL_SEC]);
+	arg.pushColumn(COLUMN_DEF_SERVERS[IDX_SERVERS_RETRY_INTERVAL_SEC]);
+	arg.pushColumn(COLUMN_DEF_SERVERS[IDX_SERVERS_USER_NAME]);
+	arg.pushColumn(COLUMN_DEF_SERVERS[IDX_SERVERS_PASSWORD]);
+	arg.pushColumn(COLUMN_DEF_SERVERS[IDX_SERVERS_DB_NAME]);
+
+	if (targetServerId != ALL_SERVERS) {
+		const char *columnName =
+		  COLUMN_DEF_SERVERS[IDX_SERVERS_ID].columnName;
+		arg.condition = StringUtils::sprintf("%s=%"PRIu32,
+		                                     columnName,
+		                                     targetServerId);
+	}
 
 	DBCLIENT_TRANSACTION_BEGIN() {
 		select(arg);

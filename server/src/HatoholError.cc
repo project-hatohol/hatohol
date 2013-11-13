@@ -17,69 +17,55 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <sys/time.h>
-#include <errno.h>
-#include "TimeCounter.h"
-#include "Logger.h"
-
-using namespace mlpl;
+#include "HatoholError.h"
+using namespace std;
+static const char *errorMessages[NUM_HATOHOL_ERROR_CODE];
 
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
-TimeCounter::TimeCounter(InitType initType)
-: m_time(0)
+void HatoholError::init(void)
 {
-	switch(initType) {
-	case INIT_NONE:
-		// nothing to do;
-		break;
-	case INIT_CURR_TIME:
-		m_time = getCurrTime();
-		break;
-	default:
-		MLPL_ERR("Unknown initType: %d\n", initType);
-		break;
-	}
+	errorMessages[HTERR_OK] = "OK.";
+	errorMessages[HTERR_UNINITIALIZED] =
+	  "Uninitialized (This is probably a bug).";
 }
 
-TimeCounter::~TimeCounter()
+HatoholError::HatoholError(const HatoholErrorCode &code,
+                           const string &optMessage)
+: m_code(code)
+{
+	if (!optMessage.empty())
+		m_optMessage = optMessage;
+}
+
+HatoholError::~HatoholError(void)
 {
 }
 
-void TimeCounter::setCurrTime(void)
+const HatoholErrorCode &HatoholError::getCode(void) const
 {
-	m_time = getCurrTime();
+	return m_code;
 }
 
-void TimeCounter::setTime(double time)
+const string &HatoholError::getOptionMessage(void) const
 {
-	m_time = time;
+	return m_optMessage;
 }
 
-double TimeCounter::getAsSec(void) const
+bool HatoholError::operator==(const HatoholErrorCode &rhs) const
 {
-	return m_time;
+	return m_code == rhs;
 }
 
-double TimeCounter::getAsMSec(void) const
+bool HatoholError::operator!=(const HatoholErrorCode &rhs) const
 {
-	return m_time * 1.0e3;
+	return m_code != rhs;
 }
 
-double TimeCounter::getCurrTime(void)
+const HatoholError &HatoholError::operator=(const HatoholErrorCode &code)
 {
-	struct timeval tv;
-	if (gettimeofday(&tv, NULL) == -1) {
-		MLPL_ERR("Failed to call gettimeofday(): errno: %d\n", errno);
-		return -1;
-	}
-	return (tv.tv_sec + tv.tv_usec/1.0e6);
-}
-
-TimeCounter &TimeCounter::operator-=(const TimeCounter &rhs)
-{
-	m_time -= rhs.m_time;
+	m_code = code;
+	m_optMessage.clear();
 	return *this;
 }
-

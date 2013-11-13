@@ -18,18 +18,27 @@
 import urllib
 import urllib2
 from django.http import HttpResponse
+import hatoholserver
+import hatohol_def
 
-def jsonforward(request, path, **kwargs):
-    server  = kwargs['server']
-    url     = 'http://%s/%s' % (server, path)
-    if request.method == "POST":
-      content = urllib2.urlopen(url, urllib.urlencode(request.REQUEST))
-    elif request.method == "DELETE":
-      req = urllib2.Request(url)
-      req.get_method = lambda: 'DELETE'
-      content = urllib2.urlopen(req)
+def jsonforward(request, path):
+    server  = hatoholserver.get_address()
+    port    = hatoholserver.get_port()
+    url     = 'http://%s:%d/%s' % (server, port, path)
+    hdrs = {}
+    if hatoholserver.SESSION_NAME_META in request.META:
+        hdrs = {hatohol_def.FACE_REST_SESSION_ID_HEADER_NAME:
+                request.META[hatoholserver.SESSION_NAME_META]}
+    if request.method == 'POST':
+        req = urllib2.Request(url, urllib.urlencode(request.REQUEST),
+                            headers=hdrs)
+    elif request.method == 'DELETE':
+        req = urllib2.Request(url, headers=hdrs)
+        req.get_method = lambda: 'DELETE'
     else:
-      content = urllib2.urlopen(url)
+        encoded_query = urllib.urlencode(request.REQUEST)
+        url += '?' + encoded_query
+        req = urllib2.Request(url, headers=hdrs)
+    content = urllib2.urlopen(req)
 
-    return HttpResponse(content,
-                        content_type='application/json')
+    return HttpResponse(content, content_type='application/json')

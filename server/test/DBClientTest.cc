@@ -112,6 +112,7 @@ size_t NumTestTriggerInfo = sizeof(testTriggerInfo) / sizeof(TriggerInfo);
 
 EventInfo testEventInfo[] = {
 {
+	0,                        // unifiedId (automatically set by DBMS)
 	3,                        // serverId
 	1,                        // id
 	{1362957200,0},           // time
@@ -123,6 +124,7 @@ EventInfo testEventInfo[] = {
 	"hostZ1",                 // hostName,
 	"TEST Trigger 2",         // brief,
 }, {
+	0,                        // unifiedId (automatically set by DBMS)
 	3,                        // serverId
 	2,                        // id
 	{1362951000,0},           // time
@@ -134,6 +136,7 @@ EventInfo testEventInfo[] = {
 	"hostZ2",                 // hostName,
 	"TEST Trigger 3",         // brief,
 }, {
+	0,                        // unifiedId (automatically set by DBMS)
 	1,                        // serverId
 	1,                        // id
 	{1362951000,0},           // time
@@ -254,6 +257,70 @@ ActionDef testActionDef[] = {
 
 const size_t NumTestActionDef = sizeof(testActionDef) / sizeof(ActionDef);
 
+UserInfo testUserInfo[] = {
+{
+	0,                 // id
+	"cheesecake",      // name
+	"CDEF~!@#$%^&*()", // password
+	0,                 // flags
+}, {
+	0,                 // id
+	"pineapple",       // name
+	"Po+-\\|}{\":?><", // password
+	ALL_PRIVILEGES,    // flags
+}, {
+	0,                 // id
+	"m1ffy@v@",        // name
+	"S/N R@t10",       // password
+	0,                 // flags
+}, {
+	0,                 // id
+	"higgs",           // name
+	"gg -> h",        // password
+	OperationPrivilege::makeFlag(OPPRVLG_GET_ALL_USERS), // flags
+}
+};
+const size_t NumTestUserInfo = sizeof(testUserInfo) / sizeof(UserInfo);
+
+AccessInfo testAccessInfo[] = {
+{
+	0,                 // id
+	1,                 // userId
+	1,                 // serverId
+	0,                 // hostGroupId
+}, {
+	0,                 // id
+	1,                 // userId
+	1,                 // serverId
+	1,                 // hostGroupId
+}, {
+	0,                 // id
+	2,                 // userId
+	ALL_SERVERS,       // serverId
+	ALL_HOST_GROUPS,   // hostGroupId
+}, {
+	0,                 // id
+	3,                 // userId
+	1,                 // serverId
+	ALL_HOST_GROUPS,   // hostGroupId
+}, {
+	0,                 // id
+	3,                 // userId
+	2,                 // serverId
+	1,                 // hostGroupId
+}, {
+	0,                 // id
+	3,                 // userId
+	2,                 // serverId
+	2,                 // hostGroupId
+}, {
+	0,                 // id
+	3,                 // userId
+	4,                 // serverId
+	1,                 // hostGroupId
+}
+};
+const size_t NumTestAccessInfo = sizeof(testAccessInfo) / sizeof(AccessInfo);
 
 const TriggerInfo &searchTestTriggerInfo(const EventInfo &eventInfo)
 {
@@ -298,17 +365,25 @@ static void addHostInfoToList(HostInfoList &hostInfoList,
 	hostInfo.hostName = trigInfo.hostName;
 }
 
-size_t getNumberOfTestTriggers(uint32_t serverId)
+void getTestTriggersIndexes(
+  map<uint32_t, map<uint64_t, size_t> > &indexMap,
+  uint32_t serverId, uint64_t hostId)
 {
-	if (serverId == ALL_SERVERS)
-		return NumTestTriggerInfo;
-
-	size_t count = 0;
 	for (size_t i = 0; i < NumTestTriggerInfo; i++) {
-		if (testTriggerInfo[i].serverId == serverId)
-			count++;
+		const TriggerInfo &trigInfo = testTriggerInfo[i];
+		if (serverId != ALL_SERVERS) {
+			if (trigInfo.serverId != serverId)
+				continue;
+		}
+		if (hostId != ALL_HOSTS) {
+			if (trigInfo.hostId != hostId)
+				continue;
+		}
+		// If the following assertion fails, the test data is illegal.
+		cppcut_assert_equal(
+		  (size_t)0, indexMap[trigInfo.serverId].count(trigInfo.id));
+		indexMap[trigInfo.serverId][trigInfo.id] = i;
 	}
-	return count;
 }
 
 size_t getNumberOfTestItems(uint32_t serverId)
@@ -421,7 +496,7 @@ static void removeHostIdIfNeeded(ServerIdHostGroupHostIdMap &svIdHostGrpIdMap,
 size_t getNumberOfTestHostsWithStatus(uint32_t serverId, uint64_t hostGroupId,
                                       bool status)
 {
-	ServerIdHostGroupHostIdMap svIdHostGrpIdMap;;
+	ServerIdHostGroupHostIdMap svIdHostGrpIdMap;
 	ServerIdHostGroupHostIdMapIterator svIt;
 	HostGroupHostIdMapIterator         hostIt;
 
@@ -486,4 +561,35 @@ size_t getNumberOfTestHostsWithStatus(uint32_t serverId, uint64_t hostGroupId,
 		return 0;
 	HostIdSet &hostIdSet = hostIt->second;
 	return hostIdSet.size();
+}
+
+void getDBCTestHostInfo(HostInfoList &hostInfoList, uint32_t targetServerId)
+{
+	map<uint32_t, set<uint64_t> > svIdHostIdsMap;
+	map<uint32_t, set<uint64_t> >::iterator it;
+	for (size_t i = 0; i < NumTestTriggerInfo; i++) {
+		const TriggerInfo &trigInfo = testTriggerInfo[i];
+		const uint32_t svId = trigInfo.serverId;
+		const uint64_t hostId = trigInfo.hostId;
+		if (targetServerId != ALL_SERVERS && svId != targetServerId)
+			continue;
+		if (svIdHostIdsMap[svId].count(hostId))
+			continue;
+
+		HostInfo hostInfo;
+		hostInfo.serverId = svId;
+		hostInfo.id       = hostId;
+		hostInfo.hostName = trigInfo.hostName;
+		hostInfoList.push_back(hostInfo);
+		svIdHostIdsMap[svId].insert(hostId);
+	}
+}
+
+void makeTestUserIdIndexMap(UserIdIndexMap &userIdIndexMap)
+{
+
+	for (size_t i = 0; i < NumTestAccessInfo; i++) {
+		AccessInfo &accessInfo = testAccessInfo[i];
+		userIdIndexMap[accessInfo.userId].insert(i);
+	}
 }

@@ -42,21 +42,20 @@ This Django project was written as PATH FREE so you can place this anyware witho
     # yum install python-setuptools
     # easy_install pip
     # pip install django
+    # pip install mysql-python
 
-### On Ubuntu 13.04
+### On Ubuntu 12.04 and 13.10
 
-	sudo apt-get install libapache2-mod-wsgi python-django
+    # sudo apt-get install python-pip
+    # pip install django
+    # sudo apt-get install python-dev
+    # pip install mysql-python
 
-### An example to intall bootstrap on CentOS 6.4
 
-    $ mkdir -p ~/tmp-bs
-    $ cd ~/tmp-bs
-    $ wget http://getbootstrap.com/2.3.2/assets/bootstrap.zip
-    $ unzip bootstrap.zip
-    $ cp -ar bootstrap/* <Hatohol client directory>/static/
+### Prepare the database
 
-    At this point you can remove working dir: tmp-bs.
-
+    > CREATE DATABASE hatohol_client;
+    > GRANT ALL PRIVILEGES ON hatohol_client.* TO hatohol@localhost IDENTIFIED BY 'hatohol';
 
 How to configure
 ----------------------------------------

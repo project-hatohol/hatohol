@@ -288,6 +288,28 @@ static const ColumnDef COLUMN_DEF_ACTION_LOGS[] = {
 	SQL_KEY_MUL,                       // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
+}, {
+	ITEM_ID_NOT_SET,                   // itemId
+	TABLE_NAME_ACTION_LOGS,            // tableName
+	"server_id",                       // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	11,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_MUL,                       // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}, {
+	ITEM_ID_NOT_SET,                   // itemId
+	TABLE_NAME_ACTION_LOGS,            // tableName
+	"event_id",                        // columnName
+	SQL_COLUMN_TYPE_BIGUINT,           // type
+	20,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_MUL,                       // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
 },
 };
 
@@ -399,7 +421,8 @@ DBClientAction::LogEndExecActionArg::LogEndExecActionArg(void)
 : logId(INVALID_ACTION_LOG_ID),
   status(ACTLOG_STAT_INVALID),
   exitCode(0),
-  failureCode(ACTLOG_EXECFAIL_NONE)
+  failureCode(ACTLOG_EXECFAIL_NONE),
+  nullFlags(0)
 {
 }
 
@@ -597,9 +620,9 @@ void DBClientAction::deleteActions(const ActionIdList &idList)
 	} DBCLIENT_TRANSACTION_END();
 }
 
-uint64_t DBClientAction::createActionLog
-  (const ActionDef &actionDef, ActionLogExecFailureCode failureCode,
-   ActionLogStatus initialStatus)
+uint64_t DBClientAction::createActionLog(
+  const ActionDef &actionDef, const EventInfo &eventInfo,
+  ActionLogExecFailureCode failureCode, ActionLogStatus initialStatus)
 {
 	VariableItemGroupPtr row;
 	DBAgentInsertArg arg;
@@ -621,7 +644,11 @@ uint64_t DBClientAction::createActionLog
 	// TODO: set the appropriate the following starter ID.
 	row->ADD_NEW_ITEM(Int, 0); // starter_id
 
-	row->ADD_NEW_ITEM(Int, 0, ITEM_DATA_NULL); // queuing_time
+	// queuing_time
+	if (initialStatus == ACTLOG_STAT_QUEUING)
+		row->ADD_NEW_ITEM(Int, CURR_DATETIME);
+	else
+		row->ADD_NEW_ITEM(Int, 0, ITEM_DATA_NULL);
 	row->ADD_NEW_ITEM(Int, CURR_DATETIME);     // start_time
 
 	// end_time
@@ -632,6 +659,10 @@ uint64_t DBClientAction::createActionLog
 
 	row->ADD_NEW_ITEM(Int, failureCode);
 	row->ADD_NEW_ITEM(Int, 0, ITEM_DATA_NULL); // exit_code
+
+	// server ID and event ID
+	row->ADD_NEW_ITEM(Int, eventInfo.serverId);
+	row->ADD_NEW_ITEM(Uint64, eventInfo.id);
 
 	arg.row = row;
 	uint64_t logId;
@@ -659,16 +690,20 @@ void DBClientAction::logEndExecAction(const LogEndExecActionArg &logArg)
 	arg.columnIndexes.push_back(IDX_ACTION_LOGS_STATUS);
 
 	// end_time
-	row->ADD_NEW_ITEM(Int, CURR_DATETIME);
-	arg.columnIndexes.push_back(IDX_ACTION_LOGS_END_TIME);
+	if (!(logArg.nullFlags & ACTLOG_FLAG_END_TIME)) {
+		row->ADD_NEW_ITEM(Int, CURR_DATETIME);
+		arg.columnIndexes.push_back(IDX_ACTION_LOGS_END_TIME);
+	}
 
 	// exec_failure_code
 	row->ADD_NEW_ITEM(Int, logArg.failureCode);
 	arg.columnIndexes.push_back(IDX_ACTION_LOGS_EXEC_FAILURE_CODE);
 
 	// exit_code
-	row->ADD_NEW_ITEM(Int, logArg.exitCode);
-	arg.columnIndexes.push_back(IDX_ACTION_LOGS_EXIT_CODE);
+	if (!(logArg.nullFlags & ACTLOG_FLAG_EXIT_CODE)) {
+		row->ADD_NEW_ITEM(Int, logArg.exitCode);
+		arg.columnIndexes.push_back(IDX_ACTION_LOGS_EXIT_CODE);
+	}
 
 	arg.row = row;
 	DBCLIENT_TRANSACTION_BEGIN() {
@@ -703,11 +738,58 @@ void DBClientAction::updateLogStatusToStart(uint64_t logId)
 
 bool DBClientAction::getLog(ActionLog &actionLog, uint64_t logId)
 {
+	const ColumnDef *def = COLUMN_DEF_ACTION_LOGS;
+	const char *idColName = def[IDX_ACTION_LOGS_ACTION_LOG_ID].columnName;
+	string condition = StringUtils::sprintf("%s=%"PRIu64, idColName, logId);
+	return getLog(actionLog, condition);
+}
+
+bool DBClientAction::getLog(ActionLog &actionLog,
+                            uint32_t serverId, uint64_t eventId)
+{
+	const ColumnDef *def = COLUMN_DEF_ACTION_LOGS;
+	const char *idColNameSvId = def[IDX_ACTION_LOGS_SERVER_ID].columnName;
+	const char *idColNameEvtId = def[IDX_ACTION_LOGS_EVENT_ID].columnName;
+	string condition = StringUtils::sprintf(
+	  "%s=%"PRIu32" AND %s=%"PRIu64,
+	  idColNameSvId, serverId, idColNameEvtId, eventId);
+	return getLog(actionLog, condition);
+}
+
+// ---------------------------------------------------------------------------
+// Protected methods
+// ---------------------------------------------------------------------------
+ItemDataNullFlagType DBClientAction::getNullFlag
+  (const ActionDef &actionDef, ActionConditionEnableFlag enableFlag)
+{
+	if (actionDef.condition.isEnable(enableFlag))
+		return ITEM_DATA_NOT_NULL;
+	else
+		return ITEM_DATA_NULL;
+}
+
+string DBClientAction::makeActionDefCondition(const EventInfo &eventInfo)
+{
+	HATOHOL_ASSERT(!m_ctx->actionDefConditionTemplate.empty(),
+	               "ActionDef condition template is empty.");
+	string cond = 
+	  StringUtils::sprintf(m_ctx->actionDefConditionTemplate.c_str(),
+	                       eventInfo.serverId,
+	                       eventInfo.hostId,
+	                       // TODO: hostGroupId
+	                       eventInfo.triggerId,
+	                       eventInfo.status,
+	                       eventInfo.severity,
+	                       eventInfo.severity);
+	return cond;
+}
+
+bool DBClientAction::getLog(ActionLog &actionLog, const string &condition)
+{
 	DBAgentSelectExArg arg;
 	arg.tableName = TABLE_NAME_ACTION_LOGS;
 	const ColumnDef *def = COLUMN_DEF_ACTION_LOGS;
-	const char *idColName = def[IDX_ACTION_LOGS_ACTION_LOG_ID].columnName;
-	arg.condition = StringUtils::sprintf("%s=%"PRIu64, idColName, logId);
+	arg.condition = condition;
 	arg.pushColumn(def[IDX_ACTION_LOGS_ACTION_LOG_ID]);
 	arg.pushColumn(def[IDX_ACTION_LOGS_ACTION_ID]);
 	arg.pushColumn(def[IDX_ACTION_LOGS_STATUS]); 
@@ -724,8 +806,7 @@ bool DBClientAction::getLog(ActionLog &actionLog, uint64_t logId)
 
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
 	size_t numGrpList = grpList.size();
-	HATOHOL_ASSERT(numGrpList <= 1, "numGrpList: %zd, logId: %"PRIu64,
-	               numGrpList, logId);
+
 	// Not found
 	if (numGrpList == 0)
 		return false;
@@ -784,30 +865,3 @@ bool DBClientAction::getLog(ActionLog &actionLog, uint64_t logId)
 	return true;
 }
 
-// ---------------------------------------------------------------------------
-// Protected methods
-// ---------------------------------------------------------------------------
-ItemDataNullFlagType DBClientAction::getNullFlag
-  (const ActionDef &actionDef, ActionConditionEnableFlag enableFlag)
-{
-	if (actionDef.condition.isEnable(enableFlag))
-		return ITEM_DATA_NOT_NULL;
-	else
-		return ITEM_DATA_NULL;
-}
-
-string DBClientAction::makeActionDefCondition(const EventInfo &eventInfo)
-{
-	HATOHOL_ASSERT(!m_ctx->actionDefConditionTemplate.empty(),
-	               "ActionDef condition template is empty.");
-	string cond = 
-	  StringUtils::sprintf(m_ctx->actionDefConditionTemplate.c_str(),
-	                       eventInfo.serverId,
-	                       eventInfo.hostId,
-	                       // TODO: hostGroupId
-	                       eventInfo.triggerId,
-	                       eventInfo.status,
-	                       eventInfo.severity,
-	                       eventInfo.severity);
-	return cond;
-}

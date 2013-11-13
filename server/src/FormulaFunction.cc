@@ -87,7 +87,7 @@ bool FormulaFunction::close(void)
 {
 	if (m_numArgument >= 0) {
 		if (getNumberOfArguments() != (size_t)m_numArgument) {
-			MLPL_DBG("Number of argument is short: %zd / %zd.\n",
+			MLPL_DBG("Number of argument is short: %zd / %d.\n",
 			         getNumberOfArguments(), m_numArgument);
 			return false;
 		}

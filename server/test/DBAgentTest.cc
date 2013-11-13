@@ -539,7 +539,7 @@ static void insertRowToTestTableAutoInc(DBAgent &dbAgent,
 	arg.numColumns = NUM_COLUMNS_TEST_AUTO_INC;
 	arg.columnDefs = COLUMN_DEF_TEST_AUTO_INC;
 	VariableItemGroupPtr row;
-	row->ADD_NEW_ITEM(Int, 0);
+	row->ADD_NEW_ITEM(Int, 0, ITEM_DATA_NULL);
 	row->ADD_NEW_ITEM(Int, val);
 	arg.row = row;
 	dbAgent.insert(arg);
@@ -656,6 +656,18 @@ void dbAgentUpdateIfExistEleseInsert(DBAgent &dbAgent, DBAgentChecker &checker)
 		expectLines += expectedLine;
 	}
 	assertDBContent(&dbAgent, statement, expectLines);
+}
+
+void dbAgentGetLastInsertId(DBAgent &dbAgent, DBAgentChecker &checker)
+{
+	// create table
+	createTestTableAutoInc(dbAgent, checker);
+	static const size_t NUM_REPEAT = 3;
+	for (uint64_t id = 1; id < NUM_REPEAT; id++) {
+		int val = id * 3;
+		insertRowToTestTableAutoInc(dbAgent, checker, val);
+		cppcut_assert_equal(id, dbAgent.getLastInsertId());
+	}
 }
 
 // --------------------------------------------------------------------------

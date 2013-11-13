@@ -60,7 +60,7 @@ static string makeExpectedString(const ActionDef &actDef, int expectedId)
 }
 
 static string makeExpectedLogString(
-  const ActionDef &actDef, uint64_t logId,
+  const ActionDef &actDef, const EventInfo &eventInfo, uint64_t logId,
   ActionLogStatus status = ACTLOG_STAT_STARTED,
   ActionLogExecFailureCode failureCode = ACTLOG_EXECFAIL_NONE)
 {
@@ -77,12 +77,13 @@ static string makeExpectedLogString(
 
 	string expect =
 	  StringUtils::sprintf(
-	    "%"PRIu64"|%d|%d|%d|%s|%s|%s|%d|%s\n",
+	    "%"PRIu64"|%d|%d|%d|%s|%s|%s|%d|%s|%"PRIu32"|%"PRIu64"\n",
 	    logId, actDef.id, status, expectedStarterId,
 	    DBCONTENT_MAGIC_NULL,
 	    DBCONTENT_MAGIC_CURR_DATETIME,
 	    expectedExitTime, failureCode,
-	    DBCONTENT_MAGIC_NULL);
+	    DBCONTENT_MAGIC_NULL,
+	    eventInfo.serverId, eventInfo.id);
 	return expect;
 }
 
@@ -229,6 +230,7 @@ void test_startExecAction(void)
 {
 	string expect;
 	DBClientAction dbAction;
+	EventInfo &eventInfo = testEventInfo[0];
 	for (size_t i = 0; i < NumTestActionDef; i++) {
 		const ActionDef &actDef = testActionDef[i];
 		ActionLogStatus status;
@@ -242,12 +244,14 @@ void test_startExecAction(void)
 			cut_fail("Unknown action type: %d\n", actDef.type);
 		}
 		uint64_t logId =
-		  dbAction.createActionLog(actDef, ACTLOG_EXECFAIL_NONE, status);
+		  dbAction.createActionLog(actDef, eventInfo,
+		                           ACTLOG_EXECFAIL_NONE, status);
 		const uint64_t expectedId = i + 1;
 		cppcut_assert_equal(expectedId, logId);
 		string statement = "select * from ";
 		statement += DBClientAction::getTableNameActionLogs();
-		expect += makeExpectedLogString(actDef, expectedId, status);
+		expect += makeExpectedLogString(actDef, eventInfo,
+		                                expectedId, status);
 		assertDBContent(dbAction.getDBAgent(), statement, expect);
 	}
 }
@@ -256,16 +260,18 @@ void test_startExecActionWithExecFailure(void)
 {
 	string expect;
 	DBClientAction dbAction;
+	EventInfo &eventInfo = testEventInfo[0];
 	size_t targetIdx = 1;
 	const ActionDef &actDef = testActionDef[targetIdx];
-	uint64_t logId = dbAction.createActionLog(actDef,
+	uint64_t logId = dbAction.createActionLog(actDef, eventInfo,
 	                                          ACTLOG_EXECFAIL_EXEC_FAILURE);
 	const uint64_t expectedId = 1;
 	cppcut_assert_equal(expectedId, logId);
 	string statement = "select * from ";
 	statement += DBClientAction::getTableNameActionLogs();
 	expect +=
-	  makeExpectedLogString(actDef, expectedId, ACTLOG_STAT_FAILED,
+	  makeExpectedLogString(actDef, eventInfo, expectedId,
+	                        ACTLOG_STAT_FAILED,
 	                        ACTLOG_EXECFAIL_EXEC_FAILURE);
 	assertDBContent(dbAction.getDBAgent(), statement, expect);
 }

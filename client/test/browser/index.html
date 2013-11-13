@@ -1,0 +1,38 @@
+<html>
+<head>
+<meta charset="utf-8" />
+<link rel="stylesheet" href="mocha.css" />
+<script src="../../static/js.external/jquery.js"></script>
+<script src="../../static/js.external/jquery-ui.min.js"></script>
+<script src="mocha.js"></script>
+<script src="expect.js"></script>
+<script>mocha.setup('bdd');</script>
+<script src="../../static/js/hatohol_def.js"></script>
+<script src="../../static/js/hatohol_message_box.js"></script>
+<script src="../../static/js/hatohol_session_manager.js"></script>
+<script src="../../static/js/hatohol_dialog.js"></script>
+<script src="../../static/js/hatohol_login_dialog.js"></script>
+<script src="../../static/js/hatohol_reply_parser.js"></script>
+<script src="../../static/js/hatohol_connector.js"></script>
+<script src="test_hatohol_session_manager.js"></script>
+<script src="test_hatohol_connector.js"></script>
+<script src="test_hatohol_message_box.js"></script>
+<script>
+  // TODO: consider that we should use gettext() by django
+  function gettext(msg) {
+    return msg;
+  }
+
+  $(function(){
+    if (window.mochaPhantomJS)
+      mochaPhantomJS.run();
+    else
+      mocha.run();
+  });
+</script>
+</head>
+<body>
+<div id="mocha"></div>
+{% csrf_token %}
+</body>
+</html>

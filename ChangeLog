@@ -1,3 +1,8 @@
+2013-09-27  Kazuhiro Yamato <kazuhiro.yamato@miraclelinux.com>
+
+	Add an action framework. (#24)
+	Bump version: 0.1
+
 2013-08-21  Noriki Nakamura <noriki.nakamura@miraclelinux.com>
 
 	[Server] Be daemon

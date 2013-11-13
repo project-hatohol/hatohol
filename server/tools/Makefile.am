@@ -1,15 +1,16 @@
-bin_PROGRAMS = hatohol-config-db-creator hatohol-cli \
+bin_PROGRAMS = hatohol-config-db-creator \
                hatohol-def-src-file-generator
+dist_bin_SCRIPTS = hatohol-voyager
+actiondir = $(libexecdir)/$(PACKAGE)/action
+dist_action_SCRIPTS = hatohol-actor-mail
 hatohol_config_db_creator_SOURCES = hatohol-config-db-creator.cc
-hatohol_cli_SOURCES = hatohol-cli.cc
-
 
 MLPL_CFLAGS = -I ../mlpl/src
 MLPL_LIBS = ../mlpl/src/libmlpl.la
 
 AM_CXXFLAGS = -Wall -g3 \
 	-D__STDC_FORMAT_MACROS \
-	-I ../src $(MLPL_CFLAGS) $(GLIB_CFLAGS) $(MYSQL_CFLAGS)
+	-I ../src $(MLPL_CFLAGS) $(GLIB_CFLAGS) $(MYSQL_CFLAGS) $(LIBSOUP_CFLAGS) $(JSON_GLIB_CFLAGS)
 
 AM_LDFLAGS = ../src/libhatohol.la $(MLPL_LIBS) $(GLIB_LIBS) $(MYSQL_LIBS)
 
@@ -18,4 +19,20 @@ config_exampledir = $(pkgdatadir)
 
 hatohol_def_src_file_generator_SOURCES = hatohol-def-src-file-generator.cc
 
-EXTRA_DIST = $(config_example_DATA)
+hatohol_pymodules = \
+  hatohol/__init__.py \
+  hatohol/hatohol_def.py \
+  hatohol/voyager.py \
+  hatohol/ActionCreator.py \
+  setup.py
+
+# To make hahol_def.py on the build.
+noinst_SCRIPTS = $(hatohol_pymodules)
+
+hatohol/hatohol_def.py: hatohol-def-src-file-generator
+	./hatohol-def-src-file-generator py > $@
+
+install-data-hook:
+	python setup.py install --root=$(DESTDIR)
+
+EXTRA_DIST = $(config_example_DATA) $(hatohol_pymodules)

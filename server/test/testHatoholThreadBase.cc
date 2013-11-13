@@ -105,6 +105,36 @@ void test_exitCallback(void)
 	cppcut_assert_equal(true, threadTestee.doTest());
 }
 
+void test_isStartedInitial(void)
+{
+	HatoholThreadTestImpl threadTestee;
+	cppcut_assert_equal(false, threadTestee.isStarted());
+}
+
+void test_isStarted(void)
+{
+	struct Priv {
+		MutexLock mutexThreadExit;
+		MutexLock mutexWaitRun;
+		static gpointer func(void *data) {
+			Priv *obj = static_cast<Priv *>(data);
+			obj->mutexWaitRun.unlock();
+			obj->mutexThreadExit.lock();
+			return NULL;
+		}
+	} priv;
+	HatoholThreadTestImpl threadTestee;
+	threadTestee.setTestFunc(priv.func, &priv);
+	priv.mutexThreadExit.lock();
+	priv.mutexWaitRun.lock();
+	threadTestee.start();
+	cppcut_assert_equal(true, threadTestee.isStarted());
+	priv.mutexWaitRun.lock();
+	priv.mutexThreadExit.unlock();
+	threadTestee.stop();
+	cppcut_assert_equal(false, threadTestee.isStarted());
+}
+
 } // namespace testHatoholThreadBase
 
 

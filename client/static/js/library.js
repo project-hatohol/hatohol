@@ -149,3 +149,44 @@ function schedule(timer, table, param) {
     });
   }, timer);
 }
+
+function makeTriggerStatusLabel(status) {
+  switch(status) {
+  case TRIGGER_STATUS_OK:
+    return gettext("OK");
+  case TRIGGER_STATUS_PROBLEM:
+    return gettext("Problem");
+  default:
+    return "INVALID: " + status;
+  }
+}
+
+function makeServerityLabel(severity) {
+  switch(severity) {
+  case TRIGGER_SEVERITY_UNKNOWN:
+    return gettext("Not classified");
+  case TRIGGER_SEVERITY_INFO:
+    return gettext("Information");
+  case TRIGGER_SEVERITY_WARNING:
+    return gettext("Warning");
+  case TRIGGER_SEVERITY_ERROR:
+    return gettext("Average");
+  case TRIGGER_SEVERITY_CRITICAL:
+    return gettext("High");
+  case TRIGGER_SEVERITY_EMERGENCY:
+    return gettext("Disaster");
+  default:
+    return "INVALID: " + severity;
+  }
+}
+
+function makeMonitoringSystemTypeLabel(type) {
+  switch (type) {
+  case MONITORING_SYSTEM_ZABBIX:
+    return "ZABBIX";
+  case MONITORING_SYSTEM_NAGIOS:
+    return "NAGIOS";
+  default:
+    return "INVALID: " + type;
+  }
+}

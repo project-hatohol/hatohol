@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-09-16 21:51-0500\n"
+"POT-Creation-Date: 2013-09-28 19:00-0500\n"
 "PO-Revision-Date: 2013-09-10 18:03+0900\n"
 "Last-Translator: Takuro Ashie <ashie@clear-code.com>\n"
 "Language-Team: Project Hatohol\n"
@@ -14,6 +14,200 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+
+#: static/js/hatohol_actor_mail_dialog.js:26
+#: static/js/hatohol_actor_mail_dialog.js:87
+msgid "APPLY"
+msgstr "適用"
+
+#: static/js/hatohol_actor_mail_dialog.js:29
+#: static/js/hatohol_add_action_dialog.js:35
+#: static/js/hatohol_selector_dialog.js:30
+msgid "CANCEL"
+msgstr "キャンセル"
+
+#: static/js/hatohol_actor_mail_dialog.js:50
+msgid "TO: "
+msgstr ""
+
+#: static/js/hatohol_actor_mail_dialog.js:54
+msgid "SMTP server "
+msgstr "SMTPサーバ"
+
+#: static/js/hatohol_actor_mail_dialog.js:55
+msgid "(If empty, localhost is used)"
+msgstr "(空白の場合、localhostが使用されます)"
+
+#: static/js/hatohol_add_action_dialog.js:32
+msgid "ADD"
+msgstr "追加"
+
+#: static/js/hatohol_add_action_dialog.js:41
+msgid "ADD ACTION"
+msgstr "アクション追加"
+
+#: static/js/hatohol_add_action_dialog.js:49
+msgid "Now creating an action ..."
+msgstr "アクションを作成しています..."
+
+#: static/js/hatohol_add_action_dialog.js:50
+#: static/js/hatohol_add_action_dialog.js:365 static/js/library.js:169
+msgid "Information"
+msgstr "情報"
+
+#: static/js/hatohol_add_action_dialog.js:162
+#: static/js/hatohol_add_action_dialog.js:330
+#: static/js/hatohol_add_action_dialog.js:350
+#: static/js/hatohol_selector_dialog.js:27
+#: static/js/hatohol_selector_dialog.js:67
+msgid "SELECT"
+msgstr "選択"
+
+#: static/js/hatohol_add_action_dialog.js:300
+msgid "Successfully created."
+msgstr "正常に作成されました"
+
+#: static/js/hatohol_add_action_dialog.js:325
+msgid "Condition"
+msgstr "条件"
+
+#: static/js/hatohol_add_action_dialog.js:327
+msgid "Server"
+msgstr "サーバ"
+
+#: static/js/hatohol_add_action_dialog.js:342
+msgid "Host"
+msgstr "ホスト名"
+
+#: static/js/hatohol_add_action_dialog.js:347
+msgid "Trigger"
+msgstr "トリガー"
+
+#: static/js/hatohol_add_action_dialog.js:355
+msgid "Status"
+msgstr "ステータス"
+
+#: static/js/hatohol_add_action_dialog.js:358 static/js/library.js:156
+msgid "OK"
+msgstr "正常"
+
+#: static/js/hatohol_add_action_dialog.js:359 static/js/library.js:158
+msgid "Problem"
+msgstr "障害"
+
+#: static/js/hatohol_add_action_dialog.js:362
+msgid "Severity"
+msgstr "深刻度"
+
+#: static/js/hatohol_add_action_dialog.js:366 static/js/library.js:171
+msgid "Warning"
+msgstr "警告"
+
+#: static/js/hatohol_add_action_dialog.js:367 static/js/library.js:173
+msgid "Average"
+msgstr "軽度の障害"
+
+#: static/js/hatohol_add_action_dialog.js:368 static/js/library.js:175
+msgid "High"
+msgstr "重度の障害"
+
+#: static/js/hatohol_add_action_dialog.js:369 static/js/library.js:177
+msgid "Disaster"
+msgstr "致命的な障害"
+
+#: static/js/hatohol_add_action_dialog.js:372
+msgid "Equal to"
+msgstr "一致"
+
+#: static/js/hatohol_add_action_dialog.js:373
+msgid "Equal to or greater than"
+msgstr "以上"
+
+#: static/js/hatohol_add_action_dialog.js:377
+msgid "Execution parameters"
+msgstr "実行パラメータ"
+
+#: static/js/hatohol_add_action_dialog.js:379
+msgid "Templates "
+msgstr "テンプレート"
+
+#: static/js/hatohol_add_action_dialog.js:380
+msgid "e-mail"
+msgstr "Eメール"
+
+#: static/js/hatohol_add_action_dialog.js:384
+#: static/js/hatohol_server_selector.js:45
+msgid "Type"
+msgstr "タイプ"
+
+#: static/js/hatohol_add_action_dialog.js:386
+msgid "COMMAND"
+msgstr "コマンド"
+
+#: static/js/hatohol_add_action_dialog.js:387
+msgid "RESIDENT"
+msgstr "常駐"
+
+#: static/js/hatohol_add_action_dialog.js:390
+msgid "Time-out (sec)"
+msgstr "タイムアウト (秒)"
+
+#: static/js/hatohol_add_action_dialog.js:392
+msgid "No limit"
+msgstr "制限なし"
+
+#: static/js/hatohol_add_action_dialog.js:396
+msgid "Command parameter"
+msgstr "実行パラメータ"
+
+#: static/js/hatohol_add_action_dialog.js:401
+msgid "Execution directory"
+msgstr "実行ディレクトリ"
+
+#: static/js/hatohol_add_action_dialog.js:422
+msgid "The template script returned the invalid value."
+msgstr "テンプレートスクリプトが不正な値を返しました。"
+
+#: static/js/hatohol_host_selector.js:26
+msgid "Host selecion"
+msgstr "ホスト選択"
+
+#: static/js/hatohol_host_selector.js:49
+msgid "Server ID"
+msgstr "サーバID"
+
+#: static/js/hatohol_host_selector.js:50
+#: static/js/hatohol_server_selector.js:46
+msgid "Hostname"
+msgstr "ホスト名"
+
+#: static/js/hatohol_selector_dialog.js:45
+msgid "Now getting information..."
+msgstr "情報を取得しています.."
+
+#: static/js/hatohol_selector_dialog.js:110
+msgid "No data."
+msgstr "データがありません"
+
+#: static/js/hatohol_server_selector.js:26
+msgid "Server selecion"
+msgstr "サーバ選択"
+
+#: static/js/hatohol_server_selector.js:47
+msgid "IP Address"
+msgstr "IPアドレス"
+
+#: static/js/hatohol_server_selector.js:48
+msgid "Nickname"
+msgstr "ニックネーム"
+
+#: static/js/hatohol_trigger_selector.js:26
+msgid "Trigger selecion"
+msgstr "トリガー選択"
+
+#: static/js/hatohol_trigger_selector.js:49
+msgid "Brief"
+msgstr "概要"
 
 #: static/js/library.js:125
 msgid "DRAW"
@@ -34,3 +228,13 @@ msgstr "ロード"
 #: static/js/library.js:143
 msgid "Communicating with backend"
 msgstr "バックエンドと通信中"
+
+#: static/js/library.js:167
+msgid "Not classified"
+msgstr "未分類"
+
+#~ msgid "Command"
+#~ msgstr "コマンド"
+
+#~ msgid "Host Group"
+#~ msgstr "ホストグループ"

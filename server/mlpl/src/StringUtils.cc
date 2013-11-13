@@ -107,12 +107,12 @@ string StringUtils::sprintf(const char *fmt, ...)
 {
 	va_list ap;
 	va_start(ap, fmt);
-	string str = sprintf(fmt, ap);
+	string str = vsprintf(fmt, ap);
 	va_end(ap);
 	return str;
 }
 
-string StringUtils::sprintf(const char *fmt, va_list ap)
+string StringUtils::vsprintf(const char *fmt, va_list ap)
 {
 	char bufOnStack[SPRINTF_BUF_ON_STACK_LENGTH];
 
@@ -214,15 +214,19 @@ string StringUtils::eraseChars(const string &source, const string &eraseChars)
 	for (size_t i = 0; i < numArrayChars; i++)
 		eraseCharArray[i] = false;
 	for (size_t i = 0; i < eraseChars.size(); i++) {
-		char charCode = eraseChars[i];
-		int idx = static_cast<int>(charCode);
+		unsigned char charCode = eraseChars[i];
+		size_t idx = static_cast<int>(charCode);
+		if (idx >= numArrayChars)
+			return "";
 		eraseCharArray[idx] = true;
 	}
 
 	string erasedString;
 	for (size_t i = 0; i < source.size(); i++) {
-		char charCode = source[i];
-		int idx = static_cast<int>(charCode);
+		unsigned char charCode = source[i];
+		size_t idx = static_cast<int>(charCode);
+		if (idx >= numArrayChars)
+			return "";
 		if (eraseCharArray[idx])
 			continue;
 		erasedString += charCode;
@@ -239,15 +243,19 @@ string StringUtils::replace(const string &source, const string &targetChars,
 	for (size_t i = 0; i < numArrayChars; i++)
 		targetCharArray[i] = false;
 	for (size_t i = 0; i < targetChars.size(); i++) {
-		char charCode = targetChars[i];
-		int idx = static_cast<int>(charCode);
+		unsigned char charCode = targetChars[i];
+		size_t idx = static_cast<int>(charCode);
+		if (idx >= numArrayChars)
+			return "";
 		targetCharArray[idx] = true;
 	}
 
 	string replacedString;
 	for (size_t i = 0; i < source.size(); i++) {
-		char charCode = source[i];
-		int idx = static_cast<int>(charCode);
+		unsigned char charCode = source[i];
+		size_t idx = static_cast<int>(charCode);
+		if (idx >= numArrayChars)
+			return "";
 		if (targetCharArray[idx])
 			replacedString += newWord;
 		else

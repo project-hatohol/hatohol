@@ -1,0 +1,31 @@
+<html>
+<head>
+<script type="text/javascript" src="js_loader.js"></script>
+<script type="text/javascript">
+window.onload = function() {
+  hatohol_base_js_load(main);
+}
+
+function main()
+{
+  var param = {title: "Title", defaultButtonLabel: "OK"};
+  new HatoholMessageBox("This is a test Message", param);
+}
+
+function noTitleBarBox()
+{
+  var param = {title: "Title"};
+  new HatoholMessageBox("There is not title bar.");
+}
+
+</script>
+</head>
+<body>
+<button onclick="hatoholInfoMsgBox('INFO INFO INFO.')">Info</button>
+<button onclick="hatoholWarnMsgBox('WARN WARN WARN.')">Warn</button>
+<button onclick="hatoholErrorMsgBox('ERROR ERROR ERROR.')">Error</button>
+<button onclick="noTitleBarBox()">No title bar</button>
+<div id="msg"></div>
+</body>
+</html>
+

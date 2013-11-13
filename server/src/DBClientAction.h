@@ -161,6 +161,8 @@ enum {
 	IDX_ACTION_LOGS_END_TIME,
 	IDX_ACTION_LOGS_EXEC_FAILURE_CODE,
 	IDX_ACTION_LOGS_EXIT_CODE,
+	IDX_ACTION_LOGS_SERVER_ID,
+	IDX_ACTION_LOGS_EVENT_ID,
 	NUM_IDX_ACTION_LOGS,
 };
 
@@ -213,6 +215,7 @@ public:
 		ActionLogStatus status;
 		int   exitCode;
 		ActionLogExecFailureCode failureCode;
+		int nullFlags;
 
 		// constructor: just for initialization
 		LogEndExecActionArg(void);
@@ -254,7 +257,7 @@ public:
 	 * @return a created action log ID.
 	 */
 	uint64_t createActionLog
-	  (const ActionDef &actionDef,
+	  (const ActionDef &actionDef, const EventInfo &eventInfo,
 	   ActionLogExecFailureCode failureCode = ACTLOG_EXECFAIL_NONE,
 	   ActionLogStatus initialStatus = ACTLOG_STAT_STARTED);
 
@@ -289,10 +292,33 @@ public:
 	 */
 	bool getLog(ActionLog &actionLog, uint64_t logId);
 
+	/**
+	 * Get the event log.
+	 * @param actionLog
+	 * The returned values are filled in this instance.
+	 * @param serverId A server ID.
+	 * @param eventId  An event ID.
+	 *
+	 * @return true if the log is found. Otherwise false.
+	 */
+	bool getLog(ActionLog &actionLog, uint32_t serverId, uint64_t eventId);
+
 protected:
 	ItemDataNullFlagType getNullFlag(const ActionDef &actionDef,
 	                                 ActionConditionEnableFlag enableFlag);
 	string makeActionDefCondition(const EventInfo &eventInfo);
+
+	/**
+	 * Get the action log.
+	 * @param actionLog
+	 * The returned values are filled in this instance.
+	 * @param condition
+	 * The condtion that are used a string in where section
+	 * in a SQL statement.
+	 *
+	 * @return true if the log is found. Otherwise false.
+	 */
+	bool getLog(ActionLog &actionLog, const string &condition);
 
 private:
 	struct PrivateContext;

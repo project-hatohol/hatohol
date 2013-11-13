@@ -11,13 +11,13 @@ noinst_PROGRAMS = ActionTp zabbix-api-response-collector
 endif
 
 # default
-AM_CXXFLAGS = -g3 -Wall -D__STDC_FORMAT_MACROS
-AM_LDFLAGS = -module -rpath $(libdir) -avoid-version -no-undefined
-INCLUDES = \
+AM_CXXFLAGS = \
+	-g3 -Wall -D__STDC_FORMAT_MACROS \
 	$(CUTTER_CFLAGS) $(CPPCUTTER_CFLAGS) \
 	$(GLIB_CFLAGS) $(MLPL_CFLAGS) $(JSON_GLIB_CFLAGS) $(LIBSOUP_CFLAGS) \
 	$(MYSQL_CFLAGS) \
 	-I ../src
+AM_LDFLAGS = -module -rpath $(libdir) -avoid-version -no-undefined
 
 LIBS = \
 	$(CUTTER_LIBS) $(CPPCUTTER_LIBS) \
@@ -26,12 +26,18 @@ LIBS = \
 # Test cases
 testHatohol_la_SOURCES = \
 	testActionExecArgMaker.cc testActionManager.cc \
+	testCacheServiceDBClient.cc \
+	testConfigManager.cc \
+	testDataQueryOption.cc \
+	testHatoholError.cc \
 	testHatoholException.cc testSQLProcessorException.cc \
 	testHatoholThreadBase.cc \
 	testDBAgentSQLite3.cc testDBAgentMySQL.cc \
+	testDBClient.cc \
 	testDBClientUtils.cc \
 	testDBClientConfig.cc testDBClientHatohol.cc testDBClientZabbix.cc \
-	testDBClientAction.cc \
+	testDBClientAction.cc testDBClientUser.cc \
+	testOperationPrivilege.cc \
 	testSQLUtils.cc testSQLProcessor.cc \
 	testSQLProcessorInsert.cc testSQLProcessorUpdate.cc \
 	testFormulaElement.cc \
@@ -64,8 +70,8 @@ libTest_la_SOURCES = \
 libTest_la_LDFLAGS =
 
 ActionTp_SOURCES = ActionTp.cc ActionTp.h
-ActionTp_LDADD = $(LIBS)
-ActionTp_LDFLAGS = -lTest
+ActionTp_LDFLAGS = $(LIBS)
+ActionTp_LDADD = libTest.la
 
 zabbix_api_response_collector_SOURCES = zabbix-api-response-collector.cc
 zabbix_api_response_collector_LDFLAGS = -lstdc++

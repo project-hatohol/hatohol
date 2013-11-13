@@ -12,7 +12,7 @@ Path
 
    * - URL
      - Comments
-   * - /trigger
+   * - /event
      - N/A
 
 Parameters
@@ -29,12 +29,40 @@ Parameters
      - json or jsonp
      - This parameter is omitted, the return format is json.
      - Optional 
-     - Optional
+     - <-
    * - callback
      - The name of returned JSONP object.
      - N/A
      - N/A
      - Mandatory
+   * - sortOrder
+     - Any of `Sort order`_.
+     - The default value is SORT_DONT_CARE.
+     - If startId is specified, SORT_ASCENDING or SORT_DESCENDING has to be
+       specified. Otherwise optional.
+     - <-
+   * - maximumNumber
+     - A maximum number of returned events.
+     - If this paramters is omitted, all events will be returned.
+     - Optional
+     - <-
+   * - startId
+     - A start ID of returned events.
+     - - This ID is included in the returned events if it exists.
+       - sortOrder has to be specified when this paramter is used.
+     - Optional
+     - <-
+
+Sort order
+----------
+.. list-table::
+
+   * - 0
+     - SORT_DONT_CARE
+   * - 1
+     - SORT_ASCENDING
+   * - 2
+     - SORT_DESCENDING
 
 Response
 ========
@@ -51,7 +79,7 @@ Repsponse structure
    * - apiVersion
      - Number
      - An API version of this URL.
-       This document is written for version **2**.
+       This document is written for version **3**.
      - Always
    * - result
      - Boolean
@@ -86,6 +114,9 @@ Event object
    * - Key
      - Value type
      - Brief
+   * - unifiedId 
+     - Number
+     - A unified ID. This Id is unique in the Haothol DB.
    * - serverId
      - Number
      - A server ID.

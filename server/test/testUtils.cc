@@ -22,11 +22,73 @@
 #include <unistd.h>
 #include <sys/time.h>
 #include <sys/types.h> 
+#include <syscall.h>
+#include <MutexLock.h>
+using namespace mlpl;
 #include "Hatohol.h"
 #include "Utils.h"
 #include "Helpers.h"
+#include "HatoholThreadBase.h"
 
 namespace testUtils {
+
+struct TestExecEvtLoop : public HatoholThreadBase {
+	pid_t threadId;
+	pid_t eventLoopThreadId;
+	GMainContext *context;
+	GMainLoop *loop;
+	bool quitLoop;
+	bool useFunctor;
+	SyncType syncType;
+	MutexLock mutex;
+
+	TestExecEvtLoop(void)
+	: threadId(0),
+	  eventLoopThreadId(0),
+	  context(NULL),
+	  loop(NULL),
+	  quitLoop(true),
+	  useFunctor(false),
+	  syncType(SYNC)
+	{
+		mutex.lock();
+		context = g_main_context_default();
+		cppcut_assert_not_null(context);
+
+		loop = g_main_loop_new(context, TRUE);
+		cppcut_assert_not_null(loop);
+	}
+
+	virtual gpointer mainThread(HatoholThreadArg *arg)
+	{
+		threadId = Utils::getThreadId();
+		if (!useFunctor) {
+			Utils::executeOnGLibEventLoop<TestExecEvtLoop>(
+			  _idleTask, this, syncType, context);
+		} else {
+			Utils::executeOnGLibEventLoop<TestExecEvtLoop>(
+			  *this, syncType, context);
+		}
+		mutex.unlock();
+		return NULL;
+	}
+
+	static void _idleTask(TestExecEvtLoop *obj)
+	{
+		obj->idleTask();
+	}
+
+	void idleTask(void)
+	{
+		eventLoopThreadId = Utils::getThreadId();
+		if (quitLoop)
+			g_main_loop_quit(loop);
+	}
+
+	void operator()(void) {
+		idleTask();
+	}
+};
 
 static void _assertValidateJSMethodName(const string &name, bool expect)
 {
@@ -48,6 +110,11 @@ static void _assertGetExtension(const string &path, const string &expected)
 void cut_setup(void)
 {
 	hatoholInit();
+}
+
+void cut_teardown(void)
+{
+	releaseDefaultContext();
 }
 
 // ---------------------------------------------------------------------------
@@ -138,6 +205,71 @@ void test_getSelfExeDir(void)
 	   selfPath.size() - basename.size() - SIZE_DIR_SEPARATOR;
 	string expect(selfPath, 0, expectLen);
 	cppcut_assert_equal(expect, actual);
+}
+
+void test_executeOnGlibEventLoop(void)
+{
+	acquireDefaultContext();
+	TestExecEvtLoop thread;
+	thread.start();
+	g_main_loop_run(thread.loop);
+	thread.mutex.lock(); // wait for mainThread() to exit.
+
+	cppcut_assert_equal(Utils::getThreadId(), thread.eventLoopThreadId);
+	cppcut_assert_not_equal(0, thread.eventLoopThreadId);
+	cppcut_assert_not_equal(thread.threadId, thread.eventLoopThreadId);
+}
+
+void test_executeOnGlibEventLoopCalledFromSameContext(void)
+{
+	acquireDefaultContext();
+	TestExecEvtLoop task;
+	task.quitLoop = false;
+	task.mainThread(NULL);
+	cppcut_assert_equal(Utils::getThreadId(), task.threadId);
+	cppcut_assert_equal(Utils::getThreadId(), task.eventLoopThreadId);
+}
+
+void test_executeOnGlibEventLoopForFunctor(void)
+{
+	acquireDefaultContext();
+	TestExecEvtLoop thread;
+	thread.useFunctor = true;
+	thread.start();
+	g_main_loop_run(thread.loop);
+	thread.mutex.lock(); // wait for mainThread() to exit.
+
+	cppcut_assert_equal(Utils::getThreadId(), thread.eventLoopThreadId);
+	cppcut_assert_not_equal(0, thread.eventLoopThreadId);
+	cppcut_assert_not_equal(thread.threadId, thread.eventLoopThreadId);
+}
+
+void test_executeOnGlibEventLoopFromSameContextForFunctor(void)
+{
+	acquireDefaultContext();
+	TestExecEvtLoop task;
+	task.useFunctor = true;
+	task.quitLoop = false;
+	task.mainThread(NULL);
+	cppcut_assert_equal(Utils::getThreadId(), task.threadId);
+	cppcut_assert_equal(Utils::getThreadId(), task.eventLoopThreadId);
+}
+
+void test_executeOnGlibEventLoopAsync(void)
+{
+	acquireDefaultContext();
+
+	TestExecEvtLoop thread;
+	thread.start();
+	thread.syncType = ASYNC;
+	const size_t timeoutInMSec = 5000;
+	cppcut_assert_equal(MutexLock::STAT_OK,
+	                    thread.mutex.timedlock(timeoutInMSec));
+	g_main_loop_run(thread.loop);
+
+	cppcut_assert_equal(Utils::getThreadId(), thread.eventLoopThreadId);
+	cppcut_assert_not_equal(0, thread.eventLoopThreadId);
+	cppcut_assert_not_equal(thread.threadId, thread.eventLoopThreadId);
 }
 
 } // namespace testUtils

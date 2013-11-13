@@ -24,7 +24,9 @@ using namespace mlpl;
 
 #include "DBAgentFactory.h"
 #include "DBClientHatohol.h"
+#include "DBClientUser.h"
 #include "DBClientUtils.h"
+#include "CacheServiceDBClient.h"
 #include "Params.h"
 
 static const char *TABLE_NAME_TRIGGERS = "triggers";
@@ -32,7 +34,7 @@ static const char *TABLE_NAME_EVENTS   = "events";
 static const char *TABLE_NAME_ITEMS    = "items";
 
 uint64_t DBClientHatohol::EVENT_NOT_FOUND = -1;
-int DBClientHatohol::HATOHOL_DB_VERSION = 3;
+int DBClientHatohol::HATOHOL_DB_VERSION = 4;
 
 // Currently DBClientHatohol uses DBAgentSQLite3. In that case,
 // DEFAULT_DB_NAME passed to addDefaultDBInfo() is ignored in it.
@@ -162,6 +164,17 @@ static const ColumnDef COLUMN_DEF_EVENTS[] = {
 {
 	ITEM_ID_NOT_SET,                   // itemId
 	TABLE_NAME_EVENTS,                 // tableName
+	"unified_id",                      // columnName
+	SQL_COLUMN_TYPE_BIGUINT,           // type
+	20,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_PRI,                       // keyType
+	SQL_COLUMN_FLAG_AUTO_INC,          // flags
+	NULL,                              // defaultValue
+}, {
+	ITEM_ID_NOT_SET,                   // itemId
+	TABLE_NAME_EVENTS,                 // tableName
 	"server_id",                       // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -287,6 +300,7 @@ static const size_t NUM_COLUMNS_EVENTS =
   sizeof(COLUMN_DEF_EVENTS) / sizeof(ColumnDef);
 
 enum {
+	IDX_EVENTS_UNIFIED_ID,
 	IDX_EVENTS_SERVER_ID,
 	IDX_EVENTS_ID,
 	IDX_EVENTS_TIME_SEC,
@@ -457,6 +471,100 @@ struct DBClientHatohol::PrivateContext
 };
 
 // ---------------------------------------------------------------------------
+// EventQueryOption
+// ---------------------------------------------------------------------------
+string EventQueryOption::getServerIdColumnName(void) const
+{
+	return COLUMN_DEF_EVENTS[IDX_EVENTS_SERVER_ID].columnName;
+}
+
+string EventQueryOption::getHostGroupIdColumnName(void) const
+{
+	// TODO: this is temporarily
+	return "host_group_id";
+}
+
+void EventQueryOption::appendCondition(string &cond, const string &newCond)
+{
+	if (cond.empty()) {
+		cond = newCond;
+		return;
+	}
+	cond += " OR ";
+	cond += newCond;
+}
+
+string EventQueryOption::makeConditionHostGroup(
+  const HostGroupSet &hostGroupSet, const string &hostGroupIdColumnName)
+{
+	string hostGrps;
+	HostGroupSetConstIterator it = hostGroupSet.begin();
+	size_t commaCnt = hostGroupSet.size() - 1;
+	for (; it != hostGroupSet.end(); ++it, commaCnt--) {
+		const uint64_t hostGroupId = *it;
+		if (hostGroupId == ALL_HOST_GROUPS)
+			return "";
+		hostGrps += StringUtils::sprintf("%"PRIu64, hostGroupId);
+		if (commaCnt)
+			hostGrps += ",";
+	}
+	string cond = StringUtils::sprintf(
+	  "%s IN (%s)", hostGroupIdColumnName.c_str(), hostGrps.c_str());
+	return cond;
+}
+
+string EventQueryOption::makeCondition(
+  const ServerHostGrpSetMap &srvHostGrpSetMap,
+  const string &serverIdColumnName, const string &hostGroupIdColumnName)
+{
+	string cond;
+	size_t numServers = srvHostGrpSetMap.size();
+	if (numServers == 0)
+		return DBClientHatohol::getAlwaysFalseCondition();
+	ServerHostGrpSetMapConstIterator it = srvHostGrpSetMap.begin();
+	for (; it != srvHostGrpSetMap.end(); ++it) {
+		const uint32_t serverId = it->first;
+		if (serverId == ALL_SERVERS)
+			return "";
+		string condSv = StringUtils::sprintf(
+		  "%s=%"PRIu32, serverIdColumnName.c_str(), serverId);
+
+		const HostGroupSet &hostGroupSet = it->second;
+		string condHG = makeConditionHostGroup(hostGroupSet,
+		                                       hostGroupIdColumnName);
+		if (!condHG.empty()) {
+			string condMix = StringUtils::sprintf(
+			  "(%s AND %s)", condSv.c_str(), condHG.c_str());
+			appendCondition(cond, condMix);
+		} else {
+			appendCondition(cond, condSv);
+		}
+	}
+	if (numServers == 1)
+		return cond;
+	return StringUtils::sprintf("(%s)", cond.c_str());
+}
+
+string EventQueryOption::getCondition(void) const
+{
+	string condition;
+	UserIdType userId = getUserId();
+	if (userId == USER_ID_ADMIN)
+		return "";
+	if (userId == INVALID_USER_ID)
+		return DBClientHatohol::getAlwaysFalseCondition();
+
+	CacheServiceDBClient cache;
+	DBClientUser *dbUser = cache.getUser();
+	ServerHostGrpSetMap srvHostGrpSetMap;
+	dbUser->getServerHostGrpSetMap(srvHostGrpSetMap, userId);
+	condition = makeCondition(srvHostGrpSetMap,
+	                          getServerIdColumnName(),
+	                          getHostGroupIdColumnName());
+	return condition;
+}
+
+// ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
 void DBClientHatohol::init(void)
@@ -491,7 +599,8 @@ DBClientHatohol::~DBClientHatohol()
 }
 
 void DBClientHatohol::getHostInfoList(HostInfoList &hostInfoList,
-                                      uint32_t targetServerId)
+                                      uint32_t targetServerId,
+                                      uint64_t targetHostId)
 {
 	// Now we don't have a DB table for hosts. So we get a host list from
 	// the trigger table. In the future, we will add the table for hosts
@@ -519,12 +628,22 @@ void DBClientHatohol::getHostInfoList(HostInfoList &hostInfoList,
 	    COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_HOSTNAME].type);
 
 	// condition
+	string condition;
 	if (targetServerId != ALL_SERVERS) {
 		const char *colName = 
 		  COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SERVER_ID].columnName;
-		arg.condition = StringUtils::sprintf("%s=%"PRIu32, colName,
-		                                     targetServerId);
+		condition = StringUtils::sprintf("%s=%"PRIu32, colName,
+		                                 targetServerId);
 	}
+	if (targetHostId != ALL_HOSTS) {
+		if (!condition.empty())
+			condition += " AND ";
+		const char *colName = 
+		  COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_HOST_ID].columnName;
+		condition += StringUtils::sprintf("%s=%"PRIu64, colName,
+		                                  targetHostId);
+	}
+	arg.condition = condition;
 
 	DBCLIENT_TRANSACTION_BEGIN() {
 		select(arg);
@@ -585,8 +704,9 @@ bool DBClientHatohol::getTriggerInfo(TriggerInfo &triggerInfo,
 	return true;
 }
 
-void DBClientHatohol::getTriggerInfoList(TriggerInfoList &triggerInfoList,
-                                         uint32_t targetServerId)
+void DBClientHatohol::getTriggerInfoList(
+  TriggerInfoList &triggerInfoList, uint32_t targetServerId,
+  uint64_t targetHostId, uint64_t targetTriggerId)
 {
 	string condition;
 	if (targetServerId != ALL_SERVERS) {
@@ -594,6 +714,22 @@ void DBClientHatohol::getTriggerInfoList(TriggerInfoList &triggerInfoList,
 		  COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SERVER_ID].columnName;
 		condition = StringUtils::sprintf("%s=%"PRIu32, colName,
 		                                 targetServerId);
+	}
+	if (targetHostId != ALL_HOSTS) {
+		if (!condition.empty())
+			condition += " AND ";
+		const char *colName = 
+		  COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_HOST_ID].columnName;
+		condition += StringUtils::sprintf("%s=%"PRIu64, colName,
+		                                  targetHostId);
+	}
+	if (targetTriggerId != ALL_TRIGGERS) {
+		if (!condition.empty())
+			condition += " AND ";
+		const char *colName = 
+		  COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_ID].columnName;
+		condition += StringUtils::sprintf("%s=%"PRIu64, colName,
+		                                  targetTriggerId);
 	}
 	getTriggerInfoList(triggerInfoList, condition);
 }
@@ -658,8 +794,11 @@ void DBClientHatohol::addEventInfoList(const EventInfoList &eventInfoList)
 	} DBCLIENT_TRANSACTION_END();
 }
 
-void DBClientHatohol::getEventInfoList(EventInfoList &eventInfoList)
+HatoholError DBClientHatohol::getEventInfoList(EventInfoList &eventInfoList,
+                                               EventQueryOption &option)
 {
+	const ColumnDef &eventsUnifiedId =
+	  COLUMN_DEF_EVENTS[IDX_EVENTS_UNIFIED_ID];
 	const ColumnDef &eventsServerId =
 	  COLUMN_DEF_EVENTS[IDX_EVENTS_SERVER_ID];
 	const ColumnDef &eventsId =
@@ -701,6 +840,7 @@ void DBClientHatohol::getEventInfoList(EventInfoList &eventInfoList)
 	  VAR_TRIGGERS, triggersTriggerId.columnName);
 
 	// Columns
+	arg.pushColumn(eventsUnifiedId,  VAR_EVENTS);
 	arg.pushColumn(eventsServerId,   VAR_EVENTS);
 	arg.pushColumn(eventsId,         VAR_EVENTS);
 	arg.pushColumn(eventsTimeSec,    VAR_EVENTS);
@@ -715,10 +855,48 @@ void DBClientHatohol::getEventInfoList(EventInfoList &eventInfoList)
 	arg.pushColumn(triggersBrief,    VAR_TRIGGERS);
 
 	// Condition
+	DataQueryOption::SortOrder sortOrder = option.getSortOrder();
 	arg.condition = StringUtils::sprintf(
 	  "%s.%s=%s.%s", 
 	  VAR_EVENTS, eventsServerId.columnName,
 	  VAR_TRIGGERS, triggersServerId.columnName);
+	uint64_t startId = option.getStartId();
+	if (startId) {
+		if (sortOrder != DataQueryOption::SORT_ASCENDING &&
+		    sortOrder != DataQueryOption::SORT_DESCENDING) {
+			return HatoholError(HTERR_NOT_FOUND_SORT_ORDER);
+		}
+		arg.condition += StringUtils::sprintf(
+		  " AND %s.%s%s%"PRIu64,
+		  VAR_EVENTS, eventsUnifiedId.columnName,
+		  sortOrder == DataQueryOption::SORT_ASCENDING ? ">=" : "<=",
+		  startId);
+	}
+
+	string optCond = option.getCondition();
+	if (isAlwaysFalseCondition(optCond))
+		return HatoholError(HTERR_OK);
+	if (!optCond.empty()) {
+		arg.condition += " AND ";
+		arg.condition += optCond;
+	}
+
+	// Order By
+	if (sortOrder != DataQueryOption::SORT_DONT_CARE) {
+		arg.orderBy +=
+		  COLUMN_DEF_EVENTS[IDX_EVENTS_UNIFIED_ID].columnName;
+		if (sortOrder == DataQueryOption::SORT_ASCENDING) {
+			arg.orderBy += " ASC";
+		} else if (sortOrder == DataQueryOption::SORT_DESCENDING) {
+			arg.orderBy += " DESC";
+		} else {
+			HATOHOL_ASSERT(false, "Unknown sort order: %d\n",
+			               sortOrder);
+		}
+	}
+
+	// Limit and Offset
+	arg.limit = option.getMaximumNumber();
 
 	DBCLIENT_TRANSACTION_BEGIN() {
 		select(arg);
@@ -733,6 +911,7 @@ void DBClientHatohol::getEventInfoList(EventInfoList &eventInfoList)
 		eventInfoList.push_back(EventInfo());
 		EventInfo &eventInfo = eventInfoList.back();
 
+		eventInfo.unifiedId  = GET_UINT64_FROM_GRP(itemGroup, idx++);
 		eventInfo.serverId   = GET_INT_FROM_GRP(itemGroup, idx++);
 		eventInfo.id         = GET_UINT64_FROM_GRP(itemGroup, idx++);
 		eventInfo.time.tv_sec  = GET_INT_FROM_GRP(itemGroup, idx++);
@@ -749,6 +928,7 @@ void DBClientHatohol::getEventInfoList(EventInfoList &eventInfoList)
 		eventInfo.hostName  = GET_STRING_FROM_GRP(itemGroup, idx++);
 		eventInfo.brief     = GET_STRING_FROM_GRP(itemGroup, idx++);
 	}
+	return HatoholError(HTERR_OK);
 }
 
 void DBClientHatohol::setEventInfoList(const EventInfoList &eventInfoList,
@@ -1036,6 +1216,7 @@ void DBClientHatohol::addEventInfoBare(const EventInfo &eventInfo)
 		arg.tableName = TABLE_NAME_EVENTS;
 		arg.numColumns = NUM_COLUMNS_EVENTS;
 		arg.columnDefs = COLUMN_DEF_EVENTS;
+		row->ADD_NEW_ITEM(Uint64, 0, ITEM_DATA_NULL),
 		row->ADD_NEW_ITEM(Int, eventInfo.serverId),
 		row->ADD_NEW_ITEM(Uint64, eventInfo.id);
 		row->ADD_NEW_ITEM(Int, eventInfo.time.tv_sec); 
@@ -1195,4 +1376,3 @@ void DBClientHatohol::getTriggerInfoList(TriggerInfoList &triggerInfoList,
 		trigInfo.brief     = GET_STRING_FROM_GRP(itemGroup, idx++);
 	}
 }
-

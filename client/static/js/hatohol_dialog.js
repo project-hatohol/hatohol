@@ -17,26 +17,97 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
-var HatoholDialog = function(id, dialogTitle, bodyElem) {
-  this.mainDiv = document.createElement("div");
-  this.mainDiv.id = id;
-  this.mainDiv.appendChild(bodyElem);
-  document.body.appendChild(this.mainDiv);
+var HatoholDialogObserver = (function() {
+  var createdCallbacks = new Array();
 
-  var dialogId = "#" + id
-  $(dialogId).dialog({
+  return {
+    reset: function() {
+      createdCallbacks.length = 0;
+    },
+
+    registerCreatedCallback: function(callback) {
+      createdCallbacks.push(callback);
+    },
+
+    notifyCreated: function(id, obj) {
+      for (var i in createdCallbacks)
+        createdCallbacks[i](id, obj);
+    }
+  }
+})();
+
+var HatoholDialog = function(id, dialogTitle, buttons, dialogAttr) {
+
+  var self = this;
+
+  self.mainFrame = $("<div/>");
+  self.mainFrame.attr("id", id);
+  var elem = self.createMainElement();
+  self.mainFrame.append(elem);
+  $("body").append(self.mainFrame);
+  self.onAppendMainElement();
+
+  var width = "95%";
+  if (dialogAttr) {
+    if (dialogAttr.width)
+      width = dialogAttr.width
+  }
+
+  self.dialogId = "#" + id
+  $(self.dialogId).dialog({
     autoOpen: false,
     title: dialogTitle,
     closeOnEscape: false,
-    width:  "95%",
+    width: width,
     modal: true,
-    buttons: {
-      "close": function() {
-        $(this).dialog("close");
-      }
-  }});
+    buttons: buttons,
+    open: function(event, ui){
+      $(".ui-dialog-titlebar-close").hide();
+    }
+  });
 
-  $(dialogId).dialog("open");
+  $(self.dialogId).dialog("open");
+  HatoholDialogObserver.notifyCreated(id, this);
 }
 
+/**
+ * Called just after the main element is appended to the HTML body.
+ */
+HatoholDialog.prototype.onAppendMainElement = function () {
+}
+
+/**
+ * Replace a main element of the dialog.
+ * Note that the old element is deleted.
+ *
+ * @param elem A new element to be set.
+ */
+HatoholDialog.prototype.replaceMainElement = function(elem) {
+  this.mainFrame.empty();
+  this.mainFrame.append(elem);
+}
+
+HatoholDialog.prototype.appendToMainElement = function(elem) {
+  this.mainFrame.append(elem);
+}
+
+/**
+ * Close and delete the dialog.
+ */
+HatoholDialog.prototype.closeDialog = function() {
+  $(this.dialogId).dialog("close");
+  $(this.dialogId).remove();
+}
+
+HatoholDialog.prototype.setButtonState = function(buttonLabel, state) {
+  var btn = $(".ui-dialog-buttonpane").find("button:contains(" +
+              buttonLabel + ")");
+  if (state) {
+     btn.removeAttr("disabled");
+     btn.removeClass("ui-state-disabled");
+  } else {
+     btn.attr("disabled", "disable");
+     btn.addClass("ui-state-disabled");
+  }
+}
 

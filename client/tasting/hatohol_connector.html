@@ -1,0 +1,38 @@
+<html>
+<head>
+<script type="text/javascript" src="js_loader.js"></script>
+<script type="text/javascript">
+window.onload = function() {
+  hatohol_base_js_load(main);
+}
+
+function main()
+{
+  var connectParams = {
+    url: "/test",
+    replyCallback: replyCallback,
+  };
+  new HatoholConnector(connectParams);
+}
+
+function replyCallback(data)
+{
+    $("#msg").append("API Version: " + data.apiVersion +
+                     ", ErrorCode: " + data.errorCode);
+    $("#msg").append("<br>");
+}
+
+function clearSession()
+{
+  HatoholSessionManager.deleteCookie();
+  $("#msg").text("");
+}
+
+</script>
+</head>
+<body>
+<button onclick="clearSession()">Clear Session ID</button>
+<button onclick="main()">Connect again</button>
+<div id="msg"></div>
+</body>
+</html>

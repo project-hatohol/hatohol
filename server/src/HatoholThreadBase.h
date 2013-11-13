@@ -29,6 +29,7 @@ class HatoholThreadBase;
 struct HatoholThreadArg {
 	HatoholThreadBase *obj;
 	bool autoDeleteObject;
+	void *userData;
 };
 
 class HatoholThreadBase {
@@ -53,9 +54,10 @@ private:
 public:
 	HatoholThreadBase(void);
 	virtual ~HatoholThreadBase();
-	void start(bool autoDeleteObject = false);
+	void start(bool autoDeleteObject = false, void *userData = NULL);
 	void addExceptionCallback(ExceptionCallbackFunc func, void *data);
 	void addExitCallback(ExitCallbackFunc func, void *data);
+	bool isStarted(void) const;
 
 	/**
 	 * Send a stop request. This function blocks until
@@ -74,6 +76,7 @@ private:
 	struct PrivateContext;
 	PrivateContext *m_ctx;
 
+	static void threadCleanup(HatoholThreadArg *arg);
 	static gpointer threadStarter(gpointer data);
 };
 

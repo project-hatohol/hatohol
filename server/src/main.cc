@@ -17,6 +17,10 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif // HAVE_CONFIG_H
+
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -70,7 +74,7 @@ gboolean exitFunc(GIOChannel *source, GIOCondition condition, gpointer data)
 	ExecContext *ctx = static_cast<ExecContext *>(data);
 
 	ctx->unifiedDataStore->stop();
-	ActorCollector::stop();
+	ActorCollector::quit();
 
 	// Because this function is beeing called, ctx->loop must have valid
 	// value even if a signal is received before ctx->loop is created.

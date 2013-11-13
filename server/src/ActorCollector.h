@@ -22,34 +22,33 @@
 
 #include "HatoholThreadBase.h"
 
-typedef void (*ActorCollectedFunc)(void *priv);
+struct ActorInfo;
+typedef void (*ActorCollectedFunc)(const ActorInfo *actorInfo);
 
 struct ActorInfo {
 	pid_t    pid;
 	uint64_t logId;
 	bool     dontLog;
+
+	// collectedCb is called with taking ActorCollector::lock().
+	// postCollectedCb is called after calling ActorCollector::unlock().
 	ActorCollectedFunc collectedCb;
-	void              *collectedCbPriv;
-	gint     timerTag;
+	mutable ActorCollectedFunc postCollectedCb;
+	mutable void              *collectedCbPriv;
+	guint timerTag;
 	
-	// constructor
-	ActorInfo (void)
-	: pid(0),
-	  logId(-1),
-	  dontLog(false),
-	  collectedCb(NULL),
-	  collectedCbPriv(NULL),
-	  timerTag(INVALID_EVENT_ID)
-	{
-	}
+	// constructor and destructor
+	ActorInfo(void);
+	virtual ~ActorInfo();
 };
 
-class ActorCollector
+class ActorCollector : public HatoholThreadBase
 {
 public:
 	static void init(void);
 	static void reset(void);
-	static void stop(void);
+	static void resetOnCollectorThread(void);
+	static void quit(void);
 	static void lock(void);
 	static void unlock(void);
 
@@ -70,12 +69,19 @@ public:
 
 	static void setDontLog(pid_t pid);
 
+	static size_t getNumberOfWaitingActors(void);
+
 protected:
 	static void registerSIGCHLD(void);
-	static void setupHandlerForSIGCHLD(void);
-	static void signalHandlerChild(int signo, siginfo_t *info, void *arg);
-	static gboolean checkExitProcess
-	  (GIOChannel *source, GIOCondition condition, gpointer data);
+	static void incWaitingActor(void);
+
+	// we redefine start() as protected so that HatoholThreadBase::start()
+	// cannot be called from other classes.
+	void start(void);
+	void notifyChildSiginfo(siginfo_t *info);
+
+	// overriden virtual methods
+	virtual gpointer mainThread(HatoholThreadArg *arg);
 
 private:
 	struct PrivateContext;

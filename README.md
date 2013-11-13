@@ -23,7 +23,9 @@ Currently Hatohol provides the following information.
 
 - Event
 
-  History of the status change of items.
+  History of the status change of items. When an event detected, Hatohol can execute
+  a user command (called action).
+
 
 Project Hatohol
 -----------------------------
@@ -72,16 +74,7 @@ Other pages are now preparing.
 Installation
 ------------
 ### Installation by RPM files (only for CentOS 6.4)
-Install the following RPMs. (You also have to install packages that are
-needed by them)
-
-- [json-glib](https://github.com/project-hatohol/json-glib-for-distribution/blob/master/RPMS/x86_64/json-glib-0.12.6-1PH.x86_64.rpm?raw=true)
-- [bootstrap](https://github.com/project-hatohol/bootstrap-for-hatohol/blob/master/RPMS/x86_64/bootstrap-for-hatohol-2.3.2-1PH.x86_64.rpm?raw=true)
-- [Hatohol server 0.0.3-1](https://github.com/project-hatohol/hatohol-packages/blob/master/RPMS/hatohol-0.0.3-1.el6.x86_64.rpm?raw=true)
-- [Hatohol client 0.0.3-1](https://github.com/project-hatohol/hatohol-packages/blob/master/RPMS/hatohol-client-0.0.3-1.el6.x86_64.rpm?raw=true)
-
-The way to start Hatohol server and client is written in
-the follwoing build instructions.
+The detailed document is [here](doc/install/hatohol0.1-centos6.4.md)
 
 ### Installation by building needed applications
 - [Server installation](server/README.md)
@@ -90,16 +83,12 @@ the follwoing build instructions.
 Plans
 -----
 We will add useful features. If you have requests or good ideas,
-please tell us them. The following lists are our recent plans.
+please tell us them. The following lists are our recent major plans.
 
-- 2013 Fall  : Chart (graph) support  
-- 2013 Fall  : Efficient (on-demand and cached) item data acquisition  
+- 2013.12  : Improve the viewer UI including user setting. 
+- 2014.03  : Graph support.
 
-### Rough ideas
-- Programable and user-defined alert generation mechanism  
-- Configuration of target hosts
-- Communication with monitoring system with private IP address
-- More monitoring software support
+See also [the issues page](https://github.com/project-hatohol/hatohol/issues?milestone=2&state=open)
 
 Mailing Lists
 -------------

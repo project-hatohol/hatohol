@@ -29,6 +29,8 @@
 #include "ActionExecArgMaker.h"
 #include "MutexLock.h"
 #include "LabelUtils.h"
+#include "ConfigManager.h"
+#include "SmartTime.h"
 
 using namespace std;
 using namespace mlpl;
@@ -67,6 +69,22 @@ enum ResidentStatus {
 	RESIDENT_STAT_IDLE,
 };
 
+struct WaitingCommandActionInfo;
+struct SpawnPostprocCommandActionCtx {
+	// passed to the callback
+	ActorInfo *actorInfoCopy;
+	size_t     reservationId;
+	WaitingCommandActionInfo *waitCmdInfo;
+
+	// constructor
+	SpawnPostprocCommandActionCtx(void)
+	: actorInfoCopy(NULL),
+	  reservationId(-1),
+	  waitCmdInfo(NULL)
+	{
+	}
+};
+
 struct ResidentInfo :
    public ResidentPullHelper<ActionManager::ResidentNotifyInfo> {
 	static MutexLock residentMapLock;
@@ -101,6 +119,15 @@ struct ResidentInfo :
 		initResidentPullHelper(&pipeRd, NULL);
 	}
 
+	/*
+	 * executed on the following thread(s)
+	 * - Threads that call checkEvents()
+	 *     [from launchResidentActionYard() on failure]
+	 * - ActorCollector thread
+	 *     [residentActorCollectedCb()]
+	 * - Thread that calls reset()
+	 *     [currently the main thread of the test (cutter)]
+	 */
 	virtual ~ResidentInfo(void)
 	{
 		queueLock.lock();
@@ -173,16 +200,231 @@ struct ResidentInfo :
 MutexLock          ResidentInfo::residentMapLock;
 RunningResidentMap ResidentInfo::runningResidentMap;
 
-struct ActionManager::PrivateContext {
-	static ActorCollector collector;
+struct WaitingCommandActionInfo {
+	uint64_t  logId;
+	ActionDef actionDef;
+	EventInfo eventInfo;
+	StringVector argVect;
 
-	// This can only be used on the owner's context (thread),
-	// It's danger to use from a GLIB's event callback context or
-	// other thread, becuase DBClientAction is MT-thread unsafe.
-	DBClientAction dbAction;
+	// The following variable is used only when the waiting action passes
+	// a reservation ID from the collectedCallback to the
+	// postCollected callback.
+	size_t reservationId;
 };
 
-ActorCollector ActionManager::PrivateContext::collector;
+struct CommandActionContext {
+	// We must take locks with the following order to prevent a deadlock.
+	// (1) ActorCollector::lock()
+	// (2) ActionManager::PrivateContext::lock
+	static MutexLock     lock;
+
+	static deque<WaitingCommandActionInfo *> waitingList;
+	static set<uint64_t> runningSet;  // key is logId
+	static set<size_t>   reservedSet;
+
+	// methods
+	static void reset(void)
+	{
+		// We assume that this function is called only when the test.
+		// So we forcely delete instances without locking.
+		deque<WaitingCommandActionInfo *>::iterator it =
+		  waitingList.begin();
+		for (; it != waitingList.end(); ++it)
+			delete *it;
+		waitingList.clear();
+		runningSet.clear();
+		reservedSet.clear();
+	}
+
+	/**
+	 * Reserve the command action. If the sum of the number of running
+	 * actors and reserved actors (the number of onstage actors) is less
+	 * than the limit, this function returns a reservationId that is
+	 * needed to add the actor to runningSet. Otherwise the action
+	 * is added to the queue and executed later.
+	 *
+	 * @param reservationId
+	 * A reservation ID. This is returned only when the number of onstage
+	 * actors less than the limit. Otherwise it is not changed.
+	 *
+	 * @param actionDef A reference of ActionDef.
+	 * @param eventInfo A reference of EventInfo.
+	 * @param dbAction  A reference of DBClientAction.
+	 * @param argVect   A vector that has command line components.
+	 *
+	 * @return
+	 * NULL on success. Otherwise a pointer of WaitingCommandActionInfo
+	 * is returned.
+	 */
+	static WaitingCommandActionInfo *reserve(
+	  size_t &reservationId, const ActionDef &actionDef,
+	  const EventInfo &eventInfo, DBClientAction &dbAction,
+	  const StringVector &argVect)
+	{
+		WaitingCommandActionInfo *waitCmdInfo = NULL;
+		lock.lock();
+
+		// check the number of running actions
+		if (isFullHouse()) {
+			waitCmdInfo =
+			  insertToWaitingCommandActionList(
+			    actionDef, eventInfo, dbAction, argVect);
+			lock.unlock();
+			return waitCmdInfo;
+		}
+
+		// search for the available reservation ID and insert it.
+		reservationId = reserveAndInsert();
+		lock.unlock();
+		return NULL;
+	}
+
+	static void cancel(const size_t reservationId)
+	{
+		lock.lock();
+		removeReservationId(reservationId);
+		lock.unlock();
+	}
+
+	static void add(const size_t reservationId, const uint64_t logId)
+	{
+		lock.lock();
+		removeReservationId(reservationId);
+
+		// insert the log ID
+		pair<set<uint64_t>::iterator, bool> result =
+		   runningSet.insert(logId);
+		HATOHOL_ASSERT(result.second,
+		               "Failed to insert: logID: %"PRIu64"\n", logId);
+		lock.unlock();
+	}
+
+	static void remove(const uint64_t logId)
+	{
+		lock.lock();
+		set<uint64_t>::iterator it = runningSet.find(logId);
+		HATOHOL_ASSERT(it != runningSet.end(),
+		               "Not found log ID: %"PRIu64"\n", logId);
+		runningSet.erase(it);
+		lock.unlock();
+	}
+
+	static bool isFullHouse(void)
+	{
+		// This function assumes that 'lock' is being locked.
+		ConfigManager *confMgr = ConfigManager::getInstance();
+		 size_t numActorLimit =
+		  confMgr->getMaxNumberOfRunningCommandAction();
+		size_t numTotalActions = runningSet.size() + reservedSet.size();
+		return numTotalActions >= numActorLimit;
+	}
+
+	static size_t reserveAndInsert(void)
+	{
+		// This function assumes that 'lock' is being locked.
+		size_t rsvId = getReservationId();
+		reservedSet.insert(rsvId);
+		return rsvId;
+	}
+
+	static size_t getNumberOfOnstageCommandActors(void)
+	{
+		lock.lock();
+		size_t numOnstageActors =
+		   runningSet.size() + reservedSet.size();
+		lock.unlock();
+		return numOnstageActors;
+	}
+
+protected:
+	static WaitingCommandActionInfo *insertToWaitingCommandActionList(
+	  const ActionDef &actionDef, const EventInfo &eventInfo,
+	  DBClientAction &dbAction, const StringVector &argVect)
+	{
+		// This function assumes that 'lock' is being locked.
+		WaitingCommandActionInfo *waitCmdInfo =
+		  new WaitingCommandActionInfo();
+		waitCmdInfo->logId =
+		   dbAction.createActionLog(actionDef, eventInfo,
+		                            ACTLOG_EXECFAIL_NONE,
+		                            ACTLOG_STAT_QUEUING);
+		waitCmdInfo->actionDef = actionDef;
+		waitCmdInfo->eventInfo = eventInfo;
+		waitCmdInfo->argVect   = argVect;
+		waitingList.push_back(waitCmdInfo);
+		return waitCmdInfo;
+	}
+
+	static size_t getReservationId(void)
+	{
+		size_t rsvId = 0;
+		// This function assumes that 'lock' is being locked.
+		if (!reservedSet.empty()) {
+			size_t lastId = *reservedSet.rbegin();
+			rsvId = lastId + 1;
+			while (!isAvailable(rsvId))
+				rsvId++;
+		}
+		return rsvId;
+	}
+
+	static bool isAvailable(size_t id)
+	{
+		return (runningSet.find(id) == runningSet.end());
+	}
+
+	static void removeReservationId(const size_t reservationId)
+	{
+		set<size_t>::iterator it =
+		   reservedSet.find(reservationId);
+		HATOHOL_ASSERT(it != reservedSet.end(),
+		               "Not found reservationID: %zd\n", reservationId);
+		reservedSet.erase(it);
+	}
+};
+
+MutexLock CommandActionContext::lock;
+deque<WaitingCommandActionInfo *>
+  CommandActionContext::waitingList;
+set<size_t> CommandActionContext::reservedSet;
+set<uint64_t> CommandActionContext::runningSet;
+
+class ActorInfoCopier {
+public:
+	// constructor and destructor
+	ActorInfoCopier(ActorInfo *dest, const ActorInfo *src, uint64_t logId)
+	: m_dest(dest),
+	  m_src(src),
+	  m_logId(logId)
+	{
+	}
+
+	/*
+	 * executed on the following thread(s)
+	 * - Threads that call checkEvents()
+	 *     [from spawnPostprocCommandAction()]
+	 * - ActorCollector thread
+	 *     [from spawnPostprocCommandAction()]
+	 */
+	virtual ~ActorInfoCopier()
+	{
+		if (!m_dest)
+			return;
+
+		if (m_src)
+			*m_dest = *m_src;
+		else
+			m_dest->logId = m_logId;
+	}
+
+private:
+	ActorInfo       *m_dest;
+	const ActorInfo *m_src;
+	uint64_t         m_logId;
+};
+
+struct ActionManager::PrivateContext {
+};
 
 // ---------------------------------------------------------------------------
 // Public methods
@@ -192,9 +434,8 @@ const char *ActionManager::NUM_COMMNAD_ACTION_EVENT_ARG_MAGIC
 
 void ActionManager::reset(void)
 {
-	// The following deletion is naturally no effect at the start of
-	// Hatohol. This is mainly for the test in which this function is 
-	// calls many times.
+	// The following deletion has naturally no effect at the start of
+	// Hatohol. This is mainly for the test.
 	// NOTE: This is a special case for test, so we don't take
 	// ResidentInfo::residentMapLock. Or the deadlock will happen
 	// in the desctoructor of ResidentInfo.
@@ -202,9 +443,11 @@ void ActionManager::reset(void)
 	   ResidentInfo::runningResidentMap.begin();
 	for (; it != ResidentInfo::runningResidentMap.end(); ++it) {
 		ResidentInfo *residentInfo = it->second;
-		delete residentInfo;
+		Utils::deleteOnGLibEventLoop<ResidentInfo>(residentInfo);
 	}
 	ResidentInfo::runningResidentMap.clear();
+
+	CommandActionContext::reset();
 }
 
 ActionManager::ActionManager(void)
@@ -221,44 +464,82 @@ ActionManager::~ActionManager()
 
 void ActionManager::checkEvents(const EventInfoList &eventList)
 {
+	DBClientAction dbAction;
 	EventInfoListConstIterator it = eventList.begin();
 	for (; it != eventList.end(); ++it) {
 		ActionDefList actionDefList;
-		m_ctx->dbAction.getActionList(actionDefList, &*it);
+		const EventInfo &eventInfo = *it;
+		if (shouldSkipByTime(eventInfo))
+			continue;
+		if (shouldSkipByLog(eventInfo, dbAction))
+			continue;
+		dbAction.getActionList(actionDefList, &eventInfo);
 		ActionDefListIterator actIt = actionDefList.begin();
 		for (; actIt != actionDefList.end(); ++actIt)
-			runAction(*actIt, *it);
+			runAction(*actIt, eventInfo, dbAction);
 	}
 }
 
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
+bool ActionManager::shouldSkipByTime(const EventInfo &eventInfo)
+{
+	ConfigManager *configMgr = ConfigManager::getInstance();
+	int allowedOldTime = configMgr->getAllowedTimeOfActionForOldEvents();
+	if (allowedOldTime == ConfigManager::ALLOW_ACTION_FOR_ALL_OLD_EVENTS)
+		return false;
+
+	SmartTime eventTime(eventInfo.time);
+	SmartTime passedTime(SmartTime::INIT_CURR_TIME);
+	passedTime -= eventTime;
+	return passedTime.getAsSec() > allowedOldTime;
+}
+
+bool ActionManager::shouldSkipByLog(const EventInfo &eventInfo,
+                                    DBClientAction &dbAction)
+{
+	ActionLog actionLog;
+	bool found;
+	found = dbAction.getLog(actionLog, eventInfo.serverId, eventInfo.id);
+	// TODO: We shouldn't skip if status is ACTLOG_STAT_QUEUING.
+	return found;
+}
+
 void ActionManager::runAction(const ActionDef &actionDef,
-                              const EventInfo &_eventInfo)
+                              const EventInfo &_eventInfo,
+                              DBClientAction &dbAction)
 {
 	EventInfo eventInfo(_eventInfo);
 	fillTriggerInfoInEventInfo(eventInfo);
 
 	if (actionDef.type == ACTION_COMMAND) {
-		execCommandAction(actionDef, eventInfo);
+		execCommandAction(actionDef, eventInfo, dbAction);
 	} else if (actionDef.type == ACTION_RESIDENT) {
-		execResidentAction(actionDef, eventInfo);
+		execResidentAction(actionDef, eventInfo, dbAction);
 	} else {
 		HATOHOL_ASSERT(true, "Unknown type: %d\n", actionDef.type);
 	}
 }
 
-ActorInfo *ActionManager::spawn(
-  const ActionDef &actionDef, const EventInfo &eventInfo, const gchar **argv,
-  uint64_t *logId)
+/*
+ * executed on the following thread(s)
+ * - Threads that call checkEvents()
+ *     [from execCommandActionCore()]
+ *     [from launchResidentActionYard()]
+ * - ActorCollector thread
+ *     [from execCommandActionCore() from commandActorPostCollectedCb()]
+ */
+bool ActionManager::spawn(
+  const ActionDef &actionDef, const EventInfo &eventInfo,
+  DBClientAction &dbAction, const gchar **argv,
+  SpawnPostproc postproc, void *postprocPriv)
 {
 	const gchar *workingDirectory = NULL;
 	if (!actionDef.workingDir.empty())
 		workingDirectory = actionDef.workingDir.c_str();
 
-	GSpawnFlags flags =
-	  (GSpawnFlags)(G_SPAWN_DO_NOT_REAP_CHILD | G_SPAWN_SEARCH_PATH);
+	GSpawnFlags flags = (GSpawnFlags)(G_SPAWN_DO_NOT_REAP_CHILD);
 	GSpawnChildSetupFunc childSetup = NULL;
 	gpointer userData = NULL;
 	GError *error = NULL;
@@ -266,38 +547,69 @@ ActorInfo *ActionManager::spawn(
 	// create an ActorInfo instance.
 	ActorInfo *actorInfo = new ActorInfo();
 
+	WaitingCommandActionInfo *waitCmdInfo = NULL;
+	if (actionDef.type == ACTION_COMMAND) {
+		SpawnPostprocCommandActionCtx *postprocCtx =
+		  static_cast<SpawnPostprocCommandActionCtx *>(postprocPriv);
+		waitCmdInfo = postprocCtx->waitCmdInfo;
+	}
+
 	// We take the lock here to avoid the child spanwed below from
 	// not being collected. If the child immediately exits
-	// before the following 'm_ctx->collector.addActor(&childPid)' is
-	// called, ActorCollector::checkExitProcess() possibly ignores it,
+	// before the following 'ActorCollector::addActor(&childPid)' is
+	// called, ActorCollector::notifyChildSiginfo() possibly ignores it,
 	// because the pid of the child isn't in the wait child set.
-	m_ctx->collector.lock();
+	ActorCollector::lock();
 	gboolean succeeded =
 	  g_spawn_async(workingDirectory, (gchar **)argv, NULL,
 	                flags, childSetup, userData, &actorInfo->pid, &error);
 	if (!succeeded) {
-		m_ctx->collector.unlock();
-		postProcSpawnFailure(actionDef, eventInfo, actorInfo,
-		                     logId, error);
+		ActorCollector::unlock();
+		uint64_t logId;
+		bool logUpdateFlag = false;
+		if (waitCmdInfo) {
+			logId = waitCmdInfo->logId;
+			logUpdateFlag = true;
+		}
+		postProcSpawnFailure(actionDef, eventInfo, dbAction, actorInfo,
+		                     &logId, error, logUpdateFlag);
 		delete actorInfo;
-		return NULL;
+		if (postproc)
+			(*postproc)(NULL, actionDef, logId, postprocPriv);
+		return false;
 	}
 
 	ActionLogStatus initialStatus =
 	  (actionDef.type == ACTION_COMMAND) ?
 	    ACTLOG_STAT_STARTED : ACTLOG_STAT_LAUNCHING_RESIDENT;
-	actorInfo->logId =
-	  m_ctx->dbAction.createActionLog(actionDef,
-	                                  ACTLOG_EXECFAIL_NONE, initialStatus);
-	m_ctx->collector.addActor(actorInfo);
-	m_ctx->collector.unlock();
-	if (logId)
-		*logId = actorInfo->logId;
-	return actorInfo;
+
+	if (waitCmdInfo) {
+		// A waiting command action has the log ID.
+		// So we simply update the status.
+		dbAction.updateLogStatusToStart(waitCmdInfo->logId);
+		actorInfo->logId = waitCmdInfo->logId;
+	} else {
+		actorInfo->logId =
+		  dbAction.createActionLog(actionDef, eventInfo,
+		                           ACTLOG_EXECFAIL_NONE, initialStatus);
+	}
+	ActorCollector::addActor(actorInfo);
+	if (postproc) {
+		(*postproc)(actorInfo, actionDef,
+		            actorInfo->logId, postprocPriv);
+	}
+	ActorCollector::unlock();
+	return true;
 }
 
+/*
+ * executed on the following thread(s)
+ * - Threads that call checkEvents()
+ *     [from runAction()]
+ */
 void ActionManager::execCommandAction(const ActionDef &actionDef,
                                       const EventInfo &eventInfo,
+                                      DBClientAction &dbAction,
                                       ActorInfo *_actorInfo)
 {
 	HATOHOL_ASSERT(actionDef.type == ACTION_COMMAND,
@@ -305,6 +617,10 @@ void ActionManager::execCommandAction(const ActionDef &actionDef,
 	StringVector argVect;
 	ActionExecArgMaker argMaker;
 	argMaker.makeExecArg(argVect, actionDef.command);
+	if (argVect.empty())
+		MLPL_WARN("argVect empty.\n");
+	else
+		addCommandDirectory(argVect[0]);
 	argVect.push_back(NUM_COMMNAD_ACTION_EVENT_ARG_MAGIC);
 	argVect.push_back(StringUtils::sprintf("%d", actionDef.id));
 	argVect.push_back(StringUtils::sprintf("%"PRIu32, eventInfo.serverId));
@@ -317,23 +633,98 @@ void ActionManager::execCommandAction(const ActionDef &actionDef,
 	argVect.push_back(StringUtils::sprintf("%d", eventInfo.status));
 	argVect.push_back(StringUtils::sprintf("%d", eventInfo.severity));
 
+	size_t reservationId = -1;
+	WaitingCommandActionInfo *waitCmdInfo =
+	  CommandActionContext::reserve(reservationId, actionDef, eventInfo,
+	                                dbAction, argVect);
+	// If the number of running command actions exceeds the limit,
+	// reserveCommandAction() returns a pointer of
+	// WaitingCommandActionInfo. In the case, the action is queued
+	// and will be executed later.
+	if (waitCmdInfo) {
+		_actorInfo->logId = waitCmdInfo->logId;
+		return;
+	}
+
+	SpawnPostprocCommandActionCtx postprocCtx;
+	postprocCtx.actorInfoCopy = _actorInfo;
+	postprocCtx.reservationId = reservationId;
+
+	execCommandActionCore(actionDef, eventInfo, dbAction,
+	                      &postprocCtx, argVect);
+}
+
+/*
+ * executed on the following thread(s)
+ * - Threads that call checkEvents()
+ *     [from spawn() from execCommandActionCore()]
+ * - ActorCollector thread
+ *     [from spawn() from execCommandActionCore()]
+ */
+void ActionManager::spawnPostprocCommandAction(ActorInfo *actorInfo,
+                                               const ActionDef &actionDef,
+                                               uint64_t logId, void *priv)
+{
+	SpawnPostprocCommandActionCtx *ctx =
+	  static_cast<SpawnPostprocCommandActionCtx *>(priv);
+
+	// AcotorInfo is copied at the end of this method.
+	ActorInfoCopier actorInfoCopier(ctx->actorInfoCopy, actorInfo, logId);
+
+	if (actorInfo) // Successfully executed
+		CommandActionContext::add(ctx->reservationId, logId);
+	else // Failed to execute the actor
+		CommandActionContext::cancel(ctx->reservationId);
+	if (!actorInfo)
+		return;
+	actorInfo->collectedCb = commandActorCollectedCb;
+
+	// set the timeout
+	if (actionDef.timeout <= 0)
+		return;
+	actorInfo->timerTag =
+	   g_timeout_add(actionDef.timeout, commandActionTimeoutCb, actorInfo);
+}
+
+/*
+ * executed on the following thread(s)
+ * - Threads that call checkEvents()
+ *     [from runAction()]
+ * - ActorCollector thread
+ *     [from commandActorPostCollectedCb()]
+ */
+void ActionManager::execCommandActionCore(
+  const ActionDef &actionDef, const EventInfo &eventInfo,
+  DBClientAction &dbAction, void *postprocCtx,
+  const StringVector &argVect)
+{
 	const gchar *argv[argVect.size()+1];
 	for (size_t i = 0; i < argVect.size(); i++)
 		argv[i] = argVect[i].c_str();
 	argv[argVect.size()] = NULL;
 
-	uint64_t logId;
-	ActorInfo *actorInfo = spawn(actionDef, eventInfo, argv, &logId);
-	copyActorInfoForExecResult(_actorInfo, actorInfo, logId);
-	if (actorInfo && actionDef.timeout > 0) {
-		actorInfo->timerTag =
-		  g_timeout_add(actionDef.timeout, commandActionTimeoutCb,
-		                actorInfo);
-	}
+	spawn(actionDef, eventInfo, dbAction, argv,
+	      spawnPostprocCommandAction, postprocCtx);
+	// spawnPostprocCommandAction() is called in the above spawn().
 }
 
+void ActionManager::addCommandDirectory(string &path)
+{
+	// add the action command directory
+	string absPath = ConfigManager::getActionCommandDirectory();
+	absPath += "/";
+	absPath += path;
+	path = absPath;
+}
+
+/*
+ * executed on the following thread(s)
+ * - Threads that call checkEvents()
+ *     [from runAction()]
+ */
 void ActionManager::execResidentAction(const ActionDef &actionDef,
                                        const EventInfo &eventInfo,
+                                       DBClientAction &dbAction,
                                        ActorInfo *_actorInfo)
 {
 	HATOHOL_ASSERT(actionDef.type == ACTION_RESIDENT,
@@ -352,8 +743,8 @@ void ActionManager::execResidentAction(const ActionDef &actionDef,
 		   new ResidentNotifyInfo(residentInfo);
 		notifyInfo->eventInfo = eventInfo; // just copy
 		notifyInfo->logId =
-		   m_ctx->dbAction.createActionLog(
-		     actionDef, ACTLOG_EXECFAIL_NONE,
+		   dbAction.createActionLog(
+		     actionDef, eventInfo, ACTLOG_EXECFAIL_NONE,
 		     ACTLOG_STAT_RESIDENT_QUEUING);
 
 		residentInfo->notifyQueue.push_back(notifyInfo);
@@ -368,18 +759,19 @@ void ActionManager::execResidentAction(const ActionDef &actionDef,
 	}
 
 	// make a new resident instance
-	uint64_t logId;
-	ActorInfo *actorInfo = NULL;
 	ResidentInfo *residentInfo =
-	  launchResidentActionYard(actionDef, eventInfo, &actorInfo, &logId);
+	  launchResidentActionYard(actionDef, eventInfo, dbAction, _actorInfo);
 	if (residentInfo) {
 		ResidentInfo::runningResidentMap[actionDef.id] = residentInfo;
 		residentInfo->inRunningResidentMap = true;
 	}
 	ResidentInfo::residentMapLock.unlock();
-	copyActorInfoForExecResult(_actorInfo, actorInfo, logId);
 }
 
+/*
+ * - The default GLIB event dispacther thread (main)
+ *     [callback registered by init()]
+ */
 gboolean ActionManager::residentReadErrCb(
   GIOChannel *source, GIOCondition condition, gpointer data)
 {
@@ -392,6 +784,10 @@ gboolean ActionManager::residentReadErrCb(
 	return FALSE;
 }
 
+/*
+ * - The default GLIB event dispacther thread (main)
+ *     [callback registered by init()]
+ */
 gboolean ActionManager::residentWriteErrCb(
   GIOChannel *source, GIOCondition condition, gpointer data)
 {
@@ -404,6 +800,11 @@ gboolean ActionManager::residentWriteErrCb(
 	return FALSE;
 }
 
+/*
+ * executed on the following thread(s)
+ * - The default GLIB event dispacther thread (main)
+ *     [callback registered by pullData()]
+ */
 void ActionManager::launchedCb(GIOStatus stat, mlpl::SmartBuffer &sbuf,
                                size_t size, ResidentNotifyInfo *notifyInfo)
 {
@@ -442,6 +843,11 @@ void ActionManager::launchedCb(GIOStatus stat, mlpl::SmartBuffer &sbuf,
 	residentInfo->setStatus(RESIDENT_STAT_WAIT_PARAM_ACK);
 }
 
+/*
+ * executed on the following thread(s)
+ * - The default GLIB event dispacther thread (main)
+ *     [callback registered by pullData()]
+ */
 void ActionManager::moduleLoadedCb(GIOStatus stat, SmartBuffer &sbuf,
                                    size_t size, ResidentNotifyInfo *notifyInfo)
 {
@@ -497,6 +903,11 @@ void ActionManager::moduleLoadedCb(GIOStatus stat, SmartBuffer &sbuf,
 	obj->tryNotifyEvent(residentInfo);
 }
 
+/*
+ * executed on the following thread(s)
+ * - The default GLIB event dispacther thread (main)
+ *     [callback registered by pullData()]
+ */
 void ActionManager::gotNotifyEventAckCb(GIOStatus stat, SmartBuffer &sbuf,
                                         size_t size,
                                         ResidentNotifyInfo *notifyInfo)
@@ -541,11 +952,18 @@ void ActionManager::gotNotifyEventAckCb(GIOStatus stat, SmartBuffer &sbuf,
 	obj->tryNotifyEvent(residentInfo);
 }
 
+/*
+ * executed on the following thread(s)
+ * - The default GLIB event dispacther thread (main)
+ *     [from launchedCb()]
+ */
 void ActionManager::sendParameters(ResidentInfo *residentInfo)
 {
 	ActionExecArgMaker::parseResidentCommand(
 	  residentInfo->actionDef.command, residentInfo->modulePath,
 	  residentInfo->moduleOption);
+	
+	addCommandDirectory(residentInfo->modulePath);
 	size_t bodyLen = RESIDENT_PROTO_PARAM_MODULE_PATH_LEN
 	                 + residentInfo->modulePath.size()
 	                 + RESIDENT_PROTO_PARAM_MODULE_OPTION_LEN
@@ -557,6 +975,10 @@ void ActionManager::sendParameters(ResidentInfo *residentInfo)
 	comm.push(residentInfo->pipeWr);
 }
 
+/**
+ * executed on the following thread(s)
+ * - The default GLIB event dispacther thread (main)
+ */
 gboolean ActionManager::commandActionTimeoutCb(gpointer data)
 {
 	DBClientAction dbAction;
@@ -571,9 +993,14 @@ gboolean ActionManager::commandActionTimeoutCb(gpointer data)
 	dbAction.logEndExecAction(logArg);
 	ActorCollector::setDontLog(actorInfo->pid);
 	kill(actorInfo->pid, SIGKILL);
+	actorInfo->timerTag = INVALID_EVENT_ID;
 	return FALSE;
 }
 
+/**
+ * executed on the following thread(s)
+ * - The default GLIB event dispacther thread (main)
+ */
 void ActionManager::residentActionTimeoutCb(NamedPipe *namedPipe, gpointer data)
 {
 	ResidentInfo *residentInfo = static_cast<ResidentInfo *>(data);
@@ -596,9 +1023,46 @@ void ActionManager::residentActionTimeoutCb(NamedPipe *namedPipe, gpointer data)
 	obj->closeResident(notifyInfo, ACTLOG_EXECFAIL_KILLED_TIMEOUT);
 }
 
+struct SpawnPostprocResidentActionCtx {
+	// passed to the callback
+	ActorInfo    *actorInfoCopy;
+	ResidentInfo *residentInfo;
+
+	// set in the callback
+	uint64_t logId;
+};
+
+/*
+ * executed on the following thread(s)
+ * - Threads that call checkEvents()
+ *     [ from spwan() from execResidentAction()]
+ */
+void ActionManager::spawnPostprocResidentAction(ActorInfo *actorInfo,
+                                                const ActionDef &actionDef,
+                                                uint64_t logId, void *priv)
+{
+	SpawnPostprocResidentActionCtx *ctx =
+	  static_cast<SpawnPostprocResidentActionCtx *>(priv);
+
+	// AcotorInfo is copied at the end of this method.
+	ActorInfoCopier actorInfoCopier(ctx->actorInfoCopy, actorInfo, logId);
+
+	if (!actorInfo)
+		return;
+	actorInfo->collectedCb = residentActorCollectedCb;
+	actorInfo->collectedCbPriv = ctx->residentInfo;
+	ctx->residentInfo->pid = actorInfo->pid;
+	ctx->logId = logId;
+}
+
+/*
+ * executed on the following thread(s)
+ * - Threads that call checkEvents()
+ *     [from execResidentAction()]
+ */
 ResidentInfo *ActionManager::launchResidentActionYard
   (const ActionDef &actionDef, const EventInfo &eventInfo,
-   ActorInfo **actorInfoPtr, uint64_t *logId)
+   DBClientAction &dbAction, ActorInfo *actorInfoCopy)
 {
 	// make a ResidentInfo instance.
 	ResidentInfo *residentInfo = new ResidentInfo(this, actionDef);
@@ -607,20 +1071,24 @@ ResidentInfo *ActionManager::launchResidentActionYard
 		return NULL;
 	}
 
+	string absPath = ConfigManager::getResidentYardDirectory();
+	absPath += "/hatohol-resident-yard";
 	const gchar *argv[] = {
-	  "hatohol-resident-yard",
+	  absPath.c_str(),
 	  residentInfo->pipeName.c_str(),
 	  NULL};
 	
-	ActorInfo *actorInfo = spawn(actionDef, eventInfo, argv, logId);
-	*actorInfoPtr = actorInfo;
-	if (!actorInfo) {
+	SpawnPostprocResidentActionCtx postprocCtx;
+	postprocCtx.actorInfoCopy = actorInfoCopy;
+	postprocCtx.residentInfo  = residentInfo;
+	bool succeeded = spawn(actionDef, eventInfo, dbAction, argv,
+	                       spawnPostprocResidentAction, &postprocCtx);
+	// spawnPostprocResidentAction() is called in the above spawn() and
+	// the member in postprocArg is set.
+	if (!succeeded) {
 		delete residentInfo;
 		return NULL;
 	}
-	actorInfo->collectedCb = actorCollectedCb;
-	actorInfo->collectedCbPriv = residentInfo;
-	residentInfo->pid = actorInfo->pid;
 	if (actionDef.timeout > 0) {
 		residentInfo->pipeRd.setTimeout(actionDef.timeout,
 		                                residentActionTimeoutCb,
@@ -633,7 +1101,7 @@ ResidentInfo *ActionManager::launchResidentActionYard
 	// We can push the notifyInfo to the queue without locking,
 	// because no other users of this instance at this point.
 	ResidentNotifyInfo *notifyInfo = new ResidentNotifyInfo(residentInfo);
-	notifyInfo->logId = actorInfo->logId;
+	notifyInfo->logId = postprocCtx.logId;
 	notifyInfo->eventInfo = eventInfo;
 	residentInfo->notifyQueue.push_back(notifyInfo);
 
@@ -646,6 +1114,14 @@ ResidentInfo *ActionManager::launchResidentActionYard
 	return residentInfo;
 }
 
+/*
+ * executed on the following thread(s)
+ * - Threads that call checkEvents()
+ *     [from execResidentAction()]
+ * - The default GLIB event dispacther thread (main)
+ *     [from moduleLoadedCb()]
+ *     [from gotNotifyEventAckCb]
+ */
 void ActionManager::tryNotifyEvent(ResidentInfo *residentInfo)
 {
 	residentInfo->queueLock.lock();
@@ -663,6 +1139,13 @@ void ActionManager::tryNotifyEvent(ResidentInfo *residentInfo)
 		notifyEvent(residentInfo, notifyInfo);
 }
 
+/*
+ * executed on the following thread(s)
+ * - Threads that call checkEvents()
+ *     [from notifyEvent()]
+ * - The default GLIB event dispacther thread (main)
+ *     [from notifyEvent()]
+ */
 void ActionManager::notifyEvent(ResidentInfo *residentInfo,
                                 ResidentNotifyInfo *notifyInfo)
 {
@@ -684,9 +1167,75 @@ void ActionManager::notifyEvent(ResidentInfo *residentInfo,
 	dbAction.updateLogStatusToStart(notifyInfo->logId);
 }
 
-void ActionManager::actorCollectedCb(void *priv)
+/*
+ * executed on the following thread(s)
+ * - ActorCollector thread
+ */
+void ActionManager::commandActorCollectedCb(const ActorInfo *actorInfo)
 {
-	ResidentInfo *residentInfo = static_cast<ResidentInfo *>(priv);
+	// remove this actor from CommandActionContext::runningSet.
+	CommandActionContext::remove(actorInfo->logId);
+
+	CommandActionContext::lock.lock();
+	// check if there is a waiting command action.
+	if (CommandActionContext::waitingList.empty()) {
+		CommandActionContext::lock.unlock();
+		return;
+	}
+
+	if (CommandActionContext::isFullHouse()) {
+		CommandActionContext::lock.unlock();
+		return;
+	}
+	// exectute a command
+	WaitingCommandActionInfo *waitCmdInfo =
+	   CommandActionContext::waitingList.front();
+	waitCmdInfo->reservationId = CommandActionContext::reserveAndInsert();
+	CommandActionContext::waitingList.pop_front();
+	CommandActionContext::lock.unlock();
+
+	// set the post collected callback
+	actorInfo->postCollectedCb = commandActorPostCollectedCb;
+	actorInfo->collectedCbPriv = waitCmdInfo;
+}
+
+/**
+ * executed on the following thread(s)
+ * - ActorCollector thread
+ */
+void ActionManager::commandActorPostCollectedCb(const ActorInfo *actorInfo)
+{
+	DBClientAction dbAction;
+	WaitingCommandActionInfo *waitCmdInfo =
+	  static_cast<WaitingCommandActionInfo *>(actorInfo->collectedCbPriv);
+	
+	SpawnPostprocCommandActionCtx postprocCtx;
+	postprocCtx.actorInfoCopy = NULL;
+	postprocCtx.reservationId = waitCmdInfo->reservationId;
+	postprocCtx.waitCmdInfo = waitCmdInfo;
+	execCommandActionCore(waitCmdInfo->actionDef, waitCmdInfo->eventInfo,
+	                      dbAction, &postprocCtx, waitCmdInfo->argVect);
+	delete waitCmdInfo;
+}
+
+/*
+ * executed on the following thread(s)
+ * - ActorCollector thread
+ */
+void ActionManager::residentActorCollectedCb(const ActorInfo *actorInfo)
+{
+	// residentInfo has to be deleted without lock
+	actorInfo->postCollectedCb = residentActorPostCollectedCb;
+}
+
+/*
+ * executed on the following thread(s)
+ * - ActorCollector thread
+ */
+void ActionManager::residentActorPostCollectedCb(const ActorInfo *actorInfo)
+{
+	ResidentInfo *residentInfo =
+	   static_cast<ResidentInfo *>(actorInfo->collectedCbPriv);
 	residentInfo->queueLock.lock();
 	bool isQueueEmpty = residentInfo->notifyQueue.empty();
 	residentInfo->queueLock.unlock();
@@ -698,20 +1247,40 @@ void ActionManager::actorCollectedCb(void *priv)
 		  "notifyQueue is not empty.\n");
 	}
 
-	// Pending notifyInfo instancess will be deleted in the destructor.
-	delete residentInfo;
+	// 1. Pending notifyInfo instancess will be deleted in the destructor.
+	// 2. residentInfo uses GLib's timeout event and GIOChannel.
+	//    The following prevents residentInfo from being destoryed
+	//    when the event handlers are running.
+	Utils::deleteOnGLibEventLoop<ResidentInfo>(residentInfo);
 }
 
+/*
+ * executed on the following thread(s)
+ * - The default GLIB event dispacther thread (main)
+ *     [from residentReadErrCb()]
+ *     [from residentWriteErrCb()]
+ *     [from residentActionTimeoutCb()]
+ *     [from closeResident()]
+ */
 void ActionManager::closeResident(ResidentInfo *residentInfo)
 {
 	// kill hatohol-resident-yard.
-	// After hatohol-resident-yard is killed, actorCollectedCb()
-	// will be called form ActorCollector::checkExitProcess().
+	// After hatohol-resident-yard is killed, residentActorCollectedCb()
+	// will be called back from ActorCollector::checkExitProcess().
 	pid_t pid = residentInfo->pid;
 	if (pid && kill(pid, SIGKILL))
 		MLPL_ERR("Failed to kill. pid: %d, %s\n", pid, strerror(errno));
 }
 
+/*
+ * executed on the following thread(s)
+ * - The default GLIB event dispacther thread (main)
+ *     [callback registered by pullData()]
+ *     [from residentActionTimeoutCb()]
+ *     [from gotNotifyEventAckCb()]
+ *     [from launchedCb()]
+ *     [from moduleLoadedCb()]
+ */
 void ActionManager::closeResident(ResidentNotifyInfo *notifyInfo,
                                   ActionLogExecFailureCode failureCode)
 {
@@ -733,35 +1302,42 @@ void ActionManager::closeResident(ResidentNotifyInfo *notifyInfo,
 	closeResident(residentInfo);
 }
 
-void ActionManager::copyActorInfoForExecResult
-  (ActorInfo *actorInfoDest, const ActorInfo *actorInfoSrc, uint64_t logId)
-{
-	if (!actorInfoDest)
-		return;
-
-	if (actorInfoSrc)
-		*actorInfoDest = *actorInfoSrc;
-	else
-		actorInfoDest->logId = logId;
-}
-
+/*
+ * executed on the following thread(s)
+ * - Threads that call checkEvents()
+ *     [from spawn()]
+ * - ActorCollector thread
+ *     [from spawn()]
+ */
 void ActionManager::postProcSpawnFailure(
-  const ActionDef &actionDef, const EventInfo &eventInfo, ActorInfo *actorInfo,
-  uint64_t *logId, GError *error)
+  const ActionDef &actionDef, const EventInfo &eventInfo,
+  DBClientAction &dbAction, ActorInfo *actorInfo,
+  uint64_t *logId, GError *error, bool logUpdateFlag)
 {
 	// make an action log
 	ActionLogExecFailureCode failureCode =
 	  error->code == G_SPAWN_ERROR_NOENT ?
 	    ACTLOG_EXECFAIL_ENTRY_NOT_FOUND : ACTLOG_EXECFAIL_EXEC_FAILURE;
-	actorInfo->logId =
-	  m_ctx->dbAction.createActionLog(actionDef, failureCode);
+	if (!logUpdateFlag) {
+		actorInfo->logId =
+		  dbAction.createActionLog(actionDef, eventInfo, failureCode);
+	} else {
+		actorInfo->logId = *logId;
+		DBClientAction::LogEndExecActionArg logArg;
+		logArg.logId = *logId;
+		logArg.status = ACTLOG_STAT_FAILED;
+		logArg.failureCode = failureCode;
+		logArg.nullFlags = ACTLOG_FLAG_EXIT_CODE;
+		dbAction.logEndExecAction(logArg);
+	}
 
 	// MLPL log
 	MLPL_ERR(
 	  "%s, action ID: %d, log ID: %"PRIu64", "
 	  "server ID: %d, event ID: %"PRIu64", "
 	  "time: %ld.%09ld, type: %s, "
-	  "trigger ID: %d, status: %s, severity: %s, host ID: %"PRIu64"\n", 
+	  "trigger ID: %"PRIu64", status: %s, severity: %s, "
+	  "host ID: %"PRIu64"\n", 
 	  error->message, actionDef.id, actorInfo->logId,
 	  eventInfo.serverId, eventInfo.id,
 	  eventInfo.time.tv_sec, eventInfo.time.tv_nsec,
@@ -798,4 +1374,9 @@ void ActionManager::fillTriggerInfoInEventInfo(EventInfo &eventInfo)
 		eventInfo.hostName.clear();
 		eventInfo.brief.clear();
 	}
+}
+
+size_t ActionManager::getNumberOfOnstageCommandActors(void)
+{
+	return CommandActionContext::getNumberOfOnstageCommandActors();
 }

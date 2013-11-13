@@ -17,19 +17,23 @@
   You should have received a copy of the GNU General Public License
   along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
 """
+import unittest
 
-# TODO: We will create this file automatically.
+from hatohol import utils
 
-TRIGGER_STATUS_OK = 0
-TRIGGER_STATUS_PROBLEM = 1
+class TestHatoholUtils(unittest.TestCase):
 
-TRIGGER_SEVERITY_INFO = 0
-TRIGGER_SEVERITY_WARN = 1
-TRIGGER_SEVERITY_CRITICAL = 2
-TRIGGER_SEVERITY_UNKNOWN = 3
+  def test_get_element(self):
+    self.obj = {"foo":1, "bar":-5, "x":9};
+    self.assertEquals(utils.get_element(self.obj, "bar"), self.obj["bar"])
 
-ACTION_COMMAND = 0
-ACTION_RESIDENT = 1
+  def test_get_element_not_found(self):
+    self.obj = {"foo":1, "bar":-5, "x":9};
+    self.assertEquals(utils.get_element(self.obj, "abc"), "")
 
-CMP_EQ = 1
-CMP_EQ_GT = 2
+  def test_get_element_fallback(self):
+    self.obj = {"foo":1, "bar":-5, "x":9};
+    self.assertEquals(utils.get_element(self.obj, "abc", "dog"), "dog")
+
+if __name__ == '__main__':
+    unittest.main()

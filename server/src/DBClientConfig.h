@@ -22,6 +22,7 @@
 
 #include <list>
 #include "DBClient.h"
+#include "DBClientHatohol.h"
 
 enum MonitoringSystemType {
 	MONITORING_SYSTEM_ZABBIX,
@@ -86,7 +87,8 @@ public:
 	void setFaceRestPort(int port);
 	bool isCopyOnDemandEnabled(void);
 	void addTargetServer(MonitoringServerInfo *monitoringServerInfo);
-	void getTargetServers(MonitoringServerInfoList &monitoringServers);
+	void getTargetServers(MonitoringServerInfoList &monitoringServers,
+	                      uint32_t targetServerId = ALL_SERVERS);
 
 protected:
 	static bool parseCommandLineArgument(const CommandLineArg &cmdArg);

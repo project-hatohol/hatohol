@@ -31,13 +31,16 @@
 #include <dirent.h>
 #include <sys/types.h> 
 #include <unistd.h>
+#include <errno.h>
 
 #include "Hatohol.h"
 #include "Utils.h"
+#include "Logger.h"
 using namespace std;
 using namespace mlpl;
 
 namespace testMain {
+
 struct FunctionArg {
 	bool timedOut;
 	bool isEndChildProcess;
@@ -123,6 +126,28 @@ struct DaemonizeVariable {
 };
 DaemonizeVariable *g_daemonizeValue;
 
+static pid_t getParentPid(pid_t pid, string &programName)
+{
+	stringstream procStatPath;
+	procStatPath << "/proc/" << pid << "/stat";
+	ifstream ifs(procStatPath.str().c_str());
+	cppcut_assert_equal(
+	  true, ifs.good(),
+	  cut_message("path: %s, errno: %d",
+	              procStatPath.str().c_str(), errno));
+
+	pid_t mypid = 0;
+	pid_t parentPid = 0;
+	string status;
+	ifs >> mypid;
+	ifs >> programName;
+	ifs >> status;
+	ifs >> parentPid;
+
+	programName = StringUtils::eraseChars(programName, "()");
+	return parentPid;
+}
+
 void endChildProcess(GPid child_pid, gint status, gpointer data)
 {
 	FunctionArg *arg = (FunctionArg *) data;
@@ -186,31 +211,35 @@ bool childProcessLoop(GPid &childPid)
 bool parsePIDFile(int &grandchildPid, const string &grandChildPidFilePath)
 {
 	cut_assert_exist_path(grandChildPidFilePath.c_str());
-	FILE *grandchildPidFile;
-	grandchildPidFile = fopen(grandChildPidFilePath.c_str(), "r");
-	cppcut_assert_not_null(grandchildPidFile);
-	cppcut_assert_not_equal(EOF, fscanf(grandchildPidFile, "%d", &grandchildPid));
-	cppcut_assert_equal(0, fclose(grandchildPidFile));
 
+	// TODO: Consider that we should use inotify.
+	// At this time, the deamon process may still write the pid to the file.
+	// We try to read it some times.
+	const size_t TIMEOUT = 10; // sec.
+	const size_t RETRY_INTERVAL = 100 * 1000; // us.
+	const size_t MAX_NUM_RETRY = TIMEOUT * 1000 * 1000 /  RETRY_INTERVAL;
+	int scanResult = EOF;
+	for (size_t i = 0; i < MAX_NUM_RETRY; i++) {
+		FILE *grandchildPidFile;
+		grandchildPidFile = fopen(grandChildPidFilePath.c_str(), "r");
+		cppcut_assert_not_null(grandchildPidFile);
+		scanResult = fscanf(grandchildPidFile, "%d", &grandchildPid);
+		cppcut_assert_equal(0, fclose(grandchildPidFile));
+		if (scanResult == 1)
+			break;
+		if (usleep(RETRY_INTERVAL) == -1) {
+			if (errno != EINTR)
+				cut_assert_errno();
+		}
+	}
+	cppcut_assert_equal(1, scanResult);
 	return true;
 }
 
-bool parseStatFile(int &parentPid, int grandchildPid)
+static void parseStatFile(int &parentPid, int grandchildPid)
 {
-	stringstream ssStat;
-	ssStat << "/proc/" << grandchildPid << "/stat";
-	string grandchildProcFilePath = ssStat.str();
-	cut_assert_exist_path(grandchildProcFilePath.c_str());
-	FILE *grandchildProcFile;
-	grandchildProcFile = fopen(grandchildProcFilePath.c_str(), "r");
-	cppcut_assert_not_null(grandchildProcFile);
-	int grandchildProcPid;
-	char comm[11];
-	char state;
-	cppcut_assert_equal(4, fscanf(grandchildProcFile, "%d (%10s) %c %d ", &grandchildProcPid, comm, &state, &parentPid));
-	cppcut_assert_equal(0, fclose(grandchildProcFile));
-
-	return true;
+	string programName;
+	parentPid = getParentPid(grandchildPid, programName);
 }
 
 bool parseEnvironFile(string makedMagicNumber, int grandchildPid)
@@ -267,6 +296,22 @@ bool spawnChildProcess(string magicNumber, GPid &childPid, const string &pidFile
 	return succeeded == TRUE;
 }
 
+static pid_t getInitPid(int pid)
+{
+	// Some distributions (such as Ubuntu 13.10) run 'init' as
+	// a user session mode. In that case, the pid of it is not 1.
+	// So we have to find 'init' that is the most closely ancestor.
+	pid_t parentPid = pid;
+	string programName;
+	while (parentPid != 1) {
+		parentPid = getParentPid(pid, programName);
+		if (programName == "init")
+			break;
+		pid = parentPid;
+	}
+	return pid;
+}
+
 void cut_teardown(void)
 {
 	if (g_daemonizeValue != NULL)
@@ -285,11 +330,14 @@ void test_daemonize(void)
 	cppcut_assert_equal(true, childProcessLoop(value->childPid));
 	cppcut_assert_equal(true, parsePIDFile(value->grandchildPid,
 	                                       value->pidFilePath));
-	cppcut_assert_equal(true, parseStatFile(value->grandchildParentPid, value->grandchildPid));
-	cppcut_assert_equal(1, value->grandchildParentPid);
+	MLPL_INFO("[PIDs] self: %d, child: %d, grandchild: %d\n",
+	  getpid(), value->childPid, value->grandchildPid);
+	parseStatFile(value->grandchildParentPid, value->grandchildPid);
+	cppcut_assert_equal(getInitPid(getpid()), value->grandchildParentPid);
 	cppcut_assert_equal(true, parseEnvironFile(value->magicNumber, value->grandchildPid));
 
 	value->finishTest = true;
 }
-}
+
+} // namespace testMain
 

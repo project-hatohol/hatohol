@@ -413,6 +413,8 @@ void DBAgentSQLite3::createTable(sqlite3 *db,
 		switch (columnDef.keyType) {
 		case SQL_KEY_PRI:
 			sql += "PRIMARY KEY";
+			if (columnDef.flags & SQL_COLUMN_FLAG_AUTO_INC)
+				sql += " AUTOINCREMENT";
 			break;
 		case SQL_KEY_MUL:
 			multipleKeyColumnIndexVector.push_back(i);
@@ -476,10 +478,19 @@ void DBAgentSQLite3::insert(sqlite3 *db, DBAgentInsertArg &insertArg)
 			sql += ",";
 		const ColumnDef &columnDef = insertArg.columnDefs[i];
 		const ItemData *itemData = insertArg.row->getItemAt(i);
-		if (itemData->isNull())
-			sql += "NULL";
-		else
-			sql += getColumnValueString(&columnDef, itemData);
+		string valueStr;
+		if (itemData->isNull()) {
+			valueStr = "NULL";
+		} else {
+			valueStr = getColumnValueString(&columnDef, itemData);
+			if (columnDef.flags & SQL_COLUMN_FLAG_AUTO_INC) {
+				// Converting 0 to NULL makes the behavior
+				// compatible with DBAgentMySQL.
+				if (valueStr == "0")
+					valueStr = "NULL";
+			}
+		}
+		sql += valueStr;
 	}
 	sql += ")";
 
@@ -619,8 +630,7 @@ void DBAgentSQLite3::selectGetValuesIteration(DBAgentSelectArg &selectArg,
 
 uint64_t DBAgentSQLite3::getLastInsertId(sqlite3 *db)
 {
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
-	return 0;
+	return sqlite3_last_insert_rowid(db);
 }
 
 ItemDataPtr DBAgentSQLite3::getValue(sqlite3_stmt *stmt,

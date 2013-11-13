@@ -22,6 +22,8 @@
 
 #include <list>
 #include "DBClient.h"
+#include "DataQueryOption.h"
+#include "DBClientUser.h"
 
 enum TriggerStatusType {
 	TRIGGER_STATUS_OK,
@@ -40,11 +42,16 @@ enum TriggerSeverityType {
 };
 
 static const uint32_t ALL_SERVERS = -1;
+static const uint64_t ALL_HOSTS   = -1;
+static const uint64_t ALL_TRIGGERS = -1;
+static const uint64_t ALL_HOST_GROUPS = -1;
 
 struct HostInfo {
 	uint32_t            serverId;
 	uint64_t            id;
 	string              hostName;
+
+	// The follwong members are currently not used.
 	string              ipAddr;
 	string              nickname;
 };
@@ -77,6 +84,10 @@ enum EventType {
 };
 
 struct EventInfo {
+	// 'unifiedId' is the unique ID in the event table of Hatohol cache DB.
+	// 'id' is the unique in a 'serverId'. It is typically the same as
+	// the event ID of a monitroing system such as ZABBIX and Nagios.
+	uint64_t            unifiedId;
 	uint32_t            serverId;
 	uint64_t            id;
 	timespec            time;
@@ -111,6 +122,25 @@ typedef list<ItemInfo>               ItemInfoList;
 typedef ItemInfoList::iterator       ItemInfoListIterator;
 typedef ItemInfoList::const_iterator ItemInfoListConstIterator;
 
+class EventQueryOption : public DataQueryOption {
+public:
+	// Overriding of virtual methods
+	std::string getCondition(void) const;
+
+protected:
+	std::string getServerIdColumnName(void) const;
+	std::string getHostGroupIdColumnName(void) const;
+	static void appendCondition(std::string &cond,
+	                            const std::string &newCond);
+	static std::string makeCondition(
+	  const ServerHostGrpSetMap &srvHostGrpSetMap,
+	  const std::string &serverIdColumnName,
+	  const std::string &hostGroupIdColumnName);
+	static std::string makeConditionHostGroup(
+	  const HostGroupSet &hostGroupSet,
+	  const std::string &hostGroupIdColumnName);
+};
+
 class DBClientHatohol : public DBClient {
 public:
 	static uint64_t EVENT_NOT_FOUND;
@@ -122,7 +152,8 @@ public:
 	virtual ~DBClientHatohol();
 
 	void getHostInfoList(HostInfoList &hostInfoList,
-	                     uint32_t targetServerId = ALL_SERVERS);
+	                     uint32_t targetServerId = ALL_SERVERS,
+	                     uint64_t targetHostId = ALL_HOSTS);
 
 	void addTriggerInfo(TriggerInfo *triggerInfo);
 	void addTriggerInfoList(const TriggerInfoList &triggerInfoList);
@@ -143,7 +174,9 @@ public:
 	bool getTriggerInfo(TriggerInfo &triggerInfo,
 	                    uint32_t serverId, uint64_t triggerId);
 	void getTriggerInfoList(TriggerInfoList &triggerInfoList,
-	                        uint32_t targetServerId = ALL_SERVERS);
+	                        uint32_t targetServerId = ALL_SERVERS,
+	                        uint64_t targetHostId = ALL_HOSTS,
+	                        uint64_t targetTriggerId = ALL_TRIGGERS);
 	void setTriggerInfoList(const TriggerInfoList &triggerInfoList,
 	                        uint32_t serverId);
 	/**
@@ -158,7 +191,8 @@ public:
 
 	void addEventInfo(EventInfo *eventInfo);
 	void addEventInfoList(const EventInfoList &eventInfoList);
-	void getEventInfoList(EventInfoList &eventInfoList);
+	HatoholError getEventInfoList(EventInfoList &eventInfoList,
+	                              EventQueryOption &option);
 	void setEventInfoList(const EventInfoList &eventInfoList,
 	                      uint32_t serverId);
 

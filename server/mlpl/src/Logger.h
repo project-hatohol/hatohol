@@ -41,7 +41,8 @@ public:
 	static const char *LEVEL_ENV_VAR_NAME;
 	static void log(LogLevel level,
 	                const char *fileName, int lineNumber,
-	                const char *fmt, ...);
+	                const char *fmt, ...)
+		__attribute__((__format__ (__printf__, 4, 5)));
 	static bool shouldLog(LogLevel level);
 	static void enableSyslogOutput(void);
 	static void disableSyslogOutput(void);

@@ -6,14 +6,34 @@ compiler:
   - gcc
   - clang
 install:
-  - curl https://raw.github.com/clear-code/cutter/master/data/travis/setup.sh | sh
-  - sudo apt-get install -qq -y autotools-dev libglib2.0-dev libjson-glib-dev libsoup2.4-dev libmysqlclient-dev sqlite3 ndoutils-nagios3-mysql
+  - server/misc/setup-cutter.sh
+  - sudo apt-get install -qq -y autotools-dev libglib2.0-dev libjson-glib-dev libsoup2.4-dev libmysqlclient-dev sqlite3 ndoutils-nagios3-mysql uuid-dev npm python-pip expect python-dev
   - mysql -u root -e "GRANT all on ndoutils.* TO ndoutils@localhost IDENTIFIED BY 'admin';"
+  - mysql -u root -e "CREATE DATABASE hatohol_client;"
+  - mysql -u root -e "GRANT ALL PRIVILEGES ON hatohol_client.* TO hatohol@localhost IDENTIFIED BY 'hatohol';"
+  - mysql -u root -e "CREATE DATABASE test_hatohol_client;"
+  - mysql -u root -e "GRANT ALL PRIVILEGES ON test_hatohol_client.* TO hatohol@localhost IDENTIFIED BY 'hatohol';"
+  - npm install -g mocha
+  - npm install -g expect.js
+  - npm install -g mocha-phantomjs phantomjs
+  - sudo pip install django==1.5.4
+  - sudo pip install mysql-python
 before_script:
   - ./autogen.sh
   - ./configure
   - sudo chmod +r /var/log/syslog
   - sudo chmod 777 /var/run
+  - make -j`cat /proc/cpuinfo | grep ^processor| wc -l`
 script:
+  - pushd .
   - ./server/mlpl/test/run-test.sh
   - cd server/test && ./run-test.sh
+  - popd; pushd .
+  - cd server/tools/test && ./run-test.sh
+  - popd; pushd .
+  - cd client/test/python && ./run-test.sh
+  - popd; pushd .
+  - cd client/test/node && ./run-test.sh
+  - popd; pushd .
+  - test/launch-hatohol-for-test.sh
+  - mocha-phantomjs http://localhost:8000/test/index.html
