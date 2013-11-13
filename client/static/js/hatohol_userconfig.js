@@ -18,6 +18,10 @@
  */
 
 var HatoholUserConfig = function(params) {
+  var self = this;
+};
+
+HatoholUserConfig.prototype.get = function(params) {
   //
   // params has the following parameters.
   //
@@ -37,9 +41,7 @@ var HatoholUserConfig = function(params) {
   //   function(XMLHttpRequest, textStatus, errorThrown)
   //   A callback function that is called on the error.
   //
-  var self = this;
-
-  new HatoholConnector({
+  this.connector = new HatoholConnector({
     url: '/userconfig',
     data: {'items': params.itemNames},
     pathPrefix: '',
@@ -51,4 +53,4 @@ var HatoholUserConfig = function(params) {
       return { getStatus: function() { return REPLY_STATUS.OK; } }
     },
   });
-};
+}

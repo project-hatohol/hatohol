@@ -40,6 +40,7 @@ describe('HatoholUserConfig', function() {
       },
       connectErrorCallback: defaultConnectErrorCallback,
     }
-    new HatoholUserConfig(params);
+    userconfig = new HatoholUserConfig();
+    userconfig.get(params);
   });
 });
