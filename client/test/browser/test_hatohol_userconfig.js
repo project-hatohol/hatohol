@@ -115,4 +115,8 @@ describe('HatoholUserConfig', function() {
     storeAndGetOneItem(done, {'color':'red and blue'});
   });
 
+  it('store and get an integer', function(done) {
+    storeAndGetOneItem(done, {'cow': 15});
+  });
+
 });
