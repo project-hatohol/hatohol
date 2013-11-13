@@ -37,6 +37,23 @@ describe('HatoholUserConfig', function() {
     userconfig.store(params);
   }
 
+  function storeAndGetOneItem(done, item) {
+    storeOneItem(done, item);
+    var itemNames = new Array();
+    for (name in item)
+      itemNames.push(name);
+    var params = {
+      itemNames: itemNames,
+      successCallback: function(obtained) {
+        expect(obtained).to.eql(item);
+        done();
+      },
+      connectErrorCallback: defaultConnectErrorCallback,
+    }
+    var userconfig = new HatoholUserConfig();
+    userconfig.get(params);
+  }
+
   //
   // Test cases
   //
@@ -87,4 +104,9 @@ describe('HatoholUserConfig', function() {
   it('store null', function(done) {
     storeOneItem(done, {'nurunuru': null});
   });
+
+  it('store and get a string', function(done) {
+    storeAndGetOneItem(done, {'color':'red and blue'});
+  });
+
 });
