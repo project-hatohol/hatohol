@@ -115,6 +115,14 @@ class TestUserConfigView(unittest.TestCase):
         self.assertEquals(response.status_code, httplib.OK)
         return response
 
+    def _post(self, items):
+        request = HttpRequest()
+        self._setPostItems(request, items)
+        self._setSessionId(request)
+        response = userconfig.index(request)
+        self.assertEquals(response.status_code, httplib.OK)
+        return response
+
     #
     # Test cases
     #
@@ -173,3 +181,13 @@ class TestUserConfigView(unittest.TestCase):
         self.assertEquals(response.status_code, httplib.OK)
         items = json.loads(response.content)
         self.assertEquals(items['favorite'], 'dog')
+
+    def test_store_multiple_items_and_get(self):
+        self._setup_emulator()
+        items = {'color':'white', 'age':17, 'hungy':True, 'Depth':0.8}
+        self._post(items)
+
+        item_names = "&".join(["items[]=%s" % x for x in items.keys()])
+        response = self._get(item_names)
+        obtained = json.loads(response.content)
+        [self.assertEquals(obtained[name], items[name]) for name in items]
