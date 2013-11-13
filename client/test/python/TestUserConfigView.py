@@ -142,8 +142,7 @@ class TestUserConfigView(unittest.TestCase):
         self.assertEquals(items['foo.goo'], None)
 
     def test_index_without_session_id(self):
-        self._emulator = HatoholServerEmulator()
-        self._emulator.start_and_wait_setup_done()
+        self._setup_emulator()
         request = HttpRequest()
         request.GET = QueryDict('items[]=foo')
         response = userconfig.index(request)
