@@ -27,10 +27,14 @@ describe('HatoholUserConfig', function() {
     // throw an exception
   }
 
-  function storeOneItem(done, item) {
+  function storeOneItem(done, item, successCallback) {
+
+    if (!successCallback)
+        successCallback = function(reply) { done(); }
+  
     var params = {
       items: item,
-      successCallback: function(reply) { done(); },
+      successCallback: successCallback,
       connectErrorCallback: defaultConnectErrorCallback,
     }
     var userconfig = new HatoholUserConfig();
@@ -38,20 +42,21 @@ describe('HatoholUserConfig', function() {
   }
 
   function storeAndGetOneItem(done, item) {
-    storeOneItem(done, item);
-    var itemNames = new Array();
-    for (name in item)
-      itemNames.push(name);
-    var params = {
-      itemNames: itemNames,
-      successCallback: function(obtained) {
-        expect(obtained).to.eql(item);
-        done();
-      },
-      connectErrorCallback: defaultConnectErrorCallback,
-    }
-    var userconfig = new HatoholUserConfig();
-    userconfig.get(params);
+    storeOneItem(done, item, function(reply) {
+      var itemNames = new Array();
+      for (name in item)
+        itemNames.push(name);
+      var params = {
+        itemNames: itemNames,
+        successCallback: function(obtained) {
+          expect(obtained).to.eql(item);
+          done();
+        },
+        connectErrorCallback: defaultConnectErrorCallback,
+      }
+      var userconfig = new HatoholUserConfig();
+      userconfig.get(params);
+    });
   }
 
   //
