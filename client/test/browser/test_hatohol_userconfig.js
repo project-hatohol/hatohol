@@ -70,13 +70,7 @@ describe('HatoholUserConfig', function() {
   });
 
   it('store a boolean', function(done) {
-    var params = {
-      items: {'beautiful': true},
-      successCallback: function(reply) { done(); },
-      connectErrorCallback: defaultConnectErrorCallback,
-    }
-    userconfig = new HatoholUserConfig();
-    userconfig.store(params);
+    storeOneItem(done, {'beautiful': true});
   });
 
   it('store null', function(done) {
