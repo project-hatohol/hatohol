@@ -177,3 +177,16 @@ class TestUserConfigView(unittest.TestCase):
         response = self._get(item_names)
         obtained = json.loads(response.content)
         [self.assertEquals(obtained[name], items[name]) for name in items]
+
+    def test_store_multiple_items_and_get_with_non_existing_item(self):
+        self._setup_emulator()
+        items = {'color':'white', 'age':17, 'hungy':True, 'Depth':0.8}
+        self._post(items)
+
+        # we request items with non existing item names
+        items['sky'] = None
+        items['spin'] = None
+        item_names = "&".join(["items[]=%s" % x for x in items.keys()])
+        response = self._get(item_names)
+        obtained = json.loads(response.content)
+        [self.assertEquals(obtained[name], items[name]) for name in items]
