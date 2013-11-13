@@ -108,7 +108,6 @@ class TestUserConfigView(unittest.TestCase):
     def _get(self, query):
         request = HttpRequest()
         if not isinstance(query, str):
-            print query
             query = urllib.urlencode(query)
         request.GET = QueryDict(query)
         self._setSessionId(request)
