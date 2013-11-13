@@ -124,4 +124,8 @@ describe('HatoholUserConfig', function() {
     storeAndGetOneItem(done, {'cow': 15});
   });
 
+  it('store and get a float', function(done) {
+    storeAndGetOneItem(done, {'height': 18.9});
+  });
+
 });
