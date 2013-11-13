@@ -38,6 +38,12 @@ var HatoholConnector = function(connectParams) {
   // data: <object or string> [optional]
   //   data to be sent. It is used as 'data' of jQuery's ajax().
   //
+  // dataType: <string> [optional]
+  //   data type to be sent. It is used as 'dataType' of jQuery's ajax().
+  //
+  // contentType: <string> [optional]
+  //   content type to be sent. It is used as 'contentType' of jQuery's ajax().
+  //
   // replyCallback: <function> [mandatory]
   //   function(reply, parser)
   //
@@ -137,6 +143,8 @@ var HatoholConnector = function(connectParams) {
       headers: hdrs,
       type: self.request,
       data: connectParams.data,
+      dataType: connectParams.dataType,
+      contentType: connectParams.contentType,
       beforeSend: function(xhr, settings) {
         // For the Django's CSRF protection mechanism
         if (isCsrfTokenNeeded())
