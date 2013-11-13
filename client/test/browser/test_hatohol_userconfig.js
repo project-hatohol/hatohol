@@ -27,6 +27,19 @@ describe('HatoholUserConfig', function() {
     // throw an exception
   }
 
+  function storeOneItem(done, item) {
+    var params = {
+      items: item,
+      successCallback: function(reply) { done(); },
+      connectErrorCallback: defaultConnectErrorCallback,
+    }
+    var userconfig = new HatoholUserConfig();
+    userconfig.store(params);
+  }
+
+  //
+  // Test cases
+  //
   it('try to get nonexisting item', function(done) {
     //setLoginDialogCallback();
     var params = {
@@ -45,13 +58,7 @@ describe('HatoholUserConfig', function() {
   });
 
   it('store a string', function(done) {
-    var params = {
-      items: {'color':'red and blue'},
-      successCallback: function(reply) { done(); },
-      connectErrorCallback: defaultConnectErrorCallback,
-    }
-    userconfig = new HatoholUserConfig();
-    userconfig.store(params);
+    storeOneItem(done, {'color':'red and blue'});
   });
 
   it('store an integer', function(done) {
@@ -77,6 +84,16 @@ describe('HatoholUserConfig', function() {
   it('store a boolean', function(done) {
     var params = {
       items: {'beautiful': true},
+      successCallback: function(reply) { done(); },
+      connectErrorCallback: defaultConnectErrorCallback,
+    }
+    userconfig = new HatoholUserConfig();
+    userconfig.store(params);
+  });
+
+  it('store null', function(done) {
+    var params = {
+      items: {'nurunuru': null},
       successCallback: function(reply) { done(); },
       connectErrorCallback: defaultConnectErrorCallback,
     }
