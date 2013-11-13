@@ -31,7 +31,7 @@ describe('HatoholConnector', function() {
         done();
       },
       error: function connectError(XMLHttpRequest, textStatus, errorThrown) {
-        expect().fail(textStatus);
+        expect().fail(function() { return textStatus; });
         done();
       },
     });
@@ -110,7 +110,9 @@ describe('HatoholConnector', function() {
       data: {},
       dontSentCsrfToken: true,
       replyCallback: function(data, parser) {
-        expect().fail("replyCallback() should not be called.");
+        expect().fail(function() {
+          return 'replyCallback() should not be called.';
+        });
         done();
       },
       connectErrorCallback: function(XMLHttpRequest, textStatus, errorThrown) {
@@ -126,7 +128,9 @@ describe('HatoholConnector', function() {
     var params = {
       url: "/test/error",
       replyCallback: function(data, parser) {
-        expect().fail("replyCallback() should not be called.");
+        expect().fail(function() {
+          return 'replyCallback() should not be called.';
+        });
         done();
       },
       parseErrorCallback: function(data, parser) {
