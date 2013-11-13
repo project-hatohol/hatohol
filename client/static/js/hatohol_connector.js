@@ -52,6 +52,8 @@ var HatoholConnector = function(connectParams) {
   // replyParser: <function> [optional]
   //   Default: HatoholReplyParser
   //
+  // dontSentCsrfToken: <boolean> [optional]
+  //
   var self = this;
   if (connectParams.request)
     self.request = connectParams.request;
@@ -64,6 +66,32 @@ var HatoholConnector = function(connectParams) {
     return;
   }
   request();
+
+  function getCsrfToken() {
+    var cookie = document.cookie;
+    var cookies = cookie.split(";");
+    for(var i = 0; i < cookies.length; i++) {
+      var hands = cookies[i].split("=");
+      if (hands.length != 2)
+        continue;
+      var key = hands[0].replace(/^\s*|\s*$/g, ''); // strip spaces
+      if (key == 'csrftoken')
+        return hands[1]
+    }
+    return null;
+  }
+
+  function isCsrfTokenNeeded() {
+    if (connectParams.dontSentCsrfToken)
+      return false;
+    if (self.request == 'POST')
+      return true;
+    if (self.request == 'PUT')
+      return true;
+    if (self.request == 'DELETE')
+      return true;
+    return false;
+  }
 
   function login() {
     self.dialog = new HatoholLoginDialog(loginReadyCallback);
@@ -109,6 +137,11 @@ var HatoholConnector = function(connectParams) {
       headers: hdrs,
       type: self.request,
       data: connectParams.data,
+      beforeSend: function(xhr, settings) {
+        // For the Django's CSRF protection mechanism
+        if (isCsrfTokenNeeded())
+          xhr.setRequestHeader('X-CSRFToken', getCsrfToken())
+      },
       success: function(data) {
         var parser;
         if (connectParams.replyParser)

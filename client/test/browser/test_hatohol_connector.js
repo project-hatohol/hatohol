@@ -101,10 +101,14 @@ describe('HatoholConnector', function() {
 
   it('connection error callback', function(done) {
     setLoginDialogCallback();
+    // This test creates an error by using the Django's CSRF protection
+    // mechanisim that returns HTTP error 403 when a CSRF token is not
+    // specified on a 'POST' request.
     var params = {
       url: "/test",
       request: "POST",
       data: {},
+      dontSentCsrfToken: true,
       replyCallback: function(data, parser) {
         expect().fail("replyCallback() should not be called.");
         done();
