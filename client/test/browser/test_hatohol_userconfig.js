@@ -57,6 +57,13 @@ describe('HatoholUserConfig', function() {
   //
   // Test cases
   //
+
+  before(function(done) {
+    // TODO: make sure to create a session ID for the test.
+    //       currently the former tests create it. So no problem happens w/o it.
+    done();
+  });
+
   beforeEach(function(done) {
     var params = {
       url: '/test/delete_user_config',
@@ -69,7 +76,6 @@ describe('HatoholUserConfig', function() {
   });
 
   it('try to get nonexisting item', function(done) {
-    //setLoginDialogCallback();
     var params = {
       itemNames: ['foo'],
       successCallback: function(values) {
