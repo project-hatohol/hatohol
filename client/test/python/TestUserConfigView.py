@@ -86,6 +86,13 @@ class HatoholServerEmulator(threading.Thread):
 
 class TestUserConfigView(unittest.TestCase):
 
+    def _setSessionId(self, request):
+        # The following session ID is just fake, because the request is
+        # recieved in the above HatoholServerEmulatorHandler that
+        # acutually doesn't verify it.
+        request.META[hatoholserver.SESSION_NAME_META] = \
+          'c579a3da-65db-44b4-a0da-ebf27548f4fd';
+
     #
     # Test cases
     #
@@ -100,9 +107,7 @@ class TestUserConfigView(unittest.TestCase):
         self._emulator.start_and_wait_setup_done()
         request = HttpRequest()
         request.GET = QueryDict('items[]=foo.goo')
-        # The followiing session ID is acutually not verified. So the value
-        # is just fake.
-        request.META[hatoholserver.SESSION_NAME_META] = 'c579a3da-65db-44b4-a0da-ebf27548f4fd';
+        self._setSessionId(request)
         response = userconfig.index(request)
         self.assertEquals(response.status_code, httplib.OK)
 
@@ -118,7 +123,7 @@ class TestUserConfigView(unittest.TestCase):
         self._emulator = HatoholServerEmulator(handler=EmulationHandlerNotReturnUserInfo)
         self._emulator.start_and_wait_setup_done()
         request = HttpRequest()
-        request.META[hatoholserver.SESSION_NAME_META] = 'c579a3da-65db-44b4-a0da-ebf27548f4fd';
+        self._setSessionId(request)
         request.GET = QueryDict('items[]=foo-item')
         response = userconfig.index(request)
         self.assertEquals(response.status_code, httplib.INTERNAL_SERVER_ERROR)
@@ -129,9 +134,7 @@ class TestUserConfigView(unittest.TestCase):
         request = HttpRequest()
         request.method = "POST"
         request.POST = QueryDict('favorite=dog')
-        # The followiing session ID is acutually not verified. So the value
-        # is just fake.
-        request.META[hatoholserver.SESSION_NAME_META] = 'c579a3da-65db-44b4-a0da-ebf27548f4fd';
+        self._setSessionId(request)
         response = userconfig.index(request)
         self.assertEquals(response.status_code, httplib.OK)
 
