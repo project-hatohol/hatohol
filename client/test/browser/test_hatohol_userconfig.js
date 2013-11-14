@@ -27,7 +27,7 @@ describe('HatoholUserConfig', function() {
     // throw an exception
   }
 
-  function storeOneItem(done, item, successCallback) {
+  function storeItems(done, item, successCallback) {
 
     if (!successCallback)
         successCallback = function(reply) { done(); }
@@ -42,7 +42,7 @@ describe('HatoholUserConfig', function() {
   }
 
   function storeAndGetOneItem(done, item) {
-    storeOneItem(done, item, function(reply) {
+    storeItems(done, item, function(reply) {
       var itemNames = new Array();
       for (name in item)
         itemNames.push(name);
@@ -97,23 +97,23 @@ describe('HatoholUserConfig', function() {
   });
 
   it('store a string', function(done) {
-    storeOneItem(done, {'color':'red and blue'});
+    storeItems(done, {'color':'red and blue'});
   });
 
   it('store an integer', function(done) {
-    storeOneItem(done, {'level': 99});
+    storeItems(done, {'level': 99});
   });
 
   it('store an float', function(done) {
-    storeOneItem(done, {'height': 18.2});
+    storeItems(done, {'height': 18.2});
   });
 
   it('store a boolean', function(done) {
-    storeOneItem(done, {'beautiful': true});
+    storeItems(done, {'beautiful': true});
   });
 
   it('store null', function(done) {
-    storeOneItem(done, {'nurunuru': null});
+    storeItems(done, {'nurunuru': null});
   });
 
   it('store and get a string', function(done) {
