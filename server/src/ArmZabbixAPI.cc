@@ -258,8 +258,10 @@ uint64_t ArmZabbixAPI::getLastEventId(void)
 	uint64_t lastEventId = 0;
 
 	SoupMessage *msg = queryGetLastEventId();
-	if (!msg)
+	if (!msg) {
 		MLPL_ERR("Failed to query eventID.");
+		return 0;
+	}
 
 	JsonParserAgent parser(msg->response_body->data);
 	g_object_unref(msg);
