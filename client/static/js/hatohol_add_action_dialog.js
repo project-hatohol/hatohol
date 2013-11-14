@@ -254,9 +254,7 @@ var HatoholAddActionDialog = function(addSucceededCb) {
   }
 
   function makeQueryData() {
-      var queryData = {
-        csrfmiddlewaretoken: $("*[name=csrfmiddlewaretoken]").val(),
-      };
+      var queryData = {};
       var serverId = $("#selectServerId").val();
       if (serverId != "ANY")
         queryData.serverId = serverId;
