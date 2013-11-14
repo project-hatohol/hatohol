@@ -68,6 +68,15 @@ class UserConfig(models.Model):
             return None
         return obj.value
 
+    @classmethod
+    @transaction.commit_on_success
+    def get_items(cls, item_name_list, user_id):
+        items = {}
+        for item_name in item_name_list:
+            value = cls.get(item_name, user_id)
+            items[item_name] = value
+        return items
+
     def _store_without_transaction(self):
         obj = self.get_object(self.item_name, self.user_id)
         if obj is not None:

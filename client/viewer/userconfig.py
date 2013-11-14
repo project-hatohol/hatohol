@@ -70,11 +70,7 @@ def index_core(request):
         return HttpResponse(status=httplib.BAD_REQUEST)
     item_name_list = request.GET.getlist('items[]')
 
-    response_dict = {}
-    for item_name in item_name_list:
-      value = UserConfig.get(item_name, user_id)
-      response_dict[item_name] = value
-    body = json.dumps(response_dict)
+    body = json.dumps(UserConfig.get_items(item_name_list, user_id))
     return HttpResponse(body, mimetype='application/json')
 
 def store(request, user_id):
