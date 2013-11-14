@@ -132,4 +132,8 @@ describe('HatoholUserConfig', function() {
     storeAndGetOneItem(done, {'Artist': false});
   });
 
+  it('store and get null', function(done) {
+    storeAndGetOneItem(done, {'numenume': null});
+  });
+
 });
