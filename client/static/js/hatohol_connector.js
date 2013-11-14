@@ -49,7 +49,7 @@ var HatoholConnector = function(connectParams) {
   //   of jQuery's ajax().
   //
   // replyCallback: <function> [mandatory]
-  //   function(reply, parser)
+  //   function(reply, parser, context)
   //
   // connectErrorCallback: <function> [optional]
   //   function(XMLHttpRequest, textStatus, errorThrown)
@@ -175,7 +175,7 @@ var HatoholConnector = function(connectParams) {
             return;
           }
         }
-        connectParams.replyCallback(data, parser);
+        connectParams.replyCallback(data, parser, this);
       },
       error: connectError,
       complete: connectParams.completionCallback,

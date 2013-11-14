@@ -199,5 +199,20 @@ describe('HatoholConnector', function() {
     };
     var connector = new HatoholConnector(params);
   });
+
+  it('specify context in replyCallback', function(done) {
+    setLoginDialogCallback();
+    var reachedReplyCallback = false;
+    var magic = {'@':'Time flies like an arrow', 'animal': 192};
+    var params = {
+      url: '/test',
+      context: magic,
+      replyCallback: function(data, parser, context) {
+        expect(context).to.eql(magic);
+        done();
+      },
+    };
+    var connector = new HatoholConnector(params);
+  });
 });
 
