@@ -110,7 +110,7 @@
     });
 
     function addSucceededCb() {
-      schedule(0000, "action");
+      startConnection('action');
     }
 
     //
@@ -230,7 +230,7 @@
                         deletedIdArray.errors + ")");
 
       // update the main view
-      schedule(0000, "action");
+      startConnection('action');
     }
 
     //
@@ -409,6 +409,6 @@
     //
     // main code
     //
-    schedule(0000, "action");
+    startConnection('action');
   </script>
 {% endblock %}

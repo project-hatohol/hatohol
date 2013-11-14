@@ -119,14 +119,14 @@ function setStatus(value) {
   }
 }
 
-function update(param) {
+function updateScreen(reply, completionCallback, callbackParam) {
   setStatus({
     "class" : "warning",
     "label" : gettext("DRAW"),
     "lines" : [ gettext("Drawing") ],
   });
 
-  updateCore(param);
+  completionCallback(reply, callbackParam);
 
   setStatus({
     "class" : "success",
@@ -135,7 +135,7 @@ function update(param) {
   });
 }
 
-function schedule(timer, table, param) {
+function startConnection(tableName, completionCallback, callbackParam) {
   setStatus({
     "class" : "warning",
     "label" : gettext("LOAD"),
@@ -143,10 +143,9 @@ function schedule(timer, table, param) {
   });
 
   var connParam =  {
-    url: '/' + table,
+    url: '/' + tableName,
     replyCallback: function(reply, parser) {
-      rawData = reply;
-      update(param);
+      updateScreen(reply, completionCallback, callbackParam);
     },
     parseErrorCallback: function(reply, parser) {
       var msg = gettext('Failed to parser the recieved packt: ');
