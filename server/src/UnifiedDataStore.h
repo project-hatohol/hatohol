@@ -35,7 +35,7 @@ public:
 	virtual void parseCommandLineArgument(CommandLineArg &cmdArg);
 	virtual void start(void);
 	virtual void stop(void);
-	virtual void fetchItems(void);
+	virtual void fetchItems(uint32_t targetServerId = ALL_SERVERS);
 
 	virtual void getTriggerList(TriggerInfoList &triggerList,
 	                            uint32_t targetServerId = ALL_SERVERS,

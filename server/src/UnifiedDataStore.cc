@@ -170,7 +170,7 @@ void UnifiedDataStore::stop(void)
 	m_ctx->vdsNagios->stop();
 }
 
-void UnifiedDataStore::fetchItems(void)
+void UnifiedDataStore::fetchItems(uint32_t targetServerId)
 {
 	if (!getCopyOnDemandEnabled())
 		return;
@@ -191,6 +191,16 @@ void UnifiedDataStore::fetchItems(void)
 	ArmBaseVectorIterator arms_it = arms.begin();
 	for (size_t i = 0; arms_it != arms.end(); i++, arms_it++) {
 		ArmBase *arm = *arms_it;
+
+		if (targetServerId != ALL_SERVERS) {
+			const MonitoringServerInfo &info
+				= arm->getServerInfo();
+			if (static_cast<int>(targetServerId) != info.id) {
+				m_ctx->remainingArmsCount--;
+				continue;
+			}
+		}
+
 		if (i < PrivateContext::maxRunningArms) {
 			m_ctx->wakeArm(arm);
 		} else {
