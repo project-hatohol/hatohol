@@ -214,5 +214,20 @@ describe('HatoholConnector', function() {
     };
     var connector = new HatoholConnector(params);
   });
+
+  it('specify context in connectErrorCallback', function(done) {
+    setLoginDialogCallback();
+    var magic = {'@':'Time flies like an arrow', 'animal': 192};
+    var params = {
+      url: '/X',
+      context: magic,
+      connectErrorCallback:
+      function(XMLHttpRequest, textStatus, errorThrown, context) {
+        expect(context).to.eql(magic);
+        done();
+      },
+    };
+    var connector = new HatoholConnector(params);
+  });
 });
 

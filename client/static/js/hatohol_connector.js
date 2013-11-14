@@ -52,7 +52,7 @@ var HatoholConnector = function(connectParams) {
   //   function(reply, parser, context)
   //
   // connectErrorCallback: <function> [optional]
-  //   function(XMLHttpRequest, textStatus, errorThrown)
+  //   function(XMLHttpRequest, textStatus, errorThrown, context)
   //   If undefined, a message box is shown.
   //
   // parseErrorCallback: <function> [optional]
@@ -184,7 +184,8 @@ var HatoholConnector = function(connectParams) {
 
   function connectError(XMLHttpRequest, textStatus, errorThrown) {
     if (connectParams.connectErrorCallback) {
-      connectParams.connectErrorCallback(XMLHttpRequest, textStatus, errorThrown);
+      connectParams.connectErrorCallback(XMLHttpRequest, textStatus,
+                                         errorThrown, this);
       return;
     }
     var errorMsg = "Error: " + XMLHttpRequest.status + ": " +
