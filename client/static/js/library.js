@@ -149,6 +149,16 @@ function schedule(timer, table, param) {
         rawData = reply;
         update(param);
       },
+      parseErrorCallback: function(reply, parser) {
+        var msg = gettext('Failed to parser the recieved packt: ');
+        // We assume the parser is HatoholReplyParser.
+        var statusCode = parser.getStatus();
+        if (statusCode != REPLY_STATUS.ERROR_CODE_IS_NOT_OK)
+          msg += 'status: ' + statusCode + ', ' + parser.getStatusMessage();
+        else
+          msg += 'Hathol server error code: ' + parser.getErrorCode();
+        hatoholErrorMsgBox(msg);
+      }
     };
     new HatoholConnector(connParam);
   }, timer);
