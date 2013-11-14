@@ -59,6 +59,24 @@ describe('HatoholUserConfig', function() {
     });
   }
 
+  function storeAndGetItems(done, items) {
+    storeItems(done, items, function(reply) {
+      var itemNames = new Array();
+      for (name in items)
+        itemNames.push(name);
+      var params = {
+        itemNames: itemNames,
+        successCallback: function(obtained) {
+          expect(obtained).to.eql(items);
+          done();
+        },
+        connectErrorCallback: defaultConnectErrorCallback,
+      }
+      var userconfig = new HatoholUserConfig();
+      userconfig.get(params);
+    });
+  }
+
   //
   // Test cases
   //
@@ -134,6 +152,12 @@ describe('HatoholUserConfig', function() {
 
   it('store and get null', function(done) {
     storeAndGetOneItem(done, {'numenume': null});
+  });
+
+  it('store multiple value and get them', function(done) {
+    var items = {'age':14, 'favorite face character': '!@v.v@!\'',
+                 'brave': false, 'bibiri': true, 'nickname':null};
+    storeAndGetItems(done, items);
   });
 
 });
