@@ -77,9 +77,6 @@
     var status_choices   = [ '{% trans "OK" %}', '{% trans "Problem" %}', '{% trans "Unknown" %}' ];
     var severity_choices = [ '{% trans "Not classified" %}', '{% trans "Information" %}', '{% trans "Warning" %}', '{% trans "Average" %}', '{% trans "High" %}', '{% trans "Disaster" %}' ];
 
-    var rawData;
-    var parsedData;
-
     $("#select-server").change(function() {
       chooseRow();
     });
@@ -161,8 +158,9 @@
       return s;
     }
 
-    function updateCore() {
-      parsedData = parseData(rawData);
+    function updateCore(reply) {
+      var rawData = reply;
+      var parsedData = parseData(rawData);
 
       setCandidate($("#select-server"), parsedData.servers);
 
@@ -170,6 +168,6 @@
       $("#table tbody").append(drawTableBody(rawData, parsedData));
     }
 
-    schedule(0000, "event");
+    startConnection('event', updateCore);
   </script>
 {% endblock %}
