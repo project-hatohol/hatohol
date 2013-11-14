@@ -179,8 +179,8 @@
         url: '/action/' + id,
         request: "DELETE",
         context: deletedIdArray,
-        replyCallback: function(data) {
-          parseDeleteActionResult(data, this);
+        replyCallback: function(data, parser, context) {
+          parseDeleteActionResult(data, context);
         },
         connectErrorCallback: function(XMLHttpRequest,
                                        textStatus, errorThrown) {
