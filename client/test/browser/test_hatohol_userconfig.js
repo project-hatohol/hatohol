@@ -128,4 +128,8 @@ describe('HatoholUserConfig', function() {
     storeAndGetOneItem(done, {'height': 18.9});
   });
 
+  it('store and get a boolean', function(done) {
+    storeAndGetOneItem(done, {'Artist': false});
+  });
+
 });
