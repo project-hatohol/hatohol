@@ -417,7 +417,7 @@ HatoholAddActionDialog.prototype.onAppendMainElement = function () {
       break;
     default:
       var msg = gettext("The template script returned the invalid value.") + " (command type: " + type + ")";
-      showErrorMessageBox(gettext(msg));
+      hatoholErrorMsgBox(gettext(msg));
       return;
     }
     $("#inputActionCommand").val(commandDesc);

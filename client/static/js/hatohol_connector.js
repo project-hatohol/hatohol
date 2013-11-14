@@ -179,7 +179,7 @@ var HatoholConnector = function(connectParams) {
     }
     var errorMsg = "Error: " + XMLHttpRequest.status + ": " +
                    XMLHttpRequest.statusText;
-    showErrorMessageBox(errorMsg);
+    hatoholErrorMsgBox(errorMsg);
   }
 };
 
