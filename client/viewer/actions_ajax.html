@@ -82,8 +82,6 @@
     //
     // Variables
     //
-    var rawData;
-    var parsedData;
     var queryData = {
         csrfmiddlewaretoken: $("*[name=csrfmiddlewaretoken]").val(),
     };
@@ -110,7 +108,7 @@
     });
 
     function addSucceededCb() {
-      startConnection('action');
+      startConnection('action', updateCore);
     }
 
     //
@@ -230,7 +228,7 @@
                         deletedIdArray.errors + ")");
 
       // update the main view
-      startConnection('action');
+      startConnection('action', updateCore);
     }
 
     //
@@ -399,7 +397,7 @@
       return s;
     }
 
-    function updateCore() {
+    function updateCore(rawData) {
       $("#table tbody").empty();
       $("#table tbody").append(drawTableBody(rawData));
       setupCheckboxHandler();
@@ -409,6 +407,6 @@
     //
     // main code
     //
-    startConnection('action');
+    startConnection('action', updateCore);
   </script>
 {% endblock %}
