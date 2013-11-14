@@ -178,5 +178,26 @@ describe('HatoholConnector', function() {
     };
     var connector = new HatoholConnector(params);
   });
+
+  it('completion callback after error', function(done) {
+    setLoginDialogCallback();
+    var reachedReplyCallback = false;
+    var reachedErrorCallback = false;
+    var params = {
+      url: "/X",
+      replyCallback: function(data, parser) {
+        reachedReplyCallback = true;
+      },
+      connectErrorCallback: function(XMLHttpRequest, textStatus, errorThrown) {
+        reachedErrorCallback = true;
+      },
+      completionCallback: function() {
+        expect(reachedReplyCallback).to.be(false);
+        expect(reachedErrorCallback).to.be(true);
+        done();
+      }
+    };
+    var connector = new HatoholConnector(params);
+  });
 });
 
