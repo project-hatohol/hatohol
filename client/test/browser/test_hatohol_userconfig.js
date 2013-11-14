@@ -59,15 +59,22 @@ describe('HatoholUserConfig', function() {
     });
   }
 
-  function storeAndGetItems(done, items) {
+  function storeAndGetItems(done, items, nonexistent) {
     storeItems(done, items, function(reply) {
       var itemNames = new Array();
+      var expectItems = items;
       for (name in items)
         itemNames.push(name);
+      if (nonexistent) {
+        for (var i in nonexistent.length) {
+            itemNames.push(nonexistent[i]);
+            expectItems.name = null;
+        }
+      }
       var params = {
         itemNames: itemNames,
         successCallback: function(obtained) {
-          expect(obtained).to.eql(items);
+          expect(obtained).to.eql(expectItems);
           done();
         },
         connectErrorCallback: defaultConnectErrorCallback,
@@ -158,6 +165,13 @@ describe('HatoholUserConfig', function() {
     var items = {'age':14, 'favorite face character': '!@v.v@!\'',
                  'brave': false, 'bibiri': true, 'nickname':null};
     storeAndGetItems(done, items);
+  });
+
+  it('store multiple value and get them with the non-existent', function(done) {
+    var items = {'age':14, 'favorite face character': '!@v.v@!\'',
+                 'brave': false, 'bibiri': true, 'nickname':null};
+    var nonexistent = ['mother', 'sukiyaki'];
+    storeAndGetItems(done, items, nonexistent);
   });
 
 });
