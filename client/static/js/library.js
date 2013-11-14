@@ -143,10 +143,14 @@ function schedule(timer, table, param) {
       "lines" : [ gettext("Communicating with backend") ],
     });
 
-    $.getJSON("/tunnel/" + table, function(json) {
-      rawData = json;
-      update(param);
-    });
+    var connParam =  {
+      url: '/' + table,
+      replyCallback: function(reply, parser) {
+        rawData = reply;
+        update(param);
+      },
+    };
+    new HatoholConnector(connParam);
   }, timer);
 }
 
