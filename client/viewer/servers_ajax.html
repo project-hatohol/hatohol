@@ -52,8 +52,6 @@
 {% block logic %}
   <script type="text/javascript">
 
-    var rawData;
-
     function drawTableBody(rd) {
       var x;
       var s;
@@ -77,11 +75,11 @@
       return s;
     }
 
-    function updateCore() {
+    function updateCore(reply) {
       $("#table tbody").empty();
-      $("#table tbody").append(drawTableBody(rawData));
+      $("#table tbody").append(drawTableBody(reply));
     }
 
-    schedule(0000, "server");
+    startConnection('server', updateCore);
   </script>
 {% endblock %}
