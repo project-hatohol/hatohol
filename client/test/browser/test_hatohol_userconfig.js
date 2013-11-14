@@ -41,24 +41,6 @@ describe('HatoholUserConfig', function() {
     userconfig.store(params);
   }
 
-  function storeAndGetOneItem(done, item) {
-    storeItems(done, item, function(reply) {
-      var itemNames = new Array();
-      for (name in item)
-        itemNames.push(name);
-      var params = {
-        itemNames: itemNames,
-        successCallback: function(obtained) {
-          expect(obtained).to.eql(item);
-          done();
-        },
-        connectErrorCallback: defaultConnectErrorCallback,
-      }
-      var userconfig = new HatoholUserConfig();
-      userconfig.get(params);
-    });
-  }
-
   function storeAndGetItems(done, items, nonexistent) {
     storeItems(done, items, function(reply) {
       var itemNames = new Array();
@@ -142,23 +124,23 @@ describe('HatoholUserConfig', function() {
   });
 
   it('store and get a string', function(done) {
-    storeAndGetOneItem(done, {'color':'red and blue'});
+    storeAndGetItems(done, {'color':'red and blue'});
   });
 
   it('store and get an integer', function(done) {
-    storeAndGetOneItem(done, {'cow': 15});
+    storeAndGetItems(done, {'cow': 15});
   });
 
   it('store and get a float', function(done) {
-    storeAndGetOneItem(done, {'height': 18.9});
+    storeAndGetItems(done, {'height': 18.9});
   });
 
   it('store and get a boolean', function(done) {
-    storeAndGetOneItem(done, {'Artist': false});
+    storeAndGetItems(done, {'Artist': false});
   });
 
   it('store and get null', function(done) {
-    storeAndGetOneItem(done, {'numenume': null});
+    storeAndGetItems(done, {'numenume': null});
   });
 
   it('store multiple value and get them', function(done) {
