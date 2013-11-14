@@ -70,9 +70,6 @@
 
 {% block logic %}
   <script type="text/javascript">
-    var rawData;
-    var parsedData;
-
     $("#select-server").change(function() {
       chooseColumn();
     });
@@ -194,8 +191,8 @@
       return s;
     }
 
-    function updateCore() {
-      parsedData = parseData(rawData);
+    function updateCore(reply) {
+      var parsedData = parseData(reply);
 
       setCandidate($("#select-server"), parsedData.servers);
 
@@ -205,6 +202,6 @@
       $("#table tbody").append(drawTableBody(parsedData));
     }
 
-    schedule(0000, "item");
+    startConnection('item', updateCore);
   </script>
 {% endblock %}
