@@ -92,8 +92,6 @@
 {% block logic %}
   <script type="text/javascript">
 
-    var parsedData;
-
     function parseData(rd) {
       var pd = new Object();
       var o;
@@ -264,7 +262,7 @@
 
     function updateCore(reply) {
       var rawData = reply;
-      parsedData = parseData(rawData);
+      var parsedData = parseData(rawData);
 
       $("#tblServer tbody").empty();
       $("#tblServer tbody").append(drawServerBody(rawData, parsedData));
