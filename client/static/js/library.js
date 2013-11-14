@@ -136,38 +136,36 @@ function update(param) {
 }
 
 function schedule(timer, table, param) {
-  setTimeout(function() {
-    setStatus({
-      "class" : "warning",
-      "label" : gettext("LOAD"),
-      "lines" : [ gettext("Communicating with backend") ],
-    });
+  setStatus({
+    "class" : "warning",
+    "label" : gettext("LOAD"),
+    "lines" : [ gettext("Communicating with backend") ],
+  });
 
-    var connParam =  {
-      url: '/' + table,
-      replyCallback: function(reply, parser) {
-        rawData = reply;
-        update(param);
-      },
-      parseErrorCallback: function(reply, parser) {
-        var msg = gettext('Failed to parser the recieved packt: ');
-        // We assume the parser is HatoholReplyParser.
-        var statusCode = parser.getStatus();
-        if (statusCode != REPLY_STATUS.ERROR_CODE_IS_NOT_OK)
-          msg += 'status: ' + statusCode + ', ' + parser.getStatusMessage();
-        else
-          msg += 'Hathol server error code: ' + parser.getErrorCode();
-        hatoholErrorMsgBox(msg);
+  var connParam =  {
+    url: '/' + table,
+    replyCallback: function(reply, parser) {
+      rawData = reply;
+      update(param);
+    },
+    parseErrorCallback: function(reply, parser) {
+      var msg = gettext('Failed to parser the recieved packt: ');
+      // We assume the parser is HatoholReplyParser.
+      var statusCode = parser.getStatus();
+      if (statusCode != REPLY_STATUS.ERROR_CODE_IS_NOT_OK)
+        msg += 'status: ' + statusCode + ', ' + parser.getStatusMessage();
+      else
+        msg += 'Hathol server error code: ' + parser.getErrorCode();
+      hatoholErrorMsgBox(msg);
 
-        setStatus({
-          "class" : "danger",
-          "label" : gettext("ERROR"),
-          "lines" : [ msg ],
-        });
-      }
-    };
-    new HatoholConnector(connParam);
-  }, timer);
+      setStatus({
+        "class" : "danger",
+        "label" : gettext("ERROR"),
+        "lines" : [ msg ],
+      });
+    }
+  };
+  new HatoholConnector(connParam);
 }
 
 function makeTriggerStatusLabel(status) {
