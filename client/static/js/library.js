@@ -158,6 +158,12 @@ function schedule(timer, table, param) {
         else
           msg += 'Hathol server error code: ' + parser.getErrorCode();
         hatoholErrorMsgBox(msg);
+
+        setStatus({
+          "class" : "danger",
+          "label" : gettext("ERROR"),
+          "lines" : [ msg ],
+        });
       }
     };
     new HatoholConnector(connParam);
