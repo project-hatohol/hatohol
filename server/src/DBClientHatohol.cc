@@ -549,7 +549,7 @@ string EventQueryOption::getCondition(void) const
 {
 	string condition;
 	UserIdType userId = getUserId();
-	if (userId == USER_ID_ADMIN)
+	if (userId == USER_ID_ADMIN || has(OPPRVLG_GET_ALL_EVENTS))
 		return "";
 	if (userId == INVALID_USER_ID)
 		return DBClientHatohol::getAlwaysFalseCondition();
