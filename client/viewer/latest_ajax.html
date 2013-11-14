@@ -78,9 +78,6 @@
       th.eq(data.column).append("<i class='sort icon-arrow-" + icon +"'></i>");
     });
 
-    var rawData;
-    var parsedData;
-
     $("#select-server").change(function() {
       chooseRow();
     });
@@ -141,8 +138,9 @@
       return s;
     }
 
-    function updateCore() {
-      parsedData = parseData(rawData);
+    function updateCore(reply) {
+      var rawData = reply;
+      var parsedData = parseData(rawData);
 
       setCandidate($("#select-server"),      parsedData.servers);
       setCandidate($("#select-application"), parsedData.applis);
@@ -151,6 +149,6 @@
       $("#table tbody").append(drawTableBody(rawData));
     }
 
-    schedule(0000, "item");
+    startConnection('item', updateCore);
   </script>
 {% endblock %}
