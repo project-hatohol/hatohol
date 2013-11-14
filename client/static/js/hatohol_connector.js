@@ -60,7 +60,7 @@ var HatoholConnector = function(connectParams) {
   //   If undefined, replyCallback is called.
   //
   // completionCallback: <function> [optional]
-  //   function()
+  //   function(context)
   //   A function called finally independtly of the connection result.
   //
   // replyParser: <function> [optional]
@@ -178,7 +178,10 @@ var HatoholConnector = function(connectParams) {
         connectParams.replyCallback(data, parser, this);
       },
       error: connectError,
-      complete: connectParams.completionCallback,
+      complete: function() {
+        if (connectParams.completionCallback)
+          connectParams.completionCallback(this);
+      }
     });
   }
 
