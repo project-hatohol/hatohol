@@ -44,6 +44,10 @@ var HatoholConnector = function(connectParams) {
   // contentType: <string> [optional]
   //   content type to be sent. It is used as 'contentType' of jQuery's ajax().
   //
+  // context: <string> [optional]
+  //   used as a 'this' of the callback function. It is used as 'context'
+  //   of jQuery's ajax().
+  //
   // replyCallback: <function> [mandatory]
   //   function(reply, parser)
   //
@@ -54,6 +58,10 @@ var HatoholConnector = function(connectParams) {
   // parseErrorCallback: <function> [optional]
   //   function(reply, parser)
   //   If undefined, replyCallback is called.
+  //
+  // completionCallback: <function> [optional]
+  //   function()
+  //   A function called finally independtly of the connection result.
   //
   // replyParser: <function> [optional]
   //   Default: HatoholReplyParser
@@ -145,6 +153,7 @@ var HatoholConnector = function(connectParams) {
       data: connectParams.data,
       dataType: connectParams.dataType,
       contentType: connectParams.contentType,
+      context: connectParams.context,
       beforeSend: function(xhr, settings) {
         // For the Django's CSRF protection mechanism
         if (isCsrfTokenNeeded())
@@ -169,6 +178,7 @@ var HatoholConnector = function(connectParams) {
         connectParams.replyCallback(data, parser);
       },
       error: connectError,
+      complete: connectParams.completionCallback,
     });
   }
 

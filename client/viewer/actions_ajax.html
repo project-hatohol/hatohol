@@ -82,9 +82,6 @@
     //
     // Variables
     //
-    var queryData = {
-        csrfmiddlewaretoken: $("*[name=csrfmiddlewaretoken]").val(),
-    };
     var numSelected = 0;
 
     //
@@ -181,26 +178,24 @@
     }
 
     function deleteOneAction(id, deletedIdArray) {
-      $.ajax({
-        url: "/tunnel/action/" + id,
-        type: "DELETE",
+      new HatoholConnector({
+        url: '/action/' + id,
+        request: "DELETE",
         context: deletedIdArray,
-        beforeSend: function(xhr) {
-          xhr.setRequestHeader("X-CSRFToken", queryData.csrfmiddlewaretoken);
-        },
-        success: function(data) {
+        replyCallback: function(data) {
           parseDeleteActionResult(data, this);
         },
-        error: function(XMLHttpRequest, textStatus, errorThrown) {
+        connectErrorCallback: function(XMLHttpRequest,
+                                       textStatus, errorThrown) {
           var errorMsg = "Error: " + XMLHttpRequest.status + ": " +
                          XMLHttpRequest.statusText;
           hatoholErrorMsgBox(errorMsg);
           deletedIdArray.errors++;
         },
-        complete: function() {
+        completionCallback: function() {
           compleOneDelAction(this);
-        }
-      })
+        },
+      });
     }
 
     function parseDeleteActionResult(data, deletedIdArray) {
