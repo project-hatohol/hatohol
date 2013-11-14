@@ -189,8 +189,8 @@
           hatoholErrorMsgBox(errorMsg);
           deletedIdArray.errors++;
         },
-        completionCallback: function() {
-          compleOneDelAction(this);
+        completionCallback: function(context) {
+          compleOneDelAction(context);
         },
       });
     }
