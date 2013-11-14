@@ -27,13 +27,13 @@ describe('HatoholUserConfig', function() {
     // throw an exception
   }
 
-  function storeItems(done, item, successCallback) {
+  function storeItems(done, items, successCallback) {
 
     if (!successCallback)
         successCallback = function(reply) { done(); }
   
     var params = {
-      items: item,
+      items: items,
       successCallback: successCallback,
       connectErrorCallback: defaultConnectErrorCallback,
     }
