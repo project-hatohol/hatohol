@@ -63,7 +63,7 @@ describe('HatoholUserConfig', function() {
     storeItems(done, items, function(reply) {
       var itemNames = new Array();
       var expectItems = items;
-      for (name in items)
+      for (var name in items)
         itemNames.push(name);
       if (nonexistent) {
         for (var i in nonexistent.length) {
