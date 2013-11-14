@@ -162,5 +162,21 @@ describe('HatoholConnector', function() {
     };
     var connector = new HatoholConnector(params);
   });
+
+  it('completion callback', function(done) {
+    setLoginDialogCallback();
+    var reachedReplyCallback = false;
+    var params = {
+      url: "/test",
+      replyCallback: function(data, parser) {
+        reachedReplyCallback = true;
+      },
+      completionCallback: function() {
+        expect(reachedReplyCallback).to.be(true);
+        done();
+      }
+    };
+    var connector = new HatoholConnector(params);
+  });
 });
 
