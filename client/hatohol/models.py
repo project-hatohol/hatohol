@@ -68,12 +68,23 @@ class UserConfig(models.Model):
             return None
         return obj.value
 
+    def _store_without_transaction(self):
+        obj = self.get_object(self.item_name, self.user_id)
+        if obj is not None:
+            self.id = obj.id # to update on save()
+        self.save()
+
     @transaction.commit_on_success
     def store(self):
         """Insert if the record with item_name and user_id doesn't exist.
            Otherwise update with value of the this object.
         """
-        obj = self.get_object(self.item_name, self.user_id)
-        if obj is not None:
-            self.id = obj.id # to update on save()
-        self.save()
+        self._store_without_transaction()
+
+    @classmethod
+    @transaction.commit_on_success
+    def store_items(cls, items, user_id):
+        for name in items:
+            value = items[name]
+            user_conf = UserConfig(item_name=name, user_id=user_id, value=value)
+            user_conf._store_without_transaction()
