@@ -70,6 +70,7 @@
 
 {% block logic %}
   <script type="text/javascript">
+    var rawData;
     $("#select-server").change(function() {
       chooseColumn();
     });
@@ -79,7 +80,7 @@
 
     $("#select-severity").change(function() {
       var s = $("#select-severity").val();
-      update(s);
+      updateScreen(rawData, updateCore, s);
       chooseColumn();
     });
 
@@ -192,6 +193,7 @@
     }
 
     function updateCore(reply) {
+      rawData = reply;
       var parsedData = parseData(reply);
 
       setCandidate($("#select-server"), parsedData.servers);
