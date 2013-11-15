@@ -43,6 +43,22 @@ struct ZabbixAPIEmulator::APIHandlerArg
 typedef map<string, ZabbixAPIEmulator::APIHandler> APIHandlerMap;
 typedef APIHandlerMap::iterator APIHandlerMapIterator;
 
+struct ZabbixAPIEmulator::ParameterEventGet {
+	string output;
+	string sortField;
+	string sortOrder;
+	int64_t limit;
+	uint64_t eventIdFrom;
+	uint64_t eventIdTill;
+
+	ParameterEventGet(void)
+	: limit(0),
+	  eventIdFrom(0),
+	  eventIdTill(0)
+	{
+	}
+};
+
 struct ZabbixAPIEmulator::PrivateContext {
 	GThread    *thread;
 	guint       port;

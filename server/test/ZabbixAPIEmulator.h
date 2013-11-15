@@ -71,6 +71,7 @@ protected:
 	string getSlicedResponse(const string &slice, APIHandlerArg &arg);
 
 private:
+	struct ParameterEventGet;
 	struct PrivateContext;
 	PrivateContext *m_ctx;
 };
