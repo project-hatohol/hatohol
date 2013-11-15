@@ -46,10 +46,12 @@ run djang with debug mode (set an environment variable: HATOHOL_DEBUG=1)
 
 or if you want to use a different database on a test, you can specify the test settings that use the database named 'test_hatohol_client'.
 
-    $ DJANGO_SETTINGS_MODULE=test.python.testsettings HATOHOL_DEBUG=1 ./manage.py runserver 0.0.0.0:8000
+    $ DJANGO_SETTINGS_MODULE=test.python.testsettings HATOHOL_DEBUG=1 ./manage.py runserver 0.0.0.0:8008
 
 > ** Memo ** The set of the above environment variable make 'tasting' and 'test'
 directories accessible.
+
+> ** Hint ** The above two examples for client (mange.py) that use different ports can be executed at the same time.
 
 run test on the browser
 -----------------------
