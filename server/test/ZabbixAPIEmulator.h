@@ -74,6 +74,8 @@ private:
 	struct ParameterEventGet;
 	struct PrivateContext;
 	PrivateContext *m_ctx;
+
+	void parseParameter(APIHandlerArg &arg, ParameterEventGet params);
 };
 
 #endif // ZabbixAPIEmulator_h

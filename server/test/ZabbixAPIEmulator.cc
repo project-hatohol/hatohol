@@ -415,66 +415,8 @@ void ZabbixAPIEmulator::APIHandlerEventGet(APIHandlerArg &arg)
 	gsize length;
 	static const char *DATA_FILE = "zabbix-api-res-events-002.json";
 	string path = getFixturesDir() + DATA_FILE;
-
-	JsonParserAgent parser(arg.msg->request_body->data);
-	if (parser.hasError()) {
-		THROW_HATOHOL_EXCEPTION("Error in parsing: %s",
-				      parser.getErrorMessage());
-	}
-	parser.startObject("params");
-
-	// parse parameter
-	string output;
-	if (!parser.read("output", output))
-		THROW_HATOHOL_EXCEPTION("Not found: output");
-	if (output != "extend" && output != "shorten") {
-		THROW_HATOHOL_EXCEPTION("Invalid parameter: output: %s",
-				output.c_str());
-	}
-
-	string sortField;
-	if (parser.read("sortfield", sortField)) {
-		if (sortField != "eventid") {
-			THROW_HATOHOL_EXCEPTION("Invalid parameter: sortfield: %s",
-					sortField.c_str());
-		}
-	}
-
-	string sortOrder;
-	if (parser.read("sortorder", sortOrder)) {
-		if (sortOrder != "ASC" && sortOrder != "DESC") {
-			THROW_HATOHOL_EXCEPTION("Invalid parameter: sortorder: %s",
-					sortOrder.c_str());
-		}
-	}
-
-	int64_t limit = 0;
-	if (parser.read("limit", limit)) {
-		if (limit < 0)
-			THROW_HATOHOL_EXCEPTION("Invalid parameter: limit: %"PRId64"\n", limit);
-	} else {
-		THROW_HATOHOL_EXCEPTION("Not found: limit");
-	}
-
-	string rawEventIdFrom;
-	uint64_t eventIdFrom = 0;
-	if(parser.read("eventid_from", rawEventIdFrom)) {
-		sscanf(rawEventIdFrom.c_str(), "%"PRIu64, &eventIdFrom);
-		if (eventIdFrom < 0)
-			THROW_HATOHOL_EXCEPTION("Invalid parameter: eventid_from: %"PRId64"\n", eventIdFrom);
-	} else {
-		THROW_HATOHOL_EXCEPTION("Not Found: eventid_from");
-	}
-
-	string rawEventIdTill;
-	uint64_t eventIdTill = 0;
-	if(parser.read("eventid_till", rawEventIdTill)) {
-		sscanf(rawEventIdTill.c_str(), "%"PRIu64, &eventIdTill);
-		if (eventIdTill < 0)
-			THROW_HATOHOL_EXCEPTION("Invalid parameter: eventid_till: %"PRId64"\n", eventIdTill);
-	} else {
-		THROW_HATOHOL_EXCEPTION("Not Found: eventid_till");
-	}
+	ParameterEventGet params;
+	parseParameter(arg, params);
 
 	if (m_ctx->numEventSlices != 0) {
 		// slice mode
@@ -580,4 +522,63 @@ string ZabbixAPIEmulator::getSlicedResponse(const string &slice,
 	const char *fmt = 
 	  "{\"jsonrpc\":\"2.0\",\"result\":[%s],\"id\":%"PRId64"}";
 	return StringUtils::sprintf(fmt, slice.c_str(), arg.id);
+}
+
+// ---------------------------------------------------------------------------
+// Private methods
+// ---------------------------------------------------------------------------
+void ZabbixAPIEmulator::parseParameter(APIHandlerArg &arg, ParameterEventGet params)
+{
+	JsonParserAgent parser(arg.msg->request_body->data);
+	if (parser.hasError()) {
+		THROW_HATOHOL_EXCEPTION("Error in parsing: %s",
+				      parser.getErrorMessage());
+	}
+	parser.startObject("params");
+
+	if (!parser.read("output", params.output))
+		THROW_HATOHOL_EXCEPTION("Not found: output");
+	if (params.output != "extend" && params.output != "shorten") {
+		THROW_HATOHOL_EXCEPTION("Invalid parameter: output: %s",
+				params.output.c_str());
+	}
+
+	if (parser.read("sortfield", params.sortField)) {
+		if (params.sortField != "eventid") {
+			THROW_HATOHOL_EXCEPTION("Invalid parameter: sortfield: %s",
+					params.sortField.c_str());
+		}
+	}
+
+	if (parser.read("sortorder", params.sortOrder)) {
+		if (params.sortOrder != "ASC" && params.sortOrder != "DESC") {
+			THROW_HATOHOL_EXCEPTION("Invalid parameter: sortorder: %s",
+					params.sortOrder.c_str());
+		}
+	}
+
+	if (parser.read("limit", params.limit)) {
+		if (params.limit < 0)
+			THROW_HATOHOL_EXCEPTION("Invalid parameter: limit: %"PRId64"\n", params.limit);
+	} else {
+		THROW_HATOHOL_EXCEPTION("Not found: limit");
+	}
+
+	string rawEventIdFrom;
+	if(parser.read("eventid_from", rawEventIdFrom)) {
+		sscanf(rawEventIdFrom.c_str(), "%"PRIu64, &params.eventIdFrom);
+		if (params.eventIdFrom < 0)
+			THROW_HATOHOL_EXCEPTION("Invalid parameter: eventid_from: %"PRId64"\n", params.eventIdFrom);
+	} else {
+		THROW_HATOHOL_EXCEPTION("Not Found: eventid_from");
+	}
+
+	string rawEventIdTill;
+	if(parser.read("eventid_till", rawEventIdTill)) {
+		sscanf(rawEventIdTill.c_str(), "%"PRIu64, &params.eventIdTill);
+		if (params.eventIdTill < 0)
+			THROW_HATOHOL_EXCEPTION("Invalid parameter: eventid_till: %"PRId64"\n", params.eventIdTill);
+	} else {
+		THROW_HATOHOL_EXCEPTION("Not Found: eventid_till");
+	}
 }
