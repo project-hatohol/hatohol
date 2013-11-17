@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-09-28 19:00-0500\n"
+"POT-Creation-Date: 2013-11-17 17:25-0600\n"
 "PO-Revision-Date: 2013-09-10 18:03+0900\n"
 "Last-Translator: Takuro Ashie <ashie@clear-code.com>\n"
 "Language-Team: Project Hatohol\n"
@@ -15,8 +15,51 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
+#: static/js/events_view.js:29 static/js/hatohol_add_action_dialog.js:347
+#: static/js/library.js:173
+msgid "OK"
+msgstr "正常"
+
+#: static/js/events_view.js:29 static/js/hatohol_add_action_dialog.js:348
+#: static/js/library.js:175
+msgid "Problem"
+msgstr "障害"
+
+#: static/js/events_view.js:29
+msgid "Unknown"
+msgstr "不明"
+
+#: static/js/events_view.js:31 static/js/library.js:184
+msgid "Not classified"
+msgstr "未分類"
+
+#: static/js/events_view.js:31 static/js/hatohol_add_action_dialog.js:354
+#: static/js/hatohol_message_box.js:168 static/js/library.js:186
+msgid "Information"
+msgstr "情報"
+
+#: static/js/events_view.js:31 static/js/hatohol_add_action_dialog.js:355
+#: static/js/hatohol_message_box.js:173 static/js/library.js:188
+msgid "Warning"
+msgstr "警告"
+
+#: static/js/events_view.js:32 static/js/hatohol_add_action_dialog.js:356
+#: static/js/library.js:190
+msgid "Average"
+msgstr "軽度の障害"
+
+#: static/js/events_view.js:32 static/js/hatohol_add_action_dialog.js:357
+#: static/js/library.js:192
+msgid "High"
+msgstr "重度の障害"
+
+#: static/js/events_view.js:32 static/js/hatohol_add_action_dialog.js:358
+#: static/js/library.js:194
+msgid "Disaster"
+msgstr "致命的な障害"
+
 #: static/js/hatohol_actor_mail_dialog.js:26
-#: static/js/hatohol_actor_mail_dialog.js:87
+#: static/js/hatohol_actor_mail_dialog.js:117
 msgid "APPLY"
 msgstr "適用"
 
@@ -26,19 +69,20 @@ msgstr "適用"
 msgid "CANCEL"
 msgstr "キャンセル"
 
-#: static/js/hatohol_actor_mail_dialog.js:50
+#: static/js/hatohol_actor_mail_dialog.js:77
 msgid "TO: "
 msgstr ""
 
-#: static/js/hatohol_actor_mail_dialog.js:54
+#: static/js/hatohol_actor_mail_dialog.js:82
 msgid "SMTP server "
 msgstr "SMTPサーバ"
 
-#: static/js/hatohol_actor_mail_dialog.js:55
+#: static/js/hatohol_actor_mail_dialog.js:83
 msgid "(If empty, localhost is used)"
 msgstr "(空白の場合、localhostが使用されます)"
 
 #: static/js/hatohol_add_action_dialog.js:32
+#: static/js/hatohol_add_action_dialog.js:435
 msgid "ADD"
 msgstr "追加"
 
@@ -46,127 +90,102 @@ msgstr "追加"
 msgid "ADD ACTION"
 msgstr "アクション追加"
 
-#: static/js/hatohol_add_action_dialog.js:49
+#: static/js/hatohol_add_action_dialog.js:50
 msgid "Now creating an action ..."
 msgstr "アクションを作成しています..."
 
-#: static/js/hatohol_add_action_dialog.js:50
-#: static/js/hatohol_add_action_dialog.js:365 static/js/library.js:169
-msgid "Information"
-msgstr "情報"
-
 #: static/js/hatohol_add_action_dialog.js:162
-#: static/js/hatohol_add_action_dialog.js:330
-#: static/js/hatohol_add_action_dialog.js:350
+#: static/js/hatohol_add_action_dialog.js:319
+#: static/js/hatohol_add_action_dialog.js:339
 #: static/js/hatohol_selector_dialog.js:27
 #: static/js/hatohol_selector_dialog.js:67
 msgid "SELECT"
 msgstr "選択"
 
-#: static/js/hatohol_add_action_dialog.js:300
+#: static/js/hatohol_add_action_dialog.js:289
 msgid "Successfully created."
 msgstr "正常に作成されました"
 
-#: static/js/hatohol_add_action_dialog.js:325
+#: static/js/hatohol_add_action_dialog.js:314
 msgid "Condition"
 msgstr "条件"
 
-#: static/js/hatohol_add_action_dialog.js:327
+#: static/js/hatohol_add_action_dialog.js:316
 msgid "Server"
 msgstr "サーバ"
 
-#: static/js/hatohol_add_action_dialog.js:342
+#: static/js/hatohol_add_action_dialog.js:331
 msgid "Host"
 msgstr "ホスト名"
 
-#: static/js/hatohol_add_action_dialog.js:347
+#: static/js/hatohol_add_action_dialog.js:336
 msgid "Trigger"
 msgstr "トリガー"
 
-#: static/js/hatohol_add_action_dialog.js:355
+#: static/js/hatohol_add_action_dialog.js:344
 msgid "Status"
 msgstr "ステータス"
 
-#: static/js/hatohol_add_action_dialog.js:358 static/js/library.js:156
-msgid "OK"
-msgstr "正常"
-
-#: static/js/hatohol_add_action_dialog.js:359 static/js/library.js:158
-msgid "Problem"
-msgstr "障害"
-
-#: static/js/hatohol_add_action_dialog.js:362
+#: static/js/hatohol_add_action_dialog.js:351
 msgid "Severity"
 msgstr "深刻度"
 
-#: static/js/hatohol_add_action_dialog.js:366 static/js/library.js:171
-msgid "Warning"
-msgstr "警告"
-
-#: static/js/hatohol_add_action_dialog.js:367 static/js/library.js:173
-msgid "Average"
-msgstr "軽度の障害"
-
-#: static/js/hatohol_add_action_dialog.js:368 static/js/library.js:175
-msgid "High"
-msgstr "重度の障害"
-
-#: static/js/hatohol_add_action_dialog.js:369 static/js/library.js:177
-msgid "Disaster"
-msgstr "致命的な障害"
-
-#: static/js/hatohol_add_action_dialog.js:372
+#: static/js/hatohol_add_action_dialog.js:361
 msgid "Equal to"
 msgstr "一致"
 
-#: static/js/hatohol_add_action_dialog.js:373
+#: static/js/hatohol_add_action_dialog.js:362
 msgid "Equal to or greater than"
 msgstr "以上"
 
-#: static/js/hatohol_add_action_dialog.js:377
+#: static/js/hatohol_add_action_dialog.js:366
 msgid "Execution parameters"
 msgstr "実行パラメータ"
 
-#: static/js/hatohol_add_action_dialog.js:379
+#: static/js/hatohol_add_action_dialog.js:368
 msgid "Templates "
 msgstr "テンプレート"
 
-#: static/js/hatohol_add_action_dialog.js:380
+#: static/js/hatohol_add_action_dialog.js:369
 msgid "e-mail"
 msgstr "Eメール"
 
-#: static/js/hatohol_add_action_dialog.js:384
+#: static/js/hatohol_add_action_dialog.js:373
 #: static/js/hatohol_server_selector.js:45
 msgid "Type"
 msgstr "タイプ"
 
-#: static/js/hatohol_add_action_dialog.js:386
+#: static/js/hatohol_add_action_dialog.js:375
 msgid "COMMAND"
 msgstr "コマンド"
 
-#: static/js/hatohol_add_action_dialog.js:387
+#: static/js/hatohol_add_action_dialog.js:376
 msgid "RESIDENT"
 msgstr "常駐"
 
-#: static/js/hatohol_add_action_dialog.js:390
+#: static/js/hatohol_add_action_dialog.js:379
 msgid "Time-out (sec)"
 msgstr "タイムアウト (秒)"
 
-#: static/js/hatohol_add_action_dialog.js:392
+#: static/js/hatohol_add_action_dialog.js:381
 msgid "No limit"
 msgstr "制限なし"
 
-#: static/js/hatohol_add_action_dialog.js:396
+#: static/js/hatohol_add_action_dialog.js:385
 msgid "Command parameter"
 msgstr "実行パラメータ"
 
-#: static/js/hatohol_add_action_dialog.js:401
+#: static/js/hatohol_add_action_dialog.js:390
 msgid "Execution directory"
 msgstr "実行ディレクトリ"
 
-#: static/js/hatohol_add_action_dialog.js:422
+#: static/js/hatohol_add_action_dialog.js:417
 msgid "The template script returned the invalid value."
 msgstr "テンプレートスクリプトが不正な値を返しました。"
+
+#: static/js/hatohol_connector.js:129
+msgid "Failed to login."
+msgstr "ログインに失敗しました"
 
 #: static/js/hatohol_host_selector.js:26
 msgid "Host selecion"
@@ -180,6 +199,52 @@ msgstr "サーバID"
 #: static/js/hatohol_server_selector.js:46
 msgid "Hostname"
 msgstr "ホスト名"
+
+#: static/js/hatohol_login_dialog.js:23 static/js/hatohol_login_dialog.js:32
+msgid "Login"
+msgstr "ログイン"
+
+#: static/js/hatohol_login_dialog.js:57
+msgid "User name"
+msgstr "ユーザー名"
+
+#: static/js/hatohol_login_dialog.js:59
+msgid "Password"
+msgstr "パスワード"
+
+#: static/js/hatohol_message_box.js:118
+msgid "CLOSE"
+msgstr "閉じる"
+
+#: static/js/hatohol_message_box.js:123
+msgid "MessageBox"
+msgstr "メッセージボックス"
+
+#: static/js/hatohol_message_box.js:149
+#: test/browser/test_hatohol_message_box.js:30
+msgid "NO"
+msgstr "いいえ"
+
+#: static/js/hatohol_message_box.js:154
+#: test/browser/test_hatohol_message_box.js:31
+msgid "YES"
+msgstr "はい"
+
+#: static/js/hatohol_message_box.js:178 static/js/hatohol_message_box.js:196
+msgid "Error"
+msgstr "エラー"
+
+#: static/js/hatohol_message_box.js:185
+msgid "Question"
+msgstr "問い合わせ"
+
+#: static/js/hatohol_message_box.js:190
+msgid "Failed to parse the received packet."
+msgstr "受信パケットの解析に失敗しました."
+
+#: static/js/hatohol_message_box.js:191 static/js/library.js:155
+msgid "STATUS CODE"
+msgstr ""
 
 #: static/js/hatohol_selector_dialog.js:45
 msgid "Now getting information..."
@@ -221,17 +286,21 @@ msgstr "描画中"
 msgid "DONE"
 msgstr "完了"
 
-#: static/js/library.js:142
+#: static/js/library.js:141
 msgid "LOAD"
 msgstr "ロード"
 
-#: static/js/library.js:143
+#: static/js/library.js:142
 msgid "Communicating with backend"
 msgstr "バックエンドと通信中"
 
-#: static/js/library.js:167
-msgid "Not classified"
-msgstr "未分類"
+#: static/js/library.js:151
+msgid "Failed to parse the recieved packt."
+msgstr "受信パケットの解析に失敗しました."
+
+#: static/js/library.js:162
+msgid "ERROR"
+msgstr "エラー"
 
 #~ msgid "Command"
 #~ msgstr "コマンド"

@@ -187,8 +187,8 @@ function hatoholNoYesMsgBox(msg, yesCallback) {
 };
 
 function hatoholMsgBoxForParser(reply, parser, title) {
-  var msg = gettext("Failed to parse the result. status code: ");
-  msg += parser.getStatus();
+  var msg = gettext("Failed to parse the received packet.");
+  msg += gettext('STATUS CODE') + ': ' + parser.getStatus();
   hatoholErrorMsgBox(msg);
 };
 
