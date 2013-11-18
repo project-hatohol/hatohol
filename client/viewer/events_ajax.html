@@ -32,32 +32,6 @@
 {% endblock %}
 
 {% block main %}
-  <h2>{% trans "Events" %}</h2>
-
-  <form class="form-inline">
-    <label>{% trans "Server:" %}</label>
-    <select id="select-server">
-      <option>---------</option>
-    </select>
-  </form>
-
-  <table class="table table-condensed table-hover" id="table">
-    <thead>
-      <tr>
-        <th data-sort="string"> {% trans "Server" %} </th>
-        <th data-sort="int"> {% trans "Time" %} </th>
-        <th data-sort="string"> {% trans "Host" %} </th>
-        <th data-sort="string"> {% trans "Brief" %} </th>
-        <th data-sort="int"> {% trans "Status" %} </th>
-        <th data-sort="int"> {% trans "Severity" %} </th>
-        <th data-sort="int"> {% trans "Duration" %} </th>
-        <th data-sort="int"> {% trans "Comment" %} </th>
-        <th data-sort="int"> {% trans "Action" %} </th>
-      </tr>
-    </thead>
-    <tbody>
-    </tbody>
-  </table>
 {% endblock %}
 
 {% block option %}
@@ -67,6 +41,6 @@
 
 {% block logic %}
   <script type="text/javascript">
-    var view = new EventsView();
+    var view = new EventsView(document.body);
   </script>
 {% endblock %}

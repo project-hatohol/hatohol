@@ -17,9 +17,10 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
-var EventsView = function() {
+var EventsView = function(baseElem) {
 
   var self = this;
+  createUI(baseElem);
 
   $("#table").stupidtable();
   $("#table").bind('aftertablesort', function(event, data) {
@@ -65,6 +66,38 @@ var EventsView = function() {
   //
   // Private functions 
   //
+  function createUI(elem) {
+    var s = '';
+    s += '<h2>' + gettext('Events') + '</h2>';
+
+    s += '<form class="form-inline">';
+    s += '  <label>' + gettext('Server:') + '</label>';
+    s += '  <select id="select-server">';
+    s += '    <option>---------</option>';
+    s += '  </select>';
+    s += '</form>';
+
+    s += '<table class="table table-condensed table-hover" id="table">';
+    s += '  <thead>';
+    s += '    <tr>';
+    s += '      <th data-sort="string">' + gettext('Server') + '</th>';
+    s += '      <th data-sort="int">' + gettext('Time') + '</th>';
+    s += '      <th data-sort="string">' + gettext('Host') + '</th>';
+    s += '      <th data-sort="string">' + gettext('Brief') + '</th>';
+    s += '      <th data-sort="int">' + gettext('Status') + '</th>';
+    s += '      <th data-sort="int">' + gettext('Severity') + '</th>';
+    s += '      <th data-sort="int">' + gettext('Duration') + '</th>';
+    s += '      <th data-sort="int">' + gettext('Comment') + '</th>';
+    s += '      <th data-sort="int">' + gettext('Action') + '</th>';
+    s += '    </tr>';
+    s += '  </thead>';
+    s += '  <tbody>';
+    s += '  </tbody>';
+    s += '</table>';
+
+    $(elem).append(s);
+  }
+
   function parseData(rd) {
     var pd = new Object();
     var o, server, triggerId;
