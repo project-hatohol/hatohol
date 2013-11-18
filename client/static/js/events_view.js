@@ -88,7 +88,8 @@ var EventsView = function(baseElem) {
     s += '  <select id="select-server">';
     s += '    <option>---------</option>';
     s += '  </select>';
-    s += '  <input type="text" class="input-small" name="num-events-per-page">';
+    s += '  <label for="num-events-per-page">' + gettext("# of events per page") + '</label>'
+    s += '  <input type="text" class="input-mini" id="num-events-per-page">';
     s += '</form>';
 
     s += '<table class="table table-condensed table-hover" id="table">';
@@ -129,6 +130,8 @@ var EventsView = function(baseElem) {
     $("#select-server").change(function() {
       chooseRow();
     });
+
+    $('#num-events-per-page').val(self.numEventsPerPage);
 
     $('#next-events-button').click(function() {
       connParam.url = '/event?maximumNumber=' + self.numEventsPerPage
