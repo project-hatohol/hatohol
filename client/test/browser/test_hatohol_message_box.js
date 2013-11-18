@@ -1,5 +1,13 @@
 describe('HatoholMessageBox', function() {
 
+  function isTargetObject(id, obj) {
+    if (!("getDefaultId" in obj))
+      return false;
+    if (obj.getDefaultId() != id)
+      return false;
+    return true;
+  }
+
   function checkResult(id, obj, expected) {
     if (!("getDefaultId" in obj))
       return;
@@ -144,5 +152,18 @@ describe('HatoholMessageBox', function() {
     buttons[0].text = "annihilation engine";
     buttons = HatoholMessageBox.prototype.getBuiltinNoYesButtons();
     checkNoYesButton(buttons);
+  });
+
+  it('hatoholMsgBoxForParser on a status error', function(done) {
+    HatoholDialogObserver.registerCreatedCallback(function(id, obj) {
+      if (!isTargetObject(id, obj))
+        return;
+      var expectRe = new RegExp('^.*' + gettext('STATUS CODE') + ': ' + '.*$');
+      expect(obj.getMessage()).to.match(expectRe);
+      done();
+    });
+    var reply = {};
+    var parser = new HatoholReplyParser(reply);
+    hatoholMsgBoxForParser(reply, parser);
   });
 });
