@@ -263,6 +263,7 @@ var EventsView = function(baseElem) {
     var rawData = reply;
     var parsedData = parseData(rawData);
 
+    $("#select-server option").remove();
     setCandidate($("#select-server"), parsedData.servers);
 
     $("#table tbody").empty();
