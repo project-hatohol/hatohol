@@ -243,5 +243,23 @@ describe('HatoholConnector', function() {
     };
     var connector = new HatoholConnector(params);
   });
+
+  it('get simplest twice with reusing it', function(done) {
+    var connector;
+    var count = 0;
+    setLoginDialogCallback();
+    var params = {
+      url: "/test",
+      replyCallback: function(data, parser) {
+        checkBasicResponse(data, parser);
+        if (count == 1)
+          connector.start(params);
+          done();
+        count++;
+      },
+    };
+    connector = new HatoholConnector(params);
+  });
+
 });
 

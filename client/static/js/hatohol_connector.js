@@ -69,6 +69,10 @@ var HatoholConnector = function(connectParams) {
   // dontSentCsrfToken: <boolean> [optional]
   //
   var self = this;
+  self.start(connectParams);
+};
+
+HatoholConnector.prototype.start = function(connectParams) {
   if (connectParams.request)
     self.request = connectParams.request;
   else
