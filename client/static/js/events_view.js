@@ -132,6 +132,22 @@ var EventsView = function(baseElem) {
     });
 
     $('#num-events-per-page').val(self.numEventsPerPage);
+    $('#num-events-per-page').change(function() {
+      var val = parseInt($('#num-events-per-page').val());
+      if (!isFinite(val))
+        val = self.numEventsPerPage;
+      $('#num-events-per-page').val(val);
+      self.numEventsPerPage = val;
+
+      var params = {
+        items: {'num-events-per-page': val},
+        successCallback: function(){ /* we just ignore it */ },
+        connectErrorCallback: function() {
+          // TODO: show an error message
+        },
+      };
+      self.userConfig.store(params);
+    });
 
     $('#next-events-button').click(function() {
       connParam.url = '/event?maximumNumber=' + self.numEventsPerPage
