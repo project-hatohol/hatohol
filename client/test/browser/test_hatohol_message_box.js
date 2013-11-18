@@ -160,6 +160,7 @@ describe('HatoholMessageBox', function() {
         return;
       var expectRe = new RegExp('^.*' + gettext('STATUS CODE') + ': ' + '.*$');
       expect(obj.getMessage()).to.match(expectRe);
+      obj.destroy();
       done();
     });
     var reply = {};
