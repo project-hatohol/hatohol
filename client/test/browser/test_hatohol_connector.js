@@ -253,8 +253,9 @@ describe('HatoholConnector', function() {
       replyCallback: function(data, parser) {
         checkBasicResponse(data, parser);
         if (count == 1)
-          connector.start(params);
           done();
+        else
+          connector.start(params);
         count++;
       },
     };
