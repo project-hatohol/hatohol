@@ -162,6 +162,7 @@ void UnifiedDataStore::start(void)
 {
 	m_ctx->vdsZabbix->start();
 	m_ctx->vdsNagios->start();
+	setCopyOnDemandEnabled(m_ctx->isCopyOnDemandEnabled);
 }
 
 void UnifiedDataStore::stop(void)
