@@ -166,4 +166,19 @@ describe('HatoholMessageBox', function() {
     var parser = new HatoholReplyParser(reply);
     hatoholMsgBoxForParser(reply, parser);
   });
+
+  it('hatoholMsgBoxForParser on a server error', function(done) {
+    HatoholDialogObserver.registerCreatedCallback(function(id, obj) {
+      if (!isTargetObject(id, obj))
+        return;
+      var expectRe = new RegExp('^.*' + gettext('HATOHOL SERVER ERROR CODE') + ': ' + hatohol.HTERR_ERROR_TEST + '.*$');
+      expect(obj.getMessage()).to.match(expectRe);
+      obj.destroy();
+      done();
+    });
+    var reply = {apiVersion: hatohol.FACE_REST_API_VERSION,
+                 errorCode: hatohol.HTERR_ERROR_TEST};
+    var parser = new HatoholReplyParser(reply);
+    hatoholMsgBoxForParser(reply, parser);
+  });
 });
