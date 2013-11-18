@@ -263,8 +263,10 @@ var EventsView = function(baseElem) {
     var rawData = reply;
     var parsedData = parseData(rawData);
 
-    $("#select-server option").remove();
-    setCandidate($("#select-server"), parsedData.servers);
+    target = '#select-server';
+    $(target).children('option').remove();
+    $(target).append('<option>---------</option>');
+    setCandidate($(target), parsedData.servers);
 
     $("#table tbody").empty();
     $("#table tbody").append(drawTableBody(rawData, parsedData));
