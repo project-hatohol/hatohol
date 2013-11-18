@@ -64,15 +64,19 @@ var EventsView = function(baseElem) {
         self.sortOrder = 
           self.userConfig.findOrDefault(conf, 'event-sort-order',
                                         DEFAULT_SORT_ORDER);
-        createUI(self.baseElem);
-        setupEvents();
-        connParam.url = '/event?maximumNumber=' + self.numEventsPerPage + '&sortOrder=' + self.sortOrder;
-        self.connector = new HatoholConnector(connParam);
+        createPage();
       },
       connectErrorCallback: function(XMLHttpRequest, textStatus, errorThrown) {
         // TODO: implement
       },
     });
+  }
+
+  function createPage() {
+    createUI(self.baseElem);
+    setupEvents();
+    connParam.url = '/event?maximumNumber=' + self.numEventsPerPage + '&sortOrder=' + self.sortOrder;
+    self.connector = new HatoholConnector(connParam);
   }
 
   function createUI(elem) {
