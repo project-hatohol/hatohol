@@ -83,7 +83,6 @@ protected:
 	static string wrapForJsonp(const string &jsonBody,
                                    const string &callbackName);
 	static void replyJsonData(JsonBuilderAgent &agent, SoupMessage *msg,
-	                          const string &jsonpCallbackName,
 	                          HandlerArg *arg);
 
 	/**

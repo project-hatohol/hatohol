@@ -473,11 +473,11 @@ string FaceRest::wrapForJsonp(const string &jsonBody,
 }
 
 void FaceRest::replyJsonData(JsonBuilderAgent &agent, SoupMessage *msg,
-                             const string &jsonpCallbackName, HandlerArg *arg)
+                             HandlerArg *arg)
 {
 	string response = agent.generate();
-	if (!jsonpCallbackName.empty())
-		response = wrapForJsonp(response, jsonpCallbackName);
+	if (!arg->jsonpCallbackName.empty())
+		response = wrapForJsonp(response, arg->jsonpCallbackName);
 	soup_message_headers_set_content_type(msg->response_headers,
 	                                      arg->mimeType, NULL);
 	soup_message_body_append(msg->response_body, SOUP_MEMORY_COPY,
@@ -934,7 +934,7 @@ void FaceRest::handlerTest
 		}
 		agent.endObject(); // queryData
 		agent.endObject(); // top level
-		replyJsonData(agent, msg, arg->jsonpCallbackName, arg);
+		replyJsonData(agent, msg, arg);
 		return;
 	} 
 
@@ -956,7 +956,7 @@ void FaceRest::handlerTest
 	}
 
 	agent.endObject();
-	replyJsonData(agent, msg, arg->jsonpCallbackName, arg);
+	replyJsonData(agent, msg, arg);
 }
 
 void FaceRest::handlerLogin
@@ -998,7 +998,7 @@ void FaceRest::handlerLogin
 	agent.add("sessionId", sessionId);
 	agent.endObject();
 
-	replyJsonData(agent, msg, arg->jsonpCallbackName, arg);
+	replyJsonData(agent, msg, arg);
 }
 
 void FaceRest::handlerLogout
@@ -1015,7 +1015,7 @@ void FaceRest::handlerLogout
 	addHatoholError(agent, HatoholError(HTERR_OK));
 	agent.endObject();
 
-	replyJsonData(agent, msg, arg->jsonpCallbackName, arg);
+	replyJsonData(agent, msg, arg);
 }
 
 void FaceRest::handlerGetOverview
@@ -1028,7 +1028,7 @@ void FaceRest::handlerGetOverview
 	addOverview(agent);
 	agent.endObject();
 
-	replyJsonData(agent, msg, arg->jsonpCallbackName, arg);
+	replyJsonData(agent, msg, arg);
 }
 
 void FaceRest::handlerGetServer
@@ -1044,7 +1044,7 @@ void FaceRest::handlerGetServer
 	addServers(agent, targetServerId);
 	agent.endObject();
 
-	replyJsonData(agent, msg, arg->jsonpCallbackName, arg);
+	replyJsonData(agent, msg, arg);
 }
 
 void FaceRest::handlerGetHost
@@ -1062,7 +1062,7 @@ void FaceRest::handlerGetHost
 	addHosts(agent, targetServerId, targetHostId);
 	agent.endObject();
 
-	replyJsonData(agent, msg, arg->jsonpCallbackName, arg);
+	replyJsonData(agent, msg, arg);
 }
 
 void FaceRest::handlerGetTrigger
@@ -1107,7 +1107,7 @@ void FaceRest::handlerGetTrigger
 	addServersIdNameHash(agent, &hostMaps);
 	agent.endObject();
 
-	replyJsonData(agent, msg, arg->jsonpCallbackName, arg);
+	replyJsonData(agent, msg, arg);
 }
 
 void FaceRest::handlerGetEvent
@@ -1158,7 +1158,7 @@ void FaceRest::handlerGetEvent
 	addServersIdNameHash(agent, &hostMaps);
 	agent.endObject();
 
-	replyJsonData(agent, msg, arg->jsonpCallbackName, arg);
+	replyJsonData(agent, msg, arg);
 }
 
 void FaceRest::handlerGetItem
@@ -1192,7 +1192,7 @@ void FaceRest::handlerGetItem
 	addServersIdNameHash(agent);
 	agent.endObject();
 
-	replyJsonData(agent, msg, arg->jsonpCallbackName, arg);
+	replyJsonData(agent, msg, arg);
 }
 
 template <typename T>
@@ -1283,7 +1283,7 @@ void FaceRest::handlerGetAction
 	                     &triggerMaps, lookupTriggerBrief);
 	agent.endObject();
 
-	replyJsonData(agent, msg, arg->jsonpCallbackName, arg);
+	replyJsonData(agent, msg, arg);
 }
 
 void FaceRest::handlerPostAction
@@ -1428,7 +1428,7 @@ void FaceRest::handlerPostAction
 	addHatoholError(agent, HatoholError(HTERR_OK));
 	agent.add("id", actionDef.id);
 	agent.endObject();
-	replyJsonData(agent, msg, arg->jsonpCallbackName, arg);
+	replyJsonData(agent, msg, arg);
 }
 
 void FaceRest::handlerDeleteAction
@@ -1456,7 +1456,7 @@ void FaceRest::handlerDeleteAction
 	addHatoholError(agent, HatoholError(HTERR_OK));
 	agent.add("id", arg->id);
 	agent.endObject();
-	replyJsonData(agent, msg, arg->jsonpCallbackName, arg);
+	replyJsonData(agent, msg, arg);
 }
 
 void FaceRest::handlerUser
@@ -1505,7 +1505,7 @@ void FaceRest::handlerGetUser
 	agent.endArray();
 	agent.endObject();
 
-	replyJsonData(agent, msg, arg->jsonpCallbackName, arg);
+	replyJsonData(agent, msg, arg);
 }
 
 void FaceRest::handlerPostUser
@@ -1558,7 +1558,7 @@ void FaceRest::handlerPostUser
 	if (err == HTERR_OK)
 		agent.add("id", userInfo.id);
 	agent.endObject();
-	replyJsonData(agent, msg, arg->jsonpCallbackName, arg);
+	replyJsonData(agent, msg, arg);
 }
 
 void FaceRest::handlerDeleteUser
@@ -1588,7 +1588,7 @@ void FaceRest::handlerDeleteUser
 	if (err == HTERR_OK)
 		agent.add("id", userId);
 	agent.endObject();
-	replyJsonData(agent, msg, arg->jsonpCallbackName, arg);
+	replyJsonData(agent, msg, arg);
 }
 
 HatoholError FaceRest::parseUserParameter(UserInfo &userInfo, GHashTable *query)
