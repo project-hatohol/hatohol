@@ -47,6 +47,8 @@ struct UnifiedDataStore::PrivateContext
 	size_t        remainingArmsCount;
 	ArmBaseVector updateArmsQueue;
 
+	Signal        itemFetchedSignal;
+
 	PrivateContext()
 	: isCopyOnDemandEnabled(false), remainingArmsCount(0)
 	{
@@ -110,8 +112,44 @@ struct UnifiedDataStore::PrivateContext
 			if (clock_gettime(CLOCK_REALTIME, &lastUpdateTime) == -1)
 				MLPL_ERR("Failed to call clock_gettime: %d\n",
 					 errno);
+			itemFetchedSignal();
 		}
 
+		rwlock.unlock();
+	}
+
+	void startFetchingItems(uint32_t targetServerId = ALL_SERVERS,
+				ClosureBase *closure = NULL)
+	{
+		ArmBaseVector arms;
+		rwlock.readLock();
+		vdsZabbix->collectArms(arms);
+		vdsNagios->collectArms(arms);
+		rwlock.unlock();
+		if (arms.empty())
+			return;
+
+		rwlock.writeLock();
+		remainingArmsCount = arms.size();
+		ArmBaseVectorIterator arms_it = arms.begin();
+		for (size_t i = 0; arms_it != arms.end(); i++, arms_it++) {
+			ArmBase *arm = *arms_it;
+
+			if (targetServerId != ALL_SERVERS) {
+				const MonitoringServerInfo &info
+					= arm->getServerInfo();
+				if (static_cast<int>(targetServerId) != info.id) {
+					remainingArmsCount--;
+					continue;
+				}
+			}
+
+			if (i < PrivateContext::maxRunningArms) {
+				wakeArm(arm);
+			} else {
+				updateArmsQueue.push_back(arm);
+			}
+		}
 		rwlock.unlock();
 	}
 };
@@ -175,40 +213,10 @@ void UnifiedDataStore::fetchItems(uint32_t targetServerId)
 {
 	if (!getCopyOnDemandEnabled())
 		return;
-
 	if (!m_ctx->updateIsNeeded())
 		return;
 
-	ArmBaseVector arms;
-	m_ctx->rwlock.readLock();
-	m_ctx->vdsZabbix->collectArms(arms);
-	m_ctx->vdsNagios->collectArms(arms);
-	m_ctx->rwlock.unlock();
-	if (arms.empty())
-		return;
-
-	m_ctx->rwlock.writeLock();
-	m_ctx->remainingArmsCount = arms.size();
-	ArmBaseVectorIterator arms_it = arms.begin();
-	for (size_t i = 0; arms_it != arms.end(); i++, arms_it++) {
-		ArmBase *arm = *arms_it;
-
-		if (targetServerId != ALL_SERVERS) {
-			const MonitoringServerInfo &info
-				= arm->getServerInfo();
-			if (static_cast<int>(targetServerId) != info.id) {
-				m_ctx->remainingArmsCount--;
-				continue;
-			}
-		}
-
-		if (i < PrivateContext::maxRunningArms) {
-			m_ctx->wakeArm(arm);
-		} else {
-			m_ctx->updateArmsQueue.push_back(arm);
-		}
-	}
-	m_ctx->rwlock.unlock();
+	m_ctx->startFetchingItems(targetServerId, NULL);
 
 	if (sem_wait(&m_ctx->updatedSemaphore) == -1)
 		MLPL_ERR("Failed to call sem_wait: %d\n", errno);
@@ -237,6 +245,17 @@ void UnifiedDataStore::getItemList(ItemInfoList &itemList,
 	fetchItems(targetServerId);
 	DBClientHatohol dbHatohol;
 	dbHatohol.getItemInfoList(itemList, targetServerId);
+}
+
+void UnifiedDataStore::getItemListAsync(ClosureBase *closure,
+					uint32_t targetServerId)
+{
+	if (!getCopyOnDemandEnabled())
+		return;
+	if (!m_ctx->updateIsNeeded())
+		return;
+
+	m_ctx->startFetchingItems(targetServerId, closure);
 }
 
 void UnifiedDataStore::getHostList(
