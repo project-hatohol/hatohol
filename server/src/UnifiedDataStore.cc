@@ -131,6 +131,8 @@ struct UnifiedDataStore::PrivateContext
 			return;
 
 		rwlock.writeLock();
+		if (closure)
+			itemFetchedSignal.connect(closure);
 		remainingArmsCount = arms.size();
 		ArmBaseVectorIterator arms_it = arms.begin();
 		for (size_t i = 0; arms_it != arms.end(); i++, arms_it++) {
