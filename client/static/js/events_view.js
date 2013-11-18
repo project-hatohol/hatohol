@@ -20,6 +20,8 @@
 var EventsView = function(baseElem) {
 
   var self = this;
+  self.minUnifiedId = null;
+  self.maxUnifiedId = null;
 
   var status_choices = [gettext('OK'), gettext('Problem'), gettext('Unknown')];
   var severity_choices = [
@@ -85,6 +87,11 @@ var EventsView = function(baseElem) {
     s += '  </tbody>';
     s += '</table>';
 
+    s += '<center>';
+    s += '<button id="next-events-button" class="btn-primary">' + gettext('To next') + '</button>';
+    s += '</center>';
+    s += '<br>';
+
     $(elem).append(s);
   }
 
@@ -99,6 +106,14 @@ var EventsView = function(baseElem) {
 
     $("#select-server").change(function() {
       chooseRow();
+    });
+
+    $('#next-events-button').click(function() {
+      connParam.url = '/event?maximumNumber=' + maximumNumber
+                      + '&sortOrder=' + sortOrder
+                      + '&startId=' + (self.minUnifiedId - 1);
+      self.connector = new HatoholConnector(connParam);
+      // TODO: reuse like self.connector.start(connParam);
     });
   }
 
@@ -148,6 +163,19 @@ var EventsView = function(baseElem) {
     return pd;
   }
 
+  function fixupUnifiedIdInfo(eventObj) {
+    var unifiedId = eventObj.unifiedId;
+    if (!self.minUnifiedId)
+      self.minUnifiedId = unifiedId;
+    else if (unifiedId < self.minUnifiedId)
+      self.minUnifiedId = unifiedId;
+
+    if (!self.maxUnifiedId)
+      self.maxUnifiedId = unifiedId;
+    else if (unifiedId > self.maxUnifiedId)
+      self.maxUnifiedId = unifiedId;
+  }
+
   function drawTableBody(rd, pd) {
     var s = "";
     var o;
@@ -174,6 +202,7 @@ var EventsView = function(baseElem) {
       s += "<td>" + "unsupported" + "</td>";
       s += "<td>" + "unsupported" + "</td>";
       s += "</tr>";
+      fixupUnifiedIdInfo(o);
     }
 
     return s;
