@@ -20,24 +20,14 @@
 var EventsView = function(baseElem) {
 
   var self = this;
-  createUI(baseElem);
-
-  $("#table").stupidtable();
-  $("#table").bind('aftertablesort', function(event, data) {
-    var th = $(this).find("th");
-    th.find("i.sort").remove();
-    var icon = data.direction === "asc" ? "up" : "down";
-    th.eq(data.column).append("<i class='sort icon-arrow-" + icon +"'></i>");
-  });
 
   var status_choices = [gettext('OK'), gettext('Problem'), gettext('Unknown')];
   var severity_choices = [
     gettext('Not classified'), gettext('Information'), gettext('Warning'),
     gettext('Average'), gettext('High'), gettext('Disaster')];
 
-  $("#select-server").change(function() {
-    chooseRow();
-  });
+  createUI(baseElem);
+  setupEvents();
 
   // TODO: manage with HaotholUserConfig
   var maximumNumber = 50;
@@ -96,6 +86,20 @@ var EventsView = function(baseElem) {
     s += '</table>';
 
     $(elem).append(s);
+  }
+
+  function setupEvents() {
+    $("#table").stupidtable();
+    $("#table").bind('aftertablesort', function(event, data) {
+      var th = $(this).find("th");
+      th.find("i.sort").remove();
+      var icon = data.direction === "asc" ? "up" : "down";
+      th.eq(data.column).append("<i class='sort icon-arrow-" + icon +"'></i>");
+    });
+
+    $("#select-server").change(function() {
+      chooseRow();
+    });
   }
 
   function parseData(rd) {
