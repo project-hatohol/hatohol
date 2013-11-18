@@ -153,8 +153,7 @@ var EventsView = function(baseElem) {
       connParam.url = '/event?maximumNumber=' + self.numEventsPerPage
                       + '&sortOrder=' + self.sortOrder
                       + '&startId=' + (self.minUnifiedId - 1);
-      self.connector = new HatoholConnector(connParam);
-      // TODO: reuse like self.connector.start(connParam);
+      self.connector.start(connParam);
       $(self.baseElem).scrollTop(0);
     });
   }
