@@ -29,7 +29,7 @@ var EventsView = function(baseElem) {
     gettext('Not classified'), gettext('Information'), gettext('Warning'),
     gettext('Average'), gettext('High'), gettext('Disaster')];
 
-  createUI(baseElem);
+  createUI(self.baseElem);
   setupEvents();
 
   // TODO: manage with HaotholUserConfig
