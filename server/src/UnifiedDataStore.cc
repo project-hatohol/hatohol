@@ -113,6 +113,7 @@ struct UnifiedDataStore::PrivateContext
 				MLPL_ERR("Failed to call clock_gettime: %d\n",
 					 errno);
 			itemFetchedSignal();
+			itemFetchedSignal.clear();
 		}
 
 		rwlock.unlock();
