@@ -111,7 +111,10 @@ var EventsView = function(baseElem) {
     s += '</table>';
 
     s += '<center>';
-    s += '<button id="next-events-button" class="btn-primary">' + gettext('To next') + '</button>';
+    s += '<form class="form-inline">';
+    s += '  <input id="latest-events-button" type="button" class="btn-info" value="' + gettext('Latest events') + '" />';
+    s += '  <input id="next-events-button" type="button" class="btn-primary" value="' + gettext('To next') + '" />';
+    s += '</form>';
     s += '</center>';
     s += '<br>';
 
@@ -153,6 +156,13 @@ var EventsView = function(baseElem) {
       connParam.url = '/event?maximumNumber=' + self.numEventsPerPage
                       + '&sortOrder=' + self.sortOrder
                       + '&startId=' + (self.minUnifiedId - 1);
+      self.connector.start(connParam);
+      $(self.baseElem).scrollTop(0);
+    });
+
+    $('#latest-events-button').click(function() {
+      connParam.url = '/event?maximumNumber=' + self.numEventsPerPage
+                      + '&sortOrder=' + self.sortOrder;
       self.connector.start(connParam);
       $(self.baseElem).scrollTop(0);
     });
