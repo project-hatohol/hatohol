@@ -29,16 +29,7 @@ var EventsView = function(baseElem) {
     gettext('Not classified'), gettext('Information'), gettext('Warning'),
     gettext('Average'), gettext('High'), gettext('Disaster')];
 
-  createUI(self.baseElem);
-  setupEvents();
-
-  // TODO: manage with HaotholUserConfig
-  var maximumNumber = 50;
-  var sortOrder = hatohol.DATA_QUERY_OPTION_SORT_DESCENDING;
-  var url = '/event?maximumNumber=' + maximumNumber + '&sortOrder=' + sortOrder;
-
   var connParam =  {
-    url: url,
     replyCallback: function(reply, parser) {
       // TODO: don't use global function updateScreen().
       updateScreen(reply, updateCore);
@@ -54,11 +45,36 @@ var EventsView = function(baseElem) {
       });
     }
   };
-  self.connector = new HatoholConnector(connParam);
+
+  self.userConfig = new HatoholUserConfig(); 
+  start();
 
   //
   // Private functions 
   //
+  function start() {
+    var DEFAULT_NUM_EVENTS_PER_PAGE = 50;
+    var DEFAULT_SORT_ORDER = hatohol.DATA_QUERY_OPTION_SORT_DESCENDING;
+    self.userConfig.get({
+      itemNames:['num-events-per-page', 'event-sort-order'],
+      successCallback: function(conf) {
+        self.numEventsPerPage =
+          self.userConfig.findOrDefault(conf, 'num-events-per-page',
+                                        DEFAULT_NUM_EVENTS_PER_PAGE);
+        self.sortOrder = 
+          self.userConfig.findOrDefault(conf, 'event-sort-order',
+                                        DEFAULT_SORT_ORDER);
+        createUI(self.baseElem);
+        setupEvents();
+        connParam.url = '/event?maximumNumber=' + self.numEventsPerPage + '&sortOrder=' + self.sortOrder;
+        self.connector = new HatoholConnector(connParam);
+      },
+      connectErrorCallback: function(XMLHttpRequest, textStatus, errorThrown) {
+        // TODO: implement
+      },
+    });
+  }
+
   function createUI(elem) {
     var s = '';
     s += '<h2>' + gettext('Events') + '</h2>';
@@ -68,6 +84,7 @@ var EventsView = function(baseElem) {
     s += '  <select id="select-server">';
     s += '    <option>---------</option>';
     s += '  </select>';
+    s += '  <input type="text" class="input-small" name="num-events-per-page">';
     s += '</form>';
 
     s += '<table class="table table-condensed table-hover" id="table">';
@@ -110,8 +127,8 @@ var EventsView = function(baseElem) {
     });
 
     $('#next-events-button').click(function() {
-      connParam.url = '/event?maximumNumber=' + maximumNumber
-                      + '&sortOrder=' + sortOrder
+      connParam.url = '/event?maximumNumber=' + self.numEventsPerPage
+                      + '&sortOrder=' + self.sortOrder
                       + '&startId=' + (self.minUnifiedId - 1);
       self.connector = new HatoholConnector(connParam);
       // TODO: reuse like self.connector.start(connParam);
