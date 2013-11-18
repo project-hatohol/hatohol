@@ -41,6 +41,11 @@ using namespace mlpl;
 int FaceRest::API_VERSION = 3;
 const char *FaceRest::SESSION_ID_HEADER_NAME = "X-Hatohol-Session";
 
+typedef void (*RestHandler)
+  (SoupServer *server, SoupMessage *msg, const char *path,
+   GHashTable *query, SoupClientContext *client,
+   FaceRest::HandlerArg *arg);
+
 typedef uint64_t ServerID;
 typedef uint64_t HostID;
 typedef uint64_t TriggerID;
@@ -298,11 +303,11 @@ struct FaceRest::PrivateContext::MainThreadCleaner {
 	}
 };
 
-typedef struct FaceRest::HandlerClosure
+typedef struct HandlerClosure
 {
 	FaceRest *m_faceRest;
-	FaceRest::RestHandler m_handler;
-	HandlerClosure(FaceRest *faceRest, FaceRest::RestHandler handler)
+	RestHandler m_handler;
+	HandlerClosure(FaceRest *faceRest, RestHandler handler)
 	: m_faceRest(faceRest), m_handler(handler)
 	{}
 } HandlerClosure;

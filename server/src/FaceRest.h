@@ -58,15 +58,9 @@ public:
 	virtual ~FaceRest();
 	virtual void stop(void);
 
-protected:
 	struct HandlerArg;
-	struct HandlerClosure;
 
-	typedef void (*RestHandler)
-	  (SoupServer *server, SoupMessage *msg, const char *path,
-	   GHashTable *query, SoupClientContext *client,
-	   HandlerArg *arg);
-
+protected:
 	// virtual methods
 	gpointer mainThread(HatoholThreadArg *arg);
 
