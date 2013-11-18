@@ -20,6 +20,7 @@
 var EventsView = function(baseElem) {
 
   var self = this;
+  self.baseElem = baseElem;
   self.minUnifiedId = null;
   self.maxUnifiedId = null;
 
@@ -114,6 +115,7 @@ var EventsView = function(baseElem) {
                       + '&startId=' + (self.minUnifiedId - 1);
       self.connector = new HatoholConnector(connParam);
       // TODO: reuse like self.connector.start(connParam);
+      $(self.baseElem).scrollTop(0);
     });
   }
 
