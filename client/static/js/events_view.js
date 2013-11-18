@@ -18,6 +18,9 @@
  */
 
 var EventsView = function() {
+
+  var self = this;
+
   $("#table").stupidtable();
   $("#table").bind('aftertablesort', function(event, data) {
     var th = $(this).find("th");
@@ -35,7 +38,29 @@ var EventsView = function() {
     chooseRow();
   });
 
-  startConnection('event', updateCore);
+  // TODO: manage with HaotholUserConfig
+  var maximumNumber = 50;
+  var sortOrder = hatohol.DATA_QUERY_OPTION_SORT_DESCENDING;
+  var url = '/event?maximumNumber=' + maximumNumber + '&sortOrder=' + sortOrder;
+
+  var connParam =  {
+    url: url,
+    replyCallback: function(reply, parser) {
+      // TODO: don't use global function updateScreen().
+      updateScreen(reply, updateCore);
+    },
+    parseErrorCallback: function(reply, parser) {
+      hatoholErrorMsgBoxForParser(reply, parser);
+
+      // TODO: don't use global function updateScreen().
+      setStatus({
+        "class" : "danger",
+        "label" : gettext("ERROR"),
+        "lines" : [ msg ],
+      });
+    }
+  };
+  self.connector = new HatoholConnector(connParam);
 
   //
   // Private functions 
