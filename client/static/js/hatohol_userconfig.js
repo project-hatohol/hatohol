@@ -87,7 +87,7 @@ HatoholUserConfig.prototype.findOrDefault = function(obj, confName, defaultVal) 
   if (!(confName in obj))
     return defaultVal;
 
-  var confVal = obj.confName;
+  var confVal = obj[confName];
   if (typeof confVal !== typeof defaultVal)
     return defaultVal;
   return confVal;
