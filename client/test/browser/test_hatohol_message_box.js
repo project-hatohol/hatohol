@@ -158,7 +158,7 @@ describe('HatoholMessageBox', function() {
     HatoholDialogObserver.registerCreatedCallback(function(id, obj) {
       if (!isTargetObject(id, obj))
         return;
-      var expectRe = new RegExp('^.*' + gettext('STATUS CODE') + ': ' + '.*$');
+      var expectRe = new RegExp('^.*' + gettext('STATUS CODE') + ': ' + REPLY_STATUS.NOT_FOUND_API_VERSION + '.*$');
       expect(obj.getMessage()).to.match(expectRe);
       obj.destroy();
       done();
