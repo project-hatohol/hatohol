@@ -95,7 +95,7 @@ struct UnifiedDataStore::PrivateContext
 		return shouldUpdate;
 	}
 
-	void updatedCallback(void)
+	void updatedCallback(ClosureBase *closure)
 	{
 		rwlock.writeLock();
 
