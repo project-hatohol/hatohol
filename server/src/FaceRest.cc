@@ -1182,6 +1182,20 @@ struct GetItemClosure : Closure<FaceRest>
 	{}
 };
 
+struct UnpauseContext {
+	SoupServer *server;
+	SoupMessage *message;
+};
+
+static gboolean idleUnpause(gpointer data)
+{
+	UnpauseContext *ctx = static_cast<UnpauseContext *>(data);
+	soup_server_unpause_message(ctx->server,
+				    ctx->message);
+	delete ctx;
+	return FALSE;
+}
+
 void FaceRest::itemFetchedCallback(ClosureBase *closure)
 {
 	GetItemClosure *data = dynamic_cast<GetItemClosure*>(closure);
@@ -1214,8 +1228,10 @@ void FaceRest::itemFetchedCallback(ClosureBase *closure)
 
 	replyJsonData(agent, data->m_message, &data->m_handlerArg);
 
-	soup_server_unpause_message(data->m_server,
-				    data->m_message);
+	UnpauseContext *unpauseContext = new UnpauseContext;
+	unpauseContext->server = data->m_server;
+	unpauseContext->message = data->m_message;
+	soup_add_completion(m_ctx->gMainCtx, idleUnpause, unpauseContext);
 }
 
 void FaceRest::handlerGetItem
