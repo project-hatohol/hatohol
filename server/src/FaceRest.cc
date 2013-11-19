@@ -1196,10 +1196,8 @@ static gboolean idleUnpause(gpointer data)
 	return FALSE;
 }
 
-void FaceRest::itemFetchedCallback(ClosureBase *closure)
+void FaceRest::replyGetItem(SoupMessage *msg, HandlerArg *arg)
 {
-	GetItemClosure *data = dynamic_cast<GetItemClosure*>(closure);
-
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	ItemInfoList itemList;
 	dataStore->getItemList(itemList);
@@ -1226,7 +1224,14 @@ void FaceRest::itemFetchedCallback(ClosureBase *closure)
 	addServersIdNameHash(agent);
 	agent.endObject();
 
-	replyJsonData(agent, data->m_message, &data->m_handlerArg);
+	replyJsonData(agent, msg, arg);
+}
+
+void FaceRest::itemFetchedCallback(ClosureBase *closure)
+{
+	GetItemClosure *data = dynamic_cast<GetItemClosure*>(closure);
+
+	replyGetItem(data->m_message, &data->m_handlerArg);
 
 	UnpauseContext *unpauseContext = new UnpauseContext;
 	unpauseContext->server = data->m_server;
@@ -1247,7 +1252,8 @@ void FaceRest::handlerGetItem
 	soup_server_pause_message(server, msg);
 	bool handled = dataStore->getItemListAsync(closure);
 	if (!handled) {
-		arg->faceRest->itemFetchedCallback(closure);
+		arg->faceRest->replyGetItem(msg, arg);
+		soup_server_unpause_message(server, msg);
 		delete closure;
 	}
 }

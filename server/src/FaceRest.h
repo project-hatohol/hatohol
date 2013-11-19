@@ -172,6 +172,9 @@ protected:
 	  (SoupServer *server, SoupMessage *msg, const char *path,
 	   GHashTable *query, SoupClientContext *client, HandlerArg *arg);
 
+	void replyGetItem(SoupMessage *msg, HandlerArg *arg);
+	void itemFetchedCallback(ClosureBase *closure);
+
 	/**
 	 * Get the SessionInfo instance.
 	 * NOTE: This function doesn't take a lock in it. So you should 
@@ -209,8 +212,6 @@ protected:
 	  DataQueryOption::SortOrder &sortOrder, GHashTable *query);
 	static HatoholError parseEventParameter(EventQueryOption &option,
 	                                        GHashTable *query);
-
-	void itemFetchedCallback(ClosureBase *closure);
 private:
 	struct PrivateContext;
 	PrivateContext *m_ctx;
