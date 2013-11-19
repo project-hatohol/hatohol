@@ -80,6 +80,9 @@ protected:
 	static void replyJsonData(JsonBuilderAgent &agent, SoupMessage *msg,
 	                          HandlerArg *arg);
 
+	void pauseMessage(SoupMessage *msg);
+	void unpauseMessage(SoupMessage *msg);
+
 	/**
 	 * Parse 'serverId' query parameter if it exists.
 	 *

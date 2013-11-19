@@ -490,6 +490,41 @@ void FaceRest::replyJsonData(JsonBuilderAgent &agent, SoupMessage *msg,
 	soup_message_set_status(msg, SOUP_STATUS_OK);
 }
 
+void FaceRest::pauseMessage(SoupMessage *msg)
+{
+	soup_server_pause_message(m_ctx->soupServer, msg);
+}
+
+struct UnpauseContext {
+	SoupServer *server;
+	SoupMessage *message;
+};
+
+static gboolean idleUnpause(gpointer data)
+{
+	UnpauseContext *ctx = static_cast<UnpauseContext *>(data);
+	soup_server_unpause_message(ctx->server,
+				    ctx->message);
+	delete ctx;
+	return FALSE;
+}
+
+void FaceRest::unpauseMessage(SoupMessage *msg)
+{
+	if (g_main_context_acquire(m_ctx->gMainCtx)) {
+		// FaceRest thread
+		soup_server_unpause_message(m_ctx->soupServer, msg);
+		g_main_context_release(m_ctx->gMainCtx);
+	} else {
+		// Other threads
+		UnpauseContext *unpauseContext = new UnpauseContext;
+		unpauseContext->server = m_ctx->soupServer;
+		unpauseContext->message = msg;
+		soup_add_completion(m_ctx->gMainCtx, idleUnpause, unpauseContext);
+	}
+}
+
+
 const SessionInfo *FaceRest::getSessionInfo(const string &sessionId)
 {
 	return PrivateContext::getSessionInfo(sessionId);
@@ -1182,20 +1217,6 @@ struct GetItemClosure : Closure<FaceRest>
 	{}
 };
 
-struct UnpauseContext {
-	SoupServer *server;
-	SoupMessage *message;
-};
-
-static gboolean idleUnpause(gpointer data)
-{
-	UnpauseContext *ctx = static_cast<UnpauseContext *>(data);
-	soup_server_unpause_message(ctx->server,
-				    ctx->message);
-	delete ctx;
-	return FALSE;
-}
-
 void FaceRest::replyGetItem(SoupMessage *msg, HandlerArg *arg)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
@@ -1230,13 +1251,8 @@ void FaceRest::replyGetItem(SoupMessage *msg, HandlerArg *arg)
 void FaceRest::itemFetchedCallback(ClosureBase *closure)
 {
 	GetItemClosure *data = dynamic_cast<GetItemClosure*>(closure);
-
 	replyGetItem(data->m_message, &data->m_handlerArg);
-
-	UnpauseContext *unpauseContext = new UnpauseContext;
-	unpauseContext->server = data->m_server;
-	unpauseContext->message = data->m_message;
-	soup_add_completion(m_ctx->gMainCtx, idleUnpause, unpauseContext);
+	unpauseMessage(data->m_message);
 }
 
 void FaceRest::handlerGetItem
@@ -1244,16 +1260,17 @@ void FaceRest::handlerGetItem
    GHashTable *query, SoupClientContext *client, HandlerArg *arg)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+	FaceRest *face = arg->faceRest;
 
 	GetItemClosure *closure =
 	  new GetItemClosure(
-	    arg->faceRest, &FaceRest::itemFetchedCallback, *arg, server, msg);
+	    face, &FaceRest::itemFetchedCallback, *arg, server, msg);
 
-	soup_server_pause_message(server, msg);
+	face->pauseMessage(msg);
 	bool handled = dataStore->getItemListAsync(closure);
 	if (!handled) {
-		arg->faceRest->replyGetItem(msg, arg);
-		soup_server_unpause_message(server, msg);
+		face->replyGetItem(msg, arg);
+		face->unpauseMessage(msg);
 		delete closure;
 	}
 }
