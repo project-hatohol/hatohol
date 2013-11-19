@@ -686,7 +686,7 @@ static void addOverviewEachServer(JsonBuilderAgent &agent,
 	agent.add("numberOfHosts", hostInfoList.size());
 
 	ItemInfoList itemInfoList;
-	dataStore->fetchItems();
+	dataStore->fetchItems(svInfo.id);
 	dataStore->getItemList(itemInfoList, svInfo.id);
 	agent.add("numberOfItems", itemInfoList.size());
 
