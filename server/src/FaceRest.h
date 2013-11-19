@@ -175,7 +175,6 @@ protected:
 	  (SoupServer *server, SoupMessage *msg, const char *path,
 	   GHashTable *query, SoupClientContext *client, HandlerArg *arg);
 
-	void replyGetItem(SoupMessage *msg, HandlerArg *arg);
 	void itemFetchedCallback(ClosureBase *closure);
 
 	/**

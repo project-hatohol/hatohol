@@ -1217,9 +1217,11 @@ struct GetItemClosure : Closure<FaceRest>
 	{}
 };
 
-void FaceRest::replyGetItem(SoupMessage *msg, HandlerArg *arg)
+void FaceRest::itemFetchedCallback(ClosureBase *closure)
 {
+	GetItemClosure *data = dynamic_cast<GetItemClosure*>(closure);
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+
 	ItemInfoList itemList;
 	dataStore->getItemList(itemList);
 
@@ -1245,13 +1247,8 @@ void FaceRest::replyGetItem(SoupMessage *msg, HandlerArg *arg)
 	addServersIdNameHash(agent);
 	agent.endObject();
 
-	replyJsonData(agent, msg, arg);
-}
+	replyJsonData(agent, data->m_message, &data->m_handlerArg);
 
-void FaceRest::itemFetchedCallback(ClosureBase *closure)
-{
-	GetItemClosure *data = dynamic_cast<GetItemClosure*>(closure);
-	replyGetItem(data->m_message, &data->m_handlerArg);
 	unpauseMessage(data->m_message);
 }
 
@@ -1269,8 +1266,7 @@ void FaceRest::handlerGetItem
 	face->pauseMessage(msg);
 	bool handled = dataStore->getItemListAsync(closure);
 	if (!handled) {
-		face->replyGetItem(msg, arg);
-		face->unpauseMessage(msg);
+		face->itemFetchedCallback(closure);
 		delete closure;
 	}
 }
