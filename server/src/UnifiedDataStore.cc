@@ -135,7 +135,7 @@ struct UnifiedDataStore::PrivateContext
 			itemFetchedSignal.connect(closure);
 		remainingArmsCount = arms.size();
 		ArmBaseVectorIterator arms_it = arms.begin();
-		for (size_t i = 0; arms_it != arms.end(); i++, arms_it++) {
+		for (size_t i = 0; arms_it != arms.end(); i++, ++arms_it) {
 			ArmBase *arm = *arms_it;
 
 			if (targetServerId != ALL_SERVERS) {
