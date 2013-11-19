@@ -245,20 +245,20 @@ HatoholError UnifiedDataStore::getEventList(EventInfoList &eventList,
 void UnifiedDataStore::getItemList(ItemInfoList &itemList,
                                    uint32_t targetServerId)
 {
-	fetchItems(targetServerId);
 	DBClientHatohol dbHatohol;
 	dbHatohol.getItemInfoList(itemList, targetServerId);
 }
 
-void UnifiedDataStore::getItemListAsync(ClosureBase *closure,
+bool UnifiedDataStore::getItemListAsync(ClosureBase *closure,
 					uint32_t targetServerId)
 {
 	if (!getCopyOnDemandEnabled())
-		return;
+		return false;
 	if (!m_ctx->updateIsNeeded())
-		return;
+		return false;
 
 	m_ctx->startFetchingItems(targetServerId, closure);
+	return true;
 }
 
 void UnifiedDataStore::getHostList(

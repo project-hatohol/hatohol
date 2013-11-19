@@ -28,6 +28,7 @@
 #include "HatoholError.h"
 #include "DBClientUser.h"
 #include "DBClientHatohol.h"
+#include "Closure.h"
 
 struct SessionInfo {
 	UserIdType userId;
@@ -209,6 +210,7 @@ protected:
 	static HatoholError parseEventParameter(EventQueryOption &option,
 	                                        GHashTable *query);
 
+	void itemFetchedCallback(ClosureBase *closure);
 private:
 	struct PrivateContext;
 	PrivateContext *m_ctx;

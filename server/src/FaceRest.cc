@@ -686,6 +686,7 @@ static void addOverviewEachServer(JsonBuilderAgent &agent,
 	agent.add("numberOfHosts", hostInfoList.size());
 
 	ItemInfoList itemInfoList;
+	dataStore->fetchItems();
 	dataStore->getItemList(itemInfoList, svInfo.id);
 	agent.add("numberOfItems", itemInfoList.size());
 
@@ -1166,12 +1167,26 @@ void FaceRest::handlerGetEvent
 	replyJsonData(agent, msg, arg);
 }
 
-void FaceRest::handlerGetItem
-  (SoupServer *server, SoupMessage *msg, const char *path,
-   GHashTable *query, SoupClientContext *client, HandlerArg *arg)
+struct GetItemClosure : Closure<FaceRest>
 {
-	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+	struct FaceRest::HandlerArg m_handlerArg;
+	SoupServer *m_server;
+	SoupMessage *m_message;
+	GetItemClosure(FaceRest *receiver,
+		       callback func,
+		       struct FaceRest::HandlerArg &handlerArg,
+		       SoupServer  *server,
+		       SoupMessage *message)
+		: Closure(receiver, func), m_handlerArg(handlerArg),
+		  m_server(server), m_message(message)
+	{}
+};
 
+void FaceRest::itemFetchedCallback(ClosureBase *closure)
+{
+	GetItemClosure *data = dynamic_cast<GetItemClosure*>(closure);
+
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	ItemInfoList itemList;
 	dataStore->getItemList(itemList);
 
@@ -1197,7 +1212,28 @@ void FaceRest::handlerGetItem
 	addServersIdNameHash(agent);
 	agent.endObject();
 
-	replyJsonData(agent, msg, arg);
+	replyJsonData(agent, data->m_message, &data->m_handlerArg);
+
+	soup_server_unpause_message(data->m_server,
+				    data->m_message);
+}
+
+void FaceRest::handlerGetItem
+  (SoupServer *server, SoupMessage *msg, const char *path,
+   GHashTable *query, SoupClientContext *client, HandlerArg *arg)
+{
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+
+	GetItemClosure *closure =
+	  new GetItemClosure(
+	    arg->faceRest, &FaceRest::itemFetchedCallback, *arg, server, msg);
+
+	soup_server_pause_message(server, msg);
+	bool handled = dataStore->getItemListAsync(closure);
+	if (!handled) {
+		arg->faceRest->itemFetchedCallback(closure);
+		delete closure;
+	}
 }
 
 template <typename T>
