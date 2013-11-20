@@ -59,7 +59,7 @@ public:
 	void endObject(void);
 	bool startElement(unsigned int index);
 	void endElement(void);
-	int countElements(void);
+	unsigned int countElements(void);
 
 protected:
 	void internalCheck(void);

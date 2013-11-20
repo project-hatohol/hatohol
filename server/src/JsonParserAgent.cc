@@ -222,7 +222,7 @@ void JsonParserAgent::endElement(void)
 	endObject();
 }
 
-int JsonParserAgent::countElements(void)
+unsigned int JsonParserAgent::countElements(void)
 {
 	return json_array_get_length(json_node_get_array(m_ctx->currentNode));
 }
