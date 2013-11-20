@@ -482,40 +482,16 @@ void ZabbixAPIEmulator::makeEventJsonData(const string &path)
 
 	HATOHOL_ASSERT(parser.startObject("result"),
 	  "%s", parser.getErrorMessage());
-	int numElements = parser.countElements();
-	size_t numAddedSlices = 0;
-	int currSliceIndex = 0;
-	for (size_t i = 0; i < numSlices; i++) {
-		string slice;
-		size_t numData;
-		if (i < numSlices - 1) {
-			size_t numExpectedSlices = 
-			  (double)numElements/numSlices*(i+1);
-			numData = numExpectedSlices - numAddedSlices;
-		} else {
-			numData = numElements - numAddedSlices;
+	unsigned int numElements = parser.countElements();
+	for (unsigned int i = 0; i < numElements; i++) {
+		int64_t parsedData[9] = {};
+
+		parser.startElement(i);
+		for (size_t j = 0; j < 9; j++) {
+			parser.read(EVENT_ELEMENT_NAMES[j],
+				parsedData[j]);
 		}
-		for (size_t j = 0; j < numData; j++, currSliceIndex++) {
-			string str;
-			HATOHOL_ASSERT(
-			  parser.startElement(currSliceIndex),
-			  "%s", parser.getErrorMessage());
-			JsonBuilderAgent builder;
-			builder.startObject();
-			const char **elementName = EVENT_ELEMENT_NAMES;
-			for (; *elementName; elementName++) {
-				HATOHOL_ASSERT(parser.read(*elementName, str),
-				  "elementName: %s", *elementName);
-				builder.add(*elementName, str);
-			}
-			builder.endObject();
-			parser.endElement();
-			slice += builder.generate();
-			if (j != numData -1)
-				slice += ",";
-		}
-		m_ctx->slicedEventVector.push_back(slice);
-		numAddedSlices += numData;
+		parser.endElement();
 	}
 }
 
