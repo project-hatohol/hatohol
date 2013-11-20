@@ -463,7 +463,7 @@ void ZabbixAPIEmulator::APIHandlerApplicationGet(APIHandlerArg &arg)
 	APIHandlerGetWithFile(arg, DATA_FILE);
 }
 
-void ZabbixAPIEmulator::makeSlicedEvent(const string &path, size_t numSlices)
+void ZabbixAPIEmulator::makeEventJsonData(const string &path)
 {
 	static const char *EVENT_ELEMENT_NAMES[] = {
 	  "eventid", "source", "object", "objectid", "clock", "value",

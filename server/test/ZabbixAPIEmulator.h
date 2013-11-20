@@ -67,7 +67,7 @@ protected:
 	void APIHandlerHostGet(APIHandlerArg &arg);
 	void APIHandlerEventGet(APIHandlerArg &arg);
 	void APIHandlerApplicationGet(APIHandlerArg &arg);
-	void makeSlicedEvent(const string &path, size_t numSlices);
+	void makeEventJsonData(const string &path);
 	string makeEmptyResponse(APIHandlerArg &arg);
 	string getSlicedResponse(const string &slice, APIHandlerArg &arg);
 
