@@ -418,29 +418,11 @@ void ZabbixAPIEmulator::APIHandlerEventGet(APIHandlerArg &arg)
 	ParameterEventGet params;
 	parseParameter(arg, params);
 
-	if (m_ctx->numEventSlices != 0) {
-		// slice mode
-		string response;
-		if (m_ctx->slicedEventVector.empty())
-			makeSlicedEvent(path, m_ctx->numEventSlices);
-		size_t idx = m_ctx->currEventSliceIndex;
-		if (idx < m_ctx->slicedEventVector.size()) {
-			const string &slice = m_ctx->slicedEventVector[idx];
-			response = getSlicedResponse(slice, arg);
-		} else {
-			response = makeEmptyResponse(arg);
-		}
-		contents = g_strdup(response.c_str());
-		length = response.size();
-		m_ctx->currEventSliceIndex++;
-	} else {
-		// entire mode
-		gboolean succeeded =
-		  g_file_get_contents(path.c_str(), &contents, &length, NULL);
-		if (!succeeded) {
-			THROW_HATOHOL_EXCEPTION(
-			  "Failed to read file: %s", path.c_str());
-		}
+	gboolean succeeded =
+		g_file_get_contents(path.c_str(), &contents, &length, NULL);
+	if (!succeeded) {
+		THROW_HATOHOL_EXCEPTION(
+				"Failed to read file: %s", path.c_str());
 	}
 
 	soup_message_body_append(arg.msg->response_body, SOUP_MEMORY_TAKE,
