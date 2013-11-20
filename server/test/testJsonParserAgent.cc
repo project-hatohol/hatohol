@@ -87,7 +87,7 @@ void test_parseStringInArray(void)
 	DEFINE_PARSER_AND_READ(parser, "fixtures/testJson03.json");
 
 	cppcut_assert_equal(true, parser.startObject("array0"));
-	cppcut_assert_equal(3, parser.countElements());
+	cppcut_assert_equal(3u, parser.countElements());
 	assertReadWordElement(parser, 0, "elem0");
 	assertReadWordElement(parser, 1, "elem1");
 	assertReadWordElement(parser, 2, "elem2");
@@ -99,7 +99,7 @@ void test_parseStringInObjectInArray(void)
 	DEFINE_PARSER_AND_READ(parser, "fixtures/testJson04.json");
 
 	cppcut_assert_equal(true, parser.startObject("array0"));
-	cppcut_assert_equal(2, parser.countElements());
+	cppcut_assert_equal(2u, parser.countElements());
 
 	cppcut_assert_equal(true, parser.startElement(0));
 	assertReadWord(string, parser, "key0", "value0");
