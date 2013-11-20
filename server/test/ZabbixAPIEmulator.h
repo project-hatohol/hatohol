@@ -32,6 +32,7 @@ enum OperationMode {
 class ZabbixAPIEmulator {
 public:
 	struct APIHandlerArg;
+	struct JsonKeys;
 	typedef void (ZabbixAPIEmulator::*APIHandler)(APIHandlerArg &);
 
 	ZabbixAPIEmulator(void);
