@@ -24,6 +24,7 @@
 #include "DBClientHatohol.h"
 #include "DBClientAction.h"
 #include "Utils.h"
+#include "Closure.h"
 
 class UnifiedDataStore
 {
@@ -35,7 +36,7 @@ public:
 	virtual void parseCommandLineArgument(CommandLineArg &cmdArg);
 	virtual void start(void);
 	virtual void stop(void);
-	virtual void fetchItems(void);
+	virtual void fetchItems(uint32_t targetServerId = ALL_SERVERS);
 
 	virtual void getTriggerList(TriggerInfoList &triggerList,
 	                            uint32_t targetServerId = ALL_SERVERS,
@@ -45,6 +46,8 @@ public:
 	                                  EventQueryOption &option);
 	virtual void getItemList(ItemInfoList &itemList,
 	                         uint32_t targetServerId = ALL_SERVERS);
+	virtual bool getItemListAsync(ClosureBase *closure,
+				      uint32_t targetServerId = ALL_SERVERS);
 	virtual void getHostList(HostInfoList &hostInfoList,
 	                         uint32_t targetServerId = ALL_SERVERS,
 	                         uint64_t targetHostId = ALL_HOSTS);

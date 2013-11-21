@@ -38,6 +38,8 @@ using namespace mlpl;
 using namespace std;
 
 static const char *MIME_JSON_RPC = "application/json-rpc";
+static const guint DEFAULT_TIMEOUT      = 60;
+static const guint DEFAULT_IDLE_TIMEOUT = 60;
 
 struct ArmZabbixAPI::PrivateContext
 {
@@ -260,7 +262,10 @@ SoupSession *ArmZabbixAPI::getSession(void)
 	//       If we have to use this function from multiple threads,
 	//       it is only necessary to prepare sessions by thread.
 	if (!m_ctx->session)
-		m_ctx->session = soup_session_sync_new();
+		m_ctx->session = soup_session_sync_new_with_options(
+			SOUP_SESSION_TIMEOUT,      DEFAULT_TIMEOUT,
+			SOUP_SESSION_IDLE_TIMEOUT, DEFAULT_IDLE_TIMEOUT,
+			NULL);
 	return m_ctx->session;
 }
 

@@ -28,6 +28,7 @@
 #include "HatoholError.h"
 #include "DBClientUser.h"
 #include "DBClientHatohol.h"
+#include "Closure.h"
 
 struct SessionInfo {
 	UserIdType userId;
@@ -58,9 +59,9 @@ public:
 	virtual ~FaceRest();
 	virtual void stop(void);
 
-protected:
 	struct HandlerArg;
 
+protected:
 	// virtual methods
 	gpointer mainThread(HatoholThreadArg *arg);
 
@@ -77,8 +78,10 @@ protected:
 	static string wrapForJsonp(const string &jsonBody,
                                    const string &callbackName);
 	static void replyJsonData(JsonBuilderAgent &agent, SoupMessage *msg,
-	                          const string &jsonpCallbackName,
 	                          HandlerArg *arg);
+
+	void pauseMessage(SoupMessage *msg);
+	void unpauseMessage(SoupMessage *msg);
 
 	/**
 	 * Parse 'serverId' query parameter if it exists.
@@ -172,6 +175,8 @@ protected:
 	  (SoupServer *server, SoupMessage *msg, const char *path,
 	   GHashTable *query, SoupClientContext *client, HandlerArg *arg);
 
+	void itemFetchedCallback(ClosureBase *closure);
+
 	/**
 	 * Get the SessionInfo instance.
 	 * NOTE: This function doesn't take a lock in it. So you should 
@@ -209,7 +214,6 @@ protected:
 	  DataQueryOption::SortOrder &sortOrder, GHashTable *query);
 	static HatoholError parseEventParameter(EventQueryOption &option,
 	                                        GHashTable *query);
-
 private:
 	struct PrivateContext;
 	PrivateContext *m_ctx;

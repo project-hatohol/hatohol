@@ -43,7 +43,8 @@ const char *FaceRest::SESSION_ID_HEADER_NAME = "X-Hatohol-Session";
 
 typedef void (*RestHandler)
   (SoupServer *server, SoupMessage *msg, const char *path,
-   GHashTable *query, SoupClientContext *client, gpointer user_data);
+   GHashTable *query, SoupClientContext *client,
+   FaceRest::HandlerArg *arg);
 
 typedef uint64_t ServerID;
 typedef uint64_t HostID;
@@ -94,8 +95,9 @@ enum FormatType {
 
 struct FaceRest::HandlerArg
 {
-	string     formatString;
-	FormatType formatType;
+	FaceRest   *faceRest;
+	string      formatString;
+	FormatType  formatType;
 	const char *mimeType;
 	string      id; // we assume URL form is http://example.com/request/id
 	string      jsonpCallbackName;
@@ -301,6 +303,21 @@ struct FaceRest::PrivateContext::MainThreadCleaner {
 	}
 };
 
+typedef struct HandlerClosure
+{
+	FaceRest *m_faceRest;
+	RestHandler m_handler;
+	HandlerClosure(FaceRest *faceRest, RestHandler handler)
+	: m_faceRest(faceRest), m_handler(handler)
+	{}
+} HandlerClosure;
+
+static void deleteHandlerClosure(gpointer data)
+{
+	HandlerClosure *arg = static_cast<HandlerClosure *>(data);
+	delete arg;
+}
+
 gpointer FaceRest::mainThread(HatoholThreadArg *arg)
 {
 	PrivateContext::MainThreadCleaner cleaner(m_ctx);
@@ -317,40 +334,52 @@ gpointer FaceRest::mainThread(HatoholThreadArg *arg)
 	                        handlerDefault, this, NULL);
 	soup_server_add_handler(m_ctx->soupServer, "/hello.html",
 	                        launchHandlerInTryBlock,
-	                        (gpointer)handlerHelloPage, NULL);
+	                        new HandlerClosure(this, &handlerHelloPage),
+				deleteHandlerClosure);
 	soup_server_add_handler(m_ctx->soupServer, "/test",
 	                        launchHandlerInTryBlock,
-	                        (gpointer)handlerTest, NULL);
+	                        new HandlerClosure(this, handlerTest),
+				deleteHandlerClosure);
 	soup_server_add_handler(m_ctx->soupServer, pathForLogin,
 	                        launchHandlerInTryBlock,
-	                        (gpointer)handlerLogin, NULL);
+	                        new HandlerClosure(this, handlerLogin),
+				deleteHandlerClosure);
 	soup_server_add_handler(m_ctx->soupServer, pathForLogout,
 	                        launchHandlerInTryBlock,
-	                        (gpointer)handlerLogout, NULL);
+	                        new HandlerClosure(this, handlerLogout),
+				deleteHandlerClosure);
 	soup_server_add_handler(m_ctx->soupServer, pathForGetOverview,
 	                        launchHandlerInTryBlock,
-	                        (gpointer)handlerGetOverview, NULL);
+	                        new HandlerClosure(this, handlerGetOverview),
+				deleteHandlerClosure);
 	soup_server_add_handler(m_ctx->soupServer, pathForGetServer,
 	                        launchHandlerInTryBlock,
-	                        (gpointer)handlerGetServer, NULL);
+	                        new HandlerClosure(this, handlerGetServer),
+				deleteHandlerClosure);
 	soup_server_add_handler(m_ctx->soupServer, pathForGetHost,
 	                        launchHandlerInTryBlock,
-	                        (gpointer)handlerGetHost, NULL);
+	                        new HandlerClosure(this, handlerGetHost),
+				deleteHandlerClosure);
 	soup_server_add_handler(m_ctx->soupServer, pathForGetTrigger,
 	                        launchHandlerInTryBlock,
-	                        (gpointer)handlerGetTrigger, NULL);
+	                        new HandlerClosure(this, handlerGetTrigger),
+				deleteHandlerClosure);
 	soup_server_add_handler(m_ctx->soupServer, pathForGetEvent,
 	                        launchHandlerInTryBlock,
-	                        (gpointer)handlerGetEvent, NULL);
+	                        new HandlerClosure(this, handlerGetEvent),
+				deleteHandlerClosure);
 	soup_server_add_handler(m_ctx->soupServer, pathForGetItem,
 	                        launchHandlerInTryBlock,
-	                        (gpointer)handlerGetItem, NULL);
+	                        new HandlerClosure(this, handlerGetItem),
+				deleteHandlerClosure);
 	soup_server_add_handler(m_ctx->soupServer, pathForAction,
 	                        launchHandlerInTryBlock,
-	                        (gpointer)handlerAction, NULL);
+	                        new HandlerClosure(this, handlerAction),
+				deleteHandlerClosure);
 	soup_server_add_handler(m_ctx->soupServer, pathForUser,
 	                        launchHandlerInTryBlock,
-	                        (gpointer)handlerUser, NULL);
+	                        new HandlerClosure(this, handlerUser),
+				deleteHandlerClosure);
 	if (m_ctx->param)
 		m_ctx->param->setupDoneNotifyFunc();
 	soup_server_run_async(m_ctx->soupServer);
@@ -449,17 +478,52 @@ string FaceRest::wrapForJsonp(const string &jsonBody,
 }
 
 void FaceRest::replyJsonData(JsonBuilderAgent &agent, SoupMessage *msg,
-                             const string &jsonpCallbackName, HandlerArg *arg)
+                             HandlerArg *arg)
 {
 	string response = agent.generate();
-	if (!jsonpCallbackName.empty())
-		response = wrapForJsonp(response, jsonpCallbackName);
+	if (!arg->jsonpCallbackName.empty())
+		response = wrapForJsonp(response, arg->jsonpCallbackName);
 	soup_message_headers_set_content_type(msg->response_headers,
 	                                      arg->mimeType, NULL);
 	soup_message_body_append(msg->response_body, SOUP_MEMORY_COPY,
 	                         response.c_str(), response.size());
 	soup_message_set_status(msg, SOUP_STATUS_OK);
 }
+
+void FaceRest::pauseMessage(SoupMessage *msg)
+{
+	soup_server_pause_message(m_ctx->soupServer, msg);
+}
+
+struct UnpauseContext {
+	SoupServer *server;
+	SoupMessage *message;
+};
+
+static gboolean idleUnpause(gpointer data)
+{
+	UnpauseContext *ctx = static_cast<UnpauseContext *>(data);
+	soup_server_unpause_message(ctx->server,
+				    ctx->message);
+	delete ctx;
+	return FALSE;
+}
+
+void FaceRest::unpauseMessage(SoupMessage *msg)
+{
+	if (g_main_context_acquire(m_ctx->gMainCtx)) {
+		// FaceRest thread
+		soup_server_unpause_message(m_ctx->soupServer, msg);
+		g_main_context_release(m_ctx->gMainCtx);
+	} else {
+		// Other threads
+		UnpauseContext *unpauseContext = new UnpauseContext;
+		unpauseContext->server = m_ctx->soupServer;
+		unpauseContext->message = msg;
+		soup_add_completion(m_ctx->gMainCtx, idleUnpause, unpauseContext);
+	}
+}
+
 
 const SessionInfo *FaceRest::getSessionInfo(const string &sessionId)
 {
@@ -550,8 +614,10 @@ void FaceRest::launchHandlerInTryBlock
   (SoupServer *server, SoupMessage *msg, const char *path,
    GHashTable *_query, SoupClientContext *client, gpointer user_data)
 {
-	RestHandler handler = reinterpret_cast<RestHandler>(user_data);
+	HandlerClosure *closure = static_cast<HandlerClosure *>(user_data);
 	HandlerArg arg;
+
+	arg.faceRest = closure->m_faceRest;
 
 	const char *sessionId =
 	   soup_message_headers_get_one(msg->request_headers,
@@ -617,7 +683,7 @@ void FaceRest::launchHandlerInTryBlock
 	arg.jsonpCallbackName = getJsonpCallbackName(query, &arg);
 
 	try {
-		(*handler)(server, msg, path, query, client, &arg);
+		(*closure->m_handler)(server, msg, path, query, client, &arg);
 	} catch (const HatoholException &e) {
 		REPLY_ERROR(msg, &arg, HTERR_GOT_EXCEPTION,
 		            "%s", e.getFancyMessage().c_str());
@@ -655,6 +721,7 @@ static void addOverviewEachServer(JsonBuilderAgent &agent,
 	agent.add("numberOfHosts", hostInfoList.size());
 
 	ItemInfoList itemInfoList;
+	dataStore->fetchItems(svInfo.id);
 	dataStore->getItemList(itemInfoList, svInfo.id);
 	agent.add("numberOfItems", itemInfoList.size());
 
@@ -908,7 +975,7 @@ void FaceRest::handlerTest
 		}
 		agent.endObject(); // queryData
 		agent.endObject(); // top level
-		replyJsonData(agent, msg, arg->jsonpCallbackName, arg);
+		replyJsonData(agent, msg, arg);
 		return;
 	} 
 
@@ -930,7 +997,7 @@ void FaceRest::handlerTest
 	}
 
 	agent.endObject();
-	replyJsonData(agent, msg, arg->jsonpCallbackName, arg);
+	replyJsonData(agent, msg, arg);
 }
 
 void FaceRest::handlerLogin
@@ -972,7 +1039,7 @@ void FaceRest::handlerLogin
 	agent.add("sessionId", sessionId);
 	agent.endObject();
 
-	replyJsonData(agent, msg, arg->jsonpCallbackName, arg);
+	replyJsonData(agent, msg, arg);
 }
 
 void FaceRest::handlerLogout
@@ -989,7 +1056,7 @@ void FaceRest::handlerLogout
 	addHatoholError(agent, HatoholError(HTERR_OK));
 	agent.endObject();
 
-	replyJsonData(agent, msg, arg->jsonpCallbackName, arg);
+	replyJsonData(agent, msg, arg);
 }
 
 void FaceRest::handlerGetOverview
@@ -1002,7 +1069,7 @@ void FaceRest::handlerGetOverview
 	addOverview(agent);
 	agent.endObject();
 
-	replyJsonData(agent, msg, arg->jsonpCallbackName, arg);
+	replyJsonData(agent, msg, arg);
 }
 
 void FaceRest::handlerGetServer
@@ -1018,7 +1085,7 @@ void FaceRest::handlerGetServer
 	addServers(agent, targetServerId);
 	agent.endObject();
 
-	replyJsonData(agent, msg, arg->jsonpCallbackName, arg);
+	replyJsonData(agent, msg, arg);
 }
 
 void FaceRest::handlerGetHost
@@ -1036,7 +1103,7 @@ void FaceRest::handlerGetHost
 	addHosts(agent, targetServerId, targetHostId);
 	agent.endObject();
 
-	replyJsonData(agent, msg, arg->jsonpCallbackName, arg);
+	replyJsonData(agent, msg, arg);
 }
 
 void FaceRest::handlerGetTrigger
@@ -1081,7 +1148,7 @@ void FaceRest::handlerGetTrigger
 	addServersIdNameHash(agent, &hostMaps);
 	agent.endObject();
 
-	replyJsonData(agent, msg, arg->jsonpCallbackName, arg);
+	replyJsonData(agent, msg, arg);
 }
 
 void FaceRest::handlerGetEvent
@@ -1132,13 +1199,27 @@ void FaceRest::handlerGetEvent
 	addServersIdNameHash(agent, &hostMaps);
 	agent.endObject();
 
-	replyJsonData(agent, msg, arg->jsonpCallbackName, arg);
+	replyJsonData(agent, msg, arg);
 }
 
-void FaceRest::handlerGetItem
-  (SoupServer *server, SoupMessage *msg, const char *path,
-   GHashTable *query, SoupClientContext *client, HandlerArg *arg)
+struct GetItemClosure : Closure<FaceRest>
 {
+	struct FaceRest::HandlerArg m_handlerArg;
+	SoupServer *m_server;
+	SoupMessage *m_message;
+	GetItemClosure(FaceRest *receiver,
+		       callback func,
+		       struct FaceRest::HandlerArg &handlerArg,
+		       SoupServer  *server,
+		       SoupMessage *message)
+		: Closure(receiver, func), m_handlerArg(handlerArg),
+		  m_server(server), m_message(message)
+	{}
+};
+
+void FaceRest::itemFetchedCallback(ClosureBase *closure)
+{
+	GetItemClosure *data = dynamic_cast<GetItemClosure*>(closure);
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 
 	ItemInfoList itemList;
@@ -1166,7 +1247,28 @@ void FaceRest::handlerGetItem
 	addServersIdNameHash(agent);
 	agent.endObject();
 
-	replyJsonData(agent, msg, arg->jsonpCallbackName, arg);
+	replyJsonData(agent, data->m_message, &data->m_handlerArg);
+
+	unpauseMessage(data->m_message);
+}
+
+void FaceRest::handlerGetItem
+  (SoupServer *server, SoupMessage *msg, const char *path,
+   GHashTable *query, SoupClientContext *client, HandlerArg *arg)
+{
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+	FaceRest *face = arg->faceRest;
+
+	GetItemClosure *closure =
+	  new GetItemClosure(
+	    face, &FaceRest::itemFetchedCallback, *arg, server, msg);
+
+	face->pauseMessage(msg);
+	bool handled = dataStore->getItemListAsync(closure);
+	if (!handled) {
+		face->itemFetchedCallback(closure);
+		delete closure;
+	}
 }
 
 template <typename T>
@@ -1257,7 +1359,7 @@ void FaceRest::handlerGetAction
 	                     &triggerMaps, lookupTriggerBrief);
 	agent.endObject();
 
-	replyJsonData(agent, msg, arg->jsonpCallbackName, arg);
+	replyJsonData(agent, msg, arg);
 }
 
 void FaceRest::handlerPostAction
@@ -1402,7 +1504,7 @@ void FaceRest::handlerPostAction
 	addHatoholError(agent, HatoholError(HTERR_OK));
 	agent.add("id", actionDef.id);
 	agent.endObject();
-	replyJsonData(agent, msg, arg->jsonpCallbackName, arg);
+	replyJsonData(agent, msg, arg);
 }
 
 void FaceRest::handlerDeleteAction
@@ -1430,7 +1532,7 @@ void FaceRest::handlerDeleteAction
 	addHatoholError(agent, HatoholError(HTERR_OK));
 	agent.add("id", arg->id);
 	agent.endObject();
-	replyJsonData(agent, msg, arg->jsonpCallbackName, arg);
+	replyJsonData(agent, msg, arg);
 }
 
 void FaceRest::handlerUser
@@ -1479,7 +1581,7 @@ void FaceRest::handlerGetUser
 	agent.endArray();
 	agent.endObject();
 
-	replyJsonData(agent, msg, arg->jsonpCallbackName, arg);
+	replyJsonData(agent, msg, arg);
 }
 
 void FaceRest::handlerPostUser
@@ -1532,7 +1634,7 @@ void FaceRest::handlerPostUser
 	if (err == HTERR_OK)
 		agent.add("id", userInfo.id);
 	agent.endObject();
-	replyJsonData(agent, msg, arg->jsonpCallbackName, arg);
+	replyJsonData(agent, msg, arg);
 }
 
 void FaceRest::handlerDeleteUser
@@ -1562,7 +1664,7 @@ void FaceRest::handlerDeleteUser
 	if (err == HTERR_OK)
 		agent.add("id", userId);
 	agent.endObject();
-	replyJsonData(agent, msg, arg->jsonpCallbackName, arg);
+	replyJsonData(agent, msg, arg);
 }
 
 HatoholError FaceRest::parseUserParameter(UserInfo &userInfo, GHashTable *query)

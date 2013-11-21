@@ -37,7 +37,7 @@ struct ClosureBase
 template<class T>
 struct Closure : public ClosureBase
 {
-	typedef void (T::*callback)(void);
+	typedef void (T::*callback)(ClosureBase *closure);
 
 	Closure (T *receiver, callback func)
 	:m_receiver(receiver), m_func(func)
@@ -46,7 +46,7 @@ struct Closure : public ClosureBase
 
 	virtual void operator()(void)
 	{
-		(m_receiver->*m_func)();
+		(m_receiver->*m_func)(this);
 	}
 
 	virtual bool operator==(const ClosureBase &closureBase)
