@@ -119,7 +119,7 @@ struct UnifiedDataStore::PrivateContext
 		rwlock.unlock();
 	}
 
-	void startFetchingItems(uint32_t targetServerId = ALL_SERVERS,
+	bool startFetchingItems(uint32_t targetServerId = ALL_SERVERS,
 				ClosureBase *closure = NULL)
 	{
 		ArmBaseVector arms;
@@ -128,7 +128,7 @@ struct UnifiedDataStore::PrivateContext
 		vdsNagios->collectArms(arms);
 		rwlock.unlock();
 		if (arms.empty())
-			return;
+			return false;
 
 		rwlock.writeLock();
 		if (closure)
@@ -153,7 +153,12 @@ struct UnifiedDataStore::PrivateContext
 				updateArmsQueue.push_back(arm);
 			}
 		}
+
+		bool started = remainingArmsCount > 0;
+
 		rwlock.unlock();
+
+		return started;
 	}
 };
 
@@ -219,7 +224,9 @@ void UnifiedDataStore::fetchItems(uint32_t targetServerId)
 	if (!m_ctx->updateIsNeeded())
 		return;
 
-	m_ctx->startFetchingItems(targetServerId, NULL);
+	bool started = m_ctx->startFetchingItems(targetServerId, NULL);
+	if (!started)
+		return;
 
 	if (sem_wait(&m_ctx->updatedSemaphore) == -1)
 		MLPL_ERR("Failed to call sem_wait: %d\n", errno);
@@ -257,8 +264,7 @@ bool UnifiedDataStore::getItemListAsync(ClosureBase *closure,
 	if (!m_ctx->updateIsNeeded())
 		return false;
 
-	m_ctx->startFetchingItems(targetServerId, closure);
-	return true;
+	return m_ctx->startFetchingItems(targetServerId, closure);
 }
 
 void UnifiedDataStore::getHostList(
