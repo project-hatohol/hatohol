@@ -448,6 +448,8 @@ void ZabbixAPIEmulator::APIHandlerEventGet(APIHandlerArg &arg)
 	parseParameter(arg, params);
 	makeEventJsonData(path);
 
+
+
 	length = contents.size();
 	soup_message_body_append(arg.msg->response_body, SOUP_MEMORY_TAKE,
 	                         contents, length);
@@ -503,7 +505,7 @@ void ZabbixAPIEmulator::makeEventJsonData(const string &path)
 	}
 }
 
-string ZabbixAPIEmulator::getSlicedResponse(const string &slice,
+string ZabbixAPIEmulator::addJsonResponse(const string &slice,
                                             APIHandlerArg &arg)
 {
 	const char *fmt = 
