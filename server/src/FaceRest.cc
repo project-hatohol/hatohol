@@ -610,10 +610,12 @@ bool FaceRest::parseFormatType(GHashTable *query, HandlerArg &arg)
 	return true;
 }
 
-void FaceRest::setupHandlerArg(FaceRest::HandlerArg &arg,
+void FaceRest::setupHandlerArg(FaceRest::HandlerArg &arg, FaceRest *faceRest,
 			       SoupMessage *msg, const char *path,
 			       GHashTable *query, SoupClientContext *client)
 {
+	arg.faceRest = faceRest;
+
 	const char *sessionId =
 	   soup_message_headers_get_one(msg->request_headers,
 	                                SESSION_ID_HEADER_NAME);
@@ -684,8 +686,7 @@ void FaceRest::launchHandlerInTryBlock
 
 	HandlerClosure *closure = static_cast<HandlerClosure *>(user_data);
 	HandlerArg arg;
-	setupHandlerArg(arg, msg, path, query, client);
-	arg.faceRest = closure->m_faceRest;
+	setupHandlerArg(arg, closure->m_faceRest, msg, path, query, client);
 
 	try {
 		(*closure->m_handler)(server, msg, path, query, client, &arg);
