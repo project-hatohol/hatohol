@@ -206,9 +206,11 @@ struct FaceRest::RestMessage
 		return faceRest ? faceRest->m_ctx->soupServer : NULL;
 	}
 
+	bool parse(void);
+
+private:
 	string getJsonpCallbackName(void);
 	bool parseFormatType(void);
-	bool parse(void);
 };
 
 // ---------------------------------------------------------------------------
