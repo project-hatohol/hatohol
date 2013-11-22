@@ -93,6 +93,18 @@ enum FormatType {
 	FORMAT_JSONP,
 };
 
+struct FaceRest::HandlerArg
+{
+	FaceRest   *faceRest;
+	string      formatString;
+	FormatType  formatType;
+	const char *mimeType;
+	string      id; // we assume URL form is http://example.com/request/id
+	string      jsonpCallbackName;
+	string      sessionId;
+	UserIdType  userId;
+};
+
 typedef map<string, FormatType> FormatTypeMap;
 typedef FormatTypeMap::iterator FormatTypeMapIterator;
 static FormatTypeMap g_formatTypeMap;
@@ -181,83 +193,6 @@ MutexLock    FaceRest::PrivateContext::lock;
 SessionIdMap FaceRest::PrivateContext::sessionIdMap;
 const string FaceRest::PrivateContext::pathForUserMe =
   FaceRest::PrivateContext::initPathForUserMe();
-
-struct FaceRest::HandlerArg
-{
-	FaceRest   *faceRest;
-	string      formatString;
-	FormatType  formatType;
-	const char *mimeType;
-	string      id; // we assume URL form is http://example.com/request/id
-	string      jsonpCallbackName;
-	string      sessionId;
-	UserIdType  userId;
-
-	HandlerArg(FaceRest::HandlerArg &arg, FaceRest *faceRest,
-		   SoupMessage *msg, const char *path,
-		   GHashTable *query, SoupClientContext *client);
-};
-
-FaceRest::HandlerArg::HandlerArg(FaceRest::HandlerArg &arg, FaceRest *faceRest,
-				 SoupMessage *msg, const char *path,
-				 GHashTable *query, SoupClientContext *client)
-{
-	arg.faceRest = faceRest;
-
-	const char *sessionId =
-	   soup_message_headers_get_one(msg->request_headers,
-	                                SESSION_ID_HEADER_NAME);
-	if (!sessionId) {
-		// We should return an error. But now, we just set
-		// USER_ID_ADMIN to keep compatiblity until the user privilege
-		// feature is completely implemnted.
-		if (path != pathForLogin)
-			arg.userId = USER_ID_ADMIN;
-		else
-			arg.userId = INVALID_USER_ID;
-	} else {
-		arg.sessionId = sessionId;
-		FaceRest::PrivateContext::lock.lock();
-		const SessionInfo *sessionInfo = getSessionInfo(sessionId);
-		if (!sessionInfo) {
-			PrivateContext::lock.unlock();
-			replyError(msg, &arg, HTERR_NOT_FOUND_SESSION_ID);
-			return;
-		}
-		arg.userId = sessionInfo->userId;
-		FaceRest::PrivateContext::lock.unlock();
-	}
-
-	// We expect URIs  whose style are the following.
-	//
-	// Examples:
-	// http://localhost:33194/action
-	// http://localhost:33194/action?fmt=json
-	// http://localhost:33194/action/2345?fmt=html
-
-	// a format type
-	if (!parseFormatType(query, arg)) {
-		REPLY_ERROR(msg, &arg, HTERR_UNSUPORTED_FORMAT,
-		            "%s", arg.formatString.c_str());
-		return;
-	}
-
-	// ID
-	StringVector pathElemVect;
-	StringUtils::split(pathElemVect, path, '/');
-	if (pathElemVect.size() >= 2)
-		arg.id = pathElemVect[1];
-
-	// MIME
-	MimeTypeMapIterator mimeIt = g_mimeTypeMap.find(arg.formatType);
-	HATOHOL_ASSERT(
-	  mimeIt != g_mimeTypeMap.end(),
-	  "Invalid formatType: %d, %s", arg.formatType, path);
-	arg.mimeType = mimeIt->second;
-
-	// jsonp callback name
-	arg.jsonpCallbackName = getJsonpCallbackName(query, &arg);
-}
 
 // ---------------------------------------------------------------------------
 // Public methods
@@ -675,6 +610,67 @@ bool FaceRest::parseFormatType(GHashTable *query, HandlerArg &arg)
 	return true;
 }
 
+void FaceRest::setupHandlerArg(FaceRest::HandlerArg &arg, FaceRest *faceRest,
+			       SoupMessage *msg, const char *path,
+			       GHashTable *query, SoupClientContext *client)
+{
+	arg.faceRest = faceRest;
+
+	const char *sessionId =
+	   soup_message_headers_get_one(msg->request_headers,
+	                                SESSION_ID_HEADER_NAME);
+	if (!sessionId) {
+		// We should return an error. But now, we just set
+		// USER_ID_ADMIN to keep compatiblity until the user privilege
+		// feature is completely implemnted.
+		if (path != pathForLogin)
+			arg.userId = USER_ID_ADMIN;
+		else
+			arg.userId = INVALID_USER_ID;
+	} else {
+		arg.sessionId = sessionId;
+		PrivateContext::lock.lock();
+		const SessionInfo *sessionInfo = getSessionInfo(sessionId);
+		if (!sessionInfo) {
+			PrivateContext::lock.unlock();
+			replyError(msg, &arg, HTERR_NOT_FOUND_SESSION_ID);
+			return;
+		}
+		arg.userId = sessionInfo->userId;
+		PrivateContext::lock.unlock();
+	}
+
+	// We expect URIs  whose style are the following.
+	//
+	// Examples:
+	// http://localhost:33194/action
+	// http://localhost:33194/action?fmt=json
+	// http://localhost:33194/action/2345?fmt=html
+
+	// a format type
+	if (!parseFormatType(query, arg)) {
+		REPLY_ERROR(msg, &arg, HTERR_UNSUPORTED_FORMAT,
+		            "%s", arg.formatString.c_str());
+		return;
+	}
+
+	// ID
+	StringVector pathElemVect;
+	StringUtils::split(pathElemVect, path, '/');
+	if (pathElemVect.size() >= 2)
+		arg.id = pathElemVect[1];
+
+	// MIME
+	MimeTypeMapIterator mimeIt = g_mimeTypeMap.find(arg.formatType);
+	HATOHOL_ASSERT(
+	  mimeIt != g_mimeTypeMap.end(),
+	  "Invalid formatType: %d, %s", arg.formatType, path);
+	arg.mimeType = mimeIt->second;
+
+	// jsonp callback name
+	arg.jsonpCallbackName = getJsonpCallbackName(query, &arg);
+}
+
 void FaceRest::launchHandlerInTryBlock
   (SoupServer *server, SoupMessage *msg, const char *path,
    GHashTable *_query, SoupClientContext *client, gpointer user_data)
@@ -689,7 +685,8 @@ void FaceRest::launchHandlerInTryBlock
 	}
 
 	HandlerClosure *closure = static_cast<HandlerClosure *>(user_data);
-	HandlerArg arg(arg, closure->m_faceRest, msg, path, query, client);
+	HandlerArg arg;
+	setupHandlerArg(arg, closure->m_faceRest, msg, path, query, client);
 
 	try {
 		(*closure->m_handler)(server, msg, path, query, client, &arg);
