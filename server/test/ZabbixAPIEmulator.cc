@@ -440,7 +440,7 @@ void ZabbixAPIEmulator::APIHandlerHostGet(APIHandlerArg &arg)
 
 void ZabbixAPIEmulator::APIHandlerEventGet(APIHandlerArg &arg)
 {
-	gchar *contents;
+	string contents;
 	gsize length;
 	static const char *DATA_FILE = "zabbix-api-res-events-002.json";
 	string path = getFixturesDir() + DATA_FILE;
@@ -448,6 +448,7 @@ void ZabbixAPIEmulator::APIHandlerEventGet(APIHandlerArg &arg)
 	parseParameter(arg, params);
 	makeEventJsonData(path);
 
+	length = contents.size();
 	soup_message_body_append(arg.msg->response_body, SOUP_MEMORY_TAKE,
 	                         contents, length);
 	soup_message_set_status(arg.msg, SOUP_STATUS_OK);
