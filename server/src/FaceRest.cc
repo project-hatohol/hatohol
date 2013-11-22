@@ -95,7 +95,15 @@ enum FormatType {
 
 struct FaceRest::RestMessage
 {
+	// arguments of SoupServerCallback
+	SoupMessage       *message;
+	string             path;
+	GHashTable        *query;
+	SoupClientContext *client;
+
 	FaceRest   *faceRest;
+
+	// parsed data
 	string      formatString;
 	FormatType  formatType;
 	const char *mimeType;
@@ -614,6 +622,10 @@ void FaceRest::setupRestMessage(FaceRest::RestMessage &arg, FaceRest *faceRest,
 				SoupMessage *msg, const char *path,
 				GHashTable *query, SoupClientContext *client)
 {
+	arg.message  = msg;
+	arg.path     = path;
+	arg.query    = query;
+	arg.client   = client;
 	arg.faceRest = faceRest;
 
 	const char *sessionId =
