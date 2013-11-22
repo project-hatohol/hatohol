@@ -32,6 +32,7 @@ enum OperationMode {
 class ZabbixAPIEmulator {
 public:
 	struct APIHandlerArg;
+	struct ParameterEventGet;
 	struct JsonKeys;
 	typedef void (ZabbixAPIEmulator::*APIHandler)(APIHandlerArg &);
 
@@ -71,11 +72,10 @@ protected:
 	string addJsonResponse(const string &slice, APIHandlerArg &arg);
 
 private:
-	struct ParameterEventGet;
 	struct PrivateContext;
 	PrivateContext *m_ctx;
 
-	void parseEventGetParameter(APIHandlerArg &arg, ParameterEventGet params);
+	void parseEventGetParameter(APIHandlerArg &arg);
 };
 
 #endif // ZabbixAPIEmulator_h

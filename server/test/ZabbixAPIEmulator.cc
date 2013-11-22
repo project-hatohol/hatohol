@@ -99,6 +99,7 @@ struct ZabbixAPIEmulator::PrivateContext {
 	size_t        currEventSliceIndex;
 	vector<string> slicedEventVector;
 	GMainContext   *gMainCtx;
+	struct ParameterEventGet paramEvent;
 	JsonData	jsonData;
 	
 	// methods
@@ -445,8 +446,7 @@ void ZabbixAPIEmulator::APIHandlerEventGet(APIHandlerArg &arg)
 	gsize length;
 	static const char *DATA_FILE = "zabbix-api-res-events-002.json";
 	string path = getFixturesDir() + DATA_FILE;
-	ParameterEventGet params;
-	parseEventGetParameter(arg, params);
+	parseEventGetParameter(arg);
 	makeEventJsonData(path);
 
 
@@ -518,7 +518,7 @@ string ZabbixAPIEmulator::addJsonResponse(const string &slice,
 // ---------------------------------------------------------------------------
 // Private methods
 // ---------------------------------------------------------------------------
-void ZabbixAPIEmulator::parseEventGetParameter(APIHandlerArg &arg, ParameterEventGet params)
+void ZabbixAPIEmulator::parseEventGetParameter(APIHandlerArg &arg)
 {
 	JsonParserAgent parser(arg.msg->request_body->data);
 	if (parser.hasError()) {
@@ -527,48 +527,48 @@ void ZabbixAPIEmulator::parseEventGetParameter(APIHandlerArg &arg, ParameterEven
 	}
 	parser.startObject("params");
 
-	if (!parser.read("output", params.output))
+	if (!parser.read("output", m_ctx->paramEvent.output))
 		THROW_HATOHOL_EXCEPTION("Not found: output");
-	if (params.output != "extend" && params.output != "shorten") {
+	if (m_ctx->paramEvent.output != "extend" && m_ctx->paramEvent.output != "shorten") {
 		THROW_HATOHOL_EXCEPTION("Invalid parameter: output: %s",
-				params.output.c_str());
+				m_ctx->paramEvent.output.c_str());
 	}
 
-	if (parser.read("sortfield", params.sortField)) {
-		if (params.sortField != "eventid") {
+	if (parser.read("sortfield", m_ctx->paramEvent.sortField)) {
+		if (m_ctx->paramEvent.sortField != "eventid") {
 			THROW_HATOHOL_EXCEPTION("Invalid parameter: sortfield: %s",
-					params.sortField.c_str());
+					m_ctx->paramEvent.sortField.c_str());
 		}
 	}
 
-	if (parser.read("sortorder", params.sortOrder)) {
-		if (params.sortOrder != "ASC" && params.sortOrder != "DESC") {
+	if (parser.read("sortorder", m_ctx->paramEvent.sortOrder)) {
+		if (m_ctx->paramEvent.sortOrder != "ASC" && m_ctx->paramEvent.sortOrder != "DESC") {
 			THROW_HATOHOL_EXCEPTION("Invalid parameter: sortorder: %s",
-					params.sortOrder.c_str());
+					m_ctx->paramEvent.sortOrder.c_str());
 		}
 	}
 
-	if (parser.read("limit", params.limit)) {
-		if (params.limit < 0)
-			THROW_HATOHOL_EXCEPTION("Invalid parameter: limit: %"PRId64"\n", params.limit);
+	if (parser.read("limit", m_ctx->paramEvent.limit)) {
+		if (m_ctx->paramEvent.limit < 0)
+			THROW_HATOHOL_EXCEPTION("Invalid parameter: limit: %"PRId64"\n", m_ctx->paramEvent.limit);
 	} else {
 		THROW_HATOHOL_EXCEPTION("Not found: limit");
 	}
 
 	string rawEventIdFrom;
 	if(parser.read("eventid_from", rawEventIdFrom)) {
-		sscanf(rawEventIdFrom.c_str(), "%"PRIu64, &params.eventIdFrom);
-		if (params.eventIdFrom < 0)
-			THROW_HATOHOL_EXCEPTION("Invalid parameter: eventid_from: %"PRId64"\n", params.eventIdFrom);
+		sscanf(rawEventIdFrom.c_str(), "%"PRIu64, &m_ctx->paramEvent.eventIdFrom);
+		if (m_ctx->paramEvent.eventIdFrom < 0)
+			THROW_HATOHOL_EXCEPTION("Invalid parameter: eventid_from: %"PRId64"\n", m_ctx->paramEvent.eventIdFrom);
 	} else {
 		THROW_HATOHOL_EXCEPTION("Not Found: eventid_from");
 	}
 
 	string rawEventIdTill;
 	if(parser.read("eventid_till", rawEventIdTill)) {
-		sscanf(rawEventIdTill.c_str(), "%"PRIu64, &params.eventIdTill);
-		if (params.eventIdTill < 0)
-			THROW_HATOHOL_EXCEPTION("Invalid parameter: eventid_till: %"PRId64"\n", params.eventIdTill);
+		sscanf(rawEventIdTill.c_str(), "%"PRIu64, &m_ctx->paramEvent.eventIdTill);
+		if (m_ctx->paramEvent.eventIdTill < 0)
+			THROW_HATOHOL_EXCEPTION("Invalid parameter: eventid_till: %"PRId64"\n", m_ctx->paramEvent.eventIdTill);
 	} else {
 		THROW_HATOHOL_EXCEPTION("Not Found: eventid_till");
 	}
