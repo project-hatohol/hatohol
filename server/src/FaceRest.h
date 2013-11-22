@@ -114,6 +114,9 @@ protected:
 	                 const char *path, GHashTable *query,
 	                 SoupClientContext *client, gpointer user_data);
 	static bool parseFormatType(GHashTable *query, HandlerArg &arg);
+	static void setupHandlerArg(FaceRest::HandlerArg &arg,
+				    SoupMessage *msg, const char *path,
+				    GHashTable *query, SoupClientContext *client);
 	static void launchHandlerInTryBlock
 	  (SoupServer *server, SoupMessage *msg, const char *path,
 	   GHashTable *query, SoupClientContext *client, gpointer user_data);

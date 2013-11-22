@@ -610,15 +610,10 @@ bool FaceRest::parseFormatType(GHashTable *query, HandlerArg &arg)
 	return true;
 }
 
-void FaceRest::launchHandlerInTryBlock
-  (SoupServer *server, SoupMessage *msg, const char *path,
-   GHashTable *_query, SoupClientContext *client, gpointer user_data)
+void FaceRest::setupHandlerArg(FaceRest::HandlerArg &arg,
+			       SoupMessage *msg, const char *path,
+			       GHashTable *query, SoupClientContext *client)
 {
-	HandlerClosure *closure = static_cast<HandlerClosure *>(user_data);
-	HandlerArg arg;
-
-	arg.faceRest = closure->m_faceRest;
-
 	const char *sessionId =
 	   soup_message_headers_get_one(msg->request_headers,
 	                                SESSION_ID_HEADER_NAME);
@@ -650,15 +645,6 @@ void FaceRest::launchHandlerInTryBlock
 	// http://localhost:33194/action?fmt=json
 	// http://localhost:33194/action/2345?fmt=html
 
-	GHashTable *query = _query;
-	Reaper<GHashTable> postQueryReaper;
-	if (strcasecmp(msg->method, "POST") == 0) {
-		// The POST request contains query parameters in the body
-		// according to application/x-www-form-urlencoded.
-		query = soup_form_decode(msg->request_body->data);
-		postQueryReaper.set(query, g_hash_table_unref);
-	}
-
 	// a format type
 	if (!parseFormatType(query, arg)) {
 		REPLY_ERROR(msg, &arg, HTERR_UNSUPORTED_FORMAT,
@@ -681,6 +667,25 @@ void FaceRest::launchHandlerInTryBlock
 
 	// jsonp callback name
 	arg.jsonpCallbackName = getJsonpCallbackName(query, &arg);
+}
+
+void FaceRest::launchHandlerInTryBlock
+  (SoupServer *server, SoupMessage *msg, const char *path,
+   GHashTable *_query, SoupClientContext *client, gpointer user_data)
+{
+	GHashTable *query = _query;
+	Reaper<GHashTable> postQueryReaper;
+	if (strcasecmp(msg->method, "POST") == 0) {
+		// The POST request contains query parameters in the body
+		// according to application/x-www-form-urlencoded.
+		query = soup_form_decode(msg->request_body->data);
+		postQueryReaper.set(query, g_hash_table_unref);
+	}
+
+	HandlerClosure *closure = static_cast<HandlerClosure *>(user_data);
+	HandlerArg arg;
+	setupHandlerArg(arg, msg, path, query, client);
+	arg.faceRest = closure->m_faceRest;
 
 	try {
 		(*closure->m_handler)(server, msg, path, query, client, &arg);
