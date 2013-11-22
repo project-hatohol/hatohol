@@ -618,7 +618,7 @@ bool FaceRest::parseFormatType(GHashTable *query, RestMessage &arg)
 	return true;
 }
 
-void FaceRest::setupRestMessage(FaceRest::RestMessage &arg, FaceRest *faceRest,
+bool FaceRest::setupRestMessage(FaceRest::RestMessage &arg, FaceRest *faceRest,
 				SoupMessage *msg, const char *path,
 				GHashTable *query, SoupClientContext *client)
 {
@@ -646,7 +646,7 @@ void FaceRest::setupRestMessage(FaceRest::RestMessage &arg, FaceRest *faceRest,
 		if (!sessionInfo) {
 			PrivateContext::lock.unlock();
 			replyError(&arg, HTERR_NOT_FOUND_SESSION_ID);
-			return;
+			return false;
 		}
 		arg.userId = sessionInfo->userId;
 		PrivateContext::lock.unlock();
@@ -663,7 +663,7 @@ void FaceRest::setupRestMessage(FaceRest::RestMessage &arg, FaceRest *faceRest,
 	if (!parseFormatType(query, arg)) {
 		REPLY_ERROR(&arg, HTERR_UNSUPORTED_FORMAT,
 		            "%s", arg.formatString.c_str());
-		return;
+		return false;
 	}
 
 	// ID
@@ -681,6 +681,8 @@ void FaceRest::setupRestMessage(FaceRest::RestMessage &arg, FaceRest *faceRest,
 
 	// jsonp callback name
 	arg.jsonpCallbackName = getJsonpCallbackName(query, &arg);
+
+	return true;
 }
 
 void FaceRest::launchHandlerInTryBlock
@@ -698,7 +700,10 @@ void FaceRest::launchHandlerInTryBlock
 
 	HandlerClosure *closure = static_cast<HandlerClosure *>(user_data);
 	RestMessage arg;
-	setupRestMessage(arg, closure->m_faceRest, msg, path, query, client);
+	bool succeeded = setupRestMessage(arg, closure->m_faceRest,
+					  msg, path, query, client);
+	if (!succeeded)
+		return;
 
 	try {
 		(*closure->m_handler)(&arg);
