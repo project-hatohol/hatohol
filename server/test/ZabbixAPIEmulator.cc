@@ -62,6 +62,7 @@ struct ZabbixAPIEmulator::ParameterEventGet {
 };
 
 struct ZabbixAPIEmulator::JsonKeys {
+	int64_t eventid;
 	int64_t source;
 	int64_t object;
 	int64_t objectId;
@@ -493,6 +494,7 @@ void ZabbixAPIEmulator::makeEventJsonData(const string &path)
 		parser.endElement();
 
 		JsonKeys key;
+		key.eventid = parsedData[0];
 		key.source = parsedData[1];
 		key.object = parsedData[2];
 		key.objectId = parsedData[3];
