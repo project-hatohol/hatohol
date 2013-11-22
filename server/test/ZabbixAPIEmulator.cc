@@ -28,7 +28,7 @@
 #include "HatoholException.h"
 #include "Helpers.h"
 
-static const int COUNT_ELEMENT_NAMES = 10
+static const int COUNT_ELEMENT_NAMES = 10;
 
 using namespace mlpl;
 
