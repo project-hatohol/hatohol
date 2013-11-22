@@ -611,8 +611,8 @@ bool FaceRest::parseFormatType(GHashTable *query, RestMessage &arg)
 }
 
 void FaceRest::setupRestMessage(FaceRest::RestMessage &arg, FaceRest *faceRest,
-			       SoupMessage *msg, const char *path,
-			       GHashTable *query, SoupClientContext *client)
+				SoupMessage *msg, const char *path,
+				GHashTable *query, SoupClientContext *client)
 {
 	arg.faceRest = faceRest;
 
