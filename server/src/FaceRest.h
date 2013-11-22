@@ -69,16 +69,15 @@ protected:
 	size_t parseCmdArgPort(CommandLineArg &cmdArg, size_t idx);
 	static void addHatoholError(JsonBuilderAgent &agent,
 	                            const HatoholError &err);
-	static void replyError(SoupMessage *msg, const RestMessage *arg,
+	static void replyError(const RestMessage *arg,
 	                       const HatoholError &hatoholError);
-	static void replyError(SoupMessage *msg, const RestMessage *arg,
+	static void replyError(const RestMessage *arg,
 	                       const HatoholErrorCode &errorCode,
 	                       const string &optionMessage = "");
 	static string getJsonpCallbackName(GHashTable *query, RestMessage *arg);
 	static string wrapForJsonp(const string &jsonBody,
                                    const string &callbackName);
-	static void replyJsonData(JsonBuilderAgent &agent, SoupMessage *msg,
-	                          RestMessage *arg);
+	static void replyJsonData(JsonBuilderAgent &agent, RestMessage *arg);
 
 	void pauseMessage(SoupMessage *msg);
 	void unpauseMessage(SoupMessage *msg);
@@ -122,62 +121,26 @@ protected:
 	  (SoupServer *server, SoupMessage *msg, const char *path,
 	   GHashTable *query, SoupClientContext *client, gpointer user_data);
 
-	static void handlerHelloPage
-	  (SoupServer *server, SoupMessage *msg, const char *path,
-	   GHashTable *query, SoupClientContext *client, RestMessage *arg);
-	static void handlerTest
-	  (SoupServer *server, SoupMessage *msg, const char *path,
-	   GHashTable *query, SoupClientContext *client, RestMessage *arg);
-	static void handlerLogin
-	  (SoupServer *server, SoupMessage *msg, const char *path,
-	   GHashTable *query, SoupClientContext *client, RestMessage *arg);
-	static void handlerLogout
-	  (SoupServer *server, SoupMessage *msg, const char *path,
-	   GHashTable *query, SoupClientContext *client, RestMessage *arg);
-	static void handlerGetOverview
-	  (SoupServer *server, SoupMessage *msg, const char *path,
-	   GHashTable *query, SoupClientContext *client, RestMessage *arg);
-	static void handlerGetServer
-	  (SoupServer *server, SoupMessage *msg, const char *path,
-	   GHashTable *query, SoupClientContext *client, RestMessage *arg);
-	static void handlerGetHost
-	  (SoupServer *server, SoupMessage *msg, const char *path,
-	   GHashTable *query, SoupClientContext *client, RestMessage *arg);
-	static void handlerGetTrigger
-	  (SoupServer *server, SoupMessage *msg, const char *path,
-	   GHashTable *query, SoupClientContext *client, RestMessage *arg);
-	static void handlerGetEvent
-	  (SoupServer *server, SoupMessage *msg, const char *path,
-	   GHashTable *query, SoupClientContext *client, RestMessage *arg);
-	static void handlerGetItem
-	  (SoupServer *server, SoupMessage *msg, const char *path,
-	   GHashTable *query, SoupClientContext *client, RestMessage *arg);
+	static void handlerHelloPage(RestMessage *arg);
+	static void handlerTest(RestMessage *arg);
+	static void handlerLogin(RestMessage *arg);
+	static void handlerLogout(RestMessage *arg);
+	static void handlerGetOverview(RestMessage *arg);
+	static void handlerGetServer(RestMessage *arg);
+	static void handlerGetHost(RestMessage *arg);
+	static void handlerGetTrigger(RestMessage *arg);
+	static void handlerGetEvent(RestMessage *arg);
+	static void handlerGetItem(RestMessage *arg);
 
-	static void handlerAction
-	  (SoupServer *server, SoupMessage *msg, const char *path,
-	   GHashTable *query, SoupClientContext *client, RestMessage *arg);
-	static void handlerGetAction
-	  (SoupServer *server, SoupMessage *msg, const char *path,
-	   GHashTable *query, SoupClientContext *client, RestMessage *arg);
-	static void handlerPostAction
-	  (SoupServer *server, SoupMessage *msg, const char *path,
-	   GHashTable *query, SoupClientContext *client, RestMessage *arg);
-	static void handlerDeleteAction
-	  (SoupServer *server, SoupMessage *msg, const char *path,
-	   GHashTable *query, SoupClientContext *client, RestMessage *arg);
+	static void handlerAction(RestMessage *arg);
+	static void handlerGetAction(RestMessage *arg);
+	static void handlerPostAction(RestMessage *arg);
+	static void handlerDeleteAction(RestMessage *arg);
 
-	static void handlerUser
-	  (SoupServer *server, SoupMessage *msg, const char *path,
-	   GHashTable *query, SoupClientContext *client, RestMessage *arg);
-	static void handlerGetUser
-	  (SoupServer *server, SoupMessage *msg, const char *path,
-	   GHashTable *query, SoupClientContext *client, RestMessage *arg);
-	static void handlerPostUser
-	  (SoupServer *server, SoupMessage *msg, const char *path,
-	   GHashTable *query, SoupClientContext *client, RestMessage *arg);
-	static void handlerDeleteUser
-	  (SoupServer *server, SoupMessage *msg, const char *path,
-	   GHashTable *query, SoupClientContext *client, RestMessage *arg);
+	static void handlerUser(RestMessage *arg);
+	static void handlerGetUser(RestMessage *arg);
+	static void handlerPostUser(RestMessage *arg);
+	static void handlerDeleteUser(RestMessage *arg);
 
 	void itemFetchedCallback(ClosureBase *closure);
 
