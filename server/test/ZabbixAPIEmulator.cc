@@ -449,10 +449,10 @@ void ZabbixAPIEmulator::APIHandlerEventGet(APIHandlerArg &arg)
 	makeEventJsonData(path);
 
 
-
-	length = contents.size();
+	string sendData = addJsonResponse(contents, arg);
+	length = sendData.size();
 	soup_message_body_append(arg.msg->response_body, SOUP_MEMORY_TAKE,
-	                         contents, length);
+	                         sendData, length);
 	soup_message_set_status(arg.msg, SOUP_STATUS_OK);
 }
 
