@@ -188,6 +188,7 @@ struct FaceRest::RestMessage
 	SoupClientContext *client;
 
 	FaceRest   *faceRest;
+	RestHandler handler;
 
 	// parsed data
 	string      formatString;
@@ -198,9 +199,9 @@ struct FaceRest::RestMessage
 	string      sessionId;
 	UserIdType  userId;
 
-	RestMessage(FaceRest *_faceRest, SoupMessage *_msg,
-		    const char *_path, GHashTable *_query,
-		    SoupClientContext *_client);
+	RestMessage(FaceRest *_faceRest, RestHandler _handler,
+		    SoupMessage *_msg, const char *_path,
+		    GHashTable *_query, SoupClientContext *_client);
 
 	SoupServer *server(void) {
 		return faceRest ? faceRest->m_ctx->soupServer : NULL;
@@ -352,51 +353,51 @@ gpointer FaceRest::mainThread(HatoholThreadArg *arg)
 	soup_server_add_handler(m_ctx->soupServer, NULL,
 	                        handlerDefault, this, NULL);
 	soup_server_add_handler(m_ctx->soupServer, "/hello.html",
-	                        launchHandlerInTryBlock,
+	                        queueMessage,
 	                        new HandlerClosure(this, &handlerHelloPage),
 				deleteHandlerClosure);
 	soup_server_add_handler(m_ctx->soupServer, "/test",
-	                        launchHandlerInTryBlock,
+	                        queueMessage,
 	                        new HandlerClosure(this, handlerTest),
 				deleteHandlerClosure);
 	soup_server_add_handler(m_ctx->soupServer, pathForLogin,
-	                        launchHandlerInTryBlock,
+	                        queueMessage,
 	                        new HandlerClosure(this, handlerLogin),
 				deleteHandlerClosure);
 	soup_server_add_handler(m_ctx->soupServer, pathForLogout,
-	                        launchHandlerInTryBlock,
+	                        queueMessage,
 	                        new HandlerClosure(this, handlerLogout),
 				deleteHandlerClosure);
 	soup_server_add_handler(m_ctx->soupServer, pathForGetOverview,
-	                        launchHandlerInTryBlock,
+	                        queueMessage,
 	                        new HandlerClosure(this, handlerGetOverview),
 				deleteHandlerClosure);
 	soup_server_add_handler(m_ctx->soupServer, pathForGetServer,
-	                        launchHandlerInTryBlock,
+	                        queueMessage,
 	                        new HandlerClosure(this, handlerGetServer),
 				deleteHandlerClosure);
 	soup_server_add_handler(m_ctx->soupServer, pathForGetHost,
-	                        launchHandlerInTryBlock,
+	                        queueMessage,
 	                        new HandlerClosure(this, handlerGetHost),
 				deleteHandlerClosure);
 	soup_server_add_handler(m_ctx->soupServer, pathForGetTrigger,
-	                        launchHandlerInTryBlock,
+	                        queueMessage,
 	                        new HandlerClosure(this, handlerGetTrigger),
 				deleteHandlerClosure);
 	soup_server_add_handler(m_ctx->soupServer, pathForGetEvent,
-	                        launchHandlerInTryBlock,
+	                        queueMessage,
 	                        new HandlerClosure(this, handlerGetEvent),
 				deleteHandlerClosure);
 	soup_server_add_handler(m_ctx->soupServer, pathForGetItem,
-	                        launchHandlerInTryBlock,
+	                        queueMessage,
 	                        new HandlerClosure(this, handlerGetItem),
 				deleteHandlerClosure);
 	soup_server_add_handler(m_ctx->soupServer, pathForAction,
-	                        launchHandlerInTryBlock,
+	                        queueMessage,
 	                        new HandlerClosure(this, handlerAction),
 				deleteHandlerClosure);
 	soup_server_add_handler(m_ctx->soupServer, pathForUser,
-	                        launchHandlerInTryBlock,
+	                        queueMessage,
 	                        new HandlerClosure(this, handlerUser),
 				deleteHandlerClosure);
 	if (m_ctx->param)
@@ -590,10 +591,10 @@ void FaceRest::handlerDefault(SoupServer *server, SoupMessage *msg,
 }
 
 FaceRest::RestMessage::RestMessage
-  (FaceRest *_faceRest, SoupMessage *_msg,
+  (FaceRest *_faceRest, RestHandler _handler, SoupMessage *_msg,
    const char *_path, GHashTable *_query, SoupClientContext *_client)
 : message(_msg), path(_path ? _path : ""), query(_query), client(_client),
-  faceRest(_faceRest), mimeType(NULL)
+  faceRest(_faceRest), handler(_handler), mimeType(NULL)
 {
 }
 
@@ -696,7 +697,7 @@ bool FaceRest::RestMessage::parse(void)
 	return true;
 }
 
-void FaceRest::launchHandlerInTryBlock
+void FaceRest::queueMessage
   (SoupServer *server, SoupMessage *msg, const char *path,
    GHashTable *_query, SoupClientContext *client, gpointer user_data)
 {
@@ -710,14 +711,20 @@ void FaceRest::launchHandlerInTryBlock
 	}
 
 	HandlerClosure *closure = static_cast<HandlerClosure *>(user_data);
-	RestMessage arg(closure->m_faceRest, msg, path, query, client);
+	RestMessage arg(closure->m_faceRest, closure->m_handler,
+			msg, path, query, client);
 	if (!arg.parse())
 		return;
 
+	launchHandlerInTryBlock(&arg);
+}
+
+void FaceRest::launchHandlerInTryBlock(RestMessage *arg)
+{
 	try {
-		(*closure->m_handler)(&arg);
+		(*arg->handler)(arg);
 	} catch (const HatoholException &e) {
-		REPLY_ERROR(&arg, HTERR_GOT_EXCEPTION,
+		REPLY_ERROR(arg, HTERR_GOT_EXCEPTION,
 		            "%s", e.getFancyMessage().c_str());
 	}
 }

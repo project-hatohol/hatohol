@@ -111,9 +111,10 @@ protected:
 	  handlerDefault(SoupServer *server, SoupMessage *msg,
 	                 const char *path, GHashTable *query,
 	                 SoupClientContext *client, gpointer user_data);
-	static void launchHandlerInTryBlock
+	static void queueMessage
 	  (SoupServer *server, SoupMessage *msg, const char *path,
 	   GHashTable *query, SoupClientContext *client, gpointer user_data);
+	static void launchHandlerInTryBlock(RestMessage *arg);
 
 	static void handlerHelloPage(RestMessage *arg);
 	static void handlerTest(RestMessage *arg);
