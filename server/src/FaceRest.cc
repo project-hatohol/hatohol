@@ -1390,8 +1390,7 @@ void FaceRest::handlerPostAction(RestMessage *arg)
 
 	// action type
 	succeeded = getParamWithErrorReply<int>(
-	              arg->query, arg->message, arg,
-	              "type", "%d", (int &)actionDef.type, &exist);
+	              arg, "type", "%d", (int &)actionDef.type, &exist);
 	if (!succeeded)
 		return;
 	if (!exist) {
@@ -1426,8 +1425,7 @@ void FaceRest::handlerPostAction(RestMessage *arg)
 
 	// timeout
 	succeeded = getParamWithErrorReply<int>(
-	              arg->query, arg->message, arg,
-	              "timeout", "%d", actionDef.timeout, &exist);
+	              arg, "timeout", "%d", actionDef.timeout, &exist);
 	if (!succeeded)
 		return;
 	if (!exist)
@@ -1435,8 +1433,7 @@ void FaceRest::handlerPostAction(RestMessage *arg)
 
 	// serverId
 	succeeded = getParamWithErrorReply<int>(
-	              arg->query, arg->message, arg,
-	              "serverId", "%d", cond.serverId, &exist);
+	              arg, "serverId", "%d", cond.serverId, &exist);
 	if (!succeeded)
 		return;
 	if (exist)
@@ -1444,8 +1441,7 @@ void FaceRest::handlerPostAction(RestMessage *arg)
 
 	// hostId
 	succeeded = getParamWithErrorReply<uint64_t>(
-	              arg->query, arg->message, arg,
-	              "hostId", "%"PRIu64, cond.hostId, &exist);
+	              arg, "hostId", "%"PRIu64, cond.hostId, &exist);
 	if (!succeeded)
 		return;
 	if (exist)
@@ -1453,8 +1449,7 @@ void FaceRest::handlerPostAction(RestMessage *arg)
 
 	// hostGroupId
 	succeeded = getParamWithErrorReply<uint64_t>(
-	              arg->query, arg->message, arg,
-	              "hostGroupId", "%"PRIu64, cond.hostGroupId, &exist);
+	              arg, "hostGroupId", "%"PRIu64, cond.hostGroupId, &exist);
 	if (!succeeded)
 		return;
 	if (exist)
@@ -1462,8 +1457,7 @@ void FaceRest::handlerPostAction(RestMessage *arg)
 
 	// triggerId
 	succeeded = getParamWithErrorReply<uint64_t>(
-	              arg->query, arg->message, arg,
-	              "triggerId", "%"PRIu64, cond.triggerId, &exist);
+	              arg, "triggerId", "%"PRIu64, cond.triggerId, &exist);
 	if (!succeeded)
 		return;
 	if (exist)
@@ -1471,8 +1465,7 @@ void FaceRest::handlerPostAction(RestMessage *arg)
 
 	// triggerStatus
 	succeeded = getParamWithErrorReply<int>(
-	              arg->query, arg->message, arg,
-	              "triggerStatus", "%d", cond.triggerStatus, &exist);
+	              arg, "triggerStatus", "%d", cond.triggerStatus, &exist);
 	if (!succeeded)
 		return;
 	if (exist)
@@ -1480,8 +1473,7 @@ void FaceRest::handlerPostAction(RestMessage *arg)
 
 	// triggerSeverity
 	succeeded = getParamWithErrorReply<int>(
-	              arg->query, arg->message, arg,
-	              "triggerSeverity", "%d", cond.triggerSeverity, &exist);
+	              arg, "triggerSeverity", "%d", cond.triggerSeverity, &exist);
 	if (!succeeded)
 		return;
 	if (exist) {
@@ -1489,8 +1481,7 @@ void FaceRest::handlerPostAction(RestMessage *arg)
 
 		// triggerSeverityComparatorType
 		succeeded = getParamWithErrorReply<int>(
-		              arg->query, arg->message, arg,
-		              "triggerSeverityCompType", "%d",
+		              arg, "triggerSeverityCompType", "%d",
 		              (int &)cond.triggerSeverityCompType, &exist);
 		if (!succeeded)
 			return;
@@ -1617,8 +1608,7 @@ void FaceRest::handlerPostUser(RestMessage *arg)
 
 	// flags
 	succeeded = getParamWithErrorReply<OperationPrivilegeFlag>(
-	              arg->query, arg->message, arg,
-	              "flags", "%"FMT_OPPRVLG, userInfo.flags, &exist);
+	              arg, "flags", "%"FMT_OPPRVLG, userInfo.flags, &exist);
 	if (!succeeded)
 		return;
 	if (!exist) {
@@ -1792,10 +1782,10 @@ HatoholError FaceRest::getParam(
 
 template<typename T>
 bool FaceRest::getParamWithErrorReply(
-  GHashTable *query, SoupMessage *msg, const RestMessage *arg,
-  const char *paramName, const char *scanFmt, T &dest, bool *exist)
+  const RestMessage *arg, const char *paramName, const char *scanFmt,
+  T &dest, bool *exist)
 {
-	char *value = (char *)g_hash_table_lookup(query, paramName);
+	char *value = (char *)g_hash_table_lookup(arg->query, paramName);
 	if (exist)
 		*exist = value;
 	if (!value)

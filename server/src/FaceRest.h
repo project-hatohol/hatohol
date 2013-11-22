@@ -188,8 +188,8 @@ private:
 
 	template<typename T>
 	static bool getParamWithErrorReply(
-	  GHashTable *query, SoupMessage *msg, const RestMessage *arg,
-	  const char *paramName, const char *scanFmt, T &dest, bool *exist);
+	  const RestMessage *arg, const char *paramName, const char *scanFmt,
+	  T &dest, bool *exist);
 
 	static const char *pathForTest;
 	static const char *pathForLogin;
