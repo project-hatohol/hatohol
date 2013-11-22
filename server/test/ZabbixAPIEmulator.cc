@@ -503,11 +503,6 @@ void ZabbixAPIEmulator::makeEventJsonData(const string &path)
 	}
 }
 
-string ZabbixAPIEmulator::makeEmptyResponse(APIHandlerArg &arg)
-{
-	return getSlicedResponse("", arg);
-}
-
 string ZabbixAPIEmulator::getSlicedResponse(const string &slice,
                                             APIHandlerArg &arg)
 {
