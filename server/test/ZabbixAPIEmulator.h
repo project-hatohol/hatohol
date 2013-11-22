@@ -68,7 +68,7 @@ protected:
 	void APIHandlerEventGet(APIHandlerArg &arg);
 	void APIHandlerApplicationGet(APIHandlerArg &arg);
 	void makeEventJsonData(const string &path);
-	string getSlicedResponse(const string &slice, APIHandlerArg &arg);
+	string addJsonResponse(const string &slice, APIHandlerArg &arg);
 
 private:
 	struct ParameterEventGet;
