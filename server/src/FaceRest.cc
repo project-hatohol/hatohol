@@ -44,7 +44,7 @@ const char *FaceRest::SESSION_ID_HEADER_NAME = "X-Hatohol-Session";
 typedef void (*RestHandler)
   (SoupServer *server, SoupMessage *msg, const char *path,
    GHashTable *query, SoupClientContext *client,
-   FaceRest::HandlerArg *arg);
+   FaceRest::RestMessage *arg);
 
 typedef uint64_t ServerID;
 typedef uint64_t HostID;
@@ -93,7 +93,7 @@ enum FormatType {
 	FORMAT_JSONP,
 };
 
-struct FaceRest::HandlerArg
+struct FaceRest::RestMessage
 {
 	FaceRest   *faceRest;
 	string      formatString;
@@ -418,14 +418,14 @@ void FaceRest::addHatoholError(JsonBuilderAgent &agent,
 		agent.add("optionMessages", err.getOptionMessage().c_str());
 }
 
-void FaceRest::replyError(SoupMessage *msg, const HandlerArg *arg,
+void FaceRest::replyError(SoupMessage *msg, const RestMessage *arg,
                           const HatoholError &hatoholError)
 {
 	replyError(msg, arg, hatoholError.getCode(),
 	           hatoholError.getOptionMessage());
 }
 
-void FaceRest::replyError(SoupMessage *msg, const HandlerArg *arg,
+void FaceRest::replyError(SoupMessage *msg, const RestMessage *arg,
                           const HatoholErrorCode &errorCode,
                           const string &optionMessage)
 {
@@ -450,7 +450,7 @@ void FaceRest::replyError(SoupMessage *msg, const HandlerArg *arg,
 	soup_message_set_status(msg, SOUP_STATUS_OK);
 }
 
-string FaceRest::getJsonpCallbackName(GHashTable *query, HandlerArg *arg)
+string FaceRest::getJsonpCallbackName(GHashTable *query, RestMessage *arg)
 {
 	if (arg->formatType != FORMAT_JSONP)
 		return "";
@@ -478,7 +478,7 @@ string FaceRest::wrapForJsonp(const string &jsonBody,
 }
 
 void FaceRest::replyJsonData(JsonBuilderAgent &agent, SoupMessage *msg,
-                             HandlerArg *arg)
+                             RestMessage *arg)
 {
 	string response = agent.generate();
 	if (!arg->jsonpCallbackName.empty())
@@ -588,7 +588,7 @@ void FaceRest::handlerDefault(SoupServer *server, SoupMessage *msg,
 	soup_message_set_status(msg, SOUP_STATUS_NOT_FOUND);
 }
 
-bool FaceRest::parseFormatType(GHashTable *query, HandlerArg &arg)
+bool FaceRest::parseFormatType(GHashTable *query, RestMessage &arg)
 {
 	arg.formatString.clear();
 	if (!query) {
@@ -610,7 +610,7 @@ bool FaceRest::parseFormatType(GHashTable *query, HandlerArg &arg)
 	return true;
 }
 
-void FaceRest::setupHandlerArg(FaceRest::HandlerArg &arg, FaceRest *faceRest,
+void FaceRest::setupRestMessage(FaceRest::RestMessage &arg, FaceRest *faceRest,
 			       SoupMessage *msg, const char *path,
 			       GHashTable *query, SoupClientContext *client)
 {
@@ -685,8 +685,8 @@ void FaceRest::launchHandlerInTryBlock
 	}
 
 	HandlerClosure *closure = static_cast<HandlerClosure *>(user_data);
-	HandlerArg arg;
-	setupHandlerArg(arg, closure->m_faceRest, msg, path, query, client);
+	RestMessage arg;
+	setupRestMessage(arg, closure->m_faceRest, msg, path, query, client);
 
 	try {
 		(*closure->m_handler)(server, msg, path, query, client, &arg);
@@ -698,7 +698,7 @@ void FaceRest::launchHandlerInTryBlock
 
 void FaceRest::handlerHelloPage
   (SoupServer *server, SoupMessage *msg, const char *path,
-   GHashTable *query, SoupClientContext *client, HandlerArg *arg)
+   GHashTable *query, SoupClientContext *client, RestMessage *arg)
 {
 	string response;
 	const char *pageTemplate =
@@ -960,7 +960,7 @@ static void addServersIdNameHash(
 
 void FaceRest::handlerTest
   (SoupServer *server, SoupMessage *msg, const char *path,
-   GHashTable *query, SoupClientContext *client, HandlerArg *arg)
+   GHashTable *query, SoupClientContext *client, RestMessage *arg)
 {
 	JsonBuilderAgent agent;
 	agent.startObject();
@@ -1008,7 +1008,7 @@ void FaceRest::handlerTest
 
 void FaceRest::handlerLogin
   (SoupServer *server, SoupMessage *msg, const char *path,
-   GHashTable *query, SoupClientContext *client, HandlerArg *arg)
+   GHashTable *query, SoupClientContext *client, RestMessage *arg)
 {
 	gchar *user = (gchar *)g_hash_table_lookup(query, "user");
 	if (!user) {
@@ -1050,7 +1050,7 @@ void FaceRest::handlerLogin
 
 void FaceRest::handlerLogout
   (SoupServer *server, SoupMessage *msg, const char *path,
-   GHashTable *query, SoupClientContext *client, HandlerArg *arg)
+   GHashTable *query, SoupClientContext *client, RestMessage *arg)
 {
 	if (!PrivateContext::removeSessionId(arg->sessionId)) {
 		replyError(msg, arg, HTERR_NOT_FOUND_SESSION_ID);
@@ -1067,7 +1067,7 @@ void FaceRest::handlerLogout
 
 void FaceRest::handlerGetOverview
   (SoupServer *server, SoupMessage *msg, const char *path,
-   GHashTable *query, SoupClientContext *client, HandlerArg *arg)
+   GHashTable *query, SoupClientContext *client, RestMessage *arg)
 {
 	JsonBuilderAgent agent;
 	agent.startObject();
@@ -1080,7 +1080,7 @@ void FaceRest::handlerGetOverview
 
 void FaceRest::handlerGetServer
   (SoupServer *server, SoupMessage *msg, const char *path,
-   GHashTable *query, SoupClientContext *client, HandlerArg *arg)
+   GHashTable *query, SoupClientContext *client, RestMessage *arg)
 {
 	uint32_t targetServerId;
 	parseQueryServerId(query, targetServerId);
@@ -1096,7 +1096,7 @@ void FaceRest::handlerGetServer
 
 void FaceRest::handlerGetHost
   (SoupServer *server, SoupMessage *msg, const char *path,
-   GHashTable *query, SoupClientContext *client, HandlerArg *arg)
+   GHashTable *query, SoupClientContext *client, RestMessage *arg)
 {
 	uint32_t targetServerId;
 	parseQueryServerId(query, targetServerId);
@@ -1114,7 +1114,7 @@ void FaceRest::handlerGetHost
 
 void FaceRest::handlerGetTrigger
   (SoupServer *server, SoupMessage *msg, const char *path,
-   GHashTable *query, SoupClientContext *client, HandlerArg *arg)
+   GHashTable *query, SoupClientContext *client, RestMessage *arg)
 {
 
 	uint32_t serverId;
@@ -1159,7 +1159,7 @@ void FaceRest::handlerGetTrigger
 
 void FaceRest::handlerGetEvent
   (SoupServer *server, SoupMessage *msg, const char *path,
-   GHashTable *query, SoupClientContext *client, HandlerArg *arg)
+   GHashTable *query, SoupClientContext *client, RestMessage *arg)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 
@@ -1210,12 +1210,12 @@ void FaceRest::handlerGetEvent
 
 struct GetItemClosure : Closure<FaceRest>
 {
-	struct FaceRest::HandlerArg m_handlerArg;
+	struct FaceRest::RestMessage m_handlerArg;
 	SoupServer *m_server;
 	SoupMessage *m_message;
 	GetItemClosure(FaceRest *receiver,
 		       callback func,
-		       struct FaceRest::HandlerArg &handlerArg,
+		       struct FaceRest::RestMessage &handlerArg,
 		       SoupServer  *server,
 		       SoupMessage *message)
 		: Closure(receiver, func), m_handlerArg(handlerArg),
@@ -1260,7 +1260,7 @@ void FaceRest::itemFetchedCallback(ClosureBase *closure)
 
 void FaceRest::handlerGetItem
   (SoupServer *server, SoupMessage *msg, const char *path,
-   GHashTable *query, SoupClientContext *client, HandlerArg *arg)
+   GHashTable *query, SoupClientContext *client, RestMessage *arg)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	FaceRest *face = arg->faceRest;
@@ -1291,7 +1291,7 @@ static void setActionCondition(
 
 void FaceRest::handlerAction
   (SoupServer *server, SoupMessage *msg, const char *path,
-   GHashTable *query, SoupClientContext *client, HandlerArg *arg)
+   GHashTable *query, SoupClientContext *client, RestMessage *arg)
 {
 	if (strcasecmp(msg->method, "GET") == 0) {
 		handlerGetAction(server, msg, path, query, client, arg);
@@ -1307,7 +1307,7 @@ void FaceRest::handlerAction
 
 void FaceRest::handlerGetAction
   (SoupServer *server, SoupMessage *msg, const char *path,
-   GHashTable *query, SoupClientContext *client, HandlerArg *arg)
+   GHashTable *query, SoupClientContext *client, RestMessage *arg)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 
@@ -1370,7 +1370,7 @@ void FaceRest::handlerGetAction
 
 void FaceRest::handlerPostAction
   (SoupServer *server, SoupMessage *msg, const char *path,
-   GHashTable *query, SoupClientContext *client, HandlerArg *arg)
+   GHashTable *query, SoupClientContext *client, RestMessage *arg)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 
@@ -1515,7 +1515,7 @@ void FaceRest::handlerPostAction
 
 void FaceRest::handlerDeleteAction
   (SoupServer *server, SoupMessage *msg, const char *path,
-   GHashTable *query, SoupClientContext *client, HandlerArg *arg)
+   GHashTable *query, SoupClientContext *client, RestMessage *arg)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	if (arg->id.empty()) {
@@ -1543,7 +1543,7 @@ void FaceRest::handlerDeleteAction
 
 void FaceRest::handlerUser
   (SoupServer *server, SoupMessage *msg, const char *path,
-   GHashTable *query, SoupClientContext *client, HandlerArg *arg)
+   GHashTable *query, SoupClientContext *client, RestMessage *arg)
 {
 	if (strcasecmp(msg->method, "GET") == 0) {
 		handlerGetUser(server, msg, path, query, client, arg);
@@ -1559,7 +1559,7 @@ void FaceRest::handlerUser
 
 void FaceRest::handlerGetUser
   (SoupServer *server, SoupMessage *msg, const char *path,
-   GHashTable *query, SoupClientContext *client, HandlerArg *arg)
+   GHashTable *query, SoupClientContext *client, RestMessage *arg)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 
@@ -1592,7 +1592,7 @@ void FaceRest::handlerGetUser
 
 void FaceRest::handlerPostUser
   (SoupServer *server, SoupMessage *msg, const char *path,
-   GHashTable *query, SoupClientContext *client, HandlerArg *arg)
+   GHashTable *query, SoupClientContext *client, RestMessage *arg)
 {
 	// Get query parameters
 	char *value;
@@ -1645,7 +1645,7 @@ void FaceRest::handlerPostUser
 
 void FaceRest::handlerDeleteUser
   (SoupServer *server, SoupMessage *msg, const char *path,
-   GHashTable *query, SoupClientContext *client, HandlerArg *arg)
+   GHashTable *query, SoupClientContext *client, RestMessage *arg)
 {
 	if (arg->id.empty()) {
 		replyError(msg, arg, HTERR_NOT_FOUND_ID_IN_URL);
@@ -1795,7 +1795,7 @@ HatoholError FaceRest::getParam(
 
 template<typename T>
 bool FaceRest::getParamWithErrorReply(
-  GHashTable *query, SoupMessage *msg, const HandlerArg *arg,
+  GHashTable *query, SoupMessage *msg, const RestMessage *arg,
   const char *paramName, const char *scanFmt, T &dest, bool *exist)
 {
 	char *value = (char *)g_hash_table_lookup(query, paramName);

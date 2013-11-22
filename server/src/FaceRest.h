@@ -59,7 +59,7 @@ public:
 	virtual ~FaceRest();
 	virtual void stop(void);
 
-	struct HandlerArg;
+	struct RestMessage;
 
 protected:
 	// virtual methods
@@ -69,16 +69,16 @@ protected:
 	size_t parseCmdArgPort(CommandLineArg &cmdArg, size_t idx);
 	static void addHatoholError(JsonBuilderAgent &agent,
 	                            const HatoholError &err);
-	static void replyError(SoupMessage *msg, const HandlerArg *arg,
+	static void replyError(SoupMessage *msg, const RestMessage *arg,
 	                       const HatoholError &hatoholError);
-	static void replyError(SoupMessage *msg, const HandlerArg *arg,
+	static void replyError(SoupMessage *msg, const RestMessage *arg,
 	                       const HatoholErrorCode &errorCode,
 	                       const string &optionMessage = "");
-	static string getJsonpCallbackName(GHashTable *query, HandlerArg *arg);
+	static string getJsonpCallbackName(GHashTable *query, RestMessage *arg);
 	static string wrapForJsonp(const string &jsonBody,
                                    const string &callbackName);
 	static void replyJsonData(JsonBuilderAgent &agent, SoupMessage *msg,
-	                          HandlerArg *arg);
+	                          RestMessage *arg);
 
 	void pauseMessage(SoupMessage *msg);
 	void unpauseMessage(SoupMessage *msg);
@@ -113,8 +113,8 @@ protected:
 	  handlerDefault(SoupServer *server, SoupMessage *msg,
 	                 const char *path, GHashTable *query,
 	                 SoupClientContext *client, gpointer user_data);
-	static bool parseFormatType(GHashTable *query, HandlerArg &arg);
-	static void setupHandlerArg(FaceRest::HandlerArg &arg,
+	static bool parseFormatType(GHashTable *query, RestMessage &arg);
+	static void setupRestMessage(FaceRest::RestMessage &arg,
 				    FaceRest *faceRest, SoupMessage *msg,
 				    const char *path, GHashTable *query,
 				    SoupClientContext *client);
@@ -124,60 +124,60 @@ protected:
 
 	static void handlerHelloPage
 	  (SoupServer *server, SoupMessage *msg, const char *path,
-	   GHashTable *query, SoupClientContext *client, HandlerArg *arg);
+	   GHashTable *query, SoupClientContext *client, RestMessage *arg);
 	static void handlerTest
 	  (SoupServer *server, SoupMessage *msg, const char *path,
-	   GHashTable *query, SoupClientContext *client, HandlerArg *arg);
+	   GHashTable *query, SoupClientContext *client, RestMessage *arg);
 	static void handlerLogin
 	  (SoupServer *server, SoupMessage *msg, const char *path,
-	   GHashTable *query, SoupClientContext *client, HandlerArg *arg);
+	   GHashTable *query, SoupClientContext *client, RestMessage *arg);
 	static void handlerLogout
 	  (SoupServer *server, SoupMessage *msg, const char *path,
-	   GHashTable *query, SoupClientContext *client, HandlerArg *arg);
+	   GHashTable *query, SoupClientContext *client, RestMessage *arg);
 	static void handlerGetOverview
 	  (SoupServer *server, SoupMessage *msg, const char *path,
-	   GHashTable *query, SoupClientContext *client, HandlerArg *arg);
+	   GHashTable *query, SoupClientContext *client, RestMessage *arg);
 	static void handlerGetServer
 	  (SoupServer *server, SoupMessage *msg, const char *path,
-	   GHashTable *query, SoupClientContext *client, HandlerArg *arg);
+	   GHashTable *query, SoupClientContext *client, RestMessage *arg);
 	static void handlerGetHost
 	  (SoupServer *server, SoupMessage *msg, const char *path,
-	   GHashTable *query, SoupClientContext *client, HandlerArg *arg);
+	   GHashTable *query, SoupClientContext *client, RestMessage *arg);
 	static void handlerGetTrigger
 	  (SoupServer *server, SoupMessage *msg, const char *path,
-	   GHashTable *query, SoupClientContext *client, HandlerArg *arg);
+	   GHashTable *query, SoupClientContext *client, RestMessage *arg);
 	static void handlerGetEvent
 	  (SoupServer *server, SoupMessage *msg, const char *path,
-	   GHashTable *query, SoupClientContext *client, HandlerArg *arg);
+	   GHashTable *query, SoupClientContext *client, RestMessage *arg);
 	static void handlerGetItem
 	  (SoupServer *server, SoupMessage *msg, const char *path,
-	   GHashTable *query, SoupClientContext *client, HandlerArg *arg);
+	   GHashTable *query, SoupClientContext *client, RestMessage *arg);
 
 	static void handlerAction
 	  (SoupServer *server, SoupMessage *msg, const char *path,
-	   GHashTable *query, SoupClientContext *client, HandlerArg *arg);
+	   GHashTable *query, SoupClientContext *client, RestMessage *arg);
 	static void handlerGetAction
 	  (SoupServer *server, SoupMessage *msg, const char *path,
-	   GHashTable *query, SoupClientContext *client, HandlerArg *arg);
+	   GHashTable *query, SoupClientContext *client, RestMessage *arg);
 	static void handlerPostAction
 	  (SoupServer *server, SoupMessage *msg, const char *path,
-	   GHashTable *query, SoupClientContext *client, HandlerArg *arg);
+	   GHashTable *query, SoupClientContext *client, RestMessage *arg);
 	static void handlerDeleteAction
 	  (SoupServer *server, SoupMessage *msg, const char *path,
-	   GHashTable *query, SoupClientContext *client, HandlerArg *arg);
+	   GHashTable *query, SoupClientContext *client, RestMessage *arg);
 
 	static void handlerUser
 	  (SoupServer *server, SoupMessage *msg, const char *path,
-	   GHashTable *query, SoupClientContext *client, HandlerArg *arg);
+	   GHashTable *query, SoupClientContext *client, RestMessage *arg);
 	static void handlerGetUser
 	  (SoupServer *server, SoupMessage *msg, const char *path,
-	   GHashTable *query, SoupClientContext *client, HandlerArg *arg);
+	   GHashTable *query, SoupClientContext *client, RestMessage *arg);
 	static void handlerPostUser
 	  (SoupServer *server, SoupMessage *msg, const char *path,
-	   GHashTable *query, SoupClientContext *client, HandlerArg *arg);
+	   GHashTable *query, SoupClientContext *client, RestMessage *arg);
 	static void handlerDeleteUser
 	  (SoupServer *server, SoupMessage *msg, const char *path,
-	   GHashTable *query, SoupClientContext *client, HandlerArg *arg);
+	   GHashTable *query, SoupClientContext *client, RestMessage *arg);
 
 	void itemFetchedCallback(ClosureBase *closure);
 
@@ -231,7 +231,7 @@ private:
 
 	template<typename T>
 	static bool getParamWithErrorReply(
-	  GHashTable *query, SoupMessage *msg, const HandlerArg *arg,
+	  GHashTable *query, SoupMessage *msg, const RestMessage *arg,
 	  const char *paramName, const char *scanFmt, T &dest, bool *exist);
 
 	static const char *pathForTest;
