@@ -85,6 +85,7 @@ struct ZabbixAPIEmulator::JsonKeys {
 };
 
 typedef map<int64_t, ZabbixAPIEmulator::JsonKeys> JsonData;
+typedef JsonData::iterator JsonDataIterator;
 
 struct ZabbixAPIEmulator::PrivateContext {
 	GThread    *thread;
