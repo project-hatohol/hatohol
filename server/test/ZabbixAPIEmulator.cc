@@ -446,7 +446,7 @@ void ZabbixAPIEmulator::APIHandlerEventGet(APIHandlerArg &arg)
 	static const char *DATA_FILE = "zabbix-api-res-events-002.json";
 	string path = getFixturesDir() + DATA_FILE;
 	ParameterEventGet params;
-	parseParameter(arg, params);
+	parseEventGetParameter(arg, params);
 	makeEventJsonData(path);
 
 
@@ -518,7 +518,7 @@ string ZabbixAPIEmulator::addJsonResponse(const string &slice,
 // ---------------------------------------------------------------------------
 // Private methods
 // ---------------------------------------------------------------------------
-void ZabbixAPIEmulator::parseParameter(APIHandlerArg &arg, ParameterEventGet params)
+void ZabbixAPIEmulator::parseEventGetParameter(APIHandlerArg &arg, ParameterEventGet params)
 {
 	JsonParserAgent parser(arg.msg->request_body->data);
 	if (parser.hasError()) {
