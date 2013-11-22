@@ -201,6 +201,8 @@ struct FaceRest::RestMessage
 	SoupServer *server(void) {
 		return faceRest ? faceRest->m_ctx->soupServer : NULL;
 	}
+
+	bool parseFormatType(void);
 };
 
 // ---------------------------------------------------------------------------
@@ -596,25 +598,25 @@ void FaceRest::handlerDefault(SoupServer *server, SoupMessage *msg,
 	soup_message_set_status(msg, SOUP_STATUS_NOT_FOUND);
 }
 
-bool FaceRest::parseFormatType(GHashTable *query, RestMessage &arg)
+bool FaceRest::RestMessage::parseFormatType(void)
 {
-	arg.formatString.clear();
+	formatString.clear();
 	if (!query) {
-		arg.formatType = FORMAT_JSON;
+		formatType = FORMAT_JSON;
 		return true;
 	}
 
 	gchar *format = (gchar *)g_hash_table_lookup(query, "fmt");
 	if (!format) {
-		arg.formatType = FORMAT_JSON; // default value
+		formatType = FORMAT_JSON; // default value
 		return true;
 	}
-	arg.formatString = format;
+	formatString = format;
 
 	FormatTypeMapIterator fmtIt = g_formatTypeMap.find(format);
 	if (fmtIt == g_formatTypeMap.end())
 		return false;
-	arg.formatType = fmtIt->second;
+	formatType = fmtIt->second;
 	return true;
 }
 
@@ -660,7 +662,7 @@ bool FaceRest::setupRestMessage(FaceRest::RestMessage &arg, FaceRest *faceRest,
 	// http://localhost:33194/action/2345?fmt=html
 
 	// a format type
-	if (!parseFormatType(query, arg)) {
+	if (!arg.parseFormatType()) {
 		REPLY_ERROR(&arg, HTERR_UNSUPORTED_FORMAT,
 		            "%s", arg.formatString.c_str());
 		return false;

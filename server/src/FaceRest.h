@@ -112,7 +112,6 @@ protected:
 	  handlerDefault(SoupServer *server, SoupMessage *msg,
 	                 const char *path, GHashTable *query,
 	                 SoupClientContext *client, gpointer user_data);
-	static bool parseFormatType(GHashTable *query, RestMessage &arg);
 	static bool setupRestMessage(FaceRest::RestMessage &arg,
 				     FaceRest *faceRest, SoupMessage *msg,
 				     const char *path, GHashTable *query,
