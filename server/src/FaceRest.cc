@@ -198,14 +198,16 @@ struct FaceRest::RestMessage
 	string      sessionId;
 	UserIdType  userId;
 
+	RestMessage(FaceRest *_faceRest, SoupMessage *_msg,
+		    const char *_path, GHashTable *_query,
+		    SoupClientContext *_client);
+
 	SoupServer *server(void) {
 		return faceRest ? faceRest->m_ctx->soupServer : NULL;
 	}
 
 	bool parseFormatType(void);
-	bool parse(FaceRest *faceRest,
-		   SoupMessage *msg, const char *path,
-		   GHashTable *query, SoupClientContext *client);
+	bool parse(void);
 };
 
 // ---------------------------------------------------------------------------
@@ -601,6 +603,14 @@ void FaceRest::handlerDefault(SoupServer *server, SoupMessage *msg,
 	soup_message_set_status(msg, SOUP_STATUS_NOT_FOUND);
 }
 
+FaceRest::RestMessage::RestMessage
+  (FaceRest *_faceRest, SoupMessage *_msg,
+   const char *_path, GHashTable *_query, SoupClientContext *_client)
+: message(_msg), path(_path ? _path : ""), query(_query), client(_client),
+  faceRest(_faceRest), mimeType(NULL)
+{
+}
+
 bool FaceRest::RestMessage::parseFormatType(void)
 {
 	formatString.clear();
@@ -623,16 +633,8 @@ bool FaceRest::RestMessage::parseFormatType(void)
 	return true;
 }
 
-bool FaceRest::RestMessage::parse
-  (FaceRest *_faceRest, SoupMessage *_msg,
-   const char *_path, GHashTable *_query, SoupClientContext *_client)
+bool FaceRest::RestMessage::parse(void)
 {
-	message  = _msg;
-	path     = _path;
-	query    = _query;
-	client   = _client;
-	faceRest = _faceRest;
-
 	const char *_sessionId =
 	   soup_message_headers_get_one(message->request_headers,
 	                                SESSION_ID_HEADER_NAME);
@@ -705,10 +707,8 @@ void FaceRest::launchHandlerInTryBlock
 	}
 
 	HandlerClosure *closure = static_cast<HandlerClosure *>(user_data);
-	RestMessage arg;
-	bool succeeded = arg.parse(closure->m_faceRest,
-				   msg, path, query, client);
-	if (!succeeded)
+	RestMessage arg(closure->m_faceRest, msg, path, query, client);
+	if (!arg.parse())
 		return;
 
 	try {
