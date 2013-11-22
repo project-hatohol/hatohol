@@ -448,13 +448,6 @@ void ZabbixAPIEmulator::APIHandlerEventGet(APIHandlerArg &arg)
 	parseParameter(arg, params);
 	makeEventJsonData(path);
 
-	gboolean succeeded =
-		g_file_get_contents(path.c_str(), &contents, &length, NULL);
-	if (!succeeded) {
-		THROW_HATOHOL_EXCEPTION(
-				"Failed to read file: %s", path.c_str());
-	}
-
 	soup_message_body_append(arg.msg->response_body, SOUP_MEMORY_TAKE,
 	                         contents, length);
 	soup_message_set_status(arg.msg, SOUP_STATUS_OK);
