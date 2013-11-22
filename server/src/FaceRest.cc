@@ -206,6 +206,7 @@ struct FaceRest::RestMessage
 		return faceRest ? faceRest->m_ctx->soupServer : NULL;
 	}
 
+	string getJsonpCallbackName(void);
 	bool parseFormatType(void);
 	bool parse(void);
 };
@@ -466,23 +467,6 @@ void FaceRest::replyError(const RestMessage *arg,
 	soup_message_set_status(arg->message, SOUP_STATUS_OK);
 }
 
-string FaceRest::getJsonpCallbackName(GHashTable *query, RestMessage *arg)
-{
-	if (arg->formatType != FORMAT_JSONP)
-		return "";
-	gpointer value = g_hash_table_lookup(query, "callback");
-	if (!value)
-		THROW_HATOHOL_EXCEPTION("Not found parameter: callback");
-
-	const char *callbackName = (const char *)value;
-	string errMsg;
-	if (!Utils::validateJSMethodName(callbackName, errMsg)) {
-		THROW_HATOHOL_EXCEPTION(
-		  "Invalid callback name: %s", errMsg.c_str());
-	}
-	return callbackName;
-}
-
 string FaceRest::wrapForJsonp(const string &jsonBody,
                               const string &callbackName)
 {
@@ -611,6 +595,23 @@ FaceRest::RestMessage::RestMessage
 {
 }
 
+string FaceRest::RestMessage::getJsonpCallbackName(void)
+{
+	if (formatType != FORMAT_JSONP)
+		return "";
+	gpointer value = g_hash_table_lookup(query, "callback");
+	if (!value)
+		THROW_HATOHOL_EXCEPTION("Not found parameter: callback");
+
+	const char *callbackName = (const char *)value;
+	string errMsg;
+	if (!Utils::validateJSMethodName(callbackName, errMsg)) {
+		THROW_HATOHOL_EXCEPTION(
+		  "Invalid callback name: %s", errMsg.c_str());
+	}
+	return callbackName;
+}
+
 bool FaceRest::RestMessage::parseFormatType(void)
 {
 	formatString.clear();
@@ -688,7 +689,7 @@ bool FaceRest::RestMessage::parse(void)
 	mimeType = mimeIt->second;
 
 	// jsonp callback name
-	jsonpCallbackName = getJsonpCallbackName(query, this);
+	jsonpCallbackName = getJsonpCallbackName();
 
 	return true;
 }

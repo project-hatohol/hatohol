@@ -74,7 +74,6 @@ protected:
 	static void replyError(const RestMessage *arg,
 	                       const HatoholErrorCode &errorCode,
 	                       const string &optionMessage = "");
-	static string getJsonpCallbackName(GHashTable *query, RestMessage *arg);
 	static string wrapForJsonp(const string &jsonBody,
                                    const string &callbackName);
 	static void replyJsonData(JsonBuilderAgent &agent, RestMessage *arg);
