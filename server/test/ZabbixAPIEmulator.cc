@@ -493,6 +493,17 @@ void ZabbixAPIEmulator::makeEventJsonData(const string &path)
 				parsedData[j]);
 		}
 		parser.endElement();
+
+		JsonKeys key;
+		key.source = parsedData[1];
+		key.object = parsedData[2];
+		key.objectId = parsedData[3];
+		key.clock = parsedData[4];
+		key.value = parsedData[5];
+		key.acknowledged = parsedData[6];
+		key.ns = parsedData[7];
+		key.value_changed = parsedData[8];
+		m_ctx->jsonData[parsedData[0]] = key;
 	}
 }
 
