@@ -28,6 +28,8 @@
 #include "HatoholException.h"
 #include "Helpers.h"
 
+#define COUNT_ELEMENT_NAMES 10
+
 using namespace mlpl;
 
 struct ZabbixAPIEmulator::APIHandlerArg
@@ -465,7 +467,7 @@ void ZabbixAPIEmulator::APIHandlerApplicationGet(APIHandlerArg &arg)
 
 void ZabbixAPIEmulator::makeEventJsonData(const string &path)
 {
-	static const char *EVENT_ELEMENT_NAMES[] = {
+	static const char *EVENT_ELEMENT_NAMES[COUNT_ELEMENT_NAMES] = {
 	  "eventid", "source", "object", "objectid", "clock", "value",
 	  "acknowledged", "ns", "value_changed", NULL
 	};
@@ -483,10 +485,10 @@ void ZabbixAPIEmulator::makeEventJsonData(const string &path)
 	  "%s", parser.getErrorMessage());
 	unsigned int numElements = parser.countElements();
 	for (unsigned int i = 0; i < numElements; i++) {
-		int64_t parsedData[9] = {};
+		int64_t parsedData[COUNT_ELEMENT_NAMES - 1] = {};
 
 		parser.startElement(i);
-		for (size_t j = 0; j < 9; j++) {
+		for (size_t j = 0; j < COUNT_ELEMENT_NAMES - 1; j++) {
 			parser.read(EVENT_ELEMENT_NAMES[j],
 				parsedData[j]);
 		}
