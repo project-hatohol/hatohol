@@ -469,7 +469,6 @@ void ZabbixAPIEmulator::makeEventJsonData(const string &path)
 	  "eventid", "source", "object", "objectid", "clock", "value",
 	  "acknowledged", "ns", "value_changed", NULL
 	};
-	HATOHOL_ASSERT(numSlices > 0, "numSlices: %zd", numSlices);
 
 	gchar *contents;
 	HATOHOL_ASSERT(
