@@ -202,6 +202,7 @@ struct FaceRest::RestMessage
 	RestMessage(FaceRest *_faceRest, RestHandler _handler,
 		    SoupMessage *_msg, const char *_path,
 		    GHashTable *_query, SoupClientContext *_client);
+	virtual ~RestMessage();
 
 	SoupServer *server(void) {
 		return faceRest ? faceRest->m_ctx->soupServer : NULL;
@@ -597,6 +598,11 @@ FaceRest::RestMessage::RestMessage
   faceRest(_faceRest), handler(_handler), mimeType(NULL)
 {
 }
+
+FaceRest::RestMessage::~RestMessage()
+{
+}
+
 
 string FaceRest::RestMessage::getJsonpCallbackName(void)
 {
