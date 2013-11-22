@@ -112,10 +112,6 @@ protected:
 	  handlerDefault(SoupServer *server, SoupMessage *msg,
 	                 const char *path, GHashTable *query,
 	                 SoupClientContext *client, gpointer user_data);
-	static bool setupRestMessage(FaceRest::RestMessage &arg,
-				     FaceRest *faceRest, SoupMessage *msg,
-				     const char *path, GHashTable *query,
-				     SoupClientContext *client);
 	static void launchHandlerInTryBlock
 	  (SoupServer *server, SoupMessage *msg, const char *path,
 	   GHashTable *query, SoupClientContext *client, gpointer user_data);

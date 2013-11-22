@@ -203,6 +203,9 @@ struct FaceRest::RestMessage
 	}
 
 	bool parseFormatType(void);
+	bool parse(FaceRest *faceRest,
+		   SoupMessage *msg, const char *path,
+		   GHashTable *query, SoupClientContext *client);
 };
 
 // ---------------------------------------------------------------------------
@@ -620,37 +623,38 @@ bool FaceRest::RestMessage::parseFormatType(void)
 	return true;
 }
 
-bool FaceRest::setupRestMessage(FaceRest::RestMessage &arg, FaceRest *faceRest,
-				SoupMessage *msg, const char *path,
-				GHashTable *query, SoupClientContext *client)
+bool FaceRest::RestMessage::parse
+  (FaceRest *_faceRest, SoupMessage *_msg,
+   const char *_path, GHashTable *_query, SoupClientContext *_client)
 {
-	arg.message  = msg;
-	arg.path     = path;
-	arg.query    = query;
-	arg.client   = client;
-	arg.faceRest = faceRest;
+	message  = _msg;
+	path     = _path;
+	query    = _query;
+	client   = _client;
+	faceRest = _faceRest;
 
-	const char *sessionId =
-	   soup_message_headers_get_one(msg->request_headers,
+	const char *_sessionId =
+	   soup_message_headers_get_one(message->request_headers,
 	                                SESSION_ID_HEADER_NAME);
-	if (!sessionId) {
+	sessionId = _sessionId ? _sessionId : "";
+
+	if (sessionId.empty()) {
 		// We should return an error. But now, we just set
 		// USER_ID_ADMIN to keep compatiblity until the user privilege
 		// feature is completely implemnted.
 		if (path != pathForLogin)
-			arg.userId = USER_ID_ADMIN;
+			userId = USER_ID_ADMIN;
 		else
-			arg.userId = INVALID_USER_ID;
+			userId = INVALID_USER_ID;
 	} else {
-		arg.sessionId = sessionId;
 		PrivateContext::lock.lock();
 		const SessionInfo *sessionInfo = getSessionInfo(sessionId);
 		if (!sessionInfo) {
 			PrivateContext::lock.unlock();
-			replyError(&arg, HTERR_NOT_FOUND_SESSION_ID);
+			replyError(this, HTERR_NOT_FOUND_SESSION_ID);
 			return false;
 		}
-		arg.userId = sessionInfo->userId;
+		userId = sessionInfo->userId;
 		PrivateContext::lock.unlock();
 	}
 
@@ -662,9 +666,9 @@ bool FaceRest::setupRestMessage(FaceRest::RestMessage &arg, FaceRest *faceRest,
 	// http://localhost:33194/action/2345?fmt=html
 
 	// a format type
-	if (!arg.parseFormatType()) {
-		REPLY_ERROR(&arg, HTERR_UNSUPORTED_FORMAT,
-		            "%s", arg.formatString.c_str());
+	if (!parseFormatType()) {
+		REPLY_ERROR(this, HTERR_UNSUPORTED_FORMAT,
+		            "%s", formatString.c_str());
 		return false;
 	}
 
@@ -672,17 +676,17 @@ bool FaceRest::setupRestMessage(FaceRest::RestMessage &arg, FaceRest *faceRest,
 	StringVector pathElemVect;
 	StringUtils::split(pathElemVect, path, '/');
 	if (pathElemVect.size() >= 2)
-		arg.id = pathElemVect[1];
+		id = pathElemVect[1];
 
 	// MIME
-	MimeTypeMapIterator mimeIt = g_mimeTypeMap.find(arg.formatType);
+	MimeTypeMapIterator mimeIt = g_mimeTypeMap.find(formatType);
 	HATOHOL_ASSERT(
 	  mimeIt != g_mimeTypeMap.end(),
-	  "Invalid formatType: %d, %s", arg.formatType, path);
-	arg.mimeType = mimeIt->second;
+	  "Invalid formatType: %d, %s", formatType, path.c_str());
+	mimeType = mimeIt->second;
 
 	// jsonp callback name
-	arg.jsonpCallbackName = getJsonpCallbackName(query, &arg);
+	jsonpCallbackName = getJsonpCallbackName(query, this);
 
 	return true;
 }
@@ -702,8 +706,8 @@ void FaceRest::launchHandlerInTryBlock
 
 	HandlerClosure *closure = static_cast<HandlerClosure *>(user_data);
 	RestMessage arg;
-	bool succeeded = setupRestMessage(arg, closure->m_faceRest,
-					  msg, path, query, client);
+	bool succeeded = arg.parse(closure->m_faceRest,
+				   msg, path, query, client);
 	if (!succeeded)
 		return;
 
