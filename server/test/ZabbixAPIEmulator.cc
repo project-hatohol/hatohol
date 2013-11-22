@@ -445,6 +445,7 @@ void ZabbixAPIEmulator::APIHandlerEventGet(APIHandlerArg &arg)
 	string path = getFixturesDir() + DATA_FILE;
 	ParameterEventGet params;
 	parseParameter(arg, params);
+	makeEventJsonData(path);
 
 	gboolean succeeded =
 		g_file_get_contents(path.c_str(), &contents, &length, NULL);
