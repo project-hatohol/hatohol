@@ -577,6 +577,10 @@ FaceRest::RestJob::RestJob
 {
 	if (query)
 		g_hash_table_ref(query);
+
+	// Since life-span of other libsoup's objects should always be longer
+	// than this object and shoube be managed by libsoup, we don't
+	// inclement reference count of them.
 }
 
 FaceRest::RestJob::~RestJob()
