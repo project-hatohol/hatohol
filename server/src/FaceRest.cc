@@ -1242,21 +1242,17 @@ void FaceRest::handlerGetEvent(RestJob *job)
 struct GetItemClosure : Closure<FaceRest>
 {
 	struct FaceRest::RestJob m_restJob;
-	SoupServer *m_server;
-	SoupMessage *m_message;
 	GetItemClosure(FaceRest *receiver,
 		       callback func,
-		       struct FaceRest::RestJob &restJob,
-		       SoupServer  *server,
-		       SoupMessage *message)
-		: Closure(receiver, func), m_restJob(restJob),
-		  m_server(server), m_message(message)
+		       struct FaceRest::RestJob &restJob)
+	: Closure(receiver, func), m_restJob(restJob)
 	{}
 };
 
 void FaceRest::itemFetchedCallback(ClosureBase *closure)
 {
 	GetItemClosure *data = dynamic_cast<GetItemClosure*>(closure);
+	RestJob &job = data->m_restJob;
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 
 	ItemInfoList itemList;
@@ -1284,9 +1280,9 @@ void FaceRest::itemFetchedCallback(ClosureBase *closure)
 	addServersIdNameHash(agent);
 	agent.endObject();
 
-	replyJsonData(agent, &data->m_restJob);
+	replyJsonData(agent, &job);
 
-	data->m_restJob.unpause();
+	job.unpause();
 }
 
 void FaceRest::handlerGetItem(RestJob *job)
@@ -1295,9 +1291,7 @@ void FaceRest::handlerGetItem(RestJob *job)
 	FaceRest *face = job->faceRest;
 
 	GetItemClosure *closure =
-	  new GetItemClosure(
-	    face, &FaceRest::itemFetchedCallback, *job,
-	    job->server(), job->message);
+	  new GetItemClosure(face, &FaceRest::itemFetchedCallback, *job);
 
 	job->pause();
 	bool handled = dataStore->getItemListAsync(closure);
