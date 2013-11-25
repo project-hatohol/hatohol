@@ -574,10 +574,14 @@ FaceRest::RestJob::RestJob
   faceRest(_faceRest), handler(_handler), mimeType(NULL),
   replyIsPrepared(false)
 {
+	if (query)
+		g_hash_table_ref(query);
 }
 
 FaceRest::RestJob::~RestJob()
 {
+	if (query)
+		g_hash_table_unref(query);
 }
 
 
@@ -715,6 +719,14 @@ void FaceRest::RestJob::unpause(void)
 	}
 }
 
+static void copyHashTable (gpointer key, gpointer data, gpointer user_data)
+{
+	GHashTable *dest = static_cast<GHashTable *>(user_data);
+	g_hash_table_insert(dest,
+			    g_strdup(static_cast<gchar*>(key)),
+			    g_strdup(static_cast<gchar*>(data)));
+}
+
 void FaceRest::queueRestJob
   (SoupServer *server, SoupMessage *msg, const char *path,
    GHashTable *_query, SoupClientContext *client, gpointer user_data)
@@ -725,8 +737,15 @@ void FaceRest::queueRestJob
 		// The POST request contains query parameters in the body
 		// according to application/x-www-form-urlencoded.
 		query = soup_form_decode(msg->request_body->data);
-		postQueryReaper.set(query, g_hash_table_unref);
+	} else {
+		GHashTable *dest = g_hash_table_new_full(g_str_hash,
+							 g_str_equal,
+							 g_free, g_free);
+		if (query)
+			g_hash_table_foreach(query, copyHashTable, dest);
+		query = dest;
 	}
+	postQueryReaper.set(query, g_hash_table_unref);
 
 	HandlerClosure *closure = static_cast<HandlerClosure *>(user_data);
 	RestJob *job = new RestJob(closure->m_faceRest, closure->m_handler,
