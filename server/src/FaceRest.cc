@@ -122,6 +122,9 @@ struct FaceRest::PrivateContext {
 	FaceRestParam      *param;
 	AtomicValue<bool>   quitRequest;
 
+	queue<RestJob *>    restJobQueue;
+	MutexLock           restJobLock;
+
 	PrivateContext(FaceRestParam *_param)
 	: port(DEFAULT_PORT),
 	  soupServer(NULL),
@@ -170,6 +173,20 @@ struct FaceRest::PrivateContext {
 		if (it == sessionIdMap.end())
 			return NULL;
 		return it->second;
+	}
+
+	void pushJob(RestJob *job) {
+		restJobLock.lock();
+		restJobQueue.push(job);
+		restJobLock.unlock();
+	}
+
+	RestJob *popJob(void) {
+		restJobLock.lock();
+		RestJob *job = restJobQueue.front();
+		restJobQueue.pop();
+		restJobLock.unlock();
+		return job;
 	}
 };
 
