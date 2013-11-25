@@ -198,6 +198,7 @@ struct FaceRest::RestJob
 	string      jsonpCallbackName;
 	string      sessionId;
 	UserIdType  userId;
+	bool        replyIsPrepared;
 
 	RestJob(FaceRest *_faceRest, RestHandler _handler,
 		SoupMessage *_msg, const char *_path,
@@ -445,14 +446,14 @@ void FaceRest::addHatoholError(JsonBuilderAgent &agent,
 		agent.add("optionMessages", err.getOptionMessage().c_str());
 }
 
-void FaceRest::replyError(const RestJob *job,
+void FaceRest::replyError(RestJob *job,
                           const HatoholError &hatoholError)
 {
 	replyError(job, hatoholError.getCode(),
 	           hatoholError.getOptionMessage());
 }
 
-void FaceRest::replyError(const RestJob *job,
+void FaceRest::replyError(RestJob *job,
                           const HatoholErrorCode &errorCode,
                           const string &optionMessage)
 {
@@ -475,6 +476,8 @@ void FaceRest::replyError(const RestJob *job,
 	soup_message_body_append(job->message->response_body, SOUP_MEMORY_COPY,
 	                         response.c_str(), response.size());
 	soup_message_set_status(job->message, SOUP_STATUS_OK);
+
+	job->replyIsPrepared = true;
 }
 
 string FaceRest::wrapForJsonp(const string &jsonBody,
@@ -497,6 +500,8 @@ void FaceRest::replyJsonData(JsonBuilderAgent &agent, RestJob *job)
 	soup_message_body_append(job->message->response_body, SOUP_MEMORY_COPY,
 	                         response.c_str(), response.size());
 	soup_message_set_status(job->message, SOUP_STATUS_OK);
+
+	job->replyIsPrepared = true;
 }
 
 const SessionInfo *FaceRest::getSessionInfo(const string &sessionId)
@@ -566,7 +571,8 @@ FaceRest::RestJob::RestJob
   (FaceRest *_faceRest, RestHandler _handler, SoupMessage *_msg,
    const char *_path, GHashTable *_query, SoupClientContext *_client)
 : message(_msg), path(_path ? _path : ""), query(_query), client(_client),
-  faceRest(_faceRest), handler(_handler), mimeType(NULL)
+  faceRest(_faceRest), handler(_handler), mimeType(NULL),
+  replyIsPrepared(false)
 {
 }
 
@@ -1795,7 +1801,7 @@ HatoholError FaceRest::getParam(
 
 template<typename T>
 bool FaceRest::getParamWithErrorReply(
-  const RestJob *job, const char *paramName, const char *scanFmt,
+  RestJob *job, const char *paramName, const char *scanFmt,
   T &dest, bool *exist)
 {
 	char *value = (char *)g_hash_table_lookup(job->query, paramName);

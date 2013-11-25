@@ -69,9 +69,9 @@ protected:
 	size_t parseCmdArgPort(CommandLineArg &cmdArg, size_t idx);
 	static void addHatoholError(JsonBuilderAgent &agent,
 	                            const HatoholError &err);
-	static void replyError(const RestJob *arg,
+	static void replyError(RestJob *arg,
 	                       const HatoholError &hatoholError);
-	static void replyError(const RestJob *arg,
+	static void replyError(RestJob *arg,
 	                       const HatoholErrorCode &errorCode,
 	                       const string &optionMessage = "");
 	static string wrapForJsonp(const string &jsonBody,
@@ -186,7 +186,7 @@ private:
 
 	template<typename T>
 	static bool getParamWithErrorReply(
-	  const RestJob *arg, const char *paramName, const char *scanFmt,
+	  RestJob *arg, const char *paramName, const char *scanFmt,
 	  T &dest, bool *exist);
 
 	static const char *pathForTest;
