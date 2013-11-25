@@ -194,7 +194,8 @@ struct FaceRest::RestJob
 	string      formatString;
 	FormatType  formatType;
 	const char *mimeType;
-	string      id; // we assume URL form is http://example.com/request/id
+	string      resourceId; // we assume URL form is:
+				// http://example.com/request/id
 	string      jsonpCallbackName;
 	string      sessionId;
 	UserIdType  userId;
@@ -669,7 +670,7 @@ bool FaceRest::RestJob::parse(void)
 	StringVector pathElemVect;
 	StringUtils::split(pathElemVect, path, '/');
 	if (pathElemVect.size() >= 2)
-		id = pathElemVect[1];
+		resourceId = pathElemVect[1];
 
 	// MIME
 	MimeTypeMapIterator mimeIt = g_mimeTypeMap.find(formatType);
@@ -1563,14 +1564,14 @@ void FaceRest::handlerPostAction(RestJob *job)
 void FaceRest::handlerDeleteAction(RestJob *job)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-	if (job->id.empty()) {
+	if (job->resourceId.empty()) {
 		replyError(job, HTERR_NOT_FOUND_ID_IN_URL);
 		return;
 	}
 	int actionId;
-	if (sscanf(job->id.c_str(), "%d", &actionId) != 1) {
+	if (sscanf(job->resourceId.c_str(), "%d", &actionId) != 1) {
 		REPLY_ERROR(job, HTERR_INVALID_PARAMETER,
-		            "id: %s", job->id.c_str());
+		            "id: %s", job->resourceId.c_str());
 		return;
 	}
 	ActionIdList actionIdList;
@@ -1581,7 +1582,7 @@ void FaceRest::handlerDeleteAction(RestJob *job)
 	JsonBuilderAgent agent;
 	agent.startObject();
 	addHatoholError(agent, HatoholError(HTERR_OK));
-	agent.add("id", job->id);
+	agent.add("id", job->resourceId);
 	agent.endObject();
 	replyJsonData(agent, job);
 }
@@ -1684,14 +1685,14 @@ void FaceRest::handlerPostUser(RestJob *job)
 
 void FaceRest::handlerDeleteUser(RestJob *job)
 {
-	if (job->id.empty()) {
+	if (job->resourceId.empty()) {
 		replyError(job, HTERR_NOT_FOUND_ID_IN_URL);
 		return;
 	}
 	int userId;
-	if (sscanf(job->id.c_str(), "%"FMT_USER_ID, &userId) != 1) {
+	if (sscanf(job->resourceId.c_str(), "%"FMT_USER_ID, &userId) != 1) {
 		REPLY_ERROR(job, HTERR_INVALID_PARAMETER,
-		            "id: %s", job->id.c_str());
+		            "id: %s", job->resourceId.c_str());
 		return;
 	}
 
