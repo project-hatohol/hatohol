@@ -59,6 +59,7 @@ public:
 	virtual ~FaceRest();
 	virtual void stop(void);
 
+	class Worker;
 	struct RestJob;
 
 protected:

@@ -223,6 +223,13 @@ private:
 	bool parseFormatType(void);
 };
 
+class FaceRest::Worker : public HatoholThreadBase {
+protected:
+	virtual gpointer mainThread(HatoholThreadArg *arg) {
+		return NULL;
+	}
+};
+
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
