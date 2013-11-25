@@ -214,9 +214,9 @@ struct FaceRest::RestJob
 		return faceRest ? faceRest->m_ctx->gMainCtx : NULL;
 	}
 
-	bool parse(void);
-	void pause(void);
-	void unpause(void);
+	bool prepare(void);
+	void pauseResponse(void);
+	void unpauseResponse(void);
 
 private:
 	string getJsonpCallbackName(void);
@@ -625,7 +625,7 @@ bool FaceRest::RestJob::parseFormatType(void)
 	return true;
 }
 
-bool FaceRest::RestJob::parse(void)
+bool FaceRest::RestJob::prepare(void)
 {
 	const char *_sessionId =
 	   soup_message_headers_get_one(message->request_headers,
@@ -685,7 +685,7 @@ bool FaceRest::RestJob::parse(void)
 	return true;
 }
 
-void FaceRest::RestJob::pause(void)
+void FaceRest::RestJob::pauseResponse(void)
 {
 	soup_server_pause_message(server(), message);
 }
@@ -704,7 +704,7 @@ static gboolean idleUnpause(gpointer data)
 	return FALSE;
 }
 
-void FaceRest::RestJob::unpause(void)
+void FaceRest::RestJob::unpauseResponse(void)
 {
 	if (g_main_context_acquire(gMainContext())) {
 		// FaceRest thread
@@ -751,13 +751,13 @@ void FaceRest::queueRestJob
 	HandlerClosure *closure = static_cast<HandlerClosure *>(user_data);
 	RestJob *job = new RestJob(closure->m_faceRest, closure->m_handler,
 				   msg, path, query, client);
-	if (!job->parse())
+	if (!job->prepare())
 		return;
 
-	job->pause();
+	job->pauseResponse();
 	launchHandlerInTryBlock(job);
 	if (job->replyIsPrepared) {
-		job->unpause();
+		job->unpauseResponse();
 		delete job;
 	}
 }
@@ -1318,7 +1318,7 @@ void FaceRest::itemFetchedCallback(ClosureBase *closure)
 
 	replyJsonData(agent, job);
 
-	job->unpause();
+	job->unpauseResponse();
 }
 
 void FaceRest::handlerGetItem(RestJob *job)
