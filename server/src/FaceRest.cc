@@ -729,15 +729,17 @@ void FaceRest::queueRestJob
 	}
 
 	HandlerClosure *closure = static_cast<HandlerClosure *>(user_data);
-	RestJob job(closure->m_faceRest, closure->m_handler,
-		    msg, path, query, client);
-	if (!job.parse())
+	RestJob *job = new RestJob(closure->m_faceRest, closure->m_handler,
+				   msg, path, query, client);
+	if (!job->parse())
 		return;
 
-	job.pause();
-	launchHandlerInTryBlock(&job);
-	if (job.replyIsPrepared)
-		job.unpause();
+	job->pause();
+	launchHandlerInTryBlock(job);
+	if (job->replyIsPrepared) {
+		job->unpause();
+		delete job;
+	}
 }
 
 void FaceRest::launchHandlerInTryBlock(RestJob *job)
@@ -1250,18 +1252,23 @@ void FaceRest::handlerGetEvent(RestJob *job)
 
 struct GetItemClosure : Closure<FaceRest>
 {
-	struct FaceRest::RestJob m_restJob;
+	struct FaceRest::RestJob *m_restJob;
 	GetItemClosure(FaceRest *receiver,
 		       callback func,
-		       struct FaceRest::RestJob &restJob)
+		       struct FaceRest::RestJob *restJob)
 	: Closure(receiver, func), m_restJob(restJob)
 	{}
+
+	virtual ~GetItemClosure()
+	{
+		delete m_restJob;
+	}
 };
 
 void FaceRest::itemFetchedCallback(ClosureBase *closure)
 {
 	GetItemClosure *data = dynamic_cast<GetItemClosure*>(closure);
-	RestJob &job = data->m_restJob;
+	RestJob *job = data->m_restJob;
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 
 	ItemInfoList itemList;
@@ -1289,9 +1296,9 @@ void FaceRest::itemFetchedCallback(ClosureBase *closure)
 	addServersIdNameHash(agent);
 	agent.endObject();
 
-	replyJsonData(agent, &job);
+	replyJsonData(agent, job);
 
-	job.unpause();
+	job->unpause();
 }
 
 void FaceRest::handlerGetItem(RestJob *job)
@@ -1300,11 +1307,14 @@ void FaceRest::handlerGetItem(RestJob *job)
 	FaceRest *face = job->faceRest;
 
 	GetItemClosure *closure =
-	  new GetItemClosure(face, &FaceRest::itemFetchedCallback, *job);
+	  new GetItemClosure(face, &FaceRest::itemFetchedCallback, job);
 
 	bool handled = dataStore->getItemListAsync(closure);
 	if (!handled) {
 		face->itemFetchedCallback(closure);
+		// avoid freeing m_restJob because m_restJob will be freed at
+		// queueRestJob()
+		closure->m_restJob = NULL;
 		delete closure;
 	}
 }
