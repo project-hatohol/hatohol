@@ -69,14 +69,14 @@ protected:
 	size_t parseCmdArgPort(CommandLineArg &cmdArg, size_t idx);
 	static void addHatoholError(JsonBuilderAgent &agent,
 	                            const HatoholError &err);
-	static void replyError(RestJob *arg,
+	static void replyError(RestJob *job,
 	                       const HatoholError &hatoholError);
-	static void replyError(RestJob *arg,
+	static void replyError(RestJob *job,
 	                       const HatoholErrorCode &errorCode,
 	                       const string &optionMessage = "");
 	static string wrapForJsonp(const string &jsonBody,
                                    const string &callbackName);
-	static void replyJsonData(JsonBuilderAgent &agent, RestJob *arg);
+	static void replyJsonData(JsonBuilderAgent &agent, RestJob *job);
 
 	/**
 	 * Parse 'serverId' query parameter if it exists.
@@ -111,28 +111,28 @@ protected:
 	static void queueRestJob
 	  (SoupServer *server, SoupMessage *msg, const char *path,
 	   GHashTable *query, SoupClientContext *client, gpointer user_data);
-	static void launchHandlerInTryBlock(RestJob *arg);
+	static void launchHandlerInTryBlock(RestJob *job);
 
-	static void handlerHelloPage(RestJob *arg);
-	static void handlerTest(RestJob *arg);
-	static void handlerLogin(RestJob *arg);
-	static void handlerLogout(RestJob *arg);
-	static void handlerGetOverview(RestJob *arg);
-	static void handlerGetServer(RestJob *arg);
-	static void handlerGetHost(RestJob *arg);
-	static void handlerGetTrigger(RestJob *arg);
-	static void handlerGetEvent(RestJob *arg);
-	static void handlerGetItem(RestJob *arg);
+	static void handlerHelloPage(RestJob *job);
+	static void handlerTest(RestJob *job);
+	static void handlerLogin(RestJob *job);
+	static void handlerLogout(RestJob *job);
+	static void handlerGetOverview(RestJob *job);
+	static void handlerGetServer(RestJob *job);
+	static void handlerGetHost(RestJob *job);
+	static void handlerGetTrigger(RestJob *job);
+	static void handlerGetEvent(RestJob *job);
+	static void handlerGetItem(RestJob *job);
 
-	static void handlerAction(RestJob *arg);
-	static void handlerGetAction(RestJob *arg);
-	static void handlerPostAction(RestJob *arg);
-	static void handlerDeleteAction(RestJob *arg);
+	static void handlerAction(RestJob *job);
+	static void handlerGetAction(RestJob *job);
+	static void handlerPostAction(RestJob *job);
+	static void handlerDeleteAction(RestJob *job);
 
-	static void handlerUser(RestJob *arg);
-	static void handlerGetUser(RestJob *arg);
-	static void handlerPostUser(RestJob *arg);
-	static void handlerDeleteUser(RestJob *arg);
+	static void handlerUser(RestJob *job);
+	static void handlerGetUser(RestJob *job);
+	static void handlerPostUser(RestJob *job);
+	static void handlerDeleteUser(RestJob *job);
 
 	void itemFetchedCallback(ClosureBase *closure);
 
@@ -186,7 +186,7 @@ private:
 
 	template<typename T>
 	static bool getParamWithErrorReply(
-	  RestJob *arg, const char *paramName, const char *scanFmt,
+	  RestJob *job, const char *paramName, const char *scanFmt,
 	  T &dest, bool *exist);
 
 	static const char *pathForTest;
