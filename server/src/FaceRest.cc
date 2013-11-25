@@ -361,51 +361,51 @@ gpointer FaceRest::mainThread(HatoholThreadArg *arg)
 	soup_server_add_handler(m_ctx->soupServer, NULL,
 	                        handlerDefault, this, NULL);
 	soup_server_add_handler(m_ctx->soupServer, "/hello.html",
-	                        queueMessage,
+	                        queueRestJob,
 	                        new HandlerClosure(this, &handlerHelloPage),
 				deleteHandlerClosure);
 	soup_server_add_handler(m_ctx->soupServer, "/test",
-	                        queueMessage,
+	                        queueRestJob,
 	                        new HandlerClosure(this, handlerTest),
 				deleteHandlerClosure);
 	soup_server_add_handler(m_ctx->soupServer, pathForLogin,
-	                        queueMessage,
+	                        queueRestJob,
 	                        new HandlerClosure(this, handlerLogin),
 				deleteHandlerClosure);
 	soup_server_add_handler(m_ctx->soupServer, pathForLogout,
-	                        queueMessage,
+	                        queueRestJob,
 	                        new HandlerClosure(this, handlerLogout),
 				deleteHandlerClosure);
 	soup_server_add_handler(m_ctx->soupServer, pathForGetOverview,
-	                        queueMessage,
+	                        queueRestJob,
 	                        new HandlerClosure(this, handlerGetOverview),
 				deleteHandlerClosure);
 	soup_server_add_handler(m_ctx->soupServer, pathForGetServer,
-	                        queueMessage,
+	                        queueRestJob,
 	                        new HandlerClosure(this, handlerGetServer),
 				deleteHandlerClosure);
 	soup_server_add_handler(m_ctx->soupServer, pathForGetHost,
-	                        queueMessage,
+	                        queueRestJob,
 	                        new HandlerClosure(this, handlerGetHost),
 				deleteHandlerClosure);
 	soup_server_add_handler(m_ctx->soupServer, pathForGetTrigger,
-	                        queueMessage,
+	                        queueRestJob,
 	                        new HandlerClosure(this, handlerGetTrigger),
 				deleteHandlerClosure);
 	soup_server_add_handler(m_ctx->soupServer, pathForGetEvent,
-	                        queueMessage,
+	                        queueRestJob,
 	                        new HandlerClosure(this, handlerGetEvent),
 				deleteHandlerClosure);
 	soup_server_add_handler(m_ctx->soupServer, pathForGetItem,
-	                        queueMessage,
+	                        queueRestJob,
 	                        new HandlerClosure(this, handlerGetItem),
 				deleteHandlerClosure);
 	soup_server_add_handler(m_ctx->soupServer, pathForAction,
-	                        queueMessage,
+	                        queueRestJob,
 	                        new HandlerClosure(this, handlerAction),
 				deleteHandlerClosure);
 	soup_server_add_handler(m_ctx->soupServer, pathForUser,
-	                        queueMessage,
+	                        queueRestJob,
 	                        new HandlerClosure(this, handlerUser),
 				deleteHandlerClosure);
 	if (m_ctx->param)
@@ -715,7 +715,7 @@ void FaceRest::RestJob::unpause(void)
 	}
 }
 
-void FaceRest::queueMessage
+void FaceRest::queueRestJob
   (SoupServer *server, SoupMessage *msg, const char *path,
    GHashTable *_query, SoupClientContext *client, gpointer user_data)
 {
