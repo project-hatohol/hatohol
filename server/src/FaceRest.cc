@@ -41,7 +41,7 @@ using namespace mlpl;
 int FaceRest::API_VERSION = 3;
 const char *FaceRest::SESSION_ID_HEADER_NAME = "X-Hatohol-Session";
 
-typedef void (*RestHandler) (FaceRest::RestMessage *arg);
+typedef void (*RestHandler) (FaceRest::RestJob *arg);
 
 typedef uint64_t ServerID;
 typedef uint64_t HostID;
@@ -179,7 +179,7 @@ SessionIdMap FaceRest::PrivateContext::sessionIdMap;
 const string FaceRest::PrivateContext::pathForUserMe =
   FaceRest::PrivateContext::initPathForUserMe();
 
-struct FaceRest::RestMessage
+struct FaceRest::RestJob
 {
 	// arguments of SoupServerCallback
 	SoupMessage       *message;
@@ -199,10 +199,10 @@ struct FaceRest::RestMessage
 	string      sessionId;
 	UserIdType  userId;
 
-	RestMessage(FaceRest *_faceRest, RestHandler _handler,
+	RestJob(FaceRest *_faceRest, RestHandler _handler,
 		    SoupMessage *_msg, const char *_path,
 		    GHashTable *_query, SoupClientContext *_client);
-	virtual ~RestMessage();
+	virtual ~RestJob();
 
 	SoupServer *server(void) {
 		return faceRest ? faceRest->m_ctx->soupServer : NULL;
@@ -439,14 +439,14 @@ void FaceRest::addHatoholError(JsonBuilderAgent &agent,
 		agent.add("optionMessages", err.getOptionMessage().c_str());
 }
 
-void FaceRest::replyError(const RestMessage *arg,
+void FaceRest::replyError(const RestJob *arg,
                           const HatoholError &hatoholError)
 {
 	replyError(arg, hatoholError.getCode(),
 	           hatoholError.getOptionMessage());
 }
 
-void FaceRest::replyError(const RestMessage *arg,
+void FaceRest::replyError(const RestJob *arg,
                           const HatoholErrorCode &errorCode,
                           const string &optionMessage)
 {
@@ -481,7 +481,7 @@ string FaceRest::wrapForJsonp(const string &jsonBody,
 	return jsonp;
 }
 
-void FaceRest::replyJsonData(JsonBuilderAgent &agent, RestMessage *arg)
+void FaceRest::replyJsonData(JsonBuilderAgent &agent, RestJob *arg)
 {
 	string response = agent.generate();
 	if (!arg->jsonpCallbackName.empty())
@@ -591,7 +591,7 @@ void FaceRest::handlerDefault(SoupServer *server, SoupMessage *msg,
 	soup_message_set_status(msg, SOUP_STATUS_NOT_FOUND);
 }
 
-FaceRest::RestMessage::RestMessage
+FaceRest::RestJob::RestJob
   (FaceRest *_faceRest, RestHandler _handler, SoupMessage *_msg,
    const char *_path, GHashTable *_query, SoupClientContext *_client)
 : message(_msg), path(_path ? _path : ""), query(_query), client(_client),
@@ -599,12 +599,12 @@ FaceRest::RestMessage::RestMessage
 {
 }
 
-FaceRest::RestMessage::~RestMessage()
+FaceRest::RestJob::~RestJob()
 {
 }
 
 
-string FaceRest::RestMessage::getJsonpCallbackName(void)
+string FaceRest::RestJob::getJsonpCallbackName(void)
 {
 	if (formatType != FORMAT_JSONP)
 		return "";
@@ -621,7 +621,7 @@ string FaceRest::RestMessage::getJsonpCallbackName(void)
 	return callbackName;
 }
 
-bool FaceRest::RestMessage::parseFormatType(void)
+bool FaceRest::RestJob::parseFormatType(void)
 {
 	formatString.clear();
 	if (!query) {
@@ -643,7 +643,7 @@ bool FaceRest::RestMessage::parseFormatType(void)
 	return true;
 }
 
-bool FaceRest::RestMessage::parse(void)
+bool FaceRest::RestJob::parse(void)
 {
 	const char *_sessionId =
 	   soup_message_headers_get_one(message->request_headers,
@@ -717,7 +717,7 @@ void FaceRest::queueMessage
 	}
 
 	HandlerClosure *closure = static_cast<HandlerClosure *>(user_data);
-	RestMessage arg(closure->m_faceRest, closure->m_handler,
+	RestJob arg(closure->m_faceRest, closure->m_handler,
 			msg, path, query, client);
 	if (!arg.parse())
 		return;
@@ -725,7 +725,7 @@ void FaceRest::queueMessage
 	launchHandlerInTryBlock(&arg);
 }
 
-void FaceRest::launchHandlerInTryBlock(RestMessage *arg)
+void FaceRest::launchHandlerInTryBlock(RestJob *arg)
 {
 	try {
 		(*arg->handler)(arg);
@@ -735,7 +735,7 @@ void FaceRest::launchHandlerInTryBlock(RestMessage *arg)
 	}
 }
 
-void FaceRest::handlerHelloPage(RestMessage *arg)
+void FaceRest::handlerHelloPage(RestJob *arg)
 {
 	string response;
 	const char *pageTemplate =
@@ -995,7 +995,7 @@ static void addServersIdNameHash(
 	agent.endObject();
 }
 
-void FaceRest::handlerTest(RestMessage *arg)
+void FaceRest::handlerTest(RestJob *arg)
 {
 	JsonBuilderAgent agent;
 	agent.startObject();
@@ -1045,7 +1045,7 @@ void FaceRest::handlerTest(RestMessage *arg)
 	replyJsonData(agent, arg);
 }
 
-void FaceRest::handlerLogin(RestMessage *arg)
+void FaceRest::handlerLogin(RestJob *arg)
 {
 	gchar *user = (gchar *)g_hash_table_lookup(arg->query, "user");
 	if (!user) {
@@ -1085,7 +1085,7 @@ void FaceRest::handlerLogin(RestMessage *arg)
 	replyJsonData(agent, arg);
 }
 
-void FaceRest::handlerLogout(RestMessage *arg)
+void FaceRest::handlerLogout(RestJob *arg)
 {
 	if (!PrivateContext::removeSessionId(arg->sessionId)) {
 		replyError(arg, HTERR_NOT_FOUND_SESSION_ID);
@@ -1100,7 +1100,7 @@ void FaceRest::handlerLogout(RestMessage *arg)
 	replyJsonData(agent, arg);
 }
 
-void FaceRest::handlerGetOverview(RestMessage *arg)
+void FaceRest::handlerGetOverview(RestJob *arg)
 {
 	JsonBuilderAgent agent;
 	agent.startObject();
@@ -1111,7 +1111,7 @@ void FaceRest::handlerGetOverview(RestMessage *arg)
 	replyJsonData(agent, arg);
 }
 
-void FaceRest::handlerGetServer(RestMessage *arg)
+void FaceRest::handlerGetServer(RestJob *arg)
 {
 	uint32_t targetServerId;
 	parseQueryServerId(arg->query, targetServerId);
@@ -1125,7 +1125,7 @@ void FaceRest::handlerGetServer(RestMessage *arg)
 	replyJsonData(agent, arg);
 }
 
-void FaceRest::handlerGetHost(RestMessage *arg)
+void FaceRest::handlerGetHost(RestJob *arg)
 {
 	uint32_t targetServerId;
 	parseQueryServerId(arg->query, targetServerId);
@@ -1141,7 +1141,7 @@ void FaceRest::handlerGetHost(RestMessage *arg)
 	replyJsonData(agent, arg);
 }
 
-void FaceRest::handlerGetTrigger(RestMessage *arg)
+void FaceRest::handlerGetTrigger(RestJob *arg)
 {
 
 	uint32_t serverId;
@@ -1184,7 +1184,7 @@ void FaceRest::handlerGetTrigger(RestMessage *arg)
 	replyJsonData(agent, arg);
 }
 
-void FaceRest::handlerGetEvent(RestMessage *arg)
+void FaceRest::handlerGetEvent(RestJob *arg)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 
@@ -1235,12 +1235,12 @@ void FaceRest::handlerGetEvent(RestMessage *arg)
 
 struct GetItemClosure : Closure<FaceRest>
 {
-	struct FaceRest::RestMessage m_handlerArg;
+	struct FaceRest::RestJob m_handlerArg;
 	SoupServer *m_server;
 	SoupMessage *m_message;
 	GetItemClosure(FaceRest *receiver,
 		       callback func,
-		       struct FaceRest::RestMessage &handlerArg,
+		       struct FaceRest::RestJob &handlerArg,
 		       SoupServer  *server,
 		       SoupMessage *message)
 		: Closure(receiver, func), m_handlerArg(handlerArg),
@@ -1283,7 +1283,7 @@ void FaceRest::itemFetchedCallback(ClosureBase *closure)
 	unpauseMessage(data->m_message);
 }
 
-void FaceRest::handlerGetItem(RestMessage *arg)
+void FaceRest::handlerGetItem(RestJob *arg)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	FaceRest *face = arg->faceRest;
@@ -1313,7 +1313,7 @@ static void setActionCondition(
 			agent.addNull(member);
 }
 
-void FaceRest::handlerAction(RestMessage *arg)
+void FaceRest::handlerAction(RestJob *arg)
 {
 	if (strcasecmp(arg->message->method, "GET") == 0) {
 		handlerGetAction(arg);
@@ -1328,7 +1328,7 @@ void FaceRest::handlerAction(RestMessage *arg)
 	}
 }
 
-void FaceRest::handlerGetAction(RestMessage *arg)
+void FaceRest::handlerGetAction(RestJob *arg)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 
@@ -1389,7 +1389,7 @@ void FaceRest::handlerGetAction(RestMessage *arg)
 	replyJsonData(agent, arg);
 }
 
-void FaceRest::handlerPostAction(RestMessage *arg)
+void FaceRest::handlerPostAction(RestJob *arg)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 
@@ -1523,7 +1523,7 @@ void FaceRest::handlerPostAction(RestMessage *arg)
 	replyJsonData(agent, arg);
 }
 
-void FaceRest::handlerDeleteAction(RestMessage *arg)
+void FaceRest::handlerDeleteAction(RestJob *arg)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	if (arg->id.empty()) {
@@ -1549,7 +1549,7 @@ void FaceRest::handlerDeleteAction(RestMessage *arg)
 	replyJsonData(agent, arg);
 }
 
-void FaceRest::handlerUser(RestMessage *arg)
+void FaceRest::handlerUser(RestJob *arg)
 {
 	if (strcasecmp(arg->message->method, "GET") == 0) {
 		handlerGetUser(arg);
@@ -1564,7 +1564,7 @@ void FaceRest::handlerUser(RestMessage *arg)
 	}
 }
 
-void FaceRest::handlerGetUser(RestMessage *arg)
+void FaceRest::handlerGetUser(RestJob *arg)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 
@@ -1595,7 +1595,7 @@ void FaceRest::handlerGetUser(RestMessage *arg)
 	replyJsonData(agent, arg);
 }
 
-void FaceRest::handlerPostUser(RestMessage *arg)
+void FaceRest::handlerPostUser(RestJob *arg)
 {
 	// Get query parameters
 	char *value;
@@ -1645,7 +1645,7 @@ void FaceRest::handlerPostUser(RestMessage *arg)
 	replyJsonData(agent, arg);
 }
 
-void FaceRest::handlerDeleteUser(RestMessage *arg)
+void FaceRest::handlerDeleteUser(RestJob *arg)
 {
 	if (arg->id.empty()) {
 		replyError(arg, HTERR_NOT_FOUND_ID_IN_URL);
@@ -1795,7 +1795,7 @@ HatoholError FaceRest::getParam(
 
 template<typename T>
 bool FaceRest::getParamWithErrorReply(
-  const RestMessage *arg, const char *paramName, const char *scanFmt,
+  const RestJob *arg, const char *paramName, const char *scanFmt,
   T &dest, bool *exist)
 {
 	char *value = (char *)g_hash_table_lookup(arg->query, paramName);
