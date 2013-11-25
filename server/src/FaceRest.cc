@@ -41,9 +41,7 @@ using namespace mlpl;
 int FaceRest::API_VERSION = 3;
 const char *FaceRest::SESSION_ID_HEADER_NAME = "X-Hatohol-Session";
 
-typedef void (*RestHandler)
-  (SoupServer *server, SoupMessage *msg, const char *path,
-   GHashTable *query, SoupClientContext *client, gpointer user_data);
+typedef void (*RestHandler) (FaceRest::RestJob *job);
 
 typedef uint64_t ServerID;
 typedef uint64_t HostID;
@@ -72,16 +70,16 @@ static const char *MIME_HTML = "text/html";
 static const char *MIME_JSON = "application/json";
 static const char *MIME_JAVASCRIPT = "text/javascript";
 
-#define REPLY_ERROR(MSG, ARG, ERR_CODE, ERR_MSG_FMT, ...) \
+#define REPLY_ERROR(ARG, ERR_CODE, ERR_MSG_FMT, ...) \
 do { \
 	string optMsg = StringUtils::sprintf(ERR_MSG_FMT, ##__VA_ARGS__); \
-	replyError(MSG, ARG, ERR_CODE, optMsg); \
+	replyError(ARG, ERR_CODE, optMsg); \
 } while (0)
 
-#define RETURN_IF_NOT_TEST_MODE(MSG, ARG) \
+#define RETURN_IF_NOT_TEST_MODE(ARG) \
 do { \
 	if (!isTestMode()) { \
-		replyError(MSG, ARG, HTERR_NOT_TEST_MODE); \
+		replyError(ARG, HTERR_NOT_TEST_MODE); \
 		return; \
 	}\
 } while(0)
@@ -90,17 +88,6 @@ enum FormatType {
 	FORMAT_HTML,
 	FORMAT_JSON,
 	FORMAT_JSONP,
-};
-
-struct FaceRest::HandlerArg
-{
-	string     formatString;
-	FormatType formatType;
-	const char *mimeType;
-	string      id; // we assume URL form is http://example.com/request/id
-	string      jsonpCallbackName;
-	string      sessionId;
-	UserIdType  userId;
 };
 
 typedef map<string, FormatType> FormatTypeMap;
@@ -191,6 +178,50 @@ MutexLock    FaceRest::PrivateContext::lock;
 SessionIdMap FaceRest::PrivateContext::sessionIdMap;
 const string FaceRest::PrivateContext::pathForUserMe =
   FaceRest::PrivateContext::initPathForUserMe();
+
+struct FaceRest::RestJob
+{
+	// arguments of SoupServerCallback
+	SoupMessage       *message;
+	string             path;
+	GHashTable        *query;
+	SoupClientContext *client;
+
+	FaceRest   *faceRest;
+	RestHandler handler;
+
+	// parsed data
+	string      formatString;
+	FormatType  formatType;
+	const char *mimeType;
+	string      resourceId; // we assume URL form is:
+				// http://example.com/request/id
+	string      jsonpCallbackName;
+	string      sessionId;
+	UserIdType  userId;
+	bool        replyIsPrepared;
+
+	RestJob(FaceRest *_faceRest, RestHandler _handler,
+		SoupMessage *_msg, const char *_path,
+		GHashTable *_query, SoupClientContext *_client);
+	virtual ~RestJob();
+
+	SoupServer *server(void) {
+		return faceRest ? faceRest->m_ctx->soupServer : NULL;
+	}
+
+	GMainContext *gMainContext(void) {
+		return faceRest ? faceRest->m_ctx->gMainCtx : NULL;
+	}
+
+	bool prepare(void);
+	void pauseResponse(void);
+	void unpauseResponse(void);
+
+private:
+	string getJsonpCallbackName(void);
+	bool parseFormatType(void);
+};
 
 // ---------------------------------------------------------------------------
 // Public methods
@@ -301,6 +332,21 @@ struct FaceRest::PrivateContext::MainThreadCleaner {
 	}
 };
 
+typedef struct HandlerClosure
+{
+	FaceRest *m_faceRest;
+	RestHandler m_handler;
+	HandlerClosure(FaceRest *faceRest, RestHandler handler)
+	: m_faceRest(faceRest), m_handler(handler)
+	{}
+} HandlerClosure;
+
+static void deleteHandlerClosure(gpointer data)
+{
+	HandlerClosure *arg = static_cast<HandlerClosure *>(data);
+	delete arg;
+}
+
 gpointer FaceRest::mainThread(HatoholThreadArg *arg)
 {
 	PrivateContext::MainThreadCleaner cleaner(m_ctx);
@@ -316,41 +362,53 @@ gpointer FaceRest::mainThread(HatoholThreadArg *arg)
 	soup_server_add_handler(m_ctx->soupServer, NULL,
 	                        handlerDefault, this, NULL);
 	soup_server_add_handler(m_ctx->soupServer, "/hello.html",
-	                        launchHandlerInTryBlock,
-	                        (gpointer)handlerHelloPage, NULL);
+	                        queueRestJob,
+	                        new HandlerClosure(this, &handlerHelloPage),
+				deleteHandlerClosure);
 	soup_server_add_handler(m_ctx->soupServer, "/test",
-	                        launchHandlerInTryBlock,
-	                        (gpointer)handlerTest, NULL);
+	                        queueRestJob,
+	                        new HandlerClosure(this, handlerTest),
+				deleteHandlerClosure);
 	soup_server_add_handler(m_ctx->soupServer, pathForLogin,
-	                        launchHandlerInTryBlock,
-	                        (gpointer)handlerLogin, NULL);
+	                        queueRestJob,
+	                        new HandlerClosure(this, handlerLogin),
+				deleteHandlerClosure);
 	soup_server_add_handler(m_ctx->soupServer, pathForLogout,
-	                        launchHandlerInTryBlock,
-	                        (gpointer)handlerLogout, NULL);
+	                        queueRestJob,
+	                        new HandlerClosure(this, handlerLogout),
+				deleteHandlerClosure);
 	soup_server_add_handler(m_ctx->soupServer, pathForGetOverview,
-	                        launchHandlerInTryBlock,
-	                        (gpointer)handlerGetOverview, NULL);
+	                        queueRestJob,
+	                        new HandlerClosure(this, handlerGetOverview),
+				deleteHandlerClosure);
 	soup_server_add_handler(m_ctx->soupServer, pathForGetServer,
-	                        launchHandlerInTryBlock,
-	                        (gpointer)handlerGetServer, NULL);
+	                        queueRestJob,
+	                        new HandlerClosure(this, handlerGetServer),
+				deleteHandlerClosure);
 	soup_server_add_handler(m_ctx->soupServer, pathForGetHost,
-	                        launchHandlerInTryBlock,
-	                        (gpointer)handlerGetHost, NULL);
+	                        queueRestJob,
+	                        new HandlerClosure(this, handlerGetHost),
+				deleteHandlerClosure);
 	soup_server_add_handler(m_ctx->soupServer, pathForGetTrigger,
-	                        launchHandlerInTryBlock,
-	                        (gpointer)handlerGetTrigger, NULL);
+	                        queueRestJob,
+	                        new HandlerClosure(this, handlerGetTrigger),
+				deleteHandlerClosure);
 	soup_server_add_handler(m_ctx->soupServer, pathForGetEvent,
-	                        launchHandlerInTryBlock,
-	                        (gpointer)handlerGetEvent, NULL);
+	                        queueRestJob,
+	                        new HandlerClosure(this, handlerGetEvent),
+				deleteHandlerClosure);
 	soup_server_add_handler(m_ctx->soupServer, pathForGetItem,
-	                        launchHandlerInTryBlock,
-	                        (gpointer)handlerGetItem, NULL);
+	                        queueRestJob,
+	                        new HandlerClosure(this, handlerGetItem),
+				deleteHandlerClosure);
 	soup_server_add_handler(m_ctx->soupServer, pathForAction,
-	                        launchHandlerInTryBlock,
-	                        (gpointer)handlerAction, NULL);
+	                        queueRestJob,
+	                        new HandlerClosure(this, handlerAction),
+				deleteHandlerClosure);
 	soup_server_add_handler(m_ctx->soupServer, pathForUser,
-	                        launchHandlerInTryBlock,
-	                        (gpointer)handlerUser, NULL);
+	                        queueRestJob,
+	                        new HandlerClosure(this, handlerUser),
+				deleteHandlerClosure);
 	if (m_ctx->param)
 		m_ctx->param->setupDoneNotifyFunc();
 	soup_server_run_async(m_ctx->soupServer);
@@ -389,14 +447,14 @@ void FaceRest::addHatoholError(JsonBuilderAgent &agent,
 		agent.add("optionMessages", err.getOptionMessage().c_str());
 }
 
-void FaceRest::replyError(SoupMessage *msg, const HandlerArg *arg,
+void FaceRest::replyError(RestJob *job,
                           const HatoholError &hatoholError)
 {
-	replyError(msg, arg, hatoholError.getCode(),
+	replyError(job, hatoholError.getCode(),
 	           hatoholError.getOptionMessage());
 }
 
-void FaceRest::replyError(SoupMessage *msg, const HandlerArg *arg,
+void FaceRest::replyError(RestJob *job,
                           const HatoholErrorCode &errorCode,
                           const string &optionMessage)
 {
@@ -412,30 +470,15 @@ void FaceRest::replyError(SoupMessage *msg, const HandlerArg *arg,
 	addHatoholError(agent, errorCode);
 	agent.endObject();
 	string response = agent.generate();
-	if (!arg->jsonpCallbackName.empty())
-		response = wrapForJsonp(response, arg->jsonpCallbackName);
-	soup_message_headers_set_content_type(msg->response_headers,
+	if (!job->jsonpCallbackName.empty())
+		response = wrapForJsonp(response, job->jsonpCallbackName);
+	soup_message_headers_set_content_type(job->message->response_headers,
 	                                      MIME_JSON, NULL);
-	soup_message_body_append(msg->response_body, SOUP_MEMORY_COPY,
+	soup_message_body_append(job->message->response_body, SOUP_MEMORY_COPY,
 	                         response.c_str(), response.size());
-	soup_message_set_status(msg, SOUP_STATUS_OK);
-}
+	soup_message_set_status(job->message, SOUP_STATUS_OK);
 
-string FaceRest::getJsonpCallbackName(GHashTable *query, HandlerArg *arg)
-{
-	if (arg->formatType != FORMAT_JSONP)
-		return "";
-	gpointer value = g_hash_table_lookup(query, "callback");
-	if (!value)
-		THROW_HATOHOL_EXCEPTION("Not found parameter: callback");
-
-	const char *callbackName = (const char *)value;
-	string errMsg;
-	if (!Utils::validateJSMethodName(callbackName, errMsg)) {
-		THROW_HATOHOL_EXCEPTION(
-		  "Invalid callback name: %s", errMsg.c_str());
-	}
-	return callbackName;
+	job->replyIsPrepared = true;
 }
 
 string FaceRest::wrapForJsonp(const string &jsonBody,
@@ -448,17 +491,18 @@ string FaceRest::wrapForJsonp(const string &jsonBody,
 	return jsonp;
 }
 
-void FaceRest::replyJsonData(JsonBuilderAgent &agent, SoupMessage *msg,
-                             const string &jsonpCallbackName, HandlerArg *arg)
+void FaceRest::replyJsonData(JsonBuilderAgent &agent, RestJob *job)
 {
 	string response = agent.generate();
-	if (!jsonpCallbackName.empty())
-		response = wrapForJsonp(response, jsonpCallbackName);
-	soup_message_headers_set_content_type(msg->response_headers,
-	                                      arg->mimeType, NULL);
-	soup_message_body_append(msg->response_body, SOUP_MEMORY_COPY,
+	if (!job->jsonpCallbackName.empty())
+		response = wrapForJsonp(response, job->jsonpCallbackName);
+	soup_message_headers_set_content_type(job->message->response_headers,
+	                                      job->mimeType, NULL);
+	soup_message_body_append(job->message->response_body, SOUP_MEMORY_COPY,
 	                         response.c_str(), response.size());
-	soup_message_set_status(msg, SOUP_STATUS_OK);
+	soup_message_set_status(job->message, SOUP_STATUS_OK);
+
+	job->replyIsPrepared = true;
 }
 
 const SessionInfo *FaceRest::getSessionInfo(const string &sessionId)
@@ -524,56 +568,87 @@ void FaceRest::handlerDefault(SoupServer *server, SoupMessage *msg,
 	soup_message_set_status(msg, SOUP_STATUS_NOT_FOUND);
 }
 
-bool FaceRest::parseFormatType(GHashTable *query, HandlerArg &arg)
+FaceRest::RestJob::RestJob
+  (FaceRest *_faceRest, RestHandler _handler, SoupMessage *_msg,
+   const char *_path, GHashTable *_query, SoupClientContext *_client)
+: message(_msg), path(_path ? _path : ""), query(_query), client(_client),
+  faceRest(_faceRest), handler(_handler), mimeType(NULL),
+  replyIsPrepared(false)
 {
-	arg.formatString.clear();
+	if (query)
+		g_hash_table_ref(query);
+}
+
+FaceRest::RestJob::~RestJob()
+{
+	if (query)
+		g_hash_table_unref(query);
+}
+
+
+string FaceRest::RestJob::getJsonpCallbackName(void)
+{
+	if (formatType != FORMAT_JSONP)
+		return "";
+	gpointer value = g_hash_table_lookup(query, "callback");
+	if (!value)
+		THROW_HATOHOL_EXCEPTION("Not found parameter: callback");
+
+	const char *callbackName = (const char *)value;
+	string errMsg;
+	if (!Utils::validateJSMethodName(callbackName, errMsg)) {
+		THROW_HATOHOL_EXCEPTION(
+		  "Invalid callback name: %s", errMsg.c_str());
+	}
+	return callbackName;
+}
+
+bool FaceRest::RestJob::parseFormatType(void)
+{
+	formatString.clear();
 	if (!query) {
-		arg.formatType = FORMAT_JSON;
+		formatType = FORMAT_JSON;
 		return true;
 	}
 
 	gchar *format = (gchar *)g_hash_table_lookup(query, "fmt");
 	if (!format) {
-		arg.formatType = FORMAT_JSON; // default value
+		formatType = FORMAT_JSON; // default value
 		return true;
 	}
-	arg.formatString = format;
+	formatString = format;
 
 	FormatTypeMapIterator fmtIt = g_formatTypeMap.find(format);
 	if (fmtIt == g_formatTypeMap.end())
 		return false;
-	arg.formatType = fmtIt->second;
+	formatType = fmtIt->second;
 	return true;
 }
 
-void FaceRest::launchHandlerInTryBlock
-  (SoupServer *server, SoupMessage *msg, const char *path,
-   GHashTable *_query, SoupClientContext *client, gpointer user_data)
+bool FaceRest::RestJob::prepare(void)
 {
-	RestHandler handler = reinterpret_cast<RestHandler>(user_data);
-	HandlerArg arg;
-
-	const char *sessionId =
-	   soup_message_headers_get_one(msg->request_headers,
+	const char *_sessionId =
+	   soup_message_headers_get_one(message->request_headers,
 	                                SESSION_ID_HEADER_NAME);
-	if (!sessionId) {
+	sessionId = _sessionId ? _sessionId : "";
+
+	if (sessionId.empty()) {
 		// We should return an error. But now, we just set
 		// USER_ID_ADMIN to keep compatiblity until the user privilege
 		// feature is completely implemnted.
 		if (path != pathForLogin)
-			arg.userId = USER_ID_ADMIN;
+			userId = USER_ID_ADMIN;
 		else
-			arg.userId = INVALID_USER_ID;
+			userId = INVALID_USER_ID;
 	} else {
-		arg.sessionId = sessionId;
 		PrivateContext::lock.lock();
 		const SessionInfo *sessionInfo = getSessionInfo(sessionId);
 		if (!sessionInfo) {
 			PrivateContext::lock.unlock();
-			replyError(msg, &arg, HTERR_NOT_FOUND_SESSION_ID);
-			return;
+			replyError(this, HTERR_NOT_FOUND_SESSION_ID);
+			return false;
 		}
-		arg.userId = sessionInfo->userId;
+		userId = sessionInfo->userId;
 		PrivateContext::lock.unlock();
 	}
 
@@ -584,49 +659,120 @@ void FaceRest::launchHandlerInTryBlock
 	// http://localhost:33194/action?fmt=json
 	// http://localhost:33194/action/2345?fmt=html
 
-	GHashTable *query = _query;
-	Reaper<GHashTable> postQueryReaper;
-	if (strcasecmp(msg->method, "POST") == 0) {
-		// The POST request contains query parameters in the body
-		// according to application/x-www-form-urlencoded.
-		query = soup_form_decode(msg->request_body->data);
-		postQueryReaper.set(query, g_hash_table_unref);
-	}
-
 	// a format type
-	if (!parseFormatType(query, arg)) {
-		REPLY_ERROR(msg, &arg, HTERR_UNSUPORTED_FORMAT,
-		            "%s", arg.formatString.c_str());
-		return;
+	if (!parseFormatType()) {
+		REPLY_ERROR(this, HTERR_UNSUPORTED_FORMAT,
+		            "%s", formatString.c_str());
+		return false;
 	}
 
 	// ID
 	StringVector pathElemVect;
 	StringUtils::split(pathElemVect, path, '/');
 	if (pathElemVect.size() >= 2)
-		arg.id = pathElemVect[1];
+		resourceId = pathElemVect[1];
 
 	// MIME
-	MimeTypeMapIterator mimeIt = g_mimeTypeMap.find(arg.formatType);
+	MimeTypeMapIterator mimeIt = g_mimeTypeMap.find(formatType);
 	HATOHOL_ASSERT(
 	  mimeIt != g_mimeTypeMap.end(),
-	  "Invalid formatType: %d, %s", arg.formatType, path);
-	arg.mimeType = mimeIt->second;
+	  "Invalid formatType: %d, %s", formatType, path.c_str());
+	mimeType = mimeIt->second;
 
 	// jsonp callback name
-	arg.jsonpCallbackName = getJsonpCallbackName(query, &arg);
+	jsonpCallbackName = getJsonpCallbackName();
 
+	return true;
+}
+
+void FaceRest::RestJob::pauseResponse(void)
+{
+	soup_server_pause_message(server(), message);
+}
+
+struct UnpauseContext {
+	SoupServer *server;
+	SoupMessage *message;
+};
+
+static gboolean idleUnpause(gpointer data)
+{
+	UnpauseContext *ctx = static_cast<UnpauseContext *>(data);
+	soup_server_unpause_message(ctx->server,
+				    ctx->message);
+	delete ctx;
+	return FALSE;
+}
+
+void FaceRest::RestJob::unpauseResponse(void)
+{
+	if (g_main_context_acquire(gMainContext())) {
+		// FaceRest thread
+		soup_server_unpause_message(server(), message);
+		g_main_context_release(gMainContext());
+	} else {
+		// Other threads
+		UnpauseContext *unpauseContext = new UnpauseContext;
+		unpauseContext->server = server();
+		unpauseContext->message = message;
+		soup_add_completion(gMainContext(), idleUnpause,
+				    unpauseContext);
+	}
+}
+
+static void copyHashTable (gpointer key, gpointer data, gpointer user_data)
+{
+	GHashTable *dest = static_cast<GHashTable *>(user_data);
+	g_hash_table_insert(dest,
+			    g_strdup(static_cast<gchar*>(key)),
+			    g_strdup(static_cast<gchar*>(data)));
+}
+
+void FaceRest::queueRestJob
+  (SoupServer *server, SoupMessage *msg, const char *path,
+   GHashTable *_query, SoupClientContext *client, gpointer user_data)
+{
+	GHashTable *query = _query;
+	Reaper<GHashTable> postQueryReaper;
+	if (strcasecmp(msg->method, "POST") == 0) {
+		// The POST request contains query parameters in the body
+		// according to application/x-www-form-urlencoded.
+		query = soup_form_decode(msg->request_body->data);
+	} else {
+		GHashTable *dest = g_hash_table_new_full(g_str_hash,
+							 g_str_equal,
+							 g_free, g_free);
+		if (query)
+			g_hash_table_foreach(query, copyHashTable, dest);
+		query = dest;
+	}
+	postQueryReaper.set(query, g_hash_table_unref);
+
+	HandlerClosure *closure = static_cast<HandlerClosure *>(user_data);
+	RestJob *job = new RestJob(closure->m_faceRest, closure->m_handler,
+				   msg, path, query, client);
+	if (!job->prepare())
+		return;
+
+	job->pauseResponse();
+	launchHandlerInTryBlock(job);
+	if (job->replyIsPrepared) {
+		job->unpauseResponse();
+		delete job;
+	}
+}
+
+void FaceRest::launchHandlerInTryBlock(RestJob *job)
+{
 	try {
-		(*handler)(server, msg, path, query, client, &arg);
+		(*job->handler)(job);
 	} catch (const HatoholException &e) {
-		REPLY_ERROR(msg, &arg, HTERR_GOT_EXCEPTION,
+		REPLY_ERROR(job, HTERR_GOT_EXCEPTION,
 		            "%s", e.getFancyMessage().c_str());
 	}
 }
 
-void FaceRest::handlerHelloPage
-  (SoupServer *server, SoupMessage *msg, const char *path,
-   GHashTable *query, SoupClientContext *client, HandlerArg *arg)
+void FaceRest::handlerHelloPage(RestJob *job)
 {
 	string response;
 	const char *pageTemplate =
@@ -634,9 +780,9 @@ void FaceRest::handlerHelloPage
 	  "HATOHOL Server ver. %s"
 	  "</html>";
 	response = StringUtils::sprintf(pageTemplate, PACKAGE_VERSION);
-	soup_message_body_append(msg->response_body, SOUP_MEMORY_COPY,
+	soup_message_body_append(job->message->response_body, SOUP_MEMORY_COPY,
 	                         response.c_str(), response.size());
-	soup_message_set_status(msg, SOUP_STATUS_OK);
+	soup_message_set_status(job->message, SOUP_STATUS_OK);
 }
 
 static void addOverviewEachServer(JsonBuilderAgent &agent,
@@ -655,6 +801,7 @@ static void addOverviewEachServer(JsonBuilderAgent &agent,
 	agent.add("numberOfHosts", hostInfoList.size());
 
 	ItemInfoList itemInfoList;
+	dataStore->fetchItems(svInfo.id);
 	dataStore->getItemList(itemInfoList, svInfo.id);
 	agent.add("numberOfItems", itemInfoList.size());
 
@@ -885,9 +1032,7 @@ static void addServersIdNameHash(
 	agent.endObject();
 }
 
-void FaceRest::handlerTest
-  (SoupServer *server, SoupMessage *msg, const char *path,
-   GHashTable *query, SoupClientContext *client, HandlerArg *arg)
+void FaceRest::handlerTest(RestJob *job)
 {
 	JsonBuilderAgent agent;
 	agent.startObject();
@@ -897,56 +1042,58 @@ void FaceRest::handlerTest
 	else
 		agent.addFalse("testMode");
 
-	if (string(path) == "/test" && string(msg->method) == "POST") {
+	if (string(job->path) == "/test" &&
+	    string(job->message->method) == "POST")
+	{
 		agent.startObject("queryData");
 		GHashTableIter iter;
 		gpointer key, value;
-		g_hash_table_iter_init(&iter, query);
+		g_hash_table_iter_init(&iter, job->query);
 		while (g_hash_table_iter_next(&iter, &key, &value)) {
 			agent.add(string((const char *)key),
 			          string((const char *)value));
 		}
 		agent.endObject(); // queryData
 		agent.endObject(); // top level
-		replyJsonData(agent, msg, arg->jsonpCallbackName, arg);
+		replyJsonData(agent, job);
 		return;
 	} 
 
-	if (string(path) == "/test/error") {
+	if (string(job->path) == "/test/error") {
 		agent.endObject(); // top level
-		replyError(msg, arg, HTERR_ERROR_TEST);
+		replyError(job, HTERR_ERROR_TEST);
 		return;
 	} 
 
-	if (string(path) == "/test/user" && string(msg->method) == "POST") {
-		RETURN_IF_NOT_TEST_MODE(msg, arg);
+	if (string(job->path) == "/test/user" &&
+	    string(job->message->method) == "POST")
+	{
+		RETURN_IF_NOT_TEST_MODE(job);
 		UserQueryOption option;
 		option.setUserId(USER_ID_ADMIN);
-		HatoholError err = updateOrAddUser(query, option);
+		HatoholError err = updateOrAddUser(job->query, option);
 		if (err != HTERR_OK) {
-			replyError(msg, arg, err);
+			replyError(job, err);
 			return;
 		}
 	}
 
 	agent.endObject();
-	replyJsonData(agent, msg, arg->jsonpCallbackName, arg);
+	replyJsonData(agent, job);
 }
 
-void FaceRest::handlerLogin
-  (SoupServer *server, SoupMessage *msg, const char *path,
-   GHashTable *query, SoupClientContext *client, HandlerArg *arg)
+void FaceRest::handlerLogin(RestJob *job)
 {
-	gchar *user = (gchar *)g_hash_table_lookup(query, "user");
+	gchar *user = (gchar *)g_hash_table_lookup(job->query, "user");
 	if (!user) {
 		MLPL_INFO("Not found: user\n");
-		replyError(msg, arg, HTERR_AUTH_FAILED);
+		replyError(job, HTERR_AUTH_FAILED);
 		return;
 	}
-	gchar *password = (gchar *)g_hash_table_lookup(query, "password");
+	gchar *password = (gchar *)g_hash_table_lookup(job->query, "password");
 	if (!password) {
 		MLPL_INFO("Not found: password\n");
-		replyError(msg, arg, HTERR_AUTH_FAILED);
+		replyError(job, HTERR_AUTH_FAILED);
 		return;
 	}
 
@@ -954,7 +1101,7 @@ void FaceRest::handlerLogin
 	UserIdType userId = dbUser.getUserId(user, password);
 	if (userId == INVALID_USER_ID) {
 		MLPL_INFO("Failed to authenticate: %s.\n", user);
-		replyError(msg, arg, HTERR_AUTH_FAILED);
+		replyError(job, HTERR_AUTH_FAILED);
 		return;
 	}
 
@@ -972,15 +1119,13 @@ void FaceRest::handlerLogin
 	agent.add("sessionId", sessionId);
 	agent.endObject();
 
-	replyJsonData(agent, msg, arg->jsonpCallbackName, arg);
+	replyJsonData(agent, job);
 }
 
-void FaceRest::handlerLogout
-  (SoupServer *server, SoupMessage *msg, const char *path,
-   GHashTable *query, SoupClientContext *client, HandlerArg *arg)
+void FaceRest::handlerLogout(RestJob *job)
 {
-	if (!PrivateContext::removeSessionId(arg->sessionId)) {
-		replyError(msg, arg, HTERR_NOT_FOUND_SESSION_ID);
+	if (!PrivateContext::removeSessionId(job->sessionId)) {
+		replyError(job, HTERR_NOT_FOUND_SESSION_ID);
 		return;
 	}
 
@@ -989,12 +1134,10 @@ void FaceRest::handlerLogout
 	addHatoholError(agent, HatoholError(HTERR_OK));
 	agent.endObject();
 
-	replyJsonData(agent, msg, arg->jsonpCallbackName, arg);
+	replyJsonData(agent, job);
 }
 
-void FaceRest::handlerGetOverview
-  (SoupServer *server, SoupMessage *msg, const char *path,
-   GHashTable *query, SoupClientContext *client, HandlerArg *arg)
+void FaceRest::handlerGetOverview(RestJob *job)
 {
 	JsonBuilderAgent agent;
 	agent.startObject();
@@ -1002,15 +1145,13 @@ void FaceRest::handlerGetOverview
 	addOverview(agent);
 	agent.endObject();
 
-	replyJsonData(agent, msg, arg->jsonpCallbackName, arg);
+	replyJsonData(agent, job);
 }
 
-void FaceRest::handlerGetServer
-  (SoupServer *server, SoupMessage *msg, const char *path,
-   GHashTable *query, SoupClientContext *client, HandlerArg *arg)
+void FaceRest::handlerGetServer(RestJob *job)
 {
 	uint32_t targetServerId;
-	parseQueryServerId(query, targetServerId);
+	parseQueryServerId(job->query, targetServerId);
 
 	JsonBuilderAgent agent;
 	agent.startObject();
@@ -1018,17 +1159,15 @@ void FaceRest::handlerGetServer
 	addServers(agent, targetServerId);
 	agent.endObject();
 
-	replyJsonData(agent, msg, arg->jsonpCallbackName, arg);
+	replyJsonData(agent, job);
 }
 
-void FaceRest::handlerGetHost
-  (SoupServer *server, SoupMessage *msg, const char *path,
-   GHashTable *query, SoupClientContext *client, HandlerArg *arg)
+void FaceRest::handlerGetHost(RestJob *job)
 {
 	uint32_t targetServerId;
-	parseQueryServerId(query, targetServerId);
+	parseQueryServerId(job->query, targetServerId);
 	uint64_t targetHostId;
-	parseQueryHostId(query, targetHostId);
+	parseQueryHostId(job->query, targetHostId);
 
 	JsonBuilderAgent agent;
 	agent.startObject();
@@ -1036,20 +1175,18 @@ void FaceRest::handlerGetHost
 	addHosts(agent, targetServerId, targetHostId);
 	agent.endObject();
 
-	replyJsonData(agent, msg, arg->jsonpCallbackName, arg);
+	replyJsonData(agent, job);
 }
 
-void FaceRest::handlerGetTrigger
-  (SoupServer *server, SoupMessage *msg, const char *path,
-   GHashTable *query, SoupClientContext *client, HandlerArg *arg)
+void FaceRest::handlerGetTrigger(RestJob *job)
 {
 
 	uint32_t serverId;
-	parseQueryServerId(query, serverId);
+	parseQueryServerId(job->query, serverId);
 	uint64_t hostId;
-	parseQueryHostId(query, hostId);
+	parseQueryHostId(job->query, hostId);
 	uint64_t triggerId;
-	parseQueryTriggerId(query, triggerId);
+	parseQueryTriggerId(job->query, triggerId);
 
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	TriggerInfoList triggerList;
@@ -1081,26 +1218,24 @@ void FaceRest::handlerGetTrigger
 	addServersIdNameHash(agent, &hostMaps);
 	agent.endObject();
 
-	replyJsonData(agent, msg, arg->jsonpCallbackName, arg);
+	replyJsonData(agent, job);
 }
 
-void FaceRest::handlerGetEvent
-  (SoupServer *server, SoupMessage *msg, const char *path,
-   GHashTable *query, SoupClientContext *client, HandlerArg *arg)
+void FaceRest::handlerGetEvent(RestJob *job)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 
 	EventInfoList eventList;
 	EventQueryOption option;
-	option.setUserId(arg->userId);
-	HatoholError err = parseEventParameter(option, query);
+	option.setUserId(job->userId);
+	HatoholError err = parseEventParameter(option, job->query);
 	if (err != HTERR_OK) {
-		replyError(msg, arg, err);
+		replyError(job, err);
 		return;
 	}
 	err = dataStore->getEventList(eventList, option);
 	if (err != HTERR_OK) {
-		replyError(msg, arg, err);
+		replyError(job, err);
 		return;
 	}
 
@@ -1132,13 +1267,28 @@ void FaceRest::handlerGetEvent
 	addServersIdNameHash(agent, &hostMaps);
 	agent.endObject();
 
-	replyJsonData(agent, msg, arg->jsonpCallbackName, arg);
+	replyJsonData(agent, job);
 }
 
-void FaceRest::handlerGetItem
-  (SoupServer *server, SoupMessage *msg, const char *path,
-   GHashTable *query, SoupClientContext *client, HandlerArg *arg)
+struct GetItemClosure : Closure<FaceRest>
 {
+	struct FaceRest::RestJob *m_restJob;
+	GetItemClosure(FaceRest *receiver,
+		       callback func,
+		       struct FaceRest::RestJob *restJob)
+	: Closure(receiver, func), m_restJob(restJob)
+	{}
+
+	virtual ~GetItemClosure()
+	{
+		delete m_restJob;
+	}
+};
+
+void FaceRest::itemFetchedCallback(ClosureBase *closure)
+{
+	GetItemClosure *data = dynamic_cast<GetItemClosure*>(closure);
+	RestJob *job = data->m_restJob;
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 
 	ItemInfoList itemList;
@@ -1166,7 +1316,27 @@ void FaceRest::handlerGetItem
 	addServersIdNameHash(agent);
 	agent.endObject();
 
-	replyJsonData(agent, msg, arg->jsonpCallbackName, arg);
+	replyJsonData(agent, job);
+
+	job->unpauseResponse();
+}
+
+void FaceRest::handlerGetItem(RestJob *job)
+{
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+	FaceRest *face = job->faceRest;
+
+	GetItemClosure *closure =
+	  new GetItemClosure(face, &FaceRest::itemFetchedCallback, job);
+
+	bool handled = dataStore->getItemListAsync(closure);
+	if (!handled) {
+		face->itemFetchedCallback(closure);
+		// avoid freeing m_restJob because m_restJob will be freed at
+		// queueRestJob()
+		closure->m_restJob = NULL;
+		delete closure;
+	}
 }
 
 template <typename T>
@@ -1181,25 +1351,22 @@ static void setActionCondition(
 			agent.addNull(member);
 }
 
-void FaceRest::handlerAction
-  (SoupServer *server, SoupMessage *msg, const char *path,
-   GHashTable *query, SoupClientContext *client, HandlerArg *arg)
+void FaceRest::handlerAction(RestJob *job)
 {
-	if (strcasecmp(msg->method, "GET") == 0) {
-		handlerGetAction(server, msg, path, query, client, arg);
-	} else if (strcasecmp(msg->method, "POST") == 0) {
-		handlerPostAction(server, msg, path, query, client, arg);
-	} else if (strcasecmp(msg->method, "DELETE") == 0) {
-		handlerDeleteAction(server, msg, path, query, client, arg);
+	if (strcasecmp(job->message->method, "GET") == 0) {
+		handlerGetAction(job);
+	} else if (strcasecmp(job->message->method, "POST") == 0) {
+		handlerPostAction(job);
+	} else if (strcasecmp(job->message->method, "DELETE") == 0) {
+		handlerDeleteAction(job);
 	} else {
-		MLPL_ERR("Unknown method: %s\n", msg->method);
-		soup_message_set_status(msg, SOUP_STATUS_METHOD_NOT_ALLOWED);
+		MLPL_ERR("Unknown method: %s\n", job->message->method);
+		soup_message_set_status(job->message,
+					SOUP_STATUS_METHOD_NOT_ALLOWED);
 	}
 }
 
-void FaceRest::handlerGetAction
-  (SoupServer *server, SoupMessage *msg, const char *path,
-   GHashTable *query, SoupClientContext *client, HandlerArg *arg)
+void FaceRest::handlerGetAction(RestJob *job)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 
@@ -1257,12 +1424,10 @@ void FaceRest::handlerGetAction
 	                     &triggerMaps, lookupTriggerBrief);
 	agent.endObject();
 
-	replyJsonData(agent, msg, arg->jsonpCallbackName, arg);
+	replyJsonData(agent, job);
 }
 
-void FaceRest::handlerPostAction
-  (SoupServer *server, SoupMessage *msg, const char *path,
-   GHashTable *query, SoupClientContext *client, HandlerArg *arg)
+void FaceRest::handlerPostAction(RestJob *job)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 
@@ -1276,25 +1441,24 @@ void FaceRest::handlerPostAction
 
 	// action type
 	succeeded = getParamWithErrorReply<int>(
-	              query, msg, arg,
-	              "type", "%d", (int &)actionDef.type, &exist);
+	              job, "type", "%d", (int &)actionDef.type, &exist);
 	if (!succeeded)
 		return;
 	if (!exist) {
-		REPLY_ERROR(msg, arg, HTERR_NOT_FOUND_PARAMETER, "type");
+		REPLY_ERROR(job, HTERR_NOT_FOUND_PARAMETER, "type");
 		return;
 	}
 	if (!(actionDef.type == ACTION_COMMAND ||
 	      actionDef.type == ACTION_RESIDENT)) {
-		REPLY_ERROR(msg, arg, HTERR_INVALID_PARAMETER,
+		REPLY_ERROR(job, HTERR_INVALID_PARAMETER,
 		            "type: %d\n", actionDef.type);
 		return;
 	}
 
 	// command
-	value = (char *)g_hash_table_lookup(query, "command");
+	value = (char *)g_hash_table_lookup(job->query, "command");
 	if (!value) {
-		replyError(msg, arg, HTERR_NOT_FOUND_PARAMETER, "command");
+		replyError(job, HTERR_NOT_FOUND_PARAMETER, "command");
 		return;
 	}
 	actionDef.command = value;
@@ -1305,15 +1469,14 @@ void FaceRest::handlerPostAction
 	ActionCondition &cond = actionDef.condition;
 
 	// workingDirectory
-	value = (char *)g_hash_table_lookup(query, "workingDirectory");
+	value = (char *)g_hash_table_lookup(job->query, "workingDirectory");
 	if (value) {
 		actionDef.workingDir = value;
 	}
 
 	// timeout
 	succeeded = getParamWithErrorReply<int>(
-	              query, msg, arg,
-	              "timeout", "%d", actionDef.timeout, &exist);
+	              job, "timeout", "%d", actionDef.timeout, &exist);
 	if (!succeeded)
 		return;
 	if (!exist)
@@ -1321,8 +1484,7 @@ void FaceRest::handlerPostAction
 
 	// serverId
 	succeeded = getParamWithErrorReply<int>(
-	              query, msg, arg,
-	              "serverId", "%d", cond.serverId, &exist);
+	              job, "serverId", "%d", cond.serverId, &exist);
 	if (!succeeded)
 		return;
 	if (exist)
@@ -1330,8 +1492,7 @@ void FaceRest::handlerPostAction
 
 	// hostId
 	succeeded = getParamWithErrorReply<uint64_t>(
-	              query, msg, arg,
-	              "hostId", "%"PRIu64, cond.hostId, &exist);
+	              job, "hostId", "%"PRIu64, cond.hostId, &exist);
 	if (!succeeded)
 		return;
 	if (exist)
@@ -1339,8 +1500,7 @@ void FaceRest::handlerPostAction
 
 	// hostGroupId
 	succeeded = getParamWithErrorReply<uint64_t>(
-	              query, msg, arg,
-	              "hostGroupId", "%"PRIu64, cond.hostGroupId, &exist);
+	              job, "hostGroupId", "%"PRIu64, cond.hostGroupId, &exist);
 	if (!succeeded)
 		return;
 	if (exist)
@@ -1348,8 +1508,7 @@ void FaceRest::handlerPostAction
 
 	// triggerId
 	succeeded = getParamWithErrorReply<uint64_t>(
-	              query, msg, arg,
-	              "triggerId", "%"PRIu64, cond.triggerId, &exist);
+	              job, "triggerId", "%"PRIu64, cond.triggerId, &exist);
 	if (!succeeded)
 		return;
 	if (exist)
@@ -1357,8 +1516,7 @@ void FaceRest::handlerPostAction
 
 	// triggerStatus
 	succeeded = getParamWithErrorReply<int>(
-	              query, msg, arg,
-	              "triggerStatus", "%d", cond.triggerStatus, &exist);
+	              job, "triggerStatus", "%d", cond.triggerStatus, &exist);
 	if (!succeeded)
 		return;
 	if (exist)
@@ -1366,8 +1524,7 @@ void FaceRest::handlerPostAction
 
 	// triggerSeverity
 	succeeded = getParamWithErrorReply<int>(
-	              query, msg, arg,
-	              "triggerSeverity", "%d", cond.triggerSeverity, &exist);
+	              job, "triggerSeverity", "%d", cond.triggerSeverity, &exist);
 	if (!succeeded)
 		return;
 	if (exist) {
@@ -1375,19 +1532,18 @@ void FaceRest::handlerPostAction
 
 		// triggerSeverityComparatorType
 		succeeded = getParamWithErrorReply<int>(
-		              query, msg, arg,
-		              "triggerSeverityCompType", "%d",
+		              job, "triggerSeverityCompType", "%d",
 		              (int &)cond.triggerSeverityCompType, &exist);
 		if (!succeeded)
 			return;
 		if (!exist) {
-			replyError(msg, arg, HTERR_NOT_FOUND_PARAMETER, 
+			replyError(job, HTERR_NOT_FOUND_PARAMETER, 
 			           "triggerSeverityCompType");
 			return;
 		}
 		if (!(cond.triggerSeverityCompType == CMP_EQ ||
 		      cond.triggerSeverityCompType == CMP_EQ_GT)) {
-			REPLY_ERROR(msg, arg, HTERR_INVALID_PARAMETER,
+			REPLY_ERROR(job, HTERR_INVALID_PARAMETER,
 			            "type: %d", cond.triggerSeverityCompType);
 			return;
 		}
@@ -1402,22 +1558,20 @@ void FaceRest::handlerPostAction
 	addHatoholError(agent, HatoholError(HTERR_OK));
 	agent.add("id", actionDef.id);
 	agent.endObject();
-	replyJsonData(agent, msg, arg->jsonpCallbackName, arg);
+	replyJsonData(agent, job);
 }
 
-void FaceRest::handlerDeleteAction
-  (SoupServer *server, SoupMessage *msg, const char *path,
-   GHashTable *query, SoupClientContext *client, HandlerArg *arg)
+void FaceRest::handlerDeleteAction(RestJob *job)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-	if (arg->id.empty()) {
-		replyError(msg, arg, HTERR_NOT_FOUND_ID_IN_URL);
+	if (job->resourceId.empty()) {
+		replyError(job, HTERR_NOT_FOUND_ID_IN_URL);
 		return;
 	}
 	int actionId;
-	if (sscanf(arg->id.c_str(), "%d", &actionId) != 1) {
-		REPLY_ERROR(msg, arg, HTERR_INVALID_PARAMETER,
-		            "id: %s", arg->id.c_str());
+	if (sscanf(job->resourceId.c_str(), "%d", &actionId) != 1) {
+		REPLY_ERROR(job, HTERR_INVALID_PARAMETER,
+		            "id: %s", job->resourceId.c_str());
 		return;
 	}
 	ActionIdList actionIdList;
@@ -1428,37 +1582,34 @@ void FaceRest::handlerDeleteAction
 	JsonBuilderAgent agent;
 	agent.startObject();
 	addHatoholError(agent, HatoholError(HTERR_OK));
-	agent.add("id", arg->id);
+	agent.add("id", job->resourceId);
 	agent.endObject();
-	replyJsonData(agent, msg, arg->jsonpCallbackName, arg);
+	replyJsonData(agent, job);
 }
 
-void FaceRest::handlerUser
-  (SoupServer *server, SoupMessage *msg, const char *path,
-   GHashTable *query, SoupClientContext *client, HandlerArg *arg)
+void FaceRest::handlerUser(RestJob *job)
 {
-	if (strcasecmp(msg->method, "GET") == 0) {
-		handlerGetUser(server, msg, path, query, client, arg);
-	} else if (strcasecmp(msg->method, "POST") == 0) {
-		handlerPostUser(server, msg, path, query, client, arg);
-	} else if (strcasecmp(msg->method, "DELETE") == 0) {
-		handlerDeleteUser(server, msg, path, query, client, arg);
+	if (strcasecmp(job->message->method, "GET") == 0) {
+		handlerGetUser(job);
+	} else if (strcasecmp(job->message->method, "POST") == 0) {
+		handlerPostUser(job);
+	} else if (strcasecmp(job->message->method, "DELETE") == 0) {
+		handlerDeleteUser(job);
 	} else {
-		MLPL_ERR("Unknown method: %s\n", msg->method);
-		soup_message_set_status(msg, SOUP_STATUS_METHOD_NOT_ALLOWED);
+		MLPL_ERR("Unknown method: %s\n", job->message->method);
+		soup_message_set_status(job->message,
+					SOUP_STATUS_METHOD_NOT_ALLOWED);
 	}
 }
 
-void FaceRest::handlerGetUser
-  (SoupServer *server, SoupMessage *msg, const char *path,
-   GHashTable *query, SoupClientContext *client, HandlerArg *arg)
+void FaceRest::handlerGetUser(RestJob *job)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 
 	UserInfoList userList;
 	UserQueryOption option;
-	option.setUserId(arg->userId);
-	if (path == PrivateContext::pathForUserMe)
+	option.setUserId(job->userId);
+	if (job->path == PrivateContext::pathForUserMe)
 		option.queryOnlyMyself();
 	dataStore->getUserList(userList, option);
 
@@ -1479,12 +1630,10 @@ void FaceRest::handlerGetUser
 	agent.endArray();
 	agent.endObject();
 
-	replyJsonData(agent, msg, arg->jsonpCallbackName, arg);
+	replyJsonData(agent, job);
 }
 
-void FaceRest::handlerPostUser
-  (SoupServer *server, SoupMessage *msg, const char *path,
-   GHashTable *query, SoupClientContext *client, HandlerArg *arg)
+void FaceRest::handlerPostUser(RestJob *job)
 {
 	// Get query parameters
 	char *value;
@@ -1493,35 +1642,34 @@ void FaceRest::handlerPostUser
 	UserInfo userInfo;
 
 	// name
-	value = (char *)g_hash_table_lookup(query, "user");
+	value = (char *)g_hash_table_lookup(job->query, "user");
 	if (!value) {
-		REPLY_ERROR(msg, arg, HTERR_NOT_FOUND_PARAMETER, "user");
+		REPLY_ERROR(job, HTERR_NOT_FOUND_PARAMETER, "user");
 		return;
 	}
 	userInfo.name = value;
 
 	// password
-	value = (char *)g_hash_table_lookup(query, "password");
+	value = (char *)g_hash_table_lookup(job->query, "password");
 	if (!value) {
-		REPLY_ERROR(msg, arg, HTERR_NOT_FOUND_PARAMETER, "password");
+		REPLY_ERROR(job, HTERR_NOT_FOUND_PARAMETER, "password");
 		return;
 	}
 	userInfo.password = value;
 
 	// flags
 	succeeded = getParamWithErrorReply<OperationPrivilegeFlag>(
-	              query, msg, arg,
-	              "flags", "%"FMT_OPPRVLG, userInfo.flags, &exist);
+	              job, "flags", "%"FMT_OPPRVLG, userInfo.flags, &exist);
 	if (!succeeded)
 		return;
 	if (!exist) {
-		REPLY_ERROR(msg, arg, HTERR_NOT_FOUND_PARAMETER, "flags");
+		REPLY_ERROR(job, HTERR_NOT_FOUND_PARAMETER, "flags");
 		return;
 	}
 
 	// try to add
 	DataQueryOption option;
-	option.setUserId(arg->userId);
+	option.setUserId(job->userId);
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	HatoholError err = dataStore->addUser(userInfo, option);
 
@@ -1532,26 +1680,24 @@ void FaceRest::handlerPostUser
 	if (err == HTERR_OK)
 		agent.add("id", userInfo.id);
 	agent.endObject();
-	replyJsonData(agent, msg, arg->jsonpCallbackName, arg);
+	replyJsonData(agent, job);
 }
 
-void FaceRest::handlerDeleteUser
-  (SoupServer *server, SoupMessage *msg, const char *path,
-   GHashTable *query, SoupClientContext *client, HandlerArg *arg)
+void FaceRest::handlerDeleteUser(RestJob *job)
 {
-	if (arg->id.empty()) {
-		replyError(msg, arg, HTERR_NOT_FOUND_ID_IN_URL);
+	if (job->resourceId.empty()) {
+		replyError(job, HTERR_NOT_FOUND_ID_IN_URL);
 		return;
 	}
 	int userId;
-	if (sscanf(arg->id.c_str(), "%"FMT_USER_ID, &userId) != 1) {
-		REPLY_ERROR(msg, arg, HTERR_INVALID_PARAMETER,
-		            "id: %s", arg->id.c_str());
+	if (sscanf(job->resourceId.c_str(), "%"FMT_USER_ID, &userId) != 1) {
+		REPLY_ERROR(job, HTERR_INVALID_PARAMETER,
+		            "id: %s", job->resourceId.c_str());
 		return;
 	}
 
 	DataQueryOption option;
-	option.setUserId(arg->userId);
+	option.setUserId(job->userId);
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	HatoholError err = dataStore->deleteUser(userId, option);
 
@@ -1562,7 +1708,7 @@ void FaceRest::handlerDeleteUser
 	if (err == HTERR_OK)
 		agent.add("id", userId);
 	agent.endObject();
-	replyJsonData(agent, msg, arg->jsonpCallbackName, arg);
+	replyJsonData(agent, job);
 }
 
 HatoholError FaceRest::parseUserParameter(UserInfo &userInfo, GHashTable *query)
@@ -1687,17 +1833,17 @@ HatoholError FaceRest::getParam(
 
 template<typename T>
 bool FaceRest::getParamWithErrorReply(
-  GHashTable *query, SoupMessage *msg, const HandlerArg *arg,
-  const char *paramName, const char *scanFmt, T &dest, bool *exist)
+  RestJob *job, const char *paramName, const char *scanFmt,
+  T &dest, bool *exist)
 {
-	char *value = (char *)g_hash_table_lookup(query, paramName);
+	char *value = (char *)g_hash_table_lookup(job->query, paramName);
 	if (exist)
 		*exist = value;
 	if (!value)
 		return true;
 
 	if (sscanf(value, scanFmt, &dest) != 1) {
-		REPLY_ERROR(msg, arg, HTERR_INVALID_PARAMETER,
+		REPLY_ERROR(job, HTERR_INVALID_PARAMETER,
 		            "%s: %s\n", paramName, value);
 		return false;
 	}

@@ -27,6 +27,9 @@
 #include "Params.h"
 #include "MultiLangTest.h"
 #include "CacheServiceDBClient.h"
+#include "UnifiedDataStore.h"
+#include "ZabbixAPIEmulator.h"
+
 using namespace mlpl;
 
 namespace testFaceRest {
@@ -775,6 +778,9 @@ void cut_teardown(void)
 		delete g_localeInfo;
 		g_localeInfo = NULL;
 	}
+
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+	dataStore->setCopyOnDemandEnabled(false);
 }
 
 // ---------------------------------------------------------------------------
@@ -891,6 +897,25 @@ void test_eventsStartIdWithoutSortOrder(void)
 void test_items(void)
 {
 	assertItems("/item");
+}
+
+void test_itemsAsyncWithNoArm(void)
+{
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+	dataStore->setCopyOnDemandEnabled(true);
+	assertItems("/item");
+}
+
+void test_itemsAsyncWithNonExistentServers(void)
+{
+	cut_omit("This test will take too long time due to long default "
+		 "timeout values of ArmZabbixAPI.\n");
+
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+	dataStore->setCopyOnDemandEnabled(true);
+	dataStore->start();
+	assertItems("/item");
+	dataStore->stop();
 }
 
 void test_itemsJsonp(void)
