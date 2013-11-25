@@ -734,7 +734,10 @@ void FaceRest::queueRestJob
 	if (!job.parse())
 		return;
 
+	job.pause();
 	launchHandlerInTryBlock(&job);
+	if (job.replyIsPrepared)
+		job.unpause();
 }
 
 void FaceRest::launchHandlerInTryBlock(RestJob *job)
@@ -1299,7 +1302,6 @@ void FaceRest::handlerGetItem(RestJob *job)
 	GetItemClosure *closure =
 	  new GetItemClosure(face, &FaceRest::itemFetchedCallback, *job);
 
-	job->pause();
 	bool handled = dataStore->getItemListAsync(closure);
 	if (!handled) {
 		face->itemFetchedCallback(closure);
