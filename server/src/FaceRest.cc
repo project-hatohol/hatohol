@@ -208,7 +208,13 @@ struct FaceRest::RestJob
 		return faceRest ? faceRest->m_ctx->soupServer : NULL;
 	}
 
+	GMainContext *gMainContext(void) {
+		return faceRest ? faceRest->m_ctx->gMainCtx : NULL;
+	}
+
 	bool parse(void);
+	void pause(void);
+	void unpause(void);
 
 private:
 	string getJsonpCallbackName(void);
@@ -493,41 +499,6 @@ void FaceRest::replyJsonData(JsonBuilderAgent &agent, RestJob *arg)
 	soup_message_set_status(arg->message, SOUP_STATUS_OK);
 }
 
-void FaceRest::pauseMessage(SoupMessage *msg)
-{
-	soup_server_pause_message(m_ctx->soupServer, msg);
-}
-
-struct UnpauseContext {
-	SoupServer *server;
-	SoupMessage *message;
-};
-
-static gboolean idleUnpause(gpointer data)
-{
-	UnpauseContext *ctx = static_cast<UnpauseContext *>(data);
-	soup_server_unpause_message(ctx->server,
-				    ctx->message);
-	delete ctx;
-	return FALSE;
-}
-
-void FaceRest::unpauseMessage(SoupMessage *msg)
-{
-	if (g_main_context_acquire(m_ctx->gMainCtx)) {
-		// FaceRest thread
-		soup_server_unpause_message(m_ctx->soupServer, msg);
-		g_main_context_release(m_ctx->gMainCtx);
-	} else {
-		// Other threads
-		UnpauseContext *unpauseContext = new UnpauseContext;
-		unpauseContext->server = m_ctx->soupServer;
-		unpauseContext->message = msg;
-		soup_add_completion(m_ctx->gMainCtx, idleUnpause, unpauseContext);
-	}
-}
-
-
 const SessionInfo *FaceRest::getSessionInfo(const string &sessionId)
 {
 	return PrivateContext::getSessionInfo(sessionId);
@@ -701,6 +672,41 @@ bool FaceRest::RestJob::parse(void)
 	jsonpCallbackName = getJsonpCallbackName();
 
 	return true;
+}
+
+void FaceRest::RestJob::pause(void)
+{
+	soup_server_pause_message(server(), message);
+}
+
+struct UnpauseContext {
+	SoupServer *server;
+	SoupMessage *message;
+};
+
+static gboolean idleUnpause(gpointer data)
+{
+	UnpauseContext *ctx = static_cast<UnpauseContext *>(data);
+	soup_server_unpause_message(ctx->server,
+				    ctx->message);
+	delete ctx;
+	return FALSE;
+}
+
+void FaceRest::RestJob::unpause(void)
+{
+	if (g_main_context_acquire(gMainContext())) {
+		// FaceRest thread
+		soup_server_unpause_message(server(), message);
+		g_main_context_release(gMainContext());
+	} else {
+		// Other threads
+		UnpauseContext *unpauseContext = new UnpauseContext;
+		unpauseContext->server = server();
+		unpauseContext->message = message;
+		soup_add_completion(gMainContext(), idleUnpause,
+				    unpauseContext);
+	}
 }
 
 void FaceRest::queueMessage
@@ -1280,7 +1286,7 @@ void FaceRest::itemFetchedCallback(ClosureBase *closure)
 
 	replyJsonData(agent, &data->m_handlerArg);
 
-	unpauseMessage(data->m_message);
+	data->m_handlerArg.unpause();
 }
 
 void FaceRest::handlerGetItem(RestJob *arg)
@@ -1293,7 +1299,7 @@ void FaceRest::handlerGetItem(RestJob *arg)
 	    face, &FaceRest::itemFetchedCallback, *arg,
 	    arg->server(), arg->message);
 
-	face->pauseMessage(arg->message);
+	arg->pause();
 	bool handled = dataStore->getItemListAsync(closure);
 	if (!handled) {
 		face->itemFetchedCallback(closure);
