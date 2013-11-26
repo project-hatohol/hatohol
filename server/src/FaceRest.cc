@@ -278,6 +278,7 @@ public:
 protected:
 	virtual gpointer mainThread(HatoholThreadArg *arg) {
 		RestJob *job;
+		MLPL_INFO("start face-rest worker\n");
 		while ((job = waitNextJob()))
 			launchHandlerInTryBlock(job);
 		MLPL_INFO("exited face-rest worker\n");
