@@ -124,6 +124,7 @@ struct FaceRest::PrivateContext {
 	FaceRestParam      *param;
 	AtomicValue<bool>   quitRequest;
 
+	// for async mode
 	bool                asyncMode;
 	set<Worker *>       workers;
 	queue<RestJob *>    restJobQueue;

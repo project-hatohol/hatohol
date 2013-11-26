@@ -67,6 +67,7 @@ protected:
 	// virtual methods
 	gpointer mainThread(HatoholThreadArg *arg);
 
+	// for async mode
 	bool isAsyncMode(void);
 	void startWorkers(void);
 	void stopWorkers(void);
