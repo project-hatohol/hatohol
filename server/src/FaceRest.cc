@@ -124,8 +124,8 @@ struct FaceRest::PrivateContext {
 	FaceRestParam      *param;
 	AtomicValue<bool>   quitRequest;
 
-	queue<RestJob *>    restJobQueue;
 	set<Worker *>       workers;
+	queue<RestJob *>    restJobQueue;
 	MutexLock           restJobLock;
 	sem_t               waitJobSemaphore;
 
