@@ -442,11 +442,11 @@ void FaceRest::stopWorkers(void)
 {
 	set<Worker *> &workers = m_ctx->workers;
 	set<Worker *>::iterator it;
-	for (it = workers.begin(); it != workers.end(); it++) {
+	for (it = workers.begin(); it != workers.end(); ++it) {
 		// to break Worker::waitNextJob()
 		sem_post(&m_ctx->waitJobSemaphore);
 	}
-	for (it = workers.begin(); it != workers.end(); it++) {
+	for (it = workers.begin(); it != workers.end(); ++it) {
 		Worker *worker = *it;
 		worker->stop();
 		delete worker;
