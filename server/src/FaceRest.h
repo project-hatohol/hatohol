@@ -83,6 +83,7 @@ protected:
 	static string wrapForJsonp(const string &jsonBody,
                                    const string &callbackName);
 	static void replyJsonData(JsonBuilderAgent &agent, RestJob *job);
+	static void replyGetItem(RestJob *job);
 
 	/**
 	 * Parse 'serverId' query parameter if it exists.

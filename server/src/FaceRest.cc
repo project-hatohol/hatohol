@@ -1411,10 +1411,8 @@ struct GetItemClosure : Closure<FaceRest>
 	}
 };
 
-void FaceRest::itemFetchedCallback(ClosureBase *closure)
+void FaceRest::replyGetItem(RestJob *job)
 {
-	GetItemClosure *data = dynamic_cast<GetItemClosure*>(closure);
-	RestJob *job = data->m_restJob;
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 
 	ItemInfoList itemList;
@@ -1443,7 +1441,13 @@ void FaceRest::itemFetchedCallback(ClosureBase *closure)
 	agent.endObject();
 
 	replyJsonData(agent, job);
+}
 
+void FaceRest::itemFetchedCallback(ClosureBase *closure)
+{
+	GetItemClosure *data = dynamic_cast<GetItemClosure*>(closure);
+	RestJob *job = data->m_restJob;
+	replyGetItem(job);
 	job->unpauseResponse();
 }
 
@@ -1457,7 +1461,7 @@ void FaceRest::handlerGetItem(RestJob *job)
 
 	bool handled = dataStore->getItemListAsync(closure);
 	if (!handled) {
-		face->itemFetchedCallback(closure);
+		face->replyGetItem(job);
 		// avoid freeing m_restJob because m_restJob will be freed at
 		// queueRestJob()
 		closure->m_restJob = NULL;
