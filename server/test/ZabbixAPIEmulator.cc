@@ -506,9 +506,6 @@ string ZabbixAPIEmulator::addJsonResponse(const string &slice,
 	return StringUtils::sprintf(fmt, slice.c_str(), arg.id);
 }
 
-// ---------------------------------------------------------------------------
-// Private methods
-// ---------------------------------------------------------------------------
 void ZabbixAPIEmulator::parseEventGetParameter(APIHandlerArg &arg)
 {
 	JsonParserAgent parser(arg.msg->request_body->data);

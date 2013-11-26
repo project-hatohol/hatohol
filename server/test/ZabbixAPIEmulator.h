@@ -70,12 +70,10 @@ protected:
 	void APIHandlerApplicationGet(APIHandlerArg &arg);
 	void makeEventJsonData(const string &path);
 	string addJsonResponse(const string &slice, APIHandlerArg &arg);
-
+	void parseEventGetParameter(APIHandlerArg &arg);
 private:
 	struct PrivateContext;
 	PrivateContext *m_ctx;
-
-	void parseEventGetParameter(APIHandlerArg &arg);
 };
 
 #endif // ZabbixAPIEmulator_h
