@@ -40,6 +40,7 @@ using namespace mlpl;
 
 int FaceRest::API_VERSION = 3;
 const char *FaceRest::SESSION_ID_HEADER_NAME = "X-Hatohol-Session";
+const int FaceRest::DEFAULT_NUM_WORKERS = 4;
 
 typedef void (*RestHandler) (FaceRest::RestJob *job);
 
@@ -123,6 +124,7 @@ struct FaceRest::PrivateContext {
 	AtomicValue<bool>   quitRequest;
 
 	queue<RestJob *>    restJobQueue;
+	set<Worker *>       workers;
 	MutexLock           restJobLock;
 
 	PrivateContext(FaceRestParam *_param)
@@ -393,6 +395,26 @@ static void deleteHandlerClosure(gpointer data)
 	delete arg;
 }
 
+void FaceRest::startWorkers(void)
+{
+	for (int i = 0; i < DEFAULT_NUM_WORKERS; i++) {
+		Worker *worker = new Worker(this);
+		worker->start();
+		m_ctx->workers.insert(worker);
+	}
+}
+
+void FaceRest::stopWorkers(void)
+{
+	set<Worker *> &workers = m_ctx->workers;
+	set<Worker *>::iterator it;
+	for (it = workers.begin(); it != workers.end(); it++) {
+		Worker *worker = *it;
+		worker->stop();
+	}
+	workers.clear();
+}
+
 gpointer FaceRest::mainThread(HatoholThreadArg *arg)
 {
 	PrivateContext::MainThreadCleaner cleaner(m_ctx);
@@ -459,8 +481,16 @@ gpointer FaceRest::mainThread(HatoholThreadArg *arg)
 		m_ctx->param->setupDoneNotifyFunc();
 	soup_server_run_async(m_ctx->soupServer);
 	cleaner.running = true;
+
+	// FIXME: not implemented yet
+	// startWorkers();
+
 	while (!m_ctx->quitRequest.get())
 		g_main_context_iteration(m_ctx->gMainCtx, TRUE);
+
+	// FIXME: not implemented yet
+	// stopWorkers();
+
 	MLPL_INFO("exited face-rest\n");
 	return NULL;
 }

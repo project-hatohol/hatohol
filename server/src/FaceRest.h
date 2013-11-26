@@ -50,6 +50,7 @@ public:
 
 	static int API_VERSION;
 	static const char *SESSION_ID_HEADER_NAME;
+	static const int DEFAULT_NUM_WORKERS;
 
 	static void init(void);
 	static void reset(const CommandLineArg &arg);
@@ -65,6 +66,9 @@ public:
 protected:
 	// virtual methods
 	gpointer mainThread(HatoholThreadArg *arg);
+
+	void startWorkers(void);
+	void stopWorkers(void);
 
 	// generic sub routines
 	size_t parseCmdArgPort(CommandLineArg &cmdArg, size_t idx);
