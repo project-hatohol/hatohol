@@ -473,7 +473,7 @@ void ZabbixAPIEmulator::makeEventJsonData(const string &path)
 	  "%s", parser.getErrorMessage());
 	unsigned int numElements = parser.countElements();
 	for (unsigned int i = 0; i < numElements; i++) {
-		int64_t parsedData[COUNT_ELEMENT_NAMES - 1] = {};
+		string parsedData[COUNT_ELEMENT_NAMES - 1] = {};
 
 		parser.startElement(i);
 		for (size_t j = 0; j < COUNT_ELEMENT_NAMES - 1; j++) {
@@ -482,6 +482,8 @@ void ZabbixAPIEmulator::makeEventJsonData(const string &path)
 		}
 		parser.endElement();
 
+		int64_t eventId = 0;
+		sscanf(parsedData[0].c_str(), "%"PRId64, &eventId);
 		JsonKeys key;
 		key.eventid = parsedData[0];
 		key.source = parsedData[1];
@@ -492,7 +494,7 @@ void ZabbixAPIEmulator::makeEventJsonData(const string &path)
 		key.acknowledged = parsedData[6];
 		key.ns = parsedData[7];
 		key.value_changed = parsedData[8];
-		m_ctx->jsonData[parsedData[0]] = key;
+		m_ctx->jsonData[eventId] = key;
 	}
 }
 
