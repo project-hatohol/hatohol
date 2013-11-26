@@ -241,10 +241,32 @@ private:
 };
 
 class FaceRest::Worker : public HatoholThreadBase {
+public:
+	Worker(FaceRest *faceRest)
+	: m_faceRest(faceRest)
+	{};
+	virtual ~Worker() {};
+
 protected:
 	virtual gpointer mainThread(HatoholThreadArg *arg) {
+		RestJob *job;
+		while ((job = waitNextJob())) {
+			launchHandlerInTryBlock(job);
+			if (job->replyIsPrepared) {
+				job->unpauseResponse();
+				delete job;
+			}
+		}
 		return NULL;
 	}
+
+private:
+	RestJob *waitNextJob(void) {
+		RestJob *job = m_faceRest->m_ctx->popJob();
+		return job;
+	}
+
+	FaceRest *m_faceRest;
 };
 
 // ---------------------------------------------------------------------------
