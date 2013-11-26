@@ -249,11 +249,13 @@ struct FaceRest::RestJob
 		GHashTable *_query, SoupClientContext *_client);
 	virtual ~RestJob();
 
-	SoupServer *server(void) {
+	SoupServer *server(void)
+	{
 		return faceRest ? faceRest->m_ctx->soupServer : NULL;
 	}
 
-	GMainContext *gMainContext(void) {
+	GMainContext *gMainContext(void)
+	{
 		return faceRest ? faceRest->m_ctx->gMainCtx : NULL;
 	}
 
