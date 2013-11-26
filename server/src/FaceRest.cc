@@ -163,7 +163,8 @@ struct FaceRest::PrivateContext {
 		lock.unlock();
 	}
 
-	static bool removeSessionId(const string &sessionId) {
+	static bool removeSessionId(const string &sessionId)
+	{
 		lock.lock();
 		SessionIdMapIterator it = sessionIdMap.find(sessionId);
 		bool found = it != sessionIdMap.end();
@@ -177,14 +178,16 @@ struct FaceRest::PrivateContext {
 		return found;
 	}
 
-	static const SessionInfo *getSessionInfo(const string &sessionId) {
+	static const SessionInfo *getSessionInfo(const string &sessionId)
+	{
 		SessionIdMapIterator it = sessionIdMap.find(sessionId);
 		if (it == sessionIdMap.end())
 			return NULL;
 		return it->second;
 	}
 
-	void pushJob(RestJob *job) {
+	void pushJob(RestJob *job)
+	{
 		restJobLock.lock();
 		restJobQueue.push(job);
 		if (sem_post(&waitJobSemaphore) == -1)
@@ -193,13 +196,15 @@ struct FaceRest::PrivateContext {
 		restJobLock.unlock();
 	}
 
-	bool waitJob(void) {
+	bool waitJob(void)
+	{
 		if (sem_wait(&waitJobSemaphore) == -1)
 			MLPL_ERR("Failed to call sem_wait: %d\n", errno);
 		return !quitRequest.get();
 	}
 
-	RestJob *popJob(void) {
+	RestJob *popJob(void)
+	{
 		RestJob *job = NULL;
 		restJobLock.lock();
 		if (!restJobQueue.empty()) {
@@ -266,7 +271,8 @@ public:
 	Worker(FaceRest *faceRest)
 	: m_faceRest(faceRest)
 	{};
-	virtual ~Worker() {};
+	virtual ~Worker()
+	{};
 
 	virtual void stop(void)
 	{
@@ -276,7 +282,8 @@ public:
 	}
 
 protected:
-	virtual gpointer mainThread(HatoholThreadArg *arg) {
+	virtual gpointer mainThread(HatoholThreadArg *arg)
+	{
 		RestJob *job;
 		MLPL_INFO("start face-rest worker\n");
 		while ((job = waitNextJob()))
@@ -286,7 +293,8 @@ protected:
 	}
 
 private:
-	RestJob *waitNextJob(void) {
+	RestJob *waitNextJob(void)
+	{
 		while (m_faceRest->m_ctx->waitJob()) {
 			RestJob *job = m_faceRest->m_ctx->popJob();
 			if (job)
