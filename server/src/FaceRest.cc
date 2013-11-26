@@ -877,7 +877,7 @@ void FaceRest::queueRestJob
 
 	HandlerClosure *closure = static_cast<HandlerClosure *>(user_data);
 	FaceRest *face = closure->m_faceRest;
-	RestJob *job = new RestJob(closure->m_faceRest, closure->m_handler,
+	RestJob *job = new RestJob(face, closure->m_handler,
 				   msg, path, query, client);
 	if (!job->prepare())
 		return;
