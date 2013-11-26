@@ -284,6 +284,7 @@ protected:
 				delete job;
 			}
 		}
+		MLPL_INFO("exited face-rest worker\n");
 		return NULL;
 	}
 
