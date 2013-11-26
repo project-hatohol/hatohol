@@ -20,6 +20,7 @@
 #ifndef ZabbixAPIEmulator_h
 #define ZabbixAPIEmulator_h
 
+#include <map>
 #include <glib.h>
 #include <libsoup/soup.h>
 #include "JsonParserAgent.h"
@@ -35,6 +36,8 @@ public:
 	struct ParameterEventGet;
 	struct JsonKeys;
 	typedef void (ZabbixAPIEmulator::*APIHandler)(APIHandlerArg &);
+	typedef map<int64_t, ZabbixAPIEmulator::JsonKeys> JsonData;
+	typedef JsonData::iterator JsonDataIterator;
 
 	ZabbixAPIEmulator(void);
 	virtual ~ZabbixAPIEmulator();
@@ -71,6 +74,7 @@ protected:
 	void makeEventJsonData(const string &path);
 	string addJsonResponse(const string &slice, APIHandlerArg &arg);
 	void parseEventGetParameter(APIHandlerArg &arg);
+	string setEventJsonData(JsonDataIterator jit);
 private:
 	struct PrivateContext;
 	PrivateContext *m_ctx;

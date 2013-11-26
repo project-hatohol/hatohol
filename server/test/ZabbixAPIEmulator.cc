@@ -17,7 +17,6 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <map>
 #include <set>
 #include <cstdio>
 #include <Logger.h>
@@ -73,9 +72,6 @@ struct ZabbixAPIEmulator::JsonKeys {
 	string ns;
 	string value_changed;
 };
-
-typedef map<int64_t, ZabbixAPIEmulator::JsonKeys> JsonData;
-typedef JsonData::iterator JsonDataIterator;
 
 struct ZabbixAPIEmulator::PrivateContext {
 	GThread    *thread;
@@ -560,4 +556,22 @@ void ZabbixAPIEmulator::parseEventGetParameter(APIHandlerArg &arg)
 	} else {
 		THROW_HATOHOL_EXCEPTION("Not Found: eventid_till");
 	}
+}
+
+string ZabbixAPIEmulator::setEventJsonData(JsonDataIterator jit)
+{
+	const char *fmt =
+	  "{\"eventid\":\"%s\",\"source\":\"%s\",\"object\":\"%s\",\"objectid\":\"%s\",\"clock\":\"%s\",\"value\":\"%s\",\"acknowledged\":\"%s\",\"ns\":\"%s\",\"value_changed\":\"%s\"}";
+	JsonKeys key = jit->second;
+	return StringUtils::sprintf(
+			fmt,
+			key.eventid.c_str(),
+			key.source.c_str(),
+			key.object.c_str(),
+			key.objectId.c_str(),
+			key.clock.c_str(),
+			key.value.c_str(),
+			key.acknowledged.c_str(),
+			key.ns.c_str(),
+			key.value.c_str());
 }
