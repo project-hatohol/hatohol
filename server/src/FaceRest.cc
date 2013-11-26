@@ -449,7 +449,7 @@ void FaceRest::stopWorkers(void)
 	}
 	for (it = workers.begin(); it != workers.end(); ++it) {
 		Worker *worker = *it;
-		worker->stop();
+		// destructor will call stop()
 		delete worker;
 	}
 	workers.clear();
