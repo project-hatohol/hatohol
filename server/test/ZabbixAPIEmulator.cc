@@ -434,7 +434,43 @@ void ZabbixAPIEmulator::APIHandlerEventGet(APIHandlerArg &arg)
 	parseEventGetParameter(arg);
 	makeEventJsonData(path);
 
+	if (m_ctx->paramEvent.sortOrder == "ASC") {
+		if (m_ctx->paramEvent.limit == 0) {	// no limit
+			if (m_ctx->paramEvent.eventIdFrom == 0 && m_ctx->paramEvent.eventIdTill == 0) { // unlimit
+				JsonDataIterator jit = m_ctx->jsonData.begin();
+				for (; jit != m_ctx->jsonData.end(); jit++) {
+					string tmpData = setEventJsonData(jit);
+					contents += tmpData;
+				}
+			} else {	// range specification
+				JsonDataIterator jit = m_ctx->jsonData.find(m_ctx->paramEvent.eventIdFrom);
+				for (;jit != m_ctx->jsonData.find(m_ctx->paramEvent.eventIdTill); jit++) {
+					string tmpData = setEventJsonData(jit);
+					contents += tmpData;
+				}
+			}
+		} else {
 
+		}
+	} else if (m_ctx->paramEvent.sortOrder == "DESC") {
+		if (m_ctx->paramEvent.limit == 0) {	// no limit
+			if (m_ctx->paramEvent.eventIdFrom == 0 && m_ctx->paramEvent.eventIdTill == 0) { // unlimit
+				JsonDataIterator jit = m_ctx->jsonData.end();
+				for (; jit != m_ctx->jsonData.begin(); jit--) {
+					string tmpData = setEventJsonData(jit);
+					contents += tmpData;
+				}
+			} else {	// range specification
+				JsonDataIterator jit = m_ctx->jsonData.find(m_ctx->paramEvent.eventIdTill);
+				for (; jit != m_ctx->jsonData.find(m_ctx->paramEvent.eventIdFrom); jit--) {
+					string tmpData = setEventJsonData(jit);
+					contents += tmpData;
+				}
+			}
+		} else {
+
+		}
+	}
 	string sendData = addJsonResponse(contents, arg);
 	length = sendData.size();
 	soup_message_body_append(arg.msg->response_body, SOUP_MEMORY_TAKE,
