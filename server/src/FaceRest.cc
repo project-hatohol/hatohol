@@ -30,6 +30,7 @@ using namespace mlpl;
 
 #include <errno.h>
 #include <uuid/uuid.h>
+#include <semaphore.h>
 
 #include "FaceRest.h"
 #include "JsonBuilderAgent.h"
@@ -126,6 +127,7 @@ struct FaceRest::PrivateContext {
 	queue<RestJob *>    restJobQueue;
 	set<Worker *>       workers;
 	MutexLock           restJobLock;
+	sem_t               waitJobSemaphore;
 
 	PrivateContext(FaceRestParam *_param)
 	: port(DEFAULT_PORT),
@@ -135,11 +137,13 @@ struct FaceRest::PrivateContext {
 	  quitRequest(false)
 	{
 		gMainCtx = g_main_context_new();
+		sem_init(&waitJobSemaphore, 0, 0);
 	}
 
 	virtual ~PrivateContext()
 	{
 		g_main_context_unref(gMainCtx);
+		sem_destroy(&waitJobSemaphore);
 	}
 
 	static string initPathForUserMe(void)
@@ -180,7 +184,16 @@ struct FaceRest::PrivateContext {
 	void pushJob(RestJob *job) {
 		restJobLock.lock();
 		restJobQueue.push(job);
+		if (sem_post(&waitJobSemaphore) == -1)
+			MLPL_ERR("Failed to call sem_post: %d\n",
+				 errno);
 		restJobLock.unlock();
+	}
+
+	bool waitJob(void) {
+		if (sem_wait(&waitJobSemaphore) == -1)
+			MLPL_ERR("Failed to call sem_wait: %d\n", errno);
+		return !quitRequest.get();
 	}
 
 	RestJob *popJob(void) {
@@ -267,8 +280,12 @@ protected:
 
 private:
 	RestJob *waitNextJob(void) {
-		RestJob *job = m_faceRest->m_ctx->popJob();
-		return job;
+		while (m_faceRest->m_ctx->waitJob()) {
+			RestJob *job = m_faceRest->m_ctx->popJob();
+			if (job)
+				return job;
+		}
+		return NULL;
 	}
 
 	FaceRest *m_faceRest;
