@@ -136,7 +136,7 @@ struct FaceRest::PrivateContext {
 	  gMainCtx(NULL),
 	  param(_param),
 	  quitRequest(false),
-	  asyncMode(false)
+	  asyncMode(true)
 	{
 		gMainCtx = g_main_context_new();
 		sem_init(&waitJobSemaphore, 0, 0);
