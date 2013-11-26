@@ -184,9 +184,12 @@ struct FaceRest::PrivateContext {
 	}
 
 	RestJob *popJob(void) {
+		RestJob *job = NULL;
 		restJobLock.lock();
-		RestJob *job = restJobQueue.front();
-		restJobQueue.pop();
+		if (!restJobQueue.empty()) {
+			job = restJobQueue.front();
+			restJobQueue.pop();
+		}
 		restJobLock.unlock();
 		return job;
 	}
