@@ -277,13 +277,8 @@ public:
 protected:
 	virtual gpointer mainThread(HatoholThreadArg *arg) {
 		RestJob *job;
-		while ((job = waitNextJob())) {
+		while ((job = waitNextJob()))
 			launchHandlerInTryBlock(job);
-			if (job->replyIsPrepared) {
-				job->unpauseResponse();
-				delete job;
-			}
-		}
 		MLPL_INFO("exited face-rest worker\n");
 		return NULL;
 	}
@@ -881,10 +876,6 @@ void FaceRest::queueRestJob
 		face->m_ctx->pushJob(job);
 	} else {
 		launchHandlerInTryBlock(job);
-		if (job->replyIsPrepared) {
-			job->unpauseResponse();
-			delete job;
-		}
 	}
 }
 
@@ -895,6 +886,11 @@ void FaceRest::launchHandlerInTryBlock(RestJob *job)
 	} catch (const HatoholException &e) {
 		REPLY_ERROR(job, HTERR_GOT_EXCEPTION,
 		            "%s", e.getFancyMessage().c_str());
+	}
+
+	if (job->replyIsPrepared) {
+		job->unpauseResponse();
+		delete job;
 	}
 }
 
