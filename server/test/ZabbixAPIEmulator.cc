@@ -50,8 +50,8 @@ struct ZabbixAPIEmulator::ParameterEventGet {
 	string sortField;
 	string sortOrder;
 	int64_t limit;
-	uint64_t eventIdFrom;
-	uint64_t eventIdTill;
+	int64_t eventIdFrom;
+	int64_t eventIdTill;
 
 	ParameterEventGet(void)
 	: limit(0),
