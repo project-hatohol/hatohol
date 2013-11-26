@@ -63,27 +63,15 @@ struct ZabbixAPIEmulator::ParameterEventGet {
 };
 
 struct ZabbixAPIEmulator::JsonKeys {
-	int64_t eventid;
-	int64_t source;
-	int64_t object;
-	int64_t objectId;
-	int64_t clock;
-	int64_t value;
-	int64_t acknowledged;
-	int64_t ns;
-	int64_t value_changed;
-
-	JsonKeys(void)
-	: source(0),
-	  object(0),
-	  objectId(0),
-	  clock(0),
-	  value(0),
-	  acknowledged(0),
-	  ns(0),
-	  value_changed(0)
-	{
-	}
+	string eventid;
+	string source;
+	string object;
+	string objectId;
+	string clock;
+	string value;
+	string acknowledged;
+	string ns;
+	string value_changed;
 };
 
 typedef map<int64_t, ZabbixAPIEmulator::JsonKeys> JsonData;
