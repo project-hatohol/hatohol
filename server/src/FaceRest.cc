@@ -124,6 +124,7 @@ struct FaceRest::PrivateContext {
 	FaceRestParam      *param;
 	AtomicValue<bool>   quitRequest;
 
+	bool                asyncMode;
 	set<Worker *>       workers;
 	queue<RestJob *>    restJobQueue;
 	MutexLock           restJobLock;
@@ -134,7 +135,8 @@ struct FaceRest::PrivateContext {
 	  soupServer(NULL),
 	  gMainCtx(NULL),
 	  param(_param),
-	  quitRequest(false)
+	  quitRequest(false),
+	  asyncMode(false)
 	{
 		gMainCtx = g_main_context_new();
 		sem_init(&waitJobSemaphore, 0, 0);
@@ -415,6 +417,11 @@ static void deleteHandlerClosure(gpointer data)
 	delete arg;
 }
 
+bool FaceRest::isAsyncMode(void)
+{
+	return m_ctx->asyncMode;
+}
+
 void FaceRest::startWorkers(void)
 {
 	for (int i = 0; i < DEFAULT_NUM_WORKERS; i++) {
@@ -502,14 +509,14 @@ gpointer FaceRest::mainThread(HatoholThreadArg *arg)
 	soup_server_run_async(m_ctx->soupServer);
 	cleaner.running = true;
 
-	// FIXME: not implemented yet
-	// startWorkers();
+	if (isAsyncMode())
+		startWorkers();
 
 	while (!m_ctx->quitRequest.get())
 		g_main_context_iteration(m_ctx->gMainCtx, TRUE);
 
-	// FIXME: not implemented yet
-	// stopWorkers();
+	if (isAsyncMode())
+		stopWorkers();
 
 	MLPL_INFO("exited face-rest\n");
 	return NULL;
@@ -849,16 +856,22 @@ void FaceRest::queueRestJob
 	postQueryReaper.set(query, g_hash_table_unref);
 
 	HandlerClosure *closure = static_cast<HandlerClosure *>(user_data);
+	FaceRest *face = closure->m_faceRest;
 	RestJob *job = new RestJob(closure->m_faceRest, closure->m_handler,
 				   msg, path, query, client);
 	if (!job->prepare())
 		return;
 
 	job->pauseResponse();
-	launchHandlerInTryBlock(job);
-	if (job->replyIsPrepared) {
-		job->unpauseResponse();
-		delete job;
+
+	if (face->isAsyncMode()) {
+		face->m_ctx->pushJob(job);
+	} else {
+		launchHandlerInTryBlock(job);
+		if (job->replyIsPrepared) {
+			job->unpauseResponse();
+			delete job;
+		}
 	}
 }
 
