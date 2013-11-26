@@ -58,6 +58,7 @@ struct ZabbixAPIEmulator::ParameterEventGet {
 	  eventIdFrom(0),
 	  eventIdTill(0)
 	{
+		sortOrder = "ASC";
 	}
 };
 
