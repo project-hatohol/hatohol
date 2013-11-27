@@ -461,8 +461,8 @@ void ZabbixAPIEmulator::APIHandlerEventGet(APIHandlerArg &arg)
 			} else {
 				JsonDataIterator jit = m_ctx->jsonData.find(m_ctx->paramEvent.eventIdFrom);
 				JsonDataIterator goalIterator = m_ctx->jsonData.find(m_ctx->paramEvent.eventIdTill);
-				for (int64_t i = 0; jit != goalIterator ||
-						i < m_ctx->paramEvent.limit ||
+				for (int64_t i = 0; i < m_ctx->paramEvent.limit ||
+						jit != goalIterator ||
 						jit != m_ctx->jsonData.end(); jit++, i++) {
 					string tmpData = setEventJsonData(jit);
 					contents += tmpData;
