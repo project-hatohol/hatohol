@@ -444,7 +444,8 @@ void ZabbixAPIEmulator::APIHandlerEventGet(APIHandlerArg &arg)
 				}
 			} else {	// range specification
 				JsonDataIterator jit = m_ctx->jsonData.find(m_ctx->paramEvent.eventIdFrom);
-				for (;jit != m_ctx->jsonData.find(m_ctx->paramEvent.eventIdTill); jit++) {
+				JsonDataIterator goalIterator = m_ctx->jsonData.find(m_ctx->paramEvent.eventIdTill);
+				for (;jit != goalIterator; jit++) {
 					string tmpData = setEventJsonData(jit);
 					contents += tmpData;
 				}
@@ -459,7 +460,8 @@ void ZabbixAPIEmulator::APIHandlerEventGet(APIHandlerArg &arg)
 				}
 			} else {
 				JsonDataIterator jit = m_ctx->jsonData.find(m_ctx->paramEvent.eventIdFrom);
-				for (int64_t i = 0; jit != m_ctx->jsonData.find(m_ctx->paramEvent.eventIdTill) ||
+				JsonDataIterator goalIterator = m_ctx->jsonData.find(m_ctx->paramEvent.eventIdTill);
+				for (int64_t i = 0; jit != goalIterator ||
 						i < m_ctx->paramEvent.limit; jit++, i++) {
 					string tmpData = setEventJsonData(jit);
 					contents += tmpData;
@@ -476,7 +478,8 @@ void ZabbixAPIEmulator::APIHandlerEventGet(APIHandlerArg &arg)
 				}
 			} else {	// range specification
 				JsonDataIterator jit = m_ctx->jsonData.find(m_ctx->paramEvent.eventIdTill);
-				for (; jit != m_ctx->jsonData.find(m_ctx->paramEvent.eventIdFrom); jit--) {
+				JsonDataIterator goalIterator = m_ctx->jsonData.find(m_ctx->paramEvent.eventIdFrom);
+				for (; jit != goalIterator; jit--) {
 					string tmpData = setEventJsonData(jit);
 					contents += tmpData;
 				}
@@ -491,8 +494,9 @@ void ZabbixAPIEmulator::APIHandlerEventGet(APIHandlerArg &arg)
 				}
 			} else {
 				JsonDataIterator jit = m_ctx->jsonData.end();
+				JsonDataIterator goalIterator = m_ctx->jsonData.find(m_ctx->paramEvent.eventIdFrom);
 				for (int64_t i = 0; i < m_ctx->paramEvent.limit ||
-						jit != m_ctx->jsonData.begin(); jit--, i--) {
+						jit != goalIterator; jit--, i--) {
 					string tmpData = setEventJsonData(jit);
 					contents += tmpData;
 				}
