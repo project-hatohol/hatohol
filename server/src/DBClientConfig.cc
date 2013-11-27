@@ -30,7 +30,7 @@ using namespace std;
 static const char *TABLE_NAME_SYSTEM  = "system";
 static const char *TABLE_NAME_SERVERS = "servers";
 
-int DBClientConfig::CONFIG_DB_VERSION = 7;
+int DBClientConfig::CONFIG_DB_VERSION = 8;
 const char *DBClientConfig::DEFAULT_DB_NAME = "hatohol";
 const char *DBClientConfig::DEFAULT_USER_NAME = "hatohol";
 const char *DBClientConfig::DEFAULT_PASSWORD  = "hatohol";
@@ -267,6 +267,17 @@ static bool updateDB(DBAgent *dbAgent, int oldVer, void *data)
 		addColumnsArg.columnIndexes.push_back(
 		  IDX_SYSTEM_ENABLE_COPY_ON_DEMAND);
 		dbAgent->addColumns(addColumnsArg);
+	}
+	if (oldVer <= 7) {
+		// enable copy-on-demand by default
+		DBAgentUpdateArg arg;
+		arg.tableName = TABLE_NAME_SYSTEM;
+		arg.columnDefs = COLUMN_DEF_SYSTEM;
+		arg.columnIndexes.push_back(IDX_SYSTEM_ENABLE_COPY_ON_DEMAND);
+		VariableItemGroupPtr row;
+		row->ADD_NEW_ITEM(Int, 1);
+		arg.row = row;
+		dbAgent->update(arg);
 	}
 	return true;
 }
