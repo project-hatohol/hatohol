@@ -272,9 +272,11 @@ class FaceRest::Worker : public HatoholThreadBase {
 public:
 	Worker(FaceRest *faceRest)
 	: m_faceRest(faceRest)
-	{};
+	{
+	}
 	virtual ~Worker()
-	{};
+	{
+	}
 
 	virtual void stop(void)
 	{
