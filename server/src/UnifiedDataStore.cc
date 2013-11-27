@@ -188,6 +188,8 @@ void UnifiedDataStore::parseCommandLineArgument(CommandLineArg &cmdArg)
 		string &cmd = cmdArg[i];
 		if (cmd == "--enable-copy-on-demand")
 			setCopyOnDemandEnabled(true);
+		else if (cmd == "--disable-copy-on-demand")
+			setCopyOnDemandEnabled(false);
 	}
 }
 
