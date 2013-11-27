@@ -568,7 +568,9 @@ void ZabbixAPIEmulator::parseEventGetParameter(APIHandlerArg &arg)
 		}
 	}
 
+	string rawLimit;
 	if (parser.read("limit", m_ctx->paramEvent.limit)) {
+		sscanf(rawLimit.c_str(), "%"PRIu64, &m_ctx->paramEvent.limit);
 		if (m_ctx->paramEvent.limit < 0)
 			THROW_HATOHOL_EXCEPTION("Invalid parameter: limit: %"PRId64"\n", m_ctx->paramEvent.limit);
 	} else {
