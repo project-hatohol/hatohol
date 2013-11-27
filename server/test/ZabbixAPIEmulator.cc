@@ -450,7 +450,21 @@ void ZabbixAPIEmulator::APIHandlerEventGet(APIHandlerArg &arg)
 				}
 			}
 		} else {
-
+			if (m_ctx->paramEvent.eventIdFrom == 0 && m_ctx->paramEvent.eventIdTill == 0) {	// no range specification
+				JsonDataIterator jit = m_ctx->jsonData.begin();
+				for (int64_t i = 0; i < m_ctx->paramEvent.limit ||
+						jit != m_ctx->jsonData.end(); jit++, i++) {
+					string tmpData = setEventJsonData(jit);
+					contents += tmpData;
+				}
+			} else {
+				JsonDataIterator jit = m_ctx->jsonData.find(m_ctx->paramEvent.eventIdFrom);
+				for (int64_t i = 0; jit != m_ctx->jsonData.find(m_ctx->paramEvent.eventIdTill) ||
+						i < m_ctx->paramEvent.limit; jit++, i++) {
+					string tmpData = setEventJsonData(jit);
+					contents += tmpData;
+				}
+			}
 		}
 	} else if (m_ctx->paramEvent.sortOrder == "DESC") {
 		if (m_ctx->paramEvent.limit == 0) {	// no limit
@@ -468,7 +482,21 @@ void ZabbixAPIEmulator::APIHandlerEventGet(APIHandlerArg &arg)
 				}
 			}
 		} else {
-
+			if (m_ctx->paramEvent.eventIdFrom == 0 && m_ctx->paramEvent.eventIdTill == 0) {
+				JsonDataIterator jit = m_ctx->jsonData.end();
+				for (int64_t i = 0; i < m_ctx->paramEvent.limit ||
+						jit != m_ctx->jsonData.begin(); jit--, i--) {
+					string tmpData = setEventJsonData(jit);
+					contents += tmpData;
+				}
+			} else {
+				JsonDataIterator jit = m_ctx->jsonData.end();
+				for (int64_t i = 0; i < m_ctx->paramEvent.limit ||
+						jit != m_ctx->jsonData.begin(); jit--, i--) {
+					string tmpData = setEventJsonData(jit);
+					contents += tmpData;
+				}
+			}
 		}
 	}
 	string sendData = addJsonResponse(contents, arg);
