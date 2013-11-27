@@ -607,8 +607,6 @@ void ZabbixAPIEmulator::parseEventGetParameter(APIHandlerArg &arg)
 		sscanf(rawLimit.c_str(), "%"PRIu64, &m_ctx->paramEvent.limit);
 		if (m_ctx->paramEvent.limit < 0)
 			THROW_HATOHOL_EXCEPTION("Invalid parameter: limit: %"PRId64"\n", m_ctx->paramEvent.limit);
-	} else {
-		THROW_HATOHOL_EXCEPTION("Not found: limit");
 	}
 
 	string rawEventIdFrom;
@@ -616,8 +614,6 @@ void ZabbixAPIEmulator::parseEventGetParameter(APIHandlerArg &arg)
 		sscanf(rawEventIdFrom.c_str(), "%"PRIu64, &m_ctx->paramEvent.eventIdFrom);
 		if (m_ctx->paramEvent.eventIdFrom < 0)
 			THROW_HATOHOL_EXCEPTION("Invalid parameter: eventid_from: %"PRId64"\n", m_ctx->paramEvent.eventIdFrom);
-	} else {
-		THROW_HATOHOL_EXCEPTION("Not Found: eventid_from");
 	}
 
 	string rawEventIdTill;
@@ -625,8 +621,6 @@ void ZabbixAPIEmulator::parseEventGetParameter(APIHandlerArg &arg)
 		sscanf(rawEventIdTill.c_str(), "%"PRIu64, &m_ctx->paramEvent.eventIdTill);
 		if (m_ctx->paramEvent.eventIdTill < 0)
 			THROW_HATOHOL_EXCEPTION("Invalid parameter: eventid_till: %"PRId64"\n", m_ctx->paramEvent.eventIdTill);
-	} else {
-		THROW_HATOHOL_EXCEPTION("Not Found: eventid_till");
 	}
 }
 
