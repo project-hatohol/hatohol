@@ -794,7 +794,7 @@ void test_execCommandActionTimeoutNotExpired(void)
 	sendQuit(ctx);
 	assertActionLogAfterEnding(ctx);
 
-	// We expects the timer event is removed. So the return value
+	// We expect that the timer event is removed. So the return value
 	// should be FALSE (i.e. not found).
 	GTimer *timer = g_timer_new();
 	g_timer_start(timer);
