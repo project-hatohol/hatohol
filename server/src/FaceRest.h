@@ -50,6 +50,7 @@ public:
 
 	static int API_VERSION;
 	static const char *SESSION_ID_HEADER_NAME;
+	static const int DEFAULT_NUM_WORKERS;
 
 	static void init(void);
 	static void reset(const CommandLineArg &arg);
@@ -59,11 +60,17 @@ public:
 	virtual ~FaceRest();
 	virtual void stop(void);
 
+	class Worker;
 	struct RestJob;
 
 protected:
 	// virtual methods
 	gpointer mainThread(HatoholThreadArg *arg);
+
+	// for async mode
+	bool isAsyncMode(void);
+	void startWorkers(void);
+	void stopWorkers(void);
 
 	// generic sub routines
 	size_t parseCmdArgPort(CommandLineArg &cmdArg, size_t idx);
@@ -77,6 +84,8 @@ protected:
 	static string wrapForJsonp(const string &jsonBody,
                                    const string &callbackName);
 	static void replyJsonData(JsonBuilderAgent &agent, RestJob *job);
+	static void replyGetItem(RestJob *job);
+	static void finishRestJobIfNeeded(RestJob *job);
 
 	/**
 	 * Parse 'serverId' query parameter if it exists.

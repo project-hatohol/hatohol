@@ -330,10 +330,16 @@ static const DBClient::DBSetupTableInfo DB_TABLE_INFO[] = {
 static const size_t NUM_TABLE_INFO =
 sizeof(DB_TABLE_INFO) / sizeof(DBClient::DBSetupTableInfo);
 
+static bool updateDB(DBAgent *dbAgent, int oldVer, void *data)
+{
+	return true;
+}
+
 static DBClient::DBSetupFuncArg DB_ACTION_SETUP_FUNC_ARG = {
 	DBClientAction::ACTION_DB_VERSION,
 	NUM_TABLE_INFO,
 	DB_TABLE_INFO,
+	&updateDB,
 };
 
 struct DBClientAction::PrivateContext

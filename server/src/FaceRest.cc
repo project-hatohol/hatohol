@@ -30,6 +30,7 @@ using namespace mlpl;
 
 #include <errno.h>
 #include <uuid/uuid.h>
+#include <semaphore.h>
 
 #include "FaceRest.h"
 #include "JsonBuilderAgent.h"
@@ -40,6 +41,7 @@ using namespace mlpl;
 
 int FaceRest::API_VERSION = 3;
 const char *FaceRest::SESSION_ID_HEADER_NAME = "X-Hatohol-Session";
+const int FaceRest::DEFAULT_NUM_WORKERS = 4;
 
 typedef void (*RestHandler) (FaceRest::RestJob *job);
 
@@ -122,19 +124,29 @@ struct FaceRest::PrivateContext {
 	FaceRestParam      *param;
 	AtomicValue<bool>   quitRequest;
 
+	// for async mode
+	bool                asyncMode;
+	set<Worker *>       workers;
+	queue<RestJob *>    restJobQueue;
+	MutexLock           restJobLock;
+	sem_t               waitJobSemaphore;
+
 	PrivateContext(FaceRestParam *_param)
 	: port(DEFAULT_PORT),
 	  soupServer(NULL),
 	  gMainCtx(NULL),
 	  param(_param),
-	  quitRequest(false)
+	  quitRequest(false),
+	  asyncMode(true)
 	{
 		gMainCtx = g_main_context_new();
+		sem_init(&waitJobSemaphore, 0, 0);
 	}
 
 	virtual ~PrivateContext()
 	{
 		g_main_context_unref(gMainCtx);
+		sem_destroy(&waitJobSemaphore);
 	}
 
 	static string initPathForUserMe(void)
@@ -151,7 +163,8 @@ struct FaceRest::PrivateContext {
 		lock.unlock();
 	}
 
-	static bool removeSessionId(const string &sessionId) {
+	static bool removeSessionId(const string &sessionId)
+	{
 		lock.lock();
 		SessionIdMapIterator it = sessionIdMap.find(sessionId);
 		bool found = it != sessionIdMap.end();
@@ -165,11 +178,41 @@ struct FaceRest::PrivateContext {
 		return found;
 	}
 
-	static const SessionInfo *getSessionInfo(const string &sessionId) {
+	static const SessionInfo *getSessionInfo(const string &sessionId)
+	{
 		SessionIdMapIterator it = sessionIdMap.find(sessionId);
 		if (it == sessionIdMap.end())
 			return NULL;
 		return it->second;
+	}
+
+	void pushJob(RestJob *job)
+	{
+		restJobLock.lock();
+		restJobQueue.push(job);
+		if (sem_post(&waitJobSemaphore) == -1)
+			MLPL_ERR("Failed to call sem_post: %d\n",
+				 errno);
+		restJobLock.unlock();
+	}
+
+	bool waitJob(void)
+	{
+		if (sem_wait(&waitJobSemaphore) == -1)
+			MLPL_ERR("Failed to call sem_wait: %d\n", errno);
+		return !quitRequest.get();
+	}
+
+	RestJob *popJob(void)
+	{
+		RestJob *job = NULL;
+		restJobLock.lock();
+		if (!restJobQueue.empty()) {
+			job = restJobQueue.front();
+			restJobQueue.pop();
+		}
+		restJobLock.unlock();
+		return job;
 	}
 };
 
@@ -206,11 +249,13 @@ struct FaceRest::RestJob
 		GHashTable *_query, SoupClientContext *_client);
 	virtual ~RestJob();
 
-	SoupServer *server(void) {
+	SoupServer *server(void)
+	{
 		return faceRest ? faceRest->m_ctx->soupServer : NULL;
 	}
 
-	GMainContext *gMainContext(void) {
+	GMainContext *gMainContext(void)
+	{
 		return faceRest ? faceRest->m_ctx->gMainCtx : NULL;
 	}
 
@@ -221,6 +266,50 @@ struct FaceRest::RestJob
 private:
 	string getJsonpCallbackName(void);
 	bool parseFormatType(void);
+};
+
+class FaceRest::Worker : public HatoholThreadBase {
+public:
+	Worker(FaceRest *faceRest)
+	: m_faceRest(faceRest)
+	{
+	}
+	virtual ~Worker()
+	{
+	}
+
+	virtual void stop(void)
+	{
+		if (!isStarted())
+			return;
+		HatoholThreadBase::stop();
+	}
+
+protected:
+	virtual gpointer mainThread(HatoholThreadArg *arg)
+	{
+		RestJob *job;
+		MLPL_INFO("start face-rest worker\n");
+		while ((job = waitNextJob())) {
+			launchHandlerInTryBlock(job);
+			finishRestJobIfNeeded(job);
+		}
+		MLPL_INFO("exited face-rest worker\n");
+		return NULL;
+	}
+
+private:
+	RestJob *waitNextJob(void)
+	{
+		while (m_faceRest->m_ctx->waitJob()) {
+			RestJob *job = m_faceRest->m_ctx->popJob();
+			if (job)
+				return job;
+		}
+		return NULL;
+	}
+
+	FaceRest *m_faceRest;
 };
 
 // ---------------------------------------------------------------------------
@@ -338,13 +427,44 @@ typedef struct HandlerClosure
 	RestHandler m_handler;
 	HandlerClosure(FaceRest *faceRest, RestHandler handler)
 	: m_faceRest(faceRest), m_handler(handler)
-	{}
+	{
+	}
 } HandlerClosure;
 
 static void deleteHandlerClosure(gpointer data)
 {
 	HandlerClosure *arg = static_cast<HandlerClosure *>(data);
 	delete arg;
+}
+
+bool FaceRest::isAsyncMode(void)
+{
+	return m_ctx->asyncMode;
+}
+
+void FaceRest::startWorkers(void)
+{
+	for (int i = 0; i < DEFAULT_NUM_WORKERS; i++) {
+		Worker *worker = new Worker(this);
+		worker->start();
+		m_ctx->workers.insert(worker);
+	}
+}
+
+void FaceRest::stopWorkers(void)
+{
+	set<Worker *> &workers = m_ctx->workers;
+	set<Worker *>::iterator it;
+	for (it = workers.begin(); it != workers.end(); ++it) {
+		// to break Worker::waitNextJob()
+		sem_post(&m_ctx->waitJobSemaphore);
+	}
+	for (it = workers.begin(); it != workers.end(); ++it) {
+		Worker *worker = *it;
+		// destructor will call stop()
+		delete worker;
+	}
+	workers.clear();
 }
 
 gpointer FaceRest::mainThread(HatoholThreadArg *arg)
@@ -413,8 +533,16 @@ gpointer FaceRest::mainThread(HatoholThreadArg *arg)
 		m_ctx->param->setupDoneNotifyFunc();
 	soup_server_run_async(m_ctx->soupServer);
 	cleaner.running = true;
+
+	if (isAsyncMode())
+		startWorkers();
+
 	while (!m_ctx->quitRequest.get())
 		g_main_context_iteration(m_ctx->gMainCtx, TRUE);
+
+	if (isAsyncMode())
+		stopWorkers();
+
 	MLPL_INFO("exited face-rest\n");
 	return NULL;
 }
@@ -577,6 +705,10 @@ FaceRest::RestJob::RestJob
 {
 	if (query)
 		g_hash_table_ref(query);
+
+	// Since life-span of other libsoup's objects should always be longer
+	// than this object and shoube be managed by libsoup, we don't
+	// inclement reference count of them.
 }
 
 FaceRest::RestJob::~RestJob()
@@ -749,13 +881,24 @@ void FaceRest::queueRestJob
 	postQueryReaper.set(query, g_hash_table_unref);
 
 	HandlerClosure *closure = static_cast<HandlerClosure *>(user_data);
-	RestJob *job = new RestJob(closure->m_faceRest, closure->m_handler,
+	FaceRest *face = closure->m_faceRest;
+	RestJob *job = new RestJob(face, closure->m_handler,
 				   msg, path, query, client);
 	if (!job->prepare())
 		return;
 
 	job->pauseResponse();
-	launchHandlerInTryBlock(job);
+
+	if (face->isAsyncMode()) {
+		face->m_ctx->pushJob(job);
+	} else {
+		launchHandlerInTryBlock(job);
+		finishRestJobIfNeeded(job);
+	}
+}
+
+void FaceRest::finishRestJobIfNeeded(RestJob *job)
+{
 	if (job->replyIsPrepared) {
 		job->unpauseResponse();
 		delete job;
@@ -1278,7 +1421,8 @@ struct GetItemClosure : Closure<FaceRest>
 		       callback func,
 		       struct FaceRest::RestJob *restJob)
 	: Closure(receiver, func), m_restJob(restJob)
-	{}
+	{
+	}
 
 	virtual ~GetItemClosure()
 	{
@@ -1286,10 +1430,8 @@ struct GetItemClosure : Closure<FaceRest>
 	}
 };
 
-void FaceRest::itemFetchedCallback(ClosureBase *closure)
+void FaceRest::replyGetItem(RestJob *job)
 {
-	GetItemClosure *data = dynamic_cast<GetItemClosure*>(closure);
-	RestJob *job = data->m_restJob;
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 
 	ItemInfoList itemList;
@@ -1318,7 +1460,13 @@ void FaceRest::itemFetchedCallback(ClosureBase *closure)
 	agent.endObject();
 
 	replyJsonData(agent, job);
+}
 
+void FaceRest::itemFetchedCallback(ClosureBase *closure)
+{
+	GetItemClosure *data = dynamic_cast<GetItemClosure*>(closure);
+	RestJob *job = data->m_restJob;
+	replyGetItem(job);
 	job->unpauseResponse();
 }
 
@@ -1332,7 +1480,7 @@ void FaceRest::handlerGetItem(RestJob *job)
 
 	bool handled = dataStore->getItemListAsync(closure);
 	if (!handled) {
-		face->itemFetchedCallback(closure);
+		face->replyGetItem(job);
 		// avoid freeing m_restJob because m_restJob will be freed at
 		// queueRestJob()
 		closure->m_restJob = NULL;
