@@ -38,6 +38,7 @@ public:
 	typedef void (ZabbixAPIEmulator::*APIHandler)(APIHandlerArg &);
 	typedef map<int64_t, ZabbixAPIEmulator::JsonKeys> JsonData;
 	typedef JsonData::iterator JsonDataIterator;
+	typedef JsonData::reverse_iterator ReverseJsonDataIterator;
 
 	ZabbixAPIEmulator(void);
 	virtual ~ZabbixAPIEmulator();
@@ -75,6 +76,7 @@ protected:
 	string addJsonResponse(const string &slice, APIHandlerArg &arg);
 	void parseEventGetParameter(APIHandlerArg &arg);
 	string setEventJsonData(JsonDataIterator jit);
+	string setEventJsonData(ReverseJsonDataIterator rjit);
 private:
 	struct PrivateContext;
 	PrivateContext *m_ctx;

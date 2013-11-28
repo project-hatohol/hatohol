@@ -642,3 +642,21 @@ string ZabbixAPIEmulator::setEventJsonData(JsonDataIterator jit)
 			key.ns.c_str(),
 			key.value.c_str());
 }
+
+string ZabbixAPIEmulator::setEventJsonData(ReverseJsonDataIterator rjit)
+{
+	const char *fmt =
+	  "{\"eventid\":\"%s\",\"source\":\"%s\",\"object\":\"%s\",\"objectid\":\"%s\",\"clock\":\"%s\",\"value\":\"%s\",\"acknowledged\":\"%s\",\"ns\":\"%s\",\"value_changed\":\"%s\"},";
+	JsonKeys key = rjit->second;
+	return StringUtils::sprintf(
+			fmt,
+			key.eventid.c_str(),
+			key.source.c_str(),
+			key.object.c_str(),
+			key.objectId.c_str(),
+			key.clock.c_str(),
+			key.value.c_str(),
+			key.acknowledged.c_str(),
+			key.ns.c_str(),
+			key.value.c_str());
+}
