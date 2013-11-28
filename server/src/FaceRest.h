@@ -85,6 +85,7 @@ protected:
                                    const string &callbackName);
 	static void replyJsonData(JsonBuilderAgent &agent, RestJob *job);
 	static void replyGetItem(RestJob *job);
+	static void finishRestJobIfNeeded(RestJob *job);
 
 	/**
 	 * Parse 'serverId' query parameter if it exists.

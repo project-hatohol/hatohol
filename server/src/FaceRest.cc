@@ -290,8 +290,10 @@ protected:
 	{
 		RestJob *job;
 		MLPL_INFO("start face-rest worker\n");
-		while ((job = waitNextJob()))
+		while ((job = waitNextJob())) {
 			launchHandlerInTryBlock(job);
+			finishRestJobIfNeeded(job);
+		}
 		MLPL_INFO("exited face-rest worker\n");
 		return NULL;
 	}
@@ -891,6 +893,15 @@ void FaceRest::queueRestJob
 		face->m_ctx->pushJob(job);
 	} else {
 		launchHandlerInTryBlock(job);
+		finishRestJobIfNeeded(job);
+	}
+}
+
+void FaceRest::finishRestJobIfNeeded(RestJob *job)
+{
+	if (job->replyIsPrepared) {
+		job->unpauseResponse();
+		delete job;
 	}
 }
 
@@ -901,11 +912,6 @@ void FaceRest::launchHandlerInTryBlock(RestJob *job)
 	} catch (const HatoholException &e) {
 		REPLY_ERROR(job, HTERR_GOT_EXCEPTION,
 		            "%s", e.getFancyMessage().c_str());
-	}
-
-	if (job->replyIsPrepared) {
-		job->unpauseResponse();
-		delete job;
 	}
 }
 
