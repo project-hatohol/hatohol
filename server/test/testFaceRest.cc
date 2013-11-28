@@ -835,7 +835,8 @@ void test_testError(void)
 }
 
 void test_servers(void)
-{ assertServers("/server");
+{
+	assertServers("/server");
 }
 
 void test_serversJsonp(void)
