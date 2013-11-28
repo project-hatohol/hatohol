@@ -425,7 +425,8 @@ typedef struct HandlerClosure
 	RestHandler m_handler;
 	HandlerClosure(FaceRest *faceRest, RestHandler handler)
 	: m_faceRest(faceRest), m_handler(handler)
-	{}
+	{
+	}
 } HandlerClosure;
 
 static void deleteHandlerClosure(gpointer data)
@@ -1413,7 +1414,8 @@ struct GetItemClosure : Closure<FaceRest>
 		       callback func,
 		       struct FaceRest::RestJob *restJob)
 	: Closure(receiver, func), m_restJob(restJob)
-	{}
+	{
+	}
 
 	virtual ~GetItemClosure()
 	{
