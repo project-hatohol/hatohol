@@ -58,8 +58,7 @@ struct JsonParserAgent::PrivateContext
 JsonParserAgent::JsonParserAgent(const string &data)
 : m_ctx(NULL)
 {
-	m_ctx = new PrivateContext(data);
-}
+	m_ctx = new PrivateContext(data); }
 
 JsonParserAgent::~JsonParserAgent()
 {
@@ -140,7 +139,7 @@ bool JsonParserAgent::isMember(const string &member)
 
 	object = json_node_get_object(m_ctx->currentNode);
 	if(!json_object_has_member(object, member.c_str())) {
-		MLPL_DBG("The member '%s' is not defined in the current node.",
+		MLPL_DBG("The member '%s' is not defined in the current node.\n",
 				member.c_str());
 		return false;
 	}
@@ -182,7 +181,7 @@ bool JsonParserAgent::startElement(unsigned int index)
 
 		if (index >= json_array_get_length(array)) {
 			MLPL_DBG("The index '%d' is greater than the size of "
-				"the array at the current position.", index);
+				"the array at the current position.\n", index);
 			return false;
 		}
 
@@ -197,7 +196,7 @@ bool JsonParserAgent::startElement(unsigned int index)
 
 		if(index >= json_object_get_size(object)) {
 			MLPL_DBG("The index '%d' is greater than the size of "
-				"the array at the current position.", index);
+				"the array at the current position.\n", index);
 			return false;
 		}
 
