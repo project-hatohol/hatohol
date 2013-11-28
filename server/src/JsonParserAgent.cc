@@ -58,7 +58,8 @@ struct JsonParserAgent::PrivateContext
 JsonParserAgent::JsonParserAgent(const string &data)
 : m_ctx(NULL)
 {
-	m_ctx = new PrivateContext(data); }
+	m_ctx = new PrivateContext(data);
+}
 
 JsonParserAgent::~JsonParserAgent()
 {
