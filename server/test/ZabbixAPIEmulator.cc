@@ -505,6 +505,7 @@ void ZabbixAPIEmulator::APIHandlerEventGet(APIHandlerArg &arg)
 			}
 		}
 	}
+	contents.erase(contents.end());
 	string sendData = addJsonResponse(contents, arg);
 	length = sendData.size();
 	soup_message_body_append(arg.msg->response_body, SOUP_MEMORY_TAKE,
@@ -627,7 +628,7 @@ void ZabbixAPIEmulator::parseEventGetParameter(APIHandlerArg &arg)
 string ZabbixAPIEmulator::setEventJsonData(JsonDataIterator jit)
 {
 	const char *fmt =
-	  "{\"eventid\":\"%s\",\"source\":\"%s\",\"object\":\"%s\",\"objectid\":\"%s\",\"clock\":\"%s\",\"value\":\"%s\",\"acknowledged\":\"%s\",\"ns\":\"%s\",\"value_changed\":\"%s\"}";
+	  "{\"eventid\":\"%s\",\"source\":\"%s\",\"object\":\"%s\",\"objectid\":\"%s\",\"clock\":\"%s\",\"value\":\"%s\",\"acknowledged\":\"%s\",\"ns\":\"%s\",\"value_changed\":\"%s\"},";
 	JsonKeys key = jit->second;
 	return StringUtils::sprintf(
 			fmt,
