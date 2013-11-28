@@ -1512,6 +1512,7 @@ void FaceRest::handlerAction(RestJob *job)
 		MLPL_ERR("Unknown method: %s\n", job->message->method);
 		soup_message_set_status(job->message,
 					SOUP_STATUS_METHOD_NOT_ALLOWED);
+		job->replyIsPrepared = true;
 	}
 }
 
@@ -1748,6 +1749,7 @@ void FaceRest::handlerUser(RestJob *job)
 		MLPL_ERR("Unknown method: %s\n", job->message->method);
 		soup_message_set_status(job->message,
 					SOUP_STATUS_METHOD_NOT_ALLOWED);
+		job->replyIsPrepared = true;
 	}
 }
 
