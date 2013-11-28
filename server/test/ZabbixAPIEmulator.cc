@@ -472,34 +472,34 @@ void ZabbixAPIEmulator::APIHandlerEventGet(APIHandlerArg &arg)
 	} else if (m_ctx->paramEvent.sortOrder == "DESC") {
 		if (m_ctx->paramEvent.limit == 0) {	// no limit
 			if (m_ctx->paramEvent.eventIdFrom == 0 && m_ctx->paramEvent.eventIdTill == 0) { // unlimit
-				JsonDataIterator jit = m_ctx->jsonData.end();
-				for (; jit != m_ctx->jsonData.begin(); --jit) {
-					string tmpData = setEventJsonData(jit);
+				ReverseJsonDataIterator rjit = m_ctx->jsonData.rbegin();
+				for (; rjit != m_ctx->jsonData.rend(); ++rjit) {
+					string tmpData = setEventJsonData(rjit);
 					contents += tmpData;
 				}
 			} else {	// range specification
-				JsonDataIterator jit = m_ctx->jsonData.find(m_ctx->paramEvent.eventIdTill);
-				JsonDataIterator goalIterator = m_ctx->jsonData.find(m_ctx->paramEvent.eventIdFrom);
-				for (; jit != goalIterator; --jit) {
-					string tmpData = setEventJsonData(jit);
+				ReverseJsonDataIterator rjit(m_ctx->jsonData.find(m_ctx->paramEvent.eventIdTill));
+				ReverseJsonDataIterator goalIterator(m_ctx->jsonData.find(m_ctx->paramEvent.eventIdFrom));
+				for (; rjit != goalIterator; ++rjit) {
+					string tmpData = setEventJsonData(rjit);
 					contents += tmpData;
 				}
 			}
 		} else {
 			if (m_ctx->paramEvent.eventIdFrom == 0 && m_ctx->paramEvent.eventIdTill == 0) {
-				JsonDataIterator jit = m_ctx->jsonData.end();
+				ReverseJsonDataIterator rjit = m_ctx->jsonData.rbegin();
 				for (int64_t i = 0; i < m_ctx->paramEvent.limit ||
-						jit != m_ctx->jsonData.begin(); --jit, i++) {
-					string tmpData = setEventJsonData(jit);
+						rjit != m_ctx->jsonData.rend(); ++rjit, i++) {
+					string tmpData = setEventJsonData(rjit);
 					contents += tmpData;
 				}
 			} else {
-				JsonDataIterator jit = m_ctx->jsonData.end();
-				JsonDataIterator goalIterator = m_ctx->jsonData.find(m_ctx->paramEvent.eventIdFrom);
+				ReverseJsonDataIterator rjit(m_ctx->jsonData.find(m_ctx->paramEvent.eventIdTill));
+				ReverseJsonDataIterator goalIterator(m_ctx->jsonData.find(m_ctx->paramEvent.eventIdFrom));
 				for (int64_t i = 0; i < m_ctx->paramEvent.limit ||
-						jit != goalIterator||
-						jit != m_ctx->jsonData.begin(); --jit, i++) {
-					string tmpData = setEventJsonData(jit);
+						rjit != goalIterator||
+						rjit != m_ctx->jsonData.rend(); ++rjit, i++) {
+					string tmpData = setEventJsonData(rjit);
 					contents += tmpData;
 				}
 			}
