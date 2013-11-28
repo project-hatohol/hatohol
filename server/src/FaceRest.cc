@@ -926,6 +926,7 @@ void FaceRest::handlerHelloPage(RestJob *job)
 	soup_message_body_append(job->message->response_body, SOUP_MEMORY_COPY,
 	                         response.c_str(), response.size());
 	soup_message_set_status(job->message, SOUP_STATUS_OK);
+	job->replyIsPrepared = true;
 }
 
 static void addOverviewEachServer(JsonBuilderAgent &agent,
