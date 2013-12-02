@@ -1163,6 +1163,7 @@ static void addServersMap(
 		MonitoringServerInfo &serverInfo = *it;
 		agent.startObject(StringUtils::toString(serverInfo.id));
 		agent.add("name", serverInfo.hostName);
+		agent.add("type", serverInfo.type);
 		agent.add("ipAddress", serverInfo.ipAddress);
 		if (hostMaps) {
 			addHostsMap(agent, serverInfo,
