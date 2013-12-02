@@ -209,16 +209,16 @@ function makeMonitoringSystemTypeLabel(type) {
 }
 
 function getServerLocation(server) {
-  var ipAddress, anchor;
+  var ipAddress, url;
   switch (server["type"]) {
   case MONITORING_SYSTEM_ZABBIX:
     ipAddress = server["ipAddress"];
-    anchor = "http://" + ipAddress + "/zabbix/";
+    url = "http://" + ipAddress + "/zabbix/";
     break;
   default:
     break;
   }
-  return anchor;
+  return url;
 }
 
 function getItemGraphLocation(server, itemId) {
