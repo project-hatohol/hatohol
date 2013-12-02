@@ -223,7 +223,13 @@ function getServerLocation(server) {
 
 function getItemGraphLocation(server, itemId) {
   var location = getServerLocation(server);
-  if (location)
-    location += "history.php?action=showgraph&amp;itemid=" + itemId;
+  switch (server["type"]) {
+  case MONITORING_SYSTEM_ZABBIX:
+    if (location)
+      location += "history.php?action=showgraph&amp;itemid=" + itemId;
+    break;
+  default:
+    return undefined;
+  }
   return location;
 }
