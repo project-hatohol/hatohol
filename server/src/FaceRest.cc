@@ -1087,7 +1087,7 @@ static string getHostName(const ServerID serverId, const HostID hostId)
 	return hostName;
 }
 
-static void addHostsIdNameHash(
+static void addHostsMap(
   JsonBuilderAgent &agent, MonitoringServerInfo &serverInfo,
   HostNameMaps &hostMaps, bool lookupHostName = false)
 {
@@ -1148,7 +1148,7 @@ static void addTriggersIdBriefHash(
 	agent.endObject();
 }
 
-static void addServersIdNameHash(
+static void addServersMap(
   JsonBuilderAgent &agent,
   HostNameMaps *hostMaps = NULL, bool lookupHostName = false,
   TriggerBriefMaps *triggerMaps = NULL, bool lookupTriggerBrief = false)
@@ -1163,9 +1163,11 @@ static void addServersIdNameHash(
 		MonitoringServerInfo &serverInfo = *it;
 		agent.startObject(StringUtils::toString(serverInfo.id));
 		agent.add("name", serverInfo.hostName);
+		agent.add("type", serverInfo.type);
+		agent.add("ipAddress", serverInfo.ipAddress);
 		if (hostMaps) {
-			addHostsIdNameHash(agent, serverInfo,
-			                   *hostMaps, lookupHostName);
+			addHostsMap(agent, serverInfo,
+				    *hostMaps, lookupHostName);
 		}
 		if (triggerMaps) {
 			addTriggersIdBriefHash(agent, serverInfo, *triggerMaps,
@@ -1359,7 +1361,7 @@ void FaceRest::handlerGetTrigger(RestJob *job)
 		  = triggerInfo.hostName;
 	}
 	agent.endArray();
-	addServersIdNameHash(agent, &hostMaps);
+	addServersMap(agent, &hostMaps);
 	agent.endObject();
 
 	replyJsonData(agent, job);
@@ -1408,7 +1410,7 @@ void FaceRest::handlerGetEvent(RestJob *job)
 		  = eventInfo.hostName;
 	}
 	agent.endArray();
-	addServersIdNameHash(agent, &hostMaps);
+	addServersMap(agent, &hostMaps);
 	agent.endObject();
 
 	replyJsonData(agent, job);
@@ -1446,6 +1448,7 @@ void FaceRest::replyGetItem(RestJob *job)
 	for (; it != itemList.end(); ++it) {
 		ItemInfo &itemInfo = *it;
 		agent.startObject();
+		agent.add("id",        itemInfo.id);
 		agent.add("serverId",  itemInfo.serverId);
 		agent.add("hostId",    itemInfo.hostId);
 		agent.add("brief",     itemInfo.brief.c_str());
@@ -1456,7 +1459,7 @@ void FaceRest::replyGetItem(RestJob *job)
 		agent.endObject();
 	}
 	agent.endArray();
-	addServersIdNameHash(agent);
+	addServersMap(agent);
 	agent.endObject();
 
 	replyJsonData(agent, job);
@@ -1570,8 +1573,8 @@ void FaceRest::handlerGetAction(RestJob *job)
 	agent.endArray();
 	const bool lookupHostName = true;
 	const bool lookupTriggerBrief = true;
-	addServersIdNameHash(agent, &hostMaps, lookupHostName,
-	                     &triggerMaps, lookupTriggerBrief);
+	addServersMap(agent, &hostMaps, lookupHostName,
+		      &triggerMaps, lookupTriggerBrief);
 	agent.endObject();
 
 	replyJsonData(agent, job);

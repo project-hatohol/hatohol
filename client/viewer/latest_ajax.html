@@ -115,10 +115,12 @@
       var s;
       var o;
       var klass, server, host, clock, appli;
+      var anchor;
 
       s = "";
       for (x = 0; x < rd["items"].length; ++x) {
         o = rd["items"][x];
+        anchor = getItemGraphLocation(rd["servers"][o["serverId"]], o["id"]);
         server = rd["servers"][o["serverId"]]["name"];
         host   = o["hostId"]; // rd["servers"][o["serverId"]]["hosts"][o["hostId"]]["name"];  ITS NOT IMPLEMENTED YET
         clock  = o["lastValueTime"];
@@ -128,7 +130,10 @@
         s += "<td>" + server + "</td>";
         s += "<td>" + host + "</td>";
         s += "<td>" + appli + "</td>";
-        s += "<td>" + o["brief"] + "</td>";
+        if (anchor)
+          s += "<td><a href='" + anchor + "'>" + o["brief"]  + "</a></td>";
+        else
+          s += "<td>" + o["brief"]  + "</td>";
         s += "<td data-sort-value='" + clock + "'>" + formatDate(clock) + "</td>";
         s += "<td>" + o["lastValue"] + "</td>";
         s += "<td>" + o["prevValue"] + "</td>";
