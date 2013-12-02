@@ -164,7 +164,7 @@ Host object
      - A hostname of the host.
    * - type
      - Number
-     - A Server type.
+     - A `Server type`_.
    * - ipAddress
      - String
      - An IP Address of the server.
@@ -179,3 +179,12 @@ Event type
      - EVENT_TYPE_BAD
    * - 2
      - EVENT_TYPE_UNKNOWN
+
+Server type
+-------------
+.. list-table::
+
+   * - 0
+     - Zabbix
+   * - 1
+     - Nagios

@@ -117,7 +117,7 @@ Server object
      - A hostname of the server.
    * - type
      - Number
-     - A Server type.
+     - A `Server type`_.
    * - ipAddress
      - String
      - An IP Address of the server.
@@ -156,3 +156,12 @@ Trigger severity
      - TRIGGER_SEVERITY_INFO
    * - 1
      - TRIGGER_SEVERITY_WARN
+
+Server type
+-------------
+.. list-table::
+
+   * - 0
+     - Zabbix
+   * - 1
+     - Nagios

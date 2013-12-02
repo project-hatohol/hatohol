@@ -87,7 +87,7 @@ Server object
      - A unique server ID.
    * - type
      - Number
-     - A Server type.
+     - Any of `Server type`_.
    * - hostName
      - String
      - A host name.
@@ -98,3 +98,11 @@ Server object
      - String
      - Arbitrary nickname of the server.
 
+Server type
+-------------
+.. list-table::
+
+   * - 0
+     - Zabbix
+   * - 1
+     - Nagios
