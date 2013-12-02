@@ -207,3 +207,23 @@ function makeMonitoringSystemTypeLabel(type) {
     return "INVALID: " + type;
   }
 }
+
+function getServerLocation(server) {
+  var ip, anchor;
+  switch (server["type"]) {
+  case MONITORING_SYSTEM_ZABBIX:
+    ip = server["ipAddress"];
+    anchor = "http://" + ip + "/zabbix/";
+    break;
+  default:
+    break;
+  }
+  return anchor;
+}
+
+function getItemGraphLocation(server, itemId) {
+  var location = getServerLocation(server);
+  if (location)
+    location += "history.php?action=showgraph&amp;itemid=" + itemId;
+  return location;
+}
