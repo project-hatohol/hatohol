@@ -209,11 +209,11 @@ function makeMonitoringSystemTypeLabel(type) {
 }
 
 function getServerLocation(server) {
-  var ip, anchor;
+  var ipAddress, anchor;
   switch (server["type"]) {
   case MONITORING_SYSTEM_ZABBIX:
-    ip = server["ipAddress"];
-    anchor = "http://" + ip + "/zabbix/";
+    ipAddress = server["ipAddress"];
+    anchor = "http://" + ipAddress + "/zabbix/";
     break;
   default:
     break;
