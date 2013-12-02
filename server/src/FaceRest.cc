@@ -1446,6 +1446,7 @@ void FaceRest::replyGetItem(RestJob *job)
 	for (; it != itemList.end(); ++it) {
 		ItemInfo &itemInfo = *it;
 		agent.startObject();
+		agent.add("id",        itemInfo.id);
 		agent.add("serverId",  itemInfo.serverId);
 		agent.add("hostId",    itemInfo.hostId);
 		agent.add("brief",     itemInfo.brief.c_str());
