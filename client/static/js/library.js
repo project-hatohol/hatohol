@@ -211,7 +211,7 @@ function makeMonitoringSystemTypeLabel(type) {
 function getServerLocation(server) {
   var ipAddress, url;
   switch (server["type"]) {
-  case MONITORING_SYSTEM_ZABBIX:
+  case hatohol.MONITORING_SYSTEM_ZABBIX:
     ipAddress = server["ipAddress"];
     url = "http://" + ipAddress + "/zabbix/";
     break;
@@ -227,11 +227,17 @@ function getItemGraphLocation(server, itemId) {
     return undefined;
 
   switch (server["type"]) {
-  case MONITORING_SYSTEM_ZABBIX:
+  case hatohol.MONITORING_SYSTEM_ZABBIX:
     location += "history.php?action=showgraph&amp;itemid=" + itemId;
     break;
   default:
     return undefined;
   }
   return location;
+}
+
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports.getServerLocation = getServerLocation;
+  module.exports.getItemGraphLocation = getItemGraphLocation;
+  var hatohol = require("../../static/js/hatohol_def");
 }
