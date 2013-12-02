@@ -162,6 +162,12 @@ Host object
    * - name
      - String
      - A hostname of the host.
+   * - type
+     - Number
+     - A Server type.
+   * - ipAddress
+     - String
+     - An IP Address of the server.
 
 Event type
 -------------

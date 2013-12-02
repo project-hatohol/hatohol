@@ -118,3 +118,9 @@ Server object
    * - name
      - String
      - A hostname of the server.
+   * - type
+     - Number
+     - A Server type.
+   * - ipAddress
+     - String
+     - An IP Address of the server.

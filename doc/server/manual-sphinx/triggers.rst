@@ -115,6 +115,12 @@ Server object
    * - name
      - String
      - A hostname of the server.
+   * - type
+     - Number
+     - A Server type.
+   * - ipAddress
+     - String
+     - An IP Address of the server.
    * - hosts
      - Object
      - List of `Host object`_. Keys for each `Host object`_ are host IDs which corresponds to hostId values in `Trigger object`_.
