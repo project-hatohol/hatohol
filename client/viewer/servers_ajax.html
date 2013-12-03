@@ -56,19 +56,19 @@
       var x;
       var s;
       var o;
-      var ip, anchor;
+      var ip, serverURL;
 
       s = "";
       for (x = 0; x < rd["servers"].length; ++x) {
         o = rd["servers"][x];
         ip = o["ipAddress"];
-        anchor = getServerLocation(o);
+        serverURL = getServerLocation(o);
         s += "<tr>";
         s += "<td>" + o["id"] + "</td>";
         s += "<td>" + o["type"]  + "</td>";
-        if (anchor) {
-          s += "<td><a href='" + anchor + "'>" + o["hostName"]  + "</a></td>";
-          s += "<td><a href='" + anchor + "'>" + ip + "</a></td>";
+        if (serverURL) {
+          s += "<td><a href='" + serverURL + "'>" + o["hostName"]  + "</a></td>";
+          s += "<td><a href='" + serverURL + "'>" + ip + "</a></td>";
         } else {
           s += "<td>" + o["hostName"]  + "</td>";
           s += "<td>" + ip + "</td>";
