@@ -63,6 +63,10 @@ var HatoholDialog = function(id, dialogTitle, buttons, dialogAttr) {
     buttons: buttons,
     open: function(event, ui){
       $(".ui-dialog-titlebar-close").hide();
+      $(self.dialogId).keypress(function(event) {
+        if (event.keyCode == $.ui.keyCode.ENTER)
+          $(this).parent().find('.ui-dialog-buttonset button:first').click();
+      });
     }
   });
 
