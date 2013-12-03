@@ -32,6 +32,8 @@
 {% endblock %}
 
 {% block main %}
+<div id="main">
+</div>
 {% endblock %}
 
 {% block option %}
@@ -41,6 +43,6 @@
 
 {% block logic %}
   <script type="text/javascript">
-    var view = new EventsView(document.body);
+    var view = new EventsView($("#main"));
   </script>
 {% endblock %}
