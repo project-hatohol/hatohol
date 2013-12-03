@@ -258,7 +258,7 @@ void test_parseArgConfigDBServerWithPort(void)
 void test_isCopyOnDemandEnabledDefault(void)
 {
 	DBClientConfig dbConfig;
-	cppcut_assert_equal(false, dbConfig.isCopyOnDemandEnabled());
+	cut_assert_true(dbConfig.isCopyOnDemandEnabled());
 }
 
 } // namespace testDBClientConfig

@@ -79,7 +79,7 @@ static const ColumnDef COLUMN_DEF_SYSTEM[] = {
 	false,                             // canBeNull
 	SQL_KEY_NONE,                      // keyType
 	0,                                 // flags
-	NULL,                              // defaultValue
+	"1",                               // defaultValue
 },
 };
 static const size_t NUM_COLUMNS_SYSTEM =
@@ -615,6 +615,8 @@ void DBClientConfig::tableInitializerSystem(DBAgent *dbAgent, void *data)
 	  COLUMN_DEF_SYSTEM[IDX_SYSTEM_DATABASE_DIR];
 	const ColumnDef &columnDefFaceRestPort =
 	  COLUMN_DEF_SYSTEM[IDX_SYSTEM_FACE_REST_PORT];
+	const ColumnDef &columnDefEnableCopyOnDemand =
+	  COLUMN_DEF_SYSTEM[IDX_SYSTEM_ENABLE_COPY_ON_DEMAND];
 
 	// insert default value
 	DBAgentInsertArg insArg;
@@ -632,7 +634,7 @@ void DBClientConfig::tableInitializerSystem(DBAgent *dbAgent, void *data)
 	row->ADD_NEW_ITEM(Int, atoi(columnDefFaceRestPort.defaultValue));
 
 	// enable_copy_on_demand
-	row->ADD_NEW_ITEM(Int, 0);
+	row->ADD_NEW_ITEM(Int, atoi(columnDefEnableCopyOnDemand.defaultValue));
 
 	insArg.row = row;
 	dbAgent->insert(insArg);
