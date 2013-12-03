@@ -23,6 +23,7 @@ function hatohol_base_js_load(mainFunction) {
 
   var css = [
     "bootstrap.css",
+    "hatohol.css",
     "zabbix.css"
   ];
 

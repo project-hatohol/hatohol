@@ -13,6 +13,7 @@ nobase_dist_hatohol_client_DATA = \
 	hatohol/settings.py \
 	hatohol/django_realize.py \
 	hatohol/hatohol_def.py \
+	static/css/hatohol.css \
 	static/css/zabbix.css \
 	static/css.external/themes/ui-lightness/jquery-ui.css \
 	static/css.external/themes/ui-lightness/images/ui-bg_gloss-wave_35_f6a828_500x100.png \
