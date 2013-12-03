@@ -93,13 +93,22 @@ HatoholReplyParser.prototype.getStatusMessage = function() {
   case REPLY_STATUS.NOT_FOUND_SESSION_ID:
     return "Not found: sessionId.";
   }
+  return "Unknown status: " + this.stat;
+}
 
+HatoholReplyParser.prototype.getErrorMessage = function() {
   switch (this.errorCode) {
   case hatohol.HTERR_AUTH_FAILED:
     return gettext("Invalid user name or password.");
   }
+  return gettext("Unknown error: ") + this.errorCode;
+}
 
-  return "Unknown status: " + this.stat;
+HatoholReplyParser.prototype.getMessage = function() {
+  if (this.stat == REPLY_STATUS.ERROR_CODE_IS_NOT_OK)
+    return this.getErrorMessage();
+  else
+    return this.getStatusMessage();
 }
 
 // ---------------------------------------------------------------------------

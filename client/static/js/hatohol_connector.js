@@ -130,7 +130,7 @@ HatoholConnector.prototype.start = function(connectParams) {
   function parseLoginResult(data) {
     var parser = new HatoholLoginReplyParser(data);
     if (parser.getStatus() != REPLY_STATUS.OK) {
-      var msg = gettext("Failed to login. ") + parser.getStatusMessage();
+      var msg = gettext("Failed to login. ") + parser.getMessage();
       hatoholErrorMsgBox(msg);
       return;
     }
