@@ -93,6 +93,12 @@ HatoholReplyParser.prototype.getStatusMessage = function() {
   case REPLY_STATUS.NOT_FOUND_SESSION_ID:
     return "Not found: sessionId.";
   }
+
+  switch (this.errorCode) {
+  case hatohol.HTERR_AUTH_FAILED:
+    return gettext("Invalid user name or password.");
+  }
+
   return "Unknown status: " + this.stat;
 }
 
