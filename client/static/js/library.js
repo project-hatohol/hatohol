@@ -236,8 +236,24 @@ function getItemGraphLocation(server, itemId) {
   return location;
 }
 
+function getMapsLocation(server) {
+  var location = getServerLocation(server);
+  if (!location)
+    return undefined;
+
+  switch (server["type"]) {
+  case hatohol.MONITORING_SYSTEM_ZABBIX:
+    location += "maps.php";
+    break;
+  default:
+    return undefined;
+  }
+  return location;
+}
+
 if (typeof module !== 'undefined' && module.exports) {
   module.exports.getServerLocation = getServerLocation;
   module.exports.getItemGraphLocation = getItemGraphLocation;
+  module.exports.getMapsLocation = getMapsLocation;
   var hatohol = require("../../static/js/hatohol_def");
 }

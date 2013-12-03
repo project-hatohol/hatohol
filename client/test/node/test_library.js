@@ -45,3 +45,33 @@ describe('getItemGraphLocation', function() {
     expect(Library.getItemGraphLocation(server, itemId)).to.be(undefined);
   });
 });
+
+describe('getMapsLocation', function() {
+  it('getMapsLocation with valid zabbix server', function() {
+    var server = {
+      "type": 0,
+      "ipAddress": "192.168.23.119",
+      "name": "localhost"
+    };
+    var expected = "http://192.168.23.119/zabbix/maps.php"
+    expect(Library.getMapsLocation(server)).to.be(expected);
+  });
+
+  it('getMapsLocation with valid nagios server', function() {
+    var server = {
+      "type": 1,
+      "ipAddress": "192.168.22.118",
+      "name": "localhost"
+    };
+    expect(Library.getMapsLocation(server)).to.be(undefined);
+  });
+
+  it('getMapsLocation with unknown server type', function() {
+    var server = {
+      "type": 2,
+      "ipAddress": "192.168.19.111",
+      "name": "localhost"
+    };
+    expect(Library.getMapsLocation(server)).to.be(undefined);
+  });
+});
