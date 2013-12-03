@@ -81,19 +81,19 @@ HatoholReplyParser.prototype.getErrorCode = function() {
 HatoholReplyParser.prototype.getStatusMessage = function() {
   switch (this.stat) {
   case REPLY_STATUS.OK:
-    return "OK.";
+    return gettext("OK.");
   case REPLY_STATUS.NULL_OR_UNDEFINED:
-    return "Null or undefined.";
+    return gettext("Null or undefined.");
   case REPLY_STATUS.NOT_FOUND_RESULT:
-    return "Not found: result.";
+    return gettext("Not found: result.");
   case REPLY_STATUS.RESULT_IS_FALSE:
-    return "Result is false: " + this.errorMessage;
+    return gettext("Result is false: ") + this.errorMessage;
   case REPLY_STATUS.RESULT_IS_FALSE_BUT_NOT_FOUND_MSG:
-    return "Result is false, but message is not found.";
+    return gettext("Result is false, but message is not found.");
   case REPLY_STATUS.NOT_FOUND_SESSION_ID:
-    return "Not found: sessionId.";
+    return gettext("Not found: sessionId.");
   }
-  return "Unknown status: " + this.stat;
+  return gettext("Unknown status: ") + this.stat;
 }
 
 HatoholReplyParser.prototype.getErrorMessage = function() {
