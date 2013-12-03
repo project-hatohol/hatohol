@@ -157,7 +157,7 @@ void test_createTableSystem(void)
 	const char *expectedDatabasePath = "";
 	int expectedEnableFaceMySQL = 0;
 	int expectedFaceRestPort    = 0;
-	int expectedEnableCopyOnDemand = 0;
+	int expectedEnableCopyOnDemand = 1;
 	string expectedOut =
 	   StringUtils::sprintf("%s|%d|%d|%d\n",
 	                        expectedDatabasePath,
