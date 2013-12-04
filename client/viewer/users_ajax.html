@@ -1,0 +1,78 @@
+{% extends "viewer/base_ajax.html" %}
+{% load i18n %}
+
+{% comment %}
+  Copyright (C) 2013 Project Hatohol
+
+  This file is part of Hatohol.
+
+  Hatohol is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 2 of the License, or
+  (at your option) any later version.
+
+  Hatohol is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+{% endcomment %}
+
+{% block navbar %}
+  <li><a href="ajax_dashboard">{% trans "Dashboard" %}</a></li>
+  <li><a href="ajax_overview_triggers">{% trans "Overview : Triggers" %}</a></li>
+  <li><a href="ajax_overview_items">{% trans "Overview : Items" %}</a></li>
+  <li><a href="ajax_latest">{% trans "Latest data" %}</a></li>
+  <li><a href="ajax_triggers">{% trans "Triggers" %}</a></li>
+  <li><a href="ajax_events">{% trans "Events" %}</a></li>
+  <li><a href="ajax_servers">{% trans "Servers" %}</a></li>
+  <li><a href="ajax_actions">{% trans "Actions" %}</a></li>
+{% endblock %}
+
+{% block main %}
+  <h2>{% trans "Users" %}</h2>
+
+  <table class="table table-condensed table-striped table-hover" id="table">
+    <thead>
+      <tr>
+        <th>{% trans "ID" %}</th>
+        <th>{% trans "User name" %}</th>
+        <th>{% trans "Flags" %}</th>
+      </tr>
+    </thead>
+    <tbody>
+    </tbody>
+  </table>
+{% endblock %}
+
+{% block logic %}
+  <script type="text/javascript">
+
+    function drawTableBody(rd) {
+      var i;
+      var htmlString;
+      var user;
+
+      htmlString = "";
+      for (i = 0; i < rd["users"].length; ++i) {
+        user = rd["users"][i];
+        htmlString += "<tr>";
+        htmlString += "<td>" + user["userId"] + "</td>";
+        htmlString += "<td>" + user["name"]   + "</td>";
+        htmlString += "<td>" + user["flags"]  + "</td>";
+        htmlString += "</tr>";
+      }
+
+      return htmlString;
+    }
+
+    function updateCore(reply) {
+      $("#table tbody").empty();
+      $("#table tbody").append(drawTableBody(reply));
+    }
+
+    startConnection('user', updateCore);
+  </script>
+{% endblock %}
