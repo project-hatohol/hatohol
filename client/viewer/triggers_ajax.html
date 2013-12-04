@@ -21,14 +21,6 @@
 {% endcomment %}
 
 {% block navbar %}
-  <li><a href="ajax_dashboard">{% trans "Dashboard" %}</a></li>
-  <li><a href="ajax_overview_triggers">{% trans "Overview : Triggers" %}</a></li>
-  <li><a href="ajax_overview_items">{% trans "Overview : Items" %}</a></li>
-  <li><a href="ajax_latest">{% trans "Latest data" %}</a></li>
-  <li class="active"><a>{% trans "Triggers" %}</a></li>
-  <li><a href="ajax_events">{% trans "Events" %}</a></li>
-  <li><a href="ajax_servers">{% trans "Servers" %}</a></li>
-  <li><a href="ajax_actions">{% trans "Actions" %}</a></li>
 {% endblock %}
 
 {% block main %}
@@ -153,6 +145,7 @@
       $("#table tbody").append(drawTableBody(rawData));
     }
 
+    new HatoholNavi();
     startConnection('trigger', updateCore);
   </script>
 {% endblock %}
