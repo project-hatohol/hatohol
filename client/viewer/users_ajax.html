@@ -34,9 +34,23 @@
 {% block main %}
   <h2>{% trans "Users" %}</h2>
 
+  <form class="form-inline">
+    <input id="add-user-button" type="button" class="btn" value="{% trans "ADD USER" %}" />
+    <input id="delete-user-button" type="button" class="btn" disabled
+     value="{% trans "DELETE USER" %}" />
+  </form>
+
+  <div id="msgbox" title="Message Box">
+    <p id="msgbox-text"></p>
+  </div>
+
+  <form id="add-user-form", method="POST"> {% csrf_token %}
+  </form>
+
   <table class="table table-condensed table-striped table-hover" id="table">
     <thead>
       <tr>
+        <th>  </th>
         <th>{% trans "ID" %}</th>
         <th>{% trans "User name" %}</th>
         <th>{% trans "Flags" %}</th>
@@ -59,6 +73,9 @@
       for (i = 0; i < rd["users"].length; ++i) {
         user = rd["users"][i];
         htmlString += "<tr>";
+
+        htmlString += "<td><input type='checkbox' class='selectcheckbox' " +
+                      "userId='" + user["userId"] + "'></td>";
         htmlString += "<td>" + user["userId"] + "</td>";
         htmlString += "<td>" + user["name"]   + "</td>";
         htmlString += "<td>" + user["flags"]  + "</td>";
