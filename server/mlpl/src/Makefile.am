@@ -9,6 +9,7 @@ AM_LDFLAGS = -lpthread -lrt
 
 includedir = $(prefix)/include/mlpl
 include_HEADERS = \
+	AtomicValue.h \
 	MutexLock.h ReadWriteLock.h \
 	SmartBuffer.h Logger.h StringUtils.h SmartQueue.h ParsableString.h \
 	SmartTime.h Reaper.h
