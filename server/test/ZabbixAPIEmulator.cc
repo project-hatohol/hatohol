@@ -53,12 +53,12 @@ struct ZabbixAPIEmulator::ParameterEventGet {
 	int64_t eventIdTill;
 
 	ParameterEventGet(void)
-	: limit(0),
+	: output("extend"),
+	  sortOrder("ASC"),
+	  limit(0),
 	  eventIdFrom(0),
 	  eventIdTill(0)
 	{
-		output = "extend";
-		sortOrder = "ASC";
 	}
 };
 
