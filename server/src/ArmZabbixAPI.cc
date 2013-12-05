@@ -261,7 +261,7 @@ uint64_t ArmZabbixAPI::getLastEventId(void)
 
 	SoupMessage *msg = queryGetLastEventId();
 	if (!msg) {
-		MLPL_ERR("Failed to query eventID.");
+		MLPL_ERR("Failed to query eventID.\n");
 		return 0;
 	}
 
