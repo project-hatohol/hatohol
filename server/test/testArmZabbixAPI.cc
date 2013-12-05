@@ -647,4 +647,11 @@ void test_sessionErrorAuthToken(void)
 	cppcut_assert_equal(true, token.empty());
 
 }
+
+void test_getLastEventId(void)
+{
+	ArmZabbixAPITestee armZbxApiTestee(setupServer());
+	armZbxApiTestee.testOpenSession();
+	cppcut_assert_equal((uint64_t)26485, armZbxApiTestee.getLastEventId());
+}
 } // namespace testArmZabbixAPI
