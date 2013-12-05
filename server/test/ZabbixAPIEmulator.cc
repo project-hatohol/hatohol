@@ -445,7 +445,7 @@ void ZabbixAPIEmulator::APIHandlerEventGet(APIHandlerArg &arg)
 				}
 			} else {	// range specification
 				JsonDataIterator jit = m_ctx->jsonData.lower_bound(m_ctx->paramEvent.eventIdFrom);
-				JsonDataIterator goalIterator = m_ctx->jsonData.find(m_ctx->paramEvent.eventIdTill);
+				JsonDataIterator goalIterator = m_ctx->jsonData.lower_bound(m_ctx->paramEvent.eventIdTill);
 				for (;jit != goalIterator; ++jit) {
 					string tmpData = setEventJsonData(jit);
 					contents += tmpData;
