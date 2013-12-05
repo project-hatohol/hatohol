@@ -444,7 +444,7 @@ void ZabbixAPIEmulator::APIHandlerEventGet(APIHandlerArg &arg)
 					contents += tmpData;
 				}
 			} else {	// range specification
-				JsonDataIterator jit = m_ctx->jsonData.find(m_ctx->paramEvent.eventIdFrom);
+				JsonDataIterator jit = m_ctx->jsonData.lower_bound(m_ctx->paramEvent.eventIdFrom);
 				JsonDataIterator goalIterator = m_ctx->jsonData.find(m_ctx->paramEvent.eventIdTill);
 				for (;jit != goalIterator; ++jit) {
 					string tmpData = setEventJsonData(jit);
@@ -460,8 +460,8 @@ void ZabbixAPIEmulator::APIHandlerEventGet(APIHandlerArg &arg)
 					contents += tmpData;
 				}
 			} else {
-				JsonDataIterator jit = m_ctx->jsonData.find(m_ctx->paramEvent.eventIdFrom);
-				JsonDataIterator goalIterator = m_ctx->jsonData.find(m_ctx->paramEvent.eventIdTill);
+				JsonDataIterator jit = m_ctx->jsonData.lower_bound(m_ctx->paramEvent.eventIdFrom);
+				JsonDataIterator goalIterator = m_ctx->jsonData.lower_bound(m_ctx->paramEvent.eventIdTill);
 				for (int64_t i = 0; i < m_ctx->paramEvent.limit ||
 						jit != goalIterator ||
 						jit != m_ctx->jsonData.end(); ++jit, i++) {
@@ -479,8 +479,8 @@ void ZabbixAPIEmulator::APIHandlerEventGet(APIHandlerArg &arg)
 					contents += tmpData;
 				}
 			} else {	// range specification
-				ReverseJsonDataIterator rjit(m_ctx->jsonData.find(m_ctx->paramEvent.eventIdTill));
-				ReverseJsonDataIterator goalIterator(m_ctx->jsonData.find(m_ctx->paramEvent.eventIdFrom));
+				ReverseJsonDataIterator rjit(m_ctx->jsonData.lower_bound(m_ctx->paramEvent.eventIdTill));
+				ReverseJsonDataIterator goalIterator(m_ctx->jsonData.lower_bound(m_ctx->paramEvent.eventIdFrom));
 				for (; rjit != goalIterator; ++rjit) {
 					string tmpData = setEventJsonData(rjit);
 					contents += tmpData;
@@ -495,8 +495,8 @@ void ZabbixAPIEmulator::APIHandlerEventGet(APIHandlerArg &arg)
 					contents += tmpData;
 				}
 			} else {
-				ReverseJsonDataIterator rjit(m_ctx->jsonData.find(m_ctx->paramEvent.eventIdTill));
-				ReverseJsonDataIterator goalIterator(m_ctx->jsonData.find(m_ctx->paramEvent.eventIdFrom));
+				ReverseJsonDataIterator rjit(m_ctx->jsonData.lower_bound(m_ctx->paramEvent.eventIdTill));
+				ReverseJsonDataIterator goalIterator(m_ctx->jsonData.lower_bound(m_ctx->paramEvent.eventIdFrom));
 				for (int64_t i = 0; i < m_ctx->paramEvent.limit ||
 						rjit != goalIterator||
 						rjit != m_ctx->jsonData.rend(); ++rjit, i++) {
