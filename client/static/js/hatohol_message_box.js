@@ -181,7 +181,7 @@ function hatoholErrorMsgBox(msg) {
 
 function hatoholNoYesMsgBox(msg, yesCallback) {
   var buttons = HatoholMessageBox.prototype.getBuiltinNoYesButtons();
-  buttons[1].click = deleteActions;
+  buttons[1].click = yesCallback;
   var param = {title: gettext("Question"), buttons: buttons};
   new HatoholMessageBox(msg, param);
 };
