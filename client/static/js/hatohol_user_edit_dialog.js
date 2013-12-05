@@ -98,12 +98,12 @@ var HatoholUserEditDialog = function(succeededCb) {
       type = $("#selectUserType").val();
     switch(type) {
     case "admin":
-      return 31;
+      return hatohol.ALL_PRIVILEGES;
     case "guest":
     default:
       break;
     }
-    return 0;
+    return hatohol.NONE_PRIVILEGE;
   }
 };
 
