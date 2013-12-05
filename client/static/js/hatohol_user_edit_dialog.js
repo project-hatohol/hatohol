@@ -38,7 +38,7 @@ var HatoholUserEditDialog = function(succeededCb) {
   // Dialog button handlers
   //
   function addButtonClickedCb() {
-    if (validateAddParameters()) {
+    if (validateParameters()) {
       makeQueryData();
       hatoholInfoMsgBox(gettext("Now creating an user ..."));
       postAddAction();
@@ -75,7 +75,7 @@ var HatoholUserEditDialog = function(succeededCb) {
       succeededCb();
   }
 
-  function validateAddParameters() {
+  function validateParameters() {
     if ($("#inputUserName").val() == "") {
       hatoholErrorMsgBox(gettext("User name is empty!"));
       return false;
