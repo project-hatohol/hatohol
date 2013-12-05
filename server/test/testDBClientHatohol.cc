@@ -713,6 +713,15 @@ void test_makeSelectConditionUserAdmin(void)
 	cppcut_assert_equal(actual, expect);
 }
 
+void test_makeSelectConditionAllEvents(void)
+{
+	EventQueryOption option;
+	option.setFlags(OperationPrivilege::makeFlag(OPPRVLG_GET_ALL_EVENTS));
+	string actual = option.getCondition();
+	string expect = "";
+	cppcut_assert_equal(actual, expect);
+}
+
 void test_makeSelectConditionNoneUser(void)
 {
 	setupTestDBUser(true, true);

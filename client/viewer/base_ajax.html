@@ -24,7 +24,9 @@
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"></meta>
     <link href="{{ STATIC_URL }}css/bootstrap.css" rel="stylesheet" media="screen"></link>
+    <link href="{{ STATIC_URL }}css/hatohol.css" rel="stylesheet" media="screen"></link>
     <link href="{{ STATIC_URL }}css/zabbix.css" rel="stylesheet" media="screen"></link>
+    <link href="{{ STATIC_URL }}css.external/themes/ui-lightness/jquery-ui.css" rel="stylesheet" media="screen"/>
     <title>
 {% block title %}
 {% endblock %}
@@ -60,8 +62,17 @@
 
     <script src="{% url "django.views.i18n.javascript_catalog" %}"></script>
     <script src="{{ STATIC_URL }}js.external/jquery.js"></script>
+    <script src="{{ STATIC_URL }}js.external/stupidtable.js"></script>
+    <script src="{{ STATIC_URL }}js.external/jquery-ui.min.js"></script>
     <script src="{{ STATIC_URL }}js/bootstrap.js"></script>
-
+    <script src="{{ STATIC_URL }}js/hatohol_def.js"></script>
+    <script src="{{ STATIC_URL }}js/hatohol_message_box.js"></script>
+    <script src="{{ STATIC_URL }}js/hatohol_session_manager.js"></script>
+    <script src="{{ STATIC_URL }}js/hatohol_dialog.js"></script>
+    <script src="{{ STATIC_URL }}js/hatohol_login_dialog.js"></script>
+    <script src="{{ STATIC_URL }}js/hatohol_reply_parser.js"></script>
+    <script src="{{ STATIC_URL }}js/hatohol_connector.js"></script>
+    <script src="{{ STATIC_URL }}js/hatohol_userconfig.js"></script>
     <script src="{{ STATIC_URL }}js/library.js"></script>
 
 {% block option %}

@@ -36,6 +36,8 @@ public:
 	ArmBase(const MonitoringServerInfo &serverInfo);
 	virtual ~ArmBase();
 
+	const MonitoringServerInfo &getServerInfo(void) const;
+
 	virtual void fetchItems(ClosureBase *closure = NULL);
 
 	void setPollingInterval(int sec);
@@ -48,7 +50,6 @@ public:
 protected:
 	bool hasExitRequest(void) const;
 	void requestExit(void);
-	const MonitoringServerInfo &getServerInfo(void) const;
 	void sleepInterruptible(int sleepTime);
 
 	// virtual methods

@@ -119,14 +119,14 @@ function setStatus(value) {
   }
 }
 
-function update(param) {
+function updateScreen(reply, completionCallback, callbackParam) {
   setStatus({
     "class" : "warning",
     "label" : gettext("DRAW"),
     "lines" : [ gettext("Drawing") ],
   });
 
-  updateCore(param);
+  completionCallback(reply, callbackParam);
 
   setStatus({
     "class" : "success",
@@ -135,19 +135,36 @@ function update(param) {
   });
 }
 
-function schedule(timer, table, param) {
-  setTimeout(function() {
-    setStatus({
-      "class" : "warning",
-      "label" : gettext("LOAD"),
-      "lines" : [ gettext("Communicating with backend") ],
-    });
+function startConnection(tableName, completionCallback, callbackParam) {
+  setStatus({
+    "class" : "warning",
+    "label" : gettext("LOAD"),
+    "lines" : [ gettext("Communicating with backend") ],
+  });
 
-    $.getJSON("/tunnel/" + table, function(json) {
-      rawData = json;
-      update(param);
-    });
-  }, timer);
+  var connParam =  {
+    url: '/' + tableName,
+    replyCallback: function(reply, parser) {
+      updateScreen(reply, completionCallback, callbackParam);
+    },
+    parseErrorCallback: function(reply, parser) {
+      var msg = gettext('Failed to parse the recieved packt.');
+      // We assume the parser is HatoholReplyParser.
+      var statusCode = parser.getStatus();
+      if (statusCode != REPLY_STATUS.ERROR_CODE_IS_NOT_OK)
+        msg += gettext('STATUS CODE') + ': ' + statusCode + ', ' + parser.getStatusMessage();
+      else
+        msg += 'Hathol server error code: ' + parser.getErrorCode();
+      hatoholErrorMsgBox(msg);
+
+      setStatus({
+        "class" : "danger",
+        "label" : gettext("ERROR"),
+        "lines" : [ msg ],
+      });
+    }
+  };
+  new HatoholConnector(connParam);
 }
 
 function makeTriggerStatusLabel(status) {
@@ -189,4 +206,54 @@ function makeMonitoringSystemTypeLabel(type) {
   default:
     return "INVALID: " + type;
   }
+}
+
+function getServerLocation(server) {
+  var ipAddress, url;
+  switch (server["type"]) {
+  case hatohol.MONITORING_SYSTEM_ZABBIX:
+    ipAddress = server["ipAddress"];
+    url = "http://" + ipAddress + "/zabbix/";
+    break;
+  default:
+    break;
+  }
+  return url;
+}
+
+function getItemGraphLocation(server, itemId) {
+  var location = getServerLocation(server);
+  if (!location)
+    return undefined;
+
+  switch (server["type"]) {
+  case hatohol.MONITORING_SYSTEM_ZABBIX:
+    location += "history.php?action=showgraph&amp;itemid=" + itemId;
+    break;
+  default:
+    return undefined;
+  }
+  return location;
+}
+
+function getMapsLocation(server) {
+  var location = getServerLocation(server);
+  if (!location)
+    return undefined;
+
+  switch (server["type"]) {
+  case hatohol.MONITORING_SYSTEM_ZABBIX:
+    location += "maps.php";
+    break;
+  default:
+    return undefined;
+  }
+  return location;
+}
+
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports.getServerLocation = getServerLocation;
+  module.exports.getItemGraphLocation = getItemGraphLocation;
+  module.exports.getMapsLocation = getMapsLocation;
+  var hatohol = require("../../static/js/hatohol_def");
 }

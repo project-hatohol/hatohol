@@ -15,12 +15,44 @@
 # You should have received a copy of the GNU General Public License
 # along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
 
-SERVER_ADDR = 'localhost'
-SERVER_PORT = 33194
+import os
+import logging
+
+DEFAULT_SERVER_ADDR = 'localhost'
+DEFAULT_SERVER_PORT = 33194
+
+SERVER_ADDR = DEFAULT_SERVER_ADDR
+SERVER_PORT = DEFAULT_SERVER_PORT
+
 SESSION_NAME_META = 'HTTP_X_HATOHOL_SESSION'
+logger = logging.getLogger(__name__)
+
+SERVER_ADDR_ENV_NAME = 'HATOHOL_SERVER_ADDR'
+SERVER_PORT_ENV_NAME = 'HATOHOL_SERVER_PORT'
+
+def _setup():
+    # server
+    global SERVER_ADDR
+    server_addr = os.getenv(SERVER_ADDR_ENV_NAME)
+    if server_addr:
+        SERVER_ADDR = server_addr
+        logger.info('Server addr: %s' % SERVER_ADDR)
+    else:
+        SERVER_ADDR = DEFAULT_SERVER_ADDR
+
+    # port
+    global SERVER_PORT
+    server_port = os.getenv(SERVER_PORT_ENV_NAME)
+    if server_port:
+        SERVER_PORT = int(server_port)
+        logger.info('Server port: %d' % SERVER_PORT)
+    else:
+        SERVER_PORT = DEFAULT_SERVER_PORT
 
 def get_address():
     return SERVER_ADDR
 
 def get_port():
     return SERVER_PORT
+
+_setup()

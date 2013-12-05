@@ -43,7 +43,7 @@
     <p id="msgbox-text"></p>
   </div>
 
-  <form id="add-acton-form", method="POST"> {% csrf_token %}
+  <form id="add-action-form", method="POST"> {% csrf_token %}
   </form>
 
   <table class="table table-condensed table-hover" id="table">
@@ -69,16 +69,6 @@
 {% endblock %}
 
 {% block option %}
-  <script src="{{ STATIC_URL }}js.external/stupidtable.js"></script>
-  <script src="{{ STATIC_URL }}js.external/jquery-ui.min.js"></script>
-  <link type="text/css" href="{{ STATIC_URL }}css.external/themes/ui-lightness/jquery-ui.css" rel="stylesheet" />
-  <script src="{{ STATIC_URL }}js/hatohol_def.js"></script>
-  <script src="{{ STATIC_URL }}js/hatohol_message_box.js"></script>
-  <script src="{{ STATIC_URL }}js/hatohol_session_manager.js"></script>
-  <script src="{{ STATIC_URL }}js/hatohol_dialog.js"></script>
-  <script src="{{ STATIC_URL }}js/hatohol_login_dialog.js"></script>
-  <script src="{{ STATIC_URL }}js/hatohol_connector.js"></script>
-  <script src="{{ STATIC_URL }}js/hatohol_reply_parser.js"></script>
   <script src="{{ STATIC_URL }}js/hatohol_add_action_dialog.js"></script>
   <script src="{{ STATIC_URL }}js/hatohol_selector_dialog.js"></script>
   <script src="{{ STATIC_URL }}js/hatohol_server_selector.js"></script>
@@ -92,11 +82,6 @@
     //
     // Variables
     //
-    var rawData;
-    var parsedData;
-    var queryData = {
-        csrfmiddlewaretoken: $("*[name=csrfmiddlewaretoken]").val(),
-    };
     var numSelected = 0;
 
     //
@@ -120,7 +105,7 @@
     });
 
     function addSucceededCb() {
-      schedule(0000, "action");
+      startConnection('action', updateCore);
     }
 
     //
@@ -193,26 +178,24 @@
     }
 
     function deleteOneAction(id, deletedIdArray) {
-      $.ajax({
-        url: "/tunnel/action/" + id,
-        type: "DELETE",
+      new HatoholConnector({
+        url: '/action/' + id,
+        request: "DELETE",
         context: deletedIdArray,
-        beforeSend: function(xhr) {
-          xhr.setRequestHeader("X-CSRFToken", queryData.csrfmiddlewaretoken);
+        replyCallback: function(data, parser, context) {
+          parseDeleteActionResult(data, context);
         },
-        success: function(data) {
-          parseDeleteActionResult(data, this);
-        },
-        error: function(XMLHttpRequest, textStatus, errorThrown) {
+        connectErrorCallback: function(XMLHttpRequest,
+                                       textStatus, errorThrown) {
           var errorMsg = "Error: " + XMLHttpRequest.status + ": " +
                          XMLHttpRequest.statusText;
           hatoholErrorMsgBox(errorMsg);
           deletedIdArray.errors++;
         },
-        complete: function() {
-          compleOneDelAction(this);
-        }
-      })
+        completionCallback: function(context) {
+          compleOneDelAction(context);
+        },
+      });
     }
 
     function parseDeleteActionResult(data, deletedIdArray) {
@@ -240,7 +223,7 @@
                         deletedIdArray.errors + ")");
 
       // update the main view
-      schedule(0000, "action");
+      startConnection('action', updateCore);
     }
 
     //
@@ -409,7 +392,7 @@
       return s;
     }
 
-    function updateCore() {
+    function updateCore(rawData) {
       $("#table tbody").empty();
       $("#table tbody").append(drawTableBody(rawData));
       setupCheckboxHandler();
@@ -419,6 +402,6 @@
     //
     // main code
     //
-    schedule(0000, "action");
+    startConnection('action', updateCore);
   </script>
 {% endblock %}

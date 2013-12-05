@@ -57,7 +57,7 @@ urlpatterns = patterns('',
     # url(r'^admin/', include(admin.site.urls)),
     url(r'^viewer/', include('viewer.urls')),
     url(r'^tunnel/(?P<path>.+)', jsonforward),
-    url(r'^userconfig/(?P<item_name>.+)/', 'viewer.userconfig.index'),
+    url(r'^userconfig$', 'viewer.userconfig.index'),
     url(r'^jsi18n/$', 'django.views.i18n.javascript_catalog'),
 )
 
@@ -67,6 +67,8 @@ urlpatterns += i18n_patterns('',
 )
 
 if 'HATOHOL_DEBUG' in os.environ and os.environ['HATOHOL_DEBUG'] == '1':
+    import test.python.utils
+
     urlpatterns += patterns('',
         makeTastingUrl('index.html'),
         makeTastingUrl('hatohol_login_dialog.html'),
@@ -74,10 +76,13 @@ if 'HATOHOL_DEBUG' in os.environ and os.environ['HATOHOL_DEBUG'] == '1':
         makeTastingUrl('hatohol_session_manager.html'),
         makeTastingUrl('hatohol_connector.html'),
         makeTastingUrl('js_loader.js'),
+        url(r'^test/hello', test.python.utils.hello),
+        url(r'^test/delete_user_config', test.python.utils.delete_user_config),
         makeTestUrl('index.html'),
         makeTestUrl('test_hatohol_session_manager.js'),
         makeTestUrl('test_hatohol_connector.js'),
         makeTestUrl('test_hatohol_message_box.js'),
+        makeTestUrl('test_hatohol_userconfig.js'),
         makeTestUrl('mocha.js'),
         makeTestUrl('mocha.css'),
         makeTestUrl('expect.js'),

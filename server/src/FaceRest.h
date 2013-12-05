@@ -28,6 +28,7 @@
 #include "HatoholError.h"
 #include "DBClientUser.h"
 #include "DBClientHatohol.h"
+#include "Closure.h"
 
 struct SessionInfo {
 	UserIdType userId;
@@ -49,6 +50,7 @@ public:
 
 	static int API_VERSION;
 	static const char *SESSION_ID_HEADER_NAME;
+	static const int DEFAULT_NUM_WORKERS;
 
 	static void init(void);
 	static void reset(const CommandLineArg &arg);
@@ -58,27 +60,32 @@ public:
 	virtual ~FaceRest();
 	virtual void stop(void);
 
-protected:
-	struct HandlerArg;
+	class Worker;
+	struct RestJob;
 
+protected:
 	// virtual methods
 	gpointer mainThread(HatoholThreadArg *arg);
+
+	// for async mode
+	bool isAsyncMode(void);
+	void startWorkers(void);
+	void stopWorkers(void);
 
 	// generic sub routines
 	size_t parseCmdArgPort(CommandLineArg &cmdArg, size_t idx);
 	static void addHatoholError(JsonBuilderAgent &agent,
 	                            const HatoholError &err);
-	static void replyError(SoupMessage *msg, const HandlerArg *arg,
+	static void replyError(RestJob *job,
 	                       const HatoholError &hatoholError);
-	static void replyError(SoupMessage *msg, const HandlerArg *arg,
+	static void replyError(RestJob *job,
 	                       const HatoholErrorCode &errorCode,
 	                       const string &optionMessage = "");
-	static string getJsonpCallbackName(GHashTable *query, HandlerArg *arg);
 	static string wrapForJsonp(const string &jsonBody,
                                    const string &callbackName);
-	static void replyJsonData(JsonBuilderAgent &agent, SoupMessage *msg,
-	                          const string &jsonpCallbackName,
-	                          HandlerArg *arg);
+	static void replyJsonData(JsonBuilderAgent &agent, RestJob *job);
+	static void replyGetItem(RestJob *job);
+	static void finishRestJobIfNeeded(RestJob *job);
 
 	/**
 	 * Parse 'serverId' query parameter if it exists.
@@ -110,67 +117,33 @@ protected:
 	  handlerDefault(SoupServer *server, SoupMessage *msg,
 	                 const char *path, GHashTable *query,
 	                 SoupClientContext *client, gpointer user_data);
-	static bool parseFormatType(GHashTable *query, HandlerArg &arg);
-	static void launchHandlerInTryBlock
+	static void queueRestJob
 	  (SoupServer *server, SoupMessage *msg, const char *path,
 	   GHashTable *query, SoupClientContext *client, gpointer user_data);
+	static void launchHandlerInTryBlock(RestJob *job);
 
-	static void handlerHelloPage
-	  (SoupServer *server, SoupMessage *msg, const char *path,
-	   GHashTable *query, SoupClientContext *client, HandlerArg *arg);
-	static void handlerTest
-	  (SoupServer *server, SoupMessage *msg, const char *path,
-	   GHashTable *query, SoupClientContext *client, HandlerArg *arg);
-	static void handlerLogin
-	  (SoupServer *server, SoupMessage *msg, const char *path,
-	   GHashTable *query, SoupClientContext *client, HandlerArg *arg);
-	static void handlerLogout
-	  (SoupServer *server, SoupMessage *msg, const char *path,
-	   GHashTable *query, SoupClientContext *client, HandlerArg *arg);
-	static void handlerGetOverview
-	  (SoupServer *server, SoupMessage *msg, const char *path,
-	   GHashTable *query, SoupClientContext *client, HandlerArg *arg);
-	static void handlerGetServer
-	  (SoupServer *server, SoupMessage *msg, const char *path,
-	   GHashTable *query, SoupClientContext *client, HandlerArg *arg);
-	static void handlerGetHost
-	  (SoupServer *server, SoupMessage *msg, const char *path,
-	   GHashTable *query, SoupClientContext *client, HandlerArg *arg);
-	static void handlerGetTrigger
-	  (SoupServer *server, SoupMessage *msg, const char *path,
-	   GHashTable *query, SoupClientContext *client, HandlerArg *arg);
-	static void handlerGetEvent
-	  (SoupServer *server, SoupMessage *msg, const char *path,
-	   GHashTable *query, SoupClientContext *client, HandlerArg *arg);
-	static void handlerGetItem
-	  (SoupServer *server, SoupMessage *msg, const char *path,
-	   GHashTable *query, SoupClientContext *client, HandlerArg *arg);
+	static void handlerHelloPage(RestJob *job);
+	static void handlerTest(RestJob *job);
+	static void handlerLogin(RestJob *job);
+	static void handlerLogout(RestJob *job);
+	static void handlerGetOverview(RestJob *job);
+	static void handlerGetServer(RestJob *job);
+	static void handlerGetHost(RestJob *job);
+	static void handlerGetTrigger(RestJob *job);
+	static void handlerGetEvent(RestJob *job);
+	static void handlerGetItem(RestJob *job);
 
-	static void handlerAction
-	  (SoupServer *server, SoupMessage *msg, const char *path,
-	   GHashTable *query, SoupClientContext *client, HandlerArg *arg);
-	static void handlerGetAction
-	  (SoupServer *server, SoupMessage *msg, const char *path,
-	   GHashTable *query, SoupClientContext *client, HandlerArg *arg);
-	static void handlerPostAction
-	  (SoupServer *server, SoupMessage *msg, const char *path,
-	   GHashTable *query, SoupClientContext *client, HandlerArg *arg);
-	static void handlerDeleteAction
-	  (SoupServer *server, SoupMessage *msg, const char *path,
-	   GHashTable *query, SoupClientContext *client, HandlerArg *arg);
+	static void handlerAction(RestJob *job);
+	static void handlerGetAction(RestJob *job);
+	static void handlerPostAction(RestJob *job);
+	static void handlerDeleteAction(RestJob *job);
 
-	static void handlerUser
-	  (SoupServer *server, SoupMessage *msg, const char *path,
-	   GHashTable *query, SoupClientContext *client, HandlerArg *arg);
-	static void handlerGetUser
-	  (SoupServer *server, SoupMessage *msg, const char *path,
-	   GHashTable *query, SoupClientContext *client, HandlerArg *arg);
-	static void handlerPostUser
-	  (SoupServer *server, SoupMessage *msg, const char *path,
-	   GHashTable *query, SoupClientContext *client, HandlerArg *arg);
-	static void handlerDeleteUser
-	  (SoupServer *server, SoupMessage *msg, const char *path,
-	   GHashTable *query, SoupClientContext *client, HandlerArg *arg);
+	static void handlerUser(RestJob *job);
+	static void handlerGetUser(RestJob *job);
+	static void handlerPostUser(RestJob *job);
+	static void handlerDeleteUser(RestJob *job);
+
+	void itemFetchedCallback(ClosureBase *closure);
 
 	/**
 	 * Get the SessionInfo instance.
@@ -209,7 +182,6 @@ protected:
 	  DataQueryOption::SortOrder &sortOrder, GHashTable *query);
 	static HatoholError parseEventParameter(EventQueryOption &option,
 	                                        GHashTable *query);
-
 private:
 	struct PrivateContext;
 	PrivateContext *m_ctx;
@@ -223,8 +195,8 @@ private:
 
 	template<typename T>
 	static bool getParamWithErrorReply(
-	  GHashTable *query, SoupMessage *msg, const HandlerArg *arg,
-	  const char *paramName, const char *scanFmt, T &dest, bool *exist);
+	  RestJob *job, const char *paramName, const char *scanFmt,
+	  T &dest, bool *exist);
 
 	static const char *pathForTest;
 	static const char *pathForLogin;

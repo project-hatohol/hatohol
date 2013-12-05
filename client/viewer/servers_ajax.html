@@ -42,6 +42,7 @@
         <th>{% trans "Hostname" %}</th>
         <th>{% trans "IP Address" %}</th>
         <th>{% trans "Nickname" %}</th>
+        <th>{% trans "Maps" %}</th>
       </tr>
     </thead>
     <tbody>
@@ -52,36 +53,45 @@
 {% block logic %}
   <script type="text/javascript">
 
-    var rawData;
-
     function drawTableBody(rd) {
       var x;
       var s;
       var o;
-      var ip, anchor;
+      var ip, serverURL, mapsURL;
 
       s = "";
       for (x = 0; x < rd["servers"].length; ++x) {
         o = rd["servers"][x];
         ip = o["ipAddress"];
-        anchor = "http://" + ip + "/zabbix";
+        serverURL = getServerLocation(o);
+        mapsURL = getMapsLocation(o);
         s += "<tr>";
         s += "<td>" + o["id"] + "</td>";
         s += "<td>" + o["type"]  + "</td>";
-        s += "<td><a href='" + anchor + "'>" + o["hostName"]  + "</td>";
-        s += "<td><a href='" + anchor + "'>" + ip + "</a></td>";
+        if (serverURL) {
+          s += "<td><a href='" + serverURL + "'>" + o["hostName"]  + "</a></td>";
+          s += "<td><a href='" + serverURL + "'>" + ip + "</a></td>";
+        } else {
+          s += "<td>" + o["hostName"]  + "</td>";
+          s += "<td>" + ip + "</td>";
+        }
         s += "<td>" + o["nickname"]  + "</td>";
+        if (mapsURL) {
+          s += "<td><a href='" + mapsURL + "'>" + "Maps" + "</a></td>";
+        } else {
+          s += "<td></td>";
+        }
         s += "</tr>";
       }
 
       return s;
     }
 
-    function updateCore() {
+    function updateCore(reply) {
       $("#table tbody").empty();
-      $("#table tbody").append(drawTableBody(rawData));
+      $("#table tbody").append(drawTableBody(reply));
     }
 
-    schedule(0000, "server");
+    startConnection('server', updateCore);
   </script>
 {% endblock %}

@@ -31,7 +31,7 @@ describe('HatoholConnector', function() {
         done();
       },
       error: function connectError(XMLHttpRequest, textStatus, errorThrown) {
-        expect().fail(textStatus);
+        expect().fail(function() { return textStatus; });
         done();
       },
     });
@@ -76,14 +76,43 @@ describe('HatoholConnector', function() {
     var connector = new HatoholConnector(params);
   });
 
+  it('specify pathPrefix', function(done) {
+    setLoginDialogCallback();
+    var params = {
+      url: "/hello",
+      pathPrefix: "/test",
+      data: {},
+      replyParser: function(data) {
+        return {
+          getStatus: function() { return REPLY_STATUS.OK; }
+        }
+      },
+      replyCallback: function(data, parser) {
+        expect(data).to.be('Hello');
+        done();
+      },
+      connectErrorCallback: function(XMLHttpRequest, textStatus, errorThrown) {
+        expect(XMLHttpRequest.status).to.be(403);
+        done();
+      },
+    };
+    var connector = new HatoholConnector(params);
+  });
+
   it('connection error callback', function(done) {
     setLoginDialogCallback();
+    // This test creates an error by using the Django's CSRF protection
+    // mechanisim that returns HTTP error 403 when a CSRF token is not
+    // specified on a 'POST' request.
     var params = {
       url: "/test",
       request: "POST",
       data: {},
+      dontSentCsrfToken: true,
       replyCallback: function(data, parser) {
-        expect().fail("replyCallback() should not be called.");
+        expect().fail(function() {
+          return 'replyCallback() should not be called.';
+        });
         done();
       },
       connectErrorCallback: function(XMLHttpRequest, textStatus, errorThrown) {
@@ -99,7 +128,9 @@ describe('HatoholConnector', function() {
     var params = {
       url: "/test/error",
       replyCallback: function(data, parser) {
-        expect().fail("replyCallback() should not be called.");
+        expect().fail(function() {
+          return 'replyCallback() should not be called.';
+        });
         done();
       },
       parseErrorCallback: function(data, parser) {
@@ -131,5 +162,105 @@ describe('HatoholConnector', function() {
     };
     var connector = new HatoholConnector(params);
   });
+
+  it('completion callback', function(done) {
+    setLoginDialogCallback();
+    var reachedReplyCallback = false;
+    var params = {
+      url: "/test",
+      replyCallback: function(data, parser) {
+        reachedReplyCallback = true;
+      },
+      completionCallback: function() {
+        expect(reachedReplyCallback).to.be(true);
+        done();
+      }
+    };
+    var connector = new HatoholConnector(params);
+  });
+
+  it('completion callback after error', function(done) {
+    setLoginDialogCallback();
+    var reachedReplyCallback = false;
+    var reachedErrorCallback = false;
+    var params = {
+      url: "/X",
+      replyCallback: function(data, parser) {
+        reachedReplyCallback = true;
+      },
+      connectErrorCallback: function(XMLHttpRequest, textStatus, errorThrown) {
+        reachedErrorCallback = true;
+      },
+      completionCallback: function() {
+        expect(reachedReplyCallback).to.be(false);
+        expect(reachedErrorCallback).to.be(true);
+        done();
+      }
+    };
+    var connector = new HatoholConnector(params);
+  });
+
+  it('specify context in replyCallback', function(done) {
+    setLoginDialogCallback();
+    var magic = {'@':'Time flies like an arrow', 'animal': 192};
+    var params = {
+      url: '/test',
+      context: magic,
+      replyCallback: function(data, parser, context) {
+        expect(context).to.eql(magic);
+        done();
+      },
+    };
+    var connector = new HatoholConnector(params);
+  });
+
+  it('specify context in connectErrorCallback', function(done) {
+    setLoginDialogCallback();
+    var magic = {'@':'Time flies like an arrow', 'animal': 192};
+    var params = {
+      url: '/X',
+      context: magic,
+      connectErrorCallback:
+      function(XMLHttpRequest, textStatus, errorThrown, context) {
+        expect(context).to.eql(magic);
+        done();
+      },
+    };
+    var connector = new HatoholConnector(params);
+  });
+
+  it('specify context in completionCallback', function(done) {
+    setLoginDialogCallback();
+    var magic = {'@':'Time flies like an arrow', 'animal': 192};
+    var params = {
+      url: '/test',
+      context: magic,
+      replyCallback: function() {},
+      completionCallback: function(context) {
+        expect(context).to.eql(magic);
+        done();
+      },
+    };
+    var connector = new HatoholConnector(params);
+  });
+
+  it('get simplest twice with reusing it', function(done) {
+    var connector;
+    var count = 0;
+    setLoginDialogCallback();
+    var params = {
+      url: "/test",
+      replyCallback: function(data, parser) {
+        checkBasicResponse(data, parser);
+        if (count == 1)
+          done();
+        else
+          connector.start(params);
+        count++;
+      },
+    };
+    connector = new HatoholConnector(params);
+  });
+
 });
 

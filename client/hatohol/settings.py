@@ -170,6 +170,10 @@ LOGGING = {
             'filters': ['require_debug_false'],
             'class': 'django.utils.log.AdminEmailHandler'
         },
+        'console':{
+            'level':'DEBUG',
+            'class':'logging.StreamHandler',
+        },
         'syslog': {
             'level': 'INFO',
             'class': 'logging.handlers.SysLogHandler'
@@ -181,7 +185,13 @@ LOGGING = {
             'level': 'ERROR',
             'propagate': True,
         },
+        'hatohol' : {
+            'handlers': ['syslog', 'console'],
+            'level': 'INFO',
+            'propagate': True,
+        },
         'viewer' : {
+            'handlers': ['syslog', 'console'],
             'level': 'INFO',
             'propagate': True,
         }

@@ -1,85 +1,80 @@
 Hatohol Client
 ==============
 
-This is a frontend part of the Hatohol.
-This communicates Hatohol server.
-This provides web UI and shows data returned from Hatohol Server.
+Hatohol Clinet is a frontend part of Hatohol and provides a web UI based
+on Django.
 
-
-Required environments
+Required software and settings
 ----------------------------------------
 - Python 2.6
 - Django 1.5
 - Bootstrap (from twitter)
 - JavaScript enabled (web browser side)
 
-This is a Django application.
-This application does not use models and DBs.
-This repository does not contain a copy of Bootstrap.
-
 Containing modules
 ----------------------------------------
-This application contains following foreign modules.
-Thanks a lot!
-
+This application contains following foreign modules. Thanks a lot!
 - jQuery
-
 - Stupid-table-plugin
 maintained by [joequery]
 (http://joequery.github.io/Stupid-Table-Plugin/)
 
-
 How to setup
 ----------------------------------------
-This Django project was written as PATH FREE so you can place this anyware without configuring about the project path.
+> See also [this page](../doc/install/hatohol0.1-centos6.4.md)
+> to setup Hatohol for CentOS with the binary packages.
 
-- just copy the project directory onto where you want
-- get Bootstrap then put them onto static/js or static/css
+### Install Hatohol Client
+Hatohol Client is written as PATH FREE. So you can place it anywhere.
 
-## An example to install Django
-### On CentOS 6.4
+### Install Bootstrap
+Get a Bootstrap tar ball (http://getbootstrap.com/) and extract them
+onto static/js and static/css.
+
+### Install Django 1.5
+The following shows examples to install Django.
+
+#### On CentOS 6.4
 
     # yum install python-setuptools
     # easy_install pip
-    # pip install django
+    # pip install django==1.5.4
     # pip install mysql-python
 
-### On Ubuntu 12.04 and 13.10
+#### On Ubuntu 12.04 and 13.10
 
     # sudo apt-get install python-pip
-    # pip install django
+    # pip install django==1.5.4
     # sudo apt-get install python-dev
     # pip install mysql-python
 
 
-### Prepare the database
+### Create the database
 
     > CREATE DATABASE hatohol_client;
     > GRANT ALL PRIVILEGES ON hatohol_client.* TO hatohol@localhost IDENTIFIED BY 'hatohol';
 
-How to configure
-----------------------------------------
-You must configure if your prepared Hatohol server may runs on not a default port.
+### Create the database and the tables
 
-- edit hatohol/urls.py to change the port
-
-Ex.)
-
-	- url(r'^tunnel/(?P<path>.+)', jsonforward, kwargs={'server':'localhost:33194'})
-	+ url(r'^tunnel/(?P<path>.+)', jsonforward, kwargs={'server':'localhost:30080'})
+    $ ./manage.py syncdb
 
 How to run
 ----------------------------------------
-This is a standard Django project so you can run this on some WSGI compliant application server.
+Hatohol Client is a standard Django project. So you can run it on any WSGI
+compliant application server.
 
-Of course you can run with runserver subcommand of Django's manage.py.
-
-Ex.)
+Alternatively you can run with a runserver sub-command of Django's manage.py.
 
 	$ ./manage.py runserver
 
-If you want to serve to the outside of the host that this frontend run on, you need specifying the address.
-
-Ex.)
+If you allow to access from the outside, you need specifying the address like
 
 	$ ./manage.py runserver 0.0.0.0:8000
+
+Hints
+-----
+### How to set a Hatohol server address and the port
+Edit hatohol/hatoholserver.py and update the following lines.
+
+    DEFAULT_SERVER_ADDR = 'localhost'
+    DEFAULT_SERVER_PORT = 33194

@@ -92,9 +92,6 @@
 {% block logic %}
   <script type="text/javascript">
 
-    var rawData;
-    var parsedData;
-
     function parseData(rd) {
       var pd = new Object();
       var o;
@@ -263,8 +260,9 @@
       return s;
     }
 
-    function updateCore() {
-      parsedData = parseData(rawData);
+    function updateCore(reply) {
+      var rawData = reply;
+      var parsedData = parseData(rawData);
 
       $("#tblServer tbody").empty();
       $("#tblServer tbody").append(drawServerBody(rawData, parsedData));
@@ -274,6 +272,6 @@
       $("#tblHost tbody").append(drawHostBody(rawData, parsedData));
     }
 
-    schedule(0000, "overview");
+    startConnection('overview', updateCore);
   </script>
 {% endblock %}

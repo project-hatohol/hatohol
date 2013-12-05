@@ -12,6 +12,7 @@ fi
 
 export PYTHONPATH=../..:.
 export DJANGO_SETTINGS_MODULE=testsettings 
+export HATOHOL_SERVER_PORT=54321
 ../../manage.py syncdb
 
 if [ -z $testcase ]; then

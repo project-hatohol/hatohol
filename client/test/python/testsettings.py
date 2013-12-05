@@ -19,7 +19,7 @@
 # Django settings for hatohol project.
 import os
 
-PROJECT_HOME = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+PROJECT_HOME = os.path.abspath(os.path.join(os.path.dirname(__file__), '../..'))
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
@@ -178,6 +178,11 @@ LOGGING = {
         'django.request': {
             'handlers': ['mail_admins'],
             'level': 'ERROR',
+            'propagate': True,
+        },
+        'hatohol': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
             'propagate': True,
         },
         'viewer': {

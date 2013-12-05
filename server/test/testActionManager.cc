@@ -794,10 +794,13 @@ void test_execCommandActionTimeoutNotExpired(void)
 	sendQuit(ctx);
 	assertActionLogAfterEnding(ctx);
 
-	// We expects the timer event is removed. So the return value
+	// We expect that the timer event is removed. So the return value
 	// should be FALSE (i.e. not found).
-	while (g_main_context_iteration(NULL, FALSE))
-		;
+	GTimer *timer = g_timer_new();
+	g_timer_start(timer);
+	while (g_timer_elapsed(timer, NULL) < 0.1)
+		g_main_context_iteration(NULL, FALSE);
+	g_timer_destroy(timer);
 	cppcut_assert_equal(FALSE, g_source_remove(ctx->actorInfo.timerTag));
 }
 

@@ -21,17 +21,58 @@
 // HatohoConnector
 // ---------------------------------------------------------------------------
 var HatoholConnector = function(connectParams) {
+  //
   // connectParams has the following paramters.
-  //   url: mandatory (e.g. /server, Note /tunnel is automatically added)
-  //   request: GET, POST, PUT, and DELETE (Default: GET)
-  //   data: data to send
-  //   replyCallback: function(reply, parser)
-  //   connectErrorCallback: function(XMLHttpRequest, textStatus, errorThrown)
-  //     If undefined, a message box is shown.
-  //   parseErrorCallback: function(reply, parser)
-  //     If undefined, replyCallback is called.
-  //   replyParser  : (Default: HatoholReplyParser)
+  //
+  // url: <string> [mandatory]
+  //   e.g. '/server'.
+  //   Note: '/tunnel' is automatically added unless 'pathPrefix' parameter
+  //         is set.
+  //
+  // pathPrefix: <string> [optional]
+  //   Defaut: '/tunnel'.
+  //
+  // request: <string> [optional]
+  //   'GET', 'POST', 'PUT', or 'DELETE' (Default: 'GET')
+  //
+  // data: <object or string> [optional]
+  //   data to be sent. It is used as 'data' of jQuery's ajax().
+  //
+  // dataType: <string> [optional]
+  //   data type to be sent. It is used as 'dataType' of jQuery's ajax().
+  //
+  // contentType: <string> [optional]
+  //   content type to be sent. It is used as 'contentType' of jQuery's ajax().
+  //
+  // context: <string> [optional]
+  //   used as a 'this' of the callback function. It is used as 'context'
+  //   of jQuery's ajax().
+  //
+  // replyCallback: <function> [mandatory]
+  //   function(reply, parser, context)
+  //
+  // connectErrorCallback: <function> [optional]
+  //   function(XMLHttpRequest, textStatus, errorThrown, context)
+  //   If undefined, a message box is shown.
+  //
+  // parseErrorCallback: <function> [optional]
+  //   function(reply, parser)
+  //   If undefined, replyCallback is called.
+  //
+  // completionCallback: <function> [optional]
+  //   function(context)
+  //   A function called finally independtly of the connection result.
+  //
+  // replyParser: <function> [optional]
+  //   Default: HatoholReplyParser
+  //
+  // dontSentCsrfToken: <boolean> [optional]
+  //
   var self = this;
+  self.start(connectParams);
+};
+
+HatoholConnector.prototype.start = function(connectParams) {
   if (connectParams.request)
     self.request = connectParams.request;
   else
@@ -43,6 +84,32 @@ var HatoholConnector = function(connectParams) {
     return;
   }
   request();
+
+  function getCsrfToken() {
+    var cookie = document.cookie;
+    var cookies = cookie.split(";");
+    for(var i = 0; i < cookies.length; i++) {
+      var hands = cookies[i].split("=");
+      if (hands.length != 2)
+        continue;
+      var key = hands[0].replace(/^\s*|\s*$/g, ''); // strip spaces
+      if (key == 'csrftoken')
+        return hands[1]
+    }
+    return null;
+  }
+
+  function isCsrfTokenNeeded() {
+    if (connectParams.dontSentCsrfToken)
+      return false;
+    if (self.request == 'POST')
+      return true;
+    if (self.request == 'PUT')
+      return true;
+    if (self.request == 'DELETE')
+      return true;
+    return false;
+  }
 
   function login() {
     self.dialog = new HatoholLoginDialog(loginReadyCallback);
@@ -63,7 +130,7 @@ var HatoholConnector = function(connectParams) {
   function parseLoginResult(data) {
     var parser = new HatoholLoginReplyParser(data);
     if (parser.getStatus() != REPLY_STATUS.OK) {
-      var msg = gettext("Failed to login.") + parser.getStatusMessage();
+      var msg = gettext("Failed to login. ") + parser.getMessage();
       hatoholErrorMsgBox(msg);
       return;
     }
@@ -74,7 +141,12 @@ var HatoholConnector = function(connectParams) {
   }
 
   function request() {
-    var url = "/tunnel" + connectParams.url;
+    var pathPrefix;
+    if (connectParams.pathPrefix != undefined)
+      pathPrefix = connectParams.pathPrefix;
+    else
+      pathPrefix = "/tunnel";
+    var url = pathPrefix + connectParams.url;
     var hdrs = {};
     hdrs[hatohol.FACE_REST_SESSION_ID_HEADER_NAME] =
        HatoholSessionManager.get();
@@ -83,6 +155,14 @@ var HatoholConnector = function(connectParams) {
       headers: hdrs,
       type: self.request,
       data: connectParams.data,
+      dataType: connectParams.dataType,
+      contentType: connectParams.contentType,
+      context: connectParams.context,
+      beforeSend: function(xhr, settings) {
+        // For the Django's CSRF protection mechanism
+        if (isCsrfTokenNeeded())
+          xhr.setRequestHeader('X-CSRFToken', getCsrfToken())
+      },
       success: function(data) {
         var parser;
         if (connectParams.replyParser)
@@ -99,19 +179,30 @@ var HatoholConnector = function(connectParams) {
             return;
           }
         }
-        connectParams.replyCallback(data, parser);
+        connectParams.replyCallback(data, parser, this);
       },
       error: connectError,
+      complete: function() {
+        if (connectParams.completionCallback)
+          connectParams.completionCallback(this);
+      }
     });
   }
 
   function connectError(XMLHttpRequest, textStatus, errorThrown) {
     if (connectParams.connectErrorCallback) {
-      connectParams.connectErrorCallback(XMLHttpRequest, textStatus, errorThrown);
+      connectParams.connectErrorCallback(XMLHttpRequest, textStatus,
+                                         errorThrown, this);
       return;
     }
     var errorMsg = "Error: " + XMLHttpRequest.status + ": " +
                    XMLHttpRequest.statusText;
-    showErrorMessageBox(errorMsg);
+    hatoholErrorMsgBox(errorMsg);
   }
 };
+
+function getInactionParser() {
+  return function(data) {
+    return { getStatus: function() { return REPLY_STATUS.OK; } }
+  };
+}

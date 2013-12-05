@@ -115,6 +115,12 @@ Server object
    * - name
      - String
      - A hostname of the server.
+   * - type
+     - Number
+     - A `Server type`_.
+   * - ipAddress
+     - String
+     - An IP Address of the server.
    * - hosts
      - Object
      - List of `Host object`_. Keys for each `Host object`_ are host IDs which corresponds to hostId values in `Trigger object`_.
@@ -150,3 +156,12 @@ Trigger severity
      - TRIGGER_SEVERITY_INFO
    * - 1
      - TRIGGER_SEVERITY_WARN
+
+Server type
+-------------
+.. list-table::
+
+   * - 0
+     - Zabbix
+   * - 1
+     - Nagios
