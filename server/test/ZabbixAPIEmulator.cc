@@ -508,7 +508,7 @@ void ZabbixAPIEmulator::APIHandlerEventGet(APIHandlerArg &arg)
 	contents.erase(contents.end() - 1);
 	string sendData = addJsonResponse(contents, arg);
 	length = sendData.size();
-	soup_message_body_append(arg.msg->response_body, SOUP_MEMORY_TAKE,
+	soup_message_body_append(arg.msg->response_body, SOUP_MEMORY_COPY,
 	                         sendData.c_str(), length);
 	soup_message_set_status(arg.msg, SOUP_STATUS_OK);
 }
