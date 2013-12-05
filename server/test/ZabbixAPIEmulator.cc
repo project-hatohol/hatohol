@@ -589,6 +589,8 @@ void ZabbixAPIEmulator::parseEventGetParameter(APIHandlerArg &arg)
 			THROW_HATOHOL_EXCEPTION("Invalid parameter: output: %s",
 					m_ctx->paramEvent.output.c_str());
 		}
+	} else {
+		m_ctx->paramEvent.output = "extend";
 	}
 
 	if (parser.read("sortfield", m_ctx->paramEvent.sortField)) {
@@ -596,6 +598,8 @@ void ZabbixAPIEmulator::parseEventGetParameter(APIHandlerArg &arg)
 			THROW_HATOHOL_EXCEPTION("Invalid parameter: sortfield: %s",
 					m_ctx->paramEvent.sortField.c_str());
 		}
+	} else {
+		m_ctx->paramEvent.sortField = "";
 	}
 
 	if (parser.read("sortorder", m_ctx->paramEvent.sortOrder)) {
@@ -603,6 +607,8 @@ void ZabbixAPIEmulator::parseEventGetParameter(APIHandlerArg &arg)
 			THROW_HATOHOL_EXCEPTION("Invalid parameter: sortorder: %s",
 					m_ctx->paramEvent.sortOrder.c_str());
 		}
+	} else {
+		m_ctx->paramEvent.sortOrder = "ASC";
 	}
 
 	string rawLimit;
@@ -610,6 +616,8 @@ void ZabbixAPIEmulator::parseEventGetParameter(APIHandlerArg &arg)
 		sscanf(rawLimit.c_str(), "%"PRIu64, &m_ctx->paramEvent.limit);
 		if (m_ctx->paramEvent.limit < 0)
 			THROW_HATOHOL_EXCEPTION("Invalid parameter: limit: %"PRId64"\n", m_ctx->paramEvent.limit);
+	} else {
+		m_ctx->paramEvent.limit = 0;
 	}
 
 	string rawEventIdFrom;
@@ -617,6 +625,8 @@ void ZabbixAPIEmulator::parseEventGetParameter(APIHandlerArg &arg)
 		sscanf(rawEventIdFrom.c_str(), "%"PRIu64, &m_ctx->paramEvent.eventIdFrom);
 		if (m_ctx->paramEvent.eventIdFrom < 0)
 			THROW_HATOHOL_EXCEPTION("Invalid parameter: eventid_from: %"PRId64"\n", m_ctx->paramEvent.eventIdFrom);
+	} else {
+		m_ctx->paramEvent.eventIdFrom = 0;
 	}
 
 	string rawEventIdTill;
@@ -624,6 +634,8 @@ void ZabbixAPIEmulator::parseEventGetParameter(APIHandlerArg &arg)
 		sscanf(rawEventIdTill.c_str(), "%"PRIu64, &m_ctx->paramEvent.eventIdTill);
 		if (m_ctx->paramEvent.eventIdTill < 0)
 			THROW_HATOHOL_EXCEPTION("Invalid parameter: eventid_till: %"PRId64"\n", m_ctx->paramEvent.eventIdTill);
+	} else {
+		m_ctx->paramEvent.eventIdFrom = 0;
 	}
 }
 
