@@ -582,11 +582,12 @@ void ZabbixAPIEmulator::parseEventGetParameter(APIHandlerArg &arg)
 	}
 	parser.startObject("params");
 
-	if (!parser.read("output", m_ctx->paramEvent.output))
+	if (!parser.read("output", m_ctx->paramEvent.output)) {
 		THROW_HATOHOL_EXCEPTION("Not found: output");
-	if (m_ctx->paramEvent.output != "extend" && m_ctx->paramEvent.output != "shorten") {
-		THROW_HATOHOL_EXCEPTION("Invalid parameter: output: %s",
-				m_ctx->paramEvent.output.c_str());
+		if (m_ctx->paramEvent.output != "extend" && m_ctx->paramEvent.output != "shorten") {
+			THROW_HATOHOL_EXCEPTION("Invalid parameter: output: %s",
+					m_ctx->paramEvent.output.c_str());
+		}
 	}
 
 	if (parser.read("sortfield", m_ctx->paramEvent.sortField)) {
