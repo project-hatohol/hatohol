@@ -61,6 +61,10 @@
   </table>
 {% endblock %}
 
+{% block option %}
+  <script src="{{ STATIC_URL }}js/hatohol_user_edit_dialog.js"></script>
+{% endblock %}
+
 {% block logic %}
   <script type="text/javascript">
     //
@@ -80,13 +84,17 @@
     });
 
     $("#add-user-button").click(function() {
-      alert("Not implemented yet");
+      new HatoholUserEditDialog(addSucceededCb);
     });
 
     $("#delete-user-button").click(function() {
       var msg = "{% trans "Do you delete the selected items ?" %}";
       hatoholNoYesMsgBox(msg, deleteUsers);
     });
+
+    function addSucceededCb() {
+      startConnection('user', updateCore);
+    }
 
     //
     // Event handlers for forms in the main view
