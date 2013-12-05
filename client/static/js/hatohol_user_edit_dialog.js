@@ -38,13 +38,53 @@ var HatoholUserEditDialog = function(succeededCb) {
   // Dialog button handlers
   //
   function addButtonClickedCb() {
-    alert("Not implemented yet");
-    if (succeededCb)
-      succeededCb();
+    if (validateAddParameters()) {
+      makeQueryData();
+      hatoholInfoMsgBox(gettext("Now creating an user ..."));
+      postAddAction();
+    }
   }
 
   function cancelButtonClickedCb() {
     self.closeDialog();
+  }
+
+  function makeQueryData() {
+      var queryData = {};
+      queryData.user = $("#inputUserName").val();
+      queryData.password = $("#inputPassword").val();
+      queryData.flags = 0; // FIXME
+      return queryData;
+  }
+
+  function postAddAction() {
+    new HatoholConnector({
+      url: "/user",
+      request: "POST",
+      data: makeQueryData(),
+      replyCallback: replyCallback,
+      parseErrorCallback: hatoholErrorMsgBoxForParser
+    });
+  }
+
+  function replyCallback(reply, parser) {
+    self.closeDialog();
+    hatoholInfoMsgBox(gettext("Successfully created."));
+
+    if (succeededCb)
+      succeededCb();
+  }
+
+  function validateAddParameters() {
+    if ($("#inputUserName").val() == "") {
+      hatoholErrorMsgBox(gettext("User name is empty!"));
+      return false;
+    }
+    if ($("#inputPassword").val() == "") {
+      hatoholErrorMsgBox(gettext("Password is empty!"));
+      return false;
+    }
+    return true;
   }
 };
 
