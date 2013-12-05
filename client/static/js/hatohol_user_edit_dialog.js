@@ -40,7 +40,7 @@ var HatoholUserEditDialog = function(succeededCb) {
   function addButtonClickedCb() {
     if (validateParameters()) {
       makeQueryData();
-      hatoholInfoMsgBox(gettext("Now creating an user ..."));
+      hatoholInfoMsgBox(gettext("Now creating a user ..."));
       postAddAction();
     }
   }
