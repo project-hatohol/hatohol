@@ -84,7 +84,8 @@
     });
 
     $("#delete-user-button").click(function() {
-      alert("Not implemented yet");
+      var msg = "{% trans "Do you delete the selected items ?" %}";
+      hatoholNoYesMsgBox(msg, deleteUsers);
     });
 
     //
@@ -103,6 +104,106 @@
           else if (prevNumSelected == 1 && numSelected == 0)
             $("#delete-user-button").attr("disabled", true);
         });
+    }
+
+    //
+    // Commonly used functions from a dialog.
+    //
+    function parseResult(data) {
+        var msg;
+        var malformed = false;
+        if (data.result == undefined)
+           malformed = true;
+        if (!malformed && !data.result && data.message == undefined)
+           malformed = true;
+        if (malformed) {
+            msg = "The returned content is malformed: " +
+                  "Not found 'result' or 'message'.\n" + JSON.stringify(data);
+            hatoholErrorMsgBox(msg);
+            return false;
+        }
+        if (!data.result) {
+            msg = "Failed:\n" + data.message
+            hatoholErrorMsgBox(msg);
+            return false;
+        }
+
+        if (data.id == undefined) {
+            msg = "The returned content is malformed: " +
+                  "'result' is true, however, 'id' is missing.\n" +
+                  JSON.stringify(data);
+            hatoholErrorMsgBox(msg);
+            return false;
+        }
+        return true;
+    }
+
+    //
+    // delete-user dialog
+    //
+    function deleteUsers() {
+        $(this).dialog("close");
+        checkbox = $(".selectcheckbox");
+        var deletedIdArray = {count:0, total:0, errors:0};
+        for (var i = 0; i < checkbox.length; i++) {
+          if (!checkbox[i].checked)
+            continue;
+          var userId = checkbox[i].getAttribute("userId");
+          deletedIdArray[userId] = true;
+          deletedIdArray.count++;
+          deletedIdArray.total++;
+          deleteOneUser(userId, deletedIdArray);
+        }
+        hatoholInfoMsgBox("{% trans "Deleting..." %}");
+    }
+
+    function deleteOneUser(id, deletedIdArray) {
+      new HatoholConnector({
+        url: '/user/' + id,
+        request: "DELETE",
+        context: deletedIdArray,
+        replyCallback: function(data, parser, context) {
+          parseDeleteUserResult(data, context);
+        },
+        connectErrorCallback: function(XMLHttpRequest,
+                                       textStatus, errorThrown) {
+          var errorMsg = "Error: " + XMLHttpRequest.status + ": " +
+                         XMLHttpRequest.statusText;
+          hatoholErrorMsgBox(errorMsg);
+          deletedIdArray.errors++;
+        },
+        completionCallback: function(context) {
+          compleOneDelUser(context);
+        },
+      });
+    }
+
+    function parseDeleteUserResult(data, deletedIdArray) {
+      if (!parseResult(data))
+        return;
+      if (!(data.id in deletedIdArray)) {
+        alert("Fatal Error: You should reload page.\nID: " + data.id +
+              " is not in deletedIdArray: " + deletedIdArray);
+        deletedIdArray.errors++;
+        return;
+      }
+      delete deletedIdArray[data.id];
+    }
+
+    function compleOneDelUser(deletedIdArray) {
+      deletedIdArray.count--;
+      var completed = deletedIdArray.total - deletedIdArray.count;
+      hatoholErrorMsgBox("{% trans "Deleting..." %}" + " " + completed +
+                         " / " + deletedIdArray.total);
+      if (deletedIdArray.count > 0)
+        return;
+
+      // close dialogs
+      hatoholInfoMsgBox("{% trans "Completed. (Number of errors: " %}"+
+                        deletedIdArray.errors + ")");
+
+      // update the main view
+      startConnection('user', updateCore);
     }
 
     //
