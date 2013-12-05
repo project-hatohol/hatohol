@@ -51,9 +51,9 @@
     <thead>
       <tr>
         <th>  </th>
-        <th>{% trans "ID" %}</th>
-        <th>{% trans "User name" %}</th>
-        <th>{% trans "Flags" %}</th>
+        <th data-sort="int">{% trans "ID" %}</th>
+        <th data-sort="string">{% trans "User name" %}</th>
+        <th data-sort="int">{% trans "Flags" %}</th>
       </tr>
     </thead>
     <tbody>
@@ -67,6 +67,17 @@
     // Variables
     //
     var numSelected = 0;
+
+    //
+    // Main view
+    //
+    $("#table").stupidtable();
+    $("#table").bind('aftertablesort', function(event, data) {
+      var th = $(this).find("th");
+      th.find("i.sort").remove();
+      var icon = data.direction === "asc" ? "up" : "down";
+      th.eq(data.column).append("<i class='sort icon-arrow-" + icon +"'></i>");
+    });
 
     //
     // Event handlers for forms in the main view
