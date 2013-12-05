@@ -1,0 +1,265 @@
+{% extends "viewer/base_ajax.html" %}
+{% load i18n %}
+
+{% comment %}
+  Copyright (C) 2013 Project Hatohol
+
+  This file is part of Hatohol.
+
+  Hatohol is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 2 of the License, or
+  (at your option) any later version.
+
+  Hatohol is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+{% endcomment %}
+
+{% block navbar %}
+  <li><a href="ajax_dashboard">{% trans "Dashboard" %}</a></li>
+  <li><a href="ajax_overview_triggers">{% trans "Overview : Triggers" %}</a></li>
+  <li><a href="ajax_overview_items">{% trans "Overview : Items" %}</a></li>
+  <li><a href="ajax_latest">{% trans "Latest data" %}</a></li>
+  <li><a href="ajax_triggers">{% trans "Triggers" %}</a></li>
+  <li><a href="ajax_events">{% trans "Events" %}</a></li>
+  <li><a href="ajax_servers">{% trans "Servers" %}</a></li>
+  <li><a href="ajax_actions">{% trans "Actions" %}</a></li>
+{% endblock %}
+
+{% block main %}
+  <h2>{% trans "Users" %}</h2>
+
+  <form class="form-inline">
+    <input id="add-user-button" type="button" class="btn" value="{% trans "ADD USER" %}" />
+    <input id="delete-user-button" type="button" class="btn" disabled
+     value="{% trans "DELETE USER" %}" />
+  </form>
+
+  <div id="msgbox" title="Message Box">
+    <p id="msgbox-text"></p>
+  </div>
+
+  <form id="add-user-form", method="POST"> {% csrf_token %}
+  </form>
+
+  <table class="table table-condensed table-striped table-hover" id="table">
+    <thead>
+      <tr>
+        <th>  </th>
+        <th data-sort="int">{% trans "ID" %}</th>
+        <th data-sort="string">{% trans "User name" %}</th>
+        <th data-sort="string">{% trans "Type" %}</th>
+      </tr>
+    </thead>
+    <tbody>
+    </tbody>
+  </table>
+{% endblock %}
+
+{% block option %}
+  <script src="{{ STATIC_URL }}js/hatohol_user_edit_dialog.js"></script>
+{% endblock %}
+
+{% block logic %}
+  <script type="text/javascript">
+    //
+    // Variables
+    //
+    var numSelected = 0;
+
+    //
+    // Main view
+    //
+    $("#table").stupidtable();
+    $("#table").bind('aftertablesort', function(event, data) {
+      var th = $(this).find("th");
+      th.find("i.sort").remove();
+      var icon = data.direction === "asc" ? "up" : "down";
+      th.eq(data.column).append("<i class='sort icon-arrow-" + icon +"'></i>");
+    });
+
+    $("#add-user-button").click(function() {
+      new HatoholUserEditDialog(addSucceededCb);
+    });
+
+    $("#delete-user-button").click(function() {
+      var msg = "{% trans "Do you delete the selected items ?" %}";
+      hatoholNoYesMsgBox(msg, deleteUsers);
+    });
+
+    function addSucceededCb() {
+      startConnection('user', updateCore);
+    }
+
+    //
+    // Event handlers for forms in the main view
+    //
+    function setupCheckboxHandler() {
+        $(".selectcheckbox").change(function() {
+          check = $(this).is(":checked");
+          var prevNumSelected = numSelected;
+          if (check)
+            numSelected += 1;
+          else
+            numSelected -= 1;
+          if (prevNumSelected == 0 && numSelected == 1)
+            $("#delete-user-button").attr("disabled", false);
+          else if (prevNumSelected == 1 && numSelected == 0)
+            $("#delete-user-button").attr("disabled", true);
+        });
+    }
+
+    //
+    // Commonly used functions from a dialog.
+    //
+    function parseResult(data) {
+        var msg;
+        var malformed = false;
+        if (data.result == undefined)
+           malformed = true;
+        if (!malformed && !data.result && data.message == undefined)
+           malformed = true;
+        if (malformed) {
+            msg = "The returned content is malformed: " +
+                  "Not found 'result' or 'message'.\n" + JSON.stringify(data);
+            hatoholErrorMsgBox(msg);
+            return false;
+        }
+        if (!data.result) {
+            msg = "Failed:\n" + data.message
+            hatoholErrorMsgBox(msg);
+            return false;
+        }
+
+        if (data.id == undefined) {
+            msg = "The returned content is malformed: " +
+                  "'result' is true, however, 'id' is missing.\n" +
+                  JSON.stringify(data);
+            hatoholErrorMsgBox(msg);
+            return false;
+        }
+        return true;
+    }
+
+    //
+    // delete-user dialog
+    //
+    function deleteUsers() {
+        $(this).dialog("close");
+        checkbox = $(".selectcheckbox");
+        var deletedIdArray = {count:0, total:0, errors:0};
+        for (var i = 0; i < checkbox.length; i++) {
+          if (!checkbox[i].checked)
+            continue;
+          var userId = checkbox[i].getAttribute("userId");
+          deletedIdArray[userId] = true;
+          deletedIdArray.count++;
+          deletedIdArray.total++;
+          deleteOneUser(userId, deletedIdArray);
+        }
+        hatoholInfoMsgBox("{% trans "Deleting..." %}");
+    }
+
+    function deleteOneUser(id, deletedIdArray) {
+      new HatoholConnector({
+        url: '/user/' + id,
+        request: "DELETE",
+        context: deletedIdArray,
+        replyCallback: function(data, parser, context) {
+          parseDeleteUserResult(data, context);
+        },
+        connectErrorCallback: function(XMLHttpRequest,
+                                       textStatus, errorThrown) {
+          var errorMsg = "Error: " + XMLHttpRequest.status + ": " +
+                         XMLHttpRequest.statusText;
+          hatoholErrorMsgBox(errorMsg);
+          deletedIdArray.errors++;
+        },
+        completionCallback: function(context) {
+          compleOneDelUser(context);
+        },
+      });
+    }
+
+    function parseDeleteUserResult(data, deletedIdArray) {
+      if (!parseResult(data))
+        return;
+      if (!(data.id in deletedIdArray)) {
+        alert("Fatal Error: You should reload page.\nID: " + data.id +
+              " is not in deletedIdArray: " + deletedIdArray);
+        deletedIdArray.errors++;
+        return;
+      }
+      delete deletedIdArray[data.id];
+    }
+
+    function compleOneDelUser(deletedIdArray) {
+      deletedIdArray.count--;
+      var completed = deletedIdArray.total - deletedIdArray.count;
+      hatoholErrorMsgBox("{% trans "Deleting..." %}" + " " + completed +
+                         " / " + deletedIdArray.total);
+      if (deletedIdArray.count > 0)
+        return;
+
+      // close dialogs
+      hatoholInfoMsgBox("{% trans "Completed. (Number of errors: " %}"+
+                        deletedIdArray.errors + ")");
+
+      // update the main view
+      startConnection('user', updateCore);
+    }
+
+    function getUserTypeFromFlags(flags) {
+      switch(flags) {
+      case hatohol.ALL_PRIVILEGES:
+        return gettext("Admin");
+      case hatohol.NONE_PRIVILEGE:
+        return gettext("Guest");
+      default:
+        break;
+      }
+      return gettext("Unknown");
+    }
+
+    //
+    // callback function from the base template
+    //
+    function drawTableBody(rd) {
+      var i;
+      var htmlString;
+      var user;
+
+      htmlString = "";
+      for (i = 0; i < rd["users"].length; ++i) {
+        user = rd["users"][i];
+        htmlString += "<tr>";
+
+        htmlString += "<td><input type='checkbox' class='selectcheckbox' " +
+                      "userId='" + user["userId"] + "'></td>";
+        htmlString += "<td>" + user["userId"] + "</td>";
+        htmlString += "<td>" + user["name"]   + "</td>";
+        htmlString += "<td>" + getUserTypeFromFlags(user["flags"])  + "</td>";
+        htmlString += "</tr>";
+      }
+
+      return htmlString;
+    }
+
+    function updateCore(reply) {
+      $("#table tbody").empty();
+      $("#table tbody").append(drawTableBody(reply));
+      setupCheckboxHandler();
+      numSelected = 0;
+    }
+
+    //
+    // main code
+    //
+    startConnection('user', updateCore);
+  </script>
+{% endblock %}

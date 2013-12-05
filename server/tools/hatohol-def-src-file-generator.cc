@@ -201,6 +201,13 @@ static void makeDefSourceValues(string &s, LanguageType langType)
 	APPEND(s, "\n");
 
 	//
+	// OperationPrivilege
+	//
+	ADD_LINE(s, langType, ALL_PRIVILEGES);
+	ADD_LINE(s, langType, NONE_PRIVILEGE);
+	APPEND(s, "\n");
+
+	//
 	// Other
 	//
 	ADD_LINE(s, langType, HTERR_ERROR_TEST);
