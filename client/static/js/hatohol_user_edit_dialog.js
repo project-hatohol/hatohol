@@ -53,7 +53,7 @@ var HatoholUserEditDialog = function(succeededCb) {
       var queryData = {};
       queryData.user = $("#inputUserName").val();
       queryData.password = $("#inputPassword").val();
-      queryData.flags = 0; // FIXME
+      queryData.flags = getFlagsFromUserType();
       return queryData;
   }
 
@@ -76,6 +76,8 @@ var HatoholUserEditDialog = function(succeededCb) {
   }
 
   function validateParameters() {
+    var type = $("#selectUserType").val();
+
     if ($("#inputUserName").val() == "") {
       hatoholErrorMsgBox(gettext("User name is empty!"));
       return false;
@@ -84,7 +86,24 @@ var HatoholUserEditDialog = function(succeededCb) {
       hatoholErrorMsgBox(gettext("Password is empty!"));
       return false;
     }
+    if (type != "guest" && type != "admin") {
+      hatoholErrorMsgBox(gettext("Invalid user type!"));
+      return false;
+    }
     return true;
+  }
+
+  function getFlagsFromUserType(type) {
+    if (!type)
+      type = $("#selectUserType").val();
+    switch(type) {
+    case "admin":
+      return 31;
+    case "guest":
+    default:
+      break;
+    }
+    return 0;
   }
 };
 
@@ -102,6 +121,11 @@ HatoholUserEditDialog.prototype.createMainElement = function() {
     s += '<input id="inputUserName" type="text" value="" style="height:1.8em;" class="input-xlarge">';
     s += '<label for="inputPassword">' + gettext("Password") + '</label>';
     s += '<input id="inputPassword" type="password" value="" style="height:1.8em;" class="input-xlarge">';
+    s += '<label>' + gettext("Type") + '</label>';
+    s += '<select id="selectUserType">';
+    s += '  <option value="guest">Guest</option>';
+    s += '  <option value="admin">Admin</option>';
+    s += '</select>';
     s += '</div">';
     return s;
   }
