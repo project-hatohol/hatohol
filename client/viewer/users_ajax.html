@@ -53,7 +53,7 @@
         <th>  </th>
         <th data-sort="int">{% trans "ID" %}</th>
         <th data-sort="string">{% trans "User name" %}</th>
-        <th data-sort="int">{% trans "Flags" %}</th>
+        <th data-sort="string">{% trans "Type" %}</th>
       </tr>
     </thead>
     <tbody>
@@ -214,6 +214,18 @@
       startConnection('user', updateCore);
     }
 
+    function getUserTypeFromFlags(flags) {
+      switch(flags) {
+      case hatohol.ALL_PRIVILEGES:
+        return gettext("Admin");
+      case hatohol.NONE_PRIVILEGE:
+        return gettext("Guest");
+      default:
+        break;
+      }
+      return gettext("Unknown");
+    }
+
     //
     // callback function from the base template
     //
@@ -231,7 +243,7 @@
                       "userId='" + user["userId"] + "'></td>";
         htmlString += "<td>" + user["userId"] + "</td>";
         htmlString += "<td>" + user["name"]   + "</td>";
-        htmlString += "<td>" + user["flags"]  + "</td>";
+        htmlString += "<td>" + getUserTypeFromFlags(user["flags"])  + "</td>";
         htmlString += "</tr>";
       }
 
