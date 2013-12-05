@@ -67,6 +67,27 @@ HatoholUserEditDialog.prototype.createMainElement = function() {
   }
 };
 
+HatoholUserEditDialog.prototype.onAppendMainElement = function () {
+  var self = this;
+  var validUserName = false;
+  var validPassword = false;
+
+  $("#inputUserName").keyup(function() {
+    validUserName = !!$("#inputUserName").val();
+    fixupAddButtonState();
+  });
+
+  $("#inputPassword").keyup(function() {
+    validPassword = !!$("#inputPassword").val();
+    fixupAddButtonState();
+  });
+
+  function fixupAddButtonState() {
+    var state = (validUserName && validPassword);
+    self.setAddButtonState(state);
+  }
+};
+
 HatoholUserEditDialog.prototype.setAddButtonState = function(state) {
   var btn = $(".ui-dialog-buttonpane").find("button:contains(" +
               gettext("ADD") + ")");
