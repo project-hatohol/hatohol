@@ -56,9 +56,12 @@ HatoholUserEditDialog.prototype.createMainElement = function() {
 
   function makeMainDivHTML() {
     var s = "";
-    s += '<div id="user-edit-div">';
-    s += 'Not implemented yet';
-    s += '</div>';
+    s += '<div id="add-action-div">';
+    s += '<label for="inputUserName">' + gettext("User name") + '</label>';
+    s += '<input id="inputUserName" type="text" value="" style="height:1.8em;" class="input-xlarge">';
+    s += '<label for="inputPassword">' + gettext("Password") + '</label>';
+    s += '<input id="inputPassword" type="password" value="" style="height:1.8em;" class="input-xlarge">';
+    s += '</div">';
     return s;
   }
 };
