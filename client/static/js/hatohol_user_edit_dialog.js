@@ -29,8 +29,9 @@ var HatoholUserEditDialog = function(succeededCb) {
   }];
 
   // call the constructor of the super class
+  dialogAttrs = { width: "auto" };
   HatoholDialog.apply(
-    this, ["user-edit-dialog", gettext("ADD USER"), dialogButtons]);
+    this, ["user-edit-dialog", gettext("ADD USER"), dialogButtons, dialogAttrs]);
   self.setAddButtonState(false);
 
   //
