@@ -155,7 +155,7 @@ class TestUserConfigView(unittest.TestCase):
         self._setSessionId(request)
         request.GET = QueryDict('items[]=foo-item')
         response = userconfig.index(request)
-        self.assertEquals(response.status_code, httplib.INTERNAL_SERVER_ERROR)
+        self.assertEquals(response.status_code, httplib.UNAUTHORIZED)
 
     def test_store(self):
         self._setup_emulator()
