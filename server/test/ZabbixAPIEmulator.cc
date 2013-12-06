@@ -440,15 +440,15 @@ void ZabbixAPIEmulator::APIHandlerEventGet(APIHandlerArg &arg)
 			if (m_ctx->paramEvent.eventIdFrom == 0 && m_ctx->paramEvent.eventIdTill == 0) { // unlimit
 				JsonDataIterator jit = m_ctx->jsonData.begin();
 				for (; jit != m_ctx->jsonData.end(); ++jit) {
-					string tmpData = setEventJsonData(jit);
-					contents += tmpData;
+					const JsonKeys &data = jit->second;
+					contents += setEventJsonData(data);
 				}
 			} else {	// range specification
 				JsonDataIterator jit = m_ctx->jsonData.lower_bound(m_ctx->paramEvent.eventIdFrom);
 				JsonDataIterator goalIterator = m_ctx->jsonData.lower_bound(m_ctx->paramEvent.eventIdTill);
 				for (;jit != goalIterator; ++jit) {
-					string tmpData = setEventJsonData(jit);
-					contents += tmpData;
+					const JsonKeys &data = jit->second;
+					contents += setEventJsonData(data);
 				}
 			}
 		} else {
@@ -456,8 +456,8 @@ void ZabbixAPIEmulator::APIHandlerEventGet(APIHandlerArg &arg)
 				JsonDataIterator jit = m_ctx->jsonData.begin();
 				for (int64_t i = 0; i < m_ctx->paramEvent.limit ||
 						jit != m_ctx->jsonData.end(); ++jit, i++) {
-					string tmpData = setEventJsonData(jit);
-					contents += tmpData;
+					const JsonKeys &data = jit->second;
+					contents += setEventJsonData(data);
 				}
 			} else {
 				JsonDataIterator jit = m_ctx->jsonData.lower_bound(m_ctx->paramEvent.eventIdFrom);
@@ -465,8 +465,8 @@ void ZabbixAPIEmulator::APIHandlerEventGet(APIHandlerArg &arg)
 				for (int64_t i = 0; i < m_ctx->paramEvent.limit ||
 						jit != goalIterator ||
 						jit != m_ctx->jsonData.end(); ++jit, i++) {
-					string tmpData = setEventJsonData(jit);
-					contents += tmpData;
+					const JsonKeys &data = jit->second;
+					contents += setEventJsonData(data);
 				}
 			}
 		}
@@ -475,15 +475,15 @@ void ZabbixAPIEmulator::APIHandlerEventGet(APIHandlerArg &arg)
 			if (m_ctx->paramEvent.eventIdFrom == 0 && m_ctx->paramEvent.eventIdTill == 0) { // unlimit
 				ReverseJsonDataIterator rjit = m_ctx->jsonData.rbegin();
 				for (; rjit != m_ctx->jsonData.rend(); ++rjit) {
-					string tmpData = setEventJsonData(rjit);
-					contents += tmpData;
+					const JsonKeys &data = rjit->second;
+					contents += setEventJsonData(data);
 				}
 			} else {	// range specification
 				ReverseJsonDataIterator rjit(m_ctx->jsonData.lower_bound(m_ctx->paramEvent.eventIdTill));
 				ReverseJsonDataIterator goalIterator(m_ctx->jsonData.lower_bound(m_ctx->paramEvent.eventIdFrom));
 				for (; rjit != goalIterator; ++rjit) {
-					string tmpData = setEventJsonData(rjit);
-					contents += tmpData;
+					const JsonKeys &data = rjit->second;
+					contents += setEventJsonData(data);
 				}
 			}
 		} else {
@@ -491,8 +491,8 @@ void ZabbixAPIEmulator::APIHandlerEventGet(APIHandlerArg &arg)
 				ReverseJsonDataIterator rjit = m_ctx->jsonData.rbegin();
 				for (int64_t i = 0; i < m_ctx->paramEvent.limit ||
 						rjit != m_ctx->jsonData.rend(); ++rjit, i++) {
-					string tmpData = setEventJsonData(rjit);
-					contents += tmpData;
+					const JsonKeys &data = rjit->second;
+					contents += setEventJsonData(data);
 				}
 			} else {
 				ReverseJsonDataIterator rjit(m_ctx->jsonData.lower_bound(m_ctx->paramEvent.eventIdTill));
@@ -500,8 +500,8 @@ void ZabbixAPIEmulator::APIHandlerEventGet(APIHandlerArg &arg)
 				for (int64_t i = 0; i < m_ctx->paramEvent.limit ||
 						rjit != goalIterator||
 						rjit != m_ctx->jsonData.rend(); ++rjit, i++) {
-					string tmpData = setEventJsonData(rjit);
-					contents += tmpData;
+					const JsonKeys &data = rjit->second;
+					contents += setEventJsonData(data);
 				}
 			}
 		}
@@ -639,29 +639,10 @@ void ZabbixAPIEmulator::parseEventGetParameter(APIHandlerArg &arg)
 	}
 }
 
-string ZabbixAPIEmulator::setEventJsonData(JsonDataIterator jit)
+string ZabbixAPIEmulator::setEventJsonData(const JsonKeys &key)
 {
 	const char *fmt =
 	  "{\"eventid\":\"%s\",\"source\":\"%s\",\"object\":\"%s\",\"objectid\":\"%s\",\"clock\":\"%s\",\"value\":\"%s\",\"acknowledged\":\"%s\",\"ns\":\"%s\",\"value_changed\":\"%s\"},";
-	JsonKeys key = jit->second;
-	return StringUtils::sprintf(
-			fmt,
-			key.eventid.c_str(),
-			key.source.c_str(),
-			key.object.c_str(),
-			key.objectId.c_str(),
-			key.clock.c_str(),
-			key.value.c_str(),
-			key.acknowledged.c_str(),
-			key.ns.c_str(),
-			key.value.c_str());
-}
-
-string ZabbixAPIEmulator::setEventJsonData(ReverseJsonDataIterator rjit)
-{
-	const char *fmt =
-	  "{\"eventid\":\"%s\",\"source\":\"%s\",\"object\":\"%s\",\"objectid\":\"%s\",\"clock\":\"%s\",\"value\":\"%s\",\"acknowledged\":\"%s\",\"ns\":\"%s\",\"value_changed\":\"%s\"},";
-	JsonKeys key = rjit->second;
 	return StringUtils::sprintf(
 			fmt,
 			key.eventid.c_str(),
