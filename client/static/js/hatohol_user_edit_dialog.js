@@ -121,7 +121,7 @@ HatoholUserEditDialog.prototype.createMainElement = function() {
     s += '<input id="inputUserName" type="text" value="" style="height:1.8em;" class="input-xlarge">';
     s += '<label for="inputPassword">' + gettext("Password") + '</label>';
     s += '<input id="inputPassword" type="password" value="" style="height:1.8em;" class="input-xlarge">';
-    s += '<label>' + gettext("Type") + '</label>';
+    s += '<label>' + gettext("User type") + '</label>';
     s += '<select id="selectUserType">';
     s += '  <option value="guest">' + gettext('Guest') + '</option>';
     s += '  <option value="admin">' + gettext('Admin') + '</option>';
