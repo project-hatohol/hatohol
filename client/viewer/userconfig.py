@@ -38,6 +38,10 @@ def get_user_id_from_hatohol_server(session_id):
     response = urllib2.urlopen(req)
     body = response.read()    
     user_info = json.loads(body)
+    if user_info['errorCode'] == hatohol_def.HTERR_NOT_FOUND_SESSION_ID:
+        return None
+    if len(user_info['users']) == 0:
+        return None
     user_id = user_info['users'][0]['userId']
     return user_id
 
