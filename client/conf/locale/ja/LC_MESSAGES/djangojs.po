@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2013-12-05 19:50-0600\n"
-"PO-Revision-Date: 2013-12-06 10:51+0900\n"
+"PO-Revision-Date: 2013-12-06 10:53+0900\n"
 "Last-Translator: Takuro Ashie <ashie@clear-code.com>\n"
 "Language-Team: Project Hatohol\n"
 "Language: \n"
@@ -410,7 +410,7 @@ msgstr "パスワードが入力されていません！"
 
 #: static/js/hatohol_user_edit_dialog.js:90
 msgid "Invalid user type!"
-msgstr "ユーザ名が正しくありません！"
+msgstr "ユーザの種類が正しくありません！"
 
 #: static/js/hatohol_user_edit_dialog.js:124
 msgid "User type"
