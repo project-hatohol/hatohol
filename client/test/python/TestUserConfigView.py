@@ -61,6 +61,13 @@ class EmulationHandlerNotReturnUserInfo(HatoholServerEmulationHandler):
                      'users': []}
         return json.dumps(body_dict)
 
+class EmulationHandlerNoSessionError(HatoholServerEmulationHandler):
+    def _request_user_me(self):
+        self.send_response(httplib.OK)
+        body_dict = {'apiVersion': hatohol_def.FACE_REST_API_VERSION,
+                     'errorCode': hatohol_def.HTERR_NOT_FOUND_SESSION_ID}
+        return json.dumps(body_dict)
+
 class HatoholServerEmulator(threading.Thread):
 
     def __init__(self, handler=HatoholServerEmulationHandler):
@@ -150,6 +157,15 @@ class TestUserConfigView(unittest.TestCase):
 
     def test_index_server_not_return_userinfo(self):
         self._emulator = HatoholServerEmulator(handler=EmulationHandlerNotReturnUserInfo)
+        self._emulator.start_and_wait_setup_done()
+        request = HttpRequest()
+        self._setSessionId(request)
+        request.GET = QueryDict('items[]=foo-item')
+        response = userconfig.index(request)
+        self.assertEquals(response.status_code, httplib.UNAUTHORIZED)
+
+    def test_index_server_no_session_error(self):
+        self._emulator = HatoholServerEmulator(handler=EmulationHandlerNoSessionError)
         self._emulator.start_and_wait_setup_done()
         request = HttpRequest()
         self._setSessionId(request)
