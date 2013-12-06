@@ -27,7 +27,8 @@ var HatoholNavi = function(currentPage) {
     { title: gettext("Triggers"),            href: "ajax_triggers" },
     { title: gettext("Events"),              href: "ajax_events" },
     { title: gettext("Servers"),             href: "ajax_servers" },
-    { title: gettext("Actions"),             href: "ajax_actions" }
+    { title: gettext("Actions"),             href: "ajax_actions" },
+    { title: gettext("Users"),               href: "ajax_users" },
   ];
 
   if (currentPage)
