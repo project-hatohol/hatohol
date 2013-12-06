@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-12-05 19:17-0600\n"
-"PO-Revision-Date: 2013-12-06 10:27+0900\n"
+"POT-Creation-Date: 2013-12-05 19:50-0600\n"
+"PO-Revision-Date: 2013-12-06 10:51+0900\n"
 "Last-Translator: Takuro Ashie <ashie@clear-code.com>\n"
 "Language-Team: Project Hatohol\n"
 "Language: \n"
@@ -200,7 +200,6 @@ msgstr "Eメール"
 
 #: static/js/hatohol_add_action_dialog.js:373
 #: static/js/hatohol_server_selector.js:45
-#: static/js/hatohol_user_edit_dialog.js:124
 msgid "Type"
 msgstr "タイプ"
 
@@ -412,6 +411,10 @@ msgstr "パスワードが入力されていません！"
 #: static/js/hatohol_user_edit_dialog.js:90
 msgid "Invalid user type!"
 msgstr "ユーザ名が正しくありません！"
+
+#: static/js/hatohol_user_edit_dialog.js:124
+msgid "User type"
+msgstr "ユーザの種類"
 
 #: static/js/hatohol_user_edit_dialog.js:126
 msgid "Guest"

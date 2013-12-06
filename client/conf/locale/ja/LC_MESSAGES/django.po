@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-12-05 19:17-0600\n"
-"PO-Revision-Date: 2013-12-06 10:13+0900\n"
+"POT-Creation-Date: 2013-12-05 19:50-0600\n"
+"PO-Revision-Date: 2013-12-06 10:51+0900\n"
 "Last-Translator: Takuro Ashie <ashie@clear-code.com>\n"
 "Language-Team: Project Hatohol\n"
 "Language: \n"
@@ -55,7 +55,6 @@ msgid "Severity"
 msgstr "深刻度"
 
 #: viewer/actions_ajax.html:52 viewer/servers_ajax.html:33
-#: viewer/users_ajax.html:48
 msgid "Type"
 msgstr "タイプ"
 
@@ -314,6 +313,10 @@ msgstr "ユーザ削除"
 #: viewer/users_ajax.html:47
 msgid "User name"
 msgstr "ユーザ名"
+
+#: viewer/users_ajax.html:48
+msgid "User type"
+msgstr "ユーザの種類"
 
 #~ msgid "Time"
 #~ msgstr "時間"
