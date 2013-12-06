@@ -29,6 +29,9 @@
 #include "DBClientZabbix.h"
 #include "ConfigManager.h"
 #include "ItemTablePtr.h"
+#include "ItemTable.h"
+#include "ItemGroup.h"
+#include "ItemData.h"
 #include "JsonParserAgent.h"
 #include "DBClientAction.h"
 
@@ -167,6 +170,35 @@ public:
 	string testAuthToken(void)
 	{
 		return ArmZabbixAPI::getAuthToken();
+	}
+
+	bool assertItemTable(const ItemTablePtr &expect,
+			const ItemTablePtr &actual)
+	{
+		const ItemGroupList &expectList = expect->getItemGroupList();
+		const ItemGroupList &actualList = actual->getItemGroupList();
+		ItemGroupListConstIterator exItr = expectList.begin();
+		ItemGroupListConstIterator acItr = actualList.begin();
+
+		for (; exItr != expectList.end(); ++exItr, ++acItr) {
+			const ItemGroup *expectGroup = *exItr;
+			const ItemGroup *actualGroup = *acItr;
+			size_t numberOfItems = expectGroup->getNumberOfItems();
+			if(numberOfItems != actualGroup->getNumberOfItems()) {
+				cut_fail("Number of Items is different.");
+				return false;
+			}
+
+			for (ItemId id = 0; id < numberOfItems; id++){
+				const ItemData *expectData = expectGroup->getItem(id);
+				const ItemData *actualData = actualGroup->getItem(id);
+				if (expectData != actualData) {
+					cut_fail("actualData is different.");
+					return false;
+				}
+			}
+		}
+		return true;
 	}
 
 	void assertMakeItemVector(bool testNull = false)
