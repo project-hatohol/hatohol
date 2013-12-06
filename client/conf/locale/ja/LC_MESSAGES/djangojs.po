@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2013-12-05 19:17-0600\n"
-"PO-Revision-Date: 2013-12-06 10:17+0900\n"
+"PO-Revision-Date: 2013-12-06 10:27+0900\n"
 "Last-Translator: Takuro Ashie <ashie@clear-code.com>\n"
 "Language-Team: Project Hatohol\n"
 "Language: \n"
@@ -233,9 +233,8 @@ msgid "The template script returned the invalid value."
 msgstr "テンプレートスクリプトが不正な値を返しました。"
 
 #: static/js/hatohol_connector.js:133
-#, fuzzy
 msgid "Failed to login. "
-msgstr "ログインに失敗しました"
+msgstr "ログインに失敗しました。"
 
 #: static/js/hatohol_host_selector.js:26
 msgid "Host selecion"
@@ -364,11 +363,11 @@ msgstr ""
 
 #: static/js/hatohol_reply_parser.js:102
 msgid "Invalid user name or password."
-msgstr ""
+msgstr "ユーザ名あるいはパスワードが正しくありません。"
 
 #: static/js/hatohol_reply_parser.js:104
 msgid "Unknown error: "
-msgstr ""
+msgstr "不明なエラー: "
 
 #: static/js/hatohol_selector_dialog.js:45
 msgid "Now getting information..."
