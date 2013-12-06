@@ -21,14 +21,6 @@
 {% endcomment %}
 
 {% block navbar %}
-  <li><a href="ajax_dashboard">{% trans "Dashboard" %}</a></li>
-  <li><a href="ajax_overview_triggers">{% trans "Overview : Triggers" %}</a></li>
-  <li><a href="ajax_overview_items">{% trans "Overview : Items" %}</a></li>
-  <li><a href="ajax_latest">{% trans "Latest data" %}</a></li>
-  <li><a href="ajax_triggers">{% trans "Triggers" %}</a></li>
-  <li><a href="ajax_events">{% trans "Events" %}</a></li>
-  <li><a href="ajax_servers">{% trans "Servers" %}</a></li>
-  <li class="active"><a>{% trans "Actions" %}</a></li>
 {% endblock %}
 
 {% block main %}
@@ -402,6 +394,7 @@
     //
     // main code
     //
+    new HatoholNavi();
     startConnection('action', updateCore);
   </script>
 {% endblock %}
