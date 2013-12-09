@@ -73,7 +73,7 @@ public:
 	struct TestPrivateContext {
 		VariableItemTablePtr actualEventTable;
 	};
-	TestPrivateContext *m_testCtx;
+	TestPrivateContext m_testCtx;
 
 	ArmZabbixAPITestee(const MonitoringServerInfo &serverInfo)
 	: ArmZabbixAPI(serverInfo),
@@ -82,14 +82,7 @@ public:
 	  m_countThreadOneProc(0),
 	  m_repeatThreadOneProc(1)
 	{
-		m_testCtx = new TestPrivateContext;
 		addExceptionCallback(_exceptionCb, this);
-	}
-
-	~ArmZabbixAPITestee()
-	{
-		if (m_testCtx)
-			delete m_testCtx;
 	}
 
 	bool getResult(void) const
