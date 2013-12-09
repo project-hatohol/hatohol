@@ -143,6 +143,11 @@ protected:
 	static void handlerPostUser(RestJob *job);
 	static void handlerDeleteUser(RestJob *job);
 
+	static void handlerAccessInfo(RestJob *job);
+	static void handlerGetAccessInfo(RestJob *job);
+	static void handlerPostAccessInfo(RestJob *job);
+	static void handlerDeleteAccessInfo(RestJob *job);
+
 	void itemFetchedCallback(ClosureBase *closure);
 
 	/**

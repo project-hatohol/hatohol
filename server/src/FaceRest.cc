@@ -1768,6 +1768,13 @@ void FaceRest::handlerDeleteAction(RestJob *job)
 
 void FaceRest::handlerUser(RestJob *job)
 {
+	// handle sub-resources
+	if (strcasecmp(job->getResourceName(1).c_str(), "access-info") == 0) {
+		handlerAccessInfo(job);
+		return;
+	}
+
+	// handle "user" resource itself
 	if (strcasecmp(job->message->method, "GET") == 0) {
 		handlerGetUser(job);
 	} else if (strcasecmp(job->message->method, "POST") == 0) {
@@ -1885,6 +1892,40 @@ void FaceRest::handlerDeleteUser(RestJob *job)
 		agent.add("id", userId);
 	agent.endObject();
 	replyJsonData(agent, job);
+}
+
+void FaceRest::handlerAccessInfo(RestJob *job)
+{
+	if (strcasecmp(job->message->method, "GET") == 0) {
+		handlerGetAccessInfo(job);
+	} else if (strcasecmp(job->message->method, "POST") == 0) {
+		handlerPostAccessInfo(job);
+	} else if (strcasecmp(job->message->method, "DELETE") == 0) {
+		handlerDeleteAccessInfo(job);
+	} else {
+		MLPL_ERR("Unknown method: %s\n", job->message->method);
+		soup_message_set_status(job->message,
+					SOUP_STATUS_METHOD_NOT_ALLOWED);
+		job->replyIsPrepared = true;
+	}
+}
+
+void FaceRest::handlerGetAccessInfo(RestJob *job)
+{
+	REPLY_ERROR(job, HTERR_UNKNOWN_REASON,
+		    "Not implemented yet");
+}
+
+void FaceRest::handlerPostAccessInfo(RestJob *job)
+{
+	REPLY_ERROR(job, HTERR_UNKNOWN_REASON,
+		    "Not implemented yet");
+}
+
+void FaceRest::handlerDeleteAccessInfo(RestJob *job)
+{
+	REPLY_ERROR(job, HTERR_UNKNOWN_REASON,
+		    "Not implemented yet");
 }
 
 HatoholError FaceRest::parseUserParameter(UserInfo &userInfo, GHashTable *query)
