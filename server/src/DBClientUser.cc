@@ -455,7 +455,7 @@ UserIdType DBClientUser::getUserId(const string &user, const string &password)
 	return userId;
 }
 
-void DBClientUser::addAccessInfo(AccessInfo &accessInfo)
+HatoholError DBClientUser::addAccessInfo(AccessInfo &accessInfo)
 {
 	VariableItemGroupPtr row;
 	DBAgentInsertArg arg;
@@ -473,9 +473,10 @@ void DBClientUser::addAccessInfo(AccessInfo &accessInfo)
 		insert(arg);
 		accessInfo.id = getLastInsertId();
 	} DBCLIENT_TRANSACTION_END();
+	return HTERR_OK;
 }
 
-void DBClientUser::deleteAccessInfo(const AccessInfoIdType id)
+HatoholError DBClientUser::deleteAccessInfo(const AccessInfoIdType id)
 {
 	DBAgentDeleteArg arg;
 	arg.tableName = TABLE_NAME_ACCESS_LIST;
@@ -485,6 +486,7 @@ void DBClientUser::deleteAccessInfo(const AccessInfoIdType id)
 	DBCLIENT_TRANSACTION_BEGIN() {
 		deleteRows(arg);
 	} DBCLIENT_TRANSACTION_END();
+	return HTERR_OK;
 }
 
 bool DBClientUser::getUserInfo(UserInfo &userInfo, const UserIdType userId)

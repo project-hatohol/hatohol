@@ -416,7 +416,8 @@ void test_deleteAccessInfo(void)
 	loadTestDBAccessList();
 	DBClientUser dbUser;
 	const AccessInfoIdType targetId = 2;
-	dbUser.deleteAccessInfo(targetId);
+	HatoholError err = dbUser.deleteAccessInfo(targetId);
+	assertHatoholError(HTERR_OK, err);
 
 	AccessInfoIdSet accessInfoIdSet;
 	accessInfoIdSet.insert(targetId);
