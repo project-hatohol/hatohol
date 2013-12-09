@@ -20,6 +20,7 @@
 #include <cppcutter.h>
 #include <sys/time.h>
 #include <errno.h>
+#include <fstream>
 #include "Hatohol.h"
 #include "ZabbixAPIEmulator.h"
 #include "ArmZabbixAPI.h"
@@ -170,6 +171,26 @@ public:
 	string testAuthToken(void)
 	{
 		return ArmZabbixAPI::getAuthToken();
+	}
+
+	ItemTablePtr testMakeItemTable(void)
+	{
+		ifstream ifs("fixtures/zabbix-api-res-events-002.json");
+		cppcut_assert_equal(false, ifs.fail());
+
+		string fixtureData;
+		getline(ifs, fixtureData);
+		JsonParserAgent parser(fixtureData);
+		cppcut_assert_equal(false, parser.hasError());
+		startObject(parser, "result");
+
+		VariableItemTablePtr tablePtr;
+		int numData = parser.countElements();
+		if (numData < 1)
+			cut_fail("Value of the elements is empty.");
+		for (int i = 0; i < numData; i++)
+			ArmZabbixAPI::parseAndPushEventsData(parser, tablePtr, i);
+		return ItemTablePtr(tablePtr);
 	}
 
 	bool assertItemTable(const ItemTablePtr &expect,
