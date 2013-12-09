@@ -218,9 +218,9 @@ public:
 				return false;
 			}
 
-			for (ItemId id = 0; id < numberOfItems; id++){
-				const ItemData *expectData = expectGroup->getItemAt(id);
-				const ItemData *actualData = actualGroup->getItemAt(id);
+			for (size_t index = 0; index < numberOfItems; index++){
+				const ItemData *expectData = expectGroup->getItemAt(index);
+				const ItemData *actualData = actualGroup->getItemAt(index);
 				if (expectData != actualData) {
 					cut_fail("actualData is different.");
 					return false;
