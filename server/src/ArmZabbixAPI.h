@@ -143,7 +143,7 @@ protected:
 	 */
 	void updateHosts(const ItemTable *triggers);
 
-	ItemTablePtr updateEvents(void);
+	void updateEvents(void);
 
 	/**
 	 * get all applications in the ZABBIX server and save them

@@ -950,7 +950,7 @@ void ArmZabbixAPI::updateHosts(const ItemTable *triggers)
 	  &DBClientZabbix::addHostsRaw2_0);
 }
 
-ItemTablePtr ArmZabbixAPI::updateEvents(void)
+void ArmZabbixAPI::updateEvents(void)
 {
 	uint64_t eventIdOffset, eventIdTill;
 	uint64_t dbLastEventId = m_ctx->dbClientZabbix.getLastEventId();
@@ -969,7 +969,6 @@ ItemTablePtr ArmZabbixAPI::updateEvents(void)
 		makeHatoholEvents(tablePtr);
 		dbLastEventId = m_ctx->dbClientZabbix.getLastEventId();
 	}
-	return tablePtr;
 }
 
 void ArmZabbixAPI::updateApplications(void)
@@ -1097,7 +1096,7 @@ bool ArmZabbixAPI::mainThreadOneProc(void)
 
 		makeHatoholTriggers();
 
-		ItemTablePtr events = updateEvents();
+		updateEvents();
 
 		if (!getCopyOnDemandEnabled()) {
 			ItemTablePtr items = updateItems();
