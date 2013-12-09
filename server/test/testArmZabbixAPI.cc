@@ -210,6 +210,9 @@ public:
 	{
 		const ItemGroupList &expectList = expect->getItemGroupList();
 		const ItemGroupList &actualList = actual->getItemGroupList();
+		if (expectList.size() != actualList.size())
+			cut_fail("Number of lists is different.\n"
+				"expect: %lu, actual: %lu", expectList.size(), actualList.size());
 		ItemGroupListConstIterator exItr = expectList.begin();
 		ItemGroupListConstIterator acItr = actualList.begin();
 
