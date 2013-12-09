@@ -23,7 +23,7 @@
 # include "DBClientConfig.h"
 
 const UserIdSet EMPTY_USER_ID_SET;
-const AccessInfoIdSet EMPTY_USER_ID_SET;
+const AccessInfoIdSet EMPTY_ACCESS_INFO_ID_SET;
 
 const int   DBClientUser::USER_DB_VERSION = 1;
 const char *DBClientUser::DEFAULT_DB_NAME = DBClientConfig::DEFAULT_DB_NAME;
