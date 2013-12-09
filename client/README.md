@@ -43,9 +43,9 @@ The following shows examples to install Django.
 
 #### On Ubuntu 12.04 and 13.10
 
-    # sudo apt-get install python-pip
+    # apt-get install python-pip
     # pip install django==1.5.4
-    # sudo apt-get install python-dev
+    # apt-get install python-dev
     # pip install mysql-python
 
 
