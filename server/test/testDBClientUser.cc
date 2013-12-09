@@ -399,6 +399,20 @@ void test_addAccessList(void)
 	assertAccessInfoInDB();
 }
 
+void test_addAccessListWithoutUpdateUserPrivilege(void)
+{
+	DBClientUser dbUser;
+	HatoholError err;
+	OperationPrivilege privilege;
+	err = dbUser.addAccessInfo(testAccessInfo[0], privilege);
+	assertHatoholError(HTERR_NO_PRIVILEGE, err);
+
+	AccessInfoIdSet accessInfoIdSet;
+	for (size_t i = 0; i < NumTestAccessInfo; i++)
+		accessInfoIdSet.insert(i + 1);
+	assertAccessInfoInDB(accessInfoIdSet);
+}
+
 void test_deleteAccessInfo(void)
 {
 	loadTestDBAccessList();
