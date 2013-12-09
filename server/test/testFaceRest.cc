@@ -1306,7 +1306,7 @@ void test_deleteUserWithNonNumericId(void)
 	string url = StringUtils::sprintf("/user/zoo");
 	g_parser =
 	  getResponseAsJsonParser(url, "cbname", emptyStringMap, "DELETE");
-	assertErrorCode(g_parser, HTERR_INVALID_PARAMETER);
+	assertErrorCode(g_parser, HTERR_NOT_FOUND_ID_IN_URL);
 }
 
 void test_updateOrAddUserNotInTestMode(void)

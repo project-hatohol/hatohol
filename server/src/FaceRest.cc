@@ -222,6 +222,8 @@ SessionIdMap FaceRest::PrivateContext::sessionIdMap;
 const string FaceRest::PrivateContext::pathForUserMe =
   FaceRest::PrivateContext::initPathForUserMe();
 
+static uint64_t INVALID_ID = -1;
+
 struct FaceRest::RestJob
 {
 	// arguments of SoupServerCallback
@@ -238,8 +240,6 @@ struct FaceRest::RestJob
 	string      formatString;
 	FormatType  formatType;
 	const char *mimeType;
-	string      resourceId; // we assume URL form is:
-				// http://example.com/request/id
 	string      jsonpCallbackName;
 	string      sessionId;
 	UserIdType  userId;
@@ -263,6 +263,10 @@ struct FaceRest::RestJob
 	bool prepare(void);
 	void pauseResponse(void);
 	void unpauseResponse(void);
+
+	string   getResourceName(int nest = 0);
+	string   getResourceIdString(int nest = 0);
+	uint64_t getResourceId(int nest = 0);
 
 private:
 	string getJsonpCallbackName(void);
@@ -799,10 +803,8 @@ bool FaceRest::RestJob::prepare(void)
 		return false;
 	}
 
-	// ID
+	// path elements
 	StringUtils::split(pathElements, path, '/');
-	if (pathElements.size() >= 2)
-		resourceId = pathElements[1];
 
 	// MIME
 	MimeTypeMapIterator mimeIt = g_mimeTypeMap.find(formatType);
@@ -850,6 +852,33 @@ void FaceRest::RestJob::unpauseResponse(void)
 		soup_add_completion(gMainContext(), idleUnpause,
 				    unpauseContext);
 	}
+}
+
+string FaceRest::RestJob::getResourceName(int nest)
+{
+	size_t idx = nest * 2;
+	if (pathElements.size() > idx)
+		return pathElements[idx];
+	return string();
+}
+
+string FaceRest::RestJob::getResourceIdString(int nest)
+{
+	size_t idx = nest * 2 + 1;
+	if (pathElements.size() > idx)
+		return pathElements[idx];
+	return string();
+}
+
+uint64_t FaceRest::RestJob::getResourceId(int nest)
+{
+	size_t idx = nest * 2 + 1;
+	if (pathElements.size() <= idx)
+		return -1;
+	uint64_t id = -1;
+	if (sscanf(pathElements[idx].c_str(), "%"PRIu64"", &id) != 1)
+		return -1;
+	return id;
 }
 
 static void copyHashTable (gpointer key, gpointer data, gpointer user_data)
@@ -1717,14 +1746,11 @@ void FaceRest::handlerPostAction(RestJob *job)
 void FaceRest::handlerDeleteAction(RestJob *job)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-	if (job->resourceId.empty()) {
-		replyError(job, HTERR_NOT_FOUND_ID_IN_URL);
-		return;
-	}
-	int actionId;
-	if (sscanf(job->resourceId.c_str(), "%d", &actionId) != 1) {
-		REPLY_ERROR(job, HTERR_INVALID_PARAMETER,
-		            "id: %s", job->resourceId.c_str());
+
+	uint64_t actionId = job->getResourceId();
+	if (actionId == INVALID_ID) {
+		REPLY_ERROR(job, HTERR_NOT_FOUND_ID_IN_URL,
+			    "id: %s", job->getResourceIdString().c_str());
 		return;
 	}
 	ActionIdList actionIdList;
@@ -1735,7 +1761,7 @@ void FaceRest::handlerDeleteAction(RestJob *job)
 	JsonBuilderAgent agent;
 	agent.startObject();
 	addHatoholError(agent, HatoholError(HTERR_OK));
-	agent.add("id", job->resourceId);
+	agent.add("id", actionId);
 	agent.endObject();
 	replyJsonData(agent, job);
 }
@@ -1839,14 +1865,10 @@ void FaceRest::handlerPostUser(RestJob *job)
 
 void FaceRest::handlerDeleteUser(RestJob *job)
 {
-	if (job->resourceId.empty()) {
-		replyError(job, HTERR_NOT_FOUND_ID_IN_URL);
-		return;
-	}
-	int userId;
-	if (sscanf(job->resourceId.c_str(), "%"FMT_USER_ID, &userId) != 1) {
-		REPLY_ERROR(job, HTERR_INVALID_PARAMETER,
-		            "id: %s", job->resourceId.c_str());
+	uint64_t userId = job->getResourceId();
+	if (userId == INVALID_ID) {
+		REPLY_ERROR(job, HTERR_NOT_FOUND_ID_IN_URL,
+			    "id: %s", job->getResourceIdString().c_str());
 		return;
 	}
 
