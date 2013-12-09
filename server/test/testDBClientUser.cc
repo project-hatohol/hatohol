@@ -404,12 +404,26 @@ void test_deleteAccessInfo(void)
 	loadTestDBAccessList();
 	DBClientUser dbUser;
 	const AccessInfoIdType targetId = 2;
-	HatoholError err = dbUser.deleteAccessInfo(targetId);
+	OperationPrivilege privilege;
+	privilege.setFlags((OperationPrivilege::makeFlag(OPPRVLG_UPDATE_USER)));
+	HatoholError err = dbUser.deleteAccessInfo(targetId, privilege);
 	assertHatoholError(HTERR_OK, err);
 
 	AccessInfoIdSet accessInfoIdSet;
 	accessInfoIdSet.insert(targetId);
 	assertAccessInfoInDB(accessInfoIdSet);
+}
+
+void test_deleteAccessWithoutUpdateUserPrivilege(void)
+{
+	loadTestDBAccessList();
+	DBClientUser dbUser;
+	const AccessInfoIdType targetId = 2;
+	OperationPrivilege privilege;
+	HatoholError err = dbUser.deleteAccessInfo(targetId, privilege);
+	assertHatoholError(HTERR_NO_PRIVILEGE, err);
+
+	assertAccessInfoInDB();
 }
 
 void test_getUserInfo(void)

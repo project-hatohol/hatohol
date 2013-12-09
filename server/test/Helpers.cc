@@ -555,8 +555,12 @@ void loadTestDBUser(void)
 void loadTestDBAccessList(void)
 {
 	DBClientUser dbUser;
-	for (size_t i = 0; i < NumTestAccessInfo; i++)
-		dbUser.addAccessInfo(testAccessInfo[i]);
+	HatoholError err;
+	OperationPrivilege privilege(ALL_PRIVILEGES);
+	for (size_t i = 0; i < NumTestAccessInfo; i++) {
+		err = dbUser.addAccessInfo(testAccessInfo[i], privilege);
+		assertHatoholError(HTERR_OK, err);
+	}
 }
 
 void setupTestDBUser(bool dbRecreate, bool loadTestData)

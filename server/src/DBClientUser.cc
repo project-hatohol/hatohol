@@ -455,8 +455,12 @@ UserIdType DBClientUser::getUserId(const string &user, const string &password)
 	return userId;
 }
 
-HatoholError DBClientUser::addAccessInfo(AccessInfo &accessInfo)
+HatoholError DBClientUser::addAccessInfo(AccessInfo &accessInfo,
+					 const OperationPrivilege &privilege)
 {
+	if (!privilege.has(OPPRVLG_UPDATE_USER))
+		return HatoholError(HTERR_NO_PRIVILEGE);
+
 	VariableItemGroupPtr row;
 	DBAgentInsertArg arg;
 	arg.tableName = TABLE_NAME_ACCESS_LIST;
@@ -476,8 +480,12 @@ HatoholError DBClientUser::addAccessInfo(AccessInfo &accessInfo)
 	return HTERR_OK;
 }
 
-HatoholError DBClientUser::deleteAccessInfo(const AccessInfoIdType id)
+HatoholError DBClientUser::deleteAccessInfo(const AccessInfoIdType id,
+					    const OperationPrivilege &privilege)
 {
+	if (!privilege.has(OPPRVLG_UPDATE_USER))
+		return HatoholError(HTERR_NO_PRIVILEGE);
+
 	DBAgentDeleteArg arg;
 	arg.tableName = TABLE_NAME_ACCESS_LIST;
 	const ColumnDef &colId = COLUMN_DEF_ACCESS_LIST[IDX_ACCESS_LIST_ID];

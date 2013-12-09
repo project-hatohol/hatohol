@@ -135,8 +135,10 @@ public:
 	 * @param accessInfo 
 	 * An AccessInfo instance that has parameters to be stored.
 	 */
-	HatoholError addAccessInfo(AccessInfo &accessInfo);
-	HatoholError deleteAccessInfo(AccessInfoIdType id);
+	HatoholError addAccessInfo(AccessInfo &accessInfo,
+				   const OperationPrivilege &privilege);
+	HatoholError deleteAccessInfo(AccessInfoIdType id,
+				      const OperationPrivilege &privilege);
 
 	bool getUserInfo(UserInfo &userInfo, const UserIdType userId);
 
