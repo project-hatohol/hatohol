@@ -411,6 +411,18 @@ void test_addAccessList(void)
 	assertDBContent(dbUser.getDBAgent(), statement, expect);
 }
 
+void test_deleteAccessInfo(void)
+{
+	loadTestDBAccessList();
+	DBClientUser dbUser;
+	const AccessInfoIdType targetId = 2;
+	dbUser.deleteAccessInfo(targetId);
+
+	AccessInfoIdSet accessInfoIdSet;
+	accessInfoIdSet.insert(targetId);
+	assertAccessInfoInDB(accessInfoIdSet);
+}
+
 void test_getUserInfo(void)
 {
 	loadTestDBUser();

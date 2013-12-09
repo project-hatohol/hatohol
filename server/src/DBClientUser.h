@@ -136,6 +136,7 @@ public:
 	 * An AccessInfo instance that has parameters to be stored.
 	 */
 	void addAccessInfo(AccessInfo &accessInfo);
+	void deleteAccessInfo(AccessInfoIdType id);
 
 	bool getUserInfo(UserInfo &userInfo, const UserIdType userId);
 

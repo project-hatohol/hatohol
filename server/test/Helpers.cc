@@ -416,6 +416,25 @@ void _assertUsersInDB(const UserIdSet &excludeUserIdSet)
 	assertDBContent(cache.getUser()->getDBAgent(), statement, expect);
 }
 
+void _assertAccessInfoInDB(const AccessInfoIdSet &excludeAccessInfoIdSet)
+{
+	string statement = "select * from ";
+	statement += DBClientUser::TABLE_NAME_ACCESS_LIST;
+	statement += " ORDER BY id ASC";
+	string expect;
+	for (size_t i = 0; i < NumTestAccessInfo; i++) {
+		AccessInfoIdType id = i + 1;
+		if (excludeAccessInfoIdSet.find(id) != excludeAccessInfoIdSet.end())
+			continue;
+		const AccessInfo &accessInfo = testAccessInfo[i];
+		expect += StringUtils::sprintf(
+		  "%"FMT_ACCESS_INFO_ID"|%"FMT_USER_ID"|%d|%"PRIu64"\n",
+		  id, accessInfo.userId, accessInfo.serverId, accessInfo.hostGroupId);
+	}
+	CacheServiceDBClient cache;
+	assertDBContent(cache.getUser()->getDBAgent(), statement, expect);
+}
+
 static bool makeTestDB(MYSQL *mysql, const string &dbName)
 {
 	string query = "CREATE DATABASE ";

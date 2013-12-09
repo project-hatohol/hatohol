@@ -23,6 +23,7 @@
 # include "DBClientConfig.h"
 
 const UserIdSet EMPTY_USER_ID_SET;
+const AccessInfoIdSet EMPTY_USER_ID_SET;
 
 const int   DBClientUser::USER_DB_VERSION = 1;
 const char *DBClientUser::DEFAULT_DB_NAME = DBClientConfig::DEFAULT_DB_NAME;
@@ -471,6 +472,18 @@ void DBClientUser::addAccessInfo(AccessInfo &accessInfo)
 	DBCLIENT_TRANSACTION_BEGIN() {
 		insert(arg);
 		accessInfo.id = getLastInsertId();
+	} DBCLIENT_TRANSACTION_END();
+}
+
+void DBClientUser::deleteAccessInfo(const AccessInfoIdType id)
+{
+	DBAgentDeleteArg arg;
+	arg.tableName = TABLE_NAME_ACCESS_LIST;
+	const ColumnDef &colId = COLUMN_DEF_ACCESS_LIST[IDX_ACCESS_LIST_ID];
+	arg.condition = StringUtils::sprintf("%s=%"FMT_ACCESS_INFO_ID,
+	                                     colId.columnName, id);
+	DBCLIENT_TRANSACTION_BEGIN() {
+		deleteRows(arg);
 	} DBCLIENT_TRANSACTION_END();
 }
 

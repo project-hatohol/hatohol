@@ -43,13 +43,18 @@ typedef int UserIdType;
 static const UserIdType INVALID_USER_ID = -1;
 static const UserIdType USER_ID_ADMIN   = 0;
 
-typedef int AccessInfoIdType;
-#define FMT_ACCESS_INFO_ID "d"
-
 typedef std::set<UserIdType>      UserIdSet;
 typedef UserIdSet::iterator       UserIdSetIterator;
 typedef UserIdSet::const_iterator UserIdSetIterator;
 extern const UserIdSet EMPTY_USER_ID_SET;
+
+typedef int AccessInfoIdType;
+#define FMT_ACCESS_INFO_ID "d"
+
+typedef std::set<AccessInfoIdType>      AccessInfoIdSet;
+typedef AccessInfoIdSet::iterator       AccessInfoIdSetIterator;
+typedef AccessInfoIdSet::const_iterator AccessInfoIdSetIterator;
+extern const AccessInfoIdSet EMPTY_ACCESS_INFO_ID_SET;
 
 enum SyncType {
 	SYNC,
