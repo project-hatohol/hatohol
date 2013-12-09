@@ -227,6 +227,7 @@ struct FaceRest::RestJob
 	// arguments of SoupServerCallback
 	SoupMessage       *message;
 	string             path;
+	StringVector       pathElements;
 	GHashTable        *query;
 	SoupClientContext *client;
 
@@ -799,10 +800,9 @@ bool FaceRest::RestJob::prepare(void)
 	}
 
 	// ID
-	StringVector pathElemVect;
-	StringUtils::split(pathElemVect, path, '/');
-	if (pathElemVect.size() >= 2)
-		resourceId = pathElemVect[1];
+	StringUtils::split(pathElements, path, '/');
+	if (pathElements.size() >= 2)
+		resourceId = pathElements[1];
 
 	// MIME
 	MimeTypeMapIterator mimeIt = g_mimeTypeMap.find(formatType);
