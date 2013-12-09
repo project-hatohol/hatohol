@@ -283,6 +283,12 @@ uint64_t ArmZabbixAPI::getLastEventId(void)
 	return lastEventId;
 }
 
+void ArmZabbixAPI::setItemTableData(ItemTablePtr itemPtr)
+{
+	// This function is virtual function.
+	// This function is used on a test phase.
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------

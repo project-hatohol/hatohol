@@ -60,6 +60,7 @@ public:
 	ItemTablePtr getApplications(const vector<uint64_t> &appIdVector);
 	ItemTablePtr getEvents(uint64_t eventIdOffset, uint64_t eventIdTill);
 	uint64_t getLastEventId(void);
+	virtual void setItemTableData(ItemTablePtr itemPtr);
 
 protected:
 	SoupSession *getSession(void);
