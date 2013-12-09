@@ -895,7 +895,7 @@ void FaceRest::queueRestJob
 {
 	GHashTable *query = _query;
 	Reaper<GHashTable> postQueryReaper;
-	if (strcasecmp(msg->method, "POST") == 0) {
+	if (StringUtils::casecmp(msg->method, "POST")) {
 		// The POST request contains query parameters in the body
 		// according to application/x-www-form-urlencoded.
 		query = soup_form_decode(msg->request_body->data);
@@ -1534,11 +1534,11 @@ static void setActionCondition(
 
 void FaceRest::handlerAction(RestJob *job)
 {
-	if (strcasecmp(job->message->method, "GET") == 0) {
+	if (StringUtils::casecmp(job->message->method, "GET")) {
 		handlerGetAction(job);
-	} else if (strcasecmp(job->message->method, "POST") == 0) {
+	} else if (StringUtils::casecmp(job->message->method, "POST")) {
 		handlerPostAction(job);
-	} else if (strcasecmp(job->message->method, "DELETE") == 0) {
+	} else if (StringUtils::casecmp(job->message->method, "DELETE")) {
 		handlerDeleteAction(job);
 	} else {
 		MLPL_ERR("Unknown method: %s\n", job->message->method);
@@ -1769,17 +1769,18 @@ void FaceRest::handlerDeleteAction(RestJob *job)
 void FaceRest::handlerUser(RestJob *job)
 {
 	// handle sub-resources
-	if (strcasecmp(job->getResourceName(1).c_str(), "access-info") == 0) {
+	string resourceName = job->getResourceName(1);
+	if (StringUtils::casecmp(resourceName, "access-info")) {
 		handlerAccessInfo(job);
 		return;
 	}
 
 	// handle "user" resource itself
-	if (strcasecmp(job->message->method, "GET") == 0) {
+	if (StringUtils::casecmp(job->message->method, "GET")) {
 		handlerGetUser(job);
-	} else if (strcasecmp(job->message->method, "POST") == 0) {
+	} else if (StringUtils::casecmp(job->message->method, "POST")) {
 		handlerPostUser(job);
-	} else if (strcasecmp(job->message->method, "DELETE") == 0) {
+	} else if (StringUtils::casecmp(job->message->method, "DELETE")) {
 		handlerDeleteUser(job);
 	} else {
 		MLPL_ERR("Unknown method: %s\n", job->message->method);
@@ -1896,11 +1897,11 @@ void FaceRest::handlerDeleteUser(RestJob *job)
 
 void FaceRest::handlerAccessInfo(RestJob *job)
 {
-	if (strcasecmp(job->message->method, "GET") == 0) {
+	if (StringUtils::casecmp(job->message->method, "GET")) {
 		handlerGetAccessInfo(job);
-	} else if (strcasecmp(job->message->method, "POST") == 0) {
+	} else if (StringUtils::casecmp(job->message->method, "POST")) {
 		handlerPostAccessInfo(job);
-	} else if (strcasecmp(job->message->method, "DELETE") == 0) {
+	} else if (StringUtils::casecmp(job->message->method, "DELETE")) {
 		handlerDeleteAccessInfo(job);
 	} else {
 		MLPL_ERR("Unknown method: %s\n", job->message->method);
