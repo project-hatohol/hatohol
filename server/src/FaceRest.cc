@@ -222,7 +222,7 @@ SessionIdMap FaceRest::PrivateContext::sessionIdMap;
 const string FaceRest::PrivateContext::pathForUserMe =
   FaceRest::PrivateContext::initPathForUserMe();
 
-static uint64_t INVALID_ID = -1;
+static const uint64_t INVALID_ID = -1;
 
 struct FaceRest::RestJob
 {
@@ -874,10 +874,10 @@ uint64_t FaceRest::RestJob::getResourceId(int nest)
 {
 	size_t idx = nest * 2 + 1;
 	if (pathElements.size() <= idx)
-		return -1;
-	uint64_t id = -1;
+		return INVALID_ID;
+	uint64_t id = INVALID_ID;
 	if (sscanf(pathElements[idx].c_str(), "%"PRIu64"", &id) != 1)
-		return -1;
+		return INVALID_ID;
 	return id;
 }
 
