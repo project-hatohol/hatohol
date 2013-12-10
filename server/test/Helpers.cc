@@ -348,7 +348,7 @@ void _assertDBContent(DBAgent *dbAgent, const string &statement,
 	StringUtils::split(linesExpect, expect, '\n');
 	StringUtils::split(linesActual, actual, '\n');
 	cppcut_assert_equal(linesExpect.size(), linesActual.size(),
-	  cut_message("<<expect>>\n%s\n\n<<actual>>%s\n",
+	  cut_message("<<expect>>\n%s\n\n<<actual>>\n%s\n",
 	              expect.c_str(), actual.c_str()));
 	for (size_t i = 0; i < linesExpect.size(); i++) {
 		cut_trace(
