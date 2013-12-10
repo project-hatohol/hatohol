@@ -46,9 +46,9 @@ public:
 	                  const char separator, bool doMerget = true);
 	static string &getAt(StringList &stringList, size_t index);
 	static bool casecmp(const char *str1, const char *str2);
-	static bool casecmp(string &str1, const char *str2);
-	static bool casecmp(const char *str1, string &str2);
-	static bool casecmp(string &str1, string &str2);
+	static bool casecmp(const string &str1, const char *str2);
+	static bool casecmp(const char *str1, const string &str2);
+	static bool casecmp(const string &str1, const string &str2);
 	static string sprintf(const char *fmt, ...) __attribute__((__format__ (__printf__, 1, 2)));
 	static string vsprintf(const char *fmt, va_list ap);
 	static bool isNumber(const char *str, bool *isFloat = NULL);

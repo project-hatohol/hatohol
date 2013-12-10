@@ -145,6 +145,26 @@ void test_casecmp_str_str(void)
 	cppcut_assert_equal(false, StringUtils::casecmp(lowerStr, differentStr));
 }
 
+void test_casecmp_char_rval_str(void)
+{
+	cppcut_assert_equal(true, StringUtils::casecmp("abc", string("ABC")));
+	cppcut_assert_equal(false, StringUtils::casecmp("abc", string("ABX")));
+}
+
+void test_casecmp_rval_str_char(void)
+{
+	cppcut_assert_equal(true, StringUtils::casecmp(string("abc"), "ABC"));
+	cppcut_assert_equal(false, StringUtils::casecmp(string("abc"), "ABX"));
+}
+
+void test_casecmp_rval_str_rval_str(void)
+{
+	cppcut_assert_equal(
+	  true, StringUtils::casecmp(string("abc"), string("ABC")));
+	cppcut_assert_equal(
+	  false, StringUtils::casecmp(string("abc"), string("ABX")));
+}
+
 void test_sprintf(void)
 {
 	const char *fmt = "ABC %d xyz";

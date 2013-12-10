@@ -88,17 +88,17 @@ bool StringUtils::casecmp(const char *str1, const char *str2)
 	return (strcasecmp(str1, str2) == 0);
 }
 
-bool StringUtils::casecmp(string &str1, const char *str2)
+bool StringUtils::casecmp(const string &str1, const char *str2)
 {
 	return casecmp(str1.c_str(), str2);
 }
 
-bool StringUtils::casecmp(const char *str1, string &str2)
+bool StringUtils::casecmp(const char *str1, const string &str2)
 {
 	return casecmp(str1, str2.c_str());
 }
 
-bool StringUtils::casecmp(string &str1, string &str2)
+bool StringUtils::casecmp(const string &str1, const string &str2)
 {
 	return casecmp(str1.c_str(), str2.c_str());
 }
