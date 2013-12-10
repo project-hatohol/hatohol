@@ -1394,6 +1394,28 @@ void test_addAccessInfo(void)
 	assertDBContent(dbUser.getDBAgent(), statement, expect);
 }
 
+void test_deleteAccessInfo(void)
+{
+	startFaceRest();
+	bool dbRecreate = true;
+	bool loadTestData = false;
+	setupTestDBUser(dbRecreate, loadTestData);
+	loadTestDBAccessList();
+
+	const AccessInfoIdType targetId = 2;
+	string url = StringUtils::sprintf(
+	  "/user/1/access-info/%"FMT_ACCESS_INFO_ID,
+	  targetId);
+	g_parser =
+	  getResponseAsJsonParser(url, "cbname", emptyStringMap, "DELETE");
+
+	// check the reply
+	assertErrorCode(g_parser);
+	AccessInfoIdSet accessInfoIdSet;
+	accessInfoIdSet.insert(targetId);
+	assertAccessInfoInDB(accessInfoIdSet);
+}
+
 } // namespace testFaceRest
 
 // ---------------------------------------------------------------------------

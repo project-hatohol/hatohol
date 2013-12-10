@@ -1972,9 +1972,6 @@ void FaceRest::handlerPostAccessInfo(RestJob *job)
 
 void FaceRest::handlerDeleteAccessInfo(RestJob *job)
 {
-	REPLY_ERROR(job, HTERR_UNKNOWN_REASON,
-		    "Not implemented yet");
-
 	int nest = 1;
 	uint64_t id = job->getResourceId(nest);
 	if (id == INVALID_ID) {
