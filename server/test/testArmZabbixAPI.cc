@@ -718,4 +718,14 @@ void test_getLastEventId(void)
 	armZbxApiTestee.testOpenSession();
 	cppcut_assert_equal((uint64_t)26485, armZbxApiTestee.getLastEventId());
 }
+
+void test_checkNonLeakage(void)
+{
+	ArmZabbixAPITestee armZbxApiTestee(setupServer());
+	armZbxApiTestee.testOpenSession();
+
+	ItemTablePtr expectTable = armZbxApiTestee.testMakeItemTable();
+	armZbxApiTestee.testUpdateEvents();
+	cppcut_assert_equal(true, armZbxApiTestee.assertItemTable(expectTable));
+}
 } // namespace testArmZabbixAPI
