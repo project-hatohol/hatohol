@@ -220,7 +220,7 @@ public:
 		ItemGroupListConstIterator exItr = expectList.begin();
 		ItemGroupListConstIterator acItr = actualList.begin();
 
-		for (; exItr != expectList.end() || acItr != actualList.end(); ++exItr, ++acItr) {
+		for (; exItr != expectList.end(); ++exItr, ++acItr) {
 			const ItemGroup *expectGroup = *exItr;
 			const ItemGroup *actualGroup = *acItr;
 			size_t numberOfItems = expectGroup->getNumberOfItems();
