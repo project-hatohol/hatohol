@@ -70,7 +70,7 @@ public:
 		GET_TEST_TYPE_EVENTS,
 	};
 
-	VariableItemTablePtr m_actualEventTable;
+	VariableItemTablePtr m_actualEventTablePtr;
 
 	ArmZabbixAPITestee(const MonitoringServerInfo &serverInfo)
 	: ArmZabbixAPI(serverInfo),
