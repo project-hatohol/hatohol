@@ -653,5 +653,5 @@ string ZabbixAPIEmulator::setEventJsonData(const JsonKeys &key)
 			key.value.c_str(),
 			key.acknowledged.c_str(),
 			key.ns.c_str(),
-			key.value.c_str());
+			key.value_changed.c_str());
 }
