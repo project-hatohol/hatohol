@@ -177,7 +177,7 @@ public:
 
 	void testUpdateEvents(void)
 	{
-		return ArmZabbixAPI::updateEvents();
+		ArmZabbixAPI::updateEvents();
 	}
 
 	void setItemTableData(const ItemTablePtr &itemPtr)
