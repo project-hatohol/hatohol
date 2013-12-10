@@ -195,11 +195,10 @@ public:
 		return ItemTablePtr(tablePtr);
 	}
 
-	bool assertItemTable(const ItemTablePtr &expect,
-			const ItemTablePtr &actual)
+	bool assertItemTable(const ItemTablePtr &expect)
 	{
 		const ItemGroupList &expectList = expect->getItemGroupList();
-		const ItemGroupList &actualList = actual->getItemGroupList();
+		const ItemGroupList &actualList = m_actualEventTablePtr->getItemGroupList();
 		if (expectList.size() != actualList.size())
 			cut_fail("Number of lists is different.\n"
 				"expect: %lu, actual: %lu", expectList.size(), actualList.size());
