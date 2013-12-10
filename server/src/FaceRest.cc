@@ -1919,14 +1919,82 @@ void FaceRest::handlerGetAccessInfo(RestJob *job)
 
 void FaceRest::handlerPostAccessInfo(RestJob *job)
 {
-	REPLY_ERROR(job, HTERR_UNKNOWN_REASON,
-		    "Not implemented yet");
+	// Get query parameters
+	bool exist;
+	bool succeeded;
+	AccessInfo accessInfo;
+
+	// user-id
+	succeeded = getParamWithErrorReply<UserIdType>(
+	              job, "user-id", "%"FMT_USER_ID, accessInfo.userId, &exist);
+	if (!succeeded)
+		return;
+	if (!exist) {
+		REPLY_ERROR(job, HTERR_NOT_FOUND_PARAMETER, "user-id");
+		return;
+	}
+
+	// server-id
+	succeeded = getParamWithErrorReply<uint32_t>(
+	              job, "server-id", "%"PRIu32, accessInfo.serverId, &exist);
+	if (!succeeded)
+		return;
+	if (!exist) {
+		REPLY_ERROR(job, HTERR_NOT_FOUND_PARAMETER, "server-id");
+		return;
+	}
+
+	// server-id
+	succeeded = getParamWithErrorReply<uint64_t>(
+	              job, "host-group-id", "%"PRIu32, accessInfo.hostGroupId, &exist);
+	if (!succeeded)
+		return;
+	if (!exist) {
+		REPLY_ERROR(job, HTERR_NOT_FOUND_PARAMETER, "host-group-id");
+		return;
+	}
+
+	// try to add
+	DataQueryOption option;
+	option.setUserId(job->userId);
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+	HatoholError err = dataStore->addAccessInfo(accessInfo, option);
+
+	// make a response
+	JsonBuilderAgent agent;
+	agent.startObject();
+	addHatoholError(agent, err);
+	if (err == HTERR_OK)
+		agent.add("id", accessInfo.id);
+	agent.endObject();
+	replyJsonData(agent, job);
 }
 
 void FaceRest::handlerDeleteAccessInfo(RestJob *job)
 {
 	REPLY_ERROR(job, HTERR_UNKNOWN_REASON,
 		    "Not implemented yet");
+
+	uint64_t id = job->getResourceId();
+	if (id == INVALID_ID) {
+		REPLY_ERROR(job, HTERR_NOT_FOUND_ID_IN_URL,
+			    "id: %s", job->getResourceIdString().c_str());
+		return;
+	}
+
+	DataQueryOption option;
+	option.setUserId(job->userId);
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+	HatoholError err = dataStore->deleteAccessInfo(id, option);
+
+	// replay
+	JsonBuilderAgent agent;
+	agent.startObject();
+	addHatoholError(agent, err);
+	if (err == HTERR_OK)
+		agent.add("id", id);
+	agent.endObject();
+	replyJsonData(agent, job);
 }
 
 HatoholError FaceRest::parseUserParameter(UserInfo &userInfo, GHashTable *query)
