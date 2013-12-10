@@ -114,6 +114,12 @@ void test_splitOneWord(void)
 	cppcut_assert_equal(target, *it);
 }
 
+void test_casecmp_char_char(void)
+{
+	cppcut_assert_equal(true, StringUtils::casecmp("abc", "ABC"));
+	cppcut_assert_equal(false, StringUtils::casecmp("abc", "ABX"));
+}
+
 void test_sprintf(void)
 {
 	const char *fmt = "ABC %d xyz";
