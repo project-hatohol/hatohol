@@ -214,9 +214,7 @@ public:
 	{
 		const ItemGroupList &expectList = expect->getItemGroupList();
 		const ItemGroupList &actualList = m_actualEventTablePtr->getItemGroupList();
-		if (expectList.size() != actualList.size())
-			cut_fail("Number of lists is different.\n"
-				"expect: %lu, actual: %lu", expectList.size(), actualList.size());
+		cppcut_assert_equal(expectList.size(), actualList.size());
 		ItemGroupListConstIterator exItr = expectList.begin();
 		ItemGroupListConstIterator acItr = actualList.begin();
 
@@ -224,18 +222,12 @@ public:
 			const ItemGroup *expectGroup = *exItr;
 			const ItemGroup *actualGroup = *acItr;
 			size_t numberOfItems = expectGroup->getNumberOfItems();
-			if(numberOfItems != actualGroup->getNumberOfItems()) {
-				cut_fail("Number of Items is different.");
-				return false;
-			}
+			cppcut_assert_equal(numberOfItems, actualGroup->getNumberOfItems());
 
 			for (size_t index = 0; index < numberOfItems; index++){
 				const ItemData *expectData = expectGroup->getItemAt(index);
 				const ItemData *actualData = actualGroup->getItemAt(index);
-				if (expectData != actualData) {
-					cut_fail("actualData is different.");
-					return false;
-				}
+				cppcut_assert_equal(*expectData, *actualData);
 			}
 		}
 		return true;
