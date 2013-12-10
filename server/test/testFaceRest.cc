@@ -1222,29 +1222,6 @@ void test_getUserMe(void)
 	assertUser(g_parser, user);
 }
 
-void test_addAccessInfo(void)
-{
-	const string userId = "1";
-	const string serverId = "2";
-	const string hostGroupId = "3";
-
-	StringMap params;
-	params["user-id"] = userId;
-	params["server-id"] = serverId;
-	params["host-group-id"] = hostGroupId;
-	assertAddAccessInfoWithSetup(params, HTERR_OK);
-
-	// check the content in the DB
-	DBClientUser dbUser;
-	string statement = "select * from ";
-	statement += DBClientUser::TABLE_NAME_ACCESS_LIST;
-	int expectedId = 1;
-	string expect = StringUtils::sprintf(
-	  "%"FMT_ACCESS_INFO_ID"|%s|%s|%s\n",
-	  expectedId, userId.c_str(), serverId.c_str(), hostGroupId.c_str());
-	assertDBContent(dbUser.getDBAgent(), statement, expect);
-}
-
 void test_addUser(void)
 {
 	OperationPrivilegeFlag flags = OPPRVLG_GET_ALL_USERS;
@@ -1392,6 +1369,29 @@ void test_updateOrAddUserUpdate(void)
 	const size_t targetIndex = 2;
 	const UserInfo &userInfo = testUserInfo[targetIndex];
 	assertUpdateOrAddUser(userInfo.name);
+}
+
+void test_addAccessInfo(void)
+{
+	const string userId = "1";
+	const string serverId = "2";
+	const string hostGroupId = "3";
+
+	StringMap params;
+	params["user-id"] = userId;
+	params["server-id"] = serverId;
+	params["host-group-id"] = hostGroupId;
+	assertAddAccessInfoWithSetup(params, HTERR_OK);
+
+	// check the content in the DB
+	DBClientUser dbUser;
+	string statement = "select * from ";
+	statement += DBClientUser::TABLE_NAME_ACCESS_LIST;
+	int expectedId = 1;
+	string expect = StringUtils::sprintf(
+	  "%"FMT_ACCESS_INFO_ID"|%s|%s|%s\n",
+	  expectedId, userId.c_str(), serverId.c_str(), hostGroupId.c_str());
+	assertDBContent(dbUser.getDBAgent(), statement, expect);
 }
 
 } // namespace testFaceRest
