@@ -706,6 +706,19 @@ static void _assertUpdateOrAddUser(const string &name)
 }
 #define assertUpdateOrAddUser(U) cut_trace(_assertUpdateOrAddUser(U))
 
+#define assertAddAccessInfo(P, ...) \
+cut_trace(_assertAddRecord(P, "/user/1/access-info", ##__VA_ARGS__))
+
+void _assertAddAccessInfoWithSetup(const StringMap &params,
+				   const HatoholErrorCode &expectCode)
+{
+	const bool dbRecreate = true;
+	const bool loadTestDat = false;
+	setupTestDBUser(dbRecreate, loadTestDat);
+	assertAddAccessInfo(params, expectCode);
+}
+#define assertAddAccessInfoWithSetup(P,C) cut_trace(_assertAddAccessInfoWithSetup(P,C))
+
 static void setupPostAction(void)
 {
 	bool recreate = true;
@@ -1207,6 +1220,29 @@ void test_getUserMe(void)
 	g_parser->startObject("users");
 	g_parser->startElement(0);
 	assertUser(g_parser, user);
+}
+
+void test_addAccessInfo(void)
+{
+	const string userId = "1";
+	const string serverId = "2";
+	const string hostGroupId = "3";
+
+	StringMap params;
+	params["user-id"] = userId;
+	params["server-id"] = serverId;
+	params["host-group-id"] = hostGroupId;
+	assertAddAccessInfoWithSetup(params, HTERR_OK);
+
+	// check the content in the DB
+	DBClientUser dbUser;
+	string statement = "select * from ";
+	statement += DBClientUser::TABLE_NAME_ACCESS_LIST;
+	int expectedId = 1;
+	string expect = StringUtils::sprintf(
+	  "%"FMT_ACCESS_INFO_ID"|%s|%s|%s\n",
+	  expectedId, userId.c_str(), serverId.c_str(), hostGroupId.c_str());
+	assertDBContent(dbUser.getDBAgent(), statement, expect);
 }
 
 void test_addUser(void)

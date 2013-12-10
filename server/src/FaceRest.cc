@@ -1946,7 +1946,7 @@ void FaceRest::handlerPostAccessInfo(RestJob *job)
 
 	// server-id
 	succeeded = getParamWithErrorReply<uint64_t>(
-	              job, "host-group-id", "%"PRIu32, accessInfo.hostGroupId, &exist);
+	              job, "host-group-id", "%"PRIu64, accessInfo.hostGroupId, &exist);
 	if (!succeeded)
 		return;
 	if (!exist) {
