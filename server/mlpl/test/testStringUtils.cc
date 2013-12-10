@@ -128,6 +128,14 @@ void test_casecmp_char_str(void)
 	cppcut_assert_equal(false, StringUtils::casecmp("abc", differentStr));
 }
 
+void test_casecmp_str_char(void)
+{
+	string capitalStr = "ABC";
+	cppcut_assert_equal(true, StringUtils::casecmp(capitalStr, "abc"));
+	string differentStr = "ABX";
+	cppcut_assert_equal(false, StringUtils::casecmp(differentStr, "abc"));
+}
+
 void test_sprintf(void)
 {
 	const char *fmt = "ABC %d xyz";
