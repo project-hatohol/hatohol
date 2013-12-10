@@ -1926,31 +1926,31 @@ void FaceRest::handlerPostAccessInfo(RestJob *job)
 
 	// user-id
 	succeeded = getParamWithErrorReply<UserIdType>(
-	              job, "user-id", "%"FMT_USER_ID, accessInfo.userId, &exist);
+	              job, "userId", "%"FMT_USER_ID, accessInfo.userId, &exist);
 	if (!succeeded)
 		return;
 	if (!exist) {
-		REPLY_ERROR(job, HTERR_NOT_FOUND_PARAMETER, "user-id");
+		REPLY_ERROR(job, HTERR_NOT_FOUND_PARAMETER, "userId");
 		return;
 	}
 
 	// server-id
 	succeeded = getParamWithErrorReply<uint32_t>(
-	              job, "server-id", "%"PRIu32, accessInfo.serverId, &exist);
+	              job, "serverId", "%"PRIu32, accessInfo.serverId, &exist);
 	if (!succeeded)
 		return;
 	if (!exist) {
-		REPLY_ERROR(job, HTERR_NOT_FOUND_PARAMETER, "server-id");
+		REPLY_ERROR(job, HTERR_NOT_FOUND_PARAMETER, "serverId");
 		return;
 	}
 
 	// server-id
 	succeeded = getParamWithErrorReply<uint64_t>(
-	              job, "host-group-id", "%"PRIu64, accessInfo.hostGroupId, &exist);
+	              job, "hostGroupId", "%"PRIu64, accessInfo.hostGroupId, &exist);
 	if (!succeeded)
 		return;
 	if (!exist) {
-		REPLY_ERROR(job, HTERR_NOT_FOUND_PARAMETER, "host-group-id");
+		REPLY_ERROR(job, HTERR_NOT_FOUND_PARAMETER, "hostGroupId");
 		return;
 	}
 
