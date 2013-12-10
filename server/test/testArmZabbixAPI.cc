@@ -175,6 +175,11 @@ public:
 		return ArmZabbixAPI::getAuthToken();
 	}
 
+	void testUpdateEvents(void)
+	{
+		return ArmZabbixAPI::updateEvents();
+	}
+
 	void setItemTableData(const ItemTablePtr &itemPtr)
 	{
 		const ItemGroupList &itemList = itemPtr->getItemGroupList();

@@ -973,6 +973,7 @@ void ArmZabbixAPI::updateEvents(void)
 		tablePtr = getEvents(eventIdOffset, eventIdTill);
 		m_ctx->dbClientZabbix.addEventsRaw2_0(tablePtr);
 		makeHatoholEvents(tablePtr);
+		setItemTableData(tablePtr);
 		dbLastEventId = m_ctx->dbClientZabbix.getLastEventId();
 	}
 }
