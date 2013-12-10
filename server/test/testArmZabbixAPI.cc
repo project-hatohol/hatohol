@@ -70,10 +70,7 @@ public:
 		GET_TEST_TYPE_EVENTS,
 	};
 
-	struct TestPrivateContext {
-		VariableItemTablePtr actualEventTable;
-	};
-	TestPrivateContext m_testCtx;
+	VariableItemTablePtr actualEventTable;
 
 	ArmZabbixAPITestee(const MonitoringServerInfo &serverInfo)
 	: ArmZabbixAPI(serverInfo),
