@@ -38,15 +38,12 @@ The following shows examples to install Django.
 
     # yum install python-setuptools
     # easy_install pip
-    # pip install django==1.5.4
-    # pip install mysql-python
+    # pip install django==1.5.4 mysql-python
 
 #### On Ubuntu 12.04 and 13.10
 
-    # apt-get install python-pip
-    # pip install django==1.5.4
-    # apt-get install python-dev
-    # pip install mysql-python
+    # apt-get install python-pip python-dev
+    # pip install django==1.5.4 mysql-python
 
 
 ### Create the database
