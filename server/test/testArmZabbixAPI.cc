@@ -175,6 +175,16 @@ public:
 		return ArmZabbixAPI::getAuthToken();
 	}
 
+	void setItemTableData(const ItemTablePtr &itemPtr)
+	{
+		const ItemGroupList &itemList = itemPtr->getItemGroupList();
+		ItemGroupListConstIterator itr = itemList.begin();
+		for (; itr != itemList.end(); ++itr) {
+			const ItemGroup *itemGroup = *itr;
+			m_actualEventTablePtr->add(itemGroup);
+		}
+	}
+
 	ItemTablePtr testMakeItemTable(void)
 	{
 		ifstream ifs("fixtures/zabbix-api-res-events-002.json");
