@@ -1936,14 +1936,14 @@ void FaceRest::handlerGetAccessInfo(RestJob *job)
 	for (; it != serversMap.end(); it++) {
 		HostGrpAccessInfoMap *hostGroupsMap = it->second;
 		agent.startObject();
-		agent.add("id", it->first);
+		agent.add("serverId", it->first);
 		agent.add("numberOfAllowedServers", hostGroupsMap->size());
 		agent.startArray("allowedHostGroups");
 		HostGrpAccessInfoMapIterator it2 = hostGroupsMap->begin();
 		for (; it2 != hostGroupsMap->end(); it2++) {
 			AccessInfo *info = it2->second;
 			agent.startObject();
-			agent.add("id", it2->first);
+			agent.add("hostGroupId", it2->first);
 			agent.add("accessInfoId", info->id);
 			agent.endObject();
 		}
