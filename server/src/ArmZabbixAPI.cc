@@ -289,6 +289,11 @@ void ArmZabbixAPI::onGotNewEvents(const ItemTablePtr &itemPtr)
 	// This function is used on a test phase.
 }
 
+uint64_t getMaximumNumberPerOnce(void)
+{
+	return NUMBER_PER_ONCE;
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
