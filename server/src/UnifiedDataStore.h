@@ -80,8 +80,8 @@ public:
 	  UserInfo &userInfo, const OperationPrivilege &privilege);
 	virtual HatoholError deleteUser(
 	  UserIdType userId, const OperationPrivilege &privilege);
-	virtual void getAccessInfoMap(ServerAccessInfoMap &srvAccessInfoMap,
-				      const UserIdType userId);
+	virtual HatoholError getAccessInfoMap(
+	  ServerAccessInfoMap &srvAccessInfoMap, AccessInfoQueryOption &option);
 	virtual HatoholError addAccessInfo(
 	  AccessInfo &userInfo, const OperationPrivilege &privilege);
 	virtual HatoholError deleteAccessInfo(

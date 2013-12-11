@@ -376,12 +376,12 @@ HatoholError UnifiedDataStore::deleteUser(
 	return dbUser->deleteUserInfo(userId, privilege);
 }
 
-void UnifiedDataStore::getAccessInfoMap(ServerAccessInfoMap &srvAccessInfoMap,
-					const UserIdType userId)
+HatoholError UnifiedDataStore::getAccessInfoMap(ServerAccessInfoMap &srvAccessInfoMap,
+					AccessInfoQueryOption &option)
 {
 	CacheServiceDBClient cache;
 	DBClientUser *dbUser = cache.getUser();
-	dbUser->getAccessInfoMap(srvAccessInfoMap, userId);
+	return dbUser->getAccessInfoMap(srvAccessInfoMap, option);
 }
 
 HatoholError UnifiedDataStore::addAccessInfo(

@@ -1913,18 +1913,17 @@ void FaceRest::handlerAccessInfo(RestJob *job)
 
 void FaceRest::handlerGetAccessInfo(RestJob *job)
 {
-	DataQueryOption option;
+	AccessInfoQueryOption option;
 	option.setUserId(job->userId);
-
-	UserIdType userId = job->getResourceId();
-	if (!option.has(OPPRVLG_GET_ALL_USERS) && userId != job->userId) {
-		replyError(job, HTERR_NO_PRIVILEGE);
-		return;
-	}
+	option.setQueryUserId(job->getResourceId());
 
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	ServerAccessInfoMap serversMap;
-	dataStore->getAccessInfoMap(serversMap, userId);
+	HatoholError error = dataStore->getAccessInfoMap(serversMap, option);
+	if (error != HTERR_OK) {
+		replyError(job, error);
+		return;
+	}
 
 	JsonBuilderAgent agent;
 	agent.startObject();

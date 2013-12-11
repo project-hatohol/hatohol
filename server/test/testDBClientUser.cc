@@ -528,8 +528,10 @@ void test_getServerAccessInfoMap(void)
 	UserIdIndexMapIterator it = userIdIndexMap.begin();
 	for (; it != userIdIndexMap.end(); ++it) {
 		ServerAccessInfoMap srvAccessInfoMap;
-		UserIdType userId = it->first;
-		dbUser.getAccessInfoMap(srvAccessInfoMap, userId);
+		AccessInfoQueryOption option;
+		option.setUserId(0);
+		option.setQueryUserId(it->first);
+		dbUser.getAccessInfoMap(srvAccessInfoMap, option);
 		assertServerAccessInfoMap(it->second, srvAccessInfoMap);
 		DBClientUser::destroyServerAccessInfoMap(srvAccessInfoMap);
 	}

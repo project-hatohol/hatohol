@@ -83,6 +83,22 @@ private:
 	PrivateContext *m_ctx;
 };
 
+class AccessInfoQueryOption : public DataQueryOption {
+public:
+	AccessInfoQueryOption(void);
+	virtual ~AccessInfoQueryOption();
+
+	// Overriding of virtual methods
+	std::string getCondition(void) const;
+
+	void setQueryUserId(UserIdType userId);
+	UserIdType getQueryUserId(void) const;
+
+private:
+	struct PrivateContext;
+	PrivateContext *m_ctx;
+};
+
 class DBClientUser : public DBClient {
 public:
 	static const int   USER_DB_VERSION;
@@ -161,10 +177,10 @@ public:
 	 * the user with userId.
 	 *
 	 * @param srvAccessInfoMap An ServerAccessInfoMap instance.
-	 * @param userId a user ID.
+	 * @param option A AccessInfoQueryOption instance.
 	 */
-	void getAccessInfoMap(ServerAccessInfoMap &srvAccessInfoMap,
-	                      const UserIdType userId);
+	HatoholError getAccessInfoMap(ServerAccessInfoMap &srvAccessInfoMap,
+				      AccessInfoQueryOption &option);
 	static void destroyServerAccessInfoMap(
 	  ServerAccessInfoMap &srvAccessInfoMap);
 
