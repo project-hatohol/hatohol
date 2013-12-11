@@ -569,7 +569,9 @@ void test_getServerAccessInfoMapByNonOwner(void)
 	for (; it != userIdIndexMap.end(); ++it) {
 		ServerAccessInfoMap srvAccessInfoMap;
 		AccessInfoQueryOption option;
-		option.setUserId(it->first == 1 ? 3 : 1);
+		UserIdType guestUserA = 1, guestUserB = 3, user;
+		user = (it->first == guestUserA) ? guestUserB : guestUserA;
+		option.setUserId(user);
 		option.setQueryUserId(it->first);
 		HatoholError error = dbUser.getAccessInfoMap(srvAccessInfoMap,
 							     option);
