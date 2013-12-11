@@ -428,13 +428,12 @@ void ZabbixAPIEmulator::APIHandlerHostGet(APIHandlerArg &arg)
 
 void ZabbixAPIEmulator::APIHandlerEventGet(APIHandlerArg &arg)
 {
+	loadTestEventsIfNeeded(arg);
+
+	parseEventGetParameter(arg);
+
 	string contents;
 	gsize length;
-	static const char *DATA_FILE = "zabbix-api-res-events-002.json";
-	string path = getFixturesDir() + DATA_FILE;
-	parseEventGetParameter(arg);
-	makeEventJsonData(path);
-
 	if (m_ctx->paramEvent.sortOrder == "ASC") {
 		if (m_ctx->paramEvent.limit == 0) {	// no limit
 			if (m_ctx->paramEvent.eventIdFrom == 0 && m_ctx->paramEvent.eventIdTill == 0) { // unlimit
@@ -654,4 +653,13 @@ string ZabbixAPIEmulator::makeJsonString(const ZabbixAPIEvent &data)
 			data.acknowledged.c_str(),
 			data.ns.c_str(),
 			data.value_changed.c_str());
+}
+
+void ZabbixAPIEmulator::loadTestEventsIfNeeded(APIHandlerArg &arg)
+{
+	if (!m_ctx->zbxEventMap.empty())
+		return;
+	static const char *DATA_FILE = "zabbix-api-res-events-002.json";
+	string path = getFixturesDir() + DATA_FILE;
+	makeEventJsonData(path);
 }
