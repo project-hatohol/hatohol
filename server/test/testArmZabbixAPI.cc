@@ -726,7 +726,7 @@ void test_getLastEventId(void)
 	cppcut_assert_equal((uint64_t)26485, armZbxApiTestee.getLastEventId());
 }
 
-void test_checkNonLeakage(void)
+void test_verifyEventsObtanedBySplitWay(void)
 {
 	ArmZabbixAPITestee armZbxApiTestee(setupServer());
 	armZbxApiTestee.testOpenSession();
