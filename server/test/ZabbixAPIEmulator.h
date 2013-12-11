@@ -34,9 +34,9 @@ class ZabbixAPIEmulator {
 public:
 	struct APIHandlerArg;
 	struct ParameterEventGet;
-	struct JsonKeys;
+	struct ZabbixAPIEvent;
 	typedef void (ZabbixAPIEmulator::*APIHandler)(APIHandlerArg &);
-	typedef map<int64_t, ZabbixAPIEmulator::JsonKeys> JsonData;
+	typedef map<int64_t, ZabbixAPIEvent> JsonData;
 	typedef JsonData::iterator JsonDataIterator;
 	typedef JsonData::reverse_iterator ReverseJsonDataIterator;
 
@@ -75,7 +75,7 @@ protected:
 	void makeEventJsonData(const string &path);
 	string addJsonResponse(const string &slice, APIHandlerArg &arg);
 	void parseEventGetParameter(APIHandlerArg &arg);
-	string setEventJsonData(const JsonKeys &key);
+	string setEventJsonData(const ZabbixAPIEvent &keys);
 private:
 	struct PrivateContext;
 	PrivateContext *m_ctx;

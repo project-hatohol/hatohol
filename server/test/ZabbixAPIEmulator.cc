@@ -62,7 +62,7 @@ struct ZabbixAPIEmulator::ParameterEventGet {
 	}
 };
 
-struct ZabbixAPIEmulator::JsonKeys {
+struct ZabbixAPIEmulator::ZabbixAPIEvent {
 	string eventid;
 	string source;
 	string object;
@@ -440,14 +440,14 @@ void ZabbixAPIEmulator::APIHandlerEventGet(APIHandlerArg &arg)
 			if (m_ctx->paramEvent.eventIdFrom == 0 && m_ctx->paramEvent.eventIdTill == 0) { // unlimit
 				JsonDataIterator jit = m_ctx->jsonData.begin();
 				for (; jit != m_ctx->jsonData.end(); ++jit) {
-					const JsonKeys &data = jit->second;
+					const ZabbixAPIEvent &data = jit->second;
 					contents += setEventJsonData(data);
 				}
 			} else {	// range specification
 				JsonDataIterator jit = m_ctx->jsonData.lower_bound(m_ctx->paramEvent.eventIdFrom);
 				JsonDataIterator goalIterator = m_ctx->jsonData.lower_bound(m_ctx->paramEvent.eventIdTill);
 				for (;jit != goalIterator; ++jit) {
-					const JsonKeys &data = jit->second;
+					const ZabbixAPIEvent &data = jit->second;
 					contents += setEventJsonData(data);
 				}
 			}
@@ -456,7 +456,7 @@ void ZabbixAPIEmulator::APIHandlerEventGet(APIHandlerArg &arg)
 				JsonDataIterator jit = m_ctx->jsonData.begin();
 				for (int64_t i = 0; i < m_ctx->paramEvent.limit ||
 						jit != m_ctx->jsonData.end(); ++jit, i++) {
-					const JsonKeys &data = jit->second;
+					const ZabbixAPIEvent &data = jit->second;
 					contents += setEventJsonData(data);
 				}
 			} else {
@@ -465,7 +465,7 @@ void ZabbixAPIEmulator::APIHandlerEventGet(APIHandlerArg &arg)
 				for (int64_t i = 0; i < m_ctx->paramEvent.limit ||
 						jit != goalIterator ||
 						jit != m_ctx->jsonData.end(); ++jit, i++) {
-					const JsonKeys &data = jit->second;
+					const ZabbixAPIEvent &data = jit->second;
 					contents += setEventJsonData(data);
 				}
 			}
@@ -475,14 +475,14 @@ void ZabbixAPIEmulator::APIHandlerEventGet(APIHandlerArg &arg)
 			if (m_ctx->paramEvent.eventIdFrom == 0 && m_ctx->paramEvent.eventIdTill == 0) { // unlimit
 				ReverseJsonDataIterator rjit = m_ctx->jsonData.rbegin();
 				for (; rjit != m_ctx->jsonData.rend(); ++rjit) {
-					const JsonKeys &data = rjit->second;
+					const ZabbixAPIEvent &data = rjit->second;
 					contents += setEventJsonData(data);
 				}
 			} else {	// range specification
 				ReverseJsonDataIterator rjit(m_ctx->jsonData.lower_bound(m_ctx->paramEvent.eventIdTill));
 				ReverseJsonDataIterator goalIterator(m_ctx->jsonData.lower_bound(m_ctx->paramEvent.eventIdFrom));
 				for (; rjit != goalIterator; ++rjit) {
-					const JsonKeys &data = rjit->second;
+					const ZabbixAPIEvent &data = rjit->second;
 					contents += setEventJsonData(data);
 				}
 			}
@@ -491,7 +491,7 @@ void ZabbixAPIEmulator::APIHandlerEventGet(APIHandlerArg &arg)
 				ReverseJsonDataIterator rjit = m_ctx->jsonData.rbegin();
 				for (int64_t i = 0; i < m_ctx->paramEvent.limit ||
 						rjit != m_ctx->jsonData.rend(); ++rjit, i++) {
-					const JsonKeys &data = rjit->second;
+					const ZabbixAPIEvent &data = rjit->second;
 					contents += setEventJsonData(data);
 				}
 			} else {
@@ -500,7 +500,7 @@ void ZabbixAPIEmulator::APIHandlerEventGet(APIHandlerArg &arg)
 				for (int64_t i = 0; i < m_ctx->paramEvent.limit ||
 						rjit != goalIterator||
 						rjit != m_ctx->jsonData.rend(); ++rjit, i++) {
-					const JsonKeys &data = rjit->second;
+					const ZabbixAPIEvent &data = rjit->second;
 					contents += setEventJsonData(data);
 				}
 			}
@@ -552,7 +552,7 @@ void ZabbixAPIEmulator::makeEventJsonData(const string &path)
 
 		int64_t eventId = 0;
 		sscanf(parsedData[0].c_str(), "%"PRId64, &eventId);
-		JsonKeys key;
+		ZabbixAPIEvent key;
 		key.eventid = parsedData[0];
 		key.source = parsedData[1];
 		key.object = parsedData[2];
@@ -639,7 +639,7 @@ void ZabbixAPIEmulator::parseEventGetParameter(APIHandlerArg &arg)
 	}
 }
 
-string ZabbixAPIEmulator::setEventJsonData(const JsonKeys &key)
+string ZabbixAPIEmulator::setEventJsonData(const ZabbixAPIEvent &key)
 {
 	const char *fmt =
 	  "{\"eventid\":\"%s\",\"source\":\"%s\",\"object\":\"%s\",\"objectid\":\"%s\",\"clock\":\"%s\",\"value\":\"%s\",\"acknowledged\":\"%s\",\"ns\":\"%s\",\"value_changed\":\"%s\"},";
