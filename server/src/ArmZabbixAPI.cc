@@ -38,7 +38,7 @@ using namespace mlpl;
 using namespace std;
 
 static const char *MIME_JSON_RPC = "application/json-rpc";
-static const uint64_t NUMBER_PER_ONCE  = 1000;
+static const uint64_t NUMBER_OF_GET_EVENT_PER_ONCE  = 1000;
 static const guint DEFAULT_TIMEOUT      = 60;
 static const guint DEFAULT_IDLE_TIMEOUT = 60;
 
@@ -965,10 +965,10 @@ void ArmZabbixAPI::updateEvents(void)
 	while (dbLastEventId != serverLastEventId) {
 		if (dbLastEventId == DBClientZabbix::EVENT_ID_NOT_FOUND) {
 			eventIdOffset = 0;
-			eventIdTill = NUMBER_PER_ONCE;
+			eventIdTill = NUMBER_OF_GET_EVENT_PER_ONCE;
 		} else {
 			eventIdOffset = dbLastEventId + 1;
-			eventIdTill = dbLastEventId + NUMBER_PER_ONCE;
+			eventIdTill = dbLastEventId + NUMBER_OF_GET_EVENT_PER_ONCE;
 		}
 		tablePtr = getEvents(eventIdOffset, eventIdTill);
 		m_ctx->dbClientZabbix.addEventsRaw2_0(tablePtr);
@@ -1034,7 +1034,7 @@ void ArmZabbixAPI::makeHatoholItems(ItemTablePtr items)
 
 uint64_t ArmZabbixAPI::getMaximumNumberGetEventPerOnce(void)
 {
-	return NUMBER_PER_ONCE;
+	return NUMBER_OF_GET_EVENT_PER_ONCE;
 }
 
 //
