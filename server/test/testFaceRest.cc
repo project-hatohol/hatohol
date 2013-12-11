@@ -729,13 +729,14 @@ static void _assertServerAccessInfo(JsonParserAgent *parser, HostGrpAccessInfoMa
 }
 #define assertServerAccessInfo(P,I,...) cut_trace(_assertServerAccessInfo(P,I,##__VA_ARGS__))
 
-static void _assertAllowedServers(const string &path, const string &callbackName = "")
+static void _assertAllowedServers(const string &path, UserIdType userId,
+				  const string &callbackName = "")
 {
 	startFaceRest();
 	g_parser = getResponseAsJsonParser(path, callbackName);
 	assertErrorCode(g_parser);
 	ServerAccessInfoMap srvAccessInfoMap;
-	makeServerAccessInfoMap(srvAccessInfoMap, 1);
+	makeServerAccessInfoMap(srvAccessInfoMap, userId);
 	assertValueInParser(g_parser, "numberOfAllowedServers",
 	                    srvAccessInfoMap.size());
 	g_parser->startObject("allowedServers");
@@ -1426,7 +1427,7 @@ void test_getAccessInfo(void)
 	const bool loadTestDat = true;
 	setupTestDBUser(dbRecreate, loadTestDat);
 	loadTestDBAccessList();
-	assertAllowedServers("/user/1/access-info", "cbname");
+	assertAllowedServers("/user/1/access-info", 1, "cbname");
 }
 
 void test_addAccessInfo(void)
