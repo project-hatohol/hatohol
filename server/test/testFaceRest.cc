@@ -120,7 +120,9 @@ static string makeQueryStringForCurlPost(const StringMap &parameters,
 	return postDataArg;
 }
 
-static JsonParserAgent *getResponseAsJsonParser(
+
+static void getServerResponse(
+  string &response, StringVector &responseHeaders,
   const string &url, const string &callbackName = "",
   const StringMap &parameters = emptyStringMap,
   const string &request = "GET",
@@ -148,11 +150,34 @@ static JsonParserAgent *getResponseAsJsonParser(
 
 	// get reply with wget
 	string getCmd =
-	  StringUtils::sprintf("curl -X %s %s %s http://localhost:%u%s%s",
+	  StringUtils::sprintf("curl -X %s %s %s -i http://localhost:%u%s%s",
 	                       request.c_str(), headers.c_str(),
 	                       postDataArg.c_str(), TEST_PORT, url.c_str(),
 	                       joinedQueryParams.c_str());
-	string response = executeCommand(getCmd);
+	response = executeCommand(getCmd);
+	const string separator = "\r\n\r\n";
+	size_t pos = response.find(separator);
+	if (pos != string::npos) {
+		string headers = response.substr(0, pos);	
+		response = response.substr(pos + separator.size());
+		gchar **tmp = g_strsplit(headers.c_str(),
+					 "\r\n", -1);
+		for (size_t i = 0; tmp[i]; i++)
+			responseHeaders.push_back(tmp[i]);
+		g_strfreev(tmp);
+	}
+}
+
+static JsonParserAgent *getResponseAsJsonParser(
+  const string &url, const string &callbackName = "",
+  const StringMap &parameters = emptyStringMap,
+  const string &request = "GET",
+  const StringVector &headersVect = emptyStringVector)
+{
+	string response;
+	StringVector responseHeaders;
+	getServerResponse(response, responseHeaders, url, callbackName,
+			  parameters, request, headersVect);
 
 	// if JSONP, check the callback name
 	if (!callbackName.empty()) {
