@@ -376,6 +376,30 @@ HatoholError UnifiedDataStore::deleteUser(
 	return dbUser->deleteUserInfo(userId, privilege);
 }
 
+HatoholError UnifiedDataStore::getAccessInfoMap(ServerAccessInfoMap &srvAccessInfoMap,
+					AccessInfoQueryOption &option)
+{
+	CacheServiceDBClient cache;
+	DBClientUser *dbUser = cache.getUser();
+	return dbUser->getAccessInfoMap(srvAccessInfoMap, option);
+}
+
+HatoholError UnifiedDataStore::addAccessInfo(
+  AccessInfo &userInfo, const OperationPrivilege &privilege)
+{
+	CacheServiceDBClient cache;
+	DBClientUser *dbUser = cache.getUser();
+	return dbUser->addAccessInfo(userInfo, privilege);
+}
+
+HatoholError UnifiedDataStore::deleteAccessInfo(
+  AccessInfoIdType id, const OperationPrivilege &privilege)
+{
+	CacheServiceDBClient cache;
+	DBClientUser *dbUser = cache.getUser();
+	return dbUser->deleteAccessInfo(id, privilege);
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------

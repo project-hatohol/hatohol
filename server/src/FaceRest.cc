@@ -222,11 +222,14 @@ SessionIdMap FaceRest::PrivateContext::sessionIdMap;
 const string FaceRest::PrivateContext::pathForUserMe =
   FaceRest::PrivateContext::initPathForUserMe();
 
+static const uint64_t INVALID_ID = -1;
+
 struct FaceRest::RestJob
 {
 	// arguments of SoupServerCallback
 	SoupMessage       *message;
 	string             path;
+	StringVector       pathElements;
 	GHashTable        *query;
 	SoupClientContext *client;
 
@@ -237,8 +240,6 @@ struct FaceRest::RestJob
 	string      formatString;
 	FormatType  formatType;
 	const char *mimeType;
-	string      resourceId; // we assume URL form is:
-				// http://example.com/request/id
 	string      jsonpCallbackName;
 	string      sessionId;
 	UserIdType  userId;
@@ -262,6 +263,10 @@ struct FaceRest::RestJob
 	bool prepare(void);
 	void pauseResponse(void);
 	void unpauseResponse(void);
+
+	string   getResourceName(int nest = 0);
+	string   getResourceIdString(int nest = 0);
+	uint64_t getResourceId(int nest = 0);
 
 private:
 	string getJsonpCallbackName(void);
@@ -798,11 +803,8 @@ bool FaceRest::RestJob::prepare(void)
 		return false;
 	}
 
-	// ID
-	StringVector pathElemVect;
-	StringUtils::split(pathElemVect, path, '/');
-	if (pathElemVect.size() >= 2)
-		resourceId = pathElemVect[1];
+	// path elements
+	StringUtils::split(pathElements, path, '/');
 
 	// MIME
 	MimeTypeMapIterator mimeIt = g_mimeTypeMap.find(formatType);
@@ -852,6 +854,33 @@ void FaceRest::RestJob::unpauseResponse(void)
 	}
 }
 
+string FaceRest::RestJob::getResourceName(int nest)
+{
+	size_t idx = nest * 2;
+	if (pathElements.size() > idx)
+		return pathElements[idx];
+	return string();
+}
+
+string FaceRest::RestJob::getResourceIdString(int nest)
+{
+	size_t idx = nest * 2 + 1;
+	if (pathElements.size() > idx)
+		return pathElements[idx];
+	return string();
+}
+
+uint64_t FaceRest::RestJob::getResourceId(int nest)
+{
+	size_t idx = nest * 2 + 1;
+	if (pathElements.size() <= idx)
+		return INVALID_ID;
+	uint64_t id = INVALID_ID;
+	if (sscanf(pathElements[idx].c_str(), "%"PRIu64"", &id) != 1)
+		return INVALID_ID;
+	return id;
+}
+
 static void copyHashTable (gpointer key, gpointer data, gpointer user_data)
 {
 	GHashTable *dest = static_cast<GHashTable *>(user_data);
@@ -866,7 +895,7 @@ void FaceRest::queueRestJob
 {
 	GHashTable *query = _query;
 	Reaper<GHashTable> postQueryReaper;
-	if (strcasecmp(msg->method, "POST") == 0) {
+	if (StringUtils::casecmp(msg->method, "POST")) {
 		// The POST request contains query parameters in the body
 		// according to application/x-www-form-urlencoded.
 		query = soup_form_decode(msg->request_body->data);
@@ -1505,11 +1534,11 @@ static void setActionCondition(
 
 void FaceRest::handlerAction(RestJob *job)
 {
-	if (strcasecmp(job->message->method, "GET") == 0) {
+	if (StringUtils::casecmp(job->message->method, "GET")) {
 		handlerGetAction(job);
-	} else if (strcasecmp(job->message->method, "POST") == 0) {
+	} else if (StringUtils::casecmp(job->message->method, "POST")) {
 		handlerPostAction(job);
-	} else if (strcasecmp(job->message->method, "DELETE") == 0) {
+	} else if (StringUtils::casecmp(job->message->method, "DELETE")) {
 		handlerDeleteAction(job);
 	} else {
 		MLPL_ERR("Unknown method: %s\n", job->message->method);
@@ -1717,14 +1746,11 @@ void FaceRest::handlerPostAction(RestJob *job)
 void FaceRest::handlerDeleteAction(RestJob *job)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-	if (job->resourceId.empty()) {
-		replyError(job, HTERR_NOT_FOUND_ID_IN_URL);
-		return;
-	}
-	int actionId;
-	if (sscanf(job->resourceId.c_str(), "%d", &actionId) != 1) {
-		REPLY_ERROR(job, HTERR_INVALID_PARAMETER,
-		            "id: %s", job->resourceId.c_str());
+
+	uint64_t actionId = job->getResourceId();
+	if (actionId == INVALID_ID) {
+		REPLY_ERROR(job, HTERR_NOT_FOUND_ID_IN_URL,
+			    "id: %s", job->getResourceIdString().c_str());
 		return;
 	}
 	ActionIdList actionIdList;
@@ -1735,18 +1761,26 @@ void FaceRest::handlerDeleteAction(RestJob *job)
 	JsonBuilderAgent agent;
 	agent.startObject();
 	addHatoholError(agent, HatoholError(HTERR_OK));
-	agent.add("id", job->resourceId);
+	agent.add("id", actionId);
 	agent.endObject();
 	replyJsonData(agent, job);
 }
 
 void FaceRest::handlerUser(RestJob *job)
 {
-	if (strcasecmp(job->message->method, "GET") == 0) {
+	// handle sub-resources
+	string resourceName = job->getResourceName(1);
+	if (StringUtils::casecmp(resourceName, "access-info")) {
+		handlerAccessInfo(job);
+		return;
+	}
+
+	// handle "user" resource itself
+	if (StringUtils::casecmp(job->message->method, "GET")) {
 		handlerGetUser(job);
-	} else if (strcasecmp(job->message->method, "POST") == 0) {
+	} else if (StringUtils::casecmp(job->message->method, "POST")) {
 		handlerPostUser(job);
-	} else if (strcasecmp(job->message->method, "DELETE") == 0) {
+	} else if (StringUtils::casecmp(job->message->method, "DELETE")) {
 		handlerDeleteUser(job);
 	} else {
 		MLPL_ERR("Unknown method: %s\n", job->message->method);
@@ -1839,14 +1873,10 @@ void FaceRest::handlerPostUser(RestJob *job)
 
 void FaceRest::handlerDeleteUser(RestJob *job)
 {
-	if (job->resourceId.empty()) {
-		replyError(job, HTERR_NOT_FOUND_ID_IN_URL);
-		return;
-	}
-	int userId;
-	if (sscanf(job->resourceId.c_str(), "%"FMT_USER_ID, &userId) != 1) {
-		REPLY_ERROR(job, HTERR_INVALID_PARAMETER,
-		            "id: %s", job->resourceId.c_str());
+	uint64_t userId = job->getResourceId();
+	if (userId == INVALID_ID) {
+		REPLY_ERROR(job, HTERR_NOT_FOUND_ID_IN_URL,
+			    "id: %s", job->getResourceIdString().c_str());
 		return;
 	}
 
@@ -1861,6 +1891,145 @@ void FaceRest::handlerDeleteUser(RestJob *job)
 	addHatoholError(agent, err);
 	if (err == HTERR_OK)
 		agent.add("id", userId);
+	agent.endObject();
+	replyJsonData(agent, job);
+}
+
+void FaceRest::handlerAccessInfo(RestJob *job)
+{
+	if (StringUtils::casecmp(job->message->method, "GET")) {
+		handlerGetAccessInfo(job);
+	} else if (StringUtils::casecmp(job->message->method, "POST")) {
+		handlerPostAccessInfo(job);
+	} else if (StringUtils::casecmp(job->message->method, "DELETE")) {
+		handlerDeleteAccessInfo(job);
+	} else {
+		MLPL_ERR("Unknown method: %s\n", job->message->method);
+		soup_message_set_status(job->message,
+					SOUP_STATUS_METHOD_NOT_ALLOWED);
+		job->replyIsPrepared = true;
+	}
+}
+
+void FaceRest::handlerGetAccessInfo(RestJob *job)
+{
+	AccessInfoQueryOption option;
+	option.setUserId(job->userId);
+	option.setQueryUserId(job->getResourceId());
+
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+	ServerAccessInfoMap serversMap;
+	HatoholError error = dataStore->getAccessInfoMap(serversMap, option);
+	if (error != HTERR_OK) {
+		replyError(job, error);
+		return;
+	}
+
+	JsonBuilderAgent agent;
+	agent.startObject();
+	addHatoholError(agent, HatoholError(HTERR_OK));
+	ServerAccessInfoMapIterator it = serversMap.begin();
+	agent.add("numberOfAllowedServers", serversMap.size());
+	agent.startArray("allowedServers");
+	for (; it != serversMap.end(); it++) {
+		HostGrpAccessInfoMap *hostGroupsMap = it->second;
+		agent.startObject();
+		agent.add("serverId", it->first);
+		agent.add("numberOfAllowedHostGroups", hostGroupsMap->size());
+		agent.startArray("allowedHostGroups");
+		HostGrpAccessInfoMapIterator it2 = hostGroupsMap->begin();
+		for (; it2 != hostGroupsMap->end(); it2++) {
+			AccessInfo *info = it2->second;
+			agent.startObject();
+			agent.add("hostGroupId", it2->first);
+			agent.add("accessInfoId", info->id);
+			agent.endObject();
+		}
+		agent.endArray();
+		agent.endObject();
+	}
+	agent.endArray();
+	agent.endObject();
+
+	DBClientUser::destroyServerAccessInfoMap(serversMap);
+
+	replyJsonData(agent, job);
+}
+
+void FaceRest::handlerPostAccessInfo(RestJob *job)
+{
+	// Get query parameters
+	bool exist;
+	bool succeeded;
+	AccessInfo accessInfo;
+
+	// user-id
+	succeeded = getParamWithErrorReply<UserIdType>(
+	              job, "userId", "%"FMT_USER_ID, accessInfo.userId, &exist);
+	if (!succeeded)
+		return;
+	if (!exist) {
+		REPLY_ERROR(job, HTERR_NOT_FOUND_PARAMETER, "userId");
+		return;
+	}
+
+	// server-id
+	succeeded = getParamWithErrorReply<uint32_t>(
+	              job, "serverId", "%"PRIu32, accessInfo.serverId, &exist);
+	if (!succeeded)
+		return;
+	if (!exist) {
+		REPLY_ERROR(job, HTERR_NOT_FOUND_PARAMETER, "serverId");
+		return;
+	}
+
+	// server-id
+	succeeded = getParamWithErrorReply<uint64_t>(
+	              job, "hostGroupId", "%"PRIu64, accessInfo.hostGroupId, &exist);
+	if (!succeeded)
+		return;
+	if (!exist) {
+		REPLY_ERROR(job, HTERR_NOT_FOUND_PARAMETER, "hostGroupId");
+		return;
+	}
+
+	// try to add
+	DataQueryOption option;
+	option.setUserId(job->userId);
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+	HatoholError err = dataStore->addAccessInfo(accessInfo, option);
+
+	// make a response
+	JsonBuilderAgent agent;
+	agent.startObject();
+	addHatoholError(agent, err);
+	if (err == HTERR_OK)
+		agent.add("id", accessInfo.id);
+	agent.endObject();
+	replyJsonData(agent, job);
+}
+
+void FaceRest::handlerDeleteAccessInfo(RestJob *job)
+{
+	int nest = 1;
+	uint64_t id = job->getResourceId(nest);
+	if (id == INVALID_ID) {
+		REPLY_ERROR(job, HTERR_NOT_FOUND_ID_IN_URL,
+			    "id: %s", job->getResourceIdString(nest).c_str());
+		return;
+	}
+
+	DataQueryOption option;
+	option.setUserId(job->userId);
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+	HatoholError err = dataStore->deleteAccessInfo(id, option);
+
+	// replay
+	JsonBuilderAgent agent;
+	agent.startObject();
+	addHatoholError(agent, err);
+	if (err == HTERR_OK)
+		agent.add("id", id);
 	agent.endObject();
 	replyJsonData(agent, job);
 }

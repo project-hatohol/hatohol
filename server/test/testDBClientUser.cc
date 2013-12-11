@@ -396,19 +396,48 @@ void test_addAccessList(void)
 {
 	loadTestDBAccessList();
 	DBClientUser dbUser;
+	assertAccessInfoInDB();
+}
 
-	string statement = "select * from ";
-	statement += DBClientUser::TABLE_NAME_ACCESS_LIST;
-	statement += " ORDER BY id ASC";
-	string expect;
-	for (size_t i = 0; i < NumTestAccessInfo; i++) {
-		const AccessInfo &accessInfo = testAccessInfo[i];
-		expect += StringUtils::sprintf(
-		  "%zd|%"FMT_USER_ID"|%d|%"PRIu64"\n",
-		  i+1, accessInfo.userId,
-		  accessInfo.serverId, accessInfo.hostGroupId);
-	}
-	assertDBContent(dbUser.getDBAgent(), statement, expect);
+void test_addAccessListWithoutUpdateUserPrivilege(void)
+{
+	DBClientUser dbUser;
+	HatoholError err;
+	OperationPrivilege privilege;
+	err = dbUser.addAccessInfo(testAccessInfo[0], privilege);
+	assertHatoholError(HTERR_NO_PRIVILEGE, err);
+
+	AccessInfoIdSet accessInfoIdSet;
+	for (size_t i = 0; i < NumTestAccessInfo; i++)
+		accessInfoIdSet.insert(i + 1);
+	assertAccessInfoInDB(accessInfoIdSet);
+}
+
+void test_deleteAccessInfo(void)
+{
+	loadTestDBAccessList();
+	DBClientUser dbUser;
+	const AccessInfoIdType targetId = 2;
+	OperationPrivilege privilege;
+	privilege.setFlags((OperationPrivilege::makeFlag(OPPRVLG_UPDATE_USER)));
+	HatoholError err = dbUser.deleteAccessInfo(targetId, privilege);
+	assertHatoholError(HTERR_OK, err);
+
+	AccessInfoIdSet accessInfoIdSet;
+	accessInfoIdSet.insert(targetId);
+	assertAccessInfoInDB(accessInfoIdSet);
+}
+
+void test_deleteAccessWithoutUpdateUserPrivilege(void)
+{
+	loadTestDBAccessList();
+	DBClientUser dbUser;
+	const AccessInfoIdType targetId = 2;
+	OperationPrivilege privilege;
+	HatoholError err = dbUser.deleteAccessInfo(targetId, privilege);
+	assertHatoholError(HTERR_NO_PRIVILEGE, err);
+
+	assertAccessInfoInDB();
 }
 
 void test_getUserInfo(void)
@@ -499,9 +528,77 @@ void test_getServerAccessInfoMap(void)
 	UserIdIndexMapIterator it = userIdIndexMap.begin();
 	for (; it != userIdIndexMap.end(); ++it) {
 		ServerAccessInfoMap srvAccessInfoMap;
-		UserIdType userId = it->first;
-		dbUser.getAccessInfoMap(srvAccessInfoMap, userId);
+		AccessInfoQueryOption option;
+		option.setUserId(USER_ID_ADMIN);
+		option.setQueryUserId(it->first);
+		HatoholError error = dbUser.getAccessInfoMap(srvAccessInfoMap,
+							     option);
+		cppcut_assert_equal(HTERR_OK, error.getCode());
 		assertServerAccessInfoMap(it->second, srvAccessInfoMap);
+		DBClientUser::destroyServerAccessInfoMap(srvAccessInfoMap);
+	}
+}
+
+void test_getServerAccessInfoMapByOwner(void)
+{
+	DBClientUser dbUser;
+	UserIdIndexMap userIdIndexMap;
+	loadTestDBUser();
+	setupWithUserIdIndexMap(userIdIndexMap);
+	UserIdIndexMapIterator it = userIdIndexMap.begin();
+	for (; it != userIdIndexMap.end(); ++it) {
+		ServerAccessInfoMap srvAccessInfoMap;
+		AccessInfoQueryOption option;
+		option.setUserId(it->first);
+		option.setQueryUserId(it->first);
+		HatoholError error = dbUser.getAccessInfoMap(srvAccessInfoMap,
+							     option);
+		cppcut_assert_equal(HTERR_OK, error.getCode());
+		assertServerAccessInfoMap(it->second, srvAccessInfoMap);
+		DBClientUser::destroyServerAccessInfoMap(srvAccessInfoMap);
+	}
+}
+
+void test_getServerAccessInfoMapByNonOwner(void)
+{
+	DBClientUser dbUser;
+	UserIdIndexMap userIdIndexMap;
+	loadTestDBUser();
+	setupWithUserIdIndexMap(userIdIndexMap);
+	UserIdIndexMapIterator it = userIdIndexMap.begin();
+	for (; it != userIdIndexMap.end(); ++it) {
+		ServerAccessInfoMap srvAccessInfoMap;
+		AccessInfoQueryOption option;
+		UserIdType guestUserA = 1, guestUserB = 3, user;
+		user = (it->first == guestUserA) ? guestUserB : guestUserA;
+		option.setUserId(user);
+		option.setQueryUserId(it->first);
+		HatoholError error = dbUser.getAccessInfoMap(srvAccessInfoMap,
+							     option);
+		cppcut_assert_equal(HTERR_NO_PRIVILEGE, error.getCode());
+		cut_assert_true(srvAccessInfoMap.empty());
+		DBClientUser::destroyServerAccessInfoMap(srvAccessInfoMap);
+	}
+}
+
+void test_getServerAccessInfoMapByAdminUser(void)
+{
+	DBClientUser dbUser;
+	UserIdIndexMap userIdIndexMap;
+	loadTestDBUser();
+	setupWithUserIdIndexMap(userIdIndexMap);
+	UserIdIndexMapIterator it = userIdIndexMap.begin();
+	for (; it != userIdIndexMap.end(); ++it) {
+		ServerAccessInfoMap srvAccessInfoMap;
+		AccessInfoQueryOption option;
+		UserIdType adminUser = 2;
+		option.setUserId(adminUser);
+		option.setQueryUserId(it->first);
+		HatoholError error = dbUser.getAccessInfoMap(srvAccessInfoMap,
+							     option);
+		cppcut_assert_equal(HTERR_OK, error.getCode());
+		assertServerAccessInfoMap(it->second, srvAccessInfoMap);
+		DBClientUser::destroyServerAccessInfoMap(srvAccessInfoMap);
 	}
 }
 

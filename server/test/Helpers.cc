@@ -348,7 +348,7 @@ void _assertDBContent(DBAgent *dbAgent, const string &statement,
 	StringUtils::split(linesExpect, expect, '\n');
 	StringUtils::split(linesActual, actual, '\n');
 	cppcut_assert_equal(linesExpect.size(), linesActual.size(),
-	  cut_message("<<expect>>\n%s\n\n<<actual>>%s\n",
+	  cut_message("<<expect>>\n%s\n\n<<actual>>\n%s\n",
 	              expect.c_str(), actual.c_str()));
 	for (size_t i = 0; i < linesExpect.size(); i++) {
 		cut_trace(
@@ -411,6 +411,25 @@ void _assertUsersInDB(const UserIdSet &excludeUserIdSet)
 		  userId, userInfo.name.c_str(),
 		  Utils::sha256(userInfo.password).c_str(),
 		  userInfo.flags);
+	}
+	CacheServiceDBClient cache;
+	assertDBContent(cache.getUser()->getDBAgent(), statement, expect);
+}
+
+void _assertAccessInfoInDB(const AccessInfoIdSet &excludeAccessInfoIdSet)
+{
+	string statement = "select * from ";
+	statement += DBClientUser::TABLE_NAME_ACCESS_LIST;
+	statement += " ORDER BY id ASC";
+	string expect;
+	for (size_t i = 0; i < NumTestAccessInfo; i++) {
+		AccessInfoIdType id = i + 1;
+		if (excludeAccessInfoIdSet.find(id) != excludeAccessInfoIdSet.end())
+			continue;
+		const AccessInfo &accessInfo = testAccessInfo[i];
+		expect += StringUtils::sprintf(
+		  "%"FMT_ACCESS_INFO_ID"|%"FMT_USER_ID"|%d|%"PRIu64"\n",
+		  id, accessInfo.userId, accessInfo.serverId, accessInfo.hostGroupId);
 	}
 	CacheServiceDBClient cache;
 	assertDBContent(cache.getUser()->getDBAgent(), statement, expect);
@@ -536,8 +555,12 @@ void loadTestDBUser(void)
 void loadTestDBAccessList(void)
 {
 	DBClientUser dbUser;
-	for (size_t i = 0; i < NumTestAccessInfo; i++)
-		dbUser.addAccessInfo(testAccessInfo[i]);
+	HatoholError err;
+	OperationPrivilege privilege(ALL_PRIVILEGES);
+	for (size_t i = 0; i < NumTestAccessInfo; i++) {
+		err = dbUser.addAccessInfo(testAccessInfo[i], privilege);
+		assertHatoholError(HTERR_OK, err);
+	}
 }
 
 void setupTestDBUser(bool dbRecreate, bool loadTestData)

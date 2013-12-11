@@ -39,7 +39,7 @@ typedef UserInfoList::iterator       UserInfoListIterator;
 typedef UserInfoList::const_iterator UserInfoListConstIterator;
 
 struct AccessInfo {
-	int id;
+	AccessInfoIdType id;
 	UserIdType userId;
 	uint32_t serverId;
 	uint64_t hostGroupId;
@@ -77,6 +77,22 @@ public:
 
 	// Overriding virtual methods
 	std::string getCondition(void) const;
+
+private:
+	struct PrivateContext;
+	PrivateContext *m_ctx;
+};
+
+class AccessInfoQueryOption : public DataQueryOption {
+public:
+	AccessInfoQueryOption(void);
+	virtual ~AccessInfoQueryOption();
+
+	// Overriding of virtual methods
+	std::string getCondition(void) const;
+
+	void setQueryUserId(UserIdType userId);
+	UserIdType getQueryUserId(void) const;
 
 private:
 	struct PrivateContext;
@@ -135,7 +151,10 @@ public:
 	 * @param accessInfo 
 	 * An AccessInfo instance that has parameters to be stored.
 	 */
-	void addAccessInfo(AccessInfo &accessInfo);
+	HatoholError addAccessInfo(AccessInfo &accessInfo,
+				   const OperationPrivilege &privilege);
+	HatoholError deleteAccessInfo(AccessInfoIdType id,
+				      const OperationPrivilege &privilege);
 
 	bool getUserInfo(UserInfo &userInfo, const UserIdType userId);
 
@@ -158,10 +177,12 @@ public:
 	 * the user with userId.
 	 *
 	 * @param srvAccessInfoMap An ServerAccessInfoMap instance.
-	 * @param userId a user ID.
+	 * @param option A AccessInfoQueryOption instance.
 	 */
-	void getAccessInfoMap(ServerAccessInfoMap &srvAccessInfoMap,
-	                      const UserIdType userId);
+	HatoholError getAccessInfoMap(ServerAccessInfoMap &srvAccessInfoMap,
+				      AccessInfoQueryOption &option);
+	static void destroyServerAccessInfoMap(
+	  ServerAccessInfoMap &srvAccessInfoMap);
 
 	/**
 	 * Gather server IDs and host group IDs for the user with userId.

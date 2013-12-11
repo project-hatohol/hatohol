@@ -120,7 +120,9 @@ static string makeQueryStringForCurlPost(const StringMap &parameters,
 	return postDataArg;
 }
 
-static JsonParserAgent *getResponseAsJsonParser(
+
+static void getServerResponse(
+  string &response, StringVector &responseHeaders,
   const string &url, const string &callbackName = "",
   const StringMap &parameters = emptyStringMap,
   const string &request = "GET",
@@ -148,11 +150,34 @@ static JsonParserAgent *getResponseAsJsonParser(
 
 	// get reply with wget
 	string getCmd =
-	  StringUtils::sprintf("curl -X %s %s %s http://localhost:%u%s%s",
+	  StringUtils::sprintf("curl -X %s %s %s -i http://localhost:%u%s%s",
 	                       request.c_str(), headers.c_str(),
 	                       postDataArg.c_str(), TEST_PORT, url.c_str(),
 	                       joinedQueryParams.c_str());
-	string response = executeCommand(getCmd);
+	response = executeCommand(getCmd);
+	const string separator = "\r\n\r\n";
+	size_t pos = response.find(separator);
+	if (pos != string::npos) {
+		string headers = response.substr(0, pos);	
+		response = response.substr(pos + separator.size());
+		gchar **tmp = g_strsplit(headers.c_str(),
+					 "\r\n", -1);
+		for (size_t i = 0; tmp[i]; i++)
+			responseHeaders.push_back(tmp[i]);
+		g_strfreev(tmp);
+	}
+}
+
+static JsonParserAgent *getResponseAsJsonParser(
+  const string &url, const string &callbackName = "",
+  const StringMap &parameters = emptyStringMap,
+  const string &request = "GET",
+  const StringVector &headersVect = emptyStringVector)
+{
+	string response;
+	StringVector responseHeaders;
+	getServerResponse(response, responseHeaders, url, callbackName,
+			  parameters, request, headersVect);
 
 	// if JSONP, check the callback name
 	if (!callbackName.empty()) {
@@ -584,17 +609,15 @@ static void _assertActions(const string &path, const string &callbackName = "")
 #define assertActions(P,...) cut_trace(_assertActions(P,##__VA_ARGS__))
 
 void _assertAddRecord(const StringMap &params, const string &url,
-                      const HatoholErrorCode &expectCode = HTERR_OK)
+                      const HatoholErrorCode &expectCode = HTERR_OK,
+		      uint32_t expectedId = 1)
 {
 	startFaceRest();
 	g_parser = getResponseAsJsonParser(url, "foo", params, "POST");
 	assertErrorCode(g_parser, expectCode);
 	if (expectCode != HTERR_OK)
 		return;
-
-	// This function asummes that the test database is recreated and
-	// is empty. So the added action is the first and the ID should one.
-	assertValueInParser(g_parser, "id", (uint32_t)1);
+	assertValueInParser(g_parser, "id", expectedId);
 }
 
 #define assertAddAction(P, ...) \
@@ -705,6 +728,70 @@ static void _assertUpdateOrAddUser(const string &name)
 	assertDBContent(cache.getUser()->getDBAgent(), statement, expect);
 }
 #define assertUpdateOrAddUser(U) cut_trace(_assertUpdateOrAddUser(U))
+
+static void _assertServerAccessInfo(JsonParserAgent *parser, HostGrpAccessInfoMap &expected)
+{
+	assertValueInParser(g_parser, "numberOfAllowedHostGroups",
+			    expected.size());
+	g_parser->startObject("allowedHostGroups");
+	for (size_t i = 0; i < expected.size(); i++) {
+		g_parser->startElement(i);
+		int64_t hostGroupId;
+		cut_assert_true(g_parser->read("hostGroupId", hostGroupId));
+		HostGrpAccessInfoMapIterator it
+			= expected.find(hostGroupId);
+		cut_assert_true(it != expected.end());
+		AccessInfo *info = it->second;
+		assertValueInParser(g_parser, "accessInfoId",
+				    static_cast<uint64_t>(info->id));
+		expected.erase(it);
+		delete info;
+		g_parser->endElement();
+	}
+	g_parser->endObject();
+}
+#define assertServerAccessInfo(P,I,...) cut_trace(_assertServerAccessInfo(P,I,##__VA_ARGS__))
+
+static void _assertAllowedServers(const string &path, UserIdType userId,
+				  const string &callbackName = "")
+{
+	startFaceRest();
+	g_parser = getResponseAsJsonParser(path, callbackName);
+	assertErrorCode(g_parser);
+	ServerAccessInfoMap srvAccessInfoMap;
+	makeServerAccessInfoMap(srvAccessInfoMap, userId);
+	assertValueInParser(g_parser, "numberOfAllowedServers",
+	                    srvAccessInfoMap.size());
+	g_parser->startObject("allowedServers");
+	for (size_t i = 0; i < srvAccessInfoMap.size(); i++) {
+		g_parser->startElement(i);
+		int64_t serverId;
+		cut_assert_true(g_parser->read("serverId", serverId));
+		ServerAccessInfoMapIterator it = srvAccessInfoMap.find(serverId);
+		cut_assert_true(it != srvAccessInfoMap.end());
+		HostGrpAccessInfoMap *hostGrpAccessInfoMap = it->second;
+		assertServerAccessInfo(g_parser, *hostGrpAccessInfoMap);
+		srvAccessInfoMap.erase(it);
+		delete hostGrpAccessInfoMap;
+		g_parser->endElement();
+	}
+	g_parser->endObject();
+}
+#define assertAllowedServers(P,...) cut_trace(_assertAllowedServers(P,##__VA_ARGS__))
+
+#define assertAddAccessInfo(P, ...) \
+cut_trace(_assertAddRecord(P, "/user/1/access-info", ##__VA_ARGS__))
+
+void _assertAddAccessInfoWithSetup(const StringMap &params,
+				   const HatoholErrorCode &expectCode,
+				   uint32_t expectedId)
+{
+	const bool dbRecreate = true;
+	const bool loadTestDat = false;
+	setupTestDBUser(dbRecreate, loadTestDat);
+	assertAddAccessInfo(params, expectCode);
+}
+#define assertAddAccessInfoWithSetup(P,C,I) cut_trace(_assertAddAccessInfoWithSetup(P,C,I))
 
 static void setupPostAction(void)
 {
@@ -1306,7 +1393,7 @@ void test_deleteUserWithNonNumericId(void)
 	string url = StringUtils::sprintf("/user/zoo");
 	g_parser =
 	  getResponseAsJsonParser(url, "cbname", emptyStringMap, "DELETE");
-	assertErrorCode(g_parser, HTERR_INVALID_PARAMETER);
+	assertErrorCode(g_parser, HTERR_NOT_FOUND_ID_IN_URL);
 }
 
 void test_updateOrAddUserNotInTestMode(void)
@@ -1356,6 +1443,92 @@ void test_updateOrAddUserUpdate(void)
 	const size_t targetIndex = 2;
 	const UserInfo &userInfo = testUserInfo[targetIndex];
 	assertUpdateOrAddUser(userInfo.name);
+}
+
+void test_getAccessInfo(void)
+{
+	const bool dbRecreate = true;
+	const bool loadTestDat = true;
+	setupTestDBUser(dbRecreate, loadTestDat);
+	loadTestDBAccessList();
+	assertAllowedServers("/user/1/access-info", 1, "cbname");
+}
+
+void test_getAccessInfoWithUserId3(void)
+{
+	const bool dbRecreate = true;
+	const bool loadTestDat = true;
+	setupTestDBUser(dbRecreate, loadTestDat);
+	loadTestDBAccessList();
+	assertAllowedServers("/user/3/access-info", 3, "cbname");
+}
+
+void test_addAccessInfo(void)
+{
+	const string userId = "1";
+	const string serverId = "2";
+	const string hostGroupId = "3";
+
+	StringMap params;
+	params["userId"] = userId;
+	params["serverId"] = serverId;
+	params["hostGroupId"] = hostGroupId;
+	assertAddAccessInfoWithSetup(params, HTERR_OK, 1);
+
+	// check the content in the DB
+	DBClientUser dbUser;
+	string statement = "select * from ";
+	statement += DBClientUser::TABLE_NAME_ACCESS_LIST;
+	int expectedId = 1;
+	string expect = StringUtils::sprintf(
+	  "%"FMT_ACCESS_INFO_ID"|%s|%s|%s\n",
+	  expectedId, userId.c_str(), serverId.c_str(), hostGroupId.c_str());
+	assertDBContent(dbUser.getDBAgent(), statement, expect);
+}
+
+void test_addAccessInfoWithExistingData(void)
+{
+	const string userId = "1";
+	const string serverId = "1";
+	const string hostGroupId = "1";
+
+	StringMap params;
+	params["userId"] = userId;
+	params["serverId"] = serverId;
+	params["hostGroupId"] = hostGroupId;
+
+	bool dbRecreate = true;
+	bool loadTestData = true;
+	setupTestDBUser(dbRecreate, loadTestData);
+	loadTestDBAccessList();
+
+	assertAddAccessInfo(params, HTERR_OK, 2);
+
+	AccessInfoIdSet accessInfoIdSet;
+	assertAccessInfoInDB(accessInfoIdSet);
+}
+
+
+void test_deleteAccessInfo(void)
+{
+	startFaceRest();
+	bool dbRecreate = true;
+	bool loadTestData = false;
+	setupTestDBUser(dbRecreate, loadTestData);
+	loadTestDBAccessList();
+
+	const AccessInfoIdType targetId = 2;
+	string url = StringUtils::sprintf(
+	  "/user/1/access-info/%"FMT_ACCESS_INFO_ID,
+	  targetId);
+	g_parser =
+	  getResponseAsJsonParser(url, "cbname", emptyStringMap, "DELETE");
+
+	// check the reply
+	assertErrorCode(g_parser);
+	AccessInfoIdSet accessInfoIdSet;
+	accessInfoIdSet.insert(targetId);
+	assertAccessInfoInDB(accessInfoIdSet);
 }
 
 } // namespace testFaceRest

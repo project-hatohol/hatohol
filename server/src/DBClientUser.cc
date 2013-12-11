@@ -23,6 +23,7 @@
 # include "DBClientConfig.h"
 
 const UserIdSet EMPTY_USER_ID_SET;
+const AccessInfoIdSet EMPTY_ACCESS_INFO_ID_SET;
 
 const int   DBClientUser::USER_DB_VERSION = 1;
 const char *DBClientUser::DEFAULT_DB_NAME = DBClientConfig::DEFAULT_DB_NAME;
@@ -235,6 +236,56 @@ string UserQueryOption::getCondition(void) const
 		}
 	}
 	return condition;
+}
+
+// ---------------------------------------------------------------------------
+// AccessInfoQueryOption
+// ---------------------------------------------------------------------------
+struct AccessInfoQueryOption::PrivateContext {
+	UserIdType queryUserId;
+
+	PrivateContext(void)
+	: queryUserId(INVALID_USER_ID)
+	{
+	}
+};
+
+AccessInfoQueryOption::AccessInfoQueryOption(void)
+: m_ctx(NULL)
+{
+	m_ctx = new PrivateContext();
+}
+
+AccessInfoQueryOption::~AccessInfoQueryOption()
+{
+	if (m_ctx)
+		delete m_ctx;
+}
+string AccessInfoQueryOption::getCondition(void) const
+{
+	UserIdType userId = getUserId();
+	if (userId == INVALID_USER_ID) {
+		MLPL_WARN("INVALID_USER_ID\n");
+		return DBClientUser::getAlwaysFalseCondition();
+	}
+
+	if (!has(OPPRVLG_GET_ALL_USERS) && getUserId() != m_ctx->queryUserId) {
+		return DBClientUser::getAlwaysFalseCondition();
+	}
+
+	return StringUtils::sprintf("%s=%"FMT_USER_ID"",
+	  COLUMN_DEF_ACCESS_LIST[IDX_ACCESS_LIST_USER_ID].columnName,
+	  getQueryUserId());
+}
+
+void AccessInfoQueryOption::setQueryUserId(UserIdType userId)
+{
+	m_ctx->queryUserId = userId;
+}
+
+UserIdType AccessInfoQueryOption::getQueryUserId(void) const
+{
+	return m_ctx->queryUserId;
 }
 
 // ---------------------------------------------------------------------------
@@ -454,8 +505,41 @@ UserIdType DBClientUser::getUserId(const string &user, const string &password)
 	return userId;
 }
 
-void DBClientUser::addAccessInfo(AccessInfo &accessInfo)
+HatoholError DBClientUser::addAccessInfo(AccessInfo &accessInfo,
+					 const OperationPrivilege &privilege)
 {
+	if (!privilege.has(OPPRVLG_UPDATE_USER))
+		return HatoholError(HTERR_NO_PRIVILEGE);
+
+	// check existing data
+	DBAgentSelectExArg selectArg;
+	selectArg.tableName = TABLE_NAME_ACCESS_LIST;
+	selectArg.pushColumn(COLUMN_DEF_ACCESS_LIST[IDX_ACCESS_LIST_ID]);
+	selectArg.pushColumn(COLUMN_DEF_ACCESS_LIST[IDX_ACCESS_LIST_USER_ID]);
+	selectArg.pushColumn(COLUMN_DEF_ACCESS_LIST[IDX_ACCESS_LIST_SERVER_ID]);
+	selectArg.pushColumn(COLUMN_DEF_ACCESS_LIST[IDX_ACCESS_LIST_HOST_GROUP_ID]);
+	selectArg.condition = StringUtils::sprintf(
+	  "%s=%"FMT_USER_ID" AND %s=%"PRIu32" AND %s=%"PRIu64,
+	  COLUMN_DEF_ACCESS_LIST[IDX_ACCESS_LIST_USER_ID].columnName,
+	  accessInfo.userId,
+	  COLUMN_DEF_ACCESS_LIST[IDX_ACCESS_LIST_SERVER_ID].columnName,
+	  accessInfo.serverId,
+	  COLUMN_DEF_ACCESS_LIST[IDX_ACCESS_LIST_HOST_GROUP_ID].columnName,
+	  accessInfo.hostGroupId);
+	DBCLIENT_TRANSACTION_BEGIN() {
+		select(selectArg);
+	} DBCLIENT_TRANSACTION_END();
+
+	const ItemGroupList &grpList = selectArg.dataTable->getItemGroupList();
+	ItemGroupListConstIterator it = grpList.begin();
+	if (it != grpList.end()) {
+		const ItemGroup *itemGroup = *it;
+		DEFINE_AND_ASSERT(itemGroup->getItemAt(0), ItemInt, itemId);
+		accessInfo.id = itemId->get();
+		return HTERR_OK;
+	}
+
+	// add new data
 	VariableItemGroupPtr row;
 	DBAgentInsertArg arg;
 	arg.tableName = TABLE_NAME_ACCESS_LIST;
@@ -472,6 +556,24 @@ void DBClientUser::addAccessInfo(AccessInfo &accessInfo)
 		insert(arg);
 		accessInfo.id = getLastInsertId();
 	} DBCLIENT_TRANSACTION_END();
+	return HTERR_OK;
+}
+
+HatoholError DBClientUser::deleteAccessInfo(const AccessInfoIdType id,
+					    const OperationPrivilege &privilege)
+{
+	if (!privilege.has(OPPRVLG_UPDATE_USER))
+		return HatoholError(HTERR_NO_PRIVILEGE);
+
+	DBAgentDeleteArg arg;
+	arg.tableName = TABLE_NAME_ACCESS_LIST;
+	const ColumnDef &colId = COLUMN_DEF_ACCESS_LIST[IDX_ACCESS_LIST_ID];
+	arg.condition = StringUtils::sprintf("%s=%"FMT_ACCESS_INFO_ID,
+	                                     colId.columnName, id);
+	DBCLIENT_TRANSACTION_BEGIN() {
+		deleteRows(arg);
+	} DBCLIENT_TRANSACTION_END();
+	return HTERR_OK;
 }
 
 bool DBClientUser::getUserInfo(UserInfo &userInfo, const UserIdType userId)
@@ -494,8 +596,8 @@ void DBClientUser::getUserInfoList(UserInfoList &userInfoList,
 	getUserInfoList(userInfoList, option.getCondition());
 }
 
-void DBClientUser::getAccessInfoMap(ServerAccessInfoMap &srvAccessInfoMap,
-                                    const UserIdType userId)
+HatoholError DBClientUser::getAccessInfoMap(ServerAccessInfoMap &srvAccessInfoMap,
+					    AccessInfoQueryOption &option)
 {
 	DBAgentSelectExArg arg;
 	arg.tableName = TABLE_NAME_ACCESS_LIST;
@@ -503,8 +605,11 @@ void DBClientUser::getAccessInfoMap(ServerAccessInfoMap &srvAccessInfoMap,
 	arg.pushColumn(COLUMN_DEF_ACCESS_LIST[IDX_ACCESS_LIST_USER_ID]);
 	arg.pushColumn(COLUMN_DEF_ACCESS_LIST[IDX_ACCESS_LIST_SERVER_ID]);
 	arg.pushColumn(COLUMN_DEF_ACCESS_LIST[IDX_ACCESS_LIST_HOST_GROUP_ID]);
-	arg.condition = StringUtils::sprintf("%s=%"FMT_USER_ID"",
-	  COLUMN_DEF_ACCESS_LIST[IDX_ACCESS_LIST_USER_ID].columnName, userId);
+	arg.condition = option.getCondition();
+
+	if (isAlwaysFalseCondition(arg.condition))
+		return HTERR_NO_PRIVILEGE;
+
 	DBCLIENT_TRANSACTION_BEGIN() {
 		select(arg);
 	} DBCLIENT_TRANSACTION_END();
@@ -559,6 +664,23 @@ void DBClientUser::getAccessInfoMap(ServerAccessInfoMap &srvAccessInfoMap,
 		}
 		(*hostGrpAccessInfoMap)[accessInfo->hostGroupId] = accessInfo;
 	}
+
+	return HTERR_OK;
+}
+
+void DBClientUser::destroyServerAccessInfoMap(ServerAccessInfoMap &srvAccessInfoMap)
+{
+	ServerAccessInfoMapIterator it = srvAccessInfoMap.begin();
+	for (; it != srvAccessInfoMap.end(); it++) {
+		HostGrpAccessInfoMap *hostGrpAccessInfoMap = it->second;
+		HostGrpAccessInfoMapIterator it2 = hostGrpAccessInfoMap->begin();
+		for (; it2 != hostGrpAccessInfoMap->end(); it2++) {
+			AccessInfo *info = it2->second;
+			delete info;
+		}
+		delete hostGrpAccessInfoMap;
+	}
+	srvAccessInfoMap.clear();
 }
 
 void DBClientUser::getServerHostGrpSetMap(
