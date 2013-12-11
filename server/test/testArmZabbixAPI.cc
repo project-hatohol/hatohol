@@ -184,12 +184,13 @@ public:
 	{
 		const ItemGroupList &itemList = itemPtr->getItemGroupList();
 		ItemGroupListConstIterator itr = itemList.begin();
-		uint64_t numberPerOnce = ArmZabbixAPI::getMaximumNumberGetEventPerOnce();
-		cppcut_assert_equal(true, itemList.size() <= numberPerOnce);
-		for (; itr != itemList.end(); ++itr) {
+		uint64_t count;
+		for (count = 0; itr != itemList.end(); ++itr, count++) {
 			const ItemGroup *itemGroup = *itr;
 			m_actualEventTablePtr->add(itemGroup);
 		}
+		uint64_t numberPerOnce = ArmZabbixAPI::getMaximumNumberGetEventPerOnce();
+		cppcut_assert_equal(true, count <= numberPerOnce);
 	}
 
 	ItemTablePtr testMakeItemTable(void)
