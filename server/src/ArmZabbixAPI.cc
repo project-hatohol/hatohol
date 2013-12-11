@@ -285,8 +285,7 @@ uint64_t ArmZabbixAPI::getLastEventId(void)
 
 void ArmZabbixAPI::onGotNewEvents(const ItemTablePtr &itemPtr)
 {
-	// This function is virtual function.
-	// This function is used on a test phase.
+	// This function is used on a test class.
 }
 
 // ---------------------------------------------------------------------------
