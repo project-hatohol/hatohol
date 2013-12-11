@@ -490,6 +490,13 @@ void test_getHosts(void)
 	assertTestGet(ArmZabbixAPITestee::GET_TEST_TYPE_HOSTS);
 }
 
+void test_getEvents(void)
+{
+	// We expect empty data for the last two times.
+	g_apiEmulator.setNumberOfEventSlices(NUM_TEST_READ_TIMES-2);
+	assertReceiveData(ArmZabbixAPITestee::GET_TEST_TYPE_EVENTS, 0);
+}
+
 void test_getApplications(void)
 {
 	assertTestGet(ArmZabbixAPITestee::GET_TEST_TYPE_APPLICATIONS);
@@ -715,7 +722,7 @@ void test_getLastEventId(void)
 	cppcut_assert_equal((uint64_t)26485, armZbxApiTestee.getLastEventId());
 }
 
-void test_getEvents(void)
+void test_checkNonLeakage(void)
 {
 	ArmZabbixAPITestee armZbxApiTestee(setupServer());
 	armZbxApiTestee.testOpenSession();
