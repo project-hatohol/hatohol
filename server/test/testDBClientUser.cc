@@ -531,7 +531,9 @@ void test_getServerAccessInfoMap(void)
 		AccessInfoQueryOption option;
 		option.setUserId(USER_ID_ADMIN);
 		option.setQueryUserId(it->first);
-		dbUser.getAccessInfoMap(srvAccessInfoMap, option);
+		HatoholError error = dbUser.getAccessInfoMap(srvAccessInfoMap,
+							     option);
+		cppcut_assert_equal(HTERR_OK, error.getCode());
 		assertServerAccessInfoMap(it->second, srvAccessInfoMap);
 		DBClientUser::destroyServerAccessInfoMap(srvAccessInfoMap);
 	}
