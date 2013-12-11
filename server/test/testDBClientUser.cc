@@ -581,6 +581,27 @@ void test_getServerAccessInfoMapByNonOwner(void)
 	}
 }
 
+void test_getServerAccessInfoMapByAdminUser(void)
+{
+	DBClientUser dbUser;
+	UserIdIndexMap userIdIndexMap;
+	loadTestDBUser();
+	setupWithUserIdIndexMap(userIdIndexMap);
+	UserIdIndexMapIterator it = userIdIndexMap.begin();
+	for (; it != userIdIndexMap.end(); ++it) {
+		ServerAccessInfoMap srvAccessInfoMap;
+		AccessInfoQueryOption option;
+		UserIdType adminUser = 2;
+		option.setUserId(adminUser);
+		option.setQueryUserId(it->first);
+		HatoholError error = dbUser.getAccessInfoMap(srvAccessInfoMap,
+							     option);
+		cppcut_assert_equal(HTERR_OK, error.getCode());
+		assertServerAccessInfoMap(it->second, srvAccessInfoMap);
+		DBClientUser::destroyServerAccessInfoMap(srvAccessInfoMap);
+	}
+}
+
 void test_getServerHostGrpSetMap(void)
 {
 	DBClientUser dbUser;
