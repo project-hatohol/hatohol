@@ -484,8 +484,7 @@ HatoholError DBClientUser::addAccessInfo(AccessInfo &accessInfo,
 	ItemGroupListConstIterator it = grpList.begin();
 	if (it != grpList.end()) {
 		const ItemGroup *itemGroup = *it;
-		int idx = 0;
-		DEFINE_AND_ASSERT(itemGroup->getItemAt(idx++), ItemInt, itemId);
+		DEFINE_AND_ASSERT(itemGroup->getItemAt(0), ItemInt, itemId);
 		accessInfo.id = itemId->get();
 		return HTERR_OK;
 	}
