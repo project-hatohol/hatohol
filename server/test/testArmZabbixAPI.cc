@@ -71,6 +71,7 @@ public:
 	};
 
 	VariableItemTablePtr m_actualEventTablePtr;
+	list<uint64_t> numberOfEventList;
 
 	ArmZabbixAPITestee(const MonitoringServerInfo &serverInfo)
 	: ArmZabbixAPI(serverInfo),
@@ -189,13 +190,11 @@ public:
 	{
 		const ItemGroupList &itemList = itemPtr->getItemGroupList();
 		ItemGroupListConstIterator itr = itemList.begin();
-		uint64_t count;
-		for (count = 0; itr != itemList.end(); ++itr, count++) {
+		numberOfEventList.push_back(itemList.size());
+		for (; itr != itemList.end(); ++itr) {
 			const ItemGroup *itemGroup = *itr;
 			m_actualEventTablePtr->add(itemGroup);
 		}
-		uint64_t numberPerOnce = ArmZabbixAPI::getMaximumNumberGetEventPerOnce();
-		cppcut_assert_equal(true, count <= numberPerOnce);
 	}
 
 	ItemTablePtr testMakeItemTable(void)
@@ -735,5 +734,9 @@ void test_checkNonLeakage(void)
 	ItemTablePtr expectTable = armZbxApiTestee.testMakeItemTable();
 	armZbxApiTestee.testUpdateEvents();
 	cppcut_assert_equal(true, armZbxApiTestee.assertItemTable(expectTable));
+	uint64_t numberPerOnce = armZbxApiTestee.testGetMaximumNumberGetEventPerOnce();
+	list<uint64_t>::iterator itr = armZbxApiTestee.numberOfEventList.begin();
+	for (; itr != armZbxApiTestee.numberOfEventList.end(); ++itr)
+		cppcut_assert_equal(true, *itr <= numberPerOnce);
 }
 } // namespace testArmZabbixAPI
