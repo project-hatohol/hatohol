@@ -225,7 +225,8 @@ public:
 		ItemGroupListConstIterator exItr = expectList.begin();
 		ItemGroupListConstIterator acItr = actualList.begin();
 
-		for (; exItr != expectList.end(); ++exItr, ++acItr) {
+		size_t grpCnt = 0;
+		for (; exItr != expectList.end(); ++exItr, ++acItr, grpCnt++) {
 			const ItemGroup *expectGroup = *exItr;
 			const ItemGroup *actualGroup = *acItr;
 			size_t numberOfItems = expectGroup->getNumberOfItems();
@@ -234,7 +235,9 @@ public:
 			for (size_t index = 0; index < numberOfItems; index++){
 				const ItemData *expectData = expectGroup->getItemAt(index);
 				const ItemData *actualData = actualGroup->getItemAt(index);
-				cppcut_assert_equal(*expectData, *actualData);
+				cppcut_assert_equal(*expectData, *actualData,
+				  cut_message("index: %zd, group count: %zd",
+				              index, grpCnt));
 			}
 		}
 		return true;
