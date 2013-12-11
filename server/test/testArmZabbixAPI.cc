@@ -180,7 +180,7 @@ public:
 		ArmZabbixAPI::updateEvents();
 	}
 
-	void setItemTableData(const ItemTablePtr &itemPtr, const uint64_t &numberPerOnece)
+	void onGotNewEvents(const ItemTablePtr &itemPtr)
 	{
 		const ItemGroupList &itemList = itemPtr->getItemGroupList();
 		ItemGroupListConstIterator itr = itemList.begin();
