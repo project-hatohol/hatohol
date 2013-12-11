@@ -36,9 +36,11 @@ public:
 	struct ParameterEventGet;
 	struct ZabbixAPIEvent;
 	typedef void (ZabbixAPIEmulator::*APIHandler)(APIHandlerArg &);
-	typedef map<int64_t, ZabbixAPIEvent> JsonData;
-	typedef JsonData::iterator JsonDataIterator;
-	typedef JsonData::reverse_iterator ReverseJsonDataIterator;
+
+	// key: Event ID
+	typedef map<int64_t, ZabbixAPIEvent>        ZabbixAPIEventMap;
+	typedef ZabbixAPIEventMap::iterator         ZabbixAPIEventMapIterator;
+	typedef ZabbixAPIEventMap::reverse_iterator ZabbixAPIEventMapReverseIterator;
 
 	ZabbixAPIEmulator(void);
 	virtual ~ZabbixAPIEmulator();
