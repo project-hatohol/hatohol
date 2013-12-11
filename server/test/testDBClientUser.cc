@@ -531,6 +531,7 @@ void test_getServerAccessInfoMap(void)
 		UserIdType userId = it->first;
 		dbUser.getAccessInfoMap(srvAccessInfoMap, userId);
 		assertServerAccessInfoMap(it->second, srvAccessInfoMap);
+		DBClientUser::destroyServerAccessInfoMap(srvAccessInfoMap);
 	}
 }
 

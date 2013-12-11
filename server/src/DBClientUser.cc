@@ -584,6 +584,21 @@ void DBClientUser::getAccessInfoMap(ServerAccessInfoMap &srvAccessInfoMap,
 	}
 }
 
+void DBClientUser::destroyServerAccessInfoMap(ServerAccessInfoMap &srvAccessInfoMap)
+{
+	ServerAccessInfoMapIterator it = srvAccessInfoMap.begin();
+	for (; it != srvAccessInfoMap.end(); it++) {
+		HostGrpAccessInfoMap *hostGrpAccessInfoMap = it->second;
+		HostGrpAccessInfoMapIterator it2 = hostGrpAccessInfoMap->begin();
+		for (; it2 != hostGrpAccessInfoMap->end(); it2++) {
+			AccessInfo *info = it2->second;
+			delete info;
+		}
+		delete hostGrpAccessInfoMap;
+	}
+	srvAccessInfoMap.clear();
+}
+
 void DBClientUser::getServerHostGrpSetMap(
   ServerHostGrpSetMap &srvHostGrpSetMap, const UserIdType userId)
 {

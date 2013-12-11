@@ -165,6 +165,8 @@ public:
 	 */
 	void getAccessInfoMap(ServerAccessInfoMap &srvAccessInfoMap,
 	                      const UserIdType userId);
+	static void destroyServerAccessInfoMap(
+	  ServerAccessInfoMap &srvAccessInfoMap);
 
 	/**
 	 * Gather server IDs and host group IDs for the user with userId.

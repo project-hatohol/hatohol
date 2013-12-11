@@ -1922,15 +1922,14 @@ void FaceRest::handlerGetAccessInfo(RestJob *job)
 		return;
 	}
 
-	JsonBuilderAgent agent;
-	agent.startObject();
-	addHatoholError(agent, HatoholError(HTERR_OK));
-
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	ServerAccessInfoMap serversMap;
 	dataStore->getAccessInfoMap(serversMap, userId);
-	ServerAccessInfoMapIterator it = serversMap.begin();
 
+	JsonBuilderAgent agent;
+	agent.startObject();
+	addHatoholError(agent, HatoholError(HTERR_OK));
+	ServerAccessInfoMapIterator it = serversMap.begin();
 	agent.add("numberOfAllowedServers", serversMap.size());
 	agent.startArray("allowedServers");
 	for (; it != serversMap.end(); it++) {
@@ -1952,6 +1951,8 @@ void FaceRest::handlerGetAccessInfo(RestJob *job)
 	}
 	agent.endArray();
 	agent.endObject();
+
+	DBClientUser::destroyServerAccessInfoMap(serversMap);
 
 	replyJsonData(agent, job);
 }
