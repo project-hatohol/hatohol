@@ -639,19 +639,19 @@ void ZabbixAPIEmulator::parseEventGetParameter(APIHandlerArg &arg)
 	}
 }
 
-string ZabbixAPIEmulator::setEventJsonData(const ZabbixAPIEvent &key)
+string ZabbixAPIEmulator::setEventJsonData(const ZabbixAPIEvent &data)
 {
 	const char *fmt =
 	  "{\"eventid\":\"%s\",\"source\":\"%s\",\"object\":\"%s\",\"objectid\":\"%s\",\"clock\":\"%s\",\"value\":\"%s\",\"acknowledged\":\"%s\",\"ns\":\"%s\",\"value_changed\":\"%s\"},";
 	return StringUtils::sprintf(
 			fmt,
-			key.eventid.c_str(),
-			key.source.c_str(),
-			key.object.c_str(),
-			key.objectId.c_str(),
-			key.clock.c_str(),
-			key.value.c_str(),
-			key.acknowledged.c_str(),
-			key.ns.c_str(),
-			key.value_changed.c_str());
+			data.eventid.c_str(),
+			data.source.c_str(),
+			data.object.c_str(),
+			data.objectId.c_str(),
+			data.clock.c_str(),
+			data.value.c_str(),
+			data.acknowledged.c_str(),
+			data.ns.c_str(),
+			data.value_changed.c_str());
 }
