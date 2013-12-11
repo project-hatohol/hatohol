@@ -1430,6 +1430,15 @@ void test_getAccessInfo(void)
 	assertAllowedServers("/user/1/access-info", 1, "cbname");
 }
 
+void test_getAccessInfoWithUserId3(void)
+{
+	const bool dbRecreate = true;
+	const bool loadTestDat = true;
+	setupTestDBUser(dbRecreate, loadTestDat);
+	loadTestDBAccessList();
+	assertAllowedServers("/user/3/access-info", 3, "cbname");
+}
+
 void test_addAccessInfo(void)
 {
 	const string userId = "1";
