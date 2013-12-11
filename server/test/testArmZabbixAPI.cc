@@ -734,8 +734,10 @@ void test_checkNonLeakage(void)
 	ItemTablePtr expectTable = armZbxApiTestee.testMakeItemTable();
 	armZbxApiTestee.testUpdateEvents();
 	cppcut_assert_equal(true, armZbxApiTestee.assertItemTable(expectTable));
-	uint64_t numberPerOnce = armZbxApiTestee.testGetMaximumNumberGetEventPerOnce();
-	list<uint64_t>::iterator itr = armZbxApiTestee.numberOfEventList.begin();
+	uint64_t numberPerOnce =
+	  armZbxApiTestee.testGetMaximumNumberGetEventPerOnce();
+	list<uint64_t>::iterator itr =
+	   armZbxApiTestee.numberOfEventList.begin();
 	for (; itr != armZbxApiTestee.numberOfEventList.end(); ++itr)
 		cppcut_assert_equal(true, *itr <= numberPerOnce);
 }
