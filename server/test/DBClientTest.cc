@@ -593,3 +593,35 @@ void makeTestUserIdIndexMap(UserIdIndexMap &userIdIndexMap)
 		userIdIndexMap[accessInfo.userId].insert(i);
 	}
 }
+
+void makeServerAccessInfoMap(ServerAccessInfoMap &srvAccessInfoMap,
+			     UserIdType userId)
+{
+	for (size_t i = 0; i < NumTestAccessInfo; ++i) {
+		AccessInfo *accessInfo = &testAccessInfo[i];
+		if (testAccessInfo[i].userId == userId) {
+			HostGrpAccessInfoMap *hostGrpAccessInfoMap = NULL;
+			ServerAccessInfoMapIterator it =
+				srvAccessInfoMap.find(accessInfo->serverId);
+			if (it == srvAccessInfoMap.end()) {
+				hostGrpAccessInfoMap = new HostGrpAccessInfoMap();
+				srvAccessInfoMap[accessInfo->serverId] =
+					hostGrpAccessInfoMap;
+			} else {
+				hostGrpAccessInfoMap = it->second;
+			}
+
+			AccessInfo *destAccessInfo = NULL;
+			HostGrpAccessInfoMapIterator it2
+				= hostGrpAccessInfoMap->find(accessInfo->hostGroupId);
+			if (it2 == hostGrpAccessInfoMap->end()) {
+				destAccessInfo = new AccessInfo();
+				(*hostGrpAccessInfoMap)[accessInfo->hostGroupId] =
+					destAccessInfo;
+			} else {
+				destAccessInfo = it2->second;
+			}
+			*destAccessInfo = *accessInfo;
+		}
+	}
+}

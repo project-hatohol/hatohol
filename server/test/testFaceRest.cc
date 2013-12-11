@@ -706,6 +706,55 @@ static void _assertUpdateOrAddUser(const string &name)
 }
 #define assertUpdateOrAddUser(U) cut_trace(_assertUpdateOrAddUser(U))
 
+static void _assertServerAccessInfo(JsonParserAgent *parser, HostGrpAccessInfoMap &expected)
+{
+	assertValueInParser(g_parser, "numberOfAllowedHostGroups",
+			    expected.size());
+	g_parser->startObject("allowedHostGroups");
+	for (size_t i = 0; i < expected.size(); i++) {
+		g_parser->startElement(i);
+		int64_t hostGroupId;
+		cut_assert_true(g_parser->read("hostGroupId", hostGroupId));
+		HostGrpAccessInfoMapIterator it
+			= expected.find(hostGroupId);
+		cut_assert_true(it != expected.end());
+		AccessInfo *info = it->second;
+		assertValueInParser(g_parser, "accessInfoId",
+				    static_cast<uint64_t>(info->id));
+		expected.erase(it);
+		delete info;
+		g_parser->endElement();
+	}
+	g_parser->endObject();
+}
+#define assertServerAccessInfo(P,I,...) cut_trace(_assertServerAccessInfo(P,I,##__VA_ARGS__))
+
+static void _assertAllowedServers(const string &path, const string &callbackName = "")
+{
+	startFaceRest();
+	g_parser = getResponseAsJsonParser(path, callbackName);
+	assertErrorCode(g_parser);
+	ServerAccessInfoMap srvAccessInfoMap;
+	makeServerAccessInfoMap(srvAccessInfoMap, 1);
+	assertValueInParser(g_parser, "numberOfAllowedServers",
+	                    srvAccessInfoMap.size());
+	g_parser->startObject("allowedServers");
+	for (size_t i = 0; i < srvAccessInfoMap.size(); i++) {
+		g_parser->startElement(i);
+		int64_t serverId;
+		cut_assert_true(g_parser->read("serverId", serverId));
+		ServerAccessInfoMapIterator it = srvAccessInfoMap.find(serverId);
+		cut_assert_true(it != srvAccessInfoMap.end());
+		HostGrpAccessInfoMap *hostGrpAccessInfoMap = it->second;
+		assertServerAccessInfo(g_parser, *hostGrpAccessInfoMap);
+		srvAccessInfoMap.erase(it);
+		delete hostGrpAccessInfoMap;
+		g_parser->endElement();
+	}
+	g_parser->endObject();
+}
+#define assertAllowedServers(P,...) cut_trace(_assertAllowedServers(P,##__VA_ARGS__))
+
 #define assertAddAccessInfo(P, ...) \
 cut_trace(_assertAddRecord(P, "/user/1/access-info", ##__VA_ARGS__))
 
@@ -1369,6 +1418,15 @@ void test_updateOrAddUserUpdate(void)
 	const size_t targetIndex = 2;
 	const UserInfo &userInfo = testUserInfo[targetIndex];
 	assertUpdateOrAddUser(userInfo.name);
+}
+
+void test_getAccessInfo(void)
+{
+	const bool dbRecreate = true;
+	const bool loadTestDat = true;
+	setupTestDBUser(dbRecreate, loadTestDat);
+	loadTestDBAccessList();
+	assertAllowedServers("/user/1/access-info", "cbname");
 }
 
 void test_addAccessInfo(void)
