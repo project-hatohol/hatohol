@@ -20,6 +20,7 @@
 #ifndef ZabbixAPIEmulator_h
 #define ZabbixAPIEmulator_h
 
+#include <map>
 #include <glib.h>
 #include <libsoup/soup.h>
 #include "JsonParserAgent.h"
@@ -32,7 +33,12 @@ enum OperationMode {
 class ZabbixAPIEmulator {
 public:
 	struct APIHandlerArg;
+	struct ParameterEventGet;
+	struct JsonKeys;
 	typedef void (ZabbixAPIEmulator::*APIHandler)(APIHandlerArg &);
+	typedef map<int64_t, ZabbixAPIEmulator::JsonKeys> JsonData;
+	typedef JsonData::iterator JsonDataIterator;
+	typedef JsonData::reverse_iterator ReverseJsonDataIterator;
 
 	ZabbixAPIEmulator(void);
 	virtual ~ZabbixAPIEmulator();
@@ -66,10 +72,10 @@ protected:
 	void APIHandlerHostGet(APIHandlerArg &arg);
 	void APIHandlerEventGet(APIHandlerArg &arg);
 	void APIHandlerApplicationGet(APIHandlerArg &arg);
-	void makeSlicedEvent(const string &path, size_t numSlices);
-	string makeEmptyResponse(APIHandlerArg &arg);
-	string getSlicedResponse(const string &slice, APIHandlerArg &arg);
-
+	void makeEventJsonData(const string &path);
+	string addJsonResponse(const string &slice, APIHandlerArg &arg);
+	void parseEventGetParameter(APIHandlerArg &arg);
+	string setEventJsonData(const JsonKeys &key);
 private:
 	struct PrivateContext;
 	PrivateContext *m_ctx;

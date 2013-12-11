@@ -20,6 +20,7 @@
 #include <cppcutter.h>
 #include <sys/time.h>
 #include <errno.h>
+#include <fstream>
 #include "Hatohol.h"
 #include "ZabbixAPIEmulator.h"
 #include "ArmZabbixAPI.h"
@@ -29,6 +30,9 @@
 #include "DBClientZabbix.h"
 #include "ConfigManager.h"
 #include "ItemTablePtr.h"
+#include "ItemTable.h"
+#include "ItemGroup.h"
+#include "ItemData.h"
 #include "JsonParserAgent.h"
 #include "DBClientAction.h"
 
@@ -65,6 +69,9 @@ public:
 		GET_TEST_TYPE_APPLICATIONS,
 		GET_TEST_TYPE_EVENTS,
 	};
+
+	VariableItemTablePtr m_actualEventTablePtr;
+	list<uint64_t> numberOfEventList;
 
 	ArmZabbixAPITestee(const MonitoringServerInfo &serverInfo)
 	: ArmZabbixAPI(serverInfo),
@@ -167,6 +174,70 @@ public:
 	string testAuthToken(void)
 	{
 		return ArmZabbixAPI::getAuthToken();
+	}
+
+	uint64_t testGetMaximumNumberGetEventPerOnce(void)
+	{
+		return ArmZabbixAPI::getMaximumNumberGetEventPerOnce();
+	}
+
+	void testUpdateEvents(void)
+	{
+		ArmZabbixAPI::updateEvents();
+	}
+
+	void onGotNewEvents(const ItemTablePtr &itemPtr)
+	{
+		const ItemGroupList &itemList = itemPtr->getItemGroupList();
+		ItemGroupListConstIterator itr = itemList.begin();
+		numberOfEventList.push_back(itemList.size());
+		for (; itr != itemList.end(); ++itr) {
+			const ItemGroup *itemGroup = *itr;
+			m_actualEventTablePtr->add(itemGroup);
+		}
+	}
+
+	ItemTablePtr testMakeItemTable(void)
+	{
+		ifstream ifs("fixtures/zabbix-api-res-events-002.json");
+		cppcut_assert_equal(false, ifs.fail());
+
+		string fixtureData;
+		getline(ifs, fixtureData);
+		JsonParserAgent parser(fixtureData);
+		cppcut_assert_equal(false, parser.hasError());
+		startObject(parser, "result");
+
+		VariableItemTablePtr tablePtr;
+		int numData = parser.countElements();
+		if (numData < 1)
+			cut_fail("Value of the elements is empty.");
+		for (int i = 0; i < numData; i++)
+			ArmZabbixAPI::parseAndPushEventsData(parser, tablePtr, i);
+		return ItemTablePtr(tablePtr);
+	}
+
+	bool assertItemTable(const ItemTablePtr &expect)
+	{
+		const ItemGroupList &expectList = expect->getItemGroupList();
+		const ItemGroupList &actualList = m_actualEventTablePtr->getItemGroupList();
+		cppcut_assert_equal(expectList.size(), actualList.size());
+		ItemGroupListConstIterator exItr = expectList.begin();
+		ItemGroupListConstIterator acItr = actualList.begin();
+
+		for (; exItr != expectList.end(); ++exItr, ++acItr) {
+			const ItemGroup *expectGroup = *exItr;
+			const ItemGroup *actualGroup = *acItr;
+			size_t numberOfItems = expectGroup->getNumberOfItems();
+			cppcut_assert_equal(numberOfItems, actualGroup->getNumberOfItems());
+
+			for (size_t index = 0; index < numberOfItems; index++){
+				const ItemData *expectData = expectGroup->getItemAt(index);
+				const ItemData *actualData = actualGroup->getItemAt(index);
+				cppcut_assert_equal(*expectData, *actualData);
+			}
+		}
+		return true;
 	}
 
 	void assertMakeItemVector(bool testNull = false)
@@ -646,5 +717,26 @@ void test_sessionErrorAuthToken(void)
 	token = armZbxApiTestee.testAuthToken();
 	cppcut_assert_equal(true, token.empty());
 
+}
+
+void test_getLastEventId(void)
+{
+	ArmZabbixAPITestee armZbxApiTestee(setupServer());
+	armZbxApiTestee.testOpenSession();
+	cppcut_assert_equal((uint64_t)26485, armZbxApiTestee.getLastEventId());
+}
+
+void test_checkNonLeakage(void)
+{
+	ArmZabbixAPITestee armZbxApiTestee(setupServer());
+	armZbxApiTestee.testOpenSession();
+
+	ItemTablePtr expectTable = armZbxApiTestee.testMakeItemTable();
+	armZbxApiTestee.testUpdateEvents();
+	cppcut_assert_equal(true, armZbxApiTestee.assertItemTable(expectTable));
+	uint64_t numberPerOnce = armZbxApiTestee.testGetMaximumNumberGetEventPerOnce();
+	list<uint64_t>::iterator itr = armZbxApiTestee.numberOfEventList.begin();
+	for (; itr != armZbxApiTestee.numberOfEventList.end(); ++itr)
+		cppcut_assert_equal(true, *itr <= numberPerOnce);
 }
 } // namespace testArmZabbixAPI

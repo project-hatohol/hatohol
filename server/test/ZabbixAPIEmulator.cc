@@ -17,7 +17,6 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <map>
 #include <set>
 #include <cstdio>
 #include <Logger.h>
@@ -27,6 +26,8 @@
 #include "JsonBuilderAgent.h"
 #include "HatoholException.h"
 #include "Helpers.h"
+
+static const int COUNT_ELEMENT_NAMES = 10;
 
 using namespace mlpl;
 
@@ -43,6 +44,36 @@ struct ZabbixAPIEmulator::APIHandlerArg
 typedef map<string, ZabbixAPIEmulator::APIHandler> APIHandlerMap;
 typedef APIHandlerMap::iterator APIHandlerMapIterator;
 
+struct ZabbixAPIEmulator::ParameterEventGet {
+	string output;
+	string sortField;
+	string sortOrder;
+	int64_t limit;
+	int64_t eventIdFrom;
+	int64_t eventIdTill;
+
+	ParameterEventGet(void)
+	: output("extend"),
+	  sortOrder("ASC"),
+	  limit(0),
+	  eventIdFrom(0),
+	  eventIdTill(0)
+	{
+	}
+};
+
+struct ZabbixAPIEmulator::JsonKeys {
+	string eventid;
+	string source;
+	string object;
+	string objectId;
+	string clock;
+	string value;
+	string acknowledged;
+	string ns;
+	string value_changed;
+};
+
 struct ZabbixAPIEmulator::PrivateContext {
 	GThread    *thread;
 	guint       port;
@@ -54,6 +85,8 @@ struct ZabbixAPIEmulator::PrivateContext {
 	size_t        currEventSliceIndex;
 	vector<string> slicedEventVector;
 	GMainContext   *gMainCtx;
+	struct ParameterEventGet paramEvent;
+	JsonData	jsonData;
 	
 	// methods
 	PrivateContext(void)
@@ -395,37 +428,89 @@ void ZabbixAPIEmulator::APIHandlerHostGet(APIHandlerArg &arg)
 
 void ZabbixAPIEmulator::APIHandlerEventGet(APIHandlerArg &arg)
 {
-	gchar *contents;
+	string contents;
 	gsize length;
 	static const char *DATA_FILE = "zabbix-api-res-events-002.json";
 	string path = getFixturesDir() + DATA_FILE;
-	if (m_ctx->numEventSlices != 0) {
-		// slice mode
-		string response;
-		if (m_ctx->slicedEventVector.empty())
-			makeSlicedEvent(path, m_ctx->numEventSlices);
-		size_t idx = m_ctx->currEventSliceIndex;
-		if (idx < m_ctx->slicedEventVector.size()) {
-			const string &slice = m_ctx->slicedEventVector[idx];
-			response = getSlicedResponse(slice, arg);
+	parseEventGetParameter(arg);
+	makeEventJsonData(path);
+
+	if (m_ctx->paramEvent.sortOrder == "ASC") {
+		if (m_ctx->paramEvent.limit == 0) {	// no limit
+			if (m_ctx->paramEvent.eventIdFrom == 0 && m_ctx->paramEvent.eventIdTill == 0) { // unlimit
+				JsonDataIterator jit = m_ctx->jsonData.begin();
+				for (; jit != m_ctx->jsonData.end(); ++jit) {
+					const JsonKeys &data = jit->second;
+					contents += setEventJsonData(data);
+				}
+			} else {	// range specification
+				JsonDataIterator jit = m_ctx->jsonData.lower_bound(m_ctx->paramEvent.eventIdFrom);
+				JsonDataIterator goalIterator = m_ctx->jsonData.lower_bound(m_ctx->paramEvent.eventIdTill);
+				for (;jit != goalIterator; ++jit) {
+					const JsonKeys &data = jit->second;
+					contents += setEventJsonData(data);
+				}
+			}
 		} else {
-			response = makeEmptyResponse(arg);
+			if (m_ctx->paramEvent.eventIdFrom == 0 && m_ctx->paramEvent.eventIdTill == 0) {	// no range specification
+				JsonDataIterator jit = m_ctx->jsonData.begin();
+				for (int64_t i = 0; i < m_ctx->paramEvent.limit ||
+						jit != m_ctx->jsonData.end(); ++jit, i++) {
+					const JsonKeys &data = jit->second;
+					contents += setEventJsonData(data);
+				}
+			} else {
+				JsonDataIterator jit = m_ctx->jsonData.lower_bound(m_ctx->paramEvent.eventIdFrom);
+				JsonDataIterator goalIterator = m_ctx->jsonData.lower_bound(m_ctx->paramEvent.eventIdTill);
+				for (int64_t i = 0; i < m_ctx->paramEvent.limit ||
+						jit != goalIterator ||
+						jit != m_ctx->jsonData.end(); ++jit, i++) {
+					const JsonKeys &data = jit->second;
+					contents += setEventJsonData(data);
+				}
+			}
 		}
-		contents = g_strdup(response.c_str());
-		length = response.size();
-		m_ctx->currEventSliceIndex++;
-	} else {
-		// entire mode
-		gboolean succeeded =
-		  g_file_get_contents(path.c_str(), &contents, &length, NULL);
-		if (!succeeded) {
-			THROW_HATOHOL_EXCEPTION(
-			  "Failed to read file: %s", path.c_str());
+	} else if (m_ctx->paramEvent.sortOrder == "DESC") {
+		if (m_ctx->paramEvent.limit == 0) {	// no limit
+			if (m_ctx->paramEvent.eventIdFrom == 0 && m_ctx->paramEvent.eventIdTill == 0) { // unlimit
+				ReverseJsonDataIterator rjit = m_ctx->jsonData.rbegin();
+				for (; rjit != m_ctx->jsonData.rend(); ++rjit) {
+					const JsonKeys &data = rjit->second;
+					contents += setEventJsonData(data);
+				}
+			} else {	// range specification
+				ReverseJsonDataIterator rjit(m_ctx->jsonData.lower_bound(m_ctx->paramEvent.eventIdTill));
+				ReverseJsonDataIterator goalIterator(m_ctx->jsonData.lower_bound(m_ctx->paramEvent.eventIdFrom));
+				for (; rjit != goalIterator; ++rjit) {
+					const JsonKeys &data = rjit->second;
+					contents += setEventJsonData(data);
+				}
+			}
+		} else {
+			if (m_ctx->paramEvent.eventIdFrom == 0 && m_ctx->paramEvent.eventIdTill == 0) {
+				ReverseJsonDataIterator rjit = m_ctx->jsonData.rbegin();
+				for (int64_t i = 0; i < m_ctx->paramEvent.limit ||
+						rjit != m_ctx->jsonData.rend(); ++rjit, i++) {
+					const JsonKeys &data = rjit->second;
+					contents += setEventJsonData(data);
+				}
+			} else {
+				ReverseJsonDataIterator rjit(m_ctx->jsonData.lower_bound(m_ctx->paramEvent.eventIdTill));
+				ReverseJsonDataIterator goalIterator(m_ctx->jsonData.lower_bound(m_ctx->paramEvent.eventIdFrom));
+				for (int64_t i = 0; i < m_ctx->paramEvent.limit ||
+						rjit != goalIterator||
+						rjit != m_ctx->jsonData.rend(); ++rjit, i++) {
+					const JsonKeys &data = rjit->second;
+					contents += setEventJsonData(data);
+				}
+			}
 		}
 	}
-
-	soup_message_body_append(arg.msg->response_body, SOUP_MEMORY_TAKE,
-	                         contents, length);
+	contents.erase(contents.end() - 1);
+	string sendData = addJsonResponse(contents, arg);
+	length = sendData.size();
+	soup_message_body_append(arg.msg->response_body, SOUP_MEMORY_COPY,
+	                         sendData.c_str(), length);
 	soup_message_set_status(arg.msg, SOUP_STATUS_OK);
 }
 
@@ -436,13 +521,12 @@ void ZabbixAPIEmulator::APIHandlerApplicationGet(APIHandlerArg &arg)
 	APIHandlerGetWithFile(arg, DATA_FILE);
 }
 
-void ZabbixAPIEmulator::makeSlicedEvent(const string &path, size_t numSlices)
+void ZabbixAPIEmulator::makeEventJsonData(const string &path)
 {
-	static const char *EVENT_ELEMENT_NAMES[] = {
+	static const char *EVENT_ELEMENT_NAMES[COUNT_ELEMENT_NAMES] = {
 	  "eventid", "source", "object", "objectid", "clock", "value",
 	  "acknowledged", "ns", "value_changed", NULL
 	};
-	HATOHOL_ASSERT(numSlices > 0, "numSlices: %zd", numSlices);
 
 	gchar *contents;
 	HATOHOL_ASSERT(
@@ -455,52 +539,119 @@ void ZabbixAPIEmulator::makeSlicedEvent(const string &path, size_t numSlices)
 
 	HATOHOL_ASSERT(parser.startObject("result"),
 	  "%s", parser.getErrorMessage());
-	int numElements = parser.countElements();
-	size_t numAddedSlices = 0;
-	int currSliceIndex = 0;
-	for (size_t i = 0; i < numSlices; i++) {
-		string slice;
-		size_t numData;
-		if (i < numSlices - 1) {
-			size_t numExpectedSlices = 
-			  (double)numElements/numSlices*(i+1);
-			numData = numExpectedSlices - numAddedSlices;
-		} else {
-			numData = numElements - numAddedSlices;
+	unsigned int numElements = parser.countElements();
+	for (unsigned int i = 0; i < numElements; i++) {
+		string parsedData[COUNT_ELEMENT_NAMES - 1] = {};
+
+		parser.startElement(i);
+		for (size_t j = 0; j < COUNT_ELEMENT_NAMES - 1; j++) {
+			parser.read(EVENT_ELEMENT_NAMES[j],
+				parsedData[j]);
 		}
-		for (size_t j = 0; j < numData; j++, currSliceIndex++) {
-			string str;
-			HATOHOL_ASSERT(
-			  parser.startElement(currSliceIndex),
-			  "%s", parser.getErrorMessage());
-			JsonBuilderAgent builder;
-			builder.startObject();
-			const char **elementName = EVENT_ELEMENT_NAMES;
-			for (; *elementName; elementName++) {
-				HATOHOL_ASSERT(parser.read(*elementName, str),
-				  "elementName: %s", *elementName);
-				builder.add(*elementName, str);
-			}
-			builder.endObject();
-			parser.endElement();
-			slice += builder.generate();
-			if (j != numData -1)
-				slice += ",";
-		}
-		m_ctx->slicedEventVector.push_back(slice);
-		numAddedSlices += numData;
+		parser.endElement();
+
+		int64_t eventId = 0;
+		sscanf(parsedData[0].c_str(), "%"PRId64, &eventId);
+		JsonKeys key;
+		key.eventid = parsedData[0];
+		key.source = parsedData[1];
+		key.object = parsedData[2];
+		key.objectId = parsedData[3];
+		key.clock = parsedData[4];
+		key.value = parsedData[5];
+		key.acknowledged = parsedData[6];
+		key.ns = parsedData[7];
+		key.value_changed = parsedData[8];
+		m_ctx->jsonData[eventId] = key;
 	}
 }
 
-string ZabbixAPIEmulator::makeEmptyResponse(APIHandlerArg &arg)
-{
-	return getSlicedResponse("", arg);
-}
-
-string ZabbixAPIEmulator::getSlicedResponse(const string &slice,
+string ZabbixAPIEmulator::addJsonResponse(const string &slice,
                                             APIHandlerArg &arg)
 {
 	const char *fmt = 
 	  "{\"jsonrpc\":\"2.0\",\"result\":[%s],\"id\":%"PRId64"}";
 	return StringUtils::sprintf(fmt, slice.c_str(), arg.id);
+}
+
+void ZabbixAPIEmulator::parseEventGetParameter(APIHandlerArg &arg)
+{
+	JsonParserAgent parser(arg.msg->request_body->data);
+	if (parser.hasError()) {
+		THROW_HATOHOL_EXCEPTION("Error in parsing: %s",
+				      parser.getErrorMessage());
+	}
+	parser.startObject("params");
+
+	if (!parser.read("output", m_ctx->paramEvent.output)) {
+		THROW_HATOHOL_EXCEPTION("Not found: output");
+		if (m_ctx->paramEvent.output != "extend" && m_ctx->paramEvent.output != "shorten") {
+			THROW_HATOHOL_EXCEPTION("Invalid parameter: output: %s",
+					m_ctx->paramEvent.output.c_str());
+		}
+	} else {
+		m_ctx->paramEvent.output = "extend";
+	}
+
+	if (parser.read("sortfield", m_ctx->paramEvent.sortField)) {
+		if (m_ctx->paramEvent.sortField != "eventid") {
+			THROW_HATOHOL_EXCEPTION("Invalid parameter: sortfield: %s",
+					m_ctx->paramEvent.sortField.c_str());
+		}
+	} else {
+		m_ctx->paramEvent.sortField = "";
+	}
+
+	if (parser.read("sortorder", m_ctx->paramEvent.sortOrder)) {
+		if (m_ctx->paramEvent.sortOrder != "ASC" && m_ctx->paramEvent.sortOrder != "DESC") {
+			THROW_HATOHOL_EXCEPTION("Invalid parameter: sortorder: %s",
+					m_ctx->paramEvent.sortOrder.c_str());
+		}
+	} else {
+		m_ctx->paramEvent.sortOrder = "ASC";
+	}
+
+	string rawLimit;
+	if (parser.read("limit", m_ctx->paramEvent.limit)) {
+		sscanf(rawLimit.c_str(), "%"PRIu64, &m_ctx->paramEvent.limit);
+		if (m_ctx->paramEvent.limit < 0)
+			THROW_HATOHOL_EXCEPTION("Invalid parameter: limit: %"PRId64"\n", m_ctx->paramEvent.limit);
+	} else {
+		m_ctx->paramEvent.limit = 0;
+	}
+
+	string rawEventIdFrom;
+	if(parser.read("eventid_from", rawEventIdFrom)) {
+		sscanf(rawEventIdFrom.c_str(), "%"PRIu64, &m_ctx->paramEvent.eventIdFrom);
+		if (m_ctx->paramEvent.eventIdFrom < 0)
+			THROW_HATOHOL_EXCEPTION("Invalid parameter: eventid_from: %"PRId64"\n", m_ctx->paramEvent.eventIdFrom);
+	} else {
+		m_ctx->paramEvent.eventIdFrom = 0;
+	}
+
+	string rawEventIdTill;
+	if(parser.read("eventid_till", rawEventIdTill)) {
+		sscanf(rawEventIdTill.c_str(), "%"PRIu64, &m_ctx->paramEvent.eventIdTill);
+		if (m_ctx->paramEvent.eventIdTill < 0)
+			THROW_HATOHOL_EXCEPTION("Invalid parameter: eventid_till: %"PRId64"\n", m_ctx->paramEvent.eventIdTill);
+	} else {
+		m_ctx->paramEvent.eventIdFrom = 0;
+	}
+}
+
+string ZabbixAPIEmulator::setEventJsonData(const JsonKeys &key)
+{
+	const char *fmt =
+	  "{\"eventid\":\"%s\",\"source\":\"%s\",\"object\":\"%s\",\"objectid\":\"%s\",\"clock\":\"%s\",\"value\":\"%s\",\"acknowledged\":\"%s\",\"ns\":\"%s\",\"value_changed\":\"%s\"},";
+	return StringUtils::sprintf(
+			fmt,
+			key.eventid.c_str(),
+			key.source.c_str(),
+			key.object.c_str(),
+			key.objectId.c_str(),
+			key.clock.c_str(),
+			key.value.c_str(),
+			key.acknowledged.c_str(),
+			key.ns.c_str(),
+			key.value_changed.c_str());
 }

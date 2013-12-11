@@ -32,24 +32,25 @@ void _assertReadFile(const string &fileName, string &output)
 	while (getline(ifs, str))
 		output += str;
 }
-#define assertReadFile(X,Y) cut_trace(_assertReadFile(X, Y))
+#define assertReadFile(X,Y) cut_trace(_assertReadFile(X,Y))
 
-void _assertReadWord(JsonParserAgent &parser,
-                     const string &name, const string &expect)
+template<typename T> void _assertReadWord(JsonParserAgent &parser,
+                     const string &name, const T &expect)
 {
-	string actual;
+	T actual;
 	cppcut_assert_equal(true, parser.read(name, actual));
 	cppcut_assert_equal(expect, actual);
 }
+#define assertReadWord(Z,A,X,Y) cut_trace(_assertReadWord<Z>(A,X,Y))
 
-void _assertReadWord(JsonParserAgent &parser,
+void _assertReadWordElement(JsonParserAgent &parser,
                      int index, const string &expect)
 {
 	string actual;
 	cppcut_assert_equal(true, parser.read(index, actual));
 	cppcut_assert_equal(expect, actual);
 }
-#define assertReadWord(A,X,Y) cut_trace(_assertReadWord(A,X, Y))
+#define assertReadWordElement(A,X,Y) cut_trace(_assertReadWordElement(A,X,Y))
 
 #define DEFINE_PARSER_AND_READ(PARSER, JSON_MATERIAL) \
 string _json; \
@@ -64,8 +65,8 @@ cppcut_assert_equal(false, PARSER.hasError());
 void test_parseString(void)
 {
 	DEFINE_PARSER_AND_READ(parser, "fixtures/testJson01.json");
-	assertReadWord(parser, "name0", "string value");
-	assertReadWord(parser, "name1", "123");
+	assertReadWord(string, parser, "name0", "string value");
+	assertReadWord(string, parser, "name1", "123");
 }
 
 void test_parseStringInObject(void)
@@ -73,11 +74,11 @@ void test_parseStringInObject(void)
 	DEFINE_PARSER_AND_READ(parser, "fixtures/testJson02.json");
 
 	cppcut_assert_equal(true, parser.startObject("object0"));
-	assertReadWord(parser, "food", "donuts");
+	assertReadWord(string, parser, "food", "donuts");
 	parser.endObject();
 	cppcut_assert_equal(true, parser.startObject("object1"));
-	assertReadWord(parser, "name", "dog");
-	assertReadWord(parser, "age", "5");
+	assertReadWord(string, parser, "name", "dog");
+	assertReadWord(string, parser, "age", "5");
 	parser.endObject();
 }
 
@@ -86,10 +87,10 @@ void test_parseStringInArray(void)
 	DEFINE_PARSER_AND_READ(parser, "fixtures/testJson03.json");
 
 	cppcut_assert_equal(true, parser.startObject("array0"));
-	cppcut_assert_equal(3, parser.countElements());
-	assertReadWord(parser, 0, "elem0");
-	assertReadWord(parser, 1, "elem1");
-	assertReadWord(parser, 2, "elem2");
+	cppcut_assert_equal(3u, parser.countElements());
+	assertReadWordElement(parser, 0, "elem0");
+	assertReadWordElement(parser, 1, "elem1");
+	assertReadWordElement(parser, 2, "elem2");
 	parser.endObject();
 }
 
@@ -98,21 +99,96 @@ void test_parseStringInObjectInArray(void)
 	DEFINE_PARSER_AND_READ(parser, "fixtures/testJson04.json");
 
 	cppcut_assert_equal(true, parser.startObject("array0"));
-	cppcut_assert_equal(2, parser.countElements());
+	cppcut_assert_equal(2u, parser.countElements());
 
 	cppcut_assert_equal(true, parser.startElement(0));
-	assertReadWord(parser, "key0", "value0");
-	assertReadWord(parser, "key1", "value1");
+	assertReadWord(string, parser, "key0", "value0");
+	assertReadWord(string, parser, "key1", "value1");
 	parser.endElement();
 
 	cppcut_assert_equal(true, parser.startElement(1));
-	assertReadWord(parser, "key0X", "value0Y");
-	assertReadWord(parser, "key1X", "value1Y");
+	assertReadWord(string, parser, "key0X", "value0Y");
+	assertReadWord(string, parser, "key1X", "value1Y");
 	parser.endElement();
 
 	parser.endObject(); // array0;
 }
 
+void test_checkParseSuccess(void)
+{
+	DEFINE_PARSER_AND_READ(parser, "fixtures/testJson05.json");
+
+	assertReadWord(bool, parser, "valid", true);
+	assertReadWord(int64_t, parser, "id", 1);
+	assertReadWord(string, parser, "name", "Hatohol");
+
+	cppcut_assert_equal(true, parser.startObject("object"));
+	assertReadWord(bool, parser, "home", true);
+	assertReadWord(string, parser, "city", "Tokyo");
+	assertReadWord(int64_t, parser, "code", 124);
+	parser.endObject();
+}
+
+void test_checkResultWhenTrueFalseTrue(void)
+{
+	DEFINE_PARSER_AND_READ(parser, "fixtures/testJson05.json");
+	int64_t value;
+
+	assertReadWord(bool, parser, "valid", true);
+	cppcut_assert_equal(false, parser.read("no", value));
+	assertReadWord(string, parser, "name", "Hatohol");
+
+	cppcut_assert_equal(true, parser.startObject("object"));
+	assertReadWord(bool, parser, "home", true);
+	cppcut_assert_equal(false, parser.read("date", value));
+	assertReadWord(string, parser, "city", "Tokyo");
+	parser.endObject();
+}
+
+void test_checkResultWhenFalseTrueFalse(void)
+{
+	DEFINE_PARSER_AND_READ(parser, "fixtures/testJson05.json");
+	string value1;
+	bool value2;
+
+	cppcut_assert_equal(false, parser.read("address", value1));
+	assertReadWord(string, parser, "name", "Hatohol");
+	cppcut_assert_equal(false, parser.read("pay", value2));
+
+	cppcut_assert_equal(true, parser.startObject("object"));
+	cppcut_assert_equal(false, parser.read("town", value1));
+	assertReadWord(string, parser, "city", "Tokyo");
+	cppcut_assert_equal(false, parser.read("foreign", value2));
+	parser.endObject();
+}
+
+void test_checkResultWhenFalseFalseTrue(void)
+{
+	DEFINE_PARSER_AND_READ(parser, "fixtures/testJson05.json");
+	int64_t value1;
+	bool value2;
+
+	cppcut_assert_equal(false, parser.read("no", value1));
+	cppcut_assert_equal(false, parser.read("pay", value2));
+	assertReadWord(string, parser, "name", "Hatohol");
+
+	cppcut_assert_equal(true, parser.startObject("object"));
+	cppcut_assert_equal(false, parser.read("date", value1));
+	cppcut_assert_equal(false, parser.read("foreign", value2));
+	assertReadWord(string, parser, "city", "Tokyo");
+	parser.endObject();
+}
+
+void test_checkIsMember(void)
+{
+	DEFINE_PARSER_AND_READ(parser, "fixtures/testJson06.json");
+
+	cppcut_assert_equal(true, parser.isMember("name"));
+	cppcut_assert_equal(true, parser.isMember("prefecture"));
+
+	cppcut_assert_equal(true, parser.startObject("data"));
+	cppcut_assert_equal(true, parser.isMember("ticketgate"));
+	cppcut_assert_equal(true, parser.isMember("greenwindows"));
+	parser.endObject();
+}
 } //namespace testJsonParserAgent
-
-

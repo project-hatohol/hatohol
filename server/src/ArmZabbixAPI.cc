@@ -38,6 +38,7 @@ using namespace mlpl;
 using namespace std;
 
 static const char *MIME_JSON_RPC = "application/json-rpc";
+static const uint64_t NUMBER_OF_GET_EVENT_PER_ONCE  = 1000;
 static const guint DEFAULT_TIMEOUT      = 60;
 static const guint DEFAULT_IDLE_TIMEOUT = 60;
 
@@ -228,9 +229,9 @@ ItemTablePtr ArmZabbixAPI::getApplications(const vector<uint64_t> &appIdVector)
 	return ItemTablePtr(tablePtr);
 }
 
-ItemTablePtr ArmZabbixAPI::getEvents(uint64_t eventIdOffset)
+ItemTablePtr ArmZabbixAPI::getEvents(uint64_t eventIdOffset, uint64_t eventIdTill)
 {
-	SoupMessage *msg = queryEvent(eventIdOffset);
+	SoupMessage *msg = queryEvent(eventIdOffset, eventIdTill);
 	if (!msg)
 		THROW_DATA_STORE_EXCEPTION("Failed to query events.");
 
@@ -251,6 +252,40 @@ ItemTablePtr ArmZabbixAPI::getEvents(uint64_t eventIdOffset)
 	for (int i = 0; i < numData; i++)
 		parseAndPushEventsData(parser, tablePtr, i);
 	return ItemTablePtr(tablePtr);
+}
+
+uint64_t ArmZabbixAPI::getLastEventId(void)
+{
+	string strLastEventId;
+	uint64_t lastEventId = 0;
+
+	SoupMessage *msg = queryGetLastEventId();
+	if (!msg) {
+		MLPL_ERR("Failed to query eventID.\n");
+		return 0;
+	}
+
+	JsonParserAgent parser(msg->response_body->data);
+	g_object_unref(msg);
+	if (parser.hasError()) {
+		THROW_DATA_STORE_EXCEPTION(
+		  "Failed to parser: %s", parser.getErrorMessage());
+	}
+	startObject(parser, "result");
+	startElement(parser, 0);
+
+	if (!parser.read("eventid", strLastEventId))
+		THROW_DATA_STORE_EXCEPTION("Failed to read: eventid\n");
+
+	lastEventId = convertStrToUint64(strLastEventId);
+	MLPL_DBG("LastEventID: %"PRIu64"\n", lastEventId);
+
+	return lastEventId;
+}
+
+void ArmZabbixAPI::onGotNewEvents(const ItemTablePtr &itemPtr)
+{
+	// This function is used on a test class.
 }
 
 // ---------------------------------------------------------------------------
@@ -439,7 +474,7 @@ SoupMessage *ArmZabbixAPI::queryApplication(const vector<uint64_t> &appIdVector)
 	return queryCommon(agent);
 }
 
-SoupMessage *ArmZabbixAPI::queryEvent(uint64_t eventIdOffset)
+SoupMessage *ArmZabbixAPI::queryEvent(uint64_t eventIdOffset, uint64_t eventIdTill)
 {
 	JsonBuilderAgent agent;
 	agent.startObject();
@@ -448,9 +483,34 @@ SoupMessage *ArmZabbixAPI::queryEvent(uint64_t eventIdOffset)
 
 	agent.startObject("params");
 	agent.add("output", "extend");
-	string eventIdStr = StringUtils::sprintf("%"PRId64, eventIdOffset);
-	agent.add("eventid_from", eventIdStr.c_str());
+	string strEventIdFrom = StringUtils::sprintf("%"PRId64, eventIdOffset);
+	agent.add("eventid_from", strEventIdFrom.c_str());
+	if (eventIdTill != UNLIMITED) {
+		string strEventIdTill = StringUtils::sprintf("%"PRId64, eventIdTill);
+		agent.add("eventid_till", strEventIdTill.c_str());
+	}
 	agent.endObject(); // params
+
+	agent.add("auth", m_ctx->authToken);
+	agent.add("id", 1);
+	agent.endObject();
+
+	return queryCommon(agent);
+}
+
+SoupMessage *ArmZabbixAPI::queryGetLastEventId(void)
+{
+	JsonBuilderAgent agent;
+	agent.startObject();
+	agent.add("jsonrpc", "2.0");
+	agent.add("method", "event.get");
+
+	agent.startObject("params");
+	agent.add("output", "shorten");
+	agent.add("sortfield", "eventid");
+	agent.add("sortorder", "DESC");
+	agent.add("limit", 1);
+	agent.endObject(); //params
 
 	agent.add("auth", m_ctx->authToken);
 	agent.add("id", 1);
@@ -643,6 +703,13 @@ void ArmZabbixAPI::pushTriggersHostid(JsonParserAgent &parser,
 		parser.endElement();
 	}
 	parser.endObject();
+}
+
+uint64_t ArmZabbixAPI::convertStrToUint64(const string strData)
+{
+	uint64_t valU64;
+	sscanf(strData.c_str(), "%"PRIu64, &valU64);
+	return valU64;
 }
 
 void ArmZabbixAPI::parseAndPushItemsData
@@ -888,17 +955,26 @@ void ArmZabbixAPI::updateHosts(const ItemTable *triggers)
 	  &DBClientZabbix::addHostsRaw2_0);
 }
 
-ItemTablePtr ArmZabbixAPI::updateEvents(void)
+void ArmZabbixAPI::updateEvents(void)
 {
-	uint64_t eventIdOffset;
-	uint64_t lastEventId = m_ctx->dbClientZabbix.getLastEventId();
-	if (lastEventId == DBClientZabbix::EVENT_ID_NOT_FOUND)
-		eventIdOffset = 0;
-	else
-		eventIdOffset = lastEventId + 1;
-	ItemTablePtr tablePtr = getEvents(eventIdOffset);
-	m_ctx->dbClientZabbix.addEventsRaw2_0(tablePtr);
-	return tablePtr;
+	uint64_t eventIdOffset, eventIdTill;
+	uint64_t dbLastEventId = m_ctx->dbClientZabbix.getLastEventId();
+	uint64_t serverLastEventId = getLastEventId();
+	ItemTablePtr tablePtr;
+	while (dbLastEventId != serverLastEventId) {
+		if (dbLastEventId == DBClientZabbix::EVENT_ID_NOT_FOUND) {
+			eventIdOffset = 0;
+			eventIdTill = NUMBER_OF_GET_EVENT_PER_ONCE;
+		} else {
+			eventIdOffset = dbLastEventId + 1;
+			eventIdTill = dbLastEventId + NUMBER_OF_GET_EVENT_PER_ONCE;
+		}
+		tablePtr = getEvents(eventIdOffset, eventIdTill);
+		m_ctx->dbClientZabbix.addEventsRaw2_0(tablePtr);
+		makeHatoholEvents(tablePtr);
+		onGotNewEvents(tablePtr);
+		dbLastEventId = m_ctx->dbClientZabbix.getLastEventId();
+	}
 }
 
 void ArmZabbixAPI::updateApplications(void)
@@ -953,6 +1029,11 @@ void ArmZabbixAPI::makeHatoholItems(ItemTablePtr items)
 	DBClientZabbix::transformItemsToHatoholFormat(itemInfoList, items,
 	                                              m_ctx->zabbixServerId);
 	m_ctx->dbClientHatohol.addItemInfoList(itemInfoList);
+}
+
+uint64_t ArmZabbixAPI::getMaximumNumberGetEventPerOnce(void)
+{
+	return NUMBER_OF_GET_EVENT_PER_ONCE;
 }
 
 //
@@ -1026,8 +1107,7 @@ bool ArmZabbixAPI::mainThreadOneProc(void)
 
 		makeHatoholTriggers();
 
-		ItemTablePtr events = updateEvents();
-		makeHatoholEvents(events);
+		updateEvents();
 
 		if (!getCopyOnDemandEnabled()) {
 			ItemTablePtr items = updateItems();

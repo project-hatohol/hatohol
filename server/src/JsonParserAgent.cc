@@ -18,122 +18,213 @@
  */
 
 #include <Logger.h>
+#include <string.h>
 using namespace mlpl;
 
 #include <stdexcept>
 #include "JsonParserAgent.h"
 
+struct JsonParserAgent::PrivateContext
+{
+	JsonParser *parser;
+	JsonNode *currentNode;
+	JsonNode *previousNode;
+	GError *error;
+
+	PrivateContext(const string &data)
+	: parser(NULL),
+	  currentNode(NULL),
+	  previousNode(NULL),
+	  error(NULL)
+	{
+		parser = json_parser_new();
+		if (!json_parser_load_from_data(parser, data.c_str(), -1, &error))
+			return;
+		currentNode = json_parser_get_root(parser);
+	}
+
+	virtual ~PrivateContext()
+	{
+		if (error)
+			g_error_free(error);
+		if (parser)
+			g_object_unref(parser);
+	}
+};
+
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
 JsonParserAgent::JsonParserAgent(const string &data)
-: m_reader(NULL),
-  m_error(NULL)
+: m_ctx(NULL)
 {
-	m_error = NULL;
-	m_parser = json_parser_new();
-	if (!json_parser_load_from_data(m_parser, data.c_str(), -1, &m_error))
-		return;
-	m_reader = json_reader_new(json_parser_get_root(m_parser));
+	m_ctx = new PrivateContext(data);
 }
 
 JsonParserAgent::~JsonParserAgent()
 {
-	if (m_error)
-		g_error_free(m_error);
-	if (m_reader)
-		g_object_unref(m_reader);
-	if (m_parser)
-		g_object_unref(m_parser);
+	if (m_ctx)
+		delete m_ctx;
 }
 
 const char *JsonParserAgent::getErrorMessage(void)
 {
-	if (!m_error)
+	if (!m_ctx->error)
 		return "No error";
-	return m_error->message;
+	return m_ctx->error->message;
 }
 
 bool JsonParserAgent::hasError(void)
 {
-	return m_error != NULL;
+	return m_ctx->error != NULL;
 }
 
 bool JsonParserAgent::read(const string &member, bool &dest)
 {
 	internalCheck();
-	if (!json_reader_read_member(m_reader, member.c_str()))
+	if (!startObject(member))
 		return false;
-	dest = json_reader_get_boolean_value(m_reader);
-	json_reader_end_member(m_reader);
+
+	dest = json_node_get_boolean(m_ctx->currentNode);
+	endObject();
 	return true;
 }
 
 bool JsonParserAgent::read(const string &member, int64_t &dest)
 {
 	internalCheck();
-	if (!json_reader_read_member(m_reader, member.c_str()))
+	if (!startObject(member))
 		return false;
-	dest = json_reader_get_int_value(m_reader);
-	json_reader_end_member(m_reader);
+
+	dest = json_node_get_int(m_ctx->currentNode);
+	endObject();
 	return true;
 }
 
 bool JsonParserAgent::read(const string &member, string &dest)
 {
 	internalCheck();
-	if (!json_reader_read_member(m_reader, member.c_str()))
+	if (!startObject(member))
 		return false;
-	dest = json_reader_get_string_value(m_reader);
-	json_reader_end_member(m_reader);
+
+	dest = json_node_get_string(m_ctx->currentNode);
+	endObject();
 	return true;
 }
 
 bool JsonParserAgent::read(int index, string &dest)
 {
 	internalCheck();
-	if (!json_reader_read_element(m_reader,index))
+	if (!startElement(index))
 		return false;
-	dest = json_reader_get_string_value(m_reader);
-	json_reader_end_element(m_reader);
+
+	dest = json_node_get_string(m_ctx->currentNode);
+	endElement();
 	return true;
 }
 
 bool JsonParserAgent::isNull(const string &member, bool &dest)
 {
 	internalCheck();
-	if (!json_reader_read_member(m_reader, member.c_str()))
+	if (!startObject(member))
 		return false;
-	dest = json_reader_get_null_value(m_reader);
-	json_reader_end_element(m_reader);
+
+	dest = JSON_NODE_HOLDS_NULL(m_ctx->currentNode);
+	endObject();
+	return true;
+}
+
+bool JsonParserAgent::isMember(const string &member)
+{
+	JsonObject *object;
+
+	object = json_node_get_object(m_ctx->currentNode);
+	if(!json_object_has_member(object, member.c_str())) {
+		MLPL_DBG("The member '%s' is not defined in the current node.\n",
+				member.c_str());
+		return false;
+	}
+
 	return true;
 }
 
 bool JsonParserAgent::startObject(const string &member)
 {
-	if (!json_reader_read_member(m_reader, member.c_str()))
+	JsonObject *object;
+
+	if (!isMember(member))
 		return false;
+
+	object = json_node_get_object(m_ctx->currentNode);
+	m_ctx->previousNode = m_ctx->currentNode;
+	m_ctx->currentNode = json_object_get_member(object, member.c_str());
 	return true;
 }
 
 void JsonParserAgent::endObject(void)
 {
-	json_reader_end_member(m_reader);
+	JsonNode *tmp;
+
+	if (m_ctx->previousNode != NULL)
+		tmp = json_node_get_parent(m_ctx->previousNode);
+	else
+		tmp = NULL;
+
+	m_ctx->currentNode = m_ctx->previousNode;
+	m_ctx->previousNode = tmp;
 }
 
-bool JsonParserAgent::startElement(int index)
+bool JsonParserAgent::startElement(unsigned int index)
 {
-	return json_reader_read_element(m_reader, index);
+	switch (json_node_get_node_type(m_ctx->currentNode)) {
+	case JSON_NODE_ARRAY: {
+		JsonArray * array = json_node_get_array(m_ctx->currentNode);
+
+		if (index >= json_array_get_length(array)) {
+			MLPL_DBG("The index '%d' is greater than the size of "
+				"the array at the current position.\n", index);
+			return false;
+		}
+
+		m_ctx->previousNode = m_ctx->currentNode;
+		m_ctx->currentNode = json_array_get_element(array, index);
+	}
+	break;
+	case JSON_NODE_OBJECT: {
+		JsonObject *object = json_node_get_object(m_ctx->currentNode);
+		GList *members;
+		const gchar *name;
+
+		if(index >= json_object_get_size(object)) {
+			MLPL_DBG("The index '%d' is greater than the size of "
+				"the array at the current position.\n", index);
+			return false;
+		}
+
+		m_ctx->previousNode = m_ctx->currentNode;
+		members = json_object_get_members(object);
+		name = static_cast<gchar *>(g_list_nth_data(members, index));
+		m_ctx->currentNode = json_object_get_member(object, name);
+
+		g_list_free(members);
+	}
+	break;
+	default:
+		HATOHOL_ASSERT(false, "The node isn't neither JSON_NODE_ARRAY nor JSON_NODE_OBJECT.");
+		return false;
+	}
+
+	return true;
 }
 
 void JsonParserAgent::endElement(void)
 {
-	json_reader_end_element(m_reader);
+	endObject();
 }
 
-int JsonParserAgent::countElements(void)
+unsigned int JsonParserAgent::countElements(void)
 {
-	return json_reader_count_elements(m_reader);
+	return json_array_get_length(json_node_get_array(m_ctx->currentNode));
 }
 
 // ---------------------------------------------------------------------------
@@ -141,7 +232,5 @@ int JsonParserAgent::countElements(void)
 // ---------------------------------------------------------------------------
 void JsonParserAgent::internalCheck(void)
 {
-	if (!m_reader)
-		throw runtime_error("m_reader: NULL\n");
-
+	HATOHOL_ASSERT(m_ctx->currentNode, "CurrentNode: NULL");
 }

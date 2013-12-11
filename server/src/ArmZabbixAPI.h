@@ -28,6 +28,8 @@
 #include "DBClientConfig.h"
 #include "DBClientZabbix.h"
 
+const static uint64_t UNLIMITED = -1;
+
 class ArmZabbixAPI : public ArmBase
 {
 public:
@@ -56,7 +58,9 @@ public:
 	ItemTablePtr getHosts(const vector<uint64_t> &hostIdVector);
 
 	ItemTablePtr getApplications(const vector<uint64_t> &appIdVector);
-	ItemTablePtr getEvents(uint64_t eventIdOffset);
+	ItemTablePtr getEvents(uint64_t eventIdOffset, uint64_t eventIdTill);
+	uint64_t getLastEventId(void);
+	virtual void onGotNewEvents(const ItemTablePtr &itemPtr);
 
 protected:
 	SoupSession *getSession(void);
@@ -82,7 +86,8 @@ protected:
 	SoupMessage *queryItem(void);
 	SoupMessage *queryHost(const vector<uint64_t> &hostIdVector);
 	SoupMessage *queryApplication(const vector<uint64_t> &appIdVector);
-	SoupMessage *queryEvent(uint64_t eventIdOffset);
+	SoupMessage *queryEvent(uint64_t eventIdOffset, uint64_t eventIdTill);
+	SoupMessage *queryGetLastEventId(void);
 	string getInitialJsonRequest(void);
 	bool parseInitialResponse(SoupMessage *msg);
 	void startObject(JsonParserAgent &parser, const string &name);
@@ -104,6 +109,7 @@ protected:
 	                             VariableItemTablePtr &tablePtr, int index);
 	void pushApplicationid(JsonParserAgent &parser, ItemGroup *itemGroup);
 	void pushTriggersHostid(JsonParserAgent &parser, ItemGroup *itemGroup);
+	uint64_t convertStrToUint64(const string strData);
 	void parseAndPushItemsData(JsonParserAgent &parser,
 	                           VariableItemTablePtr &tablePtr, int index);
 	void parseAndPushHostsData(JsonParserAgent &parser,
@@ -138,7 +144,7 @@ protected:
 	 */
 	void updateHosts(const ItemTable *triggers);
 
-	ItemTablePtr updateEvents(void);
+	void updateEvents(void);
 
 	/**
 	 * get all applications in the ZABBIX server and save them
@@ -165,6 +171,7 @@ protected:
 	void checkObtainedItems(const ItemTable *obtainedItemTable,
 	                        const vector<T> &requestedItemVector,
 	                        const ItemId itemId);
+	uint64_t getMaximumNumberGetEventPerOnce(void);
 
 	// virtual methods
 	virtual gpointer mainThread(HatoholThreadArg *arg);

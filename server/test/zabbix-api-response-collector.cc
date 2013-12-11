@@ -157,7 +157,7 @@ bool ZabbixAPIResponseCollector::commandFuncEvent(CommandContext &ctx)
 	if (!commandFuncOpenSilent(ctx))
 		return false;
 
-	SoupMessage *msg = queryEvent(0);
+	SoupMessage *msg = queryEvent(0, UNLIMITED);
 	if (!msg)
 		return false;
 	printf("%s\n", msg->response_body->data);
