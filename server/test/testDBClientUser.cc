@@ -539,6 +539,46 @@ void test_getServerAccessInfoMap(void)
 	}
 }
 
+void test_getServerAccessInfoMapByOwner(void)
+{
+	DBClientUser dbUser;
+	UserIdIndexMap userIdIndexMap;
+	loadTestDBUser();
+	setupWithUserIdIndexMap(userIdIndexMap);
+	UserIdIndexMapIterator it = userIdIndexMap.begin();
+	for (; it != userIdIndexMap.end(); ++it) {
+		ServerAccessInfoMap srvAccessInfoMap;
+		AccessInfoQueryOption option;
+		option.setUserId(it->first);
+		option.setQueryUserId(it->first);
+		HatoholError error = dbUser.getAccessInfoMap(srvAccessInfoMap,
+							     option);
+		cppcut_assert_equal(HTERR_OK, error.getCode());
+		assertServerAccessInfoMap(it->second, srvAccessInfoMap);
+		DBClientUser::destroyServerAccessInfoMap(srvAccessInfoMap);
+	}
+}
+
+void test_getServerAccessInfoMapByNonOwner(void)
+{
+	DBClientUser dbUser;
+	UserIdIndexMap userIdIndexMap;
+	loadTestDBUser();
+	setupWithUserIdIndexMap(userIdIndexMap);
+	UserIdIndexMapIterator it = userIdIndexMap.begin();
+	for (; it != userIdIndexMap.end(); ++it) {
+		ServerAccessInfoMap srvAccessInfoMap;
+		AccessInfoQueryOption option;
+		option.setUserId(it->first == 1 ? 3 : 1);
+		option.setQueryUserId(it->first);
+		HatoholError error = dbUser.getAccessInfoMap(srvAccessInfoMap,
+							     option);
+		cppcut_assert_equal(HTERR_NO_PRIVILEGE, error.getCode());
+		cut_assert_true(srvAccessInfoMap.empty());
+		DBClientUser::destroyServerAccessInfoMap(srvAccessInfoMap);
+	}
+}
+
 void test_getServerHostGrpSetMap(void)
 {
 	DBClientUser dbUser;
