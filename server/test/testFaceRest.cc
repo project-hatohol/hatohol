@@ -609,17 +609,15 @@ static void _assertActions(const string &path, const string &callbackName = "")
 #define assertActions(P,...) cut_trace(_assertActions(P,##__VA_ARGS__))
 
 void _assertAddRecord(const StringMap &params, const string &url,
-                      const HatoholErrorCode &expectCode = HTERR_OK)
+                      const HatoholErrorCode &expectCode = HTERR_OK,
+		      uint32_t expectedId = 1)
 {
 	startFaceRest();
 	g_parser = getResponseAsJsonParser(url, "foo", params, "POST");
 	assertErrorCode(g_parser, expectCode);
 	if (expectCode != HTERR_OK)
 		return;
-
-	// This function asummes that the test database is recreated and
-	// is empty. So the added action is the first and the ID should one.
-	assertValueInParser(g_parser, "id", (uint32_t)1);
+	assertValueInParser(g_parser, "id", expectedId);
 }
 
 #define assertAddAction(P, ...) \
@@ -785,14 +783,15 @@ static void _assertAllowedServers(const string &path, UserIdType userId,
 cut_trace(_assertAddRecord(P, "/user/1/access-info", ##__VA_ARGS__))
 
 void _assertAddAccessInfoWithSetup(const StringMap &params,
-				   const HatoholErrorCode &expectCode)
+				   const HatoholErrorCode &expectCode,
+				   uint32_t expectedId)
 {
 	const bool dbRecreate = true;
 	const bool loadTestDat = false;
 	setupTestDBUser(dbRecreate, loadTestDat);
 	assertAddAccessInfo(params, expectCode);
 }
-#define assertAddAccessInfoWithSetup(P,C) cut_trace(_assertAddAccessInfoWithSetup(P,C))
+#define assertAddAccessInfoWithSetup(P,C,I) cut_trace(_assertAddAccessInfoWithSetup(P,C,I))
 
 static void setupPostAction(void)
 {
@@ -1474,7 +1473,7 @@ void test_addAccessInfo(void)
 	params["userId"] = userId;
 	params["serverId"] = serverId;
 	params["hostGroupId"] = hostGroupId;
-	assertAddAccessInfoWithSetup(params, HTERR_OK);
+	assertAddAccessInfoWithSetup(params, HTERR_OK, 1);
 
 	// check the content in the DB
 	DBClientUser dbUser;
@@ -1486,6 +1485,29 @@ void test_addAccessInfo(void)
 	  expectedId, userId.c_str(), serverId.c_str(), hostGroupId.c_str());
 	assertDBContent(dbUser.getDBAgent(), statement, expect);
 }
+
+void test_addAccessInfoWithExistingData(void)
+{
+	const string userId = "1";
+	const string serverId = "1";
+	const string hostGroupId = "1";
+
+	StringMap params;
+	params["userId"] = userId;
+	params["serverId"] = serverId;
+	params["hostGroupId"] = hostGroupId;
+
+	bool dbRecreate = true;
+	bool loadTestData = true;
+	setupTestDBUser(dbRecreate, loadTestData);
+	loadTestDBAccessList();
+
+	assertAddAccessInfo(params, HTERR_OK, 2);
+
+	AccessInfoIdSet accessInfoIdSet;
+	assertAccessInfoInDB(accessInfoIdSet);
+}
+
 
 void test_deleteAccessInfo(void)
 {

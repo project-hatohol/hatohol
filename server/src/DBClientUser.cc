@@ -461,6 +461,36 @@ HatoholError DBClientUser::addAccessInfo(AccessInfo &accessInfo,
 	if (!privilege.has(OPPRVLG_UPDATE_USER))
 		return HatoholError(HTERR_NO_PRIVILEGE);
 
+	// check existing data
+	DBAgentSelectExArg selectArg;
+	selectArg.tableName = TABLE_NAME_ACCESS_LIST;
+	selectArg.pushColumn(COLUMN_DEF_ACCESS_LIST[IDX_ACCESS_LIST_ID]);
+	selectArg.pushColumn(COLUMN_DEF_ACCESS_LIST[IDX_ACCESS_LIST_USER_ID]);
+	selectArg.pushColumn(COLUMN_DEF_ACCESS_LIST[IDX_ACCESS_LIST_SERVER_ID]);
+	selectArg.pushColumn(COLUMN_DEF_ACCESS_LIST[IDX_ACCESS_LIST_HOST_GROUP_ID]);
+	selectArg.condition = StringUtils::sprintf(
+	  "%s=%"FMT_USER_ID" AND %s=%"PRIu32" AND %s=%"PRIu64,
+	  COLUMN_DEF_ACCESS_LIST[IDX_ACCESS_LIST_USER_ID].columnName,
+	  accessInfo.userId,
+	  COLUMN_DEF_ACCESS_LIST[IDX_ACCESS_LIST_SERVER_ID].columnName,
+	  accessInfo.serverId,
+	  COLUMN_DEF_ACCESS_LIST[IDX_ACCESS_LIST_HOST_GROUP_ID].columnName,
+	  accessInfo.hostGroupId);
+	DBCLIENT_TRANSACTION_BEGIN() {
+		select(selectArg);
+	} DBCLIENT_TRANSACTION_END();
+
+	const ItemGroupList &grpList = selectArg.dataTable->getItemGroupList();
+	ItemGroupListConstIterator it = grpList.begin();
+	if (it != grpList.end()) {
+		const ItemGroup *itemGroup = *it;
+		int idx = 0;
+		DEFINE_AND_ASSERT(itemGroup->getItemAt(idx++), ItemInt, itemId);
+		accessInfo.id = itemId->get();
+		return HTERR_OK;
+	}
+
+	// add new data
 	VariableItemGroupPtr row;
 	DBAgentInsertArg arg;
 	arg.tableName = TABLE_NAME_ACCESS_LIST;
