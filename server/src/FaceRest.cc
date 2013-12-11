@@ -1913,8 +1913,47 @@ void FaceRest::handlerAccessInfo(RestJob *job)
 
 void FaceRest::handlerGetAccessInfo(RestJob *job)
 {
-	REPLY_ERROR(job, HTERR_UNKNOWN_REASON,
-		    "Not implemented yet");
+	DataQueryOption option;
+	option.setUserId(job->userId);
+
+	UserIdType userId = job->getResourceId();
+	if (!option.has(OPPRVLG_GET_ALL_USERS) && userId != job->userId) {
+		replyError(job, HTERR_NO_PRIVILEGE);
+		return;
+	}
+
+	JsonBuilderAgent agent;
+	agent.startObject();
+	addHatoholError(agent, HatoholError(HTERR_OK));
+
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+	ServerAccessInfoMap serversMap;
+	dataStore->getAccessInfoMap(serversMap, userId);
+	ServerAccessInfoMapIterator it = serversMap.begin();
+
+	agent.add("numberOfAllowedServers", serversMap.size());
+	agent.startArray("allowedServers");
+	for (; it != serversMap.end(); it++) {
+		HostGrpAccessInfoMap *hostGroupsMap = it->second;
+		agent.startObject();
+		agent.add("id", it->first);
+		agent.add("numberOfAllowedServers", hostGroupsMap->size());
+		agent.startArray("allowedHostGroups");
+		HostGrpAccessInfoMapIterator it2 = hostGroupsMap->begin();
+		for (; it2 != hostGroupsMap->end(); it2++) {
+			AccessInfo *info = it2->second;
+			agent.startObject();
+			agent.add("id", it2->first);
+			agent.add("accessInfoId", info->id);
+			agent.endObject();
+		}
+		agent.endArray();
+		agent.endObject();
+	}
+	agent.endArray();
+	agent.endObject();
+
+	replyJsonData(agent, job);
 }
 
 void FaceRest::handlerPostAccessInfo(RestJob *job)
