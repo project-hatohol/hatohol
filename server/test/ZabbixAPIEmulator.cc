@@ -441,14 +441,14 @@ void ZabbixAPIEmulator::APIHandlerEventGet(APIHandlerArg &arg)
 				JsonDataIterator jit = m_ctx->jsonData.begin();
 				for (; jit != m_ctx->jsonData.end(); ++jit) {
 					const ZabbixAPIEvent &data = jit->second;
-					contents += setEventJsonData(data);
+					contents += makeJsonString(data);
 				}
 			} else {	// range specification
 				JsonDataIterator jit = m_ctx->jsonData.lower_bound(m_ctx->paramEvent.eventIdFrom);
 				JsonDataIterator goalIterator = m_ctx->jsonData.lower_bound(m_ctx->paramEvent.eventIdTill);
 				for (;jit != goalIterator; ++jit) {
 					const ZabbixAPIEvent &data = jit->second;
-					contents += setEventJsonData(data);
+					contents += makeJsonString(data);
 				}
 			}
 		} else {
@@ -457,7 +457,7 @@ void ZabbixAPIEmulator::APIHandlerEventGet(APIHandlerArg &arg)
 				for (int64_t i = 0; i < m_ctx->paramEvent.limit ||
 						jit != m_ctx->jsonData.end(); ++jit, i++) {
 					const ZabbixAPIEvent &data = jit->second;
-					contents += setEventJsonData(data);
+					contents += makeJsonString(data);
 				}
 			} else {
 				JsonDataIterator jit = m_ctx->jsonData.lower_bound(m_ctx->paramEvent.eventIdFrom);
@@ -466,7 +466,7 @@ void ZabbixAPIEmulator::APIHandlerEventGet(APIHandlerArg &arg)
 						jit != goalIterator ||
 						jit != m_ctx->jsonData.end(); ++jit, i++) {
 					const ZabbixAPIEvent &data = jit->second;
-					contents += setEventJsonData(data);
+					contents += makeJsonString(data);
 				}
 			}
 		}
@@ -476,14 +476,14 @@ void ZabbixAPIEmulator::APIHandlerEventGet(APIHandlerArg &arg)
 				ReverseJsonDataIterator rjit = m_ctx->jsonData.rbegin();
 				for (; rjit != m_ctx->jsonData.rend(); ++rjit) {
 					const ZabbixAPIEvent &data = rjit->second;
-					contents += setEventJsonData(data);
+					contents += makeJsonString(data);
 				}
 			} else {	// range specification
 				ReverseJsonDataIterator rjit(m_ctx->jsonData.lower_bound(m_ctx->paramEvent.eventIdTill));
 				ReverseJsonDataIterator goalIterator(m_ctx->jsonData.lower_bound(m_ctx->paramEvent.eventIdFrom));
 				for (; rjit != goalIterator; ++rjit) {
 					const ZabbixAPIEvent &data = rjit->second;
-					contents += setEventJsonData(data);
+					contents += makeJsonString(data);
 				}
 			}
 		} else {
@@ -492,7 +492,7 @@ void ZabbixAPIEmulator::APIHandlerEventGet(APIHandlerArg &arg)
 				for (int64_t i = 0; i < m_ctx->paramEvent.limit ||
 						rjit != m_ctx->jsonData.rend(); ++rjit, i++) {
 					const ZabbixAPIEvent &data = rjit->second;
-					contents += setEventJsonData(data);
+					contents += makeJsonString(data);
 				}
 			} else {
 				ReverseJsonDataIterator rjit(m_ctx->jsonData.lower_bound(m_ctx->paramEvent.eventIdTill));
@@ -501,7 +501,7 @@ void ZabbixAPIEmulator::APIHandlerEventGet(APIHandlerArg &arg)
 						rjit != goalIterator||
 						rjit != m_ctx->jsonData.rend(); ++rjit, i++) {
 					const ZabbixAPIEvent &data = rjit->second;
-					contents += setEventJsonData(data);
+					contents += makeJsonString(data);
 				}
 			}
 		}
@@ -639,7 +639,7 @@ void ZabbixAPIEmulator::parseEventGetParameter(APIHandlerArg &arg)
 	}
 }
 
-string ZabbixAPIEmulator::setEventJsonData(const ZabbixAPIEvent &data)
+string ZabbixAPIEmulator::makeJsonString(const ZabbixAPIEvent &data)
 {
 	const char *fmt =
 	  "{\"eventid\":\"%s\",\"source\":\"%s\",\"object\":\"%s\",\"objectid\":\"%s\",\"clock\":\"%s\",\"value\":\"%s\",\"acknowledged\":\"%s\",\"ns\":\"%s\",\"value_changed\":\"%s\"},";

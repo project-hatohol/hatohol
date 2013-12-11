@@ -75,7 +75,7 @@ protected:
 	void makeEventJsonData(const string &path);
 	string addJsonResponse(const string &slice, APIHandlerArg &arg);
 	void parseEventGetParameter(APIHandlerArg &arg);
-	string setEventJsonData(const ZabbixAPIEvent &data);
+	string makeJsonString(const ZabbixAPIEvent &data);
 private:
 	struct PrivateContext;
 	PrivateContext *m_ctx;
