@@ -551,17 +551,17 @@ void ZabbixAPIEmulator::makeEventJsonData(const string &path)
 
 		int64_t eventId = 0;
 		sscanf(parsedData[0].c_str(), "%"PRId64, &eventId);
-		ZabbixAPIEvent data;
-		data.eventid = parsedData[0];
-		data.source = parsedData[1];
-		data.object = parsedData[2];
-		data.objectId = parsedData[3];
-		data.clock = parsedData[4];
-		data.value = parsedData[5];
-		data.acknowledged = parsedData[6];
-		data.ns = parsedData[7];
-		data.value_changed = parsedData[8];
-		m_ctx->zbxEventMap[eventId] = data;
+		ZabbixAPIEvent evt;
+		evt.eventid = parsedData[0];
+		evt.source = parsedData[1];
+		evt.object = parsedData[2];
+		evt.objectId = parsedData[3];
+		evt.clock = parsedData[4];
+		evt.value = parsedData[5];
+		evt.acknowledged = parsedData[6];
+		evt.ns = parsedData[7];
+		evt.value_changed = parsedData[8];
+		m_ctx->zbxEventMap[eventId] = evt;
 	}
 }
 
