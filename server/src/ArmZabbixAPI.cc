@@ -283,7 +283,7 @@ uint64_t ArmZabbixAPI::getLastEventId(void)
 	return lastEventId;
 }
 
-void ArmZabbixAPI::setItemTableData(const ItemTablePtr &itemPtr)
+void ArmZabbixAPI::setItemTableData(const ItemTablePtr &itemPtr, const uint64_t &numberPerOnece)
 {
 	// This function is virtual function.
 	// This function is used on a test phase.
@@ -973,7 +973,7 @@ void ArmZabbixAPI::updateEvents(void)
 		tablePtr = getEvents(eventIdOffset, eventIdTill);
 		m_ctx->dbClientZabbix.addEventsRaw2_0(tablePtr);
 		makeHatoholEvents(tablePtr);
-		setItemTableData(tablePtr);
+		setItemTableData(tablePtr, NUMBER_PER_ONCE);
 		dbLastEventId = m_ctx->dbClientZabbix.getLastEventId();
 	}
 }
