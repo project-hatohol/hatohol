@@ -61,7 +61,7 @@ public:
 	ItemTablePtr getEvents(uint64_t eventIdOffset, uint64_t eventIdTill);
 	uint64_t getLastEventId(void);
 	virtual void onGotNewEvents(const ItemTablePtr &itemPtr);
-	uint64_t getMaximumNumberPerOnce(void);
+	uint64_t getMaximumNumberGetEventPerOnce(void);
 
 protected:
 	SoupSession *getSession(void);
