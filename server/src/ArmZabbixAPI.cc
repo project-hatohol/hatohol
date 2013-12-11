@@ -289,11 +289,6 @@ void ArmZabbixAPI::onGotNewEvents(const ItemTablePtr &itemPtr)
 	// This function is used on a test phase.
 }
 
-uint64_t ArmZabbixAPI::getMaximumNumberGetEventPerOnce(void)
-{
-	return NUMBER_PER_ONCE;
-}
-
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
@@ -1035,6 +1030,11 @@ void ArmZabbixAPI::makeHatoholItems(ItemTablePtr items)
 	DBClientZabbix::transformItemsToHatoholFormat(itemInfoList, items,
 	                                              m_ctx->zabbixServerId);
 	m_ctx->dbClientHatohol.addItemInfoList(itemInfoList);
+}
+
+uint64_t ArmZabbixAPI::getMaximumNumberGetEventPerOnce(void)
+{
+	return NUMBER_PER_ONCE;
 }
 
 //

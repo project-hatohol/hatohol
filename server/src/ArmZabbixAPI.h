@@ -61,7 +61,6 @@ public:
 	ItemTablePtr getEvents(uint64_t eventIdOffset, uint64_t eventIdTill);
 	uint64_t getLastEventId(void);
 	virtual void onGotNewEvents(const ItemTablePtr &itemPtr);
-	uint64_t getMaximumNumberGetEventPerOnce(void);
 
 protected:
 	SoupSession *getSession(void);
@@ -172,6 +171,7 @@ protected:
 	void checkObtainedItems(const ItemTable *obtainedItemTable,
 	                        const vector<T> &requestedItemVector,
 	                        const ItemId itemId);
+	uint64_t getMaximumNumberGetEventPerOnce(void);
 
 	// virtual methods
 	virtual gpointer mainThread(HatoholThreadArg *arg);
