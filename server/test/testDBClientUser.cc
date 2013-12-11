@@ -529,7 +529,7 @@ void test_getServerAccessInfoMap(void)
 	for (; it != userIdIndexMap.end(); ++it) {
 		ServerAccessInfoMap srvAccessInfoMap;
 		AccessInfoQueryOption option;
-		option.setUserId(0);
+		option.setUserId(USER_ID_ADMIN);
 		option.setQueryUserId(it->first);
 		dbUser.getAccessInfoMap(srvAccessInfoMap, option);
 		assertServerAccessInfoMap(it->second, srvAccessInfoMap);
