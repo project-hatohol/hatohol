@@ -175,6 +175,11 @@ public:
 		return ArmZabbixAPI::getAuthToken();
 	}
 
+	uint64_t testGetMaximumNumberGetEventPerOnce(void)
+	{
+		return ArmZabbixAPI::getMaximumNumberGetEventPerOnce();
+	}
+
 	void testUpdateEvents(void)
 	{
 		ArmZabbixAPI::updateEvents();
