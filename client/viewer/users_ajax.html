@@ -46,6 +46,7 @@
         <th data-sort="int">{% trans "ID" %}</th>
         <th data-sort="string">{% trans "User name" %}</th>
         <th data-sort="string">{% trans "User type" %}</th>
+        <th data-sort="string">{% trans "Privileges" %}</th>
       </tr>
     </thead>
     <tbody>
@@ -236,6 +237,11 @@
         htmlString += "<td>" + user["userId"] + "</td>";
         htmlString += "<td>" + user["name"]   + "</td>";
         htmlString += "<td>" + getUserTypeFromFlags(user["flags"])  + "</td>";
+        if (user["flags"] == hatohol.ALL_PRIVILEGES) {
+          htmlString += "<td>" + '{% trans "All" %}' + "</td>";
+        } else {
+          htmlString += "<td>" + "</td>";
+        }
         htmlString += "</tr>";
       }
 
