@@ -32,7 +32,7 @@ var HatoholServerEditDialog = function(succeededCb) {
 	dialogAttrs = { width: "auto" };
 	HatoholDialog.apply(
 			this, ["server-edit-dialog", gettext("ADD SERVER"), dialogButtons, dialogAttrs]);
-	self.setAddButoonState(false);
+	self.setAddButtonState(false);
 
 	//
 	// Dialog button handlers
@@ -70,7 +70,7 @@ var HatoholServerEditDialog = function(succeededCb) {
 			url: "/server",
 			request: "POST",
 			data: makeQueryData(),
-			replyCallback: replyCallBack,
+			replyCallback: replyCallback,
 			parseErrorCallback: hatoholErrorMsgBoxForParser
 		});
 	}
@@ -90,7 +90,7 @@ var HatoholServerEditDialog = function(succeededCb) {
 			hatoholErrorMsgBox(gettext("Server id is empty!"));
 			return false;
 		}
-		if (type != "zabbix" && type != "nagios") {
+		if (type == "Zabbix" && type == "Nagios") {
 			hatoholErrorMsgBox(gettext("Invalid Server type!"));
 			return false;
 		}
@@ -129,8 +129,7 @@ var HatoholServerEditDialog = function(succeededCb) {
 			hatoholErrorMsgBox(gettext("DB name is empty!"));
 			return false;
 		} else if (type == "zabbix" && $("#inputDbName").val() != "") {
-			hatoholErrorMsgBox(gettext("When select Zabbix from server type,"
-						"you needn't input a DB name."));
+			hatoholErrorMsgBox(gettext("When select Zabbix from server type, you needn't input a DB name."));
 		}
 		
 		return true;
@@ -138,7 +137,7 @@ var HatoholServerEditDialog = function(succeededCb) {
 };
 
 HatoholServerEditDialog.prototype = Object.create(HatoholDialog.prototype);
-HatoholServerEditDialog.prototype.constructor = HatholUserEditDialog;
+HatoholServerEditDialog.prototype.constructor = HatoholServerEditDialog;
 
 HatoholServerEditDialog.prototype.createMainElement = function() {
 	var div = $(makeMainDivHTML());
@@ -151,8 +150,8 @@ HatoholServerEditDialog.prototype.createMainElement = function() {
 		s += '<input id="inputServerId" type="text" value="" style="height:1.8em;" class="input-xlarge">';
 		s += '<label>' + gettext("Server type") + '</label>';
 		s += '<select id="selectServetType">';
-		s += '	<option value="zabbix">' gettext('Zabbix') + '</option>';
-		s += '	<option value="nagios">' gettext('Nagios') + '</option>';
+		s += '	<option value="zabbix">' + gettext("Zabbix") + '</option>';
+		s += '	<option value="nagios">' + gettext("Nagios") + '</option>';
 		s += '</select>';
 		s += '<label for="inputHostName">' + gettext("Host name") + '</label>';
 		s += '<input id="inputHostName" type="text" value="" style="height:1.8em;" class="input-xlarge">';
@@ -169,7 +168,7 @@ HatoholServerEditDialog.prototype.createMainElement = function() {
 		s += '<label for="inputUserName">' + gettext("User name") + '</label>';
 		s += '<input id="inputUserName" type="text" value="" style="height:1.8em;" class="input-xlarge">';
 		s += '<label for="inputPassword">' + gettext("Password") + '</label>';
-		s += '<input id="inputPassword" type="text" value="" style="height:1.8em;" class="input-xlarge">';
+		s += '<input id="inputPassword" type="password" value="" style="height:1.8em;" class="input-xlarge">';
 		s += '<label for="inputDbName">' + gettext("DB name") + '</label>';
 		s += '<input id="inputDbName" type="text" value="" style="height:1.8em;" class="input-xlarge">';
 		s += '</div>';
@@ -191,46 +190,46 @@ HatoholServerEditDialog.prototype.onAppendMainElement = function () {
 
   $("#inputServerId").keyup(function() {
     validServerId = !!$("#inputServerId").val();
-    fixupAddButtonState();
+    fixupAndButtonState();
   });
 
   $("#inputHostName").keyup(function() {
     validHostName = !!$("#inputHostName").val();
-    fixupAddButtonState(); });
+    fixupAndButtonState(); });
 
   $("#inputIpAddress").keyup(function() {
     validIpAddress = !!$("#inputIpAddress").val();
-    fixupAddButtonState();
+    fixupAndButtonState();
   });
 
   $("#inputNickName").keyup(function() {
     validNickName = !!$("#inputNickName").val();
-    fixupAddButtonState();
+    fixupAndButtonState();
   });
 
   $("#inputPort").keyup(function() {
     validPort = !!$("#inputPort").val();
-    fixupAddButtonState();
+    fixupAndButtonState();
   });
 
   $("#inputPollingInterval").keyup(function() {
     validPollingInterval = !!$("#inputPollingInterval").val();
-    fixupAddButtonState();
+    fixupAndButtonState();
   });
 
   $("#inputRetryInterval").keyup(function() {
     validRetryInterval = !!$("#inputRetryInterval").val();
-    fixupAddButtonState();
+    fixupAndButtonState();
   });
 
   $("#inputUserName").keyup(function() {
     validUserName = !!$("#inputUserName").val();
-    fixupAddButtonState();
+    fixupAndButtonState();
   });
 
   $("#inputPassword").keyup(function() {
     validPassword = !!$("#inputPassword").val();
-    fixupAddButtonState();
+    fixupAndButtonState();
   });
 
 	function fixupAndButtonState() {
