@@ -76,7 +76,7 @@ HatoholActorMailDialog.prototype.createMainElement = function() {
     s += '<form class="form-inline">';
     s += '  <label for="inputTo">' + gettext("TO: ") + '</label>';
     s += '  <input id="inputTo" type="text" value="' + initParams.toAddr +
-         '" style="height:1.8em;" class="input-xxlarge">';
+         '" class="input-xxlarge">';
     s += '</form>';
     s += '<form class="form-inline">';
     s += '  <label for="inputSmtpServer">' + gettext("SMTP server ") + '</label>';
@@ -84,7 +84,7 @@ HatoholActorMailDialog.prototype.createMainElement = function() {
     s += '  <br>';
     s += '  <input id="inputSmtpServer" type="text" value="' +
          initParams.smtpServer +
-         '" style="height:1.8em;" class="input-xxlarge">';
+         '" class="input-xxlarge">';
     s += '</form>';
     return s;
   }
