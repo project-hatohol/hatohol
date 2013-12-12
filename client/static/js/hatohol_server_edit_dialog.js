@@ -191,49 +191,49 @@ HatoholServerEditDialog.prototype.onAppendMainElement = function () {
 
   $("#inputServerId").keyup(function() {
     validServerId = !!$("#inputServerId").val();
-    fixupAndButtonState();
+    fixupAddButtonState();
   });
 
   $("#inputHostName").keyup(function() {
     validHostName = !!$("#inputHostName").val();
-    fixupAndButtonState(); });
+    fixupAddButtonState(); });
 
   $("#inputIpAddress").keyup(function() {
     validIpAddress = !!$("#inputIpAddress").val();
-    fixupAndButtonState();
+    fixupAddButtonState();
   });
 
   $("#inputNickName").keyup(function() {
     validNickName = !!$("#inputNickName").val();
-    fixupAndButtonState();
+    fixupAddButtonState();
   });
 
   $("#inputPort").keyup(function() {
     validPort = !!$("#inputPort").val();
-    fixupAndButtonState();
+    fixupAddButtonState();
   });
 
   $("#inputPollingInterval").keyup(function() {
     validPollingInterval = !!$("#inputPollingInterval").val();
-    fixupAndButtonState();
+    fixupAddButtonState();
   });
 
   $("#inputRetryInterval").keyup(function() {
     validRetryInterval = !!$("#inputRetryInterval").val();
-    fixupAndButtonState();
+    fixupAddButtonState();
   });
 
   $("#inputUserName").keyup(function() {
     validUserName = !!$("#inputUserName").val();
-    fixupAndButtonState();
+    fixupAddButtonState();
   });
 
   $("#inputPassword").keyup(function() {
     validPassword = !!$("#inputPassword").val();
-    fixupAndButtonState();
+    fixupAddButtonState();
   });
 
-	function fixupAndButtonState() {
+	function fixupAddButtonState() {
 		var state = (
 				validServerId &&
 				validHostName &&
