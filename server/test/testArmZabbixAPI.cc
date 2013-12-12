@@ -71,7 +71,7 @@ public:
 	};
 
 	VariableItemTablePtr m_actualEventTablePtr;
-	list<uint64_t> numberOfEventList;
+	list<uint64_t>       m_numbersOfGotEvents;
 
 	ArmZabbixAPITestee(const MonitoringServerInfo &serverInfo)
 	: ArmZabbixAPI(serverInfo),
@@ -190,7 +190,7 @@ public:
 	{
 		const ItemGroupList &itemList = itemPtr->getItemGroupList();
 		ItemGroupListConstIterator itr = itemList.begin();
-		numberOfEventList.push_back(itemList.size());
+		m_numbersOfGotEvents.push_back(itemList.size());
 		for (; itr != itemList.end(); ++itr) {
 			const ItemGroup *itemGroup = *itr;
 			m_actualEventTablePtr->add(itemGroup);
@@ -740,8 +740,8 @@ void test_verifyEventsObtanedBySplitWay(void)
 	uint64_t numberPerOnce =
 	  armZbxApiTestee.testGetMaximumNumberGetEventPerOnce();
 	list<uint64_t>::iterator itr =
-	   armZbxApiTestee.numberOfEventList.begin();
-	for (; itr != armZbxApiTestee.numberOfEventList.end(); ++itr)
+	   armZbxApiTestee.m_numbersOfGotEvents.begin();
+	for (; itr != armZbxApiTestee.m_numbersOfGotEvents.end(); ++itr)
 		cppcut_assert_equal(true, *itr <= numberPerOnce);
 }
 } // namespace testArmZabbixAPI
