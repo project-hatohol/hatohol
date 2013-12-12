@@ -737,11 +737,11 @@ void test_verifyEventsObtanedBySplitWay(void)
 	ItemTablePtr expectTable = armZbxApiTestee.testMakeItemTable();
 	armZbxApiTestee.callUpdateEvents();
 	cppcut_assert_equal(true, armZbxApiTestee.assertItemTable(expectTable));
-	uint64_t numberPerOnce =
+	const uint64_t upperLimitOfEventsAtOneTime = 
 	  armZbxApiTestee.testGetMaximumNumberGetEventPerOnce();
 	list<uint64_t>::iterator itr =
 	   armZbxApiTestee.m_numbersOfGotEvents.begin();
 	for (; itr != armZbxApiTestee.m_numbersOfGotEvents.end(); ++itr)
-		cppcut_assert_equal(true, *itr <= numberPerOnce);
+		cppcut_assert_equal(true, *itr <= upperLimitOfEventsAtOneTime);
 }
 } // namespace testArmZabbixAPI
