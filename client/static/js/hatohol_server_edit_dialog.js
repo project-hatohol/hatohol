@@ -161,11 +161,11 @@ HatoholServerEditDialog.prototype.createMainElement = function() {
 		s += '<label for="inputNickName">' + gettext("Nickname") + '</label>';
 		s += '<input id="inputNickName" type="text" value="" style="height:1.8em;" class="input-xlarge">';
 		s += '<label for="inputPort">' + gettext("Port") + '</label>';
-		s += '<input id="inputPort" type="text" value="" style="height:1.8em;" class="input-xlarge">';
+		s += '<input id="inputPort" type="text" value="80" style="height:1.8em;" class="input-xlarge">';
 		s += '<label for="inputPollingInterval">' + gettext("Polling interval") + '</label>';
-		s += '<input id="inputPollingInterval" type="text" value="" style="height:1.8em;" class="input-xlarge">';
+		s += '<input id="inputPollingInterval" type="text" value="30" style="height:1.8em;" class="input-xlarge">';
 		s += '<label for="inputRetryInterval">' + gettext("Retry interval") + '</label>';
-		s += '<input id="inputRetryInterval" type="text" value="" style="height:1.8em;" class="input-xlarge">';
+		s += '<input id="inputRetryInterval" type="text" value="10" style="height:1.8em;" class="input-xlarge">';
 		s += '<label for="inputUserName">' + gettext("User name") + '</label>';
 		s += '<input id="inputUserName" type="text" value="" style="height:1.8em;" class="input-xlarge">';
 		s += '<label for="inputPassword">' + gettext("Password") + '</label>';
