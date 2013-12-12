@@ -129,7 +129,8 @@ var HatoholServerEditDialog = function(succeededCb) {
 			hatoholErrorMsgBox(gettext("DB name is empty!"));
 			return false;
 		} else if (type == "zabbix" && $("#inputDbName").val() != "") {
-			hatoholErrorMsgBox(gettext("When select Zabbix from server type, you needn't input a DB name."));
+			hatoholErrorMsgBox(gettext(
+						"When select Zabbix from server type, you needn't input a DB name."));
 		}
 		
 		return true;
