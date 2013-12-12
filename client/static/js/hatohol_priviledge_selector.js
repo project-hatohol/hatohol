@@ -42,7 +42,7 @@ HatoholPriviledgeSelector.prototype.generateMainTable = function(tableId) {
   tableId + '>' +
   '  <thead>' +
   '    <tr>' +
-  '      <th> </th>' +
+  '      <th>' + gettext("Allow") + '</th>' +
   '      <th>ID</th>' +
   '      <th>' + gettext("Type") + '</th>' +
   '      <th>' + gettext("Hostname") + '</th>' +
@@ -56,13 +56,13 @@ HatoholPriviledgeSelector.prototype.generateMainTable = function(tableId) {
 };
 
 HatoholPriviledgeSelector.prototype.generateTableRows = function(reply) {
-  var s = "";
+  var s = '';
   this.setObjectArray(reply.servers);
   for (var i = 0; i < reply.servers.length; i++) {
     sv = reply.servers[i];
     s += '<tr>';
-    s += "<td><input type='checkbox' class='selectcheckbox' " +
-               "serverId='" + sv["id"] + "'></td>";
+    s += '<td><input type="checkbox" class="selectcheckbox" ' +
+               'serverId="' + sv['id'] + '"></td>';
     s += '<td>' + sv.id + '</td>';
     s += '<td>' + makeMonitoringSystemTypeLabel(sv.type) + '</td>';
     s += '<td>' + sv.hostName + '</td>';
