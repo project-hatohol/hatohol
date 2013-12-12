@@ -181,7 +181,7 @@ public:
 		return ArmZabbixAPI::getMaximumNumberGetEventPerOnce();
 	}
 
-	void testUpdateEvents(void)
+	void callUpdateEvents(void)
 	{
 		ArmZabbixAPI::updateEvents();
 	}
@@ -735,7 +735,7 @@ void test_verifyEventsObtanedBySplitWay(void)
 	armZbxApiTestee.testOpenSession();
 
 	ItemTablePtr expectTable = armZbxApiTestee.testMakeItemTable();
-	armZbxApiTestee.testUpdateEvents();
+	armZbxApiTestee.callUpdateEvents();
 	cppcut_assert_equal(true, armZbxApiTestee.assertItemTable(expectTable));
 	uint64_t numberPerOnce =
 	  armZbxApiTestee.testGetMaximumNumberGetEventPerOnce();
