@@ -26,6 +26,17 @@
 {% block main %}
   <h2>{% trans "Servers" %}</h2>
 
+  <form class="form-inline">
+		<input id="add-server-button" type="button" class="btn" value="{% trans "ADD SERVER" %}" />
+	</form>
+
+	<div id="msgbox" title="Message Box">
+		<p id="msgbox-text"></p>
+	</div>
+
+	<form id="add-server-form", method="POST"> {% csrf_token %}
+	</form>
+
   <table class="table table-condensed table-striped table-hover" id="table">
     <thead>
       <tr>
@@ -42,8 +53,20 @@
   </table>
 {% endblock %}
 
+{% block option %}
+	<script src="{{ STATIC_URL }}js/hatohol_server_edit_dialog.js"></script>
+{% endblock %}
+
 {% block logic %}
   <script type="text/javascript">
+
+		$("#add-server-button").click(function() {
+			new HatoholServerEditDialog(addSucceededCb);
+		});
+
+		function addSucceededCb() {
+			startConnection('server', updateCore);
+		};
 
     function drawTableBody(rd) {
       var x;
