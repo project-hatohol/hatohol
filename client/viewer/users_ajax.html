@@ -240,7 +240,13 @@
         if (user["flags"] == hatohol.ALL_PRIVILEGES) {
           html += "<td>" + '{% trans "All" %}' + "</td>";
         } else {
-          html += "<td>" + "</td>";
+          html += "<td>";
+          html += "<form class='form-inline' style='margin: 0'>";
+          html += "  <input id='edit-user" + user["userId"] + "-privileges'";
+          html += "    type='button' class='btn'";
+          html += "    value='{% trans "Show / Edit" %}' />";
+          html += "</form>"
+          html += "</td>";
         }
         html += "</tr>";
       }
