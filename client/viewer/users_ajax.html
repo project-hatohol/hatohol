@@ -56,6 +56,8 @@
 
 {% block option %}
   <script src="{{ STATIC_URL }}js/hatohol_user_edit_dialog.js"></script>
+  <script src="{{ STATIC_URL }}js/hatohol_selector_dialog.js"></script>
+  <script src="{{ STATIC_URL }}js/hatohol_priviledge_selector.js"></script>
 {% endblock %}
 
 {% block logic %}
@@ -105,6 +107,22 @@
           else if (prevNumSelected == 1 && numSelected == 0)
             $("#delete-user-button").attr("disabled", true);
         });
+    }
+
+    function setupPriviledgeButtons(reply)
+    {
+      var i, id, users = reply["users"];
+
+      for (i = 0; i < users.length; ++i) {
+        id = "#edit-user" + users[i]["userId"] + "-privileges";
+        $(id).click(function() {
+          new HatoholPriviledgeSelector(applyPriviledgesCb);
+        });
+      }
+    }
+
+    function applyPriviledgesCb() {
+      alert("Not implemented yet.");
     }
 
     //
@@ -258,6 +276,7 @@
       $("#table tbody").empty();
       $("#table tbody").append(drawTableBody(reply));
       setupCheckboxHandler();
+      setupPriviledgeButtons(reply);
       numSelected = 0;
     }
 
