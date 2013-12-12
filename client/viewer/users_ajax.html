@@ -222,14 +222,14 @@
     //
     // callback function from the base template
     //
-    function drawTableBody(rd) {
+    function drawTableBody(reply) {
       var i;
       var html;
       var user;
 
       html = "";
-      for (i = 0; i < rd["users"].length; ++i) {
-        user = rd["users"][i];
+      for (i = 0; i < reply["users"].length; ++i) {
+        user = reply["users"][i];
         html += "<tr>";
 
         html += "<td><input type='checkbox' class='selectcheckbox' " +
