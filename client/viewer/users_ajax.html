@@ -224,28 +224,28 @@
     //
     function drawTableBody(rd) {
       var i;
-      var htmlString;
+      var html;
       var user;
 
-      htmlString = "";
+      html = "";
       for (i = 0; i < rd["users"].length; ++i) {
         user = rd["users"][i];
-        htmlString += "<tr>";
+        html += "<tr>";
 
-        htmlString += "<td><input type='checkbox' class='selectcheckbox' " +
-                      "userId='" + user["userId"] + "'></td>";
-        htmlString += "<td>" + user["userId"] + "</td>";
-        htmlString += "<td>" + user["name"]   + "</td>";
-        htmlString += "<td>" + getUserTypeFromFlags(user["flags"])  + "</td>";
+        html += "<td><input type='checkbox' class='selectcheckbox' " +
+                "userId='" + user["userId"] + "'></td>";
+        html += "<td>" + user["userId"] + "</td>";
+        html += "<td>" + user["name"]   + "</td>";
+        html += "<td>" + getUserTypeFromFlags(user["flags"])  + "</td>";
         if (user["flags"] == hatohol.ALL_PRIVILEGES) {
-          htmlString += "<td>" + '{% trans "All" %}' + "</td>";
+          html += "<td>" + '{% trans "All" %}' + "</td>";
         } else {
-          htmlString += "<td>" + "</td>";
+          html += "<td>" + "</td>";
         }
-        htmlString += "</tr>";
+        html += "</tr>";
       }
 
-      return htmlString;
+      return html;
     }
 
     function updateCore(reply) {
