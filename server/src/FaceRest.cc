@@ -1963,7 +1963,7 @@ void FaceRest::handlerPostAccessInfo(RestJob *job)
 	bool succeeded;
 	AccessInfo accessInfo;
 
-	// user-id
+	// userId
 	succeeded = getParamWithErrorReply<UserIdType>(
 	              job, "userId", "%"FMT_USER_ID, accessInfo.userId, &exist);
 	if (!succeeded)
@@ -1973,7 +1973,7 @@ void FaceRest::handlerPostAccessInfo(RestJob *job)
 		return;
 	}
 
-	// server-id
+	// serverId
 	succeeded = getParamWithErrorReply<uint32_t>(
 	              job, "serverId", "%"PRIu32, accessInfo.serverId, &exist);
 	if (!succeeded)
@@ -1983,7 +1983,7 @@ void FaceRest::handlerPostAccessInfo(RestJob *job)
 		return;
 	}
 
-	// server-id
+	// hostGroupId
 	succeeded = getParamWithErrorReply<uint64_t>(
 	              job, "hostGroupId", "%"PRIu64, accessInfo.hostGroupId, &exist);
 	if (!succeeded)
