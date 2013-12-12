@@ -90,7 +90,7 @@ var HatoholServerEditDialog = function(succeededCb) {
 			hatoholErrorMsgBox(gettext("Server id is empty!"));
 			return false;
 		}
-		if (type == "Zabbix" && type == "Nagios") {
+		if (type != "Zabbix" && type != "Nagios") {
 			hatoholErrorMsgBox(gettext("Invalid Server type!"));
 			return false;
 		}
@@ -150,7 +150,7 @@ HatoholServerEditDialog.prototype.createMainElement = function() {
 		s += '<label for="inputServerId">' + gettext("Server ID") + '</label>';
 		s += '<input id="inputServerId" type="text" value="" style="height:1.8em;" class="input-xlarge">';
 		s += '<label>' + gettext("Server type") + '</label>';
-		s += '<select id="selectServetType">';
+		s += '<select id="selectServerType">';
 		s += '	<option value="zabbix">' + gettext("Zabbix") + '</option>';
 		s += '	<option value="nagios">' + gettext("Nagios") + '</option>';
 		s += '</select>';
