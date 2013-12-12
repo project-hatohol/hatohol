@@ -84,7 +84,7 @@ var HatoholServerEditDialog = function(succeededCb) {
 	}
 
 	function validateParameters() {
-		var type = $("#selectServerTyepe").val();
+		var type = $("#selectServerType").val();
 
 		if ($("#inputServerId").val() == "") {
 			hatoholErrorMsgBox(gettext("Server id is empty!"));
