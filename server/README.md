@@ -39,7 +39,7 @@ packages
 
 You can install sqlite3, MySQL and libsoup by following command:
 
-    # yum install sqlite-devel mysql-devel libsoup-devel libuuid-devel.x86_64
+    # yum install sqlite-devel mysql-devel libsoup-devel libuuid-devel
 
 #### For json-glib, there are two ways to install.
 
