@@ -29,10 +29,7 @@
 #include "DBClientUser.h"
 #include "DBClientHatohol.h"
 #include "Closure.h"
-
-#ifndef GLIB_VERSION_2_32
-#define G_SOURCE_REMOVE FALSE
-#endif
+#include "Utils.h"
 
 struct SessionInfo {
 	UserIdType userId;
