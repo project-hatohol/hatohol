@@ -18,22 +18,88 @@
  */
 
 
-var HatoholPriviledgeSelector = function(selectedCb) {
-
+var HatoholPriviledgeSelector = function(applyCallback) {
   var self = this;
+  self.applyCallback = applyCallback;
+  self.objectArray = null;
+
+  var dialogButtons = [{
+    text: gettext("APPLY"),
+    click: function() { self.applyButtonClicked(); }
+  }, {
+    text: gettext("CANCEL"),
+    click: function() { self.cancelButtonClicked(); }
+  }];
 
   // call the constructor of the super class
-  HatoholSelectorDialog.apply(
-    this, ["server-selector", gettext("Server selecion"), selectedCb]);
-  self.start("/tunnel/server", "GET");
+  HatoholDialog.apply(
+    this, ["priviledge-selector", "Edit priviledges", dialogButtons]);
+  self.start();
 };
 
 HatoholPriviledgeSelector.prototype =
   Object.create(HatoholSelectorDialog.prototype);
 HatoholPriviledgeSelector.prototype.constructor = HatoholPriviledgeSelector;
 
-HatoholPriviledgeSelector.prototype.getNumberOfObjects = function(reply) {
-  return reply.numberOfServers;
+HatoholPriviledgeSelector.prototype.createMainElement = function() {
+  var ptag = $("<p/>");
+  ptag.attr("id", "priviledgeSelectorDialogMsgArea");
+  ptag.text(gettext("Now getting information..."));
+  return ptag;
+};
+
+HatoholPriviledgeSelector.prototype.applyButtonClicked = function() {
+  if (!this.applyCallback)
+    return;
+  this.applyCallback();
+  this.closeDialog();
+};
+
+HatoholPriviledgeSelector.prototype.cancelButtonClicked = function() {
+  this.closeDialog();
+};
+
+HatoholPriviledgeSelector.prototype.setMessage = function(msg) {
+  $("#selectorDialogMsgArea").text(msg);
+};
+
+HatoholPriviledgeSelector.prototype.setObjectArray = function(ary) {
+  this.objectArray = ary;
+};
+
+HatoholPriviledgeSelector.prototype.makeQueryData= function() {
+  return {};
+};
+
+HatoholPriviledgeSelector.prototype.start = function() {
+  var self = this;
+  $.ajax({
+    url: "/tunnel/server",
+    type: "GET",
+    data: this.makeQueryData(),
+    success: function(reply) {
+      var replyParser = new HatoholReplyParser(reply);
+      if (replyParser.getStatus() !== REPLY_STATUS.OK) {
+        self.setMessage(replyParser.getStatusMessage());
+        return;
+      }
+      if (!reply.numberOfServers) {
+        self.setMessage(gettext("No data."));
+        return;
+      }
+
+      // create a table
+      var tableId = "selectorMainTable";
+      var table = self.generateMainTable(tableId);
+      self.replaceMainElement(table);
+      $("#" + tableId + " tbody").append(self.generateTableRows(reply));
+    },
+    error: function(XMLHttpRequest, textStatus, errorThrown) {
+      var errorMsg = "Error: " + XMLHttpRequest.status + ": " +
+                     XMLHttpRequest.statusText;
+      self.setMessage(errorMsg);
+    }
+  });
 };
 
 HatoholPriviledgeSelector.prototype.generateMainTable = function(tableId) {
