@@ -105,7 +105,7 @@
     //
     function setupCheckboxHandler() {
         $(".selectcheckbox").change(function() {
-          check = $(this).is(":checked");
+          var check = $(this).is(":checked");
           var prevNumSelected = numSelected;
           if (check)
             numSelected += 1;
@@ -155,7 +155,7 @@
     //
     function deleteActions() {
         $(this).dialog("close");
-        checkbox = $(".selectcheckbox");
+        var checkbox = $(".selectcheckbox");
         var deletedIdArray = {count:0, total:0, errors:0};
         for (var i = 0; i < checkbox.length; i++) {
           if (!checkbox[i].checked)
