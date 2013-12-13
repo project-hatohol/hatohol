@@ -18,9 +18,10 @@
  */
 
 
-var HatoholPriviledgeEditDialog = function(applyCallback) {
+var HatoholPriviledgeEditDialog = function(userId, applyCallback) {
   var self = this;
   self.mainTableId = "priviledgeEditDialogMainTable";
+  self.userId = userId;
   self.applyCallback = applyCallback;
   self.serversData = null;
   self.error = false;

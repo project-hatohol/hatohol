@@ -115,7 +115,7 @@
       for (i = 0; i < users.length; ++i) {
         id = "#edit-user" + users[i]["userId"] + "-privileges";
         $(id).click(function() {
-          new HatoholPriviledgeEditDialog(applyPriviledgesCb);
+          new HatoholPriviledgeEditDialog(users[i]["userId"], applyPriviledgesCb);
         });
       }
     }
