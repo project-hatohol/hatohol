@@ -24,6 +24,7 @@ var HatoholPriviledgeEditDialog = function(userId, applyCallback) {
   self.userId = userId;
   self.applyCallback = applyCallback;
   self.serversData = null;
+  self.priviledgesData = null;
   self.error = false;
 
   var dialogButtons = [{
@@ -69,6 +70,7 @@ HatoholPriviledgeEditDialog.prototype.setMessage = function(msg) {
 HatoholPriviledgeEditDialog.prototype.start = function() {
   var self = this;
   self.error = false;
+
   $.ajax({
     url: "/tunnel/server",
     type: "GET",
@@ -98,6 +100,33 @@ HatoholPriviledgeEditDialog.prototype.start = function() {
       self.erorr = true;
     }
   });
+
+  var accessInfoURL = "/tunnel/users/" + this.userId + "/access-info";
+  $.ajax({
+    url: accessInfoURL,
+    type: "GET",
+    data: {},
+    success: function(priviledgesData) {
+      if (self.error)
+        return;
+      
+      var replyParser = new HatoholReplyParser(priviledgesData);
+      if (replyParser.getStatus() !== REPLY_STATUS.OK) {
+        self.setMessage(replyParser.getStatusMessage());
+        self.erorr = true;
+        return;
+      }
+
+      self.priviledgesData = priviledgesData;
+      self.updateAllowCheckboxes();
+    },
+    error: function(XMLHttpRequest, textStatus, errorThrown) {
+      var errorMsg = "Error: " + XMLHttpRequest.status + ": " +
+                     XMLHttpRequest.statusText;
+      self.setMessage(errorMsg);
+      self.erorr = true;
+    }
+  });
 };
 
 HatoholPriviledgeEditDialog.prototype.updateServersTable = function() {
@@ -110,6 +139,7 @@ HatoholPriviledgeEditDialog.prototype.updateServersTable = function() {
   var rows = this.generateTableRows(this.serversData);
   this.replaceMainElement(table);
   $("#" + this.mainTableId + " tbody").append(rows);
+  this.updateAllowCheckboxes();
 };
 
 HatoholPriviledgeEditDialog.prototype.generateMainTable = function() {
@@ -147,4 +177,10 @@ HatoholPriviledgeEditDialog.prototype.generateTableRows = function() {
     s += '</tr>';
   }
   return s;
+};
+
+HatoholPriviledgeEditDialog.prototype.updateAllowCheckboxes = function() {
+  if (!this.serversData || !this.priviledgesData)
+    return;
+  // FIXME
 };
