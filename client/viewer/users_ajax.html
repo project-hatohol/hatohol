@@ -113,9 +113,9 @@
       var i, id, users = reply["users"], userId;
 
       for (i = 0; i < users.length; ++i) {
-        userId = users[i]["userId"];
-        id = "#edit-user" + userId + "-privileges";
+        id = "#edit-user" + users[i]["userId"] + "-privileges";
         $(id).click(function() {
+          var userId = this.getAttribute("userId");
           new HatoholPriviledgeEditDialog(userId, applyPriviledgesCb);
         });
       }
@@ -262,6 +262,7 @@
           html += "<form class='form-inline' style='margin: 0'>";
           html += "  <input id='edit-user" + user["userId"] + "-privileges'";
           html += "    type='button' class='btn'";
+          html += "    userId='" + user["userId"] + "'";
           html += "    value='{% trans "Show / Edit" %}' />";
           html += "</form>"
           html += "</td>";
