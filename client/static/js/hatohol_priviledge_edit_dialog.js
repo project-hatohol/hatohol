@@ -33,7 +33,7 @@ var HatoholPriviledgeEditDialog = function(applyCallback) {
 
   // call the constructor of the super class
   HatoholDialog.apply(
-    this, ["priviledge-selector", "Edit priviledges", dialogButtons]);
+    this, ["priviledge-edit-dialog", "Edit priviledges", dialogButtons]);
   self.start();
 };
 
@@ -43,7 +43,7 @@ HatoholPriviledgeEditDialog.prototype.constructor = HatoholPriviledgeEditDialog;
 
 HatoholPriviledgeEditDialog.prototype.createMainElement = function() {
   var ptag = $("<p/>");
-  ptag.attr("id", "priviledgeSelectorDialogMsgArea");
+  ptag.attr("id", "priviledgeEditDialogMsgArea");
   ptag.text(gettext("Now getting information..."));
   return ptag;
 };
@@ -60,7 +60,7 @@ HatoholPriviledgeEditDialog.prototype.cancelButtonClicked = function() {
 };
 
 HatoholPriviledgeEditDialog.prototype.setMessage = function(msg) {
-  $("#selectorDialogMsgArea").text(msg);
+  $("#priviledgeEditDialogMsgArea").text(msg);
 };
 
 HatoholPriviledgeEditDialog.prototype.start = function() {
