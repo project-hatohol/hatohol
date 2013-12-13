@@ -83,7 +83,7 @@ HatoholPriviledgeEditDialog.prototype.start = function() {
       self.serversData = serversData;
 
       // create a table
-      var tableId = "selectorMainTable";
+      var tableId = "priviledgeEditDialogMainTable";
       var table = self.generateMainTable(tableId);
       self.replaceMainElement(table);
       $("#" + tableId + " tbody").append(self.generateTableRows(serversData));
