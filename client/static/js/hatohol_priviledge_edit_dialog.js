@@ -20,6 +20,7 @@
 
 var HatoholPriviledgeEditDialog = function(applyCallback) {
   var self = this;
+  self.mainTableId = "priviledgeEditDialogMainTable";
   self.applyCallback = applyCallback;
   self.serversData = null;
 
@@ -83,10 +84,9 @@ HatoholPriviledgeEditDialog.prototype.start = function() {
       self.serversData = serversData;
 
       // create a table
-      var tableId = "priviledgeEditDialogMainTable";
-      var table = self.generateMainTable(tableId);
+      var table = self.generateMainTable();
       self.replaceMainElement(table);
-      $("#" + tableId + " tbody").append(self.generateTableRows(serversData));
+      $("#" + self.mainTableId + " tbody").append(self.generateTableRows(serversData));
     },
     error: function(XMLHttpRequest, textStatus, errorThrown) {
       var errorMsg = "Error: " + XMLHttpRequest.status + ": " +
@@ -96,10 +96,10 @@ HatoholPriviledgeEditDialog.prototype.start = function() {
   });
 };
 
-HatoholPriviledgeEditDialog.prototype.generateMainTable = function(tableId) {
+HatoholPriviledgeEditDialog.prototype.generateMainTable = function() {
   var html =
   '<table class="table table-condensed table-striped table-hover" id=' +
-  tableId + '>' +
+  this.mainTableId + '>' +
   '  <thead>' +
   '    <tr>' +
   '      <th>' + gettext("Allow") + '</th>' +
