@@ -18,7 +18,7 @@
  */
 
 
-var HatoholPriviledgeSelector = function(applyCallback) {
+var HatoholPriviledgeEditDialog = function(applyCallback) {
   var self = this;
   self.applyCallback = applyCallback;
   self.servers = null;
@@ -37,33 +37,33 @@ var HatoholPriviledgeSelector = function(applyCallback) {
   self.start();
 };
 
-HatoholPriviledgeSelector.prototype =
+HatoholPriviledgeEditDialog.prototype =
   Object.create(HatoholSelectorDialog.prototype);
-HatoholPriviledgeSelector.prototype.constructor = HatoholPriviledgeSelector;
+HatoholPriviledgeEditDialog.prototype.constructor = HatoholPriviledgeEditDialog;
 
-HatoholPriviledgeSelector.prototype.createMainElement = function() {
+HatoholPriviledgeEditDialog.prototype.createMainElement = function() {
   var ptag = $("<p/>");
   ptag.attr("id", "priviledgeSelectorDialogMsgArea");
   ptag.text(gettext("Now getting information..."));
   return ptag;
 };
 
-HatoholPriviledgeSelector.prototype.applyButtonClicked = function() {
+HatoholPriviledgeEditDialog.prototype.applyButtonClicked = function() {
   if (!this.applyCallback)
     return;
   this.applyCallback();
   this.closeDialog();
 };
 
-HatoholPriviledgeSelector.prototype.cancelButtonClicked = function() {
+HatoholPriviledgeEditDialog.prototype.cancelButtonClicked = function() {
   this.closeDialog();
 };
 
-HatoholPriviledgeSelector.prototype.setMessage = function(msg) {
+HatoholPriviledgeEditDialog.prototype.setMessage = function(msg) {
   $("#selectorDialogMsgArea").text(msg);
 };
 
-HatoholPriviledgeSelector.prototype.start = function() {
+HatoholPriviledgeEditDialog.prototype.start = function() {
   var self = this;
   $.ajax({
     url: "/tunnel/server",
@@ -94,7 +94,7 @@ HatoholPriviledgeSelector.prototype.start = function() {
   });
 };
 
-HatoholPriviledgeSelector.prototype.generateMainTable = function(tableId) {
+HatoholPriviledgeEditDialog.prototype.generateMainTable = function(tableId) {
   var html =
   '<table class="table table-condensed table-striped table-hover" id=' +
   tableId + '>' +
@@ -113,7 +113,7 @@ HatoholPriviledgeSelector.prototype.generateMainTable = function(tableId) {
   return html;
 };
 
-HatoholPriviledgeSelector.prototype.generateTableRows = function(reply) {
+HatoholPriviledgeEditDialog.prototype.generateTableRows = function(reply) {
   var s = '';
   this.servers = reply.servers;
   for (var i = 0; i < reply.servers.length; i++) {

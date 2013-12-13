@@ -56,7 +56,6 @@
 
 {% block option %}
   <script src="{{ STATIC_URL }}js/hatohol_user_edit_dialog.js"></script>
-  <script src="{{ STATIC_URL }}js/hatohol_selector_dialog.js"></script>
   <script src="{{ STATIC_URL }}js/hatohol_priviledge_edit_dialog.js"></script>
 {% endblock %}
 
@@ -116,7 +115,7 @@
       for (i = 0; i < users.length; ++i) {
         id = "#edit-user" + users[i]["userId"] + "-privileges";
         $(id).click(function() {
-          new HatoholPriviledgeSelector(applyPriviledgesCb);
+          new HatoholPriviledgeEditDialog(applyPriviledgesCb);
         });
       }
     }
