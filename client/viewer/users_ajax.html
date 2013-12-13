@@ -110,12 +110,13 @@
 
     function setupPriviledgeButtons(reply)
     {
-      var i, id, users = reply["users"];
+      var i, id, users = reply["users"], userId;
 
       for (i = 0; i < users.length; ++i) {
-        id = "#edit-user" + users[i]["userId"] + "-privileges";
+        userId = users[i]["userId"];
+        id = "#edit-user" + userId + "-privileges";
         $(id).click(function() {
-          new HatoholPriviledgeEditDialog(users[i]["userId"], applyPriviledgesCb);
+          new HatoholPriviledgeEditDialog(userId, applyPriviledgesCb);
         });
       }
     }
