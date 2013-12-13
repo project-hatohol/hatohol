@@ -38,7 +38,7 @@ var HatoholPriviledgeEditDialog = function(applyCallback) {
 };
 
 HatoholPriviledgeEditDialog.prototype =
-  Object.create(HatoholSelectorDialog.prototype);
+  Object.create(HatoholDialog.prototype);
 HatoholPriviledgeEditDialog.prototype.constructor = HatoholPriviledgeEditDialog;
 
 HatoholPriviledgeEditDialog.prototype.createMainElement = function() {
