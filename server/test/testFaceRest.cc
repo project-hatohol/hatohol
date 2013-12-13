@@ -1486,6 +1486,52 @@ void test_addAccessInfo(void)
 	assertDBContent(dbUser.getDBAgent(), statement, expect);
 }
 
+void test_addAccessInfoWithAllHostGroups(void)
+{
+	const string userId = "1";
+	const string serverId = "2";
+	const string hostGroupId = StringUtils::sprintf("%"PRIu64, ALL_HOST_GROUPS);
+
+	StringMap params;
+	params["userId"] = userId;
+	params["serverId"] = serverId;
+	params["hostGroupId"] = hostGroupId;
+	assertAddAccessInfoWithSetup(params, HTERR_OK, 1);
+
+	// check the content in the DB
+	DBClientUser dbUser;
+	string statement = "select * from ";
+	statement += DBClientUser::TABLE_NAME_ACCESS_LIST;
+	int expectedId = 1;
+	string expect = StringUtils::sprintf(
+	  "%"FMT_ACCESS_INFO_ID"|%s|%s|%s\n",
+	  expectedId, userId.c_str(), serverId.c_str(), hostGroupId.c_str());
+	assertDBContent(dbUser.getDBAgent(), statement, expect);
+}
+
+void test_addAccessInfoWithAllHostGroupsNegativeValue(void)
+{
+	const string userId = "1";
+	const string serverId = "2";
+	const string hostGroupId = "-1";
+
+	StringMap params;
+	params["userId"] = userId;
+	params["serverId"] = serverId;
+	params["hostGroupId"] = hostGroupId;
+	assertAddAccessInfoWithSetup(params, HTERR_OK, 1);
+
+	// check the content in the DB
+	DBClientUser dbUser;
+	string statement = "select * from ";
+	statement += DBClientUser::TABLE_NAME_ACCESS_LIST;
+	int expectedId = 1;
+	string expect = StringUtils::sprintf(
+	  "%"FMT_ACCESS_INFO_ID"|%s|%s|%"PRIu64"\n",
+	  expectedId, userId.c_str(), serverId.c_str(), ALL_HOST_GROUPS);
+	assertDBContent(dbUser.getDBAgent(), statement, expect);
+}
+
 void test_addAccessInfoWithExistingData(void)
 {
 	const string userId = "1";
