@@ -53,6 +53,7 @@ HatoholPriviledgeEditDialog.prototype.createMainElement = function() {
 };
 
 HatoholPriviledgeEditDialog.prototype.applyButtonClicked = function() {
+  alert("Not implemented yet.");
   if (!this.applyCallback)
     return;
   this.applyCallback();
