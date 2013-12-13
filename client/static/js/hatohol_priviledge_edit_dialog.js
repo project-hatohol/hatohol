@@ -23,6 +23,7 @@ var HatoholPriviledgeEditDialog = function(applyCallback) {
   self.mainTableId = "priviledgeEditDialogMainTable";
   self.applyCallback = applyCallback;
   self.serversData = null;
+  self.error = false;
 
   var dialogButtons = [{
     text: gettext("APPLY"),
@@ -66,14 +67,19 @@ HatoholPriviledgeEditDialog.prototype.setMessage = function(msg) {
 
 HatoholPriviledgeEditDialog.prototype.start = function() {
   var self = this;
+  self.error = false;
   $.ajax({
     url: "/tunnel/server",
     type: "GET",
     data: {},
     success: function(serversData) {
+      if (self.error)
+        return;
+      
       var replyParser = new HatoholReplyParser(serversData);
       if (replyParser.getStatus() !== REPLY_STATUS.OK) {
         self.setMessage(replyParser.getStatusMessage());
+        self.erorr = true;
         return;
       }
       if (!serversData.numberOfServers) {
@@ -88,11 +94,14 @@ HatoholPriviledgeEditDialog.prototype.start = function() {
       var errorMsg = "Error: " + XMLHttpRequest.status + ": " +
                      XMLHttpRequest.statusText;
       self.setMessage(errorMsg);
+      self.erorr = true;
     }
   });
 };
 
 HatoholPriviledgeEditDialog.prototype.updateServersTable = function() {
+  if (this.error)
+        return;
   if (!this.serversData)
     return;
 
