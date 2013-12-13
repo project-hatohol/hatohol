@@ -52,7 +52,7 @@ var HatoholServerEditDialog = function(succeededCb) {
 	function makeQueryData() {
 		var queryData = {};
 		queryData.serverid = $("#inputServerId").val();
-		queryData.type = getFlagsFromServerType();
+		queryData.type = getFlagsFromServerType($("#selectUserType").val());
 		queryData.hostname = $("#inputHostName").val();
 		queryData.ipaddress = $("#inputIpAddress").val();
 		queryData.nickname = $("#inputNickName").val();
@@ -137,9 +137,6 @@ var HatoholServerEditDialog = function(succeededCb) {
 	}
 
 	function getFlagsFromServerType(type) {
-		if (!type)
-			type = $("#selectUserType").val();
-
 		switch(type) {
 			case "zabbix":
 				return 0;
