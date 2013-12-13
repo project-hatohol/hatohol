@@ -52,7 +52,7 @@ var HatoholServerEditDialog = function(succeededCb) {
 	function makeQueryData() {
 		var queryData = {};
 		queryData.serverid = $("#inputServerId").val();
-		queryData.type = $("#selectServerType").val();
+		queryData.type = getFlagsFromServerType();
 		queryData.hostname = $("#inputHostName").val();
 		queryData.ipaddress = $("#inputIpAddress").val();
 		queryData.nickname = $("#inputNickName").val();
@@ -132,8 +132,23 @@ var HatoholServerEditDialog = function(succeededCb) {
 			hatoholErrorMsgBox(gettext(
 						"When select Zabbix from server type, you needn't input a DB name."));
 		}
-		
+
 		return true;
+	}
+
+	function getFlagsFromServerType(type) {
+		if (!type)
+			type = $("#selectUserType").val();
+
+		switch(type) {
+			case "zabbix":
+				return 0;
+			case "nagios":
+				return 1;
+			default:
+				break;
+		}
+		return -1;
 	}
 };
 
