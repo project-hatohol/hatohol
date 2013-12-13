@@ -21,7 +21,7 @@
 var HatoholPriviledgeEditDialog = function(applyCallback) {
   var self = this;
   self.applyCallback = applyCallback;
-  self.servers = null;
+  self.serversData = null;
 
   var dialogButtons = [{
     text: gettext("APPLY"),
@@ -69,22 +69,24 @@ HatoholPriviledgeEditDialog.prototype.start = function() {
     url: "/tunnel/server",
     type: "GET",
     data: {},
-    success: function(reply) {
-      var replyParser = new HatoholReplyParser(reply);
+    success: function(serversData) {
+      var replyParser = new HatoholReplyParser(serversData);
       if (replyParser.getStatus() !== REPLY_STATUS.OK) {
         self.setMessage(replyParser.getStatusMessage());
         return;
       }
-      if (!reply.numberOfServers) {
+      if (!serversData.numberOfServers) {
         self.setMessage(gettext("No data."));
         return;
       }
+
+      self.serversData = serversData;
 
       // create a table
       var tableId = "selectorMainTable";
       var table = self.generateMainTable(tableId);
       self.replaceMainElement(table);
-      $("#" + tableId + " tbody").append(self.generateTableRows(reply));
+      $("#" + tableId + " tbody").append(self.generateTableRows(serversData));
     },
     error: function(XMLHttpRequest, textStatus, errorThrown) {
       var errorMsg = "Error: " + XMLHttpRequest.status + ": " +
@@ -113,11 +115,11 @@ HatoholPriviledgeEditDialog.prototype.generateMainTable = function(tableId) {
   return html;
 };
 
-HatoholPriviledgeEditDialog.prototype.generateTableRows = function(reply) {
+HatoholPriviledgeEditDialog.prototype.generateTableRows = function() {
   var s = '';
-  this.servers = reply.servers;
-  for (var i = 0; i < reply.servers.length; i++) {
-    sv = reply.servers[i];
+  var servers = this.serversData.servers;
+  for (var i = 0; i < servers.length; i++) {
+    sv = servers[i];
     s += '<tr>';
     s += '<td><input type="checkbox" class="selectcheckbox" ' +
                'serverId="' + sv['id'] + '"></td>';
