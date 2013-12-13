@@ -185,9 +185,51 @@ HatoholPriviledgeEditDialog.prototype.updateAllowCheckboxes = function() {
   // FIXME
 };
 
+HatoholPriviledgeEditDialog.prototype.parsePriviledgesData = function() {
+  var i, serversTable = {}, hostsTable;
+  var allowedServers = this.priviledgesData.allowedServers;
+  for (i = 0; i < allowedServers.length; i++) {
+  }
+
+  return serversTable;
+};
+
+/*
+HatoholPriviledgeEditDialog.prototype.deleteOneUser = function(userId, accessInfoId) {
+  new HatoholConnector({
+    url: '/user/' + userId + '/access-info/' + accessInfoId,
+    request: "DELETE",
+    context: null,
+    replyCallback: function(data, parser, context) {
+      //parseDeleteUserResult(data, context);
+    },
+    connectErrorCallback: function(XMLHttpRequest,
+                                   textStatus, errorThrown) {
+      var errorMsg = "Error: " + XMLHttpRequest.status + ": " +
+        XMLHttpRequest.statusText;
+      hatoholErrorMsgBox(errorMsg);
+    },
+    completionCallback: function(context) {
+      //compleOneDelUser(context);
+    }
+  });
+};
+*/
+
+HatoholPriviledgeEditDialog.prototype.addAccessInfo = function(userId, accesInfo) {
+  new HatoholConnector({
+    url: "/user/" + userId + "access-info",
+    request: "POST",
+    data: makeQueryData(),
+    replyCallback: replyCallback,
+    parseErrorCallback: hatoholErrorMsgBoxForParser
+  });
+};
+
 HatoholPriviledgeEditDialog.prototype.applyPrivileges = function() {
   alert("Not implemented yet.");
   var i, serverId, checkboxes = $(".serverSelectCheckbox");
+  var allowedServers = this.parsePriviledgesData(this.priviledgesData);
   for (i = 0; i < checkboxes.length; i++) {
     serverId = checkboxes[i].getAttribute("serverId");
 

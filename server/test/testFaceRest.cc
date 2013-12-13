@@ -779,19 +779,20 @@ static void _assertAllowedServers(const string &path, UserIdType userId,
 }
 #define assertAllowedServers(P,...) cut_trace(_assertAllowedServers(P,##__VA_ARGS__))
 
-#define assertAddAccessInfo(P, ...) \
-cut_trace(_assertAddRecord(P, "/user/1/access-info", ##__VA_ARGS__))
+#define assertAddAccessInfo(U,P, ...) \
+cut_trace(_assertAddRecord(P, U, ##__VA_ARGS__))
 
-void _assertAddAccessInfoWithSetup(const StringMap &params,
+void _assertAddAccessInfoWithSetup(const string &url,
+				   const StringMap &params,
 				   const HatoholErrorCode &expectCode,
 				   uint32_t expectedId)
 {
 	const bool dbRecreate = true;
 	const bool loadTestDat = false;
 	setupTestDBUser(dbRecreate, loadTestDat);
-	assertAddAccessInfo(params, expectCode);
+	assertAddAccessInfo(url, params, expectCode);
 }
-#define assertAddAccessInfoWithSetup(P,C,I) cut_trace(_assertAddAccessInfoWithSetup(P,C,I))
+#define assertAddAccessInfoWithSetup(U,P,C,I) cut_trace(_assertAddAccessInfoWithSetup(U,P,C,I))
 
 static void setupPostAction(void)
 {
@@ -1470,10 +1471,10 @@ void test_addAccessInfo(void)
 	const string hostGroupId = "3";
 
 	StringMap params;
-	params["userId"] = userId;
 	params["serverId"] = serverId;
 	params["hostGroupId"] = hostGroupId;
-	assertAddAccessInfoWithSetup(params, HTERR_OK, 1);
+	assertAddAccessInfoWithSetup("/user/1/access-info",
+				     params, HTERR_OK, 1);
 
 	// check the content in the DB
 	DBClientUser dbUser;
@@ -1493,10 +1494,10 @@ void test_addAccessInfoWithAllHostGroups(void)
 	const string hostGroupId = StringUtils::sprintf("%"PRIu64, ALL_HOST_GROUPS);
 
 	StringMap params;
-	params["userId"] = userId;
 	params["serverId"] = serverId;
 	params["hostGroupId"] = hostGroupId;
-	assertAddAccessInfoWithSetup(params, HTERR_OK, 1);
+	assertAddAccessInfoWithSetup("/user/1/access-info",
+				     params, HTERR_OK, 1);
 
 	// check the content in the DB
 	DBClientUser dbUser;
@@ -1516,10 +1517,10 @@ void test_addAccessInfoWithAllHostGroupsNegativeValue(void)
 	const string hostGroupId = "-1";
 
 	StringMap params;
-	params["userId"] = userId;
 	params["serverId"] = serverId;
 	params["hostGroupId"] = hostGroupId;
-	assertAddAccessInfoWithSetup(params, HTERR_OK, 1);
+	assertAddAccessInfoWithSetup("/user/1/access-info",
+				     params, HTERR_OK, 1);
 
 	// check the content in the DB
 	DBClientUser dbUser;
@@ -1548,7 +1549,7 @@ void test_addAccessInfoWithExistingData(void)
 	setupTestDBUser(dbRecreate, loadTestData);
 	loadTestDBAccessList();
 
-	assertAddAccessInfo(params, HTERR_OK, 2);
+	assertAddAccessInfo("/user/1/access-info", params, HTERR_OK, 2);
 
 	AccessInfoIdSet accessInfoIdSet;
 	assertAccessInfoInDB(accessInfoIdSet);

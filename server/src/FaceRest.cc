@@ -1972,14 +1972,8 @@ void FaceRest::handlerPostAccessInfo(RestJob *job)
 	AccessInfo accessInfo;
 
 	// userId
-	succeeded = getParamWithErrorReply<UserIdType>(
-	              job, "userId", "%"FMT_USER_ID, accessInfo.userId, &exist);
-	if (!succeeded)
-		return;
-	if (!exist) {
-		REPLY_ERROR(job, HTERR_NOT_FOUND_PARAMETER, "userId");
-		return;
-	}
+	int userIdPos = 0;
+	accessInfo.userId = job->getResourceId(userIdPos);
 
 	// serverId
 	succeeded = getParamWithErrorReply<uint32_t>(
