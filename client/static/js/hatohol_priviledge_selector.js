@@ -63,16 +63,12 @@ HatoholPriviledgeSelector.prototype.setMessage = function(msg) {
   $("#selectorDialogMsgArea").text(msg);
 };
 
-HatoholPriviledgeSelector.prototype.makeQueryData= function() {
-  return {};
-};
-
 HatoholPriviledgeSelector.prototype.start = function() {
   var self = this;
   $.ajax({
     url: "/tunnel/server",
     type: "GET",
-    data: this.makeQueryData(),
+    data: {},
     success: function(reply) {
       var replyParser = new HatoholReplyParser(reply);
       if (replyParser.getStatus() !== REPLY_STATUS.OK) {
