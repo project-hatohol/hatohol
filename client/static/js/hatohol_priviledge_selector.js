@@ -21,7 +21,7 @@
 var HatoholPriviledgeSelector = function(applyCallback) {
   var self = this;
   self.applyCallback = applyCallback;
-  self.objectArray = null;
+  self.servers = null;
 
   var dialogButtons = [{
     text: gettext("APPLY"),
@@ -61,10 +61,6 @@ HatoholPriviledgeSelector.prototype.cancelButtonClicked = function() {
 
 HatoholPriviledgeSelector.prototype.setMessage = function(msg) {
   $("#selectorDialogMsgArea").text(msg);
-};
-
-HatoholPriviledgeSelector.prototype.setObjectArray = function(ary) {
-  this.objectArray = ary;
 };
 
 HatoholPriviledgeSelector.prototype.makeQueryData= function() {
@@ -123,7 +119,7 @@ HatoholPriviledgeSelector.prototype.generateMainTable = function(tableId) {
 
 HatoholPriviledgeSelector.prototype.generateTableRows = function(reply) {
   var s = '';
-  this.setObjectArray(reply.servers);
+  this.servers = reply.servers;
   for (var i = 0; i < reply.servers.length; i++) {
     sv = reply.servers[i];
     s += '<tr>';
