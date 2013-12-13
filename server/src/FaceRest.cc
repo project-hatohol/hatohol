@@ -1451,7 +1451,7 @@ struct GetItemClosure : Closure<FaceRest>
 	GetItemClosure(FaceRest *receiver,
 		       callback func,
 		       struct FaceRest::RestJob *restJob)
-	: Closure(receiver, func), m_restJob(restJob)
+	: Closure<FaceRest>::Closure(receiver, func), m_restJob(restJob)
 	{
 	}
 

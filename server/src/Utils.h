@@ -34,6 +34,10 @@ using namespace mlpl;
 #include <execinfo.h>
 #include "Params.h"
 
+#ifndef GLIB_VERSION_2_32
+#define G_SOURCE_REMOVE FALSE
+#endif
+
 class FormulaElement;
 
 typedef vector<string> CommandLineArg;

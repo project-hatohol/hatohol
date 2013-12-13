@@ -30,6 +30,10 @@
 #include "DBClientHatohol.h"
 #include "Closure.h"
 
+#ifndef GLIB_VERSION_2_32
+#define G_SOURCE_REMOVE FALSE
+#endif
+
 struct SessionInfo {
 	UserIdType userId;
 	mlpl::SmartTime loginTime;
