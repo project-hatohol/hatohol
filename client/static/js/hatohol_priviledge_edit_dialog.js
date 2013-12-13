@@ -101,7 +101,7 @@ HatoholPriviledgeEditDialog.prototype.start = function() {
     }
   });
 
-  var accessInfoURL = "/tunnel/users/" + this.userId + "/access-info";
+  var accessInfoURL = "/tunnel/user/" + this.userId + "/access-info";
   $.ajax({
     url: accessInfoURL,
     type: "GET",
