@@ -53,10 +53,9 @@ HatoholPriviledgeEditDialog.prototype.createMainElement = function() {
 };
 
 HatoholPriviledgeEditDialog.prototype.applyButtonClicked = function() {
-  alert("Not implemented yet.");
-  if (!this.applyCallback)
-    return;
-  this.applyCallback();
+  this.applyPrivileges();
+  if (this.applyCallback)
+    this.applyCallback();
   this.closeDialog();
 };
 
@@ -168,7 +167,7 @@ HatoholPriviledgeEditDialog.prototype.generateTableRows = function() {
   for (var i = 0; i < servers.length; i++) {
     sv = servers[i];
     s += '<tr>';
-    s += '<td><input type="checkbox" class="selectcheckbox" ' +
+    s += '<td><input type="checkbox" class="serverSelectCheckbox" ' +
                'serverId="' + sv['id'] + '"></td>';
     s += '<td>' + sv.id + '</td>';
     s += '<td>' + makeMonitoringSystemTypeLabel(sv.type) + '</td>';
@@ -184,4 +183,20 @@ HatoholPriviledgeEditDialog.prototype.updateAllowCheckboxes = function() {
   if (!this.serversData || !this.priviledgesData)
     return;
   // FIXME
+};
+
+HatoholPriviledgeEditDialog.prototype.applyPrivileges = function() {
+  alert("Not implemented yet.");
+  var i, serverId, checkboxes = $(".serverSelectCheckbox");
+  for (i = 0; i < checkboxes.length; i++) {
+    serverId = checkboxes[i].getAttribute("serverId");
+
+    // FIXME: check whether the checkbox is changed or not
+
+    if (checkboxes[i].checked) {
+      // FIXME: add accessInfo
+    } else {
+      // FIXME: delete accessInfo
+    }
+  }
 };
