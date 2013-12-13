@@ -82,11 +82,7 @@ HatoholPriviledgeEditDialog.prototype.start = function() {
       }
 
       self.serversData = serversData;
-
-      // create a table
-      var table = self.generateMainTable();
-      self.replaceMainElement(table);
-      $("#" + self.mainTableId + " tbody").append(self.generateTableRows(serversData));
+      self.updateServersTable();
     },
     error: function(XMLHttpRequest, textStatus, errorThrown) {
       var errorMsg = "Error: " + XMLHttpRequest.status + ": " +
@@ -94,6 +90,16 @@ HatoholPriviledgeEditDialog.prototype.start = function() {
       self.setMessage(errorMsg);
     }
   });
+};
+
+HatoholPriviledgeEditDialog.prototype.updateServersTable = function() {
+  if (!this.serversData)
+    return;
+
+  var table = this.generateMainTable();
+  var rows = this.generateTableRows(this.serversData);
+  this.replaceMainElement(table);
+  $("#" + this.mainTableId + " tbody").append(rows);
 };
 
 HatoholPriviledgeEditDialog.prototype.generateMainTable = function() {
