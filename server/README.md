@@ -29,6 +29,7 @@ Required libraries
 - libc
 - librt
 - libstdc++
+- uuid-dev
 
 ### Example to install required libraries on CentOS 6.4
 First, you need to install development tools to build Hatohol and some required
@@ -38,7 +39,7 @@ packages
 
 You can install sqlite3, MySQL and libsoup by following command:
 
-    # yum install sqlite-devel mysql-devel libsoup-devel
+    # yum install sqlite-devel mysql-devel libsoup-devel libuuid-devel.x86_64
 
 #### For json-glib, there are two ways to install.
 

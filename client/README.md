@@ -31,12 +31,12 @@ Hatohol Client is written as PATH FREE. So you can place it anywhere.
 Get a Bootstrap tar ball (http://getbootstrap.com/) and extract them
 onto static/js and static/css.
 
-### Install Django 1.5
-The following shows examples to install Django.
+### Install Required Libraries
+The following shows examples to install Required Packages.
 
 #### On CentOS 6.4
 
-    # yum install python-setuptools
+    # yum install python-setuptools python-devel
     # easy_install pip
     # pip install django==1.5.4 mysql-python
 
