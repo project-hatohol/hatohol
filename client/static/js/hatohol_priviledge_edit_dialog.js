@@ -261,7 +261,7 @@ HatoholPriviledgeEditDialog.prototype.checkApplyResult = function(accessInfo) {
 
   // completed
   if (result.numFailed > 0)
-    hatoholInfoMsgBox(gettext("Failed to apply."));
+    hatoholErrorMsgBox(gettext("Failed to apply."));
   else
     hatoholInfoMsgBox(gettext("Succeeded to apply."));
   this.closeDialog();
