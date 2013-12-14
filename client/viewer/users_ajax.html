@@ -212,8 +212,8 @@
     function compleOneDelUser(deletedIdArray) {
       deletedIdArray.count--;
       var completed = deletedIdArray.total - deletedIdArray.count;
-      hatoholErrorMsgBox("{% trans "Deleting..." %}" + " " + completed +
-                         " / " + deletedIdArray.total);
+      hatoholInfoMsgBox("{% trans "Deleting..." %}" + " " + completed +
+                        " / " + deletedIdArray.total);
       if (deletedIdArray.count > 0)
         return;
 
