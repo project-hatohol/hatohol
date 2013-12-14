@@ -57,7 +57,6 @@ HatoholPriviledgeEditDialog.prototype.applyButtonClicked = function() {
   this.applyPrivileges();
   if (this.applyCallback)
     this.applyCallback();
-  this.closeDialog();
 };
 
 HatoholPriviledgeEditDialog.prototype.cancelButtonClicked = function() {
@@ -208,28 +207,58 @@ HatoholPriviledgeEditDialog.prototype.parsePriviledgesData = function(data) {
 };
 
 HatoholPriviledgeEditDialog.prototype.addAccessInfo = function(accessInfo) {
+  var self = this;
   var userId = this.userId;
   new HatoholConnector({
     url: "/user/" + userId + "/access-info",
     request: "POST",
     data: accessInfo,
     replyCallback: function(reply, parser) {
-      hatoholInfoMsgBox(gettext("Successfully created."));
+      self.applyResult.numSucceeded += 1;
+      self.checkApplyResult();
     },
-    parseErrorCallback: hatoholErrorMsgBoxForParser
+    parseErrorCallback: function(reply, parser) {
+      self.applyResult.numFailed += 1;
+      self.checkApplyResult();
+    },
+    connectErrorCallback: function(XMLHttpRequest, textStatus, errorThrown) {
+      self.applyResult.numFailed += 1;
+      self.checkApplyResult();
+    }
   });
 };
 
 HatoholPriviledgeEditDialog.prototype.deleteAccessInfo = function(accessInfoId) {
+  var self = this;
   var userId = this.userId;
   new HatoholConnector({
     url: "/user/" + userId + "/access-info/" + accessInfoId,
     request: "DELETE",
     replyCallback: function(reply, parser) {
-      hatoholInfoMsgBox(gettext("Successfully deleted."));
+      self.applyResult.numSucceeded += 1;
+      self.checkApplyResult();
     },
-    parseErrorCallback: hatoholErrorMsgBoxForParser
+    parseErrorCallback: function(reply, parser) {
+      self.applyResult.numFailed += 1;
+      self.checkApplyResult();
+    },
+    connectErrorCallback: function(XMLHttpRequest, textStatus, errorThrown) {
+      self.applyResult.numFailed += 1;
+      self.checkApplyResult();
+    }
   });
+};
+
+HatoholPriviledgeEditDialog.prototype.checkApplyResult = function(accessInfo) {
+  var result = this.applyResult;
+  var numCompleted = result.numSucceeded + result.numFailed;
+  if (numCompleted < result.numServers)
+    return;
+  if (result.numFailed > 0)
+    hatoholInfoMsgBox(gettext("Failed to apply."));
+  else
+    hatoholInfoMsgBox(gettext("Succeeded to apply."));
+  this.closeDialog();
 };
 
 HatoholPriviledgeEditDialog.prototype.applyPrivileges = function() {
@@ -243,6 +272,11 @@ HatoholPriviledgeEditDialog.prototype.applyPrivileges = function() {
     return id;
   };
 
+  self.applyResult = {
+    numServers:   checkboxes.length,
+    numSucceeded: 0,
+    numFailed:    0
+  };
   for (i = 0; i < checkboxes.length; i++) {
     serverId = checkboxes[i].getAttribute("serverId");
     accessInfoId = getAccessInfoId(serverId);
@@ -250,9 +284,14 @@ HatoholPriviledgeEditDialog.prototype.applyPrivileges = function() {
     if (checkboxes[i].checked) {
       if (!accessInfoId)
         this.addAccessInfo({ serverId: serverId, hostGroupId: -1 });
+      else
+        self.applyResult.numSucceeded += 1;
     } else {
       if (accessInfoId)
         this.deleteAccessInfo(accessInfoId);
+      else
+        self.applyResult.numSucceeded += 1;
     }
   }
+  self.checkApplyResult();
 };
