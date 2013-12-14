@@ -99,9 +99,8 @@ HatoholPriviledgeEditDialog.prototype.start = function() {
     }
   });
 
-  var accessInfoURL = "/user/" + this.userId + "/access-info";
   new HatoholConnector({
-    url: accessInfoURL,
+    url: "/user/" + self.userId + "/access-info",
     request: "GET",
     data: {},
     replyCallback: function(priviledgesData, parser) {
