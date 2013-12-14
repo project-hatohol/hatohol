@@ -37,7 +37,8 @@ var HatoholPriviledgeEditDialog = function(userId, applyCallback) {
 
   // call the constructor of the super class
   HatoholDialog.apply(
-    this, ["priviledge-edit-dialog", "Edit priviledges", dialogButtons]);
+    this, ["priviledge-edit-dialog", gettext("Edit priviledges"),
+           dialogButtons]);
   self.start();
 };
 
