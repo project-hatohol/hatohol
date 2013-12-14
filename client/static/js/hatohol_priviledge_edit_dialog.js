@@ -71,29 +71,27 @@ HatoholPriviledgeEditDialog.prototype.start = function() {
   var self = this;
   self.error = false;
 
-  $.ajax({
-    url: "/tunnel/server",
-    type: "GET",
+  new HatoholConnector({
+    url: "/server",
+    request: "GET",
     data: {},
-    success: function(serversData) {
+    replyCallback: function(serversData, parser) {
       if (self.error)
         return;
-      
-      var replyParser = new HatoholReplyParser(serversData);
-      if (replyParser.getStatus() !== REPLY_STATUS.OK) {
-        self.setMessage(replyParser.getStatusMessage());
-        self.erorr = true;
-        return;
-      }
       if (!serversData.numberOfServers) {
         self.setMessage(gettext("No data."));
         return;
       }
-
       self.serversData = serversData;
       self.updateServersTable();
     },
-    error: function(XMLHttpRequest, textStatus, errorThrown) {
+    parseErrorCallback: function(reply, parser) {
+      if (self.error)
+        return;
+      self.setMessage(parser.getStatusMessage());
+      self.erorr = true;
+    },
+    connectErrorCallback: function(XMLHttpRequest, textStatus, errorThrown) {
       var errorMsg = "Error: " + XMLHttpRequest.status + ": " +
                      XMLHttpRequest.statusText;
       self.setMessage(errorMsg);
@@ -101,27 +99,23 @@ HatoholPriviledgeEditDialog.prototype.start = function() {
     }
   });
 
-  var accessInfoURL = "/tunnel/user/" + this.userId + "/access-info";
-  $.ajax({
+  var accessInfoURL = "/user/" + this.userId + "/access-info";
+  new HatoholConnector({
     url: accessInfoURL,
-    type: "GET",
+    request: "GET",
     data: {},
-    success: function(priviledgesData) {
+    replyCallback: function(priviledgesData, parser) {
       if (self.error)
         return;
-      
-      var replyParser = new HatoholReplyParser(priviledgesData);
-      if (replyParser.getStatus() !== REPLY_STATUS.OK) {
-        self.setMessage(replyParser.getStatusMessage());
-        self.erorr = true;
-        return;
-      }
-
       self.allowedServers = self.parsePriviledgesData(priviledgesData);
       self.priviledgesData = priviledgesData;
       self.updateAllowCheckboxes();
     },
-    error: function(XMLHttpRequest, textStatus, errorThrown) {
+    parseErrorCallback: function(reply, parser) {
+      self.setMessage(parser.getStatusMessage());
+      self.erorr = true;
+    },
+    connectErrorCallback: function(XMLHttpRequest, textStatus, errorThrown) {
       var errorMsg = "Error: " + XMLHttpRequest.status + ": " +
                      XMLHttpRequest.statusText;
       self.setMessage(errorMsg);
