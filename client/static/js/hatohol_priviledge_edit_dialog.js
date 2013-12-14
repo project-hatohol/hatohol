@@ -25,7 +25,7 @@ var HatoholPriviledgeEditDialog = function(userId, applyCallback) {
   self.applyCallback = applyCallback;
   self.serversData = null;
   self.priviledgesData = null;
-  self.error = false;
+  self.loadError = false;
 
   var dialogButtons = [{
     text: gettext("APPLY"),
@@ -69,14 +69,14 @@ HatoholPriviledgeEditDialog.prototype.setMessage = function(msg) {
 
 HatoholPriviledgeEditDialog.prototype.start = function() {
   var self = this;
-  self.error = false;
+  self.loadError = false;
 
   new HatoholConnector({
     url: "/server",
     request: "GET",
     data: {},
     replyCallback: function(serversData, parser) {
-      if (self.error)
+      if (self.loadError)
         return;
       if (!serversData.numberOfServers) {
         self.setMessage(gettext("No data."));
@@ -86,10 +86,10 @@ HatoholPriviledgeEditDialog.prototype.start = function() {
       self.updateServersTable();
     },
     parseErrorCallback: function(reply, parser) {
-      if (self.error)
+      if (self.loadError)
         return;
       self.setMessage(parser.getStatusMessage());
-      self.erorr = true;
+      self.loadError = true;
     },
     connectErrorCallback: function(XMLHttpRequest, textStatus, errorThrown) {
       var errorMsg = "Error: " + XMLHttpRequest.status + ": " +
@@ -104,7 +104,7 @@ HatoholPriviledgeEditDialog.prototype.start = function() {
     request: "GET",
     data: {},
     replyCallback: function(priviledgesData, parser) {
-      if (self.error)
+      if (self.loadError)
         return;
       self.allowedServers = self.parsePriviledgesData(priviledgesData);
       self.priviledgesData = priviledgesData;
@@ -112,7 +112,7 @@ HatoholPriviledgeEditDialog.prototype.start = function() {
     },
     parseErrorCallback: function(reply, parser) {
       self.setMessage(parser.getStatusMessage());
-      self.erorr = true;
+      self.loadError = true;
     },
     connectErrorCallback: function(XMLHttpRequest, textStatus, errorThrown) {
       var errorMsg = "Error: " + XMLHttpRequest.status + ": " +
@@ -124,7 +124,7 @@ HatoholPriviledgeEditDialog.prototype.start = function() {
 };
 
 HatoholPriviledgeEditDialog.prototype.updateServersTable = function() {
-  if (this.error)
+  if (this.loadError)
         return;
   if (!this.serversData)
     return;
