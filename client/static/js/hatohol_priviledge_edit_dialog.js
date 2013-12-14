@@ -199,8 +199,8 @@ HatoholPriviledgeEditDialog.prototype.parsePriviledgesData = function(data) {
     allowedHostGroups = allowedServers[i]["allowedHostGroups"];
     hostGroupsTable = {};
     for (j = 0; j < allowedHostGroups.length; j++) {
-      hostGroupId = allowedHostGroups[i]["hostGroupId"];
-      hostGroupsTable[hostGroupId] = allowedHostGroups[i]["accessInfoId"];
+      hostGroupId = allowedHostGroups[j]["hostGroupId"];
+      hostGroupsTable[hostGroupId] = allowedHostGroups[j]["accessInfoId"];
     }
     serversTable[serverId] = hostGroupsTable;
   }
