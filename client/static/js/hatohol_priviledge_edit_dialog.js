@@ -252,8 +252,14 @@ HatoholPriviledgeEditDialog.prototype.deleteAccessInfo = function(accessInfoId) 
 HatoholPriviledgeEditDialog.prototype.checkApplyResult = function(accessInfo) {
   var result = this.applyResult;
   var numCompleted = result.numSucceeded + result.numFailed;
+
+  hatoholInfoMsgBox(gettext("Aplpying...") + " " +
+                    numCompleted + " / " + result.numServers);
+
   if (numCompleted < result.numServers)
     return;
+
+  // completed
   if (result.numFailed > 0)
     hatoholInfoMsgBox(gettext("Failed to apply."));
   else
