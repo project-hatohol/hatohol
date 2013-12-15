@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-12-05 19:50-0600\n"
-"PO-Revision-Date: 2013-12-06 10:53+0900\n"
+"POT-Creation-Date: 2013-12-15 01:52-0600\n"
+"PO-Revision-Date: 2013-12-15 16:55+0900\n"
 "Last-Translator: Takuro Ashie <ashie@clear-code.com>\n"
 "Language-Team: Project Hatohol\n"
 "Language: \n"
@@ -120,11 +120,13 @@ msgstr "次へ"
 
 #: static/js/hatohol_actor_mail_dialog.js:26
 #: static/js/hatohol_actor_mail_dialog.js:117
+#: static/js/hatohol_priviledge_edit_dialog.js:30
 msgid "APPLY"
 msgstr "適用"
 
 #: static/js/hatohol_actor_mail_dialog.js:29
 #: static/js/hatohol_add_action_dialog.js:35
+#: static/js/hatohol_priviledge_edit_dialog.js:33
 #: static/js/hatohol_selector_dialog.js:30
 #: static/js/hatohol_user_edit_dialog.js:27
 msgid "CANCEL"
@@ -199,6 +201,7 @@ msgid "e-mail"
 msgstr "Eメール"
 
 #: static/js/hatohol_add_action_dialog.js:373
+#: static/js/hatohol_priviledge_edit_dialog.js:145
 #: static/js/hatohol_server_selector.js:45
 msgid "Type"
 msgstr "タイプ"
@@ -244,6 +247,7 @@ msgid "Server ID"
 msgstr "サーバID"
 
 #: static/js/hatohol_host_selector.js:50
+#: static/js/hatohol_priviledge_edit_dialog.js:146
 #: static/js/hatohol_server_selector.js:46
 msgid "Hostname"
 msgstr "ホスト名"
@@ -332,6 +336,46 @@ msgstr "アクション"
 msgid "Users"
 msgstr "ユーザ"
 
+#: static/js/hatohol_priviledge_edit_dialog.js:39
+msgid "Edit priviledges"
+msgstr "権限を編集"
+
+#: static/js/hatohol_priviledge_edit_dialog.js:51
+#: static/js/hatohol_selector_dialog.js:45
+msgid "Now getting information..."
+msgstr "情報を取得しています.."
+
+#: static/js/hatohol_priviledge_edit_dialog.js:81
+#: static/js/hatohol_selector_dialog.js:110
+msgid "No data."
+msgstr "データがありません"
+
+#: static/js/hatohol_priviledge_edit_dialog.js:143
+msgid "Allow"
+msgstr "許可"
+
+#: static/js/hatohol_priviledge_edit_dialog.js:147
+#: static/js/hatohol_server_selector.js:47
+msgid "IP Address"
+msgstr "IPアドレス"
+
+#: static/js/hatohol_priviledge_edit_dialog.js:148
+#: static/js/hatohol_server_selector.js:48
+msgid "Nickname"
+msgstr "ニックネーム"
+
+#: static/js/hatohol_priviledge_edit_dialog.js:241
+msgid "Aplpying..."
+msgstr "適用中..."
+
+#: static/js/hatohol_priviledge_edit_dialog.js:249
+msgid "Failed to apply."
+msgstr "適用に失敗しました。"
+
+#: static/js/hatohol_priviledge_edit_dialog.js:251
+msgid "Succeeded to apply."
+msgstr "適用に成功しました。"
+
 #: static/js/hatohol_reply_parser.js:84
 msgid "OK."
 msgstr ""
@@ -368,25 +412,9 @@ msgstr "ユーザ名あるいはパスワードが正しくありません。"
 msgid "Unknown error: "
 msgstr "不明なエラー: "
 
-#: static/js/hatohol_selector_dialog.js:45
-msgid "Now getting information..."
-msgstr "情報を取得しています.."
-
-#: static/js/hatohol_selector_dialog.js:110
-msgid "No data."
-msgstr "データがありません"
-
 #: static/js/hatohol_server_selector.js:26
 msgid "Server selecion"
 msgstr "サーバ選択"
-
-#: static/js/hatohol_server_selector.js:47
-msgid "IP Address"
-msgstr "IPアドレス"
-
-#: static/js/hatohol_server_selector.js:48
-msgid "Nickname"
-msgstr "ニックネーム"
 
 #: static/js/hatohol_trigger_selector.js:26
 msgid "Trigger selecion"
