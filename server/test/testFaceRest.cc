@@ -731,24 +731,22 @@ static void _assertUpdateOrAddUser(const string &name)
 
 static void _assertServerAccessInfo(JsonParserAgent *parser, HostGrpAccessInfoMap &expected)
 {
-	assertValueInParser(g_parser, "numberOfAllowedHostGroups",
-			    expected.size());
-	g_parser->startObject("allowedHostGroups");
+	cut_assert_true(parser->startObject("allowedHostGroups"));
+	HostGrpAccessInfoMapIterator it = expected.begin();
 	for (size_t i = 0; i < expected.size(); i++) {
-		g_parser->startElement(i);
-		int64_t hostGroupId;
-		cut_assert_true(g_parser->read("hostGroupId", hostGroupId));
-		HostGrpAccessInfoMapIterator it
-			= expected.find(hostGroupId);
-		cut_assert_true(it != expected.end());
+		uint64_t hostGroupId = it->first;
+		string idStr;
+		if (hostGroupId == ALL_HOST_GROUPS)
+			idStr = "-1";
+		else
+			idStr = StringUtils::sprintf("%"PRIu64, hostGroupId);
+		parser->startObject(idStr);
 		AccessInfo *info = it->second;
-		assertValueInParser(g_parser, "accessInfoId",
+		assertValueInParser(parser, "accessInfoId",
 				    static_cast<uint64_t>(info->id));
-		expected.erase(it);
-		delete info;
-		g_parser->endElement();
+		parser->endObject();
 	}
-	g_parser->endObject();
+	parser->endObject();
 }
 #define assertServerAccessInfo(P,I,...) cut_trace(_assertServerAccessInfo(P,I,##__VA_ARGS__))
 
@@ -760,38 +758,39 @@ static void _assertAllowedServers(const string &path, UserIdType userId,
 	assertErrorCode(g_parser);
 	ServerAccessInfoMap srvAccessInfoMap;
 	makeServerAccessInfoMap(srvAccessInfoMap, userId);
-	assertValueInParser(g_parser, "numberOfAllowedServers",
-	                    srvAccessInfoMap.size());
 	g_parser->startObject("allowedServers");
-	for (size_t i = 0; i < srvAccessInfoMap.size(); i++) {
-		g_parser->startElement(i);
-		int64_t serverId;
-		cut_assert_true(g_parser->read("serverId", serverId));
-		ServerAccessInfoMapIterator it = srvAccessInfoMap.find(serverId);
-		cut_assert_true(it != srvAccessInfoMap.end());
+	ServerAccessInfoMapIterator it = srvAccessInfoMap.begin();
+	for (; it != srvAccessInfoMap.end(); ++it) {
+		uint32_t serverId = it->first;
+		string idStr;
+		if (serverId == ALL_SERVERS)
+			idStr = "-1";
+		else
+			idStr = StringUtils::toString(serverId);
+		cut_assert_true(g_parser->startObject(idStr));
 		HostGrpAccessInfoMap *hostGrpAccessInfoMap = it->second;
 		assertServerAccessInfo(g_parser, *hostGrpAccessInfoMap);
-		srvAccessInfoMap.erase(it);
-		delete hostGrpAccessInfoMap;
-		g_parser->endElement();
+		g_parser->endObject();
 	}
 	g_parser->endObject();
+	DBClientUser::destroyServerAccessInfoMap(srvAccessInfoMap);
 }
 #define assertAllowedServers(P,...) cut_trace(_assertAllowedServers(P,##__VA_ARGS__))
 
-#define assertAddAccessInfo(P, ...) \
-cut_trace(_assertAddRecord(P, "/user/1/access-info", ##__VA_ARGS__))
+#define assertAddAccessInfo(U,P, ...) \
+cut_trace(_assertAddRecord(P, U, ##__VA_ARGS__))
 
-void _assertAddAccessInfoWithSetup(const StringMap &params,
+void _assertAddAccessInfoWithSetup(const string &url,
+				   const StringMap &params,
 				   const HatoholErrorCode &expectCode,
 				   uint32_t expectedId)
 {
 	const bool dbRecreate = true;
 	const bool loadTestDat = false;
 	setupTestDBUser(dbRecreate, loadTestDat);
-	assertAddAccessInfo(params, expectCode);
+	assertAddAccessInfo(url, params, expectCode);
 }
-#define assertAddAccessInfoWithSetup(P,C,I) cut_trace(_assertAddAccessInfoWithSetup(P,C,I))
+#define assertAddAccessInfoWithSetup(U,P,C,I) cut_trace(_assertAddAccessInfoWithSetup(U,P,C,I))
 
 static void setupPostAction(void)
 {
@@ -1470,10 +1469,10 @@ void test_addAccessInfo(void)
 	const string hostGroupId = "3";
 
 	StringMap params;
-	params["userId"] = userId;
 	params["serverId"] = serverId;
 	params["hostGroupId"] = hostGroupId;
-	assertAddAccessInfoWithSetup(params, HTERR_OK, 1);
+	assertAddAccessInfoWithSetup("/user/1/access-info",
+				     params, HTERR_OK, 1);
 
 	// check the content in the DB
 	DBClientUser dbUser;
@@ -1483,6 +1482,52 @@ void test_addAccessInfo(void)
 	string expect = StringUtils::sprintf(
 	  "%"FMT_ACCESS_INFO_ID"|%s|%s|%s\n",
 	  expectedId, userId.c_str(), serverId.c_str(), hostGroupId.c_str());
+	assertDBContent(dbUser.getDBAgent(), statement, expect);
+}
+
+void test_addAccessInfoWithAllHostGroups(void)
+{
+	const string userId = "1";
+	const string serverId = "2";
+	const string hostGroupId = StringUtils::sprintf("%"PRIu64, ALL_HOST_GROUPS);
+
+	StringMap params;
+	params["serverId"] = serverId;
+	params["hostGroupId"] = hostGroupId;
+	assertAddAccessInfoWithSetup("/user/1/access-info",
+				     params, HTERR_OK, 1);
+
+	// check the content in the DB
+	DBClientUser dbUser;
+	string statement = "select * from ";
+	statement += DBClientUser::TABLE_NAME_ACCESS_LIST;
+	int expectedId = 1;
+	string expect = StringUtils::sprintf(
+	  "%"FMT_ACCESS_INFO_ID"|%s|%s|%s\n",
+	  expectedId, userId.c_str(), serverId.c_str(), hostGroupId.c_str());
+	assertDBContent(dbUser.getDBAgent(), statement, expect);
+}
+
+void test_addAccessInfoWithAllHostGroupsNegativeValue(void)
+{
+	const string userId = "1";
+	const string serverId = "2";
+	const string hostGroupId = "-1";
+
+	StringMap params;
+	params["serverId"] = serverId;
+	params["hostGroupId"] = hostGroupId;
+	assertAddAccessInfoWithSetup("/user/1/access-info",
+				     params, HTERR_OK, 1);
+
+	// check the content in the DB
+	DBClientUser dbUser;
+	string statement = "select * from ";
+	statement += DBClientUser::TABLE_NAME_ACCESS_LIST;
+	int expectedId = 1;
+	string expect = StringUtils::sprintf(
+	  "%"FMT_ACCESS_INFO_ID"|%s|%s|%"PRIu64"\n",
+	  expectedId, userId.c_str(), serverId.c_str(), ALL_HOST_GROUPS);
 	assertDBContent(dbUser.getDBAgent(), statement, expect);
 }
 
@@ -1502,7 +1547,7 @@ void test_addAccessInfoWithExistingData(void)
 	setupTestDBUser(dbRecreate, loadTestData);
 	loadTestDBAccessList();
 
-	assertAddAccessInfo(params, HTERR_OK, 2);
+	assertAddAccessInfo("/user/1/access-info", params, HTERR_OK, 2);
 
 	AccessInfoIdSet accessInfoIdSet;
 	assertAccessInfoInDB(accessInfoIdSet);

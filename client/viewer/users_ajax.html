@@ -46,6 +46,7 @@
         <th data-sort="int">{% trans "ID" %}</th>
         <th data-sort="string">{% trans "User name" %}</th>
         <th data-sort="string">{% trans "User type" %}</th>
+        <th data-sort="string">{% trans "Privileges" %}</th>
       </tr>
     </thead>
     <tbody>
@@ -55,6 +56,7 @@
 
 {% block option %}
   <script src="{{ STATIC_URL }}js/hatohol_user_edit_dialog.js"></script>
+  <script src="{{ STATIC_URL }}js/hatohol_priviledge_edit_dialog.js"></script>
 {% endblock %}
 
 {% block logic %}
@@ -93,7 +95,7 @@
     //
     function setupCheckboxHandler() {
         $(".selectcheckbox").change(function() {
-          check = $(this).is(":checked");
+          var check = $(this).is(":checked");
           var prevNumSelected = numSelected;
           if (check)
             numSelected += 1;
@@ -104,6 +106,23 @@
           else if (prevNumSelected == 1 && numSelected == 0)
             $("#delete-user-button").attr("disabled", true);
         });
+    }
+
+    function setupPriviledgeButtons(reply)
+    {
+      var i, id, users = reply["users"], userId;
+
+      for (i = 0; i < users.length; ++i) {
+        id = "#edit-user" + users[i]["userId"] + "-privileges";
+        $(id).click(function() {
+          var userId = this.getAttribute("userId");
+          new HatoholPriviledgeEditDialog(userId, applyPriviledgesCb);
+        });
+      }
+    }
+
+    function applyPriviledgesCb() {
+      startConnection('user', updateCore);
     }
 
     //
@@ -143,7 +162,7 @@
     //
     function deleteUsers() {
         $(this).dialog("close");
-        checkbox = $(".selectcheckbox");
+        var checkbox = $(".selectcheckbox");
         var deletedIdArray = {count:0, total:0, errors:0};
         for (var i = 0; i < checkbox.length; i++) {
           if (!checkbox[i].checked)
@@ -193,8 +212,8 @@
     function compleOneDelUser(deletedIdArray) {
       deletedIdArray.count--;
       var completed = deletedIdArray.total - deletedIdArray.count;
-      hatoholErrorMsgBox("{% trans "Deleting..." %}" + " " + completed +
-                         " / " + deletedIdArray.total);
+      hatoholInfoMsgBox("{% trans "Deleting..." %}" + " " + completed +
+                        " / " + deletedIdArray.total);
       if (deletedIdArray.count > 0)
         return;
 
@@ -221,31 +240,44 @@
     //
     // callback function from the base template
     //
-    function drawTableBody(rd) {
+    function drawTableBody(reply) {
       var i;
-      var htmlString;
+      var html;
       var user;
 
-      htmlString = "";
-      for (i = 0; i < rd["users"].length; ++i) {
-        user = rd["users"][i];
-        htmlString += "<tr>";
+      html = "";
+      for (i = 0; i < reply["users"].length; ++i) {
+        user = reply["users"][i];
+        html += "<tr>";
 
-        htmlString += "<td><input type='checkbox' class='selectcheckbox' " +
-                      "userId='" + user["userId"] + "'></td>";
-        htmlString += "<td>" + user["userId"] + "</td>";
-        htmlString += "<td>" + user["name"]   + "</td>";
-        htmlString += "<td>" + getUserTypeFromFlags(user["flags"])  + "</td>";
-        htmlString += "</tr>";
+        html += "<td><input type='checkbox' class='selectcheckbox' " +
+                "userId='" + user["userId"] + "'></td>";
+        html += "<td>" + user["userId"] + "</td>";
+        html += "<td>" + user["name"]   + "</td>";
+        html += "<td>" + getUserTypeFromFlags(user["flags"])  + "</td>";
+        if (user["flags"] == hatohol.ALL_PRIVILEGES) {
+          html += "<td>" + '{% trans "All" %}' + "</td>";
+        } else {
+          html += "<td>";
+          html += "<form class='form-inline' style='margin: 0'>";
+          html += "  <input id='edit-user" + user["userId"] + "-privileges'";
+          html += "    type='button' class='btn'";
+          html += "    userId='" + user["userId"] + "'";
+          html += "    value='{% trans "Show / Edit" %}' />";
+          html += "</form>"
+          html += "</td>";
+        }
+        html += "</tr>";
       }
 
-      return htmlString;
+      return html;
     }
 
     function updateCore(reply) {
       $("#table tbody").empty();
       $("#table tbody").append(drawTableBody(reply));
       setupCheckboxHandler();
+      setupPriviledgeButtons(reply);
       numSelected = 0;
     }
 

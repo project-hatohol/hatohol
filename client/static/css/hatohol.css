@@ -17,5 +17,11 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* Override jQuery's default value to overcome bootstrap's navbar */
+/* Override jQuery's default values to overcome bootstrap's style */
+
 .ui-front { z-index: 2000 !important }
+
+.ui-widget input, select, textarea {
+  height: 1.8em;
+  line-height: 1.8em;
+}

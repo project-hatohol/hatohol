@@ -1929,26 +1929,37 @@ void FaceRest::handlerGetAccessInfo(RestJob *job)
 	agent.startObject();
 	addHatoholError(agent, HatoholError(HTERR_OK));
 	ServerAccessInfoMapIterator it = serversMap.begin();
-	agent.add("numberOfAllowedServers", serversMap.size());
-	agent.startArray("allowedServers");
+	agent.startObject("allowedServers");
 	for (; it != serversMap.end(); it++) {
+		uint32_t serverId = it->first;
+		string serverIdString;
 		HostGrpAccessInfoMap *hostGroupsMap = it->second;
-		agent.startObject();
-		agent.add("serverId", it->first);
-		agent.add("numberOfAllowedHostGroups", hostGroupsMap->size());
-		agent.startArray("allowedHostGroups");
+		if (serverId == ALL_SERVERS)
+			serverIdString = StringUtils::toString(-1);
+		else
+			serverIdString = StringUtils::toString(serverId);
+		agent.startObject(serverIdString);
+		agent.startObject("allowedHostGroups");
 		HostGrpAccessInfoMapIterator it2 = hostGroupsMap->begin();
 		for (; it2 != hostGroupsMap->end(); it2++) {
 			AccessInfo *info = it2->second;
-			agent.startObject();
-			agent.add("hostGroupId", it2->first);
+			uint64_t hostGroupId = it2->first;
+			string hostGroupIdString;
+			if (hostGroupId == ALL_HOST_GROUPS) {
+				hostGroupIdString = StringUtils::toString(-1);
+			} else {
+				hostGroupIdString
+				  = StringUtils::sprintf("%"PRIu64,
+							 hostGroupId);
+			}
+			agent.startObject(hostGroupIdString);
 			agent.add("accessInfoId", info->id);
 			agent.endObject();
 		}
-		agent.endArray();
+		agent.endObject();
 		agent.endObject();
 	}
-	agent.endArray();
+	agent.endObject();
 	agent.endObject();
 
 	DBClientUser::destroyServerAccessInfoMap(serversMap);
@@ -1964,14 +1975,8 @@ void FaceRest::handlerPostAccessInfo(RestJob *job)
 	AccessInfo accessInfo;
 
 	// userId
-	succeeded = getParamWithErrorReply<UserIdType>(
-	              job, "userId", "%"FMT_USER_ID, accessInfo.userId, &exist);
-	if (!succeeded)
-		return;
-	if (!exist) {
-		REPLY_ERROR(job, HTERR_NOT_FOUND_PARAMETER, "userId");
-		return;
-	}
+	int userIdPos = 0;
+	accessInfo.userId = job->getResourceId(userIdPos);
 
 	// serverId
 	succeeded = getParamWithErrorReply<uint32_t>(
