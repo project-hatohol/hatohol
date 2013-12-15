@@ -526,8 +526,9 @@ string EventQueryOption::makeCondition(
 		const uint32_t serverId = it->first;
 		if (serverId == ALL_SERVERS)
 			return "";
+		const static char *VAR_EVENTS = "e";
 		string condSv = StringUtils::sprintf(
-		  "%s=%"PRIu32, serverIdColumnName.c_str(), serverId);
+		  "%s.%s=%"PRIu32, VAR_EVENTS, serverIdColumnName.c_str(), serverId);
 
 		const HostGroupSet &hostGroupSet = it->second;
 		string condHG = makeConditionHostGroup(hostGroupSet,
