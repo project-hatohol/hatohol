@@ -20,9 +20,6 @@
   along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
 {% endcomment %}
 
-{% block navbar %}
-{% endblock %}
-
 {% block main %}
   <h2>{% trans "Latest data" %}</h2>
 
@@ -146,7 +143,6 @@
       $("#table tbody").append(drawTableBody(rawData));
     }
 
-    new HatoholNavi();
     startConnection('item', updateCore);
   </script>
 {% endblock %}
