@@ -179,7 +179,11 @@ HatoholPriviledgeEditDialog.prototype.updateAllowCheckboxes = function() {
 
   var i, serverId, checkboxes = $(".serverSelectCheckbox");
   var allHostGroupIsEnabled = function(server) {
-    return server && server[-1];
+    var ALL_HOST_GROUPS = -1, hostGroup;
+    if (!server)
+      return false;
+    hostGroup = server[ALL_HOST_GROUPS];
+    return hostGroup && hostGroup["accessInfoId"];
   };
 
   for (i = 0; i < checkboxes.length; i++) {
@@ -199,7 +203,9 @@ HatoholPriviledgeEditDialog.prototype.parsePriviledgesData = function(data) {
     hostGroupsTable = {};
     for (j = 0; j < allowedHostGroups.length; j++) {
       hostGroupId = allowedHostGroups[j]["hostGroupId"];
-      hostGroupsTable[hostGroupId] = allowedHostGroups[j]["accessInfoId"];
+      hostGroupsTable[hostGroupId] = {
+        accessInfoId: allowedHostGroups[j]["accessInfoId"]
+      };
     }
     serversTable[serverId] = hostGroupsTable;
   }
@@ -272,9 +278,12 @@ HatoholPriviledgeEditDialog.prototype.applyPrivileges = function() {
   var i, serverId, accessInfoId;
   var checkboxes = $(".serverSelectCheckbox");
   var getAccessInfoId = function(serverId) {
-    var id;
+    var id, allowedHostGroup;
+    var ALL_HOST_GROUPS = -1;
     if (self.allowedServers && self.allowedServers[serverId])
-      id = self.allowedServers[serverId][-1];
+      allowedHostGroup = self.allowedServers[serverId][ALL_HOST_GROUPS];
+    if (allowedHostGroup)
+      id = allowedHostGroup["accessInfoId"];
     return id;
   };
 
