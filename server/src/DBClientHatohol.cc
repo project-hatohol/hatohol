@@ -514,7 +514,7 @@ string EventQueryOption::makeConditionHostGroup(
 }
 
 string EventQueryOption::makeCondition(
-  const ServerHostGrpSetMap &srvHostGrpSetMap,
+  const ServerHostGrpSetMap &srvHostGrpSetMap, const string &eventTableName,
   const string &serverIdColumnName, const string &hostGroupIdColumnName)
 {
 	string cond;
@@ -526,9 +526,15 @@ string EventQueryOption::makeCondition(
 		const uint32_t serverId = it->first;
 		if (serverId == ALL_SERVERS)
 			return "";
-		const static char *VAR_EVENTS = "e";
-		string condSv = StringUtils::sprintf(
-		  "%s.%s=%"PRIu32, VAR_EVENTS, serverIdColumnName.c_str(), serverId);
+		string condSv;
+		if (eventTableName.empty()) {
+			condSv = StringUtils::sprintf(
+			  "%s=%"PRIu32, serverIdColumnName.c_str(), serverId);
+		} else {
+			condSv = StringUtils::sprintf(
+			  "%s.%s=%"PRIu32, eventTableName.c_str(),
+			  serverIdColumnName.c_str(), serverId);
+		}
 
 		const HostGroupSet &hostGroupSet = it->second;
 		string condHG = makeConditionHostGroup(hostGroupSet,
@@ -560,9 +566,20 @@ string EventQueryOption::getCondition(void) const
 	ServerHostGrpSetMap srvHostGrpSetMap;
 	dbUser->getServerHostGrpSetMap(srvHostGrpSetMap, userId);
 	condition = makeCondition(srvHostGrpSetMap,
+				  m_eventTableName,
 	                          getServerIdColumnName(),
 	                          getHostGroupIdColumnName());
 	return condition;
+}
+
+string EventQueryOption::getEventTableName(void) const
+{
+	return m_eventTableName;
+}
+
+void EventQueryOption::setEventTableName(const std::string &name)
+{
+	m_eventTableName = name;
 }
 
 // ---------------------------------------------------------------------------
@@ -833,6 +850,7 @@ HatoholError DBClientHatohol::getEventInfoList(EventInfoList &eventInfoList,
 	// Tables
 	const static char *VAR_EVENTS = "e";
 	const static char *VAR_TRIGGERS = "t";
+	option.setEventTableName(VAR_EVENTS);
 	arg.tableName = StringUtils::sprintf(
 	  " %s %s inner join %s %s on %s.%s=%s.%s",
 	  TABLE_NAME_EVENTS, VAR_EVENTS,

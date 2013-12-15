@@ -127,6 +127,9 @@ public:
 	// Overriding of virtual methods
 	std::string getCondition(void) const;
 
+	virtual std::string getEventTableName(void) const;
+	virtual void setEventTableName(const std::string &name);
+
 protected:
 	std::string getServerIdColumnName(void) const;
 	std::string getHostGroupIdColumnName(void) const;
@@ -134,11 +137,15 @@ protected:
 	                            const std::string &newCond);
 	static std::string makeCondition(
 	  const ServerHostGrpSetMap &srvHostGrpSetMap,
+	  const std::string &eventTableName,
 	  const std::string &serverIdColumnName,
 	  const std::string &hostGroupIdColumnName);
 	static std::string makeConditionHostGroup(
 	  const HostGroupSet &hostGroupSet,
 	  const std::string &hostGroupIdColumnName);
+
+private:
+	string m_eventTableName;
 };
 
 class DBClientHatohol : public DBClient {

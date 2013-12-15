@@ -33,14 +33,16 @@ class TestEventQueryOption : public EventQueryOption {
 public:
 	static
 	string callMakeCondition(const ServerHostGrpSetMap &srvHostGrpSetMap,
+				 const string &eventTableName,
 	                         const string &serverIdColumnName,
 	                         const string &hostGroupIdColumnName)
 	{
-		return makeCondition(srvHostGrpSetMap, serverIdColumnName,
-		                     hostGroupIdColumnName);
+		return makeCondition(srvHostGrpSetMap, eventTableName,
+				     serverIdColumnName, hostGroupIdColumnName);
 	}
 };
 
+static const string defaultEventTableName = "";
 static const string serverIdColumnName = "server_id";
 static const string hostGroupIdColumnName = "host_group_id";
 
@@ -338,7 +340,7 @@ static void _assertMakeCondition(const ServerHostGrpSetMap &srvHostGrpSetMap,
                                  const string &expect)
 {
 	string cond = TestEventQueryOption::callMakeCondition(
-	                srvHostGrpSetMap,
+	                srvHostGrpSetMap, defaultEventTableName,
 	                serverIdColumnName, hostGroupIdColumnName);
 	cppcut_assert_equal(expect, cond);
 }
@@ -361,6 +363,7 @@ static string makeExpectedConditionForUser(UserIdType userId)
 		srvHostGrpSetMap[accInfo.serverId].insert(accInfo.hostGroupId);
 	}
 	exp = TestEventQueryOption::callMakeCondition(srvHostGrpSetMap,
+						      defaultEventTableName,
 	                                              serverIdColumnName,
 	                                              hostGroupIdColumnName);
 	return exp;
