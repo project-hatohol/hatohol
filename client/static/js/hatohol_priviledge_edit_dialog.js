@@ -266,11 +266,12 @@ HatoholPriviledgeEditDialog.prototype.checkApplyResult = function(accessInfo) {
     return;
 
   // completed
-  if (result.numFailed > 0)
+  if (result.numFailed > 0) {
     hatoholErrorMsgBox(gettext("Failed to apply."));
-  else
+  } else {
     hatoholInfoMsgBox(gettext("Succeeded to apply."));
-  this.closeDialog();
+    this.closeDialog();
+  }
 };
 
 HatoholPriviledgeEditDialog.prototype.applyPrivileges = function() {
