@@ -1929,34 +1929,37 @@ void FaceRest::handlerGetAccessInfo(RestJob *job)
 	agent.startObject();
 	addHatoholError(agent, HatoholError(HTERR_OK));
 	ServerAccessInfoMapIterator it = serversMap.begin();
-	agent.add("numberOfAllowedServers", serversMap.size());
-	agent.startArray("allowedServers");
+	agent.startObject("allowedServers");
 	for (; it != serversMap.end(); it++) {
 		uint32_t serverId = it->first;
+		string serverIdString;
 		HostGrpAccessInfoMap *hostGroupsMap = it->second;
-		agent.startObject();
 		if (serverId == ALL_SERVERS)
-			agent.add("serverId", -1);
+			serverIdString = StringUtils::toString(-1);
 		else
-			agent.add("serverId", serverId);
-		agent.add("numberOfAllowedHostGroups", hostGroupsMap->size());
-		agent.startArray("allowedHostGroups");
+			serverIdString = StringUtils::toString(serverId);
+		agent.startObject(serverIdString);
+		agent.startObject("allowedHostGroups");
 		HostGrpAccessInfoMapIterator it2 = hostGroupsMap->begin();
 		for (; it2 != hostGroupsMap->end(); it2++) {
 			AccessInfo *info = it2->second;
 			uint64_t hostGroupId = it2->first;
-			agent.startObject();
-			if (hostGroupId == ALL_HOST_GROUPS)
-				agent.add("hostGroupId", -1);
-			else
-				agent.add("hostGroupId", hostGroupId);
+			string hostGroupIdString;
+			if (hostGroupId == ALL_HOST_GROUPS) {
+				hostGroupIdString = StringUtils::toString(-1);
+			} else {
+				hostGroupIdString
+				  = StringUtils::sprintf("%"PRIu64,
+							 hostGroupId);
+			}
+			agent.startObject(hostGroupIdString);
 			agent.add("accessInfoId", info->id);
 			agent.endObject();
 		}
-		agent.endArray();
+		agent.endObject();
 		agent.endObject();
 	}
-	agent.endArray();
+	agent.endObject();
 	agent.endObject();
 
 	DBClientUser::destroyServerAccessInfoMap(serversMap);
