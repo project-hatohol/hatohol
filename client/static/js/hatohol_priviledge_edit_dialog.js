@@ -24,7 +24,6 @@ var HatoholPriviledgeEditDialog = function(userId, applyCallback) {
   self.userId = userId;
   self.applyCallback = applyCallback;
   self.serversData = null;
-  self.priviledgesData = null;
   self.loadError = false;
 
   var dialogButtons = [{
@@ -103,11 +102,10 @@ HatoholPriviledgeEditDialog.prototype.start = function() {
     url: "/user/" + self.userId + "/access-info",
     request: "GET",
     data: {},
-    replyCallback: function(priviledgesData, parser) {
+    replyCallback: function(reply, parser) {
       if (self.loadError)
         return;
-      self.allowedServers = self.parsePriviledgesData(priviledgesData);
-      self.priviledgesData = priviledgesData;
+      self.allowedServers = reply.allowedServers;
       self.updateAllowCheckboxes();
     },
     parseErrorCallback: function(reply, parser) {
@@ -174,15 +172,15 @@ HatoholPriviledgeEditDialog.prototype.generateTableRows = function() {
 };
 
 HatoholPriviledgeEditDialog.prototype.updateAllowCheckboxes = function() {
-  if (!this.serversData || !this.priviledgesData)
+  if (!this.serversData || !this.allowedServers)
     return;
 
   var i, serverId, checkboxes = $(".serverSelectCheckbox");
   var allHostGroupIsEnabled = function(server) {
     var ALL_HOST_GROUPS = -1, hostGroup;
-    if (!server)
+    if (!server || !server["allowedHostGroups"])
       return false;
-    hostGroup = server[ALL_HOST_GROUPS];
+    hostGroup = server["allowedHostGroups"][ALL_HOST_GROUPS];
     return hostGroup && hostGroup["accessInfoId"];
   };
 
@@ -191,25 +189,6 @@ HatoholPriviledgeEditDialog.prototype.updateAllowCheckboxes = function() {
     if (allHostGroupIsEnabled(this.allowedServers[serverId]))
       checkboxes[i].checked = true;
   }
-};
-
-HatoholPriviledgeEditDialog.prototype.parsePriviledgesData = function(data) {
-  var i, serversTable = {}, hostGroupsTable;
-  var allowedServers = data.allowedServers, allowedHostGroups;
-  var serverId, hostGroupId;
-  for (i = 0; i < allowedServers.length; i++) {
-    serverId = allowedServers[i]["serverId"];
-    allowedHostGroups = allowedServers[i]["allowedHostGroups"];
-    hostGroupsTable = {};
-    for (j = 0; j < allowedHostGroups.length; j++) {
-      hostGroupId = allowedHostGroups[j]["hostGroupId"];
-      hostGroupsTable[hostGroupId] = {
-        accessInfoId: allowedHostGroups[j]["accessInfoId"]
-      };
-    }
-    serversTable[serverId] = hostGroupsTable;
-  }
-  return serversTable;
 };
 
 HatoholPriviledgeEditDialog.prototype.addAccessInfo = function(accessInfo) {
@@ -279,10 +258,12 @@ HatoholPriviledgeEditDialog.prototype.applyPrivileges = function() {
   var i, serverId, accessInfoId;
   var checkboxes = $(".serverSelectCheckbox");
   var getAccessInfoId = function(serverId) {
-    var id, allowedHostGroup;
+    var id, allowedHostGroups, allowedHostGroup;
     var ALL_HOST_GROUPS = -1;
     if (self.allowedServers && self.allowedServers[serverId])
-      allowedHostGroup = self.allowedServers[serverId][ALL_HOST_GROUPS];
+      allowedHostGroups = self.allowedServers[serverId]["allowedHostGroups"];
+    if (allowedHostGroups)
+      allowedHostGroup = allowedHostGroups[ALL_HOST_GROUPS];
     if (allowedHostGroup)
       id = allowedHostGroup["accessInfoId"];
     return id;
