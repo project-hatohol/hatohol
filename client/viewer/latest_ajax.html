@@ -111,7 +111,7 @@
         o = rd["items"][x];
         anchor = getItemGraphLocation(rd["servers"][o["serverId"]], o["id"]);
         server = rd["servers"][o["serverId"]]["name"];
-        host   = o["hostId"]; // rd["servers"][o["serverId"]]["hosts"][o["hostId"]]["name"];  ITS NOT IMPLEMENTED YET
+        host   = rd["servers"][o["serverId"]]["hosts"][o["hostId"]]["name"];
         clock  = o["lastValueTime"];
         appli  = o["itemGroupName"];
         klass  = server + " " + appli;
