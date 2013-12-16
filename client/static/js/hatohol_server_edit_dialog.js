@@ -139,9 +139,9 @@ var HatoholServerEditDialog = function(succeededCb) {
   function getFlagsFromServerType(type) {
     switch(type) {
       case "zabbix":
-        return 0;
+        return hatohol.MONITORING_SYSTEM_ZABBIX;
       case "nagios":
-        return 1;
+        return hatohol.MONITORING_SYSTEM_NAGIOS;
       default:
         break;
     }
