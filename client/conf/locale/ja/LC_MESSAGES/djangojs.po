@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-12-16 02:30-0600\n"
-"PO-Revision-Date: 2013-12-15 16:55+0900\n"
+"POT-Creation-Date: 2013-12-16 06:35-0600\n"
+"PO-Revision-Date: 2013-12-16 21:36+0900\n"
 "Last-Translator: Takuro Ashie <ashie@clear-code.com>\n"
 "Language-Team: Project Hatohol\n"
 "Language: \n"
@@ -171,6 +171,10 @@ msgstr "選択"
 #: static/js/hatohol_user_edit_dialog.js:72
 msgid "Successfully created."
 msgstr "正常に作成されました"
+
+#: static/js/hatohol_add_action_dialog.js:297
+msgid "Command is empty!"
+msgstr "コマンドが入力されていません！"
 
 #: static/js/hatohol_add_action_dialog.js:314
 msgid "Condition"
