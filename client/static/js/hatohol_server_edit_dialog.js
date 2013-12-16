@@ -41,7 +41,7 @@ var HatoholServerEditDialog = function(succeededCb) {
     if (validateParameters()) {
       makeQueryData();
       hatoholInfoMsgBox(gettext("Now adding a server..."));
-      postAddAction();
+      postAddServer();
     }
   }
 
