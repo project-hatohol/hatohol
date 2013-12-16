@@ -1474,6 +1474,7 @@ void FaceRest::replyGetItem(RestJob *job)
 	agent.add("numberOfItems", itemList.size());
 	agent.startArray("items");
 	ItemInfoListIterator it = itemList.begin();
+	HostNameMaps hostMaps;
 	for (; it != itemList.end(); ++it) {
 		ItemInfo &itemInfo = *it;
 		agent.startObject();
@@ -1486,9 +1487,14 @@ void FaceRest::replyGetItem(RestJob *job)
 		agent.add("prevValue", itemInfo.prevValue);
 		agent.add("itemGroupName", itemInfo.itemGroupName);
 		agent.endObject();
+
+		// We don't know the host name at this point.
+		// We'll get it later.
+		hostMaps[itemInfo.serverId][itemInfo.hostId] = "";
 	}
 	agent.endArray();
-	addServersMap(agent);
+	const bool lookupHostName = true;
+	addServersMap(agent, &hostMaps, lookupHostName);
 	agent.endObject();
 
 	replyJsonData(agent, job);

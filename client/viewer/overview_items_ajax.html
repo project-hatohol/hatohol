@@ -89,7 +89,7 @@
       for (x = 0; x < rd["items"].length; ++x) {
         o = rd["items"][x];
         server = rd["servers"][o["serverId"]]["name"];
-        host   = o["hostId"]; // rd["servers"][o["serverId"]]["hosts"][o["hostId"]]["name"];  ITS NOT IMPLEMENTED YET
+        host   = rd["servers"][o["serverId"]]["hosts"][o["hostId"]]["name"];
         item   = o["brief"];
 
         ss.push(server);
