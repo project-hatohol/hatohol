@@ -346,6 +346,7 @@ static void _assertMakeCondition(const ServerHostGrpSetMap &srvHostGrpSetMap,
 	cppcut_assert_equal(expect, cond);
 }
 #define assertMakeCondition(M,E) cut_trace(_assertMakeCondition(M,E))
+#define assertMakeConditionWithTableName(M,E,T) cut_trace(_assertMakeCondition(M,E,T))
 
 static string makeExpectedConditionForUser(UserIdType userId)
 {
@@ -694,7 +695,7 @@ void test_makeConditionMultipleServersWithTableNameAlias(void)
 	  serverIdColumnName.c_str(),
 	  tableName.c_str(),
 	  serverIdColumnName.c_str());
-	assertMakeCondition(srvHostGrpSetMap, expect);
+	assertMakeConditionWithTableName(srvHostGrpSetMap, expect, tableName);
 }
 
 void test_makeConditionComplicated(void)
