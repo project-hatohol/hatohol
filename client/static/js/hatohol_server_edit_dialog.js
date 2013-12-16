@@ -90,7 +90,7 @@ var HatoholServerEditDialog = function(succeededCb) {
       hatoholErrorMsgBox(gettext("Server id is empty!"));
       return false;
     }
-    if (type != "Zabbix" && type != "Nagios") {
+    if (type != "zabbix" && type != "nagios") {
       hatoholErrorMsgBox(gettext("Invalid Server type!"));
       return false;
     }
@@ -128,11 +128,7 @@ var HatoholServerEditDialog = function(succeededCb) {
     if (type == "nagios" && $("#inputDbName").val() == "") {
       hatoholErrorMsgBox(gettext("DB name is empty!"));
       return false;
-    } else if (type == "zabbix" && $("#inputDbName").val() != "") {
-      hatoholErrorMsgBox(gettext(
-            "When select Zabbix from server type, you needn't input a DB name."));
     }
-
     return true;
   }
 
