@@ -20,15 +20,40 @@
 var HatoholNavi = function(currentPage) {
   var i, title, klass;
   var menuItems = [
-    { title: gettext("Dashboard"),           href: "ajax_dashboard" },
-    { title: gettext("Overview : Triggers"), href: "ajax_overview_triggers" },
-    { title: gettext("Overview : Items"),    href: "ajax_overview_items" },
-    { title: gettext("Latest data"),         href: "ajax_latest" },
-    { title: gettext("Triggers"),            href: "ajax_triggers" },
-    { title: gettext("Events"),              href: "ajax_events" },
-    { title: gettext("Servers"),             href: "ajax_servers" },
-    { title: gettext("Actions"),             href: "ajax_actions" },
-    { title: gettext("Users"),               href: "ajax_users" },
+    {
+      title: gettext("Dashboard"),
+      href:  "ajax_dashboard"
+    },
+    {
+      title: gettext("Overview : Triggers"),
+      href:  "ajax_overview_triggers"
+    },
+    {
+      title: gettext("Overview : Items"),
+      href:  "ajax_overview_items"
+    },
+    {
+      title: gettext("Latest data"),
+      href:  "ajax_latest"
+    },
+    {
+      title: gettext("Triggers"),
+      href:  "ajax_triggers" },
+    {
+      title: gettext("Events"),
+      href:  "ajax_events"
+    },
+    {
+      title: gettext("Servers"),
+      href:  "ajax_servers" },
+    {
+      title: gettext("Actions"),
+      href:  "ajax_actions"
+    },
+    {
+      title: gettext("Users"),
+      href:  "ajax_users"
+    },
   ];
 
   if (currentPage)
