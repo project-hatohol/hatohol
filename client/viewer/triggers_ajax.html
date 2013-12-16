@@ -142,6 +142,8 @@
       $("#table tbody").append(drawTableBody(rawData));
     }
 
-    startConnection('trigger', updateCore);
+    userProfile.addOnLoadCb(function() {
+      startConnection('trigger', updateCore);
+    });
   </script>
 {% endblock %}

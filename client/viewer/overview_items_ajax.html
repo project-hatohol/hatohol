@@ -193,6 +193,8 @@
       $("#table tbody").append(drawTableBody(parsedData));
     }
 
-    startConnection('item', updateCore);
+    userProfile.addOnLoadCb(function() {
+      startConnection('item', updateCore);
+    });
   </script>
 {% endblock %}

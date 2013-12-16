@@ -199,6 +199,8 @@
       $("#table tbody").append(drawTableBody(parsedData));
     }
 
-    startConnection('trigger', updateCore, 0);
+    userProfile.addOnLoadCb(function() {
+      startConnection('trigger', updateCore, 0);
+    });
   </script>
 {% endblock %}

@@ -41,7 +41,7 @@ var HatoholUserEditDialog = function(succeededCb) {
     if (validateParameters()) {
       makeQueryData();
       hatoholInfoMsgBox(gettext("Now creating a user ..."));
-      postAddAction();
+      postAddUser();
     }
   }
 
@@ -57,7 +57,7 @@ var HatoholUserEditDialog = function(succeededCb) {
       return queryData;
   }
 
-  function postAddAction() {
+  function postAddUser() {
     new HatoholConnector({
       url: "/user",
       request: "POST",
@@ -116,7 +116,7 @@ HatoholUserEditDialog.prototype.createMainElement = function() {
 
   function makeMainDivHTML() {
     var s = "";
-    s += '<div id="add-action-div">';
+    s += '<div id="add-user-div">';
     s += '<label for="inputUserName">' + gettext("User name") + '</label>';
     s += '<input id="inputUserName" type="text" value="" class="input-xlarge">';
     s += '<label for="inputPassword">' + gettext("Password") + '</label>';

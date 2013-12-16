@@ -20,15 +20,44 @@
 var HatoholNavi = function(currentPage) {
   var i, title, klass;
   var menuItems = [
-    { title: gettext("Dashboard"),           href: "ajax_dashboard" },
-    { title: gettext("Overview : Triggers"), href: "ajax_overview_triggers" },
-    { title: gettext("Overview : Items"),    href: "ajax_overview_items" },
-    { title: gettext("Latest data"),         href: "ajax_latest" },
-    { title: gettext("Triggers"),            href: "ajax_triggers" },
-    { title: gettext("Events"),              href: "ajax_events" },
-    { title: gettext("Servers"),             href: "ajax_servers" },
-    { title: gettext("Actions"),             href: "ajax_actions" },
-    { title: gettext("Users"),               href: "ajax_users" },
+    {
+      title: gettext("Dashboard"),
+      href:  "ajax_dashboard"
+    },
+    {
+      title: gettext("Overview : Triggers"),
+      href:  "ajax_overview_triggers"
+    },
+    {
+      title: gettext("Overview : Items"),
+      href:  "ajax_overview_items"
+    },
+    {
+      title: gettext("Latest data"),
+      href:  "ajax_latest"
+    },
+    {
+      title: gettext("Triggers"),
+      href:  "ajax_triggers" },
+    {
+      title: gettext("Events"),
+      href:  "ajax_events"
+    },
+    {
+      title: gettext("Servers"),
+      href:  "ajax_servers" },
+    {
+      title: gettext("Actions"),
+      href:  "ajax_actions"
+    },
+    {
+      title: gettext("Users"),
+      href:  "ajax_users",
+      flags: (1 << hatohol.OPPRVLG_CREATE_USER) |
+             (1 << hatohol.OPPRVLG_UPDATE_USER) |
+             (1 << hatohol.OPPRVLG_DELETE_USER) |
+             (1 << hatohol.OPPRVLG_GET_ALL_USERS)
+    },
   ];
 
   if (currentPage)
@@ -37,6 +66,11 @@ var HatoholNavi = function(currentPage) {
     this.currentPage = location.pathname.match(".+/(.+)$")[1];
 
   for (i = 0; i < menuItems.length; ++i) {
+    if (menuItems[i].flags != undefined &&
+        !userProfile.hasFlags(menuItems[i].flags))
+    {
+      continue;
+    }
     if (menuItems[i].href == this.currentPage) {
       title = '<a>' + menuItems[i].title + '</a>';
       klass = "active";
