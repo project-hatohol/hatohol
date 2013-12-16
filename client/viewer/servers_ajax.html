@@ -92,6 +92,22 @@
       });
     }
 
+    function deleteServers() {
+      $(this).dialog("close");
+			checkbox = (".selectcheckbox");
+      var deletedIdArray = {count:0, total:0, errors:0};
+      for (var i = 0; i < checkbox.length; i++) {
+        if (!checkbox[i].checked)
+          continue;
+        var serverId = checkbox[i].getAttribute("id");
+        deletedIdArray[id] = true;
+        deletedIdArray.count++;
+        deletedIdArray.total++;
+        deleteOneServer(id, deletedIdArray);
+      }
+      hatoholInfoMsgBox("{% trans "Deleting..." %}");
+    }
+
     function drawTableBody(rd) {
       var x;
       var s;
