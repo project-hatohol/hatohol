@@ -200,6 +200,7 @@ HatoholServerEditDialog.prototype.onAppendMainElement = function () {
   validRetryInterval = false;
   validUserName = false;
   validPassword = false;
+  self.setDBNameTextState(false);
 
   $("#inputServerId").keyup(function() {
     validServerId = !!$("#inputServerId").val();
@@ -209,6 +210,15 @@ HatoholServerEditDialog.prototype.onAppendMainElement = function () {
   $("#inputHostName").keyup(function() {
     validHostName = !!$("#inputHostName").val();
     fixupAddButtonState(); });
+
+	$("#selectServerType").change(function() {
+    var type = $("#selectServerType").val();
+		if (type == "zabbix") {
+      self.setDBNameTextState(false);
+		} else if (type == "nagios") {
+      self.setDBNameTextState(true);
+    }
+	});
 
   $("#inputIpAddress").keyup(function() {
     validIpAddress = !!$("#inputIpAddress").val();
@@ -269,5 +279,15 @@ HatoholServerEditDialog.prototype.setAddButtonState = function(state) {
   } else {
      btn.attr("disabled", "disable");
      btn.addClass("ui-state-disabled");
+  }
+};
+
+HatoholServerEditDialog.prototype.setDBNameTextState = function(state) {
+  var txt = $("#inputDbName");
+
+  if (state) {
+    txt.removeAttr("disabled");
+  } else {
+    txt.attr("disabled", "disabled");
   }
 };
