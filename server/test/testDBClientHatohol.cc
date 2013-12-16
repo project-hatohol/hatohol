@@ -34,8 +34,8 @@ public:
 	static
 	string callMakeCondition(const ServerHostGrpSetMap &srvHostGrpSetMap,
 				 const string &eventTableName,
-	                         const string &serverIdColumnName,
-	                         const string &hostGroupIdColumnName)
+				 const string &serverIdColumnName,
+				 const string &hostGroupIdColumnName)
 	{
 		return makeCondition(srvHostGrpSetMap, eventTableName,
 				     serverIdColumnName, hostGroupIdColumnName);
@@ -337,10 +337,11 @@ void _assertTriggerInfo(const TriggerInfo &expect, const TriggerInfo &actual)
 #define assertTriggerInfo(E,A) cut_trace(_assertTriggerInfo(E,A))
 
 static void _assertMakeCondition(const ServerHostGrpSetMap &srvHostGrpSetMap,
-                                 const string &expect)
+				 const string &expect,
+				 const string &tableName = defaultEventTableName)
 {
 	string cond = TestEventQueryOption::callMakeCondition(
-	                srvHostGrpSetMap, defaultEventTableName,
+	                srvHostGrpSetMap, tableName,
 	                serverIdColumnName, hostGroupIdColumnName);
 	cppcut_assert_equal(expect, cond);
 }
@@ -675,6 +676,23 @@ void test_makeConditionMultipleServers(void)
 	string expect = StringUtils::sprintf("(%s=5 OR %s=14 OR %s=768)",
 	  serverIdColumnName.c_str(),
 	  serverIdColumnName.c_str(),
+	  serverIdColumnName.c_str());
+	assertMakeCondition(srvHostGrpSetMap, expect);
+}
+
+void test_makeConditionMultipleServersWithTableNameAlias(void)
+{
+	ServerHostGrpSetMap srvHostGrpSetMap;
+	srvHostGrpSetMap[5].insert(ALL_HOST_GROUPS);
+	srvHostGrpSetMap[14].insert(ALL_HOST_GROUPS);
+	srvHostGrpSetMap[768].insert(ALL_HOST_GROUPS);
+	const string tableName = "test_event";
+	string expect = StringUtils::sprintf("(%s.%s=5 OR %s.%s=14 OR %s.%s=768)",
+	  tableName.c_str(),
+	  serverIdColumnName.c_str(),
+	  tableName.c_str(),
+	  serverIdColumnName.c_str(),
+	  tableName.c_str(),
 	  serverIdColumnName.c_str());
 	assertMakeCondition(srvHostGrpSetMap, expect);
 }
