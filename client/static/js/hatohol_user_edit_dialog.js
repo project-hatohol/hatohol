@@ -41,7 +41,7 @@ var HatoholUserEditDialog = function(succeededCb) {
     if (validateParameters()) {
       makeQueryData();
       hatoholInfoMsgBox(gettext("Now creating a user ..."));
-      postAddAction();
+      postAddUser();
     }
   }
 
@@ -57,7 +57,7 @@ var HatoholUserEditDialog = function(succeededCb) {
       return queryData;
   }
 
-  function postAddAction() {
+  function postAddUser() {
     new HatoholConnector({
       url: "/user",
       request: "POST",
