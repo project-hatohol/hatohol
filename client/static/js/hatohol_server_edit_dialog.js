@@ -52,7 +52,7 @@ var HatoholServerEditDialog = function(succeededCb) {
   function makeQueryData() {
     var queryData = {};
     queryData.serverid = $("#inputServerId").val();
-    queryData.type = getFlagsFromServerType($("#selectUserType").val());
+    queryData.type = getFlagsFromServerType($("#selectServerType").val());
     queryData.hostname = $("#inputHostName").val();
     queryData.ipaddress = $("#inputIpAddress").val();
     queryData.nickname = $("#inputNickName").val();
