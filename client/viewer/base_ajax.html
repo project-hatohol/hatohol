@@ -87,7 +87,9 @@
     <script src="{{ STATIC_URL }}js/library.js"></script>
     <script type="text/javascript">
       var userProfile = new HatoholUserProfile();
-      new HatoholNavi();
+      userProfile.addOnLoadCb(function(user) {
+        new HatoholNavi();
+      });
     </script>
 
 {% block option %}

@@ -60,3 +60,9 @@ HatoholUserProfile.prototype.addOnLoadCb = function(onLoadCb) {
     userProfile.onLoadCb.push(onLoadCb);
   };
 };
+
+HatoholUserProfile.prototype.hasFlags = function(flags) {
+  if (!this.user)
+    return false;
+  return this.user.flags & flags;
+};

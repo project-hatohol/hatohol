@@ -52,7 +52,8 @@ var HatoholNavi = function(currentPage) {
     },
     {
       title: gettext("Users"),
-      href:  "ajax_users"
+      href:  "ajax_users",
+      flags: (1 << hatohol.OPPRVLG_GET_ALL_USERS)
     },
   ];
 
@@ -62,6 +63,11 @@ var HatoholNavi = function(currentPage) {
     this.currentPage = location.pathname.match(".+/(.+)$")[1];
 
   for (i = 0; i < menuItems.length; ++i) {
+    if (menuItems[i].flags != undefined &&
+        !userProfile.hasFlags(menuItems[i].flags))
+    {
+      continue;
+    }
     if (menuItems[i].href == this.currentPage) {
       title = '<a>' + menuItems[i].title + '</a>';
       klass = "active";
