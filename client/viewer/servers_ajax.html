@@ -81,6 +81,8 @@
       $("#table tbody").append(drawTableBody(reply));
     }
 
-    startConnection('server', updateCore);
+    userProfile.addOnLoadCb(function() {
+      startConnection('server', updateCore);
+    });
   </script>
 {% endblock %}

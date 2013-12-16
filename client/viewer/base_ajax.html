@@ -54,6 +54,17 @@
           </ul>
         </div>
 
+        <div class="pull-right btn-group" id ="userMenu">
+          <button class="btn dropdown-toggle btn-inverse" data-toggle="dropdown" id="userProfileButton">
+            <span id="currentUserName">{% trans "User" %}</span> 
+            <span class="caret"></span>
+          </button>
+          <ul class="dropdown-menu" role="menu" aria-labelledby="userProfileButton">
+            <li role="presentation">
+              <a id="logoutMenuItem" role="menuitem" href="javascript:void(0);">{% trans "Logout" %}</a>
+            </li>
+          </ul>
+        </div>
       </div>
     </div>
 
@@ -72,10 +83,12 @@
     <script src="{{ STATIC_URL }}js/hatohol_login_dialog.js"></script>
     <script src="{{ STATIC_URL }}js/hatohol_reply_parser.js"></script>
     <script src="{{ STATIC_URL }}js/hatohol_connector.js"></script>
+    <script src="{{ STATIC_URL }}js/hatohol_user_profile.js"></script>
     <script src="{{ STATIC_URL }}js/hatohol_userconfig.js"></script>
     <script src="{{ STATIC_URL }}js/hatohol_navi.js"></script>
     <script src="{{ STATIC_URL }}js/library.js"></script>
     <script type="text/javascript">
+      var userProfile = new HatoholUserProfile();
       new HatoholNavi();
     </script>
 

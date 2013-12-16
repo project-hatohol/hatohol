@@ -281,6 +281,8 @@
     //
     // main code
     //
-    startConnection('user', updateCore);
+    userProfile.addOnLoadCb(function() {
+      startConnection('user', updateCore);
+    });
   </script>
 {% endblock %}

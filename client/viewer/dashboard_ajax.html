@@ -261,6 +261,8 @@
       $("#tblHost tbody").append(drawHostBody(rawData, parsedData));
     }
 
-    startConnection('overview', updateCore);
+    userProfile.addOnLoadCb(function() {
+      startConnection('overview', updateCore);
+    });
   </script>
 {% endblock %}

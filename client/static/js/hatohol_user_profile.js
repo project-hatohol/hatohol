@@ -20,13 +20,43 @@
 var HatoholUserProfile = function() {
   var self = this;
 
+  this.user = null;
+  this.onLoadCb = [];
   this.connector = new HatoholConnector({
     url: '/user/me',
     data: {},
     replyCallback: function(reply, parser) {
+      var user = reply.users[0];
+      var i;
+
+      setUserProfile(user);
+      for (i = 0; i < self.onLoadCb.length; ++i)
+        self.onLoadCb[i](user);
     },
     parseErrorCallback: hatoholErrorMsgBoxForParser,
     connectErrorCallback: function(XMLHttpRequest, textStatus, errorThrown) {
     }
   });
+
+  function setUserProfile(user) {
+    self.user = user;
+    $("#currentUserName").text(self.user.name);
+    $("#logoutMenuItem").click(function() {
+      new HatoholConnector({
+        url: '/logout',
+        replyCallback: function(reply, parser) {
+          document.location.href = "ajax_dashboard";
+        },
+        parseErrorCallback: hatoholErrorMsgBoxForParser
+      });
+    });
+  }
+};
+
+HatoholUserProfile.prototype.addOnLoadCb = function(onLoadCb) {
+  if (userProfile.user) {
+    onLoadCb();
+  } else {
+    userProfile.onLoadCb.push(onLoadCb);
+  };
 };

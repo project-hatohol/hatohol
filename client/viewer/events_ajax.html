@@ -32,6 +32,8 @@
 
 {% block logic %}
   <script type="text/javascript">
-    var view = new EventsView($("#main"));
+    userProfile.addOnLoadCb(function() {
+      var view = new EventsView($("#main"));
+    });
   </script>
 {% endblock %}

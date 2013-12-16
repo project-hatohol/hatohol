@@ -391,6 +391,8 @@
     //
     // main code
     //
-    startConnection('action', updateCore);
+    userProfile.addOnLoadCb(function() {
+      startConnection('action', updateCore);
+    });
   </script>
 {% endblock %}
