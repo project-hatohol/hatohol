@@ -28,7 +28,7 @@
 
   <form class="form-inline">
     <input id="add-server-button" type="button" class="btn" value="{% trans "ADD SERVER" %}" />
-		<input id="delete-server-button" type="button" class="btn"
+		<input id="delete-server-button" type="button" class="btn" disabled
 		 value="{% trans "DELETE SERVER" %}" />
   </form>
 
@@ -63,6 +63,8 @@
 {% block logic %}
   <script type="text/javascript">
 
+    var numSelected = 0;
+
     $("#add-server-button").click(function() {
       new HatoholServerEditDialog(addSucceededCb);
     });
@@ -74,6 +76,21 @@
     function addSucceededCb() {
       startConnection('server', updateCore);
     };
+
+    function setupCheckboxHandler() {
+        $(".selectcheckbox").change(function() {
+          check = $(this).is(":checked");
+          var prevNumSelected = numSelected;
+          if (check)
+            numSelected += 1;
+          else
+            numSelected -= 1;
+          if (prevNumSelected == 0 && numSelected == 1)
+            $("#delete-server-button").attr("disabled", false);
+          else if (prevNumSelected == 1 && numSelected == 0)
+            $("#delete-server-button").attr("disabled", true);
+        });
+    }
 
     function drawTableBody(rd) {
       var x;
@@ -88,6 +105,8 @@
         serverURL = getServerLocation(o);
         mapsURL = getMapsLocation(o);
         s += "<tr>";
+        s += "<td><input type='checkbox' class='selectcheckbox' " +
+             "serverId='" + o["id"] + "'></td>";
         s += "<td>" + o["id"] + "</td>";
         s += "<td>" + o["type"]  + "</td>";
         if (serverURL) {
@@ -112,6 +131,8 @@
     function updateCore(reply) {
       $("#table tbody").empty();
       $("#table tbody").append(drawTableBody(reply));
+      setupCheckboxHandler();
+      numSelected = 0;
     }
 
     new HatoholNavi();
