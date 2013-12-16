@@ -31,6 +31,12 @@ nobase_dist_hatohol_client_DATA = \
 	static/js.external/jquery-ui.min.js \
 	static/js/library.js \
 	static/js/hatohol_def.js \
+	static/js/hatohol_connector.js \
+	static/js/hatohol_session_manager.js \
+	static/js/hatohol_login_dialog.js \
+	static/js/hatohol_message_box.js \
+	static/js/hatohol_navi.js \
+	static/js/hatohol_userconfig.js \
 	static/js/hatohol_add_action_dialog.js \
 	static/js/hatohol_user_edit_dialog.js \
 	static/js/hatohol_dialog.js \

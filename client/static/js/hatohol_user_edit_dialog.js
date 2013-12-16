@@ -159,7 +159,7 @@ HatoholUserEditDialog.prototype.setAddButtonState = function(state) {
      btn.removeAttr("disabled");
      btn.removeClass("ui-state-disabled");
   } else {
-     btn.attr("disabled", "disable");
+     btn.attr("disabled", "disabled");
      btn.addClass("ui-state-disabled");
   }
 };
