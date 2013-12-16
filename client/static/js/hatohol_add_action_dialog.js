@@ -294,7 +294,7 @@ var HatoholAddActionDialog = function(addSucceededCb) {
 
   function validateAddParameters() {
     if ($("#inputActionCommand").val() == "") {
-      hatoholErrorMsgBox("Command is empty!");
+      hatoholErrorMsgBox(gettext("Command is empty!"));
       return false;
     }
     return true;
