@@ -53,7 +53,10 @@ var HatoholNavi = function(currentPage) {
     {
       title: gettext("Users"),
       href:  "ajax_users",
-      flags: (1 << hatohol.OPPRVLG_GET_ALL_USERS)
+      flags: (1 << hatohol.OPPRVLG_CREATE_USER) |
+             (1 << hatohol.OPPRVLG_UPDATE_USER) |
+             (1 << hatohol.OPPRVLG_DELETE_USER) |
+             (1 << hatohol.OPPRVLG_GET_ALL_USERS)
     },
   ];
 
