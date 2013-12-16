@@ -65,7 +65,7 @@ var HatoholServerEditDialog = function(succeededCb) {
     return queryData;
   }
 
-  function postAddAction() {
+  function postAddServer() {
     new HatoholConnector({
       url: "/server",
       request: "POST",
