@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-12-15 01:52-0600\n"
+"POT-Creation-Date: 2013-12-16 02:30-0600\n"
 "PO-Revision-Date: 2013-12-15 16:55+0900\n"
 "Last-Translator: Takuro Ashie <ashie@clear-code.com>\n"
 "Language-Team: Project Hatohol\n"
@@ -62,7 +62,7 @@ msgstr "致命的な障害"
 msgid "ERROR"
 msgstr "エラー"
 
-#: static/js/events_view.js:84 static/js/hatohol_navi.js:28
+#: static/js/events_view.js:84 static/js/hatohol_navi.js:43
 msgid "Events"
 msgstr "イベント"
 
@@ -304,35 +304,35 @@ msgstr ""
 msgid " HATOHOL SERVER ERROR CODE"
 msgstr ""
 
-#: static/js/hatohol_navi.js:23
+#: static/js/hatohol_navi.js:24
 msgid "Dashboard"
 msgstr "ダッシュボード"
 
-#: static/js/hatohol_navi.js:24
+#: static/js/hatohol_navi.js:28
 msgid "Overview : Triggers"
 msgstr "概要:トリガー"
 
-#: static/js/hatohol_navi.js:25
+#: static/js/hatohol_navi.js:32
 msgid "Overview : Items"
 msgstr "概要:アイテム"
 
-#: static/js/hatohol_navi.js:26
+#: static/js/hatohol_navi.js:36
 msgid "Latest data"
 msgstr "最新データ"
 
-#: static/js/hatohol_navi.js:27
+#: static/js/hatohol_navi.js:40
 msgid "Triggers"
 msgstr "トリガー"
 
-#: static/js/hatohol_navi.js:29
+#: static/js/hatohol_navi.js:47
 msgid "Servers"
 msgstr "サーバ"
 
-#: static/js/hatohol_navi.js:30
+#: static/js/hatohol_navi.js:50
 msgid "Actions"
 msgstr "アクション"
 
-#: static/js/hatohol_navi.js:31
+#: static/js/hatohol_navi.js:54
 msgid "Users"
 msgstr "ユーザ"
 
