@@ -91,8 +91,8 @@ public:
 	// Overriding of virtual methods
 	std::string getCondition(void) const;
 
-	void setQueryUserId(UserIdType userId);
-	UserIdType getQueryUserId(void) const;
+	void setTargetUserId(UserIdType userId);
+	UserIdType getTargetUserId(void) const;
 
 private:
 	struct PrivateContext;

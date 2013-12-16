@@ -530,7 +530,7 @@ void test_getServerAccessInfoMap(void)
 		ServerAccessInfoMap srvAccessInfoMap;
 		AccessInfoQueryOption option;
 		option.setUserId(USER_ID_ADMIN);
-		option.setQueryUserId(it->first);
+		option.setTargetUserId(it->first);
 		HatoholError error = dbUser.getAccessInfoMap(srvAccessInfoMap,
 							     option);
 		cppcut_assert_equal(HTERR_OK, error.getCode());
@@ -550,7 +550,7 @@ void test_getServerAccessInfoMapByOwner(void)
 		ServerAccessInfoMap srvAccessInfoMap;
 		AccessInfoQueryOption option;
 		option.setUserId(it->first);
-		option.setQueryUserId(it->first);
+		option.setTargetUserId(it->first);
 		HatoholError error = dbUser.getAccessInfoMap(srvAccessInfoMap,
 							     option);
 		cppcut_assert_equal(HTERR_OK, error.getCode());
@@ -572,7 +572,7 @@ void test_getServerAccessInfoMapByNonOwner(void)
 		UserIdType guestUserA = 1, guestUserB = 3, user;
 		user = (it->first == guestUserA) ? guestUserB : guestUserA;
 		option.setUserId(user);
-		option.setQueryUserId(it->first);
+		option.setTargetUserId(it->first);
 		HatoholError error = dbUser.getAccessInfoMap(srvAccessInfoMap,
 							     option);
 		cppcut_assert_equal(HTERR_NO_PRIVILEGE, error.getCode());
@@ -593,7 +593,7 @@ void test_getServerAccessInfoMapByAdminUser(void)
 		AccessInfoQueryOption option;
 		UserIdType adminUser = 2;
 		option.setUserId(adminUser);
-		option.setQueryUserId(it->first);
+		option.setTargetUserId(it->first);
 		HatoholError error = dbUser.getAccessInfoMap(srvAccessInfoMap,
 							     option);
 		cppcut_assert_equal(HTERR_OK, error.getCode());

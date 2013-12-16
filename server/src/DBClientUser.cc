@@ -275,15 +275,15 @@ string AccessInfoQueryOption::getCondition(void) const
 
 	return StringUtils::sprintf("%s=%"FMT_USER_ID"",
 	  COLUMN_DEF_ACCESS_LIST[IDX_ACCESS_LIST_USER_ID].columnName,
-	  getQueryUserId());
+	  getTargetUserId());
 }
 
-void AccessInfoQueryOption::setQueryUserId(UserIdType userId)
+void AccessInfoQueryOption::setTargetUserId(UserIdType userId)
 {
 	m_ctx->queryUserId = userId;
 }
 
-UserIdType AccessInfoQueryOption::getQueryUserId(void) const
+UserIdType AccessInfoQueryOption::getTargetUserId(void) const
 {
 	return m_ctx->queryUserId;
 }

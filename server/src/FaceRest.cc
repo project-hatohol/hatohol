@@ -1915,7 +1915,7 @@ void FaceRest::handlerGetAccessInfo(RestJob *job)
 {
 	AccessInfoQueryOption option;
 	option.setUserId(job->userId);
-	option.setQueryUserId(job->getResourceId());
+	option.setTargetUserId(job->getResourceId());
 
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	ServerAccessInfoMap serversMap;
