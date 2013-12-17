@@ -166,7 +166,8 @@ protected:
 	static const SessionInfo *getSessionInfo(const string &sessionId);
 
 	static HatoholError parseUserParameter(UserInfo &userInfo,
-	                                       GHashTable *query);
+	                                       GHashTable *query,
+					       bool allowEmptyPassword = false);
 
 	/**
 	 * Update the user informformation if 'name' specifined in 'query'

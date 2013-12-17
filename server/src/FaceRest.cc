@@ -1858,7 +1858,9 @@ void FaceRest::handlerPutUser(RestJob *job)
 		return;
 	}
 
-        HatoholError err = parseUserParameter(userInfo, job->query);
+	bool allowEmptyPassword = true;
+	HatoholError err = parseUserParameter(userInfo, job->query,
+					      allowEmptyPassword);
 	if (err != HTERR_OK) {
 		replyError(job, err);
 		return;
@@ -2048,7 +2050,8 @@ void FaceRest::handlerDeleteAccessInfo(RestJob *job)
 	replyJsonData(agent, job);
 }
 
-HatoholError FaceRest::parseUserParameter(UserInfo &userInfo, GHashTable *query)
+HatoholError FaceRest::parseUserParameter(UserInfo &userInfo, GHashTable *query,
+					  bool allowEmptyPassword)
 {
 	char *value;
 
@@ -2060,10 +2063,10 @@ HatoholError FaceRest::parseUserParameter(UserInfo &userInfo, GHashTable *query)
 
 	// password
 	value = (char *)g_hash_table_lookup(query, "password");
-	if (!value) {
+	if (!value && !allowEmptyPassword) {
 		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "password");
 	}
-	userInfo.password = value;
+	userInfo.password = value ? value : "";
 
 	// flags
 	HatoholError err = getParam<OperationPrivilegeFlag>(
