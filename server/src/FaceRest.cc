@@ -895,7 +895,8 @@ void FaceRest::queueRestJob
 {
 	GHashTable *query = _query;
 	Reaper<GHashTable> postQueryReaper;
-	if (StringUtils::casecmp(msg->method, "POST")) {
+	if (StringUtils::casecmp(msg->method, "POST") ||
+	    StringUtils::casecmp(msg->method, "PUT")) {
 		// The POST request contains query parameters in the body
 		// according to application/x-www-form-urlencoded.
 		query = soup_form_decode(msg->request_body->data);
