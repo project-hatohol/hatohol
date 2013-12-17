@@ -204,10 +204,9 @@ void _assertGetUserInfoListWithTargetName(
 #define assertGetUserInfoListWithTargetName(F,N, ...) \
 cut_trace(_assertGetUserInfoListWithTargetName(F,N, ##__VA_ARGS__))
 
-static UserInfo setupForUpdate(void)
+static UserInfo setupForUpdate(size_t targetIndex = 1)
 {
 	loadTestDBUser();
-	const size_t targetIndex = 1;
 	UserInfo userInfo = testUserInfo[targetIndex];
 	userInfo.id = targetIndex + 1;
 	userInfo.password = ">=_=<3";
@@ -290,6 +289,30 @@ void test_updateUser(void)
 	    "%"FMT_USER_ID"|%s|%s|%"PRIu64"\n",
 	    userInfo.id, userInfo.name.c_str(),
 	    Utils::sha256( userInfo.password).c_str(), userInfo.flags);
+	assertDBContent(dbUser.getDBAgent(), statement, expect);
+}
+
+void test_updateUserWithEmptyPassword(void)
+{
+	UserIdType targetIndex = 1;
+	UserInfo userInfo = setupForUpdate(targetIndex);
+	string expectedPassword = testUserInfo[targetIndex].password;
+	userInfo.password.clear();
+	DBClientUser dbUser;
+	OperationPrivilege
+	   privilege(OperationPrivilege::makeFlag(OPPRVLG_UPDATE_USER));
+	HatoholError err = dbUser.updateUserInfo(userInfo, privilege);
+	assertHatoholError(HTERR_OK, err);
+
+	// check the version
+	string statement = StringUtils::sprintf(
+	                     "select * from %s where id=%d",
+	                     DBClientUser::TABLE_NAME_USERS, userInfo.id);
+	string expect =
+	  StringUtils::sprintf(
+	    "%"FMT_USER_ID"|%s|%s|%"PRIu64"\n",
+	    userInfo.id, userInfo.name.c_str(),
+	    Utils::sha256(expectedPassword).c_str(), userInfo.flags);
 	assertDBContent(dbUser.getDBAgent(), statement, expect);
 }
 
