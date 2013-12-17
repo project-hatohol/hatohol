@@ -70,7 +70,8 @@
     });
 
     $("#delete-server-button").click(function() {
-      alert("Not implemented yet.");
+      var msg = "{% trans "Do you delete the selected items ?" %}";
+      hatoholNoYesMsgBox(msg, deleteServers);
     });
 
     function addSucceededCb() {
