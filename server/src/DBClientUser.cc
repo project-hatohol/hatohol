@@ -275,15 +275,15 @@ string AccessInfoQueryOption::getCondition(void) const
 
 	return StringUtils::sprintf("%s=%"FMT_USER_ID"",
 	  COLUMN_DEF_ACCESS_LIST[IDX_ACCESS_LIST_USER_ID].columnName,
-	  getQueryUserId());
+	  getTargetUserId());
 }
 
-void AccessInfoQueryOption::setQueryUserId(UserIdType userId)
+void AccessInfoQueryOption::setTargetUserId(UserIdType userId)
 {
 	m_ctx->queryUserId = userId;
 }
 
-UserIdType AccessInfoQueryOption::getQueryUserId(void) const
+UserIdType AccessInfoQueryOption::getTargetUserId(void) const
 {
 	return m_ctx->queryUserId;
 }
@@ -414,7 +414,7 @@ HatoholError DBClientUser::updateUserInfo(
 	if (err != HTERR_OK)
 		return err;
 	err = isValidPassword(userInfo.password);
-	if (err != HTERR_OK)
+	if (!userInfo.password.empty() && err != HTERR_OK)
 		return err;
 	err = isValidFlags(userInfo.flags);
 	if (err != HTERR_OK)
@@ -428,8 +428,10 @@ HatoholError DBClientUser::updateUserInfo(
 	row->ADD_NEW_ITEM(String, userInfo.name);
 	arg.columnIndexes.push_back(IDX_USERS_NAME);
 
-	row->ADD_NEW_ITEM(String, Utils::sha256(userInfo.password));
-	arg.columnIndexes.push_back(IDX_USERS_PASSWORD);
+	if (!userInfo.password.empty()) {
+		row->ADD_NEW_ITEM(String, Utils::sha256(userInfo.password));
+		arg.columnIndexes.push_back(IDX_USERS_PASSWORD);
+	}
 
 	row->ADD_NEW_ITEM(Uint64, userInfo.flags);
 	arg.columnIndexes.push_back(IDX_USERS_FLAGS);

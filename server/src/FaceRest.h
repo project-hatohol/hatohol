@@ -142,6 +142,7 @@ protected:
 	static void handlerUser(RestJob *job);
 	static void handlerGetUser(RestJob *job);
 	static void handlerPostUser(RestJob *job);
+	static void handlerPutUser(RestJob *job);
 	static void handlerDeleteUser(RestJob *job);
 
 	static void handlerAccessInfo(RestJob *job);
@@ -166,7 +167,8 @@ protected:
 	static const SessionInfo *getSessionInfo(const string &sessionId);
 
 	static HatoholError parseUserParameter(UserInfo &userInfo,
-	                                       GHashTable *query);
+	                                       GHashTable *query,
+					       bool allowEmptyPassword = false);
 
 	/**
 	 * Update the user informformation if 'name' specifined in 'query'

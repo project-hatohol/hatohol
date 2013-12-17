@@ -40,6 +40,21 @@ static void _assertUserInfo(const UserInfo &expect, const UserInfo &actual)
 }
 #define assertUserInfo(E,A) cut_trace(_assertUserInfo(E,A))
 
+void _assertUserInfoInDB(UserInfo &userInfo) 
+{
+	string statement = StringUtils::sprintf(
+	                     "select * from %s where id=%d",
+	                     DBClientUser::TABLE_NAME_USERS, userInfo.id);
+	string expect =
+	  StringUtils::sprintf(
+	    "%"FMT_USER_ID"|%s|%s|%"PRIu64"\n",
+	    userInfo.id, userInfo.name.c_str(),
+	    Utils::sha256(userInfo.password).c_str(), userInfo.flags);
+	DBClientUser dbUser;
+	assertDBContent(dbUser.getDBAgent(), statement, expect);
+}
+#define assertUserInfoInDB(I) cut_trace(_assertUserInfoInDB(I))
+
 static size_t countServerAccessInfoMapElements(
   const ServerAccessInfoMap &srvServerAccessInfoMap)
 {
@@ -204,10 +219,9 @@ void _assertGetUserInfoListWithTargetName(
 #define assertGetUserInfoListWithTargetName(F,N, ...) \
 cut_trace(_assertGetUserInfoListWithTargetName(F,N, ##__VA_ARGS__))
 
-static UserInfo setupForUpdate(void)
+static UserInfo setupForUpdate(size_t targetIndex = 1)
 {
 	loadTestDBUser();
-	const size_t targetIndex = 1;
 	UserInfo userInfo = testUserInfo[targetIndex];
 	userInfo.id = targetIndex + 1;
 	userInfo.password = ">=_=<3";
@@ -282,24 +296,38 @@ void test_updateUser(void)
 	assertHatoholError(HTERR_OK, err);
 
 	// check the version
-	string statement = StringUtils::sprintf(
-	                     "select * from %s where id=%d",
-	                     DBClientUser::TABLE_NAME_USERS, userInfo.id);
-	string expect =
-	  StringUtils::sprintf(
-	    "%"FMT_USER_ID"|%s|%s|%"PRIu64"\n",
-	    userInfo.id, userInfo.name.c_str(),
-	    Utils::sha256( userInfo.password).c_str(), userInfo.flags);
-	assertDBContent(dbUser.getDBAgent(), statement, expect);
+	assertUserInfoInDB(userInfo);
+}
+
+void test_updateUserWithEmptyPassword(void)
+{
+	UserIdType targetIndex = 1;
+	UserInfo userInfo = setupForUpdate(targetIndex);
+	string expectedPassword = testUserInfo[targetIndex].password;
+	userInfo.password.clear();
+	DBClientUser dbUser;
+	OperationPrivilege
+	   privilege(OperationPrivilege::makeFlag(OPPRVLG_UPDATE_USER));
+	HatoholError err = dbUser.updateUserInfo(userInfo, privilege);
+	assertHatoholError(HTERR_OK, err);
+
+	// check the version
+	userInfo.password = expectedPassword;
+	assertUserInfoInDB(userInfo);
 }
 
 void test_updateUserWithoutPrivilege(void)
 {
 	DBClientUser dbUser;
-	UserInfo userInfo = setupForUpdate();
+	const size_t targetIndex = 1;
+	UserInfo expectedUserInfo = testUserInfo[targetIndex];
+	UserInfo userInfo = setupForUpdate(targetIndex);
 	OperationPrivilege privilege;
 	HatoholError err = dbUser.updateUserInfo(userInfo, privilege);
 	assertHatoholError(HTERR_NO_PRIVILEGE, err);
+
+	// check the version
+	assertUserInfoInDB(expectedUserInfo);
 }
 
 void test_updateNonExistUser(void)
@@ -530,7 +558,7 @@ void test_getServerAccessInfoMap(void)
 		ServerAccessInfoMap srvAccessInfoMap;
 		AccessInfoQueryOption option;
 		option.setUserId(USER_ID_ADMIN);
-		option.setQueryUserId(it->first);
+		option.setTargetUserId(it->first);
 		HatoholError error = dbUser.getAccessInfoMap(srvAccessInfoMap,
 							     option);
 		cppcut_assert_equal(HTERR_OK, error.getCode());
@@ -550,7 +578,7 @@ void test_getServerAccessInfoMapByOwner(void)
 		ServerAccessInfoMap srvAccessInfoMap;
 		AccessInfoQueryOption option;
 		option.setUserId(it->first);
-		option.setQueryUserId(it->first);
+		option.setTargetUserId(it->first);
 		HatoholError error = dbUser.getAccessInfoMap(srvAccessInfoMap,
 							     option);
 		cppcut_assert_equal(HTERR_OK, error.getCode());
@@ -572,7 +600,7 @@ void test_getServerAccessInfoMapByNonOwner(void)
 		UserIdType guestUserA = 1, guestUserB = 3, user;
 		user = (it->first == guestUserA) ? guestUserB : guestUserA;
 		option.setUserId(user);
-		option.setQueryUserId(it->first);
+		option.setTargetUserId(it->first);
 		HatoholError error = dbUser.getAccessInfoMap(srvAccessInfoMap,
 							     option);
 		cppcut_assert_equal(HTERR_NO_PRIVILEGE, error.getCode());
@@ -593,7 +621,7 @@ void test_getServerAccessInfoMapByAdminUser(void)
 		AccessInfoQueryOption option;
 		UserIdType adminUser = 2;
 		option.setUserId(adminUser);
-		option.setQueryUserId(it->first);
+		option.setTargetUserId(it->first);
 		HatoholError error = dbUser.getAccessInfoMap(srvAccessInfoMap,
 							     option);
 		cppcut_assert_equal(HTERR_OK, error.getCode());

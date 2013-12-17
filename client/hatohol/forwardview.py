@@ -32,6 +32,10 @@ def jsonforward(request, path):
     if request.method == 'POST':
         req = urllib2.Request(url, urllib.urlencode(request.REQUEST),
                             headers=hdrs)
+    elif request.method == 'PUT':
+        req = urllib2.Request(url, request.read(),
+                            headers=hdrs)
+        req.get_method = lambda: 'PUT'
     elif request.method == 'DELETE':
         req = urllib2.Request(url, headers=hdrs)
         req.get_method = lambda: 'DELETE'

@@ -895,7 +895,8 @@ void FaceRest::queueRestJob
 {
 	GHashTable *query = _query;
 	Reaper<GHashTable> postQueryReaper;
-	if (StringUtils::casecmp(msg->method, "POST")) {
+	if (StringUtils::casecmp(msg->method, "POST") ||
+	    StringUtils::casecmp(msg->method, "PUT")) {
 		// The POST request contains query parameters in the body
 		// according to application/x-www-form-urlencoded.
 		query = soup_form_decode(msg->request_body->data);
@@ -1786,6 +1787,8 @@ void FaceRest::handlerUser(RestJob *job)
 		handlerGetUser(job);
 	} else if (StringUtils::casecmp(job->message->method, "POST")) {
 		handlerPostUser(job);
+	} else if (StringUtils::casecmp(job->message->method, "PUT")) {
+		handlerPutUser(job);
 	} else if (StringUtils::casecmp(job->message->method, "DELETE")) {
 		handlerDeleteUser(job);
 	} else {
@@ -1829,35 +1832,10 @@ void FaceRest::handlerGetUser(RestJob *job)
 
 void FaceRest::handlerPostUser(RestJob *job)
 {
-	// Get query parameters
-	char *value;
-	bool exist;
-	bool succeeded;
 	UserInfo userInfo;
-
-	// name
-	value = (char *)g_hash_table_lookup(job->query, "user");
-	if (!value) {
-		REPLY_ERROR(job, HTERR_NOT_FOUND_PARAMETER, "user");
-		return;
-	}
-	userInfo.name = value;
-
-	// password
-	value = (char *)g_hash_table_lookup(job->query, "password");
-	if (!value) {
-		REPLY_ERROR(job, HTERR_NOT_FOUND_PARAMETER, "password");
-		return;
-	}
-	userInfo.password = value;
-
-	// flags
-	succeeded = getParamWithErrorReply<OperationPrivilegeFlag>(
-	              job, "flags", "%"FMT_OPPRVLG, userInfo.flags, &exist);
-	if (!succeeded)
-		return;
-	if (!exist) {
-		REPLY_ERROR(job, HTERR_NOT_FOUND_PARAMETER, "flags");
+        HatoholError err = parseUserParameter(userInfo, job->query);
+	if (err != HTERR_OK) {
+		replyError(job, err);
 		return;
 	}
 
@@ -1865,7 +1843,41 @@ void FaceRest::handlerPostUser(RestJob *job)
 	DataQueryOption option;
 	option.setUserId(job->userId);
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-	HatoholError err = dataStore->addUser(userInfo, option);
+	err = dataStore->addUser(userInfo, option);
+
+	// make a response
+	JsonBuilderAgent agent;
+	agent.startObject();
+	addHatoholError(agent, err);
+	if (err == HTERR_OK)
+		agent.add("id", userInfo.id);
+	agent.endObject();
+	replyJsonData(agent, job);
+}
+
+void FaceRest::handlerPutUser(RestJob *job)
+{
+	UserInfo userInfo;
+	userInfo.id = job->getResourceId();
+	if (userInfo.id == INVALID_USER_ID) {
+		REPLY_ERROR(job, HTERR_NOT_FOUND_ID_IN_URL,
+			    "id: %s", job->getResourceIdString().c_str());
+		return;
+	}
+
+	bool allowEmptyPassword = true;
+	HatoholError err = parseUserParameter(userInfo, job->query,
+					      allowEmptyPassword);
+	if (err != HTERR_OK) {
+		replyError(job, err);
+		return;
+	}
+
+	// try to update
+	DataQueryOption option;
+	option.setUserId(job->userId);
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+	err = dataStore->updateUser(userInfo, option);
 
 	// make a response
 	JsonBuilderAgent agent;
@@ -1921,7 +1933,7 @@ void FaceRest::handlerGetAccessInfo(RestJob *job)
 {
 	AccessInfoQueryOption option;
 	option.setUserId(job->userId);
-	option.setQueryUserId(job->getResourceId());
+	option.setTargetUserId(job->getResourceId());
 
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	ServerAccessInfoMap serversMap;
@@ -2045,22 +2057,23 @@ void FaceRest::handlerDeleteAccessInfo(RestJob *job)
 	replyJsonData(agent, job);
 }
 
-HatoholError FaceRest::parseUserParameter(UserInfo &userInfo, GHashTable *query)
+HatoholError FaceRest::parseUserParameter(UserInfo &userInfo, GHashTable *query,
+					  bool allowEmptyPassword)
 {
 	char *value;
 
 	// name
 	value = (char *)g_hash_table_lookup(query, "user");
 	if (!value)
-		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "user");
+		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "user\n");
 	userInfo.name = value;
 
 	// password
 	value = (char *)g_hash_table_lookup(query, "password");
-	if (!value) {
-		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "password");
+	if (!value && !allowEmptyPassword) {
+		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "password\n");
 	}
-	userInfo.password = value;
+	userInfo.password = value ? value : "";
 
 	// flags
 	HatoholError err = getParam<OperationPrivilegeFlag>(

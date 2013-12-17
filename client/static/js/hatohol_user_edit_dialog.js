@@ -17,12 +17,17 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
-var HatoholUserEditDialog = function(succeededCb) {
+var HatoholUserEditDialog = function(succeededCb, user) {
   var self = this;
 
+  self.user = user;
+
+  var windowTitle = user ? gettext("EDIT USER") : gettext("ADD USER");
+  var applyButtonTitle = user ? gettext("APPLY") : gettext("ADD");
+
   var dialogButtons = [{
-    text: gettext("ADD"),
-    click: addButtonClickedCb
+    text: applyButtonTitle,
+    click: applyButtonClickedCb
   }, {
     text: gettext("CANCEL"),
     click: cancelButtonClickedCb
@@ -31,16 +36,19 @@ var HatoholUserEditDialog = function(succeededCb) {
   // call the constructor of the super class
   dialogAttrs = { width: "auto" };
   HatoholDialog.apply(
-    this, ["user-edit-dialog", gettext("ADD USER"), dialogButtons, dialogAttrs]);
-  self.setAddButtonState(false);
+    this, ["user-edit-dialog", windowTitle, dialogButtons, dialogAttrs]);
+  self.setApplyButtonState(false);
 
   //
   // Dialog button handlers
   //
-  function addButtonClickedCb() {
+  function applyButtonClickedCb() {
     if (validateParameters()) {
       makeQueryData();
-      hatoholInfoMsgBox(gettext("Now creating a user ..."));
+      if (self.user)
+        hatoholInfoMsgBox(gettext("Now updating the user ..."));
+      else
+        hatoholInfoMsgBox(gettext("Now creating a user ..."));
       postAddUser();
     }
   }
@@ -51,16 +59,21 @@ var HatoholUserEditDialog = function(succeededCb) {
 
   function makeQueryData() {
       var queryData = {};
-      queryData.user = $("#inputUserName").val();
-      queryData.password = $("#inputPassword").val();
+      var password = $("#editPassword").val();
+      queryData.user = $("#editUserName").val();
+      if (password)
+        queryData.password = password;
       queryData.flags = getFlagsFromUserType();
       return queryData;
   }
 
   function postAddUser() {
+    var url = "/user";
+    if (self.user)
+      url += "/" + self.user.userId;
     new HatoholConnector({
-      url: "/user",
-      request: "POST",
+      url: url,
+      request: self.user ? "PUT" : "POST",
       data: makeQueryData(),
       replyCallback: replyCallback,
       parseErrorCallback: hatoholErrorMsgBoxForParser
@@ -69,7 +82,10 @@ var HatoholUserEditDialog = function(succeededCb) {
 
   function replyCallback(reply, parser) {
     self.closeDialog();
-    hatoholInfoMsgBox(gettext("Successfully created."));
+    if (self.user)
+      hatoholInfoMsgBox(gettext("Successfully updated."));
+    else
+      hatoholInfoMsgBox(gettext("Successfully created."));
 
     if (succeededCb)
       succeededCb();
@@ -78,11 +94,11 @@ var HatoholUserEditDialog = function(succeededCb) {
   function validateParameters() {
     var type = $("#selectUserType").val();
 
-    if ($("#inputUserName").val() == "") {
+    if ($("#editUserName").val() == "") {
       hatoholErrorMsgBox(gettext("User name is empty!"));
       return false;
     }
-    if ($("#inputPassword").val() == "") {
+    if (!self.user && $("#editPassword").val() == "") {
       hatoholErrorMsgBox(gettext("Password is empty!"));
       return false;
     }
@@ -111,20 +127,24 @@ HatoholUserEditDialog.prototype = Object.create(HatoholDialog.prototype);
 HatoholUserEditDialog.prototype.constructor = HatoholUserEditDialog;
 
 HatoholUserEditDialog.prototype.createMainElement = function() {
+  var self = this;
   var div = $(makeMainDivHTML());
   return div;
 
   function makeMainDivHTML() {
     var s = "";
+    var userName = self.user ? self.user.name : "";
+    var isAdmin = self.user && (self.user.flags == hatohol.ALL_PRIVILEGES);
+    var adminSelected = isAdmin ? "selected" : "";
     s += '<div id="add-user-div">';
-    s += '<label for="inputUserName">' + gettext("User name") + '</label>';
-    s += '<input id="inputUserName" type="text" value="" class="input-xlarge">';
-    s += '<label for="inputPassword">' + gettext("Password") + '</label>';
-    s += '<input id="inputPassword" type="password" value="" class="input-xlarge">';
+    s += '<label for="editUserName">' + gettext("User name") + '</label>';
+    s += '<input id="editUserName" type="text" value="' + userName + '" class="input-xlarge">';
+    s += '<label for="editPassword">' + gettext("Password") + '</label>';
+    s += '<input id="editPassword" type="password" value="" class="input-xlarge">';
     s += '<label>' + gettext("User type") + '</label>';
     s += '<select id="selectUserType">';
     s += '  <option value="guest">' + gettext('Guest') + '</option>';
-    s += '  <option value="admin">' + gettext('Admin') + '</option>';
+    s += '  <option value="admin" ' + adminSelected + '>' + gettext('Admin') + '</option>';
     s += '</select>';
     s += '</div">';
     return s;
@@ -136,23 +156,23 @@ HatoholUserEditDialog.prototype.onAppendMainElement = function () {
   var validUserName = false;
   var validPassword = false;
 
-  $("#inputUserName").keyup(function() {
-    validUserName = !!$("#inputUserName").val();
-    fixupAddButtonState();
+  $("#editUserName").keyup(function() {
+    validUserName = !!$("#editUserName").val();
+    fixupApplyButtonState();
   });
 
-  $("#inputPassword").keyup(function() {
-    validPassword = !!$("#inputPassword").val();
-    fixupAddButtonState();
+  $("#editPassword").keyup(function() {
+    validPassword = !!$("#editPassword").val();
+    fixupApplyButtonState();
   });
 
-  function fixupAddButtonState() {
+  function fixupApplyButtonState() {
     var state = (validUserName && validPassword);
-    self.setAddButtonState(state);
+    self.setApplyButtonState(state);
   }
 };
 
-HatoholUserEditDialog.prototype.setAddButtonState = function(state) {
+HatoholUserEditDialog.prototype.setApplyButtonState = function(state) {
   var btn = $(".ui-dialog-buttonpane").find("button:contains(" +
               gettext("ADD") + ")");
   if (state) {
