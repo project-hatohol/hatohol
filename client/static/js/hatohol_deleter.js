@@ -26,7 +26,6 @@ var HatoholDeleter = function(deleteParameters) {
   //
   // * id
   // * type
-  // * deletedIdArray
   // TODO: Add the description.
   //
   var self = this;
@@ -34,7 +33,10 @@ var HatoholDeleter = function(deleteParameters) {
 }
 
 HatoholDeleter.prototype.start = function(deleteParameters) {
+  var deletedIdArray = {count:0, total:0, errors:0};
   for (var i = 0; i < deleteParameters.id.length; i++) {
+    deletedIdArray.count++;
+    deletedIdArray.total++;
     new HatoholConnector({
       url: '/' + deleteParameters.type + '/' + deleteParameters.id[i],
         request: "DELETE",
