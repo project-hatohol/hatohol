@@ -46,7 +46,7 @@ var HatoholUserEditDialog = function(succeededCb, user) {
     if (validateParameters()) {
       makeQueryData();
       if (self.user)
-        hatoholInfoMsgBox(gettext("Now applying the user ..."));
+        hatoholInfoMsgBox(gettext("Now updating the user ..."));
       else
         hatoholInfoMsgBox(gettext("Now creating a user ..."));
       postAddUser();
@@ -82,7 +82,10 @@ var HatoholUserEditDialog = function(succeededCb, user) {
 
   function replyCallback(reply, parser) {
     self.closeDialog();
-    hatoholInfoMsgBox(gettext("Successfully created."));
+    if (self.user)
+      hatoholInfoMsgBox(gettext("Successfully updated."));
+    else
+      hatoholInfoMsgBox(gettext("Successfully created."));
 
     if (succeededCb)
       succeededCb();
