@@ -141,6 +141,7 @@ protected:
 	static void handlerUser(RestJob *job);
 	static void handlerGetUser(RestJob *job);
 	static void handlerPostUser(RestJob *job);
+	static void handlerPutUser(RestJob *job);
 	static void handlerDeleteUser(RestJob *job);
 
 	static void handlerAccessInfo(RestJob *job);

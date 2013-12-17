@@ -1780,6 +1780,8 @@ void FaceRest::handlerUser(RestJob *job)
 		handlerGetUser(job);
 	} else if (StringUtils::casecmp(job->message->method, "POST")) {
 		handlerPostUser(job);
+	} else if (StringUtils::casecmp(job->message->method, "PUT")) {
+		handlerPutUser(job);
 	} else if (StringUtils::casecmp(job->message->method, "DELETE")) {
 		handlerDeleteUser(job);
 	} else {
@@ -1835,6 +1837,38 @@ void FaceRest::handlerPostUser(RestJob *job)
 	option.setUserId(job->userId);
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	err = dataStore->addUser(userInfo, option);
+
+	// make a response
+	JsonBuilderAgent agent;
+	agent.startObject();
+	addHatoholError(agent, err);
+	if (err == HTERR_OK)
+		agent.add("id", userInfo.id);
+	agent.endObject();
+	replyJsonData(agent, job);
+}
+
+void FaceRest::handlerPutUser(RestJob *job)
+{
+	UserInfo userInfo;
+	userInfo.id = job->getResourceId();
+	if (userInfo.id == INVALID_USER_ID) {
+		REPLY_ERROR(job, HTERR_NOT_FOUND_ID_IN_URL,
+			    "id: %s", job->getResourceIdString().c_str());
+		return;
+	}
+
+        HatoholError err = parseUserParameter(userInfo, job->query);
+	if (err != HTERR_OK) {
+		replyError(job, err);
+		return;
+	}
+
+	// try to update
+	DataQueryOption option;
+	option.setUserId(job->userId);
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+	err = dataStore->updateUser(userInfo, option);
 
 	// make a response
 	JsonBuilderAgent agent;
