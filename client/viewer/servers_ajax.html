@@ -137,6 +137,27 @@
       hatoholInfoMsgBox("{% trans "Deleting..." %}");
     }
 
+    function deleteOneServer(id, deletedIdArray) {
+      new HatoholConnector({
+        url: '/server/' + id,
+        request: "DELETE",
+        context: deletedIdArray,
+        replyCallBack: function(data, parser, context) {
+          parseDeleteServerResult(data, context);
+        },
+        connectErrorCallback: function(XMLHttpRequest,
+                                       textStatus, errorThrown) {
+          var errorMsg = "Error: " + XMLHttpRequest.status + ": " +
+                         XMLHttpRequest.statusText;
+          hatoholErrorMsgBox(errorMsg);
+          deletedIdArray.errors++;
+        },
+        completionCallback: function(context) {
+          completeOneDelServer(context);
+        }
+      });
+    }
+
     function drawTableBody(rd) {
       var x;
       var s;
