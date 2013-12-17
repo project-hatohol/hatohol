@@ -34,24 +34,26 @@ var HatoholDeleter = function(deleteParameters) {
 }
 
 HatoholDeleter.prototype.start = function(deleteParameters) {
-  new HatoholConnector({
-    url: '/' + deleteParameters.type + '/' + deleteParameters.id,
-      request: "DELETE",
-      context: deleteParameters.deletedIdArray,
-      replyCallback: function(data, parser, context) {
-        parseDeleteResult(data, context);
-      },
-      connectErrorCallback: function(XMLHttpRequest,
-                              textStatus, errorThrown) {
-        var errorMsg = "Error: " + XMLHttpRequest.status + ": " +
-        XMLHttpRequest.statusText;
-        hatoholErrorMsgBox(errorMsg);
-        deleteParameters.deleteIdArray.errors++;
-      },
-      completionCallback: function(context) {
-        compleOneDel(context);
-      }
-  });
+  for (var i = 0; i < deleteParameters.id.length; i++) {
+    new HatoholConnector({
+      url: '/' + deleteParameters.type + '/' + deleteParameters.id[i],
+        request: "DELETE",
+        context: deleteParameters.deletedIdArray,
+        replyCallback: function(data, parser, context) {
+          parseDeleteResult(data, context);
+        },
+        connectErrorCallback: function(XMLHttpRequest,
+                                textStatus, errorThrown) {
+          var errorMsg = "Error: " + XMLHttpRequest.status + ": " +
+          XMLHttpRequest.statusText;
+          hatoholErrorMsgBox(errorMsg);
+          deleteParameters.deleteIdArray.errors++;
+        },
+        completionCallback: function(context) {
+          compleOneDel(context);
+        }
+    });
+  }
 
   function checkParseResult(data) {
     var msg;
