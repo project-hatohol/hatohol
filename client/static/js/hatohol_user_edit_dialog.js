@@ -59,8 +59,8 @@ var HatoholUserEditDialog = function(succeededCb, user) {
 
   function makeQueryData() {
       var queryData = {};
-      var password = $("#inputPassword").val();
-      queryData.user = $("#inputUserName").val();
+      var password = $("#editPassword").val();
+      queryData.user = $("#editUserName").val();
       if (password)
         queryData.password = password;
       queryData.flags = getFlagsFromUserType();
@@ -91,11 +91,11 @@ var HatoholUserEditDialog = function(succeededCb, user) {
   function validateParameters() {
     var type = $("#selectUserType").val();
 
-    if ($("#inputUserName").val() == "") {
+    if ($("#editUserName").val() == "") {
       hatoholErrorMsgBox(gettext("User name is empty!"));
       return false;
     }
-    if (!self.user && $("#inputPassword").val() == "") {
+    if (!self.user && $("#editPassword").val() == "") {
       hatoholErrorMsgBox(gettext("Password is empty!"));
       return false;
     }
@@ -134,10 +134,10 @@ HatoholUserEditDialog.prototype.createMainElement = function() {
     var isAdmin = self.user && (self.user.flags == hatohol.ALL_PRIVILEGES);
     var adminSelected = isAdmin ? "selected" : "";
     s += '<div id="add-user-div">';
-    s += '<label for="inputUserName">' + gettext("User name") + '</label>';
-    s += '<input id="inputUserName" type="text" value="' + userName + '" class="input-xlarge">';
-    s += '<label for="inputPassword">' + gettext("Password") + '</label>';
-    s += '<input id="inputPassword" type="password" value="" class="input-xlarge">';
+    s += '<label for="editUserName">' + gettext("User name") + '</label>';
+    s += '<input id="editUserName" type="text" value="' + userName + '" class="input-xlarge">';
+    s += '<label for="editPassword">' + gettext("Password") + '</label>';
+    s += '<input id="editPassword" type="password" value="" class="input-xlarge">';
     s += '<label>' + gettext("User type") + '</label>';
     s += '<select id="selectUserType">';
     s += '  <option value="guest">' + gettext('Guest') + '</option>';
@@ -153,13 +153,13 @@ HatoholUserEditDialog.prototype.onAppendMainElement = function () {
   var validUserName = false;
   var validPassword = false;
 
-  $("#inputUserName").keyup(function() {
-    validUserName = !!$("#inputUserName").val();
+  $("#editUserName").keyup(function() {
+    validUserName = !!$("#editUserName").val();
     fixupApplyButtonState();
   });
 
-  $("#inputPassword").keyup(function() {
-    validPassword = !!$("#inputPassword").val();
+  $("#editPassword").keyup(function() {
+    validPassword = !!$("#editPassword").val();
     fixupApplyButtonState();
   });
 
