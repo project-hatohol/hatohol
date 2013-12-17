@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-12-16 06:35-0600\n"
+"POT-Creation-Date: 2013-12-17 07:02-0600\n"
 "PO-Revision-Date: 2013-12-16 17:30+0900\n"
 "Last-Translator: Takuro Ashie <ashie@clear-code.com>\n"
 "Language-Team: Project Hatohol\n"
@@ -75,11 +75,11 @@ msgid "Do you delete the selected items ?"
 msgstr "選択項目を削除しますか？"
 
 #: viewer/actions_ajax.html:166 viewer/actions_ajax.html.py:205
-#: viewer/users_ajax.html:173 viewer/users_ajax.html.py:212
+#: viewer/users_ajax.html:182 viewer/users_ajax.html.py:221
 msgid "Deleting..."
 msgstr "削除中..."
 
-#: viewer/actions_ajax.html:211 viewer/users_ajax.html:218
+#: viewer/actions_ajax.html:211 viewer/users_ajax.html:227
 msgid "Completed. (Number of errors: "
 msgstr "完了 (エラー数: "
 
@@ -326,11 +326,11 @@ msgstr "ユーザの種類"
 msgid "Privileges"
 msgstr "権限"
 
-#: viewer/users_ajax.html:256
+#: viewer/users_ajax.html:266
 msgid "All"
 msgstr "全て"
 
-#: viewer/users_ajax.html:263
+#: viewer/users_ajax.html:273
 msgid "Show / Edit"
 msgstr "表示 / 編集"
 
