@@ -40,6 +40,21 @@ static void _assertUserInfo(const UserInfo &expect, const UserInfo &actual)
 }
 #define assertUserInfo(E,A) cut_trace(_assertUserInfo(E,A))
 
+void _assertUserInfoInDB(UserInfo &userInfo) 
+{
+	string statement = StringUtils::sprintf(
+	                     "select * from %s where id=%d",
+	                     DBClientUser::TABLE_NAME_USERS, userInfo.id);
+	string expect =
+	  StringUtils::sprintf(
+	    "%"FMT_USER_ID"|%s|%s|%"PRIu64"\n",
+	    userInfo.id, userInfo.name.c_str(),
+	    Utils::sha256(userInfo.password).c_str(), userInfo.flags);
+	DBClientUser dbUser;
+	assertDBContent(dbUser.getDBAgent(), statement, expect);
+}
+#define assertUserInfoInDB(I) cut_trace(_assertUserInfoInDB(I))
+
 static size_t countServerAccessInfoMapElements(
   const ServerAccessInfoMap &srvServerAccessInfoMap)
 {
@@ -281,15 +296,7 @@ void test_updateUser(void)
 	assertHatoholError(HTERR_OK, err);
 
 	// check the version
-	string statement = StringUtils::sprintf(
-	                     "select * from %s where id=%d",
-	                     DBClientUser::TABLE_NAME_USERS, userInfo.id);
-	string expect =
-	  StringUtils::sprintf(
-	    "%"FMT_USER_ID"|%s|%s|%"PRIu64"\n",
-	    userInfo.id, userInfo.name.c_str(),
-	    Utils::sha256( userInfo.password).c_str(), userInfo.flags);
-	assertDBContent(dbUser.getDBAgent(), statement, expect);
+	assertUserInfoInDB(userInfo);
 }
 
 void test_updateUserWithEmptyPassword(void)
@@ -305,24 +312,22 @@ void test_updateUserWithEmptyPassword(void)
 	assertHatoholError(HTERR_OK, err);
 
 	// check the version
-	string statement = StringUtils::sprintf(
-	                     "select * from %s where id=%d",
-	                     DBClientUser::TABLE_NAME_USERS, userInfo.id);
-	string expect =
-	  StringUtils::sprintf(
-	    "%"FMT_USER_ID"|%s|%s|%"PRIu64"\n",
-	    userInfo.id, userInfo.name.c_str(),
-	    Utils::sha256(expectedPassword).c_str(), userInfo.flags);
-	assertDBContent(dbUser.getDBAgent(), statement, expect);
+	userInfo.password = expectedPassword;
+	assertUserInfoInDB(userInfo);
 }
 
 void test_updateUserWithoutPrivilege(void)
 {
 	DBClientUser dbUser;
-	UserInfo userInfo = setupForUpdate();
+	const size_t targetIndex = 1;
+	UserInfo expectedUserInfo = testUserInfo[targetIndex];
+	UserInfo userInfo = setupForUpdate(targetIndex);
 	OperationPrivilege privilege;
 	HatoholError err = dbUser.updateUserInfo(userInfo, privilege);
 	assertHatoholError(HTERR_NO_PRIVILEGE, err);
+
+	// check the version
+	assertUserInfoInDB(expectedUserInfo);
 }
 
 void test_updateNonExistUser(void)
