@@ -2058,13 +2058,13 @@ HatoholError FaceRest::parseUserParameter(UserInfo &userInfo, GHashTable *query,
 	// name
 	value = (char *)g_hash_table_lookup(query, "user");
 	if (!value)
-		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "user");
+		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "user\n");
 	userInfo.name = value;
 
 	// password
 	value = (char *)g_hash_table_lookup(query, "password");
 	if (!value && !allowEmptyPassword) {
-		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "password");
+		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "password\n");
 	}
 	userInfo.password = value ? value : "";
 
