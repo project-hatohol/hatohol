@@ -1821,19 +1821,18 @@ void FaceRest::handlerGetUser(RestJob *job)
 	replyJsonData(agent, job);
 }
 
-void FaceRest::handlerPostUser(RestJob *job)
+bool FaceRest::parseQueryUserInfo(RestJob *job, UserInfo &userInfo)
 {
 	// Get query parameters
 	char *value;
 	bool exist;
 	bool succeeded;
-	UserInfo userInfo;
 
 	// name
 	value = (char *)g_hash_table_lookup(job->query, "user");
 	if (!value) {
 		REPLY_ERROR(job, HTERR_NOT_FOUND_PARAMETER, "user");
-		return;
+		return false;
 	}
 	userInfo.name = value;
 
@@ -1841,7 +1840,15 @@ void FaceRest::handlerPostUser(RestJob *job)
 	value = (char *)g_hash_table_lookup(job->query, "password");
 	if (!value) {
 		REPLY_ERROR(job, HTERR_NOT_FOUND_PARAMETER, "password");
-		return;
+		return false;
+	}
+	userInfo.password = value;
+
+	// password
+	value = (char *)g_hash_table_lookup(job->query, "password");
+	if (!value) {
+		REPLY_ERROR(job, HTERR_NOT_FOUND_PARAMETER, "password");
+		return false;
 	}
 	userInfo.password = value;
 
@@ -1849,11 +1856,21 @@ void FaceRest::handlerPostUser(RestJob *job)
 	succeeded = getParamWithErrorReply<OperationPrivilegeFlag>(
 	              job, "flags", "%"FMT_OPPRVLG, userInfo.flags, &exist);
 	if (!succeeded)
-		return;
+		return false;
 	if (!exist) {
 		REPLY_ERROR(job, HTERR_NOT_FOUND_PARAMETER, "flags");
-		return;
+		return false;
 	}
+
+	return true;
+}
+
+void FaceRest::handlerPostUser(RestJob *job)
+{
+	UserInfo userInfo;
+	bool succeeded = parseQueryUserInfo(job, userInfo);
+	if (!succeeded)
+		return;
 
 	// try to add
 	DataQueryOption option;
