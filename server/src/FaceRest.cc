@@ -1821,62 +1821,20 @@ void FaceRest::handlerGetUser(RestJob *job)
 	replyJsonData(agent, job);
 }
 
-bool FaceRest::parseQueryUserInfo(RestJob *job, UserInfo &userInfo)
-{
-	// Get query parameters
-	char *value;
-	bool exist;
-	bool succeeded;
-
-	// name
-	value = (char *)g_hash_table_lookup(job->query, "user");
-	if (!value) {
-		REPLY_ERROR(job, HTERR_NOT_FOUND_PARAMETER, "user");
-		return false;
-	}
-	userInfo.name = value;
-
-	// password
-	value = (char *)g_hash_table_lookup(job->query, "password");
-	if (!value) {
-		REPLY_ERROR(job, HTERR_NOT_FOUND_PARAMETER, "password");
-		return false;
-	}
-	userInfo.password = value;
-
-	// password
-	value = (char *)g_hash_table_lookup(job->query, "password");
-	if (!value) {
-		REPLY_ERROR(job, HTERR_NOT_FOUND_PARAMETER, "password");
-		return false;
-	}
-	userInfo.password = value;
-
-	// flags
-	succeeded = getParamWithErrorReply<OperationPrivilegeFlag>(
-	              job, "flags", "%"FMT_OPPRVLG, userInfo.flags, &exist);
-	if (!succeeded)
-		return false;
-	if (!exist) {
-		REPLY_ERROR(job, HTERR_NOT_FOUND_PARAMETER, "flags");
-		return false;
-	}
-
-	return true;
-}
-
 void FaceRest::handlerPostUser(RestJob *job)
 {
 	UserInfo userInfo;
-	bool succeeded = parseQueryUserInfo(job, userInfo);
-	if (!succeeded)
+        HatoholError err = parseUserParameter(userInfo, job->query);
+	if (err != HTERR_OK) {
+		replyError(job, err);
 		return;
+	}
 
 	// try to add
 	DataQueryOption option;
 	option.setUserId(job->userId);
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-	HatoholError err = dataStore->addUser(userInfo, option);
+	err = dataStore->addUser(userInfo, option);
 
 	// make a response
 	JsonBuilderAgent agent;

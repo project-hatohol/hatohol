@@ -112,8 +112,6 @@ protected:
 	static void parseQueryHostId(GHashTable *query, uint64_t &hostId);
 	static void parseQueryTriggerId(GHashTable *query, uint64_t &triggerId);
 
-	static bool parseQueryUserInfo(RestJob *job, UserInfo &userInfo);
-
 	// handlers
 	static void
 	  handlerDefault(SoupServer *server, SoupMessage *msg,
