@@ -75,7 +75,7 @@
     });
 
     $("#add-user-button").click(function() {
-      new HatoholUserEditDialog(addSucceededCb);
+      new HatoholUserEditDialog(addOrEditSucceededCb);
     });
 
     $("#delete-user-button").click(function() {
@@ -83,7 +83,7 @@
       hatoholNoYesMsgBox(msg, deleteUsers);
     });
 
-    function addSucceededCb() {
+    function addOrEditSucceededCb() {
       startConnection('user', updateCore);
     }
 
@@ -105,12 +105,21 @@
         });
     }
 
-    function setupPriviledgeButtons(reply)
+    function setupEditLinksAndButtons(reply)
     {
-      var i, id, users = reply["users"], userId;
+      var i, id, users = reply["users"], usersMap = {}, userId;
+      for (i = 0; i < users.length; ++i) {
+        usersMap[users[i]["userId"]] = users[i];
+      }
 
       for (i = 0; i < users.length; ++i) {
-        id = "#edit-user" + users[i]["userId"] + "-privileges";
+        id = "#edit-user" + users[i]["userId"];
+        $(id).click(function() {
+          var userId = this.getAttribute("userId");
+          new HatoholUserEditDialog(addOrEditSucceededCb, usersMap[userId]);
+        });
+
+        id = id + "-privileges";
         $(id).click(function() {
           var userId = this.getAttribute("userId");
           new HatoholPriviledgeEditDialog(userId, applyPriviledgesCb);
@@ -250,7 +259,8 @@
         html += "<td><input type='checkbox' class='selectcheckbox' " +
                 "userId='" + user["userId"] + "'></td>";
         html += "<td>" + user["userId"] + "</td>";
-        html += "<td>" + user["name"]   + "</td>";
+        html += "<td><a href='javascript:void(0);' id='edit-user" + user["userId"];
+        html += "' userId='"+ user["userId"] + "'>" + user["name"]   + "</a></td>";
         html += "<td>" + getUserTypeFromFlags(user["flags"])  + "</td>";
         if (user["flags"] == hatohol.ALL_PRIVILEGES) {
           html += "<td>" + '{% trans "All" %}' + "</td>";
@@ -274,7 +284,7 @@
       $("#table tbody").empty();
       $("#table tbody").append(drawTableBody(reply));
       setupCheckboxHandler();
-      setupPriviledgeButtons(reply);
+      setupEditLinksAndButtons(reply);
       numSelected = 0;
     }
 
