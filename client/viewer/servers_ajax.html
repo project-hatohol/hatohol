@@ -158,6 +158,18 @@
       });
     }
 
+    function parseDeleteServerResult(data, deletedIdArray) {
+      if (parseResult(data))
+        return;
+      if (!(data.id in deletedIdArray)) {
+        alert("Fatal Error: You should reload page.\nID: " + data.id +
+              " is not in deletedIdArray: " + deletedIdArray);
+        deletedIdArray.errors++;
+        return;
+      }
+      delete deletedIdArray[data.id];
+    }
+
     function drawTableBody(rd) {
       var x;
       var s;
