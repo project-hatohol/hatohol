@@ -131,7 +131,7 @@ static void getServerResponse(
 	// make encoded query parameters
 	string joinedQueryParams;
 	string postDataArg;
-	if (request == "POST") {
+	if (request == "POST" || request == "PUT") {
 		postDataArg =
 		   makeQueryStringForCurlPost(parameters, callbackName);
 	} else {
