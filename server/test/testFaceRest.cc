@@ -620,6 +620,19 @@ void _assertAddRecord(const StringMap &params, const string &url,
 	assertValueInParser(g_parser, "id", expectedId);
 }
 
+void _assertUpdateRecord(const StringMap &params, const string &baseUrl,
+			 const HatoholErrorCode &expectCode = HTERR_OK,
+			 uint32_t expectedId = 1)
+{
+	startFaceRest();
+	string url = baseUrl + StringUtils::sprintf("/%"PRIu32, expectedId);
+	g_parser = getResponseAsJsonParser(url, "foo", params, "PUT");
+	assertErrorCode(g_parser, expectCode);
+	if (expectCode != HTERR_OK)
+		return;
+	assertValueInParser(g_parser, "id", expectedId);
+}
+
 #define assertAddAction(P, ...) \
 cut_trace(_assertAddRecord(P, "/action", ##__VA_ARGS__))
 
@@ -677,6 +690,19 @@ void _assertAddUserWithSetup(const StringMap &params,
 	assertAddUser(params, expectCode);
 }
 #define assertAddUserWithSetup(P,C) cut_trace(_assertAddUserWithSetup(P,C))
+
+#define assertUpdateUser(P, ...) \
+cut_trace(_assertUpdateRecord(P, "/user", ##__VA_ARGS__))
+
+void _assertUpdateUserWithSetup(const StringMap &params,
+				const HatoholErrorCode &expectCode)
+{
+	const bool dbRecreate = true;
+	const bool loadTestDat = true;
+	setupTestDBUser(dbRecreate, loadTestDat);
+	assertUpdateUser(params, expectCode);
+}
+#define assertUpdateUserWithSetup(P,C) cut_trace(_assertUpdateUserWithSetup(P,C))
 
 static void setupTestMode(void)
 {
@@ -1314,6 +1340,29 @@ void test_addUser(void)
 	int expectedId = 1;
 	string expect = StringUtils::sprintf("%d|%s|%s|%"FMT_OPPRVLG,
 	  expectedId, user.c_str(), Utils::sha256(password).c_str(), flags);
+	assertDBContent(dbUser.getDBAgent(), statement, expect);
+}
+
+void test_updateUser(void)
+{
+	const UserIdType targetId = 1;
+	OperationPrivilegeFlag flags = ALL_PRIVILEGES;
+	const string user = "y@r@n@i0";
+	const string password = "=(-.-)zzZZ";
+
+	StringMap params;
+	params["user"] = user;
+	params["password"] = password;
+	params["flags"] = StringUtils::sprintf("%"FMT_OPPRVLG, flags);
+	assertUpdateUserWithSetup(params, HTERR_OK);
+
+	// check the content in the DB
+	DBClientUser dbUser;
+	string statement = StringUtils::sprintf(
+	                     "select * from %s where id=%d",
+	                     DBClientUser::TABLE_NAME_USERS, targetId);
+	string expect = StringUtils::sprintf("%d|%s|%s|%"FMT_OPPRVLG,
+	  targetId, user.c_str(), Utils::sha256(password).c_str(), flags);
 	assertDBContent(dbUser.getDBAgent(), statement, expect);
 }
 
