@@ -621,11 +621,17 @@ void _assertAddRecord(const StringMap &params, const string &url,
 }
 
 void _assertUpdateRecord(const StringMap &params, const string &baseUrl,
+			 uint32_t targetId = 1,
 			 const HatoholErrorCode &expectCode = HTERR_OK,
 			 uint32_t expectedId = 1)
 {
 	startFaceRest();
-	string url = baseUrl + StringUtils::sprintf("/%"PRIu32, expectedId);
+	string url;
+	uint32_t invalidId = -1;
+	if (targetId == invalidId)
+		url = baseUrl;
+	else
+		url = baseUrl + StringUtils::sprintf("/%"PRIu32, targetId);
 	g_parser = getResponseAsJsonParser(url, "foo", params, "PUT");
 	assertErrorCode(g_parser, expectCode);
 	if (expectCode != HTERR_OK)
@@ -695,14 +701,16 @@ void _assertAddUserWithSetup(const StringMap &params,
 cut_trace(_assertUpdateRecord(P, "/user", ##__VA_ARGS__))
 
 void _assertUpdateUserWithSetup(const StringMap &params,
-				const HatoholErrorCode &expectCode)
+				const HatoholErrorCode &expectCode,
+				uint32_t targetUserId = 1)
 {
 	const bool dbRecreate = true;
 	const bool loadTestDat = true;
 	setupTestDBUser(dbRecreate, loadTestDat);
-	assertUpdateUser(params, expectCode);
+	assertUpdateUser(params, targetUserId, expectCode);
 }
-#define assertUpdateUserWithSetup(P,C) cut_trace(_assertUpdateUserWithSetup(P,C))
+#define assertUpdateUserWithSetup(P,...) \
+  cut_trace(_assertUpdateUserWithSetup(P, ##__VA_ARGS__))
 
 static void setupTestMode(void)
 {
@@ -1387,6 +1395,19 @@ void test_updateUserWithoutPassword(void)
 	  targetId, user.c_str(),
 	  Utils::sha256(expectedPassword).c_str(), flags);
 	assertDBContent(dbUser.getDBAgent(), statement, expect);
+}
+
+void test_updateUserWithoutUserId(void)
+{
+	const UserIdType targetId = 1;
+	OperationPrivilegeFlag flags = ALL_PRIVILEGES;
+	const string user = "y@r@n@i0";
+	const string expectedPassword = testUserInfo[targetId - 1].password;
+
+	StringMap params;
+	params["user"] = user;
+	params["flags"] = StringUtils::sprintf("%"FMT_OPPRVLG, flags);
+	assertUpdateUserWithSetup(params, HTERR_NOT_FOUND_ID_IN_URL, -1);
 }
 
 void test_addUserWithoutUser(void)
