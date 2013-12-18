@@ -38,6 +38,7 @@ using namespace mlpl;
 #include "ConfigManager.h"
 #include "UnifiedDataStore.h"
 #include "DBClientUser.h"
+#include "DBClientConfig.h"
 
 int FaceRest::API_VERSION = 3;
 const char *FaceRest::SESSION_ID_HEADER_NAME = "X-Hatohol-Session";
@@ -1351,6 +1352,95 @@ void FaceRest::handlerGetServer(RestJob *job)
 	agent.endObject();
 
 	replyJsonData(agent, job);
+}
+
+void FaceRest::handlerPostServer(RestJob *job)
+{
+	char *charValue;
+	int intValue;
+	bool succeeded;
+	bool exist;
+	MonitoringServerInfo svInfo;
+
+	// serverid
+	charValue = (char *)g_hash_table_lookup(job->query, "serverid");
+	if (!charValue) {
+		REPLY_ERROR(job, HTERR_NOT_FOUND_PARAMETER, "serverid");
+		return;
+	}
+	sscanf(charValue, "%d", &intValue);
+	svInfo.id = intValue;
+
+	// type
+	succeeded = getParamWithErrorReply<MonitoringSystemType>(
+			job, "type", "%d", svInfo.type, &exist);
+	if (!succeeded)
+		return;
+	if (!exist) {
+		REPLY_ERROR(job, HTERR_NOT_FOUND_PARAMETER, "type");
+		return;
+	}
+
+	// hostname
+	charValue = (char *)g_hash_table_lookup(job->query, "hostname");
+	if (!charValue) {
+		REPLY_ERROR(job, HTERR_NOT_FOUND_PARAMETER, "hostname");
+		return;
+	}
+	svInfo.hostName = charValue;
+
+	// ipAddress
+	charValue = (char *)g_hash_table_lookup(job->query, "ipaddress");
+	if (!charValue) {
+		REPLY_ERROR(job, HTERR_NOT_FOUND_PARAMETER, "ipaddress");
+		return;
+	}
+	svInfo.ipAddress = charValue;
+
+	// nickname
+	charValue = (char *)g_hash_table_lookup(job->query, "nickname");
+	if (!charValue) {
+		REPLY_ERROR(job, HTERR_NOT_FOUND_PARAMETER, "nickname");
+		return;
+	}
+	svInfo.nickname = charValue;
+
+	// port
+	charValue = (char *)g_hash_table_lookup(job->query, "port");
+	if (!charValue) {
+		REPLY_ERROR(job, HTERR_NOT_FOUND_PARAMETER, "port");
+		return;
+	}
+	sscanf(charValue, "%d", &intValue);
+	svInfo.port = intValue;
+
+	// polling
+	charValue = (char *)g_hash_table_lookup(job->query, "polling");
+	if (!charValue) {
+		REPLY_ERROR(job, HTERR_NOT_FOUND_PARAMETER, "polling");
+		return;
+	}
+	sscanf(charValue, "%d", &intValue);
+	svInfo.pollingIntervalSec = intValue;
+
+	// retry
+	charValue = (char *)g_hash_table_lookup(job->query, "retry");
+	if (!charValue) {
+		REPLY_ERROR(job, HTERR_NOT_FOUND_PARAMETER, "retry");
+		return;
+	}
+	sscanf(charValue, "%d", &intValue);
+	svInfo.retryIntervalSec = intValue;
+
+	// dbname
+	if (svInfo.type == MONITORING_SYSTEM_NAGIOS) {
+		charValue = (char *)g_hash_table_lookup(job->query, "dbname");
+		if (!charValue) {
+			REPLY_ERROR(job, HTERR_NOT_FOUND_PARAMETER, "dbname");
+			return;
+		}
+		svInfo.dbName = charValue;
+	}
 }
 
 void FaceRest::handlerGetHost(RestJob *job)
