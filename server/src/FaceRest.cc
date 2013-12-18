@@ -60,7 +60,7 @@ const char *FaceRest::pathForTest        = "/test";
 const char *FaceRest::pathForLogin       = "/login";
 const char *FaceRest::pathForLogout      = "/logout";
 const char *FaceRest::pathForGetOverview = "/overview";
-const char *FaceRest::pathForGetServer   = "/server";
+const char *FaceRest::pathForServer      = "/server";
 const char *FaceRest::pathForGetHost     = "/host";
 const char *FaceRest::pathForGetTrigger  = "/trigger";
 const char *FaceRest::pathForGetEvent    = "/event";
@@ -506,7 +506,7 @@ gpointer FaceRest::mainThread(HatoholThreadArg *arg)
 	                        queueRestJob,
 	                        new HandlerClosure(this, handlerGetOverview),
 				deleteHandlerClosure);
-	soup_server_add_handler(m_ctx->soupServer, pathForGetServer,
+	soup_server_add_handler(m_ctx->soupServer, pathForServer,
 	                        queueRestJob,
 	                        new HandlerClosure(this, handlerGetServer),
 				deleteHandlerClosure);

@@ -207,7 +207,7 @@ private:
 	static const char *pathForLogin;
 	static const char *pathForLogout;
 	static const char *pathForGetOverview;
-	static const char *pathForGetServer;
+	static const char *pathForServer;
 	static const char *pathForGetHost;
 	static const char *pathForGetTrigger;
 	static const char *pathForGetEvent;
