@@ -25,6 +25,7 @@
 #include "VirtualDataStoreZabbix.h"
 #include "VirtualDataStoreNagios.h"
 #include "DBClientAction.h"
+#include "DBClientConfig.h"
 #include "ActionManager.h"
 #include "CacheServiceDBClient.h"
 
@@ -400,6 +401,13 @@ HatoholError UnifiedDataStore::deleteAccessInfo(
 	return dbUser->deleteAccessInfo(id, privilege);
 }
 
+HatoholError UnifiedDataStore::addTargetServer(
+		MonitoringServerInfo &svInfo)
+{
+	DBClientConfig dbConfig;
+	dbConfig.addTargetServer(&svInfo);
+	return HTERR_OK;
+}
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
