@@ -38,6 +38,7 @@ nobase_dist_hatohol_client_DATA = \
 	static/js/hatohol_navi.js \
 	static/js/hatohol_user_profile.js \
 	static/js/hatohol_userconfig.js \
+	static/js/hatohol_password_changer.js \
 	static/js/hatohol_add_action_dialog.js \
 	static/js/hatohol_user_edit_dialog.js \
 	static/js/hatohol_dialog.js \
