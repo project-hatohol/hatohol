@@ -1441,6 +1441,17 @@ void FaceRest::handlerPostServer(RestJob *job)
 		}
 		svInfo.dbName = charValue;
 	}
+
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+	HatoholError err = dataStore->addTargetServer(svInfo);
+
+	JsonBuilderAgent agent;
+	agent.startObject();
+	addHatoholError(agent, err);
+	if (err == HTERR_OK)
+		agent.add("serverid", svInfo.id);
+	agent.endObject();
+	replyJsonData(agent, job);
 }
 
 void FaceRest::handlerGetHost(RestJob *job)
