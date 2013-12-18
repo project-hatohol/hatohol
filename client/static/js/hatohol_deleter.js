@@ -28,11 +28,6 @@ var HatoholDeleter = function(deleteParameters) {
   // * type
   // TODO: Add the description.
   //
-  var self = this;
-  self.start(deleteParameters);
-}
-
-HatoholDeleter.prototype.start = function(deleteParameters) {
   var deletedIdArray = {count:0, total:0, errors:0};
   for (var i = 0; i < deleteParameters.id.length; i++) {
     deletedIdArray.count++;
