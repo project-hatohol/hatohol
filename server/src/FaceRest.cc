@@ -508,7 +508,7 @@ gpointer FaceRest::mainThread(HatoholThreadArg *arg)
 				deleteHandlerClosure);
 	soup_server_add_handler(m_ctx->soupServer, pathForServer,
 	                        queueRestJob,
-	                        new HandlerClosure(this, handlerGetServer),
+	                        new HandlerClosure(this, handlerServer),
 				deleteHandlerClosure);
 	soup_server_add_handler(m_ctx->soupServer, pathForGetHost,
 	                        queueRestJob,
@@ -1321,6 +1321,22 @@ void FaceRest::handlerGetOverview(RestJob *job)
 	agent.endObject();
 
 	replyJsonData(agent, job);
+}
+
+void FaceRest::handlerServer(RestJob *job)
+{
+	if (StringUtils::casecmp(job->message->method, "GET")) {
+		handlerGetServer(job);
+	} else if (StringUtils::casecmp(job->message->method, "POST")) {
+		// Not implemented yet
+	} else if (StringUtils::casecmp(job->message->method, "DELETE")) {
+		// Not implemented yet
+	} else {
+		MLPL_ERR("Unknown method: %s\n", job->message->method);
+		soup_message_set_status(job->message,
+					SOUP_STATUS_METHOD_NOT_ALLOWED);
+		job->replyIsPrepared = true;
+	}
 }
 
 void FaceRest::handlerGetServer(RestJob *job)

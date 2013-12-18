@@ -127,6 +127,7 @@ protected:
 	static void handlerLogin(RestJob *job);
 	static void handlerLogout(RestJob *job);
 	static void handlerGetOverview(RestJob *job);
+	static void handlerServer(RestJob *job);
 	static void handlerGetServer(RestJob *job);
 	static void handlerGetHost(RestJob *job);
 	static void handlerGetTrigger(RestJob *job);
