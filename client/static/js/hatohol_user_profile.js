@@ -53,9 +53,9 @@ var HatoholUserProfile = function() {
     });
 
     $("#changePasswordMenuItem").click(function() {
-      new HatoholPasswordChanger();
+      new HatoholPasswordChanger(user);
     });
-  }
+  };
 };
 
 HatoholUserProfile.prototype.addOnLoadCb = function(onLoadCb) {

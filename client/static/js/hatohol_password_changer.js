@@ -17,7 +17,7 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
-var HatoholPasswordChanger = function(succeededCb, user) {
+var HatoholPasswordChanger = function(user, succeededCb) {
   var self = this;
 
   self.user = user;
