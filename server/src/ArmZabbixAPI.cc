@@ -299,7 +299,8 @@ SoupSession *ArmZabbixAPI::getSession(void)
 	if (!m_ctx->session)
 		m_ctx->session = soup_session_sync_new_with_options(
 			SOUP_SESSION_TIMEOUT,      DEFAULT_TIMEOUT,
-			SOUP_SESSION_IDLE_TIMEOUT, DEFAULT_IDLE_TIMEOUT,
+			//FIXME: Sometimes it causes crash (issue #98)
+			//SOUP_SESSION_IDLE_TIMEOUT, DEFAULT_IDLE_TIMEOUT,
 			NULL);
 	return m_ctx->session;
 }
