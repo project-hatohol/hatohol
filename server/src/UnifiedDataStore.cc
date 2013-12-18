@@ -406,6 +406,10 @@ HatoholError UnifiedDataStore::addTargetServer(
 {
 	DBClientConfig dbConfig;
 	dbConfig.addTargetServer(&svInfo);
+
+	//FIXME: Check editing authorize and
+	//       Return value corresponding to
+	//       authorize.
 	return HTERR_OK;
 }
 // ---------------------------------------------------------------------------
