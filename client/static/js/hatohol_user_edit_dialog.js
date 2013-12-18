@@ -21,12 +21,11 @@ var HatoholUserEditDialog = function(succeededCb, user) {
   var self = this;
 
   self.user = user;
-
-  var windowTitle = user ? gettext("EDIT USER") : gettext("ADD USER");
-  var applyButtonTitle = user ? gettext("APPLY") : gettext("ADD");
+  self.windowTitle = user ? gettext("EDIT USER") : gettext("ADD USER");
+  self.applyButtonTitle = user ? gettext("APPLY") : gettext("ADD");
 
   var dialogButtons = [{
-    text: applyButtonTitle,
+    text: self.applyButtonTitle,
     click: applyButtonClickedCb
   }, {
     text: gettext("CANCEL"),
@@ -36,8 +35,8 @@ var HatoholUserEditDialog = function(succeededCb, user) {
   // call the constructor of the super class
   dialogAttrs = { width: "auto" };
   HatoholDialog.apply(
-    this, ["user-edit-dialog", windowTitle, dialogButtons, dialogAttrs]);
-  self.setApplyButtonState(false);
+    this, ["user-edit-dialog", self.windowTitle, dialogButtons, dialogAttrs]);
+  setTimeout(function(){self.setApplyButtonState(false);}, 1);
 
   //
   // Dialog button handlers
@@ -153,8 +152,8 @@ HatoholUserEditDialog.prototype.createMainElement = function() {
 
 HatoholUserEditDialog.prototype.onAppendMainElement = function () {
   var self = this;
-  var validUserName = false;
-  var validPassword = false;
+  var validUserName = !!$("#editUserName").val();
+  var validPassword = !!$("#editPassword").val() || !!self.user;
 
   $("#editUserName").keyup(function() {
     validUserName = !!$("#editUserName").val();
@@ -162,7 +161,11 @@ HatoholUserEditDialog.prototype.onAppendMainElement = function () {
   });
 
   $("#editPassword").keyup(function() {
-    validPassword = !!$("#editPassword").val();
+    validPassword = !!$("#editPassword").val() || !!self.user;
+    fixupApplyButtonState();
+  });
+
+  $("#selectUserType").change(function() {
     fixupApplyButtonState();
   });
 
@@ -174,7 +177,7 @@ HatoholUserEditDialog.prototype.onAppendMainElement = function () {
 
 HatoholUserEditDialog.prototype.setApplyButtonState = function(state) {
   var btn = $(".ui-dialog-buttonpane").find("button:contains(" +
-              gettext("ADD") + ")");
+              this.applyButtonTitle + ")");
   if (state) {
      btn.removeAttr("disabled");
      btn.removeClass("ui-state-disabled");
