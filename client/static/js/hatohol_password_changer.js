@@ -111,17 +111,21 @@ HatoholPasswordChanger.prototype.createMainElement = function() {
 
 HatoholPasswordChanger.prototype.onAppendMainElement = function () {
   var self = this;
-  var validPassword = false;
+
+  function fixupChangeButtonState() {
+    var validPassword = !!$("#changePassword").val();
+    var matched = $("#changePassword").val() == $("#confirmPassword").val();
+    var state = validPassword && matched;
+    self.setChangeButtonState(state);
+  }
 
   $("#changePassword").keyup(function() {
-    validPassword = !!$("#changePassword").val();
     fixupChangeButtonState();
   });
 
-  function fixupChangeButtonState() {
-    var state = (validUserName && validPassword);
-    self.setChangeButtonState(state);
-  }
+  $("#confirmPassword").keyup(function() {
+    fixupChangeButtonState();
+  });
 };
 
 HatoholPasswordChanger.prototype.setChangeButtonState = function(state) {
