@@ -53,7 +53,7 @@
 
 {% block option %}
   <script src="{{ STATIC_URL }}js/hatohol_user_edit_dialog.js"></script>
-  <script src="{{ STATIC_URL }}js/hatohol_priviledge_edit_dialog.js"></script>
+  <script src="{{ STATIC_URL }}js/hatohol_privilege_edit_dialog.js"></script>
 {% endblock %}
 
 {% block logic %}
@@ -122,12 +122,12 @@
         id = id + "-privileges";
         $(id).click(function() {
           var userId = this.getAttribute("userId");
-          new HatoholPriviledgeEditDialog(userId, applyPriviledgesCb);
+          new HatoholPrivilegeEditDialog(userId, applyPrivilegesCb);
         });
       }
     }
 
-    function applyPriviledgesCb() {
+    function applyPrivilegesCb() {
       startConnection('user', updateCore);
     }
 

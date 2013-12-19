@@ -44,7 +44,7 @@ nobase_dist_hatohol_client_DATA = \
 	static/js/hatohol_dialog.js \
 	static/js/hatohol_reply_parser.js \
 	static/js/hatohol_server_selector.js \
-	static/js/hatohol_priviledge_edit_dialog.js \
+	static/js/hatohol_privilege_edit_dialog.js \
 	static/js/hatohol_host_selector.js \
 	static/js/hatohol_selector_dialog.js \
 	static/js/hatohol_trigger_selector.js \
