@@ -1329,7 +1329,7 @@ void FaceRest::handlerServer(RestJob *job)
 	if (StringUtils::casecmp(job->message->method, "GET")) {
 		handlerGetServer(job);
 	} else if (StringUtils::casecmp(job->message->method, "POST")) {
-		// Not implemented yet
+		handlerPostServer(job);
 	} else if (StringUtils::casecmp(job->message->method, "DELETE")) {
 		// Not implemented yet
 	} else {
