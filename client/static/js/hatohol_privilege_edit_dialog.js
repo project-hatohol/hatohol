@@ -18,9 +18,9 @@
  */
 
 
-var HatoholPriviledgeEditDialog = function(userId, applyCallback) {
+var HatoholPrivilegeEditDialog = function(userId, applyCallback) {
   var self = this;
-  self.mainTableId = "priviledgeEditDialogMainTable";
+  self.mainTableId = "privilegeEditDialogMainTable";
   self.userId = userId;
   self.applyCallback = applyCallback;
   self.serversData = null;
@@ -36,37 +36,37 @@ var HatoholPriviledgeEditDialog = function(userId, applyCallback) {
 
   // call the constructor of the super class
   HatoholDialog.apply(
-    this, ["priviledge-edit-dialog", gettext("Edit priviledges"),
+    this, ["privilege-edit-dialog", gettext("Edit privileges"),
            dialogButtons]);
   self.start();
 };
 
-HatoholPriviledgeEditDialog.prototype =
+HatoholPrivilegeEditDialog.prototype =
   Object.create(HatoholDialog.prototype);
-HatoholPriviledgeEditDialog.prototype.constructor = HatoholPriviledgeEditDialog;
+HatoholPrivilegeEditDialog.prototype.constructor = HatoholPrivilegeEditDialog;
 
-HatoholPriviledgeEditDialog.prototype.createMainElement = function() {
+HatoholPrivilegeEditDialog.prototype.createMainElement = function() {
   var ptag = $("<p/>");
-  ptag.attr("id", "priviledgeEditDialogMsgArea");
+  ptag.attr("id", "privilegeEditDialogMsgArea");
   ptag.text(gettext("Now getting information..."));
   return ptag;
 };
 
-HatoholPriviledgeEditDialog.prototype.applyButtonClicked = function() {
+HatoholPrivilegeEditDialog.prototype.applyButtonClicked = function() {
   this.applyPrivileges();
   if (this.applyCallback)
     this.applyCallback();
 };
 
-HatoholPriviledgeEditDialog.prototype.cancelButtonClicked = function() {
+HatoholPrivilegeEditDialog.prototype.cancelButtonClicked = function() {
   this.closeDialog();
 };
 
-HatoholPriviledgeEditDialog.prototype.setMessage = function(msg) {
-  $("#priviledgeEditDialogMsgArea").text(msg);
+HatoholPrivilegeEditDialog.prototype.setMessage = function(msg) {
+  $("#privilegeEditDialogMsgArea").text(msg);
 };
 
-HatoholPriviledgeEditDialog.prototype.start = function() {
+HatoholPrivilegeEditDialog.prototype.start = function() {
   var self = this;
   self.loadError = false;
 
@@ -121,7 +121,7 @@ HatoholPriviledgeEditDialog.prototype.start = function() {
   });
 };
 
-HatoholPriviledgeEditDialog.prototype.updateServersTable = function() {
+HatoholPrivilegeEditDialog.prototype.updateServersTable = function() {
   if (this.loadError)
         return;
   if (!this.serversData)
@@ -134,7 +134,7 @@ HatoholPriviledgeEditDialog.prototype.updateServersTable = function() {
   this.updateAllowCheckboxes();
 };
 
-HatoholPriviledgeEditDialog.prototype.generateMainTable = function() {
+HatoholPrivilegeEditDialog.prototype.generateMainTable = function() {
   var html =
   '<table class="table table-condensed table-striped table-hover" id=' +
   this.mainTableId + '>' +
@@ -153,7 +153,7 @@ HatoholPriviledgeEditDialog.prototype.generateMainTable = function() {
   return html;
 };
 
-HatoholPriviledgeEditDialog.prototype.generateTableRows = function() {
+HatoholPrivilegeEditDialog.prototype.generateTableRows = function() {
   var s = '';
   var servers = this.serversData.servers;
   for (var i = 0; i < servers.length; i++) {
@@ -171,7 +171,7 @@ HatoholPriviledgeEditDialog.prototype.generateTableRows = function() {
   return s;
 };
 
-HatoholPriviledgeEditDialog.prototype.updateAllowCheckboxes = function() {
+HatoholPrivilegeEditDialog.prototype.updateAllowCheckboxes = function() {
   if (!this.serversData || !this.allowedServers)
     return;
 
@@ -191,7 +191,7 @@ HatoholPriviledgeEditDialog.prototype.updateAllowCheckboxes = function() {
   }
 };
 
-HatoholPriviledgeEditDialog.prototype.addAccessInfo = function(accessInfo) {
+HatoholPrivilegeEditDialog.prototype.addAccessInfo = function(accessInfo) {
   var self = this;
   var userId = this.userId;
   new HatoholConnector({
@@ -213,7 +213,7 @@ HatoholPriviledgeEditDialog.prototype.addAccessInfo = function(accessInfo) {
   });
 };
 
-HatoholPriviledgeEditDialog.prototype.deleteAccessInfo = function(accessInfoId) {
+HatoholPrivilegeEditDialog.prototype.deleteAccessInfo = function(accessInfoId) {
   var self = this;
   var userId = this.userId;
   new HatoholConnector({
@@ -234,7 +234,7 @@ HatoholPriviledgeEditDialog.prototype.deleteAccessInfo = function(accessInfoId) 
   });
 };
 
-HatoholPriviledgeEditDialog.prototype.checkApplyResult = function(accessInfo) {
+HatoholPrivilegeEditDialog.prototype.checkApplyResult = function(accessInfo) {
   var result = this.applyResult;
   var numCompleted = result.numSucceeded + result.numFailed;
 
@@ -253,7 +253,7 @@ HatoholPriviledgeEditDialog.prototype.checkApplyResult = function(accessInfo) {
   }
 };
 
-HatoholPriviledgeEditDialog.prototype.applyPrivileges = function() {
+HatoholPrivilegeEditDialog.prototype.applyPrivileges = function() {
   var self = this;
   var i, serverId, accessInfoId;
   var checkboxes = $(".serverSelectCheckbox");
