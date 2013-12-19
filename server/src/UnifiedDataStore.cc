@@ -402,7 +402,7 @@ HatoholError UnifiedDataStore::deleteAccessInfo(
 }
 
 HatoholError UnifiedDataStore::addTargetServer(
-		MonitoringServerInfo &svInfo)
+  MonitoringServerInfo &svInfo, const OperationPrivilege &privilege)
 {
 	DBClientConfig dbConfig;
 	dbConfig.addTargetServer(&svInfo);
