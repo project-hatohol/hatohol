@@ -18,13 +18,46 @@
  */
 
 #include <cppcutter.h>
+#include "Hatohol.h"
 #include "OperationPrivilege.h"
+#include "Helpers.h"
+#include "DBClientTest.h"
 
 namespace testOperationPrivilege {
 
 // ---------------------------------------------------------------------------
 // Test cases
 // ---------------------------------------------------------------------------
+void test_defaultUserId(void)
+{
+	OperationPrivilege privilege;
+	cppcut_assert_equal(INVALID_USER_ID, privilege.getUserId());
+}
+
+void test_setGetUserId(void)
+{
+	hatoholInit();
+	bool dbRecreate = true;
+	bool loadTestData = true;
+	setupTestDBUser(dbRecreate, loadTestData);
+	const UserIdType userId = 2;
+	OperationPrivilege privilege;
+	privilege.setUserId(2);
+	cppcut_assert_equal(2, privilege.getUserId());
+}
+
+void test_setUnknownserId(void)
+{
+	hatoholInit();
+	bool dbRecreate = true;
+	bool loadTestData = true;
+	setupTestDBUser(dbRecreate, loadTestData);
+	const UserIdType userId = 1129;
+	OperationPrivilege privilege;
+	privilege.setUserId(userId);
+	cppcut_assert_equal(INVALID_USER_ID, privilege.getUserId());
+}
+
 void test_getDefaultFlags(void)
 {
 	OperationPrivilege privilege;
@@ -79,10 +112,17 @@ void test_has(void)
 
 void test_operatorEq(void)
 {
+	hatoholInit();
+	bool dbRecreate = true;
+	bool loadTestData = true;
+	setupTestDBUser(dbRecreate, loadTestData);
+
 	OperationPrivilege lhs;
 	OperationPrivilege rhs;
 	cppcut_assert_equal(true, lhs == rhs);
 
+	lhs.setUserId(2);
+	rhs.setUserId(2);
 	lhs.setFlags(OperationPrivilege::makeFlag(OPPRVLG_CREATE_USER));
 	rhs.setFlags(OperationPrivilege::makeFlag(OPPRVLG_CREATE_USER));
 	cppcut_assert_equal(true, lhs == rhs);
@@ -99,6 +139,21 @@ void test_operatorEqFalse(void)
 	OperationPrivilege lhs;
 	OperationPrivilege rhs;
 	rhs.setFlags(OperationPrivilege::makeFlag(OPPRVLG_CREATE_USER));
+	cppcut_assert_equal(false, lhs == rhs);
+}
+
+void test_operatorFalseDifferentUserId(void)
+{
+	hatoholInit();
+	bool dbRecreate = true;
+	bool loadTestData = true;
+	setupTestDBUser(dbRecreate, loadTestData);
+	OperationPrivilege lhs;
+	OperationPrivilege rhs;
+	cppcut_assert_equal(true, lhs == rhs);
+
+	lhs.setUserId(1);
+	rhs.setUserId(2);
 	cppcut_assert_equal(false, lhs == rhs);
 }
 

@@ -18,12 +18,16 @@
  */
 
 #include "OperationPrivilege.h"
+#include "DBClientUser.h"
+#include "CacheServiceDBClient.h"
 
 struct OperationPrivilege::PrivateContext {
+	UserIdType userId;
 	uint64_t flags;
 
 	PrivateContext(void)
-	: flags(0)
+	: userId(INVALID_USER_ID),
+	  flags(0)
 	{
 	}
 };
@@ -74,7 +78,33 @@ const bool OperationPrivilege::has(OperationPrivilegeType type) const
 
 bool OperationPrivilege::operator==(const OperationPrivilege &rhs)
 {
+	if (m_ctx->userId != rhs.m_ctx->userId)
+		return false;
 	if (m_ctx->flags != rhs.m_ctx->flags)
 		return false;
 	return true;
+}
+
+void OperationPrivilege::setUserId(UserIdType userId)
+{
+	m_ctx->userId = userId;
+	if (m_ctx->userId == USER_ID_ADMIN) {
+		setFlags(ALL_PRIVILEGES);
+		return;
+	}
+
+	UserInfo userInfo;
+	CacheServiceDBClient cache;
+	if (!cache.getUser()->getUserInfo(userInfo, userId)) {
+		MLPL_ERR("Failed to getUserInfo(): userId: "
+		         "%"FMT_USER_ID"\n", userId);
+		m_ctx->userId = INVALID_USER_ID;
+		return;
+	}
+	setFlags(userInfo.flags);
+}
+
+UserIdType OperationPrivilege::getUserId(void) const
+{
+	return m_ctx->userId;
 }
