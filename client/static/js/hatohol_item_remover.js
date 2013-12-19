@@ -24,7 +24,7 @@ var HatoholItemRemover = function(deleteParameters) {
   //
   // deleteParameters has following parameters.
   //
-  // * id
+  // * id: Please enumerate an array of ID to delete.
   // * type
   // TODO: Add the description.
   //
