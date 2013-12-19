@@ -448,9 +448,9 @@ bool DBClientConfig::isCopyOnDemandEnabled(void)
 
 HatoholError DBClientConfig::addTargetServer(MonitoringServerInfo *monitoringServerInfo)
 {
-	//FIXME: Check editing authorize and
+	//FIXME: Check edit permission and
 	//       Return value corresponding to
-	//       authorize.
+	//       permission.
 	HatoholError err = HTERR_OK;
 
 	string condition = StringUtils::sprintf("id=%u",
