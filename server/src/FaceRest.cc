@@ -1432,6 +1432,22 @@ void FaceRest::handlerPostServer(RestJob *job)
 	sscanf(charValue, "%d", &intValue);
 	svInfo.retryIntervalSec = intValue;
 
+	// username
+	charValue = (char *)g_hash_table_lookup(job->query, "user");
+	if (!charValue) {
+		REPLY_ERROR(job, HTERR_NOT_FOUND_PARAMETER, "user");
+		return;
+	}
+	svInfo.userName = charValue;
+
+	// password
+	charValue = (char *)g_hash_table_lookup(job->query, "password");
+	if (!charValue) {
+		REPLY_ERROR(job, HTERR_NOT_FOUND_PARAMETER, "password");
+		return;
+	}
+	svInfo.password = charValue;
+
 	// dbname
 	if (svInfo.type == MONITORING_SYSTEM_NAGIOS) {
 		charValue = (char *)g_hash_table_lookup(job->query, "dbname");
