@@ -86,7 +86,7 @@ public:
 	int  getFaceRestPort(void);
 	void setFaceRestPort(int port);
 	bool isCopyOnDemandEnabled(void);
-	void addTargetServer(MonitoringServerInfo *monitoringServerInfo);
+	HatoholError addTargetServer(MonitoringServerInfo *monitoringServerInfo);
 	void getTargetServers(MonitoringServerInfoList &monitoringServers,
 	                      uint32_t targetServerId = ALL_SERVERS);
 

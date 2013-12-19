@@ -25,6 +25,7 @@ using namespace std;
 #include "DBAgentFactory.h"
 #include "DBClientConfig.h"
 #include "DBClientUtils.h"
+#include "HatoholError.h"
 #include "Params.h"
 
 static const char *TABLE_NAME_SYSTEM  = "system";
@@ -445,8 +446,13 @@ bool DBClientConfig::isCopyOnDemandEnabled(void)
 	return ItemDataUtils::getInt((*grpList.begin())->getItemAt(0));
 }
 
-void DBClientConfig::addTargetServer(MonitoringServerInfo *monitoringServerInfo)
+HatoholError DBClientConfig::addTargetServer(MonitoringServerInfo *monitoringServerInfo)
 {
+	//FIXME: Check editing authorize and
+	//       Return value corresponding to
+	//       authorize.
+	HatoholError err = HTERR_OK;
+
 	string condition = StringUtils::sprintf("id=%u",
 	                                        monitoringServerInfo->id);
 	VariableItemGroupPtr row;
@@ -523,6 +529,8 @@ void DBClientConfig::addTargetServer(MonitoringServerInfo *monitoringServerInfo)
 			update(arg);
 		}
 	} DBCLIENT_TRANSACTION_END();
+
+	return err;
 }
 
 void DBClientConfig::getTargetServers
