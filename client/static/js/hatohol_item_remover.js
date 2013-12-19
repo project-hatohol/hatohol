@@ -24,22 +24,22 @@ var HatoholItemRemover = function(deleteParameters) {
   //
   // deleteParameters has following parameters.
   //
-  // * deleteId
+  // * id
   // * type
   // TODO: Add the description.
   //
   var count = 0;
   var total = 0;
   var errors = 0;
-  for (var i = 0; i < deleteParameters.deleteId.length; i++) {
+  for (var i = 0; i < deleteParameters.id.length; i++) {
     count++;
     total++;
     new HatoholConnector({
-      url: '/' + deleteParameters.type + '/' + deleteParameters.deleteId[i],
+      url: '/' + deleteParameters.type + '/' + deleteParameters.id[i],
         request: "DELETE",
-        context: deleteParameters.deleteId[i],
-        replyCallback: function(data, parser, context) {
-          parseDeleteResult(data);
+        context: deleteParameters.id[i],
+        replyCallback: function(deletedItem, parser, context) {
+          parseDeleteResult(deletedItem);
         },
         connectErrorCallback: function(XMLHttpRequest,
                                 textStatus, errorThrown) {
@@ -54,45 +54,45 @@ var HatoholItemRemover = function(deleteParameters) {
     });
   }
 
-  function checkParseResult(data) {
+  function checkParseResult(deletedItem) {
     var msg;
     var malformed =false;
-    if (data.result == undefined)
+    if (deletedItem.result == undefined)
       malformed = true;
-    if (!malformed && !data.result && data.message == undefined)
+    if (!malformed && !deletedItem.result && deletedItem.message == undefined)
       malformed = true;
     if (malformed) {
       msg = "The returned content is malformed: " +
         "Not found 'result' or 'message'.\n" +
-        JSON.stringify(data);
+        JSON.stringify(deletedItem);
       hatoholErrorMsgBox(msg);
       return false;
     }
-    if (!data.result) {
-      msg = "Failed:\n" + data.message;
+    if (!deletedItem.result) {
+      msg = "Failed:\n" + deletedItem.message;
       hatoholErrorMsgBox(msg);
       return false;
     }
-    if (data.deleteId == undefined) {
+    if (deletedItem.id == undefined) {
       msg = "The returned content is malformed: " +
-        "'result' is true, however, 'deleteId' missing.\n" +
-        JSON.stringfy(data);
+        "'result' is true, however, 'id' missing.\n" +
+        JSON.stringfy(deletedItem);
       hatoholErrorMsgBox(msg);
       return false;
     }
     return true;
   }
 
-  function parseDeleteResult(data) {
-    if (!checkParseResult(data))
+  function parseDeleteResult(deletedItem) {
+    if (!checkParseResult(deletedItem))
       return;
-    if (!(data.deleteId in deleteId)) {
-      alert("Fatal Error: You should reload page.\nID: " + data.deleteId +
-          " is not in deleteIdArray: " + deleteId);
+    if (!(deletedItem.id in id)) {
+      alert("Fatal Error: You should reload page.\nID: " + deletedItem.id +
+          " is not in idArray: " + id);
       errors++;
       return;
     }
-    delete deleteId[data.deleteId];
+    delete id[deletedItem.id];
   }
 
   function compleOneDel() {
