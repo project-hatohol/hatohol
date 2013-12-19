@@ -337,6 +337,7 @@ void test_updateUserPasswordByOwner(void)
 	const size_t targetIndex = 0;
 	const size_t targetUserId = targetIndex + 1;
 	UserInfo expectedUserInfo = testUserInfo[targetIndex];
+	expectedUserInfo.id = targetUserId;
 	expectedUserInfo.password = "OwnerCanUpdatePassword";
 	UserInfo userInfo = expectedUserInfo;
 	OperationPrivilege privilege;
@@ -352,13 +353,15 @@ void test_updateUserPasswordByNonOwner(void)
 {
 	loadTestDBUser();
 	DBClientUser dbUser;
-	const size_t targetIndex = 2;
+	const size_t targetIndex = 0;
 	const size_t targetUserId = targetIndex + 1;
+	const size_t operatorUserId = 3;
 	UserInfo expectedUserInfo = testUserInfo[targetIndex];
+	expectedUserInfo.id = targetUserId;
 	UserInfo userInfo = expectedUserInfo;
 	userInfo.password = "NonOwnerCanUpdatePassword";
 	OperationPrivilege privilege;
-	privilege.setUserId(targetUserId);
+	privilege.setUserId(operatorUserId);
 	HatoholError err = dbUser.updateUserInfo(userInfo, privilege);
 	assertHatoholError(HTERR_NO_PRIVILEGE, err);
 

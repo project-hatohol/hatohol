@@ -404,12 +404,31 @@ HatoholError DBClientUser::addUserInfo(
 	return err;
 }
 
+HatoholError DBClientUser::hasPrivilegeForUpdateUserInfo(
+  UserInfo &userInfo, const OperationPrivilege &privilege)
+{
+	if (privilege.has(OPPRVLG_UPDATE_USER))
+		return HTERR_OK;
+	if (userInfo.id != privilege.getUserId())
+		return HTERR_NO_PRIVILEGE;
+	if (userInfo.id == INVALID_USER_ID)
+		return HTERR_NO_PRIVILEGE;
+
+	UserInfo userInfoInDB;
+	getUserInfo(userInfoInDB, userInfo.id);
+	userInfoInDB.password = userInfo.password;
+	if (userInfoInDB == userInfo)
+		return HTERR_OK;
+
+	return HTERR_NO_PRIVILEGE;
+}
+
 HatoholError DBClientUser::updateUserInfo(
   UserInfo &userInfo, const OperationPrivilege &privilege)
 {
-	HatoholError err;
-	if (!privilege.has(OPPRVLG_UPDATE_USER))
-		return HatoholError(HTERR_NO_PRIVILEGE);
+	HatoholError err = hasPrivilegeForUpdateUserInfo(userInfo, privilege);
+	if (err != HTERR_OK)
+		return err;
 	err = isValidUserName(userInfo.name);
 	if (err != HTERR_OK)
 		return err;
