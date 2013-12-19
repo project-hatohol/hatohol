@@ -1859,9 +1859,16 @@ void FaceRest::handlerPutUser(RestJob *job)
 		return;
 	}
 
-	bool allowEmptyPassword = true;
+	DBClientUser dbUser;
+	bool exist = dbUser.getUserInfo(userInfo, userInfo.id);
+	if (!exist) {
+		REPLY_ERROR(job, HTERR_NOT_FOUND_USER_ID,
+			    "id: %"FMT_USER_ID, userInfo.id);
+		return;
+	}
+	bool forUpdate = true;
 	HatoholError err = parseUserParameter(userInfo, job->query,
-					      allowEmptyPassword);
+					      forUpdate);
 	if (err != HTERR_OK) {
 		replyError(job, err);
 		return;
@@ -2052,27 +2059,28 @@ void FaceRest::handlerDeleteAccessInfo(RestJob *job)
 }
 
 HatoholError FaceRest::parseUserParameter(UserInfo &userInfo, GHashTable *query,
-					  bool allowEmptyPassword)
+					  bool forUpdate)
 {
 	char *value;
 
 	// name
 	value = (char *)g_hash_table_lookup(query, "user");
-	if (!value)
+	if (!value && !forUpdate)
 		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "user\n");
-	userInfo.name = value;
+	if (value)
+		userInfo.name = value;
 
 	// password
 	value = (char *)g_hash_table_lookup(query, "password");
-	if (!value && !allowEmptyPassword) {
+	if (!value && !forUpdate) {
 		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "password\n");
 	}
 	userInfo.password = value ? value : "";
 
 	// flags
 	HatoholError err = getParam<OperationPrivilegeFlag>(
-	                     query, "flags", "%"FMT_OPPRVLG, userInfo.flags);
-	if (err != HTERR_OK)
+		query, "flags", "%"FMT_OPPRVLG, userInfo.flags);
+	if (err != HTERR_OK && !forUpdate)
 		return err;
 	return HatoholError(HTERR_OK);
 }
