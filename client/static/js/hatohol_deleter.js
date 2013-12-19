@@ -24,20 +24,20 @@ var HatoholDeleter = function(deleteParameters) {
   //
   // deleteParameters has following parameters.
   //
-  // * id
+  // * deleteId
   // * type
   // TODO: Add the description.
   //
   var count = 0;
   var total = 0;
   var errors = 0;
-  for (var i = 0; i < deleteParameters.id.length; i++) {
+  for (var i = 0; i < deleteParameters.deleteId.length; i++) {
     count++;
     total++;
     new HatoholConnector({
-      url: '/' + deleteParameters.type + '/' + deleteParameters.id[i],
+      url: '/' + deleteParameters.type + '/' + deleteParameters.deleteId[i],
         request: "DELETE",
-        context: deleteParameters.id[i],
+        context: deleteParameters.deleteId[i],
         replyCallback: function(data, parser, context) {
           parseDeleteResult(data);
         },
@@ -73,9 +73,9 @@ var HatoholDeleter = function(deleteParameters) {
       hatoholErrorMsgBox(msg);
       return false;
     }
-    if (data.id == undefined) {
+    if (data.deleteId == undefined) {
       msg = "The returned content is malformed: " +
-        "'result' is true, however, 'id' missing.\n" +
+        "'result' is true, however, 'deleteId' missing.\n" +
         JSON.stringfy(data);
       hatoholErrorMsgBox(msg);
       return false;
@@ -86,13 +86,13 @@ var HatoholDeleter = function(deleteParameters) {
   function parseDeleteResult(data) {
     if (!checkParseResult(data))
       return;
-    if (!(data.id in id)) {
-      alert("Fatal Error: You should reload page.\nID: " + data.id +
-          " is not in deleteIdArray: " + id);
+    if (!(data.deleteId in deleteId)) {
+      alert("Fatal Error: You should reload page.\nID: " + data.deleteId +
+          " is not in deleteIdArray: " + deleteId);
       errors++;
       return;
     }
-    delete id[data.id];
+    delete deleteId[data.deleteId];
   }
 
   function compleOneDel() {
