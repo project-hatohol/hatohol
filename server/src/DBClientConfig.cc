@@ -462,7 +462,8 @@ HatoholError DBClientConfig::addTargetServer(MonitoringServerInfo *monitoringSer
 			arg.tableName = TABLE_NAME_SERVERS;
 			arg.numColumns = NUM_COLUMNS_SERVERS;
 			arg.columnDefs = COLUMN_DEF_SERVERS;
-			row->ADD_NEW_ITEM(Int, monitoringServerInfo->id);
+			row->ADD_NEW_ITEM(Int, 0);	// This is automatically set
+							// (0 is dummy)
 			row->ADD_NEW_ITEM(Int, monitoringServerInfo->type);
 			row->ADD_NEW_ITEM(String,
 			                  monitoringServerInfo->hostName);
