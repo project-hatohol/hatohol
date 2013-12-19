@@ -46,7 +46,7 @@ var HatoholItemRemover = function(deleteParameters) {
           var errorMsg = "Error: " + XMLHttpRequest.status + ": " +
           XMLHttpRequest.statusText;
           hatoholErrorMsgBox(errorMsg);
-          deleteParameters.deleteIdArray.errors++;
+          errors++;
         },
         completionCallback: function(context) {
           compleOneDel();
