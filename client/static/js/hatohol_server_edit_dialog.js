@@ -51,7 +51,6 @@ var HatoholServerEditDialog = function(succeededCb) {
 
   function makeQueryData() {
     var queryData = {};
-    queryData.serverid = $("#inputServerId").val();
     queryData.type = getFlagsFromServerType($("#selectServerType").val());
     queryData.hostname = $("#inputHostName").val();
     queryData.ipaddress = $("#inputIpAddress").val();
@@ -86,10 +85,6 @@ var HatoholServerEditDialog = function(succeededCb) {
   function validateParameters() {
     var type = $("#selectServerType").val();
 
-    if ($("#inputServerId").val() == "") {
-      hatoholErrorMsgBox(gettext("Server id is empty!"));
-      return false;
-    }
     if (type != "zabbix" && type != "nagios") {
       hatoholErrorMsgBox(gettext("Invalid Server type!"));
       return false;
@@ -107,7 +102,8 @@ var HatoholServerEditDialog = function(succeededCb) {
       return false;
     }
     if ($("#inputPort").val() == "") {
-      hatoholErrorMsgBox(gettext("Port is empty!")); return false;
+      hatoholErrorMsgBox(gettext("Port is empty!"));
+      return false;
     }
     if ($("#inputPollingInterval").val() == "") {
       hatoholErrorMsgBox(gettext("Polling interval is empty!"));
@@ -155,8 +151,6 @@ HatoholServerEditDialog.prototype.createMainElement = function() {
   function makeMainDivHTML() {
     var s = "";
     s += '<div id="add-action-div">';
-    s += '<label for="inputServerId">' + gettext("Server ID") + '</label>';
-    s += '<input id="inputServerId" type="text" value="" style="height:1.8em;" class="input-xlarge">';
     s += '<label>' + gettext("Server type") + '</label>';
     s += '<select id="selectServerType">';
     s += '  <option value="zabbix">' + gettext("Zabbix") + '</option>';
@@ -187,7 +181,6 @@ HatoholServerEditDialog.prototype.createMainElement = function() {
 
 HatoholServerEditDialog.prototype.onAppendMainElement = function () {
   var self = this;
-  validServerId = false;
   validHostName = false;
   validIpAddress = false;
   validNickName = false;
@@ -197,12 +190,6 @@ HatoholServerEditDialog.prototype.onAppendMainElement = function () {
   validUserName = false;
   validPassword = false;
   self.setDBNameTextState(false);
-
-  $("#inputServerId").keyup(function() {
-    validServerId = !!$("#inputServerId").val();
-    fixupAddButtonState();
-  });
-
   $("#inputHostName").keyup(function() {
     validHostName = !!$("#inputHostName").val();
     fixupAddButtonState(); });
@@ -253,7 +240,6 @@ HatoholServerEditDialog.prototype.onAppendMainElement = function () {
 
   function fixupAddButtonState() {
     var state = (
-        validServerId &&
         validHostName &&
         validIpAddress &&
         validNickName &&
