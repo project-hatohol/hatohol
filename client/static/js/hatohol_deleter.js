@@ -28,14 +28,16 @@ var HatoholDeleter = function(deleteParameters) {
   // * type
   // TODO: Add the description.
   //
-  var deletedIdArray = {count:0, total:0, errors:0};
+  var count = 0;
+  var total = 0;
+  var errors = 0;
   for (var i = 0; i < deleteParameters.id.length; i++) {
-    deletedIdArray.count++;
-    deletedIdArray.total++;
+    count++;
+    total++;
     new HatoholConnector({
       url: '/' + deleteParameters.type + '/' + deleteParameters.id[i],
         request: "DELETE",
-        context: deleteParameters.deletedIdArray,
+        context: deleteParameters.id[i],
         replyCallback: function(data, parser, context) {
           parseDeleteResult(data, context);
         },
@@ -84,26 +86,26 @@ var HatoholDeleter = function(deleteParameters) {
   function parseDeleteResult(data, deletedIdArray) {
     if (!checkParseResult(data))
       return;
-    if (!(data.id in deletedIdArray)) {
+    if (!(data.id in id)) {
       alert("Fatal Error: You should reload page.\nID: " + data.id +
-          " is not in deletedIdArray: " + deletedIdArray);
-      deletedIdArray.errors++;
+          " is not in deleteIdArray: " + id);
+      errors++;
       return;
     }
-    delete deletedIdArray[data.id];
+    delete id[data.id];
   }
 
   function compleOneDel(deletedIdArray) {
-    deletedIdArray.count--;
-    var completed = deletedIdArray.total - deletedIdArray.count;
+    count--;
+    var completed = total - count;
     hatoholErrorMsgBox(gettext("Deleting...") + " " + completed +
-                       " / " + deletedIdArray.total);
-    if (deletedIdArray.count > 0)
+                       " / " + total);
+    if (count > 0)
       return;
 
     // close dialogs
     hatoholInfoMsgBox(gettext("Completed. (Number of errors: ") +
-                      deletedIdArray.errors + ")");
+                      errors + ")");
 
     // update the main view
     startConnection(deleteParameters.type, updateCore);
