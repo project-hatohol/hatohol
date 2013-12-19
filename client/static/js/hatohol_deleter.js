@@ -39,7 +39,7 @@ var HatoholDeleter = function(deleteParameters) {
         request: "DELETE",
         context: deleteParameters.id[i],
         replyCallback: function(data, parser, context) {
-          parseDeleteResult(data, context);
+          parseDeleteResult(data);
         },
         connectErrorCallback: function(XMLHttpRequest,
                                 textStatus, errorThrown) {
@@ -49,7 +49,7 @@ var HatoholDeleter = function(deleteParameters) {
           deleteParameters.deleteIdArray.errors++;
         },
         completionCallback: function(context) {
-          compleOneDel(context);
+          compleOneDel();
         }
     });
   }
@@ -83,7 +83,7 @@ var HatoholDeleter = function(deleteParameters) {
     return true;
   }
 
-  function parseDeleteResult(data, deletedIdArray) {
+  function parseDeleteResult(data) {
     if (!checkParseResult(data))
       return;
     if (!(data.id in id)) {
@@ -95,7 +95,7 @@ var HatoholDeleter = function(deleteParameters) {
     delete id[data.id];
   }
 
-  function compleOneDel(deletedIdArray) {
+  function compleOneDel() {
     count--;
     var completed = total - count;
     hatoholErrorMsgBox(gettext("Deleting...") + " " + completed +
