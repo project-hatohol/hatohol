@@ -1362,15 +1362,6 @@ void FaceRest::handlerPostServer(RestJob *job)
 	bool exist;
 	MonitoringServerInfo svInfo;
 
-	// serverid
-	charValue = (char *)g_hash_table_lookup(job->query, "serverid");
-	if (!charValue) {
-		REPLY_ERROR(job, HTERR_NOT_FOUND_PARAMETER, "serverid");
-		return;
-	}
-	sscanf(charValue, "%d", &intValue);
-	svInfo.id = intValue;
-
 	// type
 	succeeded = getParamWithErrorReply<MonitoringSystemType>(
 			job, "type", "%d", svInfo.type, &exist);
