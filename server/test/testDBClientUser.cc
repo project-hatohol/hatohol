@@ -330,6 +330,42 @@ void test_updateUserWithoutPrivilege(void)
 	assertUserInfoInDB(expectedUserInfo);
 }
 
+void test_updateUserPasswordByOwner(void)
+{
+	loadTestDBUser();
+	DBClientUser dbUser;
+	const size_t targetIndex = 0;
+	const size_t targetUserId = targetIndex + 1;
+	UserInfo expectedUserInfo = testUserInfo[targetIndex];
+	expectedUserInfo.password = "OwnerCanUpdatePassword";
+	UserInfo userInfo = expectedUserInfo;
+	OperationPrivilege privilege;
+	privilege.setUserId(targetUserId);
+	HatoholError err = dbUser.updateUserInfo(userInfo, privilege);
+	assertHatoholError(HTERR_OK, err);
+
+	// check the version
+	assertUserInfoInDB(expectedUserInfo);
+}
+
+void test_updateUserPasswordByNonOwner(void)
+{
+	loadTestDBUser();
+	DBClientUser dbUser;
+	const size_t targetIndex = 2;
+	const size_t targetUserId = targetIndex + 1;
+	UserInfo expectedUserInfo = testUserInfo[targetIndex];
+	UserInfo userInfo = expectedUserInfo;
+	userInfo.password = "NonOwnerCanUpdatePassword";
+	OperationPrivilege privilege;
+	privilege.setUserId(targetUserId);
+	HatoholError err = dbUser.updateUserInfo(userInfo, privilege);
+	assertHatoholError(HTERR_NO_PRIVILEGE, err);
+
+	// check the version
+	assertUserInfoInDB(expectedUserInfo);
+}
+
 void test_updateNonExistUser(void)
 {
 	DBClientUser dbUser;
