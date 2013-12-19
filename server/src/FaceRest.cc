@@ -1442,8 +1442,10 @@ void FaceRest::handlerPostServer(RestJob *job)
 		svInfo.dbName = charValue;
 	}
 
+	DataQueryOption option;
+	option.setUserId(job->userId);
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-	HatoholError err = dataStore->addTargetServer(svInfo);
+	HatoholError err = dataStore->addTargetServer(svInfo, option);
 
 	JsonBuilderAgent agent;
 	agent.startObject();
