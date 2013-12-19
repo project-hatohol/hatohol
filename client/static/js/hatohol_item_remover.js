@@ -18,9 +18,9 @@
  */
 
 // ---------------------------------------------------------------------------
-// HatoholDeleter
+// HatoholItemRemover
 // ---------------------------------------------------------------------------
-var HatoholDeleter = function(deleteParameters) {
+var HatoholItemRemover = function(deleteParameters) {
   //
   // deleteParameters has following parameters.
   //
