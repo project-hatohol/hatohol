@@ -42,8 +42,8 @@ void test_setGetUserId(void)
 	setupTestDBUser(dbRecreate, loadTestData);
 	const UserIdType userId = 2;
 	OperationPrivilege privilege;
-	privilege.setUserId(2);
-	cppcut_assert_equal(2, privilege.getUserId());
+	privilege.setUserId(userId);
+	cppcut_assert_equal(userId, privilege.getUserId());
 }
 
 void test_setUnknownserId(void)
