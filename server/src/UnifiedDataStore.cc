@@ -404,13 +404,11 @@ HatoholError UnifiedDataStore::deleteAccessInfo(
 HatoholError UnifiedDataStore::addTargetServer(
   MonitoringServerInfo &svInfo, const OperationPrivilege &privilege)
 {
-	DBClientConfig dbConfig;
-	dbConfig.addTargetServer(&svInfo);
+	CacheServiceDBClient cache;
+	DBClientConfig *dbConfig = cache.getConfig();
 
-	//FIXME: Check editing authorize and
-	//       Return value corresponding to
-	//       authorize.
-	return HTERR_OK;
+	// FIXME: Add OperationPrivilege to signature of addTargetServer()
+	return dbConfig->addTargetServer(&svInfo);
 }
 // ---------------------------------------------------------------------------
 // Protected methods
