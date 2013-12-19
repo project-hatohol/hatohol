@@ -207,14 +207,14 @@ HatoholServerEditDialog.prototype.onAppendMainElement = function () {
     validHostName = !!$("#inputHostName").val();
     fixupAddButtonState(); });
 
-	$("#selectServerType").change(function() {
+  $("#selectServerType").change(function() {
     var type = $("#selectServerType").val();
-		if (type == "zabbix") {
+    if (type == "zabbix") {
       self.setDBNameTextState(false);
-		} else if (type == "nagios") {
+    } else if (type == "nagios") {
       self.setDBNameTextState(true);
     }
-	});
+  });
 
   $("#inputIpAddress").keyup(function() {
     validIpAddress = !!$("#inputIpAddress").val();
