@@ -415,7 +415,9 @@ HatoholError DBClientUser::hasPrivilegeForUpdateUserInfo(
 		return HTERR_NO_PRIVILEGE;
 
 	UserInfo userInfoInDB;
-	getUserInfo(userInfoInDB, userInfo.id);
+	bool exist = getUserInfo(userInfoInDB, userInfo.id);
+	if (!exist)
+		return HTERR_NO_PRIVILEGE;
 	userInfoInDB.password = userInfo.password;
 	if (userInfoInDB == userInfo)
 		return HTERR_OK;
