@@ -36,6 +36,9 @@ static const DBDomainId DB_DOMAIN_ID_ZABBIX  = 0x00100000;
 //   from DB_DOMAIN_ID_ZABBIX to 0xffffffff
 static const DBDomainId DB_DOMAIN_ID_NONE    = -1;
 
+typedef int ServerIdType;
+#define FMT_SERVER_ID "d"
+
 typedef int UserIdType;
 #define FMT_USER_ID "d"
 static const UserIdType INVALID_USER_ID = -1;

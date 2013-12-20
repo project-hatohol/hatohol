@@ -1531,12 +1531,12 @@ void DBClientZabbix::init(void)
 	  NUM_COLUMNS_APPLICATIONS_RAW_2_0, NUM_IDX_APPLICATIONS_RAW_2_0);
 }
 
-DBDomainId DBClientZabbix::getDBDomainId(int zabbixServerId)
+DBDomainId DBClientZabbix::getDBDomainId(const ServerIdType zabbixServerId)
 {
 	return DB_DOMAIN_ID_ZABBIX + zabbixServerId;
 }
 
-DBClientZabbix *DBClientZabbix::create(const size_t zabbixServerId)
+DBClientZabbix *DBClientZabbix::create(const ServerIdType zabbixServerId)
 {
 	static const DBSetupTableInfo DB_TABLE_INFO[] = {
 	{
@@ -1579,7 +1579,7 @@ DBClientZabbix *DBClientZabbix::create(const size_t zabbixServerId)
 		DB_TABLE_INFO,
 	};
 
-	string dbName = StringUtils::sprintf("hatohol_cache_zabbix_%zd",
+	string dbName = StringUtils::sprintf("hatohol_cache_zabbix_%"FMT_SERVER_ID,
 	                                     zabbixServerId);
 	DBDomainId domainId = DB_DOMAIN_ID_ZABBIX + zabbixServerId;
 	registerSetupInfo(domainId, dbName, &DB_SETUP_FUNC_ARG);
@@ -2165,7 +2165,7 @@ void DBClientZabbix::extractItemKeys(StringVector &params, const string &key)
 //
 // Non-static methods
 //
-DBClientZabbix::DBClientZabbix(size_t zabbixServerId)
+DBClientZabbix::DBClientZabbix(const ServerIdType zabbixServerId)
 : DBClient(getDBDomainId(zabbixServerId)),
   m_ctx(NULL)
 {

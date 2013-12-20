@@ -35,7 +35,7 @@ public:
 	static const int TRIGGER_CHANGE_TIME_NOT_FOUND;
 
 	static void init(void);
-	static DBDomainId getDBDomainId(int zabbixServerId);
+	static DBDomainId getDBDomainId(const ServerIdType zabbixServerId);
 	static void transformEventsToHatoholFormat(EventInfoList &eventInfoList,
 	                                         const ItemTablePtr events,
 	                                         uint32_t serverId);
@@ -57,7 +57,7 @@ public:
 	 * @param A server ID of the zabbix server.
 	 * @return A new DBclientZabbix instance.
 	 */
-	static DBClientZabbix *create(const size_t zabbixServerId);
+	static DBClientZabbix *create(const ServerIdType zabbixServerId);
 	virtual ~DBClientZabbix();
 
 	void addTriggersRaw2_0(ItemTablePtr tablePtr);
@@ -109,7 +109,7 @@ protected:
 	static int  getItemVariable(const string &word);
 	static void extractItemKeys(StringVector &params, const string &key);
 
-	DBClientZabbix(size_t zabbixServerId);
+	DBClientZabbix(const ServerIdType zabbixServerId);
 	void addItems(
 	  ItemTablePtr tablePtr, const string &tableName,
 	  size_t numColumns, const ColumnDef *columnDefs,
