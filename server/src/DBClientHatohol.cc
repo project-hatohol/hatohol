@@ -475,7 +475,15 @@ struct DBClientHatohol::PrivateContext
 // ---------------------------------------------------------------------------
 string EventQueryOption::getServerIdColumnName(void) const
 {
-	return COLUMN_DEF_EVENTS[IDX_EVENTS_SERVER_ID].columnName;
+	const char *columnName
+	  = COLUMN_DEF_EVENTS[IDX_EVENTS_SERVER_ID].columnName;
+
+	if (m_eventTableName.empty())
+		return columnName;
+
+	return StringUtils::sprintf("%s.%s",
+				    m_eventTableName.c_str(),
+				    columnName);
 }
 
 string EventQueryOption::getHostGroupIdColumnName(void) const
@@ -514,7 +522,7 @@ string EventQueryOption::makeConditionHostGroup(
 }
 
 string EventQueryOption::makeCondition(
-  const ServerHostGrpSetMap &srvHostGrpSetMap, const string &eventTableName,
+  const ServerHostGrpSetMap &srvHostGrpSetMap,
   const string &serverIdColumnName, const string &hostGroupIdColumnName)
 {
 	string cond;
@@ -527,14 +535,8 @@ string EventQueryOption::makeCondition(
 		if (serverId == ALL_SERVERS)
 			return "";
 		string condSv;
-		if (eventTableName.empty()) {
-			condSv = StringUtils::sprintf(
-			  "%s=%"PRIu32, serverIdColumnName.c_str(), serverId);
-		} else {
-			condSv = StringUtils::sprintf(
-			  "%s.%s=%"PRIu32, eventTableName.c_str(),
-			  serverIdColumnName.c_str(), serverId);
-		}
+		condSv = StringUtils::sprintf(
+			"%s=%"PRIu32, serverIdColumnName.c_str(), serverId);
 
 		const HostGroupSet &hostGroupSet = it->second;
 		string condHG = makeConditionHostGroup(hostGroupSet,
@@ -566,7 +568,6 @@ string EventQueryOption::getCondition(void) const
 	ServerHostGrpSetMap srvHostGrpSetMap;
 	dbUser->getServerHostGrpSetMap(srvHostGrpSetMap, userId);
 	condition = makeCondition(srvHostGrpSetMap,
-				  m_eventTableName,
 	                          getServerIdColumnName(),
 	                          getHostGroupIdColumnName());
 	return condition;

@@ -31,13 +31,17 @@ namespace testDBClientHatohol {
 
 class TestEventQueryOption : public EventQueryOption {
 public:
+	string callGetServerIdColumnName(void) const
+	{
+		return getServerIdColumnName();
+	}
+
 	static
 	string callMakeCondition(const ServerHostGrpSetMap &srvHostGrpSetMap,
-				 const string &eventTableName,
 				 const string &serverIdColumnName,
 				 const string &hostGroupIdColumnName)
 	{
-		return makeCondition(srvHostGrpSetMap, eventTableName,
+		return makeCondition(srvHostGrpSetMap,
 				     serverIdColumnName, hostGroupIdColumnName);
 	}
 };
@@ -341,7 +345,7 @@ static void _assertMakeCondition(const ServerHostGrpSetMap &srvHostGrpSetMap,
 				 const string &tableName = defaultEventTableName)
 {
 	string cond = TestEventQueryOption::callMakeCondition(
-	                srvHostGrpSetMap, tableName,
+	                srvHostGrpSetMap,
 	                serverIdColumnName, hostGroupIdColumnName);
 	cppcut_assert_equal(expect, cond);
 }
@@ -365,7 +369,6 @@ static string makeExpectedConditionForUser(UserIdType userId)
 		srvHostGrpSetMap[accInfo.serverId].insert(accInfo.hostGroupId);
 	}
 	exp = TestEventQueryOption::callMakeCondition(srvHostGrpSetMap,
-						      defaultEventTableName,
 	                                              serverIdColumnName,
 	                                              hostGroupIdColumnName);
 	return exp;
@@ -681,21 +684,29 @@ void test_makeConditionMultipleServers(void)
 	assertMakeCondition(srvHostGrpSetMap, expect);
 }
 
-void test_makeConditionMultipleServersWithTableNameAlias(void)
+void test_eventQueryOptionDefaultTableName(void)
 {
-	ServerHostGrpSetMap srvHostGrpSetMap;
-	srvHostGrpSetMap[5].insert(ALL_HOST_GROUPS);
-	srvHostGrpSetMap[14].insert(ALL_HOST_GROUPS);
-	srvHostGrpSetMap[768].insert(ALL_HOST_GROUPS);
+	EventQueryOption option;
+	cppcut_assert_equal(string(""), option.getEventTableName());
+}
+
+void test_eventQueryOptionSetTableName(void)
+{
+	EventQueryOption option;
 	const string tableName = "test_event";
-	string expect = StringUtils::sprintf("(%s.%s=5 OR %s.%s=14 OR %s.%s=768)",
-	  tableName.c_str(),
-	  serverIdColumnName.c_str(),
-	  tableName.c_str(),
-	  serverIdColumnName.c_str(),
-	  tableName.c_str(),
-	  serverIdColumnName.c_str());
-	assertMakeConditionWithTableName(srvHostGrpSetMap, expect, tableName);
+	option.setEventTableName(tableName);
+	cppcut_assert_equal(tableName, option.getEventTableName());
+}
+
+void test_eventQueryOptionGetServerIdColumnName(void)
+{
+	TestEventQueryOption option;
+	const string tableName = "test_event";
+	const string expectedServerIdColumnName
+	  = tableName + "." + serverIdColumnName;
+	option.setEventTableName(tableName);
+	cppcut_assert_equal(expectedServerIdColumnName,
+			    option.callGetServerIdColumnName());
 }
 
 void test_makeConditionComplicated(void)

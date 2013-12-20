@@ -137,7 +137,6 @@ protected:
 	                            const std::string &newCond);
 	static std::string makeCondition(
 	  const ServerHostGrpSetMap &srvHostGrpSetMap,
-	  const std::string &eventTableName,
 	  const std::string &serverIdColumnName,
 	  const std::string &hostGroupIdColumnName);
 	static std::string makeConditionHostGroup(
