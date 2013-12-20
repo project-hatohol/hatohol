@@ -124,6 +124,10 @@ typedef ItemInfoList::const_iterator ItemInfoListConstIterator;
 
 class HostResourceQueryOption : public DataQueryOption {
 public:
+	HostResourceQueryOption(void);
+	HostResourceQueryOption(const HostResourceQueryOption &src);
+	virtual ~HostResourceQueryOption();
+
 	// Overriding of virtual methods
 	std::string getCondition(void) const;
 
@@ -144,7 +148,8 @@ protected:
 	  const std::string &hostGroupIdColumnName);
 
 private:
-	string m_tableNameForServerId;
+	struct PrivateContext;
+	PrivateContext *m_ctx;
 };
 
 class DBClientHatohol : public DBClient {

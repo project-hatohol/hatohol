@@ -473,16 +473,37 @@ struct DBClientHatohol::PrivateContext
 // ---------------------------------------------------------------------------
 // HostResourceQueryOption
 // ---------------------------------------------------------------------------
+struct HostResourceQueryOption::PrivateContext {
+	string tableNameForServerId;
+};
+
+HostResourceQueryOption::HostResourceQueryOption(void)
+{
+	m_ctx = new PrivateContext();
+}
+
+HostResourceQueryOption::HostResourceQueryOption(const HostResourceQueryOption &src)
+{
+	*m_ctx = *src.m_ctx;
+}
+
+HostResourceQueryOption::~HostResourceQueryOption()
+{
+	if (m_ctx)
+		delete m_ctx;
+}
+
+
 string HostResourceQueryOption::getServerIdColumnName(void) const
 {
 	const char *columnName
 	  = COLUMN_DEF_EVENTS[IDX_EVENTS_SERVER_ID].columnName;
 
-	if (m_tableNameForServerId.empty())
+	if (m_ctx->tableNameForServerId.empty())
 		return columnName;
 
 	return StringUtils::sprintf("%s.%s",
-				    m_tableNameForServerId.c_str(),
+				    m_ctx->tableNameForServerId.c_str(),
 				    columnName);
 }
 
@@ -579,12 +600,12 @@ string HostResourceQueryOption::getCondition(void) const
 
 string HostResourceQueryOption::getTableNameForServerId(void) const
 {
-	return m_tableNameForServerId;
+	return m_ctx->tableNameForServerId;
 }
 
 void HostResourceQueryOption::setTableNameForServerId(const std::string &name)
 {
-	m_tableNameForServerId = name;
+	m_ctx->tableNameForServerId = name;
 }
 
 // ---------------------------------------------------------------------------
