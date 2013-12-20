@@ -591,7 +591,7 @@ void test_oneProcWithoutFetchItems()
 	HostResourceQueryOption option;
 	option.setUserId(USER_ID_ADMIN);
 	db.getEventInfoList(eventInfoList, option);
-	db.getTriggerInfoList(triggerInfoList);
+	db.getTriggerInfoList(triggerInfoList, option);
 	db.getItemInfoList(itemInfoList);
 
 	// FIXME: should check contents
@@ -613,7 +613,7 @@ void test_oneProcWithCopyOnDemandEnabled()
 	HostResourceQueryOption option;
 	option.setUserId(USER_ID_ADMIN);
 	db.getEventInfoList(eventInfoList, option);
-	db.getTriggerInfoList(triggerInfoList);
+	db.getTriggerInfoList(triggerInfoList, option);
 	db.getItemInfoList(itemInfoList);
 
 	// FIXME: should check contents
@@ -635,7 +635,7 @@ void test_oneProcWithFetchItems()
 	HostResourceQueryOption option;
 	option.setUserId(USER_ID_ADMIN);
 	db.getEventInfoList(eventInfoList, option);
-	db.getTriggerInfoList(triggerInfoList);
+	db.getTriggerInfoList(triggerInfoList, option);
 	db.getItemInfoList(itemInfoList);
 
 	// FIXME: should check contents

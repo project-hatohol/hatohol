@@ -70,7 +70,9 @@ void test_getTriggerList(void)
 
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	TriggerInfoList list;
-	dataStore->getTriggerList(list);
+	HostResourceQueryOption option;
+	option.setUserId(USER_ID_ADMIN);
+	dataStore->getTriggerList(list, option);
 
 	TriggerInfoListIterator it;
 	for (it = list.begin(); it != list.end(); it++)

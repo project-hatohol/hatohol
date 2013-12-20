@@ -81,7 +81,9 @@ static void _assertGetTriggers(uint32_t serverId = ALL_SERVERS,
 	map<uint64_t, size_t>::iterator trigIdIdxIt;
 	TriggerInfoList triggerInfoList;
 	DBClientHatohol dbHatohol;
-	dbHatohol.getTriggerInfoList(triggerInfoList, serverId, hostId);
+	HostResourceQueryOption option;
+	option.setUserId(USER_ID_ADMIN);
+	dbHatohol.getTriggerInfoList(triggerInfoList, option, serverId, hostId);
 	getTestTriggersIndexes(indexMap, serverId, hostId);
 
 	// check the number

@@ -959,7 +959,8 @@ void FaceRest::handlerHelloPage(RestJob *job)
 	job->replyIsPrepared = true;
 }
 
-static void addOverviewEachServer(JsonBuilderAgent &agent,
+static void addOverviewEachServer(FaceRest::RestJob *job,
+				  JsonBuilderAgent &agent,
                                   MonitoringServerInfo &svInfo)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
@@ -967,6 +968,9 @@ static void addOverviewEachServer(JsonBuilderAgent &agent,
 	agent.add("serverHostName", svInfo.hostName);
 	agent.add("serverIpAddr", svInfo.ipAddress);
 	agent.add("serverNickname", svInfo.nickname);
+
+	HostResourceQueryOption option;
+	option.setUserId(job->userId);
 
 	// TODO: This implementeation is not effective.
 	//       We should add a function only to get the number of list.
@@ -980,7 +984,7 @@ static void addOverviewEachServer(JsonBuilderAgent &agent,
 	agent.add("numberOfItems", itemInfoList.size());
 
 	TriggerInfoList triggerInfoList;
-	dataStore->getTriggerList(triggerInfoList, svInfo.id);
+	dataStore->getTriggerList(triggerInfoList, option, svInfo.id);
 	agent.add("numberOfTriggers", triggerInfoList.size());
 
 	// TODO: These elements should be fixed
@@ -1037,7 +1041,7 @@ static void addOverviewEachServer(JsonBuilderAgent &agent,
 	agent.endArray();
 }
 
-static void addOverview(JsonBuilderAgent &agent)
+static void addOverview(FaceRest::RestJob *job, JsonBuilderAgent &agent)
 {
 	ConfigManager *configManager = ConfigManager::getInstance();
 	MonitoringServerInfoList monitoringServers;
@@ -1047,7 +1051,7 @@ static void addOverview(JsonBuilderAgent &agent)
 	agent.startArray("serverStatus");
 	for (; it != monitoringServers.end(); ++it) {
 		agent.startObject();
-		addOverviewEachServer(agent, *it);
+		addOverviewEachServer(job, agent, *it);
 		agent.endObject();
 	}
 	agent.endArray();
@@ -1318,7 +1322,7 @@ void FaceRest::handlerGetOverview(RestJob *job)
 	JsonBuilderAgent agent;
 	agent.startObject();
 	addHatoholError(agent, HatoholError(HTERR_OK));
-	addOverview(agent);
+	addOverview(job, agent);
 	agent.endObject();
 
 	replyJsonData(agent, job);
@@ -1366,7 +1370,10 @@ void FaceRest::handlerGetTrigger(RestJob *job)
 
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	TriggerInfoList triggerList;
-	dataStore->getTriggerList(triggerList, serverId, hostId, triggerId);
+	HostResourceQueryOption option;
+	option.setUserId(job->userId);
+	dataStore->getTriggerList(triggerList, option,
+				  serverId, hostId, triggerId);
 
 	JsonBuilderAgent agent;
 	agent.startObject();

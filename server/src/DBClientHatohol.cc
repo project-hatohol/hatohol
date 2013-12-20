@@ -527,8 +527,10 @@ string HostResourceQueryOption::makeCondition(
 {
 	string cond;
 	size_t numServers = srvHostGrpSetMap.size();
-	if (numServers == 0)
+	if (numServers == 0) {
+		MLPL_DBG("No allowed server\n");
 		return DBClientHatohol::getAlwaysFalseCondition();
+	}
 	ServerHostGrpSetMapConstIterator it = srvHostGrpSetMap.begin();
 	for (; it != srvHostGrpSetMap.end(); ++it) {
 		const uint32_t serverId = it->first;
@@ -560,8 +562,10 @@ string HostResourceQueryOption::getCondition(void) const
 	UserIdType userId = getUserId();
 	if (userId == USER_ID_ADMIN || has(OPPRVLG_GET_ALL_SERVERS))
 		return "";
-	if (userId == INVALID_USER_ID)
+	if (userId == INVALID_USER_ID) {
+		MLPL_DBG("INVALID_USER_ID\n");
 		return DBClientHatohol::getAlwaysFalseCondition();
+	}
 
 	CacheServiceDBClient cache;
 	DBClientUser *dbUser = cache.getUser();
@@ -724,9 +728,13 @@ bool DBClientHatohol::getTriggerInfo(TriggerInfo &triggerInfo,
 }
 
 void DBClientHatohol::getTriggerInfoList(
-  TriggerInfoList &triggerInfoList, uint32_t targetServerId,
-  uint64_t targetHostId, uint64_t targetTriggerId)
+  TriggerInfoList &triggerInfoList, HostResourceQueryOption &option,
+  uint32_t targetServerId, uint64_t targetHostId, uint64_t targetTriggerId)
 {
+	string optCond = option.getCondition();
+	if (isAlwaysFalseCondition(optCond))
+		return;
+
 	string condition;
 	if (targetServerId != ALL_SERVERS) {
 		const char *colName = 
@@ -750,6 +758,13 @@ void DBClientHatohol::getTriggerInfoList(
 		condition += StringUtils::sprintf("%s=%"PRIu64, colName,
 		                                  targetTriggerId);
 	}
+
+	if (!optCond.empty()) {
+		if (!condition.empty())
+			condition += " AND ";
+		condition += optCond;
+	}
+
 	getTriggerInfoList(triggerInfoList, condition);
 }
 
