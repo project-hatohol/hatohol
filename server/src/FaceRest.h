@@ -168,7 +168,7 @@ protected:
 
 	static HatoholError parseUserParameter(UserInfo &userInfo,
 	                                       GHashTable *query,
-					       bool allowEmptyPassword = false);
+					       bool forUpdate = false);
 
 	/**
 	 * Update the user informformation if 'name' specifined in 'query'

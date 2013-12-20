@@ -61,6 +61,11 @@
             <li role="presentation">
               <a id="logoutMenuItem" role="menuitem" href="javascript:void(0);">{% trans "Logout" %}</a>
             </li>
+            <li role="presentation">
+              <a id="changePasswordMenuItem" role="menuitem" href="javascript:void(0);">
+                {% trans "Change password" %}
+              </a>
+            </li>
           </ul>
         </div>
       </div>
@@ -84,6 +89,7 @@
     <script src="{{ STATIC_URL }}js/hatohol_user_profile.js"></script>
     <script src="{{ STATIC_URL }}js/hatohol_userconfig.js"></script>
     <script src="{{ STATIC_URL }}js/hatohol_navi.js"></script>
+    <script src="{{ STATIC_URL }}js/hatohol_password_changer.js"></script>
     <script src="{{ STATIC_URL }}js/library.js"></script>
     <script type="text/javascript">
       var userProfile = new HatoholUserProfile();

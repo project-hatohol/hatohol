@@ -18,20 +18,16 @@
  */
 
 #include <cstdio>
-#include "DBClientUser.h"
 #include "DataQueryOption.h"
-#include "CacheServiceDBClient.h"
 
 struct DataQueryOption::PrivateContext {
-	UserIdType userId;
 	size_t maxNumber;
 	SortOrder sortOrder;
 	uint64_t startId;
 
 	// constuctor
 	PrivateContext(void)
-	: userId(INVALID_USER_ID),
-	  maxNumber(NO_LIMIT),
+	: maxNumber(NO_LIMIT),
 	  sortOrder(SORT_DONT_CARE),
 	  startId(0)
 	{
@@ -63,8 +59,6 @@ DataQueryOption::~DataQueryOption()
 
 bool DataQueryOption::operator==(const DataQueryOption &rhs)
 {
-	if (m_ctx->userId != rhs.m_ctx->userId)
-		return false;
 	if (m_ctx->maxNumber != rhs.m_ctx->maxNumber)
 		return false;
 	if (m_ctx->sortOrder != rhs.m_ctx->sortOrder)
@@ -74,7 +68,7 @@ bool DataQueryOption::operator==(const DataQueryOption &rhs)
 	return true;
 }
 
-string DataQueryOption::getCondition(void) const
+std::string DataQueryOption::getCondition(void) const
 {
 	return "";
 }
@@ -107,28 +101,4 @@ void DataQueryOption::setStartId(uint64_t id)
 uint64_t DataQueryOption::getStartId(void) const
 {
 	return m_ctx->startId;
-}
-
-void DataQueryOption::setUserId(UserIdType userId)
-{
-	m_ctx->userId = userId;
-	if (m_ctx->userId == USER_ID_ADMIN) {
-		setFlags(ALL_PRIVILEGES);
-		return;
-	}
-
-	UserInfo userInfo;
-	CacheServiceDBClient cache;
-	if (!cache.getUser()->getUserInfo(userInfo, userId)) {
-		MLPL_ERR("Failed to getUserInfo(): userId: "
-		         "%"FMT_USER_ID"\n", userId);
-		m_ctx->userId = INVALID_USER_ID;
-		return;
-	}
-	setFlags(userInfo.flags);
-}
-
-UserIdType DataQueryOption::getUserId(void) const
-{
-	return m_ctx->userId;
 }

@@ -41,6 +41,7 @@ var HatoholUserProfile = function() {
   function setUserProfile(user) {
     self.user = user;
     $("#currentUserName").text(self.user.name);
+
     $("#logoutMenuItem").click(function() {
       new HatoholConnector({
         url: '/logout',
@@ -50,7 +51,11 @@ var HatoholUserProfile = function() {
         parseErrorCallback: hatoholErrorMsgBoxForParser
       });
     });
-  }
+
+    $("#changePasswordMenuItem").click(function() {
+      new HatoholPasswordChanger(user);
+    });
+  };
 };
 
 HatoholUserProfile.prototype.addOnLoadCb = function(onLoadCb) {

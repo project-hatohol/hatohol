@@ -51,6 +51,9 @@ public:
 
 	bool operator==(const OperationPrivilege &rhs);
 
+	void setUserId(UserIdType userId);
+	UserIdType getUserId(void) const;
+
 private:
 	struct PrivateContext;
 	PrivateContext *m_ctx;

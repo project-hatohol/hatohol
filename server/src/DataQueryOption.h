@@ -39,9 +39,6 @@ public:
 
 	bool operator==(const DataQueryOption &rhs);
 
-	void setUserId(UserIdType userId);
-	UserIdType getUserId(void) const;
-
 	/**
 	 * Set the maximum number of the returned elements.
 	 *

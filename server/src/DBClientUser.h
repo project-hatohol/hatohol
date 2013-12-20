@@ -32,6 +32,13 @@ struct UserInfo {
 	string name;
 	string password;
 	OperationPrivilegeFlag flags;
+
+	bool operator==(const UserInfo &u) {
+		return id == u.id &&
+		       name == u.name &&
+		       password == u.password &&
+		       flags == u.flags;
+	}
 };
 
 typedef std::list<UserInfo>          UserInfoList;
@@ -202,6 +209,9 @@ public:
 protected:
 	void getUserInfoList(UserInfoList &userInfoList,
 	                     const string &condition);
+	HatoholError hasPrivilegeForUpdateUserInfo(
+		UserInfo &userInfo,
+		const OperationPrivilege &privilege);
 
 private:
 	struct PrivateContext;
