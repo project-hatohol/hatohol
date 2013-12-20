@@ -27,7 +27,7 @@ libhatohol_la_SOURCES = \
 	DBClientUtils.h \
 	DBClientZabbix.cc DBClientZabbix.h \
 	DataStore.cc DataStore.h \
-	DataStoreAddProc.cc DataStoreAddProc.h \
+	DataStoreEventProc.cc DataStoreEventProc.h \
 	DataStoreException.cc DataStoreException.h \
 	DataStoreManager.cc DataStoreManager.h \
 	DataStoreNagios.cc DataStoreNagios.h \
