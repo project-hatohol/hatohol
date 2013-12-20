@@ -245,7 +245,7 @@ void UnifiedDataStore::getTriggerList(TriggerInfoList &triggerList,
 }
 
 HatoholError UnifiedDataStore::getEventList(EventInfoList &eventList,
-                                            EventQueryOption &option)
+					    HostResourceQueryOption &option)
 {
 	DBClientHatohol dbHatohol;
 	return dbHatohol.getEventInfoList(eventList, option);

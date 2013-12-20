@@ -471,9 +471,9 @@ struct DBClientHatohol::PrivateContext
 };
 
 // ---------------------------------------------------------------------------
-// EventQueryOption
+// HostResourceQueryOption
 // ---------------------------------------------------------------------------
-string EventQueryOption::getServerIdColumnName(void) const
+string HostResourceQueryOption::getServerIdColumnName(void) const
 {
 	const char *columnName
 	  = COLUMN_DEF_EVENTS[IDX_EVENTS_SERVER_ID].columnName;
@@ -486,13 +486,13 @@ string EventQueryOption::getServerIdColumnName(void) const
 				    columnName);
 }
 
-string EventQueryOption::getHostGroupIdColumnName(void) const
+string HostResourceQueryOption::getHostGroupIdColumnName(void) const
 {
 	// TODO: this is temporarily
 	return "host_group_id";
 }
 
-void EventQueryOption::appendCondition(string &cond, const string &newCond)
+void HostResourceQueryOption::appendCondition(string &cond, const string &newCond)
 {
 	if (cond.empty()) {
 		cond = newCond;
@@ -502,7 +502,7 @@ void EventQueryOption::appendCondition(string &cond, const string &newCond)
 	cond += newCond;
 }
 
-string EventQueryOption::makeConditionHostGroup(
+string HostResourceQueryOption::makeConditionHostGroup(
   const HostGroupSet &hostGroupSet, const string &hostGroupIdColumnName)
 {
 	string hostGrps;
@@ -521,7 +521,7 @@ string EventQueryOption::makeConditionHostGroup(
 	return cond;
 }
 
-string EventQueryOption::makeCondition(
+string HostResourceQueryOption::makeCondition(
   const ServerHostGrpSetMap &srvHostGrpSetMap,
   const string &serverIdColumnName, const string &hostGroupIdColumnName)
 {
@@ -554,7 +554,7 @@ string EventQueryOption::makeCondition(
 	return StringUtils::sprintf("(%s)", cond.c_str());
 }
 
-string EventQueryOption::getCondition(void) const
+string HostResourceQueryOption::getCondition(void) const
 {
 	string condition;
 	UserIdType userId = getUserId();
@@ -573,12 +573,12 @@ string EventQueryOption::getCondition(void) const
 	return condition;
 }
 
-string EventQueryOption::getTableNameForServerId(void) const
+string HostResourceQueryOption::getTableNameForServerId(void) const
 {
 	return m_tableNameForServerId;
 }
 
-void EventQueryOption::setTableNameForServerId(const std::string &name)
+void HostResourceQueryOption::setTableNameForServerId(const std::string &name)
 {
 	m_tableNameForServerId = name;
 }
@@ -814,7 +814,7 @@ void DBClientHatohol::addEventInfoList(const EventInfoList &eventInfoList)
 }
 
 HatoholError DBClientHatohol::getEventInfoList(EventInfoList &eventInfoList,
-                                               EventQueryOption &option)
+					       HostResourceQueryOption &option)
 {
 	const ColumnDef &eventsUnifiedId =
 	  COLUMN_DEF_EVENTS[IDX_EVENTS_UNIFIED_ID];

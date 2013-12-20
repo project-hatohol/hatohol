@@ -122,7 +122,7 @@ typedef list<ItemInfo>               ItemInfoList;
 typedef ItemInfoList::iterator       ItemInfoListIterator;
 typedef ItemInfoList::const_iterator ItemInfoListConstIterator;
 
-class EventQueryOption : public DataQueryOption {
+class HostResourceQueryOption : public DataQueryOption {
 public:
 	// Overriding of virtual methods
 	std::string getCondition(void) const;
@@ -198,7 +198,7 @@ public:
 	void addEventInfo(EventInfo *eventInfo);
 	void addEventInfoList(const EventInfoList &eventInfoList);
 	HatoholError getEventInfoList(EventInfoList &eventInfoList,
-	                              EventQueryOption &option);
+	                              HostResourceQueryOption &option);
 	void setEventInfoList(const EventInfoList &eventInfoList,
 	                      uint32_t serverId);
 

@@ -588,7 +588,7 @@ void test_oneProcWithoutFetchItems()
 	EventInfoList eventInfoList;
 	TriggerInfoList triggerInfoList;
 	ItemInfoList itemInfoList;
-	EventQueryOption option;
+	HostResourceQueryOption option;
 	option.setUserId(USER_ID_ADMIN);
 	db.getEventInfoList(eventInfoList, option);
 	db.getTriggerInfoList(triggerInfoList);
@@ -610,7 +610,7 @@ void test_oneProcWithCopyOnDemandEnabled()
 	EventInfoList eventInfoList;
 	TriggerInfoList triggerInfoList;
 	ItemInfoList itemInfoList;
-	EventQueryOption option;
+	HostResourceQueryOption option;
 	option.setUserId(USER_ID_ADMIN);
 	db.getEventInfoList(eventInfoList, option);
 	db.getTriggerInfoList(triggerInfoList);
@@ -632,7 +632,7 @@ void test_oneProcWithFetchItems()
 	EventInfoList eventInfoList;
 	TriggerInfoList triggerInfoList;
 	ItemInfoList itemInfoList;
-	EventQueryOption option;
+	HostResourceQueryOption option;
 	option.setUserId(USER_ID_ADMIN);
 	db.getEventInfoList(eventInfoList, option);
 	db.getTriggerInfoList(triggerInfoList);

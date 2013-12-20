@@ -135,7 +135,7 @@ void test_getEventList(void)
 
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	EventInfoList list;
-	EventQueryOption option;
+	HostResourceQueryOption option;
 	option.setUserId(USER_ID_ADMIN);
 	dataStore->getEventList(list, option);
 

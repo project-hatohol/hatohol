@@ -29,7 +29,7 @@
 
 namespace testDBClientHatohol {
 
-class TestEventQueryOption : public EventQueryOption {
+class TestHostResourceQueryOption : public HostResourceQueryOption {
 public:
 	string callGetServerIdColumnName(void) const
 	{
@@ -142,7 +142,7 @@ static string makeEventOutput(EventInfo &eventInfo)
 
 struct AssertGetEventsArg {
 	EventInfoList eventInfoList;
-	EventQueryOption option;
+	HostResourceQueryOption option;
 	DataQueryOption::SortOrder sortOrder;
 	size_t maxNumber;
 	uint64_t startId;
@@ -342,9 +342,9 @@ void _assertTriggerInfo(const TriggerInfo &expect, const TriggerInfo &actual)
 static void _assertMakeCondition(const ServerHostGrpSetMap &srvHostGrpSetMap,
 				 const string &expect)
 {
-	string cond = TestEventQueryOption::callMakeCondition(
-	                srvHostGrpSetMap,
-	                serverIdColumnName, hostGroupIdColumnName);
+	string cond = TestHostResourceQueryOption::callMakeCondition(
+			srvHostGrpSetMap,
+			serverIdColumnName, hostGroupIdColumnName);
 	cppcut_assert_equal(expect, cond);
 }
 #define assertMakeCondition(M,E) cut_trace(_assertMakeCondition(M,E))
@@ -366,9 +366,10 @@ static string makeExpectedConditionForUser(UserIdType userId)
 		const AccessInfo &accInfo = testAccessInfo[*jt];
 		srvHostGrpSetMap[accInfo.serverId].insert(accInfo.hostGroupId);
 	}
-	exp = TestEventQueryOption::callMakeCondition(srvHostGrpSetMap,
-	                                              serverIdColumnName,
-	                                              hostGroupIdColumnName);
+	exp = TestHostResourceQueryOption::callMakeCondition(
+		srvHostGrpSetMap,
+		serverIdColumnName,
+		hostGroupIdColumnName);
 	return exp;
 }
 
@@ -684,13 +685,13 @@ void test_makeConditionMultipleServers(void)
 
 void test_eventQueryOptionDefaultTableName(void)
 {
-	EventQueryOption option;
+	HostResourceQueryOption option;
 	cppcut_assert_equal(string(""), option.getTableNameForServerId());
 }
 
 void test_eventQueryOptionSetTableName(void)
 {
-	EventQueryOption option;
+	HostResourceQueryOption option;
 	const string tableName = "test_event";
 	option.setTableNameForServerId(tableName);
 	cppcut_assert_equal(tableName, option.getTableNameForServerId());
@@ -698,7 +699,7 @@ void test_eventQueryOptionSetTableName(void)
 
 void test_eventQueryOptionGetServerIdColumnName(void)
 {
-	TestEventQueryOption option;
+	TestHostResourceQueryOption option;
 	const string tableName = "test_event";
 	const string expectedServerIdColumnName
 	  = tableName + "." + serverIdColumnName;
@@ -737,7 +738,7 @@ void test_makeConditionComplicated(void)
 
 void test_makeSelectConditionUserAdmin(void)
 {
-	EventQueryOption option;
+	HostResourceQueryOption option;
 	option.setUserId(USER_ID_ADMIN);
 	string actual = option.getCondition();
 	string expect = "";
@@ -746,7 +747,7 @@ void test_makeSelectConditionUserAdmin(void)
 
 void test_makeSelectConditionAllEvents(void)
 {
-	EventQueryOption option;
+	HostResourceQueryOption option;
 	option.setFlags(OperationPrivilege::makeFlag(OPPRVLG_GET_ALL_SERVERS));
 	string actual = option.getCondition();
 	string expect = "";
@@ -756,7 +757,7 @@ void test_makeSelectConditionAllEvents(void)
 void test_makeSelectConditionNoneUser(void)
 {
 	setupTestDBUser(true, true);
-	EventQueryOption option;
+	HostResourceQueryOption option;
 	option.setUserId(INVALID_USER_ID);
 	string actual = option.getCondition();
 	string expect = DBClientHatohol::getAlwaysFalseCondition();
@@ -767,7 +768,7 @@ void test_makeSelectCondition(void)
 {
 	setupTestDBUser(true, true);
 	loadTestDBAccessList();
-	EventQueryOption option;
+	HostResourceQueryOption option;
 	for (size_t i = 0; i < NumTestUserInfo; i++) {
 		UserIdType userId = i + 1;
 		option.setUserId(userId);

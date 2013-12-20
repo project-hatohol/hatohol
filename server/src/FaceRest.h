@@ -187,8 +187,8 @@ protected:
 
 	static HatoholError parseSortOrderFromQuery(
 	  DataQueryOption::SortOrder &sortOrder, GHashTable *query);
-	static HatoholError parseEventParameter(EventQueryOption &option,
-	                                        GHashTable *query);
+	static HatoholError parseEventParameter(HostResourceQueryOption &option,
+						GHashTable *query);
 private:
 	struct PrivateContext;
 	PrivateContext *m_ctx;

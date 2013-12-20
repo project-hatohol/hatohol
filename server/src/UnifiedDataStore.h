@@ -43,7 +43,7 @@ public:
 	                            uint64_t targetHostId = ALL_HOSTS,
 	                            uint64_t targetTriggerId = ALL_TRIGGERS);
 	virtual HatoholError getEventList(EventInfoList &eventList,
-	                                  EventQueryOption &option);
+	                                  HostResourceQueryOption &option);
 	virtual void getItemList(ItemInfoList &itemList,
 	                         uint32_t targetServerId = ALL_SERVERS);
 	virtual bool getItemListAsync(ClosureBase *closure,

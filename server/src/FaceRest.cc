@@ -1402,7 +1402,7 @@ void FaceRest::handlerGetEvent(RestJob *job)
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 
 	EventInfoList eventList;
-	EventQueryOption option;
+	HostResourceQueryOption option;
 	option.setUserId(job->userId);
 	HatoholError err = parseEventParameter(option, job->query);
 	if (err != HTERR_OK) {
@@ -2128,8 +2128,8 @@ HatoholError FaceRest::parseSortOrderFromQuery(
 	return HatoholError(HTERR_OK);
 }
 
-HatoholError FaceRest::parseEventParameter(EventQueryOption &option,
-                                           GHashTable *query)
+HatoholError FaceRest::parseEventParameter(HostResourceQueryOption &option,
+					   GHashTable *query)
 {
 	if (!query)
 		return HatoholError(HTERR_OK);
