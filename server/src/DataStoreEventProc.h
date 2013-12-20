@@ -22,7 +22,7 @@
 
 using namespace std;
 
-class DataStoreAddProc : public DataStoreManager {
+class DataStoreEventProc : public DataStoreManager {
 public:
 
 protected:
