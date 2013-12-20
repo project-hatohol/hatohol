@@ -17,8 +17,8 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DataStoreAddProc_h
-#define DataStoreAddProc_h
+#ifndef DataStoreEventProc_h
+#define DataStoreEventProc_h
 
 using namespace std;
 #include "DataStoreManager.h"
@@ -29,5 +29,5 @@ public:
 	virtual ~DataStoreEventProc();
 };
 
-#endif // DataStoreAddProc_h
+#endif // DataStoreEventProc_h
 
