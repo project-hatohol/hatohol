@@ -21,9 +21,8 @@
 #define DataStoreEventProc_h
 
 using namespace std;
-#include "DataStoreManager.h"
 
-class DataStoreEventProc : public DataStoreManager {
+class DataStoreEventProc {
 public:
 	DataStoreEventProc(void);
 	virtual ~DataStoreEventProc();
