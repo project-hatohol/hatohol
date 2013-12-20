@@ -205,6 +205,13 @@ void test_createdWithSpecifiedDbPath(void)
 	DBDomainId domainId = 5;
 	DBAgentSQLite3 sqlite3(dbName.c_str(), domainId);
 	cut_assert_exist_path(expectPath.c_str());
+
+	// check that the path is not redefined
+	dbName = "test-database-name.ABCDEFGH";
+	expectPath = StringUtils::sprintf(
+	  "%s/%s.db", dbDirectory.c_str(), dbName.c_str());
+	DBAgentSQLite3 sqlite3alt(dbName.c_str(), domainId);
+	cut_assert_not_exist_path(expectPath.c_str());
 }
 
 void test_testIsTableExisting(void)
