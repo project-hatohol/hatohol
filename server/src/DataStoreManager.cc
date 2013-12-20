@@ -18,6 +18,7 @@
  */
 
 #include "DataStoreManager.h"
+#include <MutexLock.h>
 typedef map<uint32_t, DataStore*> DataStoreMap;
 typedef DataStoreMap::iterator    DataStoreMapIterator;
 
@@ -26,6 +27,7 @@ struct DataStoreManager::PrivateContext {
 	// So it's only necessary to free elements in one.
 	DataStoreMap    dataStoreMap;
 	DataStoreVector dataStoreVector;
+	MutexLock mutex;
 };
 // ---------------------------------------------------------------------------
 // Public methods
@@ -49,6 +51,7 @@ void DataStoreManager::passCommandLineArg(const CommandLineArg &cmdArg)
 
 bool DataStoreManager::add(uint32_t storeId, DataStore *dataStore)
 {
+	m_ctx->mutex.lock();
 	pair<DataStoreMapIterator, bool> result = 
 	  m_ctx->dataStoreMap.insert
 	    (pair<uint32_t, DataStore *>(storeId, dataStore));
@@ -57,6 +60,7 @@ bool DataStoreManager::add(uint32_t storeId, DataStore *dataStore)
 	if (successed) {
 		m_ctx->dataStoreVector.push_back(dataStore);
 	}
+	m_ctx->mutex.unlock();
 	return result.second;
 }
 
