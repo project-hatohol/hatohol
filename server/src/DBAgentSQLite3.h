@@ -33,11 +33,17 @@ public:
 	/**
 	 * define database path
 	 *
-	 * @domainId domain ID. If the domainId has already been set, the path
-	 *                      is overwritten.
+	 * @domainId domain ID.
 	 * @path     A path of the database.
+	 * @allowOverwrite
+	 * A flag that indicates if redefinition of the path is allowed.
+	 *
+	 * @return
+	 * When allowOverwrite is true and the path for domainId is already
+	 * defined, false is retruened. Otherwise true is returned.
 	 */
-	static void defineDBPath(DBDomainId domainId, const string &path);
+	static bool defineDBPath(DBDomainId domainId, const string &path,
+	                         bool allowOverwrite = true);
 	static const string &getDBPath(DBDomainId domainId);
 
 	// constructor and destructor
@@ -63,6 +69,7 @@ public:
 	virtual uint64_t getLastInsertId(void);
 
 protected:
+	static string makeDBPathFromName(const string &name);
 	static string getDefaultDBPath(DBDomainId domainId);
 	static void checkDBPath(const string &dbPath);
 	static sqlite3 *openDatabase(const string &dbPath);

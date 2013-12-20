@@ -192,6 +192,21 @@ void test_dbPathByEnv(void)
 	cppcut_assert_equal(0, strncmp(dbDir, g_dbPath.c_str(), strlen(dbDir)));
 }
 
+void test_createdWithSpecifiedDbPath(void)
+{
+	ConfigManager *configMgr = ConfigManager::getInstance();
+	const string &dbDirectory = configMgr->getDatabaseDirectory();
+	string dbName = "test-database-name.01234567";
+	string expectPath = StringUtils::sprintf(
+	  "%s/%s.db", dbDirectory.c_str(), dbName.c_str());
+	unlink(expectPath.c_str());
+	cut_assert_not_exist_path(expectPath.c_str());
+
+	DBDomainId domainId = 5;
+	DBAgentSQLite3 sqlite3(dbName.c_str(), domainId);
+	cut_assert_exist_path(expectPath.c_str());
+}
+
 void test_testIsTableExisting(void)
 {
 	DEFINE_DBAGENT_WITH_INIT("FooTable.db", dbAgent);
