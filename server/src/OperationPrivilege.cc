@@ -45,8 +45,7 @@ OperationPrivilege::OperationPrivilege(const OperationPrivilegeFlag flags)
 OperationPrivilege::OperationPrivilege(const OperationPrivilege &src)
 {
 	m_ctx = new PrivateContext();
-	m_ctx->userId = src.m_ctx->userId;
-	m_ctx->flags = src.m_ctx->flags;
+	*m_ctx = *src.m_ctx;
 }
 
 OperationPrivilege::~OperationPrivilege()
