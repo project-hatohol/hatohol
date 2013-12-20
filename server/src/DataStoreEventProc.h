@@ -22,7 +22,7 @@
 
 using namespace std;
 
-class DataStoreEventProc {
+struct DataStoreEventProc {
 public:
 	DataStoreEventProc(void);
 	virtual ~DataStoreEventProc();
