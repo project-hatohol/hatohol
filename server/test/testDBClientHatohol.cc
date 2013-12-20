@@ -46,7 +46,6 @@ public:
 	}
 };
 
-static const string defaultEventTableName = "";
 static const string serverIdColumnName = "server_id";
 static const string hostGroupIdColumnName = "host_group_id";
 
@@ -341,8 +340,7 @@ void _assertTriggerInfo(const TriggerInfo &expect, const TriggerInfo &actual)
 #define assertTriggerInfo(E,A) cut_trace(_assertTriggerInfo(E,A))
 
 static void _assertMakeCondition(const ServerHostGrpSetMap &srvHostGrpSetMap,
-				 const string &expect,
-				 const string &tableName = defaultEventTableName)
+				 const string &expect)
 {
 	string cond = TestEventQueryOption::callMakeCondition(
 	                srvHostGrpSetMap,
@@ -687,15 +685,15 @@ void test_makeConditionMultipleServers(void)
 void test_eventQueryOptionDefaultTableName(void)
 {
 	EventQueryOption option;
-	cppcut_assert_equal(string(""), option.getEventTableName());
+	cppcut_assert_equal(string(""), option.getTableNameForServerId());
 }
 
 void test_eventQueryOptionSetTableName(void)
 {
 	EventQueryOption option;
 	const string tableName = "test_event";
-	option.setEventTableName(tableName);
-	cppcut_assert_equal(tableName, option.getEventTableName());
+	option.setTableNameForServerId(tableName);
+	cppcut_assert_equal(tableName, option.getTableNameForServerId());
 }
 
 void test_eventQueryOptionGetServerIdColumnName(void)
@@ -704,7 +702,7 @@ void test_eventQueryOptionGetServerIdColumnName(void)
 	const string tableName = "test_event";
 	const string expectedServerIdColumnName
 	  = tableName + "." + serverIdColumnName;
-	option.setEventTableName(tableName);
+	option.setTableNameForServerId(tableName);
 	cppcut_assert_equal(expectedServerIdColumnName,
 			    option.callGetServerIdColumnName());
 }

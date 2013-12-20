@@ -478,11 +478,11 @@ string EventQueryOption::getServerIdColumnName(void) const
 	const char *columnName
 	  = COLUMN_DEF_EVENTS[IDX_EVENTS_SERVER_ID].columnName;
 
-	if (m_eventTableName.empty())
+	if (m_tableNameForServerId.empty())
 		return columnName;
 
 	return StringUtils::sprintf("%s.%s",
-				    m_eventTableName.c_str(),
+				    m_tableNameForServerId.c_str(),
 				    columnName);
 }
 
@@ -573,14 +573,14 @@ string EventQueryOption::getCondition(void) const
 	return condition;
 }
 
-string EventQueryOption::getEventTableName(void) const
+string EventQueryOption::getTableNameForServerId(void) const
 {
-	return m_eventTableName;
+	return m_tableNameForServerId;
 }
 
-void EventQueryOption::setEventTableName(const std::string &name)
+void EventQueryOption::setTableNameForServerId(const std::string &name)
 {
-	m_eventTableName = name;
+	m_tableNameForServerId = name;
 }
 
 // ---------------------------------------------------------------------------
@@ -851,7 +851,7 @@ HatoholError DBClientHatohol::getEventInfoList(EventInfoList &eventInfoList,
 	// Tables
 	const static char *VAR_EVENTS = "e";
 	const static char *VAR_TRIGGERS = "t";
-	option.setEventTableName(VAR_EVENTS);
+	option.setTableNameForServerId(VAR_EVENTS);
 	arg.tableName = StringUtils::sprintf(
 	  " %s %s inner join %s %s on %s.%s=%s.%s",
 	  TABLE_NAME_EVENTS, VAR_EVENTS,
