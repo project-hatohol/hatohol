@@ -35,7 +35,7 @@ public:
 
 	DataQueryOption(void);
 	DataQueryOption(const DataQueryOption &src);
-	~DataQueryOption();
+	virtual ~DataQueryOption();
 
 	bool operator==(const DataQueryOption &rhs);
 
