@@ -747,7 +747,7 @@ void test_makeSelectConditionUserAdmin(void)
 void test_makeSelectConditionAllEvents(void)
 {
 	EventQueryOption option;
-	option.setFlags(OperationPrivilege::makeFlag(OPPRVLG_GET_ALL_EVENTS));
+	option.setFlags(OperationPrivilege::makeFlag(OPPRVLG_GET_ALL_SERVERS));
 	string actual = option.getCondition();
 	string expect = "";
 	cppcut_assert_equal(actual, expect);
