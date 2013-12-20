@@ -18,3 +18,14 @@
  */
 
 #include "DataStoreEventProc.h"
+
+// ---------------------------------------------------------------------------
+// Public methods
+// ---------------------------------------------------------------------------
+DataStoreEventProc::DataStoreEventProc(void)
+{
+}
+
+DataStoreEventProc::~DataStoreEventProc()
+{
+}

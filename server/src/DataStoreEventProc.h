@@ -21,14 +21,12 @@
 #define DataStoreAddProc_h
 
 using namespace std;
+#include "DataStoreManager.h"
 
 class DataStoreEventProc : public DataStoreManager {
 public:
-
-protected:
-
-private:
-
+	DataStoreEventProc(void);
+	virtual ~DataStoreEventProc();
 };
 
 #endif // DataStoreAddProc_h
