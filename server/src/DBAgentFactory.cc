@@ -39,5 +39,9 @@ DBAgent* DBAgentFactory::create(DBDomainId domainId, bool skipSetup,
 		                        connectInfo->port,
 		                        domainId, skipSetup);
 	}
-	return new DBAgentSQLite3(domainId, skipSetup);
+
+	const char *dbName = NULL;
+	if (connectInfo)
+		dbName = connectInfo->dbName.c_str();
+	return new DBAgentSQLite3(dbName, domainId, skipSetup);
 }

@@ -41,7 +41,8 @@ public:
 	static const string &getDBPath(DBDomainId domainId);
 
 	// constructor and destructor
-	DBAgentSQLite3(DBDomainId domainId = DEFAULT_DB_DOMAIN_ID,
+	DBAgentSQLite3(const char *dbName = NULL,
+	               DBDomainId domainId = DEFAULT_DB_DOMAIN_ID,
 	               bool skipSetup = false);
 	virtual ~DBAgentSQLite3();
 

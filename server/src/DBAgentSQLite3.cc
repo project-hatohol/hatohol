@@ -135,7 +135,8 @@ const string &DBAgentSQLite3::getDBPath(DBDomainId domainId)
 	return it->second;
 }
 
-DBAgentSQLite3::DBAgentSQLite3(DBDomainId domainId, bool skipSetup)
+DBAgentSQLite3::DBAgentSQLite3(const char *dbPath,
+                               DBDomainId domainId, bool skipSetup)
 : DBAgent(domainId, skipSetup),
   m_ctx(NULL)
 {
