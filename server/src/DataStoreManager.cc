@@ -18,16 +18,28 @@
  */
 
 #include "DataStoreManager.h"
+typedef map<uint32_t, DataStore*> DataStoreMap;
+typedef DataStoreMap::iterator    DataStoreMapIterator;
 
+struct DataStoreManager::PrivateContext {
+	// Elements in m_dataStoreMap and m_dataStoreVector are the same.
+	// So it's only necessary to free elements in one.
+	DataStoreMap    m_dataStoreMap;
+	DataStoreVector m_dataStoreVector;
+};
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
 DataStoreManager::DataStoreManager(void)
 {
+	m_ctx = new PrivateContext;
 }
 
 DataStoreManager::~DataStoreManager()
 {
+	if (m_ctx)
+		delete m_ctx;
+
 	closeAllStores();
 }
 
@@ -38,19 +50,19 @@ void DataStoreManager::passCommandLineArg(const CommandLineArg &cmdArg)
 bool DataStoreManager::add(uint32_t storeId, DataStore *dataStore)
 {
 	pair<DataStoreMapIterator, bool> result = 
-	  m_dataStoreMap.insert
+	  m_ctx->m_dataStoreMap.insert
 	    (pair<uint32_t, DataStore *>(storeId, dataStore));
 
 	bool successed = result.second;
 	if (successed) {
-		m_dataStoreVector.push_back(dataStore);
+		m_ctx->m_dataStoreVector.push_back(dataStore);
 	}
 	return result.second;
 }
 
 DataStoreVector &DataStoreManager::getDataStoreVector(void)
 {
-	return m_dataStoreVector;
+	return m_ctx->m_dataStoreVector;
 }
 
 // ---------------------------------------------------------------------------
@@ -58,7 +70,7 @@ DataStoreVector &DataStoreManager::getDataStoreVector(void)
 // ---------------------------------------------------------------------------
 void DataStoreManager::closeAllStores(void)
 {
-	for (size_t i = 0; i < m_dataStoreVector.size(); i++)
-		delete m_dataStoreVector[i];
-	m_dataStoreVector.clear();
+	for (size_t i = 0; i < m_ctx->m_dataStoreVector.size(); i++)
+		delete m_ctx->m_dataStoreVector[i];
+	m_ctx->m_dataStoreVector.clear();
 }

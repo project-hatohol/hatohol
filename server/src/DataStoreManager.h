@@ -44,13 +44,8 @@ protected:
 	void closeAllStores(void);
 
 private:
-	typedef map<uint32_t, DataStore*> DataStoreMap;
-	typedef DataStoreMap::iterator    DataStoreMapIterator;
-
-	// Elements in m_dataStoreMap and m_dataStoreVector are the same.
-	// So it's only necessary to free elements in one.
-	DataStoreMap    m_dataStoreMap;
-	DataStoreVector m_dataStoreVector;
+	struct PrivateContext;
+	PrivateContext *m_ctx;
 };
 
 #endif // DataStoreManager_h
