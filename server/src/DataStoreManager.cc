@@ -75,6 +75,6 @@ DataStoreVector &DataStoreManager::getDataStoreVector(void)
 void DataStoreManager::closeAllStores(void)
 {
 	for (size_t i = 0; i < m_ctx->dataStoreVector.size(); i++)
-		delete m_ctx->dataStoreVector[i];
+		m_ctx->dataStoreVector[i]->unref();
 	m_ctx->dataStoreVector.clear();
 }

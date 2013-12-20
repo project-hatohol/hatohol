@@ -26,10 +26,13 @@ DataStore::DataStore(void)
 {
 }
 
-DataStore::~DataStore()
+void DataStore::collectArms(ArmBaseVector &arms)
 {
 }
 
-void DataStore::collectArms(ArmBaseVector &arms)
+// ---------------------------------------------------------------------------
+// Protected methods
+// ---------------------------------------------------------------------------
+DataStore::~DataStore()
 {
 }
