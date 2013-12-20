@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-12-17 07:02-0600\n"
-"PO-Revision-Date: 2013-12-17 22:03+0900\n"
+"POT-Creation-Date: 2013-12-19 18:30-0600\n"
+"PO-Revision-Date: 2013-12-20 09:33+0900\n"
 "Last-Translator: Takuro Ashie <ashie@clear-code.com>\n"
 "Language-Team: Project Hatohol\n"
 "Language: \n"
@@ -120,16 +120,17 @@ msgstr "次へ"
 
 #: static/js/hatohol_actor_mail_dialog.js:26
 #: static/js/hatohol_actor_mail_dialog.js:117
-#: static/js/hatohol_priviledge_edit_dialog.js:30
-#: static/js/hatohol_user_edit_dialog.js:26
+#: static/js/hatohol_privilege_edit_dialog.js:30
+#: static/js/hatohol_user_edit_dialog.js:25
 msgid "APPLY"
 msgstr "適用"
 
 #: static/js/hatohol_actor_mail_dialog.js:29
 #: static/js/hatohol_add_action_dialog.js:35
-#: static/js/hatohol_priviledge_edit_dialog.js:33
+#: static/js/hatohol_password_changer.js:29
+#: static/js/hatohol_privilege_edit_dialog.js:33
 #: static/js/hatohol_selector_dialog.js:30
-#: static/js/hatohol_user_edit_dialog.js:32
+#: static/js/hatohol_user_edit_dialog.js:31
 msgid "CANCEL"
 msgstr "キャンセル"
 
@@ -147,8 +148,7 @@ msgstr "(空白の場合、localhostが使用されます)"
 
 #: static/js/hatohol_add_action_dialog.js:32
 #: static/js/hatohol_add_action_dialog.js:435
-#: static/js/hatohol_user_edit_dialog.js:26
-#: static/js/hatohol_user_edit_dialog.js:177
+#: static/js/hatohol_user_edit_dialog.js:25
 msgid "ADD"
 msgstr "追加"
 
@@ -169,7 +169,7 @@ msgid "SELECT"
 msgstr "選択"
 
 #: static/js/hatohol_add_action_dialog.js:289
-#: static/js/hatohol_user_edit_dialog.js:88
+#: static/js/hatohol_user_edit_dialog.js:87
 msgid "Successfully created."
 msgstr "正常に作成されました"
 
@@ -206,7 +206,7 @@ msgid "e-mail"
 msgstr "Eメール"
 
 #: static/js/hatohol_add_action_dialog.js:373
-#: static/js/hatohol_priviledge_edit_dialog.js:145
+#: static/js/hatohol_privilege_edit_dialog.js:145
 #: static/js/hatohol_server_selector.js:45
 msgid "Type"
 msgstr "タイプ"
@@ -252,7 +252,7 @@ msgid "Server ID"
 msgstr "サーバID"
 
 #: static/js/hatohol_host_selector.js:50
-#: static/js/hatohol_priviledge_edit_dialog.js:146
+#: static/js/hatohol_privilege_edit_dialog.js:146
 #: static/js/hatohol_server_selector.js:46
 msgid "Hostname"
 msgstr "ホスト名"
@@ -262,12 +262,12 @@ msgid "Login"
 msgstr "ログイン"
 
 #: static/js/hatohol_login_dialog.js:57
-#: static/js/hatohol_user_edit_dialog.js:140
+#: static/js/hatohol_user_edit_dialog.js:139
 msgid "User name"
 msgstr "ユーザ名"
 
 #: static/js/hatohol_login_dialog.js:59
-#: static/js/hatohol_user_edit_dialog.js:142
+#: static/js/hatohol_user_edit_dialog.js:141
 msgid "Password"
 msgstr "パスワード"
 
@@ -341,43 +341,77 @@ msgstr "アクション"
 msgid "Users"
 msgstr "ユーザ"
 
-#: static/js/hatohol_priviledge_edit_dialog.js:39
-msgid "Edit priviledges"
+#: static/js/hatohol_password_changer.js:26
+#: static/js/hatohol_password_changer.js:133
+msgid "CHANGE"
+msgstr "変更"
+
+#: static/js/hatohol_password_changer.js:36
+msgid "CHANGE PASSWORD"
+msgstr "パスワード変更"
+
+#: static/js/hatohol_password_changer.js:46
+msgid "Now changing the password ..."
+msgstr "パスワードを変更しています..."
+
+#: static/js/hatohol_password_changer.js:73
+msgid "Successfully changed."
+msgstr "正常に変更されました"
+
+#: static/js/hatohol_password_changer.js:81
+#: static/js/hatohol_user_edit_dialog.js:101
+msgid "Password is empty!"
+msgstr "パスワードが入力されていません！"
+
+#: static/js/hatohol_password_changer.js:85
+msgid "Passwords don't match!"
+msgstr "パスワードが一致しません！"
+
+#: static/js/hatohol_password_changer.js:103
+msgid "New password"
+msgstr "新しいパスワード"
+
+#: static/js/hatohol_password_changer.js:105
+msgid "New password (Confirm)"
+msgstr "新しいパスワード（確認）"
+
+#: static/js/hatohol_privilege_edit_dialog.js:39
+msgid "Edit privileges"
 msgstr "権限を編集"
 
-#: static/js/hatohol_priviledge_edit_dialog.js:51
+#: static/js/hatohol_privilege_edit_dialog.js:51
 #: static/js/hatohol_selector_dialog.js:45
 msgid "Now getting information..."
 msgstr "情報を取得しています.."
 
-#: static/js/hatohol_priviledge_edit_dialog.js:81
+#: static/js/hatohol_privilege_edit_dialog.js:81
 #: static/js/hatohol_selector_dialog.js:110
 msgid "No data."
 msgstr "データがありません"
 
-#: static/js/hatohol_priviledge_edit_dialog.js:143
+#: static/js/hatohol_privilege_edit_dialog.js:143
 msgid "Allow"
 msgstr "許可"
 
-#: static/js/hatohol_priviledge_edit_dialog.js:147
+#: static/js/hatohol_privilege_edit_dialog.js:147
 #: static/js/hatohol_server_selector.js:47
 msgid "IP Address"
 msgstr "IPアドレス"
 
-#: static/js/hatohol_priviledge_edit_dialog.js:148
+#: static/js/hatohol_privilege_edit_dialog.js:148
 #: static/js/hatohol_server_selector.js:48
 msgid "Nickname"
 msgstr "ニックネーム"
 
-#: static/js/hatohol_priviledge_edit_dialog.js:241
+#: static/js/hatohol_privilege_edit_dialog.js:241
 msgid "Aplpying..."
 msgstr "適用中..."
 
-#: static/js/hatohol_priviledge_edit_dialog.js:249
+#: static/js/hatohol_privilege_edit_dialog.js:249
 msgid "Failed to apply."
 msgstr "適用に失敗しました。"
 
-#: static/js/hatohol_priviledge_edit_dialog.js:251
+#: static/js/hatohol_privilege_edit_dialog.js:251
 msgid "Succeeded to apply."
 msgstr "適用に成功しました。"
 
@@ -425,47 +459,43 @@ msgstr "サーバ選択"
 msgid "Trigger selecion"
 msgstr "トリガー選択"
 
-#: static/js/hatohol_user_edit_dialog.js:25
+#: static/js/hatohol_user_edit_dialog.js:24
 msgid "EDIT USER"
 msgstr "ユーザ編集"
 
-#: static/js/hatohol_user_edit_dialog.js:25
+#: static/js/hatohol_user_edit_dialog.js:24
 msgid "ADD USER"
 msgstr "ユーザ追加"
 
-#: static/js/hatohol_user_edit_dialog.js:49
+#: static/js/hatohol_user_edit_dialog.js:48
 msgid "Now updating the user ..."
 msgstr "ユーザを更新しています..."
 
-#: static/js/hatohol_user_edit_dialog.js:51
+#: static/js/hatohol_user_edit_dialog.js:50
 msgid "Now creating a user ..."
 msgstr "ユーザを作成しています..."
 
-#: static/js/hatohol_user_edit_dialog.js:86
+#: static/js/hatohol_user_edit_dialog.js:85
 msgid "Successfully updated."
 msgstr "正常に更新されました"
 
-#: static/js/hatohol_user_edit_dialog.js:98
+#: static/js/hatohol_user_edit_dialog.js:97
 msgid "User name is empty!"
 msgstr "ユーザ名が入力されていません！"
 
-#: static/js/hatohol_user_edit_dialog.js:102
-msgid "Password is empty!"
-msgstr "パスワードが入力されていません！"
-
-#: static/js/hatohol_user_edit_dialog.js:106
+#: static/js/hatohol_user_edit_dialog.js:105
 msgid "Invalid user type!"
 msgstr "ユーザの種類が正しくありません！"
 
-#: static/js/hatohol_user_edit_dialog.js:144
+#: static/js/hatohol_user_edit_dialog.js:143
 msgid "User type"
 msgstr "ユーザの種類"
 
-#: static/js/hatohol_user_edit_dialog.js:146
+#: static/js/hatohol_user_edit_dialog.js:145
 msgid "Guest"
 msgstr "ゲスト"
 
-#: static/js/hatohol_user_edit_dialog.js:147
+#: static/js/hatohol_user_edit_dialog.js:146
 msgid "Admin"
 msgstr "管理者"
 

@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-12-17 07:02-0600\n"
-"PO-Revision-Date: 2013-12-16 17:30+0900\n"
+"POT-Creation-Date: 2013-12-19 18:30-0600\n"
+"PO-Revision-Date: 2013-12-20 09:30+0900\n"
 "Last-Translator: Takuro Ashie <ashie@clear-code.com>\n"
 "Language-Team: Project Hatohol\n"
 "Language: \n"
@@ -29,12 +29,12 @@ msgstr "アクション削除"
 
 #: viewer/actions_ajax.html:43 viewer/dashboard_ajax.html:48
 #: viewer/dashboard_ajax.html.py:68 viewer/latest_ajax.html:42
-#: viewer/triggers_ajax.html:44
+#: viewer/triggers_ajax.html:46
 msgid "Server"
 msgstr "サーバ"
 
 #: viewer/actions_ajax.html:44 viewer/latest_ajax.html:43
-#: viewer/triggers_ajax.html:50
+#: viewer/triggers_ajax.html:52
 msgid "Host"
 msgstr "ホスト"
 
@@ -46,11 +46,11 @@ msgstr "ホストグループ"
 msgid "Trigger"
 msgstr "トリガー"
 
-#: viewer/actions_ajax.html:47 viewer/triggers_ajax.html:46
+#: viewer/actions_ajax.html:47 viewer/triggers_ajax.html:48
 msgid "Status"
 msgstr "ステータス"
 
-#: viewer/actions_ajax.html:48 viewer/triggers_ajax.html:45
+#: viewer/actions_ajax.html:48 viewer/triggers_ajax.html:47
 msgid "Severity"
 msgstr "深刻度"
 
@@ -111,6 +111,10 @@ msgstr "準備中"
 msgid "Logout"
 msgstr "ログアウト"
 
+#: viewer/base_ajax.html:66
+msgid "Change password"
+msgstr "パスワード変更"
+
 #: viewer/dashboard_ajax.html:24 viewer/index.html:24
 msgid "Dashboard"
 msgstr "ダッシュボード"
@@ -127,27 +131,27 @@ msgstr "値"
 msgid "Group"
 msgstr "グループ"
 
-#: viewer/dashboard_ajax.html:50 viewer/triggers_ajax.html:75
+#: viewer/dashboard_ajax.html:50 viewer/triggers_ajax.html:77
 msgid "Disaster"
 msgstr "致命的な障害"
 
-#: viewer/dashboard_ajax.html:51 viewer/triggers_ajax.html:75
+#: viewer/dashboard_ajax.html:51 viewer/triggers_ajax.html:77
 msgid "High"
 msgstr "重度の障害"
 
-#: viewer/dashboard_ajax.html:52 viewer/triggers_ajax.html:75
+#: viewer/dashboard_ajax.html:52 viewer/triggers_ajax.html:77
 msgid "Average"
 msgstr "軽度の障害"
 
-#: viewer/dashboard_ajax.html:53 viewer/triggers_ajax.html:75
+#: viewer/dashboard_ajax.html:53 viewer/triggers_ajax.html:77
 msgid "Warning"
 msgstr "警告"
 
-#: viewer/dashboard_ajax.html:54 viewer/triggers_ajax.html:75
+#: viewer/dashboard_ajax.html:54 viewer/triggers_ajax.html:77
 msgid "Information"
 msgstr "情報"
 
-#: viewer/dashboard_ajax.html:55 viewer/triggers_ajax.html:75
+#: viewer/dashboard_ajax.html:55 viewer/triggers_ajax.html:77
 msgid "Not classified"
 msgstr "未分類"
 
@@ -224,7 +228,7 @@ msgstr "アプリケーション:"
 msgid "Application"
 msgstr "アプリケーション"
 
-#: viewer/latest_ajax.html:45 viewer/triggers_ajax.html:51
+#: viewer/latest_ajax.html:45 viewer/triggers_ajax.html:53
 msgid "Name"
 msgstr "名前"
 
@@ -244,13 +248,13 @@ msgstr "前回の値"
 msgid "Minimum Severity:"
 msgstr "最小の深刻度:"
 
-#: viewer/overview_items_ajax.html:39 viewer/overview_triggers_ajax.html:39
-#: viewer/triggers_ajax.html:31
+#: viewer/overview_items_ajax.html:40 viewer/overview_triggers_ajax.html:40
+#: viewer/triggers_ajax.html:32
 msgid "Group:"
 msgstr "グループ:"
 
-#: viewer/overview_items_ajax.html:46 viewer/overview_triggers_ajax.html:46
-#: viewer/triggers_ajax.html:35
+#: viewer/overview_items_ajax.html:48 viewer/overview_triggers_ajax.html:48
+#: viewer/triggers_ajax.html:37
 msgid "Host:"
 msgstr "ホスト:"
 
@@ -274,31 +278,31 @@ msgstr "ニックネーム"
 msgid "Maps"
 msgstr "マップ"
 
-#: viewer/triggers_ajax.html:47
+#: viewer/triggers_ajax.html:49
 msgid "Last change"
 msgstr "最新の変更"
 
-#: viewer/triggers_ajax.html:48
+#: viewer/triggers_ajax.html:50
 msgid "Duration"
 msgstr "継続時間"
 
-#: viewer/triggers_ajax.html:49
+#: viewer/triggers_ajax.html:51
 msgid "Acknowledged"
 msgstr "障害対応済"
 
-#: viewer/triggers_ajax.html:52
+#: viewer/triggers_ajax.html:54
 msgid "Comment"
 msgstr "コメント"
 
-#: viewer/triggers_ajax.html:74
+#: viewer/triggers_ajax.html:76
 msgid "OK"
 msgstr "正常"
 
-#: viewer/triggers_ajax.html:74
+#: viewer/triggers_ajax.html:76
 msgid "Problem"
 msgstr "障害"
 
-#: viewer/triggers_ajax.html:74
+#: viewer/triggers_ajax.html:76
 msgid "Unknown"
 msgstr "不明"
 
