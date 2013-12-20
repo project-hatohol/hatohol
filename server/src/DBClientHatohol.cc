@@ -484,6 +484,7 @@ HostResourceQueryOption::HostResourceQueryOption(void)
 
 HostResourceQueryOption::HostResourceQueryOption(const HostResourceQueryOption &src)
 {
+	m_ctx = new PrivateContext();
 	*m_ctx = *src.m_ctx;
 }
 
