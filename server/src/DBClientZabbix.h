@@ -48,7 +48,16 @@ public:
 	                                             const ItemGroup *item,
 	                                             DBClientZabbix &dbZabbix);
 
-	DBClientZabbix(size_t zabbixServerId);
+	/**
+	 * create a DBClientZabbix instance.
+	 *
+	 * Different from other DBClient sub classes, instances of this class 
+	 * have to be created with the factory function.
+	 *
+	 * @param A server ID of the zabbix server.
+	 * @return A new DBclientZabbix instance.
+	 */
+	static DBClientZabbix *create(const size_t zabbixServerId);
 	virtual ~DBClientZabbix();
 
 	void addTriggersRaw2_0(ItemTablePtr tablePtr);
@@ -100,6 +109,7 @@ protected:
 	static int  getItemVariable(const string &word);
 	static void extractItemKeys(StringVector &params, const string &key);
 
+	DBClientZabbix(size_t zabbixServerId);
 	void addItems(
 	  ItemTablePtr tablePtr, const string &tableName,
 	  size_t numColumns, const ColumnDef *columnDefs,

@@ -30,12 +30,10 @@ static const DBDomainId DB_DOMAIN_ID_CONFIG  = 0x0010;
 static const DBDomainId DB_DOMAIN_ID_ACTION  = 0x0018;
 static const DBDomainId DB_DOMAIN_ID_HATOHOL = 0x0020;
 static const DBDomainId DB_DOMAIN_ID_USERS   = 0x0030;
-static const DBDomainId DB_DOMAIN_ID_ZABBIX  = 0x1000;
-static const size_t NUM_MAX_ZABBIX_SERVERS = 100;
+static const DBDomainId DB_DOMAIN_ID_ZABBIX  = 0x00100000;
 // DBClintZabbix uses the number of domains by NUM_MAX_ZABBIX_SERVERS 
 // So the domain ID is occupied
-//   from DB_DOMAIN_ID_ZABBIX
-//   to   DB_DOMAIN_ID_ZABBIX + NUM_MAX_ZABBIX_SERVERS - 1
+//   from DB_DOMAIN_ID_ZABBIX to 0xffffffff
 static const DBDomainId DB_DOMAIN_ID_NONE    = -1;
 
 typedef int UserIdType;
