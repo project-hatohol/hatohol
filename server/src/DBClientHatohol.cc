@@ -629,8 +629,25 @@ string HostResourceQueryOption::getCondition(void) const
 {
 	string condition;
 	UserIdType userId = getUserId();
-	if (userId == USER_ID_ADMIN || has(OPPRVLG_GET_ALL_SERVERS))
-		return "";
+
+	if (userId == USER_ID_ADMIN || has(OPPRVLG_GET_ALL_SERVERS)) {
+		if (m_ctx->targetServerId != ALL_SERVERS) {
+			condition = StringUtils::sprintf(
+				"%s=%"PRIu32,
+				getServerIdColumnName().c_str(),
+				m_ctx->targetServerId);
+		}
+		if (m_ctx->targetHostId != ALL_HOSTS) {
+			if (!condition.empty())
+				condition += " AND ";
+			condition += StringUtils::sprintf(
+				"%s=%"PRIu64,
+				getHostIdColumnName().c_str(),
+				m_ctx->targetHostId);
+		}
+		return condition;
+	}
+
 	if (userId == INVALID_USER_ID) {
 		MLPL_DBG("INVALID_USER_ID\n");
 		return DBClientHatohol::getAlwaysFalseCondition();
@@ -840,7 +857,6 @@ void DBClientHatohol::getTriggerInfoList(
 			condition += " AND ";
 		condition += StringUtils::sprintf("(%s)", optCond.c_str());
 	}
-	g_print("\n\nSQL: %s\n\n", condition.c_str());
 
 	getTriggerInfoList(triggerInfoList, condition);
 }

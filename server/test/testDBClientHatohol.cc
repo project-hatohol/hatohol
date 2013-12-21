@@ -723,6 +723,18 @@ void test_makeConditionWithTargetServerAndHost(void)
 	assertMakeCondition(srvHostGrpSetMap, expect, 14, 21);
 }
 
+void test_conditionForAdminWithTargetServerAndHost(void)
+{
+	HostResourceQueryOption option;
+	option.setUserId(USER_ID_ADMIN);
+	option.setTargetServerId(26);
+	option.setTargetHostId(32);
+	string expect = StringUtils::sprintf("%s=26 AND %s=32",
+					     serverIdColumnName.c_str(),
+					     hostIdColumnName.c_str());
+	cppcut_assert_equal(expect, option.getCondition());
+}
+
 void test_eventQueryOptionDefaultTableName(void)
 {
 	HostResourceQueryOption option;
