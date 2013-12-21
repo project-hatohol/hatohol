@@ -25,7 +25,8 @@
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
-DBAgent* DBAgentFactory::create(DBDomainId domainId, bool skipSetup,
+DBAgent* DBAgentFactory::create(DBDomainId domainId,
+                                const string &dbName, bool skipSetup,
                                 const DBConnectInfo *connectInfo)
 {
 	if (domainId == DB_DOMAIN_ID_CONFIG ||
@@ -39,5 +40,5 @@ DBAgent* DBAgentFactory::create(DBDomainId domainId, bool skipSetup,
 		                        connectInfo->port,
 		                        domainId, skipSetup);
 	}
-	return new DBAgentSQLite3(domainId, skipSetup);
+	return new DBAgentSQLite3(dbName, domainId, skipSetup);
 }

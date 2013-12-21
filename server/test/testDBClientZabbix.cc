@@ -32,13 +32,14 @@ using namespace mlpl;
 namespace testDBClientZabbix {
 
 static const int TEST_ZABBIX_SERVER_ID = 3;
+static DBClientZabbix *g_dbZabbix = NULL;
 
-#define DELETE_DB_AND_DEFINE_DBCLIENT_ZABBIX(SVID, OBJNAME, DBPATH) \
+#define DELETE_DB_AND_DEFINE_DBCLIENT_ZABBIX(SVID, DBPATH) \
 string DBPATH = deleteDBClientZabbixDB(SVID); \
-DBClientZabbix OBJNAME(SVID);
+g_dbZabbix = DBClientZabbix::create(SVID);
 
-#define DELETE_DB_AND_DEFINE_DBCLIENT_ZABBIX_STDID(OBJNAME) \
-DELETE_DB_AND_DEFINE_DBCLIENT_ZABBIX(TEST_ZABBIX_SERVER_ID, OBJNAME, _dbPath)
+#define DELETE_DB_AND_DEFINE_DBCLIENT_ZABBIX_STDID() \
+DELETE_DB_AND_DEFINE_DBCLIENT_ZABBIX(TEST_ZABBIX_SERVER_ID, _dbPath)
 
 class DBClientZabbixTester : public DBClientZabbix {
 public:
@@ -67,8 +68,8 @@ public:
 
 static void _assertCreateTableZBX(int svId, const string &tableName)
 {
-	DELETE_DB_AND_DEFINE_DBCLIENT_ZABBIX(svId, dbClientZabbix, dbPath)
-	assertCreateTable(dbClientZabbix.getDBAgent(), tableName);
+	DELETE_DB_AND_DEFINE_DBCLIENT_ZABBIX(svId, dbPath);
+	assertCreateTable(g_dbZabbix->getDBAgent(), tableName);
 }
 #define assertCreateTableZBX(I,T) cut_trace(_assertCreateTableZBX(I,T))
 
@@ -150,15 +151,15 @@ static ItemTablePtr makeTestApplicationData(void)
 
 static void _assertGetEventsAsHatoholFormat(bool noHostData = false)
 {
-	DELETE_DB_AND_DEFINE_DBCLIENT_ZABBIX_STDID(dbZabbix);
+	DELETE_DB_AND_DEFINE_DBCLIENT_ZABBIX_STDID();
 	
 	// write test dat to DB
-	dbZabbix.addTriggersRaw2_0(makeTestTriggerData());
-	dbZabbix.addHostsRaw2_0(makeTestHostData(noHostData));
+	g_dbZabbix->addTriggersRaw2_0(makeTestTriggerData());
+	g_dbZabbix->addHostsRaw2_0(makeTestHostData(noHostData));
 
 	// get hatohol format data and check
 	TriggerInfoList triggerInfoList;
-	dbZabbix.getTriggersAsHatoholFormat(triggerInfoList);
+	g_dbZabbix->getTriggersAsHatoholFormat(triggerInfoList);
 
 	TriggerInfoListIterator it = triggerInfoList.begin();
 	for (; it != triggerInfoList.end(); ++it) {
@@ -177,12 +178,12 @@ cut_trace(_assertGetEventsAsHatoholFormat(__VA_ARGS__))
 
 void _assertAddHostsRaw2_0(bool writeTwice = false)
 {
-	DELETE_DB_AND_DEFINE_DBCLIENT_ZABBIX_STDID(dbZabbix);
+	DELETE_DB_AND_DEFINE_DBCLIENT_ZABBIX_STDID();
 
 	// The first write is insertion, the second is the update.
-	dbZabbix.addHostsRaw2_0(makeTestHostData());
+	g_dbZabbix->addHostsRaw2_0(makeTestHostData());
 	if (writeTwice)
-		dbZabbix.addHostsRaw2_0(makeTestHostData());
+		g_dbZabbix->addHostsRaw2_0(makeTestHostData());
 }
 
 #define assertAddHostsRaw2_0(...) \
@@ -190,12 +191,12 @@ cut_trace(_assertAddHostsRaw2_0(__VA_ARGS__))
 
 void _assertAddApplicationsRaw2_0(bool writeTwice = false)
 {
-	DELETE_DB_AND_DEFINE_DBCLIENT_ZABBIX_STDID(dbZabbix);
+	DELETE_DB_AND_DEFINE_DBCLIENT_ZABBIX_STDID();
 
 	// The first write is insertion, the second is the update.
-	dbZabbix.addApplicationsRaw2_0(makeTestApplicationData());
+	g_dbZabbix->addApplicationsRaw2_0(makeTestApplicationData());
 	if (writeTwice)
-		dbZabbix.addApplicationsRaw2_0(makeTestApplicationData());
+		g_dbZabbix->addApplicationsRaw2_0(makeTestApplicationData());
 }
 
 #define assertAddApplicationsRaw2_0(...) \
@@ -204,6 +205,14 @@ cut_trace(_assertAddApplicationsRaw2_0(__VA_ARGS__))
 void cut_setup(void)
 {
 	hatoholInit();
+}
+
+void cut_teardown(void)
+{
+	if (g_dbZabbix) {
+		delete g_dbZabbix;
+		g_dbZabbix = NULL;
+	}
 }
 
 // ---------------------------------------------------------------------------
@@ -215,7 +224,7 @@ void test_createDB(void)
 	string dbPath = deleteDBClientZabbixDB(TEST_ZABBIX_SERVER_ID);
 
 	// create an instance (the database will be automatically created)
-	DBClientZabbix dbCliZBX(TEST_ZABBIX_SERVER_ID);
+	g_dbZabbix = DBClientZabbix::create(TEST_ZABBIX_SERVER_ID);
 	cut_assert_exist_path(dbPath.c_str());
 
 	// check the version

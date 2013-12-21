@@ -41,7 +41,6 @@ public:
 		const DBSetupTableInfo *tableInfoArray;
 		DBUpdater               dbUpdater;
 		void                   *dbUpdaterData;
-		const DBConnectInfo    *connectInfo;
 	};
 
 	static int DBCLIENT_DB_VERSION;
@@ -81,8 +80,20 @@ protected:
 	typedef DBSetupContextMap::iterator       DBSetupContextMapIterator;
 
 	// static methods
+	/**
+	 * regist setup information.
+	 *
+	 * If the information corresponding to the domainId has already been
+	 * registered, this function just returns without any operation.
+	 *
+	 * @param domainId A domain ID.
+	 * @param dbName   A database name.
+	 * @param dbSetupFuncArg
+	 * A pointer to DBSetupFuncArg instance. The region doesn't have to
+	 * be changed or freed after this function returns.
+	 */
 	static void registerSetupInfo(DBDomainId domainId, const string &dbName,
-	                              DBSetupFuncArg *dbSetupFuncArg);
+	                              const DBSetupFuncArg *dbSetupFuncArg);
 	static void setConnectInfo(DBDomainId domainId,
 	                           const DBConnectInfo &connectInfo);
 	static void createTable
@@ -90,9 +101,9 @@ protected:
 	   const ColumnDef *columnDefs,
 	   CreateTableInitializer initializer = NULL, void *data = NULL);
 	static void insertDBClientVersion(DBAgent *dbAgent,
-	                                  DBSetupFuncArg *setupFuncArg);
+	                                  const DBSetupFuncArg *setupFuncArg);
 	static void updateDBIfNeeded(DBAgent *dbAgent,
-	                             DBSetupFuncArg *setupFuncArg);
+	                             const DBSetupFuncArg *setupFuncArg);
 	/**
 	 * Get the DB version.
 	 * The version is typically used by the sub class

@@ -69,6 +69,15 @@ struct DBAgentSQLite3::PrivateContext {
 	{
 		mutex.unlock();
 	}
+
+	static bool isDBPathDefined(DBDomainId domainId)
+	{
+		lock();
+		DBDomainIdPathMapIterator it = domainIdPathMap.find(domainId);
+		bool defined = (it != domainIdPathMap.end());
+		unlock();
+		return defined;
+	}
 };
 
 MutexLock         DBAgentSQLite3::PrivateContext::mutex;
@@ -98,15 +107,20 @@ void DBAgentSQLite3::reset(void)
 	PrivateContext::domainIdPathMap.clear();
 }
 
-void DBAgentSQLite3::defineDBPath(DBDomainId domainId, const string &path)
+bool DBAgentSQLite3::defineDBPath(DBDomainId domainId, const string &path,
+                                  bool allowOverwrite)
 {
+	bool ret = true;
 	PrivateContext::lock();
 	DBDomainIdPathMapIterator it =
 	  PrivateContext::domainIdPathMap.find(domainId);
 	if (it != PrivateContext::domainIdPathMap.end()) {
-		it->second = path;
+		if (allowOverwrite)
+			it->second = path;
+		else
+			ret = false;
 		PrivateContext::unlock();
-		return;
+		return ret;
 	}
 
 	pair<DBDomainIdPathMapIterator, bool> result =
@@ -116,6 +130,7 @@ void DBAgentSQLite3::defineDBPath(DBDomainId domainId, const string &path)
 
 	HATOHOL_ASSERT(result.second,
 	  "Failed to insert. Probably domain id (%u) is duplicated", domainId);
+	return ret;
 }
 
 const string &DBAgentSQLite3::getDBPath(DBDomainId domainId)
@@ -135,12 +150,17 @@ const string &DBAgentSQLite3::getDBPath(DBDomainId domainId)
 	return it->second;
 }
 
-DBAgentSQLite3::DBAgentSQLite3(DBDomainId domainId, bool skipSetup)
+DBAgentSQLite3::DBAgentSQLite3(const string &dbName,
+                               DBDomainId domainId, bool skipSetup)
 : DBAgent(domainId, skipSetup),
   m_ctx(NULL)
 {
-	// We don't lock DB (use transaction) in the existence check of
 	m_ctx = new PrivateContext();
+	if (!dbName.empty() && !PrivateContext::isDBPathDefined(domainId)) {
+		string dbPath = makeDBPathFromName(dbName);
+		const bool allowOverwrite = false;
+		defineDBPath(domainId, dbPath, allowOverwrite);
+	}
 	m_ctx->dbPath = getDBPath(domainId);
 	openDatabase();
 }
@@ -260,14 +280,19 @@ uint64_t DBAgentSQLite3::getLastInsertId(void)
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
-string DBAgentSQLite3::getDefaultDBPath(DBDomainId domainId)
+string DBAgentSQLite3::makeDBPathFromName(const string &name)
 {
 	ConfigManager *configMgr = ConfigManager::getInstance();
 	const string &dbDirectory = configMgr->getDatabaseDirectory();
 	string dbPath =
-	  StringUtils::sprintf("%s/DBAgentSQLite3-%d.db",
-	                       dbDirectory.c_str(), domainId);
+	  StringUtils::sprintf("%s/%s.db", dbDirectory.c_str(), name.c_str());
 	return dbPath;
+}
+
+string DBAgentSQLite3::getDefaultDBPath(DBDomainId domainId)
+{
+	string name = StringUtils::sprintf("DBAgentSQLite3-%d", domainId);
+	return makeDBPathFromName(name);
 }
 
 void DBAgentSQLite3::checkDBPath(const string &dbPath)
@@ -713,6 +738,11 @@ void DBAgentSQLite3::createIndex(sqlite3 *db, const string &tableName,
 	}
 }
 
+string DBAgentSQLite3::getDBPath(void) const
+{
+	return m_ctx->dbPath;
+}
+
 //
 // Non static methods
 //
@@ -733,4 +763,3 @@ void DBAgentSQLite3::execSql(const char *fmt, ...)
 	// execute the query
 	_execSql(m_ctx->db, sql);
 }
-

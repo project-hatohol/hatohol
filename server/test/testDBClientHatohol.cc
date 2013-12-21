@@ -390,7 +390,7 @@ cut_trace(_assertGetEventsWithFilter(ARG))
 void cut_setup(void)
 {
 	hatoholInit();
-	deleteDBClientDB(DB_DOMAIN_ID_HATOHOL);
+	deleteDBClientHatoholDB();
 }
 
 // ---------------------------------------------------------------------------
@@ -399,7 +399,7 @@ void cut_setup(void)
 void test_createDB(void)
 {
 	// remove the DB that already exists
-	string dbPath = getDBClientDBPath(DB_DOMAIN_ID_HATOHOL);
+	string dbPath = getDBPathForDBClientHatohol();
 
 	// create an instance (the database will be automatically created)
 	DBClientHatohol dbHatohol;
@@ -407,7 +407,7 @@ void test_createDB(void)
 
 	// check the version
 	string statement = "select * from _dbclient_version";
-	string output = execSqlite3ForDBClient(DB_DOMAIN_ID_HATOHOL, statement);
+	string output = execSqlite3ForDBClientHatohol(statement);
 	string expectedOut = StringUtils::sprintf
 	                       ("%d|%d\n", DB_DOMAIN_ID_HATOHOL,
 	                                   DBClientHatohol::HATOHOL_DB_VERSION);
@@ -417,21 +417,21 @@ void test_createDB(void)
 void test_createTableTrigger(void)
 {
 	const string tableName = "triggers";
-	string dbPath = getDBClientDBPath(DB_DOMAIN_ID_HATOHOL);
+	string dbPath = getDBPathForDBClientHatohol();
 	DBClientHatohol dbHatohol;
 	string command = "sqlite3 " + dbPath + " \".table\"";
 	assertExist(tableName, executeCommand(command));
 
 	// check content
 	string statement = "select * from " + tableName;
-	string output = execSqlite3ForDBClient(DB_DOMAIN_ID_HATOHOL, statement);
+	string output = execSqlite3ForDBClientHatohol(statement);
 	string expectedOut = ""; // currently no data
 	cppcut_assert_equal(expectedOut, output);
 }
 
 void test_addTriggerInfo(void)
 {
-	string dbPath = getDBClientDBPath(DB_DOMAIN_ID_HATOHOL);
+	string dbPath = getDBPathForDBClientHatohol();
 
 	// added a record
 	TriggerInfo *testInfo = testTriggerInfo;

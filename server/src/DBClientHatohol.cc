@@ -36,9 +36,6 @@ static const char *TABLE_NAME_ITEMS    = "items";
 uint64_t DBClientHatohol::EVENT_NOT_FOUND = -1;
 int DBClientHatohol::HATOHOL_DB_VERSION = 4;
 
-// Currently DBClientHatohol uses DBAgentSQLite3. In that case,
-// DEFAULT_DB_NAME passed to addDefaultDBInfo() is ignored in it.
-// However, we define and pass it for the future replacement of the DBAgent.
 const char *DBClientHatohol::DEFAULT_DB_NAME = "hotohol";
 
 static const ColumnDef COLUMN_DEF_TRIGGERS[] = {
@@ -453,7 +450,7 @@ static const DBClient::DBSetupTableInfo DB_TABLE_INFO[] = {
 static const size_t NUM_TABLE_INFO =
 sizeof(DB_TABLE_INFO) / sizeof(DBClient::DBSetupTableInfo);
 
-static DBClient::DBSetupFuncArg DB_SETUP_FUNC_ARG = {
+static const DBClient::DBSetupFuncArg DB_SETUP_FUNC_ARG = {
 	DBClientHatohol::HATOHOL_DB_VERSION,
 	NUM_TABLE_INFO,
 	DB_TABLE_INFO,

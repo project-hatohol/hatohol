@@ -1529,7 +1529,15 @@ void DBClientZabbix::init(void)
 	  "Invalid number of elements: NUM_COLUMNS_APPLICATIONS_RAW_2_0 (%zd), "
 	  "NUM_IDX_APPLICATIONS_RAW_2_0 (%d)",
 	  NUM_COLUMNS_APPLICATIONS_RAW_2_0, NUM_IDX_APPLICATIONS_RAW_2_0);
+}
 
+DBDomainId DBClientZabbix::getDBDomainId(const ServerIdType zabbixServerId)
+{
+	return DB_DOMAIN_ID_ZABBIX + zabbixServerId;
+}
+
+DBClientZabbix *DBClientZabbix::create(const ServerIdType zabbixServerId)
+{
 	static const DBSetupTableInfo DB_TABLE_INFO[] = {
 	{
 		TABLE_NAME_SYSTEM,
@@ -1565,33 +1573,17 @@ void DBClientZabbix::init(void)
 	static const size_t NUM_TABLE_INFO =
 	sizeof(DB_TABLE_INFO) / sizeof(DBClient::DBSetupTableInfo);
 
-	static DBSetupFuncArg DB_SETUP_FUNC_ARG = {
+	static const DBSetupFuncArg DB_SETUP_FUNC_ARG = {
 		ZABBIX_DB_VERSION,
 		NUM_TABLE_INFO,
 		DB_TABLE_INFO,
 	};
 
-	for (size_t i = 0; i < NUM_MAX_ZABBIX_SERVERS; i++) {
-		string dbName =
-		  StringUtils::sprintf("hatohol_cache_zabbix_%zd", i);
-		DBDomainId domainId = DB_DOMAIN_ID_ZABBIX + i;
-		registerSetupInfo(domainId, dbName, &DB_SETUP_FUNC_ARG);
-	}
-}
+	string dbName = getDBName(zabbixServerId);
+	DBDomainId domainId = DB_DOMAIN_ID_ZABBIX + zabbixServerId;
+	registerSetupInfo(domainId, dbName, &DB_SETUP_FUNC_ARG);
 
-DBDomainId DBClientZabbix::getDBDomainId(int zabbixServerId)
-{
-	return DB_DOMAIN_ID_ZABBIX + zabbixServerId;
-}
-
-DBClientZabbix::DBClientZabbix(size_t zabbixServerId)
-: DBClient(getDBDomainId(zabbixServerId)),
-  m_ctx(NULL)
-{
-	HATOHOL_ASSERT(zabbixServerId < NUM_MAX_ZABBIX_SERVERS,
-	   "The specified zabbix server ID is larger than max: %zd",
-	   zabbixServerId); 
-	m_ctx = new PrivateContext(zabbixServerId);
+	return new DBClientZabbix(zabbixServerId);
 }
 
 DBClientZabbix::~DBClientZabbix()
@@ -2051,6 +2043,12 @@ void DBClientZabbix::pickupAbsentApplcationIds
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
+string DBClientZabbix::getDBName(const ServerIdType zabbixServerId)
+{
+	return StringUtils::sprintf("hatohol_cache_zabbix_%"FMT_SERVER_ID,
+	                            zabbixServerId);
+}
+
 void DBClientZabbix::tableInitializerSystem(DBAgent *dbAgent, void *data)
 {
 	// insert default value
@@ -2172,6 +2170,13 @@ void DBClientZabbix::extractItemKeys(StringVector &params, const string &key)
 //
 // Non-static methods
 //
+DBClientZabbix::DBClientZabbix(const ServerIdType zabbixServerId)
+: DBClient(getDBDomainId(zabbixServerId)),
+  m_ctx(NULL)
+{
+	m_ctx = new PrivateContext(zabbixServerId);
+}
+
 void DBClientZabbix::addItems(
   ItemTablePtr tablePtr,
   const string &tableName, size_t numColumns, const ColumnDef *columnDefs,

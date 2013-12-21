@@ -313,7 +313,7 @@ void DBClientConfig::init(const CommandLineArg &cmdArg)
 	static const size_t NUM_TABLE_INFO =
 	  sizeof(DB_TABLE_INFO) / sizeof(DBSetupTableInfo);
 
-	static DBSetupFuncArg DB_SETUP_FUNC_ARG = {
+	static const DBSetupFuncArg DB_SETUP_FUNC_ARG = {
 		CONFIG_DB_VERSION,
 		NUM_TABLE_INFO,
 		DB_TABLE_INFO,

@@ -222,29 +222,50 @@ bool isVerboseMode(void)
 	return verboseMode;
 }
 
-string getDBClientDBPath(DBDomainId domainId)
+void deleteFileAndCheck(const string &path)
 {
-	// TODO: remove the direct call of DBAgentSQLite3's API.
-	return DBAgentSQLite3::getDBPath(domainId);
+	unlink(path.c_str());
+	cut_assert_not_exist_path(path.c_str());
 }
 
-string deleteDBClientDB(DBDomainId domainId)
+string getDBPathForDBClientZabbix(const ServerIdType serverId)
 {
-	string dbPath = getDBClientDBPath(domainId);
-	unlink(dbPath.c_str());
-	cut_assert_not_exist_path(dbPath.c_str());
+	struct callgate : public DBClientZabbix, public DBAgentSQLite3 {
+		static string getDBPath(const ServerIdType serverId) {
+			string dbName = getDBName(serverId);
+			string dbPath = makeDBPathFromName(dbName);
+			return dbPath;
+		}
+	};
+	return callgate::getDBPath(serverId);
+}
+
+string getDBPathForDBClientHatohol(void)
+{
+	struct callgate : public DBClientHatohol, public DBAgentSQLite3 {
+		static string getDBPath(void) {
+			return makeDBPathFromName(DEFAULT_DB_NAME);
+		}
+	};
+	return callgate::getDBPath();
+}
+
+string deleteDBClientHatoholDB(void)
+{
+	string dbPath = getDBPathForDBClientHatohol();
+	deleteFileAndCheck(dbPath);
 	return dbPath;
 }
 
-string deleteDBClientZabbixDB(int serverId)
+string deleteDBClientZabbixDB(const ServerIdType serverId)
 {
-	DBDomainId domainId = DBClientZabbix::getDBDomainId(serverId);
-	return  deleteDBClientDB(domainId);
+	string dbPath = getDBPathForDBClientZabbix(serverId);
+	deleteFileAndCheck(dbPath);
+	return dbPath;
 }
 
-string execSqlite3ForDBClient(DBDomainId domainId, const string &statement)
+string execSqlite3ForDBClient(const string &dbPath, const string &statement)
 {
-	string dbPath = getDBClientDBPath(domainId);
 	cut_assert_exist_path(dbPath.c_str());
 	string commandLine =
 	  StringUtils::sprintf("sqlite3 %s \"%s\"",
@@ -253,10 +274,17 @@ string execSqlite3ForDBClient(DBDomainId domainId, const string &statement)
 	return result;
 }
 
-string execSqlite3ForDBClientZabbix(int serverId, const string &statement)
+string execSqlite3ForDBClientHatohol(const string &statement)
 {
-	DBDomainId domainId = DBClientZabbix::getDBDomainId(serverId);
-	return execSqlite3ForDBClient(domainId, statement);
+	string dbPath = getDBPathForDBClientHatohol();
+	return execSqlite3ForDBClient(dbPath, statement);
+}
+
+string execSqlite3ForDBClientZabbix(const ServerIdType serverId,
+                                    const string &statement)
+{
+	string dbPath = getDBPathForDBClientZabbix(serverId);
+	return execSqlite3ForDBClient(dbPath, statement);
 }
 
 string execMySQL(const string &dbName, const string &statement, bool showHeader)
@@ -607,6 +635,7 @@ replaceForUtf8(const string &str, const string &target, const string &newChar)
 
 string execSQL(DBAgent *dbAgent, const string &statement, bool showHeader)
 {
+
 	string output;
 	const type_info& tid = typeid(*dbAgent);
 	if (tid == typeid(DBAgentMySQL)) {
@@ -614,10 +643,12 @@ string execSQL(DBAgent *dbAgent, const string &statement, bool showHeader)
 		output = execMySQL(dbMySQL->getDBName(), statement, showHeader);
 		output = replaceForUtf8(output, "\t", "|");
 	} else if (tid == typeid(DBAgentSQLite3)) {
+		DBAgentSQLite3 *dbSQLite3 =
+		  dynamic_cast<DBAgentSQLite3 *>(dbAgent);
 		cppcut_assert_equal(false, showHeader,
 		  cut_message("Not implemented yet\n"));
 		output = execSqlite3ForDBClient(
-		           dbAgent->getDBDomainId(), statement);
+		           dbSQLite3->getDBPath(), statement);
 	} else {
 		cut_fail("Unknown type_info");
 	}
