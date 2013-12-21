@@ -81,6 +81,18 @@ protected:
 	typedef DBSetupContextMap::iterator       DBSetupContextMapIterator;
 
 	// static methods
+	/**
+	 * regist setup information.
+	 *
+	 * If the information corresponding to the domainId has already been
+	 * registered, this function just returns without any operation.
+	 *
+	 * @param domainId A domain ID.
+	 * @param dbName   A database name.
+	 * @param dbSetupFuncArg
+	 * A pointer to DBSetupFuncArg instance. The region doesn't have to
+	 * be changed or freed after this function returns.
+	 */
 	static void registerSetupInfo(DBDomainId domainId, const string &dbName,
 	                              DBSetupFuncArg *dbSetupFuncArg);
 	static void setConnectInfo(DBDomainId domainId,

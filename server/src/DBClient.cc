@@ -116,8 +116,10 @@ struct DBClient::PrivateContext {
 		DBSetupContext *setupCtx = NULL;
 		dbSetupCtxMapLock.readLock();
 		DBSetupContextMapIterator it = dbSetupCtxMap.find(domainId);
-		if (it != dbSetupCtxMap.end())
-			setupCtx = it->second;
+		if (it != dbSetupCtxMap.end()) {
+			dbSetupCtxMapLock.unlock();
+			return;
+		}
 
 		// make a new DBSetupContext if it doen't exist.
 		if (!setupCtx) {
