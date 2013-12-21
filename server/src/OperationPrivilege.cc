@@ -88,6 +88,11 @@ bool OperationPrivilege::operator==(const OperationPrivilege &rhs)
 void OperationPrivilege::setUserId(UserIdType userId)
 {
 	m_ctx->userId = userId;
+	m_ctx->flags = 0;
+
+	if (m_ctx->userId == INVALID_USER_ID)
+		return;
+
 	if (m_ctx->userId == USER_ID_ADMIN) {
 		setFlags(ALL_PRIVILEGES);
 		return;
