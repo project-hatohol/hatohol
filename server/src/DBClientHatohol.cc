@@ -475,11 +475,17 @@ struct DBClientHatohol::PrivateContext
 // ---------------------------------------------------------------------------
 struct HostResourceQueryOption::PrivateContext {
 	string tableNameForServerId;
+	string serverIdColumnName;
+	string hostGroupIdColumnName;
+	string hostIdColumnName;
 	uint32_t targetServerId;
 	uint64_t targetHostId;
 
 	PrivateContext()
-	: targetServerId(ALL_SERVERS),
+	: serverIdColumnName("server_id"),
+	  hostGroupIdColumnName("host_group_id"),
+	  hostIdColumnName("host_id"),
+	  targetServerId(ALL_SERVERS),
 	  targetHostId(ALL_HOSTS)
 	{
 	}
@@ -502,19 +508,26 @@ HostResourceQueryOption::~HostResourceQueryOption()
 		delete m_ctx;
 }
 
+void HostResourceQueryOption::setServerIdColumnName(
+  const std::string &name) const
+{
+	m_ctx->serverIdColumnName = name;
+}
 
 string HostResourceQueryOption::getServerIdColumnName(void) const
 {
-	// FIXME: should enable to set column name
-	const char *columnName
-	  = COLUMN_DEF_EVENTS[IDX_EVENTS_SERVER_ID].columnName;
-
 	if (m_ctx->tableNameForServerId.empty())
-		return columnName;
+		return m_ctx->serverIdColumnName;
 
 	return StringUtils::sprintf("%s.%s",
 				    m_ctx->tableNameForServerId.c_str(),
-				    columnName);
+				    m_ctx->serverIdColumnName.c_str());
+}
+
+void HostResourceQueryOption::setHostGroupIdColumnName(
+  const std::string &name) const
+{
+	m_ctx->hostGroupIdColumnName = name;
 }
 
 string HostResourceQueryOption::getHostGroupIdColumnName(void) const
@@ -523,12 +536,15 @@ string HostResourceQueryOption::getHostGroupIdColumnName(void) const
 	return "host_group_id";
 }
 
+void HostResourceQueryOption::setHostIdColumnName(
+  const std::string &name) const
+{
+	m_ctx->hostIdColumnName = name;
+}
+
 string HostResourceQueryOption::getHostIdColumnName(void) const
 {
-	// FIXME: should enable to set column name
-	const char *columnName
-	  = COLUMN_DEF_EVENTS[IDX_EVENTS_HOST_ID].columnName;
-	return columnName;
+	return m_ctx->hostIdColumnName;
 }
 
 void HostResourceQueryOption::appendCondition(string &cond, const string &newCond)
@@ -700,6 +716,30 @@ string HostResourceQueryOption::getTableNameForServerId(void) const
 void HostResourceQueryOption::setTableNameForServerId(const std::string &name)
 {
 	m_ctx->tableNameForServerId = name;
+}
+
+EventsQueryOption::EventsQueryOption(void)
+{
+	setServerIdColumnName(
+	  COLUMN_DEF_EVENTS[IDX_EVENTS_SERVER_ID].columnName);
+	setHostIdColumnName(
+	  COLUMN_DEF_EVENTS[IDX_EVENTS_HOST_ID].columnName);
+}
+
+TriggersQueryOption::TriggersQueryOption(void)
+{
+	setServerIdColumnName(
+	  COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SERVER_ID].columnName);
+	setHostIdColumnName(
+	  COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_HOST_ID].columnName);
+}
+
+ItemsQueryOption::ItemsQueryOption(void)
+{
+	setServerIdColumnName(
+	  COLUMN_DEF_ITEMS[IDX_ITEMS_SERVER_ID].columnName);
+	setHostIdColumnName(
+	  COLUMN_DEF_ITEMS[IDX_ITEMS_HOST_ID].columnName);
 }
 
 // ---------------------------------------------------------------------------

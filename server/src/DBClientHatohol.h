@@ -130,7 +130,7 @@ public:
 	virtual ~HostResourceQueryOption();
 
 	// Overriding of virtual methods
-	std::string getCondition(void) const;
+	virtual std::string getCondition(void) const;
 
 	virtual uint32_t getTargetServerId(void) const;
 	virtual void setTargetServerId(uint32_t targetServerId);
@@ -141,8 +141,11 @@ public:
 	virtual void setTableNameForServerId(const std::string &name);
 
 protected:
+	void setServerIdColumnName(const std::string &name) const;
 	std::string getServerIdColumnName(void) const;
+	void setHostGroupIdColumnName(const std::string &name) const;
 	std::string getHostGroupIdColumnName(void) const;
+	void setHostIdColumnName(const std::string &name) const;
 	std::string getHostIdColumnName(void) const;
 	static void appendCondition(std::string &cond,
 	                            const std::string &newCond);
@@ -165,6 +168,21 @@ protected:
 private:
 	struct PrivateContext;
 	PrivateContext *m_ctx;
+};
+
+class EventsQueryOption : public HostResourceQueryOption {
+public:
+	EventsQueryOption(void);
+};
+
+class TriggersQueryOption : public HostResourceQueryOption {
+public:
+	TriggersQueryOption(void);
+};
+
+class ItemsQueryOption : public HostResourceQueryOption {
+public:
+	ItemsQueryOption(void);
 };
 
 class DBClientHatohol : public DBClient {
