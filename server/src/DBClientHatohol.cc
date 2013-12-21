@@ -475,6 +475,14 @@ struct DBClientHatohol::PrivateContext
 // ---------------------------------------------------------------------------
 struct HostResourceQueryOption::PrivateContext {
 	string tableNameForServerId;
+	uint32_t targetServerId;
+	uint64_t targetHostId;
+
+	PrivateContext()
+	: targetServerId(ALL_SERVERS),
+	  targetHostId(ALL_HOSTS)
+	{
+	}
 };
 
 HostResourceQueryOption::HostResourceQueryOption(void)
@@ -543,39 +551,67 @@ string HostResourceQueryOption::makeConditionHostGroup(
 	return cond;
 }
 
-string HostResourceQueryOption::makeCondition(
-  const ServerHostGrpSetMap &srvHostGrpSetMap,
+string HostResourceQueryOption::makeConditionServer(
+  uint32_t serverId, const HostGroupSet &hostGroupSet,
   const string &serverIdColumnName, const string &hostGroupIdColumnName)
 {
-	string cond;
+	string condition;
+	condition = StringUtils::sprintf(
+	  "%s=%"PRIu32, serverIdColumnName.c_str(), serverId);
+
+	string conditionHostGroup
+	  = makeConditionHostGroup(hostGroupSet, hostGroupIdColumnName);
+	if (!conditionHostGroup.empty()) {
+		return StringUtils::sprintf("(%s AND %s)",
+					    condition.c_str(),
+					    conditionHostGroup.c_str());
+	} else {
+		return condition;
+	}
+}
+
+string HostResourceQueryOption::makeCondition(
+  const ServerHostGrpSetMap &srvHostGrpSetMap,
+  const string &serverIdColumnName, const string &hostGroupIdColumnName,
+  uint32_t targetServerId, uint64_t targetHostId)
+{
+	string condition;
+
 	size_t numServers = srvHostGrpSetMap.size();
 	if (numServers == 0) {
 		MLPL_DBG("No allowed server\n");
 		return DBClientHatohol::getAlwaysFalseCondition();
 	}
+
+	numServers = 0;
 	ServerHostGrpSetMapConstIterator it = srvHostGrpSetMap.begin();
 	for (; it != srvHostGrpSetMap.end(); ++it) {
 		const uint32_t serverId = it->first;
+
+		if (targetServerId != ALL_SERVERS && targetServerId != serverId)
+			continue;
+
 		if (serverId == ALL_SERVERS)
 			return "";
-		string condSv;
-		condSv = StringUtils::sprintf(
-			"%s=%"PRIu32, serverIdColumnName.c_str(), serverId);
 
-		const HostGroupSet &hostGroupSet = it->second;
-		string condHG = makeConditionHostGroup(hostGroupSet,
-		                                       hostGroupIdColumnName);
-		if (!condHG.empty()) {
-			string condMix = StringUtils::sprintf(
-			  "(%s AND %s)", condSv.c_str(), condHG.c_str());
-			appendCondition(cond, condMix);
-		} else {
-			appendCondition(cond, condSv);
-		}
+		string conditionServer = makeConditionServer(
+					   serverId, it->second,
+					   serverIdColumnName,
+					   hostGroupIdColumnName);
+		appendCondition(condition, conditionServer);
+		++numServers;
 	}
+
+	if (targetHostId != ALL_HOSTS) {
+		return StringUtils::sprintf("((%s) AND %s=%"PRIu64")",
+					    condition.c_str(),
+					    hostGroupIdColumnName.c_str(),
+					    targetHostId);
+	}
+
 	if (numServers == 1)
-		return cond;
-	return StringUtils::sprintf("(%s)", cond.c_str());
+		return condition;
+	return StringUtils::sprintf("(%s)", condition.c_str());
 }
 
 string HostResourceQueryOption::getCondition(void) const
@@ -595,8 +631,30 @@ string HostResourceQueryOption::getCondition(void) const
 	dbUser->getServerHostGrpSetMap(srvHostGrpSetMap, userId);
 	condition = makeCondition(srvHostGrpSetMap,
 	                          getServerIdColumnName(),
-	                          getHostGroupIdColumnName());
+	                          getHostGroupIdColumnName(),
+				  m_ctx->targetServerId,
+				  m_ctx->targetHostId);
 	return condition;
+}
+
+uint32_t HostResourceQueryOption::getTargetServerId(void) const
+{
+	return m_ctx->targetServerId;
+}
+
+void HostResourceQueryOption::setTargetServerId(uint32_t targetServerId)
+{
+	m_ctx->targetServerId = targetServerId;
+}
+
+uint64_t HostResourceQueryOption::getTargetHostId(void) const
+{
+	return m_ctx->targetHostId;
+}
+
+void HostResourceQueryOption::setTargetHostId(uint64_t targetHostId)
+{
+	m_ctx->targetHostId = targetHostId;
 }
 
 string HostResourceQueryOption::getTableNameForServerId(void) const

@@ -131,6 +131,11 @@ public:
 	// Overriding of virtual methods
 	std::string getCondition(void) const;
 
+	virtual uint32_t getTargetServerId(void) const;
+	virtual void setTargetServerId(uint32_t targetServerId);
+	virtual uint64_t getTargetHostId(void) const;
+	virtual void setTargetHostId(uint64_t targetHostId);
+
 	virtual std::string getTableNameForServerId(void) const;
 	virtual void setTableNameForServerId(const std::string &name);
 
@@ -142,7 +147,14 @@ protected:
 	static std::string makeCondition(
 	  const ServerHostGrpSetMap &srvHostGrpSetMap,
 	  const std::string &serverIdColumnName,
-	  const std::string &hostGroupIdColumnName);
+	  const std::string &hostGroupIdColumnName,
+	  uint32_t targetServerId = ALL_SERVERS,
+	  uint64_t targetHostId = ALL_HOSTS);
+	static std::string makeConditionServer(
+	  uint32_t serverId,
+	  const HostGroupSet &hostGroupSet,
+	  const string &serverIdColumnName,
+	  const string &hostGroupIdColumnName);
 	static std::string makeConditionHostGroup(
 	  const HostGroupSet &hostGroupSet,
 	  const std::string &hostGroupIdColumnName);
