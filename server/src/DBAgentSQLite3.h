@@ -99,6 +99,7 @@ protected:
 
 	void openDatabase(void);
 	void execSql(const char *fmt, ...);
+	string getDBPath(void) const;
 
 private:
 	struct PrivateContext;

@@ -755,3 +755,7 @@ void DBAgentSQLite3::execSql(const char *fmt, ...)
 	_execSql(m_ctx->db, sql);
 }
 
+string DBAgentSQLite3::getDBPath(void) const
+{
+	return m_ctx->dbPath;
+}
