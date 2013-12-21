@@ -450,7 +450,7 @@ static const DBClient::DBSetupTableInfo DB_TABLE_INFO[] = {
 static const size_t NUM_TABLE_INFO =
 sizeof(DB_TABLE_INFO) / sizeof(DBClient::DBSetupTableInfo);
 
-static DBClient::DBSetupFuncArg DB_SETUP_FUNC_ARG = {
+static const DBClient::DBSetupFuncArg DB_SETUP_FUNC_ARG = {
 	DBClientHatohol::HATOHOL_DB_VERSION,
 	NUM_TABLE_INFO,
 	DB_TABLE_INFO,

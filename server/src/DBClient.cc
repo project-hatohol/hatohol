@@ -68,7 +68,7 @@ struct DBClient::DBSetupContext {
 	bool              initialized;
 	MutexLock         mutex;
 	string            dbName;
-	DBSetupFuncArg   *dbSetupFuncArg;
+	const DBSetupFuncArg *dbSetupFuncArg;
 	DBConnectInfo     connectInfo;
 
 	DBSetupContext(void)
@@ -111,7 +111,7 @@ struct DBClient::PrivateContext {
 	}
 
 	static void registerSetupInfo(DBDomainId domainId, const string &dbName,
-	                              DBSetupFuncArg *dbSetupFuncArg)
+	                              const DBSetupFuncArg *dbSetupFuncArg)
 	{
 		DBSetupContext *setupCtx = NULL;
 		dbSetupCtxMapLock.readLock();
@@ -241,7 +241,7 @@ bool DBClient::isAlwaysFalseCondition(const std::string &condition)
 // static methods
 void DBClient::registerSetupInfo(
   DBDomainId domainId, const string &dbName,
-  DBSetupFuncArg *dbSetupFuncArg)
+  const DBSetupFuncArg *dbSetupFuncArg)
 {
 	PrivateContext::registerSetupInfo(domainId, dbName, dbSetupFuncArg);
 }
@@ -268,7 +268,7 @@ void DBClient::createTable
 }
 
 void DBClient::insertDBClientVersion(DBAgent *dbAgent,
-                                     DBSetupFuncArg *setupFuncArg)
+                                     const DBSetupFuncArg *setupFuncArg)
 {
 	// insert default value
 	DBAgentInsertArg insArg;
@@ -282,7 +282,8 @@ void DBClient::insertDBClientVersion(DBAgent *dbAgent,
 	dbAgent->insert(insArg);
 }
 
-void DBClient::updateDBIfNeeded(DBAgent *dbAgent, DBSetupFuncArg *setupFuncArg)
+void DBClient::updateDBIfNeeded(DBAgent *dbAgent,
+                                const DBSetupFuncArg *setupFuncArg)
 {
 	int dbVersion = getDBVersion(dbAgent);
 	if (dbVersion != setupFuncArg->version) {
@@ -345,7 +346,7 @@ void DBClient::setDBVersion(DBAgent *dbAgent, int version)
 void DBClient::dbSetupFunc(DBDomainId domainId, void *data)
 {
 	DBSetupContext *setupCtx = static_cast<DBSetupContext *>(data);
-	DBSetupFuncArg *setupFuncArg = setupCtx->dbSetupFuncArg;
+	const DBSetupFuncArg *setupFuncArg = setupCtx->dbSetupFuncArg;
 	bool skipSetup = true;
 	const DBConnectInfo *connectInfo = &setupCtx->connectInfo;
 	auto_ptr<DBAgent> rawDBAgent(DBAgentFactory::create(domainId,

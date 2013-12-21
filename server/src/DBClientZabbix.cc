@@ -1573,7 +1573,7 @@ DBClientZabbix *DBClientZabbix::create(const ServerIdType zabbixServerId)
 	static const size_t NUM_TABLE_INFO =
 	sizeof(DB_TABLE_INFO) / sizeof(DBClient::DBSetupTableInfo);
 
-	static DBSetupFuncArg DB_SETUP_FUNC_ARG = {
+	static const DBSetupFuncArg DB_SETUP_FUNC_ARG = {
 		ZABBIX_DB_VERSION,
 		NUM_TABLE_INFO,
 		DB_TABLE_INFO,
