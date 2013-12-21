@@ -1372,8 +1372,9 @@ void FaceRest::handlerGetTrigger(RestJob *job)
 	TriggerInfoList triggerList;
 	HostResourceQueryOption option;
 	option.setUserId(job->userId);
-	dataStore->getTriggerList(triggerList, option,
-				  serverId, hostId, triggerId);
+	option.setTargetServerId(serverId);
+	option.setTargetHostId(hostId);
+	dataStore->getTriggerList(triggerList, option, triggerId);
 
 	JsonBuilderAgent agent;
 	agent.startObject();

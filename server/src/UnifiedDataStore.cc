@@ -236,14 +236,10 @@ void UnifiedDataStore::fetchItems(uint32_t targetServerId)
 
 void UnifiedDataStore::getTriggerList(TriggerInfoList &triggerList,
 				      HostResourceQueryOption &option,
-                                      uint32_t targetServerId,
-                                      uint64_t targetHostId,
                                       uint64_t targetTriggerId)
 {
 	DBClientHatohol dbHatohol;
 	dbHatohol.getTriggerInfoList(triggerList, option,
-				     targetServerId,
-	                             targetHostId,
 				     targetTriggerId);
 }
 

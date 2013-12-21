@@ -821,30 +821,14 @@ bool DBClientHatohol::getTriggerInfo(TriggerInfo &triggerInfo,
 
 void DBClientHatohol::getTriggerInfoList(
   TriggerInfoList &triggerInfoList, HostResourceQueryOption &option,
-  uint32_t targetServerId, uint64_t targetHostId, uint64_t targetTriggerId)
+  uint64_t targetTriggerId)
 {
 	string optCond = option.getCondition();
 	if (isAlwaysFalseCondition(optCond))
 		return;
 
 	string condition;
-	if (targetServerId != ALL_SERVERS) {
-		const char *colName = 
-		  COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SERVER_ID].columnName;
-		condition = StringUtils::sprintf("%s=%"PRIu32, colName,
-		                                 targetServerId);
-	}
-	if (targetHostId != ALL_HOSTS) {
-		if (!condition.empty())
-			condition += " AND ";
-		const char *colName = 
-		  COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_HOST_ID].columnName;
-		condition += StringUtils::sprintf("%s=%"PRIu64, colName,
-		                                  targetHostId);
-	}
 	if (targetTriggerId != ALL_TRIGGERS) {
-		if (!condition.empty())
-			condition += " AND ";
 		const char *colName = 
 		  COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_ID].columnName;
 		condition += StringUtils::sprintf("%s=%"PRIu64, colName,
@@ -854,8 +838,9 @@ void DBClientHatohol::getTriggerInfoList(
 	if (!optCond.empty()) {
 		if (!condition.empty())
 			condition += " AND ";
-		condition += optCond;
+		condition += StringUtils::sprintf("(%s)", optCond.c_str());
 	}
+	g_print("\n\nSQL: %s\n\n", condition.c_str());
 
 	getTriggerInfoList(triggerInfoList, condition);
 }

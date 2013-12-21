@@ -40,8 +40,6 @@ public:
 
 	virtual void getTriggerList(TriggerInfoList &triggerList,
 				    HostResourceQueryOption &option,
-	                            uint32_t targetServerId = ALL_SERVERS,
-	                            uint64_t targetHostId = ALL_HOSTS,
 	                            uint64_t targetTriggerId = ALL_TRIGGERS);
 	virtual HatoholError getEventList(EventInfoList &eventList,
 	                                  HostResourceQueryOption &option);

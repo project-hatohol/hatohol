@@ -200,8 +200,6 @@ public:
 	                    uint32_t serverId, uint64_t triggerId);
 	void getTriggerInfoList(TriggerInfoList &triggerInfoList,
 				HostResourceQueryOption &option,
-	                        uint32_t targetServerId = ALL_SERVERS,
-	                        uint64_t targetHostId = ALL_HOSTS,
 	                        uint64_t targetTriggerId = ALL_TRIGGERS);
 	void setTriggerInfoList(const TriggerInfoList &triggerInfoList,
 	                        uint32_t serverId);

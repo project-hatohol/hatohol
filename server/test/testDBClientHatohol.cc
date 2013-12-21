@@ -90,7 +90,9 @@ static void _assertGetTriggers(uint32_t serverId = ALL_SERVERS,
 	DBClientHatohol dbHatohol;
 	HostResourceQueryOption option;
 	option.setUserId(USER_ID_ADMIN);
-	dbHatohol.getTriggerInfoList(triggerInfoList, option, serverId, hostId);
+	option.setTargetServerId(serverId);
+	option.setTargetHostId(hostId);
+	dbHatohol.getTriggerInfoList(triggerInfoList, option);
 	getTestTriggersIndexes(indexMap, serverId, hostId);
 
 	// check the number
