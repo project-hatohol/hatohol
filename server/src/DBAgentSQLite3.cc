@@ -69,6 +69,15 @@ struct DBAgentSQLite3::PrivateContext {
 	{
 		mutex.unlock();
 	}
+
+	static bool isDBPathDefined(DBDomainId domainId)
+	{
+		lock();
+		DBDomainIdPathMapIterator it = domainIdPathMap.find(domainId);
+		bool defined = (it != domainIdPathMap.end());
+		unlock();
+		return defined;
+	}
 };
 
 MutexLock         DBAgentSQLite3::PrivateContext::mutex;
@@ -148,11 +157,7 @@ DBAgentSQLite3::DBAgentSQLite3(const string &dbName,
 {
 	// We don't lock DB (use transaction) in the existence check of
 	m_ctx = new PrivateContext();
-	if (!dbName.empty()) {
-		// TODO:
-		// If this constructor is called with the domain ID whose path
-		// is already defined, the following dbPath is not used.
-		// This wasted mechanism should be improved.
+	if (!dbName.empty() && !PrivateContext::isDBPathDefined(domainId)) {
 		string dbPath = makeDBPathFromName(dbName);
 		const bool allowOverwrite = false;
 		defineDBPath(domainId, dbPath, allowOverwrite);
