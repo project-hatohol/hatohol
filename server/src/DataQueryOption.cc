@@ -39,10 +39,11 @@ const size_t DataQueryOption::NO_LIMIT = 0;
 // ---------------------------------------------------------------------------
 // Public static methods
 // ---------------------------------------------------------------------------
-DataQueryOption::DataQueryOption(void)
+DataQueryOption::DataQueryOption(UserIdType userId)
 : m_ctx(NULL)
 {
 	m_ctx = new PrivateContext();
+	setUserId(userId);
 }
 
 DataQueryOption::DataQueryOption(const DataQueryOption &src)

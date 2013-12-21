@@ -491,7 +491,8 @@ struct HostResourceQueryOption::PrivateContext {
 	}
 };
 
-HostResourceQueryOption::HostResourceQueryOption(void)
+HostResourceQueryOption::HostResourceQueryOption(UserIdType userId)
+: DataQueryOption(userId)
 {
 	m_ctx = new PrivateContext();
 }
@@ -718,7 +719,8 @@ void HostResourceQueryOption::setTableNameForServerId(const std::string &name)
 	m_ctx->tableNameForServerId = name;
 }
 
-EventsQueryOption::EventsQueryOption(void)
+EventsQueryOption::EventsQueryOption(UserIdType userId)
+: HostResourceQueryOption(userId)
 {
 	setServerIdColumnName(
 	  COLUMN_DEF_EVENTS[IDX_EVENTS_SERVER_ID].columnName);
@@ -726,7 +728,8 @@ EventsQueryOption::EventsQueryOption(void)
 	  COLUMN_DEF_EVENTS[IDX_EVENTS_HOST_ID].columnName);
 }
 
-TriggersQueryOption::TriggersQueryOption(void)
+TriggersQueryOption::TriggersQueryOption(UserIdType userId)
+: HostResourceQueryOption(userId)
 {
 	setServerIdColumnName(
 	  COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SERVER_ID].columnName);
@@ -734,7 +737,8 @@ TriggersQueryOption::TriggersQueryOption(void)
 	  COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_HOST_ID].columnName);
 }
 
-ItemsQueryOption::ItemsQueryOption(void)
+ItemsQueryOption::ItemsQueryOption(UserIdType userId)
+: HostResourceQueryOption(userId)
 {
 	setServerIdColumnName(
 	  COLUMN_DEF_ITEMS[IDX_ITEMS_SERVER_ID].columnName);

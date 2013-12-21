@@ -88,8 +88,7 @@ static void _assertGetTriggers(uint32_t serverId = ALL_SERVERS,
 	map<uint64_t, size_t>::iterator trigIdIdxIt;
 	TriggerInfoList triggerInfoList;
 	DBClientHatohol dbHatohol;
-	TriggersQueryOption option;
-	option.setUserId(USER_ID_ADMIN);
+	TriggersQueryOption option(USER_ID_ADMIN);
 	option.setTargetServerId(serverId);
 	option.setTargetHostId(hostId);
 	dbHatohol.getTriggerInfoList(triggerInfoList, option);
@@ -240,9 +239,8 @@ static string makeExpectedItemOutput(ItemInfo *itemInfo)
 static void _assertGetItems(uint32_t serverId)
 {
 	ItemInfoList itemInfoList;
-	ItemsQueryOption option;
+	ItemsQueryOption option(USER_ID_ADMIN);
 	DBClientHatohol dbHatohol;
-	option.setUserId(USER_ID_ADMIN);
 	option.setTargetServerId(serverId);
 	dbHatohol.getItemInfoList(itemInfoList, option);
 	size_t numExpectedTestItems = getNumberOfTestItems(serverId);
@@ -737,8 +735,7 @@ void test_makeConditionWithTargetServerAndHost(void)
 
 void test_conditionForAdminWithTargetServerAndHost(void)
 {
-	HostResourceQueryOption option;
-	option.setUserId(USER_ID_ADMIN);
+	HostResourceQueryOption option(USER_ID_ADMIN);
 	option.setTargetServerId(26);
 	option.setTargetHostId(32);
 	string expect = StringUtils::sprintf("%s=26 AND %s=32",
@@ -802,8 +799,7 @@ void test_makeConditionComplicated(void)
 
 void test_makeSelectConditionUserAdmin(void)
 {
-	HostResourceQueryOption option;
-	option.setUserId(USER_ID_ADMIN);
+	HostResourceQueryOption option(USER_ID_ADMIN);
 	string actual = option.getCondition();
 	string expect = "";
 	cppcut_assert_equal(actual, expect);
@@ -822,7 +818,6 @@ void test_makeSelectConditionNoneUser(void)
 {
 	setupTestDBUser(true, true);
 	HostResourceQueryOption option;
-	option.setUserId(INVALID_USER_ID);
 	string actual = option.getCondition();
 	string expect = DBClientHatohol::getAlwaysFalseCondition();
 	cppcut_assert_equal(actual, expect);

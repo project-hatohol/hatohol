@@ -33,7 +33,7 @@ public:
 		SORT_DESCENDING,
 	};
 
-	DataQueryOption(void);
+	DataQueryOption(UserIdType userId = INVALID_USER_ID);
 	DataQueryOption(const DataQueryOption &src);
 	virtual ~DataQueryOption();
 

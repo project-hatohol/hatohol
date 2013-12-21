@@ -125,7 +125,7 @@ typedef ItemInfoList::const_iterator ItemInfoListConstIterator;
 
 class HostResourceQueryOption : public DataQueryOption {
 public:
-	HostResourceQueryOption(void);
+	HostResourceQueryOption(UserIdType userId = INVALID_USER_ID);
 	HostResourceQueryOption(const HostResourceQueryOption &src);
 	virtual ~HostResourceQueryOption();
 
@@ -172,17 +172,17 @@ private:
 
 class EventsQueryOption : public HostResourceQueryOption {
 public:
-	EventsQueryOption(void);
+	EventsQueryOption(UserIdType userId = INVALID_USER_ID);
 };
 
 class TriggersQueryOption : public HostResourceQueryOption {
 public:
-	TriggersQueryOption(void);
+	TriggersQueryOption(UserIdType userId = INVALID_USER_ID);
 };
 
 class ItemsQueryOption : public HostResourceQueryOption {
 public:
-	ItemsQueryOption(void);
+	ItemsQueryOption(UserIdType userId = INVALID_USER_ID);
 };
 
 class DBClientHatohol : public DBClient {

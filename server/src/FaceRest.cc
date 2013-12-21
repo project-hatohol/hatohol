@@ -976,16 +976,14 @@ static void addOverviewEachServer(FaceRest::RestJob *job,
 	agent.add("numberOfHosts", hostInfoList.size());
 
 	ItemInfoList itemInfoList;
-	ItemsQueryOption itemsQueryOption;
-	itemsQueryOption.setUserId(job->userId);
+	ItemsQueryOption itemsQueryOption(job->userId);
 	itemsQueryOption.setTargetServerId(svInfo.id);
 	dataStore->fetchItems(svInfo.id);
 	dataStore->getItemList(itemInfoList, itemsQueryOption);
 	agent.add("numberOfItems", itemInfoList.size());
 
 	TriggerInfoList triggerInfoList;
-	TriggersQueryOption triggersQueryOption;
-	triggersQueryOption.setUserId(job->userId);
+	TriggersQueryOption triggersQueryOption(job->userId);
 	dataStore->getTriggerList(triggerInfoList, triggersQueryOption,
 				  svInfo.id);
 	agent.add("numberOfTriggers", triggerInfoList.size());
@@ -1252,8 +1250,7 @@ void FaceRest::handlerTest(RestJob *job)
 	    string(job->message->method) == "POST")
 	{
 		RETURN_IF_NOT_TEST_MODE(job);
-		UserQueryOption option;
-		option.setUserId(USER_ID_ADMIN);
+		UserQueryOption option(USER_ID_ADMIN);
 		HatoholError err = updateOrAddUser(job->query, option);
 		if (err != HTERR_OK) {
 			replyError(job, err);
@@ -1373,8 +1370,7 @@ void FaceRest::handlerGetTrigger(RestJob *job)
 
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	TriggerInfoList triggerList;
-	TriggersQueryOption option;
-	option.setUserId(job->userId);
+	TriggersQueryOption option(job->userId);
 	option.setTargetServerId(serverId);
 	option.setTargetHostId(hostId);
 	dataStore->getTriggerList(triggerList, option, triggerId);
@@ -1413,8 +1409,7 @@ void FaceRest::handlerGetEvent(RestJob *job)
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 
 	EventInfoList eventList;
-	EventsQueryOption option;
-	option.setUserId(job->userId);
+	EventsQueryOption option(job->userId);
 	HatoholError err = parseEventParameter(option, job->query);
 	if (err != HTERR_OK) {
 		replyError(job, err);
@@ -1478,8 +1473,7 @@ void FaceRest::replyGetItem(RestJob *job)
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 
 	ItemInfoList itemList;
-	ItemsQueryOption option;
-	option.setUserId(job->userId);
+	ItemsQueryOption option(job->userId);
 	dataStore->getItemList(itemList, option);
 
 	JsonBuilderAgent agent;
@@ -1811,8 +1805,7 @@ void FaceRest::handlerGetUser(RestJob *job)
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 
 	UserInfoList userList;
-	UserQueryOption option;
-	option.setUserId(job->userId);
+	UserQueryOption option(job->userId);
 	if (job->path == PrivateContext::pathForUserMe)
 		option.queryOnlyMyself();
 	dataStore->getUserList(userList, option);
@@ -1847,8 +1840,7 @@ void FaceRest::handlerPostUser(RestJob *job)
 	}
 
 	// try to add
-	DataQueryOption option;
-	option.setUserId(job->userId);
+	DataQueryOption option(job->userId);
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	err = dataStore->addUser(userInfo, option);
 
@@ -1888,8 +1880,7 @@ void FaceRest::handlerPutUser(RestJob *job)
 	}
 
 	// try to update
-	DataQueryOption option;
-	option.setUserId(job->userId);
+	DataQueryOption option(job->userId);
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	err = dataStore->updateUser(userInfo, option);
 
@@ -1912,8 +1903,7 @@ void FaceRest::handlerDeleteUser(RestJob *job)
 		return;
 	}
 
-	DataQueryOption option;
-	option.setUserId(job->userId);
+	DataQueryOption option(job->userId);
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	HatoholError err = dataStore->deleteUser(userId, option);
 
@@ -1945,8 +1935,7 @@ void FaceRest::handlerAccessInfo(RestJob *job)
 
 void FaceRest::handlerGetAccessInfo(RestJob *job)
 {
-	AccessInfoQueryOption option;
-	option.setUserId(job->userId);
+	AccessInfoQueryOption option(job->userId);
 	option.setTargetUserId(job->getResourceId());
 
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
@@ -2031,8 +2020,7 @@ void FaceRest::handlerPostAccessInfo(RestJob *job)
 	}
 
 	// try to add
-	DataQueryOption option;
-	option.setUserId(job->userId);
+	DataQueryOption option(job->userId);
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	HatoholError err = dataStore->addAccessInfo(accessInfo, option);
 
@@ -2056,8 +2044,7 @@ void FaceRest::handlerDeleteAccessInfo(RestJob *job)
 		return;
 	}
 
-	DataQueryOption option;
-	option.setUserId(job->userId);
+	DataQueryOption option(job->userId);
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	HatoholError err = dataStore->deleteAccessInfo(id, option);
 
