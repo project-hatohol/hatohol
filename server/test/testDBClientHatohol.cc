@@ -88,7 +88,7 @@ static void _assertGetTriggers(uint32_t serverId = ALL_SERVERS,
 	map<uint64_t, size_t>::iterator trigIdIdxIt;
 	TriggerInfoList triggerInfoList;
 	DBClientHatohol dbHatohol;
-	HostResourceQueryOption option;
+	TriggersQueryOption option;
 	option.setUserId(USER_ID_ADMIN);
 	option.setTargetServerId(serverId);
 	option.setTargetHostId(hostId);
@@ -153,7 +153,7 @@ static string makeEventOutput(EventInfo &eventInfo)
 
 struct AssertGetEventsArg {
 	EventInfoList eventInfoList;
-	HostResourceQueryOption option;
+	EventsQueryOption option;
 	DataQueryOption::SortOrder sortOrder;
 	size_t maxNumber;
 	uint64_t startId;
@@ -240,7 +240,7 @@ static string makeExpectedItemOutput(ItemInfo *itemInfo)
 static void _assertGetItems(uint32_t serverId)
 {
 	ItemInfoList itemInfoList;
-	HostResourceQueryOption option;
+	ItemsQueryOption option;
 	DBClientHatohol dbHatohol;
 	option.setUserId(USER_ID_ADMIN);
 	option.setTargetServerId(serverId);

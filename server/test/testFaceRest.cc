@@ -1682,7 +1682,7 @@ namespace testFaceRestNoInit {
 class TestFaceRestNoInit : public FaceRest {
 public:
 	static HatoholError callParseEventParameter(
-		HostResourceQueryOption &option,
+		EventsQueryOption &option,
 		GHashTable *query)
 	{
 		return parseEventParameter(option, query);
@@ -1696,7 +1696,7 @@ void _assertParseEventParameterTempl(
   const HatoholErrorCode &expectCode = HTERR_OK,
   const string &forceValueStr = "")
 {
-	HostResourceQueryOption option;
+	EventsQueryOption option;
 	GHashTable *query = g_hash_table_new(g_str_hash, g_str_equal);
 
 	string expectStr;
@@ -1765,8 +1765,8 @@ void cut_teardown(void)
 // ---------------------------------------------------------------------------
 void test_parseEventParameterWithNullQueryParameter(void)
 {
-	HostResourceQueryOption orig;
-	HostResourceQueryOption option(orig);
+	EventsQueryOption orig;
+	EventsQueryOption option(orig);
 	GHashTable *query = NULL;
 	assertHatoholError(
 	  HTERR_OK, TestFaceRestNoInit::callParseEventParameter(option, query));
@@ -1776,7 +1776,7 @@ void test_parseEventParameterWithNullQueryParameter(void)
 
 void test_parseEventParameterSortOrderNotFound(void)
 {
-	HostResourceQueryOption option;
+	EventsQueryOption option;
 	GHashTable *query = g_hash_table_new(g_str_hash, g_str_equal);
 	assertHatoholError(
 	  HTERR_OK, TestFaceRestNoInit::callParseEventParameter(option, query));
@@ -1810,7 +1810,7 @@ void test_parseEventParameterSortInvalidValue(void)
 
 void test_parseEventParameterMaximumNumberNotFound(void)
 {
-	HostResourceQueryOption option;
+	EventsQueryOption option;
 	GHashTable *query = g_hash_table_new(g_str_hash, g_str_equal);
 	assertHatoholError(
 	  HTERR_OK, TestFaceRestNoInit::callParseEventParameter(option, query));
@@ -1830,7 +1830,7 @@ void test_parseEventParameterMaximumNumberInvalidInput(void)
 
 void test_parseEventParameterStartIdNotFound(void)
 {
-	HostResourceQueryOption option;
+	EventsQueryOption option;
 	GHashTable *query = g_hash_table_new(g_str_hash, g_str_equal);
 	assertHatoholError(
 	  HTERR_OK, TestFaceRestNoInit::callParseEventParameter(option, query));

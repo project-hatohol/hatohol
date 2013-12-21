@@ -588,11 +588,15 @@ void test_oneProcWithoutFetchItems()
 	EventInfoList eventInfoList;
 	TriggerInfoList triggerInfoList;
 	ItemInfoList itemInfoList;
-	HostResourceQueryOption option;
-	option.setUserId(USER_ID_ADMIN);
-	db.getEventInfoList(eventInfoList, option);
-	db.getTriggerInfoList(triggerInfoList, option);
-	db.getItemInfoList(itemInfoList, option);
+	EventsQueryOption eventsQueryOption;
+	TriggersQueryOption triggersQueryOption;
+	ItemsQueryOption itemsQueryOption;
+	eventsQueryOption.setUserId(USER_ID_ADMIN);
+	triggersQueryOption.setUserId(USER_ID_ADMIN);
+	itemsQueryOption.setUserId(USER_ID_ADMIN);
+	db.getEventInfoList(eventInfoList, eventsQueryOption);
+	db.getTriggerInfoList(triggerInfoList, triggersQueryOption);
+	db.getItemInfoList(itemInfoList, itemsQueryOption);
 
 	// FIXME: should check contents
 	cppcut_assert_equal(false, eventInfoList.empty());
@@ -610,11 +614,15 @@ void test_oneProcWithCopyOnDemandEnabled()
 	EventInfoList eventInfoList;
 	TriggerInfoList triggerInfoList;
 	ItemInfoList itemInfoList;
-	HostResourceQueryOption option;
-	option.setUserId(USER_ID_ADMIN);
-	db.getEventInfoList(eventInfoList, option);
-	db.getTriggerInfoList(triggerInfoList, option);
-	db.getItemInfoList(itemInfoList, option);
+	EventsQueryOption eventsQueryOption;
+	TriggersQueryOption triggersQueryOption;
+	ItemsQueryOption itemsQueryOption;
+	eventsQueryOption.setUserId(USER_ID_ADMIN);
+	triggersQueryOption.setUserId(USER_ID_ADMIN);
+	itemsQueryOption.setUserId(USER_ID_ADMIN);
+	db.getEventInfoList(eventInfoList, eventsQueryOption);
+	db.getTriggerInfoList(triggerInfoList, triggersQueryOption);
+	db.getItemInfoList(itemInfoList, itemsQueryOption);
 
 	// FIXME: should check contents
 	cppcut_assert_equal(false, eventInfoList.empty());
@@ -632,11 +640,15 @@ void test_oneProcWithFetchItems()
 	EventInfoList eventInfoList;
 	TriggerInfoList triggerInfoList;
 	ItemInfoList itemInfoList;
-	HostResourceQueryOption option;
-	option.setUserId(USER_ID_ADMIN);
-	db.getEventInfoList(eventInfoList, option);
-	db.getTriggerInfoList(triggerInfoList, option);
-	db.getItemInfoList(itemInfoList, option);
+	EventsQueryOption eventsQueryOption;
+	TriggersQueryOption triggersQueryOption;
+	ItemsQueryOption itemsQueryOption;
+	eventsQueryOption.setUserId(USER_ID_ADMIN);
+	triggersQueryOption.setUserId(USER_ID_ADMIN);
+	itemsQueryOption.setUserId(USER_ID_ADMIN);
+	db.getEventInfoList(eventInfoList, eventsQueryOption);
+	db.getTriggerInfoList(triggerInfoList, triggersQueryOption);
+	db.getItemInfoList(itemInfoList, itemsQueryOption);
 
 	// FIXME: should check contents
 	cppcut_assert_equal(true, eventInfoList.empty());

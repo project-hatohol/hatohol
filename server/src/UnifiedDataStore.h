@@ -39,12 +39,12 @@ public:
 	virtual void fetchItems(uint32_t targetServerId = ALL_SERVERS);
 
 	virtual void getTriggerList(TriggerInfoList &triggerList,
-				    HostResourceQueryOption &option,
+				    TriggersQueryOption &option,
 	                            uint64_t targetTriggerId = ALL_TRIGGERS);
 	virtual HatoholError getEventList(EventInfoList &eventList,
-	                                  HostResourceQueryOption &option);
+	                                  EventsQueryOption &option);
 	virtual void getItemList(ItemInfoList &itemList,
-	                         HostResourceQueryOption &option,
+	                         ItemsQueryOption &option,
 	                         uint64_t targetItemId = ALL_ITEMS);
 	virtual bool getItemListAsync(ClosureBase *closure,
 				      uint32_t targetServerId = ALL_SERVERS);

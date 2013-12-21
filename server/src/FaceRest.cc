@@ -969,9 +969,6 @@ static void addOverviewEachServer(FaceRest::RestJob *job,
 	agent.add("serverIpAddr", svInfo.ipAddress);
 	agent.add("serverNickname", svInfo.nickname);
 
-	HostResourceQueryOption option;
-	option.setUserId(job->userId);
-
 	// TODO: This implementeation is not effective.
 	//       We should add a function only to get the number of list.
 	HostInfoList hostInfoList;
@@ -979,14 +976,18 @@ static void addOverviewEachServer(FaceRest::RestJob *job,
 	agent.add("numberOfHosts", hostInfoList.size());
 
 	ItemInfoList itemInfoList;
-	option.setUserId(job->userId);
-	option.setTargetServerId(svInfo.id);
+	ItemsQueryOption itemsQueryOption;
+	itemsQueryOption.setUserId(job->userId);
+	itemsQueryOption.setTargetServerId(svInfo.id);
 	dataStore->fetchItems(svInfo.id);
-	dataStore->getItemList(itemInfoList, option);
+	dataStore->getItemList(itemInfoList, itemsQueryOption);
 	agent.add("numberOfItems", itemInfoList.size());
 
 	TriggerInfoList triggerInfoList;
-	dataStore->getTriggerList(triggerInfoList, option, svInfo.id);
+	TriggersQueryOption triggersQueryOption;
+	triggersQueryOption.setUserId(job->userId);
+	dataStore->getTriggerList(triggerInfoList, triggersQueryOption,
+				  svInfo.id);
 	agent.add("numberOfTriggers", triggerInfoList.size());
 
 	// TODO: These elements should be fixed
@@ -1372,7 +1373,7 @@ void FaceRest::handlerGetTrigger(RestJob *job)
 
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	TriggerInfoList triggerList;
-	HostResourceQueryOption option;
+	TriggersQueryOption option;
 	option.setUserId(job->userId);
 	option.setTargetServerId(serverId);
 	option.setTargetHostId(hostId);
@@ -1412,7 +1413,7 @@ void FaceRest::handlerGetEvent(RestJob *job)
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 
 	EventInfoList eventList;
-	HostResourceQueryOption option;
+	EventsQueryOption option;
 	option.setUserId(job->userId);
 	HatoholError err = parseEventParameter(option, job->query);
 	if (err != HTERR_OK) {
@@ -1477,7 +1478,7 @@ void FaceRest::replyGetItem(RestJob *job)
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 
 	ItemInfoList itemList;
-	HostResourceQueryOption option;
+	ItemsQueryOption option;
 	option.setUserId(job->userId);
 	dataStore->getItemList(itemList, option);
 
@@ -2140,7 +2141,7 @@ HatoholError FaceRest::parseSortOrderFromQuery(
 	return HatoholError(HTERR_OK);
 }
 
-HatoholError FaceRest::parseEventParameter(HostResourceQueryOption &option,
+HatoholError FaceRest::parseEventParameter(EventsQueryOption &option,
 					   GHashTable *query)
 {
 	if (!query)

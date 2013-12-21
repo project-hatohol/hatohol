@@ -70,7 +70,7 @@ void test_getTriggerList(void)
 
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	TriggerInfoList list;
-	HostResourceQueryOption option;
+	TriggersQueryOption option;
 	option.setUserId(USER_ID_ADMIN);
 	dataStore->getTriggerList(list, option);
 
@@ -137,7 +137,7 @@ void test_getEventList(void)
 
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	EventInfoList list;
-	HostResourceQueryOption option;
+	EventsQueryOption option;
 	option.setUserId(USER_ID_ADMIN);
 	dataStore->getEventList(list, option);
 
@@ -155,7 +155,7 @@ void test_getItemList(void)
 
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	ItemInfoList list;
-	HostResourceQueryOption option;
+	ItemsQueryOption option;
 	option.setUserId(USER_ID_ADMIN);
 	dataStore->getItemList(list, option);
 

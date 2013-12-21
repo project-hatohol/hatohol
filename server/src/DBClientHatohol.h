@@ -218,7 +218,7 @@ public:
 	bool getTriggerInfo(TriggerInfo &triggerInfo,
 	                    uint32_t serverId, uint64_t triggerId);
 	void getTriggerInfoList(TriggerInfoList &triggerInfoList,
-				HostResourceQueryOption &option,
+				TriggersQueryOption &option,
 	                        uint64_t targetTriggerId = ALL_TRIGGERS);
 	void setTriggerInfoList(const TriggerInfoList &triggerInfoList,
 	                        uint32_t serverId);
@@ -235,7 +235,7 @@ public:
 	void addEventInfo(EventInfo *eventInfo);
 	void addEventInfoList(const EventInfoList &eventInfoList);
 	HatoholError getEventInfoList(EventInfoList &eventInfoList,
-	                              HostResourceQueryOption &option);
+	                              EventsQueryOption &option);
 	void setEventInfoList(const EventInfoList &eventInfoList,
 	                      uint32_t serverId);
 
@@ -252,7 +252,7 @@ public:
 	void addItemInfo(ItemInfo *itemInfo);
 	void addItemInfoList(const ItemInfoList &itemInfoList);
 	void getItemInfoList(ItemInfoList &itemInfoList,
-			     HostResourceQueryOption &option,
+			     ItemsQueryOption &option,
 			     uint64_t targetItemId = ALL_ITEMS);
 	void getItemInfoList(ItemInfoList &itemInfoList,
 			     const string &condition);

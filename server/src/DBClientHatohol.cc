@@ -882,9 +882,9 @@ bool DBClientHatohol::getTriggerInfo(TriggerInfo &triggerInfo,
 	return true;
 }
 
-void DBClientHatohol::getTriggerInfoList(
-  TriggerInfoList &triggerInfoList, HostResourceQueryOption &option,
-  uint64_t targetTriggerId)
+void DBClientHatohol::getTriggerInfoList(TriggerInfoList &triggerInfoList,
+					 TriggersQueryOption &option,
+					 uint64_t targetTriggerId)
 {
 	string optCond = option.getCondition();
 	if (isAlwaysFalseCondition(optCond))
@@ -968,7 +968,7 @@ void DBClientHatohol::addEventInfoList(const EventInfoList &eventInfoList)
 }
 
 HatoholError DBClientHatohol::getEventInfoList(EventInfoList &eventInfoList,
-					       HostResourceQueryOption &option)
+					       EventsQueryOption &option)
 {
 	const ColumnDef &eventsUnifiedId =
 	  COLUMN_DEF_EVENTS[IDX_EVENTS_UNIFIED_ID];
@@ -1163,9 +1163,9 @@ void DBClientHatohol::addItemInfoList(const ItemInfoList &itemInfoList)
 	} DBCLIENT_TRANSACTION_END();
 }
 
-void DBClientHatohol::getItemInfoList(
-  ItemInfoList &itemInfoList, HostResourceQueryOption &option,
-  uint64_t targetItemId)
+void DBClientHatohol::getItemInfoList(ItemInfoList &itemInfoList,
+				      ItemsQueryOption &option,
+				      uint64_t targetItemId)
 {
 	string optCond = option.getCondition();
 	if (isAlwaysFalseCondition(optCond))
