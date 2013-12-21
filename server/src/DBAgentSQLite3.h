@@ -67,6 +67,7 @@ public:
 	virtual void deleteRows(DBAgentDeleteArg &deleteArg);
 	virtual void addColumns(DBAgentAddColumnsArg &addColumnsArg);
 	virtual uint64_t getLastInsertId(void);
+	string getDBPath(void) const;
 
 protected:
 	static string makeDBPathFromName(const string &name);
@@ -99,7 +100,6 @@ protected:
 
 	void openDatabase(void);
 	void execSql(const char *fmt, ...);
-	string getDBPath(void) const;
 
 private:
 	struct PrivateContext;

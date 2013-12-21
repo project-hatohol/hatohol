@@ -734,6 +734,11 @@ void DBAgentSQLite3::createIndex(sqlite3 *db, const string &tableName,
 	}
 }
 
+string DBAgentSQLite3::getDBPath(void) const
+{
+	return m_ctx->dbPath;
+}
+
 //
 // Non static methods
 //
@@ -753,9 +758,4 @@ void DBAgentSQLite3::execSql(const char *fmt, ...)
 
 	// execute the query
 	_execSql(m_ctx->db, sql);
-}
-
-string DBAgentSQLite3::getDBPath(void) const
-{
-	return m_ctx->dbPath;
 }
