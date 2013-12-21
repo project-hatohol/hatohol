@@ -221,17 +221,19 @@ DBClient::DBClient(DBDomainId domainId)
 		// The setup function: dbSetupFunc() is called from
 		// the creation of DBAgent instance below.
 		DBAgent::addSetupFunction(
-		  domainId, dbSetupFunc, (void *)setupCtx->dbSetupFuncArg);
+		  domainId, dbSetupFunc, (void *)setupCtx);
 		bool skipSetup = false;
-		m_ctx->dbAgent = DBAgentFactory::create(domainId, skipSetup,
-		                                        &setupCtx->connectInfo);
+		m_ctx->dbAgent =
+		  DBAgentFactory::create(domainId, setupCtx->dbName,
+		                         skipSetup, &setupCtx->connectInfo);
 		setupCtx->initialized = true;
 		setupCtx->mutex.unlock();
 	} else {
 		setupCtx->mutex.unlock();
 		bool skipSetup = true;
-		m_ctx->dbAgent = DBAgentFactory::create(domainId, skipSetup,
-		                                        &setupCtx->connectInfo);
+		m_ctx->dbAgent =
+		  DBAgentFactory::create(domainId, setupCtx->dbName,
+		                         skipSetup, &setupCtx->connectInfo);
 	}
 }
 
@@ -367,10 +369,12 @@ void DBClient::setDBVersion(DBAgent *dbAgent, int version)
 // non-static methods
 void DBClient::dbSetupFunc(DBDomainId domainId, void *data)
 {
-	DBSetupFuncArg *setupFuncArg = static_cast<DBSetupFuncArg *>(data);
+	DBSetupContext *setupCtx = static_cast<DBSetupContext *>(data);
+	DBSetupFuncArg *setupFuncArg = setupCtx->dbSetupFuncArg;
 	bool skipSetup = true;
 	const DBConnectInfo *connectInfo = setupFuncArg->connectInfo;
 	auto_ptr<DBAgent> rawDBAgent(DBAgentFactory::create(domainId,
+	                                                    setupCtx->dbName,
 	                                                    skipSetup,
 	                                                    connectInfo));
 	if (!rawDBAgent->isTableExisting(TABLE_NAME_DBCLIENT_VERSION)) {

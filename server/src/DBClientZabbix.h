@@ -47,7 +47,6 @@ public:
 	static bool transformItemItemGroupToItemInfo(ItemInfo &itemInfo,
 	                                             const ItemGroup *item,
 	                                             DBClientZabbix &dbZabbix);
-
 	/**
 	 * create a DBClientZabbix instance.
 	 *
@@ -94,6 +93,7 @@ public:
 	                               const vector<uint64_t> &appIdVector);
 
 protected:
+	static string getDBName(const ServerIdType zabbixServerId);
 	static void tableInitializerSystem(DBAgent *dbAgent, void *data);
 	static void updateDBIfNeeded(DBAgent *dbAgent, int oldVer, void *data);
 	static string makeItemBrief(const ItemGroup *itemItemGroup);

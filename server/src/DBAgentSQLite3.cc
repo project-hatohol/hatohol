@@ -141,14 +141,14 @@ const string &DBAgentSQLite3::getDBPath(DBDomainId domainId)
 	return it->second;
 }
 
-DBAgentSQLite3::DBAgentSQLite3(const char *dbName,
+DBAgentSQLite3::DBAgentSQLite3(const string &dbName,
                                DBDomainId domainId, bool skipSetup)
 : DBAgent(domainId, skipSetup),
   m_ctx(NULL)
 {
 	// We don't lock DB (use transaction) in the existence check of
 	m_ctx = new PrivateContext();
-	if (dbName) {
+	if (!dbName.empty()) {
 		// TODO:
 		// If this constructor is called with the domain ID whose path
 		// is already defined, the following dbPath is not used.

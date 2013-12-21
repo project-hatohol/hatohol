@@ -1579,8 +1579,7 @@ DBClientZabbix *DBClientZabbix::create(const ServerIdType zabbixServerId)
 		DB_TABLE_INFO,
 	};
 
-	string dbName = StringUtils::sprintf("hatohol_cache_zabbix_%"FMT_SERVER_ID,
-	                                     zabbixServerId);
+	string dbName = getDBName(zabbixServerId);
 	DBDomainId domainId = DB_DOMAIN_ID_ZABBIX + zabbixServerId;
 	registerSetupInfo(domainId, dbName, &DB_SETUP_FUNC_ARG);
 
@@ -2044,6 +2043,12 @@ void DBClientZabbix::pickupAbsentApplcationIds
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
+string DBClientZabbix::getDBName(const ServerIdType zabbixServerId)
+{
+	return StringUtils::sprintf("hatohol_cache_zabbix_%"FMT_SERVER_ID,
+	                            zabbixServerId);
+}
+
 void DBClientZabbix::tableInitializerSystem(DBAgent *dbAgent, void *data)
 {
 	// insert default value

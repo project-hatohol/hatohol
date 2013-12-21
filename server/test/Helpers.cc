@@ -228,18 +228,31 @@ string getDBClientDBPath(DBDomainId domainId)
 	return DBAgentSQLite3::getDBPath(domainId);
 }
 
+void deleteFileAndCheck(const string &path)
+{
+	unlink(path.c_str());
+	cut_assert_not_exist_path(path.c_str());
+}
+
 string deleteDBClientDB(DBDomainId domainId)
 {
 	string dbPath = getDBClientDBPath(domainId);
-	unlink(dbPath.c_str());
-	cut_assert_not_exist_path(dbPath.c_str());
+	deleteFileAndCheck(dbPath);
 	return dbPath;
 }
 
-string deleteDBClientZabbixDB(int serverId)
+string deleteDBClientZabbixDB(const ServerIdType serverId)
 {
-	DBDomainId domainId = DBClientZabbix::getDBDomainId(serverId);
-	return  deleteDBClientDB(domainId);
+	struct callgate : public DBClientZabbix, public DBAgentSQLite3 {
+		static string getDBPath(const ServerIdType serverId) {
+			string dbName = getDBName(serverId);
+			string dbPath = makeDBPathFromName(dbName);
+			return dbPath;
+		}
+	};
+	string dbPath = callgate::getDBPath(serverId);
+	deleteFileAndCheck(dbPath);
+	return dbPath;
 }
 
 string execSqlite3ForDBClient(DBDomainId domainId, const string &statement)

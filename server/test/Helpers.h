@@ -79,7 +79,7 @@ string getFixturesDir(void);
 bool isVerboseMode(void);
 string deleteDBClientDB(DBDomainId domainId);
 string getDBClientDBPath(DBDomainId domainId);
-string deleteDBClientZabbixDB(int serverId);
+string deleteDBClientZabbixDB(const ServerIdType serverId);
 string execSqlite3ForDBClient(DBDomainId domainId, const string &statement);
 string execSqlite3ForDBClientZabbix(int serverId, const string &statement);
 string execMySQL(const string &dbName, const string &statement,
