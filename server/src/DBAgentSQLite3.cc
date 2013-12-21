@@ -155,7 +155,6 @@ DBAgentSQLite3::DBAgentSQLite3(const string &dbName,
 : DBAgent(domainId, skipSetup),
   m_ctx(NULL)
 {
-	// We don't lock DB (use transaction) in the existence check of
 	m_ctx = new PrivateContext();
 	if (!dbName.empty() && !PrivateContext::isDBPathDefined(domainId)) {
 		string dbPath = makeDBPathFromName(dbName);
