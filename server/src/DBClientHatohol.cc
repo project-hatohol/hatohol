@@ -528,6 +528,7 @@ string HostResourceQueryOption::getHostIdColumnName(void) const
 	// FIXME: should enable to set column name
 	const char *columnName
 	  = COLUMN_DEF_EVENTS[IDX_EVENTS_HOST_ID].columnName;
+	return columnName;
 }
 
 void HostResourceQueryOption::appendCondition(string &cond, const string &newCond)
@@ -580,7 +581,9 @@ string HostResourceQueryOption::makeConditionServer(
 
 string HostResourceQueryOption::makeCondition(
   const ServerHostGrpSetMap &srvHostGrpSetMap,
-  const string &serverIdColumnName, const string &hostGroupIdColumnName,
+  const string &serverIdColumnName,
+  const string &hostGroupIdColumnName,
+  const string &hostIdColumnName,
   uint32_t targetServerId, uint64_t targetHostId)
 {
 	string condition;
@@ -613,7 +616,7 @@ string HostResourceQueryOption::makeCondition(
 	if (targetHostId != ALL_HOSTS) {
 		return StringUtils::sprintf("((%s) AND %s=%"PRIu64")",
 					    condition.c_str(),
-					    hostGroupIdColumnName.c_str(),
+					    hostIdColumnName.c_str(),
 					    targetHostId);
 	}
 
@@ -640,6 +643,7 @@ string HostResourceQueryOption::getCondition(void) const
 	condition = makeCondition(srvHostGrpSetMap,
 	                          getServerIdColumnName(),
 	                          getHostGroupIdColumnName(),
+	                          getHostIdColumnName(),
 				  m_ctx->targetServerId,
 				  m_ctx->targetHostId);
 	return condition;

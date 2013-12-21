@@ -149,6 +149,7 @@ protected:
 	  const ServerHostGrpSetMap &srvHostGrpSetMap,
 	  const std::string &serverIdColumnName,
 	  const std::string &hostGroupIdColumnName,
+	  const std::string &hostIdColumnName,
 	  uint32_t targetServerId = ALL_SERVERS,
 	  uint64_t targetHostId = ALL_HOSTS);
 	static std::string makeConditionServer(

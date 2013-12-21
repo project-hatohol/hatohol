@@ -40,11 +40,14 @@ public:
 	string callMakeCondition(const ServerHostGrpSetMap &srvHostGrpSetMap,
 				 const string &serverIdColumnName,
 				 const string &hostGroupIdColumnName,
+				 const string &hostIdColumnName,
 				 uint32_t targetServerId = ALL_SERVERS,
 				 uint64_t targetHostId = ALL_HOSTS)
 	{
 		return makeCondition(srvHostGrpSetMap,
-				     serverIdColumnName, hostGroupIdColumnName,
+				     serverIdColumnName,
+				     hostGroupIdColumnName,
+				     hostIdColumnName,
 				     targetServerId, targetHostId);
 	}
 };
@@ -352,7 +355,9 @@ static void _assertMakeCondition(const ServerHostGrpSetMap &srvHostGrpSetMap,
 {
 	string cond = TestHostResourceQueryOption::callMakeCondition(
 			srvHostGrpSetMap,
-			serverIdColumnName, hostGroupIdColumnName,
+			serverIdColumnName,
+			hostGroupIdColumnName,
+			hostIdColumnName,
 			targetServerId, targetHostId);
 	cppcut_assert_equal(expect, cond);
 }
@@ -378,7 +383,8 @@ static string makeExpectedConditionForUser(UserIdType userId)
 	exp = TestHostResourceQueryOption::callMakeCondition(
 		srvHostGrpSetMap,
 		serverIdColumnName,
-		hostGroupIdColumnName);
+		hostGroupIdColumnName,
+		hostIdColumnName);
 	return exp;
 }
 
