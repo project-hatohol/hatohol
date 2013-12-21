@@ -714,6 +714,15 @@ void test_makeConditionWithTargetServer(void)
 	assertMakeCondition(srvHostGrpSetMap, expect, 14);
 }
 
+void test_makeConditionWithUnauthorizedTargetServer(void)
+{
+	ServerHostGrpSetMap srvHostGrpSetMap;
+	srvHostGrpSetMap[5].insert(ALL_HOST_GROUPS);
+	srvHostGrpSetMap[14].insert(ALL_HOST_GROUPS);
+	srvHostGrpSetMap[768].insert(ALL_HOST_GROUPS);
+	assertMakeCondition(srvHostGrpSetMap, "0", 7);
+}
+
 void test_makeConditionWithTargetServerAndHost(void)
 {
 	ServerHostGrpSetMap srvHostGrpSetMap;

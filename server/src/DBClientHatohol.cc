@@ -594,6 +594,12 @@ string HostResourceQueryOption::makeCondition(
 		return DBClientHatohol::getAlwaysFalseCondition();
 	}
 
+	if (targetServerId != ALL_SERVERS &&
+	    srvHostGrpSetMap.find(targetServerId) == srvHostGrpSetMap.end())
+	{
+		return DBClientHatohol::getAlwaysFalseCondition();
+	}
+
 	numServers = 0;
 	ServerHostGrpSetMapConstIterator it = srvHostGrpSetMap.begin();
 	for (; it != srvHostGrpSetMap.end(); ++it) {
