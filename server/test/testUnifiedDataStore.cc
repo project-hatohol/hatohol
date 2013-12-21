@@ -155,7 +155,9 @@ void test_getItemList(void)
 
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	ItemInfoList list;
-	dataStore->getItemList(list);
+	HostResourceQueryOption option;
+	option.setUserId(USER_ID_ADMIN);
+	dataStore->getItemList(list, option);
 
 	ItemInfoListIterator it;
 	for (it = list.begin(); it != list.end(); it++)

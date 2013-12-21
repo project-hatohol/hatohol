@@ -251,10 +251,11 @@ HatoholError UnifiedDataStore::getEventList(EventInfoList &eventList,
 }
 
 void UnifiedDataStore::getItemList(ItemInfoList &itemList,
-                                   uint32_t targetServerId)
+				   HostResourceQueryOption &option,
+				   uint64_t targetItemId)
 {
 	DBClientHatohol dbHatohol;
-	dbHatohol.getItemInfoList(itemList, targetServerId);
+	dbHatohol.getItemInfoList(itemList, option, targetItemId);
 }
 
 bool UnifiedDataStore::getItemListAsync(ClosureBase *closure,

@@ -979,8 +979,10 @@ static void addOverviewEachServer(FaceRest::RestJob *job,
 	agent.add("numberOfHosts", hostInfoList.size());
 
 	ItemInfoList itemInfoList;
+	option.setUserId(job->userId);
+	option.setTargetServerId(svInfo.id);
 	dataStore->fetchItems(svInfo.id);
-	dataStore->getItemList(itemInfoList, svInfo.id);
+	dataStore->getItemList(itemInfoList, option);
 	agent.add("numberOfItems", itemInfoList.size());
 
 	TriggerInfoList triggerInfoList;
@@ -1475,7 +1477,9 @@ void FaceRest::replyGetItem(RestJob *job)
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 
 	ItemInfoList itemList;
-	dataStore->getItemList(itemList);
+	HostResourceQueryOption option;
+	option.setUserId(job->userId);
+	dataStore->getItemList(itemList, option);
 
 	JsonBuilderAgent agent;
 	agent.startObject();

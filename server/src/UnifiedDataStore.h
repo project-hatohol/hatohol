@@ -44,7 +44,8 @@ public:
 	virtual HatoholError getEventList(EventInfoList &eventList,
 	                                  HostResourceQueryOption &option);
 	virtual void getItemList(ItemInfoList &itemList,
-	                         uint32_t targetServerId = ALL_SERVERS);
+	                         HostResourceQueryOption &option,
+	                         uint64_t targetItemId = ALL_ITEMS);
 	virtual bool getItemListAsync(ClosureBase *closure,
 				      uint32_t targetServerId = ALL_SERVERS);
 	virtual void getHostList(HostInfoList &hostInfoList,

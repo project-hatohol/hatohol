@@ -240,8 +240,11 @@ static string makeExpectedItemOutput(ItemInfo *itemInfo)
 static void _assertGetItems(uint32_t serverId)
 {
 	ItemInfoList itemInfoList;
+	HostResourceQueryOption option;
 	DBClientHatohol dbHatohol;
-	dbHatohol.getItemInfoList(itemInfoList, serverId);
+	option.setUserId(USER_ID_ADMIN);
+	option.setTargetServerId(serverId);
+	dbHatohol.getItemInfoList(itemInfoList, option);
 	size_t numExpectedTestItems = getNumberOfTestItems(serverId);
 	cppcut_assert_equal(numExpectedTestItems, itemInfoList.size());
 

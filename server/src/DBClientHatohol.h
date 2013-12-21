@@ -44,6 +44,7 @@ enum TriggerSeverityType {
 static const uint32_t ALL_SERVERS = -1;
 static const uint64_t ALL_HOSTS   = -1;
 static const uint64_t ALL_TRIGGERS = -1;
+static const uint64_t ALL_ITEMS    = -1;
 static const uint64_t ALL_HOST_GROUPS = -1;
 
 struct HostInfo {
@@ -233,7 +234,10 @@ public:
 	void addItemInfo(ItemInfo *itemInfo);
 	void addItemInfoList(const ItemInfoList &itemInfoList);
 	void getItemInfoList(ItemInfoList &itemInfoList,
-	                     uint32_t targetServerId = ALL_SERVERS);
+			     HostResourceQueryOption &option,
+			     uint64_t targetItemId = ALL_ITEMS);
+	void getItemInfoList(ItemInfoList &itemInfoList,
+			     const string &condition);
 
 	/**
 	 * get the number of triggers with the given server ID, host group ID,

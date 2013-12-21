@@ -592,7 +592,7 @@ void test_oneProcWithoutFetchItems()
 	option.setUserId(USER_ID_ADMIN);
 	db.getEventInfoList(eventInfoList, option);
 	db.getTriggerInfoList(triggerInfoList, option);
-	db.getItemInfoList(itemInfoList);
+	db.getItemInfoList(itemInfoList, option);
 
 	// FIXME: should check contents
 	cppcut_assert_equal(false, eventInfoList.empty());
@@ -614,7 +614,7 @@ void test_oneProcWithCopyOnDemandEnabled()
 	option.setUserId(USER_ID_ADMIN);
 	db.getEventInfoList(eventInfoList, option);
 	db.getTriggerInfoList(triggerInfoList, option);
-	db.getItemInfoList(itemInfoList);
+	db.getItemInfoList(itemInfoList, option);
 
 	// FIXME: should check contents
 	cppcut_assert_equal(false, eventInfoList.empty());
@@ -636,7 +636,7 @@ void test_oneProcWithFetchItems()
 	option.setUserId(USER_ID_ADMIN);
 	db.getEventInfoList(eventInfoList, option);
 	db.getTriggerInfoList(triggerInfoList, option);
-	db.getItemInfoList(itemInfoList);
+	db.getItemInfoList(itemInfoList, option);
 
 	// FIXME: should check contents
 	cppcut_assert_equal(true, eventInfoList.empty());

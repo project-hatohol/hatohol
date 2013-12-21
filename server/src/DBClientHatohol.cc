@@ -1117,8 +1117,33 @@ void DBClientHatohol::addItemInfoList(const ItemInfoList &itemInfoList)
 	} DBCLIENT_TRANSACTION_END();
 }
 
+void DBClientHatohol::getItemInfoList(
+  ItemInfoList &itemInfoList, HostResourceQueryOption &option,
+  uint64_t targetItemId)
+{
+	string optCond = option.getCondition();
+	if (isAlwaysFalseCondition(optCond))
+		return;
+
+	string condition;
+	if (targetItemId != ALL_ITEMS) {
+		const char *colName = 
+		  COLUMN_DEF_ITEMS[IDX_ITEMS_ID].columnName;
+		condition += StringUtils::sprintf("%s=%"PRIu64, colName,
+		                                  targetItemId);
+	}
+
+	if (!optCond.empty()) {
+		if (!condition.empty())
+			condition += " AND ";
+		condition += StringUtils::sprintf("(%s)", optCond.c_str());
+	}
+
+	getItemInfoList(itemInfoList, condition);
+}
+
 void DBClientHatohol::getItemInfoList(ItemInfoList &itemInfoList,
-                                      uint32_t targetServerId)
+                                      const string &condition)
 {
 	DBAgentSelectExArg arg;
 	arg.tableName = TABLE_NAME_ITEMS;
@@ -1133,12 +1158,7 @@ void DBClientHatohol::getItemInfoList(ItemInfoList &itemInfoList,
 	arg.pushColumn(COLUMN_DEF_ITEMS[IDX_ITEMS_ITEM_GROUP_NAME]);
 
 	// condition
-	if (targetServerId != ALL_SERVERS) {
-		const char *colName = 
-		  COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SERVER_ID].columnName;
-		arg.condition = StringUtils::sprintf("%s=%"PRIu32, colName,
-		                                     targetServerId);
-	}
+	arg.condition = condition;
 
 	DBCLIENT_TRANSACTION_BEGIN() {
 		select(arg);
