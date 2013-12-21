@@ -41,7 +41,6 @@ public:
 		const DBSetupTableInfo *tableInfoArray;
 		DBUpdater               dbUpdater;
 		void                   *dbUpdaterData;
-		const DBConnectInfo    *connectInfo;
 	};
 
 	static int DBCLIENT_DB_VERSION;

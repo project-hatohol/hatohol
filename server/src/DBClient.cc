@@ -251,7 +251,6 @@ void DBClient::setConnectInfo(
 {
 	DBSetupContext *setupCtx = PrivateContext::getDBSetupContext(domainId);
 	setupCtx->connectInfo = connectInfo;
-	setupCtx->dbSetupFuncArg->connectInfo = &setupCtx->connectInfo;
 	setupCtx->mutex.unlock();
 }
 
@@ -348,7 +347,7 @@ void DBClient::dbSetupFunc(DBDomainId domainId, void *data)
 	DBSetupContext *setupCtx = static_cast<DBSetupContext *>(data);
 	DBSetupFuncArg *setupFuncArg = setupCtx->dbSetupFuncArg;
 	bool skipSetup = true;
-	const DBConnectInfo *connectInfo = setupFuncArg->connectInfo;
+	const DBConnectInfo *connectInfo = &setupCtx->connectInfo;
 	auto_ptr<DBAgent> rawDBAgent(DBAgentFactory::create(domainId,
 	                                                    setupCtx->dbName,
 	                                                    skipSetup,
