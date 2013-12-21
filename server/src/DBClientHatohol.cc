@@ -505,6 +505,7 @@ HostResourceQueryOption::~HostResourceQueryOption()
 
 string HostResourceQueryOption::getServerIdColumnName(void) const
 {
+	// FIXME: should enable to set column name
 	const char *columnName
 	  = COLUMN_DEF_EVENTS[IDX_EVENTS_SERVER_ID].columnName;
 
@@ -520,6 +521,13 @@ string HostResourceQueryOption::getHostGroupIdColumnName(void) const
 {
 	// TODO: this is temporarily
 	return "host_group_id";
+}
+
+string HostResourceQueryOption::getHostIdColumnName(void) const
+{
+	// FIXME: should enable to set column name
+	const char *columnName
+	  = COLUMN_DEF_EVENTS[IDX_EVENTS_HOST_ID].columnName;
 }
 
 void HostResourceQueryOption::appendCondition(string &cond, const string &newCond)
