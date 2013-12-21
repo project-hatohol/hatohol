@@ -39,15 +39,19 @@ public:
 	static
 	string callMakeCondition(const ServerHostGrpSetMap &srvHostGrpSetMap,
 				 const string &serverIdColumnName,
-				 const string &hostGroupIdColumnName)
+				 const string &hostGroupIdColumnName,
+				 uint32_t targetServerId = ALL_SERVERS,
+				 uint64_t targetHostId = ALL_HOSTS)
 	{
 		return makeCondition(srvHostGrpSetMap,
-				     serverIdColumnName, hostGroupIdColumnName);
+				     serverIdColumnName, hostGroupIdColumnName,
+				     targetServerId, targetHostId);
 	}
 };
 
 static const string serverIdColumnName = "server_id";
 static const string hostGroupIdColumnName = "host_group_id";
+static const string hostIdColumnName = "host_id";
 
 static void addTriggerInfo(TriggerInfo *triggerInfo)
 {
@@ -342,15 +346,18 @@ void _assertTriggerInfo(const TriggerInfo &expect, const TriggerInfo &actual)
 #define assertTriggerInfo(E,A) cut_trace(_assertTriggerInfo(E,A))
 
 static void _assertMakeCondition(const ServerHostGrpSetMap &srvHostGrpSetMap,
-				 const string &expect)
+				 const string &expect,
+				 uint32_t targetServerId = ALL_SERVERS,
+				 uint64_t targetHostId = ALL_HOSTS)
 {
 	string cond = TestHostResourceQueryOption::callMakeCondition(
 			srvHostGrpSetMap,
-			serverIdColumnName, hostGroupIdColumnName);
+			serverIdColumnName, hostGroupIdColumnName,
+			targetServerId, targetHostId);
 	cppcut_assert_equal(expect, cond);
 }
-#define assertMakeCondition(M,E) cut_trace(_assertMakeCondition(M,E))
-#define assertMakeConditionWithTableName(M,E,T) cut_trace(_assertMakeCondition(M,E,T))
+#define assertMakeCondition(M, ...) \
+  cut_trace(_assertMakeCondition(M, ##__VA_ARGS__))
 
 static string makeExpectedConditionForUser(UserIdType userId)
 {
@@ -683,6 +690,29 @@ void test_makeConditionMultipleServers(void)
 	  serverIdColumnName.c_str(),
 	  serverIdColumnName.c_str());
 	assertMakeCondition(srvHostGrpSetMap, expect);
+}
+
+void test_makeConditionWithTargetServer(void)
+{
+	ServerHostGrpSetMap srvHostGrpSetMap;
+	srvHostGrpSetMap[5].insert(ALL_HOST_GROUPS);
+	srvHostGrpSetMap[14].insert(ALL_HOST_GROUPS);
+	srvHostGrpSetMap[768].insert(ALL_HOST_GROUPS);
+	string expect = StringUtils::sprintf("%s=14",
+	  serverIdColumnName.c_str());
+	assertMakeCondition(srvHostGrpSetMap, expect, 14);
+}
+
+void test_makeConditionWithTargetServerAndHost(void)
+{
+	ServerHostGrpSetMap srvHostGrpSetMap;
+	srvHostGrpSetMap[5].insert(ALL_HOST_GROUPS);
+	srvHostGrpSetMap[14].insert(ALL_HOST_GROUPS);
+	srvHostGrpSetMap[768].insert(ALL_HOST_GROUPS);
+	string expect = StringUtils::sprintf("((%s=14) AND %s=21)",
+					     serverIdColumnName.c_str(),
+					     hostIdColumnName.c_str());
+	assertMakeCondition(srvHostGrpSetMap, expect, 14, 21);
 }
 
 void test_eventQueryOptionDefaultTableName(void)
