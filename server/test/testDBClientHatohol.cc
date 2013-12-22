@@ -199,10 +199,9 @@ static void _assertGetTriggers(AssertGetTriggersArg &arg)
 }
 #define assertGetTriggers(A) cut_trace(_assertGetTriggers(A))
 
-#if 0 // not used yet
-static void _assertGetEventsWithFilter(AssertGetTriggersArg &arg)
+static void _assertGetTriggersWithFilter(AssertGetTriggersArg &arg)
 {
-	// setup event data
+	// setup trigger data
 	void test_addTriggerInfoList(void);
 	test_addTriggerInfoList();
 
@@ -214,8 +213,7 @@ static void _assertGetEventsWithFilter(AssertGetTriggersArg &arg)
 	assertGetTriggers(arg);
 }
 #define assertGetTriggersWithFilter(ARG) \
-cut_trace(_assertGetTriggersWithTargets(ARG))
-#endif
+cut_trace(_assertGetTriggersWithFilter(ARG))
 
 static void _setupTestTriggerDB(void)
 {
@@ -670,6 +668,30 @@ void test_addTriggerInfoList(void)
 	// Check
 	AssertGetTriggersArg arg;
 	assertGetTriggers(arg);
+}
+
+void test_getTriggerWithOneAutorizedServer(void)
+{
+	setupTestDBUser(true, true);
+	AssertGetTriggersArg arg;
+	arg.userId = 5;
+	assertGetTriggersWithFilter(arg);
+}
+
+void test_getTriggerWithNoAutorizedServer(void)
+{
+	setupTestDBUser(true, true);
+	AssertGetTriggersArg arg;
+	arg.userId = 4;
+	assertGetTriggersWithFilter(arg);
+}
+
+void test_getTriggerWithInvalidUserId(void)
+{
+	setupTestDBUser(true, true);
+	AssertGetTriggersArg arg;
+	arg.userId = INVALID_USER_ID;
+	assertGetTriggersWithFilter(arg);
 }
 
 void test_itemInfoList(void)
