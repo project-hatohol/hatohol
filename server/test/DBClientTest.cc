@@ -645,3 +645,39 @@ void makeServerAccessInfoMap(ServerAccessInfoMap &srvAccessInfoMap,
 		*destAccessInfo = *accessInfo;
 	}
 }
+
+void makeServerHostGrpSetMap(ServerHostGrpSetMap &map, UserIdType userId)
+{
+	for (size_t i = 0; i < NumTestAccessInfo; i++) {
+		if (testAccessInfo[i].userId != userId)
+			continue;
+		map[testAccessInfo[i].serverId].insert(
+		  testAccessInfo[i].hostGroupId);
+	}
+}
+
+bool isAuthorized(ServerHostGrpSetMap &authMap, UserIdType userId,
+		  uint32_t serverId, uint64_t hostGroupId)
+{
+	if (userId == USER_ID_ADMIN)
+		return true;
+	if (userId == INVALID_USER_ID)
+		return false;
+
+	ServerHostGrpSetMap::iterator serverIt
+		= authMap.find(ALL_SERVERS);
+	if (serverIt != authMap.end())
+		return true;
+
+	serverIt = authMap.find(serverId);
+	if (serverIt == authMap.end())
+		return false;
+
+	HostGroupSet &hostGroups = serverIt->second;
+	if (hostGroups.find(ALL_HOST_GROUPS) != hostGroups.end())
+		return true;
+
+	// FIXME: Host group isn't supported yet
+
+	return false;
+}

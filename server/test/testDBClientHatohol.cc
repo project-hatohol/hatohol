@@ -182,37 +182,14 @@ struct AssertGetEventsArg {
 		fixupAuthorizedEvents();
 	}
 
-	void fixupAuthorizedMap(void) {
-		for (size_t i = 0; i < NumTestAccessInfo; i++) {
-			if (testAccessInfo[i].userId != userId)
-				continue;
-			authMap[testAccessInfo[i].serverId].insert(
-			  testAccessInfo[i].hostGroupId);
-		}
+	void fixupAuthorizedMap(void)
+	{
+		makeServerHostGrpSetMap(authMap, userId);
 	}
 
-	bool isAuthorized(const EventInfo &eventInfo) {
-		if (userId == USER_ID_ADMIN)
-			return true;
-		if (userId == INVALID_USER_ID)
-			return false;
-
-		ServerHostGrpSetMap::iterator serverIt
-		  = authMap.find(ALL_SERVERS);
-		if (serverIt != authMap.end())
-			return true;
-
-		serverIt = authMap.find(eventInfo.serverId);
-		if (serverIt == authMap.end())
-			return false;
-
-		HostGroupSet &hostGroups = serverIt->second;
-		if (hostGroups.find(ALL_HOST_GROUPS) != hostGroups.end())
-			return true;
-
-		// FIXME: Host group isn't supported yet
-
-		return false;
+	bool isAuthorized(const EventInfo &eventInfo)
+	{
+		return ::isAuthorized(authMap, userId, eventInfo.serverId);
 	}
 
 	void fixupAuthorizedEvents(void)
