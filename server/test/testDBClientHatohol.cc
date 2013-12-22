@@ -64,7 +64,7 @@ static void addTriggerInfo(TriggerInfo *triggerInfo)
 #define assertAddTriggerToDB(X) \
 cut_trace(_assertAddToDB<TriggerInfo>(X, addTriggerInfo))
 
-static string makeExpectedOutput(const TriggerInfo &triggerInfo)
+static string makeTriggerOutput(const TriggerInfo &triggerInfo)
 {
 	string expectedOut =
 	  StringUtils::sprintf(
@@ -80,9 +80,10 @@ static string makeExpectedOutput(const TriggerInfo &triggerInfo)
 	return expectedOut;
 }
 
-struct AssertGetTriggersArg {
-	TriggerInfoList actualRecordList;
-	TriggersQueryOption option;
+template<class TResourceType, class TQueryOption>
+struct AssertGetHostResourceArg {
+	list<TResourceType> actualRecordList;
+	TQueryOption option;
 	UserIdType userId;
 	uint32_t targetServerId;
 	uint64_t targetHostId;
@@ -90,18 +91,22 @@ struct AssertGetTriggersArg {
 	size_t maxNumber;
 	uint64_t startId;
 	HatoholErrorCode expectedErrorCode;
-	vector<TriggerInfo*> authorizedRecords;
-	vector<TriggerInfo*> expectedRecords;
+	vector<TResourceType*> authorizedRecords;
+	vector<TResourceType*> expectedRecords;
 	ServerHostGrpSetMap authMap;
+	TResourceType *fixtures;
+	size_t numberOfFixtures;
 
-	AssertGetTriggersArg(void)
+	AssertGetHostResourceArg(void)
 	: userId(USER_ID_ADMIN),
 	  targetServerId(ALL_SERVERS),
 	  targetHostId(ALL_HOSTS),
 	  sortOrder(DataQueryOption::SORT_DONT_CARE),
 	  maxNumber(0),
 	  startId(0),
-	  expectedErrorCode(HTERR_OK)
+	  expectedErrorCode(HTERR_OK),
+	  fixtures(NULL),
+	  numberOfFixtures(0)
 	{
 	}
 
@@ -112,7 +117,7 @@ struct AssertGetTriggersArg {
 		option.setTargetHostId(targetHostId);
 	}
 
-	void fixup(void)
+	virtual void fixup(void)
 	{
 		fixupOption();
 		fixupAuthorizedMap();
@@ -120,28 +125,28 @@ struct AssertGetTriggersArg {
 		fixupExpectedRecords();
 	}
 
-	void fixupAuthorizedMap(void)
+	virtual void fixupAuthorizedMap(void)
 	{
 		makeServerHostGrpSetMap(authMap, userId);
 	}
 
-	bool isAuthorized(const TriggerInfo &triggerInfo)
+	virtual bool isAuthorized(const TResourceType &record)
 	{
-		return ::isAuthorized(authMap, userId, triggerInfo.serverId);
+		return ::isAuthorized(authMap, userId, record.serverId);
 	}
 
-	void fixupAuthorizedRecords(void)
+	virtual void fixupAuthorizedRecords(void)
 	{
-		for (size_t i = 0; i < NumTestTriggerInfo; i++) {
-			if (isAuthorized(testTriggerInfo[i]))
-				authorizedRecords.push_back(&testTriggerInfo[i]);
+		for (size_t i = 0; i < numberOfFixtures; i++) {
+			if (isAuthorized(fixtures[i]))
+				authorizedRecords.push_back(&fixtures[i]);
 		}
 	}
 
-	void fixupExpectedRecords(void)
+	virtual void fixupExpectedRecords(void)
 	{
 		for (size_t i = 0; i < authorizedRecords.size(); i++) {
-			TriggerInfo *record = authorizedRecords[i];
+			TResourceType *record = authorizedRecords[i];
 			if (targetServerId != ALL_SERVERS) {
 				if (record->serverId != targetServerId)
 					continue;
@@ -154,7 +159,7 @@ struct AssertGetTriggersArg {
 		}
 	}
 
-	TriggerInfo &getExpectedRecord(size_t idx)
+	virtual TResourceType &getExpectedRecord(size_t idx)
 	{
 		if (startId)
 			idx += (startId - 1);
@@ -164,7 +169,7 @@ struct AssertGetTriggersArg {
 		return *expectedRecords[idx];
 	}
 
-	void assertNumberOfRecords(void)
+	virtual void assertNumberOfRecords(void)
 	{
 		size_t expectedNum
 		  = maxNumber && maxNumber < expectedRecords.size() ?
@@ -172,19 +177,37 @@ struct AssertGetTriggersArg {
 		cppcut_assert_equal(expectedNum, actualRecordList.size());
 	}
 
+	virtual string makeExpectedOutput(const TResourceType &record) = 0;
+
 	virtual void assert(void)
 	{
 		assertNumberOfRecords();
 
 		string expectedText;
 		string actualText;
-		TriggerInfoListIterator it = actualRecordList.begin();
+		typename list<TResourceType>::iterator it
+		  = actualRecordList.begin();
 		for (size_t i = 0; it != actualRecordList.end(); i++, ++it) {
-			TriggerInfo &expectedRecord = getExpectedRecord(i);
+			TResourceType &expectedRecord = getExpectedRecord(i);
 			expectedText += makeExpectedOutput(expectedRecord);
 			actualText += makeExpectedOutput(*it);
 		}
 		cppcut_assert_equal(expectedText, actualText);
+	}
+};
+
+struct AssertGetTriggersArg
+  : public AssertGetHostResourceArg<TriggerInfo, TriggersQueryOption>
+{
+	AssertGetTriggersArg(void)
+	{
+		fixtures = testTriggerInfo;
+		numberOfFixtures = NumTestTriggerInfo;
+	}
+
+	string makeExpectedOutput(const TriggerInfo &triggerInfo)
+	{
+		return makeTriggerOutput(triggerInfo);
 	}
 };
 
@@ -236,7 +259,7 @@ cut_trace(_assertGetTriggerInfoList(SERVER_ID, ##__VA_ARGS__))
 
 // TODO: The names of makeExpectedOutput() and makeExpectedItemOutput()
 //       will be changed to be the similar of this function.
-static string makeEventOutput(EventInfo &eventInfo)
+static string makeEventOutput(const EventInfo &eventInfo)
 {
 	string output =
 	  StringUtils::sprintf(
@@ -250,87 +273,19 @@ static string makeEventOutput(EventInfo &eventInfo)
 	return output;
 }
 
-struct AssertGetEventsArg {
-	EventInfoList eventInfoList;
-	EventsQueryOption option;
-	UserIdType userId;
-	DataQueryOption::SortOrder sortOrder;
-	size_t maxNumber;
-	uint64_t startId;
-	HatoholErrorCode expectedErrorCode;
-	vector<EventInfo*> authorizedEvents;
-	ServerHostGrpSetMap authMap;
 
+struct AssertGetEventsArg
+  : public AssertGetHostResourceArg<EventInfo, EventsQueryOption>
+{
 	AssertGetEventsArg(void)
-	: userId(USER_ID_ADMIN),
-	  sortOrder(DataQueryOption::SORT_DONT_CARE),
-	  maxNumber(0),
-	  startId(0),
-	  expectedErrorCode(HTERR_OK)
 	{
+		fixtures = testEventInfo;
+		numberOfFixtures = NumTestEventInfo;
 	}
 
-	virtual void fixupOption(void)
+	string makeExpectedOutput(const EventInfo &eventInfo)
 	{
-		option.setUserId(userId);
-	}
-
-	void fixup(void)
-	{
-		fixupOption();
-		fixupAuthorizedMap();
-		fixupAuthorizedEvents();
-	}
-
-	void fixupAuthorizedMap(void)
-	{
-		makeServerHostGrpSetMap(authMap, userId);
-	}
-
-	bool isAuthorized(const EventInfo &eventInfo)
-	{
-		return ::isAuthorized(authMap, userId, eventInfo.serverId);
-	}
-
-	void fixupAuthorizedEvents(void)
-	{
-		for (size_t i = 0; i < NumTestEventInfo; i++) {
-			if (isAuthorized(testEventInfo[i]))
-				authorizedEvents.push_back(&testEventInfo[i]);
-		}
-	}
-
-	EventInfo &getExpectedEventInfo(size_t idx)
-	{
-		if (startId)
-			idx += (startId - 1);
-		if (sortOrder == DataQueryOption::SORT_DESCENDING)
-			idx = (NumTestEventInfo - 1) - idx;
-		cut_assert_true(idx < authorizedEvents.size());
-		return *authorizedEvents[idx];
-	}
-
-	void assertNumberOfEvents(void)
-	{
-		size_t expectedNum
-		  = maxNumber && maxNumber < authorizedEvents.size() ?
-		    maxNumber : authorizedEvents.size();
-		cppcut_assert_equal(expectedNum, eventInfoList.size());
-	}
-
-	virtual void assert(void)
-	{
-		assertNumberOfEvents();
-
-		string expectedText;
-		string actualText;
-		EventInfoListIterator it = eventInfoList.begin();
-		for (size_t i = 0; it != eventInfoList.end(); i++, ++it) {
-			EventInfo &expectedEventInfo = getExpectedEventInfo(i);
-			expectedText += makeEventOutput(expectedEventInfo);
-			actualText += makeEventOutput(*it);
-		}
-		cppcut_assert_equal(expectedText, actualText);
+		return makeEventOutput(eventInfo);
 	}
 };
 
@@ -340,7 +295,7 @@ static void _assertGetEvents(AssertGetEventsArg &arg)
 	arg.fixup();
 	assertHatoholError(
 	  arg.expectedErrorCode,
-	  dbHatohol.getEventInfoList(arg.eventInfoList, arg.option));
+	  dbHatohol.getEventInfoList(arg.actualRecordList, arg.option));
 	if (arg.expectedErrorCode != HTERR_OK)
 		return;
 	arg.assert();
@@ -588,7 +543,7 @@ void test_addTriggerInfo(void)
 	string cmd = StringUtils::sprintf(
 	               "sqlite3 %s \"select * from triggers\"", dbPath.c_str());
 	string result = executeCommand(cmd);
-	string expectedOut = makeExpectedOutput(*testInfo);
+	string expectedOut = makeTriggerOutput(*testInfo);
 	cppcut_assert_equal(expectedOut, result);
 }
 
