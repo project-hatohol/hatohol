@@ -64,19 +64,19 @@ static void addTriggerInfo(TriggerInfo *triggerInfo)
 #define assertAddTriggerToDB(X) \
 cut_trace(_assertAddToDB<TriggerInfo>(X, addTriggerInfo))
 
-static string makeExpectedOutput(const TriggerInfo *triggerInfo)
+static string makeExpectedOutput(const TriggerInfo &triggerInfo)
 {
 	string expectedOut =
 	  StringUtils::sprintf(
 	    "%"PRIu32"|%"PRIu64"|%d|%d|%ld|%lu|%"PRIu64"|%s|%s\n",
-	    triggerInfo->serverId,
-	    triggerInfo->id,
-	    triggerInfo->status, triggerInfo->severity,
-	    triggerInfo->lastChangeTime.tv_sec,
-	    triggerInfo->lastChangeTime.tv_nsec,
-	    triggerInfo->hostId,
-	    triggerInfo->hostName.c_str(),
-	    triggerInfo->brief.c_str());
+	    triggerInfo.serverId,
+	    triggerInfo.id,
+	    triggerInfo.status, triggerInfo.severity,
+	    triggerInfo.lastChangeTime.tv_sec,
+	    triggerInfo.lastChangeTime.tv_nsec,
+	    triggerInfo.hostId,
+	    triggerInfo.hostName.c_str(),
+	    triggerInfo.brief.c_str());
 	return expectedOut;
 }
 
@@ -157,8 +157,8 @@ struct AssertGetTriggersArg {
 		TriggerInfoListIterator it = actualRecordList.begin();
 		for (size_t i = 0; it != actualRecordList.end(); i++, ++it) {
 			TriggerInfo &expectedRecord = getExpectedRecord(i);
-			expectedText += makeExpectedOutput(&expectedRecord);
-			actualText += makeExpectedOutput(&(*it));
+			expectedText += makeExpectedOutput(expectedRecord);
+			actualText += makeExpectedOutput(*it);
 		}
 		cppcut_assert_equal(expectedText, actualText);
 	}
@@ -190,12 +190,12 @@ static void _assertGetTriggers(uint32_t serverId = ALL_SERVERS,
 	TriggerInfoListIterator it = triggerInfoList.begin();
 	for (size_t i = 0; i < numExpectedTestTriggers; i++, ++it) {
 		const TriggerInfo &actual = *it;
-		actualText += makeExpectedOutput(&actual);
+		actualText += makeExpectedOutput(actual);
 		trigIdIdxIt = indexMap[actual.serverId].find(actual.id);
 		cppcut_assert_equal(
 		  true, trigIdIdxIt != indexMap[actual.serverId].end());
 		size_t idx = trigIdIdxIt->second;
-		expectedText += makeExpectedOutput(&testTriggerInfo[idx]);
+		expectedText += makeExpectedOutput(testTriggerInfo[idx]);
 		indexMap[actual.serverId].erase(trigIdIdxIt);
 	}
 	cppcut_assert_equal(expectedText, actualText);
@@ -572,7 +572,7 @@ void test_addTriggerInfo(void)
 	string cmd = StringUtils::sprintf(
 	               "sqlite3 %s \"select * from triggers\"", dbPath.c_str());
 	string result = executeCommand(cmd);
-	string expectedOut = makeExpectedOutput(testInfo);
+	string expectedOut = makeExpectedOutput(*testInfo);
 	cppcut_assert_equal(expectedOut, result);
 }
 
