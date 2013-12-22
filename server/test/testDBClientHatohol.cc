@@ -84,15 +84,20 @@ struct AssertGetTriggersArg {
 	TriggerInfoList actualRecordList;
 	TriggersQueryOption option;
 	UserIdType userId;
+	uint32_t targetServerId;
+	uint64_t targetHostId;
 	DataQueryOption::SortOrder sortOrder;
 	size_t maxNumber;
 	uint64_t startId;
 	HatoholErrorCode expectedErrorCode;
 	vector<TriggerInfo*> authorizedRecords;
+	vector<TriggerInfo*> expectedRecords;
 	ServerHostGrpSetMap authMap;
 
 	AssertGetTriggersArg(void)
 	: userId(USER_ID_ADMIN),
+	  targetServerId(ALL_SERVERS),
+	  targetHostId(ALL_HOSTS),
 	  sortOrder(DataQueryOption::SORT_DONT_CARE),
 	  maxNumber(0),
 	  startId(0),
@@ -130,21 +135,37 @@ struct AssertGetTriggersArg {
 		}
 	}
 
+	void fixupExpectedRecords(void)
+	{
+		for (size_t i = 0; i < authorizedRecords.size(); i++) {
+			TriggerInfo *record = authorizedRecords[i];
+			if (targetServerId != ALL_SERVERS) {
+				if (record->serverId != targetServerId)
+					continue;
+			}
+			if (targetHostId != ALL_HOSTS) {
+				if (record->hostId != targetHostId)
+					continue;
+			}
+			expectedRecords.push_back(record);
+		}
+	}
+
 	TriggerInfo &getExpectedRecord(size_t idx)
 	{
 		if (startId)
 			idx += (startId - 1);
 		if (sortOrder == DataQueryOption::SORT_DESCENDING)
 			idx = (NumTestEventInfo - 1) - idx;
-		cut_assert_true(idx < authorizedRecords.size());
-		return *authorizedRecords[idx];
+		cut_assert_true(idx < expectedRecords.size());
+		return *expectedRecords[idx];
 	}
 
 	void assertNumberOfRecords(void)
 	{
 		size_t expectedNum
-		  = maxNumber && maxNumber < authorizedRecords.size() ?
-		    maxNumber : authorizedRecords.size();
+		  = maxNumber && maxNumber < expectedRecords.size() ?
+		    maxNumber : expectedRecords.size();
 		cppcut_assert_equal(expectedNum, actualRecordList.size());
 	}
 
