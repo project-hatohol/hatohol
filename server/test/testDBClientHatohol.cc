@@ -179,7 +179,7 @@ struct AssertGetEventsArg {
 	{
 		fixupOption();
 		fixupAuthorizedMap();
-		selectAuthorizedEvents();
+		fixupAuthorizedEvents();
 	}
 
 	void fixupAuthorizedMap(void) {
@@ -215,7 +215,7 @@ struct AssertGetEventsArg {
 		return false;
 	}
 
-	void selectAuthorizedEvents(void)
+	void fixupAuthorizedEvents(void)
 	{
 		for (size_t i = 0; i < NumTestEventInfo; i++) {
 			if (isAuthorized(testEventInfo[i]))
