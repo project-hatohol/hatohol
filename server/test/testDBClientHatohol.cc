@@ -318,42 +318,65 @@ static void _assertGetEventsWithFilter(AssertGetEventsArg &arg)
 #define assertGetEventsWithFilter(ARG) \
 cut_trace(_assertGetEventsWithFilter(ARG))
 
-static string makeExpectedItemOutput(ItemInfo *itemInfo)
+static string makeExpectedItemOutput(const ItemInfo &itemInfo)
 {
 	string expectedOut =
 	  StringUtils::sprintf(
 	    "%"PRIu32"|%"PRIu64"|%"PRIu64"|%s|%ld|%lu|%s|%s|%s\n",
-	    itemInfo->serverId, itemInfo->id,
-	    itemInfo->hostId,
-	    itemInfo->brief.c_str(),
-	    itemInfo->lastValueTime.tv_sec,
-	    itemInfo->lastValueTime.tv_nsec,
-	    itemInfo->lastValue.c_str(),
-	    itemInfo->prevValue.c_str(),
-	    itemInfo->itemGroupName.c_str());
+	    itemInfo.serverId, itemInfo.id,
+	    itemInfo.hostId,
+	    itemInfo.brief.c_str(),
+	    itemInfo.lastValueTime.tv_sec,
+	    itemInfo.lastValueTime.tv_nsec,
+	    itemInfo.lastValue.c_str(),
+	    itemInfo.prevValue.c_str(),
+	    itemInfo.itemGroupName.c_str());
 	return expectedOut;
 }
 
-static void _assertGetItems(uint32_t serverId)
+struct AssertGetItemsArg
+  : public AssertGetHostResourceArg<ItemInfo, ItemsQueryOption>
 {
-	ItemInfoList itemInfoList;
-	ItemsQueryOption option(USER_ID_ADMIN);
-	DBClientHatohol dbHatohol;
-	option.setTargetServerId(serverId);
-	dbHatohol.getItemInfoList(itemInfoList, option);
-	size_t numExpectedTestItems = getNumberOfTestItems(serverId);
-	cppcut_assert_equal(numExpectedTestItems, itemInfoList.size());
-
-	string expectedText;
-	string actualText;
-	ItemInfoListIterator it = itemInfoList.begin();
-	for (size_t i = 0; i < numExpectedTestItems; i++, ++it) {
-		expectedText += makeExpectedItemOutput(&testItemInfo[i]);
-		actualText += makeExpectedItemOutput(&(*it));
+	AssertGetItemsArg(void)
+	{
+		fixtures = testItemInfo;
+		numberOfFixtures = NumTestItemInfo;
 	}
-	cppcut_assert_equal(expectedText, actualText);
+
+	string makeExpectedOutput(const ItemInfo &itemInfo)
+	{
+		return makeExpectedItemOutput(itemInfo);
+	}
+};
+
+static void _assertGetItems(AssertGetItemsArg &arg)
+{
+	DBClientHatohol dbHatohol;
+	arg.fixup();
+	dbHatohol.getItemInfoList(arg.actualRecordList, arg.option);
+	if (arg.expectedErrorCode != HTERR_OK)
+		return;
+	arg.assert();
 }
-#define assertGetItems(SERVER_ID) cut_trace(_assertGetItems(SERVER_ID))
+#define assertGetItems(A) cut_trace(_assertGetItems(A))
+
+#if 0
+static void _assertGetItemsWithFilter(AssertGetItemsArg &arg)
+{
+	// setup item data
+	void test_addItemInfoList(void);
+	test_addItemInfoList();
+
+	if (arg.maxNumber)
+		arg.option.setMaximumNumber(arg.maxNumber);
+	arg.option.setSortOrder(arg.sortOrder);
+	if (arg.startId)
+		arg.option.setStartId(arg.startId);
+	assertGetItems(arg);
+}
+#define assertGetItemsWithFilter(ARG) \
+cut_trace(_assertGetItemsWithFilter(ARG))
+#endif
 
 void _assertItemInfoList(uint32_t serverId)
 {
@@ -363,7 +386,9 @@ void _assertItemInfoList(uint32_t serverId)
 		itemInfoList.push_back(testItemInfo[i]);
 	dbHatohol.addItemInfoList(itemInfoList);
 
-	assertGetItems(serverId);
+	AssertGetItemsArg arg;
+	arg.targetServerId = serverId;
+	assertGetItems(arg);
 }
 #define assertItemInfoList(SERVER_ID) cut_trace(_assertItemInfoList(SERVER_ID))
 
