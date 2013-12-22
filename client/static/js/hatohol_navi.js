@@ -45,7 +45,9 @@ var HatoholNavi = function(currentPage) {
     },
     {
       title: gettext("Servers"),
-      href:  "ajax_servers" },
+      href:  "ajax_servers" ,
+      flags: (1 << hatohol.OPPRVLG_GET_ALL_SERVERS)
+    },
     {
       title: gettext("Actions"),
       href:  "ajax_actions"
