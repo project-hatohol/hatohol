@@ -1542,7 +1542,6 @@ void test_getAccessInfo(void)
 	const bool dbRecreate = true;
 	const bool loadTestDat = true;
 	setupTestDBUser(dbRecreate, loadTestDat);
-	loadTestDBAccessList();
 	assertAllowedServers("/user/1/access-info", 1, "cbname");
 }
 
@@ -1551,7 +1550,6 @@ void test_getAccessInfoWithUserId3(void)
 	const bool dbRecreate = true;
 	const bool loadTestDat = true;
 	setupTestDBUser(dbRecreate, loadTestDat);
-	loadTestDBAccessList();
 	assertAllowedServers("/user/3/access-info", 3, "cbname");
 }
 
@@ -1638,7 +1636,6 @@ void test_addAccessInfoWithExistingData(void)
 	bool dbRecreate = true;
 	bool loadTestData = true;
 	setupTestDBUser(dbRecreate, loadTestData);
-	loadTestDBAccessList();
 
 	assertAddAccessInfo("/user/1/access-info", params, HTERR_OK, 2);
 
@@ -1651,9 +1648,8 @@ void test_deleteAccessInfo(void)
 {
 	startFaceRest();
 	bool dbRecreate = true;
-	bool loadTestData = false;
+	bool loadTestData = true;
 	setupTestDBUser(dbRecreate, loadTestData);
-	loadTestDBAccessList();
 
 	const AccessInfoIdType targetId = 2;
 	string url = StringUtils::sprintf(

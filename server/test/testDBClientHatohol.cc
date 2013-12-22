@@ -876,7 +876,6 @@ void test_makeSelectConditionNoneUser(void)
 void test_makeSelectCondition(void)
 {
 	setupTestDBUser(true, true);
-	loadTestDBAccessList();
 	HostResourceQueryOption option;
 	for (size_t i = 0; i < NumTestUserInfo; i++) {
 		UserIdType userId = i + 1;
@@ -945,7 +944,6 @@ void test_getEventWithStartIdWithoutSortOrder(void)
 void test_getEventWithOneAutorizedServer(void)
 {
 	setupTestDBUser(true, true);
-	loadTestDBAccessList();
 	AssertGetEventsArg arg;
 	arg.userId = 5;
 	assertGetEventsWithFilter(arg);
@@ -954,7 +952,6 @@ void test_getEventWithOneAutorizedServer(void)
 void test_getEventWithNoAutorizedServer(void)
 {
 	setupTestDBUser(true, true);
-	loadTestDBAccessList();
 	AssertGetEventsArg arg;
 	arg.userId = 4;
 	assertGetEventsWithFilter(arg);
@@ -963,7 +960,6 @@ void test_getEventWithNoAutorizedServer(void)
 void test_getEventWithInvalidUserId(void)
 {
 	setupTestDBUser(true, true);
-	loadTestDBAccessList();
 	AssertGetEventsArg arg;
 	arg.userId = INVALID_USER_ID;
 	assertGetEventsWithFilter(arg);
