@@ -76,7 +76,7 @@ typedef ServerHostGrpSetMap::const_iterator ServerHostGrpSetMapConstIterator;
 
 class UserQueryOption : public DataQueryOption {
 public:
-	UserQueryOption(void);
+	UserQueryOption(UserIdType userId = INVALID_USER_ID);
 	virtual ~UserQueryOption();
 
 	HatoholError setTargetName(const string &name);
@@ -92,7 +92,7 @@ private:
 
 class AccessInfoQueryOption : public DataQueryOption {
 public:
-	AccessInfoQueryOption(void);
+	AccessInfoQueryOption(UserIdType userId = INVALID_USER_ID);
 	virtual ~AccessInfoQueryOption();
 
 	// Overriding of virtual methods

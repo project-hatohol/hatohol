@@ -1542,7 +1542,6 @@ void test_getAccessInfo(void)
 	const bool dbRecreate = true;
 	const bool loadTestDat = true;
 	setupTestDBUser(dbRecreate, loadTestDat);
-	loadTestDBAccessList();
 	assertAllowedServers("/user/1/access-info", 1, "cbname");
 }
 
@@ -1551,7 +1550,6 @@ void test_getAccessInfoWithUserId3(void)
 	const bool dbRecreate = true;
 	const bool loadTestDat = true;
 	setupTestDBUser(dbRecreate, loadTestDat);
-	loadTestDBAccessList();
 	assertAllowedServers("/user/3/access-info", 3, "cbname");
 }
 
@@ -1638,7 +1636,6 @@ void test_addAccessInfoWithExistingData(void)
 	bool dbRecreate = true;
 	bool loadTestData = true;
 	setupTestDBUser(dbRecreate, loadTestData);
-	loadTestDBAccessList();
 
 	assertAddAccessInfo("/user/1/access-info", params, HTERR_OK, 2);
 
@@ -1651,9 +1648,8 @@ void test_deleteAccessInfo(void)
 {
 	startFaceRest();
 	bool dbRecreate = true;
-	bool loadTestData = false;
+	bool loadTestData = true;
 	setupTestDBUser(dbRecreate, loadTestData);
-	loadTestDBAccessList();
 
 	const AccessInfoIdType targetId = 2;
 	string url = StringUtils::sprintf(
@@ -1681,8 +1677,9 @@ namespace testFaceRestNoInit {
 
 class TestFaceRestNoInit : public FaceRest {
 public:
-	static HatoholError callParseEventParameter(EventQueryOption &option,
-	                                            GHashTable *query)
+	static HatoholError callParseEventParameter(
+		EventsQueryOption &option,
+		GHashTable *query)
 	{
 		return parseEventParameter(option, query);
 	}
@@ -1691,11 +1688,11 @@ public:
 template<typename PARAM_TYPE>
 void _assertParseEventParameterTempl(
   const PARAM_TYPE &expectValue, const string &fmt, const string &paramName,
-  PARAM_TYPE (EventQueryOption::*valueGetter)(void) const,
+  PARAM_TYPE (HostResourceQueryOption::*valueGetter)(void) const,
   const HatoholErrorCode &expectCode = HTERR_OK,
   const string &forceValueStr = "")
 {
-	EventQueryOption option;
+	EventsQueryOption option;
 	GHashTable *query = g_hash_table_new(g_str_hash, g_str_equal);
 
 	string expectStr;
@@ -1722,7 +1719,7 @@ void _assertParseEventParameterSortOrderDontCare(
 {
 	assertParseEventParameterTempl(
 	  DataQueryOption::SortOrder, sortOrder, "%d", "sortOrder",
-	  &EventQueryOption::getSortOrder, expectCode);
+	  &HostResourceQueryOption::getSortOrder, expectCode);
 }
 #define assertParseEventParameterSortOrderDontCare(O, ...) \
 cut_trace(_assertParseEventParameterSortOrderDontCare(O, ##__VA_ARGS__))
@@ -1733,7 +1730,7 @@ void _assertParseEventParameterMaximumNumber(
 {
 	assertParseEventParameterTempl(
 	  size_t, expectValue, "%zd", "maximumNumber",
-	  &EventQueryOption::getMaximumNumber, expectCode, forceValueStr);
+	  &HostResourceQueryOption::getMaximumNumber, expectCode, forceValueStr);
 }
 #define assertParseEventParameterMaximumNumber(E, ...) \
 cut_trace(_assertParseEventParameterMaximumNumber(E, ##__VA_ARGS__))
@@ -1744,7 +1741,7 @@ void _assertParseEventParameterStartId(
 {
 	assertParseEventParameterTempl(
 	  uint64_t, expectValue, "%"PRIu64, "startId",
-	  &EventQueryOption::getStartId, expectCode, forceValueStr);
+	  &HostResourceQueryOption::getStartId, expectCode, forceValueStr);
 }
 #define assertParseEventParameterStartId(E, ...) \
 cut_trace(_assertParseEventParameterStartId(E, ##__VA_ARGS__))
@@ -1764,8 +1761,8 @@ void cut_teardown(void)
 // ---------------------------------------------------------------------------
 void test_parseEventParameterWithNullQueryParameter(void)
 {
-	EventQueryOption orig;
-	EventQueryOption option(orig);
+	EventsQueryOption orig;
+	EventsQueryOption option(orig);
 	GHashTable *query = NULL;
 	assertHatoholError(
 	  HTERR_OK, TestFaceRestNoInit::callParseEventParameter(option, query));
@@ -1775,7 +1772,7 @@ void test_parseEventParameterWithNullQueryParameter(void)
 
 void test_parseEventParameterSortOrderNotFound(void)
 {
-	EventQueryOption option;
+	EventsQueryOption option;
 	GHashTable *query = g_hash_table_new(g_str_hash, g_str_equal);
 	assertHatoholError(
 	  HTERR_OK, TestFaceRestNoInit::callParseEventParameter(option, query));
@@ -1809,7 +1806,7 @@ void test_parseEventParameterSortInvalidValue(void)
 
 void test_parseEventParameterMaximumNumberNotFound(void)
 {
-	EventQueryOption option;
+	EventsQueryOption option;
 	GHashTable *query = g_hash_table_new(g_str_hash, g_str_equal);
 	assertHatoholError(
 	  HTERR_OK, TestFaceRestNoInit::callParseEventParameter(option, query));
@@ -1829,7 +1826,7 @@ void test_parseEventParameterMaximumNumberInvalidInput(void)
 
 void test_parseEventParameterStartIdNotFound(void)
 {
-	EventQueryOption option;
+	EventsQueryOption option;
 	GHashTable *query = g_hash_table_new(g_str_hash, g_str_equal);
 	assertHatoholError(
 	  HTERR_OK, TestFaceRestNoInit::callParseEventParameter(option, query));

@@ -99,6 +99,12 @@ typedef UserIdIndexMap::iterator UserIdIndexMapIterator;
 void makeTestUserIdIndexMap(UserIdIndexMap &userIdIndexMap);
 void makeServerAccessInfoMap(ServerAccessInfoMap &srvAccessInfoMap,
 			     UserIdType userId);
+void makeServerHostGrpSetMap(ServerHostGrpSetMap &map,
+			     UserIdType userId);
+bool isAuthorized(ServerHostGrpSetMap &authMap,
+		  UserIdType userId,
+		  uint32_t serverId,
+		  uint64_t hostGroupId = ALL_HOST_GROUPS);
 
 #endif // DBClientTest_h
 

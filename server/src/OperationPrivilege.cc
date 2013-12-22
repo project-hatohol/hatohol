@@ -45,7 +45,7 @@ OperationPrivilege::OperationPrivilege(const OperationPrivilegeFlag flags)
 OperationPrivilege::OperationPrivilege(const OperationPrivilege &src)
 {
 	m_ctx = new PrivateContext();
-	m_ctx->flags = src.m_ctx->flags;
+	*m_ctx = *src.m_ctx;
 }
 
 OperationPrivilege::~OperationPrivilege()
@@ -88,6 +88,11 @@ bool OperationPrivilege::operator==(const OperationPrivilege &rhs)
 void OperationPrivilege::setUserId(UserIdType userId)
 {
 	m_ctx->userId = userId;
+	m_ctx->flags = 0;
+
+	if (m_ctx->userId == INVALID_USER_ID)
+		return;
+
 	if (m_ctx->userId == USER_ID_ADMIN) {
 		setFlags(ALL_PRIVILEGES);
 		return;

@@ -235,27 +235,27 @@ void UnifiedDataStore::fetchItems(uint32_t targetServerId)
 }
 
 void UnifiedDataStore::getTriggerList(TriggerInfoList &triggerList,
-                                      uint32_t targetServerId,
-                                      uint64_t targetHostId,
+				      TriggersQueryOption &option,
                                       uint64_t targetTriggerId)
 {
 	DBClientHatohol dbHatohol;
-	dbHatohol.getTriggerInfoList(triggerList, targetServerId,
-	                             targetHostId, targetTriggerId);
+	dbHatohol.getTriggerInfoList(triggerList, option,
+				     targetTriggerId);
 }
 
 HatoholError UnifiedDataStore::getEventList(EventInfoList &eventList,
-                                            EventQueryOption &option)
+					    EventsQueryOption &option)
 {
 	DBClientHatohol dbHatohol;
 	return dbHatohol.getEventInfoList(eventList, option);
 }
 
 void UnifiedDataStore::getItemList(ItemInfoList &itemList,
-                                   uint32_t targetServerId)
+				   ItemsQueryOption &option,
+				   uint64_t targetItemId)
 {
 	DBClientHatohol dbHatohol;
-	dbHatohol.getItemInfoList(itemList, targetServerId);
+	dbHatohol.getItemInfoList(itemList, option, targetItemId);
 }
 
 bool UnifiedDataStore::getItemListAsync(ClosureBase *closure,

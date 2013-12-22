@@ -959,7 +959,8 @@ void FaceRest::handlerHelloPage(RestJob *job)
 	job->replyIsPrepared = true;
 }
 
-static void addOverviewEachServer(JsonBuilderAgent &agent,
+static void addOverviewEachServer(FaceRest::RestJob *job,
+				  JsonBuilderAgent &agent,
                                   MonitoringServerInfo &svInfo)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
@@ -975,12 +976,16 @@ static void addOverviewEachServer(JsonBuilderAgent &agent,
 	agent.add("numberOfHosts", hostInfoList.size());
 
 	ItemInfoList itemInfoList;
+	ItemsQueryOption itemsQueryOption(job->userId);
+	itemsQueryOption.setTargetServerId(svInfo.id);
 	dataStore->fetchItems(svInfo.id);
-	dataStore->getItemList(itemInfoList, svInfo.id);
+	dataStore->getItemList(itemInfoList, itemsQueryOption);
 	agent.add("numberOfItems", itemInfoList.size());
 
 	TriggerInfoList triggerInfoList;
-	dataStore->getTriggerList(triggerInfoList, svInfo.id);
+	TriggersQueryOption triggersQueryOption(job->userId);
+	dataStore->getTriggerList(triggerInfoList, triggersQueryOption,
+				  svInfo.id);
 	agent.add("numberOfTriggers", triggerInfoList.size());
 
 	// TODO: These elements should be fixed
@@ -1037,7 +1042,7 @@ static void addOverviewEachServer(JsonBuilderAgent &agent,
 	agent.endArray();
 }
 
-static void addOverview(JsonBuilderAgent &agent)
+static void addOverview(FaceRest::RestJob *job, JsonBuilderAgent &agent)
 {
 	ConfigManager *configManager = ConfigManager::getInstance();
 	MonitoringServerInfoList monitoringServers;
@@ -1047,7 +1052,7 @@ static void addOverview(JsonBuilderAgent &agent)
 	agent.startArray("serverStatus");
 	for (; it != monitoringServers.end(); ++it) {
 		agent.startObject();
-		addOverviewEachServer(agent, *it);
+		addOverviewEachServer(job, agent, *it);
 		agent.endObject();
 	}
 	agent.endArray();
@@ -1245,8 +1250,7 @@ void FaceRest::handlerTest(RestJob *job)
 	    string(job->message->method) == "POST")
 	{
 		RETURN_IF_NOT_TEST_MODE(job);
-		UserQueryOption option;
-		option.setUserId(USER_ID_ADMIN);
+		UserQueryOption option(USER_ID_ADMIN);
 		HatoholError err = updateOrAddUser(job->query, option);
 		if (err != HTERR_OK) {
 			replyError(job, err);
@@ -1318,7 +1322,7 @@ void FaceRest::handlerGetOverview(RestJob *job)
 	JsonBuilderAgent agent;
 	agent.startObject();
 	addHatoholError(agent, HatoholError(HTERR_OK));
-	addOverview(agent);
+	addOverview(job, agent);
 	agent.endObject();
 
 	replyJsonData(agent, job);
@@ -1366,7 +1370,10 @@ void FaceRest::handlerGetTrigger(RestJob *job)
 
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	TriggerInfoList triggerList;
-	dataStore->getTriggerList(triggerList, serverId, hostId, triggerId);
+	TriggersQueryOption option(job->userId);
+	option.setTargetServerId(serverId);
+	option.setTargetHostId(hostId);
+	dataStore->getTriggerList(triggerList, option, triggerId);
 
 	JsonBuilderAgent agent;
 	agent.startObject();
@@ -1402,8 +1409,7 @@ void FaceRest::handlerGetEvent(RestJob *job)
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 
 	EventInfoList eventList;
-	EventQueryOption option;
-	option.setUserId(job->userId);
+	EventsQueryOption option(job->userId);
 	HatoholError err = parseEventParameter(option, job->query);
 	if (err != HTERR_OK) {
 		replyError(job, err);
@@ -1467,7 +1473,8 @@ void FaceRest::replyGetItem(RestJob *job)
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 
 	ItemInfoList itemList;
-	dataStore->getItemList(itemList);
+	ItemsQueryOption option(job->userId);
+	dataStore->getItemList(itemList, option);
 
 	JsonBuilderAgent agent;
 	agent.startObject();
@@ -1804,8 +1811,7 @@ void FaceRest::handlerGetUser(RestJob *job)
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 
 	UserInfoList userList;
-	UserQueryOption option;
-	option.setUserId(job->userId);
+	UserQueryOption option(job->userId);
 	if (job->path == PrivateContext::pathForUserMe)
 		option.queryOnlyMyself();
 	dataStore->getUserList(userList, option);
@@ -1840,8 +1846,7 @@ void FaceRest::handlerPostUser(RestJob *job)
 	}
 
 	// try to add
-	DataQueryOption option;
-	option.setUserId(job->userId);
+	DataQueryOption option(job->userId);
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	err = dataStore->addUser(userInfo, option);
 
@@ -1881,8 +1886,7 @@ void FaceRest::handlerPutUser(RestJob *job)
 	}
 
 	// try to update
-	DataQueryOption option;
-	option.setUserId(job->userId);
+	DataQueryOption option(job->userId);
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	err = dataStore->updateUser(userInfo, option);
 
@@ -1905,8 +1909,7 @@ void FaceRest::handlerDeleteUser(RestJob *job)
 		return;
 	}
 
-	DataQueryOption option;
-	option.setUserId(job->userId);
+	DataQueryOption option(job->userId);
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	HatoholError err = dataStore->deleteUser(userId, option);
 
@@ -1938,8 +1941,7 @@ void FaceRest::handlerAccessInfo(RestJob *job)
 
 void FaceRest::handlerGetAccessInfo(RestJob *job)
 {
-	AccessInfoQueryOption option;
-	option.setUserId(job->userId);
+	AccessInfoQueryOption option(job->userId);
 	option.setTargetUserId(job->getResourceId());
 
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
@@ -2024,8 +2026,7 @@ void FaceRest::handlerPostAccessInfo(RestJob *job)
 	}
 
 	// try to add
-	DataQueryOption option;
-	option.setUserId(job->userId);
+	DataQueryOption option(job->userId);
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	HatoholError err = dataStore->addAccessInfo(accessInfo, option);
 
@@ -2049,8 +2050,7 @@ void FaceRest::handlerDeleteAccessInfo(RestJob *job)
 		return;
 	}
 
-	DataQueryOption option;
-	option.setUserId(job->userId);
+	DataQueryOption option(job->userId);
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	HatoholError err = dataStore->deleteAccessInfo(id, option);
 
@@ -2134,8 +2134,8 @@ HatoholError FaceRest::parseSortOrderFromQuery(
 	return HatoholError(HTERR_OK);
 }
 
-HatoholError FaceRest::parseEventParameter(EventQueryOption &option,
-                                           GHashTable *query)
+HatoholError FaceRest::parseEventParameter(EventsQueryOption &option,
+					   GHashTable *query)
 {
 	if (!query)
 		return HatoholError(HTERR_OK);

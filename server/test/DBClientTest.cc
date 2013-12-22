@@ -171,6 +171,15 @@ ItemInfo testItemInfo[] = {
 	"Ichikawa",               // prevValue
 	"City",                   // itemGroupName,
 }, {
+	1,                        // serverId
+	2,                        // id
+	1129,                     // hostId
+	"Rome wasn't built in a day",// brief
+	{1362951129,0},           // lastValueTime
+	"Fukuoka",                // lastValue
+	"Sapporo",                // prevValue
+	"City",                   // itemGroupName,
+}, {
 	4,                        // serverId
 	1,                        // id
 	100,                      // hostId
@@ -278,6 +287,11 @@ UserInfo testUserInfo[] = {
 	"higgs",           // name
 	"gg -> h",        // password
 	OperationPrivilege::makeFlag(OPPRVLG_GET_ALL_USERS), // flags
+}, {
+	0,                 // id
+	"tiramisu",        // name
+	"qJN9DBkJRQSQo",   // password
+	0,                 // flags
 }
 };
 const size_t NumTestUserInfo = sizeof(testUserInfo) / sizeof(UserInfo);
@@ -318,6 +332,11 @@ AccessInfo testAccessInfo[] = {
 	3,                 // userId
 	4,                 // serverId
 	1,                 // hostGroupId
+}, {
+	0,                 // id
+	5,                 // userId
+	1,                 // serverId
+	ALL_HOST_GROUPS,   // hostGroupId
 }
 };
 const size_t NumTestAccessInfo = sizeof(testAccessInfo) / sizeof(AccessInfo);
@@ -599,29 +618,66 @@ void makeServerAccessInfoMap(ServerAccessInfoMap &srvAccessInfoMap,
 {
 	for (size_t i = 0; i < NumTestAccessInfo; ++i) {
 		AccessInfo *accessInfo = &testAccessInfo[i];
-		if (testAccessInfo[i].userId == userId) {
-			HostGrpAccessInfoMap *hostGrpAccessInfoMap = NULL;
-			ServerAccessInfoMapIterator it =
-				srvAccessInfoMap.find(accessInfo->serverId);
-			if (it == srvAccessInfoMap.end()) {
-				hostGrpAccessInfoMap = new HostGrpAccessInfoMap();
-				srvAccessInfoMap[accessInfo->serverId] =
-					hostGrpAccessInfoMap;
-			} else {
-				hostGrpAccessInfoMap = it->second;
-			}
+		if (testAccessInfo[i].userId != userId)
+			continue;
 
-			AccessInfo *destAccessInfo = NULL;
-			HostGrpAccessInfoMapIterator it2
-				= hostGrpAccessInfoMap->find(accessInfo->hostGroupId);
-			if (it2 == hostGrpAccessInfoMap->end()) {
-				destAccessInfo = new AccessInfo();
-				(*hostGrpAccessInfoMap)[accessInfo->hostGroupId] =
-					destAccessInfo;
-			} else {
-				destAccessInfo = it2->second;
-			}
-			*destAccessInfo = *accessInfo;
+		HostGrpAccessInfoMap *hostGrpAccessInfoMap = NULL;
+		ServerAccessInfoMapIterator it =
+			srvAccessInfoMap.find(accessInfo->serverId);
+		if (it == srvAccessInfoMap.end()) {
+			hostGrpAccessInfoMap = new HostGrpAccessInfoMap();
+			srvAccessInfoMap[accessInfo->serverId] =
+				hostGrpAccessInfoMap;
+		} else {
+			hostGrpAccessInfoMap = it->second;
 		}
+
+		AccessInfo *destAccessInfo = NULL;
+		HostGrpAccessInfoMapIterator it2
+			= hostGrpAccessInfoMap->find(accessInfo->hostGroupId);
+		if (it2 == hostGrpAccessInfoMap->end()) {
+			destAccessInfo = new AccessInfo();
+			(*hostGrpAccessInfoMap)[accessInfo->hostGroupId] =
+				destAccessInfo;
+		} else {
+			destAccessInfo = it2->second;
+		}
+		*destAccessInfo = *accessInfo;
 	}
+}
+
+void makeServerHostGrpSetMap(ServerHostGrpSetMap &map, UserIdType userId)
+{
+	for (size_t i = 0; i < NumTestAccessInfo; i++) {
+		if (testAccessInfo[i].userId != userId)
+			continue;
+		map[testAccessInfo[i].serverId].insert(
+		  testAccessInfo[i].hostGroupId);
+	}
+}
+
+bool isAuthorized(ServerHostGrpSetMap &authMap, UserIdType userId,
+		  uint32_t serverId, uint64_t hostGroupId)
+{
+	if (userId == USER_ID_ADMIN)
+		return true;
+	if (userId == INVALID_USER_ID)
+		return false;
+
+	ServerHostGrpSetMap::iterator serverIt
+		= authMap.find(ALL_SERVERS);
+	if (serverIt != authMap.end())
+		return true;
+
+	serverIt = authMap.find(serverId);
+	if (serverIt == authMap.end())
+		return false;
+
+	HostGroupSet &hostGroups = serverIt->second;
+	if (hostGroups.find(ALL_HOST_GROUPS) != hostGroups.end())
+		return true;
+
+	// FIXME: Host group isn't supported yet
+
+	return false;
 }

@@ -44,6 +44,7 @@ enum TriggerSeverityType {
 static const uint32_t ALL_SERVERS = -1;
 static const uint64_t ALL_HOSTS   = -1;
 static const uint64_t ALL_TRIGGERS = -1;
+static const uint64_t ALL_ITEMS    = -1;
 static const uint64_t ALL_HOST_GROUPS = -1;
 
 struct HostInfo {
@@ -122,30 +123,66 @@ typedef list<ItemInfo>               ItemInfoList;
 typedef ItemInfoList::iterator       ItemInfoListIterator;
 typedef ItemInfoList::const_iterator ItemInfoListConstIterator;
 
-class EventQueryOption : public DataQueryOption {
+class HostResourceQueryOption : public DataQueryOption {
 public:
-	// Overriding of virtual methods
-	std::string getCondition(void) const;
+	HostResourceQueryOption(UserIdType userId = INVALID_USER_ID);
+	HostResourceQueryOption(const HostResourceQueryOption &src);
+	virtual ~HostResourceQueryOption();
 
-	virtual std::string getEventTableName(void) const;
-	virtual void setEventTableName(const std::string &name);
+	// Overriding of virtual methods
+	virtual std::string getCondition(void) const;
+
+	virtual uint32_t getTargetServerId(void) const;
+	virtual void setTargetServerId(uint32_t targetServerId);
+	virtual uint64_t getTargetHostId(void) const;
+	virtual void setTargetHostId(uint64_t targetHostId);
+
+	virtual std::string getTableNameForServerId(void) const;
+	virtual void setTableNameForServerId(const std::string &name);
 
 protected:
+	void setServerIdColumnName(const std::string &name) const;
 	std::string getServerIdColumnName(void) const;
+	void setHostGroupIdColumnName(const std::string &name) const;
 	std::string getHostGroupIdColumnName(void) const;
+	void setHostIdColumnName(const std::string &name) const;
+	std::string getHostIdColumnName(void) const;
 	static void appendCondition(std::string &cond,
 	                            const std::string &newCond);
 	static std::string makeCondition(
 	  const ServerHostGrpSetMap &srvHostGrpSetMap,
-	  const std::string &eventTableName,
 	  const std::string &serverIdColumnName,
-	  const std::string &hostGroupIdColumnName);
+	  const std::string &hostGroupIdColumnName,
+	  const std::string &hostIdColumnName,
+	  uint32_t targetServerId = ALL_SERVERS,
+	  uint64_t targetHostId = ALL_HOSTS);
+	static std::string makeConditionServer(
+	  uint32_t serverId,
+	  const HostGroupSet &hostGroupSet,
+	  const string &serverIdColumnName,
+	  const string &hostGroupIdColumnName);
 	static std::string makeConditionHostGroup(
 	  const HostGroupSet &hostGroupSet,
 	  const std::string &hostGroupIdColumnName);
 
 private:
-	string m_eventTableName;
+	struct PrivateContext;
+	PrivateContext *m_ctx;
+};
+
+class EventsQueryOption : public HostResourceQueryOption {
+public:
+	EventsQueryOption(UserIdType userId = INVALID_USER_ID);
+};
+
+class TriggersQueryOption : public HostResourceQueryOption {
+public:
+	TriggersQueryOption(UserIdType userId = INVALID_USER_ID);
+};
+
+class ItemsQueryOption : public HostResourceQueryOption {
+public:
+	ItemsQueryOption(UserIdType userId = INVALID_USER_ID);
 };
 
 class DBClientHatohol : public DBClient {
@@ -181,8 +218,7 @@ public:
 	bool getTriggerInfo(TriggerInfo &triggerInfo,
 	                    uint32_t serverId, uint64_t triggerId);
 	void getTriggerInfoList(TriggerInfoList &triggerInfoList,
-	                        uint32_t targetServerId = ALL_SERVERS,
-	                        uint64_t targetHostId = ALL_HOSTS,
+				TriggersQueryOption &option,
 	                        uint64_t targetTriggerId = ALL_TRIGGERS);
 	void setTriggerInfoList(const TriggerInfoList &triggerInfoList,
 	                        uint32_t serverId);
@@ -199,7 +235,7 @@ public:
 	void addEventInfo(EventInfo *eventInfo);
 	void addEventInfoList(const EventInfoList &eventInfoList);
 	HatoholError getEventInfoList(EventInfoList &eventInfoList,
-	                              EventQueryOption &option);
+	                              EventsQueryOption &option);
 	void setEventInfoList(const EventInfoList &eventInfoList,
 	                      uint32_t serverId);
 
@@ -216,7 +252,10 @@ public:
 	void addItemInfo(ItemInfo *itemInfo);
 	void addItemInfoList(const ItemInfoList &itemInfoList);
 	void getItemInfoList(ItemInfoList &itemInfoList,
-	                     uint32_t targetServerId = ALL_SERVERS);
+			     ItemsQueryOption &option,
+			     uint64_t targetItemId = ALL_ITEMS);
+	void getItemInfoList(ItemInfoList &itemInfoList,
+			     const string &condition);
 
 	/**
 	 * get the number of triggers with the given server ID, host group ID,

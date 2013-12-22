@@ -204,8 +204,7 @@ void _assertGetUserInfoListWithTargetName(
 		index -= 1;
 	const UserInfo &targetUserInfo = testUserInfo[index];
 
-	UserQueryOption option;
-	option.setUserId(userId);
+	UserQueryOption option(userId);
 	option.setTargetName(targetUserInfo.name);
 
 	UserInfoList userInfoList;
@@ -595,8 +594,7 @@ void test_getServerAccessInfoMap(void)
 	UserIdIndexMapIterator it = userIdIndexMap.begin();
 	for (; it != userIdIndexMap.end(); ++it) {
 		ServerAccessInfoMap srvAccessInfoMap;
-		AccessInfoQueryOption option;
-		option.setUserId(USER_ID_ADMIN);
+		AccessInfoQueryOption option(USER_ID_ADMIN);
 		option.setTargetUserId(it->first);
 		HatoholError error = dbUser.getAccessInfoMap(srvAccessInfoMap,
 							     option);
@@ -615,8 +613,7 @@ void test_getServerAccessInfoMapByOwner(void)
 	UserIdIndexMapIterator it = userIdIndexMap.begin();
 	for (; it != userIdIndexMap.end(); ++it) {
 		ServerAccessInfoMap srvAccessInfoMap;
-		AccessInfoQueryOption option;
-		option.setUserId(it->first);
+		AccessInfoQueryOption option(it->first);
 		option.setTargetUserId(it->first);
 		HatoholError error = dbUser.getAccessInfoMap(srvAccessInfoMap,
 							     option);

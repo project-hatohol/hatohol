@@ -181,8 +181,8 @@ struct UserQueryOption::PrivateContext {
 	}
 };
 
-UserQueryOption::UserQueryOption(void)
-: m_ctx(NULL)
+UserQueryOption::UserQueryOption(UserIdType userId)
+: DataQueryOption(userId), m_ctx(NULL)
 {
 	m_ctx = new PrivateContext();
 }
@@ -250,8 +250,8 @@ struct AccessInfoQueryOption::PrivateContext {
 	}
 };
 
-AccessInfoQueryOption::AccessInfoQueryOption(void)
-: m_ctx(NULL)
+AccessInfoQueryOption::AccessInfoQueryOption(UserIdType userId)
+: DataQueryOption(userId), m_ctx(NULL)
 {
 	m_ctx = new PrivateContext();
 }

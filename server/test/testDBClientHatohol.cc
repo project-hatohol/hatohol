@@ -29,22 +29,32 @@
 
 namespace testDBClientHatohol {
 
-class TestEventQueryOption : public EventQueryOption {
+class TestHostResourceQueryOption : public HostResourceQueryOption {
 public:
+	string callGetServerIdColumnName(void) const
+	{
+		return getServerIdColumnName();
+	}
+
 	static
 	string callMakeCondition(const ServerHostGrpSetMap &srvHostGrpSetMap,
-				 const string &eventTableName,
 				 const string &serverIdColumnName,
-				 const string &hostGroupIdColumnName)
+				 const string &hostGroupIdColumnName,
+				 const string &hostIdColumnName,
+				 uint32_t targetServerId = ALL_SERVERS,
+				 uint64_t targetHostId = ALL_HOSTS)
 	{
-		return makeCondition(srvHostGrpSetMap, eventTableName,
-				     serverIdColumnName, hostGroupIdColumnName);
+		return makeCondition(srvHostGrpSetMap,
+				     serverIdColumnName,
+				     hostGroupIdColumnName,
+				     hostIdColumnName,
+				     targetServerId, targetHostId);
 	}
 };
 
-static const string defaultEventTableName = "";
 static const string serverIdColumnName = "server_id";
 static const string hostGroupIdColumnName = "host_group_id";
+static const string hostIdColumnName = "host_id";
 
 static void addTriggerInfo(TriggerInfo *triggerInfo)
 {
@@ -54,56 +64,179 @@ static void addTriggerInfo(TriggerInfo *triggerInfo)
 #define assertAddTriggerToDB(X) \
 cut_trace(_assertAddToDB<TriggerInfo>(X, addTriggerInfo))
 
-static string makeExpectedOutput(const TriggerInfo *triggerInfo)
+static string makeTriggerOutput(const TriggerInfo &triggerInfo)
 {
 	string expectedOut =
 	  StringUtils::sprintf(
 	    "%"PRIu32"|%"PRIu64"|%d|%d|%ld|%lu|%"PRIu64"|%s|%s\n",
-	    triggerInfo->serverId,
-	    triggerInfo->id,
-	    triggerInfo->status, triggerInfo->severity,
-	    triggerInfo->lastChangeTime.tv_sec,
-	    triggerInfo->lastChangeTime.tv_nsec,
-	    triggerInfo->hostId,
-	    triggerInfo->hostName.c_str(),
-	    triggerInfo->brief.c_str());
+	    triggerInfo.serverId,
+	    triggerInfo.id,
+	    triggerInfo.status, triggerInfo.severity,
+	    triggerInfo.lastChangeTime.tv_sec,
+	    triggerInfo.lastChangeTime.tv_nsec,
+	    triggerInfo.hostId,
+	    triggerInfo.hostName.c_str(),
+	    triggerInfo.brief.c_str());
 	return expectedOut;
 }
 
-static void _assertGetTriggers(uint32_t serverId = ALL_SERVERS,
-                               uint64_t hostId = ALL_HOSTS)
-{
-	map<uint32_t, map<uint64_t, size_t> > indexMap;
-	map<uint32_t, map<uint64_t, size_t> >::iterator indexMapIt;
-	map<uint64_t, size_t>::iterator trigIdIdxIt;
-	TriggerInfoList triggerInfoList;
-	DBClientHatohol dbHatohol;
-	dbHatohol.getTriggerInfoList(triggerInfoList, serverId, hostId);
-	getTestTriggersIndexes(indexMap, serverId, hostId);
+template<class TResourceType, class TQueryOption>
+struct AssertGetHostResourceArg {
+	list<TResourceType> actualRecordList;
+	TQueryOption option;
+	UserIdType userId;
+	uint32_t targetServerId;
+	uint64_t targetHostId;
+	DataQueryOption::SortOrder sortOrder;
+	size_t maxNumber;
+	uint64_t startId;
+	HatoholErrorCode expectedErrorCode;
+	vector<TResourceType*> authorizedRecords;
+	vector<TResourceType*> expectedRecords;
+	ServerHostGrpSetMap authMap;
+	TResourceType *fixtures;
+	size_t numberOfFixtures;
 
-	// check the number
-	size_t numExpectedTestTriggers = 0;
-	indexMapIt = indexMap.begin();
-	for (; indexMapIt != indexMap.end(); ++indexMapIt)
-		numExpectedTestTriggers += indexMapIt->second.size();
-	cppcut_assert_equal(numExpectedTestTriggers, triggerInfoList.size());
-
-	string expectedText;
-	string actualText;
-	TriggerInfoListIterator it = triggerInfoList.begin();
-	for (size_t i = 0; i < numExpectedTestTriggers; i++, ++it) {
-		const TriggerInfo &actual = *it;
-		actualText += makeExpectedOutput(&actual);
-		trigIdIdxIt = indexMap[actual.serverId].find(actual.id);
-		cppcut_assert_equal(
-		  true, trigIdIdxIt != indexMap[actual.serverId].end());
-		size_t idx = trigIdIdxIt->second;
-		expectedText += makeExpectedOutput(&testTriggerInfo[idx]);
-		indexMap[actual.serverId].erase(trigIdIdxIt);
+	AssertGetHostResourceArg(void)
+	: userId(USER_ID_ADMIN),
+	  targetServerId(ALL_SERVERS),
+	  targetHostId(ALL_HOSTS),
+	  sortOrder(DataQueryOption::SORT_DONT_CARE),
+	  maxNumber(0),
+	  startId(0),
+	  expectedErrorCode(HTERR_OK),
+	  fixtures(NULL),
+	  numberOfFixtures(0)
+	{
 	}
-	cppcut_assert_equal(expectedText, actualText);
+
+	virtual void fixupOption(void)
+	{
+		option.setUserId(userId);
+		option.setTargetServerId(targetServerId);
+		option.setTargetHostId(targetHostId);
+	}
+
+	virtual void fixup(void)
+	{
+		fixupOption();
+		fixupAuthorizedMap();
+		fixupAuthorizedRecords();
+		fixupExpectedRecords();
+	}
+
+	virtual void fixupAuthorizedMap(void)
+	{
+		makeServerHostGrpSetMap(authMap, userId);
+	}
+
+	virtual bool isAuthorized(const TResourceType &record)
+	{
+		return ::isAuthorized(authMap, userId, record.serverId);
+	}
+
+	virtual void fixupAuthorizedRecords(void)
+	{
+		for (size_t i = 0; i < numberOfFixtures; i++) {
+			if (isAuthorized(fixtures[i]))
+				authorizedRecords.push_back(&fixtures[i]);
+		}
+	}
+
+	virtual void fixupExpectedRecords(void)
+	{
+		for (size_t i = 0; i < authorizedRecords.size(); i++) {
+			TResourceType *record = authorizedRecords[i];
+			if (targetServerId != ALL_SERVERS) {
+				if (record->serverId != targetServerId)
+					continue;
+			}
+			if (targetHostId != ALL_HOSTS) {
+				if (record->hostId != targetHostId)
+					continue;
+			}
+			expectedRecords.push_back(record);
+		}
+	}
+
+	virtual TResourceType &getExpectedRecord(size_t idx)
+	{
+		if (startId)
+			idx += (startId - 1);
+		if (sortOrder == DataQueryOption::SORT_DESCENDING)
+			idx = (NumTestEventInfo - 1) - idx;
+		cut_assert_true(idx < expectedRecords.size());
+		return *expectedRecords[idx];
+	}
+
+	virtual void assertNumberOfRecords(void)
+	{
+		size_t expectedNum
+		  = maxNumber && maxNumber < expectedRecords.size() ?
+		    maxNumber : expectedRecords.size();
+		cppcut_assert_equal(expectedNum, actualRecordList.size());
+	}
+
+	virtual string makeExpectedOutput(const TResourceType &record) = 0;
+
+	virtual void assert(void)
+	{
+		assertNumberOfRecords();
+
+		string expectedText;
+		string actualText;
+		typename list<TResourceType>::iterator it
+		  = actualRecordList.begin();
+		for (size_t i = 0; it != actualRecordList.end(); i++, ++it) {
+			TResourceType &expectedRecord = getExpectedRecord(i);
+			expectedText += makeExpectedOutput(expectedRecord);
+			actualText += makeExpectedOutput(*it);
+		}
+		cppcut_assert_equal(expectedText, actualText);
+	}
+};
+
+struct AssertGetTriggersArg
+  : public AssertGetHostResourceArg<TriggerInfo, TriggersQueryOption>
+{
+	AssertGetTriggersArg(void)
+	{
+		fixtures = testTriggerInfo;
+		numberOfFixtures = NumTestTriggerInfo;
+	}
+
+	string makeExpectedOutput(const TriggerInfo &triggerInfo)
+	{
+		return makeTriggerOutput(triggerInfo);
+	}
+};
+
+static void _assertGetTriggers(AssertGetTriggersArg &arg)
+{
+	DBClientHatohol dbHatohol;
+	arg.fixup();
+	dbHatohol.getTriggerInfoList(arg.actualRecordList, arg.option);
+	if (arg.expectedErrorCode != HTERR_OK)
+		return;
+	arg.assert();
 }
-#define assertGetTriggers(...) cut_trace(_assertGetTriggers(__VA_ARGS__))
+#define assertGetTriggers(A) cut_trace(_assertGetTriggers(A))
+
+static void _assertGetTriggersWithFilter(AssertGetTriggersArg &arg)
+{
+	// setup trigger data
+	void test_addTriggerInfoList(void);
+	test_addTriggerInfoList();
+
+	if (arg.maxNumber)
+		arg.option.setMaximumNumber(arg.maxNumber);
+	arg.option.setSortOrder(arg.sortOrder);
+	if (arg.startId)
+		arg.option.setStartId(arg.startId);
+	assertGetTriggers(arg);
+}
+#define assertGetTriggersWithFilter(ARG) \
+cut_trace(_assertGetTriggersWithFilter(ARG))
 
 static void _setupTestTriggerDB(void)
 {
@@ -115,7 +248,10 @@ static void _setupTestTriggerDB(void)
 static void _assertGetTriggerInfoList(uint32_t serverId, uint64_t hostId = ALL_HOSTS)
 {
 	setupTestTriggerDB();
-	assertGetTriggers(serverId, hostId);
+	AssertGetTriggersArg arg;
+	arg.targetServerId = serverId;
+	arg.targetHostId = hostId;
+	assertGetTriggers(arg);
 }
 #define assertGetTriggerInfoList(SERVER_ID, ...) \
 cut_trace(_assertGetTriggerInfoList(SERVER_ID, ##__VA_ARGS__))
@@ -123,7 +259,7 @@ cut_trace(_assertGetTriggerInfoList(SERVER_ID, ##__VA_ARGS__))
 
 // TODO: The names of makeExpectedOutput() and makeExpectedItemOutput()
 //       will be changed to be the similar of this function.
-static string makeEventOutput(EventInfo &eventInfo)
+static string makeEventOutput(const EventInfo &eventInfo)
 {
 	string output =
 	  StringUtils::sprintf(
@@ -137,60 +273,19 @@ static string makeEventOutput(EventInfo &eventInfo)
 	return output;
 }
 
-struct AssertGetEventsArg {
-	EventInfoList eventInfoList;
-	EventQueryOption option;
-	DataQueryOption::SortOrder sortOrder;
-	size_t maxNumber;
-	uint64_t startId;
-	HatoholErrorCode expectedErrorCode;
 
+struct AssertGetEventsArg
+  : public AssertGetHostResourceArg<EventInfo, EventsQueryOption>
+{
 	AssertGetEventsArg(void)
-	: sortOrder(DataQueryOption::SORT_DONT_CARE),
-	  maxNumber(0),
-	  startId(0),
-	  expectedErrorCode(HTERR_OK)
 	{
+		fixtures = testEventInfo;
+		numberOfFixtures = NumTestEventInfo;
 	}
 
-	virtual void fixupOption(void)
+	string makeExpectedOutput(const EventInfo &eventInfo)
 	{
-		option.setUserId(USER_ID_ADMIN);
-	}
-
-	void fixup(void)
-	{
-		fixupOption();
-	}
-
-	EventInfo &getExpectedEventInfo(size_t idx)
-	{
-		if (startId)
-			idx += (startId - 1);
-		if (sortOrder == DataQueryOption::SORT_DESCENDING)
-			idx = (NumTestEventInfo - 1) - idx;
-		return testEventInfo[idx];
-	}
-
-	void assertNumberOfEvents(void)
-	{
-		size_t expectedNum = maxNumber ? : NumTestEventInfo;
-		cppcut_assert_equal(expectedNum, eventInfoList.size());
-	}
-
-	virtual void assert(void)
-	{
-		assertNumberOfEvents();
-
-		string expectedText;
-		string actualText;
-		EventInfoListIterator it = eventInfoList.begin();
-		for (size_t i = 0; it != eventInfoList.end(); i++, ++it) {
-			EventInfo &expectedEventInfo = getExpectedEventInfo(i);
-			expectedText += makeEventOutput(expectedEventInfo);
-			actualText += makeEventOutput(*it);
-		}
-		cppcut_assert_equal(expectedText, actualText);
+		return makeEventOutput(eventInfo);
 	}
 };
 
@@ -200,47 +295,86 @@ static void _assertGetEvents(AssertGetEventsArg &arg)
 	arg.fixup();
 	assertHatoholError(
 	  arg.expectedErrorCode,
-	  dbHatohol.getEventInfoList(arg.eventInfoList, arg.option));
+	  dbHatohol.getEventInfoList(arg.actualRecordList, arg.option));
 	if (arg.expectedErrorCode != HTERR_OK)
 		return;
 	arg.assert();
 }
 #define assertGetEvents(A) cut_trace(_assertGetEvents(A))
 
-static string makeExpectedItemOutput(ItemInfo *itemInfo)
+static void _assertGetEventsWithFilter(AssertGetEventsArg &arg)
+{
+	// setup event data
+	void test_addEventInfoList(void);
+	test_addEventInfoList();
+
+	if (arg.maxNumber)
+		arg.option.setMaximumNumber(arg.maxNumber);
+	arg.option.setSortOrder(arg.sortOrder);
+	if (arg.startId)
+		arg.option.setStartId(arg.startId);
+	assertGetEvents(arg);
+}
+#define assertGetEventsWithFilter(ARG) \
+cut_trace(_assertGetEventsWithFilter(ARG))
+
+static string makeExpectedItemOutput(const ItemInfo &itemInfo)
 {
 	string expectedOut =
 	  StringUtils::sprintf(
 	    "%"PRIu32"|%"PRIu64"|%"PRIu64"|%s|%ld|%lu|%s|%s|%s\n",
-	    itemInfo->serverId, itemInfo->id,
-	    itemInfo->hostId,
-	    itemInfo->brief.c_str(),
-	    itemInfo->lastValueTime.tv_sec,
-	    itemInfo->lastValueTime.tv_nsec,
-	    itemInfo->lastValue.c_str(),
-	    itemInfo->prevValue.c_str(),
-	    itemInfo->itemGroupName.c_str());
+	    itemInfo.serverId, itemInfo.id,
+	    itemInfo.hostId,
+	    itemInfo.brief.c_str(),
+	    itemInfo.lastValueTime.tv_sec,
+	    itemInfo.lastValueTime.tv_nsec,
+	    itemInfo.lastValue.c_str(),
+	    itemInfo.prevValue.c_str(),
+	    itemInfo.itemGroupName.c_str());
 	return expectedOut;
 }
 
-static void _assertGetItems(uint32_t serverId)
+struct AssertGetItemsArg
+  : public AssertGetHostResourceArg<ItemInfo, ItemsQueryOption>
 {
-	ItemInfoList itemInfoList;
-	DBClientHatohol dbHatohol;
-	dbHatohol.getItemInfoList(itemInfoList, serverId);
-	size_t numExpectedTestItems = getNumberOfTestItems(serverId);
-	cppcut_assert_equal(numExpectedTestItems, itemInfoList.size());
-
-	string expectedText;
-	string actualText;
-	ItemInfoListIterator it = itemInfoList.begin();
-	for (size_t i = 0; i < numExpectedTestItems; i++, ++it) {
-		expectedText += makeExpectedItemOutput(&testItemInfo[i]);
-		actualText += makeExpectedItemOutput(&(*it));
+	AssertGetItemsArg(void)
+	{
+		fixtures = testItemInfo;
+		numberOfFixtures = NumTestItemInfo;
 	}
-	cppcut_assert_equal(expectedText, actualText);
+
+	string makeExpectedOutput(const ItemInfo &itemInfo)
+	{
+		return makeExpectedItemOutput(itemInfo);
+	}
+};
+
+static void _assertGetItems(AssertGetItemsArg &arg)
+{
+	DBClientHatohol dbHatohol;
+	arg.fixup();
+	dbHatohol.getItemInfoList(arg.actualRecordList, arg.option);
+	if (arg.expectedErrorCode != HTERR_OK)
+		return;
+	arg.assert();
 }
-#define assertGetItems(SERVER_ID) cut_trace(_assertGetItems(SERVER_ID))
+#define assertGetItems(A) cut_trace(_assertGetItems(A))
+
+static void _assertGetItemsWithFilter(AssertGetItemsArg &arg)
+{
+	// setup item data
+	void test_addItemInfoList(void);
+	test_addItemInfoList();
+
+	if (arg.maxNumber)
+		arg.option.setMaximumNumber(arg.maxNumber);
+	arg.option.setSortOrder(arg.sortOrder);
+	if (arg.startId)
+		arg.option.setStartId(arg.startId);
+	assertGetItems(arg);
+}
+#define assertGetItemsWithFilter(ARG) \
+cut_trace(_assertGetItemsWithFilter(ARG))
 
 void _assertItemInfoList(uint32_t serverId)
 {
@@ -250,7 +384,9 @@ void _assertItemInfoList(uint32_t serverId)
 		itemInfoList.push_back(testItemInfo[i]);
 	dbHatohol.addItemInfoList(itemInfoList);
 
-	assertGetItems(serverId);
+	AssertGetItemsArg arg;
+	arg.targetServerId = serverId;
+	assertGetItems(arg);
 }
 #define assertItemInfoList(SERVER_ID) cut_trace(_assertItemInfoList(SERVER_ID))
 
@@ -338,15 +474,19 @@ void _assertTriggerInfo(const TriggerInfo &expect, const TriggerInfo &actual)
 
 static void _assertMakeCondition(const ServerHostGrpSetMap &srvHostGrpSetMap,
 				 const string &expect,
-				 const string &tableName = defaultEventTableName)
+				 uint32_t targetServerId = ALL_SERVERS,
+				 uint64_t targetHostId = ALL_HOSTS)
 {
-	string cond = TestEventQueryOption::callMakeCondition(
-	                srvHostGrpSetMap, tableName,
-	                serverIdColumnName, hostGroupIdColumnName);
+	string cond = TestHostResourceQueryOption::callMakeCondition(
+			srvHostGrpSetMap,
+			serverIdColumnName,
+			hostGroupIdColumnName,
+			hostIdColumnName,
+			targetServerId, targetHostId);
 	cppcut_assert_equal(expect, cond);
 }
-#define assertMakeCondition(M,E) cut_trace(_assertMakeCondition(M,E))
-#define assertMakeConditionWithTableName(M,E,T) cut_trace(_assertMakeCondition(M,E,T))
+#define assertMakeCondition(M, ...) \
+  cut_trace(_assertMakeCondition(M, ##__VA_ARGS__))
 
 static string makeExpectedConditionForUser(UserIdType userId)
 {
@@ -364,28 +504,13 @@ static string makeExpectedConditionForUser(UserIdType userId)
 		const AccessInfo &accInfo = testAccessInfo[*jt];
 		srvHostGrpSetMap[accInfo.serverId].insert(accInfo.hostGroupId);
 	}
-	exp = TestEventQueryOption::callMakeCondition(srvHostGrpSetMap,
-						      defaultEventTableName,
-	                                              serverIdColumnName,
-	                                              hostGroupIdColumnName);
+	exp = TestHostResourceQueryOption::callMakeCondition(
+		srvHostGrpSetMap,
+		serverIdColumnName,
+		hostGroupIdColumnName,
+		hostIdColumnName);
 	return exp;
 }
-
-static void _assertGetEventsWithFilter(AssertGetEventsArg &arg)
-{
-	// setup event data
-	void test_addEventInfoList(void);
-	test_addEventInfoList();
-
-	if (arg.maxNumber)
-		arg.option.setMaximumNumber(arg.maxNumber);
-	arg.option.setSortOrder(arg.sortOrder);
-	if (arg.startId)
-		arg.option.setStartId(arg.startId);
-	assertGetEvents(arg);
-}
-#define assertGetEventsWithFilter(ARG) \
-cut_trace(_assertGetEventsWithFilter(ARG))
 
 void cut_setup(void)
 {
@@ -441,7 +566,7 @@ void test_addTriggerInfo(void)
 	string cmd = StringUtils::sprintf(
 	               "sqlite3 %s \"select * from triggers\"", dbPath.c_str());
 	string result = executeCommand(cmd);
-	string expectedOut = makeExpectedOutput(testInfo);
+	string expectedOut = makeTriggerOutput(*testInfo);
 	cppcut_assert_equal(expectedOut, result);
 }
 
@@ -496,7 +621,8 @@ void test_setTriggerInfoList(void)
 	uint32_t serverId = testTriggerInfo[0].serverId;
 	dbHatohol.setTriggerInfoList(triggerInfoList, serverId);
 
-	assertGetTriggers();
+	AssertGetTriggersArg arg;
+	assertGetTriggers(arg);
 }
 
 void test_addTriggerInfoList(void)
@@ -518,7 +644,32 @@ void test_addTriggerInfoList(void)
 	dbHatohol.addTriggerInfoList(triggerInfoList1);
 
 	// Check
-	assertGetTriggers();
+	AssertGetTriggersArg arg;
+	assertGetTriggers(arg);
+}
+
+void test_getTriggerWithOneAutorizedServer(void)
+{
+	setupTestDBUser(true, true);
+	AssertGetTriggersArg arg;
+	arg.userId = 5;
+	assertGetTriggersWithFilter(arg);
+}
+
+void test_getTriggerWithNoAutorizedServer(void)
+{
+	setupTestDBUser(true, true);
+	AssertGetTriggersArg arg;
+	arg.userId = 4;
+	assertGetTriggersWithFilter(arg);
+}
+
+void test_getTriggerWithInvalidUserId(void)
+{
+	setupTestDBUser(true, true);
+	AssertGetTriggersArg arg;
+	arg.userId = INVALID_USER_ID;
+	assertGetTriggersWithFilter(arg);
 }
 
 void test_itemInfoList(void)
@@ -530,6 +681,42 @@ void test_itemInfoListForOneServer(void)
 {
 	uint32_t targetServerId = testItemInfo[0].serverId;
 	assertItemInfoList(targetServerId);
+}
+
+void test_addItemInfoList(void)
+{
+	DBClientHatohol dbHatohol;
+	ItemInfoList itemInfoList;
+	for (size_t i = 0; i < NumTestItemInfo; i++)
+		itemInfoList.push_back(testItemInfo[i]);
+	dbHatohol.addItemInfoList(itemInfoList);
+
+	AssertGetItemsArg arg;
+	assertGetItems(arg);
+}
+
+void test_getItemsWithOneAutorizedServer(void)
+{
+	setupTestDBUser(true, true);
+	AssertGetItemsArg arg;
+	arg.userId = 5;
+	assertGetItemsWithFilter(arg);
+}
+
+void test_getItemWithNoAutorizedServer(void)
+{
+	setupTestDBUser(true, true);
+	AssertGetItemsArg arg;
+	arg.userId = 4;
+	assertGetItemsWithFilter(arg);
+}
+
+void test_getItemWithInvalidUserId(void)
+{
+	setupTestDBUser(true, true);
+	AssertGetItemsArg arg;
+	arg.userId = INVALID_USER_ID;
+	assertGetItemsWithFilter(arg);
 }
 
 void test_addEventInfoList(void)
@@ -681,21 +868,72 @@ void test_makeConditionMultipleServers(void)
 	assertMakeCondition(srvHostGrpSetMap, expect);
 }
 
-void test_makeConditionMultipleServersWithTableNameAlias(void)
+void test_makeConditionWithTargetServer(void)
 {
 	ServerHostGrpSetMap srvHostGrpSetMap;
 	srvHostGrpSetMap[5].insert(ALL_HOST_GROUPS);
 	srvHostGrpSetMap[14].insert(ALL_HOST_GROUPS);
 	srvHostGrpSetMap[768].insert(ALL_HOST_GROUPS);
-	const string tableName = "test_event";
-	string expect = StringUtils::sprintf("(%s.%s=5 OR %s.%s=14 OR %s.%s=768)",
-	  tableName.c_str(),
-	  serverIdColumnName.c_str(),
-	  tableName.c_str(),
-	  serverIdColumnName.c_str(),
-	  tableName.c_str(),
+	string expect = StringUtils::sprintf("%s=14",
 	  serverIdColumnName.c_str());
-	assertMakeConditionWithTableName(srvHostGrpSetMap, expect, tableName);
+	assertMakeCondition(srvHostGrpSetMap, expect, 14);
+}
+
+void test_makeConditionWithUnauthorizedTargetServer(void)
+{
+	ServerHostGrpSetMap srvHostGrpSetMap;
+	srvHostGrpSetMap[5].insert(ALL_HOST_GROUPS);
+	srvHostGrpSetMap[14].insert(ALL_HOST_GROUPS);
+	srvHostGrpSetMap[768].insert(ALL_HOST_GROUPS);
+	assertMakeCondition(srvHostGrpSetMap, "0", 7);
+}
+
+void test_makeConditionWithTargetServerAndHost(void)
+{
+	ServerHostGrpSetMap srvHostGrpSetMap;
+	srvHostGrpSetMap[5].insert(ALL_HOST_GROUPS);
+	srvHostGrpSetMap[14].insert(ALL_HOST_GROUPS);
+	srvHostGrpSetMap[768].insert(ALL_HOST_GROUPS);
+	string expect = StringUtils::sprintf("((%s=14) AND %s=21)",
+					     serverIdColumnName.c_str(),
+					     hostIdColumnName.c_str());
+	assertMakeCondition(srvHostGrpSetMap, expect, 14, 21);
+}
+
+void test_conditionForAdminWithTargetServerAndHost(void)
+{
+	HostResourceQueryOption option(USER_ID_ADMIN);
+	option.setTargetServerId(26);
+	option.setTargetHostId(32);
+	string expect = StringUtils::sprintf("%s=26 AND %s=32",
+					     serverIdColumnName.c_str(),
+					     hostIdColumnName.c_str());
+	cppcut_assert_equal(expect, option.getCondition());
+}
+
+void test_eventQueryOptionDefaultTableName(void)
+{
+	HostResourceQueryOption option;
+	cppcut_assert_equal(string(""), option.getTableNameForServerId());
+}
+
+void test_eventQueryOptionSetTableName(void)
+{
+	HostResourceQueryOption option;
+	const string tableName = "test_event";
+	option.setTableNameForServerId(tableName);
+	cppcut_assert_equal(tableName, option.getTableNameForServerId());
+}
+
+void test_eventQueryOptionGetServerIdColumnName(void)
+{
+	TestHostResourceQueryOption option;
+	const string tableName = "test_event";
+	const string expectedServerIdColumnName
+	  = tableName + "." + serverIdColumnName;
+	option.setTableNameForServerId(tableName);
+	cppcut_assert_equal(expectedServerIdColumnName,
+			    option.callGetServerIdColumnName());
 }
 
 void test_makeConditionComplicated(void)
@@ -728,8 +966,7 @@ void test_makeConditionComplicated(void)
 
 void test_makeSelectConditionUserAdmin(void)
 {
-	EventQueryOption option;
-	option.setUserId(USER_ID_ADMIN);
+	HostResourceQueryOption option(USER_ID_ADMIN);
 	string actual = option.getCondition();
 	string expect = "";
 	cppcut_assert_equal(actual, expect);
@@ -737,8 +974,8 @@ void test_makeSelectConditionUserAdmin(void)
 
 void test_makeSelectConditionAllEvents(void)
 {
-	EventQueryOption option;
-	option.setFlags(OperationPrivilege::makeFlag(OPPRVLG_GET_ALL_EVENTS));
+	HostResourceQueryOption option;
+	option.setFlags(OperationPrivilege::makeFlag(OPPRVLG_GET_ALL_SERVERS));
 	string actual = option.getCondition();
 	string expect = "";
 	cppcut_assert_equal(actual, expect);
@@ -747,8 +984,7 @@ void test_makeSelectConditionAllEvents(void)
 void test_makeSelectConditionNoneUser(void)
 {
 	setupTestDBUser(true, true);
-	EventQueryOption option;
-	option.setUserId(INVALID_USER_ID);
+	HostResourceQueryOption option;
 	string actual = option.getCondition();
 	string expect = DBClientHatohol::getAlwaysFalseCondition();
 	cppcut_assert_equal(actual, expect);
@@ -757,8 +993,7 @@ void test_makeSelectConditionNoneUser(void)
 void test_makeSelectCondition(void)
 {
 	setupTestDBUser(true, true);
-	loadTestDBAccessList();
-	EventQueryOption option;
+	HostResourceQueryOption option;
 	for (size_t i = 0; i < NumTestUserInfo; i++) {
 		UserIdType userId = i + 1;
 		option.setUserId(userId);
@@ -820,6 +1055,30 @@ void test_getEventWithStartIdWithoutSortOrder(void)
 	AssertGetEventsArg arg;
 	arg.startId = 2;
 	arg.expectedErrorCode = HTERR_NOT_FOUND_SORT_ORDER;
+	assertGetEventsWithFilter(arg);
+}
+
+void test_getEventWithOneAutorizedServer(void)
+{
+	setupTestDBUser(true, true);
+	AssertGetEventsArg arg;
+	arg.userId = 5;
+	assertGetEventsWithFilter(arg);
+}
+
+void test_getEventWithNoAutorizedServer(void)
+{
+	setupTestDBUser(true, true);
+	AssertGetEventsArg arg;
+	arg.userId = 4;
+	assertGetEventsWithFilter(arg);
+}
+
+void test_getEventWithInvalidUserId(void)
+{
+	setupTestDBUser(true, true);
+	AssertGetEventsArg arg;
+	arg.userId = INVALID_USER_ID;
 	assertGetEventsWithFilter(arg);
 }
 
