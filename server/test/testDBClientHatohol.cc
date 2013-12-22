@@ -80,6 +80,90 @@ static string makeExpectedOutput(const TriggerInfo *triggerInfo)
 	return expectedOut;
 }
 
+struct AssertGetTriggersArg {
+	TriggerInfoList actualRecordList;
+	TriggersQueryOption option;
+	UserIdType userId;
+	DataQueryOption::SortOrder sortOrder;
+	size_t maxNumber;
+	uint64_t startId;
+	HatoholErrorCode expectedErrorCode;
+	vector<TriggerInfo*> authorizedRecords;
+	ServerHostGrpSetMap authMap;
+
+	AssertGetTriggersArg(void)
+	: userId(USER_ID_ADMIN),
+	  sortOrder(DataQueryOption::SORT_DONT_CARE),
+	  maxNumber(0),
+	  startId(0),
+	  expectedErrorCode(HTERR_OK)
+	{
+	}
+
+	virtual void fixupOption(void)
+	{
+		option.setUserId(userId);
+	}
+
+	void fixup(void)
+	{
+		fixupOption();
+		fixupAuthorizedMap();
+		fixupAuthorizedRecords();
+	}
+
+	void fixupAuthorizedMap(void)
+	{
+		makeServerHostGrpSetMap(authMap, userId);
+	}
+
+	bool isAuthorized(const TriggerInfo &triggerInfo)
+	{
+		return ::isAuthorized(authMap, userId, triggerInfo.serverId);
+	}
+
+	void fixupAuthorizedRecords(void)
+	{
+		for (size_t i = 0; i < NumTestTriggerInfo; i++) {
+			if (isAuthorized(testTriggerInfo[i]))
+				authorizedRecords.push_back(&testTriggerInfo[i]);
+		}
+	}
+
+	TriggerInfo &getExpectedRecord(size_t idx)
+	{
+		if (startId)
+			idx += (startId - 1);
+		if (sortOrder == DataQueryOption::SORT_DESCENDING)
+			idx = (NumTestEventInfo - 1) - idx;
+		cut_assert_true(idx < authorizedRecords.size());
+		return *authorizedRecords[idx];
+	}
+
+	void assertNumberOfRecords(void)
+	{
+		size_t expectedNum
+		  = maxNumber && maxNumber < authorizedRecords.size() ?
+		    maxNumber : authorizedRecords.size();
+		cppcut_assert_equal(expectedNum, actualRecordList.size());
+	}
+
+	virtual void assert(void)
+	{
+		assertNumberOfRecords();
+
+		string expectedText;
+		string actualText;
+		TriggerInfoListIterator it = actualRecordList.begin();
+		for (size_t i = 0; it != actualRecordList.end(); i++, ++it) {
+			TriggerInfo &expectedRecord = getExpectedRecord(i);
+			expectedText += makeExpectedOutput(&expectedRecord);
+			actualText += makeExpectedOutput(&(*it));
+		}
+		cppcut_assert_equal(expectedText, actualText);
+	}
+};
+
 static void _assertGetTriggers(uint32_t serverId = ALL_SERVERS,
                                uint64_t hostId = ALL_HOSTS)
 {
