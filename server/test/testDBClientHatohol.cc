@@ -153,13 +153,17 @@ static string makeEventOutput(EventInfo &eventInfo)
 struct AssertGetEventsArg {
 	EventInfoList eventInfoList;
 	EventsQueryOption option;
+	UserIdType userId;
 	DataQueryOption::SortOrder sortOrder;
 	size_t maxNumber;
 	uint64_t startId;
 	HatoholErrorCode expectedErrorCode;
+	vector<EventInfo*> authorizedEvents;
+	ServerHostGrpSetMap authMap;
 
 	AssertGetEventsArg(void)
-	: sortOrder(DataQueryOption::SORT_DONT_CARE),
+	: userId(USER_ID_ADMIN),
+	  sortOrder(DataQueryOption::SORT_DONT_CARE),
 	  maxNumber(0),
 	  startId(0),
 	  expectedErrorCode(HTERR_OK)
@@ -168,12 +172,55 @@ struct AssertGetEventsArg {
 
 	virtual void fixupOption(void)
 	{
-		option.setUserId(USER_ID_ADMIN);
+		option.setUserId(userId);
 	}
 
 	void fixup(void)
 	{
 		fixupOption();
+		fixupAuthorizedMap();
+		selectAuthorizedEvents();
+	}
+
+	void fixupAuthorizedMap(void) {
+		for (size_t i = 0; i < NumTestAccessInfo; i++) {
+			if (testAccessInfo[i].userId != userId)
+				continue;
+			authMap[testAccessInfo[i].serverId].insert(
+			  testAccessInfo[i].hostGroupId);
+		}
+	}
+
+	bool isAuthorized(const EventInfo &eventInfo) {
+		if (userId == USER_ID_ADMIN)
+			return true;
+		if (userId == INVALID_USER_ID)
+			return false;
+
+		ServerHostGrpSetMap::iterator serverIt
+		  = authMap.find(ALL_SERVERS);
+		if (serverIt != authMap.end())
+			return true;
+
+		serverIt = authMap.find(eventInfo.serverId);
+		if (serverIt == authMap.end())
+			return false;
+
+		HostGroupSet &hostGroups = serverIt->second;
+		if (hostGroups.find(ALL_HOST_GROUPS) != hostGroups.end())
+			return true;
+
+		// FIXME: Host group isn't supported yet
+
+		return false;
+	}
+
+	void selectAuthorizedEvents(void)
+	{
+		for (size_t i = 0; i < NumTestEventInfo; i++) {
+			if (isAuthorized(testEventInfo[i]))
+				authorizedEvents.push_back(&testEventInfo[i]);
+		}
 	}
 
 	EventInfo &getExpectedEventInfo(size_t idx)
@@ -182,12 +229,14 @@ struct AssertGetEventsArg {
 			idx += (startId - 1);
 		if (sortOrder == DataQueryOption::SORT_DESCENDING)
 			idx = (NumTestEventInfo - 1) - idx;
-		return testEventInfo[idx];
+		cut_assert_true(idx < authorizedEvents.size());
+		return *authorizedEvents[idx];
 	}
 
 	void assertNumberOfEvents(void)
 	{
-		size_t expectedNum = maxNumber ? : NumTestEventInfo;
+		size_t expectedNum = maxNumber > authorizedEvents.size() ?
+		  maxNumber : authorizedEvents.size();
 		cppcut_assert_equal(expectedNum, eventInfoList.size());
 	}
 
@@ -889,6 +938,33 @@ void test_getEventWithStartIdWithoutSortOrder(void)
 	AssertGetEventsArg arg;
 	arg.startId = 2;
 	arg.expectedErrorCode = HTERR_NOT_FOUND_SORT_ORDER;
+	assertGetEventsWithFilter(arg);
+}
+
+void test_getEventWithOneAutorizedServer(void)
+{
+	setupTestDBUser(true, true);
+	loadTestDBAccessList();
+	AssertGetEventsArg arg;
+	arg.userId = 5;
+	assertGetEventsWithFilter(arg);
+}
+
+void test_getEventWithNoAutorizedServer(void)
+{
+	setupTestDBUser(true, true);
+	loadTestDBAccessList();
+	AssertGetEventsArg arg;
+	arg.userId = 4;
+	assertGetEventsWithFilter(arg);
+}
+
+void test_getEventWithInvalidUserId(void)
+{
+	setupTestDBUser(true, true);
+	loadTestDBAccessList();
+	AssertGetEventsArg arg;
+	arg.userId = INVALID_USER_ID;
 	assertGetEventsWithFilter(arg);
 }
 
