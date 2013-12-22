@@ -683,6 +683,42 @@ void test_itemInfoListForOneServer(void)
 	assertItemInfoList(targetServerId);
 }
 
+void test_addItemInfoList(void)
+{
+	DBClientHatohol dbHatohol;
+	ItemInfoList itemInfoList;
+	for (size_t i = 0; i < NumTestItemInfo; i++)
+		itemInfoList.push_back(testItemInfo[i]);
+	dbHatohol.addItemInfoList(itemInfoList);
+
+	AssertGetItemsArg arg;
+	assertGetItems(arg);
+}
+
+void test_getItemsWithOneAutorizedServer(void)
+{
+	setupTestDBUser(true, true);
+	AssertGetItemsArg arg;
+	arg.userId = 5;
+	assertGetItemsWithFilter(arg);
+}
+
+void test_getItemWithNoAutorizedServer(void)
+{
+	setupTestDBUser(true, true);
+	AssertGetItemsArg arg;
+	arg.userId = 4;
+	assertGetItemsWithFilter(arg);
+}
+
+void test_getItemWithInvalidUserId(void)
+{
+	setupTestDBUser(true, true);
+	AssertGetItemsArg arg;
+	arg.userId = INVALID_USER_ID;
+	assertGetItemsWithFilter(arg);
+}
+
 void test_addEventInfoList(void)
 {
 	// DBClientHatohol internally joins the trigger table and the event table.
@@ -1044,42 +1080,6 @@ void test_getEventWithInvalidUserId(void)
 	AssertGetEventsArg arg;
 	arg.userId = INVALID_USER_ID;
 	assertGetEventsWithFilter(arg);
-}
-
-void test_addItemInfoList(void)
-{
-	DBClientHatohol dbHatohol;
-	ItemInfoList itemInfoList;
-	for (size_t i = 0; i < NumTestItemInfo; i++)
-		itemInfoList.push_back(testItemInfo[i]);
-	dbHatohol.addItemInfoList(itemInfoList);
-
-	AssertGetItemsArg arg;
-	assertGetItems(arg);
-}
-
-void test_getItemsWithOneAutorizedServer(void)
-{
-	setupTestDBUser(true, true);
-	AssertGetItemsArg arg;
-	arg.userId = 5;
-	assertGetItemsWithFilter(arg);
-}
-
-void test_getItemWithNoAutorizedServer(void)
-{
-	setupTestDBUser(true, true);
-	AssertGetItemsArg arg;
-	arg.userId = 4;
-	assertGetItemsWithFilter(arg);
-}
-
-void test_getItemWithInvalidUserId(void)
-{
-	setupTestDBUser(true, true);
-	AssertGetItemsArg arg;
-	arg.userId = INVALID_USER_ID;
-	assertGetItemsWithFilter(arg);
 }
 
 } // namespace testDBClientHatohol
