@@ -360,7 +360,6 @@ static void _assertGetItems(AssertGetItemsArg &arg)
 }
 #define assertGetItems(A) cut_trace(_assertGetItems(A))
 
-#if 0
 static void _assertGetItemsWithFilter(AssertGetItemsArg &arg)
 {
 	// setup item data
@@ -376,7 +375,6 @@ static void _assertGetItemsWithFilter(AssertGetItemsArg &arg)
 }
 #define assertGetItemsWithFilter(ARG) \
 cut_trace(_assertGetItemsWithFilter(ARG))
-#endif
 
 void _assertItemInfoList(uint32_t serverId)
 {
@@ -1046,6 +1044,42 @@ void test_getEventWithInvalidUserId(void)
 	AssertGetEventsArg arg;
 	arg.userId = INVALID_USER_ID;
 	assertGetEventsWithFilter(arg);
+}
+
+void test_addItemInfoList(void)
+{
+	DBClientHatohol dbHatohol;
+	ItemInfoList itemInfoList;
+	for (size_t i = 0; i < NumTestItemInfo; i++)
+		itemInfoList.push_back(testItemInfo[i]);
+	dbHatohol.addItemInfoList(itemInfoList);
+
+	AssertGetItemsArg arg;
+	assertGetItems(arg);
+}
+
+void test_getItemsWithOneAutorizedServer(void)
+{
+	setupTestDBUser(true, true);
+	AssertGetItemsArg arg;
+	arg.userId = 5;
+	assertGetItemsWithFilter(arg);
+}
+
+void test_getItemWithNoAutorizedServer(void)
+{
+	setupTestDBUser(true, true);
+	AssertGetItemsArg arg;
+	arg.userId = 4;
+	assertGetItemsWithFilter(arg);
+}
+
+void test_getItemWithInvalidUserId(void)
+{
+	setupTestDBUser(true, true);
+	AssertGetItemsArg arg;
+	arg.userId = INVALID_USER_ID;
+	assertGetItemsWithFilter(arg);
 }
 
 } // namespace testDBClientHatohol
