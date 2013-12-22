@@ -171,6 +171,15 @@ ItemInfo testItemInfo[] = {
 	"Ichikawa",               // prevValue
 	"City",                   // itemGroupName,
 }, {
+	1,                        // serverId
+	2,                        // id
+	1129,                     // hostId
+	"Rome wasn't built in a day",// brief
+	{1362951129,0},           // lastValueTime
+	"Fukuoka",                // lastValue
+	"Sapporo",                // prevValue
+	"City",                   // itemGroupName,
+}, {
 	4,                        // serverId
 	1,                        // id
 	100,                      // hostId
@@ -278,6 +287,11 @@ UserInfo testUserInfo[] = {
 	"higgs",           // name
 	"gg -> h",        // password
 	OperationPrivilege::makeFlag(OPPRVLG_GET_ALL_USERS), // flags
+}, {
+	0,                 // id
+	"tiramisu",        // name
+	"qJN9DBkJRQSQo",   // password
+	0,                 // flags
 }
 };
 const size_t NumTestUserInfo = sizeof(testUserInfo) / sizeof(UserInfo);
@@ -318,6 +332,11 @@ AccessInfo testAccessInfo[] = {
 	3,                 // userId
 	4,                 // serverId
 	1,                 // hostGroupId
+}, {
+	0,                 // id
+	5,                 // userId
+	1,                 // serverId
+	ALL_HOST_GROUPS,   // hostGroupId
 }
 };
 const size_t NumTestAccessInfo = sizeof(testAccessInfo) / sizeof(AccessInfo);
