@@ -102,8 +102,10 @@ var EventsView = function(baseElem) {
     s += '      <th data-sort="int">' + gettext('Status') + '</th>';
     s += '      <th data-sort="int">' + gettext('Severity') + '</th>';
     s += '      <th data-sort="int">' + gettext('Duration') + '</th>';
+    /* Not supported yet
     s += '      <th data-sort="int">' + gettext('Comment') + '</th>';
     s += '      <th data-sort="int">' + gettext('Action') + '</th>';
+    */
     s += '    </tr>';
     s += '  </thead>';
     s += '  <tbody>';
@@ -250,8 +252,10 @@ var EventsView = function(baseElem) {
       s += "<td class='status" + status + "' data-sort-value='" + status + "'>" + status_choices[Number(status)] + "</td>";
       s += "<td class='severity" + severity + "' data-sort-value='" + severity + "'>" + severity_choices[Number(severity)] + "</td>";
       s += "<td data-sort-value='" + diff + "'>" + formatSecond(diff) + "</td>";
+      /*
       s += "<td>" + "unsupported" + "</td>";
       s += "<td>" + "unsupported" + "</td>";
+      */
       s += "</tr>";
       fixupUnifiedIdInfo(o);
     }
