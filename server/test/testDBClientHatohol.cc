@@ -352,6 +352,22 @@ static void _assertGetEvents(AssertGetEventsArg &arg)
 }
 #define assertGetEvents(A) cut_trace(_assertGetEvents(A))
 
+static void _assertGetEventsWithFilter(AssertGetEventsArg &arg)
+{
+	// setup event data
+	void test_addEventInfoList(void);
+	test_addEventInfoList();
+
+	if (arg.maxNumber)
+		arg.option.setMaximumNumber(arg.maxNumber);
+	arg.option.setSortOrder(arg.sortOrder);
+	if (arg.startId)
+		arg.option.setStartId(arg.startId);
+	assertGetEvents(arg);
+}
+#define assertGetEventsWithFilter(ARG) \
+cut_trace(_assertGetEventsWithFilter(ARG))
+
 static string makeExpectedItemOutput(ItemInfo *itemInfo)
 {
 	string expectedOut =
@@ -522,22 +538,6 @@ static string makeExpectedConditionForUser(UserIdType userId)
 		hostIdColumnName);
 	return exp;
 }
-
-static void _assertGetEventsWithFilter(AssertGetEventsArg &arg)
-{
-	// setup event data
-	void test_addEventInfoList(void);
-	test_addEventInfoList();
-
-	if (arg.maxNumber)
-		arg.option.setMaximumNumber(arg.maxNumber);
-	arg.option.setSortOrder(arg.sortOrder);
-	if (arg.startId)
-		arg.option.setStartId(arg.startId);
-	assertGetEvents(arg);
-}
-#define assertGetEventsWithFilter(ARG) \
-cut_trace(_assertGetEventsWithFilter(ARG))
 
 void cut_setup(void)
 {
