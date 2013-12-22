@@ -108,6 +108,8 @@ struct AssertGetTriggersArg {
 	virtual void fixupOption(void)
 	{
 		option.setUserId(userId);
+		option.setTargetServerId(targetServerId);
+		option.setTargetHostId(targetHostId);
 	}
 
 	void fixup(void)
@@ -115,6 +117,7 @@ struct AssertGetTriggersArg {
 		fixupOption();
 		fixupAuthorizedMap();
 		fixupAuthorizedRecords();
+		fixupExpectedRecords();
 	}
 
 	void fixupAuthorizedMap(void)
@@ -185,43 +188,34 @@ struct AssertGetTriggersArg {
 	}
 };
 
-static void _assertGetTriggers(uint32_t serverId = ALL_SERVERS,
-                               uint64_t hostId = ALL_HOSTS)
+static void _assertGetTriggers(AssertGetTriggersArg &arg)
 {
-	map<uint32_t, map<uint64_t, size_t> > indexMap;
-	map<uint32_t, map<uint64_t, size_t> >::iterator indexMapIt;
-	map<uint64_t, size_t>::iterator trigIdIdxIt;
-	TriggerInfoList triggerInfoList;
 	DBClientHatohol dbHatohol;
-	TriggersQueryOption option(USER_ID_ADMIN);
-	option.setTargetServerId(serverId);
-	option.setTargetHostId(hostId);
-	dbHatohol.getTriggerInfoList(triggerInfoList, option);
-	getTestTriggersIndexes(indexMap, serverId, hostId);
-
-	// check the number
-	size_t numExpectedTestTriggers = 0;
-	indexMapIt = indexMap.begin();
-	for (; indexMapIt != indexMap.end(); ++indexMapIt)
-		numExpectedTestTriggers += indexMapIt->second.size();
-	cppcut_assert_equal(numExpectedTestTriggers, triggerInfoList.size());
-
-	string expectedText;
-	string actualText;
-	TriggerInfoListIterator it = triggerInfoList.begin();
-	for (size_t i = 0; i < numExpectedTestTriggers; i++, ++it) {
-		const TriggerInfo &actual = *it;
-		actualText += makeExpectedOutput(actual);
-		trigIdIdxIt = indexMap[actual.serverId].find(actual.id);
-		cppcut_assert_equal(
-		  true, trigIdIdxIt != indexMap[actual.serverId].end());
-		size_t idx = trigIdIdxIt->second;
-		expectedText += makeExpectedOutput(testTriggerInfo[idx]);
-		indexMap[actual.serverId].erase(trigIdIdxIt);
-	}
-	cppcut_assert_equal(expectedText, actualText);
+	arg.fixup();
+	dbHatohol.getTriggerInfoList(arg.actualRecordList, arg.option);
+	if (arg.expectedErrorCode != HTERR_OK)
+		return;
+	arg.assert();
 }
-#define assertGetTriggers(...) cut_trace(_assertGetTriggers(__VA_ARGS__))
+#define assertGetTriggers(A) cut_trace(_assertGetTriggers(A))
+
+#if 0 // not used yet
+static void _assertGetEventsWithFilter(AssertGetTriggersArg &arg)
+{
+	// setup event data
+	void test_addTriggerInfoList(void);
+	test_addTriggerInfoList();
+
+	if (arg.maxNumber)
+		arg.option.setMaximumNumber(arg.maxNumber);
+	arg.option.setSortOrder(arg.sortOrder);
+	if (arg.startId)
+		arg.option.setStartId(arg.startId);
+	assertGetTriggers(arg);
+}
+#define assertGetTriggersWithFilter(ARG) \
+cut_trace(_assertGetTriggersWithTargets(ARG))
+#endif
 
 static void _setupTestTriggerDB(void)
 {
@@ -233,7 +227,10 @@ static void _setupTestTriggerDB(void)
 static void _assertGetTriggerInfoList(uint32_t serverId, uint64_t hostId = ALL_HOSTS)
 {
 	setupTestTriggerDB();
-	assertGetTriggers(serverId, hostId);
+	AssertGetTriggersArg arg;
+	arg.targetServerId = serverId;
+	arg.targetHostId = hostId;
+	assertGetTriggers(arg);
 }
 #define assertGetTriggerInfoList(SERVER_ID, ...) \
 cut_trace(_assertGetTriggerInfoList(SERVER_ID, ##__VA_ARGS__))
@@ -648,7 +645,8 @@ void test_setTriggerInfoList(void)
 	uint32_t serverId = testTriggerInfo[0].serverId;
 	dbHatohol.setTriggerInfoList(triggerInfoList, serverId);
 
-	assertGetTriggers();
+	AssertGetTriggersArg arg;
+	assertGetTriggers(arg);
 }
 
 void test_addTriggerInfoList(void)
@@ -670,7 +668,8 @@ void test_addTriggerInfoList(void)
 	dbHatohol.addTriggerInfoList(triggerInfoList1);
 
 	// Check
-	assertGetTriggers();
+	AssertGetTriggersArg arg;
+	assertGetTriggers(arg);
 }
 
 void test_itemInfoList(void)
