@@ -235,8 +235,9 @@ struct AssertGetEventsArg {
 
 	void assertNumberOfEvents(void)
 	{
-		size_t expectedNum = maxNumber > authorizedEvents.size() ?
-		  maxNumber : authorizedEvents.size();
+		size_t expectedNum
+		  = maxNumber && maxNumber < authorizedEvents.size() ?
+		    maxNumber : authorizedEvents.size();
 		cppcut_assert_equal(expectedNum, eventInfoList.size());
 	}
 
