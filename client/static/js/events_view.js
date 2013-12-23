@@ -85,6 +85,14 @@ var EventsView = function(baseElem) {
     s += '<h2>' + gettext('Events') + '</h2>';
 
     s += '<form class="form-inline">';
+    s += '  <label>' + gettext('Minimum Severity:') + '</label>';
+    s += '  <select id="select-severity" style="width:5em;">';
+    s += '    <option>0</option>';
+    s += '    <option>1</option>';
+    s += '    <option>2</option>';
+    s += '    <option>3</option>';
+    s += '    <option>4</option>';
+    s += '  </select>';
     s += '  <label>' + gettext('Server:') + '</label>';
     s += '  <select id="select-server">';
     s += '    <option>---------</option>';
@@ -137,6 +145,9 @@ var EventsView = function(baseElem) {
       th.eq(data.column).append("<i class='sort icon-arrow-" + icon +"'></i>");
     });
 
+    $("#select-severity").change(function() {
+      updateScreen(rawData, updateCore);
+    });
     $("#select-server").change(function() {
       var serverName = $("#select-server").val();
       setCandidate($("#select-host"), parsedData.hostNames[serverName]);
@@ -280,9 +291,13 @@ var EventsView = function(baseElem) {
     var x;
     var targetServerName = getTargetServerName();
     var targetHostName= getTargetHostName();
+    var minimumSeverity = $("#select-severity").val();
 
     for (x = 0; x < rd["events"].length; ++x) {
       event      = rd["events"][x];
+      if (event["severity"] < minimumSeverity)
+        continue;
+
       server     = rd["servers"][event["serverId"]];
       serverName = server["name"];
       hostName   = server["hosts"][event["hostId"]]["name"];
