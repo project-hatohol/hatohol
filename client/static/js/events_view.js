@@ -170,50 +170,48 @@ var EventsView = function(baseElem) {
     });
   }
 
-  function parseData(rd) {
-    var pd = new Object();
-    var o, server, triggerId;
-    var x;
-    var ts, ss;
-    var list, map;
+  function parseData(replyData) {
+    var parsedData = new Object();
+    var server, triggerId;
+    var x, event;
+    var allTimes, servers;
+    var times, durations;
 
-    pd.diffs = new Object();
+    parsedData.durations = {};
 
-    ts = new Object();
-    for (x = 0; x < rd["events"].length; ++x) {
-      o = rd["events"][x];
-      server    = rd["servers"][o["serverId"]]["name"];
-      triggerId = o["triggerId"];
-      if ( !(server in ts) ) {
-        ts[server] = new Object();
-      }
-      if ( !(triggerId in ts[server]) ) {
-        ts[server][triggerId] = [];
-      }
-      ts[server][triggerId].push(o["time"]);
+    allTimes = {};
+    for (x = 0; x < replyData["events"].length; ++x) {
+      event = replyData["events"][x];
+      server = replyData["servers"][event["serverId"]]["name"];
+      triggerId = event["triggerId"];
+
+      if (!allTimes[server])
+        allTimes[server] = {};
+      if (!allTimes[server][triggerId])
+        allTimes[server][triggerId] = [];
+      
+      allTimes[server][triggerId].push(event["time"]);
     }
 
-    ss = [];
-    for ( server in ts ) {
-      ss.push(server);
-      for ( triggerId in ts[server] ) {
-        list = ts[server][triggerId].uniq().sort();
-        map = new Object();
-        for (x = 0 ; x < list.length; ++x) {
-          if ( x + 1 < list.length ) {
-            map[list[x]] = Number(list[x + 1]) - Number(list[x]);
-          }
-          else {
-            map[list[x]] = (new Date()).getTime() / 1000 - Number(list[x]);
-          }
+    servers = [];
+    for (server in allTimes) {
+      servers.push(server);
+      for (triggerId in allTimes[server]) {
+        times = allTimes[server][triggerId].uniq().sort();
+        durations = {};
+        for (x = 0 ; x < times.length; ++x) {
+          if (x + 1 < times.length)
+            durations[times[x]] = Number(times[x + 1]) - Number(times[x]);
+          else
+            durations[times[x]] = (new Date()).getTime() / 1000 - Number(times[x]);
         }
-        ts[server][triggerId] = map;
+        allTimes[server][triggerId] = durations;
       }
-      pd.diffs[server] = ts[server];
+      parsedData.durations[server] = allTimes[server];
     }
-    pd.servers = ss.sort();
+    parsedData.servers = servers.sort();
 
-    return pd;
+    return parsedData;
   }
 
   function fixupUnifiedIdInfo(eventObj) {
@@ -233,7 +231,7 @@ var EventsView = function(baseElem) {
     var s = "";
     var o;
     var x;
-    var klass, server, host, clock, status, severity, diff;
+    var klass, server, host, clock, status, severity, duration;
 
     for (x = 0; x < rd["events"].length; ++x) {
       o = rd["events"][x];
@@ -242,7 +240,7 @@ var EventsView = function(baseElem) {
       clock    = o["time"];
       status   = o["type"];
       severity = o["severity"];
-      diff     = pd.diffs[server][o["triggerId"]][clock];
+      duration = pd.durations[server][o["triggerId"]][clock];
       klass    = server;
       s += "<tr class='" + klass + "'>";
       s += "<td>" + server + "</td>";
@@ -251,7 +249,7 @@ var EventsView = function(baseElem) {
       s += "<td>" + o["brief"] + "</td>";
       s += "<td class='status" + status + "' data-sort-value='" + status + "'>" + status_choices[Number(status)] + "</td>";
       s += "<td class='severity" + severity + "' data-sort-value='" + severity + "'>" + severity_choices[Number(severity)] + "</td>";
-      s += "<td data-sort-value='" + diff + "'>" + formatSecond(diff) + "</td>";
+      s += "<td data-sort-value='" + duration + "'>" + formatSecond(duration) + "</td>";
       /*
       s += "<td>" + "unsupported" + "</td>";
       s += "<td>" + "unsupported" + "</td>";
