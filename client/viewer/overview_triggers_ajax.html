@@ -145,7 +145,7 @@
     }
 
     function drawTableHeader(parsedData) {
-      var klass, serverName, hostNames, hostName;
+      var serverName, hostNames, hostName;
       var x;
       var serversRow, hostsRow;
       var targetServerName = getTargetServerName();
@@ -164,8 +164,7 @@
           if (targetHostName && hostName != targetHostName)
             continue;
 
-          klass = serverName + " " + hostName;
-          hostsRow += "<td class='" + klass + "'>" + hostName + "</td>";
+          hostsRow += "<td>" + hostName + "</td>";
         }
       }
       serversRow += "</tr>";
@@ -175,7 +174,7 @@
     }
 
     function drawTableBody(parsedData) {
-      var klass, triggerName, serverName, hostNames, hostName, trigger, html;
+      var triggerName, serverName, hostNames, hostName, trigger, html;
       var x, y;
       var targetServerName = getTargetServerName();
       var targetHostName = getTargetHostName();
@@ -195,22 +194,21 @@
             if (targetHostName && hostName != targetHostName)
               continue;
 
-            klass = serverName + " " + hostName;
             trigger = parsedData.values[serverName][hostName][triggerName];
             if (trigger) {
               switch (trigger["status"]) {
                 case 1:
-                  html += "<td class='" + klass + " severity" + trigger["severity"] + "'>&nbsp;</td>";
+                  html += "<td class='severity" + trigger["severity"] + "'>&nbsp;</td>";
                   break;
                 case 0:
-                  html += "<td class='" + klass + " healthy'>&nbsp;</td>";
+                  html += "<td class='healthy'>&nbsp;</td>";
                   break;
                 default:
-                  html += "<td class='" + klass + " unknown'>&nbsp;</td>";
+                  html += "<td class='unknown'>&nbsp;</td>";
                   break;
               }
             } else {
-              html += "<td class='" + klass + "'>&nbsp;</td>";
+              html += "<td>&nbsp;</td>";
             }
           }
         }
