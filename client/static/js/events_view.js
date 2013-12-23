@@ -235,37 +235,37 @@ var EventsView = function(baseElem) {
   }
 
   function drawTableBody(rd, pd) {
-    var s = "";
-    var o;
+    var klass, serverName, hostName, clock, status, severity, duration;
+    var server, event, html = "";
     var x;
-    var klass, server, host, clock, status, severity, duration;
 
     for (x = 0; x < rd["events"].length; ++x) {
-      o = rd["events"][x];
-      server   = rd["servers"][o["serverId"]]["name"];
-      host     = rd["servers"][o["serverId"]]["hosts"][o["hostId"]]["name"];
-      clock    = o["time"];
-      status   = o["type"];
-      severity = o["severity"];
-      duration = pd.durations[server][o["triggerId"]][clock];
-      klass    = server;
-      s += "<tr class='" + klass + "'>";
-      s += "<td>" + server + "</td>";
-      s += "<td data-sort-value='" + clock + "'>" + formatDate(clock) + "</td>";
-      s += "<td>" + host + "</td>";
-      s += "<td>" + o["brief"] + "</td>";
-      s += "<td class='status" + status + "' data-sort-value='" + status + "'>" + status_choices[Number(status)] + "</td>";
-      s += "<td class='severity" + severity + "' data-sort-value='" + severity + "'>" + severity_choices[Number(severity)] + "</td>";
-      s += "<td data-sort-value='" + duration + "'>" + formatSecond(duration) + "</td>";
+      event      = rd["events"][x];
+      server     = rd["servers"][event["serverId"]];
+      serverName = server["name"];
+      hostName   = server["hosts"][event["hostId"]]["name"];
+      clock      = event["time"];
+      status     = event["type"];
+      severity   = event["severity"];
+      duration   = pd.durations[serverName][event["triggerId"]][clock];
+      klass      = serverName;
+      html += "<tr class='" + klass + "'>";
+      html += "<td>" + serverName + "</td>";
+      html += "<td data-sort-value='" + clock + "'>" + formatDate(clock) + "</td>";
+      html += "<td>" + hostName + "</td>";
+      html += "<td>" + event["brief"] + "</td>";
+      html += "<td class='status" + status + "' data-sort-value='" + status + "'>" + status_choices[Number(status)] + "</td>";
+      html += "<td class='severity" + severity + "' data-sort-value='" + severity + "'>" + severity_choices[Number(severity)] + "</td>";
+      html += "<td data-sort-value='" + duration + "'>" + formatSecond(duration) + "</td>";
       /*
-      s += "<td>" + "unsupported" + "</td>";
-      s += "<td>" + "unsupported" + "</td>";
+      html += "<td>" + "unsupported" + "</td>";
+      html += "<td>" + "unsupported" + "</td>";
       */
-      s += "</tr>";
-      fixupUnifiedIdInfo(o);
+      html += "</tr>";
+      fixupUnifiedIdInfo(event);
     }
 
-    return s;
+    return html;
   }
 
   function updateCore(reply) {
