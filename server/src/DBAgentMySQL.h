@@ -55,6 +55,10 @@ public:
 	virtual uint64_t getLastInsertId(void);
 
 protected:
+	static const char *getCStringOrNullIfEmpty(const string &str);
+	void connect(void);
+	void sleepAndReconnect(unsigned int sleepTimeSec);
+	void queryWithRetry(const string &statement);
 	void execSql(const string &statement);
 
 private:
