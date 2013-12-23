@@ -78,62 +78,61 @@
       chooseRow();
     });
 
-    function parseData(rd) {
-      var pd = new Object();
+    function parseData(replyData) {
+      var parsedData = new Object();
       var x;
-      var o;
-      var ss, as;
-      var s;
+      var item;
+      var serverNames, appNames;
 
-      ss = [];
-      as = [];
-      for (x = 0; x < rd["items"].length; ++x) {
-        o = rd["items"][x];
-        ss.push(rd["servers"][o["serverId"]]["name"]);
-        if ( 0 == o["itemGroupName"].length ) {
-          o["itemGroupName"] = "_non_";
+      serverNames = [];
+      appNames = [];
+      for (x = 0; x < replyData["items"].length; ++x) {
+        item = replyData["items"][x];
+        serverNames.push(replyData["servers"][item["serverId"]]["name"]);
+        if ( 0 == item["itemGroupName"].length ) {
+          item["itemGroupName"] = "_non_";
         }
         else {
-          as.push(o["itemGroupName"]);
+          appNames.push(item["itemGroupName"]);
         }
       }
-      pd.servers = ss.uniq().sort();
-      pd.applis  = as.uniq().sort();
+      parsedData.servers = serverNames.uniq().sort();
+      parsedData.applis  = appNames.uniq().sort();
 
-      return pd;
+      return parsedData;
     }
 
-    function drawTableBody(rd) {
+    function drawTableBody(replyData) {
       var x;
-      var s;
-      var o;
-      var klass, server, host, clock, appli;
-      var anchor;
+      var html;
+      var item;
+      var klass, serverName, hostName, clock, appName;
+      var url;
 
-      s = "";
-      for (x = 0; x < rd["items"].length; ++x) {
-        o = rd["items"][x];
-        anchor = getItemGraphLocation(rd["servers"][o["serverId"]], o["id"]);
-        server = rd["servers"][o["serverId"]]["name"];
-        host   = rd["servers"][o["serverId"]]["hosts"][o["hostId"]]["name"];
-        clock  = o["lastValueTime"];
-        appli  = o["itemGroupName"];
-        klass  = server + " " + appli;
-        s += "<tr class='" + klass + "'>";
-        s += "<td>" + server + "</td>";
-        s += "<td>" + host + "</td>";
-        s += "<td>" + appli + "</td>";
-        if (anchor)
-          s += "<td><a href='" + anchor + "'>" + o["brief"]  + "</a></td>";
+      html = "";
+      for (x = 0; x < replyData["items"].length; ++x) {
+        item = replyData["items"][x];
+        url = getItemGraphLocation(replyData["servers"][item["serverId"]], item["id"]);
+        serverName = replyData["servers"][item["serverId"]]["name"];
+        hostName   = replyData["servers"][item["serverId"]]["hosts"][item["hostId"]]["name"];
+        clock  = item["lastValueTime"];
+        appName  = item["itemGroupName"];
+        klass  = serverName + " " + appName;
+        html += "<tr class='" + klass + "'>";
+        html += "<td>" + serverName + "</td>";
+        html += "<td>" + hostName + "</td>";
+        html += "<td>" + appName + "</td>";
+        if (url)
+          html += "<td><a href='" + url + "'>" + item["brief"]  + "</a></td>";
         else
-          s += "<td>" + o["brief"]  + "</td>";
-        s += "<td data-sort-value='" + clock + "'>" + formatDate(clock) + "</td>";
-        s += "<td>" + o["lastValue"] + "</td>";
-        s += "<td>" + o["prevValue"] + "</td>";
-        s += "</tr>";
+          html += "<td>" + item["brief"]  + "</td>";
+        html += "<td data-sort-value='" + clock + "'>" + formatDate(clock) + "</td>";
+        html += "<td>" + item["lastValue"] + "</td>";
+        html += "<td>" + item["prevValue"] + "</td>";
+        html += "</tr>";
       }
 
-      return s;
+      return html;
     }
 
     function updateCore(reply) {
