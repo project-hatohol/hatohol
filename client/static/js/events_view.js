@@ -174,11 +174,12 @@ var EventsView = function(baseElem) {
     var parsedData = new Object();
     var server, triggerId;
     var x, event;
-    var allTimes, servers;
-    var times, durations;
+    var allTimes, serverNames;
+    var times, durations, now;
 
     parsedData.durations = {};
 
+    // extract server names & times from raw data
     allTimes = {};
     for (x = 0; x < replyData["events"].length; ++x) {
       event = replyData["events"][x];
@@ -193,23 +194,29 @@ var EventsView = function(baseElem) {
       allTimes[server][triggerId].push(event["time"]);
     }
 
-    servers = [];
+    // create server names array & durations map
+    serverNames = [];
     for (server in allTimes) {
-      servers.push(server);
+      // store the unique server name
+      serverNames.push(server);
+
+      // calculate durations
       for (triggerId in allTimes[server]) {
         times = allTimes[server][triggerId].uniq().sort();
         durations = {};
         for (x = 0; x < times.length; ++x) {
-          if (x + 1 < times.length)
+          if (x == times.length - 1) {
+            now = (new Date()).getTime() / 1000;
+            durations[times[x]] = now - Number(times[x]);
+          } else {
             durations[times[x]] = Number(times[x + 1]) - Number(times[x]);
-          else
-            durations[times[x]] = (new Date()).getTime() / 1000 - Number(times[x]);
+          }
         }
         allTimes[server][triggerId] = durations;
       }
       parsedData.durations[server] = allTimes[server];
     }
-    parsedData.servers = servers.sort();
+    parsedData.serverNames = serverNames.sort();
 
     return parsedData;
   }
@@ -268,7 +275,7 @@ var EventsView = function(baseElem) {
     target = '#select-server';
     $(target).children('option').remove();
     $(target).append('<option>---------</option>');
-    setCandidate($(target), parsedData.servers);
+    setCandidate($(target), parsedData.serverNames);
 
     $("#table tbody").empty();
     $("#table tbody").append(drawTableBody(rawData, parsedData));
