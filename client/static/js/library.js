@@ -44,12 +44,15 @@ function formatSecond(sec) {
 
 function setCandidate(target, list) {
   var x;
-  var s;
+  var html = "";
 
-  for (x = 0; x < list.length; ++x) {
-    s += "<option>" + list[x] + "</option>";
-  }
-  target.append(s);
+  target.empty();
+
+  html += "<option>---------</option>";
+  for (x = 0; list && x < list.length; ++x)
+    html += "<option>" + list[x] + "</option>";
+
+  target.append(html);
 }
 
 function buildChooser() {

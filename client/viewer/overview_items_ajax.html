@@ -67,8 +67,11 @@
 
 {% block logic %}
   <script type="text/javascript">
-    var rawData;
+    var rawData, parsedData;
+
     $("#select-server").change(function() {
+      var serverName = $("#select-server").val();
+      setCandidate($("#select-host"), parsedData.hosts[serverName]);
       chooseColumn();
     });
     $("#select-group").change(function() {
@@ -191,7 +194,7 @@
 
     function updateCore(reply) {
       rawData = reply;
-      var parsedData = parseData(reply);
+      parsedData = parseData(reply);
 
       setCandidate($("#select-server"), parsedData.servers);
 
