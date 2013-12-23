@@ -199,7 +199,7 @@ var EventsView = function(baseElem) {
       for (triggerId in allTimes[server]) {
         times = allTimes[server][triggerId].uniq().sort();
         durations = {};
-        for (x = 0 ; x < times.length; ++x) {
+        for (x = 0; x < times.length; ++x) {
           if (x + 1 < times.length)
             durations[times[x]] = Number(times[x + 1]) - Number(times[x]);
           else
