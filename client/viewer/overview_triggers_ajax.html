@@ -85,64 +85,59 @@
     });
 
     function parseData(replyData, minimum) {
-      var parsedData = new Object();
+      var parsedData = {};
       var serverName, hostName, triggerName;
-      var x;
-      var trigger;
       var serverNames, triggerNames, hostNames;
+      var server, trigger;
+      var x;
 
-      parsedData.hosts  = new Object();
-      parsedData.values = new Object();
+      parsedData.hosts  = {};
+      parsedData.values = {};
 
       serverNames = [];
       triggerNames = [];
-      hostNames = new Object();
+      hostNames = {};
+
       for (x = 0; x < replyData["triggers"].length; ++x) {
         trigger = replyData["triggers"][x];
-        if ( minimum <= trigger["severity"] ) {
-          serverName  = replyData["servers"][trigger["serverId"]]["name"];
-          hostName    = replyData["servers"][trigger["serverId"]]["hosts"][trigger["hostId"]]["name"];
+        if (minimum <= trigger["severity"]) {
+          server      = replyData["servers"][trigger["serverId"]]
+          serverName  = server["name"];
+          hostName    = server["hosts"][trigger["hostId"]]["name"];
           triggerName = trigger["brief"];
 
           serverNames.push(serverName);
           triggerNames.push(triggerName);
-          if ( !(serverName in hostNames) ) {
+          if (!hostNames[serverName])
             hostNames[serverName] = [];
-          }
           hostNames[serverName].push(hostName);
 
-          if ( !(serverName in parsedData.values) ) {
-            parsedData.values[serverName] = new Object();
-          }
-          if ( !(hostName in parsedData.values[serverName]) ) {
-            parsedData.values[serverName][hostName] = new Object();
-          }
+          if (!parsedData.values[serverName])
+            parsedData.values[serverName] = {};
+          if (!parsedData.values[serverName][hostName])
+            parsedData.values[serverName][hostName] = {};
 
-          if ( !(triggerName in parsedData.values[serverName][hostName]) ) {
+          if (!parsedData.values[serverName][hostName][triggerName])
             parsedData.values[serverName][hostName][triggerName] = trigger;
-          }
         }
       }
 
       parsedData.servers  = serverNames.uniq().sort();
       parsedData.triggers = triggerNames.uniq().sort();
-      for ( serverName in hostNames ) {
+      for (serverName in hostNames)
         parsedData.hosts[serverName] = hostNames[serverName].uniq().sort();
-      }
 
       return parsedData;
     }
 
-    function getTargetServerName()
-    {
+    function getTargetServerName() {
       var name = $("#select-server").val();
       if (name == "---------")
         name = null;
       return name;
     }
 
-    function getTargetHostName()
-    {
+    function getTargetHostName() {
       var name = $("#select-host").val();
       if (name == "---------")
         name = null;
