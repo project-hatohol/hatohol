@@ -86,15 +86,6 @@ function chooseRow() {
   }
 }
 
-function chooseColumn() {
-  var klass = buildChooser();
-
-  $("#table td").css("display", "");
-  if ( "" != klass ) {
-    $("#table td:not(" + klass + ")").css("display", "none");
-  }
-}
-
 function setStatus(value) {
   var elem;
   var x;
