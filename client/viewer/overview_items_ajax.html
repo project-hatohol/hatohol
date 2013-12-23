@@ -86,51 +86,51 @@
       updateScreen(rawData, updateCore, s);
     });
 
-    function parseData(rd) {
-      var pd = new Object();
-      var server, host, item;
+    function parseData(replyData) {
+      var parsedData = new Object();
+      var serverName, hostName, itemName;
       var x;
-      var o;
-      var ss, is, hs;
+      var item;
+      var serverNames, itemNames, hostNames;
 
-      pd.hosts  = new Object();
-      pd.values = new Object();
+      parsedData.hosts  = new Object();
+      parsedData.values = new Object();
 
-      ss = [];
-      is = [];
-      hs = new Object();
-      for (x = 0; x < rd["items"].length; ++x) {
-        o = rd["items"][x];
-        server = rd["servers"][o["serverId"]]["name"];
-        host   = rd["servers"][o["serverId"]]["hosts"][o["hostId"]]["name"];
-        item   = o["brief"];
+      serverNames = [];
+      itemNames = [];
+      hostNames = new Object();
+      for (x = 0; x < replyData["items"].length; ++x) {
+        item = replyData["items"][x];
+        serverName = replyData["servers"][item["serverId"]]["name"];
+        hostName   = replyData["servers"][item["serverId"]]["hosts"][item["hostId"]]["name"];
+        itemName   = item["brief"];
 
-        ss.push(server);
-        is.push(item);
-        if ( !(server in hs) ) {
-          hs[server] = [];
+        serverNames.push(serverName);
+        itemNames.push(itemName);
+        if ( !(serverName in hostNames) ) {
+          hostNames[serverName] = [];
         }
-        hs[server].push(host);
+        hostNames[serverName].push(hostName);
 
-        if ( !(server in pd.values) ) {
-          pd.values[server] = new Object();
+        if ( !(serverName in parsedData.values) ) {
+          parsedData.values[serverName] = new Object();
         }
-        if ( !(host in pd.values[server]) ) {
-          pd.values[server][host] = new Object();
+        if ( !(hostName in parsedData.values[serverName]) ) {
+          parsedData.values[serverName][hostName] = new Object();
         }
 
-        if ( !(item in pd.values[server][host]) ) {
-          pd.values[server][host][item] = o;
+        if ( !(itemName in parsedData.values[serverName][hostName]) ) {
+          parsedData.values[serverName][hostName][itemName] = item;
         }
       }
 
-      pd.servers = ss.uniq().sort();
-      pd.items   = is.uniq().sort();
-      for ( server in hs ) {
-        pd.hosts[server] = hs[server].uniq().sort();
+      parsedData.servers = serverNames.uniq().sort();
+      parsedData.items   = itemNames.uniq().sort();
+      for ( serverName in hostNames ) {
+        parsedData.hosts[serverName] = hostNames[serverName].uniq().sort();
       }
 
-      return pd;
+      return parsedData;
     }
 
     function getTargetServerName()
@@ -149,7 +149,7 @@
       return name;
     }
 
-    function drawTableHeader(pd) {
+    function drawTableHeader(parsedData) {
       var serverName, hostNames, hostName;
       var x;
       var serversRow, hostsRow;
@@ -158,11 +158,11 @@
 
       serversRow = "<tr><th></th>";
       hostsRow = "<tr><th></th>";
-      for (serverName in pd.hosts) {
+      for (serverName in parsedData.hosts) {
         if (targetServerName && serverName != targetServerName)
           continue;
 
-        hostNames = pd.hosts[serverName];
+        hostNames = parsedData.hosts[serverName];
         serversRow += "<td style='text-align: center' colspan='" + hostNames.length + "'>" + serverName + "</td>";
         for (x = 0; x < hostNames.length; ++x) {
           hostName = hostNames[x];
@@ -178,28 +178,28 @@
       return serversRow + hostsRow;
     }
 
-    function drawTableBody(pd) {
+    function drawTableBody(parsedData) {
       var serverName, hostNames, hostName, itemName, item, html;
       var x, y;
       var targetServerName = getTargetServerName();
       var targetHostName = getTargetHostName();
 
       html = "";
-      for (y = 0; y < pd.items.length; ++y) {
-        itemName = pd.items[y];
+      for (y = 0; y < parsedData.items.length; ++y) {
+        itemName = parsedData.items[y];
         html += "<tr>";
         html += "<th>" + itemName + "</th>";
-        for (serverName in pd.hosts) {
+        for (serverName in parsedData.hosts) {
           if (targetServerName && serverName != targetServerName)
             continue;
 
-          hostNames = pd.hosts[serverName];
+          hostNames = parsedData.hosts[serverName];
           for (x = 0; x < hostNames.length; ++x) {
             hostName = hostNames[x];
             if (targetHostName && hostName != targetHostName)
               continue;
 
-            item = pd.values[serverName][hostName][itemName];
+            item = parsedData.values[serverName][hostName][itemName];
             if (item && item["lastValue"] != undefined) {
               html += "<td>" + item["lastValue"] + "</td>";
             } else {
