@@ -150,71 +150,67 @@
     }
 
     function drawTableHeader(pd) {
-      var server, host;
+      var serverName, hostNames, hostName;
       var x;
-      var hs;
-      var s1, s2;
+      var serversRow, hostsRow;
       var targetServerName = getTargetServerName();
       var targetHostName = getTargetHostName();
 
-      s1 = "<tr><th></th>";
-      s2 = "<tr><th></th>";
-      for ( server in pd.hosts ) {
-        if (targetServerName && server != targetServerName)
+      serversRow = "<tr><th></th>";
+      hostsRow = "<tr><th></th>";
+      for (serverName in pd.hosts) {
+        if (targetServerName && serverName != targetServerName)
           continue;
 
-        hs = pd.hosts[server];
-        s1 += "<td style='text-align: center' class='" + server + "' colspan='" + hs.length + "'>" + server + "</td>";
-        for (x = 0; x < hs.length; ++x) {
-          host  = hs[x];
-          if (targetHostName && host != targetHostName)
+        hostNames = pd.hosts[serverName];
+        serversRow += "<td style='text-align: center' class='" + serverName + "' colspan='" + hostNames.length + "'>" + serverName + "</td>";
+        for (x = 0; x < hostNames.length; ++x) {
+          hostName = hostNames[x];
+          if (targetHostName && hostName != targetHostName)
             continue;
 
-          s2 += "<td>" + host + "</td>";
+          hostsRow += "<td>" + hostName + "</td>";
         }
       }
-      s1 += "</tr>";
-      s2 += "</tr>";
+      hostsRow += "</tr>";
+      hostsRow += "</tr>";
 
-      return s1 + s2;
+      return serversRow + hostsRow;
     }
 
     function drawTableBody(pd) {
-      var itemName, item, server, host;
+      var serverName, hostNames, hostName, itemName, item, html;
       var x, y;
-      var o;
-      var hs;
-      var s;
       var targetServerName = getTargetServerName();
       var targetHostName = getTargetHostName();
 
-      s = "";
+      html = "";
       for (y = 0; y < pd.items.length; ++y) {
         itemName = pd.items[y];
-        s += "<tr>";
-        s += "<th>" + itemName + "</th>";
-        for ( server in pd.hosts ) {
-          if (targetServerName && server != targetServerName)
+        html += "<tr>";
+        html += "<th>" + itemName + "</th>";
+        for (serverName in pd.hosts) {
+          if (targetServerName && serverName != targetServerName)
             continue;
 
-          hs = pd.hosts[server];
-          for (x = 0; x < hs.length; ++x) {
-            host  = hs[x];
-            if (targetHostName && host != targetHostName)
+          hostNames = pd.hosts[serverName];
+          for (x = 0; x < hostNames.length; ++x) {
+            hostName = hostNames[x];
+            if (targetHostName && hostName != targetHostName)
               continue;
 
-            item = pd.values[server][host][itemName];
+            item = pd.values[serverName][hostName][itemName];
             if (item && item["lastValue"] != undefined) {
-                s += "<td>" + item["lastValue"] + "</td>";
+              html += "<td>" + item["lastValue"] + "</td>";
             } else {
-              s += "<td>&nbsp;</td>";
+              html += "<td>&nbsp;</td>";
             }
           }
         }
-        s += "</tr>";
+        html += "</tr>";
       }
 
-      return s;
+      return html;
     }
 
     function drawTableContents(data) {
