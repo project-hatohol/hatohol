@@ -79,23 +79,22 @@
     });
 
     function parseData(replyData) {
-      var parsedData = new Object();
+      var parsedData = {};
+      var serverNames, appNames, item;
       var x;
-      var item;
-      var serverNames, appNames;
 
       serverNames = [];
-      appNames = [];
+      appNames    = [];
+
       for (x = 0; x < replyData["items"].length; ++x) {
         item = replyData["items"][x];
         serverNames.push(replyData["servers"][item["serverId"]]["name"]);
-        if ( 0 == item["itemGroupName"].length ) {
+        if (item["itemGroupName"].length == 0)
           item["itemGroupName"] = "_non_";
-        }
-        else {
+        else
           appNames.push(item["itemGroupName"]);
-        }
       }
+
       parsedData.servers = serverNames.uniq().sort();
       parsedData.applis  = appNames.uniq().sort();
 
@@ -103,20 +102,19 @@
     }
 
     function drawTableBody(replyData) {
-      var x;
-      var html;
-      var item;
       var klass, serverName, hostName, clock, appName;
-      var url;
+      var html, url, server, item;
+      var x;
 
       html = "";
       for (x = 0; x < replyData["items"].length; ++x) {
-        item = replyData["items"][x];
-        url = getItemGraphLocation(replyData["servers"][item["serverId"]], item["id"]);
-        serverName = replyData["servers"][item["serverId"]]["name"];
-        hostName   = replyData["servers"][item["serverId"]]["hosts"][item["hostId"]]["name"];
-        clock  = item["lastValueTime"];
-        appName  = item["itemGroupName"];
+        item       = replyData["items"][x];
+        server     = replyData["servers"][item["serverId"]];
+        url        = getItemGraphLocation(server, item["id"]);
+        serverName = server["name"];
+        hostName   = server["hosts"][item["hostId"]]["name"];
+        clock      = item["lastValueTime"];
+        appName    = item["itemGroupName"];
         klass  = serverName + " " + appName;
         html += "<tr class='" + klass + "'>";
         html += "<td>" + serverName + "</td>";
