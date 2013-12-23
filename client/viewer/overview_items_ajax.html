@@ -151,7 +151,7 @@
     }
 
     function drawTableHeader(pd) {
-      var klass, server, host;
+      var server, host;
       var x;
       var hs;
       var s1, s2;
@@ -171,8 +171,7 @@
           if (targetHostName && host != targetHostName)
             continue;
 
-          klass = server + " " + host;
-          s2 += "<td class='" + klass + "'>" + host + "</td>";
+          s2 += "<td>" + host + "</td>";
         }
       }
       s1 += "</tr>";
@@ -182,7 +181,7 @@
     }
 
     function drawTableBody(pd) {
-      var klass, item, server, host, severity;
+      var item, server, host, severity;
       var x, y;
       var o;
       var hs;
@@ -205,19 +204,18 @@
             if (targetHostName && host != targetHostName)
               continue;
 
-            klass = server + " " + host;
             if ( item in pd.values[server][host] ) {
               o = pd.values[server][host][item];
               severity = "";  // TODO: build severity information, from somewhere :-)
               if ( "undefined" != typeof o["lastValue"] ) {
-                s += "<td class='" + klass + " " + severity + "'>" + o["lastValue"] + "</td>";
+                s += "<td class='" + severity + "'>" + o["lastValue"] + "</td>";
               }
               else {
-                s += "<td class='" + klass + " " + severity + "'>&nbsp;</td>";
+                s += "<td class='" + severity + "'>&nbsp;</td>";
               }
             }
             else {
-              s += "<td class='" + klass + "'>&nbsp;</td>";
+              s += "<td>&nbsp;</td>";
             }
           }
         }
