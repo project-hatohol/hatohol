@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-12-19 18:30-0600\n"
-"PO-Revision-Date: 2013-12-20 09:33+0900\n"
+"POT-Creation-Date: 2013-12-23 07:50-0600\n"
+"PO-Revision-Date: 2013-12-23 22:51+0900\n"
 "Last-Translator: Takuro Ashie <ashie@clear-code.com>\n"
 "Language-Team: Project Hatohol\n"
 "Language: \n"
@@ -15,106 +15,102 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: static/js/events_view.js:27 static/js/hatohol_add_action_dialog.js:347
-#: static/js/library.js:173
+#: static/js/events_view.js:28 static/js/hatohol_add_action_dialog.js:347
+#: static/js/library.js:167
 msgid "OK"
 msgstr "正常"
 
-#: static/js/events_view.js:27 static/js/hatohol_add_action_dialog.js:348
-#: static/js/library.js:175
+#: static/js/events_view.js:28 static/js/hatohol_add_action_dialog.js:348
+#: static/js/library.js:169
 msgid "Problem"
 msgstr "障害"
 
-#: static/js/events_view.js:27
+#: static/js/events_view.js:28
 msgid "Unknown"
 msgstr "不明"
 
-#: static/js/events_view.js:29 static/js/library.js:184
+#: static/js/events_view.js:30 static/js/library.js:178
 msgid "Not classified"
 msgstr "未分類"
 
-#: static/js/events_view.js:29 static/js/hatohol_add_action_dialog.js:354
-#: static/js/hatohol_message_box.js:168 static/js/library.js:186
+#: static/js/events_view.js:30 static/js/hatohol_add_action_dialog.js:354
+#: static/js/hatohol_message_box.js:168 static/js/library.js:180
 msgid "Information"
 msgstr "情報"
 
-#: static/js/events_view.js:29 static/js/hatohol_add_action_dialog.js:355
-#: static/js/hatohol_message_box.js:173 static/js/library.js:188
+#: static/js/events_view.js:30 static/js/hatohol_add_action_dialog.js:355
+#: static/js/hatohol_message_box.js:173 static/js/library.js:182
 msgid "Warning"
 msgstr "警告"
 
-#: static/js/events_view.js:30 static/js/hatohol_add_action_dialog.js:356
-#: static/js/library.js:190
+#: static/js/events_view.js:31 static/js/hatohol_add_action_dialog.js:356
+#: static/js/library.js:184
 msgid "Average"
 msgstr "軽度の障害"
 
-#: static/js/events_view.js:30 static/js/hatohol_add_action_dialog.js:357
-#: static/js/library.js:192
+#: static/js/events_view.js:31 static/js/hatohol_add_action_dialog.js:357
+#: static/js/library.js:186
 msgid "High"
 msgstr "重度の障害"
 
-#: static/js/events_view.js:30 static/js/hatohol_add_action_dialog.js:358
-#: static/js/library.js:194
+#: static/js/events_view.js:31 static/js/hatohol_add_action_dialog.js:358
+#: static/js/library.js:188
 msgid "Disaster"
 msgstr "致命的な障害"
 
-#: static/js/events_view.js:43 static/js/library.js:162
+#: static/js/events_view.js:44 static/js/library.js:156
 msgid "ERROR"
 msgstr "エラー"
 
-#: static/js/events_view.js:84 static/js/hatohol_navi.js:43
+#: static/js/events_view.js:85 static/js/hatohol_navi.js:43
 msgid "Events"
 msgstr "イベント"
 
-#: static/js/events_view.js:87
+#: static/js/events_view.js:88
 msgid "Server:"
 msgstr "サーバ:"
 
-#: static/js/events_view.js:91
+#: static/js/events_view.js:92
+msgid "Host:"
+msgstr "ホスト:"
+
+#: static/js/events_view.js:96
 msgid "# of events per page"
 msgstr ""
 
-#: static/js/events_view.js:98 static/js/hatohol_add_action_dialog.js:316
+#: static/js/events_view.js:103 static/js/hatohol_add_action_dialog.js:316
 msgid "Server"
 msgstr "サーバ"
 
-#: static/js/events_view.js:99
+#: static/js/events_view.js:104
 msgid "Time"
 msgstr "時間"
 
-#: static/js/events_view.js:100 static/js/hatohol_add_action_dialog.js:331
+#: static/js/events_view.js:105 static/js/hatohol_add_action_dialog.js:331
 msgid "Host"
 msgstr "ホスト名"
 
-#: static/js/events_view.js:101 static/js/hatohol_trigger_selector.js:49
+#: static/js/events_view.js:106 static/js/hatohol_trigger_selector.js:49
 msgid "Brief"
 msgstr "概要"
 
-#: static/js/events_view.js:102 static/js/hatohol_add_action_dialog.js:344
+#: static/js/events_view.js:107 static/js/hatohol_add_action_dialog.js:344
 msgid "Status"
 msgstr "ステータス"
 
-#: static/js/events_view.js:103 static/js/hatohol_add_action_dialog.js:351
+#: static/js/events_view.js:108 static/js/hatohol_add_action_dialog.js:351
 msgid "Severity"
 msgstr "深刻度"
 
-#: static/js/events_view.js:104
+#: static/js/events_view.js:109
 msgid "Duration"
 msgstr "継続時間"
 
-#: static/js/events_view.js:105
-msgid "Comment"
-msgstr "コメント"
-
-#: static/js/events_view.js:106
-msgid "Action"
-msgstr "アクション"
-
-#: static/js/events_view.js:115
+#: static/js/events_view.js:122
 msgid "Latest events"
 msgstr "最新イベント"
 
-#: static/js/events_view.js:116
+#: static/js/events_view.js:123
 msgid "To next"
 msgstr "次へ"
 
@@ -333,11 +329,11 @@ msgstr "トリガー"
 msgid "Servers"
 msgstr "サーバ"
 
-#: static/js/hatohol_navi.js:50
+#: static/js/hatohol_navi.js:52
 msgid "Actions"
 msgstr "アクション"
 
-#: static/js/hatohol_navi.js:54
+#: static/js/hatohol_navi.js:56
 msgid "Users"
 msgstr "ユーザ"
 
@@ -499,37 +495,43 @@ msgstr "ゲスト"
 msgid "Admin"
 msgstr "管理者"
 
-#: static/js/library.js:125
+#: static/js/library.js:119
 msgid "DRAW"
 msgstr "描画"
 
-#: static/js/library.js:126
+#: static/js/library.js:120
 msgid "Drawing"
 msgstr "描画中"
 
-#: static/js/library.js:133
+#: static/js/library.js:127
 msgid "DONE"
 msgstr "完了"
 
-#: static/js/library.js:141
+#: static/js/library.js:135
 msgid "LOAD"
 msgstr "ロード"
 
-#: static/js/library.js:142
+#: static/js/library.js:136
 msgid "Communicating with backend"
 msgstr "バックエンドと通信中"
 
-#: static/js/library.js:151
+#: static/js/library.js:145
 msgid "Failed to parse the recieved packt."
 msgstr "受信パケットの解析に失敗しました."
 
-#: static/js/library.js:155 test/browser/test_hatohol_message_box.js:161
+#: static/js/library.js:149 test/browser/test_hatohol_message_box.js:161
 msgid "STATUS CODE"
 msgstr ""
 
 #: test/browser/test_hatohol_message_box.js:175
 msgid "HATOHOL SERVER ERROR CODE"
 msgstr ""
+
+#~ msgid "Comment"
+#~ msgstr "コメント"
+
+#~ msgid "Action"
+#~ msgstr "アクション"
 
 #~ msgid "Host Group"
 #~ msgstr "ホストグループ"
