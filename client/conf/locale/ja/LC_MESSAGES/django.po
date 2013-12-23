@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-12-23 07:50-0600\n"
+"POT-Creation-Date: 2013-12-23 08:26-0600\n"
 "PO-Revision-Date: 2013-12-20 09:30+0900\n"
 "Last-Translator: Takuro Ashie <ashie@clear-code.com>\n"
 "Language-Team: Project Hatohol\n"
@@ -28,12 +28,12 @@ msgid "DELETE ACTIONS"
 msgstr "アクション削除"
 
 #: viewer/actions_ajax.html:43 viewer/dashboard_ajax.html:52
-#: viewer/dashboard_ajax.html.py:72 viewer/latest_ajax.html:46
+#: viewer/dashboard_ajax.html.py:72 viewer/latest_ajax.html:51
 #: viewer/triggers_ajax.html:46
 msgid "Server"
 msgstr "サーバ"
 
-#: viewer/actions_ajax.html:44 viewer/latest_ajax.html:47
+#: viewer/actions_ajax.html:44 viewer/latest_ajax.html:52
 #: viewer/triggers_ajax.html:54
 msgid "Host"
 msgstr "ホスト"
@@ -220,27 +220,32 @@ msgstr "サーバ"
 msgid "Server:"
 msgstr "サーバ:"
 
-#: viewer/latest_ajax.html:36
+#: viewer/latest_ajax.html:36 viewer/overview_items_ajax.html:54
+#: viewer/overview_triggers_ajax.html:52 viewer/triggers_ajax.html:37
+msgid "Host:"
+msgstr "ホスト:"
+
+#: viewer/latest_ajax.html:41
 msgid "Application:"
 msgstr "アプリケーション:"
 
-#: viewer/latest_ajax.html:48
+#: viewer/latest_ajax.html:53
 msgid "Application"
 msgstr "アプリケーション"
 
-#: viewer/latest_ajax.html:49 viewer/triggers_ajax.html:55
+#: viewer/latest_ajax.html:54 viewer/triggers_ajax.html:55
 msgid "Name"
 msgstr "名前"
 
-#: viewer/latest_ajax.html:50
+#: viewer/latest_ajax.html:55
 msgid "Last check"
 msgstr "最新の変更"
 
-#: viewer/latest_ajax.html:51
+#: viewer/latest_ajax.html:56
 msgid "Last value"
 msgstr "最新の値"
 
-#: viewer/latest_ajax.html:52
+#: viewer/latest_ajax.html:57
 msgid "Previous value"
 msgstr "前回の値"
 
@@ -252,11 +257,6 @@ msgstr "最小の深刻度:"
 #: viewer/triggers_ajax.html:32
 msgid "Group:"
 msgstr "グループ:"
-
-#: viewer/overview_items_ajax.html:54 viewer/overview_triggers_ajax.html:52
-#: viewer/triggers_ajax.html:37
-msgid "Host:"
-msgstr "ホスト:"
 
 #: viewer/servers_ajax.html:29 viewer/users_ajax.html:43
 msgid "ID"

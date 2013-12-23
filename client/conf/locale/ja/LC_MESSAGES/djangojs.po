@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-12-23 07:50-0600\n"
-"PO-Revision-Date: 2013-12-23 22:51+0900\n"
+"POT-Creation-Date: 2013-12-23 08:26-0600\n"
+"PO-Revision-Date: 2013-12-23 23:27+0900\n"
 "Last-Translator: Takuro Ashie <ashie@clear-code.com>\n"
 "Language-Team: Project Hatohol\n"
 "Language: \n"
@@ -67,50 +67,54 @@ msgid "Events"
 msgstr "イベント"
 
 #: static/js/events_view.js:88
+msgid "Minimum Severity:"
+msgstr "最小の深刻度:"
+
+#: static/js/events_view.js:96
 msgid "Server:"
 msgstr "サーバ:"
 
-#: static/js/events_view.js:92
+#: static/js/events_view.js:100
 msgid "Host:"
 msgstr "ホスト:"
 
-#: static/js/events_view.js:96
+#: static/js/events_view.js:104
 msgid "# of events per page"
 msgstr ""
 
-#: static/js/events_view.js:103 static/js/hatohol_add_action_dialog.js:316
+#: static/js/events_view.js:111 static/js/hatohol_add_action_dialog.js:316
 msgid "Server"
 msgstr "サーバ"
 
-#: static/js/events_view.js:104
+#: static/js/events_view.js:112
 msgid "Time"
 msgstr "時間"
 
-#: static/js/events_view.js:105 static/js/hatohol_add_action_dialog.js:331
+#: static/js/events_view.js:113 static/js/hatohol_add_action_dialog.js:331
 msgid "Host"
 msgstr "ホスト名"
 
-#: static/js/events_view.js:106 static/js/hatohol_trigger_selector.js:49
+#: static/js/events_view.js:114 static/js/hatohol_trigger_selector.js:49
 msgid "Brief"
 msgstr "概要"
 
-#: static/js/events_view.js:107 static/js/hatohol_add_action_dialog.js:344
+#: static/js/events_view.js:115 static/js/hatohol_add_action_dialog.js:344
 msgid "Status"
 msgstr "ステータス"
 
-#: static/js/events_view.js:108 static/js/hatohol_add_action_dialog.js:351
+#: static/js/events_view.js:116 static/js/hatohol_add_action_dialog.js:351
 msgid "Severity"
 msgstr "深刻度"
 
-#: static/js/events_view.js:109
+#: static/js/events_view.js:117
 msgid "Duration"
 msgstr "継続時間"
 
-#: static/js/events_view.js:122
+#: static/js/events_view.js:130
 msgid "Latest events"
 msgstr "最新イベント"
 
-#: static/js/events_view.js:123
+#: static/js/events_view.js:131
 msgid "To next"
 msgstr "次へ"
 
