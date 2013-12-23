@@ -180,7 +180,7 @@
     }
 
     function drawTableBody(pd) {
-      var item, server, host;
+      var itemName, item, server, host;
       var x, y;
       var o;
       var hs;
@@ -190,9 +190,9 @@
 
       s = "";
       for (y = 0; y < pd.items.length; ++y) {
-        item = pd.items[y];
+        itemName = pd.items[y];
         s += "<tr>";
-        s += "<th>" + item + "</th>";
+        s += "<th>" + itemName + "</th>";
         for ( server in pd.hosts ) {
           if (targetServerName && server != targetServerName)
             continue;
@@ -203,13 +203,9 @@
             if (targetHostName && host != targetHostName)
               continue;
 
-            if ( item in pd.values[server][host] ) {
-              o = pd.values[server][host][item];
-              if ( "undefined" != typeof o["lastValue"] ) {
-                s += "<td>" + o["lastValue"] + "</td>";
-              } else {
-                s += "<td>&nbsp;</td>";
-              }
+            item = pd.values[server][host][itemName];
+            if (item && item["lastValue"] != undefined) {
+                s += "<td>" + item["lastValue"] + "</td>";
             } else {
               s += "<td>&nbsp;</td>";
             }
