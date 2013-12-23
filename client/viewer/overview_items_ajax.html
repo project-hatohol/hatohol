@@ -180,7 +180,7 @@
     }
 
     function drawTableBody(pd) {
-      var item, server, host, severity;
+      var item, server, host;
       var x, y;
       var o;
       var hs;
@@ -205,15 +205,12 @@
 
             if ( item in pd.values[server][host] ) {
               o = pd.values[server][host][item];
-              severity = "";  // TODO: build severity information, from somewhere :-)
               if ( "undefined" != typeof o["lastValue"] ) {
-                s += "<td class='" + severity + "'>" + o["lastValue"] + "</td>";
+                s += "<td>" + o["lastValue"] + "</td>";
+              } else {
+                s += "<td>&nbsp;</td>";
               }
-              else {
-                s += "<td class='" + severity + "'>&nbsp;</td>";
-              }
-            }
-            else {
+            } else {
               s += "<td>&nbsp;</td>";
             }
           }
