@@ -89,7 +89,11 @@ var EventsView = function(baseElem) {
     s += '  <select id="select-server">';
     s += '    <option>---------</option>';
     s += '  </select>';
-    s += '  <label for="num-events-per-page">' + gettext("# of events per page") + '</label>'
+    s += '  <label>' + gettext('Host:') + '</label>';
+    s += '  <select id="select-host">';
+    s += '    <option>---------</option>';
+    s += '  </select>';
+    s += '  <label for="num-events-per-page">' + gettext("# of events per page") + '</label>';
     s += '  <input type="text" class="input-mini" id="num-events-per-page">';
     s += '</form>';
 
@@ -134,6 +138,11 @@ var EventsView = function(baseElem) {
     });
 
     $("#select-server").change(function() {
+      var serverName = $("#select-server").val();
+      setCandidate($("#select-host"), parsedData.hostNames[serverName]);
+      drawTableContents(rawData, parsedData);
+    });
+    $("#select-host").change(function() {
       drawTableContents(rawData, parsedData);
     });
 
@@ -173,37 +182,45 @@ var EventsView = function(baseElem) {
 
   function parseData(replyData) {
     var parsedData = new Object();
-    var server, triggerId;
-    var x, event;
-    var allTimes, serverNames;
+    var triggerId;
+    var x, event, server;
+    var allTimes, serverNames, hostNames, serverName, hostName;
     var times, durations, now;
 
     parsedData.durations = {};
 
     // extract server names & times from raw data
     allTimes = {};
+    hostNames = {};
     for (x = 0; x < replyData["events"].length; ++x) {
       event = replyData["events"][x];
-      server = replyData["servers"][event["serverId"]]["name"];
+      server = replyData["servers"][event["serverId"]];
+      serverName = server["name"];
       triggerId = event["triggerId"];
 
-      if (!allTimes[server])
-        allTimes[server] = {};
-      if (!allTimes[server][triggerId])
-        allTimes[server][triggerId] = [];
+      if (!allTimes[serverName])
+        allTimes[serverName] = {};
+      if (!allTimes[serverName][triggerId])
+        allTimes[serverName][triggerId] = [];
       
-      allTimes[server][triggerId].push(event["time"]);
+      allTimes[serverName][triggerId].push(event["time"]);
+
+      if (!hostNames[serverName])
+        hostNames[serverName] = {};
+      hostName = server["hosts"][event["hostId"]]["name"];
+      if (!hostNames[serverName][hostName])
+        hostNames[serverName][hostName] = true;
     }
 
     // create server names array & durations map
     serverNames = [];
-    for (server in allTimes) {
+    for (serverName in allTimes) {
       // store the unique server name
-      serverNames.push(server);
+      serverNames.push(serverName);
 
       // calculate durations
-      for (triggerId in allTimes[server]) {
-        times = allTimes[server][triggerId].uniq().sort();
+      for (triggerId in allTimes[serverName]) {
+        times = allTimes[serverName][triggerId].uniq().sort();
         durations = {};
         for (x = 0; x < times.length; ++x) {
           if (x == times.length - 1) {
@@ -213,11 +230,19 @@ var EventsView = function(baseElem) {
             durations[times[x]] = Number(times[x + 1]) - Number(times[x]);
           }
         }
-        allTimes[server][triggerId] = durations;
+        allTimes[serverName][triggerId] = durations;
       }
-      parsedData.durations[server] = allTimes[server];
+      parsedData.durations[serverName] = allTimes[serverName];
     }
     parsedData.serverNames = serverNames.sort();
+    parsedData.hostNames = {};
+    for (serverName in hostNames) {
+      if (!parsedData.hostNames[serverName])
+        parsedData.hostNames[serverName] = [];
+      for (hostName in hostNames[serverName])
+        parsedData.hostNames[serverName].push(hostName);
+      parsedData.hostNames[serverName] = parsedData.hostNames[serverName].sort();
+    }
 
     return parsedData;
   }
@@ -242,11 +267,19 @@ var EventsView = function(baseElem) {
     return name;
   }
 
+  function getTargetHostName() {
+    var name = $("#select-host").val();
+    if (name == "---------")
+      name = null;
+    return name;
+  }
+
   function drawTableBody(rd, pd) {
     var serverName, hostName, clock, status, severity, duration;
     var server, event, html = "";
     var x;
     var targetServerName = getTargetServerName();
+    var targetHostName= getTargetHostName();
 
     for (x = 0; x < rd["events"].length; ++x) {
       event      = rd["events"][x];
@@ -259,6 +292,8 @@ var EventsView = function(baseElem) {
       duration   = pd.durations[serverName][event["triggerId"]][clock];
 
       if (targetServerName && serverName != targetServerName)
+        continue;
+      if (targetHostName && hostName != targetHostName)
         continue;
 
       html += "<tr><td>" + serverName + "</td>";
@@ -288,10 +323,8 @@ var EventsView = function(baseElem) {
     rawData = reply;
     parsedData = parseData(rawData);
 
-    target = '#select-server';
-    $(target).children('option').remove();
-    $(target).append('<option>---------</option>');
-    setCandidate($(target), parsedData.serverNames);
+    setCandidate($('#select-server'), parsedData.serverNames);
+    setCandidate($("#select-host"));
 
     drawTableContents(rawData, parsedData);
   }
