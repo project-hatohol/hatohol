@@ -69,6 +69,8 @@
 
 {% block logic %}
   <script type="text/javascript">
+    var rawData, parsedData;
+
     $("#table").stupidtable();
     $("#table").bind('aftertablesort', function(event, data) {
       var th = $(this).find("th");
@@ -92,35 +94,58 @@
     ];
 
     $("#select-server").change(function() {
-      chooseRow();
+      var serverName = $("#select-server").val();
+      setCandidate($("#select-host"), parsedData.hosts[serverName]);
+      drawTableContents(rawData);
     });
     $("#select-host").change(function() {
-      chooseRow();
+      drawTableContents(rawData);
     });
 
     function parseData(replyData) {
       var parsedData = {};
-      var serverNames, hostNames;
+      var serverNames, serverName, hostNames;
       var x, server, trigger;
 
       serverNames = [];
-      hostNames   = [];
+      hostNames   = {};
       for (x = 0; x < replyData["triggers"].length; ++x) {
         trigger = replyData["triggers"][x];
         server = replyData["servers"][trigger["serverId"]];
-        serverNames.push(server["name"]);
-        hostNames.push(server["hosts"][trigger["hostId"]]["name"]);
+        serverName = server["name"];
+        serverNames.push(serverName);
+        if (!hostNames[serverName])
+          hostNames[serverName] = [];
+        hostNames[serverName].push(server["hosts"][trigger["hostId"]]["name"]);
       }
       parsedData.servers = serverNames.uniq().sort();
-      parsedData.hosts   = hostNames.uniq().sort();
+      parsedData.hosts   = {};
+      for (serverName in hostNames)
+        parsedData.hosts[serverName] = hostNames[serverName].uniq().sort();
 
       return parsedData;
+    }
+
+    function getTargetServerName() {
+      var name = $("#select-server").val();
+      if (name == "---------")
+        name = null;
+      return name;
+    }
+
+    function getTargetHostName() {
+      var name = $("#select-host").val();
+      if (name == "---------")
+        name = null;
+      return name;
     }
 
     function drawTableBody(replyData) {
       var klass, serverName, hostName, clock, status, severity;
       var html, server, trigger;
       var x;
+      var targetServerName = getTargetServerName();
+      var targetHostName= getTargetHostName();
 
       html = "";
       for (x = 0; x < replyData["triggers"].length; ++x) {
@@ -132,6 +157,12 @@
         status     = trigger["status"];
         severity   = trigger["severity"];
         klass      = serverName + " " + hostName;
+
+        if (targetServerName && serverName != targetServerName)
+          continue;
+        if (targetHostName && hostName != targetHostName)
+          continue;
+
         html += "<tr class='" + klass + "'>";
         html += "<td>" + serverName + "</td>";
         html += "<td class='severity" + severity + "' data-sort-value='" + severity + "'>" + severity_choices[Number(severity)] + "</td>";
@@ -151,15 +182,19 @@
       return html;
     }
 
+    function drawTableContents(data) {
+      $("#table tbody").empty();
+      $("#table tbody").append(drawTableBody(data));
+    }
+
     function updateCore(reply) {
-      var rawData = reply;
-      var parsedData = parseData(rawData);
+      rawData = reply;
+      parsedData = parseData(rawData);
 
       setCandidate($("#select-server"), parsedData.servers);
-      setCandidate($("#select-host"),   parsedData.hosts);
+      setCandidate($("#select-host"));
 
-      $("#table tbody").empty();
-      $("#table tbody").append(drawTableBody(rawData));
+      drawTableContents(rawData);
     }
 
     userProfile.addOnLoadCb(function() {
