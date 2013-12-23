@@ -163,7 +163,7 @@
           continue;
 
         hostNames = pd.hosts[serverName];
-        serversRow += "<td style='text-align: center' class='" + serverName + "' colspan='" + hostNames.length + "'>" + serverName + "</td>";
+        serversRow += "<td style='text-align: center' colspan='" + hostNames.length + "'>" + serverName + "</td>";
         for (x = 0; x < hostNames.length; ++x) {
           hostName = hostNames[x];
           if (targetHostName && hostName != targetHostName)
