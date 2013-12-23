@@ -70,10 +70,13 @@
     $("#select-server").change(function() {
       var serverName = $("#select-server").val();
       setCandidate($("#select-host"), parsedData.hosts[serverName]);
-      chooseColumn();
+      drawTableContents(parsedData);
     });
     $("#select-group").change(function() {
-      chooseColumn();
+      drawTableContents(parsedData);
+    });
+    $("#select-host").change(function() {
+      drawTableContents(parsedData);
     });
 
     $("#select-severity").change(function() {
@@ -131,19 +134,43 @@
       return pd;
     }
 
+    function getTargetServerName()
+    {
+      var name = $("#select-server").val();
+      if (name == "---------")
+        name = null;
+      return name;
+    }
+
+    function getTargetHostName()
+    {
+      var name = $("#select-host").val();
+      if (name == "---------")
+        name = null;
+      return name;
+    }
+
     function drawTableHeader(pd) {
       var klass, server, host;
       var x;
       var hs;
       var s1, s2;
+      var targetServerName = getTargetServerName();
+      var targetHostName = getTargetHostName();
 
       s1 = "<tr><th></th>";
       s2 = "<tr><th></th>";
       for ( server in pd.hosts ) {
+        if (targetServerName && server != targetServerName)
+          continue;
+
         hs = pd.hosts[server];
         s1 += "<td style='text-align: center' class='" + server + "' colspan='" + hs.length + "'>" + server + "</td>";
         for (x = 0; x < hs.length; ++x) {
           host  = hs[x];
+          if (targetHostName && host != targetHostName)
+            continue;
+
           klass = server + " " + host;
           s2 += "<td class='" + klass + "'>" + host + "</td>";
         }
@@ -160,6 +187,8 @@
       var o;
       var hs;
       var s;
+      var targetServerName = getTargetServerName();
+      var targetHostName = getTargetHostName();
 
       s = "";
       for (y = 0; y < pd.triggers.length; ++y) {
@@ -167,9 +196,15 @@
         s += "<tr>";
         s += "<th>" + trigger + "</th>";
         for ( server in pd.hosts ) {
+          if (targetServerName && server != targetServerName)
+            continue;
+
           hs = pd.hosts[server];
           for (x = 0; x < hs.length; ++x) {
             host  = hs[x];
+            if (targetHostName && host != targetHostName)
+              continue;
+
             klass = server + " " + host;
             if ( trigger in pd.values[server][host] ) {
               o = pd.values[server][host][trigger];
@@ -196,15 +231,18 @@
       return s;
     }
 
+    function drawTableContents(data) {
+      $("#table thead").empty();
+      $("#table thead").append(drawTableHeader(data));
+      $("#table tbody").empty();
+      $("#table tbody").append(drawTableBody(data));
+    }
+
     function updateCore(reply, param) {
       rawData = reply;
       parsedData = parseData(rawData, param);
       setCandidate($("#select-server"), parsedData.servers);
-
-      $("#table thead").empty();
-      $("#table thead").append(drawTableHeader(parsedData));
-      $("#table tbody").empty();
-      $("#table tbody").append(drawTableBody(parsedData));
+      drawTableContents(parsedData);
     }
 
     userProfile.addOnLoadCb(function() {
