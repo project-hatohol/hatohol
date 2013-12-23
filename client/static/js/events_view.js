@@ -18,11 +18,12 @@
  */
 
 var EventsView = function(baseElem) {
-
   var self = this;
   self.baseElem = baseElem;
   self.minUnifiedId = null;
   self.maxUnifiedId = null;
+
+  var rawData, parsedData;
 
   var status_choices = [gettext('OK'), gettext('Problem'), gettext('Unknown')];
   var severity_choices = [
@@ -133,7 +134,7 @@ var EventsView = function(baseElem) {
     });
 
     $("#select-server").change(function() {
-      chooseRow();
+      drawTableContents(rawData, parsedData);
     });
 
     $('#num-events-per-page').val(self.numEventsPerPage);
@@ -234,10 +235,18 @@ var EventsView = function(baseElem) {
       self.maxUnifiedId = unifiedId;
   }
 
+  function getTargetServerName() {
+    var name = $("#select-server").val();
+    if (name == "---------")
+      name = null;
+    return name;
+  }
+
   function drawTableBody(rd, pd) {
-    var klass, serverName, hostName, clock, status, severity, duration;
+    var serverName, hostName, clock, status, severity, duration;
     var server, event, html = "";
     var x;
+    var targetServerName = getTargetServerName();
 
     for (x = 0; x < rd["events"].length; ++x) {
       event      = rd["events"][x];
@@ -248,9 +257,11 @@ var EventsView = function(baseElem) {
       status     = event["type"];
       severity   = event["severity"];
       duration   = pd.durations[serverName][event["triggerId"]][clock];
-      klass      = serverName;
-      html += "<tr class='" + klass + "'>";
-      html += "<td>" + serverName + "</td>";
+
+      if (targetServerName && serverName != targetServerName)
+        continue;
+
+      html += "<tr><td>" + serverName + "</td>";
       html += "<td data-sort-value='" + clock + "'>" + formatDate(clock) + "</td>";
       html += "<td>" + hostName + "</td>";
       html += "<td>" + event["brief"] + "</td>";
@@ -268,16 +279,20 @@ var EventsView = function(baseElem) {
     return html;
   }
 
+  function drawTableContents(rawData, parsedData) {
+    $("#table tbody").empty();
+    $("#table tbody").append(drawTableBody(rawData, parsedData));
+  }
+
   function updateCore(reply) {
-    var rawData = reply;
-    var parsedData = parseData(rawData);
+    rawData = reply;
+    parsedData = parseData(rawData);
 
     target = '#select-server';
     $(target).children('option').remove();
     $(target).append('<option>---------</option>');
     setCandidate($(target), parsedData.serverNames);
 
-    $("#table tbody").empty();
-    $("#table tbody").append(drawTableBody(rawData, parsedData));
+    drawTableContents(rawData, parsedData);
   }
 };
