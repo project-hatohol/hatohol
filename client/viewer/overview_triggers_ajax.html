@@ -150,84 +150,79 @@
     }
 
     function drawTableHeader(pd) {
-      var klass, server, host;
+      var klass, serverName, hostNames, hostName;
       var x;
-      var hs;
-      var s1, s2;
+      var serversRow, hostsRow;
       var targetServerName = getTargetServerName();
       var targetHostName = getTargetHostName();
 
-      s1 = "<tr><th></th>";
-      s2 = "<tr><th></th>";
-      for ( server in pd.hosts ) {
-        if (targetServerName && server != targetServerName)
+      serversRow = "<tr><th></th>";
+      hostsRow = "<tr><th></th>";
+      for (serverName in pd.hosts) {
+        if (targetServerName && serverName != targetServerName)
           continue;
 
-        hs = pd.hosts[server];
-        s1 += "<td style='text-align: center' colspan='" + hs.length + "'>" + server + "</td>";
-        for (x = 0; x < hs.length; ++x) {
-          host  = hs[x];
-          if (targetHostName && host != targetHostName)
+        hostNames = pd.hosts[serverName];
+        serversRow += "<td style='text-align: center' colspan='" + hostNames.length + "'>" + serverName + "</td>";
+        for (x = 0; x < hostNames.length; ++x) {
+          hostName  = hostNames[x];
+          if (targetHostName && hostName != targetHostName)
             continue;
 
-          klass = server + " " + host;
-          s2 += "<td class='" + klass + "'>" + host + "</td>";
+          klass = serverName + " " + hostName;
+          hostsRow += "<td class='" + klass + "'>" + hostName + "</td>";
         }
       }
-      s1 += "</tr>";
-      s2 += "</tr>";
+      serversRow += "</tr>";
+      hostsRow += "</tr>";
 
-      return s1 + s2;
+      return serversRow + hostsRow;
     }
 
     function drawTableBody(pd) {
-      var klass, trigger, server, host;
+      var klass, triggerName, serverName, hostNames, hostName, trigger, html;
       var x, y;
-      var o;
-      var hs;
-      var s;
       var targetServerName = getTargetServerName();
       var targetHostName = getTargetHostName();
 
-      s = "";
+      html = "";
       for (y = 0; y < pd.triggers.length; ++y) {
-        trigger = pd.triggers[y];
-        s += "<tr>";
-        s += "<th>" + trigger + "</th>";
-        for ( server in pd.hosts ) {
-          if (targetServerName && server != targetServerName)
+        triggerName = pd.triggers[y];
+        html += "<tr>";
+        html += "<th>" + triggerName + "</th>";
+        for (serverName in pd.hosts) {
+          if (targetServerName && serverName != targetServerName)
             continue;
 
-          hs = pd.hosts[server];
-          for (x = 0; x < hs.length; ++x) {
-            host  = hs[x];
-            if (targetHostName && host != targetHostName)
+          hostNames = pd.hosts[serverName];
+          for (x = 0; x < hostNames.length; ++x) {
+            hostName  = hostNames[x];
+            if (targetHostName && hostName != targetHostName)
               continue;
 
-            klass = server + " " + host;
-            if ( trigger in pd.values[server][host] ) {
-              o = pd.values[server][host][trigger];
-              switch ( o["status"] ) {
+            klass = serverName + " " + hostName;
+            trigger = pd.values[serverName][hostName][triggerName];
+            if (trigger) {
+              switch (trigger["status"]) {
                 case 1:
-                  s += "<td class='" + klass + " severity" + o["severity"] + "'>&nbsp;</td>";
+                  html += "<td class='" + klass + " severity" + trigger["severity"] + "'>&nbsp;</td>";
                   break;
                 case 0:
-                  s += "<td class='" + klass + " healthy'>&nbsp;</td>";
+                  html += "<td class='" + klass + " healthy'>&nbsp;</td>";
                   break;
                 default:
-                  s += "<td class='" + klass + " unknown'>&nbsp;</td>";
+                  html += "<td class='" + klass + " unknown'>&nbsp;</td>";
                   break;
               }
-            }
-            else {
-              s += "<td class='" + klass + "'>&nbsp;</td>";
+            } else {
+              html += "<td class='" + klass + "'>&nbsp;</td>";
             }
           }
         }
-        s += "</tr>";
+        html += "</tr>";
       }
 
-      return s;
+      return html;
     }
 
     function drawTableContents(data) {
