@@ -480,8 +480,13 @@ void DBAgentMySQL::queryWithRetry(const string &statement)
 	unsigned int errorNumber = 0;
 	size_t numRetry = DEFAULT_NUM_RETRY;
 	for (size_t i = 0; i < numRetry; i++) {
-		if (mysql_query(&m_ctx->mysql, statement.c_str()) == 0)
+		if (mysql_query(&m_ctx->mysql, statement.c_str()) == 0) {
+			if (i >= 1) {
+				MLPL_ERR("Recoverd: %s (%zd).\n",
+				         statement.c_str(), i);
+			}
 			return;
+		}
 		errorNumber = mysql_errno(&m_ctx->mysql);
 		if (!m_ctx->shouldRetry(errorNumber))
 			break;
