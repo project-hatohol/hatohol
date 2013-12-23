@@ -77,8 +77,19 @@
       th.eq(data.column).append("<i class='sort icon-arrow-" + icon +"'></i>");
     });
 
-    var status_choices   = [ '{% trans "OK" %}', '{% trans "Problem" %}', '{% trans "Unknown" %}' ];
-    var severity_choices = [ '{% trans "Not classified" %}', '{% trans "Information" %}', '{% trans "Warning" %}', '{% trans "Average" %}', '{% trans "High" %}', '{% trans "Disaster" %}' ];
+    var status_choices = [
+      '{% trans "OK" %}',
+      '{% trans "Problem" %}',
+      '{% trans "Unknown" %}'
+    ];
+    var severity_choices = [
+      '{% trans "Not classified" %}',
+      '{% trans "Information" %}',
+      '{% trans "Warning" %}',
+      '{% trans "Average" %}',
+      '{% trans "High" %}',
+      '{% trans "Disaster" %}'
+    ];
 
     $("#select-server").change(function() {
       chooseRow();
@@ -88,13 +99,13 @@
     });
 
     function parseData(replyData) {
-      var parsedData = new Object();
+      var parsedData = {};
       var serverNames, hostNames;
       var x, server, trigger;
 
       serverNames = [];
       hostNames   = [];
-      for (x= 0; x < replyData["triggers"].length; ++x) {
+      for (x = 0; x < replyData["triggers"].length; ++x) {
         trigger = replyData["triggers"][x];
         server = replyData["servers"][trigger["serverId"]];
         serverNames.push(server["name"]);
@@ -107,12 +118,11 @@
     }
 
     function drawTableBody(replyData) {
+      var klass, serverName, hostName, clock, status, severity;
+      var html, server, trigger;
       var x;
-      var html;
-      var trigger;
-      var klass, serverName, hostName, server, clock, status, severity;
 
-      s = "";
+      html = "";
       for (x = 0; x < replyData["triggers"].length; ++x) {
         trigger    = replyData["triggers"][x];
         server     = replyData["servers"][trigger["serverId"]];
