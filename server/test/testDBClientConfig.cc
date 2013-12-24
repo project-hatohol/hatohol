@@ -18,7 +18,7 @@
  */
 
 #include <cppcutter.h>
-#include <cutter.h>
+#include <gcutter.h>
 
 #include "Hatohol.h"
 #include "DBClientConfig.h"
@@ -222,7 +222,6 @@ void _assertGetTargetServers(UserIdType userId)
 #define assertGetTargetServers(U) \
   cut_trace(_assertGetTargetServers(U))
 
-#include <gcutter.h>
 void data_getTargetServers(void)
 {
 	gcut_add_datum("By Admin",
