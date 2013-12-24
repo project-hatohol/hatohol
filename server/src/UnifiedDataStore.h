@@ -89,6 +89,8 @@ public:
 	  AccessInfoIdType userId, const OperationPrivilege &privilege);
 	virtual HatoholError addTargetServer(
 	  MonitoringServerInfo &svInfo, const OperationPrivilege &privilege);
+	virtual HatoholError deleteTargetServer(
+	  ServerIdType serverId, const OperationPrivilege &privilege);
 
 private:
 	struct PrivateContext;

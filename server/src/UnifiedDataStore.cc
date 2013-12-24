@@ -520,6 +520,13 @@ HatoholError UnifiedDataStore::addTargetServer(
 	m_ctx->virtualDataStoreForeach(&starter);
 	return err;
 }
+
+HatoholError UnifiedDataStore::deleteTargetServer(
+  ServerIdType serverId, const OperationPrivilege &privilege)
+{
+	return HatoholError(HTERR_UNKNOWN_REASON);
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------

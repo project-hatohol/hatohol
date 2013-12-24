@@ -1342,7 +1342,7 @@ void FaceRest::handlerServer(RestJob *job)
 	} else if (StringUtils::casecmp(job->message->method, "POST")) {
 		handlerPostServer(job);
 	} else if (StringUtils::casecmp(job->message->method, "DELETE")) {
-		// Not implemented yet
+		handlerDeleteServer(job);
 	} else {
 		MLPL_ERR("Unknown method: %s\n", job->message->method);
 		soup_message_set_status(job->message,
@@ -1471,6 +1471,29 @@ void FaceRest::handlerPostServer(RestJob *job)
 	if (err == HTERR_OK)
 		agent.add("serverid", svInfo.id);
 	agent.endObject();
+	replyJsonData(agent, job);
+}
+
+void FaceRest::handlerDeleteServer(RestJob *job)
+{
+	uint64_t serverId = job->getResourceId();
+	if (serverId == INVALID_ID) {
+		REPLY_ERROR(job, HTERR_NOT_FOUND_ID_IN_URL,
+			    "id: %s", job->getResourceIdString().c_str());
+		return;
+	}
+
+	DataQueryOption option(job->userId);
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+	HatoholError err = dataStore->deleteTargetServer(serverId, option);
+
+	JsonBuilderAgent agent;
+	agent.startObject();
+	addHatoholError(agent, err);
+	if (err == HTERR_OK)
+		agent.add("id", serverId);
+	agent.endObject();
+
 	replyJsonData(agent, job);
 }
 
