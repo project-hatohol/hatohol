@@ -25,6 +25,7 @@
 using namespace std;
 
 #include "DataStore.h"
+#include "DataStoreEventProc.h"
 #include "Utils.h"
 
 class DataStoreManager {
