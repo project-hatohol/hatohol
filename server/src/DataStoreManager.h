@@ -41,6 +41,7 @@ public:
 	bool add(uint32_t storeId, DataStore *dataStore);
 
 	DataStoreVector &getDataStoreVector(void);
+	DataStoreVecrot &getSnapShotDataStoreVector(void);
 
 protected:
 	void closeAllStores(void);

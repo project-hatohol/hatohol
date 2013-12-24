@@ -76,6 +76,15 @@ DataStoreVector &DataStoreManager::getDataStoreVector(void)
 	return m_ctx->dataStoreVector;
 }
 
+DataStoreVector &DataStoreManager::getSnapShotDataStoreVector(void)
+{
+	m_ctx->mutex.lock();
+	DataStoreVector returnVector = m_ctx->dataStoreVector;
+	m_ctx->mutex.unlock();
+
+	return returnVector;
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
