@@ -31,6 +31,7 @@ var HatoholItemRemover = function(deleteParameters) {
   var count = 0;
   var total = 0;
   var errors = 0;
+  var msg = "";
   for (var i = 0; i < deleteParameters.id.length; i++) {
     count++;
     total++;
@@ -38,14 +39,20 @@ var HatoholItemRemover = function(deleteParameters) {
       url: '/' + deleteParameters.type + '/' + deleteParameters.id[i],
         request: "DELETE",
         context: deleteParameters.id[i],
-        replyCallback: function(deletedItem, parser, context) {
-          parseDeleteResult(deletedItem);
+        replyCallback: function(reply, parser, context) {
+        },
+        parseErrorCallback: function(reply, parser) {
+          // TODO: Add line break.
+          msg += "errorCode: " + reply.errorCode + ". ";
+          hatoholErrorMsgBox(msg);
+          errors++;
         },
         connectErrorCallback: function(XMLHttpRequest,
                                 textStatus, errorThrown) {
-          var errorMsg = "Error: " + XMLHttpRequest.status + ": " +
-          XMLHttpRequest.statusText;
-          hatoholErrorMsgBox(errorMsg);
+          // TODO: Add line break.
+          msg += "Error: " + XMLHttpRequest.status + ": " +
+          XMLHttpRequest.statusText + ". ";
+          hatoholErrorMsgBox(msg);
           errors++;
         },
         completionCallback: function(context) {
@@ -54,58 +61,17 @@ var HatoholItemRemover = function(deleteParameters) {
     });
   }
 
-  function checkParseResult(deletedItem) {
-    var msg;
-    var malformed =false;
-    if (deletedItem.result == undefined)
-      malformed = true;
-    if (!malformed && !deletedItem.result && deletedItem.message == undefined)
-      malformed = true;
-    if (malformed) {
-      msg = "The returned content is malformed: " +
-        "Not found 'result' or 'message'.\n" +
-        JSON.stringify(deletedItem);
-      hatoholErrorMsgBox(msg);
-      return false;
-    }
-    if (!deletedItem.result) {
-      msg = "Failed:\n" + deletedItem.message;
-      hatoholErrorMsgBox(msg);
-      return false;
-    }
-    if (deletedItem.id == undefined) {
-      msg = "The returned content is malformed: " +
-        "'result' is true, however, 'id' missing.\n" +
-        JSON.stringfy(deletedItem);
-      hatoholErrorMsgBox(msg);
-      return false;
-    }
-    return true;
-  }
-
-  function parseDeleteResult(deletedItem) {
-    if (!checkParseResult(deletedItem))
-      return;
-    if (!(deletedItem.id in id)) {
-      alert("Fatal Error: You should reload page.\nID: " + deletedItem.id +
-          " is not in idArray: " + id);
-      errors++;
-      return;
-    }
-    delete id[deletedItem.id];
-  }
-
   function compleOneDel() {
     count--;
     var completed = total - count;
-    hatoholErrorMsgBox(gettext("Deleting...") + " " + completed +
+    hatoholErrorMsgBox(msg + gettext("Deleting...") + " " + completed +
                        " / " + total);
     if (count > 0)
       return;
 
     // close dialogs
-    hatoholInfoMsgBox(gettext("Completed. (Number of errors: ") +
-                      errors + ")");
+    hatoholInfoMsgBox(msg + gettext("Completed. (Number of errors: ") +
+                      errors + "/" + total + ")");
 
     // update the main view
     startConnection(deleteParameters.type, updateCore);
