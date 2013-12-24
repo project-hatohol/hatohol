@@ -32,6 +32,12 @@
       <option>3</option>
       <option>4</option>
     </select>
+    <label>{% trans "Status:" %}</label>
+    <select id="select-status"  style="width:5em;">
+      <option value="-1">---------</option>
+      <option value="0">{% trans "OK" %}</option>
+      <option value="1">{% trans "Problem" %}</option>
+    </select>
     <label>{% trans "Server:" %}</label>
     <select id="select-server">
       <option>---------</option>
@@ -112,6 +118,10 @@
     $("#select-severity").change(function() {
       drawTableContents(rawData);
     });
+    $("#select-status").change(function() {
+      var status = $("#select-status").val();
+      drawTableContents(rawData);
+    });
 
     function parseData(replyData) {
       var parsedData = {};
@@ -158,11 +168,14 @@
       var targetServerName = getTargetServerName();
       var targetHostName= getTargetHostName();
       var minimumSeverity = $("#select-severity").val();
+      var targetStatus = $("#select-status").val();
 
       html = "";
       for (x = 0; x < replyData["triggers"].length; ++x) {
         trigger    = replyData["triggers"][x];
         if (trigger["severity"] < minimumSeverity)
+          continue;
+        if (targetStatus >= 0 && trigger["status"] != targetStatus)
           continue;
 
         server     = replyData["servers"][trigger["serverId"]];
