@@ -583,6 +583,7 @@ HatoholError DBClientConfig::addTargetServer(MonitoringServerInfo *monitoringSer
 			row->ADD_NEW_ITEM(String, monitoringServerInfo->dbName);
 			arg.row = row;
 			insert(arg);
+			monitoringServerInfo->id = getLastInsertId();
 		} else {
 			DBAgentUpdateArg arg;
 			arg.tableName = TABLE_NAME_SERVERS;
