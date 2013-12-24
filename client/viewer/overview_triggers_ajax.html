@@ -36,6 +36,12 @@
       <option>3</option>
       <option>4</option>
     </select>
+    <label>{% trans "Status:" %}</label>
+    <select id="select-status"  style="width:5em;">
+      <option value="-1">---------</option>
+      <option value="0">{% trans "OK" %}</option>
+      <option value="1">{% trans "Problem" %}</option>
+    </select>
     <label>{% trans "Server:" %}</label>
     <select id="select-server">
       <option>---------</option>
@@ -78,8 +84,11 @@
     $("#select-host").change(function() {
       drawTableContents(parsedData);
     });
-
     $("#select-severity").change(function() {
+      var s = $("#select-severity").val();
+      updateScreen(rawData, updateCore, s);
+    });
+    $("#select-status").change(function() {
       var s = $("#select-severity").val();
       updateScreen(rawData, updateCore, s);
     });
@@ -90,6 +99,8 @@
       var serverNames, triggerNames, hostNames;
       var server, trigger;
       var x;
+      var targetSeverity = $("#select-severity").val();
+      var targetStatus = $("#select-status").val();
 
       parsedData.hosts  = {};
       parsedData.values = {};
@@ -100,26 +111,29 @@
 
       for (x = 0; x < replyData["triggers"].length; ++x) {
         trigger = replyData["triggers"][x];
-        if (minimum <= trigger["severity"]) {
-          server      = replyData["servers"][trigger["serverId"]]
-          serverName  = server["name"];
-          hostName    = server["hosts"][trigger["hostId"]]["name"];
-          triggerName = trigger["brief"];
+        if (trigger["severity"] < targetSeverity)
+          continue;
+        if (targetStatus >= 0 && trigger["status"] != targetStatus)
+          continue;
 
-          serverNames.push(serverName);
-          triggerNames.push(triggerName);
-          if (!hostNames[serverName])
-            hostNames[serverName] = [];
-          hostNames[serverName].push(hostName);
+        server      = replyData["servers"][trigger["serverId"]]
+        serverName  = server["name"];
+        hostName    = server["hosts"][trigger["hostId"]]["name"];
+        triggerName = trigger["brief"];
 
-          if (!parsedData.values[serverName])
-            parsedData.values[serverName] = {};
-          if (!parsedData.values[serverName][hostName])
-            parsedData.values[serverName][hostName] = {};
+        serverNames.push(serverName);
+        triggerNames.push(triggerName);
+        if (!hostNames[serverName])
+          hostNames[serverName] = [];
+        hostNames[serverName].push(hostName);
 
-          if (!parsedData.values[serverName][hostName][triggerName])
-            parsedData.values[serverName][hostName][triggerName] = trigger;
-        }
+        if (!parsedData.values[serverName])
+          parsedData.values[serverName] = {};
+        if (!parsedData.values[serverName][hostName])
+          parsedData.values[serverName][hostName] = {};
+
+        if (!parsedData.values[serverName][hostName][triggerName])
+          parsedData.values[serverName][hostName][triggerName] = trigger;
       }
 
       parsedData.servers  = serverNames.uniq().sort();
