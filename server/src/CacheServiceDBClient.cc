@@ -26,17 +26,52 @@
 using namespace std;
 using namespace mlpl;
 
+// TODO:
+// The default max connections of MySQL is 151 according to
+// the following MySQL command.
+//   > show global variables like 'max_connections';
+// We chose the default maximum value that doesn't exceed
+// the above value.
+// However, it naturally be changed by user setting. So this parameter
+// should also be configurable.
+static const size_t DEFAULT_MAX_NUM_CACHE_MYSQL = 100;
+
+// A DBAgentSQLite3 instance keeps to open a databa file (i.e.
+// use a file descriptor). So we cannot have the instances unlimitedly.
+static const size_t DEFAULT_MAX_NUM_CACHE_SQLITE3 = 100;
+
 typedef map<DBDomainId, DBClient *> DBClientMap;
 typedef DBClientMap::iterator   DBClientMapIterator;
 
 typedef set<DBClientMap *>       DBClientMapSet;
 typedef DBClientMapSet::iterator DBClientMapSetIterator;
 
+typedef list<DBClient *>       DBClientList;
+typedef DBClientList::iterator DBClientListIterator;
+
+typedef map<DBClient *, DBClientListIterator> DBClientListItrMap;
+typedef DBClientListItrMap::iterator          DBClientListItrMapIterator;
+
+struct CacheLRU {
+	DBClientList       list;
+	DBClientListItrMap map;
+
+	void touch(DBClient *dbClient)
+	{
+		DBClientListItrMapIterator it = map.find(dbClient);
+		if (it != map.end())
+			list.erase(it->second);
+		map[dbClient] = list.insert(list.begin(), dbClient);
+	}
+};
+
 struct CacheServiceDBClient::PrivateContext {
 	// This lock is for DBClientMapList. clientMap can be accessed w/o
 	// the lock because it is on the thread local storage.
 	static MutexLock lock;
 	static DBClientMapSet dbClientMapSet;
+	static size_t maxNumCacheMySQL;
+	static size_t maxNumCacheSQLite3;
 
 	static __thread DBClientMap *clientMap;
 
@@ -107,6 +142,10 @@ struct CacheServiceDBClient::PrivateContext {
 __thread DBClientMap *CacheServiceDBClient::PrivateContext::clientMap = NULL;
 MutexLock      CacheServiceDBClient::PrivateContext::lock;
 DBClientMapSet CacheServiceDBClient::PrivateContext::dbClientMapSet;
+size_t CacheServiceDBClient::PrivateContext::maxNumCacheMySQL
+  = DEFAULT_MAX_NUM_CACHE_MYSQL;
+size_t CacheServiceDBClient::PrivateContext::maxNumCacheSQLite3
+  = DEFAULT_MAX_NUM_CACHE_SQLITE3;
 
 // ---------------------------------------------------------------------------
 // Public methods

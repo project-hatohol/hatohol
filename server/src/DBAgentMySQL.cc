@@ -17,23 +17,43 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <mysql/errmsg.h>
+#include <unistd.h>
 #include "DBAgentMySQL.h"
 #include "SQLUtils.h"
 #include "Params.h"
 
+static const size_t DEFAULT_NUM_RETRY = 5;
+static const size_t RETRY_INTERVAL[DEFAULT_NUM_RETRY] = {
+  0, 10, 60, 60, 60 };
+
 struct DBAgentMySQL::PrivateContext {
 	static string engineStr;
+	static set<unsigned int> retryErrorSet;
 	MYSQL mysql;
 	bool  connected;
 	string dbName;
+	string user;
+	string password;
+	string host;
+	unsigned int port;
+	bool inTransaction;
 
 	PrivateContext(void)
-	: connected(false)
+	: connected(false),
+	  port(0),
+	  inTransaction(false)
 	{
+	}
+	
+	bool shouldRetry(unsigned int errorNumber)
+	{
+		return retryErrorSet.find(errorNumber) != retryErrorSet.end();
 	}
 };
 
 string DBAgentMySQL::PrivateContext::engineStr;
+set<unsigned int> DBAgentMySQL::PrivateContext::retryErrorSet;
 
 // ---------------------------------------------------------------------------
 // Public methods
@@ -45,6 +65,8 @@ void DBAgentMySQL::init(void)
 		MLPL_INFO("Use memory engine\n");
 		PrivateContext::engineStr = " ENGINE=MEMORY";
 	}
+
+	PrivateContext::retryErrorSet.insert(CR_SERVER_GONE_ERROR);
 }
 
 DBAgentMySQL::DBAgentMySQL(const char *db, const char *user, const char *passwd,
@@ -53,18 +75,18 @@ DBAgentMySQL::DBAgentMySQL(const char *db, const char *user, const char *passwd,
 : DBAgent(domainId, skipSetup),
   m_ctx(NULL)
 {
-	const char *unixSocket = NULL;
-	unsigned long clientFlag = 0;
 	m_ctx = new PrivateContext();
-	mysql_init(&m_ctx->mysql);
-	MYSQL *result = mysql_real_connect(&m_ctx->mysql, host, user, passwd,
-	                                   db, port, unixSocket, clientFlag);
-	if (!result) {
+
+	m_ctx->dbName   = db     ? : "";
+	m_ctx->user     = user   ? : "";
+	m_ctx->password = passwd ? : "";
+	m_ctx->host     = host   ? : "";
+	m_ctx->port     = port;
+	connect();
+	if (!m_ctx->connected) {
 		THROW_HATOHOL_EXCEPTION("Failed to connect to MySQL: %s: %s\n",
 		                      db, mysql_error(&m_ctx->mysql));
 	}
-	m_ctx->connected = true;
-	m_ctx->dbName = db;
 }
 
 DBAgentMySQL::~DBAgentMySQL()
@@ -138,16 +160,19 @@ bool DBAgentMySQL::isRecordExisting(const string &tableName,
 void DBAgentMySQL::begin(void)
 {
 	execSql("START TRANSACTION");
+	m_ctx->inTransaction = true;
 }
 
 void DBAgentMySQL::commit(void)
 {
 	execSql("COMMIT");
+	m_ctx->inTransaction = false;
 }
 
 void DBAgentMySQL::rollback(void)
 {
 	execSql("ROLLBACK");
+	m_ctx->inTransaction = false;
 }
 
 static string getColumnTypeQuery(const ColumnDef &columnDef)
@@ -415,13 +440,91 @@ void DBAgentMySQL::addColumns(DBAgentAddColumnsArg &addColumnsArg)
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
+const char *DBAgentMySQL::getCStringOrNullIfEmpty(const string &str)
+{
+	return str.empty() ? NULL : str.c_str();
+}
+
+void DBAgentMySQL::connect(void)
+{
+	const char *unixSocket = NULL;
+	unsigned long clientFlag = 0;
+	const char *host   = getCStringOrNullIfEmpty(m_ctx->host);
+	const char *user   = getCStringOrNullIfEmpty(m_ctx->user);
+	const char *passwd = getCStringOrNullIfEmpty(m_ctx->password);
+	const char *db     = getCStringOrNullIfEmpty(m_ctx->dbName);
+	mysql_init(&m_ctx->mysql);
+	MYSQL *result = mysql_real_connect(&m_ctx->mysql, host, user, passwd,
+	                                   db, m_ctx->port,
+	                                   unixSocket, clientFlag);
+	if (!result) {
+		MLPL_ERR("Failed to connect to MySQL: %s: (%u) %s\n",
+		         db, mysql_errno(&m_ctx->mysql),
+		         mysql_error(&m_ctx->mysql));
+	}
+	m_ctx->connected = result;
+	m_ctx->inTransaction = false;
+}
+
+void DBAgentMySQL::sleepAndReconnect(unsigned int sleepTimeSec)
+{
+	// TODO:
+	// add mechanism to wake up immediately if the program is
+	// going to exit. We should make an interrputible sleep object
+	// which is similar to ArmBase::sleepInterruptible().
+	while (sleepTimeSec) {
+		// If a signal happens during the sleep(), it returns
+		// the remaining time.
+		sleepTimeSec = sleep(sleepTimeSec);
+	}
+
+	mysql_close(&m_ctx->mysql);
+	m_ctx->connected = false;
+	connect();
+}
+
+void DBAgentMySQL::queryWithRetry(const string &statement)
+{
+	unsigned int errorNumber = 0;
+	size_t numRetry = DEFAULT_NUM_RETRY;
+	for (size_t i = 0; i < numRetry; i++) {
+		if (mysql_query(&m_ctx->mysql, statement.c_str()) == 0) {
+			if (i >= 1) {
+				MLPL_INFO("Recoverd: %s (retry #%zd).\n",
+				          statement.c_str(), i);
+			}
+			return;
+		}
+		errorNumber = mysql_errno(&m_ctx->mysql);
+		if (!m_ctx->shouldRetry(errorNumber))
+			break;
+		if (m_ctx->inTransaction)
+			break;
+		MLPL_ERR("Failed to query: %s: (%u) %s.\n",
+		         statement.c_str(), errorNumber,
+		         mysql_error(&m_ctx->mysql));
+		if (i == numRetry - 1)
+			break;
+
+		// retry repeatedly until the connection is established or
+		// the maximum retry count.
+		for (; i < numRetry; i++) {
+			size_t sleepTimeSec = RETRY_INTERVAL[i];
+			MLPL_INFO("Try to connect after %zd sec. (%zd/%zd)\n",
+			          sleepTimeSec, i+1, numRetry);
+			sleepAndReconnect(sleepTimeSec);
+			if (m_ctx->connected)
+				break;
+		}
+	}
+
+	THROW_HATOHOL_EXCEPTION("Failed to query: %s: (%u) %s\n",
+	                        statement.c_str(), errorNumber,
+	                        mysql_error(&m_ctx->mysql));
+}
+
 void DBAgentMySQL::execSql(const string &statement)
 {
 	HATOHOL_ASSERT(m_ctx->connected, "Not connected.");
-	if (mysql_query(&m_ctx->mysql, statement.c_str()) != 0) {
-		THROW_HATOHOL_EXCEPTION("Failed to query: %s: (%u) %s\n",
-		                        statement.c_str(),
-		                        mysql_errno(&m_ctx->mysql),
-		                        mysql_error(&m_ctx->mysql));
-	}
+	queryWithRetry(statement);
 }
