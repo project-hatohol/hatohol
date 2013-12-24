@@ -58,8 +58,15 @@ public:
 
 	bool add(uint32_t storeId, DataStore *dataStore);
 
-	DataStoreVector &getDataStoreVector(void);
-	DataStoreVector getSnapShotDataStoreVector(void);
+	/**
+	 * get a vector of pointers of DataStore instance.
+	 *
+	 * @return
+	 * A DataStoreVector instance. A used counter of each DataStore
+	 * instance in it is increamented. So the caller must be call unref()
+	 * for each DataStore instance.
+	 */
+	DataStoreVector getDataStoreVector(void);
 
 protected:
 	void closeAllStores(void);

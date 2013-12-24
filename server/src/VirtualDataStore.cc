@@ -42,7 +42,7 @@ void VirtualDataStore::stop(void)
 
 void VirtualDataStore::collectArms(ArmBaseVector &arms)
 {
-	DataStoreVector &stores = getDataStoreVector();
+	DataStoreVector stores = getDataStoreVector();
 	DataStoreVectorIterator it = stores.begin();
 	for (; it != stores.end(); it++) {
 		DataStore *store = *it;

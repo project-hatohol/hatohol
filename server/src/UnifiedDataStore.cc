@@ -71,7 +71,7 @@ struct UnifiedDataStore::PrivateContext
 	ReadWriteLock rwlock;
 	timespec      lastUpdateTime;
 	size_t        remainingArmsCount;
-	ArmBaseVector updateArmsQueue;
+	DataStoreVector updateArmsQueue;
 
 	Signal        itemFetchedSignal;
 
@@ -88,12 +88,38 @@ struct UnifiedDataStore::PrivateContext
 		sem_destroy(&updatedSemaphore);
 	};
 
-	void wakeArm(ArmBase *arm)
+	static ArmBase *getArmBase(DataStore *dataStore)
 	{
-		Closure<PrivateContext> *closure =
-		  new Closure<PrivateContext>(
-		    this, &PrivateContext::updatedCallback);
-		arm->fetchItems(closure);
+		// TODO: Make the design smart.
+		// We assume each DataStore has one arm.
+		ArmBaseVector arms;
+		dataStore->collectArms(arms);
+		HATOHOL_ASSERT(arms.size() == 1,
+		               "arms.size(): %zd", arms.size());
+		return arms.front();
+	}
+
+	void wakeArm(DataStore *dataStore)
+	{
+		struct ClosureWithDataStore : public Closure<PrivateContext>
+		{
+			DataStore *dataStore;
+
+			ClosureWithDataStore(PrivateContext *ctx, DataStore *ds)
+			: Closure<PrivateContext>(
+			    ctx, &PrivateContext::updatedCallback),
+			  dataStore(ds)
+			{
+			}
+
+			~ClosureWithDataStore()
+			{
+				dataStore->unref();
+			}
+		};
+
+		ArmBase *arm = getArmBase(dataStore);
+		arm->fetchItems(new ClosureWithDataStore(this, dataStore));
 	}
 
 	bool updateIsNeeded(void)
@@ -148,12 +174,20 @@ struct UnifiedDataStore::PrivateContext
 	bool startFetchingItems(uint32_t targetServerId = ALL_SERVERS,
 				ClosureBase *closure = NULL)
 	{
+		// TODO: Make the design smart
 		struct : public VirtualDataStoreForeachProc
 		{
 			ArmBaseVector arms;
+			DataStoreVector allDataStores;
 			virtual void operator()(VirtualDataStore *virtDataStore)
 			{
-				virtDataStore->collectArms(arms);
+				DataStoreVector stores =
+				  virtDataStore->getDataStoreVector();
+				for (size_t i = 0; i < stores.size(); i++) {
+					DataStore *dataStore = stores[i];
+					allDataStores.push_back(dataStore);
+					arms.push_back(getArmBase(dataStore));
+				}
 			}
 		} collector;
 
@@ -169,23 +203,24 @@ struct UnifiedDataStore::PrivateContext
 		if (closure)
 			itemFetchedSignal.connect(closure);
 		remainingArmsCount = arms.size();
-		ArmBaseVectorIterator arms_it = arms.begin();
-		for (size_t i = 0; arms_it != arms.end(); i++, ++arms_it) {
-			ArmBase *arm = *arms_it;
+		for (size_t i = 0; i < collector.allDataStores.size(); i++) {
+			DataStore *dataStore = collector.allDataStores[i];
+			ArmBase *arm = getArmBase(dataStore);
 
 			if (targetServerId != ALL_SERVERS) {
 				const MonitoringServerInfo &info
 					= arm->getServerInfo();
 				if (static_cast<int>(targetServerId) != info.id) {
 					remainingArmsCount--;
+					dataStore->unref();
 					continue;
 				}
 			}
 
 			if (i < PrivateContext::maxRunningArms) {
-				wakeArm(arm);
+				wakeArm(dataStore);
 			} else {
-				updateArmsQueue.push_back(arm);
+				updateArmsQueue.push_back(dataStore);
 			}
 		}
 

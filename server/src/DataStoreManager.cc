@@ -94,18 +94,15 @@ bool DataStoreManager::add(uint32_t storeId, DataStore *dataStore)
 	return result.second;
 }
 
-DataStoreVector &DataStoreManager::getDataStoreVector(void)
-{
-	return m_ctx->dataStoreVector;
-}
-
-DataStoreVector DataStoreManager::getSnapShotDataStoreVector(void)
+DataStoreVector DataStoreManager::getDataStoreVector(void)
 {
 	m_ctx->mutex.lock();
-	DataStoreVector returnVector = m_ctx->dataStoreVector;
+	DataStoreVector dataStoreVector = m_ctx->dataStoreVector;
+	for (size_t i = 0; i < dataStoreVector.size(); i++)
+		dataStoreVector[i]->ref();
 	m_ctx->mutex.unlock();
 
-	return returnVector;
+	return dataStoreVector;
 }
 
 // ---------------------------------------------------------------------------
