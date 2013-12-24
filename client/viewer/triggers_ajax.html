@@ -24,6 +24,14 @@
   <h2>{% trans "Triggers" %}</h2>
 
   <form class="form-inline">
+    <label>{% trans "Minimum Severity:" %}</label>
+    <select id="select-severity"  style="width:5em;">
+      <option>0</option>
+      <option>1</option>
+      <option>2</option>
+      <option>3</option>
+      <option>4</option>
+    </select>
     <label>{% trans "Server:" %}</label>
     <select id="select-server">
       <option>---------</option>
@@ -101,6 +109,9 @@
     $("#select-host").change(function() {
       drawTableContents(rawData);
     });
+    $("#select-severity").change(function() {
+      drawTableContents(rawData);
+    });
 
     function parseData(replyData) {
       var parsedData = {};
@@ -146,10 +157,14 @@
       var x;
       var targetServerName = getTargetServerName();
       var targetHostName= getTargetHostName();
+      var minimumSeverity = $("#select-severity").val();
 
       html = "";
       for (x = 0; x < replyData["triggers"].length; ++x) {
         trigger    = replyData["triggers"][x];
+        if (trigger["severity"] < minimumSeverity)
+          continue;
+
         server     = replyData["servers"][trigger["serverId"]];
         serverName = server["name"];
         hostName   = server["hosts"][trigger["hostId"]]["name"];
