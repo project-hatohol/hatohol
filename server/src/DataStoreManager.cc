@@ -54,7 +54,7 @@ void DataStoreManager::passCommandLineArg(const CommandLineArg &cmdArg)
 bool DataStoreManager::add(uint32_t storeId, DataStore *dataStore)
 {
 	m_ctx->mutex.lock();
-	pair<DataStoreMapIterator, bool> result = 
+	pair<DataStoreMapIterator, bool> result =
 	  m_ctx->dataStoreMap.insert
 	    (pair<uint32_t, DataStore *>(storeId, dataStore));
 
