@@ -28,7 +28,7 @@ struct DataStoreManager::PrivateContext {
 	DataStoreMap    dataStoreMap;
 	DataStoreVector dataStoreVector;
 	MutexLock mutex;
-	list<DataStoreEventProc *> eventProcList;
+	DataStoreEventProcList eventProcList;
 };
 
 // ---------------------------------------------------------------------------
@@ -67,6 +67,11 @@ bool DataStoreManager::add(uint32_t storeId, DataStore *dataStore)
 	if (successed) {
 		m_ctx->dataStoreVector.push_back(dataStore);
 	}
+
+	DataStoreEventProcListIterator evtProc = m_ctx->eventProcList.begin();
+	for (; evtProc != m_ctx->eventProcList.end(); ++evtProc)
+		(*evtProc)->onAdded(dataStore);
+
 	m_ctx->mutex.unlock();
 	return result.second;
 }
