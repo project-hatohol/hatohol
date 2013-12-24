@@ -84,6 +84,7 @@ bool DataStoreManager::add(uint32_t storeId, DataStore *dataStore)
 	bool successed = result.second;
 	if (successed) {
 		m_ctx->dataStoreVector.push_back(dataStore);
+		dataStore->ref();
 	}
 
 	DataStoreEventProcListIterator evtProc = m_ctx->eventProcList.begin();

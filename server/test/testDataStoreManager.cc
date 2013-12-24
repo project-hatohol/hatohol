@@ -47,12 +47,13 @@ void cut_teardown(void)
 // ---------------------------------------------------------------------------
 void test_addAndRemove(void)
 {
+	const uint32_t storeId = 50;
+
 	g_dataStore = new DataStore();
-	g_dataStore->ref();
-	cppcut_assert_equal(2, g_dataStore->getUsedCount());
+	cppcut_assert_equal(1, g_dataStore->getUsedCount());
 	DataStoreManager mgr;
-	uint32_t storeId = 50;
 	mgr.add(storeId, g_dataStore);
+	cppcut_assert_equal(2, g_dataStore->getUsedCount());
 	mgr.remove(storeId);
 	cppcut_assert_equal(1, g_dataStore->getUsedCount());
 }

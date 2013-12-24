@@ -50,7 +50,8 @@ protected:
 			if (svInfo.type != systemType)
 				continue;
 			DataStore *dataStore = new T(svInfo);
-			add(svInfo.id, dataStore);
+			if (add(svInfo.id, dataStore))
+				dataStore->unref();
 		}
 	}
 };

@@ -56,7 +56,29 @@ public:
 	 */
 	void registEventProc(DataStoreEventProc *eventProc);
 
+	/**
+	 * add a DataStore instance.
+	 *
+	 * When a DataStore is sucessfully added, its used counter is
+	 * incremented.
+	 *
+	 * @param storeId A store ID.
+	 * @param dataStore A pointer to a DataStore instance to be added.
+	 *
+	 * @return
+	 * true if the dataStore is successfully added. Otherwise false is
+	 * returned.
+	 */
 	bool add(uint32_t storeId, DataStore *dataStore);
+
+	/**
+	 * remove a DataStore instance.
+	 *
+	 * When a DataStore is sucessfully removed, its used counter is
+	 * decremented.
+	 *
+	 * @param storeId A store ID.
+	 */
 	void remove(uint32_t storeId);
 
 	/**
