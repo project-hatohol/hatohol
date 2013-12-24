@@ -68,6 +68,24 @@ struct MonitoringServerInfo {
 typedef list<MonitoringServerInfo>         MonitoringServerInfoList;
 typedef MonitoringServerInfoList::iterator MonitoringServerInfoListIterator;
 
+class ServerQueryOption : public DataQueryOption {
+public:
+	ServerQueryOption(UserIdType userId = INVALID_USER_ID);
+	virtual ~ServerQueryOption();
+
+	HatoholError setTargetServerId(uint32_t serverId);
+
+	// Overriding virtual methods
+	std::string getCondition(void) const;
+
+protected:
+	bool hasPrivilegeCondition(string &condition) const;
+
+private:
+	struct PrivateContext;
+	PrivateContext *m_ctx;
+};
+
 class DBClientConfig : public DBClient {
 public:
 	static int CONFIG_DB_VERSION;
