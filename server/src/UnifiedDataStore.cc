@@ -64,8 +64,7 @@ struct UnifiedDataStore::PrivateContext
 	static UnifiedDataStore *instance;
 	static MutexLock         mutex;
 
-	VirtualDataStoreZabbix *vdsZabbix;
-	VirtualDataStoreNagios *vdsNagios;
+	VirtualDataStoreList virtualDataStoreList;
 
 	bool          isCopyOnDemandEnabled;
 	sem_t         updatedSemaphore;
@@ -149,11 +148,20 @@ struct UnifiedDataStore::PrivateContext
 	bool startFetchingItems(uint32_t targetServerId = ALL_SERVERS,
 				ClosureBase *closure = NULL)
 	{
-		ArmBaseVector arms;
+		struct : public VirtualDataStoreForeachProc
+		{
+			ArmBaseVector arms;
+			virtual void operator()(VirtualDataStore *virtDataStore)
+			{
+				virtDataStore->collectArms(arms);
+			}
+		} collector;
+
 		rwlock.readLock();
-		vdsZabbix->collectArms(arms);
-		vdsNagios->collectArms(arms);
+		virtualDataStoreForeach(&collector);
 		rwlock.unlock();
+
+		ArmBaseVector &arms = collector.arms;
 		if (arms.empty())
 			return false;
 
@@ -187,6 +195,18 @@ struct UnifiedDataStore::PrivateContext
 
 		return started;
 	}
+
+	struct VirtualDataStoreForeachProc
+	{
+		virtual void operator()(VirtualDataStore *virtDataStore) = 0;
+	};
+
+	void virtualDataStoreForeach(VirtualDataStoreForeachProc *vdsProc)
+	{
+		VirtualDataStoreListIterator it = virtualDataStoreList.begin();
+		for (; it != virtualDataStoreList.end(); ++it)
+			(*vdsProc)(*it);
+	}
 };
 
 UnifiedDataStore *UnifiedDataStore::PrivateContext::instance = NULL;
@@ -199,8 +219,10 @@ UnifiedDataStore::UnifiedDataStore(void)
 : m_ctx(NULL)
 {
 	m_ctx = new PrivateContext();
-	m_ctx->vdsZabbix = VirtualDataStoreZabbix::getInstance();
-	m_ctx->vdsNagios = VirtualDataStoreNagios::getInstance();
+	m_ctx->virtualDataStoreList.push_back(
+	  VirtualDataStoreZabbix::getInstance());
+	m_ctx->virtualDataStoreList.push_back(
+	  VirtualDataStoreNagios::getInstance());
 }
 
 UnifiedDataStore::~UnifiedDataStore()
@@ -235,18 +257,32 @@ UnifiedDataStore *UnifiedDataStore::getInstance(void)
 
 void UnifiedDataStore::start(void)
 {
-	UnifiedDataStoreEventProc *evtProc =
+	struct : public PrivateContext::VirtualDataStoreForeachProc
+	{
+		UnifiedDataStoreEventProc *evtProc;
+		virtual void operator()(VirtualDataStore *virtDataStore)
+		{
+			virtDataStore->registEventProc(evtProc);
+			virtDataStore->start();
+		}
+	} starter;
+
+	starter.evtProc =
 	   new UnifiedDataStoreEventProc(m_ctx->isCopyOnDemandEnabled);
-	m_ctx->vdsZabbix->registEventProc(evtProc);
-	m_ctx->vdsZabbix->start();
-	m_ctx->vdsNagios->registEventProc(evtProc);
-	m_ctx->vdsNagios->start();
+	m_ctx->virtualDataStoreForeach(&starter);
 }
 
 void UnifiedDataStore::stop(void)
 {
-	m_ctx->vdsZabbix->stop();
-	m_ctx->vdsNagios->stop();
+	struct : public PrivateContext::VirtualDataStoreForeachProc
+	{
+		virtual void operator()(VirtualDataStore *virtDataStore)
+		{
+			virtDataStore->stop();
+		}
+	} stopper;
+
+	m_ctx->virtualDataStoreForeach(&stopper);
 }
 
 void UnifiedDataStore::fetchItems(uint32_t targetServerId)
