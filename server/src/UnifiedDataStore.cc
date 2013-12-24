@@ -49,7 +49,7 @@ struct UnifiedDataStoreEventProc : public DataStoreEventProc
 
 	virtual void onAdded(DataStore *dataStore)
 	{
-		MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+		dataStore->setCopyOnDemandEnable(enableCopyOnDemand);
 	}
 };
 
@@ -235,9 +235,12 @@ UnifiedDataStore *UnifiedDataStore::getInstance(void)
 
 void UnifiedDataStore::start(void)
 {
+	UnifiedDataStoreEventProc *evtProc =
+	   new UnifiedDataStoreEventProc(m_ctx->isCopyOnDemandEnabled);
+	m_ctx->vdsZabbix->registEventProc(evtProc);
 	m_ctx->vdsZabbix->start();
+	m_ctx->vdsNagios->registEventProc(evtProc);
 	m_ctx->vdsNagios->start();
-	setCopyOnDemandEnabled(m_ctx->isCopyOnDemandEnabled);
 }
 
 void UnifiedDataStore::stop(void)
@@ -345,16 +348,6 @@ bool UnifiedDataStore::getCopyOnDemandEnabled(void) const
 void UnifiedDataStore::setCopyOnDemandEnabled(bool enable)
 {
 	m_ctx->isCopyOnDemandEnabled = enable;
-
-	ArmBaseVector arms;
-	m_ctx->vdsZabbix->collectArms(arms);
-	m_ctx->vdsNagios->collectArms(arms);
-
-	ArmBaseVectorIterator it = arms.begin();
-	for (; it != arms.end(); it++) {
-		ArmBase *arm = *it;
-		arm->setCopyOnDemandEnabled(enable);
-	}
 }
 
 void UnifiedDataStore::addAction(ActionDef &actionDef)
