@@ -240,6 +240,34 @@ void test_getTargetServersWithNoAllowedServer(void)
 	assertGetTargetServers(expected, userId);
 }
 
+void test_getTargetServersWithOneAllowedServer(void)
+{
+	UserIdType userId = 5;
+	ServerHostGrpSetMap authMap;
+	MonitoringServerInfoList expected;
+	makeServerHostGrpSetMap(authMap, userId);
+	for (size_t i = 0; i < NumServerInfo; i++)
+		if (isAuthorized(authMap, userId, serverInfo[i].id))
+			expected.push_back(serverInfo[i]);
+
+	setupTestDBUser(true, true);
+	assertGetTargetServers(expected, userId);
+}
+
+void test_getTargetServersWithAllowedServer(void)
+{
+	UserIdType userId = 3;
+	ServerHostGrpSetMap authMap;
+	MonitoringServerInfoList expected;
+	makeServerHostGrpSetMap(authMap, userId);
+	for (size_t i = 0; i < NumServerInfo; i++)
+		if (isAuthorized(authMap, userId, serverInfo[i].id))
+			expected.push_back(serverInfo[i]);
+
+	setupTestDBUser(true, true);
+	assertGetTargetServers(expected, userId);
+}
+
 void test_setGetDatabaseDir(void)
 {
 	const string databaseDir = "/dir1/dir2";
