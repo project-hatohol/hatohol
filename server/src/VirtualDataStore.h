@@ -72,9 +72,9 @@ protected:
 		DataStore *dataStore = new T(svInfo);
 		if (add(svInfo.id, dataStore)) {
 			dataStore->unref();
-			return false;
+			return true;
 		}
-		return true;
+		return false;
 	}
 };
 
