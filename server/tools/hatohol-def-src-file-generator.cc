@@ -152,6 +152,7 @@ static void makeDefSourceValues(string &s, LanguageType langType)
 	ADD_LINE(s, langType, HTERR_OK);
 	ADD_LINE(s, langType, HTERR_UNINITIALIZED);
 	ADD_LINE(s, langType, HTERR_UNKNOWN_REASON);
+	ADD_LINE(s, langType, HTERR_NOT_IMPLEMENTED);
 	ADD_LINE(s, langType, HTERR_GOT_EXCEPTION);
 	APPEND(s, "\n");
 
