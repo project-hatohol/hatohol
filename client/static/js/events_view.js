@@ -94,7 +94,7 @@ var EventsView = function(baseElem) {
     s += '    <option>4</option>';
     s += '  </select>';
     s += '  <label>' + gettext('Status:') + '</label>';
-    s += '  <select id="select-status"  style="width:5em;">';
+    s += '  <select id="select-status" style="width:5em;">';
     s += '    <option value="-1">---------</option>';
     s += '    <option value="0">' + gettext('OK') + '</option>';
     s += '    <option value="1">' + gettext('Problem') + '</option>';
