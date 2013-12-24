@@ -151,6 +151,8 @@ ItemTablePtr VirtualDataStoreZabbix::getItems(void)
 
 ItemTablePtr VirtualDataStoreZabbix::getHosts(void)
 {
+	HATOHOL_ASSERT(false, "Not implemented: %s", __PRETTY_FUNCTION__);
+#if 0
 	// TODO: merge data of all stores. Now just call a stub function.
 	DataStoreVector &dataStoreVect = getDataStoreVector();
 	for (size_t i = 0; i < dataStoreVect.size(); i++) {
@@ -161,6 +163,7 @@ ItemTablePtr VirtualDataStoreZabbix::getHosts(void)
 		return dataStoreZabbix->getHosts();
 	}
 	THROW_HATOHOL_EXCEPTION("Not implemented: %s\n", __PRETTY_FUNCTION__);
+#endif
 	return ItemTablePtr();
 }
 
