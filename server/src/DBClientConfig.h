@@ -73,7 +73,7 @@ public:
 	ServerQueryOption(UserIdType userId = INVALID_USER_ID);
 	virtual ~ServerQueryOption();
 
-	HatoholError setTargetServerId(uint32_t serverId);
+	void setTargetServerId(uint32_t serverId);
 
 	// Overriding virtual methods
 	std::string getCondition(void) const;
@@ -106,7 +106,7 @@ public:
 	bool isCopyOnDemandEnabled(void);
 	void addTargetServer(MonitoringServerInfo *monitoringServerInfo);
 	void getTargetServers(MonitoringServerInfoList &monitoringServers,
-	                      uint32_t targetServerId = ALL_SERVERS);
+	                      ServerQueryOption &option);
 
 protected:
 	static bool parseCommandLineArgument(const CommandLineArg &cmdArg);

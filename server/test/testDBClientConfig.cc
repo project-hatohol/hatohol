@@ -197,8 +197,9 @@ void test_getTargetServers(void)
 		assertAddServerToDB(&serverInfo[i]);
 
 	MonitoringServerInfoList monitoringServers;
+	ServerQueryOption option(USER_ID_ADMIN);
 	DBClientConfig dbConfig;
-	dbConfig.getTargetServers(monitoringServers);
+	dbConfig.getTargetServers(monitoringServers, option);
 	cppcut_assert_equal(NumServerInfo, monitoringServers.size());
 
 	string expectedText;

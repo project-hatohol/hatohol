@@ -332,6 +332,11 @@ bool ServerQueryOption::hasPrivilegeCondition(string &condition) const
 	return false;
 }
 
+void ServerQueryOption::setTargetServerId(uint32_t serverId)
+{
+	m_ctx->targetServerId = serverId;
+}
+
 string ServerQueryOption::getCondition(void) const
 {
 	string condition;
@@ -621,7 +626,7 @@ void DBClientConfig::addTargetServer(MonitoringServerInfo *monitoringServerInfo)
 }
 
 void DBClientConfig::getTargetServers
-  (MonitoringServerInfoList &monitoringServers, uint32_t targetServerId)
+  (MonitoringServerInfoList &monitoringServers, ServerQueryOption &option)
 {
 	DBAgentSelectExArg arg;
 	arg.tableName = TABLE_NAME_SERVERS;
@@ -637,13 +642,7 @@ void DBClientConfig::getTargetServers
 	arg.pushColumn(COLUMN_DEF_SERVERS[IDX_SERVERS_PASSWORD]);
 	arg.pushColumn(COLUMN_DEF_SERVERS[IDX_SERVERS_DB_NAME]);
 
-	if (targetServerId != ALL_SERVERS) {
-		const char *columnName =
-		  COLUMN_DEF_SERVERS[IDX_SERVERS_ID].columnName;
-		arg.condition = StringUtils::sprintf("%s=%"PRIu32,
-		                                     columnName,
-		                                     targetServerId);
-	}
+	arg.condition = option.getCondition();
 
 	DBCLIENT_TRANSACTION_BEGIN() {
 		select(arg);

@@ -1046,7 +1046,8 @@ static void addOverview(FaceRest::RestJob *job, JsonBuilderAgent &agent)
 {
 	ConfigManager *configManager = ConfigManager::getInstance();
 	MonitoringServerInfoList monitoringServers;
-	configManager->getTargetServers(monitoringServers);
+	ServerQueryOption option(job->userId);
+	configManager->getTargetServers(monitoringServers, option);
 	MonitoringServerInfoListIterator it = monitoringServers.begin();
 	agent.add("numberOfServers", monitoringServers.size());
 	agent.startArray("serverStatus");
@@ -1062,11 +1063,14 @@ static void addOverview(FaceRest::RestJob *job, JsonBuilderAgent &agent)
 	agent.endArray();
 }
 
-static void addServers(JsonBuilderAgent &agent, uint32_t targetServerId)
+static void addServers(FaceRest::RestJob *job, JsonBuilderAgent &agent,
+		       uint32_t targetServerId)
 {
 	ConfigManager *configManager = ConfigManager::getInstance();
 	MonitoringServerInfoList monitoringServers;
-	configManager->getTargetServers(monitoringServers, targetServerId);
+	ServerQueryOption option(job->userId);
+	option.setTargetServerId(targetServerId);
+	configManager->getTargetServers(monitoringServers, option);
 
 	agent.add("numberOfServers", monitoringServers.size());
 	agent.startArray("servers");
@@ -1184,13 +1188,15 @@ static void addTriggersIdBriefHash(
 }
 
 static void addServersMap(
+  FaceRest::RestJob *job,
   JsonBuilderAgent &agent,
   HostNameMaps *hostMaps = NULL, bool lookupHostName = false,
   TriggerBriefMaps *triggerMaps = NULL, bool lookupTriggerBrief = false)
 {
 	ConfigManager *configManager = ConfigManager::getInstance();
 	MonitoringServerInfoList monitoringServers;
-	configManager->getTargetServers(monitoringServers);
+	ServerQueryOption option(job->userId);
+	configManager->getTargetServers(monitoringServers, option);
 
 	agent.startObject("servers");
 	MonitoringServerInfoListIterator it = monitoringServers.begin();
@@ -1336,7 +1342,7 @@ void FaceRest::handlerGetServer(RestJob *job)
 	JsonBuilderAgent agent;
 	agent.startObject();
 	addHatoholError(agent, HatoholError(HTERR_OK));
-	addServers(agent, targetServerId);
+	addServers(job, agent, targetServerId);
 	agent.endObject();
 
 	replyJsonData(agent, job);
@@ -1398,7 +1404,7 @@ void FaceRest::handlerGetTrigger(RestJob *job)
 		  = triggerInfo.hostName;
 	}
 	agent.endArray();
-	addServersMap(agent, &hostMaps);
+	addServersMap(job, agent, &hostMaps);
 	agent.endObject();
 
 	replyJsonData(agent, job);
@@ -1446,7 +1452,7 @@ void FaceRest::handlerGetEvent(RestJob *job)
 		  = eventInfo.hostName;
 	}
 	agent.endArray();
-	addServersMap(agent, &hostMaps);
+	addServersMap(job, agent, &hostMaps);
 	agent.endObject();
 
 	replyJsonData(agent, job);
@@ -1496,7 +1502,7 @@ void FaceRest::replyGetItem(RestJob *job)
 		agent.endObject();
 	}
 	agent.endArray();
-	addServersMap(agent);
+	addServersMap(job, agent);
 	agent.endObject();
 
 	replyJsonData(agent, job);
@@ -1610,7 +1616,7 @@ void FaceRest::handlerGetAction(RestJob *job)
 	agent.endArray();
 	const bool lookupHostName = true;
 	const bool lookupTriggerBrief = true;
-	addServersMap(agent, &hostMaps, lookupHostName,
+	addServersMap(job, agent, &hostMaps, lookupHostName,
 		      &triggerMaps, lookupTriggerBrief);
 	agent.endObject();
 
