@@ -93,6 +93,13 @@ var EventsView = function(baseElem) {
     s += '    <option>3</option>';
     s += '    <option>4</option>';
     s += '  </select>';
+    s += '  <label>' + gettext('Status:') + '</label>';
+    s += '  <select id="select-status"  style="width:5em;">';
+    s += '    <option value="-1">---------</option>';
+    s += '    <option value="0">' + gettext('OK') + '</option>';
+    s += '    <option value="1">' + gettext('Problem') + '</option>';
+    s += '    <option value="2">' + gettext('Unknown') + '</option>';
+    s += '  </select>';
     s += '  <label>' + gettext('Server:') + '</label>';
     s += '  <select id="select-server">';
     s += '    <option>---------</option>';
@@ -154,6 +161,9 @@ var EventsView = function(baseElem) {
       drawTableContents(rawData, parsedData);
     });
     $("#select-host").change(function() {
+      drawTableContents(rawData, parsedData);
+    });
+    $("#select-status").change(function() {
       drawTableContents(rawData, parsedData);
     });
 
@@ -292,10 +302,13 @@ var EventsView = function(baseElem) {
     var targetServerName = getTargetServerName();
     var targetHostName= getTargetHostName();
     var minimumSeverity = $("#select-severity").val();
+    var targetStatus = $("#select-status").val();
 
     for (x = 0; x < rd["events"].length; ++x) {
       event      = rd["events"][x];
       if (event["severity"] < minimumSeverity)
+        continue;
+      if (targetStatus >= 0 && event["type"] != targetStatus)
         continue;
 
       server     = rd["servers"][event["serverId"]];
