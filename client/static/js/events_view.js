@@ -101,11 +101,11 @@ var EventsView = function(baseElem) {
     s += '    <option value="2">' + gettext('Unknown') + '</option>';
     s += '  </select>';
     s += '  <label>' + gettext('Server:') + '</label>';
-    s += '  <select id="select-server">';
+    s += '  <select id="select-server" style="width:12em;">';
     s += '    <option>---------</option>';
     s += '  </select>';
     s += '  <label>' + gettext('Host:') + '</label>';
-    s += '  <select id="select-host">';
+    s += '  <select id="select-host" style="width:12em;">';
     s += '    <option>---------</option>';
     s += '  </select>';
     s += '  <label for="num-events-per-page">' + gettext("# of events per page") + '</label>';
