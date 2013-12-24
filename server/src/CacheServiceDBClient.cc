@@ -70,6 +70,7 @@ struct CacheServiceDBClient::PrivateContext {
 	// the lock because it is on the thread local storage.
 	static MutexLock lock;
 	static DBClientMapSet dbClientMapSet;
+	// TODO: The limitation of cahed objects is now WIP.
 	static size_t maxNumCacheMySQL;
 	static size_t maxNumCacheSQLite3;
 
