@@ -49,7 +49,10 @@ public:
 	 *
 	 * The events registered by this method are executed in series.
 	 * 
-	 * @param eventProc A pointer to a DataStoreEventProc instance.
+	 * @param eventProc
+	 * A pointer to a DataStoreEventProc instance.
+	 * The owner of the instance is passed to DataStoreManager.
+	 * So the caller doesn't use it or free it after calling this method.
 	 */
 	void registEventProc(DataStoreEventProc *eventProc);
 
