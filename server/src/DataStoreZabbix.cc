@@ -60,6 +60,10 @@ ItemTablePtr DataStoreZabbix::getHosts(void)
 	return m_armApi.getHosts(hostIdVector);
 }
 
+void DataStoreZabbix::setCopyOnDemandEnable(bool state)
+{
+	m_armApi.setCopyOnDemandEnabled(state);
+}
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
