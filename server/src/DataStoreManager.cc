@@ -101,8 +101,8 @@ void DataStoreManager::remove(uint32_t storeId)
 	m_ctx->mutex.lock();
 	DataStoreMapIterator it = m_ctx->dataStoreMap.find(storeId);
 	if (it != m_ctx->dataStoreMap.end()) {
-		m_ctx->dataStoreMap.erase(it);
 		dataStore = it->second;
+		m_ctx->dataStoreMap.erase(it);
 	}
 	m_ctx->mutex.unlock();
 
