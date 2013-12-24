@@ -38,7 +38,6 @@ typedef list<DataStoreEventProc *>       DataStoreEventProcList;
 typedef DataStoreEventProcList::iterator DataStoreEventProcListIterator;
 
 class DataStoreManager {
-	// Currently multi-thread unsafe.
 public:
 	DataStoreManager(void);
 	virtual ~DataStoreManager();

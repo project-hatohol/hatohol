@@ -130,7 +130,9 @@ DataStoreVector DataStoreManager::getDataStoreVector(void)
 // ---------------------------------------------------------------------------
 void DataStoreManager::closeAllStores(void)
 {
+	m_ctx->mutex.lock();
 	for (size_t i = 0; i < m_ctx->dataStoreVector.size(); i++)
 		m_ctx->dataStoreVector[i]->unref();
 	m_ctx->dataStoreVector.clear();
+	m_ctx->mutex.unlock();
 }
