@@ -33,6 +33,7 @@ public:
 	DataStoreManager(void);
 	virtual ~DataStoreManager();
 	virtual void passCommandLineArg(const CommandLineArg &cmdArg);
+	void registEventProc(DataStoreEventProc *proc);
 
 	// Elements regisgtered in this function should be freed by
 	// this class (i.e. owner is changed).

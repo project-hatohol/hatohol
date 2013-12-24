@@ -51,6 +51,11 @@ void DataStoreManager::passCommandLineArg(const CommandLineArg &cmdArg)
 {
 }
 
+void registEventProc(DataStoreEventProc *proc)
+{
+	m_ctx.eventProcList.push_back(proc);
+}
+
 bool DataStoreManager::add(uint32_t storeId, DataStore *dataStore)
 {
 	m_ctx->mutex.lock();
