@@ -262,6 +262,76 @@ void test_isCopyOnDemandEnabledDefault(void)
 	cut_assert_true(dbConfig.isCopyOnDemandEnabled());
 }
 
+void test_serverQueryOptionForAdmin(void)
+{
+	ServerQueryOption option(USER_ID_ADMIN);
+	cppcut_assert_equal(string(""), option.getCondition());
+}
+
+void test_serverQueryOptionForAdminWithTarget(void)
+{
+	uint32_t serverId = 2;
+	ServerQueryOption option(USER_ID_ADMIN);
+	option.setTargetServerId(serverId);
+	cppcut_assert_equal(StringUtils::sprintf("id=%"PRIu32, serverId),
+			    option.getCondition());
+}
+
+void test_serverQueryOptionForInvalidUser(void)
+{
+	ServerQueryOption option(INVALID_USER_ID);
+	cppcut_assert_equal(string("0"), option.getCondition());
+}
+
+void test_serverQueryOptionForInvalidUserWithTarget(void)
+{
+	uint32_t serverId = 2;
+	ServerQueryOption option(INVALID_USER_ID);
+	option.setTargetServerId(serverId);
+	cppcut_assert_equal(string("0"), option.getCondition());
+}
+
+static string makeExpectedCondition(UserIdType userId)
+{
+	string condition;
+	set<uint32_t> knownServerIdSet;
+
+	for (size_t i = 0; i < NumTestAccessInfo; ++i) {
+		if (testAccessInfo[i].userId != userId)
+			continue;
+
+		uint32_t serverId = testAccessInfo[i].serverId;
+		if (knownServerIdSet.find(serverId) != knownServerIdSet.end())
+			continue;
+
+		if (!condition.empty())
+			condition += " OR ";
+		condition += StringUtils::sprintf("id=%"PRIu32, serverId);
+		knownServerIdSet.insert(serverId);
+	}
+	return StringUtils::sprintf("(%s)", condition.c_str());
+}
+
+void test_serverQueryOptionForGuestUser(void)
+{
+	setupTestDBUser(true, true);
+	UserIdType userId = 3;
+	ServerQueryOption option(userId);
+	cppcut_assert_equal(makeExpectedCondition(userId),
+			    option.getCondition());
+}
+
+void test_serverQueryOptionForGuestUserWithTarget(void)
+{
+	setupTestDBUser(true, true);
+	UserIdType userId = 3;
+	uint32_t serverId = 2;
+	ServerQueryOption option(userId);
+	option.setTargetServerId(serverId);
+	cppcut_assert_equal(StringUtils::sprintf("id=%"PRIu32, serverId),
+			    option.getCondition());
+}
+
 } // namespace testDBClientConfig
 
 namespace testDBClientConfigDefault {
