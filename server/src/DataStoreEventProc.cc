@@ -18,6 +18,7 @@
  */
 
 #include "DataStoreEventProc.h"
+#include "UnifiedDataStoreEventProc.h"
 
 // ---------------------------------------------------------------------------
 // Public methods
