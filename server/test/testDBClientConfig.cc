@@ -191,9 +191,15 @@ void test_addTargetServer(void)
 	assertDBContent(dbConfig.getDBAgent(), statement, expectedOut);
 }
 
-void _assertGetTargetServers(MonitoringServerInfoList expected,
-			     UserIdType userId)
+void _assertGetTargetServers(UserIdType userId)
 {
+	ServerHostGrpSetMap authMap;
+	MonitoringServerInfoList expected;
+	makeServerHostGrpSetMap(authMap, userId);
+	for (size_t i = 0; i < NumServerInfo; i++)
+		if (isAuthorized(authMap, userId, serverInfo[i].id))
+			expected.push_back(serverInfo[i]);
+
 	for (size_t i = 0; i < NumServerInfo; i++)
 		assertAddServerToDB(&serverInfo[i]);
 
@@ -213,59 +219,40 @@ void _assertGetTargetServers(MonitoringServerInfoList expected,
 	}
 	cppcut_assert_equal(expectedText, actualText);
 }
-#define assertGetTargetServers(E, U) \
-  cut_trace(_assertGetTargetServers(E, U))
+#define assertGetTargetServers(U) \
+  cut_trace(_assertGetTargetServers(U))
 
 void test_getTargetServers(void)
 {
 	UserIdType userId = USER_ID_ADMIN;
-	MonitoringServerInfoList expected;
-	for (size_t i = 0; i < NumServerInfo; i++)
-		expected.push_back(serverInfo[i]);
-	assertGetTargetServers(expected, userId);
+	assertGetTargetServers(userId);
 }
 
 void test_getTargetServersByInvalidUser(void)
 {
 	UserIdType userId = INVALID_USER_ID;
-	MonitoringServerInfoList expected;
-	assertGetTargetServers(expected, userId);
+	assertGetTargetServers(userId);
 }
 
 void test_getTargetServersWithNoAllowedServer(void)
 {
 	UserIdType userId = 4;
 	setupTestDBUser(true, true);
-	MonitoringServerInfoList expected;
-	assertGetTargetServers(expected, userId);
+	assertGetTargetServers(userId);
 }
 
 void test_getTargetServersWithOneAllowedServer(void)
 {
 	UserIdType userId = 5;
-	ServerHostGrpSetMap authMap;
-	MonitoringServerInfoList expected;
-	makeServerHostGrpSetMap(authMap, userId);
-	for (size_t i = 0; i < NumServerInfo; i++)
-		if (isAuthorized(authMap, userId, serverInfo[i].id))
-			expected.push_back(serverInfo[i]);
-
 	setupTestDBUser(true, true);
-	assertGetTargetServers(expected, userId);
+	assertGetTargetServers(userId);
 }
 
 void test_getTargetServersWithAllowedServer(void)
 {
 	UserIdType userId = 3;
-	ServerHostGrpSetMap authMap;
-	MonitoringServerInfoList expected;
-	makeServerHostGrpSetMap(authMap, userId);
-	for (size_t i = 0; i < NumServerInfo; i++)
-		if (isAuthorized(authMap, userId, serverInfo[i].id))
-			expected.push_back(serverInfo[i]);
-
 	setupTestDBUser(true, true);
-	assertGetTargetServers(expected, userId);
+	assertGetTargetServers(userId);
 }
 
 void test_setGetDatabaseDir(void)
