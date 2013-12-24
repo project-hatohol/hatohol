@@ -27,7 +27,6 @@ libhatohol_la_SOURCES = \
 	DBClientUtils.h \
 	DBClientZabbix.cc DBClientZabbix.h \
 	DataStore.cc DataStore.h \
-	DataStoreEventProc.cc DataStoreEventProc.h \
 	DataStoreException.cc DataStoreException.h \
 	DataStoreManager.cc DataStoreManager.h \
 	DataStoreNagios.cc DataStoreNagios.h \
@@ -80,7 +79,6 @@ libhatohol_la_SOURCES = \
 	SQLUtils.cc SQLUtils.h \
 	SQLWhereParser.cc SQLWhereParser.h \
 	UnifiedDataStore.cc UnifiedDataStore.h \
-	UnifiedDataStoreEventProc.h UnifiedDataStoreEventProc.cc \
 	UsedCountable.cc UsedCountable.h \
 	Utils.cc Utils.h \
 	VirtualDataStore.cc VirtualDataStore.h \

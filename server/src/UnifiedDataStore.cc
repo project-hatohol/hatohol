@@ -31,6 +31,28 @@
 
 using namespace mlpl;
 
+// ---------------------------------------------------------------------------
+// UnifiedDataStoreEventProc
+// ---------------------------------------------------------------------------
+struct UnifiedDataStoreEventProc : public DataStoreEventProc
+{
+	bool enableCopyOnDemand;
+
+	UnifiedDataStoreEventProc(bool copyOnDemand)
+	: enableCopyOnDemand(copyOnDemand)
+	{
+	}
+
+	void onAdded(DataStore *dataStore)
+	{
+		MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	}
+};
+
+
+// ---------------------------------------------------------------------------
+// UnifiedDataStore
+// ---------------------------------------------------------------------------
 struct UnifiedDataStore::PrivateContext
 {
 	const static size_t      maxRunningArms    = 8;

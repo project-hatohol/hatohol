@@ -25,8 +25,14 @@
 using namespace std;
 
 #include "DataStore.h"
-#include "DataStoreEventProc.h"
 #include "Utils.h"
+
+struct DataStoreEventProc {
+public:
+	DataStoreEventProc(void);
+	virtual ~DataStoreEventProc();
+	virtual void onAdded(DataStore *dataStore);
+};
 
 class DataStoreManager {
 	// Currently multi-thread unsafe.

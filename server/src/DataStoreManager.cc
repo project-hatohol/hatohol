@@ -18,7 +18,6 @@
  */
 
 #include "DataStoreManager.h"
-#include "DataStoreEventProc.h"
 #include <MutexLock.h>
 typedef map<uint32_t, DataStore*> DataStoreMap;
 typedef DataStoreMap::iterator    DataStoreMapIterator;
@@ -31,6 +30,7 @@ struct DataStoreManager::PrivateContext {
 	MutexLock mutex;
 	list<DataStoreEventProc *> eventProcList;
 };
+
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
