@@ -94,6 +94,25 @@ bool DataStoreManager::add(uint32_t storeId, DataStore *dataStore)
 	return result.second;
 }
 
+void DataStoreManager::remove(uint32_t storeId)
+{
+	DataStore *dataStore = NULL;
+
+	m_ctx->mutex.lock();
+	DataStoreMapIterator it = m_ctx->dataStoreMap.find(storeId);
+	if (it != m_ctx->dataStoreMap.end()) {
+		m_ctx->dataStoreMap.erase(it);
+		dataStore = it->second;
+	}
+	m_ctx->mutex.unlock();
+
+	if (dataStore)
+		dataStore->unref();
+	else
+		MLPL_WARN("Not found: storeId: %"PRIu32"\n", storeId);
+}
+
+
 DataStoreVector DataStoreManager::getDataStoreVector(void)
 {
 	m_ctx->mutex.lock();

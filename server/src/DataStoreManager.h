@@ -57,6 +57,7 @@ public:
 	void registEventProc(DataStoreEventProc *eventProc);
 
 	bool add(uint32_t storeId, DataStore *dataStore);
+	void remove(uint32_t storeId);
 
 	/**
 	 * get a vector of pointers of DataStore instance.
