@@ -179,7 +179,7 @@ struct UnifiedDataStore::PrivateContext
 		{
 			ArmBaseVector arms;
 			DataStoreVector allDataStores;
-			virtual void operator()(VirtualDataStore *virtDataStore)
+			virtual bool operator()(VirtualDataStore *virtDataStore)
 			{
 				DataStoreVector stores =
 				  virtDataStore->getDataStoreVector();
@@ -188,6 +188,7 @@ struct UnifiedDataStore::PrivateContext
 					allDataStores.push_back(dataStore);
 					arms.push_back(getArmBase(dataStore));
 				}
+				return false;
 			}
 		} collector;
 
@@ -233,14 +234,17 @@ struct UnifiedDataStore::PrivateContext
 
 	struct VirtualDataStoreForeachProc
 	{
-		virtual void operator()(VirtualDataStore *virtDataStore) = 0;
+		virtual bool operator()(VirtualDataStore *virtDataStore) = 0;
 	};
 
 	void virtualDataStoreForeach(VirtualDataStoreForeachProc *vdsProc)
 	{
 		VirtualDataStoreListIterator it = virtualDataStoreList.begin();
-		for (; it != virtualDataStoreList.end(); ++it)
-			(*vdsProc)(*it);
+		for (; it != virtualDataStoreList.end(); ++it) {
+			bool breakFlag = (*vdsProc)(*it);
+			if (breakFlag)
+				break;
+		}
 	}
 };
 
@@ -295,10 +299,11 @@ void UnifiedDataStore::start(void)
 	struct : public PrivateContext::VirtualDataStoreForeachProc
 	{
 		UnifiedDataStoreEventProc *evtProc;
-		virtual void operator()(VirtualDataStore *virtDataStore)
+		virtual bool operator()(VirtualDataStore *virtDataStore)
 		{
 			virtDataStore->registEventProc(evtProc);
 			virtDataStore->start();
+			return false;
 		}
 	} starter;
 
@@ -311,9 +316,10 @@ void UnifiedDataStore::stop(void)
 {
 	struct : public PrivateContext::VirtualDataStoreForeachProc
 	{
-		virtual void operator()(VirtualDataStore *virtDataStore)
+		virtual bool operator()(VirtualDataStore *virtDataStore)
 		{
 			virtDataStore->stop();
+			return false;
 		}
 	} stopper;
 
@@ -504,8 +510,10 @@ HatoholError UnifiedDataStore::addTargetServer(
 
 	struct : public PrivateContext::VirtualDataStoreForeachProc {
 		MonitoringServerInfo *svInfo;
-		virtual void operator()(VirtualDataStore *virtDataStore) {
-			virtDataStore->start(*svInfo);
+		virtual bool operator()(VirtualDataStore *virtDataStore) {
+			bool started = virtDataStore->start(*svInfo);
+			bool breakFlag = started;
+			return breakFlag;
 		}
 	} starter;
 	starter.svInfo = &svInfo;
