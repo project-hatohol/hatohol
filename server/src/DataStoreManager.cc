@@ -25,6 +25,10 @@ typedef DataStoreMap::iterator    DataStoreMapIterator;
 // ---------------------------------------------------------------------------
 // DataStoreEventProc
 // ---------------------------------------------------------------------------
+DataStoreEventProc::DataStoreEventProc()
+{
+}
+
 DataStoreEventProc::~DataStoreEventProc()
 {
 }
