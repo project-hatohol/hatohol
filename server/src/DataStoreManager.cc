@@ -72,6 +72,15 @@ void DataStoreManager::registEventProc(DataStoreEventProc *eventProc)
 	m_ctx->eventProcList.push_back(eventProc);
 }
 
+bool DataStoreManager::hasDataStore(uint32_t storeId)
+{
+	m_ctx->mutex.lock();
+	bool found =
+	   m_ctx->dataStoreMap.find(storeId) != m_ctx->dataStoreMap.end();
+	m_ctx->mutex.unlock();
+	return found;
+}
+
 bool DataStoreManager::add(uint32_t storeId, DataStore *dataStore)
 {
 	m_ctx->mutex.lock();

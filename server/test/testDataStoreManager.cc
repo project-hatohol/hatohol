@@ -58,5 +58,18 @@ void test_addAndRemove(void)
 	cppcut_assert_equal(1, g_dataStore->getUsedCount());
 }
 
+void test_hasDataStore(void)
+{
+	const uint32_t storeId = 50;
+
+	g_dataStore = new DataStore();
+	DataStoreManager mgr;
+	cppcut_assert_equal(false, mgr.hasDataStore(storeId));
+	mgr.add(storeId, g_dataStore);
+	cppcut_assert_equal(true, mgr.hasDataStore(storeId));
+	mgr.remove(storeId);
+	cppcut_assert_equal(false, mgr.hasDataStore(storeId));
+}
+
 } // namespace testDataStoreManager
 

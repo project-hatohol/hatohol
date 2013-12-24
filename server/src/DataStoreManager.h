@@ -55,6 +55,8 @@ public:
 	 */
 	void registEventProc(DataStoreEventProc *eventProc);
 
+	bool hasDataStore(uint32_t storeId);
+
 	/**
 	 * add a DataStore instance.
 	 *
