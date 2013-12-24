@@ -529,6 +529,17 @@ HatoholError UnifiedDataStore::deleteTargetServer(
 	HatoholError err = dbConfig->deleteTargetServer(serverId, privilege);
 	if (err != HTERR_OK)
 		return err;
+
+	struct : public PrivateContext::VirtualDataStoreForeachProc {
+		ServerIdType serverId;
+		virtual bool operator()(VirtualDataStore *virtDataStore) {
+			bool stopped = virtDataStore->stop(serverId);
+			bool breakFlag = stopped;
+			return breakFlag;
+		}
+	} stopper;
+	stopper.serverId = serverId;
+	m_ctx->virtualDataStoreForeach(&stopper);
 	return err;
 }
 

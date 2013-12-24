@@ -45,3 +45,12 @@ void VirtualDataStore::stop(void)
 	closeAllStores();
 }
 
+bool VirtualDataStore::stop(const ServerIdType serverId)
+{
+	uint32_t storeId = serverId;
+	if (!hasDataStore(storeId))
+		return false;
+	remove(storeId);
+	return true;
+}
+

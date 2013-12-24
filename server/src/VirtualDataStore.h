@@ -47,6 +47,7 @@ public:
 	virtual bool start(MonitoringServerInfo &svInfo);
 
 	virtual void stop(void);
+	virtual bool stop(const ServerIdType serverId);
 
 protected:
 	template<class T>
