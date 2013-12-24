@@ -34,6 +34,11 @@ void VirtualDataStore::start(void)
 {
 }
 
+bool VirtualDataStore::start(MonitoringServerInfo &svInfo)
+{
+	return false;
+}
+
 void VirtualDataStore::stop(void)
 {
 	MLPL_INFO("VirtualDataStore: stop process: started.\n");

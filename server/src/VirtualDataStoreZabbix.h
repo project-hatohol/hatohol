@@ -40,6 +40,7 @@ public:
 	ItemTablePtr getItemTable(ItemGroupId groupId);
 
 	virtual void start(void);
+	virtual bool start(MonitoringServerInfo &svInfo);
 
 protected:
 	ItemTable *createStaticItemTable(ItemGroupId groupId);

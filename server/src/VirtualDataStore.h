@@ -34,6 +34,18 @@ public:
 	virtual ~VirtualDataStore(void);
 
 	virtual void start(void);
+
+	/**
+	 * start an MonitoringServer instance.
+	 *
+	 * @param svInfo A MonitoringServerInfo instance to be started.
+	 *
+	 * @return
+	 * true if an monitoring instance is started. Otherwise (typicall,
+	 * server type is not matched), false is returned.
+	 */
+	virtual bool start(MonitoringServerInfo &svInfo);
+
 	virtual void stop(void);
 
 protected:
@@ -47,12 +59,22 @@ protected:
 		MonitoringServerInfoListIterator it = monitoringServers.begin();
 		for (; it != monitoringServers.end(); ++it) {
 			MonitoringServerInfo &svInfo = *it;
-			if (svInfo.type != systemType)
-				continue;
-			DataStore *dataStore = new T(svInfo);
-			if (add(svInfo.id, dataStore))
-				dataStore->unref();
+			start<T>(systemType, svInfo);
 		}
+	}
+
+	template<class T>
+	bool start(MonitoringSystemType systemType,
+	           MonitoringServerInfo &svInfo)
+	{
+		if (svInfo.type != systemType)
+			return false;
+		DataStore *dataStore = new T(svInfo);
+		if (add(svInfo.id, dataStore)) {
+			dataStore->unref();
+			return false;
+		}
+		return true;
 	}
 };
 

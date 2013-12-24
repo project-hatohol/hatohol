@@ -75,6 +75,12 @@ void VirtualDataStoreZabbix::start(void)
 	VirtualDataStore::start<DataStoreZabbix>(MONITORING_SYSTEM_ZABBIX);
 }
 
+bool VirtualDataStoreZabbix::start(MonitoringServerInfo &svInfo)
+{
+	return VirtualDataStore::start<DataStoreZabbix>
+	         (MONITORING_SYSTEM_ZABBIX, svInfo);
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------

@@ -498,7 +498,19 @@ HatoholError UnifiedDataStore::addTargetServer(
 	DBClientConfig *dbConfig = cache.getConfig();
 
 	// FIXME: Add OperationPrivilege to signature of addTargetServer()
-	return dbConfig->addTargetServer(&svInfo);
+	HatoholError err = dbConfig->addTargetServer(&svInfo);
+	if (err != HTERR_OK)
+		return err;
+
+	struct : public PrivateContext::VirtualDataStoreForeachProc {
+		MonitoringServerInfo *svInfo;
+		virtual void operator()(VirtualDataStore *virtDataStore) {
+			virtDataStore->start(*svInfo);
+		}
+	} starter;
+	starter.svInfo = &svInfo;
+	m_ctx->virtualDataStoreForeach(&starter);
+	return err;
 }
 // ---------------------------------------------------------------------------
 // Protected methods
