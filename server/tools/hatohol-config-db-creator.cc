@@ -556,8 +556,8 @@ int main(int argc, char *argv[])
 		MonitoringServerInfo &svInfo = *it;
 		dbConfig.addTargetServer(&svInfo);
 
-		printf("SERVER: TYPE: %d, HOSTNAME: %s, IP ADDR: %s "
-		       "NICKNAME: %s, PORT: %d, POLLING: %d, RETRY: %d "
+		printf("SERVER: TYPE: %d, HOSTNAME: %s, IP ADDR: %s, "
+		       "NICKNAME: %s, PORT: %d, POLLING: %d, RETRY: %d, "
 		       "USERNAME: %s, PASSWORD: %s, DB NAME: %s\n",
 		       svInfo.type, svInfo.hostName.c_str(),
 		       svInfo.ipAddress.c_str(), svInfo.nickname.c_str(),
