@@ -31,7 +31,7 @@ public:
 	DataStore(void);
 
 	virtual void collectArms(ArmBaseVector &arms);
-	virtual void setCopyOnDemandEnable(bool state);
+	virtual void setCopyOnDemandEnable(bool enable);
 protected:
 	virtual ~DataStore();
 };

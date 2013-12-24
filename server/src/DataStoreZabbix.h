@@ -32,7 +32,7 @@ public:
 	ItemTablePtr getFunctions(void);
 	ItemTablePtr getItems(void);
 	ItemTablePtr getHosts(void);
-	void setCopyOnDemandEnable(bool state);
+	void setCopyOnDemandEnable(bool enable);
 private:
 	ArmZabbixAPI	m_armApi;
 };
