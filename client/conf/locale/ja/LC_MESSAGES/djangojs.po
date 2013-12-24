@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-12-23 20:40-0600\n"
-"PO-Revision-Date: 2013-12-23 23:27+0900\n"
+"POT-Creation-Date: 2013-12-23 21:13-0600\n"
+"PO-Revision-Date: 2013-12-24 12:13+0900\n"
 "Last-Translator: Takuro Ashie <ashie@clear-code.com>\n"
 "Language-Team: Project Hatohol\n"
 "Language: \n"
@@ -15,17 +15,17 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: static/js/events_view.js:28 static/js/hatohol_add_action_dialog.js:347
-#: static/js/library.js:167
+#: static/js/events_view.js:28 static/js/events_view.js.c:99
+#: static/js/hatohol_add_action_dialog.js:347 static/js/library.js:167
 msgid "OK"
 msgstr "正常"
 
-#: static/js/events_view.js:28 static/js/hatohol_add_action_dialog.js:348
-#: static/js/library.js:169
+#: static/js/events_view.js:28 static/js/events_view.js.c:100
+#: static/js/hatohol_add_action_dialog.js:348 static/js/library.js:169
 msgid "Problem"
 msgstr "障害"
 
-#: static/js/events_view.js:28
+#: static/js/events_view.js:28 static/js/events_view.js.c:101
 msgid "Unknown"
 msgstr "不明"
 
@@ -71,50 +71,54 @@ msgid "Minimum Severity:"
 msgstr "最小の深刻度:"
 
 #: static/js/events_view.js:96
+msgid "Status:"
+msgstr "ステータス:"
+
+#: static/js/events_view.js:103
 msgid "Server:"
 msgstr "サーバ:"
 
-#: static/js/events_view.js:100
+#: static/js/events_view.js:107
 msgid "Host:"
 msgstr "ホスト:"
 
-#: static/js/events_view.js:104
+#: static/js/events_view.js:111
 msgid "# of events per page"
 msgstr ""
 
-#: static/js/events_view.js:111 static/js/hatohol_add_action_dialog.js:316
+#: static/js/events_view.js:118 static/js/hatohol_add_action_dialog.js:316
 msgid "Server"
 msgstr "サーバ"
 
-#: static/js/events_view.js:112
+#: static/js/events_view.js:119
 msgid "Time"
 msgstr "時間"
 
-#: static/js/events_view.js:113 static/js/hatohol_add_action_dialog.js:331
+#: static/js/events_view.js:120 static/js/hatohol_add_action_dialog.js:331
 msgid "Host"
 msgstr "ホスト名"
 
-#: static/js/events_view.js:114 static/js/hatohol_trigger_selector.js:49
+#: static/js/events_view.js:121 static/js/hatohol_trigger_selector.js:49
 msgid "Brief"
 msgstr "概要"
 
-#: static/js/events_view.js:115 static/js/hatohol_add_action_dialog.js:344
+#: static/js/events_view.js:122 static/js/hatohol_add_action_dialog.js:344
 msgid "Status"
 msgstr "ステータス"
 
-#: static/js/events_view.js:116 static/js/hatohol_add_action_dialog.js:351
+#: static/js/events_view.js:123 static/js/hatohol_add_action_dialog.js:351
 msgid "Severity"
 msgstr "深刻度"
 
-#: static/js/events_view.js:117
+#: static/js/events_view.js:124
 msgid "Duration"
 msgstr "継続時間"
 
-#: static/js/events_view.js:130
+#: static/js/events_view.js:137
 msgid "Latest events"
 msgstr "最新イベント"
 
-#: static/js/events_view.js:131
+#: static/js/events_view.js:138
 msgid "To next"
 msgstr "次へ"
 
