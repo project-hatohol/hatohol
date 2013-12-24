@@ -136,52 +136,6 @@
       hatoholInfoMsgBox("{% trans "Deleting..." %}");
     }
 
-    function deleteOneServer(id, deletedIdArray) {
-      new HatoholConnector({
-        url: '/server/' + id,
-        request: "DELETE",
-        context: deletedIdArray,
-        replyCallBack: function(data, parser, context) {
-          parseDeleteServerResult(data, context);
-        },
-        connectErrorCallback: function(XMLHttpRequest,
-                                       textStatus, errorThrown) {
-          var errorMsg = "Error: " + XMLHttpRequest.status + ": " +
-                         XMLHttpRequest.statusText;
-          hatoholErrorMsgBox(errorMsg);
-          deletedIdArray.errors++;
-        },
-        completionCallback: function(context) {
-          completeOneDelServer(context);
-        }
-      });
-    }
-
-    function parseDeleteServerResult(data, deletedIdArray) {
-      if (parseResult(data))
-        return;
-      if (!(data.id in deletedIdArray)) {
-        alert("Fatal Error: You should reload page.\nID: " + data.id +
-              " is not in deletedIdArray: " + deletedIdArray);
-        deletedIdArray.errors++;
-        return;
-      }
-      delete deletedIdArray[data.id];
-    }
-
-    function completeOneDelServer(deletedIdArray) {
-      deletedIdArray.count--;
-      var completed = deletedIdArray.total - deletedIdArray.count;
-      hatoholErrorMsgBox("{% trans "Deleting..." %}" + " " + completed +
-                         " / " + deletedIdArray.total);
-      if (deletedIdArray.count > 0)
-        return;
-
-      hatoholInfoMsgBox("{% trans " Completed. (Number of errors: " %}" +
-                        deletedIdArray.errors + ")");
-      startConnection('server', updateCore);
-    }
-
     function drawTableBody(rd) {
       var x;
       var s;
