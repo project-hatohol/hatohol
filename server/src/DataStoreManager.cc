@@ -58,10 +58,9 @@ DataStoreManager::DataStoreManager(void)
 
 DataStoreManager::~DataStoreManager()
 {
+	closeAllStores();
 	if (m_ctx)
 		delete m_ctx;
-
-	closeAllStores();
 }
 
 void DataStoreManager::passCommandLineArg(const CommandLineArg &cmdArg)
