@@ -20,7 +20,6 @@
 #ifndef DataStoreEventProc_h
 #define DataStoreEventProc_h
 
-#include "UnifiedDataStoreEventProc.h"
 using namespace std;
 
 struct DataStoreEventProc {
