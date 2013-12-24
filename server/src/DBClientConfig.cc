@@ -634,6 +634,15 @@ HatoholError DBClientConfig::addTargetServer(MonitoringServerInfo *monitoringSer
 	return err;
 }
 
+HatoholError DBClientConfig::deleteTargetServer(
+  const ServerIdType serverId,
+  const OperationPrivilege &privilege)
+{
+	// FIXME: Check the previlege
+	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	return HatoholError(HTERR_NOT_IMPLEMENTED);
+}
+
 void DBClientConfig::getTargetServers
   (MonitoringServerInfoList &monitoringServers, ServerQueryOption &option)
 {

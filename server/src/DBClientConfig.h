@@ -105,6 +105,8 @@ public:
 	void setFaceRestPort(int port);
 	bool isCopyOnDemandEnabled(void);
 	HatoholError addTargetServer(MonitoringServerInfo *monitoringServerInfo);
+	HatoholError deleteTargetServer(const ServerIdType serverId,
+	                                const OperationPrivilege &privilege);
 	void getTargetServers(MonitoringServerInfoList &monitoringServers,
 	                      ServerQueryOption &option);
 

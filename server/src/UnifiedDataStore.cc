@@ -524,7 +524,12 @@ HatoholError UnifiedDataStore::addTargetServer(
 HatoholError UnifiedDataStore::deleteTargetServer(
   ServerIdType serverId, const OperationPrivilege &privilege)
 {
-	return HatoholError(HTERR_UNKNOWN_REASON);
+	CacheServiceDBClient cache;
+	DBClientConfig *dbConfig = cache.getConfig();
+	HatoholError err = dbConfig->deleteTargetServer(serverId, privilege);
+	if (err != HTERR_OK)
+		return err;
+	return err;
 }
 
 // ---------------------------------------------------------------------------
