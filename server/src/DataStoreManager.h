@@ -34,6 +34,9 @@ public:
 	virtual void onAdded(DataStore *dataStore);
 };
 
+typedef list<DataStoreEventProc *>       DataStoreEventProcList;
+typedef DataStoreEventProcList::iterator DataStoreEventProcListIterator;
+
 class DataStoreManager {
 	// Currently multi-thread unsafe.
 public:
