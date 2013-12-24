@@ -37,10 +37,12 @@ struct DBAgentMySQL::PrivateContext {
 	string password;
 	string host;
 	unsigned int port;
+	bool inTransaction;
 
 	PrivateContext(void)
 	: connected(false),
-	  port(0)
+	  port(0),
+	  inTransaction(false)
 	{
 	}
 	
@@ -158,16 +160,19 @@ bool DBAgentMySQL::isRecordExisting(const string &tableName,
 void DBAgentMySQL::begin(void)
 {
 	execSql("START TRANSACTION");
+	m_ctx->inTransaction = true;
 }
 
 void DBAgentMySQL::commit(void)
 {
 	execSql("COMMIT");
+	m_ctx->inTransaction = false;
 }
 
 void DBAgentMySQL::rollback(void)
 {
 	execSql("ROLLBACK");
+	m_ctx->inTransaction = false;
 }
 
 static string getColumnTypeQuery(const ColumnDef &columnDef)
@@ -458,6 +463,7 @@ void DBAgentMySQL::connect(void)
 		         mysql_error(&m_ctx->mysql));
 	}
 	m_ctx->connected = result;
+	m_ctx->inTransaction = false;
 }
 
 void DBAgentMySQL::sleepAndReconnect(unsigned int sleepTimeSec)
@@ -490,6 +496,8 @@ void DBAgentMySQL::queryWithRetry(const string &statement)
 		}
 		errorNumber = mysql_errno(&m_ctx->mysql);
 		if (!m_ctx->shouldRetry(errorNumber))
+			break;
+		if (m_ctx->inTransaction)
 			break;
 		MLPL_ERR("Failed to query: %s: (%u) %s.\n",
 		         statement.c_str(), errorNumber,
