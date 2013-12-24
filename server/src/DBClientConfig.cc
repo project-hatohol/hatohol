@@ -639,8 +639,15 @@ HatoholError DBClientConfig::deleteTargetServer(
   const OperationPrivilege &privilege)
 {
 	// FIXME: Check the previlege
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
-	return HatoholError(HTERR_NOT_IMPLEMENTED);
+	DBAgentDeleteArg arg;
+	arg.tableName = TABLE_NAME_SERVERS;
+	const ColumnDef &colId = COLUMN_DEF_SERVERS[IDX_SERVERS_ID];
+	arg.condition = StringUtils::sprintf("%s=%"FMT_SERVER_ID,
+	                                     colId.columnName, serverId);
+	DBCLIENT_TRANSACTION_BEGIN() {
+		deleteRows(arg);
+	} DBCLIENT_TRANSACTION_END();
+	return HTERR_OK;
 }
 
 void DBClientConfig::getTargetServers
