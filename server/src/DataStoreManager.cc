@@ -29,7 +29,7 @@ struct DataStoreManager::PrivateContext {
 	DataStoreMap    dataStoreMap;
 	DataStoreVector dataStoreVector;
 	MutexLock mutex;
-	list<DataStoreEventProc *> postProcList;
+	list<DataStoreEventProc *> eventProcList;
 };
 // ---------------------------------------------------------------------------
 // Public methods
