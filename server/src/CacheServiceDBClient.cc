@@ -52,6 +52,19 @@ typedef DBClientList::iterator DBClientListIterator;
 typedef map<DBClient *, DBClientListIterator> DBClientListItrMap;
 typedef DBClientListItrMap::iterator          DBClientListItrMapIterator;
 
+struct CacheLRU {
+	DBClientList       list;
+	DBClientListItrMap map;
+
+	void touch(DBClient *dbClient)
+	{
+		DBClientListItrMapIterator it = map.find(dbClient);
+		if (it != map.end())
+			list.erase(it->second);
+		map[dbClient] = list.insert(list.begin(), dbClient);
+	}
+};
+
 struct CacheServiceDBClient::PrivateContext {
 	// This lock is for DBClientMapList. clientMap can be accessed w/o
 	// the lock because it is on the thread local storage.
