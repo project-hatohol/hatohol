@@ -52,6 +52,11 @@ void DataStoreNagios::collectArms(ArmBaseVector &arms)
 	arms.push_back(&m_ctx->armNDO);
 }
 
+void DataStoreNagios::setCopyOnDemandEnable(bool enable)
+{
+	m_ctx->armNDO.setCopyOnDemandEnabled(enable);
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
