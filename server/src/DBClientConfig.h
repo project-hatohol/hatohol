@@ -76,7 +76,7 @@ public:
 	void setTargetServerId(uint32_t serverId);
 
 	// Overriding virtual methods
-	std::string getCondition(void) const;
+	virtual std::string getCondition(void) const;
 
 protected:
 	bool hasPrivilegeCondition(string &condition) const;
