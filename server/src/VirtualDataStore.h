@@ -56,4 +56,7 @@ protected:
 	}
 };
 
+typedef list<VirtualDataStore *>       VirtualDataStoreList;
+typedef VirtualDataStoreList::iterator VirtualDataStoreListIterator;
+
 #endif // VirtualDataStore_h
