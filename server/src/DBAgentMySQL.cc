@@ -74,7 +74,6 @@ DBAgentMySQL::DBAgentMySQL(const char *db, const char *user, const char *passwd,
   m_ctx(NULL)
 {
 	m_ctx = new PrivateContext();
-	mysql_init(&m_ctx->mysql);
 
 	m_ctx->dbName   = db     ? : "";
 	m_ctx->user     = user   ? : "";
@@ -449,6 +448,7 @@ void DBAgentMySQL::connect(void)
 	const char *user   = getCStringOrNullIfEmpty(m_ctx->user);
 	const char *passwd = getCStringOrNullIfEmpty(m_ctx->password);
 	const char *db     = getCStringOrNullIfEmpty(m_ctx->dbName);
+	mysql_init(&m_ctx->mysql);
 	MYSQL *result = mysql_real_connect(&m_ctx->mysql, host, user, passwd,
 	                                   db, m_ctx->port,
 	                                   unixSocket, clientFlag);
@@ -472,6 +472,7 @@ void DBAgentMySQL::sleepAndReconnect(unsigned int sleepTimeSec)
 		sleepTimeSec = sleep(sleepTimeSec);
 	}
 
+	mysql_close(&m_ctx->mysql);
 	connect();
 }
 
@@ -504,7 +505,7 @@ void DBAgentMySQL::queryWithRetry(const string &statement)
 			          sleepTimeSec, i+1, numRetry);
 			sleepAndReconnect(sleepTimeSec);
 			if (m_ctx->connected)
-				continue;
+				break;
 		}
 	}
 
