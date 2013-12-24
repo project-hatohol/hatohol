@@ -30,6 +30,9 @@ void DataStore::collectArms(ArmBaseVector &arms)
 {
 }
 
+void DataStore::setCopyOnDemandEnable(bool state)
+{
+}
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
