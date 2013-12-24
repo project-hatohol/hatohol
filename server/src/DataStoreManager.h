@@ -43,7 +43,15 @@ public:
 	DataStoreManager(void);
 	virtual ~DataStoreManager();
 	virtual void passCommandLineArg(const CommandLineArg &cmdArg);
-	void registEventProc(DataStoreEventProc *proc);
+
+	/**
+	 * regist an event handler.
+	 *
+	 * The events registered by this method are executed in series.
+	 * 
+	 * @param eventProc A pointer to a DataStoreEventProc instance.
+	 */
+	void registEventProc(DataStoreEventProc *eventProc);
 
 	// Elements regisgtered in this function should be freed by
 	// this class (i.e. owner is changed).

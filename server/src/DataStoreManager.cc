@@ -51,9 +51,9 @@ void DataStoreManager::passCommandLineArg(const CommandLineArg &cmdArg)
 {
 }
 
-void DataStoreManager::registEventProc(DataStoreEventProc *proc)
+void DataStoreManager::registEventProc(DataStoreEventProc *eventProc)
 {
-	m_ctx->eventProcList.push_back(proc);
+	m_ctx->eventProcList.push_back(eventProc);
 }
 
 bool DataStoreManager::add(uint32_t storeId, DataStore *dataStore)
