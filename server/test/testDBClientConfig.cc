@@ -191,25 +191,53 @@ void test_addTargetServer(void)
 	assertDBContent(dbConfig.getDBAgent(), statement, expectedOut);
 }
 
-void test_getTargetServers(void)
+void _assertGetTargetServers(MonitoringServerInfoList expected,
+			     UserIdType userId)
 {
 	for (size_t i = 0; i < NumServerInfo; i++)
 		assertAddServerToDB(&serverInfo[i]);
 
-	MonitoringServerInfoList monitoringServers;
-	ServerQueryOption option(USER_ID_ADMIN);
+	MonitoringServerInfoList actual;
+	ServerQueryOption option(userId);
 	DBClientConfig dbConfig;
-	dbConfig.getTargetServers(monitoringServers, option);
-	cppcut_assert_equal(NumServerInfo, monitoringServers.size());
+	dbConfig.getTargetServers(actual, option);
+	cppcut_assert_equal(expected.size(), actual.size());
 
 	string expectedText;
 	string actualText;
-	MonitoringServerInfoListIterator it = monitoringServers.begin();
-	for (size_t i = 0; i < NumServerInfo; i++, ++it) {
-		expectedText += makeExpectedOutput(&serverInfo[i]);
-		actualText += makeExpectedOutput(&(*it));
+	MonitoringServerInfoListIterator it_expected = expected.begin();
+	MonitoringServerInfoListIterator it_actual = actual.begin();
+	for (; it_expected != expected.end(); ++it_expected, ++it_actual) {
+		expectedText += makeExpectedOutput(&(*it_expected));
+		actualText += makeExpectedOutput(&(*it_actual));
 	}
 	cppcut_assert_equal(expectedText, actualText);
+}
+#define assertGetTargetServers(E, U) \
+  cut_trace(_assertGetTargetServers(E, U))
+
+void test_getTargetServers(void)
+{
+	UserIdType userId = USER_ID_ADMIN;
+	MonitoringServerInfoList expected;
+	for (size_t i = 0; i < NumServerInfo; i++)
+		expected.push_back(serverInfo[i]);
+	assertGetTargetServers(expected, userId);
+}
+
+void test_getTargetServersByInvalidUser(void)
+{
+	UserIdType userId = INVALID_USER_ID;
+	MonitoringServerInfoList expected;
+	assertGetTargetServers(expected, userId);
+}
+
+void test_getTargetServersWithNoAllowedServer(void)
+{
+	UserIdType userId = 4;
+	setupTestDBUser(true, true);
+	MonitoringServerInfoList expected;
+	assertGetTargetServers(expected, userId);
 }
 
 void test_setGetDatabaseDir(void)
