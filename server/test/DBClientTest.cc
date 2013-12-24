@@ -677,6 +677,9 @@ bool isAuthorized(ServerHostGrpSetMap &authMap, UserIdType userId,
 	if (hostGroups.find(ALL_HOST_GROUPS) != hostGroups.end())
 		return true;
 
+	if (hostGroupId == ALL_HOST_GROUPS)
+		return true;
+
 	// FIXME: Host group isn't supported yet
 
 	return false;

@@ -43,7 +43,8 @@ protected:
 	{
 		DBClientConfig dbConfig;
 		MonitoringServerInfoList monitoringServers;
-		dbConfig.getTargetServers(monitoringServers);
+		ServerQueryOption option(USER_ID_ADMIN);
+		dbConfig.getTargetServers(monitoringServers, option);
 
 		MonitoringServerInfoListIterator it = monitoringServers.begin();
 		for (; it != monitoringServers.end(); ++it) {

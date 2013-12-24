@@ -25,6 +25,7 @@ using namespace std;
 #include "DBAgentFactory.h"
 #include "DBClientConfig.h"
 #include "DBClientUtils.h"
+#include "CacheServiceDBClient.h"
 #include "Params.h"
 
 static const char *TABLE_NAME_SYSTEM  = "system";
@@ -283,6 +284,105 @@ static bool updateDB(DBAgent *dbAgent, int oldVer, void *data)
 }
 
 // ---------------------------------------------------------------------------
+// ServerQueryOption
+// ---------------------------------------------------------------------------
+struct ServerQueryOption::PrivateContext {
+	uint32_t targetServerId;
+
+	PrivateContext(void)
+	: targetServerId(ALL_SERVERS)
+	{
+	}
+};
+
+ServerQueryOption::ServerQueryOption(UserIdType userId)
+: DataQueryOption(userId), m_ctx(NULL)
+{
+	m_ctx = new PrivateContext();
+}
+
+ServerQueryOption::~ServerQueryOption()
+{
+	if (m_ctx)
+		delete m_ctx;
+}
+
+static string serverIdCondition(uint32_t serverId)
+{
+	const char *columnName = COLUMN_DEF_SERVERS[IDX_SERVERS_ID].columnName;
+	return StringUtils::sprintf("%s=%"PRIu32, columnName, serverId);
+}
+
+bool ServerQueryOption::hasPrivilegeCondition(string &condition) const
+{
+	UserIdType userId = getUserId();
+
+	if (userId == USER_ID_ADMIN || has(OPPRVLG_GET_ALL_SERVERS)) {
+		if (m_ctx->targetServerId != ALL_SERVERS)
+			condition = serverIdCondition(m_ctx->targetServerId);
+		return true;
+	}
+
+	if (userId == INVALID_USER_ID) {
+		MLPL_DBG("INVALID_USER_ID\n");
+		condition = DBClientHatohol::getAlwaysFalseCondition();
+		return true;
+	}
+
+	return false;
+}
+
+void ServerQueryOption::setTargetServerId(uint32_t serverId)
+{
+	m_ctx->targetServerId = serverId;
+}
+
+string ServerQueryOption::getCondition(void) const
+{
+	string condition;
+	uint32_t targetId = m_ctx->targetServerId;
+
+	if (hasPrivilegeCondition(condition))
+		return condition;
+
+	// check allowed servers
+	CacheServiceDBClient cache;
+	DBClientUser *dbUser = cache.getUser();
+	ServerHostGrpSetMap srvHostGrpSetMap;
+	dbUser->getServerHostGrpSetMap(srvHostGrpSetMap, getUserId());
+
+	size_t numServers = srvHostGrpSetMap.size();
+	if (numServers == 0) {
+		MLPL_DBG("No allowed server\n");
+		return DBClientHatohol::getAlwaysFalseCondition();
+	}
+
+	if (targetId != ALL_SERVERS &&
+	    srvHostGrpSetMap.find(targetId) != srvHostGrpSetMap.end())
+	{
+		return serverIdCondition(targetId);
+	}
+
+	numServers = 0;
+	ServerHostGrpSetMapConstIterator it = srvHostGrpSetMap.begin();
+	for (; it != srvHostGrpSetMap.end(); ++it) {
+		const uint32_t serverId = it->first;
+
+		if (serverId == ALL_SERVERS)
+			return "";
+
+		if (!condition.empty())
+			condition += " OR ";
+		condition += serverIdCondition(serverId);
+		++numServers;
+	}
+
+	if (numServers == 1)
+		return condition;
+	return StringUtils::sprintf("(%s)", condition.c_str());
+}
+
+// ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
 void DBClientConfig::init(const CommandLineArg &cmdArg)
@@ -526,7 +626,7 @@ void DBClientConfig::addTargetServer(MonitoringServerInfo *monitoringServerInfo)
 }
 
 void DBClientConfig::getTargetServers
-  (MonitoringServerInfoList &monitoringServers, uint32_t targetServerId)
+  (MonitoringServerInfoList &monitoringServers, ServerQueryOption &option)
 {
 	DBAgentSelectExArg arg;
 	arg.tableName = TABLE_NAME_SERVERS;
@@ -542,13 +642,7 @@ void DBClientConfig::getTargetServers
 	arg.pushColumn(COLUMN_DEF_SERVERS[IDX_SERVERS_PASSWORD]);
 	arg.pushColumn(COLUMN_DEF_SERVERS[IDX_SERVERS_DB_NAME]);
 
-	if (targetServerId != ALL_SERVERS) {
-		const char *columnName =
-		  COLUMN_DEF_SERVERS[IDX_SERVERS_ID].columnName;
-		arg.condition = StringUtils::sprintf("%s=%"PRIu32,
-		                                     columnName,
-		                                     targetServerId);
-	}
+	arg.condition = option.getCondition();
 
 	DBCLIENT_TRANSACTION_BEGIN() {
 		select(arg);

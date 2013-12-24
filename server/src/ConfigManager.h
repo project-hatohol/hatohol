@@ -35,7 +35,7 @@ public:
 
 	void addTargetServer(MonitoringServerInfo *monitoringServerInfo);
 	void getTargetServers(MonitoringServerInfoList &monitoringServers,
-	                      uint32_t targetServerId = ALL_SERVERS);
+	                      ServerQueryOption &option);
 	const string &getDatabaseDirectory(void) const;
 	size_t getNumberOfPreservedReplicaGeneration(void) const;
 

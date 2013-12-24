@@ -83,7 +83,7 @@ public:
 	void         queryOnlyMyself(void);
 
 	// Overriding virtual methods
-	std::string getCondition(void) const;
+	virtual std::string getCondition(void) const;
 
 private:
 	struct PrivateContext;
@@ -96,7 +96,7 @@ public:
 	virtual ~AccessInfoQueryOption();
 
 	// Overriding of virtual methods
-	std::string getCondition(void) const;
+	virtual std::string getCondition(void) const;
 
 	void setTargetUserId(UserIdType userId);
 	UserIdType getTargetUserId(void) const;

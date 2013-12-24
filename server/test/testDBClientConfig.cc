@@ -191,24 +191,81 @@ void test_addTargetServer(void)
 	assertDBContent(dbConfig.getDBAgent(), statement, expectedOut);
 }
 
-void test_getTargetServers(void)
+void _assertGetTargetServers(MonitoringServerInfoList expected,
+			     UserIdType userId)
 {
 	for (size_t i = 0; i < NumServerInfo; i++)
 		assertAddServerToDB(&serverInfo[i]);
 
-	MonitoringServerInfoList monitoringServers;
+	MonitoringServerInfoList actual;
+	ServerQueryOption option(userId);
 	DBClientConfig dbConfig;
-	dbConfig.getTargetServers(monitoringServers);
-	cppcut_assert_equal(NumServerInfo, monitoringServers.size());
+	dbConfig.getTargetServers(actual, option);
+	cppcut_assert_equal(expected.size(), actual.size());
 
 	string expectedText;
 	string actualText;
-	MonitoringServerInfoListIterator it = monitoringServers.begin();
-	for (size_t i = 0; i < NumServerInfo; i++, ++it) {
-		expectedText += makeExpectedOutput(&serverInfo[i]);
-		actualText += makeExpectedOutput(&(*it));
+	MonitoringServerInfoListIterator it_expected = expected.begin();
+	MonitoringServerInfoListIterator it_actual = actual.begin();
+	for (; it_expected != expected.end(); ++it_expected, ++it_actual) {
+		expectedText += makeExpectedOutput(&(*it_expected));
+		actualText += makeExpectedOutput(&(*it_actual));
 	}
 	cppcut_assert_equal(expectedText, actualText);
+}
+#define assertGetTargetServers(E, U) \
+  cut_trace(_assertGetTargetServers(E, U))
+
+void test_getTargetServers(void)
+{
+	UserIdType userId = USER_ID_ADMIN;
+	MonitoringServerInfoList expected;
+	for (size_t i = 0; i < NumServerInfo; i++)
+		expected.push_back(serverInfo[i]);
+	assertGetTargetServers(expected, userId);
+}
+
+void test_getTargetServersByInvalidUser(void)
+{
+	UserIdType userId = INVALID_USER_ID;
+	MonitoringServerInfoList expected;
+	assertGetTargetServers(expected, userId);
+}
+
+void test_getTargetServersWithNoAllowedServer(void)
+{
+	UserIdType userId = 4;
+	setupTestDBUser(true, true);
+	MonitoringServerInfoList expected;
+	assertGetTargetServers(expected, userId);
+}
+
+void test_getTargetServersWithOneAllowedServer(void)
+{
+	UserIdType userId = 5;
+	ServerHostGrpSetMap authMap;
+	MonitoringServerInfoList expected;
+	makeServerHostGrpSetMap(authMap, userId);
+	for (size_t i = 0; i < NumServerInfo; i++)
+		if (isAuthorized(authMap, userId, serverInfo[i].id))
+			expected.push_back(serverInfo[i]);
+
+	setupTestDBUser(true, true);
+	assertGetTargetServers(expected, userId);
+}
+
+void test_getTargetServersWithAllowedServer(void)
+{
+	UserIdType userId = 3;
+	ServerHostGrpSetMap authMap;
+	MonitoringServerInfoList expected;
+	makeServerHostGrpSetMap(authMap, userId);
+	for (size_t i = 0; i < NumServerInfo; i++)
+		if (isAuthorized(authMap, userId, serverInfo[i].id))
+			expected.push_back(serverInfo[i]);
+
+	setupTestDBUser(true, true);
+	assertGetTargetServers(expected, userId);
 }
 
 void test_setGetDatabaseDir(void)
@@ -259,6 +316,76 @@ void test_isCopyOnDemandEnabledDefault(void)
 {
 	DBClientConfig dbConfig;
 	cut_assert_true(dbConfig.isCopyOnDemandEnabled());
+}
+
+void test_serverQueryOptionForAdmin(void)
+{
+	ServerQueryOption option(USER_ID_ADMIN);
+	cppcut_assert_equal(string(""), option.getCondition());
+}
+
+void test_serverQueryOptionForAdminWithTarget(void)
+{
+	uint32_t serverId = 2;
+	ServerQueryOption option(USER_ID_ADMIN);
+	option.setTargetServerId(serverId);
+	cppcut_assert_equal(StringUtils::sprintf("id=%"PRIu32, serverId),
+			    option.getCondition());
+}
+
+void test_serverQueryOptionForInvalidUser(void)
+{
+	ServerQueryOption option(INVALID_USER_ID);
+	cppcut_assert_equal(string("0"), option.getCondition());
+}
+
+void test_serverQueryOptionForInvalidUserWithTarget(void)
+{
+	uint32_t serverId = 2;
+	ServerQueryOption option(INVALID_USER_ID);
+	option.setTargetServerId(serverId);
+	cppcut_assert_equal(string("0"), option.getCondition());
+}
+
+static string makeExpectedCondition(UserIdType userId)
+{
+	string condition;
+	set<uint32_t> knownServerIdSet;
+
+	for (size_t i = 0; i < NumTestAccessInfo; ++i) {
+		if (testAccessInfo[i].userId != userId)
+			continue;
+
+		uint32_t serverId = testAccessInfo[i].serverId;
+		if (knownServerIdSet.find(serverId) != knownServerIdSet.end())
+			continue;
+
+		if (!condition.empty())
+			condition += " OR ";
+		condition += StringUtils::sprintf("id=%"PRIu32, serverId);
+		knownServerIdSet.insert(serverId);
+	}
+	return StringUtils::sprintf("(%s)", condition.c_str());
+}
+
+void test_serverQueryOptionForGuestUser(void)
+{
+	setupTestDBUser(true, true);
+	UserIdType userId = 3;
+	ServerQueryOption option(userId);
+	cppcut_assert_equal(makeExpectedCondition(userId),
+			    option.getCondition());
+}
+
+void test_serverQueryOptionForGuestUserWithTarget(void)
+{
+	setupTestDBUser(true, true);
+	UserIdType userId = 3;
+	uint32_t serverId = 2;
+	ServerQueryOption option(userId);
+	option.setTargetServerId(serverId);
+	cppcut_assert_equal(StringUtils::sprintf("id=%"PRIu32, serverId),
+			    option.getCondition());
 }
 
 } // namespace testDBClientConfig

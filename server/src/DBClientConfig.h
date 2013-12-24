@@ -68,6 +68,24 @@ struct MonitoringServerInfo {
 typedef list<MonitoringServerInfo>         MonitoringServerInfoList;
 typedef MonitoringServerInfoList::iterator MonitoringServerInfoListIterator;
 
+class ServerQueryOption : public DataQueryOption {
+public:
+	ServerQueryOption(UserIdType userId = INVALID_USER_ID);
+	virtual ~ServerQueryOption();
+
+	void setTargetServerId(uint32_t serverId);
+
+	// Overriding virtual methods
+	virtual std::string getCondition(void) const;
+
+protected:
+	bool hasPrivilegeCondition(string &condition) const;
+
+private:
+	struct PrivateContext;
+	PrivateContext *m_ctx;
+};
+
 class DBClientConfig : public DBClient {
 public:
 	static int CONFIG_DB_VERSION;
@@ -88,7 +106,7 @@ public:
 	bool isCopyOnDemandEnabled(void);
 	void addTargetServer(MonitoringServerInfo *monitoringServerInfo);
 	void getTargetServers(MonitoringServerInfoList &monitoringServers,
-	                      uint32_t targetServerId = ALL_SERVERS);
+	                      ServerQueryOption &option);
 
 protected:
 	static bool parseCommandLineArgument(const CommandLineArg &cmdArg);
