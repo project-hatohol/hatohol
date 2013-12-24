@@ -44,7 +44,6 @@ struct DataStoreManager::PrivateContext {
 	// Elements in dataStoreMap and dataStoreVector are the same.
 	// So it's only necessary to free elements in one.
 	DataStoreMap    dataStoreMap;
-	DataStoreVector dataStoreVector;
 	MutexLock mutex;
 	DataStoreEventProcList eventProcList;
 };
@@ -82,17 +81,18 @@ bool DataStoreManager::add(uint32_t storeId, DataStore *dataStore)
 	    (pair<uint32_t, DataStore *>(storeId, dataStore));
 
 	bool successed = result.second;
-	if (successed) {
-		m_ctx->dataStoreVector.push_back(dataStore);
-		dataStore->ref();
+	if (!successed) {
+		m_ctx->mutex.unlock();
+		return false;
 	}
+	dataStore->ref();
 
 	DataStoreEventProcListIterator evtProc = m_ctx->eventProcList.begin();
 	for (; evtProc != m_ctx->eventProcList.end(); ++evtProc)
 		(*evtProc)->onAdded(dataStore);
 
 	m_ctx->mutex.unlock();
-	return result.second;
+	return true;
 }
 
 void DataStoreManager::remove(uint32_t storeId)
@@ -117,9 +117,13 @@ void DataStoreManager::remove(uint32_t storeId)
 DataStoreVector DataStoreManager::getDataStoreVector(void)
 {
 	m_ctx->mutex.lock();
-	DataStoreVector dataStoreVector = m_ctx->dataStoreVector;
-	for (size_t i = 0; i < dataStoreVector.size(); i++)
-		dataStoreVector[i]->ref();
+	DataStoreVector dataStoreVector;
+	DataStoreMapIterator it = m_ctx->dataStoreMap.begin();
+	for (; it != m_ctx->dataStoreMap.end(); ++it) {
+		DataStore *dataStore = it->second;
+		dataStore->ref();
+		dataStoreVector.push_back(dataStore);
+	}
 	m_ctx->mutex.unlock();
 
 	return dataStoreVector;
@@ -131,8 +135,11 @@ DataStoreVector DataStoreManager::getDataStoreVector(void)
 void DataStoreManager::closeAllStores(void)
 {
 	m_ctx->mutex.lock();
-	for (size_t i = 0; i < m_ctx->dataStoreVector.size(); i++)
-		m_ctx->dataStoreVector[i]->unref();
-	m_ctx->dataStoreVector.clear();
+	DataStoreMapIterator it = m_ctx->dataStoreMap.begin();
+	for (; it != m_ctx->dataStoreMap.end(); ++it) {
+		DataStore *dataStore = it->second;
+		dataStore->unref();
+	}
+	m_ctx->dataStoreMap.clear();
 	m_ctx->mutex.unlock();
 }
