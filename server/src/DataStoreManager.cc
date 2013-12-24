@@ -22,6 +22,20 @@
 typedef map<uint32_t, DataStore*> DataStoreMap;
 typedef DataStoreMap::iterator    DataStoreMapIterator;
 
+// ---------------------------------------------------------------------------
+// DataStoreEventProc
+// ---------------------------------------------------------------------------
+DataStoreEventProc::~DataStoreEventProc()
+{
+}
+
+void DataStoreEventProc::onAdded(DataStore *dataStore)
+{
+}
+
+// ---------------------------------------------------------------------------
+// DataStoreManager
+// ---------------------------------------------------------------------------
 struct DataStoreManager::PrivateContext {
 	// Elements in dataStoreMap and dataStoreVector are the same.
 	// So it's only necessary to free elements in one.
