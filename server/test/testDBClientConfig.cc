@@ -222,36 +222,33 @@ void _assertGetTargetServers(UserIdType userId)
 #define assertGetTargetServers(U) \
   cut_trace(_assertGetTargetServers(U))
 
-void test_getTargetServers(void)
+#include <gcutter.h>
+void data_getTargetServers(void)
 {
-	UserIdType userId = USER_ID_ADMIN;
+	gcut_add_datum("By Admin",
+		       "userId", G_TYPE_INT, USER_ID_ADMIN,
+		       NULL);
+	gcut_add_datum("With no allowed servers",
+		       "userId", G_TYPE_INT, 4,
+		       NULL);
+	gcut_add_datum("With a few allowed servers",
+		       "userId", G_TYPE_INT, 3,
+		       NULL);
+	gcut_add_datum("With one allowed servers",
+		       "userId", G_TYPE_INT, 5,
+		       NULL);
+}
+
+void test_getTargetServers(gconstpointer data)
+{
+	UserIdType userId = gcut_data_get_int(data, "userId");
+	setupTestDBUser(true, true);
 	assertGetTargetServers(userId);
 }
 
 void test_getTargetServersByInvalidUser(void)
 {
 	UserIdType userId = INVALID_USER_ID;
-	assertGetTargetServers(userId);
-}
-
-void test_getTargetServersWithNoAllowedServer(void)
-{
-	UserIdType userId = 4;
-	setupTestDBUser(true, true);
-	assertGetTargetServers(userId);
-}
-
-void test_getTargetServersWithOneAllowedServer(void)
-{
-	UserIdType userId = 5;
-	setupTestDBUser(true, true);
-	assertGetTargetServers(userId);
-}
-
-void test_getTargetServersWithAllowedServer(void)
-{
-	UserIdType userId = 3;
-	setupTestDBUser(true, true);
 	assertGetTargetServers(userId);
 }
 
