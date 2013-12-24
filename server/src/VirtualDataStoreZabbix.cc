@@ -98,6 +98,8 @@ ItemTable *VirtualDataStoreZabbix::createStaticItemTable(ItemGroupId groupId)
 
 ItemTablePtr VirtualDataStoreZabbix::getTriggers(void)
 {
+	HATOHOL_ASSERT(false, "Not implemented: %s", __PRETTY_FUNCTION__);
+#if 0
 	// TODO: merge data of all stores. Now just call a stub function.
 	DataStoreVector &dataStoreVect = getDataStoreVector();
 	for (size_t i = 0; i < dataStoreVect.size(); i++) {
@@ -107,11 +109,14 @@ ItemTablePtr VirtualDataStoreZabbix::getTriggers(void)
 		// return on the first time (here is an experimental)
 		return dataStoreZabbix->getTriggers();
 	}
+#endif
 	return ItemTablePtr();
 }
 
 ItemTablePtr VirtualDataStoreZabbix::getFunctions(void)
 {
+	HATOHOL_ASSERT(false, "Not implemented: %s", __PRETTY_FUNCTION__);
+#if 0
 	// TODO: merge data of all stores. Now just call a stub function.
 	DataStoreVector &dataStoreVect = getDataStoreVector();
 	for (size_t i = 0; i < dataStoreVect.size(); i++) {
@@ -122,11 +127,14 @@ ItemTablePtr VirtualDataStoreZabbix::getFunctions(void)
 		return dataStoreZabbix->getFunctions();
 	}
 	THROW_HATOHOL_EXCEPTION("Not implemented: %s\n", __PRETTY_FUNCTION__);
+#endif
 	return ItemTablePtr();
 }
 
 ItemTablePtr VirtualDataStoreZabbix::getItems(void)
 {
+	HATOHOL_ASSERT(false, "Not implemented: %s", __PRETTY_FUNCTION__);
+#if 0
 	// TODO: merge data of all stores. Now just call a stub function.
 	DataStoreVector &dataStoreVect = getDataStoreVector();
 	for (size_t i = 0; i < dataStoreVect.size(); i++) {
@@ -137,6 +145,7 @@ ItemTablePtr VirtualDataStoreZabbix::getItems(void)
 		return dataStoreZabbix->getItems();
 	}
 	THROW_HATOHOL_EXCEPTION("Not implemented: %s\n", __PRETTY_FUNCTION__);
+#endif
 	return ItemTablePtr();
 }
 
