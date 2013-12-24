@@ -34,8 +34,19 @@ public:
 	virtual ~VirtualDataStore(void);
 
 	virtual void start(void);
+
+	/**
+	 * start an MonitoringServer instance.
+	 *
+	 * @param svInfo A MonitoringServerInfo instance to be started.
+	 *
+	 * @return
+	 * true if an monitoring instance is started. Otherwise (typicall,
+	 * server type is not matched), false is returned.
+	 */
+	virtual bool start(MonitoringServerInfo &svInfo);
+
 	virtual void stop(void);
-	virtual void collectArms(ArmBaseVector &arms);
 
 protected:
 	template<class T>
@@ -49,12 +60,26 @@ protected:
 		MonitoringServerInfoListIterator it = monitoringServers.begin();
 		for (; it != monitoringServers.end(); ++it) {
 			MonitoringServerInfo &svInfo = *it;
-			if (svInfo.type != systemType)
-				continue;
-			DataStore *dataStore = new T(svInfo);
-			add(svInfo.id, dataStore);
+			start<T>(systemType, svInfo);
 		}
 	}
+
+	template<class T>
+	bool start(MonitoringSystemType systemType,
+	           MonitoringServerInfo &svInfo)
+	{
+		if (svInfo.type != systemType)
+			return false;
+		DataStore *dataStore = new T(svInfo);
+		if (add(svInfo.id, dataStore)) {
+			dataStore->unref();
+			return true;
+		}
+		return false;
+	}
 };
+
+typedef list<VirtualDataStore *>       VirtualDataStoreList;
+typedef VirtualDataStoreList::iterator VirtualDataStoreListIterator;
 
 #endif // VirtualDataStore_h

@@ -25,11 +25,38 @@
 #include "VirtualDataStoreZabbix.h"
 #include "VirtualDataStoreNagios.h"
 #include "DBClientAction.h"
+#include "DBClientConfig.h"
 #include "ActionManager.h"
 #include "CacheServiceDBClient.h"
 
 using namespace mlpl;
 
+// ---------------------------------------------------------------------------
+// UnifiedDataStoreEventProc
+// ---------------------------------------------------------------------------
+struct UnifiedDataStoreEventProc : public DataStoreEventProc
+{
+	bool enableCopyOnDemand;
+
+	UnifiedDataStoreEventProc(bool copyOnDemand)
+	: enableCopyOnDemand(copyOnDemand)
+	{
+	}
+
+	virtual ~UnifiedDataStoreEventProc()
+	{
+	}
+
+	virtual void onAdded(DataStore *dataStore)
+	{
+		dataStore->setCopyOnDemandEnable(enableCopyOnDemand);
+	}
+};
+
+
+// ---------------------------------------------------------------------------
+// UnifiedDataStore
+// ---------------------------------------------------------------------------
 struct UnifiedDataStore::PrivateContext
 {
 	const static size_t      maxRunningArms    = 8;
@@ -37,15 +64,14 @@ struct UnifiedDataStore::PrivateContext
 	static UnifiedDataStore *instance;
 	static MutexLock         mutex;
 
-	VirtualDataStoreZabbix *vdsZabbix;
-	VirtualDataStoreNagios *vdsNagios;
+	VirtualDataStoreList virtualDataStoreList;
 
 	bool          isCopyOnDemandEnabled;
 	sem_t         updatedSemaphore;
 	ReadWriteLock rwlock;
 	timespec      lastUpdateTime;
 	size_t        remainingArmsCount;
-	ArmBaseVector updateArmsQueue;
+	DataStoreVector updateArmsQueue;
 
 	Signal        itemFetchedSignal;
 
@@ -62,12 +88,38 @@ struct UnifiedDataStore::PrivateContext
 		sem_destroy(&updatedSemaphore);
 	};
 
-	void wakeArm(ArmBase *arm)
+	static ArmBase *getArmBase(DataStore *dataStore)
 	{
-		Closure<PrivateContext> *closure =
-		  new Closure<PrivateContext>(
-		    this, &PrivateContext::updatedCallback);
-		arm->fetchItems(closure);
+		// TODO: Make the design smart.
+		// We assume each DataStore has one arm.
+		ArmBaseVector arms;
+		dataStore->collectArms(arms);
+		HATOHOL_ASSERT(arms.size() == 1,
+		               "arms.size(): %zd", arms.size());
+		return arms.front();
+	}
+
+	void wakeArm(DataStore *dataStore)
+	{
+		struct ClosureWithDataStore : public Closure<PrivateContext>
+		{
+			DataStore *dataStore;
+
+			ClosureWithDataStore(PrivateContext *ctx, DataStore *ds)
+			: Closure<PrivateContext>(
+			    ctx, &PrivateContext::updatedCallback),
+			  dataStore(ds)
+			{
+			}
+
+			~ClosureWithDataStore()
+			{
+				dataStore->unref();
+			}
+		};
+
+		ArmBase *arm = getArmBase(dataStore);
+		arm->fetchItems(new ClosureWithDataStore(this, dataStore));
 	}
 
 	bool updateIsNeeded(void)
@@ -122,11 +174,29 @@ struct UnifiedDataStore::PrivateContext
 	bool startFetchingItems(uint32_t targetServerId = ALL_SERVERS,
 				ClosureBase *closure = NULL)
 	{
-		ArmBaseVector arms;
+		// TODO: Make the design smart
+		struct : public VirtualDataStoreForeachProc
+		{
+			ArmBaseVector arms;
+			DataStoreVector allDataStores;
+			virtual bool operator()(VirtualDataStore *virtDataStore)
+			{
+				DataStoreVector stores =
+				  virtDataStore->getDataStoreVector();
+				for (size_t i = 0; i < stores.size(); i++) {
+					DataStore *dataStore = stores[i];
+					allDataStores.push_back(dataStore);
+					arms.push_back(getArmBase(dataStore));
+				}
+				return false;
+			}
+		} collector;
+
 		rwlock.readLock();
-		vdsZabbix->collectArms(arms);
-		vdsNagios->collectArms(arms);
+		virtualDataStoreForeach(&collector);
 		rwlock.unlock();
+
+		ArmBaseVector &arms = collector.arms;
 		if (arms.empty())
 			return false;
 
@@ -134,23 +204,24 @@ struct UnifiedDataStore::PrivateContext
 		if (closure)
 			itemFetchedSignal.connect(closure);
 		remainingArmsCount = arms.size();
-		ArmBaseVectorIterator arms_it = arms.begin();
-		for (size_t i = 0; arms_it != arms.end(); i++, ++arms_it) {
-			ArmBase *arm = *arms_it;
+		for (size_t i = 0; i < collector.allDataStores.size(); i++) {
+			DataStore *dataStore = collector.allDataStores[i];
+			ArmBase *arm = getArmBase(dataStore);
 
 			if (targetServerId != ALL_SERVERS) {
 				const MonitoringServerInfo &info
 					= arm->getServerInfo();
 				if (static_cast<int>(targetServerId) != info.id) {
 					remainingArmsCount--;
+					dataStore->unref();
 					continue;
 				}
 			}
 
 			if (i < PrivateContext::maxRunningArms) {
-				wakeArm(arm);
+				wakeArm(dataStore);
 			} else {
-				updateArmsQueue.push_back(arm);
+				updateArmsQueue.push_back(dataStore);
 			}
 		}
 
@@ -159,6 +230,21 @@ struct UnifiedDataStore::PrivateContext
 		rwlock.unlock();
 
 		return started;
+	}
+
+	struct VirtualDataStoreForeachProc
+	{
+		virtual bool operator()(VirtualDataStore *virtDataStore) = 0;
+	};
+
+	void virtualDataStoreForeach(VirtualDataStoreForeachProc *vdsProc)
+	{
+		VirtualDataStoreListIterator it = virtualDataStoreList.begin();
+		for (; it != virtualDataStoreList.end(); ++it) {
+			bool breakFlag = (*vdsProc)(*it);
+			if (breakFlag)
+				break;
+		}
 	}
 };
 
@@ -172,8 +258,10 @@ UnifiedDataStore::UnifiedDataStore(void)
 : m_ctx(NULL)
 {
 	m_ctx = new PrivateContext();
-	m_ctx->vdsZabbix = VirtualDataStoreZabbix::getInstance();
-	m_ctx->vdsNagios = VirtualDataStoreNagios::getInstance();
+	m_ctx->virtualDataStoreList.push_back(
+	  VirtualDataStoreZabbix::getInstance());
+	m_ctx->virtualDataStoreList.push_back(
+	  VirtualDataStoreNagios::getInstance());
 }
 
 UnifiedDataStore::~UnifiedDataStore()
@@ -208,15 +296,34 @@ UnifiedDataStore *UnifiedDataStore::getInstance(void)
 
 void UnifiedDataStore::start(void)
 {
-	m_ctx->vdsZabbix->start();
-	m_ctx->vdsNagios->start();
-	setCopyOnDemandEnabled(m_ctx->isCopyOnDemandEnabled);
+	struct : public PrivateContext::VirtualDataStoreForeachProc
+	{
+		UnifiedDataStoreEventProc *evtProc;
+		virtual bool operator()(VirtualDataStore *virtDataStore)
+		{
+			virtDataStore->registEventProc(evtProc);
+			virtDataStore->start();
+			return false;
+		}
+	} starter;
+
+	starter.evtProc =
+	   new UnifiedDataStoreEventProc(m_ctx->isCopyOnDemandEnabled);
+	m_ctx->virtualDataStoreForeach(&starter);
 }
 
 void UnifiedDataStore::stop(void)
 {
-	m_ctx->vdsZabbix->stop();
-	m_ctx->vdsNagios->stop();
+	struct : public PrivateContext::VirtualDataStoreForeachProc
+	{
+		virtual bool operator()(VirtualDataStore *virtDataStore)
+		{
+			virtDataStore->stop();
+			return false;
+		}
+	} stopper;
+
+	m_ctx->virtualDataStoreForeach(&stopper);
 }
 
 void UnifiedDataStore::fetchItems(uint32_t targetServerId)
@@ -318,16 +425,6 @@ bool UnifiedDataStore::getCopyOnDemandEnabled(void) const
 void UnifiedDataStore::setCopyOnDemandEnabled(bool enable)
 {
 	m_ctx->isCopyOnDemandEnabled = enable;
-
-	ArmBaseVector arms;
-	m_ctx->vdsZabbix->collectArms(arms);
-	m_ctx->vdsNagios->collectArms(arms);
-
-	ArmBaseVectorIterator it = arms.begin();
-	for (; it != arms.end(); it++) {
-		ArmBase *arm = *it;
-		arm->setCopyOnDemandEnabled(enable);
-	}
 }
 
 void UnifiedDataStore::addAction(ActionDef &actionDef)
@@ -400,6 +497,29 @@ HatoholError UnifiedDataStore::deleteAccessInfo(
 	return dbUser->deleteAccessInfo(id, privilege);
 }
 
+HatoholError UnifiedDataStore::addTargetServer(
+  MonitoringServerInfo &svInfo, const OperationPrivilege &privilege)
+{
+	CacheServiceDBClient cache;
+	DBClientConfig *dbConfig = cache.getConfig();
+
+	// FIXME: Add OperationPrivilege to signature of addTargetServer()
+	HatoholError err = dbConfig->addTargetServer(&svInfo);
+	if (err != HTERR_OK)
+		return err;
+
+	struct : public PrivateContext::VirtualDataStoreForeachProc {
+		MonitoringServerInfo *svInfo;
+		virtual bool operator()(VirtualDataStore *virtDataStore) {
+			bool started = virtDataStore->start(*svInfo);
+			bool breakFlag = started;
+			return breakFlag;
+		}
+	} starter;
+	starter.svInfo = &svInfo;
+	m_ctx->virtualDataStoreForeach(&starter);
+	return err;
+}
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------

@@ -23,14 +23,17 @@
 #include <map>
 #include <vector>
 #include <ArmBase.h>
+#include "UsedCountable.h"
 using namespace std;
 
-class DataStore {
+class DataStore : public UsedCountable {
 public:
 	DataStore(void);
-	virtual ~DataStore();
 
 	virtual void collectArms(ArmBaseVector &arms);
+	virtual void setCopyOnDemandEnable(bool enable);
+protected:
+	virtual ~DataStore();
 };
 
 typedef vector<DataStore *>             DataStoreVector;

@@ -27,30 +27,75 @@ using namespace std;
 #include "DataStore.h"
 #include "Utils.h"
 
+struct DataStoreEventProc {
+public:
+	DataStoreEventProc(void);
+	virtual ~DataStoreEventProc();
+	virtual void onAdded(DataStore *dataStore);
+};
+
+typedef list<DataStoreEventProc *>       DataStoreEventProcList;
+typedef DataStoreEventProcList::iterator DataStoreEventProcListIterator;
+
 class DataStoreManager {
-	// Currently multi-thread unsafe.
 public:
 	DataStoreManager(void);
 	virtual ~DataStoreManager();
 	virtual void passCommandLineArg(const CommandLineArg &cmdArg);
 
-	// Elements regisgtered in this function should be freed by
-	// this class (i.e. owner is changed).
+	/**
+	 * regist an event handler.
+	 *
+	 * The events registered by this method are executed in series.
+	 * 
+	 * @param eventProc
+	 * A pointer to a DataStoreEventProc instance.
+	 * The owner of the instance is passed to DataStoreManager.
+	 * So the caller doesn't use it or free it after calling this method.
+	 */
+	void registEventProc(DataStoreEventProc *eventProc);
+
+	/**
+	 * add a DataStore instance.
+	 *
+	 * When a DataStore is sucessfully added, its used counter is
+	 * incremented.
+	 *
+	 * @param storeId A store ID.
+	 * @param dataStore A pointer to a DataStore instance to be added.
+	 *
+	 * @return
+	 * true if the dataStore is successfully added. Otherwise false is
+	 * returned.
+	 */
 	bool add(uint32_t storeId, DataStore *dataStore);
 
-	DataStoreVector &getDataStoreVector(void);
+	/**
+	 * remove a DataStore instance.
+	 *
+	 * When a DataStore is sucessfully removed, its used counter is
+	 * decremented.
+	 *
+	 * @param storeId A store ID.
+	 */
+	void remove(uint32_t storeId);
+
+	/**
+	 * get a vector of pointers of DataStore instance.
+	 *
+	 * @return
+	 * A DataStoreVector instance. A used counter of each DataStore
+	 * instance in it is increamented. So the caller must be call unref()
+	 * for each DataStore instance.
+	 */
+	DataStoreVector getDataStoreVector(void);
 
 protected:
 	void closeAllStores(void);
 
 private:
-	typedef map<uint32_t, DataStore*> DataStoreMap;
-	typedef DataStoreMap::iterator    DataStoreMapIterator;
-
-	// Elements in m_dataStoreMap and m_dataStoreVector are the same.
-	// So it's only necessary to free elements in one.
-	DataStoreMap    m_dataStoreMap;
-	DataStoreVector m_dataStoreVector;
+	struct PrivateContext;
+	PrivateContext *m_ctx;
 };
 
 #endif // DataStoreManager_h

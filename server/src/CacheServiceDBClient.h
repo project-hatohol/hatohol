@@ -22,6 +22,7 @@
 
 #include "DBClientHatohol.h"
 #include "DBClientUser.h"
+#include "DBClientConfig.h"
 
 class CacheServiceDBClient
 {
@@ -38,6 +39,7 @@ public:
 	virtual ~CacheServiceDBClient();
 	DBClientHatohol *getHatohol(void);
 	DBClientUser    *getUser(void);
+	DBClientConfig  *getConfig(void);
 
 private:
 	struct PrivateContext;

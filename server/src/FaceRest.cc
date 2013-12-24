@@ -38,6 +38,7 @@ using namespace mlpl;
 #include "ConfigManager.h"
 #include "UnifiedDataStore.h"
 #include "DBClientUser.h"
+#include "DBClientConfig.h"
 
 int FaceRest::API_VERSION = 3;
 const char *FaceRest::SESSION_ID_HEADER_NAME = "X-Hatohol-Session";
@@ -60,7 +61,7 @@ const char *FaceRest::pathForTest        = "/test";
 const char *FaceRest::pathForLogin       = "/login";
 const char *FaceRest::pathForLogout      = "/logout";
 const char *FaceRest::pathForGetOverview = "/overview";
-const char *FaceRest::pathForGetServer   = "/server";
+const char *FaceRest::pathForServer      = "/server";
 const char *FaceRest::pathForGetHost     = "/host";
 const char *FaceRest::pathForGetTrigger  = "/trigger";
 const char *FaceRest::pathForGetEvent    = "/event";
@@ -506,9 +507,9 @@ gpointer FaceRest::mainThread(HatoholThreadArg *arg)
 	                        queueRestJob,
 	                        new HandlerClosure(this, handlerGetOverview),
 				deleteHandlerClosure);
-	soup_server_add_handler(m_ctx->soupServer, pathForGetServer,
+	soup_server_add_handler(m_ctx->soupServer, pathForServer,
 	                        queueRestJob,
-	                        new HandlerClosure(this, handlerGetServer),
+	                        new HandlerClosure(this, handlerServer),
 				deleteHandlerClosure);
 	soup_server_add_handler(m_ctx->soupServer, pathForGetHost,
 	                        queueRestJob,
@@ -1334,6 +1335,22 @@ void FaceRest::handlerGetOverview(RestJob *job)
 	replyJsonData(agent, job);
 }
 
+void FaceRest::handlerServer(RestJob *job)
+{
+	if (StringUtils::casecmp(job->message->method, "GET")) {
+		handlerGetServer(job);
+	} else if (StringUtils::casecmp(job->message->method, "POST")) {
+		handlerPostServer(job);
+	} else if (StringUtils::casecmp(job->message->method, "DELETE")) {
+		// Not implemented yet
+	} else {
+		MLPL_ERR("Unknown method: %s\n", job->message->method);
+		soup_message_set_status(job->message,
+					SOUP_STATUS_METHOD_NOT_ALLOWED);
+		job->replyIsPrepared = true;
+	}
+}
+
 void FaceRest::handlerGetServer(RestJob *job)
 {
 	uint32_t targetServerId;
@@ -1345,6 +1362,115 @@ void FaceRest::handlerGetServer(RestJob *job)
 	addServers(job, agent, targetServerId);
 	agent.endObject();
 
+	replyJsonData(agent, job);
+}
+
+void FaceRest::handlerPostServer(RestJob *job)
+{
+	char *charValue;
+	int intValue;
+	bool succeeded;
+	bool exist;
+	MonitoringServerInfo svInfo;
+
+	// type
+	succeeded = getParamWithErrorReply<MonitoringSystemType>(
+			job, "type", "%d", svInfo.type, &exist);
+	if (!succeeded)
+		return;
+	if (!exist) {
+		REPLY_ERROR(job, HTERR_NOT_FOUND_PARAMETER, "type");
+		return;
+	}
+
+	// hostname
+	charValue = (char *)g_hash_table_lookup(job->query, "hostname");
+	if (!charValue) {
+		REPLY_ERROR(job, HTERR_NOT_FOUND_PARAMETER, "hostname");
+		return;
+	}
+	svInfo.hostName = charValue;
+
+	// ipAddress
+	charValue = (char *)g_hash_table_lookup(job->query, "ipaddress");
+	if (!charValue) {
+		REPLY_ERROR(job, HTERR_NOT_FOUND_PARAMETER, "ipaddress");
+		return;
+	}
+	svInfo.ipAddress = charValue;
+
+	// nickname
+	charValue = (char *)g_hash_table_lookup(job->query, "nickname");
+	if (!charValue) {
+		REPLY_ERROR(job, HTERR_NOT_FOUND_PARAMETER, "nickname");
+		return;
+	}
+	svInfo.nickname = charValue;
+
+	// port
+	charValue = (char *)g_hash_table_lookup(job->query, "port");
+	if (!charValue) {
+		REPLY_ERROR(job, HTERR_NOT_FOUND_PARAMETER, "port");
+		return;
+	}
+	sscanf(charValue, "%d", &intValue);
+	svInfo.port = intValue;
+
+	// polling
+	charValue = (char *)g_hash_table_lookup(job->query, "polling");
+	if (!charValue) {
+		REPLY_ERROR(job, HTERR_NOT_FOUND_PARAMETER, "polling");
+		return;
+	}
+	sscanf(charValue, "%d", &intValue);
+	svInfo.pollingIntervalSec = intValue;
+
+	// retry
+	charValue = (char *)g_hash_table_lookup(job->query, "retry");
+	if (!charValue) {
+		REPLY_ERROR(job, HTERR_NOT_FOUND_PARAMETER, "retry");
+		return;
+	}
+	sscanf(charValue, "%d", &intValue);
+	svInfo.retryIntervalSec = intValue;
+
+	// username
+	charValue = (char *)g_hash_table_lookup(job->query, "user");
+	if (!charValue) {
+		REPLY_ERROR(job, HTERR_NOT_FOUND_PARAMETER, "user");
+		return;
+	}
+	svInfo.userName = charValue;
+
+	// password
+	charValue = (char *)g_hash_table_lookup(job->query, "password");
+	if (!charValue) {
+		REPLY_ERROR(job, HTERR_NOT_FOUND_PARAMETER, "password");
+		return;
+	}
+	svInfo.password = charValue;
+
+	// dbname
+	if (svInfo.type == MONITORING_SYSTEM_NAGIOS) {
+		charValue = (char *)g_hash_table_lookup(job->query, "dbname");
+		if (!charValue) {
+			REPLY_ERROR(job, HTERR_NOT_FOUND_PARAMETER, "dbname");
+			return;
+		}
+		svInfo.dbName = charValue;
+	}
+
+	DataQueryOption option;
+	option.setUserId(job->userId);
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+	HatoholError err = dataStore->addTargetServer(svInfo, option);
+
+	JsonBuilderAgent agent;
+	agent.startObject();
+	addHatoholError(agent, err);
+	if (err == HTERR_OK)
+		agent.add("serverid", svInfo.id);
+	agent.endObject();
 	replyJsonData(agent, job);
 }
 

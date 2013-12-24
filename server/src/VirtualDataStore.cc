@@ -34,18 +34,14 @@ void VirtualDataStore::start(void)
 {
 }
 
+bool VirtualDataStore::start(MonitoringServerInfo &svInfo)
+{
+	return false;
+}
+
 void VirtualDataStore::stop(void)
 {
 	MLPL_INFO("VirtualDataStore: stop process: started.\n");
 	closeAllStores();
 }
 
-void VirtualDataStore::collectArms(ArmBaseVector &arms)
-{
-	DataStoreVector &stores = getDataStoreVector();
-	DataStoreVectorIterator it = stores.begin();
-	for (; it != stores.end(); it++) {
-		DataStore *store = *it;
-		store->collectArms(arms);
-	}
-}

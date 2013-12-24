@@ -95,12 +95,6 @@ static bool parseServerConfigLine(ParsableString &parsable,
 	string word;
 	MonitoringServerInfo serverInfo;
 
-	// ID
-	word = parsable.readWord(ParsableString::SEPARATOR_COMMA);
-	if (!checkUnexpectedFinish(parsable, lineNo))
-		return false;
-	serverInfo.id = atoi(word.c_str());
-
 	// Type
 	word = parsable.readWord(ParsableString::SEPARATOR_COMMA);
 	if (!checkUnexpectedFinish(parsable, lineNo))
@@ -275,17 +269,9 @@ static bool validatePort(int port)
 
 static bool validateServerInfoList(ConfigValue &confValue)
 {
-	set<int> serverIds;
 	MonitoringServerInfoListIterator it = confValue.serverInfoList.begin();
 	for (; it != confValue.serverInfoList.end(); ++it) {
-		// ID (Don't be duplicative)
 		MonitoringServerInfo &svInfo = *it;
-		if (serverIds.find(svInfo.id) != serverIds.end()) {
-			fprintf(stderr, "Duplicated server ID: %d\n",
-			        svInfo.id);
-			return false;
-		}
-		serverIds.insert(svInfo.id);
 
 		// should be given hostname or IP address.
 		if (svInfo.hostName.empty() && svInfo.ipAddress.empty()) {
@@ -570,10 +556,10 @@ int main(int argc, char *argv[])
 		MonitoringServerInfo &svInfo = *it;
 		dbConfig.addTargetServer(&svInfo);
 
-		printf("SERVER: ID: %d, TYPE: %d, HOSTNAME: %s, IP ADDR: %s "
-		       "NICKNAME: %s, PORT: %d, POLLING: %d, RETRY: %d "
+		printf("SERVER: TYPE: %d, HOSTNAME: %s, IP ADDR: %s, "
+		       "NICKNAME: %s, PORT: %d, POLLING: %d, RETRY: %d, "
 		       "USERNAME: %s, PASSWORD: %s, DB NAME: %s\n",
-		       svInfo.id, svInfo.type, svInfo.hostName.c_str(),
+		       svInfo.type, svInfo.hostName.c_str(),
 		       svInfo.ipAddress.c_str(), svInfo.nickname.c_str(),
 		       svInfo.port, svInfo.pollingIntervalSec,
 		       svInfo.retryIntervalSec,

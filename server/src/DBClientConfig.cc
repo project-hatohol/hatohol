@@ -26,6 +26,7 @@ using namespace std;
 #include "DBClientConfig.h"
 #include "DBClientUtils.h"
 #include "CacheServiceDBClient.h"
+#include "HatoholError.h"
 #include "Params.h"
 
 static const char *TABLE_NAME_SYSTEM  = "system";
@@ -104,7 +105,7 @@ static const ColumnDef COLUMN_DEF_SERVERS[] = {
 	0,                                 // decFracLength
 	false,                             // canBeNull
 	SQL_KEY_PRI,                       // keyType
-	0,                                 // flags
+	SQL_COLUMN_FLAG_AUTO_INC,          // flags
 	NULL,                              // defaultValue
 }, {
 	ITEM_ID_NOT_SET,                   // itemId
@@ -545,8 +546,13 @@ bool DBClientConfig::isCopyOnDemandEnabled(void)
 	return ItemDataUtils::getInt((*grpList.begin())->getItemAt(0));
 }
 
-void DBClientConfig::addTargetServer(MonitoringServerInfo *monitoringServerInfo)
+HatoholError DBClientConfig::addTargetServer(MonitoringServerInfo *monitoringServerInfo)
 {
+	//FIXME: Check edit permission and
+	//       Return value corresponding to
+	//       permission.
+	HatoholError err = HTERR_OK;
+
 	string condition = StringUtils::sprintf("id=%u",
 	                                        monitoringServerInfo->id);
 	VariableItemGroupPtr row;
@@ -556,7 +562,8 @@ void DBClientConfig::addTargetServer(MonitoringServerInfo *monitoringServerInfo)
 			arg.tableName = TABLE_NAME_SERVERS;
 			arg.numColumns = NUM_COLUMNS_SERVERS;
 			arg.columnDefs = COLUMN_DEF_SERVERS;
-			row->ADD_NEW_ITEM(Int, monitoringServerInfo->id);
+			row->ADD_NEW_ITEM(Int, 0);	// This is automatically set
+							// (0 is dummy)
 			row->ADD_NEW_ITEM(Int, monitoringServerInfo->type);
 			row->ADD_NEW_ITEM(String,
 			                  monitoringServerInfo->hostName);
@@ -623,6 +630,8 @@ void DBClientConfig::addTargetServer(MonitoringServerInfo *monitoringServerInfo)
 			update(arg);
 		}
 	} DBCLIENT_TRANSACTION_END();
+
+	return err;
 }
 
 void DBClientConfig::getTargetServers

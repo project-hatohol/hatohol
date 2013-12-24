@@ -23,6 +23,7 @@
 #include "ArmBase.h"
 #include "DBClientHatohol.h"
 #include "DBClientAction.h"
+#include "DBClientConfig.h"
 #include "Utils.h"
 #include "Closure.h"
 
@@ -86,6 +87,8 @@ public:
 	  AccessInfo &userInfo, const OperationPrivilege &privilege);
 	virtual HatoholError deleteAccessInfo(
 	  AccessInfoIdType userId, const OperationPrivilege &privilege);
+	virtual HatoholError addTargetServer(
+	  MonitoringServerInfo &svInfo, const OperationPrivilege &privilege);
 
 private:
 	struct PrivateContext;

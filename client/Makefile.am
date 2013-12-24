@@ -41,7 +41,9 @@ nobase_dist_hatohol_client_DATA = \
 	static/js/hatohol_password_changer.js \
 	static/js/hatohol_add_action_dialog.js \
 	static/js/hatohol_user_edit_dialog.js \
+	static/js/hatohol_server_edit_dialog.js \
 	static/js/hatohol_dialog.js \
+	static/js/hatohol_item_remover.js \
 	static/js/hatohol_reply_parser.js \
 	static/js/hatohol_server_selector.js \
 	static/js/hatohol_privilege_edit_dialog.js \

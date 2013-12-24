@@ -23,9 +23,23 @@
 {% block main %}
   <h2>{% trans "Servers" %}</h2>
 
+  <form class="form-inline">
+    <input id="add-server-button" type="button" class="btn" value="{% trans "ADD SERVER" %}" />
+    <input id="delete-server-button" type="button" class="btn" disabled
+      value="{% trans "DELETE SERVER" %}" />
+  </form>
+
+  <div id="msgbox" title="Message Box">
+    <p id="msgbox-text"></p>
+  </div>
+
+  <form id="add-server-form", method="POST"> {% csrf_token %}
+  </form>
+
   <table class="table table-condensed table-striped table-hover" id="table">
     <thead>
       <tr>
+        <th> </th>
         <th>{% trans "ID" %}</th>
         <th>{% trans "Type" %}</th>
         <th>{% trans "Hostname" %}</th>
@@ -39,8 +53,134 @@
   </table>
 {% endblock %}
 
+{% block option %}
+  <script src="{{ STATIC_URL }}js/hatohol_server_edit_dialog.js"></script>
+{% endblock %}
+
 {% block logic %}
   <script type="text/javascript">
+
+    var numSelected = 0;
+
+    $("#add-server-button").click(function() {
+      new HatoholServerEditDialog(addSucceededCb);
+    });
+
+    $("#delete-server-button").click(function() {
+      var msg = "{% trans "Do you delete the selected items ?" %}";
+      hatoholNoYesMsgBox(msg, deleteServers);
+    });
+
+    function addSucceededCb() {
+      startConnection('server', updateCore);
+    };
+
+    function setupCheckboxHandler() {
+      $(".selectcheckbox").change(function() {
+        check = $(this).is(":checked");
+        var prevNumSelected = numSelected;
+        if (check)
+          numSelected += 1;
+        else
+          numSelected -= 1;
+        if (prevNumSelected == 0 && numSelected == 1)
+          $("#delete-server-button").attr("disabled", false);
+        else if (prevNumSelected == 1 && numSelected == 0)
+          $("#delete-server-button").attr("disabled", true);
+      });
+    }
+
+    function parseResult(data) {
+      var msg;
+      var malformed =false;
+      if (data.result == undefined)
+        malformed = true;
+      if (!malformed && !data.result && data.message == undefined)
+        malformed = true;
+      if (malformed) {
+        msg = "The returned content is malformed: " +
+              "Not found 'result' or 'message'.\n" +
+              JSON.stringify(data);
+        hatoholErrorMsgBox(msg);
+        return false;
+      }
+      if (!data.result) {
+        msg = "Failed:\n" + data.message;
+        hatoholErrorMsgBox(msg);
+        return false;
+      }
+      if (data.id == undefined) {
+        msg = "The returned content is malformed: " +
+              "'result' is true, however, 'id' missing.\n" +
+              JSON.stringfy(data);
+        hatoholErrorMsgBox(msg);
+        return false;
+      }
+      return true;
+    }
+
+    function deleteServers() {
+      $(this).dialog("close");
+      checkbox = $(".selectcheckbox");
+      var delId = [];
+      for (var i = 0; i < checkbox.length; i++) {
+        if (!checkbox[i].checked)
+          continue;
+        var serverId = checkbox[i].getAttribute("serverId");
+        delId.push(serverId);
+      }
+      new HatoholItemRemover({
+        deleteId: delId,
+        type: "server",
+      });
+      hatoholInfoMsgBox("{% trans "Deleting..." %}");
+    }
+
+    function deleteOneServer(id, deletedIdArray) {
+      new HatoholConnector({
+        url: '/server/' + id,
+        request: "DELETE",
+        context: deletedIdArray,
+        replyCallBack: function(data, parser, context) {
+          parseDeleteServerResult(data, context);
+        },
+        connectErrorCallback: function(XMLHttpRequest,
+                                       textStatus, errorThrown) {
+          var errorMsg = "Error: " + XMLHttpRequest.status + ": " +
+                         XMLHttpRequest.statusText;
+          hatoholErrorMsgBox(errorMsg);
+          deletedIdArray.errors++;
+        },
+        completionCallback: function(context) {
+          completeOneDelServer(context);
+        }
+      });
+    }
+
+    function parseDeleteServerResult(data, deletedIdArray) {
+      if (parseResult(data))
+        return;
+      if (!(data.id in deletedIdArray)) {
+        alert("Fatal Error: You should reload page.\nID: " + data.id +
+              " is not in deletedIdArray: " + deletedIdArray);
+        deletedIdArray.errors++;
+        return;
+      }
+      delete deletedIdArray[data.id];
+    }
+
+    function completeOneDelServer(deletedIdArray) {
+      deletedIdArray.count--;
+      var completed = deletedIdArray.total - deletedIdArray.count;
+      hatoholErrorMsgBox("{% trans "Deleting..." %}" + " " + completed +
+                         " / " + deletedIdArray.total);
+      if (deletedIdArray.count > 0)
+        return;
+
+      hatoholInfoMsgBox("{% trans " Completed. (Number of errors: " %}" +
+                        deletedIdArray.errors + ")");
+      startConnection('server', updateCore);
+    }
 
     function drawTableBody(rd) {
       var x;
@@ -55,6 +195,8 @@
         serverURL = getServerLocation(o);
         mapsURL = getMapsLocation(o);
         s += "<tr>";
+        s += "<td><input type='checkbox' class='selectcheckbox' " +
+             "serverId='" + o["id"] + "'></td>";
         s += "<td>" + o["id"] + "</td>";
         s += "<td>" + o["type"]  + "</td>";
         if (serverURL) {
@@ -79,6 +221,8 @@
     function updateCore(reply) {
       $("#table tbody").empty();
       $("#table tbody").append(drawTableBody(reply));
+      setupCheckboxHandler();
+      numSelected = 0;
     }
 
     userProfile.addOnLoadCb(function() {

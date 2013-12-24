@@ -18,16 +18,50 @@
  */
 
 #include "DataStoreManager.h"
+#include <MutexLock.h>
+typedef map<uint32_t, DataStore*> DataStoreMap;
+typedef DataStoreMap::iterator    DataStoreMapIterator;
+
+// ---------------------------------------------------------------------------
+// DataStoreEventProc
+// ---------------------------------------------------------------------------
+DataStoreEventProc::DataStoreEventProc()
+{
+}
+
+DataStoreEventProc::~DataStoreEventProc()
+{
+}
+
+void DataStoreEventProc::onAdded(DataStore *dataStore)
+{
+}
+
+// ---------------------------------------------------------------------------
+// DataStoreManager
+// ---------------------------------------------------------------------------
+struct DataStoreManager::PrivateContext {
+	// Elements in dataStoreMap and dataStoreVector are the same.
+	// So it's only necessary to free elements in one.
+	DataStoreMap    dataStoreMap;
+	DataStoreVector dataStoreVector;
+	MutexLock mutex;
+	DataStoreEventProcList eventProcList;
+};
 
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
 DataStoreManager::DataStoreManager(void)
 {
+	m_ctx = new PrivateContext;
 }
 
 DataStoreManager::~DataStoreManager()
 {
+	if (m_ctx)
+		delete m_ctx;
+
 	closeAllStores();
 }
 
@@ -35,22 +69,60 @@ void DataStoreManager::passCommandLineArg(const CommandLineArg &cmdArg)
 {
 }
 
+void DataStoreManager::registEventProc(DataStoreEventProc *eventProc)
+{
+	m_ctx->eventProcList.push_back(eventProc);
+}
+
 bool DataStoreManager::add(uint32_t storeId, DataStore *dataStore)
 {
-	pair<DataStoreMapIterator, bool> result = 
-	  m_dataStoreMap.insert
+	m_ctx->mutex.lock();
+	pair<DataStoreMapIterator, bool> result =
+	  m_ctx->dataStoreMap.insert
 	    (pair<uint32_t, DataStore *>(storeId, dataStore));
 
 	bool successed = result.second;
 	if (successed) {
-		m_dataStoreVector.push_back(dataStore);
+		m_ctx->dataStoreVector.push_back(dataStore);
+		dataStore->ref();
 	}
+
+	DataStoreEventProcListIterator evtProc = m_ctx->eventProcList.begin();
+	for (; evtProc != m_ctx->eventProcList.end(); ++evtProc)
+		(*evtProc)->onAdded(dataStore);
+
+	m_ctx->mutex.unlock();
 	return result.second;
 }
 
-DataStoreVector &DataStoreManager::getDataStoreVector(void)
+void DataStoreManager::remove(uint32_t storeId)
 {
-	return m_dataStoreVector;
+	DataStore *dataStore = NULL;
+
+	m_ctx->mutex.lock();
+	DataStoreMapIterator it = m_ctx->dataStoreMap.find(storeId);
+	if (it != m_ctx->dataStoreMap.end()) {
+		m_ctx->dataStoreMap.erase(it);
+		dataStore = it->second;
+	}
+	m_ctx->mutex.unlock();
+
+	if (dataStore)
+		dataStore->unref();
+	else
+		MLPL_WARN("Not found: storeId: %"PRIu32"\n", storeId);
+}
+
+
+DataStoreVector DataStoreManager::getDataStoreVector(void)
+{
+	m_ctx->mutex.lock();
+	DataStoreVector dataStoreVector = m_ctx->dataStoreVector;
+	for (size_t i = 0; i < dataStoreVector.size(); i++)
+		dataStoreVector[i]->ref();
+	m_ctx->mutex.unlock();
+
+	return dataStoreVector;
 }
 
 // ---------------------------------------------------------------------------
@@ -58,7 +130,9 @@ DataStoreVector &DataStoreManager::getDataStoreVector(void)
 // ---------------------------------------------------------------------------
 void DataStoreManager::closeAllStores(void)
 {
-	for (size_t i = 0; i < m_dataStoreVector.size(); i++)
-		delete m_dataStoreVector[i];
-	m_dataStoreVector.clear();
+	m_ctx->mutex.lock();
+	for (size_t i = 0; i < m_ctx->dataStoreVector.size(); i++)
+		m_ctx->dataStoreVector[i]->unref();
+	m_ctx->dataStoreVector.clear();
+	m_ctx->mutex.unlock();
 }

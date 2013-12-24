@@ -28,6 +28,7 @@ public:
 	DataStoreNagios(const MonitoringServerInfo &serverInfo);
 	virtual ~DataStoreNagios();
 	virtual void collectArms(ArmBaseVector &arms);
+	virtual void setCopyOnDemandEnable(bool enable);
 private:
 	struct PrivateContext;
 	PrivateContext *m_ctx;

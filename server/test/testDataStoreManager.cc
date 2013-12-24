@@ -17,26 +17,46 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "DataStore.h"
+#include <cppcutter.h>
+#include "DataStoreManager.h"
 
-// ---------------------------------------------------------------------------
-// Public methods
-// ---------------------------------------------------------------------------
-DataStore::DataStore(void)
+namespace testDataStoreManager {
+
+DataStore *g_dataStore = NULL;
+
+static void deleteDataStore(DataStore *dataStore)
 {
+	while (true) {
+		int usedCnt = g_dataStore->getUsedCount();
+		g_dataStore->unref();
+		if (usedCnt == 1)
+			break;
+	}
 }
 
-void DataStore::collectArms(ArmBaseVector &arms)
+void cut_teardown(void)
 {
-}
-
-void DataStore::setCopyOnDemandEnable(bool enable)
-{
+	if (g_dataStore) {
+		deleteDataStore(g_dataStore);
+		g_dataStore = NULL;
+	}
 }
 
 // ---------------------------------------------------------------------------
-// Protected methods
+// Test cases
 // ---------------------------------------------------------------------------
-DataStore::~DataStore()
+void test_addAndRemove(void)
 {
+	const uint32_t storeId = 50;
+
+	g_dataStore = new DataStore();
+	cppcut_assert_equal(1, g_dataStore->getUsedCount());
+	DataStoreManager mgr;
+	mgr.add(storeId, g_dataStore);
+	cppcut_assert_equal(2, g_dataStore->getUsedCount());
+	mgr.remove(storeId);
+	cppcut_assert_equal(1, g_dataStore->getUsedCount());
 }
+
+} // namespace testDataStoreManager
+

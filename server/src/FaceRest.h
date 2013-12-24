@@ -128,7 +128,9 @@ protected:
 	static void handlerLogin(RestJob *job);
 	static void handlerLogout(RestJob *job);
 	static void handlerGetOverview(RestJob *job);
+	static void handlerServer(RestJob *job);
 	static void handlerGetServer(RestJob *job);
+	static void handlerPostServer(RestJob *job);
 	static void handlerGetHost(RestJob *job);
 	static void handlerGetTrigger(RestJob *job);
 	static void handlerGetEvent(RestJob *job);
@@ -210,7 +212,7 @@ private:
 	static const char *pathForLogin;
 	static const char *pathForLogout;
 	static const char *pathForGetOverview;
-	static const char *pathForGetServer;
+	static const char *pathForServer;
 	static const char *pathForGetHost;
 	static const char *pathForGetTrigger;
 	static const char *pathForGetEvent;

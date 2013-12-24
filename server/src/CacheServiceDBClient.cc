@@ -93,6 +93,8 @@ struct CacheServiceDBClient::PrivateContext {
 			dbClient = new DBClientHatohol();
 		else if (domainId == DB_DOMAIN_ID_USERS)
 			dbClient = new DBClientUser();
+		else if (domainId == DB_DOMAIN_ID_CONFIG)
+			dbClient = new DBClientConfig();
 		HATOHOL_ASSERT(dbClient,
 		               "ptr is NULL. domainId: %d\n", domainId);
 		clientMap->insert(
@@ -187,6 +189,10 @@ DBClientUser *CacheServiceDBClient::getUser(void)
 	return get<DBClientUser>(DB_DOMAIN_ID_USERS);
 }
 
+DBClientConfig *CacheServiceDBClient::getConfig(void)
+{
+	return get<DBClientConfig>(DB_DOMAIN_ID_CONFIG);
+}
 // ---------------------------------------------------------------------------
 // Private methods
 // ---------------------------------------------------------------------------
