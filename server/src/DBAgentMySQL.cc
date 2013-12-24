@@ -479,6 +479,7 @@ void DBAgentMySQL::sleepAndReconnect(unsigned int sleepTimeSec)
 	}
 
 	mysql_close(&m_ctx->mysql);
+	m_ctx->connected = false;
 	connect();
 }
 
