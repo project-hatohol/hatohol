@@ -56,8 +56,6 @@ public:
 	 */
 	void registEventProc(DataStoreEventProc *eventProc);
 
-	// Elements regisgtered in this function should be freed by
-	// this class (i.e. owner is changed).
 	bool add(uint32_t storeId, DataStore *dataStore);
 
 	DataStoreVector &getDataStoreVector(void);
