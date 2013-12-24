@@ -29,3 +29,7 @@ DataStoreEventProc::DataStoreEventProc(void)
 DataStoreEventProc::~DataStoreEventProc()
 {
 }
+
+void DataStoreEventProc::onAddedStoreVector(void)
+{
+}
