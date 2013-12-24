@@ -80,6 +80,7 @@ libhatohol_la_SOURCES = \
 	SQLUtils.cc SQLUtils.h \
 	SQLWhereParser.cc SQLWhereParser.h \
 	UnifiedDataStore.cc UnifiedDataStore.h \
+	UnifiedDataStoreEventProc.h UnifiedDataStoreEventProc.cc \
 	UsedCountable.cc UsedCountable.h \
 	Utils.cc Utils.h \
 	VirtualDataStore.cc VirtualDataStore.h \
