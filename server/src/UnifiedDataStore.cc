@@ -43,7 +43,7 @@ struct UnifiedDataStoreEventProc : public DataStoreEventProc
 	{
 	}
 
-	void onAdded(DataStore *dataStore)
+	virtual void onAdded(DataStore *dataStore)
 	{
 		MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
 	}
