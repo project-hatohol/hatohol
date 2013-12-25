@@ -547,89 +547,18 @@ bool DBClientConfig::isCopyOnDemandEnabled(void)
 }
 
 HatoholError DBClientConfig::addOrUpdateTargetServer(
-  MonitoringServerInfo *monitoringServerInfo)
+  MonitoringServerInfo *monitoringServerInfo,
+  const OperationPrivilege &privilege)
 {
-	//FIXME: Check edit permission and
-	//       Return value corresponding to
-	//       permission.
-	HatoholError err = HTERR_OK;
-
+	HatoholError err = HTERR_UNINITIALIZED;
 	string condition = StringUtils::sprintf("id=%u",
 	                                        monitoringServerInfo->id);
-	VariableItemGroupPtr row;
 	DBCLIENT_TRANSACTION_BEGIN() {
 		if (!isRecordExisting(TABLE_NAME_SERVERS, condition)) {
-			DBAgentInsertArg arg;
-			arg.tableName = TABLE_NAME_SERVERS;
-			arg.numColumns = NUM_COLUMNS_SERVERS;
-			arg.columnDefs = COLUMN_DEF_SERVERS;
-			row->ADD_NEW_ITEM(Int, 0);	// This is automatically set
-							// (0 is dummy)
-			row->ADD_NEW_ITEM(Int, monitoringServerInfo->type);
-			row->ADD_NEW_ITEM(String,
-			                  monitoringServerInfo->hostName);
-			row->ADD_NEW_ITEM(String,
-			                      monitoringServerInfo->ipAddress);
-			row->ADD_NEW_ITEM(String,
-			                  monitoringServerInfo->nickname);
-			row->ADD_NEW_ITEM(Int, monitoringServerInfo->port);
-			row->ADD_NEW_ITEM
-			  (Int, monitoringServerInfo->pollingIntervalSec);
-			row->ADD_NEW_ITEM
-			  (Int, monitoringServerInfo->retryIntervalSec);
-			row->ADD_NEW_ITEM
-			  (String, monitoringServerInfo->userName);
-			row->ADD_NEW_ITEM
-			  (String, monitoringServerInfo->password);
-			row->ADD_NEW_ITEM(String, monitoringServerInfo->dbName);
-			arg.row = row;
-			insert(arg);
-			monitoringServerInfo->id = getLastInsertId();
+			err = _addTargetServer(monitoringServerInfo, privilege);
 		} else {
-			DBAgentUpdateArg arg;
-			arg.tableName = TABLE_NAME_SERVERS;
-			arg.columnDefs = COLUMN_DEF_SERVERS;
-			arg.condition  = condition;
-
-			row->ADD_NEW_ITEM(Int, monitoringServerInfo->type);
-			arg.columnIndexes.push_back(IDX_SERVERS_TYPE);
-
-			row->ADD_NEW_ITEM(String,
-			                      monitoringServerInfo->hostName);
-			arg.columnIndexes.push_back(IDX_SERVERS_HOSTNAME);
-
-			row->ADD_NEW_ITEM(String,
-			                      monitoringServerInfo->ipAddress);
-			arg.columnIndexes.push_back(IDX_SERVERS_IP_ADDRESS);
-
-			row->ADD_NEW_ITEM(String,
-			                  monitoringServerInfo->nickname);
-			arg.columnIndexes.push_back(IDX_SERVERS_NICKNAME);
-
-			row->ADD_NEW_ITEM(Int, monitoringServerInfo->port);
-			arg.columnIndexes.push_back(IDX_SERVERS_PORT);
-
-			row->ADD_NEW_ITEM
-			  (Int, monitoringServerInfo->pollingIntervalSec);
-			arg.columnIndexes.push_back
-			  (IDX_SERVERS_POLLING_INTERVAL_SEC);
-			row->ADD_NEW_ITEM
-			  (Int, monitoringServerInfo->retryIntervalSec);
-			arg.columnIndexes.push_back
-			  (IDX_SERVERS_RETRY_INTERVAL_SEC);
-
-			row->ADD_NEW_ITEM(String,
-			                  monitoringServerInfo->userName);
-			arg.columnIndexes.push_back(IDX_SERVERS_USER_NAME);
-			row->ADD_NEW_ITEM(String,
-			                  monitoringServerInfo->password);
-			arg.columnIndexes.push_back(IDX_SERVERS_PASSWORD);
-			row->ADD_NEW_ITEM(String,
-			                  monitoringServerInfo->dbName);
-			arg.columnIndexes.push_back(IDX_SERVERS_DB_NAME);
-
-			arg.row = row;
-			update(arg);
+			err = _updateTargetServer(monitoringServerInfo,
+			                          privilege, condition);
 		}
 	} DBCLIENT_TRANSACTION_END();
 
@@ -779,3 +708,84 @@ bool DBClientConfig::parseDBServer(const string &dbServer,
 	return true;
 }
 
+HatoholError DBClientConfig::_addTargetServer(
+  MonitoringServerInfo *monitoringServerInfo,
+  const OperationPrivilege &privilege)
+{
+	if (!privilege.has(OPPRVLG_CREATE_SERVERS))
+		return HatoholError(HTERR_NO_PRIVILEGE);
+
+	// TODO: ADD this server to the liset this user can access to
+
+	DBAgentInsertArg arg;
+	arg.tableName = TABLE_NAME_SERVERS;
+	arg.numColumns = NUM_COLUMNS_SERVERS;
+	arg.columnDefs = COLUMN_DEF_SERVERS;
+
+	VariableItemGroupPtr row;
+	row->ADD_NEW_ITEM(Int, 0);	// This is automatically set
+					// (0 is dummy)
+	row->ADD_NEW_ITEM(Int, monitoringServerInfo->type);
+	row->ADD_NEW_ITEM(String,
+	                  monitoringServerInfo->hostName);
+	row->ADD_NEW_ITEM(String, monitoringServerInfo->ipAddress);
+	row->ADD_NEW_ITEM(String, monitoringServerInfo->nickname);
+	row->ADD_NEW_ITEM(Int, monitoringServerInfo->port);
+	row->ADD_NEW_ITEM(Int, monitoringServerInfo->pollingIntervalSec);
+	row->ADD_NEW_ITEM(Int, monitoringServerInfo->retryIntervalSec);
+	row->ADD_NEW_ITEM(String, monitoringServerInfo->userName);
+	row->ADD_NEW_ITEM(String, monitoringServerInfo->password);
+	row->ADD_NEW_ITEM(String, monitoringServerInfo->dbName);
+	arg.row = row;
+	insert(arg);
+	monitoringServerInfo->id = getLastInsertId();
+	return HTERR_OK;
+}
+
+HatoholError DBClientConfig::_updateTargetServer(
+  MonitoringServerInfo *monitoringServerInfo,
+  const OperationPrivilege &privilege,
+  const string &condition)
+{
+	if (!privilege.has(OPPRVLG_UPDATE_SERVERS))
+		return HatoholError(HTERR_NO_PRIVILEGE);
+
+	// TODO: Check the user is allowed to UPDATE this server.
+
+	DBAgentUpdateArg arg;
+	arg.tableName = TABLE_NAME_SERVERS;
+	arg.columnDefs = COLUMN_DEF_SERVERS;
+	arg.condition  = condition;
+
+	VariableItemGroupPtr row;
+	row->ADD_NEW_ITEM(Int, monitoringServerInfo->type);
+	arg.columnIndexes.push_back(IDX_SERVERS_TYPE);
+
+	row->ADD_NEW_ITEM(String, monitoringServerInfo->hostName);
+	arg.columnIndexes.push_back(IDX_SERVERS_HOSTNAME);
+
+	row->ADD_NEW_ITEM(String, monitoringServerInfo->ipAddress);
+	arg.columnIndexes.push_back(IDX_SERVERS_IP_ADDRESS);
+
+	row->ADD_NEW_ITEM(String, monitoringServerInfo->nickname);
+	arg.columnIndexes.push_back(IDX_SERVERS_NICKNAME);
+
+	row->ADD_NEW_ITEM(Int, monitoringServerInfo->port);
+	arg.columnIndexes.push_back(IDX_SERVERS_PORT);
+
+	row->ADD_NEW_ITEM(Int, monitoringServerInfo->pollingIntervalSec);
+	arg.columnIndexes.push_back(IDX_SERVERS_POLLING_INTERVAL_SEC);
+	row->ADD_NEW_ITEM(Int, monitoringServerInfo->retryIntervalSec);
+	arg.columnIndexes.push_back(IDX_SERVERS_RETRY_INTERVAL_SEC);
+
+	row->ADD_NEW_ITEM(String, monitoringServerInfo->userName);
+	arg.columnIndexes.push_back(IDX_SERVERS_USER_NAME);
+	row->ADD_NEW_ITEM(String, monitoringServerInfo->password);
+	arg.columnIndexes.push_back(IDX_SERVERS_PASSWORD);
+	row->ADD_NEW_ITEM(String, monitoringServerInfo->dbName);
+	arg.columnIndexes.push_back(IDX_SERVERS_DB_NAME);
+
+	arg.row = row;
+	update(arg);
+	return HTERR_OK;
+}

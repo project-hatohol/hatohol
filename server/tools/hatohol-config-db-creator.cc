@@ -551,10 +551,11 @@ int main(int argc, char *argv[])
 	printf("FaceRest port: %d\n", confValue.faceRestPort);
 
 	// servers
+	OperationPrivilege privilege(ALL_PRIVILEGES);
 	MonitoringServerInfoListIterator it = confValue.serverInfoList.begin();
 	for (; it != confValue.serverInfoList.end(); ++it) {
 		MonitoringServerInfo &svInfo = *it;
-		dbConfig.addOrUpdateTargetServer(&svInfo);
+		dbConfig.addOrUpdateTargetServer(&svInfo, privilege);
 
 		printf("SERVER: TYPE: %d, HOSTNAME: %s, IP ADDR: %s, "
 		       "NICKNAME: %s, PORT: %d, POLLING: %d, RETRY: %d, "
@@ -569,7 +570,6 @@ int main(int argc, char *argv[])
 
 	// users
 	UserInfoListIterator itUser = confValue.userInfoList.begin();
-	OperationPrivilege privilege(ALL_PRIVILEGES);
 	for (; itUser != confValue.userInfoList.end(); ++itUser) {
 		UserInfo &userInfo = *itUser;
 		HatoholError err = dbUser.addUserInfo(userInfo, privilege);
