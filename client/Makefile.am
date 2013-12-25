@@ -33,6 +33,7 @@ nobase_dist_hatohol_client_DATA = \
 	static/js.external/stupidtable.js \
 	static/js.external/jquery-ui.min.js \
 	static/js/library.js \
+	static/js/events_view.js \
 	static/js/hatohol_def.js \
 	static/js/hatohol_connector.js \
 	static/js/hatohol_session_manager.js \
