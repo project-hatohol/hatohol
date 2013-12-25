@@ -206,6 +206,9 @@ public:
 	static HatoholError isValidFlags(
 	                           const OperationPrivilegeFlag flags);
 
+	bool isAccessible(const ServerIdType serverId,
+	                  const OperationPrivilege &privilege);
+
 protected:
 	void getUserInfoList(UserInfoList &userInfoList,
 	                     const string &condition);

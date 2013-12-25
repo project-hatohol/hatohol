@@ -777,6 +777,41 @@ HatoholError DBClientUser::isValidFlags(const OperationPrivilegeFlag flags)
 	return HTERR_OK;
 }
 
+bool DBClientUser::isAccessible(const ServerIdType serverId,
+                                const OperationPrivilege &privilege)
+{
+	UserIdType userId = privilege.getUserId();
+	if (userId == INVALID_USER_ID) {
+		MLPL_WARN("INVALID_USER_ID\n");
+		return false;
+	}
+
+	string condition = StringUtils::sprintf(
+	  "%s=%"FMT_USER_ID" AND %s=%"FMT_SERVER_ID" AND %s=%"PRIu64,
+	  COLUMN_DEF_ACCESS_LIST[IDX_ACCESS_LIST_USER_ID].columnName,
+	  userId,
+	  COLUMN_DEF_ACCESS_LIST[IDX_ACCESS_LIST_SERVER_ID].columnName,
+	  serverId,
+	  COLUMN_DEF_ACCESS_LIST[IDX_ACCESS_LIST_HOST_GROUP_ID].columnName,
+	  ALL_HOST_GROUPS);
+
+	DBAgentSelectExArg arg;
+	arg.tableName = TABLE_NAME_ACCESS_LIST;
+	arg.statements.push_back("count(*)");
+	arg.columnTypes.push_back(SQL_COLUMN_TYPE_INT);
+	arg.condition = condition;
+
+	DBCLIENT_TRANSACTION_BEGIN() {
+		select(arg);
+	} DBCLIENT_TRANSACTION_END();
+
+	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
+	HATOHOL_ASSERT(!grpList.empty(), "No result");
+	const ItemGroup *itemGroup = *grpList.begin();
+	DEFINE_AND_ASSERT(itemGroup->getItemAt(0), ItemInt, itemCount);
+	return itemCount->get();
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
