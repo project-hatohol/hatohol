@@ -70,6 +70,7 @@ nobase_dist_hatohol_client_DATA = \
 	viewer/dashboard_ajax.html \
 	viewer/actions_ajax.html \
 	viewer/users_ajax.html \
+	viewer/userconfig.py \
 	viewer/tests.py
 
 MO_FILES = \
