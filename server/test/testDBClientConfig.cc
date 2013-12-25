@@ -55,7 +55,8 @@ cut_trace(_assertGetHostAddress(IP, HOSTNAME, EXPECT))
 static void addTargetServer(MonitoringServerInfo *serverInfo)
 {
 	DBClientConfig dbConfig;
-	dbConfig.addOrUpdateTargetServer(serverInfo);
+	OperationPrivilege privilege(ALL_PRIVILEGES);
+	dbConfig.addOrUpdateTargetServer(serverInfo, privilege);
 }
 #define assertAddServerToDB(X) \
 cut_trace(_assertAddToDB<MonitoringServerInfo>(X, addTargetServer))

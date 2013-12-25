@@ -546,13 +546,16 @@ void setupTestDBServers(void)
 	DBClient::setDefaultDBParams(DB_DOMAIN_ID_CONFIG, TEST_DB_NAME,
 	                             TEST_DB_USER, TEST_DB_PASSWORD);
 	static bool dbServerReady = false;
+	OperationPrivilege privilege(ALL_PRIVILEGES);
 	if (!dbServerReady) {
 		bool recreate = true;
 		makeTestMySQLDBIfNeeded(TEST_DB_NAME, recreate);
 
 		DBClientConfig dbConfig;
-		for (size_t i = 0; i < NumServerInfo; i++)
-			dbConfig.addOrUpdateTargetServer(&serverInfo[i]);
+		for (size_t i = 0; i < NumServerInfo; i++) {
+			dbConfig.addOrUpdateTargetServer(&serverInfo[i],
+			                                 privilege);
+		}
 		dbServerReady = true;
 	}
 }
