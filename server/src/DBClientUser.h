@@ -207,7 +207,8 @@ public:
 	                           const OperationPrivilegeFlag flags);
 
 	bool isAccessible(const ServerIdType serverId,
-	                  const OperationPrivilege &privilege);
+	                  const OperationPrivilege &privilege,
+	                  const bool useTransaction = true);
 
 protected:
 	void getUserInfoList(UserInfoList &userInfoList,

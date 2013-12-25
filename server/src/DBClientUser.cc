@@ -778,7 +778,8 @@ HatoholError DBClientUser::isValidFlags(const OperationPrivilegeFlag flags)
 }
 
 bool DBClientUser::isAccessible(const ServerIdType serverId,
-                                const OperationPrivilege &privilege)
+                                const OperationPrivilege &privilege,
+                                const bool useTransaction)
 {
 	UserIdType userId = privilege.getUserId();
 	if (userId == INVALID_USER_ID) {
@@ -805,9 +806,13 @@ bool DBClientUser::isAccessible(const ServerIdType serverId,
 	arg.columnTypes.push_back(SQL_COLUMN_TYPE_INT);
 	arg.condition = condition;
 
-	DBCLIENT_TRANSACTION_BEGIN() {
+	if (useTransaction) {
+		DBCLIENT_TRANSACTION_BEGIN() {
+			select(arg);
+		} DBCLIENT_TRANSACTION_END();
+	} else {
 		select(arg);
-	} DBCLIENT_TRANSACTION_END();
+	}
 
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
 	HATOHOL_ASSERT(!grpList.empty(), "No result");
