@@ -271,7 +271,7 @@ msgstr "削除中..."
 
 #: static/js/hatohol_item_remover.js:73
 msgid "Completed. (Number of errors: "
-msgstr ""
+msgstr "完了 (エラー数: "
 
 #: static/js/hatohol_login_dialog.js:23 static/js/hatohol_login_dialog.js:32
 msgid "Login"
