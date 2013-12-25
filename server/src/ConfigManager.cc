@@ -84,12 +84,6 @@ ConfigManager *ConfigManager::getInstance(void)
 	return PrivateContext::instance;
 }
 
-void ConfigManager::addTargetServer(MonitoringServerInfo *monitoringServerInfo)
-{
-	DBClientConfig dbConfig;
-	dbConfig.addOrUpdateTargetServer(monitoringServerInfo);
-}
-
 void ConfigManager::getTargetServers
   (MonitoringServerInfoList &monitoringServers, ServerQueryOption &option)
 {

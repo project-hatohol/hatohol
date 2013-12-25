@@ -33,7 +33,6 @@ public:
 
 	static void reset(void);
 
-	void addTargetServer(MonitoringServerInfo *monitoringServerInfo);
 	void getTargetServers(MonitoringServerInfoList &monitoringServers,
 	                      ServerQueryOption &option);
 	const string &getDatabaseDirectory(void) const;
