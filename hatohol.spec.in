@@ -13,6 +13,7 @@ Requires: libsoup >= 2.22
 Requires: json-glib >= 0.12
 Requires: sqlite >= 3.6
 Requires: mysql >= 5.1
+Requires: libuuid-devel >= 2.17
 BuildRequires: gcc-c++, pkgconfig
 BuildRequires: glib2-devel >= 2.22
 BuildRequires: libsoup-devel >= 2.22
