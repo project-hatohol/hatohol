@@ -820,4 +820,27 @@ void test_isAccessibleAllServers(void)
 	assertIsAccessible(useAllServers);
 }
 
+void test_isAccessibleFalse(void)
+{
+	loadTestDBUser();
+	loadTestDBAccessList();
+	CacheServiceDBClient cache;
+	DBClientUser *dbUser = cache.getUser();
+
+	// search for nonexisting User ID and Server ID
+	ServerIdType serverId = 0;
+	UserIdType userId = INVALID_USER_ID;
+	for (size_t i = 0; i < NumTestAccessInfo; i++) {
+		AccessInfo &accessInfo = testAccessInfo[i];
+		userId = accessInfo.userId;
+		if ((ServerIdType)accessInfo.serverId >= serverId)
+			serverId = accessInfo.serverId + 1;
+		serverId = accessInfo.serverId;
+		break;
+	}
+	OperationPrivilege privilege;
+	privilege.setUserId(userId);
+	cppcut_assert_equal(false, dbUser->isAccessible(serverId, privilege));
+}
+
 } // namespace testDBClientUser
