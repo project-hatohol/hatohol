@@ -52,15 +52,15 @@ var HatoholServerEditDialog = function(succeededCb) {
   function makeQueryData() {
     var queryData = {};
     queryData.type = getFlagsFromServerType($("#selectServerType").val());
-    queryData.hostname = $("#inputHostName").val();
-    queryData.ipaddress = $("#inputIpAddress").val();
+    queryData.hostName = $("#inputHostName").val();
+    queryData.ipAddress = $("#inputIpAddress").val();
     queryData.nickname = $("#inputNickName").val();
     queryData.port = $("#inputPort").val();
     queryData.polling = $("#inputPollingInterval").val();
     queryData.retry = $("#inputRetryInterval").val();
     queryData.user = $("#inputUserName").val();
     queryData.password = $("#inputPassword").val();
-    queryData.dbname = $("#inputDbName").val();
+    queryData.dbName = $("#inputDbName").val();
     return queryData;
   }
 

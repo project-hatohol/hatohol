@@ -1384,17 +1384,17 @@ void FaceRest::handlerPostServer(RestJob *job)
 	}
 
 	// hostname
-	charValue = (char *)g_hash_table_lookup(job->query, "hostname");
+	charValue = (char *)g_hash_table_lookup(job->query, "hostName");
 	if (!charValue) {
-		REPLY_ERROR(job, HTERR_NOT_FOUND_PARAMETER, "hostname");
+		REPLY_ERROR(job, HTERR_NOT_FOUND_PARAMETER, "hostName");
 		return;
 	}
 	svInfo.hostName = charValue;
 
 	// ipAddress
-	charValue = (char *)g_hash_table_lookup(job->query, "ipaddress");
+	charValue = (char *)g_hash_table_lookup(job->query, "ipAddress");
 	if (!charValue) {
-		REPLY_ERROR(job, HTERR_NOT_FOUND_PARAMETER, "ipaddress");
+		REPLY_ERROR(job, HTERR_NOT_FOUND_PARAMETER, "ipAddress");
 		return;
 	}
 	svInfo.ipAddress = charValue;
@@ -1452,9 +1452,9 @@ void FaceRest::handlerPostServer(RestJob *job)
 
 	// dbname
 	if (svInfo.type == MONITORING_SYSTEM_NAGIOS) {
-		charValue = (char *)g_hash_table_lookup(job->query, "dbname");
+		charValue = (char *)g_hash_table_lookup(job->query, "dbName");
 		if (!charValue) {
-			REPLY_ERROR(job, HTERR_NOT_FOUND_PARAMETER, "dbname");
+			REPLY_ERROR(job, HTERR_NOT_FOUND_PARAMETER, "dbName");
 			return;
 		}
 		svInfo.dbName = charValue;
@@ -1469,7 +1469,7 @@ void FaceRest::handlerPostServer(RestJob *job)
 	agent.startObject();
 	addHatoholError(agent, err);
 	if (err == HTERR_OK)
-		agent.add("serverid", svInfo.id);
+		agent.add("id", svInfo.id);
 	agent.endObject();
 	replyJsonData(agent, job);
 }
