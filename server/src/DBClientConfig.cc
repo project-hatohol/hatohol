@@ -569,7 +569,9 @@ HatoholError DBClientConfig::deleteTargetServer(
   const ServerIdType serverId,
   const OperationPrivilege &privilege)
 {
-	// FIXME: Check the previlege
+	if (!canDeleteTargetServer(serverId, privilege))
+		return HatoholError(HTERR_NO_PRIVILEGE);
+
 	DBAgentDeleteArg arg;
 	arg.tableName = TABLE_NAME_SERVERS;
 	const ColumnDef &colId = COLUMN_DEF_SERVERS[IDX_SERVERS_ID];
@@ -803,3 +805,18 @@ HatoholError DBClientConfig::_updateTargetServer(
 	update(arg);
 	return HTERR_OK;
 }
+
+bool DBClientConfig::canDeleteTargetServer(
+  const ServerIdType serverId, const OperationPrivilege &privilege)
+{
+	if (privilege.has(OPPRVLG_DELETE_ALL_SERVERS))
+		return true;
+
+	if (!privilege.has(OPPRVLG_DELETE_SERVERS))
+		return false;
+
+	CacheServiceDBClient cache;
+	DBClientUser *dbUser = cache.getUser();
+	return dbUser->isAccessible(serverId, privilege);
+}
+
