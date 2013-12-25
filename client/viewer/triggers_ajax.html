@@ -132,11 +132,16 @@
       for (x = 0; x < replyData["triggers"].length; ++x) {
         trigger = replyData["triggers"][x];
         server = replyData["servers"][trigger["serverId"]];
-        serverName = server["name"];
+        if (server) {
+          serverName = server["name"];
+          if (!hostNames[serverName])
+            hostNames[serverName] = [];
+          hostNames[serverName].push(server["hosts"][trigger["hostId"]]["name"]);
+        } else {
+          // This case typically happens afer a monitoring server is deleted.
+          serverName = "Unknown";
+        }
         serverNames.push(serverName);
-        if (!hostNames[serverName])
-          hostNames[serverName] = [];
-        hostNames[serverName].push(server["hosts"][trigger["hostId"]]["name"]);
       }
       parsedData.servers = serverNames.uniq().sort();
       parsedData.hosts   = {};
@@ -178,8 +183,14 @@
           continue;
 
         server     = replyData["servers"][trigger["serverId"]];
-        serverName = server["name"];
-        hostName   = server["hosts"][trigger["hostId"]]["name"];
+        if (server) {
+          serverName = server["name"];
+          hostName   = server["hosts"][trigger["hostId"]]["name"];
+        } else {
+          // This case typically happens afer a monitoring server is deleted.
+          serverName = "Unknown";
+          hostName = "Unknown";
+        }
         clock      = trigger["lastChangeTime"];
         status     = trigger["status"];
         severity   = trigger["severity"];
