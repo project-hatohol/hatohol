@@ -232,7 +232,7 @@ void _assertIsAccessible(void)
 		AccessInfo &accessInfo = testAccessInfo[i];
 		if (accessInfo.hostGroupId != ALL_HOST_GROUPS)
 			continue;
-		if (accessInfo.serverId != ALL_SERVERS)
+		if (accessInfo.serverId == ALL_SERVERS)
 			continue;
 		userId = accessInfo.userId;
 		serverId = accessInfo.serverId;
