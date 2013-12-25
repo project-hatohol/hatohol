@@ -136,6 +136,18 @@
       hatoholInfoMsgBox("{% trans "Deleting..." %}");
     }
 
+    function getServerTypeFromFlags(flags) {
+      switch(flags) {
+      case hatohol.MONITORING_SYSTEM_ZABBIX:
+        return gettext("Zabbix");
+      case hatohol.MONITORING_SYSTEM_NAGIOS:
+        return gettext("Nagios");
+      default:
+        break;
+      }
+      return gettext("Unknown");
+    }
+
     function drawTableBody(rd) {
       var x;
       var s;
@@ -152,7 +164,7 @@
         s += "<td><input type='checkbox' class='selectcheckbox' " +
              "serverId='" + o["id"] + "'></td>";
         s += "<td>" + o["id"] + "</td>";
-        s += "<td>" + o["type"]  + "</td>";
+        s += "<td>" + getServerTypeFromFlags(o["type"]) + "</td>";
         if (serverURL) {
           s += "<td><a href='" + serverURL + "'>" + o["hostName"]  + "</a></td>";
           s += "<td><a href='" + serverURL + "'>" + ip + "</a></td>";
