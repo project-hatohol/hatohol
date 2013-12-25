@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-12-23 21:13-0600\n"
+"POT-Creation-Date: 2013-12-24 19:10-0600\n"
 "PO-Revision-Date: 2013-12-24 12:13+0900\n"
 "Last-Translator: Takuro Ashie <ashie@clear-code.com>\n"
 "Language-Team: Project Hatohol\n"
@@ -134,6 +134,7 @@ msgstr "適用"
 #: static/js/hatohol_password_changer.js:29
 #: static/js/hatohol_privilege_edit_dialog.js:33
 #: static/js/hatohol_selector_dialog.js:30
+#: static/js/hatohol_server_edit_dialog.js:27
 #: static/js/hatohol_user_edit_dialog.js:31
 msgid "CANCEL"
 msgstr "キャンセル"
@@ -152,6 +153,8 @@ msgstr "(空白の場合、localhostが使用されます)"
 
 #: static/js/hatohol_add_action_dialog.js:32
 #: static/js/hatohol_add_action_dialog.js:435
+#: static/js/hatohol_server_edit_dialog.js:24
+#: static/js/hatohol_server_edit_dialog.js:257
 #: static/js/hatohol_user_edit_dialog.js:25
 msgid "ADD"
 msgstr "追加"
@@ -173,6 +176,7 @@ msgid "SELECT"
 msgstr "選択"
 
 #: static/js/hatohol_add_action_dialog.js:289
+#: static/js/hatohol_server_edit_dialog.js:79
 #: static/js/hatohol_user_edit_dialog.js:87
 msgid "Successfully created."
 msgstr "正常に作成されました"
@@ -261,16 +265,26 @@ msgstr "サーバID"
 msgid "Hostname"
 msgstr "ホスト名"
 
+#: static/js/hatohol_item_remover.js:67
+msgid "Deleting..."
+msgstr "削除中..."
+
+#: static/js/hatohol_item_remover.js:73
+msgid "Completed. (Number of errors: "
+msgstr ""
+
 #: static/js/hatohol_login_dialog.js:23 static/js/hatohol_login_dialog.js:32
 msgid "Login"
 msgstr "ログイン"
 
 #: static/js/hatohol_login_dialog.js:57
+#: static/js/hatohol_server_edit_dialog.js:171
 #: static/js/hatohol_user_edit_dialog.js:139
 msgid "User name"
 msgstr "ユーザ名"
 
 #: static/js/hatohol_login_dialog.js:59
+#: static/js/hatohol_server_edit_dialog.js:173
 #: static/js/hatohol_user_edit_dialog.js:141
 msgid "Password"
 msgstr "パスワード"
@@ -363,6 +377,7 @@ msgid "Successfully changed."
 msgstr "正常に変更されました"
 
 #: static/js/hatohol_password_changer.js:81
+#: static/js/hatohol_server_edit_dialog.js:121
 #: static/js/hatohol_user_edit_dialog.js:101
 msgid "Password is empty!"
 msgstr "パスワードが入力されていません！"
@@ -403,6 +418,7 @@ msgid "IP Address"
 msgstr "IPアドレス"
 
 #: static/js/hatohol_privilege_edit_dialog.js:148
+#: static/js/hatohol_server_edit_dialog.js:163
 #: static/js/hatohol_server_selector.js:48
 msgid "Nickname"
 msgstr "ニックネーム"
@@ -454,6 +470,86 @@ msgstr "ユーザ名あるいはパスワードが正しくありません。"
 #: static/js/hatohol_reply_parser.js:104
 msgid "Unknown error: "
 msgstr "不明なエラー: "
+
+#: static/js/hatohol_server_edit_dialog.js:34
+msgid "ADD SERVER"
+msgstr "サーバ追加"
+
+#: static/js/hatohol_server_edit_dialog.js:43
+msgid "Now adding a server..."
+msgstr "サーバを追加しています..."
+
+#: static/js/hatohol_server_edit_dialog.js:89
+msgid "Invalid Server type!"
+msgstr "サーバの種類が正しくありません！"
+
+#: static/js/hatohol_server_edit_dialog.js:93
+msgid "Host name is empty!"
+msgstr "ホスト名が入力されていません！"
+
+#: static/js/hatohol_server_edit_dialog.js:97
+msgid "IP address is empty!"
+msgstr "IPアドレスが入力されていません！"
+
+#: static/js/hatohol_server_edit_dialog.js:101
+msgid "NickName is empty!"
+msgstr "ニックネームが入力されていません！"
+
+#: static/js/hatohol_server_edit_dialog.js:105
+msgid "Port is empty!"
+msgstr "ポート番号が入力されていません！"
+
+#: static/js/hatohol_server_edit_dialog.js:109
+msgid "Polling interval is empty!"
+msgstr "ポーリング間隔が入力されていません！"
+
+#: static/js/hatohol_server_edit_dialog.js:113
+msgid "Retry interval is empty!"
+msgstr "リトライ間隔が入力されていません！"
+
+#: static/js/hatohol_server_edit_dialog.js:117
+msgid "User Name is empty!"
+msgstr "ユーザ名が入力されていません！"
+
+#: static/js/hatohol_server_edit_dialog.js:125
+msgid "DB name is empty!"
+msgstr "データベース名が入力されていません！"
+
+#: static/js/hatohol_server_edit_dialog.js:154
+msgid "Server type"
+msgstr "サーバ種類"
+
+#: static/js/hatohol_server_edit_dialog.js:156
+msgid "Zabbix"
+msgstr ""
+
+#: static/js/hatohol_server_edit_dialog.js:157
+msgid "Nagios"
+msgstr ""
+
+#: static/js/hatohol_server_edit_dialog.js:159
+msgid "Host name"
+msgstr "ホスト名"
+
+#: static/js/hatohol_server_edit_dialog.js:161
+msgid "IP address"
+msgstr "IPアドレス"
+
+#: static/js/hatohol_server_edit_dialog.js:165
+msgid "Port"
+msgstr "ポート番号"
+
+#: static/js/hatohol_server_edit_dialog.js:167
+msgid "Polling interval"
+msgstr "ポーリング間隔"
+
+#: static/js/hatohol_server_edit_dialog.js:169
+msgid "Retry interval"
+msgstr "リトライ間隔"
+
+#: static/js/hatohol_server_edit_dialog.js:175
+msgid "DB name"
+msgstr "データベース名"
 
 #: static/js/hatohol_server_selector.js:26
 msgid "Server selecion"

@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-12-23 21:13-0600\n"
+"POT-Creation-Date: 2013-12-24 19:10-0600\n"
 "PO-Revision-Date: 2013-12-24 11:40+0900\n"
 "Last-Translator: Takuro Ashie <ashie@clear-code.com>\n"
 "Language-Team: Project Hatohol\n"
@@ -54,7 +54,7 @@ msgstr "ステータス"
 msgid "Severity"
 msgstr "深刻度"
 
-#: viewer/actions_ajax.html:49 viewer/servers_ajax.html:30
+#: viewer/actions_ajax.html:49 viewer/servers_ajax.html:44
 msgid "Type"
 msgstr "タイプ"
 
@@ -70,16 +70,17 @@ msgstr "コマンド"
 msgid "Time-out (sec)"
 msgstr "タイムアウト (秒)"
 
-#: viewer/actions_ajax.html:92 viewer/users_ajax.html:82
+#: viewer/actions_ajax.html:92 viewer/servers_ajax.html:70
+#: viewer/users_ajax.html:82
 msgid "Do you delete the selected items ?"
 msgstr "選択項目を削除しますか？"
 
 #: viewer/actions_ajax.html:166 viewer/actions_ajax.html.py:205
-#: viewer/users_ajax.html:182 viewer/users_ajax.html.py:221
+#: viewer/servers_ajax.html:136 viewer/users_ajax.html:155
 msgid "Deleting..."
 msgstr "削除中..."
 
-#: viewer/actions_ajax.html:211 viewer/users_ajax.html:227
+#: viewer/actions_ajax.html:211
 msgid "Completed. (Number of errors: "
 msgstr "完了 (エラー数: "
 
@@ -216,12 +217,12 @@ msgid "Servers"
 msgstr "サーバ"
 
 #: viewer/latest_ajax.html:31 viewer/overview_items_ajax.html:41
-#: viewer/overview_triggers_ajax.html:39 viewer/triggers_ajax.html:41
+#: viewer/overview_triggers_ajax.html:45 viewer/triggers_ajax.html:41
 msgid "Server:"
 msgstr "サーバ:"
 
 #: viewer/latest_ajax.html:36 viewer/overview_items_ajax.html:54
-#: viewer/overview_triggers_ajax.html:52 viewer/triggers_ajax.html:51
+#: viewer/overview_triggers_ajax.html:58 viewer/triggers_ajax.html:51
 msgid "Host:"
 msgstr "ホスト:"
 
@@ -254,42 +255,52 @@ msgstr "前回の値"
 msgid "Minimum Severity:"
 msgstr "最小の深刻度:"
 
-#: viewer/overview_items_ajax.html:46 viewer/overview_triggers_ajax.html:44
+#: viewer/overview_items_ajax.html:46 viewer/overview_triggers_ajax.html:50
 #: viewer/triggers_ajax.html:46
 msgid "Group:"
 msgstr "グループ:"
 
-#: viewer/servers_ajax.html:29 viewer/users_ajax.html:43
-msgid "ID"
-msgstr "ID"
-
-#: viewer/servers_ajax.html:31
-msgid "Hostname"
-msgstr "ホスト名"
-
-#: viewer/servers_ajax.html:32
-msgid "IP Address"
-msgstr "IPアドレス"
-
-#: viewer/servers_ajax.html:33
-msgid "Nickname"
-msgstr "ニックネーム"
-
-#: viewer/servers_ajax.html:34 viewer/servers_ajax.html.py:69
-msgid "Maps"
-msgstr "マップ"
-
-#: viewer/triggers_ajax.html:35
+#: viewer/overview_triggers_ajax.html:39 viewer/triggers_ajax.html:35
 msgid "Status:"
 msgstr "ステータス:"
 
-#: viewer/triggers_ajax.html:38 viewer/triggers_ajax.html.py:97
+#: viewer/overview_triggers_ajax.html:42 viewer/triggers_ajax.html:38
+#: viewer/triggers_ajax.html.py:97
 msgid "OK"
 msgstr "正常"
 
-#: viewer/triggers_ajax.html:39 viewer/triggers_ajax.html.py:98
+#: viewer/overview_triggers_ajax.html:43 viewer/triggers_ajax.html:39
+#: viewer/triggers_ajax.html.py:98
 msgid "Problem"
 msgstr "障害"
+
+#: viewer/servers_ajax.html:27
+msgid "ADD SERVER"
+msgstr "サーバ追加"
+
+#: viewer/servers_ajax.html:29
+msgid "DELETE SERVER"
+msgstr "サーバ削除"
+
+#: viewer/servers_ajax.html:43 viewer/users_ajax.html:43
+msgid "ID"
+msgstr "ID"
+
+#: viewer/servers_ajax.html:45
+msgid "Hostname"
+msgstr "ホスト名"
+
+#: viewer/servers_ajax.html:46
+msgid "IP Address"
+msgstr "IPアドレス"
+
+#: viewer/servers_ajax.html:47
+msgid "Nickname"
+msgstr "ニックネーム"
+
+#: viewer/servers_ajax.html:48 viewer/servers_ajax.html.py:165
+msgid "Maps"
+msgstr "マップ"
 
 #: viewer/triggers_ajax.html:63
 msgid "Last change"
@@ -335,11 +346,11 @@ msgstr "ユーザの種類"
 msgid "Privileges"
 msgstr "権限"
 
-#: viewer/users_ajax.html:266
+#: viewer/users_ajax.html:190
 msgid "All"
 msgstr "全て"
 
-#: viewer/users_ajax.html:273
+#: viewer/users_ajax.html:197
 msgid "Show / Edit"
 msgstr "表示 / 編集"
 
