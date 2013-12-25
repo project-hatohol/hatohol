@@ -19,6 +19,7 @@ BuildRequires: libsoup-devel >= 2.22
 BuildRequires: json-glib-devel >= 0.12
 BuildRequires: sqlite-devel >= 3.6
 BuildRequires: mysql-devel >= 5.1
+BuildRequires: libuuid-devel >= 2.17
 
 %description
 Hatohol collects monitoring information from running monitoring systems
