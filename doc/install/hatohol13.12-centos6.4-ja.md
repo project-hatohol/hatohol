@@ -103,12 +103,12 @@ Zabbix serverとnagiosサーバの情報やHatoholにログインするときに
 Hatohol Client用のDBの準備を行います。
 以下の手順を実行してください。
 
-+ MySQLにClient用のDBを準備する
+- MySQLにClient用のDBを準備する
 
     > CREATE DATABASE hatohol_client;
     > GRANT ALL PRIVILEGES ON hatohol_client.* TO hatohol@localhost IDENTIFIED BY 'hatohol';
 
-+ DB内にテーブルを追加する
+- DB内にテーブルを追加する
 
     # /usr/libexec/hatohol/client/managy.py syncdb
 
