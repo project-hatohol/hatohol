@@ -546,7 +546,8 @@ bool DBClientConfig::isCopyOnDemandEnabled(void)
 	return ItemDataUtils::getInt((*grpList.begin())->getItemAt(0));
 }
 
-HatoholError DBClientConfig::addTargetServer(MonitoringServerInfo *monitoringServerInfo)
+HatoholError DBClientConfig::addOrUpdateTargetServer(
+  MonitoringServerInfo *monitoringServerInfo)
 {
 	//FIXME: Check edit permission and
 	//       Return value corresponding to

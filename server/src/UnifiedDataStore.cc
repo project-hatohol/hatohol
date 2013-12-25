@@ -504,7 +504,7 @@ HatoholError UnifiedDataStore::addTargetServer(
 	DBClientConfig *dbConfig = cache.getConfig();
 
 	// FIXME: Add OperationPrivilege to signature of addTargetServer()
-	HatoholError err = dbConfig->addTargetServer(&svInfo);
+	HatoholError err = dbConfig->addOrUpdateTargetServer(&svInfo);
 	if (err != HTERR_OK)
 		return err;
 

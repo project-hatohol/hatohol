@@ -554,7 +554,7 @@ int main(int argc, char *argv[])
 	MonitoringServerInfoListIterator it = confValue.serverInfoList.begin();
 	for (; it != confValue.serverInfoList.end(); ++it) {
 		MonitoringServerInfo &svInfo = *it;
-		dbConfig.addTargetServer(&svInfo);
+		dbConfig.addOrUpdateTargetServer(&svInfo);
 
 		printf("SERVER: TYPE: %d, HOSTNAME: %s, IP ADDR: %s, "
 		       "NICKNAME: %s, PORT: %d, POLLING: %d, RETRY: %d, "

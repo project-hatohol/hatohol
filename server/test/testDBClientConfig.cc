@@ -55,7 +55,7 @@ cut_trace(_assertGetHostAddress(IP, HOSTNAME, EXPECT))
 static void addTargetServer(MonitoringServerInfo *serverInfo)
 {
 	DBClientConfig dbConfig;
-	dbConfig.addTargetServer(serverInfo);
+	dbConfig.addOrUpdateTargetServer(serverInfo);
 }
 #define assertAddServerToDB(X) \
 cut_trace(_assertAddToDB<MonitoringServerInfo>(X, addTargetServer))

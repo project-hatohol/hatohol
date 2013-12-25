@@ -104,7 +104,19 @@ public:
 	int  getFaceRestPort(void);
 	void setFaceRestPort(int port);
 	bool isCopyOnDemandEnabled(void);
-	HatoholError addTargetServer(MonitoringServerInfo *monitoringServerInfo);
+
+	/**
+	 * add if the record which id equals to hosemonitoringServerInfo->id
+	 * doesn't exist. Otherwise update the record.
+	 *
+	 * @param monitoringServerInfo
+	 * A pointer to a MonitoringServerInfo instance.
+	 *
+	 * @return A HatoholError.
+	 */
+	HatoholError addOrUpdateTargetServer(
+	  MonitoringServerInfo *monitoringServerInfo);
+
 	HatoholError deleteTargetServer(const ServerIdType serverId,
 	                                const OperationPrivilege &privilege);
 	void getTargetServers(MonitoringServerInfoList &monitoringServers,

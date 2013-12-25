@@ -87,7 +87,7 @@ ConfigManager *ConfigManager::getInstance(void)
 void ConfigManager::addTargetServer(MonitoringServerInfo *monitoringServerInfo)
 {
 	DBClientConfig dbConfig;
-	dbConfig.addTargetServer(monitoringServerInfo);
+	dbConfig.addOrUpdateTargetServer(monitoringServerInfo);
 }
 
 void ConfigManager::getTargetServers

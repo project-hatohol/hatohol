@@ -552,7 +552,7 @@ void setupTestDBServers(void)
 
 		DBClientConfig dbConfig;
 		for (size_t i = 0; i < NumServerInfo; i++)
-			dbConfig.addTargetServer(&serverInfo[i]);
+			dbConfig.addOrUpdateTargetServer(&serverInfo[i]);
 		dbServerReady = true;
 	}
 }
