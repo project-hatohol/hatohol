@@ -13,6 +13,9 @@ nobase_dist_hatohol_client_DATA = \
 	hatohol/settings.py \
 	hatohol/django_realize.py \
 	hatohol/hatohol_def.py \
+	hatohol/hatoholserver.py \
+	hatohol/models.py \
+	hatohol/smartfield.py \
 	static/css/hatohol.css \
 	static/css/zabbix.css \
 	static/css.external/themes/ui-lightness/jquery-ui.css \
