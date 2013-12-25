@@ -218,6 +218,39 @@ void _assertGetUserInfoListWithTargetName(
 #define assertGetUserInfoListWithTargetName(F,N, ...) \
 cut_trace(_assertGetUserInfoListWithTargetName(F,N, ##__VA_ARGS__))
 
+void _assertIsAccessible(void)
+{
+	loadTestDBUser();
+	loadTestDBAccessList();
+	CacheServiceDBClient cache;
+	DBClientUser *dbUser = cache.getUser();
+
+	// search the User ID and Server ID
+	ServerIdType serverId = 0;
+	UserIdType userId = INVALID_USER_ID;
+	for (size_t i = 0; i < NumTestAccessInfo; i++) {
+		AccessInfo &accessInfo = testAccessInfo[i];
+		if (accessInfo.hostGroupId != ALL_HOST_GROUPS)
+			continue;
+		if (accessInfo.serverId != ALL_SERVERS)
+			continue;
+		userId = accessInfo.userId;
+		serverId = accessInfo.serverId;
+		break;
+	}
+
+	cppcut_assert_not_equal(0, serverId);
+
+	OperationPrivilege privilege;
+	privilege.setUserId(userId);
+	cppcut_assert_equal(true, dbUser->isAccessible(serverId, privilege));
+
+	// invalid user
+	privilege.setUserId(INVALID_USER_ID);
+	cppcut_assert_equal(false, dbUser->isAccessible(serverId, privilege));
+}
+#define assertIsAccessible(...) cut_trace(_assertIsAccessible(##__VA_ARGS__))
+
 static UserInfo setupForUpdate(size_t targetIndex = 1)
 {
 	loadTestDBUser();
@@ -772,34 +805,7 @@ void test_isValidFlagsNone(void)
 
 void test_isAccessible(void)
 {
-	loadTestDBUser();
-	loadTestDBAccessList();
-	CacheServiceDBClient cache;
-	DBClientUser *dbUser = cache.getUser();
-
-	// search the User ID and Server ID
-	ServerIdType serverId = 0;
-	UserIdType userId = INVALID_USER_ID;
-	for (size_t i = 0; i < NumTestAccessInfo; i++) {
-		AccessInfo &accessInfo = testAccessInfo[i];
-		if (accessInfo.hostGroupId != ALL_HOST_GROUPS)
-			continue;
-		if (accessInfo.serverId != ALL_SERVERS)
-			continue;
-		userId = accessInfo.userId;
-		serverId = accessInfo.serverId;
-		break;
-	}
-
-	cppcut_assert_not_equal(0, serverId);
-
-	OperationPrivilege privilege;
-	privilege.setUserId(userId);
-	cppcut_assert_equal(true, dbUser->isAccessible(serverId, privilege));
-
-	// invalid user
-	privilege.setUserId(INVALID_USER_ID);
-	cppcut_assert_equal(false, dbUser->isAccessible(serverId, privilege));
+	assertIsAccessible();
 }
 
 } // namespace testDBClientUser
