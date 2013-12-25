@@ -218,7 +218,7 @@ void _assertGetUserInfoListWithTargetName(
 #define assertGetUserInfoListWithTargetName(F,N, ...) \
 cut_trace(_assertGetUserInfoListWithTargetName(F,N, ##__VA_ARGS__))
 
-void _assertIsAccessible(void)
+void _assertIsAccessible(const bool useAllServers = false)
 {
 	loadTestDBUser();
 	loadTestDBAccessList();
@@ -232,14 +232,20 @@ void _assertIsAccessible(void)
 		AccessInfo &accessInfo = testAccessInfo[i];
 		if (accessInfo.hostGroupId != ALL_HOST_GROUPS)
 			continue;
-		if (accessInfo.serverId == ALL_SERVERS)
-			continue;
+
+		if (useAllServers) {
+			if (accessInfo.serverId != ALL_SERVERS)
+				continue;
+		} else {
+			if (accessInfo.serverId == ALL_SERVERS)
+				continue;
+		}
 		userId = accessInfo.userId;
 		serverId = accessInfo.serverId;
 		break;
 	}
 
-	cppcut_assert_not_equal(0, serverId);
+	cppcut_assert_not_equal(INVALID_USER_ID, userId);
 
 	OperationPrivilege privilege;
 	privilege.setUserId(userId);
@@ -249,7 +255,7 @@ void _assertIsAccessible(void)
 	privilege.setUserId(INVALID_USER_ID);
 	cppcut_assert_equal(false, dbUser->isAccessible(serverId, privilege));
 }
-#define assertIsAccessible(...) cut_trace(_assertIsAccessible(##__VA_ARGS__))
+#define assertIsAccessible(...) cut_trace(_assertIsAccessible(__VA_ARGS__))
 
 static UserInfo setupForUpdate(size_t targetIndex = 1)
 {
@@ -806,6 +812,12 @@ void test_isValidFlagsNone(void)
 void test_isAccessible(void)
 {
 	assertIsAccessible();
+}
+
+void test_isAccessibleAllServers(void)
+{
+	const bool useAllServers = true;
+	assertIsAccessible(useAllServers);
 }
 
 } // namespace testDBClientUser
