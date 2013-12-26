@@ -39,6 +39,8 @@ Hatoholは以下のパッケージをインストールする必要がありま�
 - MySQL
 - MySQL-python
 
+次のようにインストールしてください
+
     # yum install libsoup libuuid mysql MySQL-python
 
 ### Hatohol Server
@@ -106,6 +108,7 @@ Hatohol Client用のDBの準備を行います。
 以下の手順を実行してください。
 
 - MySQLにClient用のDBを準備する
+以下のコマンドをMySQLで実行してください。
 
     > CREATE DATABASE hatohol_client;
     > GRANT ALL PRIVILEGES ON hatohol_client.* TO hatohol@localhost IDENTIFIED BY 'hatohol';
