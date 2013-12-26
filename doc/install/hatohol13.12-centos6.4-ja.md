@@ -108,12 +108,15 @@ Hatohol Client用のDBの準備を行います。
 以下の手順を実行してください。
 
 - MySQLにClient用のDBを準備する
+
 以下のコマンドをMySQLで実行してください。
 
     > CREATE DATABASE hatohol_client;
     > GRANT ALL PRIVILEGES ON hatohol_client.* TO hatohol@localhost IDENTIFIED BY 'hatohol';
 
 - DB内にテーブルを追加する
+
+以下のコマンドを実行してください。
 
     # /usr/libexec/hatohol/client/managy.py syncdb
 
