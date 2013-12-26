@@ -33,6 +33,16 @@
 {% block title %}
 {% endblock %}
     </title>
+    <script type="text/javascript">
+      window.onerror = function(errorMsg, fileName, lineNumber) {
+        var place = "[" + fileName + ":" + lineNumber + "]";
+        setStatus({
+          "class": "Danger",
+          "label": gettext("Error"),
+          "lines": [place, errorMsg],
+        });
+      }
+    </script>
   </head>
 
   <body style="padding-top: 60px">
