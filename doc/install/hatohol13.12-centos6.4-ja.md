@@ -23,21 +23,23 @@ CentOS 6.4 (x86_64)でのRPMを用いたインストール方法
 
     # rpm -Uhv bootstrap-for-hatohol-2.3.2-1PH.x86_64.rpm
 
+### Django
+以下のURLからRPMをダウンロードしてください。
+
+- TODO: URLを追記する
+
+次のようにインストールしてください。
+
+    # rpm -Uhv Django-1.5.3-1.noarch.rpm
+
 ### 依存パッケージ
 Hatoholは以下のパッケージをインストールする必要があります。
 - libsoup
 - libuuid
-- python-devel
-- mysql-devel
 - MySQL
+- MySQL-python
 
-    # yum install libuuid libsoup mysql python-devel mysql-devel
-
-Djangoと関連パッケージをインストールします。
-
-    # yum install python-setuptools
-    # easy_install pip
-    # pip install django==1.5.4 mysql-python
+    # yum install libsoup libuuid mysql MySQL-python
 
 ### Hatohol Server
 以下のURLからRPMをダウンロードしてください。
