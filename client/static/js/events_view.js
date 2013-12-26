@@ -356,7 +356,7 @@ var EventsView = function(baseElem) {
     parsedData = parseData(rawData);
 
     setCandidate($('#select-server'), parsedData.serverNames);
-    setCandidate($("#select-host"));
+    setCandidate($("#select-host"), getListFromHostNames(parsedData.hostNames));
 
     drawTableContents(rawData, parsedData);
   }
