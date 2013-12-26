@@ -77,16 +77,13 @@ Hatohol cache DBのためのディレクトリを用意します。ここでは�
 
     # mkdir /var/lib/hatohol
 
-このディレクトリを指定するために/etc/init.d/hatoholに環境変数'HATOHOL_DB_DIR'を追加します。
+このディレクトリを指定するために/etc/hatohol/DB_DIR.confファイルを作り、
+そのファイルに環境変数'HATOHOL_DB_DIR'を追加します。
 
-     PROG=/usr/sbin/$NAME
-     OPTIONS="--config-db-server localhost"
-     PROGNAME=`basename $PROG`
-    +export HATOHOL_DB_DIR=/var/lib/hatohol
- 
-     [ -f $PROG ]|| exit 0
+/etc/hatohol/ ディレクトリを作り、以下の内容をDB_DIR.confファイルとして
+/etc/hatoholディレクトリに保存してください。
 
-> ** メモ ** 先頭の'+'印は、新たに追加される行を意味します。
+    export HATOHOL_DB_DIR=/var/lib/hatohol
 
 ### Hatohol DBの初期化
 
