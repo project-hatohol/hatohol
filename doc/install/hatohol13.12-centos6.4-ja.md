@@ -107,7 +107,7 @@ Zabbix serverとnagiosサーバの情報やHatoholにログインするときに
 Hatohol Client用のDBの準備を行います。
 以下の手順を実行してください。
 
-- MySQLにClient用のDBを準備する
+- Client用のDBを準備する
 
 以下のコマンドをMySQLで実行してください。
 
