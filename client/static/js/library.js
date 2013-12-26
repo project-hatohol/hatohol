@@ -257,16 +257,6 @@ function getHostName(server, hostId) {
   return server["hosts"][hostId]["name"];
 }
 
-function getListFromHostNames(hostNames) {
-  var list = [];
-  for (serverName in hostNames) {
-    var hostNameList = hostNames[serverName] ;
-    for (var i = 0; i < hostNameList.length; i++) 
-      list.push(hostNameList[i])
-  }
-  return list;
-}
-
 if (typeof module !== 'undefined' && module.exports) {
   module.exports.getServerLocation = getServerLocation;
   module.exports.getItemGraphLocation = getItemGraphLocation;
