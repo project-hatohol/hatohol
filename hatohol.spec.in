@@ -34,8 +34,8 @@ Summary: A web UI client of Hatohol.
 Group: Applications/System
 Requires: %{name} = %{version}-%{release}
 Requires: bootstrap-for-hatohol >= 2.3
-Requires: python-devel >= 2.6
-Requires: mysql-devel >= 5.1
+Requires: mysql-python >= 1.2.3
+Requires: Django >= 1.5.3
 
 %description client
 A web UI client of Hatohol provides a web UI.
