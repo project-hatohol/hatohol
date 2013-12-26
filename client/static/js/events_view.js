@@ -134,8 +134,8 @@ var EventsView = function(baseElem) {
 
     s += '<center>';
     s += '<form class="form-inline">';
-    s += '  <input id="latest-events-button" type="button" class="btn-info" value="' + gettext('Latest events') + '" />';
-    s += '  <input id="next-events-button" type="button" class="btn-primary" value="' + gettext('To next') + '" />';
+    s += '  <input id="latest-events-button" type="button" class="btn btn-info" value="' + gettext('Latest events') + '" />';
+    s += '  <input id="next-events-button" type="button" class="btn btn-primary" value="' + gettext('To next') + '" />';
     s += '</form>';
     s += '</center>';
     s += '<br>';
