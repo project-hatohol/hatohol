@@ -26,7 +26,7 @@ CentOS 6.4 (x86_64)でのRPMを用いたインストール方法
 ### Django
 以下のURLからRPMをダウンロードしてください。
 
-- TODO: URLを追記する
+- https://github.com/project-hatohol/Django-for-distribution/raw/master/dist/Django-1.5.3-1.noarch.rpm
 
 次のようにインストールしてください。
 
