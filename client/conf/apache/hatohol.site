@@ -1,15 +1,12 @@
-Alias /static/ /path/to/hatohol/static/
-
-<Directory /path/to/hatohol/static>
-  Order deny,allow
-  Allow from all
-</Directory>
-
 <VirtualHost *:80>
-    ServerName 127.0.0.1
     DocumentRoot /path/to/hatohol
-
     <Directory /path/to/hatohol>
+        Order deny,allow
+        Allow from all
+    </Directory>
+
+    Alias /static/ /path/to/hatohol/static/
+    <Directory /path/to/hatohol/static>
         Order deny,allow
         Allow from all
     </Directory>
