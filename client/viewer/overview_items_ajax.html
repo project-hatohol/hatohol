@@ -219,6 +219,7 @@
       rawData = reply;
       parsedData = parseData(reply);
       setCandidate($("#select-server"), parsedData.servers);
+      setCandidate($("#select-host"));
       drawTableContents(parsedData);
     }
 
