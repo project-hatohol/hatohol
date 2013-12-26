@@ -245,6 +245,18 @@ function getMapsLocation(server) {
   return location;
 }
 
+function getServerName(server, serverId) {
+  if (!server)
+    return serverName = "Unknown:" + serverId;
+  return serverName = server["name"];
+}
+
+function getHostName(server, hostId) {
+  if (!server)
+    return "Unknown:" + hostId;
+  return server["hosts"][hostId]["name"];
+}
+
 if (typeof module !== 'undefined' && module.exports) {
   module.exports.getServerLocation = getServerLocation;
   module.exports.getItemGraphLocation = getItemGraphLocation;
