@@ -11,8 +11,8 @@ exec_prefix=@prefix@
 PROG=@sbindir@/$NAME
 OPTIONS="--config-db-server localhost"
 PROGNAME=`basename $PROG`
-if [ -r /etc/hatohol/DB_DIR.conf ]; then
-	./etc/hatohol/DB_DIR.conf
+if [ -r /etc/hatohol/initrc ]; then
+	. /etc/hatohol/initrc
 fi
 
 [ -f $PROG ]|| exit 0
