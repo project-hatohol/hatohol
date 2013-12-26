@@ -45,6 +45,11 @@ function formatSecond(sec) {
 function setCandidate(target, list) {
   var x;
   var html = "";
+  if (!list) {
+    target.attr("disabled", "disabled");
+    return;
+  }
+  target.removeAttr("disabled");
 
   target.empty();
 
