@@ -4,11 +4,11 @@ CentOS 6.4 (x86_64)での0.1から13.12へのRPMを用いたアップグレー�
 必要な追加パッケージのインストール
 -----------------------------------
 ### Django
-Hatohol13.12より、DjangoはRPMで提供することになりました。
+Project HatoholはDjangoのRPMを提供します。
 
-そのため、0.1でインストールしたDjangoをアンインストールします。
+そのため、pipでインストールしたDjangoをアンインストールします。
 
-次のようにアンインストールしてください。
+次のコマンドでアンインストールしてください。
 
     # pip uninstall django
 
@@ -16,7 +16,7 @@ Hatohol13.12より、DjangoはRPMで提供することになりました。
 
 - https://github.com/project-hatohol/Django-for-distribution/raw/master/dist/Django-1.5.3-1.noarch.rpm
 
-次のようにインストールしてください。
+次のコマンドでインストールしてください。
 
     # rpm -Uhv Django-1.5.3-1.noarch.rpm
 
@@ -25,7 +25,7 @@ Hatohol13.12ではHatohol0.1でのパッケージに加え、以下のパッケ�
 - libuuid
 - MySQL-python
 
-次のようにインストールしてください
+次のコマンドでインストールしてください
 
     # yum install libuuid MySQL-python
 
@@ -34,7 +34,7 @@ Hatohol13.12のアップデート方法
 ### Hatohol Serverの停止
 アップデートするためにHatohol Serverを停止させます。
 
-次のようにHatohol Serverを停止させてください。
+次のコマンドでHatohol Serverを停止させてください。
 
     # service hatohol stop
 
@@ -49,7 +49,7 @@ Hatohol13.12のアップデート方法
 - TODO: URLを追記する
 
 ### アップデート方法
-次のようにアップデートしてください。
+次のコマンドでアップデートしてください。
 
     # rpm -Uhv hatohol-13.12-1.el6.x86_64.rpm hatohol-client-13.12-1.el6.x86_64.rpm
 
@@ -62,13 +62,13 @@ Hatohol13.12ではHatohol chache DBを指定する
 環境変数'HATOHOL_DB_DIR'を追加するために/etc/hatohol/initrcファイルを作ります。
 
 /etc/hatohol/ ディレクトリを作り、以下の内容をinitrcファイルとして
-/etc/hatoholディレクトリに保存してください。
+/etc/hatohol/ ディレクトリに保存してください。
 
     export HATOHOL_DB_DIR=/var/lib/hatohol
 
 ### Hatohol DBの再初期化
 
-Hatohol13.12では新たにユーザ認証の機能が追加となりました。
+Hatohol13.12では新たにユーザ認証の機能を追加しました。
 そのため、初期ユーザの設定を追加する必要があります。
 また、Hatohol0.1でサーバ登録時に記載が必要だったサーバIDの記載は不必要になりました。
 
@@ -83,7 +83,7 @@ Zabbix serverとnagiosサーバの情報やHatoholにログインするときに
 > *** 注意 ***
 > サーバ設定の中のIDの記載は不必要になりましたので、消し忘れがないよう気をつけてください。
 
-以下のように設定をデータベースに反映してください。
+次のコマンドで設定をデータベースに反映してください。
 
     # hatohol-config-db-creator hatohol-config.dat
 

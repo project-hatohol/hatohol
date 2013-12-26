@@ -10,7 +10,7 @@ CentOS 6.4 (x86_64)でのRPMを用いたインストール方法
 
 - https://github.com/project-hatohol/json-glib-for-distribution/blob/master/RPMS/x86_64/json-glib-0.12.6-1PH.x86_64.rpm?raw=true
 
-次のようにインストールしてください。
+次のコマンドでインストールしてください。
 
     # rpm -Uhv json-glib-0.12.6-1PH.x86_64.rpm
 
@@ -19,7 +19,7 @@ CentOS 6.4 (x86_64)でのRPMを用いたインストール方法
 
 - https://github.com/project-hatohol/bootstrap-for-hatohol/blob/master/RPMS/x86_64/bootstrap-for-hatohol-2.3.2-1PH.x86_64.rpm?raw=true
 
-次のようにインストールしてください。
+次のコマンドでインストールしてください。
 
     # rpm -Uhv bootstrap-for-hatohol-2.3.2-1PH.x86_64.rpm
 
@@ -28,7 +28,7 @@ CentOS 6.4 (x86_64)でのRPMを用いたインストール方法
 
 - https://github.com/project-hatohol/Django-for-distribution/raw/master/dist/Django-1.5.3-1.noarch.rpm
 
-次のようにインストールしてください。
+次のコマンドでインストールしてください。
 
     # rpm -Uhv Django-1.5.3-1.noarch.rpm
 
@@ -39,7 +39,7 @@ Hatoholは以下のパッケージをインストールする必要がありま�
 - MySQL
 - MySQL-python
 
-次のようにインストールしてください
+次のコマンドでインストールしてください
 
     # yum install libsoup libuuid mysql MySQL-python
 
@@ -48,7 +48,7 @@ Hatoholは以下のパッケージをインストールする必要がありま�
 
 - TODO: URLを追記する
 
-次のようにインストールしてください。
+次のコマンドでインストールしてください。
 
     # rpm -Uhv hatohol-13.12-1.el6.x86_64.rpm
 
@@ -57,7 +57,7 @@ Hatoholは以下のパッケージをインストールする必要がありま�
 
 - TODO: URLを追記する
 
-次のようにインストールしてください。
+次のコマンドでインストールしてください。
 
     # rpm -Uhv hatohol-client-13.12-1.el6.x86_64.rpm
 
@@ -145,12 +145,12 @@ Webブラウザを使ったアクセス
 > ** 警告 **
 > 下記の設定を行うにあたり、セキュリティリスクについてよく理解してください。
 
-現在のSELinuxの状態は次のように確認できます。
+現在のSELinuxの状態は次のコマンドで確認できます。
 
     # getenforce
     Enforcing
 
-もし'Enforcing'であれば、次のように無効化できます。
+もし'Enforcing'であれば、次のコマンドで無効化できます。
 
     # setenforce 0
     # getenforce
