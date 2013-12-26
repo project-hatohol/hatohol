@@ -96,11 +96,11 @@ HatoholSelectorDialog.prototype.makeQueryData= function() {
 
 HatoholSelectorDialog.prototype.start = function(url, requestType) {
   var self = this;
-  $.ajax({
+  new HatoholConnector({
     url: url,
-    type: requestType,
+    request: requestType,
     data: this.makeQueryData(),
-    success: function(reply) {
+    replyCallback: function(reply) {
       var replyParser = new HatoholReplyParser(reply);
       if (replyParser.getStatus() !== REPLY_STATUS.OK) {
         self.setMessage(replyParser.getStatusMessage());
@@ -128,7 +128,7 @@ HatoholSelectorDialog.prototype.start = function(url, requestType) {
         self.setSelectedRow($(this));
       });
     },
-    error: function(XMLHttpRequest, textStatus, errorThrown) {
+    connectErrorCallback: function(XMLHttpRequest, textStatus, errorThrown) {
       var errorMsg = "Error: " + XMLHttpRequest.status + ": " +
                      XMLHttpRequest.statusText;
       self.setMessage(errorMsg);
