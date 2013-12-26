@@ -116,9 +116,11 @@
         if (targetStatus >= 0 && trigger["status"] != targetStatus)
           continue;
 
-        server      = replyData["servers"][trigger["serverId"]]
-        serverName  = server["name"];
-        hostName    = server["hosts"][trigger["hostId"]]["name"];
+        var serverId = trigger["serverId"];
+        var hostId   = trigger["hostId"];
+        server      = replyData["servers"][serverId];
+        serverName  = getServerName(server, serverId);
+        hostName    = getHostName(server, hostId);
         triggerName = trigger["brief"];
 
         serverNames.push(serverName);
