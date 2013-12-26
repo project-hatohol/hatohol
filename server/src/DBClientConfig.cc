@@ -569,7 +569,9 @@ HatoholError DBClientConfig::deleteTargetServer(
   const ServerIdType serverId,
   const OperationPrivilege &privilege)
 {
-	// FIXME: Check the previlege
+	if (!canDeleteTargetServer(serverId, privilege))
+		return HatoholError(HTERR_NO_PRIVILEGE);
+
 	DBAgentDeleteArg arg;
 	arg.tableName = TABLE_NAME_SERVERS;
 	const ColumnDef &colId = COLUMN_DEF_SERVERS[IDX_SERVERS_ID];
@@ -742,15 +744,29 @@ HatoholError DBClientConfig::_addTargetServer(
 	return HTERR_OK;
 }
 
+bool DBClientConfig::canUpdateTargetServer(
+  MonitoringServerInfo *monitoringServerInfo,
+  const OperationPrivilege &privilege)
+{
+	if (privilege.has(OPPRVLG_UPDATE_ALL_SERVERS))
+		return true;
+
+	if (!privilege.has(OPPRVLG_UPDATE_SERVERS))
+		return false;
+
+	CacheServiceDBClient cache;
+	DBClientUser *dbUser = cache.getUser();
+	return dbUser->isAccessible(monitoringServerInfo->id, privilege, false);
+}
+
 HatoholError DBClientConfig::_updateTargetServer(
   MonitoringServerInfo *monitoringServerInfo,
   const OperationPrivilege &privilege,
   const string &condition)
 {
-	if (!privilege.has(OPPRVLG_UPDATE_SERVERS))
+	if (!canUpdateTargetServer(monitoringServerInfo, privilege))
 		return HatoholError(HTERR_NO_PRIVILEGE);
 
-	// TODO: Check the user is allowed to UPDATE this server.
 
 	DBAgentUpdateArg arg;
 	arg.tableName = TABLE_NAME_SERVERS;
@@ -789,3 +805,18 @@ HatoholError DBClientConfig::_updateTargetServer(
 	update(arg);
 	return HTERR_OK;
 }
+
+bool DBClientConfig::canDeleteTargetServer(
+  const ServerIdType serverId, const OperationPrivilege &privilege)
+{
+	if (privilege.has(OPPRVLG_DELETE_ALL_SERVERS))
+		return true;
+
+	if (!privilege.has(OPPRVLG_DELETE_SERVERS))
+		return false;
+
+	CacheServiceDBClient cache;
+	DBClientUser *dbUser = cache.getUser();
+	return dbUser->isAccessible(serverId, privilege);
+}
+

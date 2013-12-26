@@ -45,6 +45,11 @@ function formatSecond(sec) {
 function setCandidate(target, list) {
   var x;
   var html = "";
+  if (!list) {
+    target.attr("disabled", "disabled");
+    return;
+  }
+  target.removeAttr("disabled");
 
   target.empty();
 
@@ -243,6 +248,18 @@ function getMapsLocation(server) {
     return undefined;
   }
   return location;
+}
+
+function getServerName(server, serverId) {
+  if (!server)
+    return serverName = "Unknown:" + serverId;
+  return serverName = server["name"];
+}
+
+function getHostName(server, hostId) {
+  if (!server)
+    return "Unknown:" + hostId;
+  return server["hosts"][hostId]["name"];
 }
 
 if (typeof module !== 'undefined' && module.exports) {

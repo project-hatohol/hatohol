@@ -132,11 +132,14 @@
       for (x = 0; x < replyData["triggers"].length; ++x) {
         trigger = replyData["triggers"][x];
         server = replyData["servers"][trigger["serverId"]];
-        serverName = server["name"];
-        serverNames.push(serverName);
+        var serverId = trigger["serverId"];
+        var hostId = trigger["hostId"];
+        serverName = getServerName(server, serverId);
         if (!hostNames[serverName])
           hostNames[serverName] = [];
-        hostNames[serverName].push(server["hosts"][trigger["hostId"]]["name"]);
+        hostName = getHostName(server, hostId);
+        hostNames[serverName].push(hostName);
+        serverNames.push(serverName);
       }
       parsedData.servers = serverNames.uniq().sort();
       parsedData.hosts   = {};
@@ -177,9 +180,11 @@
         if (targetStatus >= 0 && trigger["status"] != targetStatus)
           continue;
 
-        server     = replyData["servers"][trigger["serverId"]];
-        serverName = server["name"];
-        hostName   = server["hosts"][trigger["hostId"]]["name"];
+        var serverId = trigger["serverId"];
+        var hostId = trigger["hostId"];
+        server     = replyData["servers"][serverId];
+        serverName = getServerName(server, serverId);
+        hostName   = getHostName(server, hostId);
         clock      = trigger["lastChangeTime"];
         status     = trigger["status"];
         severity   = trigger["severity"];

@@ -134,8 +134,8 @@ var EventsView = function(baseElem) {
 
     s += '<center>';
     s += '<form class="form-inline">';
-    s += '  <input id="latest-events-button" type="button" class="btn-info" value="' + gettext('Latest events') + '" />';
-    s += '  <input id="next-events-button" type="button" class="btn-primary" value="' + gettext('To next') + '" />';
+    s += '  <input id="latest-events-button" type="button" class="btn btn-info" value="' + gettext('Latest events') + '" />';
+    s += '  <input id="next-events-button" type="button" class="btn btn-primary" value="' + gettext('To next') + '" />';
     s += '</form>';
     s += '</center>';
     s += '<br>';
@@ -215,8 +215,9 @@ var EventsView = function(baseElem) {
     hostNames = {};
     for (x = 0; x < replyData["events"].length; ++x) {
       event = replyData["events"][x];
-      server = replyData["servers"][event["serverId"]];
-      serverName = server["name"];
+      var serverId = event["serverId"];
+      server = replyData["servers"][serverId];
+      serverName = getServerName(server, serverId);
       triggerId = event["triggerId"];
 
       if (!allTimes[serverName])
@@ -228,7 +229,8 @@ var EventsView = function(baseElem) {
 
       if (!hostNames[serverName])
         hostNames[serverName] = {};
-      hostName = server["hosts"][event["hostId"]]["name"];
+      var hostId = event["hostId"];
+      hostName = getHostName(server, hostId);
       if (!hostNames[serverName][hostName])
         hostNames[serverName][hostName] = true;
     }
@@ -311,9 +313,11 @@ var EventsView = function(baseElem) {
       if (targetStatus >= 0 && event["type"] != targetStatus)
         continue;
 
-      server     = rd["servers"][event["serverId"]];
-      serverName = server["name"];
-      hostName   = server["hosts"][event["hostId"]]["name"];
+      var serverId = event["serverId"];
+      var hostId = event["hostId"];
+      server     = rd["servers"][serverId];
+      serverName = getServerName(server, serverId);
+      hostName   = getHostName(server, hostId);
       clock      = event["time"];
       status     = event["type"];
       severity   = event["severity"];

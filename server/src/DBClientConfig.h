@@ -128,6 +128,14 @@ protected:
 	static void tableInitializerSystem(DBAgent *dbAgent, void *data);
 	static bool parseDBServer(const string &dbServer,
 	                          string &host, size_t &port);
+
+	static bool canUpdateTargetServer(
+	  MonitoringServerInfo *monitoringServerInfo,
+	  const OperationPrivilege &privilege);
+
+	static bool canDeleteTargetServer(
+	  const ServerIdType serverId, const OperationPrivilege &privilege);
+
 	/**
 	 * Add a target server. This is only for internal use and
 	 * should be called in DBCLIENT_TRANSACTION_BEGIN().
