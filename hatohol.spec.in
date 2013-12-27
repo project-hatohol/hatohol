@@ -13,12 +13,14 @@ Requires: libsoup >= 2.22
 Requires: json-glib >= 0.12
 Requires: sqlite >= 3.6
 Requires: mysql >= 5.1
+Requires: libuuid >= 2.17
 BuildRequires: gcc-c++, pkgconfig
 BuildRequires: glib2-devel >= 2.22
 BuildRequires: libsoup-devel >= 2.22
 BuildRequires: json-glib-devel >= 0.12
 BuildRequires: sqlite-devel >= 3.6
 BuildRequires: mysql-devel >= 5.1
+BuildRequires: libuuid-devel >= 2.17
 
 %description
 Hatohol collects monitoring information from running monitoring systems
@@ -32,6 +34,10 @@ Summary: A web UI client of Hatohol.
 Group: Applications/System
 Requires: %{name} = %{version}-%{release}
 Requires: bootstrap-for-hatohol >= 2.3
+Requires: MySQL-python >= 1.2.3
+Requires: Django >= 1.5.3
+Requires: httpd >= 2.2.15
+Requires: mod_wsgi >= 3.2
 
 %description client
 A web UI client of Hatohol provides a web UI.
@@ -57,6 +63,7 @@ make
 %install
 rm -rf %{buildroot}
 %make_install
+install -D -m 644 %{buildroot}/%{_libexecdir}/hatohol/client/conf/apache/hatohol.conf.package %{buildroot}/%{_sysconfdir}/httpd/conf.d/hatohol.conf
 
 rm -f %{buildroot}/%{_libdir}/*.la
 rm -f %{buildroot}/%{_libdir}/*.a
@@ -66,6 +73,7 @@ rm -f %{buildroot}/%{_libdir}/*.a
 cp %{_datadir}/hatohol/hatohol.centos /etc/init.d/hatohol
 chmod +x /etc/init.d/hatohol
 /sbin/chkconfig --add hatohol
+mkdir -p %{_sysconfdir}/hatohol
 
 %postun
 /sbin/ldconfig
@@ -90,6 +98,7 @@ rm -rf %{buildroot}
 %files client
 %defattr(-,root,root,-)
 %{_libexecdir}/hatohol/client/*
+/etc/httpd/conf.d/hatohol.conf
 
 %files devel
 %defattr(-,root,root,-)
@@ -98,6 +107,29 @@ rm -rf %{buildroot}
 %{_libdir}/pkgconfig/*.pc
 
 %changelog
+* Fri Dec 27 2013 Noriki Nakamura <noriki.nakamura@miraclelinux.com> 13.12-1
+- [Client] Automatic update of content in web pages. (#8)
+- [Client] messages in multiple languages should be supported (#10)
+- [Server] Update items triggered by the request. (#17)
+- Configuration of target server list by Web Interface. (#22)
+- [Server] The update of target servers without the restart of Hatohol server. (#32)
+- [Client] Make a link to Zabbix Graphs page (#48)
+- [Client] Make a link to Zabbix Map page (#49)
+- [Client] Filter by the severity and tinting (#50)
+- [Client] Filter and tinting by the status (open or close) in the Web client. (#51)
+- Add User and privillege (#58)
+- [Server] Can't get data from Zabbix server when memory limit of Zabbix API is little (60)
+- [server] test_execResidentActionTimeoutInInit sometimes crash on TravisCI (#67)
+- testUnifiedDataStore::test_getEventList sometimes fails (#68)
+- [Client] Show host field in events page (#70)
+- [server] test_cleanupOnThreadExit() sometimes fails. (#71)
+- [Server][Client] Hatohol can't display information of Japanese characters (#72)
+- [Server] When JsonParserAgent::read() return false, result of after JsonParserAgent::read() function is all false. (#75)
+- [server][DBAgentMySQL] Failed to query due to an interactive timeout of MySQL. (#78)
+- Trigger statues of newly added hosts don't correspond with zabbix (#83)
+- Show host names on Web UI: 'Overview:item' (#93)
+- Show host names on Web UI: 'Latest data' (#94)
+
 * Fri Sep 27 2013 Kazuhiro Yamato <kyamato@mriaclelinux.com> 0.1-1
 - Add an action framework.
 

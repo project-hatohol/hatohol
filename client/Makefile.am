@@ -8,6 +8,7 @@ nobase_dist_hatohol_client_DATA = \
 	conf/locale/ja/LC_MESSAGES/djangojs.po \
 	conf/apache/django.wsgi \
 	conf/apache/hatohol.site \
+	conf/apache/hatohol.conf.package \
 	hatohol/forwardview.py \
 	hatohol/wsgi.py \
 	hatohol/urls.py \
@@ -15,6 +16,9 @@ nobase_dist_hatohol_client_DATA = \
 	hatohol/settings.py \
 	hatohol/django_realize.py \
 	hatohol/hatohol_def.py \
+	hatohol/hatoholserver.py \
+	hatohol/models.py \
+	hatohol/smartfield.py \
 	static/css/hatohol.css \
 	static/css/zabbix.css \
 	static/css.external/themes/ui-lightness/jquery-ui.css \
@@ -32,6 +36,7 @@ nobase_dist_hatohol_client_DATA = \
 	static/js.external/stupidtable.js \
 	static/js.external/jquery-ui.min.js \
 	static/js/library.js \
+	static/js/events_view.js \
 	static/js/hatohol_def.js \
 	static/js/hatohol_connector.js \
 	static/js/hatohol_session_manager.js \
@@ -69,6 +74,7 @@ nobase_dist_hatohol_client_DATA = \
 	viewer/dashboard_ajax.html \
 	viewer/actions_ajax.html \
 	viewer/users_ajax.html \
+	viewer/userconfig.py \
 	viewer/tests.py
 
 MO_FILES = \
