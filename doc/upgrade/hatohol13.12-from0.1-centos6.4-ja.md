@@ -60,10 +60,12 @@ Hatohol13.12のアップデート方法
 Hatohol13.12ではHatohol chache DBを指定する
 環境変数'HATOHOL_DB_DIR'の記述箇所が変更になります。
 
-環境変数'HATOHOL_DB_DIR'を追加するために/etc/hatohol/initrcファイルを作ります。
+環境変数'HATOHOL_DB_DIR'を指定するために/etc/hatohol/initrcファイルを作ります。
 
-/etc/hatohol/ ディレクトリを作り、以下の内容をinitrcファイルとして
+/etc/hatohol/ ディレクトリを作り、Hatohol cache DBのパスをinitrcファイルとして
 /etc/hatohol/ ディレクトリに保存してください。
+
+以下は、'/var/lib/hatohol'を指定する場合の例を示します。
 
     export HATOHOL_DB_DIR=/var/lib/hatohol
 
@@ -84,7 +86,7 @@ Zabbix serverとnagiosサーバの情報やHatoholにログインするときに
 > *** 注意 ***
 > サーバ設定の中のIDの記載は不必要になりましたので、消し忘れがないよう気をつけてください。
 
-次のコマンドで設定をデータベースに反映してください。
+次のコマンド実行して設定をデータベースに反映してください。
 
     # hatohol-config-db-creator hatohol-config.dat
 

@@ -72,16 +72,18 @@ Hatoholは以下のパッケージをインストールする必要がありま�
     # service mysqld start
 
 ### Hatohol cache DBのセットアップ
-Hatohol cache DBのためのディレクトリを用意します。ここでは例として'/var/lib/hatohol'を使用します。
+Hatohol cache DBのためのディレクトリを用意します。
+このディレクトリのパスは任意です。
+ここでは'/var/lib/hatohol'を使用する例を示します。
 
-必要に応じて、ディレクトリを作成します。
+ディレクトリを作成します。
 
     # mkdir /var/lib/hatohol
 
 このディレクトリを指定するために/etc/hatohol/initrcファイルを作り、
 そのファイルに環境変数'HATOHOL_DB_DIR'を追加します。
 
-/etc/hatohol/ ディレクトリを作り、以下の内容をinitrcファイルとして
+以下の内容をinitrcファイルとして
 /etc/hatoholディレクトリに保存してください。
 
     export HATOHOL_DB_DIR=/var/lib/hatohol
@@ -96,7 +98,7 @@ Zabbix serverとnagiosサーバの情報やHatoholにログインするときに
 コピーした設定ファイルに追加してください。
 いつくかのルールとサンプルがそのファイルの中にあります。
 
-以下のように設定をデータベースに反映してください。
+次のコマンドを実行して設定をデータベースに反映してください。
 
     # hatohol-config-db-creator hatohol-config.dat
 
