@@ -47,7 +47,7 @@ Hatoholは以下のパッケージをインストールする必要がありま�
 ### Hatohol Server
 以下のURLからRPMをダウンロードしてください。
 
-- TODO: URLを追記する
+- https://github.com/project-hatohol/hatohol-packages/raw/master/RPMS/hatohol-13.12-1.el6.x86_64.rpm
 
 次のコマンドでインストールしてください。
 
@@ -56,7 +56,7 @@ Hatoholは以下のパッケージをインストールする必要がありま�
 ### Hatohol Client
 以下のURLからRPMをダウンロードしてください。
 
-- TODO: URLを追記する
+- https://github.com/project-hatohol/hatohol-packages/raw/master/RPMS/hatohol-client-13.12-1.el6.x86_64.rpm
 
 次のコマンドでインストールしてください。
 
