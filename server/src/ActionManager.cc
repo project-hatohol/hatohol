@@ -473,7 +473,9 @@ void ActionManager::checkEvents(const EventInfoList &eventList)
 			continue;
 		if (shouldSkipByLog(eventInfo, dbAction))
 			continue;
-		dbAction.getActionList(actionDefList, &eventInfo);
+		// TODO: Use userID of action itself.
+		DataQueryOption option(USER_ID_ADMIN);
+		dbAction.getActionList(actionDefList, option, &eventInfo);
 		ActionDefListIterator actIt = actionDefList.begin();
 		for (; actIt != actionDefList.end(); ++actIt)
 			runAction(*actIt, eventInfo, dbAction);

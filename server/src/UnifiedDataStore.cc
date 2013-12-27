@@ -383,10 +383,11 @@ void UnifiedDataStore::getHostList(
 	dbHatohol.getHostInfoList(hostInfoList, targetServerId, targetHostId);
 }
 
-void UnifiedDataStore::getActionList(ActionDefList &actionList)
+void UnifiedDataStore::getActionList(ActionDefList &actionList,
+                                     DataQueryOption &option)
 {
 	DBClientAction dbAction;
-	dbAction.getActionList(actionList);
+	dbAction.getActionList(actionList, option);
 }
 
 void UnifiedDataStore::deleteActionList(const ActionIdList &actionIdList)

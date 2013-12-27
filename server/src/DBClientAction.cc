@@ -517,8 +517,11 @@ void DBClientAction::addAction(ActionDef &actionDef)
 }
 
 void DBClientAction::getActionList(ActionDefList &actionDefList,
+                                   DataQueryOption &option,
                                    const EventInfo *eventInfo)
 {
+	// TODO: take into acount a privilege
+
 	DBAgentSelectExArg arg;
 	arg.tableName = TABLE_NAME_ACTIONS;
 	arg.pushColumn(COLUMN_DEF_ACTIONS[IDX_ACTIONS_ACTION_ID]);

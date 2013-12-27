@@ -233,6 +233,7 @@ public:
 	virtual ~DBClientAction();
 	void addAction(ActionDef &actionDef);
 	void getActionList(ActionDefList &actionDefList,
+	                   DataQueryOption &option,
 	                   const EventInfo *eventInfo = NULL);
 	void deleteActions(const ActionIdList &idList);
 
