@@ -85,172 +85,171 @@
 {% block logic %}
   <script type="text/javascript">
 
-    function parseData(rd) {
-      var pd = new Object();
-      var o;
+    function parseData(replyData) {
+      var parsedData = new Object();
+      var serverStatus;
       var x, y;
-      var server, group;
+      var serverId, groupId;
 
-      for (x = 0; x < rd["serverStatus"].length; ++x) {
-        o = rd["serverStatus"][x];
-        server = o["serverId"];
-        pd[server] = new Object();
+      for (x = 0; x < replyData["serverStatus"].length; ++x) {
+        serverStatus = replyData["serverStatus"][x];
+        serverId = serverStatus["serverId"];
+        parsedData[serverId] = new Object();
 
-        pd[server]["goodHosts"] = 0;
-        pd[server]["badHosts"]  = 0;
-        for (y = 0; y < o["hostStatus"].length; ++y) {
-          pd[server]["goodHosts"] += o["hostStatus"][y]["numberOfGoodHosts"];
-          pd[server]["badHosts"]  += o["hostStatus"][y]["numberOfBadHosts"];
+        parsedData[serverId]["goodHosts"] = 0;
+        parsedData[serverId]["badHosts"]  = 0;
+        for (y = 0; y < serverStatus["hostStatus"].length; ++y) {
+          parsedData[serverId]["goodHosts"] += serverStatus["hostStatus"][y]["numberOfGoodHosts"];
+          parsedData[serverId]["badHosts"]  += serverStatus["hostStatus"][y]["numberOfBadHosts"];
         }
 
-        pd[server]["numberOfHostGroups"] = 0;
-        for ( y in o["hostGroups"] ) {
-          pd[server]["numberOfHostGroups"] += 1;
+        parsedData[serverId]["numberOfHostGroups"] = 0;
+        for ( y in serverStatus["hostGroups"] ) {
+          parsedData[serverId]["numberOfHostGroups"] += 1;
         }
 
-        pd[server]["problem"] = 0;
-        for (y = 0; y < o["systemStatus"].length; ++y) {
-          group = o["systemStatus"][y]["hostGroupId"];
-          if ( !(group in pd[server]) ) {
-            pd[server][group] = new Object();
+        parsedData[serverId]["problem"] = 0;
+        for (y = 0; y < serverStatus["systemStatus"].length; ++y) {
+          groupId = serverStatus["systemStatus"][y]["hostGroupId"];
+          if ( !(groupId in parsedData[serverId]) ) {
+            parsedData[serverId][groupId] = new Object();
           }
-          pd[server][group][o["systemStatus"][y]["severity"]] = o["systemStatus"][y]["numberOfHosts"];
-          pd[server]["problem"] += o["systemStatus"][y]["numberOfHosts"];
+          parsedData[serverId][groupId][serverStatus["systemStatus"][y]["severity"]] = serverStatus["systemStatus"][y]["numberOfHosts"];
+          parsedData[serverId]["problem"] += serverStatus["systemStatus"][y]["numberOfHosts"];
         }
       }
 
-      return pd;
+      return parsedData;
     }
 
     function buildProgress(bad, total) {
-      var s = "";
+      var html = "";
       var bad_ratio;
 
       bad_ratio = (100 * bad / total) << 0;
 
-      s += "<div class='progress'>";
-      s += "<div class='bar bar-success' style='width:" + (100 - bad_ratio) + "%;'></div>";
-      s += "<div class='bar bar-danger'  style='width:" +        bad_ratio  + "%;'></div>";
-      s += "</div>";
+      html += "<div class='progress'>";
+      html += "<div class='bar bar-success' style='width:" + (100 - bad_ratio) + "%;'></div>";
+      html += "<div class='bar bar-danger'  style='width:" +        bad_ratio  + "%;'></div>";
+      html += "</div>";
 
-      return s;
+      return html;
     }
 
-    function drawServerBody(rd, pd) {
-      var s = "";
-      var o;
+    function drawServerBody(replyData, parsedData) {
+      var html = "";
+      var serverStatus;
       var x;
       var goods, bads;
-      var server;
+      var serverId;
 
-      s = "";
+      html = "";
 
-      goods = rd["serverStatus"];
-      bads  = rd["badServers"];
+      goods = replyData["serverStatus"];
+      bads  = replyData["badServers"];
 
-      s += "<tr>";
-      s += "<td colspan='2'>{% trans "Number of servers [With problem]" %}</td>";
-      s += "<td>" + bads.length + " / " + rd["numberOfServers"] + "</td>";
-      s += "<td>" + buildProgress(bads.length, rd["numberOfServers"]) + "</td>";
-      s += "</tr>";
+      html += "<tr>";
+      html += "<td colspan='2'>{% trans "Number of servers [With problem]" %}</td>";
+      html += "<td>" + bads.length + " / " + replyData["numberOfServers"] + "</td>";
+      html += "<td>" + buildProgress(bads.length, replyData["numberOfServers"]) + "</td>";
+      html += "</tr>";
 
       for (x = 0; x < goods.length; ++x) {
-        o = goods[x];
-        server = o["serverId"];
-        s += "<tr>";
-        s += "<td rowspan='5'>" + o["serverNickname"] + "</td>";
-        s += "<td>{% trans "Number of hosts [with problem]" %}</td>";
-        s += "<td>" + pd[server]["badHosts"] + " / " + o["numberOfHosts"] + "</td>";
-        s += "<td>" + buildProgress(pd[server]["badHosts"], o["numberOfHosts"]) + "</td>";
-        s += "</tr>";
-        s += "<tr>";
-        s += "<td>{% trans "Number of items" %}</td>";
-        s += "<td>" + o["numberOfItems"] + "</td>";
-        s += "<td></td>";
-        s += "</tr>";
-        s += "<tr>";
-        s += "<td>{% trans "Number of triggers [with problem]" %}</td>";
-        s += "<td>" + pd[server]["problem"] + " / " + o["numberOfTriggers"] + "</td>";
-        s += "<td>" + buildProgress(pd[server]["problem"], o["numberOfTriggers"]) + "</td>";
-        s += "</tr>";
-        s += "<tr>";
-        s += "<td>{% trans "Number of users [Online]" %}</td>";
-        s += "<td>" + o["numberOfOnlineUsers"] + " / " + o["numberOfUsers"] + "</td>";
-        s += "<td>" + buildProgress(o["numberOfOnlineUsers"], o["numberOfUsers"]) + "</td>";
-        s += "</tr>";
-        s += "<tr>";
-        s += "<td>{% trans "New values per second" %}</td>";
-        s += "<td>" + o["numberOfMonitoredItemsPerSecond"] + "</td>";
-        s += "<td></td>";
-        s += "</tr>";
+        serverStatus = goods[x];
+        serverId = serverStatus["serverId"];
+        html += "<tr>";
+        html += "<td rowspan='5'>" + serverStatus["serverNickname"] + "</td>";
+        html += "<td>{% trans "Number of hosts [with problem]" %}</td>";
+        html += "<td>" + parsedData[serverId]["badHosts"] + " / " + serverStatus["numberOfHosts"] + "</td>";
+        html += "<td>" + buildProgress(parsedData[serverId]["badHosts"], serverStatus["numberOfHosts"]) + "</td>";
+        html += "</tr>";
+        html += "<tr>";
+        html += "<td>{% trans "Number of items" %}</td>";
+        html += "<td>" + serverStatus["numberOfItems"] + "</td>";
+        html += "<td></td>";
+        html += "</tr>";
+        html += "<tr>";
+        html += "<td>{% trans "Number of triggers [with problem]" %}</td>";
+        html += "<td>" + parsedData[serverId]["problem"] + " / " + serverStatus["numberOfTriggers"] + "</td>";
+        html += "<td>" + buildProgress(parsedData[serverId]["problem"], serverStatus["numberOfTriggers"]) + "</td>";
+        html += "</tr>";
+        html += "<tr>";
+        html += "<td>{% trans "Number of users [Online]" %}</td>";
+        html += "<td>" + serverStatus["numberOfOnlineUsers"] + " / " + serverStatus["numberOfUsers"] + "</td>";
+        html += "<td>" + buildProgress(serverStatus["numberOfOnlineUsers"], serverStatus["numberOfUsers"]) + "</td>";
+        html += "</tr>";
+        html += "<tr>";
+        html += "<td>{% trans "New values per second" %}</td>";
+        html += "<td>" + serverStatus["numberOfMonitoredItemsPerSecond"] + "</td>";
+        html += "<td></td>";
+        html += "</tr>";
       }
 
-      return s;
+      return html;
     }
 
-    function drawTriggerBody(rd, pd) {
-      var s = "";
-      var o;
+    function drawTriggerBody(replyData, parsedData) {
+      var html = "";
       var x, y, z;
-      var server, group;
+      var serverId, groupId;
 
-      for (x = 0; x < rd["serverStatus"].length; ++x) {
-        server = rd["serverStatus"][x]["serverId"];
-        s += "<tr>";
+      for (x = 0; x < replyData["serverStatus"].length; ++x) {
+        serverId = replyData["serverStatus"][x]["serverId"];
+        html += "<tr>";
         y = 0;
-        for ( group in rd["serverStatus"][x]["hostGroups"] ) {
+        for ( groupId in replyData["serverStatus"][x]["hostGroups"] ) {
           if ( 0 == y ) {
-            s += "<td rowspan='" + pd[server]["numberOfHostGroups"] + "'>";
-            s += rd["serverStatus"][x]["serverNickname"];
-            s += "</td>";
+            html += "<td rowspan='" + parsedData[serverId]["numberOfHostGroups"] + "'>";
+            html += replyData["serverStatus"][x]["serverNickname"];
+            html += "</td>";
           }
-          s += "<td>";
-          s += rd["serverStatus"][x]["hostGroups"][group]["name"];
-          s += "</td>";
+          html += "<td>";
+          html += replyData["serverStatus"][x]["hostGroups"][groupId]["name"];
+          html += "</td>";
           for (z = 5; 0 <= z; --z) {
-            s += "<td>";
-            s += ((z in pd[server][group]) ? pd[server][group][z] : 0);
-            s += "</td>";
+            html += "<td>";
+            html += ((z in parsedData[serverId][groupId]) ? parsedData[serverId][groupId][z] : 0);
+            html += "</td>";
           }
           ++y;
         }
-        s += "</tr>";
+        html += "</tr>";
       }
 
-      return s;
+      return html;
     }
 
-    function drawHostBody(rd, pd) {
-      var s = "";
-      var o;
+    function drawHostBody(replyData, parsedData) {
+      var html = "";
+      var hostStatuses;
       var x, y;
 
-      for (x = 0; x < rd["serverStatus"].length; ++x) {
-        o = rd["serverStatus"][x]["hostStatus"];
-        s += "<tr>";
-        for (y = 0; y < o.length; ++y) {
+      for (x = 0; x < replyData["serverStatus"].length; ++x) {
+        hostStatuses = replyData["serverStatus"][x]["hostStatus"];
+        html += "<tr>";
+        for (y = 0; y < hostStatuses.length; ++y) {
           if ( 0 == y ) {
-            s += "<td rowspan='" + o.length + "'>";
-            s += rd["serverStatus"][x]["serverNickname"];
-            s += "</td>";
+            html += "<td rowspan='" + hostStatuses.length + "'>";
+            html += replyData["serverStatus"][x]["serverNickname"];
+            html += "</td>";
           }
-          s += "<td>";
-          s += rd["serverStatus"][x]["hostGroups"][o[y]["hostGroupId"]]["name"];
-          s += "</td>";
-          s += "<td>";
-          s += o[y]["numberOfGoodHosts"];
-          s += "</td>";
-          s += "<td>";
-          s += o[y]["numberOfBadHosts"];
-          s += "</td>";
-          s += "<td>";
-          s += o[y]["numberOfGoodHosts"] + o[y]["numberOfBadHosts"];
-          s += "</td>";
+          html += "<td>";
+          html += replyData["serverStatus"][x]["hostGroups"][hostStatuses[y]["hostGroupId"]]["name"];
+          html += "</td>";
+          html += "<td>";
+          html += hostStatuses[y]["numberOfGoodHosts"];
+          html += "</td>";
+          html += "<td>";
+          html += hostStatuses[y]["numberOfBadHosts"];
+          html += "</td>";
+          html += "<td>";
+          html += hostStatuses[y]["numberOfGoodHosts"] + hostStatuses[y]["numberOfBadHosts"];
+          html += "</td>";
         }
-        s += "</tr>";
+        html += "</tr>";
       }
 
-      return s;
+      return html;
     }
 
     function updateCore(reply) {
