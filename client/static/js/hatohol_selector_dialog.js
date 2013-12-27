@@ -100,12 +100,7 @@ HatoholSelectorDialog.prototype.start = function(url, requestType) {
     url: url,
     request: requestType,
     data: this.makeQueryData(),
-    replyCallback: function(reply) {
-      var replyParser = new HatoholReplyParser(reply);
-      if (replyParser.getStatus() !== REPLY_STATUS.OK) {
-        self.setMessage(replyParser.getStatusMessage());
-        return;
-      }
+    replyCallback: function(reply, parser, context) {
       if (self.getNumberOfObjects(reply) == 0) {
         self.setMessage(gettext("No data."));
         return;
@@ -127,6 +122,9 @@ HatoholSelectorDialog.prototype.start = function(url, requestType) {
         $(this).attr("class", "info");
         self.setSelectedRow($(this));
       });
+    },
+    parseErrorCallback: function(reply, parser) {
+      self.setMessage(replyParser.getStatusMessage());
     },
     connectErrorCallback: function(XMLHttpRequest, textStatus, errorThrown) {
       var errorMsg = "Error: " + XMLHttpRequest.status + ": " +
