@@ -1,3 +1,6 @@
+WSGIScriptAlias / /path/to/hatohol/client/conf/apache/django.wsgi
+WSGIPythonPath /usr/libexec/hatohol/client/
+
 <VirtualHost *:80>
     DocumentRoot /path/to/hatohol
     <Directory /path/to/hatohol>
@@ -5,5 +8,4 @@
         Allow from all
     </Directory>
     Alias /static/ /path/to/hatohol/static/
-    WSGIScriptAlias / /path/to/hatohol/conf/apache/django.wsgi
 </VirtualHost>
