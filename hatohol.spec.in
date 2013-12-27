@@ -73,6 +73,7 @@ rm -f %{buildroot}/%{_libdir}/*.a
 cp %{_datadir}/hatohol/hatohol.centos /etc/init.d/hatohol
 chmod +x /etc/init.d/hatohol
 /sbin/chkconfig --add hatohol
+mkdir -p %{_sysconfdir}/hatohol
 
 %postun
 /sbin/ldconfig
