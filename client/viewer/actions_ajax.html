@@ -257,37 +257,6 @@
     //
     // parser of received json data
     //
-    function getServerName(actionsPkt, actionDef) {
-      var serverId = actionDef["serverId"];
-      if (!serverId)
-        return null;
-      var server = actionsPkt["servers"][serverId];
-      if (!server)
-        return makeNamelessServerLabel(serverId);
-      var serverName = actionsPkt["servers"][serverId]["name"];
-      if (!serverName)
-        return makeNamelessServerLabel(serverId);
-      return serverName;
-    }
-
-    function getHostName(actionsPkt, actionDef) {
-      var hostId = actionDef["hostId"]
-      if (!hostId)
-        return null;
-      var serverId = actionDef["serverId"];
-      if (!serverId)
-        return makeNamelessHostLabel(serverId, hostId);
-      var hostArray = actionsPkt["servers"][serverId]["hosts"]
-      if (!hostArray)
-        return makeNamelessHostLabel(serverId, hostId);
-      var host = hostArray[hostId];
-      if (!host)
-        return makeNamelessHostLabel(serverId, hostId);
-      var hostName = host["name"];
-      if (!hostName)
-        return makeNamelessHostLabel(serverId, hostId);
-      return hostName;
-    }
 
     function getTriggerBrief(actionsPkt, actionDef) {
       var triggerId = actionDef["triggerId"]
@@ -324,12 +293,15 @@
              "actionId='" + actionDef.actionId + "'></td>";
         s += "<td>" + actionDef.actionId + "</td>";
 
-        var serverName = getServerName(actionsPkt, actionDef);
+        var serverId = actionDef["serverId"];
+        var server = actionsPkt["servers"][serverId];
+        var serverName = getServerName(server, serverId);
         if (!serverName)
           serverName = "ANY";
         s += "<td>" + serverName + "</td>";
 
-        var hostName = getHostName(actionsPkt, actionDef);
+        var hostId = actionDef["hostId"];
+        var hostName = getHostName(server, hostId);
         if (!hostName)
           hostName = "ANY";
         s += "<td>" + hostName   + "</td>";
