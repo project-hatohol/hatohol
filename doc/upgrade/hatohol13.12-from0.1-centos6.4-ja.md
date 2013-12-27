@@ -24,10 +24,11 @@ Project HatoholはDjangoのRPMを提供します。
 Hatohol13.12ではHatohol0.1でのパッケージに加え、以下のパッケージをインストールする必要があります。
 - libuuid
 - MySQL-python
+- mod_wsgi
 
 次のコマンドでインストールしてください
 
-    # yum install libuuid MySQL-python
+    # yum install libuuid MySQL-python mod_wsgi
 
 Hatohol13.12のアップデート方法
 -------------------------------
@@ -118,9 +119,11 @@ Hatohol serverが正常に開始した場合、/var/log/messagesに下記のよ�
     Oct  8 09:46:59 localhost hatohol[3038]: [INFO] <ArmZabbixAPI.cc:925> started: ArmZabbixAPI (server: testZbxSv1)
     Oct  8 09:47:01 localhost hatohol[3038]: [INFO] <ArmZabbixAPI.cc:925> started: ArmZabbixAPI (server: testZbxSv2)
 
-### Hatohol Clientの開始
+### Hatohol情報の閲覧
+例えば、Hatohol clientが192.168.1.1で動作している場合、
+ブラウザを用いて次のURLを開いてください。
 
-    # /usr/libexec/hatohol/client/manage.py runserver 0.0.0.0:8000
+- http://192.168.1.1/viewer/
 
 > ** メモ **
-> アクセス可能な範囲は、第2引数によって制限できます。上記の例ではHatohol clientは任意のコンピュータに応答します。
+> 現在、上記ページは、Google Chromeを使ってチェックされています。

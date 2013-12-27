@@ -38,10 +38,11 @@ Hatoholは以下のパッケージをインストールする必要がありま�
 - libuuid
 - MySQL
 - MySQL-python
+- mod_wsgi
 
 次のコマンドでインストールしてください
 
-    # yum install libsoup libuuid mysql MySQL-python
+    # yum install libsoup libuuid mysql MySQL-python mod_wsgi
 
 ### Hatohol Server
 以下のURLからRPMをダウンロードしてください。
@@ -130,13 +131,6 @@ Hatohol serverが正常に開始した場合、/var/log/messagesに下記のよ�
     Oct  8 09:46:59 localhost hatohol[3038]: [INFO] <ArmZabbixAPI.cc:925> started: ArmZabbixAPI (server: testZbxSv1)
     Oct  8 09:47:01 localhost hatohol[3038]: [INFO] <ArmZabbixAPI.cc:925> started: ArmZabbixAPI (server: testZbxSv2)
 
-### Hatohol Clientの開始
-
-    # /usr/libexec/hatohol/client/manage.py runserver 0.0.0.0:8000
-
-> ** メモ **
-> アクセス可能な範囲は、第2引数によって制限できます。上記の例ではHatohol clientは任意のコンピュータに応答します。
-
 Webブラウザを使ったアクセス
 ---------------------------
 ### SELinuxとiptablesの設定確認
@@ -179,7 +173,7 @@ iptablesについては、/etc/sysconfig/iptablesの編集により許可ポー�
 例えば、Hatohol clientが192.168.1.1で動作している場合、
 ブラウザを用いて次のURLを開いてください。
 
-- http://192.168.1.1:8000/viewer/
+- http://192.168.1.1/viewer/
 
 > ** メモ **
 > 現在、上記ページは、Google Chromeを使ってチェックされています。
