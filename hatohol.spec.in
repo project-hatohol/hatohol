@@ -37,6 +37,7 @@ Requires: bootstrap-for-hatohol >= 2.3
 Requires: MySQL-python >= 1.2.3
 Requires: Django >= 1.5.3
 Requires: httpd >= 2.2.15
+Requires: mod_wsgi >= 3.2
 
 %description client
 A web UI client of Hatohol provides a web UI.
@@ -62,6 +63,7 @@ make
 %install
 rm -rf %{buildroot}
 %make_install
+install -D -m 644 %{buildroot}/%{_libexecdir}/hatohol/client/conf/apache/hatohol.conf.package %{buildroot}/%{_sysconfdir}/httpd/conf.d/hatohol.conf
 
 rm -f %{buildroot}/%{_libdir}/*.la
 rm -f %{buildroot}/%{_libdir}/*.a
@@ -71,9 +73,6 @@ rm -f %{buildroot}/%{_libdir}/*.a
 cp %{_datadir}/hatohol/hatohol.centos /etc/init.d/hatohol
 chmod +x /etc/init.d/hatohol
 /sbin/chkconfig --add hatohol
-
-%post client
-cp %{_libexecdir}/hatohol/client/conf/apache/hatohol.conf.package /etc/httpd/conf.d/hatohol.conf
 
 %postun
 /sbin/ldconfig
