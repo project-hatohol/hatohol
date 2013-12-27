@@ -8,6 +8,7 @@ nobase_dist_hatohol_client_DATA = \
 	conf/locale/ja/LC_MESSAGES/djangojs.po \
 	conf/apache/django.wsgi \
 	conf/apache/hatohol.site \
+	conf/apache/hatohol.conf.package \
 	hatohol/forwardview.py \
 	hatohol/wsgi.py \
 	hatohol/urls.py \
