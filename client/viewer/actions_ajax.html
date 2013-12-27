@@ -277,7 +277,10 @@
       var serverId = actionDef["serverId"];
       if (!serverId)
         return makeNamelessHostLabel(serverId, hostId);
-      var hostArray = actionsPkt["servers"][serverId]["hosts"]
+      var server = actionsPkt["servers"][serverId];
+      if (!server)
+        return null;
+      var hostArray = server["hosts"]
       if (!hostArray)
         return makeNamelessHostLabel(serverId, hostId);
       var host = hostArray[hostId];
@@ -296,7 +299,10 @@
       var serverId = actionDef["serverId"];
       if (!serverId)
         return makeNamelessTriggerLabel(triggerId);
-      var triggerArray = actionsPkt["servers"][serverId]["triggers"]
+      var server = actionsPkt["servers"][serverId];
+      if (!server)
+        return null;
+      var triggerArray = server["triggers"]
       if (!triggerArray)
         return makeNamelessTriggerLabel(triggerId);
       var trigger = triggerArray[triggerId];
