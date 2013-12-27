@@ -24,7 +24,7 @@ var HatoholTriggerSelector = function(serverId, hostId, selectedCb) {
   // call the constructor of the super class
   HatoholSelectorDialog.apply(
     this, ["trigger-selector", gettext("Trigger selecion"), selectedCb]);
-  self.start("/tunnel/trigger", "GET");
+  self.start("/trigger", "GET");
 }
 
 HatoholTriggerSelector.prototype =

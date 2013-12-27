@@ -24,7 +24,7 @@ var HatoholServerSelector = function(selectedCb) {
   // call the constructor of the super class
   HatoholSelectorDialog.apply(
     this, ["server-selector", gettext("Server selecion"), selectedCb]);
-  self.start("/tunnel/server", "GET");
+  self.start("/server", "GET");
 }
 
 HatoholServerSelector.prototype =

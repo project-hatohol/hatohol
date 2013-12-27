@@ -42,7 +42,9 @@
         <th data-sort="int"> ID </th>
         <th data-sort="string"> {% trans "Server" %} </th>
         <th data-sort="string"> {% trans "Host" %} </th>
+        <!-- Not supported
         <th data-sort="string"> {% trans "Host Group" %} </th>
+        -->
         <th data-sort="int"> {% trans "Trigger" %} </th>
         <th data-sort="string"> {% trans "Status" %} </th>
         <th data-sort="string"> {% trans "Severity" %} </th>
@@ -332,8 +334,10 @@
           hostName = "ANY";
         s += "<td>" + hostName   + "</td>";
 
+        /* Not supported
         var hostGroupName = "unsupported";
         s += "<td>" + hostGroupName + "</td>";
+        */
 
         var triggerBrief = getTriggerBrief(actionsPkt, actionDef);
         if (!triggerBrief)
