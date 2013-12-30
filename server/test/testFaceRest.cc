@@ -1128,7 +1128,7 @@ void test_addActionParameterFull(void)
 	assertDBContent(dbAction.getDBAgent(), statement, expect);
 }
 
-void test_addActionParamterOver32bit(void)
+void test_addActionParameterOver32bit(void)
 {
 	setupPostAction();
 
