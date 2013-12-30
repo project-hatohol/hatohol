@@ -9,6 +9,23 @@ Install packages (for Ubuntu 12.04)
     # pip install django==1.5.4
     # pip install mysql-python
 
+Install packages (for Debian 7)
+-------------------------------
+
+    # apt-get install checkinstall
+    $ wget -N http://nodejs.org/dist/node-latest.tar.gz
+    $ tar xzvf node-latest.tar.gz && cd node-v* 
+    $ checkinstall -y --install=no --pkgversion 0.10.24 # Replace with current version number.
+    # sudo dpkg -i node_*
+    # curl https://npmjs.org/install.sh | sudo sh
+
+The above instruction is an excerpt from https://github.com/joyent/node/wiki/Installing-Node.js-via-package-manager
+
+    # npm install -g mocha
+    # npm install -g expect.js
+    # npm install -g mocha-phantomjs phantomjs
+    # pip install django==1.5.4
+
 make symbolic links
 -------------------
 Execute ./configure on the top directory. If the above packages are detected,
