@@ -1077,7 +1077,7 @@ void test_addAction(void)
 	assertDBContent(dbAction.getDBAgent(), statement, expect);
 }
 
-void test_addActionParamterFull(void)
+void test_addActionParameterFull(void)
 {
 	setupPostAction();
 
