@@ -719,3 +719,21 @@ void defineDBPath(DBDomainId domainId, const string &dbPath)
 		cut_fail("Cannot set a domain ID for %d\n", domainId);
 	DBAgentSQLite3::defineDBPath(DB_DOMAIN_ID_HATOHOL, dbPath);
 }
+
+const UserIdType searchMaxTestUserId(void)
+{
+	CacheServiceDBClient cache;
+	DBClientUser *dbUser = cache.getUser();
+	UserInfoList userInfoList;
+	UserQueryOption option(USER_ID_ADMIN);
+	dbUser->getUserInfoList(userInfoList, option);
+	cppcut_assert_equal(false, userInfoList.empty());
+
+	UserIdType userId = 0;
+	UserInfoListIterator userInfo = userInfoList.begin();
+	for (; userInfo != userInfoList.end(); ++userInfo) {
+		if (userInfo->id > userId)
+			userId = userInfo->id;
+	}
+	return userId;
+}

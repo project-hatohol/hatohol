@@ -25,6 +25,14 @@
 
 namespace testOperationPrivilege {
 
+static void initAndLoadTestUser(void)
+{
+	hatoholInit();
+	bool dbRecreate = true;
+	bool loadTestData = true;
+	setupTestDBUser(dbRecreate, loadTestData);
+}
+
 // ---------------------------------------------------------------------------
 // Test cases
 // ---------------------------------------------------------------------------
@@ -32,6 +40,14 @@ void test_defaultUserId(void)
 {
 	OperationPrivilege privilege;
 	cppcut_assert_equal(INVALID_USER_ID, privilege.getUserId());
+}
+
+void test_constructorWithUserId(void)
+{
+	initAndLoadTestUser();
+	const UserIdType userId = searchMaxTestUserId();
+	OperationPrivilege privilege(userId);
+	cppcut_assert_equal(userId, privilege.getUserId());
 }
 
 void test_setGetUserId(void)

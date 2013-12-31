@@ -163,4 +163,6 @@ void releaseDefaultContext(void);
 
 void defineDBPath(DBDomainId domainId, const string &dbPath);
 
+const UserIdType searchMaxTestUserId(void);
+
 #endif // Helpers_h
