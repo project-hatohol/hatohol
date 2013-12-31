@@ -204,7 +204,7 @@
         html += "<tr>";
         y = 0;
         for (groupId in replyData["serverStatus"][x]["hostGroups"]) {
-          if (0 == y) {
+          if (y == 0) {
             html += "<td rowspan='" + parsedData[serverId]["numberOfHostGroups"] + "'>";
             html += replyData["serverStatus"][x]["serverNickname"];
             html += "</td>";
@@ -212,7 +212,7 @@
           html += "<td>";
           html += replyData["serverStatus"][x]["hostGroups"][groupId]["name"];
           html += "</td>";
-          for (z = 5; 0 <= z; --z) {
+          for (z = 5; z >= 0; --z) {
             html += "<td>";
             html += ((z in parsedData[serverId][groupId]) ? parsedData[serverId][groupId][z] : 0);
             html += "</td>";
@@ -236,7 +236,7 @@
         html += "<tr>";
         for (y = 0; y < hostStatuses.length; ++y) {
           hostStatus = hostStatuses[y];
-          if (0 == y) {
+          if (y == 0) {
             html += "<td rowspan='" + hostStatuses.length + "'>";
             html += replyData["serverStatus"][x]["serverNickname"];
             html += "</td>";
