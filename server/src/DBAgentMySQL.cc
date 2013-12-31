@@ -426,7 +426,7 @@ void DBAgentMySQL::addColumns(DBAgentAddColumnsArg &addColumnsArg)
 	string query = "ALTER TABLE ";
 	query += addColumnsArg.tableName;
 	vector<size_t>::iterator it = addColumnsArg.columnIndexes.begin();
-	for (; it != addColumnsArg.columnIndexes.end(); it++) {
+	for (; it != addColumnsArg.columnIndexes.end(); ++it) {
 		size_t index = *it;
 		const ColumnDef &columnDef = addColumnsArg.columnDefs[index];
 		query += " ADD COLUMN ";
