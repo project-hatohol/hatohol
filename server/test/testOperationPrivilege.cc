@@ -48,6 +48,12 @@ void test_constructorWithUserId(void)
 	const UserIdType userId = searchMaxTestUserId();
 	OperationPrivilege privilege(userId);
 	cppcut_assert_equal(userId, privilege.getUserId());
+
+	// non existing user ID
+	const UserIdType nonExistingUserId = userId + 1;
+	OperationPrivilege privilegeNonExistingUser(nonExistingUserId);
+	cppcut_assert_equal(INVALID_USER_ID,
+	                    privilegeNonExistingUser.getUserId());
 }
 
 void test_setGetUserId(void)
