@@ -86,36 +86,38 @@
   <script type="text/javascript">
 
     function parseData(replyData) {
-      var parsedData = new Object();
-      var serverStatus;
+      var parsedData = {};
+      var serverStatus, hostStatus, systemStatus;
       var x, y;
-      var serverId, groupId;
+      var serverId, groupId, severity, numberOfHosts;
 
       for (x = 0; x < replyData["serverStatus"].length; ++x) {
         serverStatus = replyData["serverStatus"][x];
         serverId = serverStatus["serverId"];
-        parsedData[serverId] = new Object();
+        parsedData[serverId] = {};
 
         parsedData[serverId]["goodHosts"] = 0;
         parsedData[serverId]["badHosts"]  = 0;
         for (y = 0; y < serverStatus["hostStatus"].length; ++y) {
-          parsedData[serverId]["goodHosts"] += serverStatus["hostStatus"][y]["numberOfGoodHosts"];
-          parsedData[serverId]["badHosts"]  += serverStatus["hostStatus"][y]["numberOfBadHosts"];
+          hostStatus = serverStatus["hostStatus"][y];
+          parsedData[serverId]["goodHosts"] += hostStatus["numberOfGoodHosts"];
+          parsedData[serverId]["badHosts"]  += hostStatus["numberOfBadHosts"];
         }
 
         parsedData[serverId]["numberOfHostGroups"] = 0;
-        for ( y in serverStatus["hostGroups"] ) {
+        for (y in serverStatus["hostGroups"])
           parsedData[serverId]["numberOfHostGroups"] += 1;
-        }
 
         parsedData[serverId]["problem"] = 0;
         for (y = 0; y < serverStatus["systemStatus"].length; ++y) {
-          groupId = serverStatus["systemStatus"][y]["hostGroupId"];
-          if ( !(groupId in parsedData[serverId]) ) {
-            parsedData[serverId][groupId] = new Object();
-          }
-          parsedData[serverId][groupId][serverStatus["systemStatus"][y]["severity"]] = serverStatus["systemStatus"][y]["numberOfHosts"];
-          parsedData[serverId]["problem"] += serverStatus["systemStatus"][y]["numberOfHosts"];
+          systemStatus = serverStatus["systemStatus"][y];
+          groupId = systemStatus["hostGroupId"];
+          if (!(groupId in parsedData[serverId]))
+            parsedData[serverId][groupId] = {};
+          severity = systemStatus["severity"];
+          numberOfHosts = systemStatus["numberOfHosts"];
+          parsedData[serverId][groupId][severity] = numberOfHosts;
+          parsedData[serverId]["problem"] += numberOfHosts;
         }
       }
 
@@ -136,6 +138,13 @@
       return html;
     }
 
+    function buildRatioColumns(numerator, denominator) {
+      var html = "";
+      html += "<td>" + numerator + " / " + denominator + "</td>";
+      html += "<td>" + buildProgress(numerator, denominator) + "</td>";
+      return html;
+    }
+
     function drawServerBody(replyData, parsedData) {
       var html = "";
       var serverStatus;
@@ -143,15 +152,12 @@
       var goods, bads;
       var serverId;
 
-      html = "";
-
       goods = replyData["serverStatus"];
       bads  = replyData["badServers"];
 
       html += "<tr>";
       html += "<td colspan='2'>{% trans "Number of servers [With problem]" %}</td>";
-      html += "<td>" + bads.length + " / " + replyData["numberOfServers"] + "</td>";
-      html += "<td>" + buildProgress(bads.length, replyData["numberOfServers"]) + "</td>";
+      html += buildRatioColumns(bads.length, replyData["numberOfServers"]);
       html += "</tr>";
 
       for (x = 0; x < goods.length; ++x) {
@@ -160,8 +166,8 @@
         html += "<tr>";
         html += "<td rowspan='5'>" + serverStatus["serverNickname"] + "</td>";
         html += "<td>{% trans "Number of hosts [with problem]" %}</td>";
-        html += "<td>" + parsedData[serverId]["badHosts"] + " / " + serverStatus["numberOfHosts"] + "</td>";
-        html += "<td>" + buildProgress(parsedData[serverId]["badHosts"], serverStatus["numberOfHosts"]) + "</td>";
+        html += buildRatioColumns(parsedData[serverId]["badHosts"],
+                                  serverStatus["numberOfHosts"]);
         html += "</tr>";
         html += "<tr>";
         html += "<td>{% trans "Number of items" %}</td>";
@@ -170,13 +176,13 @@
         html += "</tr>";
         html += "<tr>";
         html += "<td>{% trans "Number of triggers [with problem]" %}</td>";
-        html += "<td>" + parsedData[serverId]["problem"] + " / " + serverStatus["numberOfTriggers"] + "</td>";
-        html += "<td>" + buildProgress(parsedData[serverId]["problem"], serverStatus["numberOfTriggers"]) + "</td>";
+        html += buildRatioColumns(parsedData[serverId]["problem"],
+                                  serverStatus["numberOfTriggers"]);
         html += "</tr>";
         html += "<tr>";
         html += "<td>{% trans "Number of users [Online]" %}</td>";
-        html += "<td>" + serverStatus["numberOfOnlineUsers"] + " / " + serverStatus["numberOfUsers"] + "</td>";
-        html += "<td>" + buildProgress(serverStatus["numberOfOnlineUsers"], serverStatus["numberOfUsers"]) + "</td>";
+        html += buildRatioColumns(serverStatus["numberOfOnlineUsers"],
+                                  serverStatus["numberOfUsers"]);
         html += "</tr>";
         html += "<tr>";
         html += "<td>{% trans "New values per second" %}</td>";
@@ -197,8 +203,8 @@
         serverId = replyData["serverStatus"][x]["serverId"];
         html += "<tr>";
         y = 0;
-        for ( groupId in replyData["serverStatus"][x]["hostGroups"] ) {
-          if ( 0 == y ) {
+        for (groupId in replyData["serverStatus"][x]["hostGroups"]) {
+          if (0 == y) {
             html += "<td rowspan='" + parsedData[serverId]["numberOfHostGroups"] + "'>";
             html += replyData["serverStatus"][x]["serverNickname"];
             html += "</td>";
@@ -221,29 +227,31 @@
 
     function drawHostBody(replyData, parsedData) {
       var html = "";
-      var hostStatuses;
+      var serverStatus, hostStatuses, hostStatus;
       var x, y;
 
       for (x = 0; x < replyData["serverStatus"].length; ++x) {
+        serverStatus = replyData["serverStatus"][x];
         hostStatuses = replyData["serverStatus"][x]["hostStatus"];
         html += "<tr>";
         for (y = 0; y < hostStatuses.length; ++y) {
-          if ( 0 == y ) {
+          hostStatus = hostStatuses[y];
+          if (0 == y) {
             html += "<td rowspan='" + hostStatuses.length + "'>";
             html += replyData["serverStatus"][x]["serverNickname"];
             html += "</td>";
           }
           html += "<td>";
-          html += replyData["serverStatus"][x]["hostGroups"][hostStatuses[y]["hostGroupId"]]["name"];
+          html += serverStatus["hostGroups"][hostStatus["hostGroupId"]]["name"];
           html += "</td>";
           html += "<td>";
-          html += hostStatuses[y]["numberOfGoodHosts"];
+          html += hostStatus["numberOfGoodHosts"];
           html += "</td>";
           html += "<td>";
-          html += hostStatuses[y]["numberOfBadHosts"];
+          html += hostStatus["numberOfBadHosts"];
           html += "</td>";
           html += "<td>";
-          html += hostStatuses[y]["numberOfGoodHosts"] + hostStatuses[y]["numberOfBadHosts"];
+          html += hostStatus["numberOfGoodHosts"] + hostStatus["numberOfBadHosts"];
           html += "</td>";
         }
         html += "</tr>";
