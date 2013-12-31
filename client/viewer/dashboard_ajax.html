@@ -196,8 +196,8 @@
 
     function drawTriggerBody(replyData, parsedData) {
       var html = "";
-      var x, y, z;
-      var serverId, groupId;
+      var x, y, severity;
+      var serverId, groupId, numberOfHosts;
 
       for (x = 0; x < replyData["serverStatus"].length; ++x) {
         serverId = replyData["serverStatus"][x]["serverId"];
@@ -212,10 +212,11 @@
           html += "<td>";
           html += replyData["serverStatus"][x]["hostGroups"][groupId]["name"];
           html += "</td>";
-          for (z = 5; z >= 0; --z) {
-            html += "<td>";
-            html += ((z in parsedData[serverId][groupId]) ? parsedData[serverId][groupId][z] : 0);
-            html += "</td>";
+          for (severity = 5; severity >= 0; --severity) {
+            numberOfHosts = parsedData[serverId][groupId][severity];
+            if (isNaN(numberOfHosts))
+              numberOfHosts = 0;
+            html += "<td>" + numberOfHosts + "</td>";
           }
           ++y;
         }
