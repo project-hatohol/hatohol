@@ -115,6 +115,8 @@ struct ActionDef {
 	// Timeout value in millisecond. If this value is 0,
 	// the action is executed without timeout.
 	int         timeout;
+
+	UserIdType  ownerUserId;
 };
 
 typedef list<ActionDef>               ActionDefList;

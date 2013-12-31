@@ -52,10 +52,10 @@ static string makeExpectedString(const ActionDef &actDef, int expectedId)
 	expect += cond.isEnable(ACTCOND_TRIGGER_SEVERITY) ?
 	            StringUtils::sprintf("%d|", cond.triggerSeverityCompType) :
 	            DBCONTENT_MAGIC_NULL "|";
-	expect += StringUtils::sprintf("%d|%s|%s|%d\n",
+	expect += StringUtils::sprintf("%d|%s|%s|%d|%d\n",
 	                               actDef.type, actDef.command.c_str(),
 	                               actDef.workingDir.c_str(),
-	                               actDef.timeout);
+	                               actDef.timeout, actDef.ownerUserId);
 	return expect;
 }
 
@@ -141,6 +141,7 @@ void _assertEqual(const ActionDef &expect, const ActionDef &actual)
 	cppcut_assert_equal(expect.workingDir, actual.workingDir);
 	cppcut_assert_equal(expect.command, actual.command);
 	cppcut_assert_equal(expect.timeout, actual.timeout);
+	cppcut_assert_equal(expect.ownerUserId, actual.ownerUserId);
 }
 #define assertEqual(E,A) cut_trace(_assertEqual(E,A))
 

@@ -29,9 +29,7 @@ using namespace mlpl;
 const char *TABLE_NAME_ACTIONS     = "actions";
 const char *TABLE_NAME_ACTION_LOGS = "action_logs";
 
-// The tables actions and action_logs are in the same DB as tables 
-// for DBClientConfig. So the DB name and version must be shared.
-int DBClientAction::ACTION_DB_VERSION = DBClientConfig::CONFIG_DB_VERSION;
+int DBClientAction::ACTION_DB_VERSION = 9;
 const char *DBClientAction::DEFAULT_DB_NAME = DBClientConfig::DEFAULT_DB_NAME;
 
 static const ColumnDef COLUMN_DEF_ACTIONS[] = {
@@ -167,6 +165,17 @@ static const ColumnDef COLUMN_DEF_ACTIONS[] = {
 	SQL_KEY_NONE,                      // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
+}, {
+	ITEM_ID_NOT_SET,                   // itemId
+	TABLE_NAME_ACTIONS,                // tableName
+	"owner_user_id",                   // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	11,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_MUL,                       // keyType
+	0,                                 // flags
+	USER_ID_ADMIN,                     // defaultValue
 },
 };
 static const size_t NUM_COLUMNS_ACTIONS =
@@ -185,6 +194,7 @@ enum {
 	IDX_ACTIONS_COMMAND,
 	IDX_ACTIONS_WORKING_DIR,
 	IDX_ACTIONS_TIMEOUT,
+	IDX_ACTIONS_OWNER_USER_ID,
 	NUM_IDX_ACTIONS,
 };
 
@@ -330,8 +340,23 @@ static const DBClient::DBSetupTableInfo DB_TABLE_INFO[] = {
 static const size_t NUM_TABLE_INFO =
 sizeof(DB_TABLE_INFO) / sizeof(DBClient::DBSetupTableInfo);
 
+static bool addColumnOwnerUserId(DBAgent *dbAgent)
+{
+	DBAgentAddColumnsArg addColumnsArg;
+	addColumnsArg.tableName = TABLE_NAME_ACTIONS;
+	addColumnsArg.columnDefs = COLUMN_DEF_ACTIONS;
+	addColumnsArg.columnIndexes.push_back(
+	  IDX_ACTIONS_OWNER_USER_ID);
+	dbAgent->addColumns(addColumnsArg);
+	return true;
+}
+
 static bool updateDB(DBAgent *dbAgent, int oldVer, void *data)
 {
+	if (oldVer <= 8) {
+		if (!addColumnOwnerUserId(dbAgent))
+			return false;
+	}
 	return true;
 }
 
@@ -482,6 +507,7 @@ DBClientAction::~DBClientAction()
 
 void DBClientAction::addAction(ActionDef &actionDef)
 {
+	// TODO: check ownerUserId is valid
 	VariableItemGroupPtr row;
 	DBAgentInsertArg arg;
 	arg.tableName = TABLE_NAME_ACTIONS;
@@ -507,6 +533,7 @@ void DBClientAction::addAction(ActionDef &actionDef)
 	row->ADD_NEW_ITEM(String, actionDef.command);
 	row->ADD_NEW_ITEM(String, actionDef.workingDir);
 	row->ADD_NEW_ITEM(Int, actionDef.timeout);
+	row->ADD_NEW_ITEM(Int, actionDef.ownerUserId);
 
 	arg.row = row;
 
@@ -539,6 +566,7 @@ void DBClientAction::getActionList(ActionDefList &actionDefList,
 	arg.pushColumn(COLUMN_DEF_ACTIONS[IDX_ACTIONS_COMMAND]);
 	arg.pushColumn(COLUMN_DEF_ACTIONS[IDX_ACTIONS_WORKING_DIR]);
 	arg.pushColumn(COLUMN_DEF_ACTIONS[IDX_ACTIONS_TIMEOUT]);
+	arg.pushColumn(COLUMN_DEF_ACTIONS[IDX_ACTIONS_OWNER_USER_ID]);
 
 	if (eventInfo)
 		arg.condition = makeActionDefCondition(*eventInfo);
@@ -599,6 +627,7 @@ void DBClientAction::getActionList(ActionDefList &actionDefList,
 		actionDef.command    = GET_STRING_FROM_GRP(itemGroup, idx++);
 		actionDef.workingDir = GET_STRING_FROM_GRP(itemGroup, idx++);
 		actionDef.timeout    = GET_INT_FROM_GRP(itemGroup, idx++);
+		actionDef.ownerUserId = GET_INT_FROM_GRP(itemGroup, idx++);
 	}
 }
 

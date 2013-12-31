@@ -210,6 +210,7 @@ ActionDef testActionDef[] = {
 	"",                // working dir
 	"/bin/hoge",       // command
 	300,               // timeout
+	1,                 // ownerUserId
 }, {
 	0,                 // id (this filed is ignored)
 	ActionCondition(
@@ -226,6 +227,7 @@ ActionDef testActionDef[] = {
 	"/home/%%\"'@#!()+-~<>?:;",  // working dir
 	"/usr/libexec/w",  // command
 	30,                // timeout
+	1,                 // ownerUserId
 }, {
 	0,                 // id (this filed is ignored)
 	ActionCondition(
@@ -243,6 +245,7 @@ ActionDef testActionDef[] = {
 	"/tmp",            // working dir
 	"/usr/lib/liba.so",// command
 	60,                // timeout
+	2,                 // ownerUserId
 }, {
 	0,                 // id (this filed is ignored)
 	ActionCondition(
@@ -261,6 +264,7 @@ ActionDef testActionDef[] = {
 	"/home/hatohol",   // working dir
 	"/usr/lib/liba.so",// command
 	0,                 // timeout
+	4,                 // ownerUserId
 },
 };
 

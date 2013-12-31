@@ -1761,6 +1761,7 @@ void FaceRest::handlerGetAction(RestJob *job)
 		          actionDef.workingDir.c_str());
 		agent.add("command", actionDef.command);
 		agent.add("timeout", actionDef.timeout);
+		agent.add("ownerUserId", actionDef.ownerUserId);
 		agent.endObject();
 		// We don't know the host name at this point.
 		// We'll get it later.
@@ -1833,6 +1834,14 @@ void FaceRest::handlerPostAction(RestJob *job)
 		return;
 	if (!exist)
 		actionDef.timeout = 0;
+
+	// ownerUserId
+	succeeded = getParamWithErrorReply<int>(
+	              job, "ownerUserId", "%d", actionDef.ownerUserId, &exist);
+	if (!succeeded)
+		return;
+	if (!exist)
+		actionDef.ownerUserId = job->userId;
 
 	// serverId
 	succeeded = getParamWithErrorReply<int>(
