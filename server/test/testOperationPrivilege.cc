@@ -52,10 +52,7 @@ void test_constructorWithUserId(void)
 
 void test_setGetUserId(void)
 {
-	hatoholInit();
-	bool dbRecreate = true;
-	bool loadTestData = true;
-	setupTestDBUser(dbRecreate, loadTestData);
+	initAndLoadTestUser();
 	const UserIdType userId = 2;
 	OperationPrivilege privilege;
 	privilege.setUserId(userId);
@@ -64,10 +61,7 @@ void test_setGetUserId(void)
 
 void test_setUnknownserId(void)
 {
-	hatoholInit();
-	bool dbRecreate = true;
-	bool loadTestData = true;
-	setupTestDBUser(dbRecreate, loadTestData);
+	initAndLoadTestUser();
 	const UserIdType userId = 1129;
 	OperationPrivilege privilege;
 	privilege.setUserId(userId);
@@ -137,10 +131,7 @@ void test_has(void)
 
 void test_operatorEq(void)
 {
-	hatoholInit();
-	bool dbRecreate = true;
-	bool loadTestData = true;
-	setupTestDBUser(dbRecreate, loadTestData);
+	initAndLoadTestUser();
 
 	OperationPrivilege lhs;
 	OperationPrivilege rhs;
@@ -169,10 +160,7 @@ void test_operatorEqFalse(void)
 
 void test_operatorFalseDifferentUserId(void)
 {
-	hatoholInit();
-	bool dbRecreate = true;
-	bool loadTestData = true;
-	setupTestDBUser(dbRecreate, loadTestData);
+	initAndLoadTestUser();
 	OperationPrivilege lhs;
 	OperationPrivilege rhs;
 	cppcut_assert_equal(true, lhs == rhs);
