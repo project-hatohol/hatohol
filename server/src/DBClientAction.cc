@@ -29,6 +29,7 @@ using namespace mlpl;
 const char *TABLE_NAME_ACTIONS     = "actions";
 const char *TABLE_NAME_ACTION_LOGS = "action_logs";
 
+// 8 -> 9: Add actions.onwer_user_id
 int DBClientAction::ACTION_DB_VERSION = 9;
 const char *DBClientAction::DEFAULT_DB_NAME = DBClientConfig::DEFAULT_DB_NAME;
 
