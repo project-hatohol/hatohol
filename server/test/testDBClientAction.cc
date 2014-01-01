@@ -27,6 +27,13 @@
 
 namespace testDBClientAction {
 
+struct TestDBClientAction : public DBClientAction {
+	uint64_t callGetLastInsertId(void)
+	{
+		return getLastInsertId();
+	}
+};
+
 static string makeExpectedString(const ActionDef &actDef, int expectedId)
 {
 	const ActionCondition &cond = actDef.condition;
@@ -188,6 +195,27 @@ void test_addActionByInvalidUser(void)
 	ActionDef &actDef = testActionDef[0];
 	assertHatoholError(HTERR_INVALID_USER,
 	                   dbAction.addAction(actDef, privilege));
+}
+
+void test_addActionAndCheckOwner(void)
+{
+	const bool dbRecreate = true;
+	const bool loadTestData = true;
+	setupTestDBUser(dbRecreate, loadTestData);
+
+	const UserIdType userId = findUserWith(OPPRVLG_CREATE_ACTION);
+	TestDBClientAction dbAction;
+	OperationPrivilege privilege(userId);
+	const ActionDef &actDef = testActionDef[0];
+	assertHatoholError(HTERR_OK, dbAction.addAction(actDef, privilege));
+	ActionIdType actionId = dbAction.callGetLastInsertId();
+
+	// check
+	string expect = StringUtils::sprintf("%"FMT_ACTION_ID"|%"FMT_USER_ID,
+	                                     actionId, userId);
+	string statement = "select action_id, owner_user_id from ";
+	statement += DBClientAction::getTableNameActions();
+	assertDBContent(dbAction.getDBAgent(), statement, expect);
 }
 
 void test_deleteAction(void)

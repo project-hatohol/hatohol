@@ -29,6 +29,7 @@ using namespace mlpl;
 #include "DBAgent.h"
 #include "DBClient.h"
 #include "HatoholError.h"
+#include "OperationPrivilege.h"
 
 #define DBCONTENT_MAGIC_CURR_DATETIME "#CURR_DATETIME#"
 #define DBCONTENT_MAGIC_NULL          "#NULL#"
@@ -164,5 +165,7 @@ void releaseDefaultContext(void);
 void defineDBPath(DBDomainId domainId, const string &dbPath);
 
 const UserIdType searchMaxTestUserId(void);
+const UserIdType findUserWith(const OperationPrivilegeType &type);
+
 
 #endif // Helpers_h

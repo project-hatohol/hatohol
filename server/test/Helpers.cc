@@ -738,3 +738,28 @@ const UserIdType searchMaxTestUserId(void)
 	}
 	return userId;
 }
+
+const UserIdType findUserWith(const OperationPrivilegeType &type)
+{
+	UserIdType userId = INVALID_USER_ID;
+	OperationPrivilegeFlag flag = OperationPrivilege::makeFlag(type);
+
+	CacheServiceDBClient cache;
+	DBClientUser *dbUser = cache.getUser();
+	UserInfoList userInfoList;
+	UserQueryOption option(USER_ID_ADMIN);
+	dbUser->getUserInfoList(userInfoList, option);
+	cppcut_assert_equal(false, userInfoList.empty());
+
+	UserInfoListIterator userInfo = userInfoList.begin();
+	for (; userInfo != userInfoList.end(); ++userInfo) {
+		if (userInfo->flags & flag) {
+			userId = userInfo->id;
+			break;
+		}
+	}
+	cppcut_assert_not_equal(INVALID_USER_ID, userId);
+	cppcut_assert_not_equal(USER_ID_ADMIN, userId);
+	return userId;
+}
+
