@@ -243,7 +243,8 @@ void test_deleteAction(void)
 	idList.push_back(testActionDef[targetIdx].id);
 	UserIdType userId = testActionDef[targetIdx].ownerUserId;
 	OperationPrivilege privilege(userId);
-	dbAction.deleteActions(idList, privilege);
+	assertHatoholError(HTERR_OK,
+	                   dbAction.deleteActions(idList, privilege));
 
 	// check
 	string expect;
@@ -275,7 +276,8 @@ void test_deleteActionMultiple(void)
 			expect += StringUtils::sprintf("%d\n", expectedId);
 	}
 	OperationPrivilege privilege(USER_ID_ADMIN); // TODO: User normal user
-	dbAction.deleteActions(idList, privilege);
+	assertHatoholError(HTERR_OK,
+	                   dbAction.deleteActions(idList, privilege));
 
 	// check
 	string statement = "select action_id from ";
