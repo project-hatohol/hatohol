@@ -110,7 +110,7 @@ void _assertTimeIsNow(const mlpl::SmartTime &smtime, double allowedError = 1);
 #define assertTimeIsNow(ST, ...) cut_trace(_assertTimeIsNow(ST, ##__VA_ARGS__))
 
 void _assertHatoholError(const HatoholErrorCode &code,
-                         const HatoholError err);
+                         const HatoholError &err);
 #define assertHatoholError(C,E) cut_trace(_assertHatoholError(C,E))
 
 template<typename T> void _assertAddToDB(T *arg, void (*func)(T *))

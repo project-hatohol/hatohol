@@ -418,7 +418,7 @@ void _assertTimeIsNow(const SmartTime &smtime, double allowedError)
 }
 
 void _assertHatoholError(const HatoholErrorCode &code,
-                         const HatoholError err)
+                         const HatoholError &err)
 {
 	cppcut_assert_equal(code, err.getCode());
 }
