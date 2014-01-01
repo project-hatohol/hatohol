@@ -218,6 +218,20 @@ void test_addActionAndCheckOwner(void)
 	assertDBContent(dbAction.getDBAgent(), statement, expect);
 }
 
+void test_addActionWithoutPrivilege(void)
+{
+	const bool dbRecreate = true;
+	const bool loadTestData = true;
+	setupTestDBUser(dbRecreate, loadTestData);
+
+	const UserIdType userId = findUserWithout(OPPRVLG_CREATE_ACTION);
+	TestDBClientAction dbAction;
+	OperationPrivilege privilege(userId);
+	ActionDef &actDef = testActionDef[0];
+	assertHatoholError(HTERR_NO_PRIVILEGE,
+	                   dbAction.addAction(actDef, privilege));
+}
+
 void test_deleteAction(void)
 {
 	DBClientAction dbAction;

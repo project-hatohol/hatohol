@@ -166,6 +166,7 @@ void defineDBPath(DBDomainId domainId, const string &dbPath);
 
 const UserIdType searchMaxTestUserId(void);
 const UserIdType findUserWith(const OperationPrivilegeType &type);
+const UserIdType findUserWithout(const OperationPrivilegeType &type);
 
 
 #endif // Helpers_h
