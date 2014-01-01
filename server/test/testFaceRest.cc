@@ -1086,7 +1086,7 @@ void test_addActionParameterFull(void)
 	const string workingDir = "/usr/local/wani";
 	int type = ACTION_COMMAND;
 	int timeout = 300;
-	UserIdType ownerUserId = 3;
+	UserIdType ownerUserId = USER_ID_ADMIN;
 	int serverId= 50;
 	uint64_t hostId = 50;
 	uint64_t hostGroupId = 1000;
@@ -1100,7 +1100,6 @@ void test_addActionParameterFull(void)
 	params["command"]     = command;
 	params["workingDirectory"] = workingDir;
 	params["timeout"]     = StringUtils::sprintf("%d", timeout);
-	params["ownerUserId"] = StringUtils::sprintf("%d", ownerUserId);
 	params["serverId"]    = StringUtils::sprintf("%d", serverId);
 	params["hostId"]      = StringUtils::sprintf("%"PRIu64, hostId);
 	params["hostGroupId"] = StringUtils::sprintf("%"PRIu64, hostGroupId);
