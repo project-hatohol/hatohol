@@ -721,7 +721,7 @@ void defineDBPath(DBDomainId domainId, const string &dbPath)
 	DBAgentSQLite3::defineDBPath(DB_DOMAIN_ID_HATOHOL, dbPath);
 }
 
-const UserIdType searchMaxTestUserId(void)
+UserIdType searchMaxTestUserId(void)
 {
 	CacheServiceDBClient cache;
 	DBClientUser *dbUser = cache.getUser();
@@ -739,7 +739,7 @@ const UserIdType searchMaxTestUserId(void)
 	return userId;
 }
 
-static const UserIdType findUserCommon(const OperationPrivilegeType &type,
+static UserIdType findUserCommon(const OperationPrivilegeType &type,
                                        const bool &shouldHas)
 {
 	UserIdType userId = INVALID_USER_ID;
@@ -766,12 +766,12 @@ static const UserIdType findUserCommon(const OperationPrivilegeType &type,
 }
 
 
-const UserIdType findUserWith(const OperationPrivilegeType &type)
+UserIdType findUserWith(const OperationPrivilegeType &type)
 {
 	return findUserCommon(type, true);
 }
 
-const UserIdType findUserWithout(const OperationPrivilegeType &type)
+UserIdType findUserWithout(const OperationPrivilegeType &type)
 {
 	return findUserCommon(type, false);
 }
