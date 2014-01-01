@@ -175,7 +175,8 @@ void test_addAction(void)
 	OperationPrivilege privilege(USER_ID_ADMIN);
 	for (size_t i = 0; i < NumTestActionDef; i++) {
 		ActionDef &actDef = testActionDef[i];
-		dbAction.addAction(actDef, privilege);
+		assertHatoholError(HTERR_OK,
+		                   dbAction.addAction(actDef, privilege));
 
 		// validation
 		const int expectedId = i + 1;
