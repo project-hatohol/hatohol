@@ -209,8 +209,8 @@ static void makeDefSourceValues(string &s, LanguageType langType)
 	ADD_LINE(s, langType, OPPRVLG_CREATE_USER);
 	ADD_LINE(s, langType, OPPRVLG_UPDATE_USER);
 	ADD_LINE(s, langType, OPPRVLG_DELETE_USER);
-	ADD_LINE(s, langType, OPPRVLG_GET_ALL_USERS);
-	ADD_LINE(s, langType, OPPRVLG_GET_ALL_SERVERS);
+	ADD_LINE(s, langType, OPPRVLG_GET_ALL_USER);
+	ADD_LINE(s, langType, OPPRVLG_GET_ALL_SERVER);
 	ADD_LINE(s, langType, NUM_OPPRVLG);
 	APPEND(s, "\n");
 
