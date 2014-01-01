@@ -152,10 +152,29 @@ void _assertEqual(const ActionDef &expect, const ActionDef &actual)
 }
 #define assertEqual(E,A) cut_trace(_assertEqual(E,A))
 
-void cut_setup(void)
+static bool g_existTestDB = false;
+static void setupHelperForTestDBUser(void)
+{
+	const bool dbRecreate = true;
+	const bool loadTestData = true;
+	setupTestDBUser(dbRecreate, loadTestData);
+	g_existTestDB = true;
+}
+
+void setup(void)
 {
 	hatoholInit();
 	setupTestDBAction();
+}
+
+void cut_teardown(void)
+{
+	if (g_existTestDB) {
+		const bool dbRecreate = true;
+		const bool loadTestData = false;
+		setupTestDBUser(dbRecreate, loadTestData);
+		g_existTestDB = false;
+	}
 }
 
 // ---------------------------------------------------------------------------
@@ -199,9 +218,7 @@ void test_addActionByInvalidUser(void)
 
 void test_addActionAndCheckOwner(void)
 {
-	const bool dbRecreate = true;
-	const bool loadTestData = true;
-	setupTestDBUser(dbRecreate, loadTestData);
+	setupHelperForTestDBUser();
 
 	const UserIdType userId = findUserWith(OPPRVLG_CREATE_ACTION);
 	TestDBClientAction dbAction;
@@ -220,9 +237,7 @@ void test_addActionAndCheckOwner(void)
 
 void test_addActionWithoutPrivilege(void)
 {
-	const bool dbRecreate = true;
-	const bool loadTestData = true;
-	setupTestDBUser(dbRecreate, loadTestData);
+	setupHelperForTestDBUser();
 
 	const UserIdType userId = findUserWithout(OPPRVLG_CREATE_ACTION);
 	TestDBClientAction dbAction;
@@ -234,6 +249,7 @@ void test_addActionWithoutPrivilege(void)
 
 void test_deleteAction(void)
 {
+	setupHelperForTestDBUser();
 	DBClientAction dbAction;
 	test_addAction(); // add all test actions
 
@@ -262,6 +278,7 @@ void test_deleteAction(void)
 
 void test_deleteActionMultiple(void)
 {
+	setupHelperForTestDBUser();
 	DBClientAction dbAction;
 	test_addAction(); // add all test actions
 
