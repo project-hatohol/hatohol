@@ -240,7 +240,8 @@ void test_deleteAction(void)
 	size_t targetIdx = 1;
 	ActionIdList idList;
 	idList.push_back(testActionDef[targetIdx].id);
-	OperationPrivilege privilege(USER_ID_ADMIN); // TODO: User normal user
+	UserIdType userId = testActionDef[targetIdx].ownerUserId;
+	OperationPrivilege privilege(userId);
 	dbAction.deleteActions(idList, privilege);
 
 	// check
