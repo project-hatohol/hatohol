@@ -190,7 +190,6 @@ void test_addAction(void)
 void test_addActionByInvalidUser(void)
 {
 	DBClientAction dbAction;
-	string expect;
 	OperationPrivilege privilege(INVALID_USER_ID);
 	ActionDef &actDef = testActionDef[0];
 	assertHatoholError(HTERR_INVALID_USER,
