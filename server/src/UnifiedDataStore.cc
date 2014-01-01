@@ -390,10 +390,11 @@ void UnifiedDataStore::getActionList(ActionDefList &actionList,
 	dbAction.getActionList(actionList, option);
 }
 
-void UnifiedDataStore::deleteActionList(const ActionIdList &actionIdList)
+HatoholError UnifiedDataStore::deleteActionList(
+  const ActionIdList &actionIdList, const OperationPrivilege &privilege)
 {
 	DBClientAction dbAction;
-	dbAction.deleteActions(actionIdList);
+	return dbAction.deleteActions(actionIdList, privilege);
 }
 
 size_t UnifiedDataStore::getNumberOfTriggers(uint32_t serverId,

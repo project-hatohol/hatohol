@@ -56,7 +56,10 @@ public:
 	                           DataQueryOption &option);
 	virtual HatoholError addAction(ActionDef &actionDef,
 	                               const OperationPrivilege &privilege);
-	virtual void deleteActionList(const ActionIdList &actionIdList);
+	virtual HatoholError deleteActionList(
+	  const ActionIdList &actionIdList,
+	  const OperationPrivilege &privilege);
+
 	virtual size_t getNumberOfTriggers
 	                 (uint32_t serverId, uint64_t hostGroupId,
 	                  TriggerSeverityType severity);

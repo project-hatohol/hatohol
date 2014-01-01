@@ -238,7 +238,8 @@ public:
 	void getActionList(ActionDefList &actionDefList,
 	                   DataQueryOption &option,
 	                   const EventInfo *eventInfo = NULL);
-	void deleteActions(const ActionIdList &idList);
+	HatoholError deleteActions(const ActionIdList &idList,
+	                           const OperationPrivilege &privilege);
 
 	/**
 	 * make an action log.
@@ -323,6 +324,9 @@ protected:
 	 * @return true if the log is found. Otherwise false.
 	 */
 	bool getLog(ActionLog &actionLog, const string &condition);
+
+	HatoholError checkPrevilegeForDelete(
+	  const OperationPrivilege &privilege);
 
 private:
 	struct PrivateContext;

@@ -241,7 +241,8 @@ void test_deleteAction(void)
 	size_t targetIdx = 1;
 	ActionIdList idList;
 	idList.push_back(testActionDef[targetIdx].id);
-	dbAction.deleteActions(idList);
+	OperationPrivilege privilege(USER_ID_ADMIN); // TODO: User normal user
+	dbAction.deleteActions(idList, privilege);
 
 	// check
 	string expect;
@@ -272,7 +273,8 @@ void test_deleteActionMultiple(void)
 		else
 			expect += StringUtils::sprintf("%d\n", expectedId);
 	}
-	dbAction.deleteActions(idList);
+	OperationPrivilege privilege(USER_ID_ADMIN); // TODO: User normal user
+	dbAction.deleteActions(idList, privilege);
 
 	// check
 	string statement = "select action_id from ";

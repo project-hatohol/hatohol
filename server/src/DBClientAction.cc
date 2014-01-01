@@ -642,13 +642,18 @@ void DBClientAction::getActionList(ActionDefList &actionDefList,
 	}
 }
 
-void DBClientAction::deleteActions(const ActionIdList &idList)
+HatoholError DBClientAction::deleteActions(const ActionIdList &idList,
+                                           const OperationPrivilege &privilege)
 {
+	HatoholError err = checkPrevilegeForDelete(privilege);
+	if (err != HTERR_OK)
+		return err;
+
 	if (idList.empty()) {
 		MLPL_WARN("idList is empty.\n");
-		return;
+		return HTERR_INVALID_PARAMETER;
 	}
-	
+
 	DBAgentDeleteArg arg;
 	arg.tableName = TABLE_NAME_ACTIONS;
 	const ColumnDef &colId = COLUMN_DEF_ACTIONS[IDX_ACTIONS_ACTION_ID];
@@ -664,9 +669,23 @@ void DBClientAction::deleteActions(const ActionIdList &idList)
 	}
 	arg.condition += ")";
 
+	// In this point, the caller must have OPPRVLG_DELETE_ACTION,
+	// becase it is checked in checkPrevilegeForDelete().
+	if (!privilege.has(OPPRVLG_DELETE_ALL_ACTION)) {
+		arg.condition += StringUtils::sprintf(
+		  " AND %s=%"FMT_USER_ID,
+		  COLUMN_DEF_ACTIONS[IDX_ACTIONS_OWNER_USER_ID].columnName,
+		  privilege.getUserId());
+	}
+
 	DBCLIENT_TRANSACTION_BEGIN() {
 		deleteRows(arg);
 	} DBCLIENT_TRANSACTION_END();
+
+	// TODO: check the number of delted items. If it is not equals to
+	//       that of requested, we should return any error.
+
+	return HTERR_OK;
 }
 
 uint64_t DBClientAction::createActionLog(
@@ -912,5 +931,21 @@ bool DBClientAction::getLog(ActionLog &actionLog, const string &condition)
 		actionLog.nullFlags |= ACTLOG_FLAG_EXIT_CODE;
 
 	return true;
+}
+
+HatoholError DBClientAction::checkPrevilegeForDelete(
+  const OperationPrivilege &privilege)
+{
+	UserIdType userId = privilege.getUserId();
+	if (userId == INVALID_USER_ID)
+		return HTERR_INVALID_USER;
+
+	if (privilege.has(OPPRVLG_DELETE_ALL_ACTION))
+		return HTERR_OK;
+
+	if (!privilege.has(OPPRVLG_DELETE_ACTION))
+		return HTERR_NO_PRIVILEGE;
+
+	return HTERR_OK;
 }
 

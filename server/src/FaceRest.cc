@@ -1936,13 +1936,15 @@ void FaceRest::handlerDeleteAction(RestJob *job)
 	}
 	ActionIdList actionIdList;
 	actionIdList.push_back(actionId);
-	dataStore->deleteActionList(actionIdList);
+	OperationPrivilege privilege(job->userId);
+	HatoholError err = dataStore->deleteActionList(actionIdList, privilege);
 
 	// replay
 	JsonBuilderAgent agent;
 	agent.startObject();
 	addHatoholError(agent, HatoholError(HTERR_OK));
-	agent.add("id", actionId);
+	if (err == HTERR_OK)
+		agent.add("id", actionId);
 	agent.endObject();
 	replyJsonData(agent, job);
 }
