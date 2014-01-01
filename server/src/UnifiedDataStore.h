@@ -54,6 +54,8 @@ public:
 	                         uint64_t targetHostId = ALL_HOSTS);
 	virtual void getActionList(ActionDefList &actionList,
 	                           DataQueryOption &option);
+	virtual HatoholError addAction(ActionDef &actionDef,
+	                               const OperationPrivilege &privilege);
 	virtual void deleteActionList(const ActionIdList &actionIdList);
 	virtual size_t getNumberOfTriggers
 	                 (uint32_t serverId, uint64_t hostGroupId,
@@ -65,8 +67,6 @@ public:
 
 	virtual bool getCopyOnDemandEnabled(void) const;
 	virtual void setCopyOnDemandEnabled(bool enable);
-	virtual void addAction(ActionDef &actionDef,
-	                       const OperationPrivilege &privilege);
 
 	/**
 	 * Add events in the Hatohol DB and executes action if needed. 

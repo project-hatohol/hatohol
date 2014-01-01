@@ -1912,13 +1912,14 @@ void FaceRest::handlerPostAction(RestJob *job)
 
 	// save the obtained action
 	OperationPrivilege privilege(job->userId);
-	dataStore->addAction(actionDef, privilege);
+	HatoholError err = dataStore->addAction(actionDef, privilege);
 
 	// make a response
 	JsonBuilderAgent agent;
 	agent.startObject();
-	addHatoholError(agent, HatoholError(HTERR_OK));
-	agent.add("id", actionDef.id);
+	addHatoholError(agent, err);
+	if (err == HTERR_OK)
+		agent.add("id", actionDef.id);
 	agent.endObject();
 	replyJsonData(agent, job);
 }
