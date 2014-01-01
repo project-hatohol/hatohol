@@ -276,6 +276,15 @@ void test_deleteAction(void)
 	assertDBContent(dbAction.getDBAgent(), statement, expect);
 }
 
+void test_deleteActionByInvalidUser(void)
+{
+	ActionIdList idList;
+	DBClientAction dbAction;
+	OperationPrivilege privilege(INVALID_USER_ID);
+	assertHatoholError(HTERR_INVALID_USER,
+	                   dbAction.deleteActions(idList, privilege));
+}
+
 void test_deleteActionMultiple(void)
 {
 	setupHelperForTestDBUser();
