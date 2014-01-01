@@ -650,7 +650,7 @@ string HostResourceQueryOption::getCondition(void) const
 	string condition;
 	UserIdType userId = getUserId();
 
-	if (userId == USER_ID_ADMIN || has(OPPRVLG_GET_ALL_SERVERS)) {
+	if (userId == USER_ID_ADMIN || has(OPPRVLG_GET_ALL_SERVER)) {
 		if (m_ctx->targetServerId != ALL_SERVERS) {
 			condition = StringUtils::sprintf(
 				"%s=%"PRIu32,

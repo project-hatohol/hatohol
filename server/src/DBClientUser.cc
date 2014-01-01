@@ -216,7 +216,7 @@ string UserQueryOption::getCondition(void) const
 	}
 
 	string condition;
-	if (!has(OPPRVLG_GET_ALL_USERS) || m_ctx->onlyMyself) {
+	if (!has(OPPRVLG_GET_ALL_USER) || m_ctx->onlyMyself) {
 		condition = StringUtils::sprintf("%s=%"FMT_USER_ID"",
 		  COLUMN_DEF_USERS[IDX_USERS_ID].columnName, userId);
 	}
@@ -269,7 +269,7 @@ string AccessInfoQueryOption::getCondition(void) const
 		return DBClientUser::getAlwaysFalseCondition();
 	}
 
-	if (!has(OPPRVLG_GET_ALL_USERS) && getUserId() != m_ctx->queryUserId) {
+	if (!has(OPPRVLG_GET_ALL_USER) && getUserId() != m_ctx->queryUserId) {
 		return DBClientUser::getAlwaysFalseCondition();
 	}
 

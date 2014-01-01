@@ -576,7 +576,7 @@ void test_getUserInfoListByNormalUser(void)
 void test_getUserInfoListByUserWithGetAllUsersFlag(void)
 {
 	assertGetUserInfo(
-	  OperationPrivilege::makeFlag(OPPRVLG_GET_ALL_USERS),
+	  OperationPrivilege::makeFlag(OPPRVLG_GET_ALL_USER),
 	  NumTestUserInfo, true);
 }
 

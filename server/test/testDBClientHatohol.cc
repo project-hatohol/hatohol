@@ -975,7 +975,7 @@ void test_makeSelectConditionUserAdmin(void)
 void test_makeSelectConditionAllEvents(void)
 {
 	HostResourceQueryOption option;
-	option.setFlags(OperationPrivilege::makeFlag(OPPRVLG_GET_ALL_SERVERS));
+	option.setFlags(OperationPrivilege::makeFlag(OPPRVLG_GET_ALL_SERVER));
 	string actual = option.getCondition();
 	string expect = "";
 	cppcut_assert_equal(actual, expect);

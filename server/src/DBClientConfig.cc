@@ -318,7 +318,7 @@ bool ServerQueryOption::hasPrivilegeCondition(string &condition) const
 {
 	UserIdType userId = getUserId();
 
-	if (userId == USER_ID_ADMIN || has(OPPRVLG_GET_ALL_SERVERS)) {
+	if (userId == USER_ID_ADMIN || has(OPPRVLG_GET_ALL_SERVER)) {
 		if (m_ctx->targetServerId != ALL_SERVERS)
 			condition = serverIdCondition(m_ctx->targetServerId);
 		return true;
@@ -714,7 +714,7 @@ HatoholError DBClientConfig::_addTargetServer(
   MonitoringServerInfo *monitoringServerInfo,
   const OperationPrivilege &privilege)
 {
-	if (!privilege.has(OPPRVLG_CREATE_SERVERS))
+	if (!privilege.has(OPPRVLG_CREATE_SERVER))
 		return HatoholError(HTERR_NO_PRIVILEGE);
 
 	// TODO: ADD this server to the liset this user can access to
@@ -748,10 +748,10 @@ bool DBClientConfig::canUpdateTargetServer(
   MonitoringServerInfo *monitoringServerInfo,
   const OperationPrivilege &privilege)
 {
-	if (privilege.has(OPPRVLG_UPDATE_ALL_SERVERS))
+	if (privilege.has(OPPRVLG_UPDATE_ALL_SERVER))
 		return true;
 
-	if (!privilege.has(OPPRVLG_UPDATE_SERVERS))
+	if (!privilege.has(OPPRVLG_UPDATE_SERVER))
 		return false;
 
 	CacheServiceDBClient cache;
@@ -809,10 +809,10 @@ HatoholError DBClientConfig::_updateTargetServer(
 bool DBClientConfig::canDeleteTargetServer(
   const ServerIdType serverId, const OperationPrivilege &privilege)
 {
-	if (privilege.has(OPPRVLG_DELETE_ALL_SERVERS))
+	if (privilege.has(OPPRVLG_DELETE_ALL_SERVER))
 		return true;
 
-	if (!privilege.has(OPPRVLG_DELETE_SERVERS))
+	if (!privilege.has(OPPRVLG_DELETE_SERVER))
 		return false;
 
 	CacheServiceDBClient cache;

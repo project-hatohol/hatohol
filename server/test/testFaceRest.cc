@@ -1333,7 +1333,7 @@ void test_getUserMe(void)
 
 void test_addUser(void)
 {
-	OperationPrivilegeFlag flags = OPPRVLG_GET_ALL_USERS;
+	OperationPrivilegeFlag flags = OPPRVLG_GET_ALL_USER;
 	const string user = "y@ru0";
 	const string password = "w(^_^)d";
 

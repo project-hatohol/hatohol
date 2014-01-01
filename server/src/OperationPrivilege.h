@@ -30,26 +30,26 @@ enum OperationPrivilegeType
 	OPPRVLG_CREATE_USER,
 	OPPRVLG_UPDATE_USER,   // can update all users
 	OPPRVLG_DELETE_USER,   // can delete all users 
-	OPPRVLG_GET_ALL_USERS, // can get all users. 
+	OPPRVLG_GET_ALL_USER,  // can get all users. 
 
 	// Server
 	// Without any flags, servers that are allowed by AccessInfoList
 	// can be got.
-	OPPRVLG_CREATE_SERVERS,
-	OPPRVLG_UPDATE_SERVERS,       // can only update accessible servers
-	OPPRVLG_UPDATE_ALL_SERVERS,   // can update all servers
-	OPPRVLG_DELETE_SERVERS,       // can only delete accessible servers
-	OPPRVLG_DELETE_ALL_SERVERS,   // can delete all servers
-	OPPRVLG_GET_ALL_SERVERS,      // can get all servers
+	OPPRVLG_CREATE_SERVER, 
+	OPPRVLG_UPDATE_SERVER,        // can only update accessible servers
+	OPPRVLG_UPDATE_ALL_SERVER,    // can update all servers
+	OPPRVLG_DELETE_SERVER,        // can only delete accessible servers
+	OPPRVLG_DELETE_ALL_SERVER,    // can delete all servers
+	OPPRVLG_GET_ALL_SERVER,       // can get all servers
 
 	// Action
 	// Without any flags, own actions can be got.
 	OPPRVLG_CREATE_ACTION,         // create own action
 	OPPRVLG_UPDATE_ACTION,         // can only update own action
-	OPPRVLG_UPDATE_ALL_ACTIONS,    // can updat all actions
+	OPPRVLG_UPDATE_ALL_ACTION,     // can updat all actions
 	OPPRVLG_DELETE_ACTION,         // can only delete own actioin
-	OPPRVLG_DELETE_ALL_ACTIONS,    // can delte all actions
-	OPPRVLG_GET_ALL_ACTIONS,       // can get all actions
+	OPPRVLG_DELETE_ALL_ACTION,     // can delte all actions
+	OPPRVLG_GET_ALL_ACTION,        // can get all actions
 
 	NUM_OPPRVLG,
 };
