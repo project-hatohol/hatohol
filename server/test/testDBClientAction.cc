@@ -152,7 +152,7 @@ void _assertEqual(const ActionDef &expect, const ActionDef &actual)
 }
 #define assertEqual(E,A) cut_trace(_assertEqual(E,A))
 
-void setup(void)
+void cut_setup(void)
 {
 	hatoholInit();
 	setupTestDBAction();
