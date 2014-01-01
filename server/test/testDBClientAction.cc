@@ -276,6 +276,22 @@ void test_deleteAction(void)
 	assertDBContent(dbAction.getDBAgent(), statement, expect);
 }
 
+void test_deleteActionWithoutPrivilege(void)
+{
+	setupHelperForTestDBUser();
+	DBClientAction dbAction;
+	test_addAction(); // add all test actions
+
+	// we delete 2nd one
+	size_t targetIdx = 1;
+	ActionIdList idList;
+	idList.push_back(testActionDef[targetIdx].id);
+	UserIdType userId = testActionDef[targetIdx].ownerUserId + 1;
+	OperationPrivilege privilege(userId);
+	assertHatoholError(HTERR_NO_PRIVILEGE,
+	                   dbAction.deleteActions(idList, privilege));
+}
+
 void test_deleteActionByInvalidUser(void)
 {
 	ActionIdList idList;
