@@ -506,9 +506,17 @@ DBClientAction::~DBClientAction()
 		delete m_ctx;
 }
 
-void DBClientAction::addAction(ActionDef &actionDef)
+HatoholError DBClientAction::addAction(ActionDef &actionDef,
+                                       const OperationPrivilege &privilege)
 {
-	// TODO: check ownerUserId is valid
+	UserIdType userId = privilege.getUserId();
+	if (userId == INVALID_USER_ID)
+		return HTERR_INVALID_USER;
+
+	if (!privilege.has(OPPRVLG_CREATE_ACTION))
+		return HTERR_NO_PRIVILEGE;
+	actionDef.ownerUserId = userId;
+
 	VariableItemGroupPtr row;
 	DBAgentInsertArg arg;
 	arg.tableName = TABLE_NAME_ACTIONS;
@@ -542,6 +550,8 @@ void DBClientAction::addAction(ActionDef &actionDef)
 		insert(arg);
 		actionDef.id = getLastInsertId();
 	} DBCLIENT_TRANSACTION_END();
+
+	return HTERR_OK;
 }
 
 void DBClientAction::getActionList(ActionDefList &actionDefList,

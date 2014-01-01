@@ -428,10 +428,11 @@ void UnifiedDataStore::setCopyOnDemandEnabled(bool enable)
 	m_ctx->isCopyOnDemandEnabled = enable;
 }
 
-void UnifiedDataStore::addAction(ActionDef &actionDef)
+void UnifiedDataStore::addAction(ActionDef &actionDef,
+                                 const OperationPrivilege &privilege)
 {
 	DBClientAction dbAction;
-	dbAction.addAction(actionDef);
+	dbAction.addAction(actionDef, privilege);
 }
 
 void UnifiedDataStore::addEventList(const EventInfoList &eventList)

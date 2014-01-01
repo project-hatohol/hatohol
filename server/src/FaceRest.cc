@@ -1911,7 +1911,8 @@ void FaceRest::handlerPostAction(RestJob *job)
 	}
 
 	// save the obtained action
-	dataStore->addAction(actionDef);
+	OperationPrivilege privilege(job->userId);
+	dataStore->addAction(actionDef, privilege);
 
 	// make a response
 	JsonBuilderAgent agent;

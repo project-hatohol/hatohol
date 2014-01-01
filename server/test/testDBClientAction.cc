@@ -165,9 +165,10 @@ void test_addAction(void)
 {
 	DBClientAction dbAction;
 	string expect;
+	OperationPrivilege privilege(USER_ID_ADMIN);
 	for (size_t i = 0; i < NumTestActionDef; i++) {
 		ActionDef &actDef = testActionDef[i];
-		dbAction.addAction(actDef);
+		dbAction.addAction(actDef, privilege);
 
 		// validation
 		const int expectedId = i + 1;
@@ -177,6 +178,16 @@ void test_addAction(void)
 		expect += makeExpectedString(actDef, expectedId);
 		assertDBContent(dbAction.getDBAgent(), statement, expect);
 	}
+}
+
+void test_addActionByInvalidUser(void)
+{
+	DBClientAction dbAction;
+	string expect;
+	OperationPrivilege privilege(INVALID_USER_ID);
+	ActionDef &actDef = testActionDef[0];
+	assertHatoholError(HTERR_INVALID_USER,
+	                   dbAction.addAction(actDef, privilege));
 }
 
 void test_deleteAction(void)

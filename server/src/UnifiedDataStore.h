@@ -65,7 +65,8 @@ public:
 
 	virtual bool getCopyOnDemandEnabled(void) const;
 	virtual void setCopyOnDemandEnabled(bool enable);
-	virtual void addAction(ActionDef &actionDef);
+	virtual void addAction(ActionDef &actionDef,
+	                       const OperationPrivilege &privilege);
 
 	/**
 	 * Add events in the Hatohol DB and executes action if needed. 

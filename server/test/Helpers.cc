@@ -611,8 +611,9 @@ void setupTestDBUser(bool dbRecreate, bool loadTestData)
 void loadTestDBAction(void)
 {
 	DBClientAction dbAction;
+	OperationPrivilege privilege(USER_ID_ADMIN);
 	for (size_t i = 0; i < NumTestActionDef; i++)
-		dbAction.addAction(testActionDef[i]);
+		dbAction.addAction(testActionDef[i], privilege);
 }
 
 string

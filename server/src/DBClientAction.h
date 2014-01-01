@@ -233,7 +233,8 @@ public:
 
 	DBClientAction(void);
 	virtual ~DBClientAction();
-	void addAction(ActionDef &actionDef);
+	HatoholError addAction(ActionDef &actionDef,
+	                       const OperationPrivilege &privilege);
 	void getActionList(ActionDefList &actionDefList,
 	                   DataQueryOption &option,
 	                   const EventInfo *eventInfo = NULL);
