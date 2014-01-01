@@ -206,7 +206,7 @@ void test_addActionAndCheckOwner(void)
 	const UserIdType userId = findUserWith(OPPRVLG_CREATE_ACTION);
 	TestDBClientAction dbAction;
 	OperationPrivilege privilege(userId);
-	const ActionDef &actDef = testActionDef[0];
+	ActionDef &actDef = testActionDef[0];
 	assertHatoholError(HTERR_OK, dbAction.addAction(actDef, privilege));
 	ActionIdType actionId = dbAction.callGetLastInsertId();
 
