@@ -282,16 +282,20 @@ void test_deleteActionMultiple(void)
 	DBClientAction dbAction;
 	test_addAction(); // add all test actions
 
-	// we delete items with even IDs.
+	// we delete 2nd one
+	size_t targetIdx = 1;
 	string expect;
 	ActionIdList idList;
+	UserIdType userId = testActionDef[targetIdx].ownerUserId;
 	for (size_t i = 0; i < NumTestActionDef; i++) {
+		const ActionDef &actDef = testActionDef[i];
 		const int expectedId = i + 1;
-		if (expectedId % 2 == 0)
+		if (actDef.ownerUserId == userId)
 			idList.push_back(expectedId);
 		else
 			expect += StringUtils::sprintf("%d\n", expectedId);
 	}
+	cppcut_assert_equal(true, idList.size() >= 2);
 	OperationPrivilege privilege(USER_ID_ADMIN); // TODO: User normal user
 	assertHatoholError(HTERR_OK,
 	                   dbAction.deleteActions(idList, privilege));
