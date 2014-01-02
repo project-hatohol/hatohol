@@ -281,11 +281,11 @@ void test_deleteActionWithoutPrivilege(void)
 	DBClientAction dbAction;
 	test_addAction(); // add all test actions
 
-	// we delete 2nd one
-	size_t targetIdx = 1;
+	const UserIdType userId = findUserWithout(OPPRVLG_DELETE_ACTION);
+	const size_t targetIdx = findIndexFromTestActionDef(userId);
 	ActionIdList idList;
-	idList.push_back(testActionDef[targetIdx].id);
-	UserIdType userId = testActionDef[targetIdx].ownerUserId + 1;
+	const int expectedId = testActionDef[targetIdx].id + 1;
+	idList.push_back(expectedId);
 	OperationPrivilege privilege(userId);
 	assertHatoholError(HTERR_NO_PRIVILEGE,
 	                   dbAction.deleteActions(idList, privilege));
