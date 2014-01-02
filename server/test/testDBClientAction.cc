@@ -162,13 +162,18 @@ static void setupHelperForTestDBUser(void)
 }
 
 void test_addAction(void);
+
+static void setupTestDBUserAndDBAction(void)
+{
+	setupHelperForTestDBUser();
+	test_addAction(); // add all test actions
+}
+
 static void _assertDeleteActions(const bool &deleteMyActions,
                                  const OperationPrivilegeType &type)
 {
-
-	setupHelperForTestDBUser();
+	setupTestDBUserAndDBAction();
 	DBClientAction dbAction;
-	test_addAction(); // add all test actions
 
 	const UserIdType userId = findUserWith(type);
 	string expect;
@@ -287,9 +292,8 @@ void test_addActionWithoutPrivilege(void)
 
 void test_deleteAction(void)
 {
-	setupHelperForTestDBUser();
+	setupTestDBUserAndDBAction();
 	DBClientAction dbAction;
-	test_addAction(); // add all test actions
 
 	const UserIdType userId = findUserWith(OPPRVLG_DELETE_ACTION);
 	const size_t targetIdx = findIndexFromTestActionDef(userId);
@@ -315,9 +319,8 @@ void test_deleteAction(void)
 
 void test_deleteActionWithoutPrivilege(void)
 {
-	setupHelperForTestDBUser();
+	setupTestDBUserAndDBAction();
 	DBClientAction dbAction;
-	test_addAction(); // add all test actions
 
 	const UserIdType userId = findUserWithout(OPPRVLG_DELETE_ACTION);
 	const size_t targetIdx = findIndexFromTestActionDef(userId);
