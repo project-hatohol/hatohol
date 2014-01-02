@@ -265,6 +265,24 @@ ActionDef testActionDef[] = {
 	"/usr/lib/liba.so",// command
 	0,                 // timeout
 	4,                 // ownerUserId
+}, {
+	0,                 // id (this filed is ignored)
+	ActionCondition(
+	  ACTCOND_SERVER_ID | ACTCOND_HOST_ID | ACTCOND_HOST_GROUP_ID |
+	  ACTCOND_TRIGGER_ID | ACTCOND_TRIGGER_STATUS,   // enableBits
+	  101,                      // serverId
+	  0x7fffffffffffffff,       // hostId
+	  0x8000000000000000,       // hostGroupId
+	  0xfedcba9876543210,       // triggerId
+	  TRIGGER_STATUS_OK,        // triggerStatus
+	  TRIGGER_SEVERITY_CRITICAL,// triggerSeverity
+	  CMP_EQ                    // triggerSeverityCompType;
+	), // condition
+	ACTION_COMMAND,    // type
+	"/home/foo",       // working dir
+	"a-dog-meets-food",// command
+	3939,              // timeout
+	2,                 // ownerUserId
 },
 };
 

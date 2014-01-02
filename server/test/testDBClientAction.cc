@@ -306,11 +306,9 @@ void test_deleteActionMultiple(void)
 	DBClientAction dbAction;
 	test_addAction(); // add all test actions
 
-	// we delete 2nd one
-	size_t targetIdx = 1;
+	const UserIdType userId = findUserWith(OPPRVLG_DELETE_ACTION);
 	string expect;
 	ActionIdList idList;
-	UserIdType userId = testActionDef[targetIdx].ownerUserId;
 	for (size_t i = 0; i < NumTestActionDef; i++) {
 		const ActionDef &actDef = testActionDef[i];
 		const int expectedId = i + 1;
@@ -320,7 +318,7 @@ void test_deleteActionMultiple(void)
 			expect += StringUtils::sprintf("%d\n", expectedId);
 	}
 	cppcut_assert_equal(true, idList.size() >= 2);
-	OperationPrivilege privilege(USER_ID_SYSTEM); // TODO: User normal user
+	OperationPrivilege privilege(userId);
 	assertHatoholError(HTERR_OK,
 	                   dbAction.deleteActions(idList, privilege));
 
