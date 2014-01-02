@@ -253,11 +253,10 @@ void test_deleteAction(void)
 	DBClientAction dbAction;
 	test_addAction(); // add all test actions
 
-	// we delete 2nd one
-	size_t targetIdx = 1;
+	const UserIdType userId = findUserWith(OPPRVLG_DELETE_ACTION);
+	const size_t targetIdx = findIndexFromTestActionDef(userId);
 	ActionIdList idList;
 	idList.push_back(testActionDef[targetIdx].id);
-	UserIdType userId = testActionDef[targetIdx].ownerUserId;
 	OperationPrivilege privilege(userId);
 	assertHatoholError(HTERR_OK,
 	                   dbAction.deleteActions(idList, privilege));

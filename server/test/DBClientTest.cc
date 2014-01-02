@@ -689,3 +689,15 @@ bool isAuthorized(ServerHostGrpSetMap &authMap, UserIdType userId,
 	return false;
 }
 
+size_t findIndexFromTestActionDef(const UserIdType &userId)
+{
+	size_t idx = 0;
+	for (; idx < NumTestActionDef; idx++) {
+		const ActionDef &actDef = testActionDef[idx];
+		if (actDef.ownerUserId == userId)
+			break;
+	}
+	cppcut_assert_not_equal(NumTestActionDef, idx);
+	return idx;
+}
+

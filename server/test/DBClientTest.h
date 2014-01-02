@@ -106,5 +106,7 @@ bool isAuthorized(ServerHostGrpSetMap &authMap,
 		  uint32_t serverId,
 		  uint64_t hostGroupId = ALL_HOST_GROUPS);
 
+size_t findIndexFromTestActionDef(const UserIdType &userId);
+
 #endif // DBClientTest_h
 

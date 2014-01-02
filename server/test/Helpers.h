@@ -168,5 +168,4 @@ UserIdType searchMaxTestUserId(void);
 UserIdType findUserWith(const OperationPrivilegeType &type);
 UserIdType findUserWithout(const OperationPrivilegeType &type);
 
-
 #endif // Helpers_h
