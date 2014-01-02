@@ -515,7 +515,13 @@ HatoholError DBClientAction::addAction(ActionDef &actionDef,
 
 	if (!privilege.has(OPPRVLG_CREATE_ACTION))
 		return HTERR_NO_PRIVILEGE;
-	actionDef.ownerUserId = userId;
+
+ 	// Basically an owner is the caller. However, USER_ID_ADMIN can
+	// create an action with any user ID. This is a mechanism for
+	// internal system management or a test.
+	UserIdType ownerUserId = userId;
+	if (userId == USER_ID_ADMIN)
+		ownerUserId = actionDef.ownerUserId;
 
 	VariableItemGroupPtr row;
 	DBAgentInsertArg arg;
@@ -542,7 +548,7 @@ HatoholError DBClientAction::addAction(ActionDef &actionDef,
 	row->ADD_NEW_ITEM(String, actionDef.command);
 	row->ADD_NEW_ITEM(String, actionDef.workingDir);
 	row->ADD_NEW_ITEM(Int, actionDef.timeout);
-	row->ADD_NEW_ITEM(Int, actionDef.ownerUserId);
+	row->ADD_NEW_ITEM(Int, ownerUserId);
 
 	arg.row = row;
 
