@@ -161,6 +161,44 @@ static void setupHelperForTestDBUser(void)
 	g_existTestDB = true;
 }
 
+void test_addAction(void);
+static void _assertDeleteActions(const bool &deleteMyActions,
+                                 const OperationPrivilegeType &type)
+{
+
+	setupHelperForTestDBUser();
+	DBClientAction dbAction;
+	test_addAction(); // add all test actions
+
+	const UserIdType userId = findUserWith(type);
+	string expect;
+	ActionIdList idList;
+	for (size_t i = 0; i < NumTestActionDef; i++) {
+		const ActionDef &actDef = testActionDef[i];
+		const int expectedId = i + 1;
+		bool shouldDelete;
+		if (actDef.ownerUserId == userId)
+			shouldDelete = deleteMyActions;
+		else
+			shouldDelete = !deleteMyActions;
+
+		if (shouldDelete)
+			idList.push_back(expectedId);
+		else
+			expect += StringUtils::sprintf("%d\n", expectedId);
+	}
+	cppcut_assert_equal(true, idList.size() >= 2);
+	OperationPrivilege privilege(userId);
+	assertHatoholError(HTERR_OK,
+	                   dbAction.deleteActions(idList, privilege));
+
+	// check
+	string statement = "select action_id from ";
+	statement += DBClientAction::getTableNameActions();
+	assertDBContent(dbAction.getDBAgent(), statement, expect);
+}
+#define assertDeleteActions(D,T) cut_trace(_assertDeleteActions(D,T))
+
 void setup(void)
 {
 	hatoholInit();
@@ -302,30 +340,14 @@ void test_deleteActionByInvalidUser(void)
 
 void test_deleteActionMultiple(void)
 {
-	setupHelperForTestDBUser();
-	DBClientAction dbAction;
-	test_addAction(); // add all test actions
+	const bool deleteMyActions = true;
+	assertDeleteActions(deleteMyActions, OPPRVLG_DELETE_ACTION);
+}
 
-	const UserIdType userId = findUserWith(OPPRVLG_DELETE_ACTION);
-	string expect;
-	ActionIdList idList;
-	for (size_t i = 0; i < NumTestActionDef; i++) {
-		const ActionDef &actDef = testActionDef[i];
-		const int expectedId = i + 1;
-		if (actDef.ownerUserId == userId)
-			idList.push_back(expectedId);
-		else
-			expect += StringUtils::sprintf("%d\n", expectedId);
-	}
-	cppcut_assert_equal(true, idList.size() >= 2);
-	OperationPrivilege privilege(userId);
-	assertHatoholError(HTERR_OK,
-	                   dbAction.deleteActions(idList, privilege));
-
-	// check
-	string statement = "select action_id from ";
-	statement += DBClientAction::getTableNameActions();
-	assertDBContent(dbAction.getDBAgent(), statement, expect);
+void test_deleteActionOfOthers(void)
+{
+	const bool deleteMyActions = false;
+	assertDeleteActions(deleteMyActions, OPPRVLG_DELETE_ALL_ACTION);
 }
 
 void test_startExecAction(void)
