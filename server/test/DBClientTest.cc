@@ -663,7 +663,7 @@ void makeServerHostGrpSetMap(ServerHostGrpSetMap &map, UserIdType userId)
 bool isAuthorized(ServerHostGrpSetMap &authMap, UserIdType userId,
 		  uint32_t serverId, uint64_t hostGroupId)
 {
-	if (userId == USER_ID_ADMIN)
+	if (userId == USER_ID_SYSTEM)
 		return true;
 	if (userId == INVALID_USER_ID)
 		return false;

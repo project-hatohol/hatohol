@@ -318,7 +318,7 @@ bool ServerQueryOption::hasPrivilegeCondition(string &condition) const
 {
 	UserIdType userId = getUserId();
 
-	if (userId == USER_ID_ADMIN || has(OPPRVLG_GET_ALL_SERVER)) {
+	if (userId == USER_ID_SYSTEM || has(OPPRVLG_GET_ALL_SERVER)) {
 		if (m_ctx->targetServerId != ALL_SERVERS)
 			condition = serverIdCondition(m_ctx->targetServerId);
 		return true;

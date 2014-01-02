@@ -611,7 +611,7 @@ void setupTestDBUser(bool dbRecreate, bool loadTestData)
 void loadTestDBAction(void)
 {
 	DBClientAction dbAction;
-	OperationPrivilege privilege(USER_ID_ADMIN);
+	OperationPrivilege privilege(USER_ID_SYSTEM);
 	for (size_t i = 0; i < NumTestActionDef; i++)
 		dbAction.addAction(testActionDef[i], privilege);
 }
@@ -726,7 +726,7 @@ UserIdType searchMaxTestUserId(void)
 	CacheServiceDBClient cache;
 	DBClientUser *dbUser = cache.getUser();
 	UserInfoList userInfoList;
-	UserQueryOption option(USER_ID_ADMIN);
+	UserQueryOption option(USER_ID_SYSTEM);
 	dbUser->getUserInfoList(userInfoList, option);
 	cppcut_assert_equal(false, userInfoList.empty());
 
@@ -748,7 +748,7 @@ static UserIdType findUserCommon(const OperationPrivilegeType &type,
 	CacheServiceDBClient cache;
 	DBClientUser *dbUser = cache.getUser();
 	UserInfoList userInfoList;
-	UserQueryOption option(USER_ID_ADMIN);
+	UserQueryOption option(USER_ID_SYSTEM);
 	dbUser->getUserInfoList(userInfoList, option);
 	cppcut_assert_equal(false, userInfoList.empty());
 
@@ -761,7 +761,7 @@ static UserIdType findUserCommon(const OperationPrivilegeType &type,
 		}
 	}
 	cppcut_assert_not_equal(INVALID_USER_ID, userId);
-	cppcut_assert_not_equal(USER_ID_ADMIN, userId);
+	cppcut_assert_not_equal(USER_ID_SYSTEM, userId);
 	return userId;
 }
 

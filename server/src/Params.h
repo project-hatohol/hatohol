@@ -44,8 +44,12 @@ typedef int ActionIdType;
 
 typedef int UserIdType;
 #define FMT_USER_ID "d"
+
 static const UserIdType INVALID_USER_ID = -1;
-static const UserIdType USER_ID_ADMIN   = 0;
+
+// This ID is not used for actual users.
+// This program and the tests use it internally.
+static const UserIdType USER_ID_SYSTEM  = 0;
 
 typedef std::set<UserIdType>      UserIdSet;
 typedef UserIdSet::iterator       UserIdSetIterator;

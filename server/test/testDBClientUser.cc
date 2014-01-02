@@ -633,7 +633,7 @@ void test_getServerAccessInfoMap(void)
 	UserIdIndexMapIterator it = userIdIndexMap.begin();
 	for (; it != userIdIndexMap.end(); ++it) {
 		ServerAccessInfoMap srvAccessInfoMap;
-		AccessInfoQueryOption option(USER_ID_ADMIN);
+		AccessInfoQueryOption option(USER_ID_SYSTEM);
 		option.setTargetUserId(it->first);
 		HatoholError error = dbUser.getAccessInfoMap(srvAccessInfoMap,
 							     option);

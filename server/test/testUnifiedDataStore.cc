@@ -70,7 +70,7 @@ void test_getTriggerList(void)
 
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	TriggerInfoList list;
-	TriggersQueryOption option(USER_ID_ADMIN);
+	TriggersQueryOption option(USER_ID_SYSTEM);
 	dataStore->getTriggerList(list, option);
 
 	TriggerInfoListIterator it;
@@ -136,7 +136,7 @@ void test_getEventList(void)
 
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	EventInfoList list;
-	EventsQueryOption option(USER_ID_ADMIN);
+	EventsQueryOption option(USER_ID_SYSTEM);
 	dataStore->getEventList(list, option);
 
 	EventInfoListIterator it;
@@ -153,7 +153,7 @@ void test_getItemList(void)
 
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	ItemInfoList list;
-	ItemsQueryOption option(USER_ID_ADMIN);
+	ItemsQueryOption option(USER_ID_SYSTEM);
 	dataStore->getItemList(list, option);
 
 	ItemInfoListIterator it;

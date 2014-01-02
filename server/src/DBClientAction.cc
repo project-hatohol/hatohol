@@ -176,7 +176,7 @@ static const ColumnDef COLUMN_DEF_ACTIONS[] = {
 	false,                             // canBeNull
 	SQL_KEY_MUL,                       // keyType
 	0,                                 // flags
-	USER_ID_ADMIN,                     // defaultValue
+	USER_ID_SYSTEM,                     // defaultValue
 },
 };
 static const size_t NUM_COLUMNS_ACTIONS =
@@ -516,11 +516,11 @@ HatoholError DBClientAction::addAction(ActionDef &actionDef,
 	if (!privilege.has(OPPRVLG_CREATE_ACTION))
 		return HTERR_NO_PRIVILEGE;
 
- 	// Basically an owner is the caller. However, USER_ID_ADMIN can
+ 	// Basically an owner is the caller. However, USER_ID_SYSTEM can
 	// create an action with any user ID. This is a mechanism for
 	// internal system management or a test.
 	UserIdType ownerUserId = userId;
-	if (userId == USER_ID_ADMIN)
+	if (userId == USER_ID_SYSTEM)
 		ownerUserId = actionDef.ownerUserId;
 
 	VariableItemGroupPtr row;

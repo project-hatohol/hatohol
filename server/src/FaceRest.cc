@@ -772,10 +772,10 @@ bool FaceRest::RestJob::prepare(void)
 
 	if (sessionId.empty()) {
 		// We should return an error. But now, we just set
-		// USER_ID_ADMIN to keep compatiblity until the user privilege
+		// USER_ID_SYSTEM to keep compatiblity until the user privilege
 		// feature is completely implemnted.
 		if (path != pathForLogin)
-			userId = USER_ID_ADMIN;
+			userId = USER_ID_SYSTEM;
 		else
 			userId = INVALID_USER_ID;
 	} else {
@@ -1257,7 +1257,7 @@ void FaceRest::handlerTest(RestJob *job)
 	    string(job->message->method) == "POST")
 	{
 		RETURN_IF_NOT_TEST_MODE(job);
-		UserQueryOption option(USER_ID_ADMIN);
+		UserQueryOption option(USER_ID_SYSTEM);
 		HatoholError err = updateOrAddUser(job->query, option);
 		if (err != HTERR_OK) {
 			replyError(job, err);

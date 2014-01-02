@@ -100,7 +100,7 @@ void OperationPrivilege::setUserId(UserIdType userId)
 	if (m_ctx->userId == INVALID_USER_ID)
 		return;
 
-	if (m_ctx->userId == USER_ID_ADMIN) {
+	if (m_ctx->userId == USER_ID_SYSTEM) {
 		setFlags(ALL_PRIVILEGES);
 		return;
 	}

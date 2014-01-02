@@ -1074,7 +1074,7 @@ void test_addAction(void)
 	expect += StringUtils::sprintf("%d|",type);
 	expect += command;
 	expect += "||0"; /* workingDirectory and timeout */
-	expect += StringUtils::sprintf("|%"FMT_USER_ID, USER_ID_ADMIN);
+	expect += StringUtils::sprintf("|%"FMT_USER_ID, USER_ID_SYSTEM);
 	assertDBContent(dbAction.getDBAgent(), statement, expect);
 }
 
@@ -1086,7 +1086,7 @@ void test_addActionParameterFull(void)
 	const string workingDir = "/usr/local/wani";
 	int type = ACTION_COMMAND;
 	int timeout = 300;
-	UserIdType ownerUserId = USER_ID_ADMIN;
+	UserIdType ownerUserId = USER_ID_SYSTEM;
 	int serverId= 50;
 	uint64_t hostId = 50;
 	uint64_t hostGroupId = 1000;

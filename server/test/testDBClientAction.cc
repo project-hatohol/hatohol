@@ -191,7 +191,7 @@ void test_addAction(void)
 {
 	DBClientAction dbAction;
 	string expect;
-	OperationPrivilege privilege(USER_ID_ADMIN);
+	OperationPrivilege privilege(USER_ID_SYSTEM);
 	for (size_t i = 0; i < NumTestActionDef; i++) {
 		ActionDef &actDef = testActionDef[i];
 		assertHatoholError(HTERR_OK,
@@ -321,7 +321,7 @@ void test_deleteActionMultiple(void)
 			expect += StringUtils::sprintf("%d\n", expectedId);
 	}
 	cppcut_assert_equal(true, idList.size() >= 2);
-	OperationPrivilege privilege(USER_ID_ADMIN); // TODO: User normal user
+	OperationPrivilege privilege(USER_ID_SYSTEM); // TODO: User normal user
 	assertHatoholError(HTERR_OK,
 	                   dbAction.deleteActions(idList, privilege));
 
@@ -436,7 +436,7 @@ void test_getTriggerActionList(void)
 	// get the list and check the number
 	DBClientAction dbAction;
 	ActionDefList actionDefList;
-	DataQueryOption option(USER_ID_ADMIN);
+	DataQueryOption option(USER_ID_SYSTEM);
 	dbAction.getActionList(actionDefList, option, &eventInfo);
 	cppcut_assert_equal((size_t)1, actionDefList.size());
 
@@ -468,7 +468,7 @@ void test_getTriggerActionListWithAllCondition(void)
 	// get the list and check the number
 	DBClientAction dbAction;
 	ActionDefList actionDefList;
-	DataQueryOption option(USER_ID_ADMIN);
+	DataQueryOption option(USER_ID_SYSTEM);
 	dbAction.getActionList(actionDefList, option, &eventInfo);
 	cppcut_assert_equal((size_t)1, actionDefList.size());
 

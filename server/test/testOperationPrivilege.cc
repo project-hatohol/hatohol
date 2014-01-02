@@ -91,9 +91,9 @@ void test_copyConstructor(void)
 void test_copyConstructorWithUserId(void)
 {
 	OperationPrivilege privilege;
-	privilege.setUserId(USER_ID_ADMIN);
+	privilege.setUserId(USER_ID_SYSTEM);
 	OperationPrivilege copied(privilege);
-	cppcut_assert_equal(USER_ID_ADMIN, copied.getUserId());
+	cppcut_assert_equal(USER_ID_SYSTEM, copied.getUserId());
 	cppcut_assert_equal(privilege.getFlags(), copied.getFlags());
 }
 

@@ -226,7 +226,7 @@ void _assertGetTargetServers(UserIdType userId)
 void data_getTargetServers(void)
 {
 	gcut_add_datum("By Admin",
-		       "userId", G_TYPE_INT, USER_ID_ADMIN,
+		       "userId", G_TYPE_INT, USER_ID_SYSTEM,
 		       NULL);
 	gcut_add_datum("With no allowed servers",
 		       "userId", G_TYPE_INT, 4,
@@ -304,14 +304,14 @@ void test_isCopyOnDemandEnabledDefault(void)
 
 void test_serverQueryOptionForAdmin(void)
 {
-	ServerQueryOption option(USER_ID_ADMIN);
+	ServerQueryOption option(USER_ID_SYSTEM);
 	cppcut_assert_equal(string(""), option.getCondition());
 }
 
 void test_serverQueryOptionForAdminWithTarget(void)
 {
 	uint32_t serverId = 2;
-	ServerQueryOption option(USER_ID_ADMIN);
+	ServerQueryOption option(USER_ID_SYSTEM);
 	option.setTargetServerId(serverId);
 	cppcut_assert_equal(StringUtils::sprintf("id=%"PRIu32, serverId),
 			    option.getCondition());
