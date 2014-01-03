@@ -270,7 +270,7 @@ static void sendQuit(ExecCommandContext *ctx)
 static string getActionLogContent(const ActionLog &actionLog)
 {
 	string str = StringUtils::sprintf(
-	  "ID: %"PRIu64", actionID: %d, status: %d, ",
+	  "ID: %"PRIu64", actionID: %"FMT_ACTION_ID", status: %d, ",
 	  actionLog.id, actionLog.actionId, actionLog.status);
 	str += StringUtils::sprintf(
 	  "queuingTime: %d, startTime: %d, endTime: %d, ",
@@ -283,7 +283,8 @@ static string getActionLogContent(const ActionLog &actionLog)
 
 static void _assertActionLog(
   ActionLog &actionLog,
- uint64_t id, int actionId, int status, int starterId, int queueingTime,
+ uint64_t id, const ActionIdType &actionId,
+ int status, int starterId, int queueingTime,
  int startTime, int endTime, int failureCode, int exitCode, uint32_t nullFlags)
 {
 	cppcut_assert_equal(nullFlags,    actionLog.nullFlags,
@@ -308,7 +309,7 @@ cut_trace(_assertActionLog(LOG, ID, ACT_ID, STAT, STID, QTIME, STIME, ETIME, FAI
 
 struct ExecActionArg {
 
-	int        actionId;
+	ActionIdType actionId;
 	ActionType type;
 	bool       usePipe;
 	string     command;
@@ -316,7 +317,7 @@ struct ExecActionArg {
 	int        timeout;
 
 	// methods
-	ExecActionArg(int _actionId, ActionType _type)
+	ExecActionArg(const ActionIdType &_actionId, ActionType _type)
 	: actionId(_actionId),
 	  type(_type),
 	  usePipe(false),
@@ -582,7 +583,7 @@ static void replyEventInfoCb(GIOStatus stat, mlpl::SmartBuffer &sbuf,
 	sbuf.incIndex(RESIDENT_PROTO_HEADER_LEN);
 	ResidentNotifyEventArg *eventArg = 
 	  sbuf.getPointer<ResidentNotifyEventArg>();
-	cppcut_assert_equal(ctx->actDef.id, (int)eventArg->actionId);
+	cppcut_assert_equal(ctx->actDef.id, (ActionIdType)eventArg->actionId);
 
 	// check each component
 	const EventInfo &expected = ctx->eventInfo;
@@ -655,7 +656,7 @@ static void _assertShouldSkipByLog(bool EvenEventNotLog)
 #define assertShouldSkipByLog(E) cut_trace(_assertShouldSkipByLog(E))
 
 static void _assertExecuteAction(
-  int actionId,
+  const ActionIdType &actionId,
   ActionLogStatus expectStatus = ACTLOG_STAT_STARTED,
   bool dontCheckOptions = false,
   const string &commandName = "")
@@ -663,8 +664,8 @@ static void _assertExecuteAction(
 	ExecCommandContext *ctx = new ExecCommandContext();
 	g_execCommandCtxVect.push_back(ctx); // just an alias
 
-	string pipeName = StringUtils::sprintf("test-command-action-%d",
-	                                       actionId);
+	string pipeName = StringUtils::sprintf(
+	  "test-command-action-%"FMT_ACTION_ID, actionId);
 	ctx->initPipes(pipeName);
 
 	ctx->eventInfo = testEventInfo[0];
@@ -1024,7 +1025,7 @@ void test_limitCommandAction(void)
 {
 	ConfigManager *confMgr = ConfigManager::getInstance();
 	size_t maxNum = confMgr->getMaxNumberOfRunningCommandAction();
-	int actionId = 352;
+	ActionIdType actionId = 352;
 	size_t idx = 0;
 	for (; idx < maxNum; idx++, actionId++)
 		assertExecuteAction(actionId, ACTLOG_STAT_STARTED, false);

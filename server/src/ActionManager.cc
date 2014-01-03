@@ -146,7 +146,7 @@ struct ResidentInfo :
 		if (!inRunningResidentMap)
 			return;
 		bool found = false;
-		int actionId = actionDef.id;
+		ActionIdType actionId = actionDef.id;
 		ResidentInfo::residentMapLock.lock();
 		RunningResidentMapIterator it =
 		  runningResidentMap.find(actionId);

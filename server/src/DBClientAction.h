@@ -123,7 +123,7 @@ typedef list<ActionDef>               ActionDefList;
 typedef ActionDefList::iterator       ActionDefListIterator;
 typedef ActionDefList::const_iterator ActionDefListConstIterator;
 
-typedef list<int>                     ActionIdList;
+typedef list<ActionIdType>            ActionIdList;
 typedef ActionIdList::iterator        ActionIdListIterator;
 typedef ActionIdList::const_iterator  ActionIdListConstIterator;
 
@@ -136,7 +136,7 @@ enum {
 
 struct ActionLog {
 	uint64_t id;
-	int      actionId;
+	ActionIdType actionId;
 	int      status;
 	int      starterId;
 	int      queuingTime;

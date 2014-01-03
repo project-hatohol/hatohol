@@ -97,7 +97,7 @@ void ResidentCommunicator::setModuleLoaded(uint32_t code)
 }
 
 void ResidentCommunicator::setNotifyEventBody(
-  int actionId, const EventInfo &eventInfo)
+  const ActionIdType &actionId, const EventInfo &eventInfo)
 {
 	setHeader(RESIDENT_PROTO_EVENT_BODY_LEN,
 	          RESIDENT_PROTO_PKT_TYPE_NOTIFY_EVENT);
