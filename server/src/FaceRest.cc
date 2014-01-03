@@ -1723,11 +1723,16 @@ void FaceRest::handlerGetAction(RestJob *job)
 
 	ActionDefList actionList;
 	OperationPrivilege privilege(job->userId);
-	dataStore->getActionList(actionList, privilege);
+	HatoholError err = dataStore->getActionList(actionList, privilege);
 
 	JsonBuilderAgent agent;
 	agent.startObject();
-	addHatoholError(agent, HatoholError(HTERR_OK));
+	addHatoholError(agent, err);
+	if (err != HTERR_OK) {
+		agent.endObject();
+		replyJsonData(agent, job);
+		return;
+	}
 	agent.add("numberOfActions", actionList.size());
 	agent.startArray("actions");
 	HostNameMaps hostMaps;

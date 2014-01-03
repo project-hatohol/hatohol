@@ -383,11 +383,11 @@ void UnifiedDataStore::getHostList(
 	dbHatohol.getHostInfoList(hostInfoList, targetServerId, targetHostId);
 }
 
-void UnifiedDataStore::getActionList(ActionDefList &actionList,
-                                     const OperationPrivilege &privilege)
+HatoholError UnifiedDataStore::getActionList(
+  ActionDefList &actionList, const OperationPrivilege &privilege)
 {
 	DBClientAction dbAction;
-	dbAction.getActionList(actionList, privilege);
+	return dbAction.getActionList(actionList, privilege);
 }
 
 HatoholError UnifiedDataStore::deleteActionList(

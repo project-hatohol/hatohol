@@ -52,8 +52,8 @@ public:
 	virtual void getHostList(HostInfoList &hostInfoList,
 	                         uint32_t targetServerId = ALL_SERVERS,
 	                         uint64_t targetHostId = ALL_HOSTS);
-	virtual void getActionList(ActionDefList &actionList,
-	                           const OperationPrivilege &privilege);
+	virtual HatoholError getActionList(ActionDefList &actionList,
+	                                   const OperationPrivilege &privilege);
 	virtual HatoholError addAction(ActionDef &actionDef,
 	                               const OperationPrivilege &privilege);
 	virtual HatoholError deleteActionList(
