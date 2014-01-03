@@ -164,6 +164,32 @@ static void pickupActionIdsFromTestActionDef(
 	}
 }
 
+void _assertGetActionList(const UserIdType &userId,
+                          const UserIdType &expectUserId)
+{
+	OperationPrivilege privilege(userId);
+
+	DBClientAction dbAction;
+	ActionDefList actionDefList;
+	assertHatoholError(HTERR_OK,
+	                   dbAction.getActionList(actionDefList, privilege));
+
+	// pick up expected action IDs
+	ActionIdSet expectActionIdSet;
+	pickupActionIdsFromTestActionDef(expectActionIdSet, expectUserId);
+	cppcut_assert_not_equal((size_t)0, expectActionIdSet.size());
+
+	// check the result
+	cppcut_assert_equal(expectActionIdSet.size(), actionDefList.size());
+	ActionDefListIterator actionDef = actionDefList.begin();
+	for (; actionDef != actionDefList.end(); ++actionDef) {
+		ActionIdSetIterator it = expectActionIdSet.find(actionDef->id);
+		cppcut_assert_equal(true, it != expectActionIdSet.end());
+		expectActionIdSet.erase(it);
+	}
+}
+#define assertGetActionList(U,E) cut_trace(_assertGetActionList(U,E))
+
 static bool g_existTestDB = false;
 static void setupHelperForTestDBUser(void)
 {
@@ -541,55 +567,15 @@ void test_getTriggerActionListWithAllCondition(void)
 void test_getActionListWithNormalUser(void)
 {
 	setupTestDBUserAndDBAction();
-
 	const UserIdType userId = findUserWithout(OPPRVLG_GET_ALL_ACTION);
-	OperationPrivilege privilege(userId);
-
-	DBClientAction dbAction;
-	ActionDefList actionDefList;
-	assertHatoholError(HTERR_OK,
-	                   dbAction.getActionList(actionDefList, privilege));
-
-	// pick up expected action IDs
-	ActionIdSet expectActionIdSet;
-	pickupActionIdsFromTestActionDef(expectActionIdSet, userId);
-	cppcut_assert_not_equal((size_t)0, expectActionIdSet.size());
-
-	// check the result
-	cppcut_assert_equal(expectActionIdSet.size(), actionDefList.size());
-	ActionDefListIterator actionDef = actionDefList.begin();
-	for (; actionDef != actionDefList.end(); ++actionDef) {
-		ActionIdSetIterator it = expectActionIdSet.find(actionDef->id);
-		cppcut_assert_equal(true, it != expectActionIdSet.end());
-		expectActionIdSet.erase(it);
-	}
+	assertGetActionList(userId, userId);
 }
 
 void test_getActionListWithUserHavingGetAllFlag(void)
 {
 	setupTestDBUserAndDBAction();
-
 	const UserIdType userId = findUserWith(OPPRVLG_GET_ALL_ACTION);
-	OperationPrivilege privilege(userId);
-
-	DBClientAction dbAction;
-	ActionDefList actionDefList;
-	assertHatoholError(HTERR_OK,
-	                   dbAction.getActionList(actionDefList, privilege));
-
-	// pick up expected action IDs
-	ActionIdSet expectActionIdSet;
-	pickupActionIdsFromTestActionDef(expectActionIdSet, USER_ID_ANY);
-	cppcut_assert_not_equal((size_t)0, expectActionIdSet.size());
-
-	// check the result
-	cppcut_assert_equal(expectActionIdSet.size(), actionDefList.size());
-	ActionDefListIterator actionDef = actionDefList.begin();
-	for (; actionDef != actionDefList.end(); ++actionDef) {
-		ActionIdSetIterator it = expectActionIdSet.find(actionDef->id);
-		cppcut_assert_equal(true, it != expectActionIdSet.end());
-		expectActionIdSet.erase(it);
-	}
+	assertGetActionList(userId, USER_ID_ANY);
 }
 
 } // namespace testDBClientAction
