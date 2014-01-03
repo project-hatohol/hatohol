@@ -154,6 +154,7 @@ static void makeDefSourceValues(string &s, LanguageType langType)
 	ADD_LINE(s, langType, HTERR_UNKNOWN_REASON);
 	ADD_LINE(s, langType, HTERR_NOT_IMPLEMENTED);
 	ADD_LINE(s, langType, HTERR_GOT_EXCEPTION);
+	ADD_LINE(s, langType, HTERR_INVALID_USER);
 	APPEND(s, "\n");
 
 	// DBClientUser
@@ -170,6 +171,10 @@ static void makeDefSourceValues(string &s, LanguageType langType)
 
 	// DBClientHatohol
 	ADD_LINE(s, langType, HTERR_NOT_FOUND_SORT_ORDER);
+	APPEND(s, "\n");
+
+	// DBClientAction
+	ADD_LINE(s, langType, HTERR_DELETE_IMCOMPLETE);
 	APPEND(s, "\n");
 
 	// FaceRest
@@ -206,11 +211,26 @@ static void makeDefSourceValues(string &s, LanguageType langType)
 	//
 	ADD_LINE(s, langType, ALL_PRIVILEGES);
 	ADD_LINE(s, langType, NONE_PRIVILEGE);
+
 	ADD_LINE(s, langType, OPPRVLG_CREATE_USER);
 	ADD_LINE(s, langType, OPPRVLG_UPDATE_USER);
 	ADD_LINE(s, langType, OPPRVLG_DELETE_USER);
 	ADD_LINE(s, langType, OPPRVLG_GET_ALL_USER);
+
+	ADD_LINE(s, langType, OPPRVLG_CREATE_SERVER);
+	ADD_LINE(s, langType, OPPRVLG_UPDATE_SERVER);
+	ADD_LINE(s, langType, OPPRVLG_UPDATE_ALL_SERVER);
+	ADD_LINE(s, langType, OPPRVLG_DELETE_SERVER);
+	ADD_LINE(s, langType, OPPRVLG_DELETE_ALL_SERVER);
 	ADD_LINE(s, langType, OPPRVLG_GET_ALL_SERVER);
+
+	ADD_LINE(s, langType, OPPRVLG_CREATE_ACTION);
+	ADD_LINE(s, langType, OPPRVLG_UPDATE_ACTION);
+	ADD_LINE(s, langType, OPPRVLG_UPDATE_ALL_ACTION);
+	ADD_LINE(s, langType, OPPRVLG_DELETE_ACTION);
+	ADD_LINE(s, langType, OPPRVLG_DELETE_ALL_ACTION);
+	ADD_LINE(s, langType, OPPRVLG_GET_ALL_ACTION);
+
 	ADD_LINE(s, langType, NUM_OPPRVLG);
 	APPEND(s, "\n");
 
