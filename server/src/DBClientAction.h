@@ -127,6 +127,10 @@ typedef list<ActionIdType>            ActionIdList;
 typedef ActionIdList::iterator        ActionIdListIterator;
 typedef ActionIdList::const_iterator  ActionIdListConstIterator;
 
+typedef set<ActionIdType>             ActionIdSet;
+typedef ActionIdSet::iterator         ActionIdSetIterator;
+typedef ActionIdSet::const_iterator   ActionIdSetConstIterator;
+
 enum {
 	ACTLOG_FLAG_QUEUING_TIME = (1 << 0),
 	ACTLOG_FLAG_START_TIME   = (1 << 1),
@@ -235,9 +239,9 @@ public:
 	virtual ~DBClientAction();
 	HatoholError addAction(ActionDef &actionDef,
 	                       const OperationPrivilege &privilege);
-	void getActionList(ActionDefList &actionDefList,
-	                   const OperationPrivilege &privilege,
-	                   const EventInfo *eventInfo = NULL);
+	HatoholError getActionList(ActionDefList &actionDefList,
+	                           const OperationPrivilege &privilege,
+	                           const EventInfo *eventInfo = NULL);
 	HatoholError deleteActions(const ActionIdList &idList,
 	                           const OperationPrivilege &privilege);
 

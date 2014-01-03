@@ -560,12 +560,10 @@ HatoholError DBClientAction::addAction(ActionDef &actionDef,
 	return HTERR_OK;
 }
 
-void DBClientAction::getActionList(ActionDefList &actionDefList,
-                                   const OperationPrivilege &privilege,
-                                   const EventInfo *eventInfo)
+HatoholError DBClientAction::getActionList(ActionDefList &actionDefList,
+                                           const OperationPrivilege &privilege,
+                                           const EventInfo *eventInfo)
 {
-	// TODO: take into acount a privilege
-
 	DBAgentSelectExArg arg;
 	arg.tableName = TABLE_NAME_ACTIONS;
 	arg.pushColumn(COLUMN_DEF_ACTIONS[IDX_ACTIONS_ACTION_ID]);
@@ -587,6 +585,14 @@ void DBClientAction::getActionList(ActionDefList &actionDefList,
 
 	if (eventInfo)
 		arg.condition = makeActionDefCondition(*eventInfo);
+	if (!privilege.has(OPPRVLG_GET_ALL_ACTION)) {
+		if (!arg.condition.empty())
+			arg.condition += " AND ";
+		arg.condition += StringUtils::sprintf(
+		  "%s=%"FMT_USER_ID,
+		  COLUMN_DEF_ACTIONS[IDX_ACTIONS_OWNER_USER_ID].columnName,
+		  privilege.getUserId());
+	}
 
 	DBCLIENT_TRANSACTION_BEGIN() {
 		select(arg);
@@ -646,6 +652,7 @@ void DBClientAction::getActionList(ActionDefList &actionDefList,
 		actionDef.timeout    = GET_INT_FROM_GRP(itemGroup, idx++);
 		actionDef.ownerUserId = GET_INT_FROM_GRP(itemGroup, idx++);
 	}
+	return HTERR_OK;
 }
 
 HatoholError DBClientAction::deleteActions(const ActionIdList &idList,
