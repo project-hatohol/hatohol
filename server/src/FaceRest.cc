@@ -1722,8 +1722,8 @@ void FaceRest::handlerGetAction(RestJob *job)
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 
 	ActionDefList actionList;
-	DataQueryOption option(job->userId);
-	dataStore->getActionList(actionList, option);
+	OperationPrivilege privilege(job->userId);
+	dataStore->getActionList(actionList, privilege);
 
 	JsonBuilderAgent agent;
 	agent.startObject();

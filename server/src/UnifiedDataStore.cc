@@ -384,10 +384,10 @@ void UnifiedDataStore::getHostList(
 }
 
 void UnifiedDataStore::getActionList(ActionDefList &actionList,
-                                     DataQueryOption &option)
+                                     const OperationPrivilege &privilege)
 {
 	DBClientAction dbAction;
-	dbAction.getActionList(actionList, option);
+	dbAction.getActionList(actionList, privilege);
 }
 
 HatoholError UnifiedDataStore::deleteActionList(

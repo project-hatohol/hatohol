@@ -561,7 +561,7 @@ HatoholError DBClientAction::addAction(ActionDef &actionDef,
 }
 
 void DBClientAction::getActionList(ActionDefList &actionDefList,
-                                   DataQueryOption &option,
+                                   const OperationPrivilege &privilege,
                                    const EventInfo *eventInfo)
 {
 	// TODO: take into acount a privilege

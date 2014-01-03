@@ -53,7 +53,7 @@ public:
 	                         uint32_t targetServerId = ALL_SERVERS,
 	                         uint64_t targetHostId = ALL_HOSTS);
 	virtual void getActionList(ActionDefList &actionList,
-	                           DataQueryOption &option);
+	                           const OperationPrivilege &privilege);
 	virtual HatoholError addAction(ActionDef &actionDef,
 	                               const OperationPrivilege &privilege);
 	virtual HatoholError deleteActionList(

@@ -236,7 +236,7 @@ public:
 	HatoholError addAction(ActionDef &actionDef,
 	                       const OperationPrivilege &privilege);
 	void getActionList(ActionDefList &actionDefList,
-	                   DataQueryOption &option,
+	                   const OperationPrivilege &privilege,
 	                   const EventInfo *eventInfo = NULL);
 	HatoholError deleteActions(const ActionIdList &idList,
 	                           const OperationPrivilege &privilege);
