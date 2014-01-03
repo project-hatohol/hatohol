@@ -79,6 +79,10 @@ def login(url, args):
   url += "?" + encoded_query
   return {"url":url, "postproc":open_url_and_show_response}
 
+def logout(url, args):
+  url += "/logout"
+  return {"url":url, "postproc":open_url_and_show_response}
+
 def show_server(url, args):
   url += "/server"
   query = {}
@@ -174,6 +178,7 @@ def del_user(url, args):
 command_map = {
   "test":do_test,
   "login":login,
+  "logout":logout,
   "show-server":show_server,
   "show-event":show_event,
   "show-trigger":show_trigger,
@@ -201,6 +206,9 @@ def main(arg_list=None, exec_postproc=True):
   sub_server = subparsers.add_parser("login")
   sub_server.add_argument("user", type=str)
   sub_server.add_argument("password", type=str)
+
+  # logout
+  sub_server = subparsers.add_parser("logout")
 
   # server
   sub_server = subparsers.add_parser("show-server")
