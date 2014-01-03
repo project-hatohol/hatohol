@@ -534,7 +534,7 @@ void test_getTriggerActionListWithAllCondition(void)
 	assertEqual(testActionDef[idxTarget], actual);
 }
 
-void test_getTriggerActionWithNormalUser(void)
+void test_getActionListWithNormalUser(void)
 {
 	setupTestDBUserAndDBAction();
 
