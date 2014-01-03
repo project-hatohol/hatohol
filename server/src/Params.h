@@ -46,6 +46,7 @@ typedef int UserIdType;
 #define FMT_USER_ID "d"
 
 static const UserIdType INVALID_USER_ID = -1;
+static const UserIdType USER_ID_ANY     = -2;
 
 // This ID is not used for actual users.
 // This program and the tests use it internally.
