@@ -53,6 +53,7 @@ public:
 	virtual void deleteRows(DBAgentDeleteArg &deleteArg);
 	virtual void addColumns(DBAgentAddColumnsArg &addColumnsArg);
 	virtual uint64_t getLastInsertId(void);
+	virtual uint64_t getNumberOfAffectedRows(void);
 
 protected:
 	static const char *getCStringOrNullIfEmpty(const string &str);

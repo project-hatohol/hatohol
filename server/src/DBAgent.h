@@ -131,6 +131,7 @@ public:
 	virtual void deleteRows(DBAgentDeleteArg &deleteArg) = 0;
 	virtual void addColumns(DBAgentAddColumnsArg &addColumnsArg) = 0;
 	virtual uint64_t getLastInsertId(void) = 0;
+	virtual uint64_t getNumberOfAffectedRows(void) = 0;
 
 	/**
 	 * Update a record if there is the record with the same value in the

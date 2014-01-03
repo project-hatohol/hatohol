@@ -421,6 +421,13 @@ uint64_t DBAgentMySQL::getLastInsertId(void)
 	return id;
 }
 
+uint64_t DBAgentMySQL::getNumberOfAffectedRows(void)
+{
+	// We will implement soon.
+	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	return 0;
+}
+
 void DBAgentMySQL::addColumns(DBAgentAddColumnsArg &addColumnsArg)
 {
 	string query = "ALTER TABLE ";
