@@ -481,8 +481,8 @@ void test_getTriggerActionList(void)
 	// get the list and check the number
 	DBClientAction dbAction;
 	ActionDefList actionDefList;
-	DataQueryOption option(USER_ID_SYSTEM);
-	dbAction.getActionList(actionDefList, option, &eventInfo);
+	OperationPrivilege privilege(USER_ID_SYSTEM);
+	dbAction.getActionList(actionDefList, privilege, &eventInfo);
 	cppcut_assert_equal((size_t)1, actionDefList.size());
 
 	// check the content
@@ -513,8 +513,8 @@ void test_getTriggerActionListWithAllCondition(void)
 	// get the list and check the number
 	DBClientAction dbAction;
 	ActionDefList actionDefList;
-	DataQueryOption option(USER_ID_SYSTEM);
-	dbAction.getActionList(actionDefList, option, &eventInfo);
+	OperationPrivilege privilege(USER_ID_SYSTEM);
+	dbAction.getActionList(actionDefList, privilege, &eventInfo);
 	cppcut_assert_equal((size_t)1, actionDefList.size());
 
 	// check the content
