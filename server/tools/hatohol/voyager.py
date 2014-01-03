@@ -52,10 +52,11 @@ class UserCreator:
     self._encoded_query = urllib.urlencode(query)
 
 def open_url_and_show_response(cmd_ctx):
+  data = None
   if "encoded_query" in cmd_ctx:
-    response = urllib2.urlopen(cmd_ctx["url"], cmd_ctx["encoded_query"])
-  else:
-    response = urllib2.urlopen(cmd_ctx["url"])
+    data = cmd_ctx["encoded_query"]
+  request = urllib2.Request(cmd_ctx["url"], data=data)
+  response = urllib2.urlopen(request)
   print response.read()
 
 def parse_server_arg(arg):
