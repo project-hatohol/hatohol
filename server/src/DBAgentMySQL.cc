@@ -423,9 +423,12 @@ uint64_t DBAgentMySQL::getLastInsertId(void)
 
 uint64_t DBAgentMySQL::getNumberOfAffectedRows(void)
 {
-	// We will implement soon.
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
-	return 0;
+	HATOHOL_ASSERT(m_ctx->connected, "Not connected.");
+	my_ulonglong num = mysql_affected_rows(&m_ctx->mysql);
+	// According to the referece manual, mysql_affected_rows()
+	// doesn't return an error.
+	//   http://dev.mysql.com/doc/refman/5.1/en/mysql-affected-rows.html
+	return num;
 }
 
 void DBAgentMySQL::addColumns(DBAgentAddColumnsArg &addColumnsArg)
