@@ -516,7 +516,7 @@ HatoholError DBClientAction::addAction(ActionDef &actionDef,
 	if (!privilege.has(OPPRVLG_CREATE_ACTION))
 		return HTERR_NO_PRIVILEGE;
 
- 	// Basically an owner is the caller. However, USER_ID_SYSTEM can
+	// Basically an owner is the caller. However, USER_ID_SYSTEM can
 	// create an action with any user ID. This is a mechanism for
 	// internal system management or a test.
 	UserIdType ownerUserId = userId;
