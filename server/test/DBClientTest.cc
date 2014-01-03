@@ -715,7 +715,10 @@ size_t findIndexFromTestActionDef(const UserIdType &userId)
 		if (actDef.ownerUserId == userId)
 			break;
 	}
-	cppcut_assert_not_equal(NumTestActionDef, idx);
+	cppcut_assert_not_equal(
+	  NumTestActionDef, idx,
+	  cut_message("Not found a testActionDef entry owned "
+	              "by user: %"FMT_USER_ID, userId));
 	return idx;
 }
 
