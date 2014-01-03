@@ -494,7 +494,9 @@ void test_getTriggerActionList(void)
 	DBClientAction dbAction;
 	ActionDefList actionDefList;
 	OperationPrivilege privilege(USER_ID_SYSTEM);
-	dbAction.getActionList(actionDefList, privilege, &eventInfo);
+	assertHatoholError(
+	  HTERR_OK,
+	  dbAction.getActionList(actionDefList, privilege, &eventInfo));
 	cppcut_assert_equal((size_t)1, actionDefList.size());
 
 	// check the content
@@ -526,7 +528,9 @@ void test_getTriggerActionListWithAllCondition(void)
 	DBClientAction dbAction;
 	ActionDefList actionDefList;
 	OperationPrivilege privilege(USER_ID_SYSTEM);
-	dbAction.getActionList(actionDefList, privilege, &eventInfo);
+	assertHatoholError(
+	  HTERR_OK,
+	  dbAction.getActionList(actionDefList, privilege, &eventInfo));
 	cppcut_assert_equal((size_t)1, actionDefList.size());
 
 	// check the content
