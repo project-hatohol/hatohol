@@ -651,7 +651,7 @@ void DBClientAction::getActionList(ActionDefList &actionDefList,
 HatoholError DBClientAction::deleteActions(const ActionIdList &idList,
                                            const OperationPrivilege &privilege)
 {
-	HatoholError err = checkPrevilegeForDelete(privilege);
+	HatoholError err = checkPrivilegeForDelete(privilege);
 	if (err != HTERR_OK)
 		return err;
 
@@ -939,7 +939,7 @@ bool DBClientAction::getLog(ActionLog &actionLog, const string &condition)
 	return true;
 }
 
-HatoholError DBClientAction::checkPrevilegeForDelete(
+HatoholError DBClientAction::checkPrivilegeForDelete(
   const OperationPrivilege &privilege)
 {
 	UserIdType userId = privilege.getUserId();

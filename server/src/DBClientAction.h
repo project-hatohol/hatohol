@@ -325,7 +325,7 @@ protected:
 	 */
 	bool getLog(ActionLog &actionLog, const string &condition);
 
-	HatoholError checkPrevilegeForDelete(
+	HatoholError checkPrivilegeForDelete(
 	  const OperationPrivilege &privilege);
 
 private:
