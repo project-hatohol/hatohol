@@ -684,12 +684,18 @@ HatoholError DBClientAction::deleteActions(const ActionIdList &idList,
 		  privilege.getUserId());
 	}
 
+	uint64_t numAffectedRows = 0;
 	DBCLIENT_TRANSACTION_BEGIN() {
 		deleteRows(arg);
+		numAffectedRows = getDBAgent()->getNumberOfAffectedRows();
 	} DBCLIENT_TRANSACTION_END();
 
-	// TODO: check the number of delted items. If it is not equals to
-	//       that of requested, we should return any error.
+	// Check the result
+	if (numAffectedRows != idList.size()) {
+		MLPL_ERR("affectedRows: %"PRIu64", idList.size(): %zd\n",
+		         numAffectedRows, idList.size());
+		return HTERR_DELETE_IMCOMPLETE;
+	}
 
 	return HTERR_OK;
 }

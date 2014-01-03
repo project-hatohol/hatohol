@@ -740,7 +740,8 @@ UserIdType searchMaxTestUserId(void)
 }
 
 static UserIdType findUserCommon(const OperationPrivilegeType &type,
-                                       const bool &shouldHas)
+                                 const bool &shouldHas,
+                                 const OperationPrivilegeFlag &excludeFlags = 0)
 {
 	UserIdType userId = INVALID_USER_ID;
 	OperationPrivilegeFlag flag = OperationPrivilege::makeFlag(type);
@@ -754,6 +755,8 @@ static UserIdType findUserCommon(const OperationPrivilegeType &type,
 
 	UserInfoListIterator userInfo = userInfoList.begin();
 	for (; userInfo != userInfoList.end(); ++userInfo) {
+		if (userInfo->flags & excludeFlags)
+			continue;
 		bool having = userInfo->flags & flag;
 		if ((shouldHas && having) || (!shouldHas && !having)) {
 			userId = userInfo->id;
@@ -766,9 +769,10 @@ static UserIdType findUserCommon(const OperationPrivilegeType &type,
 }
 
 
-UserIdType findUserWith(const OperationPrivilegeType &type)
+UserIdType findUserWith(const OperationPrivilegeType &type,
+                        const OperationPrivilegeFlag &excludeFlags)
 {
-	return findUserCommon(type, true);
+	return findUserCommon(type, true, excludeFlags);
 }
 
 UserIdType findUserWithout(const OperationPrivilegeType &type)

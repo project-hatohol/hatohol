@@ -353,6 +353,29 @@ void test_deleteActionOfOthers(void)
 	assertDeleteActions(deleteMyActions, OPPRVLG_DELETE_ALL_ACTION);
 }
 
+void test_deleteActionOfOthersWithoutPrivilege(void)
+{
+	setupTestDBUserAndDBAction();
+	DBClientAction dbAction;
+
+	const OperationPrivilegeFlag excludeFlags
+	  = OperationPrivilege::makeFlag(OPPRVLG_DELETE_ALL_ACTION);
+	const UserIdType userId =
+	  findUserWith(OPPRVLG_DELETE_ACTION, excludeFlags);
+
+	// Anyone other than caller itself can be a target. We choose a target
+	// user whose ID is the next of the caller.
+	const UserIdType targetUserId = userId + 1;
+	const size_t targetIdx = findIndexFromTestActionDef(targetUserId);
+
+	ActionIdList idList;
+	const int expectedId = testActionDef[targetIdx].id + 1;
+	idList.push_back(expectedId);
+	OperationPrivilege privilege(userId);
+	assertHatoholError(HTERR_DELETE_IMCOMPLETE,
+	                   dbAction.deleteActions(idList, privilege));
+}
+
 void test_startExecAction(void)
 {
 	string expect;

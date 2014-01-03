@@ -45,6 +45,9 @@ enum HatoholErrorCode
 	// DBClientHatohol
 	HTERR_NOT_FOUND_SORT_ORDER,
 
+	// DBClientAction
+	HTERR_DELETE_IMCOMPLETE,
+
 	// FaceRest
 	HTERR_UNSUPORTED_FORMAT,
 	HTERR_NOT_FOUND_SESSION_ID,

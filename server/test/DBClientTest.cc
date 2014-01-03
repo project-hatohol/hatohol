@@ -303,7 +303,7 @@ UserInfo testUserInfo[] = {
 	0,                 // id
 	"m1ffy@v@",        // name
 	"S/N R@t10",       // password
-	0,                 // flags
+	OperationPrivilege::makeFlag(OPPRVLG_DELETE_ACTION), // flags
 }, {
 	0,                 // id
 	"higgs",           // name

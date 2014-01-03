@@ -165,7 +165,8 @@ void releaseDefaultContext(void);
 void defineDBPath(DBDomainId domainId, const string &dbPath);
 
 UserIdType searchMaxTestUserId(void);
-UserIdType findUserWith(const OperationPrivilegeType &type);
+UserIdType findUserWith(const OperationPrivilegeType &type,
+                        const OperationPrivilegeFlag &excludeFlags = 0);
 UserIdType findUserWithout(const OperationPrivilegeType &type);
 
 #endif // Helpers_h
