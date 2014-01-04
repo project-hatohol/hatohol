@@ -870,8 +870,8 @@ static void _assertAllowedServers(const string &path, const UserIdType &userId,
 #define assertAllowedServers(P,...) cut_trace(_assertAllowedServers(P,##__VA_ARGS__))
 
 // TODO: pass userId
-#define assertAddAccessInfo(U,P, ...) \
-cut_trace(_assertAddRecord(P, U, INVALID_USER_ID, ##__VA_ARGS__))
+#define assertAddAccessInfo(U, P, USER_ID, ...) \
+cut_trace(_assertAddRecord(P, U, USER_ID, ##__VA_ARGS__))
 
 void _assertAddAccessInfoWithSetup(const string &url,
                                    const StringMap &params,
@@ -881,7 +881,8 @@ void _assertAddAccessInfoWithSetup(const string &url,
 	const bool dbRecreate = true;
 	const bool loadTestDat = false;
 	setupTestDBUser(dbRecreate, loadTestDat);
-	assertAddAccessInfo(url, params, expectCode);
+	// TODO: pass a valid user ID
+	assertAddAccessInfo(url, params, INVALID_USER_ID, expectCode);
 }
 #define assertAddAccessInfoWithSetup(U,P,C,I) cut_trace(_assertAddAccessInfoWithSetup(U,P,C,I))
 
@@ -1697,20 +1698,23 @@ void test_addAccessInfoWithAllHostGroupsNegativeValue(void)
 
 void test_addAccessInfoWithExistingData(void)
 {
-	const string userId = "1";
+	const bool dbRecreate = true;
+	const bool loadTestData = true;
+	setupTestDBUser(dbRecreate, loadTestData);
+
+	const UserIdType userId = findUserWith(OPPRVLG_CREATE_USER);
+	const UserIdType targetUserId = 1;
 	const string serverId = "1";
 	const string hostGroupId = "1";
 
 	StringMap params;
-	params["userId"] = userId;
+	params["userId"] = StringUtils::sprintf("%"FMT_USER_ID, userId);
 	params["serverId"] = serverId;
 	params["hostGroupId"] = hostGroupId;
 
-	bool dbRecreate = true;
-	bool loadTestData = true;
-	setupTestDBUser(dbRecreate, loadTestData);
-
-	assertAddAccessInfo("/user/1/access-info", params, HTERR_OK, 2);
+	const string url = StringUtils::sprintf(
+	  "/user/%"FMT_USER_ID"/access-info", targetUserId);
+	assertAddAccessInfo(url, params, userId, HTERR_OK, 2);
 
 	AccessInfoIdSet accessInfoIdSet;
 	assertAccessInfoInDB(accessInfoIdSet);
