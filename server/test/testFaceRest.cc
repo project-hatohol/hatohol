@@ -1515,16 +1515,17 @@ void test_deleteUser(void)
 	bool loadTestData = true;
 	setupTestDBUser(dbRecreate, loadTestData);
 
-	const UserIdType targetId = 2;
-	string url = StringUtils::sprintf("/user/%"FMT_USER_ID, targetId);
+	const UserIdType userId = findUserWith(OPPRVLG_DELETE_USER);
+	string url = StringUtils::sprintf("/user/%"FMT_USER_ID, userId);
 	RequestArg arg(url, "cbname");
 	arg.request = "DELETE";
+	arg.userId = userId;
 	g_parser = getResponseAsJsonParser(arg);
 
 	// check the reply
 	assertErrorCode(g_parser);
 	UserIdSet userIdSet;
-	userIdSet.insert(targetId);
+	userIdSet.insert(userId);
 	assertUsersInDB(userIdSet);
 }
 
