@@ -587,6 +587,7 @@ static void _assertActions(const string &path, const string &callbackName = "")
 {
 	startFaceRest();
 	RequestArg arg(path, callbackName);
+	arg.userId = findUserWith(OPPRVLG_GET_ALL_USER);
 	g_parser = getResponseAsJsonParser(arg);
 	assertErrorCode(g_parser);
 	assertValueInParser(g_parser, "numberOfActions",
