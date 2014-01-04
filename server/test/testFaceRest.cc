@@ -708,10 +708,12 @@ static void _assertUser(JsonParserAgent *parser, const UserInfo &userInfo,
 }
 #define assertUser(P,I,...) cut_trace(_assertUser(P,I,##__VA_ARGS__))
 
-static void _assertUsers(const string &path, const string &callbackName = "")
+static void _assertUsers(const string &path, const UserIdType &userId,
+                         const string &callbackName = "")
 {
 	startFaceRest();
 	RequestArg arg(path, callbackName);
+	arg.userId = userId;
 	g_parser = getResponseAsJsonParser(arg);
 	assertErrorCode(g_parser);
 	assertValueInParser(g_parser, "numberOfUsers",
@@ -725,7 +727,7 @@ static void _assertUsers(const string &path, const string &callbackName = "")
 	}
 	g_parser->endObject();
 }
-#define assertUsers(P,...) cut_trace(_assertUsers(P,##__VA_ARGS__))
+#define assertUsers(P, U, ...) cut_trace(_assertUsers(P, U, ##__VA_ARGS__))
 
 #define assertAddUser(P, ...) \
 cut_trace(_assertAddRecord(P, "/user", ##__VA_ARGS__))
@@ -1363,7 +1365,8 @@ void test_getUser(void)
 	const bool dbRecreate = true;
 	const bool loadTestDat = true;
 	setupTestDBUser(dbRecreate, loadTestDat);
-	assertUsers("/user", "cbname");
+	const UserIdType userId = findUserWith(OPPRVLG_GET_ALL_USER);
+	assertUsers("/user", userId, "cbname");
 }
 
 void test_getUserMe(void)
