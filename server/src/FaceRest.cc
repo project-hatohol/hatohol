@@ -174,8 +174,6 @@ struct FaceRest::PrivateContext {
 
 	static bool isTestPath(const string &path)
 	{
-		if (!testMode)
-			return false;
 		size_t len = strlen(pathForTest);
 		return (strncmp(path.c_str(), pathForTest, len) == 0);
 	}
