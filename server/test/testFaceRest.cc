@@ -1251,7 +1251,8 @@ void test_addActionCommandWithJapanese(void)
 void test_addActionWithoutType(void)
 {
 	StringMap params;
-	assertAddAction(params, HTERR_NOT_FOUND_PARAMETER);
+	assertAddAction(params, findUserWith(OPPRVLG_CREATE_ACTION),
+	                HTERR_NOT_FOUND_PARAMETER);
 }
 
 void test_addActionWithoutCommand(void)
