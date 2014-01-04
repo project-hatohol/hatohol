@@ -446,7 +446,7 @@ gpointer FaceRest::mainThread(HatoholThreadArg *arg)
 	                        queueRestJob,
 	                        new HandlerClosure(this, &handlerHelloPage),
 				deleteHandlerClosure);
-	soup_server_add_handler(m_ctx->soupServer, "/test",
+	soup_server_add_handler(m_ctx->soupServer, pathForTest,
 	                        queueRestJob,
 	                        new HandlerClosure(this, handlerTest),
 				deleteHandlerClosure);
