@@ -897,8 +897,9 @@ static void setupUserDB(void)
 	loadTestDBUser();
 }
 
-void _assertAddAccessInfoWithCond(const string &serverId,
-                                  const string &hostGroupId)
+void _assertAddAccessInfoWithCond(
+  const string &serverId, const string &hostGroupId,
+  string expectHostGroupId = "")
 {
 	setupUserDB();
 
@@ -917,13 +918,16 @@ void _assertAddAccessInfoWithCond(const string &serverId,
 	string statement = "select * from ";
 	statement += DBClientUser::TABLE_NAME_ACCESS_LIST;
 	int expectedId = 1;
+	if (expectHostGroupId.empty())
+		expectHostGroupId = hostGroupId;
 	string expect = StringUtils::sprintf(
 	  "%"FMT_ACCESS_INFO_ID"|%"FMT_USER_ID"|%s|%s\n",
-	  expectedId, targetUserId, serverId.c_str(), hostGroupId.c_str());
+	  expectedId, targetUserId, serverId.c_str(),
+	  expectHostGroupId.c_str());
 	assertDBContent(dbUser.getDBAgent(), statement, expect);
 }
-#define assertAddAccessInfoWithCond(SVID, HGRP_ID) \
-cut_trace(_assertAddAccessInfoWithCond(SVID, HGRP_ID))
+#define assertAddAccessInfoWithCond(SVID, HGRP_ID, ...) \
+cut_trace(_assertAddAccessInfoWithCond(SVID, HGRP_ID, ##__VA_ARGS__))
 
 static void setupPostAction(void)
 {
@@ -1683,25 +1687,11 @@ void test_addAccessInfoWithAllHostGroups(void)
 
 void test_addAccessInfoWithAllHostGroupsNegativeValue(void)
 {
-	const string userId = "1";
 	const string serverId = "2";
 	const string hostGroupId = "-1";
-
-	StringMap params;
-	params["serverId"] = serverId;
-	params["hostGroupId"] = hostGroupId;
-	assertAddAccessInfoWithSetup("/user/1/access-info",
-	                             params, HTERR_OK, 1);
-
-	// check the content in the DB
-	DBClientUser dbUser;
-	string statement = "select * from ";
-	statement += DBClientUser::TABLE_NAME_ACCESS_LIST;
-	int expectedId = 1;
-	string expect = StringUtils::sprintf(
-	  "%"FMT_ACCESS_INFO_ID"|%s|%s|%"PRIu64"\n",
-	  expectedId, userId.c_str(), serverId.c_str(), ALL_HOST_GROUPS);
-	assertDBContent(dbUser.getDBAgent(), statement, expect);
+	const string expectHostGroup =
+	  StringUtils::sprintf("%"PRIu64, ALL_HOST_GROUPS);
+	assertAddAccessInfoWithCond(serverId, hostGroupId, expectHostGroup);
 }
 
 void test_addAccessInfoWithExistingData(void)
