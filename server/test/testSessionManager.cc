@@ -66,7 +66,7 @@ void test_isntanceIsSingleton(void)
 
 void test_create(void)
 {
-	UserIdType userId = 103;
+	const UserIdType userId = 103;
 	SessionManager *instance = SessionManager::getInstance();
 	string sessionId = instance->create(userId);
 	cppcut_assert_equal(false, sessionId.empty());
