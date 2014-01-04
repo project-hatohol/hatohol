@@ -24,6 +24,24 @@ using namespace std;
 
 namespace testSessionManager {
 
+static SessionManager *g_sessionIdMapOwner = NULL;
+
+const SessionIdMap &safeGetSessionIdMap(SessionManager *sessionMgr)
+{
+	cppcut_assert_equal(static_cast<SessionManager *>(NULL),
+	                    g_sessionIdMapOwner);
+	g_sessionIdMapOwner = sessionMgr;
+	return sessionMgr->getSessionIdMap();
+}
+
+void cut_teardown(void)
+{
+	if (g_sessionIdMapOwner) {
+		g_sessionIdMapOwner->releaseSessionIdMap();
+		g_sessionIdMapOwner = NULL;
+	}
+}
+
 // ---------------------------------------------------------------------------
 // Test cases
 // ---------------------------------------------------------------------------
@@ -47,10 +65,11 @@ void test_create(void)
 	string sessionId = instance->create(userId);
 	cppcut_assert_equal(false, sessionId.empty());
 
-	const SessionIdMap &sessionIdMap = instance->getSessionIdMap();
+	const SessionIdMap &sessionIdMap = safeGetSessionIdMap(instance);
 	cppcut_assert_equal((size_t)1, sessionIdMap.size());
 	cppcut_assert_equal(sessionId, sessionIdMap.begin()->first);
-	instance->releaseSessionIdMap();
+	const Session *session = sessionIdMap.begin()->second;
+	cppcut_assert_equal(userId, session->userId);
 }
 
 } // namespace testSessionManager
