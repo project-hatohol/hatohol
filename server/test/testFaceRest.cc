@@ -1199,7 +1199,8 @@ void test_addActionParameterOver32bit(void)
 	params["hostId"]      = StringUtils::sprintf("%"PRIu64, hostId);
 	params["hostGroupId"] = StringUtils::sprintf("%"PRIu64, hostGroupId);
 	params["triggerId"]   = StringUtils::sprintf("%"PRIu64, triggerId);
-	assertAddAction(params);
+	const UserIdType userId = findUserWith(OPPRVLG_CREATE_ACTION);
+	assertAddAction(params, userId);
 
 	// check the content in the DB
 	DBClientAction dbAction;
