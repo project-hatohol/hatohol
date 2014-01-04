@@ -1140,7 +1140,6 @@ void test_addActionParameterFull(void)
 	const string workingDir = "/usr/local/wani";
 	int type = ACTION_COMMAND;
 	int timeout = 300;
-	UserIdType ownerUserId = USER_ID_SYSTEM;
 	int serverId= 50;
 	uint64_t hostId = 50;
 	uint64_t hostGroupId = 1000;
@@ -1162,7 +1161,8 @@ void test_addActionParameterFull(void)
 	params["triggerSeverity"] = StringUtils::sprintf("%d", triggerSeverity);
 	params["triggerSeverityCompType"] =
 	   StringUtils::sprintf("%d", triggerSeverityCompType);
-	assertAddAction(params);
+	const UserIdType userId = findUserWith(OPPRVLG_CREATE_ACTION);
+	assertAddAction(params, userId);
 
 	// check the content in the DB
 	DBClientAction dbAction;
@@ -1180,7 +1180,7 @@ void test_addActionParameterFull(void)
 	expect += "|";
 	expect += workingDir;
 	expect += "|";
-	expect += StringUtils::sprintf("%d|%"FMT_USER_ID, timeout, ownerUserId);
+	expect += StringUtils::sprintf("%d|%"FMT_USER_ID, timeout, userId);
 	assertDBContent(dbAction.getDBAgent(), statement, expect);
 }
 
