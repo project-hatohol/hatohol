@@ -1640,15 +1640,19 @@ void test_getAccessInfoWithUserId3(void)
 
 void test_addAccessInfo(void)
 {
-	const string userId = "1";
+	setupUserDB();
+
+	const UserIdType userId = findUserWith(OPPRVLG_UPDATE_USER);
+	const UserIdType targetUserId = 1;
 	const string serverId = "2";
 	const string hostGroupId = "3";
 
 	StringMap params;
 	params["serverId"] = serverId;
 	params["hostGroupId"] = hostGroupId;
-	assertAddAccessInfoWithSetup("/user/1/access-info",
-	                             params, HTERR_OK, 1);
+	const string url = StringUtils::sprintf(
+	  "/user/%"FMT_USER_ID"/access-info", targetUserId);
+	assertAddAccessInfo(url, params, userId, HTERR_OK);
 
 	// check the content in the DB
 	DBClientUser dbUser;
@@ -1656,8 +1660,8 @@ void test_addAccessInfo(void)
 	statement += DBClientUser::TABLE_NAME_ACCESS_LIST;
 	int expectedId = 1;
 	string expect = StringUtils::sprintf(
-	  "%"FMT_ACCESS_INFO_ID"|%s|%s|%s\n",
-	  expectedId, userId.c_str(), serverId.c_str(), hostGroupId.c_str());
+	  "%"FMT_ACCESS_INFO_ID"|%"FMT_USER_ID"|%s|%s\n",
+	  expectedId, targetUserId, serverId.c_str(), hostGroupId.c_str());
 	assertDBContent(dbUser.getDBAgent(), statement, expect);
 }
 
