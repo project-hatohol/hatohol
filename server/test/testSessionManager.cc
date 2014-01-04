@@ -20,6 +20,7 @@
 #include <string>
 #include <cppcutter.h>
 #include "SessionManager.h"
+#include "Helpers.h"
 using namespace std;
 
 namespace testSessionManager {
@@ -70,6 +71,8 @@ void test_create(void)
 	cppcut_assert_equal(sessionId, sessionIdMap.begin()->first);
 	const Session *session = sessionIdMap.begin()->second;
 	cppcut_assert_equal(userId, session->userId);
+	assertTimeIsNow(session->loginTime);
+	assertTimeIsNow(session->lastAccessTime);
 }
 
 } // namespace testSessionManager
