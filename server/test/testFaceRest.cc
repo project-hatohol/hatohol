@@ -747,7 +747,7 @@ void _assertAddUserWithSetup(const StringMap &params,
 	const bool loadTestDat = true;
 	setupTestDBUser(dbRecreate, loadTestDat);
 	const UserIdType userId = findUserWith(OPPRVLG_CREATE_USER);
-	assertAddUser(params, userId, expectCode);
+	assertAddUser(params, userId, expectCode, NumTestUserInfo + 1);
 }
 #define assertAddUserWithSetup(P,C) cut_trace(_assertAddUserWithSetup(P,C))
 
@@ -1447,7 +1447,8 @@ void test_addUser(void)
 	DBClientUser dbUser;
 	string statement = "select * from ";
 	statement += DBClientUser::TABLE_NAME_USERS;
-	int expectedId = 1;
+	statement += " order by id desc limit 1";
+	const int expectedId = NumTestUserInfo + 1;
 	string expect = StringUtils::sprintf("%d|%s|%s|%"FMT_OPPRVLG,
 	  expectedId, user.c_str(), Utils::sha256(password).c_str(), flags);
 	assertDBContent(dbUser.getDBAgent(), statement, expect);
