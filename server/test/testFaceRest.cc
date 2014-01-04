@@ -474,6 +474,7 @@ static void _assertTriggers(const string &path, const string &callbackName = "",
 		queryMap["hostId"] = StringUtils::sprintf("%"PRIu64, hostId); 
 	RequestArg arg(path, callbackName);
 	arg.parameters = queryMap;
+	arg.userId = findUserWith(OPPRVLG_GET_ALL_SERVER);
 	g_parser = getResponseAsJsonParser(arg);
 
 	// Check the reply
