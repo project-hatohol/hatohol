@@ -113,50 +113,63 @@ static string makeQueryStringForCurlPost(const StringMap &parameters,
 	return postDataArg;
 }
 
+struct RequestArg {
+	// input
+	string       url;
+	string       callbackName;
+	string       request;
+	StringMap    parameters;
+	StringVector headers;
 
-static void getServerResponse(
-  string &response, StringVector &responseHeaders,
-  const string &url, const string &callbackName = "",
-  const StringMap &parameters = emptyStringMap,
-  const string &request = "GET",
-  const StringVector &headersVect = emptyStringVector)
+	// output
+	string response;
+	StringVector responseHeaders;
+
+	RequestArg(void)
+	: request("GET")
+	{
+	}
+};
+
+static void getServerResponse(RequestArg &arg)
 {
 	// make encoded query parameters
 	string joinedQueryParams;
 	string postDataArg;
-	if (request == "POST" || request == "PUT") {
+	if (arg.request == "POST" || arg.request == "PUT") {
 		postDataArg =
-		   makeQueryStringForCurlPost(parameters, callbackName);
+		   makeQueryStringForCurlPost(arg.parameters, arg.callbackName);
 	} else {
-		joinedQueryParams = makeQueryString(parameters, callbackName);
+		joinedQueryParams = makeQueryString(arg.parameters,
+		                                    arg.callbackName);
 		if (!joinedQueryParams.empty())
 			joinedQueryParams = "?" + joinedQueryParams;
 	}
 
 	// headers
 	string headers;
-	for (size_t i = 0; i < headersVect.size(); i++) {
+	for (size_t i = 0; i < arg.headers.size(); i++) {
 		headers += "-H \"";
-		headers += headersVect[i];
+		headers += arg.headers[i];
 		headers += "\" ";
 	}
 
 	// get reply with wget
 	string getCmd =
 	  StringUtils::sprintf("curl -X %s %s %s -i http://localhost:%u%s%s",
-	                       request.c_str(), headers.c_str(),
-	                       postDataArg.c_str(), TEST_PORT, url.c_str(),
+	                       arg.request.c_str(), headers.c_str(),
+	                       postDataArg.c_str(), TEST_PORT, arg.url.c_str(),
 	                       joinedQueryParams.c_str());
-	response = executeCommand(getCmd);
+	arg.response = executeCommand(getCmd);
 	const string separator = "\r\n\r\n";
-	size_t pos = response.find(separator);
+	size_t pos = arg.response.find(separator);
 	if (pos != string::npos) {
-		string headers = response.substr(0, pos);	
-		response = response.substr(pos + separator.size());
+		string headers = arg.response.substr(0, pos);	
+		arg.response = arg.response.substr(pos + separator.size());
 		gchar **tmp = g_strsplit(headers.c_str(),
 					 "\r\n", -1);
 		for (size_t i = 0; tmp[i]; i++)
-			responseHeaders.push_back(tmp[i]);
+			arg.responseHeaders.push_back(tmp[i]);
 		g_strfreev(tmp);
 	}
 }
@@ -167,34 +180,38 @@ static JsonParserAgent *getResponseAsJsonParser(
   const string &request = "GET",
   const StringVector &headersVect = emptyStringVector)
 {
-	string response;
-	StringVector responseHeaders;
-	getServerResponse(response, responseHeaders, url, callbackName,
-			  parameters, request, headersVect);
+	RequestArg arg;
+	arg.url = url;
+	arg.callbackName = callbackName;
+	arg.parameters = parameters;
+	arg.request = request;
+	arg.headers = headersVect;
+	getServerResponse(arg);
 
 	// if JSONP, check the callback name
 	if (!callbackName.empty()) {
 		size_t lenCallbackName = callbackName.size();
 		size_t minimumLen = lenCallbackName + 2; // +2 for ''(' and ')'
-		cppcut_assert_equal(true, response.size() > minimumLen,
+		cppcut_assert_equal(true, arg.response.size() > minimumLen,
 		  cut_message("length: %zd, minmumLen: %zd\n%s",
-		              response.size(), minimumLen, response.c_str()));
+		              arg.response.size(), minimumLen,
+		              arg.response.c_str()));
 
 		cut_assert_equal_substring(
-		  callbackName.c_str(), response.c_str(), lenCallbackName);
-		cppcut_assert_equal(')', response[response.size()-1]);
-		response = string(response, lenCallbackName+1,
-		                  response.size() - minimumLen);
+		  callbackName.c_str(), arg.response.c_str(), lenCallbackName);
+		cppcut_assert_equal(')', arg.response[arg.response.size()-1]);
+		arg.response = string(arg.response, lenCallbackName+1,
+		                      arg.response.size() - minimumLen);
 	}
 
 	// check the JSON body
 	if (isVerboseMode())
-		cut_notify("<<response>>\n%s\n", response.c_str());
-	JsonParserAgent *parser = new JsonParserAgent(response);
+		cut_notify("<<response>>\n%s\n", arg.response.c_str());
+	JsonParserAgent *parser = new JsonParserAgent(arg.response);
 	if (parser->hasError()) {
 		string parserErrMsg = parser->getErrorMessage();
 		delete parser;
-		cut_fail("%s\n%s", parserErrMsg.c_str(), response.c_str());
+		cut_fail("%s\n%s", parserErrMsg.c_str(), arg.response.c_str());
 	}
 	return parser;
 }
