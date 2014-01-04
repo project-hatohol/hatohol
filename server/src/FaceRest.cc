@@ -171,6 +171,14 @@ struct FaceRest::PrivateContext {
 		restJobLock.unlock();
 		return job;
 	}
+
+	static bool isTestPath(const string &path)
+	{
+		if (!testMode)
+			return false;
+		size_t len = strlen(pathForTest);
+		return (strncmp(path.c_str(), pathForTest, len) == 0);
+	}
 };
 
 bool         FaceRest::PrivateContext::testMode = false;
@@ -722,7 +730,7 @@ bool FaceRest::RestJob::prepare(void)
 
 	bool notFoundSessionId = true;
 	if (sessionId.empty()) {
-		if (path == pathForLogin) {
+		if (path == pathForLogin || PrivateContext::isTestPath(path)) {
 			userId = INVALID_USER_ID;
 			notFoundSessionId = false;
 		}
