@@ -668,6 +668,7 @@ void _assertUpdateRecord(const StringMap &params, const string &baseUrl,
 	RequestArg arg(url, "foo");
 	arg.parameters = params;
 	arg.request = "PUT";
+	arg.userId = findUserWith(OPPRVLG_UPDATE_USER);
 	g_parser = getResponseAsJsonParser(arg);
 	assertErrorCode(g_parser, expectCode);
 	if (expectCode != HTERR_OK)
