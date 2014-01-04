@@ -1221,7 +1221,8 @@ void test_addActionComplicatedCommand(void)
 	StringMap params;
 	params["type"] = StringUtils::sprintf("%d", ACTION_COMMAND);
 	params["command"] = command;
-	assertAddAction(params);
+	const UserIdType userId = findUserWith(OPPRVLG_CREATE_ACTION);
+	assertAddAction(params, userId);
 
 	// check the content in the DB
 	DBClientAction dbAction;
