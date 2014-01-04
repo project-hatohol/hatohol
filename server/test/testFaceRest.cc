@@ -439,6 +439,9 @@ static void _assertHosts(const string &path, const string &callbackName = "",
 	}
 	RequestArg arg(path, callbackName);
 	arg.parameters = queryMap;
+	// TODO: find an appropriate user when a previlege check for hosts
+	//       is implemented. Now any userId is allowed.
+	arg.userId = testUserInfo[0].id;
 	g_parser = getResponseAsJsonParser(arg);
 	assertErrorCode(g_parser);
 	assertHostsInParser(g_parser, serverId);
