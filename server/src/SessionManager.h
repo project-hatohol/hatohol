@@ -43,6 +43,7 @@ typedef std::map<std::string, Session *>::const_iterator
 
 class SessionManager {
 public:
+	static void reset(void);
 	static SessionManager *getInstance(void);
 
 	/**

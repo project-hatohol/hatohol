@@ -35,6 +35,11 @@ const SessionIdMap &safeGetSessionIdMap(SessionManager *sessionMgr)
 	return sessionMgr->getSessionIdMap();
 }
 
+void cut_setup(void)
+{
+	SessionManager::reset();
+}
+
 void cut_teardown(void)
 {
 	if (g_sessionIdMapOwner) {

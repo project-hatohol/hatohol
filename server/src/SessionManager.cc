@@ -50,6 +50,17 @@ struct SessionManager::PrivateContext {
 
 	ReadWriteLock rwlock;
 	SessionIdMap  sessionIdMap;
+
+	virtual ~PrivateContext() {
+		rwlock.writeLock();
+		SessionIdMapIterator it = sessionIdMap.begin();
+		for (; it != sessionIdMap.end(); ++it) {
+			Session *session = it->second;
+			delete session;
+		}
+		sessionIdMap.clear();
+		rwlock.unlock();
+	}
 };
 
 SessionManager *SessionManager::PrivateContext::instance = NULL;
@@ -59,6 +70,14 @@ MutexLock SessionManager::PrivateContext::initLock;
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
+void SessionManager::reset(void)
+{
+	if (PrivateContext::instance) {
+		delete PrivateContext::instance;
+		PrivateContext::instance = NULL;
+	}
+}
+
 SessionManager *SessionManager::getInstance(void)
 {
 	PrivateContext::initLock.lock();
