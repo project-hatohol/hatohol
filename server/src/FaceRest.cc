@@ -2003,8 +2003,7 @@ void FaceRest::handlerPutUser(RestJob *job)
 		return;
 	}
 	bool forUpdate = true;
-	HatoholError err = parseUserParameter(userInfo, job->query,
-					      forUpdate);
+	HatoholError err = parseUserParameter(userInfo, job->query, forUpdate);
 	if (err != HTERR_OK) {
 		replyError(job, err);
 		return;
