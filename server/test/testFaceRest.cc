@@ -1280,6 +1280,7 @@ void test_deleteAction(void)
 	string url = StringUtils::sprintf("/action/%d", targetId);
 	RequestArg arg(url, "cbname");
 	arg.request = "DELETE";
+	arg.userId = findUserWith(OPPRVLG_DELETE_ACTION);
 	g_parser = getResponseAsJsonParser(arg);
 
 	// check the reply
