@@ -839,11 +839,12 @@ static void _assertServerAccessInfo(JsonParserAgent *parser, HostGrpAccessInfoMa
 }
 #define assertServerAccessInfo(P,I,...) cut_trace(_assertServerAccessInfo(P,I,##__VA_ARGS__))
 
-static void _assertAllowedServers(const string &path, UserIdType userId,
+static void _assertAllowedServers(const string &path, const UserIdType &userId,
                                   const string &callbackName = "")
 {
 	startFaceRest();
 	RequestArg arg(path, callbackName);
+	arg.userId = userId;
 	g_parser = getResponseAsJsonParser(arg);
 	assertErrorCode(g_parser);
 	ServerAccessInfoMap srvAccessInfoMap;
