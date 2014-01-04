@@ -736,9 +736,10 @@ void _assertAddUserWithSetup(const StringMap &params,
                              const HatoholErrorCode &expectCode)
 {
 	const bool dbRecreate = true;
-	const bool loadTestDat = false;
+	const bool loadTestDat = true;
 	setupTestDBUser(dbRecreate, loadTestDat);
-	assertAddUser(params, expectCode);
+	const UserIdType userId = findUserWith(OPPRVLG_CREATE_USER);
+	assertAddUser(params, userId, expectCode);
 }
 #define assertAddUserWithSetup(P,C) cut_trace(_assertAddUserWithSetup(P,C))
 
