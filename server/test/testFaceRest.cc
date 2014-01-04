@@ -1718,6 +1718,7 @@ void test_deleteAccessInfo(void)
 	  targetId);
 	RequestArg arg(url, "cbname");
 	arg.request = "DELETE";
+	arg.userId = findUserWith(OPPRVLG_UPDATE_USER);
 	g_parser = getResponseAsJsonParser(arg);
 
 	// check the reply
