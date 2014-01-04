@@ -1560,6 +1560,7 @@ void test_updateOrAddUserNotInTestMode(void)
 	startFaceRest();
 	RequestArg arg("/test/user", "cbname");
 	arg.request = "POST";
+	arg.userId = findUserWith(OPPRVLG_CREATE_USER);
 	g_parser = getResponseAsJsonParser(arg);
 	assertErrorCode(g_parser, HTERR_NOT_TEST_MODE);
 }
