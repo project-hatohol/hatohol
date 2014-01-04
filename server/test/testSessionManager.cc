@@ -101,6 +101,13 @@ void test_getSession(void)
 	cppcut_assert_equal(1, session->getUsedCount());
 }
 
+void test_getNonExistingSession(void)
+{
+	SessionManager *instance = SessionManager::getInstance();
+	SessionPtr session = instance->getSession("non-existing-sesion-id");
+	cppcut_assert_equal(false, session.hasData());
+}
+
 void test_remove(void)
 {
 	SessionManager *instance = SessionManager::getInstance();
