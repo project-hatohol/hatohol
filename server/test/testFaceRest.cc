@@ -1240,7 +1240,7 @@ void test_addActionCommandWithJapanese(void)
 	StringMap params;
 	params["type"] = StringUtils::sprintf("%d", ACTION_COMMAND);
 	params["command"] = command;
-	assertAddAction(params);
+	assertAddAction(params, findUserWith(OPPRVLG_CREATE_ACTION));
 
 	// check the content in the DB
 	DBClientAction dbAction;
