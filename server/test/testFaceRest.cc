@@ -1267,7 +1267,8 @@ void test_addActionInvalidType(void)
 {
 	StringMap params;
 	params["type"] = StringUtils::sprintf("%d", ACTION_RESIDENT+1);
-	assertAddAction(params, HTERR_INVALID_PARAMETER);
+	assertAddAction(params, findUserWith(OPPRVLG_CREATE_ACTION),
+	                HTERR_INVALID_PARAMETER);
 }
 
 void test_deleteAction(void)
