@@ -29,7 +29,8 @@ protected:
 	virtual ~SessionManager();
 
 protected:
-	struct PrivateContext *m_ctx;
+	struct PrivateContext;
+	PrivateContext *m_ctx;
 };
 
 #endif // SessionManager_h

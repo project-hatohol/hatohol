@@ -17,6 +17,7 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <cstdio>
 #include "SessionManager.h"
 
 struct SessionManager::PrivateContext {
@@ -27,6 +28,7 @@ struct SessionManager::PrivateContext {
 // ---------------------------------------------------------------------------
 SessionManager *SessionManager::getInstance(void)
 {
+	return NULL;
 }
 
 // ---------------------------------------------------------------------------
