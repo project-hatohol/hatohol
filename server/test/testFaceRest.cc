@@ -125,11 +125,6 @@ struct RequestArg {
 	string response;
 	StringVector responseHeaders;
 
-	RequestArg(void)
-	: request("GET")
-	{
-	}
-
 	RequestArg(const string &_url, const string &_cbname = "")
 	: url(_url),
 	  callbackName(_cbname),
