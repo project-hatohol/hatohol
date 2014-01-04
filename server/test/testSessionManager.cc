@@ -120,5 +120,11 @@ void test_remove(void)
 	cppcut_assert_equal((size_t)0, sessionIdMap.size());
 }
 
+void test_removeNonExistingSession(void)
+{
+	SessionManager *instance = SessionManager::getInstance();
+	cppcut_assert_equal(false, instance->remove("non-existing-sesion-id"));
+}
+
 } // namespace testSessionManager
 
