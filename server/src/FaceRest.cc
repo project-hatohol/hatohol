@@ -770,24 +770,24 @@ bool FaceRest::RestJob::prepare(void)
 	                                SESSION_ID_HEADER_NAME);
 	sessionId = _sessionId ? _sessionId : "";
 
+	bool notFoundSessionId = true;
 	if (sessionId.empty()) {
-		// We should return an error. But now, we just set
-		// USER_ID_SYSTEM to keep compatiblity until the user privilege
-		// feature is completely implemnted.
-		if (path != pathForLogin)
-			userId = USER_ID_SYSTEM;
-		else
+		if (path == pathForLogin) {
 			userId = INVALID_USER_ID;
+			notFoundSessionId = false;
+		}
 	} else {
 		PrivateContext::lock.lock();
 		const SessionInfo *sessionInfo = getSessionInfo(sessionId);
-		if (!sessionInfo) {
-			PrivateContext::lock.unlock();
-			replyError(this, HTERR_NOT_FOUND_SESSION_ID);
-			return false;
-		}
+		if (sessionInfo)
+			notFoundSessionId = false;
 		userId = sessionInfo->userId;
 		PrivateContext::lock.unlock();
+	}
+
+	if (notFoundSessionId) {
+		replyError(this, HTERR_NOT_FOUND_SESSION_ID);
+		return false;
 	}
 
 	// We expect URIs  whose style are the following.
