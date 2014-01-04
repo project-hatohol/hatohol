@@ -19,16 +19,28 @@
 
 #include <cstdio>
 #include "SessionManager.h"
+#include "MutexLock.h"
+using namespace mlpl;
 
 struct SessionManager::PrivateContext {
+	static MutexLock initLock;
+	static SessionManager *instance;
 };
+
+SessionManager *SessionManager::PrivateContext::instance = NULL;
+MutexLock SessionManager::PrivateContext::initLock;
+
 
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
 SessionManager *SessionManager::getInstance(void)
 {
-	return NULL;
+	PrivateContext::initLock.lock();
+	if (!PrivateContext::instance)
+		PrivateContext::instance = new SessionManager();
+	PrivateContext::initLock.unlock();
+	return PrivateContext::instance;
 }
 
 // ---------------------------------------------------------------------------

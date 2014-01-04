@@ -22,7 +22,7 @@
 
 class SessionManager {
 public:
-	SessionManager *getInstance(void);
+	static SessionManager *getInstance(void);
 
 protected:
 	SessionManager(void);
