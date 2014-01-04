@@ -900,6 +900,17 @@ static void setupActionDB(void)
 	setupTestDBAction(recreate, loadData);
 }
 
+static void setupUserDB(void)
+{
+	const bool dbRecreate = true;
+	// If loadTestDat is true, not only the user DB but also
+	// the access info DB will be loaded. So we set false here
+	// and load the user DB later.
+	const bool loadTestDat = false;
+	setupTestDBUser(dbRecreate, loadTestDat);
+	loadTestDBUser();
+}
+
 struct LocaleInfo {
 	string lcAll;
 	string lang;
@@ -1652,15 +1663,20 @@ void test_addAccessInfo(void)
 
 void test_addAccessInfoWithAllHostGroups(void)
 {
-	const string userId = "1";
+	setupUserDB();
+
+	const UserIdType userId = findUserWith(OPPRVLG_UPDATE_USER);
+	const UserIdType targetUserId = 1;
 	const string serverId = "2";
-	const string hostGroupId = StringUtils::sprintf("%"PRIu64, ALL_HOST_GROUPS);
+	const string hostGroupId =
+	  StringUtils::sprintf("%"PRIu64, ALL_HOST_GROUPS);
 
 	StringMap params;
 	params["serverId"] = serverId;
 	params["hostGroupId"] = hostGroupId;
-	assertAddAccessInfoWithSetup("/user/1/access-info",
-	                             params, HTERR_OK, 1);
+	const string url = StringUtils::sprintf(
+	  "/user/%"FMT_USER_ID"/access-info", targetUserId);
+	assertAddAccessInfo(url, params, userId, HTERR_OK);
 
 	// check the content in the DB
 	DBClientUser dbUser;
@@ -1668,8 +1684,8 @@ void test_addAccessInfoWithAllHostGroups(void)
 	statement += DBClientUser::TABLE_NAME_ACCESS_LIST;
 	int expectedId = 1;
 	string expect = StringUtils::sprintf(
-	  "%"FMT_ACCESS_INFO_ID"|%s|%s|%s\n",
-	  expectedId, userId.c_str(), serverId.c_str(), hostGroupId.c_str());
+	  "%"FMT_ACCESS_INFO_ID"|%"FMT_USER_ID"|%s|%s\n",
+	  expectedId, targetUserId, serverId.c_str(), hostGroupId.c_str());
 	assertDBContent(dbUser.getDBAgent(), statement, expect);
 }
 
