@@ -451,51 +451,51 @@ gpointer FaceRest::mainThread(HatoholThreadArg *arg)
 	soup_server_add_handler(m_ctx->soupServer, "/hello.html",
 	                        queueRestJob,
 	                        new HandlerClosure(this, &handlerHelloPage),
-				deleteHandlerClosure);
+	                        deleteHandlerClosure);
 	soup_server_add_handler(m_ctx->soupServer, pathForTest,
 	                        queueRestJob,
 	                        new HandlerClosure(this, handlerTest),
-				deleteHandlerClosure);
+	                        deleteHandlerClosure);
 	soup_server_add_handler(m_ctx->soupServer, pathForLogin,
 	                        queueRestJob,
 	                        new HandlerClosure(this, handlerLogin),
-				deleteHandlerClosure);
+	                        deleteHandlerClosure);
 	soup_server_add_handler(m_ctx->soupServer, pathForLogout,
 	                        queueRestJob,
 	                        new HandlerClosure(this, handlerLogout),
-				deleteHandlerClosure);
+	                        deleteHandlerClosure);
 	soup_server_add_handler(m_ctx->soupServer, pathForGetOverview,
 	                        queueRestJob,
 	                        new HandlerClosure(this, handlerGetOverview),
-				deleteHandlerClosure);
+	                        deleteHandlerClosure);
 	soup_server_add_handler(m_ctx->soupServer, pathForServer,
 	                        queueRestJob,
 	                        new HandlerClosure(this, handlerServer),
-				deleteHandlerClosure);
+	                        deleteHandlerClosure);
 	soup_server_add_handler(m_ctx->soupServer, pathForGetHost,
 	                        queueRestJob,
 	                        new HandlerClosure(this, handlerGetHost),
-				deleteHandlerClosure);
+	                        deleteHandlerClosure);
 	soup_server_add_handler(m_ctx->soupServer, pathForGetTrigger,
 	                        queueRestJob,
 	                        new HandlerClosure(this, handlerGetTrigger),
-				deleteHandlerClosure);
+	                        deleteHandlerClosure);
 	soup_server_add_handler(m_ctx->soupServer, pathForGetEvent,
 	                        queueRestJob,
 	                        new HandlerClosure(this, handlerGetEvent),
-				deleteHandlerClosure);
+	                        deleteHandlerClosure);
 	soup_server_add_handler(m_ctx->soupServer, pathForGetItem,
 	                        queueRestJob,
 	                        new HandlerClosure(this, handlerGetItem),
-				deleteHandlerClosure);
+	                        deleteHandlerClosure);
 	soup_server_add_handler(m_ctx->soupServer, pathForAction,
 	                        queueRestJob,
 	                        new HandlerClosure(this, handlerAction),
-				deleteHandlerClosure);
+	                        deleteHandlerClosure);
 	soup_server_add_handler(m_ctx->soupServer, pathForUser,
 	                        queueRestJob,
 	                        new HandlerClosure(this, handlerUser),
-				deleteHandlerClosure);
+	                        deleteHandlerClosure);
 	if (m_ctx->param)
 		m_ctx->param->setupDoneNotifyFunc();
 	soup_server_run_async(m_ctx->soupServer);
@@ -1926,7 +1926,7 @@ void FaceRest::handlerUser(RestJob *job)
 	} else {
 		MLPL_ERR("Unknown method: %s\n", job->message->method);
 		soup_message_set_status(job->message,
-					SOUP_STATUS_METHOD_NOT_ALLOWED);
+		                        SOUP_STATUS_METHOD_NOT_ALLOWED);
 		job->replyIsPrepared = true;
 	}
 }
@@ -1991,7 +1991,7 @@ void FaceRest::handlerPutUser(RestJob *job)
 	userInfo.id = job->getResourceId();
 	if (userInfo.id == INVALID_USER_ID) {
 		REPLY_ERROR(job, HTERR_NOT_FOUND_ID_IN_URL,
-			    "id: %s", job->getResourceIdString().c_str());
+		            "id: %s", job->getResourceIdString().c_str());
 		return;
 	}
 
@@ -1999,7 +1999,7 @@ void FaceRest::handlerPutUser(RestJob *job)
 	bool exist = dbUser.getUserInfo(userInfo, userInfo.id);
 	if (!exist) {
 		REPLY_ERROR(job, HTERR_NOT_FOUND_USER_ID,
-			    "id: %"FMT_USER_ID, userInfo.id);
+		            "id: %"FMT_USER_ID, userInfo.id);
 		return;
 	}
 	bool forUpdate = true;
@@ -2029,7 +2029,7 @@ void FaceRest::handlerDeleteUser(RestJob *job)
 	uint64_t userId = job->getResourceId();
 	if (userId == INVALID_ID) {
 		REPLY_ERROR(job, HTERR_NOT_FOUND_ID_IN_URL,
-			    "id: %s", job->getResourceIdString().c_str());
+		            "id: %s", job->getResourceIdString().c_str());
 		return;
 	}
 
@@ -2058,7 +2058,7 @@ void FaceRest::handlerAccessInfo(RestJob *job)
 	} else {
 		MLPL_ERR("Unknown method: %s\n", job->message->method);
 		soup_message_set_status(job->message,
-					SOUP_STATUS_METHOD_NOT_ALLOWED);
+		                        SOUP_STATUS_METHOD_NOT_ALLOWED);
 		job->replyIsPrepared = true;
 	}
 }
@@ -2101,7 +2101,7 @@ void FaceRest::handlerGetAccessInfo(RestJob *job)
 			} else {
 				hostGroupIdString
 				  = StringUtils::sprintf("%"PRIu64,
-							 hostGroupId);
+				                         hostGroupId);
 			}
 			agent.startObject(hostGroupIdString);
 			agent.add("accessInfoId", info->id);
