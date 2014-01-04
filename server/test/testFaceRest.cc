@@ -166,10 +166,9 @@ static void getServerResponse(RequestArg &arg)
 	const string separator = "\r\n\r\n";
 	size_t pos = arg.response.find(separator);
 	if (pos != string::npos) {
-		string headers = arg.response.substr(0, pos);	
+		string headers = arg.response.substr(0, pos);
 		arg.response = arg.response.substr(pos + separator.size());
-		gchar **tmp = g_strsplit(headers.c_str(),
-					 "\r\n", -1);
+		gchar **tmp = g_strsplit(headers.c_str(), "\r\n", -1);
 		for (size_t i = 0; tmp[i]; i++)
 			arg.responseHeaders.push_back(tmp[i]);
 		g_strfreev(tmp);
@@ -1618,7 +1617,7 @@ void test_addAccessInfoWithAllHostGroups(void)
 	params["serverId"] = serverId;
 	params["hostGroupId"] = hostGroupId;
 	assertAddAccessInfoWithSetup("/user/1/access-info",
-				     params, HTERR_OK, 1);
+	                             params, HTERR_OK, 1);
 
 	// check the content in the DB
 	DBClientUser dbUser;
@@ -1641,7 +1640,7 @@ void test_addAccessInfoWithAllHostGroupsNegativeValue(void)
 	params["serverId"] = serverId;
 	params["hostGroupId"] = hostGroupId;
 	assertAddAccessInfoWithSetup("/user/1/access-info",
-				     params, HTERR_OK, 1);
+	                             params, HTERR_OK, 1);
 
 	// check the content in the DB
 	DBClientUser dbUser;
