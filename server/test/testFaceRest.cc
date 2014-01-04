@@ -422,6 +422,7 @@ static void _assertServers(const string &path, const string &callbackName = "")
 {
 	startFaceRest();
 	RequestArg arg(path, callbackName);
+	arg.userId = findUserWith(OPPRVLG_GET_ALL_SERVER);
 	g_parser = getResponseAsJsonParser(arg);
 	assertErrorCode(g_parser);
 	assertServersInParser(g_parser);
