@@ -38,5 +38,13 @@ void test_isntanceIsSingleton(void)
 	cppcut_assert_equal(instance1, instance2);
 }
 
+void test_create(void)
+{
+	UserIdType userId = 103;
+	SessionManager *instance = SessionManager::getInstance();
+	string sessionId = instance->create(userId);
+	cppcut_assert_equal(false, sessionId.empty());
+}
+
 } // namespace testSessionManager
 

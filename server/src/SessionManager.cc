@@ -18,13 +18,38 @@
  */
 
 #include <cstdio>
+#include <map>
+#include <uuid/uuid.h>
 #include "SessionManager.h"
 #include "MutexLock.h"
+#include "ReadWriteLock.h"
+#include "SmartTime.h"
 using namespace mlpl;
+
+struct SessionInfo {
+	UserIdType userId;
+	SmartTime loginTime;
+	SmartTime lastAccessTime;
+
+	// constructor
+	SessionInfo(void)
+	: userId(INVALID_USER_ID),
+	  loginTime(SmartTime::INIT_CURR_TIME),
+	  lastAccessTime(SmartTime::INIT_CURR_TIME)
+	{
+	}
+};
+
+// Key: session ID, value: user ID
+typedef map<string, SessionInfo *>           SessionIdMap;
+typedef map<string, SessionInfo *>::iterator SessionIdMapIterator;
 
 struct SessionManager::PrivateContext {
 	static MutexLock initLock;
 	static SessionManager *instance;
+
+	ReadWriteLock rwlock;
+	SessionIdMap  sessionIdMap;
 };
 
 SessionManager *SessionManager::PrivateContext::instance = NULL;
@@ -43,14 +68,39 @@ SessionManager *SessionManager::getInstance(void)
 	return PrivateContext::instance;
 }
 
+string SessionManager::create(const UserIdType &userId)
+{
+	SessionInfo *sessionInfo = new SessionInfo();
+	sessionInfo->userId = userId;
+	string sessionId = generateSessionId();
+	m_ctx->rwlock.writeLock();
+	m_ctx->sessionIdMap[sessionId] = sessionInfo;
+	m_ctx->rwlock.unlock();
+	return sessionId;
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
 SessionManager::SessionManager(void)
 : m_ctx(NULL)
 {
+	m_ctx = new PrivateContext();
 }
 
 SessionManager::~SessionManager()
 {
+	if (m_ctx)
+		delete m_ctx;
+}
+
+string SessionManager::generateSessionId(void)
+{
+	uuid_t sessionUuid;
+	uuid_generate(sessionUuid);
+	static const size_t uuidBufSize = 37;
+	char uuidBuf[uuidBufSize];
+	uuid_unparse(sessionUuid, uuidBuf);
+	string sessionId = uuidBuf;
+	return sessionId;
 }

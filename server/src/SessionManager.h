@@ -20,13 +20,27 @@
 #ifndef SessionManager_h
 #define SessionManager_h
 
+#include <string>
+#include "Params.h"
+using namespace std;
+
 class SessionManager {
 public:
 	static SessionManager *getInstance(void);
 
+	/**
+	 * Create a new session ID.
+	 *
+	 * @param userId A user ID
+	 * @return       A newly created session ID.
+	 */
+	std::string create(const UserIdType &userId);
+
 protected:
 	SessionManager(void);
 	virtual ~SessionManager();
+
+	static std::string generateSessionId(void);
 
 protected:
 	struct PrivateContext;
