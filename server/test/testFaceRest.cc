@@ -629,7 +629,7 @@ static void _assertActions(const string &path, const string &callbackName = "")
 
 void _assertAddRecord(const StringMap &params, const string &url,
                       const HatoholErrorCode &expectCode = HTERR_OK,
-		      uint32_t expectedId = 1)
+                      uint32_t expectedId = 1)
 {
 	startFaceRest();
 	RequestArg arg(url, "foo");
@@ -643,9 +643,9 @@ void _assertAddRecord(const StringMap &params, const string &url,
 }
 
 void _assertUpdateRecord(const StringMap &params, const string &baseUrl,
-			 uint32_t targetId = 1,
-			 const HatoholErrorCode &expectCode = HTERR_OK,
-			 uint32_t expectedId = 1)
+                         uint32_t targetId = 1,
+                         const HatoholErrorCode &expectCode = HTERR_OK,
+                         uint32_t expectedId = 1)
 {
 	startFaceRest();
 	string url;
@@ -728,8 +728,8 @@ void _assertAddUserWithSetup(const StringMap &params,
 cut_trace(_assertUpdateRecord(P, "/user", ##__VA_ARGS__))
 
 void _assertUpdateUserWithSetup(const StringMap &params,
-				const HatoholErrorCode &expectCode,
-				uint32_t targetUserId = 1)
+                                const HatoholErrorCode &expectCode,
+                                uint32_t targetUserId = 1)
 {
 	const bool dbRecreate = true;
 	const bool loadTestDat = true;
@@ -816,7 +816,7 @@ static void _assertServerAccessInfo(JsonParserAgent *parser, HostGrpAccessInfoMa
 #define assertServerAccessInfo(P,I,...) cut_trace(_assertServerAccessInfo(P,I,##__VA_ARGS__))
 
 static void _assertAllowedServers(const string &path, UserIdType userId,
-				  const string &callbackName = "")
+                                  const string &callbackName = "")
 {
 	startFaceRest();
 	RequestArg arg(path, callbackName);
@@ -847,9 +847,9 @@ static void _assertAllowedServers(const string &path, UserIdType userId,
 cut_trace(_assertAddRecord(P, U, ##__VA_ARGS__))
 
 void _assertAddAccessInfoWithSetup(const string &url,
-				   const StringMap &params,
-				   const HatoholErrorCode &expectCode,
-				   uint32_t expectedId)
+                                   const StringMap &params,
+                                   const HatoholErrorCode &expectCode,
+                                   uint32_t expectedId)
 {
 	const bool dbRecreate = true;
 	const bool loadTestDat = false;
