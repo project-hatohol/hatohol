@@ -17,8 +17,10 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <string>
 #include <cppcutter.h>
 #include "SessionManager.h"
+using namespace std;
 
 namespace testSessionManager {
 
@@ -44,6 +46,11 @@ void test_create(void)
 	SessionManager *instance = SessionManager::getInstance();
 	string sessionId = instance->create(userId);
 	cppcut_assert_equal(false, sessionId.empty());
+
+	const SessionIdMap &sessionIdMap = instance->getSessionIdMap();
+	cppcut_assert_equal((size_t)1, sessionIdMap.size());
+	cppcut_assert_equal(sessionId, sessionIdMap.begin()->first);
+	instance->releaseSessionIdMap();
 }
 
 } // namespace testSessionManager

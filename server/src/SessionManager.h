@@ -21,8 +21,25 @@
 #define SessionManager_h
 
 #include <string>
+#include <map>
 #include "Params.h"
-using namespace std;
+#include "SmartTime.h"
+
+struct Session {
+	UserIdType userId;
+	mlpl::SmartTime loginTime;
+	mlpl::SmartTime lastAccessTime;
+
+	// constructor
+	Session(void);
+	~Session();
+};
+
+// Key: session ID, value: user ID
+typedef std::map<std::string, Session *>           SessionIdMap;
+typedef std::map<std::string, Session *>::iterator SessionIdMapIterator;
+typedef std::map<std::string, Session *>::const_iterator
+   SessionIdMapConstIterator;
 
 class SessionManager {
 public:
@@ -35,6 +52,18 @@ public:
 	 * @return       A newly created session ID.
 	 */
 	std::string create(const UserIdType &userId);
+
+	/**
+	 * Get a reference of the seesion ID map.
+	 *
+	 * After the returned map is used, the caller must call
+	 * releaseSessionIdMap(). Until it is called, some operations
+	 * of this class are blocked.
+	 *
+	 * @return a reference of the session ID map.
+	 */
+	const SessionIdMap &getSessionIdMap(void);
+	void releaseSessionIdMap(void);
 
 protected:
 	SessionManager(void);

@@ -23,26 +23,26 @@
 #include "SessionManager.h"
 #include "MutexLock.h"
 #include "ReadWriteLock.h"
-#include "SmartTime.h"
+using namespace std;
 using namespace mlpl;
 
-struct SessionInfo {
-	UserIdType userId;
-	SmartTime loginTime;
-	SmartTime lastAccessTime;
+// ---------------------------------------------------------------------------
+// Session
+// ---------------------------------------------------------------------------
+Session::Session(void)
+: userId(INVALID_USER_ID),
+  loginTime(SmartTime::INIT_CURR_TIME),
+  lastAccessTime(SmartTime::INIT_CURR_TIME)
+{
+}
 
-	// constructor
-	SessionInfo(void)
-	: userId(INVALID_USER_ID),
-	  loginTime(SmartTime::INIT_CURR_TIME),
-	  lastAccessTime(SmartTime::INIT_CURR_TIME)
-	{
-	}
-};
+Session::~Session()
+{
+}
 
-// Key: session ID, value: user ID
-typedef map<string, SessionInfo *>           SessionIdMap;
-typedef map<string, SessionInfo *>::iterator SessionIdMapIterator;
+// ---------------------------------------------------------------------------
+// SessionManager
+// ---------------------------------------------------------------------------
 
 struct SessionManager::PrivateContext {
 	static MutexLock initLock;
@@ -70,13 +70,24 @@ SessionManager *SessionManager::getInstance(void)
 
 string SessionManager::create(const UserIdType &userId)
 {
-	SessionInfo *sessionInfo = new SessionInfo();
+	Session *sessionInfo = new Session();
 	sessionInfo->userId = userId;
 	string sessionId = generateSessionId();
 	m_ctx->rwlock.writeLock();
 	m_ctx->sessionIdMap[sessionId] = sessionInfo;
 	m_ctx->rwlock.unlock();
 	return sessionId;
+}
+
+const SessionIdMap &SessionManager::getSessionIdMap(void)
+{
+	m_ctx->rwlock.readLock();
+	return m_ctx->sessionIdMap;
+}
+
+void SessionManager::releaseSessionIdMap(void)
+{
+	m_ctx->rwlock.unlock();
 }
 
 // ---------------------------------------------------------------------------
@@ -104,3 +115,4 @@ string SessionManager::generateSessionId(void)
 	string sessionId = uuidBuf;
 	return sessionId;
 }
+
