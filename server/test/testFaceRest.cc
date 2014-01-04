@@ -1636,7 +1636,7 @@ void test_addAccessInfo(void)
 	params["serverId"] = serverId;
 	params["hostGroupId"] = hostGroupId;
 	assertAddAccessInfoWithSetup("/user/1/access-info",
-				     params, HTERR_OK, 1);
+	                             params, HTERR_OK, 1);
 
 	// check the content in the DB
 	DBClientUser dbUser;
