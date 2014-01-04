@@ -1716,7 +1716,6 @@ void test_addAccessInfoWithExistingData(void)
 	assertAccessInfoInDB(accessInfoIdSet);
 }
 
-
 void test_deleteAccessInfo(void)
 {
 	startFaceRest();
