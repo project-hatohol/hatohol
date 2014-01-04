@@ -886,6 +886,45 @@ void _assertAddAccessInfoWithSetup(const string &url,
 }
 #define assertAddAccessInfoWithSetup(U,P,C,I) cut_trace(_assertAddAccessInfoWithSetup(U,P,C,I))
 
+static void setupUserDB(void)
+{
+	const bool dbRecreate = true;
+	// If loadTestDat is true, not only the user DB but also
+	// the access info DB will be loaded. So we set false here
+	// and load the user DB later.
+	const bool loadTestDat = false;
+	setupTestDBUser(dbRecreate, loadTestDat);
+	loadTestDBUser();
+}
+
+void _assertAddAccessInfoWithCond(const string &serverId,
+                                  const string &hostGroupId)
+{
+	setupUserDB();
+
+	const UserIdType userId = findUserWith(OPPRVLG_UPDATE_USER);
+	const UserIdType targetUserId = 1;
+
+	const string url = StringUtils::sprintf(
+	  "/user/%"FMT_USER_ID"/access-info", targetUserId);
+	StringMap params;
+	params["serverId"] = serverId;
+	params["hostGroupId"] = hostGroupId;
+	assertAddAccessInfo(url, params, userId, HTERR_OK);
+
+	// check the content in the DB
+	DBClientUser dbUser;
+	string statement = "select * from ";
+	statement += DBClientUser::TABLE_NAME_ACCESS_LIST;
+	int expectedId = 1;
+	string expect = StringUtils::sprintf(
+	  "%"FMT_ACCESS_INFO_ID"|%"FMT_USER_ID"|%s|%s\n",
+	  expectedId, targetUserId, serverId.c_str(), hostGroupId.c_str());
+	assertDBContent(dbUser.getDBAgent(), statement, expect);
+}
+#define assertAddAccessInfoWithCond(SVID, HGRP_ID) \
+cut_trace(_assertAddAccessInfoWithCond(SVID, HGRP_ID))
+
 static void setupPostAction(void)
 {
 	bool recreate = true;
@@ -898,17 +937,6 @@ static void setupActionDB(void)
 	bool recreate = true;
 	bool loadData = true;
 	setupTestDBAction(recreate, loadData);
-}
-
-static void setupUserDB(void)
-{
-	const bool dbRecreate = true;
-	// If loadTestDat is true, not only the user DB but also
-	// the access info DB will be loaded. So we set false here
-	// and load the user DB later.
-	const bool loadTestDat = false;
-	setupTestDBUser(dbRecreate, loadTestDat);
-	loadTestDBUser();
 }
 
 struct LocaleInfo {
@@ -1640,29 +1668,9 @@ void test_getAccessInfoWithUserId3(void)
 
 void test_addAccessInfo(void)
 {
-	setupUserDB();
-
-	const UserIdType userId = findUserWith(OPPRVLG_UPDATE_USER);
-	const UserIdType targetUserId = 1;
 	const string serverId = "2";
 	const string hostGroupId = "3";
-
-	StringMap params;
-	params["serverId"] = serverId;
-	params["hostGroupId"] = hostGroupId;
-	const string url = StringUtils::sprintf(
-	  "/user/%"FMT_USER_ID"/access-info", targetUserId);
-	assertAddAccessInfo(url, params, userId, HTERR_OK);
-
-	// check the content in the DB
-	DBClientUser dbUser;
-	string statement = "select * from ";
-	statement += DBClientUser::TABLE_NAME_ACCESS_LIST;
-	int expectedId = 1;
-	string expect = StringUtils::sprintf(
-	  "%"FMT_ACCESS_INFO_ID"|%"FMT_USER_ID"|%s|%s\n",
-	  expectedId, targetUserId, serverId.c_str(), hostGroupId.c_str());
-	assertDBContent(dbUser.getDBAgent(), statement, expect);
+	assertAddAccessInfoWithCond(serverId, hostGroupId);
 }
 
 void test_addAccessInfoWithAllHostGroups(void)
