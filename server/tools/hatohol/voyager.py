@@ -18,6 +18,7 @@
   along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
 """
 import sys
+import os
 import urllib
 import urllib2
 import argparse
@@ -51,11 +52,20 @@ class UserCreator:
     query["flags"] = args.flags;
     self._encoded_query = urllib.urlencode(query)
 
+def add_session_id(request):
+  env_name = "HATOHOL_SESSION_ID"
+  session_id = os.getenv(env_name)
+  if session_id is None:
+    print "Found found an environment varible: %s" % env_name
+    return
+  request.add_header(hatohol.FACE_REST_SESSION_ID_HEADER_NAME, session_id)
+
 def open_url_and_show_response(cmd_ctx):
   data = None
   if "encoded_query" in cmd_ctx:
     data = cmd_ctx["encoded_query"]
   request = urllib2.Request(cmd_ctx["url"], data=data)
+  add_session_id(request)
   response = urllib2.urlopen(request)
   print response.read()
 
