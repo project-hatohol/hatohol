@@ -1259,7 +1259,8 @@ void test_addActionWithoutCommand(void)
 {
 	StringMap params;
 	params["type"] = StringUtils::sprintf("%d", ACTION_COMMAND);
-	assertAddAction(params, HTERR_NOT_FOUND_PARAMETER);
+	assertAddAction(params, findUserWith(OPPRVLG_CREATE_ACTION),
+	                HTERR_NOT_FOUND_PARAMETER);
 }
 
 void test_addActionInvalidType(void)
