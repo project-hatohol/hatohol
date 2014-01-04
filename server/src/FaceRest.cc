@@ -1964,7 +1964,7 @@ void FaceRest::handlerGetUser(RestJob *job)
 void FaceRest::handlerPostUser(RestJob *job)
 {
 	UserInfo userInfo;
-        HatoholError err = parseUserParameter(userInfo, job->query);
+	HatoholError err = parseUserParameter(userInfo, job->query);
 	if (err != HTERR_OK) {
 		replyError(job, err);
 		return;
