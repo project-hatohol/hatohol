@@ -80,5 +80,26 @@ void test_create(void)
 	assertTimeIsNow(session->lastAccessTime);
 }
 
+void test_getSession(void)
+{
+	SessionManager *instance = SessionManager::getInstance();
+	const UserIdType userId = 103;
+	string sessionId = instance->create(userId);
+	{ // Use a block to check the used counter of session.
+		SessionPtr session = instance->getSession(sessionId);
+		cppcut_assert_equal(true, session.hasData());
+		cppcut_assert_equal(userId, session->userId);
+		cppcut_assert_equal(2, session->getUsedCount());
+	}
+
+	// check the used count of the session
+	const SessionIdMap &sessionIdMap = safeGetSessionIdMap(instance);
+	cppcut_assert_equal((size_t)1, sessionIdMap.size());
+	cppcut_assert_equal(sessionId, sessionIdMap.begin()->first);
+	const Session *session = sessionIdMap.begin()->second;
+	cppcut_assert_equal(userId, session->userId);
+	cppcut_assert_equal(1, session->getUsedCount());
+}
+
 } // namespace testSessionManager
 

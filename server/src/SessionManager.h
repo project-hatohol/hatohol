@@ -24,15 +24,19 @@
 #include <map>
 #include "Params.h"
 #include "SmartTime.h"
+#include "ItemPtr.h"
+#include "UsedCountable.h"
 
-struct Session {
+struct Session : public UsedCountable {
 	UserIdType userId;
 	mlpl::SmartTime loginTime;
 	mlpl::SmartTime lastAccessTime;
 
 	// constructor
 	Session(void);
-	~Session();
+
+protected:
+	virtual ~Session(); // makes delete impossible. Use unref().
 };
 
 // Key: session ID, value: user ID
@@ -40,6 +44,8 @@ typedef std::map<std::string, Session *>           SessionIdMap;
 typedef std::map<std::string, Session *>::iterator SessionIdMapIterator;
 typedef std::map<std::string, Session *>::const_iterator
    SessionIdMapConstIterator;
+
+typedef ItemPtr<Session> SessionPtr;
 
 class SessionManager {
 public:
@@ -53,6 +59,18 @@ public:
 	 * @return       A newly created session ID.
 	 */
 	std::string create(const UserIdType &userId);
+
+	/**
+	 * Get the session instance associated with the given sessionId.
+	 *
+	 * @param A session ID.
+	 * @return
+	 * A SessionPtr instance is returned if the session is successfully
+	 * obtained. The instance is wrapped in a smart pointer. You don't have
+	 * to call unref() explicitly. If the sessionId is invalid,
+	 * SessionPtr::hasData() will return false.
+	 */
+	SessionPtr getSession(const string &sessionId);
 
 	/**
 	 * Get a reference of the seesion ID map.

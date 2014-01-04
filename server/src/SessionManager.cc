@@ -56,7 +56,7 @@ struct SessionManager::PrivateContext {
 		SessionIdMapIterator it = sessionIdMap.begin();
 		for (; it != sessionIdMap.end(); ++it) {
 			Session *session = it->second;
-			delete session;
+			session->unref();
 		}
 		sessionIdMap.clear();
 		rwlock.unlock();
@@ -96,6 +96,17 @@ string SessionManager::create(const UserIdType &userId)
 	m_ctx->sessionIdMap[sessionId] = sessionInfo;
 	m_ctx->rwlock.unlock();
 	return sessionId;
+}
+
+SessionPtr SessionManager::getSession(const string &sessionId)
+{
+	Session *session = NULL;
+	m_ctx->rwlock.readLock();
+	SessionIdMapIterator it = m_ctx->sessionIdMap.find(sessionId);
+	if (it != m_ctx->sessionIdMap.end())
+		session = it->second;
+	m_ctx->rwlock.unlock();
+	return SessionPtr(session);
 }
 
 const SessionIdMap &SessionManager::getSessionIdMap(void)
