@@ -869,22 +869,8 @@ static void _assertAllowedServers(const string &path, const UserIdType &userId,
 }
 #define assertAllowedServers(P,...) cut_trace(_assertAllowedServers(P,##__VA_ARGS__))
 
-// TODO: pass userId
 #define assertAddAccessInfo(U, P, USER_ID, ...) \
 cut_trace(_assertAddRecord(P, U, USER_ID, ##__VA_ARGS__))
-
-void _assertAddAccessInfoWithSetup(const string &url,
-                                   const StringMap &params,
-                                   const HatoholErrorCode &expectCode,
-                                   uint32_t expectedId)
-{
-	const bool dbRecreate = true;
-	const bool loadTestDat = false;
-	setupTestDBUser(dbRecreate, loadTestDat);
-	// TODO: pass a valid user ID
-	assertAddAccessInfo(url, params, INVALID_USER_ID, expectCode);
-}
-#define assertAddAccessInfoWithSetup(U,P,C,I) cut_trace(_assertAddAccessInfoWithSetup(U,P,C,I))
 
 static void setupUserDB(void)
 {
