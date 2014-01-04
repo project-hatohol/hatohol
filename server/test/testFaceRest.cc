@@ -128,6 +128,7 @@ struct RequestArg {
 	string       request;
 	StringMap    parameters;
 	StringVector headers;
+	UserIdType   userId;
 
 	// output
 	string response;
@@ -136,13 +137,17 @@ struct RequestArg {
 	RequestArg(const string &_url, const string &_cbname = "")
 	: url(_url),
 	  callbackName(_cbname),
-	  request("GET")
+	  request("GET"),
+	  userId(INVALID_USER_ID)
 	{
 	}
 };
 
+static void getSessionId(RequestArg &arg);
 static void getServerResponse(RequestArg &arg)
 {
+	getSessionId(arg);
+
 	// make encoded query parameters
 	string joinedQueryParams;
 	string postDataArg;
@@ -628,6 +633,7 @@ static void _assertActions(const string &path, const string &callbackName = "")
 #define assertActions(P,...) cut_trace(_assertActions(P,##__VA_ARGS__))
 
 void _assertAddRecord(const StringMap &params, const string &url,
+                      const UserIdType &userId = INVALID_USER_ID,
                       const HatoholErrorCode &expectCode = HTERR_OK,
                       uint32_t expectedId = 1)
 {
@@ -635,6 +641,7 @@ void _assertAddRecord(const StringMap &params, const string &url,
 	RequestArg arg(url, "foo");
 	arg.parameters = params;
 	arg.request = "POST";
+	arg.userId = userId;
 	g_parser = getResponseAsJsonParser(arg);
 	assertErrorCode(g_parser, expectCode);
 	if (expectCode != HTERR_OK)
@@ -681,6 +688,15 @@ void _assertLogin(const string &user, const string &password)
 	g_parser = getResponseAsJsonParser(arg);
 }
 #define assertLogin(U,P) cut_trace(_assertLogin(U,P))
+
+static void getSessionId(RequestArg &arg)
+{
+	if (arg.userId == INVALID_USER_ID)
+		return;
+	SessionManager *sessionMgr = SessionManager::getInstance();
+	const string sessionId = sessionMgr->create(arg.userId);
+	arg.headers.push_back(makeSessionIdHeader(sessionId));
+}
 
 static void _assertUser(JsonParserAgent *parser, const UserInfo &userInfo,
                         uint32_t expectUserId = 0)
@@ -843,8 +859,9 @@ static void _assertAllowedServers(const string &path, UserIdType userId,
 }
 #define assertAllowedServers(P,...) cut_trace(_assertAllowedServers(P,##__VA_ARGS__))
 
+// TODO: pass userId
 #define assertAddAccessInfo(U,P, ...) \
-cut_trace(_assertAddRecord(P, U, ##__VA_ARGS__))
+cut_trace(_assertAddRecord(P, U, INVALID_USER_ID, ##__VA_ARGS__))
 
 void _assertAddAccessInfoWithSetup(const string &url,
                                    const StringMap &params,
@@ -1097,7 +1114,8 @@ void test_addAction(void)
 	StringMap params;
 	params["type"] = StringUtils::sprintf("%d", type);
 	params["command"] = command;
-	assertAddAction(params);
+	const UserIdType userId = findUserWith(OPPRVLG_CREATE_ACTION);
+	assertAddAction(params, userId);
 
 	// check the content in the DB
 	DBClientAction dbAction;
@@ -1110,7 +1128,7 @@ void test_addAction(void)
 	expect += StringUtils::sprintf("%d|",type);
 	expect += command;
 	expect += "||0"; /* workingDirectory and timeout */
-	expect += StringUtils::sprintf("|%"FMT_USER_ID, USER_ID_SYSTEM);
+	expect += StringUtils::sprintf("|%"FMT_USER_ID, userId);
 	assertDBContent(dbAction.getDBAgent(), statement, expect);
 }
 
