@@ -74,6 +74,14 @@ static void startFaceRest(void)
 	param.mutex.lock();
 }
 
+static string makeSessionIdHeader(const string &sessionId)
+{
+	string header =
+	  StringUtils::sprintf("%s:%s", FaceRest::SESSION_ID_HEADER_NAME,
+	                                sessionId.c_str());
+	return header;
+}
+
 static string makeQueryString(const StringMap &parameters,
                               const string &callbackName)
 {
@@ -1319,9 +1327,7 @@ void test_logout(void)
 	delete g_parser;
 
 	RequestArg arg("/logout", "cbname");
-	arg.headers.push_back(
-	  StringUtils::sprintf("%s:%s", FaceRest::SESSION_ID_HEADER_NAME,
-	                                sessionId.c_str()));
+	arg.headers.push_back(makeSessionIdHeader(sessionId));
 	g_parser = getResponseAsJsonParser(arg);
 	assertErrorCode(g_parser);
 	SessionManager *sessionMgr = SessionManager::getInstance();
@@ -1348,9 +1354,7 @@ void test_getUserMe(void)
 	g_parser = NULL;
 
 	RequestArg arg("/user/me", "cbname");
-	arg.headers.push_back(
-	  StringUtils::sprintf("%s:%s", FaceRest::SESSION_ID_HEADER_NAME,
-	                       sessionId.c_str()));
+	arg.headers.push_back(makeSessionIdHeader(sessionId));
 	g_parser = getResponseAsJsonParser(arg);
 	assertErrorCode(g_parser);
 	assertValueInParser(g_parser, "numberOfUsers", (uint32_t)1);
