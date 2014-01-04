@@ -473,7 +473,6 @@ void ActionManager::checkEvents(const EventInfoList &eventList)
 			continue;
 		if (shouldSkipByLog(eventInfo, dbAction))
 			continue;
-		// TODO: Use userID of action itself.
 		DataQueryOption option(USER_ID_SYSTEM);
 		dbAction.getActionList(actionDefList, option, &eventInfo);
 		ActionDefListIterator actIt = actionDefList.begin();
@@ -556,6 +555,9 @@ bool ActionManager::spawn(
 		waitCmdInfo = postprocCtx->waitCmdInfo;
 	}
 
+	// TODO: make envp with HATOHOL_SESSION_ID
+	gchar **envp = NULL;
+
 	// We take the lock here to avoid the child spanwed below from
 	// not being collected. If the child immediately exits
 	// before the following 'ActorCollector::addActor(&childPid)' is
@@ -563,7 +565,7 @@ bool ActionManager::spawn(
 	// because the pid of the child isn't in the wait child set.
 	ActorCollector::lock();
 	gboolean succeeded =
-	  g_spawn_async(workingDirectory, (gchar **)argv, NULL,
+	  g_spawn_async(workingDirectory, (gchar **)argv, envp,
 	                flags, childSetup, userData, &actorInfo->pid, &error);
 	if (!succeeded) {
 		ActorCollector::unlock();
