@@ -109,6 +109,22 @@ SessionPtr SessionManager::getSession(const string &sessionId)
 	return SessionPtr(session);
 }
 
+bool SessionManager::remove(const string &sessionId)
+{
+	Session *session = NULL;
+	m_ctx->rwlock.writeLock();
+	SessionIdMapIterator it = m_ctx->sessionIdMap.find(sessionId);
+	if (it != m_ctx->sessionIdMap.end()) {
+		session = it->second;
+		m_ctx->sessionIdMap.erase(it);
+	}
+	m_ctx->rwlock.unlock();
+	if (!session)
+		return false;
+	session->unref();
+	return true;
+}
+
 const SessionIdMap &SessionManager::getSessionIdMap(void)
 {
 	m_ctx->rwlock.readLock();

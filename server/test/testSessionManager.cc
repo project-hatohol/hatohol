@@ -101,5 +101,17 @@ void test_getSession(void)
 	cppcut_assert_equal(1, session->getUsedCount());
 }
 
+void test_remove(void)
+{
+	SessionManager *instance = SessionManager::getInstance();
+	const UserIdType userId = 103;
+	string sessionId = instance->create(userId);
+	cppcut_assert_equal(true, instance->remove(sessionId));
+
+	// check the session instance is removed
+	const SessionIdMap &sessionIdMap = safeGetSessionIdMap(instance);
+	cppcut_assert_equal((size_t)0, sessionIdMap.size());
+}
+
 } // namespace testSessionManager
 

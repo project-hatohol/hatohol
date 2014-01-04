@@ -73,6 +73,15 @@ public:
 	SessionPtr getSession(const string &sessionId);
 
 	/**
+	 * Remove the session instance associated with the given sessionId.
+	 *
+	 * @param A session ID.
+	 * @return true If the session is found and successfully removed.
+	 * Otherwise false will be returned.
+	 */
+	bool remove(const string &sessionId);
+
+	/**
 	 * Get a reference of the seesion ID map.
 	 *
 	 * After the returned map is used, the caller must call
