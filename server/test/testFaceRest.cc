@@ -1538,6 +1538,7 @@ void test_deleteUserWithoutId(void)
 
 	RequestArg arg("/user", "cbname");
 	arg.request = "DELETE";
+	arg.userId = findUserWith(OPPRVLG_DELETE_USER);
 	g_parser = getResponseAsJsonParser(arg);
 	assertErrorCode(g_parser, HTERR_NOT_FOUND_ID_IN_URL);
 }
