@@ -129,6 +129,13 @@ struct RequestArg {
 	: request("GET")
 	{
 	}
+
+	RequestArg(const string &_url, const string &_cbname = "")
+	: url(_url),
+	  callbackName(_cbname),
+	  request("GET")
+	{
+	}
 };
 
 static void getServerResponse(RequestArg &arg)
@@ -174,23 +181,13 @@ static void getServerResponse(RequestArg &arg)
 	}
 }
 
-static JsonParserAgent *getResponseAsJsonParser(
-  const string &url, const string &callbackName = "",
-  const StringMap &parameters = emptyStringMap,
-  const string &request = "GET",
-  const StringVector &headersVect = emptyStringVector)
+static JsonParserAgent *getResponseAsJsonParser(RequestArg &arg)
 {
-	RequestArg arg;
-	arg.url = url;
-	arg.callbackName = callbackName;
-	arg.parameters = parameters;
-	arg.request = request;
-	arg.headers = headersVect;
 	getServerResponse(arg);
 
 	// if JSONP, check the callback name
-	if (!callbackName.empty()) {
-		size_t lenCallbackName = callbackName.size();
+	if (!arg.callbackName.empty()) {
+		size_t lenCallbackName = arg.callbackName.size();
 		size_t minimumLen = lenCallbackName + 2; // +2 for ''(' and ')'
 		cppcut_assert_equal(true, arg.response.size() > minimumLen,
 		  cut_message("length: %zd, minmumLen: %zd\n%s",
@@ -198,7 +195,8 @@ static JsonParserAgent *getResponseAsJsonParser(
 		              arg.response.c_str()));
 
 		cut_assert_equal_substring(
-		  callbackName.c_str(), arg.response.c_str(), lenCallbackName);
+		  arg.callbackName.c_str(), arg.response.c_str(),
+		  lenCallbackName);
 		cppcut_assert_equal(')', arg.response[arg.response.size()-1]);
 		arg.response = string(arg.response, lenCallbackName+1,
 		                      arg.response.size() - minimumLen);
@@ -406,7 +404,8 @@ static void _assertTestMode(const bool expectedMode = false,
                             const string &callbackName = "")
 {
 	startFaceRest();
-	g_parser = getResponseAsJsonParser("/test");
+	RequestArg arg("/test");
+	g_parser = getResponseAsJsonParser(arg);
 	assertErrorCode(g_parser);
 	assertValueInParser(g_parser, "testMode", expectedMode);
 }
@@ -415,7 +414,8 @@ static void _assertTestMode(const bool expectedMode = false,
 static void _assertServers(const string &path, const string &callbackName = "")
 {
 	startFaceRest();
-	g_parser = getResponseAsJsonParser(path, callbackName);
+	RequestArg arg(path, callbackName);
+	g_parser = getResponseAsJsonParser(arg);
 	assertErrorCode(g_parser);
 	assertServersInParser(g_parser);
 }
@@ -430,7 +430,9 @@ static void _assertHosts(const string &path, const string &callbackName = "",
 		queryMap["serverId"] =
 		   StringUtils::sprintf("%"PRIu32, serverId); 
 	}
-	g_parser = getResponseAsJsonParser(path, callbackName, queryMap);
+	RequestArg arg(path, callbackName);
+	arg.parameters = queryMap;
+	g_parser = getResponseAsJsonParser(arg);
 	assertErrorCode(g_parser);
 	assertHostsInParser(g_parser, serverId);
 }
@@ -460,7 +462,9 @@ static void _assertTriggers(const string &path, const string &callbackName = "",
 	}
 	if (hostId != ALL_HOSTS)
 		queryMap["hostId"] = StringUtils::sprintf("%"PRIu64, hostId); 
-	g_parser = getResponseAsJsonParser(path, callbackName, queryMap);
+	RequestArg arg(path, callbackName);
+	arg.parameters = queryMap;
+	g_parser = getResponseAsJsonParser(arg);
 
 	// Check the reply
 	assertErrorCode(g_parser);
@@ -495,7 +499,8 @@ static void _assertTriggers(const string &path, const string &callbackName = "",
 static void _assertEvents(const string &path, const string &callbackName = "")
 {
 	startFaceRest();
-	g_parser = getResponseAsJsonParser(path, callbackName);
+	RequestArg arg(path, callbackName);
+	g_parser = getResponseAsJsonParser(arg);
 	assertErrorCode(g_parser);
 	assertValueInParser(g_parser, "numberOfEvents",
 	                    (uint32_t)NumTestEventInfo);
@@ -527,7 +532,8 @@ static void _assertEvents(const string &path, const string &callbackName = "")
 static void _assertItems(const string &path, const string &callbackName = "")
 {
 	startFaceRest();
-	g_parser = getResponseAsJsonParser(path, callbackName);
+	RequestArg arg(path, callbackName);
+	g_parser = getResponseAsJsonParser(arg);
 	assertErrorCode(g_parser);
 	assertValueInParser(g_parser, "numberOfItems",
 	                    (uint32_t)NumTestItemInfo);
@@ -566,7 +572,8 @@ cut_trace(_assertActionCondition<T>(PARSER, COND, MEMBER, BIT, EXPECT))
 static void _assertActions(const string &path, const string &callbackName = "")
 {
 	startFaceRest();
-	g_parser = getResponseAsJsonParser(path, callbackName);
+	RequestArg arg(path, callbackName);
+	g_parser = getResponseAsJsonParser(arg);
 	assertErrorCode(g_parser);
 	assertValueInParser(g_parser, "numberOfActions",
 	                    (uint32_t)NumTestActionDef);
@@ -623,7 +630,10 @@ void _assertAddRecord(const StringMap &params, const string &url,
 		      uint32_t expectedId = 1)
 {
 	startFaceRest();
-	g_parser = getResponseAsJsonParser(url, "foo", params, "POST");
+	RequestArg arg(url, "foo");
+	arg.parameters = params;
+	arg.request = "POST";
+	g_parser = getResponseAsJsonParser(arg);
 	assertErrorCode(g_parser, expectCode);
 	if (expectCode != HTERR_OK)
 		return;
@@ -642,7 +652,10 @@ void _assertUpdateRecord(const StringMap &params, const string &baseUrl,
 		url = baseUrl;
 	else
 		url = baseUrl + StringUtils::sprintf("/%"PRIu32, targetId);
-	g_parser = getResponseAsJsonParser(url, "foo", params, "PUT");
+	RequestArg arg(url, "foo");
+	arg.parameters = params;
+	arg.request = "PUT";
+	g_parser = getResponseAsJsonParser(arg);
 	assertErrorCode(g_parser, expectCode);
 	if (expectCode != HTERR_OK)
 		return;
@@ -661,8 +674,9 @@ void _assertLogin(const string &user, const string &password)
 		query["user"] = user;
 	if (!password.empty())
 		query["password"] = password;
-	string url = "/login";
-	g_parser = getResponseAsJsonParser(url, "cbname", query);
+	RequestArg arg("/login", "cbname");
+	arg.parameters = query;
+	g_parser = getResponseAsJsonParser(arg);
 }
 #define assertLogin(U,P) cut_trace(_assertLogin(U,P))
 
@@ -679,7 +693,8 @@ static void _assertUser(JsonParserAgent *parser, const UserInfo &userInfo,
 static void _assertUsers(const string &path, const string &callbackName = "")
 {
 	startFaceRest();
-	g_parser = getResponseAsJsonParser(path, callbackName);
+	RequestArg arg(path, callbackName);
+	g_parser = getResponseAsJsonParser(arg);
 	assertErrorCode(g_parser);
 	assertValueInParser(g_parser, "numberOfUsers",
 	                    (uint32_t)NumTestUserInfo);
@@ -735,8 +750,10 @@ static void _assertUpdateAddUserMissing(
 {
 	setupTestMode();
 	startFaceRest();
-	string url = "/test/user";
-	g_parser = getResponseAsJsonParser(url, "cbname", parameters, "POST");
+	RequestArg arg("/test/user", "cbname");
+	arg.parameters = parameters;
+	arg.request = "POST";
+	g_parser = getResponseAsJsonParser(arg);
 	assertErrorCode(g_parser, expectErrorCode);
 }
 #define assertUpdateAddUserMissing(P,...) \
@@ -747,7 +764,6 @@ static void _assertUpdateOrAddUser(const string &name)
 	setupTestMode();
 	startFaceRest();
 
-	string url = "/test/user";
 	const bool dbRecreate = true;
 	const bool loadTestDat = true;
 	setupTestDBUser(dbRecreate, loadTestDat);
@@ -757,7 +773,10 @@ static void _assertUpdateOrAddUser(const string &name)
 	parameters["password"] = "AR2c43fdsaf";
 	parameters["flags"] = "0";
 
-	g_parser = getResponseAsJsonParser(url, "cbname", parameters, "POST");
+	RequestArg arg("/test/user", "cbname");
+	arg.parameters = parameters;
+	arg.request = "POST";
+	g_parser = getResponseAsJsonParser(arg);
 	assertErrorCode(g_parser, HTERR_OK);
 
 	// check the data in the DB
@@ -798,7 +817,8 @@ static void _assertAllowedServers(const string &path, UserIdType userId,
 				  const string &callbackName = "")
 {
 	startFaceRest();
-	g_parser = getResponseAsJsonParser(path, callbackName);
+	RequestArg arg(path, callbackName);
+	g_parser = getResponseAsJsonParser(arg);
 	assertErrorCode(g_parser);
 	ServerAccessInfoMap srvAccessInfoMap;
 	makeServerAccessInfoMap(srvAccessInfoMap, userId);
@@ -948,8 +968,10 @@ void test_testPost(void)
 	parameters["AB"] = "Foo Goo N2";
 	parameters["<!>"] = "? @ @ v '";
 	parameters["O.O -v@v-"] = "'<< x234 >>'";
-	g_parser = getResponseAsJsonParser("/test",
-	                                   "cbname", parameters, "POST");
+	RequestArg arg("/test", "cbname");
+	arg.parameters = parameters;
+	arg.request = "POST";
+	g_parser = getResponseAsJsonParser(arg);
 	cppcut_assert_equal(true, g_parser->startObject("queryData"));
 	StringMapIterator it = parameters.begin();
 	for (; it != parameters.end(); ++it)
@@ -960,7 +982,8 @@ void test_testError(void)
 {
 	setupTestMode();
 	startFaceRest();
-	g_parser = getResponseAsJsonParser("/test/error");
+	RequestArg arg("/test/error");
+	g_parser = getResponseAsJsonParser(arg);
 	assertErrorCode(g_parser, HTERR_ERROR_TEST);
 }
 
@@ -1020,8 +1043,9 @@ void test_eventsStartIdWithoutSortOrder(void)
 	startFaceRest();
 	StringMap parameters;
 	parameters["startId"] = "5";
-	JsonParserAgent *g_parser = getResponseAsJsonParser("/event", "hoge",
-	                                                    parameters);
+	RequestArg arg("/event", "hoge");
+	arg.parameters = parameters;
+	JsonParserAgent *g_parser = getResponseAsJsonParser(arg);
 	assertErrorCode(g_parser, HTERR_NOT_FOUND_SORT_ORDER);
 }
 
@@ -1230,8 +1254,9 @@ void test_deleteAction(void)
 
 	int targetId = 2;
 	string url = StringUtils::sprintf("/action/%d", targetId);
-	g_parser =
-	  getResponseAsJsonParser(url, "cbname", emptyStringMap, "DELETE");
+	RequestArg arg(url, "cbname");
+	arg.request = "DELETE";
+	g_parser = getResponseAsJsonParser(arg);
 
 	// check the reply
 	assertErrorCode(g_parser);
@@ -1298,13 +1323,12 @@ void test_logout(void)
 	string sessionId;
 	cppcut_assert_equal(true, g_parser->read("sessionId", sessionId));
 	delete g_parser;
-	string url = "/logout";
-	StringVector headers;
-	headers.push_back(
+
+	RequestArg arg("/logout", "cbname");
+	arg.headers.push_back(
 	  StringUtils::sprintf("%s:%s", FaceRest::SESSION_ID_HEADER_NAME,
 	                                sessionId.c_str()));
-	g_parser = getResponseAsJsonParser(url, "cbname", emptyStringMap,
-	                                   "GET", headers);
+	g_parser = getResponseAsJsonParser(arg);
 	assertErrorCode(g_parser);
 	SessionManager *sessionMgr = SessionManager::getInstance();
 	const SessionPtr session = sessionMgr->getSession(sessionId);
@@ -1329,13 +1353,11 @@ void test_getUserMe(void)
 	delete g_parser;
 	g_parser = NULL;
 
-	StringVector headers;
-	headers.push_back(
+	RequestArg arg("/user/me", "cbname");
+	arg.headers.push_back(
 	  StringUtils::sprintf("%s:%s", FaceRest::SESSION_ID_HEADER_NAME,
 	                       sessionId.c_str()));
-	static const string url = "/user/me";
-	g_parser = getResponseAsJsonParser(url, "cbname", emptyStringMap,
-	                                   "GET", headers);
+	g_parser = getResponseAsJsonParser(arg);
 	assertErrorCode(g_parser);
 	assertValueInParser(g_parser, "numberOfUsers", (uint32_t)1);
 	g_parser->startObject("users");
@@ -1466,8 +1488,9 @@ void test_deleteUser(void)
 
 	const UserIdType targetId = 2;
 	string url = StringUtils::sprintf("/user/%"FMT_USER_ID, targetId);
-	g_parser =
-	  getResponseAsJsonParser(url, "cbname", emptyStringMap, "DELETE");
+	RequestArg arg(url, "cbname");
+	arg.request = "DELETE";
+	g_parser = getResponseAsJsonParser(arg);
 
 	// check the reply
 	assertErrorCode(g_parser);
@@ -1483,9 +1506,9 @@ void test_deleteUserWithoutId(void)
 	bool loadTestData = true;
 	setupTestDBUser(dbRecreate, loadTestData);
 
-	string url = StringUtils::sprintf("/user");
-	g_parser =
-	  getResponseAsJsonParser(url, "cbname", emptyStringMap, "DELETE");
+	RequestArg arg("/user", "cbname");
+	arg.request = "DELETE";
+	g_parser = getResponseAsJsonParser(arg);
 	assertErrorCode(g_parser, HTERR_NOT_FOUND_ID_IN_URL);
 }
 
@@ -1496,18 +1519,18 @@ void test_deleteUserWithNonNumericId(void)
 	bool loadTestData = true;
 	setupTestDBUser(dbRecreate, loadTestData);
 
-	string url = StringUtils::sprintf("/user/zoo");
-	g_parser =
-	  getResponseAsJsonParser(url, "cbname", emptyStringMap, "DELETE");
+	RequestArg arg("/user/zoo", "cbname");
+	arg.request = "DELETE";
+	g_parser = getResponseAsJsonParser(arg);
 	assertErrorCode(g_parser, HTERR_NOT_FOUND_ID_IN_URL);
 }
 
 void test_updateOrAddUserNotInTestMode(void)
 {
 	startFaceRest();
-	string url = StringUtils::sprintf("/test/user");
-	g_parser =
-	  getResponseAsJsonParser(url, "cbname", emptyStringMap, "POST");
+	RequestArg arg("/test/user", "cbname");
+	arg.request = "POST";
+	g_parser = getResponseAsJsonParser(arg);
 	assertErrorCode(g_parser, HTERR_NOT_TEST_MODE);
 }
 
@@ -1669,8 +1692,9 @@ void test_deleteAccessInfo(void)
 	string url = StringUtils::sprintf(
 	  "/user/1/access-info/%"FMT_ACCESS_INFO_ID,
 	  targetId);
-	g_parser =
-	  getResponseAsJsonParser(url, "cbname", emptyStringMap, "DELETE");
+	RequestArg arg(url, "cbname");
+	arg.request = "DELETE";
+	g_parser = getResponseAsJsonParser(arg);
 
 	// check the reply
 	assertErrorCode(g_parser);
