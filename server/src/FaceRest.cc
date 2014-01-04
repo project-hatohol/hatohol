@@ -39,6 +39,7 @@ using namespace mlpl;
 #include "UnifiedDataStore.h"
 #include "DBClientUser.h"
 #include "DBClientConfig.h"
+#include "SessionManager.h"
 
 int FaceRest::API_VERSION = 3;
 const char *FaceRest::SESSION_ID_HEADER_NAME = "X-Hatohol-Session";
@@ -101,23 +102,10 @@ typedef map<FormatType, const char *> MimeTypeMap;
 typedef MimeTypeMap::iterator   MimeTypeMapIterator;
 static MimeTypeMap g_mimeTypeMap;
 
-// Key: session ID, value: user ID
-typedef map<string, SessionInfo *>           SessionIdMap;
-typedef map<string, SessionInfo *>::iterator SessionIdMapIterator;
-
-// constructor
-SessionInfo::SessionInfo(void)
-: userId(INVALID_USER_ID),
-  loginTime(SmartTime::INIT_CURR_TIME),
-  lastAccessTime(SmartTime::INIT_CURR_TIME)
-{
-}
-
 struct FaceRest::PrivateContext {
 	struct MainThreadCleaner;
 	static bool         testMode;
 	static MutexLock    lock;
-	static SessionIdMap sessionIdMap;
 	static const string pathForUserMe;
 	guint               port;
 	SoupServer         *soupServer;
@@ -155,38 +143,6 @@ struct FaceRest::PrivateContext {
 		return string(FaceRest::pathForUser) + "/me";
 	}
 
-	static void insertSessionId(const string &sessionId, UserIdType userId)
-	{
-		SessionInfo *sessionInfo = new SessionInfo();
-		sessionInfo->userId = userId;
-		lock.lock();
-		sessionIdMap[sessionId] = sessionInfo;
-		lock.unlock();
-	}
-
-	static bool removeSessionId(const string &sessionId)
-	{
-		lock.lock();
-		SessionIdMapIterator it = sessionIdMap.find(sessionId);
-		bool found = it != sessionIdMap.end();
-		if (found)
-			sessionIdMap.erase(it);
-		lock.unlock();
-		if (!found) {
-			MLPL_WARN("Failed to erase session ID: %s\n",
-			          sessionId.c_str());
-		}
-		return found;
-	}
-
-	static const SessionInfo *getSessionInfo(const string &sessionId)
-	{
-		SessionIdMapIterator it = sessionIdMap.find(sessionId);
-		if (it == sessionIdMap.end())
-			return NULL;
-		return it->second;
-	}
-
 	void pushJob(RestJob *job)
 	{
 		restJobLock.lock();
@@ -219,7 +175,6 @@ struct FaceRest::PrivateContext {
 
 bool         FaceRest::PrivateContext::testMode = false;
 MutexLock    FaceRest::PrivateContext::lock;
-SessionIdMap FaceRest::PrivateContext::sessionIdMap;
 const string FaceRest::PrivateContext::pathForUserMe =
   FaceRest::PrivateContext::initPathForUserMe();
 
@@ -639,11 +594,6 @@ void FaceRest::replyJsonData(JsonBuilderAgent &agent, RestJob *job)
 	job->replyIsPrepared = true;
 }
 
-const SessionInfo *FaceRest::getSessionInfo(const string &sessionId)
-{
-	return PrivateContext::getSessionInfo(sessionId);
-}
-
 void FaceRest::parseQueryServerId(GHashTable *query, uint32_t &serverId)
 {
 	serverId = ALL_SERVERS;
@@ -777,14 +727,13 @@ bool FaceRest::RestJob::prepare(void)
 			notFoundSessionId = false;
 		}
 	} else {
-		PrivateContext::lock.lock();
-		const SessionInfo *sessionInfo = getSessionInfo(sessionId);
-		if (sessionInfo)
+		SessionManager *sessionMgr = SessionManager::getInstance();
+		SessionPtr session = sessionMgr->getSession(sessionId);
+		if (session.hasData()) {
 			notFoundSessionId = false;
-		userId = sessionInfo->userId;
-		PrivateContext::lock.unlock();
+			userId = session->userId;
+		}
 	}
-
 	if (notFoundSessionId) {
 		replyError(this, HTERR_NOT_FOUND_SESSION_ID);
 		return false;
@@ -1292,13 +1241,8 @@ void FaceRest::handlerLogin(RestJob *job)
 		return;
 	}
 
-	uuid_t sessionUuid;
-	uuid_generate(sessionUuid);
-	static const size_t uuidBufSize = 37;
-	char uuidBuf[uuidBufSize];
-	uuid_unparse(sessionUuid, uuidBuf);
-	string sessionId = uuidBuf;
-	PrivateContext::insertSessionId(sessionId, userId);
+	SessionManager *sessionMgr = SessionManager::getInstance();
+	string sessionId = sessionMgr->create(userId);
 
 	JsonBuilderAgent agent;
 	agent.startObject();
@@ -1311,7 +1255,8 @@ void FaceRest::handlerLogin(RestJob *job)
 
 void FaceRest::handlerLogout(RestJob *job)
 {
-	if (!PrivateContext::removeSessionId(job->sessionId)) {
+	SessionManager *sessionMgr = SessionManager::getInstance();
+	if (!sessionMgr->remove(job->sessionId)) {
 		replyError(job, HTERR_NOT_FOUND_SESSION_ID);
 		return;
 	}

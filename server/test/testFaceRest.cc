@@ -29,18 +29,11 @@
 #include "CacheServiceDBClient.h"
 #include "UnifiedDataStore.h"
 #include "ZabbixAPIEmulator.h"
+#include "SessionManager.h"
 
 using namespace mlpl;
 
 namespace testFaceRest {
-
-class TestFaceRest : public FaceRest {
-public:
-	static const SessionInfo *callGetSessionInfo(const string &sessionId)
-	{
-		return getSessionInfo(sessionId);
-	}
-};
 
 typedef map<string, string>       StringMap;
 typedef StringMap::iterator       StringMapIterator;
@@ -1250,12 +1243,12 @@ void test_login(void)
 	cppcut_assert_equal(true, g_parser->read("sessionId", sessionId));
 	cppcut_assert_equal(false, sessionId.empty());
 
-	const SessionInfo *sessionInfo =
-	  TestFaceRest::callGetSessionInfo(sessionId);
-	cppcut_assert_not_null(sessionInfo);
-	cppcut_assert_equal(targetIdx + 1, sessionInfo->userId);
-	assertTimeIsNow(sessionInfo->loginTime);
-	assertTimeIsNow(sessionInfo->lastAccessTime);
+	SessionManager *sessionMgr = SessionManager::getInstance();
+	const SessionPtr session = sessionMgr->getSession(sessionId);
+	cppcut_assert_equal(true, session.hasData());
+	cppcut_assert_equal(targetIdx + 1, session->userId);
+	assertTimeIsNow(session->loginTime);
+	assertTimeIsNow(session->lastAccessTime);
 }
 
 void test_loginFailure(void)
@@ -1296,7 +1289,9 @@ void test_logout(void)
 	g_parser = getResponseAsJsonParser(url, "cbname", emptyStringMap,
 	                                   "GET", headers);
 	assertErrorCode(g_parser);
-	cppcut_assert_null(TestFaceRest::callGetSessionInfo(sessionId));
+	SessionManager *sessionMgr = SessionManager::getInstance();
+	const SessionPtr session = sessionMgr->getSession(sessionId);
+	cppcut_assert_equal(false, session.hasData());
 }
 
 void test_getUser(void)

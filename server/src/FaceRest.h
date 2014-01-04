@@ -31,15 +31,6 @@
 #include "Closure.h"
 #include "Utils.h"
 
-struct SessionInfo {
-	UserIdType userId;
-	mlpl::SmartTime loginTime;
-	mlpl::SmartTime lastAccessTime;
-
-	// constructor
-	SessionInfo(void);
-};
-
 struct FaceRestParam {
 	virtual void setupDoneNotifyFunc(void)
 	{
@@ -154,20 +145,6 @@ protected:
 	static void handlerDeleteAccessInfo(RestJob *job);
 
 	void itemFetchedCallback(ClosureBase *closure);
-
-	/**
-	 * Get the SessionInfo instance.
-	 * NOTE: This function doesn't take a lock in it. So you should 
-	 *       take a lock if the other thread may accesses the session
-	 *       information.
-	 *
-	 * @param sessionId A session ID string.
-	 *
-	 * @return
-	 * A pointer to the SesionInfo instance when the session is found.
-	 * Otherwise, NULL is returned.
-	 */
-	static const SessionInfo *getSessionInfo(const string &sessionId);
 
 	static HatoholError parseUserParameter(UserInfo &userInfo,
 	                                       GHashTable *query,
