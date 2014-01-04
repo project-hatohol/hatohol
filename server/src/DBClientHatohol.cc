@@ -969,7 +969,7 @@ void DBClientHatohol::addEventInfoList(const EventInfoList &eventInfoList)
 }
 
 HatoholError DBClientHatohol::getEventInfoList(EventInfoList &eventInfoList,
-					       EventsQueryOption &option)
+                                               EventsQueryOption &option)
 {
 	const ColumnDef &eventsUnifiedId =
 	  COLUMN_DEF_EVENTS[IDX_EVENTS_UNIFIED_ID];
