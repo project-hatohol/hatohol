@@ -23,6 +23,7 @@
 #include <vector>
 #include <unistd.h>
 #include "ActionTp.h"
+#include "ActionManager.h"
 #include "NamedPipe.h"
 #include "Helpers.h"
 #include "Logger.h"
@@ -127,6 +128,29 @@ static bool cmdGetArgList(SmartBuffer &sbuf, size_t size, Context *ctx)
 	return true; // continue
 }
 
+static bool cmdGetSessionId(SmartBuffer &sbuf, size_t size, Context *ctx)
+{
+	char sessionId[ACTTP_SESSION_ID_LEN];
+	memset(sessionId, '*', ACTTP_SESSION_ID_LEN);
+
+	char *env = getenv(ActionManager::ENV_NAME_SESSION_ID);
+	if (env)
+		memcpy(sessionId, env, ACTTP_SESSION_ID_LEN);
+
+	// make packet
+	ResidentCommunicator comm;
+	comm.setHeader(ACTTP_SESSION_ID_LEN, ACTTP_REPLY_GET_SESSION_ID);
+	SmartBuffer &pkt = comm.getBuffer();
+	pkt.resetIndex();
+	pkt.incIndex(RESIDENT_PROTO_HEADER_LEN);
+	pkt.add(sessionId, ACTTP_SESSION_ID_LEN);
+
+	// send packet
+	comm.push(ctx->pipeWr);
+
+	return true; // continue
+}
+
 static void printUsage(void)
 {
 	printf("Usage:\n");
@@ -142,6 +166,8 @@ static void dispatch(GIOStatus stat, SmartBuffer &sbuf,
 	int pktType = ResidentCommunicator::getPacketType(sbuf);
 	if (pktType == ACTTP_CODE_GET_ARG_LIST) {
 		continueFlag = cmdGetArgList(sbuf, size, ctx);
+	} else if (pktType == ACTTP_CODE_GET_SESSION_ID) {
+		continueFlag = cmdGetSessionId(sbuf, size, ctx);
 	} else if (pktType == ACTTP_CODE_QUIT) {
 		continueFlag = cmdQuit(sbuf, size, ctx);
 	} else  {

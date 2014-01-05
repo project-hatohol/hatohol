@@ -35,6 +35,7 @@
 #include "residentTest.h"
 #include "DBClientTest.h"
 #include "ConfigManager.h"
+#include "SessionManager.h"
 
 class TestActionManager : public ActionManager
 {
@@ -97,6 +98,7 @@ struct ExecCommandContext : public ResidentPullHelper<ExecCommandContext> {
 	bool receivedActTpBegin;
 	bool receivedActTpArgList;
 	SmartBuffer argListBuf;
+	string receivedActTpSessionId;
 	bool receivedActTpQuit;
 
 	ExecCommandContext(void)
@@ -245,6 +247,48 @@ static void getArguments(ExecCommandContext *ctx,
 		ctx->argListBuf.incIndex(actualLen);
 		cppcut_assert_equal(expectedArgs[i], actualArg);
 	}
+}
+
+static void getSessionIdCb(GIOStatus stat, mlpl::SmartBuffer &sbuf,
+                                  size_t size, ExecCommandContext *ctx)
+{
+	cppcut_assert_equal(G_IO_STATUS_NORMAL, stat);
+
+	// request to get the remaining data
+	int pktType = ResidentCommunicator::getPacketType(sbuf);
+	cppcut_assert_equal((int)ACTTP_REPLY_GET_SESSION_ID, pktType);
+
+	sbuf.resetIndex();
+	sbuf.incIndex(RESIDENT_PROTO_HEADER_LEN);
+
+	// Sent data doesn't has NULL terminator.
+	// So we added characters one by one.
+	const char *buf = sbuf.getPointer<char>();
+	for (size_t i = 0; i < ACTTP_SESSION_ID_LEN; i++)
+		ctx->receivedActTpSessionId += buf[i];
+}
+
+static void getSessionId(ExecCommandContext *ctx)
+{
+	// send command
+	ResidentCommunicator comm;
+	comm.setHeader(0, ACTTP_CODE_GET_SESSION_ID);
+	comm.push(ctx->pipeWr); 
+
+	// wait the replay
+	ctx->pullData(RESIDENT_PROTO_HEADER_LEN + ACTTP_SESSION_ID_LEN,
+	              getSessionIdCb);
+	while (ctx->receivedActTpSessionId.empty()) {
+		g_main_context_iteration(NULL, TRUE);
+		cppcut_assert_equal(false, ctx->timedOut);
+	}
+
+	// check the response
+	SessionManager *sessionMgr = SessionManager::getInstance();
+	SessionPtr session =
+	   sessionMgr->getSession(ctx->receivedActTpSessionId);
+	cppcut_assert_equal(true, session.hasData());
+	cppcut_assert_equal(session->userId, ctx->actDef.ownerUserId);
 }
 
 static void waitActTpQuitCb(GIOStatus stat, SmartBuffer &sbuf,
@@ -424,6 +468,7 @@ void _assertActionLogJustAfterExec(
 	expectedArgs.push_back(StringUtils::sprintf("%d", evInf.status));
 	expectedArgs.push_back(StringUtils::sprintf("%d", evInf.severity));
 	getArguments(ctx, expectedArgs);
+	getSessionId(ctx);
 }
 #define assertActionLogJustAfterExec(CTX, ...) \
 cut_trace(_assertActionLogJustAfterExec(CTX, ##__VA_ARGS__))

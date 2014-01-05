@@ -440,6 +440,7 @@ const char *ActionManager::ENV_NAME_PATH_FOR_ACTION
   = "HATOHOL_ACTION_PATH";
 const char *ActionManager::ENV_NAME_LD_LIBRARY_PATH_FOR_ACTION
   = "HATOHOL_ACTION_LD_LIBRARY_PATH";
+const char *ActionManager::ENV_NAME_SESSION_ID = "HATOHOL_SESSION_ID";
 
 void ActionManager::reset(void)
 {
@@ -574,10 +575,12 @@ bool ActionManager::spawn(
 	gpointer userData = NULL;
 	GError *error = NULL;
 
-	// TODO: make envp with HATOHOL_SESSION_ID
+	// make envp with HATOHOL_SESSION_ID
+	string sessionIdEnv = makeSessionIdEnv(actionDef);
 	const gchar *envp[] = {
 	  PrivateContext::pathForAction.c_str(),
 	  PrivateContext::ldLibraryPathForAction.c_str(),
+	  sessionIdEnv.c_str(),
 	  NULL
 	};
 
@@ -1416,4 +1419,13 @@ void ActionManager::fillTriggerInfoInEventInfo(EventInfo &eventInfo)
 size_t ActionManager::getNumberOfOnstageCommandActors(void)
 {
 	return CommandActionContext::getNumberOfOnstageCommandActors();
+}
+
+string ActionManager::makeSessionIdEnv(const ActionDef &actionDef)
+{
+	SessionManager *sessionMgr = SessionManager::getInstance();
+	string sessionIdEnv = ActionManager::ENV_NAME_SESSION_ID;
+	sessionIdEnv += "=";
+	sessionIdEnv += sessionMgr->create(actionDef.ownerUserId);
+	return sessionIdEnv;
 }

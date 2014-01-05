@@ -49,6 +49,7 @@ public:
 
 	static const char *ENV_NAME_PATH_FOR_ACTION;
 	static const char *ENV_NAME_LD_LIBRARY_PATH_FOR_ACTION;
+	static const char *ENV_NAME_SESSION_ID;
 
 	struct ResidentNotifyInfo;
 	static void reset(void);
@@ -233,6 +234,7 @@ protected:
 
 	void fillTriggerInfoInEventInfo(EventInfo &eventInfo);
 	static size_t getNumberOfOnstageCommandActors(void);
+	static string makeSessionIdEnv(const ActionDef &actionDef);
 
 private:
 	PrivateContext *m_ctx;
