@@ -92,7 +92,6 @@ struct ExecCommandContext : public ResidentPullHelper<ExecCommandContext> {
 	string pipeName;
 	NamedPipe pipeRd, pipeWr;
 	bool expectHup;
-	bool requestedEventInfo;
 	bool receivedEventInfo;
 	EventInfo eventInfo;
 	bool receivedActTpBegin;
@@ -109,7 +108,6 @@ struct ExecCommandContext : public ResidentPullHelper<ExecCommandContext> {
 	  pipeRd(NamedPipe::END_TYPE_MASTER_READ),
 	  pipeWr(NamedPipe::END_TYPE_MASTER_WRITE),
 	  expectHup(false),
-	  requestedEventInfo(false),
 	  receivedEventInfo(false),
 	  receivedActTpBegin(false),
 	  receivedActTpArgList(false),
@@ -267,6 +265,17 @@ static void getSessionIdCb(GIOStatus stat, mlpl::SmartBuffer &sbuf,
 	for (size_t i = 0; i < ACTTP_SESSION_ID_LEN; i++)
 		ctx->receivedActTpSessionId += buf[i];
 }
+
+static void _assertSessionInManager(const string &sessionId,
+                                    const UserIdType &ownerUserId)
+{
+	SessionManager *sessionMgr = SessionManager::getInstance();
+	SessionPtr session = sessionMgr->getSession(sessionId);
+	cppcut_assert_equal(true, session.hasData());
+	cppcut_assert_equal(session->userId, ownerUserId);
+}
+#define assertSessionInManager(SID, OUID) \
+cut_trace(_assertSessionInManager(SID, OUID))
 
 static void _assertSessionId(ExecCommandContext *ctx)
 {
@@ -577,8 +586,10 @@ void _assertActionLogAfterExecResident(
   ActionLogStatus currStatus, ActionLogStatus newStatus,
   ResidentLogStatusChangedCB statusChangedCb = NULL,
   ActionLogExecFailureCode expectedFailureCode = ACTLOG_EXECFAIL_NONE,
-  int expectedExitCode = RESIDENT_MOD_NOTIFY_EVENT_ACK_OK)
+  int expectedExitCode = RESIDENT_MOD_NOTIFY_EVENT_ACK_OK,
+  const int &maxLoopCount = -1)
 {
+	int loopCount = 0;
 	while (true) {
 		// ActionManager updates the aciton log in the wake of GLIB's
 		// events. So we can wait for the log update with
@@ -605,6 +616,10 @@ void _assertActionLogAfterExecResident(
 		currStatus = ACTLOG_STAT_STARTED;
 		newStatus = ACTLOG_STAT_SUCCEEDED;
 		expectedNullFlags = ACTLOG_FLAG_QUEUING_TIME;
+		
+		loopCount++;
+		if (maxLoopCount > 0 && loopCount >= maxLoopCount)
+			break;
 	}
 }
 #define assertActionLogAfterExecResident(CTX, ...) \
@@ -631,15 +646,16 @@ static void statusChangedCbForArgCheck(
   ActionLogStatus currStatus, ActionLogStatus newStatus,
   ExecCommandContext *ctx)
 {
-	if (currStatus != ACTLOG_STAT_STARTED)
-		return;
-	if (ctx->requestedEventInfo)
-		return;
-	
 	ResidentCommunicator comm;
 	comm.setHeader(0, RESIDENT_TEST_CMD_GET_EVENT_INFO);
 	comm.push(ctx->pipeWr); 
-	ctx->requestedEventInfo = true;
+}
+
+static void sendAllowReplyNotifyEvent(ExecCommandContext *ctx)
+{
+	ResidentCommunicator comm;
+	comm.setHeader(0, RESIDENT_TEST_CMD_ALLOW_REPLY_NOTIFY_EVENT);
+	comm.push(ctx->pipeWr);
 }
 
 static void replyEventInfoCb(GIOStatus stat, mlpl::SmartBuffer &sbuf,
@@ -672,6 +688,7 @@ static void replyEventInfoCb(GIOStatus stat, mlpl::SmartBuffer &sbuf,
 	                    (TriggerStatusType)eventArg->triggerStatus);
 	cppcut_assert_equal(expected.severity,
 	                    (TriggerSeverityType)eventArg->triggerSeverity);
+	assertSessionInManager(eventArg->sessionId, ctx->actDef.ownerUserId);
 
 	// set a flag to exit the loop in _assertWaitEventBody()
 	ctx->receivedEventInfo = true;
@@ -1096,15 +1113,26 @@ void test_execResidentActionCheckArg(void)
 	arg.option = option;
 	assertExecAction(ctx, arg);
 
+	// wait for the status: ACTLOG_STAT_STARTED
 	uint32_t expectedNullFlags =
 	  ACTLOG_FLAG_QUEUING_TIME|ACTLOG_FLAG_END_TIME|ACTLOG_FLAG_EXIT_CODE;
 	assertActionLogAfterExecResident(
 	  ctx, expectedNullFlags,
 	  ACTLOG_STAT_LAUNCHING_RESIDENT,
 	  ACTLOG_STAT_STARTED,
-	  statusChangedCbForArgCheck);
+	  statusChangedCbForArgCheck,
+	  ACTLOG_EXECFAIL_NONE, RESIDENT_MOD_NOTIFY_EVENT_ACK_OK,
+	  1);
 
 	assertWaitEventBody(ctx);
+	sendAllowReplyNotifyEvent(ctx);
+
+	// wait for the status: ACTLOG_STAT_SUCCEEDED;
+	assertActionLogAfterExecResident(
+	  ctx, ACTLOG_FLAG_QUEUING_TIME,
+	  ACTLOG_STAT_STARTED,
+	  ACTLOG_STAT_SUCCEEDED,
+	  statusChangedCbForArgCheck);
 }
 
 void test_shouldSkipByTime(void)

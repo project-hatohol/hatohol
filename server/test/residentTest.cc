@@ -32,13 +32,19 @@ using namespace mlpl;
 struct Context : public ResidentPullHelper<Context> {
 	string pipename;
 	NamedPipe pipeRd, pipeWr;
+	size_t countNotified;
 	ResidentNotifyEventArg notifyEvent;
 	bool crashNotifyEvent;
+	bool allowReplyNotfiyEvent;
+	bool sendEventInfo;
 
 	Context(void)
 	: pipeRd(NamedPipe::END_TYPE_SLAVE_READ),
 	  pipeWr(NamedPipe::END_TYPE_SLAVE_WRITE),
-	  crashNotifyEvent(false)
+	  countNotified(0),
+	  crashNotifyEvent(false),
+	  allowReplyNotfiyEvent(false),
+	  sendEventInfo(false)
 	{
 		memset(&notifyEvent, 0, sizeof(notifyEvent));
 	}
@@ -62,7 +68,7 @@ struct Context : public ResidentPullHelper<Context> {
 	}
 };
 
-static void cmdCbGetEventInfo(SmartBuffer &sbuf, size_t size, Context *ctx)
+static void sendEventInfo(Context *ctx)
 {
 	ResidentCommunicator comm;
 	comm.setHeader(RESIDENT_TEST_REPLY_GET_EVENT_INFO_BODY_LEN,
@@ -74,6 +80,15 @@ static void cmdCbGetEventInfo(SmartBuffer &sbuf, size_t size, Context *ctx)
 	comm.push(ctx->pipeWr); 
 }
 
+static void cmdCbGetEventInfo(SmartBuffer &sbuf, size_t size, Context *ctx)
+{
+	if (ctx->countNotified > 0) {
+		sendEventInfo(ctx);
+		return;
+	}
+	ctx->sendEventInfo = true;
+}
+
 static void testCmdCb(GIOStatus stat, SmartBuffer &sbuf, 
                       size_t size, Context *ctx)
 {
@@ -81,10 +96,13 @@ static void testCmdCb(GIOStatus stat, SmartBuffer &sbuf,
 	   ResidentCommunicator::getPacketType(sbuf)); 
 	if (cmdType == RESIDENT_TEST_CMD_GET_EVENT_INFO) {
 		cmdCbGetEventInfo(sbuf, size, ctx);
+	} else if (cmdType == RESIDENT_TEST_CMD_ALLOW_REPLY_NOTIFY_EVENT) {
+		ctx->allowReplyNotfiyEvent = true;
 	} else {
 		MLPL_ERR("Unknown expected cmd: %d\n", cmdType);
 		exit(EXIT_FAILURE);
 	}
+	ctx->pullHeader(testCmdCb);
 }
 
 static void stall(void)
@@ -136,6 +154,12 @@ static uint32_t notifyEvent(ResidentNotifyEventArg *arg)
 	if (ctx.crashNotifyEvent)
 		crash();
 	ctx.notifyEvent = *arg;
+	ctx.countNotified++;
+	if (ctx.sendEventInfo) {
+		sendEventInfo(&ctx);
+		while (!ctx.allowReplyNotfiyEvent)
+			g_main_context_iteration(NULL, TRUE);
+	}
 	return RESIDENT_MOD_NOTIFY_EVENT_ACK_OK;
 }
 
