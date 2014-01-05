@@ -1135,8 +1135,11 @@ void test_execResidentActionManyEvents(void)
 		                                      currStatus, newStatus);
 		ExecActionArg arg(0x4ab3fd32, ACTION_RESIDENT);
 		assertExecAction(ctx, arg);
-		assertActionLogAfterExecResident(ctx, expectedNullFlags,
-		                                 currStatus, newStatus);
+		AssertActionLogArg logarg(ctx);
+		logarg.expectedNullFlags = expectedNullFlags;
+		logarg.currStatus = currStatus;
+		logarg.newStatus  = newStatus;
+		assertActionLogAfterExecResident(logarg);
 	}
 }
 
