@@ -158,8 +158,10 @@ static uint32_t notifyEvent(ResidentNotifyEventArg *arg)
 		crash();
 	ctx.notifyEvent = *arg;
 	ctx.countNotified++;
-	if (ctx.sendEventInfo)
+	if (ctx.sendEventInfo) {
 		sendEventInfo(&ctx);
+		ctx.sendEventInfo = false;
+	}
 	while (ctx.blockReplyNotfiyEvent)
 		g_main_context_iteration(NULL, TRUE);
 	return RESIDENT_MOD_NOTIFY_EVENT_ACK_OK;
