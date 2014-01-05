@@ -41,12 +41,10 @@ struct ActionManager::ResidentNotifyInfo {
 	ResidentInfo *residentInfo;
 	uint64_t  logId;
 	EventInfo eventInfo; // a replica
+	string    sessionId;
 
-	ResidentNotifyInfo(ResidentInfo *_residentInfo)
-	: residentInfo(_residentInfo),
-	  logId(INVALID_ACTION_LOG_ID)
-	{
-	}
+	ResidentNotifyInfo(ResidentInfo *_residentInfo);
+	virtual ~ResidentNotifyInfo();
 
 	// NOTE: Currently this instance is handled only on GLIB event
 	// callbacks. This ensures that the deletion of the instance does
@@ -200,6 +198,26 @@ struct ResidentInfo :
 
 MutexLock          ResidentInfo::residentMapLock;
 RunningResidentMap ResidentInfo::runningResidentMap;
+
+// ---------------------------------------------------------------------------
+// methods of ResidentNotifyInfo
+// ---------------------------------------------------------------------------
+ActionManager::ResidentNotifyInfo::ResidentNotifyInfo(ResidentInfo *_residentInfo)
+: residentInfo(_residentInfo),
+  logId(INVALID_ACTION_LOG_ID)
+{
+	SessionManager *sessionMgr = SessionManager::getInstance();
+	sessionId = sessionMgr->create(residentInfo->actionDef.ownerUserId);
+}
+
+ActionManager::ResidentNotifyInfo::~ResidentNotifyInfo()
+{
+	SessionManager *sessionMgr = SessionManager::getInstance();
+	if (!sessionMgr->remove(sessionId)) {
+		MLPL_ERR("Failed to remove session: %s\n",
+		         sessionId.c_str());
+	}
+}
 
 struct WaitingCommandActionInfo {
 	uint64_t  logId;
@@ -1191,7 +1209,8 @@ void ActionManager::notifyEvent(ResidentInfo *residentInfo,
 {
 	ResidentCommunicator comm;
 	comm.setNotifyEventBody(residentInfo->actionDef.id,
-	                        notifyInfo->eventInfo);
+	                        notifyInfo->eventInfo,
+	                        notifyInfo->sessionId);
 	comm.push(residentInfo->pipeWr);
 
 	// wait for result code

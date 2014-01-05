@@ -97,7 +97,8 @@ void ResidentCommunicator::setModuleLoaded(uint32_t code)
 }
 
 void ResidentCommunicator::setNotifyEventBody(
-  const ActionIdType &actionId, const EventInfo &eventInfo)
+  const ActionIdType &actionId, const EventInfo &eventInfo,
+  const string &sessionId)
 {
 	setHeader(RESIDENT_PROTO_EVENT_BODY_LEN,
 	          RESIDENT_PROTO_PKT_TYPE_NOTIFY_EVENT);
@@ -111,6 +112,7 @@ void ResidentCommunicator::setNotifyEventBody(
 	m_ctx->sbuf.add64(eventInfo.triggerId);
 	m_ctx->sbuf.add16(eventInfo.status);
 	m_ctx->sbuf.add16(eventInfo.severity);
+	m_ctx->sbuf.add(sessionId.c_str(), HATOHOL_SESSION_ID_LEN);
 }
 
 void ResidentCommunicator::setNotifyEventAck(uint32_t resultCode)
