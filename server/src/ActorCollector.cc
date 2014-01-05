@@ -27,6 +27,7 @@
 #include "DBClientAction.h"
 #include "Logger.h"
 #include "MutexLock.h"
+#include "SessionManager.h"
 
 using namespace mlpl;
 
@@ -69,11 +70,34 @@ ActorInfo::ActorInfo(void)
 {
 }
 
+ActorInfo &ActorInfo::operator=(const ActorInfo &actorInfo)
+{
+	pid             = actorInfo.pid;
+	logId           = actorInfo.logId;
+	dontLog         = actorInfo.dontLog;
+	// Don't copy sessionId to avoid multiple call of
+	// SessionManager::remove() for the session.
+	collectedCb     = actorInfo.collectedCb;
+	postCollectedCb = actorInfo.postCollectedCb;
+	collectedCbPriv = actorInfo.collectedCbPriv;
+	timerTag        = actorInfo.timerTag;
+
+	return *this;
+}
+
 ActorInfo::~ActorInfo()
 {
 	// If the following function fails, MPL_ERR() is called in it.
 	// So we do nothing here.
 	Utils::removeEventSourceIfNeeded(timerTag);
+
+	if (!sessionId.empty()) {
+		SessionManager *sessionMgr = SessionManager::getInstance();
+		if (!sessionMgr->remove(sessionId)) {
+			MLPL_WARN("Failed to remove session: %s\n",
+			          sessionId.c_str());
+		}
+	}
 }
 
 // ---------------------------------------------------------------------------

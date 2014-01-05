@@ -234,7 +234,8 @@ protected:
 
 	void fillTriggerInfoInEventInfo(EventInfo &eventInfo);
 	static size_t getNumberOfOnstageCommandActors(void);
-	static string makeSessionIdEnv(const ActionDef &actionDef);
+	static string makeSessionIdEnv(const ActionDef &actionDef,
+	                               std::string &sessionId);
 
 private:
 	PrivateContext *m_ctx;

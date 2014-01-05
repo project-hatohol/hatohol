@@ -575,17 +575,17 @@ bool ActionManager::spawn(
 	gpointer userData = NULL;
 	GError *error = NULL;
 
+	// create an ActorInfo instance.
+	ActorInfo *actorInfo = new ActorInfo();
+
 	// make envp with HATOHOL_SESSION_ID
-	string sessionIdEnv = makeSessionIdEnv(actionDef);
+	string sessionIdEnv = makeSessionIdEnv(actionDef, actorInfo->sessionId);
 	const gchar *envp[] = {
 	  PrivateContext::pathForAction.c_str(),
 	  PrivateContext::ldLibraryPathForAction.c_str(),
 	  sessionIdEnv.c_str(),
 	  NULL
 	};
-
-	// create an ActorInfo instance.
-	ActorInfo *actorInfo = new ActorInfo();
 
 	WaitingCommandActionInfo *waitCmdInfo = NULL;
 	if (actionDef.type == ACTION_COMMAND) {
@@ -1421,11 +1421,13 @@ size_t ActionManager::getNumberOfOnstageCommandActors(void)
 	return CommandActionContext::getNumberOfOnstageCommandActors();
 }
 
-string ActionManager::makeSessionIdEnv(const ActionDef &actionDef)
+string ActionManager::makeSessionIdEnv(const ActionDef &actionDef,
+                                       string &sessionId)
 {
 	SessionManager *sessionMgr = SessionManager::getInstance();
+	sessionId = sessionMgr->create(actionDef.ownerUserId);
 	string sessionIdEnv = ActionManager::ENV_NAME_SESSION_ID;
 	sessionIdEnv += "=";
-	sessionIdEnv += sessionMgr->create(actionDef.ownerUserId);
+	sessionIdEnv += sessionId;
 	return sessionIdEnv;
 }
