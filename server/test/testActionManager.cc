@@ -514,6 +514,28 @@ void _assertActionLogAfterEnding(
 		  expectedNullFlags /* nullFlags */);
 		break;
 	}
+
+	// SessionId should be removed after the action finishes
+	if (ctx->receivedActTpSessionId.empty())
+		return;
+	
+	int retry = 10; // It is hard to get the timing the session is delted.
+	                // So we just retry some times.
+	while (retry) {
+		// ActorInfo is deleted on a GLib loop.
+		// That is, a session instance is also deleted in it.
+		// So we wait for the idle of the GLib loop.
+		while (g_main_context_iteration(NULL, FALSE))
+			;
+		SessionManager *sessionMgr = SessionManager::getInstance();
+		SessionPtr session =
+		   sessionMgr->getSession(ctx->receivedActTpSessionId);
+		if (!session.hasData())
+			break;
+		retry--;
+		usleep(10);
+	}
+	cppcut_assert_not_equal(0, retry);
 }
 #define assertActionLogAfterEnding(CTX, ...) \
 cut_trace(_assertActionLogAfterEnding(CTX, ##__VA_ARGS__))
