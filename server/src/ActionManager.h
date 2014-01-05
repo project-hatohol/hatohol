@@ -47,6 +47,9 @@ public:
 	// 9: triggerStatus
 	// 10: triggerSeverity
 
+	static const char *ENV_NAME_PATH_FOR_ACTION;
+	static const char *ENV_NAME_LD_LIBRARY_PATH_FOR_ACTION;
+
 	struct ResidentNotifyInfo;
 	static void reset(void);
 
@@ -76,6 +79,8 @@ protected:
 	typedef void (*SpawnPostproc)(ActorInfo *actorInfo,
 	                              const ActionDef &actionDef,
 	                              uint64_t logId, void *priv);
+
+	static void setupPathForAction(string &path, string &ldLibraryPath);
 
 	static gboolean residentReadErrCb(GIOChannel *source,
 	                                  GIOCondition condition,

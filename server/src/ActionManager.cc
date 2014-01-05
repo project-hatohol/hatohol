@@ -31,6 +31,7 @@
 #include "LabelUtils.h"
 #include "ConfigManager.h"
 #include "SmartTime.h"
+#include "SessionManager.h"
 
 using namespace std;
 using namespace mlpl;
@@ -424,16 +425,27 @@ private:
 };
 
 struct ActionManager::PrivateContext {
+	static string pathForAction;
+	static string ldLibraryPathForAction;
 };
+string ActionManager::PrivateContext::pathForAction;
+string ActionManager::PrivateContext::ldLibraryPathForAction;
 
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
 const char *ActionManager::NUM_COMMNAD_ACTION_EVENT_ARG_MAGIC
   = "--hatohol-action-v1";
+const char *ActionManager::ENV_NAME_PATH_FOR_ACTION
+  = "HATOHOL_ACTION_PATH";
+const char *ActionManager::ENV_NAME_LD_LIBRARY_PATH_FOR_ACTION
+  = "HATOHOL_ACTION_LD_LIBRARY_PATH";
 
 void ActionManager::reset(void)
 {
+	setupPathForAction(PrivateContext::pathForAction,
+	                   PrivateContext::ldLibraryPathForAction);
+
 	// The following deletion has naturally no effect at the start of
 	// Hatohol. This is mainly for the test.
 	// NOTE: This is a special case for test, so we don't take
@@ -484,6 +496,21 @@ void ActionManager::checkEvents(const EventInfoList &eventList)
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
+void ActionManager::setupPathForAction(string &path, string &ldLibraryPath)
+{
+	char *env = getenv(ENV_NAME_PATH_FOR_ACTION);
+	if (env) {
+		path = "PATH=";
+		path += env;
+	}
+
+	env = getenv(ENV_NAME_LD_LIBRARY_PATH_FOR_ACTION);
+	if (env) {
+		ldLibraryPath = "LD_LIBRARY_PATH=";
+		ldLibraryPath += env;
+	}
+}
+
 bool ActionManager::shouldSkipByTime(const EventInfo &eventInfo)
 {
 	ConfigManager *configMgr = ConfigManager::getInstance();
@@ -513,6 +540,8 @@ void ActionManager::runAction(const ActionDef &actionDef,
 {
 	EventInfo eventInfo(_eventInfo);
 	fillTriggerInfoInEventInfo(eventInfo);
+
+	// TODO: check the owner of action exists
 
 	if (actionDef.type == ACTION_COMMAND) {
 		execCommandAction(actionDef, eventInfo, dbAction);
@@ -545,6 +574,13 @@ bool ActionManager::spawn(
 	gpointer userData = NULL;
 	GError *error = NULL;
 
+	// TODO: make envp with HATOHOL_SESSION_ID
+	const gchar *envp[] = {
+	  PrivateContext::pathForAction.c_str(),
+	  PrivateContext::ldLibraryPathForAction.c_str(),
+	  NULL
+	};
+
 	// create an ActorInfo instance.
 	ActorInfo *actorInfo = new ActorInfo();
 
@@ -555,9 +591,6 @@ bool ActionManager::spawn(
 		waitCmdInfo = postprocCtx->waitCmdInfo;
 	}
 
-	// TODO: make envp with HATOHOL_SESSION_ID
-	gchar **envp = NULL;
-
 	// We take the lock here to avoid the child spanwed below from
 	// not being collected. If the child immediately exits
 	// before the following 'ActorCollector::addActor(&childPid)' is
@@ -565,7 +598,7 @@ bool ActionManager::spawn(
 	// because the pid of the child isn't in the wait child set.
 	ActorCollector::lock();
 	gboolean succeeded =
-	  g_spawn_async(workingDirectory, (gchar **)argv, envp,
+	  g_spawn_async(workingDirectory, (gchar **)argv, (gchar **)envp,
 	                flags, childSetup, userData, &actorInfo->pid, &error);
 	if (!succeeded) {
 		ActorCollector::unlock();

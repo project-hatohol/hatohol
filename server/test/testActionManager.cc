@@ -68,6 +68,11 @@ public:
 	{
 		return getNumberOfOnstageCommandActors();
 	}
+
+	static void callSetupPathForAction(string &path, string &ldLibraryPath)
+	{
+		setupPathForAction(path, ldLibraryPath);
+	}
 };
 
 namespace testActionManager {
@@ -691,6 +696,20 @@ static void deleteGlobalExecCommandCtx(size_t idx)
 	g_execCommandCtxVect[idx] = NULL;
 }
 
+static string g_pathForAction;
+static string g_ldLibraryPathForAction;
+
+static void clearEnvString(const string &envName, string &str)
+{
+	if (str.empty())
+		return;
+
+	const int overwrite = 1;
+	setenv(envName.c_str(), str.c_str(), overwrite);
+	cut_assert_errno();
+	str.clear();
+}
+
 void setup(void)
 {
 	hatoholInit();
@@ -713,11 +732,48 @@ void teardown(void)
 		deleteGlobalExecCommandCtx(i);
 	g_execCommandCtxVect.clear();
 	releaseDefaultContext();
+
+	clearEnvString(ActionManager::ENV_NAME_PATH_FOR_ACTION,
+	               g_pathForAction);
+	clearEnvString(ActionManager::ENV_NAME_LD_LIBRARY_PATH_FOR_ACTION,
+	               g_ldLibraryPathForAction);
 }
 
 // ---------------------------------------------------------------------------
 // Test cases
 // ---------------------------------------------------------------------------
+void test_setupPathForAction(void)
+{
+	// backup the original environemnt variables
+	char *env = getenv(ActionManager::ENV_NAME_PATH_FOR_ACTION);
+	cut_assert_errno();
+	if (env)
+		g_pathForAction = env;
+	env = getenv(ActionManager::ENV_NAME_LD_LIBRARY_PATH_FOR_ACTION);
+	cut_assert_errno();
+	if (env)
+		g_ldLibraryPathForAction = env;
+
+	// set test environment variable
+	const int overwrite = 1;
+	const string testPath = "/usr/bin:/bin:/usr/sbin:/bin:/opt/bin";
+	const string testLdLibPath = "/usr/lib:/lib:/opt/lib";
+
+	setenv(ActionManager::ENV_NAME_PATH_FOR_ACTION,
+	       testPath.c_str(), overwrite);
+	cut_assert_errno();
+	setenv(ActionManager::ENV_NAME_LD_LIBRARY_PATH_FOR_ACTION,
+	       testLdLibPath.c_str(), overwrite);
+	cut_assert_errno();
+
+	// get the value and assert
+	string path;
+	string ldLibraryPath;
+	TestActionManager::callSetupPathForAction(path, ldLibraryPath);
+	cppcut_assert_equal("PATH=" + testPath, path);
+	cppcut_assert_equal("LD_LIBRARY_PATH=" + testLdLibPath, ldLibraryPath);
+}
+
 void test_execCommandAction(void)
 {
 	g_execCommandCtx = new ExecCommandContext();
