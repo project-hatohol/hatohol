@@ -1178,25 +1178,26 @@ void test_execResidentActionCheckArg(void)
 	assertExecAction(ctx, arg);
 
 	// wait for the status: ACTLOG_STAT_STARTED
-	uint32_t expectedNullFlags =
+	AssertActionLogArg logarg;
+	logarg.ctx = ctx;
+	logarg.expectedNullFlags = 
 	  ACTLOG_FLAG_QUEUING_TIME|ACTLOG_FLAG_END_TIME|ACTLOG_FLAG_EXIT_CODE;
-	assertActionLogAfterExecResident(
-	  ctx, expectedNullFlags,
-	  ACTLOG_STAT_LAUNCHING_RESIDENT,
-	  ACTLOG_STAT_STARTED,
-	  statusChangedCbForArgCheck,
-	  ACTLOG_EXECFAIL_NONE, RESIDENT_MOD_NOTIFY_EVENT_ACK_OK,
-	  1);
+	logarg.currStatus = ACTLOG_STAT_LAUNCHING_RESIDENT;
+	logarg.newStatus  = ACTLOG_STAT_STARTED;
+	logarg.statusChangedCb = statusChangedCbForArgCheck;
+	logarg.maxLoopCount = 1;
+	assertActionLogAfterExecResident(logarg);
 
 	assertWaitEventBody(ctx);
 	sendAllowReplyNotifyEvent(ctx);
 
 	// wait for the status: ACTLOG_STAT_SUCCEEDED;
-	assertActionLogAfterExecResident(
-	  ctx, ACTLOG_FLAG_QUEUING_TIME,
-	  ACTLOG_STAT_STARTED,
-	  ACTLOG_STAT_SUCCEEDED,
-	  statusChangedCbForArgCheck);
+	logarg = AssertActionLogArg(); // clear value
+	logarg.ctx = ctx;
+	logarg.expectedNullFlags = ACTLOG_FLAG_QUEUING_TIME;
+	logarg.currStatus = ACTLOG_STAT_STARTED;
+	logarg.newStatus  = ACTLOG_STAT_SUCCEEDED;
+	assertActionLogAfterExecResident(logarg);
 }
 
 void test_shouldSkipByTime(void)
