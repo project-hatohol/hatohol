@@ -1018,11 +1018,13 @@ void test_execResidentAction(void)
 	ExecActionArg arg(0x4ab3fd32, ACTION_RESIDENT);
 	assertExecAction(ctx, arg);
 
-	uint32_t expectedNullFlags =
+	AssertActionLogArg logarg;
+	logarg.ctx = ctx;
+	logarg.expectedNullFlags =
 	  ACTLOG_FLAG_QUEUING_TIME|ACTLOG_FLAG_END_TIME|ACTLOG_FLAG_EXIT_CODE;
-	assertActionLogAfterExecResident(ctx, expectedNullFlags,
-	                                 ACTLOG_STAT_LAUNCHING_RESIDENT,
-	                                 ACTLOG_STAT_STARTED);
+	logarg.currStatus = ACTLOG_STAT_LAUNCHING_RESIDENT;
+	logarg.newStatus  = ACTLOG_STAT_STARTED;
+	assertActionLogAfterExecResident(logarg);
 }
 
 void test_execResidentActionCrashInInit(void)
