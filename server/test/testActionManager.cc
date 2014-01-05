@@ -268,7 +268,7 @@ static void getSessionIdCb(GIOStatus stat, mlpl::SmartBuffer &sbuf,
 		ctx->receivedActTpSessionId += buf[i];
 }
 
-static void getSessionId(ExecCommandContext *ctx)
+static void _assertSessionId(ExecCommandContext *ctx)
 {
 	// send command
 	ResidentCommunicator comm;
@@ -290,6 +290,7 @@ static void getSessionId(ExecCommandContext *ctx)
 	cppcut_assert_equal(true, session.hasData());
 	cppcut_assert_equal(session->userId, ctx->actDef.ownerUserId);
 }
+#define assertSessionId(CTX) cut_trace(_assertSessionId(CTX))
 
 static void waitActTpQuitCb(GIOStatus stat, SmartBuffer &sbuf,
                             size_t size, ExecCommandContext *ctx)
@@ -468,7 +469,7 @@ void _assertActionLogJustAfterExec(
 	expectedArgs.push_back(StringUtils::sprintf("%d", evInf.status));
 	expectedArgs.push_back(StringUtils::sprintf("%d", evInf.severity));
 	getArguments(ctx, expectedArgs);
-	getSessionId(ctx);
+	assertSessionId(ctx);
 }
 #define assertActionLogJustAfterExec(CTX, ...) \
 cut_trace(_assertActionLogJustAfterExec(CTX, ##__VA_ARGS__))
