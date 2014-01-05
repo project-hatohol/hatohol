@@ -1079,11 +1079,13 @@ void test_execResidentActionTimeoutInInit(void)
 	arg.timeout = 10;
 	assertExecAction(ctx, arg);
 
-	assertActionLogAfterExecResident(
-	  ctx, ACTLOG_FLAG_QUEUING_TIME,
-	  ACTLOG_STAT_LAUNCHING_RESIDENT, ACTLOG_STAT_FAILED,
-	  NULL, /* statusChangedCb */
-	  ACTLOG_EXECFAIL_KILLED_TIMEOUT, 0);
+	AssertActionLogArg logarg(ctx);
+	logarg.expectedNullFlags = ACTLOG_FLAG_QUEUING_TIME;
+	logarg.currStatus = ACTLOG_STAT_LAUNCHING_RESIDENT;
+	logarg.newStatus  = ACTLOG_STAT_FAILED;
+	logarg.expectedFailureCode = ACTLOG_EXECFAIL_KILLED_TIMEOUT;
+	logarg.expectedExitCode = 0;
+	assertActionLogAfterExecResident(logarg);
 }
 
 void test_execResidentActionWithWrongPath(void)
