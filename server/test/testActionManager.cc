@@ -519,8 +519,9 @@ void _assertActionLogAfterEnding(
 	if (ctx->receivedActTpSessionId.empty())
 		return;
 	
-	int retry = 10; // It is hard to get the timing of the session deletion.
-	                // So we just retry some times.
+	// It is hard to get the timing of the session deletion.
+	// So we just retry some times.
+	int retry = 500;
 	while (retry) {
 		// ActorInfo is deleted on a GLib loop.
 		// That is, a session instance is also deleted in it.
