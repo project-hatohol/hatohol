@@ -431,6 +431,7 @@ static void _assertTestMode(const bool expectedMode = false,
 
 static void _assertServers(const string &path, const string &callbackName = "")
 {
+	setupUserDB();
 	startFaceRest();
 	RequestArg arg(path, callbackName);
 	arg.userId = findUserWith(OPPRVLG_GET_ALL_SERVER);
@@ -522,6 +523,7 @@ static void _assertTriggers(const string &path, const string &callbackName = "",
 
 static void _assertEvents(const string &path, const string &callbackName = "")
 {
+	setupUserDB();
 	startFaceRest();
 	RequestArg arg(path, callbackName);
 	arg.userId = findUserWith(OPPRVLG_GET_ALL_SERVER);
@@ -556,6 +558,7 @@ static void _assertEvents(const string &path, const string &callbackName = "")
 
 static void _assertItems(const string &path, const string &callbackName = "")
 {
+	setupUserDB();
 	startFaceRest();
 	RequestArg arg(path, callbackName);
 	arg.userId = findUserWith(OPPRVLG_GET_ALL_SERVER);
@@ -597,6 +600,7 @@ cut_trace(_assertActionCondition<T>(PARSER, COND, MEMBER, BIT, EXPECT))
 
 static void _assertActions(const string &path, const string &callbackName = "")
 {
+	setupUserDB();
 	startFaceRest();
 	RequestArg arg(path, callbackName);
 	arg.userId = findUserWith(OPPRVLG_GET_ALL_USER);
@@ -1103,6 +1107,7 @@ void test_eventsJsonp(void)
 
 void test_eventsStartIdWithoutSortOrder(void)
 {
+	setupUserDB();
 	startFaceRest();
 	StringMap parameters;
 	parameters["startId"] = "5";
@@ -1154,6 +1159,7 @@ void test_actionsJsonp(void)
 void test_addAction(void)
 {
 	setupPostAction();
+	setupUserDB();
 
 	int type = ACTION_COMMAND;
 	const string command = "makan-kosappo";
@@ -1181,6 +1187,7 @@ void test_addAction(void)
 void test_addActionParameterFull(void)
 {
 	setupPostAction();
+	setupUserDB();
 
 	const string command = "/usr/bin/pochi";
 	const string workingDir = "/usr/local/wani";
@@ -1232,6 +1239,7 @@ void test_addActionParameterFull(void)
 
 void test_addActionParameterOver32bit(void)
 {
+	setupUserDB();
 	setupPostAction();
 
 	const string command = "/usr/bin/pochi";
@@ -1261,6 +1269,7 @@ void test_addActionParameterOver32bit(void)
 void test_addActionComplicatedCommand(void)
 {
 	setupPostAction();
+	setupUserDB();
 
 	const string command =
 	   "/usr/bin/@hoge -l '?ABC+{[=:;|.,#*`!$%\\~]}FOX-' --X '$^' --name \"@'v'@\"'";
@@ -1279,6 +1288,7 @@ void test_addActionComplicatedCommand(void)
 void test_addActionCommandWithJapanese(void)
 {
 	setupPostAction();
+	setupUserDB();
 	changeLocale("en.UTF-8");
 
 	const string command = COMMAND_EX_JP;
@@ -1296,6 +1306,7 @@ void test_addActionCommandWithJapanese(void)
 
 void test_addActionWithoutType(void)
 {
+	setupUserDB();
 	StringMap params;
 	assertAddAction(params, findUserWith(OPPRVLG_CREATE_ACTION),
 	                HTERR_NOT_FOUND_PARAMETER);
@@ -1303,6 +1314,7 @@ void test_addActionWithoutType(void)
 
 void test_addActionWithoutCommand(void)
 {
+	setupUserDB();
 	StringMap params;
 	params["type"] = StringUtils::sprintf("%d", ACTION_COMMAND);
 	assertAddAction(params, findUserWith(OPPRVLG_CREATE_ACTION),
@@ -1311,6 +1323,7 @@ void test_addActionWithoutCommand(void)
 
 void test_addActionInvalidType(void)
 {
+	setupUserDB();
 	StringMap params;
 	params["type"] = StringUtils::sprintf("%d", ACTION_RESIDENT+1);
 	assertAddAction(params, findUserWith(OPPRVLG_CREATE_ACTION),
@@ -1320,6 +1333,7 @@ void test_addActionInvalidType(void)
 void test_deleteAction(void)
 {
 	startFaceRest();
+	setupUserDB();
 	setupActionDB(); // make a test action DB.
 
 	int targetId = 2;
@@ -1599,6 +1613,7 @@ void test_deleteUserWithNonNumericId(void)
 
 void test_updateOrAddUserNotInTestMode(void)
 {
+	setupUserDB();
 	startFaceRest();
 	RequestArg arg("/test/user", "cbname");
 	arg.request = "POST";
