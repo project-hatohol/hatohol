@@ -35,7 +35,7 @@ struct Context : public ResidentPullHelper<Context> {
 	size_t countNotified;
 	ResidentNotifyEventArg notifyEvent;
 	bool crashNotifyEvent;
-	bool allowReplyNotfiyEvent;
+	bool blockReplyNotfiyEvent;
 	bool sendEventInfo;
 
 	Context(void)
@@ -43,7 +43,7 @@ struct Context : public ResidentPullHelper<Context> {
 	  pipeWr(NamedPipe::END_TYPE_SLAVE_WRITE),
 	  countNotified(0),
 	  crashNotifyEvent(false),
-	  allowReplyNotfiyEvent(false),
+	  blockReplyNotfiyEvent(false),
 	  sendEventInfo(false)
 	{
 		memset(&notifyEvent, 0, sizeof(notifyEvent));
@@ -96,8 +96,8 @@ static void testCmdCb(GIOStatus stat, SmartBuffer &sbuf,
 	   ResidentCommunicator::getPacketType(sbuf)); 
 	if (cmdType == RESIDENT_TEST_CMD_GET_EVENT_INFO) {
 		cmdCbGetEventInfo(sbuf, size, ctx);
-	} else if (cmdType == RESIDENT_TEST_CMD_ALLOW_REPLY_NOTIFY_EVENT) {
-		ctx->allowReplyNotfiyEvent = true;
+	} else if (cmdType == RESIDENT_TEST_CMD_UNBLOCK_REPLY_NOTIFY_EVENT) {
+		ctx->blockReplyNotfiyEvent = false;
 	} else {
 		MLPL_ERR("Unknown expected cmd: %d\n", cmdType);
 		exit(EXIT_FAILURE);
@@ -136,7 +136,10 @@ static uint32_t init(const char *arg)
 			ctx.crashNotifyEvent = true;
 		} else if (str == "--stall-init") {
 			stall();
+		} else if (str == "--block-reply-notify-event") {
+			ctx.blockReplyNotfiyEvent = true;
 		}
+		
 	}
 
 	// init pipe if needed
@@ -155,11 +158,10 @@ static uint32_t notifyEvent(ResidentNotifyEventArg *arg)
 		crash();
 	ctx.notifyEvent = *arg;
 	ctx.countNotified++;
-	if (ctx.sendEventInfo) {
+	if (ctx.sendEventInfo)
 		sendEventInfo(&ctx);
-		while (!ctx.allowReplyNotfiyEvent)
-			g_main_context_iteration(NULL, TRUE);
-	}
+	while (ctx.blockReplyNotfiyEvent)
+		g_main_context_iteration(NULL, TRUE);
 	return RESIDENT_MOD_NOTIFY_EVENT_ACK_OK;
 }
 

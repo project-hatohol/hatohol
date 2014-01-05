@@ -654,7 +654,7 @@ static void statusChangedCbForArgCheck(
 static void sendAllowReplyNotifyEvent(ExecCommandContext *ctx)
 {
 	ResidentCommunicator comm;
-	comm.setHeader(0, RESIDENT_TEST_CMD_ALLOW_REPLY_NOTIFY_EVENT);
+	comm.setHeader(0, RESIDENT_TEST_CMD_UNBLOCK_REPLY_NOTIFY_EVENT);
 	comm.push(ctx->pipeWr);
 }
 
@@ -1104,6 +1104,7 @@ void test_execResidentActionCheckArg(void)
 
 	string pipeName = "test-resident-action";
 	string option = "--pipename " + pipeName;
+	option += " --block-reply-notify-event";
 	ctx->initPipes(pipeName);
 	ctx->pullData(RESIDENT_PROTO_HEADER_LEN +
 	              RESIDENT_TEST_REPLY_GET_EVENT_INFO_BODY_LEN,
