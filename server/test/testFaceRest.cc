@@ -47,6 +47,17 @@ static StringVector emptyStringVector;
 static FaceRest *g_faceRest = NULL;
 static JsonParserAgent *g_parser = NULL;
 
+static void setupUserDB(void)
+{
+	const bool dbRecreate = true;
+	// If loadTestDat is true, not only the user DB but also
+	// the access info DB will be loaded. So we set false here
+	// and load the user DB later.
+	const bool loadTestDat = false;
+	setupTestDBUser(dbRecreate, loadTestDat);
+	loadTestDBUser();
+}
+
 static void startFaceRest(void)
 {
 	struct : public FaceRestParam {
@@ -453,6 +464,7 @@ static void _assertTriggers(const string &path, const string &callbackName = "",
                             uint32_t serverId = ALL_SERVERS,
                             uint64_t hostId = ALL_HOSTS)
 {
+	setupUserDB();
 	startFaceRest();
 
 	// calculate the expected test triggers
@@ -874,17 +886,6 @@ static void _assertAllowedServers(const string &path, const UserIdType &userId,
 
 #define assertAddAccessInfo(U, P, USER_ID, ...) \
 cut_trace(_assertAddRecord(P, U, USER_ID, ##__VA_ARGS__))
-
-static void setupUserDB(void)
-{
-	const bool dbRecreate = true;
-	// If loadTestDat is true, not only the user DB but also
-	// the access info DB will be loaded. So we set false here
-	// and load the user DB later.
-	const bool loadTestDat = false;
-	setupTestDBUser(dbRecreate, loadTestDat);
-	loadTestDBUser();
-}
 
 void _assertAddAccessInfoWithCond(
   const string &serverId, const string &hostGroupId,
