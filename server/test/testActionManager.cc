@@ -1035,11 +1035,13 @@ void test_execResidentActionCrashInInit(void)
 	arg.option = "--crash-init";
 	assertExecAction(ctx, arg);
 
-	assertActionLogAfterExecResident(
-	  ctx, ACTLOG_FLAG_QUEUING_TIME,
-	  ACTLOG_STAT_LAUNCHING_RESIDENT, ACTLOG_STAT_FAILED,
-	  NULL, /* statusChangedCb */
-	  getFailureCodeSignalOrDumpedByRLimit(), SIGSEGV);
+	AssertActionLogArg logarg(ctx);
+	logarg.expectedNullFlags = ACTLOG_FLAG_QUEUING_TIME;
+	logarg.currStatus = ACTLOG_STAT_LAUNCHING_RESIDENT;
+	logarg.newStatus  = ACTLOG_STAT_FAILED;
+	logarg.expectedFailureCode = getFailureCodeSignalOrDumpedByRLimit();
+	logarg.expectedExitCode = SIGSEGV;
+	assertActionLogAfterExecResident(logarg);
 }
 
 void test_execResidentActionCrashInNotifyEvent(void)
