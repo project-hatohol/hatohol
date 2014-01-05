@@ -592,8 +592,8 @@ struct AssertActionLogArg
 	int                        expectedExitCode;
 	int                        maxLoopCount;
 
-	AssertActionLogArg(void)
-	: ctx(NULL),
+	AssertActionLogArg(ExecCommandContext *_ctx)
+	: ctx(_ctx),
 	  expectedNullFlags(0),
 	  currStatus(ACTLOG_STAT_INVALID),
 	  newStatus(ACTLOG_STAT_INVALID),
@@ -1018,8 +1018,7 @@ void test_execResidentAction(void)
 	ExecActionArg arg(0x4ab3fd32, ACTION_RESIDENT);
 	assertExecAction(ctx, arg);
 
-	AssertActionLogArg logarg;
-	logarg.ctx = ctx;
+	AssertActionLogArg logarg(ctx);
 	logarg.expectedNullFlags =
 	  ACTLOG_FLAG_QUEUING_TIME|ACTLOG_FLAG_END_TIME|ACTLOG_FLAG_EXIT_CODE;
 	logarg.currStatus = ACTLOG_STAT_LAUNCHING_RESIDENT;
@@ -1180,8 +1179,7 @@ void test_execResidentActionCheckArg(void)
 	assertExecAction(ctx, arg);
 
 	// wait for the status: ACTLOG_STAT_STARTED
-	AssertActionLogArg logarg;
-	logarg.ctx = ctx;
+	AssertActionLogArg logarg(ctx);
 	logarg.expectedNullFlags = 
 	  ACTLOG_FLAG_QUEUING_TIME|ACTLOG_FLAG_END_TIME|ACTLOG_FLAG_EXIT_CODE;
 	logarg.currStatus = ACTLOG_STAT_LAUNCHING_RESIDENT;
@@ -1194,8 +1192,7 @@ void test_execResidentActionCheckArg(void)
 	sendAllowReplyNotifyEvent(ctx);
 
 	// wait for the status: ACTLOG_STAT_SUCCEEDED;
-	logarg = AssertActionLogArg(); // clear value
-	logarg.ctx = ctx;
+	logarg = AssertActionLogArg(ctx); // clear value
 	logarg.expectedNullFlags = ACTLOG_FLAG_QUEUING_TIME;
 	logarg.currStatus = ACTLOG_STAT_STARTED;
 	logarg.newStatus  = ACTLOG_STAT_SUCCEEDED;
