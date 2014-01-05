@@ -581,6 +581,69 @@ typedef void (*ResidentLogStatusChangedCB)(
   ActionLogStatus currStatus, ActionLogStatus newStatus,
   ExecCommandContext *ctx);
 
+struct AssertActionLogArg
+{
+	ExecCommandContext        *ctx;
+	uint32_t                   expectedNullFlags;
+	ActionLogStatus            currStatus;
+	ActionLogStatus            newStatus;
+	ResidentLogStatusChangedCB statusChangedCb;
+	ActionLogExecFailureCode   expectedFailureCode;
+	int                        expectedExitCode;
+	int                        maxLoopCount;
+
+	AssertActionLogArg(void)
+	: ctx(NULL),
+	  expectedNullFlags(0),
+	  currStatus(ACTLOG_STAT_INVALID),
+	  newStatus(ACTLOG_STAT_INVALID),
+	  statusChangedCb(NULL),
+	  expectedFailureCode(ACTLOG_EXECFAIL_NONE),
+	  expectedExitCode(RESIDENT_MOD_NOTIFY_EVENT_ACK_OK),
+	  maxLoopCount(-1)
+	{
+	}
+};
+
+void _assertActionLogAfterExecResident(AssertActionLogArg &arg)
+{
+	int loopCount = 0;
+	ExecCommandContext *ctx = arg.ctx;
+	while (true) {
+		// ActionManager updates the aciton log in the wake of GLIB's
+		// events. So we can wait for the log update with
+		// iterations of the loop.
+		assertWaitForChangeActionLogStatus(arg.ctx, arg.currStatus);
+		assertActionLog(
+		  ctx->actionLog, ctx->actorInfo.logId,
+		  ctx->actDef.id, arg.newStatus,
+		  0, /* starterId */
+		  0, /* queuingTime */
+		  CURR_DATETIME, /* startTime */
+		  CURR_DATETIME, /* endTime */
+		  arg.expectedFailureCode,
+		  arg.expectedExitCode,
+		  arg.expectedNullFlags /* nullFlags */);
+
+		if (arg.statusChangedCb) {
+			(*arg.statusChangedCb)(arg.currStatus,
+			                       arg.newStatus, ctx);
+		}
+
+		if (arg.newStatus == ACTLOG_STAT_SUCCEEDED)
+			break;
+		if (arg.newStatus == ACTLOG_STAT_FAILED)
+			break;
+		arg.currStatus = ACTLOG_STAT_STARTED;
+		arg.newStatus = ACTLOG_STAT_SUCCEEDED;
+		arg.expectedNullFlags = ACTLOG_FLAG_QUEUING_TIME;
+		
+		loopCount++;
+		if (arg.maxLoopCount > 0 && loopCount >= arg.maxLoopCount)
+			break;
+	}
+}
+
 void _assertActionLogAfterExecResident(
   ExecCommandContext *ctx, uint32_t expectedNullFlags,
   ActionLogStatus currStatus, ActionLogStatus newStatus,
