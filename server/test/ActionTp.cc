@@ -141,8 +141,6 @@ static bool cmdGetSessionId(SmartBuffer &sbuf, size_t size, Context *ctx)
 	ResidentCommunicator comm;
 	comm.setHeader(ACTTP_SESSION_ID_LEN, ACTTP_REPLY_GET_SESSION_ID);
 	SmartBuffer &pkt = comm.getBuffer();
-	pkt.resetIndex();
-	pkt.incIndex(RESIDENT_PROTO_HEADER_LEN);
 	pkt.add(sessionId, ACTTP_SESSION_ID_LEN);
 
 	// send packet
