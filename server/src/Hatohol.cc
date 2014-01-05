@@ -81,8 +81,8 @@ static void init(const CommandLineArg &arg)
 
 static void reset(const CommandLineArg &arg)
 {
-	SessionManager::reset();
 	ActorCollector::reset();
+	SessionManager::reset();
 	ConfigManager::reset();
 
 	DBAgentSQLite3::reset();
