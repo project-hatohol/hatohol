@@ -1126,19 +1126,14 @@ void test_execResidentActionManyEvents(void)
 	g_execCommandCtx = new ExecCommandContext();
 	ExecCommandContext *ctx = g_execCommandCtx; // just an alias
 
-	uint32_t expectedNullFlags;
-	ActionLogStatus currStatus;
-	ActionLogStatus newStatus;
+	AssertActionLogArg logarg(ctx);
 	size_t numEvents = 10;
 	for (size_t i = 0; i < numEvents; i++) {
-		setExpectedValueForResidentManyEvents(i, expectedNullFlags,
-		                                      currStatus, newStatus);
+		setExpectedValueForResidentManyEvents(
+		  i, logarg.expectedNullFlags,
+		  logarg.currStatus, logarg.newStatus);
 		ExecActionArg arg(0x4ab3fd32, ACTION_RESIDENT);
 		assertExecAction(ctx, arg);
-		AssertActionLogArg logarg(ctx);
-		logarg.expectedNullFlags = expectedNullFlags;
-		logarg.currStatus = currStatus;
-		logarg.newStatus  = newStatus;
 		assertActionLogAfterExecResident(logarg);
 	}
 }
