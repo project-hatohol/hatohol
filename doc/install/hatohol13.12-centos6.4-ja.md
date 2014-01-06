@@ -8,7 +8,7 @@ CentOS 6.4 (x86_64)でのRPMを用いたインストール方法
 ### json-glib
 以下のURLからRPMをダウンロードしてください。
 
-- https://github.com/project-hatohol/json-glib-for-distribution/blob/master/RPMS/x86_64/json-glib-0.12.6-1PH.x86_64.rpm?raw=true
+- https://github.com/project-hatohol/json-glib-for-distribution/raw/master/RPMS/x86_64/json-glib-0.12.6-1PH.x86_64.rpm
 
 次のコマンドでインストールしてください。
 
@@ -17,7 +17,7 @@ CentOS 6.4 (x86_64)でのRPMを用いたインストール方法
 ### bootstrap
 以下のURLからRPMをダウンロードしてください。
 
-- https://github.com/project-hatohol/bootstrap-for-hatohol/blob/master/RPMS/x86_64/bootstrap-for-hatohol-2.3.2-1PH.x86_64.rpm?raw=true
+- https://github.com/project-hatohol/bootstrap-for-hatohol/raw/master/RPMS/x86_64/bootstrap-for-hatohol-2.3.2-1PH.x86_64.rpm
 
 次のコマンドでインストールしてください。
 
