@@ -32,12 +32,15 @@ using namespace mlpl;
 Session::Session(void)
 : userId(INVALID_USER_ID),
   loginTime(SmartTime::INIT_CURR_TIME),
-  lastAccessTime(SmartTime::INIT_CURR_TIME)
+  lastAccessTime(SmartTime::INIT_CURR_TIME),
+  timerId(INVALID_EVENT_ID),
+  sessionMgr(NULL)
 {
 }
 
 Session::~Session()
 {
+	g_source_remove(timerId);
 }
 
 // ---------------------------------------------------------------------------
@@ -46,6 +49,8 @@ Session::~Session()
 
 // Ref. man uuid_unparse.
 const size_t SessionManager::SESSION_ID_LEN = 36;
+
+const size_t SessionManager::DEFAULT_TIMEOUT = 10 * 60 * 1000; // 10 min.
 
 struct SessionManager::PrivateContext {
 	static MutexLock initLock;
@@ -90,15 +95,18 @@ SessionManager *SessionManager::getInstance(void)
 	return PrivateContext::instance;
 }
 
-string SessionManager::create(const UserIdType &userId)
+string SessionManager::create(const UserIdType &userId, const size_t &timeout)
 {
 	Session *session = new Session();
 	session->userId = userId;
-	string sessionId = generateSessionId();
+	session->id = generateSessionId();
+	if (timeout)
+		session->timerId = g_timeout_add(timeout, timerCb, session);
+	session->sessionMgr = this;
 	m_ctx->rwlock.writeLock();
-	m_ctx->sessionIdMap[sessionId] = session;
+	m_ctx->sessionIdMap[session->id] = session;
 	m_ctx->rwlock.unlock();
-	return sessionId;
+	return session->id;
 }
 
 SessionPtr SessionManager::getSession(const string &sessionId)
@@ -124,6 +132,7 @@ bool SessionManager::remove(const string &sessionId)
 	m_ctx->rwlock.unlock();
 	if (!session)
 		return false;
+	// This is unsafe. Do unref on GLib event loop.
 	session->unref();
 	return true;
 }
@@ -165,3 +174,11 @@ string SessionManager::generateSessionId(void)
 	return sessionId;
 }
 
+gboolean SessionManager::timerCb(gpointer data)
+{
+	Session *session = static_cast<Session *>(data);
+	SessionManager *sessionMgr = session->sessionMgr;
+	if (!sessionMgr->remove(session->id))
+		MLPL_BUG("Failed to remove session: %s\n", session->id.c_str());
+	return G_SOURCE_REMOVE;
+}
