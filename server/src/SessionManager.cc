@@ -122,7 +122,8 @@ SessionPtr SessionManager::getSession(const string &sessionId)
 
 	m_ctx->rwlock.unlock();
 
-	// Update the timer on the GLib event loop to avoid a race w/ timerCb().
+	// Update the timer on the GLib event loop so that updateTimer() and
+	// timerCb() can be executed exclusively.
 	if (session)
 		Utils::executeOnGLibEventLoop<Session>(updateTimer, session);
 
