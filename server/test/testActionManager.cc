@@ -499,6 +499,8 @@ cut_trace(_assertWaitForChangeActionLogStatus(CTX,STAT))
 
 void _assertSessionIsDeleted(const string &sessionId)
 {
+	if (sessionId.empty())
+		return;
 	SessionManager *sessionMgr = SessionManager::getInstance();
 
 	// It is hard to get the timing of the session deletion.
@@ -544,8 +546,7 @@ void _assertActionLogAfterEnding(
 	}
 
 	// SessionId should be removed after the action finishes
-	if (!ctx->sessionId.empty())
-		assertSessionIsDeleted(ctx->sessionId);
+	assertSessionIsDeleted(ctx->sessionId);
 }
 #define assertActionLogAfterEnding(CTX, ...) \
 cut_trace(_assertActionLogAfterEnding(CTX, ##__VA_ARGS__))
@@ -644,8 +645,7 @@ void _assertActionLogAfterExecResident(AssertActionLogArg &arg)
 	}
 
 	// SessionId should be removed after a notify finishes
-	if (!ctx->sessionId.empty())
-		assertSessionIsDeleted(ctx->sessionId);
+	assertSessionIsDeleted(ctx->sessionId);
 }
 #define assertActionLogAfterExecResident(ARG) \
 cut_trace(_assertActionLogAfterExecResident(ARG))
