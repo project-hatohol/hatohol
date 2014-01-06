@@ -678,7 +678,8 @@ void dbAgentGetNumberOfAffectedRows(DBAgent &dbAgent, DBAgentChecker &checker)
 	DBAgentDeleteArg arg;
 	arg.tableName = TABLE_NAME_TEST;
 	dbAgent.deleteRows(arg);
-	cppcut_assert_equal(NUM_TEST_DATA, dbAgent.getNumberOfAffectedRows());
+	cppcut_assert_equal(static_cast<uint64_t>(NUM_TEST_DATA),
+			    dbAgent.getNumberOfAffectedRows());
 }
 
 // --------------------------------------------------------------------------
