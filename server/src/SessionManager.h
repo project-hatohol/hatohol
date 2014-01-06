@@ -49,6 +49,8 @@ typedef ItemPtr<Session> SessionPtr;
 
 class SessionManager {
 public:
+	static const size_t SESSION_ID_LEN;
+
 	static void reset(void);
 	static SessionManager *getInstance(void);
 

@@ -44,6 +44,9 @@ Session::~Session()
 // SessionManager
 // ---------------------------------------------------------------------------
 
+// Ref. man uuid_unparse.
+const size_t SessionManager::SESSION_ID_LEN = 36;
+
 struct SessionManager::PrivateContext {
 	static MutexLock initLock;
 	static SessionManager *instance;
@@ -155,7 +158,7 @@ string SessionManager::generateSessionId(void)
 {
 	uuid_t sessionUuid;
 	uuid_generate(sessionUuid);
-	static const size_t uuidBufSize = 37;
+	static const size_t uuidBufSize = SESSION_ID_LEN + 1; // + NULL term.
 	char uuidBuf[uuidBufSize];
 	uuid_unparse(sessionUuid, uuidBuf);
 	string sessionId = uuidBuf;
