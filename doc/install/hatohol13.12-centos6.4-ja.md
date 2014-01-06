@@ -39,6 +39,7 @@ Hatoholは以下のパッケージをインストールする必要がありま�
 - MySQL
 - MySQL-python
 - mod_wsgi
+- httpd
 
 次のコマンドでインストールしてください
 
