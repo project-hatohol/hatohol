@@ -530,11 +530,9 @@ void _assertActionLogAfterEnding(
 	
 	// It is hard to get the timing of the session deletion.
 	// So we just retry some times.
-	int retry = 500;
-	while (retry) {
-		// ActorInfo is deleted on a GLib loop.
-		// That is, a session instance is also deleted in it.
-		// So we wait for the idle of the GLib loop.
+	while (true) {
+		// If the session is not deleted, ctx->timeout is expired
+		// and fails the test.
 		while (g_main_context_iteration(NULL, FALSE))
 			;
 		SessionManager *sessionMgr = SessionManager::getInstance();
@@ -542,10 +540,8 @@ void _assertActionLogAfterEnding(
 		   sessionMgr->getSession(ctx->receivedActTpSessionId);
 		if (!session.hasData())
 			break;
-		retry--;
 		usleep(10);
 	}
-	cppcut_assert_not_equal(0, retry);
 }
 #define assertActionLogAfterEnding(CTX, ...) \
 cut_trace(_assertActionLogAfterEnding(CTX, ##__VA_ARGS__))
