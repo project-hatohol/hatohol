@@ -53,7 +53,7 @@ class UserCreator:
     self._encoded_query = urllib.urlencode(query)
 
 def add_session_id(request):
-  env_name = "HATOHOL_SESSION_ID"
+  env_name = hatohol.ENV_NAME_SESSION_ID
   session_id = os.getenv(env_name)
   if session_id is None:
     print "Found found an environment varible: %s" % env_name
