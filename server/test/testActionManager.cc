@@ -497,6 +497,25 @@ void _assertWaitForChangeActionLogStatus(ExecCommandContext *ctx,
 #define assertWaitForChangeActionLogStatus(CTX,STAT) \
 cut_trace(_assertWaitForChangeActionLogStatus(CTX,STAT))
 
+void _assertSessionIsDeleted(const string &sessionId)
+{
+	SessionManager *sessionMgr = SessionManager::getInstance();
+
+	// It is hard to get the timing of the session deletion.
+	// So we just retry some times.
+	while (true) {
+		// If the session is not deleted, ctx->timeout is expired
+		// and fails the test.
+		while (g_main_context_iteration(NULL, FALSE))
+			;
+		SessionPtr session = sessionMgr->getSession(sessionId);
+		if (!session.hasData())
+			break;
+		usleep(5 * 1000);
+	}
+}
+#define assertSessionIsDeleted(SID) cut_trace(_assertSessionIsDeleted(SID))
+
 void _assertActionLogAfterEnding(
   ExecCommandContext *ctx,
   int expectedNullFlags = ACTLOG_FLAG_QUEUING_TIME)
@@ -525,23 +544,8 @@ void _assertActionLogAfterEnding(
 	}
 
 	// SessionId should be removed after the action finishes
-	if (ctx->receivedActTpSessionId.empty())
-		return;
-	
-	// It is hard to get the timing of the session deletion.
-	// So we just retry some times.
-	while (true) {
-		// If the session is not deleted, ctx->timeout is expired
-		// and fails the test.
-		while (g_main_context_iteration(NULL, FALSE))
-			;
-		SessionManager *sessionMgr = SessionManager::getInstance();
-		SessionPtr session =
-		   sessionMgr->getSession(ctx->receivedActTpSessionId);
-		if (!session.hasData())
-			break;
-		usleep(5 * 1000);
-	}
+	if (!ctx->receivedActTpSessionId.empty())
+		assertSessionIsDeleted(ctx->receivedActTpSessionId);
 }
 #define assertActionLogAfterEnding(CTX, ...) \
 cut_trace(_assertActionLogAfterEnding(CTX, ##__VA_ARGS__))
