@@ -33,6 +33,7 @@ struct Session : public UsedCountable {
 	std::string id;
 	mlpl::SmartTime loginTime;
 	mlpl::SmartTime lastAccessTime;
+	size_t timeout;
 	guint timerId;
 	SessionManager *sessionMgr;
 
@@ -110,6 +111,7 @@ protected:
 	virtual ~SessionManager();
 
 	static std::string generateSessionId(void);
+	static void updateTimer(Session *session);
 	static gboolean timerCb(gpointer data);
 
 protected:

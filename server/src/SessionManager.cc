@@ -100,12 +100,9 @@ string SessionManager::create(const UserIdType &userId, const size_t &timeout)
 	Session *session = new Session();
 	session->userId = userId;
 	session->id = generateSessionId();
-	if (timeout)
-		session->timerId = g_timeout_add(timeout, timerCb, session);
 	session->sessionMgr = this;
-	m_ctx->rwlock.writeLock();
-	m_ctx->sessionIdMap[session->id] = session;
-	m_ctx->rwlock.unlock();
+	session->timeout = timeout;
+	updateTimer(session);
 	return session->id;
 }
 
@@ -116,8 +113,20 @@ SessionPtr SessionManager::getSession(const string &sessionId)
 	SessionIdMapIterator it = m_ctx->sessionIdMap.find(sessionId);
 	if (it != m_ctx->sessionIdMap.end())
 		session = it->second;
+
+	// Making sessionPtr inside the lock is important. It icrements the
+	// used counter. Even if timerCb() is called back on an other thread
+	// soon after the following rwlock.unlock(), the instance itself
+	// is not deleted.
+	SessionPtr sessionPtr(session);
+
 	m_ctx->rwlock.unlock();
-	return SessionPtr(session);
+
+	// Update the timer on the GLib event loop to avoid a race w/ timerCb().
+	if (session)
+		Utils::executeOnGLibEventLoop<Session>(updateTimer, session);
+
+	return sessionPtr;
 }
 
 bool SessionManager::remove(const string &sessionId)
@@ -132,7 +141,6 @@ bool SessionManager::remove(const string &sessionId)
 	m_ctx->rwlock.unlock();
 	if (!session)
 		return false;
-	// This is unsafe. Do unref on GLib event loop.
 	session->unref();
 	return true;
 }
@@ -174,11 +182,33 @@ string SessionManager::generateSessionId(void)
 	return sessionId;
 }
 
+void SessionManager::updateTimer(Session *session)
+{
+	PrivateContext *ctx = session->sessionMgr->m_ctx;
+	if (session->timerId != INVALID_EVENT_ID)
+		g_source_remove(session->timerId);
+
+	if (session->timeout) {
+		session->timerId = g_timeout_add(session->timeout,
+		                                 timerCb, session);
+	}
+	session->lastAccessTime.setCurrTime();
+
+	// If timerCb() is called between 'm_ctx->rwlock.unlock()' and
+	// this function running on another thread, the session is
+	// removed from sessionIdMap. So we have to insert session
+	// into sessionIdMap every time.
+	ctx->rwlock.writeLock();
+	ctx->sessionIdMap[session->id] = session;
+	ctx->rwlock.unlock();
+};
+
 gboolean SessionManager::timerCb(gpointer data)
 {
 	Session *session = static_cast<Session *>(data);
 	SessionManager *sessionMgr = session->sessionMgr;
 	if (!sessionMgr->remove(session->id))
 		MLPL_BUG("Failed to remove session: %s\n", session->id.c_str());
+	session->timerId = INVALID_EVENT_ID;
 	return G_SOURCE_REMOVE;
 }
