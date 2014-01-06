@@ -26,6 +26,7 @@
 #include "ActionManager.h"
 #include "HatoholError.h"
 #include "FaceRest.h"
+#include "SessionManager.h"
 
 using namespace std;
 
@@ -232,6 +233,11 @@ static void makeDefSourceValues(string &s, LanguageType langType)
 	ADD_LINE(s, langType, OPPRVLG_GET_ALL_ACTION);
 
 	ADD_LINE(s, langType, NUM_OPPRVLG);
+	APPEND(s, "\n");
+
+	// Session
+	DEF_LINE(s, langType, SESSION_ID_LEN,
+	         size_t, SessionManager::SESSION_ID_LEN);
 	APPEND(s, "\n");
 
 	//
