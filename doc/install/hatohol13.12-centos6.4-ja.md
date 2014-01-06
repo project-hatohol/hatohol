@@ -43,7 +43,7 @@ Hatoholは以下のパッケージをインストールする必要がありま�
 
 次のコマンドでインストールしてください
 
-    # yum install libsoup libuuid mysql MySQL-python mod_wsgi
+    # yum install libsoup libuuid mysql MySQL-python mod_wsgi httpd
 
 ### Hatohol Server
 以下のURLからRPMをダウンロードしてください。

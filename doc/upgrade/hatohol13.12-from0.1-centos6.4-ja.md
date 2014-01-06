@@ -29,7 +29,7 @@ Hatohol13.12ではHatohol0.1でのパッケージに加え、以下のパッケ�
 
 次のコマンドでインストールしてください
 
-    # yum install libuuid MySQL-python mod_wsgi
+    # yum install libuuid MySQL-python mod_wsgi httpd
 
 Hatohol13.12のアップデート方法
 -------------------------------
