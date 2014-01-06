@@ -92,11 +92,11 @@ SessionManager *SessionManager::getInstance(void)
 
 string SessionManager::create(const UserIdType &userId)
 {
-	Session *sessionInfo = new Session();
-	sessionInfo->userId = userId;
+	Session *session = new Session();
+	session->userId = userId;
 	string sessionId = generateSessionId();
 	m_ctx->rwlock.writeLock();
-	m_ctx->sessionIdMap[sessionId] = sessionInfo;
+	m_ctx->sessionIdMap[sessionId] = session;
 	m_ctx->rwlock.unlock();
 	return sessionId;
 }
