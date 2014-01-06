@@ -97,7 +97,7 @@ struct ExecCommandContext : public ResidentPullHelper<ExecCommandContext> {
 	bool receivedActTpBegin;
 	bool receivedActTpArgList;
 	SmartBuffer argListBuf;
-	string receivedActTpSessionId;
+	string sessionId;
 	bool receivedActTpQuit;
 
 	ExecCommandContext(void)
@@ -263,7 +263,7 @@ static void getSessionIdCb(GIOStatus stat, mlpl::SmartBuffer &sbuf,
 	// So we added characters one by one.
 	const char *buf = sbuf.getPointer<char>();
 	for (size_t i = 0; i < ACTTP_SESSION_ID_LEN; i++)
-		ctx->receivedActTpSessionId += buf[i];
+		ctx->sessionId += buf[i];
 }
 
 static void _assertSessionInManager(const string &sessionId,
@@ -287,7 +287,7 @@ static void _assertSessionId(ExecCommandContext *ctx)
 	// wait the replay
 	ctx->pullData(RESIDENT_PROTO_HEADER_LEN + ACTTP_SESSION_ID_LEN,
 	              getSessionIdCb);
-	while (ctx->receivedActTpSessionId.empty()) {
+	while (ctx->sessionId.empty()) {
 		g_main_context_iteration(NULL, TRUE);
 		cppcut_assert_equal(false, ctx->timedOut);
 	}
@@ -295,7 +295,7 @@ static void _assertSessionId(ExecCommandContext *ctx)
 	// check the response
 	SessionManager *sessionMgr = SessionManager::getInstance();
 	SessionPtr session =
-	   sessionMgr->getSession(ctx->receivedActTpSessionId);
+	   sessionMgr->getSession(ctx->sessionId);
 	cppcut_assert_equal(true, session.hasData());
 	cppcut_assert_equal(session->userId, ctx->actDef.ownerUserId);
 }
@@ -544,8 +544,8 @@ void _assertActionLogAfterEnding(
 	}
 
 	// SessionId should be removed after the action finishes
-	if (!ctx->receivedActTpSessionId.empty())
-		assertSessionIsDeleted(ctx->receivedActTpSessionId);
+	if (!ctx->sessionId.empty())
+		assertSessionIsDeleted(ctx->sessionId);
 }
 #define assertActionLogAfterEnding(CTX, ...) \
 cut_trace(_assertActionLogAfterEnding(CTX, ##__VA_ARGS__))
@@ -644,8 +644,8 @@ void _assertActionLogAfterExecResident(AssertActionLogArg &arg)
 	}
 
 	// SessionId should be removed after a notify finishes
-	if (!ctx->receivedActTpSessionId.empty())
-		assertSessionIsDeleted(ctx->receivedActTpSessionId);
+	if (!ctx->sessionId.empty())
+		assertSessionIsDeleted(ctx->sessionId);
 }
 #define assertActionLogAfterExecResident(ARG) \
 cut_trace(_assertActionLogAfterExecResident(ARG))
@@ -714,7 +714,7 @@ static void replyEventInfoCb(GIOStatus stat, mlpl::SmartBuffer &sbuf,
 	cppcut_assert_equal(expected.severity,
 	                    (TriggerSeverityType)eventArg->triggerSeverity);
 	assertSessionInManager(eventArg->sessionId, ctx->actDef.ownerUserId);
-	ctx->receivedActTpSessionId = eventArg->sessionId;
+	ctx->sessionId = eventArg->sessionId;
 
 	// set a flag to exit the loop in _assertWaitEventBody()
 	ctx->receivedEventInfo = true;
