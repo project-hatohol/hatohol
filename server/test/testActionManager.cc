@@ -642,6 +642,10 @@ void _assertActionLogAfterExecResident(AssertActionLogArg &arg)
 		if (arg.maxLoopCount > 0 && loopCount >= arg.maxLoopCount)
 			break;
 	}
+
+	// SessionId should be removed after a notify finishes
+	if (!ctx->receivedActTpSessionId.empty())
+		assertSessionIsDeleted(ctx->receivedActTpSessionId);
 }
 #define assertActionLogAfterExecResident(ARG) \
 cut_trace(_assertActionLogAfterExecResident(ARG))
@@ -710,6 +714,7 @@ static void replyEventInfoCb(GIOStatus stat, mlpl::SmartBuffer &sbuf,
 	cppcut_assert_equal(expected.severity,
 	                    (TriggerSeverityType)eventArg->triggerSeverity);
 	assertSessionInManager(eventArg->sessionId, ctx->actDef.ownerUserId);
+	ctx->receivedActTpSessionId = eventArg->sessionId;
 
 	// set a flag to exit the loop in _assertWaitEventBody()
 	ctx->receivedEventInfo = true;
