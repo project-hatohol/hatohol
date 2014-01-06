@@ -51,6 +51,7 @@ Session::~Session()
 const size_t SessionManager::SESSION_ID_LEN = 36;
 
 const size_t SessionManager::DEFAULT_TIMEOUT = 10 * 60 * 1000; // 10 min.
+const size_t SessionManager::NO_TIMEOUT = 0;
 
 struct SessionManager::PrivateContext {
 	static MutexLock initLock;

@@ -80,6 +80,18 @@ void test_create(void)
 	assertTimeIsNow(session->lastAccessTime);
 }
 
+void test_createWithoutTimeout(void)
+{
+	const UserIdType userId = 103;
+	SessionManager *instance = SessionManager::getInstance();
+	string sessionId = instance->create(userId, SessionManager::NO_TIMEOUT);
+	SessionPtr sessionPtr = instance->getSession(sessionId);
+	cppcut_assert_equal(true, sessionPtr.hasData()); 
+	cppcut_assert_equal(SessionManager::NO_TIMEOUT, sessionPtr->timeout);
+	cppcut_assert_equal(INVALID_EVENT_ID, sessionPtr->timerId);
+	cppcut_assert_equal(true, instance->remove(sessionId));
+}
+
 void test_getSession(void)
 {
 	SessionManager *instance = SessionManager::getInstance();

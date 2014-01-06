@@ -56,6 +56,7 @@ class SessionManager {
 public:
 	static const size_t SESSION_ID_LEN;
 	static const size_t DEFAULT_TIMEOUT;
+	static const size_t NO_TIMEOUT;
 
 	static void reset(void);
 	static SessionManager *getInstance(void);
@@ -65,8 +66,8 @@ public:
 	 *
 	 * @param userId A user ID
 	 * @param timeout
-	 * A timeout of the session in millisecond. If this parameter is zero,
-	 * the session is never timed out.
+	 * A timeout of the session in millisecond. If this parameter is
+	 * NO_TIMEOUT, the session is never timed out.
 	 *
 	 * @return       A newly created session ID.
 	 */
