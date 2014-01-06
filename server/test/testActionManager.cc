@@ -540,7 +540,7 @@ void _assertActionLogAfterEnding(
 		   sessionMgr->getSession(ctx->receivedActTpSessionId);
 		if (!session.hasData())
 			break;
-		usleep(10);
+		usleep(5 * 1000);
 	}
 }
 #define assertActionLogAfterEnding(CTX, ...) \
