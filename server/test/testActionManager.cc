@@ -1096,13 +1096,14 @@ void test_execResidentActionWithWrongPath(void)
 	ExecActionArg arg(0x4ab3fd32, ACTION_RESIDENT);
 	arg.command = "wrong-command-dayo.so";
 	assertExecAction(ctx, arg);
-	assertActionLogAfterExecResident(
-	  ctx, ACTLOG_FLAG_QUEUING_TIME,
-	  ACTLOG_STAT_LAUNCHING_RESIDENT, ACTLOG_STAT_FAILED,
-	  NULL, // statusChangedCb
-	  ACTLOG_EXECFAIL_ENTRY_NOT_FOUND,
-	  0     // expectedExitCode
-	);
+
+	AssertActionLogArg logarg(ctx);
+	logarg.expectedNullFlags = ACTLOG_FLAG_QUEUING_TIME;
+	logarg.currStatus = ACTLOG_STAT_LAUNCHING_RESIDENT;
+	logarg.newStatus  = ACTLOG_STAT_FAILED;
+	logarg.expectedFailureCode = ACTLOG_EXECFAIL_ENTRY_NOT_FOUND;
+	logarg.expectedExitCode = 0;
+	assertActionLogAfterExecResident(logarg);
 	assertWaitRemoveWatching(ctx);
 
 	// reconfirm the action log. This confirms that the log is not
