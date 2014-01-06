@@ -134,6 +134,11 @@ Hatohol serverが正常に開始した場合、/var/log/messagesに下記のよ�
     Oct  8 09:46:59 localhost hatohol[3038]: [INFO] <ArmZabbixAPI.cc:925> started: ArmZabbixAPI (server: testZbxSv1)
     Oct  8 09:47:01 localhost hatohol[3038]: [INFO] <ArmZabbixAPI.cc:925> started: ArmZabbixAPI (server: testZbxSv2)
 
+### Hatohol Clientの開始
+
+    # service httpd start
+
+
 Webブラウザを使ったアクセス
 ---------------------------
 ### SELinuxとiptablesの設定確認
