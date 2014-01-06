@@ -643,50 +643,8 @@ void _assertActionLogAfterExecResident(AssertActionLogArg &arg)
 			break;
 	}
 }
-
-void _assertActionLogAfterExecResident(
-  ExecCommandContext *ctx, uint32_t expectedNullFlags,
-  ActionLogStatus currStatus, ActionLogStatus newStatus,
-  ResidentLogStatusChangedCB statusChangedCb = NULL,
-  ActionLogExecFailureCode expectedFailureCode = ACTLOG_EXECFAIL_NONE,
-  int expectedExitCode = RESIDENT_MOD_NOTIFY_EVENT_ACK_OK,
-  const int &maxLoopCount = -1)
-{
-	int loopCount = 0;
-	while (true) {
-		// ActionManager updates the aciton log in the wake of GLIB's
-		// events. So we can wait for the log update with
-		// iterations of the loop.
-		assertWaitForChangeActionLogStatus(ctx, currStatus);
-		assertActionLog(
-		  ctx->actionLog, ctx->actorInfo.logId,
-		  ctx->actDef.id, newStatus,
-		  0, /* starterId */
-		  0, /* queuingTime */
-		  CURR_DATETIME, /* startTime */
-		  CURR_DATETIME, /* endTime */
-		  expectedFailureCode,
-		  expectedExitCode,
-		  expectedNullFlags /* nullFlags */);
-
-		if (statusChangedCb)
-			(*statusChangedCb)(currStatus, newStatus, ctx);
-
-		if (newStatus == ACTLOG_STAT_SUCCEEDED)
-			break;
-		if (newStatus == ACTLOG_STAT_FAILED)
-			break;
-		currStatus = ACTLOG_STAT_STARTED;
-		newStatus = ACTLOG_STAT_SUCCEEDED;
-		expectedNullFlags = ACTLOG_FLAG_QUEUING_TIME;
-		
-		loopCount++;
-		if (maxLoopCount > 0 && loopCount >= maxLoopCount)
-			break;
-	}
-}
-#define assertActionLogAfterExecResident(CTX, ...) \
-cut_trace(_assertActionLogAfterExecResident(CTX, ##__VA_ARGS__))
+#define assertActionLogAfterExecResident(ARG) \
+cut_trace(_assertActionLogAfterExecResident(ARG))
 
 static void setExpectedValueForResidentManyEvents(
   size_t idx, uint32_t &expectedNullFlags,
