@@ -29,9 +29,8 @@ using namespace mlpl;
 const char *TABLE_NAME_ACTIONS     = "actions";
 const char *TABLE_NAME_ACTION_LOGS = "action_logs";
 
-// The tables actions and action_logs are in the same DB as tables 
-// for DBClientConfig. So the DB name and version must be shared.
-int DBClientAction::ACTION_DB_VERSION = DBClientConfig::CONFIG_DB_VERSION;
+// 8 -> 9: Add actions.onwer_user_id
+int DBClientAction::ACTION_DB_VERSION = 9;
 const char *DBClientAction::DEFAULT_DB_NAME = DBClientConfig::DEFAULT_DB_NAME;
 
 static const ColumnDef COLUMN_DEF_ACTIONS[] = {
@@ -167,6 +166,17 @@ static const ColumnDef COLUMN_DEF_ACTIONS[] = {
 	SQL_KEY_NONE,                      // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
+}, {
+	ITEM_ID_NOT_SET,                   // itemId
+	TABLE_NAME_ACTIONS,                // tableName
+	"owner_user_id",                   // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	11,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_MUL,                       // keyType
+	0,                                 // flags
+	USER_ID_SYSTEM,                     // defaultValue
 },
 };
 static const size_t NUM_COLUMNS_ACTIONS =
@@ -185,6 +195,7 @@ enum {
 	IDX_ACTIONS_COMMAND,
 	IDX_ACTIONS_WORKING_DIR,
 	IDX_ACTIONS_TIMEOUT,
+	IDX_ACTIONS_OWNER_USER_ID,
 	NUM_IDX_ACTIONS,
 };
 
@@ -330,8 +341,23 @@ static const DBClient::DBSetupTableInfo DB_TABLE_INFO[] = {
 static const size_t NUM_TABLE_INFO =
 sizeof(DB_TABLE_INFO) / sizeof(DBClient::DBSetupTableInfo);
 
+static bool addColumnOwnerUserId(DBAgent *dbAgent)
+{
+	DBAgentAddColumnsArg addColumnsArg;
+	addColumnsArg.tableName = TABLE_NAME_ACTIONS;
+	addColumnsArg.columnDefs = COLUMN_DEF_ACTIONS;
+	addColumnsArg.columnIndexes.push_back(
+	  IDX_ACTIONS_OWNER_USER_ID);
+	dbAgent->addColumns(addColumnsArg);
+	return true;
+}
+
 static bool updateDB(DBAgent *dbAgent, int oldVer, void *data)
 {
+	if (oldVer <= 8) {
+		if (!addColumnOwnerUserId(dbAgent))
+			return false;
+	}
 	return true;
 }
 
@@ -480,8 +506,23 @@ DBClientAction::~DBClientAction()
 		delete m_ctx;
 }
 
-void DBClientAction::addAction(ActionDef &actionDef)
+HatoholError DBClientAction::addAction(ActionDef &actionDef,
+                                       const OperationPrivilege &privilege)
 {
+	UserIdType userId = privilege.getUserId();
+	if (userId == INVALID_USER_ID)
+		return HTERR_INVALID_USER;
+
+	if (!privilege.has(OPPRVLG_CREATE_ACTION))
+		return HTERR_NO_PRIVILEGE;
+
+	// Basically an owner is the caller. However, USER_ID_SYSTEM can
+	// create an action with any user ID. This is a mechanism for
+	// internal system management or a test.
+	UserIdType ownerUserId = userId;
+	if (userId == USER_ID_SYSTEM)
+		ownerUserId = actionDef.ownerUserId;
+
 	VariableItemGroupPtr row;
 	DBAgentInsertArg arg;
 	arg.tableName = TABLE_NAME_ACTIONS;
@@ -507,6 +548,7 @@ void DBClientAction::addAction(ActionDef &actionDef)
 	row->ADD_NEW_ITEM(String, actionDef.command);
 	row->ADD_NEW_ITEM(String, actionDef.workingDir);
 	row->ADD_NEW_ITEM(Int, actionDef.timeout);
+	row->ADD_NEW_ITEM(Int, ownerUserId);
 
 	arg.row = row;
 
@@ -514,10 +556,13 @@ void DBClientAction::addAction(ActionDef &actionDef)
 		insert(arg);
 		actionDef.id = getLastInsertId();
 	} DBCLIENT_TRANSACTION_END();
+
+	return HTERR_OK;
 }
 
-void DBClientAction::getActionList(ActionDefList &actionDefList,
-                                   const EventInfo *eventInfo)
+HatoholError DBClientAction::getActionList(ActionDefList &actionDefList,
+                                           const OperationPrivilege &privilege,
+                                           const EventInfo *eventInfo)
 {
 	DBAgentSelectExArg arg;
 	arg.tableName = TABLE_NAME_ACTIONS;
@@ -536,15 +581,24 @@ void DBClientAction::getActionList(ActionDefList &actionDefList,
 	arg.pushColumn(COLUMN_DEF_ACTIONS[IDX_ACTIONS_COMMAND]);
 	arg.pushColumn(COLUMN_DEF_ACTIONS[IDX_ACTIONS_WORKING_DIR]);
 	arg.pushColumn(COLUMN_DEF_ACTIONS[IDX_ACTIONS_TIMEOUT]);
+	arg.pushColumn(COLUMN_DEF_ACTIONS[IDX_ACTIONS_OWNER_USER_ID]);
 
 	if (eventInfo)
 		arg.condition = makeActionDefCondition(*eventInfo);
+	if (!privilege.has(OPPRVLG_GET_ALL_ACTION)) {
+		if (!arg.condition.empty())
+			arg.condition += " AND ";
+		arg.condition += StringUtils::sprintf(
+		  "%s=%"FMT_USER_ID,
+		  COLUMN_DEF_ACTIONS[IDX_ACTIONS_OWNER_USER_ID].columnName,
+		  privilege.getUserId());
+	}
 
 	DBCLIENT_TRANSACTION_BEGIN() {
 		select(arg);
 	} DBCLIENT_TRANSACTION_END();
 
-	// get the result
+	// convert a format of the query result.
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
 	ItemGroupListConstIterator it = grpList.begin();
 	for (; it != grpList.end(); ++it) {
@@ -596,16 +650,23 @@ void DBClientAction::getActionList(ActionDefList &actionDefList,
 		actionDef.command    = GET_STRING_FROM_GRP(itemGroup, idx++);
 		actionDef.workingDir = GET_STRING_FROM_GRP(itemGroup, idx++);
 		actionDef.timeout    = GET_INT_FROM_GRP(itemGroup, idx++);
+		actionDef.ownerUserId = GET_INT_FROM_GRP(itemGroup, idx++);
 	}
+	return HTERR_OK;
 }
 
-void DBClientAction::deleteActions(const ActionIdList &idList)
+HatoholError DBClientAction::deleteActions(const ActionIdList &idList,
+                                           const OperationPrivilege &privilege)
 {
+	HatoholError err = checkPrivilegeForDelete(privilege);
+	if (err != HTERR_OK)
+		return err;
+
 	if (idList.empty()) {
 		MLPL_WARN("idList is empty.\n");
-		return;
+		return HTERR_INVALID_PARAMETER;
 	}
-	
+
 	DBAgentDeleteArg arg;
 	arg.tableName = TABLE_NAME_ACTIONS;
 	const ColumnDef &colId = COLUMN_DEF_ACTIONS[IDX_ACTIONS_ACTION_ID];
@@ -621,9 +682,29 @@ void DBClientAction::deleteActions(const ActionIdList &idList)
 	}
 	arg.condition += ")";
 
+	// In this point, the caller must have OPPRVLG_DELETE_ACTION,
+	// becase it is checked in checkPrevilegeForDelete().
+	if (!privilege.has(OPPRVLG_DELETE_ALL_ACTION)) {
+		arg.condition += StringUtils::sprintf(
+		  " AND %s=%"FMT_USER_ID,
+		  COLUMN_DEF_ACTIONS[IDX_ACTIONS_OWNER_USER_ID].columnName,
+		  privilege.getUserId());
+	}
+
+	uint64_t numAffectedRows = 0;
 	DBCLIENT_TRANSACTION_BEGIN() {
 		deleteRows(arg);
+		numAffectedRows = getDBAgent()->getNumberOfAffectedRows();
 	} DBCLIENT_TRANSACTION_END();
+
+	// Check the result
+	if (numAffectedRows != idList.size()) {
+		MLPL_ERR("affectedRows: %"PRIu64", idList.size(): %zd\n",
+		         numAffectedRows, idList.size());
+		return HTERR_DELETE_IMCOMPLETE;
+	}
+
+	return HTERR_OK;
 }
 
 uint64_t DBClientAction::createActionLog(
@@ -869,5 +950,21 @@ bool DBClientAction::getLog(ActionLog &actionLog, const string &condition)
 		actionLog.nullFlags |= ACTLOG_FLAG_EXIT_CODE;
 
 	return true;
+}
+
+HatoholError DBClientAction::checkPrivilegeForDelete(
+  const OperationPrivilege &privilege)
+{
+	UserIdType userId = privilege.getUserId();
+	if (userId == INVALID_USER_ID)
+		return HTERR_INVALID_USER;
+
+	if (privilege.has(OPPRVLG_DELETE_ALL_ACTION))
+		return HTERR_OK;
+
+	if (!privilege.has(OPPRVLG_DELETE_ACTION))
+		return HTERR_NO_PRIVILEGE;
+
+	return HTERR_OK;
 }
 

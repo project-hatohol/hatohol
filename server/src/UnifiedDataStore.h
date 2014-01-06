@@ -52,8 +52,14 @@ public:
 	virtual void getHostList(HostInfoList &hostInfoList,
 	                         uint32_t targetServerId = ALL_SERVERS,
 	                         uint64_t targetHostId = ALL_HOSTS);
-	virtual void getActionList(ActionDefList &actionList);
-	virtual void deleteActionList(const ActionIdList &actionIdList);
+	virtual HatoholError getActionList(ActionDefList &actionList,
+	                                   const OperationPrivilege &privilege);
+	virtual HatoholError addAction(ActionDef &actionDef,
+	                               const OperationPrivilege &privilege);
+	virtual HatoholError deleteActionList(
+	  const ActionIdList &actionIdList,
+	  const OperationPrivilege &privilege);
+
 	virtual size_t getNumberOfTriggers
 	                 (uint32_t serverId, uint64_t hostGroupId,
 	                  TriggerSeverityType severity);
@@ -64,7 +70,6 @@ public:
 
 	virtual bool getCopyOnDemandEnabled(void) const;
 	virtual void setCopyOnDemandEnabled(bool enable);
-	virtual void addAction(ActionDef &actionDef);
 
 	/**
 	 * Add events in the Hatohol DB and executes action if needed. 

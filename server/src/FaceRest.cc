@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Project Hatohol
+ * Copyright (C) 2013-2014 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -39,6 +39,7 @@ using namespace mlpl;
 #include "UnifiedDataStore.h"
 #include "DBClientUser.h"
 #include "DBClientConfig.h"
+#include "SessionManager.h"
 
 int FaceRest::API_VERSION = 3;
 const char *FaceRest::SESSION_ID_HEADER_NAME = "X-Hatohol-Session";
@@ -101,23 +102,10 @@ typedef map<FormatType, const char *> MimeTypeMap;
 typedef MimeTypeMap::iterator   MimeTypeMapIterator;
 static MimeTypeMap g_mimeTypeMap;
 
-// Key: session ID, value: user ID
-typedef map<string, SessionInfo *>           SessionIdMap;
-typedef map<string, SessionInfo *>::iterator SessionIdMapIterator;
-
-// constructor
-SessionInfo::SessionInfo(void)
-: userId(INVALID_USER_ID),
-  loginTime(SmartTime::INIT_CURR_TIME),
-  lastAccessTime(SmartTime::INIT_CURR_TIME)
-{
-}
-
 struct FaceRest::PrivateContext {
 	struct MainThreadCleaner;
 	static bool         testMode;
 	static MutexLock    lock;
-	static SessionIdMap sessionIdMap;
 	static const string pathForUserMe;
 	guint               port;
 	SoupServer         *soupServer;
@@ -155,38 +143,6 @@ struct FaceRest::PrivateContext {
 		return string(FaceRest::pathForUser) + "/me";
 	}
 
-	static void insertSessionId(const string &sessionId, UserIdType userId)
-	{
-		SessionInfo *sessionInfo = new SessionInfo();
-		sessionInfo->userId = userId;
-		lock.lock();
-		sessionIdMap[sessionId] = sessionInfo;
-		lock.unlock();
-	}
-
-	static bool removeSessionId(const string &sessionId)
-	{
-		lock.lock();
-		SessionIdMapIterator it = sessionIdMap.find(sessionId);
-		bool found = it != sessionIdMap.end();
-		if (found)
-			sessionIdMap.erase(it);
-		lock.unlock();
-		if (!found) {
-			MLPL_WARN("Failed to erase session ID: %s\n",
-			          sessionId.c_str());
-		}
-		return found;
-	}
-
-	static const SessionInfo *getSessionInfo(const string &sessionId)
-	{
-		SessionIdMapIterator it = sessionIdMap.find(sessionId);
-		if (it == sessionIdMap.end())
-			return NULL;
-		return it->second;
-	}
-
 	void pushJob(RestJob *job)
 	{
 		restJobLock.lock();
@@ -215,11 +171,16 @@ struct FaceRest::PrivateContext {
 		restJobLock.unlock();
 		return job;
 	}
+
+	static bool isTestPath(const string &path)
+	{
+		size_t len = strlen(pathForTest);
+		return (strncmp(path.c_str(), pathForTest, len) == 0);
+	}
 };
 
 bool         FaceRest::PrivateContext::testMode = false;
 MutexLock    FaceRest::PrivateContext::lock;
-SessionIdMap FaceRest::PrivateContext::sessionIdMap;
 const string FaceRest::PrivateContext::pathForUserMe =
   FaceRest::PrivateContext::initPathForUserMe();
 
@@ -490,51 +451,51 @@ gpointer FaceRest::mainThread(HatoholThreadArg *arg)
 	soup_server_add_handler(m_ctx->soupServer, "/hello.html",
 	                        queueRestJob,
 	                        new HandlerClosure(this, &handlerHelloPage),
-				deleteHandlerClosure);
-	soup_server_add_handler(m_ctx->soupServer, "/test",
+	                        deleteHandlerClosure);
+	soup_server_add_handler(m_ctx->soupServer, pathForTest,
 	                        queueRestJob,
 	                        new HandlerClosure(this, handlerTest),
-				deleteHandlerClosure);
+	                        deleteHandlerClosure);
 	soup_server_add_handler(m_ctx->soupServer, pathForLogin,
 	                        queueRestJob,
 	                        new HandlerClosure(this, handlerLogin),
-				deleteHandlerClosure);
+	                        deleteHandlerClosure);
 	soup_server_add_handler(m_ctx->soupServer, pathForLogout,
 	                        queueRestJob,
 	                        new HandlerClosure(this, handlerLogout),
-				deleteHandlerClosure);
+	                        deleteHandlerClosure);
 	soup_server_add_handler(m_ctx->soupServer, pathForGetOverview,
 	                        queueRestJob,
 	                        new HandlerClosure(this, handlerGetOverview),
-				deleteHandlerClosure);
+	                        deleteHandlerClosure);
 	soup_server_add_handler(m_ctx->soupServer, pathForServer,
 	                        queueRestJob,
 	                        new HandlerClosure(this, handlerServer),
-				deleteHandlerClosure);
+	                        deleteHandlerClosure);
 	soup_server_add_handler(m_ctx->soupServer, pathForGetHost,
 	                        queueRestJob,
 	                        new HandlerClosure(this, handlerGetHost),
-				deleteHandlerClosure);
+	                        deleteHandlerClosure);
 	soup_server_add_handler(m_ctx->soupServer, pathForGetTrigger,
 	                        queueRestJob,
 	                        new HandlerClosure(this, handlerGetTrigger),
-				deleteHandlerClosure);
+	                        deleteHandlerClosure);
 	soup_server_add_handler(m_ctx->soupServer, pathForGetEvent,
 	                        queueRestJob,
 	                        new HandlerClosure(this, handlerGetEvent),
-				deleteHandlerClosure);
+	                        deleteHandlerClosure);
 	soup_server_add_handler(m_ctx->soupServer, pathForGetItem,
 	                        queueRestJob,
 	                        new HandlerClosure(this, handlerGetItem),
-				deleteHandlerClosure);
+	                        deleteHandlerClosure);
 	soup_server_add_handler(m_ctx->soupServer, pathForAction,
 	                        queueRestJob,
 	                        new HandlerClosure(this, handlerAction),
-				deleteHandlerClosure);
+	                        deleteHandlerClosure);
 	soup_server_add_handler(m_ctx->soupServer, pathForUser,
 	                        queueRestJob,
 	                        new HandlerClosure(this, handlerUser),
-				deleteHandlerClosure);
+	                        deleteHandlerClosure);
 	if (m_ctx->param)
 		m_ctx->param->setupDoneNotifyFunc();
 	soup_server_run_async(m_ctx->soupServer);
@@ -637,11 +598,6 @@ void FaceRest::replyJsonData(JsonBuilderAgent &agent, RestJob *job)
 	soup_message_set_status(job->message, SOUP_STATUS_OK);
 
 	job->replyIsPrepared = true;
-}
-
-const SessionInfo *FaceRest::getSessionInfo(const string &sessionId)
-{
-	return PrivateContext::getSessionInfo(sessionId);
 }
 
 void FaceRest::parseQueryServerId(GHashTable *query, uint32_t &serverId)
@@ -770,24 +726,23 @@ bool FaceRest::RestJob::prepare(void)
 	                                SESSION_ID_HEADER_NAME);
 	sessionId = _sessionId ? _sessionId : "";
 
+	bool notFoundSessionId = true;
 	if (sessionId.empty()) {
-		// We should return an error. But now, we just set
-		// USER_ID_ADMIN to keep compatiblity until the user privilege
-		// feature is completely implemnted.
-		if (path != pathForLogin)
-			userId = USER_ID_ADMIN;
-		else
+		if (path == pathForLogin || PrivateContext::isTestPath(path)) {
 			userId = INVALID_USER_ID;
-	} else {
-		PrivateContext::lock.lock();
-		const SessionInfo *sessionInfo = getSessionInfo(sessionId);
-		if (!sessionInfo) {
-			PrivateContext::lock.unlock();
-			replyError(this, HTERR_NOT_FOUND_SESSION_ID);
-			return false;
+			notFoundSessionId = false;
 		}
-		userId = sessionInfo->userId;
-		PrivateContext::lock.unlock();
+	} else {
+		SessionManager *sessionMgr = SessionManager::getInstance();
+		SessionPtr session = sessionMgr->getSession(sessionId);
+		if (session.hasData()) {
+			notFoundSessionId = false;
+			userId = session->userId;
+		}
+	}
+	if (notFoundSessionId) {
+		replyError(this, HTERR_NOT_FOUND_SESSION_ID);
+		return false;
 	}
 
 	// We expect URIs  whose style are the following.
@@ -1257,7 +1212,7 @@ void FaceRest::handlerTest(RestJob *job)
 	    string(job->message->method) == "POST")
 	{
 		RETURN_IF_NOT_TEST_MODE(job);
-		UserQueryOption option(USER_ID_ADMIN);
+		UserQueryOption option(USER_ID_SYSTEM);
 		HatoholError err = updateOrAddUser(job->query, option);
 		if (err != HTERR_OK) {
 			replyError(job, err);
@@ -1292,13 +1247,8 @@ void FaceRest::handlerLogin(RestJob *job)
 		return;
 	}
 
-	uuid_t sessionUuid;
-	uuid_generate(sessionUuid);
-	static const size_t uuidBufSize = 37;
-	char uuidBuf[uuidBufSize];
-	uuid_unparse(sessionUuid, uuidBuf);
-	string sessionId = uuidBuf;
-	PrivateContext::insertSessionId(sessionId, userId);
+	SessionManager *sessionMgr = SessionManager::getInstance();
+	string sessionId = sessionMgr->create(userId);
 
 	JsonBuilderAgent agent;
 	agent.startObject();
@@ -1311,7 +1261,8 @@ void FaceRest::handlerLogin(RestJob *job)
 
 void FaceRest::handlerLogout(RestJob *job)
 {
-	if (!PrivateContext::removeSessionId(job->sessionId)) {
+	SessionManager *sessionMgr = SessionManager::getInstance();
+	if (!sessionMgr->remove(job->sessionId)) {
 		replyError(job, HTERR_NOT_FOUND_SESSION_ID);
 		return;
 	}
@@ -1722,11 +1673,17 @@ void FaceRest::handlerGetAction(RestJob *job)
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 
 	ActionDefList actionList;
-	dataStore->getActionList(actionList);
+	OperationPrivilege privilege(job->userId);
+	HatoholError err = dataStore->getActionList(actionList, privilege);
 
 	JsonBuilderAgent agent;
 	agent.startObject();
-	addHatoholError(agent, HatoholError(HTERR_OK));
+	addHatoholError(agent, err);
+	if (err != HTERR_OK) {
+		agent.endObject();
+		replyJsonData(agent, job);
+		return;
+	}
 	agent.add("numberOfActions", actionList.size());
 	agent.startArray("actions");
 	HostNameMaps hostMaps;
@@ -1760,6 +1717,7 @@ void FaceRest::handlerGetAction(RestJob *job)
 		          actionDef.workingDir.c_str());
 		agent.add("command", actionDef.command);
 		agent.add("timeout", actionDef.timeout);
+		agent.add("ownerUserId", actionDef.ownerUserId);
 		agent.endObject();
 		// We don't know the host name at this point.
 		// We'll get it later.
@@ -1833,6 +1791,14 @@ void FaceRest::handlerPostAction(RestJob *job)
 	if (!exist)
 		actionDef.timeout = 0;
 
+	// ownerUserId
+	succeeded = getParamWithErrorReply<int>(
+	              job, "ownerUserId", "%d", actionDef.ownerUserId, &exist);
+	if (!succeeded)
+		return;
+	if (!exist)
+		actionDef.ownerUserId = job->userId;
+
 	// serverId
 	succeeded = getParamWithErrorReply<int>(
 	              job, "serverId", "%d", cond.serverId, &exist);
@@ -1901,13 +1867,15 @@ void FaceRest::handlerPostAction(RestJob *job)
 	}
 
 	// save the obtained action
-	dataStore->addAction(actionDef);
+	OperationPrivilege privilege(job->userId);
+	HatoholError err = dataStore->addAction(actionDef, privilege);
 
 	// make a response
 	JsonBuilderAgent agent;
 	agent.startObject();
-	addHatoholError(agent, HatoholError(HTERR_OK));
-	agent.add("id", actionDef.id);
+	addHatoholError(agent, err);
+	if (err == HTERR_OK)
+		agent.add("id", actionDef.id);
 	agent.endObject();
 	replyJsonData(agent, job);
 }
@@ -1924,13 +1892,15 @@ void FaceRest::handlerDeleteAction(RestJob *job)
 	}
 	ActionIdList actionIdList;
 	actionIdList.push_back(actionId);
-	dataStore->deleteActionList(actionIdList);
+	OperationPrivilege privilege(job->userId);
+	HatoholError err = dataStore->deleteActionList(actionIdList, privilege);
 
 	// replay
 	JsonBuilderAgent agent;
 	agent.startObject();
 	addHatoholError(agent, HatoholError(HTERR_OK));
-	agent.add("id", actionId);
+	if (err == HTERR_OK)
+		agent.add("id", actionId);
 	agent.endObject();
 	replyJsonData(agent, job);
 }
@@ -1956,7 +1926,7 @@ void FaceRest::handlerUser(RestJob *job)
 	} else {
 		MLPL_ERR("Unknown method: %s\n", job->message->method);
 		soup_message_set_status(job->message,
-					SOUP_STATUS_METHOD_NOT_ALLOWED);
+		                        SOUP_STATUS_METHOD_NOT_ALLOWED);
 		job->replyIsPrepared = true;
 	}
 }
@@ -1994,7 +1964,7 @@ void FaceRest::handlerGetUser(RestJob *job)
 void FaceRest::handlerPostUser(RestJob *job)
 {
 	UserInfo userInfo;
-        HatoholError err = parseUserParameter(userInfo, job->query);
+	HatoholError err = parseUserParameter(userInfo, job->query);
 	if (err != HTERR_OK) {
 		replyError(job, err);
 		return;
@@ -2021,7 +1991,7 @@ void FaceRest::handlerPutUser(RestJob *job)
 	userInfo.id = job->getResourceId();
 	if (userInfo.id == INVALID_USER_ID) {
 		REPLY_ERROR(job, HTERR_NOT_FOUND_ID_IN_URL,
-			    "id: %s", job->getResourceIdString().c_str());
+		            "id: %s", job->getResourceIdString().c_str());
 		return;
 	}
 
@@ -2029,12 +1999,11 @@ void FaceRest::handlerPutUser(RestJob *job)
 	bool exist = dbUser.getUserInfo(userInfo, userInfo.id);
 	if (!exist) {
 		REPLY_ERROR(job, HTERR_NOT_FOUND_USER_ID,
-			    "id: %"FMT_USER_ID, userInfo.id);
+		            "id: %"FMT_USER_ID, userInfo.id);
 		return;
 	}
 	bool forUpdate = true;
-	HatoholError err = parseUserParameter(userInfo, job->query,
-					      forUpdate);
+	HatoholError err = parseUserParameter(userInfo, job->query, forUpdate);
 	if (err != HTERR_OK) {
 		replyError(job, err);
 		return;
@@ -2060,7 +2029,7 @@ void FaceRest::handlerDeleteUser(RestJob *job)
 	uint64_t userId = job->getResourceId();
 	if (userId == INVALID_ID) {
 		REPLY_ERROR(job, HTERR_NOT_FOUND_ID_IN_URL,
-			    "id: %s", job->getResourceIdString().c_str());
+		            "id: %s", job->getResourceIdString().c_str());
 		return;
 	}
 
@@ -2089,7 +2058,7 @@ void FaceRest::handlerAccessInfo(RestJob *job)
 	} else {
 		MLPL_ERR("Unknown method: %s\n", job->message->method);
 		soup_message_set_status(job->message,
-					SOUP_STATUS_METHOD_NOT_ALLOWED);
+		                        SOUP_STATUS_METHOD_NOT_ALLOWED);
 		job->replyIsPrepared = true;
 	}
 }
@@ -2132,7 +2101,7 @@ void FaceRest::handlerGetAccessInfo(RestJob *job)
 			} else {
 				hostGroupIdString
 				  = StringUtils::sprintf("%"PRIu64,
-							 hostGroupId);
+				                         hostGroupId);
 			}
 			agent.startObject(hostGroupIdString);
 			agent.add("accessInfoId", info->id);

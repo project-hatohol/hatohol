@@ -29,6 +29,7 @@ using namespace mlpl;
 #include "DBAgent.h"
 #include "DBClient.h"
 #include "HatoholError.h"
+#include "OperationPrivilege.h"
 
 #define DBCONTENT_MAGIC_CURR_DATETIME "#CURR_DATETIME#"
 #define DBCONTENT_MAGIC_NULL          "#NULL#"
@@ -110,7 +111,7 @@ void _assertTimeIsNow(const mlpl::SmartTime &smtime, double allowedError = 1);
 #define assertTimeIsNow(ST, ...) cut_trace(_assertTimeIsNow(ST, ##__VA_ARGS__))
 
 void _assertHatoholError(const HatoholErrorCode &code,
-                         const HatoholError err);
+                         const HatoholError &err);
 #define assertHatoholError(C,E) cut_trace(_assertHatoholError(C,E))
 
 template<typename T> void _assertAddToDB(T *arg, void (*func)(T *))
@@ -162,5 +163,10 @@ void _acquireDefaultContext(void);
 void releaseDefaultContext(void);
 
 void defineDBPath(DBDomainId domainId, const string &dbPath);
+
+UserIdType searchMaxTestUserId(void);
+UserIdType findUserWith(const OperationPrivilegeType &type,
+                        const OperationPrivilegeFlag &excludeFlags = 0);
+UserIdType findUserWithout(const OperationPrivilegeType &type);
 
 #endif // Helpers_h

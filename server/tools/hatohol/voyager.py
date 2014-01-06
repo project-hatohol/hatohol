@@ -18,6 +18,7 @@
   along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
 """
 import sys
+import os
 import urllib
 import urllib2
 import argparse
@@ -51,11 +52,21 @@ class UserCreator:
     query["flags"] = args.flags;
     self._encoded_query = urllib.urlencode(query)
 
+def add_session_id(request):
+  env_name = hatohol.ENV_NAME_SESSION_ID
+  session_id = os.getenv(env_name)
+  if session_id is None:
+    print "Found found an environment varible: %s" % env_name
+    return
+  request.add_header(hatohol.FACE_REST_SESSION_ID_HEADER_NAME, session_id)
+
 def open_url_and_show_response(cmd_ctx):
+  data = None
   if "encoded_query" in cmd_ctx:
-    response = urllib2.urlopen(cmd_ctx["url"], cmd_ctx["encoded_query"])
-  else:
-    response = urllib2.urlopen(cmd_ctx["url"])
+    data = cmd_ctx["encoded_query"]
+  request = urllib2.Request(cmd_ctx["url"], data=data)
+  add_session_id(request)
+  response = urllib2.urlopen(request)
   print response.read()
 
 def parse_server_arg(arg):
@@ -70,6 +81,17 @@ def parse_server_arg(arg):
 
 def do_test(url, args):
   url += "/test"
+  return {"url":url, "postproc":open_url_and_show_response}
+
+def login(url, args):
+  url += "/login"
+  query = {"user":args.user, "password":args.password}
+  encoded_query = urllib.urlencode(query)
+  url += "?" + encoded_query
+  return {"url":url, "postproc":open_url_and_show_response}
+
+def logout(url, args):
+  url += "/logout"
   return {"url":url, "postproc":open_url_and_show_response}
 
 def show_server(url, args):
@@ -166,6 +188,8 @@ def del_user(url, args):
 
 command_map = {
   "test":do_test,
+  "login":login,
+  "logout":logout,
   "show-server":show_server,
   "show-event":show_event,
   "show-trigger":show_trigger,
@@ -188,6 +212,14 @@ def main(arg_list=None, exec_postproc=True):
 
   # test
   sub_server = subparsers.add_parser("test")
+
+  # login
+  sub_server = subparsers.add_parser("login")
+  sub_server.add_argument("user", type=str)
+  sub_server.add_argument("password", type=str)
+
+  # logout
+  sub_server = subparsers.add_parser("logout")
 
   # server
   sub_server = subparsers.add_parser("show-server")

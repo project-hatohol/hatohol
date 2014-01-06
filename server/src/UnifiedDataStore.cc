@@ -383,16 +383,18 @@ void UnifiedDataStore::getHostList(
 	dbHatohol.getHostInfoList(hostInfoList, targetServerId, targetHostId);
 }
 
-void UnifiedDataStore::getActionList(ActionDefList &actionList)
+HatoholError UnifiedDataStore::getActionList(
+  ActionDefList &actionList, const OperationPrivilege &privilege)
 {
 	DBClientAction dbAction;
-	dbAction.getActionList(actionList);
+	return dbAction.getActionList(actionList, privilege);
 }
 
-void UnifiedDataStore::deleteActionList(const ActionIdList &actionIdList)
+HatoholError UnifiedDataStore::deleteActionList(
+  const ActionIdList &actionIdList, const OperationPrivilege &privilege)
 {
 	DBClientAction dbAction;
-	dbAction.deleteActions(actionIdList);
+	return dbAction.deleteActions(actionIdList, privilege);
 }
 
 size_t UnifiedDataStore::getNumberOfTriggers(uint32_t serverId,
@@ -427,10 +429,11 @@ void UnifiedDataStore::setCopyOnDemandEnabled(bool enable)
 	m_ctx->isCopyOnDemandEnabled = enable;
 }
 
-void UnifiedDataStore::addAction(ActionDef &actionDef)
+HatoholError UnifiedDataStore::addAction(ActionDef &actionDef,
+                                         const OperationPrivilege &privilege)
 {
 	DBClientAction dbAction;
-	dbAction.addAction(actionDef);
+	return dbAction.addAction(actionDef, privilege);
 }
 
 void UnifiedDataStore::addEventList(const EventInfoList &eventList)

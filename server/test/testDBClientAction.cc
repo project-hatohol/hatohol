@@ -27,6 +27,13 @@
 
 namespace testDBClientAction {
 
+struct TestDBClientAction : public DBClientAction {
+	uint64_t callGetLastInsertId(void)
+	{
+		return getLastInsertId();
+	}
+};
+
 static string makeExpectedString(const ActionDef &actDef, int expectedId)
 {
 	const ActionCondition &cond = actDef.condition;
@@ -52,10 +59,10 @@ static string makeExpectedString(const ActionDef &actDef, int expectedId)
 	expect += cond.isEnable(ACTCOND_TRIGGER_SEVERITY) ?
 	            StringUtils::sprintf("%d|", cond.triggerSeverityCompType) :
 	            DBCONTENT_MAGIC_NULL "|";
-	expect += StringUtils::sprintf("%d|%s|%s|%d\n",
+	expect += StringUtils::sprintf("%d|%s|%s|%d|%d\n",
 	                               actDef.type, actDef.command.c_str(),
 	                               actDef.workingDir.c_str(),
-	                               actDef.timeout);
+	                               actDef.timeout, actDef.ownerUserId);
 	return expect;
 }
 
@@ -141,13 +148,114 @@ void _assertEqual(const ActionDef &expect, const ActionDef &actual)
 	cppcut_assert_equal(expect.workingDir, actual.workingDir);
 	cppcut_assert_equal(expect.command, actual.command);
 	cppcut_assert_equal(expect.timeout, actual.timeout);
+	cppcut_assert_equal(expect.ownerUserId, actual.ownerUserId);
 }
 #define assertEqual(E,A) cut_trace(_assertEqual(E,A))
+
+static void pickupActionIdsFromTestActionDef(
+  ActionIdSet &actionIdSet, const UserIdType &userId)
+{
+	for (size_t i = 0; i < NumTestActionDef; i++) {
+		const ActionDef &actDef = testActionDef[i];
+		if (userId != USER_ID_ANY && actDef.ownerUserId != userId)
+			continue;
+		const int expectedId = i + 1;
+		actionIdSet.insert(expectedId);
+	}
+}
+
+void _assertGetActionList(const UserIdType &userId,
+                          const UserIdType &expectUserId)
+{
+	OperationPrivilege privilege(userId);
+
+	DBClientAction dbAction;
+	ActionDefList actionDefList;
+	assertHatoholError(HTERR_OK,
+	                   dbAction.getActionList(actionDefList, privilege));
+
+	// pick up expected action IDs
+	ActionIdSet expectActionIdSet;
+	pickupActionIdsFromTestActionDef(expectActionIdSet, expectUserId);
+	cppcut_assert_not_equal((size_t)0, expectActionIdSet.size());
+
+	// check the result
+	cppcut_assert_equal(expectActionIdSet.size(), actionDefList.size());
+	ActionDefListIterator actionDef = actionDefList.begin();
+	for (; actionDef != actionDefList.end(); ++actionDef) {
+		ActionIdSetIterator it = expectActionIdSet.find(actionDef->id);
+		cppcut_assert_equal(true, it != expectActionIdSet.end());
+		expectActionIdSet.erase(it);
+	}
+}
+#define assertGetActionList(U,E) cut_trace(_assertGetActionList(U,E))
+
+static bool g_existTestDB = false;
+static void setupHelperForTestDBUser(void)
+{
+	const bool dbRecreate = true;
+	const bool loadTestData = true;
+	setupTestDBUser(dbRecreate, loadTestData);
+	g_existTestDB = true;
+}
+
+void test_addAction(void);
+
+static void setupTestDBUserAndDBAction(void)
+{
+	setupHelperForTestDBUser();
+	test_addAction(); // add all test actions
+}
+
+static void _assertDeleteActions(const bool &deleteMyActions,
+                                 const OperationPrivilegeType &type)
+{
+	setupTestDBUserAndDBAction();
+	DBClientAction dbAction;
+
+	const UserIdType userId = findUserWith(type);
+	string expect;
+	ActionIdList idList;
+	for (size_t i = 0; i < NumTestActionDef; i++) {
+		const ActionDef &actDef = testActionDef[i];
+		const int expectedId = i + 1;
+		bool shouldDelete;
+		if (actDef.ownerUserId == userId)
+			shouldDelete = deleteMyActions;
+		else
+			shouldDelete = !deleteMyActions;
+
+		if (shouldDelete)
+			idList.push_back(expectedId);
+		else
+			expect += StringUtils::sprintf("%d\n", expectedId);
+	}
+	cppcut_assert_equal(true, idList.size() >= 2);
+	OperationPrivilege privilege(userId);
+	assertHatoholError(HTERR_OK,
+	                   dbAction.deleteActions(idList, privilege));
+
+	// check
+	string statement = "select action_id from ";
+	statement += DBClientAction::getTableNameActions();
+	assertDBContent(dbAction.getDBAgent(), statement, expect);
+}
+#define assertDeleteActions(D,T) cut_trace(_assertDeleteActions(D,T))
 
 void setup(void)
 {
 	hatoholInit();
 	setupTestDBAction();
+}
+
+void cut_teardown(void)
+{
+	if (g_existTestDB) {
+		const bool dbRecreate = true;
+		const bool loadTestData = false;
+		setupTestDBUser(dbRecreate, loadTestData);
+		g_existTestDB = false;
+	}
 }
 
 // ---------------------------------------------------------------------------
@@ -164,9 +272,11 @@ void test_addAction(void)
 {
 	DBClientAction dbAction;
 	string expect;
+	OperationPrivilege privilege(USER_ID_SYSTEM);
 	for (size_t i = 0; i < NumTestActionDef; i++) {
 		ActionDef &actDef = testActionDef[i];
-		dbAction.addAction(actDef);
+		assertHatoholError(HTERR_OK,
+		                   dbAction.addAction(actDef, privilege));
 
 		// validation
 		const int expectedId = i + 1;
@@ -178,16 +288,58 @@ void test_addAction(void)
 	}
 }
 
-void test_deleteAction(void)
+void test_addActionByInvalidUser(void)
 {
 	DBClientAction dbAction;
-	test_addAction(); // add all test actions
+	OperationPrivilege privilege(INVALID_USER_ID);
+	ActionDef &actDef = testActionDef[0];
+	assertHatoholError(HTERR_INVALID_USER,
+	                   dbAction.addAction(actDef, privilege));
+}
 
-	// we delete 2nd one
-	size_t targetIdx = 1;
+void test_addActionAndCheckOwner(void)
+{
+	setupHelperForTestDBUser();
+
+	const UserIdType userId = findUserWith(OPPRVLG_CREATE_ACTION);
+	TestDBClientAction dbAction;
+	OperationPrivilege privilege(userId);
+	ActionDef &actDef = testActionDef[0];
+	assertHatoholError(HTERR_OK, dbAction.addAction(actDef, privilege));
+	ActionIdType actionId = dbAction.callGetLastInsertId();
+
+	// check
+	string expect = StringUtils::sprintf("%"FMT_ACTION_ID"|%"FMT_USER_ID,
+	                                     actionId, userId);
+	string statement = "select action_id, owner_user_id from ";
+	statement += DBClientAction::getTableNameActions();
+	assertDBContent(dbAction.getDBAgent(), statement, expect);
+}
+
+void test_addActionWithoutPrivilege(void)
+{
+	setupHelperForTestDBUser();
+
+	const UserIdType userId = findUserWithout(OPPRVLG_CREATE_ACTION);
+	TestDBClientAction dbAction;
+	OperationPrivilege privilege(userId);
+	ActionDef &actDef = testActionDef[0];
+	assertHatoholError(HTERR_NO_PRIVILEGE,
+	                   dbAction.addAction(actDef, privilege));
+}
+
+void test_deleteAction(void)
+{
+	setupTestDBUserAndDBAction();
+	DBClientAction dbAction;
+
+	const UserIdType userId = findUserWith(OPPRVLG_DELETE_ACTION);
+	const size_t targetIdx = findIndexFromTestActionDef(userId);
 	ActionIdList idList;
 	idList.push_back(testActionDef[targetIdx].id);
-	dbAction.deleteActions(idList);
+	OperationPrivilege privilege(userId);
+	assertHatoholError(HTERR_OK,
+	                   dbAction.deleteActions(idList, privilege));
 
 	// check
 	string expect;
@@ -203,27 +355,63 @@ void test_deleteAction(void)
 	assertDBContent(dbAction.getDBAgent(), statement, expect);
 }
 
+void test_deleteActionWithoutPrivilege(void)
+{
+	setupTestDBUserAndDBAction();
+	DBClientAction dbAction;
+
+	const UserIdType userId = findUserWithout(OPPRVLG_DELETE_ACTION);
+	const size_t targetIdx = findIndexFromTestActionDef(userId);
+	ActionIdList idList;
+	const int expectedId = testActionDef[targetIdx].id + 1;
+	idList.push_back(expectedId);
+	OperationPrivilege privilege(userId);
+	assertHatoholError(HTERR_NO_PRIVILEGE,
+	                   dbAction.deleteActions(idList, privilege));
+}
+
+void test_deleteActionByInvalidUser(void)
+{
+	ActionIdList idList;
+	DBClientAction dbAction;
+	OperationPrivilege privilege(INVALID_USER_ID);
+	assertHatoholError(HTERR_INVALID_USER,
+	                   dbAction.deleteActions(idList, privilege));
+}
+
 void test_deleteActionMultiple(void)
 {
+	const bool deleteMyActions = true;
+	assertDeleteActions(deleteMyActions, OPPRVLG_DELETE_ACTION);
+}
+
+void test_deleteActionOfOthers(void)
+{
+	const bool deleteMyActions = false;
+	assertDeleteActions(deleteMyActions, OPPRVLG_DELETE_ALL_ACTION);
+}
+
+void test_deleteActionOfOthersWithoutPrivilege(void)
+{
+	setupTestDBUserAndDBAction();
 	DBClientAction dbAction;
-	test_addAction(); // add all test actions
 
-	// we delete items with even IDs.
-	string expect;
+	const OperationPrivilegeFlag excludeFlags
+	  = OperationPrivilege::makeFlag(OPPRVLG_DELETE_ALL_ACTION);
+	const UserIdType userId =
+	  findUserWith(OPPRVLG_DELETE_ACTION, excludeFlags);
+
+	// Anyone other than caller itself can be a target. We choose a target
+	// user whose ID is the next of the caller.
+	const UserIdType targetUserId = userId + 1;
+	const size_t targetIdx = findIndexFromTestActionDef(targetUserId);
+
 	ActionIdList idList;
-	for (size_t i = 0; i < NumTestActionDef; i++) {
-		const int expectedId = i + 1;
-		if (expectedId % 2 == 0)
-			idList.push_back(expectedId);
-		else
-			expect += StringUtils::sprintf("%d\n", expectedId);
-	}
-	dbAction.deleteActions(idList);
-
-	// check
-	string statement = "select action_id from ";
-	statement += DBClientAction::getTableNameActions();
-	assertDBContent(dbAction.getDBAgent(), statement, expect);
+	const int expectedId = testActionDef[targetIdx].id + 1;
+	idList.push_back(expectedId);
+	OperationPrivilege privilege(userId);
+	assertHatoholError(HTERR_DELETE_IMCOMPLETE,
+	                   dbAction.deleteActions(idList, privilege));
 }
 
 void test_startExecAction(void)
@@ -331,7 +519,10 @@ void test_getTriggerActionList(void)
 	// get the list and check the number
 	DBClientAction dbAction;
 	ActionDefList actionDefList;
-	dbAction.getActionList(actionDefList, &eventInfo);
+	OperationPrivilege privilege(USER_ID_SYSTEM);
+	assertHatoholError(
+	  HTERR_OK,
+	  dbAction.getActionList(actionDefList, privilege, &eventInfo));
 	cppcut_assert_equal((size_t)1, actionDefList.size());
 
 	// check the content
@@ -362,12 +553,29 @@ void test_getTriggerActionListWithAllCondition(void)
 	// get the list and check the number
 	DBClientAction dbAction;
 	ActionDefList actionDefList;
-	dbAction.getActionList(actionDefList, &eventInfo);
+	OperationPrivilege privilege(USER_ID_SYSTEM);
+	assertHatoholError(
+	  HTERR_OK,
+	  dbAction.getActionList(actionDefList, privilege, &eventInfo));
 	cppcut_assert_equal((size_t)1, actionDefList.size());
 
 	// check the content
 	const ActionDef &actual = *actionDefList.begin();
 	assertEqual(testActionDef[idxTarget], actual);
+}
+
+void test_getActionListWithNormalUser(void)
+{
+	setupTestDBUserAndDBAction();
+	const UserIdType userId = findUserWithout(OPPRVLG_GET_ALL_ACTION);
+	assertGetActionList(userId, userId);
+}
+
+void test_getActionListWithUserHavingGetAllFlag(void)
+{
+	setupTestDBUserAndDBAction();
+	const UserIdType userId = findUserWith(OPPRVLG_GET_ALL_ACTION);
+	assertGetActionList(userId, USER_ID_ANY);
 }
 
 } // namespace testDBClientAction

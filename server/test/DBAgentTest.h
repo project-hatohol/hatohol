@@ -93,5 +93,6 @@ void dbAgentTestAutoIncrement(DBAgent &dbAgent, DBAgentChecker &checker);
 void dbAgentTestAutoIncrementWithDel(DBAgent &dbAgent, DBAgentChecker &checker);
 void dbAgentUpdateIfExistEleseInsert(DBAgent &dbAgent, DBAgentChecker &checker);
 void dbAgentGetLastInsertId(DBAgent &dbAgent, DBAgentChecker &checker);
+void dbAgentGetNumberOfAffectedRows(DBAgent &dbAgent, DBAgentChecker &checker);
 
 #endif // DBAgentTestCommon_h

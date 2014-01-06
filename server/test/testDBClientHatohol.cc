@@ -98,7 +98,7 @@ struct AssertGetHostResourceArg {
 	size_t numberOfFixtures;
 
 	AssertGetHostResourceArg(void)
-	: userId(USER_ID_ADMIN),
+	: userId(USER_ID_SYSTEM),
 	  targetServerId(ALL_SERVERS),
 	  targetHostId(ALL_HOSTS),
 	  sortOrder(DataQueryOption::SORT_DONT_CARE),
@@ -902,7 +902,7 @@ void test_makeConditionWithTargetServerAndHost(void)
 
 void test_conditionForAdminWithTargetServerAndHost(void)
 {
-	HostResourceQueryOption option(USER_ID_ADMIN);
+	HostResourceQueryOption option(USER_ID_SYSTEM);
 	option.setTargetServerId(26);
 	option.setTargetHostId(32);
 	string expect = StringUtils::sprintf("%s=26 AND %s=32",
@@ -966,7 +966,7 @@ void test_makeConditionComplicated(void)
 
 void test_makeSelectConditionUserAdmin(void)
 {
-	HostResourceQueryOption option(USER_ID_ADMIN);
+	HostResourceQueryOption option(USER_ID_SYSTEM);
 	string actual = option.getCondition();
 	string expect = "";
 	cppcut_assert_equal(actual, expect);
@@ -975,7 +975,7 @@ void test_makeSelectConditionUserAdmin(void)
 void test_makeSelectConditionAllEvents(void)
 {
 	HostResourceQueryOption option;
-	option.setFlags(OperationPrivilege::makeFlag(OPPRVLG_GET_ALL_SERVERS));
+	option.setFlags(OperationPrivilege::makeFlag(OPPRVLG_GET_ALL_SERVER));
 	string actual = option.getCondition();
 	string expect = "";
 	cppcut_assert_equal(actual, expect);

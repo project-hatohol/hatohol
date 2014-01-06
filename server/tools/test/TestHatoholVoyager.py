@@ -74,6 +74,16 @@ class TestHatoholVoyager(unittest.TestCase):
     arg_list = ["test"]
     self._assert_url(arg_list, "http://localhost:33194/test")
 
+  def test_login(self):
+    arg_list = ["--server", "www.example.com", "login", "name", "foo"]
+    expect_query = urllib.urlencode({"user":"name", "password":"foo"})
+    self._assert_url(arg_list,
+                     "http://www.example.com:33194/login?" + expect_query)
+
+  def test_logout(self):
+    arg_list = ["--server", "www.example.com", "logout"]
+    self._assert_url(arg_list, "http://www.example.com:33194/logout")
+
   def test_target_server(self):
     arg_list = ["--server", "www.example.com", "show-server"]
     self._assert_url(arg_list, "http://www.example.com:33194/server")

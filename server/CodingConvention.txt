@@ -1,0 +1,16 @@
+Naming
+------
+Variable: lower camel case.
+
+	domainName
+
+Class: upper camel case__
+File name: upper camel case
+
+	DatabaseConnector
+
+Function argument:
+An input parameter shall be 'const &type'.
+
+Function return value:
+Basically 'const' shall not be used.

@@ -33,6 +33,8 @@ enum
 	RESIDENT_PROTO_PKT_TYPE_NOTIFY_EVENT_ACK,
 };
 
+static const uint16_t HATOHOL_SESSION_ID_LEN = 36;
+
 // NOTE: Characters in Bytes column in this file means the following.
 //  'U': Unsigned integer.
 //  'S': Signed integer.
@@ -123,7 +125,8 @@ static const size_t RESIDENT_PROTO_EVENT_BODY_LEN =
  RESIDENT_PROTO_EVENT_EVENT_TYPE_LEN      +
  RESIDENT_PROTO_EVENT_TRIGGER_ID_LEN      +
  RESIDENT_PROTO_EVENT_TRIGGER_STATUS_LEN  +
- RESIDENT_PROTO_EVENT_TRIGGER_SEVERITY_LEN;
+ RESIDENT_PROTO_EVENT_TRIGGER_SEVERITY_LEN +
+ HATOHOL_SESSION_ID_LEN;
 
 // [Notify Event Ack]
 // Direction: Slave -> Master
@@ -140,7 +143,8 @@ static const size_t RESIDENT_PROTO_EVENT_ACK_CODE_LEN = 4;
 #define RESIDENT_MODULE_SYMBOL hatohol_resident_module
 #define RESIDENT_MODULE_SYMBOL_STR "hatohol_resident_module"
 
-static const uint16_t RESIDENT_MODULE_VERSION = 1;
+// 1 -> 2: Add sessionId
+static const uint16_t RESIDENT_MODULE_VERSION = 2;
 
 struct ResidentNotifyEventArg {
 	uint32_t actionId;
@@ -152,6 +156,7 @@ struct ResidentNotifyEventArg {
 	uint64_t triggerId;
 	uint16_t triggerStatus;
 	uint16_t triggerSeverity;
+	char sessionId[HATOHOL_SESSION_ID_LEN+1]; // +1 means NULL terminator
 };
 
 struct ResidentModule {

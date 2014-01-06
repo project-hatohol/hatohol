@@ -126,7 +126,7 @@ void Logger::setCurrLogLevel(void)
 		m_currLogLevel = MLPL_LOG_BUG;
 	else {
 		log(MLPL_LOG_WARN, __FILE__, __LINE__,
-		    "Unknown level: %s", env);
+		    "Unknown level: %s\n", env);
 		m_currLogLevel = MLPL_LOG_INFO;
 	}
 	pthread_rwlock_unlock(&m_rwlock);

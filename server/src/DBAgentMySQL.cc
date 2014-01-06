@@ -421,12 +421,22 @@ uint64_t DBAgentMySQL::getLastInsertId(void)
 	return id;
 }
 
+uint64_t DBAgentMySQL::getNumberOfAffectedRows(void)
+{
+	HATOHOL_ASSERT(m_ctx->connected, "Not connected.");
+	my_ulonglong num = mysql_affected_rows(&m_ctx->mysql);
+	// According to the referece manual, mysql_affected_rows()
+	// doesn't return an error.
+	//   http://dev.mysql.com/doc/refman/5.1/en/mysql-affected-rows.html
+	return num;
+}
+
 void DBAgentMySQL::addColumns(DBAgentAddColumnsArg &addColumnsArg)
 {
 	string query = "ALTER TABLE ";
 	query += addColumnsArg.tableName;
 	vector<size_t>::iterator it = addColumnsArg.columnIndexes.begin();
-	for (; it != addColumnsArg.columnIndexes.end(); it++) {
+	for (; it != addColumnsArg.columnIndexes.end(); ++it) {
 		size_t index = *it;
 		const ColumnDef &columnDef = addColumnsArg.columnDefs[index];
 		query += " ADD COLUMN ";

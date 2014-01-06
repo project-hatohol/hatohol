@@ -25,16 +25,32 @@
 
 enum OperationPrivilegeType
 {
+	// User
+	// Without any flags, user info of caller itself can be got.
 	OPPRVLG_CREATE_USER,
-	OPPRVLG_UPDATE_USER,
-	OPPRVLG_DELETE_USER,
-	OPPRVLG_GET_ALL_USERS,
-	OPPRVLG_CREATE_SERVERS,
-	OPPRVLG_UPDATE_SERVERS,
-	OPPRVLG_UPDATE_ALL_SERVERS,
-	OPPRVLG_DELETE_SERVERS,
-	OPPRVLG_DELETE_ALL_SERVERS,
-	OPPRVLG_GET_ALL_SERVERS,
+	OPPRVLG_UPDATE_USER,   // can update all users
+	OPPRVLG_DELETE_USER,   // can delete all users 
+	OPPRVLG_GET_ALL_USER,  // can get all users. 
+
+	// Server
+	// Without any flags, servers that are allowed by AccessInfoList
+	// can be got.
+	OPPRVLG_CREATE_SERVER, 
+	OPPRVLG_UPDATE_SERVER,        // can only update accessible servers
+	OPPRVLG_UPDATE_ALL_SERVER,    // can update all servers
+	OPPRVLG_DELETE_SERVER,        // can only delete accessible servers
+	OPPRVLG_DELETE_ALL_SERVER,    // can delete all servers
+	OPPRVLG_GET_ALL_SERVER,       // can get all servers
+
+	// Action
+	// Without any flags, own actions can be got.
+	OPPRVLG_CREATE_ACTION,         // create own action
+	OPPRVLG_UPDATE_ACTION,         // can only update own action
+	OPPRVLG_UPDATE_ALL_ACTION,     // can updat all actions
+	OPPRVLG_DELETE_ACTION,         // can only delete own actioin
+	OPPRVLG_DELETE_ALL_ACTION,     // can delte all actions
+	OPPRVLG_GET_ALL_ACTION,        // can get all actions
+
 	NUM_OPPRVLG,
 };
 
@@ -44,6 +60,7 @@ const static OperationPrivilegeFlag NONE_PRIVILEGE = 0;
 
 class OperationPrivilege {
 public:
+	OperationPrivilege(const UserIdType userId);
 	OperationPrivilege(const OperationPrivilegeFlag flags = 0);
 	OperationPrivilege(const OperationPrivilege &src);
 	virtual ~OperationPrivilege();

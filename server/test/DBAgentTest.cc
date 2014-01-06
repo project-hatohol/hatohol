@@ -670,6 +670,17 @@ void dbAgentGetLastInsertId(DBAgent &dbAgent, DBAgentChecker &checker)
 	}
 }
 
+void dbAgentGetNumberOfAffectedRows(DBAgent &dbAgent, DBAgentChecker &checker)
+{
+	DBAgentChecker::createTable(dbAgent);
+	DBAgentChecker::makeTestData(dbAgent);
+
+	DBAgentDeleteArg arg;
+	arg.tableName = TABLE_NAME_TEST;
+	dbAgent.deleteRows(arg);
+	cppcut_assert_equal(NUM_TEST_DATA, dbAgent.getNumberOfAffectedRows());
+}
+
 // --------------------------------------------------------------------------
 // DBAgentChecker
 // --------------------------------------------------------------------------

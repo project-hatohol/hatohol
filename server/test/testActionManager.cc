@@ -35,6 +35,7 @@
 #include "residentTest.h"
 #include "DBClientTest.h"
 #include "ConfigManager.h"
+#include "SessionManager.h"
 
 class TestActionManager : public ActionManager
 {
@@ -68,6 +69,11 @@ public:
 	{
 		return getNumberOfOnstageCommandActors();
 	}
+
+	static void callSetupPathForAction(string &path, string &ldLibraryPath)
+	{
+		setupPathForAction(path, ldLibraryPath);
+	}
 };
 
 namespace testActionManager {
@@ -86,12 +92,12 @@ struct ExecCommandContext : public ResidentPullHelper<ExecCommandContext> {
 	string pipeName;
 	NamedPipe pipeRd, pipeWr;
 	bool expectHup;
-	bool requestedEventInfo;
 	bool receivedEventInfo;
 	EventInfo eventInfo;
 	bool receivedActTpBegin;
 	bool receivedActTpArgList;
 	SmartBuffer argListBuf;
+	string sessionId;
 	bool receivedActTpQuit;
 
 	ExecCommandContext(void)
@@ -102,7 +108,6 @@ struct ExecCommandContext : public ResidentPullHelper<ExecCommandContext> {
 	  pipeRd(NamedPipe::END_TYPE_MASTER_READ),
 	  pipeWr(NamedPipe::END_TYPE_MASTER_WRITE),
 	  expectHup(false),
-	  requestedEventInfo(false),
 	  receivedEventInfo(false),
 	  receivedActTpBegin(false),
 	  receivedActTpArgList(false),
@@ -242,6 +247,60 @@ static void getArguments(ExecCommandContext *ctx,
 	}
 }
 
+static void getSessionIdCb(GIOStatus stat, mlpl::SmartBuffer &sbuf,
+                                  size_t size, ExecCommandContext *ctx)
+{
+	cppcut_assert_equal(G_IO_STATUS_NORMAL, stat);
+
+	// request to get the remaining data
+	int pktType = ResidentCommunicator::getPacketType(sbuf);
+	cppcut_assert_equal((int)ACTTP_REPLY_GET_SESSION_ID, pktType);
+
+	sbuf.resetIndex();
+	sbuf.incIndex(RESIDENT_PROTO_HEADER_LEN);
+
+	// Sent data doesn't has NULL terminator.
+	// So we added characters one by one.
+	const char *buf = sbuf.getPointer<char>();
+	for (size_t i = 0; i < ACTTP_SESSION_ID_LEN; i++)
+		ctx->sessionId += buf[i];
+}
+
+static void _assertSessionInManager(const string &sessionId,
+                                    const UserIdType &ownerUserId)
+{
+	SessionManager *sessionMgr = SessionManager::getInstance();
+	SessionPtr session = sessionMgr->getSession(sessionId);
+	cppcut_assert_equal(true, session.hasData());
+	cppcut_assert_equal(session->userId, ownerUserId);
+}
+#define assertSessionInManager(SID, OUID) \
+cut_trace(_assertSessionInManager(SID, OUID))
+
+static void _assertSessionId(ExecCommandContext *ctx)
+{
+	// send command
+	ResidentCommunicator comm;
+	comm.setHeader(0, ACTTP_CODE_GET_SESSION_ID);
+	comm.push(ctx->pipeWr); 
+
+	// wait the replay
+	ctx->pullData(RESIDENT_PROTO_HEADER_LEN + ACTTP_SESSION_ID_LEN,
+	              getSessionIdCb);
+	while (ctx->sessionId.empty()) {
+		g_main_context_iteration(NULL, TRUE);
+		cppcut_assert_equal(false, ctx->timedOut);
+	}
+
+	// check the response
+	SessionManager *sessionMgr = SessionManager::getInstance();
+	SessionPtr session =
+	   sessionMgr->getSession(ctx->sessionId);
+	cppcut_assert_equal(true, session.hasData());
+	cppcut_assert_equal(session->userId, ctx->actDef.ownerUserId);
+}
+#define assertSessionId(CTX) cut_trace(_assertSessionId(CTX))
+
 static void waitActTpQuitCb(GIOStatus stat, SmartBuffer &sbuf,
                             size_t size, ExecCommandContext *ctx)
 {
@@ -270,7 +329,7 @@ static void sendQuit(ExecCommandContext *ctx)
 static string getActionLogContent(const ActionLog &actionLog)
 {
 	string str = StringUtils::sprintf(
-	  "ID: %"PRIu64", actionID: %d, status: %d, ",
+	  "ID: %"PRIu64", actionID: %"FMT_ACTION_ID", status: %d, ",
 	  actionLog.id, actionLog.actionId, actionLog.status);
 	str += StringUtils::sprintf(
 	  "queuingTime: %d, startTime: %d, endTime: %d, ",
@@ -283,7 +342,8 @@ static string getActionLogContent(const ActionLog &actionLog)
 
 static void _assertActionLog(
   ActionLog &actionLog,
- uint64_t id, int actionId, int status, int starterId, int queueingTime,
+ uint64_t id, const ActionIdType &actionId,
+ int status, int starterId, int queueingTime,
  int startTime, int endTime, int failureCode, int exitCode, uint32_t nullFlags)
 {
 	cppcut_assert_equal(nullFlags,    actionLog.nullFlags,
@@ -308,7 +368,7 @@ cut_trace(_assertActionLog(LOG, ID, ACT_ID, STAT, STID, QTIME, STIME, ETIME, FAI
 
 struct ExecActionArg {
 
-	int        actionId;
+	ActionIdType actionId;
 	ActionType type;
 	bool       usePipe;
 	string     command;
@@ -316,7 +376,7 @@ struct ExecActionArg {
 	int        timeout;
 
 	// methods
-	ExecActionArg(int _actionId, ActionType _type)
+	ExecActionArg(const ActionIdType &_actionId, ActionType _type)
 	: actionId(_actionId),
 	  type(_type),
 	  usePipe(false),
@@ -418,6 +478,7 @@ void _assertActionLogJustAfterExec(
 	expectedArgs.push_back(StringUtils::sprintf("%d", evInf.status));
 	expectedArgs.push_back(StringUtils::sprintf("%d", evInf.severity));
 	getArguments(ctx, expectedArgs);
+	assertSessionId(ctx);
 }
 #define assertActionLogJustAfterExec(CTX, ...) \
 cut_trace(_assertActionLogJustAfterExec(CTX, ##__VA_ARGS__))
@@ -435,6 +496,27 @@ void _assertWaitForChangeActionLogStatus(ExecCommandContext *ctx,
 }
 #define assertWaitForChangeActionLogStatus(CTX,STAT) \
 cut_trace(_assertWaitForChangeActionLogStatus(CTX,STAT))
+
+void _assertSessionIsDeleted(const string &sessionId)
+{
+	if (sessionId.empty())
+		return;
+	SessionManager *sessionMgr = SessionManager::getInstance();
+
+	// It is hard to get the timing of the session deletion.
+	// So we just retry some times.
+	while (true) {
+		// If the session is not deleted, ctx->timeout is expired
+		// and fails the test.
+		while (g_main_context_iteration(NULL, FALSE))
+			;
+		SessionPtr session = sessionMgr->getSession(sessionId);
+		if (!session.hasData())
+			break;
+		usleep(5 * 1000);
+	}
+}
+#define assertSessionIsDeleted(SID) cut_trace(_assertSessionIsDeleted(SID))
 
 void _assertActionLogAfterEnding(
   ExecCommandContext *ctx,
@@ -462,6 +544,9 @@ void _assertActionLogAfterEnding(
 		  expectedNullFlags /* nullFlags */);
 		break;
 	}
+
+	// SessionId should be removed after the action finishes
+	assertSessionIsDeleted(ctx->sessionId);
 }
 #define assertActionLogAfterEnding(CTX, ...) \
 cut_trace(_assertActionLogAfterEnding(CTX, ##__VA_ARGS__))
@@ -497,43 +582,73 @@ typedef void (*ResidentLogStatusChangedCB)(
   ActionLogStatus currStatus, ActionLogStatus newStatus,
   ExecCommandContext *ctx);
 
-void _assertActionLogAfterExecResident(
-  ExecCommandContext *ctx, uint32_t expectedNullFlags,
-  ActionLogStatus currStatus, ActionLogStatus newStatus,
-  ResidentLogStatusChangedCB statusChangedCb = NULL,
-  ActionLogExecFailureCode expectedFailureCode = ACTLOG_EXECFAIL_NONE,
-  int expectedExitCode = RESIDENT_MOD_NOTIFY_EVENT_ACK_OK)
+struct AssertActionLogArg
 {
+	ExecCommandContext        *ctx;
+	uint32_t                   expectedNullFlags;
+	ActionLogStatus            currStatus;
+	ActionLogStatus            newStatus;
+	ResidentLogStatusChangedCB statusChangedCb;
+	ActionLogExecFailureCode   expectedFailureCode;
+	int                        expectedExitCode;
+	int                        maxLoopCount;
+
+	AssertActionLogArg(ExecCommandContext *_ctx)
+	: ctx(_ctx),
+	  expectedNullFlags(0),
+	  currStatus(ACTLOG_STAT_INVALID),
+	  newStatus(ACTLOG_STAT_INVALID),
+	  statusChangedCb(NULL),
+	  expectedFailureCode(ACTLOG_EXECFAIL_NONE),
+	  expectedExitCode(RESIDENT_MOD_NOTIFY_EVENT_ACK_OK),
+	  maxLoopCount(-1)
+	{
+	}
+};
+
+void _assertActionLogAfterExecResident(AssertActionLogArg &arg)
+{
+	int loopCount = 0;
+	ExecCommandContext *ctx = arg.ctx;
 	while (true) {
 		// ActionManager updates the aciton log in the wake of GLIB's
 		// events. So we can wait for the log update with
 		// iterations of the loop.
-		assertWaitForChangeActionLogStatus(ctx, currStatus);
+		assertWaitForChangeActionLogStatus(arg.ctx, arg.currStatus);
 		assertActionLog(
 		  ctx->actionLog, ctx->actorInfo.logId,
-		  ctx->actDef.id, newStatus,
+		  ctx->actDef.id, arg.newStatus,
 		  0, /* starterId */
 		  0, /* queuingTime */
 		  CURR_DATETIME, /* startTime */
 		  CURR_DATETIME, /* endTime */
-		  expectedFailureCode,
-		  expectedExitCode,
-		  expectedNullFlags /* nullFlags */);
+		  arg.expectedFailureCode,
+		  arg.expectedExitCode,
+		  arg.expectedNullFlags /* nullFlags */);
 
-		if (statusChangedCb)
-			(*statusChangedCb)(currStatus, newStatus, ctx);
+		if (arg.statusChangedCb) {
+			(*arg.statusChangedCb)(arg.currStatus,
+			                       arg.newStatus, ctx);
+		}
 
-		if (newStatus == ACTLOG_STAT_SUCCEEDED)
+		if (arg.newStatus == ACTLOG_STAT_SUCCEEDED)
 			break;
-		if (newStatus == ACTLOG_STAT_FAILED)
+		if (arg.newStatus == ACTLOG_STAT_FAILED)
 			break;
-		currStatus = ACTLOG_STAT_STARTED;
-		newStatus = ACTLOG_STAT_SUCCEEDED;
-		expectedNullFlags = ACTLOG_FLAG_QUEUING_TIME;
+		arg.currStatus = ACTLOG_STAT_STARTED;
+		arg.newStatus = ACTLOG_STAT_SUCCEEDED;
+		arg.expectedNullFlags = ACTLOG_FLAG_QUEUING_TIME;
+		
+		loopCount++;
+		if (arg.maxLoopCount > 0 && loopCount >= arg.maxLoopCount)
+			break;
 	}
+
+	// SessionId should be removed after a notify finishes
+	assertSessionIsDeleted(ctx->sessionId);
 }
-#define assertActionLogAfterExecResident(CTX, ...) \
-cut_trace(_assertActionLogAfterExecResident(CTX, ##__VA_ARGS__))
+#define assertActionLogAfterExecResident(ARG) \
+cut_trace(_assertActionLogAfterExecResident(ARG))
 
 static void setExpectedValueForResidentManyEvents(
   size_t idx, uint32_t &expectedNullFlags,
@@ -556,15 +671,16 @@ static void statusChangedCbForArgCheck(
   ActionLogStatus currStatus, ActionLogStatus newStatus,
   ExecCommandContext *ctx)
 {
-	if (currStatus != ACTLOG_STAT_STARTED)
-		return;
-	if (ctx->requestedEventInfo)
-		return;
-	
 	ResidentCommunicator comm;
 	comm.setHeader(0, RESIDENT_TEST_CMD_GET_EVENT_INFO);
 	comm.push(ctx->pipeWr); 
-	ctx->requestedEventInfo = true;
+}
+
+static void sendAllowReplyNotifyEvent(ExecCommandContext *ctx)
+{
+	ResidentCommunicator comm;
+	comm.setHeader(0, RESIDENT_TEST_CMD_UNBLOCK_REPLY_NOTIFY_EVENT);
+	comm.push(ctx->pipeWr);
 }
 
 static void replyEventInfoCb(GIOStatus stat, mlpl::SmartBuffer &sbuf,
@@ -582,7 +698,7 @@ static void replyEventInfoCb(GIOStatus stat, mlpl::SmartBuffer &sbuf,
 	sbuf.incIndex(RESIDENT_PROTO_HEADER_LEN);
 	ResidentNotifyEventArg *eventArg = 
 	  sbuf.getPointer<ResidentNotifyEventArg>();
-	cppcut_assert_equal(ctx->actDef.id, (int)eventArg->actionId);
+	cppcut_assert_equal(ctx->actDef.id, (ActionIdType)eventArg->actionId);
 
 	// check each component
 	const EventInfo &expected = ctx->eventInfo;
@@ -597,6 +713,8 @@ static void replyEventInfoCb(GIOStatus stat, mlpl::SmartBuffer &sbuf,
 	                    (TriggerStatusType)eventArg->triggerStatus);
 	cppcut_assert_equal(expected.severity,
 	                    (TriggerSeverityType)eventArg->triggerSeverity);
+	assertSessionInManager(eventArg->sessionId, ctx->actDef.ownerUserId);
+	ctx->sessionId = eventArg->sessionId;
 
 	// set a flag to exit the loop in _assertWaitEventBody()
 	ctx->receivedEventInfo = true;
@@ -655,7 +773,7 @@ static void _assertShouldSkipByLog(bool EvenEventNotLog)
 #define assertShouldSkipByLog(E) cut_trace(_assertShouldSkipByLog(E))
 
 static void _assertExecuteAction(
-  int actionId,
+  const ActionIdType &actionId,
   ActionLogStatus expectStatus = ACTLOG_STAT_STARTED,
   bool dontCheckOptions = false,
   const string &commandName = "")
@@ -663,8 +781,8 @@ static void _assertExecuteAction(
 	ExecCommandContext *ctx = new ExecCommandContext();
 	g_execCommandCtxVect.push_back(ctx); // just an alias
 
-	string pipeName = StringUtils::sprintf("test-command-action-%d",
-	                                       actionId);
+	string pipeName = StringUtils::sprintf(
+	  "test-command-action-%"FMT_ACTION_ID, actionId);
 	ctx->initPipes(pipeName);
 
 	ctx->eventInfo = testEventInfo[0];
@@ -690,6 +808,20 @@ static void deleteGlobalExecCommandCtx(size_t idx)
 	g_execCommandCtxVect[idx] = NULL;
 }
 
+static string g_pathForAction;
+static string g_ldLibraryPathForAction;
+
+static void clearEnvString(const string &envName, string &str)
+{
+	if (str.empty())
+		return;
+
+	const int overwrite = 1;
+	setenv(envName.c_str(), str.c_str(), overwrite);
+	cut_assert_errno();
+	str.clear();
+}
+
 void setup(void)
 {
 	hatoholInit();
@@ -712,11 +844,48 @@ void teardown(void)
 		deleteGlobalExecCommandCtx(i);
 	g_execCommandCtxVect.clear();
 	releaseDefaultContext();
+
+	clearEnvString(ActionManager::ENV_NAME_PATH_FOR_ACTION,
+	               g_pathForAction);
+	clearEnvString(ActionManager::ENV_NAME_LD_LIBRARY_PATH_FOR_ACTION,
+	               g_ldLibraryPathForAction);
 }
 
 // ---------------------------------------------------------------------------
 // Test cases
 // ---------------------------------------------------------------------------
+void test_setupPathForAction(void)
+{
+	// backup the original environemnt variables
+	char *env = getenv(ActionManager::ENV_NAME_PATH_FOR_ACTION);
+	cut_assert_errno();
+	if (env)
+		g_pathForAction = env;
+	env = getenv(ActionManager::ENV_NAME_LD_LIBRARY_PATH_FOR_ACTION);
+	cut_assert_errno();
+	if (env)
+		g_ldLibraryPathForAction = env;
+
+	// set test environment variable
+	const int overwrite = 1;
+	const string testPath = "/usr/bin:/bin:/usr/sbin:/bin:/opt/bin";
+	const string testLdLibPath = "/usr/lib:/lib:/opt/lib";
+
+	setenv(ActionManager::ENV_NAME_PATH_FOR_ACTION,
+	       testPath.c_str(), overwrite);
+	cut_assert_errno();
+	setenv(ActionManager::ENV_NAME_LD_LIBRARY_PATH_FOR_ACTION,
+	       testLdLibPath.c_str(), overwrite);
+	cut_assert_errno();
+
+	// get the value and assert
+	string path;
+	string ldLibraryPath;
+	TestActionManager::callSetupPathForAction(path, ldLibraryPath);
+	cppcut_assert_equal("PATH=" + testPath, path);
+	cppcut_assert_equal("LD_LIBRARY_PATH=" + testLdLibPath, ldLibraryPath);
+}
+
 void test_execCommandAction(void)
 {
 	g_execCommandCtx = new ExecCommandContext();
@@ -812,11 +981,12 @@ void test_execResidentAction(void)
 	ExecActionArg arg(0x4ab3fd32, ACTION_RESIDENT);
 	assertExecAction(ctx, arg);
 
-	uint32_t expectedNullFlags =
+	AssertActionLogArg logarg(ctx);
+	logarg.expectedNullFlags =
 	  ACTLOG_FLAG_QUEUING_TIME|ACTLOG_FLAG_END_TIME|ACTLOG_FLAG_EXIT_CODE;
-	assertActionLogAfterExecResident(ctx, expectedNullFlags,
-	                                 ACTLOG_STAT_LAUNCHING_RESIDENT,
-	                                 ACTLOG_STAT_STARTED);
+	logarg.currStatus = ACTLOG_STAT_LAUNCHING_RESIDENT;
+	logarg.newStatus  = ACTLOG_STAT_STARTED;
+	assertActionLogAfterExecResident(logarg);
 }
 
 void test_execResidentActionCrashInInit(void)
@@ -828,11 +998,13 @@ void test_execResidentActionCrashInInit(void)
 	arg.option = "--crash-init";
 	assertExecAction(ctx, arg);
 
-	assertActionLogAfterExecResident(
-	  ctx, ACTLOG_FLAG_QUEUING_TIME,
-	  ACTLOG_STAT_LAUNCHING_RESIDENT, ACTLOG_STAT_FAILED,
-	  NULL, /* statusChangedCb */
-	  getFailureCodeSignalOrDumpedByRLimit(), SIGSEGV);
+	AssertActionLogArg logarg(ctx);
+	logarg.expectedNullFlags = ACTLOG_FLAG_QUEUING_TIME;
+	logarg.currStatus = ACTLOG_STAT_LAUNCHING_RESIDENT;
+	logarg.newStatus  = ACTLOG_STAT_FAILED;
+	logarg.expectedFailureCode = getFailureCodeSignalOrDumpedByRLimit();
+	logarg.expectedExitCode = SIGSEGV;
+	assertActionLogAfterExecResident(logarg);
 }
 
 void test_execResidentActionCrashInNotifyEvent(void)
@@ -870,11 +1042,13 @@ void test_execResidentActionTimeoutInInit(void)
 	arg.timeout = 10;
 	assertExecAction(ctx, arg);
 
-	assertActionLogAfterExecResident(
-	  ctx, ACTLOG_FLAG_QUEUING_TIME,
-	  ACTLOG_STAT_LAUNCHING_RESIDENT, ACTLOG_STAT_FAILED,
-	  NULL, /* statusChangedCb */
-	  ACTLOG_EXECFAIL_KILLED_TIMEOUT, 0);
+	AssertActionLogArg logarg(ctx);
+	logarg.expectedNullFlags = ACTLOG_FLAG_QUEUING_TIME;
+	logarg.currStatus = ACTLOG_STAT_LAUNCHING_RESIDENT;
+	logarg.newStatus  = ACTLOG_STAT_FAILED;
+	logarg.expectedFailureCode = ACTLOG_EXECFAIL_KILLED_TIMEOUT;
+	logarg.expectedExitCode = 0;
+	assertActionLogAfterExecResident(logarg);
 }
 
 void test_execResidentActionWithWrongPath(void)
@@ -885,13 +1059,14 @@ void test_execResidentActionWithWrongPath(void)
 	ExecActionArg arg(0x4ab3fd32, ACTION_RESIDENT);
 	arg.command = "wrong-command-dayo.so";
 	assertExecAction(ctx, arg);
-	assertActionLogAfterExecResident(
-	  ctx, ACTLOG_FLAG_QUEUING_TIME,
-	  ACTLOG_STAT_LAUNCHING_RESIDENT, ACTLOG_STAT_FAILED,
-	  NULL, // statusChangedCb
-	  ACTLOG_EXECFAIL_ENTRY_NOT_FOUND,
-	  0     // expectedExitCode
-	);
+
+	AssertActionLogArg logarg(ctx);
+	logarg.expectedNullFlags = ACTLOG_FLAG_QUEUING_TIME;
+	logarg.currStatus = ACTLOG_STAT_LAUNCHING_RESIDENT;
+	logarg.newStatus  = ACTLOG_STAT_FAILED;
+	logarg.expectedFailureCode = ACTLOG_EXECFAIL_ENTRY_NOT_FOUND;
+	logarg.expectedExitCode = 0;
+	assertActionLogAfterExecResident(logarg);
 	assertWaitRemoveWatching(ctx);
 
 	// reconfirm the action log. This confirms that the log is not
@@ -915,17 +1090,15 @@ void test_execResidentActionManyEvents(void)
 	g_execCommandCtx = new ExecCommandContext();
 	ExecCommandContext *ctx = g_execCommandCtx; // just an alias
 
-	uint32_t expectedNullFlags;
-	ActionLogStatus currStatus;
-	ActionLogStatus newStatus;
+	AssertActionLogArg logarg(ctx);
 	size_t numEvents = 10;
 	for (size_t i = 0; i < numEvents; i++) {
-		setExpectedValueForResidentManyEvents(i, expectedNullFlags,
-		                                      currStatus, newStatus);
+		setExpectedValueForResidentManyEvents(
+		  i, logarg.expectedNullFlags,
+		  logarg.currStatus, logarg.newStatus);
 		ExecActionArg arg(0x4ab3fd32, ACTION_RESIDENT);
 		assertExecAction(ctx, arg);
-		assertActionLogAfterExecResident(ctx, expectedNullFlags,
-		                                 currStatus, newStatus);
+		assertActionLogAfterExecResident(logarg);
 	}
 }
 
@@ -942,15 +1115,13 @@ void test_execResidentActionManyEventsGenThenCheckLog(void)
 		actorVect.push_back(ctx->actorInfo);
 	}
 
-	uint32_t expectedNullFlags;
-	ActionLogStatus currStatus;
-	ActionLogStatus newStatus;
+	AssertActionLogArg logarg(ctx);
 	for (size_t i = 0; i < numEvents; i++) {
-		setExpectedValueForResidentManyEvents(i, expectedNullFlags,
-		                                      currStatus, newStatus);
+		setExpectedValueForResidentManyEvents(
+		  i, logarg.expectedNullFlags,
+		  logarg.currStatus, logarg.newStatus);
 		ctx->actorInfo = actorVect[i];
-		assertActionLogAfterExecResident(ctx, expectedNullFlags,
-		                                 currStatus, newStatus);
+		assertActionLogAfterExecResident(logarg);
 	}
 }
 
@@ -961,6 +1132,7 @@ void test_execResidentActionCheckArg(void)
 
 	string pipeName = "test-resident-action";
 	string option = "--pipename " + pipeName;
+	option += " --block-reply-notify-event";
 	ctx->initPipes(pipeName);
 	ctx->pullData(RESIDENT_PROTO_HEADER_LEN +
 	              RESIDENT_TEST_REPLY_GET_EVENT_INFO_BODY_LEN,
@@ -970,15 +1142,25 @@ void test_execResidentActionCheckArg(void)
 	arg.option = option;
 	assertExecAction(ctx, arg);
 
-	uint32_t expectedNullFlags =
+	// wait for the status: ACTLOG_STAT_STARTED
+	AssertActionLogArg logarg(ctx);
+	logarg.expectedNullFlags = 
 	  ACTLOG_FLAG_QUEUING_TIME|ACTLOG_FLAG_END_TIME|ACTLOG_FLAG_EXIT_CODE;
-	assertActionLogAfterExecResident(
-	  ctx, expectedNullFlags,
-	  ACTLOG_STAT_LAUNCHING_RESIDENT,
-	  ACTLOG_STAT_STARTED,
-	  statusChangedCbForArgCheck);
+	logarg.currStatus = ACTLOG_STAT_LAUNCHING_RESIDENT;
+	logarg.newStatus  = ACTLOG_STAT_STARTED;
+	logarg.statusChangedCb = statusChangedCbForArgCheck;
+	logarg.maxLoopCount = 1;
+	assertActionLogAfterExecResident(logarg);
 
 	assertWaitEventBody(ctx);
+	sendAllowReplyNotifyEvent(ctx);
+
+	// wait for the status: ACTLOG_STAT_SUCCEEDED;
+	logarg = AssertActionLogArg(ctx); // clear value
+	logarg.expectedNullFlags = ACTLOG_FLAG_QUEUING_TIME;
+	logarg.currStatus = ACTLOG_STAT_STARTED;
+	logarg.newStatus  = ACTLOG_STAT_SUCCEEDED;
+	assertActionLogAfterExecResident(logarg);
 }
 
 void test_shouldSkipByTime(void)
@@ -1024,7 +1206,7 @@ void test_limitCommandAction(void)
 {
 	ConfigManager *confMgr = ConfigManager::getInstance();
 	size_t maxNum = confMgr->getMaxNumberOfRunningCommandAction();
-	int actionId = 352;
+	ActionIdType actionId = 352;
 	size_t idx = 0;
 	for (; idx < maxNum; idx++, actionId++)
 		assertExecuteAction(actionId, ACTLOG_STAT_STARTED, false);

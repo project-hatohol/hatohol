@@ -23,6 +23,7 @@
 
 #include <cstdio>
 #include <cstdlib>
+#include <cstring>
 #include <glib.h>
 #include <glib-object.h>
 #include <inttypes.h>
@@ -108,6 +109,9 @@ static void gotNotifyEventBodyCb(GIOStatus stat, mlpl::SmartBuffer &sbuf,
 	arg.triggerId       = *sbuf.getPointerAndIncIndex<uint64_t>();
 	arg.triggerStatus   = *sbuf.getPointerAndIncIndex<uint16_t>();
 	arg.triggerSeverity = *sbuf.getPointerAndIncIndex<uint16_t>();
+	memcpy(arg.sessionId, sbuf.getPointer<char>(), HATOHOL_SESSION_ID_LEN);
+	arg.sessionId[HATOHOL_SESSION_ID_LEN] = '\0';  // NULL terminator
+	sbuf.incIndex(HATOHOL_SESSION_ID_LEN);
 
 	// call a user action
 	uint32_t resultCode = (*ctx->module->notifyEvent)(&arg);

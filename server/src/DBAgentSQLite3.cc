@@ -277,6 +277,14 @@ uint64_t DBAgentSQLite3::getLastInsertId(void)
 	return getLastInsertId(m_ctx->db);
 }
 
+uint64_t DBAgentSQLite3::getNumberOfAffectedRows(void)
+{
+	// It is a little difficult to implement this method, becuase SQLite3
+	// doesn't give a function for this purpose, different from MySQL.
+	HATOHOL_ASSERT(false, "Not implemented: %s\n", __PRETTY_FUNCTION__);
+	return 0;
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------

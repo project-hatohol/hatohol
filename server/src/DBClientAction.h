@@ -115,15 +115,21 @@ struct ActionDef {
 	// Timeout value in millisecond. If this value is 0,
 	// the action is executed without timeout.
 	int         timeout;
+
+	UserIdType  ownerUserId;
 };
 
 typedef list<ActionDef>               ActionDefList;
 typedef ActionDefList::iterator       ActionDefListIterator;
 typedef ActionDefList::const_iterator ActionDefListConstIterator;
 
-typedef list<int>                     ActionIdList;
+typedef list<ActionIdType>            ActionIdList;
 typedef ActionIdList::iterator        ActionIdListIterator;
 typedef ActionIdList::const_iterator  ActionIdListConstIterator;
+
+typedef set<ActionIdType>             ActionIdSet;
+typedef ActionIdSet::iterator         ActionIdSetIterator;
+typedef ActionIdSet::const_iterator   ActionIdSetConstIterator;
 
 enum {
 	ACTLOG_FLAG_QUEUING_TIME = (1 << 0),
@@ -134,7 +140,7 @@ enum {
 
 struct ActionLog {
 	uint64_t id;
-	int      actionId;
+	ActionIdType actionId;
 	int      status;
 	int      starterId;
 	int      queuingTime;
@@ -231,10 +237,13 @@ public:
 
 	DBClientAction(void);
 	virtual ~DBClientAction();
-	void addAction(ActionDef &actionDef);
-	void getActionList(ActionDefList &actionDefList,
-	                   const EventInfo *eventInfo = NULL);
-	void deleteActions(const ActionIdList &idList);
+	HatoholError addAction(ActionDef &actionDef,
+	                       const OperationPrivilege &privilege);
+	HatoholError getActionList(ActionDefList &actionDefList,
+	                           const OperationPrivilege &privilege,
+	                           const EventInfo *eventInfo = NULL);
+	HatoholError deleteActions(const ActionIdList &idList,
+	                           const OperationPrivilege &privilege);
 
 	/**
 	 * make an action log.
@@ -319,6 +328,9 @@ protected:
 	 * @return true if the log is found. Otherwise false.
 	 */
 	bool getLog(ActionLog &actionLog, const string &condition);
+
+	HatoholError checkPrivilegeForDelete(
+	  const OperationPrivilege &privilege);
 
 private:
 	struct PrivateContext;

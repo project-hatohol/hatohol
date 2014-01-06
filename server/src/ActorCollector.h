@@ -29,6 +29,7 @@ struct ActorInfo {
 	pid_t    pid;
 	uint64_t logId;
 	bool     dontLog;
+	string   sessionId;
 
 	// collectedCb is called with taking ActorCollector::lock().
 	// postCollectedCb is called after calling ActorCollector::unlock().
@@ -39,6 +40,7 @@ struct ActorInfo {
 	
 	// constructor and destructor
 	ActorInfo(void);
+	ActorInfo &operator=(const ActorInfo &actorInfo);
 	virtual ~ActorInfo();
 };
 

@@ -28,9 +28,12 @@ enum {
 	ACTTP_REPLAY_QUIT,
 	ACTTP_CODE_GET_ARG_LIST,
 	ACTTP_REPLY_GET_ARG_LIST,
+	ACTTP_CODE_GET_SESSION_ID,
+	ACTTP_REPLY_GET_SESSION_ID,
 };
 
 static const size_t ACTTP_ARG_LIST_SIZE_LEN = 2;
+static const size_t ACTTP_SESSION_ID_LEN = 36;
 
 #define OPTION_CRASH_SOON "--crash-soon"
 #define OPTION_STALL      "--stall"

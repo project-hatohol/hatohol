@@ -35,6 +35,13 @@ struct OperationPrivilege::PrivateContext {
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
+OperationPrivilege::OperationPrivilege(const UserIdType userId)
+: m_ctx(NULL)
+{
+	m_ctx = new PrivateContext();
+	setUserId(userId);
+}
+
 OperationPrivilege::OperationPrivilege(const OperationPrivilegeFlag flags)
 : m_ctx(NULL)
 {
@@ -93,7 +100,7 @@ void OperationPrivilege::setUserId(UserIdType userId)
 	if (m_ctx->userId == INVALID_USER_ID)
 		return;
 
-	if (m_ctx->userId == USER_ID_ADMIN) {
+	if (m_ctx->userId == USER_ID_SYSTEM) {
 		setFlags(ALL_PRIVILEGES);
 		return;
 	}

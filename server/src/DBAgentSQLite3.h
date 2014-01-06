@@ -67,6 +67,7 @@ public:
 	virtual void deleteRows(DBAgentDeleteArg &deleteArg);
 	virtual void addColumns(DBAgentAddColumnsArg &addColumnsArg);
 	virtual uint64_t getLastInsertId(void);
+	virtual uint64_t getNumberOfAffectedRows(void);
 	string getDBPath(void) const;
 
 protected:

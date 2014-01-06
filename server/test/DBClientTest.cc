@@ -210,6 +210,7 @@ ActionDef testActionDef[] = {
 	"",                // working dir
 	"/bin/hoge",       // command
 	300,               // timeout
+	1,                 // ownerUserId
 }, {
 	0,                 // id (this filed is ignored)
 	ActionCondition(
@@ -226,6 +227,7 @@ ActionDef testActionDef[] = {
 	"/home/%%\"'@#!()+-~<>?:;",  // working dir
 	"/usr/libexec/w",  // command
 	30,                // timeout
+	1,                 // ownerUserId
 }, {
 	0,                 // id (this filed is ignored)
 	ActionCondition(
@@ -243,6 +245,7 @@ ActionDef testActionDef[] = {
 	"/tmp",            // working dir
 	"/usr/lib/liba.so",// command
 	60,                // timeout
+	2,                 // ownerUserId
 }, {
 	0,                 // id (this filed is ignored)
 	ActionCondition(
@@ -261,6 +264,25 @@ ActionDef testActionDef[] = {
 	"/home/hatohol",   // working dir
 	"/usr/lib/liba.so",// command
 	0,                 // timeout
+	4,                 // ownerUserId
+}, {
+	0,                 // id (this filed is ignored)
+	ActionCondition(
+	  ACTCOND_SERVER_ID | ACTCOND_HOST_ID | ACTCOND_HOST_GROUP_ID |
+	  ACTCOND_TRIGGER_ID | ACTCOND_TRIGGER_STATUS,   // enableBits
+	  101,                      // serverId
+	  0x7fffffffffffffff,       // hostId
+	  0x8000000000000000,       // hostGroupId
+	  0xfedcba9876543210,       // triggerId
+	  TRIGGER_STATUS_OK,        // triggerStatus
+	  TRIGGER_SEVERITY_CRITICAL,// triggerSeverity
+	  CMP_EQ                    // triggerSeverityCompType;
+	), // condition
+	ACTION_COMMAND,    // type
+	"/home/foo",       // working dir
+	"a-dog-meets-food",// command
+	3939,              // timeout
+	2,                 // ownerUserId
 },
 };
 
@@ -281,12 +303,12 @@ UserInfo testUserInfo[] = {
 	0,                 // id
 	"m1ffy@v@",        // name
 	"S/N R@t10",       // password
-	0,                 // flags
+	OperationPrivilege::makeFlag(OPPRVLG_DELETE_ACTION), // flags
 }, {
 	0,                 // id
 	"higgs",           // name
 	"gg -> h",        // password
-	OperationPrivilege::makeFlag(OPPRVLG_GET_ALL_USERS), // flags
+	OperationPrivilege::makeFlag(OPPRVLG_GET_ALL_USER), // flags
 }, {
 	0,                 // id
 	"tiramisu",        // name
@@ -659,7 +681,7 @@ void makeServerHostGrpSetMap(ServerHostGrpSetMap &map, UserIdType userId)
 bool isAuthorized(ServerHostGrpSetMap &authMap, UserIdType userId,
 		  uint32_t serverId, uint64_t hostGroupId)
 {
-	if (userId == USER_ID_ADMIN)
+	if (userId == USER_ID_SYSTEM)
 		return true;
 	if (userId == INVALID_USER_ID)
 		return false;
@@ -684,3 +706,19 @@ bool isAuthorized(ServerHostGrpSetMap &authMap, UserIdType userId,
 
 	return false;
 }
+
+size_t findIndexFromTestActionDef(const UserIdType &userId)
+{
+	size_t idx = 0;
+	for (; idx < NumTestActionDef; idx++) {
+		const ActionDef &actDef = testActionDef[idx];
+		if (actDef.ownerUserId == userId)
+			break;
+	}
+	cppcut_assert_not_equal(
+	  NumTestActionDef, idx,
+	  cut_message("Not found a testActionDef entry owned "
+	              "by user: %"FMT_USER_ID, userId));
+	return idx;
+}
+

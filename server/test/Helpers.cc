@@ -418,7 +418,7 @@ void _assertTimeIsNow(const SmartTime &smtime, double allowedError)
 }
 
 void _assertHatoholError(const HatoholErrorCode &code,
-                         const HatoholError err)
+                         const HatoholError &err)
 {
 	cppcut_assert_equal(code, err.getCode());
 }
@@ -611,8 +611,9 @@ void setupTestDBUser(bool dbRecreate, bool loadTestData)
 void loadTestDBAction(void)
 {
 	DBClientAction dbAction;
+	OperationPrivilege privilege(USER_ID_SYSTEM);
 	for (size_t i = 0; i < NumTestActionDef; i++)
-		dbAction.addAction(testActionDef[i]);
+		dbAction.addAction(testActionDef[i], privilege);
 }
 
 string
@@ -718,4 +719,63 @@ void defineDBPath(DBDomainId domainId, const string &dbPath)
 	if (domainId != DB_DOMAIN_ID_HATOHOL)
 		cut_fail("Cannot set a domain ID for %d\n", domainId);
 	DBAgentSQLite3::defineDBPath(DB_DOMAIN_ID_HATOHOL, dbPath);
+}
+
+UserIdType searchMaxTestUserId(void)
+{
+	CacheServiceDBClient cache;
+	DBClientUser *dbUser = cache.getUser();
+	UserInfoList userInfoList;
+	UserQueryOption option(USER_ID_SYSTEM);
+	dbUser->getUserInfoList(userInfoList, option);
+	cppcut_assert_equal(false, userInfoList.empty());
+
+	UserIdType userId = 0;
+	UserInfoListIterator userInfo = userInfoList.begin();
+	for (; userInfo != userInfoList.end(); ++userInfo) {
+		if (userInfo->id > userId)
+			userId = userInfo->id;
+	}
+	return userId;
+}
+
+static UserIdType findUserCommon(const OperationPrivilegeType &type,
+                                 const bool &shouldHas,
+                                 const OperationPrivilegeFlag &excludeFlags = 0)
+{
+	UserIdType userId = INVALID_USER_ID;
+	OperationPrivilegeFlag flag = OperationPrivilege::makeFlag(type);
+
+	CacheServiceDBClient cache;
+	DBClientUser *dbUser = cache.getUser();
+	UserInfoList userInfoList;
+	UserQueryOption option(USER_ID_SYSTEM);
+	dbUser->getUserInfoList(userInfoList, option);
+	cppcut_assert_equal(false, userInfoList.empty());
+
+	UserInfoListIterator userInfo = userInfoList.begin();
+	for (; userInfo != userInfoList.end(); ++userInfo) {
+		if (userInfo->flags & excludeFlags)
+			continue;
+		bool having = userInfo->flags & flag;
+		if ((shouldHas && having) || (!shouldHas && !having)) {
+			userId = userInfo->id;
+			break;
+		}
+	}
+	cppcut_assert_not_equal(INVALID_USER_ID, userId);
+	cppcut_assert_not_equal(USER_ID_SYSTEM, userId);
+	return userId;
+}
+
+
+UserIdType findUserWith(const OperationPrivilegeType &type,
+                        const OperationPrivilegeFlag &excludeFlags)
+{
+	return findUserCommon(type, true, excludeFlags);
+}
+
+UserIdType findUserWithout(const OperationPrivilegeType &type)
+{
+	return findUserCommon(type, false);
 }

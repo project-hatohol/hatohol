@@ -44,6 +44,7 @@ using namespace mlpl;
 #include "DBClientAction.h"
 #include "DBClientUser.h"
 #include "CacheServiceDBClient.h"
+#include "SessionManager.h"
 
 static MutexLock mutex;
 static bool initDone = false; 
@@ -81,6 +82,7 @@ static void init(const CommandLineArg &arg)
 static void reset(const CommandLineArg &arg)
 {
 	ActorCollector::reset();
+	SessionManager::reset();
 	ConfigManager::reset();
 
 	DBAgentSQLite3::reset();

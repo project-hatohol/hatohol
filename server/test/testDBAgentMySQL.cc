@@ -404,5 +404,11 @@ void test_getLastInsertId(void)
 	dbAgentGetLastInsertId(*g_dbAgent, dbAgentChecker);
 }
 
+void test_getNumberOfAffectedRows(void)
+{
+	createGlobalDBAgent();
+	dbAgentGetNumberOfAffectedRows(*g_dbAgent, dbAgentChecker);
+}
+
 } // testDBAgentMySQL
 

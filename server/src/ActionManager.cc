@@ -31,6 +31,7 @@
 #include "LabelUtils.h"
 #include "ConfigManager.h"
 #include "SmartTime.h"
+#include "SessionManager.h"
 
 using namespace std;
 using namespace mlpl;
@@ -40,12 +41,10 @@ struct ActionManager::ResidentNotifyInfo {
 	ResidentInfo *residentInfo;
 	uint64_t  logId;
 	EventInfo eventInfo; // a replica
+	string    sessionId;
 
-	ResidentNotifyInfo(ResidentInfo *_residentInfo)
-	: residentInfo(_residentInfo),
-	  logId(INVALID_ACTION_LOG_ID)
-	{
-	}
+	ResidentNotifyInfo(ResidentInfo *_residentInfo);
+	virtual ~ResidentNotifyInfo();
 
 	// NOTE: Currently this instance is handled only on GLIB event
 	// callbacks. This ensures that the deletion of the instance does
@@ -146,7 +145,7 @@ struct ResidentInfo :
 		if (!inRunningResidentMap)
 			return;
 		bool found = false;
-		int actionId = actionDef.id;
+		ActionIdType actionId = actionDef.id;
 		ResidentInfo::residentMapLock.lock();
 		RunningResidentMapIterator it =
 		  runningResidentMap.find(actionId);
@@ -199,6 +198,26 @@ struct ResidentInfo :
 
 MutexLock          ResidentInfo::residentMapLock;
 RunningResidentMap ResidentInfo::runningResidentMap;
+
+// ---------------------------------------------------------------------------
+// methods of ResidentNotifyInfo
+// ---------------------------------------------------------------------------
+ActionManager::ResidentNotifyInfo::ResidentNotifyInfo(ResidentInfo *_residentInfo)
+: residentInfo(_residentInfo),
+  logId(INVALID_ACTION_LOG_ID)
+{
+	SessionManager *sessionMgr = SessionManager::getInstance();
+	sessionId = sessionMgr->create(residentInfo->actionDef.ownerUserId);
+}
+
+ActionManager::ResidentNotifyInfo::~ResidentNotifyInfo()
+{
+	SessionManager *sessionMgr = SessionManager::getInstance();
+	if (!sessionMgr->remove(sessionId)) {
+		MLPL_ERR("Failed to remove session: %s\n",
+		         sessionId.c_str());
+	}
+}
 
 struct WaitingCommandActionInfo {
 	uint64_t  logId;
@@ -424,16 +443,28 @@ private:
 };
 
 struct ActionManager::PrivateContext {
+	static string pathForAction;
+	static string ldLibraryPathForAction;
 };
+string ActionManager::PrivateContext::pathForAction;
+string ActionManager::PrivateContext::ldLibraryPathForAction;
 
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
 const char *ActionManager::NUM_COMMNAD_ACTION_EVENT_ARG_MAGIC
   = "--hatohol-action-v1";
+const char *ActionManager::ENV_NAME_PATH_FOR_ACTION
+  = "HATOHOL_ACTION_PATH";
+const char *ActionManager::ENV_NAME_LD_LIBRARY_PATH_FOR_ACTION
+  = "HATOHOL_ACTION_LD_LIBRARY_PATH";
+const char *ActionManager::ENV_NAME_SESSION_ID = "HATOHOL_SESSION_ID";
 
 void ActionManager::reset(void)
 {
+	setupPathForAction(PrivateContext::pathForAction,
+	                   PrivateContext::ldLibraryPathForAction);
+
 	// The following deletion has naturally no effect at the start of
 	// Hatohol. This is mainly for the test.
 	// NOTE: This is a special case for test, so we don't take
@@ -473,7 +504,8 @@ void ActionManager::checkEvents(const EventInfoList &eventList)
 			continue;
 		if (shouldSkipByLog(eventInfo, dbAction))
 			continue;
-		dbAction.getActionList(actionDefList, &eventInfo);
+		DataQueryOption option(USER_ID_SYSTEM);
+		dbAction.getActionList(actionDefList, option, &eventInfo);
 		ActionDefListIterator actIt = actionDefList.begin();
 		for (; actIt != actionDefList.end(); ++actIt)
 			runAction(*actIt, eventInfo, dbAction);
@@ -483,6 +515,21 @@ void ActionManager::checkEvents(const EventInfoList &eventList)
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
+void ActionManager::setupPathForAction(string &path, string &ldLibraryPath)
+{
+	char *env = getenv(ENV_NAME_PATH_FOR_ACTION);
+	if (env) {
+		path = "PATH=";
+		path += env;
+	}
+
+	env = getenv(ENV_NAME_LD_LIBRARY_PATH_FOR_ACTION);
+	if (env) {
+		ldLibraryPath = "LD_LIBRARY_PATH=";
+		ldLibraryPath += env;
+	}
+}
+
 bool ActionManager::shouldSkipByTime(const EventInfo &eventInfo)
 {
 	ConfigManager *configMgr = ConfigManager::getInstance();
@@ -512,6 +559,8 @@ void ActionManager::runAction(const ActionDef &actionDef,
 {
 	EventInfo eventInfo(_eventInfo);
 	fillTriggerInfoInEventInfo(eventInfo);
+
+	// TODO: check the owner of action exists
 
 	if (actionDef.type == ACTION_COMMAND) {
 		execCommandAction(actionDef, eventInfo, dbAction);
@@ -547,6 +596,15 @@ bool ActionManager::spawn(
 	// create an ActorInfo instance.
 	ActorInfo *actorInfo = new ActorInfo();
 
+	// make envp with HATOHOL_SESSION_ID
+	string sessionIdEnv = makeSessionIdEnv(actionDef, actorInfo->sessionId);
+	const gchar *envp[] = {
+	  PrivateContext::pathForAction.c_str(),
+	  PrivateContext::ldLibraryPathForAction.c_str(),
+	  sessionIdEnv.c_str(),
+	  NULL
+	};
+
 	WaitingCommandActionInfo *waitCmdInfo = NULL;
 	if (actionDef.type == ACTION_COMMAND) {
 		SpawnPostprocCommandActionCtx *postprocCtx =
@@ -561,7 +619,7 @@ bool ActionManager::spawn(
 	// because the pid of the child isn't in the wait child set.
 	ActorCollector::lock();
 	gboolean succeeded =
-	  g_spawn_async(workingDirectory, (gchar **)argv, NULL,
+	  g_spawn_async(workingDirectory, (gchar **)argv, (gchar **)envp,
 	                flags, childSetup, userData, &actorInfo->pid, &error);
 	if (!succeeded) {
 		ActorCollector::unlock();
@@ -1151,7 +1209,8 @@ void ActionManager::notifyEvent(ResidentInfo *residentInfo,
 {
 	ResidentCommunicator comm;
 	comm.setNotifyEventBody(residentInfo->actionDef.id,
-	                        notifyInfo->eventInfo);
+	                        notifyInfo->eventInfo,
+	                        notifyInfo->sessionId);
 	comm.push(residentInfo->pipeWr);
 
 	// wait for result code
@@ -1379,4 +1438,15 @@ void ActionManager::fillTriggerInfoInEventInfo(EventInfo &eventInfo)
 size_t ActionManager::getNumberOfOnstageCommandActors(void)
 {
 	return CommandActionContext::getNumberOfOnstageCommandActors();
+}
+
+string ActionManager::makeSessionIdEnv(const ActionDef &actionDef,
+                                       string &sessionId)
+{
+	SessionManager *sessionMgr = SessionManager::getInstance();
+	sessionId = sessionMgr->create(actionDef.ownerUserId);
+	string sessionIdEnv = ActionManager::ENV_NAME_SESSION_ID;
+	sessionIdEnv += "=";
+	sessionIdEnv += sessionId;
+	return sessionIdEnv;
 }

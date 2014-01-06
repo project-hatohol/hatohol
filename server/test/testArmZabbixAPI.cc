@@ -588,9 +588,9 @@ void test_oneProcWithoutFetchItems()
 	EventInfoList eventInfoList;
 	TriggerInfoList triggerInfoList;
 	ItemInfoList itemInfoList;
-	EventsQueryOption eventsQueryOption(USER_ID_ADMIN);
-	TriggersQueryOption triggersQueryOption(USER_ID_ADMIN);
-	ItemsQueryOption itemsQueryOption(USER_ID_ADMIN);
+	EventsQueryOption eventsQueryOption(USER_ID_SYSTEM);
+	TriggersQueryOption triggersQueryOption(USER_ID_SYSTEM);
+	ItemsQueryOption itemsQueryOption(USER_ID_SYSTEM);
 	db.getEventInfoList(eventInfoList, eventsQueryOption);
 	db.getTriggerInfoList(triggerInfoList, triggersQueryOption);
 	db.getItemInfoList(itemInfoList, itemsQueryOption);
@@ -611,9 +611,9 @@ void test_oneProcWithCopyOnDemandEnabled()
 	EventInfoList eventInfoList;
 	TriggerInfoList triggerInfoList;
 	ItemInfoList itemInfoList;
-	EventsQueryOption eventsQueryOption(USER_ID_ADMIN);
-	TriggersQueryOption triggersQueryOption(USER_ID_ADMIN);
-	ItemsQueryOption itemsQueryOption(USER_ID_ADMIN);
+	EventsQueryOption eventsQueryOption(USER_ID_SYSTEM);
+	TriggersQueryOption triggersQueryOption(USER_ID_SYSTEM);
+	ItemsQueryOption itemsQueryOption(USER_ID_SYSTEM);
 	db.getEventInfoList(eventInfoList, eventsQueryOption);
 	db.getTriggerInfoList(triggerInfoList, triggersQueryOption);
 	db.getItemInfoList(itemInfoList, itemsQueryOption);
@@ -634,9 +634,9 @@ void test_oneProcWithFetchItems()
 	EventInfoList eventInfoList;
 	TriggerInfoList triggerInfoList;
 	ItemInfoList itemInfoList;
-	EventsQueryOption eventsQueryOption(USER_ID_ADMIN);
-	TriggersQueryOption triggersQueryOption(USER_ID_ADMIN);
-	ItemsQueryOption itemsQueryOption(USER_ID_ADMIN);
+	EventsQueryOption eventsQueryOption(USER_ID_SYSTEM);
+	TriggersQueryOption triggersQueryOption(USER_ID_SYSTEM);
+	ItemsQueryOption itemsQueryOption(USER_ID_SYSTEM);
 	db.getEventInfoList(eventInfoList, eventsQueryOption);
 	db.getTriggerInfoList(triggerInfoList, triggersQueryOption);
 	db.getItemInfoList(itemInfoList, itemsQueryOption);

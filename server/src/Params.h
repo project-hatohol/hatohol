@@ -39,10 +39,18 @@ static const DBDomainId DB_DOMAIN_ID_NONE    = -1;
 typedef int ServerIdType;
 #define FMT_SERVER_ID "d"
 
+typedef int ActionIdType;
+#define FMT_ACTION_ID "d"
+
 typedef int UserIdType;
 #define FMT_USER_ID "d"
+
 static const UserIdType INVALID_USER_ID = -1;
-static const UserIdType USER_ID_ADMIN   = 0;
+static const UserIdType USER_ID_ANY     = -2;
+
+// This ID is not used for actual users.
+// This program and the tests use it internally.
+static const UserIdType USER_ID_SYSTEM  = 0;
 
 typedef std::set<UserIdType>      UserIdSet;
 typedef UserIdSet::iterator       UserIdSetIterator;
