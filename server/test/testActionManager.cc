@@ -1151,15 +1151,13 @@ void test_execResidentActionManyEventsGenThenCheckLog(void)
 		actorVect.push_back(ctx->actorInfo);
 	}
 
-	uint32_t expectedNullFlags;
-	ActionLogStatus currStatus;
-	ActionLogStatus newStatus;
+	AssertActionLogArg logarg(ctx);
 	for (size_t i = 0; i < numEvents; i++) {
-		setExpectedValueForResidentManyEvents(i, expectedNullFlags,
-		                                      currStatus, newStatus);
+		setExpectedValueForResidentManyEvents(
+		  i, logarg.expectedNullFlags,
+		  logarg.currStatus, logarg.newStatus);
 		ctx->actorInfo = actorVect[i];
-		assertActionLogAfterExecResident(ctx, expectedNullFlags,
-		                                 currStatus, newStatus);
+		assertActionLogAfterExecResident(logarg);
 	}
 }
 
