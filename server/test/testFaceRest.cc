@@ -923,6 +923,22 @@ void _assertAddAccessInfoWithCond(
 #define assertAddAccessInfoWithCond(SVID, HGRP_ID, ...) \
 cut_trace(_assertAddAccessInfoWithCond(SVID, HGRP_ID, ##__VA_ARGS__))
 
+static void assertHostStatusInParser(JsonParserAgent *parser, uint32_t serverId)
+{
+	parser->startObject("hostStatus");
+	// TODO: currently only one hostGroup "No group" exists in the array
+	parser->startElement(0);
+	assertValueInParser(parser, "hostGroupId",   (uint32_t)0);
+	size_t expected_good_hosts = getNumberOfTestHostsWithStatus(
+	  serverId, ALL_HOST_GROUPS, true);
+	size_t expected_bad_hosts = getNumberOfTestHostsWithStatus(
+	  serverId, ALL_HOST_GROUPS, false);
+	assertValueInParser(parser, "numberOfGoodHosts", expected_good_hosts);
+	assertValueInParser(parser, "numberOfBadHosts", expected_bad_hosts);
+	parser->endElement();
+	parser->endObject();
+}
+
 static void _assertOverviewInParser(JsonParserAgent *parser)
 {
 	assertValueInParser(parser, "numberOfServers",
@@ -946,7 +962,8 @@ static void _assertOverviewInParser(JsonParserAgent *parser)
 		assertValueInParser(parser, "numberOfOnlineUsers", zero);
 		assertValueInParser(parser, "numberOfMonitoredItemsPerSecond", zero);
 
-		// TODO: check hostGroups, SystemStatus, hostStatus
+		// TODO: check hostGroups, SystemStatus
+		assertHostStatusInParser(parser, svInfo.id);
 
 		parser->endElement();
 	}
