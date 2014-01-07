@@ -923,6 +923,39 @@ void _assertAddAccessInfoWithCond(
 #define assertAddAccessInfoWithCond(SVID, HGRP_ID, ...) \
 cut_trace(_assertAddAccessInfoWithCond(SVID, HGRP_ID, ##__VA_ARGS__))
 
+static void _assertOverviewInParser(JsonParserAgent *parser)
+{
+	assertValueInParser(parser, "numberOfServers",
+	                    (uint32_t)NumServerInfo);
+	parser->startObject("serverStatus");
+	for (size_t i = 0; i < NumServerInfo; i++) {
+		parser->startElement(i);
+		MonitoringServerInfo &svInfo = serverInfo[i];
+		assertValueInParser(parser, "serverId",   (uint32_t)svInfo.id);
+		assertValueInParser(parser, "serverHostName",  svInfo.hostName);
+		assertValueInParser(parser, "serverIpAddr", svInfo.ipAddress);
+		assertValueInParser(parser, "serverNickname",  svInfo.nickname);
+		assertValueInParser(parser, "numberOfHosts",
+				    getNumberOfTestHosts(svInfo.id));
+		assertValueInParser(parser, "numberOfItems",
+				    getNumberOfTestItems(svInfo.id));
+		assertValueInParser(parser, "numberOfTriggers",
+				    getNumberOfTestTriggers(svInfo.id));
+		uint32_t zero = 0;
+		assertValueInParser(parser, "numberOfUsers", zero);
+		assertValueInParser(parser, "numberOfOnlineUsers", zero);
+		assertValueInParser(parser, "numberOfMonitoredItemsPerSecond", zero);
+
+		// TODO: check hostGroups, SystemStatus, hostStatus
+
+		parser->endElement();
+	}
+	parser->endObject();
+
+	// TODO: check badServers
+}
+#define assertOverviewInParser(P) cut_trace(_assertOverviewInParser(P))
+
 static void setupPostAction(void)
 {
 	bool recreate = true;
@@ -1748,39 +1781,6 @@ void test_deleteAccessInfo(void)
 	accessInfoIdSet.insert(targetId);
 	assertAccessInfoInDB(accessInfoIdSet);
 }
-
-static void _assertOverviewInParser(JsonParserAgent *parser)
-{
-	assertValueInParser(parser, "numberOfServers",
-	                    (uint32_t)NumServerInfo);
-	parser->startObject("serverStatus");
-	for (size_t i = 0; i < NumServerInfo; i++) {
-		parser->startElement(i);
-		MonitoringServerInfo &svInfo = serverInfo[i];
-		assertValueInParser(parser, "serverId",   (uint32_t)svInfo.id);
-		assertValueInParser(parser, "serverHostName",  svInfo.hostName);
-		assertValueInParser(parser, "serverIpAddr", svInfo.ipAddress);
-		assertValueInParser(parser, "serverNickname",  svInfo.nickname);
-		assertValueInParser(parser, "numberOfHosts",
-				    getNumberOfTestHosts(svInfo.id));
-		assertValueInParser(parser, "numberOfItems",
-				    getNumberOfTestItems(svInfo.id));
-		assertValueInParser(parser, "numberOfTriggers",
-				    getNumberOfTestTriggers(svInfo.id));
-		uint32_t zero = 0;
-		assertValueInParser(parser, "numberOfUsers", zero);
-		assertValueInParser(parser, "numberOfOnlineUsers", zero);
-		assertValueInParser(parser, "numberOfMonitoredItemsPerSecond", zero);
-
-		// TODO: check hostGroups, SystemStatus, hostStatus
-
-		parser->endElement();
-	}
-	parser->endObject();
-
-	// TODO: check badServers
-}
-#define assertOverviewInParser(P) cut_trace(_assertOverviewInParser(P))
 
 void test_overview(void)
 {
