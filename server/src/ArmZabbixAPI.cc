@@ -339,7 +339,7 @@ bool ArmZabbixAPI::openSession(SoupMessage **msgPtr)
 	// copy the SoupMessage object if msgPtr is not NULL.
 	if (msgPtr)
 		*msgPtr = msg;
-	else 
+	else
 		g_object_unref(msg);
 
 	return true;
@@ -994,8 +994,8 @@ void ArmZabbixAPI::updateApplications(const ItemTable *items)
 {
 	updateOnlyNeededItem<uint64_t>(
 	  items,
-	  ITEM_ID_ZBX_ITEMS_APPLICATIONID, 
-	  ITEM_ID_ZBX_APPLICATIONS_APPLICATIONID, 
+	  ITEM_ID_ZBX_ITEMS_APPLICATIONID,
+	  ITEM_ID_ZBX_APPLICATIONS_APPLICATIONID,
 	  &ArmZabbixAPI::getApplications,
 	  &DBClientZabbix::pickupAbsentApplcationIds,
 	  &DBClientZabbix::addApplicationsRaw2_0);
