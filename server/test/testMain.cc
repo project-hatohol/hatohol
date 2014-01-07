@@ -236,9 +236,7 @@ bool parsePIDFile(int &grandchildPid, const string &grandChildPidFilePath)
 			cppcut_assert_not_null(fp);
 			int scanResult = fscanf(fp, "%d", &pid);
 			cppcut_assert_equal(0, fclose(fp));
-			if (scanResult == 1)
-				return true;
-			return false;
+			return scanResult == 1;
 		}
 	} reader;
 	reader.grandChildPidFilePathCStr = grandChildPidFilePath.c_str();
