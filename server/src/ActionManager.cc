@@ -207,7 +207,8 @@ ActionManager::ResidentNotifyInfo::ResidentNotifyInfo(ResidentInfo *_residentInf
   logId(INVALID_ACTION_LOG_ID)
 {
 	SessionManager *sessionMgr = SessionManager::getInstance();
-	sessionId = sessionMgr->create(residentInfo->actionDef.ownerUserId);
+	sessionId = sessionMgr->create(residentInfo->actionDef.ownerUserId,
+	                               SessionManager::NO_TIMEOUT);
 }
 
 ActionManager::ResidentNotifyInfo::~ResidentNotifyInfo()
@@ -1444,7 +1445,8 @@ string ActionManager::makeSessionIdEnv(const ActionDef &actionDef,
                                        string &sessionId)
 {
 	SessionManager *sessionMgr = SessionManager::getInstance();
-	sessionId = sessionMgr->create(actionDef.ownerUserId);
+	sessionId = sessionMgr->create(actionDef.ownerUserId,
+	                               SessionManager::NO_TIMEOUT);
 	string sessionIdEnv = ActionManager::ENV_NAME_SESSION_ID;
 	sessionIdEnv += "=";
 	sessionIdEnv += sessionId;
