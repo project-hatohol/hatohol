@@ -109,6 +109,7 @@ protected:
 	                             VariableItemTablePtr &tablePtr, int index);
 	void pushApplicationid(JsonParserAgent &parser, ItemGroup *itemGroup);
 	void pushTriggersHostid(JsonParserAgent &parser, ItemGroup *itemGroup);
+	void pushTriggersHostGroups(JsonParserAgent &parser, ItemGroup *itemGroup);
 	uint64_t convertStrToUint64(const string strData);
 	void parseAndPushItemsData(JsonParserAgent &parser,
 	                           VariableItemTablePtr &tablePtr, int index);

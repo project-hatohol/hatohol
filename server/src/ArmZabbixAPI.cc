@@ -710,6 +710,24 @@ void ArmZabbixAPI::pushTriggersHostid(JsonParserAgent &parser,
 	parser.endObject();
 }
 
+void ArmZabbixAPI::pushTriggersHostGroups(JsonParserAgent &parser, ItemGroup *itemGroup)
+{
+	ItemId itemId = ITEM_ID_ZBX_TRIGGERS_GROUPID;
+	startObject(parser, "groups");
+	int numElem = parser.countElements();
+	if (numElem == 0) {
+		itemGroup->ADD_NEW_ITEM(Uint64, itemId, 0, ITEM_DATA_NULL);
+	} else {
+		for (int i = 0; i < numElem; i++) {
+			startElement(parser, i);
+			pushUint64(parser, itemGroup, "groupid", itemId);
+			break; // we use the groupid
+		}
+		parser.endElement();
+	}
+	parser.endObject();
+}
+
 uint64_t ArmZabbixAPI::convertStrToUint64(const string strData)
 {
 	uint64_t valU64;
