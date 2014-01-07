@@ -59,19 +59,19 @@ void test_getInstance(void)
 
 void test_isntanceIsSingleton(void)
 {
-	SessionManager *instance1 = SessionManager::getInstance();
-	SessionManager *instance2 = SessionManager::getInstance();
-	cppcut_assert_equal(instance1, instance2);
+	SessionManager *sessionMgr1 = SessionManager::getInstance();
+	SessionManager *sessionMgr2 = SessionManager::getInstance();
+	cppcut_assert_equal(sessionMgr1, sessionMgr2);
 }
 
 void test_create(void)
 {
 	const UserIdType userId = 103;
-	SessionManager *instance = SessionManager::getInstance();
-	string sessionId = instance->create(userId);
+	SessionManager *sessionMgr = SessionManager::getInstance();
+	string sessionId = sessionMgr->create(userId);
 	cppcut_assert_equal(false, sessionId.empty());
 
-	const SessionIdMap &sessionIdMap = safeGetSessionIdMap(instance);
+	const SessionIdMap &sessionIdMap = safeGetSessionIdMap(sessionMgr);
 	cppcut_assert_equal((size_t)1, sessionIdMap.size());
 	cppcut_assert_equal(sessionId, sessionIdMap.begin()->first);
 	const Session *session = sessionIdMap.begin()->second;
@@ -83,29 +83,30 @@ void test_create(void)
 void test_createWithoutTimeout(void)
 {
 	const UserIdType userId = 103;
-	SessionManager *instance = SessionManager::getInstance();
-	string sessionId = instance->create(userId, SessionManager::NO_TIMEOUT);
-	SessionPtr sessionPtr = instance->getSession(sessionId);
+	SessionManager *sessionMgr = SessionManager::getInstance();
+	string sessionId =
+	   sessionMgr->create(userId, SessionManager::NO_TIMEOUT);
+	SessionPtr sessionPtr = sessionMgr->getSession(sessionId);
 	cppcut_assert_equal(true, sessionPtr.hasData()); 
 	cppcut_assert_equal(SessionManager::NO_TIMEOUT, sessionPtr->timeout);
 	cppcut_assert_equal(INVALID_EVENT_ID, sessionPtr->timerId);
-	cppcut_assert_equal(true, instance->remove(sessionId));
+	cppcut_assert_equal(true, sessionMgr->remove(sessionId));
 }
 
 void test_getSession(void)
 {
-	SessionManager *instance = SessionManager::getInstance();
+	SessionManager *sessionMgr = SessionManager::getInstance();
 	const UserIdType userId = 103;
-	string sessionId = instance->create(userId);
+	string sessionId = sessionMgr->create(userId);
 	{ // Use a block to check the used counter of session.
-		SessionPtr session = instance->getSession(sessionId);
+		SessionPtr session = sessionMgr->getSession(sessionId);
 		cppcut_assert_equal(true, session.hasData());
 		cppcut_assert_equal(userId, session->userId);
 		cppcut_assert_equal(2, session->getUsedCount());
 	}
 
 	// check the used count of the session
-	const SessionIdMap &sessionIdMap = safeGetSessionIdMap(instance);
+	const SessionIdMap &sessionIdMap = safeGetSessionIdMap(sessionMgr);
 	cppcut_assert_equal((size_t)1, sessionIdMap.size());
 	cppcut_assert_equal(sessionId, sessionIdMap.begin()->first);
 	const Session *session = sessionIdMap.begin()->second;
@@ -115,27 +116,28 @@ void test_getSession(void)
 
 void test_getNonExistingSession(void)
 {
-	SessionManager *instance = SessionManager::getInstance();
-	SessionPtr session = instance->getSession("non-existing-sesion-id");
+	SessionManager *sessionMgr = SessionManager::getInstance();
+	SessionPtr session = sessionMgr->getSession("non-existing-sesion-id");
 	cppcut_assert_equal(false, session.hasData());
 }
 
 void test_remove(void)
 {
-	SessionManager *instance = SessionManager::getInstance();
+	SessionManager *sessionMgr = SessionManager::getInstance();
 	const UserIdType userId = 103;
-	string sessionId = instance->create(userId);
-	cppcut_assert_equal(true, instance->remove(sessionId));
+	string sessionId = sessionMgr->create(userId);
+	cppcut_assert_equal(true, sessionMgr->remove(sessionId));
 
-	// check the session instance is removed
-	const SessionIdMap &sessionIdMap = safeGetSessionIdMap(instance);
+	// check the session sessionMgr is removed
+	const SessionIdMap &sessionIdMap = safeGetSessionIdMap(sessionMgr);
 	cppcut_assert_equal((size_t)0, sessionIdMap.size());
 }
 
 void test_removeNonExistingSession(void)
 {
-	SessionManager *instance = SessionManager::getInstance();
-	cppcut_assert_equal(false, instance->remove("non-existing-sesion-id"));
+	SessionManager *sessionMgr = SessionManager::getInstance();
+	cppcut_assert_equal(false,
+	                    sessionMgr->remove("non-existing-sesion-id"));
 }
 
 } // namespace testSessionManager
