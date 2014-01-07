@@ -1783,6 +1783,7 @@ static void assertOverviewInParser(JsonParserAgent *parser)
 
 void test_overview(void)
 {
+	setupUserDB();
 	startFaceRest();
 	RequestArg arg("/overview");
 	arg.userId = findUserWith(OPPRVLG_GET_ALL_SERVER);
