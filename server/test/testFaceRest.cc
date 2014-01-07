@@ -923,6 +923,49 @@ void _assertAddAccessInfoWithCond(
 #define assertAddAccessInfoWithCond(SVID, HGRP_ID, ...) \
 cut_trace(_assertAddAccessInfoWithCond(SVID, HGRP_ID, ##__VA_ARGS__))
 
+static void assertHostGroupsInParser(JsonParserAgent *parser, uint32_t serverId)
+{
+	// TODO: currently only one hostGroup "No group" exists in the object
+	cut_assert_true(parser->startObject("hostGroups"));
+	cut_assert_true(parser->startObject("0"));
+	assertValueInParser(parser, string("name"), string("No group"));
+	parser->endObject();
+	parser->endObject();
+}
+
+static void assertHostStatusInParser(JsonParserAgent *parser, uint32_t serverId)
+{
+	parser->startObject("hostStatus");
+	// TODO: currently only one hostGroup "No group" exists in the array
+	parser->startElement(0);
+	assertValueInParser(parser, "hostGroupId",   (uint32_t)0);
+	size_t expected_good_hosts = getNumberOfTestHostsWithStatus(
+	  serverId, ALL_HOST_GROUPS, true);
+	size_t expected_bad_hosts = getNumberOfTestHostsWithStatus(
+	  serverId, ALL_HOST_GROUPS, false);
+	assertValueInParser(parser, "numberOfGoodHosts", expected_good_hosts);
+	assertValueInParser(parser, "numberOfBadHosts", expected_bad_hosts);
+	parser->endElement();
+	parser->endObject();
+}
+
+static void assertSystemStatusInParser(JsonParserAgent *parser, uint32_t serverId)
+{
+	parser->startObject("systemStatus");
+	// TODO: currently only one hostGroup "No group" exists in the array
+	uint64_t hostGroupId = 0;
+	for (int severity = 0; severity < NUM_TRIGGER_SEVERITY; ++severity) {
+		uint32_t expected_triggers = getNumberOfTestTriggers(
+		  serverId, hostGroupId, static_cast<TriggerSeverityType>(severity));
+		parser->startElement(severity);
+		assertValueInParser(parser, "hostGroupId", (uint32_t)0);
+		assertValueInParser(parser, "severity", (uint32_t)0);
+		assertValueInParser(parser, "numberOfTriggers", expected_triggers);
+		parser->endElement();
+	}
+	parser->endObject();
+}
+
 static void _assertOverviewInParser(JsonParserAgent *parser)
 {
 	assertValueInParser(parser, "numberOfServers",
@@ -945,9 +988,9 @@ static void _assertOverviewInParser(JsonParserAgent *parser)
 		assertValueInParser(parser, "numberOfUsers", zero);
 		assertValueInParser(parser, "numberOfOnlineUsers", zero);
 		assertValueInParser(parser, "numberOfMonitoredItemsPerSecond", zero);
-
-		// TODO: check hostGroups, SystemStatus, hostStatus
-
+		assertHostGroupsInParser(parser, svInfo.id);
+		// TODO: check systemStatus
+		assertHostStatusInParser(parser, svInfo.id);
 		parser->endElement();
 	}
 	parser->endObject();

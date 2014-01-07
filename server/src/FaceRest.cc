@@ -973,7 +973,7 @@ static void addOverviewEachServer(FaceRest::RestJob *job,
 			agent.add("hostGroupId", hostGroupId);
 			agent.add("severity", severity);
 			agent.add(
-			  "numberOfHosts",
+			  "numberOfTriggers",
 			  dataStore->getNumberOfTriggers
 			    (svInfo.id, hostGroupId,
 			     (TriggerSeverityType)severity));
