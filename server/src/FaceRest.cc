@@ -940,8 +940,8 @@ static void addOverviewEachServer(FaceRest::RestJob *job,
 
 	TriggerInfoList triggerInfoList;
 	TriggersQueryOption triggersQueryOption(job->userId);
-	dataStore->getTriggerList(triggerInfoList, triggersQueryOption,
-				  svInfo.id);
+	triggersQueryOption.setTargetServerId(svInfo.id);
+	dataStore->getTriggerList(triggerInfoList, triggersQueryOption);
 	agent.add("numberOfTriggers", triggerInfoList.size());
 
 	// TODO: These elements should be fixed
