@@ -228,18 +228,18 @@ bool parsePIDFile(int &grandchildPid, const string &grandChildPidFilePath)
 	// At this time, the deamon process may still write the pid to the file.
 	// We try to read it some times.
 	struct : public Watcher {
-		const char *grandChildPidFilePathCStr;
+		const char *fileName;
 		int pid;
 		virtual bool watch(void)
 		{
-			FILE *fp = fopen(grandChildPidFilePathCStr, "r");
+			FILE *fp = fopen(fileName, "r");
 			cppcut_assert_not_null(fp);
 			int scanResult = fscanf(fp, "%d", &pid);
 			cppcut_assert_equal(0, fclose(fp));
 			return scanResult == 1;
 		}
 	} reader;
-	reader.grandChildPidFilePathCStr = grandChildPidFilePath.c_str();
+	reader.fileName = grandChildPidFilePath.c_str();
 
 	const size_t TIMEOUT = 10 * 1000; // 10sec.
 	const size_t RETRY_INTERVAL = 100; // us.
