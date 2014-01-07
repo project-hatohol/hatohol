@@ -19,6 +19,7 @@
 
 #include <string>
 #include <cppcutter.h>
+#include <unistd.h>
 #include "SessionManager.h"
 #include "Helpers.h"
 using namespace std;
@@ -142,6 +143,33 @@ void test_getSession(void)
 	const Session *session = sessionIdMap.begin()->second;
 	cppcut_assert_equal(userId, session->userId);
 	cppcut_assert_equal(1, session->getUsedCount());
+}
+
+void test_update(void)
+{
+	const UserIdType userId = 103;
+	SessionManager *sessionMgr = SessionManager::getInstance();
+	string sessionId = sessionMgr->create(userId);
+	SessionPtr sessionPtr = sessionMgr->getSession(sessionId);
+	cppcut_assert_equal(true, sessionPtr.hasData()); 
+
+	SmartTime prevAccessTime = sessionPtr->lastAccessTime;
+	guint     prevTimerId    = sessionPtr->timerId;
+
+	// call getSession a short time later
+	const int sleepTimeMSec = 1;
+	usleep(sleepTimeMSec * 1000);
+	sessionPtr = sessionMgr->getSession(sessionId);
+	cppcut_assert_equal(true, sessionPtr.hasData()); 
+
+	// check
+	SmartTime diffAccessTime = sessionPtr->lastAccessTime;
+	diffAccessTime -= prevAccessTime;
+	cppcut_assert_equal(true, diffAccessTime.getAsMSec() > sleepTimeMSec);
+	cppcut_assert_not_equal(prevTimerId, sessionPtr->timerId);
+
+	const SessionIdMap &sessionIdMap = safeGetSessionIdMap(sessionMgr);
+	cppcut_assert_equal((size_t)1, sessionIdMap.size());
 }
 
 void test_getNonExistingSession(void)
