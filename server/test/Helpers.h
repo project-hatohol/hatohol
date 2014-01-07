@@ -185,6 +185,7 @@ public:
 
 	/**
 	 * Start a watch loop.
+	 * NOTE: this function must be called on the default GLIB context.
 	 * 
 	 * @ @param timeout
 	 * A timeout value in milli-second.
@@ -198,7 +199,7 @@ public:
 	 * If watch() returns true, this function immediately returns true.
 	 * Othewise false is returned after the timeout.
 	 */
-	bool start(const size_t &timeout, const size_t interval = 0);
+	bool start(const size_t &timeout, const size_t &interval = 0);
 };
 
 #endif // Helpers_h
