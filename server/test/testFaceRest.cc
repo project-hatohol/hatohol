@@ -949,6 +949,26 @@ static void assertHostStatusInParser(JsonParserAgent *parser, uint32_t serverId)
 	parser->endObject();
 }
 
+static void assertSystemStatusInParser(JsonParserAgent *parser, uint32_t serverId)
+{
+	parser->startObject("systemStatus");
+	// TODO: currently only one hostGroup "No group" exists in the array
+	uint64_t hostGroupId = 0;
+	for (int severity = 0; severity < NUM_TRIGGER_SEVERITY; ++severity) {
+		uint32_t expected_triggers = getNumberOfTestTriggers(
+		  serverId, hostGroupId, static_cast<TriggerSeverityType>(severity));
+		parser->startElement(severity);
+		assertValueInParser(parser, "hostGroupId", (uint32_t)0);
+		assertValueInParser(parser, "severity", (uint32_t)0);
+		// TODO:
+		// "numberOfHosts" seems wrong name.
+		// Probably "numberOfTriggers" is the correct name.
+		assertValueInParser(parser, "numberOfHosts", expected_triggers);
+		parser->endElement();
+	}
+	parser->endObject();
+}
+
 static void _assertOverviewInParser(JsonParserAgent *parser)
 {
 	assertValueInParser(parser, "numberOfServers",
