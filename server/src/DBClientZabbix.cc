@@ -233,7 +233,7 @@ static const ColumnDef COLUMN_DEF_TRIGGERS_RAW_2_0[] = {
 	0,                                 // flags
 	"0",                               // defaultValue
 }, {
-	ITEM_ID_ZBX_TRIGGERS_GROUPSID,     // itemId
+	ITEM_ID_ZBX_TRIGGERS_GROUPID,      // itemId
 	TABLE_NAME_TRIGGERS_RAW_2_0,       // tableName
 	"groupsid",                        // columnName
 	SQL_COLUMN_TYPE_BIGUINT,           // type
@@ -264,7 +264,7 @@ enum {
 	IDX_TRIGGERS_RAW_2_0_VALUE_FLAGS,
 	IDX_TRIGGERS_RAW_2_0_FLAGS,
 	IDX_TRIGGERS_RAW_2_0_HOSTID,
-	IDX_TRIGGERS_RAW_2_0_GROUPSID,
+	IDX_TRIGGERS_RAW_2_0_GROUPID,
 	NUM_IDX_TRIGGERS_RAW_2_0,
 };
 
