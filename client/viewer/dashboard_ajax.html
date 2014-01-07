@@ -89,7 +89,7 @@
       var parsedData = {};
       var serverStatus, hostStatus, systemStatus;
       var x, y;
-      var serverId, groupId, severity, numberOfHosts;
+      var serverId, groupId, severity, numberOfTriggers;
 
       for (x = 0; x < replyData["serverStatus"].length; ++x) {
         serverStatus = replyData["serverStatus"][x];
@@ -115,9 +115,9 @@
           if (!(groupId in parsedData[serverId]))
             parsedData[serverId][groupId] = {};
           severity = systemStatus["severity"];
-          numberOfHosts = systemStatus["numberOfHosts"];
-          parsedData[serverId][groupId][severity] = numberOfHosts;
-          parsedData[serverId]["problem"] += numberOfHosts;
+          numberOfTriggers = systemStatus["numberOfTriggers"];
+          parsedData[serverId][groupId][severity] = numberOfTriggers;
+          parsedData[serverId]["problem"] += numberOfTriggers;
         }
       }
 
@@ -197,7 +197,7 @@
     function drawTriggerBody(replyData, parsedData) {
       var html = "";
       var x, y, severity;
-      var serverId, groupId, numberOfHosts;
+      var serverId, groupId, numberOfTriggers;
 
       for (x = 0; x < replyData["serverStatus"].length; ++x) {
         serverId = replyData["serverStatus"][x]["serverId"];
@@ -213,10 +213,10 @@
           html += replyData["serverStatus"][x]["hostGroups"][groupId]["name"];
           html += "</td>";
           for (severity = 5; severity >= 0; --severity) {
-            numberOfHosts = parsedData[serverId][groupId][severity];
-            if (isNaN(numberOfHosts))
-              numberOfHosts = 0;
-            html += "<td>" + numberOfHosts + "</td>";
+            numberOfTriggers = parsedData[serverId][groupId][severity];
+            if (isNaN(numberOfTriggers))
+              numberOfTriggers = 0;
+            html += "<td>" + numberOfTriggers + "</td>";
           }
           ++y;
         }

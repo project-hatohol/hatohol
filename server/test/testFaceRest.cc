@@ -960,10 +960,7 @@ static void assertSystemStatusInParser(JsonParserAgent *parser, uint32_t serverI
 		parser->startElement(severity);
 		assertValueInParser(parser, "hostGroupId", (uint32_t)0);
 		assertValueInParser(parser, "severity", (uint32_t)0);
-		// TODO:
-		// "numberOfHosts" seems wrong name.
-		// Probably "numberOfTriggers" is the correct name.
-		assertValueInParser(parser, "numberOfHosts", expected_triggers);
+		assertValueInParser(parser, "numberOfTriggers", expected_triggers);
 		parser->endElement();
 	}
 	parser->endObject();
