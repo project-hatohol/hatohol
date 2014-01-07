@@ -157,6 +157,17 @@ void test_constructorCurrTime(void)
 	assertCurrentTime(smtime);
 }
 
+void test_copyConstructor(void)
+{
+	SmartTime smtime0(SmartTime::INIT_CURR_TIME);
+	SmartTime smtime1(smtime0);
+	const timespec &ts0 = smtime0.getAsTimespec();
+	const timespec &ts1 = smtime1.getAsTimespec();
+	cppcut_assert_not_equal(&ts0, &ts1);
+	cppcut_assert_equal(ts0.tv_sec, ts1.tv_sec);
+	cppcut_assert_equal(ts0.tv_nsec, ts1.tv_nsec);
+}
+
 void test_setCurrTime(void)
 {
 	SmartTime smtime;
