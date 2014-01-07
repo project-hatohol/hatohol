@@ -1749,6 +1749,48 @@ void test_deleteAccessInfo(void)
 	assertAccessInfoInDB(accessInfoIdSet);
 }
 
+static void assertOverviewInParser(JsonParserAgent *parser)
+{
+	assertValueInParser(parser, "numberOfServers",
+	                    (uint32_t)NumServerInfo);
+	parser->startObject("serverStatus");
+	for (size_t i = 0; i < NumServerInfo; i++) {
+		parser->startElement(i);
+		MonitoringServerInfo &svInfo = serverInfo[i];
+		assertValueInParser(parser, "serverId",   (uint32_t)svInfo.id);
+		assertValueInParser(parser, "serverHostName",  svInfo.hostName);
+		assertValueInParser(parser, "serverIpAddr", svInfo.ipAddress);
+		assertValueInParser(parser, "serverNickname",  svInfo.nickname);
+		assertValueInParser(parser, "numberOfHosts",
+				    getNumberOfTestHosts(svInfo.id));
+		assertValueInParser(parser, "numberOfItems",
+				    getNumberOfTestItems(svInfo.id));
+		assertValueInParser(parser, "numberOfTriggers",
+				    getNumberOfTestTriggers(svInfo.id));
+		uint32_t zero = 0;
+		assertValueInParser(parser, "numberOfUsers", zero);
+		assertValueInParser(parser, "numberOfOnlineUsers", zero);
+		assertValueInParser(parser, "numberOfMonitoredItemsPerSecond", zero);
+
+		// TODO: check hostGroups, SystemStatus, hostStatus
+
+		parser->endElement();
+	}
+	parser->endObject();
+
+	// TODO: check badServers
+}
+
+void test_overview(void)
+{
+	startFaceRest();
+	RequestArg arg("/overview");
+	arg.userId = findUserWith(OPPRVLG_GET_ALL_SERVER);
+	g_parser = getResponseAsJsonParser(arg);
+	assertErrorCode(g_parser);
+	assertOverviewInParser(g_parser);
+}
+
 } // namespace testFaceRest
 
 // ---------------------------------------------------------------------------
