@@ -807,11 +807,16 @@ gboolean Watcher::run(void)
 	return G_SOURCE_REMOVE;
 }
 
-bool Watcher::start(const size_t &timeout)
+bool Watcher::start(const size_t &timeout, const size_t interval)
 {
 	timerId = g_timeout_add(timeout, _run, this);
 	while (!expired) {
-		g_main_context_iteration(NULL, TRUE);
+		gboolean block = TRUE;
+		if (interval > 0) {
+			block = FALSE;
+			usleep(interval);
+		}
+		g_main_context_iteration(NULL, block);
 		if (watch())
 			return true;
 	}

@@ -182,7 +182,23 @@ protected:
 public:
 	Watcher(void);
 	virtual ~Watcher();
-	bool start(const size_t &timeout);
+
+	/**
+	 * Start a watch loop.
+	 * 
+	 * @ @param timeout
+	 * A timeout value in milli-second.
+	 *
+	 * @param interval
+	 * A watch interval in micro-second. If this parameter is zero,
+	 * the watch is peformed every return of
+	 * g_main_context_iteration(NULL, FALSE).
+	 *
+	 * @return
+	 * If watch() returns true, this function immediately returns true.
+	 * Othewise false is returned after the timeout.
+	 */
+	bool start(const size_t &timeout, const size_t interval = 0);
 };
 
 #endif // Helpers_h
