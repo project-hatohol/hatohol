@@ -37,6 +37,9 @@ const SessionIdMap &safeGetSessionIdMap(SessionManager *sessionMgr)
 
 void cut_setup(void)
 {
+	// The reset() clears sessions managed by SessionManager.
+	// This implies that each test case doesn't have to remove
+	// created sessions explicitly.
 	SessionManager::reset();
 }
 
@@ -90,7 +93,6 @@ void test_createWithoutTimeout(void)
 	cppcut_assert_equal(true, sessionPtr.hasData()); 
 	cppcut_assert_equal(SessionManager::NO_TIMEOUT, sessionPtr->timeout);
 	cppcut_assert_equal(INVALID_EVENT_ID, sessionPtr->timerId);
-	cppcut_assert_equal(true, sessionMgr->remove(sessionId));
 }
 
 void test_getSession(void)
