@@ -169,4 +169,20 @@ UserIdType findUserWith(const OperationPrivilegeType &type,
                         const OperationPrivilegeFlag &excludeFlags = 0);
 UserIdType findUserWithout(const OperationPrivilegeType &type);
 
+class Watcher {
+	bool expired;
+	guint timerId;
+
+	static gboolean _run(gpointer data);
+
+protected:
+	virtual gboolean run(void);
+	virtual bool watch(void);
+
+public:
+	Watcher(void);
+	virtual ~Watcher();
+	bool start(const size_t &timeout);
+};
+
 #endif // Helpers_h

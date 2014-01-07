@@ -779,3 +779,46 @@ UserIdType findUserWithout(const OperationPrivilegeType &type)
 {
 	return findUserCommon(type, false);
 }
+
+// ---------------------------------------------------------------------------
+// Watcher
+// ---------------------------------------------------------------------------
+Watcher::Watcher(void)
+: expired(false),
+  timerId(INVALID_EVENT_ID)
+{ 
+}
+
+Watcher::~Watcher()
+{
+	if (timerId != INVALID_EVENT_ID)
+		g_source_remove(timerId);
+}
+
+gboolean Watcher::_run(gpointer data)
+{
+	Watcher *obj = static_cast<Watcher *>(data);
+	return obj->run();
+}
+
+gboolean Watcher::run(void)
+{
+	expired = true;
+	return G_SOURCE_REMOVE;
+}
+
+bool Watcher::start(const size_t &timeout)
+{
+	timerId = g_timeout_add(timeout, _run, this);
+	while (!expired) {
+		g_main_context_iteration(NULL, TRUE);
+		if (watch())
+			return true;
+	}
+	return false;
+}
+
+bool Watcher::watch(void)
+{
+	return false;
+}

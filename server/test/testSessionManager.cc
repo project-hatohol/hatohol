@@ -95,6 +95,34 @@ void test_createWithoutTimeout(void)
 	cppcut_assert_equal(INVALID_EVENT_ID, sessionPtr->timerId);
 }
 
+void test_timeout(void)
+{
+	const size_t timeout = 1; // 1ms.
+	const UserIdType userId = 103;
+	SessionManager *sessionMgr = SessionManager::getInstance();
+	string sessionId = sessionMgr->create(userId, timeout);
+	SessionPtr sessionPtr = sessionMgr->getSession(sessionId);
+	cppcut_assert_equal(true, sessionPtr.hasData()); 
+	cppcut_assert_equal(timeout, sessionPtr->timeout);
+	cppcut_assert_not_equal(INVALID_EVENT_ID, sessionPtr->timerId);
+
+	// wait for the session's timeout
+	struct : public Watcher
+	{
+		guint *timerId;
+		virtual bool watch(void)
+		{
+			return *timerId == INVALID_EVENT_ID;
+		}
+	} watcher;
+	watcher.timerId = &sessionPtr->timerId;
+
+	const size_t watcherTimeout = 5*1000; // 5sec
+	cppcut_assert_equal(true, watcher.start(watcherTimeout));
+	const SessionIdMap &sessionIdMap = safeGetSessionIdMap(sessionMgr);
+	cppcut_assert_equal((size_t)0, sessionIdMap.size());
+}
+
 void test_getSession(void)
 {
 	SessionManager *sessionMgr = SessionManager::getInstance();
